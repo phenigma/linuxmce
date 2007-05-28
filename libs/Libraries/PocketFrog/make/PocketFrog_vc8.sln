@@ -1,0 +1,25 @@
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PocketFrog", "PocketFrog.vcproj", "{07D8B752-4894-41A2-A8DA-0DE169AF63DB}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Blit", "..\samples\blit\Blit.vcproj", "{8BACD6AC-FFDD-4B6E-A91A-0195466F68A2}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{07D8B752-4894-41A2-A8DA-0DE169AF63DB}.Debug|Win32.ActiveCfg = Debug|Win32
+		{07D8B752-4894-41A2-A8DA-0DE169AF63DB}.Debug|Win32.Build.0 = Debug|Win32
+		{07D8B752-4894-41A2-A8DA-0DE169AF63DB}.Release|Win32.ActiveCfg = Release|Win32
+		{07D8B752-4894-41A2-A8DA-0DE169AF63DB}.Release|Win32.Build.0 = Release|Win32
+		{8BACD6AC-FFDD-4B6E-A91A-0195466F68A2}.Debug|Win32.ActiveCfg = Debug|Win32
+		{8BACD6AC-FFDD-4B6E-A91A-0195466F68A2}.Debug|Win32.Build.0 = Debug|Win32
+		{8BACD6AC-FFDD-4B6E-A91A-0195466F68A2}.Release|Win32.ActiveCfg = Release|Win32
+		{8BACD6AC-FFDD-4B6E-A91A-0195466F68A2}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

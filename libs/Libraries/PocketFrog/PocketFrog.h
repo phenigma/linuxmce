@@ -51,6 +51,8 @@
     #else
     #define LIBTARGET "EMU_PPC2002"
     #endif
+#elif defined(_VC80_UPGRADE)
+	#define LIBTARGET "x86_vc8"
 #elif defined(_M_IX86)
     #define LIBTARGET "x86"
 #else
