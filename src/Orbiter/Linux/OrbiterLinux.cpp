@@ -915,7 +915,7 @@ void OrbiterLinux::StopActivateExternalWindowTask()
 
 void OrbiterLinux::ConfirmPcDesktop()
 {
-	//TODO : Razvan
-	// - check if kde is running
-	// - if not, start it
+	if(!ProcessUtils::SpawnDaemon("/usr/pluto/bin/Start_KDE.sh", "", true))
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Failed to start KDE");
 }
+
