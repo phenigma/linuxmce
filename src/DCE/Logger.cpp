@@ -335,7 +335,7 @@ void FileLogger::WriteEntry( Entry& Entry )
     fwrite( pcLp, strlen( pcLp ), 1, m_LogFile );
 #ifdef DEBUG
 
-    fprintf( m_LogFile, " <%p>\n", pthread_self() );
+    fprintf( m_LogFile, " <%p>\n", reinterpret_cast<void *>(pthread_self()) );
 
 #else
     fwrite( "\n", 1, 1, m_LogFile );
