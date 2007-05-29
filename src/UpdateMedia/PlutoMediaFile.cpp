@@ -200,10 +200,28 @@ int PlutoMediaFile::HandleFileNotInDatabase(int PK_MediaType)
 {
 	m_nPK_MediaType = PK_MediaType;
 
+	// See if the same INode is already in the database
+	int INode = FileUtils::GetInode(m_sDirectory + "/" + m_sFile);
+	if( INode>0 )
+	{
+		vector<Row_File *> vectRow_File;
+		m_pDatabase_pluto_media->File_get()->GetRows("INode=" + StringUtils::itos(INode),&vectRow_File);
+		if( vectRow_File.size() )  // Should only be 1
+		{
+			Row_File *pRow_File = vectRow_File[0];
+			pRow_File->Path_set(m_sDirectory);
+			pRow_File->Filename_set(m_sFile);
+			pRow_File->Table_File_get()->Commit();
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "PlutoMediaFile::HandleFileNotInDatabase %s/%s N db-attr: %d Inode: %d size %d", 
+				m_sDirectory.c_str(), m_sFile.c_str(), pRow_File->PK_File_get(), INode, (int) vectRow_File.size());
+			return pRow_File->PK_File_get();
+		}
+	}
+
     // Nope.  It's either a new file, or it was moved here from some other directory.  If so,
     // then the the attribute should be set.
     int PK_File = GetFileAttribute();
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "%s/%s not IN db-attr: %d", m_sDirectory.c_str(), m_sFile.c_str(), PK_File);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "%s/%s not IN db-attr: %d INode: %d", m_sDirectory.c_str(), m_sFile.c_str(), PK_File, INode);
 
     if(!PK_File)
     {
@@ -697,10 +715,11 @@ int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
 		else
 			pRow_File->EK_Users_Private_setNull(true);
 
+		pRow_File->INode_set( FileUtils::GetInode( pRow_File->Path_get() + "/" + pRow_File->Filename_get() ) );
 		pRow_File->Table_File_get()->Commit();
 
-		LoggerWrapper::GetInstance()->Write(LV_STATUS, "PlutoMediaFile::AddFileToDatabase -> created new record PK_File %d",
-			pRow_File->PK_File_get());
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "PlutoMediaFile::AddFileToDatabase new %s PK_File %d Inode %d",
+			(pRow_File->Path_get() + "/" + pRow_File->Filename_get()).c_str(), pRow_File->PK_File_get(), pRow_File->INode_get() );
 	}
 
 	//These are our installation and our file

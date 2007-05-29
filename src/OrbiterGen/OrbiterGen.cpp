@@ -280,6 +280,7 @@ int main(int argc, char *argv[])
 		pOrbiterGenerator->m_pRow_Orbiter->RegenInProgress_set(false);
 		pOrbiterGenerator->m_pRow_Orbiter->RegenStatus_set("Done");
 		pOrbiterGenerator->m_pRow_Orbiter->RegenPercent_set(100);
+		pOrbiterGenerator->m_pRow_Orbiter->FirstRegen_set(pOrbiterGenerator->m_bNewOrbiter);
 		string sAllScenariosFloorplans = pOrbiterGenerator->m_pRegenMonitor->AllScenariosFloorplans();
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter %d setting AllScenariosFloorplans to %s",
 			pOrbiterGenerator->m_pRow_Orbiter->PK_Orbiter_get(),sAllScenariosFloorplans.c_str());
@@ -332,11 +333,8 @@ int OrbiterGenerator::DoIt()
 		m_bNewOrbiter=true;
 		m_pRow_Orbiter = m_spDatabase_pluto_main->Orbiter_get()->AddRow();
 		m_pRow_Orbiter->PK_Orbiter_set(m_iPK_Orbiter);
-		m_pRow_Orbiter->FirstRegen_set(true);
 		m_pRow_Orbiter->Table_Orbiter_get()->Commit();
 	}
-	else
-		m_pRow_Orbiter->FirstRegen_set(false);
 
 	if( m_pRow_Orbiter->RegenInProgress_get() )
 	{

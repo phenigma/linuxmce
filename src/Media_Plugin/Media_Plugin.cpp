@@ -2215,7 +2215,7 @@ void Media_Plugin::StreamEnded(MediaStream *pMediaStream,bool bSendOff,bool bDel
 		bool bError=false;
 		string sWhere = "EK_Users=" + StringUtils::itos(pMediaStream->m_iPK_Users) + " AND Description<>'START' AND ";
 		if( pMediaStream->m_dwPK_Disc )
-			sWhere += "FK_Playlist=" + StringUtils::itos(pMediaStream->m_iPK_Playlist) + " AND IsAutoResume=1";
+			sWhere += "FK_Disc=" + StringUtils::itos(pMediaStream->m_dwPK_Disc) + " AND IsAutoResume=1";
         else if( pMediaStream->m_iPK_Playlist )
 			sWhere += "FK_Playlist=" + StringUtils::itos(pMediaStream->m_iPK_Playlist) + " AND IsAutoResume=1";
 		else if( pMediaStream->m_iDequeMediaFile_Pos>=0 && pMediaStream->m_iDequeMediaFile_Pos<pMediaStream->m_dequeMediaFile.size() )
@@ -2226,6 +2226,8 @@ void Media_Plugin::StreamEnded(MediaStream *pMediaStream,bool bSendOff,bool bDel
 			else
 				bError=true;
 		}
+		else
+			bError=true; // Don't do this if there's nothing to reference this
 
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Media_Plugin::StreamEnded() no auto resume %s",sWhere.c_str());
 		if( !bError )
@@ -5070,8 +5072,12 @@ void Media_Plugin::AddFileToDatabase(MediaFile *pMediaFile,int PK_MediaType)
 	pRow_File->Path_set(FileUtils::ExcludeTrailingSlash(pMediaFile->m_sPath));
 	pRow_File->Filename_set(pMediaFile->m_sFilename);
 	pRow_File->EK_MediaType_set(PK_MediaType);
+	pRow_File->INode_set( FileUtils::GetInode( pMediaFile->m_sPath + "/" + pMediaFile->m_sFilename ) );
 	pRow_File->Table_File_get()->Commit();
 	pMediaFile->m_dwPK_File = pRow_File->PK_File_get();
+
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Media_Plugin::AddFileToDatabase %s PK_File %d Inode %d",
+		pMediaFile->m_sFilename.c_str(), pRow_File->PK_File_get(), pRow_File->INode_get() );
 
 	/* don't do this now.  It takes too long.
 	PlutoMediaFile PlutoMediaFile_(m_pDatabase_pluto_media, m_pRouter->iPK_Installation_get(), 
@@ -5741,6 +5747,8 @@ void Media_Plugin::CMD_Get_Attributes_For_Media(string sFilename,string sPK_Ente
 	/** Get default ripping info: default filename, id and name of the storage device with most free space. */
 		/** @param #13 Filename */
 			/** Default ripping name. */
+		/** @param #53 UseDefault */
+			/** If true, use the default directory structure for public/private */
 		/** @param #131 EK_Disc */
 			/** The disc to rip.  If not specified, it will be whatever is playing in the entertainment area that sent this */
 		/** @param #219 Path */
@@ -5752,7 +5760,7 @@ void Media_Plugin::CMD_Get_Attributes_For_Media(string sFilename,string sPK_Ente
 		/** @param #235 Storage Device Name */
 			/** The name of the storage device with most free space. */
 
-void Media_Plugin::CMD_Get_Default_Ripping_Info(int iEK_Disc,string *sFilename,string *sPath,int *iDriveID,string *sDirectory,string *sStorage_Device_Name,string &sCMD_Result,Message *pMessage)
+void Media_Plugin::CMD_Get_Default_Ripping_Info(int iEK_Disc,string *sFilename,bool *bUseDefault,string *sPath,int *iDriveID,string *sDirectory,string *sStorage_Device_Name,string &sCMD_Result,Message *pMessage)
 //<-dceag-c817-e->
 {
 	*sFilename = "Unknown disk";
@@ -5832,6 +5840,13 @@ void Media_Plugin::CMD_Get_Default_Ripping_Info(int iEK_Disc,string *sFilename,s
 	mm.Release();
 
 	*iDriveID = GetStorageDeviceWithMostFreeSpace(*sStorage_Device_Name, *sPath);
+
+	// See if this is one where we use Pluto's directory structure.  If not, we won't save this in a sub-directory except what the user chooses
+	DeviceData_Router *pDevice_Drive = m_pRouter->m_mapDeviceData_Router_Find(*iDriveID);
+	if( pDevice_Drive && pDevice_Drive->m_mapParameters_Find(DEVICEDATA_PK_Users_CONST)!="-1" )
+		*bUseDefault=false;
+	else
+		*bUseDefault=true;
 }
 
 //<-dceag-c819-b->
@@ -5876,8 +5891,12 @@ void Media_Plugin::CMD_Get_ID_from_Filename(string sFilename,int *iEK_File,strin
 	pRow_File->Path_set(sPath);
 	pRow_File->Filename_set(sFile);
 	pRow_File->IsDirectory_set(bIsDirectory);
+	pRow_File->INode_set( FileUtils::GetInode( sPath + "/" + sFile ) );
 	m_pDatabase_pluto_media->File_get()->Commit();
 	*iEK_File = pRow_File->PK_File_get();
+
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Media_Plugin::CMD_Get_ID_from_Filename %s PK_File %d Inode %d",
+		(sPath + "/" + sFile).c_str(), pRow_File->PK_File_get(), pRow_File->INode_get() );
 }
 
 //<-dceag-c823-b->

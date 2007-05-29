@@ -172,9 +172,13 @@ void PostCreateOptions::PostCreateDevice_CaptureCard(Row_Device *pRow_Device, OH
 		g_pCommand_Impl->SendCommand(CMD_Sync_Providers_and_Cards_Cat);
 		if( pDevice_Orbiter )
 		{
-			Sleep(2000);  // temporary hack to allow sync providers to send it's "this will take 10 minutes" before this goto screen so they come in the right order
-			DCE::SCREEN_Choose_Provider_for_Device SCREEN_Choose_Provider_for_Device(g_pCommand_Impl->m_dwPK_Device,pDevice_Orbiter->m_dwPK_Device);
-			g_pCommand_Impl->SendCommand(SCREEN_Choose_Provider_for_Device);
+			OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(pDevice_Orbiter->m_dwPK_Device);
+			if( pOH_Orbiter && pOH_Orbiter->m_bFirstRegen==false )  // Don't go to the provider screen if we're still setting it up
+			{
+				Sleep(2000);  // temporary hack to allow sync providers to send it's "this will take 10 minutes" before this goto screen so they come in the right order
+				DCE::SCREEN_Choose_Provider_for_Device SCREEN_Choose_Provider_for_Device(g_pCommand_Impl->m_dwPK_Device,pDevice_Orbiter->m_dwPK_Device);
+				g_pCommand_Impl->SendCommand(SCREEN_Choose_Provider_for_Device);
+			}
 		}
 	}
 }

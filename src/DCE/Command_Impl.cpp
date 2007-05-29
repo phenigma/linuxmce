@@ -770,6 +770,7 @@ ReceivedMessageResult Command_Impl::ReceivedMessage( Message *pMessage )
 		pMessage_Out->m_mapParameters[0] = pendingTaskList.ToString();
 		pMessage->m_bRespondedToMessage=true;
 		SendMessage(pMessage_Out);
+		return rmr_Processed;
 	}
 	else
 		if ( pMessage->m_dwMessage_Type == MESSAGETYPE_DATAPARM_CHANGE && pMessage->m_dwPK_Device_To == m_dwPK_Device )

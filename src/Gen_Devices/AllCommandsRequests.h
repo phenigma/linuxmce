@@ -21721,60 +21721,64 @@ namespace DCE
 			0 /* number of parameters */); }
 	};
 	class RESP_Get_Default_Ripping_Info : public PreformedCommandResponse {
-		string *m_sFilename;string *m_sPath;int *m_iDriveID;string *m_sDirectory;string *m_sStorage_Device_Name;
+		string *m_sFilename;bool *m_bUseDefault;string *m_sPath;int *m_iDriveID;string *m_sDirectory;string *m_sStorage_Device_Name;
 	public:
-		RESP_Get_Default_Ripping_Info(string *sFilename,string *sPath,int *iDriveID,string *sDirectory,string *sStorage_Device_Name) { 
-		m_sFilename=sFilename; m_sPath=sPath; m_iDriveID=iDriveID; m_sDirectory=sDirectory; m_sStorage_Device_Name=sStorage_Device_Name; }
+		RESP_Get_Default_Ripping_Info(string *sFilename,bool *bUseDefault,string *sPath,int *iDriveID,string *sDirectory,string *sStorage_Device_Name) { 
+		m_sFilename=sFilename; m_bUseDefault=bUseDefault; m_sPath=sPath; m_iDriveID=iDriveID; m_sDirectory=sDirectory; m_sStorage_Device_Name=sStorage_Device_Name; }
 		void ParseResponse(Message *pMessage) {
-			*m_sFilename=pMessage->m_mapParameters[COMMANDPARAMETER_Filename_CONST]; *m_sPath=pMessage->m_mapParameters[COMMANDPARAMETER_Path_CONST]; *m_iDriveID=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_DriveID_CONST].c_str()); *m_sDirectory=pMessage->m_mapParameters[COMMANDPARAMETER_Directory_CONST]; *m_sStorage_Device_Name=pMessage->m_mapParameters[COMMANDPARAMETER_Storage_Device_Name_CONST]; };
+			*m_sFilename=pMessage->m_mapParameters[COMMANDPARAMETER_Filename_CONST]; *m_bUseDefault=(pMessage->m_mapParameters[COMMANDPARAMETER_UseDefault_CONST]=="1" ? true : false); *m_sPath=pMessage->m_mapParameters[COMMANDPARAMETER_Path_CONST]; *m_iDriveID=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_DriveID_CONST].c_str()); *m_sDirectory=pMessage->m_mapParameters[COMMANDPARAMETER_Directory_CONST]; *m_sStorage_Device_Name=pMessage->m_mapParameters[COMMANDPARAMETER_Storage_Device_Name_CONST]; };
 	};
 	class CMD_Get_Default_Ripping_Info : public PreformedCommand {
 	public:
-		CMD_Get_Default_Ripping_Info(long DeviceIDFrom, long DeviceIDTo,int iEK_Disc,string *sFilename,string *sPath,int *iDriveID,string *sDirectory,string *sStorage_Device_Name) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
+		CMD_Get_Default_Ripping_Info(long DeviceIDFrom, long DeviceIDTo,int iEK_Disc,string *sFilename,bool *bUseDefault,string *sPath,int *iDriveID,string *sDirectory,string *sStorage_Device_Name) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
 			COMMAND_Get_Default_Ripping_Info_CONST,
-			6 /* number of parameters */,
+			7 /* number of parameters */,
 			COMMANDPARAMETER_EK_Disc_CONST, StringUtils::itos(iEK_Disc).c_str(),
 			COMMANDPARAMETER_Filename_CONST, (*sFilename).c_str(),
+			COMMANDPARAMETER_UseDefault_CONST, (*bUseDefault ? "1" : "0"),
 			COMMANDPARAMETER_Path_CONST, (*sPath).c_str(),
 			COMMANDPARAMETER_DriveID_CONST, StringUtils::itos(*iDriveID).c_str(),
 			COMMANDPARAMETER_Directory_CONST, (*sDirectory).c_str(),
-			COMMANDPARAMETER_Storage_Device_Name_CONST, (*sStorage_Device_Name).c_str());		m_pcResponse = new RESP_Get_Default_Ripping_Info(sFilename,sPath,iDriveID,sDirectory,sStorage_Device_Name); }
+			COMMANDPARAMETER_Storage_Device_Name_CONST, (*sStorage_Device_Name).c_str());		m_pcResponse = new RESP_Get_Default_Ripping_Info(sFilename,bUseDefault,sPath,iDriveID,sDirectory,sStorage_Device_Name); }
 	};
 	class CMD_Get_Default_Ripping_Info_DL : public PreformedCommand {
 	public:
-		CMD_Get_Default_Ripping_Info_DL(long DeviceIDFrom, string DeviceIDTo,int iEK_Disc,string *sFilename,string *sPath,int *iDriveID,string *sDirectory,string *sStorage_Device_Name) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+		CMD_Get_Default_Ripping_Info_DL(long DeviceIDFrom, string DeviceIDTo,int iEK_Disc,string *sFilename,bool *bUseDefault,string *sPath,int *iDriveID,string *sDirectory,string *sStorage_Device_Name) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
 			COMMAND_Get_Default_Ripping_Info_CONST,
-			6 /* number of parameters */,
+			7 /* number of parameters */,
 			COMMANDPARAMETER_EK_Disc_CONST, StringUtils::itos(iEK_Disc).c_str(),
 			COMMANDPARAMETER_Filename_CONST, (*sFilename).c_str(),
+			COMMANDPARAMETER_UseDefault_CONST, (*bUseDefault ? "1" : "0"),
 			COMMANDPARAMETER_Path_CONST, (*sPath).c_str(),
 			COMMANDPARAMETER_DriveID_CONST, StringUtils::itos(*iDriveID).c_str(),
 			COMMANDPARAMETER_Directory_CONST, (*sDirectory).c_str(),
-			COMMANDPARAMETER_Storage_Device_Name_CONST, (*sStorage_Device_Name).c_str());		m_pcResponse = new RESP_Get_Default_Ripping_Info(sFilename,sPath,iDriveID,sDirectory,sStorage_Device_Name); }
+			COMMANDPARAMETER_Storage_Device_Name_CONST, (*sStorage_Device_Name).c_str());		m_pcResponse = new RESP_Get_Default_Ripping_Info(sFilename,bUseDefault,sPath,iDriveID,sDirectory,sStorage_Device_Name); }
 	};
 	class CMD_Get_Default_Ripping_Info_DT : public PreformedCommand {
 	public:
-		CMD_Get_Default_Ripping_Info_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iEK_Disc,string *sFilename,string *sPath,int *iDriveID,string *sDirectory,string *sStorage_Device_Name) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+		CMD_Get_Default_Ripping_Info_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iEK_Disc,string *sFilename,bool *bUseDefault,string *sPath,int *iDriveID,string *sDirectory,string *sStorage_Device_Name) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
 			COMMAND_Get_Default_Ripping_Info_CONST,
-			6 /* number of parameters */,
+			7 /* number of parameters */,
 			COMMANDPARAMETER_EK_Disc_CONST, StringUtils::itos(iEK_Disc).c_str(),
 			COMMANDPARAMETER_Filename_CONST, (*sFilename).c_str(),
+			COMMANDPARAMETER_UseDefault_CONST, (*bUseDefault ? "1" : "0"),
 			COMMANDPARAMETER_Path_CONST, (*sPath).c_str(),
 			COMMANDPARAMETER_DriveID_CONST, StringUtils::itos(*iDriveID).c_str(),
 			COMMANDPARAMETER_Directory_CONST, (*sDirectory).c_str(),
-			COMMANDPARAMETER_Storage_Device_Name_CONST, (*sStorage_Device_Name).c_str());		m_pcResponse = new RESP_Get_Default_Ripping_Info(sFilename,sPath,iDriveID,sDirectory,sStorage_Device_Name); }
+			COMMANDPARAMETER_Storage_Device_Name_CONST, (*sStorage_Device_Name).c_str());		m_pcResponse = new RESP_Get_Default_Ripping_Info(sFilename,bUseDefault,sPath,iDriveID,sDirectory,sStorage_Device_Name); }
 	};
 	class CMD_Get_Default_Ripping_Info_Cat : public PreformedCommand {
 	public:
-		CMD_Get_Default_Ripping_Info_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iEK_Disc,string *sFilename,string *sPath,int *iDriveID,string *sDirectory,string *sStorage_Device_Name) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+		CMD_Get_Default_Ripping_Info_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iEK_Disc,string *sFilename,bool *bUseDefault,string *sPath,int *iDriveID,string *sDirectory,string *sStorage_Device_Name) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
 			COMMAND_Get_Default_Ripping_Info_CONST,
-			6 /* number of parameters */,
+			7 /* number of parameters */,
 			COMMANDPARAMETER_EK_Disc_CONST, StringUtils::itos(iEK_Disc).c_str(),
 			COMMANDPARAMETER_Filename_CONST, (*sFilename).c_str(),
+			COMMANDPARAMETER_UseDefault_CONST, (*bUseDefault ? "1" : "0"),
 			COMMANDPARAMETER_Path_CONST, (*sPath).c_str(),
 			COMMANDPARAMETER_DriveID_CONST, StringUtils::itos(*iDriveID).c_str(),
 			COMMANDPARAMETER_Directory_CONST, (*sDirectory).c_str(),
-			COMMANDPARAMETER_Storage_Device_Name_CONST, (*sStorage_Device_Name).c_str());		m_pcResponse = new RESP_Get_Default_Ripping_Info(sFilename,sPath,iDriveID,sDirectory,sStorage_Device_Name); }
+			COMMANDPARAMETER_Storage_Device_Name_CONST, (*sStorage_Device_Name).c_str());		m_pcResponse = new RESP_Get_Default_Ripping_Info(sFilename,bUseDefault,sPath,iDriveID,sDirectory,sStorage_Device_Name); }
 	};
 	class CMD_NOREP_Get_Default_Ripping_Info : public PreformedCommand {
 	public:

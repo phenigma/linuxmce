@@ -296,13 +296,12 @@ LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Pnp_PreCreateOptions::OkayToCre
 LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Pnp_PreCreateOptions::OkayToCreate_CaptureCard 2 %p %d",pDevice_OSD,pDevice_OSD ? pDevice_OSD->m_dwPK_Device : -1);
 		if( pDevice_OSD )
 		{
-			Row_Orbiter *pRow_Orbiter = m_pPnpQueue->m_pDatabase_pluto_main->Orbiter_get()->GetRow(pDevice_OSD->m_dwPK_Device);
-LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Pnp_PreCreateOptions::OkayToCreate_CaptureCard 3 %p %d",pRow_Orbiter,pRow_Orbiter ? (int) pRow_Orbiter->FirstRegen_get() : -1);
-			if( pRow_Orbiter && pRow_Orbiter->FirstRegen_get()==1 )
+			OH_Orbiter *pOH_Orbiter = m_pPnpQueue->m_pPlug_And_Play_Plugin->m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(pDevice_OSD->m_dwPK_Device);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Pnp_PreCreateOptions::OkayToCreate_CaptureCard 3 %p %d",pOH_Orbiter,pOH_Orbiter ? (int) pOH_Orbiter->m_bFirstRegen : -1);
+			if( !pOH_Orbiter || pOH_Orbiter->m_bFirstRegen==true )
 				return true;
 		}
 	}
-
 	bool bUseAutoSpecified = pPnpQueueEntry->m_mapPK_DeviceData.find(DEVICEDATA_Use_Automatically_CONST)!=pPnpQueueEntry->m_mapPK_DeviceData.end();
 
 	if( bUseAutoSpecified )

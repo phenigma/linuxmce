@@ -1193,6 +1193,7 @@
 #define TEXT_Load_1_CONST 1927
 #define TEXT_Load_Bulk_CONST 1928
 #define TEXT_Rip_All_CONST 1929
+#define TEXT_Confirm_PNP_TV_Tuner_1stRegenCONST 1935
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

@@ -1052,16 +1052,17 @@ class DataGridTable *General_Info_Plugin::StorageDevices( string GridID, string 
 	PlutoSqlResult result;
 	MYSQL_ROW row;
 	string sSQL = 
-		"SELECT PK_Device, Device.Description, Device_DeviceData.IK_DeviceData, FK_DeviceCategory "
+		"SELECT PK_Device, Device.Description, Device_DeviceData.IK_DeviceData, FK_DeviceCategory, DirectoryStructure.IK_DeviceData "
 		"FROM Device "
 		"JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate "
 		"JOIN Device_DeviceData ON FK_Device = PK_Device "
+		"LEFT JOIN Device_DeviceData AS DirectoryStructure ON DirectoryStructure.FK_Device = PK_Device AND DirectoryStructure.FK_DeviceData=" TOSTRING(DEVICEDATA_PK_Users_CONST) " "
 		"WHERE FK_DeviceCategory IN (" + 
 			StringUtils::ltos(DEVICECATEGORY_Core_CONST) + ", " + 
 			StringUtils::ltos(DEVICECATEGORY_Hard_Drives_CONST) + ", " + 
 			StringUtils::ltos(DEVICECATEGORY_Storage_Devices_CONST) + ", " + 
 			StringUtils::ltos(DEVICECATEGORY_Network_Storage_CONST) + 
-			+ ") AND FK_DeviceData = " + 
+			+ ") AND Device_DeviceData.FK_DeviceData = " + 
 			StringUtils::ltos(DEVICEDATA_Free_Disk_Space_in_MBytes_CONST) + " " +
 		"ORDER BY CAST(Device_DeviceData.IK_DeviceData AS UNSIGNED) DESC";
 
@@ -1084,6 +1085,9 @@ class DataGridTable *General_Info_Plugin::StorageDevices( string GridID, string 
 					sValue = string(row[0]) + "\t" + "/home/";
 				else
 					sValue = string(row[0]) + "\t" + string("/mnt/device/") + row[0] + "/";
+
+				if( row[4]==NULL || atoi(row[4])==-1 )
+					sValue += "\t1";  // Means use the directory structure
 
 				pCell = new DataGridCell(sText, sValue);
 				pDataGrid->SetData( iCol++, iRow, pCell );

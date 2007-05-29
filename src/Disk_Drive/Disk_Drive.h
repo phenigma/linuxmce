@@ -237,17 +237,21 @@ public:
 	/** Get default ripping info: default filename, id and name of the storage device with most free space. */
 		/** @param #13 Filename */
 			/** Default ripping name. */
+		/** @param #53 UseDefault */
+			/** If true, use the default directory structure for public/private */
 		/** @param #131 EK_Disc */
 			/** The disc to rip.  If not specified, it will be whatever is playing in the entertainment area that sent this */
 		/** @param #219 Path */
 			/** Base path for ripping. */
 		/** @param #233 DriveID */
 			/** The id of the storage device with most free space. */
+		/** @param #234 Directory */
+			/** The directory for this, such as video, audio, etc. */
 		/** @param #235 Storage Device Name */
 			/** The name of the storage device with most free space. */
 
-	virtual void CMD_Get_Default_Ripping_Info(int iEK_Disc,string *sFilename,string *sPath,int *iDriveID,string *sStorage_Device_Name) { string sCMD_Result; CMD_Get_Default_Ripping_Info(iEK_Disc,sFilename,sPath,iDriveID,sStorage_Device_Name,sCMD_Result,NULL);};
-	virtual void CMD_Get_Default_Ripping_Info(int iEK_Disc,string *sFilename,string *sPath,int *iDriveID,string *sStorage_Device_Name,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Get_Default_Ripping_Info(int iEK_Disc,string *sFilename,bool *bUseDefault,string *sPath,int *iDriveID,string *sDirectory,string *sStorage_Device_Name) { string sCMD_Result; CMD_Get_Default_Ripping_Info(iEK_Disc,sFilename,bUseDefault,sPath,iDriveID,sDirectory,sStorage_Device_Name,sCMD_Result,NULL);};
+	virtual void CMD_Get_Default_Ripping_Info(int iEK_Disc,string *sFilename,bool *bUseDefault,string *sPath,int *iDriveID,string *sDirectory,string *sStorage_Device_Name,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #871 - Update Ripping Status */

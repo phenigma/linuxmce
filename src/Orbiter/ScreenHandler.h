@@ -329,6 +329,7 @@ public:
 	string m_sSaveFile_Command;
 	bool m_bSaveFile_CreatingFolder;
 	bool m_bSaveFile_Advanced_options;
+	bool m_bUseDirectoryStructure;  // The drive we're saving to should use our public/private directory structure
 	int m_nSaveFile_PK_DeviceDrive;
 	int m_nPK_Users_SaveFile;
 };

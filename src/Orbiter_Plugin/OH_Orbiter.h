@@ -48,7 +48,8 @@ namespace DCE
 
 		int m_iLastSignalStrength;
 		int m_iFailedToConnectCount;
-		bool m_bRegistered,m_bDisplayOn,m_bDontAutoShowRemote,m_bSendPopups;
+		bool m_bRegistered,m_bDisplayOn,m_bDontAutoShowRemote,m_bSendPopups,
+			m_bFirstRegen; // True if the Orbiter hasn't completed setup yet
         string m_sUpdateVMCFile;
         string m_sConfigFile;
 		string m_sVersion;
@@ -70,6 +71,7 @@ namespace DCE
 			m_tSendAppTime=m_tRegenTime=0;
 			m_pOH_User=NULL;
 			m_bDontAutoShowRemote=false;
+			m_bFirstRegen=false;
 			m_dwPK_Skin = atoi(m_pDeviceData_Router->m_mapParameters_Find(DEVICEDATA_PK_Skin_CONST).c_str());
 			m_dwPK_UI = atoi(m_pDeviceData_Router->m_mapParameters_Find(DEVICEDATA_PK_UI_CONST).c_str());
 			m_dwPK_Device_CurrentRemote=0;

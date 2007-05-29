@@ -1293,6 +1293,8 @@ void Powerfile_C200::CMD_Cancel_Pending_Task(int iSlot_Number,string &sCMD_Resul
 	/** Get default ripping info: default filename, id and name of the storage device with most free space. */
 		/** @param #13 Filename */
 			/** Default ripping name. */
+		/** @param #53 UseDefault */
+			/** If true, use the default directory structure for public/private */
 		/** @param #131 EK_Disc */
 			/** The disc to rip.  If not specified, it will be whatever is playing in the entertainment area that sent this */
 		/** @param #219 Path */
@@ -1304,7 +1306,7 @@ void Powerfile_C200::CMD_Cancel_Pending_Task(int iSlot_Number,string &sCMD_Resul
 		/** @param #235 Storage Device Name */
 			/** The name of the storage device with most free space. */
 
-void Powerfile_C200::CMD_Get_Default_Ripping_Info(int iEK_Disc,string *sFilename,string *sPath,int *iDriveID,string *sDirectory,string *sStorage_Device_Name,string &sCMD_Result,Message *pMessage)
+void Powerfile_C200::CMD_Get_Default_Ripping_Info(int iEK_Disc,string *sFilename,bool *bUseDefault,string *sPath,int *iDriveID,string *sDirectory,string *sStorage_Device_Name,string &sCMD_Result,Message *pMessage)
 //<-dceag-c817-e->
 {
 }

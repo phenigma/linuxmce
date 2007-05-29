@@ -2130,9 +2130,10 @@ void ScreenHandler::SCREEN_FileSave(long PK_Screen, int iEK_Disc, string sCaptio
 	{
 		//get default ripping info
 		string sMounterFolder;
+		bool bUseDirectoryStructure;
 		CMD_Get_Default_Ripping_Info cmd_CMD_Get_Default_Ripping_Info(m_pOrbiter->m_dwPK_Device,
 			m_pOrbiter->m_dwPK_Device_MediaPlugIn, iEK_Disc, &m_pOrbiter->m_sDefaultRippingName,
-			&sMounterFolder, &m_pOrbiter->m_nDefaultStorageDeviceForRipping, 
+			&bUseDirectoryStructure, &sMounterFolder, &m_pOrbiter->m_nDefaultStorageDeviceForRipping, 
 			&sFolder,
 			&m_pOrbiter->m_sDefaultStorageDeviceForRippingName);
 		m_pOrbiter->SendCommand(cmd_CMD_Get_Default_Ripping_Info);
@@ -2147,7 +2148,10 @@ void ScreenHandler::SCREEN_FileSave(long PK_Screen, int iEK_Disc, string sCaptio
 			m_sSaveFile_FileName = m_pOrbiter->m_sDefaultRippingName;
 
 		if(m_sSaveFile_MountedFolder == "")
+		{
 			m_sSaveFile_MountedFolder = sMounterFolder;
+			m_bUseDirectoryStructure = bUseDirectoryStructure;
+		}
 	}
 
 	//setup variables
@@ -2233,14 +2237,17 @@ bool ScreenHandler::FileSave_ObjectSelected(CallBackData *pData)
 				m_sSaveFile_FileName = m_pOrbiter->m_mapVariable_Find(VARIABLE_Seek_Value_CONST);
 
 				string sSubDir = m_pOrbiter->m_mapVariable_Find(VARIABLE_Status_CONST);
-				if( sSubDir.empty() )
-					sSubDir = m_pOrbiter->m_iPK_MediaType == MEDIATYPE_pluto_DVD_CONST ? "videos" : "audio";
-				if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_objPlayListSavePublic_CONST)
-					m_sSaveFile_FullBasePath = m_sSaveFile_MountedFolder + "public/data/" + sSubDir + "/";
+				if( m_bUseDirectoryStructure==false )
+					m_sSaveFile_FullBasePath = m_sSaveFile_MountedFolder;
 				else
 				{
-					m_sSaveFile_FullBasePath = m_sSaveFile_MountedFolder + "user_" + StringUtils::itos(m_pOrbiter->m_dwPK_Users) + "/data/" + sSubDir + "/";
-				} 
+					if( sSubDir.empty() )
+						sSubDir = m_pOrbiter->m_iPK_MediaType == MEDIATYPE_pluto_DVD_CONST ? "videos" : "audio";
+					if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_objPlayListSavePublic_CONST)
+						m_sSaveFile_FullBasePath = m_sSaveFile_MountedFolder + "public/data/" + sSubDir + "/";
+					else
+						m_sSaveFile_FullBasePath = m_sSaveFile_MountedFolder + "user_" + StringUtils::itos(m_pOrbiter->m_dwPK_Users) + "/data/" + sSubDir + "/";
+				}
 				
 				m_nPK_Users_SaveFile = pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_objPlayListSavePrivate_CONST ? m_pOrbiter->m_dwPK_Users : 0;
 				if(m_bSaveFile_Advanced_options)
@@ -2281,6 +2288,8 @@ bool ScreenHandler::FileSave_GridSelected(CallBackData *pData)
 				m_sSaveFile_Drive = pCellInfoData->m_pDataGridCell->GetText();
 				m_sSaveFile_RelativeFolder = "";
 
+				m_bUseDirectoryStructure = vectStrings.size()>=3 && vectStrings[2]=="1";
+xbool b=m_bUseDirectoryStructure;
 				m_pOrbiter->CMD_Set_Variable(VARIABLE_Device_List_CONST, StringUtils::ltos(m_nSaveFile_PK_DeviceDrive));
 			}
 		}
@@ -2346,6 +2355,7 @@ void ScreenHandler::SaveFile_SendCommand(int PK_Users)
 	m_bSaveFile_CreatingFolder = false;
 	m_nSaveFile_PK_DeviceDrive = 0;
 	m_bSaveFile_Advanced_options = true;
+	m_bUseDirectoryStructure = true;
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void ScreenHandler::SCREEN_Floorplan(long PK_Screen, string sPK_DesignObj)
@@ -2932,7 +2942,7 @@ void ScreenHandler::SCREEN_AutoConfigure_TV(long PK_Screen, int iPK_PnpQueue)
 		TOSTRING(COMMANDPARAMETER_PK_DeviceData_CONST) " " TOSTRING(DEVICEDATA_Dont_Auto_Configure_CONST) " "
 		TOSTRING(COMMANDPARAMETER_Value_To_Assign_CONST) " ";
 
-	string sMessage = m_pOrbiter->m_mapTextString[TEXT_Confirm_PNP_TV_Tuner_CONST];
+	string sMessage = m_pOrbiter->m_bNewOrbiter ? m_pOrbiter->m_mapTextString[TEXT_Confirm_PNP_TV_Tuner_1stRegenCONST] : m_pOrbiter->m_mapTextString[TEXT_Confirm_PNP_TV_Tuner_CONST];
 	DisplayMessageOnOrbiter(PK_Screen, sMessage, false, "", false,
 		m_pOrbiter->m_mapTextString[TEXT_YES_CONST],sSetPnpOptions + "1 & " + sManualConfig + "0",
 		m_pOrbiter->m_mapTextString[TEXT_NO_CONST],sSetPnpOptions + "0 & " + sManualConfig + "1");

@@ -1285,7 +1285,11 @@ Row_File *MediaAttributes_LowLevel::AddDirectoryToDatabase(int PK_MediaType,stri
 	pRow_File->Path_set(FileUtils::ExcludeTrailingSlash(FileUtils::BasePath(sDirectory)));
 	pRow_File->Filename_set( FileUtils::FilenameWithoutPath(sDirectory) );
 	pRow_File->IsDirectory_set(1);
+	pRow_File->INode_set( FileUtils::GetInode( pRow_File->Path_get() + "/" + pRow_File->Filename_get() ) );
 	m_pDatabase_pluto_media->File_get()->Commit();
+
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "MediaAttributes_LowLevel::AddDirectoryToDatabase %s PK_File %d Inode %d",
+		(pRow_File->Path_get() + "/" + pRow_File->Filename_get()).c_str(), pRow_File->PK_File_get(), pRow_File->INode_get() );
 
 	// See what is 1 level up, and be sure it's in there too, as long as we're not at the top of the 'data' tree
 	string sParent = FileUtils::BasePath(sDirectory);
@@ -1360,7 +1364,11 @@ void MediaAttributes_LowLevel::AddRippedDiscToDatabase(int PK_Disc,int PK_MediaT
 			pRow_File->DateAdded_set(StringUtils::SQLDateTime(time(NULL)));
 			pRow_File->Path_set(FileUtils::ExcludeTrailingSlash(sDestination));
 			pRow_File->Filename_set( sRippedFile );
+			pRow_File->INode_set( FileUtils::GetInode( pRow_File->Path_get() + "/" + pRow_File->Filename_get() ) );
 			m_pDatabase_pluto_media->File_get()->Commit();
+
+			LoggerWrapper::GetInstance()->Write( LV_STATUS, "MediaAttributes_LowLevel::AddRippedDiscToDatabase %s PK_File %d Inode %d",
+				(pRow_File->Path_get() + "/" + pRow_File->Filename_get()).c_str(), pRow_File->PK_File_get(), pRow_File->INode_get() );
 
 #ifdef DEBUG
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"MediaAttributes_LowLevel::AddRippedDiscToDatabase %s calling AddDiscAttributesToFile for %s",sDestination.c_str(),s.c_str());
@@ -1443,7 +1451,11 @@ void MediaAttributes_LowLevel::AddRippedDiscToDatabase(int PK_Disc,int PK_MediaT
 		pRow_File->EK_MediaType_set(PK_MediaType);
 		pRow_File->Path_set(FileUtils::ExcludeTrailingSlash(sDestination));
 		pRow_File->Filename_set( FileUtils::FilenameWithoutPath(sRippedFile) );
+		pRow_File->INode_set( FileUtils::GetInode( pRow_File->Path_get() + "/" + pRow_File->Filename_get() ) );
 		m_pDatabase_pluto_media->File_get()->Commit();
+
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "MediaAttributes_LowLevel::AddRippedDiscToDatabase %s PK_File %d Inode %d",
+			(pRow_File->Path_get() + "/" + pRow_File->Filename_get()).c_str(), pRow_File->PK_File_get(), pRow_File->INode_get() );
 
 #ifdef DEBUG
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"MediaAttributes_LowLevel::AddRippedDiscToDatabase %s is not a dir, calling AddDiscAttributesToFile",sDestination.c_str());
@@ -1463,7 +1475,7 @@ void MediaAttributes_LowLevel::AddDiscAttributesToFile(int PK_File,int PK_Disc,i
 		return;
 	}
 
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::AddDiscAttributesToFile called with file %d disc %d",PK_File,PK_Disc);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MediaAttributes_LowLevel::AddDiscAttributesToFile called with file %d disc %d",PK_File,PK_Disc);
 
 /*
 	PlutoMediaFile PlutoMediaFile_(m_pDatabase_pluto_media, m_nPK_Installation, pRow_File->Path_get(), pRow_File->Filename_get());

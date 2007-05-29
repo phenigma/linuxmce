@@ -398,7 +398,7 @@ class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *
 {
 	if( m_bBookmarksNeedRefreshing )
 		RefreshBookmarks();
-    int nWidth = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Width_CONST].c_str());
+
 	DataGridTable *pDataGridTable = new DataGridTable();
 	DataGridCell *pCell;
 

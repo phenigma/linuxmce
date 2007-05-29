@@ -169,13 +169,18 @@ bool Orbiter_Plugin::GetConfig()
         if( pDeviceData_Router->WithinCategory(DEVICECATEGORY_Orbiter_CONST) )
         {
             OH_Orbiter *pOH_Orbiter = new OH_Orbiter(pDeviceData_Router);
+			Row_Orbiter *pRow_Orbiter = m_pDatabase_pluto_main->Orbiter_get()->GetRow(pDeviceData_Router->m_dwPK_Device);
+			if( pRow_Orbiter && pRow_Orbiter->FirstRegen_get() )
+			{
+                LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter: %d FirstRegen", pDeviceData_Router->m_dwPK_Device);
+				pOH_Orbiter->m_bFirstRegen=true;
+			}
             m_mapOH_Orbiter[pDeviceData_Router->m_dwPK_Device] = pOH_Orbiter;
             m_sPK_Device_AllOrbiters += StringUtils::itos(pDeviceData_Router->m_dwPK_Device) + ",";
             if( pDeviceData_Router->m_sMacAddress.size()==0 )
             {
                 LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter: %d %s doesn't have a mac address.",
                     pDeviceData_Router->m_dwPK_Device,pDeviceData_Router->m_sDescription.c_str());
-
             }
             else
                 m_mapOH_Orbiter_Mac[StringUtils::ToUpper(pDeviceData_Router->m_sMacAddress)] = pOH_Orbiter;
@@ -1716,10 +1721,8 @@ void Orbiter_Plugin::CMD_Orbiter_Registered(string sOnOff,int iPK_Users,string s
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter_Plugin::CMD_Orbiter_Registered %d sRegenAllDevicesRooms \n%s\n%s\n",pMessage->m_dwPK_Device_From,m_sRegenAllDevicesRooms.c_str(),sRegenAllDevicesRooms.c_str());
 //#endif
 
-		Row_Orbiter *pRow_Orbiter = m_pDatabase_pluto_main->Orbiter_get()->GetRow(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
-
 		// Don't do this on the first start
-		if( m_sRegenAllDevicesRooms!=sRegenAllDevicesRooms && pRow_Orbiter && pRow_Orbiter->FirstRegen_get()==0 )
+		if( m_sRegenAllDevicesRooms!=sRegenAllDevicesRooms && pOH_Orbiter->m_bFirstRegen==false )
 		{
 //#ifdef DEBUG
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter_Plugin::CMD_Orbiter_Registered sRegenAllDevicesRooms %d not equal %s=%s",pMessage->m_dwPK_Device_From,m_sRegenAllDevicesRooms.c_str(),sRegenAllDevicesRooms.c_str());
@@ -1730,6 +1733,7 @@ void Orbiter_Plugin::CMD_Orbiter_Registered(string sOnOff,int iPK_Users,string s
 		else
 		{
 			string sScenariosFloorplans = m_pRegenMonitor->AllScenariosFloorplans();
+			Row_Orbiter *pRow_Orbiter = m_pDatabase_pluto_main->Orbiter_get()->GetRow(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
 			if( pRow_Orbiter )
 			{
 				pRow_Orbiter->Reload();

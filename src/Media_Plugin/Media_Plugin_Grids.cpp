@@ -932,7 +932,28 @@ class DataGridTable *Media_Plugin::CDTracks( string GridID, string Parms, void *
     DataGridTable *pDataGrid = new DataGridTable();
     DataGridCell *pCell;
 
-	string sSQL = "select Track,Name FROM Attribute JOIN Disc_Attribute ON FK_Attribute=PK_Attribute WHERE FK_AttributeType=" TOSTRING(ATTRIBUTETYPE_Title_CONST) " AND FK_Disc=" + Parms;
+	string sSQL;
+	if( atoi(Parms.c_str())==0 )
+	{
+		vector<EntertainArea *> vectEntertainArea;
+		DetermineEntArea( pMessage->m_dwPK_Device_From, 0, "", vectEntertainArea );
+		EntertainArea *pEntertainArea = vectEntertainArea.size() ? vectEntertainArea[0] : NULL;
+		MediaFile *pMediaFile=NULL;
+		if( !pEntertainArea || !pEntertainArea->m_pMediaStream || (pMediaFile=pEntertainArea->m_pMediaStream->GetCurrentMediaFile())==NULL
+			|| (pMediaFile->m_dwPK_Disk==0 && pEntertainArea->m_pMediaStream->m_dwPK_Disc==0) )
+		{
+		    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Media_Plugin::CDTracks no disk for %p %p", pEntertainArea, pMediaFile);
+			return pDataGrid;
+		}
+		if( pMediaFile->m_dwPK_Disk )
+			sSQL = "select Track,Name FROM Attribute JOIN Disc_Attribute ON FK_Attribute=PK_Attribute WHERE FK_AttributeType=" TOSTRING(ATTRIBUTETYPE_Title_CONST) 
+				" AND FK_Disc=" + StringUtils::itos(pMediaFile->m_dwPK_Disk);
+		else
+			sSQL = "select Track,Name FROM Attribute JOIN Disc_Attribute ON FK_Attribute=PK_Attribute WHERE FK_AttributeType=" TOSTRING(ATTRIBUTETYPE_Title_CONST) 
+				" AND FK_Disc=" + StringUtils::itos(pEntertainArea->m_pMediaStream->m_dwPK_Disc);
+	}
+	else
+		sSQL = "select Track,Name FROM Attribute JOIN Disc_Attribute ON FK_Attribute=PK_Attribute WHERE FK_AttributeType=" TOSTRING(ATTRIBUTETYPE_Title_CONST) " AND FK_Disc=" + Parms;
 
 	PlutoSqlResult result;
     MYSQL_ROW row;
