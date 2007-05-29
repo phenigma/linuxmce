@@ -38,6 +38,7 @@
 	$GLOBALS['RaidCategory']=165;				// RAID devices
 	$GLOBALS['RaidDrives']=167;					// RAID drives
 	$GLOBALS['StorageDevices']=155;				// Storage devices
+	$GLOBALS['NetworkStorage']=158;				// Network Storage devices
 	
 	$GLOBALS['TVdevicesArray']=array($GLOBALS['TVdevices'],$GLOBALS['TVVCRCombo'],$GLOBALS['AmpsReceivers']);
 	

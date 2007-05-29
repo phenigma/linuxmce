@@ -3064,8 +3064,8 @@ function formatDeviceData($deviceID,$DeviceDataArray,$dbADO,$isIPBased=0,$specif
 					$queryTable="SELECT $tableFields FROM $tableName $filterQuery $orderQuery";
 					$resTable=$dbADO->Execute($queryTable);
 					$deviceDataBox.='<select name="deviceData_'.$deviceID.'_'.$rowDDforDevice['FK_DeviceData'].'" '.$itemDisabled.' class="'.$cssStyle.'">
-												<option value="0">'.(in_array($rowDDforDevice['FK_DeviceCategory'],array($GLOBALS['StorageDevices'],$GLOBALS['RaidCategory']))?'Public':'').'</option>';
-					$deviceDataBox.=(in_array($rowDDforDevice['FK_DeviceCategory'],array($GLOBALS['StorageDevices'],$GLOBALS['RaidCategory'])))?'<option value="-1" '.(($ddValue==-1)?'selected':'').'>Pluto\'s structure</option>':'';							
+												<option value="0">'.(in_array($rowDDforDevice['FK_DeviceCategory'],array($GLOBALS['StorageDevices'],$GLOBALS['RaidCategory'],$GLOBALS['NetworkStorage']))?'Public':'').'</option>';
+					$deviceDataBox.=(in_array($rowDDforDevice['FK_DeviceCategory'],array($GLOBALS['StorageDevices'],$GLOBALS['RaidCategory'],$GLOBALS['NetworkStorage'])))?'<option value="-1" '.(($ddValue==-1)?'selected':'').'>Pluto\'s structure</option>':'';							
 					
 					while($rowTable=$resTable->FetchRow()){
 						$itemStyle=($tableName=='FloorplanObjectType' && is_null(@$rowTable['FK_DesignObj_Control']))?' style="background-color:red;"':'';
