@@ -20,6 +20,10 @@ function ExitInstaller {
 	exit 1
 }
 
+# remove Network Manager
+apt-get -y -f remove network-manager
+/etc/init.d/networking restart
+
 Setup_NIS
 
 if [[ "$c_deviceType" == "$DT_MEDIA_DIRECTOR" ]] ;then

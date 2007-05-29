@@ -289,9 +289,6 @@ function RemoveOfflineSource {
 }
 
 
-apt-get -y -f remove network-manager
-/etc/init.d/networking restart
-
 Core_PK_Device="0"
 if [[ "$c_netExtKeep" != "true" ]] ;then
 	Setup_Network_Intefaces
