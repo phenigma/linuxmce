@@ -37,8 +37,14 @@ netExtDNS2=$(cat /etc/resolv.conf | grep "^nameserver" | tail -1 | awk '{print $
 netInternetWorking=0
 nc -z www.google.com 80 2>/dev/null && netInternetWorking=1
 
+# pattern matches these situations:
+# dhclient ..parms.. eth0
+# dhclient3 ..parms.. eth0
+# /sbin/dhclient ..parms.. eth0
+# /sbin/dhclient3 ..parms.. eth0
+# and so on
 netUseDhcp=0
-if ps ax | egrep -q " dhclient.? .*${netExtName}\$" ;then
+if ps ax | egrep -q " (/sbin/)?dhclient.? .*${netExtName}\$" ;then
 	netUseDhcp=1
 fi
 
