@@ -2289,7 +2289,6 @@ bool ScreenHandler::FileSave_GridSelected(CallBackData *pData)
 				m_sSaveFile_RelativeFolder = "";
 
 				m_bUseDirectoryStructure = vectStrings.size()>=3 && vectStrings[2]=="1";
-xbool b=m_bUseDirectoryStructure;
 				m_pOrbiter->CMD_Set_Variable(VARIABLE_Device_List_CONST, StringUtils::ltos(m_nSaveFile_PK_DeviceDrive));
 			}
 		}
@@ -2942,7 +2941,7 @@ void ScreenHandler::SCREEN_AutoConfigure_TV(long PK_Screen, int iPK_PnpQueue)
 		TOSTRING(COMMANDPARAMETER_PK_DeviceData_CONST) " " TOSTRING(DEVICEDATA_Dont_Auto_Configure_CONST) " "
 		TOSTRING(COMMANDPARAMETER_Value_To_Assign_CONST) " ";
 
-	string sMessage = m_pOrbiter->m_bNewOrbiter ? m_pOrbiter->m_mapTextString[TEXT_Confirm_PNP_TV_Tuner_1stRegenCONST] : m_pOrbiter->m_mapTextString[TEXT_Confirm_PNP_TV_Tuner_CONST];
+	string sMessage = m_pOrbiter->m_bNewOrbiter ? m_pOrbiter->m_mapTextString[TEXT_Confirm_PNP_TV_Tuner_1stRegen_CONST] : m_pOrbiter->m_mapTextString[TEXT_Confirm_PNP_TV_Tuner_CONST];
 	DisplayMessageOnOrbiter(PK_Screen, sMessage, false, "", false,
 		m_pOrbiter->m_mapTextString[TEXT_YES_CONST],sSetPnpOptions + "1 & " + sManualConfig + "0",
 		m_pOrbiter->m_mapTextString[TEXT_NO_CONST],sSetPnpOptions + "0 & " + sManualConfig + "1");
