@@ -106,7 +106,7 @@ AutostartMedia=$AutostartMedia
 
 function Install_DCERouter {
 	StatsMessage "Installing MySQL Server"
-	#apt-get update
+	apt-get update
 	apt-get -y -f install mysql-server || ExitInstaller "Failed to install mysql server"
 	invoke-rc.d mysql start # Because of this : https://bugs.launchpad.net/bugs/107224
 

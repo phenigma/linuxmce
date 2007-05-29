@@ -21,7 +21,7 @@ if [[ "$nvidia_glx_installed" == "false" ]] ;then
 fi
 
 if [[ "$nvidia_glx_installed" == "false" ]] ;then
-	#apt-get update
+	apt-get update
 	apt-get -f -y install nvidia-glx && nvidia_glx_installed="true"
 fi
 
@@ -30,7 +30,7 @@ if [[ "$(aptitude show linux-restricted-modules-generic | grep State | cut -d ' 
 fi
 
 if [[ "$linux_restricted_modules_generic_installed" == "false" ]] ;then
-	#apt-get update
+	apt-get update
 	apt-get -f -y install linux-restricted-modules-generic && linux_restricted_modules_generic_installed="true"
 fi
 
