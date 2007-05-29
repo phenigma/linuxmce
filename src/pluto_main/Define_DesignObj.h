@@ -2445,6 +2445,8 @@
 #define DESIGNOBJ_butLoad_CONST 5459
 #define DESIGNOBJ_butIdAll_CONST 5460
 #define DESIGNOBJ_butJukeboxRefresh_CONST 5461
+#define DESIGNOBJ_mnuBulkRipping_CONST 5462
+#define DESIGNOBJ_butMinus_CONST 5464
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

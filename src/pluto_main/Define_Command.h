@@ -128,7 +128,6 @@
 #define COMMAND_Narrower_CONST 135
 #define COMMAND_Previous_Channel_CONST 136
 #define COMMAND_Music_CONST 137
-#define COMMAND_Eject_CONST 138
 #define COMMAND_Play_CONST 139
 #define COMMAND_Audio_Track_CONST 140
 #define COMMAND_Subtitle_CONST 141
