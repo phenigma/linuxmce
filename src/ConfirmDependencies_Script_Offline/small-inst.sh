@@ -253,6 +253,7 @@ YPXFRDARGS=
 KillNetworkManager()
 {
 	apt-get -f -y remove network-manager
+	/etc/init.d/networking restart
 }
 
 Start_Dhcpd_Plugin_At_Boot()
