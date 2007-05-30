@@ -28,6 +28,10 @@ if ! grep -q "^ *StrictHostKeyChecking no *$" /etc/ssh/ssh_config ;then
 	cp /usr/pluto/templates/ssh_config.tmpl /etc/ssh/ssh_config
 fi
 
+if ! grep -q "^ *UseDNS no *$" /etc/ssh/sshd_config ;then
+	echo "UseDNS no" >> /etc/ssh/sshd_config
+fi
+
 for i in /etc/ssh/ssh_config /root/.ssh/config; do
 	grep 'Host..*\*' "$i" &>/dev/null && HostFound=1
 done
