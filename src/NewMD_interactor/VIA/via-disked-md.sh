@@ -82,6 +82,9 @@ mount -a
 DeviceID=$(</etc/Disked_DeviceID)
 tar -C / -xzf /usr/pluto/var/Disked_$DeviceID.tar.gz
 
+ConfSet AutostartCore 1
+ConfSet AutostartMedia 1
+
 # reconfigure network with static settings
 /etc/init.d/networking restart
 /usr/pluto/bin/Network_NIS.sh
