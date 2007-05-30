@@ -6,6 +6,8 @@
 DEVICETEMPLATE_HAL=1808
 DEVICETEMPLATE_AppServer=26
 
+lshwd # needed for some systems which won't report usb devices until you run lshwd first (bug in usb architecture)
+
 HALdev=$(FindDevice_Template "$PK_Device" "$DEVICETEMPLATE_HAL" "norecursion")
 if [[ -z "$HALdev" ]]; then
 	# HAL device not found
