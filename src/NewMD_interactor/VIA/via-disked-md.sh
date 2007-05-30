@@ -134,3 +134,7 @@ RunSQL "
 	SET IK_DeviceData='cle266x11'
 	WHERE FK_DeviceData=168 AND FK_Device=$XineDev
 "
+
+echo "Script finished. Press enter to reboot."
+read
+reboot
