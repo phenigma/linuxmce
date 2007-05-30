@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# stop Pluto software
+/usr/pluto/bin/MessageSend 0 -1000 7 0
+sleep 5
+
 # backup original config
 if [[ ! -f /etc/network/interfaces.pbackup ]]; then
 	cp /etc/network/interfaces{,.pbackup}
