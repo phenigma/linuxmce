@@ -20,6 +20,7 @@
 
 #include <string.h>
 #include <malloc.h>
+#include <stdio.h>
 
 // TODO: beautify code
 
@@ -150,8 +151,10 @@ int main(int argc, char * argv[])
 			}
 			else if (strcmp(cmd, "deviceid") == 0)
 			{
-				// NOOP
 				// Server reported back to us our ID
+				FILE * f = fopen("/etc/Disked_DeviceID", "w");
+				fputs(buffer+9, f);
+				fclose(f);
 			}
 		}
 		

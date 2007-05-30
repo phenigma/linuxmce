@@ -6,6 +6,9 @@ if [[ ! -f /etc/network/interfaces.pbackup ]]; then
 fi
 
 # setup network
+ifdown eth0:0
+ifconfig eth0:0 down
+
 echo "#loopback
 auto lo
 iface lo inet loopback
@@ -15,6 +18,7 @@ auto eth0
 iface eth0 inet dhcp
 " >/etc/network/interfaces
 
+# get provisional IP
 /etc/init.d/networking restart
 
 # get network data
@@ -43,4 +47,90 @@ if ! /usr/pluto/install/via-interactor "$Gateway" "$MyIP" "$MyMAC" "$Architectur
 	exit 1
 fi
 
+if [[ ! -f /etc/Disked_DeviceID ]]; then
+	echo "Interactor didn't write our device ID"
+	exit 1
+fi
+
+# get allocated IP
+/etc/init.d/networking restart
+
+# set up fstab
+fstab_header="#Pluto fstab entries"
+if ! grep -qF "$fstab_header" /etc/fstab; then
+	sed -i '/home/ d' /etc/fstab
+	echo "$fstab_header
+192.168.80.1:/usr/pluto/var /usr/pluto/var nfs intr,udp,rsize=32768,wsize=32768,retrans=10,timeo=50 1 1
+192.168.80.1:/usr/pluto/orbiter /usr/pluto/orbiter nfs intr,udp,rsize=32768,wsize=32768,retrans=10,timeo=50 1 1
+192.168.80.1:/usr/pluto/keys /usr/pluto/keys nfs intr,udp,rsize=32768,wsize=32768,retrans=10,timeo=50 1 1
+//192.168.80.1/home /home cifs credentials=/usr/pluto/var/sambaCredentials.secret 1 1" >>/etc/fstab
+fi
+umount -l /home
+mount -a
+
 # get configs from server
+DeviceID=$(</etc/Disked_DeviceID)
+tar -C / -xzf /usr/pluto/var/Disked_$DeviceID.tar.gz
+
+# reconfigure network with static settings
+/etc/init.d/networking restart
+/usr/pluto/bin/Network_NIS.sh
+
+. /usr/pluto/bin/SQL_Ops.sh
+
+# setup database
+Q="
+	SELECT PK_Device
+	FROM Device
+	WHERE FK_DeviceTemplate=62 AND FK_Device_ControlledVia=$DeviceID
+"
+OrbiterDev="$(RunSQL "$Q")"
+
+Q="
+	SELECT PK_Device
+	FROM Device
+	WHERE FK_DeviceTemplate=5 AND FK_Device_ControlledVia=$OrbiterDev
+"
+XineDev="$(RunSQL "$Q")"
+
+# Video settings
+RunSQL "
+	UPDATE Device_DeviceData
+	SET IK_DeviceData='1024 768/60'
+	WHERE FK_Device=$DeviceID AND FK_DeviceData=89
+"
+
+# PK_Size
+RunSQL "
+	UPDATE Device_DeviceData
+	SET IK_DeviceData='6'
+	WHERE FK_DeviceData=25 AND FK_Device=$OrbiterDev
+"
+
+# Use alpha blended UI
+RunSQL "
+	UPDATE Device_DeviceData
+	SET IK_DeviceData='1'
+	WHERE FK_DeviceData=169 AND FK_Device=$OrbiterDev
+"
+
+# Use OpenGL effects
+RunSQL "
+	UPDATE Device_DeviceData
+	SET IK_DeviceData='1'
+	WHERE FK_DeviceData=172 AND FK_Device=$OrbiterDev
+"
+
+# PK_UI
+RunSQL "
+	UPDATE Device_DeviceData
+	SET IK_DeviceData='4'
+	WHERE FK_DeviceData=104 AND FK_Device=$OrbiterDev
+"
+
+# Hardware acceleration
+RunSQL "
+	UPDATE Device_DeviceData
+	SET IK_DeviceData='cle266x11'
+	WHERE FK_DeviceData=168 AND FK_Device=$XineDev
+"
