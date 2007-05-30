@@ -91,6 +91,10 @@ ConfSet AutostartMedia 1
 
 rm -f /etc/hosts
 
+# logging place
+rm -f /var/log/pluto
+mkdir -p /var/log/pluto
+
 . /usr/pluto/bin/SQL_Ops.sh
 
 # setup database
