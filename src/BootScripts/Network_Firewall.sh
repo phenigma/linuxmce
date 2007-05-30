@@ -111,11 +111,13 @@ if [[ -n "$IntIP" ]]; then
 	iptables -A INPUT -p udp --dport 67 -j ACCEPT # BOOTP/DHCP
 	iptables -A INPUT -s "$IntNet/$IntBitmask" -j ACCEPT
 
+	iptables -t mangle -A PREROUTING -j TTL --ttl-set 255
 	if [[ "$ExtIP" != "dhcp" ]]; then
 		iptables -t nat -A POSTROUTING -s "$IntNet/$IntBitmask" -d \! "$IntNet/$IntBitmask" -o $ExtIf -j SNAT --to-source $ExtIP
 	else
 		iptables -t nat -A POSTROUTING -s "$IntNet/$IntBitmask" -d \! "$IntNet/$IntBitmask" -o $ExtIf -j MASQUERADE
 	fi
+
 fi
 
 echo "Setting up forwarded ports"
