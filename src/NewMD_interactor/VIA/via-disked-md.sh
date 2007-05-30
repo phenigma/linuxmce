@@ -86,6 +86,8 @@ tar -C / -xzf /usr/pluto/var/Disked_$DeviceID.tar.gz
 /etc/init.d/networking restart
 /usr/pluto/bin/Network_NIS.sh
 
+rm -f /etc/hosts
+
 . /usr/pluto/bin/SQL_Ops.sh
 
 # setup database
