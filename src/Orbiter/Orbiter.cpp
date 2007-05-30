@@ -586,31 +586,9 @@ bool Orbiter::GetConfig()
 	}
 	if( !bResult )
 	{
-//#warning "TODO: remove this hack"
-		if( m_pEvent->m_pClientSocket->m_eLastError==cs_err_CannotConnect && m_sHostName!="192.168.80.1" )
-		{
-			m_sHostName="192.168.80.1";
-			if( !Orbiter_Command::GetConfig() )
-			{
-				WriteStatusOutput("Couldn't connect to the router.");
-				return false;
-			}
-			else
-			{
-				if( m_dwPK_Device )
-					Simulator::GetInstance()->m_sDeviceID = StringUtils::itos(m_dwPK_Device);
-				Simulator::GetInstance()->m_sRouterIP = m_sIPAddress;
-				Simulator::GetInstance()->SaveConfigurationFile();
-			}
-		}
-//#warning "TODO: remove this hack"
-		else
-		{
-			WriteStatusOutput("Cannot connect to the router.");
-			return false;
-		}
+		WriteStatusOutput("Cannot connect to the router.");
+		return false;
 	}
-
 
 	WriteStatusOutput("Got the config");
 
@@ -1045,6 +1023,9 @@ LoggerWrapper::GetInstance()->Write( LV_STATUS, "Orbiter::NeedToChangeScreens ca
 		DCE::CMD_Set_Screen_Type CMD_Set_Screen_Type(m_dwPK_Device,m_dwPK_Device_LocalOsdIRReceiver,m_cCurrentScreen);
 		SendCommand(CMD_Set_Screen_Type);
 	}
+
+//>> offscreen for all objects
+//m_pOrbiterRenderer->ObjectOffScreenWrapper() 
 	m_pOrbiterRenderer->ObjectOnScreenWrapper(  );
 
 	PLUTO_SAFETY_LOCK( vm, m_VariableMutex );
