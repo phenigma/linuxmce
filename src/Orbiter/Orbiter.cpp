@@ -586,8 +586,31 @@ bool Orbiter::GetConfig()
 	}
 	if( !bResult )
 	{
-		WriteStatusOutput("Cannot connect to the router.");
-		return false;
+#ifdef WIN32
+		if( m_pEvent->m_pClientSocket->m_eLastError==cs_err_CannotConnect && m_sHostName!="192.168.80.1" )
+		{
+			m_sHostName="192.168.80.1";
+			if( !Orbiter_Command::GetConfig() )
+			{
+				WriteStatusOutput("Couldn't connect to the router.");
+				return false;
+			}
+			else
+			{
+				if( m_dwPK_Device )
+					Simulator::GetInstance()->m_sDeviceID = StringUtils::itos(m_dwPK_Device);
+				Simulator::GetInstance()->m_sRouterIP = m_sIPAddress;
+				Simulator::GetInstance()->SaveConfigurationFile();
+			}
+		}
+		else
+		{
+#endif
+			WriteStatusOutput("Cannot connect to the router.");
+			return false;
+#ifdef WIN32
+		}
+#endif
 	}
 
 	WriteStatusOutput("Got the config");
