@@ -154,6 +154,9 @@ RunSQL "
 	WHERE FK_DeviceData=168 AND FK_Device=$XineDev
 "
 
+# generate startup scripts (core ran /usr/pluto/bin/Update_StartupScrips.sh for us)
+/usr/pluto/bin/generateRcScripts.sh
+
 echo "Script finished. Press enter to reboot."
 read
 reboot
