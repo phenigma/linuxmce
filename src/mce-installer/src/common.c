@@ -43,7 +43,7 @@ gboolean has_nv_video_driver(void) {
 
 	grep_pid = fork();
 	if (grep_pid == 0) {
-		execl("/bin/grep","/bin/grep", "-i", "Driver.*\"nv\"","/etc/X11/xorg.conf", NULL);
+		execl("./mce-installer-NeedsNvidiaDrivers.sh","./mce-installer-NeedsNvidiaDrivers.sh", NULL);
 		exit(1);
 	} else if (grep_pid > 0) {
 		waitpid (grep_pid, &grep_status, 0);
