@@ -66,7 +66,7 @@ function setup_hosts_file
 			AND
 			FK_Device_ControlledVia IS NULL
 			AND
-			IK_DeviceData = '1'
+			IK_DeviceData = '0'
 	"
 	local R=$(RunSQL "$Q")
 	local Row
