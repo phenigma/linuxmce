@@ -1,9 +1,11 @@
 #!/bin/bash
 
-if [[ -f /etc/network/interfaces.pbackup ]]; then
+# backup original config
+if [[ ! -f /etc/network/interfaces.pbackup ]]; then
 	cp /etc/network/interfaces{,.pbackup}
 fi
 
+# setup network
 echo "#loopback
 auto lo
 iface lo inet loopback
@@ -15,6 +17,7 @@ iface eth0 inet dhcp
 
 /etc/init.d/networking restart
 
+# get network data
 MyIP=$(/sbin/ifconfig eth0 | awk 'NR==2 { print substr($2, index($2, ":") + 1) }')
 MyMAC=$(/sbin/ifconfig eth0 | awk 'NR==1 { print $5 }')
 Gateway=$(/sbin/route -n | awk '/^0\.0\.0\.0/ { print $2 }')
@@ -28,6 +31,16 @@ if [[ -z "$MyIP" || -z "$MyMAC" ]]; then
 	exit 1
 fi
 
-/usr/pluto/install/via-interactor "$Gateway" "$MyIP" "$MyMAC" "$Architecture"
+# kill existing interactor server
+InteractorPID=$(pgrep -f '^/bin/bash.*Start_NewMD_interactor.sh$')
+if [[ -n "$InteractorPID" ]]; then
+	kill "$InteractorPID"
+fi
+
+# run interactor client
+if ! /usr/pluto/install/via-interactor "$Gateway" "$MyIP" "$MyMAC" "$Architecture"; then
+	echo "Interactor client exited with error"
+	exit 1
+fi
 
 # get configs from server
