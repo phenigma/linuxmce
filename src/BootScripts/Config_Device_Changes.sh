@@ -141,5 +141,7 @@ fi
 # Run alsaconf-noninteractive
 if [[ -x /usr/pluto/bin/alsaconf-noninteractive ]]; then
 	/usr/pluto/bin/alsaconf-noninteractive
-#
+#<-mkr_b_via_b->
+	amixer sset 'Master Front' 74% unmute
+#<-mkr_b_via_e->
 fi
