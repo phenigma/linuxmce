@@ -157,7 +157,12 @@ if [[ $UpgradeMode == "false" ]]; then
 	echo "directors."
 
 	while :; do
+#<-mkr_B_via_b->
 		DHCP=$(Ask "Run a DHCP server? [Y/n]")
+#<-mkr_B_via_e->
+#<-mkr_b_via_b->
+		DHCP=$(Ask "Run a DHCP server? [y/N]")
+#<-mkr_b_via_e->
 		if [[ -z "$DHCP" || "$DHCP" == y || "$DHCP" == Y || "$DHCP" == n || "$DHCP" == N ]]; then
 			break
 		else
@@ -316,7 +321,12 @@ if [[ "$UpgradeMode" == "false" ]] ;then
 
 	Q="REPLACE INTO Device_DeviceData(FK_Device,FK_DeviceData,IK_DeviceData) VALUES('$CoreDev',32,'$NETsetting')"
 	RunSQL "$Q"
+#<-mkr_B_via_b->
 	if [[ "$DHCP" != n && "$DHCP" != N ]]; then
+#<-mkr_B_via_e->
+#<-mkr_b_via_b->
+	if [[ "$DHCP" == y && "$DHCP" == Y ]]; then
+#<-mkr_b_via_b->
 		Q="REPLACE INTO Device_DeviceData(FK_Device, FK_DeviceData, IK_DeviceData)
 			VALUES($CoreDev, 28, '$DHCPsetting')"
 		RunSQL "$Q"
