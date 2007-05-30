@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # stop Pluto software
-/usr/pluto/bin/MessageSend 0 -1000 7 0
+/usr/pluto/bin/MessageSend localhost 0 -1000 7 0
 sleep 5
 
 # backup original config
@@ -10,8 +10,14 @@ if [[ ! -f /etc/network/interfaces.pbackup ]]; then
 fi
 
 # setup network
+/etc/init.d/dhcp3-server stop
 ifdown eth0:0
 ifconfig eth0:0 down
+
+. /usr/pluto/bin/Config_Ops.sh
+
+ConfSet DisableFirewall 1
+/usr/pluto/bin/Network_Firewall.sh
 
 echo "#loopback
 auto lo
