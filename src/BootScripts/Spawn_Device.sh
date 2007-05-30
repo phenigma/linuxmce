@@ -332,7 +332,7 @@ while [[ "$i" -le "$MAX_RESPAWN_COUNT" ]]; do
 #	screen -wipe &>/dev/null
 	
 	Log "$LogFile" "Return code: $Ret"
-	if [[ "$Ret" -eq 3 ]]; then
+	if [[ "$Ret" -eq 0 ]]; then
 		# Abort
 		WaitLock "Spawn_Device" "$device_id" >>/var/log/pluto/Spawn_Device.log
 		sed -i "/^[^0-9]*$device_id[^0-9]*\$/ d" "$AlreadyRunning"
@@ -342,7 +342,7 @@ while [[ "$i" -le "$MAX_RESPAWN_COUNT" ]]; do
 		Log "$LogFile" "$(date) Shutdown"
 		Unlock "Spawn_Device" "$device_id" >>/var/log/pluto/Spawn_Device.log
 		break
-	elif [[ "$Ret" -eq 2 || "$Ret" -eq 0 ]]; then
+	elif [[ "$Ret" -eq 2 ]]; then
 		Logging $TYPE $SEVERITY_WARNING "$module" "Device requests restart... count=$i/$MAX_RESPAWN_COUNT dev=$device_name"
 		Logging $TYPE $SEVERITY_WARNING "$module" "Device requests restart... count=$i/$MAX_RESPAWN_COUNT dev=$device_name" "$LogFile"
 		if DeviceIsDisabled "$device_id"; then
