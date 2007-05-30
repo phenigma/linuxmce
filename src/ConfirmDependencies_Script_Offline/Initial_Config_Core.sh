@@ -137,7 +137,12 @@ if [[ $UpgradeMode == "false" ]]; then
 
 			[[ "$error" == "true" ]] && continue
 		else
+#<-mkr_B_via_b->
 			Network="192.168.80"
+#<-mkr_B_via_e->
+#<-mkr_b_via_b->
+			Network="192.168.81"
+#<-mkr_b_via_e->
 			Digits_Count="3"
 		fi
 
