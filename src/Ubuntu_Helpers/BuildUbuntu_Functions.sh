@@ -50,13 +50,30 @@ function Checkout_Pluto_Svn {
 	echo "$(date) part 21 " >> /var/log/build.log
 	ls -l /var/plutobuild/svn/trunk/src/bin/ >> /var/log/build.log
 	local Branch="${1:-trunk}"
+	local BranchParts="$2" # ex: "src web"; the rest will come from trunk
+
+	local AllParts="src ubuntu web misc_utils installers config-pkgs"
+	if [[ -z "$BranchParts" ]]; then
+		BranchParts="$AllParts"
+	fi
 
 	[[ -d $svn_dir ]] && mkdir -p $svn_dir
 	rm -rf ${svn_dir}/trunk
 	
-	for svn_module in src ubuntu web misc_utils installers config-pkgs;do
+	for svn_module in ${BranchParts}; do
 		mkdir -p ${svn_dir}/trunk/$svn_module
 		svn co ${svn_url}/pluto/"$Branch"/$svn_module  ${svn_dir}/trunk/$svn_module
+	done
+
+	# get unmarked parts from trunk
+	for svn_module in ${AllParts}; do
+		if [[ " $BranchParts " == *" $svn_module "* ]]; then
+			# this part was marked to be taken from the branch
+			continue
+		fi
+		#get part from trunk
+		mkdir -p ${svn_dir}/trunk/$svn_module
+		svn co ${svn_url}/pluto/trunk/$svn_module  ${svn_dir}/trunk/$svn_module
 	done
 
 	cp -f /root/images-pluto-admin/*.jpg ${svn_dir}/trunk/web/pluto-admin/include/images/
@@ -219,7 +236,7 @@ function Build_Pluto_Replacements {
 	popd
 
 	#Package: mtx-pluto
-	pushd "${svn_dir}"/trunk/ubuntu/mtx-1.3.10
+	pushd "${svn_dir}"/trunk/ubuntu/mtx-1.3.11
 		dpkg-buildpackage -rfakeroot -us -uc -b
 		cp ../mtx-pluto_*.deb "${temp_dir}"
 	popd
@@ -250,6 +267,8 @@ function Build_Pluto_Stuff_Debs {
 }
 
 function Build_Pluto_Stuff {
+	MakeReleaseExtraParams=("$@")
+
 	echo "$(date) part 4 " >> /var/log/build.log
 	ls -l /var/plutobuild/svn/trunk/src/bin/ >> /var/log/build.log
 	
@@ -291,7 +310,7 @@ function Build_Pluto_Stuff {
 	echo "$(date) part 5 " >> /var/log/build.log
 	ls -l /var/plutobuild/svn/trunk/src/bin/ >> /var/log/build.log
 
-	$MakeRelease -R "$SVNrevision" -h $sql_slave_host -u $sql_slave_user -O $out_dir -D $sql_slave_db -o 14 -r 21 -m 1 -K "543,542,462,607,432,431,427,426,430,429,336,337,589,590,515,516"  -s "${svn_dir}/trunk" -n / > >(tee -a $build_dir/Build.log)  -d
+	$MakeRelease "${MakeReleaseExtraParams[@]}" -R "$SVNrevision" -h $sql_slave_host -u $sql_slave_user -O $out_dir -D $sql_slave_db -o 14 -r 21 -m 1 -K "543,542,462,607,432,431,427,426,430,429,336,337,589,590,515,516"  -s "${svn_dir}/trunk" -n / > >(tee -a $build_dir/Build.log)  -d
 	
 	echo "$(date) part 6 " >> /var/log/build.log
 	ls -l /var/plutobuild/svn/trunk/src/bin/ >> /var/log/build.log
@@ -508,3 +527,21 @@ function Upload_Build_Archive {
 	popd
 }
 
+function Backup_Last_Build {
+	local PACKAGES_ISO_NAME="linuxmce-1.1-packages.iso"
+	local CACHE_ISO_NAME="linuxmce-1.1-cache.iso"
+	local BUILD_BACKUP_DIR="/var/www/BuildBackups"
+
+
+	if [[ ! -f "/var/www/${PACKAGES_ISO_NAME}" ]] ;then
+		echo "WARNING: Missing '$PACKAGES_ISO_NAME', skiping backup procedure"
+		return
+	fi
+
+	local lastPackagesIso_Date=$(stat -c %y /var/www/${PACKAGES_ISO_NAME} | cut -d' ' -f1)
+	local lastPackagesIso_Time=$(stat -c %y /var/www/${CACHE_ISO_NAME} | cut -d' ' -f2 | cut -d':' -f1,2)
+
+	mkdir -p "${BUILD_BACKUP_DIR}/${lastPackagesIso_Date}"
+	cp "/var/www/${PACKAGES_ISO_NAME}" "${BUILD_BACKUP_DIR}/${lastPackagesIso_Date}/${lastPackagesIso_Date}_${lastPackagesIso_Time}_${PACKAGES_ISO_NAME}"
+	cp "/var/www/${CACHE_ISO_NAME}" "${BUILD_BACKUP_DIR}/${lastPackagesIso_Date}/${lastPackagesIso_Date}_${lastPackagesIso_Time}_${CACHE_ISO_NAME}"
+}
