@@ -19,23 +19,24 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..;../DCE/;&quot;../../libs/Libraries/pthreads-win32/include&quot;;/mysql/include;.;Win32;&quot;../../libs/CrossPlatform/sge030809-w32/src&quot;;&quot;../../libs/CrossPlatform/SDL_ttf-2.0.6&quot;;&quot;../../libs/CrossPlatform/SDL_image-1.2.3&quot;;&quot;../../libs/CrossPlatform/SDL-1.2.7/include&quot;;../Splitter;../../libs/CrossPlatform/zlib;../../libs/CrossPlatform/lpng127;../PlutoUtils;SDL;&quot;../../libs/CrossPlatform/SDL_rotozoom-1.6&quot;;../OrbiterGen;../STEngine"
+				AdditionalIncludeDirectories="&quot;../../../../libs/CrossPlatform/SDL_ttf-2.0.6&quot;;&quot;../../../../libs/CrossPlatform/SDL_image-1.2.3&quot;;&quot;../../../../libs/CrossPlatform/SDL-1.2.7/include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
+				WarnAsError="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
 				DebugInformationFormat="4"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="wsock32.lib SDL-pluto-d.lib SDL_image-pluto-d.lib SDL_ttf-pluto-d.lib"
-				OutputFile="../Debug/SDL_Emulator.exe"
+				AdditionalDependencies="wsock32.lib SDL-pluto-d.lib SDL_image-pluto-d.lib SDL_ttf-pluto-d.lib SDLmain.lib"
+				OutputFile="../../../Debug/SDL_Emulator.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;../../../../libs/CrossPlatform/SDL-1.2.7/VisualC7/SDL/Debug&quot;;&quot;../../../../libs/CrossPlatform/SDL_image-1.2.3/VisualC/Debug&quot;;&quot;../../../../libs/CrossPlatform/SDL_ttf-2.0.6/VisualC/Debug&quot;"
+				AdditionalLibraryDirectories="&quot;../../../../libs/CrossPlatform/SDL-1.2.7/VisualC7/SDL/Debug&quot;;&quot;../../../../libs/CrossPlatform/SDL_image-1.2.3/VisualC/Debug&quot;;&quot;../../../../libs/CrossPlatform/SDL_ttf-2.0.6/VisualC/Debug&quot;;&quot;../../../../libs/CrossPlatform/SDL-1.2.7/VisualC7/SDLmain/Debug&quot;"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/Photo_Screen_Saver.pdb"
 				SubSystem="1"
@@ -140,10 +141,16 @@
 			<File
 				RelativePath="..\..\LCDLogic\MenuLoader.cpp">
 			</File>
+			<File
+				RelativePath=".\SDLFrontEnd.cpp">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc">
+			<File
+				RelativePath="..\..\LCDLogic\DisplayState.h">
+			</File>
 			<File
 				RelativePath="..\..\LCDLogic\IInput.h">
 			</File>
@@ -152,6 +159,9 @@
 			</File>
 			<File
 				RelativePath="..\..\LCDLogic\IInputProvider.h">
+			</File>
+			<File
+				RelativePath="..\..\LCDLogic\IRenderer.h">
 			</File>
 			<File
 				RelativePath="..\..\LCDLogic\LCDManager.h">
@@ -167,6 +177,9 @@
 			</File>
 			<File
 				RelativePath="..\..\LCDLogic\MenuLoader.h">
+			</File>
+			<File
+				RelativePath=".\SDLFrontEnd.h">
 			</File>
 		</Filter>
 		<Filter
