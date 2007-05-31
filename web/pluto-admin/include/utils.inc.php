@@ -6552,4 +6552,17 @@ function updateEAForEmbeddedDevices($deviceID,$eaID,$dbADO){
 	}
 }
 
+
+function set_connector($mediaDirectorID,$value){
+	$cmd='sudo -u root /usr/pluto/bin/set_connector.sh';
+	
+	exec_batch_command($cmd);
+}
+
+function set_tv_standard($mediaDirectorID,$value){
+	$cmd='sudo -u root /usr/pluto/bin/set_tv_standard.sh';
+	
+	exec_batch_command($cmd);
+}
+
 ?>

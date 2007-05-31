@@ -220,6 +220,8 @@
 	$GLOBALS['DD_OS_ON_HARD_DRIVE']=211;		// OS on hard drive
 	$GLOBALS['DD_PK_Users']=3;					// PK_Users
 	$GLOBALS['DD_RemoteAssistancePorts']=212;	// Remote Assistance Ports
+	$GLOBALS['DD_CONNECTOR']=68;				// Connector
+	$GLOBALS['DD_TV_STANDARD']=221;				// TV standard
 	
 	// PK_FloorplanType from table FloorplanType 
 
