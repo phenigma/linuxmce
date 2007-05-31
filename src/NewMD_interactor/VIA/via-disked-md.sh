@@ -71,10 +71,10 @@ fstab_header="#Pluto fstab entries"
 if ! grep -qF "$fstab_header" /etc/fstab; then
 	sed -i '/home/ d' /etc/fstab
 	echo "$fstab_header
-192.168.80.1:/usr/pluto/var /usr/pluto/var nfs intr,udp,rsize=32768,wsize=32768,retrans=10,timeo=50 1 1
-192.168.80.1:/usr/pluto/orbiter /usr/pluto/orbiter nfs intr,udp,rsize=32768,wsize=32768,retrans=10,timeo=50 1 1
-192.168.80.1:/usr/pluto/keys /usr/pluto/keys nfs intr,udp,rsize=32768,wsize=32768,retrans=10,timeo=50 1 1
-//192.168.80.1/home /home cifs credentials=/usr/pluto/var/sambaCredentials.secret 1 1" >>/etc/fstab
+$Gateway:/usr/pluto/var /usr/pluto/var nfs intr,udp,rsize=32768,wsize=32768,retrans=10,timeo=50 1 1
+$Gateway:/usr/pluto/orbiter /usr/pluto/orbiter nfs intr,udp,rsize=32768,wsize=32768,retrans=10,timeo=50 1 1
+$Gateway:/usr/pluto/keys /usr/pluto/keys nfs intr,udp,rsize=32768,wsize=32768,retrans=10,timeo=50 1 1
+//$Gateway/home /home cifs credentials=/usr/pluto/var/sambaCredentials.secret 1 1" >>/etc/fstab
 fi
 umount -l /home
 mount -a
