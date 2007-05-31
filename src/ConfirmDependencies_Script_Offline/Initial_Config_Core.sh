@@ -108,9 +108,16 @@ if [[ $UpgradeMode == "false" ]]; then
 		fi
 	done
 
+#<-mkr_B_via_b->
+	DefaultNetwork="192.168.80"
+#<-mkr_B_via_e->
+#<-mkr_b_via_b->
+	DefaultNetwork="192.168.81"
+#<-mkr_b_via_e->
+	
 	echo ""
 	echo "Enter either 1, 2, or 3 numbers separated with periods, such as 192.168.1, 10.12, or 10"
-	echo "Press enter to use the default range of 192.168.80"
+	echo "Press enter to use the default range of $DefaultNetwork"
 
 	while :;do
 		NetworkInput=$(Ask "What is the internal network adress ?")
@@ -137,12 +144,7 @@ if [[ $UpgradeMode == "false" ]]; then
 
 			[[ "$error" == "true" ]] && continue
 		else
-#<-mkr_B_via_b->
-			Network="192.168.80"
-#<-mkr_B_via_e->
-#<-mkr_b_via_b->
-			Network="192.168.81"
-#<-mkr_b_via_e->
+			Network="$DefaultNetwork"
 			Digits_Count="3"
 		fi
 
@@ -322,11 +324,12 @@ if [[ "$UpgradeMode" == "false" ]] ;then
 	Q="REPLACE INTO Device_DeviceData(FK_Device,FK_DeviceData,IK_DeviceData) VALUES('$CoreDev',32,'$NETsetting')"
 	RunSQL "$Q"
 #<-mkr_B_via_b->
-	if [[ "$DHCP" != n && "$DHCP" != N ]]; then
+	[[ "$DHCP" != n && "$DHCP" != N ]]
 #<-mkr_B_via_e->
 #<-mkr_b_via_b->
-	if [[ "$DHCP" == y && "$DHCP" == Y ]]; then
+	[[ "$DHCP" == y && "$DHCP" == Y ]]
 #<-mkr_b_via_b->
+	if [[ $? -eq 0 ]]; then
 		Q="REPLACE INTO Device_DeviceData(FK_Device, FK_DeviceData, IK_DeviceData)
 			VALUES($CoreDev, 28, '$DHCPsetting')"
 		RunSQL "$Q"
