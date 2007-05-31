@@ -120,6 +120,7 @@ script
 end script
 " > /etc/event.d/media-cernter-startup
 
+apt-get -f -y install pluto-mysql-wrapper
 Setup_NIS
 Configure_Mounts
 Unpack_Config_Files
