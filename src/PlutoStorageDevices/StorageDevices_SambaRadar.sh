@@ -39,6 +39,11 @@ function netmaskLen() {
 
 
 while : ;do
+
+	if [[ "$IntNetmask" == "" ]] ;then
+		exit 0
+	fi
+
 	## Store in IntNetwork the network address with netmask in decimal format
 	IntNetwork="${IntIP}/$(netmaskLen "${IntNetmask}")"
 
