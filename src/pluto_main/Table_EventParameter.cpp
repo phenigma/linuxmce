@@ -475,13 +475,20 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_EventParame
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
 			bool bResult=database->MySQLConnect(true);
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_EventParameter::Commit Cannot perform query [%s] %s reconnect: %d",query.c_str(),database->m_sLastMySqlError.c_str(),(int) bResult);
-			if( bDeleteFailedInsertRow )
+			int iResult2=-1;
+			if( bResult )
+				iResult2 = mysql_query(database->m_pMySQL, query.c_str());
+			
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_EventParameter::Commit Cannot perform query [%s] %s reconnect: %d result2: %d",query.c_str(),database->m_sLastMySqlError.c_str(),(int) bResult, iResult2);
+			if( iResult2!=0 )  // We can keep going if the time it worked
 			{
-				addedRows.erase(i);
-				delete pRow;
+				if( bDeleteFailedInsertRow )
+				{
+					addedRows.erase(i);
+					delete pRow;
+				}
+				return false;
 			}
-			return false;
 		}
 	
 		if (mysql_affected_rows(database->m_pMySQL)!=0)
@@ -536,13 +543,20 @@ update_values_list = update_values_list + "`PK_EventParameter`="+pRow->PK_EventP
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
 			bool bResult=database->MySQLConnect(true);
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_EventParameter::Commit Cannot perform update query [%s] %s reconnect: %d",query.c_str(),database->m_sLastMySqlError.c_str(),(int) bResult);
-			if( bDeleteFailedModifiedRow )
+			int iResult2=-1;
+			if( bResult )
+				iResult2 = mysql_query(database->m_pMySQL, query.c_str());
+
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_EventParameter::Commit Cannot perform update query [%s] %s reconnect: %d result2: %d",query.c_str(),database->m_sLastMySqlError.c_str(),(int) bResult, iResult2);
+			if( iResult2!=0 )  // We can keep going if the time it worked
 			{
-				cachedRows.erase(i);
-				delete pRow;
+				if( bDeleteFailedModifiedRow )
+				{
+					cachedRows.erase(i);
+					delete pRow;
+				}
+				return false;
 			}
-			return false;
 		}
 	
 		pRow->is_modified = false;	
@@ -583,8 +597,13 @@ condition = condition + "`PK_EventParameter`=" + tmp_PK_EventParameter;
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
 			bool bResult=database->MySQLConnect(true);
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_EventParameter::Commit Cannot perform delete query [%s] %s reconnect: %d",query.c_str(),database->m_sLastMySqlError.c_str(),(int) bResult);
-			return false;
+			int iResult2=-1;
+			if( bResult )
+				iResult2 = mysql_query(database->m_pMySQL, query.c_str());
+
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_EventParameter::Commit Cannot perform delete query [%s] %s reconnect: %d result2: %d",query.c_str(),database->m_sLastMySqlError.c_str(),(int) bResult, iResult2);
+			if( iResult2!=0 )  // We can keep going if the time it worked
+				return false;
 		}	
 		
 		pRow = (Row_EventParameter*) (*i).second;;
@@ -619,8 +638,13 @@ bool Table_EventParameter::GetRows(string where_statement,vector<class Row_Event
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
 		bool bResult=database->MySQLConnect(true);
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_EventParameter::GetRows Cannot perform query [%s] %s reconnect: %d",query.c_str(),database->m_sLastMySqlError.c_str(),(int) bResult);
-		return false;
+		int iResult2=-1;
+		if( bResult )
+			iResult2 = mysql_query(database->m_pMySQL, query.c_str());
+
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_EventParameter::GetRows Cannot perform query [%s] %s reconnect: %d result2: %d",query.c_str(),database->m_sLastMySqlError.c_str(),(int) bResult, iResult2);
+		if( iResult2!=0 )  // We can keep going if the time it worked
+			return false;
 	}	
 
 	MYSQL_RES *res = mysql_store_result(database->m_pMySQL);
@@ -847,8 +871,13 @@ condition = condition + "`PK_EventParameter`=" + tmp_PK_EventParameter;
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
 		bool bResult=database->MySQLConnect(true);
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_EventParameter::FetchRow Cannot perform query [%s] %s reconnect: %d",query.c_str(),database->m_sLastMySqlError.c_str(),(int) bResult);
-		return NULL;
+		int iResult2=-1;
+		if( bResult )
+			iResult2 = mysql_query(database->m_pMySQL, query.c_str());
+
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_EventParameter::FetchRow Cannot perform query [%s] %s reconnect: %d result2: %d",query.c_str(),database->m_sLastMySqlError.c_str(),(int) bResult, iResult2);
+		if( iResult2!=0 )  // We can keep going if the time it worked
+			return NULL;
 	}	
 
 	MYSQL_RES *res = mysql_store_result(database->m_pMySQL);
