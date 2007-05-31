@@ -11,6 +11,10 @@ if [[ $build_dir == "" || $local_mirror_dir == "" ]] ;then
 	local_mirror_dir="/var/www"
 fi
 
+if [[ "$iso_name" == "" ]] ;then
+	iso_name="linuxmce-1.1"
+fi
+
 svn_dir="${build_dir}/svn"
 svn_url="http://10.0.0.170/"
 
@@ -514,8 +518,8 @@ function Create_Diskless_Archive {
 function Create_ISO {
 	# Create the iso
 	pushd $local_mirror_dir
-	        /root/Ubuntu_Helpers/get-packages-quick.sh
-		/root/Ubuntu_Helpers/make-cache-cd.sh
+	        /root/Ubuntu_Helpers/get-packages-quick.sh $iso_name
+		/root/Ubuntu_Helpers/make-cache-cd.sh $iso_name
 	popd
 }
 
@@ -528,8 +532,8 @@ function Upload_Build_Archive {
 }
 
 function Backup_Last_Build {
-	local PACKAGES_ISO_NAME="linuxmce-1.1-packages.iso"
-	local CACHE_ISO_NAME="linuxmce-1.1-cache.iso"
+	local PACKAGES_ISO_NAME="${iso_name}-packages.iso"
+	local CACHE_ISO_NAME="${iso_name}-cache.iso"
 	local BUILD_BACKUP_DIR="/var/www/BuildBackups"
 
 
