@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8" ?> 
+<menu>
+	<menuitem description="Video Settings">
+		<menuitem description="Resolution" actiontype="execute_script" action="/usr/pluto/bin/CheckResolution.sh --resolution {1}">
+			<menuitem description="480p widescreen" parameter1="480p" />
+			<menuitem description="720p widescreen" parameter1="720p" /> 
+			<menuitem description="1080i widescreen" parameter1="1080i" /> 
+			<menuitem description="1080p widescreen" parameter1="1080p" /> 
+			<menuitem description="640x480" parameter1="640x480" /> 
+			<menuitem description="800x600" parameter1="800x600" /> 
+			<menuitem description="1024x748" parameter1="1024x748" /> 
+			<menuitem description="1280x1024" parameter1="1280x1024" />
+			<menuitem description="1600x1200" parameter1="1600x1200" /> 
+		</menuitem>	
+		<menuitem description="Refresh">
+		<!-- submenu items here -->
+		</menuitem>
+		<menuitem description="Connector">	
+		<!-- submenu items here -->
+		</menuitem>
+	</menuitem>
+	<menuitem description="Utilities">
+		<menuitem description="Regenerate Orbiter's UI's" actiontype="execute_command" action="/usr/pluto/bin/MessageSend 0 ... " />
+		<menuitem description="Refresh the devices" actiontype="execute_method" action="RefreshDevices {1}" parameter1="*" />
+		<!-- other submenu items here -->
+	</menuitem>
+</menu>
