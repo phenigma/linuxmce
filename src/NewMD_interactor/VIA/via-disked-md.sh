@@ -83,6 +83,8 @@ mount -a
 DeviceID=$(</etc/Disked_DeviceID)
 tar -C / -xzf /usr/pluto/var/Disked_$DeviceID.tar.gz
 
+ConfEval
+
 ConfSet AutostartCore 1
 ConfSet AutostartMedia 1
 
