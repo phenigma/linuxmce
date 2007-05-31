@@ -210,7 +210,14 @@ RendererImage *CreateFromRWops(SDL_RWops * rw, float fScaleX, float fScaleY, boo
 	SurfaceFromFile = IMG_Load_RW(rw, bFreeRWops); // rw is freed here of bFreeRWops is true (=1)
 
 	if (SurfaceFromFile == NULL)
-		throw string("Can't create surface from FILE pointer: ") + SDL_GetError();
+	{
+#ifndef WINCE
+		cout << "Can't create surface from FILE pointer: " << SDL_GetError() << endl;		
+#endif
+
+		//return a dummy surface instead
+		return CreateBlankCanvas(size);
+	}
 
 	if( offset.X || offset.Y || offset.Width || offset.Height )
 	{
