@@ -2,8 +2,8 @@
 #define __LCD_MANAGER_H__
 //--------------------------------------------------------------------------------------------------------
 #include "IInputProcessor.h"
+#include "IRenderer.h"
 //--------------------------------------------------------------------------------------------------------
-class IRenderer;
 class MenuHolder;
 class Command_Impl;
 //--------------------------------------------------------------------------------------------------------
@@ -11,6 +11,7 @@ class LCDManager : public IInputProcessor
 {
 private:
 
+	DisplayState m_display_state;
 	MenuHolder *m_pMenuHolder;
 	IRenderer *m_pRenderer;
 	Command_Impl *m_pCommandImpl;

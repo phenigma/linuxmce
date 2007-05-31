@@ -15,7 +15,7 @@ public:
 	{
 	}
 
-    virtual void Render(DisplayState *pDisplayState) = 0;
+    virtual void Render(const DisplayState &display_state) = 0;
 };
 //--------------------------------------------------------------------------------------------------------
 #endif //__IRENDERER_H__

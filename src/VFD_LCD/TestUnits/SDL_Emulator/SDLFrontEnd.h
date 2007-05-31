@@ -2,6 +2,7 @@
 #define __SDL_FRONT_END_H__
 //--------------------------------------------------------------------------------------------------------
 #include <SDL.h>
+#include <SDL_ttf.h>
 //--------------------------------------------------------------------------------------------------------
 #include "../../LCDLogic/IRenderer.h"
 //--------------------------------------------------------------------------------------------------------
@@ -10,6 +11,8 @@ class SDLFrontEnd : public IRenderer
 private:
 
 	SDL_Surface *m_pSurface;
+	TTF_Font *m_pFont;
+
 	int m_nWidth, m_nHeight;
 
 public:
@@ -20,11 +23,12 @@ public:
 	bool Init();
 	bool EventLoop();
 
-	void Render(DisplayState *pDisplayState = NULL);
+	void Render(const DisplayState &display_state);
 
 private:
 
-	void RenderText(int x, int y, string sText, int width);
+	void Clear();
+	void RenderText(int x, int y, string sText);
 };
 //--------------------------------------------------------------------------------------------------------
 #endif //__SDL_FRONT_END_H__
