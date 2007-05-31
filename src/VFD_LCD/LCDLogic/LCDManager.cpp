@@ -1,6 +1,6 @@
 #include "LCDManager.h"
 //--------------------------------------------------------------------------------------------------------
-LCDManager::LCDManager(MenuHolder *pMenuHolder, IRenderer *pRenderer) : 
+LCDManager::LCDManager(MenuHolder *pMenuHolder, IRenderer *pRenderer, Command_Impl *pCommandImpl) : 
 	IInputProcessor(), m_pMenuHolder(pMenuHolder), m_pRenderer(pRenderer), m_pCommandImpl(pCommandImpl)
 {
 }
@@ -16,6 +16,8 @@ bool LCDManager::ProcessInput(IInput *pInput)
 	//decide which is current node
 	//display on renderer
 	//execute action for current node, if any
+
+	return true;
 }
 //--------------------------------------------------------------------------------------------------------
 

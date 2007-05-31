@@ -1,6 +1,10 @@
 #ifndef __MENU_ITEM_ACTION_H__
 #define __MENU_ITEM_ACTION_H__
 //--------------------------------------------------------------------------------------------------------
+#include <string>
+#include <map>
+using namespace std;
+//--------------------------------------------------------------------------------------------------------
 enum ActionType
 {
 	atExecuteScript,

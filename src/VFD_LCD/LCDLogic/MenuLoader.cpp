@@ -1,4 +1,5 @@
 #include "MenuLoader.h"
+#include "MenuHolder.h"
 //--------------------------------------------------------------------------------------------------------
 MenuLoader::MenuLoader()
 {
@@ -11,10 +12,12 @@ MenuLoader::~MenuLoader()
 MenuHolder *Load(string sFilename)
 {
 	//TODO: load menu from file
+	return new MenuHolder();
 }
 //--------------------------------------------------------------------------------------------------------
 MenuHolder *Load(char *pData, size_t nSize)
 {
 	//TODO: load menu from array of bytes
+	return new MenuHolder();
 }
 //--------------------------------------------------------------------------------------------------------

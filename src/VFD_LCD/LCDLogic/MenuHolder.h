@@ -5,6 +5,7 @@ class MenuItem;
 //--------------------------------------------------------------------------------------------------------
 class MenuHolder 
 {
+	MenuItem *m_pRootMenuItem;
 	MenuItem *m_pCurrentMenuItem;
 
 public:
