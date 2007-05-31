@@ -156,7 +156,7 @@ public:
 		return row[0];
 	}
 
-	MYSQL_RES *mysql_query_result(string query)
+	MYSQL_RES *mysql_query_result(string query,bool Retry=false)
 	{
 	#ifdef DEBUG
 		clock_t cStart = clock();
@@ -166,8 +166,13 @@ public:
 		if( (iresult=mysql_query(m_pMySQL,query.c_str()))!=0 )
 		{
 			
-				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Query failed (%s): %s (%d)",mysql_error(m_pMySQL),query.c_str(),iresult);
-			MySQLConnect(true);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Query failed (%s): %s (%d)",mysql_error(m_pMySQL),query.c_str(),iresult);
+			if( MySQLConnect(true) && Retry==false )
+			{
+				MYSQL_RES *p = mysql_query_result(query,true);  // Try a second time if we were able to reconnect
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Query failed (%s): %s retry: %p",mysql_error(m_pMySQL),query.c_str(),p);
+				return p;
+			}
 			return NULL;
 		}
 	//	else
@@ -196,7 +201,7 @@ public:
 		return pMYSQL_RES;
 	}
 
-	int threaded_mysql_query(string query,bool bIgnoreErrors=false)
+	int threaded_mysql_query(string query,bool bIgnoreErrors=false,bool Retry=false)
 	{
 	#ifdef DEBUG
 		clock_t cStart = clock();
@@ -208,8 +213,13 @@ public:
 			if( bIgnoreErrors )
 				return -1;
 			
-				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Query failed (%s): %s (%d)",mysql_error(m_pMySQL),query.c_str(),iresult);
-			MySQLConnect(true);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Query failed (%s): %s (%d)",mysql_error(m_pMySQL),query.c_str(),iresult);
+			if( MySQLConnect(true) && Retry==false )
+			{
+				int i = threaded_mysql_query(query,bIgnoreErrors,true);  // Try a second time if we were able to reconnect
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Query failed (%s): %s retry: %d",mysql_error(m_pMySQL),query.c_str(),i);
+				return i;
+			}
 			return -1;
 		}
 
@@ -232,7 +242,7 @@ public:
 		return (int) mysql_affected_rows(m_pMySQL);
 	}
 
-	int threaded_mysql_query_withID(string query)
+	int threaded_mysql_query_withID(string query,bool Retry=false)
 	{
 	#ifdef DEBUG
 		clock_t cStart = clock();
@@ -242,8 +252,13 @@ public:
 		if( (iresult=mysql_query(m_pMySQL,query.c_str()))!=0 )
 		{
 			
-				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Query failed (%s): %s (%d)",mysql_error(m_pMySQL),query.c_str(),iresult);
-			MySQLConnect(true);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Query failed (%s): %s (%d)",mysql_error(m_pMySQL),query.c_str(),iresult);
+			if( MySQLConnect(true) && Retry==false )
+			{
+				int i = threaded_mysql_query_withID(query,true);  // Try a second time if we were able to reconnect
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Query failed (%s): %s retry: %d",mysql_error(m_pMySQL),query.c_str(),i);
+				return i;
+			}
 			return 0;
 		}
 
