@@ -11,6 +11,7 @@ fi
 
 # setup network
 /etc/init.d/dhcp3-server stop
+/etc/init.d/samba stop
 ifdown eth0:0
 ifconfig eth0:0 down
 
