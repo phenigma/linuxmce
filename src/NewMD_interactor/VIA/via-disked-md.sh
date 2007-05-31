@@ -88,7 +88,7 @@ ConfSet AutostartMedia 1
 
 # reconfigure network with static settings
 /etc/init.d/networking restart
-/usr/pluto/bin/Network_NIS.sh
+/etc/init.d/nis restart
 
 rm -f /etc/hosts
 
