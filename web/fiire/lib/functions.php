@@ -1700,8 +1700,8 @@ function record_dealer_form($categs,$conn){
 		$selCountry=0;
 		$selRegion=0;
 		$selCity=0;
-		$date_from='0000-00-00 00:00';
-		$date_to='0000-00-00 00:00';
+		$date_from=date('d/m/Y');
+		$date_to=date('d/m/Y');
 		$title='';
 		$description='';
 		$url='';
@@ -1716,7 +1716,16 @@ function record_dealer_form($categs,$conn){
 	$variables=set_variable($variables,'region_pulldown',regionsPulldown('region',$selRegion,$selCountry,$conn,'onChange="document.form1.submit();"'));
 	$variables=set_variable($variables,'city_pulldown',citiesPulldown('city',$selCity,$selRegion,$conn,'onChange="document.form1.submit();"'));
 	$variables=set_variable($variables,'categ_pulldown',pulldownFromArray($categs,'categ',$categ,'onChange="document.form1.submit();"'));
-	$variables=set_variable($variables,'from_to_dates',($categ==3)?' from <input type="text" name="date_from" value="'.$date_from.'"> to <input type="text" name="date_to" value="'.$date_to.'">':'');
+	
+	$dateFromInput='<input type=text name="date_from" size=12 maxlength=10 value="'.$date_from.'" onclick="popUpCalendar(this, form1.date_from, \'dd/mm/yyyy\');" onFocus="blur()">';
+	$dateToInput='<input type=text name="date_to" size=12 maxlength=10 value="'.$date_to.'" onclick="popUpCalendar(this, form1.date_from,\'dd/mm/yyyy\');" onFocus="blur()">';
+	$fromToDates='<tr>
+						<td>From</td>
+						<td>'.$dateFromInput.' to '.$dateToInput.'</td>
+					</tr>';
+	$fromToDates=($categ==3)?$fromToDates:'';
+	
+	$variables=set_variable($variables,'from_to_dates',$fromToDates);
 	$variables=set_variable($variables,'title',$title);
 	$variables=set_variable($variables,'description',$description);
 	$variables=set_variable($variables,'url',$url);
@@ -1932,8 +1941,8 @@ function edit_dealer_form($id,$categs,$conn){
 		$selCountry=$data[0]['FK_Country'];
 		$selRegion=$data[0]['FK_Region'];
 		$selCity=$data[0]['FK_City'];
-		$date_from=$data[0]['date_from'];
-		$date_to=$data[0]['date_to'];
+		$date_from=format_mysql_date($data[0]['date_from'],'d/m/Y');
+		$date_to=format_mysql_date($data[0]['date_to'],'d/m/Y');
 		$title=$data[0]['title'];
 		$description=$data[0]['description'];
 		$url=$data[0]['url'];
@@ -1949,7 +1958,16 @@ function edit_dealer_form($id,$categs,$conn){
 	$variables=set_variable($variables,'region_pulldown',regionsPulldown('region',$selRegion,$selCountry,$conn,'onChange="document.form1.submit();"'));
 	$variables=set_variable($variables,'city_pulldown',citiesPulldown('city',$selCity,$selRegion,$conn,'onChange="document.form1.submit();"'));
 	$variables=set_variable($variables,'categ_pulldown',pulldownFromArray($categs,'categ',$categ,'onChange="document.form1.submit();"'));
-	$variables=set_variable($variables,'from_to_dates',($categ==3)?' from <input type="text" name="date_from" value="'.$date_from.'"> to <input type="text" name="date_to" value="'.$date_to.'">':'');
+	
+	$dateFromInput='<input type=text name="date_from" size=12 maxlength=10 value="'.$date_from.'" onclick="popUpCalendar(this, form1.date_from, \'dd/mm/yyyy\');" onFocus="blur()">';
+	$dateToInput='<input type=text name="date_to" size=12 maxlength=10 value="'.$date_to.'" onclick="popUpCalendar(this, form1.date_from,\'dd/mm/yyyy\');" onFocus="blur()">';
+	$fromToDates='<tr>
+						<td>From</td>
+						<td>'.$dateFromInput.' to '.$dateToInput.'</td>
+					</tr>';
+	$fromToDates=($categ==3)?$fromToDates:'';
+	
+	$variables=set_variable($variables,'from_to_dates',$fromToDates);	
 	$variables=set_variable($variables,'id',$id);
 	$variables=set_variable($variables,'title',$title);
 	$variables=set_variable($variables,'description',$description);
