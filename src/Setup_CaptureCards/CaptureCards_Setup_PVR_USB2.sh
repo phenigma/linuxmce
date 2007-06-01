@@ -103,6 +103,8 @@ EnableDevice()
 
 
 CardDevice_Template=$(RunSQL "SELECT FK_DeviceTemplate FROM Device WHERE PK_Device = $1")
+echo "$(date -R) Giving the card 5 seconds to initialize so the /dev/videoX entry is there"
+sleep 5
 echo "--> Setting up card '$1'"
 
 # PVRUSB2 capture card
@@ -113,6 +115,7 @@ fi
 
 CardDevice_HalUDI=$(hal-find-by-property --key linux.sysfs_path --string "/sys/devices/$CardDevice_PciID")
 if [[ -z "$CardDevice_HalUDI" ]] ;then 
+	ls -l /dev/video*
 	DisableDevice "$1"
 	exit
 fi

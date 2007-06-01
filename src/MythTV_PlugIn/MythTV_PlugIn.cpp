@@ -171,7 +171,16 @@ bool MythTV_PlugIn::Register()
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &MythTV_PlugIn::NewRecording), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_MythTV_Show_Recorded_CONST );
     RegisterMsgInterceptor( ( MessageInterceptorFn )( &MythTV_PlugIn::NewBookmarks ), 0, 0, 0, 0, MESSAGETYPE_COMMAND, COMMAND_Save_Bookmark_CONST );
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &MythTV_PlugIn::ScanningProgress ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Channel_Scan_Progress_CONST );
-    RegisterMsgInterceptor( ( MessageInterceptorFn )( &MythTV_PlugIn::PlaybackStarted ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Playback_Started_CONST );
+
+	ListDeviceData_Router *pListDeviceData_Router = m_pRouter->m_mapDeviceByTemplate_Find(DEVICETEMPLATE_MythTV_Player_CONST);
+	if( pListDeviceData_Router )
+	{
+		for(ListDeviceData_Router::iterator it=pListDeviceData_Router->begin();it!=pListDeviceData_Router->end();++it)
+		{
+			DeviceData_Router *pDevice_MythPlayer = *it;
+			RegisterMsgInterceptor( ( MessageInterceptorFn )( &MythTV_PlugIn::PlaybackStarted ), pDevice_MythPlayer->m_dwPK_Device, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Playback_Started_CONST );
+		}
+	}
 
 	SetPaths();
 
@@ -1021,6 +1030,8 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Re
 				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythTV_PlugIn::SyncCardsAndProviders cannot find device %s provider %s",row[0],row[1]);
 				continue;
 			}
+
+			pRow_Device->Reload();
 
 			Row_Device_DeviceData *pRow_Device_DeviceData_UseInMyth = m_pMedia_Plugin->m_pDatabase_pluto_main->Device_DeviceData_get()->GetRow(pRow_Device->PK_Device_get(),DEVICEDATA_Dont_Consolidate_Media_CONST);
 			bool bUseInMyth = !pRow_Device_DeviceData_UseInMyth || pRow_Device_DeviceData_UseInMyth->IK_DeviceData_get()!="1";

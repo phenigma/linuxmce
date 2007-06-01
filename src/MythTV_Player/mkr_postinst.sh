@@ -79,32 +79,6 @@ if [ "$FOUND" == "0" ]; then
 	exit 0;
 fi
 
-query="select count(*) from settings where hostname='`hostname`' AND value LIKE 'Backend%'";
-isSetup=`echo "$query" | $mysql_command`;
-
-if [ "$isSetup" != 0  ]; then
-	echo "Removing old mythtv configuration for this machine";
-	echo "delete from settings where hostname='`hostname`' AND value LIkE 'BackendServer%'" | $mysql_command;
-	echo "delete from settings where value LIkE 'MasterServer%'" | $mysql_command;
-	#echo "delete from settings where hostname='`hostname`' AND value LIkE 'RecordFilePrefix'" | $mysql_command;
-fi;
-
-echo "Setting up mythtv configuration for this machine";
-hostname=`hostname`;
-hostip=`gethostip $hostname | cut -f 2 -d ' '`;
-routerip=`gethostip dcerouter | cut -f 2 -d ' '`;
-
-addEntries BackendServerIP $hostip $hostname;
-addEntries BackendServerPort 6543 $hostname;
-addEntries BackendServerStatus 6544 $hostname;
-#addEntries RecordFilePrefix /var/lib/mythtv/ $hostname;
-
-addEntries MasterServerIP	$routerip;
-addEntries MasterServerPort	6543;
-
-addEntries AutoCommercialFlag   0   $hostname;
-addEntries AutoCommflagWhileRecording   0   $hostname;
-
 PID=`pidof /usr/bin/mythbackend` || /bin/true;
 echo "LOCK TABLE schemalock WRITE;" | $mysql_command  || :
 if [ "$PID" != "" ]; then

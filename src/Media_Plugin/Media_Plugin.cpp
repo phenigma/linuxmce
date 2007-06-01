@@ -231,7 +231,7 @@ Media_Plugin::Media_Plugin( int DeviceID, string ServerAddress, bool bConnectEve
 	m_bAskBeforeReload=true;
 	m_bImplementsPendingTasks=true;
 
-	m_iStreamID=0;
+	m_iStreamID=1000; // Start with a higher number in case temporary stuff like video wizard uses low numbers
 	m_iPK_File_Last_Scanned_For_New=0;
 	m_pDatabase_pluto_main=NULL;
 	m_pDatabase_pluto_media=NULL;
