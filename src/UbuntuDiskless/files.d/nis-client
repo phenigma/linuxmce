@@ -7,6 +7,7 @@ set -e
 . /usr/pluto/bin/Network_Parameters.sh
 . /usr/pluto/bin/Section_Ops.sh
 . /usr/pluto/bin/Utils.sh
+. /usr/pluto/bin/SQL_Ops.sh
 
 ## Config for nis to act as a client
 File="/etc/default/nis"
@@ -45,7 +46,6 @@ netgroup:       nis
 "
 echo "$Content" > "${Parm_RootLocation}/${File}"
 
-
 if [ ! -e ${Parm_RootLocation}/etc/group.pbackup ] ;then
    cp ${Parm_RootLocation}/etc/group ${Parm_RootLocation}/etc/group.pbackup 2>/dev/null || :
 fi
@@ -69,5 +69,13 @@ fi
 
 if [[ -f ${Parm_RootLocation}/etc/group ]] &&  ! BlacklistConfFiles "${Parm_RootLocation}/etc/group" ;then
 	grep -q "+:::"      ${Parm_RootLocation}/etc/group  || echo "+:::"      >> ${Parm_RootLocation}/etc/group
+fi
+
+## Add to /etc/hosts the 'dcerouter' hostname just in case nis fails to start on diskless mds
+DisklessBoot=$(RunSQL "SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device = '$Parm_Device' AND FK_DeviceData = '$DEVICEDATA_DISKLESS_BOOT'")
+if [[ "$DisklessBoot" == "1" ]] ;then
+	File="/etc/hosts"
+	mkdir -p "${Parm_RootLocation}/$(dirname $File)"
+	echo "${IntIP} dcerouter" >> "${Parm_RootLocation}/${File}"
 fi
 
