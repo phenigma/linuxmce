@@ -2,7 +2,7 @@ ROOT=../../..
 
 CXX=g++
 CC=$(CXX)
-CXXFLAGS=-W -Wall -pipe -ggdb3
+CXXFLAGS=-W -Wall -pipe -ggdb3 -Werror
 CPPFLAGS=-I. -I../../..
 LDFLAGS=-L$(ROOT)/lib -L/usr/local/lib -lDCECommon -lPlutoUtils -lSerial
 
