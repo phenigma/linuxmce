@@ -136,7 +136,7 @@ int SDLFrontEnd::StartVideoMode(int Width, int Height, bool FullScreen)
 	
 	SDL_WM_SetCaption("PlutoGalleryViewer", "GalleryViewer");
 
-#if !defined(WIN32) && defined(KDE_LMCE)
+#if !defined(WIN32)
 	SDL_SysWMinfo info;
 
 	SDL_VERSION(&info.version);

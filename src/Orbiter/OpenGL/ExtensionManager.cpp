@@ -194,7 +194,7 @@ void ExtensionManager::Resize(int Width, int Height)
 	if(NULL != Screen)
 	{
 
-#if !defined(WIN32) && defined(KDE_LMCE)
+#if !defined(WIN32)
 
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Ready to remove window decorations for Orbiter");
 		
