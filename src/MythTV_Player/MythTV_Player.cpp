@@ -257,6 +257,12 @@ void MythTV_Player::pollMythStatus()
 			if( g_pMythPlayer->m_bExiting==true )
 				return;
 
+			if( m_mythStatus_get() != MYTHSTATUS_STARTUP )
+			{
+			    LoggerWrapper::GetInstance()->Write(LV_WARNING, "MythTV_Player::pollMythStatus state is now %d", (int) m_mythStatus_get());
+				return;
+			}
+
 		    mm.Release();
 		    Sleep(100);
 		    mm.Relock();
@@ -277,13 +283,23 @@ void MythTV_Player::pollMythStatus()
 			{
 				bPlaybackStarted=true;
 				LoggerWrapper::GetInstance()->Write(LV_STATUS, "MythTV_Player::pollMythStatus started playing");
+				break;
 			}
 			else
 			{
 				LoggerWrapper::GetInstance()->Write(LV_WARNING, "MythTV_Player::pollMythStatus no playback yet, reported : %s", sResult.c_str());
+				mm.Release();
 				Sleep(3000); // Give it a longer time
+				mm.Relock();
+				continue;
 			}
 		} while(time(NULL) < timeout);
+
+		if( m_mythStatus_get() != MYTHSTATUS_STARTUP )
+		{
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "MythTV_Player::pollMythStatus state is now %d", (int) m_mythStatus_get());
+			return;
+		}
 
 		if (bCommunication==false)
 		{
