@@ -4,14 +4,18 @@
 //--------------------------------------------------------------------------------------------------------
 SDLFrontEnd::SDLFrontEnd(IInputProcessor *pInputProcessor, int w, int h) : 
 	IRenderer(), IInputProvider(pInputProcessor),
-	m_pSurface(NULL), m_pFont(NULL), m_nWidth(w), m_nHeight(h)
+	m_pSurface(NULL), m_pFont(NULL), m_nWidth(w), m_nHeight(h),
+	m_ScreenMutex("screen rendering")
 {
+	m_ScreenMutex.Init(NULL);
 }
 //--------------------------------------------------------------------------------------------------------
 SDLFrontEnd::~SDLFrontEnd()
 {
 	TTF_Quit();
 	SDL_Quit();
+
+	pthread_mutex_destroy(&m_ScreenMutex.mutex);
 }
 //--------------------------------------------------------------------------------------------------------
 bool SDLFrontEnd::Init()
@@ -111,6 +115,8 @@ bool SDLFrontEnd::EventLoop()
 //--------------------------------------------------------------------------------------------------------
 void SDLFrontEnd::Render(const DisplayState &display_state)
 {
+	PLUTO_SAFETY_LOCK(sm, m_ScreenMutex);
+
 	Clear();
 
 	RenderText(10, 10, display_state.m_sHeader);

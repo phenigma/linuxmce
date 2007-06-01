@@ -4,6 +4,8 @@
 #include <SDL.h>
 #include <SDL_ttf.h>
 //--------------------------------------------------------------------------------------------------------
+#include "DCE/Logger.h"
+//--------------------------------------------------------------------------------------------------------
 #include "../../LCDLogic/IRenderer.h"
 #include "../../LCDLogic/IInputProvider.h"
 //--------------------------------------------------------------------------------------------------------
@@ -13,8 +15,9 @@ private:
 
 	SDL_Surface *m_pSurface;
 	TTF_Font *m_pFont;
-
 	int m_nWidth, m_nHeight;
+	
+	pluto_pthread_mutex_t m_ScreenMutex;
 
 public:
 
