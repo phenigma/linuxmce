@@ -937,7 +937,14 @@ void MythTV_Player::CMD_Stop_Media(int iStreamID,string *sMediaPosition,string &
 	*sMediaPosition = m_sChannel;
 
 	m_mythStatus_set(MYTHSTATUS_DISCONNECTED);
+
+	sResult = sendMythCommand("quit");
+	if( sResult!="OK" )
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "MythTV_Player::CMD_Stop_Media didn't respond to quit");
+
+	Sleep(500);
 	StopMythFrontend();
+	Sleep(500);
 }
 
 //<-dceag-c39-b->
