@@ -233,7 +233,7 @@ namespace DCE
 		virtual ~NullLogger()
 		{}
 
-		virtual void WriteBlock(const char *pBlock, size_t sBlockLen ) {}
+		virtual void WriteBlock(const char * /*pBlock*/, size_t /*sBlockLen*/) {}
 
 		virtual void Write( int /*iLevel*/, const char * /*pcFormat*/, ... ) {}
 
