@@ -37,7 +37,7 @@ public:
 	char *m_pcFieldName; /** < field name */
 	char *m_pcFieldDefaultValue; /** < default value, can be NULL */
 	enum_field_types m_iType; /** < field types, int-compatible-enum */
-	unsigned int m_iLength; /** < field length */
+	unsigned long m_iLength; /** < field length */
 	unsigned int m_iFlags; /** < (not yet known) */
 	unsigned int m_iDecimals;  /** < field decimal places */
 	

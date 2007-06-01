@@ -500,8 +500,14 @@ string TableInfo_Generator::get_set_default_values()
 		else
 			if ((*i)->getCType() == "string")
 			{
-				char *to = new char[2*(*i)->m_iLength + 1];
-				mysql_real_escape_string( m_pDB, to, (*i)->m_pcFieldDefaultValue, (unsigned long) strlen((*i)->m_pcFieldDefaultValue) ); 
+				unsigned long max_length = strlen((*i)->m_pcFieldDefaultValue)*2 + 1;
+				
+				char *to = new char[max_length];
+				if (max_length>1)
+					mysql_real_escape_string( m_pDB, to, (*i)->m_pcFieldDefaultValue, (unsigned long) strlen((*i)->m_pcFieldDefaultValue) ); 
+				else
+					to[0] = 0;
+
 				s = s + "m_" + (*i)->m_pcFieldName + " = \"" + to + "\";\n";
 				s = s + "is_null[" + int2string(field_index) + "] = false;\n";
 				delete[] to;
