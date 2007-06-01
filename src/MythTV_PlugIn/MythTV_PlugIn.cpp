@@ -1715,7 +1715,7 @@ void MythTV_PlugIn::BuildChannelList()
 							sDescription += " " + pRow_MediaProvider->Description_get();
 					}
 					else
-						sDescrption += " " + s;
+						sDescription += " " + s;
 				}
 				pMythSource = new MythSource(atoi(row[6]),sDescription);
 				m_mapMythSource[ pMythSource->m_dwID ] =pMythSource;
