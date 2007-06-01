@@ -7,6 +7,7 @@ BEGIN {
 	Monitor = 0;
 	Display = 0;
 	Screen = 0;
+	IGNORECASE = 1;
 }
 /Modeline/ { next }
 /Section..*"Monitor"/ { Monitor = 1; }
