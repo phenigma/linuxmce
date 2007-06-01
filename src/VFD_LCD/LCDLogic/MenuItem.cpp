@@ -8,6 +8,10 @@ MenuItem::MenuItem(string sDescription, MenuItem *pParent, MenuItemAction *pMenu
 //--------------------------------------------------------------------------------------------------------
 MenuItem::~MenuItem()
 {
+	for(vector<MenuItem *>::iterator it = m_vectChildren.begin(), end = m_vectChildren.end(); it != end; ++it)
+        delete *it;
+
+	delete m_pMenuItemAction;
 }
 //--------------------------------------------------------------------------------------------------------
 string MenuItem::Description()

@@ -7,6 +7,7 @@ MenuHolder::MenuHolder() : m_pRootMenuItem(NULL), m_pCurrentMenuItem(NULL)
 //--------------------------------------------------------------------------------------------------------
 MenuHolder::~MenuHolder()
 {
+	delete m_pRootMenuItem;
 }
 //--------------------------------------------------------------------------------------------------------
 MenuItem *MenuHolder::RootMenu()
