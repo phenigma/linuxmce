@@ -81,7 +81,7 @@ bool WMControllerImpl::SetLayer(string sWindow, WindowLayer aLayer, bool bUseWin
 			break;
 		case LayerBelow:
             bResult = bResult && wmctrl.ActionCommand('b', sWindow.c_str(), "remove,above", bUseWindowId);
-            bResult = bResult && wmctrl.ActionCommand('b', sWindow.c_str(), "remove,below", bUseWindowId);
+//            bResult = bResult && wmctrl.ActionCommand('b', sWindow.c_str(), "remove,below", bUseWindowId);
             bResult = bResult && wmctrl.ActionCommand('b', sWindow.c_str(), "add,below", bUseWindowId);
 			break;
 		default:
