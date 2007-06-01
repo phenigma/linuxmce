@@ -41,6 +41,7 @@ using namespace DCE;
 #include "pluto_main/Define_DesignObj.h"
 #include "pluto_main/Define_Button.h"
 #include "PlutoUtils/ProcessUtils.h"
+#include "Gen_Devices/AllScreens.h"
 
 #include <sstream>
 // #include <qsqldatabase.h>
@@ -250,16 +251,41 @@ void MythTV_Player::pollMythStatus()
 	
 		string sResult;
 		time_t timeout=60+time(NULL);
-		
+		bool bPlaybackStarted=false,bCommunication=false;
 		do
 		{
+			if( g_pMythPlayer->m_bExiting==true )
+				return;
+
 		    mm.Release();
 		    Sleep(100);
 		    mm.Relock();
 		    sResult = sendMythCommand("jump livetv");
-		    LoggerWrapper::GetInstance()->Write(LV_WARNING, "%s", sResult.c_str());
-		} while(time(NULL) < timeout && sResult != "OK" && m_mythStatus_get() == MYTHSTATUS_LIVETV);
-		if (time(NULL) >= timeout)
+			if( sResult!="OK" )
+			{
+			    LoggerWrapper::GetInstance()->Write(LV_WARNING, "MythTV_Player::pollMythStatus no jump livetv %s", sResult.c_str());
+				continue;
+			}
+			else
+				bCommunication=true;  // We at least have communication
+
+			mm.Release();
+            Sleep(1000);
+			mm.Relock();
+			string sResult = sendMythCommand("query location");
+			if( sResult.find("Playback")!=string::npos )
+			{
+				bPlaybackStarted=true;
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "MythTV_Player::pollMythStatus started playing");
+			}
+			else
+			{
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "MythTV_Player::pollMythStatus no playback yet, reported : %s", sResult.c_str());
+				Sleep(3000); // Give it a longer time
+			}
+		} while(time(NULL) < timeout);
+
+		if (bCommunication==false)
 		{
 			DCE::CMD_MH_Stop_Media_Cat CMD_MH_Stop_Media_Cat(m_dwPK_Device,DEVICECATEGORY_Media_Plugins_CONST,false,BL_SameHouse,m_dwPK_Device,0,0,"",false);
 			SendCommand(CMD_MH_Stop_Media_Cat);
@@ -267,6 +293,40 @@ void MythTV_Player::pollMythStatus()
 			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Failed initial communications with Mythfrontend.");
 			StopMythFrontend();
 			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Killed Mythfrontend.");
+		}
+		if( bPlaybackStarted==false && m_pDevice_MythTV_Plugin )
+		{
+			string sMessage;
+			DeviceData_Base *pDevice_App_Server_Local = m_pData->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_App_Server_CONST);
+			if( pDevice_App_Server_Local )
+				sMessage = StringUtils::itos(m_dwPK_Device) + " " + StringUtils::itos(pDevice_App_Server_Local->m_dwPK_Device) + " "
+					+ StringUtils::itos(MESSAGETYPE_COMMAND) + " " TOSTRING(COMMAND_Spawn_Application_CONST) " "
+					TOSTRING(COMMANDPARAMETER_Name_CONST) " killmyth " 
+					TOSTRING(COMMANDPARAMETER_Filename_CONST) " \"/usr/pluto/bin/ForciblyKillProcess.sh\" "
+					TOSTRING(COMMANDPARAMETER_Arguments_CONST) " mythbackend";
+
+			DeviceData_Base *pDevice_App_Server_Core = m_pDevice_MythTV_Plugin->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_App_Server_CONST);
+			if( pDevice_App_Server_Core && pDevice_App_Server_Core!=pDevice_App_Server_Local )
+			{
+				if( sMessage.empty()==false )
+					sMessage += " & ";
+
+				sMessage += StringUtils::itos(m_dwPK_Device) + " " + StringUtils::itos(pDevice_App_Server_Core->m_dwPK_Device) + " "
+					+ StringUtils::itos(MESSAGETYPE_COMMAND) + " " TOSTRING(COMMAND_Spawn_Application_CONST) " "
+					TOSTRING(COMMANDPARAMETER_Name_CONST) " killmyth " 
+					TOSTRING(COMMANDPARAMETER_Filename_CONST) " \"/usr/pluto/bin/ForciblyKillProcess.sh\" "
+					TOSTRING(COMMANDPARAMETER_Arguments_CONST) " mythbackend";
+			}
+
+			DCE::SCREEN_PopupMessage SCREEN_PopupMessage(m_dwPK_Device, m_pData->m_dwPK_Device_ControlledVia,
+				"MythTV is having problems.  Reset the backend?|Yes|No", // Main message
+				sMessage, // Command Line
+				"myth is dead again", // Description
+				"0", // sPromptToResetRouter
+				"300", // sTimeout
+				"1"); // sCannotGoBack
+			SendCommand(SCREEN_PopupMessage);
+
 		}
 	} 
 	else if (m_mythStatus_get() != MYTHSTATUS_DISCONNECTED)

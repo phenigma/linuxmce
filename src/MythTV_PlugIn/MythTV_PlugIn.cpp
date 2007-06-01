@@ -1065,10 +1065,11 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Re
 			int cardid = atoi(DatabaseUtils::GetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,bTunersAsSeparateDevices ? pRow_Device->PK_Device_get() : pRow_Device_CaptureCard->PK_Device_get(),DEVICEDATA_Port_CONST).c_str());
 			if( cardid && (pRow_Device->Disabled_get()==1 || pRow_Device_CaptureCard->Disabled_get()==1) )
 			{
+				// Don't delete the card, because then the whole source and everything are deleted when the card is removed.
+				// Just delete the inputs so Myth won't use them, because we can add back inputs easily when the card is enabled again
 				LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::CMD_Sync_Providers_and_Cards deleting disabled cardid %d from device %d",cardid,pRow_Device->PK_Device_get());
-				sSQL = "DELETE FROM `capturecard` where cardid=" + StringUtils::itos(cardid);
+				sSQL = "DELETE FROM `cardinput` where cardid=" + StringUtils::itos(cardid);
 				m_pMySqlHelper_Myth->threaded_mysql_query(sSQL);
-				DatabaseUtils::SetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,bTunersAsSeparateDevices ? pRow_Device->PK_Device_get() : pRow_Device_CaptureCard->PK_Device_get(),DEVICEDATA_Port_CONST,"");
 				continue;
 			}
 			else if( pRow_Device->Disabled_get()==1 || pRow_Device_CaptureCard->Disabled_get()==1 )
@@ -1167,23 +1168,40 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Re
 
 			// When we're first doing a channel scan, we'll add a source, but not a card input, and give the source the name UNKNOWN_[cardid]
 			// See if there is such a source, and if it has any channels
-			int sourceid=0;
-			bool bHasChannels = false;
-			PlutoSqlResult result_set_us;
-			sSQL = "SELECT sourceid FROM videosource WHERE name='UNKNOWN_" + StringUtils::itos(cardid) + "'";
-			if( (result_set_us.r=m_pMySqlHelper_Myth->mysql_query_result(sSQL)) && (row2=mysql_fetch_row(result_set_us.r)) && atoi(row2[0]) )
+ 			string s = DatabaseUtils::GetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICEDATA_Source_CONST);
+			int sourceid=atoi(s.c_str());
+			if( sourceid )
 			{
-				sourceid = atoi(row2[0]);
-				LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::CMD_Sync_Providers_and_Cards card id %d has unknown source %d", cardid, sourceid);
-			}
-			else
-			{
-				// See what source we have for this card already
-				sSQL = "SELECT sourceid FROM cardinput WHERE cardid=" + StringUtils::itos(cardid) + " LIMIT 1";
+				sSQL = "SELECT sourceid FROM videosource WHERE sourceid=" + StringUtils::itos(sourceid);
 				PlutoSqlResult result_set_has_source;
-				if( (result_set_has_source.r=m_pMySqlHelper_Myth->mysql_query_result(sSQL)) && 
-					(row2=mysql_fetch_row(result_set_has_source.r)) && atoi(row2[0]) )
-						sourceid = atoi(row2[0]);
+				if( (result_set_has_source.r=m_pMySqlHelper_Myth->mysql_query_result(sSQL))==NULL || 
+					result_set_has_source.r->row_count==0 )
+				{
+					LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::CMD_Sync_Providers_and_Cards card id %d has invalid source %d", cardid, sourceid);
+					sourceid=0;
+				}
+			}
+
+			bool bHasChannels = false, bRenameUnknown=false;
+			PlutoSqlResult result_set_us;
+			if( sourceid==0 )
+			{
+				sSQL = "SELECT sourceid FROM videosource WHERE name='UNKNOWN_" + StringUtils::itos(cardid) + "'";
+				if( (result_set_us.r=m_pMySqlHelper_Myth->mysql_query_result(sSQL)) && (row2=mysql_fetch_row(result_set_us.r)) && atoi(row2[0]) )
+				{
+					sourceid = atoi(row2[0]);
+					bRenameUnknown=true;
+					LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::CMD_Sync_Providers_and_Cards card id %d has unknown source %d", cardid, sourceid);
+				}
+				else
+				{
+					// See what source we have for this card already
+					sSQL = "SELECT sourceid FROM cardinput WHERE cardid=" + StringUtils::itos(cardid) + " LIMIT 1";
+					PlutoSqlResult result_set_has_source;
+					if( (result_set_has_source.r=m_pMySqlHelper_Myth->mysql_query_result(sSQL)) && 
+						(row2=mysql_fetch_row(result_set_has_source.r)) && atoi(row2[0]) )
+							sourceid = atoi(row2[0]);
+				}
 			}
 
 			// This it the query to see if we have channels
@@ -1232,26 +1250,31 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Re
 				if( sourceid && sProviderName.empty()==false )
 				{
 					int iAppendValue=0;
-					// The same provider can be in here more than once, but name must be unique, so append a number to it if it is
-					// This can happen for a device that does it's own channel scan, adds it's source and channels as UNKNOWN_
-					// and then later the user assigns it to a provider that already exists.  Since channels are stored by source, not card,
-					// we want to leave the provider in here more than once
-					while(true)  
+
+					if( bRenameUnknown )
 					{
-						string s = sProviderName + (iAppendValue ? "_" + StringUtils::itos(iAppendValue) : "");
-						sSQL = "SELECT name from `videosource` WHERE name='" + s + "' AND sourceid<>" + StringUtils::itos(sourceid);
-						PlutoSqlResult result_set2;
-						if( (result_set2.r=m_pMySqlHelper_Myth->mysql_query_result(sSQL)) && result_set2.r->row_count>0 )
+						// The same provider can be in here more than once, but name must be unique, so append a number to it if it is
+						// This can happen for a device that does it's own channel scan, adds it's source and channels as UNKNOWN_
+						// and then later the user assigns it to a provider that already exists.  Since channels are stored by source, not card,
+						// we want to leave the provider in here more than once
+						while(true)  
 						{
-							iAppendValue++;  // This name is already used.  Add a suffix to it and try again
-							continue;
+							string s = sProviderName + (iAppendValue ? "_" + StringUtils::itos(iAppendValue) : "");
+							sSQL = "SELECT name from `videosource` WHERE name='" + s + "' AND sourceid<>" + StringUtils::itos(sourceid);
+							PlutoSqlResult result_set2;
+							if( (result_set2.r=m_pMySqlHelper_Myth->mysql_query_result(sSQL)) && result_set2.r->row_count>0 )
+							{
+								iAppendValue++;  // This name is already used.  Add a suffix to it and try again
+								continue;
+							}
+							else
+								break;
 						}
-						else
-							break;
 					}
 
 					string sRealProvider = sProviderName + (iAppendValue ? "_" + StringUtils::itos(iAppendValue) : "");
-					sSQL = "UPDATE `videosource` SET name='" + sRealProvider + "',xmltvgrabber='" + sGrabber + "',userid='" + sUsername + "', password='" + sPassword + "', lineupid='" + sLineup + "' WHERE sourceid=" + StringUtils::itos(sourceid);
+					// Only set the name if we're renaming an unknown id
+					sSQL = "UPDATE `videosource` SET " + (bRenameUnknown ? "name='" + sRealProvider + "'," : "") + "xmltvgrabber='" + sGrabber + "',userid='" + sUsername + "', password='" + sPassword + "', lineupid='" + sLineup + "' WHERE sourceid=" + StringUtils::itos(sourceid);
 					if( m_pMySqlHelper_Myth->threaded_mysql_query(sSQL)>0 )
 					{
 						LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::CMD_Sync_Providers_and_Cards bModifiedRows=true %s",sSQL.c_str());
@@ -1289,6 +1312,8 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Re
 					}
 				}
 			}
+
+			DatabaseUtils::SetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICEDATA_Source_CONST,StringUtils::itos(sourceid));
 		}
 	}
 
@@ -1299,12 +1324,10 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Re
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::CMD_Sync_Providers_and_Cards bModifiedRows=true %s",sSQL.c_str());
 		bModifiedRows=true;
 	}
-	sSQL = "DELETE videosource FROM videosource LEFT JOIN cardinput on videosource.sourceid=cardinput.sourceid WHERE cardinput.sourceid IS NULL";
-	if( m_pMySqlHelper_Myth->threaded_mysql_query(sSQL)>0 )
-	{
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::CMD_Sync_Providers_and_Cards bModifiedRows=true %s",sSQL.c_str());
-		bModifiedRows=true;
-	}
+
+	// We may have videosources with no inputs if the user unplugged a pvr capture device temporarily and is going to reconnect it.
+	// So don't delete the source
+
 	// Since we're sometimes removing and re-adding devices as the user unplugs/plugs them in, be sure we cleanup the database
 	// and don't leave any stray channel or programs around
 	sSQL = "delete channel FROM channel left join videosource on channel.sourceid=videosource.sourceid where videosource.sourceid is null";

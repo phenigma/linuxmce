@@ -257,6 +257,8 @@ printf("%d recs %s\n",(int) pMYSQL_RES->row_count,sSQL);
 		return 1;
 	}
 
+	printf("Setting standard: %s",sSQL);
+
 	sprintf(Message,
 		"/usr/pluto/bin/MessageSend dcerouter -targetType template 0 36 2 72 26 %d 20 0 30 %d 13 \"%s:%lu signal found\n\"",
 		g_PK_Device,g_scan_current_count * 100 / g_scan_total_count,lock, (unsigned long)g_Frequency);

@@ -2019,7 +2019,7 @@ class DataGridTable *Media_Plugin::DevicesForCaptureCardPort( string GridID, str
 		Row_Device *pRow_Device_Parent = pRow_Device->FK_Device_ControlledVia_getrow();
 		while( pRow_Device_Parent )
 		{
-			sDescription = pRow_Device_Parent->Description_get() + " / " + sDescription;
+			sDescription += " / " + pRow_Device_Parent->Description_get();
 			pRow_Device_Parent = pRow_Device_Parent->FK_Device_ControlledVia_getrow();
 		}
 
@@ -2093,7 +2093,7 @@ class DataGridTable *Media_Plugin::DevicesNeedingProviders( string GridID, strin
 				pCell->m_mapAttributes["PK_MediaProvider"] = StringUtils::itos(pRow_MediaProvider->PK_MediaProvider_get());
 				Row_ProviderSource *pRow_ProviderSource = pRow_MediaProvider->FK_ProviderSource_getrow();
 				if( pRow_ProviderSource )
-					pCell->m_mapAttributes["MediaProvider_Selected"] = pRow_ProviderSource->Description_get();
+					pCell->m_mapAttributes["MediaProvider_Selected"] = pRow_ProviderSource->Description_get() + " " + pRow_MediaProvider->Description_get();
 				else if( pRow_Device_DeviceData_VideoStandard )
 					pCell->m_mapAttributes["MediaProvider_Selected"] = pRow_Device_DeviceData_VideoStandard->IK_DeviceData_get();
 			}

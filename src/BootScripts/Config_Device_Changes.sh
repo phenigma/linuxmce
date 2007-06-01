@@ -134,7 +134,7 @@ chmod +x "/usr/pluto/sources/buildall.sh"
 modprobe nbd
 
 if [[ "$StartLocalDevice" == "y" ]]; then
-        echo "Starting local devices"
+        echo "$(date -R) Starting local devices $DCERouter $PK_Device"
         /usr/pluto/bin/MessageSend "$DCERouter" 0 "$PK_Device" 7 12
 fi
 

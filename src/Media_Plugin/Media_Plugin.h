@@ -1124,9 +1124,11 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::SetNowPlaying use a
 			/** The device to set the provider for */
 		/** @param #9 Text */
 			/** The media providers information */
+		/** @param #163 Description */
+			/** A description for this provider */
 
-	virtual void CMD_Specify_Media_Provider(int iPK_Device,string sText) { string sCMD_Result; CMD_Specify_Media_Provider(iPK_Device,sText.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Specify_Media_Provider(int iPK_Device,string sText,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Specify_Media_Provider(int iPK_Device,string sText,string sDescription) { string sCMD_Result; CMD_Specify_Media_Provider(iPK_Device,sText.c_str(),sDescription.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Specify_Media_Provider(int iPK_Device,string sText,string sDescription,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #825 - Specify Capture Card Port */
@@ -1227,6 +1229,7 @@ VI=Video Input */
 
 	virtual void CMD_Abort_Task(int iParameter_ID) { string sCMD_Result; CMD_Abort_Task(iParameter_ID,sCMD_Result,NULL);};
 	virtual void CMD_Abort_Task(int iParameter_ID,string &sCMD_Result,Message *pMessage);
+
 
 //<-dceag-h-e->
 };

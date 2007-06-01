@@ -5907,8 +5907,10 @@ void Media_Plugin::CMD_Get_ID_from_Filename(string sFilename,int *iEK_File,strin
 			/** The device to set the provider for */
 		/** @param #9 Text */
 			/** The media providers information */
+		/** @param #163 Description */
+			/** A description for this provider */
 
-void Media_Plugin::CMD_Specify_Media_Provider(int iPK_Device,string sText,string &sCMD_Result,Message *pMessage)
+void Media_Plugin::CMD_Specify_Media_Provider(int iPK_Device,string sText,string sDescription,string &sCMD_Result,Message *pMessage)
 //<-dceag-c823-e->
 {
 	// No provider for this.
@@ -5942,12 +5944,14 @@ void Media_Plugin::CMD_Specify_Media_Provider(int iPK_Device,string sText,string
 	else
 	{
 		pRow_MediaProvider = m_pDatabase_pluto_media->MediaProvider_get()->AddRow();
+		pRow_MediaProvider->Description_set(sDescription);
 		pRow_MediaProvider->EK_MediaType_set( pRow_DeviceTemplate_MediaType->FK_MediaType_get() );
 		pRow_MediaProvider->FK_ProviderSource_set( PK_ProviderSource );
 		pRow_MediaProvider->ID_set( sText );
 		m_pDatabase_pluto_media->MediaProvider_get()->Commit();
 	}
 	DatabaseUtils::SetDeviceData(m_pDatabase_pluto_main,iPK_Device,DEVICEDATA_EK_MediaProvider_CONST,StringUtils::itos(pRow_MediaProvider->PK_MediaProvider_get()));
+	DatabaseUtils::SetDeviceData(m_pDatabase_pluto_main,iPK_Device,DEVICEDATA_Source_CONST,"");  // Got to get this again
 
 	DCE::CMD_Sync_Providers_and_Cards_Cat CMD_Sync_Providers_and_Cards_Cat(m_dwPK_Device,DEVICECATEGORY_Media_Player_Plugins_CONST,false,BL_SameHouse,pMessage ? pMessage->m_dwPK_Device_From : 0);
 	SendCommand(CMD_Sync_Providers_and_Cards_Cat);

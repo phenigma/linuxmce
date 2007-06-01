@@ -2575,6 +2575,7 @@ void OSDScreenHandler::SCREEN_Choose_Provider_for_Device(long PK_Screen)
 		}
 	}
 
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Location_CONST, "");
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &OSDScreenHandler::ChooseProvider_ObjectSelected, new ObjectInfoBackData());
 	RegisterCallBack(cbDataGridSelected, (ScreenHandlerCallBack) &OSDScreenHandler::ChooseProvider_DatagridSelected, new DatagridCellBackData());
 	RegisterCallBack(cbMessageIntercepted, (ScreenHandlerCallBack) &OSDScreenHandler::ChooseProvider_Intercepted, new MsgInterceptorCellBackData());
@@ -2649,6 +2650,7 @@ bool OSDScreenHandler::ChooseProvider_Intercepted(CallBackData *pData)
 		}
 		//int ID = atoi( it->c_str() );
 		string sValue = it->substr(pos+1);
+		StringUtils::Replace(&sValue,"\t"," ");  // This will be something like 1	abc	def	ghi, and 1 is the id, and display abc def ghi without the tabs in between
 
 		pCell = new DataGridCell(sValue,it->substr(0,pos));
 		pObj_Grid->DataGridTable_Get()->SetData(0,iRow++,pCell);
@@ -2788,6 +2790,7 @@ bool OSDScreenHandler::ChooseProvider_DatagridSelected(CallBackData *pData)
 		{
 		case CPS_PROMPTING_PROVIDER:
 			sProvider = pCellInfoData->m_sValue;
+			m_pOrbiter->CMD_Set_Variable(VARIABLE_Location_CONST,pCellInfoData->m_sText);
 			break;
 		case CPS_PROMPTING_DEVICE:
 			sDevice = pCellInfoData->m_sValue;
@@ -2892,9 +2895,11 @@ void OSDScreenHandler::ChooseProviderGetNextStage()
 			m_pOrbiter->m_mapVariable_Find(VARIABLE_Password_CONST) + "\t" +
 			sArguments;
 
+		string sDescription=m_pOrbiter->m_mapVariable_Find(VARIABLE_Location_CONST);
+
 		int PK_Device = atoi(m_pOrbiter->m_mapVariable_Find(VARIABLE_PK_Device_1_CONST).c_str());
 		string sResponse;
-		DCE::CMD_Specify_Media_Provider CMD_Specify_Media_Provider(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,PK_Device,sAllArguments);
+		DCE::CMD_Specify_Media_Provider CMD_Specify_Media_Provider(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,PK_Device,sAllArguments,sDescription);
 		m_pOrbiter->SendCommand(CMD_Specify_Media_Provider,&sResponse); // Send with return confirmation so it gets processed first
 #ifdef DEBUG
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::ChooseProviderGetNextStage CALLING CMD_Goto_Screen");
