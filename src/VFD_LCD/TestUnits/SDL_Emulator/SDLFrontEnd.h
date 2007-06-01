@@ -5,8 +5,9 @@
 #include <SDL_ttf.h>
 //--------------------------------------------------------------------------------------------------------
 #include "../../LCDLogic/IRenderer.h"
+#include "../../LCDLogic/IInputProvider.h"
 //--------------------------------------------------------------------------------------------------------
-class SDLFrontEnd : public IRenderer
+class SDLFrontEnd : public IRenderer, public IInputProvider
 {
 private:
 
@@ -17,7 +18,7 @@ private:
 
 public:
 
-	SDLFrontEnd(int w, int h);
+	SDLFrontEnd(IInputProcessor *pInputProcessor, int w, int h);
 	~SDLFrontEnd();
 
 	bool Init();

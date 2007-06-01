@@ -4,6 +4,8 @@
 #include "IInputProcessor.h"
 #include "IRenderer.h"
 //--------------------------------------------------------------------------------------------------------
+#include "DCE/Logger.h"
+//--------------------------------------------------------------------------------------------------------
 class MenuHolder;
 class Command_Impl;
 //--------------------------------------------------------------------------------------------------------
@@ -16,12 +18,15 @@ private:
 	IRenderer *m_pRenderer;
 	Command_Impl *m_pCommandImpl;
 
+	pluto_pthread_mutex_t m_RenderMutex;
+
 public:
 
 	LCDManager(MenuHolder *pMenuHolder, IRenderer *pRenderer, Command_Impl *pCommandImpl);
 	~LCDManager();
 
-	bool ProcessInput(IInput *pInput);
+	void Renderer(IRenderer *pRenderer);
+	bool ProcessInput(const Input &input);
 };
 //--------------------------------------------------------------------------------------------------------
 #endif //__LCD_MANAGER_H__

@@ -2,7 +2,9 @@
 //--------------------------------------------------------------------------------------------------------
 #include <SDL_image.h>
 //--------------------------------------------------------------------------------------------------------
-SDLFrontEnd::SDLFrontEnd(int w, int h) : m_pSurface(NULL), m_pFont(NULL), m_nWidth(w), m_nHeight(h)
+SDLFrontEnd::SDLFrontEnd(IInputProcessor *pInputProcessor, int w, int h) : 
+	IRenderer(), IInputProvider(pInputProcessor),
+	m_pSurface(NULL), m_pFont(NULL), m_nWidth(w), m_nHeight(h)
 {
 }
 //--------------------------------------------------------------------------------------------------------
@@ -67,7 +69,32 @@ bool SDLFrontEnd::EventLoop()
 			switch( event.type )
 			{
 				case SDL_KEYDOWN:
-					//handle key press : event.key.keysym
+					{
+						Input input;
+						input.type = itKeyboardInput;
+						input.keyboardinput = kiNone;
+
+						switch(event.key.keysym.sym)
+						{
+							case SDLK_UP:
+								input.keyboardinput = kiUp;	
+								break;
+							case SDLK_DOWN:
+								input.keyboardinput = kiDown;
+								break;
+							case SDLK_LEFT:
+								input.keyboardinput = kiLeft;
+								break;
+							case SDLK_RIGHT:
+								input.keyboardinput = kiRight;
+								break;
+							default:
+								break;
+						}
+
+						if(kiNone != input.keyboardinput)
+							HandleInput(input);
+					}
 					break;
 
 				case SDL_QUIT:
@@ -87,6 +114,9 @@ void SDLFrontEnd::Render(const DisplayState &display_state)
 	Clear();
 
 	RenderText(10, 10, display_state.m_sHeader);
+	RenderText(30, 30, display_state.m_sDescription);
+
+	SDL_UpdateRect(m_pSurface, 0, 0, 0, 0);
 }
 //--------------------------------------------------------------------------------------------------------
 void SDLFrontEnd::Clear()

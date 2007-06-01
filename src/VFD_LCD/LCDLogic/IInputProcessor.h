@@ -1,7 +1,7 @@
 #ifndef __IINPUT_PROCESSOR__
 #define __IINPUT_PROCESSOR__
 //--------------------------------------------------------------------------------------------------------
-#include "IInput.h"
+#include "Input.h"
 //--------------------------------------------------------------------------------------------------------
 class IInputProcessor
 {
@@ -15,7 +15,7 @@ public:
 	{
 	}
 
-	virtual bool ProcessInput(IInput *pInput) = 0;
+	virtual bool ProcessInput(const Input &input) = 0;
 };
 //--------------------------------------------------------------------------------------------------------
 #endif //__IINPUT_PROCESSOR__

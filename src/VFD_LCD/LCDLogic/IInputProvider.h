@@ -1,6 +1,8 @@
 #ifndef __IINPUT_PROVIDER__
 #define __IINPUT_PROVIDER__
 //--------------------------------------------------------------------------------------------------------
+#include "IInputProcessor.h"
+//--------------------------------------------------------------------------------------------------------
 class IInputProvider
 {
 public:
@@ -13,10 +15,10 @@ public:
 	{
 	}	
 
-	bool HandleInput(IInput *pInput)
+	bool HandleInput(const Input &input)
 	{
 		if(NULL != m_pInputProcessor)
-			return m_pInputProcessor->ProcessInput(pInput);
+			return m_pInputProcessor->ProcessInput(input);
 
 		return false;
 	}

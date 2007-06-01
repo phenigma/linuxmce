@@ -3,11 +3,12 @@
 
 int main( int argc, char* argv[] )
 {
-	SDLFrontEnd front_end(400, 300);
+	LCDManager manager(NULL, NULL, NULL);
+	SDLFrontEnd front_end(&manager, 400, 300);
 	
 	if(front_end.Init())
 	{
-		LCDManager manager(NULL, &front_end, NULL);
+		manager.Renderer(&front_end);
 		return !front_end.EventLoop();
 	}
 	
