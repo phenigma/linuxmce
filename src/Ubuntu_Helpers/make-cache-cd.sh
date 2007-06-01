@@ -1,6 +1,6 @@
 #!/bin/bash
 iso_name="$1"
-if [[ "$iso_name" == "" ]] ;the
+if [[ "$iso_name" == "" ]] ;then
 	iso_name="linuxmce-1.1"
 fi
 

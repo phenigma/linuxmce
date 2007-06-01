@@ -245,6 +245,12 @@ function Build_Pluto_Replacements {
 		cp ../mtx-pluto_*.deb "${temp_dir}"
 	popd
 
+	#Package: linux-image-dummy
+	pushd "${svn_dir}"/trunk/ubuntu/linux-image-dummy
+		dpkg-deb -b . ..
+		cp ../linux-image-dummy_*.deb "${temp_dir}"		
+	popd
+
 	#Download arch independent packages from 150
 	pushd $temp_dir
 		wget -c http://10.0.0.163/debian/dists/replacements/main/binary-i386/replacements-common/libflickr-api-perl_1_all.deb

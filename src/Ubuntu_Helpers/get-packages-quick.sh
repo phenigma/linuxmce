@@ -1,6 +1,6 @@
 #!/bin/bash
 iso_name="$1"
-if [[ "$iso_name" == "" ]] ;the
+if [[ "$iso_name" == "" ]] ;then
 	iso_name="linuxmce-1.1"
 fi
 
@@ -31,6 +31,6 @@ cp /var/www/mce-installer*.deb ./cache-cd/
 #	sql_slave_db="pluto_main_build"
 #	export Version=$(echo "select VersionName from Version" | mysql $sql_slave_db | tail -1);
 #fi
-mkisofs -f -J -r -o $iso_name-packages.iso ./cache-cd
-mv $iso_name-packages.iso /var/www
+mkisofs -f -J -r -o "${iso_name}-packages.iso" ./cache-cd
+mv "${iso_name}-packages.iso" /var/www
 popd
