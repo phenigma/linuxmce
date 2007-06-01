@@ -312,15 +312,7 @@ void Xine_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPo
 	
 	StartNbdDevice(sMediaURL);
 
-	bool bResult = pStream->OpenMedia( sMediaURL, sMediaInfo,  sMediaPosition);
-	if( bResult==false && StringUtils::StartsWith(sMediaURL,"/dev/") )
-	{
-		// If this is an actual device, and it fails, it could just be that whatever was using it previously is blocking it.  Give this 5 seconds and try again.  That's not too long so as to timeout the play media response
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Play_Media %s is a device.  Wait and try again", sMediaURL.c_str());
-		Sleep(5000);
-		bResult = pStream->OpenMedia( sMediaURL, sMediaInfo,  sMediaPosition);
-	}
-	if (bResult)
+	if (pStream->OpenMedia( sMediaURL, sMediaInfo,  sMediaPosition))
 	{
 		if (pStream->playStream( sMediaPosition))
 		{
