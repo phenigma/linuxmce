@@ -163,6 +163,15 @@ for device in $DEVICE_LIST; do
 	fi
 done
 
+## If libdvdcss2 is installed on the hybrid/core
+if [[ -f /usr/share/doc/libdvdcss2 ]] ;then
+	pushd $TEMP_DIR >/dev/null
+	wget --timeout=10 --tries=4 http://www.dtek.chalmers.se/groups/dvd/deb/libdvdcss2_1.2.5-1_i386.deb
+	chroot $TEMP_DIR dpkg -i /libdvdcss2_1.2.5-1_i386.deb
+	rm libdvdcss2_1.2.5-1_i386.deb
+	popd
+fi
+
 umount $TEMP_DIR/usr/pluto/deb-cache
 umount $TEMP_DIR/sys
 umount $TEMP_DIR/proc
