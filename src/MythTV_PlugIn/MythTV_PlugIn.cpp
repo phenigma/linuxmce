@@ -1698,22 +1698,24 @@ void MythTV_PlugIn::BuildChannelList()
 			MythSource *pMythSource = m_mapMythSource_Find( atoi(row[6]) );
 			if( !pMythSource )
 			{
-				string sDescription = "Unknown Source";
+				string sDescription = row[6];
 
 				sSQL = "select name from videosource where sourceid=" + string(row[6]);
 				PlutoSqlResult result2;
 				MYSQL_ROW row2;
 				if( (result2.r=m_pMySqlHelper_Myth->mysql_query_result(sSQL))!=NULL && (row2 = mysql_fetch_row(result2.r))!=NULL )
 				{
-					sDescription = row2[0];
+					string s = row2[0];
 					// This is probably in the format Provider X.  Try to get that better description
-					if( sDescription.size()>9 )
+					if( s.size()>9 )
 					{
-						int Provider = atoi(sDescription.substr(8).c_str());
+						int Provider = atoi(s.substr(8).c_str());
 						Row_MediaProvider *pRow_MediaProvider = m_pMedia_Plugin->m_pDatabase_pluto_media->MediaProvider_get()->GetRow(Provider);
 						if( pRow_MediaProvider && pRow_MediaProvider->Description_get().empty()==false )
-							sDescription = pRow_MediaProvider->Description_get();
+							sDescription += " " + pRow_MediaProvider->Description_get();
 					}
+					else
+						sDescrption += " " + s;
 				}
 				pMythSource = new MythSource(atoi(row[6]),sDescription);
 				m_mapMythSource[ pMythSource->m_dwID ] =pMythSource;
