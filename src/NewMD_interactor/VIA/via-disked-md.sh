@@ -157,6 +157,9 @@ RunSQL "
 	WHERE FK_DeviceData=168 AND FK_Device=$XineDev
 "
 
+# call for a regen
+/usr/pluto/bin/MessageSend $DCERouter -targetType template "$OrbiterDev" 12 1 266 2 "$OrbiterDev" 21 "-r" 24 "Y"
+
 # generate startup scripts (core ran /usr/pluto/bin/Update_StartupScrips.sh for us)
 /usr/pluto/bin/generateRcScripts.sh
 
