@@ -1,10 +1,20 @@
 #include "SDLFrontEnd.h"
 #include "../../LCDLogic/LCDManager.h"
+#include "../../LCDLogic/MenuLoader.h"
+#include "../../LCDLogic/MenuHolder.h"
 #include "../../Renderers/LCDRenderer.h"
 
 int main( int argc, char* argv[] )
 {
-	LCDManager manager(NULL, NULL);
+	DCE::LoggerWrapper::GetInstance()->Write(LV_STATUS, "Usage: SDL_Emulator <menu file>\n");
+
+	MenuLoader menu_loader;
+	string sMenuFilename = "../../Docs/menu-sample.xml";
+
+	if(argc >= 2)
+		sMenuFilename = argv[1];
+
+	LCDManager manager(menu_loader.Load(sMenuFilename), NULL);
 	SDLFrontEnd front_end(&manager, 400, 300);
 	LCDRenderer lcd_renderer("/dev/ttyUSB0");
 	

@@ -49,3 +49,9 @@ MenuItem *MenuItem::Parent()
 	return m_pParent;
 }
 //--------------------------------------------------------------------------------------------------------
+void MenuItem::AddChild(MenuItem *pMenuItem)
+{
+	if(NULL != pMenuItem)
+		m_vectChildren.push_back(pMenuItem);
+}
+//--------------------------------------------------------------------------------------------------------

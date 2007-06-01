@@ -30,6 +30,7 @@ public:
 	bool CanGoDown();
 
 	MenuItem *Parent();
+	void AddChild(MenuItem *pMenuItem);
 };
 //--------------------------------------------------------------------------------------------------------
 #endif //__MENU_ITEM_H__

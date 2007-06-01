@@ -20,8 +20,8 @@
 		</menuitem>
 	</menuitem>
 	<menuitem description="Utilities">
-		<menuitem description="Regenerate Orbiter's UI's" actiontype="execute_command" action="/usr/pluto/bin/MessageSend 0 ... " />
-		<menuitem description="Refresh the devices" actiontype="execute_method" action="RefreshDevices {1}" parameter1="*" />
+		<menuitem description="Regenerate Orbiter's UI's" actiontype="execute_command" action="0 28 192 1" />
+		<menuitem description="Refresh the devices" actiontype="call_method" action="RefreshDevices {1}" parameter1="*" />
 		<!-- other submenu items here -->
 	</menuitem>
 </menu>

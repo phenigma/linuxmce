@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;../../../../libs/CrossPlatform/SDL_ttf-2.0.6&quot;;&quot;../../../../libs/CrossPlatform/SDL_image-1.2.3&quot;;&quot;../../../../libs/CrossPlatform/SDL-1.2.7/include&quot;;&quot;../../../../libs/Libraries/pthreads-snap-2002-11-04&quot;;&quot;../../../../libs/Libraries/pthreads-win32/include&quot;;../../.."
+				AdditionalIncludeDirectories="&quot;../../../../libs/CrossPlatform/SDL_ttf-2.0.6&quot;;&quot;../../../../libs/CrossPlatform/SDL_image-1.2.3&quot;;&quot;../../../../libs/CrossPlatform/SDL-1.2.7/include&quot;;&quot;../../../../libs/Libraries/pthreads-snap-2002-11-04&quot;;&quot;../../../../libs/Libraries/pthreads-win32/include&quot;;../../..;../../../../libs/CrossPlatform/LibXML2/include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -33,10 +33,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="wsock32.lib SDL-pluto-d.lib SDL_image-pluto-d.lib SDL_ttf-pluto-d.lib SDLmain.lib DCE.lib pthreadVC.lib Serial.lib"
+				AdditionalDependencies="wsock32.lib SDL-pluto-d.lib SDL_image-pluto-d.lib SDL_ttf-pluto-d.lib SDLmain.lib DCE.lib pthreadVC.lib Serial.lib libxml2.lib"
 				OutputFile="../../../Debug/SDL_Emulator.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;../../../../libs/CrossPlatform/SDL-1.2.7/VisualC7/SDL/Debug&quot;;&quot;../../../../libs/CrossPlatform/SDL_image-1.2.3/VisualC/Debug&quot;;&quot;../../../../libs/CrossPlatform/SDL_ttf-2.0.6/VisualC/Debug&quot;;&quot;../../../../libs/CrossPlatform/SDL-1.2.7/VisualC7/SDLmain/Debug&quot;;../../../lib;&quot;../../../../libs/Libraries/pthreads-win32/lib&quot;"
+				AdditionalLibraryDirectories="&quot;../../../../libs/CrossPlatform/SDL-1.2.7/VisualC7/SDL/Debug&quot;;&quot;../../../../libs/CrossPlatform/SDL_image-1.2.3/VisualC/Debug&quot;;&quot;../../../../libs/CrossPlatform/SDL_ttf-2.0.6/VisualC/Debug&quot;;&quot;../../../../libs/CrossPlatform/SDL-1.2.7/VisualC7/SDLmain/Debug&quot;;../../../lib;&quot;../../../../libs/Libraries/pthreads-win32/lib&quot;;../../../../libs/CrossPlatform/LibXML2/lib"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/Photo_Screen_Saver.pdb"
 				SubSystem="1"
