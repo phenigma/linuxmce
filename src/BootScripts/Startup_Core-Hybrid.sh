@@ -1,5 +1,7 @@
 #!/bin/bash
 
+invoke-rc.d mysql start
+
 . /usr/pluto/bin/Config_Ops.sh
 export DISPLAY=:${Display}
 while /bin/true ;do
