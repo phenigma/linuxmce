@@ -15,17 +15,20 @@ private:
 
 	DisplayState m_display_state;
 	MenuHolder *m_pMenuHolder;
-	IRenderer *m_pRenderer;
 	Command_Impl *m_pCommandImpl;
 
 	pluto_pthread_mutex_t m_RenderMutex;
 
+	list<IRenderer *> m_listRenderer;
+
+	void Render();
+
 public:
 
-	LCDManager(MenuHolder *pMenuHolder, IRenderer *pRenderer, Command_Impl *pCommandImpl);
+	LCDManager(MenuHolder *pMenuHolder, Command_Impl *pCommandImpl);
 	~LCDManager();
 
-	void Renderer(IRenderer *pRenderer);
+	void AddRenderer(IRenderer *pRenderer);
 	bool ProcessInput(const Input &input);
 };
 //--------------------------------------------------------------------------------------------------------

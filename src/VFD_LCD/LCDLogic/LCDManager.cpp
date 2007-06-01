@@ -1,7 +1,7 @@
 #include "LCDManager.h"
 //--------------------------------------------------------------------------------------------------------
-LCDManager::LCDManager(MenuHolder *pMenuHolder, IRenderer *pRenderer, Command_Impl *pCommandImpl) : 
-	IInputProcessor(), m_pMenuHolder(pMenuHolder), m_pRenderer(pRenderer), m_pCommandImpl(pCommandImpl),
+LCDManager::LCDManager(MenuHolder *pMenuHolder, Command_Impl *pCommandImpl) : 
+	IInputProcessor(), m_pMenuHolder(pMenuHolder), m_pCommandImpl(pCommandImpl),
 	m_RenderMutex("render")
 {
 	m_display_state.m_sHeader = "Welcome to Fiire 1.0!";
@@ -14,15 +14,15 @@ LCDManager::~LCDManager()
 	pthread_mutex_destroy(&m_RenderMutex.mutex);
 }
 //--------------------------------------------------------------------------------------------------------
-void LCDManager::Renderer(IRenderer *pRenderer)
+void LCDManager::AddRenderer(IRenderer *pRenderer)
 {
+	if(NULL != pRenderer)
 	{
 		PLUTO_SAFETY_LOCK(sm, m_RenderMutex);
-		m_pRenderer = pRenderer;
-	}
+		m_listRenderer.push_back(pRenderer);
 
-	if(NULL != m_pRenderer)
-		m_pRenderer->Render(m_display_state);
+		Render();
+	}
 }
 //--------------------------------------------------------------------------------------------------------
 bool LCDManager::ProcessInput(const Input &input)
@@ -51,10 +51,14 @@ bool LCDManager::ProcessInput(const Input &input)
 			break;
 	}
 
-	if(NULL != m_pRenderer)
-		m_pRenderer->Render(m_display_state);
+	Render();
 
 	return true;
 }
 //--------------------------------------------------------------------------------------------------------
-
+void LCDManager::Render()
+{
+	for(list<IRenderer *>::iterator it = m_listRenderer.begin(), end = m_listRenderer.end(); it != end; ++it)
+		(*it)->Render(m_display_state);
+}
+//--------------------------------------------------------------------------------------------------------
