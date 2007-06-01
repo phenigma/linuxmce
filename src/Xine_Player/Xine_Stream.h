@@ -308,6 +308,8 @@ namespace DCE
 			int getAudio();
 			
 			bool setAspectRatio(string);
+			
+			int m_iZoomLevel;
 			bool setZoomLevel(string);
 			
 			const char *TranslateLanguage( const char *abbreviation );

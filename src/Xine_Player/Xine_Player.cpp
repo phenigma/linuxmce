@@ -41,6 +41,8 @@ Xine_Player::Xine_Player(int DeviceID, string ServerAddress,bool bConnectEventHa
 	ptrFactory = new Xine_Stream_Factory(this);
 	m_iNbdDevice = 0;
 	
+	iDefaultZoomLevel = 100;
+	
 	m_pNotificationSocket = new XineNotification_SocketListener(string("m_pNotificationSocket"));
 	m_pNotificationSocket->m_bSendOnlySocket = true; // one second
 }
@@ -80,6 +82,8 @@ bool Xine_Player::GetConfig()
 		return false;
 //<-dceag-getconfig-e->
 	m_pDeviceData_MediaPlugin = m_pData->m_AllDevices.m_mapDeviceData_Base_FindFirstOfCategory(DEVICECATEGORY_Media_Plugins_CONST);
+	iDefaultZoomLevel = ( (Xine_Player_Data*)  m_pData )->Get_Zoom_Level();
+	
 	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::EVENT_Playback_Completed(streamID=%i)", 0);
 	EVENT_Playback_Completed("",0,false);  // In case media plugin thought something was playing, let it know that there's not
 
@@ -273,7 +277,7 @@ void Xine_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPo
 	}
 	
 	ptrFactory->m_iLastRenderingStream = iStreamID;
-	Xine_Stream *pStream =  ptrFactory->GetStream( iStreamID, true, pMessage?pMessage->m_dwPK_Device_From:0);
+	Xine_Stream *pStream =  ptrFactory->GetStream( iStreamID, true, pMessage?pMessage->m_dwPK_Device_From:0, iDefaultZoomLevel );
 	
 	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() called for filename: %s (%s) with corresponding stream %p.", sMediaURL.c_str(),sMediaPosition.c_str(),pStream);
 	
@@ -1207,7 +1211,7 @@ void Xine_Player::CMD_Menu(string sText,string &sCMD_Result,Message *pMessage)
 
 void Xine_Player::ReportTimecodeViaIP(int iStreamID, int Speed)
 {
-	Xine_Stream *pStream =  ptrFactory->GetStream( iStreamID, false );	
+	Xine_Stream *pStream =  ptrFactory->GetStream( iStreamID );	
 	if (pStream == NULL)
 	{
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::ReportTimecodeViaIP() stream is NULL");
@@ -1297,7 +1301,7 @@ void Xine_Player::CMD_Start_Streaming(int iPK_MediaType,int iStreamID,string sMe
 	// as all playback control commands will be sent only to the local xine, 
 	// then we need to control "stream as a whole"
 	
-	Xine_Stream *pStream =  ptrFactory->GetStream( iStreamID, false );
+	Xine_Stream *pStream =  ptrFactory->GetStream( iStreamID );
 	// if stream already exists - we must stop it and all corresponding targets
 	if (pStream!=NULL)
 	{
@@ -1311,7 +1315,7 @@ void Xine_Player::CMD_Start_Streaming(int iPK_MediaType,int iStreamID,string sMe
 		}
 	}
 	
-	pStream =  ptrFactory->GetStream( iStreamID, true, pMessage->m_dwPK_Device_From, true);
+	pStream =  ptrFactory->GetStream( iStreamID, true, pMessage->m_dwPK_Device_From, true,iDefaultZoomLevel );
 		
 	if (pStream==NULL)
 	{

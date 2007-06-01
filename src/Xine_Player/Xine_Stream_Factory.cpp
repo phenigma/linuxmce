@@ -409,7 +409,7 @@ void Xine_Stream_Factory::setAudioSettings()
 
 
 // returns pointer to stream if exists/was created or NULL otherwise
-Xine_Stream *Xine_Stream_Factory::GetStream(int streamID, bool createIfNotExist, int requestingObject, bool bBroadcasting)
+Xine_Stream *Xine_Stream_Factory::GetStream(int streamID, bool createIfNotExist, int requestingObject, bool bBroadcasting, int iZoomLevel)
 {
 	{
 		PLUTO_SAFETY_LOCK( factoryLock, m_factoryMutex );
@@ -434,6 +434,7 @@ Xine_Stream *Xine_Stream_Factory::GetStream(int streamID, bool createIfNotExist,
 		Xine_Stream *new_stream = new Xine_Stream(this, m_pXineLibrary, streamID, m_pPlayer->DATA_Get_Time_Code_Report_Frequency(), requestingObject, bBroadcasting);
 		new_stream->m_bUseDeinterlacing = m_bUseDeinterlacing;
 		new_stream->m_sDeinterlacingConfig = m_sDeinterlacingConfig;
+		new_stream->m_iZoomLevel = iZoomLevel;
 		if ((new_stream!=NULL) && new_stream->StartupStream())
 		{
 			LoggerWrapper::GetInstance()->Write(LV_WARNING,"Created new stream with ID=%i", streamID);

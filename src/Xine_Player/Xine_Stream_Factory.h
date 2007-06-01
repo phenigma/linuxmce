@@ -105,7 +105,7 @@ namespace DCE
 			void setAudioSettings();
 			void setVideoDriver(string strVideoDriver);
 			
-			Xine_Stream *GetStream(int streamID, bool createIfNotExist=false, int requestingObject=-1, bool bBroadcasting=false);
+			Xine_Stream *GetStream(int streamID, bool createIfNotExist=false, int requestingObject=-1, bool bBroadcasting=false, int iZoomLevel=100 );
 			
 			void ReportAudioTracks(string sTracks);
 			void ReportSubtitles(string sSubtitles);

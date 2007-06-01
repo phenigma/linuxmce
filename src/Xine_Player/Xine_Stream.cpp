@@ -168,6 +168,8 @@ Xine_Stream::Xine_Stream(Xine_Stream_Factory* pFactory, xine_t *pXineLibrary, in
 	threadEventLoop = NULL;
 	m_pXineStreamEventQueue = NULL;
 
+	m_iZoomLevel = 100;
+	
 	m_isSlimClient = false;
 	
 	m_pDynamic_Pointer = new Dynamic_Pointer(this, &cursors[0], &cursors[1]);
@@ -3247,17 +3249,36 @@ bool Xine_Stream::setZoomLevel(string sZL)
 {
 	PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 	
-	int iZoomLevel = atoi(sZL.c_str());
-	if (iZoomLevel<=0 && iZoomLevel>400)
+	int iNewLevel = m_iZoomLevel;
+	if ( sZL.length()>0 && ( sZL[0]=='-' || sZL[0]=='-' ))
+		iNewLevel += atoi(sZL.c_str());
+	else
+		iNewLevel = atoi(sZL.c_str());
+	
+	if (iNewLevel<=0 && iNewLevel>400)
 	{
 		LoggerWrapper::GetInstance()->Write( LV_WARNING, "Bad zoom level: %s", sZL.c_str());
 		return false;
 	}
 	else
 	{
-		xine_set_param( m_pXineStream, XINE_PARAM_VO_ZOOM_X, iZoomLevel );
-		xine_set_param( m_pXineStream, XINE_PARAM_VO_ZOOM_Y, iZoomLevel );
-		return true;
+		xine_set_param( m_pXineStream, XINE_PARAM_VO_ZOOM_X, iNewLevel );
+		xine_set_param( m_pXineStream, XINE_PARAM_VO_ZOOM_Y, iNewLevel );
+		
+		int iValX = xine_get_param( m_pXineStream, XINE_PARAM_VO_ZOOM_X );
+		int iValY = xine_get_param( m_pXineStream, XINE_PARAM_VO_ZOOM_Y );
+		
+		if ( iValX!=iNewLevel && iValY!=iNewLevel )
+		{
+			LoggerWrapper::GetInstance()->Write( LV_WARNING, "Xine engine completely refused to set new zoom level", sZL.c_str());
+			return false;
+		}
+		else
+		{
+			LoggerWrapper::GetInstance()->Write( LV_WARNING, "Xine engine set new zoom level to X:%i, Y:%i", iValX, iValY); 
+			m_iZoomLevel = iNewLevel;
+			return true;
+		}
 	}
 }
 
