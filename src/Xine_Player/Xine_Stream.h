@@ -310,7 +310,7 @@ namespace DCE
 			bool setAspectRatio(string);
 			
 			int m_iZoomLevel;
-			bool setZoomLevel(string);
+			bool setZoomLevel(string sZL="");
 			
 			const char *TranslateLanguage( const char *abbreviation );
 

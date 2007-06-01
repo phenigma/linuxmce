@@ -2059,6 +2059,8 @@ bool Xine_Stream::playStream( string mediaPosition)
 		changePlaybackSpeed( PLAYBACK_NORMAL );
 	}
 	
+	setZoomLevel();
+	
 	// hiding OSD panel
 	DisplayOSDText("");
 	
@@ -3250,10 +3252,13 @@ bool Xine_Stream::setZoomLevel(string sZL)
 	PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 	
 	int iNewLevel = m_iZoomLevel;
-	if ( sZL.length()>0 && ( sZL[0]=='-' || sZL[0]=='-' ))
-		iNewLevel += atoi(sZL.c_str());
-	else
-		iNewLevel = atoi(sZL.c_str());
+	if ( sZL.length()>0 )
+	{
+		if ( sZL[0]=='-' || sZL[0]=='-' )
+			iNewLevel += atoi(sZL.c_str());
+		else
+			iNewLevel = atoi(sZL.c_str());
+	}
 	
 	if (iNewLevel<=0 && iNewLevel>400)
 	{
