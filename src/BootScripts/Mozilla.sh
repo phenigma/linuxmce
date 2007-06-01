@@ -1,8 +1,10 @@
 #!/bin/bash
 
-# We need to remove cache so we don't get the Restore Session message
-rm /root/.mozilla/firefox/pluto.default/Cache/*
-
+# Don't restore sessions when firefox dies
+if [[ -f /root/.mozilla/firefox/pluto.default/prefs.js ]] ;then
+	grep -q "browser.sessionstore.enabled" /root/.mozilla/firefox/pluto.default/prefs.js ||
+	echo 'user_pref("browser.sessionstore.enabled", false);' >> /root/.mozilla/firefox/pluto.default/prefs.js
+fi
 
 . /usr/pluto/bin/Config_Ops.sh
 export DISPLAY=":${Display}"
