@@ -21,12 +21,18 @@
 #ifdef WIN32
 
 #include "PlutoUtils/MultiThreadIncludes.h"
+
+#ifdef DEBUG_USING_FILES
 FILE *filer,*filew;
+#endif
+
 CSerialPort::CSerialPort(string Port, unsigned BPS, eParityBitStop ParityBitStop, bool FlowControl)
 {
-	return;
-filer=fopen("C:\\serialread.cpp","wb");
-filew=fopen("C:\\serialwrite.txt","wb");
+#ifdef DEBUG_USING_FILES
+	filer=fopen("/serialread.txt","wb");
+	filew=fopen("/serialwrite.txt","wb");
+#endif
+
     m_Serio.port=NULL;
 	if (serio_open(&m_Serio, BPS, Port.c_str(), NOPARITY, 8, ONESTOPBIT)!=comm_STATUS_OK)
 	{
@@ -36,15 +42,20 @@ filew=fopen("C:\\serialwrite.txt","wb");
 
 CSerialPort::~CSerialPort()
 {
-return;
+#ifdef DEBUG_USING_FILES
 	fclose(filer);
-fclose(filew);
+	fclose(filew);
+#endif
+
 	serio_close(&m_Serio);
 }
 
 void CSerialPort::Write(char *Buf, size_t Len)
 {
-fwrite(Buf,Len,1,filew);
+#ifdef DEBUG_USING_FILES
+	fwrite(Buf,Len,1,filew);
+#endif
+
 	serio_write(&m_Serio, Buf, Len);
 }
 
@@ -60,13 +71,18 @@ size_t CSerialPort::Read(char *Buf, size_t MaxLen, int Timeout)
 	while( tv_now<tv_timeout )
 	{
 		serio_read(&m_Serio, &Buf[ReadSoFar], MaxLen, &ReturnValue);
-for(int i=0;i<ReturnValue;++i )
-{
-	unsigned char c=Buf[ReadSoFar+i];
-fprintf(filer,"-%02x- ",(int) c );
-}
-if( ReturnValue==0 )
-fprintf(filer,".");
+
+
+#ifdef DEBUG_USING_FILES
+		for(int i=0;i<ReturnValue;++i )
+		{
+			unsigned char c=Buf[ReadSoFar+i];
+			fprintf(filer,"-%02x- ",(int) c );
+		}
+		if( ReturnValue==0 )
+			fprintf(filer,".");
+#endif
+
 		ReadSoFar+=ReturnValue;
 		if( ReadSoFar>=MaxLen )
 			return ReadSoFar;
@@ -82,7 +98,8 @@ bool CSerialPort::IsReadEmpty()
     return FALSE;
 }
 
-void CSerialPort::Flush() {
+void CSerialPort::Flush() 
+{
 }
 
 bool CSerialPort::SendBreak(int time)
