@@ -244,7 +244,6 @@ void MythTV_Player::pollMythStatus()
 		//locateMythTvFrontendWindow(DefaultRootWindow(getDisplay()));
 		m_CurrentMode.clear();
 		m_CurrentProgram.clear();
-		m_mythStatus_set(MYTHSTATUS_LIVETV);
 		
 		// TODO: The controllers don't get updated if I set this there. Why?
 		// updateMode("live");
@@ -310,6 +309,9 @@ void MythTV_Player::pollMythStatus()
 			StopMythFrontend();
 			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Killed Mythfrontend.");
 		}
+		else
+			m_mythStatus_set(MYTHSTATUS_LIVETV);
+
 		if( bPlaybackStarted==false && m_pDevice_MythTV_Plugin )
 		{
 			string sMessage;
