@@ -121,7 +121,7 @@ int main(int argc, char *argv[])
 	{
 		cout << "DCEGen, v." << VERSION << endl
 			<< "Usage: DCEGen -d Device Template ID [-N] [-o Output Path] [-i Input for Templates] [-t Output for Templates] [-h hostname] [-u username] [-p password] [-D database] [-P mysql port] [-a] [-s word]" << endl
-			<< "-d -- the Device ID to generate, from the table DeviceTemplate" << endl
+			<< "-d -- the Device Template ID to generate, from the table DeviceTemplate" << endl
 			<< "-N -- don't create templates--only the generated files.  If this is specified, -d is optional, and if omitted, all devices will be generated." << endl
 			<< "-o -- Where to put the generated files.  Defaults to ../Gen_Devices" << endl
 			<< "-i -- Where to find the template files.  Defaults to ../DCEGen" << endl
