@@ -3254,7 +3254,7 @@ bool Xine_Stream::setZoomLevel(string sZL)
 	int iNewLevel = m_iZoomLevel;
 	if ( sZL.length()>0 )
 	{
-		if ( sZL[0]=='-' || sZL[0]=='-' )
+		if ( sZL[0]=='-' || sZL[0]=='+' )
 			iNewLevel += atoi(sZL.c_str());
 		else
 			iNewLevel = atoi(sZL.c_str());
