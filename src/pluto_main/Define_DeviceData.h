@@ -201,6 +201,7 @@
 #define DEVICEDATA_Hacks_CONST 228
 #define DEVICEDATA_TV_Standard_CONST 229
 #define DEVICEDATA_Source_CONST 230
+#define DEVICEDATA_Zoom_Level_CONST 231
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"

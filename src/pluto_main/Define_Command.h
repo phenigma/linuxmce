@@ -826,6 +826,8 @@
 #define COMMAND_Load_Disk_CONST 913
 #define COMMAND_Get_Disk_Info_CONST 914
 #define COMMAND_Enable_Device_CONST 915
+#define COMMAND_Set_Aspect_Ratio_CONST 916
+#define COMMAND_Set_Zoom_CONST 917
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"
