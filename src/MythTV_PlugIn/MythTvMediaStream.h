@@ -48,6 +48,8 @@ namespace DCE
 		virtual bool ProcessJumpPosition(string sJumpSpecification);
 
 		virtual bool ShouldTuneToNewChannel();
+
+		virtual void UpdateDescriptions(bool bAllFiles=false,MediaFile *pMediaFile_In=NULL) { }  // Handled by playback started
 	};
 };
 

@@ -2790,6 +2790,8 @@ bool OSDScreenHandler::ChooseProvider_DatagridSelected(CallBackData *pData)
 		{
 		case CPS_PROMPTING_PROVIDER:
 			sProvider = pCellInfoData->m_sValue;
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "OSDScreenHandler::ChooseProvider_DatagridSelected value %s text %s",
+				pCellInfoData->m_sValue.c_str(), pCellInfoData->m_sText.c_str());
 			m_pOrbiter->CMD_Set_Variable(VARIABLE_Location_CONST,pCellInfoData->m_sText);
 			break;
 		case CPS_PROMPTING_DEVICE:

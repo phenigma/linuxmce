@@ -256,7 +256,10 @@ void EPGMouseHandler::Move(int X,int Y,int PK_Direction)
 					return;
 				DataGridCell *pCell = pDataGridTable->GetData(0,Row + m_pDesignObj_DataGrid_Active->m_GridCurRow);
 				if( pCell )
+				{
 					m_pMouseBehavior->m_pOrbiter->CMD_Set_Variable( m_pDesignObj_DataGrid_Active->m_iPK_Variable, pCell->GetValue() + string(",1") );  // The ,1 means don't bother fetching all 2 weeks of guide data, just 1 page
+					m_pDesignObjText_Synopsis->m_sText = pCell->m_mapAttributes_Find("Source");
+				}
 
 				m_pMouseBehavior->m_pOrbiter->CMD_Refresh( m_pDesignObj_UpcomingChannels->m_sGridID );
 

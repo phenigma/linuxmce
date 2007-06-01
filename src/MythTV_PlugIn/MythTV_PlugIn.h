@@ -42,22 +42,32 @@ namespace DCE
 {
     using namespace std;
 
+	class MythSource
+	{
+	public:
+		MythSource(int dwID,string sDescription) : m_dwID(dwID), m_sDescription(sDescription) {}
+
+		int m_dwID;
+		string m_sDescription;
+	};
+
 	typedef map<int,int> MapBookmark;  // Map of PK_Users to PK_Bookmarks 
 	class MythChannel
 	{
 	public:
-		int m_dwID,m_dwChanNum,m_dwSource;
+		int m_dwID,m_dwChanNum;
+		MythSource *m_pMythSource;
 		string m_sShortName,m_sLongName;
 		char *m_pPic;
 		size_t m_Pic_size;
 		MapBookmark m_mapBookmark;  // Map of PK_Users to PK_Bookmarks who have bookmarked this
 		DataGridCell *m_pCell;  // A temporary pointer only valid while created a grid
 
-		MythChannel(int dwID,int dwChanNum,int dwSource, string sShortName,string sLongName,char *pPic, size_t Pic_size)
+		MythChannel(int dwID,int dwChanNum,MythSource *pMythSource, string sShortName,string sLongName,char *pPic, size_t Pic_size)
 		{
+			m_pMythSource=pMythSource;
 			m_dwID=dwID;
 			m_dwChanNum=dwChanNum;
-			m_dwSource=dwSource;
 			m_sShortName=sShortName;
 			m_sLongName=sLongName;
 			m_pPic=pPic;
@@ -165,6 +175,8 @@ public:
 		class General_Info_Plugin *m_pGeneral_Info_Plugin;
 		map<int,MythChannel *> m_mapMythChannel;  // A Channel ID to channel info
 		MythChannel *m_mapMythChannel_Find(int chanid) { map<int,class MythChannel *>::iterator it = m_mapMythChannel.find(chanid); return it==m_mapMythChannel.end() ? NULL : (*it).second; }
+		map<int,MythSource *> m_mapMythSource;  // A Source ID to Source info
+		MythSource *m_mapMythSource_Find(int chanid) { map<int,class MythSource *>::iterator it = m_mapMythSource.find(chanid); return it==m_mapMythSource.end() ? NULL : (*it).second; }
 
 
     public:

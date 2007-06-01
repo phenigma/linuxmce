@@ -182,6 +182,8 @@ bool MythTV_PlugIn::Register()
 
 	BuildAttachedInfraredTargetsMap();
 
+	BuildChannelList();
+
 	m_pMythBackEnd_Socket = new MythBackEnd_Socket(this,m_pRouter->sDBHost_get( ));  // The master backend is on the same server as mysql
 	m_pMythBackEnd_Socket->Connect();
 
@@ -434,7 +436,7 @@ class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *
 			bool bOk=false;
 			for(list_int::iterator it=p_list_int->begin();it!=p_list_int->end();++it)
 			{
-				if( *it==pMythChannel->m_dwSource )
+				if( *it==pMythChannel->m_pMythSource->m_dwID )
 				{
 					bOk=true;
 					break;
@@ -449,6 +451,7 @@ class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *
 		string sChannelName = StringUtils::itos(pMythChannel->m_dwChanNum) + " " + pMythChannel->m_sShortName;
 		pMythChannel->m_pCell = new DataGridCell(sChannelName,StringUtils::itos(pMythChannel->m_dwID));
 		pMythChannel->m_pCell->m_mapAttributes["Name"] = sChannelName;
+		pMythChannel->m_pCell->m_mapAttributes["Source"] = pMythChannel->m_pMythSource->m_sDescription;
 	}
 
 	// When tune to channel gets an 'i' in front, it's assumed that it's a channel id
@@ -468,7 +471,7 @@ class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *
 			if( !pMythChannel || !pMythChannel->m_pCell )
 				continue; // Shouldn't happen that pMythChannel is NULL, if cell is, we're not including it
 
-			if( bAllSource==false && mapVideoSourcesToUse[ pMythChannel->m_dwSource ]==false )  // Not a source for this list
+			if( bAllSource==false && mapVideoSourcesToUse[ pMythChannel->m_pMythSource->m_dwID ]==false )  // Not a source for this list
 				continue;
 
 			pMythChannel->m_pCell->SetText( string(pMythChannel->m_pCell->GetText()) + row[1] );
@@ -919,6 +922,10 @@ void MythTV_PlugIn::CMD_Set_Active_Menu(string sText,string &sCMD_Result,Message
 void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Result,Message *pMessage)
 //<-dceag-c824-e->
 {
+	DeviceData_Router *pDevice_Core = m_pRouter->m_mapDeviceData_Router_Find( m_pRouter->iPK_Device_get() );
+	if( pDevice_Core )
+		pDevice_Core = pDevice_Core->GetTopMostDevice();
+
  	string sNoConfig = DatabaseUtils::GetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,m_dwPK_Device,DEVICEDATA_Dont_Auto_Configure_CONST);
 	if( atoi(sNoConfig.c_str()) )
 	{
@@ -951,7 +958,7 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Re
 	UpdateMythSetting("FFRewSpeed3","8","*");
 	UpdateMythSetting("FFRewSpeed4","16","*");
 
-	UpdateMythSetting("MasterServerIP",m_pRouter->sDBHost_get( ),"");
+	UpdateMythSetting("MasterServerIP",pDevice_Core && pDevice_Core->m_sIPAddress.empty()==false ? pDevice_Core->m_sIPAddress : m_pRouter->sDBHost_get( ),"");
 	UpdateMythSetting("MasterServerPort","6543","");
 
 	ListDeviceData_Router *pListDeviceData_Router = m_pRouter->m_mapDeviceByTemplate_Find(DEVICETEMPLATE_MythTV_Player_CONST);
@@ -968,12 +975,8 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Re
 			{
 				Row_DeviceTemplate *pRow_DeviceTemplate = pRow_Device_PC->FK_DeviceTemplate_getrow();
 				if( pRow_DeviceTemplate && pRow_DeviceTemplate->FK_DeviceCategory_get()!=DEVICECATEGORY_Core_CONST )
-				{
 					sHostname = "moon" + StringUtils::itos(pRow_Device_PC->PK_Device_get());
-					UpdateMythSetting("BackendServerIP",pRow_Device_PC->IPaddress_get(),sHostname);
-				}
-				else
-					UpdateMythSetting("BackendServerIP","localhost",sHostname);
+				UpdateMythSetting("BackendServerIP",pRow_Device_PC->IPaddress_get(),sHostname);
 				UpdateMythSetting("MasterServerPort","6543",sHostname);
 			}
 			else
@@ -1672,6 +1675,10 @@ void MythTV_PlugIn::PurgeChannelList()
 		delete it->second;
 	m_mapMythChannel.clear();
 	m_ListMythChannel.clear();
+
+	for(map<int,MythSource *>::iterator it=m_mapMythSource.begin();it!=m_mapMythSource.end();++it)
+		delete it->second;
+	m_mapMythSource.clear();
 }
 
 void MythTV_PlugIn::BuildChannelList()
@@ -1688,6 +1695,30 @@ void MythTV_PlugIn::BuildChannelList()
 	{
 		while((row = mysql_fetch_row(result.r)))
 		{
+			MythSource *pMythSource = m_mapMythSource_Find( atoi(row[6]) );
+			if( !pMythSource )
+			{
+				string sDescription = "Unknown Source";
+
+				sSQL = "select name from videosource where sourceid=" + string(row[6]);
+				PlutoSqlResult result2;
+				MYSQL_ROW row2;
+				if( (result2.r=m_pMySqlHelper_Myth->mysql_query_result(sSQL))!=NULL && (row2 = mysql_fetch_row(result2.r))!=NULL )
+				{
+					sDescription = row2[0];
+					// This is probably in the format Provider X.  Try to get that better description
+					if( sDescription.size()>9 )
+					{
+						int Provider = atoi(sDescription.substr(8).c_str());
+						Row_MediaProvider *pRow_MediaProvider = m_pMedia_Plugin->m_pDatabase_pluto_media->MediaProvider_get()->GetRow(Provider);
+						if( pRow_MediaProvider && pRow_MediaProvider->Description_get().empty()==false )
+							sDescription = pRow_MediaProvider->Description_get();
+					}
+				}
+				pMythSource = new MythSource(atoi(row[6]),sDescription);
+				m_mapMythSource[ pMythSource->m_dwID ] =pMythSource;
+			}
+
 			string sFilename;
 			if( row[5] )
 				sFilename = "/home/mediapics/" + string(row[5]) + "_tn.jpg";
@@ -1696,8 +1727,7 @@ void MythTV_PlugIn::BuildChannelList()
 
 			size_t size=0;
 			char *pData = sFilename.empty() ? NULL : FileUtils::ReadFileIntoBuffer(sFilename,size);
-
-			MythChannel *pMythChannel = new MythChannel( atoi(row[0]), atoi(row[1]), atoi(row[6]), row[2] ? row[2] : "", row[3] ? row[3] : "", pData, size );
+			MythChannel *pMythChannel = new MythChannel( atoi(row[0]), atoi(row[1]), pMythSource, row[2] ? row[2] : "", row[3] ? row[3] : "", pData, size );
 			m_mapMythChannel[pMythChannel->m_dwID] = pMythChannel;
 			m_ListMythChannel.push_back(pMythChannel);
 		}
@@ -2070,7 +2100,10 @@ void MythTV_PlugIn::SetPaths()
 	// Get the top level devices
 	m_pMedia_Plugin->m_pDatabase_pluto_main->Device_get()->GetRows("FK_Device_ControlledVia IS NULL",&vectRow_Device);
 	for(vector<Row_Device *>::iterator it=vectRow_Device.begin();it!=vectRow_Device.end();++it)
+	{
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::SetPaths ip %s=%d",(*it)->IPaddress_get().c_str(),(*it)->PK_Device_get());
 		mapIpToDevice[ (*it)->IPaddress_get() ] = (*it)->PK_Device_get();
+	}
 
 	int PK_Device_Storage = atoi(DATA_Get_PK_Device().c_str());
 	string sFilename = PK_Device_Storage ? "/mnt/device/" + StringUtils::itos(PK_Device_Storage) + "/public/data/videos/tv_shows_" : "/home/public/data/videos/tv_shows_";
@@ -2086,6 +2119,8 @@ void MythTV_PlugIn::SetPaths()
 				continue;
 			int PK_Device = row[0] ? mapIpToDevice[row[0]] : 0;
 			string sDirectory = sFilename + StringUtils::itos(PK_Device);
+
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::SetPaths row %s/%s device %d directory %s", row[1], row[0] ? row[0] : "x", PK_Device, sDirectory.c_str());
 
 			string sCmd = "mkdir -p \"" + sDirectory + "\"";
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::Register %s",sCmd.c_str());
@@ -2378,7 +2413,7 @@ bool MythTV_PlugIn::PlaybackStarted( class Socket *pSocket,class Message *pMessa
 	MythChannel *pMythChannel = m_mapMythChannel_Find( atoi(sMRL.c_str()) );
 	if( pMythChannel==NULL )
 	{
-        LoggerWrapper::GetInstance()->Write(LV_STATUS, "MythTV_PlugIn::PlaybackStarted Stream ID %d no channel for %s", iStreamID,sMRL.c_str());
+        LoggerWrapper::GetInstance()->Write(LV_STATUS, "MythTV_PlugIn::PlaybackStarted Stream ID %d no channel for %s in %d", iStreamID,sMRL.c_str(), (int) m_mapMythChannel.size());
         return false;
 	}
 
@@ -2391,12 +2426,18 @@ bool MythTV_PlugIn::PlaybackStarted( class Socket *pSocket,class Message *pMessa
 	MYSQL_ROW row;
 	if( (result.r=m_pMySqlHelper_Myth->mysql_query_result(sSQL))==NULL || (row=mysql_fetch_row(result.r))==NULL )
 	{
+		pMythTvMediaStream->m_sSectionDescription = "";
+		pMythTvMediaStream->m_sMediaSynopsis = "";
         LoggerWrapper::GetInstance()->Write(LV_STATUS, "MythTV_PlugIn::PlaybackStarted Stream ID %d no guide data for %s", iStreamID,sMRL.c_str());
-        return false;
+	}
+	else
+	{
+		pMythTvMediaStream->m_sSectionDescription = row[0] ? row[0] : "";
+		pMythTvMediaStream->m_sMediaSynopsis = row[2] ? row[2] : "";
 	}
 
-	pMythTvMediaStream->m_sSectionDescription = row[0] ? row[0] : "";
-	pMythTvMediaStream->m_sMediaSynopsis = row[2] ? row[2] : "";
+	m_pMedia_Plugin->MediaInfoChanged(pMythTvMediaStream,true);
+
 	return false;
 }
 
