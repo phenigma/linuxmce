@@ -172,6 +172,9 @@ if [[ -d /usr/share/doc/libdvdcss2 ]] ;then
 	popd
 fi
 
+## Install dummy linux-image package on diskless image
+chroot $TEMP_DIR apt-get -y install linux-image-dummy
+
 umount $TEMP_DIR/usr/pluto/deb-cache
 umount $TEMP_DIR/sys
 umount $TEMP_DIR/proc
