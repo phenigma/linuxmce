@@ -13,12 +13,13 @@ function steps($output,$dbADO) {
 	if(isset($_REQUEST['senderID']) && (int)$_REQUEST['senderID']>0){
 		$senderStep=(int)$_REQUEST['senderID'];
 
-		
-		$querySS='SELECT * FROM SetupStep WHERE FK_Installation=? AND FK_PageSetup=?';
-		$resSS=$dbADO->Execute($querySS,array($installationID,$senderStep));
-		if($resSS->RecordCount()==0){
-			$insertSS='INSERT INTO SetupStep (FK_Installation, FK_PageSetup) VALUES (?,?)';
-			$dbADO->Execute($insertSS,array($installationID,$senderStep));
+		if($installationID!=0){
+			$querySS='SELECT * FROM SetupStep WHERE FK_Installation=? AND FK_PageSetup=?';
+			$resSS=$dbADO->Execute($querySS,array($installationID,$senderStep));
+			if($resSS->RecordCount()==0){
+				$insertSS='INSERT INTO SetupStep (FK_Installation, FK_PageSetup) VALUES (?,?)';
+				$dbADO->Execute($insertSS,array($installationID,$senderStep));
+			}
 		}
 	}
 
