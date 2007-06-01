@@ -34,7 +34,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="wsock32.lib SDL-pluto-d.lib SDL_image-pluto-d.lib SDL_ttf-pluto-d.lib SDLmain.lib DCE.lib pthreadVC.lib Serial.lib"
-				OutputFile="../../../Debug/SDL_Emulator.exe"
+				OutputFile="../../../Debug/LCDRenderer.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;../../../../libs/CrossPlatform/SDL-1.2.7/VisualC7/SDL/Debug&quot;;&quot;../../../../libs/CrossPlatform/SDL_image-1.2.3/VisualC/Debug&quot;;&quot;../../../../libs/CrossPlatform/SDL_ttf-2.0.6/VisualC/Debug&quot;;&quot;../../../../libs/CrossPlatform/SDL-1.2.7/VisualC7/SDLmain/Debug&quot;;../../../lib;&quot;../../../../libs/Libraries/pthreads-win32/lib&quot;"
 				GenerateDebugInformation="TRUE"
