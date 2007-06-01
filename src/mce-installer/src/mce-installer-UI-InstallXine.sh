@@ -14,12 +14,12 @@ function Install {
 	fi
 
 	if [[ "$package_installed" == "false" ]] ;then
-		apt-get update
 		apt-get -f -y install "${package_name}" && package_installed="true"
 	fi
 }
 
 mount /dev/cdrom /media/cdrom || :
+apt-get update
 
 Install "libcucul0"
 Install "libcaca0"
