@@ -1429,3 +1429,70 @@ void Xine_Player::CMD_Guide(string &sCMD_Result,Message *pMessage)
 {
 	CMD_Goto_Media_Menu(0,0);
 }
+//<-dceag-c32-b->
+
+	/** @brief COMMAND: #32 - Update Object Image */
+	/** Display an image on the media player */
+		/** @param #3 PK_DesignObj */
+			/** The object in which to put the bitmap */
+		/** @param #14 Type */
+			/** 1=bmp, 2=jpg, 3=png */
+		/** @param #19 Data */
+			/** The contents of the bitmap, like reading from the file into a memory buffer */
+		/** @param #23 Disable Aspect Lock */
+			/** If 1, the image will be stretched to fit the object */
+
+void Xine_Player::CMD_Update_Object_Image(string sPK_DesignObj,string sType,char *pData,int iData_Size,string sDisable_Aspect_Lock,string &sCMD_Result,Message *pMessage)
+//<-dceag-c32-e->
+{
+}
+
+//<-dceag-c916-b->
+
+	/** @brief COMMAND: #916 - Set Aspect Ratio */
+	/** Force aspect ratio */
+		/** @param #260 Aspect Ratio */
+			/** aspect ratio to set: auto, 1:1, 4:3, 16:9, 2.11:1 */
+
+void Xine_Player::CMD_Set_Aspect_Ratio(string sAspect_Ratio,string &sCMD_Result,Message *pMessage)
+//<-dceag-c916-e->
+{
+	//HACK we need to know stream ID here
+	Xine_Stream *pStream =  ptrFactory->GetStream( 0 );
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Setting aspect ratio to %s",sAspect_Ratio.c_str()); 
+	
+	if (pStream)
+	{
+		bool bRes = pStream->setAspectRatio(sAspect_Ratio);
+		if (!bRes)
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Failed to set aspect ratio"); 
+	}
+	else
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"No default stream"); 
+}
+
+//<-dceag-c917-b->
+
+	/** @brief COMMAND: #917 - Set Zoom */
+	/** Sets zoom level, relative, absolute or 'auto' */
+		/** @param #261 Zoom Level */
+			/** Zoom level to set */
+
+void Xine_Player::CMD_Set_Zoom(string sZoom_Level,string &sCMD_Result,Message *pMessage)
+//<-dceag-c917-e->
+{
+	//HACK we need to know stream ID here
+	Xine_Stream *pStream =  ptrFactory->GetStream( 0 );
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Setting zoom level to %s",sZoom_Level.c_str()); 
+	
+	if (pStream)
+	{
+		bool bRes = pStream->setZoomLevel(sZoom_Level);
+		if (!bRes)
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Failed to set zoom level"); 
+	}
+	else
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"No default stream"); 
+}

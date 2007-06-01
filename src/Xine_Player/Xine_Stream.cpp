@@ -3214,4 +3214,52 @@ void Xine_Stream::SendAVInfo()
 	m_pFactory->ReportAVInfo( m_sCurrentFile, m_iStreamID, m_sMediaInfo, m_sAudioInfo, m_sVideoInfo);
 }
 
+bool Xine_Stream::setAspectRatio(string sAR)
+{
+	PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
+	
+	int iAspectRatio = -1;
+	
+	if (sAR == "auto")
+		iAspectRatio = XINE_VO_ASPECT_AUTO;
+	else if (sAR == "1:1")
+		iAspectRatio = XINE_VO_ASPECT_SQUARE;
+	else if (sAR == "4:3")
+		iAspectRatio = XINE_VO_ASPECT_4_3;
+	else if (sAR == "16:9")
+		iAspectRatio = XINE_VO_ASPECT_ANAMORPHIC;
+	else if (sAR == "2.11:1")
+		iAspectRatio = XINE_VO_ASPECT_DVB;
+	
+	if (iAspectRatio == -1)
+	{
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "Unknown aspect ratio: %s", sAR.c_str());
+		return false;
+	}
+	else
+	{
+		xine_set_param( m_pXineStream, XINE_PARAM_VO_ASPECT_RATIO, iAspectRatio );
+		return true;
+	}
+}
+
+bool Xine_Stream::setZoomLevel(string sZL)
+{
+	PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
+	
+	int iZoomLevel = atoi(sZL.c_str());
+	if (iZoomLevel<=0 && iZoomLevel>400)
+	{
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "Bad zoom level: %s", sZL.c_str());
+		return false;
+	}
+	else
+	{
+		xine_set_param( m_pXineStream, XINE_PARAM_VO_ZOOM_X, iZoomLevel );
+		xine_set_param( m_pXineStream, XINE_PARAM_VO_ZOOM_Y, iZoomLevel );
+		return true;
+	}
+}
+
+
 } // DCE namespace end

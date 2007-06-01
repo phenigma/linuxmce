@@ -307,6 +307,9 @@ namespace DCE
 			int getSubtitle();
 			int getAudio();
 			
+			bool setAspectRatio(string);
+			bool setZoomLevel(string);
+			
 			const char *TranslateLanguage( const char *abbreviation );
 
 			void playbackCompleted( bool bWithErrors );
