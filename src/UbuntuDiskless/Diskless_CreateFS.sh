@@ -19,10 +19,12 @@ Moon_RootLocation="/usr/pluto/diskless/${Moon_DeviceID}"
 Moon_RootArchive="/usr/pluto/install/PlutoMD.tar.bz2"
 
 function unpack_filesystem {
-	mkdir -p "${Moon_RootLocation}"	
-	pushd $Moon_RootLocation
-		tar -xf $Moon_RootArchive
-	popd
+	if [[ ! -e ${Moon_RootLocation}/var/lib/dpkg/status ]] ;then
+		mkdir -p "${Moon_RootLocation}"	
+		pushd $Moon_RootLocation
+			tar -xf $Moon_RootArchive
+		popd
+	fi
 }
 
 function is_image_upgradable {
