@@ -34,6 +34,12 @@ void on_StepUI_radio_toggled(GtkWidget *widget, gpointer data) {
 }
 
 void on_StepUI_application_clicked(GtkWidget *widget, gpointer data) {
+	if (access("/usr/bin/xine", F_OK) != 0) {
+		GtkWidget* runWindow = run_shell_command("./mce-installer-UI-InstallXine.sh", "Installing Xine Player", "Failed to install Xine Player");
+		gtk_widget_show_all(runWindow);
+		gtk_dialog_run(GTK_DIALOG(runWindow));
+	}
+
 	int aux_pid = fork();
 	int aux_status;
 
