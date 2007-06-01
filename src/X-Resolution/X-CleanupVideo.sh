@@ -23,7 +23,7 @@ Install_VIA_pkgs()
 		apt-get -y -f install "${Pkgs_VIA[@]}"
 	fi
 
-	cp -af /usr/pluto/via-xorg/* /
+	#cp -af /usr/pluto/via-xorg/* /
 	depmod -a
 	rmmod via || :
 	modprobe via || :
