@@ -1521,11 +1521,17 @@ void Router::RegisteredCommandHandler(ServerSocket *pSocket, int DeviceID)
 
 	if( pDevice )
 	{
+		pDevice->m_pSocket_Command=pSocket;
+		pDevice->m_bIsReady=true;
+	}
+
+	sl.Release();  // Do the database updates without blocking the core mutex; they can take a while
+
+	if( pDevice )
+	{
 		// Don't use sql2cpp class because we don't want the psc_mod timestamp to change
 		string sSQL = "UPDATE Device SET Registered=1,psc_mod=psc_mod WHERE PK_Device=" + StringUtils::itos(DeviceID);
 		m_pDatabase_pluto_main->threaded_mysql_query(sSQL);
-		pDevice->m_pSocket_Command=pSocket;
-		pDevice->m_bIsReady=true;
 	}
 	else
 	{
@@ -1533,6 +1539,7 @@ void Router::RegisteredCommandHandler(ServerSocket *pSocket, int DeviceID)
 		string sSQL = "UPDATE Device SET Registered=-1,psc_mod=psc_mod WHERE PK_Device=" + StringUtils::itos(DeviceID);
 		m_pDatabase_pluto_main->threaded_mysql_query(sSQL);
 	}
+
 }
 
 
@@ -2989,8 +2996,6 @@ void Router::RemoveAndDeleteSocket( ServerSocket *pServerSocket, bool bDontDelet
 {
 	LoggerWrapper::GetInstance()->Write( LV_WARNING, "Router::RemoveAndDeleteSocket %p %d", pServerSocket, pServerSocket ? pServerSocket->m_dwPK_Device : 0 );
     PLUTO_SAFETY_LOCK(sl,m_CoreMutex);
-	string sSQL = "UPDATE Device SET Registered=0,psc_mod=psc_mod WHERE PK_Device=" + StringUtils::itos(pServerSocket->m_dwPK_Device);
-	m_pDatabase_pluto_main->threaded_mysql_query(sSQL);
 	DeviceData_Router *pDevice = m_mapDeviceData_Router_Find( pServerSocket->m_dwPK_Device );
 	if( pDevice )
 	{
@@ -3006,7 +3011,10 @@ void Router::RemoveAndDeleteSocket( ServerSocket *pServerSocket, bool bDontDelet
 				++it;
 		}
 	}
-	sl.Release();
+	int PK_Device = pServerSocket->m_dwPK_Device;
+	sl.Release();  // Mysql can get slow.  Don't hold the core mutex while doing a database update
+	string sSQL = "UPDATE Device SET Registered=0,psc_mod=psc_mod WHERE PK_Device=" + StringUtils::itos(PK_Device);
+	m_pDatabase_pluto_main->threaded_mysql_query(sSQL);
 	SocketListener::RemoveAndDeleteSocket( pServerSocket, bDontDelete );
 }
 

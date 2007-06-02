@@ -103,6 +103,7 @@ DCEConfig g_DCEConfig;
 #define MEDIA_PLAYBACK_TIMEOUT					1
 #define CHECK_FOR_NEW_FILES						2
 #define WAITING_FOR_JUKEBOX						3
+#define UPDATE_VIEW_DATE						4
 
 #define TIMEOUT_JUKEBOX							30
 
@@ -1429,7 +1430,8 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 	string sError;
 	if( pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StartMedia(pMediaStream,sError) )
 	{
-		UpdateViewDate(pMediaStream);
+		int StreamID = pMediaStream->m_iStreamID_get( );
+		m_pAlarmManager->AddRelativeAlarm(1,this,UPDATE_VIEW_DATE,(void *) StreamID);  // Do this off-line so we don't block the mutex doing a database update
 		CheckStreamForTimeout(pMediaStream);
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Plug-in started media");
 
@@ -5546,6 +5548,12 @@ void Media_Plugin::AlarmCallback(int id, void* param)
 		CMD_Check_For_New_Files();
 	else if( id==WAITING_FOR_JUKEBOX )
 		WaitingForJukebox( (MediaStream *) param);
+	else if( id==UPDATE_VIEW_DATE )
+	{
+		MediaStream *pMediaStream = m_mapMediaStream_Find((int) param,0);
+		if( pMediaStream )
+			UpdateViewDate(pMediaStream);
+	}
 }
 
 void Media_Plugin::ProcessMediaFileTimeout(MediaStream *pMediaStream)

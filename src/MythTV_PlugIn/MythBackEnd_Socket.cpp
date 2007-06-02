@@ -75,8 +75,6 @@ bool MythBackEnd_Socket::InternalSendMythString(string sValue,string *sResponse,
 		return false;
 	}
 
-LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythBackEnd_Socket::SendMythString send-%s: %s%s", sResponse==NULL ? "N" : "Y",szSize,sValue.c_str());
-
 	// The user may not care about the response
 	if( sResponse==NULL )
 		return true;
@@ -167,7 +165,7 @@ bool MythBackEnd_Socket::Connect( )
 		return false;
 	}
 
-	LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythBackEnd_Socket::Connect m_bConnected=true");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythBackEnd_Socket::Connect m_bConnected=true");
 	return true;
 }
 

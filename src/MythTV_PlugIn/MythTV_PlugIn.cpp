@@ -1,3 +1,6 @@
+addEntries BackendServerPort 6543 $hostname;
+addEntries BackendServerStatus 6544 $hostname;
+addEntries MasterServerPort	6543;
 /**
  *
  * @file MythTV_PlugIn.cpp
@@ -942,7 +945,6 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Re
 		return;
 	}
 
-	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
 	UpdateMythSetting("JobAllowUserJob1","1","*");
 	UpdateMythSetting("AutoRunUserJob1","1","");
 	UpdateMythSetting("UserJob1","/usr/pluto/bin/SaveMythRecording.sh %CHANID% %STARTTIME% %DIR% %FILE%","");
@@ -997,6 +999,8 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Re
 	}
 
 	SetPaths();
+
+	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
 	m_bBookmarksNeedRefreshing=true;
 	m_mapDevicesToSources.clear();
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::SyncCardsAndProviders");
@@ -2108,7 +2112,6 @@ void MythTV_PlugIn::CMD_Abort_Task(int iParameter_ID,string &sCMD_Result,Message
 
 void MythTV_PlugIn::SetPaths()
 {
-	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::SetPaths");
 
 	// Get all the backend ip's so we can match the hostname myth uses to our own device id

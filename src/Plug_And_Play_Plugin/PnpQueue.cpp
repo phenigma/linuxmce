@@ -1463,7 +1463,6 @@ void PnpQueue::ReadOutstandingQueueEntries()
 				pRow_PnpQueue->PK_PnpQueue_get());
 #endif
 			pRow_PnpQueue->Processed_set(1);
-			m_pDatabase_pluto_main->PnpQueue_get()->Commit();
 			continue;
 		}
 
@@ -1475,7 +1474,6 @@ void PnpQueue::ReadOutstandingQueueEntries()
 			if( pPnpQueueEntry2->IsDuplicate(pPnpQueueEntry) )
 			{
 				pPnpQueueEntry->m_pRow_PnpQueue->Processed_set(1);
-				m_pDatabase_pluto_main->PnpQueue_get()->Commit();
 				delete pPnpQueueEntry;
 				bWasDuplicate=true;
 				break;
@@ -1488,6 +1486,8 @@ void PnpQueue::ReadOutstandingQueueEntries()
 #endif
 		m_mapPnpQueueEntry[pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()]=pPnpQueueEntry;
 	}
+	pnp.Release();
+	m_pDatabase_pluto_main->PnpQueue_get()->Commit();
 }
 
 bool PnpQueue::DetermineOrbitersForPrompting(PnpQueueEntry *pPnpQueueEntry,bool bBlockIfNone)

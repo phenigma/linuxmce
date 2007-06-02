@@ -409,7 +409,6 @@ namespace DCE
         void CrashWithinPlugin(int iPK_Device)
 		{
 			Reload();
-			Quit();
 		}
         virtual void DispatchMessage(Message *pMessage) { ReceivedMessage(NULL,pMessage); };
         bool GetParameterWithDefinedMessage(Message *sendMessage, string &sResult);
