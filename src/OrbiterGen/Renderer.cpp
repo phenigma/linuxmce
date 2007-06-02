@@ -89,7 +89,7 @@ void Renderer::Setup(string FontPath, string OutputDirectory, int Width, int Hei
 	{
 		if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE) == -1)
 		{
-			cerr << "Failed initializing SDL: " << SDL_GetError() << endl;
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Failed initializing SDL: %s",SDL_GetError());
 
 #ifndef WIN32 //linux
     	    string sCmd = "/usr/pluto/bin/Start_X.sh; /usr/pluto/bin/Start_ratpoison.sh";
@@ -104,7 +104,7 @@ void Renderer::Setup(string FontPath, string OutputDirectory, int Width, int Hei
 
 	if (TTF_Init() == -1)
 	{
-		cout << "Failed to init SDL TTF: " << TTF_GetError() << "\nText won't be rendered" << endl;
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Failed to init SDL TTF: %s",TTF_GetError());
 		return;
 	}
 }
@@ -499,7 +499,7 @@ void Renderer::SaveImageToFile(RendererImage * pRendererImage, string sSaveToFil
 	{
 		string FileName = sSaveToFile + ".ocg";
 
-		cout << "Saving " << FileName << endl;
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Saving %s",FileName.c_str());
 		SDL_Surface *pSDL_Surface = pRendererImage->m_pSurface;
 		if( m_Rotate )
 			pSDL_Surface = rotozoomSurface (pRendererImage->m_pSurface, m_Rotate, 1,0);
@@ -511,7 +511,7 @@ void Renderer::SaveImageToFile(RendererImage * pRendererImage, string sSaveToFil
 	{
 		string FileName = sSaveToFile + ".png";
 
-		cout << "Saving " << FileName << endl;
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Saving %s",FileName.c_str());
 		FILE * File = fopen(FileName.c_str(), "wb");
 		SaveImageToPNGFile(pRendererImage, File, FileName);
 		fclose(File);
@@ -648,7 +648,7 @@ RendererImage * Renderer::Subset(RendererImage *pRenderImage, PlutoRectangle rec
 
     if (SubSurface == NULL)
     {
-        cerr << "Failed to create sub-surface. Can't extract subset" << endl;
+        LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Failed to create sub-surface. Can't extract subset");
     }
 
     SDL_Rect SourceRect;

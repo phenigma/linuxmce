@@ -201,7 +201,7 @@ bool RegenMonitor::CachedVersionOK(string sString)
 {
 	if( sString.size()<2 )
 	{
-		cout << "ERROR: RegenMonitor::CachedVersionOK didn't get a valid string" << endl;
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"ERROR: RegenMonitor::CachedVersionOK didn't get a valid string");
 		return false; 
 	}
 
@@ -212,7 +212,7 @@ bool RegenMonitor::CachedVersionOK(string sString)
 		sComparisson = GetModInfo_Floorplan(atoi(sString.substr(1).c_str()));
 	else
 	{
-		cout << "ERROR: RegenMonitor::CachedVersionOK string: " << sString << " is invalid" << endl;
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"ERROR: RegenMonitor::CachedVersionOK string invalid: ",sString.c_str());
 		return false; 
 	}
 		
@@ -224,9 +224,9 @@ bool RegenMonitor::CachedVersionOK(string sString)
 	if( sComparisson==sString )
 		return true;
 
-	cout << "Cache: " << sString << endl << "Current: " << sComparisson << 
-		" room: " << (m_pRow_Room ? m_pRow_Room->PK_Room_get() : 0) <<
-		" ea: " << (m_pRow_EntertainArea ? m_pRow_EntertainArea->PK_EntertainArea_get() : 0) << endl;
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Cache: %s Current %s room %d ea %d",
+		sString.c_str(),sComparisson.c_str(),(m_pRow_Room ? m_pRow_Room->PK_Room_get() : 0),
+		(m_pRow_EntertainArea ? m_pRow_EntertainArea->PK_EntertainArea_get() : 0));
 	return false;
 }
 

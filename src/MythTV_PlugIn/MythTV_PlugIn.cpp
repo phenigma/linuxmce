@@ -1381,8 +1381,12 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Re
 		}
 	}
 
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::SyncCardsAndProviders -- bModifiedRows %d m_bFillDbRunning %d m_bNeedToRunFillDb %d",
-		(int) bModifiedRows,(int) m_bFillDbRunning,(int) m_bNeedToRunFillDb);
+	sSQL = "select sourceid from videosource limit 1";
+	PlutoSqlResult result_set_sources;
+	bool bContainsVideoSources = (result_set_sources.r=m_pMedia_Plugin->m_pDatabase_pluto_main->mysql_query_result(sSQL))!=NULL && result_set_sources.r->row_count>0;
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::SyncCardsAndProviders -- bModifiedRows %d m_bFillDbRunning %d m_bNeedToRunFillDb %d bContainsVideoSources %d",
+		(int) bModifiedRows,(int) m_bFillDbRunning,(int) m_bNeedToRunFillDb, (int) bContainsVideoSources);
 	if( bModifiedRows )  // We've changed stuff.  Need to run the fill process
 	{
 		if( m_bFillDbRunning )

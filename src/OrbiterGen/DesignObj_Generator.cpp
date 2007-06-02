@@ -181,7 +181,7 @@ if( m_pRow_DesignObj->PK_DesignObj_get()==4868 ) // ||  m_pRow_DesignObj->PK_Des
 
     if( !m_pRow_DesignObjVariation_Standard )
     {
-        cerr << "Aborting building of: " << m_pRow_DesignObj->PK_DesignObj_get() << " because there were no variations." << endl << "Attempts to use will fail at runtime." << endl;
+        LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Aborting building of: %d for no var",m_pRow_DesignObj->PK_DesignObj_get());
 		m_pOrbiterGenerator->m_iPK_CommandGroup=0;
         return;
     }
@@ -220,11 +220,11 @@ if( m_pRow_DesignObj->PK_DesignObj_get()==4868 ) // ||  m_pRow_DesignObj->PK_Des
 			}
 		}
 
-		cout << StringUtils::PrecisionTime() << "Generating screen: " << drDesignObj->PK_DesignObj_get() << 
-			" ver: " << m_iVersion << (m_bLocationSpecific ? "Y" : "N") << 
-			" room: " << (m_pOrbiterGenerator->m_pRow_Room ? m_pOrbiterGenerator->m_pRow_Room->PK_Room_get() : 0) <<
-			" ea: " << (m_pOrbiterGenerator->m_pRow_EntertainArea ? m_pOrbiterGenerator->m_pRow_EntertainArea->PK_EntertainArea_get() : 0) <<
-			" in orbiter: " << pGenerator->m_pRow_Device->PK_Device_get() << endl;
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Generating screen: %d ver: %d/%s room: %d ea: %d, orb: %d",
+			drDesignObj->PK_DesignObj_get(),m_iVersion,(m_bLocationSpecific ? "Y" : "N"),
+			(m_pOrbiterGenerator->m_pRow_Room ? m_pOrbiterGenerator->m_pRow_Room->PK_Room_get() : 0),
+			(m_pOrbiterGenerator->m_pRow_EntertainArea ? m_pOrbiterGenerator->m_pRow_EntertainArea->PK_EntertainArea_get() : 0),
+			pGenerator->m_pRow_Device->PK_Device_get());
 		if( m_pOrbiterGenerator->m_pRow_Size->PreserveAspectRatio_get()==2 )  // Means only preserve the backgrounds
 			m_bPreserveAspectRatio=true;
 
@@ -257,38 +257,37 @@ int k=2;
 						if( !ReadRegenVersion(Filename+".regen") )
 						{
 							m_vectRegenMonitor.clear();
-							cout << "Regenerating: cache can't be read" << endl;
+							LoggerWrapper::GetInstance()->Write(LV_STATUS,"Regenerating: cache can't be read");
 						}
 						else if( !bSoleScreenCache && !CachedVersionOK() )
 						{
 							m_vectRegenMonitor.clear();
-							cout << "Regenerating: cache not ok (sole screen " << bSoleScreenCache << ")" << endl;
+							LoggerWrapper::GetInstance()->Write(LV_STATUS,"Regenerating: cache not ok (sole screen %d)",(int) bSoleScreenCache);
 						}
 						else if( SerializeRead(Filename) )
 						{
 							m_bUsingCache=true;
 							ReadFloorplanInfo(Filename+".fp");
-							cout << "Not building screen " << StringUtils::itos(m_pRow_DesignObj->PK_DesignObj_get()) + "." + StringUtils::itos(m_iVersion) << " found valid cache" << endl;
-							LoggerWrapper::GetInstance()->Write(LV_STATUS,"Not building screen %d, using cache",
-								m_pRow_DesignObj->PK_DesignObj_get());
+							LoggerWrapper::GetInstance()->Write(LV_STATUS,"Not building screen %s found valid cache",
+								(StringUtils::itos(m_pRow_DesignObj->PK_DesignObj_get()) + "." + StringUtils::itos(m_iVersion)).c_str());
 							m_pOrbiterGenerator->m_iPK_CommandGroup=0;
 							return;
 						}
 						else
-							cout << "Regenerating: cannot serialize cache file" << endl;
+							LoggerWrapper::GetInstance()->Write(LV_STATUS,"Regenerating: cannot serialize cache file");
 					}
 					else
-						cout << "Regenerating: cache file " << Filename << " doesn't exist" << endl;
+						LoggerWrapper::GetInstance()->Write(LV_STATUS,"Regenerating: cache file %s doesn't exist",Filename.c_str());
 				}
 				else
-					cout << "Regenerating: screen has changed from " << long(lModDate1) << " to " << long(lModDate2) << " ( " << pdrCachedScreen->Modification_LastGen_get() << " to " <<  m_pRow_DesignObj->psc_mod_get() << ")" << endl;
+					LoggerWrapper::GetInstance()->Write(LV_STATUS,"Regenerating: screen has changed from %d to %d %s/%s",long(lModDate1),long(lModDate2),pdrCachedScreen->Modification_LastGen_get().c_str(),m_pRow_DesignObj->psc_mod_get().c_str());
             }
 			else
 			{
 				if( pdrCachedScreen==NULL )
-					cout << "Regenerating:  cached screen not in DB" << endl;
+					LoggerWrapper::GetInstance()->Write(LV_STATUS,"Regenerating:  cached screen not in DB");
 				else
-					cout << "Regenerating: schema changed from " <<  pdrCachedScreen->Schema_get() << " to " << ORBITER_SCHEMA << endl;
+					LoggerWrapper::GetInstance()->Write(LV_STATUS,"Regenerating: schema changed from %d to %d",pdrCachedScreen->Schema_get(),(int) ORBITER_SCHEMA);
 			}
         }
         string Filespec = m_pOrbiterGenerator->m_sOutputPath + "*" + StringUtils::itos(m_pOrbiterGenerator->m_pRow_Orbiter->PK_Orbiter_get()) + "." +
@@ -441,7 +440,7 @@ retry_alt_file:
 							goto retry_alt_file;
 						}
 
-						cout << "Error reading graphic: " << sGraphicFile << " DesignObj: " << m_pRow_DesignObjVariation->FK_DesignObj_get() << endl;
+						LoggerWrapper::GetInstance()->Write(LV_STATUS,"Error reading graphic: %s %d",sGraphicFile.c_str(),m_pRow_DesignObjVariation->FK_DesignObj_get());
                         sGraphicFile = "";
                     }
                 }
@@ -452,7 +451,7 @@ Table_Image *p = m_mds->Image_get();
                     drImage = m_mds->Image_get()->GetRow(sGraphicFile);
                     if( drImage && (drImage->Width_get()==0 || drImage->Height_get()==0) )
                     {
-                        cout << "Image: " << sGraphicFile << " has width/height=0";
+                        LoggerWrapper::GetInstance()->Write(LV_STATUS,"Image: %s has width/height=0",sGraphicFile.c_str());
                         break;
                     }
 
@@ -481,7 +480,6 @@ Table_Image *p = m_mds->Image_get();
 							FILE *file = fopen(sGraphicFile.c_str(),"rb");
 							if( !file )
 							{
-								cerr << "File: " << sGraphicFile << " exists, but is not readable" << endl;
 								LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"File %s exists, but is not readable",sGraphicFile.c_str());
 								return;
 							}
@@ -688,8 +686,7 @@ int k=2;
 
                 if( !drStyle )
                 {
-                    cerr << "Cannot find style for object - specified style: " << drOVTSL_match->FK_Style_get();
-					LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot open style");
+					LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot open style %d",drOVTSL_match->FK_Style_get());
                 }
                 CGText *pCGText = new CGText(this,drOVTSL_match,m_pOrbiterGenerator->m_pRow_Orbiter);
 if( pCGText->m_sText=="1" )
@@ -701,8 +698,7 @@ int k=2;
 
                 if( !pCGText->m_mapTextStyle.size() )
                 {
-                    cerr << "Cannot find a matching style variation for " << drStyle->PK_Style_get() << endl;
-					LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find a matching style variation");
+					LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find a matching style variation %d",drStyle->PK_Style_get());
                 }
 
                 // Be sure we have put all used styles in the map
@@ -881,7 +877,7 @@ int k=2;
 		string sRegenMonitor = m_pOrbiterGenerator->m_pRegenMonitor->GetModInfo_Floorplan(FloorplanType);
 		if( sRegenMonitor.size()>0 )
 		{
-			cout << "obj: " << m_pRow_DesignObj->PK_DesignObj_get() << " regen cache " << (unsigned int)m_pDesignObj_TopMost->m_vectRegenMonitor.size() << " is: " << sRegenMonitor << "-" << endl;
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"obj: %d regen cache %d %s",m_pRow_DesignObj->PK_DesignObj_get(),(unsigned int)m_pDesignObj_TopMost->m_vectRegenMonitor.size(),sRegenMonitor.c_str());
 			m_pDesignObj_TopMost->m_vectRegenMonitor.push_back( sRegenMonitor );
 		}
 
@@ -908,7 +904,9 @@ int k=2;
 			    Row_Device_DeviceData *pRow_Device_DeviceData_ObjType = m_mds->Device_DeviceData_get()->GetRow(pRow_Device_DeviceData->FK_Device_get(),DEVICEDATA_PK_FloorplanObjectType_CONST);
 				if( !pRow_Device_DeviceData_FPInfo || !pRow_Device_DeviceData_ObjType )
 				{
-					cerr << "01\t**Error: Floorplan object " << pRow_Device_DeviceData->FK_Device_getrow()->FK_DeviceTemplate_get() << " " << pRow_Device_DeviceData->FK_Device_getrow()->FK_DeviceTemplate_getrow()->Description_get() << " is missing info" << endl;
+					LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"01\t**Error: Floorplan object %d %d missing info",
+						pRow_Device_DeviceData->FK_Device_getrow()->FK_DeviceTemplate_get(),
+						pRow_Device_DeviceData->FK_Device_getrow()->FK_DeviceTemplate_getrow()->Description_get());
 				}
 				else
 				{
@@ -941,7 +939,8 @@ int k=2;
 						{
 							pRow_Device_DeviceData_FPInfo->IK_DeviceData_set("");
 							pRow_Device_DeviceData_FPInfo->Table_Device_DeviceData_get()->Commit();
-							cerr << "Floorplan info for device " << pRow_Device_DeviceData_FPInfo->FK_Device_get() << " is out of bounds" << endl;
+							LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Floorplan info for device %d out of bounds",
+								pRow_Device_DeviceData_FPInfo->FK_Device_get());
 							continue;
 						}
                         // We got ourselves an object to appear on this map
@@ -1120,7 +1119,7 @@ int k=2;
                         DesignObj_Generator *pDesignObj_Generator = new DesignObj_Generator(m_pOrbiterGenerator,pRow_DesignObj_Child,PlutoRectangle(m_rPosition.X+(drOVO->X_get()*m_iScale/100),m_rPosition.Y+(drOVO->Y_get()*m_iScale/100),drOVO->Width_get(),drOVO->Height_get()),this,false,false,false);
                         if( !pDesignObj_Generator->m_pRow_DesignObjVariation )
                         {
-                            cout << "Not adding object: " << pRow_DesignObj_Child->PK_DesignObj_get() << " to object: " << drOVO->FK_DesignObjVariation_DesignObj_getrow()->FK_DesignObjVariation_Parent_getrow()->FK_DesignObj_get() << " because there are no qualifying variations." << endl;
+                            LoggerWrapper::GetInstance()->Write(LV_STATUS,"Not adding object: %d to %d  because there are no qualifying variations.",pRow_DesignObj_Child->PK_DesignObj_get(),drOVO->FK_DesignObjVariation_DesignObj_getrow()->FK_DesignObjVariation_Parent_getrow()->FK_DesignObj_get());
                             delete pDesignObj_Generator; // Abort adding this object as a child, there were no variations
                         }
                         else
@@ -1538,7 +1537,8 @@ void DesignObj_Generator::PickVariation(OrbiterGenerator *pGenerator,class Row_D
         if( *drStandardVariation==NULL || pGenerator->m_pRow_UI->IncludeStandardUI_get()==0 )  // Confirm they're not both null
         {
 			*drStandardVariation=NULL;
-            cerr << "WARNING: Cannot find any variation for object: " << drDesignObj->PK_DesignObj_get() << endl;
+            LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"WARNING: Cannot find any variation for object: %d",
+				drDesignObj->PK_DesignObj_get());
         }
         else
 		{
@@ -1555,7 +1555,8 @@ void DesignObj_Generator::PickStyleVariation(class Row_Style * drStyle,OrbiterGe
     drStyle->StyleVariation_FK_Style_getrows(&vectrsv);
     if( vectrsv.size()==0 )
     {
-        cerr << "WARNING! No variation for style: " << StringUtils::itos(drStyle->PK_Style_get()) << " reverting to 1" << endl;
+        LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"WARNING! No variation for style: %d reverting",
+			drStyle->PK_Style_get());
         drStyle = drStyle->Table_Style_get()->GetRow(1);
         drStyle->StyleVariation_FK_Style_getrows(&vectrsv);
         if( vectrsv.size()==0 )
@@ -1615,7 +1616,7 @@ TextStyle *DesignObj_Generator::PickStyleVariation(vector<Row_StyleVariation *> 
 
     if( !drCorrectMatch )
 	{
-		cout << "***ERROR*** No matching style variation with " << (int) vectrsv.size() << " choices." << endl;
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"***ERROR*** No matching style variation with %d choices",(int) vectrsv.size());
 		return NULL;
 	}
 
@@ -2009,7 +2010,7 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
 	string sRegenMonitor = m_pOrbiterGenerator->m_pRegenMonitor->GetModInfo_Array(PK_Array);
 	if( sRegenMonitor.size()>0 )
 	{
-		cout << "obj: " << m_pRow_DesignObj->PK_DesignObj_get() << " regen cache " << (unsigned int)m_pDesignObj_TopMost->m_vectRegenMonitor.size() << " is: " << sRegenMonitor << "-" << endl;
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"obj: %d regen cache %d %s",m_pRow_DesignObj->PK_DesignObj_get(),(unsigned int)m_pDesignObj_TopMost->m_vectRegenMonitor.size(),sRegenMonitor.c_str());
 		m_pDesignObj_TopMost->m_vectRegenMonitor.push_back( sRegenMonitor );
 	}
     return alArray;
@@ -2369,7 +2370,7 @@ bool DesignObj_Generator::CachedVersionOK()
 
 	for(size_t s=0;s<m_vectRegenMonitor.size();++s)
 	{
-		cout << "obj: " << m_pRow_DesignObj->PK_DesignObj_get() << " regen cache " << (unsigned int)s << " of " << (unsigned int)m_vectRegenMonitor.size() << " is: " << m_vectRegenMonitor[s] << "-" << endl;
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"obj: %d %d/%d %s",m_pRow_DesignObj->PK_DesignObj_get(),(unsigned int)s,(unsigned int)m_vectRegenMonitor.size() ,m_vectRegenMonitor[s].c_str());
 		if( !m_pOrbiterGenerator->m_pRegenMonitor->CachedVersionOK(m_vectRegenMonitor[s]) )
 			return false;
 	}

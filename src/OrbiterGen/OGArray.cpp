@@ -69,7 +69,8 @@ CGArray::CGArray(class DesignObj_Generator *DesignObj_Generator_Parent,class Row
 	DesignObj_Generator::PickVariation(m_DesignObj_Generator_Parent->m_pOrbiterGenerator,pRow_DesignObjVariation_DesignObj_Skin_Language->FK_DesignObjVariation_DesignObj_getrow()->FK_DesignObj_Child_getrow(),&m_drDesignObjVariation,&m_drStandardVariation,&m_alDesignObjVariations);
 	if( !m_drDesignObjVariation )
 	{
-		cerr << "Aborting creation of array.  No variation for object: " << pRow_DesignObjVariation_DesignObj_Skin_Language->FK_DesignObjVariation_DesignObj_getrow()->FK_DesignObj_Child_getrow()->PK_DesignObj_get() << endl;
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Aborting creation of array.  No variation for object: %d",
+			pRow_DesignObjVariation_DesignObj_Skin_Language->FK_DesignObjVariation_DesignObj_getrow()->FK_DesignObj_Child_getrow()->PK_DesignObj_get());
 		return;
 	}
 

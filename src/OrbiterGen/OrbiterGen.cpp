@@ -248,33 +248,21 @@ int main(int argc, char *argv[])
 		time_t aclock;
 		time( &aclock );   // Get time in seconds
 		newtime = localtime( &aclock );   // Convert time to struct tm form 
-		cout << "Generation started at " << asctime( newtime ) << endl;
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Generation started");
 
 		iResult = pOrbiterGenerator->DoIt();
 
 		time( &aclock );   // Get time in seconds
 		newtime = localtime( &aclock );   // Convert time to struct tm form 
-		cout << "Generation done at " << asctime( newtime ) << endl;
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Generation done");
 	}
 	catch(int i)
 	{
-		cout << "Caught exception number: " << i << endl;
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Caught exception number: %d",i);
 	}
-/*
-	catch(const char *error)
-	{
-		cerr << "Error: " << error;
-		Sleep(2000);
-	}
-	catch(string error)
-	{
-		cerr << "Error: " << error;
-		Sleep(2000);
-	}
-*/
 	if( pOrbiterGenerator && pOrbiterGenerator->m_pRow_Orbiter )
 	{
-		cout << "Setting RegenInProgress_set to false for " << pOrbiterGenerator->m_pRow_Orbiter->PK_Orbiter_get() << endl;
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Setting RegenInProgress_set to false for %d",pOrbiterGenerator->m_pRow_Orbiter->PK_Orbiter_get());
 		pOrbiterGenerator->m_pRow_Orbiter->Reload();  // We already updated floorplans
 		pOrbiterGenerator->m_pRow_Orbiter->Regen_set(false);
 		pOrbiterGenerator->m_pRow_Orbiter->RegenInProgress_set(false);
@@ -294,7 +282,7 @@ int main(int argc, char *argv[])
 	if( pOrbiterGenerator )
         delete pOrbiterGenerator;
 
-	cout << "Finished!" << endl;
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Finished!");
 	return iResult;
 }
 
@@ -304,13 +292,13 @@ int OrbiterGenerator::DoIt()
 	// and also the sql2cpp classes
 	if( !m_spDatabase_pluto_main->Connect(m_sMySQLHost,m_sMySQLUser,m_sMySQLPass,m_sMySQLDBName,m_iMySQLPort) )
 	{
-		cout << "Failed to connect to database" << endl;
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Failed to connect to database");
 		exit(1);
 	}
 
 	if( !m_spDatabase_pluto_media->Connect(m_sMySQLHost,m_sMySQLUser,m_sMySQLPass,"pluto_media",m_iMySQLPort) )
 	{
-		cout << "Failed to connect to pluto_media database" << endl;
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Failed to connect to pluto_media database");
 		exit(1);
 	}
 
@@ -319,7 +307,7 @@ int OrbiterGenerator::DoIt()
 	m_pRow_Device = m_spDatabase_pluto_main->Device_get()->GetRow(m_iPK_Orbiter);
 	if( !m_pRow_Device )
 	{
-		cout << "Device " << m_iPK_Orbiter << " doesn't exist" << endl;
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Device %d doesn't exist",m_iPK_Orbiter);
 		exit(1);
 	}
 
@@ -340,10 +328,10 @@ int OrbiterGenerator::DoIt()
 	{
 		time_t tModDate = StringUtils::SQLDateTime(m_pRow_Orbiter->psc_mod_get());
 		time_t tNow = time(NULL);
-		cout << "*****SEEMS THIS ORBITER IS BEING GENERATED " << long(tModDate) << " " << long(tNow) << endl;
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"*****SEEMS THIS ORBITER IS BEING GENERATED %d now %d",long(tModDate),long(tNow));
 		if( tNow-tModDate < 120 )  // There's recent activity within the last 2 minutes, so skip it
 		{
-			cout << "skipping" << endl;
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"skipping");
 #ifndef WIN32
  			exit(1);
 #endif
@@ -352,12 +340,12 @@ int OrbiterGenerator::DoIt()
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Generating %d",m_pRow_Orbiter->PK_Orbiter_get());
 
-	cout << "Setting RegenInProgress_set to true for " << m_pRow_Orbiter->PK_Orbiter_get() << endl;
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Setting RegenInProgress_set to true for %d",m_pRow_Orbiter->PK_Orbiter_get());
 	m_pRow_Orbiter->RegenInProgress_set(true);
 //	m_pRow_Orbiter->ScenariosFloorplans_set( m_pRegenMonitor->AllScenariosFloorplans() );
 	m_pRow_Orbiter->Table_Orbiter_get()->Commit();
 
-	cout << "Generating: #" << m_pRow_Device->PK_Device_get() << " " << m_pRow_Device->Description_get() << endl;
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Generating: #%d %s",m_pRow_Device->PK_Device_get(),m_pRow_Device->Description_get().c_str());
 
 	if( m_sOutputPath[ m_sOutputPath.length()-1 ]!='/' )
 		m_sOutputPath += "/";
@@ -368,7 +356,7 @@ int OrbiterGenerator::DoIt()
 	m_sOutputPath += "C" + StringUtils::itos(m_iPK_Orbiter) + "/";
 	FileUtils::MakeDir(m_sOutputPath);
 
-	cout << "Building orbiter: " << m_iPK_Orbiter << " installation " << m_pRow_Device->FK_Installation_get() << endl;
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Building orbiter: %d inst %d",m_iPK_Orbiter,m_pRow_Device->FK_Installation_get());
 
 #ifdef WIN32
 	system(("mkdir \"" + m_sOutputPath + "\" 2> null").c_str());
@@ -391,8 +379,8 @@ int OrbiterGenerator::DoIt()
 
 	if( !m_pRow_Skin )
 	{
-		cerr << "Cannot find Orbiter's Skin" << endl;
-		cout << "Setting RegenInProgress_set 2 to false for " << m_pRow_Orbiter->PK_Orbiter_get() << endl;
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find Orbiter's Skin");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Setting RegenInProgress_set 2 to false for %d",m_pRow_Orbiter->PK_Orbiter_get());
 		m_pRow_Orbiter->RegenInProgress_set(false);
 		m_spDatabase_pluto_main->Orbiter_get()->Commit();
 		exit(1);
@@ -417,8 +405,8 @@ int OrbiterGenerator::DoIt()
 
 	if( !m_pRow_UI )
 	{
-		cerr << "Cannot find Orbiter's UI" << endl;
-		cout << "Setting RegenInProgress_set 5 to false for " << m_pRow_Orbiter->PK_Orbiter_get() << endl;
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find Orbiter's UI");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Setting RegenInProgress_set 5 to false for %d",m_pRow_Orbiter->PK_Orbiter_get());
 		m_pRow_Orbiter->RegenInProgress_set(false);
 		m_spDatabase_pluto_main->Orbiter_get()->Commit();
 		exit(1);
@@ -481,8 +469,8 @@ int OrbiterGenerator::DoIt()
 
 	if( !m_pRow_Screen_MainMenu )
 	{
-		cerr << "Cannot find Orbiter's Main Menu: " << endl;
-		cout << "Setting RegenInProgress_set 3 to false for " << m_pRow_Orbiter->PK_Orbiter_get() << endl;
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find Orbiter's Main Menu: ");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Setting RegenInProgress_set 3 to false for %d",m_pRow_Orbiter->PK_Orbiter_get());
 		m_pRow_Orbiter->RegenInProgress_set(false);
 		m_spDatabase_pluto_main->Orbiter_get()->Commit();
 		exit(1);
@@ -521,8 +509,8 @@ int OrbiterGenerator::DoIt()
 
 	if( !m_pRow_Language )
 	{
-		cerr << "Cannot find Orbiter's Language" << endl;
-		cout << "Setting RegenInProgress_set 4 to false for " << m_pRow_Orbiter->PK_Orbiter_get() << endl;
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find Orbiter's Language");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Setting RegenInProgress_set 4 to false for %d",m_pRow_Orbiter->PK_Orbiter_get());
 		m_pRow_Orbiter->RegenInProgress_set(false);
 		m_spDatabase_pluto_main->Orbiter_get()->Commit();
 		exit(1);
@@ -587,7 +575,7 @@ m_bNoEffects = true;
 		if( m_pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get()==DEVICECATEGORY_Mobile_Orbiter_CONST ||
 			m_bIsOSD )
 		{
-			cerr << "There's a phone or onscreen orbiter with OCG.  Resetting it" << endl;
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"There's a phone or onscreen orbiter with OCG.  Resetting it");
 			pRow_Device_DeviceData->IK_DeviceData_set("0");
 			pRow_Device_DeviceData->Table_Device_DeviceData_get()->Commit();
 		}
@@ -630,10 +618,10 @@ m_bNoEffects = true;
 		m_spDatabase_pluto_main->Installation_Users_get()->GetRows(INSTALLATION_USERS_FK_INSTALLATION_FIELD "=" + StringUtils::itos(m_pRow_Device->FK_Installation_get()),&vectRow_Installation_Users);
 		if( vectRow_Installation_Users.size() )
 		{
-			cout << "***Warning*** No default user specified.  Picking first one: " << vectRow_Installation_Users[0]->FK_Users_get() << endl;
+			LoggerWrapper::GetInstance()->Write(LV_WARNING,"***Warning*** No default user specified.  Picking first one: %d",vectRow_Installation_Users[0]->FK_Users_get());
 			drUsers_Default = vectRow_Installation_Users[0]->FK_Users_getrow();
 			if( !drUsers_Default )
-				cout << "Database problem -- There is a user in Installation_Users that is not a valid user" << endl;
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Database problem -- There is a user in Installation_Users that is not a valid user");
 		}
 		else
 		{
@@ -641,12 +629,12 @@ m_bNoEffects = true;
 			m_spDatabase_pluto_main->Users_get()->GetRows("1=1",&vectRow_Users); // Just find any user
 			if( vectRow_Users.size()>0 )
 			{
-				cout << "***Warning*** No users at all in this installation.  Picking one" << endl;
+				LoggerWrapper::GetInstance()->Write(LV_WARNING,"***Warning*** No users at all in this installation.  Picking one");
 				drUsers_Default = vectRow_Users[0];
 			}
 			else
 			{
-				cout << "***Error*** The users table is completely empty." << endl;
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"***Error*** The users table is completely empty.");
 			}
 		}
 	}
@@ -674,7 +662,7 @@ m_bNoEffects = true;
 		time_t lModDate_LastGen = StringUtils::SQLDateTime(m_pRow_Orbiter->Modification_LastGen_get());
 		m_bOrbiterChanged = false; //(lModDate!=lModDate_LastGen);
 		if( m_bOrbiterChanged )
-			cout << "Orbiter changed date from: " << long(lModDate_LastGen) << " to: " << long(lModDate) << endl;
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter changed date from: %d to %d",long(lModDate_LastGen),long(lModDate));
 	}
 
 	m_pRow_Size = NULL;
@@ -689,7 +677,7 @@ m_bNoEffects = true;
 			string::size_type pos=sSize.find('/');
 			if( pos!=string::npos )
 				sSize = sSize.substr(0,pos);
-			cout << "Found OSD using size: " << sSize << endl;
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Found OSD using size: %s",sSize.c_str());
 
 			m_pRow_Size = TranslateSize(sSize);
 		}
@@ -779,7 +767,7 @@ m_bNoEffects = true;
 			m_bNewOrbiter=true;
 		}
 
-		cout << "Regenerating all: Orbiter data changed from " << m_pRow_Orbiter->Size_get() << " to " << m_sSize_Regen_Data << endl;
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Regenerating all: Orbiter data changed from %s to %s",m_pRow_Orbiter->Size_get().c_str(),m_sSize_Regen_Data.c_str());
 		string sSQL = "DELETE FROM CachedScreens WHERE FK_Orbiter=" + StringUtils::itos(m_pRow_Orbiter->PK_Orbiter_get());
 		threaded_mysql_query(sSQL);
 	}
@@ -1088,7 +1076,7 @@ m_bNoEffects = true;
 
 	if( m_dequeLocation.size()==0 )
 	{
-		cout << "Warning: No entertainment areas and no rooms" << endl;
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"Warning: No entertainment areas and no rooms");
 	
 		// We've got an empty house with no rooms and no entertainment areas.  Just add something
 		LocationInfo *li = new LocationInfo();
@@ -1136,8 +1124,7 @@ m_bNoEffects = true;
 
 	if( m_sMainMenu=="" )
 	{
-		cerr << "WARNING: No valid main menu found.  Check that a default room and entertainment area are specified in the Orbiter table." << endl
-				<< "Using the first entry as the main menu." << endl;
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"WARNING: No valid main menu found.  Check that a default room and entertainment area are specified in the Orbiter table.  Using the first entry as the main menu.");
 		
 		LocationInfo *li = m_dequeLocation.front();
 		m_sMainMenu = StringUtils::itos(GetDesignObjFromScreen(m_pRow_Screen_MainMenu)->PK_DesignObj_get()) + "." + StringUtils::itos(li->iLocation) + ".0";
@@ -1290,7 +1277,7 @@ loop_to_keep_looking_for_objs_to_include:
 				{
 					Row_DesignObj *drNewDesignObj = GetDesignObjFromScreen(atoi(row[0]));
 					if( !drNewDesignObj )
-						cerr << "Cannot find FK_Screen: " << row[0] << endl;
+						LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find FK_Screen: %s",row[0]);
 					else
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
 				}
@@ -1298,7 +1285,7 @@ loop_to_keep_looking_for_objs_to_include:
 				{
 					Row_DesignObj *drNewDesignObj = m_spDatabase_pluto_main->DesignObj_get()->GetRow(atoi(row[1]));
 					if( !drNewDesignObj )
-						cerr << "Cannot find Device.FK_DesignObj: " << row[1] << endl;
+						LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find Device.FK_DesignObj: %s",row[1]);
 					else
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
 				}
@@ -1306,7 +1293,7 @@ loop_to_keep_looking_for_objs_to_include:
 				{
 					Row_DesignObj *drNewDesignObj = m_spDatabase_pluto_main->DesignObj_get()->GetRow(atoi(row[2]));
 					if( !drNewDesignObj )
-						cerr << "Cannot find FK_DesignObj_Popup: " << row[2] << endl;
+						LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find FK_DesignObj_Popup: %s",row[2]);
 					else
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
 					m_mapPopups[drNewDesignObj->PK_DesignObj_get()]=true;
@@ -1315,7 +1302,7 @@ loop_to_keep_looking_for_objs_to_include:
 				{
 					Row_DesignObj *drNewDesignObj = GetDesignObjFromScreen(atoi(row[3]));
 					if( !drNewDesignObj )
-						cerr << "Cannot find FK_Screen_FileList: " << row[3] << endl;
+						LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find FK_Screen_FileList: %s",row[3]);
 					else
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
 				}
@@ -1323,7 +1310,7 @@ loop_to_keep_looking_for_objs_to_include:
 				{
 					Row_DesignObj *drNewDesignObj = GetDesignObjFromScreen(atoi(row[4]));
 					if( !drNewDesignObj )
-						cerr << "Cannot find FK_Screen_OSD: " << row[4] << endl;
+						LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find FK_Screen_OSD: %s",row[4]);
 					else
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
 					m_mapPopups[drNewDesignObj->PK_DesignObj_get()]=true;
@@ -1332,7 +1319,7 @@ loop_to_keep_looking_for_objs_to_include:
 				{
 					Row_DesignObj *drNewDesignObj = GetDesignObjFromScreen(atoi(row[5]));
 					if( !drNewDesignObj )
-						cerr << "Cannot find FK_Screen_Alt: " << row[5] << endl;
+						LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find FK_Screen_Alt: %s",row[5]);
 					else
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
 					m_mapPopups[drNewDesignObj->PK_DesignObj_get()]=true;
@@ -1341,7 +1328,7 @@ loop_to_keep_looking_for_objs_to_include:
 				{
 					Row_DesignObj *drNewDesignObj = GetDesignObjFromScreen(atoi(row[6]));
 					if( !drNewDesignObj )
-						cerr << "Cannot find FK_Screen_Alt_OSD: " << row[6] << endl;
+						LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find FK_Screen_Alt_OSD: %s",row[6]);
 					else
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
 					m_mapPopups[drNewDesignObj->PK_DesignObj_get()]=true;
@@ -1350,7 +1337,7 @@ loop_to_keep_looking_for_objs_to_include:
 				{
 					Row_DesignObj *drNewDesignObj = GetDesignObjFromScreen(atoi(row[7]));
 					if( !drNewDesignObj )
-						cerr << "Cannot find FK_Screen_OSD_Speed: " << row[7] << endl;
+						LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find FK_Screen_OSD_Speed: %s",row[7]);
 					else
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
 					m_mapPopups[drNewDesignObj->PK_DesignObj_get()]=true;
@@ -1359,7 +1346,7 @@ loop_to_keep_looking_for_objs_to_include:
 				{
 					Row_DesignObj *drNewDesignObj = GetDesignObjFromScreen(atoi(row[8]));
 					if( !drNewDesignObj )
-						cerr << "Cannot find FK_Screen_OSD_Speed: " << row[8] << endl;
+						LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find FK_Screen_OSD_Speed: %s",row[8]);
 					else
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
 					m_mapPopups[drNewDesignObj->PK_DesignObj_get()]=true;
@@ -1384,7 +1371,7 @@ loop_to_keep_looking_for_objs_to_include:
 				{
 					Row_DesignObj *drNewDesignObj = GetDesignObjFromScreen(atoi(row[0]));
 					if( !drNewDesignObj )
-						cerr << "Cannot find FK_Screen: " << row[0] << endl;
+						LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find FK_Screen: %s",row[0]);
 					else
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
 				}
@@ -1392,7 +1379,7 @@ loop_to_keep_looking_for_objs_to_include:
 				{
 					Row_DesignObj *drNewDesignObj = m_spDatabase_pluto_main->DesignObj_get()->GetRow(atoi(row[1]));
 					if( !drNewDesignObj )
-						cerr << "Cannot find FK_DesignObj_Popup: " << row[1] << endl;
+						LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find FK_DesignObj_Popup: %s",row[1]);
 					else
 					{
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
@@ -1403,7 +1390,7 @@ loop_to_keep_looking_for_objs_to_include:
 				{
 					Row_DesignObj *drNewDesignObj = GetDesignObjFromScreen(atoi(row[2]));
 					if( !drNewDesignObj )
-						cerr << "Cannot find FK_Screen_FileList: " << row[2] << endl;
+						LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find FK_Screen_FileList: %s",row[2]);
 					else
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
 				}
@@ -1421,7 +1408,7 @@ loop_to_keep_looking_for_objs_to_include:
 				{
 					Row_DesignObj *drNewDesignObj = GetDesignObjFromScreen(atoi(row[4]));
 					if( !drNewDesignObj )
-						cerr << "Cannot find FK_Screen_Alt: " << row[4] << endl;
+						LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find FK_Screen_Alt: %s",row[4]);
 					else
 					{
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
@@ -1431,7 +1418,7 @@ loop_to_keep_looking_for_objs_to_include:
 				{
 					Row_DesignObj *drNewDesignObj = GetDesignObjFromScreen(atoi(row[5]));
 					if( !drNewDesignObj )
-						cerr << "Cannot find FK_Screen_Alt_OSD: " << row[5] << endl;
+						LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find FK_Screen_Alt_OSD: %s",row[5]);
 					else
 					{
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
@@ -1441,7 +1428,7 @@ loop_to_keep_looking_for_objs_to_include:
 				{
 					Row_DesignObj *drNewDesignObj = GetDesignObjFromScreen(atoi(row[6]));
 					if( !drNewDesignObj )
-						cerr << "Cannot find FK_Screen_Alt_OSD: " << row[6] << endl;
+						LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find FK_Screen_Alt_OSD: %s",row[6]);
 					else
 					{
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
@@ -1451,7 +1438,7 @@ loop_to_keep_looking_for_objs_to_include:
 				{
 					Row_DesignObj *drNewDesignObj = GetDesignObjFromScreen(atoi(row[7]));
 					if( !drNewDesignObj )
-						cerr << "Cannot find FK_Screen_Alt_OSD: " << row[7] << endl;
+						LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find FK_Screen_Alt_OSD: %s",row[7]);
 					else
 					{
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
@@ -1477,7 +1464,7 @@ loop_to_keep_looking_for_objs_to_include:
 				{
 					Row_DesignObj *drNewDesignObj = m_spDatabase_pluto_main->DesignObj_get()->GetRow(atoi(row[0]));
 					if( !drNewDesignObj )
-						cerr << "Cannot find devicetempate_designobj: " << row[0] << endl;
+						LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find devicetempate_designobj: %s",row[0]);
 					else
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
 				}
@@ -1491,7 +1478,7 @@ loop_to_keep_looking_for_objs_to_include:
 	if( m_bNewOrbiter && m_bIsOSD )
 	{
 		bUseVideoWizard = atoi(g_DCEConfig.ReadString("UseVideoWizard").c_str())==1;
-		cout << "First time generating this orbiter.  Wizard: " << bUseVideoWizard << endl;
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"First time generating this orbiter.  Wizard: %d",bUseVideoWizard);
 		Row_DesignObj *drNewDesignObj;
 		if( bUseVideoWizard )
 		{
@@ -1505,11 +1492,11 @@ loop_to_keep_looking_for_objs_to_include:
 		}
 
 		if( !drNewDesignObj )
-			cerr << "Cannot find 'first time' menu" << endl;
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find 'first time' menu");
 		else
 			alNewDesignObjsToGenerate.push_back(drNewDesignObj);
 	}
-	cout << "Initial screen: " << m_sInitialScreen << endl;
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Initial screen: %s",m_sInitialScreen.c_str());
 
 	list<Row_DesignObj *>::iterator itno;
 	list<Row_DesignObj *> alNewDesignObjsToGenerate2;  // Create a second list of any new dependencies we drug in
@@ -1664,7 +1651,8 @@ loop_to_keep_looking_for_objs_to_include:
 
 		if( vectrsv.size()==0 )
 		{
-			cerr << "WARNING! No variation for style: " << StringUtils::itos(pRow_Style->PK_Style_get()) << " reverting to 1" << endl;
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"WARNING! No variation for style: %d",
+				pRow_Style->PK_Style_get());
 			pRow_Style = pRow_Style->Table_Style_get()->GetRow(1);
 			pRow_Style->StyleVariation_FK_Style_getrows(&vectrsv);
 			if( vectrsv.size()==0 )
@@ -1686,7 +1674,7 @@ loop_to_keep_looking_for_objs_to_include:
 		Row_Text *pRow_Text = vectRow_Text[Text];
 		Row_Text_LS *pRow_Text_LS = CGText::GetText_LS(pRow_Text->PK_Text_get(),this);
 		if( !pRow_Text_LS )
-			cerr << "Text " << pRow_Text->PK_Text_get() << " not found" << endl;
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Text %d not found", pRow_Text->PK_Text_get());
 		else
 			m_mapTextString[pRow_Text->PK_Text_get()] = pRow_Text_LS->Description_get();
 	}
@@ -1740,7 +1728,7 @@ int k=2;
 				}
 				else
 					oco->m_bIsPopup=true;
-				cout << "Rendering screen " << oco->m_ObjectID << " in orbiter: " << m_pRow_Device->PK_Device_get() << endl;
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Rendering screen %s in %d",oco->m_ObjectID.c_str(),m_pRow_Device->PK_Device_get());
 				try
 				{
 					Renderer::GetInstance().Setup(m_sFontPath, m_sOutputPath, m_Width, m_Height, m_bUseAlphaBlending,
@@ -1753,7 +1741,7 @@ int k=2;
 				}
 				catch(string s)
 				{
-					cout << "Failed to render screen " + oco->m_ObjectID + " error: " + s ;
+					LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Failed to render screen %s / %s",oco->m_ObjectID.c_str(),s.c_str());
 					throw "Failed to render screen " + oco->m_ObjectID + " error: " + s ;
 				}
 
@@ -1789,7 +1777,7 @@ int k=2;
 			}
 			else
 			{
-				cout << "Using cached version of screen " << oco->m_ObjectID << endl;
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Using cached version of screen %s",oco->m_ObjectID.c_str());
 				// Got to look for any used styles
 			}
 			m_ScreenMap[ oco->m_ObjectID ] = oco;
@@ -1874,9 +1862,9 @@ int k=2;
 	}
 
 	if( b )
-		cout << "Successfully finished" << endl;
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Successfully finished");
 	else
-		cerr << "Could not create output file" << endl;
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Could not create output file");
 
 #ifdef _WIN32
 	// no dumping leaks now	WSACleanup();
@@ -1946,7 +1934,7 @@ void OrbiterGenerator::SearchForGotos(DesignObj_Data *pDesignObj_Data,DesignObjC
 							m_pRow_EntertainArea = m_spDatabase_pluto_main->EntertainArea_get()->GetRow(li->PK_EntertainArea);
 						}
 						else
-							cout << "ERROR: Cached screen refers to invalid location" << endl;
+							LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"ERROR: Cached screen refers to invalid location");
 					}
 						
 				}
@@ -2526,8 +2514,6 @@ void OrbiterGenerator::OutputCriteriaNest(Row_CriteriaParmNesting *row)
 
 void OrbiterGenerator::MatchChildDevicesToLocation(LocationInfo *li,Row_Device *pRow_Device,bool bStartWithTopMost)
 {
-cout << "Matching child devices to " << pRow_Device->PK_Device_get() << " " << pRow_Device->Description_get() << endl;
-
 	if( bStartWithTopMost )
 		while( pRow_Device->FK_Device_ControlledVia_getrow() )
 			pRow_Device = pRow_Device->FK_Device_ControlledVia_getrow();
@@ -2540,12 +2526,10 @@ cout << "Matching child devices to " << pRow_Device->PK_Device_get() << " " << p
 		Row_Device *pRow_Device_MDChild = vectChildren[s];
 		MatchChildDevicesToLocation(li,pRow_Device_MDChild,false);  // These devices may be children of an orbiter also
 
-cout << "Checking device " << pRow_Device_MDChild->PK_Device_get() << " " << pRow_Device_MDChild->Description_get() << endl;
 		switch( pRow_Device_MDChild->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get() )
 		{
 		case DEVICECATEGORY_App_Server_CONST:
 			li->m_dwPK_Device_AppServer = pRow_Device_MDChild->PK_Device_get();
-cout << "Set appserver to " << li->m_dwPK_Device_AppServer << endl;
 			break;
 		case DEVICECATEGORY_Infrared_Receivers_CONST:
 			li->m_dwPK_Device_IRReceiver = pRow_Device_MDChild->PK_Device_get();
@@ -2582,7 +2566,7 @@ cout << "Set appserver to " << li->m_dwPK_Device_AppServer << endl;
 
 Row_Size *OrbiterGenerator::TranslateSize(string sSize)
 {
-	cout << "Translating size: " << sSize << endl;
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Translating size: %s",sSize.c_str());
 	string::size_type pos=0;
 	int Width=atoi(StringUtils::Tokenize(sSize," ",pos).c_str());
 	int Height=atoi(StringUtils::Tokenize(sSize," ",pos).c_str());

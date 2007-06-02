@@ -102,7 +102,7 @@ Row_Text_LS *CGText::GetText_LS(int PK_Text,OrbiterGenerator *pOrbiterGen)
 		pRow_Text_LS=mds->Text_LS_get()->GetRow(PK_Text,1);
 	if( pRow_Text_LS==NULL )
 	{
-		cerr << "Warning!  Text Object: " << PK_Text << " has no text!" << endl;
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Warning!  Text Object: %d no text",PK_Text);
 		pRow_Text_LS=mds->Text_LS_get()->GetRow(TEXT_USR_ENTRY_CONST,1);  // Generic text object
 	}
 
