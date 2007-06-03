@@ -1350,11 +1350,7 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Re
 	// Myth crashes when you have an entry in capture card with no corresponding entires in cardinput for some types of capture cards
 	// So if there are no inputs, just clear the hostname
 	sSQL = "update capturecard LEFT JOIN cardinput on capturecard.cardid=cardinput.cardid set hostname=NULL WHERE cardinput.cardid IS NULL";
-	if( m_pMySqlHelper_Myth->threaded_mysql_query(sSQL)>0 )
-	{
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::CMD_Sync_Providers_and_Cards bModifiedRows=true %s",sSQL.c_str());
-		bModifiedRows=true;
-	}
+	m_pMySqlHelper_Myth->threaded_mysql_query(sSQL);
 
 	// We may have videosources with no inputs if the user unplugged a pvr capture device temporarily and is going to reconnect it.
 	// So don't delete the source

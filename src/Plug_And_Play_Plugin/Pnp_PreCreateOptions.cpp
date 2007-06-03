@@ -98,6 +98,12 @@ bool Pnp_PreCreateOptions::OkayToCreateDevice_Presets(PnpQueueEntry *pPnpQueueEn
 		if( m_pPnpQueue->DetermineOrbitersForPrompting(pPnpQueueEntry,true)==false )
 			return false; // No orbiters.  Skip this one for now
 
+		if( m_pPnpQueue->BlockIfOtherQueuesAtPromptingState(pPnpQueueEntry) )
+			return false; // Let this one get backed up
+
+		if( pPnpQueueEntry->m_EBlockedState==PnpQueueEntry::pnpqe_blocked_prompting_options )
+			pPnpQueueEntry->m_pOH_Orbiter=NULL;  // The user isn't responding.  Ask on all orbiters
+
 		// We need to ask the user for this info
 		pPnpQueueEntry->Block(PnpQueueEntry::pnpqe_blocked_prompting_options);
 		if( pPnpQueueEntry->m_pOH_Orbiter )
@@ -132,6 +138,12 @@ bool Pnp_PreCreateOptions::OkayToCreateDevice_Username(PnpQueueEntry *pPnpQueueE
 		{
 			if( m_pPnpQueue->DetermineOrbitersForPrompting(pPnpQueueEntry,true)==false )
 				return false; // No orbiters.  Skip this one for now
+
+			if( m_pPnpQueue->BlockIfOtherQueuesAtPromptingState(pPnpQueueEntry) )
+				return false; // Let this one get backed up
+
+			if( pPnpQueueEntry->m_EBlockedState==PnpQueueEntry::pnpqe_blocked_prompting_options )
+				pPnpQueueEntry->m_pOH_Orbiter=NULL;  // The user isn't responding.  Ask on all orbiters
 
 			// We need to get it and block until we do
 			pPnpQueueEntry->Block(PnpQueueEntry::pnpqe_blocked_prompting_options);
@@ -168,6 +180,12 @@ bool Pnp_PreCreateOptions::OkayToCreateDevice_Room(PnpQueueEntry *pPnpQueueEntry
 	
 	if( m_pPnpQueue->DetermineOrbitersForPrompting(pPnpQueueEntry,true)==false )
 		return false; // No orbiters.  Skip this one for now
+
+	if( m_pPnpQueue->BlockIfOtherQueuesAtPromptingState(pPnpQueueEntry) )
+		return false; // Let this one get backed up
+
+	if( pPnpQueueEntry->m_EBlockedState==PnpQueueEntry::pnpqe_blocked_prompting_options )
+		pPnpQueueEntry->m_pOH_Orbiter=NULL;  // The user isn't responding.  Ask on all orbiters
 
 	// We need to ask the user for the room
 	pPnpQueueEntry->Block(PnpQueueEntry::pnpqe_blocked_prompting_options);
@@ -215,6 +233,9 @@ bool Pnp_PreCreateOptions::OkayToCreate_MobilePhone(PnpQueueEntry *pPnpQueueEntr
 	if( m_pPnpQueue->DetermineOrbitersForPrompting(pPnpQueueEntry,true)==false )
 		return false; // No orbiters.  Skip this one for now
 
+	if( m_pPnpQueue->BlockIfOtherQueuesAtPromptingState(pPnpQueueEntry) )
+		return false; // Let this one get backed up
+
 	if( bUserSpecified && !bPhoneSpecified && time(NULL)-pPnpQueueEntry->m_tTimeBlocked<TIMEOUT_PROMPTING_USER )
 	{
 		pPnpQueueEntry->Block(PnpQueueEntry::pnpqe_blocked_prompting_options);
@@ -260,6 +281,9 @@ bool Pnp_PreCreateOptions::OkayToCreateDevice_NetworkStorage(PnpQueueEntry *pPnp
 
 	if( m_pPnpQueue->DetermineOrbitersForPrompting(pPnpQueueEntry,true)==false )
 		return false; // No orbiters.  Skip this one for now
+
+	if( m_pPnpQueue->BlockIfOtherQueuesAtPromptingState(pPnpQueueEntry) )
+		return false; // Let this one get backed up
 
 	if( bUseAutoSpecified && !bDirectoryStructSpecified && time(NULL)-pPnpQueueEntry->m_tTimeBlocked<TIMEOUT_PROMPTING_USER )
 	{
@@ -308,6 +332,9 @@ bool Pnp_PreCreateOptions::OkayToCreate_Cameras(PnpQueueEntry *pPnpQueueEntry,Ro
 	if( m_pPnpQueue->DetermineOrbitersForPrompting(pPnpQueueEntry,true)==false )
 		return false; // No orbiters.  Skip this one for now
 
+	if( m_pPnpQueue->BlockIfOtherQueuesAtPromptingState(pPnpQueueEntry) )
+		return false; // Let this one get backed up
+
 	if( pPnpQueueEntry->m_EBlockedState==PnpQueueEntry::pnpqe_blocked_prompting_options )
 		pPnpQueueEntry->m_pOH_Orbiter=NULL;  // The user isn't responding.  Ask on all orbiters
 	pPnpQueueEntry->Block(PnpQueueEntry::pnpqe_blocked_prompting_options);
@@ -336,21 +363,22 @@ bool Pnp_PreCreateOptions::OkayToCreate_Cameras(PnpQueueEntry *pPnpQueueEntry,Ro
 bool Pnp_PreCreateOptions::OkayToCreate_CaptureCard(PnpQueueEntry *pPnpQueueEntry,Row_DeviceTemplate *pRow_DeviceTemplate)
 {
 	DeviceData_Base *pDevice = m_pPnpQueue->m_pPlug_And_Play_Plugin->m_pData->m_AllDevices.m_mapDeviceData_Base_Find(pPnpQueueEntry->m_pRow_Device_Reported->PK_Device_get());
-LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Pnp_PreCreateOptions::OkayToCreate_CaptureCard 1 %p %d",pDevice,pDevice ? pDevice->m_dwPK_Device : -1);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Pnp_PreCreateOptions::OkayToCreate_CaptureCard queue %d 1 %p %d",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),pDevice,pDevice ? pDevice->m_dwPK_Device : -1);
 	if( pDevice )
 	{
 		DeviceData_Base *pDevice_OSD = pDevice->FindFirstRelatedDeviceOfTemplate(DEVICETEMPLATE_OnScreen_Orbiter_CONST);
-LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Pnp_PreCreateOptions::OkayToCreate_CaptureCard 2 %p %d",pDevice_OSD,pDevice_OSD ? pDevice_OSD->m_dwPK_Device : -1);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Pnp_PreCreateOptions::OkayToCreate_CaptureCard queue %d 2 %p %d",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),pDevice_OSD,pDevice_OSD ? pDevice_OSD->m_dwPK_Device : -1);
 		if( pDevice_OSD )
 		{
 			OH_Orbiter *pOH_Orbiter = m_pPnpQueue->m_pPlug_And_Play_Plugin->m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(pDevice_OSD->m_dwPK_Device);
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Pnp_PreCreateOptions::OkayToCreate_CaptureCard 3 %p %d",pOH_Orbiter,pOH_Orbiter ? (int) pOH_Orbiter->m_bFirstRegen : -1);
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Pnp_PreCreateOptions::OkayToCreate_CaptureCard 3 queue %d %p %d",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),pOH_Orbiter,pOH_Orbiter ? (int) pOH_Orbiter->m_bFirstRegen : -1);
 			if( !pOH_Orbiter || pOH_Orbiter->m_bFirstRegen==true )
 				return true;
 		}
 	}
 	bool bUseAutoSpecified = pPnpQueueEntry->m_mapPK_DeviceData.find(DEVICEDATA_Use_Automatically_CONST)!=pPnpQueueEntry->m_mapPK_DeviceData.end();
 
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Pnp_PreCreateOptions::OkayToCreate_CaptureCard 4 queue %d use %d",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),(int) bUseAutoSpecified);
 	if( bUseAutoSpecified )
 	{
 		DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL(
@@ -359,6 +387,9 @@ LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Pnp_PreCreateOptions::OkayToCre
 		m_pPnpQueue->m_pPlug_And_Play_Plugin->SendCommand(CMD_Remove_Screen_From_History_DL);
 		return true;  // The user specified this option
 	}
+
+	if( m_pPnpQueue->BlockIfOtherQueuesAtPromptingState(pPnpQueueEntry) )
+		return false; // Let this one get backed up
 
 	if( pPnpQueueEntry->m_EBlockedState==PnpQueueEntry::pnpqe_blocked_prompting_options )
 		pPnpQueueEntry->m_pOH_Orbiter=NULL;  // The user isn't responding.  Ask on all orbiters
