@@ -237,6 +237,7 @@ public:
 		void StartFillDatabase();
 		void UpdateUpcomingRecordings();
 		void ConfirmMasterBackendOk(int iMediaStreamID);
+		bool ConfirmSourceIsADestination(MythTvMediaStream *pMythTvMediaStream);
 
         //<-dceag-h-b->
 	/*

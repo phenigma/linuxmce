@@ -1,6 +1,3 @@
-addEntries BackendServerPort 6543 $hostname;
-addEntries BackendServerStatus 6544 $hostname;
-addEntries MasterServerPort	6543;
 /**
  *
  * @file MythTV_PlugIn.cpp
@@ -277,7 +274,8 @@ bool MythTV_PlugIn::StartMedia(class MediaStream *pMediaStream,string &sError)
         return false;
 
     string Response;
-
+	if( !ConfirmSourceIsADestination(pMythTvMediaStream) )
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"MythTV_PlugIn::StartMedia don't know how media will get to destination.  Unless there's some output zones in the mix results won't be right");
 	m_dwTargetDevice = pMythTvMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device;
 
 	vector<DeviceData_Router *> vectDeviceData_Router_PVR;
@@ -293,7 +291,7 @@ bool MythTV_PlugIn::StartMedia(class MediaStream *pMediaStream,string &sError)
 		}
 	}
 
-	DCE::CMD_Play_Media cmd(m_dwPK_Device, pMythTvMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,pMythTvMediaStream->m_iPK_MediaType,pMythTvMediaStream->m_iStreamID_get( ),pMediaStream->m_sLastPosition,"");
+	DCE::CMD_Play_Media cmd(m_dwPK_Device, pMythTvMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,pMythTvMediaStream->m_iPK_MediaType,pMythTvMediaStream->m_iStreamID_get( ),pMediaStream->m_sStartPosition,"");
 	SendCommand(cmd);
 
 	m_pAlarmManager->CancelAlarmByType(CONFIRM_MASTER_BACKEND_OK);  // Do this immediately 
@@ -989,6 +987,8 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Re
 					sHostname = "moon" + StringUtils::itos(pRow_Device_PC->PK_Device_get());
 				UpdateMythSetting("BackendServerIP",pRow_Device_PC->IPaddress_get(),sHostname);
 				UpdateMythSetting("MasterServerPort","6543",sHostname);
+				UpdateMythSetting("BackendServerPort","6543",sHostname);
+				UpdateMythSetting("BackendServerStatus","6544",sHostname);
 			}
 			else
 			{
@@ -1036,6 +1036,20 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Re
 			}
 
 			pRow_Device->Reload();
+
+			string sHostname = "dcerouter";
+			int PK_Device_PC = DatabaseUtils::GetTopMostDevice(m_pMedia_Plugin->m_pDatabase_pluto_main,pRow_Device->PK_Device_get());
+			Row_Device *pRow_Device_PC = m_pMedia_Plugin->m_pDatabase_pluto_main->Device_get()->GetRow(PK_Device_PC);
+			if( pRow_Device_PC )
+			{
+				Row_DeviceTemplate *pRow_DeviceTemplate = pRow_Device_PC->FK_DeviceTemplate_getrow();
+				if( pRow_DeviceTemplate && pRow_DeviceTemplate->FK_DeviceCategory_get()!=DEVICECATEGORY_Core_CONST )
+					sHostname = "moon" + StringUtils::itos(pRow_Device_PC->PK_Device_get());
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::CMD_Sync_Providers_and_Cards topmost for %d is %d host %s",
+					pRow_Device->PK_Device_get(),pRow_Device_PC->PK_Device_get(),sHostname.c_str());
+			}
+			else
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythTV_PlugIn::CMD_Sync_Providers_and_Cards cannot find topmost device for %d", pRow_Device->PK_Device_get());
 
 			Row_Device_DeviceData *pRow_Device_DeviceData_UseInMyth = m_pMedia_Plugin->m_pDatabase_pluto_main->Device_DeviceData_get()->GetRow(pRow_Device->PK_Device_get(),DEVICEDATA_Dont_Consolidate_Media_CONST);
 			bool bUseInMyth = !pRow_Device_DeviceData_UseInMyth || pRow_Device_DeviceData_UseInMyth->IK_DeviceData_get()!="1";
@@ -1086,7 +1100,7 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Re
 				// Don't delete the card, because then the whole source and everything are deleted when the card is removed.
 				// Just delete the inputs so Myth won't use them, because we can add back inputs easily when the card is enabled again
 				LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::CMD_Sync_Providers_and_Cards deleting disabled cardid %d from device %d",cardid,pRow_Device->PK_Device_get());
-				sSQL = "DELETE FROM `cardinput` where cardid=" + StringUtils::itos(cardid);
+				sSQL = "UPDATE `capturecard` SET hostname=NULL where cardid=" + StringUtils::itos(cardid);
 				m_pMySqlHelper_Myth->threaded_mysql_query(sSQL);
 				continue;
 			}
@@ -1133,19 +1147,6 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Re
 				bNewCard=true;
 				bModifiedRows=true;
 				LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::CMD_Sync_Providers_and_Cards bModifiedRows=true !cardid %d",pRow_Device->PK_Device_get());
-				string sHostname = "dcerouter";
-				int PK_Device_PC = DatabaseUtils::GetTopMostDevice(m_pMedia_Plugin->m_pDatabase_pluto_main,pRow_Device->PK_Device_get());
-				Row_Device *pRow_Device_PC = m_pMedia_Plugin->m_pDatabase_pluto_main->Device_get()->GetRow(PK_Device_PC);
-				if( pRow_Device_PC )
-				{
-					Row_DeviceTemplate *pRow_DeviceTemplate = pRow_Device_PC->FK_DeviceTemplate_getrow();
-					if( pRow_DeviceTemplate && pRow_DeviceTemplate->FK_DeviceCategory_get()!=DEVICECATEGORY_Core_CONST )
-						sHostname = "moon" + StringUtils::itos(pRow_Device_PC->PK_Device_get());
-					LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::CMD_Sync_Providers_and_Cards topmost for %d is %d host %s",
-						pRow_Device->PK_Device_get(),pRow_Device_PC->PK_Device_get(),sHostname.c_str());
-				}
-				else
-					LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythTV_PlugIn::CMD_Sync_Providers_and_Cards cannot find topmost device for %d", pRow_Device->PK_Device_get());
 
 				sSQL = DatabaseUtils::GetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICEDATA_Configuration_CONST);
 				if( sSQL.empty() )
@@ -1165,6 +1166,9 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Re
 				cardid = m_pMySqlHelper_Myth->threaded_mysql_query_withID(sSQL);
 				DatabaseUtils::SetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,bTunersAsSeparateDevices ? pRow_Device->PK_Device_get() : pRow_Device_CaptureCard->PK_Device_get(),DEVICEDATA_Port_CONST,StringUtils::itos(cardid));
 			}
+
+			sSQL = "UPDATE `capturecard` SET hostname='" + sHostname + "' where cardid=" + StringUtils::itos(cardid);
+			m_pMySqlHelper_Myth->threaded_mysql_query(sSQL);
 
 			if( sBlockDevice.empty()==false )
 			{
@@ -1337,6 +1341,15 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Re
 
 	// Delete any stray rows for cards that no longer exist
 	sSQL = "DELETE cardinput FROM cardinput LEFT JOIN capturecard ON capturecard.cardid=cardinput.cardid WHERE capturecard.cardid IS NULL";
+	if( m_pMySqlHelper_Myth->threaded_mysql_query(sSQL)>0 )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::CMD_Sync_Providers_and_Cards bModifiedRows=true %s",sSQL.c_str());
+		bModifiedRows=true;
+	}
+
+	// Myth crashes when you have an entry in capture card with no corresponding entires in cardinput for some types of capture cards
+	// So if there are no inputs, just clear the hostname
+	sSQL = "update capturecard LEFT JOIN cardinput on capturecard.cardid=cardinput.cardid set hostname=NULL WHERE cardinput.cardid IS NULL";
 	if( m_pMySqlHelper_Myth->threaded_mysql_query(sSQL)>0 )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::CMD_Sync_Providers_and_Cards bModifiedRows=true %s",sSQL.c_str());
@@ -2467,4 +2480,33 @@ bool MythTV_PlugIn::NewRecording( class Socket *pSocket,class Message *pMessage,
 	string sFile = pMessage->m_mapParameters[EVENTPARAMETER_Name_CONST];
 	LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythTV_PlugIn::NewRecording Should_I Add it, or let updatemedia??");
 	return false;
+}
+
+bool MythTV_PlugIn::ConfirmSourceIsADestination(MythTvMediaStream *pMythTvMediaStream)
+{
+	MediaDevice *pMediaDevice_Myth = NULL; // Any xine that's in the destination
+	for( MapEntertainArea::iterator itEA = pMythTvMediaStream->m_mapEntertainArea.begin( );itEA != pMythTvMediaStream->m_mapEntertainArea.end( );++itEA )
+	{
+		EntertainArea *pEntertainArea = ( *itEA ).second;
+		ListMediaDevice *pListMediaDevice = pEntertainArea->m_mapMediaDeviceByTemplate_Find(DEVICETEMPLATE_MythTV_Player_CONST);
+		if( !pListMediaDevice )
+			continue;
+		for(ListMediaDevice::iterator it=pListMediaDevice->begin();it!=pListMediaDevice->end();++it)
+		{
+			MediaDevice *pMediaDevice = *it;
+			if( pMythTvMediaStream->m_pMediaDevice_Source->IsInEntertainArea( pEntertainArea ) )
+				return true; // We're good.  The source is one of the destinations
+			if( !pMediaDevice_Myth )
+				pMediaDevice_Myth = pMediaDevice;
+		}
+	}
+	
+	// If we reached here, then the source is not in one of the destination areas
+	if( !pMediaDevice_Myth )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythTV_PlugIn::ConfirmSourceIsADestination no myth player can handle this out of %d ea's",pMythTvMediaStream->m_mapEntertainArea.size());
+		return false;
+	}
+	pMythTvMediaStream->m_pMediaDevice_Source = pMediaDevice_Myth;
+	return true;
 }
