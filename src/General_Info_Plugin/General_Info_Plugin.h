@@ -28,6 +28,7 @@
 #include "PostCreateOptions.h"
 #include "DeviceData_Router.h"
 #include "Datagrid_Plugin/Datagrid_Plugin.h"
+#include "AlarmManager.h"
 
 class Database_pluto_main;
 class Database_pluto_media;
@@ -48,7 +49,7 @@ namespace DCE
 //<-dceag-decl-b->!
 namespace DCE
 {
-	class General_Info_Plugin : public General_Info_Plugin_Command, public DataGridGeneratorPlugIn
+	class General_Info_Plugin : public General_Info_Plugin_Command, public DataGridGeneratorPlugIn, public AlarmEvent
 	{
 //<-dceag-decl-e->
 		typedef pair<int, string> pairPKDescription;
@@ -82,6 +83,7 @@ public:
 	int m_dwPK_Device_Prompting_For_A_Room;
 	time_t m_tTimePromptedForRoom;
 	bool m_bNewInstall;  // True when this is a new box that isn't setup yet
+	class AlarmManager *m_pAlarmManager;
 
 	// Private methods
 	void SetNetBoot(DeviceData_Router *pDevice,bool bNetBoot);
@@ -101,6 +103,7 @@ public:
 	list<pair<string, string> > GetUserBookmarks(string sPK_User);
 	map<int,int> m_mapNewPnpDevicesWaitingForARoom,m_mapNewPnpDevicesWaitingForOptions;  // Map Device,Orbiter
 	void SetRoomForDevice(Row_Device *pRow_Device,Row_Room *pRow_Room);
+	void UpdateEntAreas();
 
 public:
 	// Public member variables
@@ -148,7 +151,10 @@ public:
 	class DataGridTable *NetworkStorage( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
 	class DataGridTable *JukeboxDrives( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
 	class DataGridTable *JukeboxSlots( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
-	
+
+	// For the alarm callbacks
+	virtual void AlarmCallback(int id, void* param);
+
 /*
 	void GetAppServerAndOsdForMD(DeviceData_Router *pDevice_MD,DeviceData_Router **pDevice_AppServer,DeviceData_Router **pDevice_Orbiter_OSD);
 	Message *BuildMessageToSpawnApp(DeviceData_Router *pDevice_OrbiterRequesting,DeviceData_Router *pDevice_MD,DeviceData_Router *pDevice_AppServer,DeviceData_Router *pDevice_Orbiter_OSD,

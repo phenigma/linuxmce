@@ -93,6 +93,8 @@ static const string sURL_Base = "http://10.0.0.175/plutohome-com/getRegisteredDe
 #include "DCEConfig.h"
 DCEConfig dceConfig; // Needed by CreateDevice
 
+#define UPDATE_ENT_AREA		1
+
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
 General_Info_Plugin::General_Info_Plugin(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
@@ -112,6 +114,7 @@ General_Info_Plugin::General_Info_Plugin(int DeviceID, string ServerAddress,bool
 	m_bNewInstall=false;
 	m_bAskBeforeReload=true;
 	m_bImplementsPendingTasks=true;
+	m_pAlarmManager=NULL;
 }
 
 //<-dceag-getconfig-b->
@@ -142,6 +145,9 @@ bool General_Info_Plugin::GetConfig()
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"General_Info_Plugin::GetConfig System has no rooms or users yet.");
 		m_bNewInstall=true;
 	}
+
+	m_pAlarmManager = new AlarmManager();
+    m_pAlarmManager->Start(1);      // number of worker threads
 
 	return true;
 }
@@ -2866,15 +2872,7 @@ void General_Info_Plugin::CMD_Create_Device(int iPK_DeviceTemplate,string sMac_a
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Created device %d",*iPK_Device);
 	CMD_Check_for_updates();
 
-	UpdateEntArea updateEntArea;
-	if( updateEntArea.Connect(m_pData->m_dwPK_Installation,m_pRouter->sDBHost_get(),m_pRouter->sDBUser_get(),m_pRouter->sDBPassword_get(),m_pRouter->sDBName_get(),m_pRouter->iDBPort_get()) )
-	{
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"General_Info_Plugin::CMD_Create_Device created %d checking update ent area",*iPK_Device);
-		updateEntArea.GetMediaAndRooms();
-		updateEntArea.SetEAInRooms();
-		updateEntArea.AddDefaultScenarios();
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"General_Info_Plugin::CMD_Create_Device created %d done checking update ent area",*iPK_Device);
-	}
+	m_pAlarmManager->AddRelativeAlarm(1,this,UPDATE_ENT_AREA,NULL);
 
 	if( pRow_Device )
 	{
@@ -3094,13 +3092,7 @@ void General_Info_Plugin::CMD_Set_Room_For_Device(int iPK_Device,string sName,in
 		m_dwPK_Device_Prompting_For_A_Room=0;
 	}
 
-	UpdateEntArea updateEntArea;
-	if( updateEntArea.Connect(m_pData->m_dwPK_Installation,m_pRouter->sDBHost_get(),m_pRouter->sDBUser_get(),m_pRouter->sDBPassword_get(),m_pRouter->sDBName_get(),m_pRouter->iDBPort_get()) )
-	{
-		updateEntArea.GetMediaAndRooms();
-		updateEntArea.SetEAInRooms();
-		updateEntArea.AddDefaultScenarios();
-	}
+	m_pAlarmManager->AddRelativeAlarm(1,this,UPDATE_ENT_AREA,NULL);
 
 bool bStillRunningConfig = PendingConfigs();
 LoggerWrapper::GetInstance()->Write(LV_STATUS,"CMD_Set_Room_For_Device: before %d after %d pending %d",
@@ -3839,5 +3831,23 @@ void General_Info_Plugin::CMD_Enable_Device(int iPK_Device,int iPK_Orbiter,strin
 		if( iPK_Orbiter )
 			pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(iPK_Orbiter);
 		m_pPostCreateOptions->PostCreateDevice(pRow_Device,pOH_Orbiter);
+	}
+}
+
+void General_Info_Plugin::AlarmCallback(int id, void* param)
+{
+	if( id==UPDATE_ENT_AREA )
+		UpdateEntAreas();
+}
+
+void General_Info_Plugin::UpdateEntAreas()
+{
+	UpdateEntArea updateEntArea;
+	if( updateEntArea.Connect(m_pData->m_dwPK_Installation,m_pRouter->sDBHost_get(),m_pRouter->sDBUser_get(),m_pRouter->sDBPassword_get(),m_pRouter->sDBName_get(),m_pRouter->iDBPort_get()) )
+	{
+		updateEntArea.GetMediaAndRooms();
+		updateEntArea.SetEAInRooms();
+		updateEntArea.AddDefaultScenarios();
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"General_Info_Plugin::UpdateEntArea done");
 	}
 }
