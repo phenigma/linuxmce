@@ -109,12 +109,12 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	//	WSADATA wsaData;
 	//	err = WSAStartup(MAKEWORD( 1, 1 ),(LPWSADATA)  &wsaData);
-	LoggerWrapper::SetType(LT_LOGGER_FILE,"/temp/orbitergen.log");
+	string sLogger="/temp/orbitergen.log";
 #else
 int main(int argc, char *argv[])
 {
 	setenv("SDL_VIDEODRIVER", "dummy", 1); // force SDL to use its dummy video driver (removed a dependency on the X server)
-	LoggerWrapper::SetType(LT_LOGGER_FILE,"/var/log/pluto/OrbiterGen.log");
+	string sLogger="/var/log/pluto/OrbiterGen.log";
 #endif
 
 
@@ -181,6 +181,9 @@ int main(int argc, char *argv[])
 		case 'r':
 			bRegen=true;
 			break;
+		case 'l':
+			sLogger = argv[++optnum];
+			break;
 		default:
 			bError=true;
 			break;
@@ -206,6 +209,18 @@ int main(int argc, char *argv[])
 			<< "-P port      -- port for database connection, default is 3306" << endl
 			<< "-s screen    -- only regenerate this one screen" << endl;
 		exit(1);
+	}
+
+	try
+	{
+		if( sLogger=="null" )
+			LoggerWrapper::SetType(LT_LOGGER_NULL);
+		else if( sLogger!="stdout" )
+			LoggerWrapper::SetType(LT_LOGGER_FILE,sLogger);
+	}
+	catch(...)
+	{
+		cerr << "Unable to create logger" << endl;
 	}
 
 	// Windows will work with / also
