@@ -258,6 +258,9 @@ public:
 	virtual void SCREEN_CreateViewBookmarks(long PK_Screen);
 	bool Bookmark_GridSelected(CallBackData *pData);
 
+	virtual void SCREEN_PNP_Generic_Options(long PK_Screen, string sOptions, int iPK_PnpQueue);
+	bool PNP_Generic_Options_DatagridSelected(CallBackData *pData);
+
 	//cameras
 	virtual void SCREEN_SingleCameraViewOnly(long PK_Screen, int iPK_Device);
 	virtual void SCREEN_QuadViewCameras(long PK_Screen, string sList_PK_Device);

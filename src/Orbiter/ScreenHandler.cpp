@@ -2556,10 +2556,12 @@ bool ScreenHandler::DriveOverview_ObjectSelected(CallBackData *pData)
 					DCE::CMD_Mass_identify_media CMD_Mass_identify_media(m_pOrbiter->m_dwPK_Device,atoi(pCell->GetValue()),"*");
 					m_pOrbiter->SendCommand(CMD_Mass_identify_media);
 				}
-				else if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_icoPlay_CONST && m_pOrbiter->m_pLocationInfo ) // play requires a location to play at
+				else if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_icoPlay_CONST && m_pOrbiter->m_pLocationInfo && pCell->m_Value ) // play requires a location to play at
 				{
+					int PK_Disc = atoi( pCell->m_mapAttributes_Find("PK_Disc").c_str() );
 					DCE::CMD_MH_Play_Media CMD_MH_Play_Media(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,
-						atoi(pCell->GetValue()),"",0,0,StringUtils::itos(m_pOrbiter->m_pLocationInfo->PK_EntertainArea),false,0);
+						0,"!r" + StringUtils::itos(PK_Disc) + ":" + pCell->m_Value, // see MediaAttributes_LowLevel::TransformFilenameToDeque
+						0,0,StringUtils::itos(m_pOrbiter->m_pLocationInfo->PK_EntertainArea),false,0);
 					m_pOrbiter->SendCommand(CMD_MH_Play_Media);
 				}
 				else if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_butManage_CONST )
@@ -3192,3 +3194,62 @@ bool ScreenHandler::AdjustScreenSettings_RemoteKeyCodeIntercepted(CallBackData *
 	return true;
 }
 
+/*virtual */ void ScreenHandler::SCREEN_PNP_Generic_Options(long PK_Screen, string sOptions, int iPK_PnpQueue)
+{ 
+	DesignObj_Orbiter *pObj = m_pOrbiter->FindObject(TOSTRING(DESIGNOBJ_mnuGenericDataGrid_CONST) ".0.0." TOSTRING(DESIGNOBJ_dgGenericDataGrid_CONST));
+	if( !pObj )
+		return; // shouldn't happen
+	
+	DesignObj_DataGrid *pObj_Grid = dynamic_cast<DesignObj_DataGrid *> (pObj);
+	pObj_Grid->m_bFlushOnScreen=false;
+	pObj_Grid->m_GridCurRow = pObj_Grid->m_GridCurCol = 0;
+	DataGridTable *pDataGridTable = new DataGridTable();
+	pObj_Grid->DataGridTable_Set(pDataGridTable,0,0);
+	DataGridCell *pCell;
+
+	vector<string> vectOptions;
+	StringUtils::Tokenize(sOptions,"\t",vectOptions);
+	if( vectOptions.size()<4 )
+		return; // Shouldn't happen
+
+	int iRow=0;
+	vector<string>::iterator it=vectOptions.begin();
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST,*it);  // The PK_DeviceData
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST,StringUtils::itos(iPK_PnpQueue));  // The PK_PnpQueu
+	it++;
+	string sTitle = m_pOrbiter->m_mapTextString[atoi(it->c_str())];
+	it++;
+	for(;it!=vectOptions.end();++it)
+	{
+		string sText = m_pOrbiter->m_mapTextString[atoi(it->c_str())];
+		++it;
+		string sValue = *it;
+
+		pCell = new DataGridCell(sText,sValue);
+		pObj_Grid->DataGridTable_Get()->SetData(0,iRow++,pCell);
+	}
+	
+	pDataGridTable->m_RowCount = pDataGridTable->GetRows();
+	pDataGridTable->m_ColumnCount = pDataGridTable->GetCols();
+	RegisterCallBack(cbDataGridSelected, (ScreenHandlerCallBack) &ScreenHandler::PNP_Generic_Options_DatagridSelected, new DatagridCellBackData());
+	m_pOrbiter->CMD_Set_Text( TOSTRING(DESIGNOBJ_mnuGenericDataGrid_CONST),sTitle, TEXT_STATUS_CONST );
+	ScreenHandlerBase::SCREEN_PNP_Generic_Options(PK_Screen, sOptions, iPK_PnpQueue);
+	m_pOrbiter->CMD_Show_Object(TOSTRING(DESIGNOBJ_mnuGenericDataGrid_CONST) ".0.0." TOSTRING(DESIGNOBJ_butResponse1_CONST),0,"","","0");
+}
+
+bool ScreenHandler::PNP_Generic_Options_DatagridSelected(CallBackData *pData)
+{
+	DatagridCellBackData *pCellInfoData = (DatagridCellBackData *)pData;
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::PNP_Generic_Options_DatagridSelected sel value %s text %s",
+			pCellInfoData->m_sValue.c_str(),pCellInfoData->m_sText.c_str());
+
+#endif
+	DCE::CMD_Set_Pnp_Options CMD_Set_Pnp_Options(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_PlugAndPlayPlugIn,
+		pCellInfoData->m_sValue,atoi(m_pOrbiter->m_mapVariable_Find(VARIABLE_Misc_Data_1_CONST).c_str()),atoi(m_pOrbiter->m_mapVariable_Find(VARIABLE_Misc_Data_2_CONST).c_str()));
+	m_pOrbiter->SendCommand(CMD_Set_Pnp_Options);
+
+	m_pOrbiter->CMD_Remove_Screen_From_History(m_pOrbiter->m_pScreenHistory_Current->ScreenID(),m_pOrbiter->m_pScreenHistory_Current->PK_Screen());
+
+	return true;  // Always return true since we're handing everything datagrid related here
+}

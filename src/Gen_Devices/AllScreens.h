@@ -13190,6 +13190,78 @@ namespace DCE
 		}
 	};
 
+	class SCREEN_PNP_Generic_Options : public PreformedCommand
+	{
+	public:
+		SCREEN_PNP_Generic_Options(long DeviceIDFrom, long DeviceIDTo,
+			string sOptions, int iPK_PnpQueue,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 6, 
+				COMMANDPARAMETER_PK_Screen_CONST, "264" /* screen ID */
+				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
+				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
+				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */,
+				39 /* // The format is: 
+// PK_DeviceData\tPK_Text for question\tPK_Text for Answer 1\tValue for answer 1\tPK_Text for Answer 2 ....   \n
+// PK_DeviceData ....
+ */, sOptions.c_str(), 224 /* The PNP Queue */, StringUtils::ltos(iPK_PnpQueue).c_str());
+		}
+	};
+
+	class SCREEN_PNP_Generic_Options_DL : public PreformedCommand
+	{
+	public:
+		SCREEN_PNP_Generic_Options_DL(long DeviceIDFrom, string sDeviceIDTo,
+			string sOptions, int iPK_PnpQueue,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+		{
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 6, 
+				COMMANDPARAMETER_PK_Screen_CONST, "264" /* screen ID */
+				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
+				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
+				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */,
+				39 /* // The format is: 
+// PK_DeviceData\tPK_Text for question\tPK_Text for Answer 1\tValue for answer 1\tPK_Text for Answer 2 ....   \n
+// PK_DeviceData ....
+ */, sOptions.c_str(), 224 /* The PNP Queue */, StringUtils::ltos(iPK_PnpQueue).c_str());
+		}
+	};
+
+	class SCREEN_PNP_Generic_Options_DT : public PreformedCommand
+	{
+	public:
+		SCREEN_PNP_Generic_Options_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,
+			string sOptions, int iPK_PnpQueue,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+		{
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 6, 
+				COMMANDPARAMETER_PK_Screen_CONST, "264" /* screen ID */
+				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
+				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
+				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */,
+				39 /* // The format is: 
+// PK_DeviceData\tPK_Text for question\tPK_Text for Answer 1\tValue for answer 1\tPK_Text for Answer 2 ....   \n
+// PK_DeviceData ....
+ */, sOptions.c_str(), 224 /* The PNP Queue */, StringUtils::ltos(iPK_PnpQueue).c_str());
+		}
+	};
+
+	class SCREEN_PNP_Generic_Options_Cat : public PreformedCommand
+	{
+	public:
+		SCREEN_PNP_Generic_Options_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,
+			string sOptions, int iPK_PnpQueue,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 6, 
+				COMMANDPARAMETER_PK_Screen_CONST, "264" /* screen ID */
+				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
+				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
+				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */,
+				39 /* // The format is: 
+// PK_DeviceData\tPK_Text for question\tPK_Text for Answer 1\tValue for answer 1\tPK_Text for Answer 2 ....   \n
+// PK_DeviceData ....
+ */, sOptions.c_str(), 224 /* The PNP Queue */, StringUtils::ltos(iPK_PnpQueue).c_str());
+		}
+	};
+
 
 	class ScreenHandlerBase
 	{
@@ -13462,6 +13534,7 @@ namespace DCE
 		virtual void SCREEN_NAS_Manager(long PK_Screen, int iPK_Device){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_AutoConfigure_TV(long PK_Screen, int iPK_PnpQueue){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_AdjustScreenSettings(long PK_Screen){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_PNP_Generic_Options(long PK_Screen, string sOptions, int iPK_PnpQueue){ GotoScreen(PK_Screen); }
 
 		virtual void ReceivedGotoScreenMessage(int nPK_Screen, Message *pMessage)
 		{
@@ -15019,6 +15092,14 @@ namespace DCE
 				{
 					ResetCallBacks();
 					SCREEN_AdjustScreenSettings(nPK_Screen);
+					break;
+				}
+				case 264:
+				{
+					ResetCallBacks();
+					string sOptions = pMessage->m_mapParameters[39];
+					int iPK_PnpQueue = atoi(pMessage->m_mapParameters[224].c_str());
+					SCREEN_PNP_Generic_Options(nPK_Screen, sOptions, iPK_PnpQueue);
 					break;
 				}
 

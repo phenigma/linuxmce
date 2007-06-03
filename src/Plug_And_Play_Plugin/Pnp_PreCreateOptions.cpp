@@ -59,6 +59,8 @@ bool Pnp_PreCreateOptions::OkayToCreateDevice(PnpQueueEntry *pPnpQueueEntry)
 		return false;
 	if( !OkayToCreateDevice_Room(pPnpQueueEntry,pRow_DeviceTemplate) )  // It needs a room
 		return false;
+	if( !OkayToCreateDevice_Presets(pPnpQueueEntry,pRow_DeviceTemplate) )  // There are some pre-defined values we need to specify in device data first
+		return false;
 	if( pDeviceCategory->WithinCategory(DEVICECATEGORY_Storage_Devices_CONST) )
 		return OkayToCreateDevice_NetworkStorage(pPnpQueueEntry,pRow_DeviceTemplate);
 	if( pDeviceCategory->WithinCategory(DEVICECATEGORY_Surveillance_Cameras_CONST) )
@@ -71,6 +73,51 @@ bool Pnp_PreCreateOptions::OkayToCreateDevice(PnpQueueEntry *pPnpQueueEntry)
 	return true;
 }
 
+bool Pnp_PreCreateOptions::OkayToCreateDevice_Presets(PnpQueueEntry *pPnpQueueEntry,Row_DeviceTemplate *pRow_DeviceTemplate)
+{
+	Row_DeviceTemplate_DeviceData *pRow_DeviceTemplate_DeviceData = m_pDatabase_pluto_main->DeviceTemplate_DeviceData_get()->GetRow(pRow_DeviceTemplate->PK_DeviceTemplate_get(),DEVICEDATA_PNP_Prompt_For_Options_CONST);
+	if( pRow_DeviceTemplate_DeviceData==NULL || pRow_DeviceTemplate_DeviceData->IK_DeviceData_get().empty() )
+		return true; // Nothing special to prompt for
+
+	// The format is: 
+	// PK_DeviceData\tPK_Text for question\tPK_Text for Answer 1\tValue for answer 1\tPK_Text for Answer 2 ....   \n
+	// PK_DeviceData ....
+
+	vector<string> vectValues;
+	string s=pRow_DeviceTemplate_DeviceData->IK_DeviceData_get();
+	StringUtils::Tokenize(s,"\n",vectValues);
+	for(vector<string>::iterator it=vectValues.begin();it!=vectValues.end();++it)
+	{
+		int PK_DeviceData = atoi( it->c_str() );
+		if( !PK_DeviceData )
+			continue; // Shouldn't happen
+
+		if( pPnpQueueEntry->m_mapPK_DeviceData.find(PK_DeviceData)!=pPnpQueueEntry->m_mapPK_DeviceData.end() )
+			continue; // the user already specified this
+
+		if( m_pPnpQueue->DetermineOrbitersForPrompting(pPnpQueueEntry,true)==false )
+			return false; // No orbiters.  Skip this one for now
+
+		// We need to ask the user for this info
+		pPnpQueueEntry->Block(PnpQueueEntry::pnpqe_blocked_prompting_options);
+		if( pPnpQueueEntry->m_pOH_Orbiter )
+		{
+			DCE::SCREEN_PNP_Generic_Options SCREEN_PNP_Generic_Options(m_pPnpQueue->m_pPlug_And_Play_Plugin->m_dwPK_Device,pPnpQueueEntry->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, 
+				s,pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
+			m_pPnpQueue->m_pPlug_And_Play_Plugin->SendCommand(SCREEN_PNP_Generic_Options);
+		}
+		else
+		{
+			DCE::SCREEN_PNP_Generic_Options_DL SCREEN_PNP_Generic_Options_DL(m_pPnpQueue->m_pPlug_And_Play_Plugin->m_dwPK_Device,pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts, 
+				s,pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
+			m_pPnpQueue->m_pPlug_And_Play_Plugin->SendCommand(SCREEN_PNP_Generic_Options_DL);
+		}
+
+		return false;  
+	}
+
+	return true;
+}
 bool Pnp_PreCreateOptions::OkayToCreateDevice_Username(PnpQueueEntry *pPnpQueueEntry,Row_DeviceTemplate *pRow_DeviceTemplate)
 {
 	// See if a password is required

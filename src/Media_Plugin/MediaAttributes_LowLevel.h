@@ -43,6 +43,7 @@ class MediaFile;
 class Row_Attribute;
 class Row_Disc;
 class Row_Picture;
+class Row_DiscLocation;
 
 /**
  * @brief the attributes of the media
@@ -191,6 +192,7 @@ public:
 	void AddPictureToDisc(int PK_Disc,int PK_Picture);
 	void AddPictureToFile(int PK_File,int PK_Picture);
 	void AddPictureToAttribute(int PK_Attribute,int PK_Picture);
+	int GetMediaType(Row_DiscLocation *pRow_DiscLocation);
 
 	void PurgeListMediaAttribute(listMediaAttribute &listMediaAttribute_)
 	{

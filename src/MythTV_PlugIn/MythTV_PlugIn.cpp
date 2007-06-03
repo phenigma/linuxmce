@@ -1400,7 +1400,7 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Re
 
 	sSQL = "select sourceid from videosource limit 1";
 	PlutoSqlResult result_set_sources;
-	bool bContainsVideoSources = (result_set_sources.r=m_pMedia_Plugin->m_pDatabase_pluto_main->mysql_query_result(sSQL))!=NULL && result_set_sources.r->row_count>0;
+	bool bContainsVideoSources = (result_set_sources.r=m_pMySqlHelper_Myth->mysql_query_result(sSQL))!=NULL && result_set_sources.r->row_count>0;
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::SyncCardsAndProviders -- bModifiedRows %d m_bFillDbRunning %d m_bNeedToRunFillDb %d bContainsVideoSources %d",
 		(int) bModifiedRows,(int) m_bFillDbRunning,(int) m_bNeedToRunFillDb, (int) bContainsVideoSources);
@@ -2102,13 +2102,6 @@ void MythTV_PlugIn::CheckForTvFormatAndProvider( int iPK_Device )
 		if( result.r->row_count>1 )
 			LoggerWrapper::GetInstance()->Write(LV_WARNING,"MythTV_PlugIn::CheckForTvFormatAndProvider found more than 1 tv format for %d",iPK_Device);
 		DatabaseUtils::SetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,iPK_Device,DEVICEDATA_Type_CONST,row[0]);
-/*
-		// TEMP -- remove this before .44
-		if( strcmp(row[0],"8vsb")==0 && strcmp(row[1],"ATSC")==0 )
-			m_pMedia_Plugin->CMD_Specify_Media_Provider(iPK_Device,"paulhuber2005\tmsvirus1\t46\t2\tPC:94066");
-		else if( strcmp(row[0],"qam_256")==0 )
-			m_pMedia_Plugin->CMD_Specify_Media_Provider(iPK_Device,"paulhuber2005\tmsvirus1\t46\t2\tCA04684:X");
-*/
 	}
 }
 //<-dceag-c882-b->

@@ -113,6 +113,12 @@ void MediaAttributes_LowLevel::TransformFilenameToDeque(string sFilename,deque<M
 		}
 
 		MediaFile *pMediaFile = new MediaFile(atoi(sFilename.substr(2).c_str()),PK_Device_Disk_Drive,Slot);
+		if( PK_Device_Disk_Drive )
+		{
+			Row_DiscLocation *pRow_DiscLocation = m_pDatabase_pluto_media->DiscLocation_get()->GetRow(PK_Device_Disk_Drive,0);
+			if( pRow_DiscLocation )
+				pMediaFile->m_dwPK_MediaType = GetMediaType(pRow_DiscLocation);
+		}
 		pos = sFilename.find('.');
 		if( pos!=string::npos )
 			pMediaFile->m_iTrack = atoi( sFilename.substr(pos+1).c_str() );
@@ -1669,4 +1675,22 @@ void MediaAttributes_LowLevel::AddPictureToAttribute(int PK_Attribute,int PK_Pic
 		pRow_Picture_Attribute->FK_Picture_set( PK_Picture );
 		m_pDatabase_pluto_media->Picture_Attribute_get()->Commit();
 	}
+}
+
+int MediaAttributes_LowLevel::GetMediaType(Row_DiscLocation *pRow_DiscLocation)
+{
+	string s = pRow_DiscLocation->Type_get();
+	if( s.size()<1 )
+		return 0;
+
+	switch( s[0] )
+	{
+	case 'c':
+		return MEDIATYPE_pluto_CD_CONST;
+	case 'd':
+		return MEDIATYPE_pluto_DVD_CONST;
+	case 'M':
+		return MEDIATYPE_pluto_StoredVideo_CONST;
+	}
+	return 0;
 }

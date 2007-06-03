@@ -774,7 +774,7 @@ void Disk_Drive_Functions::UpdateDiscLocation(char cType,int PK_Disc)
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive_Functions::UpdateDiscLocation device %d type %c disc %d / %p", m_dwPK_Device,cType,PK_Disc,pRow_DiscLocation);
 	if( pRow_DiscLocation )
 	{
-		if( PK_Disc==0 )  // Shouldn't be a record if it's empty
+		if( cType=='E' )  // Shouldn't be a record if it's empty
 		{
 			pRow_DiscLocation->Delete();
 			m_pDatabase_pluto_media->DiscLocation_get()->Commit();
@@ -782,7 +782,7 @@ void Disk_Drive_Functions::UpdateDiscLocation(char cType,int PK_Disc)
 		}
 		pRow_DiscLocation->Reload();
 	}
-	else if( PK_Disc==0 )
+	else if( cType=='E' )
 		return; // Nothing to do if it's empty
 	else
 	{
@@ -790,7 +790,11 @@ void Disk_Drive_Functions::UpdateDiscLocation(char cType,int PK_Disc)
 		pRow_DiscLocation->EK_Device_set(m_dwPK_Device);
 	}
 
-	pRow_DiscLocation->FK_Disc_set(PK_Disc);
+	if( PK_Disc )
+		pRow_DiscLocation->FK_Disc_set(PK_Disc);
+	else
+		pRow_DiscLocation->FK_Disc_setNull(true);
+
 	char c[2]=" ";
 	c[0]=cType;
 	pRow_DiscLocation->Type_set(c);
