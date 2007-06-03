@@ -41,7 +41,7 @@ Xine_Player::Xine_Player(int DeviceID, string ServerAddress,bool bConnectEventHa
 	ptrFactory = new Xine_Stream_Factory(this);
 	m_iNbdDevice = 0;
 	
-	iDefaultZoomLevel = 100;
+	m_iDefaultZoomLevel = 100;
 	
 	m_pNotificationSocket = new XineNotification_SocketListener(string("m_pNotificationSocket"));
 	m_pNotificationSocket->m_bSendOnlySocket = true; // one second
@@ -82,9 +82,9 @@ bool Xine_Player::GetConfig()
 		return false;
 //<-dceag-getconfig-e->
 	m_pDeviceData_MediaPlugin = m_pData->m_AllDevices.m_mapDeviceData_Base_FindFirstOfCategory(DEVICECATEGORY_Media_Plugins_CONST);
-	iDefaultZoomLevel = ( (Xine_Player_Data*)  m_pData )->Get_Zoom_Level();
+	m_iDefaultZoomLevel = DATA_Get_Zoom_Level();
 	
-	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::EVENT_Playback_Completed(streamID=%i)", 0);
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::GetConfig default zoom %d", m_iDefaultZoomLevel);
 	EVENT_Playback_Completed("",0,false);  // In case media plugin thought something was playing, let it know that there's not
 
 	string sNbdClient;
@@ -277,7 +277,7 @@ void Xine_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPo
 	}
 	
 	ptrFactory->m_iLastRenderingStream = iStreamID;
-	Xine_Stream *pStream =  ptrFactory->GetStream( iStreamID, true, pMessage?pMessage->m_dwPK_Device_From:0, iDefaultZoomLevel );
+	Xine_Stream *pStream =  ptrFactory->GetStream( iStreamID, true, pMessage?pMessage->m_dwPK_Device_From:0, m_iDefaultZoomLevel );
 	
 	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() called for filename: %s (%s) with corresponding stream %p.", sMediaURL.c_str(),sMediaPosition.c_str(),pStream);
 	
@@ -310,7 +310,6 @@ void Xine_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPo
 	}
 	
 	pStream->m_sCurrentFile=sMediaURL;
-
 	
 	string sMediaInfo;
 	
@@ -1315,7 +1314,7 @@ void Xine_Player::CMD_Start_Streaming(int iPK_MediaType,int iStreamID,string sMe
 		}
 	}
 	
-	pStream =  ptrFactory->GetStream( iStreamID, true, pMessage->m_dwPK_Device_From, true,iDefaultZoomLevel );
+	pStream =  ptrFactory->GetStream( iStreamID, true, pMessage->m_dwPK_Device_From, true,m_iDefaultZoomLevel );
 		
 	if (pStream==NULL)
 	{

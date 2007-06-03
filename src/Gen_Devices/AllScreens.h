@@ -13262,6 +13262,58 @@ namespace DCE
 		}
 	};
 
+	class SCREEN_Zoom__Aspect : public PreformedCommand
+	{
+	public:
+		SCREEN_Zoom__Aspect(long DeviceIDFrom, long DeviceIDTo,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
+				COMMANDPARAMETER_PK_Screen_CONST, "265" /* screen ID */
+				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
+				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
+				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */);
+		}
+	};
+
+	class SCREEN_Zoom__Aspect_DL : public PreformedCommand
+	{
+	public:
+		SCREEN_Zoom__Aspect_DL(long DeviceIDFrom, string sDeviceIDTo,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+		{
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
+				COMMANDPARAMETER_PK_Screen_CONST, "265" /* screen ID */
+				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
+				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
+				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */);
+		}
+	};
+
+	class SCREEN_Zoom__Aspect_DT : public PreformedCommand
+	{
+	public:
+		SCREEN_Zoom__Aspect_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+		{
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
+				COMMANDPARAMETER_PK_Screen_CONST, "265" /* screen ID */
+				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
+				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
+				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */);
+		}
+	};
+
+	class SCREEN_Zoom__Aspect_Cat : public PreformedCommand
+	{
+	public:
+		SCREEN_Zoom__Aspect_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
+				COMMANDPARAMETER_PK_Screen_CONST, "265" /* screen ID */
+				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
+				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
+				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */);
+		}
+	};
+
 
 	class ScreenHandlerBase
 	{
@@ -13535,6 +13587,7 @@ namespace DCE
 		virtual void SCREEN_AutoConfigure_TV(long PK_Screen, int iPK_PnpQueue){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_AdjustScreenSettings(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_PNP_Generic_Options(long PK_Screen, string sOptions, int iPK_PnpQueue){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_Zoom__Aspect(long PK_Screen){ GotoScreen(PK_Screen); }
 
 		virtual void ReceivedGotoScreenMessage(int nPK_Screen, Message *pMessage)
 		{
@@ -15100,6 +15153,12 @@ namespace DCE
 					string sOptions = pMessage->m_mapParameters[39];
 					int iPK_PnpQueue = atoi(pMessage->m_mapParameters[224].c_str());
 					SCREEN_PNP_Generic_Options(nPK_Screen, sOptions, iPK_PnpQueue);
+					break;
+				}
+				case 265:
+				{
+					ResetCallBacks();
+					SCREEN_Zoom__Aspect(nPK_Screen);
 					break;
 				}
 

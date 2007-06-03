@@ -1309,7 +1309,7 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Re
 					m_mapDevicesToSources[0].push_back(sourceid);
 
 				int cardinputid=0;
-				sSQL = "SELECT cardinputid FROM `cardinput` WHERE cardid='" + StringUtils::itos(cardid) + "' AND sourceid='" + StringUtils::itos(sourceid) + "' AND inputname='" + sPortName + "'";
+				sSQL = "SELECT cardinputid FROM `cardinput` WHERE cardid='" + StringUtils::itos(cardid) + "' AND inputname='" + sPortName + "'";
 				PlutoSqlResult result_set3;
 				if( (result_set3.r=m_pMySqlHelper_Myth->mysql_query_result(sSQL)) && (row2=mysql_fetch_row(result_set3.r)) && atoi(row2[0]) )
 					cardinputid = atoi(row2[0]);
@@ -1322,6 +1322,11 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Re
 					LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::CMD_Sync_Providers_and_Cards bModifiedRows=true cardinputid %d bUseInMyth %d",(int) cardinputid, (int) bUseInMyth);
 					sSQL = "INSERT INTO `cardinput`(cardid,sourceid,inputname) VALUES (" + StringUtils::itos(cardid) + "," + StringUtils::itos(sourceid) + ",'" + sPortName + "')";
 					cardinputid = m_pMySqlHelper_Myth->threaded_mysql_query_withID(sSQL);
+				}
+				else if( cardinputid )
+				{
+					sSQL = "UPDATE cardinput SET sourceid='" + StringUtils::itos(sourceid) + "' WHERE cardid='" + StringUtils::itos(cardid) + "' AND inputname='" + sPortName + "'";
+					m_pMySqlHelper_Myth->threaded_mysql_query(sSQL);
 				}
 
 				if( pRow_Device_External )

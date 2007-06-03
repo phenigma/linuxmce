@@ -520,7 +520,7 @@ private:
 	Xine_Stream_Factory *ptrFactory;
 	DeviceData_Base *m_pDeviceData_MediaPlugin;
 	
-	int iDefaultZoomLevel;
+	int m_iDefaultZoomLevel;
 	
 	// socket listener for playback info notification
 	
