@@ -214,7 +214,8 @@ void ExtensionManager::Resize(int Width, int Height)
 
                 /* First try to set MWM hints */
                 WM_HINTS = XInternAtom(info.info.x11.display, "_MOTIF_WM_HINTS", True);
-                if ( WM_HINTS != None ) {
+                if ( WM_HINTS != None ) 
+				{
                         /* Hints used by Motif compliant window managers */
                         struct {
                                 unsigned long flags;
@@ -238,7 +239,8 @@ void ExtensionManager::Resize(int Width, int Height)
 
                 /* Now try to set KWM hints */
                 WM_HINTS = XInternAtom(info.info.x11.display, "KWM_WIN_DECORATION", True);
-                if ( WM_HINTS != None ) {
+                if ( WM_HINTS != None ) 
+				{
                         long KWMHints = 0;
 
                         XChangeProperty(info.info.x11.display, WMwindow,
@@ -255,7 +257,8 @@ void ExtensionManager::Resize(int Width, int Height)
 
                 /* Now try to set GNOME hints */
                 WM_HINTS = XInternAtom(info.info.x11.display, "_WIN_HINTS", True);
-                if ( WM_HINTS != None ) {
+                if ( WM_HINTS != None ) 
+				{
                         long GNOMEHints = 0;
 
                         XChangeProperty(info.info.x11.display, WMwindow,
@@ -267,11 +270,6 @@ void ExtensionManager::Resize(int Width, int Height)
 
 						LoggerWrapper::GetInstance()->Write(LV_WARNING, "Removed _WIN_HINTS");
                 }
-
-//              /* Finally set the transient hints if necessary */
-//              if ( ! set ) {
-//                      XSetTransientForHint(info.info.x11.display, WMwindow, SDL_Root);
-//              }
         }
 		else
 		{
@@ -279,17 +277,11 @@ void ExtensionManager::Resize(int Width, int Height)
 		}
 #endif
 
-
-
-
-
-
-
-
-
-
-
 #ifdef VIA_OVERLAY
+		//give time for orbiter's window to process its messages
+		Sleep(1000);
+
+		//create via overlay connection / enable alpha overlay
 		ViaOverlay::Instance().WindowCreated(Width, Height);
 #endif
 
