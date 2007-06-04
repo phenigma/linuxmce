@@ -98,29 +98,32 @@ if [[ ! -f /etc/diskless.conf ]]; then
 		homeDevice="/dev/"$homeDevice
 	fi
 
-	dfOutput=$(df $homeDevice | grep -v '^Filesystem')
-	homeUsed=$(echo $dfOutput | awk '{ print $5 }'| cut -d"%" -f1)
-	homeFree=$(echo $dfOutput | awk '{ print $4 }')
-	if [[ $homeUsed -gt 95 || $homeFree -lt 204800 ]] ;then
-		Logging $TYPE $SEVERITY_CRITICAL $module "Filesystem ( /home ) is getting full, trying to clean quietly"
-		cleanHomeFS
-
+	if [[ -b "$homeDevice" && $homeDevice != "" ]] ;then
 		dfOutput=$(df $homeDevice | grep -v '^Filesystem')
 		homeUsed=$(echo $dfOutput | awk '{ print $5 }'| cut -d"%" -f1)
 		homeFree=$(echo $dfOutput | awk '{ print $4 }')
-
 		if [[ $homeUsed -gt 95 || $homeFree -lt 204800 ]] ;then
-			Logging $TYPE $SEVERITY_CRITICAL $module "Fielsystem ( /home ) wan auto cleaned but there is still no much space left"
-			SystemFilesystemFull="true"
-		else
-			Logging $TYPE $SEVERITY_NORMAL $module "Filesystem ( /home ) was auto cleaned and looks ok now"
+			Logging $TYPE $SEVERITY_CRITICAL $module "Filesystem ( /home ) is getting full, trying to clean quietly"
+			cleanHomeFS
+	
+			dfOutput=$(df $homeDevice | grep -v '^Filesystem')
+			homeUsed=$(echo $dfOutput | awk '{ print $5 }'| cut -d"%" -f1)
+			homeFree=$(echo $dfOutput | awk '{ print $4 }')
+	
+			if [[ $homeUsed -gt 95 || $homeFree -lt 204800 ]] ;then
+				Logging $TYPE $SEVERITY_CRITICAL $module "Fielsystem ( /home ) wan auto cleaned but there is still no much space left"
+				SystemFilesystemFull="true"
+			else
+				Logging $TYPE $SEVERITY_NORMAL $module "Filesystem ( /home ) was auto cleaned and looks ok now"
+			fi
 		fi
-	fi
+	
+	        ## Update Free Space device data for Core device
+		Core_HomeFree=$(( $homeFree / 1024 ))
+	        Q="UPDATE Device_DeviceData SET IK_DeviceData = '$Core_HomeFree' WHERE FK_DeviceData = '$DD_FREE_SPACE' AND FK_Device = '$PK_Device'"
+	        RunSQL "$Q"
 
-        ## Update Free Space device data for Core device
-	Core_HomeFree=$(( $homeFree / 1024 ))
-        Q="UPDATE Device_DeviceData SET IK_DeviceData = '$Core_HomeFree' WHERE FK_DeviceData = '$DD_FREE_SPACE' AND FK_Device = '$PK_Device'"
-        RunSQL "$Q"
+	fi
 
 	if [[ $SystemFilesystemFull == "true" ]]; then
 		# Triger the Low System Disk Space (64) event
