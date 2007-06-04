@@ -420,13 +420,13 @@ function getSIPState(){
 	$lines=explode("\n",$response);
 	$last=count($lines);
 	for($i=0;$i<$last;$i++){
-		if(strpos($lines[$i],'Host')!==false || strpos($lines[$i],'Verbosity')!==false || strpos($lines[$i],'Core debug')!==false)
+		if(strpos($lines[$i],'Host')!==false || strpos($lines[$i],'Verbosity')!==false || strpos($lines[$i],'Core debug')!==false || strpos($lines[$i],'UNIX')!==false)
 		unset($lines[$i]);	
 	}
-	
 
-	$parsed=array();
+
 	foreach ($lines AS $line){
+		$parsed=array();
 		$parts=explode(" ",$line);
 
 		foreach ($parts AS $pos=>$value){
@@ -434,16 +434,9 @@ function getSIPState(){
 				$parsed[]=$value;
 			}
 		}
+		$state[str_replace('@s','',$parsed[1])]=(!isset($parsed[4]))?$parsed[3]:$parsed[3].' '.$parsed[4];
 	}
 
-	if(count($parsed)%2!=0){
-		// parsed array doesn't have 4 x elements
-		return false;
-	}
-
-	for($i=0;$i<count($parsed);$i+=4){
-		$state[$parsed[$i+1]]=$parsed[$i+3];
-	}
 
 	return $state;
 }
@@ -462,24 +455,16 @@ function getIAXState(){
 		unset($lines[$i]);	
 	}
 
-	$parsed=array();
 	foreach ($lines AS $line){
+		$parsed=array();
 		$parts=explode(" ",$line);
-		
+
 		foreach ($parts AS $pos=>$value){
 			if(trim($value)!=''){
 				$parsed[]=$value;
 			}
 		}
-	}
-	
-	if(count($parsed)%2!=0){
-		// parsed array doesn't have 4 x elements
-		return false;
-	}
-
-	for($i=0;$i<count($parsed);$i+=4){
-		$state[$parsed[$i+1]]=$parsed[$i+3];
+		$state[str_replace('@s','',$parsed[1])]=(!isset($parsed[4]))?$parsed[3]:$parsed[3].' '.$parsed[4];
 	}
 
 	return $state;
