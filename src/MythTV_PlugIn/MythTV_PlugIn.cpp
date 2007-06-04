@@ -1399,13 +1399,14 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Re
 		}
 	}
 
-	sSQL = "select sourceid from videosource limit 1";
+	// Be sure we have some valid capture cards and sources before we do a fill
+	sSQL = "select videosource.sourceid from videosource JOIN cardinput on videosource.sourceid=cardinput.sourceid join capturecard on capturecard.cardid=cardinput.cardid where hostname is not null limit 1";
 	PlutoSqlResult result_set_sources;
 	bool bContainsVideoSources = (result_set_sources.r=m_pMySqlHelper_Myth->mysql_query_result(sSQL))!=NULL && result_set_sources.r->row_count>0;
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::SyncCardsAndProviders -- bModifiedRows %d m_bFillDbRunning %d m_bNeedToRunFillDb %d bContainsVideoSources %d",
 		(int) bModifiedRows,(int) m_bFillDbRunning,(int) m_bNeedToRunFillDb, (int) bContainsVideoSources);
-	if( bModifiedRows )  // We've changed stuff.  Need to run the fill process
+	if( bModifiedRows && bContainsVideoSources )  // We've changed stuff.  Need to run the fill process
 	{
 		if( m_bFillDbRunning )
 			m_bNeedToRunFillDb = true;  // A fill is already running.  Need to re-run it when we're done

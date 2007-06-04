@@ -48,8 +48,9 @@ namespace DCE
 
 		int m_iLastSignalStrength;
 		int m_iFailedToConnectCount;
-		bool m_bRegistered,m_bDisplayOn,m_bDontAutoShowRemote,m_bSendPopups,
+		bool m_bDisplayOn,m_bDontAutoShowRemote,m_bSendPopups,
 			m_bFirstRegen; // True if the Orbiter hasn't completed setup yet
+		time_t m_tRegistered;
         string m_sUpdateVMCFile;
         string m_sConfigFile;
 		string m_sVersion;
@@ -67,7 +68,8 @@ namespace DCE
 			m_iLastSignalStrength = 0;
 			m_pDevice_CurrentDetected = NULL;
 			m_iFailedToConnectCount = 0;
-			m_bDisplayOn=m_bRegistered=false;
+			m_bDisplayOn=false;
+			m_tRegistered=0;
 			m_tSendAppTime=m_tRegenTime=0;
 			m_pOH_User=NULL;
 			m_bDontAutoShowRemote=false;

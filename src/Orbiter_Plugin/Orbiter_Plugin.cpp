@@ -1652,12 +1652,14 @@ void Orbiter_Plugin::CMD_Orbiter_Registered(string sOnOff,int iPK_Users,string s
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Received registration from unknown orbiter: %d",pMessage->m_dwPK_Device_From);
 		return;
 	}
+	else if( sOnOff=="1" )
+		pOH_Orbiter->m_tRegistered = time(NULL);
 	else
-		pOH_Orbiter->m_bRegistered = sOnOff=="1";
+		pOH_Orbiter->m_tRegistered = 0;
 
 	CMD_Send_Orbiter_Popups(true,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
 
-	if( pOH_Orbiter->m_bRegistered )
+	if( pOH_Orbiter->m_tRegistered )
 	{
 		DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Iconl(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pOH_Orbiter->m_pOH_User && pOH_Orbiter->m_pOH_User->m_bFollowMe_Lighting ? "1" : "0","","follow_light");
 
@@ -2893,7 +2895,7 @@ string Orbiter_Plugin::PK_Device_Orbiters_In_Room_get(int PK_Room, bool bOnlyAll
 {
 	string sPK_Device="";
 	for(map<int,OH_Orbiter *>::iterator it=m_mapOH_Orbiter.begin();it!=m_mapOH_Orbiter.end();++it)
-		if( it->second->m_bRegistered && it->second->m_dwPK_Room==PK_Room && (!bOnlyAllowingPopups || it->second->m_bSendPopups) )
+		if( it->second->m_tRegistered && it->second->m_dwPK_Room==PK_Room && (!bOnlyAllowingPopups || it->second->m_bSendPopups) )
 			sPK_Device += StringUtils::itos(it->first) + ",";
 	return sPK_Device;
 }

@@ -50,6 +50,8 @@ static const string sURL_Base = "http://plutohome.com/getRegisteredDevices.php";
 static const string sURL_Base = "http://10.0.0.175/plutohome-com/getRegisteredDevices.php";
 #endif
 
+#define WAIT_SECONDS_AFTER_ORBITER_REGISTERS	35
+
 void *PnpThread(void *p)
 {
 	PnpQueue *pPnpQueue = (PnpQueue *) p;
@@ -1541,7 +1543,7 @@ bool PnpQueue::DetermineOrbitersForPrompting(PnpQueueEntry *pPnpQueueEntry,bool 
 	while( pos<pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts.size() )
 	{
 		OH_Orbiter *pOH_Orbiter = m_pPlug_And_Play_Plugin->m_pOrbiter_Plugin->m_mapOH_Orbiter_Find( atoi(StringUtils::Tokenize(pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts,",",pos).c_str()) );
-		if( pOH_Orbiter && pOH_Orbiter->m_bRegistered )
+		if( pOH_Orbiter && pOH_Orbiter->m_tRegistered && time(NULL)-pOH_Orbiter->m_tRegistered>WAIT_SECONDS_AFTER_ORBITER_REGISTERS )  // Give it some time to get rid of the scrolling progress bar and any other messages
 		{
 			if( sOutput.empty()==false )
 				sOutput += ",";
