@@ -62,6 +62,7 @@ function phoneLines($output,$astADO,$dbADO) {
 		$pulldownOptions.='<option value="'.$option.'" '.((@$provider==$option)?'selected':'').'>'.$option.'</option>';
 	}
 
+		
 	if(isset($provider)){
 		$providerUrl=@$providerData[@$_REQUEST['provider']]['url'];
 		$providerScript=@$providerData[@$_REQUEST['provider']]['script'];
@@ -224,6 +225,8 @@ function phoneLinesTable($astADO){
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/phoneLines.lang.php');
 	
+	$phoneState=getPhonesState();
+	
 	$count=0;
 	$res=$astADO->Execute("
 		SELECT sip.id,sip.data,sips.data AS sdata, sipp.data AS pdata,siph.data AS hdata 
@@ -241,6 +244,7 @@ function phoneLinesTable($astADO){
 			<td align="center"><B>'.$TEXT_USERNAME_CONST.'</B></td>
 			<td align="center"><B>'.$TEXT_HOST_CONST.'</B></td>
 			<td align="center"><B>'.$TEXT_PHONE_NUMBER_CONST.'</B></td>
+			<td align="center"><B>'.$TEXT_STATUS_CONST.'</B></td>
 			<td align="center"><B>'.$TEXT_ACTION_CONST.'</B></td>
 		</tr>	';
 	while($row=$res->FetchRow()){
@@ -257,6 +261,7 @@ function phoneLinesTable($astADO){
 			<td>'.$row['pdata'].'</td>
 			<td>'.$row['hdata'].'</td>
 			<td>'.$phoneNumber.'</td>
+			<td>'.@$phoneState['SIP'][$row['pdata']].'</td>
 			<td align="center">
 				<a href="index.php?section=phoneLines&type=SIP&eid='.$row['id'].'">'.$TEXT_EDIT_CONST.'</a> 
 				<a href="index.php?section=incomingCallsSettings&type=SIP&id='.$row['id'].'">'.$TEXT_SETTINGS_CONST.'</a> 
@@ -287,6 +292,7 @@ function phoneLinesTable($astADO){
 			<td>'.$row['pdata'].'</td>
 			<td>'.$row['hdata'].'</td>
 			<td>'.$phoneNumber.'</td>
+			<td>'.@$phoneState['IAX'][$row['pdata']].'</td>
 			<td align="center">
 				<a href="index.php?section=phoneLines&type=IAX&eid='.$row['id'].'">'.$TEXT_EDIT_CONST.'</a> 
 				<a href="index.php?section=incomingCallsSettings&type=IAX&id='.$row['id'].'">'.$TEXT_SETTINGS_CONST.'</a> 
@@ -386,4 +392,97 @@ function deletePhoneLine($id,$line_name,$phone_nr){
 	
 	return $answer;
 }
+
+function getPhonesState(){
+	$state['SIP']=getSIPState();
+	$state['IAX']=getIAXState();
+
+	return $state;
+}
+
+
+function getSIPState(){
+	// SIP get state command	
+	$cmd='sudo -u root /usr/sbin/asterisk -rx "sip show registry"';
+	$response=exec_batch_command($cmd,1);
+
+	// response look like this
+	/*
+	   -- Remote UNIX connection
+	Host                            Username       Refresh State
+	sip.inphonex.com:5060           7588648             50 Registered
+	sip.inphonex.com:5060           123456             100 Unregistered
+	Verbosity is at least 3
+	*/
+	
+	$state=array();
+	
+	$lines=explode("\n",$response);
+	$last=count($lines);
+	for($i=0;$i<$last;$i++){
+		if(strpos($lines[$i],'Host')!==false || strpos($lines[$i],'Verbosity')!==false || strpos($lines[$i],'Core debug')!==false)
+		unset($lines[$i]);	
+	}
+	
+
+	$parsed=array();
+	foreach ($lines AS $line){
+		$parts=explode(" ",$line);
+
+		foreach ($parts AS $pos=>$value){
+			if(trim($value)!=''){
+				$parsed[]=$value;
+			}
+		}
+	}
+
+	if(count($parsed)%2!=0){
+		// parsed array doesn't have 4 x elements
+		return false;
+	}
+
+	for($i=0;$i<count($parsed);$i+=4){
+		$state[$parsed[$i+1]]=$parsed[$i+3];
+	}
+
+	return $state;
+}
+
+function getIAXState(){
+	// IAX get state command	
+	$cmd='sudo -u root /usr/sbin/asterisk -rx "iax2 show registry"';
+	$response=exec_batch_command($cmd,1);
+	
+	$state=array();
+	
+	$lines=explode("\n",$response);
+	$last=count($lines);
+	for($i=0;$i<$last;$i++){
+		if(strpos($lines[$i],'Host')!==false || strpos($lines[$i],'Verbosity')!==false || strpos($lines[$i],'Core debug')!==false)
+		unset($lines[$i]);	
+	}
+
+	$parsed=array();
+	foreach ($lines AS $line){
+		$parts=explode(" ",$line);
+		
+		foreach ($parts AS $pos=>$value){
+			if(trim($value)!=''){
+				$parsed[]=$value;
+			}
+		}
+	}
+	
+	if(count($parsed)%2!=0){
+		// parsed array doesn't have 4 x elements
+		return false;
+	}
+
+	for($i=0;$i<count($parsed);$i+=4){
+		$state[$parsed[$i+1]]=$parsed[$i+3];
+	}
+
+	return $state;
+}
+
 ?>
