@@ -5,7 +5,7 @@
 Device="$1"
 Slot="$2"
 
-UpdatePorts()
+UpdatePorts_old()
 {
 	local Device="$1" Slot="$2"
 
@@ -32,6 +32,56 @@ UpdatePorts()
 	done < <(ivtv-detect | egrep '^card:|/dev/.*: MPG encoding')
 
 	UpdatePorts_NoFind "$Device" "$DevEntry"
+}
+
+UpdatePorts_new()
+{
+	local Device="$1" Slot="$2"
+	local Ports dev DevSlot Port PixelFmt
+	Ports=()
+
+	if [[ ! -d /sys/class/video4linux ]]; then
+		return 0
+	fi
+
+	pushd /sys/class/video4linux >/dev/null
+	for dev in *; do
+		if [[ "$dev" != video* ]]; then
+			continue
+		fi
+		DevSlot=$(readlink -f "$dev"/device)
+		DevSlot="${DevSlot##*/}"
+		DevSlot="${DevSlot#*:}"
+
+		if [[ "$DevSlot" != "$Slot" ]]; then
+			continue
+		fi
+
+		PixelFmt=$(v4l2-ctl -V -d /dev/"$dev" | grep 'Pixel Format.*MPEG')
+		if [[ -z "$PixelFmt" ]]; then
+			continue
+		fi
+
+		Ports=("${Ports[@]}" "$dev")
+	done
+
+	Port=$(echo "${Ports[@]}" | sed 's/ /\n/g' | sort | head -1)
+	echo "Dev '$Device' Ports: ${Ports[*]}; Chosen: $Port"
+	UpdatePorts_NoFind "$Device" "$Port"
+
+	popd >/dev/null
+}
+
+UpdatePorts()
+{
+	local Kver=$(uname -r)
+	local Device="$1" Slot="$2"
+	
+	if [[ "$Kver" == "2.6.17" || "$Kver" > "2.6.17" ]]; then
+		UpdatePorts_new "$Device" "$Slot"
+	else
+		UpdatePorts_old "$Device" "$Slot"
+	fi
 }
 
 UpdatePorts "$Device" "$Slot"
