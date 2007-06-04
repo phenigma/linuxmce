@@ -147,7 +147,7 @@ Listen 8080" >/etc/apache2/ports.conf
 fi
 
 #cmd_alias="Cmnd_Alias	PLUTO_WEBCMD = /usr/pluto/bin/SetupRemoteAccess.sh, /usr/pluto/bin/Network_Firewall.sh, /usr/pluto/bin/SetupUsers.sh, /usr/pluto/bin/Diskless_Setup.sh, /usr/pluto/bin/LaunchRemoteCmd.sh, /usr/pluto/bin/SetTimeZone.sh, /usr/pluto/bin/Update_StartupScrips.sh, /usr/pluto/bin/UpdateMedia"
-cmd_alias="Cmnd_Alias	PLUTO_WEBCMD = /usr/pluto/bin/*, /usr/bin/find, /sbin/reboot, /bin/cp, /bin/mv, /bin/rm, /bin/mkdir"
+cmd_alias="Cmnd_Alias	PLUTO_WEBCMD = /usr/pluto/bin/*, /usr/bin/find, /sbin/reboot, /bin/cp, /bin/mv, /bin/rm, /bin/mkdir, /usr/sbin/asterisk"
 sudo="www-data	ALL=(root) NOPASSWD:PLUTO_WEBCMD"
 
 awk '!/Cmnd_Alias.*PLUTO_WEBCMD/ && !/www-data.*ALL=\(root\)/' /etc/sudoers >>/etc/sudoers.$$
