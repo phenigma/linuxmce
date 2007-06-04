@@ -298,6 +298,8 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 	HighLightPopup->AddChild(BottomBar);
 	Point3D Red(1.0f, 0.0f, 0.0f);
 	HighLightPopup->SetColor(Red);
+
+	HighLightPopup->MarkAsVolatileRecursively();
 	Engine->AddMeshFrameToDesktop(ParentObjectID, HighLightPopup);
 	
 }

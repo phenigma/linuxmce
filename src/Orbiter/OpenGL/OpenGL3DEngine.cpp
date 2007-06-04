@@ -669,6 +669,7 @@ void OpenGL3DEngine::ShowHighlightRectangle(PlutoRectangle Rect)
 	HighLightPopup->AddChild(TopBar);
 	HighLightPopup->AddChild(RightBar);
 	HighLightPopup->AddChild(BottomBar);
+	HighLightPopup->MarkAsVolatileRecursively();
 
 
 	//LoggerWrapper::GetInstance()->Write(LV_WARNING, "OpenGL3DEngine::Highlight: %d %d %d %d",
