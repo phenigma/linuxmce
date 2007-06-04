@@ -51,9 +51,9 @@ if [[ "$3" != "demonized" ]] ;then
 		#create the array with mdadm
 		rm -f "/dev/.static$name"
 		if [[ $NrSpareDrives > 0 ]] ;then
-			echo "y" | mdadm --create $name --auto --level=5 --spare-devices=$NrSpareDrives $SpareDrives --raid-devices=$NrDrives $ActiveDrives
+			echo "y" | mdadm --create $name --auto=yes --level=5 --spare-devices=$NrSpareDrives $SpareDrives --raid-devices=$NrDrives $ActiveDrives
 		else	
-			echo "y" | mdadm --create $name --auto --level=5 --raid-devices=$NrDrives $ActiveDrives
+			echo "y" | mdadm --create $name --auto=yes --level=5 --raid-devices=$NrDrives $ActiveDrives
 
 		fi
 		#/usr/pluto/bin/start_RAID_monitoring.sh $name

@@ -87,8 +87,10 @@ for device in $availPart; do
 		if [[ -n $result ]]; then
 			size=$(fdisk -l /dev/$device | grep Disk | cut -d' ' -f3,4)
 			length=${#size}
-			size=${size:0:$(($length-1))}
-			free_disks="$free_disks/dev/$device,$size;"
+			 if [[ -n $size ]]; then
+				size=${size:0:$(($length-1))}
+				free_disks="$free_disks/dev/$device,$size;"
+			 fi
 		fi
 	fi
 done

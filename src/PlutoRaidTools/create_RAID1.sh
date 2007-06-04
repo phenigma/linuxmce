@@ -53,9 +53,9 @@ if [[ "$3" != "demonized" ]] ;then
 		#create the array with mdadm
 		rm -f "/dev/.static$name"
 		if [[ $NrSpareDrives > 0 ]] ;then
-			echo "y" | mdadm --create $name --auto --level=1 --spare-devices=$NrSpareDrives $SpareDrives --raid-devices=$NrDrives $ActiveDrives
+			echo "y" | mdadm --create $name --auto=yes --level=1 --spare-devices=$NrSpareDrives $SpareDrives --raid-devices=$NrDrives $ActiveDrives
 		else	
-			echo "y" | mdadm --create $name --auto --level=1 --raid-devices=$NrDrives $ActiveDrives
+			echo "y" | mdadm --create $name --auto=yes --level=1 --raid-devices=$NrDrives $ActiveDrives
 		fi
 
 		sleep 3

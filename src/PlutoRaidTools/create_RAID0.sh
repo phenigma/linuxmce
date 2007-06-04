@@ -45,7 +45,7 @@ if [[ "$3" != "demonized" ]] ;then
 		#NrDrives=$(($NrDrives+1))
 		#create the array with mdadm
 		rm -f "/dev/.static$name"
-		echo "y" | mdadm --create $name --auto --level=0 --raid-devices=$NrDrives $ActiveDrives
+		echo "y" | mdadm --create $name --auto=yes --level=0 --raid-devices=$NrDrives $ActiveDrives
 
 		sleep 3
 		raidSize=$(mdadm --query $name | head -1 |cut -d' ' -f2)
