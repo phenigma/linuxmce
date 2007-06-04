@@ -363,8 +363,8 @@ for dir in /home/* ;do
 	fi
 done
 
-if [[ "$c_ubuntuExtraCDFrom" == "3" ]] ;then
-	apt-get -y dist-upgrade || ExitInstaller "Failed while upgrading the system. Installation finished but you system might be left in a unstable state."
-fi
+#if [[ "$c_ubuntuExtraCDFrom" == "3" ]] ;then
+#	apt-get -y dist-upgrade || ExitInstaller "Failed while upgrading the system. Installation finished but you system might be left in a unstable state."
+#fi
 
 StatsMessage "Installation Finished"
