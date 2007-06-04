@@ -270,6 +270,9 @@ void ExtensionManager::Resize(int Width, int Height)
 
 						LoggerWrapper::GetInstance()->Write(LV_WARNING, "Removed _WIN_HINTS");
                 }
+
+
+		 XMoveWindow(info.info.x11.display, WMwindow, 0, 0);
         }
 		else
 		{
