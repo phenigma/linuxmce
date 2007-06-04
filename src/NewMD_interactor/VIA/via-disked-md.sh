@@ -87,6 +87,7 @@ ConfEval
 
 ConfSet AutostartCore 1
 ConfSet AutostartMedia 1
+ConfSet PK_Distro 1
 
 # reconfigure network with static settings
 /etc/init.d/networking restart
