@@ -87,7 +87,7 @@ void HalTree::Populate()
 	if (ProcessUtils::GetCommandOutput(args[0], args, sBuffer, sStdErr) != 0)
 		return;
 
-LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"got %d %s",sBuffer.size(),sBuffer.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"HalTree::Populate got %d %s",sBuffer.size(),sBuffer.c_str());
 	
 #ifdef WIN32
 	size_t size;

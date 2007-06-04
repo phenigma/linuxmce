@@ -306,7 +306,7 @@ void XRecordExtensionHandler::processXRecordToOrbiterEvent(XRecordInterceptData 
 				case KeyPress: case KeyRelease: // key related events types
 	                    orbiterEvent->type = pxEvent->u.u.type == KeyPress ? Orbiter::Event::BUTTON_DOWN : Orbiter::Event::BUTTON_UP;
 #ifdef DEBUG
-    	                LoggerWrapper::GetInstance()->Write(LV_WARNING, "Key %s with keycode %d", pxEvent->u.u.type == KeyPress ? "down" : "up", pxEvent->u.u.detail);
+    	                LoggerWrapper::GetInstance()->Write(LV_STATUS, "Key %s with keycode %d", pxEvent->u.u.type == KeyPress ? "down" : "up", pxEvent->u.u.detail);
 #endif
 						orbiterEvent->data.button.m_bSimulated = false;
         	            orbiterEvent->data.button.m_iKeycode = pxEvent->u.u.detail;
@@ -325,7 +325,7 @@ void XRecordExtensionHandler::processXRecordToOrbiterEvent(XRecordInterceptData 
 					break;
 
 				case ButtonPress:  case ButtonRelease: // mouse button related event types
-                    LoggerWrapper::GetInstance()->Write(LV_WARNING, "Mouse Button with id: %d is %s", pxEvent->u.u.detail, pxEvent->u.u.type == ButtonPress ? "down" : "up"); //TODO: comment this
+                    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Mouse Button with id: %d is %s", pxEvent->u.u.detail, pxEvent->u.u.type == ButtonPress ? "down" : "up"); //TODO: comment this
 					orbiterEvent->type = pxEvent->u.u.type == ButtonPress ? Orbiter::Event::REGION_DOWN : Orbiter::Event::REGION_UP;
 					orbiterEvent->data.region.m_iButton = pxEvent->u.u.detail;
 					orbiterEvent->data.region.m_iX = m_iMouseX;

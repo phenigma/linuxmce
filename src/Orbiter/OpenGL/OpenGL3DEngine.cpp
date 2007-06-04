@@ -565,7 +565,7 @@ MeshFrame* OpenGL3DEngine::EndDatagridDrawing(string ObjectHash)
 {
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, SceneMutex);
 #ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_WARNING, "OpenGL3DEngine::EndFrameDrawing!");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "OpenGL3DEngine::EndFrameDrawing!");
 #endif
 
 	m_bWorldChanged = true;
@@ -600,7 +600,7 @@ MeshFrame* OpenGL3DEngine::EndFrameDrawing(string sObjectHash)
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, SceneMutex);
 
 #ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_WARNING, "OpenGL3DEngine::EndFrameDrawing!");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "OpenGL3DEngine::EndFrameDrawing!");
 #endif
 	m_bWorldChanged = true;
 	MeshFrame* Result = CurrentLayer;

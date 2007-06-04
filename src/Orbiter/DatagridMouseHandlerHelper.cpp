@@ -163,7 +163,7 @@ void DatagridMouseHandlerHelper::RelativeMove(int X, int Y)
 {
 	m_iLastX=X;
 #ifdef DEBUG
-    LoggerWrapper::GetInstance()->Write(LV_WARNING, "DatagridMouseHandlerHelper::RelativeMove(%d, %d, %d) bottom %d top %d direction %s",
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "DatagridMouseHandlerHelper::RelativeMove(%d, %d, %d) bottom %d top %d direction %s",
 		X, Y, m_iLastNotch,m_Bottom,m_Top,m_eCapturingOffscreenMovement == cosm_UP ? "UP" : "DOWN");
 #endif
 	int Notch;
@@ -238,7 +238,7 @@ bool DatagridMouseHandlerHelper::ReleaseRelative()
 LoggerWrapper::GetInstance()->Write(LV_ACTION, "**stop**");
 	m_iLastNotch=-1;
 #ifdef DEBUG
-    LoggerWrapper::GetInstance()->Write(LV_WARNING, "DatagridMouseHandlerHelper::ReleaseRelative()");
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "DatagridMouseHandlerHelper::ReleaseRelative()");
 #endif
 	m_pMouseBehavior->m_pMouseIterator->SetIterator(MouseIterator::if_None,0,"",0,NULL); // In case we're scrolling a grid
     RelativePointer_Clear();
@@ -410,14 +410,14 @@ int DatagridMouseHandlerHelper::RelativePointer_AdjustSpeedShape(int nSpeedShape
     if ( (nSpeedShape > 0) && (nSpeedShape > nPeakSpeed) )
     {
 #ifdef DEBUG
-        LoggerWrapper::GetInstance()->Write(LV_WARNING, "DatagridMouseHandlerHelper::RelativePointer_AdjustSpeedShape(%d) : decreasing shape to %d", nSpeedShape, nPeakSpeed);
+        LoggerWrapper::GetInstance()->Write(LV_STATUS, "DatagridMouseHandlerHelper::RelativePointer_AdjustSpeedShape(%d) : decreasing shape to %d", nSpeedShape, nPeakSpeed);
 #endif
         nSpeedShape = nPeakSpeed;
     }
     if ( (nSpeedShape < 0) && (nSpeedShape < nPeakSpeed*-1) )
     {
 #ifdef DEBUG
-        LoggerWrapper::GetInstance()->Write(LV_WARNING, "DatagridMouseHandlerHelper::RelativePointer_AdjustSpeedShape(%d) : increasing shape to %d", nSpeedShape, -nPeakSpeed);
+        LoggerWrapper::GetInstance()->Write(LV_STATUS, "DatagridMouseHandlerHelper::RelativePointer_AdjustSpeedShape(%d) : increasing shape to %d", nSpeedShape, -nPeakSpeed);
 #endif
         nSpeedShape = -nPeakSpeed;
     }

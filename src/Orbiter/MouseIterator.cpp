@@ -67,15 +67,15 @@ MouseIterator::MouseIterator(MouseBehavior *pMouseBehavior) : m_IteratorMutex("I
 
 MouseIterator::~MouseIterator()
 {
-	LoggerWrapper::GetInstance()->Write(LV_WARNING,"MouseIterator::~MouseIterator");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MouseIterator::~MouseIterator");
 	m_bQuit=true;
 	while( m_bThreadRunning )
 	{
-		LoggerWrapper::GetInstance()->Write(LV_WARNING,"MouseIterator::~MouseIterator broadcasting");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"MouseIterator::~MouseIterator broadcasting");
 		pthread_cond_broadcast( &m_IteratorCond );
 		Sleep(5);
 	}
-	LoggerWrapper::GetInstance()->Write(LV_WARNING,"MouseIterator::~MouseIterator done");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MouseIterator::~MouseIterator done");
 }
 
 void MouseIterator::Run()

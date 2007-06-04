@@ -240,7 +240,7 @@ bool PlutoHIDInterface::DoStartMouse()
 	PLUTO_SAFETY_LOCK(hm,m_HIDMutex);
 	if( !m_bRunning )
 	{
-		LoggerWrapper::GetInstance()->Write(LV_WARNING,"PlutoHIDInterface::StartMouse m_bRunning==false");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"PlutoHIDInterface::StartMouse m_bRunning==false");
 		return false;
 
 	}
@@ -267,7 +267,7 @@ bool PlutoHIDInterface::DoStopMouse()
 	PLUTO_SAFETY_LOCK_ERRORSONLY(hm,m_HIDMutex);
 	if( !m_bRunning )
 	{
-		LoggerWrapper::GetInstance()->Write(LV_WARNING,"PlutoHIDInterface::StopMouse m_bRunning==false");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"PlutoHIDInterface::StopMouse m_bRunning==false");
 		return false;
 
 	}
@@ -313,7 +313,7 @@ void PlutoHIDInterface::LegacyBind()
 	PLUTO_SAFETY_LOCK_ERRORSONLY(hm,m_HIDMutex);
 	if( !m_bRunning )
 	{
-		LoggerWrapper::GetInstance()->Write(LV_WARNING,"PlutoHIDInterface::LegacyBind m_bRunning==false");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"PlutoHIDInterface::LegacyBind m_bRunning==false");
 		return;
 
 	}

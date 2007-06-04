@@ -129,7 +129,7 @@ void DataGridRenderer_OpenGL::Reset()
 		//prepare animation
 		vector<string> Dependencies;
 		BuildDependencies(Dependencies);
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "DataGridRenderer_OpenGL::RenderObject StartAnimation %s B(%p) - A(%p)",
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "DataGridRenderer_OpenGL::RenderObject StartAnimation %s B(%p) - A(%p)",
 			DatagridFrameID.c_str(), BeforeDataGridClone, m_pRenderFrame);
 
 		Engine->GetDatagridAnimationManager()->PrepareForAnimation(
@@ -139,7 +139,7 @@ void DataGridRenderer_OpenGL::Reset()
 	}
 	else
 	{
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "DataGridRenderer_OpenGL::RenderObject normal render... stopping all animations! Current datagrid frame %p/%s",
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "DataGridRenderer_OpenGL::RenderObject normal render... stopping all animations! Current datagrid frame %p/%s",
 			m_pRenderFrame, m_pRenderFrame->Name().c_str());
 
 		Engine->GetDatagridAnimationManager()->StopAnimations();

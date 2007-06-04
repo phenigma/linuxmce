@@ -112,7 +112,7 @@ g_PlutoProfiler->Stop("RequestDatagridContents");
 
 LoggerWrapper::GetInstance()->Write(LV_ACTION, "Orbiter::AcquireGrid orbiter grid %s max row %d max col %d cur row %d cur col %d", m_sGridID.c_str(),m_MaxRow,m_MaxCol,m_GridCurRow,m_GridCurCol);
 #ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_WARNING,"from grid %s DataGridTable_Get() is now %p",m_ObjectID.c_str(),DataGridTable_Get());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"from grid %s DataGridTable_Get() is now %p",m_ObjectID.c_str(),DataGridTable_Get());
 #endif
 
 	m_CachedCurRow=m_GridCurRow;

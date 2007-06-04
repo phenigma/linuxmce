@@ -38,7 +38,7 @@
 
 	#define PLUTO_SAFETY_LOCK(x, y) 
 
-	#define LV_STATUS	1
+	#define LV_TV	1
 	#define LV_WARNING	2
 	#define LV_CRITICAL 3
 
@@ -119,17 +119,17 @@ void ViaOverlay::WindowCreated(unsigned long nWidth, unsigned long nHeight)
 {
 	PLUTO_SAFETY_LOCK(sm, m_ScreenMutex); 
 
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "#VIA ViaOverlay::WindowCreated size %d x %d", nWidth, nHeight);
+	LoggerWrapper::GetInstance()->Write(LV_TV, "#VIA ViaOverlay::WindowCreated size %d x %d", nWidth, nHeight);
 
 	m_nWidth = nWidth;
 	m_nHeight = nHeight;
 
 	if(VMI_CreateConnection())
 	{
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "#VIA Created connection to VIA drivers!");
+		LoggerWrapper::GetInstance()->Write(LV_TV, "#VIA Created connection to VIA drivers!");
 		if(CreateAlphaSurface(nWidth, nHeight))
 		{
-			LoggerWrapper::GetInstance()->Write(LV_WARNING, "#VIA Via overlay activated!");
+			LoggerWrapper::GetInstance()->Write(LV_TV, "#VIA Via overlay activated!");
 		}
 
 		//create our local screen mask
@@ -150,13 +150,13 @@ void ViaOverlay::WindowResized()
 {
 	PLUTO_SAFETY_LOCK(sm, m_ScreenMutex); 
 
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "#VIA ViaOverlay::WindowResized");
+	LoggerWrapper::GetInstance()->Write(LV_TV, "#VIA ViaOverlay::WindowResized");
 
 	if(m_bOverlayInitialized)
 	{
 		if(SetAlphaSurface())
 		{
-			LoggerWrapper::GetInstance()->Write(LV_WARNING, "#VIA Alpha surface setup done!");
+			LoggerWrapper::GetInstance()->Write(LV_TV, "#VIA Alpha surface setup done!");
 		}
 		else
 		{
@@ -170,7 +170,7 @@ void ViaOverlay::WorldChanged()
 	PLUTO_SAFETY_LOCK(sm, m_ScreenMutex); 
 
 
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "#VIA ViaOverlay::WorldChanged");
+	LoggerWrapper::GetInstance()->Write(LV_TV, "#VIA ViaOverlay::WorldChanged");
 
 	if(m_bOverlayInitialized)
 	{
@@ -182,7 +182,7 @@ void ViaOverlay::WorldChanged()
 
 		if(UpdateAlphaSurface())
 		{
-			LoggerWrapper::GetInstance()->Write(LV_WARNING, "#VIA Alpha surface updated!");
+			LoggerWrapper::GetInstance()->Write(LV_TV, "#VIA Alpha surface updated!");
 		}
 	}
 }
@@ -194,7 +194,7 @@ void ViaOverlay::ResetAlphaMask()
 
 	PLUTO_SAFETY_LOCK(sm, m_ScreenMutex); 
 
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "#VIA Reseting alpha surface...");
+	LoggerWrapper::GetInstance()->Write(LV_TV, "#VIA Reseting alpha surface...");
 	memset(m_BufferMask, 0xFF, m_nWidth * m_nHeight);
 	memset(m_ScreenMask, 0xFF, m_nWidth * m_nHeight);
 
@@ -240,7 +240,7 @@ void ViaOverlay::InternalApplyAlphaMask(int x, int y, int w, int h, const unsign
 {
 	if(x + w <= m_nWidth && x >= 0 && y >= 0 && y + h <= m_nHeight && NULL != mask)
 	{
-		LoggerWrapper::GetInstance()->Write(LV_STATUS, "#VIA Applying alpha for %p (%d,%d,%d,%d) ...", mask, x, y, w, h);
+		LoggerWrapper::GetInstance()->Write(LV_TV, "#VIA Applying alpha for %p (%d,%d,%d,%d) ...", mask, x, y, w, h);
 
 		if(x == 0 && y == 0 && w == m_nWidth && h == m_nHeight)
 			memcpy(m_BufferMask, mask, w * h);
@@ -256,7 +256,7 @@ void ViaOverlay::InternalFillRectangleInAlphaMask(int x, int y, int w, int h, un
 {
 	if(x + w <= m_nWidth && x >= 0 && y >= 0 && y + h <= m_nHeight)
 	{
-		LoggerWrapper::GetInstance()->Write(LV_STATUS, "#VIA Filled rectangle in alpha mask (%d,%d,%d,%d), value %d...", 
+		LoggerWrapper::GetInstance()->Write(LV_TV, "#VIA Filled rectangle in alpha mask (%d,%d,%d,%d), value %d...", 
 			x, y, w, h, value);
 
 		if(x == 0 && y == 0 && w == m_nWidth && h == m_nHeight)
@@ -311,7 +311,7 @@ bool ViaOverlay::CreateAlphaSurface(int nWidth, int nHeight)
 	dwRet = VMI_DriverProc(&m_VMI_Info, CREATESURFACE, (void *)&ddSurfaceDesc, NULL);
 	if (dwRet == VMI_OK)
 	{
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "#VIA Created alpha surface for via overlay!");
+		LoggerWrapper::GetInstance()->Write(LV_TV, "#VIA Created alpha surface for via overlay!");
 	}
 	else
 	{
@@ -324,11 +324,11 @@ bool ViaOverlay::CreateAlphaSurface(int nWidth, int nHeight)
 	dwRet = VMI_DriverProc(&m_VMI_Info, LOCKSURFACE, (void *)&ddLock, NULL);
 	if (dwRet == VMI_OK)
 	{
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "#VIA Locked alpha surface for via overlay!");
+		LoggerWrapper::GetInstance()->Write(LV_TV, "#VIA Locked alpha surface for via overlay!");
 	}
 	else
 	{
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "#VIA Cannot lock alpha surface for via overlay!");
+		LoggerWrapper::GetInstance()->Write(LV_TV, "#VIA Cannot lock alpha surface for via overlay!");
 		return false;
 	}
 
@@ -386,7 +386,7 @@ void ViaOverlay::DumpMask()
 void ViaOverlay::ShowPopup(int x, int y, int w, int h)
 {
 	PLUTO_SAFETY_LOCK(sm, m_ScreenMutex); 
-	LoggerWrapper::GetInstance()->Write(LV_WARNING, "#VIA Show popup %d %d %d %d", x, y, w, h);
+	LoggerWrapper::GetInstance()->Write(LV_TV, "#VIA Show popup %d %d %d %d", x, y, w, h);
 
 	InternalFillRectangleInAlphaMask(x, y, w, h, 0x00);
 
@@ -402,7 +402,7 @@ void ViaOverlay::ShowPopup(int x, int y, int w, int h)
 void ViaOverlay::HidePopup(int x, int y, int w, int h)
 {
 	PLUTO_SAFETY_LOCK(sm, m_ScreenMutex); 
-	LoggerWrapper::GetInstance()->Write(LV_WARNING, "#VIA Hide popup %d %d %d %d", x, y, w, h);
+	LoggerWrapper::GetInstance()->Write(LV_TV, "#VIA Hide popup %d %d %d %d", x, y, w, h);
 
 	memcpy(m_BufferMask, m_ScreenMask, m_nWidth * m_nHeight);
 	m_bHasPopups = true;

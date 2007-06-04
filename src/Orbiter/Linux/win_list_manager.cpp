@@ -65,7 +65,7 @@ WinListManager::~WinListManager()
 {
 	HandleOffCommand();
 
-	LoggerWrapper::GetInstance()->Write(LV_WARNING, "WinListManager: deleting Window controller");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "WinListManager: deleting Window controller");
 	delete m_pWMController;
 	m_pWMController = NULL;
 
@@ -297,7 +297,7 @@ void WinListManager::GetWindows(list<WinInfo>& listWinInfo)
 void WinListManager::SetSdlWindowVisibility(bool bValue)
 {
 	PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
-	LoggerWrapper::GetInstance()->Write(LV_WARNING,"SetSdlWindowVisibility %d", bValue);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"SetSdlWindowVisibility %d", bValue);
 	m_bHideSdlWindow = !bValue;
 	PendingContext(m_sSdlWindowName).Visible(bValue);
 }
@@ -348,7 +348,7 @@ void WinListManager::ApplyContext(string sExternalWindowName/*=""*/)
 #endif
 
 			if(current_context != pending_context)
-				LoggerWrapper::GetInstance()->Write(LV_WARNING, "WinListManager::ApplyContext: applying diff context for '%s': %s",
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "WinListManager::ApplyContext: applying diff context for '%s': %s",
 					sWindowName.c_str(), pending_context.ToString().c_str());
 
 			//if(pending_context.Layer() != current_context.Layer())
@@ -447,7 +447,7 @@ WindowContext& WinListManager::PendingContext(string sWindowName)
 	WindowsContext::iterator it = m_PendingContext.find(sWindowName);
 	if(it == m_PendingContext.end())
 	{
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "WinListManager::PendingContext: adding new entry %s", sWindowName.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "WinListManager::PendingContext: adding new entry %s", sWindowName.c_str());
 		m_PendingContext.insert(make_pair(sWindowName, WindowContext(sWindowName, m_bExclusive)));
 		return m_PendingContext.find(sWindowName)->second;
 	}

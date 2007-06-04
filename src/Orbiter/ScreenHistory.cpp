@@ -62,7 +62,7 @@ void ScreenHistory::SetObj(DesignObj_Orbiter *pObj)
 { 
 	m_pObj = pObj;
 #ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_WARNING, "ScreenHistory - replaced in screen %d obj with %d", 
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "ScreenHistory - replaced in screen %d obj with %d", 
 		m_nPK_Screen, pObj->m_iBaseObjectID);
 #endif
 }
@@ -197,7 +197,7 @@ void ScreenHistory::SaveContext(const map<int, string>& mapVariable,
 								const map<DesignObj_Orbiter *, bool>& mapVisibilityContext)
 {
 	PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_VariableMutex);
-	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Saving context for screen %d / %p, object %s (%d variables, %d visibility status) ...", 
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Saving context for screen %d / %p, object %s (%d variables, %d visibility status) ...", 
 		m_nPK_Screen, this, m_pObj->m_ObjectID.c_str(), mapVariable.size(), mapVisibilityContext.size());
 
 	m_mapVariable.clear();
@@ -226,7 +226,7 @@ void ScreenHistory::RestoreContext(map<int, string>& mapVariable,
 								   map<DesignObj_Orbiter *, bool>& mapVisibilityContext)
 {
 	PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_VariableMutex);
-	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Restoring context for screen %d / %p, object %s (%d variables, %d visibility status) ...", 
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Restoring context for screen %d / %p, object %s (%d variables, %d visibility status) ...", 
 		m_nPK_Screen, this, m_pObj->m_ObjectID.c_str(), mapVariable.size(), mapVisibilityContext.size());
 
 	for(map<int, string>::iterator it = m_mapVariable.begin(); it != m_mapVariable.end(); ++it)

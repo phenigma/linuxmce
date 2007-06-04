@@ -81,14 +81,14 @@ void MouseGovernor::Run()
 	{
 		if( m_dwBufferMs==0 && m_pMessage==NULL )
 		{
-			LoggerWrapper::GetInstance()->Write(LV_WARNING,"MouseGovernor::Run sleeping 3");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"MouseGovernor::Run sleeping 3");
 			m.CondWait(); // Nothing to do.  Just wait
-			LoggerWrapper::GetInstance()->Write(LV_WARNING,"MouseGovernor::Run woke up 3");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"MouseGovernor::Run woke up 3");
 		}
 		unsigned long dwTime = ProcessUtils::GetMsTime();
 		if( int(dwTime - m_dwTime_Last_SentMessage) >= m_dwBufferMs && NULL != m_pMessage )
 		{
-			LoggerWrapper::GetInstance()->Write(LV_WARNING,"MouseGovernor::Run sending message");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"MouseGovernor::Run sending message");
 			DoSendMessage(m_pMessage);
 			m_pMessage=NULL;
 		}
@@ -96,15 +96,15 @@ void MouseGovernor::Run()
 		{
 			int TimeToWaitInMs = m_dwBufferMs - ( dwTime-m_dwTime_Last_SentMessage );
 			int SecondsToWait = TimeToWaitInMs / 1000;
-			LoggerWrapper::GetInstance()->Write(LV_WARNING,"MouseGovernor::Run sleeping 4");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"MouseGovernor::Run sleeping 4");
 			m.TimedCondWait(SecondsToWait,(TimeToWaitInMs % 1000) * 1000000);
-			LoggerWrapper::GetInstance()->Write(LV_WARNING,"MouseGovernor::Run woke up 4");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"MouseGovernor::Run woke up 4");
 		}
 		else
 		{
-			LoggerWrapper::GetInstance()->Write(LV_WARNING,"MouseGovernor::Run sleeping 2");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"MouseGovernor::Run sleeping 2");
 			m.CondWait();
-			LoggerWrapper::GetInstance()->Write(LV_WARNING,"MouseGovernor::Run woke up 2");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"MouseGovernor::Run woke up 2");
 		}
 	}
 

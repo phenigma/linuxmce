@@ -69,7 +69,7 @@ void PopupDescription::Hide()
 void PopupDescription::Show()
 {
 #ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Add popup: %s to scene", ObjectHash.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Add popup: %s to scene", ObjectHash.c_str());
 #endif
 	Engine->AddMeshFrameToDesktop("", PopupFrame);
 }

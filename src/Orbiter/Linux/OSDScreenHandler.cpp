@@ -666,7 +666,7 @@ bool OSDScreenHandler::ThisRoom_ObjectSelected(CallBackData *pData)
 					return true;
 
 				int nPK_Device_TopMost = m_pWizardLogic->GetTopMostDevice(m_pOrbiter->m_dwPK_Device);
-				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Setting the room for top most device %d, room %s",
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Setting the room for top most device %d, room %s",
                                       nPK_Device_TopMost, sPK_Room.c_str());
 				m_pWizardLogic->SetRoomForDevice(StringUtils::ltos(nPK_Device_TopMost), sPK_Room);
 				m_pOrbiter->m_pData->m_dwPK_Room = atoi(sPK_Room.c_str());
@@ -2142,7 +2142,7 @@ bool OSDScreenHandler::VOIP_Provider_ObjectSelected(CallBackData *pData)
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OSDScreenHandler::SCREEN_mnuSpeedControl(long PK_Screen)
 {
-	LoggerWrapper::GetInstance()->Write( LV_WARNING, "OSDScreenHandler::SCREEN_DVDRemote()" );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "OSDScreenHandler::SCREEN_DVDRemote()" );
 	ScreenHandler::SCREEN_mnuSpeedControl(PK_Screen);
 	
 	RegisterCallBack( cbOnCustomRender, (ScreenHandlerCallBack)&OSDScreenHandler::SpeedControlCustomRender, new RenderScreenCallBackData() );
@@ -2150,7 +2150,7 @@ bool OSDScreenHandler::VOIP_Provider_ObjectSelected(CallBackData *pData)
 //-----------------------------------------------------------------------------------------------------
 bool OSDScreenHandler::SpeedControlCustomRender(CallBackData *pData)
 {
-	LoggerWrapper::GetInstance()->Write(LV_WARNING, "OSDScreenHandler::SpeedControlCustomRender() screen %d",m_pOrbiter->m_pScreenHistory_Current->PK_Screen());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "OSDScreenHandler::SpeedControlCustomRender() screen %d",m_pOrbiter->m_pScreenHistory_Current->PK_Screen());
 	if( m_pOrbiter->m_pScreenHistory_Current->PK_Screen()!=SCREEN_mnuSpeedControl_CONST )
 		return false;
 
@@ -2249,7 +2249,7 @@ bool OSDScreenHandler::AV_Devices_CapturedKeyboardBufferChanged(CallBackData *pD
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OSDScreenHandler::SCREEN_mnuVolume(long PK_Screen)
 {
-	LoggerWrapper::GetInstance()->Write( LV_WARNING, "ScreenHandler::SCREEN_mnuAmbiance" );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "ScreenHandler::SCREEN_mnuAmbiance" );
 	ScreenHandlerBase::SCREEN_mnuVolume(PK_Screen);
 	
 	RegisterCallBack( cbOnCustomRender, (ScreenHandlerCallBack)&OSDScreenHandler::VolumeControlCustomRender, new RenderScreenCallBackData() );
@@ -2323,7 +2323,7 @@ bool OSDScreenHandler::VolumeControlCustomRender(CallBackData *pData)
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OSDScreenHandler::SCREEN_mnuLights(long PK_Screen)
 {
-	LoggerWrapper::GetInstance()->Write( LV_WARNING, "ScreenHandler::SCREEN_mnuAmbiance" );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "ScreenHandler::SCREEN_mnuAmbiance" );
 	ScreenHandlerBase::SCREEN_mnuLights(PK_Screen);
 	
 	RegisterCallBack( cbOnCustomRender, (ScreenHandlerCallBack)&OSDScreenHandler::LightControlCustomRender, new RenderScreenCallBackData() );

@@ -774,7 +774,7 @@ DesignObj_Orbiter *pObj, PlutoPoint *ptPopup/* = NULL*/)
 	//int OnSelectWithChange = m_spPendingGLEffects->m_nOnSelectWithChangeEffectID;
 
 #ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_WARNING,"OrbiterRenderer_OpenGL::RenderScreen %d",OrbiterLogic()->m_pScreenHistory_Current ? OrbiterLogic()->m_pScreenHistory_Current->PK_Screen() : 0);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"OrbiterRenderer_OpenGL::RenderScreen %d",OrbiterLogic()->m_pScreenHistory_Current ? OrbiterLogic()->m_pScreenHistory_Current->PK_Screen() : 0);
 #endif
 
 	PlutoRectangle rectLastSelected(0, 0, 0, 0);

@@ -946,7 +946,7 @@ g_PlutoProfiler->DumpResults();
 		if( m_bScreenSaverActive && pScreenHistory->GetObj()!=m_pDesignObj_Orbiter_ScreenSaveMenu )
 		{
 #ifdef DEBUG
-			LoggerWrapper::GetInstance()->Write(LV_WARNING,"Orbiter::NeedToChangeScreens Goto Screen -- wakign up from screen saver");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::NeedToChangeScreens Goto Screen -- wakign up from screen saver");
 #endif
 			StopScreenSaver();  // The function will ignore this for ui2 if there's no media playing
 
@@ -979,7 +979,7 @@ g_PlutoProfiler->DumpResults();
 			{
 				m_listScreenHistory.push_back( m_pScreenHistory_Current );
 #ifdef DEBUG
-				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Orbiter::NeedToChangeScreens m_listScreenHistory Adding to screens history list screen %d size %d", m_pScreenHistory_Current->PK_Screen(),(int) m_listScreenHistory.size());
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Orbiter::NeedToChangeScreens m_listScreenHistory Adding to screens history list screen %d size %d", m_pScreenHistory_Current->PK_Screen(),(int) m_listScreenHistory.size());
 #endif
 			}
 
@@ -1100,7 +1100,7 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  SelectionMethod selectio
 		if( X>=0 && Y>=0 )
 		{
 #ifdef DEBUG
-			LoggerWrapper::GetInstance()->Write( LV_WARNING,  "Selected datagrid: %s", pObj->m_ObjectID.c_str(  ) );
+			LoggerWrapper::GetInstance()->Write( LV_STATUS,  "Selected datagrid: %s", pObj->m_ObjectID.c_str(  ) );
 #endif
 			if ( !SelectedGrid( ( DesignObj_DataGrid * ) pObj,  X-pObj->m_rPosition.X,  Y-pObj->m_rPosition.Y, selectionMethod ) )
 				return;
@@ -1131,7 +1131,7 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  SelectionMethod selectio
 	}
 
 #ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write( LV_WARNING,  "Selected objs: %s with %d zones", pObj->m_ObjectID.c_str(  ), ( int ) pObj->m_ZoneList.size(  ) );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS,  "Selected objs: %s with %d zones", pObj->m_ObjectID.c_str(  ), ( int ) pObj->m_ZoneList.size(  ) );
 #endif
 
 	// There's a problem that we draw the selected state before we show or hide other objects,  and this causes
@@ -1567,7 +1567,7 @@ bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  DataGridCe
 	}
 
 #ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Need to update variable %d of the datagrid with value %s",
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Need to update variable %d of the datagrid with value %s",
 		pDesignObj_DataGrid->m_iPK_Variable, NewValue.c_str());
 #endif
 
@@ -2830,7 +2830,7 @@ bool Orbiter::ProcessEvent( Orbiter::Event &event )
 		if(event.data.button.m_iPK_Button == BUTTON_s_CONST)
 		{
 			//toggle surrender to OS
-			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Surrendering to OS: %d", !m_bYieldScreen);
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Surrendering to OS: %d", !m_bYieldScreen);
 			CMD_Surrender_to_OS(m_bYieldScreen ? "0" : "1", !m_bYieldScreen,false);
 		}
 	}
@@ -4770,7 +4770,7 @@ void Orbiter::DeselectObjects( void *data )
 		return; // We must have since changed screens
 
 #ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Deselecting %s object, state '%s'", pObj->m_ObjectID.c_str(), pObj->m_GraphicToDisplay==GRAPHIC_SELECTED ? "'selected'" : "'normal'");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Deselecting %s object, state '%s'", pObj->m_ObjectID.c_str(), pObj->m_GraphicToDisplay==GRAPHIC_SELECTED ? "'selected'" : "'normal'");
 #endif
 
 	if(pObj->m_GraphicToDisplay == GRAPHIC_SELECTED)
@@ -4985,7 +4985,7 @@ void Orbiter::CMD_Go_back(string sPK_DesignObj_CurrentScreen,string sForce,strin
 			if(!pScreenHistory->GoBack())
 			{
 #ifdef DEBUG
-				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Removing from screen history screen %d", pScreenHistory->PK_Screen());
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Removing from screen history screen %d", pScreenHistory->PK_Screen());
 #endif
 
 				// We now took the prior screen off teh list
@@ -5014,7 +5014,7 @@ void Orbiter::CMD_Go_back(string sPK_DesignObj_CurrentScreen,string sForce,strin
  
 		if(!pOldScreenHistory->m_bPutObjectsOffScreen)
 		{
-			LoggerWrapper::GetInstance()->Write(LV_WARNING, "ObjectOffScreen : screen id %d, obj id %s",
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "ObjectOffScreen : screen id %d, obj id %s",
 				pOldScreenHistory->PK_Screen(), pOldScreenHistory->GetObj()->m_ObjectID.c_str());
 
 			m_pOrbiterRenderer->ObjectOffScreen(pOldScreenHistory->GetObj());
@@ -5164,7 +5164,7 @@ void Orbiter::CMD_Goto_DesignObj(int iPK_Device,string sPK_DesignObj,string sID,
 	{
 		if(!m_pScreenHistory_Current->m_bPutObjectsOffScreen)
 		{
-			LoggerWrapper::GetInstance()->Write(LV_WARNING, "ObjectOffScreen : screen id %d, obj id %s",
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "ObjectOffScreen : screen id %d, obj id %s",
 				m_pScreenHistory_Current->PK_Screen(), m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str());
 
 			m_pOrbiterRenderer->ObjectOffScreen(m_pScreenHistory_Current->GetObj());
@@ -6805,7 +6805,7 @@ void Orbiter::CMD_Bind_Icon(string sPK_DesignObj,string sType,bool bChild,string
 		return;
 
 #ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Simulate mouse click at position: %d, %d", x, y);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Simulate mouse click at position: %d, %d", x, y);
 #endif
 
 	PLUTO_SAFETY_LOCK(sm, m_ScreenMutex);
@@ -6845,7 +6845,7 @@ void Orbiter::CMD_Bind_Icon(string sPK_DesignObj,string sType,bool bChild,string
 		return;
 
 #ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Simulate mouse move to position: %d, %d", x, y);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Simulate mouse move to position: %d, %d", x, y);
 #endif
 
 	PLUTO_SAFETY_LOCK(sm, m_ScreenMutex);
@@ -6872,7 +6872,7 @@ void Orbiter::CMD_Bind_Icon(string sPK_DesignObj,string sType,bool bChild,string
 		return;
 
 #ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Simulate key press. Key code: %d", key);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Simulate key press. Key code: %d", key);
 #endif
 
 	PLUTO_SAFETY_LOCK(sm, m_ScreenMutex);
@@ -7109,7 +7109,7 @@ void Orbiter::CMD_Quit(string &sCMD_Result,Message *pMessage)
 void Orbiter::KillMaintThread()
 {
 #ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_WARNING,"Kill Maint Thread %d",(int) bMaintThreadIsRunning);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Kill Maint Thread %d",(int) bMaintThreadIsRunning);
 #endif
 	m_bQuit_set(true);
 	pthread_cond_broadcast(&m_MaintThreadCond);  // Wake it up, it will quit when it sees the quit
@@ -8973,11 +8973,11 @@ void Orbiter::CMD_Goto_Screen(string sID,int iPK_Screen,int iInterruption,bool b
 	if( pMessage==NULL )
 		pMessage = new Message();
 
-	LoggerWrapper::GetInstance()->Write(LV_WARNING, "CMD_Goto_Screen message id %d params: message %p", iPK_Screen, pMessage);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "CMD_Goto_Screen message id %d params: message %p", iPK_Screen, pMessage);
 	for(map<long, string>::iterator it = pMessage->m_mapParameters.begin(); it != pMessage->m_mapParameters.end(); it++)
 	{
 		string sValue = it->second;
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Param id: %5d, value: %s", it->first, sValue.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Param id: %5d, value: %s", it->first, sValue.c_str());
 	}
 
 #ifdef ENABLE_MOUSE_BEHAVIOR
@@ -9429,7 +9429,7 @@ void Orbiter::CMD_Set_Active_Application(string sName,int iPK_Screen,string sIde
 		{
 			if( m_sNowPlaying_Window.empty()==false )
 			{
-				LoggerWrapper::GetInstance()->Write(LV_WARNING,"Orbiter::CMD_Set_Active_Application activating media that's playing simultaneously");;
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::CMD_Set_Active_Application activating media that's playing simultaneously");;
 				StopScreenSaver();
 				CMD_Activate_Window(m_sNowPlaying_Window);
 			}
@@ -9471,7 +9471,7 @@ void Orbiter::CMD_Get_Active_Application(string *sName,int *iPK_Screen,string *s
 void Orbiter::ForceCurrentScreenIntoHistory()
 {
 	PLUTO_SAFETY_LOCK( vm, m_VariableMutex );
-	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Orbiter::ForceCurrentScreenIntoHistory m_listScreenHistory Adding to screens history list screen %d", m_pScreenHistory_Current->PK_Screen());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Orbiter::ForceCurrentScreenIntoHistory m_listScreenHistory Adding to screens history list screen %d", m_pScreenHistory_Current->PK_Screen());
 	ScreenHistory *pScreenHistory = NeedToRender::m_pScreenHistory_get();
 	if( !pScreenHistory )
 	{

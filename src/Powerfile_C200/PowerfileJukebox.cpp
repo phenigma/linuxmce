@@ -252,7 +252,7 @@ bool PowerfileJukebox::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 
 	HalTree halTree;
 	halTree.Populate();
-	LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"populate got %d",halTree.m_mapHalDevice.size());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"PowerfileJukebox::Init populate got %d",halTree.m_mapHalDevice.size());
 
 	string sOutput, sStdErr;
 #ifdef EMULATE_PF

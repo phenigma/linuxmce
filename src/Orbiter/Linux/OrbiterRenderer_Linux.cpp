@@ -216,7 +216,7 @@ void OrbiterRenderer_Linux::RenderScreen( bool bRenderGraphicsOnly )
 			m_bHasPopups = false;
 
 			//reset masks
-			LoggerWrapper::GetInstance()->Write(LV_WARNING, "qqq Shape_PixmapMask_Rectangle %d,%d,%d,%d transparent (reset), wmwindow %p",
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "qqq Shape_PixmapMask_Rectangle %d,%d,%d,%d transparent (reset), wmwindow %p",
 				0, 0, pOrbiterLinux->m_iImageWidth, pOrbiterLinux->m_iImageHeight, pOrbiterLinux->m_pX11->GetWmWindow());
 			pOrbiterLinux->m_pX11->Shape_PixmapMask_Rectangle(
 				m_screenMaskObjects, 0, 0, pOrbiterLinux->m_iImageWidth, pOrbiterLinux->m_iImageHeight, false);
@@ -294,12 +294,12 @@ void OrbiterRenderer_Linux::ApplyMasks()
 
 void OrbiterRenderer_Linux::InitializeAfterSetVideoMode()
 {
-	LoggerWrapper::GetInstance()->Write(LV_WARNING, "OrbiterLinux::InitializeAfterSetVideoMode() START");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "OrbiterLinux::InitializeAfterSetVideoMode() START");
 
 	OrbiterLinux *pOrbiterLinux = dynamic_cast<OrbiterLinux *>(OrbiterLogic());
 	if(NULL != pOrbiterLinux)
 	{
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "OrbiterLinux::InitializeAfterSetVideoMode()");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "OrbiterLinux::InitializeAfterSetVideoMode()");
 		pOrbiterLinux->X11_Init();
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "OrbiterLinux::InitializeAfterSetVideoMode() : HideOtherWindows");
 		pOrbiterLinux->HideOtherWindows();
@@ -313,10 +313,10 @@ void OrbiterRenderer_Linux::InitializeAfterRelatives()
 	if(NULL != pOrbiterLinux)
 	{
 		// allow initial "extern" dialogs to receive clicks until this point
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "OrbiterLinux::InitializeAfterRelatives()");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "OrbiterLinux::InitializeAfterRelatives()");
 		pOrbiterLinux->GrabPointer(true);
 		pOrbiterLinux->GrabKeyboard(true);
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "OrbiterLinux::InitializeAfterRelatives() : done");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "OrbiterLinux::InitializeAfterRelatives() : done");
 	}
 }
 
@@ -495,7 +495,7 @@ void OrbiterRenderer_Linux::EventLoop()
                             string sAppState = string("Orbiter app ") + (Event.active.gain ? "gained" : "lost");
                             if ( Event.active.state & SDL_APPACTIVE )
                             {
-                                LoggerWrapper::GetInstance()->Write(LV_WARNING, "%s active state", sAppState.c_str() );
+                                LoggerWrapper::GetInstance()->Write(LV_STATUS, "%s active state", sAppState.c_str() );
                                 if(Event.active.gain)
                                         OrbiterLogic()->CMD_Activate_PC_Desktop(0);
                             }

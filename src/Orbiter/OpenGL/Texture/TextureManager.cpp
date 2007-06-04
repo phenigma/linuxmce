@@ -178,7 +178,7 @@ void TextureManager::ReleaseTextures()
 		return;
 #ifdef DEBUG
 	if(WaitForRelease.size())
-		DCE::LoggerWrapper::GetInstance()->Write(LV_WARNING, "TextureManager::ReleaseTextures size %d", WaitForRelease.size());
+		DCE::LoggerWrapper::GetInstance()->Write(LV_STATUS, "TextureManager::ReleaseTextures size %d", WaitForRelease.size());
 #endif
 
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, TextureLock);

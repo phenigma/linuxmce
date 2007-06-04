@@ -58,13 +58,13 @@ CacheImageManager::~CacheImageManager()
 bool CacheImageManager::VerifyCache(string sTimeStamp)
 {
 #ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Server skins timestamp: %s. Cache skins timestamp: %s",
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Server skins timestamp: %s. Cache skins timestamp: %s",
 		sTimeStamp.c_str(), m_sTimeStamp.c_str());
 #endif
 
 	if(sTimeStamp != m_sTimeStamp)
 	{
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "New skins are available. We'll purge the cache");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "New skins are available. We'll purge the cache");
 
 		if(!ClearCache())
 			return false;

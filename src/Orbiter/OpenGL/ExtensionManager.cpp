@@ -180,7 +180,7 @@ void ExtensionManager::Resize(int Width, int Height)
 	#endif
 
 	#ifdef VIA_OVERLAY
-          LoggerWrapper::GetInstance()->Write(LV_WARNING, "VIA : set env VIA_3D_OVERLAY");
+          LoggerWrapper::GetInstance()->Write(LV_TV, "VIA : set env VIA_3D_OVERLAY");
 		
 	  unsigned long dwRet = setenv("VIA_3D_OVERLAY","no",1);
 	  if(dwRet !=0)
@@ -196,7 +196,7 @@ void ExtensionManager::Resize(int Width, int Height)
 
 #if !defined(WIN32)
 
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Ready to remove window decorations for Orbiter");
+		LoggerWrapper::GetInstance()->Write(LV_TV, "Ready to remove window decorations for Orbiter");
 		
 		SDL_SysWMinfo info;
         SDL_VERSION(&info.version);
@@ -210,7 +210,7 @@ void ExtensionManager::Resize(int Width, int Height)
 
                 Window WMwindow = info.info.x11.wmwindow;
 
-				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Attempt to remove _MOTIF_WM_HINTS");
+				LoggerWrapper::GetInstance()->Write(LV_TV, "Attempt to remove _MOTIF_WM_HINTS");
 
                 /* First try to set MWM hints */
                 WM_HINTS = XInternAtom(info.info.x11.display, "_MOTIF_WM_HINTS", True);
@@ -232,10 +232,10 @@ void ExtensionManager::Resize(int Width, int Height)
                                         sizeof(MWMHints)/sizeof(long));
                         set = SDL_TRUE;
 
-						LoggerWrapper::GetInstance()->Write(LV_WARNING, "Removed _MOTIF_WM_HINTS");
+						LoggerWrapper::GetInstance()->Write(LV_TV, "Removed _MOTIF_WM_HINTS");
                 }
 
-				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Attempt to remove KWM_WIN_DECORATION");
+				LoggerWrapper::GetInstance()->Write(LV_TV, "Attempt to remove KWM_WIN_DECORATION");
 
                 /* Now try to set KWM hints */
                 WM_HINTS = XInternAtom(info.info.x11.display, "KWM_WIN_DECORATION", True);
@@ -250,10 +250,10 @@ void ExtensionManager::Resize(int Width, int Height)
                                         sizeof(KWMHints)/sizeof(long));
                         set = SDL_TRUE;
 
-						LoggerWrapper::GetInstance()->Write(LV_WARNING, "Removed KWM_WIN_DECORATION");
+						LoggerWrapper::GetInstance()->Write(LV_TV, "Removed KWM_WIN_DECORATION");
                 }
 
-				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Attempt to remove _WIN_HINTS");
+				LoggerWrapper::GetInstance()->Write(LV_TV, "Attempt to remove _WIN_HINTS");
 
                 /* Now try to set GNOME hints */
                 WM_HINTS = XInternAtom(info.info.x11.display, "_WIN_HINTS", True);
@@ -268,7 +268,7 @@ void ExtensionManager::Resize(int Width, int Height)
                                         sizeof(GNOMEHints)/sizeof(long));
                         set = SDL_TRUE;
 
-						LoggerWrapper::GetInstance()->Write(LV_WARNING, "Removed _WIN_HINTS");
+						LoggerWrapper::GetInstance()->Write(LV_TV, "Removed _WIN_HINTS");
                 }
 
 

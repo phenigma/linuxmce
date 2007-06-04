@@ -134,7 +134,7 @@ OrbiterLinux::~OrbiterLinux()
 
 void OrbiterLinux::HideOtherWindows()
 {
-	LoggerWrapper::GetInstance()->Write(LV_WARNING, "OrbiterLinux::HideOtherWindows: Hidding other windows...");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "OrbiterLinux::HideOtherWindows: Hidding other windows...");
 
 	list<WinInfo> listWinInfo;
 	m_pWinListManager->GetWindows(listWinInfo);
@@ -161,7 +161,7 @@ void OrbiterLinux::HideOtherWindows()
 
 void OrbiterLinux::reinitGraphics()
 {
-    LoggerWrapper::GetInstance()->Write(LV_WARNING, "OrbiterLinux::reinitGraphics()");
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "OrbiterLinux::reinitGraphics()");
     m_pWinListManager->ShowSdlWindow(m_bIsExclusiveMode, m_bYieldInput);
 }
 
@@ -348,11 +348,11 @@ bool OrbiterLinux::RenderDesktop( class DesignObj_Orbiter *pObj, PlutoRectangle 
 
 void OrbiterLinux::Initialize(GraphicType Type, int iPK_Room, int iPK_EntertainArea)
 {
-    LoggerWrapper::GetInstance()->Write(LV_WARNING, "OrbiterLinux::Initialize()");
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "OrbiterLinux::Initialize()");
 	Orbiter::Initialize(Type, iPK_Room, iPK_EntertainArea);
 
     //we know here the ui version!
-    LoggerWrapper::GetInstance()->Write(LV_WARNING, "Orbiter UI Version is %d", m_iUiVersion);
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Orbiter UI Version is %d", m_iUiVersion);
 
     if(UsesUIVersion2())
 	{
@@ -398,26 +398,26 @@ void OrbiterLinux::Initialize(GraphicType Type, int iPK_Room, int iPK_EntertainA
     if(UsesUIVersion2() && NULL != m_pWinListManager && !m_pWinListManager->ResetOrbiterWindow())
 		OnQuit();    
 
-    LoggerWrapper::GetInstance()->Write(LV_WARNING, "OrbiterLinux::Initialize() : done");
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "OrbiterLinux::Initialize() : done");
 }
 
 void OrbiterLinux::Destroy()
 {
-    LoggerWrapper::GetInstance()->Write(LV_WARNING, "OrbiterLinux::Destroy()");
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "OrbiterLinux::Destroy()");
     delete m_pRecordHandler;
     m_pRecordHandler = NULL;
     if (m_pMouseBehavior)
     {
-	    LoggerWrapper::GetInstance()->Write(LV_WARNING, "OrbiterLinux::Destroy() killing mouse behavior");
+	    LoggerWrapper::GetInstance()->Write(LV_STATUS, "OrbiterLinux::Destroy() killing mouse behavior");
         delete m_pMouseBehavior;
         m_pMouseBehavior = NULL;
     }
-	LoggerWrapper::GetInstance()->Write(LV_WARNING, "OrbiterLinux::Destroy() calling X11 Exit");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "OrbiterLinux::Destroy() calling X11 Exit");
     X11_Exit();
-	LoggerWrapper::GetInstance()->Write(LV_WARNING, "OrbiterLinux::Destroy() deleting Window manager");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "OrbiterLinux::Destroy() deleting Window manager");
     delete m_pWinListManager;
     m_pWinListManager = NULL;
-    LoggerWrapper::GetInstance()->Write(LV_WARNING, "OrbiterLinux::Destroy() : done");
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "OrbiterLinux::Destroy() : done");
 }
 
 void OrbiterLinux::CMD_Activate_PC_Desktop(bool bTrueFalse,string &sCMD_Result,Message *pMessage)
@@ -431,7 +431,7 @@ void OrbiterLinux::CMD_Activate_PC_Desktop(bool bTrueFalse,string &sCMD_Result,M
 
 	bInternalState_DesktopActivated = bTrueFalse;
 
-	LoggerWrapper::GetInstance()->Write(LV_WARNING, "SSS CMD_Activate_PC_Desktop %d",(int) bTrueFalse);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "SSS CMD_Activate_PC_Desktop %d",(int) bTrueFalse);
 
 	if( bTrueFalse )
 	{
@@ -463,7 +463,7 @@ void OrbiterLinux::CMD_Activate_PC_Desktop(bool bTrueFalse,string &sCMD_Result,M
 void OrbiterLinux::CMD_Activate_Window(string sWindowName,string &sCMD_Result,Message *pMessage)
 {
 	m_sApplicationName = sWindowName;
-	LoggerWrapper::GetInstance()->Write(LV_WARNING, "OrbiterLinux::CMD_Activate_Window(%s)", sWindowName.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "OrbiterLinux::CMD_Activate_Window(%s)", sWindowName.c_str());
 	m_pWinListManager->SetExternApplicationName(sWindowName);
 
 	if(UsesUIVersion2() && sWindowName.find("Screen_Saver") != string::npos)
@@ -482,7 +482,7 @@ void OrbiterLinux::CMD_Simulate_Keypress(string sPK_Button,string sName,string &
     {
         pair<bool,int> XKeySym = PlutoButtonsToX(atoi(sPK_Button.c_str()));
 #ifdef DEBUG
-        LoggerWrapper::GetInstance()->Write(LV_WARNING, "Need to forward pluto key %s to X key %d (shift %d)", sPK_Button.c_str(),XKeySym.second,XKeySym.first);
+        LoggerWrapper::GetInstance()->Write(LV_STATUS, "Need to forward pluto key %s to X key %d (shift %d)", sPK_Button.c_str(),XKeySym.second,XKeySym.first);
 #endif
         // TODO: clean this code
         Display *dpy = GetDisplay();
@@ -599,7 +599,7 @@ bool OrbiterLinux::MaskApplied()
 
 void OrbiterLinux::ResetAppliedMask()
 {
-	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Reseting mask");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Reseting mask");
 
 	XRectangle rect = {0, 0, m_iImageWidth, m_iImageHeight};
 	
@@ -616,7 +616,7 @@ void OrbiterLinux::ResetAppliedMask()
 
 void OrbiterLinux::ApplyMask(PlutoRectangle rectTotal, PlutoPoint point)
 {
-	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Applying mask: rectangle %d,%d,%d,%d",
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Applying mask: rectangle %d,%d,%d,%d",
 		point.X + rectTotal.X, point.Y + rectTotal.Y, rectTotal.Width, rectTotal.Height);
 
 	enum rectIndex
