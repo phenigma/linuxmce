@@ -42,9 +42,6 @@ UI_V2_Normal_Horizontal=4
 #<-mkr_b_via_b->
 	CleanupVideo
 	bash -x /home/via/ApplyViaPatch.sh
-	depmod
-	rmmod drm via
-	modprobe via
 	ConfSet "AVWizardDone" "1"
 	exit
 #<-mkr_b_via_e->
