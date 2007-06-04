@@ -617,18 +617,27 @@ int main( int argc, char **argv )
 		system(sCommand.c_str());
 
 		string sPlayerCommandTemplate;
-		if(ReadTextFile("/tmp/player-name", sPlayerCommandTemplate))
-		{
-			char pPlayerCommand[1024];
-			sprintf(pPlayerCommand, sPlayerCommandTemplate.c_str(), "/usr/pluto/sample.mpg");
+		char pPlayerCommand[1024];
 
+		if (access("/usr/bin/xine", F_OK) == 0) 
+		{	
+			sPlayerCommandTemplate="xine -l -g -V xv '%s'";
+			sprintf(pPlayerCommand, sPlayerCommandTemplate.c_str(), "/usr/pluto/sample.mpg");
+	
+			printf("Running player application %s", pPlayerCommand); 
+			system(pPlayerCommand);
+		} 
+		else if(ReadTextFile("/tmp/player-name", sPlayerCommandTemplate)) 
+		{
+			sprintf(pPlayerCommand, sPlayerCommandTemplate.c_str(), "/usr/pluto/sample.mpg");
+	
 			printf("Running player application %s", pPlayerCommand); 
 			system(pPlayerCommand);
 		}
 		else
 		{
 			printf("Error : cannot find the default player application!");
-		}	
+		}
 
 		exit(0);
 	}
