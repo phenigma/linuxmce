@@ -3243,6 +3243,8 @@ bool Xine_Stream::setAspectRatio(string sAR)
 	else
 	{
 		xine_set_param( m_pXineStream, XINE_PARAM_VO_ASPECT_RATIO, iAspectRatio );
+		int iSetValue = xine_get_param( m_pXineStream, XINE_PARAM_VO_ASPECT_RATIO);
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "Current aspect ratio: %i", iSetValue);
 		return true;
 	}
 }
@@ -3260,7 +3262,7 @@ bool Xine_Stream::setZoomLevel(string sZL)
 			iNewLevel = atoi(sZL.c_str());
 	}
 	
-	if (iNewLevel<=0 && iNewLevel>400)
+	if (iNewLevel<XINE_VO_ZOOM_MIN && iNewLevel>XINE_VO_ZOOM_MAX)
 	{
 		LoggerWrapper::GetInstance()->Write( LV_WARNING, "Bad zoom level: %s", sZL.c_str());
 		return false;
