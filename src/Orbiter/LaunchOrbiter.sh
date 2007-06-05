@@ -101,6 +101,12 @@ else
 
 	Logging $TYPE $SEVERITY_NORMAL "LaunchOrbiter" "Primary desktop: $N_Desktops and secondary desktop $((N_Desktops + 1))"
 
+
+	## Prevent kde to display a message every time a cd/dvd is inserted
+	mkdir -p /usr/share/kubuntu-default-settings/kde-profile/default/share/config
+	echo "[Global]" > /usr/share/kubuntu-default-settings/kde-profile/default/share/config/mediamanagerrc
+	echo "AutostartEnabled=false" >> /usr/share/kubuntu-default-settings/kde-profile/default/share/config/mediamanagerrc
+
 	## Export Orbiter desktop information variables
 	export ORBITER_PRIMARY_DESKTOP=$((N_Desktops))
 	export ORBITER_SECONDARY_DESKTOP=$((N_Desktops + 1))
