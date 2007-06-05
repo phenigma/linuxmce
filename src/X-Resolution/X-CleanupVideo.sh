@@ -102,6 +102,8 @@ CleanupVideo()
 			if [[ -z "$nV_dev" ]]; then
 				NewDeviceTemplate=$DEVICETEMPLATE_GeForce_or_TNT2
 				nV_dev=$(/usr/pluto/bin/CreateDevice -d "$NewDeviceTemplate" -R "$PK_Device")
+				modprobe -r nvidia
+				modprobe nvidia
 			fi
 		;;
 		ati|radeon|fglrx)
