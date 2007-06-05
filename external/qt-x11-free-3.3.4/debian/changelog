@@ -1,3 +1,9 @@
+qt-x11-free (3:3.3.4-3sarge1pluto1) unstable; urgency=high
+
+  * Rebuilt with libmysqlclient14
+
+ -- Radu Cristescu <radu.c@plutohome.com>  Tue, 05 Jun 2007 16:59:27 +0300
+
 qt-x11-free (3:3.3.4-3sarge1) stable-security; urgency=high
 
   * Non-maintainer upload by the security team.
