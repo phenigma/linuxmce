@@ -1,27 +1,27 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?> 
 <menu>
-	<menuitem description="Video Settings">
-		<menuitem description="Resolution" actiontype="execute_script" action="/usr/pluto/bin/CheckResolution.sh --resolution {1}">
-			<menuitem description="480p widescreen" parameter1="480p" />
-			<menuitem description="720p widescreen" parameter1="720p" /> 
-			<menuitem description="1080i widescreen" parameter1="1080i" /> 
-			<menuitem description="1080p widescreen" parameter1="1080p" /> 
-			<menuitem description="640x480" parameter1="640x480" /> 
-			<menuitem description="800x600" parameter1="800x600" /> 
-			<menuitem description="1024x748" parameter1="1024x748" /> 
-			<menuitem description="1280x1024" parameter1="1280x1024" />
-			<menuitem description="1600x1200" parameter1="1600x1200" /> 
+	<menuitem description="1. Video Settings">
+		<menuitem description="1.1 Resolution">
+			<menuitem description="1.1.1 480p widescreen" actiontype="execute_script" action="/usr/pluto/bin/CheckResolution.sh --resolution {1}" parameter1="480p" />
+			<menuitem description="1.1.2 720p widescreen" actiontype="execute_script" action="/usr/pluto/bin/CheckResolution.sh --resolution {1}" parameter1="720p" /> 
+			<menuitem description="1.1.3 1080i widescreen" actiontype="execute_script" action="/usr/pluto/bin/CheckResolution.sh --resolution {1}" parameter1="1080i" /> 
+			<menuitem description="1.1.4 1080p widescreen" actiontype="execute_script" action="/usr/pluto/bin/CheckResolution.sh --resolution {1}" parameter1="1080p" /> 
+			<menuitem description="1.1.5 640x480" actiontype="execute_script" action="/usr/pluto/bin/CheckResolution.sh --resolution {1}" parameter1="640x480" /> 
+			<menuitem description="1.1.6 800x600" actiontype="execute_script" action="/usr/pluto/bin/CheckResolution.sh --resolution {1}" parameter1="800x600" /> 
+			<menuitem description="1.1.7 1024x748" actiontype="execute_script" action="/usr/pluto/bin/CheckResolution.sh --resolution {1}" parameter1="1024x748" /> 
+			<menuitem description="1.1.8 1280x1024" actiontype="execute_script" action="/usr/pluto/bin/CheckResolution.sh --resolution {1}" parameter1="1280x1024" />
+			<menuitem description="1.1.9 1600x1200" actiontype="execute_script" action="/usr/pluto/bin/CheckResolution.sh --resolution {1}" parameter1="1600x1200" /> 
 		</menuitem>	
-		<menuitem description="Refresh">
+		<menuitem description="1.2 Refresh">
 		<!-- submenu items here -->
 		</menuitem>
-		<menuitem description="Connector">	
+		<menuitem description="1.3 Connector">	
 		<!-- submenu items here -->
 		</menuitem>
 	</menuitem>
-	<menuitem description="Utilities">
-		<menuitem description="Regenerate Orbiter's UI's" actiontype="execute_command" action="0 28 192 1" />
-		<menuitem description="Refresh the devices" actiontype="call_method" action="RefreshDevices {1}" parameter1="*" />
+	<menuitem description="2. Utilities">
+		<menuitem description="2.1 Regenerate Orbiter's UI's" actiontype="execute_command" action="0 28 192 1" />
+		<menuitem description="2.2 Refresh the devices" actiontype="call_method" action="RefreshDevices {1}" parameter1="*" />
 		<!-- other submenu items here -->
 	</menuitem>
 </menu>

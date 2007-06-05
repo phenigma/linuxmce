@@ -24,6 +24,10 @@ public:
 	MenuItemAction(string sAction, ActionType type);
 	MenuItemAction(string sAction, ActionType type, const map<int, string>& mapParameters);
 	~MenuItemAction();
+
+	string Description();
+	ActionType Type();
+	const map<int, string>& Parameters() const;
 };
 //--------------------------------------------------------------------------------------------------------
 #endif //__MENU_ITEM_ACTION_H__

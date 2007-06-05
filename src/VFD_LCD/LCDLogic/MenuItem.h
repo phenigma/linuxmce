@@ -31,6 +31,10 @@ public:
 
 	MenuItem *Parent();
 	void AddChild(MenuItem *pMenuItem);
+
+	MenuItem* FirstChild();
+	MenuItem* NextChild(MenuItem *pChildMenuItem);
+	MenuItem* PrevChild(MenuItem *pChildMenuItem);
 };
 //--------------------------------------------------------------------------------------------------------
 #endif //__MENU_ITEM_H__
