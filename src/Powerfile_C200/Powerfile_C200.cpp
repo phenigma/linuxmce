@@ -380,7 +380,11 @@ void Powerfile_C200::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,s
 					{
 						int iPK_MediaType;
 						string sDisks,sURL,sBlock_Device;
-						pDrive->internal_reset_drive(false,&iPK_MediaType,&sDisks,&sURL,&sBlock_Device);
+						pDrive->internal_reset_drive(false,&iPK_MediaType,&sDisks,&sURL,&sBlock_Device,true);
+
+						LoggerWrapper::GetInstance()->Write(LV_STATUS, "Powerfile_C200::ReceivedCommandForChild Get disk info media type %d disks %s url %s block %s",
+							iPK_MediaType,sDisks.c_str(),sURL.c_str(),sBlock_Device.c_str());
+
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
