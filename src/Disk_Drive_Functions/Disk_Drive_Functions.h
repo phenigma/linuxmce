@@ -116,10 +116,10 @@ public:
 		Disk_Drive_Functions(int dwPK_Device,Command_Impl * pCommand_Impl, const string & sDrive,JobHandler *pJobHandler,Database_pluto_media *pDatabase_pluto_media,MediaAttributes_LowLevel *pMediaAttributes_LowLevel,bool bAutoIdentifyMedia=true);
 		~Disk_Drive_Functions();
 		bool internal_monitor_step(bool bFireEvent);
-		bool internal_reset_drive(bool bFireEvent,int *iPK_MediaType,string *sDisks,string *sURL,string *sBlock_Device);
+		bool internal_reset_drive(bool bFireEvent,int *iPK_MediaType,string *sDisks,string *sURL,string *sBlock_Device,bool bRecheck=false);
 		int cdrom_has_dir(int fd, const char *directory);
 		int cdrom_lock(int lock);
-		int cdrom_checkdrive(const char * filename, int * flag, bool bFireEvent);
+		int cdrom_checkdrive(const char * filename, int * flag, bool bFireEvent,bool Recheck=false);
 		bool mountDVD(string fileName, string & strMediaUrl);
 		void FixupRippingInfo(int &PK_MediaType,string &sFilename,string &sTracks,int iEK_Disc,string &sDirectory);
 		string getTracks(string mrl); // We use cddb for nothing other than determining how many tracks there are

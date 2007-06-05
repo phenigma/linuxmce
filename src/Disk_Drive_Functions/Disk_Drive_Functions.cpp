@@ -103,13 +103,13 @@ bool Disk_Drive_Functions::internal_monitor_step(bool bFireEvent)
 	return true;
 }
 
-bool Disk_Drive_Functions::internal_reset_drive(bool bFireEvent,int *iPK_MediaType,string *sDisks,string *sURL,string *sBlock_Device)
+bool Disk_Drive_Functions::internal_reset_drive(bool bFireEvent,int *iPK_MediaType,string *sDisks,string *sURL,string *sBlock_Device,bool bRecheck)
 {
 	*sBlock_Device=m_sDrive;
 #ifndef WIN32
 	PLUTO_SAFETY_LOCK(dm,m_DiskMutex);
 
-	int result = cdrom_checkdrive(m_sDrive.c_str(), &m_mediaDiskStatus, bFireEvent);
+	int result = cdrom_checkdrive(m_sDrive.c_str(), &m_mediaDiskStatus, bFireEvent,bRecheck);
 
 	//     LoggerWrapper::GetInstance()->Write(LV_STATUS, "Disc Reset: checkdrive *iPK_MediaType: %d  result: %d", m_mediaDiskStatus, result);
 
@@ -342,7 +342,7 @@ int Disk_Drive_Functions::cdrom_lock(int lock)
 	}
 }
 
-int Disk_Drive_Functions::cdrom_checkdrive(const char * filename, int * flag, bool bFireEvent)
+int Disk_Drive_Functions::cdrom_checkdrive(const char * filename, int * flag, bool bFireEvent,bool Recheck)
 {
 #ifdef WIN32
 	* flag =DISCTYPE_DVD_VIDEO;
@@ -373,7 +373,7 @@ int Disk_Drive_Functions::cdrom_checkdrive(const char * filename, int * flag, bo
 	status = ioctl(fd, CDROM_DRIVE_STATUS, CDSL_CURRENT);
 	//     LoggerWrapper::GetInstance()->Write(LV_STATUS, "Current disk status %d", status);
 
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Disk_Drive_Functions::cdrom_checkdrive status %d inserted %d",status,(int) m_mediaInserted);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Disk_Drive_Functions::cdrom_checkdrive status %d inserted %d flag: %d",status,(int) m_mediaInserted,*flag);
 
 	switch (status)
 	{
@@ -383,7 +383,7 @@ int Disk_Drive_Functions::cdrom_checkdrive(const char * filename, int * flag, bo
 		//LoggerWrapper::GetInstance()->Write(LV_WARNING, "Disk type value here: %d", *flag);
 
 		m_bTrayOpen = false;
-		if (*flag != DISCTYPE_NONE || m_mediaInserted)
+		if (Recheck==false && (*flag != DISCTYPE_NONE || m_mediaInserted))
 			break;
 
 		if (bFireEvent)
