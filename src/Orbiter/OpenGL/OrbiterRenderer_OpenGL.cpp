@@ -1011,9 +1011,17 @@ void OrbiterRenderer_OpenGL::ObjectRendered(DesignObj_Orbiter *pObj, PlutoPoint 
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "VIA ObjectRendered: %s", pObj->m_ObjectID.c_str());
 
-	if(pObj->m_vectGraphic.size() > 0 && NULL != pObj->m_vectGraphic[0])
+	PlutoGraphic *pPlutoGraphic = NULL;
+	pPlutoGraphic = 
+		pObj->m_pvectCurrentGraphic != NULL && pObj->m_pvectCurrentGraphic->size() > 0 ?
+		(pObj->m_pvectCurrentGraphic->operator [](0)) : 
+		pObj->m_vectGraphic.size() > 0 ? 
+			pObj->m_vectGraphic[0] :
+			NULL;
+
+	if(NULL != pPlutoGraphic)
 	{
-		OpenGLGraphic* pOpenGLGraphic = dynamic_cast<OpenGLGraphic*> (pObj->m_vectGraphic[0]);
+		OpenGLGraphic* pOpenGLGraphic = dynamic_cast<OpenGLGraphic*> (pPlutoGraphic);
 		if(NULL != pOpenGLGraphic)
 		{
 			ViaOverlay::Instance().ApplyAlphaMask(pObj->m_rPosition.X, pObj->m_rPosition.Y, 
