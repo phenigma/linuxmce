@@ -1361,7 +1361,8 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream,map<int, pair<MediaDevic
 		}
 		if( pMediaFile->m_bWaitingForJukebox )
 		{
-			m_pAlarmManager->AddRelativeAlarm(1,this,WAITING_FOR_JUKEBOX,(void *) pMediaStream);
+			int StreamID = pMediaStream->m_iStreamID_get( );
+			m_pAlarmManager->AddRelativeAlarm(1,this,WAITING_FOR_JUKEBOX,(void *) StreamID);
 			return true;
 		}
 	}
@@ -5547,7 +5548,11 @@ void Media_Plugin::AlarmCallback(int id, void* param)
 	else if( id==CHECK_FOR_NEW_FILES )
 		CMD_Check_For_New_Files();
 	else if( id==WAITING_FOR_JUKEBOX )
-		WaitingForJukebox( (MediaStream *) param);
+	{
+		MediaStream *pMediaStream = m_mapMediaStream_Find((int) param,0);
+		if( pMediaStream )
+			WaitingForJukebox( pMediaStream);
+	}
 	else if( id==UPDATE_VIEW_DATE )
 	{
 		MediaStream *pMediaStream = m_mapMediaStream_Find((int) param,0);
@@ -6547,6 +6552,12 @@ bool Media_Plugin::AssignDriveForDisc(MediaStream *pMediaStream,MediaFile *pMedi
 			return false;
 		}
 
+		if( pMediaStream->m_pOH_Orbiter_StartedMedia )
+		{
+			DCE::SCREEN_PopupMessage SCREEN_PopupMessage(m_dwPK_Device,pMediaStream->m_pOH_Orbiter_StartedMedia->m_pDeviceData_Router->m_dwPK_Device,
+				"Please wait up to 20 seconds while I load that disc","","load_jukebox","0","10","1");
+			SendCommand(SCREEN_PopupMessage);
+		}
 		pMediaFile->m_dwPK_Device_Disk_Drive = PK_Device_Disk; // This is the disc we'll be using now
 		pMediaFile->m_bWaitingForJukebox=true;
 	}
@@ -6567,14 +6578,14 @@ void Media_Plugin::WaitingForJukebox( MediaStream *pMediaStream )
 	m_pDatabase_pluto_media->DiscLocation_get()->GetRows( "EK_Device=" + StringUtils::itos(pMediaFile->m_dwPK_Device_Disk_Drive), &vectRow_DiscLocation );  // This should now be the drive, not the jukebox, since AssignDriveForDisc converts it
 	if( vectRow_DiscLocation.size() )  // There should only be 1 record for a drive since only 1 disc can be there.  When this is not empty, the move has finished
 	{
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::WaitingForJukebox stream %d.  Disc loaded in drive.  Now ready", pMediaStream->m_iStreamID_get());
-
 		// It's possible we were playing a slot without knowing what type of disc was in it.  Fill out the missing info
 		int iPK_MediaType=0;
 		string sDisks,sURL,sBlock_Device;
 		DCE::CMD_Get_Disk_Info CMD_Get_Disk_Info(m_dwPK_Device,pMediaFile->m_dwPK_Device_Disk_Drive,&iPK_MediaType,&sDisks,&sURL,&sBlock_Device);
 		if( SendCommand(CMD_Get_Disk_Info) )
 		{
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::WaitingForJukebox stream %d.  Disc loaded in drive.  Now ready.  Got MT %d disks %s url %s block %s",
+				pMediaStream->m_iStreamID_get(),iPK_MediaType,sDisks.c_str(),sURL.c_str(),sBlock_Device.c_str());
 			if( iPK_MediaType )
 				pMediaFile->m_dwPK_MediaType=iPK_MediaType;
 			if( sURL.empty()==false )
@@ -6586,6 +6597,8 @@ void Media_Plugin::WaitingForJukebox( MediaStream *pMediaStream )
 
 	if( pMediaStream->m_tTime + TIMEOUT_JUKEBOX < time(NULL) )
 	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Media_Plugin::WaitingForJukebox stream %d.  failed to load",
+			pMediaStream->m_iStreamID_get());
 		if( pMediaStream->m_pOH_Orbiter_StartedMedia )
 		{
 			SCREEN_DialogCannotPlayMedia SCREEN_DialogCannotPlayMedia(m_dwPK_Device, 
@@ -6596,5 +6609,8 @@ void Media_Plugin::WaitingForJukebox( MediaStream *pMediaStream )
 		return;
 	}
 	else // Try again
-		m_pAlarmManager->AddRelativeAlarm(1,this,WAITING_FOR_JUKEBOX,(void *) pMediaStream);
+	{
+		int StreamID = pMediaStream->m_iStreamID_get( );
+		m_pAlarmManager->AddRelativeAlarm(1,this,WAITING_FOR_JUKEBOX,(void *) StreamID);
+	}
 }

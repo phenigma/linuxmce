@@ -634,6 +634,7 @@ void Disk_Drive::CMD_Abort_Task(int iParameter_ID,string &sCMD_Result,Message *p
 void Disk_Drive::CMD_Get_Disk_Info(int *iPK_MediaType,string *sDisks,string *sURL,string *sBlock_Device,string &sCMD_Result,Message *pMessage)
 //<-dceag-c914-e->
 {
+	m_pDisk_Drive_Functions->internal_reset_drive(false,iPK_MediaType,sDisks,sURL,sBlock_Device,true);
 }
 
 void Disk_Drive::VerifyDriveIsNotEmbedded(string &sDrive)
