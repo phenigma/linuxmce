@@ -1,0 +1,2 @@
+?package(qt3-qtconfig): needs=X11 section="Apps/System" command="qtconfig" \
+  title="QtConfig" longtitle="Qt configuration utility" hints="Qt3 config tool"

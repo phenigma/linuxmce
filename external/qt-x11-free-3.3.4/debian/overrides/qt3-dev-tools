@@ -1,0 +1,3 @@
+qt3-dev-tools: executable-not-elf-or-script ./usr/share/qt3/doc/html/logo32-qmake.png
+qt3-dev-tools: executable-not-elf-or-script ./usr/share/qt3/mkspecs/macx-pbuilder/Info.plist.app
+qt3-dev-tools: executable-not-elf-or-script ./usr/share/qt3/mkspecs/macx-pbuilder/qmake.conf

@@ -1,0 +1,3 @@
+qt3-dev-tools-embedded: executable-not-elf-or-script ./usr/share/qvfb/pda_up.png
+qt3-dev-tools-embedded: executable-not-elf-or-script ./usr/share/qvfb/pda_down.png
+qt3-dev-tools-embedded: executable-not-elf-or-script ./etc/qt3/qvfb/pda.skin
