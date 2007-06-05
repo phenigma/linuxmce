@@ -35,6 +35,9 @@ Install_VIA_pkgs()
 # The new drivers for video cards are installed later in this script, not in this function
 CleanupVideo()
 {
+	modprobe -r nvidia
+	modprobe nvidia
+
 	local MD
 	MD=$(FindDevice_Category "$PK_Device" "$DEVICECATEGORY_Media_Director" "" parent)
 
@@ -102,8 +105,6 @@ CleanupVideo()
 			if [[ -z "$nV_dev" ]]; then
 				NewDeviceTemplate=$DEVICETEMPLATE_GeForce_or_TNT2
 				nV_dev=$(/usr/pluto/bin/CreateDevice -d "$NewDeviceTemplate" -R "$PK_Device")
-				modprobe -r nvidia
-				modprobe nvidia
 			fi
 		;;
 		ati|radeon|fglrx)
