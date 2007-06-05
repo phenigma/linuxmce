@@ -30,7 +30,8 @@
 using namespace nsJobHandler;
 using namespace DCE;
 
-RipJob::RipJob(class JobHandler *pJobHandler,
+RipJob::RipJob(Database_pluto_media *pDatabase_pluto_media,
+			class JobHandler *pJobHandler,
 			Disk_Drive_Functions *pDisk_Drive_Functions,
 			Slot *pSlot,
 			int iPK_Users, int iEK_Disc,
@@ -39,6 +40,7 @@ RipJob::RipJob(class JobHandler *pJobHandler,
 			Command_Impl *pCommand_Impl)
 	: Job(pJobHandler,"RipJob",iPK_Orbiter,pCommand_Impl)
 {
+	m_pDatabase_pluto_media=pDatabase_pluto_media;
 	m_pDisk_Drive_Functions=pDisk_Drive_Functions;
 	m_pSlot=pSlot;
 	m_iPK_Users=iPK_Users;
@@ -65,7 +67,7 @@ RipJob::RipJob(class JobHandler *pJobHandler,
 	else
 	{
 		vector<Row_DiscLocation *> vectRow_DiscLocation;
-		m_pDisk_Drive_Functions->m_pDatabase_pluto_media_get()->DiscLocation_get()->GetRows(sWhere,&vectRow_DiscLocation);
+		m_pDatabase_pluto_media->DiscLocation_get()->GetRows(sWhere,&vectRow_DiscLocation);
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "RipJob::RipJob %d/%s", (int) vectRow_DiscLocation.size(), sWhere.c_str());
 		if( vectRow_DiscLocation.size() )
 			m_pRow_DiscLocation = vectRow_DiscLocation[0];

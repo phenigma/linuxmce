@@ -705,7 +705,8 @@ void Powerfile_C200::CMD_Rip_Disk(int iPK_Device,string sFilename,int iPK_Users,
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Powerfile_C200::CMD_Rip_Disk no drive and no slot");
 		return;
 	}
-	RipJob *pRipJob = new RipJob(m_pPowerfileJukebox->m_pJobHandler,pDrive,pSlot,iPK_Users,iEK_Disc,
+	RipJob *pRipJob = new RipJob(m_pPowerfileJukebox->m_pDatabase_pluto_media,
+		m_pPowerfileJukebox->m_pJobHandler,pDrive,pSlot,iPK_Users,iEK_Disc,
 		pMessage ? pMessage->m_dwPK_Device_From : 0,sFormat,sFilename,sDirectory,sTracks,this);
 	m_pPowerfileJukebox->m_pJobHandler->AddJob(pRipJob);
 }

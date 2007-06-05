@@ -37,6 +37,7 @@ namespace nsJukeBox
 
 using namespace DCE;
 using namespace nsJukeBox;
+class Database_pluto_media;
 
 namespace nsJobHandler
 {
@@ -51,9 +52,11 @@ namespace nsJobHandler
 		int m_iPK_Users, m_iEK_Disc, m_iDrive_Number,m_iPK_MediaType;
 		string m_sFormat, m_sFileName, m_sDirectory, m_sTracks;
 		Row_DiscLocation *m_pRow_DiscLocation;
+		Database_pluto_media *m_pDatabase_pluto_media;
 
 	public:
-		RipJob(class JobHandler *pJobHandler,
+		RipJob(Database_pluto_media *pDatabase_pluto_media,
+			class JobHandler *pJobHandler,
 			Disk_Drive_Functions *pDisk_Drive_Functions,
 			Slot *pSlot,
 			int iPK_Users, int iEK_Disc,
