@@ -401,6 +401,7 @@ void Powerfile_C200::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,s
 				}
 
 			case COMMAND_Rip_Disk_CONST:
+			case COMMAND_Media_Identified_CONST:
 			{
 				// Just forward this to our own handler
 				pMessage->m_mapParameters[COMMANDPARAMETER_PK_Device_CONST] = StringUtils::itos(pMessage->m_dwPK_Device_To);
