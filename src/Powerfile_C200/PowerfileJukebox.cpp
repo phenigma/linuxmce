@@ -477,6 +477,11 @@ bool PowerfileJukebox::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 
 				// Update the database
 				UpdateDiscLocation(m_pCommand_Impl->m_dwPK_Device,pSlot->m_SlotNumber,pDrive->m_dwPK_Device_get(),-1);
+
+				if( pDrive->m_mediaDiskStatus==DISCTYPE_DVD_VIDEO )
+					pDrive->UpdateDiscLocation('d');
+				else if( pDrive->m_mediaDiskStatus==DISCTYPE_CD_AUDIO || pDrive->m_mediaDiskStatus==DISCTYPE_CD || pDrive->m_mediaDiskStatus==DISCTYPE_CD_MIXED )
+					pDrive->UpdateDiscLocation('c');
 			}
 			else
 			{
