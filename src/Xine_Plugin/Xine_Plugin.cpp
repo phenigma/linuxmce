@@ -475,7 +475,7 @@ bool Xine_Plugin::ConfirmSourceIsADestination(string &sMRL,XineMediaStream *pXin
 		DeviceData_Router *pDevice_Disk_Drive = (DeviceData_Router *) pXineMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_Disc_Drives_CONST);
 		if( !pDevice_Disk_Drive )
 		{
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Xine_Plugin::ConfirmSourceIsADestination can't find the disk drive");
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Xine_Plugin::ConfirmSourceIsADestination can't find the disk drive %s",sMRL.c_str());
 			return false;
 		}
 		string sDrive = pDevice_Disk_Drive->m_mapParameters_Find(DEVICEDATA_Drive_CONST);
@@ -487,7 +487,7 @@ bool Xine_Plugin::ConfirmSourceIsADestination(string &sMRL,XineMediaStream *pXin
 		}
 		if( pos==string::npos )
 		{
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Xine_Plugin::ConfirmSourceIsADestination can't find drive's device");
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Xine_Plugin::ConfirmSourceIsADestination can't find drive's device %s/%s",sMRL.c_str(),sDrive.c_str());
 			return false;
 		}
 		string sDrive_New="/dev/device_" + StringUtils::itos(pDevice_Disk_Drive->m_dwPK_Device);
