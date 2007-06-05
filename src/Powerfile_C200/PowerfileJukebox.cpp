@@ -107,6 +107,7 @@ bool PowerfileJukebox::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 					else
 					{
 						m_mapDrive[nDrive]->m_iSourceSlot = 0;
+						m_mapDrive[nDrive]->UpdateDiscLocation('E',0); // For now say the drive is empty, when the script starts it will get set again
 					}
 					m_mapDrive[nDrive]->m_DriveNumber = nDrive;
 					nDrive ++;
