@@ -114,7 +114,7 @@ bool Disk_Drive_Functions::internal_reset_drive(bool bFireEvent,int *iPK_MediaTy
 	//     LoggerWrapper::GetInstance()->Write(LV_STATUS, "Disc Reset: checkdrive *iPK_MediaType: %d  result: %d", m_mediaDiskStatus, result);
 
 	// we only care if a new CD was inserted in the meantime.
-	if (result >= 0 && m_mediaDiskStatus != DISCTYPE_NONE && m_mediaInserted == false)
+	if (bRecheck || (result >= 0 && m_mediaDiskStatus != DISCTYPE_NONE && m_mediaInserted == false) )
 	{
 		int fd = open( m_sDrive.c_str(), O_RDONLY | O_NONBLOCK );
 		if (fd < 0)
