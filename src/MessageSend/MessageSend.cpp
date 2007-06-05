@@ -29,6 +29,8 @@
 using namespace DCE;
 using namespace std;
 
+//#define DUMP_MESSAGE
+
 int uuencode(const char *FileIn,const char *FileOut)
 {
 	size_t Size;
@@ -165,6 +167,24 @@ int main(int argc, char *argv[])
 
     Message *pMsg=new Message(argc-2,&argv[2]);
 
+#ifdef DUMP_MESSAGE
+	unsigned long dwSize = 0;
+	char *pcData = NULL;
+	pMsg->ToData(dwSize, pcData);
+
+	string sDump;
+	char pBuf[16];
+	for(unsigned long i = 0; i < dwSize; i++)
+	{
+		memset(pBuf, 0, 16);
+
+		sprintf(pBuf, "0x%02x ", (unsigned char)pcData[i]);
+		sDump += pBuf;
+	}
+
+	cout << "Dumping message to send : " << endl << sDump << endl;
+#endif
+
     string sOutputParametersPath = pMsg->sOutputParametersPath;
     if(sOutputParametersPath != "")
         sOutputParametersPath += "/";
@@ -194,6 +214,28 @@ int main(int argc, char *argv[])
 
 	// There are out parameters, we need to get a message back in return
 	Message *pResponse = pEvent->SendReceiveMessage( pMsg );
+
+#ifdef DUMP_MESSAGE
+	if(NULL != pResponse)
+	{
+		unsigned long dwSize = 0;
+		char *pcData = NULL;
+		pResponse->ToData(dwSize, pcData);
+
+		string sDump;
+		char pBuf[16];
+		for(unsigned long i = 0; i < dwSize; i++)
+		{
+			memset(pBuf, 0, 16);
+
+			sprintf(pBuf, "0x%02x ", (unsigned char)pcData[i]);
+			sDump += pBuf;
+		}
+
+		cout << endl << "Dumping received message : " << endl << sDump << endl;
+	}
+#endif
+
 	if( !pResponse || pResponse->m_dwID != 0 )
 	{
 		if(pResponse)
