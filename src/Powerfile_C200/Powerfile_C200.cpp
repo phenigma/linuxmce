@@ -323,7 +323,7 @@ void Powerfile_C200::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,s
 			switch( pMessage->m_dwID )
 			{
 			case COMMAND_Mass_identify_media_CONST:
-				pDrive->IdDisk();
+				pDrive->IdDisk(true);
 				return;
 
 			case COMMAND_Eject_Disk_CONST:

@@ -148,7 +148,7 @@ public:
 
 		class Database_pluto_media *m_pDatabase_pluto_media_get() { return m_pDatabase_pluto_media; }
 
-		void IdDisk(); // Send the command to id this disc
+		void IdDisk(bool bForce=false); // Send the command to id this disc
 };
 
 #endif

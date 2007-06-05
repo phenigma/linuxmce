@@ -867,9 +867,9 @@ Disk_Drive_Functions::Locked Disk_Drive_Functions::m_eLocked_get(void **p_void)
 	return m_eLocked;
 }
 
-void Disk_Drive_Functions::IdDisk()
+void Disk_Drive_Functions::IdDisk(bool bForce)
 {
-	if( m_pDevice_MediaIdentifier && m_bAutoIdentifyMedia )
+	if( m_pDevice_MediaIdentifier && (bForce || m_bAutoIdentifyMedia) )
 	{
 		DCE::CMD_Identify_Media CMD_Identify_Media(m_dwPK_Device,m_pDevice_MediaIdentifier->m_dwPK_Device,
 			m_dwPK_Device,StringUtils::itos(m_discid),m_sDrive,m_dwPK_Device);
