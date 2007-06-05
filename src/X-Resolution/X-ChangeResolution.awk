@@ -23,7 +23,7 @@ Monitor == 1 && /EndSection/ {
 	{
 		print "\tHorizSync\t28-500";
 	}
-	print "\tVertRefresh\t" Refresh;
+	print "\tVertRefresh\t" Refresh-1 "-" Refresh+1;
 	Monitor = 0;
 }
 /SubSection..*"Display"/ { Display = 1; }
