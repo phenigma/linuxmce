@@ -66,6 +66,10 @@ fi
 # get allocated IP
 /etc/init.d/networking restart
 
+# make mtab a symlink to /proc/mounts
+rm -f /etc/mtab
+ln -s /proc/mounts /etc/mtab
+
 # set up fstab
 fstab_header="#Pluto fstab entries"
 if ! grep -qF "$fstab_header" /etc/fstab; then
