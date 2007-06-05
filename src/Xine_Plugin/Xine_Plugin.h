@@ -93,7 +93,7 @@ public:
 
 		XineMediaStream *ConvertToXineMediaStream(MediaStream *pMediaStream, string callerIdMessage = "");
 
-		bool ConfirmSourceIsADestination(string &sMRL,XineMediaStream *pXineMediaStream);
+		bool ConfirmSourceIsADestination(string &sMRL,XineMediaStream *pXineMediaStream,int PK_Device_Drive);
 
 	//<-dceag-h-b->
 	/*

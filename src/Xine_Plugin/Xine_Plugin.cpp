@@ -280,7 +280,7 @@ bool Xine_Plugin::StartMedia( MediaStream *pMediaStream,string &sError )
 		// For now we're not able to have a xine that renders to a NULL window and can do dvd's.  They require 
 		// a live window with events.  So for the moment this function will confirm that if we're playing a dvd disc remotely that we make the 
 		// source be one of the destinations, and change the mrl to reference the source disk
-		if( !ConfirmSourceIsADestination(mediaURL,pXineMediaStream) )
+		if( !ConfirmSourceIsADestination(mediaURL,pXineMediaStream,pMediaFile ? pMediaFile->m_dwPK_Device_Disk_Drive : 0) )
 			LoggerWrapper::GetInstance()->Write(LV_WARNING,"Xine_Plugin::StartMedia don't know how media will get to destination.  Unless there's some output zones in the mix results won't be right");
 	}
 
@@ -442,7 +442,7 @@ bool Xine_Plugin::MenuOnScreen( class Socket *pSocket, class Message *pMessage, 
 	return false;
 }
 
-bool Xine_Plugin::ConfirmSourceIsADestination(string &sMRL,XineMediaStream *pXineMediaStream)
+bool Xine_Plugin::ConfirmSourceIsADestination(string &sMRL,XineMediaStream *pXineMediaStream,int PK_Device_Drive)
 {
 	MediaDevice *pMediaDevice_Xine = NULL; // Any xine that's in the destination
 	for( MapEntertainArea::iterator itEA = pXineMediaStream->m_mapEntertainArea.begin( );itEA != pXineMediaStream->m_mapEntertainArea.end( );++itEA )
@@ -472,7 +472,9 @@ bool Xine_Plugin::ConfirmSourceIsADestination(string &sMRL,XineMediaStream *pXin
 	if( sMRL.find("/dev/")!=string::npos )
 	{
 		// TODO -- what if the directory is /dev/??
-		DeviceData_Router *pDevice_Disk_Drive = (DeviceData_Router *) pXineMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_Disc_Drives_CONST);
+		DeviceData_Router *pDevice_Disk_Drive = m_pRouter->m_mapDeviceData_Router_Find(PK_Device_Drive);
+		if( !pDevice_Disk_Drive )
+			pDevice_Disk_Drive = (DeviceData_Router *) pXineMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_Disc_Drives_CONST);
 		if( !pDevice_Disk_Drive )
 		{
 			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Xine_Plugin::ConfirmSourceIsADestination can't find the disk drive %s",sMRL.c_str());
@@ -482,12 +484,13 @@ bool Xine_Plugin::ConfirmSourceIsADestination(string &sMRL,XineMediaStream *pXin
 		string::size_type pos = sMRL.find( sDrive );  // Find the /dev/cdrom in ther
 		if( pos==string::npos )
 		{
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Xine_Plugin::ConfirmSourceIsADestination 1 can't find drive's device %s -- %s",sMRL.c_str(),sDrive.c_str());
 			sDrive = "/dev/cdrom";
 			pos = sMRL.find( sDrive );  // Find the /dev/cdrom in ther
 		}
 		if( pos==string::npos )
 		{
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Xine_Plugin::ConfirmSourceIsADestination can't find drive's device %s/%s",sMRL.c_str(),sDrive.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Xine_Plugin::ConfirmSourceIsADestination can't find drive's device %s -- %s",sMRL.c_str(),sDrive.c_str());
 			return false;
 		}
 		string sDrive_New="/dev/device_" + StringUtils::itos(pDevice_Disk_Drive->m_dwPK_Device);
