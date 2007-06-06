@@ -125,7 +125,7 @@ void RipTask::UpdateProgress(string sStatus,int iPercent,int iTime,string sText,
 {
 	m_sText=sText;
 
-	LoggerWrapper::GetInstance()->Write(LV_WARNING, "RipTask::UpdateProgress status %s message %s", sStatus.c_str(), m_sText.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "RipTask::UpdateProgress status %s message %s file %s", sStatus.c_str(), m_sText.c_str(),sFilename.c_str());
 
 	if( sStatus=="p" )
 	{
@@ -229,7 +229,7 @@ void RipTask::ReportSuccess()
 {
 	SCREEN_PopupMessage SCREEN_PopupMessage(m_pRipJob->m_pDisk_Drive_Functions->m_pCommand_Impl->m_dwPK_Device, 
 		m_pRipJob->m_iPK_Orbiter,
-		"Ripping complete", // Main message
+		"Ripping complete: " + ((RipJob *) m_pJob)->m_sFileName, // Main message
 		"", // Command Line
 		"ripping_complete", // Description
 		"0", // sPromptToResetRouter
