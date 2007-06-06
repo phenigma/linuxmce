@@ -22,6 +22,7 @@ private:
 	list<IRenderer *> m_listRenderer;
 
 	void Render();
+	void Prepare();
 
 public:
 

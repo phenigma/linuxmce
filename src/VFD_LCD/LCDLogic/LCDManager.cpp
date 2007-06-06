@@ -47,23 +47,18 @@ bool LCDManager::ProcessInput(const Input &input)
 				switch(input.keyboardinput)
 				{
 					case kiUp :		
-						m_display_state.m_sDescription = "up";		
 						m_pMenuHolder->MoveUp();
 						break;
 					case kiDown :	
-						m_display_state.m_sDescription = "down"; 
 						m_pMenuHolder->MoveDown();
 						break;
 					case kiLeft :	
-						m_display_state.m_sDescription = "left"; 
 						m_pMenuHolder->MoveLeft();
 						break;
 					case kiRight :	
-						m_display_state.m_sDescription = "right"; 
 						m_pMenuHolder->MoveRight();
 						break;
 					default :	
-						m_display_state.m_sDescription = "unknown"; 
 						break;
 				}
 			}
@@ -85,10 +80,53 @@ bool LCDManager::ProcessInput(const Input &input)
 //--------------------------------------------------------------------------------------------------------
 void LCDManager::Render()
 {
-	if(NULL != m_pMenuHolder && NULL != m_pMenuHolder->CurrentMenuItem())
-		m_display_state.m_sHeader = m_pMenuHolder->CurrentMenuItem()->Description();
+	Prepare();
 
 	for(list<IRenderer *>::iterator it = m_listRenderer.begin(), end = m_listRenderer.end(); it != end; ++it)
 		(*it)->Render(m_display_state);
+}
+//--------------------------------------------------------------------------------------------------------
+void LCDManager::Prepare()
+{
+	if(NULL != m_pMenuHolder && NULL != m_pMenuHolder->CurrentMenuItem())
+		m_display_state.m_sHeader = m_pMenuHolder->CurrentMenuItem()->Description();
+
+	m_display_state.m_bCanGoDown = m_pMenuHolder->CurrentMenuItem()->CanGoDown();
+	m_display_state.m_bCanGoUp = m_pMenuHolder->CurrentMenuItem()->CanGoUp();
+	m_display_state.m_bCanGoLeft = m_pMenuHolder->CurrentMenuItem()->CanGoLeft();
+	m_display_state.m_bCanGoRight = m_pMenuHolder->CurrentMenuItem()->CanGoRight();
+
+	m_display_state.m_vectNextOptions.clear();
+	m_display_state.m_vectPriorOptions.clear();
+
+	//prev options
+	int nIndex = ADIACENT_OPTIONS_NUMBER;
+	MenuItem *pCurrentItem = m_pMenuHolder->CurrentMenuItem();
+	while(NULL != pCurrentItem && nIndex-- > 0)
+	{
+		MenuItem *pPrevItem = pCurrentItem->Parent()->PrevChild(pCurrentItem);
+		if(NULL != pPrevItem)
+		{
+            m_display_state.m_vectPriorOptions.push_back(pPrevItem->Description());
+			pCurrentItem = pPrevItem;
+		}
+		else
+			break;
+	}
+
+	//next options
+	nIndex = ADIACENT_OPTIONS_NUMBER;
+	pCurrentItem = m_pMenuHolder->CurrentMenuItem();
+	while(NULL != pCurrentItem && nIndex-- > 0)
+	{
+		MenuItem *pNextItem = pCurrentItem->Parent()->NextChild(pCurrentItem);
+		if(NULL != pNextItem)
+		{
+            m_display_state.m_vectNextOptions.push_back(pNextItem->Description());
+			pCurrentItem = pNextItem;
+		}
+		else
+			break;
+	}
 }
 //--------------------------------------------------------------------------------------------------------

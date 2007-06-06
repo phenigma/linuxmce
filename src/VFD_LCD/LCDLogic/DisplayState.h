@@ -7,8 +7,7 @@ using namespace std;
 //--------------------------------------------------------------------------------------------------------
 class DisplayState
 {
-	
-public: //TODO: make me private
+public: 
 	
 	string m_sHeader;
 	string m_sFooter;
@@ -19,6 +18,11 @@ public: //TODO: make me private
 	string m_sStatusMessage;
 	vector<string> m_vectPriorOptions;
 	vector<string> m_vectNextOptions;
+
+	bool m_bCanGoDown;
+	bool m_bCanGoUp;
+	bool m_bCanGoLeft;
+	bool m_bCanGoRight;
 };
 //--------------------------------------------------------------------------------------------------------
 #endif //__DISPLAY_STATE_H__

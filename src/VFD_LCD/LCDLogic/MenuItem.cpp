@@ -30,26 +30,22 @@ MenuItemAction *MenuItem::Action()
 //--------------------------------------------------------------------------------------------------------
 bool MenuItem::CanGoRight()
 {
-	//TODO: implemented me
-	return true;
+	return !m_vectChildren.empty();
 }
 //--------------------------------------------------------------------------------------------------------
 bool MenuItem::CanGoLeft()
 {
-	//TODO: implemented me
-	return true;
+	return NULL != m_pParent && m_pParent->Description() != "root";
 }
 //--------------------------------------------------------------------------------------------------------
 bool MenuItem::CanGoUp()
 {
-	//TODO: implemented me
-	return true;
+	return NULL != m_pParent && m_pParent->PrevChild(this);
 }
 //--------------------------------------------------------------------------------------------------------
 bool MenuItem::CanGoDown()
 {
-	//TODO: implemented me
-	return true;
+	return NULL != m_pParent && m_pParent->NextChild(this);
 }
 //--------------------------------------------------------------------------------------------------------
 MenuItem *MenuItem::Parent()
@@ -88,7 +84,7 @@ MenuItem* MenuItem::NextChild(MenuItem *pChildMenuItem)
 	++it;
 
 	if(it == m_vectChildren.end())
-		return pChildMenuItem;
+		return NULL;
 
 	return *it;
 }
@@ -108,7 +104,7 @@ MenuItem* MenuItem::PrevChild(MenuItem *pChildMenuItem)
 	}
 
 	if(!m_vectChildren.empty() && pChildMenuItem == *m_vectChildren.begin())
-		return pChildMenuItem;
+		return NULL;
 
 	--it;
 

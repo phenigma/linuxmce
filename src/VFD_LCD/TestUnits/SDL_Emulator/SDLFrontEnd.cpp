@@ -2,6 +2,11 @@
 //--------------------------------------------------------------------------------------------------------
 #include <SDL_image.h>
 //--------------------------------------------------------------------------------------------------------
+#define CURRENT_ITEM_POSITION_X 50
+#define CURRENT_ITEM_POSITION_Y 150
+#define ITEM_WIDTH	200
+#define ITEM_HEIGHT 14
+//--------------------------------------------------------------------------------------------------------
 SDLFrontEnd::SDLFrontEnd(IInputProcessor *pInputProcessor, int w, int h) : 
 	IRenderer(), IInputProvider(pInputProcessor),
 	m_pSurface(NULL), m_pFont(NULL), m_nWidth(w), m_nHeight(h),
@@ -119,17 +124,56 @@ void SDLFrontEnd::Render(const DisplayState &display_state)
 
 	Clear();
 
-	RenderText(10, 10, display_state.m_sHeader);
-	RenderText(30, 30, display_state.m_sDescription);
+	vector<string>::const_iterator it;
+
+	//prior options
+	int i = 1;
+	for(it = display_state.m_vectPriorOptions.begin(); it != display_state.m_vectPriorOptions.end(); ++it, ++i)
+		RenderText(CURRENT_ITEM_POSITION_X, CURRENT_ITEM_POSITION_Y - i * ITEM_HEIGHT, *it);
+
+	//current option
+	RenderText(CURRENT_ITEM_POSITION_X - 10, CURRENT_ITEM_POSITION_Y, "o");
+	RenderText(CURRENT_ITEM_POSITION_X, CURRENT_ITEM_POSITION_Y, display_state.m_sHeader);
+
+	//next options
+	i = 1;
+	for(it = display_state.m_vectNextOptions.begin(); it != display_state.m_vectNextOptions.end(); ++it, ++i)
+		RenderText(CURRENT_ITEM_POSITION_X, CURRENT_ITEM_POSITION_Y + i * ITEM_HEIGHT, *it);
+
+	//description
+	RenderText(10, m_nHeight - 30, "Description : " + display_state.m_sDescription);
+
+	//can go up/down/left/right
+	if(display_state.m_bCanGoLeft)
+		RenderText(0, (m_nHeight + ITEM_HEIGHT) / 2, "<");
+	if(display_state.m_bCanGoRight)
+		RenderText(m_nWidth - 10, (m_nHeight + ITEM_HEIGHT) / 2, ">");
+	if(display_state.m_bCanGoUp)
+		RenderText(m_nWidth / 2, 0, "^");
+	if(display_state.m_bCanGoDown)
+		RenderText(m_nWidth / 2, m_nHeight - 10, "V");
+
 
 	SDL_UpdateRect(m_pSurface, 0, 0, 0, 0);
 }
 //--------------------------------------------------------------------------------------------------------
 void SDLFrontEnd::Clear()
 {
+	//background
 	SDL_Rect Rectangle;
 	Rectangle.x = 0; Rectangle.y = 0; Rectangle.w = m_nWidth; Rectangle.h = m_nHeight;
 	SDL_FillRect(m_pSurface, &Rectangle, SDL_MapRGBA(m_pSurface->format, 0xe0, 0xff, 0xe0, 0xff));
+
+	//options
+	Rectangle.x = CURRENT_ITEM_POSITION_X;
+	Rectangle.w = ITEM_WIDTH;
+	Rectangle.h = ITEM_HEIGHT - 1;
+
+	for(int i = - ADIACENT_OPTIONS_NUMBER; i <= ADIACENT_OPTIONS_NUMBER; i++)
+	{
+		Rectangle.y = CURRENT_ITEM_POSITION_Y + i * ITEM_HEIGHT + 2;
+		SDL_FillRect(m_pSurface, &Rectangle, SDL_MapRGBA(m_pSurface->format, 0x40, 0xcf, 0xc0, 0xff));
+	}
 }
 //--------------------------------------------------------------------------------------------------------
 void SDLFrontEnd::RenderText(int x, int y, string sText)
