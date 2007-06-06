@@ -1314,7 +1314,7 @@ void MediaAttributes_LowLevel::AddRippedDiscToDatabase(int PK_Disc,int PK_MediaT
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"MediaAttributes_LowLevel::AddRippedDiscToDatabase %s is a dir: %s",sDestination.c_str(),sTracks.c_str());
 #endif
 		Row_File *pRow_File = AddDirectoryToDatabase(PK_MediaType==MEDIATYPE_pluto_CD_CONST ? MEDIATYPE_pluto_StoredAudio_CONST : PK_MediaType,sDestination);
-		AddDiscAttributesToFile(pRow_File->PK_File_get(),PK_Disc,0);  // Track ==0
+		AddDiscAttributesToFile(pRow_File->PK_File_get(),PK_Disc,-1);  // Track ==0
 		vector<Row_Disc_Attribute *> vectRow_Disc_Attribute;
 		m_pDatabase_pluto_media->Disc_Attribute_get()->GetRows(
 			"JOIN Attribute ON FK_Attribute=PK_Attribute WHERE FK_Disc=" + StringUtils::itos(PK_Disc) + 
@@ -1483,10 +1483,6 @@ void MediaAttributes_LowLevel::AddDiscAttributesToFile(int PK_File,int PK_Disc,i
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MediaAttributes_LowLevel::AddDiscAttributesToFile called with file %d disc %d",PK_File,PK_Disc);
 
-/*
-	PlutoMediaFile PlutoMediaFile_(m_pDatabase_pluto_media, m_nPK_Installation, pRow_File->Path_get(), pRow_File->Filename_get());
-	PlutoMediaFile_.SetFileAttribute(PK_File);
-*/
 	vector<Row_Picture_Disc *> vectRow_Picture_Disc;
 	pRow_Disc->Picture_Disc_FK_Disc_getrows(&vectRow_Picture_Disc);
 	for(size_t s=0;s<vectRow_Picture_Disc.size();++s)
@@ -1504,17 +1500,16 @@ void MediaAttributes_LowLevel::AddDiscAttributesToFile(int PK_File,int PK_Disc,i
 
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::AddDiscAttributesToFile called with file %d disc %d PIC %d",
 			PK_File,PK_Disc,pRow_Picture_File->FK_Picture_get());
-
-/*
-		PlutoMediaFile_.SetPicAttribute(pRow_Picture_File->FK_Picture_get(), 
-			pRow_Picture_File->FK_Picture_getrow()->URL_get());
-*/
 	}
 
 	vector<Row_Disc_Attribute *> vectRow_Disc_Attribute;
 	string sWhere = "FK_Disc=" + StringUtils::itos(PK_Disc);
 	if( Track!=-1 )
+	{
 		sWhere += " AND Track=" + StringUtils::itos(Track);
+		pRow_Disc->FK_File_set(pRow_File->PK_File_get());  // The discs has been ripped to this file
+		m_pDatabase_pluto_media->Disc_get()->Commit();
+	}
 	m_pDatabase_pluto_media->Disc_Attribute_get()->GetRows(sWhere,&vectRow_Disc_Attribute);
 	for(size_t s=0;s<vectRow_Disc_Attribute.size();++s)
 	{

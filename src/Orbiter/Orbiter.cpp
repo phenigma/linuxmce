@@ -5203,7 +5203,7 @@ void Orbiter::CMD_Goto_DesignObj(int iPK_Device,string sPK_DesignObj,string sID,
 			pScreenHistory_New->ScreenID(sID);
 	}
 	else
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "We have all in screen history item. Nothing new to save.");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "We have all in screen history item. Nothing new to save.");
 
 #ifdef DEBUG
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"CMD_Goto_DesignObj: %s pScreenHistory_New->m_bCantGoBack %d bCant_Go_Back %d pObj_New->m_bCantGoBack %d",
@@ -7440,7 +7440,7 @@ void Orbiter::DumpScreenHistory()
 		ScreenHistory *pScreenHistory = *it;
 		s += pScreenHistory->ToString() + ", ";
 	}
-	LoggerWrapper::GetInstance()->Write(LV_WARNING, "%s", s.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "%s", s.c_str());
 }
 //<-dceag-c59-b->
 

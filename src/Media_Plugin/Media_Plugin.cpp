@@ -3738,10 +3738,27 @@ void Media_Plugin::CMD_Rip_Disk(int iPK_Device,string sFilename,int iPK_Users,st
 	// EntertainArea *pEntertainArea = DetermineEntArea( pMessage->m_dwPK_Device_From, pMessage->m_dwPK_Device_From, 0);
 	// is this required here ?!
 	PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
+	// The disk drive we're ripping could have been passed in.  Otherwise we'll find one with the given disc
+	DeviceData_Base *pDevice_Disk=m_pRouter->m_mapDeviceData_Router_Find(iPK_Device);
+	Row_DiscLocation *pRow_DiscLocation = NULL;
+
+	if( pDevice_Disk )
+	{
+		vector<Row_DiscLocation *> vectRow_DiscLocation;
+		string sSQL = "EK_Device=" + StringUtils::itos(pDevice_Disk->m_dwPK_Device);
+		if( iSlot_Number )
+			sSQL += " AND Slot=" + StringUtils::itos(iSlot_Number);
+		m_pDatabase_pluto_media->DiscLocation_get()->GetRows(sSQL, &vectRow_DiscLocation);
+		if( vectRow_DiscLocation.size()==1 )
+			pRow_DiscLocation=vectRow_DiscLocation[0];
+	}
 
 	// Figure out what disc to rip
 	Row_Disc *pRow_Disc = m_pDatabase_pluto_media->Disc_get()->GetRow(iEK_Disc);
-	if( !pRow_Disc )
+	if( !pRow_Disc && pRow_DiscLocation )
+		pRow_Disc = pRow_DiscLocation->FK_Disc_getrow();
+
+	if( !pRow_Disc && !pRow_DiscLocation )  // If we have a location and not a disk, it's an unidentified disc
 	{
 		vector<EntertainArea *> vectEntertainArea;
 		DetermineEntArea( pMessage->m_dwPK_Device_From, 0, "", vectEntertainArea);
@@ -3783,18 +3800,19 @@ void Media_Plugin::CMD_Rip_Disk(int iPK_Device,string sFilename,int iPK_Users,st
 		}
 	}
 
-	// The disk drive we're ripping could have been passed in.  Otherwise we'll find one with the given disc
-	DeviceData_Base *pDevice_Disk=m_pRouter->m_mapDeviceData_Router_Find(iPK_Device);
-	if( !pDevice_Disk )
+	if( !pDevice_Disk && !pRow_DiscLocation && pRow_Disc  )
 	{
 		vector<Row_DiscLocation *> vectRow_DiscLocation;
 		pRow_Disc->DiscLocation_FK_Disc_getrows(&vectRow_DiscLocation);
 		for(vector<Row_DiscLocation *>::iterator it=vectRow_DiscLocation.begin();it!=vectRow_DiscLocation.end();++it)
 		{
-			Row_DiscLocation *pRow_DiscLocation = *it;
-			pDevice_Disk = m_pRouter->m_mapDeviceData_Router_Find( pRow_DiscLocation->EK_Device_get() );
+			Row_DiscLocation *p = *it;
+			pDevice_Disk = m_pRouter->m_mapDeviceData_Router_Find( p->EK_Device_get() );
 			if( pDevice_Disk )
+			{
+				pRow_DiscLocation=p;
 				break;
+			}
 		}
 	}
 
@@ -3803,12 +3821,13 @@ void Media_Plugin::CMD_Rip_Disk(int iPK_Device,string sFilename,int iPK_Users,st
 		SCREEN_DialogRippingError SCREEN_DialogRippingError(m_dwPK_Device, pMessage->m_dwPK_Device_From,
 			"<%=T" + StringUtils::itos(TEXT_Only_rip_drives_CONST) + "%>", "0");
 		SendCommand(SCREEN_DialogRippingError);
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Media_Plugin::CMD_Rip_Disk(): no drive for disk %d", pRow_Disc->PK_Disc_get());
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Media_Plugin::CMD_Rip_Disk(): no drive for disk");
 		return;
 	}
 
 	// If it's a cd and no tracks were specified, prompt the user, otherwise fill in the file names
-	if( pRow_Disc->EK_MediaType_get()==MEDIATYPE_pluto_CD_CONST && sTracks.size()==0 )
+	if( sTracks.size()==0 && 
+		(pRow_Disc && pRow_Disc->EK_MediaType_get()==MEDIATYPE_pluto_CD_CONST) || (pRow_DiscLocation && pRow_DiscLocation->Type_get()=="C") )
 	{
 		SCREEN_CDTrackCopy SCREEN_CDTrackCopy(m_dwPK_Device,pMessage->m_dwPK_Device_From, iPK_Users,sFormat,sFilename,iEK_Disc,iSlot_Number,iDriveID);
 		SendCommand(SCREEN_CDTrackCopy);
@@ -3819,7 +3838,13 @@ void Media_Plugin::CMD_Rip_Disk(int iPK_Device,string sFilename,int iPK_Users,st
 	for( MapMediaStream::iterator it=m_mapMediaStream.begin();it!=m_mapMediaStream.end();++it )
 	{
 		MediaStream *pMS = (*it).second;
-		if( pMS->m_dwPK_Disc==pRow_Disc->PK_Disc_get() )
+		MediaFile *pMediaFile = pMS->GetCurrentMediaFile();
+		if( pRow_Disc && pMS->m_dwPK_Disc==pRow_Disc->PK_Disc_get() )
+		{
+			pMediaStream = pMS;
+			break;
+		}
+		if( pDevice_Disk && pMediaFile && pMediaFile->m_dwPK_Device_Disk_Drive==pDevice_Disk->m_dwPK_Device )
 		{
 			pMediaStream = pMS;
 			break;
@@ -3839,7 +3864,7 @@ void Media_Plugin::CMD_Rip_Disk(int iPK_Device,string sFilename,int iPK_Users,st
 		sFormat = "flac";
 	string sResponse;
 	DCE::CMD_Rip_Disk cmdRipDisk(pMessage->m_dwPK_Device_From, pDevice_Disk->m_dwPK_Device, pDevice_Disk->m_dwPK_Device, sFilename, iPK_Users, 
-		sFormat, sTracks, pRow_Disc->PK_Disc_get(), iSlot_Number, iDriveID, sDirectory);  // Send it from the Orbiter so disk drive knows who requested it
+		sFormat, sTracks, pRow_Disc ? pRow_Disc->PK_Disc_get() : 0, iSlot_Number, iDriveID, sDirectory);  // Send it from the Orbiter so disk drive knows who requested it
 	if( !SendCommand(cmdRipDisk,&sResponse) || sResponse!="OK" )
 	{
 		SCREEN_DialogRippingError SCREEN_DialogRippingError(m_dwPK_Device, pMessage->m_dwPK_Device_From,

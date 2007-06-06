@@ -459,7 +459,7 @@ void Disk_Drive::RunMonitorLoop()
 void Disk_Drive::CMD_Rip_Disk(int iPK_Device,string sFilename,int iPK_Users,string sFormat,string sTracks,int iEK_Disc,int iSlot_Number,int iDriveID,string sDirectory,string &sCMD_Result,Message *pMessage)
 //<-dceag-c337-e->
 {
-	RipJob *pRipJob = new RipJob(m_pJobHandler,m_pDisk_Drive_Functions,NULL,iPK_Users,iEK_Disc,
+	RipJob *pRipJob = new RipJob(m_pDatabase_pluto_media,m_pJobHandler,m_pDisk_Drive_Functions,NULL,iPK_Users,iEK_Disc,
 		pMessage ? pMessage->m_dwPK_Device_From : 0,sFormat,sFilename,sDirectory,sTracks,this);
 	m_pJobHandler->AddJob(pRipJob);
 }

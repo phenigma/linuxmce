@@ -2163,6 +2163,9 @@ void ScreenHandler::SCREEN_FileSave(long PK_Screen, int iEK_Disc, string sCaptio
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Status_CONST, sFolder);
 	m_pOrbiter->CMD_Set_Text(StringUtils::ltos(m_p_MapDesignObj_Find(PK_Screen)), sCaption, TEXT_STATUS_CONST);
 	ScreenHandlerBase::SCREEN_FileSave(PK_Screen, iEK_Disc, sCaption, sCommand, bAdvanced_options);
+	if( iEK_Disc==-999 )  // Special things means go to the bulk ripping screen
+		m_pOrbiter->CMD_Goto_DesignObj(0,TOSTRING(DESIGNOBJ_mnuBulkRipping_CONSTu),"","",false,true);
+
 
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::FileSave_ObjectSelected,	
 		new ObjectInfoBackData());
@@ -2737,7 +2740,17 @@ bool ScreenHandler::JukeboxManager_ObjectSelected(CallBackData *pData)
 	}
 	else if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_butRipAll_CONST )
 	{
-		m_pOrbiter->CMD_Goto_DesignObj(0,TOSTRING(DESIGNOBJ_butJukeboxRefresh_CONST),"","",false,true);
+		string sRipMessage = 
+			StringUtils::itos(m_pOrbiter->m_dwPK_Device) + " " +
+			StringUtils::itos(m_pOrbiter->m_dwPK_Device_MediaPlugIn) + " 1 "
+			TOSTRING(COMMAND_Bulk_Rip_CONST) " "
+			TOSTRING(COMMANDPARAMETER_PK_Users_CONST) " <%=U%> "
+			TOSTRING(COMMANDPARAMETER_Filename_CONST) " \"<%=17%>\" "
+			TOSTRING(COMMANDPARAMETER_Directory_CONST) " \"<%=9%>\" ";
+		string sTitle = m_pOrbiter->m_mapTextString[TEXT_Choose_Filename_CONST];
+		
+		DCE::SCREEN_FileSave SCREEN_FileSave(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,-999,sTitle,sRipMessage,true);
+		m_pOrbiter->SendCommand(SCREEN_FileSave);
 	}
 	else if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_butJukeboxRefresh_CONST )
 	{

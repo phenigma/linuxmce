@@ -191,11 +191,11 @@ X11wrapper::X11wrapper(Display * pDisplay/*=NULL*/)
         , v_bIsChanged_X_AfterFunction(false)
 {
 #ifdef DEBUG	
-    _LOG_WRN("env : X11_NO_ERRORHANDLER==%d", g_bNoErrorHandler);
-    _LOG_WRN("env : X11_XSYNCHRONIZE_ALL==%d", g_bXSynchronize_All);
-    _LOG_WRN("env : X11_XSYNCHRONIZE_EACH==%d", g_bXSynchronize_Each);
-    _LOG_WRN("env : X11_XAFTERFUNCTION==%d", g_bXAfterFunction);
-    _LOG_WRN("env : X11_NO_XLOCK==%d", g_bXNoLock);
+    _LOG_NFO("env : X11_NO_ERRORHANDLER==%d", g_bNoErrorHandler);
+    _LOG_NFO("env : X11_XSYNCHRONIZE_ALL==%d", g_bXSynchronize_All);
+    _LOG_NFO("env : X11_XSYNCHRONIZE_EACH==%d", g_bXSynchronize_Each);
+    _LOG_NFO("env : X11_XAFTERFUNCTION==%d", g_bXAfterFunction);
+    _LOG_NFO("env : X11_NO_XLOCK==%d", g_bXNoLock);
     _LOG_NFO("pDisplay==%p", pDisplay);
 #endif
 
@@ -275,7 +275,7 @@ Display * X11wrapper::Display_Open()
     if (GetDisplay() != NULL)
     {
 #ifdef DEBUG
-        _LOG_WRN("pDisplay==%p", GetDisplay());
+        _LOG_NFO("pDisplay==%p", GetDisplay());
 #endif
         return GetDisplay();
     }
@@ -1356,7 +1356,7 @@ bool X11wrapper::Mouse_Constrain_Release()
         if (! Mouse_IsConstrainActive())
         {
 #ifdef DEBUG
-            _LOG_WRN("constrain not active");
+            _LOG_NFO("constrain not active");
 #endif
             xcode = 0;
             break;
@@ -2202,7 +2202,7 @@ int X11wrapper::AfterFunction_Grabber(Display *pDisplay)
 {
 #ifdef DEBUG
     static const char s_header[] = "Xlib: AfterFunction_Grabber()";
-    _LOG_WRN("%s : pDisplay==%p", s_header, pDisplay);
+    _LOG_NFO("%s : pDisplay==%p", s_header, pDisplay);
 #endif
     return 0;
 }
