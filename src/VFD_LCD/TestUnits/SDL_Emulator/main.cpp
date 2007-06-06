@@ -11,15 +11,24 @@
 //--------------------------------------------------------------------------------------------------------
 int main( int argc, char* argv[] )
 {
-	DCE::LoggerWrapper::GetInstance()->Write(LV_STATUS, "Usage: SDL_Emulator <menu file>\n");
-
 	MenuLoader menu_loader;
-	string sMenuFilename = "../../Docs/menu-sample.xml";
+	string sMenuFilename;
 
-	if(argc >= 2)
-		sMenuFilename = argv[1];
+	if(argc < 2)
+	{
+		DCE::LoggerWrapper::GetInstance()->Write(LV_STATUS, "Usage: SDL_Emulator <menu file>\n");
+		return 2;
+	}
+
+	sMenuFilename = argv[1];
 
 	MenuHolder *pMenu_Holder = menu_loader.Load(sMenuFilename);
+	if(NULL == pMenu_Holder)
+	{
+		DCE::LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Cannot parse %s", sMenuFilename.c_str());
+		return 4;
+	}
+
 	pMenu_Holder->Setup(new ActionProcessor(NULL));
 
 	LCDManager manager(pMenu_Holder);

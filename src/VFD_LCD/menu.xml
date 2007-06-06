@@ -1,0 +1,69 @@
+﻿<?xml version="1.0" encoding="utf-8" ?> 
+<menu>
+	<menuitem description="Network Settings">
+		<menuitem description="Obtain an IP address (DHCP)" actiontype="call_method" action="ObtainIPAddress" />
+		<menuitem description="Enter a static IP" actiontype="call_method" action="EnterStaticIP" />
+		<menuitem description="View settings" actiontype="call_method" action="ViewSettings" />
+	</menuitem>
+	<menuitem description="Video Settings">
+		<menuitem description="Resolution">
+			<menuitem description="480p widescreen" actiontype="execute_script" action="/usr/pluto/bin/ChangeVideoSettings.sh --resolution {1}" parameter1="480p" />
+			<menuitem description="720p widescreen" actiontype="execute_script" action="/usr/pluto/bin/ChangeVideoSettings.sh --resolution {1}" parameter1="720p" /> 
+			<menuitem description="1080i widescreen" actiontype="execute_script" action="/usr/pluto/bin/ChangeVideoSettings.sh --resolution {1}" parameter1="1080i" /> 
+			<menuitem description="1080p widescreen" actiontype="execute_script" action="/usr/pluto/bin/ChangeVideoSettings.sh --resolution {1}" parameter1="1080p" /> 
+			<menuitem description="TV standard">
+				<menuitem description="NTSC" actiontype="execute_script" action="/usr/pluto/bin/ChangeVideoSettings.sh --tvstandard {1}" parameter1="NTSC" /> 
+				<menuitem description="PAL" actiontype="execute_script" action="/usr/pluto/bin/ChangeVideoSettings.sh --tvstandard {1}" parameter1="PAL" /> 
+				<menuitem description="Secam" actiontype="execute_script" action="/usr/pluto/bin/ChangeVideoSettings.sh --tvstandard {1}" parameter1="Secam" /> 
+			</menuitem>
+			<menuitem description="640x480" actiontype="execute_script" action="/usr/pluto/bin/ChangeVideoSettings.sh --resolution {1}" parameter1="640x480" /> 
+			<menuitem description="800x600" actiontype="execute_script" action="/usr/pluto/bin/ChangeVideoSettings.sh --resolution {1}" parameter1="800x600" /> 
+			<menuitem description="1024x748" actiontype="execute_script" action="/usr/pluto/bin/ChangeVideoSettings.sh --resolution {1}" parameter1="1024x748" /> 
+			<menuitem description="1280x1024" actiontype="execute_script" action="/usr/pluto/bin/ChangeVideoSettings.sh --resolution {1}" parameter1="1280x1024" />
+			<menuitem description="1600x1200" actiontype="execute_script" action="/usr/pluto/bin/ChangeVideoSettings.sh --resolution {1}" parameter1="1600x1200" /> 
+		</menuitem>	
+		<menuitem description="Refresh">
+			<menuitem description="50Hz" actiontype="execute_script" action="/usr/pluto/bin/ChangeVideoSettings.sh --refresh {1}" parameter1="50" /> 
+			<menuitem description="60Hz" actiontype="execute_script" action="/usr/pluto/bin/ChangeVideoSettings.sh --refresh {1}" parameter1="60" /> 
+			<menuitem description="72Hz" actiontype="execute_script" action="/usr/pluto/bin/ChangeVideoSettings.sh --refresh {1}" parameter1="72" /> 
+			<menuitem description="75Hz" actiontype="execute_script" action="/usr/pluto/bin/ChangeVideoSettings.sh --refresh {1}" parameter1="75" /> 
+		</menuitem>
+		<menuitem description="Connector">	
+			<menuitem description="DVI" actiontype="execute_script" action="/usr/pluto/bin/ChangeVideoSettings.sh --connector {1}" parameter1="DVI" /> 
+			<menuitem description="HDMI" actiontype="execute_script" action="/usr/pluto/bin/ChangeVideoSettings.sh --connector {1}" parameter1="HDMI" /> 
+			<menuitem description="VGA" actiontype="execute_script" action="/usr/pluto/bin/ChangeVideoSettings.sh --connector {1}" parameter1="VGA" /> 
+			<menuitem description="Component" actiontype="execute_script" action="/usr/pluto/bin/ChangeVideoSettings.sh --connector {1}" parameter1="Component" /> 
+			<menuitem description="S-Video" actiontype="execute_script" action="/usr/pluto/bin/ChangeVideoSettings.sh --connector {1}" parameter1="S-Video" /> 
+			<menuitem description="Composite" actiontype="execute_script" action="/usr/pluto/bin/ChangeVideoSettings.sh --connector {1}" parameter1="Composite" /> 
+		</menuitem>
+	</menuitem>
+	<menuitem description="Audio Settings">	
+		<menuitem description="Connector">	
+			<menuitem description="Analog stereo" actiontype="execute_script" action="/usr/pluto/bin/ChangeAudioSettings.sh --connector {1}" parameter1="analog" /> 
+			<menuitem description="SPDIF" actiontype="execute_script" action="/usr/pluto/bin/ChangeAudioSettings.sh --connector {1}" parameter1="SPDIF" /> 
+		</menuitem>
+		<menuitem description="AC-3 passthrough">	
+			<menuitem description="AC3: Yes" actiontype="execute_script" action="/usr/pluto/bin/ChangeAudioSettings.sh --ac3 {1}" parameter1="yes" /> 
+			<menuitem description="AC3: No" actiontype="execute_script" action="/usr/pluto/bin/ChangeAudioSettings.sh --ac3 {1}" parameter1="no" /> 
+		</menuitem>
+		<menuitem description="Play test music">	
+			<menuitem description="Play: Stereo" actiontype="execute_script" action="/usr/pluto/bin/TestAudioSettings.sh --type {1}" parameter1="Stereo" /> 
+			<menuitem description="Play: Dolby Digital" actiontype="execute_script" action="/usr/pluto/bin/TestAudioSettings.sh --type {1}" parameter1="Dolby" /> 
+			<menuitem description="Play: DTS" actiontype="execute_script" action="/usr/pluto/bin/TestAudioSettings.sh --type {1}" parameter1="DTS" /> 
+		</menuitem>		
+	</menuitem>
+	<menuitem description="Utilities">
+		<menuitem description="Refresh the devices" actiontype="execute_command" action="0 -1000 7 1" />
+		<menuitem description="Force a refresh" actiontype="execute_command" action="0 -1000 7 6" />
+		<menuitem description="Regenerate Orbiter's UI's">
+			<menuitem description="all" actiontype="execute_command" action="-targetType template 0 12 2 0 21 -r 24 0"></menuitem>
+		</menuitem>
+		<menuitem description="Power off the core and media directors" actiontype="execute_command" action="0 -1000 ..." />
+		<menuitem description="Power off the media directors and reboot the core" actiontype="execute_command" action="0 -1000 ..." />
+	</menuitem>
+	<menuitem description="Media Directors">
+		<menuitem description="Video settings" actiontype="execute_command" action="0 -1000 ..." />
+		<menuitem description="Audio settings" actiontype="execute_command" action="0 -1000 ..." />
+		<menuitem description="Status" actiontype="execute_command" action="0 -1000 ..." />
+	</menuitem>
+</menu>
