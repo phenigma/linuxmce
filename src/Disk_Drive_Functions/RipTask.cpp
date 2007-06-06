@@ -216,7 +216,7 @@ void RipTask::ReportFailure()
 {
 	SCREEN_PopupMessage SCREEN_PopupMessage(m_pRipJob->m_pDisk_Drive_Functions->m_pCommand_Impl->m_dwPK_Device, 
 		m_pRipJob->m_iPK_Orbiter,
-		"Ripping failed", // Main message
+		"Ripping failed: " + ((RipJob *) m_pJob)->m_sFileName, // Main message
 		"", // Command Line
 		"ripping_failed", // Description
 		"0", // sPromptToResetRouter
