@@ -7,7 +7,6 @@
 #include "DCE/Logger.h"
 //--------------------------------------------------------------------------------------------------------
 class MenuHolder;
-class Command_Impl;
 //--------------------------------------------------------------------------------------------------------
 class LCDManager : public IInputProcessor
 {
@@ -15,7 +14,6 @@ private:
 
 	DisplayState m_display_state;
 	MenuHolder *m_pMenuHolder;
-	Command_Impl *m_pCommandImpl;
 
 	pluto_pthread_mutex_t m_RenderMutex;
 
@@ -26,7 +24,7 @@ private:
 
 public:
 
-	LCDManager(MenuHolder *pMenuHolder, Command_Impl *pCommandImpl);
+	LCDManager(MenuHolder *pMenuHolder);
 	~LCDManager();
 
 	void AddRenderer(IRenderer *pRenderer);

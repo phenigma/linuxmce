@@ -2,9 +2,8 @@
 #include "MenuHolder.h"
 #include "MenuItem.h"
 //--------------------------------------------------------------------------------------------------------
-LCDManager::LCDManager(MenuHolder *pMenuHolder, Command_Impl *pCommandImpl) : 
-	IInputProcessor(), m_pMenuHolder(pMenuHolder), m_pCommandImpl(pCommandImpl),
-	m_RenderMutex("render")
+LCDManager::LCDManager(MenuHolder *pMenuHolder) : 
+	IInputProcessor(), m_pMenuHolder(pMenuHolder), m_RenderMutex("render")
 {
 	m_display_state.m_sHeader = "Welcome to Fiire 1.0!";
 

@@ -2,6 +2,7 @@
 #include "../../LCDLogic/LCDManager.h"
 #include "../../LCDLogic/MenuLoader.h"
 #include "../../LCDLogic/MenuHolder.h"
+#include "../../LCDLogic/ActionProcessor.h"
 #include "../../Renderers/LCDRenderer.h"
 
 int main( int argc, char* argv[] )
@@ -14,7 +15,10 @@ int main( int argc, char* argv[] )
 	if(argc >= 2)
 		sMenuFilename = argv[1];
 
-	LCDManager manager(menu_loader.Load(sMenuFilename), NULL);
+	MenuHolder *pMenu_Holder = menu_loader.Load(sMenuFilename);
+	pMenu_Holder->Setup(new ActionProcessor(NULL));
+
+	LCDManager manager(pMenu_Holder);
 	SDLFrontEnd front_end(&manager, 400, 300);
 	LCDRenderer lcd_renderer("/dev/ttyUSB0");
 	

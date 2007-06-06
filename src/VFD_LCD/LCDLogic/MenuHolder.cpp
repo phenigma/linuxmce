@@ -1,10 +1,11 @@
 #include "MenuHolder.h"
 #include "MenuItem.h"
 #include "MenuItemAction.h"
+#include "ActionProcessor.h"
 
 #include "DCE/Logger.h"
 //--------------------------------------------------------------------------------------------------------
-MenuHolder::MenuHolder() : m_pRootMenuItem(NULL), m_pCurrentMenuItem(NULL)
+MenuHolder::MenuHolder() : m_pRootMenuItem(NULL), m_pCurrentMenuItem(NULL), m_pActionProcessor(NULL)
 {
 
 }
@@ -12,6 +13,12 @@ MenuHolder::MenuHolder() : m_pRootMenuItem(NULL), m_pCurrentMenuItem(NULL)
 MenuHolder::~MenuHolder()
 {
 	delete m_pRootMenuItem;
+	delete m_pActionProcessor;
+}
+//--------------------------------------------------------------------------------------------------------
+void MenuHolder::Setup(ActionProcessor *pActionProcessor)
+{
+	m_pActionProcessor = pActionProcessor;
 }
 //--------------------------------------------------------------------------------------------------------
 MenuItem *MenuHolder::RootMenu()
@@ -63,9 +70,8 @@ void MenuHolder::MoveRight()
         //this is a leaf; execute any actions needed
 		MenuItemAction *pAction = m_pCurrentMenuItem->Action();
 
-		DCE::LoggerWrapper::GetInstance()->Write(LV_WARNING, "Ready to execute action %s, type %d with %d parameters",
-			pAction->Description().c_str(), pAction->Type(), pAction->Parameters().size()
-		);
+		if(NULL != m_pActionProcessor)
+			m_pActionProcessor->ProcessAction(pAction);
 	}
 }
 //--------------------------------------------------------------------------------------------------------
