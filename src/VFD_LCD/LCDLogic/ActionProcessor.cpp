@@ -3,6 +3,7 @@
 //--------------------------------------------------------------------------------------------------------
 #include "DCE/Command_Impl.h"
 #include "DCE/Logger.h"
+#include "PlutoUtils/StringUtils.h"
 using namespace DCE;
 //--------------------------------------------------------------------------------------------------------
 ActionProcessor::ActionProcessor(Command_Impl *pCommandImpl) : m_pCommand_Impl(pCommandImpl)
@@ -18,5 +19,86 @@ void ActionProcessor::ProcessAction(MenuItemAction *pAction)
 {
 	DCE::LoggerWrapper::GetInstance()->Write(LV_WARNING, "Ready to execute action %s, type %d with %d parameters",
 		pAction->Description().c_str(), pAction->Type(), pAction->Parameters().size());
+
+	switch(pAction->Type())
+	{
+		case atExecuteScript:
+			ExecuteScript(pAction->Description(), pAction->Parameters());
+			break;
+		case atExecuteCommand:
+			ExecuteCommand(pAction->Description());
+			break;
+		case atCallMethod:
+			CallMethod(pAction->Description(), pAction->Parameters());
+			break;
+		default:
+			break;
+	}
+}
+//--------------------------------------------------------------------------------------------------------
+void ActionProcessor::ExecuteScript(string sCommandLine, const map<int, string>& mapParameters)
+{
+	for(map<int, string>::const_iterator it = mapParameters.begin(); it != mapParameters.end(); ++it)
+	{
+		string sParamToReplace = "{" + StringUtils::ltos(it->first) + "}";
+		sCommandLine = StringUtils::Replace(sCommandLine, sParamToReplace, it->second);
+	}
+
+	system(sCommandLine.c_str());
+}
+//--------------------------------------------------------------------------------------------------------
+void ActionProcessor::ExecuteCommand(string sCommandLine)
+{
+	list<string> listArgs;
+
+	string::size_type pos = 0;
+	string token;
+	do
+	{
+		token = StringUtils::Tokenize(sCommandLine, " ", pos);
+
+        if(token.size() > 0 && token[0] == '\"')
+		{
+			pos++; 
+			token = StringUtils::Tokenize(sCommandLine, "\"", pos);
+			pos++; 
+		}
+
+		listArgs.push_back(token);
+	}
+	while(pos < sCommandLine.length());
+
+	char **ppArguments = new char *[listArgs.size()];
+
+	int nIndex = 0;
+	for(list<string>::iterator it = listArgs.begin(); it != listArgs.end(); ++it, ++nIndex)
+	{
+		ppArguments[nIndex] = new char[it->length() + 1];
+		strcpy(ppArguments[nIndex], it->c_str());
+	}
+
+	Message *pMessage = new Message(static_cast<int>(listArgs.size()), ppArguments);
+
+	nIndex = 0;
+	for(list<string>::iterator it = listArgs.begin(); it != listArgs.end(); ++it, ++nIndex)
+		delete [] ppArguments[nIndex];
+	delete [] ppArguments;
+
+	if(NULL != m_pCommand_Impl)
+		m_pCommand_Impl->SendMessage(pMessage);
+}
+//--------------------------------------------------------------------------------------------------------
+void ActionProcessor::CallMethod(string sMethodName, const map<int, string>& mapParameters)
+{
+	map<int, string> mapParametersClone(mapParameters);
+
+	if(sMethodName == "RefreshDevices")
+		RefreshDevices(mapParametersClone[1]);
+}
+//--------------------------------------------------------------------------------------------------------
+void ActionProcessor::RefreshDevices(string sSomething)
+{
+	DCE::LoggerWrapper::GetInstance()->Write(LV_WARNING, "ActionProcessor::RefreshDevices which parameter %s",
+		sSomething.c_str());
 }
 //--------------------------------------------------------------------------------------------------------

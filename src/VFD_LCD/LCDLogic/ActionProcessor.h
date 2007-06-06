@@ -1,6 +1,10 @@
 #ifndef __ACTION_PROCESSOR_H__
 #define __ACTION_PROCESSOR_H__
 //--------------------------------------------------------------------------------------------------------
+#include <string>
+#include <map>
+using namespace std;
+//--------------------------------------------------------------------------------------------------------
 namespace DCE
 {
 	class Command_Impl;
@@ -13,6 +17,14 @@ class ActionProcessor
 private:
 
 	DCE::Command_Impl *m_pCommand_Impl;
+
+	//helpers
+	void ExecuteScript(string sCommandLine, const map<int, string>& mapParameters);
+	void ExecuteCommand(string sCommandLine);
+	void CallMethod(string sMethodName, const map<int, string>& mapParameters);
+
+	//methods to call
+	void RefreshDevices(string sSomething);
 
 public:
 

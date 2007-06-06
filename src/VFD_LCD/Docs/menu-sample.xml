@@ -20,8 +20,8 @@
 		</menuitem>
 	</menuitem>
 	<menuitem description="2. Utilities">
-		<menuitem description="2.1 Regenerate Orbiter's UI's" actiontype="execute_command" action="0 28 192 1" />
-		<menuitem description="2.2 Refresh the devices" actiontype="call_method" action="RefreshDevices {1}" parameter1="*" />
+		<menuitem description="2.1 Regenerate Orbiter's UI's" actiontype="execute_command" action="0 56 1 192" />
+		<menuitem description="2.2 Refresh the devices" actiontype="call_method" action="RefreshDevices" parameter1="*" />
 		<!-- other submenu items here -->
 	</menuitem>
 </menu>
