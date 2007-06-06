@@ -125,7 +125,7 @@ void RipTask::UpdateProgress(string sStatus,int iPercent,int iTime,string sText,
 {
 	m_sText=sText;
 
-	LoggerWrapper::GetInstance()->Write(LV_WARNING, "RipTask::UpdateProgress message %s", m_sText.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "RipTask::UpdateProgress status %s message %s", sStatus.c_str(), m_sText.c_str());
 
 	if( sStatus=="p" )
 	{
@@ -136,7 +136,7 @@ void RipTask::UpdateProgress(string sStatus,int iPercent,int iTime,string sText,
 	else if( sStatus=="e" )
 	{
 		ReportFailure();
-		m_eTaskStatus_set(TASK_FAILED_ABORT);
+		m_eTaskStatus_set(TASK_COMPLETED);  // Mark it completed, not failure, so if there's another task to unload this slot it still gets done
 	}
 	else if( sStatus=="s" )
 	{
