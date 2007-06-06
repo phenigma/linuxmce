@@ -111,9 +111,10 @@ void JukeBox::UpdateDrivesSlotsFromDatabase()
 
 		Row_Disc *pRow_Disc = pRow_DiscLocation->FK_Disc_getrow();
 		Slot *pSlot = m_mapSlot_Find( pRow_DiscLocation->Slot_get() );
-		if( !pSlot || !pRow_Disc )
+		if( !pSlot )
 		{
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "JukeBox::UpdateDrivesSlotsFromDatabase no disc %d slot %s", pRow_DiscLocation->FK_Disc_get(), pRow_DiscLocation->Slot_get());
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "JukeBox::UpdateDrivesSlotsFromDatabase no disc %d/%p slot %d/%p", 
+				pRow_DiscLocation->FK_Disc_get(), pRow_Disc, pRow_DiscLocation->Slot_get(), pSlot);
 			pRow_DiscLocation->Delete(); // Something is wrong with this
 			m_pDatabase_pluto_media->DiscLocation_get()->Commit();
 		}
