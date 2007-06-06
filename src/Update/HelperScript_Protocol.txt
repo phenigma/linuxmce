@@ -1,0 +1,41 @@
+Command:
+	DOWNLOAD <UPDATE_ID> <URL> <MD5>
+Desc:
+	Download an file and stores it in the coresponding update folder
+Param:
+	UPDATE_ID : Number of the update block as from xml
+	URL       : Url of the file to be downloaded
+	MD5       : md5 sum to check if the file was downloaded ok
+Returns:
+	OK             : File was downloaded and matches the md5 sum provided
+	FAIL <message> : File failed to download ok
+
+                
+---------------------------------------------------------------------------------
+Command:
+	VALIDATE_UPDATE <UPDATE_ID>
+	line 1
+	............
+	line n
+	EOF
+Desc:
+	Creates a update.xml file in the coresponding update folder. The 
+	content of the file is passed line by line after the command and should
+	be finished by an line containing 'EOL'.
+Param:
+	UPDATE_ID : Number of the update block as from xml
+Returns:
+	OK             : The files was created ok
+	FAIL <message> : Failed to create the updates.xml file
+
+
+---------------------------------------------------------------------------------
+Command:
+	CHECK_UPDATE <UPDATE_ID>
+Desc:
+	Check existance of the updates.xml file for specific update id
+Param:
+	UPDATE_ID : Number of the update block as from xml
+Returns:
+	OK	       : The updates.xml file is there, meaning the update finished downloading
+	FAIL <message> : The updates.xml file is not there, of a different error stated in message
