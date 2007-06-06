@@ -459,6 +459,14 @@ Orbiter::~Orbiter()
 		(*itDeviceGroups).second = NULL;
 	}
 
+	//deallocate shortcuts messages
+	map<char, Message *>::iterator itShortcuts;
+	for(itShortcuts = m_mapShortcut.begin(); itShortcuts != m_mapShortcut.end(); ++itShortcuts)
+		delete (*itShortcuts).second;
+
+	m_mapShortcut.clear();
+	
+
 	//clearing floor plan object map
 	map<int, FloorplanObjectVectorMap *>::iterator itFPObjVM;
 	for(itFPObjVM = m_mapFloorplanObjectVector.begin(); itFPObjVM != m_mapFloorplanObjectVector.end(); itFPObjVM++)

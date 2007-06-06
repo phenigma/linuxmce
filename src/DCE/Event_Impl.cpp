@@ -159,7 +159,11 @@ string Event_Impl::GetDeviceDataFromDatabase( int PK_Device, int PK_DeviceData )
 	Message *pResponse = SendReceiveMessage(pMessage);
 
 	if( pResponse )
-		return pResponse->m_mapParameters[PK_DeviceData];
+	{
+		string sValue = pResponse->m_mapParameters[PK_DeviceData];
+		delete pResponse;
+		return sValue;
+	}
 	
 	return "";
 }

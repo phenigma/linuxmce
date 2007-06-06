@@ -1320,6 +1320,7 @@ void *ImageLoadThread(void *p)
 #ifdef DEBUG
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"ImageLoadThread pBackgroundImage %s is off screen",pBackgroundImage->m_sPic.c_str());
 #endif
+			delete pBackgroundImage;
 			continue;
 		}
 		vm.Release();
@@ -1338,6 +1339,7 @@ void *ImageLoadThread(void *p)
 				pBackgroundImage->m_sPic.c_str(),pBackgroundImage->m_iRequestID,pDataGridTable ? pDataGridTable->m_iRequestID : -999);
 #endif
 
+			delete pBackgroundImage;
 			delete pGraphicData;
 			continue;
 		}
@@ -1365,6 +1367,7 @@ void *ImageLoadThread(void *p)
 				LoggerWrapper::GetInstance()->Write(LV_STATUS,"ImageLoadThread pBackgroundImage2 %s request %d!=%d",
 					pBackgroundImage->m_sPic.c_str(),pBackgroundImage->m_iRequestID,pDataGridTable2 ? pDataGridTable2->m_iRequestID : -999);
 #endif
+				delete pBackgroundImage;
 				delete pPlutoGraphic;
 				continue;
 			}
@@ -1397,6 +1400,9 @@ void *ImageLoadThread(void *p)
 #ifdef DEBUG
 		LoggerWrapper::GetInstance()->Write(LV_EVENT,"ImageLoadThread %s size: %d (%d) %d",pBackgroundImage->m_sPic.c_str(),(int) pRenderer->m_listBackgroundImage.size(),(int) bRedraw,(int) bContinue);
 #endif
+		
+		delete pBackgroundImage;
+
 	} while(bContinue);
 #ifdef DEBUG
 	LoggerWrapper::GetInstance()->Write(LV_EVENT,"ImageLoadThread exiting");

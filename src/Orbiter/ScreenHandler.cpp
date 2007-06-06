@@ -754,6 +754,9 @@ void ScreenHandler::SelectedMediaFile(string sFile)
 		m_pOrbiter->CMD_Update_Object_Image(pObj_Play->m_pParentObject->m_ObjectID + "." TOSTRING(DESIGNOBJ_objCDCover_CONST),"jpg",
 			pGraphicData,
 			(int) size,"0");
+
+		delete [] pGraphicData;
+		pGraphicData = NULL;
 	}
 	else
 		m_pOrbiter->CMD_Update_Object_Image(pObj_Play->m_pParentObject->m_ObjectID + "." TOSTRING(DESIGNOBJ_objCDCover_CONST),"jpg",
@@ -880,6 +883,7 @@ void MediaFileBrowserOptions::SelectArrays(DesignObj_Orbiter *pObj,int PK_Array,
 	for( DesignObj_DataList::iterator iHao=pObj->m_ChildObjects.begin(  ); iHao != pObj->m_ChildObjects.end(  ); ++iHao )
 	{
 		DesignObj_Orbiter *pDesignObj_Orbiter=( DesignObj_Orbiter * )*iHao;
+
 		pDesignObj_Orbiter->m_bDontResetState=true;
 		string sArrayValue = pDesignObj_Orbiter->GetVariableAssignment(VARIABLE_Array_ID_CONST);
 		string sPK_Array = pDesignObj_Orbiter->GetVariableAssignment(VARIABLE_PK_Array_CONST);

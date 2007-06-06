@@ -353,6 +353,8 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 
     WSACleanup();
 
+	LoggerWrapper::Delete();
+
 	return 0;
 }
 
