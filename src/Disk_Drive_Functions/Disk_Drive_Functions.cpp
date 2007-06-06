@@ -574,7 +574,7 @@ bool Disk_Drive_Functions::mountDVD(string fileName, string & strMediaUrl)
 	return false;
 }
 
-void Disk_Drive_Functions::FixupRippingInfo(int &PK_MediaType,string &sFilename,string &sTracks,int iEK_Disc,string &sDirectory)
+void Disk_Drive_Functions::FixupRippingInfo(Disk_Drive_Functions *pDisk_Drive_Functions,int &PK_MediaType,string &sFilename,string &sTracks,int iEK_Disc,string &sDirectory)
 {
 	Row_Disc *pRow_Disc = m_pDatabase_pluto_media->Disc_get()->GetRow(iEK_Disc);
 //if !
@@ -585,11 +585,34 @@ void Disk_Drive_Functions::FixupRippingInfo(int &PK_MediaType,string &sFilename,
 	StringUtils::Replace( &sDirectory, "[", "" );
 	StringUtils::Replace( &sDirectory, "]", "" );
 
-	PK_MediaType=pRow_Disc->EK_MediaType_get();
+	if( pRow_Disc )
+		PK_MediaType=pRow_Disc->EK_MediaType_get();
+	else
+	{
+		vector<Row_DiscLocation *> vectRow_DiscLocation;
+		m_pDatabase_pluto_media->DiscLocation_get()->GetRows("EK_Device=" + StringUtils::itos(pDisk_Drive_Functions->m_dwPK_Device_get()),&vectRow_DiscLocation);
+		if( vectRow_DiscLocation.size()!=1 )
+		{
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Disk_Drive_Functions::FixupRippingInfo canot find disclocation for drive %d", pDisk_Drive_Functions->m_dwPK_Device_get());
+			return;
+		}
+		Row_DiscLocation *pRow_DiscLocation = vectRow_DiscLocation[0];
+		if( pRow_DiscLocation->Type_get()=="d" )
+			PK_MediaType=MEDIATYPE_pluto_DVD_CONST;
+		else if( pRow_DiscLocation->Type_get()=="c" )
+			PK_MediaType=MEDIATYPE_pluto_CD_CONST;
+		else
+		{
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Disk_Drive_Functions::FixupRippingInfo disclocation for drive %d has invalid type %s", 
+				pDisk_Drive_Functions->m_dwPK_Device_get(), pRow_DiscLocation->Type_get().c_str());
+			return;
+		}
+	}
 	if( PK_MediaType==MEDIATYPE_pluto_CD_CONST )
 	{
 		map<int,string> mapTracks;
-		GetTracksForDisc(pRow_Disc,mapTracks);
+		if( pRow_Disc )
+			GetTracksForDisc(pRow_Disc,mapTracks);
 
 		string sNewTracks="";
 		if( sTracks=="A" )

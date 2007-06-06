@@ -29,7 +29,7 @@ int FixupRippingInfoTask::Run()
 	{
 		RipJob *pRipJob = (RipJob *) m_pJob;
 		if( pRipJob->m_pDisk_Drive_Functions )
-			pRipJob->m_pDisk_Drive_Functions->FixupRippingInfo(pRipJob->m_iPK_MediaType,pRipJob->m_sFileName,pRipJob->m_sTracks,pRipJob->m_iEK_Disc,pRipJob->m_sDirectory);
+			pRipJob->m_pDisk_Drive_Functions->FixupRippingInfo(pRipJob->m_pDisk_Drive_Functions,pRipJob->m_iPK_MediaType,pRipJob->m_sFileName,pRipJob->m_sTracks,pRipJob->m_iEK_Disc,pRipJob->m_sDirectory);
 	}
 	m_eTaskStatus_set(TASK_COMPLETED);
 	return 0;
