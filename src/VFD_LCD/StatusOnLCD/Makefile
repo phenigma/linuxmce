@@ -1,16 +1,16 @@
-ROOT=../../..
+ROOT=../..
 
 CXX=g++
 CC=$(CXX)
 CXXFLAGS=-W -Wall -pipe -ggdb3 -Werror
-CPPFLAGS=-I. -I../../..
-LDFLAGS=-L$(ROOT)/lib -L/usr/local/lib -lDCECommon -lPlutoUtils -lSerial
+CPPFLAGS=-I. -I../..
+LDFLAGS=-L$(ROOT)/lib -L/usr/local/lib -lDCECommon -lPlutoUtils
 
-sources = ../../Renderers/LCDRenderer.cpp main.cpp
+sources = main.cpp
 			
 all: $(sources:.cpp=.o)
-	$(CXX) -o LCDRenderer $+ $(LDFLAGS)
-	cp LCDRenderer ../../../bin/
+	$(CXX) -o StatusOnLCD $+ $(LDFLAGS)
+	cp StatusOnLCD ../../bin/
 clean:
-	rm -f LCDRenderer $(sources:.cpp=.o) 
+	rm -f StatusOnLCD $(sources:.cpp=.o) 
 	
