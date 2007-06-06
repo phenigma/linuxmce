@@ -254,7 +254,11 @@ void ViaOverlay::InternalApplyAlphaMask(int x, int y, int w, int h, const unsign
 //-------------------------------------------------------------------------------------------------------
 void ViaOverlay::InternalFillRectangleInAlphaMask(int x, int y, int w, int h, unsigned char value, bool bMergeToScreen/*=false*/)
 {
-	if(x + w <= m_nWidth && x >= 0 && y >= 0 && y + h <= m_nHeight)
+	//clip rectangle instead of rejecting it
+	if(x < 0)	x = 0;
+	if(y < 0)	y = 0;
+
+	if(x + w <= m_nWidth && y + h <= m_nHeight)
 	{
 		LoggerWrapper::GetInstance()->Write(LV_TV, "#VIA Filled rectangle in alpha mask (%d,%d,%d,%d), value %d...", 
 			x, y, w, h, value);
