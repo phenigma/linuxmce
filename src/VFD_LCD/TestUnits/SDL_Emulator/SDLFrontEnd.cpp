@@ -141,7 +141,11 @@ void SDLFrontEnd::Render(const DisplayState &display_state)
 		RenderText(CURRENT_ITEM_POSITION_X, CURRENT_ITEM_POSITION_Y + i * ITEM_HEIGHT, *it);
 
 	//description
-	RenderText(10, m_nHeight - 30, "Description : " + display_state.m_sDescription);
+	RenderText(10, m_nHeight - 40, "Description : " + display_state.m_sDescription);
+	//description
+	RenderText(10, m_nHeight - 30, "Status : " + display_state.m_sStatusMessage);
+	//description
+	RenderText(10, m_nHeight - 20, "Progress : " + display_state.m_sProgress);
 
 	//can go up/down/left/right
 	if(display_state.m_bCanGoLeft)

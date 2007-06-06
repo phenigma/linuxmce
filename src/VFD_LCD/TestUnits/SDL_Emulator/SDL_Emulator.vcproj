@@ -150,6 +150,9 @@
 			<File
 				RelativePath=".\SDLFrontEnd.cpp">
 			</File>
+			<File
+				RelativePath="..\..\InputProviders\SocketStatusInputProvider.cpp">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -192,6 +195,9 @@
 			</File>
 			<File
 				RelativePath=".\SDLFrontEnd.h">
+			</File>
+			<File
+				RelativePath="..\..\InputProviders\SocketStatusInputProvider.h">
 			</File>
 		</Filter>
 		<Filter

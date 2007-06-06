@@ -64,6 +64,11 @@ bool LCDManager::ProcessInput(const Input &input)
 		}
 		break;
 
+		case itChangeStatus:
+			m_display_state.m_sStatusMessage = input.status;
+			m_display_state.m_sProgress = input.progress;
+		break;
+
 		default:
 			break;
 	}
