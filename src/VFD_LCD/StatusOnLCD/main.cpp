@@ -6,7 +6,10 @@ using namespace DCE;
 int main( int argc, char* argv[] )
 {
 	if(argc < 5)
+	{
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Usage: StatusOnLCD <host> <port> <progress> <status> \n");
+		return 4;
+	}
 
 	string sHost = argv[1];
 	string sPort = argv[2];
