@@ -1,6 +1,7 @@
 #!/bin/bash
 set -e
 
+UPDATES_XML_URI="http://10.0.0.83/updates.xml"
 UPDATES_DIR="/var/pluto-updates"
 POUT=101
 PIN=100
@@ -116,28 +117,38 @@ function CheckUpdate {
 	fi
 }
 
-## Message loop
-line=$(Receive)
-command=$(Param 1 "$line")
+function UpdateXml {
+	
+}
 
-case "${command}" in
-	"DOWNLOAD")
-		# DOWNLOAD <UPDATE_ID> <URL> <MD5>
-		Download "$(Param 2 "$line")" "$(Param 3 "$line")" "$(Param 4 "$line")"
-		;;
-	"VALIDATE_UPDATE")
-		# VALIDATE_UPDATE <UPDATE_ID>	
-		# line 1
-		# ............
-		# line n
-		# EOF
-		ValidateUpdate "$(Param 2 "$line")"
-		;;
-	"CHECK_UPDATE")
-		# CHECK_UPDATE <UPDATE_ID>
-		CheckUpdate "$(Param 2 "$line")"
-		;;
-	*)
-		Debug "FAIL Unkown Command"
-		;;
-esac
+## Message loop
+while /bin/true ;do
+	line=$(Receive)
+	command=$(Param 1 "$line")
+
+	case "${command}" in
+		"UPDATE_XML")
+			# UPDATE_XML
+			UpdateXml
+			;;
+		"DOWNLOAD")
+			# DOWNLOAD <UPDATE_ID> <URL> <MD5>
+			Download "$(Param 2 "$line")" "$(Param 3 "$line")" "$(Param 4 "$line")"
+			;;
+		"VALIDATE_UPDATE")
+			# VALIDATE_UPDATE <UPDATE_ID>	
+			# line 1
+			# ............
+			# line n
+			# EOF
+			ValidateUpdate "$(Param 2 "$line")"
+			;;
+		"CHECK_UPDATE")
+			# CHECK_UPDATE <UPDATE_ID>
+			CheckUpdate "$(Param 2 "$line")"
+			;;
+		*)
+			Debug "FAIL Unkown Command"
+			;;
+	esac
+done
