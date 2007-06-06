@@ -67,6 +67,7 @@ bool PowerfileJukebox::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 			char *pBuffer = FileUtils::ReadFileIntoBuffer("/temp/status",size);
 			sOutput = pBuffer;
 #endif
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "PowerfileJukebox::Get_Jukebox_Status changer:%s %s", m_sChangerDev.c_str(), sOutput.c_str());
 			vector<string> vect_sOutput_Rows;
 
 			Tokenize(sOutput, "\n", vect_sOutput_Rows);
@@ -129,6 +130,7 @@ bool PowerfileJukebox::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 					{
 						pSlot = new Slot(nSlot,Slot::slot_empty,this);
 						m_mapSlot[nSlot] = pSlot;
+						LoggerWrapper::GetInstance()->Write(LV_STATUS,"Adding slot %d", pSlot->m_SlotNumber);
 					}
 					pSlot->m_SlotNumber = nSlot;
 
