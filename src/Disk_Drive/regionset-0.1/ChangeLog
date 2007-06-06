@@ -1,0 +1,7 @@
+regionset -- reads/sets the region code of DVD drives
+-----------------------------------------------------
+
+Version 0.1 by cooper, 2003-10-30
+  - initial separation from the dvd_disc_20000215 package from convergence
+  - removed all CSS related stuff/functions in dvd_udf.h and dvd_udf.c
+  - reworked some error messages, added some hints how to solve the problems
