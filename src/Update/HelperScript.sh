@@ -40,6 +40,7 @@ function Download {
 	local update_no="$1"
 	if [[ "$update_no" == "" ]] ;then
 		Send "FAIL Update number is empty"
+		return
 	fi
 
 	local update_url="$2"
@@ -69,7 +70,7 @@ function Download {
 		return
 	fi
 
-	if [[ "$(md5sum "${UPDATES_DIR}/${update_no}/${update_file}")" != "${update_md5}" ]] ;then
+	if [[ "$(md5sum "${UPDATES_DIR}/${update_no}/${update_file}" | cut -d' ' -f1)" != "${update_md5}" ]] ;then
 		Send "FAIL MD5 sum does not match"
 		return
 	fi
@@ -81,6 +82,7 @@ function ValidateUpdate {
 	local update_no="$1"
 	if [[ "$update_no" == "" ]] ;then
 		Send "FAIL Update number is empty"
+		return
 	fi
 
 	mkdir -p "${UPDATES_DIR}/${update_no}"
@@ -108,6 +110,7 @@ function CheckUpdate {
 	local update_no="$1"
 	if [[ "$update_no" == "" ]] ;then
 		Send "FAIL Update number is empty"
+		return
 	fi
 
 	if [[ -f "${UPDATES_DIR}/${update_no}/update.xml" ]] ;then
@@ -118,12 +121,52 @@ function CheckUpdate {
 }
 
 function UpdateXml {
+:	
+}
+
+function Apply {
+	local update_no="$1"
+	if [[ "$update_no" == "" ]] ;then
+		Send "FAIL Update number is empty"
+		return
+	fi
+
+	local update_url="$2"
+	if [[ "$update_url" == "" ]] ;then
+		Send "FAIL Url is empty"
+		return
+	fi
+
+	local update_file=$(basename "$update_url")
+	if [[ "$update_file" == "" ]] ;then
+		Send "FAIL Cannot extract filename from url"
+		return
+	fi
 	
+	local update_action="$3"
+	if [[ "$update_action" == "" ]];then
+		Send "FAIL Update action is empty"
+		return
+	fi
+
+	case "$( echo ${update_action}  | tr "[:lower:]" "[:upper:]")" in
+		"DEB")
+			echo "Installing deb ..."
+		;;
+		"UNTAR")
+			echo "Untaring ..."
+		;;
+	esac
+
+	Send "OK"
 }
 
 ## Message loop
 while /bin/true ;do
 	line=$(Receive)
+	if [[ "$line" == "" ]] ;then
+		exit
+	fi
 	command=$(Param 1 "$line")
 
 	case "${command}" in
@@ -146,6 +189,10 @@ while /bin/true ;do
 		"CHECK_UPDATE")
 			# CHECK_UPDATE <UPDATE_ID>
 			CheckUpdate "$(Param 2 "$line")"
+			;;
+		"APPLY")
+			# APPLY <UPDATE_ID> <URL> <ACTION> [param1=value1 param2=value2 ... paramN=valueN]
+			Apply "$(Param 2 "$line")" "$(Param 3 "$line")" "$(Param 4 "$line")" "$(Param 5-999 "$line")"
 			;;
 		*)
 			Debug "FAIL Unkown Command"
