@@ -170,6 +170,7 @@ function Apply {
 		;;
 		"UNTAR")
 			ApplyUntar "${UPDATES_DIR}/${update_no}/${update_file}" "${update_values}" || return
+		;;
 		"RUN")
 			ApplyRun "${UPDATES_DIR}/${update_no}/${update_file}" "${update_values}" || return
 		;;
