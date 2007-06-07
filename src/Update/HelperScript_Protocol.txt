@@ -42,7 +42,7 @@ Returns:
 
 ---------------------------------------------------------------------------------
 Command:
-	APPLY <UPDATE_ID> <URL> [param1=value1 param2=value2 ... paramN=valueN]
+	APPLY <UPDATE_ID> <URL> [param1="value1" param2="value2" ... paramN="valueN"]
 Desc:
 	Performs an update file entry. 
 	A list of parameters with corresponding values is expected.
