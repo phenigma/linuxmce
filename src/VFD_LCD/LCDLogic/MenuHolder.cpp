@@ -24,7 +24,7 @@ void MenuHolder::Setup(ActionProcessor *pActionProcessor)
 MenuItem *MenuHolder::RootMenu()
 {
 	if(NULL == m_pRootMenuItem)
-		m_pRootMenuItem = new MenuItem("root");
+		m_pRootMenuItem = new MenuItem("root", NULL, itStatusItem);
 
 	return m_pRootMenuItem;
 }
@@ -39,33 +39,24 @@ MenuItem *MenuHolder::CurrentMenuItem()
 //--------------------------------------------------------------------------------------------------------
 void MenuHolder::MoveUp()
 {
-	MenuItem *pNextMenuItem = m_pCurrentMenuItem->Parent()->PrevChild(m_pCurrentMenuItem);
-
-	if(NULL != pNextMenuItem)
-		m_pCurrentMenuItem = pNextMenuItem;
+	m_pCurrentMenuItem = m_pCurrentMenuItem->MoveUp();
 }
 //--------------------------------------------------------------------------------------------------------
 void MenuHolder::MoveDown()
 {
-	MenuItem *pNextMenuItem = m_pCurrentMenuItem->Parent()->NextChild(m_pCurrentMenuItem);
-
-	if(NULL != pNextMenuItem)
-		m_pCurrentMenuItem = pNextMenuItem;
+	m_pCurrentMenuItem = m_pCurrentMenuItem->MoveDown();
 }
 //--------------------------------------------------------------------------------------------------------
 void MenuHolder::MoveLeft()
 {
-	if(m_pCurrentMenuItem->Parent() != m_pRootMenuItem)
-		m_pCurrentMenuItem = m_pCurrentMenuItem->Parent();
+	m_pCurrentMenuItem = m_pCurrentMenuItem->MoveLeft();
 }
 //--------------------------------------------------------------------------------------------------------
 void MenuHolder::MoveRight()
 {
-	if(NULL != m_pCurrentMenuItem->FirstChild())
-	{
-		m_pCurrentMenuItem = m_pCurrentMenuItem->FirstChild();
-	}
-	else
+	m_pCurrentMenuItem = m_pCurrentMenuItem->MoveRight();
+
+	if(m_pCurrentMenuItem->IsLeaf())
 	{
         //this is a leaf; execute any actions needed
 		MenuItemAction *pAction = m_pCurrentMenuItem->Action();

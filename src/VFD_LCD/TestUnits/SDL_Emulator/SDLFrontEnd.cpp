@@ -4,7 +4,7 @@
 //--------------------------------------------------------------------------------------------------------
 #define CURRENT_ITEM_POSITION_X 50
 #define CURRENT_ITEM_POSITION_Y 150
-#define ITEM_WIDTH	200
+#define ITEM_WIDTH	300
 #define ITEM_HEIGHT 14
 //--------------------------------------------------------------------------------------------------------
 SDLFrontEnd::SDLFrontEnd(IInputProcessor *pInputProcessor, int w, int h) : 

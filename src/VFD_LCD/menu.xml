@@ -2,7 +2,9 @@
 <menu>
 	<menuitem description="Network Settings">
 		<menuitem description="Obtain an IP address (DHCP)" actiontype="call_method" action="ObtainIPAddress" />
-		<menuitem description="Enter a static IP" actiontype="call_method" action="EnterStaticIP" />
+		<menuitem description="Enter a static IP" actiontype="call_method" action="EnterStaticIP">
+			<menuitem description="Static IP" type="input" mask="xxx.xxx.xxx.xxx" />
+		</menuitem>
 		<menuitem description="View settings" actiontype="call_method" action="ViewSettings" />
 	</menuitem>
 	<menuitem description="Video Settings">

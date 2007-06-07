@@ -127,6 +127,9 @@
 				RelativePath="..\..\LCDLogic\ActionProcessor.cpp">
 			</File>
 			<File
+				RelativePath="..\..\LCDLogic\InputMenuItem.cpp">
+			</File>
+			<File
 				RelativePath=".\main.cpp">
 			</File>
 			<File
@@ -147,6 +150,9 @@
 			Filter="h;hpp;hxx;hm;inl;inc">
 			<File
 				RelativePath="..\..\LCDLogic\ActionProcessor.h">
+			</File>
+			<File
+				RelativePath="..\..\LCDLogic\InputMenuItem.h">
 			</File>
 			<File
 				RelativePath="..\..\LCDLogic\MenuHolder.h">

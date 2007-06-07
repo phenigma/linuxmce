@@ -5,8 +5,8 @@
 
 #include "DCE/Logger.h"
 //--------------------------------------------------------------------------------------------------------
-MenuItem::MenuItem(string sDescription, MenuItem *pParent, MenuItemAction *pMenuItemAction) : 
-	m_sDescription(sDescription), m_pParent(pParent), m_pMenuItemAction(pMenuItemAction)
+MenuItem::MenuItem(string sDescription, MenuItem *pParent, ItemType type, MenuItemAction *pMenuItemAction) : 
+	m_sDescription(sDescription), m_pParent(pParent), m_type(type), m_pMenuItemAction(pMenuItemAction)
 {
 }
 //--------------------------------------------------------------------------------------------------------
@@ -28,6 +28,11 @@ MenuItemAction *MenuItem::Action()
 	return m_pMenuItemAction;
 }
 //--------------------------------------------------------------------------------------------------------
+ItemType MenuItem::Type()
+{
+	return m_type;
+}
+//--------------------------------------------------------------------------------------------------------
 bool MenuItem::CanGoRight()
 {
 	return !m_vectChildren.empty();
@@ -35,7 +40,7 @@ bool MenuItem::CanGoRight()
 //--------------------------------------------------------------------------------------------------------
 bool MenuItem::CanGoLeft()
 {
-	return NULL != m_pParent && m_pParent->Description() != "root";
+	return NULL != m_pParent;
 }
 //--------------------------------------------------------------------------------------------------------
 bool MenuItem::CanGoUp()
@@ -109,5 +114,52 @@ MenuItem* MenuItem::PrevChild(MenuItem *pChildMenuItem)
 	--it;
 
 	return *it;
+}
+//--------------------------------------------------------------------------------------------------------
+MenuItem *MenuItem::MoveUp()
+{
+	if(NULL != m_pParent)
+	{
+		MenuItem *pNextMenuItem = m_pParent->PrevChild(this);
+
+		if(NULL != pNextMenuItem)
+			return pNextMenuItem;
+	}
+
+	return this;
+}
+//--------------------------------------------------------------------------------------------------------
+MenuItem *MenuItem::MoveDown()
+{
+	if(NULL != m_pParent)
+	{
+		MenuItem *pNextMenuItem = m_pParent->NextChild(this);
+
+		if(NULL != pNextMenuItem)
+			return pNextMenuItem;
+	}
+
+	return this;
+}
+//--------------------------------------------------------------------------------------------------------
+MenuItem *MenuItem::MoveRight()
+{
+	if(NULL != FirstChild())
+		return FirstChild();
+
+	return this;
+}
+//--------------------------------------------------------------------------------------------------------
+MenuItem *MenuItem::MoveLeft()
+{
+	if(NULL != m_pParent)
+		return m_pParent;
+
+	return this;
+}
+//--------------------------------------------------------------------------------------------------------
+bool MenuItem::IsLeaf()
+{
+	return !m_vectChildren.empty();
 }
 //--------------------------------------------------------------------------------------------------------

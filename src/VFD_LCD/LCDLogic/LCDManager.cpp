@@ -5,7 +5,7 @@
 LCDManager::LCDManager(MenuHolder *pMenuHolder) : 
 	IInputProcessor(), m_pMenuHolder(pMenuHolder), m_RenderMutex("render")
 {
-	m_display_state.m_sHeader = "Welcome to Fiire 1.0!";
+	m_display_state.m_sStatusMessage = "Welcome to Fiire 1.0!";
 
 	m_RenderMutex.Init(NULL);
 }
@@ -92,21 +92,47 @@ void LCDManager::Render()
 //--------------------------------------------------------------------------------------------------------
 void LCDManager::Prepare()
 {
-	if(NULL != m_pMenuHolder && NULL != m_pMenuHolder->CurrentMenuItem())
-		m_display_state.m_sHeader = m_pMenuHolder->CurrentMenuItem()->Description();
+	if(NULL == m_pMenuHolder || NULL == m_pMenuHolder->CurrentMenuItem())
+	{
+		m_display_state.m_sHeader = "Got no menu";
+		return;
+	}
 
+	switch(m_pMenuHolder->CurrentMenuItem()->Type())
+	{
+		case itStatusItem:
+		{
+			m_display_state.m_sHeader = m_display_state.m_sStatusMessage;
+		}
+		break;
+
+		case itListItem:
+		{
+			m_display_state.m_sHeader = m_pMenuHolder->CurrentMenuItem()->Description();
+		}
+		break;
+
+		case itInputBox:
+		{
+			m_display_state.m_sHeader = m_pMenuHolder->CurrentMenuItem()->Description();
+		}
+		break;
+	}
+
+	//navigation
 	m_display_state.m_bCanGoDown = m_pMenuHolder->CurrentMenuItem()->CanGoDown();
 	m_display_state.m_bCanGoUp = m_pMenuHolder->CurrentMenuItem()->CanGoUp();
 	m_display_state.m_bCanGoLeft = m_pMenuHolder->CurrentMenuItem()->CanGoLeft();
 	m_display_state.m_bCanGoRight = m_pMenuHolder->CurrentMenuItem()->CanGoRight();
 
+	//reset last state
 	m_display_state.m_vectNextOptions.clear();
 	m_display_state.m_vectPriorOptions.clear();
 
 	//prev options
 	int nIndex = ADIACENT_OPTIONS_NUMBER;
 	MenuItem *pCurrentItem = m_pMenuHolder->CurrentMenuItem();
-	while(NULL != pCurrentItem && nIndex-- > 0)
+	while(NULL != pCurrentItem && nIndex-- > 0 && NULL != pCurrentItem->Parent())
 	{
 		MenuItem *pPrevItem = pCurrentItem->Parent()->PrevChild(pCurrentItem);
 		if(NULL != pPrevItem)
@@ -121,7 +147,7 @@ void LCDManager::Prepare()
 	//next options
 	nIndex = ADIACENT_OPTIONS_NUMBER;
 	pCurrentItem = m_pMenuHolder->CurrentMenuItem();
-	while(NULL != pCurrentItem && nIndex-- > 0)
+	while(NULL != pCurrentItem && nIndex-- > 0 && NULL != pCurrentItem->Parent())
 	{
 		MenuItem *pNextItem = pCurrentItem->Parent()->NextChild(pCurrentItem);
 		if(NULL != pNextItem)

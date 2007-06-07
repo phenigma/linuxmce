@@ -1,6 +1,7 @@
 #include "MenuLoader.h"
 #include "MenuHolder.h"
 #include "MenuItem.h"
+#include "InputMenuItem.h"
 #include "MenuItemAction.h"
 
 #include "DCE/Logger.h"
@@ -96,8 +97,22 @@ MenuItem *MenuLoader::ParseMenuItem(xmlNode *node, MenuItem *pParent)
 	if(!sParameter3.empty())
 		mapParameters[3] = sParameter3;
 
+	ItemType type = itListItem;
+
+	if(mapAttributes["type"] == "input")
+		type = itInputBox;
+
 	MenuItemAction *pAction = new MenuItemAction(sAction, action_type, mapParameters);
-	MenuItem *pMenuItem = new MenuItem(sDescription, pParent, pAction);
+	MenuItem *pMenuItem = NULL;
+
+	if(type == itInputBox)
+	{
+		InputMenuItem *pInputMenuItem = new InputMenuItem(sDescription, pParent, type, pAction);
+		pInputMenuItem->Mask(mapAttributes["mask"]);
+		pMenuItem = pInputMenuItem;
+	}
+	else
+		pMenuItem = new MenuItem(sDescription, pParent, type, pAction);
 
 	//parse children
 	xmlNode *cur_node = NULL;
