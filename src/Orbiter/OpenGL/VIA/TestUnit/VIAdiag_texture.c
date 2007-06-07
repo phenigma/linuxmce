@@ -203,6 +203,17 @@ gear(GLfloat inner_radius, GLfloat outer_radius, GLfloat width,
 
 }
 
+void release_textures()
+{
+  for(int i = 0; i < NUM_TEXTURES; ++i)
+	  if(textures[i] != 0)
+	  {
+		  printf("Releasing texture %d/%d ... \n", i, textures[i]);
+		  glDeleteTextures(1, &textures[i]);
+		  textures[i] = 0;
+	  }
+}
+
 static GLfloat view_rotx = 20.0, view_roty = 30.0, view_rotz = 0.0;
 static GLint gear1, gear2, gear3;
 static GLfloat angle = 0.0;
@@ -264,6 +275,7 @@ key(unsigned char k, int x, int y)
     view_rotz -= 5.0;
     break;
   case 27:  /* Escape */
+	release_textures();
     exit(0);
     break;
   default:
@@ -467,10 +479,14 @@ init(int argc, char *argv[])
   for(int i = 0; i < NUM_TEXTURES; ++i)
   {
 	LoadGLTextures(i, pTextureName);
+
+	if(i >= 100 && (!(i % 10)))
+	{
+		printf("\n\n=================== Loaded so far %d textures\n", i);
+		usleep(3 * 1000 * 1000);
+	}
   }
 }
-
-
 
 void 
 visible(int vis)
@@ -517,12 +533,7 @@ int main(int argc, char *argv[])
 
   glutMainLoop();
 
-  for(int i = 0; i < NUM_TEXTURES; ++i)
-	  if(textures[i] != 0)
-	  {
-		  printf("Releasing texture %d/%d ... \n", i, textures[i]);
-		  glDeleteTextures(1, &textures[i]);
-	  }
+  release_textures();
 
   return 0;             /* ANSI C requires main to return int. */
 } 
