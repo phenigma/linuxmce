@@ -483,7 +483,7 @@ init(int argc, char *argv[])
 	if(i >= 100 && (!(i % 10)))
 	{
 		printf("\n\n=================== Loaded so far %d textures\n", i);
-		usleep(3 * 1000 * 1000);
+		usleep(100 * 1000);
 	}
   }
 }
