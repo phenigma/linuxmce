@@ -7,13 +7,16 @@ class InputMenuItem : public MenuItem
 {
 	string m_sMask; 
 	size_t m_nCaretIndex; 
+	size_t m_nOptionIndex;
+
+	const string m_csCaretOptions;
 
 public:
 
-	InputMenuItem(string sDescription, MenuItem *pParent = NULL, ItemType type = itListItem, MenuItemAction *pMenuItemAction = NULL);
+	InputMenuItem(string sDescription, MenuItem *pParent = NULL, ItemType type = itListItem, 
+		MenuItemAction *pMenuItemAction = NULL, string sMask = "");
 	~InputMenuItem();	
 
-	void Mask(string sMask);
 	string Mask();
 
 	bool CanGoRight();

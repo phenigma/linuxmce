@@ -106,11 +106,7 @@ MenuItem *MenuLoader::ParseMenuItem(xmlNode *node, MenuItem *pParent)
 	MenuItem *pMenuItem = NULL;
 
 	if(type == itInputBox)
-	{
-		InputMenuItem *pInputMenuItem = new InputMenuItem(sDescription, pParent, type, pAction);
-		pInputMenuItem->Mask(mapAttributes["mask"]);
-		pMenuItem = pInputMenuItem;
-	}
+		pMenuItem = new InputMenuItem(sDescription, pParent, type, pAction, mapAttributes["mask"]);
 	else
 		pMenuItem = new MenuItem(sDescription, pParent, type, pAction);
 
