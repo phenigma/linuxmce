@@ -152,6 +152,11 @@ function Apply {
 		Send "FAIL Cannot extract filename from url"
 		return
 	fi
+
+	if [[ ! -f "${UPDATES_DIR}/${update_no}/${update_file}" ]] ;then
+		Send "FAIL Cannot find update file"
+		return
+	fi
 	
 	local update_values="$3"
 	if [[ "$update_values" == "" ]];then
@@ -161,14 +166,30 @@ function Apply {
 
 	case "$(echo `GetValue "action" "$update_values"` | tr "[:lower:]" "[:upper:]")" in
 		"DEB")
-			echo "Installing deb ..."
+			ApplyDeb "${UPDATES_DIR}/${update_no}/${update_file}" "${update_values}" || return
 		;;
 		"UNTAR")
-			echo "Untaring ..."
+			ApplyUntar "${update_values}" || return
 		;;
 	esac
 
 	Send "OK"
+}
+
+function ApplyDeb {
+	local file="$1"
+	local values="$2"
+	
+	if  ! dpkg -i "$file" ;then
+		Send "FAIL Cannot install deb \"$file\""
+		return 1
+	fi
+
+	return 0
+}
+
+function ApplyUntar {
+:
 }
 
 ## Message loop
