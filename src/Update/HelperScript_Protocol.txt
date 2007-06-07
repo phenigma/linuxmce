@@ -39,3 +39,23 @@ Param:
 Returns:
 	OK	       : The updates.xml file is there, meaning the update finished downloading
 	FAIL <message> : The updates.xml file is not there, of a different error stated in message
+
+---------------------------------------------------------------------------------
+Command:
+	APPLY <UPDATE_ID> <URL> [param1=value1 param2=value2 ... paramN=valueN]
+Desc:
+	Performs an update file entry. 
+	A list of parameters with corresponding values is expected.
+	At lease the 'action' parameter must be present. Known actions so far are:
+		* untar : A file of type tar,tar.gz,tgz,tar.bz2,tbz2 is expected of else the update
+		  will fail. Can also contain extra paramethers like:
+			* destination : where to upack the archive
+			* autoexec : a script/binary to be runned after the unpacking
+		* deb : A file of type deb is expected. The deb will be installed using dpkg -i		
+		* run : A executable/script is expected. The file will be executed
+Param:
+	UPDATE_ID : Number of the update block as from xml
+	URL       : Url of the file entry
+Returns:
+	OK             : Update applied correctly
+	FAIL <message> : Update did not applied correctly

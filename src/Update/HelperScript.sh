@@ -169,7 +169,9 @@ function Apply {
 			ApplyDeb "${UPDATES_DIR}/${update_no}/${update_file}" "${update_values}" || return
 		;;
 		"UNTAR")
-			ApplyUntar "${update_values}" || return
+			ApplyUntar "${UPDATES_DIR}/${update_no}/${update_file}" "${update_values}" || return
+		"RUN")
+			ApplyRun "${UPDATES_DIR}/${update_no}/${update_file}" "${update_values}" || return
 		;;
 	esac
 
@@ -188,13 +190,32 @@ function ApplyDeb {
 	return 0
 }
 
+function ApplyRun {
+	local file="$1"
+	local values="$2"
+
+	if [[ ! -f "$file" ]] ;then
+		Send "FAIL Cannot find file to be executed '$file'"
+		return 1
+	fi
+
+	chmod +x "$file" 
+
+	if ! "$file" ;then
+		Send "FAIL Fail to execute file '$file'"
+		return 1
+	fi
+
+	return 0
+}
+
 function ApplyUntar {
 	local file="$1"
 	local values="$2"
 
 	local destination=$(GetValue "destination" "$values")
 	if [[ "$destination" == "" ]] ;then
-		$destination="/"
+		destination="/"
 	fi
 
 	if [[ ! -d "$destination" ]] ;then
@@ -272,7 +293,7 @@ while /bin/true ;do
 			CheckUpdate "$(Param 2 "$line")"
 			;;
 		"APPLY")
-			# APPLY <UPDATE_ID> <URL> [param1=value1 param2=value2 ... paramN=valueN]
+			# APPLY <UPDATE_ID> <URL> [param1="value1" param2="value2" ... paramN="valueN"]
 			Apply "$(Param 2 "$line")" "$(Param 3 "$line")" "$(Param 4-999 "$line")"
 			;;
 		*)
