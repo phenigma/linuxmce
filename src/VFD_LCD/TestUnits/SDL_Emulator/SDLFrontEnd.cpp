@@ -61,7 +61,7 @@ bool SDLFrontEnd::Init()
 
 	if(TTF_Init() != -1)
 	{
-		m_pFont =  TTF_OpenFont("/windows/fonts/arial.ttf", 12);
+		m_pFont = TTF_OpenFont("/windows/fonts/arial.ttf", 12);
 	}
 
 	return true;

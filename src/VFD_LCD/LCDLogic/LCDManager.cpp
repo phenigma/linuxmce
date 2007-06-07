@@ -2,8 +2,12 @@
 #include "MenuHolder.h"
 #include "MenuItem.h"
 //--------------------------------------------------------------------------------------------------------
+#define REFRESH_INTERVAL	400
+#define IDLE_INTERVAL		100
+//--------------------------------------------------------------------------------------------------------
 LCDManager::LCDManager(MenuHolder *pMenuHolder) : 
-	IInputProcessor(), m_pMenuHolder(pMenuHolder), m_RenderMutex("render")
+	IInputProcessor(), m_pMenuHolder(pMenuHolder), m_RenderMutex("render"), 
+	m_RerendererThreadID(0), m_ulRendererInterval(0), m_bQuit(false)
 {
 	m_display_state.m_sStatusMessage = "Welcome to Fiire 1.0!";
 
@@ -12,6 +16,11 @@ LCDManager::LCDManager(MenuHolder *pMenuHolder) :
 //--------------------------------------------------------------------------------------------------------
 LCDManager::~LCDManager()
 {
+	m_bQuit = true;
+
+	if(m_RerendererThreadID)
+		pthread_join(m_RerendererThreadID, 0);
+
 	pthread_mutex_destroy(&m_RenderMutex.mutex);
 }
 //--------------------------------------------------------------------------------------------------------
@@ -84,6 +93,8 @@ bool LCDManager::ProcessInput(const Input &input)
 //--------------------------------------------------------------------------------------------------------
 void LCDManager::Render()
 {
+	CancelRerender();
+
 	Prepare();
 
 	for(list<IRenderer *>::iterator it = m_listRenderer.begin(), end = m_listRenderer.end(); it != end; ++it)
@@ -115,6 +126,7 @@ void LCDManager::Prepare()
 		case itInputBox:
 		{
 			m_display_state.m_sHeader = m_pMenuHolder->CurrentMenuItem()->Description();
+			ScheduleRerender(REFRESH_INTERVAL);
 		}
 		break;
 	}
@@ -158,5 +170,48 @@ void LCDManager::Prepare()
 		else
 			break;
 	}
+}
+//--------------------------------------------------------------------------------------------------------
+void *RerenderThread(void *p)
+{
+	LCDManager *pManager = reinterpret_cast<LCDManager *>(p);
+
+	while(NULL != pManager && !pManager->Quit())
+	{
+		if(pManager->RerenderInterval())
+		{
+			pManager->Render(); 
+			Sleep(pManager->RerenderInterval());
+		}
+		else
+		{
+            Sleep(IDLE_INTERVAL);
+		}
+	}
+
+	return NULL;
+}
+//--------------------------------------------------------------------------------------------------------
+unsigned long LCDManager::RerenderInterval()
+{
+	return m_ulRendererInterval;
+}
+//--------------------------------------------------------------------------------------------------------
+bool LCDManager::Quit()
+{
+	return m_bQuit;
+}
+//--------------------------------------------------------------------------------------------------------
+void LCDManager::CancelRerender()
+{
+	m_ulRendererInterval = 0;
+}
+//--------------------------------------------------------------------------------------------------------
+void LCDManager::ScheduleRerender(unsigned long ulMiliseconds)
+{
+	m_ulRendererInterval = ulMiliseconds;
+
+	if(!m_RerendererThreadID)
+		pthread_create(&m_RerendererThreadID, NULL, RerenderThread, (void *)this);
 }
 //--------------------------------------------------------------------------------------------------------

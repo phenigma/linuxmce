@@ -8,8 +8,9 @@ class InputMenuItem : public MenuItem
 	string m_sMask; 
 	size_t m_nCaretIndex; 
 	size_t m_nOptionIndex;
-
 	const string m_csCaretOptions;
+
+	bool m_bBlinked;
 
 public:
 
@@ -18,6 +19,8 @@ public:
 	~InputMenuItem();	
 
 	string Mask();
+
+	string Description();
 
 	bool CanGoRight();
 	bool CanGoLeft();

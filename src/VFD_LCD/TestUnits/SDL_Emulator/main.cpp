@@ -33,7 +33,7 @@ int main( int argc, char* argv[] )
 
 	LCDManager manager(pMenu_Holder);
 	SDLFrontEnd front_end(&manager, 400, 300);
-	LCDRenderer lcd_renderer("/dev/ttyUSB0");
+	//LCDRenderer lcd_renderer("/dev/ttyUSB0");
 
 #ifdef WIN32
 	WORD    wVersion;
@@ -56,7 +56,7 @@ int main( int argc, char* argv[] )
 	if(front_end.Init())
 	{
 		manager.AddRenderer(&front_end);
-		manager.AddRenderer(&lcd_renderer);
+		//manager.AddRenderer(&lcd_renderer);
 		
 		nReturnCode = !front_end.EventLoop();
 	}

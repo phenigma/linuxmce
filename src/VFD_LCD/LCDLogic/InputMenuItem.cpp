@@ -3,10 +3,11 @@
 //--------------------------------------------------------------------------------------------------------
 #define EMPTY_CHAR '_'
 #define MASK_CHAR  'x'
+#define SPACE_CHAR ' '
 //--------------------------------------------------------------------------------------------------------
 InputMenuItem::InputMenuItem(string sDescription, MenuItem *pParent, ItemType type, MenuItemAction *pMenuItemAction, string sMask) :
 	MenuItem(sDescription, pParent, type, pMenuItemAction),	
-	m_sMask(sMask), m_nCaretIndex(0), m_nOptionIndex(0), m_csCaretOptions("_0123456789")
+	m_sMask(sMask), m_nCaretIndex(0), m_nOptionIndex(0), m_csCaretOptions("_0123456789"), m_bBlinked(false)
 {
 	m_sDescription = m_sMask;
 	m_sDescription = StringUtils::Replace(m_sDescription, string() + MASK_CHAR, string() + EMPTY_CHAR);
@@ -19,6 +20,26 @@ InputMenuItem::~InputMenuItem()
 string InputMenuItem::Mask()
 {
 	return m_sMask;
+}
+//--------------------------------------------------------------------------------------------------------
+string InputMenuItem::Description()
+{
+	string sDescription(m_sDescription);
+
+	if(!m_sMask.empty() && m_sMask[m_nCaretIndex] == MASK_CHAR)
+	{
+		if(m_bBlinked)
+			sDescription[m_nCaretIndex] = m_csCaretOptions[m_nOptionIndex];
+		else
+			if(sDescription[m_nCaretIndex] != EMPTY_CHAR)
+				sDescription[m_nCaretIndex] = EMPTY_CHAR;
+			else
+				sDescription[m_nCaretIndex] = SPACE_CHAR;
+
+		m_bBlinked = !m_bBlinked;
+	}
+
+	return sDescription;
 }
 //--------------------------------------------------------------------------------------------------------
 bool InputMenuItem::CanGoRight()
@@ -69,7 +90,12 @@ MenuItem *InputMenuItem::MoveDown()
 //--------------------------------------------------------------------------------------------------------
 MenuItem *InputMenuItem::MoveRight()
 {
-	m_nCaretIndex = (m_nCaretIndex + 1) % m_sDescription.length();
+	do
+	{
+		m_nCaretIndex = (m_nCaretIndex + 1) % m_sDescription.length();
+	}
+	while(!m_sMask.empty() && m_sMask[m_nCaretIndex] != MASK_CHAR);
+
 	return this;
 }
 //--------------------------------------------------------------------------------------------------------
@@ -77,7 +103,12 @@ MenuItem *InputMenuItem::MoveLeft()
 {
 	if(m_nCaretIndex > 0)
 	{
-		m_nCaretIndex = (m_sDescription.length() + m_nCaretIndex - 1) % m_sDescription.length();
+		do
+		{
+			m_nCaretIndex = (m_sDescription.length() + m_nCaretIndex - 1) % m_sDescription.length();
+		}
+		while(!m_sMask.empty() && m_sMask[m_nCaretIndex] != MASK_CHAR);
+
 		return this;
 	}
 
