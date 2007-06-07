@@ -189,7 +189,57 @@ function ApplyDeb {
 }
 
 function ApplyUntar {
-:
+	local file="$1"
+	local values="$2"
+
+	local destination=$(GetValue "destination" "$values")
+	if [[ "$destination" == "" ]] ;then
+		$destination="/"
+	fi
+
+	if [[ ! -d "$destination" ]] ;then
+		if ! mkdir -p "$destination" ;then
+			Send "FAIL Cannot create untar destination '$destination'"
+			return 1
+		fi
+	fi
+
+	if [[ "$file" = *.tar.gz || "$file" = *.tgz ]] ;then
+		if ! tar -C "$destination" -zxf "$file" ;then
+			Send "FAIL Cannot untar file '$file'"
+			return 1
+		fi
+
+	elif [[ "$file" = *tar.bz2 || "$file" = *tbz2 ]] ;then
+		if ! tar -C "$destination" -jxf "$file" ;then
+			Send "FAIL Cannot untar file '$file'"
+			return 1
+		fi
+
+	elif [[  "$file" = *tar ]] ;then
+		if ! tar -C "$destination" -xf "$file" ;then
+			Send "FAIL Cannot untar file '$file'"
+			return 1
+		fi
+	else
+		Send "FAIL Unrecognized file format '$file'"
+		return 1
+	fi
+
+	local autoexec=$(GetValue "autoexec" "$values")
+	if [[ "$autoexec" != "" ]] ;then
+		if [[ ! -x "$autoexec" ]] ;then
+			Send "FAIL Cannot find auntoexec script '$autoexec'"
+			return 1
+		fi
+
+		if ! ${autoexec} ;then
+			Send "FAIL Autoexec script '$autoexec' exited with an error"
+			return 1
+		fi
+	fi
+
+	return 0
 }
 
 ## Message loop
