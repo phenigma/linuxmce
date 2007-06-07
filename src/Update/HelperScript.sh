@@ -34,6 +34,16 @@ function Param {
 	echo "${line}" | cut -d" " -f${param_no}
 }
 
+function GetValue {
+	local list="$2"
+	local name="$1"
+
+	# remove the spaces from in front/after the = sign
+	list=$(echo $list | sed 's/ *= *"/="/g')
+
+	echo $(eval "$list"; echo ${!name})
+}
+
 
 ## Protocol functions
 function Download {
@@ -143,13 +153,13 @@ function Apply {
 		return
 	fi
 	
-	local update_action="$3"
-	if [[ "$update_action" == "" ]];then
-		Send "FAIL Update action is empty"
+	local update_values="$3"
+	if [[ "$update_values" == "" ]];then
+		Send "FAIL Can't find information on how to apply update"
 		return
 	fi
 
-	case "$( echo ${update_action}  | tr "[:lower:]" "[:upper:]")" in
+	case "$(echo `GetValue "action" "$update_values"` | tr "[:lower:]" "[:upper:]")" in
 		"DEB")
 			echo "Installing deb ..."
 		;;
@@ -191,8 +201,8 @@ while /bin/true ;do
 			CheckUpdate "$(Param 2 "$line")"
 			;;
 		"APPLY")
-			# APPLY <UPDATE_ID> <URL> <ACTION> [param1=value1 param2=value2 ... paramN=valueN]
-			Apply "$(Param 2 "$line")" "$(Param 3 "$line")" "$(Param 4 "$line")" "$(Param 5-999 "$line")"
+			# APPLY <UPDATE_ID> <URL> [param1=value1 param2=value2 ... paramN=valueN]
+			Apply "$(Param 2 "$line")" "$(Param 3 "$line")" "$(Param 4-999 "$line")"
 			;;
 		*)
 			Debug "FAIL Unkown Command"

@@ -54,14 +54,21 @@ int main(void) {
 	char message[255];
 	char cmd[255];
 
+/*
 	strcpy(cmd, "DOWNLOAD 1 http://mirror.home-dn.net/debian-multimedia/pool/main/3/3gpwiz/3gpwiz_1.3-0.3_all.deb 98035251c140ef4168252004bf37dfa0\n");
 	write(sout, cmd, strlen(cmd));
 	memset(message, 0, 255);
 	read(sin, &message, 255);
 	printf("GOT: %s", message);
+	*/
 
+	strcpy(cmd, "APPLY 1 http://mirror.home-dn.net/debian-multimedia/pool/main/3/3gpwiz/3gpwiz_1.3-0.3_all.deb action=\"untar\" destination=\"/\" autoexec=\"/usr/pluto/install/applyupdate1.sh\" md5=\"1228kjdkdfkd\" size=\"382727273\"\n");
+	write(sout, cmd, strlen(cmd));
+	memset(message, 0, 255);
+	read(sin, &message, 255);
+	printf("GOT: %s", message);
 
-	strcpy(cmd, "APPLY 1 http://mirror.home-dn.net/debian-multimedia/pool/main/3/3gpwiz/3gpwiz_1.3-0.3_all.deb deb\n");
+	strcpy(cmd, "APPLY 1 http://mirror.home-dn.net/debian-multimedia/pool/main/3/3gpwiz/3gpwiz_1.3-0.3_all.deb action=\"deb\" md5=\"2ljrljk3j3lk\" size=\"38388383\"\n");
 	write(sout, cmd, strlen(cmd));
 	memset(message, 0, 255);
 	read(sin, &message, 255);
