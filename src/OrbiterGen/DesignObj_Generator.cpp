@@ -904,9 +904,9 @@ int k=2;
 			    Row_Device_DeviceData *pRow_Device_DeviceData_ObjType = m_mds->Device_DeviceData_get()->GetRow(pRow_Device_DeviceData->FK_Device_get(),DEVICEDATA_PK_FloorplanObjectType_CONST);
 				if( !pRow_Device_DeviceData_FPInfo || !pRow_Device_DeviceData_ObjType )
 				{
-					LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"01\t**Error: Floorplan object %d %d missing info",
+					LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"01\t**Error: Floorplan object %d %s missing info",
 						pRow_Device_DeviceData->FK_Device_getrow()->FK_DeviceTemplate_get(),
-						pRow_Device_DeviceData->FK_Device_getrow()->FK_DeviceTemplate_getrow()->Description_get());
+						pRow_Device_DeviceData->FK_Device_getrow()->FK_DeviceTemplate_getrow()->Description_get().c_str());
 				}
 				else
 				{
