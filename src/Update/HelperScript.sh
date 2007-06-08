@@ -2,7 +2,7 @@
 set -e
 
 UPDATES_XML_URI="http://10.0.0.83/updates.xml"
-UPDATES_DIR="/home/pluto-updates"
+UPDATES_DIR="/home/updates"
 POUT=101
 PIN=100
 

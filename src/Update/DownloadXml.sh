@@ -1,7 +1,7 @@
 #!/bin/bash -e
 
 UPDATES_XML_URI="http://10.0.0.83/updates.xml"
-UPDATES_DIR="/home/pluto-updates"
+UPDATES_DIR="/home/updates"
 
 XML_OLD="${UPDATES_DIR}/updates.xml.old"
 XML_CURRENT="${UPDATES_DIR}/updates.xml"
@@ -30,6 +30,7 @@ fi
 mv "${XML_NEW}" "${XML_CURRENT}"
 
 ## Try to see if there are any differences between the current and last processed xml
+touch "${XML_OLD}"
 if diff "${XML_CURRENT}" "${XML_OLD}" >/dev/null ;then
 	Debug "No differences since last update"
 	exit 0
