@@ -257,6 +257,11 @@ function ApplyUntar {
 	return 0
 }
 
+function Apply_Option {
+	Send "OK"
+	return 0
+}
+
 ## Message loop
 Debug "Helper Script Started"
 trap 'Debug "Helper Script End"' EXIT
@@ -287,6 +292,10 @@ while /bin/true ;do
 		"APPLY")
 			# APPLY <UPDATE_ID> <URL> [param1="value1" param2="value2" ... paramN="valueN"]
 			Apply "$(Param 2 "$line")" "$(Param 3 "$line")" "$(Param 4-999 "$line")"
+			;;
+		"APPLY_OPTION")
+			# APPLY_OPTION
+			Apply_Option
 			;;
 		"EXIT")
 			# EXIT
