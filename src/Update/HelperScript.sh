@@ -9,6 +9,7 @@ PIN=100
 ## Usefull functions
 function Debug {
 	echo "$(date -R) $*" >&2
+	echo "$(date -R) $*" >> /var/log/UpdateHelper.log
 }
 
 function Receive {
