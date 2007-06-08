@@ -70,7 +70,7 @@ function Download {
 
 	mkdir -p "${UPDATES_DIR}/${update_no}"
 	
-	wget -c --tries=5 --timeout=5 -O "${UPDATES_DIR}/${update_no}/${update_file}" "${update_url}"
+	wget -c --tries=5 --timeout=5 -O "${UPDATES_DIR}/${update_no}/${update_file}" "${update_url}" || :
 
 	if [[ ! -f "${UPDATES_DIR}/${update_no}/${update_file}" ]] ;then
 		Send "FAIL No file can be downloaded"
