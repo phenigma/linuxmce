@@ -42,6 +42,8 @@ class UpdatesManager
 		
 		bool Debug(const char *);
 		
+		bool isIOError() const;
+		
 		// system calls
 		
 		bool CheckUpdate(unsigned uId);
@@ -65,6 +67,8 @@ class UpdatesManager
 		int outputFd;
 		
 		bool download;
+		
+		bool ioError;
 		
 		UpdatesXML xml;
 		

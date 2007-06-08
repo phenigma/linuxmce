@@ -54,6 +54,19 @@ int main(void) {
 	char message[255];
 	char cmd[255];
 
+	strcpy(cmd, "CHECK_UPDATE 1\n");
+	write(sout, cmd, strlen(cmd));
+	memset(message, 0, 255);
+	read(sin, &message, 255);
+	printf("GOT: %s", message);
+	
+	strcpy(cmd, "DOWNLOAD 1 ftp://ftp.iasi.roedu.net/ubuntu/pool/main/v/vim/vim_7.0-164+1ubuntu7.1_i386.deb 0f9f2f016295070b690cd8eb50424839\n");
+	write(sout, cmd, strlen(cmd));
+	memset(message, 0, 255);
+	read(sin, &message, 255);
+	printf("GOT: %s", message);
+	return 0;
+
 	strcpy(cmd, "DOWNLOAD 1 ftp://ftp.iasi.roedu.net/ubuntu/pool/main/v/vim/vim_6.3.orig.tar.gz de1c964ceedbc13538da87d2d73fd117\n");
 	write(sout, cmd, strlen(cmd));
 	memset(message, 0, 255);

@@ -9,7 +9,7 @@ char * UpdatesXML::tagUpdate = "update";
 char * UpdatesXML::tagId = "id";
 char * UpdatesXML::tagPriority = "priority";
 char * UpdatesXML::tagDescription = "description";
-char * UpdatesXML::tagModels = "models";
+char * UpdatesXML::tagModels = "model";
 char * UpdatesXML::tagFiles = "file";
 
 // class Update Node

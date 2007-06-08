@@ -9,7 +9,7 @@
 
 #define VERSION 1.0
 
-#define SCRIPT_NAME "./test.sh"
+#define SCRIPT_NAME "./HelperScript.sh"
 #define SCRIPT_IN 100
 #define SCRIPT_OUT 101
 

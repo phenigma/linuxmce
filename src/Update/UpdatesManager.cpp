@@ -26,6 +26,7 @@ UpdatesManager::UpdatesManager(const char * xmlPath, const char * updPath, int i
 	  inputFd(iInput),
 	  outputFd(iOutput),
 	  download(true),
+	  ioError(false),
 	  mySqlHelper(dceconf.m_sDBHost, dceconf.m_sDBUser, dceconf.m_sDBPassword, dceconf.m_sDBName,dceconf.m_iDBPort)
 {
 }
@@ -58,6 +59,10 @@ bool UpdatesManager::Init(bool bDownload)
 			int iDevice = atoi(row[0]);
 			if( !iDevice )
 			{
+				// TODO
+			}
+			else
+			{
 				id2model[iDevice] = row[1];
 			}
 		}
@@ -78,6 +83,10 @@ bool UpdatesManager::Init(bool bDownload)
 			//fill id2update
 			int iDevice = atoi(row[0]);
 			if( !iDevice )
+			{
+				// TODO
+			}
+			else
 			{
 				id2update[iDevice] = atoi(row[1]);
 			}
@@ -162,10 +171,22 @@ bool UpdatesManager::Run()
 			// check if it's available
 			if( !CheckUpdate(*it) )
 			{
+				if( isIOError() )
+				{
+					// TODO
+					break;
+				}
+				
 				LoggerWrapper::GetInstance()->Write(LV_WARNING, "eug: updates not available");
 				// try to download it
 				if( DownloadUpdate(*it) )
 				{
+					if( isIOError() )
+					{
+						// TODO
+						break;
+					}
+				
 					LoggerWrapper::GetInstance()->Write(LV_WARNING, "eug: updates downloaded");
 					// try to validate it
 					if( !ValidateUpdate(*it) )
@@ -181,6 +202,12 @@ bool UpdatesManager::Run()
 					// TODO: critical error
 					return false;
 				}
+			}
+			
+			if( isIOError() )
+			{
+				// TODO
+				break;
 			}
 		}
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Updates download - end");
@@ -225,6 +252,11 @@ bool UpdatesManager::Run()
 	return true;
 }
 
+bool UpdatesManager::isIOError() const
+{
+	return ioError;
+}
+
 bool UpdatesManager::CheckUpdate(unsigned uId)
 {
 	// find the update
@@ -247,9 +279,21 @@ bool UpdatesManager::CheckUpdate(unsigned uId)
 	snprintf(cmd, sizeof(cmd), "CHECK_UPDATE %u\n", uId);
 	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Update check: %s", cmd);
 	
+	int iRet = 0;
 	char message[256] = "\0";
-	write(outputFd, cmd, 255);
-	read(inputFd, &message, 255);
+	iRet = write(outputFd, cmd, strlen(cmd));
+	if(iRet == -1 || iRet == 0)
+	{
+		ioError = true;
+		return false;
+	}
+	iRet = read(inputFd, &message, 255);
+	if(iRet == -1 || iRet == 0)
+	{
+		ioError = true;
+		return false;
+	}
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "#Update check: %s", message);
 	
 	if( !strncmp(message, "OK", 2) )
 		return true;
@@ -282,9 +326,21 @@ bool UpdatesManager::DownloadUpdate(unsigned uId)
 				 uId, (*it)->attributesMap["URL"].c_str(), (*it)->attributesMap["md5"].c_str());
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Update download: %s", cmd);
 	
+		int iRet = 0;
 		char message[256] = "\0";
-		write(outputFd, cmd, sizeof(cmd)-1);
-		read(inputFd, &message, 255);
+		iRet = write(outputFd, cmd, strlen(cmd));
+		if(iRet == -1 || iRet == 0)
+		{
+			ioError = true;
+			return false;
+		}
+		iRet = read(inputFd, &message, 255);
+		if(iRet == -1 || iRet == 0)
+		{
+			ioError = true;
+			return false;
+		}
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "#Update download: %s", message);
 	
 		if( strncmp(message, "OK", 2) )
 		{
@@ -321,9 +377,21 @@ bool UpdatesManager::ValidateUpdate(unsigned uId)
 	snprintf(cmd, sizeof(cmd), "VALIDATE_UPDATE %u %s\n", uId, temp);
 	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Update validate: %s", cmd);
 	
+	int iRet = 0;
 	char message[256] = "\0";
-	write(outputFd, cmd, sizeof(cmd)-1);
-	read(inputFd, &message, 255);
+	iRet = write(outputFd, cmd, strlen(cmd));
+	if(iRet == -1 || iRet == 0)
+	{
+		ioError = true;
+		return false;
+	}
+	iRet = read(inputFd, &message, 255);
+	if(iRet == -1 || iRet == 0)
+	{
+		ioError = true;
+		return false;
+	}
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "#Update validate: %s", message);
 	
 	if( unlink(temp) )
 	{
@@ -353,9 +421,20 @@ bool UpdatesManager::RemoveUpdate(unsigned uId)
 	}
 	
 	// remove the update from the updates folder
+	int iRet = 0;
 	char message[256] = "\0";
-	write(outputFd, "", 255);
-	read(inputFd, &message, 255);
+	iRet = write(outputFd, "", 255);
+	if(iRet == -1 || iRet == 0)
+	{
+		ioError = true;
+		return false;
+	}
+	iRet = read(inputFd, &message, 255);
+	if(iRet == -1 || iRet == 0)
+	{
+		ioError = true;
+		return false;
+	}
 	
 	if( !strncmp(message, "OK", 2) )
 		return true;
@@ -380,9 +459,20 @@ bool UpdatesManager::ProcessUpdate(unsigned uId)
 	}
 	
 	// process the update
+	int iRet = 0;
 	char message[256] = "\0";
-	write(outputFd, "", 255);
-	read(inputFd, &message, 255);
+	iRet = write(outputFd, "", 255);
+	if(iRet == -1 || iRet == 0)
+	{
+		ioError = true;
+		return false;
+	}
+	iRet = read(inputFd, &message, 255);
+	if(iRet == -1 || iRet == 0)
+	{
+		ioError = true;
+		return false;
+	}
 	
 	if( !strncmp(message, "OK", 2) )
 		return true;

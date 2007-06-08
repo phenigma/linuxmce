@@ -111,9 +111,9 @@ function CheckUpdate {
 	fi
 
 	if [[ -f "${UPDATES_DIR}/${update_no}/update.xml" ]] ;then
-		return "OK"
+		Send "OK"
 	else
-		return "FAIL Update is not downloaded"
+		Send "FAIL Update is not downloaded" 
 	fi
 }
 
@@ -252,6 +252,8 @@ function ApplyUntar {
 }
 
 ## Message loop
+Debug "Helper Script Started"
+trap 'Debug "Helper Script End"' EXIT
 while /bin/true ;do
 	line=$(Receive)
 	if [[ "$line" == "" ]] ;then
