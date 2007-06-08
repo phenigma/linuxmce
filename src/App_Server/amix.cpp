@@ -1,4 +1,5 @@
 #include <alsa/asoundlib.h>
+#include <math.h>
 #include "amix.h"
 
 static void error(const char *fmt,...)
@@ -89,7 +90,7 @@ void MasterMix::SetVolume(long Volume)
 
 void MasterMix::SetVolumePercent(int Percent)
 {
-	SetVolume(long(Percent / 100.0 * m_VolMax));
+	SetVolume(round(Percent / 100.0 * m_VolMax));
 }
 
 void MasterMix::SetOn(int On)
