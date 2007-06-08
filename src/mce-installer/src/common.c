@@ -117,6 +117,9 @@ void on_back_clicked(GObject object, gpointer data) {
 			case STEPNVIDIADRIVERS:
 				displayStepNvidiaDrivers();
 				break;
+			case STEPNOTIFICATION:
+				displayStepNotification();
+				break;
 			default:
 				printf("Unknown screen in history [%d]", prevScreen);
 		}

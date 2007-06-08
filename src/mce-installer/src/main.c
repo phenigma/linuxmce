@@ -120,7 +120,8 @@ displayStepDvdCss();
 	if (setting_coreIP != NULL) {
 		displayStep1C();
 	} else {
-		displayStep1D();
+		//displayStep1D();
+		displayStepNotification();
 	}
 #endif
 
