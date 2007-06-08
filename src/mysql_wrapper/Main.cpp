@@ -66,17 +66,13 @@ int main(int argc, char **argv) {
 	
 	unsigned long result_id=0;
 	map<unsigned long, MYSQL_RES*> my_results;
-	
-	if ( !mysql_real_connect(&mysql, host.c_str(), user.c_str(), pass.c_str(), db.c_str(), port, NULL, 0) )
-	{
-		cout << "FAILED: " << "Failed to connect to database: Error: " << mysql_error(&mysql) << endl;
-		return 1;
-	}
+
+	cout << "Started: waiting for connection to socket" << endl;
 	
 	try {
 		ServerSocket server(unix_socket);
 		
-		cout << "CONNECT: " << unix_socket << endl;
+		cout << "Socket: " << unix_socket << endl;
 		isConnected = true;
 
 		bool runServer = true;
@@ -87,6 +83,18 @@ int main(int argc, char **argv) {
 			server.accept ( new_sock );
 			
 			bool runConnection = true;
+
+			cout << "Accepted connection to socket, connecting to MySQL DB" << endl;
+			if ( !mysql_real_connect(&mysql, host.c_str(), user.c_str(), pass.c_str(), db.c_str(), port, NULL, 0) )
+			{
+				// initiating exit
+				cout << "FAILED: " << "Failed to connect to database: Error: " << mysql_error(&mysql) << endl;
+				runConnection = false ;
+				runServer = false;
+				unlink(unix_socket.c_str());
+			}
+			else
+				cout << "Connected OK" << endl;
 
 			try
 			{
@@ -102,6 +110,7 @@ int main(int argc, char **argv) {
 							cout << "Client connection broken, exiting" << endl;
 							runConnection = false;
 							runServer = false;
+							unlink(unix_socket.c_str());
 						}
 						break;
 						
@@ -110,7 +119,7 @@ int main(int argc, char **argv) {
 #ifdef DEBUG
 							cout << "Req4 mysql_real_query: " << tlv.length << endl;
 							cout << "Query text (maybe truncated): ";
-							for (int i=0; i<tlv.length; i++)
+							for (uint i=0; i<tlv.length; i++)
 							{
 								cout << tlv.value[i];
 							}
@@ -164,7 +173,10 @@ int main(int argc, char **argv) {
 						{
 #ifdef DEBUG
 							cout << "Req4 mysql_real_escape_string: " << tlv.length << endl;
-							cout << "String text (maybe truncated): " << tlv.value << endl;
+							cout << "String text (maybe truncated): ";
+							for (uint i=0; i<tlv.length; i++)
+								cout << tlv.value[i];
+							cout << endl;
 #endif
 							char *to = new char[tlv.length*2+1];
 							uint iRes = mysql_real_escape_string(&mysql, to, tlv.value, tlv.length);
@@ -272,7 +284,8 @@ int main(int argc, char **argv) {
 							cout << "Req4 mysql_free_result: " << tlv.length << endl;
 #endif
 							unsigned long target_id = tlv.to_ulong();
-							if (target_id == -1)
+							map<unsigned long, MYSQL_RES*>::iterator i = my_results.find(target_id);
+							if ( i == my_results.end() )
 							{
 #ifdef DEBUG
 								cout << "ERROR: no such result set" << endl;
@@ -280,22 +293,12 @@ int main(int argc, char **argv) {
 							}
 							else
 							{
-								map<unsigned long, MYSQL_RES*>::iterator i = my_results.find(target_id);
-								if ( i == my_results.end() )
-								{
+								MYSQL_RES *to_free = i->second;
+								my_results.erase(i);
+								mysql_free_result(to_free);
 #ifdef DEBUG
-									cout << "ERROR: no such result set" << endl;
+								cout << "Freed result set ID: " << target_id <<  endl;
 #endif
-								}
-								else
-								{
-									MYSQL_RES *to_free = i->second;
-									my_results.erase(i);
-									mysql_free_result(to_free);
-#ifdef DEBUG
-									cout << "Freed result set ID: " << target_id <<  endl;
-#endif
-								}
 							}
 						}
 						break;
@@ -466,12 +469,17 @@ int main(int argc, char **argv) {
 					
 				}
 			}
-			catch ( SocketException& ) {}
+			catch ( SocketException& e) 
+			{
+				cout << "Exception was caught: " << e.description() << " Exiting." << endl;
+				unlink(unix_socket.c_str());
+				runServer = false;
+			}
 		}
 	}
 	catch (SocketException &e)
 	{
-		cout << "CONNECT ERROR: Exception was caught:" << e.description() << " Exiting.";
+		cout << "CONNECT ERROR: Exception was caught: " << e.description() << " Exiting." << endl;
 	}
 	
 	return 0;

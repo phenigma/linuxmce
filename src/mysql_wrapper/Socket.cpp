@@ -100,6 +100,7 @@ int Socket::recv ( TLV &tlv ) const
 		tlv.type = TLV::typeNone;
 		tlv.length = 0;
 		delete[] tlv.value;
+		tlv.value = NULL;
 		return false;
 	}
 	
