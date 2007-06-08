@@ -114,6 +114,9 @@ void on_back_clicked(GObject object, gpointer data) {
 			case STEPCREATEMD:
 				displayStepCreateDiskedDevice();
 				break;
+			case STEPNVIDIADRIVERS:
+				displayStepNvidiaDrivers();
+				break;
 			default:
 				printf("Unknown screen in history [%d]", prevScreen);
 		}
@@ -222,11 +225,13 @@ void write_config_file(void) {
 				"c_deviceID=%s\n"
 				"c_startupType=%d\n"
 				"c_installType=%d\n"
+				"c_installUI=%d\n"
 				,setting_deviceType
 				,setting_coreIP
 				,setting_deviceID
 				,setting_startupType
 				,setting_installType
+				,setting_UI
 		);
 	}
 

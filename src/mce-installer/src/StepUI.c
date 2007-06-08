@@ -12,12 +12,8 @@
 
 void on_StepUI_forward_clicked(GtkWidget *widget, gpointer data) {
 	g_queue_push_head(history, (gpointer)STEPUI);
-	if (access("/usr/share/doc/libdvdcss2/changelog.gz", F_OK) == 0) {
-		if (has_nv_video_driver()) {
-			displayStepNvidiaDrivers();
-		} else {
-			displayStep4();
-		}
+	if (access("/usr/share/doc/libdvdcss2/changelog.gz", F_OK) == 0) {	
+		displayStep4();
 	} else {
 	        displayStepDvdCss();
 	}

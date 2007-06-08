@@ -12,16 +12,16 @@
 
 void on_NvidiaDrivers_forward_clicked(GtkWidget *widget, gpointer data)  {
 
-	gboolean goNext = TRUE;
+	gboolean goNext = FALSE;
 	gboolean intallNvidiaDrivers = * (gboolean *)data;
 
-	if (intallNvidiaDrivers == TRUE) {	
-		goNext = FALSE;
+	if (intallNvidiaDrivers == TRUE) {			
 		GtkWidget* runWindow = run_shell_command("./mce-installer-NvidiaDrivers.sh", "Installing Nvidia Propetary Drivers", "Failed to install nvidia propetary drivers");
 		gtk_widget_show_all(runWindow);
 		if (gtk_dialog_run(GTK_DIALOG(runWindow)) == 1) {
 			goNext = TRUE;
 		}
+		goNext = TRUE;
 	}
 
 	if (goNext) {
@@ -29,7 +29,20 @@ void on_NvidiaDrivers_forward_clicked(GtkWidget *widget, gpointer data)  {
 //		gtk_widget_set_sensitive (GTK_WIDGET(widget), FALSE);
 //		start_network_wizard();
 		displayStepNvidiaDriversEnd();
+	} else {
+		switch(setting_deviceType) {
+			case DT_CORE:
+			case DT_HYBRID:
+				g_queue_push_head(history, (gpointer)STEPNVIDIADRIVERS);
+				start_network_wizard();	
+				break;
+			case DT_MEDIA_DIRECTOR:
+				g_queue_push_head(history, (gpointer)STEPNVIDIADRIVERS);
+				displayStepCreateDiskedDevice();
+				break;
+		}
 	}
+
 }
 
 void on_NvidiaDrivers_radio_no_toggled(GtkWidget *widget, gpointer data) {
