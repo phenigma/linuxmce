@@ -17,8 +17,8 @@
 #include <dirent.h>
 
 
-#define DEVICEDATA_MODEL_CONST 233
-#define DEVICEDATA_LASTUPDATE_CONST 234
+// #define DEVICEDATA_MODEL_CONST 233
+// #define DEVICEDATA_LASTUPDATE_CONST 234
 
 UpdatesManager::UpdatesManager(const char * xmlPath, const char * updPath, int iInput, int iOutput)
 	: updatesPath(updPath),
@@ -42,7 +42,7 @@ bool UpdatesManager::Init(bool bDownload)
 	PlutoSqlResult result_set;
 	MYSQL_ROW row = NULL;
 	string sql_buff = "select FK_Device,IK_DeviceData FROM Device_DeviceData where FK_DeviceData = ";
-	sql_buff += StringUtils::itos( DEVICEDATA_MODEL_CONST );
+	sql_buff += StringUtils::itos( DEVICEDATA_Model_CONST );
 	
 	// select the models from the system
 	if( (result_set.r=mySqlHelper.mysql_query_result(sql_buff.c_str())) == NULL )
@@ -65,7 +65,7 @@ bool UpdatesManager::Init(bool bDownload)
 	
 	// select the last updates from the system
 	sql_buff = "select FK_Device,IK_DeviceData FROM Device_DeviceData where FK_DeviceData = ";
-	sql_buff += StringUtils::itos( DEVICEDATA_LASTUPDATE_CONST );
+	sql_buff += StringUtils::itos( DEVICEDATA_LastUpdate_CONST );
 	if( (result_set.r=mySqlHelper.mysql_query_result(sql_buff.c_str())) == NULL )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "UpdatesManager::init : SQL FAILED : %s",sql_buff.c_str());
