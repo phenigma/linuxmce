@@ -109,6 +109,8 @@ bool UpdatesManager::Init(bool bDownload)
 		}
 	
 		// load the xml data
+		xml.Clean();
+		xml.SetXML(updatesPath + "/" + xmlUpdatesFile);
 		xml.ParseXML();
 		if( xml.Failed() )
 		{
@@ -153,29 +155,35 @@ bool UpdatesManager::Run()
 {
 	if( download )
 	{
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Updates download - start");
 		// download updates
 		for(vector<unsigned>::iterator it=downloadUpdates.begin(); it!=downloadUpdates.end(); ++it)
 		{
 			// check if it's available
 			if( !CheckUpdate(*it) )
 			{
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "eug: updates not available");
 				// try to download it
 				if( DownloadUpdate(*it) )
 				{
+					LoggerWrapper::GetInstance()->Write(LV_WARNING, "eug: updates downloaded");
 					// try to validate it
 					if( !ValidateUpdate(*it) )
 					{
+						LoggerWrapper::GetInstance()->Write(LV_WARNING, "Update %u is invalid.", (*it));
 						// TODO: critical error
 						return false;
 					}
 				}
 				else
 				{
+					LoggerWrapper::GetInstance()->Write(LV_WARNING, "Update %u checksum is invalid.", (*it));
 					// TODO: critical error
 					return false;
 				}
 			}
 		}
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Updates download - end");
 	}
 	else
 	{
@@ -237,6 +245,8 @@ bool UpdatesManager::CheckUpdate(unsigned uId)
 	// check if the update is available
 	char cmd[256];
 	snprintf(cmd, sizeof(cmd), "CHECK_UPDATE %u\n", uId);
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Update check: %s", cmd);
+	
 	char message[256] = "\0";
 	write(outputFd, cmd, 255);
 	read(inputFd, &message, 255);
@@ -270,6 +280,7 @@ bool UpdatesManager::DownloadUpdate(unsigned uId)
 	{
 		snprintf(cmd, sizeof(cmd), "DOWNLOAD %u %s %s\n",
 				 uId, (*it)->attributesMap["URL"].c_str(), (*it)->attributesMap["md5"].c_str());
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Update download: %s", cmd);
 	
 		char message[256] = "\0";
 		write(outputFd, cmd, sizeof(cmd)-1);
@@ -308,6 +319,7 @@ bool UpdatesManager::ValidateUpdate(unsigned uId)
 	
 	char cmd[256];
 	snprintf(cmd, sizeof(cmd), "VALIDATE_UPDATE %u %s\n", uId, temp);
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Update validate: %s", cmd);
 	
 	char message[256] = "\0";
 	write(outputFd, cmd, sizeof(cmd)-1);
