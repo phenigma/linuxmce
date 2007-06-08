@@ -13,15 +13,8 @@ Returns:
                 
 ---------------------------------------------------------------------------------
 Command:
-	VALIDATE_UPDATE <UPDATE_ID>
-	line 1
-	............
-	line n
-	EOF
+	VALIDATE_UPDATE <UPDATE_ID> <TEMP_FILE_XML>
 Desc:
-	Creates a update.xml file in the coresponding update folder. The 
-	content of the file is passed line by line after the command and should
-	be finished by an line containing 'EOL'.
 Param:
 	UPDATE_ID : Number of the update block as from xml
 Returns:

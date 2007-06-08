@@ -235,8 +235,10 @@ bool UpdatesManager::CheckUpdate(unsigned uId)
 	}
 	
 	// check if the update is available
+	char cmd[256];
+	snprintf(cmd, sizeof(cmd), "CHECK_UPDATE %u\n", uId);
 	char message[256] = "\0";
-	write(outputFd, "", 255);
+	write(outputFd, cmd, 255);
 	read(inputFd, &message, 255);
 	
 	if( !strncmp(message, "OK", 2) )
@@ -262,13 +264,24 @@ bool UpdatesManager::DownloadUpdate(unsigned uId)
 	}
 	
 	// download url files from update
-	char message[256] = "\0";
-	write(outputFd, "", 255);
-	read(inputFd, &message, 255);
+	char cmd[1024];
 	
-	if( !strncmp(message, "OK", 2) )
-		return true;
-	return false;
+	for(vector<UpdateProperty*>::const_iterator it=pUpdate->Files().begin(); it!=pUpdate->Files().end(); ++it)
+	{
+		snprintf(cmd, sizeof(cmd), "DOWNLOAD %u %s %s\n",
+				 uId, (*it)->attributesMap["URL"].c_str(), (*it)->attributesMap["md5"].c_str());
+	
+		char message[256] = "\0";
+		write(outputFd, cmd, sizeof(cmd)-1);
+		read(inputFd, &message, 255);
+	
+		if( strncmp(message, "OK", 2) )
+		{
+			return false;
+		}
+	}
+	
+	return true;
 }
 
 bool UpdatesManager::ValidateUpdate(unsigned uId)
@@ -293,9 +306,17 @@ bool UpdatesManager::ValidateUpdate(unsigned uId)
 	snprintf(temp, sizeof(temp), "/tmp/update_%u", pUpdate->UpdateId());
 	xml.GenerateUpdateXML(pUpdate, temp);
 	
+	char cmd[256];
+	snprintf(cmd, sizeof(cmd), "VALIDATE_UPDATE %u %s\n", uId, temp);
+	
 	char message[256] = "\0";
-	write(outputFd, "", 255);
+	write(outputFd, cmd, sizeof(cmd)-1);
 	read(inputFd, &message, 255);
+	
+	if( unlink(temp) )
+	{
+		// TODO
+	}
 	
 	if( !strncmp(message, "OK", 2) )
 		return true;
