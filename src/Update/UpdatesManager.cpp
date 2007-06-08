@@ -281,7 +281,6 @@ bool UpdatesManager::isIOError() const
 
 bool UpdatesManager::SetLastUpdate(unsigned uLastUpdate)
 {
-	PlutoSqlResult result_set;
 	string sql_buff = "update Device_DeviceData set IK_DeviceData = '";
 	sql_buff += StringUtils::itos( uLastUpdate );
 	sql_buff += "' where FK_DeviceData = '";
@@ -290,11 +289,7 @@ bool UpdatesManager::SetLastUpdate(unsigned uLastUpdate)
 	sql_buff += StringUtils::itos( dceconf.m_iPK_Device_Computer );
 	sql_buff += "'";
 	
-	if( (result_set.r=mySqlHelper.mysql_query_result(sql_buff.c_str())) == NULL )
-	{
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "UpdatesManager::SetLastUpdate : SQL FAILED : %s",sql_buff.c_str());
-		return false;
-	}
+	mySqlHelper.threaded_mysql_query(sql_buff);
 	
 	return true;
 }
