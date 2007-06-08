@@ -29,6 +29,7 @@ public:
 	MenuItem(string sDescription, MenuItem *pParent = NULL, ItemType type = itListItem, MenuItemAction *pMenuItemAction = NULL);
 	virtual ~MenuItem();
 
+	virtual string Value();
 	virtual string Description();
 	MenuItemAction *Action();
 	ItemType Type();

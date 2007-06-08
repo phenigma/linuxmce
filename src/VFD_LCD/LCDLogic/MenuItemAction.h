@@ -13,6 +13,11 @@ enum ActionType
 	atCallMethod
 };
 //--------------------------------------------------------------------------------------------------------
+enum ParameterType
+{
+	ptInputBox
+};
+//--------------------------------------------------------------------------------------------------------
 class MenuItemAction
 {
 	string m_sAction;
@@ -28,6 +33,8 @@ public:
 	string Description();
 	ActionType Type();
 	const map<int, string>& Parameters() const;
+
+	void UpdateInputBoxParam(string sValue);
 };
 //--------------------------------------------------------------------------------------------------------
 #endif //__MENU_ITEM_ACTION_H__

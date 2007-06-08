@@ -20,6 +20,7 @@ public:
 
 	string Mask();
 
+	string Value();
 	string Description();
 
 	bool CanGoRight();

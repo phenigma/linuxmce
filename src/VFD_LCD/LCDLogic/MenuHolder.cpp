@@ -49,14 +49,25 @@ void MenuHolder::MoveDown()
 //--------------------------------------------------------------------------------------------------------
 void MenuHolder::MoveLeft()
 {
+	MenuItem *pOldItem = m_pCurrentMenuItem;
 	m_pCurrentMenuItem = m_pCurrentMenuItem->MoveLeft();
+
+	if(itInputBox == pOldItem->Type() && m_pCurrentMenuItem != pOldItem)
+	{
+		//execute action
+		MenuItemAction *pAction = pOldItem->Action();
+
+		if(NULL != m_pActionProcessor && NULL != pAction)
+		{
+			pAction->UpdateInputBoxParam(pOldItem->Value());
+			m_pActionProcessor->ProcessAction(pAction);
+		}
+	}
 }
 //--------------------------------------------------------------------------------------------------------
 void MenuHolder::MoveRight()
 {
-	m_pCurrentMenuItem = m_pCurrentMenuItem->MoveRight();
-
-	if(m_pCurrentMenuItem->IsLeaf())
+	if(m_pCurrentMenuItem->IsLeaf() && itInputBox != m_pCurrentMenuItem->Type())
 	{
         //this is a leaf; execute any actions needed
 		MenuItemAction *pAction = m_pCurrentMenuItem->Action();
@@ -64,5 +75,7 @@ void MenuHolder::MoveRight()
 		if(NULL != m_pActionProcessor)
 			m_pActionProcessor->ProcessAction(pAction);
 	}
+
+	m_pCurrentMenuItem = m_pCurrentMenuItem->MoveRight();
 }
 //--------------------------------------------------------------------------------------------------------

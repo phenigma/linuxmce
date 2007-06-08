@@ -22,6 +22,13 @@ string InputMenuItem::Mask()
 	return m_sMask;
 }
 //--------------------------------------------------------------------------------------------------------
+string InputMenuItem::Value()
+{
+	string sDescription(m_sDescription);
+	sDescription = StringUtils::Replace(sDescription, string() + EMPTY_CHAR, string() + SPACE_CHAR);
+	return sDescription;
+}
+//--------------------------------------------------------------------------------------------------------
 string InputMenuItem::Description()
 {
 	string sDescription(m_sDescription);
@@ -96,6 +103,13 @@ MenuItem *InputMenuItem::MoveRight()
 	}
 	while(!m_sMask.empty() && m_sMask[m_nCaretIndex] != MASK_CHAR);
 
+	//set the right position
+	size_t pos = m_csCaretOptions.find(m_sDescription[m_nCaretIndex]);
+	if(pos != string::npos)
+		m_nOptionIndex = pos;
+	else
+		m_nOptionIndex = 0;
+
 	return this;
 }
 //--------------------------------------------------------------------------------------------------------
@@ -108,6 +122,13 @@ MenuItem *InputMenuItem::MoveLeft()
 			m_nCaretIndex = (m_sDescription.length() + m_nCaretIndex - 1) % m_sDescription.length();
 		}
 		while(!m_sMask.empty() && m_sMask[m_nCaretIndex] != MASK_CHAR);
+
+		//set the right position
+		size_t pos = m_csCaretOptions.find(m_sDescription[m_nCaretIndex]);
+		if(pos != string::npos)
+			m_nOptionIndex = pos;
+		else
+			m_nOptionIndex = 0;
 
 		return this;
 	}

@@ -30,3 +30,8 @@ const map<int, string>& MenuItemAction::Parameters() const
 	return m_mapParameters;
 }
 //--------------------------------------------------------------------------------------------------------
+void MenuItemAction::UpdateInputBoxParam(string sValue)
+{
+	m_mapParameters[ptInputBox] = sValue;
+}
+//--------------------------------------------------------------------------------------------------------

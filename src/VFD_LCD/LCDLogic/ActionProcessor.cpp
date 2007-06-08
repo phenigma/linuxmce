@@ -17,7 +17,7 @@ ActionProcessor::~ActionProcessor()
 //--------------------------------------------------------------------------------------------------------
 void ActionProcessor::ProcessAction(MenuItemAction *pAction)
 {
-	DCE::LoggerWrapper::GetInstance()->Write(LV_WARNING, "Ready to execute action %s, type %d with %d parameters",
+	DCE::LoggerWrapper::GetInstance()->Write(LV_STATUS, "Ready to execute action %s, type %d with %d parameters",
 		pAction->Description().c_str(), pAction->Type(), pAction->Parameters().size());
 
 	switch(pAction->Type())
@@ -40,11 +40,16 @@ void ActionProcessor::ExecuteScript(string sCommandLine, const map<int, string>&
 {
 	for(map<int, string>::const_iterator it = mapParameters.begin(); it != mapParameters.end(); ++it)
 	{
-		string sParamToReplace = "{" + StringUtils::ltos(it->first) + "}";
+		string sToken = StringUtils::ltos(it->first);
+		if(it->first == ptInputBox)
+			sToken = "input";
+
+		string sParamToReplace = "{" + sToken + "}";
 		sCommandLine = StringUtils::Replace(sCommandLine, sParamToReplace, it->second);
 	}
 
-	system(sCommandLine.c_str());
+	DCE::LoggerWrapper::GetInstance()->Write(LV_WARNING, "Executing script: '%s'", sCommandLine.c_str());
+	//system(sCommandLine.c_str());
 }
 //--------------------------------------------------------------------------------------------------------
 void ActionProcessor::ExecuteCommand(string sCommandLine)

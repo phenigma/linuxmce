@@ -2,8 +2,8 @@
 <menu>
 	<menuitem description="Network Settings">
 		<menuitem description="Obtain an IP address (DHCP)" actiontype="call_method" action="ObtainIPAddress" />
-		<menuitem description="Enter a static IP" actiontype="call_method" action="EnterStaticIP">
-			<menuitem description="Static IP" type="input" mask="xxx.xxx.xxx.xxx" />
+		<menuitem description="Enter a static IP">
+			<menuitem description="Static IP" type="input" mask="xxx.xxx.xxx.xxx" actiontype="execute_script" action="/usr/pluto/bin/SetupNetwork.sh --ip {input}" />
 		</menuitem>
 		<menuitem description="View settings" actiontype="call_method" action="ViewSettings" />
 	</menuitem>
