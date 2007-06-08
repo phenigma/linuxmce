@@ -24,7 +24,7 @@ LDFLAGS += -L/usr/X11R6/lib
 XTRALDLIBS = -lX11
 
 Gen_Dev_Files +=
-sources += SignalHandler.cpp
+sources += SignalHandler.cpp amix.cpp
 
 #<-dceag-mf-b->
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
