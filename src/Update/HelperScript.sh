@@ -92,24 +92,13 @@ function ValidateUpdate {
 		return
 	fi
 
-	mkdir -p "${UPDATES_DIR}/${update_no}"
-	echo -n > "${UPDATES_DIR}/${update_no}/update.xml.progress"
-	if [[ ! -f "${UPDATES_DIR}/${update_no}/update.xml.progress" ]] ;then
-		Send "FAIL Cannot create update.xml file"
+	local update_xml="$2"
+	if [[ ! -f "${update_xml}" ]] ;then
+		Send "FAIL Update xml file is not set"
 		return
 	fi
 
-	local finished="false"
-	while [[ "$finished" != "true" ]] ;do
-		local line="$(Receive)"
-		if [[ "$line" != "EOF" ]] ;then
-			echo "$line" >> "${UPDATES_DIR}/${update_no}/update.xml.progress"
-		else
-			finished="true"
-		fi
-	done
-
-	mv "${UPDATES_DIR}/${update_no}/update.xml.progress" "${UPDATES_DIR}/${update_no}/update.xml"
+	cp "$update_xml" "${UPDATES_DIR}/${update_no}/update.xml"
 	Send "OK"
 }
 
@@ -279,12 +268,8 @@ while /bin/true ;do
 			Download "$(Param 2 "$line")" "$(Param 3 "$line")" "$(Param 4 "$line")"
 			;;
 		"VALIDATE_UPDATE")
-			# VALIDATE_UPDATE <UPDATE_ID>	
-			# line 1
-			# ............
-			# line n
-			# EOF
-			ValidateUpdate "$(Param 2 "$line")"
+			# VALIDATE_UPDATE <UPDATE_ID> <XML_FILE>
+			ValidateUpdate "$(Param 2 "$line")" "$(Param 3 "$line")"
 			;;
 		"CHECK_UPDATE")
 			# CHECK_UPDATE <UPDATE_ID>
