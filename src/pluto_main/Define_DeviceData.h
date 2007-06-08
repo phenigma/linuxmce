@@ -203,6 +203,8 @@
 #define DEVICEDATA_Source_CONST 230
 #define DEVICEDATA_Zoom_Level_CONST 231
 #define DEVICEDATA_PNP_Prompt_For_Options_CONST 232
+#define DEVICEDATA_Model_CONST 233
+#define DEVICEDATA_LastUpdate_CONST 234
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"

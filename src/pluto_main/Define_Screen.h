@@ -247,6 +247,8 @@
 #define SCREEN_NAS_Manager_CONST 261
 #define SCREEN_AutoConfigure_TV_CONST 262
 #define SCREEN_AdjustScreenSettings_CONST 263
+#define SCREEN_PNP_Generic_Options_CONST 264
+#define SCREEN_Zoom__Aspect_CONST 265
 
 #define SCREEN_TABLE "Screen"
 #define SCREEN_PK_SCREEN_FIELD "PK_Screen"
