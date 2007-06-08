@@ -25,11 +25,17 @@ function Send {
 	echo "$msg" >&$POUT
 }
 
+function _Param {
+	local param_no="$1"
+	shift
+	echo ${!param_no}
+}
+
 function Param {
 	local param_no="$1"
 	local line="$2"
 
-	echo "${line}" | cut -d" " -f${param_no}
+	eval _Param $param_no $line
 }
 
 function GetValue {
