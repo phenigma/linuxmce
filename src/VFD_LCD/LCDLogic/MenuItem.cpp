@@ -8,6 +8,8 @@
 MenuItem::MenuItem(string sDescription, MenuItem *pParent, ItemType type, MenuItemAction *pMenuItemAction) : 
 	m_sDescription(sDescription), m_pParent(pParent), m_type(type), m_pMenuItemAction(pMenuItemAction)
 {
+	if(NULL == m_pMenuItemAction)
+		m_pMenuItemAction = new MenuItemAction("", atNone);
 }
 //--------------------------------------------------------------------------------------------------------
 MenuItem::~MenuItem()
@@ -20,7 +22,12 @@ MenuItem::~MenuItem()
 //--------------------------------------------------------------------------------------------------------
 string MenuItem::Value()
 {
-	return m_sDescription;
+	return m_sValue;
+}
+//--------------------------------------------------------------------------------------------------------
+void MenuItem::Value(string sValue)
+{
+	m_sValue = sValue;
 }
 //--------------------------------------------------------------------------------------------------------
 string MenuItem::Description()
@@ -36,6 +43,16 @@ MenuItemAction *MenuItem::Action()
 ItemType MenuItem::Type()
 {
 	return m_type;
+}
+//--------------------------------------------------------------------------------------------------------
+void MenuItem::Status(string sStatus)
+{
+	m_sStatus = sStatus;
+}
+//--------------------------------------------------------------------------------------------------------
+string MenuItem::Status()
+{
+	return m_sStatus;
 }
 //--------------------------------------------------------------------------------------------------------
 bool MenuItem::CanGoRight()

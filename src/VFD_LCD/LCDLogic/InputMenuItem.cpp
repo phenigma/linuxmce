@@ -24,9 +24,9 @@ string InputMenuItem::Mask()
 //--------------------------------------------------------------------------------------------------------
 string InputMenuItem::Value()
 {
-	string sDescription(m_sDescription);
-	sDescription = StringUtils::Replace(sDescription, string() + EMPTY_CHAR, string() + SPACE_CHAR);
-	return sDescription;
+	m_sValue = m_sDescription;
+	m_sValue = StringUtils::Replace(m_sValue, string() + EMPTY_CHAR, string() + SPACE_CHAR);
+	return m_sValue;
 }
 //--------------------------------------------------------------------------------------------------------
 string InputMenuItem::Description()
@@ -47,6 +47,11 @@ string InputMenuItem::Description()
 	}
 
 	return sDescription;
+}
+//--------------------------------------------------------------------------------------------------------
+void InputMenuItem::Value(string sValue)
+{
+	m_sValue = sValue;
 }
 //--------------------------------------------------------------------------------------------------------
 bool InputMenuItem::CanGoRight()

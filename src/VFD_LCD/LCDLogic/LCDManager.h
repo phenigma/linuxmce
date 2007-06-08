@@ -7,6 +7,7 @@
 #include "DCE/Logger.h"
 //--------------------------------------------------------------------------------------------------------
 class MenuHolder;
+class MenuItem;
 //--------------------------------------------------------------------------------------------------------
 class LCDManager : public IInputProcessor
 {
@@ -17,14 +18,15 @@ private:
 	pluto_pthread_mutex_t m_RenderMutex;
 	list<IRenderer *> m_listRenderer;
 	pthread_t m_RerendererThreadID;
+	map<string, string> m_mapVariables;
 
 	unsigned long m_ulRendererInterval;
 	bool m_bQuit;
 
 	void Prepare();
-
 	void CancelRerender();
 	void ScheduleRerender(unsigned long ulMiliseconds);
+	string ListItemDescription(MenuItem *MenuItem);
 
 public:
 
@@ -32,9 +34,10 @@ public:
 	~LCDManager();
 
 	void Render();
-	unsigned long RerenderInterval();
 	bool Quit();
+	unsigned long RerenderInterval();
 
+	void SetVariable(string sVar, string sValue);
 	void AddRenderer(IRenderer *pRenderer);
 	bool ProcessInput(const Input &input);
 };

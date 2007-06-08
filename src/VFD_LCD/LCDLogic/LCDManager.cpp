@@ -12,6 +12,13 @@ LCDManager::LCDManager(MenuHolder *pMenuHolder) :
 	m_display_state.m_sStatusMessage = "Welcome to Fiire 1.0!";
 
 	m_RenderMutex.Init(NULL);
+
+	//Testing
+	SetVariable("{IP}", "192.168.89.2");
+	SetVariable("{NETMASK}", "255.255.255.0");
+	SetVariable("{GATEWAY}", "192.168.89.1");
+	SetVariable("{DNS1}", "192.168.89.1");
+	SetVariable("{DNS2}", "10.0.0.1");
 }
 //--------------------------------------------------------------------------------------------------------
 LCDManager::~LCDManager()
@@ -119,13 +126,14 @@ void LCDManager::Prepare()
 
 		case itListItem:
 		{
-			m_display_state.m_sHeader = m_pMenuHolder->CurrentMenuItem()->Description();
+			m_display_state.m_sHeader = ListItemDescription(m_pMenuHolder->CurrentMenuItem());
 		}
 		break;
 
 		case itInputBox:
 		{
 			m_display_state.m_sHeader = m_pMenuHolder->CurrentMenuItem()->Description();
+			m_display_state.m_sStatusMessage = m_pMenuHolder->CurrentMenuItem()->Status();
 			ScheduleRerender(REFRESH_INTERVAL);
 		}
 		break;
@@ -149,7 +157,7 @@ void LCDManager::Prepare()
 		MenuItem *pPrevItem = pCurrentItem->Parent()->PrevChild(pCurrentItem);
 		if(NULL != pPrevItem)
 		{
-            m_display_state.m_vectPriorOptions.push_back(pPrevItem->Description());
+            m_display_state.m_vectPriorOptions.push_back(ListItemDescription(pPrevItem));
 			pCurrentItem = pPrevItem;
 		}
 		else
@@ -164,7 +172,7 @@ void LCDManager::Prepare()
 		MenuItem *pNextItem = pCurrentItem->Parent()->NextChild(pCurrentItem);
 		if(NULL != pNextItem)
 		{
-            m_display_state.m_vectNextOptions.push_back(pNextItem->Description());
+            m_display_state.m_vectNextOptions.push_back(ListItemDescription(pNextItem));
 			pCurrentItem = pNextItem;
 		}
 		else
@@ -213,5 +221,18 @@ void LCDManager::ScheduleRerender(unsigned long ulMiliseconds)
 
 	if(!m_RerendererThreadID)
 		pthread_create(&m_RerendererThreadID, NULL, RerenderThread, (void *)this);
+}
+//--------------------------------------------------------------------------------------------------------
+void LCDManager::SetVariable(string sVar, string sValue)
+{
+	m_mapVariables[sVar] = sValue;
+}
+//--------------------------------------------------------------------------------------------------------
+string LCDManager::ListItemDescription(MenuItem *pMenuItem)
+{
+	if(!pMenuItem->Value().empty())
+		return pMenuItem->Description() + ": " + m_mapVariables[pMenuItem->Value()];
+
+	return pMenuItem->Description();
 }
 //--------------------------------------------------------------------------------------------------------

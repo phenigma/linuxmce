@@ -23,6 +23,8 @@ public:
 	string Value();
 	string Description();
 
+	void Value(string sValue);
+
 	bool CanGoRight();
 	bool CanGoLeft();
 	bool CanGoUp();

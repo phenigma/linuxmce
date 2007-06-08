@@ -57,7 +57,7 @@ void MenuHolder::MoveLeft()
 		//execute action
 		MenuItemAction *pAction = pOldItem->Action();
 
-		if(NULL != m_pActionProcessor && NULL != pAction)
+		if(NULL != m_pActionProcessor && pAction->Type() != atNone)
 		{
 			pAction->UpdateInputBoxParam(pOldItem->Value());
 			m_pActionProcessor->ProcessAction(pAction);
@@ -67,12 +67,11 @@ void MenuHolder::MoveLeft()
 //--------------------------------------------------------------------------------------------------------
 void MenuHolder::MoveRight()
 {
-	if(m_pCurrentMenuItem->IsLeaf() && itInputBox != m_pCurrentMenuItem->Type())
+	if(itInputBox != m_pCurrentMenuItem->Type())
 	{
-        //this is a leaf; execute any actions needed
 		MenuItemAction *pAction = m_pCurrentMenuItem->Action();
 
-		if(NULL != m_pActionProcessor)
+		if(NULL != m_pActionProcessor && pAction->Type() != atNone)
 			m_pActionProcessor->ProcessAction(pAction);
 	}
 

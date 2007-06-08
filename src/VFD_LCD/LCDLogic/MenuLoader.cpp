@@ -110,6 +110,9 @@ MenuItem *MenuLoader::ParseMenuItem(xmlNode *node, MenuItem *pParent)
 	else
 		pMenuItem = new MenuItem(sDescription, pParent, type, pAction);
 
+	pMenuItem->Status(mapAttributes["status"]);
+	pMenuItem->Value(mapAttributes["value"]);
+
 	//parse children
 	xmlNode *cur_node = NULL;
 	for(cur_node = node->children; cur_node; cur_node = cur_node->next)  

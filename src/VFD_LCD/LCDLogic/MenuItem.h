@@ -20,6 +20,8 @@ protected:
 
 	ItemType m_type;
 	string m_sDescription;
+	string m_sStatus;
+	string m_sValue;
 	MenuItem *m_pParent;
 	vector<MenuItem *> m_vectChildren;
 	MenuItemAction *m_pMenuItemAction;
@@ -30,9 +32,14 @@ public:
 	virtual ~MenuItem();
 
 	virtual string Value();
+	virtual void Value(string sValue);
+
 	virtual string Description();
 	MenuItemAction *Action();
 	ItemType Type();
+
+	void Status(string sStatus);
+	string Status();
 
 	bool IsLeaf();
 

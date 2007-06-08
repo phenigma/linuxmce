@@ -1,11 +1,33 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?> 
 <menu>
 	<menuitem description="Network Settings">
-		<menuitem description="Obtain an IP address (DHCP)" actiontype="call_method" action="ObtainIPAddress" />
-		<menuitem description="Enter a static IP">
-			<menuitem description="Static IP" type="input" mask="xxx.xxx.xxx.xxx" actiontype="execute_script" action="/usr/pluto/bin/SetupNetwork.sh --ip {input}" />
+		<menuitem description="Obtain an IP address (DHCP)" actiontype="execute_script" action="/usr/pluto/bin/SetupNetwork.sh --automatically" >
+			<menuitem description="Please wait..." />		
 		</menuitem>
-		<menuitem description="View settings" actiontype="call_method" action="ViewSettings" />
+		<menuitem description="Enter a static IP">
+			<menuitem description="Edit IP" status="Enter static ip">
+				<menuitem description="" type="input" value="{IP}" mask="xxx.xxx.xxx.xxx" actiontype="execute_script" action="/usr/pluto/bin/SetupNetwork.sh --ip {input}" />
+			</menuitem>
+			<menuitem description="Edit gateway">
+				<menuitem description="" type="input" value="{GATEWAY}" mask="xxx.xxx.xxx.xxx" actiontype="execute_script" action="/usr/pluto/bin/SetupNetwork.sh --gateway {input}" />
+			</menuitem>
+			<menuitem description="Edit netmask">
+				<menuitem description="" type="input" value="{NETMASK}" mask="xxx.xxx.xxx.xxx" actiontype="execute_script" action="/usr/pluto/bin/SetupNetwork.sh --netmask {input}" />
+			</menuitem>
+			<menuitem description="Edit DNS1">
+				<menuitem description="" type="input" value="{DNS1}" mask="xxx.xxx.xxx.xxx" actiontype="execute_script" action="/usr/pluto/bin/SetupNetwork.sh --dns1 {input}" />
+			</menuitem>
+			<menuitem description="Edit DNS2">
+				<menuitem description="" type="input" value="{DNS2}" mask="xxx.xxx.xxx.xxx" actiontype="execute_script" action="/usr/pluto/bin/SetupNetwork.sh --dns2 {input}" />
+			</menuitem>
+		</menuitem>
+		<menuitem description="View settings">
+			<menuitem description="IP" value="{IP}" />
+			<menuitem description="Gateway" value="{GATEWAY}" />
+			<menuitem description="Netmask" value="{NETMASK}" />
+			<menuitem description="DNS1" value="{DNS1}" />
+			<menuitem description="DNS2" value="{DNS2}" />
+		</menuitem>
 	</menuitem>
 	<menuitem description="Video Settings">
 		<menuitem description="Resolution">
