@@ -11,7 +11,10 @@ char * UpdatesXML::tagPriority = "priority";
 char * UpdatesXML::tagDescription = "description";
 char * UpdatesXML::tagModels = "model";
 char * UpdatesXML::tagFiles = "file";
-char * UpdatesXML::tagOptions = "options";
+char * UpdatesXML::tagOptions = "option";
+char * UpdatesXML::attrOptionsType = "type";
+char * UpdatesXML::attrOptionsPre = "pre";
+char * UpdatesXML::attrOptionsPost = "post";
 
 // class Update Node
 UpdateNode::UpdateNode(unsigned id)
@@ -125,6 +128,10 @@ void UpdatesXML::ParseUpdate(xmlNode *pNode)
 						if( pProperty->name == UpdatesXML::tagFiles )
 						{
 							pUpdateNode->AddFile(pProperty);
+						}
+						else if( pProperty->name == UpdatesXML::tagOptions )
+						{
+							pUpdateNode->AddOption(pProperty);
 						}
 						else
 						{
@@ -282,12 +289,25 @@ void UpdatesXML::GenerateUpdateXML(UpdateNode * pUpdateNode, const char * outFil
 	{
 		UpdateProperty * pUpdateProp = (*itFile);
 		xmlNodePtr pProp = xmlNewTextChild(cur, NULL,
-								(const xmlChar*)pUpdateProp->name.c_str(),
-								(const xmlChar*)pUpdateProp->value.c_str());
+										   (const xmlChar*)pUpdateProp->name.c_str(),
+										   (const xmlChar*)pUpdateProp->value.c_str());
 		for(StringMapConstIt itAttr=pUpdateProp->attributesMap.begin(); itAttr!=pUpdateProp->attributesMap.end(); ++itAttr)
 		{
 			//xmlAttrPtr pAttr =
-				xmlNewProp(pProp, (const xmlChar*)(*itAttr).first.c_str(), (const xmlChar*)(*itAttr).second.c_str());
+			xmlNewProp(pProp, (const xmlChar*)(*itAttr).first.c_str(), (const xmlChar*)(*itAttr).second.c_str());
+		}
+	}
+	// options
+	for(vector<UpdateProperty*>::const_iterator itOpt=pUpdateNode->Options().begin(); itOpt!=pUpdateNode->Options().end(); ++itOpt)
+	{
+		UpdateProperty * pUpdateProp = (*itOpt);
+		xmlNodePtr pProp = xmlNewTextChild(cur, NULL,
+										   (const xmlChar*)pUpdateProp->name.c_str(),
+										   (const xmlChar*)pUpdateProp->value.c_str());
+		for(StringMapConstIt itAttr=pUpdateProp->attributesMap.begin(); itAttr!=pUpdateProp->attributesMap.end(); ++itAttr)
+		{
+			//xmlAttrPtr pAttr =
+			xmlNewProp(pProp, (const xmlChar*)(*itAttr).first.c_str(), (const xmlChar*)(*itAttr).second.c_str());
 		}
 	}
 	

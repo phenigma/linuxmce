@@ -56,9 +56,11 @@ class UpdatesManager
 		
 		bool ProcessUpdate(unsigned uId);
 		
-		bool ProcessOptionUpdate(unsigned uId);
+		bool ProcessOptionUpdate(unsigned uId, const char * type);
 		
 	private:
+		
+		bool SetLastUpdate(unsigned uLastUpdate);
 		
 		string updatesPath;
 		

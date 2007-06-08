@@ -237,16 +237,26 @@ bool UpdatesManager::Run()
 					if( lastUpdate < pUpdate->UpdateId() && 
 									   pUpdate->IsModel(model) )
 					{
-						// process the update
-						if( ProcessUpdate( pUpdate->UpdateId() ) )
+						if( !ProcessOptionUpdate( pUpdate->UpdateId(), UpdatesXML::attrOptionsPre ) )
 						{
-							if( !ProcessOptionUpdate( pUpdate->UpdateId() ) )
-							{
-								// TODO
-								return false;
-							}
+							// TODO
+							return false;
 						}
-						else
+						
+						// process the update
+						if( !ProcessUpdate( pUpdate->UpdateId() ) )
+						{
+							// TODO
+							return false;
+						}
+						
+						if( !SetLastUpdate( pUpdate->UpdateId() ) )
+						{
+							// TODO
+							return false;
+						}
+						
+						if( !ProcessOptionUpdate( pUpdate->UpdateId(), UpdatesXML::attrOptionsPost ) )
 						{
 							// TODO
 							return false;
@@ -267,6 +277,26 @@ bool UpdatesManager::Run()
 bool UpdatesManager::isIOError() const
 {
 	return ioError;
+}
+
+bool UpdatesManager::SetLastUpdate(unsigned uLastUpdate)
+{
+	PlutoSqlResult result_set;
+	string sql_buff = "update Device_DeviceData set IK_DeviceData = '";
+	sql_buff += StringUtils::itos( uLastUpdate );
+	sql_buff += "' where FK_DeviceData = '";
+	sql_buff += StringUtils::itos( DEVICEDATA_LastUpdate_CONST );
+	sql_buff += "' AND FK_Device = '";
+	sql_buff += StringUtils::itos( dceconf.m_iPK_Device_Computer );
+	sql_buff += "'";
+	
+	if( (result_set.r=mySqlHelper.mysql_query_result(sql_buff.c_str())) == NULL )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "UpdatesManager::SetLastUpdate : SQL FAILED : %s",sql_buff.c_str());
+		return false;
+	}
+	
+	return true;
 }
 
 bool UpdatesManager::CheckUpdate(unsigned uId)
@@ -507,7 +537,7 @@ bool UpdatesManager::ProcessUpdate(unsigned uId)
 	return true;
 }
 
-bool UpdatesManager::ProcessOptionUpdate(unsigned uId)
+bool UpdatesManager::ProcessOptionUpdate(unsigned uId, const char * type)
 {
 	// find the update
 	UpdateNode * pUpdate = NULL;
@@ -524,32 +554,46 @@ bool UpdatesManager::ProcessOptionUpdate(unsigned uId)
 		return false;
 	}
 	
-	char cmd[256];
-	map<string, UpdateProperty*>::iterator itFind = pUpdate->Properties().find(UpdatesXML::tagOptions);
-	if( itFind == pUpdate->Properties().end() )
+	char cmd[1024] = "\0";
+	for(vector<UpdateProperty*>::const_iterator it=pUpdate->Options().begin(); it!=pUpdate->Options().end(); ++it)
 	{
-		return false;
-	}
-	snprintf(cmd, sizeof(cmd), "APPLY_OPTION %u %s\n", uId, (*itFind).second->value.c_str());
+		UpdateProperty * prop = (*it);
+		if( prop == NULL )
+		{
+			// TODO
+			return false;
+		}
+		
+		StringMapIt itFind = prop->attributesMap.find("type");
+		if( itFind != prop->attributesMap.end() && type == (*itFind).second )
+		{
+			snprintf(cmd, sizeof(cmd), "APPLY_OPTION %u %s\n", uId, prop->value.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Update apply_option: %s", cmd);
 	
-	int iRet = 0;
-	char message[256] = "\0";
-	iRet = write(outputFd, cmd, strlen(cmd));
-	if(iRet == -1 || iRet == 0)
-	{
-		ioError = true;
-		return false;
-	}
-	iRet = read(inputFd, &message, 255);
-	if(iRet == -1 || iRet == 0)
-	{
-		ioError = true;
-		return false;
+			int iRet = 0;
+			char message[256] = "\0";
+			iRet = write(outputFd, cmd, strlen(cmd));
+			if(iRet == -1 || iRet == 0)
+			{
+				ioError = true;
+				return false;
+			}
+			iRet = read(inputFd, &message, 255);
+			if(iRet == -1 || iRet == 0)
+			{
+				ioError = true;
+				return false;
+			}
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "#Update apply_option: %s", message);
+	
+			if( strncmp(message, "OK", 2) )
+			{
+				return false;
+			}
+		}
 	}
 	
-	if( !strncmp(message, "OK", 2) )
-		return true;
-	return false;
+	return true;
 }
 
 bool UpdatesManager::ExistingUpdates(vector<unsigned> & updList)

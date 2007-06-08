@@ -84,6 +84,16 @@ class UpdateNode
 			return files;
 		}
 		
+		void AddOption(UpdateProperty * prop)
+		{
+			options.push_back(prop);
+		}
+		
+		vector<UpdateProperty*> & Options()
+		{
+			return options;
+		}
+		
 		void AddProperty(const string & name, UpdateProperty * prop)
 		{
 			properties[name] = prop;
@@ -103,6 +113,7 @@ class UpdateNode
 		StringMap attributesMap;
 		map<string, UpdateProperty*> properties;
 		vector<UpdateProperty*> files;
+		vector<UpdateProperty*> options;
 };
 
 class UpdatesXML
@@ -116,6 +127,9 @@ class UpdatesXML
 		static char * tagModels;
 		static char * tagFiles;
 		static char * tagOptions;
+		static char * attrOptionsType;
+		static char * attrOptionsPre;
+		static char * attrOptionsPost;
 		
 		UpdatesXML(std::string sXmlFile = "");
 		
