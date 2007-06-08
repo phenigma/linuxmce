@@ -1,6 +1,7 @@
 #include "LCDManager.h"
 #include "MenuHolder.h"
 #include "MenuItem.h"
+#include "MenuItemAction.h"
 //--------------------------------------------------------------------------------------------------------
 #define REFRESH_INTERVAL	400
 #define IDLE_INTERVAL		100
@@ -13,13 +14,18 @@ LCDManager::LCDManager(MenuHolder *pMenuHolder) :
 
 	m_RenderMutex.Init(NULL);
 
-	//Testing
+	//////////////////////////////////////////////////////////////
+	//Testing - remove me
 	SetVariable("{IP}", "192.168.89.2");
 	SetVariable("{NETMASK}", "255.255.255.0");
 	SetVariable("{GATEWAY}", "192.168.89.1");
 	SetVariable("{DNS1}", "192.168.89.1");
 	SetVariable("{DNS2}", "10.0.0.1");
 	SetVariable("{CURRENT_STATUS}", "LMCE LCD Menu 1.0");
+	//////////////////////////////////////////////////////////////
+
+	if(NULL != m_pMenuHolder)
+		Expand(m_pMenuHolder->RootMenu());
 }
 //--------------------------------------------------------------------------------------------------------
 LCDManager::~LCDManager()
@@ -235,5 +241,52 @@ string LCDManager::ListItemDescription(MenuItem *pMenuItem)
 		return pMenuItem->Description() + ": " + m_mapVariables[pMenuItem->Value()];
 
 	return pMenuItem->Description();
+}
+//--------------------------------------------------------------------------------------------------------
+bool LCDManager::Expand(MenuItem *pMenuItem)
+{
+	if(NULL != pMenuItem)
+	{
+		DCE::LoggerWrapper::GetInstance()->Write(LV_STATUS, "Analysing item %s type %d", 
+			pMenuItem->Description().c_str(), pMenuItem->Type());
+
+		if(pMenuItem->Type() == itExpandItem && NULL != pMenuItem->Parent())
+		{
+			if(pMenuItem->Value() == "{ORBITER}")
+			{
+				list<MenuItem *> listExpandedItems;
+				//TODO: get orbiter devices
+
+				////////////////////////////////////////////////
+				//Testing - remove me
+				MenuItemAction *pAction = pMenuItem->Action()->Clone();
+				pAction->UpdateValueParam("20");
+				listExpandedItems.push_back(new MenuItem("20", pMenuItem->Parent(), itListItem, pAction));
+
+				pAction = pMenuItem->Action()->Clone();
+				pAction->UpdateValueParam("43");
+				listExpandedItems.push_back(new MenuItem("43", pMenuItem->Parent(), itListItem, pAction));
+
+				pAction = pMenuItem->Action()->Clone();
+				pAction->UpdateValueParam("60");
+				listExpandedItems.push_back(new MenuItem("60", pMenuItem->Parent(), itListItem, pAction));
+				/////////////////////////////////////////////////
+
+				pMenuItem->Parent()->Expand(pMenuItem, listExpandedItems);
+				return true;
+			}
+		}
+		else
+		{
+			for(vector<MenuItem *>::const_iterator it = pMenuItem->Children().begin(); it != pMenuItem->Children().end(); ++it)
+			{
+				MenuItem *pChild = *it;
+				if(Expand(pChild))
+					return false;
+			}
+		}
+	}
+
+	return false;
 }
 //--------------------------------------------------------------------------------------------------------

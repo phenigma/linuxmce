@@ -26,7 +26,7 @@ void ActionProcessor::ProcessAction(MenuItemAction *pAction)
 			ExecuteScript(pAction->Description(), pAction->Parameters());
 			break;
 		case atExecuteCommand:
-			ExecuteCommand(pAction->Description());
+			ExecuteCommand(pAction->Description(), pAction->Parameters());
 			break;
 		case atCallMethod:
 			CallMethod(pAction->Description(), pAction->Parameters());
@@ -41,8 +41,8 @@ void ActionProcessor::ExecuteScript(string sCommandLine, const map<int, string>&
 	for(map<int, string>::const_iterator it = mapParameters.begin(); it != mapParameters.end(); ++it)
 	{
 		string sToken = StringUtils::ltos(it->first);
-		if(it->first == ptInputBox)
-			sToken = "input";
+		if(it->first == ptValue)
+			sToken = "VALUE";
 
 		string sParamToReplace = "{" + sToken + "}";
 		sCommandLine = StringUtils::Replace(sCommandLine, sParamToReplace, it->second);
@@ -52,8 +52,20 @@ void ActionProcessor::ExecuteScript(string sCommandLine, const map<int, string>&
 	//system(sCommandLine.c_str());
 }
 //--------------------------------------------------------------------------------------------------------
-void ActionProcessor::ExecuteCommand(string sCommandLine)
+void ActionProcessor::ExecuteCommand(string sCommandLine, const map<int, string>& mapParameters)
 {
+	for(map<int, string>::const_iterator it = mapParameters.begin(); it != mapParameters.end(); ++it)
+	{
+		string sToken = StringUtils::ltos(it->first);
+		if(it->first == ptValue)
+			sToken = "VALUE";
+
+		string sParamToReplace = "{" + sToken + "}";
+		sCommandLine = StringUtils::Replace(sCommandLine, sParamToReplace, it->second);
+	}
+
+	DCE::LoggerWrapper::GetInstance()->Write(LV_WARNING, "Sending command: '%s'", sCommandLine.c_str());
+
 	list<string> listArgs;
 
 	string::size_type pos = 0;

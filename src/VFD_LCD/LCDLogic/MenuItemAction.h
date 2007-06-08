@@ -15,7 +15,7 @@ enum ActionType
 //--------------------------------------------------------------------------------------------------------
 enum ParameterType
 {
-	ptInputBox
+	ptValue,
 };
 //--------------------------------------------------------------------------------------------------------
 class MenuItemAction
@@ -34,7 +34,8 @@ public:
 	ActionType Type();
 	const map<int, string>& Parameters() const;
 
-	void UpdateInputBoxParam(string sValue);
+	void UpdateValueParam(string sValue);
+	MenuItemAction *Clone();
 };
 //--------------------------------------------------------------------------------------------------------
 #endif //__MENU_ITEM_ACTION_H__

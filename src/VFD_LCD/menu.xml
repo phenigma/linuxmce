@@ -6,19 +6,19 @@
 		</menuitem>
 		<menuitem description="Enter a static IP">
 			<menuitem description="Edit IP" status="Enter static ip">
-				<menuitem description="" type="input" value="{IP}" mask="xxx.xxx.xxx.xxx" actiontype="execute_script" action="/usr/pluto/bin/SetupNetwork.sh --ip {input}" />
+				<menuitem description="" type="input" value="{IP}" mask="xxx.xxx.xxx.xxx" actiontype="execute_script" action="/usr/pluto/bin/SetupNetwork.sh --ip {VALUE}" />
 			</menuitem>
 			<menuitem description="Edit gateway">
-				<menuitem description="" type="input" value="{GATEWAY}" mask="xxx.xxx.xxx.xxx" actiontype="execute_script" action="/usr/pluto/bin/SetupNetwork.sh --gateway {input}" />
+				<menuitem description="" type="input" value="{GATEWAY}" mask="xxx.xxx.xxx.xxx" actiontype="execute_script" action="/usr/pluto/bin/SetupNetwork.sh --gateway {VALUE}" />
 			</menuitem>
 			<menuitem description="Edit netmask">
-				<menuitem description="" type="input" value="{NETMASK}" mask="xxx.xxx.xxx.xxx" actiontype="execute_script" action="/usr/pluto/bin/SetupNetwork.sh --netmask {input}" />
+				<menuitem description="" type="input" value="{NETMASK}" mask="xxx.xxx.xxx.xxx" actiontype="execute_script" action="/usr/pluto/bin/SetupNetwork.sh --netmask {VALUE}" />
 			</menuitem>
 			<menuitem description="Edit DNS1">
-				<menuitem description="" type="input" value="{DNS1}" mask="xxx.xxx.xxx.xxx" actiontype="execute_script" action="/usr/pluto/bin/SetupNetwork.sh --dns1 {input}" />
+				<menuitem description="" type="input" value="{DNS1}" mask="xxx.xxx.xxx.xxx" actiontype="execute_script" action="/usr/pluto/bin/SetupNetwork.sh --dns1 {VALUE}" />
 			</menuitem>
 			<menuitem description="Edit DNS2">
-				<menuitem description="" type="input" value="{DNS2}" mask="xxx.xxx.xxx.xxx" actiontype="execute_script" action="/usr/pluto/bin/SetupNetwork.sh --dns2 {input}" />
+				<menuitem description="" type="input" value="{DNS2}" mask="xxx.xxx.xxx.xxx" actiontype="execute_script" action="/usr/pluto/bin/SetupNetwork.sh --dns2 {VALUE}" />
 			</menuitem>
 		</menuitem>
 		<menuitem description="View settings">
@@ -80,7 +80,8 @@
 		<menuitem description="Refresh the devices" actiontype="execute_command" action="0 -1000 7 1" />
 		<menuitem description="Force a refresh" actiontype="execute_command" action="0 -1000 7 6" />
 		<menuitem description="Regenerate Orbiter's UI's">
-			<menuitem description="all" actiontype="execute_command" action="-targetType template 0 12 2 0 21 -r 24 0"></menuitem>
+			<menuitem description="All" actiontype="execute_command" action="-targetType template 0 12 2 0 21 -r 24 0"></menuitem>
+			<menuitem description="Orbiters" value="{ORBITER}" type="expand" actiontype="execute_command" action="-targetType template 0 12 2 {VALUE} 21 -r 24 0"></menuitem>
 		</menuitem>
 		<menuitem description="Power off the core and media directors" >
 			<menuitem description="No" />

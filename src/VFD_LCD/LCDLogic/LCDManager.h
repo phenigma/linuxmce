@@ -27,6 +27,7 @@ private:
 	void CancelRerender();
 	void ScheduleRerender(unsigned long ulMiliseconds);
 	string ListItemDescription(MenuItem *MenuItem);
+	bool Expand(MenuItem *pMenuItem);
 
 public:
 

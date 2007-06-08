@@ -101,6 +101,8 @@ MenuItem *MenuLoader::ParseMenuItem(xmlNode *node, MenuItem *pParent)
 
 	if(mapAttributes["type"] == "input")
 		type = itInputBox;
+	if(mapAttributes["type"] == "expand")
+		type = itExpandItem;
 
 	MenuItemAction *pAction = new MenuItemAction(sAction, action_type, mapParameters);
 	MenuItem *pMenuItem = NULL;

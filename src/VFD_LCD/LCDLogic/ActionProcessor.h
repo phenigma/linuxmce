@@ -20,7 +20,7 @@ private:
 
 	//helpers
 	void ExecuteScript(string sCommandLine, const map<int, string>& mapParameters);
-	void ExecuteCommand(string sCommandLine);
+	void ExecuteCommand(string sCommandLine, const map<int, string>& mapParameters);
 	void CallMethod(string sMethodName, const map<int, string>& mapParameters);
 
 	//methods to call

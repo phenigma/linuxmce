@@ -3,6 +3,7 @@
 //--------------------------------------------------------------------------------------------------------
 #include <string>
 #include <vector>
+#include <list>
 using namespace std;
 //--------------------------------------------------------------------------------------------------------
 class MenuItemAction;
@@ -11,7 +12,8 @@ enum ItemType
 {
 	itStatusItem,
 	itListItem,
-	itInputBox
+	itInputBox,
+	itExpandItem
 };
 //--------------------------------------------------------------------------------------------------------
 class MenuItem
@@ -44,6 +46,7 @@ public:
 	bool IsLeaf();
 
 	MenuItem *Parent();
+	const vector<MenuItem *>& Children() const;
 	void AddChild(MenuItem *pMenuItem);
 
 	MenuItem *FirstChild();
@@ -59,6 +62,8 @@ public:
 	virtual MenuItem *MoveDown();
 	virtual MenuItem *MoveRight();
 	virtual MenuItem *MoveLeft();
+
+	void Expand(MenuItem *pChildMenuItem, const list<MenuItem *>& listExpandedItems);
 };
 //--------------------------------------------------------------------------------------------------------
 #endif //__MENU_ITEM_H__

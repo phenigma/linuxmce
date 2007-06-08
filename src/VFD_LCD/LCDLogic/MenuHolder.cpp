@@ -62,7 +62,7 @@ void MenuHolder::MoveLeft()
 
 		if(NULL != m_pActionProcessor && pAction->Type() != atNone)
 		{
-			pAction->UpdateInputBoxParam(pOldItem->Value());
+			pAction->UpdateValueParam(pOldItem->Value());
 			m_pActionProcessor->ProcessAction(pAction);
 		}
 	}

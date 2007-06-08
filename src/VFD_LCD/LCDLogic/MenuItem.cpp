@@ -80,6 +80,11 @@ MenuItem *MenuItem::Parent()
 	return m_pParent;
 }
 //--------------------------------------------------------------------------------------------------------
+const vector<MenuItem *>& MenuItem::Children() const
+{
+	return m_vectChildren;
+}
+//--------------------------------------------------------------------------------------------------------
 void MenuItem::AddChild(MenuItem *pMenuItem)
 {
 	if(NULL != pMenuItem)
@@ -183,5 +188,25 @@ MenuItem *MenuItem::MoveLeft()
 bool MenuItem::IsLeaf()
 {
 	return m_vectChildren.empty();
+}
+//--------------------------------------------------------------------------------------------------------
+void MenuItem::Expand(MenuItem *pChildMenuItem, const list<MenuItem *>& listExpandedItems)
+{
+	vector<MenuItem *>::iterator it = std::find(m_vectChildren.begin(), m_vectChildren.end(), pChildMenuItem);
+
+	if(it == m_vectChildren.end())
+	{
+		DCE::LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "%p/%s is not child for %p/%s",
+			pChildMenuItem, pChildMenuItem->Description().c_str(),
+			this, Description().c_str()
+		);
+
+		return;
+	}
+
+	it = m_vectChildren.erase(it);
+	m_vectChildren.insert(it, listExpandedItems.begin(), listExpandedItems.end()); 
+
+	delete pChildMenuItem;
 }
 //--------------------------------------------------------------------------------------------------------
