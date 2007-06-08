@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..;../DCE/;../../libs/Libraries/pthreads-win32/include;/mysql/include"
+				AdditionalIncludeDirectories="..;../DCE/;&quot;../../libs/Libraries/pthreads-win32/include&quot;;../../libs/CrossPlatform/LibXML2/include;/mysql/include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -32,10 +32,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE.lib"
+				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE.lib Serial.lib libxml2.lib"
 				OutputFile="../Debug/Generic_VFDLCD.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="../../libs/Libraries/pthreads-win32/lib;../lib"
+				AdditionalLibraryDirectories="&quot;../../libs/Libraries/pthreads-win32/lib&quot;;../lib;../../libs/CrossPlatform/LibXML2/lib"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/Generic_VFDLCD.pdb"
 				SubSystem="1"
@@ -70,9 +70,9 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="2"
-				AdditionalIncludeDirectories="..;../DCE/;../../libs/Libraries/pthreads-win32/include;/mysql/include"
 				InlineFunctionExpansion="1"
 				OmitFramePointers="TRUE"
+				AdditionalIncludeDirectories="..;../DCE/;../../libs/Libraries/pthreads-win32/include;/mysql/include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
@@ -87,8 +87,8 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE-r.lib"
 				OutputFile="../bin/Generic_VFDLCD.exe"
-				AdditionalLibraryDirectories="../../libs/Libraries/pthreads-win32/lib;../lib"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories="../../libs/Libraries/pthreads-win32/lib;../lib"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
 				OptimizeReferences="2"
@@ -123,7 +123,7 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm">
 			<File
-				RelativePath="Main.cpp">
+				RelativePath="..\Vfd_lcd\LCDLogic\ActionProcessor.cpp">
 			</File>
 			<File
 				RelativePath="Generic_VFDLCD.cpp">
@@ -131,15 +131,84 @@
 			<File
 				RelativePath="..\Gen_Devices\Generic_VFDLCDBase.cpp">
 			</File>
+			<File
+				RelativePath="..\Vfd_lcd\LCDLogic\InputMenuItem.cpp">
+			</File>
+			<File
+				RelativePath="..\Vfd_lcd\LCDLogic\LCDManager.cpp">
+			</File>
+			<File
+				RelativePath="..\Vfd_lcd\Renderers\LCDRenderer.cpp">
+			</File>
+			<File
+				RelativePath="Main.cpp">
+			</File>
+			<File
+				RelativePath="..\Vfd_lcd\LCDLogic\MenuHolder.cpp">
+			</File>
+			<File
+				RelativePath="..\Vfd_lcd\LCDLogic\MenuItem.cpp">
+			</File>
+			<File
+				RelativePath="..\Vfd_lcd\LCDLogic\MenuItemAction.cpp">
+			</File>
+			<File
+				RelativePath="..\Vfd_lcd\LCDLogic\MenuLoader.cpp">
+			</File>
+			<File
+				RelativePath="..\Vfd_lcd\InputProviders\SocketStatusInputProvider.cpp">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc">
 			<File
+				RelativePath="..\Vfd_lcd\LCDLogic\ActionProcessor.h">
+			</File>
+			<File
 				RelativePath="..\DCE\DCEDeviceData_Impl.h">
 			</File>
 			<File
+				RelativePath="..\Vfd_lcd\LCDLogic\DisplayState.h">
+			</File>
+			<File
 				RelativePath="Generic_VFDLCD.h">
+			</File>
+			<File
+				RelativePath="..\Vfd_lcd\LCDLogic\IInputProcessor.h">
+			</File>
+			<File
+				RelativePath="..\Vfd_lcd\LCDLogic\IInputProvider.h">
+			</File>
+			<File
+				RelativePath="..\Vfd_lcd\LCDLogic\Input.h">
+			</File>
+			<File
+				RelativePath="..\Vfd_lcd\LCDLogic\InputMenuItem.h">
+			</File>
+			<File
+				RelativePath="..\Vfd_lcd\LCDLogic\IRenderer.h">
+			</File>
+			<File
+				RelativePath="..\Vfd_lcd\LCDLogic\LCDManager.h">
+			</File>
+			<File
+				RelativePath="..\Vfd_lcd\Renderers\LCDRenderer.h">
+			</File>
+			<File
+				RelativePath="..\Vfd_lcd\LCDLogic\MenuHolder.h">
+			</File>
+			<File
+				RelativePath="..\Vfd_lcd\LCDLogic\MenuItem.h">
+			</File>
+			<File
+				RelativePath="..\Vfd_lcd\LCDLogic\MenuItemAction.h">
+			</File>
+			<File
+				RelativePath="..\Vfd_lcd\LCDLogic\MenuLoader.h">
+			</File>
+			<File
+				RelativePath="..\Vfd_lcd\InputProviders\SocketStatusInputProvider.h">
 			</File>
 		</Filter>
 		<Filter
