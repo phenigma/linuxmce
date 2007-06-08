@@ -82,8 +82,14 @@
 		<menuitem description="Regenerate Orbiter's UI's">
 			<menuitem description="all" actiontype="execute_command" action="-targetType template 0 12 2 0 21 -r 24 0"></menuitem>
 		</menuitem>
-		<menuitem description="Power off the core and media directors" actiontype="execute_command" action="0 -1000 ..." />
-		<menuitem description="Power off the media directors and reboot the core" actiontype="execute_command" action="0 -1000 ..." />
+		<menuitem description="Power off the core and media directors" >
+			<menuitem description="No" />
+			<menuitem description="Yes" actiontype="execute_command" action="0 -1000 ..." />
+		</menuitem>
+		<menuitem description="Power off the media directors and reboot the core">
+			<menuitem description="No" />
+			<menuitem description="Yes" actiontype="execute_command" action="0 -1000 ..." />
+		</menuitem>
 	</menuitem>
 	<menuitem description="Media Directors">
 		<menuitem description="Video settings" actiontype="execute_command" action="0 -1000 ..." />

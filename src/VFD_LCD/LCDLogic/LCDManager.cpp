@@ -19,6 +19,7 @@ LCDManager::LCDManager(MenuHolder *pMenuHolder) :
 	SetVariable("{GATEWAY}", "192.168.89.1");
 	SetVariable("{DNS1}", "192.168.89.1");
 	SetVariable("{DNS2}", "10.0.0.1");
+	SetVariable("{CURRENT_STATUS}", "LMCE LCD Menu 1.0");
 }
 //--------------------------------------------------------------------------------------------------------
 LCDManager::~LCDManager()
@@ -89,10 +90,6 @@ bool LCDManager::ProcessInput(const Input &input)
 			break;
 	}
 
-	//decide which is current node
-	//display on renderer
-	//execute action for current node, if any
-
 	Render();
 
 	return true;
@@ -138,6 +135,10 @@ void LCDManager::Prepare()
 		}
 		break;
 	}
+
+	//parent
+	if(NULL != m_pMenuHolder->CurrentMenuItem()->Parent())
+		m_display_state.m_sStatusMessage = ListItemDescription(m_pMenuHolder->CurrentMenuItem()->Parent());
 
 	//navigation
 	m_display_state.m_bCanGoDown = m_pMenuHolder->CurrentMenuItem()->CanGoDown();

@@ -24,7 +24,10 @@ void MenuHolder::Setup(ActionProcessor *pActionProcessor)
 MenuItem *MenuHolder::RootMenu()
 {
 	if(NULL == m_pRootMenuItem)
-		m_pRootMenuItem = new MenuItem("root", NULL, itStatusItem);
+	{
+		m_pRootMenuItem = new MenuItem("Status", NULL, itStatusItem);
+		m_pRootMenuItem->Value("{CURRENT_STATUS}");
+	}
 
 	return m_pRootMenuItem;
 }

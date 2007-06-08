@@ -124,39 +124,41 @@ void SDLFrontEnd::Render(const DisplayState &display_state)
 
 	Clear();
 
+	SDL_Color color = {255, 0, 0};
+
 	vector<string>::const_iterator it;
 
 	//prior options
 	int i = 1;
 	for(it = display_state.m_vectPriorOptions.begin(); it != display_state.m_vectPriorOptions.end(); ++it, ++i)
-		RenderText(CURRENT_ITEM_POSITION_X, CURRENT_ITEM_POSITION_Y - i * ITEM_HEIGHT, *it);
+		RenderText(CURRENT_ITEM_POSITION_X, CURRENT_ITEM_POSITION_Y - i * ITEM_HEIGHT, *it, color);
 
 	//current option
-	RenderText(CURRENT_ITEM_POSITION_X - 10, CURRENT_ITEM_POSITION_Y, "o");
-	RenderText(CURRENT_ITEM_POSITION_X, CURRENT_ITEM_POSITION_Y, display_state.m_sHeader);
+	RenderText(CURRENT_ITEM_POSITION_X - 10, CURRENT_ITEM_POSITION_Y, "o", color);
+	RenderText(CURRENT_ITEM_POSITION_X, CURRENT_ITEM_POSITION_Y, display_state.m_sHeader, color);
 
 	//next options
 	i = 1;
 	for(it = display_state.m_vectNextOptions.begin(); it != display_state.m_vectNextOptions.end(); ++it, ++i)
-		RenderText(CURRENT_ITEM_POSITION_X, CURRENT_ITEM_POSITION_Y + i * ITEM_HEIGHT, *it);
-
-	//description
-	RenderText(10, m_nHeight - 40, "Description : " + display_state.m_sDescription);
-	//description
-	RenderText(10, m_nHeight - 30, "Status : " + display_state.m_sStatusMessage);
-	//description
-	RenderText(10, m_nHeight - 20, "Progress : " + display_state.m_sProgress);
+		RenderText(CURRENT_ITEM_POSITION_X, CURRENT_ITEM_POSITION_Y + i * ITEM_HEIGHT, *it, color);
 
 	//can go up/down/left/right
 	if(display_state.m_bCanGoLeft)
-		RenderText(0, (m_nHeight + ITEM_HEIGHT) / 2, "<");
+		RenderText(0, (m_nHeight + ITEM_HEIGHT) / 2, "<", color);
 	if(display_state.m_bCanGoRight)
-		RenderText(m_nWidth - 10, (m_nHeight + ITEM_HEIGHT) / 2, ">");
+		RenderText(m_nWidth - 10, (m_nHeight + ITEM_HEIGHT) / 2, ">", color);
 	if(display_state.m_bCanGoUp)
-		RenderText(m_nWidth / 2, 0, "^");
+		RenderText(m_nWidth / 2, 0, "^", color);
 	if(display_state.m_bCanGoDown)
-		RenderText(m_nWidth / 2, m_nHeight - 10, "V");
+		RenderText(m_nWidth / 2, m_nHeight - 10, "V", color);
 
+
+	SDL_Color blue = {0,0,255};
+
+	//status
+	RenderText(10, 30, display_state.m_sStatusMessage, blue);
+	//progress
+	RenderText(10, 40, "Progress : " + display_state.m_sProgress, blue);
 
 	SDL_UpdateRect(m_pSurface, 0, 0, 0, 0);
 }
@@ -180,14 +182,8 @@ void SDLFrontEnd::Clear()
 	}
 }
 //--------------------------------------------------------------------------------------------------------
-void SDLFrontEnd::RenderText(int x, int y, string sText)
+void SDLFrontEnd::RenderText(int x, int y, string sText, SDL_Color color)
 {
-	SDL_Color color;
-	color.r = 0xff;
-	color.g = 0;
-	color.b = 0;
-	color.unused = 0;
-
 	SDL_Surface *pTextSurface = TTF_RenderUTF8_Blended(m_pFont, sText.c_str(), color);
 
 	if(NULL != pTextSurface)

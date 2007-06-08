@@ -32,7 +32,7 @@ public:
 private:
 
 	void Clear();
-	void RenderText(int x, int y, string sText);
+	void RenderText(int x, int y, string sText, SDL_Color color);
 };
 //--------------------------------------------------------------------------------------------------------
 #endif //__SDL_FRONT_END_H__
