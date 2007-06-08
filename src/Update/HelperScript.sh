@@ -2,12 +2,9 @@
 set -e
 
 UPDATES_XML_URI="http://10.0.0.83/updates.xml"
-UPDATES_DIR="/var/pluto-updates"
+UPDATES_DIR="/home/pluto-updates"
 POUT=101
 PIN=100
-
-#POUT=1
-#PIN=0
 
 ## Usefull functions
 function Debug {
@@ -296,6 +293,10 @@ while /bin/true ;do
 		"APPLY")
 			# APPLY <UPDATE_ID> <URL> [param1="value1" param2="value2" ... paramN="valueN"]
 			Apply "$(Param 2 "$line")" "$(Param 3 "$line")" "$(Param 4-999 "$line")"
+			;;
+		"EXIT")
+			# EXIT
+				exit
 			;;
 		*)
 			Debug "FAIL Unkown Command"
