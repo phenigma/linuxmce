@@ -57,7 +57,8 @@ am_mce_installer_OBJECTS = main.$(OBJEXT) \
 	StepUbuntuExtraCD.$(OBJEXT) StepLinuxMceCD.$(OBJEXT) \
 	StepDvdCss.$(OBJEXT) StepNvidiaDrivers.$(OBJEXT) \
 	StepNvidiaDriversEnd.$(OBJEXT) RunShellCommand.$(OBJEXT) \
-	StepCreateDiskedDevice.$(OBJEXT) StepConfFiles.$(OBJEXT)
+	StepCreateDiskedDevice.$(OBJEXT) StepConfFiles.$(OBJEXT) \
+	StepNotification.$(OBJEXT)
 mce_installer_OBJECTS = $(am_mce_installer_OBJECTS)
 am__DEPENDENCIES_1 =
 mce_installer_DEPENDENCIES = $(am__DEPENDENCIES_1)
@@ -263,7 +264,9 @@ mce_installer_SOURCES = \
 	StepCreateDiskedDevice.h \
 	StepCreateDiskedDevice.c \
 	StepConfFiles.h \
-	StepConfFiles.c
+	StepConfFiles.c \
+	StepNotification.h \
+	StepNotification.c
 
 mce_installer_LDFLAGS = 
 mce_installer_LDADD = $(PACKAGE_LIBS)
@@ -355,6 +358,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/StepDvdCss.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/StepInstallDependencies.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/StepLinuxMceCD.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/StepNotification.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/StepNvidiaDrivers.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/StepNvidiaDriversEnd.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/StepUI.Po@am__quote@

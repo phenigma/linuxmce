@@ -72,7 +72,9 @@ mce_installer_SOURCES = \
 	StepCreateDiskedDevice.h \
 	StepCreateDiskedDevice.c \
 	StepConfFiles.h \
-	StepConfFiles.c
+	StepConfFiles.c \
+	StepNotification.h \
+	StepNotification.c
 
 
 mce_installer_LDFLAGS = 
