@@ -115,6 +115,7 @@ class UpdatesXML
 		static char * tagDescription;
 		static char * tagModels;
 		static char * tagFiles;
+		static char * tagOptions;
 		
 		UpdatesXML(std::string sXmlFile = "");
 		

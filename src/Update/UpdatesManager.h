@@ -56,6 +56,8 @@ class UpdatesManager
 		
 		bool ProcessUpdate(unsigned uId);
 		
+		bool ProcessOptionUpdate(unsigned uId);
+		
 	private:
 		
 		string updatesPath;

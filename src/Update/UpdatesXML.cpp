@@ -11,6 +11,7 @@ char * UpdatesXML::tagPriority = "priority";
 char * UpdatesXML::tagDescription = "description";
 char * UpdatesXML::tagModels = "model";
 char * UpdatesXML::tagFiles = "file";
+char * UpdatesXML::tagOptions = "options";
 
 // class Update Node
 UpdateNode::UpdateNode(unsigned id)

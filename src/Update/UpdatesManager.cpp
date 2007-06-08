@@ -237,8 +237,20 @@ bool UpdatesManager::Run()
 					if( lastUpdate < pUpdate->UpdateId() && 
 									   pUpdate->IsModel(model) )
 					{
-					// process the update
-						return ProcessUpdate( pUpdate->UpdateId() );
+						// process the update
+						if( ProcessUpdate( pUpdate->UpdateId() ) )
+						{
+							if( !ProcessOptionUpdate( pUpdate->UpdateId() ) )
+							{
+								// TODO
+								return false;
+							}
+						}
+						else
+						{
+							// TODO
+							return false;
+						}
 					}
 				}
 				else
@@ -318,7 +330,7 @@ bool UpdatesManager::DownloadUpdate(unsigned uId)
 	}
 	
 	// download url files from update
-	char cmd[1024];
+	char cmd[1024] = "\0";
 	
 	for(vector<UpdateProperty*>::const_iterator it=pUpdate->Files().begin(); it!=pUpdate->Files().end(); ++it)
 	{
@@ -458,10 +470,71 @@ bool UpdatesManager::ProcessUpdate(unsigned uId)
 		return false;
 	}
 	
-	// process the update
+	char cmd[1024] = "\0";
+	for(vector<UpdateProperty*>::const_iterator it=pUpdate->Files().begin(); it!=pUpdate->Files().end(); ++it)
+	{
+		string params;
+		for(StringMapConstIt itPar=(*it)->attributesMap.begin(); itPar!=(*it)->attributesMap.end(); ++itPar)
+		{
+			params += (*itPar).first + "=\"" + (*itPar).second + "\" ";
+		}
+		snprintf(cmd, sizeof(cmd), "APPLY %u \"%s\" %s\n",
+				 uId, (*it)->attributesMap["URL"].c_str(), params.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Update apply: %s", cmd);
+	
+		int iRet = 0;
+		char message[256] = "\0";
+		iRet = write(outputFd, cmd, strlen(cmd));
+		if(iRet == -1 || iRet == 0)
+		{
+			ioError = true;
+			return false;
+		}
+		iRet = read(inputFd, &message, 255);
+		if(iRet == -1 || iRet == 0)
+		{
+			ioError = true;
+			return false;
+		}
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "#Update apply: %s", message);
+	
+		if( strncmp(message, "OK", 2) )
+		{
+			return false;
+		}
+	}
+	
+	return true;
+}
+
+bool UpdatesManager::ProcessOptionUpdate(unsigned uId)
+{
+	// find the update
+	UpdateNode * pUpdate = NULL;
+	for(vector<UpdateNode*>::const_iterator it=xml.Updates().begin(); it!=xml.Updates().end(); ++it)
+	{
+		if( uId == (*it)->UpdateId() )
+		{
+			pUpdate = (*it);
+		}
+	}
+	if( pUpdate == NULL )
+	{
+		// TODO: error
+		return false;
+	}
+	
+	char cmd[256];
+	map<string, UpdateProperty*>::iterator itFind = pUpdate->Properties().find(UpdatesXML::tagOptions);
+	if( itFind == pUpdate->Properties().end() )
+	{
+		return false;
+	}
+	snprintf(cmd, sizeof(cmd), "APPLY_OPTION %u %s", uId, (*itFind).second->value.c_str());
+	
 	int iRet = 0;
 	char message[256] = "\0";
-	iRet = write(outputFd, "", 255);
+	iRet = write(outputFd, cmd, strlen(cmd));
 	if(iRet == -1 || iRet == 0)
 	{
 		ioError = true;
