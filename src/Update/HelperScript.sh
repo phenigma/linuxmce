@@ -291,7 +291,7 @@ while /bin/true ;do
 			;;
 		"APPLY")
 			# APPLY <UPDATE_ID> <URL> [param1="value1" param2="value2" ... paramN="valueN"]
-			Apply "$(Param 2 "$line")" "$(Param 3 "$line")" "$(Param 4-999 "$line")"
+			Apply "$(Param 2 "$line")" "$(Param 3 "$line")" "$(echo $line | cut -d' ' -f4-999)"
 			;;
 		"APPLY_OPTION")
 			# APPLY_OPTION
