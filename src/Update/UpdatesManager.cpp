@@ -530,7 +530,7 @@ bool UpdatesManager::ProcessOptionUpdate(unsigned uId)
 	{
 		return false;
 	}
-	snprintf(cmd, sizeof(cmd), "APPLY_OPTION %u %s", uId, (*itFind).second->value.c_str());
+	snprintf(cmd, sizeof(cmd), "APPLY_OPTION %u %s\n", uId, (*itFind).second->value.c_str());
 	
 	int iRet = 0;
 	char message[256] = "\0";
