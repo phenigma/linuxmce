@@ -94,6 +94,16 @@ class UpdateNode
 			return options;
 		}
 		
+		void AddRequire(UpdateProperty * prop)
+		{
+			requires.push_back(prop);
+		}
+		
+		vector<UpdateProperty*> & Requires()
+		{
+			return requires;
+		}
+		
 		void AddProperty(const string & name, UpdateProperty * prop)
 		{
 			properties[name] = prop;
@@ -114,6 +124,7 @@ class UpdateNode
 		map<string, UpdateProperty*> properties;
 		vector<UpdateProperty*> files;
 		vector<UpdateProperty*> options;
+		vector<UpdateProperty*> requires;
 };
 
 class UpdatesXML
@@ -127,9 +138,12 @@ class UpdatesXML
 		static char * tagModels;
 		static char * tagFiles;
 		static char * tagOptions;
+		static char * tagRequires;
 		static char * attrOptionsType;
 		static char * attrOptionsPre;
 		static char * attrOptionsPost;
+		static char * attrRequiresModel;
+		static char * attrRequiresUpdate;
 		
 		UpdatesXML(std::string sXmlFile = "");
 		

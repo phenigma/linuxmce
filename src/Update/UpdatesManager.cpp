@@ -12,6 +12,7 @@
 #include "UpdatesManager.h"
 
 #include "../pluto_main/Define_DeviceData.h"
+#include "../pluto_main/Define_DeviceCategory.h"
 
 #include <sys/types.h>
 #include <dirent.h>
@@ -22,8 +23,10 @@ UpdatesManager::UpdatesManager(const char * xmlPath, const char * updPath, int i
 	  xmlUpdatesFile(xmlPath),
 	  inputFd(iInput),
 	  outputFd(iOutput),
+	  coreDevice(0),
 	  download(true),
 	  ioError(false),
+	  updatesEnabled(false),
 	  mySqlHelper(dceconf.m_sDBHost, dceconf.m_sDBUser, dceconf.m_sDBPassword, dceconf.m_sDBName,dceconf.m_iDBPort)
 {
 }
@@ -88,6 +91,52 @@ bool UpdatesManager::Init(bool bDownload)
 				id2update[iDevice] = atoi(row[1]);
 			}
 		}
+	}
+	
+	// find the Core device
+	sql_buff = "SELECT PK_Device FROM Device JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE FK_DeviceCategory=";
+	sql_buff += StringUtils::itos( DEVICECATEGORY_Core_CONST );
+	sql_buff += " AND FK_Installation=";
+	sql_buff += StringUtils::itos( dceconf.m_iPK_Installation );
+	if( (result_set.r=mySqlHelper.mysql_query_result(sql_buff.c_str())) == NULL )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "UpdatesManager::Init : SQL FAILED : %s",sql_buff.c_str());
+		return false;
+	}
+	while((row = mysql_fetch_row(result_set.r)))
+	{
+		if( NULL != row[0] )
+		{
+			coreDevice = atoi(row[0]);
+		}
+		// only one Core
+		break;
+	}
+	if( coreDevice == 0 )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "No core device found.");
+		return false;
+	}
+	
+	// find if we can apply updates or not
+	sql_buff = "SELECT IK_DeviceData FROM Device_DeviceData where FK_DeviceData=";
+	sql_buff += StringUtils::itos( DEVICEDATA_ApplyUpdates_CONST );
+	sql_buff += " AND FK_Device=";
+	sql_buff += StringUtils::itos(coreDevice);
+	if( (result_set.r=mySqlHelper.mysql_query_result(sql_buff.c_str())) == NULL )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "UpdatesManager::Init : SQL FAILED : %s",sql_buff.c_str());
+//		return false;
+	}
+	while((row = mysql_fetch_row(result_set.r)))
+	{
+		if( NULL != row[0] )
+		{
+			int iDeviceData = atoi(row[0]);
+			updatesEnabled = iDeviceData != 0 ? true : false;
+		}
+		// only one Core
+		break;
 	}
 	
 	if( download )
@@ -210,66 +259,105 @@ bool UpdatesManager::Run()
 	}
 	else
 	{
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Updates processing - start");
-		
-		// for all updates from /home/updates, check the update id
-		string model = id2model[dceconf.m_iPK_Device_Computer];
-		unsigned lastUpdate = id2update[dceconf.m_iPK_Device_Computer];
-		
-		vector<unsigned> existingUpdates;
-		if( ExistingUpdates(existingUpdates) )
+		// if we can apply updates
+		if( updatesEnabled )
 		{
-			for(vector<unsigned>::const_iterator it=existingUpdates.begin(); it!=existingUpdates.end(); ++it)
+			LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Updates processing - start");
+		
+			// for all updates from /home/updates, check the update id
+			string model = id2model[dceconf.m_iPK_Device_Computer];
+			unsigned lastUpdate = id2update[dceconf.m_iPK_Device_Computer];
+		
+			vector<unsigned> existingUpdates;
+			if( ExistingUpdates(existingUpdates) )
 			{
-				char temp[256];
-				snprintf(temp, sizeof(temp), "%d", (*it));
-				string xmlPath = updatesPath + "/" + temp + "/update.xml";
-				
-				xml.Clean();
-				xml.SetXML(xmlPath);
-				xml.ParseXML();
-				
-				if( !xml.Failed() )
+				map<long, string>::const_iterator itCoreModel = id2model.find(coreDevice);
+				map<long, unsigned>::const_iterator itCoreUpd = id2update.find(coreDevice);
+									
+				for(vector<unsigned>::const_iterator it=existingUpdates.begin(); it!=existingUpdates.end(); ++it)
 				{
-					UpdateNode * pUpdate = xml.Updates().front();
-					if( lastUpdate < pUpdate->UpdateId() && 
-									   pUpdate->IsModel(model) )
+					char temp[256];
+					snprintf(temp, sizeof(temp), "%d", (*it));
+					string xmlPath = updatesPath + "/" + temp + "/update.xml";
+				
+					xml.Clean();
+					xml.SetXML(xmlPath);
+					xml.ParseXML();
+				
+					if( !xml.Failed() )
 					{
-						if( !ProcessOptionUpdate( pUpdate->UpdateId(), UpdatesXML::attrOptionsPre ) )
+						UpdateNode * pUpdate = xml.Updates().front();
+						if( lastUpdate < pUpdate->UpdateId() && 
+											  pUpdate->IsModel(model) )
 						{
-							LoggerWrapper::GetInstance()->Write(LV_WARNING, "ProcessOptionUpdate error: %u | %s",
+							// check if the core is updated
+							if( coreDevice != dceconf.m_iPK_Device_Computer )
+							{
+								if( itCoreModel != id2model.end() &&
+									itCoreUpd != id2update.end() )
+								{
+									for(vector<UpdateProperty*>::const_iterator itReq=pUpdate->Requires().begin();
+										itReq!=pUpdate->Requires().end(); ++itReq)
+									{
+										StringMapConstIt itModel = (*itReq)->attributesMap.find(UpdatesXML::attrRequiresModel);
+										StringMapConstIt itUpd = (*itReq)->attributesMap.find(UpdatesXML::attrRequiresUpdate);
+									
+										if( itModel !=  (*itReq)->attributesMap.end() &&
+											itUpd != (*itReq)->attributesMap.end() &&
+										  	(*itCoreModel).second == (*itModel).second )
+										{
+											unsigned uReqUpdate = atoi((*itUpd).second.c_str());
+											if( (*itCoreUpd).second < uReqUpdate )
+											{
+												LoggerWrapper::GetInstance()->Write(LV_WARNING, "Core has to be updated : %u | %u",
+													(*itCoreUpd).second, uReqUpdate);
+												return false;
+											}
+										}
+									}
+								}
+							}
+						
+							if( !ProcessOptionUpdate( pUpdate->UpdateId(), UpdatesXML::attrOptionsPre ) )
+							{
+								LoggerWrapper::GetInstance()->Write(LV_WARNING, "ProcessOptionUpdate error: %u | %s",
 								pUpdate->UpdateId(), UpdatesXML::attrOptionsPre);
-							return false;
-						}
+								return false;
+							}
 						
-						// process the update
-						if( !ProcessUpdate( pUpdate->UpdateId() ) )
-						{
-							LoggerWrapper::GetInstance()->Write(LV_WARNING, "ProcessUpdate error: %u",
+							// process the update
+							if( !ProcessUpdate( pUpdate->UpdateId() ) )
+							{
+								LoggerWrapper::GetInstance()->Write(LV_WARNING, "ProcessUpdate error: %u",
 								pUpdate->UpdateId());
-							return false;
-						}
+								return false;
+							}
 						
-						if( !SetLastUpdate( pUpdate->UpdateId() ) )
-						{
-							LoggerWrapper::GetInstance()->Write(LV_WARNING, "SetLastUpdate error: %u",
+							if( !SetLastUpdate( pUpdate->UpdateId() ) )
+							{
+								LoggerWrapper::GetInstance()->Write(LV_WARNING, "SetLastUpdate error: %u",
 								pUpdate->UpdateId());
-							return false;
-						}
+								return false;
+							}
 						
-						if( !ProcessOptionUpdate( pUpdate->UpdateId(), UpdatesXML::attrOptionsPost ) )
-						{
-							LoggerWrapper::GetInstance()->Write(LV_WARNING, "ProcessOptionUpdate error: %d | %s",
+							if( !ProcessOptionUpdate( pUpdate->UpdateId(), UpdatesXML::attrOptionsPost ) )
+							{
+								LoggerWrapper::GetInstance()->Write(LV_WARNING, "ProcessOptionUpdate error: %d | %s",
 								pUpdate->UpdateId(), UpdatesXML::attrOptionsPost);
-							return false;
+								return false;
+							}
 						}
 					}
-				}
-				else
-				{
-					LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "XML error for update %u", (*it));
+					else
+					{
+						LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "XML error for update %u", (*it));
+					}
 				}
 			}
+		}
+		else
+		{
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Updates processing is not enabled.");
 		}
 		LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Updates processing - end");
 	}

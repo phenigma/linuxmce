@@ -12,9 +12,12 @@ char * UpdatesXML::tagDescription = "description";
 char * UpdatesXML::tagModels = "model";
 char * UpdatesXML::tagFiles = "file";
 char * UpdatesXML::tagOptions = "option";
+char * UpdatesXML::tagRequires = "require";
 char * UpdatesXML::attrOptionsType = "type";
 char * UpdatesXML::attrOptionsPre = "pre";
 char * UpdatesXML::attrOptionsPost = "post";
+char * UpdatesXML::attrRequiresModel = "model";
+char * UpdatesXML::attrRequiresUpdate = "update";
 
 // class Update Node
 UpdateNode::UpdateNode(unsigned id)
@@ -132,6 +135,10 @@ void UpdatesXML::ParseUpdate(xmlNode *pNode)
 						else if( pProperty->name == UpdatesXML::tagOptions )
 						{
 							pUpdateNode->AddOption(pProperty);
+						}
+						else if( pProperty->name == UpdatesXML::tagRequires )
+						{
+							pUpdateNode->AddRequire(pProperty);
 						}
 						else
 						{
@@ -301,6 +308,19 @@ void UpdatesXML::GenerateUpdateXML(UpdateNode * pUpdateNode, const char * outFil
 	for(vector<UpdateProperty*>::const_iterator itOpt=pUpdateNode->Options().begin(); itOpt!=pUpdateNode->Options().end(); ++itOpt)
 	{
 		UpdateProperty * pUpdateProp = (*itOpt);
+		xmlNodePtr pProp = xmlNewTextChild(cur, NULL,
+										   (const xmlChar*)pUpdateProp->name.c_str(),
+										   (const xmlChar*)pUpdateProp->value.c_str());
+		for(StringMapConstIt itAttr=pUpdateProp->attributesMap.begin(); itAttr!=pUpdateProp->attributesMap.end(); ++itAttr)
+		{
+			//xmlAttrPtr pAttr =
+			xmlNewProp(pProp, (const xmlChar*)(*itAttr).first.c_str(), (const xmlChar*)(*itAttr).second.c_str());
+		}
+	}
+	// requires
+	for(vector<UpdateProperty*>::const_iterator itReq=pUpdateNode->Requires().begin(); itReq!=pUpdateNode->Requires().end(); ++itReq)
+	{
+		UpdateProperty * pUpdateProp = (*itReq);
 		xmlNodePtr pProp = xmlNewTextChild(cur, NULL,
 										   (const xmlChar*)pUpdateProp->name.c_str(),
 										   (const xmlChar*)pUpdateProp->value.c_str());

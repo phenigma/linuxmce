@@ -70,9 +70,13 @@ class UpdatesManager
 		
 		int outputFd;
 		
+		int coreDevice;
+		
 		bool download;
 		
 		bool ioError;
+		
+		bool updatesEnabled;
 		
 		UpdatesXML xml;
 		
