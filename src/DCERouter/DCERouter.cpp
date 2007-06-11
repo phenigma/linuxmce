@@ -548,7 +548,9 @@ RAP_FType Router::PlugIn_Load(int PK_Device, int PK_DeviceTemplate, string sComm
     RAP_FType RegisterAsPlugin;
     void * so_handle;
     string ErrorMessage;
+#ifdef WIN32
     char MS_ErrorMessage[1024];
+#endif
 
     if (sCommandLine == "")
         return NULL;
@@ -627,7 +629,9 @@ int Router::DynamicallyLoadPlugin(string sFile)
     typedef int (* RAP_FType) ();
     RAP_FType IsRuntimePlugin;
     string ErrorMessage;
+#ifdef WIN32
     char MS_ErrorMessage[1024];
+#endif
 
     void * so_handle;
 
@@ -2254,7 +2258,7 @@ LoggerWrapper::GetInstance()->Write(LV_SOCKET, "Got response: %d to message type
                         {
                             // delete the other sockets
                             LoggerWrapper::GetInstance()->Write(LV_STATUS, "Got BYE in response to message.  Dropping socket");
-                            DeviceData_Router *pDevice = m_mapDeviceData_Router_Find(pServerSocket->m_dwPK_Device);
+//                          DeviceData_Router *pDevice = m_mapDeviceData_Router_Find(pServerSocket->m_dwPK_Device);
                             // cause the server to remove the socket
 // AB 1-4-2004 TODO -- have to fix this.  it crashed???
 //                              pFaipFailedSocketledSocket = pDeviceConnection;
