@@ -2693,7 +2693,7 @@ bool General_Info_Plugin::ReportingChildDevices( class Socket *pSocket, class Me
 bool General_Info_Plugin::LowSystemDiskSpace ( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
 {  
 	SCREEN_PopupMessage_DL SCREEN_PopupMessage_DL(m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters_AllowingPopups_get(),
-		"You system is running low on disk space", // Main message
+		"Your system is running low on disk space", // Main message
 		"", // Command Line
 		"low_disk_space", // Description
 		"0", // sPromptToResetRouter
