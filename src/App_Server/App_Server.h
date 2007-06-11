@@ -22,6 +22,10 @@
 #include "Gen_Devices/App_ServerBase.h"
 //<-dceag-d-e->
 
+#ifndef WIN32
+#include "amix.h"
+#endif
+
 //<-dceag-decl-b->
 namespace DCE
 {
@@ -62,6 +66,9 @@ public:
     // Public member variables
 		bool m_bHardDrive; // True if this is running on a hard-drive boot, not as a diskless Pluto media director
 		int m_dwPK_Device_MD;  // The media director we're running on
+#ifndef WIN32
+		MasterMix m_MasterMix;
+#endif
 
 //<-dceag-h-b->
 	/*

@@ -51,8 +51,6 @@ using namespace DCE;
 #include <X11/Xutil.h>
 #endif
 
-const char AudioVolumeScript[] = "/usr/pluto/bin/SoundCards_AudioVolume.sh";
-
 #ifdef WIN32
 void EnablePrivileges()
 {
@@ -89,17 +87,9 @@ bool App_Server::GetConfig()
 //<-dceag-getconfig-e->
 
 #ifndef WIN32
-	{
-		const char * args[] = { AudioVolumeScript, "set", "unmute", NULL };
-		ProcessUtils::SpawnDaemon(args[0], (char **) args);
-	}
-	{
-		string sVolume, sStdErr;
-		const char * const args[] = { AudioVolumeScript, "get-percent", NULL };
-		ProcessUtils::GetCommandOutput(args[0], args, sVolume, sStdErr);
-		m_iLastVolume = atoi(sVolume.c_str());
-		LoggerWrapper::GetInstance()->Write(LV_STATUS, "ALSA Master volume: %d%%", m_iLastVolume);
-	}
+	m_MasterMix.SetOn(1);
+	m_iLastVolume = m_MasterMix.GetVolumePercent();
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "ALSA Master volume: %d%%", m_iLastVolume);
 
 	SignalHandler_Start(this);
 #endif
@@ -527,17 +517,13 @@ void App_Server::CMD_Vol_Up(int iRepeat_Command,string &sCMD_Result,Message *pMe
 	bool bLastMute = m_bLastMute;
 	m_bLastMute=false;
 	m_iLastVolume+=iRepeat_Command;
+	if (m_iLastVolume > 100)
+		m_iLastVolume = 100;
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Volume is now %d",m_iLastVolume);
 	DATA_Set_Volume_Level(m_iLastVolume,true);
 
 #ifndef WIN32
-	int pid = fork();
-	if (pid == 0)
-	{
-		char * args[] = { (char *) AudioVolumeScript, "up", NULL };
-		execv(args[0], args);
-		_exit(99);
-	}
+	m_MasterMix.SetVolumePercent(m_iLastVolume);
 #endif	
 	// TODO: check that the mixer actually worked
 	sCMD_Result = "OK";
@@ -559,17 +545,13 @@ void App_Server::CMD_Vol_Down(int iRepeat_Command,string &sCMD_Result,Message *p
 	bool bLastMute = m_bLastMute;
 	m_bLastMute=false;
 	m_iLastVolume-=iRepeat_Command;
+	if (m_iLastVolume < 0)
+		m_iLastVolume = 0;
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Volume is now %d",m_iLastVolume);
 	DATA_Set_Volume_Level(m_iLastVolume,true);
 
 #ifndef WIN32
-	int pid = fork();
-	if (pid == 0)
-	{
-		char * args[] = { (char *) AudioVolumeScript, "down", NULL };
-		execv(args[0], args);
-		_exit(99);
-	}
+	m_MasterMix.SetVolumePercent(m_iLastVolume);
 #endif
 
 	// TODO: check that the mixer actually worked
@@ -586,13 +568,10 @@ void App_Server::CMD_Vol_Down(int iRepeat_Command,string &sCMD_Result,Message *p
 void App_Server::CMD_Set_Volume(string sLevel,string &sCMD_Result,Message *pMessage)
 //<-dceag-c313-e->
 {
-	int iVolume;
-	{
-		string sVolume, sStdErr;
-		char * const args[] = { (char *) AudioVolumeScript, "get-percent", NULL };
-		ProcessUtils::GetCommandOutput(args[0], args, sVolume, sStdErr);
-		iVolume = atoi(sVolume.c_str());
-	}
+	int iVolume = 0;
+#ifndef WIN32
+	iVolume = m_MasterMix.GetVolumePercent();
+#endif
 
 	if (sLevel.size() > 1 && sLevel[0] == '+' || sLevel[0] == '-')
 		iVolume += atoi(sLevel.c_str());
@@ -606,14 +585,8 @@ void App_Server::CMD_Set_Volume(string sLevel,string &sCMD_Result,Message *pMess
 	DATA_Set_Volume_Level(iVolume, true);
 
 #ifndef WIN32
-	int pid = fork();
-	if (pid == 0)
-	{
-		string sVolume = StringUtils::itos(iVolume) + "%";
-		char * args[] = { (char *) AudioVolumeScript, "set", (char *) sVolume.c_str(), "unmute", NULL };
-		execv(args[0], args);
-		_exit(99);
-	}
+	m_MasterMix.SetVolumePercent(iVolume);
+	m_MasterMix.SetOn(1);
 #endif
 
 	// TODO: check that the mixer actually worked
@@ -631,22 +604,7 @@ void App_Server::CMD_Mute(string &sCMD_Result,Message *pMessage)
 	bool bLastMute = m_bLastMute;
 	m_bLastMute=!m_bLastMute;
 #ifndef WIN32
-	int pid = fork();
-	if (pid == 0)
-	{
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Mute is now %d",(int) m_bLastMute);
-		if (bLastMute)
-		{
-			char * args[] = { (char *) AudioVolumeScript, "set", "unmute", NULL };
-			execv(args[0], args);
-		}
-		else
-		{
-			char * args[] = { (char *) AudioVolumeScript, "set", "mute", NULL };
-			execv(args[0], args);
-		}
-		_exit(99);
-	}
+	m_MasterMix.SetOn(bLastMute ? 1 : 0); // toggle mute
 #endif
 
 	// TODO: check that the mixer actually worked
