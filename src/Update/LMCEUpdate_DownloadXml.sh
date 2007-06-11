@@ -37,7 +37,7 @@ if diff "${XML_CURRENT}" "${XML_OLD}" >/dev/null ;then
 fi
 
 ## TODO: Call eugen's application to process the xml and get an status
-
+/usr/pluto/bin/LMCEUpdate || exit 1
 
 ## TODO: Notify user that he can update it's system
 /usr/pluto/bin/LMCEUpdate_Notify.sh
