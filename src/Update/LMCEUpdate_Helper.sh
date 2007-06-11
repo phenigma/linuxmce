@@ -295,7 +295,7 @@ while /bin/true ;do
 			;;
 		"APPLY_OPTION")
 			# APPLY_OPTION
-			Apply_Option
+			Apply_Option "$(Parm 2 "$line")"
 			;;
 		"EXIT")
 			# EXIT
