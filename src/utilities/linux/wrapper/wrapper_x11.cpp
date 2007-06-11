@@ -2490,6 +2490,16 @@ bool X11wrapper::RemoveWindowDecoration(Window window)
 							(unsigned char *)&GNOMEHints, sizeof(GNOMEHints)/sizeof(long));
 	}
 
+        /* Remove any stick flag */
+        WM_HINTS = XInternAtom(display, "_NET_WM_STATE_STICKY", True);
+        if(WM_HINTS != None)
+        {
+                        long GNOMEHints = 0;
+
+                        XChangeProperty(display, window, WM_HINTS, WM_HINTS, 32, PropModeReplace,
+                                                        (unsigned char *)&GNOMEHints, sizeof(GNOMEHints)/sizeof(long));
+        }	
+
 	XCloseDisplay(display);
 
 	return true;
