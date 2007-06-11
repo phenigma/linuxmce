@@ -110,7 +110,7 @@ extern "C" {
 }
 //<-dceag-plug-e->
 
-//<-dceag-main-b->
+//<-dceag-main-b->!
 int main(int argc, char* argv[]) 
 {
 	g_sBinary = FileUtils::FilenameWithoutPath(argv[0]);
@@ -200,27 +200,44 @@ int main(int argc, char* argv[])
 	try
 	{
 		Generic_VFDLCD *pGeneric_VFDLCD = new Generic_VFDLCD(PK_Device, sRouter_IP,true,bLocalMode);
-		if ( pGeneric_VFDLCD->GetConfig() && pGeneric_VFDLCD->Connect(pGeneric_VFDLCD->PK_DeviceTemplate_get()) ) 
+
+		while(true)
 		{
-			g_pCommand_Impl=pGeneric_VFDLCD;
-			g_pDeadlockHandler=DeadlockHandler;
-			g_pSocketCrashHandler=SocketCrashHandler;
-			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Connect OK");
-			pGeneric_VFDLCD->CreateChildren();
-			if( bLocalMode )
-				pGeneric_VFDLCD->RunLocalMode();
-			else
+
+			if ( pGeneric_VFDLCD->GetConfig() && pGeneric_VFDLCD->Connect(pGeneric_VFDLCD->PK_DeviceTemplate_get()) ) 
 			{
-				if(pGeneric_VFDLCD->m_RequestHandlerThread)
-					pthread_join(pGeneric_VFDLCD->m_RequestHandlerThread, NULL);  // This function will return when the device is shutting down
+				g_pCommand_Impl=pGeneric_VFDLCD;
+				g_pDeadlockHandler=DeadlockHandler;
+				g_pSocketCrashHandler=SocketCrashHandler;
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Connect OK");
+				pGeneric_VFDLCD->CreateChildren();
+				if( bLocalMode )
+					pGeneric_VFDLCD->RunLocalMode();
+				else
+				{
+					if(pGeneric_VFDLCD->m_RequestHandlerThread)
+						pthread_join(pGeneric_VFDLCD->m_RequestHandlerThread, NULL);  // This function will return when the device is shutting down
+				}
+				g_pDeadlockHandler=NULL;
+				g_pSocketCrashHandler=NULL;
+			} 
+			else 
+			{
+				bAppError = true;
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Connect() Failed. Retrying in 10 seconds...");
+
+				//cleanup
+				delete pGeneric_VFDLCD->m_pEvent;
+				pGeneric_VFDLCD->m_pEvent = NULL;
+
+				delete pGeneric_VFDLCD->m_pData;
+				pGeneric_VFDLCD->m_pData = NULL;
+
+				delete pGeneric_VFDLCD->m_pcRequestSocket;
+				pGeneric_VFDLCD->m_pcRequestSocket = NULL;
+
+				Sleep(10000);
 			}
-			g_pDeadlockHandler=NULL;
-			g_pSocketCrashHandler=NULL;
-		} 
-		else 
-		{
-			bAppError = true;
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Connect() Failed");
 		}
 
 		if( pGeneric_VFDLCD->m_bReload )
@@ -240,6 +257,9 @@ int main(int argc, char* argv[])
 #ifdef WIN32
     WSACleanup();
 #endif
+
+	//cleanup
+	LoggerWrapper::Delete();
 
 	if( bAppError )
 		return 1;
