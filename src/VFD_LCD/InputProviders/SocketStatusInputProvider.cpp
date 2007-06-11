@@ -24,8 +24,8 @@ bool SocketStatusInputProvider::ReceivedString(DCE::Socket *pSocket, string sLin
 	string::size_type TokenPos = sLine.find("|");
 	if(TokenPos != string::npos)
 	{
-		input.status = sLine.substr(0, TokenPos);
-	    input.progress = sLine.substr(TokenPos + 1);
+		input.progress = sLine.substr(0, TokenPos);
+	    input.status = sLine.substr(TokenPos + 1);
 	}
 
 	return HandleInput(input);

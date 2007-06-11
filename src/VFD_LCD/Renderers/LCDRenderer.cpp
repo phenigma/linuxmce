@@ -26,7 +26,7 @@ void LCDRenderer::Render(const DisplayState &display_state)
 {
 	PLUTO_SAFETY_LOCK(sm, m_ScreenMutex);
 
-	string sText = display_state.m_sDescription;
+	string sText = display_state.m_sStatusMessage;
 
 	if(NULL != m_spSerial.get())
 	{

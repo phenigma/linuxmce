@@ -25,6 +25,7 @@ public:
 	void MoveDown();
 	void MoveLeft();
 	void MoveRight();
+	void Home();
 };
 //--------------------------------------------------------------------------------------------------------
 #endif //__MENU_HOLDER_H__

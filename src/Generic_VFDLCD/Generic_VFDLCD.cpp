@@ -36,23 +36,33 @@ using namespace DCE;
 
 #include <memory>
 
-//<-dceag-const-b->
+void *WorkerThread(void *);
+
+//<-dceag-const-b->!
 // The primary constructor when the class is created as a stand-alone device
 Generic_VFDLCD::Generic_VFDLCD(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
-	: Generic_VFDLCD_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
+	: Generic_VFDLCD_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter),
 //<-dceag-const-e->
+	m_LCDMessageMutex("lcd messages"), m_WorkerThreadID(0), m_MessageProcessingMutex("message processing")
 {
+	pthread_cond_init(&m_LCDMessageCond, NULL);
+	m_LCDMessageMutex.Init(NULL,&m_LCDMessageCond);
+
+	pthread_cond_init(&m_MessageProcessingCond, NULL);
+	m_MessageProcessingMutex.Init(NULL,&m_MessageProcessingCond);
+
 	m_spMenu_Holder.reset(NULL);
 	m_spLCDManager.reset(NULL);
 	m_spLCDRenderer.reset(NULL);
 	m_spSocketStatusInputProvider.reset(NULL);
 }
 
-//<-dceag-const2-b->
+//<-dceag-const2-b->!
 // The constructor when the class is created as an embedded instance within another stand-alone device
 Generic_VFDLCD::Generic_VFDLCD(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter)
-	: Generic_VFDLCD_Command(pPrimaryDeviceCommand, pData, pEvent, pRouter)
+	: Generic_VFDLCD_Command(pPrimaryDeviceCommand, pData, pEvent, pRouter),
 //<-dceag-const2-e->
+	m_LCDMessageMutex("lcd messages"), m_WorkerThreadID(0), m_MessageProcessingMutex("message processing")
 {
 }
 
@@ -60,7 +70,17 @@ Generic_VFDLCD::Generic_VFDLCD(Command_Impl *pPrimaryDeviceCommand, DeviceData_I
 Generic_VFDLCD::~Generic_VFDLCD()
 //<-dceag-dest-e->
 {
-	
+	m_bQuit_set(true);
+	pthread_cond_broadcast(&m_LCDMessageCond);
+
+	if(m_WorkerThreadID)
+	{
+		pthread_join(m_WorkerThreadID, NULL);
+		m_WorkerThreadID = 0;
+	}
+
+	pthread_mutex_destroy(&m_LCDMessageMutex.mutex);
+	pthread_mutex_destroy(&m_MessageProcessingMutex.mutex);
 }
 
 //<-dceag-getconfig-b->
@@ -146,100 +166,131 @@ bool Generic_VFDLCD::Setup(string sXMLMenuFilename, string sLCDSerialPort, int n
 	//setup socket status input provider
 	m_spSocketStatusInputProvider.reset(new SocketStatusInputProvider(m_spLCDManager.get(), nSocketServerPort));
 
+	//start worker thread
+	if(pthread_create(&m_WorkerThreadID, NULL, WorkerThread, (void*)this))
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Failed to create worker thread!");
+		return false;
+	}
+
+	//test
+	CMD_Display_Message("this is a test", "2", "test", "3", "");
+
 	//all ok
 	return true;
 }
 
-//<-dceag-sample-b->
-/*		**** SAMPLE ILLUSTRATING HOW TO USE THE BASE CLASSES ****
-
-**** IF YOU DON'T WANT DCEGENERATOR TO KEEP PUTTING THIS AUTO-GENERATED SECTION ****
-**** ADD AN ! AFTER THE BEGINNING OF THE AUTO-GENERATE TAG, LIKE //<=dceag-sample-b->! ****
-Without the !, everything between <=dceag-sometag-b-> and <=dceag-sometag-e->
-will be replaced by DCEGenerator each time it is run with the normal merge selection.
-The above blocks are actually <- not <=.  We don't want a substitution here
-
-void Generic_VFDLCD::SomeFunction()
+void *WorkerThread(void *p)
 {
-	// If this is going to be loaded into the router as a plug-in, you can implement: 	virtual bool Register();
-	// to do all your registration, such as creating message interceptors
+	Generic_VFDLCD *pGeneric_VFDLCD = reinterpret_cast<Generic_VFDLCD *>(p);
+	ILCDMessageProvider *pLCDMessageProvider = dynamic_cast<ILCDMessageProvider *>(pGeneric_VFDLCD);
+	ILCDMessageProcessor *pLCDMessageProcessor = dynamic_cast<ILCDMessageProcessor *>(pGeneric_VFDLCD);
 
-	// If you use an IDE with auto-complete, after you type DCE:: it should give you a list of all
-	// commands and requests, including the parameters.  See "AllCommandsRequests.h"
+	if(NULL == pLCDMessageProvider)
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "WorkerThread: Got no LCDMessageProvider. Quitting...");
+		return NULL;
+	}
 
-	// Examples:
-	
-	// Send a specific the "CMD_Simulate_Mouse_Click" command, which takes an X and Y parameter.  We'll use 55,77 for X and Y.
-	DCE::CMD_Simulate_Mouse_Click CMD_Simulate_Mouse_Click(m_dwPK_Device,OrbiterID,55,77);
-	SendCommand(CMD_Simulate_Mouse_Click);
+	if(NULL == pLCDMessageProcessor)
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "WorkerThread: Got no pLCDMessageProcessor. Quitting...");
+		return NULL;
+	}
 
-	// Send the message to orbiters 32898 and 27283 (ie a device list, hence the _DL)
-	// And we want a response, which will be "OK" if the command was successfull
-	string sResponse;
-	DCE::CMD_Simulate_Mouse_Click_DL CMD_Simulate_Mouse_Click_DL(m_dwPK_Device,"32898,27283",55,77)
-	SendCommand(CMD_Simulate_Mouse_Click_DL,&sResponse);
+	while(!pLCDMessageProvider->IsQuitting())
+	{
+		//process any messages
+		bool bGotNewMessages = false;
+		LCDMessage *pLCDMessage = NULL;
 
-	// Send the message to all orbiters within the house, which is all devices with the category DEVICECATEGORY_Orbiter_CONST (see pluto_main/Define_DeviceCategory.h)
-	// Note the _Cat for category
-	DCE::CMD_Simulate_Mouse_Click_Cat CMD_Simulate_Mouse_Click_Cat(m_dwPK_Device,DEVICECATEGORY_Orbiter_CONST,true,BL_SameHouse,55,77)
-    SendCommand(CMD_Simulate_Mouse_Click_Cat);
+		do
+		{
+			pLCDMessage = pLCDMessageProvider->GetNextMessage();
+			if(NULL != pLCDMessage)
+			{
+				pLCDMessageProcessor->ProcessMessage(pLCDMessage);
+				delete pLCDMessage;
+				pLCDMessage = NULL;
 
-	// Send the message to all "DeviceTemplate_Orbiter_CONST" devices within the room (see pluto_main/Define_DeviceTemplate.h)
-	// Note the _DT.
-	DCE::CMD_Simulate_Mouse_Click_DT CMD_Simulate_Mouse_Click_DT(m_dwPK_Device,DeviceTemplate_Orbiter_CONST,true,BL_SameRoom,55,77);
-	SendCommand(CMD_Simulate_Mouse_Click_DT);
+				bGotNewMessages = true;
+			}
+		}
+		while(bGotNewMessages);
 
-	// This command has a normal string parameter, but also an int as an out parameter
-	int iValue;
-	DCE::CMD_Get_Signal_Strength CMD_Get_Signal_Strength(m_dwDeviceID, DestDevice, sMac_address,&iValue);
-	// This send command will wait for the destination device to respond since there is
-	// an out parameter
-	SendCommand(CMD_Get_Signal_Strength);  
+		//wait until we've got new messages or we have to quit
+		pLCDMessageProvider->WaitForAnyMessage();
+	}
 
-	// This time we don't care about the out parameter.  We just want the command to 
-	// get through, and don't want to wait for the round trip.  The out parameter, iValue,
-	// will not get set
-	SendCommandNoResponse(CMD_Get_Signal_Strength);  
-
-	// This command has an out parameter of a data block.  Any parameter that is a binary
-	// data block is a pair of int and char *
-	// We'll also want to see the response, so we'll pass a string for that too
-
-	int iFileSize;
-	char *pFileContents
-	string sResponse;
-	DCE::CMD_Request_File CMD_Request_File(m_dwDeviceID, DestDevice, "filename",&pFileContents,&iFileSize,&sResponse);
-	SendCommand(CMD_Request_File);
-
-	// If the device processed the command (in this case retrieved the file),
-	// sResponse will be "OK", and iFileSize will be the size of the file
-	// and pFileContents will be the file contents.  **NOTE**  We are responsible
-	// free deleting pFileContents.
-
-
-	// To access our data and events below, you can type this-> if your IDE supports auto complete to see all the data and events you can access
-
-	// Get our IP address from our data
-	string sIP = DATA_Get_IP_Address();
-
-	// Set our data "Filename" to "myfile"
-	DATA_Set_Filename("myfile");
-
-	// Fire the "Finished with file" event, which takes no parameters
-	EVENT_Finished_with_file();
-	// Fire the "Touch or click" which takes an X and Y parameter
-	EVENT_Touch_or_click(10,150);
+	return NULL;
 }
-*/
-//<-dceag-sample-e->
 
-/*
+void Generic_VFDLCD::ProvideMessage(LCDMessage *pLCDMessage)
+{
+	PLUTO_SAFETY_LOCK(mm, m_LCDMessageMutex);
+	m_listLCDMessages.push_back(pLCDMessage);
+	mm.Release();
 
-	COMMANDS TO IMPLEMENT
+	pthread_cond_broadcast(&m_LCDMessageCond);
+}
 
-*/
+LCDMessage *Generic_VFDLCD::GetNextMessage()
+{
+	PLUTO_SAFETY_LOCK(mm, m_LCDMessageMutex);
+	if(!m_listLCDMessages.empty())
+	{
+		LCDMessage *pLCDMessage = m_listLCDMessages.front();
+		m_listLCDMessages.pop_front();
+		return pLCDMessage;
+	}
 
+	return NULL;
+}
 
+void Generic_VFDLCD::WaitForAnyMessage()
+{
+	PLUTO_SAFETY_LOCK(mm, m_LCDMessageMutex);
+	if(!m_bQuit_get() && m_listLCDMessages.empty())
+		mm.CondWait();
+}
+
+bool Generic_VFDLCD::IsQuitting()
+{
+	return m_bQuit_get();
+}
+
+void Generic_VFDLCD::ProcessMessage(LCDMessage *pLCDMessage)
+{
+	m_spLCDManager->ShowStatus(pLCDMessage->text, pLCDMessage->type);
+
+	bool bInterrupted = false;
+
+	if(!m_bQuit_get())
+	{
+		//wait to be interrupted 
+		PLUTO_SAFETY_LOCK(mm, m_MessageProcessingMutex);
+		if(pLCDMessage->time == -1)
+		{
+			if(!mm.TimedCondWait(pLCDMessage->time * 1000, 0))
+				bInterrupted = true;
+		}
+		else
+		{
+			mm.CondWait();
+			bInterrupted = true;
+		}
+	}
+
+	if(bInterrupted)
+	{
+		//What to do ?
+	}
+}
+
+void Generic_VFDLCD::Interrupt()
+{
+	pthread_cond_broadcast(&m_MessageProcessingCond);
+}
 
 //<-dceag-c406-b->
 
@@ -259,6 +310,7 @@ void Generic_VFDLCD::SomeFunction()
 void Generic_VFDLCD::CMD_Display_Message(string sText,string sType,string sName,string sTime,string sList_PK_Device,string &sCMD_Result,Message *pMessage)
 //<-dceag-c406-e->
 {
+	ProvideMessage(new LCDMessage(sText, atoi(sType.c_str()), sName, atoi(sTime.c_str())));
 }
 
 //<-dceag-c837-b->
@@ -275,4 +327,14 @@ void Generic_VFDLCD::CMD_Display_Message(string sText,string sType,string sName,
 void Generic_VFDLCD::CMD_Show_Media_Playback_State(string sValue_To_Assign,int iPK_MediaType,string sLevel,string &sCMD_Result,Message *pMessage)
 //<-dceag-c837-e->
 {
+	if(sValue_To_Assign.empty())
+	{
+		ProvideMessage(new LCDMessage("No media playing", 0, "No media", -1));
+	}
+	else
+	{
+		string sStatus = "Media playing: speed " + sValue_To_Assign + " volum " + sLevel;
+		ProvideMessage(new LCDMessage(sStatus, 0, "Media playing", -1));
+	}
 }
+

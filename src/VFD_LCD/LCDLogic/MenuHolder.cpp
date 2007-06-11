@@ -81,3 +81,8 @@ void MenuHolder::MoveRight()
 	m_pCurrentMenuItem = m_pCurrentMenuItem->MoveRight();
 }
 //--------------------------------------------------------------------------------------------------------
+void MenuHolder::Home()
+{
+	m_pCurrentMenuItem = m_pRootMenuItem;
+}
+//--------------------------------------------------------------------------------------------------------

@@ -88,6 +88,7 @@ bool LCDManager::ProcessInput(const Input &input)
 		break;
 
 		case itChangeStatus:
+			m_pMenuHolder->Home();
 			m_display_state.m_sStatusMessage = input.status;
 			m_display_state.m_sProgress = input.progress;
 		break;
@@ -291,5 +292,16 @@ bool LCDManager::Expand(MenuItem *pMenuItem)
 	}
 
 	return false;
+}
+//--------------------------------------------------------------------------------------------------------
+void LCDManager::ShowStatus(string sStatus, int nType)
+{
+	if(NULL != m_pMenuHolder)
+	{
+		m_pMenuHolder->Home();
+		m_display_state.m_sStatusMessage = sStatus;
+	}
+
+	Render();
 }
 //--------------------------------------------------------------------------------------------------------

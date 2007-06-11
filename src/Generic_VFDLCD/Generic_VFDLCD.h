@@ -21,16 +21,50 @@
 
 #include "Gen_Devices/Generic_VFDLCDBase.h"
 //<-dceag-d-e->
-
+//--------------------------------------------------------------------------------------------------------
 class MenuHolder;
 class LCDManager;
 class LCDRenderer;
 class SocketStatusInputProvider;
+//--------------------------------------------------------------------------------------------------------
+struct LCDMessage
+{
+	string text;
+	int type;
+	string name;
+	int time;
 
+	LCDMessage(string sText, int nType, string sName, int nTime) :
+		text(sText), type(nType), name(sName), time(nTime)
+	{
+	}
+};
+//--------------------------------------------------------------------------------------------------------
+class ILCDMessageProvider
+{
+private:
+
+	virtual void ProvideMessage(LCDMessage *) = 0;
+
+public:
+
+	virtual LCDMessage *GetNextMessage() = 0;
+	virtual void WaitForAnyMessage() = 0;
+	virtual bool IsQuitting() = 0;
+};
+//--------------------------------------------------------------------------------------------------------
+class ILCDMessageProcessor
+{
+public:
+	
+	virtual void ProcessMessage(LCDMessage *pLCDMessage) = 0;
+	virtual void Interrupt() = 0;
+};
+//--------------------------------------------------------------------------------------------------------
 //<-dceag-decl-b->
 namespace DCE
 {
-	class Generic_VFDLCD : public Generic_VFDLCD_Command
+	class Generic_VFDLCD : public Generic_VFDLCD_Command, public ILCDMessageProvider, public ILCDMessageProcessor
 	{
 //<-dceag-decl-e->
 		// Private member variables
@@ -39,9 +73,27 @@ namespace DCE
 		auto_ptr<LCDRenderer> m_spLCDRenderer;
 		auto_ptr<SocketStatusInputProvider> m_spSocketStatusInputProvider;
 
+		pluto_pthread_mutex_t m_LCDMessageMutex;  
+		pthread_cond_t m_LCDMessageCond;
+		pthread_t m_WorkerThreadID;
+
+		pluto_pthread_mutex_t m_MessageProcessingMutex;  
+		pthread_cond_t m_MessageProcessingCond;
+
+		list<LCDMessage *> m_listLCDMessages;
+
 		// Private methods
+		void ProvideMessage(LCDMessage *);
+
 public:
-		// Public member variables
+
+	    //Public methods
+		LCDMessage *GetNextMessage();
+		void WaitForAnyMessage();
+		bool IsQuitting();
+
+		void ProcessMessage(LCDMessage *pLCDMessage);
+		void Interrupt();
 
 //<-dceag-const-b->
 public:

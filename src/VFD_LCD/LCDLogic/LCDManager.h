@@ -41,6 +41,8 @@ public:
 	void SetVariable(string sVar, string sValue);
 	void AddRenderer(IRenderer *pRenderer);
 	bool ProcessInput(const Input &input);
+
+	void ShowStatus(string sStatus, int nType);
 };
 //--------------------------------------------------------------------------------------------------------
 #endif //__LCD_MANAGER_H__
