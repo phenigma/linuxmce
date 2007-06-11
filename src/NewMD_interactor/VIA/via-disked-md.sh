@@ -4,6 +4,18 @@
 /usr/pluto/bin/MessageSend localhost 0 -1000 7 0
 sleep 5
 
+# remove core-specific packages
+Pkgs=(
+	pluto-mythtv-plugin pluto-sqlcvs pluto-system-database pluto-telecom-database pluto-std-plugins
+	pluto-updateentarea pluto-website-admin pluto-website-support pluto-database-settings
+	pluto-local-database pluto-media-database pluto-security-database mysql-server mysql-server-4.1
+	pluto-asterisk pluto-voicemail-monitor pluto-remoteassistance
+)
+
+for Package in "${Pkgs[@]}"; do
+	apt-get -y --purge remove "$Package"
+done
+
 # backup original config
 if [[ ! -f /etc/network/interfaces.pbackup ]]; then
 	cp /etc/network/interfaces{,.pbackup}
@@ -164,18 +176,6 @@ RunSQL "
 
 # remove DCE router report on first console
 sed -ir '/^1:2345:respawn:/ s,^.*$,1:2345:respawn:/sbin/getty 38400 tty1,g' /etc/inittab
-
-# remove core-specific packages
-Pkgs=(
-	pluto-mythtv-plugin pluto-sqlcvs pluto-system-database pluto-telecom-database pluto-std-plugins
-	pluto-updateentarea pluto-website-admin pluto-website-support pluto-database-settings
-	pluto-local-database pluto-media-database pluto-security-database mysql-server mysql-server-4.1
-	pluto-asterisk pluto-voicemail-monitor
-)
-
-for Package in "${Pkgs[@]}"; do
-	apt-get -y --purge remove "$Package"
-done
 
 # call for a regen
 /usr/pluto/bin/MessageSend $DCERouter -targetType template "$OrbiterDev" 12 1 266 2 "$OrbiterDev" 21 "-r" 24 "Y"
