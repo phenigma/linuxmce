@@ -5,7 +5,6 @@ CXX=g++
 CC=gcc
 
 all: $(PROGRAMS)
-	cp $(PROGRAMS) ../bin
 
 clean:
 	rm -f $(PROGRAMS) *.o

@@ -36,6 +36,8 @@
 #define FIL "***************************************************************"
 #endif
 
+#define FiireStationDD 1893
+
 void DisplayPleaseWait()
 {
 	printf(BRIGHT "**" FIL "**" NORMAL "\n");
@@ -115,7 +117,7 @@ int main(int argc, char * argv[])
 		return 1;
 	}
 
-	bytes = snprintf(buffer, 1024, "newmd %s %s 9|0|112|%s\n", myIP, myMAC, myArchitecture);
+	bytes = snprintf(buffer, 1024, "newmd %s %s 9|0|112|%s %d\n", myIP, myMAC, myArchitecture, FiireStationDD);
 	write(s, buffer, bytes < 1024 ? bytes : 1024);
 	
 	close(s);
