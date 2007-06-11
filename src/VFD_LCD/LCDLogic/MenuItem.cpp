@@ -6,7 +6,7 @@
 #include "DCE/Logger.h"
 //--------------------------------------------------------------------------------------------------------
 MenuItem::MenuItem(string sDescription, MenuItem *pParent, ItemType type, MenuItemAction *pMenuItemAction) : 
-	m_sDescription(sDescription), m_pParent(pParent), m_type(type), m_pMenuItemAction(pMenuItemAction)
+	m_type(type), m_sDescription(sDescription), m_pParent(pParent), m_pMenuItemAction(pMenuItemAction)
 {
 	if(NULL == m_pMenuItemAction)
 		m_pMenuItemAction = new MenuItemAction("", atNone);

@@ -9,7 +9,7 @@ CXX = g++
 CXXFLAGS = -Wall -fPIC -ggdb3
 CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql $(SNR_CPPFLAGS)
 LDFLAGS = $(SNR_LDFLAGS) -L$(ROOT)/lib
-BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lmysqlclient_r -lpthread
+BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lSerial -lmysqlclient_r -lpthread
 
 MYNAME = Generic_VFDLCD
 VERSION = 2.0.0
@@ -20,12 +20,21 @@ sources = Main.cpp Generic_VFDLCD.cpp $(Gen_Dev_Files)
 #<-dceag-mh-e->
 
 CXXFLAGS +=
-CPPFLAGS +=
-LDFLAGS +=
+CPPFLAGS += -I/usr/include/libxml2/
+LDFLAGS += -lxml2
 XTRALDLIBS =
 
 Gen_Dev_Files +=
-sources +=
+sources += \
+	$(ROOT)/VFD_LCD/LCDLogic/ActionProcessor.cpp \
+	$(ROOT)/VFD_LCD/LCDLogic/InputMenuItem.cpp \
+	$(ROOT)/VFD_LCD/LCDLogic/LCDManager.cpp \
+	$(ROOT)/VFD_LCD/LCDLogic/MenuHolder.cpp \
+	$(ROOT)/VFD_LCD/LCDLogic/MenuItem.cpp \
+	$(ROOT)/VFD_LCD/LCDLogic/MenuItemAction.cpp \
+	$(ROOT)/VFD_LCD/LCDLogic/MenuLoader.cpp \
+	$(ROOT)/VFD_LCD/Renderers/LCDRenderer.cpp \
+	$(ROOT)/VFD_LCD/InputProviders/SocketStatusInputProvider.cpp
 
 #<-dceag-mf-b->
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)

@@ -140,6 +140,9 @@ void LCDManager::Prepare()
 			ScheduleRerender(REFRESH_INTERVAL);
 		}
 		break;
+
+		default:
+		break;
 	}
 
 	//parent
