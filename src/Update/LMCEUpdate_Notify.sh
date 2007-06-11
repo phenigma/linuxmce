@@ -66,9 +66,9 @@ function Action_Ask() {
 function Action_Answer {
 	local answer="$1"
 	if [[ "$answer" == "yes" ]] ;then
-		Q="Update Device_DeviceData SET IK_Device = '1' WHERE FK_Device='$PK_Device' AND FK_DeviceData='235'"
+		Q="Update Device_DeviceData SET IK_DeviceData = '1' WHERE FK_Device='$PK_Device' AND FK_DeviceData='235'"
 	else
-		Q="Update Device_DeviceData SET IK_Device = '0' WHERE FK_Device='$PK_Device' AND FK_DeviceData='235'"
+		Q="Update Device_DeviceData SET IK_DeviceData = '0' WHERE FK_Device='$PK_Device' AND FK_DeviceData='235'"
 	fi
 
 	RunSQL "$Q"

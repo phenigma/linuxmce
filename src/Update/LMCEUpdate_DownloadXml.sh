@@ -39,5 +39,8 @@ fi
 ## TODO: Call eugen's application to process the xml and get an status
 
 
+## TODO: Notify user that he can update it's system
+/usr/pluto/bin/LMCEUpdate_Notify.sh
+
 ## Update the last processed xml
 cp -r "${XML_CURRENT}" "${XML_OLD}"
