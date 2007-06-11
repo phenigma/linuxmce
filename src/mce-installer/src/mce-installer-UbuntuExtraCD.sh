@@ -22,6 +22,8 @@ pushd /usr/pluto/deb-cache
 	gzip -c Packages > Packages.gz
 popd
 
+apt-get -f install video-wizard-videos
+
 umount -lf $CD_Dir || :
 rm -rf $CD_Dir
 
