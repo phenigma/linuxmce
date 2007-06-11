@@ -69,22 +69,24 @@ if [[ ! -f /etc/diskless.conf ]]; then
 		rootDevice="/dev/"$rootDevice
 	fi
 
-	dfOutput=$(df $rootDevice | grep -v "^Filesystem")
-	rootUsed=$(echo $dfOutput | awk '{ print $5 }'| cut -d"%" -f1)
-	rootFree=$(echo $dfOutput | awk '{ print $4 }')
-	if [[ $rootUsed -gt 95 || $rootFree -lt 204800 ]] ;then
-		Logging $TYPE $SEVERITY_CRITICAL $module "Filesystem ( / ) is getting full, trying to clean quietly!"
-		cleanRootFS
-
+	if [[ -b "$rootDevice" && "$rootDevice" != "" ]] ;then
 		dfOutput=$(df $rootDevice | grep -v "^Filesystem")
 		rootUsed=$(echo $dfOutput | awk '{ print $5 }'| cut -d"%" -f1)
 		rootFree=$(echo $dfOutput | awk '{ print $4 }')
-
 		if [[ $rootUsed -gt 95 || $rootFree -lt 204800 ]] ;then
-			Logging $TYPE $SEVERITY_CRITICAL $module "Filesystem ( / ) was auto cleaned but there is still not much space left"
-			SystemFilesystemFull="true"
-		else
-			Logging $TYPE $SEVERITY_NORMAL $module "Filesyste ( / ) was auto cleaned and now looks ok"
+			Logging $TYPE $SEVERITY_CRITICAL $module "Filesystem ( / ) is getting full, trying to clean quietly!"
+			cleanRootFS
+	
+			dfOutput=$(df $rootDevice | grep -v "^Filesystem")
+			rootUsed=$(echo $dfOutput | awk '{ print $5 }'| cut -d"%" -f1)
+			rootFree=$(echo $dfOutput | awk '{ print $4 }')
+	
+			if [[ $rootUsed -gt 95 || $rootFree -lt 204800 ]] ;then
+				Logging $TYPE $SEVERITY_CRITICAL $module "Filesystem ( / ) was auto cleaned but there is still not much space left"
+				SystemFilesystemFull="true"
+			else
+				Logging $TYPE $SEVERITY_NORMAL $module "Filesyste ( / ) was auto cleaned and now looks ok"
+			fi
 		fi
 	fi
 
