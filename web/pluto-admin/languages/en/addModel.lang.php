@@ -61,4 +61,5 @@ $TEXT_ADD_NEW_COMMAND_CONST='Add new command';
 $TEXT_SEND_INPUT_TWICE_CONST='Send input select twice to change the first input';
 $TEXT_SEND_DSP_TWICE_CONST='Send dsp select twice to change the first input';
 $TEXT_DELAY_BETWEEN_INPUT_SELECT_COMMANDS_CONST='Delay between input select commands';
+$TEXT_CREATE_DEVICE_INSTANCE_CONST='Create device';
 ?>

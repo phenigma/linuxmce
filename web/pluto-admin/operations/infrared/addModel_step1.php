@@ -43,6 +43,10 @@
 				<td colspan="3">'.$commMethodRadioButtons.'</td>
 			</tr>
 			<tr>
+				<td><B>'.$TEXT_CREATE_DEVICE_INSTANCE_CONST.'</B></td>
+				<td colspan="3"><input type="checkbox" name="create_device" value="1" checked></td>
+			</tr>			
+			<tr>
 				<td colspan="4" align="center"><input type="submit" class="button" name="add" value="'.$TEXT_NEXT_CONST.'"> <input type="button" class="button" name="close" value="'.$TEXT_CANCEL_CONST.' & '.$TEXT_CLOSE_CONST.'" onclick="self.close();"></td>
 			</tr>
 		</table><br>
@@ -97,11 +101,12 @@
 			}
 			
 			
-			if(session_name()=='Pluto-admin'){
+			$create_device=(int)@$_REQUEST['create_device'];
+			if(session_name()=='Pluto-admin' && $create_device==1){
 				// add the device
 				global $dbPlutoMainDatabase;
 				$installationID=(int)$_SESSION['installationID'];
-				//$deviceID=exec('sudo -u root /usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$dtID.' -i '.$installationID);				
+
 				$insertID=createDevice($dtID,$installationID,0,NULL,$dbADO);
 				$script='
 				<script>
