@@ -21,7 +21,6 @@ function matchCoverArt($output,$mediadbADO) {
 			FROM CoverArtScanEntry 
 			INNER JOIN CoverArtScan ON FK_CoverArtScan=PK_CoverArtScan
 			LEFT JOIN File ON FK_File=PK_File
-			LEFT JOIN Disc ON FK_Disc=PK_Disc
 			LEFT JOIN Attribute ON FK_Attribute=PK_Attribute
 			ORDER BY PK_CoverArtScanEntry ASC');
 		while($row=$rs->FetchRow()){
