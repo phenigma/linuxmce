@@ -123,6 +123,10 @@ int main(int argc, char* argv[])
 	int PK_Device=0;
 	string sLogger="stdout";
 
+	string sMenuFile = "menu.xml";
+	string sLCDSerialPort = "/dev/ttyUSB0";
+	int nSocketServerPort = 12555;
+
 	bool bLocalMode=false,bError=false; // An error parsing the command line
 	char c;
 	for(int optnum=1;optnum<argc;++optnum)
@@ -148,6 +152,15 @@ int main(int argc, char* argv[])
 		case 'l':
 			sLogger = argv[++optnum];
 			break;
+		case 'm':
+			sMenuFile = argv[++optnum];
+			break;
+		case 's':
+			sLCDSerialPort = argv[++optnum];
+			break;
+		case 'p':
+			nSocketServerPort = atoi(argv[++optnum]);
+			break;
 		default:
 			bError=true;
 			break;
@@ -160,7 +173,9 @@ int main(int argc, char* argv[])
 			<< "Usage: Generic_VFDLCD [-r Router's IP] [-d My Device ID] [-l dcerouter|stdout|null|filename]" << endl
 			<< "-r -- the IP address of the DCE Router  Defaults to 'dcerouter'." << endl
 			<< "-d -- This device's ID number.  If not specified, it will be requested from the router based on our IP address." << endl
-			<< "-l -- Where to save the log files.  Specify 'dcerouter' to have the messages logged to the DCE Router.  Defaults to stdout." << endl;
+			<< "-l -- Where to save the log files.  Specify 'dcerouter' to have the messages logged to the DCE Router.  Defaults to stdout." << endl 
+		    << "-m -- The path and filename to the xml menu " << endl 
+			<< "-s -- The serial port used by LCD device " << endl;
 		exit(1);
 	}
 
@@ -201,42 +216,48 @@ int main(int argc, char* argv[])
 	{
 		Generic_VFDLCD *pGeneric_VFDLCD = new Generic_VFDLCD(PK_Device, sRouter_IP,true,bLocalMode);
 
-		while(true)
+		if(!pGeneric_VFDLCD->Setup(sMenuFile, sLCDSerialPort, nSocketServerPort))
 		{
-
-			if ( pGeneric_VFDLCD->GetConfig() && pGeneric_VFDLCD->Connect(pGeneric_VFDLCD->PK_DeviceTemplate_get()) ) 
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Setup failed!");
+		}
+		else
+		{
+			while(true)
 			{
-				g_pCommand_Impl=pGeneric_VFDLCD;
-				g_pDeadlockHandler=DeadlockHandler;
-				g_pSocketCrashHandler=SocketCrashHandler;
-				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Connect OK");
-				pGeneric_VFDLCD->CreateChildren();
-				if( bLocalMode )
-					pGeneric_VFDLCD->RunLocalMode();
-				else
+				if ( pGeneric_VFDLCD->GetConfig() && pGeneric_VFDLCD->Connect(pGeneric_VFDLCD->PK_DeviceTemplate_get()) ) 
 				{
-					if(pGeneric_VFDLCD->m_RequestHandlerThread)
-						pthread_join(pGeneric_VFDLCD->m_RequestHandlerThread, NULL);  // This function will return when the device is shutting down
+					g_pCommand_Impl=pGeneric_VFDLCD;
+					g_pDeadlockHandler=DeadlockHandler;
+					g_pSocketCrashHandler=SocketCrashHandler;
+					LoggerWrapper::GetInstance()->Write(LV_STATUS, "Connect OK");
+					pGeneric_VFDLCD->CreateChildren();
+					if( bLocalMode )
+						pGeneric_VFDLCD->RunLocalMode();
+					else
+					{
+						if(pGeneric_VFDLCD->m_RequestHandlerThread)
+							pthread_join(pGeneric_VFDLCD->m_RequestHandlerThread, NULL);  // This function will return when the device is shutting down
+					}
+					g_pDeadlockHandler=NULL;
+					g_pSocketCrashHandler=NULL;
+				} 
+				else 
+				{
+					bAppError = true;
+					LoggerWrapper::GetInstance()->Write(LV_WARNING, "Connect() Failed. Retrying in 10 seconds...");
+
+					//cleanup
+					delete pGeneric_VFDLCD->m_pEvent;
+					pGeneric_VFDLCD->m_pEvent = NULL;
+
+					delete pGeneric_VFDLCD->m_pData;
+					pGeneric_VFDLCD->m_pData = NULL;
+
+					delete pGeneric_VFDLCD->m_pcRequestSocket;
+					pGeneric_VFDLCD->m_pcRequestSocket = NULL;
+
+					Sleep(10000);
 				}
-				g_pDeadlockHandler=NULL;
-				g_pSocketCrashHandler=NULL;
-			} 
-			else 
-			{
-				bAppError = true;
-				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Connect() Failed. Retrying in 10 seconds...");
-
-				//cleanup
-				delete pGeneric_VFDLCD->m_pEvent;
-				pGeneric_VFDLCD->m_pEvent = NULL;
-
-				delete pGeneric_VFDLCD->m_pData;
-				pGeneric_VFDLCD->m_pData = NULL;
-
-				delete pGeneric_VFDLCD->m_pcRequestSocket;
-				pGeneric_VFDLCD->m_pcRequestSocket = NULL;
-
-				Sleep(10000);
 			}
 		}
 

@@ -22,6 +22,11 @@
 #include "Gen_Devices/Generic_VFDLCDBase.h"
 //<-dceag-d-e->
 
+class MenuHolder;
+class LCDManager;
+class LCDRenderer;
+class SocketStatusInputProvider;
+
 //<-dceag-decl-b->
 namespace DCE
 {
@@ -29,6 +34,10 @@ namespace DCE
 	{
 //<-dceag-decl-e->
 		// Private member variables
+		auto_ptr<MenuHolder> m_spMenu_Holder;
+		auto_ptr<LCDManager> m_spLCDManager;
+		auto_ptr<LCDRenderer> m_spLCDRenderer;
+		auto_ptr<SocketStatusInputProvider> m_spSocketStatusInputProvider;
 
 		// Private methods
 public:
@@ -44,6 +53,8 @@ public:
 		virtual void ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sCMD_Result,Message *pMessage);
 		virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
 //<-dceag-const-e->
+
+		bool Setup(string sXMLMenuFilename, string sLCDSerialPort, int nSocketServerPort);
 
 //<-dceag-const2-b->
 		// The following constructor is only used if this a class instance embedded within a DCE Device.  In that case, it won't create it's own connection to the router

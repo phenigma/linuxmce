@@ -27,12 +27,25 @@ using namespace DCE;
 #include "Gen_Devices/AllCommandsRequests.h"
 //<-dceag-d-e->
 
+#include "VFD_LCD/LCDLogic/MenuLoader.h"
+#include "VFD_LCD/LCDLogic/MenuHolder.h"
+#include "VFD_LCD/LCDLogic/ActionProcessor.h"
+#include "VFD_LCD/LCDLogic/LCDManager.h"
+#include "VFD_LCD/Renderers/LCDRenderer.h"
+#include "VFD_LCD/InputProviders/SocketStatusInputProvider.h"
+
+#include <memory>
+
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
 Generic_VFDLCD::Generic_VFDLCD(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
 	: Generic_VFDLCD_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
 {
+	m_spMenu_Holder.reset(NULL);
+	m_spLCDManager.reset(NULL);
+	m_spLCDRenderer.reset(NULL);
+	m_spSocketStatusInputProvider.reset(NULL);
 }
 
 //<-dceag-const2-b->
@@ -105,6 +118,36 @@ void Generic_VFDLCD::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessag
 //<-dceag-cmduk-e->
 {
 	sCMD_Result = "UNKNOWN DEVICE";
+}
+
+bool Generic_VFDLCD::Setup(string sXMLMenuFilename, string sLCDSerialPort, int nSocketServerPort)
+{
+	//setup menu loader
+	auto_ptr<MenuLoader> spMenuLoader(new MenuLoader());
+
+	//setup menu holder
+	m_spMenu_Holder.reset(spMenuLoader->Load(sXMLMenuFilename));
+
+	if(NULL == m_spMenu_Holder.get())
+	{
+		DCE::LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Cannot parse %s", sXMLMenuFilename.c_str());
+		return false;
+	}
+
+	m_spMenu_Holder->Setup(new ActionProcessor(this));
+
+	//setup LCD renderer
+	m_spLCDRenderer.reset(new LCDRenderer(sLCDSerialPort)); 
+
+	//setup LCD manager
+	m_spLCDManager.reset(new LCDManager(m_spMenu_Holder.get()));
+	m_spLCDManager->AddRenderer(m_spLCDRenderer.get());
+
+	//setup socket status input provider
+	m_spSocketStatusInputProvider.reset(new SocketStatusInputProvider(m_spLCDManager.get(), nSocketServerPort));
+
+	//all ok
+	return true;
 }
 
 //<-dceag-sample-b->

@@ -247,7 +247,7 @@ bool LCDManager::Expand(MenuItem *pMenuItem)
 {
 	if(NULL != pMenuItem)
 	{
-		DCE::LoggerWrapper::GetInstance()->Write(LV_STATUS, "Analysing item %s type %d", 
+		DCE::LoggerWrapper::GetInstance()->Write(LV_STATUS, "Analyzing item %s type %d", 
 			pMenuItem->Description().c_str(), pMenuItem->Type());
 
 		if(pMenuItem->Type() == itExpandItem && NULL != pMenuItem->Parent())
