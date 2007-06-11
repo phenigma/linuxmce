@@ -24,7 +24,8 @@ void on_StepLinuxMceCD_forward_clicked(GtkWidget *widget, gpointer data)  {
 
 	if (goNext) {
 		g_queue_push_head(history, (gpointer)STEPLINUXMCECD);
-		displayStep3();
+	//	displayStep3();
+		displayStepUbuntuExtraCD();
 	}
 }
 
@@ -49,7 +50,7 @@ void displayStepLinuxMceCD(void) {
 	cleanupContainer(mainButtonBox);
 
 	// Wizard text
-	GtkWidget *label = gtk_label_new_for_wizard ("Please insert the LinuxMCE Cd in the drive or locate the iso image on your hard drive");
+	GtkWidget *label = gtk_label_new_for_wizard ("Please insert the LinuxMCE CD1 in the drive or locate the iso image on your hard drive");
 	gtk_box_pack_start(GTK_BOX(mainBox), label, TRUE, TRUE, 0);
 
 	// Radio button install using CD

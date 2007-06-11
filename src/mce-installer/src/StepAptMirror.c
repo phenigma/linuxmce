@@ -17,15 +17,16 @@ void on_StepAptMirror_forward_clicked(GtkWidget *widget, gpointer data)  {
 	if (flag_mirror==1){	
 		other_mirror = g_strdup_printf("%s",gtk_entry_get_text(txt_entry));
 		setting_installMirror=other_mirror;
-		printf("am ramas cu ohter mirror: >>>%s<<<<", setting_installMirror);
+		//printf("am ramas cu ohter mirror: >>>%s<<<<", setting_installMirror);
 	}
 
-	displayStepUbuntuExtraCD();
+	//displayStepUbuntuExtraCD();
+	displayStepLinuxMceCD();
 }
 
 void on_StepAptMirror_combo_changed(GtkWidget *widget, gpointer data) {
 	setting_installMirror = g_hash_table_lookup(mirrors, gtk_combo_box_get_active_text(GTK_COMBO_BOX(widget)));
-	printf("Am schimbat in >> %s << \n", setting_installMirror);
+	//printf("Am schimbat in >> %s << \n", setting_installMirror);
 }
 
 void on_StepAptMirror_toggled(GtkWidget *widget, gpointer data) {
@@ -77,7 +78,7 @@ void displayStepAptMirror(void) {
 
 	gtk_combo_box_set_active(GTK_COMBO_BOX(comboMirror),0);
 	setting_installMirror = g_hash_table_lookup(mirrors, gtk_combo_box_get_active_text(GTK_COMBO_BOX(comboMirror)));
-	printf("Initial %s\n", setting_installMirror);
+	//printf("Initial %s\n", setting_installMirror);
 
 	g_signal_connect(G_OBJECT(comboMirror), "changed", G_CALLBACK(on_StepAptMirror_combo_changed), (gpointer)tableMirror);
 
