@@ -30,87 +30,69 @@ fi
 
 export DISPLAY=:$Display
 
-## Detect if we're running dedicated or a shared desktop system
-if [[ "$SharedDesktop" != 1 ]]; then
-	### Dedicated desktop
-	## Test if XFree86 is running else manualy start it
-	XPID=$(</var/run/plutoX$Display.pid)
-	if [[ -z "$XPID" || ! -d /proc/"$XPID" || "$(</proc/"$XPID"/cmdline)" != *"xfwm4"* ]]; then
-		/usr/pluto/bin/Start_X.sh
-	fi
+AlphaBlending=$(AlphaBlendingEnabled)
 
-	## Have two desktops on a dedicated desktop
-	N_Desktops=2
-	wmctrl -n "$N_Desktops"
-
-	export ORBITER_PRIMARY_DESKTOP=0
-	export ORBITER_SECONDARY_DESKTOP=1
+## Configure window manager trasparancy manager
+WMTweaksFile="/root/.config/xfce4/mcs_settings/wmtweaks.xml"
+if [[ "$AlphaBlending" != 1 ]]; then
+	WMParm=(--compositor=off)
+	WMCompTweakVal=0
 else
-	### Shared desktop
-	AlphaBlending=$(AlphaBlendingEnabled)
-
-	## Configure window manager trasparancy manager
-	WMTweaksFile="/root/.config/xfce4/mcs_settings/wmtweaks.xml"
-	if [[ "$AlphaBlending" != 1 ]]; then
-		WMParm=(--compositor=off)
-		WMCompTweakVal=0
-	else
-		WMParm=()
-		WMCompTweakVal=1
-	fi
-	sed -i '/Xfwm\/UseCompositing/ s/value="."/value="'"$WMCompTweakVal"'"/g' "$WMTweaksFile"
-
-	N_Desktops=$(wmctrl -d | wc -l) # zero based
-
-	Logging $TYPE $SEVERITY_NORMAL "LaunchOrbiter" "Number of desktops found: $N_Desktops ; desktops activated? $DesktopActivated"
-
-	## Increase number of desktops by 2
-	if [[ "$DesktopActivated" != 1 ]]; then
-		Logging $TYPE $SEVERITY_NORMAL "LaunchOrbiter" "Increasing number of desktops to: $((N_Desktops + 2))"
-		for ((i = 0; i < 5; i++)); do
-			wmctrl -n $((N_Desktops + 2))
-			N_Desktops_Result=$(wmctrl -d | wc -l)
-			if ((N_Desktops_Result == N_Desktops + 2)); then
-				ConfSet DesktopActivated 1
-				break
-			fi
-			sleep 1
-		done
-		if [[ "$DesktopActivated" != 1 ]]; then
-			Logging $TYPE $SEVERITY_WARNING "LaunchOrbiter" "Failed to increase number of desktops"
-			exit 2
-		fi
-	elif [[ "$N_Desktops" -lt 4 ]]; then
-		Logging $TYPE $SEVERITY_NORMAL "LaunchOrbiter" "Number of desktops below 4. Setting to 4"
-		for ((i = 0; i < 5; i++)); do
-			wmctrl -n 4
-			N_Desktops_Result=$(wmctrl -d | wc -l)
-			if ((N_Desktops_Result == 4)); then
-				break
-			fi
-			sleep 1
-		done
-		if ((N_Desktops_Result != 4)); then
-			Logging $TYPE $SEVERITY_WARNING "LaunchOrbiter" "Failed to increase number of desktops"
-			exit 2
-		fi
-		N_Desktops=2
-	else
-		((N_Desktops -= 2))
-	fi
-
-	Logging $TYPE $SEVERITY_NORMAL "LaunchOrbiter" "Primary desktop: $N_Desktops and secondary desktop $((N_Desktops + 1))"
-
-
-	## Prevent kde to display a message every time a cd/dvd is inserted
-	mkdir -p /usr/share/kubuntu-default-settings/kde-profile/default/share/config
-	echo "[Global]" > /usr/share/kubuntu-default-settings/kde-profile/default/share/config/mediamanagerrc
-	echo "AutostartEnabled=false" >> /usr/share/kubuntu-default-settings/kde-profile/default/share/config/mediamanagerrc
-
-	## Export Orbiter desktop information variables
-	export ORBITER_PRIMARY_DESKTOP=$((N_Desktops))
-	export ORBITER_SECONDARY_DESKTOP=$((N_Desktops + 1))
+	WMParm=()
+	WMCompTweakVal=1
 fi
+sed -i '/Xfwm\/UseCompositing/ s/value="."/value="'"$WMCompTweakVal"'"/g' "$WMTweaksFile"
+
+N_Desktops=$(wmctrl -d | wc -l) # zero based
+
+Logging $TYPE $SEVERITY_NORMAL "LaunchOrbiter" "Number of desktops found: $N_Desktops ; desktops activated? $DesktopActivated"
+
+## Increase number of desktops by 2
+if [[ "$DesktopActivated" != 1 ]]; then
+	Logging $TYPE $SEVERITY_NORMAL "LaunchOrbiter" "Increasing number of desktops to: $((N_Desktops + 2))"
+	for ((i = 0; i < 5; i++)); do
+		wmctrl -n $((N_Desktops + 2))
+		N_Desktops_Result=$(wmctrl -d | wc -l)
+		if ((N_Desktops_Result == N_Desktops + 2)); then
+			ConfSet DesktopActivated 1
+			break
+		fi
+		sleep 1
+	done
+	if [[ "$DesktopActivated" != 1 ]]; then
+		Logging $TYPE $SEVERITY_WARNING "LaunchOrbiter" "Failed to increase number of desktops"
+		exit 2
+	fi
+elif [[ "$N_Desktops" -lt 4 ]]; then
+	Logging $TYPE $SEVERITY_NORMAL "LaunchOrbiter" "Number of desktops below 4. Setting to 4"
+	for ((i = 0; i < 5; i++)); do
+		wmctrl -n 4
+		N_Desktops_Result=$(wmctrl -d | wc -l)
+		if ((N_Desktops_Result == 4)); then
+			break
+		fi
+		sleep 1
+	done
+	if ((N_Desktops_Result != 4)); then
+		Logging $TYPE $SEVERITY_WARNING "LaunchOrbiter" "Failed to increase number of desktops"
+		exit 2
+	fi
+	N_Desktops=2
+else
+	((N_Desktops -= 2))
+fi
+
+Logging $TYPE $SEVERITY_NORMAL "LaunchOrbiter" "Primary desktop: $N_Desktops and secondary desktop $((N_Desktops + 1))"
+
+
+## Prevent kde to display a message every time a cd/dvd is inserted
+mkdir -p /usr/share/kubuntu-default-settings/kde-profile/default/share/config
+echo "[Global]" > /usr/share/kubuntu-default-settings/kde-profile/default/share/config/mediamanagerrc
+echo "AutostartEnabled=false" >> /usr/share/kubuntu-default-settings/kde-profile/default/share/config/mediamanagerrc
+
+## Export Orbiter desktop information variables
+export ORBITER_PRIMARY_DESKTOP=$((N_Desktops))
+export ORBITER_SECONDARY_DESKTOP=$((N_Desktops + 1))
 
 Counter=0
 isIceWmRunning=0
