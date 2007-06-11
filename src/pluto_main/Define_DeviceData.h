@@ -205,6 +205,7 @@
 #define DEVICEDATA_PNP_Prompt_For_Options_CONST 232
 #define DEVICEDATA_Model_CONST 233
 #define DEVICEDATA_LastUpdate_CONST 234
+#define DEVICEDATA_ApplyUpdates_CONST 235
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"
