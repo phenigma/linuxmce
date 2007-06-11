@@ -57,8 +57,8 @@ function Action_Ask() {
 	Tab=$'\t'
 	
 	## Sent the Message to the orbiters
-	Action_Yes="-targetType device <%=!%> $AppServerID 1 67 13 \"/usr/pluto/bin/LMCEUpdate_Notify.sh\" 51 \"--answer yes\""
-	 Action_No="-targetType device <%=!%> $AppServerID 1 67 13 \"/usr/pluto/bin/LMCEUpdate_Notify.sh\" 51 \"--answer no\""
+	Action_Yes="-targetType device <%=!%> $AppServerID 1 67 13 \"/usr/pluto/bin/LMCEUpdate_Notify.sh\" 51 \"--answer${Tab}yes\""
+	 Action_No="-targetType device <%=!%> $AppServerID 1 67 13 \"/usr/pluto/bin/LMCEUpdate_Notify.sh\" 51 \"--answer${Tab}no\""
 	
 	/usr/pluto/bin/MessageSend $DCERouter 0 $OrbiterIDList 1 741 159 53 9 "New updates available. Would you like to install them?|Yes|No" 137 "$Action_Yes|$Action_No"
 }
