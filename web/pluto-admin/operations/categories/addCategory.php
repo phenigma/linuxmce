@@ -54,7 +54,7 @@ function addCategory($output,$dbADO) {
 		$description = cleanString($_POST['categoryDescription']);		
 		$parentID = (int)$_POST['parentID']>0?(int)$_POST['parentID']:NULL;
 		if (trim($description)!='') {
-			$categArr=getAssocArray('DeviceCategory','PK_DeviceCategory','Description',$dbADO,'WHERE UPPER(Description)=\''.strtoupper($description).'\' AND FK_DeviceCategory_Parent '.(is_null($parentID)?'IS NULL':'='.$parentID));
+			$categArr=getAssocArray('DeviceCategory','PK_DeviceCategory','Description',$dbADO,'WHERE UPPER(Description)=\''.strtoupper(addslashes($description)).'\' AND FK_DeviceCategory_Parent '.(is_null($parentID)?'IS NULL':'='.$parentID));
 			if(count($categArr)!=0){
 				header("Location: index.php?section=addCategory&parentID=".$parentID."&error=".urlencode($TEXT_DEVICE_CATEGORY_ALREADY_EXISTS_CONST));
 				exit();
