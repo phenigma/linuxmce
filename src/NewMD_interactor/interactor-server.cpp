@@ -36,6 +36,7 @@ int main()
 	char buffer[1024], cmd[1024];
 	char remoteIP[1024], remoteMAC[1024];
 	char remoteDeviceData[1024];
+	char remoteDeviceTemplate[1024];
 	int bytes, tmp;
 
 	saddr.sin_family = AF_INET;
@@ -92,11 +93,13 @@ int main()
 				memset(remoteIP, 0, 1024);
 				memset(remoteMAC, 0, 1024);
 				memset(remoteDeviceData, 0, 1024);
+				memset(remoteDeviceTemplate, 0, 1024);
 
-				sscanf(buffer, "%*s %s %s %s", remoteIP, remoteMAC, remoteDeviceData);
+				sscanf(buffer, "%*s %s %s %s %s", remoteIP, remoteMAC, remoteDeviceData, remoteDeviceTemplate);
 
 				char * args[] = { "/usr/pluto/bin/MessageSend", "localhost", "0", "-1001", "2", "65",
-					"28", remoteIP, "5", remoteMAC, "52", "3", "53", "5", "49", sDT_Generic_PC_as_MD,
+					"28", remoteIP, "5", remoteMAC, "52", "3", "53", "5",
+					"49", strlen(remoteDeviceData) == 0 ? (char *) sDT_Generic_PC_as_MD : remoteDeviceData,
 					"55", remoteDeviceData,
 					NULL };
 				GetCommandOutput(args[0], args, NULL);
