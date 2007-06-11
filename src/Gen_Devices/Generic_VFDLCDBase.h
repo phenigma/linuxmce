@@ -80,43 +80,6 @@ public:
 	* @brief Device data access methods:
 	*/
 
-	string Get_COM_Port_on_PC()
-	{
-			return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_COM_Port_on_PC_CONST);
-	}
-
-	int Get_FK_Device_Capture_Card_Port()
-	{
-		if( m_bRunningWithoutDeviceData )
-			return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_FK_Device_Capture_Card_Port_CONST).c_str());
-		else
-			return atoi(m_mapParameters[DEVICEDATA_FK_Device_Capture_Card_Port_CONST].c_str());
-	}
-
-	bool Get_Preserve_Aspect_Ratio()
-	{
-		if( m_bRunningWithoutDeviceData )
-			return (m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Preserve_Aspect_Ratio_CONST)=="1" ? true : false);
-		else
-			return (m_mapParameters[DEVICEDATA_Preserve_Aspect_Ratio_CONST]=="1" ? true : false);
-	}
-
-	string Get_AV_Adjustment_Rules()
-	{
-		if( m_bRunningWithoutDeviceData )
-			return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_AV_Adjustment_Rules_CONST);
-		else
-			return m_mapParameters[DEVICEDATA_AV_Adjustment_Rules_CONST];
-	}
-
-	bool Get_Dont_Consolidate_Media()
-	{
-		if( m_bRunningWithoutDeviceData )
-			return (m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Dont_Consolidate_Media_CONST)=="1" ? true : false);
-		else
-			return (m_mapParameters[DEVICEDATA_Dont_Consolidate_Media_CONST]=="1" ? true : false);
-	}
-
 };
 
 
@@ -221,13 +184,10 @@ public:
 	virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage) { };
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
 	//Data accessors
-	string DATA_Get_COM_Port_on_PC() { return GetData()->Get_COM_Port_on_PC(); }
-	int DATA_Get_FK_Device_Capture_Card_Port() { return GetData()->Get_FK_Device_Capture_Card_Port(); }
-	bool DATA_Get_Preserve_Aspect_Ratio() { return GetData()->Get_Preserve_Aspect_Ratio(); }
-	string DATA_Get_AV_Adjustment_Rules() { return GetData()->Get_AV_Adjustment_Rules(); }
-	bool DATA_Get_Dont_Consolidate_Media() { return GetData()->Get_Dont_Consolidate_Media(); }
 	//Event accessors
 	//Commands - Override these to handle commands from the server
+	virtual void CMD_Display_Message(string sText,string sType,string sName,string sTime,string sList_PK_Device,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Show_Media_Playback_State(string sValue_To_Assign,int iPK_MediaType,string sLevel,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual ReceivedMessageResult ReceivedMessage(class Message *pMessageOriginal)
@@ -253,7 +213,75 @@ public:
 		for(int s=-1;s<(int) pMessageOriginal->m_vectExtraMessages.size(); ++s)
 		{
 			Message *pMessage = s>=0 ? pMessageOriginal->m_vectExtraMessages[s] : pMessageOriginal;
-			 if( pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND )
+			if (pMessage->m_dwPK_Device_To==m_dwPK_Device && pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND)
+			{
+				// Only buffer single messages, otherwise the caller won't know which messages were buffered and which weren't
+				if( m_pMessageBuffer && pMessage->m_bCanBuffer && pMessageOriginal->m_vectExtraMessages.size()==1 && m_pMessageBuffer->BufferMessage(pMessage) )
+					return rmr_Buffered;
+				switch(pMessage->m_dwID)
+				{
+				case COMMAND_Display_Message_CONST:
+					{
+						string sCMD_Result="OK";
+						string sText=pMessage->m_mapParameters[COMMANDPARAMETER_Text_CONST];
+						string sType=pMessage->m_mapParameters[COMMANDPARAMETER_Type_CONST];
+						string sName=pMessage->m_mapParameters[COMMANDPARAMETER_Name_CONST];
+						string sTime=pMessage->m_mapParameters[COMMANDPARAMETER_Time_CONST];
+						string sList_PK_Device=pMessage->m_mapParameters[COMMANDPARAMETER_List_PK_Device_CONST];
+						CMD_Display_Message(sText.c_str(),sType.c_str(),sName.c_str(),sTime.c_str(),sList_PK_Device.c_str(),sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(itRepeat->second.c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Display_Message(sText.c_str(),sType.c_str(),sName.c_str(),sTime.c_str(),sList_PK_Device.c_str(),sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case COMMAND_Show_Media_Playback_State_CONST:
+					{
+						string sCMD_Result="OK";
+						string sValue_To_Assign=pMessage->m_mapParameters[COMMANDPARAMETER_Value_To_Assign_CONST];
+						int iPK_MediaType=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_MediaType_CONST].c_str());
+						string sLevel=pMessage->m_mapParameters[COMMANDPARAMETER_Level_CONST];
+						CMD_Show_Media_Playback_State(sValue_To_Assign.c_str(),iPK_MediaType,sLevel.c_str(),sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(itRepeat->second.c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Show_Media_Playback_State(sValue_To_Assign.c_str(),iPK_MediaType,sLevel.c_str(),sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				}
+				iHandled += (Command_Impl::ReceivedMessage(pMessage)==rmr_NotProcessed ? 0 : 1);
+			}
+			else if( pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND )
 			{
 				MapCommand_Impl::iterator it = m_mapCommandImpl_Children.find(pMessage->m_dwPK_Device_To);
 				if( it!=m_mapCommandImpl_Children.end() && !(*it).second->m_bGeneric )

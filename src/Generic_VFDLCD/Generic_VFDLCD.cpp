@@ -241,3 +241,38 @@ void Generic_VFDLCD::SomeFunction()
 
 
 
+//<-dceag-c406-b->
+
+	/** @brief COMMAND: #406 - Display Message */
+	/** Display a message on the lcd/vfd display */
+		/** @param #9 Text */
+			/** The message to display */
+		/** @param #14 Type */
+			/** For devices implementing VFD_LCD_Base, this is the message type defined in the header */
+		/** @param #50 Name */
+			/** you can give the message a name, such as "status", "error", etc */
+		/** @param #102 Time */
+			/** Number of seconds to display the message for */
+		/** @param #103 List PK Device */
+			/** If going to a plugin that wil relay messages to other devices (ie orbiter_plugin and orbiter), A comma delimited list of devices to display this message on.  If going to a display device directly (like vfd/lcd) this is ignored. */
+
+void Generic_VFDLCD::CMD_Display_Message(string sText,string sType,string sName,string sTime,string sList_PK_Device,string &sCMD_Result,Message *pMessage)
+//<-dceag-c406-e->
+{
+}
+
+//<-dceag-c837-b->
+
+	/** @brief COMMAND: #837 - Show Media Playback State */
+	/** Show the current state of the media playback */
+		/** @param #5 Value To Assign */
+			/** Empty = no media playing, otherwise a speed, 0=pause, 1000=normal forward, -4000 = 4x reverse, etc. */
+		/** @param #29 PK_MediaType */
+			/** The type of media */
+		/** @param #76 Level */
+			/** The level of the volume, from 0-100.  empty means it's not known, or "MUTE" */
+
+void Generic_VFDLCD::CMD_Show_Media_Playback_State(string sValue_To_Assign,int iPK_MediaType,string sLevel,string &sCMD_Result,Message *pMessage)
+//<-dceag-c837-e->
+{
+}
