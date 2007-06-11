@@ -175,7 +175,7 @@ void UpdatesXML::ParseUpdate(xmlNode *pNode)
 	}
 	else
 	{
-		// TODO log error
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "NULL XML node!");
 	}
 }
 

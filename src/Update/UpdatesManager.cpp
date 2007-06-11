@@ -17,9 +17,6 @@
 #include <dirent.h>
 
 
-// #define DEVICEDATA_MODEL_CONST 233
-// #define DEVICEDATA_LASTUPDATE_CONST 234
-
 UpdatesManager::UpdatesManager(const char * xmlPath, const char * updPath, int iInput, int iOutput)
 	: updatesPath(updPath),
 	  xmlUpdatesFile(xmlPath),
@@ -48,7 +45,7 @@ bool UpdatesManager::Init(bool bDownload)
 	// select the models from the system
 	if( (result_set.r=mySqlHelper.mysql_query_result(sql_buff.c_str())) == NULL )
 	{
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "UpdatesManager::init : SQL FAILED : %s",sql_buff.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "UpdatesManager::Init : SQL FAILED : %s",sql_buff.c_str());
 		return false;
 	}
 	while((row = mysql_fetch_row(result_set.r)))
@@ -59,7 +56,7 @@ bool UpdatesManager::Init(bool bDownload)
 			int iDevice = atoi(row[0]);
 			if( !iDevice )
 			{
-				// TODO
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "UpdatesManager::Init : bad device id : %s", row[0]);
 			}
 			else
 			{
@@ -73,7 +70,7 @@ bool UpdatesManager::Init(bool bDownload)
 	sql_buff += StringUtils::itos( DEVICEDATA_LastUpdate_CONST );
 	if( (result_set.r=mySqlHelper.mysql_query_result(sql_buff.c_str())) == NULL )
 	{
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "UpdatesManager::init : SQL FAILED : %s",sql_buff.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "UpdatesManager::Init : SQL FAILED : %s",sql_buff.c_str());
 		return false;
 	}
 	while((row = mysql_fetch_row(result_set.r)))
@@ -84,7 +81,7 @@ bool UpdatesManager::Init(bool bDownload)
 			int iDevice = atoi(row[0]);
 			if( !iDevice )
 			{
-				// TODO
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "UpdatesManager::Init: bad device id: %s", row[0]);
 			}
 			else
 			{
@@ -101,7 +98,8 @@ bool UpdatesManager::Init(bool bDownload)
 			map<long, unsigned>::iterator itUpdate = id2update.find( (*it).first );
 			if( itUpdate == id2update.end() )
 			{
-				// TODO: warning !
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Device id %d has model %s but no update info",
+					(*it).first, (*it).second.c_str());
 				continue;
 			}
 		
@@ -164,7 +162,7 @@ bool UpdatesManager::Run()
 {
 	if( download )
 	{
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Updates download - start");
+		LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Updates download - start");
 		// download updates
 		for(vector<unsigned>::iterator it=downloadUpdates.begin(); it!=downloadUpdates.end(); ++it)
 		{
@@ -173,47 +171,47 @@ bool UpdatesManager::Run()
 			{
 				if( isIOError() )
 				{
-					// TODO
-					break;
+					LoggerWrapper::GetInstance()->Write(LV_WARNING, "IOError: check updates");
+					return false;
 				}
 				
-				LoggerWrapper::GetInstance()->Write(LV_WARNING, "eug: updates not available");
+				LoggerWrapper::GetInstance()->Write(LV_DEBUG, "eug: updates not available");
 				// try to download it
 				if( DownloadUpdate(*it) )
 				{
 					if( isIOError() )
 					{
-						// TODO
-						break;
+						LoggerWrapper::GetInstance()->Write(LV_WARNING, "IOError: download updates");
+						return false;
 					}
 				
-					LoggerWrapper::GetInstance()->Write(LV_WARNING, "eug: updates downloaded");
+					LoggerWrapper::GetInstance()->Write(LV_DEBUG, "eug: updates downloaded");
 					// try to validate it
 					if( !ValidateUpdate(*it) )
 					{
 						LoggerWrapper::GetInstance()->Write(LV_WARNING, "Update %u is invalid.", (*it));
-						// TODO: critical error
 						return false;
 					}
 				}
 				else
 				{
 					LoggerWrapper::GetInstance()->Write(LV_WARNING, "Update %u checksum is invalid.", (*it));
-					// TODO: critical error
 					return false;
 				}
 			}
 			
 			if( isIOError() )
 			{
-				// TODO
-				break;
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "IOError: other ");
+				return false;
 			}
 		}
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Updates download - end");
+		LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Updates download - end");
 	}
 	else
 	{
+		LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Updates processing - start");
+		
 		// for all updates from /home/updates, check the update id
 		string model = id2model[dceconf.m_iPK_Device_Computer];
 		unsigned lastUpdate = id2update[dceconf.m_iPK_Device_Computer];
@@ -239,36 +237,41 @@ bool UpdatesManager::Run()
 					{
 						if( !ProcessOptionUpdate( pUpdate->UpdateId(), UpdatesXML::attrOptionsPre ) )
 						{
-							// TODO
+							LoggerWrapper::GetInstance()->Write(LV_WARNING, "ProcessOptionUpdate error: %u | %s",
+								pUpdate->UpdateId(), UpdatesXML::attrOptionsPre);
 							return false;
 						}
 						
 						// process the update
 						if( !ProcessUpdate( pUpdate->UpdateId() ) )
 						{
-							// TODO
+							LoggerWrapper::GetInstance()->Write(LV_WARNING, "ProcessUpdate error: %u",
+								pUpdate->UpdateId());
 							return false;
 						}
 						
 						if( !SetLastUpdate( pUpdate->UpdateId() ) )
 						{
-							// TODO
+							LoggerWrapper::GetInstance()->Write(LV_WARNING, "SetLastUpdate error: %u",
+								pUpdate->UpdateId());
 							return false;
 						}
 						
 						if( !ProcessOptionUpdate( pUpdate->UpdateId(), UpdatesXML::attrOptionsPost ) )
 						{
-							// TODO
+							LoggerWrapper::GetInstance()->Write(LV_WARNING, "ProcessOptionUpdate error: %d | %s",
+								pUpdate->UpdateId(), UpdatesXML::attrOptionsPost);
 							return false;
 						}
 					}
 				}
 				else
 				{
-					// TODO error
+					LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "XML error for update %u", (*it));
 				}
 			}
 		}
+		LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Updates processing - end");
 	}
 	
 	return true;
@@ -307,7 +310,7 @@ bool UpdatesManager::CheckUpdate(unsigned uId)
 	}
 	if( pUpdate == NULL )
 	{
-		// TODO: error
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Update object is invalid: %u", uId);
 		return false;
 	}
 	
@@ -350,7 +353,7 @@ bool UpdatesManager::DownloadUpdate(unsigned uId)
 	}
 	if( pUpdate == NULL )
 	{
-		// TODO: error
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Update object is invalid: %u", uId);
 		return false;
 	}
 	
@@ -401,7 +404,7 @@ bool UpdatesManager::ValidateUpdate(unsigned uId)
 	}
 	if( pUpdate == NULL )
 	{
-		// TODO: error
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Update object is invalid: %u", uId);
 		return false;
 	}
 	
@@ -432,7 +435,7 @@ bool UpdatesManager::ValidateUpdate(unsigned uId)
 	
 	if( unlink(temp) )
 	{
-		// TODO
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Unlink error: %s", temp);
 	}
 	
 	if( !strncmp(message, "OK", 2) )
@@ -453,7 +456,7 @@ bool UpdatesManager::RemoveUpdate(unsigned uId)
 	}
 	if( pUpdate == NULL )
 	{
-		// TODO: error
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Update object is invalid: %u", uId);
 		return false;
 	}
 	
@@ -491,7 +494,7 @@ bool UpdatesManager::ProcessUpdate(unsigned uId)
 	}
 	if( pUpdate == NULL )
 	{
-		// TODO: error
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Update object is invalid: %u", uId);
 		return false;
 	}
 	
@@ -545,7 +548,7 @@ bool UpdatesManager::ProcessOptionUpdate(unsigned uId, const char * type)
 	}
 	if( pUpdate == NULL )
 	{
-		// TODO: error
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Update object is invalid: %u", uId);
 		return false;
 	}
 	
