@@ -9,7 +9,7 @@ CXX = g++
 CXXFLAGS = -Wall -fPIC -ggdb3
 CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql $(SNR_CPPFLAGS)
 LDFLAGS = $(SNR_LDFLAGS) -L$(ROOT)/lib
-BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lSerial -lmysqlclient_r -lpthread
+BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lmysqlclient_r -lpthread
 
 MYNAME = Generic_VFDLCD
 VERSION = 2.0.0
@@ -21,7 +21,7 @@ sources = Main.cpp Generic_VFDLCD.cpp $(Gen_Dev_Files)
 
 CXXFLAGS +=
 CPPFLAGS += -I/usr/include/libxml2/
-LDFLAGS += -lxml2
+LDFLAGS += -lxml2 -lSerial
 XTRALDLIBS =
 
 Gen_Dev_Files +=
