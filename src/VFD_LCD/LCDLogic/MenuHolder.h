@@ -8,6 +8,7 @@ class MenuHolder
 {
 	MenuItem *m_pRootMenuItem;
 	MenuItem *m_pCurrentMenuItem;
+	MenuItem *m_pLastCurrentMenuItem;
 
 	ActionProcessor *m_pActionProcessor;
 
@@ -25,7 +26,9 @@ public:
 	void MoveDown();
 	void MoveLeft();
 	void MoveRight();
+
 	void Home();
+	void Restore();
 };
 //--------------------------------------------------------------------------------------------------------
 #endif //__MENU_HOLDER_H__

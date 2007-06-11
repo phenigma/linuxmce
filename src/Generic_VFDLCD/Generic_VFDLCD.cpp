@@ -174,7 +174,7 @@ bool Generic_VFDLCD::Setup(string sXMLMenuFilename, string sLCDSerialPort, int n
 	}
 
 	//test
-	CMD_Display_Message("this is a test", "2", "test", "3", "");
+	CMD_Display_Message("this is a test", "2", "test", "5", "");
 
 	//all ok
 	return true;
@@ -269,9 +269,9 @@ void Generic_VFDLCD::ProcessMessage(LCDMessage *pLCDMessage)
 	{
 		//wait to be interrupted 
 		PLUTO_SAFETY_LOCK(mm, m_MessageProcessingMutex);
-		if(pLCDMessage->time == -1)
+		if(pLCDMessage->time != -1)
 		{
-			if(!mm.TimedCondWait(pLCDMessage->time * 1000, 0))
+			if(!mm.TimedCondWait(pLCDMessage->time, 0))
 				bInterrupted = true;
 		}
 		else
@@ -280,6 +280,8 @@ void Generic_VFDLCD::ProcessMessage(LCDMessage *pLCDMessage)
 			bInterrupted = true;
 		}
 	}
+
+	m_spLCDManager->RestoreState();
 
 	if(bInterrupted)
 	{

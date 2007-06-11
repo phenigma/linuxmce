@@ -305,3 +305,11 @@ void LCDManager::ShowStatus(string sStatus, int nType)
 	Render();
 }
 //--------------------------------------------------------------------------------------------------------
+void LCDManager::RestoreState()
+{
+	if(NULL != m_pMenuHolder)
+		m_pMenuHolder->Restore();
+
+	Render();	
+}
+//--------------------------------------------------------------------------------------------------------

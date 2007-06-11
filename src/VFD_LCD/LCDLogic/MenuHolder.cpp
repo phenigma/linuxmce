@@ -5,7 +5,8 @@
 
 #include "DCE/Logger.h"
 //--------------------------------------------------------------------------------------------------------
-MenuHolder::MenuHolder() : m_pRootMenuItem(NULL), m_pCurrentMenuItem(NULL), m_pActionProcessor(NULL)
+MenuHolder::MenuHolder() : m_pRootMenuItem(NULL), m_pCurrentMenuItem(NULL), 
+	m_pLastCurrentMenuItem(NULL), m_pActionProcessor(NULL)
 {
 
 }
@@ -83,6 +84,12 @@ void MenuHolder::MoveRight()
 //--------------------------------------------------------------------------------------------------------
 void MenuHolder::Home()
 {
+	m_pLastCurrentMenuItem = m_pCurrentMenuItem;
 	m_pCurrentMenuItem = m_pRootMenuItem;
+}
+//--------------------------------------------------------------------------------------------------------
+void MenuHolder::Restore()
+{
+	m_pCurrentMenuItem = m_pLastCurrentMenuItem;
 }
 //--------------------------------------------------------------------------------------------------------

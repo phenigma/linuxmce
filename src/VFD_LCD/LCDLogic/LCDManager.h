@@ -43,6 +43,7 @@ public:
 	bool ProcessInput(const Input &input);
 
 	void ShowStatus(string sStatus, int nType);
+	void RestoreState();
 };
 //--------------------------------------------------------------------------------------------------------
 #endif //__LCD_MANAGER_H__
