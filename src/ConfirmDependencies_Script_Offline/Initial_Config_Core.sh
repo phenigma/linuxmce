@@ -88,6 +88,7 @@ if [[ $UpgradeMode == "false" ]]; then
 		fi
 	done
 
+	clear
 	echo ""
 	echo "If you have an active internet connection, Pluto can use it to perform"
 	echo "various task : syncronize your computer clock, automaticaly send bug"
@@ -115,6 +116,7 @@ if [[ $UpgradeMode == "false" ]]; then
 	DefaultNetwork="192.168.81"
 #<-mkr_b_via_e->
 	
+	clear
 	echo ""
 	echo "Enter either 1, 2, or 3 numbers separated with periods, such as 192.168.1, 10.12, or 10"
 	echo "Press enter to use the default range of $DefaultNetwork"
@@ -154,6 +156,7 @@ if [[ $UpgradeMode == "false" ]]; then
 	done
 
 
+	clear
 	echo ""
 	echo "You need to answer 'Y' below if you want Plug-and-play or extra media"
 	echo "directors."
@@ -432,7 +435,7 @@ clear
 sleep 0.5
 exec 3>&1 1>/dev/tty
 while :; do
-	echo
+	clear
 	echo
 	ExtraPkg=$(Ask "Do you want to add extra packages? [y/N]")
 	if [[ "$ExtraPkg" == y || "$ExtraPkg" == Y ]]; then
