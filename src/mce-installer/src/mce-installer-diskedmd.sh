@@ -2,7 +2,9 @@
 
 . /tmp/mce_wizard_data.sh
 . /usr/pluto/bin/Utils.sh
+. /usr/pluto/bin/SQL_Ops.sh
 . ./mce-installer-common.sh
+
 
 set -x
 
@@ -77,6 +79,31 @@ function Run_Installer_Script
 	. /usr/pluto/install/activation.sh
 }
 
+function Setup_UI 
+{
+	## Set UI interface
+	Q="SELECT PK_Device FROM Device WHERE FK_Device_ControlledVia='$c_deviceID' AND FK_DeviceTemplate=62"
+	OrbiterDevice=$(RunSQL "$Q")
+
+	case "$c_installUI" in
+		"0")
+			# select UI1
+			UI_SetOptions "$OrbiterDevice" 0 0 1
+		;;
+		"1")
+			# select UI2 without alpha blending
+			UI_SetOptions "$OrbiterDevice" 1 0 4
+		;;
+		"2")
+			# select UI2 with alpha blending
+			UI_SetOptions "$OrbiterDevice" 1 1 4
+		;;
+		*)
+			echo "Unknown UI version: $c_installUI"
+		;;
+	esac	
+}
+
 if [ ! -e /etc/group.pbackup ] ;then
     cp /etc/group /etc/group.pbackup
 fi
@@ -127,3 +154,4 @@ Unpack_Config_Files
 Setup_Apt_Conffiles
 Run_Installer_Script
 Setup_XOrg
+Setup_UI
