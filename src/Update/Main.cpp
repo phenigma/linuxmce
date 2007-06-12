@@ -26,8 +26,9 @@ int main(int argc, char* argv[])
 	string sXmlPath = "updates.xml";
 	string sUpdatesPath = "/home/updates";
 
-	bool bLocalMode=false,bError=false; // An error parsing the command line
+	bool bError=false; // An error parsing the command line
 	bool bDownload = true;
+	bool bFullDownload = true;
 	char c;
 	for(int optnum=1;optnum<argc;++optnum)
 	{
@@ -44,10 +45,6 @@ int main(int argc, char* argv[])
 				sRouter_IP = argv[++optnum];
 				break;
 				
-			case 'L':
-				bLocalMode = true;
-				break;
-				
 			case 'x':
 				sXmlPath = argv[++optnum];
 				break;
@@ -61,6 +58,15 @@ int main(int argc, char* argv[])
 				bDownload = false;
 				break;
 				
+			case 'l':
+				sLogger = argv[++optnum];
+				break;
+			
+			// small download
+			case 's':
+				bFullDownload = false;
+				break;
+				
 			default:
 				bError=true;
 				break;
@@ -70,7 +76,12 @@ int main(int argc, char* argv[])
 	if (bError)
 	{
 		cout << "A Pluto DCE Device.  See www.plutohome.com/dce for details." << endl
-			<< "-l -- Where to save the log files.  Specify 'dcerouter' to have the messages logged to the DCE Router.  Defaults to stdout." << endl;
+				<< "-r -- the IP address of the DCE Router  Defaults to 'dcerouter'." << endl
+				<< "-u -- Apply the updates." << endl
+				<< "-x -- The optional XML file name used for reading the updates information." << endl
+				<< "-p -- The optional path for updates directory." << endl
+				<< "-s -- Download only the needed updates." << endl
+				<< "-l -- Where to save the log files. Defaults to stdout." << endl;
 		exit(0);
 	}
 
@@ -136,6 +147,7 @@ int main(int argc, char* argv[])
 	sout = manager2script[1];
 	
 	UpdatesManager updManager(sXmlPath.c_str(), sUpdatesPath.c_str(), sin, sout);
+	updManager.SetFullDownload(bFullDownload);
 	if( !updManager.Init(bDownload) || !updManager.Run() )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Updates manager failure.");
