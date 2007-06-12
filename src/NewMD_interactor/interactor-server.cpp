@@ -99,7 +99,7 @@ int main()
 
 				char * args[] = { "/usr/pluto/bin/MessageSend", "localhost", "0", "-1001", "2", "65",
 					"28", remoteIP, "5", remoteMAC, "52", "3", "53", "5",
-					"49", strlen(remoteDeviceData) == 0 ? (char *) sDT_Generic_PC_as_MD : remoteDeviceData,
+					"49", strlen(remoteDeviceTemplate) == 0 ? (char *) sDT_Generic_PC_as_MD : remoteDeviceTemplate,
 					"55", remoteDeviceData,
 					NULL };
 				GetCommandOutput(args[0], args, NULL);
