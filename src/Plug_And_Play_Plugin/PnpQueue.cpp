@@ -1116,7 +1116,19 @@ bool PnpQueue::LocateDevice(PnpQueueEntry *pPnpQueueEntry)
 
 	string sVendorModelId = pPnpQueueEntry->m_pRow_PnpQueue->VendorModelId_get();
 	if( sVendorModelId.size() )
-		sSql_Model += " AND DHCPDevice.VendorModelId like '" + sVendorModelId + "%'";
+	{
+		// See if this is a USB->Serial
+		string sSqlUSB = "SELECT DeviceTemplate.FK_DeviceCategory FROM DHCPDevice "
+			"JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate "
+			"WHERE VendorModelId like '" + sVendorModelId + "%'";
+
+		PlutoSqlResult result_set;
+		MYSQL_ROW row=NULL;
+		if( ( result_set.r=m_pDatabase_pluto_main->mysql_query_result( sSqlUSB ) )!=0 && ( row = mysql_fetch_row( result_set.r ) )!=NULL && row[0] && atoi(row[0])==DEVICECATEGORY_Serial_Ports_CONST )
+			sSql_Model += " AND FK_CommMethod=" TOSTRING(COMMMETHOD_RS232_CONST) " ";  // Don't match vendor model.  We'll match the com port only
+		else
+			sSql_Model += " AND DHCPDevice.VendorModelId like '" + sVendorModelId + "%'";
+	}
 
 	if( pPnpQueueEntry->m_mapPK_DeviceData.find(DEVICEDATA_COM_Port_on_PC_CONST)!=pPnpQueueEntry->m_mapPK_DeviceData.end() )
 	{
@@ -1747,8 +1759,12 @@ Row_Device *PnpQueue::FindDisabledDeviceTemplateOnPC(int PK_Device_PC,int PK_Dev
 	PlutoSqlResult result_set;
 	MYSQL_ROW row=NULL;
 	if( ( result_set.r=m_pDatabase_pluto_main->mysql_query_result( sSQL ) )==0 || ( row = mysql_fetch_row( result_set.r ) )==NULL || !row[0] )
+	{
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "PnpQueue::FindDisabledDeviceTemplateOnPC %s returned nothing %p %p",sSQL.c_str(),row,row ? row[0] : NULL );
 		return NULL;
+	}
 
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "PnpQueue::FindDisabledDeviceTemplateOnPC %s returned %s",sSQL.c_str(),row[0] );
 	return m_pDatabase_pluto_main->Device_get()->GetRow(atoi(row[0]));
 }
 
