@@ -93,3 +93,29 @@ void MenuHolder::Restore()
 	m_pCurrentMenuItem = m_pLastCurrentMenuItem;
 }
 //--------------------------------------------------------------------------------------------------------
+MenuItem *MenuHolder::GetAudioSettingsNode()
+{
+	for(vector<MenuItem *>::const_iterator it = m_pRootMenuItem->Children().begin(); 
+		it != m_pRootMenuItem->Children().end(); ++it)
+	{
+		MenuItem *pChild = *it;
+		if(pChild->Description() == "Audio settings")
+			return pChild;
+	}
+
+	return NULL;
+}
+//--------------------------------------------------------------------------------------------------------
+MenuItem *MenuHolder::GetVideoSettingsNode()
+{
+	for(vector<MenuItem *>::const_iterator it = m_pRootMenuItem->Children().begin(); 
+		it != m_pRootMenuItem->Children().end(); ++it)
+	{
+		MenuItem *pChild = *it;
+		if(pChild->Description() == "Video settings")
+			return pChild;
+	}
+
+	return NULL;
+}
+//--------------------------------------------------------------------------------------------------------

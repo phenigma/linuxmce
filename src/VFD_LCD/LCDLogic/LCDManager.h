@@ -29,6 +29,9 @@ private:
 	string ListItemDescription(MenuItem *MenuItem);
 	bool Expand(MenuItem *pMenuItem);
 
+	void GenerateOrbiterNodes(MenuItem *pMenuItem);
+	void GenerateMDNodes(MenuItem *pMenuItem);
+
 public:
 
 	LCDManager(MenuHolder *pMenuHolder);

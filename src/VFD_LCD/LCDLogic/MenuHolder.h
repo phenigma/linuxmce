@@ -29,6 +29,9 @@ public:
 
 	void Home();
 	void Restore();
+
+	MenuItem *GetAudioSettingsNode();
+	MenuItem *GetVideoSettingsNode();
 };
 //--------------------------------------------------------------------------------------------------------
 #endif //__MENU_HOLDER_H__

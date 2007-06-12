@@ -258,25 +258,12 @@ bool LCDManager::Expand(MenuItem *pMenuItem)
 		{
 			if(pMenuItem->Value() == "{ORBITER}")
 			{
-				list<MenuItem *> listExpandedItems;
-				//TODO: get orbiter devices
-
-				////////////////////////////////////////////////
-				//Testing - remove me
-				MenuItemAction *pAction = pMenuItem->Action()->Clone();
-				pAction->UpdateValueParam("20");
-				listExpandedItems.push_back(new MenuItem("20", pMenuItem->Parent(), itListItem, pAction));
-
-				pAction = pMenuItem->Action()->Clone();
-				pAction->UpdateValueParam("43");
-				listExpandedItems.push_back(new MenuItem("43", pMenuItem->Parent(), itListItem, pAction));
-
-				pAction = pMenuItem->Action()->Clone();
-				pAction->UpdateValueParam("60");
-				listExpandedItems.push_back(new MenuItem("60", pMenuItem->Parent(), itListItem, pAction));
-				/////////////////////////////////////////////////
-
-				pMenuItem->Parent()->Expand(pMenuItem, listExpandedItems);
+				GenerateOrbiterNodes(pMenuItem);
+				return true;
+			}
+			else if(pMenuItem->Value() == "{MD}")
+			{
+				GenerateMDNodes(pMenuItem);
 				return true;
 			}
 		}
@@ -313,4 +300,62 @@ void LCDManager::RestoreState()
 	Render();	
 }
 //--------------------------------------------------------------------------------------------------------
+void LCDManager::GenerateOrbiterNodes(MenuItem *pMenuItem)
+{
+	list<MenuItem *> listExpandedItems;
 
+	//TODO: get orbiter devices
+
+	////////////////////////////////////////////////
+	//Testing - remove me
+	MenuItemAction *pAction = pMenuItem->Action()->Clone();
+	pAction->UpdateValueParam("20");
+	listExpandedItems.push_back(new MenuItem("20", pMenuItem->Parent(), itListItem, pAction));
+
+	pAction = pMenuItem->Action()->Clone();
+	pAction->UpdateValueParam("43");
+	listExpandedItems.push_back(new MenuItem("43", pMenuItem->Parent(), itListItem, pAction));
+
+	pAction = pMenuItem->Action()->Clone();
+	pAction->UpdateValueParam("60");
+	listExpandedItems.push_back(new MenuItem("60", pMenuItem->Parent(), itListItem, pAction));
+	/////////////////////////////////////////////////
+
+	pMenuItem->Parent()->Expand(pMenuItem, listExpandedItems);
+}
+//--------------------------------------------------------------------------------------------------------
+void LCDManager::GenerateMDNodes(MenuItem *pMenuItem)
+{
+	//get audio and video settings nodes
+	MenuItem *pAudioSettingsNode = m_pMenuHolder->GetAudioSettingsNode();
+	MenuItem *pVideoSettingsNode = m_pMenuHolder->GetVideoSettingsNode();
+
+	if(NULL == pAudioSettingsNode || NULL == pVideoSettingsNode)
+	{
+		DCE::LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Didn't have audio and video settings nodes!");
+		return;
+	}
+
+	//TODO: get md's
+	list<string> listMDs;
+	listMDs.push_back("40");
+	listMDs.push_back("78");
+
+	list<MenuItem *> listExpandedItems;
+
+	//for each MD, create clones and replace 
+	for(list<string>::iterator it = listMDs.begin(); it != listMDs.end(); ++it)
+	{
+		string sMD = *it;
+		MenuItem *pMDMenuItem = new MenuItem("MD " + sMD, pMenuItem->Parent(), 
+			itListItem, pMenuItem->Action()->Clone());
+
+		pMDMenuItem->AddChild(pVideoSettingsNode->Clone());
+		pMDMenuItem->AddChild(pAudioSettingsNode->Clone());
+
+		listExpandedItems.push_back(pMDMenuItem);
+	}
+
+	pMenuItem->Parent()->Expand(pMenuItem, listExpandedItems);
+}
+//--------------------------------------------------------------------------------------------------------

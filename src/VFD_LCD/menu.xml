@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?> 
+<?xml version="1.0" encoding="utf-8" ?> 
 <menu>
 	<menuitem description="Network Settings">
 		<menuitem description="Obtain an IP address (DHCP)" actiontype="execute_script" action="/usr/pluto/bin/SetupNetwork.sh --automatically" >
@@ -29,7 +29,7 @@
 			<menuitem description="DNS2" value="{DNS2}" />
 		</menuitem>
 	</menuitem>
-	<menuitem description="Video Settings">
+	<menuitem description="Video settings">
 		<menuitem description="Resolution">
 			<menuitem description="480p widescreen" actiontype="execute_script" action="/usr/pluto/bin/Xconfigure.sh --resolution {1}x{2}" parameter1="848" parameter2="480" />
 			<menuitem description="720p widescreen" actiontype="execute_script" action="/usr/pluto/bin/Xconfigure.sh --resolution {1}x{2}" parameter1="1280" parameter2="720" /> 
@@ -61,7 +61,7 @@
 			<menuitem description="Composite" actiontype="execute_script" action="/usr/pluto/bin/ChangeVideoSettings.sh --connector {1}" parameter1="Composite" /> 
 		</menuitem>
 	</menuitem>
-	<menuitem description="Audio Settings">	
+	<menuitem description="Audio settings">	
 		<menuitem description="Connector">	
 			<menuitem description="Analog stereo" actiontype="execute_script" action="/usr/pluto/bin/ChangeAudioSettings.sh --connector {1}" parameter1="analog" /> 
 			<menuitem description="SPDIF" actiontype="execute_script" action="/usr/pluto/bin/ChangeAudioSettings.sh --connector {1}" parameter1="SPDIF" /> 
@@ -93,8 +93,6 @@
 		</menuitem>
 	</menuitem>
 	<menuitem description="Media Directors">
-		<menuitem description="Video settings" actiontype="execute_command" action="0 -1000 ..." />
-		<menuitem description="Audio settings" actiontype="execute_command" action="0 -1000 ..." />
-		<menuitem description="Status" actiontype="execute_command" action="0 -1000 ..." />
+		<menuitem description="MD" value="{MD}" type="expand"></menuitem>		
 	</menuitem>
 </menu>

@@ -80,6 +80,11 @@ MenuItem *MenuItem::Parent()
 	return m_pParent;
 }
 //--------------------------------------------------------------------------------------------------------
+void MenuItem::Parent(MenuItem *pParent)
+{
+	m_pParent = pParent;
+}
+//--------------------------------------------------------------------------------------------------------
 const vector<MenuItem *>& MenuItem::Children() const
 {
 	return m_vectChildren;
@@ -88,7 +93,10 @@ const vector<MenuItem *>& MenuItem::Children() const
 void MenuItem::AddChild(MenuItem *pMenuItem)
 {
 	if(NULL != pMenuItem)
+	{
 		m_vectChildren.push_back(pMenuItem);
+		pMenuItem->Parent(this);
+	}
 }
 //--------------------------------------------------------------------------------------------------------
 MenuItem* MenuItem::FirstChild()
@@ -208,5 +216,18 @@ void MenuItem::Expand(MenuItem *pChildMenuItem, const list<MenuItem *>& listExpa
 	m_vectChildren.insert(it, listExpandedItems.begin(), listExpandedItems.end()); 
 
 	delete pChildMenuItem;
+}
+//--------------------------------------------------------------------------------------------------------
+MenuItem *MenuItem::Clone()
+{
+	MenuItem *pClone = new MenuItem(m_sDescription, m_pParent, m_type, m_pMenuItemAction->Clone());
+
+	for(vector<MenuItem *>::const_iterator it = m_vectChildren.begin(); it != m_vectChildren.end(); ++it)
+	{
+		MenuItem *pChild = *it;
+		pClone->AddChild(pChild->Clone());
+	}
+
+	return pClone;
 }
 //--------------------------------------------------------------------------------------------------------

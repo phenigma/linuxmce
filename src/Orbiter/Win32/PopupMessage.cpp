@@ -109,8 +109,9 @@ static void DisplayMessage(HWND hWnd, HDC hdc)
 
     COLORREF crBkColor = ::GetSysColor(COLOR_3DFACE);
     HBRUSH hBrush = CreateSolidBrush(crBkColor);
-    SelectObject(hdc, hBrush);
+	HBRUSH hbrOld = (HBRUSH) ::SelectObject(hdc, hBrush);
     ::FillRect(hdc, &rectLocation, hBrush);
+	::SelectObject(hdc, hbrOld);
     DeleteObject(hBrush);
 
     ::SetTextColor(hdc, RGB(0, 0, 0));
@@ -296,8 +297,9 @@ LRESULT CALLBACK WndProcPopup(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 				GetClientRect(hWnd, &rt);
 				COLORREF crBkColor = ::GetSysColor(COLOR_3DFACE);
 				HBRUSH hBrush = CreateSolidBrush(crBkColor);
-				SelectObject(hdc, hBrush);
+				HBRUSH hOldBrush = (HBRUSH)SelectObject(hdc, hBrush);
 				FillRect(hdc, &rt, hBrush);//(HBRUSH)::GetStockObject(GRAY_BRUSH));
+				SelectObject(hdc, hOldBrush);
 				DeleteObject(hBrush);
                  
                 DisplayMessage(hWnd, hdc);

@@ -46,6 +46,8 @@ public:
 	bool IsLeaf();
 
 	MenuItem *Parent();
+	void Parent(MenuItem *pParent);
+
 	const vector<MenuItem *>& Children() const;
 	void AddChild(MenuItem *pMenuItem);
 
@@ -62,6 +64,8 @@ public:
 	virtual MenuItem *MoveDown();
 	virtual MenuItem *MoveRight();
 	virtual MenuItem *MoveLeft();
+
+	virtual MenuItem *Clone();
 
 	void Expand(MenuItem *pChildMenuItem, const list<MenuItem *>& listExpandedItems);
 };

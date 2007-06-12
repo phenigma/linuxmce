@@ -66,7 +66,7 @@ string LoggerWrapper::m_sFilename;
 #ifndef WINCE
 	bool g_bFlushLog = getenv("ImmediatelyFlushLog") && atoi(getenv("ImmediatelyFlushLog"))==1;
 #else
-	bool g_bFlushLog = false;
+	bool g_bFlushLog = true;
 #endif
 
 string DCE::g_sBinary,DCE::g_sBinaryPath;
@@ -274,9 +274,9 @@ void FileLogger::WriteBlock( const char *pBlock, size_t sBlockLen )
     PLUTO_SAFETY_LOCK_LOGGER( sSM, m_Lock );  // Don't log anything but failures
 
 	fwrite( pBlock, 1, sBlockLen, m_LogFile );
-#ifdef DEBUG
+//#ifdef DEBUG
     fflush( m_LogFile );  // Try leaving this out of release builds to get faster disk performance.  For debug, we want to see the logs in real-time
-#endif
+//#endif
 }
 
 void FileLogger::WriteEntry( Entry& Entry )
@@ -341,12 +341,7 @@ void FileLogger::WriteEntry( Entry& Entry )
     fwrite( "\n", 1, 1, m_LogFile );
 #endif
 
-#ifdef DEBUG
     fflush( m_LogFile ); 
-#else
-	if( g_bFlushLog )
-	    fflush( m_LogFile );   // Try leaving this out of release builds to get faster disk performance.  For debug, we want to see the logs in real-time
-#endif
 }
 
 #ifdef WIN32

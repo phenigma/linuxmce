@@ -90,8 +90,9 @@ void DisplayProgressBar(HWND hWnd, HDC hdc)
 
     COLORREF crProgrBkColor = ::GetSysColor(COLOR_3DSHADOW);
     hBrush = CreateSolidBrush(crProgrBkColor);
-    SelectObject(hdc, hBrush);
+    HBRUSH hOldBrush = (HBRUSH)SelectObject(hdc, hBrush);
     FillRect(hdc, &rt, hBrush);
+	SelectObject(hdc, hOldBrush);
     DeleteObject(hBrush);
 
     rt.left++;
@@ -100,8 +101,9 @@ void DisplayProgressBar(HWND hWnd, HDC hdc)
     rt.bottom --;
 
     hBrush = CreateSolidBrush(RGB(0, 0, 255));
-    SelectObject(hdc, hBrush);
+    HBRUSH hOldBrush2 = (HBRUSH)SelectObject(hdc, hBrush);
     FillRect(hdc, &rt, hBrush);
+	SelectObject(hdc, hOldBrush2);
     DeleteObject(hBrush);
 }
 //-----------------------------------------------------------------------------------------------------
@@ -112,8 +114,9 @@ static void DisplayMessage(HWND hWnd, HDC hdc)
 
     COLORREF crBkColor = ::GetSysColor(COLOR_3DFACE);
     HBRUSH hBrush = CreateSolidBrush(crBkColor);
-    SelectObject(hdc, hBrush);
+    HBRUSH hOldBrush = (HBRUSH)SelectObject(hdc, hBrush);
     ::FillRect(hdc, &rectLocation, hBrush);
+	SelectObject(hdc, hOldBrush);
     DeleteObject(hBrush);
 
     ::SetTextColor(hdc, RGB(0, 0, 0));
@@ -207,8 +210,9 @@ LRESULT CALLBACK WndProcDialog(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
                 GetClientRect(hWnd, &rt);
                 COLORREF crBkColor = ::GetSysColor(COLOR_3DFACE);
                 HBRUSH hBrush = CreateSolidBrush(crBkColor);
-                SelectObject(hdc, hBrush);
+                HBRUSH hOldBrush = (HBRUSH)SelectObject(hdc, hBrush);
                 FillRect(hdc, &rt, hBrush);
+				SelectObject(hdc, hOldBrush);
                 DeleteObject(hBrush);
 
                 DisplayProgressBar(hWnd, hdc);
