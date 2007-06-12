@@ -9,7 +9,7 @@
 
 #define VERSION 1.0
 
-#define SCRIPT_NAME "/usr/pluto/bin/LMCE_UpdateHelper.sh"
+#define SCRIPT_NAME "/usr/pluto/bin/LMCEUpdate_Helper.sh"
 #define SCRIPT_IN 100
 #define SCRIPT_OUT 101
 
