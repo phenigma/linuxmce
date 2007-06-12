@@ -41,6 +41,3 @@ fi
 
 ## TODO: Notify user that he can update it's system
 /usr/pluto/bin/LMCEUpdate_Notify.sh || exit 1
-
-## Update the last processed xml
-cp -r "${XML_CURRENT}" "${XML_OLD}"

@@ -13,6 +13,11 @@
 . /usr/pluto/bin/SQL_Ops.sh
 . /usr/pluto/bin/Config_Ops.sh
 
+XML_OLD="${UPDATES_DIR}/updates.xml.old"
+XML_CURRENT="${UPDATES_DIR}/updates.xml"
+XML_NEW="${UPDATES_DIR}/updates.xml.new"
+XML_LOCK="${UPDATES_DIR}/updates.xml.lock"
+
 
 function Action_Ask() {
 	## Generate a list containig all orbiter ids ($OrbiterIDList)
@@ -72,6 +77,9 @@ function Action_Answer {
 	fi
 
 	RunSQL "$Q"
+
+	## Update the last processed xml
+	cp -r "${XML_CURRENT}" "${XML_OLD}"
 }
 
 Ask="true"
