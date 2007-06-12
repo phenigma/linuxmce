@@ -8,11 +8,13 @@
 //--------------------------------------------------------------------------------------------------------
 class MenuHolder;
 class MenuItem;
+class Database_pluto_main;
 //--------------------------------------------------------------------------------------------------------
 class LCDManager : public IInputProcessor
 {
 private:
 
+	//private variables
 	DisplayState m_display_state;
 	MenuHolder *m_pMenuHolder;
 	pluto_pthread_mutex_t m_RenderMutex;
@@ -23,6 +25,9 @@ private:
 	unsigned long m_ulRendererInterval;
 	bool m_bQuit;
 
+	Database_pluto_main *m_pDatabase_pluto_main;
+
+	//private methods
 	void Prepare();
 	void CancelRerender();
 	void ScheduleRerender(unsigned long ulMiliseconds);
@@ -34,7 +39,7 @@ private:
 
 public:
 
-	LCDManager(MenuHolder *pMenuHolder);
+	LCDManager(MenuHolder *pMenuHolder, Database_pluto_main *pDatabase_pluto_main);
 	~LCDManager();
 
 	void Render();

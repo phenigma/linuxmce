@@ -3,12 +3,16 @@
 #include "MenuItem.h"
 #include "MenuItemAction.h"
 //--------------------------------------------------------------------------------------------------------
+#include "pluto_main/Table_Device.h"
+#include "pluto_main/Define_DeviceCategory.h"
+//--------------------------------------------------------------------------------------------------------
 #define REFRESH_INTERVAL	400
 #define IDLE_INTERVAL		100
 //--------------------------------------------------------------------------------------------------------
-LCDManager::LCDManager(MenuHolder *pMenuHolder) : 
+LCDManager::LCDManager(MenuHolder *pMenuHolder, Database_pluto_main *pDatabase_pluto_main) : 
 	IInputProcessor(), m_pMenuHolder(pMenuHolder), m_RenderMutex("render"), 
-	m_RerendererThreadID(0), m_ulRendererInterval(0), m_bQuit(false)
+	m_RerendererThreadID(0), m_ulRendererInterval(0), m_bQuit(false),
+	m_pDatabase_pluto_main(pDatabase_pluto_main)
 {
 	m_display_state.m_sStatusMessage = "Welcome to Fiire 1.0!";
 
@@ -302,24 +306,31 @@ void LCDManager::RestoreState()
 //--------------------------------------------------------------------------------------------------------
 void LCDManager::GenerateOrbiterNodes(MenuItem *pMenuItem)
 {
+	if(NULL == m_pDatabase_pluto_main)
+	{
+		DCE::LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Don't have a mysql connection!");
+		return;
+	}
+
+	vector<Row_Device *> vectRow_Device;
+	string sql = 
+		"JOIN DeviceTemplate ON FK_DeviceTemplate = PK_DeviceTemplate WHERE FK_DeviceCategory IN ( " +
+		StringUtils::ltos(DEVICECATEGORY_Mobile_Orbiter_CONST) + ", " + 
+		StringUtils::ltos(DEVICECATEGORY_Standard_Orbiter_CONST) + ")";
+
+	m_pDatabase_pluto_main->Device_get()->GetRows(sql, &vectRow_Device);
 	list<MenuItem *> listExpandedItems;
 
-	//TODO: get orbiter devices
+	//for each Orbiter, create clones and replace 
+	for(vector<Row_Device *>::iterator it = vectRow_Device.begin(); it != vectRow_Device.end(); ++it)
+	{
+		Row_Device *pRow_Device = *it;
+		string sOrbiter = StringUtils::ltos(pRow_Device->PK_Device_get());
 
-	////////////////////////////////////////////////
-	//Testing - remove me
-	MenuItemAction *pAction = pMenuItem->Action()->Clone();
-	pAction->UpdateValueParam("20");
-	listExpandedItems.push_back(new MenuItem("20", pMenuItem->Parent(), itListItem, pAction));
-
-	pAction = pMenuItem->Action()->Clone();
-	pAction->UpdateValueParam("43");
-	listExpandedItems.push_back(new MenuItem("43", pMenuItem->Parent(), itListItem, pAction));
-
-	pAction = pMenuItem->Action()->Clone();
-	pAction->UpdateValueParam("60");
-	listExpandedItems.push_back(new MenuItem("60", pMenuItem->Parent(), itListItem, pAction));
-	/////////////////////////////////////////////////
+		MenuItemAction *pAction = pMenuItem->Action()->Clone();
+		pAction->UpdateValueParam(sOrbiter);
+		listExpandedItems.push_back(new MenuItem("Regen orbiter " + sOrbiter, pMenuItem->Parent(), itListItem, pAction));
+	}
 
 	pMenuItem->Parent()->Expand(pMenuItem, listExpandedItems);
 }
@@ -336,17 +347,25 @@ void LCDManager::GenerateMDNodes(MenuItem *pMenuItem)
 		return;
 	}
 
-	//TODO: get md's
-	list<string> listMDs;
-	listMDs.push_back("40");
-	listMDs.push_back("78");
+	if(NULL == m_pDatabase_pluto_main)
+	{
+		DCE::LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Don't have a mysql connection!");
+		return;
+	}
+
+	vector<Row_Device *> vectRow_Device;
+	string sql = 
+		"JOIN DeviceTemplate ON FK_DeviceTemplate = PK_DeviceTemplate WHERE FK_DeviceCategory = " +
+		StringUtils::ltos(DEVICECATEGORY_Media_Director_CONST);
+	m_pDatabase_pluto_main->Device_get()->GetRows(sql, &vectRow_Device);
 
 	list<MenuItem *> listExpandedItems;
 
 	//for each MD, create clones and replace 
-	for(list<string>::iterator it = listMDs.begin(); it != listMDs.end(); ++it)
+	for(vector<Row_Device *>::iterator it = vectRow_Device.begin(); it != vectRow_Device.end(); ++it)
 	{
-		string sMD = *it;
+		Row_Device *pRow_Device = *it;
+		string sMD = StringUtils::ltos(pRow_Device->PK_Device_get());
 		MenuItem *pMDMenuItem = new MenuItem("MD " + sMD, pMenuItem->Parent(), 
 			itListItem, pMenuItem->Action()->Clone());
 

@@ -80,7 +80,7 @@
 		<menuitem description="Refresh the devices" actiontype="execute_command" action="0 -1000 7 1" />
 		<menuitem description="Force a refresh" actiontype="execute_command" action="0 -1000 7 6" />
 		<menuitem description="Regenerate Orbiter's UI's">
-			<menuitem description="All" actiontype="execute_command" action="-targetType template 0 12 2 0 21 -r 24 0"></menuitem>
+			<menuitem description="Regen all orbiters" actiontype="execute_command" action="-targetType template 0 12 2 0 21 -r 24 0"></menuitem>
 			<menuitem description="Orbiters" value="{ORBITER}" type="expand" actiontype="execute_command" action="-targetType template 0 12 2 {VALUE} 21 -r 24 0"></menuitem>
 		</menuitem>
 		<menuitem description="Power off the core and media directors" >
