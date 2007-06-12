@@ -13,6 +13,7 @@
 . /usr/pluto/bin/SQL_Ops.sh
 . /usr/pluto/bin/Config_Ops.sh
 
+UPDATES_DIR="/home/updates"
 XML_OLD="${UPDATES_DIR}/updates.xml.old"
 XML_CURRENT="${UPDATES_DIR}/updates.xml"
 XML_NEW="${UPDATES_DIR}/updates.xml.new"
