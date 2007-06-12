@@ -72,7 +72,7 @@ void displayStepNvidiaDrivers(void) {
 	cleanupContainer(mainButtonBox);
 
 	// Wizard text
-	GtkWidget *label = gtk_label_new_for_wizard ("You have an nVidia Card.  Neither the open source nv driver nor the vesa driver work well. Shall I switch to the nVidia driver?  (Note: This will reboot the system and you will need to restart the installer)?");
+	GtkWidget *label = gtk_label_new_for_wizard ("You have an nVidia Card.  Neither the open source nv driver nor the vesa driver work well. Shall I switch to the nVidia driver?\n\nNote: This will reboot the system and you will need to restart the installer");
 	gtk_box_pack_start(GTK_BOX(mainBox), label, TRUE, TRUE, 0);
 
 
