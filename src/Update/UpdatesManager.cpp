@@ -27,6 +27,7 @@ UpdatesManager::UpdatesManager(const char * xmlPath, const char * updPath, int i
 	  download(true),
 	  ioError(false),
 	  updatesEnabled(false),
+	  fullDownload(true),
 	  mySqlHelper(dceconf.m_sDBHost, dceconf.m_sDBUser, dceconf.m_sDBPassword, dceconf.m_sDBName,dceconf.m_iDBPort)
 {
 }
@@ -126,7 +127,7 @@ bool UpdatesManager::Init(bool bDownload)
 	if( (result_set.r=mySqlHelper.mysql_query_result(sql_buff.c_str())) == NULL )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "UpdatesManager::Init : SQL FAILED : %s",sql_buff.c_str());
-//		return false;
+		return false;
 	}
 	while((row = mysql_fetch_row(result_set.r)))
 	{
@@ -175,29 +176,41 @@ bool UpdatesManager::Init(bool bDownload)
 		}
 	
 		// check what updates has to be downloaded
-		// check each model
-		for(map<string, unsigned>::iterator itModel=model2update.begin();
-				  itModel!=model2update.end(); ++itModel)
+		if( fullDownload )
 		{
 			// check each update
 			vector<UpdateNode*> &updates = xml.Updates();
 			for(vector<UpdateNode*>::iterator it=updates.begin(); it!=updates.end(); ++it)
 			{
-				UpdateNode* pUpdate = (*it);
-				// check if the update is available for current model
-				if( pUpdate->UpdateId() > (*itModel).second &&
-								pUpdate->IsModel((*itModel).first) )
+				downloadUpdates.push_back( (*it)->UpdateId() );
+			}
+		}
+		else
+		{
+			// check each model
+			for(map<string, unsigned>::iterator itModel=model2update.begin();
+						 itModel!=model2update.end(); ++itModel)
+			{
+				// check each update
+				vector<UpdateNode*> &updates = xml.Updates();
+				for(vector<UpdateNode*>::iterator it=updates.begin(); it!=updates.end(); ++it)
 				{
-					// insert the update into the list, if it's not already there
-					vector<unsigned>::iterator itD=downloadUpdates.begin();
-					for(; itD!=downloadUpdates.end(); ++itD)
+					UpdateNode* pUpdate = (*it);
+					// check if the update is available for current model
+					if( pUpdate->UpdateId() > (*itModel).second &&
+									   pUpdate->IsModel((*itModel).first) )
 					{
-						if( (*itD) == pUpdate->UpdateId() )
-							break;
-					}
-					if( itD == downloadUpdates.end() )
-					{
-						downloadUpdates.push_back( pUpdate->UpdateId() );
+						// insert the update into the list, if it's not already there
+						vector<unsigned>::iterator itD=downloadUpdates.begin();
+						for(; itD!=downloadUpdates.end(); ++itD)
+						{
+							if( (*itD) == pUpdate->UpdateId() )
+								break;
+						}
+						if( itD == downloadUpdates.end() )
+						{
+							downloadUpdates.push_back( pUpdate->UpdateId() );
+						}
 					}
 				}
 			}

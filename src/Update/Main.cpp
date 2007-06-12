@@ -19,7 +19,7 @@ int main(int argc, char* argv[])
 	g_sBinaryPath = FileUtils::BasePath(argv[0]);
 
 	cout << "LMCEUpdate, v." << VERSION << endl
-		<< "Visit www.plutohome.com for source code and license information" << endl << endl;
+		<< "Visit www.linuxmce.com for source code and license information" << endl << endl;
 
 	string sRouter_IP="dcerouter";
 	string sLogger="stdout";

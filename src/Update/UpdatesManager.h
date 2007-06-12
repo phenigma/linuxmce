@@ -44,6 +44,16 @@ class UpdatesManager
 		
 		bool isIOError() const;
 		
+		bool IsFullDownload() const
+		{
+			return fullDownload;
+		}
+		
+		void SetFullDownload(bool full)
+		{
+			fullDownload = full;
+		}
+		
 		// system calls
 		
 		bool CheckUpdate(unsigned uId);
@@ -77,6 +87,8 @@ class UpdatesManager
 		bool ioError;
 		
 		bool updatesEnabled;
+		
+		bool fullDownload;
 		
 		UpdatesXML xml;
 		
