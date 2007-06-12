@@ -116,7 +116,8 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 	
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"AVMessageTranslator::Translate begin");
 	
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"    Status : CMD=%d, TP=%d, TI=%d",pmsg->m_dwID,TogglePower,ToggleInput);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"    Status : CMD=%d, TP=%d, TI=%d last input %d last power %d",
+		pmsg->m_dwID,TogglePower,ToggleInput,laststatus_input_[devid],(int) laststatus_power_[devid]);
 	
 	// Power commands
 	if( pmsg->m_dwID == COMMAND_Generic_Off_CONST ||
@@ -218,24 +219,32 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 				else
 				{
 					unsigned int i=0,count=0;
-					if(laststatus_input_[devid]!=0)
+					if( retransmit && laststatus_input_[devid] == cmd )
 					{
-						for(i=0;i<commandorder.size() && commandorder[i]!=laststatus_input_[devid]; i++);
+						LoggerWrapper::GetInstance()->Write(LV_STATUS, "Retransmit when already on input %d", cmd );
+						count=1;
 					}
-					while(commandorder[i]!=cmd)
+					else
 					{
-						if((int)commandorder[i]==(int)0)
+						if(laststatus_input_[devid]!=0)
 						{
-							i=0;
-							continue;
+							for(i=0;i<commandorder.size() && commandorder[i]!=laststatus_input_[devid]; i++);
 						}
-						count++;			
-						if(count == commandorder.size()) 
+						while(commandorder[i]!=cmd)
 						{
-							count = 0;
-							break;
+							if((int)commandorder[i]==(int)0)
+							{
+								i=0;
+								continue;
+							}
+							count++;			
+							if(count == commandorder.size()) 
+							{
+								count = 0;
+								break;
+							}
+							i++;
 						}
-						i++;
 					}
 					if(count)
 					{
