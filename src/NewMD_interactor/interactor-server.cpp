@@ -83,6 +83,7 @@ int main()
 		memset(buffer, 0, 1024);
 		while (! do_quit && (bytes = read(s2, buffer, 1023)) > 0)
 		{
+			printf("Received: %s", buffer); // buffer contains EOL
 			buffer[bytes] = 0;
 			memset(cmd, 0, 1024);
 			sscanf(buffer, "%s", cmd);
@@ -95,7 +96,6 @@ int main()
 				memset(remoteDeviceData, 0, 1024);
 				memset(remoteDeviceTemplate, 0, 1024);
 
-				printf("Received: %s", buffer); // buffer contains EOL
 				sscanf(buffer, "%*s %s %s %s %s", remoteIP, remoteMAC, remoteDeviceData, remoteDeviceTemplate);
 				printf("Split: IP=%s, MAC=%s, DD=%s, DT=%s\n", remoteIP, remoteMAC, remoteDeviceData, remoteDeviceTemplate);
 
