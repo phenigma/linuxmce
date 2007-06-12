@@ -221,6 +221,7 @@ void MenuItem::Expand(MenuItem *pChildMenuItem, const list<MenuItem *>& listExpa
 MenuItem *MenuItem::Clone()
 {
 	MenuItem *pClone = new MenuItem(m_sDescription, m_pParent, m_type, m_pMenuItemAction->Clone());
+	pClone->Value(m_sValue);
 
 	for(vector<MenuItem *>::const_iterator it = m_vectChildren.begin(); it != m_vectChildren.end(); ++it)
 	{
@@ -229,5 +230,20 @@ MenuItem *MenuItem::Clone()
 	}
 
 	return pClone;
+}
+//--------------------------------------------------------------------------------------------------------
+void MenuItem::ReplaceVariable(string sVariableName, string sValue)
+{
+	if(m_sValue == sVariableName)
+	{
+		m_sValue = sValue;
+		m_pMenuItemAction->UpdateValueParam(sValue);
+	}
+
+	for(vector<MenuItem *>::const_iterator it = m_vectChildren.begin(); it != m_vectChildren.end(); ++it)
+	{
+		MenuItem *pChild = *it;
+		pChild->ReplaceVariable(sVariableName, sValue);
+	}
 }
 //--------------------------------------------------------------------------------------------------------

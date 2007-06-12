@@ -31,15 +31,15 @@
 	</menuitem>
 	<menuitem description="Video settings">
 		<menuitem description="Resolution">
-			<menuitem description="480p widescreen" actiontype="execute_script" action="/usr/pluto/bin/Xconfigure.sh --resolution {1}x{2}" parameter1="848" parameter2="480" />
-			<menuitem description="720p widescreen" actiontype="execute_script" action="/usr/pluto/bin/Xconfigure.sh --resolution {1}x{2}" parameter1="1280" parameter2="720" /> 
-			<menuitem description="1080i widescreen" actiontype="execute_script" action="/usr/pluto/bin/Xconfigure.sh --resolution {1}x{2}" parameter1="1920" parameter2="1080" /> 
-			<menuitem description="1080p widescreen" actiontype="execute_script" action="/usr/pluto/bin/Xconfigure.sh --resolution {1}x{2}" parameter1="1920" parameter2="1080" /> 
-			<menuitem description="640x480" actiontype="execute_script" action="/usr/pluto/bin/Xconfigure.sh --resolution {1}x{2}" parameter1="640" parameter2="480" /> 
-			<menuitem description="800x600" actiontype="execute_script" action="/usr/pluto/bin/Xconfigure.sh --resolution {1}x{2}" parameter1="800" parameter2="600" /> 
-			<menuitem description="1024x748" actiontype="execute_script" action="/usr/pluto/bin/Xconfigure.sh --resolution {1}x{2}" parameter1="1024" parameter2="748" /> 
-			<menuitem description="1280x1024" actiontype="execute_script" action="/usr/pluto/bin/Xconfigure.sh --resolution {1}x{2}" parameter1="1280" parameter2="1024" />
-			<menuitem description="1600x1200" actiontype="execute_script" action="/usr/pluto/bin/Xconfigure.sh --resolution {1}x{2}" parameter1="1600" parameter2="1200" /> 
+			<menuitem description="480p widescreen" value="{APP_SERVER}" actiontype="execute_command" action="0 {VALUE} 1 67 13 &quot;/usr/pluto/bin/Xconfigure.sh&quot; 51 &quot;--resolution	{1}x{2}&quot;" parameter1="848" parameter2="480" />
+			<menuitem description="720p widescreen" value="{APP_SERVER}" actiontype="execute_command" action="0 {VALUE} 1 67 13 &quot;/usr/pluto/bin/Xconfigure.sh&quot; 51 &quot;--resolution	{1}x{2}&quot;" parameter1="1280" parameter2="720" /> 
+			<menuitem description="1080i widescreen" value="{APP_SERVER}" actiontype="execute_command" action="0 {VALUE} 1 67 13 &quot;/usr/pluto/bin/Xconfigure.sh&quot; 51 &quot;--resolution	{1}x{2}&quot;" parameter1="1920" parameter2="1080" /> 
+			<menuitem description="1080p widescreen" value="{APP_SERVER}" actiontype="execute_command" action="0 {VALUE} 1 67 13 &quot;/usr/pluto/bin/Xconfigure.sh&quot; 51 &quot;--resolution	{1}x{2}&quot;" parameter1="1920" parameter2="1080" /> 
+			<menuitem description="640x480" value="{APP_SERVER}" actiontype="execute_command" action="0 {VALUE} 1 67 13 &quot;/usr/pluto/bin/Xconfigure.sh&quot; 51 &quot;--resolution	{1}x{2}&quot;" parameter1="640" parameter2="480" /> 
+			<menuitem description="800x600" value="{APP_SERVER}" actiontype="execute_command" action="0 {VALUE} 1 67 13 &quot;/usr/pluto/bin/Xconfigure.sh&quot; 51 &quot;--resolution	{1}x{2}&quot;" parameter1="800" parameter2="600" /> 
+			<menuitem description="1024x748" value="{APP_SERVER}" actiontype="execute_command" action="0 {VALUE} 1 67 13 &quot;/usr/pluto/bin/Xconfigure.sh&quot; 51 &quot;--resolution	{1}x{2}&quot;" parameter1="1024" parameter2="748" /> 
+			<menuitem description="1280x1024" value="{APP_SERVER}" actiontype="execute_command" action="0 {VALUE} 1 67 13 &quot;/usr/pluto/bin/Xconfigure.sh&quot; 51 &quot;--resolution	{1}x{2}&quot;" parameter1="1280" parameter2="1024" />
+			<menuitem description="1600x1200" value="{APP_SERVER}" actiontype="execute_command" action="0 {VALUE} 1 67 13 &quot;/usr/pluto/bin/Xconfigure.sh&quot; 51 &quot;--resolution	{1}x{2}&quot;" parameter1="1600" parameter2="1200" /> 
 			<menuitem description="TV standard">
 				<menuitem description="NTSC" actiontype="execute_script" action="/usr/pluto/bin/ChangeVideoSettings.sh --tvstandard {1}" parameter1="NTSC" /> 
 				<menuitem description="PAL" actiontype="execute_script" action="/usr/pluto/bin/ChangeVideoSettings.sh --tvstandard {1}" parameter1="PAL" /> 
@@ -96,3 +96,4 @@
 		<menuitem description="MD" value="{MD}" type="expand"></menuitem>		
 	</menuitem>
 </menu>
+

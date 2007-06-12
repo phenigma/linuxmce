@@ -52,6 +52,8 @@ public:
 
 	void ShowStatus(string sStatus, int nType);
 	void RestoreState();
+
+	void SetupCoreNodes(MenuItem *pMenuItem);
 };
 //--------------------------------------------------------------------------------------------------------
 #endif //__LCD_MANAGER_H__

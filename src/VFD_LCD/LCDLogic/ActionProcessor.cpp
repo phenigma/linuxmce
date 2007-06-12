@@ -64,7 +64,7 @@ void ActionProcessor::ExecuteCommand(string sCommandLine, const map<int, string>
 		sCommandLine = StringUtils::Replace(sCommandLine, sParamToReplace, it->second);
 	}
 
-	DCE::LoggerWrapper::GetInstance()->Write(LV_WARNING, "Sending command: '%s'", sCommandLine.c_str());
+	DCE::LoggerWrapper::GetInstance()->Write(LV_WARNING, "Command to send: '%s'", sCommandLine.c_str());
 
 	list<string> listArgs;
 
@@ -72,13 +72,14 @@ void ActionProcessor::ExecuteCommand(string sCommandLine, const map<int, string>
 	string token;
 	do
 	{
+		size_t oldpos = pos;
 		token = StringUtils::Tokenize(sCommandLine, " ", pos);
 
         if(token.size() > 0 && token[0] == '\"')
 		{
-			pos++; 
-			token = StringUtils::Tokenize(sCommandLine, "\"", pos);
-			pos++; 
+			oldpos++; 
+			token = StringUtils::Tokenize(sCommandLine, "\"", oldpos);
+			pos = oldpos + 1;
 		}
 
 		listArgs.push_back(token);
@@ -103,6 +104,10 @@ void ActionProcessor::ExecuteCommand(string sCommandLine, const map<int, string>
 
 	if(NULL != m_pCommand_Impl)
 		m_pCommand_Impl->SendMessage(pMessage);
+	else
+	{
+		DCE::LoggerWrapper::GetInstance()->Write(LV_WARNING, "Command NOT sent: we are not connect to the router!");
+	}
 }
 //--------------------------------------------------------------------------------------------------------
 void ActionProcessor::CallMethod(string sMethodName, const map<int, string>& mapParameters)

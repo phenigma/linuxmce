@@ -29,7 +29,10 @@ LCDManager::LCDManager(MenuHolder *pMenuHolder, Database_pluto_main *pDatabase_p
 	//////////////////////////////////////////////////////////////
 
 	if(NULL != m_pMenuHolder)
+	{
 		Expand(m_pMenuHolder->RootMenu());
+		SetupCoreNodes(m_pMenuHolder->RootMenu());
+	}
 }
 //--------------------------------------------------------------------------------------------------------
 LCDManager::~LCDManager()
@@ -372,9 +375,38 @@ void LCDManager::GenerateMDNodes(MenuItem *pMenuItem)
 		pMDMenuItem->AddChild(pVideoSettingsNode->Clone());
 		pMDMenuItem->AddChild(pAudioSettingsNode->Clone());
 
+		//TODO: Get AppServer
+		string sAppServer = "45";
+
+		pMDMenuItem->ReplaceVariable("{APP_SERVER}", sAppServer);
 		listExpandedItems.push_back(pMDMenuItem);
 	}
 
 	pMenuItem->Parent()->Expand(pMenuItem, listExpandedItems);
 }
 //--------------------------------------------------------------------------------------------------------
+void LCDManager::SetupCoreNodes(MenuItem *pMenuItem)
+{
+	//get audio and video settings nodes
+	MenuItem *pAudioSettingsNode = m_pMenuHolder->GetAudioSettingsNode();
+	MenuItem *pVideoSettingsNode = m_pMenuHolder->GetVideoSettingsNode();
+
+	if(NULL == pAudioSettingsNode || NULL == pVideoSettingsNode)
+	{
+		DCE::LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Didn't have audio and video settings nodes!");
+		return;
+	}
+
+	if(NULL == m_pDatabase_pluto_main)
+	{
+		DCE::LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Don't have a mysql connection!");
+		return;
+	}
+
+	//TODO: Get AppServer
+	string sAppServer = "15";
+	pAudioSettingsNode->ReplaceVariable("{APP_SERVER}", sAppServer);
+	pVideoSettingsNode->ReplaceVariable("{APP_SERVER}", sAppServer);
+}
+//--------------------------------------------------------------------------------------------------------
+

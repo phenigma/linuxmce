@@ -68,6 +68,7 @@ public:
 	virtual MenuItem *Clone();
 
 	void Expand(MenuItem *pChildMenuItem, const list<MenuItem *>& listExpandedItems);
+	void ReplaceVariable(string sVariableName, string sValue);
 };
 //--------------------------------------------------------------------------------------------------------
 #endif //__MENU_ITEM_H__
