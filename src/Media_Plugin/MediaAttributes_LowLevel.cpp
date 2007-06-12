@@ -748,7 +748,8 @@ void MediaAttributes_LowLevel::UpdateSearchTokens(Row_Attribute *pRow_Attribute)
             SQL = "SELECT PK_SearchToken FROM SearchToken WHERE Token='" +
                 StringUtils::SQLEscape( Token ) + "'";
             int PK_SearchToken=0;
-            if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) && ( row2=mysql_fetch_row( result.r ) ) )
+			PlutoSqlResult result2;
+            if( ( result2.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) && ( row2=mysql_fetch_row( result2.r ) ) )
             {
                 PK_SearchToken = atoi( row2[0] );
             }
