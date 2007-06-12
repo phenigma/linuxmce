@@ -573,7 +573,12 @@ void MythTV_Player::CMD_Tune_to_channel(string sOptions,string sProgramID,string
 		return;
 	}
 
-	string sTuneCMD = string("play chanid ")+numbers[0];
+	string sTuneCMD;
+	if( numbers[0].size()>1 && numbers[0][0]=='i' )
+		sTuneCMD = string("play chanid ")+numbers[0].substr(1);
+	else
+		sTuneCMD = string("play chanid ")+numbers[0];
+
 	sendMythCommand(sTuneCMD.c_str());
 }
 

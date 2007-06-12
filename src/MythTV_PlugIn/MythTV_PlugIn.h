@@ -222,6 +222,7 @@ public:
 		void CheckForNewRecordings();
 
 		bool NewBookmarks( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
+		bool TuneToChannel( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
 		void RefreshBookmarks();
 		void BuildChannelList(); // Build a list of all channels with their icons and store as MythChannel objects in m_mapMythChannel
 		void PurgeChannelList(); // Purge the list of channels, freeing all memory used

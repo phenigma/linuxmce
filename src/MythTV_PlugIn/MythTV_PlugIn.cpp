@@ -171,6 +171,7 @@ bool MythTV_PlugIn::Register()
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &MythTV_PlugIn::NewRecording), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_MythTV_Show_Recorded_CONST );
     RegisterMsgInterceptor( ( MessageInterceptorFn )( &MythTV_PlugIn::NewBookmarks ), 0, 0, 0, 0, MESSAGETYPE_COMMAND, COMMAND_Save_Bookmark_CONST );
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &MythTV_PlugIn::ScanningProgress ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Channel_Scan_Progress_CONST );
+    RegisterMsgInterceptor( ( MessageInterceptorFn )( &MythTV_PlugIn::TuneToChannel ), 0, 0, 0, 0, MESSAGETYPE_COMMAND, COMMAND_Tune_to_channel_CONST );
 
 	ListDeviceData_Router *pListDeviceData_Router = m_pRouter->m_mapDeviceByTemplate_Find(DEVICETEMPLATE_MythTV_Player_CONST);
 	if( pListDeviceData_Router )
@@ -459,7 +460,7 @@ class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *
 			}
 		}
 		string sChannelName = StringUtils::itos(pMythChannel->m_dwChanNum) + " " + pMythChannel->m_sShortName;
-		pMythChannel->m_pCell = new DataGridCell(sChannelName,StringUtils::itos(pMythChannel->m_dwID));
+		pMythChannel->m_pCell = new DataGridCell(sChannelName,"i" + StringUtils::itos(pMythChannel->m_dwID));
 		pMythChannel->m_pCell->m_mapAttributes["Name"] = sChannelName;
 		pMythChannel->m_pCell->m_mapAttributes["Source"] = pMythChannel->m_pMythSource->m_sDescription;
 	}
@@ -600,7 +601,7 @@ class DataGridTable *MythTV_PlugIn::CurrentShows(string GridID,string Parms,void
 	{
 		while((row = mysql_fetch_row(result.r)))
 		{
-			pCell = new DataGridCell(row[3] ? row[3] : "",Parms);
+			pCell = new DataGridCell(row[3] ? row[3] : "","i" + Parms);
 			pCell->m_mapAttributes["chanid"]=row[0];
 			pCell->m_mapAttributes["programid"]=row[1];
 			pCell->m_mapAttributes["seriesid"]=row[2];
@@ -1635,6 +1636,25 @@ void MythTV_PlugIn::AlarmCallback(int id, void* param)
 bool MythTV_PlugIn::NewBookmarks( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
 {
 	m_bBookmarksNeedRefreshing=true;
+	return false;
+}
+
+bool MythTV_PlugIn::TuneToChannel( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
+{
+	if( pDeviceTo && pDeviceTo->m_dwPK_DeviceTemplate!=DEVICETEMPLATE_MythTV_Player_CONST &&
+		pMessage->m_mapParameters.find(COMMANDPARAMETER_ProgramID_CONST)!=pMessage->m_mapParameters.end() )
+	{
+		string sProgramID = pMessage->m_mapParameters[COMMANDPARAMETER_ProgramID_CONST];
+		if( sProgramID.size()>1 && sProgramID[0]=='i' )
+		{
+			// It's a channel ID, not a channel number.  Convert it
+			string sSQL = "SELECT channum from channel where chanid=" + sProgramID.substr(1);
+			PlutoSqlResult result_set_check;
+			MYSQL_ROW row;
+			if( (result_set_check.r=m_pMySqlHelper_Myth->mysql_query_result(sSQL))!=NULL && (row=mysql_fetch_row(result_set_check.r))!=NULL && row && row[0] )
+				pMessage->m_mapParameters[COMMANDPARAMETER_ProgramID_CONST] = row[0];
+		}
+	}
 	return false;
 }
 
