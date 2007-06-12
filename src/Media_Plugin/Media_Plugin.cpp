@@ -1693,7 +1693,8 @@ void Media_Plugin::StartCaptureCard(MediaStream *pMediaStream)
 		// a live window with events.  So for the moment this function will confirm that if we're playing a dvd disc remotely that we make the 
 		// source be one of the destinations, and change the mrl to reference the source disk
 
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Media_Plugin::StartCaptureCard streaming to %d", 
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Media_Plugin::StartCaptureCard id %d streaming to %d", 
+			pMediaStream->m_iStreamID_get(),
 			pDevice_MediaPlayer->m_dwPK_Device);
 
 		string sTargets = pMediaStream->GetTargets(DEVICETEMPLATE_Xine_Player_CONST);
@@ -1727,7 +1728,8 @@ void Media_Plugin::StartCaptureCard(MediaStream *pMediaStream)
 	}
 	else
 	{
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Media_Plugin::StartCaptureCard playing to %d", 
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Media_Plugin::StartCaptureCard id %d playing to %d", 
+			pMediaStream->m_iStreamID_get(),
 			pDevice_MediaPlayer->m_dwPK_Device);
 		DCE::CMD_Play_Media cmd(m_dwPK_Device,
 								pDevice_MediaPlayer->m_dwPK_Device,
@@ -1748,6 +1750,7 @@ void Media_Plugin::StopCaptureCard(MediaStream *pMediaStream)
 {
 	// Find the media player to play this capture card
 	DeviceData_Base *pDevice_MediaPlayer = ((DeviceData_Router *) pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard->m_pDevice_ControlledVia)->FindFirstRelatedDeviceOfTemplate(DEVICETEMPLATE_Xine_Player_CONST);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Media_Plugin::StopCaptureCard id %d to %p", pMediaStream->m_iStreamID_get(), pDevice_MediaPlayer );
 	if( pDevice_MediaPlayer )
 	{
 		string sMediaPosition;

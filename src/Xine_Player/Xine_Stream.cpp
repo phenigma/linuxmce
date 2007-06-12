@@ -517,7 +517,7 @@ bool Xine_Stream::OpenMedia(string fileName, string &sMediaInfo, string sMediaPo
 
 	setDebuggingLevel(true );	
 	
-	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Attempting to open media for %s (%s)", fileName.c_str(), sMediaPosition.c_str() );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Xine_Stream::OpenMedia Attempting to open media for %s (%s)", fileName.c_str(), sMediaPosition.c_str() );
 	
 	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Calling xine_open" );
 	

@@ -279,7 +279,7 @@ void Xine_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPo
 	ptrFactory->m_iLastRenderingStream = iStreamID;
 	Xine_Stream *pStream =  ptrFactory->GetStream( iStreamID, true, pMessage?pMessage->m_dwPK_Device_From:0, m_iDefaultZoomLevel );
 	
-	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() called for filename: %s (%s) with corresponding stream %p.", sMediaURL.c_str(),sMediaPosition.c_str(),pStream);
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() called for id %d filename: %s (%s) with corresponding stream %p.", iStreamID, sMediaURL.c_str(),sMediaPosition.c_str(),pStream);
 	
 	if (pStream==NULL)
 	{
@@ -365,7 +365,7 @@ void Xine_Player::CMD_Stop_Media(int iStreamID,string *sMediaPosition,string &sC
 {
 	Xine_Stream *pStream =  ptrFactory->GetStream( iStreamID );
 	
-	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Stop_Media() with corresponding stream %p.", pStream);
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Stop_Media() with corresponding stream id %d %p.", iStreamID, pStream);
 	
 	if (pStream==NULL)
 	{
