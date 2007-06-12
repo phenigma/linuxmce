@@ -211,17 +211,18 @@ GetVideoDriver()
 		return 0
 	fi
 	
+	local VideoDriver
+#<-mkr_b_via_b->
+	VideoDriver=viaprop
+#<-mkr_b_via_e->
 #<-mkr_B_via_b->
-	local VideoDriver=$(lshwd | grep ' VGA ' | head -1 | sed 's/^.*(\([^()]*\)).*$/\1/')
+	VideoDriver=$(lshwd | grep ' VGA ' | head -1 | sed 's/^.*(\([^()]*\)).*$/\1/')
 	case "$VideoDriver" in
 		nv) PackageIsInstalled nvidia-glx && VideoDriver="nvidia" ;;
 		radeon|ati) PackageIsInstalled fglrx-driver && VideoDriver="fglrx" ;;
 		"") VideoDriver="vesa" ;; # just-in-case default
 	esac
 #<-mkr_B_via_e->
-#<-mkr_b_via_b->
-	VideoDriver=viaprop
-#<-mkr_b_via_e->
 	echo "$VideoDriver"
 }
 
