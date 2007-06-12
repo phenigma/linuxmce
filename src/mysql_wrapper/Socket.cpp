@@ -91,17 +91,20 @@ int Socket::recv ( TLV &tlv ) const
 		tlv.length = 0;
 		return false;
 	}
-	
-	tlv.value = new char[tlv.length];
-	
-	cnt = read ( m_sock, tlv.value, tlv.length );
-	if (cnt == 0)
+
+	if (tlv.length)
 	{
-		tlv.type = TLV::typeNone;
-		tlv.length = 0;
-		delete[] tlv.value;
-		tlv.value = NULL;
-		return false;
+		tlv.value = new char[tlv.length];
+		
+		cnt = read ( m_sock, tlv.value, tlv.length );
+		if (cnt == 0)
+		{
+			tlv.type = TLV::typeNone;
+			tlv.length = 0;
+			delete[] tlv.value;
+			tlv.value = NULL;
+			return false;
+		}
 	}
 	
 	return true;

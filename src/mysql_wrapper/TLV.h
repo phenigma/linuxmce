@@ -60,16 +60,26 @@ struct TLV {
 	{
 		type  = inType;
 		length = strlen(inValue);
-		value = new char[length];
-		memcpy( value, inValue, length );
+		if (length)
+		{
+			value = new char[length];
+			memcpy( value, inValue, length );
+		}
+		else
+			value = NULL;
 	}
 	
 	TLV(Type inType, const char *inValue, uint inLength) 
 	{
 		type  = inType;
 		length = inLength;
-		value = new char[length];
-		memcpy(value, inValue, length);
+		if (length)
+		{
+			value = new char[length];
+			memcpy(value, inValue, length);
+		}
+		else
+			value = NULL;
 	}
 	
 	TLV(uint inValue) 
