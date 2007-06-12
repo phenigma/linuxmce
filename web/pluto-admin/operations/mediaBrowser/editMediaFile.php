@@ -42,7 +42,23 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 	{
 		top.treeframe.location=\'index.php?section=leftMediaFilesSync&startPath=\'+escape(path);
 		self.location=\'index.php?section=mainMediaFilesSync&path=\'+escape(path);
-	}	
+	}
+
+	function setAll(bylink){
+		if(bylink==1){
+			editMediaFile.all.checked=(editMediaFile.all.checked)?false:true;
+		}
+		val=editMediaFile.all.checked;
+
+		for (i = 0; i < editMediaFile.elements.length; i++)
+		   {
+			tmpName=editMediaFile.elements[i].name;
+		     if (editMediaFile.elements[i].type == "checkbox" && tmpName.indexOf("attribute_")!=-1)
+		     {
+		         editMediaFile.elements[i].checked = val;
+		     }
+		   }
+		}	
 	</script>
 	';
 	
@@ -133,10 +149,18 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 				$pos++;
 				$out.='
 						<tr bgcolor="'.(($pos%2==0)?'#EEEEEE':'#FFFFFF').'">
+							<td width="20"><input type="checkbox" value="1" name="attribute_'.$rowAttributes['PK_Attribute'].'"></td>
 							<td width="100"><b>'.$rowAttributes['Description'].'</b></td>
 							<td>'.$rowAttributes['Name'].'</td>
 							<td width="100" align="center"><a href="index.php?section=mainMediaBrowser&attributeID='.$rowAttributes['PK_Attribute'].'&action=properties">'.$TEXT_EDIT_CONST.'</a> <a href="#" onClick="if(confirm(\''.$TEXT_DELETE_ATTRIBUTE_FROM_FILE_CONFIRMATION_CONST.'\'))self.location=\'index.php?section=editMediaFile&fileID='.$fileID.'&action=delete&dAtr='.$rowAttributes['PK_Attribute'].'&dpath='.urlencode(stripslashes($rowFile['Path'])).'\'">'.$TEXT_REMOVE_CONST.'</a></td>
 						</tr>';
+			}
+			if($resAttributes->RecordCount()>0){
+				$out.='
+				<tr>
+					<td><input type="checkbox" value="1" name="all" onClick="setAll(0);"></td>
+					<td colspan="3"><a href="javascript:setAll(1);">Select/unselect all</a> <input type="submit" class="button" name="delSelected" value="Delete selected" onClick="if(!confirm(\'Are you sure you want to remove those attributes?\'))return false;"></td>
+				</tr>';
 			}
 			$out.='
 				</table></td>
@@ -470,8 +494,8 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 					}
 				}
 			}
-
 			
+	
 			if(@$error!=''){
 				header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&error='.$error);			
 				exit();
@@ -482,7 +506,15 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 			}
 		}
 		
-		
+		if(isset($_POST['delSelected'])){
+			$fileAttributes=getAssocArray('File_Attribute','FK_Attribute','FK_Attribute',$mediadbADO,'WHERE FK_File='.$fileID);
+			
+			foreach ($fileAttributes AS $aID){
+				if(isset($_POST['attribute_'.$aID])){
+					$mediadbADO->Execute('DELETE FROM File_Attribute WHERE FK_File=? AND FK_Attribute=?',array($fileID,$aID));
+				}
+			}
+		}		
 		header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&msg='.$TEXT_MEDIA_FILE_UPDATED_CONST);			
 	}
 
