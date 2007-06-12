@@ -75,7 +75,7 @@ namespace DCE
 		/**
 		 * @brief setups serialization for the class data
 		 */
-		void SetupSerialization(int iSC_Version)
+		void SetupSerialization(int /*iSC_Version*/)
 		{
 			StartSerializeList() + m_dwPK_DeviceCategory + m_dwPK_DeviceCategory_Parent + m_sDescription;
 		}
@@ -152,7 +152,7 @@ namespace DCE
 		 * @warning the maps are serialized custom
 		 * @see the overloads for the + operator
 		 */
-		void SetupSerialization(int iSC_Version)
+		void SetupSerialization(int /*iSC_Version*/)
 		{
 			(*this) + m_mapDeviceData_Base + m_mapDeviceCategory + m_mapDeviceGroup; // this is serialized custom
 		}
@@ -213,7 +213,7 @@ namespace DCE
 		DeviceGroup(int dwPK_DeviceGroup,string sDescription,int Type) { m_sDescription=sDescription; m_dwPK_DeviceGroup=dwPK_DeviceGroup; m_Type=Type; }
 		DeviceGroup() {}
 
-		void SetupSerialization(int iSC_Version)
+		void SetupSerialization(int /*iSC_Version*/)
 		{
 			StartSerializeList() + m_dwPK_DeviceGroup + m_sDescription + m_vectPK_Device;
 		}
@@ -347,7 +347,7 @@ namespace DCE
 		/**
 		 * @brief setups serialization for the class data
 		 */
-		void SetupSerialization(int iSC_Version)
+		void SetupSerialization(int /*iSC_Version*/)
 		{
 			StartSerializeList() + m_bImplementsDCE + m_dwPK_Device + m_dwPK_Installation + m_dwPK_DeviceTemplate + m_dwPK_Device_ControlledVia +
 				m_dwPK_DeviceCategory + m_dwPK_Room + m_bIsPlugIn + m_bIsEmbedded + m_sCommandLine + m_mapCommands + m_sDescription + m_sIPAddress + m_sMacAddress + 

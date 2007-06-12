@@ -13,7 +13,7 @@ SocketStatusInputProvider::~SocketStatusInputProvider()
 
 }
 //--------------------------------------------------------------------------------------------------------
-bool SocketStatusInputProvider::ReceivedString(DCE::Socket *pSocket, string sLine, int nTimeout)
+bool SocketStatusInputProvider::ReceivedString(DCE::Socket *pSocket, string sLine, int /*nTimeout*/)
 {
 	pSocket->SendString("OK");
 	pSocket->Close();
@@ -31,7 +31,7 @@ bool SocketStatusInputProvider::ReceivedString(DCE::Socket *pSocket, string sLin
 	return HandleInput(input);
 }
 //--------------------------------------------------------------------------------------------------------
-void SocketStatusInputProvider::ReceivedMessage(DCE::Socket *pSocket, DCE::Message* pMessage)
+void SocketStatusInputProvider::ReceivedMessage(DCE::Socket * /*pSocket*/, DCE::Message* /*pMessage*/)
 {
 	//do nothing ?
 }

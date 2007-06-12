@@ -301,7 +301,7 @@ namespace DCE
 		/**
 		 * @brief override to get notified when the server has changed a data parameter
 		 */
-		virtual void OnDataChange( int ID, string ValueOld, string ValueNew ) {};
+		virtual void OnDataChange( int /*ID*/, string /*ValueOld*/, string /*ValueNew*/ ) {};
 		
 		/**
 		 * @brief sets the m_bQuit_get()mb data; used when DeviceManager wants the app to terminate
@@ -322,7 +322,7 @@ namespace DCE
 		* Return true if you have pending tasks, and if listPendingTask is not NULL
 		* add info on your tasks to it
 		*/
-		virtual bool ReportPendingTasks(PendingTaskList *pPendingTaskList=NULL) { return false; }
+		virtual bool ReportPendingTasks(PendingTaskList * /*pPendingTaskList*/ =NULL) { return false; }
 
 		/**
 		* @brief Clients can call this to get the list of pending tasks from PK_Device, where the pair is task type, description
@@ -330,10 +330,10 @@ namespace DCE
 		*/
 		static bool ReportPendingTasksFromDevice(Socket *pSocket,int PK_Device_Requestor,int PK_Device,PendingTaskList *pPendingTaskList=NULL);
 
-		virtual bool AbortTask(int PK_Device_Requestor,int ID) { return true; } // Abort the task with ID per PK_Device_Requestor
+		virtual bool AbortTask(int /*PK_Device_Requestor*/,int /*ID*/) { return true; } // Abort the task with ID per PK_Device_Requestor
 
 		// Override this if there are times when you can't allow a reload, and if so, return false and fill in sReason
-		virtual bool SafeToReload(string &sReason) { return true; }
+		virtual bool SafeToReload(string & /*sReason*/) { return true; }
 
 		/**
 		 * @brief just calls OnQuit()
@@ -355,7 +355,7 @@ namespace DCE
 		/**
 		 * @brief override to handle specifying real-time parameter data (like running time)
 		 */
-		virtual void RequestingParameter( int iPK_DeviceData ) {};
+		virtual void RequestingParameter( int /*iPK_DeviceData*/ ) {};
 		
 		/**
 		 * @brief when it receives a strin it sends it to all the command impl children

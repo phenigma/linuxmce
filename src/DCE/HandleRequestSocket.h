@@ -97,7 +97,7 @@ namespace DCE
 		/**
 		 * @brief overrideable by the derived classes, called when another device connects with the same device ID
 		 */
-		virtual bool OnReplaceHandler(string sIP) { return false; };
+		virtual bool OnReplaceHandler(string /*sIP*/) { return false; };
 	};
 }
 #endif

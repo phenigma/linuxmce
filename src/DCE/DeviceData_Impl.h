@@ -165,7 +165,8 @@ namespace DCE
 		 * @todo This should be pure virtual as below.  for some reason MS won't link when it's implemented in the auto-generated derived classes.  Got to figure out why.
 		 * virtual class DeviceData_Impl *CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char CurrentPosition)=0;
 		 */
-		virtual class DeviceData_Impl *CreateData( DeviceData_Impl *pParent, char *pcDataBlock, unsigned long dwAllocatedSize, char *pcCurrentPosition) { return NULL; }
+		virtual class DeviceData_Impl *CreateData( DeviceData_Impl * /*pParent*/, char * /*pcDataBlock*/, 
+				unsigned long /*dwAllocatedSize*/, char * /*pcCurrentPosition*/) { return NULL; }
 
 		/*
 		 * @brief Find self or child within category

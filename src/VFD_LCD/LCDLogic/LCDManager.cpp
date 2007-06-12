@@ -294,7 +294,7 @@ bool LCDManager::Expand(MenuItem *pMenuItem)
 	return false;
 }
 //--------------------------------------------------------------------------------------------------------
-void LCDManager::ShowStatus(string sStatus, int nType)
+void LCDManager::ShowStatus(string sStatus, int /*nType*/)
 {
 	if(NULL != m_pMenuHolder)
 	{
@@ -313,3 +313,4 @@ void LCDManager::RestoreState()
 	Render();	
 }
 //--------------------------------------------------------------------------------------------------------
+

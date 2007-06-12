@@ -124,7 +124,7 @@ void SDLFrontEnd::Render(const DisplayState &display_state)
 
 	Clear();
 
-	SDL_Color color = {255, 0, 0};
+	SDL_Color color = {255, 0, 0, 128};
 
 	vector<string>::const_iterator it;
 
@@ -153,7 +153,7 @@ void SDLFrontEnd::Render(const DisplayState &display_state)
 		RenderText(m_nWidth / 2, m_nHeight - 10, "V", color);
 
 
-	SDL_Color blue = {0,0,255};
+	SDL_Color blue = {0,0,255,128};
 
 	//status
 	RenderText(10, 30, display_state.m_sStatusMessage, blue);
@@ -199,3 +199,4 @@ void SDLFrontEnd::RenderText(int x, int y, string sText, SDL_Color color)
 	}
 }
 //--------------------------------------------------------------------------------------------------------
+

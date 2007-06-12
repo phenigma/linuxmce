@@ -119,7 +119,8 @@ namespace DCE
 		 * @warning this must be implemented in a derived class
 		 * @todo ask for more specific
 		 */
-		virtual class Event_Impl *CreateEvent( unsigned long dwPK_DeviceTemplate, ClientSocket *pOCClientSocket, unsigned long dwDevice ) {return NULL;};
+		virtual class Event_Impl *CreateEvent( unsigned long /*dwPK_DeviceTemplate*/, ClientSocket * /*pOCClientSocket*/, 
+				unsigned long /*dwDevice*/ ) {return NULL;};
 	};
 }
 #endif
