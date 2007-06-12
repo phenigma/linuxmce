@@ -175,8 +175,13 @@ bool Pnp_PreCreateOptions::OkayToCreateDevice_Room(PnpQueueEntry *pPnpQueueEntry
 		return true; // Mobile phones float around the house anyway
 
 	Row_DeviceTemplate_DeviceData *pRow_DeviceTemplate_DeviceData = m_pDatabase_pluto_main->DeviceTemplate_DeviceData_get()->GetRow(pRow_DeviceTemplate->PK_DeviceTemplate_get(),DEVICEDATA_Autoassign_to_parents_room_CONST);
-	if( pRow_DeviceTemplate_DeviceData && atoi(pRow_DeviceTemplate_DeviceData->IK_DeviceData_get().c_str()) )
+	if( pRow_DeviceTemplate_DeviceData )
+	{
+		int Value = atoi(pRow_DeviceTemplate_DeviceData->IK_DeviceData_get().c_str());
+		if( Value==-1 )
+			pPnpQueueEntry->m_iPK_Room = 0;  // Means don't put it in any room
 		return true; // We will automatically pick the room in create device
+	}
 	
 	if( m_pPnpQueue->DetermineOrbitersForPrompting(pPnpQueueEntry,true)==false )
 		return false; // No orbiters.  Skip this one for now
