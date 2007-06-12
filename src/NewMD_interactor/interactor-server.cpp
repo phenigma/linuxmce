@@ -95,7 +95,9 @@ int main()
 				memset(remoteDeviceData, 0, 1024);
 				memset(remoteDeviceTemplate, 0, 1024);
 
+				printf("Received: %s", buffer); // buffer contains EOL
 				sscanf(buffer, "%*s %s %s %s %s", remoteIP, remoteMAC, remoteDeviceData, remoteDeviceTemplate);
+				printf("Split: IP=%s, MAC=%s, DD=%s, DT=%s\n", remoteIP, remoteMAC, remoteDeviceData, remoteDeviceTemplate);
 
 				char * args[] = { "/usr/pluto/bin/MessageSend", "localhost", "0", "-1001", "2", "65",
 					"28", remoteIP, "5", remoteMAC, "52", "3", "53", "5",
