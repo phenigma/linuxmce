@@ -1,3 +1,5 @@
+#include <sys/time.h>
+#include <time.h>
 #include <iostream>
 #include <map>
 #include <mysql/mysql.h>
@@ -11,6 +13,24 @@ using namespace std;
 	
 const int default_port = 3306;
 
+string timestamp()
+{
+	struct timeval tv;
+	gettimeofday(&tv, NULL);
+	struct tm t;
+	localtime_r( &tv.tv_sec, &t );
+	char buf[50];
+	double dwSec = (double)(tv.tv_usec/1E6) + t.tm_sec;
+	snprintf( buf, sizeof(buf), "%02d/%02d/%02d %d:%02d:%06.3f", (int)t.tm_mon + 1, (int)t.tm_mday, (int)t.tm_year - 100, (int)t.tm_hour, (int)t.tm_min, dwSec );
+	return buf;
+}
+
+// LOG is used for writing string started from timestamp
+#define LOG cout << timestamp() << "\t"
+
+// _LOG is used for sequential writing of data into single line of log (e.g. dumping char array)
+#define _LOG cout
+
 int main(int argc, char **argv) {
 	int port = default_port;
 	string unix_socket = "/tmp/db_wrapper"; // default socket name
@@ -20,7 +40,7 @@ int main(int argc, char **argv) {
 	int i;	
 	while ( (i=getopt(argc, argv, "h:u:p:D:P:s:")) != -1 ) {
 		if (!optarg) {
-			cout << "Parameter -" << (char) i << " must have a value" << endl;
+			LOG << "Parameter -" << (char) i << " must have a value" << endl;
 			continue;
 		}
 
@@ -45,7 +65,7 @@ int main(int argc, char **argv) {
 				port = atoi(optarg);
 				if (!port)
 				{
-					cout << "Setting port to default value: " << default_port << endl;
+					LOG << "Setting port to default value: " << default_port << endl;
 					port = default_port;
 				}
 				break;
@@ -55,7 +75,7 @@ int main(int argc, char **argv) {
 				break;
 
 			default:
-				cout << "Unknown parameter: -" << (char) i << endl;
+				LOG << "Unknown parameter: -" << (char) i << endl;
 		}
 	}
 
@@ -67,12 +87,12 @@ int main(int argc, char **argv) {
 	unsigned long result_id=0;
 	map<unsigned long, MYSQL_RES*> my_results;
 
-	cout << "Started: waiting for connection to socket" << endl;
+	LOG << "Started: waiting for connection to socket" << endl;
 	
 	try {
 		ServerSocket server(unix_socket);
 		
-		cout << "Socket: " << unix_socket << endl;
+		LOG << "Socket: " << unix_socket << endl;
 		isConnected = true;
 
 		bool runServer = true;
@@ -84,17 +104,17 @@ int main(int argc, char **argv) {
 			
 			bool runConnection = true;
 
-			cout << "Accepted connection to socket, connecting to MySQL DB" << endl;
+			LOG << "Accepted connection to socket, connecting to MySQL DB" << endl;
 			if ( !mysql_real_connect(&mysql, host.c_str(), user.c_str(), pass.c_str(), db.c_str(), port, NULL, 0) )
 			{
 				// initiating exit
-				cout << "FAILED: " << "Failed to connect to database: Error: " << mysql_error(&mysql) << endl;
+				LOG << "FAILED: " << "Failed to connect to database: Error: " << mysql_error(&mysql) << endl;
 				runConnection = false ;
 				runServer = false;
 				unlink(unix_socket.c_str());
 			}
 			else
-				cout << "Connected OK" << endl;
+				LOG << "Connected OK" << endl;
 
 			try
 			{
@@ -107,7 +127,7 @@ int main(int argc, char **argv) {
 					{
 						case TLV::typeNone:
 						{
-							cout << "Client connection broken, exiting" << endl;
+							LOG << "Client connection broken, exiting" << endl;
 							runConnection = false;
 							runServer = false;
 							unlink(unix_socket.c_str());
@@ -117,21 +137,21 @@ int main(int argc, char **argv) {
 						case TLV::typeFunction_RealQuery:
 						{
 #ifdef DEBUG
-							cout << "Req4 mysql_real_query: " << tlv.length << endl;
-							cout << "Query text (maybe truncated): ";
+							LOG << "Req4 mysql_real_query: " << tlv.length << endl;
+							LOG << "Query text (maybe truncated): ";
 							for (uint i=0; i<tlv.length; i++)
 							{
-								cout << tlv.value[i];
+								_LOG << tlv.value[i];
 							}
-							cout << endl;
+							_LOG << endl;
 #endif
 							
 							uint iRes = mysql_real_query(&mysql, tlv.value, tlv.length);
 #ifdef DEBUG
 							if (iRes == 0)
-								cout << "Query executed OK" << endl;
+								LOG << "Query executed OK" << endl;
 							else
-								cout << "Failed to execute query: Error: " << mysql_error(&mysql) << endl;
+								LOG << "Failed to execute query: Error: " << mysql_error(&mysql) << endl;
 #endif
 							
 							bool bRes = (iRes == 0);
@@ -143,7 +163,7 @@ int main(int argc, char **argv) {
 						case TLV::typeFunction_Query:
 						{
 #ifdef DEBUG
-							cout << "Req4 mysql_query: " << tlv.length << endl;
+							LOG << "Req4 mysql_query: " << tlv.length << endl;
 #endif
 
 							char *query = new char[tlv.length+1];
@@ -151,15 +171,15 @@ int main(int argc, char **argv) {
 							query[tlv.length] = 0;
 							
 #ifdef DEBUG
-							cout << "Query text: " << query << endl;
+							LOG << "Query text: " << query << endl;
 #endif
 
 							uint iRes = mysql_query(&mysql, query);
 #ifdef DEBUG
 							if (iRes == 0)
-								cout << "Query executed OK" << endl;
+								LOG << "Query executed OK" << endl;
 							else
-								cout << "Failed to execute query: Error: " << mysql_error(&mysql) << endl;
+								LOG << "Failed to execute query: Error: " << mysql_error(&mysql) << endl;
 #endif
 							delete[] query;
 
@@ -172,18 +192,18 @@ int main(int argc, char **argv) {
 						case TLV::typeFunction_RealEscapeString:
 						{
 #ifdef DEBUG
-							cout << "Req4 mysql_real_escape_string: " << tlv.length << endl;
-							cout << "String text (maybe truncated): ";
+							LOG << "Req4 mysql_real_escape_string: " << tlv.length << endl;
+							LOG << "String text (maybe truncated): ";
 							for (uint i=0; i<tlv.length; i++)
-								cout << tlv.value[i];
-							cout << endl;
+								_LOG << tlv.value[i];
+							_LOG << endl;
 #endif
 							char *to = new char[tlv.length*2+1];
 							uint iRes = mysql_real_escape_string(&mysql, to, tlv.value, tlv.length);
 
 #ifdef DEBUG
-							cout << "String text (escaped): " << to << endl;
-							cout << "length: " << iRes << endl;
+							LOG << "String text (escaped): " << to << endl;
+							LOG << "length: " << iRes << endl;
 #endif
 
 							TLV answer(TLV::typeData_CHARArray, to);
@@ -195,7 +215,7 @@ int main(int argc, char **argv) {
 						case TLV::typeFunction_AffectedRows:
 						{
 #ifdef DEBUG
-							cout << "Req4 mysql_affected_rows: " << tlv.length << endl;
+							LOG << "Req4 mysql_affected_rows: " << tlv.length << endl;
 #endif
 							long iRes = mysql_affected_rows(&mysql);
 							
@@ -207,7 +227,7 @@ int main(int argc, char **argv) {
 						case TLV::typeFunction_FieldCount:
 						{
 #ifdef DEBUG
-							cout << "Req4 mysql_field_count: " << tlv.length << endl;
+							LOG << "Req4 mysql_field_count: " << tlv.length << endl;
 #endif
 							uint iRes = mysql_field_count(&mysql);
 							
@@ -219,7 +239,7 @@ int main(int argc, char **argv) {
 						case TLV::typeFunction_InsertID:
 						{
 #ifdef DEBUG
-							cout << "Req4 mysql_insert_id: " << tlv.length << endl;
+							LOG << "Req4 mysql_insert_id: " << tlv.length << endl;
 #endif
 							unsigned long iRes = mysql_insert_id(&mysql);
 							
@@ -231,7 +251,7 @@ int main(int argc, char **argv) {
 						case TLV::typeFunction_Error:
 						{
 #ifdef DEBUG
-							cout << "Req4 mysql_error: " << tlv.length << endl;
+							LOG << "Req4 mysql_error: " << tlv.length << endl;
 #endif
 							const char *error = mysql_error(&mysql);
 							
@@ -243,7 +263,7 @@ int main(int argc, char **argv) {
 						case TLV::typeFunction_StoreResult:
 						{
 #ifdef DEBUG
-							cout << "Req4 mysql_store_result: " << tlv.length << endl;
+							LOG << "Req4 mysql_store_result: " << tlv.length << endl;
 #endif
 							MYSQL_RES * my_result = mysql_store_result(&mysql);
 							bool isOK = (my_result != NULL);
@@ -256,21 +276,21 @@ int main(int argc, char **argv) {
 								result_id++;
 								my_results[result_id] = my_result;
 #ifdef DEBUG
-								cout << "Result ID: " << result_id << endl;
+								LOG << "Result ID: " << result_id << endl;
 #endif
 								TLV result0(result_id);
 								new_sock << result0;
 								
 								unsigned long rows_count = my_result->row_count;
 #ifdef DEBUG
-								cout << "Rows in result: " << rows_count << endl;
+								LOG << "Rows in result: " << rows_count << endl;
 #endif
 								TLV result1( rows_count );
 								new_sock << result1;
 								
 								unsigned long fields_count = my_result->field_count;
 #ifdef DEBUG
-								cout << "Fields in result: " << fields_count << endl;
+								LOG << "Fields in result: " << fields_count << endl;
 #endif
 								TLV result2( fields_count );
 								new_sock << result2;
@@ -281,14 +301,14 @@ int main(int argc, char **argv) {
 						case TLV::typeFunction_FreeResult:
 						{
 #ifdef DEBUG
-							cout << "Req4 mysql_free_result: " << tlv.length << endl;
+							LOG << "Req4 mysql_free_result: " << tlv.length << endl;
 #endif
 							unsigned long target_id = tlv.to_ulong();
 							map<unsigned long, MYSQL_RES*>::iterator i = my_results.find(target_id);
 							if ( i == my_results.end() )
 							{
 #ifdef DEBUG
-								cout << "ERROR: no such result set" << endl;
+								LOG << "ERROR: no such result set" << endl;
 #endif
 							}
 							else
@@ -297,7 +317,7 @@ int main(int argc, char **argv) {
 								my_results.erase(i);
 								mysql_free_result(to_free);
 #ifdef DEBUG
-								cout << "Freed result set ID: " << target_id <<  endl;
+								LOG << "Freed result set ID: " << target_id <<  endl;
 #endif
 							}
 						}
@@ -306,7 +326,7 @@ int main(int argc, char **argv) {
 						case TLV::typeData_PING:
 						{
 #ifdef DEBUG
-							cout << "Req4 ping: " << tlv.length << endl;
+							LOG << "Req4 ping: " << tlv.length << endl;
 #endif
 							TLV reply(TLV::typeData_PONG);
 							new_sock << reply;
@@ -316,13 +336,13 @@ int main(int argc, char **argv) {
 						case TLV::typeFunction_FetchRow:
 						{
 #ifdef DEBUG
-							cout << "Req4 mysql_fetch_row: " << tlv.length << endl;
+							LOG << "Req4 mysql_fetch_row: " << tlv.length << endl;
 #endif
 							int target_id = tlv.to_ulong();
 							if (target_id == -1)
 							{
 #ifdef DEBUG
-								cout << "ERROR: no such result set" << endl;
+								LOG << "ERROR: no such result set" << endl;
 #endif
 							}
 							else
@@ -331,7 +351,7 @@ int main(int argc, char **argv) {
 								if ( i == my_results.end() )
 								{
 #ifdef DEBUG
-									cout << "ERROR: no such result set" << endl;
+									LOG << "ERROR: no such result set" << endl;
 #endif
 								}
 								else
@@ -375,12 +395,12 @@ int main(int argc, char **argv) {
 								
 #ifdef DEBUG
 										/*
-										cout << "built packet with length: " << data_length << endl;
+										LOG << "built packet with length: " << data_length << endl;
 										for (int i=0; i<data_length; i++)
 										{
 										printf("%02X ", data[i]);
 										}
-										cout << endl;
+										LOG << endl;
 										*/
 #endif
 								
@@ -401,14 +421,14 @@ int main(int argc, char **argv) {
 						case TLV::typeFunction_FetchLengths:
 						{
 #ifdef DEBUG
-							cout << "Req4 mysql_fetch_lengths: " << tlv.length << endl;
+							LOG << "Req4 mysql_fetch_lengths: " << tlv.length << endl;
 #endif
 							
 							int target_id = tlv.to_ulong();
 							if (target_id == -1)
 							{
 #ifdef DEBUG
-								cout << "ERROR: no such result set" << endl;
+								LOG << "ERROR: no such result set" << endl;
 #endif
 							}
 							else
@@ -417,7 +437,7 @@ int main(int argc, char **argv) {
 								if ( i == my_results.end() )
 								{
 #ifdef DEBUG
-									cout << "ERROR: no such result set" << endl;
+									LOG << "ERROR: no such result set" << endl;
 #endif
 								}
 								else
@@ -434,13 +454,13 @@ int main(int argc, char **argv) {
 							
 #ifdef DEBUG
 									/*
-									cout << "built packet with length: " << data_length << endl;
+									LOG << "built packet with length: " << data_length << endl;
 									for (int i=0; i<data_length; i++)
 									{
 										printf("%02X ", data[i]);
 									}
 							
-									cout << endl;
+									LOG << endl;
 									*/
 #endif
 							
@@ -453,7 +473,7 @@ int main(int argc, char **argv) {
 												
 						case TLV::typeCommand_SHUTDOWN:
 						{
-							cout << "Shutdown requested" << endl;
+							LOG << "Shutdown requested" << endl;
 							runConnection = false;
 							runServer = false;
 							unlink(unix_socket.c_str());
@@ -462,7 +482,7 @@ int main(int argc, char **argv) {
 						
 						default:
 #ifdef DEBUG
-							cout << "not implemented TLV type: " << tlv.type << endl;
+							LOG << "not implemented TLV type: " << tlv.type << endl;
 #endif
 						break;
 					}
@@ -471,7 +491,7 @@ int main(int argc, char **argv) {
 			}
 			catch ( SocketException& e) 
 			{
-				cout << "Exception was caught: " << e.description() << " Exiting." << endl;
+				LOG << "Exception was caught: " << e.description() << " Exiting." << endl;
 				unlink(unix_socket.c_str());
 				runServer = false;
 			}
@@ -479,7 +499,7 @@ int main(int argc, char **argv) {
 	}
 	catch (SocketException &e)
 	{
-		cout << "CONNECT ERROR: Exception was caught: " << e.description() << " Exiting." << endl;
+		LOG << "CONNECT ERROR: Exception was caught: " << e.description() << " Exiting." << endl;
 	}
 	
 	return 0;
