@@ -61,7 +61,11 @@ bool SDLFrontEnd::Init()
 
 	if(TTF_Init() != -1)
 	{
+#ifdef WIN32		
 		m_pFont = TTF_OpenFont("/windows/fonts/arial.ttf", 12);
+#else
+		m_pFont = TTF_OpenFont("/usr/share/fonts/truetype/msttcorefonts/arial.ttf", 12);
+#endif
 	}
 
 	return true;
