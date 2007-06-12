@@ -90,69 +90,58 @@ int main(int argc, char* argv[])
 
 //	LoggerWrapper::GetInstance()->Write(LV_STATUS, "LMCEUpdate starting.  Connecting to: %s",sRouter_IP.c_str());
 
-	try
+    // todo
+	int manager2script[2];
+	int script2manager[2];
+
+	// Init write pipe
+	if (pipe(manager2script) == -1) {
+		perror("pipe write");
+		return(1);
+	}
+
+	// Init read pipe
+	if (pipe(script2manager) == -1) {
+		perror("pipe read");
+		return(1);
+	}
+
+	// Fork
+	int script_pid = fork();
+	if (script_pid < 0 ) {
+		perror("fork");
+		return 1;
+	}
+
+	// Run child script
+	if (script_pid == 0) {
+		close(manager2script[1]);  // Close input pipe fd
+		dup2(manager2script[0],SCRIPT_IN); // Make stdin of this process be the same thing as the output of this pipe
+		close(manager2script[0]);  // Close output pipe fd
+
+		close(script2manager[0]);  // Close ouput pipe fd
+		dup2(script2manager[1],SCRIPT_OUT); // Make stdout of the process be the same thing as the input of the pipe
+		close(script2manager[1]);  // Close input pipe fd
+
+		execl(SCRIPT_NAME, SCRIPT_NAME, NULL);
+
+		_exit(0);
+	}
+
+	// Run Application
+	close(manager2script[0]);
+	close(script2manager[1]);
+	int sin, sout;
+	sin = script2manager[0];
+	sout = manager2script[1];
+	
+	UpdatesManager updManager(sXmlPath.c_str(), sUpdatesPath.c_str(), sin, sout);
+	if( !updManager.Init(bDownload) || !updManager.Run() )
 	{
-	    // todo
-		int manager2script[2];
-		int script2manager[2];
-
-        // Init write pipe
-		if (pipe(manager2script) == -1) {
-			perror("pipe write");
-			return(1);
-		}
-
-        // Init read pipe
-		if (pipe(script2manager) == -1) {
-			perror("pipe read");
-			return(1);
-		}
-
-        // Fork
-		int script_pid = fork();
-		if (script_pid < 0 ) {
-			perror("fork");
-			return 1;
-		}
-
-        // Run child script
-		if (script_pid > 0) {
-			close(manager2script[1]);  // Close input pipe fd
-			dup2(manager2script[0],SCRIPT_IN); // Make stdin of this process be the same thing as the output of this pipe
-			close(manager2script[0]);  // Close output pipe fd
-
-			close(script2manager[0]);  // Close ouput pipe fd
-			dup2(script2manager[1],SCRIPT_OUT); // Make stdout of the process be the same thing as the input of the pipe
-			close(script2manager[1]);  // Close input pipe fd
-
-			execl(SCRIPT_NAME, SCRIPT_NAME, NULL);
-
-			_exit(0);
-		}
-
-        // Run Application
-		close(manager2script[0]);
-		close(script2manager[1]);
-		int sin, sout;
-		sin = script2manager[0];
-		sout = manager2script[1];
-		
-		UpdatesManager updManager(sXmlPath.c_str(), sUpdatesPath.c_str(), sin, sout);
-		if( !updManager.Init(bDownload) || !updManager.Run() )
-		{
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Updates manager failure.");
-			return 1;
-		}
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Updates manager failure.");
+		return 1;
+	}
 //		updManager.Debug("debug.xml");
-	}
-	catch(string s)
-	{
-		cerr << "Exception: " << s << endl;
-	}
-	catch(const char *s)
-	{
-		cerr << "Exception: " << s << endl;
-	}
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "LMCEUpdate ending");
 
 	return 0;
