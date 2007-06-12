@@ -272,6 +272,19 @@ AlphaBlendingEnabled()
 	RunSQL "$Q"
 }
 
+GetDeviceData()
+{
+	local Q
+	local Device="$1" DeviceData="$2"
+
+	Q="
+		SELECT IK_DeviceData
+		FROM Device_DeviceData
+		WHERE FK_Device=$Device AND FK_DeviceData=$DeviceData
+	"
+	Field 1 "$(RunSQL "$Q")"
+}
+
 UI_SetOptions()
 {
 	local OrbiterDev="$1"
