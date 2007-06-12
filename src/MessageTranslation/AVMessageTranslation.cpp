@@ -219,9 +219,9 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 				else
 				{
 					unsigned int i=0,count=0;
-					if( retransmit && laststatus_input_[devid] == cmd )
+					if( retransmit && (laststatus_input_[devid] == cmd || laststatus_input_[devid]==0) )
 					{
-						LoggerWrapper::GetInstance()->Write(LV_STATUS, "Retransmit when already on input %d", cmd );
+						LoggerWrapper::GetInstance()->Write(LV_STATUS, "Retransmit when already on input %d / %d", cmd, laststatus_input_[devid] );
 						count=1;
 					}
 					else
@@ -277,10 +277,7 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 						}
 					}
 				}
-				if(!retransmit)
-				{
-					laststatus_input_[devid] = cmd;
-				}
+				laststatus_input_[devid] = cmd;  // Always set this, since there could have been a reload and then the user did a retransmit
 				return true;
 			}
 			

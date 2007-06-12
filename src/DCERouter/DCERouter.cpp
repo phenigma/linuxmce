@@ -806,8 +806,6 @@ void Router::ExecuteCommandGroup(int PK_CommandGroup,DeviceData_Router *pDevice_
 
 void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted, bool bAutoDelete)
 {
-if( pMessageWillBeDeleted->m_dwPK_Device_To==73 )
-int k=2;
 	if( m_bStopProcessingMessages )
 		return;
 
@@ -1890,6 +1888,9 @@ void Router::HandleCommandPipes(Socket *pSocket,SafetyMessage *pSafetyMessage)
         if( (*(*pSafetyMessage))->m_mapParameters.find(COMMANDPARAMETER_PK_Pipe_CONST)!=(*(*pSafetyMessage))->m_mapParameters.end() )
 			PK_Pipe = atoi((*(*pSafetyMessage))->m_mapParameters[COMMANDPARAMETER_PK_Pipe_CONST].c_str());
 
+		if( PK_Pipe==-1 )  // Special value means don't propagate
+			return;
+
 		int PK_PipeID = 0;
 		MapPipe *pMapPipe = NULL;
 		if( (*(*pSafetyMessage))->m_mapParameters.find(COMMANDPARAMETER_PipeID_CONST)!=(*(*pSafetyMessage))->m_mapParameters.end() )
@@ -1935,6 +1936,9 @@ void Router::HandleCommandPipes(Socket *pSocket,SafetyMessage *pSafetyMessage)
 		int PK_Pipe=0;
         if( (*(*pSafetyMessage))->m_mapParameters.find(COMMANDPARAMETER_PK_Pipe_CONST)!=(*(*pSafetyMessage))->m_mapParameters.end() )
 			PK_Pipe = atoi((*(*pSafetyMessage))->m_mapParameters[COMMANDPARAMETER_PK_Pipe_CONST].c_str());
+
+		if( PK_Pipe==-1 )  // Special value means don't propagate
+			return;
 
         string sPipesDevices;
         if( (*(*pSafetyMessage))->m_mapParameters.find(COMMANDPARAMETER_PK_Device_Pipes_CONST)!=(*(*pSafetyMessage))->m_mapParameters.end() )
