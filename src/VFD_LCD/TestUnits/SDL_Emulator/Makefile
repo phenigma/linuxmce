@@ -19,8 +19,8 @@ sources = \
 	  main.cpp
 			
 all: $(sources:.cpp=.o)
-	$(CXX) -o LCDRenderer $+ $(LDFLAGS)
-	cp LCDRenderer ../../../bin/
+	$(CXX) -o SDL_Emulator $+ $(LDFLAGS)
+	cp SDL_Emulator ../../../bin/
 clean:
-	rm -f LCDRenderer $(sources:.cpp=.o) 
+	rm -f SDL_Emulator $(sources:.cpp=.o) 
 	
