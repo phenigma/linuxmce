@@ -12,7 +12,7 @@ DestDir=$(mktemp -d)
 function update_config_files
 {
 	local ScriptDir="/usr/pluto/bin/files.d"
-	local ScriptsList="cron.d-synctime interfaces mythtv-mysql.txt nis-client pluto.conf resolv.conf syslog.conf timezone mountnfs.sh apt.conf mythtv-fix"
+	local ScriptsList="cron.d-synctime interfaces mythtv-mysql.txt nis-client pluto.conf resolv.conf syslog.conf timezone mountnfs.sh apt.conf mythtv-fix hostname"
 	for Script in $ScriptsList ;do
 		if [[ ! -x $ScriptDir/$Script ]] ;then
 			echo "WARNING: Script $Script cannot be executed"
