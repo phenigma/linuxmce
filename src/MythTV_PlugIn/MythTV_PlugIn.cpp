@@ -2178,7 +2178,7 @@ void MythTV_PlugIn::SetPaths()
 			string sCmd = "mkdir -p \"" + sDirectory + "\"";
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::Register %s",sCmd.c_str());
 			system(sCmd.c_str());
-
+/*
 			sCmd = "chmod 775 \"" + sDirectory +"\"";
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_Plugin::Register %s",sCmd.c_str());
 			system(sCmd.c_str());
@@ -2186,7 +2186,7 @@ void MythTV_PlugIn::SetPaths()
 			sCmd = "chown mythtv \"" + sDirectory +"\"";
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_Plugin::Register %s",sCmd.c_str());
 			system(sCmd.c_str());
-
+*/
 			UpdateMythSetting("LiveBufferDir",sDirectory,row[1]);
 			UpdateMythSetting("RecordFilePrefix",sDirectory,row[1]);
 		}
