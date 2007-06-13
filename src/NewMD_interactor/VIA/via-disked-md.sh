@@ -176,6 +176,7 @@ RunSQL "
 
 # remove DCE router report on first console
 sed -ir '/^1:2345:respawn:/ s,^.*$,1:2345:respawn:/sbin/getty 38400 tty1,g' /etc/inittab
+init q
 
 # call for a regen
 /usr/pluto/bin/MessageSend $DCERouter -targetType template "$OrbiterDev" 12 1 266 2 "$OrbiterDev" 21 "-r" 24 "Y"
