@@ -14,6 +14,8 @@
 		LEFT JOIN DeviceTemplate_MediaType ON DeviceTemplate_MediaType.FK_DeviceTemplate=PK_DeviceTemplate 
 		WHERE PK_DeviceTemplate='.$dtID;
 	$dtDataArray=getFieldsAsArray('DeviceTemplate','FK_DeviceCategory,DeviceCategory.Description,FK_Manufacturer,FK_DeviceCategory,FK_MediaType,ToggleInput',$publicADO,$whereClause);
+	$resend_input=($dtDataArray['ToggleInput'][0]==2)?1:0;
+
 	if(count($dtDataArray)==0){
 		header('Location: index.php');
 		exit();
@@ -167,6 +169,7 @@
 		}else{
 			$is=(int)$_REQUEST['is'];
 		}
+		$resend_input=($is!=3)?0:$resend_input;
 		
 	if($return==0){
 		$navigationButtons='<div align="right" class="normaltext"><a href="index.php?section=addModel&dtID='.$dtID.'&step='.($step-1).'&deviceID='.$deviceID.'">&lt;&lt;</a> <a href="index.php?section=addModel&dtID='.$dtID.'&step='.($step+1).'&deviceID='.$deviceID.'">&gt;&gt;</a></div>';
@@ -225,6 +228,12 @@
 				<td>
 					<input type="radio" name="is" value="3" '.(($is==3)?'checked':'').' onClick="self.location=\'index.php?section=addModel&step=5&dtID='.$dtID.'&is=3&deviceID='.$deviceID.'&return='.$return.'\'"> #3 - '.$TEXT_Q5_OPT3_CONST.'		
 				</td>
+			</tr>
+			<tr>
+				<td>
+					<input type="checkbox" name="resend_input" value="1" '.(($resend_input==1)?'checked':'').' '.(($is==3)?'':'disabled').'> <span class="'.(($is==3)?'':'grayout').'">'.$TEXT_RESEND_INPUT_SELECT_WHEN_TOGGLING_CONST.'</span>		
+				</td>
+				
 			</tr>';
 		if($is>1){
 			$out.='
@@ -323,7 +332,10 @@
 					}
 				}
 				$ToggleInput=($is==2)?0:1;
-				if(($ToggleInput==0 && $oldInput!=0) || ($ToggleInput==1 && $oldInput!=2)){
+				$resend_input=(int)@$_POST['resend_input'];
+				$ToggleInput=($is==3 && $resend_input==1)?2:$ToggleInput;
+				
+				if(($ToggleInput!=$oldInput)){
 					$publicADO->Execute('UPDATE DeviceTemplate_AV SET ToggleInput=? WHERE FK_DeviceTemplate=?',array($ToggleInput,$dtID));
 				}
 			}
