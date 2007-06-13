@@ -61,7 +61,7 @@ function setup_hosts_file
 		FROM 
 			Device
 			JOIN Device_DeviceData ON PK_Device = FK_Device AND FK_DeviceData = $DEVICEDATA_DisklessBoot
-			JOIN DeviceTemplate ON FK_DeviceTemplate = FK_DeviceTemplate
+			JOIN DeviceTemplate ON FK_DeviceTemplate = PK_DeviceTemplate
 		WHERE 
 			FK_DeviceCategory = '8'
 			AND
@@ -98,7 +98,7 @@ Q="
 	FROM 
 		Device
 		JOIN Device_DeviceData ON PK_Device = FK_Device AND FK_DeviceData = $DEVICEDATA_DisklessBoot
-		JOIN DeviceTemplate ON FK_DeviceTemplate = FK_DeviceTemplate
+		JOIN DeviceTemplate ON FK_DeviceTemplate = PK_DeviceTemplate
 	WHERE 
 		FK_DeviceCategory = '8'
 		AND
