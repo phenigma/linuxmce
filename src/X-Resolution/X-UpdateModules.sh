@@ -1,9 +1,5 @@
 #!/bin/bash
 
-#<-mkr_b_via_b->
-exit
-#<-mkr_b_via_e->
-
 function XorgConfLogging() {
         local message="$1"
         local xorgLog="/var/log/pluto/xorg.conf.log"

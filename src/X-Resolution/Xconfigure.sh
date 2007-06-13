@@ -1,9 +1,5 @@
 #!/bin/bash
 
-#<-mkr_b_via_b->
-exit
-#<-mkr_b_via_e->
-
 function XorgConfLogging() {
 	local message="$1"
 	local xorgLog="/var/log/pluto/xorg.conf.log"
@@ -20,6 +16,12 @@ XorgConfLogging "Starting $0 $*"
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/Utils.sh
 . /usr/pluto/bin/LockUtils.sh
+
+ConfigFile="/etc/X11/xorg.conf"
+Output="CRT"
+
+DEVICECATEGORY_Video_Cards=125
+DEVICEDATA_Setup_Script=189
 
 resHD480=848x480
 resHD720=1280x720
@@ -76,90 +78,8 @@ GenModeline()
 	echo "$Modeline"
 }
 
-OrigParams=("$@")
-ConfigFile="/etc/X11/xorg.conf"
-
-while [[ $# -gt 0 ]]; do
-	case "$1" in
-		--defaults) Defaults=y ;;
-		--resolution)
-			ResolutionSet=y
-			Resolution="$2"
-			if [[ "$Resolution" == *@* ]]; then
-				Refresh=${Resolution##*@}
-				Resolution=${Resolution%@*}
-			else
-				Refresh=60
-			fi
-			
-			ResX=${Resolution%%x*}
-			ResY=${Resolution#*x}
-			if [[ "$ResY" == *i ]]; then
-				ResY="${ResY%i}"
-				Resolution="${Resolution%i}"
-				ScanType="interlace"
-			elif [[ "$ResY" == *p ]]; then
-				ResY="${ResY%p}"
-				Resolution="${Resolution%p}"
-				ScanType=
-			fi
-			
-			if [[ -z "$ResX" || -z "$ResY" || -z "$Refresh" || "$ResX" == *[![:digit:]]* || "$ResY" == *[![:digit:]]* || "$Refresh" == *[![:digit:]]* ]]; then
-				echo "Mismatched resolution '$Resolution@$Refresh'. Use format: <ResX>x<ResY>@<Refresh>"
-				exit 1
-			fi
-			shift
-		;;
-		--scantype)
-			case "$2" in
-				progressive) ;;
-				interlace|doublescan) ScanType="$2"; shift ;;
-				*) echo "Unknown scan type '$2'"; exit 1 ;;
-			esac
-		;;
-		--force) Force=y ;;
-		--update-video-driver) UpdateVideoDriver=y ;;
-		--keep-resolution) KeepCurrentResolution=y ;;
-		--force-vesa) ForceVESA=y ;;
-		--conffile) ConfigFile="$2"; shift ;;
-		--skiplock) SkipLock=1 ;;
-		*) echo "Unknown option '$1'"; exit 1 ;;
-	esac
-	shift
-done
-
-if [[ ! -f /usr/pluto/bin/X-ChangeDisplayDriver.awk ]]; then
-	Logging "$TYPE" "$SEVERITY_CRITICAL" "Xconfigure" "File not found: /usr/pluto/bin/X-ChangeDisplayDriver.awk."
-	exit 1
-fi
-
-if [[ ! -f /usr/pluto/bin/X-GetDisplayDriver.awk ]]; then
-	Logging "$TYPE" "$SEVERITY_CRITICAL" "Xconfigure" "File not found: /usr/pluto/bin/X-GetDisplayDriver.awk."
-	exit 1
-fi
-
-if [[ ! -f /usr/pluto/bin/X-ModulesSection.awk ]]; then
-	Logging "$TYPE" "$SEVERITY_CRITICAL" "Xconfigure" "File not found: /usr/pluto/bin/X-ModulesSection.awk."
-	exit 1
-fi
-
-if [[ ! -f /usr/pluto/bin/X-UI_Sections.awk ]]; then
-	Logging "$TYPE" "$SEVERITY_CRITICAL" "Xconfigure" "File not found: /usr/pluto/bin/X-UI_Sections.awk."
-	exit 1
-fi
-
-if [[ -z "$SkipLock" ]]; then
-	trap 'Unlock "Xconfigure" "Xconfigure" nolog; XorgConfLogging "Ending"' EXIT
-	WaitLock "Xconfigure" "Xconfigure" nolog # don't run two copies of Xconfigure simultaneously
-fi
-
-if [[ ! -f "$ConfigFile" || ! -s "$ConfigFile" ]]; then
-	# TODO: Detect incomplete/corrupt config files too
-	Logging "$TYPE" "$SEVERITY_WARNING" "Xconfigure" "Config file '$ConfigFile' not found or empty. Forcing use of defaults."
-	Defaults=y
-fi
-
-if [[ -z "$ResolutionSet" ]]; then
+GetResolutionFromDB()
+{
 	. /usr/pluto/bin/SQL_Ops.sh
 	DEVICECATEGORY_Media_Director=8
 	DEVICEDATA_Video_settings=89
@@ -190,79 +110,41 @@ if [[ -z "$ResolutionSet" ]]; then
 	
 	ScanType=
 	Resolution="${ResX}x${ResY}"
-fi
+}
 
-if [[ -z "$Defaults" && -n "$KeepCurrentResolution" ]]; then
-	ResX=
-	ResY=
-	Refresh=
-	Resolution=
-	ScanType=
-fi
-
-DisplayDriver=$(GetVideoDriver)
-if [[ "$DisplayDriver" == viaprop ]]; then
-	DisplayDriver=via
-#	ForcedXvMC=libXvMC.so.1
-fi
-
-Logging "$TYPE" "$SEVERITY_STATUS" "Xconfigure" "Display Driver: $DisplayDriver" >&2
-XorgConfLogging "Display Driver: $DisplayDriver"
-
-if [[ -z "$DisplayDriver" ]]; then
-	XorgConfLogging "Empty display driver. Will not continue. This shouldn't happen"
-	exit 1
-fi
-
-CurrentDisplayDriver=$(awk -f/usr/pluto/bin/X-GetDisplayDriver.awk "$ConfigFile")
-if [[ "$Defaults" == y ]]; then
-	if [[ ! -f /usr/pluto/templates/xorg.conf.in ]]; then
-		Logging "$TYPE" "$SEVERITY_CRITICAL" "Xconfigure" "File not found: /usr/pluto/templates/xorg.conf.in. Can't setup defaults"
+ParseResolution()
+{
+	ResolutionSet=y
+	Resolution="$1"
+	if [[ "$Resolution" == *@* ]]; then
+		Refresh=${Resolution##*@}
+		Resolution=${Resolution%@*}
+	else
+		Refresh=60
+	fi
+	
+	ResX=${Resolution%%x*}
+	ResY=${Resolution#*x}
+	if [[ "$ResY" == *i ]]; then
+		ResY="${ResY%i}"
+		Resolution="${Resolution%i}"
+		ScanType="interlace"
+	elif [[ "$ResY" == *p ]]; then
+		ResY="${ResY%p}"
+		Resolution="${Resolution%p}"
+		ScanType=
+	fi
+	
+	if [[ -z "$ResX" || -z "$ResY" || -z "$Refresh" || "$ResX" == *[![:digit:]]* || "$ResY" == *[![:digit:]]* || "$Refresh" == *[![:digit:]]* ]]; then
+		echo "Mismatched resolution '$Resolution@$Refresh'. Use format: <ResX>x<ResY>@<Refresh>"
 		exit 1
 	fi
-	cat /usr/pluto/templates/xorg.conf.in | awk -v"DisplayDriver=$DisplayDriver" -f/usr/pluto/bin/X-ChangeDisplayDriver.awk >"$ConfigFile"
-elif [[ -n "$UpdateVideoDriver" && "$DisplayDriver" != "$CurrentDisplayDriver" ]]; then
-	awk -v"DisplayDriver=$DisplayDriver" -f/usr/pluto/bin/X-ChangeDisplayDriver.awk "$ConfigFile" >"$ConfigFile.$$"
-	mv "$ConfigFile"{.$$,}
-fi
+}
 
-/usr/pluto/bin/X-UpdateModules.sh --conffile "$ConfigFile" --driver "$DisplayDriver"
-#OpenGL=$(OpenGLeffects)
-OpenGL=$(AlphaBlendingEnabled)
-awk -v"OpenGL=$OpenGL" -f/usr/pluto/bin/X-UI_Sections.awk "$ConfigFile" >"$ConfigFile.$$"
-mv "$ConfigFile"{.$$,}
-
-# XvMC setup
-case "$DisplayDriver" in
-	nvidia)
-		libXvMC="libXvMCNVIDIA_dynamic.so.1"
-#		XineVideoDriver="xxmc"
-	;;
-#	via)
-#		libXvMC="libviaXvMC.so.1"
-#		XineVideoDriver="xxmc"
-#	;;
-	*)
-		libXvMC="libXvMC.so.1"
-#		XineVideoDriver="xv"
-	;;
-esac
-
-#if [[ -n "$ForcedXvMC" ]]; then
-#	libXvMC="$ForcedXvMC"
-#fi
-
-if ! BlacklistConfFiles "/etc/X11/XvMCConfig" ;then
-	if [ ! -e /etc/X11/XvMCConfig.pbackup ] && [ -e /etc/X11/XvMCConfig ] ;then
-		cp /etc/X11/XvMCConfig /etc/X11/XvMCConfig.pbackup
-	fi
-
-	echo "$libXvMC" >/etc/X11/XvMCConfig
-fi
-#XineConfSet video.driver "$XineVideoDriver"
-
-# Setup resolution
-if [[ -n "$Resolution" ]]; then
+SetResolution()
+{
+	local Resolution="$1" ResX="$2" ResY="$3" Refresh="$4" ScanType="$5" Output="$6" TVStandard="$7"
+	
 	for Var in ${!resHD*}; do
 		if [[ "$Resolution" == "${!Var}" ]]; then
 			nvHD=${Var#res}
@@ -292,6 +174,190 @@ if [[ -n "$Resolution" ]]; then
 	fi
 	awk -v"ResX=$ResX" -v"ResY=$ResY" -v"Refresh=$Refresh" -v"Modeline=$Modeline" -v"Force=$Force" -v"nvHD=$nvHD" -f/usr/pluto/bin/X-ChangeResolution.awk "$ConfigFile" >"$ConfigFile.$$"
 	mv "$ConfigFile"{.$$,}
+}
+
+XvMC_Lib()
+{
+	local libXvMC
+	case "$DisplayDriver" in
+		nvidia)
+			libXvMC="libXvMCNVIDIA_dynamic.so.1"
+	#		XineVideoDriver="xxmc"
+		;;
+	#	via)
+	#		libXvMC="libviaXvMC.so.1"
+	#		XineVideoDriver="xxmc"
+	#	;;
+		*)
+			libXvMC="libXvMC.so.1"
+	#		XineVideoDriver="xv"
+		;;
+	esac
+
+	echo "$libXvMC"
+}
+
+CheckComponents()
+{
+	local -a Files=(
+		/usr/pluto/bin/X-ChangeDisplayDriver.awk
+		/usr/pluto/bin/X-GetDisplayDriver.awk
+		/usr/pluto/bin/X-ModulesSection.awk
+		/usr/pluto/bin/X-UI_Sections.awk
+	)
+	local File
+	
+	for File in "${Files[@]}"; do
+		if [[ ! -f "$File" ]]; then
+			Logging "$TYPE" "$SEVERITY_CRITICAL" "Xconfigure" "File not found: /usr/pluto/bin/X-ChangeDisplayDriver.awk."
+			exit 1
+		fi
+	done
+}
+
+UpdateModules()
+{
+	/usr/pluto/bin/X-UpdateModules.sh --conffile "$ConfigFile" --driver "$DisplayDriver"
+}
+
+UpdateUISections()
+{
+	local AlphaBlending="$1"
+	
+	awk -v"OpenGL=$AlphaBlending" -f/usr/pluto/bin/X-UI_Sections.awk "$ConfigFile" >"$ConfigFile.$$"
+	mv "$ConfigFile"{.$$,}
+}
+
+ScriptCustomization()
+{
+	local Device_Video_Card
+	local DeviceData
+	
+	Device_Video_Card=$(FindDevice_Category "$PK_Device" "$DEVICECATEGORY_Video_Cards" "no-recursion")
+	if [[ -z "$Device_Video_Card" ]]; then
+		return
+	fi
+
+	DeviceData=$(GetDeviceData "$Device_Video_Card" "$DEVICEDATA_Setup_Script")
+	if [[ -z "$DeviceData" ]]; then
+		return
+	fi
+
+	local ScriptPath="/usr/pluto/bin/$DeviceData"
+	if [[ ! -f "$ScriptPath" ]]; then
+		Logging "$TYPE" "$SEVERITY_CRITICAL" "Xconfigure" "Custom setup script not found: $DeviceData."
+	fi
+
+	. "$ScriptPath"
+	GetCustomModeLines
+}
+
+ParseParameters()
+{
+	OrigParams=("$@")
+	while [[ $# -gt 0 ]]; do
+		case "$1" in
+			--defaults) Defaults=y ;;
+			--resolution)
+				ParseResolution "$2"
+				shift
+			;;
+			--scantype)
+				case "$2" in
+					progressive) ;;
+					interlace|doublescan) ScanType="$2"; shift ;;
+					*) echo "Unknown scan type '$2'"; exit 1 ;;
+				esac
+			;;
+			--force) Force=y ;;
+			--update-video-driver) UpdateVideoDriver=y ;;
+			--keep-resolution) KeepCurrentResolution=y ;;
+			--force-vesa) ForceVESA=y ;;
+			--conffile) ConfigFile="$2"; shift ;;
+			--skiplock) SkipLock=1 ;;
+			--output) Output="$2" ; shift ;; # VGA, DVI, Component
+			--tv-standard) TVStandard="$2"; shift ;; # PAL, SECAM, NTSC
+			*) echo "Unknown option '$1'"; exit 1 ;;
+		esac
+		shift
+	done
+}
+
+EnsureResolutionVariables()
+{
+	if [[ ! -f "$ConfigFile" || ! -s "$ConfigFile" ]]; then
+		# TODO: Detect incomplete/corrupt config files too
+		Logging "$TYPE" "$SEVERITY_WARNING" "Xconfigure" "Config file '$ConfigFile' not found or empty. Forcing use of defaults."
+		Defaults=y
+	fi
+
+	if [[ -z "$ResolutionSet" ]]; then
+		GetResolutionFromDB
+	fi
+
+	if [[ -z "$Defaults" && -n "$KeepCurrentResolution" ]]; then
+		ResX=
+		ResY=
+		Refresh=
+		Resolution=
+		ScanType=
+	fi
+}
+
+ScriptCustomization
+CheckComponents
+ParseParameters "$@"
+if [[ -z "$SkipLock" ]]; then
+	trap 'Unlock "Xconfigure" "Xconfigure" nolog; XorgConfLogging "Ending"' EXIT
+	WaitLock "Xconfigure" "Xconfigure" nolog # don't run two copies of Xconfigure simultaneously
+fi
+EnsureResolutionVariables
+
+DisplayDriver=$(GetVideoDriver)
+if [[ "$DisplayDriver" == viaprop ]]; then
+	DisplayDriver=via
+fi
+
+Logging "$TYPE" "$SEVERITY_STATUS" "Xconfigure" "Display Driver: $DisplayDriver" >&2
+XorgConfLogging "Display Driver: $DisplayDriver"
+
+if [[ -z "$DisplayDriver" ]]; then
+	XorgConfLogging "Empty display driver. Will not continue. This shouldn't happen"
+	exit 1
+fi
+
+CurrentDisplayDriver=$(awk -f/usr/pluto/bin/X-GetDisplayDriver.awk "$ConfigFile")
+if [[ "$Defaults" == y ]]; then
+	# write xorg.conf from scratch using the defaults
+	if [[ ! -f /usr/pluto/templates/xorg.conf.in ]]; then
+		Logging "$TYPE" "$SEVERITY_CRITICAL" "Xconfigure" "File not found: /usr/pluto/templates/xorg.conf.in. Can't setup defaults"
+		exit 1
+	fi
+	cat /usr/pluto/templates/xorg.conf.in | awk -v"DisplayDriver=$DisplayDriver" -f/usr/pluto/bin/X-ChangeDisplayDriver.awk >"$ConfigFile"
+elif [[ -n "$UpdateVideoDriver" && "$DisplayDriver" != "$CurrentDisplayDriver" ]]; then
+	# change video driver, but only if needed
+	awk -v"DisplayDriver=$DisplayDriver" -f/usr/pluto/bin/X-ChangeDisplayDriver.awk "$ConfigFile" >"$ConfigFile.$$"
+	mv "$ConfigFile"{.$$,}
+fi
+
+UpdateModules
+#OpenGL=$(OpenGLeffects)
+OpenGL=$(AlphaBlendingEnabled)
+UpdateUISections "$OpenGL"
+libXvMC=$(XvMC_Lib)
+
+if ! BlacklistConfFiles "/etc/X11/XvMCConfig" ;then
+	if [ ! -e /etc/X11/XvMCConfig.pbackup ] && [ -e /etc/X11/XvMCConfig ] ;then
+		cp /etc/X11/XvMCConfig /etc/X11/XvMCConfig.pbackup
+	fi
+
+	echo "$libXvMC" >/etc/X11/XvMCConfig
+fi
+#XineConfSet video.driver "$XineVideoDriver"
+
+# Setup resolution
+if [[ -n "$Resolution" ]]; then
+	SetResolution "$Resolution" "$ResX" "$ResY" "$Refresh" "$ScanType" "$Output" "$TVStandard"
 fi
 
 # Test detected display driver
