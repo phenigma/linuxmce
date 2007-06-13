@@ -392,7 +392,7 @@ void Datagrid_Plugin::CMD_Populate_Datagrid(string sID,string sDataGrid_ID,int i
 	m_DataGrids[sDataGrid_ID]=pDataGridTable;
 #ifdef DEBUG
 	clock_t cStop = clock();
-	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Returning from populate grid successful? %s %d ms", (*bIsSuccessful ? "Y" : "N"), (int) (cStop-cStart) );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Datagrid_Plugin::CMD_Populate_Datagrid Returning from populate grid successful? %s %d ms size %d", (*bIsSuccessful ? "Y" : "N"), (int) (cStop-cStart), (int) pDataGridTable->m_MemoryDataTable.size() );
 #endif
 	return;
 }

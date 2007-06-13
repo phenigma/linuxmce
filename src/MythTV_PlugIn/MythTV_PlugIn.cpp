@@ -413,7 +413,6 @@ class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *
 		RefreshBookmarks();
 
 	DataGridTable *pDataGridTable = new DataGridTable();
-	DataGridCell *pCell;
 
 	string::size_type pos=0;
 	int iPK_Users = atoi(StringUtils::Tokenize(Parms,",",pos).c_str());
@@ -434,7 +433,7 @@ class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *
 	// The source is 0, means all myth channels and video sources.  Otherwise, just those for the given device (like a cable box)
 	int PK_Device_Source = pEntertainArea->m_pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_LiveTV_CONST ? 0 : pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device;
 	list_int *p_list_int = NULL;
-	if( PK_Device_Source )
+	if( PK_Device_Source && m_mapDevicesToSources.find(PK_Device_Source)!=m_mapDevicesToSources.end() )
 		p_list_int = &(m_mapDevicesToSources[PK_Device_Source]);
 
 	// Go through all the channels, and set the cell to NULL if we're not supposed to include it
@@ -544,6 +543,8 @@ class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *
 		if( pMythChannel->m_pCell )
 			pDataGridTable->SetData(0,iRow++,pMythChannel->m_pCell);
 	}
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MythTV_PlugIn::AllShows cells: %d", (int) pDataGridTable->m_MemoryDataTable.size());
 
 	return pDataGridTable;
 }
@@ -1641,9 +1642,13 @@ bool MythTV_PlugIn::NewBookmarks( class Socket *pSocket, class Message *pMessage
 
 bool MythTV_PlugIn::TuneToChannel( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
 {
-	if( pDeviceTo && pDeviceTo->m_dwPK_DeviceTemplate!=DEVICETEMPLATE_MythTV_Player_CONST &&
+	if( pMessage->m_dwPK_Device_To!=m_pMedia_Plugin->m_dwPK_Device &&  // Let media plugin convert this to the destination device and add the stream id
 		pMessage->m_mapParameters.find(COMMANDPARAMETER_ProgramID_CONST)!=pMessage->m_mapParameters.end() )
 	{
+		MediaStream *pMediaStream = m_pMedia_Plugin->m_mapMediaStream_Find(atoi(pMessage->m_mapParameters[COMMANDPARAMETER_StreamID_CONST].c_str()),0);
+		if( pMediaStream && pMediaStream->GetType()==MEDIASTREAM_TYPE_MYTHTV )
+			return false;  // it's for a myth player, no processing needed
+
 		string sProgramID = pMessage->m_mapParameters[COMMANDPARAMETER_ProgramID_CONST];
 		if( sProgramID.size()>1 && sProgramID[0]=='i' )
 		{
