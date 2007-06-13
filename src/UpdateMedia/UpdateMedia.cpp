@@ -232,6 +232,8 @@ int UpdateMedia::ReadDirectory(string sDirectory)
 	if( sDirectory[ sDirectory.size()-1 ] == '/' )
 		sDirectory = sDirectory.substr(0,sDirectory.size()-1);
 
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "== UpdateMedia::ReadDirectory %s", sDirectory.c_str());
+
 	if(!ScanFiles(sDirectory))
 		return 0;
 
@@ -549,16 +551,6 @@ bool UpdateMedia::ScanSubfolders(string sDirectory, bool& bDirIsDvd)
 			LoggerWrapper::GetInstance()->Write(LV_STATUS, "'%s' is a ripped dvd", sDirectory.c_str());
 			bDirIsDvd = true;
 			break;
-		}
-
-		int PK_File_Subdir = MediaState::Instance().FileId(FileUtils::BasePath(sSubDir), FileUtils::FilenameWithoutPath(sSubDir));
-		if(0 != PK_File_Subdir)
-		{
-			LoggerWrapper::GetInstance()->Write(LV_STATUS, "%s is a sub-dir already categoriezed ripped dvd", sDirectory.c_str());
-			PlutoMediaFile PlutoMediaSubDir(m_pDatabase_pluto_media, m_nPK_Installation, FileUtils::BasePath(sSubDir), "");
-			PlutoMediaSubDir.SetSyncMode(modeBoth);
-			PlutoMediaSubDir.SetFileAttribute(PK_File_Subdir);
-			continue; // This directory is already in the database 
 		}
 
 		ReadDirectory(sSubDir);
