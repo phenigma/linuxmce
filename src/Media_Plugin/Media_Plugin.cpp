@@ -6314,6 +6314,7 @@ void Media_Plugin::CMD_Delete_File(string sFilename,string &sCMD_Result,Message 
 			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Media_Plugin::CMD_Delete_File cannot find %s",sFilename.c_str());
 		else
 		{
+			pRow_File->Reload();
 			sFilename = pRow_File->Path_get() + "/" + pRow_File->Filename_get();
 			if( FileUtils::DelFile(sFilename) )
 			{
@@ -6323,8 +6324,8 @@ void Media_Plugin::CMD_Delete_File(string sFilename,string &sCMD_Result,Message 
 					pRow_File->PK_File_get(),sFilename.c_str());
 			}
 			else
-				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Media_Plugin::CMD_Delete_File cannot delete %s %s/%s",
-					sFilename.c_str(),pRow_File->Path_get().c_str(),pRow_File->Filename_get().c_str());
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Media_Plugin::CMD_Delete_File cannot delete %d %s %s/%s",
+					pRow_File->PK_File_get(),sFilename.c_str(),pRow_File->Path_get().c_str(),pRow_File->Filename_get().c_str());
 		}
 	}
 	else if( FileUtils::DelFile(sFilename)==false )
