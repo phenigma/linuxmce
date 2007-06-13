@@ -1545,6 +1545,8 @@ bool MythTV_Player::StopMythFrontend()
 
 void MythTV_Player::CMD_Set_Aspect_Ratio(string sAspect_Ratio,string &sCMD_Result,Message *pMessage)
 //<-dceag-c916-e->
+{
+}
 //<-dceag-c917-b->
 
 	/** @brief COMMAND: #917 - Set Zoom */
@@ -1554,3 +1556,5 @@ void MythTV_Player::CMD_Set_Aspect_Ratio(string sAspect_Ratio,string &sCMD_Resul
 
 void MythTV_Player::CMD_Set_Zoom(string sZoom_Level,string &sCMD_Result,Message *pMessage)
 //<-dceag-c917-e->
+{
+}
