@@ -115,6 +115,8 @@ bool MythTV_Player::GetConfig()
 	}
 	// Kill any existing myth front ends.   The application spawner / window focus isn't happy
 	// if we didn't create it ourselves.
+
+	EVENT_Playback_Completed("",0,false);  // In case media plugin thought something was playing, let it know that there's not
 	
  	system("killall mythfrontend");
 	Sleep(500);
@@ -170,7 +172,7 @@ bool MythTV_Player::LaunchMythFrontend(bool bSelectWindow)
 		string sHeight = m_pEvent->GetDeviceDataFromDatabase(m_pData->m_dwPK_Device_ControlledVia, DEVICEDATA_ScreenHeight_CONST); 
 
 		DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice_App_Server->m_dwPK_Device,
-			"/usr/bin/mythfrontend", "mythfrontend", "-v\tall-w\t" MYTH_WINDOW_NAME "\t-geometry\t" + sWidth + "x" + sHeight,
+			"/usr/bin/mythfrontend", "mythfrontend", "-v\tall\t-w\t" MYTH_WINDOW_NAME "\t-geometry\t" + sWidth + "x" + sHeight,
 			sMessage + "1",sMessage + "0",false,false,true,false);
 		if( SendCommand(CMD_Spawn_Application) )
 		 	return true;
@@ -278,10 +280,10 @@ void MythTV_Player::pollMythStatus()
             Sleep(1000);
 			mm.Relock();
 			string sResult = sendMythCommand("query location");
-			if( sResult.find("Playback")!=string::npos )
+			if( sResult.find("Playback")!=string::npos && sResult.find("ERROR")==string::npos )
 			{
 				bPlaybackStarted=true;
-				LoggerWrapper::GetInstance()->Write(LV_STATUS, "MythTV_Player::pollMythStatus started playing");
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "MythTV_Player::pollMythStatus started playing %s",sResult.c_str());
 				break;
 			}
 			else
@@ -492,7 +494,7 @@ string MythTV_Player::sendMythCommand(const char *Cmd)
 	} while (!strcmp(Cmd, "query location") && sResponse=="OK");
 		
 	sResponse = StringUtils::TrimSpaces(sResponse);
-	LoggerWrapper::GetInstance()->Write(LV_WARNING,"Myth Responded %s",sResponse.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_WARNING,"Myth Responded: %s",sResponse.c_str());
 	
 /*	if( !m_pMythSocket->SendString("QUIT") )
 	{
