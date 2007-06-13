@@ -63,8 +63,10 @@ ClientSocket::~ClientSocket()
 	Disconnect();
 }
 
-bool ClientSocket::Connect( int PK_DeviceTemplate,string sExtraInfo )
+bool ClientSocket::Connect( int PK_DeviceTemplate,string sExtraInfo,int iConnectRetries )
 {
+	if( iConnectRetries==-1 )
+		iConnectRetries=m_dwMaxRetries;
 	bool bSuccess = false;
 
 	// flush the socket buffer
@@ -97,7 +99,7 @@ bool ClientSocket::Connect( int PK_DeviceTemplate,string sExtraInfo )
 		struct sockaddr_in  addrT;
 		struct hostent*   phe;
 
-		for ( bSuccess = false;  iRetries < m_dwMaxRetries && !bSuccess;  iRetries++ ) // keep tring until success or MAX_RETRIES is reached
+		for ( bSuccess = false;  iRetries < iConnectRetries && !bSuccess;  iRetries++ ) // keep tring until success or MAX_RETRIES is reached
 		{
  			memset( &addrT, 0, sizeof( addrT ) );
 			addrT.sin_family = AF_INET;
@@ -156,10 +158,9 @@ bool ClientSocket::Connect( int PK_DeviceTemplate,string sExtraInfo )
 #else
 				int ec = errno;
 #endif
-
+				Sleep(1000); // Don't retry too fast and use a lot of cpu
 #ifndef WINCE
-				
-					LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Connect() failed, Error Code %d (%s))", ec, strerror(ec));
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Connect() failed, Error Code %d (%s))", ec, strerror(ec));
 #endif
 			}
 

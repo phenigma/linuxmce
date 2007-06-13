@@ -67,7 +67,7 @@ namespace DCE
 		 * @brief it establishes the connection to the server and eventually send the ExtraInfo using OnConnect; also writes to the logger
 		 * @see OnConnect
 		 */
-		virtual bool Connect( int PK_DeviceTemplate=0,string sExtraInfo="" );
+		virtual bool Connect( int PK_DeviceTemplate=0,string sExtraInfo="",int iConnectRetries=-1 );
 
 		/**
 		 * @brief sends the extra info and expects for an OK signal from the server

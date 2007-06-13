@@ -32,6 +32,8 @@
 #include "Message.h"
 #include "pluto_main/Define_CommandParameter.h"
 
+#define	INITIAL_CONNECT_RETRIES		100
+
 using namespace DCE;
 
 Event_Impl::Event_Impl( long dwDevice, long dwDeviceTemplate, string sServerAddress, bool bConnectEventHandler, int nSocketTimeout )
@@ -41,7 +43,7 @@ Event_Impl::Event_Impl( long dwDevice, long dwDeviceTemplate, string sServerAddr
 
 	if( bConnectEventHandler )
 	{
-		m_pClientSocket->Connect(dwDeviceTemplate,"Event #" + StringUtils::itos(dwDevice));
+		m_pClientSocket->Connect(dwDeviceTemplate,"Event #" + StringUtils::itos(dwDevice),INITIAL_CONNECT_RETRIES);
 
 		if(-1 != nSocketTimeout)
 			m_pClientSocket->SetReceiveTimeout(nSocketTimeout);
