@@ -19,13 +19,25 @@ echo "--- end mce wizard data ---"
 function Setup_NIS 
 {
 	if ! BlacklistConfFiles '/etc/passwd' ;then
-		grep -q "+::::::"   /etc/passwd || echo "+::::::"   >> /etc/passwd
+		if ! grep -q "+::::::"   /etc/passwd ;then
+		       	echo "+::::::"   > /etc/passwd.$$
+			cat /etc/passwd >> /etc/passwd.$$
+			mv /etc/passwd.$$ /etc/passwd
+		fi
 	fi
 	if ! BlacklistConfFiles '/etc/shadow' ;then
-		grep -q "+::::::::" /etc/shadow || echo "+::::::::" >> /etc/shadow
+		if ! grep -q "+::::::::" /etc/shadow ;then
+		       echo "+::::::::" > /etc/shadow.$$
+		       cat /etc/shadow >> /etc/shadow.$$
+		       mv /etc/shadow.$$ /etc/shadow
+	       fi
 	fi
 	if ! BlacklistConfFiles '/etc/group' ;then
-		grep -q "+:::"      /etc/group  || echo "+:::"      >> /etc/group
+		if ! grep -q "+:::" /etc/group ;then
+		       	echo "+:::" > /etc/group.$$
+			cat /etc/group >> /etc/group.$$
+			mv /etc/group.$$ /etc/group
+		fi
 	fi
 }
 
