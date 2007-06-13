@@ -535,7 +535,7 @@ bool UpdateMedia::ScanSubfolders(string sDirectory, bool& bDirIsDvd)
 	FileUtils::FindDirectories(listSubDirectories,sDirectory,false,true,0,"", &mapInodes);
 #endif
 
-	LoggerWrapper::GetInstance()->Write(LV_WARNING, "UpdateMedia::ScanSubfolders dir %s: subdirs found: %d", 
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "UpdateMedia::ScanSubfolders dir %s: subdirs found: %d", 
 		sDirectory.c_str(), listSubDirectories.size());	
 
 	for(list<string>::iterator it=listSubDirectories.begin();it!=listSubDirectories.end();++it)
@@ -561,8 +561,6 @@ bool UpdateMedia::ScanSubfolders(string sDirectory, bool& bDirIsDvd)
 
 int UpdateMedia::SetupDirectory(string sDirectory, bool bDirIsDvd)
 {
-	LoggerWrapper::GetInstance()->Write(LV_WARNING, "UpdateMedia::SetupDirectory dir %s", sDirectory.c_str());	
-
 	auto_ptr<PlutoMediaFile> spPlutoMediaParentFolder;
 	spPlutoMediaParentFolder.reset();
 
@@ -574,10 +572,10 @@ int UpdateMedia::SetupDirectory(string sDirectory, bool bDirIsDvd)
 	if(dir_sync_mode == modeDbToFile)
 		dir_sync_mode = modeNone;
 
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Sync mode for dir %s/%s: %s", sBaseDirectory.c_str(), sDirectoryName.c_str(), MediaSyncModeStr[dir_sync_mode]); 
-
 	if(dir_sync_mode == modeNone)
 		return 0;
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Sync mode for dir %s/%s: %s", sBaseDirectory.c_str(), sDirectoryName.c_str(), MediaSyncModeStr[dir_sync_mode]); 
 
 	if(m_bAsDaemon)
 		Sleep(10);
