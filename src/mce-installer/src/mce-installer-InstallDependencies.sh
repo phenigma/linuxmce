@@ -21,7 +21,7 @@ function ExitInstaller {
 }
 
 # remove Network Manager
-apt-get -y -f remove network-manager
+apt-get -y -f remove network-manager brltty
 /etc/init.d/networking restart
 
 Setup_NIS
