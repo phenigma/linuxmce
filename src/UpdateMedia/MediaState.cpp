@@ -54,6 +54,7 @@ void MediaState::LoadDbInfo(Database_pluto_media *pDatabase_pluto_media, string 
 		"WHERE Path LIKE '" + StringUtils::SQLEscape(FileUtils::ExcludeTrailingSlash(sRootDirectory), true) + "%' "
 		"OR (Path = '" + StringUtils::SQLEscape(FileUtils::ExcludeTrailingSlash(FileUtils::BasePath(sRootDirectory))) + "' AND "
 		"Filename = '" + StringUtils::SQLEscape(FileUtils::FilenameWithoutPath(sRootDirectory)) + "' ) "
+		"AND Missing = 0 "
 		"GROUP BY PK_File, Path, Filename";
 
 	enum SqlFields
@@ -250,6 +251,7 @@ MediaItemState MediaState::LoadDbInfoForFile(Database_pluto_media *pDatabase_plu
 		"LEFT JOIN LongAttribute ON LongAttribute.FK_File = PK_File "
 		"LEFT JOIN Picture_File ON Picture_File.FK_File = PK_File "
 		"WHERE PK_File = " + StringUtils::ltos(nFileID) + " "
+		"AND Missing = 0 "
 		"GROUP BY PK_File, Path, Filename";
 
 	enum SqlFields
