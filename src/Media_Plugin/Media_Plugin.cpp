@@ -3642,24 +3642,31 @@ void Media_Plugin::FollowMe_EnteredRoom(int iPK_Event, int iPK_Orbiter, int iPK_
 
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
 
+	MediaStream *pMediaStream_Time = NULL;  // The best match is whatever one the user last started
 	// Find the last media stream this user started
 	for( MapMediaStream::iterator it=m_mapMediaStream.begin();it!=m_mapMediaStream.end();++it )
 	{
 		MediaStream *pMS = (*it).second;
 #ifdef DEBUG
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::FollowMe_EnteredRoom stream %d use %d device %d, comp to %d %d",
-			pMS->m_iStreamID_get(),pMS->m_iPK_Users,pMS->m_dwPK_Device_Remote,iPK_Users,iPK_Device);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::FollowMe_EnteredRoom stream %d time %d use %d device %d, comp to %d %d",
+			pMS->m_iStreamID_get(),(int) pMS->m_tTime,pMS->m_iPK_Users,pMS->m_dwPK_Device_Remote,iPK_Users,iPK_Device);
 #endif
 		if( iPK_Device && pMS->m_dwPK_Device_Remote==iPK_Device )
 		{
-			pMediaStream = pMS;
+			if( pMediaStream_Time==NULL || pMediaStream_Time->m_tTime<pMS->m_tTime )
+				pMediaStream_Time = pMS;
 			break;
 		}
 		if( pMS->m_iPK_Users && pMS->m_iPK_Users==iPK_Users && pMS->m_tTime > tStarted )
-			pMediaStream_User = pMS;
+		{
+			if( pMediaStream_User==NULL || pMediaStream_User->m_tTime<pMS->m_tTime )
+				pMediaStream_User = pMS;
+		}
 	}
 
-	if( !pMediaStream )  // If a device (ie remote control) wasn't specified, or wasn't associated with the stream, find whatever this user was consuming
+	if( pMediaStream_Time )
+		pMediaStream = pMediaStream_Time;
+	else  // If a device (ie remote control) wasn't specified, or wasn't associated with the stream, find whatever this user was consuming
 		pMediaStream = pMediaStream_User;
 
 	if( !pMediaStream )
