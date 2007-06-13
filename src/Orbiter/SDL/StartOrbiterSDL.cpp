@@ -443,6 +443,8 @@ bool SDL_App_Object::Run()
     }
     if (! Create())
     {
+        LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Failed to create Orbiter.  Aborting reload since the router must not be running");
+	    SetExitCode(0);
         return false;
     }
     

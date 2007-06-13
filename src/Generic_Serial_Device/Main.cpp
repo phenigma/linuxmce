@@ -216,7 +216,14 @@ int main(int argc, char* argv[])
 		else 
 		{
 			bAppError = true;
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Connect() Failed");
+			if( pGeneric_Serial_Device->m_pEvent && pGeneric_Serial_Device->m_pEvent->m_pClientSocket && pGeneric_Serial_Device->m_pEvent->m_pClientSocket->m_eLastError==ClientSocket::cs_err_CannotConnect )
+			{
+				bAppError = false;
+				bReload = false;
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "No Router.  Will abort");
+			}
+			else
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Connect() Failed");
 		}
 
 		if( pGeneric_Serial_Device->m_bReload )
