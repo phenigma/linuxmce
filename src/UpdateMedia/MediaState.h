@@ -67,7 +67,6 @@ class Database_pluto_media;
 class MediaState
 {
 	MapMediaState m_mapMediaState;
-	list<int> m_listINodes;
 
 	static MediaState m_instance;
 

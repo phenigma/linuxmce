@@ -94,8 +94,6 @@ void MediaState::LoadDbInfo(Database_pluto_media *pDatabase_pluto_media, string 
 				m_mapMediaState[make_pair(sPath, sFilename)] = MediaItemState(nFileID, sPath, sFilename, nInode,
 					sCurrentDbAttrDate, sCurrentDbAttrCount, 
 					sOldDbAttrDate, sOldDbAttrCount, sOldFileDate, bHasAttributes);
-
-				m_listINodes.push_back(nInode);
 			}
 		}
 	}	
@@ -165,14 +163,14 @@ MediaSyncMode MediaState::SyncModeNeeded(string sDirectory, string sFile)
 	{
 		//check if the inode already exists
 		int INode = FileUtils::GetInode(sDirectory + "/" + sFile);
-		list<int>::iterator it_inode = std::find(m_listINodes.begin(), m_listINodes.end(), INode);
+		
+		for(MapMediaState::iterator it = m_mapMediaState.begin(); it != m_mapMediaState.end(); ++it)
+			if(it->second.m_nINode == INode && sDirectory != it->second.m_sPath || sFile != it->second.m_sFilename)
+				return modeNone;
 
-		if(it_inode == m_listINodes.end())
-		{
-			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Need to update file because it's not in the database %s/%s",
-				sDirectory.c_str(), sFile.c_str());
-			sync_mode = modeBoth;
-		}
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Need to update file because it's not in the database %s/%s",
+			sDirectory.c_str(), sFile.c_str());
+		sync_mode = modeBoth;
 	}
 
 	return sync_mode;
@@ -291,8 +289,6 @@ MediaItemState MediaState::LoadDbInfoForFile(Database_pluto_media *pDatabase_plu
 				return MediaItemState(nFileID, sPath, sFilename, nInode,
 					sCurrentDbAttrDate, sCurrentDbAttrCount, sOldDbAttrDate, 
 					sOldDbAttrCount, sOldFileDate, bHasAttributes);
-
-				m_listINodes.push_back(nInode);
 			}
 		}
 	}
