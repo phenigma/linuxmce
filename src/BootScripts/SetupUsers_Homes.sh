@@ -57,6 +57,7 @@ fi
 # get a list of all users
 Q="SELECT PK_Users,UserName,Password_Unix,Password_Samba FROM Users"
 R=$(RunSQL "$Q")
+ListOfUsers="$R"
 LinuxUserID=10000
 DefaultSambaPassword=609FCABC7B0F9AEAAAD3B435B51404EE:DDFF3B733E17BE6500375694FE258864
 DefaultLinuxPassword=
@@ -180,9 +181,11 @@ if [[ "$MakeUsers" == yes ]]; then
 
 	# Only now we have the copies in place of the originals so we can add users and set ownerships
 	addgroup public &>/dev/null
-	for User in $UserList; do
-		adduser pluto_$User public &>/dev/null
-		#chown --dereference -R pluto_$User.pluto_$User /home/$User/
+	for Users in $ListOfUsers; do
+		PlutoUserID=$(Field 1 "$Users")
+		UserName=$(Field 2 "$Users" | tr 'A-Z' 'a-z' | tr -dc "a-z0-9-")
+		adduser pluto_$UserName public &>/dev/null
+		chown -R pluto_$UserName.pluto_$UserName /home/user_$PlutoUserID/
 	done
 
 	if [[ "$(pidof smbd)" != "" ]] ;then
