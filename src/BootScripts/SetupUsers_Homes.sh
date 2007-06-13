@@ -129,7 +129,7 @@ for Users in $R; do
 		fi
 	done
 
-	rm -f "$BaseDir/$UserName"
+	#rm -f "$BaseDir/$UserName"
 	#ln -sf "user_$PlutoUserID" "$BaseDir/$UserName"
 	UserList="$UserList $UserName"
 # Files not updated at this point (woking on copies)
