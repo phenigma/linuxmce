@@ -944,7 +944,7 @@ void *Xine_Stream::EventProcessingLoop( void *arguments )
 		// updating every second - position
 		if ( ++iCounter >= 10 )
 		{
-			LoggerWrapper::GetInstance()->Write( LV_WARNING, "%s (seek %d) t.c. ctr %d freq %d,", pStream->GetPosition().c_str(), pStream->m_iSpecialSeekSpeed, iCounter_TimeCode, pStream->m_iTimeCodeReportFrequency );
+			LoggerWrapper::GetInstance()->Write( LV_WARNING, "[ID: %d] %s (seek %d) t.c. ctr %d freq %d,", pStream->m_iStreamID, pStream->GetPosition().c_str(), pStream->m_iSpecialSeekSpeed, iCounter_TimeCode, pStream->m_iTimeCodeReportFrequency );
 			iCounter = 0;
 			
 			//if it is a time - reporting our timecode to player object
