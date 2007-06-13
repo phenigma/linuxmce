@@ -12,7 +12,10 @@ mkdir -p "$UPDATES_DIR"
 
 function Debug {
 	echo "$(date -R) $*"
+	echo "$(date -R) LMCEUpdate_DownloadXml.sh $*" >> /var/log/UpdateHelper.log
 }
+
+Debug "DownloadXml started"
 
 ## Lock updates.xml
 if [[ -f "$XML_LOCK" ]] ;then
@@ -36,8 +39,12 @@ if diff "${XML_CURRENT}" "${XML_OLD}" >/dev/null ;then
 	exit 0
 fi
 
+Debug "Calling LMCEUpdate to parse the xml file"
 ## TODO: Call eugen's application to process the xml and get an status
-/usr/pluto/bin/LMCEUpdate || exit 1
+if  ! /usr/pluto/bin/LMCEUpdate ;then
+	Debug "LMCEUpdate Failed to parse the xml file or to download updates"
+fi
 
 ## TODO: Notify user that he can update it's system
+Debug "Notifying the user that he can apply the updates"
 /usr/pluto/bin/LMCEUpdate_Notify.sh || exit 1
