@@ -113,7 +113,7 @@ static const char noCursorDataDescription[] =
 namespace DCE
 { // DCE namespace begin
 
-Xine_Stream::Xine_Stream(Xine_Stream_Factory* pFactory, xine_t *pXineLibrary, int ID, int iTimeCodeReportFrequency, int iRequestingObject, bool bBroadcast) :
+Xine_Stream::Xine_Stream(Xine_Stream_Factory* pFactory, xine_t *pXineLibrary, int ID, int iTimeCodeReportFrequency, int iRequestingObject, bool bBroadcastOnly) :
 		m_streamMutex("xine-stream-access-mutex"),
 		m_xine_osd_t(NULL)
 {
@@ -122,14 +122,27 @@ Xine_Stream::Xine_Stream(Xine_Stream_Factory* pFactory, xine_t *pXineLibrary, in
 	pthread_mutexattr_settype( &mutexAttr,  PTHREAD_MUTEX_RECURSIVE_NP );
 	m_streamMutex.Init( &mutexAttr );	
 	
+	windows[0] = NULL;
+	windows[1] = NULL;
+	
+	cursors[0] = NULL;
+	cursors[1] = NULL;
+	
 	m_pFactory = pFactory;
 	m_pXineLibrary = pXineLibrary;
-	m_bBroadcaster = bBroadcast;
+	m_bBroadcastOnly = bBroadcastOnly;
 	m_iBroadcastPort=0;
-		
-	m_sXineAudioDriverName = m_pFactory->GetAudioDriver();
-	m_sXineVideoDriverName = m_pFactory->GetVideoDriver();
 	
+	if (!bBroadcastOnly)
+	{
+		m_sXineAudioDriverName = m_pFactory->GetAudioDriver();
+		m_sXineVideoDriverName = m_pFactory->GetVideoDriver();
+	}
+	else
+	{
+		m_sXineAudioDriverName = "none";
+		m_sXineVideoDriverName = "none";
+	}
 	
 	m_pXineVisualizationPlugin = NULL;
 	m_pXineDeinterlacePlugin = NULL;
@@ -140,8 +153,6 @@ Xine_Stream::Xine_Stream(Xine_Stream_Factory* pFactory, xine_t *pXineLibrary, in
 	m_pXineAudioOutput = NULL;
 	m_pXineVideoOutput = NULL;
 	
-	m_sWindowTitle = "pluto-xine-playback-window";
-	m_pXDisplay = pFactory->m_pXDisplay;
 	m_iCurrentScreen = 0;
 	m_iCurrentWindow = 0;
 	
@@ -172,14 +183,22 @@ Xine_Stream::Xine_Stream(Xine_Stream_Factory* pFactory, xine_t *pXineLibrary, in
 	
 	m_isSlimClient = false;
 	
-	m_pDynamic_Pointer = new Dynamic_Pointer(this, &cursors[0], &cursors[1]);
+	m_pDynamic_Pointer = NULL;
 	
-	// creating window
-	if ( !CreateWindows() )
+	if (!bBroadcastOnly)
 	{
-		LoggerWrapper::GetInstance()->Write( LV_WARNING, "Stream output window init failed");
-	} 
-
+		m_sWindowTitle = "pluto-xine-playback-window";
+		// binding to window
+		if ( !CreateWindows() )
+		{
+			LoggerWrapper::GetInstance()->Write( LV_WARNING, "Stream output window init failed");
+		}
+	}
+	else
+	{
+		m_sWindowTitle = "pluto-xine-broadcaster-window";
+	}
+	
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Xine_Stream::Xine_Stream m_iStreamID %d",m_iStreamID);
 }
 
@@ -188,7 +207,11 @@ Xine_Stream::~Xine_Stream()
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Xine_Stream::~Xine_Stream m_iStreamID %d",m_iStreamID);
 
 	ShutdownStream();
-	DestroyWindows();
+	
+	if (!m_bBroadcastOnly)
+	{
+		DestroyWindows();
+	}
 }
 
 // prepare stream for usage
@@ -215,9 +238,6 @@ bool Xine_Stream::StartupStream()
 	
 	m_bInitialized = true;
 	
-	if (m_bBroadcaster)
-		EnableBroadcast();
-	
 	return true;
 }
 
@@ -230,7 +250,7 @@ bool Xine_Stream::ShutdownStream()
 			return false;
 	}
 	
-	if (m_bBroadcaster && m_iBroadcastPort!=0)
+	if (m_iBroadcastPort!=0)
 	{
 		DisableBroadcast();
 	}
@@ -339,8 +359,6 @@ bool Xine_Stream::ShutdownStream()
 // moving windows to other screen
 void Xine_Stream::hideWindows()
 {
-//      XReparentWindow(m_pXDisplay, windows[ 0 ], XRootWindow( m_pXDisplay, m_iCurrentScreen ), 10, 20);
-//      XReparentWindow(m_pXDisplay, windows[ 1 ], XRootWindow( m_pXDisplay, m_iCurrentScreen ), 10, 20);
 }
 
 // creates stream windows
@@ -400,39 +418,50 @@ bool Xine_Stream::InitXineAVOutput()
 // 	int xcode = XMapRaised( m_pXDisplay, windows[ 0 ] );
 //	LoggerWrapper::GetInstance()->Write( LV_WARNING, "XMapWindow returned: %i", xcode);
 
-	// init visual for xine video
-	m_x11Visual.display = m_pFactory->m_pXDisplay;
-	m_x11Visual.screen = m_iCurrentScreen;
-	m_x11Visual.d = windows[ m_iCurrentWindow ];
-	
-	m_x11Visual.dest_size_cb = &destinationSizeCallback;
-	m_x11Visual.frame_output_cb = &frameOutputCallback;
-	
-	m_x11Visual.user_data = this;
-
-	// init video output
-	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Opening Video Driver" );
+	if (!m_bBroadcastOnly)
 	{
-		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
-		if ( ( m_pXineVideoOutput = xine_open_video_driver( m_pXineLibrary, m_sXineVideoDriverName.c_str(), XINE_VISUAL_TYPE_X11, ( void * ) & m_x11Visual ) ) == NULL )
+		// init visual for xine video
+		m_x11Visual.display = m_pFactory->m_pXDisplay;
+		m_x11Visual.screen = m_iCurrentScreen;
+		m_x11Visual.d = windows[ m_iCurrentWindow ];
+		
+		m_x11Visual.dest_size_cb = &destinationSizeCallback;
+		m_x11Visual.frame_output_cb = &frameOutputCallback;
+		
+		m_x11Visual.user_data = this;
+	
+		// init video output
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Opening Video Driver" );
 		{
-			LoggerWrapper::GetInstance()->Write( LV_WARNING, "I'm unable to initialize m_pXine's '%s' video driver. Falling to 'xshm'.", m_sXineVideoDriverName.c_str() );
-			if ( ( m_pXineVideoOutput = xine_open_video_driver( m_pXineLibrary, "xshm", XINE_VISUAL_TYPE_X11, ( void * ) & m_x11Visual ) ) == NULL )
+			PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
+			if ( ( m_pXineVideoOutput = xine_open_video_driver( m_pXineLibrary, m_sXineVideoDriverName.c_str(), XINE_VISUAL_TYPE_X11, ( void * ) & m_x11Visual ) ) == NULL )
 			{
-				LoggerWrapper::GetInstance()->Write( LV_WARNING, "I'm unable to initialize m_pXine's 'xshm' video driver. Giving up." );
-				return false;
+				LoggerWrapper::GetInstance()->Write( LV_WARNING, "I'm unable to initialize m_pXine's '%s' video driver. Falling to 'xshm'.", m_sXineVideoDriverName.c_str() );
+				if ( ( m_pXineVideoOutput = xine_open_video_driver( m_pXineLibrary, "xshm", XINE_VISUAL_TYPE_X11, ( void * ) & m_x11Visual ) ) == NULL )
+				{
+					LoggerWrapper::GetInstance()->Write( LV_WARNING, "I'm unable to initialize m_pXine's 'xshm' video driver. Giving up." );
+					return false;
+				}
+				else
+				{
+					m_sUsedVideoDriverName = "xshm";
+				}
 			}
 			else
 			{
-				m_sUsedVideoDriverName = "xshm";
+				m_sUsedVideoDriverName = m_sXineVideoDriverName;
 			}
 		}
-		else
+	}
+	else
+	{
+		if ( ( m_pXineVideoOutput = xine_open_video_driver( m_pXineLibrary, m_sXineVideoDriverName.c_str(), XINE_VISUAL_TYPE_NONE, NULL ) ) == NULL )
 		{
-			m_sUsedVideoDriverName = m_sXineVideoDriverName;
+			LoggerWrapper::GetInstance()->Write( LV_WARNING, "I'm unable to initialize m_pXine's '%s' video driver. Falling to 'xshm'.", m_sXineVideoDriverName.c_str() );
+			return false;
 		}
 	}
-
+	
 	// init audio output
 	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Opening Audio Driver" );
 	{
@@ -468,9 +497,12 @@ bool Xine_Stream::InitXineAVOutput()
 	}
 	xine_event_create_listener_thread( m_pXineStreamEventQueue, XineStreamEventListener, this );
 
-	xine_port_send_gui_data( m_pXineVideoOutput, XINE_GUI_SEND_VIDEOWIN_VISIBLE, ( void * ) 0 );
-	xine_port_send_gui_data( m_pXineVideoOutput, XINE_GUI_SEND_DRAWABLE_CHANGED, ( void * ) windows[ m_iCurrentWindow ] );
-	xine_port_send_gui_data( m_pXineVideoOutput, XINE_GUI_SEND_VIDEOWIN_VISIBLE, ( void * ) 1 );
+	if (!m_bBroadcastOnly)
+	{
+		xine_port_send_gui_data( m_pXineVideoOutput, XINE_GUI_SEND_VIDEOWIN_VISIBLE, ( void * ) 0 );
+		xine_port_send_gui_data( m_pXineVideoOutput, XINE_GUI_SEND_DRAWABLE_CHANGED, ( void * ) windows[ m_iCurrentWindow ] );
+		xine_port_send_gui_data( m_pXineVideoOutput, XINE_GUI_SEND_VIDEOWIN_VISIBLE, ( void * ) 1 );
+	}
 
 	// creating new osd panel
 	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Calling xine_osd_new" );
@@ -599,6 +631,7 @@ bool Xine_Stream::OpenMedia(string fileName, string &sMediaInfo, string sMediaPo
 		// reporting about image
 		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Output window dimensions: %dx%d", m_pFactory->m_iImgWidth, m_pFactory->m_iImgHeight );
 
+		if (!m_bBroadcastOnly)
 		{
 			PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 			xine_port_send_gui_data( m_pXineVideoOutput, XINE_GUI_SEND_DRAWABLE_CHANGED, ( void * ) windows[ m_iCurrentWindow ] );
@@ -891,18 +924,21 @@ void *Xine_Stream::EventProcessingLoop( void *arguments )
 	while ( ! pStream->m_bExitThread )
 	{
 		//reading and process X-events
-		if ( pStream->m_bIsRendering )
+		if (!pStream->m_bBroadcastOnly)
 		{
-			do
+			if ( pStream->m_bIsRendering )
 			{
-				XLockDisplay( pStream->m_pFactory->m_pXDisplay );
-				checkResult = XCheckWindowEvent( pStream->m_pFactory->m_pXDisplay, pStream->windows[ pStream->m_iCurrentWindow ], INPUT_MOTION, &event );
-				XUnlockDisplay( pStream->m_pFactory->m_pXDisplay );
-
-				if ( checkResult == True )
-					pStream->XServerEventProcessor( event );
+				do
+				{
+					XLockDisplay( pStream->m_pFactory->m_pXDisplay );
+					checkResult = XCheckWindowEvent( pStream->m_pFactory->m_pXDisplay, pStream->windows[ pStream->m_iCurrentWindow ], INPUT_MOTION, &event );
+					XUnlockDisplay( pStream->m_pFactory->m_pXDisplay );
+	
+					if ( checkResult == True )
+						pStream->XServerEventProcessor( event );
+				}
+				while ( checkResult == True );
 			}
-			while ( checkResult == True );
 		}
 
 		// updating every second - position
@@ -2296,18 +2332,10 @@ bool Xine_Stream::DestroyWindows()
 		
 		XLockDisplay( m_pFactory->m_pXDisplay );
 
-//		XUnmapWindow( m_pXDisplay, windows[ m_iCurrentWindow ] );
-
 		XFreeCursor( m_pFactory->m_pXDisplay, cursors[ 0 ] );
 		XFreeCursor( m_pFactory->m_pXDisplay, cursors[ 1 ] );
 
-//		XDestroyWindow( m_pXDisplay, windows[ 0 ] );
-//		XDestroyWindow( m_pXDisplay, windows[ 1 ] );
-
 		XUnlockDisplay( m_pFactory->m_pXDisplay );
-		//XCloseDisplay ( m_pXDisplay );
-
-		//m_pXDisplay = NULL;
 	}
 
 	return true;
@@ -2658,21 +2686,28 @@ void Xine_Stream::simulateMouseClick( int X, int Y )
 
 void Xine_Stream::simulateKeystroke( int plutoButton )
 {
-	Window oldWindow;
-	int oldRevertBehaviour;
-	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Xine_Stream::simulateKeystroke(): plutoButton=%d", plutoButton );
-
-	XLockDisplay( m_pFactory->m_pXDisplay );
-	XGetInputFocus( m_pFactory->m_pXDisplay, &oldWindow, &oldRevertBehaviour );
-	XSetInputFocus( m_pFactory->m_pXDisplay, windows[ m_iCurrentWindow ], RevertToParent, CurrentTime );
-	XTestFakeKeyEvent( m_pFactory->m_pXDisplay, XKeysymToKeycode( m_pFactory->m_pXDisplay, translatePlutoKeySymToXKeySym( plutoButton ) ), True, 0 );
-	XTestFakeKeyEvent( m_pFactory->m_pXDisplay, XKeysymToKeycode( m_pFactory->m_pXDisplay, translatePlutoKeySymToXKeySym( plutoButton ) ), False, 0 );
-
-	if ( oldWindow )
-		XSetInputFocus( m_pFactory->m_pXDisplay, oldWindow, oldRevertBehaviour, CurrentTime );
-
-	XFlush( m_pFactory->m_pXDisplay );
-	XUnlockDisplay( m_pFactory->m_pXDisplay );
+	if (m_bBroadcastOnly)
+	{
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Xine_Stream::simulateKeystroke(): plutoButton=%d  --- skipping, as in broadcasting-only mode", plutoButton );
+	}
+	else
+	{
+		Window oldWindow;
+		int oldRevertBehaviour;
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Xine_Stream::simulateKeystroke(): plutoButton=%d", plutoButton );
+	
+		XLockDisplay( m_pFactory->m_pXDisplay );
+		XGetInputFocus( m_pFactory->m_pXDisplay, &oldWindow, &oldRevertBehaviour );
+		XSetInputFocus( m_pFactory->m_pXDisplay, windows[ m_iCurrentWindow ], RevertToParent, CurrentTime );
+		XTestFakeKeyEvent( m_pFactory->m_pXDisplay, XKeysymToKeycode( m_pFactory->m_pXDisplay, translatePlutoKeySymToXKeySym( plutoButton ) ), True, 0 );
+		XTestFakeKeyEvent( m_pFactory->m_pXDisplay, XKeysymToKeycode( m_pFactory->m_pXDisplay, translatePlutoKeySymToXKeySym( plutoButton ) ), False, 0 );
+	
+		if ( oldWindow )
+			XSetInputFocus( m_pFactory->m_pXDisplay, oldWindow, oldRevertBehaviour, CurrentTime );
+	
+		XFlush( m_pFactory->m_pXDisplay );
+		XUnlockDisplay( m_pFactory->m_pXDisplay );
+	}
 }
 
 void Xine_Stream::sendInputEvent( int eventType )
@@ -2778,29 +2813,6 @@ bool Xine_Stream::setDebuggingLevel( bool newValue )
 	return true;
 }
 
-
-void Xine_Stream::resume()
-{
-	if ( m_pXineVideoOutput != NULL )
-	{
-		int count = 50;
-
-		while ( --count &&
-								!xine_port_send_gui_data( m_pXineVideoOutput, XINE_GUI_SEND_DRAWABLE_CHANGED, ( void * ) windows[ m_iCurrentWindow ] ) )
-			xine_usec_sleep( 20000 );
-
-		if ( !count )
-		{
-			LoggerWrapper::GetInstance()->Write(LV_STATUS, "RESUME video driver failed. make sure we have a patched xine-lib with XV2 driver\n" );
-			LoggerWrapper::GetInstance()->Write(LV_STATUS, "  and no other application is using the XVideo port.\n" );
-			return ;
-		}
-
-		xine_port_send_gui_data( m_pXineVideoOutput, XINE_GUI_SEND_VIDEOWIN_VISIBLE, ( void * ) 1 );
-	}
-}
-
-
 int Xine_Stream::translate_point( int gui_x, int gui_y, int *video_x, int *video_y )
 {
 	x11_rectangle_t rect;
@@ -2832,15 +2844,21 @@ int Xine_Stream::translate_point( int gui_x, int gui_y, int *video_x, int *video
 void Xine_Stream::Dynamic_Pointer::pointer_hide()
 {
 	Window window = m_pOwner->windows[m_pOwner->m_iCurrentWindow];
-	XDefineCursor( m_pOwner->m_pXDisplay, window, *m_pCursor_hidden );
-	m_start_time = 0;
+	if (window)
+	{
+		XDefineCursor( m_pOwner->m_pFactory->m_pXDisplay, window, *m_pCursor_hidden );
+		m_start_time = 0;
+	}
 }
 
 void Xine_Stream::Dynamic_Pointer::pointer_show()
 {
 	Window window = m_pOwner->windows[m_pOwner->m_iCurrentWindow];
-	XDefineCursor( m_pOwner->m_pXDisplay, window, *m_pCursor_normal );
-	m_start_time = time( NULL );
+	if (window)
+	{
+		XDefineCursor( m_pOwner->m_pFactory->m_pXDisplay, window, *m_pCursor_normal );
+		m_start_time = time( NULL );
+	}
 }
 
 void Xine_Stream::Dynamic_Pointer::pointer_check_time()

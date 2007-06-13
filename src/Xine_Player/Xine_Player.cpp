@@ -377,7 +377,7 @@ void Xine_Player::CMD_Stop_Media(int iStreamID,string *sMediaPosition,string &sC
 	*sMediaPosition = pStream->GetPosition();
 	
 	// telling to all slaves to stop playback
-	if (pStream->m_bBroadcaster && pStream->m_iBroadcastPort!=0)
+	if (pStream->m_iBroadcastPort!=0)
 	{
 		string streamingTargets = pStream->m_sBroadcastTargets;
 		string::size_type tokenPos=0;
@@ -395,6 +395,8 @@ void Xine_Player::CMD_Stop_Media(int iStreamID,string *sMediaPosition,string &sC
 				
 			curTarget = StringUtils::Tokenize(streamingTargets, string(","), tokenPos);
 		}
+		
+		pStream->DisableBroadcast();
 	}
 	
 	pStream->CloseMedia();
@@ -425,7 +427,7 @@ void Xine_Player::CMD_Pause_Media(int iStreamID,string &sCMD_Result,Message *pMe
 	else
 	{
 		// telling to all slaves to change playback speed
-		if (pStream->m_bBroadcaster && pStream->m_iBroadcastPort!=0)
+		if (pStream->m_iBroadcastPort!=0)
 		{
 			string streamingTargets = pStream->m_sBroadcastTargets;
 			string::size_type tokenPos=0;
@@ -498,7 +500,7 @@ void Xine_Player::CMD_Change_Playback_Speed(int iStreamID,int iMediaPlaybackSpee
 	else
 	{
 		// telling to all slaves to change playback speed
-		if (pStream->m_bBroadcaster && pStream->m_iBroadcastPort!=0)
+		if (pStream->m_iBroadcastPort!=0)
 		{
 			string streamingTargets = pStream->m_sBroadcastTargets;
 			string::size_type tokenPos=0;
@@ -1300,6 +1302,22 @@ void Xine_Player::CMD_Start_Streaming(int iPK_MediaType,int iStreamID,string sMe
 	// as all playback control commands will be sent only to the local xine, 
 	// then we need to control "stream as a whole"
 	
+	// detecting if we also should display this stream, or we should only broadcast
+	bool bBroadcastOnly = true;
+	{
+		string streamingTargets = sStreamingTargets;
+		string::size_type tokenPos=0;
+		
+		string curTarget = StringUtils::Tokenize(streamingTargets, string(","), tokenPos);
+		
+		while (curTarget!="")
+		{
+			int targetDevice = atoi(curTarget.c_str());
+			if (targetDevice==m_dwPK_Device)
+				bBroadcastOnly = false;
+		}
+	}
+	
 	Xine_Stream *pStream =  ptrFactory->GetStream( iStreamID );
 	// if stream already exists - we must stop it and all corresponding targets
 	if (pStream!=NULL)
@@ -1307,14 +1325,12 @@ void Xine_Player::CMD_Start_Streaming(int iPK_MediaType,int iStreamID,string sMe
 		string sPos;
 		CMD_Stop_Media( pStream->m_iStreamID, &sPos);
 		
-		// if current instance of stream is not broadcaster, we must kill it and re-create
-		if (!pStream->m_bBroadcaster)
-		{
+		// checking if type of stream match
+		if ( bBroadcastOnly && !pStream->m_bBroadcastOnly)
 			ptrFactory->DestroyStream(pStream->m_iStreamID);
-		}
 	}
 	
-	pStream =  ptrFactory->GetStream( iStreamID, true, pMessage->m_dwPK_Device_From, true,m_iDefaultZoomLevel );
+	pStream =  ptrFactory->GetStream( iStreamID, true, pMessage->m_dwPK_Device_From, bBroadcastOnly, m_iDefaultZoomLevel );
 		
 	if (pStream==NULL)
 	{
@@ -1327,13 +1343,15 @@ void Xine_Player::CMD_Start_Streaming(int iPK_MediaType,int iStreamID,string sMe
 		pStream->m_sBroadcastTargets = sStreamingTargets;
 		CMD_Play_Media( iPK_MediaType, pStream->m_iStreamID, sMediaPosition, sMediaURL);
 		
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Start_Streaming() - enabling stream broadcast");
+		pStream->EnableBroadcast();
+		
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Start_Streaming() - calling slaves");
 		// telling to all slaves to start playback
 		if (pStream->m_iBroadcastPort!=0)
 		{
 			string sSlaveMediaURL;
 			sSlaveMediaURL = sSlaveMediaURL + "slave://" + m_sIPofMD + ":" + StringUtils::itos(pStream->m_iBroadcastPort);
-//			sSlaveMediaURL = sSlaveMediaURL + "slave://localhost:" + StringUtils::itos(pStream->m_iBroadcastPort);
 			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Slave URL: %s", sSlaveMediaURL.c_str());
 			string streamingTargets = pStream->m_sBroadcastTargets;
 			string::size_type tokenPos=0;

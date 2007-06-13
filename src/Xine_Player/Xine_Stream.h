@@ -156,7 +156,6 @@ namespace DCE
 
 			// X subsystem properties
 			string m_sWindowTitle;
-			Display *m_pXDisplay;
 			int m_iCurrentScreen;
 			int m_iCurrentWindow;
 			Window windows[ 2 ];
@@ -206,7 +205,7 @@ namespace DCE
 			
 			public:
 			int m_iStreamID;
-			bool m_bBroadcaster;
+			bool m_bBroadcastOnly;
 			int m_iBroadcastPort;
 			string m_sBroadcastTargets;
 
@@ -224,7 +223,7 @@ namespace DCE
 			bool m_isSlimClient;
 			bool m_bTrickModeActive;
 		public:
-			Xine_Stream(Xine_Stream_Factory* pFactory, xine_t *pXineLibrary, int ID=0, int iTimeCodeReportFrequency=0, int iRequestingObject=0, bool bBroadcast=false);
+			Xine_Stream(Xine_Stream_Factory* pFactory, xine_t *pXineLibrary, int ID=0, int iTimeCodeReportFrequency=0, int iRequestingObject=0, bool bBroadcastOnly=false);
 			~Xine_Stream();
 			
 			/**
@@ -279,8 +278,6 @@ namespace DCE
 		 */
 
 			void pauseMediaStream();
-
-			void resume();
 
 			
     /**
