@@ -1315,6 +1315,8 @@ void Xine_Player::CMD_Start_Streaming(int iPK_MediaType,int iStreamID,string sMe
 			int targetDevice = atoi(curTarget.c_str());
 			if (targetDevice==m_dwPK_Device)
 				bBroadcastOnly = false;
+			
+			curTarget = StringUtils::Tokenize(streamingTargets, string(","), tokenPos);
 		}
 	}
 	
