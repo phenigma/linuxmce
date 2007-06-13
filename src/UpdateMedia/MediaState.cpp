@@ -33,7 +33,7 @@ MediaState MediaState::m_instance;
 void MediaState::LoadDbInfo(Database_pluto_media *pDatabase_pluto_media, string sRootDirectory)
 {
 	string sSql = 
-		"SELECT PK_File, Path, Filename, "
+		"SELECT PK_File, Path, Filename, INode, "
 		"GREATEST("
 		"	IF(File.psc_mod IS NULL,CAST('0000-00-00 00:00:00' AS DATE),File.psc_mod), "
 		"	IF(MAX(Bookmark.psc_mod) IS NULL,CAST('0000-00-00 00:00:00' AS DATE),MAX(Bookmark.psc_mod)), "
@@ -61,6 +61,7 @@ void MediaState::LoadDbInfo(Database_pluto_media *pDatabase_pluto_media, string 
 		sfFileID,
 		sfPath,
 		sfFilename,
+		sfINode,
 		sfCurrentDbAttrDate,
 		sfCurrentDbAttrCount,
 		sfOldDbAttrDate,
@@ -80,6 +81,7 @@ void MediaState::LoadDbInfo(Database_pluto_media *pDatabase_pluto_media, string 
 				int nFileID = atoi(row[sfFileID]);
 				string sPath = row[sfPath];
 				string sFilename = row[sfFilename];
+				int nInode = atoi(row[sfINode]);
 
 				string sCurrentDbAttrDate = NULL != row[sfCurrentDbAttrDate] ? row[sfCurrentDbAttrDate] : string();
 				int sCurrentDbAttrCount = NULL != row[sfCurrentDbAttrCount] ? atoi(row[sfCurrentDbAttrCount]) : 0;
@@ -88,9 +90,11 @@ void MediaState::LoadDbInfo(Database_pluto_media *pDatabase_pluto_media, string 
 				string sOldFileDate = NULL != row[sfOldFileDate] ? row[sfOldFileDate] : string();
 				bool bHasAttributes = NULL != row[sfHasAttributes] ? atoi(row[sfHasAttributes]) > 0 : false;
 
-				m_mapMediaState[make_pair(sPath, sFilename)] = MediaItemState(nFileID, sPath, sFilename,
+				m_mapMediaState[make_pair(sPath, sFilename)] = MediaItemState(nFileID, sPath, sFilename, nInode,
 					sCurrentDbAttrDate, sCurrentDbAttrCount, 
 					sOldDbAttrDate, sOldDbAttrCount, sOldFileDate, bHasAttributes);
+
+				m_listINodes.push_back(nInode);
 			}
 		}
 	}	
@@ -158,9 +162,16 @@ MediaSyncMode MediaState::SyncModeNeeded(string sDirectory, string sFile)
 	}
 	else
 	{
-		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Need to update file because it's not in the database %s/%s",
-			sDirectory.c_str(), sFile.c_str());
-		sync_mode = modeBoth;
+		//check if the inode already exists
+		int INode = FileUtils::GetInode(sDirectory + "/" + sFile);
+		list<int>::iterator it_inode = std::find(m_listINodes.begin(), m_listINodes.end(), INode);
+
+		if(it_inode == m_listINodes.end())
+		{
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Need to update file because it's not in the database %s/%s",
+				sDirectory.c_str(), sFile.c_str());
+			sync_mode = modeBoth;
+		}
 	}
 
 	return sync_mode;
@@ -220,7 +231,7 @@ string MediaState::ReadMediaFileInfo(string sFilePath)
 MediaItemState MediaState::LoadDbInfoForFile(Database_pluto_media *pDatabase_pluto_media, int nFileID)
 {
 	string sSql = 
-		"SELECT PK_File, Path, Filename, "
+		"SELECT PK_File, Path, Filename, INode, "
 		"GREATEST("
 		"	IF(File.psc_mod IS NULL,CAST('0000-00-00 00:00:00' AS DATE),File.psc_mod), "
 		"	IF(MAX(Bookmark.psc_mod) IS NULL,CAST('0000-00-00 00:00:00' AS DATE),MAX(Bookmark.psc_mod)), "
@@ -246,6 +257,7 @@ MediaItemState MediaState::LoadDbInfoForFile(Database_pluto_media *pDatabase_plu
 		sfFileID,
 		sfPath,
 		sfFilename,
+		sfINode,
 		sfCurrentDbAttrDate,
 		sfCurrentDbAttrCount,
 		sfOldDbAttrDate,
@@ -265,6 +277,7 @@ MediaItemState MediaState::LoadDbInfoForFile(Database_pluto_media *pDatabase_plu
 				int nFileID = atoi(row[sfFileID]);
 				string sPath = row[sfPath];
 				string sFilename = row[sfFilename];
+				int nInode = atoi(row[sfINode]);
 
 				string sCurrentDbAttrDate = NULL != row[sfCurrentDbAttrDate] ? row[sfCurrentDbAttrDate] : string();
 				int sCurrentDbAttrCount = NULL != row[sfCurrentDbAttrCount] ? atoi(row[sfCurrentDbAttrCount]) : 0;
@@ -273,9 +286,11 @@ MediaItemState MediaState::LoadDbInfoForFile(Database_pluto_media *pDatabase_plu
 				string sOldFileDate = NULL != row[sfOldFileDate] ? row[sfOldFileDate] : string();
 				bool bHasAttributes = NULL != row[sfHasAttributes] ? atoi(row[sfHasAttributes]) > 0 : false;
 
-				return MediaItemState(nFileID, sPath, sFilename,
+				return MediaItemState(nFileID, sPath, sFilename, nInode,
 					sCurrentDbAttrDate, sCurrentDbAttrCount, sOldDbAttrDate, 
 					sOldDbAttrCount, sOldFileDate, bHasAttributes);
+
+				m_listINodes.push_back(nInode);
 			}
 		}
 	}
