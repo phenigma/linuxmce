@@ -158,6 +158,8 @@ MediaSyncMode MediaState::SyncModeNeeded(string sDirectory, string sFile)
 	}
 	else
 	{
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Need to update file because it's not in the database %s/%s",
+			sDirectory.c_str(), sFile.c_str());
 		sync_mode = modeBoth;
 	}
 
