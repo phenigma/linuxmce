@@ -35,7 +35,7 @@ function setResolution($output,$dbADO) {
 	);
 	
 	$oldValues=getFieldsAsArray('Device_DeviceData','IK_DeviceData',$dbADO,'WHERE FK_Device='.$mdID.' AND FK_DeviceData='.$GLOBALS['VideoSettings']);
-	if(!is_null($oldValues['IK_DeviceData'])){
+	if(!is_null(@$oldValues['IK_DeviceData'])){
 		$oldDD=explode('/',$oldValues['IK_DeviceData'][0]);
 		$oldResolution=@$oldDD[0];
 		$oldRefresh=@$oldDD[1];
@@ -53,13 +53,9 @@ function setResolution($output,$dbADO) {
 		
 		<form action="index.php" method="post" name="setResolution">
 		<input type="hidden" name="section" value="setResolution">
-		<input type="hidden" name="action" value="confirm">
+		<input type="hidden" name="action" value="set">
 		<input type="hidden" name="mdID" value="'.$mdID.'">
 		
-<span style="padding-left:10px; padding-right:10px;">
-<h3>'.$TEXT_SET_RESOLUTION_TITLE_CONST.'</h3>		
-'.$TEXT_SET_RESOLUTION_INFO_CONST.'
-</span>
 <br><br>';
 
 
@@ -74,12 +70,12 @@ $out.='
 		<td><B>'.$TEXT_REFRESH_CONST.' *</B></td>
 		<td>'.pulldownFromArray($refreshArray,'refresh',@$oldRefresh).'</td>
 	</tr>
+		<tr>
+			<td><b>'.$TEXT_SET_RESOLUTION_QUICKRELOAD_ROUTER_CONST.'</b></td>
+			<td align="right"><input type="checkbox" name="updateOrbiters" value="1" checked></td>
+		</tr>
 	<tr>
-		<td><B>'.$TEXT_FORCE_RESOLUTION_CONST.'</B></td>
-		<td><input type="checkbox" name="force" value="1"></td>
-	</tr>
-	<tr>
-		<td colspan="2" align="center"><input type="submit" class="button" name="test" value="'.$TEXT_TEST_RESOLUTION_AND_REFRESH_CONST.'"></td>
+		<td colspan="2" align="center"><input type="submit" class="button" name="test" value="'.$TEXT_APPLY_CONST.'"></td>
 	</tr>
 </table>		
 		</form>
@@ -91,154 +87,71 @@ $out.='
 		</script>
 		';
 		
-	} elseif($action=='confirm'){
+	}else {
+	
+		$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$_SESSION['installationID'],$dbADO);
+		if (!$canModifyInstallation){
+			header("Location: index.php?section=setResolution&error=$TEXT_NOT_AUTHORISED_TO_MODIFY_INSTALLATION_CONST");
+			exit(0);
+		}
+
 		$resolution=$_POST['resolution'];
 		$refresh=$_POST['refresh'];
-
-		@list($resX, $resY, $resType) = explode(' ', $resolution);
-		if ($resType === "i")
-		{
-			$resType = "interlace";
-		}
-		else
-		{
-			$resType = "";
-		}
-		$force=((int)@$_REQUEST['force']==1)?'-f':'';
-		$cmd="sudo -u root /usr/pluto/bin/LaunchRemoteCmd.sh '$ipAddress' '/usr/pluto/bin/Xres_config.sh $resX $resY $refresh $resType $force'";
-		exec($cmd, $retArray);
+		$newVS=$resolution.'/'.$refresh;
+					
+		$dbADO->Execute('UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?',array($newVS,$mdID,$GLOBALS['VideoSettings']));
 		
-		$out.='
-		<form action="index.php" method="post" name="setResolution">
-		<input type="hidden" name="section" value="setResolution">
-		<input type="hidden" name="action" value="update">
-		<input type="hidden" name="mdID" value="'.$mdID.'">
-		<input type="hidden" name="resolution" value="'.$resolution.'">
-		<input type="hidden" name="refresh" value="'.$refresh.'">
-		
-<span style="padding-left:10px; padding-right:10px;">
-<h3>Do you want to keep this settings?</h3>		
-</span>
-<br><br>';
+		if(@$_POST['updateOrbiters']==1){
+			// update device data for onscreen orbiter or orbiter
+			$orbiterArray=getOSDFromMD($mdID,$dbADO);
+			@list($resX, $resY, $resType) = explode(' ', $resolution);
 
+			if(!is_null($orbiterArray['FK_DeviceTemplate'])){
 
-$answer=join(' ',$retArray);
-if((ereg('Failed',$answer))){
-	$out.='
-	<table>
-	<tr>
-		<td colspan="2" bgcolor="#F0F3F8">'.$answer.'</td>
-	</tr>
-	<tr>
-		<td colspan="2" align="center"><input type="button" class="button" name="retry" value="'.$TEXT_TRY_AGAIN_CONST.'" onClick="self.location=\'index.php?section=setResolution&mdID='.$mdID.'\'"> </td>
-	</tr>
-</table>';
-	$answer='<span class="err">'.$answer.'</span>';
-	
-}else{
-	preg_match("/Current resolution: *([0-9]+) *x *([0-9]+) *@ *([0-9]+) *Hz/",$answer,$matches);
-	if(count($matches)!=4){
-		$answer='<span class="err">'.$TEXT_ERROR_RESOLUTION_FAILED_CONST.' Reason: '.$answer.'</span>';
-		$noUpdate=1;
-	}
-	$out.='
-	<table>
-		<tr>
-			<td><B>'.$TEXT_RESOLUTION_CONST.'</B></td>
-			<td>'.$videoSettingsArray[$resolution].'</td>
-		</tr>
-		<tr>
-			<td><B>'.$TEXT_REFRESH_CONST.'</B></td>
-			<td>'.$refreshArray[$refresh].'</td>
-		</tr>
-		<tr>
-			<td colspan="2" bgcolor="#F0F3F8">'.$answer.'</td>
-		</tr>';
-	if(!isset($noUpdate)){
-		$out.='
-		<input type="hidden" name="realResolution" value="'.@$matches[1].' '.@$matches[2].'">
-		<input type="hidden" name="realRefresh" value="'.@$matches[3].'">
-		<tr>
-			<td align="right"><input type="checkbox" name="updateOrbiters" value="1" checked></td>
-			<td>'.$TEXT_SET_RESOLUTION_QUICKRELOAD_ROUTER_CONST.'</td>
-		</tr>
-		<tr>
-			<td colspan="2" align="center"><input type="submit" class="button" name="yesBtn" value="'.$TEXT_YES_CONST.'"> <input type="submit" class="button" name="noBtn" value="'.$TEXT_NO_CONST.'"></td>
-		</tr>';
-	}else{
-		$out.='
-		<tr>
-			<td colspan="2" align="center"><input type="button" class="button" name="retry" value="'.$TEXT_TRY_AGAIN_CONST.'" onClick="self.location=\'index.php?section=setResolution&mdID='.$mdID.'\'"> </td>
-		</tr>
-		';
-	}
-	$out.='
-	</table>
-	</form>';
-}
+				$dbADO->Execute('UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?',array($resX,$orbiterArray['PK_Device'],$GLOBALS['ScreenWidth']));
+				$dbADO->Execute('UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?',array($resY,$orbiterArray['PK_Device'],$GLOBALS['ScreenHeight']));
 
-			
-	}else {
-		if(isset($_POST['yesBtn'])){
-			$Answer = "Y"; // 'Y', 'N'
-		
-			$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$_SESSION['installationID'],$dbADO);
-			if (!$canModifyInstallation){
-				header("Location: index.php?section=setResolution&error=$TEXT_NOT_AUTHORISED_TO_MODIFY_INSTALLATION_CONST");
-				exit(0);
+				$sizeFields=getFieldsAsArray('Size','PK_Size',$dbADO,'WHERE Width='.$resX,' AND Height='.$resY);
+
+				if(isset($sizeFields['PK_Size'][0])){
+					$dbADO->Execute('UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?',array($sizeFields['PK_Size'][0],$orbiterArray['PK_Device'],$GLOBALS['Size']));
+				}
 			}
 
-			$resolution=$_POST['realResolution'];
-			$refresh=$_POST['realRefresh'];
-			$newVS=$resolution.'/'.$refresh;
-			
-			$dbADO->Execute('UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?',array($newVS,$mdID,$GLOBALS['VideoSettings']));
-			if(@$_POST['updateOrbiters']==1){
-				// update device data for onscreen orbiter or orbiter
-				$orbiterArray=getOSDFromMD($mdID,$dbADO);
-				@list($resX, $resY, $resType) = explode(' ', $resolution);	
-				
-				if(!is_null($orbiterArray['FK_DeviceTemplate'])){	
-					
-					$dbADO->Execute('UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?',array($resX,$orbiterArray['PK_Device'],$GLOBALS['ScreenWidth']));
-					$dbADO->Execute('UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?',array($resY,$orbiterArray['PK_Device'],$GLOBALS['ScreenHeight']));
-					
-					$sizeFields=getFieldsAsArray('Size','PK_Size',$dbADO,'WHERE Width='.$resX,' AND Height='.$resY);
-
-					if(isset($sizeFields['PK_Size'][0])){
-						$dbADO->Execute('UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?',array($sizeFields['PK_Size'][0],$orbiterArray['PK_Device'],$GLOBALS['Size']));
-					}
-				}
-
-				// append orbiter ID to orbiter plugin status, to be regenerated
-				$orbiterPlugIn=getInfraredPlugin($installationID,$dbADO);
-				if(isset($orbiterArray['PK_Device'])){
-					$dbADO->Execute('UPDATE Device SET Status=IF(Status IS NULL,?,concat(Status, ?)) WHERE PK_Device=?',array($orbiterArray['PK_Device'],','.$orbiterArray['PK_Device'],$orbiterPlugIn));
-				}
-				
-				// do quick reload router
-				$command='/usr/pluto/bin/MessageSend localhost 0 -1000 7 1';
-				exec($command);
-				
+			// append orbiter ID to orbiter plugin status, to be regenerated
+			$orbiterPlugIn=getInfraredPlugin($installationID,$dbADO);
+			if(isset($orbiterArray['PK_Device'])){
+				$dbADO->Execute('UPDATE Device SET Status=IF(Status IS NULL,?,concat(Status, ?)) WHERE PK_Device=?',array($orbiterArray['PK_Device'],','.$orbiterArray['PK_Device'],$orbiterPlugIn));
 			}
-			
-			$msg=$TEXT_SET_RESOLUTION_SUCCESS_CONST;
-		}else{
-			$Answer="N";
+
+			// do quick reload router
+			$command='/usr/pluto/bin/MessageSend localhost 0 -1000 7 1';
+			exec($command);
+
 		}
 
-		exec("sudo -u root /usr/pluto/bin/LaunchRemoteCmd.sh '$ipAddress' '/usr/pluto/bin/Xres_config_end.sh $Answer'");
+		$msg=$TEXT_SET_RESOLUTION_SUCCESS_CONST;
+
+		md_set_resolution($mdID,$ipAddress,$resolution,$refresh);
 
 		//full regen
 		$commandToSend='/usr/pluto/bin/MessageSend localhost -targetType template '.$orbiterArray['PK_Device'].' '.$GLOBALS['OrbiterPlugIn'].' 1 266 2 '.$orbiterArray['PK_Device'].' 21 "-r" 24 1';				
-		exec($commandToSend);
+		exec_batch_command($commandToSend);
 
 		
 		header("Location: index.php?section=setResolution&mdID=$mdID&msg=$msg");
 	}
 	
+	$output->setMenuTitle('Media Directors |');
+	$output->setPageTitle($TEXT_SET_RESOLUTION_TITLE_CONST);
+	
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_SET_RESOLUTION_TITLE_CONST);			
 	$output->output();
+}
+
+function md_set_resolution($mediaDirectorID,$ipAddress,$resolution,$refresh){
+	$commandToSend="/usr/pluto/bin/setAudiVideo.sh $mediaDirectorID $ipAddress $resolution $refresh";
+	exec_batch_command($commandToSend);
 }
 ?>
