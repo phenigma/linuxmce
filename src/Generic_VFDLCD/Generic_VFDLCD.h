@@ -26,6 +26,7 @@ class MenuHolder;
 class LCDManager;
 class LCDRenderer;
 class SocketStatusInputProvider;
+class Database_pluto_main;
 //--------------------------------------------------------------------------------------------------------
 struct LCDMessage
 {
@@ -81,6 +82,8 @@ namespace DCE
 		pthread_cond_t m_MessageProcessingCond;
 
 		list<LCDMessage *> m_listLCDMessages;
+
+		Database_pluto_main *m_pDatabase_pluto_main;
 
 		// Private methods
 		void ProvideMessage(LCDMessage *);

@@ -35,6 +35,7 @@ using namespace DCE;
 #include "VFD_LCD/InputProviders/SocketStatusInputProvider.h"
 
 #include <memory>
+#include "pluto_main/Table_Device.h"
 
 void *WorkerThread(void *);
 
@@ -55,6 +56,17 @@ Generic_VFDLCD::Generic_VFDLCD(int DeviceID, string ServerAddress,bool bConnectE
 	m_spLCDManager.reset(NULL);
 	m_spLCDRenderer.reset(NULL);
 	m_spSocketStatusInputProvider.reset(NULL);
+
+#ifdef WIN32
+	string sHost = m_sIPAddress;
+#else
+    const char *pMySqlHost = getenv("MySqlHost");
+	string sHost = pMySqlHost && strlen(pMySqlHost) ? pMySqlHost : m_sIPAddress;
+#endif
+
+    m_pDatabase_pluto_main = new Database_pluto_main(LoggerWrapper::GetInstance());
+    if(!m_pDatabase_pluto_main->Connect(sHost, "root", "", "pluto_main", 3306))
+        LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Cannot connect to database!");
 }
 
 //<-dceag-const2-b->!
@@ -64,6 +76,7 @@ Generic_VFDLCD::Generic_VFDLCD(Command_Impl *pPrimaryDeviceCommand, DeviceData_I
 //<-dceag-const2-e->
 	m_LCDMessageMutex("lcd messages"), m_WorkerThreadID(0), m_MessageProcessingMutex("message processing")
 {
+	m_pDatabase_pluto_main = NULL;
 }
 
 //<-dceag-dest-b->
@@ -160,7 +173,7 @@ bool Generic_VFDLCD::Setup(string sXMLMenuFilename, string sLCDSerialPort, int n
 	m_spLCDRenderer.reset(new LCDRenderer(sLCDSerialPort)); 
 
 	//setup LCD manager
-	m_spLCDManager.reset(new LCDManager(m_spMenu_Holder.get()));
+	m_spLCDManager.reset(new LCDManager(m_spMenu_Holder.get(), m_pDatabase_pluto_main));
 	m_spLCDManager->AddRenderer(m_spLCDRenderer.get());
 
 	//setup socket status input provider

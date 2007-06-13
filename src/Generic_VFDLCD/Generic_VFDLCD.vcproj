@@ -32,7 +32,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE.lib Serial.lib libxml2.lib"
+				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE.lib Serial.lib libxml2.lib pluto_main.lib"
 				OutputFile="../Debug/Generic_VFDLCD.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;../../libs/Libraries/pthreads-win32/lib&quot;;../lib;../../libs/CrossPlatform/LibXML2/lib"
