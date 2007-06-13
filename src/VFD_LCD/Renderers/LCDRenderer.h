@@ -13,6 +13,9 @@ class LCDRenderer : public IRenderer
 
 	auto_ptr<CSerialPort> m_spSerial;
 
+	string AsLine(string sText);
+	string AsEndLine(string sText);
+
 public:
 
 	LCDRenderer(string sSerialPort, unsigned int bps = 19200, eParityBitStop parity = epbsN81);
