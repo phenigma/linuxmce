@@ -584,6 +584,12 @@ int UpdateMedia::SetupDirectory(string sDirectory, bool bDirIsDvd)
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Sync mode for dir %s/%s: %s", sBaseDirectory.c_str(), sDirectoryName.c_str(), MediaSyncModeStr[dir_sync_mode]); 
 
+	if(dir_sync_mode == modeNone)
+		return 0;
+
+	if(m_bAsDaemon)
+		Sleep(10);
+
 	if(dir_sync_mode != modeNone)
 	{
 		spPlutoMediaParentFolder.reset(new PlutoMediaFile(m_pDatabase_pluto_media, m_nPK_Installation, sBaseDirectory, sDirectoryName));
