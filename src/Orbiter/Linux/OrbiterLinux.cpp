@@ -466,9 +466,10 @@ void OrbiterLinux::CMD_Activate_Window(string sWindowName,string &sCMD_Result,Me
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "OrbiterLinux::CMD_Activate_Window(%s)", sWindowName.c_str());
 	m_pWinListManager->SetExternApplicationName(sWindowName);
 
-	if(UsesUIVersion2() && sWindowName.find("Screen_Saver") != string::npos)
+	if(UsesUIVersion2() && (sWindowName.find("Screen_Saver") != string::npos || sWindowName.empty()) )
 	{
-		m_pWinListManager->ShowWindow(sWindowName);
+		if( sWindowName.empty()==false )
+			m_pWinListManager->ShowWindow(sWindowName);
 		m_pWinListManager->ApplyContext(sWindowName);
 	}
 }
