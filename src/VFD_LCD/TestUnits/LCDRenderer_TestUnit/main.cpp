@@ -27,14 +27,15 @@ int main( int argc, char* argv[] )
 			sSerialPort = argv[++optnum];
 			break;
 		default:
-			DCE::LoggerWrapper::GetInstance()->Write(LV_STATUS, 
-				"\r\n\tUsage: LCDRenderer \r\n"
-				"\t\t-p <port> \r\n"
-				"\t\t-h <header> \r\n"
-				"\t\t-d <description> \r\n"
-				"\t\t-s <status> \r\n"
-				"\t\t-f <footer> \r\n");
-			break;
+			cout << endl << 
+				"\tUsage: LCDRenderer" << endl <<
+				"\t\t-p <port>" << endl <<
+				"\t\t-h <header>" << endl <<
+				"\t\t-d <description>" << endl <<
+				"\t\t-s <status>" << endl <<
+				"\t\t-f <footer>" << endl << endl;
+
+			return 1;
 		};
 	}
 
