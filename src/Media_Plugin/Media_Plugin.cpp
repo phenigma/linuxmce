@@ -6314,10 +6314,13 @@ void Media_Plugin::CMD_Delete_File(string sFilename,string &sCMD_Result,Message 
 			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Media_Plugin::CMD_Delete_File cannot find %s",sFilename.c_str());
 		else
 		{
-			if( FileUtils::DelFile(pRow_File->Path_get() + "/" + pRow_File->Filename_get()) )
+			sFilename = pRow_File->Path_get() + "/" + pRow_File->Filename_get();
+			if( FileUtils::DelFile(sFilename) )
 			{
 				pRow_File->Missing_set(1);
 				m_pDatabase_pluto_media->File_get()->Commit();
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::CMD_Delete_File deleted Row_File id %d %s ",
+					pRow_File->PK_File_get(),sFilename.c_str());
 			}
 			else
 				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Media_Plugin::CMD_Delete_File cannot delete %s %s/%s",
@@ -6327,6 +6330,10 @@ void Media_Plugin::CMD_Delete_File(string sFilename,string &sCMD_Result,Message 
 	else if( FileUtils::DelFile(sFilename)==false )
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Media_Plugin::CMD_Delete_File cannot delete %s ",
 			sFilename.c_str());
+	else
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::CMD_Delete_File deleted %s ",
+			sFilename.c_str());
+
 }
 //<-dceag-c868-b->
 
