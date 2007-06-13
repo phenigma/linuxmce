@@ -60,15 +60,30 @@ fi
 
 ## Force a diskless client to get passwd/shadow & group from nis
 if [[ -f ${Parm_RootLocation}/etc/passwd ]] && ! BlacklistConfFiles "${Parm_RootLocation}/etc/passwd" ;then
-	grep -q "+::::::"   ${Parm_RootLocation}/etc/passwd || echo "+::::::"   >> ${Parm_RootLocation}/etc/passwd
-	sed -ir '/.*:.*:[0-9]{4}:.*/d' ${Parm_RootLocation}/etc/passwd
+	if ! grep -q "+::::::"   ${Parm_RootLocation}/etc/passwd ;then
+		rm -f ${Parm_RootLocation}/etc/passwd.$$
+		echo "+::::::"   >> ${Parm_RootLocation}/etc/passwd.$$
+		cat ${Parm_RootLocation}/etc/passwd >> ${Parm_RootLocation}/etc/passwd.$$
+		sed -ir '/.*:.*:[0-9]{4}:.*/d' ${Parm_RootLocation}/etc/passwd.$$
+		mv ${Parm_RootLocation}/etc/passwd.$$  ${Parm_RootLocation}/etc/passwd
+	fi
 fi
 if [[ -f ${Parm_RootLocation}/etc/shadow ]] &&  ! BlacklistConfFiles "${Parm_RootLocation}/etc/shadow" ;then
-	grep -q "+::::::::" ${Parm_RootLocation}/etc/shadow || echo "+::::::::" >> ${Parm_RootLocation}/etc/shadow
+	if ! grep -q "+::::::::" ${Parm_RootLocation}/etc/shadow ;then
+		rm -f ${Parm_RootLocation}/etc/shadow.$$
+	       	echo "+::::::::" >> ${Parm_RootLocation}/etc/shadow.$$
+		cat ${Parm_RootLocation}/etc/shadow >> ${Parm_RootLocation}/etc/shadow.$$
+		mv ${Parm_RootLocation}/etc/shadow.$$ ${Parm_RootLocation}/etc/shadow
+	fi
 fi
 
 if [[ -f ${Parm_RootLocation}/etc/group ]] &&  ! BlacklistConfFiles "${Parm_RootLocation}/etc/group" ;then
-	grep -q "+:::"      ${Parm_RootLocation}/etc/group  || echo "+:::"      >> ${Parm_RootLocation}/etc/group
+	if ! grep -q "+:::"      ${Parm_RootLocation}/etc/group ;then
+		rm  -f ${Parm_RootLocation}/etc/group.$$
+		echo "+:::"      >> ${Parm_RootLocation}/etc/group.$$
+		cat /etc/group >> ${Parm_RootLocation}/etc/group.$$
+		mv ${Parm_RootLocation}/etc/group.$$ ${Parm_RootLocation}/etc/group
+	fi
 fi
 
 ## Add to /etc/hosts the 'dcerouter' hostname just in case nis fails to start on diskless mds
