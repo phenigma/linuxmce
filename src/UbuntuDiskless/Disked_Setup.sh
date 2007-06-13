@@ -124,5 +124,6 @@ for Row in $R ;do
 done
 
 setup_hosts_file
+/usr/pluto/bin/Update_StartupScrips.sh
 /usr/pluto/bin/Diskless_ExportsNFS.sh
 /usr/pluto/bin/sync_pluto2amp.pl
