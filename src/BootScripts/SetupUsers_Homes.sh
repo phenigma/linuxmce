@@ -1,6 +1,8 @@
 #!/bin/bash
 # set system password files
 
+echo "$(date -R) SetupUsers_Homes" >> /var/log/pluto/SetupUsers_Homes.log
+
 . /usr/pluto/bin/pluto.func
 . /usr/pluto/bin/SQL_Ops.sh
 . /usr/pluto/bin/Section_Ops.sh
@@ -191,6 +193,7 @@ fi
 chmod -R 2770 "$BaseDir"/user_* 2>/dev/null
 chmod -R 2775 "$BaseDir"/public 2>/dev/null
 chgrp -R public "$BaseDir"/public
+echo "$(date -R) chgrp -R public $BaseDir/public" >> /var/log/pluto/SetupUsers_Homes.log
 
 ## ReAdd the sambahelper user to smbpasswd
 if [[ -r /usr/pluto/var/sambaCredentials.secret ]] ;then
