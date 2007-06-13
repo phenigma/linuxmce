@@ -455,6 +455,9 @@ bool UpdateMedia::ScanFiles(string sDirectory)
 		if(AnyReasonToSkip(sDirectory, sFile))
 			continue;
 
+		if(m_bAsDaemon)
+			Sleep(1);
+
 		MediaSyncMode sync_mode = MediaState::Instance().SyncModeNeeded(sDirectory, sFile);
 		if(sync_mode == modeNone)
 			continue;
@@ -574,13 +577,13 @@ int UpdateMedia::SetupDirectory(string sDirectory, bool bDirIsDvd)
 	if(dir_sync_mode == modeDbToFile)
 		dir_sync_mode = modeNone;
 
+	if(m_bAsDaemon)
+		Sleep(10);
+
 	if(dir_sync_mode == modeNone)
 		return 0;
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Sync mode for dir %s/%s: %s", sBaseDirectory.c_str(), sDirectoryName.c_str(), MediaSyncModeStr[dir_sync_mode]); 
-
-	if(m_bAsDaemon)
-		Sleep(10);
 
 	if(dir_sync_mode != modeNone)
 	{

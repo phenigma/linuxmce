@@ -81,7 +81,7 @@ void MediaState::LoadDbInfo(Database_pluto_media *pDatabase_pluto_media, string 
 				int nFileID = atoi(row[sfFileID]);
 				string sPath = row[sfPath];
 				string sFilename = row[sfFilename];
-				int nInode = atoi(row[sfINode]);
+				int nInode = NULL != row[sfINode] ? atoi(row[sfINode]) : 0;
 
 				string sCurrentDbAttrDate = NULL != row[sfCurrentDbAttrDate] ? row[sfCurrentDbAttrDate] : string();
 				int sCurrentDbAttrCount = NULL != row[sfCurrentDbAttrCount] ? atoi(row[sfCurrentDbAttrCount]) : 0;
@@ -277,7 +277,7 @@ MediaItemState MediaState::LoadDbInfoForFile(Database_pluto_media *pDatabase_plu
 				int nFileID = atoi(row[sfFileID]);
 				string sPath = row[sfPath];
 				string sFilename = row[sfFilename];
-				int nInode = atoi(row[sfINode]);
+				int nInode = NULL != row[sfINode] ? atoi(row[sfINode]) : 0;
 
 				string sCurrentDbAttrDate = NULL != row[sfCurrentDbAttrDate] ? row[sfCurrentDbAttrDate] : string();
 				int sCurrentDbAttrCount = NULL != row[sfCurrentDbAttrCount] ? atoi(row[sfCurrentDbAttrCount]) : 0;
