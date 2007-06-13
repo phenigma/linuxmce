@@ -211,9 +211,16 @@ int PlutoMediaFile::HandleFileNotInDatabase(int PK_MediaType)
 		{
 			Row_File *pRow_File = vectRow_File[0];
 			PK_File=pRow_File->PK_File_get();
-			LoggerWrapper::GetInstance()->Write(LV_STATUS, "PlutoMediaFile::HandleFileNotInDatabase %s/%s N db-attr: %d Inode: %d size %d", 
-				m_sDirectory.c_str(), m_sFile.c_str(), pRow_File->PK_File_get(), INode, (int) vectRow_File.size());
+			pRow_File->Ignore_set(0);  // This could be a re-used INode
+			pRow_File->IsNew_set(1); // This could be a re-used INode
+			pRow_File->Path_set(m_sDirectory);
+			pRow_File->Filename_set(m_sFile);
+			pRow_File->Table_File_get()->Commit();
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "PlutoMediaFile::HandleFileNotInDatabase %s/%s N db-attr: %d Inode: %d size %d mt %d/%d", 
+				m_sDirectory.c_str(), m_sFile.c_str(), pRow_File->PK_File_get(), INode, (int) vectRow_File.size(), PK_MediaType, pRow_File->EK_MediaType_get());
 		}
+		// Don't return.  Let it determine the media type and save that and whether or not it's a directory
+		// It could be a different media type now than it was before
 	}
 
     // Nope.  It's either a new file, or it was moved here from some other directory.  If so,
