@@ -232,7 +232,7 @@ int UpdateMedia::ReadDirectory(string sDirectory)
 	if( sDirectory[ sDirectory.size()-1 ] == '/' )
 		sDirectory = sDirectory.substr(0,sDirectory.size()-1);
 
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "== UpdateMedia::ReadDirectory %s", sDirectory.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "UpdateMedia::ReadDirectory %s", sDirectory.c_str());
 
 	if(!ScanFiles(sDirectory))
 		return 0;
@@ -438,8 +438,9 @@ bool UpdateMedia::ScanFiles(string sDirectory)
 	list<string> listFilesOnDisk;
 	FileUtils::FindFiles(listFilesOnDisk,sDirectory,m_sExtensions,false,false,0,"");
 
-	LoggerWrapper::GetInstance()->Write(LV_WARNING, "UpdateMedia::ScanFiles dir %s: files found: %d", 
-		sDirectory.c_str(), listFilesOnDisk.size());	
+	if(!listFilesOnDisk.empty())
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "UpdateMedia::ScanFiles dir %s: files found: %d", 
+			sDirectory.c_str(), listFilesOnDisk.size());	
 
 	// Now start matching them up
 	for(list<string>::iterator it=listFilesOnDisk.begin();it!=listFilesOnDisk.end();++it)
@@ -535,8 +536,9 @@ bool UpdateMedia::ScanSubfolders(string sDirectory, bool& bDirIsDvd)
 	FileUtils::FindDirectories(listSubDirectories,sDirectory,false,true,0,"", &mapInodes);
 #endif
 
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "UpdateMedia::ScanSubfolders dir %s: subdirs found: %d", 
-		sDirectory.c_str(), listSubDirectories.size());	
+	if(!listSubDirectories.empty())
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "UpdateMedia::ScanSubfolders dir %s: subdirs found: %d", 
+			sDirectory.c_str(), listSubDirectories.size());	
 
 	for(list<string>::iterator it=listSubDirectories.begin();it!=listSubDirectories.end();++it)
 	{
