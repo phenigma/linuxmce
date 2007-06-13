@@ -164,9 +164,15 @@ MediaSyncMode MediaState::SyncModeNeeded(string sDirectory, string sFile)
 		//check if the inode already exists
 		int INode = FileUtils::GetInode(sDirectory + "/" + sFile);
 		
-		for(MapMediaState::iterator it = m_mapMediaState.begin(); it != m_mapMediaState.end(); ++it)
-			if(it->second.m_nINode == INode && sDirectory != it->second.m_sPath || sFile != it->second.m_sFilename)
-				return modeNone;
+                for(MapMediaState::iterator it = m_mapMediaState.begin(); it != m_mapMediaState.end(); ++it)
+                        if(it->second.m_nINode == INode && (sDirectory != it->second.m_sPath || sFile != it->second.m_sFilename))
+                        {
+                                if(FileUtils::FileExists(it->second.m_sPath + "/" + it->second.m_sFilename))
+                                {
+                                        LoggerWrapper::GetInstance()->Write(LV_STATUS, "GGG modeNone for %d %s vs %s and %s vs %s", INode, sDirectory.c_str(), it->second.m_sPath.c_str(), sFile.c_str(), it->second.m_sFilename.c_str());
+                                        return modeNone;
+                                }
+                        }
 
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Need to update file because it's not in the database %s/%s",
 			sDirectory.c_str(), sFile.c_str());
