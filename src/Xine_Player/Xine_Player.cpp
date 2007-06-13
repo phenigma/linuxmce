@@ -252,6 +252,8 @@ void Xine_Player::CMD_Simulate_Mouse_Click(int iPosition_X,int iPosition_Y,strin
 void Xine_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPosition,string sMediaURL,string &sCMD_Result,Message *pMessage)
 //<-dceag-c37-e->
 {
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() called for id %d filename: %s (%s)", iStreamID, sMediaURL.c_str(),sMediaPosition.c_str());
+	
 	if (iStreamID==0)
 		iStreamID = 1;
 		
@@ -276,8 +278,15 @@ void Xine_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPo
 		ptrFactory->DestroyStream(prevStream->m_iStreamID);
 	}
 	
-	ptrFactory->m_iLastRenderingStream = iStreamID;
-	Xine_Stream *pStream =  ptrFactory->GetStream( iStreamID, true, pMessage?pMessage->m_dwPK_Device_From:0, m_iDefaultZoomLevel );
+	Xine_Stream *pStream =  ptrFactory->GetStream( iStreamID, true, pMessage?pMessage->m_dwPK_Device_From:0, false, m_iDefaultZoomLevel );
+	if (!pStream->m_bBroadcastOnly)
+	{
+		 ptrFactory->m_iLastRenderingStream = iStreamID;
+		 LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() set stream %d as last rendering to screen.", iStreamID);
+	}
+	else
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() stream %d is not rendering to screen.", iStreamID);
+
 	
 	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() called for id %d filename: %s (%s) with corresponding stream %p.", iStreamID, sMediaURL.c_str(),sMediaPosition.c_str(),pStream);
 	

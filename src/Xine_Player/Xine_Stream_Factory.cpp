@@ -437,7 +437,7 @@ Xine_Stream *Xine_Stream_Factory::GetStream(int streamID, bool createIfNotExist,
 		new_stream->m_iZoomLevel = iZoomLevel;
 		if ((new_stream!=NULL) && new_stream->StartupStream())
 		{
-			LoggerWrapper::GetInstance()->Write(LV_WARNING,"Created new stream with ID=%i dei %d %s %d", streamID, (int) new_stream->m_bUseDeinterlacing, new_stream->m_sDeinterlacingConfig.c_str(), (int) new_stream->m_iZoomLevel);
+			LoggerWrapper::GetInstance()->Write(LV_WARNING,"Created new stream with ID=%i dei %d %s %d %d", streamID, (int) new_stream->m_bUseDeinterlacing, new_stream->m_sDeinterlacingConfig.c_str(), (int) new_stream->m_iZoomLevel, bBroadcasting);
 			
 			PLUTO_SAFETY_LOCK( factoryLock, m_factoryMutex );
 			streamsMap[streamID] = new_stream;
