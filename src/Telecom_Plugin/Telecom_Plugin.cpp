@@ -1077,10 +1077,35 @@ void Telecom_Plugin::CMD_Phone_Initiate(int iPK_Device,string sPhoneExtension,st
 	if( !iPK_Device )
 		iPK_Device = pMessage->m_dwPK_Device_From;
 	int phoneID=map_orbiter2embedphone[iPK_Device];
+	
+	// check if extension field is actualy a device id
+	// see intercom screen (Eugen)
+	string sPhExtension;
+	if( 3 < sPhoneExtension.size() && sPhoneExtension.substr(0, 3) == "dev" )
+	{
+		int iDevice = atoi(sPhoneExtension.substr(3).c_str());
+		map<int,int>::iterator itFind = map_device2ext.find(iDevice);
+		if( itFind != map_device2ext.end() )
+		{
+			sPhExtension = StringUtils::itos( (*itFind).second );
+		}
+		else
+		{
+#ifdef DEBUG
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,
+				"Telecom_Plugin::CMD_Phone_Initiate no extension for device %d", iDevice);
+#endif
+		}
+	}
+	else
+	{
+		sPhExtension = sPhoneExtension;
+	}
+	
 	if(phoneID>0 || iPK_Device>0 )
 	{
 		PLUTO_SAFETY_LOCK(vm, m_TelecomMutex);  // Protect the call data
-		DCE::CMD_Phone_Initiate cmd(m_dwPK_Device,phoneID>0 ? phoneID : iPK_Device,0 /* phones don't use this */,sPhoneExtension);
+		DCE::CMD_Phone_Initiate cmd(m_dwPK_Device,phoneID>0 ? phoneID : iPK_Device,0 /* phones don't use this */,sPhExtension);
 		SendCommand(cmd);
 		CallData *pCallData = CallManager::getInstance()->findCallByOwnerDevID(phoneID);
 		if(!pCallData) {
