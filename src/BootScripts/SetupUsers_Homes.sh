@@ -129,7 +129,7 @@ for Users in $R; do
 	done
 
 	rm -f "$BaseDir/$UserName"
-	ln -sf "user_$PlutoUserID" "$BaseDir/$UserName"
+	#ln -sf "user_$PlutoUserID" "$BaseDir/$UserName"
 	UserList="$UserList $UserName"
 # Files not updated at this point (woking on copies)
 #	chown -R $UserName.$UserName /home/user_$PlutoUserID
@@ -182,7 +182,7 @@ if [[ "$MakeUsers" == yes ]]; then
 	addgroup public &>/dev/null
 	for User in $UserList; do
 		adduser pluto_$User public &>/dev/null
-		chown --dereference -R pluto_$User.pluto_$User /home/$User/
+		#chown --dereference -R pluto_$User.pluto_$User /home/$User/
 	done
 
 	if [[ "$(pidof smbd)" != "" ]] ;then
