@@ -6017,6 +6017,8 @@ function syncAttributes($table,$itemValue,$id,$mediadbADO){
 			$aname=$parts[1];
 			
 			if($atype=='Synopsis'){
+				$aname=str_replace(array('<p>','</p>','<br>'),array("\n",'',"\n",),$aname);
+				$aname=strip_tags($aname);
 				$mediadbADO->Execute('INSERT INTO LongAttribute (FK_'.$table.',FK_AttributeType,Text)  VALUES (?,?,?)',array($itemValue,37,$aname));
 			}else{
 				if(isset($attributeTypes[$atype])){

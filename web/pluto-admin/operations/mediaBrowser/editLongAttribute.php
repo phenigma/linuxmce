@@ -36,7 +36,7 @@ function editLongAttribute($output,$mediadbADO) {
 			</tr>
 			<tr>
 				<td><B>'.$TEXT_LONG_ATTRIBUTE_CONST.'</B></td>
-				<td><textarea name="longAttributeText">'.$data['Text'][0].'</textarea></td>
+				<td><textarea name="longAttributeText" style="width:500px;height:400px;">'.$data['Text'][0].'</textarea></td>
 			</tr>
 			<tr>
 				<td colspan="2" align="center"><input type="submit" class="button" name="save" value="'.$TEXT_UPDATE_CONST.'"></td>
