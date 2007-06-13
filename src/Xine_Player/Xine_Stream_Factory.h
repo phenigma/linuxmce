@@ -42,7 +42,7 @@
 
 namespace DCE
 {
-	class Xine_Stream;	
+	class Xine_Stream;
 	class Xine_Player;
 	
 	class Xine_Stream_Factory
@@ -70,7 +70,11 @@ namespace DCE
 			
 			// X subsystem properties
 			string m_sWindowTitle;
+			
+		public: // hack for g++-3.3
 			Display *m_pXDisplay;
+
+		private:
 			int m_iCurrentScreen;
 			int m_iCurrentWindow;
 			
