@@ -122,6 +122,7 @@ public:
 			*****EVENT***** accessors inherited from base class
 	void EVENT_Playback_Info_Changed(string sMediaDescription,string sSectionDescription,string sSynposisDescription);
 	void EVENT_Error_Occured(string sError_Message);
+	void EVENT_Playback_Completed(string sMRL,int iStream_ID,bool bWith_Errors);
 	void EVENT_Playback_Started(string sMRL,int iStream_ID,string sSectionDescription,string sAudio,string sVideo);
 	void EVENT_MythTV_Show_Recorded(int iMythTV_ChannelID,string sName,string sDateTime);
 
@@ -577,6 +578,25 @@ public:
 
 	virtual void CMD_Get_Data(string sText,char **pData,int *iData_Size) { string sCMD_Result; CMD_Get_Data(sText.c_str(),pData,iData_Size,sCMD_Result,NULL);};
 	virtual void CMD_Get_Data(string sText,char **pData,int *iData_Size,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #916 - Set Aspect Ratio */
+	/** Force aspect ratio */
+		/** @param #260 Aspect Ratio */
+			/** aspect ratio to set: auto, 1:1, 4:3, 16:9, 2.11:1 */
+
+	virtual void CMD_Set_Aspect_Ratio(string sAspect_Ratio) { string sCMD_Result; CMD_Set_Aspect_Ratio(sAspect_Ratio.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Set_Aspect_Ratio(string sAspect_Ratio,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #917 - Set Zoom */
+	/** Sets zoom level, relative, absolute or 'auto' */
+		/** @param #261 Zoom Level */
+			/** Zoom level to set */
+
+	virtual void CMD_Set_Zoom(string sZoom_Level) { string sCMD_Result; CMD_Set_Zoom(sZoom_Level.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Set_Zoom(string sZoom_Level,string &sCMD_Result,Message *pMessage);
+
 
 //<-dceag-h-e->
 };

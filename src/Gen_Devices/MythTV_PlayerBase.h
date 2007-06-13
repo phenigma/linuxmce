@@ -62,6 +62,16 @@ public:
 			EVENTPARAMETER_Error_Message_CONST, sError_Message.c_str()));
 	}
 
+	virtual void Playback_Completed(string sMRL,int iStream_ID,bool bWith_Errors)
+	{
+		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 
+			EVENT_Playback_Completed_CONST,
+			3 /* number of parameter's pairs (id, value) */,
+			EVENTPARAMETER_MRL_CONST, sMRL.c_str(),
+			EVENTPARAMETER_Stream_ID_CONST, StringUtils::itos(iStream_ID).c_str(),
+			EVENTPARAMETER_With_Errors_CONST, (bWith_Errors ? "1" : "0")));
+	}
+
 	virtual void Playback_Started(string sMRL,int iStream_ID,string sSectionDescription,string sAudio,string sVideo)
 	{
 		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 
@@ -236,6 +246,7 @@ public:
 	//Event accessors
 	void EVENT_Playback_Info_Changed(string sMediaDescription,string sSectionDescription,string sSynposisDescription) { GetEvents()->Playback_Info_Changed(sMediaDescription.c_str(),sSectionDescription.c_str(),sSynposisDescription.c_str()); }
 	void EVENT_Error_Occured(string sError_Message) { GetEvents()->Error_Occured(sError_Message.c_str()); }
+	void EVENT_Playback_Completed(string sMRL,int iStream_ID,bool bWith_Errors) { GetEvents()->Playback_Completed(sMRL.c_str(),iStream_ID,bWith_Errors); }
 	void EVENT_Playback_Started(string sMRL,int iStream_ID,string sSectionDescription,string sAudio,string sVideo) { GetEvents()->Playback_Started(sMRL.c_str(),iStream_ID,sSectionDescription.c_str(),sAudio.c_str(),sVideo.c_str()); }
 	void EVENT_MythTV_Show_Recorded(int iMythTV_ChannelID,string sName,string sDateTime) { GetEvents()->MythTV_Show_Recorded(iMythTV_ChannelID,sName.c_str(),sDateTime.c_str()); }
 	//Commands - Override these to handle commands from the server
@@ -287,6 +298,8 @@ public:
 	virtual void CMD_Display_Alert(string sText,string sTokens,string sTimeout,int iInterruption,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Application_Exited(int iPID,int iExit_Code,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Get_Data(string sText,char **pData,int *iData_Size,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Set_Aspect_Ratio(string sAspect_Ratio,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Set_Zoom(string sZoom_Level,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual ReceivedMessageResult ReceivedMessage(class Message *pMessageOriginal)
@@ -1579,6 +1592,58 @@ public:
 							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Get_Data(sText.c_str(),&pData,&iData_Size,sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case COMMAND_Set_Aspect_Ratio_CONST:
+					{
+						string sCMD_Result="OK";
+						string sAspect_Ratio=pMessage->m_mapParameters[COMMANDPARAMETER_Aspect_Ratio_CONST];
+						CMD_Set_Aspect_Ratio(sAspect_Ratio.c_str(),sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(itRepeat->second.c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Set_Aspect_Ratio(sAspect_Ratio.c_str(),sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case COMMAND_Set_Zoom_CONST:
+					{
+						string sCMD_Result="OK";
+						string sZoom_Level=pMessage->m_mapParameters[COMMANDPARAMETER_Zoom_Level_CONST];
+						CMD_Set_Zoom(sZoom_Level.c_str(),sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(itRepeat->second.c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Set_Zoom(sZoom_Level.c_str(),sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

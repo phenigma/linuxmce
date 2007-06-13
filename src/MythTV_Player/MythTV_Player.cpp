@@ -1536,3 +1536,21 @@ bool MythTV_Player::StopMythFrontend()
 	return false;
 }
 
+//<-dceag-c916-b->
+
+	/** @brief COMMAND: #916 - Set Aspect Ratio */
+	/** Force aspect ratio */
+		/** @param #260 Aspect Ratio */
+			/** aspect ratio to set: auto, 1:1, 4:3, 16:9, 2.11:1 */
+
+void MythTV_Player::CMD_Set_Aspect_Ratio(string sAspect_Ratio,string &sCMD_Result,Message *pMessage)
+//<-dceag-c916-e->
+//<-dceag-c917-b->
+
+	/** @brief COMMAND: #917 - Set Zoom */
+	/** Sets zoom level, relative, absolute or 'auto' */
+		/** @param #261 Zoom Level */
+			/** Zoom level to set */
+
+void MythTV_Player::CMD_Set_Zoom(string sZoom_Level,string &sCMD_Result,Message *pMessage)
+//<-dceag-c917-e->
