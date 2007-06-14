@@ -195,6 +195,10 @@ if [[ "$Reboot" == Reboot ]]; then
 elif [[ "$ReloadX" == ReloadX ]]; then
 	if [[ -f /etc/event.d/pluto || "$PK_Distro" == 1 ]]; then
 		kill $(pidof X)
+		if [[ "$PK_Distro" == 1 ]]; then
+			sleep 1
+			/usr/pluto/bin/Start_X.sh
+		fi
 	else
 		/etc/init.d/kdm restart
 	fi
