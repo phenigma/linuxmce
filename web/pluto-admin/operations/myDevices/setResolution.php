@@ -132,7 +132,7 @@ $out.='
 
 		$msg=$TEXT_SET_RESOLUTION_SUCCESS_CONST;
 
-		md_set_resolution($mdID,$ipAddress,$resolution,$refresh);
+		md_apply_resolution($mdID,$ipAddress);
 
 		//full regen
 		$commandToSend='/usr/pluto/bin/MessageSend localhost -targetType template '.$orbiterArray['PK_Device'].' '.$GLOBALS['OrbiterPlugIn'].' 1 266 2 '.$orbiterArray['PK_Device'].' 21 "-r" 24 1';				
@@ -150,8 +150,8 @@ $out.='
 	$output->output();
 }
 
-function md_set_resolution($mediaDirectorID,$ipAddress,$resolution,$refresh){
-	$commandToSend="/usr/pluto/bin/setAudiVideo.sh $mediaDirectorID $ipAddress $resolution $refresh";
+function md_apply_resolution($mediaDirectorID,$ipAddress){
+	$commandToSend="sudo -u root /usr/pluto/bin/LaunchRemoteCmd.sh '$ipAddress' '/usr/pluto/bin/SetupAudioVideo.sh'"
 	exec_batch_command($commandToSend);
 }
 ?>
