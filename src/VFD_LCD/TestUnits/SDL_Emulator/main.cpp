@@ -37,14 +37,15 @@ int main( int argc, char* argv[] )
     if(!pDatabase_pluto_main->Connect(sDBHost, "root", "", "pluto_main", 3306))
     {
         LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Cannot connect to database!" );
-        return 2;
+        delete pDatabase_pluto_main;
+		pDatabase_pluto_main = NULL;
     }
 
 	pMenu_Holder->Setup(new ActionProcessor(NULL));
 
 	LCDManager manager(pMenu_Holder, pDatabase_pluto_main);
 	SDLFrontEnd front_end(&manager, 400, 300);
-	//LCDRenderer lcd_renderer("/dev/ttyUSB0");
+	LCDRenderer lcd_renderer(&manager, "/dev/ttyUSB0");
 
 #ifdef WIN32
 	WORD    wVersion;
@@ -67,7 +68,7 @@ int main( int argc, char* argv[] )
 	if(front_end.Init())
 	{
 		manager.AddRenderer(&front_end);
-		//manager.AddRenderer(&lcd_renderer);
+		manager.AddRenderer(&lcd_renderer);
 		
 		nReturnCode = !front_end.EventLoop();
 	}

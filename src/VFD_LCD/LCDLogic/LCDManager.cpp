@@ -71,6 +71,7 @@ bool LCDManager::ProcessInput(const Input &input)
 	{
 		case itKeyboardInput:
 		{
+			DCE::LoggerWrapper::GetInstance()->Write(LV_WARNING, "ProcessInput key %d", input.keyboardinput);
 			
 			{
 				switch(input.keyboardinput)

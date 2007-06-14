@@ -66,7 +66,11 @@ Generic_VFDLCD::Generic_VFDLCD(int DeviceID, string ServerAddress,bool bConnectE
 
     m_pDatabase_pluto_main = new Database_pluto_main(LoggerWrapper::GetInstance());
     if(!m_pDatabase_pluto_main->Connect(sHost, "root", "", "pluto_main", 3306))
+	{
         LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Cannot connect to database!");
+		delete m_pDatabase_pluto_main;
+		m_pDatabase_pluto_main = NULL;
+	}
 }
 
 //<-dceag-const2-b->!
@@ -91,6 +95,9 @@ Generic_VFDLCD::~Generic_VFDLCD()
 		pthread_join(m_WorkerThreadID, NULL);
 		m_WorkerThreadID = 0;
 	}
+
+	delete m_pDatabase_pluto_main;
+	m_pDatabase_pluto_main = NULL;
 
 	pthread_mutex_destroy(&m_LCDMessageMutex.mutex);
 	pthread_mutex_destroy(&m_MessageProcessingMutex.mutex);

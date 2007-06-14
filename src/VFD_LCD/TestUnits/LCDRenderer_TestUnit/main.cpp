@@ -39,7 +39,7 @@ int main( int argc, char* argv[] )
 		};
 	}
 
-	LCDRenderer lcd_renderer(sSerialPort);
+	LCDRenderer lcd_renderer(NULL, sSerialPort);
 	lcd_renderer.Render(display_state);
 
 	return 0;
