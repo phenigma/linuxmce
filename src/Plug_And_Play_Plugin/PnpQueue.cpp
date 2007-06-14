@@ -523,7 +523,7 @@ bool PnpQueue::Process_Detect_Stage_Confirm_Possible_DT(PnpQueueEntry *pPnpQueue
 	}
 
 	pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_RUNNING_DETECTION_SCRIPTS);
-	return Process_Detect_Stage_Running_Detction_Scripts(pPnpQueueEntry);
+	return false;  // We may have blocked the mutex a while already.  Exit, let the mutex get released, instead of directly doing: return Process_Detect_Stage_Running_Detction_Scripts(pPnpQueueEntry);
 }
 
 /*
@@ -838,7 +838,7 @@ bool PnpQueue::Process_Detect_Stage_Prompting_User_For_Options(PnpQueueEntry *pP
 
 	// We're good to go, let's create the device
 	pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_ADD_DEVICE);
-	return Process_Detect_Stage_Add_Device(pPnpQueueEntry);
+	return false;  // Adding the device takes a long time.  We may have blocked the mutex a while already.  Exit, let the mutex get released, instead of directly doing: return Process_Detect_Stage_Add_Device(pPnpQueueEntry);
 }
 
 bool PnpQueue::Process_Detect_Stage_Add_Device(PnpQueueEntry *pPnpQueueEntry)

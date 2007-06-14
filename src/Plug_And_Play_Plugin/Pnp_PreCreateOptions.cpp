@@ -104,6 +104,13 @@ bool Pnp_PreCreateOptions::OkayToCreateDevice_Presets(PnpQueueEntry *pPnpQueueEn
 		if( pPnpQueueEntry->m_EBlockedState==PnpQueueEntry::pnpqe_blocked_prompting_options )
 			pPnpQueueEntry->m_pOH_Orbiter=NULL;  // The user isn't responding.  Ask on all orbiters
 
+		if( m_pPnpQueue->m_pPlug_And_Play_Plugin->m_bSuspendProcessing )
+		{
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Pnp_PreCreateOptions::OkayToCreateDevice_Presets blocking queue %d",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
+			pPnpQueueEntry->Block(PnpQueueEntry::pnpqe_block_processing_suspended);
+			return false; // We're waiting for the user to complete the setup wizard
+		}
+
 		// We need to ask the user for this info
 		pPnpQueueEntry->Block(PnpQueueEntry::pnpqe_blocked_prompting_options);
 		if( pPnpQueueEntry->m_pOH_Orbiter )
@@ -141,6 +148,13 @@ bool Pnp_PreCreateOptions::OkayToCreateDevice_Username(PnpQueueEntry *pPnpQueueE
 
 			if( m_pPnpQueue->BlockIfOtherQueuesAtPromptingState(pPnpQueueEntry) )
 				return false; // Let this one get backed up
+
+			if( m_pPnpQueue->m_pPlug_And_Play_Plugin->m_bSuspendProcessing )
+			{
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Pnp_PreCreateOptions::OkayToCreateDevice_Username blocking queue %d",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
+				pPnpQueueEntry->Block(PnpQueueEntry::pnpqe_block_processing_suspended);
+				return false; // We're waiting for the user to complete the setup wizard
+			}
 
 			if( pPnpQueueEntry->m_EBlockedState==PnpQueueEntry::pnpqe_blocked_prompting_options )
 				pPnpQueueEntry->m_pOH_Orbiter=NULL;  // The user isn't responding.  Ask on all orbiters
@@ -188,6 +202,13 @@ bool Pnp_PreCreateOptions::OkayToCreateDevice_Room(PnpQueueEntry *pPnpQueueEntry
 
 	if( m_pPnpQueue->BlockIfOtherQueuesAtPromptingState(pPnpQueueEntry) )
 		return false; // Let this one get backed up
+
+	if( m_pPnpQueue->m_pPlug_And_Play_Plugin->m_bSuspendProcessing )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Pnp_PreCreateOptions::OkayToCreateDevice_Room blocking queue %d",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
+		pPnpQueueEntry->Block(PnpQueueEntry::pnpqe_block_processing_suspended);
+		return false; // We're waiting for the user to complete the setup wizard
+	}
 
 	if( pPnpQueueEntry->m_EBlockedState==PnpQueueEntry::pnpqe_blocked_prompting_options )
 		pPnpQueueEntry->m_pOH_Orbiter=NULL;  // The user isn't responding.  Ask on all orbiters
@@ -247,6 +268,13 @@ bool Pnp_PreCreateOptions::OkayToCreate_MobilePhone(PnpQueueEntry *pPnpQueueEntr
 		return false;  // The user specified only 1 option.  Give him TIMEOUT_PROMPTING_USER seconds to specify the other
 	}
 
+	if( m_pPnpQueue->m_pPlug_And_Play_Plugin->m_bSuspendProcessing )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Pnp_PreCreateOptions::OkayToCreate_MobilePhone blocking queue %d",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
+		pPnpQueueEntry->Block(PnpQueueEntry::pnpqe_block_processing_suspended);
+		return false; // We're waiting for the user to complete the setup wizard
+	}
+
 	if( pPnpQueueEntry->m_EBlockedState==PnpQueueEntry::pnpqe_blocked_prompting_options )
 		pPnpQueueEntry->m_pOH_Orbiter=NULL;  // The user isn't responding.  Ask on all orbiters
 
@@ -296,6 +324,13 @@ bool Pnp_PreCreateOptions::OkayToCreateDevice_NetworkStorage(PnpQueueEntry *pPnp
 		return false;  // The user specified only 1 option.  Give him TIMEOUT_PROMPTING_USER seconds to specify the other
 	}
 
+	if( m_pPnpQueue->m_pPlug_And_Play_Plugin->m_bSuspendProcessing )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Pnp_PreCreateOptions::OkayToCreateDevice_NetworkStorage blocking queue %d",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
+		pPnpQueueEntry->Block(PnpQueueEntry::pnpqe_block_processing_suspended);
+		return false; // We're waiting for the user to complete the setup wizard
+	}
+
 	if( pPnpQueueEntry->m_EBlockedState==PnpQueueEntry::pnpqe_blocked_prompting_options )
 		pPnpQueueEntry->m_pOH_Orbiter=NULL;  // The user isn't responding.  Ask on all orbiters
 	
@@ -339,6 +374,13 @@ bool Pnp_PreCreateOptions::OkayToCreate_Cameras(PnpQueueEntry *pPnpQueueEntry,Ro
 
 	if( m_pPnpQueue->BlockIfOtherQueuesAtPromptingState(pPnpQueueEntry) )
 		return false; // Let this one get backed up
+
+	if( m_pPnpQueue->m_pPlug_And_Play_Plugin->m_bSuspendProcessing )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Pnp_PreCreateOptions::OkayToCreate_Cameras blocking queue %d",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
+		pPnpQueueEntry->Block(PnpQueueEntry::pnpqe_block_processing_suspended);
+		return false; // We're waiting for the user to complete the setup wizard
+	}
 
 	if( pPnpQueueEntry->m_EBlockedState==PnpQueueEntry::pnpqe_blocked_prompting_options )
 		pPnpQueueEntry->m_pOH_Orbiter=NULL;  // The user isn't responding.  Ask on all orbiters
@@ -395,6 +437,13 @@ bool Pnp_PreCreateOptions::OkayToCreate_CaptureCard(PnpQueueEntry *pPnpQueueEntr
 
 	if( m_pPnpQueue->BlockIfOtherQueuesAtPromptingState(pPnpQueueEntry) )
 		return false; // Let this one get backed up
+
+	if( m_pPnpQueue->m_pPlug_And_Play_Plugin->m_bSuspendProcessing )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Pnp_PreCreateOptions::OkayToCreate_CaptureCard blocking queue %d",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
+		pPnpQueueEntry->Block(PnpQueueEntry::pnpqe_block_processing_suspended);
+		return false; // We're waiting for the user to complete the setup wizard
+	}
 
 	if( pPnpQueueEntry->m_EBlockedState==PnpQueueEntry::pnpqe_blocked_prompting_options )
 		pPnpQueueEntry->m_pOH_Orbiter=NULL;  // The user isn't responding.  Ask on all orbiters
