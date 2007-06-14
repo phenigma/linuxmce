@@ -7518,7 +7518,8 @@ void Orbiter::CMD_Send_Message(string sText,bool bGo_Back,string &sCMD_Result,Me
 		Message *pMessageOut = new Message(sMessage);
 		if( pMessageOut->m_dwPK_Device_To==DEVICETEMPLATE_This_Orbiter_CONST )
 			pMessageOut->m_dwPK_Device_To=m_dwPK_Device;
-		if( pMessageOut->m_dwMessage_Type==MESSAGETYPE_COMMAND && (pMessageOut->m_dwID==COMMAND_Go_back_CONST || pMessageOut->m_dwID==COMMAND_Goto_DesignObj_CONST || pMessageOut->m_dwID==COMMAND_Goto_Screen_CONST) )
+		if( pMessageOut->m_dwMessage_Type==MESSAGETYPE_COMMAND && 
+				(pMessageOut->m_dwID==COMMAND_Go_back_CONST || pMessageOut->m_dwID==COMMAND_Goto_DesignObj_CONST || pMessageOut->m_dwID==COMMAND_Goto_Screen_CONST || pMessageOut->m_dwID==COMMAND_Remove_Screen_From_History_CONST) )
 			bContainsGoto=true;
 
 		for(vector<Message *>::iterator it = pMessageOut->m_vectExtraMessages.begin();
@@ -7527,7 +7528,7 @@ void Orbiter::CMD_Send_Message(string sText,bool bGo_Back,string &sCMD_Result,Me
 			Message *pExtraMessage = *it;
 			if( pExtraMessage->m_dwPK_Device_To==DEVICETEMPLATE_This_Orbiter_CONST )
 				pExtraMessage->m_dwPK_Device_To=m_dwPK_Device;
-			if( pExtraMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND && (pExtraMessage->m_dwID==COMMAND_Go_back_CONST || pExtraMessage->m_dwID==COMMAND_Goto_DesignObj_CONST || pExtraMessage->m_dwID==COMMAND_Goto_Screen_CONST) )
+			if( pExtraMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND && (pExtraMessage->m_dwID==COMMAND_Go_back_CONST || pExtraMessage->m_dwID==COMMAND_Goto_DesignObj_CONST || pExtraMessage->m_dwID==COMMAND_Goto_Screen_CONST || pExtraMessage->m_dwID==COMMAND_Remove_Screen_From_History_CONST) )
 				bContainsGoto=true;
 		}
 

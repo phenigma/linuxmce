@@ -2730,6 +2730,29 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sFilename,int iPK_Med
 								dequeMediaFile.push_back(pMediaFile);
 							}
 						}
+						else if( pValue[0]=='!' && pValue[1]=='A' )
+						{
+							Row_Attribute *pRow_Attribute = m_pDatabase_pluto_media->Attribute_get()->GetRow( atoi(&pValue[2]) );
+							if( !pRow_Attribute )
+							{
+								LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Media_Plugin::CMD_MH_Play_Media Attribute lookup on %s is invalid",pValue);
+								return;
+							}
+
+							vector<Row_File_Attribute *> vectRow_File_Attribute;
+							pRow_Attribute->File_Attribute_FK_Attribute_getrows(&vectRow_File_Attribute);
+							for(size_t s=0;s<vectRow_File_Attribute.size();++s)
+							{
+								Row_File_Attribute *pRow_File_Attribute = vectRow_File_Attribute[s];
+								Row_File *pRow_File = pRow_File_Attribute->FK_File_getrow();
+								if( pRow_File )
+								{
+									MediaFile *pMediaFile = new MediaFile(m_pMediaAttributes->m_pMediaAttributes_LowLevel,pRow_File->PK_File_get(),pRow_File->Path_get() + "/" + pRow_File->Filename_get());
+									pMediaFile->m_dwPK_MediaType=pRow_File->EK_MediaType_get();
+									dequeMediaFile.push_back(pMediaFile);
+								}
+							}
+						}
 					}
 				}
 			}
