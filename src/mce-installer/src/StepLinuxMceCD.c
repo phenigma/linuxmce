@@ -15,7 +15,7 @@ void on_StepLinuxMceCD_forward_clicked(GtkWidget *widget, gpointer data)  {
 
 	if (setting_linuxmceCdFrom != FROM_NET) {
 		goNext = FALSE;
-		GtkWidget* runWindow = run_shell_command("./mce-installer-LinuxMceCD.sh", "Caching Linux Mce CD", "Failed to cache the Linux MCE CD");
+		GtkWidget* runWindow = run_shell_command("./mce-installer-LinuxMceCD.sh", "Caching LinuxMCE Disc 1", "Failed to cache LinuxMCE Disc 1");
 		gtk_widget_show_all(runWindow);
 		if (gtk_dialog_run(GTK_DIALOG(runWindow)) == 1) {
 			goNext = TRUE;
@@ -50,7 +50,7 @@ void displayStepLinuxMceCD(void) {
 	cleanupContainer(mainButtonBox);
 
 	// Wizard text
-	GtkWidget *label = gtk_label_new_for_wizard ("Please insert the LinuxMCE CD1 in the drive or locate the iso image on your hard drive");
+	GtkWidget *label = gtk_label_new_for_wizard ("Please insert the LinuxMCE Disc 1 in the drive or locate the iso image on your hard drive");
 	gtk_box_pack_start(GTK_BOX(mainBox), label, TRUE, TRUE, 0);
 
 	// Radio button install using CD

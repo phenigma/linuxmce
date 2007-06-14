@@ -15,7 +15,7 @@ void on_StepUbuntuExtraCD_forward_clicked(GtkWidget *widget, gpointer data)  {
 
 	if (setting_ubuntuExtraCdFrom != FROM_NET) {	
 		goNext = FALSE;
-		GtkWidget* runWindow = run_shell_command("./mce-installer-UbuntuExtraCD.sh", "Caching Ubuntu Extra CD", "Failed to cache the Kubuntu Cache CD");
+		GtkWidget* runWindow = run_shell_command("./mce-installer-UbuntuExtraCD.sh", "Caching LinuxMCE Disc 2", "Failed to cache the LinuxMCE Disc 2");
 		gtk_widget_show_all(runWindow);
 		if (gtk_dialog_run(GTK_DIALOG(runWindow)) == 1) {
 			goNext = TRUE;
@@ -52,7 +52,7 @@ void displayStepUbuntuExtraCD(void) {
 
 	// Wizard text
 	//GtkWidget *label = gtk_label_new_for_wizard ("To eliminate the need to download a lot of packages from the internet, which can lead to installation errors if the internet connection goes down, it is recommended you first get the 'Kubuntu extra packages CD'.  If you have it, please insert it now, or locate the .iso image on your hard drive.");
-	GtkWidget *label = gtk_label_new_for_wizard ("Please insert the LinuxMCE CD2 in the drive or locate the iso image on your hard drive");
+	GtkWidget *label = gtk_label_new_for_wizard ("Please insert the LinuxMCE Disc 2 in the drive or locate the iso image on your hard drive");
 	gtk_box_pack_start(GTK_BOX(mainBox), label, TRUE, TRUE, 0);
 
 
