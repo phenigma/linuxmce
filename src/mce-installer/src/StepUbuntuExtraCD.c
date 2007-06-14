@@ -58,15 +58,15 @@ void displayStepUbuntuExtraCD(void) {
 
 	// Radio button install from Internet
 	GSList *group = NULL;
-	GtkWidget *radioUseNet = gtk_radio_button_new_with_label(group, "I don't have it. Download packages from the Internet.");
-	gtk_box_pack_start(GTK_BOX(mainBox), radioUseNet, TRUE, TRUE, 0);
-	g_signal_connect(G_OBJECT(radioUseNet), "toggled", G_CALLBACK(on_StepUbuntuExtraCD_radio_toggled), (gpointer)FROM_NET);
-	if (setting_ubuntuExtraCdFrom == FROM_NET) {
-		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radioUseNet), TRUE);
-	}
+//	GtkWidget *radioUseNet = gtk_radio_button_new_with_label(group, "I don't have it. Download packages from the Internet.");
+//	gtk_box_pack_start(GTK_BOX(mainBox), radioUseNet, TRUE, TRUE, 0);
+//	g_signal_connect(G_OBJECT(radioUseNet), "toggled", G_CALLBACK(on_StepUbuntuExtraCD_radio_toggled), (gpointer)FROM_NET);
+//	if (setting_ubuntuExtraCdFrom == FROM_NET) {
+//		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radioUseNet), TRUE);
+//	}
 
 	// Radio button install using CD
-	group = gtk_radio_button_get_group(GTK_RADIO_BUTTON(radioUseNet));
+//	group = gtk_radio_button_get_group(GTK_RADIO_BUTTON(radioUseNet));
 	GtkWidget *radioUseCD = gtk_radio_button_new_with_label(group, "It's in the CD drive.");
 	gtk_box_pack_start(GTK_BOX(mainBox), radioUseCD, TRUE, TRUE, 0);
 	g_signal_connect(G_OBJECT(radioUseCD), "toggled", G_CALLBACK(on_StepUbuntuExtraCD_radio_toggled), (gpointer)FROM_CD);
@@ -84,7 +84,7 @@ void displayStepUbuntuExtraCD(void) {
 	}
 
 	// File chooser button
-	GtkWidget *fileChooser = gtk_file_chooser_button_new("Choose 'Kubuntu Extra CD ISO' Location", GTK_FILE_CHOOSER_ACTION_OPEN);
+	GtkWidget *fileChooser = gtk_file_chooser_button_new("Choose iso image for LinuxMCE Disk 2", GTK_FILE_CHOOSER_ACTION_OPEN);
 	gtk_box_pack_start(GTK_BOX(mainBox), fileChooser, TRUE, TRUE, 0);
 	if (setting_ubuntuExtraCdIsoPath) {
 		gtk_file_chooser_set_filename(GTK_FILE_CHOOSER(fileChooser), setting_ubuntuExtraCdIsoPath);

@@ -81,7 +81,7 @@ void displayStepLinuxMceCD(void) {
 	}
 */
 	// File chooser button
-	GtkWidget *fileChooser = gtk_file_chooser_button_new("Choose 'Kubuntu Extra CD ISO' Location", GTK_FILE_CHOOSER_ACTION_OPEN);
+	GtkWidget *fileChooser = gtk_file_chooser_button_new("Choose ISO image for LinuxMCE Disc 1", GTK_FILE_CHOOSER_ACTION_OPEN);
 	gtk_box_pack_start(GTK_BOX(mainBox), fileChooser, TRUE, TRUE, 0);
 	if (setting_linuxmceCdIsoPath) {
 		gtk_file_chooser_set_filename(GTK_FILE_CHOOSER(fileChooser), setting_linuxmceCdIsoPath);
