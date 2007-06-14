@@ -2618,7 +2618,19 @@ int Xine_Stream::DisableBroadcast( )
 	
 	{
 		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
+		
+		// setting up a watchdog
+		pthread_t watchdog_thread;
+		bStreamWatchDogFlag = true;
+		iStreamWatchDogCounter++;
+		pthread_create(&watchdog_thread, NULL,StreamWatchDogRoutine, NULL);
+		pthread_detach(watchdog_thread);
+		
 		xine_set_param( m_pXineStream, XINE_PARAM_BROADCASTER_PORT, 0 );
+		
+		// disabling watchdog
+		bStreamWatchDogFlag = false;
+		
 		m_iBroadcastPort = 0;
 	}	
 }
