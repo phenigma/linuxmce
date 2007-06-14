@@ -75,7 +75,7 @@ void displayStepUbuntuExtraCD(void) {
 	}
 
 	// Radio button install using ISO
-	group = gtk_radio_button_get_group(GTK_RADIO_BUTTON(radioUseNet));
+	group = gtk_radio_button_get_group(GTK_RADIO_BUTTON(radioUseCD));
 	GtkWidget *radioUseISO = gtk_radio_button_new_with_label(group, "I have an iso image on my harddrive.");
 	gtk_box_pack_start(GTK_BOX(mainBox), radioUseISO, TRUE, TRUE, 0);
 	g_signal_connect(G_OBJECT(radioUseISO), "toggled", G_CALLBACK(on_StepUbuntuExtraCD_radio_toggled), (gpointer)FROM_ISO);
