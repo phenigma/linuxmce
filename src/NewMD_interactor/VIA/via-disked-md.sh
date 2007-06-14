@@ -180,18 +180,18 @@ init q
 
 # changes passwd,group and shadow files to look over nis too
 if ! grep -q "+::::::"   /etc/passwd ;then
-	echo "+::::::"   > /etc/passwd.$$
-	cat /etc/passwd >> /etc/passwd.$$
+	cat /etc/passwd  > /etc/passwd.$$
+	echo "+::::::"  >> /etc/passwd.$$
 	mv /etc/passwd.$$ /etc/passwd
 fi
 if ! grep -q "+::::::::" /etc/shadow ;then
-	echo "+::::::::" > /etc/shadow.$$
-	cat /etc/shadow >> /etc/shadow.$$
+	cat /etc/shadow  > /etc/shadow.$$
+	echo "+::::::::" >> /etc/shadow.$$
 	mv /etc/shadow.$$ /etc/shadow
 fi
 if ! grep -q "+:::" /etc/group ;then
-	echo "+:::" > /etc/group.$$
-	cat /etc/group >> /etc/group.$$
+	cat /etc/group | grep -v "^public:" > /etc/group.$$
+	echo "+:::"  >> /etc/group.$$
 	mv /etc/group.$$ /etc/group
 fi
 
