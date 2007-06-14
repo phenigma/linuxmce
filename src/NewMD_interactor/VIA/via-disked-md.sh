@@ -178,6 +178,23 @@ RunSQL "
 sed -ir '/^1:2345:respawn:/ s,^.*$,1:2345:respawn:/sbin/getty 38400 tty1,g' /etc/inittab
 init q
 
+# changes passwd,group and shadow files to look over nis too
+if ! grep -q "+::::::"   /etc/passwd ;then
+	echo "+::::::"   > /etc/passwd.$$
+	cat /etc/passwd >> /etc/passwd.$$
+	mv /etc/passwd.$$ /etc/passwd
+fi
+if ! grep -q "+::::::::" /etc/shadow ;then
+	echo "+::::::::" > /etc/shadow.$$
+	cat /etc/shadow >> /etc/shadow.$$
+	mv /etc/shadow.$$ /etc/shadow
+fi
+if ! grep -q "+:::" /etc/group ;then
+	echo "+:::" > /etc/group.$$
+	cat /etc/group >> /etc/group.$$
+	mv /etc/group.$$ /etc/group
+fi
+
 # call for a regen
 /usr/pluto/bin/MessageSend $DCERouter -targetType template "$OrbiterDev" 12 1 266 2 "$OrbiterDev" 21 "-r" 24 "Y"
 
