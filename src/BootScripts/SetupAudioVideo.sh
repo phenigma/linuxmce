@@ -15,6 +15,7 @@ DEVICEDATA_Audio_settings=88
 DEVICEDATA_Reboot=236
 DEVICEDATA_Connector=68
 DEVICEDATA_TV_Standard=229
+DEVICEDATA_Setup_Script=189
 
 SettingsFile=/etc/pluto/lastaudiovideo.conf
 
@@ -45,16 +46,7 @@ GetVideoSetting()
 	local Q
 	local VideoSetting
 	
-	Q="
-		SELECT IK_DeviceData
-		FROM Device_DeviceData
-		WHERE
-			FK_Device='$ComputerDev'
-			AND FK_DeviceData='$DEVICEDATA_Video_settings'
-		LIMIT 1
-	"
-	VideoSetting=$(RunSQL "$Q")
-	VideoSetting=$(Field "1" "$VideoSetting")
+	VideoSetting=$(GetDeviceData "$ComputerDev" "$DEVICEDATA_Video_settings")
 
 	if [[ -n "$VideoSetting" ]]; then
 		Refresh=$(echo $VideoSetting | cut -d '/' -f2)
@@ -97,7 +89,7 @@ SetWMCompositor()
 		if [[ -f "$WMTweaksFile" ]]; then
 			sed -i '/Xfwm\/UseCompositing/ s/value="."/value="'"$UseCompositing"'"/g' "$WMTweaksFile"
 		else
-			wmtweaks_default >"$WMcompositor"
+			wmtweaks_default >"$WMTweaksFile"
 		fi
 	done
 }
@@ -124,9 +116,8 @@ SaveSettings()
 
 VideoSettings_Check()
 {
-	local DB_VideoSetting
 	local Update_XorgConf="NoXorgConf" Update_WMcompositor="NoWMcompositor"
-	local DB_Reboot
+	local DB_VideoSetting DB_OpenGL DB_AlphaBlending DB_Connector DB_TVStandard DB_Reboot
 
 	DB_VideoSetting=$(GetVideoSetting)
 	DB_OpenGL=$(OpenGLeffects)
@@ -174,10 +165,37 @@ VideoSettings_Check()
 
 AudioSettings_Check()
 {
-	:
+	local DB_AudioSetting DB_AudioScript DB_Reboot
+	local ScriptPath
+
+	DB_AudioSetting=$(GetDeviceData "$ComputerDev" "$DEVICEDATA_Audio_settings")
+	DB_Reboot=$(GetDeviceData "$AudioCardDev" "$DEVICEDATA_Reboot")
+
+	if [[ "$DB_AudioSetting" != "$OldSetting_AudioSetting" ]]; then
+		DB_AudioScript=$(GetDeviceData "$SoundCardDev" "$DEVICEDATA_Setup_Script")
+		ScriptPath="/usr/pluto/bin/$DB_AudioScript"
+		if [[ -n "$DB_AudioSetting" && -f "$ScriptPath" ]]; then
+			"$ScriptPath" "$DB_AudioSetting"
+		fi
+		NewSetting_AudioSetting="$DB_AudioSetting"
+
+		if [[ "$DB_Reboot" == 1 ]]; then
+			Reboot="Reboot"
+		fi
+	fi
 }
 
 ReadConf
 VideoSettings_Check
-
+AudioSettings_Check
 SaveSettings
+
+if [[ "$Reboot" == Reboot ]]; then
+	reboot
+elif [[ "$ReloadX" == ReloadX ]]; then
+	if [[ -f /etc/event.d/pluto || "$PK_Distro" == 1 ]]; then
+		kill $(pidof X)
+	else
+		/etc/init.d/kdm restart
+	fi
+fi
