@@ -21,7 +21,7 @@ sources = Main.cpp Generic_VFDLCD.cpp $(Gen_Dev_Files)
 
 CXXFLAGS +=
 CPPFLAGS += -I/usr/include/libxml2/
-LDFLAGS += -lxml2 -lSerial
+LDFLAGS += -lxml2 -lSerial -lpluto_main
 XTRALDLIBS =
 
 Gen_Dev_Files +=
