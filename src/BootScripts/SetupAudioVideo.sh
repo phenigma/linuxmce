@@ -200,6 +200,7 @@ elif [[ "$ReloadX" == ReloadX ]]; then
 			/usr/pluto/bin/Start_X.sh
 		fi
 	else
+		export TERM=linux
 		/etc/init.d/kdm restart
 	fi
 fi
