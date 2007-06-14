@@ -2,9 +2,9 @@ ROOT=../../..
 
 CXX=g++
 CC=$(CXX)
-CXXFLAGS=-W -Wall -pipe -ggdb3 -Werror
-CPPFLAGS=-I. -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/SDL -I/usr/include/libxml2/
-LDFLAGS=-L$(ROOT)/lib -L/usr/local/lib -lDCECommon -lPlutoUtils -lxml2 -lSDL -lSDL_ttf
+CXXFLAGS=-W -Wall -pipe -ggdb3
+CPPFLAGS=-I. -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/SDL -I/usr/include/libxml2/ -I/usr/include/mysql
+LDFLAGS=-L$(ROOT)/lib -L/usr/local/lib -lDCECommon -lPlutoUtils -lxml2 -lSDL -lSDL_ttf -lpluto_main -lSerial
 
 sources = \
 	  ../../LCDLogic/ActionProcessor.cpp \
@@ -14,6 +14,7 @@ sources = \
 	  ../../LCDLogic/MenuItem.cpp \
 	  ../../LCDLogic/MenuItemAction.cpp \
 	  ../../LCDLogic/MenuLoader.cpp \
+	  ../../Renderers/LCDRenderer.cpp \
 	  SDLFrontEnd.cpp \
 	  ../../InputProviders/SocketStatusInputProvider.cpp \
 	  main.cpp

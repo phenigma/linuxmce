@@ -8,7 +8,7 @@
 void *InputProviderThread(void *p);
 //--------------------------------------------------------------------------------------------------------
 LCDRenderer::LCDRenderer(IInputProcessor *pInputProcessor, string sSerialPort, unsigned int BPS, eParityBitStop ParityBitStop) : 
-	m_ScreenMutex("screen rendering"), IInputProvider(pInputProcessor), m_InputProviderThreadID(0), m_bQuit(false)
+	IInputProvider(pInputProcessor), m_ScreenMutex("screen rendering"), m_InputProviderThreadID(0), m_bQuit(false)
 {
 	m_ScreenMutex.Init(NULL);
 
@@ -76,6 +76,7 @@ size_t LCDRenderer::ReadData(string &sData)
 		return nRead;
 	}
 
+	sData.clear();
 	return 0;
 }
 //--------------------------------------------------------------------------------------------------------
