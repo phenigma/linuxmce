@@ -561,6 +561,15 @@ bool OSDScreenHandler::RoomsWizard_ObjectSelected(CallBackData *pData)
 			{
 				DCE::CMD_On CMD_On(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_PlugAndPlayPlugIn,0,"");
 				m_pOrbiter->SendCommand(CMD_On);
+				if( m_pOrbiter->m_bNewOrbiter )
+				{
+					string sText=m_pOrbiter->m_mapTextString[TEXT_pnp_active_CONST] + "|" + m_pOrbiter->m_mapTextString[TEXT_Ok_CONST];
+					string sMessage="0 -300 1 " TOSTRING(COMMAND_Goto_Screen_CONST) " " TOSTRING(COMMANDPARAMETER_PK_Screen_CONST) " " TOSTRING(SCREEN_LightsSetup_CONST);
+					DCE::SCREEN_House_Setup_Popup_Message SCREEN_House_Setup_Popup_Message(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,
+						sText,sMessage);
+					m_pOrbiter->ReceivedMessage(SCREEN_House_Setup_Popup_Message.m_pMessage);
+					return true;
+				}
 			}
 		}
 		break;

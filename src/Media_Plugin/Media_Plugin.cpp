@@ -5729,7 +5729,7 @@ void Media_Plugin::CMD_Get_Attributes_For_Media(string sFilename,string sPK_Ente
 //<-dceag-c807-e->
 {
 	MediaFile *pMediaFile = NULL;
-	if( !sFilename.c_str() )
+	if( sFilename.empty() )
 	{
 		EntertainArea *pEntertainArea = m_mapEntertainAreas_Find( atoi(sPK_EntertainArea.c_str()) );
 		if( !pEntertainArea || !pEntertainArea->m_pMediaStream )
@@ -5776,14 +5776,6 @@ void Media_Plugin::CMD_Get_Attributes_For_Media(string sFilename,string sPK_Ente
 	}
 	else
 	{
-#ifdef SIM_JUKEBOX
-		string sExtension = FileUtils::FindExtension(pMediaFile->m_sFilename);
-		if( StringUtils::ToUpper(sExtension)=="DVD" )
-			*sValue_To_Assign = "FILE\tJukebox: Miami Disc: " + StringUtils::itos(pMediaFile->m_dwPK_File % 100) +
-				"\tTITLE\t" + m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetDefaultDescriptionForMediaFile(pMediaFile) +
-				"\t";
-		else
-#endif
 		*sValue_To_Assign = "FILE\t" + pMediaFile->HumanReadableFullyQualifiedFile() +
 			"\tTITLE\t" + m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetDefaultDescriptionForMediaFile(pMediaFile) +
 			"\t";
@@ -5796,16 +5788,6 @@ void Media_Plugin::CMD_Get_Attributes_For_Media(string sFilename,string sPK_Ente
 			*sValue_To_Assign += "SYNOPSIS\t" + sSynopsis + "\t";
 		}
 		sExtension = m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetPictureFromFileID(pMediaFile->m_dwPK_File, &PK_Picture);
-
-#ifdef SIM_JUKEBOX
-		if( pMediaFile->m_dwPK_File )
-		{
-			string sTerms;
-			int PK_Attribute = m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetAttributeFromFile(pMediaFile->m_dwPK_File,ATTRIBUTETYPE_Purchase_Info_CONST,sTerms);
-			if( sTerms.empty()==false )
-				*sValue_To_Assign += "TERMS\t" + sTerms;
-		}
-#endif
 	}
 
 	if( PK_Picture )

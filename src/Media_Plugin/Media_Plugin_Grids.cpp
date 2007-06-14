@@ -101,10 +101,6 @@ extern int UniqueColors[MAX_MEDIA_COLORS];
 // Parms = PK_MediaType | , sep PK_MediaSubType | , sep PK_FileFormat | Genres to include, or empty for all (, sep PK_Attribute) |
 // , sep of sources -- hardcoded strings (below) or a path if sort=0 (sort by filename) | , sep PK_Users (0=public, empty=public only) | PK_AttributeType (sort by) | PK_Users (for ratings)
 
-#ifdef SIM_JUKEBOX
-	// These are set in a sub-function
-	bool g_bInclFiles,g_bInclDiscs,g_bInclDownload;
-#endif
 
 class DataGridTable *Media_Plugin::MediaBrowser( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
 {

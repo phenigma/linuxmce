@@ -61,6 +61,12 @@ void PostCreateOptions::PostCreateDevice(Row_Device *pRow_Device, OH_Orbiter *pO
 		PostCreateDevice_DisklessMD(pRow_Device,pOH_Orbiter);
 	else if( pDeviceCategory->WithinCategory(DEVICECATEGORY_Capture_Cards_CONST) )
 		PostCreateDevice_CaptureCard(pRow_Device,pOH_Orbiter);
+	else if( pDeviceCategory->WithinCategory(DEVICECATEGORY_Lighting_Interface_CONST) )
+		PostCreateDevice_LightingInterface(pRow_Device,pOH_Orbiter);
+	else if( pDeviceCategory->WithinCategory(DEVICECATEGORY_TVsPlasmasLCDsProjectors_CONST) )
+		PostCreateDevice_TV(pRow_Device,pOH_Orbiter);
+	else if( pDeviceCategory->WithinCategory(DEVICECATEGORY_AmpsPreampsReceiversTuners_CONST) )
+		PostCreateDevice_Receiver(pRow_Device,pOH_Orbiter);
 }
 
 void PostCreateOptions::PostCreateDevice_AlarmPanel(Row_Device *pRow_Device, OH_Orbiter *pOH_Orbiter)
@@ -152,17 +158,11 @@ void PostCreateOptions::PostCreateDevice_CaptureCard(Row_Device *pRow_Device, OH
 {
 	int PK_Device_TopMost = DatabaseUtils::GetTopMostDevice(m_pDatabase_pluto_main,pRow_Device->PK_Device_get());
 	DeviceData_Router *pDevice_PC = m_pRouter->m_mapDeviceData_Router_Find(PK_Device_TopMost);
-	DeviceData_Router *pDevice_AppServer = pDevice_PC ? (DeviceData_Router *) pDevice_PC->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_App_Server_CONST) : NULL;
 	DeviceData_Router *pDevice_Orbiter = pDevice_PC ? (DeviceData_Router *) pDevice_PC->FindFirstRelatedDeviceOfTemplate(DEVICETEMPLATE_OnScreen_Orbiter_CONST) : NULL;
 
-	if( !pDevice_AppServer )
-	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"PostCreateOptions::PostCreateDevice_CaptureCard - no app server for %d",pRow_Device->PK_Device_get());
-		return;
-	}
 #ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"PostCreateOptions::PostCreateDevice_CaptureCard device  %d template %d top %d %p %P",
-		pRow_Device->PK_Device_get(),pRow_Device->FK_DeviceTemplate_get(),PK_Device_TopMost,pDevice_AppServer,pDevice_Orbiter);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"PostCreateOptions::PostCreateDevice_CaptureCard device  %d template %d top %d %p",
+		pRow_Device->PK_Device_get(),pRow_Device->FK_DeviceTemplate_get(),PK_Device_TopMost,pDevice_Orbiter);
 #endif
 
 	string sUseAutomatically = DatabaseUtils::GetDeviceData(m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICEDATA_Use_Automatically_CONST);
@@ -179,6 +179,72 @@ void PostCreateOptions::PostCreateDevice_CaptureCard(Row_Device *pRow_Device, OH
 				DCE::SCREEN_Choose_Provider_for_Device SCREEN_Choose_Provider_for_Device(g_pCommand_Impl->m_dwPK_Device,pDevice_Orbiter->m_dwPK_Device);
 				g_pCommand_Impl->SendCommand(SCREEN_Choose_Provider_for_Device);
 			}
+		}
+	}
+}
+
+void PostCreateOptions::PostCreateDevice_LightingInterface(Row_Device *pRow_Device, OH_Orbiter *pOH_Orbiter)
+{
+	int PK_Device_TopMost = DatabaseUtils::GetTopMostDevice(m_pDatabase_pluto_main,pRow_Device->PK_Device_get());
+	DeviceData_Router *pDevice_PC = m_pRouter->m_mapDeviceData_Router_Find(PK_Device_TopMost);
+	DeviceData_Router *pDevice_Orbiter = pDevice_PC ? (DeviceData_Router *) pDevice_PC->FindFirstRelatedDeviceOfTemplate(DEVICETEMPLATE_OnScreen_Orbiter_CONST) : NULL;
+
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"PostCreateOptions::PostCreateDevice_LightingInterface device  %d template %d top %d %p",
+		pRow_Device->PK_Device_get(),pRow_Device->FK_DeviceTemplate_get(),PK_Device_TopMost,pDevice_Orbiter);
+#endif
+
+	if( pDevice_Orbiter )
+	{
+		OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(pDevice_Orbiter->m_dwPK_Device);
+		if( pOH_Orbiter && pOH_Orbiter->m_bFirstRegen==false )  // Don't go to the screen if we're still setting it up
+		{
+			DCE::SCREEN_LightsSetup SCREEN_LightsSetup(g_pCommand_Impl->m_dwPK_Device,pDevice_Orbiter->m_dwPK_Device);
+			g_pCommand_Impl->SendCommand(SCREEN_LightsSetup);
+		}
+	}
+}
+
+void PostCreateOptions::PostCreateDevice_TV(Row_Device *pRow_Device, OH_Orbiter *pOH_Orbiter)
+{
+	int PK_Device_TopMost = DatabaseUtils::GetTopMostDevice(m_pDatabase_pluto_main,pRow_Device->PK_Device_get());
+	DeviceData_Router *pDevice_PC = m_pRouter->m_mapDeviceData_Router_Find(PK_Device_TopMost);
+	DeviceData_Router *pDevice_Orbiter = pDevice_PC ? (DeviceData_Router *) pDevice_PC->FindFirstRelatedDeviceOfTemplate(DEVICETEMPLATE_OnScreen_Orbiter_CONST) : NULL;
+
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"PostCreateOptions::PostCreateDevice_TV device  %d template %d top %d %p",
+		pRow_Device->PK_Device_get(),pRow_Device->FK_DeviceTemplate_get(),PK_Device_TopMost,pDevice_Orbiter);
+#endif
+
+	if( pDevice_Orbiter )
+	{
+		OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(pDevice_Orbiter->m_dwPK_Device);
+		if( pOH_Orbiter && pOH_Orbiter->m_bFirstRegen==false )  // Don't go to the screen if we're still setting it up
+		{
+			DCE::SCREEN_TV_Manufacturer SCREEN_TV_Manufacturer(g_pCommand_Impl->m_dwPK_Device,pDevice_Orbiter->m_dwPK_Device);
+			g_pCommand_Impl->SendCommand(SCREEN_TV_Manufacturer);
+		}
+	}
+}
+
+void PostCreateOptions::PostCreateDevice_Receiver(Row_Device *pRow_Device, OH_Orbiter *pOH_Orbiter)
+{
+	int PK_Device_TopMost = DatabaseUtils::GetTopMostDevice(m_pDatabase_pluto_main,pRow_Device->PK_Device_get());
+	DeviceData_Router *pDevice_PC = m_pRouter->m_mapDeviceData_Router_Find(PK_Device_TopMost);
+	DeviceData_Router *pDevice_Orbiter = pDevice_PC ? (DeviceData_Router *) pDevice_PC->FindFirstRelatedDeviceOfTemplate(DEVICETEMPLATE_OnScreen_Orbiter_CONST) : NULL;
+
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"PostCreateOptions::PostCreateDevice_Receiver device  %d template %d top %d %p",
+		pRow_Device->PK_Device_get(),pRow_Device->FK_DeviceTemplate_get(),PK_Device_TopMost,pDevice_Orbiter);
+#endif
+
+	if( pDevice_Orbiter )
+	{
+		OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(pDevice_Orbiter->m_dwPK_Device);
+		if( pOH_Orbiter && pOH_Orbiter->m_bFirstRegen==false )  // Don't go to the screen if we're still setting it up
+		{
+			DCE::SCREEN_Receiver SCREEN_Receiver(g_pCommand_Impl->m_dwPK_Device,pDevice_Orbiter->m_dwPK_Device);
+			g_pCommand_Impl->SendCommand(SCREEN_Receiver);
 		}
 	}
 }

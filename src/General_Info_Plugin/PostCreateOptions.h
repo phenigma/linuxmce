@@ -46,6 +46,9 @@ namespace DCE
 		void PostCreateDevice_Cameras(Row_Device *pRow_Device, OH_Orbiter *pOH_Orbiter);
 		void PostCreateDevice_DisklessMD(Row_Device *pRow_Device, OH_Orbiter *pOH_Orbiter);
 		void PostCreateDevice_CaptureCard(Row_Device *pRow_Device, OH_Orbiter *pOH_Orbiter);
+		void PostCreateDevice_LightingInterface(Row_Device *pRow_Device, OH_Orbiter *pOH_Orbiter);
+		void PostCreateDevice_TV(Row_Device *pRow_Device, OH_Orbiter *pOH_Orbiter);
+		void PostCreateDevice_Receiver(Row_Device *pRow_Device, OH_Orbiter *pOH_Orbiter);
 	};
 }
 
