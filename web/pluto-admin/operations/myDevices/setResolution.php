@@ -151,7 +151,7 @@ $out.='
 }
 
 function md_apply_resolution($mediaDirectorID,$ipAddress){
-	$commandToSend="sudo -u root /usr/pluto/bin/LaunchRemoteCmd.sh '$ipAddress' '/usr/pluto/bin/SetupAudioVideo.sh'"
+	$commandToSend="sudo -u root /usr/pluto/bin/LaunchRemoteCmd.sh '$ipAddress' '/usr/pluto/bin/SetupAudioVideo.sh'";
 	exec_batch_command($commandToSend);
 }
 ?>
