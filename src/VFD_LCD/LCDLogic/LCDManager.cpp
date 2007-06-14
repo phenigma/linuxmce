@@ -5,6 +5,7 @@
 //--------------------------------------------------------------------------------------------------------
 #include "pluto_main/Table_Device.h"
 #include "pluto_main/Define_DeviceCategory.h"
+#include "pluto_main/Define_DeviceTemplate.h"
 //--------------------------------------------------------------------------------------------------------
 #define REFRESH_INTERVAL	400
 #define IDLE_INTERVAL		100
@@ -370,17 +371,24 @@ void LCDManager::GenerateMDNodes(MenuItem *pMenuItem)
 	{
 		Row_Device *pRow_Device = *it;
 		string sMD = StringUtils::ltos(pRow_Device->PK_Device_get());
-		MenuItem *pMDMenuItem = new MenuItem("MD " + sMD, pMenuItem->Parent(), 
-			itListItem, pMenuItem->Action()->Clone());
 
-		pMDMenuItem->AddChild(pVideoSettingsNode->Clone());
-		pMDMenuItem->AddChild(pAudioSettingsNode->Clone());
+		vector<Row_Device *> vectDevices;
+		m_pDatabase_pluto_main->Device_get()->GetRows(
+			"WHERE FK_DeviceTemplate = " + StringUtils::ltos(DEVICETEMPLATE_App_Server_CONST) + " "
+			"AND FK_Device_ControlledVia = " + sMD,
+			&vectDevices);
 
-		//TODO: Get AppServer
-		string sAppServer = "45";
+		if(!vectDevices.empty())
+		{
+			long AppServerID = vectDevices[0]->PK_Device_get();
+			MenuItem *pMDMenuItem = new MenuItem("MD " + sMD, pMenuItem->Parent(), 
+				itListItem, pMenuItem->Action()->Clone());
 
-		pMDMenuItem->ReplaceVariable("{APP_SERVER}", sAppServer);
-		listExpandedItems.push_back(pMDMenuItem);
+			pMDMenuItem->AddChild(pVideoSettingsNode->Clone());
+			pMDMenuItem->AddChild(pAudioSettingsNode->Clone());
+			pMDMenuItem->ReplaceVariable("{APP_SERVER}", StringUtils::ltos(AppServerID));
+			listExpandedItems.push_back(pMDMenuItem);
+		}
 	}
 
 	pMenuItem->Parent()->Expand(pMenuItem, listExpandedItems);
@@ -404,10 +412,32 @@ void LCDManager::SetupCoreNodes(MenuItem *pMenuItem)
 		return;
 	}
 
-	//TODO: Get AppServer
-	string sAppServer = "15";
-	pAudioSettingsNode->ReplaceVariable("{APP_SERVER}", sAppServer);
-	pVideoSettingsNode->ReplaceVariable("{APP_SERVER}", sAppServer);
+	vector<Row_Device *> vectDevices;
+	m_pDatabase_pluto_main->Device_get()->GetRows(
+		"JOIN DeviceTemplate ON FK_DeviceTemplate = PK_DeviceTemplate "
+		"WHERE FK_DeviceCategory = " + StringUtils::ltos(DEVICECATEGORY_Core_CONST),
+		&vectDevices);
+
+	long CoreID = 0;
+	if(!vectDevices.empty())
+		CoreID = vectDevices[0]->PK_Device_get();
+
+	vectDevices.clear();
+
+	m_pDatabase_pluto_main->Device_get()->GetRows(
+		"WHERE FK_DeviceTemplate = " + StringUtils::ltos(DEVICETEMPLATE_App_Server_CONST) + " "
+		"AND FK_Device_ControlledVia = " + StringUtils::ltos(CoreID),
+		&vectDevices);
+
+	string sAppServerID;
+	if(!vectDevices.empty())
+	{
+		long AppServerID = vectDevices[0]->PK_Device_get();
+		sAppServerID = StringUtils::ltos(AppServerID);
+	}
+
+	pAudioSettingsNode->ReplaceVariable("{APP_SERVER}", sAppServerID);
+	pVideoSettingsNode->ReplaceVariable("{APP_SERVER}", sAppServerID);
 }
 //--------------------------------------------------------------------------------------------------------
 
