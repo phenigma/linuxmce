@@ -588,6 +588,7 @@ void App_Server::CMD_Set_Volume(string sLevel,string &sCMD_Result,Message *pMess
 	m_MasterMix.SetVolumePercent(iVolume);
 	m_MasterMix.SetOn(1);
 #endif
+	m_iLastVolume = iVolume;
 
 	// TODO: check that the mixer actually worked
 	sCMD_Result = "OK";
