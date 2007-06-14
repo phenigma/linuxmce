@@ -22,6 +22,8 @@ function ExitInstaller {
 
 # remove Network Manager
 apt-get -y -f remove network-manager brltty
+# remove adept notifier
+apt-get -y -f remove adept adept-notifier adept-batch adept-common adept-installer adept-manager adept-updater
 /etc/init.d/networking restart
 
 Setup_NIS
