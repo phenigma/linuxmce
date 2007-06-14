@@ -49,6 +49,9 @@ private:
 
 public:
 
+	ILCDMessageProvider() {}
+	virtual ~ILCDMessageProvider() {}
+
 	virtual LCDMessage *GetNextMessage() = 0;
 	virtual void WaitForAnyMessage() = 0;
 	virtual bool IsQuitting() = 0;
@@ -58,6 +61,9 @@ class ILCDMessageProcessor
 {
 public:
 	
+	ILCDMessageProcessor() {}
+	virtual ~ILCDMessageProcessor() {}
+
 	virtual void ProcessMessage(LCDMessage *pLCDMessage) = 0;
 	virtual void Interrupt() = 0;
 };

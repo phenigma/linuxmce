@@ -176,11 +176,11 @@ bool Generic_VFDLCD::Setup(string sXMLMenuFilename, string sLCDSerialPort, int n
 
 	m_spMenu_Holder->Setup(new ActionProcessor(this));
 
-	//setup LCD renderer
-	m_spLCDRenderer.reset(new LCDRenderer(sLCDSerialPort)); 
-
 	//setup LCD manager
 	m_spLCDManager.reset(new LCDManager(m_spMenu_Holder.get(), m_pDatabase_pluto_main));
+
+	//setup LCD renderer
+	m_spLCDRenderer.reset(new LCDRenderer(m_spLCDManager.get(), sLCDSerialPort)); 
 	m_spLCDManager->AddRenderer(m_spLCDRenderer.get());
 
 	//setup socket status input provider
