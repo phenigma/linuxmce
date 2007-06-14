@@ -1,5 +1,11 @@
 #!/bin/bash -e
 
+if [[ "$1" != "background" ]] ;then
+        screen -d -m -S LMCEUpdate_DownloadXML "$0" background
+        exit 0
+fi
+
+
 UPDATES_XML_URI="http://10.0.0.83/updates.xml"
 UPDATES_DIR="/home/updates"
 
