@@ -88,6 +88,7 @@ function Checkout_Pluto_Svn {
 	#/bin/sql2cpp -h localhost -u root -D pluto_main
 	pushd ${svn_dir}/trunk/src
 	svn co --username automagic --password "$(</etc/pluto/automagic.pwd)" ${svn_url}/pluto-private/"$Branch"/src/ZWave/
+	svn co --username automagic --password "$(</etc/pluto/automagic.pwd)" ${svn_url}/pluto-private/"$Branch"/src/Fiire_Scripts/
 	svn co --username automagic --password "$(</etc/pluto/automagic.pwd)" ${svn_url}/pluto-private/"$Branch"/src/RFID_Interface/
 	svn co --username automagic --password "$(</etc/pluto/automagic.pwd)" ${svn_url}/pluto-private/"$Branch"/src/EMI_AMG/
 	svn co --username automagic --password "$(</etc/pluto/automagic.pwd)" ${svn_url}/pluto-private/"$Branch"/src/lmce_launch_manager/
@@ -134,6 +135,17 @@ function Build_Pluto_Replacements {
        
 	temp_dir="${replacements_dir}"
 	mkdir -p $temp_dir
+
+	#Package: video-wizard-videos
+	local vvv_temp_dir=$(mktemp -d)
+	pushd "$vvv_temp_dir"
+		scp -r pluto@10.0.0.150:"/home/samba/www_docs/video\ wizard/video-wizard-videos" ./
+		cd "video-wizard-videos"
+		dpkg-deb -b . ..
+#		cp -r ../video-wizard-videos_*.deb ${temp_dir}
+		cp -r ../video-wizard-videos_*.deb /var/ubuntu/cachecd1-cache
+	popd
+	rm -rf "$vvv_temp_dir"
 
 	#Package: libsdl-pluto
 	apt-get -y install quilt nasm libxv-dev libarts1-dev debhelper fakeroot

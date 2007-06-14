@@ -4,7 +4,7 @@
 
 Backup_Last_Build
 #Install_Build_Needed_Packages
-#Create_Diskless_Archive
+Create_Diskless_Archive
 Import_Pluto_Skins
 Checkout_Pluto_Svn #branches/2.0.0.44
 #Checkout_Pluto_Svn branches/Kirill/database_wrapper "src"

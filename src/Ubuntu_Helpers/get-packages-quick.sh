@@ -17,8 +17,18 @@ rm -f /var/www/$iso_name-packages.iso
 find /var/www/ -maxdepth 1 -type f -name '*.deb' -print0 | xargs -0 -i -t cp '{}' /var/plutobuild/cache-cd/deb-cache
 
 while read file; do
-	rm -f "$TMP_DIR/$file"_*.deb
+	rm -f "/var/plutobuild/cache-cd/deb-cache/$file"_*.deb
 done </root/Ubuntu_Helpers/RemoveFromCD.cfg
+
+ExtraPacks="libcucul0 libcaca0 libmad0 libxine1-ffmpeg xine-ui"
+
+for pack in $ExtraPacks ;do
+	cp /var/ubuntu/cachecd1-cache/$pack*  /var/plutobuild/cache-cd/deb-cache
+done
+
+for pack in /var/moved-from-cache/* ;do
+	cp $pack /var/plutobuild/cache-cd/deb-cache
+done
 
 pushd /var/plutobuild/cache-cd/deb-cache
 	dpkg-scanpackages . /dev/null > Packages
