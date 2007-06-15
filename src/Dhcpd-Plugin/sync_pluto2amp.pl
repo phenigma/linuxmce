@@ -29,6 +29,22 @@ my $STATUS = 0;
 $DB_PL_HANDLE = DBI->connect("dbi:mysql:database=pluto_main;host=".$CONF_HOST.";user=".$CONF_USER.";password=".$CONF_PASSWD.";") or die "Could not connect to MySQL";
 $DB_AS_HANDLE = DBI->connect("dbi:mysql:database=asterisk;host=".$CONF_HOST.";user=".$CONF_USER.";password=".$CONF_PASSWD.";") or die "Could not connect to MySQL";
 
+#replace with the ip address of the asterisk server
+my $serv_IP=getIP();
+open(DAT, '/etc/asterisk/sccp.conf');
+my @data=<DAT>;
+open(OUT, ">/etc/asterisk/sccp.conf.$$");
+
+for my $line (@data) {
+        if($line=~/bindaddr/) {
+                $line =~ s/bindaddr = (\d.+).(\d.+).(\d.+).(\d.+)\s{2,}(.+)/bindaddr = $serv_IP $5/g;
+                print OUT $line;
+        } else {
+                print OUT $line;
+        }
+}
+`mv /etc/asterisk/sccp.conf.$$ /etc/asterisk/sccp.conf`
+
 my %DEVICES = ();
 my %EXTENSIONS = ();
 &add_embed_phones();
@@ -91,6 +107,14 @@ sub writelog()
     my $str = shift;
     print $str;
     `echo -n -e "$str" >> /tmp/sync.log`;
+}
+
+sub getIP {
+        my $sth = $DB_PL_HANDLE->prepare("SELECT IPaddress FROM Device WHERE FK_DeviceTemplate = 7");
+        $sth->execute || die "Sql Error";
+        my $row = $sth->fetchrow_hashref;
+        my $IP = $row->{IPaddress};
+        return $IP;
 }
 
 sub read_pluto_config()
