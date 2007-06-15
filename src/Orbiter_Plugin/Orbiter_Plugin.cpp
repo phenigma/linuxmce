@@ -1887,14 +1887,15 @@ void Orbiter_Plugin::CMD_Regen_Orbiter(int iPK_Device,string sForce,string sRese
 			}
 			else
 			{
-                //we don't need this anymore. 'RegenOrbiterOnTheFly.sh' will send a reload command for each 
-                //orbiter before starting to generate screens for it
-                //it works if we have only one orbiter to reload
-				
-                //Message *pMessageOut = new Message(m_dwPK_Device, pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,PRIORITY_NORMAL,MESSAGETYPE_SYSCOMMAND,SYSCOMMAND_RELOAD,0);
-				//SendMessageToRouter(pMessageOut);
-				
                 pOH_Orbiter->m_tRegenTime = time(NULL);
+				Row_Orbiter *pRow_Orbiter = m_pDatabase_pluto_main->Orbiter_get()->GetRow( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device );  // If we marked this as 'first regen', we're now regening, so don't treat it as first or else we'll supress pnp messages
+				if( pRow_Orbiter && pRow_Orbiter->FirstRegen_get() )
+				{
+					LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter: %d FirstRegen resetting to false", pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
+					pRow_Orbiter->FirstRegen_set(0);
+					m_pDatabase_pluto_main->Orbiter_get()->Commit();
+					pOH_Orbiter->m_bFirstRegen=false;
+				}
 			}
 		}
 

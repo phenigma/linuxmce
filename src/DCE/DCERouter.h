@@ -211,10 +211,6 @@ namespace DCE
         map<int,ListDeviceData_Router *> m_mapDeviceByCategory;
         map<int,class DeviceGroup *> m_mapDeviceGroup;
         Map_DeviceCategory m_mapDeviceCategory;
-typedef struct { int PK_DesignObj,PK_DesignObjVariation; string sDescription; string sVariation; } ObjInfo;
-typedef list< ObjInfo * > ListStructure;
-map<int,list<ListStructure *> > g_AllObjects;
-void ReportStructure(int PK_DesignObjVariation_Parent,int PK_DesignObj_Child,ListStructure *pCumulativeList);
 
     public:
         // Accessors

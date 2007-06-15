@@ -2179,7 +2179,7 @@ void MythTV_PlugIn::SetPaths()
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::Register %s",sCmd.c_str());
 			system(sCmd.c_str());
 
-			sCmd = "chmod 775 \"" + sDirectory +"\"";
+			sCmd = "chmod 2775 \"" + sDirectory +"\"";
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_Plugin::Register %s",sCmd.c_str());
 			system(sCmd.c_str());
 
@@ -2191,7 +2191,7 @@ void MythTV_PlugIn::SetPaths()
 			UpdateMythSetting("RecordFilePrefix",sDirectory,row[1]);
 		}
 	}
-}
+} 
 
 void MythTV_PlugIn::RunBackendStarter()
 {

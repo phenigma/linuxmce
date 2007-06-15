@@ -1,7 +1,11 @@
 #ifndef __DB_WRAPPER_MYSQL_H__
 #define __DB_WRAPPER_MYSQL_H__
 
+#ifdef WIN32
+#include <mysql.h>
+#else
 #include <mysql/mysql.h>
+#endif
 
 // data structures
 #define DB_LINK MYSQL
