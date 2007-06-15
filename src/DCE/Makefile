@@ -4,10 +4,10 @@ ROOT = ..
 VIP = ../VIPShared
 GDEV = ./Gen_Devices
 CXXFLAGS = -fPIC -Wall -ggdb3
-CPPFLAGS = -I./ -I../ -I../DCE/ -I../VIPShared/ -I/usr/include/mysql -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE $(SNR_CPPFLAGS) -DUSE_LZO_DATAGRID -D_GNU_SOURCE -DLINK_TO_ROUTER $(EXTRA)
+CPPFLAGS = -I./ -I../ -I../DCE/ -I../VIPShared/ -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE $(SNR_CPPFLAGS) -DUSE_LZO_DATAGRID -D_GNU_SOURCE -DLINK_TO_ROUTER $(EXTRA)
 CXX = g++
 LDFLAGS = -L$(ROOT)/lib
-LDLIBS = -lpthread -lmysqlclient_r -lSerializeClass
+LDLIBS = -lpthread -lSerializeClass
 
 #<-mkr_B_use_mysql_wrapper_b->
 CPPFLAGS += -I/usr/include/mysql
@@ -28,7 +28,8 @@ sources = DataGrid.cpp ClientSocket.cpp PlainClientSocket.cpp Logger.cpp Message
 	DeviceData_Router.cpp DeviceData_Impl.cpp DeviceData_Base.cpp \
 	DCEConfig.cpp DCEMySqlConfig.cpp \
 	Virtual_Device_Translator.cpp arp-cache.cpp \
-	MessageBuffer.cpp
+	MessageBuffer.cpp \
+	../db_wrapper/db_wrapper.cpp ../db_wrapper/ClientSocket.cpp ../db_wrapper/Socket.cpp
 
 all: libDCECommon.so all-recursive
 

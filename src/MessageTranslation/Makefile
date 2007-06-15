@@ -1,6 +1,6 @@
 ROOT=..
 CXXFLAGS = -Wall -ggdb3
-CPPFLAGS = -I./ -I../ -I../DCE/ -I/usr/include/mysql
+CPPFLAGS = -I./ -I../ -I../DCE/
 CXX = g++
 LDFLAGS=-L$(ROOT)/lib
 LDLIBS=-lpthread -lDCECommon -lSerial -lSerializeClass -lPlutoUtils

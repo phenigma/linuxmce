@@ -3,9 +3,9 @@ SNR_CPPFLAGS ?= <-mkr_t_compile_defines->
 
 CXX = g++
 CXXFLAGS = -W -Wall -fPIC -ggdb3
-CPPFLAGS = -I. -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql $(SNR_CPPFLAGS)
+CPPFLAGS = -I. -I$(ROOT) -I$(ROOT)/DCE $(SNR_CPPFLAGS)
 LDFLAGS = -L$(ROOT)/lib
-LDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lmysqlclient_r -lpthread -lpluto_media 
+LDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lpthread -lpluto_media 
 MYNAME = Disk_Drive_Functions
 
 #<-mkr_B_use_mysql_wrapper_b->

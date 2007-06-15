@@ -2,11 +2,11 @@ SNR_CPPFLAGS ?= <-mkr_t_compile_defines->
 
 ROOT = ..
 CXXFLAGS = -Wall -ggdb3 -DxAUDIDEMO -fmessage-length=0
-CPPFLAGS = -I$(ROOT)/ -I$(ROOT)/DCE -I/usr/include/mysql -D_REENTRANT -D_GNU_SOURCE $(SNR_CPPFLAGS) -DUSE_LZO_DATAGRID -I/usr/include/libxml2/
+CPPFLAGS = -I$(ROOT)/ -I$(ROOT)/DCE -D_REENTRANT -D_GNU_SOURCE $(SNR_CPPFLAGS) -DUSE_LZO_DATAGRID -I/usr/include/libxml2/
 LDFLAGS = -L$(ROOT)/lib -lxml2
 
 #LDLIBS = -lpthread -lmysqlclient_r -lattr -lDCECommon -lSerializeClass -lPlutoUtils -lpluto_main -lFakeEPG -lqt-mt -lmyth-0.16 -lmythtv-0.16
-LDLIBS = -lpthread -lmysqlclient_r -lattr -lDCECommon -lSerializeClass -lPlutoUtils -lpluto_main -ldl
+LDLIBS = -lpthread -lattr -lDCECommon -lSerializeClass -lPlutoUtils -lpluto_main -ldl
 
 #<-mkr_B_use_mysql_wrapper_b->
 CPPFLAGS += -I/usr/include/mysql
@@ -27,7 +27,8 @@ sources = \
 		Main.cpp \
 		DCERouter.cpp \
 		DCERouter_CreatePluginHardCoded_Impl.cpp \
-		../DCE/MessageXML.cpp
+		../DCE/MessageXML.cpp \
+		../db_wrapper/db_wrapper.cpp ../db_wrapper/ClientSocket.cpp ../db_wrapper/Socket.cpp
 
 
 #sources += ../Gen_Devices/Media_PluginBase.cpp ../Media_Plugin/Media_Plugin.cpp ../Media_Plugin/MediaPluginInfo.cpp

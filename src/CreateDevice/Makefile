@@ -3,9 +3,9 @@ ROOT=..
 CXX=g++
 CC=$(CXX)
 CPPFLAGS=-W -Wall -pipe -ggdb3
-CXXFLAGS=-I. -I.. -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql
+CXXFLAGS=-I. -I.. -I$(ROOT) -I$(ROOT)/DCE
 LDFLAGS=-L$(ROOT)/lib
-LDLIBS=-lDCECommon -lSerializeClass -lmysqlclient_r -lPlutoUtils
+LDLIBS=-lDCECommon -lSerializeClass -lPlutoUtils
 
 #<-mkr_B_use_mysql_wrapper_b->
 CPPFLAGS += -I/usr/include/mysql

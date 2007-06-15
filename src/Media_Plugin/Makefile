@@ -6,9 +6,9 @@ SNR_CPPFLAGS ?= <-mkr_t_compile_defines->
 ROOT = ..
 CXX = g++
 CXXFLAGS = -Wall -fPIC -ggdb3
-CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql $(SNR_CPPFLAGS)
+CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE $(SNR_CPPFLAGS)
 LDFLAGS = -L$(ROOT)/lib
-EXTERNAL_LIBS_NAMES = mysqlclient_r pthread id3
+EXTERNAL_LIBS_NAMES = pthread id3
 INTERNAL_LIBS_NAMES = SerializeClass DCECommon PlutoUtils
 
 #<-mkr_B_use_mysql_wrapper_b->

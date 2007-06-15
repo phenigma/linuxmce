@@ -5,9 +5,9 @@ SNR_LDFLAGS ?= <-mkr_t_compile_libs->
 
 ROOT = ..
 CXXFLAGS = -Wall -ggdb3
-CPPFLAGS = -I/usr/local/include -I$(ROOT)/DCE -I.. -I. -I/usr/include/mysql -I/usr/include/SDL -I$(TS) -I$(ROOT)/SDL_Helpers -DOrbiterGen
+CPPFLAGS = -I/usr/local/include -I$(ROOT)/DCE -I.. -I. -I/usr/include/SDL -I$(TS) -I$(ROOT)/SDL_Helpers -DOrbiterGen
 LDFLAGS = $(SNR_LDFLAGS) -L$(ROOT)/lib
-LDLIBS = -ldl -lpluto_main -lpluto_media -lDCECommon -lPlutoUtils -lSerializeClass -lSDL -lSGE -lSDL_gfx -lSDL_image -lSDL_ttf -lmysqlclient_r -lGL -lXrender -lSDL_Helpers
+LDLIBS = -ldl -lpluto_main -lpluto_media -lDCECommon -lPlutoUtils -lSerializeClass -lSDL -lSGE -lSDL_gfx -lSDL_image -lSDL_ttf -lGL -lXrender -lSDL_Helpers
 
 #<-mkr_B_use_mysql_wrapper_b->
 CPPFLAGS += -I/usr/include/mysql

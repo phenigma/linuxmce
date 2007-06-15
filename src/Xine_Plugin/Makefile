@@ -6,9 +6,9 @@ SNR_CPPFLAGS ?= <-mkr_t_compile_defines->
 ROOT = ..
 CXX = g++
 CXXFLAGS = -Wall -fPIC -ggdb3
-CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql $(SNR_CPPFLAGS)
+CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE $(SNR_CPPFLAGS)
 LDFLAGS = -L$(ROOT)/lib
-EXTERNAL_LIBS_NAMES = mysqlclient_r pthread
+EXTERNAL_LIBS_NAMES = pthread
 INTERNAL_LIBS_NAMES = SerializeClass DCECommon PlutoUtils
 
 MYNAME = Xine_Plugin
