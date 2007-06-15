@@ -158,9 +158,9 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"const %p %d",this,drDesignObj->PK
 	if( m_pRow_DesignObj->FK_DesignObjType_get()==DESIGNOBJTYPE_Floorplan_CONST )
 		m_iFloorplanPage = m_pOrbiterGenerator->m_iFloorplanPage;
 
-	if( m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Go_CONST )
+	if( m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Go_CONST || m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Keyword_Search_CONST )
 	{
-		LoggerWrapper::GetInstance()->Write(LV_WARNING,"start 1 DESIGNOBJ_butFBSF_Go_CONST");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"%d start 1 DESIGNOBJ_butFBSF_Go_CONST",m_pRow_DesignObj->PK_DesignObj_get());
 	}
 
 if( m_pRow_DesignObj->PK_DesignObj_get()==4868 ) // ||  m_pRow_DesignObj->PK_DesignObj_get()==5362 )// ||  m_pRow_DesignObj->PK_DesignObj_get()==5112 ) 
@@ -619,9 +619,9 @@ Table_Image *p = m_mds->Image_get();
 if(m_sOrigBackgroundFile=="/pluto/orbiter/skins//Basic/Icons/lights/lightson.png")
 int k=2;
 
-	if( m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Go_CONST )
+	if( m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Go_CONST || m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Keyword_Search_CONST )
 	{
-		LoggerWrapper::GetInstance()->Write(LV_WARNING,"start 2 DESIGNOBJ_butFBSF_Go_CONST %d,%d-%d,%d %d,%d-%d,%d",
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"start %d 2 DESIGNOBJ_butFBSF_Go_CONST %d,%d-%d,%d %d,%d-%d,%d",m_pRow_DesignObj->PK_DesignObj_get(),
 			this->m_rPosition.X,m_rPosition.Y,m_rPosition.Width,m_rPosition.Height,
 			this->m_rBackgroundPosition.X,this->m_rBackgroundPosition.Y,m_rBackgroundPosition.Width,m_rBackgroundPosition.Height);
 	}
@@ -1051,9 +1051,9 @@ int k=2;
             Row_DesignObjVariation_DesignObj_Skin_Language * drOVO = vectovo[s2];
 			Row_DesignObj *pRow_DesignObj_Child = drOVO->FK_DesignObjVariation_DesignObj_getrow()->FK_DesignObj_Child_getrow();
 
-if( pRow_DesignObj_Child->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Go_CONST )
+if( pRow_DesignObj_Child->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Go_CONST || pRow_DesignObj_Child->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Keyword_Search_CONST )
 {
-	LoggerWrapper::GetInstance()->Write(LV_WARNING,"include DESIGNOBJ_butFBSF_Go_CONST v1 %d-%d v2 %d-%d x %d %d y %d %d sc %d",
+	LoggerWrapper::GetInstance()->Write(LV_WARNING,"include DESIGNOBJ_butFBSF_Go_CONST %d v1 %d-%d v2 %d-%d x %d %d y %d %d sc %d",pRow_DesignObj_Child->PK_DesignObj_get(),
 		(int) (m_rPosition.X+drOVO->X_get())*m_iScale/100,(int) m_pOrbiterGenerator->m_sizeScreen->Width,
 		(int)(m_rPosition.Y+drOVO->Y_get())*m_iScale/100,(int) m_pOrbiterGenerator->m_sizeScreen->Height,
 		m_rPosition.X,drOVO->X_get(),m_rPosition.Y,drOVO->Y_get(),
@@ -1063,7 +1063,7 @@ if( pRow_DesignObj_Child->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Go_CONST )
 
 			if( (m_rPosition.X+drOVO->X_get())*m_iScale/100<m_pOrbiterGenerator->m_sizeScreen->Width && (m_rPosition.Y+drOVO->Y_get())*m_iScale/100<m_pOrbiterGenerator->m_sizeScreen->Height )
             {
-if( pRow_DesignObj_Child->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Go_CONST )
+if( pRow_DesignObj_Child->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Go_CONST || pRow_DesignObj_Child->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Keyword_Search_CONST )
 {
 	LoggerWrapper::GetInstance()->Write(LV_WARNING,"include DESIGNOBJ_butFBSF_Go_CONST ok");
 }
@@ -1209,9 +1209,9 @@ if( pRow_DesignObj_Child->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Go_CONST )
 		for(vector<class DesignObj_Generator *>::iterator it=m_alChildDesignObjs.begin();it!=m_alChildDesignObjs.end();++it)
 		{
 			DesignObj_Generator *pObj = *it;
-	if( pObj->m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Go_CONST )
+	if( pObj->m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Go_CONST || pObj->m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Keyword_Search_CONST )
 	{
-		LoggerWrapper::GetInstance()->Write(LV_WARNING,"pass 1 DESIGNOBJ_butFBSF_Go_CONST %d,%d-%d,%d %d,%d-%d,%d adj %s pass %d",
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"pass 1 DESIGNOBJ_butFBSF_Go_CONST %d %d,%d-%d,%d %d,%d-%d,%d adj %s pass %d",pObj->m_pRow_DesignObj->PK_DesignObj_get(),
 			pObj->m_rPosition.X,pObj->m_rPosition.Y,pObj->m_rPosition.Width,pObj->m_rPosition.Height,
 			pObj->m_rBackgroundPosition.X,pObj->m_rBackgroundPosition.Y,pObj->m_rBackgroundPosition.Width,pObj->m_rBackgroundPosition.Height,
 			(int) pObj->m_sAdjustments.c_str(),(int) Pass);
@@ -2049,9 +2049,9 @@ int k=2;
 	int FactorX_Origin = FactorX_Input;
 	int FactorY_Origin = FactorY_Input;
 
-	if( m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Go_CONST )
+	if( m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Go_CONST || m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Keyword_Search_CONST )
 	{
-		LoggerWrapper::GetInstance()->Write(LV_WARNING,"ScaleAllValues 1 DESIGNOBJ_butFBSF_Go_CONST %d,%d-%d,%d %d,%d-%d,%d %d,%d %d,%d /%d",
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"ScaleAllValues %d 1 DESIGNOBJ_butFBSF_Go_CONST %d,%d-%d,%d %d,%d-%d,%d %d,%d %d,%d /%d",m_pRow_DesignObj->PK_DesignObj_get(),
 			this->m_rPosition.X,m_rPosition.Y,m_rPosition.Width,m_rPosition.Height,
 			this->m_rBackgroundPosition.X,this->m_rBackgroundPosition.Y,m_rBackgroundPosition.Width,m_rBackgroundPosition.Height,
 			FactorX,FactorY,FactorX_Origin,FactorY_Origin,(int) m_bValuesScaled);
@@ -2072,9 +2072,9 @@ int k=2;
         p=PlutoPoint(ScaleValue(&p,FactorX,FactorY));
         m_rPosition.Size(p);
 
-	if( m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Go_CONST )
+	if( m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Go_CONST || m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Keyword_Search_CONST )
 	{
-		LoggerWrapper::GetInstance()->Write(LV_WARNING,"ScaleAllValues 2 DESIGNOBJ_butFBSF_Go_CONST %d,%d-%d,%d %d,%d-%d,%d %d,%d %d,%d /%d  %d,%d %d,%d %d,%d",
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"ScaleAllValues 2 DESIGNOBJ_butFBSF_Go_CONST %d %d,%d-%d,%d %d,%d-%d,%d %d,%d %d,%d /%d  %d,%d %d,%d %d,%d",m_pRow_DesignObj->PK_DesignObj_get(),
 			this->m_rPosition.X,m_rPosition.Y,m_rPosition.Width,m_rPosition.Height,
 			this->m_rBackgroundPosition.X,this->m_rBackgroundPosition.Y,m_rBackgroundPosition.Width,m_rBackgroundPosition.Height,
 			FactorX,FactorY,FactorX_Origin,FactorY_Origin,(int) m_bValuesScaled,
