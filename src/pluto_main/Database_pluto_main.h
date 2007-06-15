@@ -1,7 +1,6 @@
 #ifndef __Database_pluto_main_H_
 #define __Database_pluto_main_H_
-#include <mysql.h>
-#include "PlutoUtils/MySQLHelper.h"
+#include "PlutoUtils/DBHelper.h"
 #include "DCE/Logger.h"
 #ifdef WIN32
 #ifdef EXPORT_DLL
@@ -16,10 +15,10 @@
 #else
 #define DECLSPECIFIER
 #endif
-class DECLSPECIFIER MySqlHelper;
+class DECLSPECIFIER DBHelper;
 class DECLSPECIFIER SerializeClass;
 
-class DECLSPECIFIER Database_pluto_main: public MySqlHelper
+class DECLSPECIFIER Database_pluto_main: public DBHelper
 {
 public:
 Database_pluto_main(Logger *pLogger=NULL);
@@ -708,7 +707,7 @@ class Table_psc_website_batuser* psc_website_batuser_get() { if( !tblpsc_website
 class Table_psc_website_repset* psc_website_repset_get() { if( !tblpsc_website_repset ) CreateTable_psc_website_repset(); return tblpsc_website_repset; }
 class Table_psc_website_schema* psc_website_schema_get() { if( !tblpsc_website_schema ) CreateTable_psc_website_schema(); return tblpsc_website_schema; }
 class Table_psc_website_tables* psc_website_tables_get() { if( !tblpsc_website_tables ) CreateTable_psc_website_tables(); return tblpsc_website_tables; }
-string m_sLastMySqlError;
+string m_sLastDBError;
 bool Connect(string host, string user, string pass, string sDBName, int port=3306);
 bool Connect(class DCEConfig *pDCEConfig);
 void Disconnect();

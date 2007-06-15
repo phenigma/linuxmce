@@ -28,8 +28,6 @@
 #include <vector>
 #include <map>
 
-#include <mysql.h>
-
 using namespace std;
 #include "PlutoUtils/StringUtils.h"
 #include "Table_CannedEvents_CriteriaParmList.h"
@@ -80,7 +78,7 @@ Table_CannedEvents_CriteriaParmList::~Table_CannedEvents_CriteriaParmList()
 
 void Row_CannedEvents_CriteriaParmList::Delete()
 {
-	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 	Row_CannedEvents_CriteriaParmList *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
@@ -111,7 +109,7 @@ void Row_CannedEvents_CriteriaParmList::Reload()
 {
 	Row_CannedEvents_CriteriaParmList *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 
-	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 	
 	
 	if (!is_added)
@@ -171,168 +169,168 @@ m_psc_restrict = 0;
 	is_modified=false;
 }
 
-long int Row_CannedEvents_CriteriaParmList::PK_CannedEvents_CriteriaParmList_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_CannedEvents_CriteriaParmList::PK_CannedEvents_CriteriaParmList_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return m_PK_CannedEvents_CriteriaParmList;}
-long int Row_CannedEvents_CriteriaParmList::FK_CannedEvents_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_CannedEvents_CriteriaParmList::FK_CannedEvents_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return m_FK_CannedEvents;}
-long int Row_CannedEvents_CriteriaParmList::FK_CriteriaParmList_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_CannedEvents_CriteriaParmList::FK_CriteriaParmList_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return m_FK_CriteriaParmList;}
-string Row_CannedEvents_CriteriaParmList::Description_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+string Row_CannedEvents_CriteriaParmList::Description_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return m_Description;}
-string Row_CannedEvents_CriteriaParmList::Comments_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+string Row_CannedEvents_CriteriaParmList::Comments_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return m_Comments;}
-short int Row_CannedEvents_CriteriaParmList::Operator_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+short int Row_CannedEvents_CriteriaParmList::Operator_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return m_Operator;}
-string Row_CannedEvents_CriteriaParmList::Parm_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+string Row_CannedEvents_CriteriaParmList::Parm_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return m_Parm;}
-string Row_CannedEvents_CriteriaParmList::DefaultValue_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+string Row_CannedEvents_CriteriaParmList::DefaultValue_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return m_DefaultValue;}
-string Row_CannedEvents_CriteriaParmList::ExtraInfo_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+string Row_CannedEvents_CriteriaParmList::ExtraInfo_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return m_ExtraInfo;}
-short int Row_CannedEvents_CriteriaParmList::Required_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+short int Row_CannedEvents_CriteriaParmList::Required_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return m_Required;}
-long int Row_CannedEvents_CriteriaParmList::psc_id_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_CannedEvents_CriteriaParmList::psc_id_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return m_psc_id;}
-long int Row_CannedEvents_CriteriaParmList::psc_batch_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_CannedEvents_CriteriaParmList::psc_batch_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return m_psc_batch;}
-long int Row_CannedEvents_CriteriaParmList::psc_user_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_CannedEvents_CriteriaParmList::psc_user_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return m_psc_user;}
-short int Row_CannedEvents_CriteriaParmList::psc_frozen_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+short int Row_CannedEvents_CriteriaParmList::psc_frozen_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return m_psc_frozen;}
-string Row_CannedEvents_CriteriaParmList::psc_mod_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+string Row_CannedEvents_CriteriaParmList::psc_mod_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return m_psc_mod;}
-long int Row_CannedEvents_CriteriaParmList::psc_restrict_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_CannedEvents_CriteriaParmList::psc_restrict_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return m_psc_restrict;}
 
 		
-void Row_CannedEvents_CriteriaParmList::PK_CannedEvents_CriteriaParmList_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_CannedEvents_CriteriaParmList::PK_CannedEvents_CriteriaParmList_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 m_PK_CannedEvents_CriteriaParmList = val; is_modified=true; is_null[0]=false;}
-void Row_CannedEvents_CriteriaParmList::FK_CannedEvents_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_CannedEvents_CriteriaParmList::FK_CannedEvents_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 m_FK_CannedEvents = val; is_modified=true; is_null[1]=false;}
-void Row_CannedEvents_CriteriaParmList::FK_CriteriaParmList_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_CannedEvents_CriteriaParmList::FK_CriteriaParmList_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 m_FK_CriteriaParmList = val; is_modified=true; is_null[2]=false;}
-void Row_CannedEvents_CriteriaParmList::Description_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_CannedEvents_CriteriaParmList::Description_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 m_Description = val; is_modified=true; is_null[3]=false;}
-void Row_CannedEvents_CriteriaParmList::Comments_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_CannedEvents_CriteriaParmList::Comments_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 m_Comments = val; is_modified=true; is_null[4]=false;}
-void Row_CannedEvents_CriteriaParmList::Operator_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_CannedEvents_CriteriaParmList::Operator_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 m_Operator = val; is_modified=true; is_null[5]=false;}
-void Row_CannedEvents_CriteriaParmList::Parm_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_CannedEvents_CriteriaParmList::Parm_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 m_Parm = val; is_modified=true; is_null[6]=false;}
-void Row_CannedEvents_CriteriaParmList::DefaultValue_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_CannedEvents_CriteriaParmList::DefaultValue_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 m_DefaultValue = val; is_modified=true; is_null[7]=false;}
-void Row_CannedEvents_CriteriaParmList::ExtraInfo_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_CannedEvents_CriteriaParmList::ExtraInfo_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 m_ExtraInfo = val; is_modified=true; is_null[8]=false;}
-void Row_CannedEvents_CriteriaParmList::Required_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_CannedEvents_CriteriaParmList::Required_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 m_Required = val; is_modified=true; is_null[9]=false;}
-void Row_CannedEvents_CriteriaParmList::psc_id_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_CannedEvents_CriteriaParmList::psc_id_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 m_psc_id = val; is_modified=true; is_null[10]=false;}
-void Row_CannedEvents_CriteriaParmList::psc_batch_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_CannedEvents_CriteriaParmList::psc_batch_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 m_psc_batch = val; is_modified=true; is_null[11]=false;}
-void Row_CannedEvents_CriteriaParmList::psc_user_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_CannedEvents_CriteriaParmList::psc_user_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 m_psc_user = val; is_modified=true; is_null[12]=false;}
-void Row_CannedEvents_CriteriaParmList::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_CannedEvents_CriteriaParmList::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 m_psc_frozen = val; is_modified=true; is_null[13]=false;}
-void Row_CannedEvents_CriteriaParmList::psc_mod_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_CannedEvents_CriteriaParmList::psc_mod_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 m_psc_mod = val; is_modified=true; is_null[14]=false;}
-void Row_CannedEvents_CriteriaParmList::psc_restrict_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_CannedEvents_CriteriaParmList::psc_restrict_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 m_psc_restrict = val; is_modified=true; is_null[15]=false;}
 
 		
-bool Row_CannedEvents_CriteriaParmList::Comments_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_CannedEvents_CriteriaParmList::Comments_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return is_null[4];}
-bool Row_CannedEvents_CriteriaParmList::Parm_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_CannedEvents_CriteriaParmList::Parm_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return is_null[6];}
-bool Row_CannedEvents_CriteriaParmList::DefaultValue_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_CannedEvents_CriteriaParmList::DefaultValue_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return is_null[7];}
-bool Row_CannedEvents_CriteriaParmList::ExtraInfo_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_CannedEvents_CriteriaParmList::ExtraInfo_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return is_null[8];}
-bool Row_CannedEvents_CriteriaParmList::psc_id_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_CannedEvents_CriteriaParmList::psc_id_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return is_null[10];}
-bool Row_CannedEvents_CriteriaParmList::psc_batch_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_CannedEvents_CriteriaParmList::psc_batch_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return is_null[11];}
-bool Row_CannedEvents_CriteriaParmList::psc_user_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_CannedEvents_CriteriaParmList::psc_user_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return is_null[12];}
-bool Row_CannedEvents_CriteriaParmList::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_CannedEvents_CriteriaParmList::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return is_null[13];}
-bool Row_CannedEvents_CriteriaParmList::psc_restrict_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_CannedEvents_CriteriaParmList::psc_restrict_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return is_null[15];}
 
 			
-void Row_CannedEvents_CriteriaParmList::Comments_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_CannedEvents_CriteriaParmList::Comments_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 is_null[4]=val;
 is_modified=true;
 }
-void Row_CannedEvents_CriteriaParmList::Parm_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_CannedEvents_CriteriaParmList::Parm_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 is_null[6]=val;
 is_modified=true;
 }
-void Row_CannedEvents_CriteriaParmList::DefaultValue_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_CannedEvents_CriteriaParmList::DefaultValue_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 is_null[7]=val;
 is_modified=true;
 }
-void Row_CannedEvents_CriteriaParmList::ExtraInfo_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_CannedEvents_CriteriaParmList::ExtraInfo_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 is_null[8]=val;
 is_modified=true;
 }
-void Row_CannedEvents_CriteriaParmList::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_CannedEvents_CriteriaParmList::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 is_null[10]=val;
 is_modified=true;
 }
-void Row_CannedEvents_CriteriaParmList::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_CannedEvents_CriteriaParmList::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 is_null[11]=val;
 is_modified=true;
 }
-void Row_CannedEvents_CriteriaParmList::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_CannedEvents_CriteriaParmList::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 is_null[12]=val;
 is_modified=true;
 }
-void Row_CannedEvents_CriteriaParmList::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_CannedEvents_CriteriaParmList::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 is_null[13]=val;
 is_modified=true;
 }
-void Row_CannedEvents_CriteriaParmList::psc_restrict_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_CannedEvents_CriteriaParmList::psc_restrict_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 is_null[15]=val;
 is_modified=true;
 }
@@ -340,7 +338,7 @@ is_modified=true;
 
 string Row_CannedEvents_CriteriaParmList::PK_CannedEvents_CriteriaParmList_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 if (is_null[0])
 return "NULL";
@@ -353,7 +351,7 @@ return buf;
 
 string Row_CannedEvents_CriteriaParmList::FK_CannedEvents_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 if (is_null[1])
 return "NULL";
@@ -366,7 +364,7 @@ return buf;
 
 string Row_CannedEvents_CriteriaParmList::FK_CriteriaParmList_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 if (is_null[2])
 return "NULL";
@@ -379,13 +377,13 @@ return buf;
 
 string Row_CannedEvents_CriteriaParmList::Description_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 if (is_null[3])
 return "NULL";
 
 char *buf = new char[201];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_Description.c_str(), (unsigned long) min((size_t)100,m_Description.size()));
+db_wrapper_real_escape_string(table->database->m_pDB, buf, m_Description.c_str(), (unsigned long) min((size_t)100,m_Description.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
@@ -393,13 +391,13 @@ return s;
 
 string Row_CannedEvents_CriteriaParmList::Comments_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 if (is_null[4])
 return "NULL";
 
 char *buf = new char[201];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_Comments.c_str(), (unsigned long) min((size_t)100,m_Comments.size()));
+db_wrapper_real_escape_string(table->database->m_pDB, buf, m_Comments.c_str(), (unsigned long) min((size_t)100,m_Comments.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
@@ -407,7 +405,7 @@ return s;
 
 string Row_CannedEvents_CriteriaParmList::Operator_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 if (is_null[5])
 return "NULL";
@@ -420,13 +418,13 @@ return buf;
 
 string Row_CannedEvents_CriteriaParmList::Parm_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 if (is_null[6])
 return "NULL";
 
 char *buf = new char[41];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_Parm.c_str(), (unsigned long) min((size_t)20,m_Parm.size()));
+db_wrapper_real_escape_string(table->database->m_pDB, buf, m_Parm.c_str(), (unsigned long) min((size_t)20,m_Parm.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
@@ -434,13 +432,13 @@ return s;
 
 string Row_CannedEvents_CriteriaParmList::DefaultValue_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 if (is_null[7])
 return "NULL";
 
 char *buf = new char[101];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_DefaultValue.c_str(), (unsigned long) min((size_t)50,m_DefaultValue.size()));
+db_wrapper_real_escape_string(table->database->m_pDB, buf, m_DefaultValue.c_str(), (unsigned long) min((size_t)50,m_DefaultValue.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
@@ -448,13 +446,13 @@ return s;
 
 string Row_CannedEvents_CriteriaParmList::ExtraInfo_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 if (is_null[8])
 return "NULL";
 
 char *buf = new char[131071];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_ExtraInfo.c_str(), (unsigned long) min((size_t)65535,m_ExtraInfo.size()));
+db_wrapper_real_escape_string(table->database->m_pDB, buf, m_ExtraInfo.c_str(), (unsigned long) min((size_t)65535,m_ExtraInfo.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
@@ -462,7 +460,7 @@ return s;
 
 string Row_CannedEvents_CriteriaParmList::Required_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 if (is_null[9])
 return "NULL";
@@ -475,7 +473,7 @@ return buf;
 
 string Row_CannedEvents_CriteriaParmList::psc_id_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 if (is_null[10])
 return "NULL";
@@ -488,7 +486,7 @@ return buf;
 
 string Row_CannedEvents_CriteriaParmList::psc_batch_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 if (is_null[11])
 return "NULL";
@@ -501,7 +499,7 @@ return buf;
 
 string Row_CannedEvents_CriteriaParmList::psc_user_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 if (is_null[12])
 return "NULL";
@@ -514,7 +512,7 @@ return buf;
 
 string Row_CannedEvents_CriteriaParmList::psc_frozen_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 if (is_null[13])
 return "NULL";
@@ -527,13 +525,13 @@ return buf;
 
 string Row_CannedEvents_CriteriaParmList::psc_mod_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 if (is_null[14])
 return "NULL";
 
 char *buf = new char[29];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_psc_mod.c_str(), (unsigned long) min((size_t)14,m_psc_mod.size()));
+db_wrapper_real_escape_string(table->database->m_pDB, buf, m_psc_mod.c_str(), (unsigned long) min((size_t)14,m_psc_mod.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
@@ -541,7 +539,7 @@ return s;
 
 string Row_CannedEvents_CriteriaParmList::psc_restrict_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 if (is_null[15])
 return "NULL";
@@ -563,7 +561,7 @@ Table_CannedEvents_CriteriaParmList::Key::Key(long int in_PK_CannedEvents_Criter
 
 Table_CannedEvents_CriteriaParmList::Key::Key(Row_CannedEvents_CriteriaParmList *pRow)
 {
-			PLUTO_SAFETY_LOCK_ERRORSONLY(sl,pRow->table->database->m_MySqlMutex);
+			PLUTO_SAFETY_LOCK_ERRORSONLY(sl,pRow->table->database->m_DBMutex);
 
 			pk_PK_CannedEvents_CriteriaParmList = pRow->m_PK_CannedEvents_CriteriaParmList;
 	
@@ -579,7 +577,7 @@ return false;
 
 bool Table_CannedEvents_CriteriaParmList::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_DBMutex);
 
 //insert added
 	while (!addedRows.empty())
@@ -596,16 +594,16 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_CannedEvent
 		string query = "insert into CannedEvents_CriteriaParmList (`PK_CannedEvents_CriteriaParmList`, `FK_CannedEvents`, `FK_CriteriaParmList`, `Description`, `Comments`, `Operator`, `Parm`, `DefaultValue`, `ExtraInfo`, `Required`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`, `psc_restrict`) values ("+
 			values_list_comma_separated+")";
 			
-		if (mysql_query(database->m_pMySQL, query.c_str()))
+		if (db_wrapper_query(database->m_pDB, query.c_str()))
 		{	
-			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
-			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-			bool bResult=database->MySQLConnect(true);
+			database->m_sLastDBError = db_wrapper_error(database->m_pDB);
+			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastDBError << endl;
+			bool bResult=database->DBConnect(true);
 			int iResult2=-1;
 			if( bResult )
-				iResult2 = mysql_query(database->m_pMySQL, query.c_str());
+				iResult2 = db_wrapper_query(database->m_pDB, query.c_str());
 			
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_CannedEvents_CriteriaParmList::Commit Cannot perform query [%s] %s reconnect: %d result2: %d",query.c_str(),database->m_sLastMySqlError.c_str(),(int) bResult, iResult2);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_CannedEvents_CriteriaParmList::Commit Cannot perform query [%s] %s reconnect: %d result2: %d",query.c_str(),database->m_sLastDBError.c_str(),(int) bResult, iResult2);
 			if( iResult2!=0 )  // We can keep going if the time it worked
 			{
 				if( bDeleteFailedInsertRow )
@@ -617,16 +615,16 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_CannedEvent
 			}
 		}
 	
-		if (mysql_affected_rows(database->m_pMySQL)!=0)
+		if (db_wrapper_affected_rows(database->m_pDB)!=0)
 		{
 			
 			
-			long int id = (long int) mysql_insert_id(database->m_pMySQL);
+			long int id = (long int) db_wrapper_insert_id(database->m_pDB);
 		
 			if (id!=0)
 		pRow->m_PK_CannedEvents_CriteriaParmList=id;
 else 
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"PK_CannedEvents_CriteriaParmList is auto increment but has no value %s",database->m_sLastMySqlError.c_str());	
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"PK_CannedEvents_CriteriaParmList is auto increment but has no value %s",database->m_sLastDBError.c_str());	
 			
 			addedRows.erase(i);
 			SingleLongKey key(pRow->m_PK_CannedEvents_CriteriaParmList);	
@@ -664,16 +662,16 @@ update_values_list = update_values_list + "`PK_CannedEvents_CriteriaParmList`="+
 	
 		string query = "update CannedEvents_CriteriaParmList set " + update_values_list + " where " + condition;
 			
-		if (mysql_query(database->m_pMySQL, query.c_str()))
+		if (db_wrapper_query(database->m_pDB, query.c_str()))
 		{	
-			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
-			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-			bool bResult=database->MySQLConnect(true);
+			database->m_sLastDBError = db_wrapper_error(database->m_pDB);
+			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastDBError << endl;
+			bool bResult=database->DBConnect(true);
 			int iResult2=-1;
 			if( bResult )
-				iResult2 = mysql_query(database->m_pMySQL, query.c_str());
+				iResult2 = db_wrapper_query(database->m_pDB, query.c_str());
 
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_CannedEvents_CriteriaParmList::Commit Cannot perform update query [%s] %s reconnect: %d result2: %d",query.c_str(),database->m_sLastMySqlError.c_str(),(int) bResult, iResult2);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_CannedEvents_CriteriaParmList::Commit Cannot perform update query [%s] %s reconnect: %d result2: %d",query.c_str(),database->m_sLastDBError.c_str(),(int) bResult, iResult2);
 			if( iResult2!=0 )  // We can keep going if the time it worked
 			{
 				if( bDeleteFailedModifiedRow )
@@ -718,16 +716,16 @@ condition = condition + "`PK_CannedEvents_CriteriaParmList`=" + tmp_PK_CannedEve
 	
 		string query = "delete from CannedEvents_CriteriaParmList where " + condition;
 		
-		if (mysql_query(database->m_pMySQL, query.c_str()))
+		if (db_wrapper_query(database->m_pDB, query.c_str()))
 		{	
-			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
-			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-			bool bResult=database->MySQLConnect(true);
+			database->m_sLastDBError = db_wrapper_error(database->m_pDB);
+			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastDBError << endl;
+			bool bResult=database->DBConnect(true);
 			int iResult2=-1;
 			if( bResult )
-				iResult2 = mysql_query(database->m_pMySQL, query.c_str());
+				iResult2 = db_wrapper_query(database->m_pDB, query.c_str());
 
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_CannedEvents_CriteriaParmList::Commit Cannot perform delete query [%s] %s reconnect: %d result2: %d",query.c_str(),database->m_sLastMySqlError.c_str(),(int) bResult, iResult2);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_CannedEvents_CriteriaParmList::Commit Cannot perform delete query [%s] %s reconnect: %d result2: %d",query.c_str(),database->m_sLastDBError.c_str(),(int) bResult, iResult2);
 			if( iResult2!=0 )  // We can keep going if the time it worked
 				return false;
 		}	
@@ -742,7 +740,7 @@ condition = condition + "`PK_CannedEvents_CriteriaParmList`=" + tmp_PK_CannedEve
 
 bool Table_CannedEvents_CriteriaParmList::GetRows(string where_statement,vector<class Row_CannedEvents_CriteriaParmList*> *rows)
 {
-	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_DBMutex);
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || 
@@ -759,36 +757,36 @@ bool Table_CannedEvents_CriteriaParmList::GetRows(string where_statement,vector<
 	else
 		query = "select `CannedEvents_CriteriaParmList`.* from CannedEvents_CriteriaParmList";
 		
-	if (mysql_query(database->m_pMySQL, query.c_str()))
+	if (db_wrapper_query(database->m_pDB, query.c_str()))
 	{	
-		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
-		cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-		bool bResult=database->MySQLConnect(true);
+		database->m_sLastDBError = db_wrapper_error(database->m_pDB);
+		cerr << "Cannot perform query: [" << query << "] " << database->m_sLastDBError << endl;
+		bool bResult=database->DBConnect(true);
 		int iResult2=-1;
 		if( bResult )
-			iResult2 = mysql_query(database->m_pMySQL, query.c_str());
+			iResult2 = db_wrapper_query(database->m_pDB, query.c_str());
 
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_CannedEvents_CriteriaParmList::GetRows Cannot perform query [%s] %s reconnect: %d result2: %d",query.c_str(),database->m_sLastMySqlError.c_str(),(int) bResult, iResult2);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_CannedEvents_CriteriaParmList::GetRows Cannot perform query [%s] %s reconnect: %d result2: %d",query.c_str(),database->m_sLastDBError.c_str(),(int) bResult, iResult2);
 		if( iResult2!=0 )  // We can keep going if the time it worked
 			return false;
 	}	
 
-	MYSQL_RES *res = mysql_store_result(database->m_pMySQL);
+	DB_RES *res = db_wrapper_store_result(database->m_pDB);
 	
 	if (!res)
 	{
-		cerr << "mysql_store_result returned NULL handler" << endl;
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_CannedEvents_CriteriaParmList::GetRows mysql_store_result returned NULL handler");
-		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
+		cerr << "db_wrapper_store_result returned NULL handler" << endl;
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_CannedEvents_CriteriaParmList::GetRows db_wrapper_store_result returned NULL handler");
+		database->m_sLastDBError = db_wrapper_error(database->m_pDB);
 		return false;
 	}	
 	
-	MYSQL_ROW row;
+	DB_ROW row;
 						
 		
-	while ((row = mysql_fetch_row(res)) != NULL)
+	while ((row = db_wrapper_fetch_row(res)) != NULL)
 	{	
-		unsigned long *lengths = mysql_fetch_lengths(res);
+		unsigned long *lengths = db_wrapper_fetch_lengths(res);
 
 		Row_CannedEvents_CriteriaParmList *pRow = new Row_CannedEvents_CriteriaParmList(this);
 		
@@ -987,14 +985,14 @@ sscanf(row[15], "%li", &(pRow->m_psc_restrict));
 		cachedRows[key] = pRow;
 	}
 
-	mysql_free_result(res);			
+	db_wrapper_free_result(res);			
 		
 	return true;					
 }
 
 Row_CannedEvents_CriteriaParmList* Table_CannedEvents_CriteriaParmList::AddRow()
 {
-	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_DBMutex);
 
 	Row_CannedEvents_CriteriaParmList *pRow = new Row_CannedEvents_CriteriaParmList(this);
 	pRow->is_added=true;
@@ -1006,7 +1004,7 @@ Row_CannedEvents_CriteriaParmList* Table_CannedEvents_CriteriaParmList::AddRow()
 
 Row_CannedEvents_CriteriaParmList* Table_CannedEvents_CriteriaParmList::GetRow(long int in_PK_CannedEvents_CriteriaParmList)
 {
-	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_DBMutex);
 
 	SingleLongKey row_key(in_PK_CannedEvents_CriteriaParmList);
 
@@ -1034,7 +1032,7 @@ Row_CannedEvents_CriteriaParmList* Table_CannedEvents_CriteriaParmList::GetRow(l
 
 Row_CannedEvents_CriteriaParmList* Table_CannedEvents_CriteriaParmList::FetchRow(SingleLongKey &key)
 {
-	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_DBMutex);
 
 	//defines the string query for the value of key
 	char tmp_PK_CannedEvents_CriteriaParmList[32];
@@ -1047,40 +1045,40 @@ condition = condition + "`PK_CannedEvents_CriteriaParmList`=" + tmp_PK_CannedEve
 
 	string query = "select * from CannedEvents_CriteriaParmList where " + condition;		
 
-	if (mysql_query(database->m_pMySQL, query.c_str()))
+	if (db_wrapper_query(database->m_pDB, query.c_str()))
 	{	
-		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
-		cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-		bool bResult=database->MySQLConnect(true);
+		database->m_sLastDBError = db_wrapper_error(database->m_pDB);
+		cerr << "Cannot perform query: [" << query << "] " << database->m_sLastDBError << endl;
+		bool bResult=database->DBConnect(true);
 		int iResult2=-1;
 		if( bResult )
-			iResult2 = mysql_query(database->m_pMySQL, query.c_str());
+			iResult2 = db_wrapper_query(database->m_pDB, query.c_str());
 
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_CannedEvents_CriteriaParmList::FetchRow Cannot perform query [%s] %s reconnect: %d result2: %d",query.c_str(),database->m_sLastMySqlError.c_str(),(int) bResult, iResult2);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_CannedEvents_CriteriaParmList::FetchRow Cannot perform query [%s] %s reconnect: %d result2: %d",query.c_str(),database->m_sLastDBError.c_str(),(int) bResult, iResult2);
 		if( iResult2!=0 )  // We can keep going if the time it worked
 			return NULL;
 	}	
 
-	MYSQL_RES *res = mysql_store_result(database->m_pMySQL);
+	DB_RES *res = db_wrapper_store_result(database->m_pDB);
 	
 	if (!res)
 	{
-		cerr << "mysql_store_result returned NULL handler" << endl;
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_CannedEvents_CriteriaParmList::FetchRow mysql_store_result returned NULL handler");
-		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
+		cerr << "db_wrapper_store_result returned NULL handler" << endl;
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_CannedEvents_CriteriaParmList::FetchRow db_wrapper_store_result returned NULL handler");
+		database->m_sLastDBError = db_wrapper_error(database->m_pDB);
 		return NULL;
 	}	
 	
-	MYSQL_ROW row = mysql_fetch_row(res);
+	DB_ROW row = db_wrapper_fetch_row(res);
 	
 	if (!row)
 	{
 		//dataset is empty
-		mysql_free_result(res);			
+		db_wrapper_free_result(res);			
 		return NULL;		
 	}	
 						
-	unsigned long *lengths = mysql_fetch_lengths(res);
+	unsigned long *lengths = db_wrapper_fetch_lengths(res);
 
 	Row_CannedEvents_CriteriaParmList *pRow = new Row_CannedEvents_CriteriaParmList(this);
 		
@@ -1262,7 +1260,7 @@ sscanf(row[15], "%li", &(pRow->m_psc_restrict));
 
 
 
-	mysql_free_result(res);			
+	db_wrapper_free_result(res);			
 	
 	return pRow;						
 }
@@ -1270,14 +1268,14 @@ sscanf(row[15], "%li", &(pRow->m_psc_restrict));
 
 class Row_CannedEvents* Row_CannedEvents_CriteriaParmList::FK_CannedEvents_getrow()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 class Table_CannedEvents *pTable = table->database->CannedEvents_get();
 return pTable->GetRow(m_FK_CannedEvents);
 }
 class Row_CriteriaParmList* Row_CannedEvents_CriteriaParmList::FK_CriteriaParmList_getrow()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 class Table_CriteriaParmList *pTable = table->database->CriteriaParmList_get();
 return pTable->GetRow(m_FK_CriteriaParmList);
@@ -1286,7 +1284,7 @@ return pTable->GetRow(m_FK_CriteriaParmList);
 
 void Row_CannedEvents_CriteriaParmList::CriteriaParm_FK_CannedEvents_CriteriaParmList_getrows(vector <class Row_CriteriaParm*> *rows)
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 class Table_CriteriaParm *pTable = table->database->CriteriaParm_get();
 pTable->GetRows("`FK_CannedEvents_CriteriaParmList`=" + StringUtils::itos(m_PK_CannedEvents_CriteriaParmList),rows);
