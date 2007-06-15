@@ -310,6 +310,7 @@ public:
 	bool AdjustScreenSettings_KeyDown(CallBackData *pData);
 	bool AdjustScreenSettings_OnTimer(CallBackData *pData);
 	bool AdjustScreenSettings_RemoteKeyCodeIntercepted(CallBackData *pData);
+	bool AdjustScreenSettings_ObjectSelected(CallBackData *pData);
 
 	PlutoPoint AdjustScreenSettings_LoadOffset();
 	void AdjustScreenSettings_SaveOffset(PlutoPoint offset);

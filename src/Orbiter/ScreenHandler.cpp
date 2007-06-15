@@ -3074,6 +3074,7 @@ void ScreenHandler::SCREEN_AdjustScreenSettings(long PK_Screen)
 	m_ScreenOffset = AdjustScreenSettings_LoadOffset();
 	m_nScreenSpacing = AdjustScreenSettings_LoadSpacing();
 
+	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::AdjustScreenSettings_ObjectSelected,	new ObjectInfoBackData());
 	RegisterCallBack(cbOnTimer,	(ScreenHandlerCallBack) &ScreenHandler::AdjustScreenSettings_OnTimer, new CallBackData());
 	RegisterCallBack(cbOnKeyDown, (ScreenHandlerCallBack) &ScreenHandler::AdjustScreenSettings_KeyDown, new KeyCallBackData());
 	RegisterCallBack(cbOnRemoteKeyCodeIntercepted, (ScreenHandlerCallBack) &ScreenHandler::AdjustScreenSettings_RemoteKeyCodeIntercepted, new RemoteKeyCodeCallBackData());
@@ -3090,6 +3091,19 @@ void ScreenHandler::AdjustScreenSettings_DrawArrows()
 	m_pOrbiter->Renderer()->DrawArrow(center_point.operator +(m_ScreenOffset), m_ScreenOffset.operator +(PlutoPoint(m_pOrbiter->m_iImageWidth * (100 - m_nScreenSpacing) / 100, m_pOrbiter->m_iImageHeight * (100 - m_nScreenSpacing) / 100)), arrow_size, PlutoColor::Red(), "", "arrow2");
 	m_pOrbiter->Renderer()->DrawArrow(center_point.operator +(m_ScreenOffset), m_ScreenOffset.operator +(PlutoPoint(0, m_pOrbiter->m_iImageHeight * (100 - m_nScreenSpacing) / 100)), arrow_size, PlutoColor::Red(), "", "arrow3");
 	m_pOrbiter->Renderer()->DrawArrow(center_point.operator +(m_ScreenOffset), m_ScreenOffset.operator +(PlutoPoint(m_pOrbiter->m_iImageWidth * (100 - m_nScreenSpacing) / 100, 0)), arrow_size, PlutoColor::Red(), "", "arrow4");
+}
+
+bool ScreenHandler::AdjustScreenSettings_ObjectSelected(CallBackData *pData)
+{
+	ObjectInfoBackData *pObjectInfoData = dynamic_cast<ObjectInfoBackData *>(pData);
+	if(NULL != pObjectInfoData && pObjectInfoData->m_pObj->m_iBaseObjectID == DESIGNOBJ_butConfirm_CONST)
+	{
+		AdjustScreenSettings_SaveOffset(m_ScreenOffset);
+		AdjustScreenSettings_SaveSpacing(m_nScreenSpacing);
+
+		m_pOrbiter->GotoMainMenu();
+	}
+	return false; // Keep processing it
 }
 
 bool ScreenHandler::AdjustScreenSettings_KeyDown(CallBackData *pData)
@@ -3122,11 +3136,6 @@ bool ScreenHandler::AdjustScreenSettings_KeyDown(CallBackData *pData)
 	else if(pKeyCallBackData->m_nPlutoKey == BUTTON_dash_CONST)
 	{
 		m_nScreenSpacing++;
-	}
-	else if(pKeyCallBackData->m_nPlutoKey == BUTTON_Enter_CONST)
-	{
-		AdjustScreenSettings_SaveOffset(m_ScreenOffset);
-		AdjustScreenSettings_SaveSpacing(m_nScreenSpacing);
 	}
 	else
 	{
