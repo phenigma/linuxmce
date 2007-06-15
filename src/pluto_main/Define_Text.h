@@ -1223,6 +1223,7 @@
 #define TEXT_wizard_jump_CONST 1967
 #define TEXT_Media_providers_CONST 1968
 #define TEXT_pnp_active_CONST 1969
+#define TEXT_Save_settings_and_Regen_Orbiter_CONST 1970
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
