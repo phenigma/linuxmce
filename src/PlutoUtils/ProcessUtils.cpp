@@ -586,3 +586,4 @@ bool ProcessUtils::RunApplicationAndGetOutput(string sCommandLine, string& sOutp
 
 	return bResult;
 }
+

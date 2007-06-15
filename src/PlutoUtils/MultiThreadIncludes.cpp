@@ -172,7 +172,9 @@ PlutoLock::~PlutoLock()
 	if( m_LockNum )
 	{
 		MutexTracking::Lock();
+#ifdef THREAD_LOG
 		int size1 = MutexTracking::GetSize();
+#endif		
 		if( MutexTracking::RemoveFromMap(m_LockNum,this)!=0 )
 		{
 			MutexTracking::UnLock();
@@ -182,7 +184,10 @@ PlutoLock::~PlutoLock()
 		}
 		else
 		{
+#ifdef THREAD_LOG
 			int size2 = MutexTracking::GetSize();
+#endif
+			
 			MutexTracking::UnLock();
 
 #ifdef THREAD_LOG
