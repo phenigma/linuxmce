@@ -3084,13 +3084,23 @@ void ScreenHandler::SCREEN_AdjustScreenSettings(long PK_Screen)
 
 void ScreenHandler::AdjustScreenSettings_DrawArrows()
 {
-	PlutoPoint center_point((100 - m_nScreenSpacing) * m_pOrbiter->m_iImageWidth / (2 * 100), (100 - m_nScreenSpacing) * m_pOrbiter->m_iImageHeight / (2 * 100));
-	PlutoSize arrow_size(24, 40);
+	PlutoPoint spacing_offset(
+		m_nScreenSpacing * m_pOrbiter->m_iImageWidth / (2 * 100),
+		m_nScreenSpacing * m_pOrbiter->m_iImageHeight / (2 * 100)
+	);
 
-	m_pOrbiter->Renderer()->DrawArrow(center_point.operator +(m_ScreenOffset), m_ScreenOffset, arrow_size, PlutoColor::Red(), "", "arrow1");
-	m_pOrbiter->Renderer()->DrawArrow(center_point.operator +(m_ScreenOffset), m_ScreenOffset.operator +(PlutoPoint(m_pOrbiter->m_iImageWidth * (100 - m_nScreenSpacing) / 100, m_pOrbiter->m_iImageHeight * (100 - m_nScreenSpacing) / 100)), arrow_size, PlutoColor::Red(), "", "arrow2");
-	m_pOrbiter->Renderer()->DrawArrow(center_point.operator +(m_ScreenOffset), m_ScreenOffset.operator +(PlutoPoint(0, m_pOrbiter->m_iImageHeight * (100 - m_nScreenSpacing) / 100)), arrow_size, PlutoColor::Red(), "", "arrow3");
-	m_pOrbiter->Renderer()->DrawArrow(center_point.operator +(m_ScreenOffset), m_ScreenOffset.operator +(PlutoPoint(m_pOrbiter->m_iImageWidth * (100 - m_nScreenSpacing) / 100, 0)), arrow_size, PlutoColor::Red(), "", "arrow4");
+	PlutoPoint center_point(
+		(100 - m_nScreenSpacing) * m_pOrbiter->m_iImageWidth / (2 * 100), 
+		(100 - m_nScreenSpacing) * m_pOrbiter->m_iImageHeight / (2 * 100)
+	);
+
+	PlutoSize arrow_size(24, 40);
+	PlutoPoint total_offset = PlutoPoint(m_ScreenOffset.X + spacing_offset.X, m_ScreenOffset.Y + spacing_offset.Y);
+		
+	m_pOrbiter->Renderer()->DrawArrow(center_point.operator +(total_offset), total_offset, arrow_size, PlutoColor::Red(), "", "arrow1");
+	m_pOrbiter->Renderer()->DrawArrow(center_point.operator +(total_offset), total_offset.operator +(PlutoPoint(m_pOrbiter->m_iImageWidth * (100 - m_nScreenSpacing) / 100, m_pOrbiter->m_iImageHeight * (100 - m_nScreenSpacing) / 100)), arrow_size, PlutoColor::Red(), "", "arrow2");
+	m_pOrbiter->Renderer()->DrawArrow(center_point.operator +(total_offset), total_offset.operator +(PlutoPoint(0, m_pOrbiter->m_iImageHeight * (100 - m_nScreenSpacing) / 100)), arrow_size, PlutoColor::Red(), "", "arrow3");
+	m_pOrbiter->Renderer()->DrawArrow(center_point.operator +(total_offset), total_offset.operator +(PlutoPoint(m_pOrbiter->m_iImageWidth * (100 - m_nScreenSpacing) / 100, 0)), arrow_size, PlutoColor::Red(), "", "arrow4");
 }
 
 bool ScreenHandler::AdjustScreenSettings_ObjectSelected(CallBackData *pData)
