@@ -1,6 +1,8 @@
 #ifndef __MENU_HOLDER_H__
 #define __MENU_HOLDER_H__
 //--------------------------------------------------------------------------------------------------------
+#include <string>
+//--------------------------------------------------------------------------------------------------------
 class MenuItem;
 class ActionProcessor;
 //--------------------------------------------------------------------------------------------------------
@@ -30,8 +32,8 @@ public:
 	void Home();
 	void Restore();
 
-	MenuItem *GetAudioSettingsNode();
-	MenuItem *GetVideoSettingsNode();
+	MenuItem *GetTopChildNode(std::string sDescription);
+	MenuItem *GetChildNode(std::string sTopChildDescription, std::string sSecondLevelChildDescription);
 };
 //--------------------------------------------------------------------------------------------------------
 #endif //__MENU_HOLDER_H__

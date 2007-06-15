@@ -93,27 +93,32 @@ void MenuHolder::Restore()
 	m_pCurrentMenuItem = m_pLastCurrentMenuItem;
 }
 //--------------------------------------------------------------------------------------------------------
-MenuItem *MenuHolder::GetAudioSettingsNode()
+MenuItem *MenuHolder::GetTopChildNode(string sDescription)
 {
 	for(vector<MenuItem *>::const_iterator it = m_pRootMenuItem->Children().begin(); 
 		it != m_pRootMenuItem->Children().end(); ++it)
 	{
 		MenuItem *pChild = *it;
-		if(pChild->Description() == "Audio settings")
+		if(pChild->Description() == sDescription)
 			return pChild;
 	}
 
 	return NULL;
 }
 //--------------------------------------------------------------------------------------------------------
-MenuItem *MenuHolder::GetVideoSettingsNode()
+MenuItem *MenuHolder::GetChildNode(std::string sTopChildDescription, std::string sSecondLevelChildDescription)
 {
-	for(vector<MenuItem *>::const_iterator it = m_pRootMenuItem->Children().begin(); 
-		it != m_pRootMenuItem->Children().end(); ++it)
+	MenuItem *pTopChildNone = GetTopChildNode(sTopChildDescription);
+
+	if(NULL != pTopChildNone)
 	{
-		MenuItem *pChild = *it;
-		if(pChild->Description() == "Video settings")
-			return pChild;
+		for(vector<MenuItem *>::const_iterator it = pTopChildNone->Children().begin(); 
+			it != pTopChildNone->Children().end(); ++it)
+		{
+			MenuItem *pChild = *it;
+			if(pChild->Description() == sSecondLevelChildDescription)
+				return pChild;
+		}
 	}
 
 	return NULL;

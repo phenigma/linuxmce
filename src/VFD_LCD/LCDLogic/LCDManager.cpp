@@ -334,8 +334,8 @@ void LCDManager::GenerateOrbiterNodes(MenuItem *pMenuItem)
 void LCDManager::GenerateMDNodes(MenuItem *pMenuItem)
 {
 	//get audio and video settings nodes
-	MenuItem *pAudioSettingsNode = m_pMenuHolder->GetAudioSettingsNode();
-	MenuItem *pVideoSettingsNode = m_pMenuHolder->GetVideoSettingsNode();
+	MenuItem *pAudioSettingsNode = m_pMenuHolder->GetTopChildNode("Audio settings");
+	MenuItem *pVideoSettingsNode = m_pMenuHolder->GetTopChildNode("Video settings");
 
 	if(NULL == pAudioSettingsNode || NULL == pVideoSettingsNode)
 	{
@@ -388,8 +388,8 @@ void LCDManager::GenerateMDNodes(MenuItem *pMenuItem)
 void LCDManager::SetupCoreNodes(MenuItem *pMenuItem)
 {
 	//get audio and video settings nodes
-	MenuItem *pAudioSettingsNode = m_pMenuHolder->GetAudioSettingsNode();
-	MenuItem *pVideoSettingsNode = m_pMenuHolder->GetVideoSettingsNode();
+	MenuItem *pAudioSettingsNode = m_pMenuHolder->GetTopChildNode("Audio settings");
+	MenuItem *pVideoSettingsNode = m_pMenuHolder->GetTopChildNode("Video settings");
 
 	if(NULL == pAudioSettingsNode || NULL == pVideoSettingsNode)
 	{
@@ -433,26 +433,22 @@ void LCDManager::SetupCoreNodes(MenuItem *pMenuItem)
 //--------------------------------------------------------------------------------------------------------
 void LCDManager::LoadNetworkInfo()
 {
-	//TODO: embed it in the xml
-	string sDisplayNetworkSettings("/usr/pluto/bin/Display_NetworkSettings.sh");
+	MenuItem* pMenuItem = m_pMenuHolder->GetChildNode("Network Settings", "View Settings");
+
+	if(NULL == pMenuItem || NULL == pMenuItem->Action())
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Network Settings -> View Settings node is missing");
+		return;
+	}
 
 	string sNetworkInfo;
+	string sDisplayNetworkSettings = pMenuItem->Action()->Description();
+
 	if(!ProcessUtils::RunApplicationAndGetOutput(sDisplayNetworkSettings, sNetworkInfo))
 	{
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Got now info from %s", sDisplayNetworkSettings.c_str());
 		return;
 	}
-
-	//sNetworkInfo = 
-	//	"INTERNAL_IP=192.168.89.1\r\n"
-	//	"INTERNAL_NETMASK=255.255.255.0\r\n"
-	//	"INTERNAL_MAC=00-15-F2-21-BE-2B\r\n"
-	//	"EXTERNAL_IP=10..0.89\r\n"
-	//	"EXTERNAL_NETMASK=255.255.255.0\r\n"
-	//	"EXTERNAL_MAC=00-17-E3-76-F2-42\r\n"
-	//	"GATEWAY=10.0.0.1\r\n"
-	//	"DNS1=10.0.0.1\r\n"
-	//	"DNS2=85.77.255.193\r\n";
 
 	//get rid of any \n
 	sNetworkInfo = StringUtils::Replace(sNetworkInfo, "\r\n", "\r");

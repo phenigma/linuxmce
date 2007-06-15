@@ -21,13 +21,16 @@
 				<menuitem description="" type="input" value="{DNS2}" mask="xxx.xxx.xxx.xxx" actiontype="execute_script" action="/usr/pluto/bin/SetupNetwork.sh --dns2 {VALUE}" />
 			</menuitem>
 		</menuitem>
-		<menuitem description="View settings">
+		<menuitem description="View Settings" action="/usr/pluto/bin/Network_DisplaySettings.sh --all">
+			<menuitem description="Internal interface" value="{INTERNAL_IFACE}" />
 			<menuitem description="Internal IP" value="{INTERNAL_IP}" />
-			<menuitem description="Internal IP netmask" value="{INTERNAL_NETMASK}" />
-			<menuitem description="Internal NIC MAC" value="{INTERNAL_MAC}" />
+			<menuitem description="Internal netmask" value="{INTERNAL_NETMASK}" />
+			<menuitem description="Internal MAC" value="{INTERNAL_MAC}" />
+			<menuitem description="External interface" value="{EXTERNAL_IFACE}" />
+			<menuitem description="External uses DHCP" value="{EXTERNAL_DHCP}" />
 			<menuitem description="External IP" value="{EXTERNAL_IP}" />
-			<menuitem description="External IP netmask" value="{EXTERNAL_NETMASK}" />
-			<menuitem description="External NIC MAC" value="{EXTERNAL_MAC}" />
+			<menuitem description="External netmask" value="{EXTERNAL_NETMASK}" />
+			<menuitem description="External MAC" value="{EXTERNAL_MAC}" />
 			<menuitem description="Gateway" value="{GATEWAY}" />
 			<menuitem description="DNS1" value="{DNS1}" />
 			<menuitem description="DNS2" value="{DNS2}" />
