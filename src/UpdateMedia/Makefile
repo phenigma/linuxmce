@@ -7,6 +7,15 @@ CXXFLAGS=-I. -I.. -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql
 LDFLAGS=-L$(ROOT)/lib -L/usr/local/lib
 LDLIBS= -lpluto_media -lpluto_main -lDCECommon -lSerializeClass -lmysqlclient_r -lPlutoUtils -lpthread -lid3
 
+#<-mkr_B_use_mysql_wrapper_b->
+CPPFLAGS += -I/usr/include/mysql
+LDFLAGS += -lmysqlclient_r
+#<-mkr_B_use_mysql_wrapper_e->
+
+#<-mkr_b_use_mysql_wrapper_b->
+CPPFLAGS += -DUSE_MYSQL_WRAPPER
+#<-mkr_b_use_mysql_wrapper_e->
+
 sources = Main.cpp \
 UpdateMedia.cpp \
 PlutoMediaFile.cpp \

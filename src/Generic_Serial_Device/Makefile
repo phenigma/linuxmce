@@ -23,6 +23,15 @@ CPPFLAGS += -I$(ROOT)/MessageTranslation -I/usr/lib/ruby/1.8/i386-linux -I/usr/l
 LDFLAGS +=
 XTRALDLIBS = -lruby1.8 -lSerial -lrt -lMessageTranslation
 
+#<-mkr_B_use_mysql_wrapper_b->
+CPPFLAGS += -I/usr/include/mysql
+LDFLAGS += -lmysqlclient_r
+#<-mkr_B_use_mysql_wrapper_e->
+
+#<-mkr_b_use_mysql_wrapper_b->
+CPPFLAGS += -DUSE_MYSQL_WRAPPER
+#<-mkr_b_use_mysql_wrapper_e->
+
 Gen_Dev_Files +=
 sources += $(ROOT)/Serial/GenericIODevice.cpp FileCodeSupplier.cpp IOEvent.cpp IOMutex.cpp IOPool.cpp IOThread.cpp LoopStateMachine.cpp RubyEmbeder.cpp RubyEmbededClass.cpp RubyExceptions.cpp RubyStdStreamRedirector.cpp SerialInterceptorCodeSupplier.cpp SerialIOConnection.cpp NetworkIOConnection.cpp SerialIOPool.cpp NetworkIOPool.cpp StateMachine.cpp TestEmbededClass.cpp TestRubyEmbederCodeSupplier.cpp RubySerialWrapper.cpp RubySerialIOWrapper.cpp RubyDeviceWrapper.cpp RubyDCECodeSupplier.cpp RubyDCEEmbededClass.cpp RubyIOManager.cpp RubyIOPool.cpp RubyCommandWrapper.cpp BufferedIOConnection.cpp RubySerialIOConnectionWrapper.cpp IOUtils.cpp GSDMessageProcessing.cpp RubyDCEDeviceNode.cpp
 
