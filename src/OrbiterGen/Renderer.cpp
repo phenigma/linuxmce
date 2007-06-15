@@ -143,8 +143,9 @@ void Renderer::RenderObject(RendererImage *pRenderImage, DesignObj_Generator *pD
 
 	if( pDesignObj_Generator->m_ObjectID.find("5363")!=string::npos )
 	{
-		LoggerWrapper::GetInstance()->Write(LV_WARNING,"renderer DESIGNOBJ_butFBSF_Go_CONST %s %d,%d %d,%d",pDesignObj_Generator->m_ObjectID.c_str(),
-			pDesignObj_Generator->m_rPosition.X,pDesignObj_Generator->m_rPosition.Y,pDesignObj_Generator->m_rBackgroundPosition.X,pDesignObj_Generator->m_rBackgroundPosition.Y);
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"renderer DESIGNOBJ_butFBSF_Go_CONST %s %d,%d-%d,%d %d,%d-%d,%d",pDesignObj_Generator->m_ObjectID.c_str(),
+			pDesignObj_Generator->m_rPosition.X,pDesignObj_Generator->m_rPosition.Y,pDesignObj_Generator->m_rPosition.Width,pDesignObj_Generator->m_rPosition.Height,
+			pDesignObj_Generator->m_rBackgroundPosition.X,pDesignObj_Generator->m_rBackgroundPosition.Y,pDesignObj_Generator->m_rBackgroundPosition.Width,pDesignObj_Generator->m_rBackgroundPosition.Height);
 	}
 
     for(int iIteration=StartingValue;iIteration>=EndingValue;--iIteration)

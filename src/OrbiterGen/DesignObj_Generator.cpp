@@ -621,8 +621,9 @@ int k=2;
 
 	if( m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Go_CONST )
 	{
-		LoggerWrapper::GetInstance()->Write(LV_WARNING,"start 2 DESIGNOBJ_butFBSF_Go_CONST %d,%d %d,%d",
-			this->m_rPosition.X,m_rPosition.Y,this->m_rBackgroundPosition.X,this->m_rBackgroundPosition.Y);
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"start 2 DESIGNOBJ_butFBSF_Go_CONST %d,%d-%d,%d %d,%d-%d,%d",
+			this->m_rPosition.X,m_rPosition.Y,m_rPosition.Width,m_rPosition.Height,
+			this->m_rBackgroundPosition.X,this->m_rBackgroundPosition.Y,m_rBackgroundPosition.Width,m_rBackgroundPosition.Height);
 	}
 
 	// See if there's a button
@@ -2029,8 +2030,9 @@ int k=2;
 
 	if( m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Go_CONST )
 	{
-		LoggerWrapper::GetInstance()->Write(LV_WARNING,"ScaleAllValues 1 DESIGNOBJ_butFBSF_Go_CONST %d,%d %d,%d %d,%d %d,%d /%d",
-			this->m_rPosition.X,m_rPosition.Y,this->m_rBackgroundPosition.X,this->m_rBackgroundPosition.Y,
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"ScaleAllValues 1 DESIGNOBJ_butFBSF_Go_CONST %d,%d-%d,%d %d,%d-%d,%d %d,%d %d,%d /%d",
+			this->m_rPosition.X,m_rPosition.Y,m_rPosition.Width,m_rPosition.Height,
+			this->m_rBackgroundPosition.X,this->m_rBackgroundPosition.Y,m_rBackgroundPosition.Width,m_rBackgroundPosition.Height,
 			FactorX,FactorY,FactorX_Origin,FactorY_Origin,(int) m_bValuesScaled);
 	}
 	if( !m_bValuesScaled )
@@ -2051,8 +2053,9 @@ int k=2;
 
 	if( m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Go_CONST )
 	{
-		LoggerWrapper::GetInstance()->Write(LV_WARNING,"ScaleAllValues 2 DESIGNOBJ_butFBSF_Go_CONST %d,%d %d,%d %d,%d %d,%d /%d  %d,%d %d,%d %d,%d",
-			this->m_rPosition.X,m_rPosition.Y,this->m_rBackgroundPosition.X,this->m_rBackgroundPosition.Y,
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"ScaleAllValues 2 DESIGNOBJ_butFBSF_Go_CONST %d,%d-%d,%d %d,%d-%d,%d %d,%d %d,%d /%d  %d,%d %d,%d %d,%d",
+			this->m_rPosition.X,m_rPosition.Y,m_rPosition.Width,m_rPosition.Height,
+			this->m_rBackgroundPosition.X,this->m_rBackgroundPosition.Y,m_rBackgroundPosition.Width,m_rBackgroundPosition.Height,
 			FactorX,FactorY,FactorX_Origin,FactorY_Origin,(int) m_bValuesScaled,
 			p3.X,p3.Y,p2.X,p2.Y,p.X,p.Y);
 	}
