@@ -1,7 +1,6 @@
 #ifndef __Database_pluto_speech_H_
 #define __Database_pluto_speech_H_
-#include <mysql.h>
-#include "PlutoUtils/MySQLHelper.h"
+#include "PlutoUtils/DBHelper.h"
 #include "DCE/Logger.h"
 #ifdef WIN32
 #ifdef EXPORT_DLL
@@ -16,10 +15,10 @@
 #else
 #define DECLSPECIFIER
 #endif
-class DECLSPECIFIER MySqlHelper;
+class DECLSPECIFIER DBHelper;
 class DECLSPECIFIER SerializeClass;
 
-class DECLSPECIFIER Database_pluto_speech: public MySqlHelper
+class DECLSPECIFIER Database_pluto_speech: public DBHelper
 {
 public:
 Database_pluto_speech(Logger *pLogger=NULL);
@@ -33,7 +32,7 @@ bool Commit_Keyword(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 public:
 class Table_Alias* Alias_get() { if( !tblAlias ) CreateTable_Alias(); return tblAlias; }
 class Table_Keyword* Keyword_get() { if( !tblKeyword ) CreateTable_Keyword(); return tblKeyword; }
-string m_sLastMySqlError;
+string m_sLastDBError;
 bool Connect(string host, string user, string pass, string sDBName, int port=3306);
 bool Connect(class DCEConfig *pDCEConfig);
 void Disconnect();

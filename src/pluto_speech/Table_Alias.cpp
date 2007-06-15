@@ -28,8 +28,6 @@
 #include <vector>
 #include <map>
 
-#include <mysql.h>
-
 using namespace std;
 #include "PlutoUtils/StringUtils.h"
 #include "Table_Alias.h"
@@ -77,7 +75,7 @@ Table_Alias::~Table_Alias()
 
 void Row_Alias::Delete()
 {
-	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 	Row_Alias *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
@@ -108,7 +106,7 @@ void Row_Alias::Reload()
 {
 	Row_Alias *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 
-	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 	
 	
 	if (!is_added)
@@ -146,54 +144,54 @@ is_null[3] = true;
 	is_modified=false;
 }
 
-long int Row_Alias::PK_Alias_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_Alias::PK_Alias_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return m_PK_Alias;}
-short int Row_Alias::SimpleAdvanced_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+short int Row_Alias::SimpleAdvanced_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return m_SimpleAdvanced;}
-string Row_Alias::Keyword_Input_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+string Row_Alias::Keyword_Input_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return m_Keyword_Input;}
-string Row_Alias::Keyword_Meaning_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+string Row_Alias::Keyword_Meaning_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return m_Keyword_Meaning;}
 
 		
-void Row_Alias::PK_Alias_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Alias::PK_Alias_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 m_PK_Alias = val; is_modified=true; is_null[0]=false;}
-void Row_Alias::SimpleAdvanced_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Alias::SimpleAdvanced_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 m_SimpleAdvanced = val; is_modified=true; is_null[1]=false;}
-void Row_Alias::Keyword_Input_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Alias::Keyword_Input_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 m_Keyword_Input = val; is_modified=true; is_null[2]=false;}
-void Row_Alias::Keyword_Meaning_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Alias::Keyword_Meaning_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 m_Keyword_Meaning = val; is_modified=true; is_null[3]=false;}
 
 		
-bool Row_Alias::SimpleAdvanced_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Alias::SimpleAdvanced_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return is_null[1];}
-bool Row_Alias::Keyword_Input_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Alias::Keyword_Input_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return is_null[2];}
-bool Row_Alias::Keyword_Meaning_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Alias::Keyword_Meaning_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return is_null[3];}
 
 			
-void Row_Alias::SimpleAdvanced_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Alias::SimpleAdvanced_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 is_null[1]=val;
 is_modified=true;
 }
-void Row_Alias::Keyword_Input_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Alias::Keyword_Input_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 is_null[2]=val;
 is_modified=true;
 }
-void Row_Alias::Keyword_Meaning_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Alias::Keyword_Meaning_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 is_null[3]=val;
 is_modified=true;
 }
@@ -201,7 +199,7 @@ is_modified=true;
 
 string Row_Alias::PK_Alias_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 if (is_null[0])
 return "NULL";
@@ -214,7 +212,7 @@ return buf;
 
 string Row_Alias::SimpleAdvanced_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 if (is_null[1])
 return "NULL";
@@ -227,13 +225,13 @@ return buf;
 
 string Row_Alias::Keyword_Input_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 if (is_null[2])
 return "NULL";
 
 char *buf = new char[61];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_Keyword_Input.c_str(), (unsigned long) min((size_t)30,m_Keyword_Input.size()));
+db_wrapper_real_escape_string(table->database->m_pDB, buf, m_Keyword_Input.c_str(), (unsigned long) min((size_t)30,m_Keyword_Input.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
@@ -241,13 +239,13 @@ return s;
 
 string Row_Alias::Keyword_Meaning_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 if (is_null[3])
 return "NULL";
 
 char *buf = new char[61];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_Keyword_Meaning.c_str(), (unsigned long) min((size_t)30,m_Keyword_Meaning.size()));
+db_wrapper_real_escape_string(table->database->m_pDB, buf, m_Keyword_Meaning.c_str(), (unsigned long) min((size_t)30,m_Keyword_Meaning.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
@@ -264,7 +262,7 @@ Table_Alias::Key::Key(long int in_PK_Alias)
 
 Table_Alias::Key::Key(Row_Alias *pRow)
 {
-			PLUTO_SAFETY_LOCK_ERRORSONLY(sl,pRow->table->database->m_MySqlMutex);
+			PLUTO_SAFETY_LOCK_ERRORSONLY(sl,pRow->table->database->m_DBMutex);
 
 			pk_PK_Alias = pRow->m_PK_Alias;
 	
@@ -280,7 +278,7 @@ return false;
 
 bool Table_Alias::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_DBMutex);
 
 //insert added
 	while (!addedRows.empty())
@@ -297,25 +295,32 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_Alias_asSQL
 		string query = "insert into Alias (`PK_Alias`, `SimpleAdvanced`, `Keyword_Input`, `Keyword_Meaning`) values ("+
 			values_list_comma_separated+")";
 			
-		if (mysql_query(database->m_pMySQL, query.c_str()))
+		if (db_wrapper_query(database->m_pDB, query.c_str()))
 		{	
-			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
-			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-			bool bResult=database->MySQLConnect(true);
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Alias::Commit Cannot perform query [%s] %s reconnect: %d",query.c_str(),database->m_sLastMySqlError.c_str(),(int) bResult);
-			if( bDeleteFailedInsertRow )
+			database->m_sLastDBError = db_wrapper_error(database->m_pDB);
+			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastDBError << endl;
+			bool bResult=database->DBConnect(true);
+			int iResult2=-1;
+			if( bResult )
+				iResult2 = db_wrapper_query(database->m_pDB, query.c_str());
+			
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Alias::Commit Cannot perform query [%s] %s reconnect: %d result2: %d",query.c_str(),database->m_sLastDBError.c_str(),(int) bResult, iResult2);
+			if( iResult2!=0 )  // We can keep going if the time it worked
 			{
-				addedRows.erase(i);
-				delete pRow;
+				if( bDeleteFailedInsertRow )
+				{
+					addedRows.erase(i);
+					delete pRow;
+				}
+				return false;
 			}
-			return false;
 		}
 	
-		if (mysql_affected_rows(database->m_pMySQL)!=0)
+		if (db_wrapper_affected_rows(database->m_pDB)!=0)
 		{
 			
 			
-			long int id = (long int) mysql_insert_id(database->m_pMySQL);
+			long int id = (long int) db_wrapper_insert_id(database->m_pDB);
 		
 				
 			
@@ -355,18 +360,25 @@ update_values_list = update_values_list + "`PK_Alias`="+pRow->PK_Alias_asSQL()+"
 	
 		string query = "update Alias set " + update_values_list + " where " + condition;
 			
-		if (mysql_query(database->m_pMySQL, query.c_str()))
+		if (db_wrapper_query(database->m_pDB, query.c_str()))
 		{	
-			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
-			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-			bool bResult=database->MySQLConnect(true);
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Alias::Commit Cannot perform update query [%s] %s reconnect: %d",query.c_str(),database->m_sLastMySqlError.c_str(),(int) bResult);
-			if( bDeleteFailedModifiedRow )
+			database->m_sLastDBError = db_wrapper_error(database->m_pDB);
+			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastDBError << endl;
+			bool bResult=database->DBConnect(true);
+			int iResult2=-1;
+			if( bResult )
+				iResult2 = db_wrapper_query(database->m_pDB, query.c_str());
+
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Alias::Commit Cannot perform update query [%s] %s reconnect: %d result2: %d",query.c_str(),database->m_sLastDBError.c_str(),(int) bResult, iResult2);
+			if( iResult2!=0 )  // We can keep going if the time it worked
 			{
-				cachedRows.erase(i);
-				delete pRow;
+				if( bDeleteFailedModifiedRow )
+				{
+					cachedRows.erase(i);
+					delete pRow;
+				}
+				return false;
 			}
-			return false;
 		}
 	
 		pRow->is_modified = false;	
@@ -402,13 +414,18 @@ condition = condition + "`PK_Alias`=" + tmp_PK_Alias;
 	
 		string query = "delete from Alias where " + condition;
 		
-		if (mysql_query(database->m_pMySQL, query.c_str()))
+		if (db_wrapper_query(database->m_pDB, query.c_str()))
 		{	
-			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
-			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-			bool bResult=database->MySQLConnect(true);
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Alias::Commit Cannot perform delete query [%s] %s reconnect: %d",query.c_str(),database->m_sLastMySqlError.c_str(),(int) bResult);
-			return false;
+			database->m_sLastDBError = db_wrapper_error(database->m_pDB);
+			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastDBError << endl;
+			bool bResult=database->DBConnect(true);
+			int iResult2=-1;
+			if( bResult )
+				iResult2 = db_wrapper_query(database->m_pDB, query.c_str());
+
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Alias::Commit Cannot perform delete query [%s] %s reconnect: %d result2: %d",query.c_str(),database->m_sLastDBError.c_str(),(int) bResult, iResult2);
+			if( iResult2!=0 )  // We can keep going if the time it worked
+				return false;
 		}	
 		
 		pRow = (Row_Alias*) (*i).second;;
@@ -421,7 +438,7 @@ condition = condition + "`PK_Alias`=" + tmp_PK_Alias;
 
 bool Table_Alias::GetRows(string where_statement,vector<class Row_Alias*> *rows)
 {
-	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_DBMutex);
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || 
@@ -438,31 +455,36 @@ bool Table_Alias::GetRows(string where_statement,vector<class Row_Alias*> *rows)
 	else
 		query = "select `Alias`.* from Alias";
 		
-	if (mysql_query(database->m_pMySQL, query.c_str()))
+	if (db_wrapper_query(database->m_pDB, query.c_str()))
 	{	
-		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
-		cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-		bool bResult=database->MySQLConnect(true);
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Alias::GetRows Cannot perform query [%s] %s reconnect: %d",query.c_str(),database->m_sLastMySqlError.c_str(),(int) bResult);
-		return false;
+		database->m_sLastDBError = db_wrapper_error(database->m_pDB);
+		cerr << "Cannot perform query: [" << query << "] " << database->m_sLastDBError << endl;
+		bool bResult=database->DBConnect(true);
+		int iResult2=-1;
+		if( bResult )
+			iResult2 = db_wrapper_query(database->m_pDB, query.c_str());
+
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Alias::GetRows Cannot perform query [%s] %s reconnect: %d result2: %d",query.c_str(),database->m_sLastDBError.c_str(),(int) bResult, iResult2);
+		if( iResult2!=0 )  // We can keep going if the time it worked
+			return false;
 	}	
 
-	MYSQL_RES *res = mysql_store_result(database->m_pMySQL);
+	DB_RES *res = db_wrapper_store_result(database->m_pDB);
 	
 	if (!res)
 	{
-		cerr << "mysql_store_result returned NULL handler" << endl;
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Alias::GetRows mysql_store_result returned NULL handler");
-		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
+		cerr << "db_wrapper_store_result returned NULL handler" << endl;
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Alias::GetRows db_wrapper_store_result returned NULL handler");
+		database->m_sLastDBError = db_wrapper_error(database->m_pDB);
 		return false;
 	}	
 	
-	MYSQL_ROW row;
+	DB_ROW row;
 						
 		
-	while ((row = mysql_fetch_row(res)) != NULL)
+	while ((row = db_wrapper_fetch_row(res)) != NULL)
 	{	
-		unsigned long *lengths = mysql_fetch_lengths(res);
+		unsigned long *lengths = db_wrapper_fetch_lengths(res);
 
 		Row_Alias *pRow = new Row_Alias(this);
 		
@@ -529,14 +551,14 @@ pRow->m_Keyword_Meaning = string(row[3],lengths[3]);
 		cachedRows[key] = pRow;
 	}
 
-	mysql_free_result(res);			
+	db_wrapper_free_result(res);			
 		
 	return true;					
 }
 
 Row_Alias* Table_Alias::AddRow()
 {
-	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_DBMutex);
 
 	Row_Alias *pRow = new Row_Alias(this);
 	pRow->is_added=true;
@@ -548,7 +570,7 @@ Row_Alias* Table_Alias::AddRow()
 
 Row_Alias* Table_Alias::GetRow(long int in_PK_Alias)
 {
-	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_DBMutex);
 
 	SingleLongKey row_key(in_PK_Alias);
 
@@ -576,7 +598,7 @@ Row_Alias* Table_Alias::GetRow(long int in_PK_Alias)
 
 Row_Alias* Table_Alias::FetchRow(SingleLongKey &key)
 {
-	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_DBMutex);
 
 	//defines the string query for the value of key
 	char tmp_PK_Alias[32];
@@ -589,35 +611,40 @@ condition = condition + "`PK_Alias`=" + tmp_PK_Alias;
 
 	string query = "select * from Alias where " + condition;		
 
-	if (mysql_query(database->m_pMySQL, query.c_str()))
+	if (db_wrapper_query(database->m_pDB, query.c_str()))
 	{	
-		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
-		cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-		bool bResult=database->MySQLConnect(true);
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Alias::FetchRow Cannot perform query [%s] %s reconnect: %d",query.c_str(),database->m_sLastMySqlError.c_str(),(int) bResult);
-		return NULL;
+		database->m_sLastDBError = db_wrapper_error(database->m_pDB);
+		cerr << "Cannot perform query: [" << query << "] " << database->m_sLastDBError << endl;
+		bool bResult=database->DBConnect(true);
+		int iResult2=-1;
+		if( bResult )
+			iResult2 = db_wrapper_query(database->m_pDB, query.c_str());
+
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Alias::FetchRow Cannot perform query [%s] %s reconnect: %d result2: %d",query.c_str(),database->m_sLastDBError.c_str(),(int) bResult, iResult2);
+		if( iResult2!=0 )  // We can keep going if the time it worked
+			return NULL;
 	}	
 
-	MYSQL_RES *res = mysql_store_result(database->m_pMySQL);
+	DB_RES *res = db_wrapper_store_result(database->m_pDB);
 	
 	if (!res)
 	{
-		cerr << "mysql_store_result returned NULL handler" << endl;
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Alias::FetchRow mysql_store_result returned NULL handler");
-		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
+		cerr << "db_wrapper_store_result returned NULL handler" << endl;
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Alias::FetchRow db_wrapper_store_result returned NULL handler");
+		database->m_sLastDBError = db_wrapper_error(database->m_pDB);
 		return NULL;
 	}	
 	
-	MYSQL_ROW row = mysql_fetch_row(res);
+	DB_ROW row = db_wrapper_fetch_row(res);
 	
 	if (!row)
 	{
 		//dataset is empty
-		mysql_free_result(res);			
+		db_wrapper_free_result(res);			
 		return NULL;		
 	}	
 						
-	unsigned long *lengths = mysql_fetch_lengths(res);
+	unsigned long *lengths = db_wrapper_fetch_lengths(res);
 
 	Row_Alias *pRow = new Row_Alias(this);
 		
@@ -667,7 +694,7 @@ pRow->m_Keyword_Meaning = string(row[3],lengths[3]);
 
 
 
-	mysql_free_result(res);			
+	db_wrapper_free_result(res);			
 	
 	return pRow;						
 }

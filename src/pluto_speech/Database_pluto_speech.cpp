@@ -2,7 +2,6 @@
 	#include <winsock.h>
 #endif
 #include <iostream>
-#include <mysql.h>
 #include <stdio.h>
 #include <string>
 
@@ -51,7 +50,7 @@ DeleteTable_Keyword();
 
 bool Database_pluto_speech::Connect(string host, string user, string pass, string sDBName, int port)
 {
-return MySQLConnect(host, user, pass, sDBName, port);
+return DBConnect(host, user, pass, sDBName, port);
 }
 
 bool Database_pluto_speech::Connect(class DCEConfig *pDCEConfig)
