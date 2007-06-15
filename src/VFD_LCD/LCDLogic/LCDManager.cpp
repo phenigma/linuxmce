@@ -22,7 +22,7 @@ LCDManager::LCDManager(MenuHolder *pMenuHolder, Database_pluto_main *pDatabase_p
 	if(NULL != m_pMenuHolder)
 	{
 		Expand(m_pMenuHolder->RootMenu());
-		SetupCoreNodes(m_pMenuHolder->RootMenu());
+		SetupCoreNodes();
 		LoadNetworkInfo();
 	}
 }
@@ -385,7 +385,7 @@ void LCDManager::GenerateMDNodes(MenuItem *pMenuItem)
 	pMenuItem->Parent()->Expand(pMenuItem, listExpandedItems);
 }
 //--------------------------------------------------------------------------------------------------------
-void LCDManager::SetupCoreNodes(MenuItem *pMenuItem)
+void LCDManager::SetupCoreNodes()
 {
 	//get audio and video settings nodes
 	MenuItem *pAudioSettingsNode = m_pMenuHolder->GetTopChildNode("Audio settings");
