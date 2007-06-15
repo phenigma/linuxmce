@@ -2,7 +2,6 @@
 	#include <winsock.h>
 #endif
 #include <iostream>
-#include <mysql.h>
 #include <stdio.h>
 #include <string>
 
@@ -136,7 +135,7 @@ DeleteTable_psc_telecom_tables();
 
 bool Database_pluto_telecom::Connect(string host, string user, string pass, string sDBName, int port)
 {
-return MySQLConnect(host, user, pass, sDBName, port);
+return DBConnect(host, user, pass, sDBName, port);
 }
 
 bool Database_pluto_telecom::Connect(class DCEConfig *pDCEConfig)

@@ -1,7 +1,6 @@
 #ifndef __Database_pluto_telecom_H_
 #define __Database_pluto_telecom_H_
-#include <mysql.h>
-#include "PlutoUtils/MySQLHelper.h"
+#include "PlutoUtils/DBHelper.h"
 #include "DCE/Logger.h"
 #ifdef WIN32
 #ifdef EXPORT_DLL
@@ -16,10 +15,10 @@
 #else
 #define DECLSPECIFIER
 #endif
-class DECLSPECIFIER MySqlHelper;
+class DECLSPECIFIER DBHelper;
 class DECLSPECIFIER SerializeClass;
 
-class DECLSPECIFIER Database_pluto_telecom: public MySqlHelper
+class DECLSPECIFIER Database_pluto_telecom: public DBHelper
 {
 public:
 Database_pluto_telecom(Logger *pLogger=NULL);
@@ -84,7 +83,7 @@ class Table_psc_telecom_batuser* psc_telecom_batuser_get() { if( !tblpsc_telecom
 class Table_psc_telecom_repset* psc_telecom_repset_get() { if( !tblpsc_telecom_repset ) CreateTable_psc_telecom_repset(); return tblpsc_telecom_repset; }
 class Table_psc_telecom_schema* psc_telecom_schema_get() { if( !tblpsc_telecom_schema ) CreateTable_psc_telecom_schema(); return tblpsc_telecom_schema; }
 class Table_psc_telecom_tables* psc_telecom_tables_get() { if( !tblpsc_telecom_tables ) CreateTable_psc_telecom_tables(); return tblpsc_telecom_tables; }
-string m_sLastMySqlError;
+string m_sLastDBError;
 bool Connect(string host, string user, string pass, string sDBName, int port=3306);
 bool Connect(class DCEConfig *pDCEConfig);
 void Disconnect();

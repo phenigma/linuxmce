@@ -28,8 +28,6 @@
 #include <vector>
 #include <map>
 
-#include <mysql.h>
-
 using namespace std;
 #include "PlutoUtils/StringUtils.h"
 #include "Table_IncomingLog.h"
@@ -78,7 +76,7 @@ Table_IncomingLog::~Table_IncomingLog()
 
 void Row_IncomingLog::Delete()
 {
-	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 	Row_IncomingLog *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
@@ -109,7 +107,7 @@ void Row_IncomingLog::Reload()
 {
 	Row_IncomingLog *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 
-	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 	
 	
 	if (!is_added)
@@ -165,164 +163,164 @@ m_psc_restrict = 0;
 	is_modified=false;
 }
 
-long int Row_IncomingLog::PK_IncomingLog_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_IncomingLog::PK_IncomingLog_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return m_PK_IncomingLog;}
-string Row_IncomingLog::DateTime_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+string Row_IncomingLog::DateTime_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return m_DateTime;}
-long int Row_IncomingLog::FK_PhoneNumber_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_IncomingLog::FK_PhoneNumber_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return m_FK_PhoneNumber;}
-string Row_IncomingLog::PhoneNumber_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+string Row_IncomingLog::PhoneNumber_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return m_PhoneNumber;}
-long int Row_IncomingLog::Duration_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_IncomingLog::Duration_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return m_Duration;}
-short int Row_IncomingLog::Answered_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+short int Row_IncomingLog::Answered_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return m_Answered;}
-short int Row_IncomingLog::Voicemail_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+short int Row_IncomingLog::Voicemail_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return m_Voicemail;}
-long int Row_IncomingLog::psc_id_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_IncomingLog::psc_id_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return m_psc_id;}
-long int Row_IncomingLog::psc_batch_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_IncomingLog::psc_batch_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return m_psc_batch;}
-long int Row_IncomingLog::psc_user_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_IncomingLog::psc_user_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return m_psc_user;}
-short int Row_IncomingLog::psc_frozen_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+short int Row_IncomingLog::psc_frozen_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return m_psc_frozen;}
-string Row_IncomingLog::psc_mod_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+string Row_IncomingLog::psc_mod_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return m_psc_mod;}
-long int Row_IncomingLog::psc_restrict_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_IncomingLog::psc_restrict_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return m_psc_restrict;}
 
 		
-void Row_IncomingLog::PK_IncomingLog_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_IncomingLog::PK_IncomingLog_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 m_PK_IncomingLog = val; is_modified=true; is_null[0]=false;}
-void Row_IncomingLog::DateTime_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_IncomingLog::DateTime_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 m_DateTime = val; is_modified=true; is_null[1]=false;}
-void Row_IncomingLog::FK_PhoneNumber_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_IncomingLog::FK_PhoneNumber_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 m_FK_PhoneNumber = val; is_modified=true; is_null[2]=false;}
-void Row_IncomingLog::PhoneNumber_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_IncomingLog::PhoneNumber_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 m_PhoneNumber = val; is_modified=true; is_null[3]=false;}
-void Row_IncomingLog::Duration_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_IncomingLog::Duration_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 m_Duration = val; is_modified=true; is_null[4]=false;}
-void Row_IncomingLog::Answered_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_IncomingLog::Answered_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 m_Answered = val; is_modified=true; is_null[5]=false;}
-void Row_IncomingLog::Voicemail_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_IncomingLog::Voicemail_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 m_Voicemail = val; is_modified=true; is_null[6]=false;}
-void Row_IncomingLog::psc_id_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_IncomingLog::psc_id_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 m_psc_id = val; is_modified=true; is_null[7]=false;}
-void Row_IncomingLog::psc_batch_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_IncomingLog::psc_batch_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 m_psc_batch = val; is_modified=true; is_null[8]=false;}
-void Row_IncomingLog::psc_user_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_IncomingLog::psc_user_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 m_psc_user = val; is_modified=true; is_null[9]=false;}
-void Row_IncomingLog::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_IncomingLog::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 m_psc_frozen = val; is_modified=true; is_null[10]=false;}
-void Row_IncomingLog::psc_mod_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_IncomingLog::psc_mod_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 m_psc_mod = val; is_modified=true; is_null[11]=false;}
-void Row_IncomingLog::psc_restrict_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_IncomingLog::psc_restrict_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 m_psc_restrict = val; is_modified=true; is_null[12]=false;}
 
 		
-bool Row_IncomingLog::DateTime_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_IncomingLog::DateTime_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return is_null[1];}
-bool Row_IncomingLog::FK_PhoneNumber_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_IncomingLog::FK_PhoneNumber_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return is_null[2];}
-bool Row_IncomingLog::PhoneNumber_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_IncomingLog::PhoneNumber_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return is_null[3];}
-bool Row_IncomingLog::Duration_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_IncomingLog::Duration_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return is_null[4];}
-bool Row_IncomingLog::Answered_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_IncomingLog::Answered_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return is_null[5];}
-bool Row_IncomingLog::Voicemail_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_IncomingLog::Voicemail_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return is_null[6];}
-bool Row_IncomingLog::psc_id_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_IncomingLog::psc_id_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return is_null[7];}
-bool Row_IncomingLog::psc_batch_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_IncomingLog::psc_batch_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return is_null[8];}
-bool Row_IncomingLog::psc_user_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_IncomingLog::psc_user_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return is_null[9];}
-bool Row_IncomingLog::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_IncomingLog::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return is_null[10];}
-bool Row_IncomingLog::psc_restrict_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_IncomingLog::psc_restrict_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return is_null[12];}
 
 			
-void Row_IncomingLog::DateTime_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_IncomingLog::DateTime_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 is_null[1]=val;
 is_modified=true;
 }
-void Row_IncomingLog::FK_PhoneNumber_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_IncomingLog::FK_PhoneNumber_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 is_null[2]=val;
 is_modified=true;
 }
-void Row_IncomingLog::PhoneNumber_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_IncomingLog::PhoneNumber_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 is_null[3]=val;
 is_modified=true;
 }
-void Row_IncomingLog::Duration_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_IncomingLog::Duration_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 is_null[4]=val;
 is_modified=true;
 }
-void Row_IncomingLog::Answered_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_IncomingLog::Answered_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 is_null[5]=val;
 is_modified=true;
 }
-void Row_IncomingLog::Voicemail_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_IncomingLog::Voicemail_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 is_null[6]=val;
 is_modified=true;
 }
-void Row_IncomingLog::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_IncomingLog::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 is_null[7]=val;
 is_modified=true;
 }
-void Row_IncomingLog::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_IncomingLog::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 is_null[8]=val;
 is_modified=true;
 }
-void Row_IncomingLog::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_IncomingLog::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 is_null[9]=val;
 is_modified=true;
 }
-void Row_IncomingLog::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_IncomingLog::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 is_null[10]=val;
 is_modified=true;
 }
-void Row_IncomingLog::psc_restrict_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_IncomingLog::psc_restrict_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 is_null[12]=val;
 is_modified=true;
 }
@@ -330,7 +328,7 @@ is_modified=true;
 
 string Row_IncomingLog::PK_IncomingLog_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 if (is_null[0])
 return "NULL";
@@ -343,13 +341,13 @@ return buf;
 
 string Row_IncomingLog::DateTime_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 if (is_null[1])
 return "NULL";
 
 char *buf = new char[39];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_DateTime.c_str(), (unsigned long) min((size_t)19,m_DateTime.size()));
+db_wrapper_real_escape_string(table->database->m_pDB, buf, m_DateTime.c_str(), (unsigned long) min((size_t)19,m_DateTime.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
@@ -357,7 +355,7 @@ return s;
 
 string Row_IncomingLog::FK_PhoneNumber_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 if (is_null[2])
 return "NULL";
@@ -370,13 +368,13 @@ return buf;
 
 string Row_IncomingLog::PhoneNumber_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 if (is_null[3])
 return "NULL";
 
 char *buf = new char[61];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_PhoneNumber.c_str(), (unsigned long) min((size_t)30,m_PhoneNumber.size()));
+db_wrapper_real_escape_string(table->database->m_pDB, buf, m_PhoneNumber.c_str(), (unsigned long) min((size_t)30,m_PhoneNumber.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
@@ -384,7 +382,7 @@ return s;
 
 string Row_IncomingLog::Duration_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 if (is_null[4])
 return "NULL";
@@ -397,7 +395,7 @@ return buf;
 
 string Row_IncomingLog::Answered_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 if (is_null[5])
 return "NULL";
@@ -410,7 +408,7 @@ return buf;
 
 string Row_IncomingLog::Voicemail_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 if (is_null[6])
 return "NULL";
@@ -423,7 +421,7 @@ return buf;
 
 string Row_IncomingLog::psc_id_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 if (is_null[7])
 return "NULL";
@@ -436,7 +434,7 @@ return buf;
 
 string Row_IncomingLog::psc_batch_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 if (is_null[8])
 return "NULL";
@@ -449,7 +447,7 @@ return buf;
 
 string Row_IncomingLog::psc_user_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 if (is_null[9])
 return "NULL";
@@ -462,7 +460,7 @@ return buf;
 
 string Row_IncomingLog::psc_frozen_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 if (is_null[10])
 return "NULL";
@@ -475,13 +473,13 @@ return buf;
 
 string Row_IncomingLog::psc_mod_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 if (is_null[11])
 return "NULL";
 
 char *buf = new char[29];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_psc_mod.c_str(), (unsigned long) min((size_t)14,m_psc_mod.size()));
+db_wrapper_real_escape_string(table->database->m_pDB, buf, m_psc_mod.c_str(), (unsigned long) min((size_t)14,m_psc_mod.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
@@ -489,7 +487,7 @@ return s;
 
 string Row_IncomingLog::psc_restrict_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 if (is_null[12])
 return "NULL";
@@ -511,7 +509,7 @@ Table_IncomingLog::Key::Key(long int in_PK_IncomingLog)
 
 Table_IncomingLog::Key::Key(Row_IncomingLog *pRow)
 {
-			PLUTO_SAFETY_LOCK_ERRORSONLY(sl,pRow->table->database->m_MySqlMutex);
+			PLUTO_SAFETY_LOCK_ERRORSONLY(sl,pRow->table->database->m_DBMutex);
 
 			pk_PK_IncomingLog = pRow->m_PK_IncomingLog;
 	
@@ -527,7 +525,7 @@ return false;
 
 bool Table_IncomingLog::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_DBMutex);
 
 //insert added
 	while (!addedRows.empty())
@@ -544,16 +542,16 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_IncomingLog
 		string query = "insert into IncomingLog (`PK_IncomingLog`, `DateTime`, `FK_PhoneNumber`, `PhoneNumber`, `Duration`, `Answered`, `Voicemail`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`, `psc_restrict`) values ("+
 			values_list_comma_separated+")";
 			
-		if (mysql_query(database->m_pMySQL, query.c_str()))
+		if (db_wrapper_query(database->m_pDB, query.c_str()))
 		{	
-			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
-			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-			bool bResult=database->MySQLConnect(true);
+			database->m_sLastDBError = db_wrapper_error(database->m_pDB);
+			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastDBError << endl;
+			bool bResult=database->DBConnect(true);
 			int iResult2=-1;
 			if( bResult )
-				iResult2 = mysql_query(database->m_pMySQL, query.c_str());
+				iResult2 = db_wrapper_query(database->m_pDB, query.c_str());
 			
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_IncomingLog::Commit Cannot perform query [%s] %s reconnect: %d result2: %d",query.c_str(),database->m_sLastMySqlError.c_str(),(int) bResult, iResult2);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_IncomingLog::Commit Cannot perform query [%s] %s reconnect: %d result2: %d",query.c_str(),database->m_sLastDBError.c_str(),(int) bResult, iResult2);
 			if( iResult2!=0 )  // We can keep going if the time it worked
 			{
 				if( bDeleteFailedInsertRow )
@@ -565,16 +563,16 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_IncomingLog
 			}
 		}
 	
-		if (mysql_affected_rows(database->m_pMySQL)!=0)
+		if (db_wrapper_affected_rows(database->m_pDB)!=0)
 		{
 			
 			
-			long int id = (long int) mysql_insert_id(database->m_pMySQL);
+			long int id = (long int) db_wrapper_insert_id(database->m_pDB);
 		
 			if (id!=0)
 		pRow->m_PK_IncomingLog=id;
 else 
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"PK_IncomingLog is auto increment but has no value %s",database->m_sLastMySqlError.c_str());	
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"PK_IncomingLog is auto increment but has no value %s",database->m_sLastDBError.c_str());	
 			
 			addedRows.erase(i);
 			SingleLongKey key(pRow->m_PK_IncomingLog);	
@@ -612,16 +610,16 @@ update_values_list = update_values_list + "`PK_IncomingLog`="+pRow->PK_IncomingL
 	
 		string query = "update IncomingLog set " + update_values_list + " where " + condition;
 			
-		if (mysql_query(database->m_pMySQL, query.c_str()))
+		if (db_wrapper_query(database->m_pDB, query.c_str()))
 		{	
-			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
-			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-			bool bResult=database->MySQLConnect(true);
+			database->m_sLastDBError = db_wrapper_error(database->m_pDB);
+			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastDBError << endl;
+			bool bResult=database->DBConnect(true);
 			int iResult2=-1;
 			if( bResult )
-				iResult2 = mysql_query(database->m_pMySQL, query.c_str());
+				iResult2 = db_wrapper_query(database->m_pDB, query.c_str());
 
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_IncomingLog::Commit Cannot perform update query [%s] %s reconnect: %d result2: %d",query.c_str(),database->m_sLastMySqlError.c_str(),(int) bResult, iResult2);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_IncomingLog::Commit Cannot perform update query [%s] %s reconnect: %d result2: %d",query.c_str(),database->m_sLastDBError.c_str(),(int) bResult, iResult2);
 			if( iResult2!=0 )  // We can keep going if the time it worked
 			{
 				if( bDeleteFailedModifiedRow )
@@ -666,16 +664,16 @@ condition = condition + "`PK_IncomingLog`=" + tmp_PK_IncomingLog;
 	
 		string query = "delete from IncomingLog where " + condition;
 		
-		if (mysql_query(database->m_pMySQL, query.c_str()))
+		if (db_wrapper_query(database->m_pDB, query.c_str()))
 		{	
-			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
-			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-			bool bResult=database->MySQLConnect(true);
+			database->m_sLastDBError = db_wrapper_error(database->m_pDB);
+			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastDBError << endl;
+			bool bResult=database->DBConnect(true);
 			int iResult2=-1;
 			if( bResult )
-				iResult2 = mysql_query(database->m_pMySQL, query.c_str());
+				iResult2 = db_wrapper_query(database->m_pDB, query.c_str());
 
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_IncomingLog::Commit Cannot perform delete query [%s] %s reconnect: %d result2: %d",query.c_str(),database->m_sLastMySqlError.c_str(),(int) bResult, iResult2);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_IncomingLog::Commit Cannot perform delete query [%s] %s reconnect: %d result2: %d",query.c_str(),database->m_sLastDBError.c_str(),(int) bResult, iResult2);
 			if( iResult2!=0 )  // We can keep going if the time it worked
 				return false;
 		}	
@@ -690,7 +688,7 @@ condition = condition + "`PK_IncomingLog`=" + tmp_PK_IncomingLog;
 
 bool Table_IncomingLog::GetRows(string where_statement,vector<class Row_IncomingLog*> *rows)
 {
-	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_DBMutex);
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || 
@@ -707,36 +705,36 @@ bool Table_IncomingLog::GetRows(string where_statement,vector<class Row_Incoming
 	else
 		query = "select `IncomingLog`.* from IncomingLog";
 		
-	if (mysql_query(database->m_pMySQL, query.c_str()))
+	if (db_wrapper_query(database->m_pDB, query.c_str()))
 	{	
-		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
-		cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-		bool bResult=database->MySQLConnect(true);
+		database->m_sLastDBError = db_wrapper_error(database->m_pDB);
+		cerr << "Cannot perform query: [" << query << "] " << database->m_sLastDBError << endl;
+		bool bResult=database->DBConnect(true);
 		int iResult2=-1;
 		if( bResult )
-			iResult2 = mysql_query(database->m_pMySQL, query.c_str());
+			iResult2 = db_wrapper_query(database->m_pDB, query.c_str());
 
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_IncomingLog::GetRows Cannot perform query [%s] %s reconnect: %d result2: %d",query.c_str(),database->m_sLastMySqlError.c_str(),(int) bResult, iResult2);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_IncomingLog::GetRows Cannot perform query [%s] %s reconnect: %d result2: %d",query.c_str(),database->m_sLastDBError.c_str(),(int) bResult, iResult2);
 		if( iResult2!=0 )  // We can keep going if the time it worked
 			return false;
 	}	
 
-	MYSQL_RES *res = mysql_store_result(database->m_pMySQL);
+	DB_RES *res = db_wrapper_store_result(database->m_pDB);
 	
 	if (!res)
 	{
-		cerr << "mysql_store_result returned NULL handler" << endl;
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_IncomingLog::GetRows mysql_store_result returned NULL handler");
-		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
+		cerr << "db_wrapper_store_result returned NULL handler" << endl;
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_IncomingLog::GetRows db_wrapper_store_result returned NULL handler");
+		database->m_sLastDBError = db_wrapper_error(database->m_pDB);
 		return false;
 	}	
 	
-	MYSQL_ROW row;
+	DB_ROW row;
 						
 		
-	while ((row = mysql_fetch_row(res)) != NULL)
+	while ((row = db_wrapper_fetch_row(res)) != NULL)
 	{	
-		unsigned long *lengths = mysql_fetch_lengths(res);
+		unsigned long *lengths = db_wrapper_fetch_lengths(res);
 
 		Row_IncomingLog *pRow = new Row_IncomingLog(this);
 		
@@ -902,14 +900,14 @@ sscanf(row[12], "%li", &(pRow->m_psc_restrict));
 		cachedRows[key] = pRow;
 	}
 
-	mysql_free_result(res);			
+	db_wrapper_free_result(res);			
 		
 	return true;					
 }
 
 Row_IncomingLog* Table_IncomingLog::AddRow()
 {
-	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_DBMutex);
 
 	Row_IncomingLog *pRow = new Row_IncomingLog(this);
 	pRow->is_added=true;
@@ -921,7 +919,7 @@ Row_IncomingLog* Table_IncomingLog::AddRow()
 
 Row_IncomingLog* Table_IncomingLog::GetRow(long int in_PK_IncomingLog)
 {
-	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_DBMutex);
 
 	SingleLongKey row_key(in_PK_IncomingLog);
 
@@ -949,7 +947,7 @@ Row_IncomingLog* Table_IncomingLog::GetRow(long int in_PK_IncomingLog)
 
 Row_IncomingLog* Table_IncomingLog::FetchRow(SingleLongKey &key)
 {
-	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_DBMutex);
 
 	//defines the string query for the value of key
 	char tmp_PK_IncomingLog[32];
@@ -962,40 +960,40 @@ condition = condition + "`PK_IncomingLog`=" + tmp_PK_IncomingLog;
 
 	string query = "select * from IncomingLog where " + condition;		
 
-	if (mysql_query(database->m_pMySQL, query.c_str()))
+	if (db_wrapper_query(database->m_pDB, query.c_str()))
 	{	
-		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
-		cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-		bool bResult=database->MySQLConnect(true);
+		database->m_sLastDBError = db_wrapper_error(database->m_pDB);
+		cerr << "Cannot perform query: [" << query << "] " << database->m_sLastDBError << endl;
+		bool bResult=database->DBConnect(true);
 		int iResult2=-1;
 		if( bResult )
-			iResult2 = mysql_query(database->m_pMySQL, query.c_str());
+			iResult2 = db_wrapper_query(database->m_pDB, query.c_str());
 
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_IncomingLog::FetchRow Cannot perform query [%s] %s reconnect: %d result2: %d",query.c_str(),database->m_sLastMySqlError.c_str(),(int) bResult, iResult2);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_IncomingLog::FetchRow Cannot perform query [%s] %s reconnect: %d result2: %d",query.c_str(),database->m_sLastDBError.c_str(),(int) bResult, iResult2);
 		if( iResult2!=0 )  // We can keep going if the time it worked
 			return NULL;
 	}	
 
-	MYSQL_RES *res = mysql_store_result(database->m_pMySQL);
+	DB_RES *res = db_wrapper_store_result(database->m_pDB);
 	
 	if (!res)
 	{
-		cerr << "mysql_store_result returned NULL handler" << endl;
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_IncomingLog::FetchRow mysql_store_result returned NULL handler");
-		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
+		cerr << "db_wrapper_store_result returned NULL handler" << endl;
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_IncomingLog::FetchRow db_wrapper_store_result returned NULL handler");
+		database->m_sLastDBError = db_wrapper_error(database->m_pDB);
 		return NULL;
 	}	
 	
-	MYSQL_ROW row = mysql_fetch_row(res);
+	DB_ROW row = db_wrapper_fetch_row(res);
 	
 	if (!row)
 	{
 		//dataset is empty
-		mysql_free_result(res);			
+		db_wrapper_free_result(res);			
 		return NULL;		
 	}	
 						
-	unsigned long *lengths = mysql_fetch_lengths(res);
+	unsigned long *lengths = db_wrapper_fetch_lengths(res);
 
 	Row_IncomingLog *pRow = new Row_IncomingLog(this);
 		
@@ -1144,7 +1142,7 @@ sscanf(row[12], "%li", &(pRow->m_psc_restrict));
 
 
 
-	mysql_free_result(res);			
+	db_wrapper_free_result(res);			
 	
 	return pRow;						
 }
@@ -1152,7 +1150,7 @@ sscanf(row[12], "%li", &(pRow->m_psc_restrict));
 
 class Row_PhoneNumber* Row_IncomingLog::FK_PhoneNumber_getrow()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 class Table_PhoneNumber *pTable = table->database->PhoneNumber_get();
 return pTable->GetRow(m_FK_PhoneNumber);
