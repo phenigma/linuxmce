@@ -252,7 +252,7 @@ string TableInfo_Generator::get_getters_definition()
 	string s;
 	
 	for ( vector<FieldInfo*>::iterator i = m_Fields.begin(); i != m_Fields.end(); i++ )
-		s = s + (*i)->getCType() + " Row_"+m_sTableName+"::" + (*i)->m_pcFieldName + "_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);\n\nreturn m_" + (*i)->m_pcFieldName + ";}" + "\n";
+		s = s + (*i)->getCType() + " Row_"+m_sTableName+"::" + (*i)->m_pcFieldName + "_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);\n\nreturn m_" + (*i)->m_pcFieldName + ";}" + "\n";
 	
 	return s;
 }
@@ -274,7 +274,7 @@ string TableInfo_Generator::get_setters_definition()
 	int iIndex=0;
 	
 	for ( vector<FieldInfo*>::iterator i = m_Fields.begin(); i != m_Fields.end(); i++, iIndex++ )
-		s = s + "void " + "Row_"+m_sTableName+"::"+ (*i)->m_pcFieldName + "_set(" + (*i)->getCType() + " val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);\n\nm_" + (*i)->m_pcFieldName + " = val; is_modified=true; is_null["+int2string(iIndex)+"]=false;}" + "\n";
+		s = s + "void " + "Row_"+m_sTableName+"::"+ (*i)->m_pcFieldName + "_set(" + (*i)->getCType() + " val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);\n\nm_" + (*i)->m_pcFieldName + " = val; is_modified=true; is_null["+int2string(iIndex)+"]=false;}" + "\n";
 	
 	return s;
 }
@@ -298,7 +298,7 @@ string TableInfo_Generator::get_null_getters_definition()
 	
 	for ( vector<FieldInfo*>::iterator i=m_Fields.begin(); i != m_Fields.end(); i++, iIndex++ )
 		if (!((*i)->m_iFlags & NOT_NULL_FLAG))
-			s = s + "bool " + "Row_"+m_sTableName+"::" + (*i)->m_pcFieldName + "_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);\n\nreturn is_null["+int2string(iIndex)+"];}" + "\n";
+			s = s + "bool " + "Row_"+m_sTableName+"::" + (*i)->m_pcFieldName + "_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);\n\nreturn is_null["+int2string(iIndex)+"];}" + "\n";
 	
 	return s;
 }
@@ -323,7 +323,7 @@ string TableInfo_Generator::get_null_setters_definition()
 	
 	for ( vector<FieldInfo*>::iterator i = m_Fields.begin(); i != m_Fields.end(); i++, iIndex++ )
 		if (!((*i)->m_iFlags & NOT_NULL_FLAG))
-			s = s + "void " +  "Row_"+m_sTableName+"::"+(*i)->m_pcFieldName + "_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);\nis_null["+int2string(iIndex)+"]=val;\nis_modified=true;\n}\n";
+			s = s + "void " +  "Row_"+m_sTableName+"::"+(*i)->m_pcFieldName + "_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);\nis_null["+int2string(iIndex)+"]=val;\nis_modified=true;\n}\n";
 
 	return s;	
 }
@@ -439,7 +439,7 @@ string TableInfo_Generator::get_primary_autoinc_key_init()
 {
 	for ( vector<FieldInfo*>::iterator i = m_Fields.begin(); i != m_Fields.end(); i++ )
 		if (((*i)->m_iFlags & PRI_KEY_FLAG) && ((*i)->m_iFlags & AUTO_INCREMENT_FLAG ))
-			return string( "if (id!=0)\n\t\tpRow->m_" ) + (*i)->m_pcFieldName + "=id;\nelse \n\t\tLoggerWrapper::GetInstance()->Write(LV_CRITICAL,\"" + (*i)->m_pcFieldName + " is auto increment but has no value %s\",database->m_sLastMySqlError.c_str());";
+			return string( "if (id!=0)\n\t\tpRow->m_" ) + (*i)->m_pcFieldName + "=id;\nelse \n\t\tLoggerWrapper::GetInstance()->Write(LV_CRITICAL,\"" + (*i)->m_pcFieldName + " is auto increment but has no value %s\",database->m_sLastDBError.c_str());";
 	
 	return "";
 }
@@ -683,10 +683,10 @@ string TableInfo_Generator::get_build_query_for_key()
 					sCode = sCode + int2string(1+2*(*i)->m_iLength) + "];\n";
 
 					if( m_eKnownPkTypes==PKTYPES_SINGLE_STRING )
-						sCode = sCode + "mysql_real_escape_string(database->m_pMySQL,tmp_" + (*i)->m_pcFieldName 
+						sCode = sCode + "db_wrapper_real_escape_string(database->m_pDB,tmp_" + (*i)->m_pcFieldName 
 								+ ", key.pk.c_str(), (unsigned long) key.pk.size());\n\n";
 					else
-						sCode = sCode + "mysql_real_escape_string(database->m_pMySQL,tmp_" + (*i)->m_pcFieldName 
+						sCode = sCode + "db_wrapper_real_escape_string(database->m_pDB,tmp_" + (*i)->m_pcFieldName 
 								+ ", key.pk_" + (*i)->m_pcFieldName + ".c_str(), (unsigned long) key.pk_" + (*i)->m_pcFieldName + ".size());\n\n";
 					sCondition = sCondition + " + \"\\\"\" + tmp_" + (*i)->m_pcFieldName + "+ \"\\\"\"";
 				}
@@ -829,7 +829,7 @@ string TableInfo_Generator::get_fields_sql_getters_definition()
 	
 	for ( vector<FieldInfo*>::iterator i = m_Fields.begin(); i != m_Fields.end(); i++, iIndex++ )
 	{
-		sCode = sCode + "string Row_"+m_sTableName+"::"+(*i)->m_pcFieldName+"_asSQL()\n{\nPLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);\n\n";
+		sCode = sCode + "string Row_"+m_sTableName+"::"+(*i)->m_pcFieldName+"_asSQL()\n{\nPLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);\n\n";
 		sCode = sCode + "if (is_null["+int2string(iIndex)+"])\n";
 		sCode = sCode + "return \"NULL\";\n\n";
 		
@@ -848,7 +848,7 @@ string TableInfo_Generator::get_fields_sql_getters_definition()
 				iSize=5000000;  // Don't allow runaway fields with big text.  Assume 5MB is the maximum we would need to use
 
 			sCode = sCode + "char *buf = new char[" + int2string(iSize) + "];\n";		
-			sCode = sCode + "mysql_real_escape_string(table->database->m_pMySQL, buf, m_" + (*i)->m_pcFieldName + 
+			sCode = sCode + "db_wrapper_real_escape_string(table->database->m_pDB, buf, m_" + (*i)->m_pcFieldName + 
 				".c_str(), (unsigned long) min((size_t)" + StringUtils::itos((*i)->m_iLength) + ",m_" + (*i)->m_pcFieldName + ".size()));\n";
 
 			sCode = sCode + "string s=string("")+\"\\\"\"+buf+\"\\\"\";\n";
@@ -894,7 +894,7 @@ string TableInfo_Generator::rows_getters_definition()
 		string field_name = (*i)->m_pcFieldName;
 							
 		s = s + "class Row_" + sRefTable + "* Row_" + m_sTableName + "::" + (*i)->m_pcFieldName+"_getrow()\n";
-		s = s + "{\nPLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);\n\n";
+		s = s + "{\nPLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);\n\n";
 		s = s + "class Table_"+sRefTable+" *pTable = table->database->"+sRefTable+"_get();\n";
 		s = s + "return pTable->GetRow(m_" + field_name + ");\n";
 		s = s + "}\n";
@@ -954,7 +954,7 @@ string TableInfo_Generator::fk_rows_getters_definition()
             if( getTableFromForeignKey(field->m_pcFieldName,m_pTables)==get_table_name() )
             {
                 s = s + "void Row_" + get_table_name() + "::"+ info->get_table_name() + "_" + field->m_pcFieldName + "_getrows(vector <class Row_" + info->get_table_name() + "*> *rows)\n";
-				s = s + "{\nPLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);\n\n";
+				s = s + "{\nPLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);\n\n";
 				s = s + "class Table_"+info->get_table_name()+" *pTable = table->database->"+info->get_table_name()+"_get();\n";
 				s = s + "pTable->GetRows(\"`"+ field->m_pcFieldName + "`=\" + StringUtils::itos(m_PK_" + get_table_name() + "),rows);\n";
                 s = s + "}\n";

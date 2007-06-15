@@ -308,18 +308,16 @@ int main( int argc, char *argv[] )
 	makefile_out << "ROOT = .." << endl;
 
 	makefile_out << "CXXFLAGS = -pipe -Wall -O2 -D_GNU_SOURCE -fPIC -g -ggdb3" << endl;
-	makefile_out << "CPPFLAGS = -I/usr/include/mysql -I.. -I../.. -I../DCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -DMULTI_THREADED -DNO_SQL_THREAD_LOG -DUSE_MYSQL" << endl;
+	makefile_out << "CPPFLAGS =  -I.. -I../.. -I../DCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -DMULTI_THREADED -DNO_SQL_THREAD_LOG" << endl;
 	makefile_out << "CXX = g++" << endl;
 	makefile_out << "LDFLAGS = -L$(ROOT)/lib" << endl;
-	makefile_out << "LDLIBS =  -lmysqlclient_r" << endl << endl;
 
-	makefile_out << "sources = Database_" << sDBName << ".cpp TableRow.cpp";
+	makefile_out << "sources = ../db_wrapper/db_wrapper.cpp ../db_wrapper/ClientSocket.cpp ../db_wrapper/Socket.cpp Database_" << sDBName << ".cpp TableRow.cpp";
 
 	db_h_out << "#ifndef __Database_"<<sDBName<<"_H_" << endl;
 	db_h_out << "#define __Database_"<<sDBName<<"_H_" << endl;
-	db_h_out << "#include <mysql.h>" << endl;
 
-	db_h_out << "#include \"PlutoUtils/MySQLHelper.h\"" << endl;
+	db_h_out << "#include \"PlutoUtils/DBHelper.h\"" << endl;
 	db_h_out << "#include \"DCE/Logger.h\"" << endl;
 
     db_h_out << "#ifdef WIN32" << endl;
@@ -336,11 +334,11 @@ int main( int argc, char *argv[] )
     db_h_out << "#define DECLSPECIFIER" << endl;
     db_h_out << "#endif" << endl;
 
-    db_h_out << "class DECLSPECIFIER MySqlHelper;" << endl;
+    db_h_out << "class DECLSPECIFIER DBHelper;" << endl;
     db_h_out << "class DECLSPECIFIER SerializeClass;" << endl;
     db_h_out << endl;
 
-	db_h_out << "class DECLSPECIFIER Database_" << sDBName << ": public MySqlHelper" << endl;
+	db_h_out << "class DECLSPECIFIER Database_" << sDBName << ": public DBHelper" << endl;
 	db_h_out << "{" << endl;
 	db_h_out << "public:" << endl;
 	db_h_out << "Database_" << sDBName << "(Logger *pLogger=NULL);" << endl;
@@ -372,7 +370,7 @@ int main( int argc, char *argv[] )
 	{
 		db_h_out << "class Table_" + (*i)->get_table_name() + "* " + (*i)->get_table_name() + "_get() { if( !tbl"+(*i)->get_table_name()+" ) CreateTable_" + (*i)->get_table_name() + "(); return tbl"+(*i)->get_table_name()+"; }" << endl;
 	}
-	db_h_out << "string m_sLastMySqlError;" << endl;
+	db_h_out << "string m_sLastDBError;" << endl;
 	db_h_out << "bool Connect(string host, string user, string pass, string sDBName, int port=3306);" << endl;
 	db_h_out << "bool Connect(class DCEConfig *pDCEConfig);" << endl;
 	db_h_out << "void Disconnect();" << endl;
@@ -397,7 +395,6 @@ int main( int argc, char *argv[] )
 	db_cpp_out << "#ifdef WIN32" << endl << "\t#include <winsock.h>" << endl << "#endif" << endl;
 
 	db_cpp_out << "#include <iostream>" << endl
-		<< "#include <mysql.h>" << endl
 		<< "#include <stdio.h>" << endl
 		<< "#include <string>" << endl
 		<< endl
@@ -445,7 +442,7 @@ int main( int argc, char *argv[] )
 
 	db_cpp_out << "bool Database_" << sDBName << "::Connect(string host, string user, string pass, string sDBName, int port)" << endl;
 	db_cpp_out << "{" << endl;
-	db_cpp_out << "return MySQLConnect(host, user, pass, sDBName, port);" << endl;
+	db_cpp_out << "return DBConnect(host, user, pass, sDBName, port);" << endl;
 
 	db_cpp_out << "}" << endl << endl;
 
