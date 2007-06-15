@@ -1634,6 +1634,14 @@ loop_to_keep_looking_for_objs_to_include:
 		for(listDesignObj_Generator::iterator itlcgo=o->begin();itlcgo!=o->end();++itlcgo)
 		{
 			DesignObj_Generator *oco = (*itlcgo);
+	if( oco->m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Go_CONST )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"orbitergenloop 1 DESIGNOBJ_butFBSF_Go_CONST %d,%d-%d,%d %d,%d-%d,%d cache %d scale %d",
+			oco->m_rPosition.X,oco->m_rPosition.Y,oco->m_rPosition.Width,oco->m_rPosition.Height,
+			oco->m_rBackgroundPosition.X,oco->m_rBackgroundPosition.Y,oco->m_rBackgroundPosition.Width,oco->m_rBackgroundPosition.Height,
+			(int) oco->m_bUsingCache,(int) oco->m_bDontScale);
+	}
+
 			if( !oco->m_bUsingCache )
 			{
 				// The scaling process will also let us know if we have any arrays within our child objects.  If so

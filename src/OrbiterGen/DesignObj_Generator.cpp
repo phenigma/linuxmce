@@ -1050,9 +1050,23 @@ int k=2;
         {
             Row_DesignObjVariation_DesignObj_Skin_Language * drOVO = vectovo[s2];
 			Row_DesignObj *pRow_DesignObj_Child = drOVO->FK_DesignObjVariation_DesignObj_getrow()->FK_DesignObj_Child_getrow();
+
+if( pRow_DesignObj_Child->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Go_CONST )
+{
+	LoggerWrapper::GetInstance()->Write(LV_WARNING,"include DESIGNOBJ_butFBSF_Go_CONST v1 %d-%d v2 %d-%d x %d %d y %d %d sc %d",
+		(int) (m_rPosition.X+drOVO->X_get())*m_iScale/100,(int) m_pOrbiterGenerator->m_sizeScreen->Width,
+		(int)(m_rPosition.Y+drOVO->Y_get())*m_iScale/100,(int) m_pOrbiterGenerator->m_sizeScreen->Height,
+		m_rPosition.X,drOVO->X_get(),m_rPosition.Y,drOVO->Y_get(),
+		m_iScale);
+}
  
+
 			if( (m_rPosition.X+drOVO->X_get())*m_iScale/100<m_pOrbiterGenerator->m_sizeScreen->Width && (m_rPosition.Y+drOVO->Y_get())*m_iScale/100<m_pOrbiterGenerator->m_sizeScreen->Height )
             {
+if( pRow_DesignObj_Child->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Go_CONST )
+{
+	LoggerWrapper::GetInstance()->Write(LV_WARNING,"include DESIGNOBJ_butFBSF_Go_CONST ok");
+}
                 if( pRow_DesignObj_Child->FK_DesignObjType_get()==DESIGNOBJTYPE_Array_CONST )
                     alArrays.push_back(drOVO);
                 else
@@ -1195,6 +1209,13 @@ int k=2;
 		for(vector<class DesignObj_Generator *>::iterator it=m_alChildDesignObjs.begin();it!=m_alChildDesignObjs.end();++it)
 		{
 			DesignObj_Generator *pObj = *it;
+	if( pObj->m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Go_CONST )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"pass 1 DESIGNOBJ_butFBSF_Go_CONST %d,%d-%d,%d %d,%d-%d,%d adj %s pass %d",
+			pObj->m_rPosition.X,pObj->m_rPosition.Y,pObj->m_rPosition.Width,pObj->m_rPosition.Height,
+			pObj->m_rBackgroundPosition.X,pObj->m_rBackgroundPosition.Y,pObj->m_rBackgroundPosition.Width,pObj->m_rBackgroundPosition.Height,
+			(int) pObj->m_sAdjustments.c_str(),(int) Pass);
+	}
 			if( (pObj->m_sAdjustments.empty()==true && Pass==0) || (pObj->m_sAdjustments.empty()==false && Pass==1) )
 				pObj->Process();
 		}
