@@ -157,6 +157,9 @@ function networkSettings($output,$dbADO) {
 	<div align="center" class="confirm"><B>'.(isset($_GET['msg'])?strip_tags($_GET['msg']):'').'</B></div>
 	<table border="0">
 		<tr>
+			<td colspan="4" class="alternate_back">'.get_network_settings().'</td>
+		</tr>	
+		<tr>
 			<td colspan="4"><B>Domain</B> &nbsp; <input type="text" name="domain" value="'.$domain.'"> &nbsp; <B>Computer name</B> &nbsp; <input type="text" name="cname" value="'.$cname.'"></td>
 		</tr>
 	
@@ -358,5 +361,30 @@ function getIpFromParts($partName,$startIndex=1)
 		$ipArray[] = $part;
 	}
 	return join('.',$ipArray);
+}
+
+function get_network_settings(){
+	$command='/usr/pluto/bin/Network_DisplaySettings.sh --all';
+	$ret=exec_batch_command($command,1);
+	
+	$lines=explode("\n",$ret);
+
+	if(count($lines)==0){
+		return '';
+	}
+	$out='<table>';
+	foreach ($lines AS $line){
+		$parts=explode('=',$line);
+		if(count($parts)==2){
+			$out.='
+			<tr>
+				<td><b>'.trim($parts[0]).'</b></td>
+				<td>'.trim($parts[1]).'</td>
+			</tr>';
+		}
+	}
+	$out.='</table>';
+	
+	return $out;
 }
 ?>
