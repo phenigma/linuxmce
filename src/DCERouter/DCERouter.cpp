@@ -90,6 +90,92 @@ extern DCEConfig g_DCEConfig;
 bool SerializeMessageXML(Message *pMessage, char *&pData, size_t &nSize);
 bool DeserializeMessageXML(Message *pMessage, char *pData, size_t nSize);
 
+
+
+
+#include "pluto_main/Table_DesignObj.h"
+#include "pluto_main/Table_DesignObjVariation.h"
+#include "pluto_main/Table_DesignObjType.h"
+#include "pluto_main/Table_DesignObjVariation_DesignObjParameter.h"
+#include "pluto_main/Table_DesignObjParameter.h"
+#include "pluto_main/Table_UI.h"
+
+
+void Router::ReportStructure(int PK_DesignObjVariation_Parent,int PK_DesignObj_Child,ListStructure *pCumulativeList)
+{
+	Row_DesignObjVariation *pRow_DesignObjVariation = m_pDatabase_pluto_main->DesignObjVariation_get()->GetRow(PK_DesignObjVariation_Parent);
+	Row_DesignObj *pRow_DesignObj_Parent = pRow_DesignObjVariation->FK_DesignObj_getrow();
+	Row_DesignObjVariation_DesignObjParameter *pRow_DesignObjVariation_DesignObjParameter = m_pDatabase_pluto_main->DesignObjVariation_DesignObjParameter_get()->GetRow(PK_DesignObjVariation_Parent,DESIGNOBJPARAMETER_Graphic_Filename_CONST);
+	if( pRow_DesignObjVariation_DesignObjParameter && pRow_DesignObjVariation_DesignObjParameter->Value_get().find("mainmenu_small.png")!=string::npos )
+		return; // It's the Cisco UI
+
+	if( pRow_DesignObj_Parent->FK_DesignObjType_get()==DESIGNOBJTYPE_Array_CONST || pRow_DesignObjVariation->FK_UI_get()==UI_Symbian_Series_60_Phone_CONST || pRow_DesignObjVariation->FK_UI_get()==UI_PDA_4_3_vertical_style_CONST)
+		return;
+
+
+	ObjInfo *pObjInfo = new ObjInfo();
+	pObjInfo->PK_DesignObj = pRow_DesignObj_Parent->PK_DesignObj_get();
+	pObjInfo->PK_DesignObjVariation = PK_DesignObjVariation_Parent;
+	pObjInfo->sDescription = pRow_DesignObj_Parent->Description_get();
+	Row_UI *pRow_UI = pRow_DesignObjVariation->FK_UI_getrow();
+	if( pRow_UI )
+		pObjInfo->sVariation = pRow_UI->Description_get();
+
+	pCumulativeList->push_front( pObjInfo );
+
+	string sS = "select FK_DesignObjVariation_Parent,FK_DesignObj_Child FROM DesignObjVariation_DesignObj JOIN DesignObjVariation ON FK_DesignObj=FK_DesignObj_Child WHERE FK_DesignObj_Child=" + StringUtils::itos(pRow_DesignObj_Parent->PK_DesignObj_get());
+	PlutoSqlResult result_setx;
+	DB_ROW rowx;
+	result_setx.r=db_wrapper_query_result(sS);
+	if( result_setx.r->row_count==0 )
+	{
+		// We've hit the top.  Save what we've got
+		g_AllObjects[ pRow_DesignObj_Parent->PK_DesignObj_get() ].push_back( pCumulativeList );
+	}
+	else 
+	{
+		bool bFirst=true;
+		while ((rowx = db_wrapper_fetch_row(result_setx.r)))
+		{
+			int PK_DesignObjVariation_Parent = atoi(rowx[0]);
+			int PK_DesignObj_Child = atoi(rowx[1]);
+			if( bFirst )
+			{
+				ReportStructure(PK_DesignObjVariation_Parent,PK_DesignObj_Child,pCumulativeList);
+				bFirst=false;
+			}
+			else
+			{
+				ListStructure *pListStructure_new = new ListStructure();
+				for(ListStructure::iterator it=pCumulativeList->begin();it!=pCumulativeList->end();++it)
+				{
+					ObjInfo *pObjInfo = *it;
+					ObjInfo *pObjInfo_Copy = new ObjInfo(*pObjInfo);
+					pListStructure_new->push_back( pObjInfo_Copy );
+				}
+				ReportStructure(PK_DesignObjVariation_Parent,PK_DesignObj_Child,pListStructure_new);
+			}
+		}
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 bool g_WatchDogFlag=false;
 void* WatchDogRoutine(void* param)
 {
@@ -195,6 +281,53 @@ Router::Router(int PK_Device,int PK_Installation,string BasePath,string DBHost,s
         LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Cannot connect to database!");
 		exit(1);
     }
+
+string sS = "select FK_DesignObjVariation_Parent,FK_DesignObj_Child FROM DesignObjVariation_DesignObj "
+"JOIN DesignObjVariation_DesignObj_Skin_Language ON FK_DesignObjVariation_DesignObj=PK_DesignObjVariation_DesignObj "
+"JOIN DesignObjVariation ON FK_DesignObj=FK_DesignObj_Child "
+"WHERE FK_CommandGroup_D_OnActivate is not null and IsTabStop=0 ";
+PlutoSqlResult result_setx;
+DB_ROW rowx;
+if( (result_setx.r=db_wrapper_query_result(sS)) )
+{
+	while ((rowx = db_wrapper_fetch_row(result_setx.r)))
+	{
+		int PK_DesignObjVariation_Parent = atoi(rowx[0]);
+		int PK_DesignObj_Child = atoi(rowx[1]);
+		ListStructure *pListStructure = new ListStructure();
+		Row_DesignObj *pRow_DesignObj = m_pDatabase_pluto_main->DesignObj_get()->GetRow(PK_DesignObj_Child);
+		Row_DesignObjVariation *pRow_DesignObjVariation = m_pDatabase_pluto_main->DesignObjVariation_get()->GetRow(PK_DesignObjVariation_Parent);
+		if( pRow_DesignObj->FK_DesignObjType_get()==DESIGNOBJTYPE_Array_CONST || pRow_DesignObjVariation->FK_UI_get()==UI_Symbian_Series_60_Phone_CONST || pRow_DesignObjVariation->FK_UI_get()==UI_PDA_4_3_vertical_style_CONST)
+			continue;
+
+		ObjInfo *pObjInfo = new ObjInfo();
+		pObjInfo->PK_DesignObj = PK_DesignObj_Child;
+		pObjInfo->PK_DesignObjVariation = 0;
+		pObjInfo->sDescription = pRow_DesignObj->Description_get();
+//		Row_UI *pRow_UI = pRow_DesignObjVariation->FK_UI_getrow();
+//		if( pRow_UI )
+//			pObjInfo->sVariation = pRow_UI->Description_get();
+		pListStructure->push_back( pObjInfo );
+		ReportStructure(PK_DesignObjVariation_Parent,PK_DesignObj_Child,pListStructure);
+	}
+}
+
+FILE *file = fopen("\\temp\\notabs.txt","wb");
+for(map<int,list<ListStructure *> >::iterator it=g_AllObjects.begin();it!=g_AllObjects.end();++it)
+{
+	for(list<ListStructure *>::iterator it2=it->second.begin();it2!=it->second.end();++it2)
+	{
+		string sOutput;
+		ListStructure *pListStructure = *it2;
+		for(ListStructure::iterator it3=pListStructure->begin();it3!=pListStructure->end();++it3)
+		{
+			ObjInfo *pObjInfo = *it3;
+			sOutput += "\t" + StringUtils::itos(pObjInfo->PK_DesignObj) + " " + pObjInfo->sDescription + " " + StringUtils::itos(pObjInfo->PK_DesignObjVariation) + " " + pObjInfo->sVariation;
+		}
+		fprintf(file,"%s\n",sOutput.c_str());
+	}
+}
+fclose(file);
 
     if( !m_dwPK_Installation && g_DCEConfig.m_iPK_Installation>0 )
         m_dwPK_Installation = g_DCEConfig.m_iPK_Installation;
