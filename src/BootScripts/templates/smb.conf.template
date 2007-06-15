@@ -41,4 +41,11 @@
 	public = no
 	guest ok = no
 	force user = root
-	force group = root
+        force group = public
+        create mask = 0774
+        directory mask = 0775
+        inherit acls = yes
+        inherit uid = yes
+        inherit owner = yes
+        inherit permissions = yes
+
