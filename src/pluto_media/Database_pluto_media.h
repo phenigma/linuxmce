@@ -1,7 +1,6 @@
 #ifndef __Database_pluto_media_H_
 #define __Database_pluto_media_H_
-#include <mysql.h>
-#include "PlutoUtils/MySQLHelper.h"
+#include "PlutoUtils/DBHelper.h"
 #include "DCE/Logger.h"
 #ifdef WIN32
 #ifdef EXPORT_DLL
@@ -16,10 +15,10 @@
 #else
 #define DECLSPECIFIER
 #endif
-class DECLSPECIFIER MySqlHelper;
+class DECLSPECIFIER DBHelper;
 class DECLSPECIFIER SerializeClass;
 
-class DECLSPECIFIER Database_pluto_media: public MySqlHelper
+class DECLSPECIFIER Database_pluto_media: public DBHelper
 {
 public:
 Database_pluto_media(Logger *pLogger=NULL);
@@ -153,7 +152,7 @@ class Table_psc_media_batuser* psc_media_batuser_get() { if( !tblpsc_media_batus
 class Table_psc_media_repset* psc_media_repset_get() { if( !tblpsc_media_repset ) CreateTable_psc_media_repset(); return tblpsc_media_repset; }
 class Table_psc_media_schema* psc_media_schema_get() { if( !tblpsc_media_schema ) CreateTable_psc_media_schema(); return tblpsc_media_schema; }
 class Table_psc_media_tables* psc_media_tables_get() { if( !tblpsc_media_tables ) CreateTable_psc_media_tables(); return tblpsc_media_tables; }
-string m_sLastMySqlError;
+string m_sLastDBError;
 bool Connect(string host, string user, string pass, string sDBName, int port=3306);
 bool Connect(class DCEConfig *pDCEConfig);
 void Disconnect();

@@ -2,7 +2,6 @@
 	#include <winsock.h>
 #endif
 #include <iostream>
-#include <mysql.h>
 #include <stdio.h>
 #include <string>
 
@@ -251,7 +250,7 @@ DeleteTable_psc_media_tables();
 
 bool Database_pluto_media::Connect(string host, string user, string pass, string sDBName, int port)
 {
-return MySQLConnect(host, user, pass, sDBName, port);
+return DBConnect(host, user, pass, sDBName, port);
 }
 
 bool Database_pluto_media::Connect(class DCEConfig *pDCEConfig)
