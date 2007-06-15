@@ -69,6 +69,10 @@ size_t LCDRenderer::ReadData(string &sData)
 		memset(pBuf, 0, nBufSize);
 		size_t nRead = m_spSerial->Read(pBuf, 1);
 		string sData(pBuf);
+
+		if(nRead > 0)
+			DCE::LoggerWrapper::GetInstance()->Write(LV_STATUS, "LCDRenderer::ReadData: serial received %s, bytes %d", sData.c_str(), nRead);
+
 		return nRead;
 	}
 
