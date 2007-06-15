@@ -32,7 +32,7 @@ function mediaDirectors($output,$dbADO) {
 		'104'=>'UI2 without alpha blending'
 	);	
 	$connectorsArray=array(
-		'DVI/HDMI'=>'DVI/HDMI',
+		'DVI'=>'DVI/HDMI',
 		'VGA'=>'VGA',
 		'Component'=>'Component',
 		'SVideo'=>'SVideo',
