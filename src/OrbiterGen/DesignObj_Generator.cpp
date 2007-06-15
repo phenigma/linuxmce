@@ -158,14 +158,9 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"const %p %d",this,drDesignObj->PK
 	if( m_pRow_DesignObj->FK_DesignObjType_get()==DESIGNOBJTYPE_Floorplan_CONST )
 		m_iFloorplanPage = m_pOrbiterGenerator->m_iFloorplanPage;
 
-if( m_pOrbiterGenerator->m_iLocation )
-int k=2;
-	if( (ocoParent && ocoParent->m_pRow_DesignObj->PK_DesignObj_get()==5362) || 
-		m_pRow_DesignObj->PK_DesignObj_get()==5363 ||  m_pRow_DesignObj->PK_DesignObj_get()==5362 )
+	if( m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Go_CONST )
 	{
-LoggerWrapper::GetInstance()->Write(LV_WARNING,"Outputing %d parent %d",
-					  m_pRow_DesignObj->PK_DesignObj_get(), ocoParent ? ocoParent->m_pRow_DesignObj->PK_DesignObj_get() : -1);
-
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"start 1 DESIGNOBJ_butFBSF_Go_CONST");
 	}
 
 if( m_pRow_DesignObj->PK_DesignObj_get()==4868 ) // ||  m_pRow_DesignObj->PK_DesignObj_get()==5362 )// ||  m_pRow_DesignObj->PK_DesignObj_get()==5112 ) 
@@ -623,6 +618,12 @@ Table_Image *p = m_mds->Image_get();
     }
 if(m_sOrigBackgroundFile=="/pluto/orbiter/skins//Basic/Icons/lights/lightson.png")
 int k=2;
+
+	if( m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Go_CONST )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"start 2 DESIGNOBJ_butFBSF_Go_CONST %d,%d %d,%d",
+			this->m_rPosition.X,m_rPosition.Y,this->m_rBackgroundPosition.X,this->m_rBackgroundPosition.Y);
+	}
 
 	// See if there's a button
 	if( !m_pRow_DesignObjVariation->FK_Button_isNull() )
@@ -2026,6 +2027,12 @@ int k=2;
 	int FactorX_Origin = FactorX_Input;
 	int FactorY_Origin = FactorY_Input;
 
+	if( m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Go_CONST )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"ScaleAllValues 1 DESIGNOBJ_butFBSF_Go_CONST %d,%d %d,%d %d,%d %d,%d /%d",
+			this->m_rPosition.X,m_rPosition.Y,this->m_rBackgroundPosition.X,this->m_rBackgroundPosition.Y,
+			FactorX,FactorY,FactorX_Origin,FactorY_Origin,(int) m_bValuesScaled);
+	}
 	if( !m_bValuesScaled )
     {
         PlutoPoint p3(m_rBackgroundPosition.Location());
@@ -2041,7 +2048,17 @@ int k=2;
         p=PlutoPoint(plutoSize3.Width,plutoSize3.Height);
         p=PlutoPoint(ScaleValue(&p,FactorX,FactorY));
         m_rPosition.Size(p);
-        for(size_t s=0;s<m_vectDesignObjText.size();++s)
+
+	if( m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Go_CONST )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"ScaleAllValues 2 DESIGNOBJ_butFBSF_Go_CONST %d,%d %d,%d %d,%d %d,%d /%d  %d,%d %d,%d %d,%d",
+			this->m_rPosition.X,m_rPosition.Y,this->m_rBackgroundPosition.X,this->m_rBackgroundPosition.Y,
+			FactorX,FactorY,FactorX_Origin,FactorY_Origin,(int) m_bValuesScaled,
+			p3.X,p3.Y,p2.X,p2.Y,p.X,p.Y);
+	}
+
+		
+		for(size_t s=0;s<m_vectDesignObjText.size();++s)
         {
             CGText *ot = (CGText *) m_vectDesignObjText[s];
             PlutoPoint p5 = ot->m_rPosition.Location();
