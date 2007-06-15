@@ -110,6 +110,7 @@ function Install_DCERouter {
 	apt-get -y -f install mysql-server || ExitInstaller "Failed to install mysql server"
 	invoke-rc.d mysql start # Because of this : https://bugs.launchpad.net/bugs/107224
 
+	apt-get -y -f install pluto-sample-media
 	apt-get -y -f install pluto-mysql-wrapper
 
 	StatsMessage "Installing LinuxMCE Base Software"
