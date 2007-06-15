@@ -72,7 +72,7 @@ struct SDL_Event_Loop_Data
   keyboardState kbdState;
 };
 
-OrbiterLinux *CreateOrbiter(int PK_Device,int PK_DeviceTemplate,string sRouter_IP,string sLocalDirectory,bool bLocalMode, int Width, int Height, bool bFullScreen);
+OrbiterLinux *CreateOrbiter(int PK_Device,int PK_DeviceTemplate,string sRouter_IP,string sLocalDirectory,bool bLocalMode, int Width, int Height, bool bFullScreen,bool &bMustQuit);
 
 bool SDL_Event_Process(SDL_Event_Loop_Data &sdl_event_loop_data);
 bool SDL_Event_Loop_End(SDL_Event_Loop_Data &sdl_event_loop_data);
@@ -87,7 +87,7 @@ public:
 
     bool LoadConfig();
 
-    bool Create();
+    bool Create(bool &bMustQuit);
     bool EventProcess();
     void Destroy();
 

@@ -331,8 +331,10 @@ void translateSDLEventToOrbiterEvent(SDL_Event &sdlEvent, Orbiter::Event *orbite
     }
 }
 
-OrbiterLinux *CreateOrbiter(int PK_Device,int PK_DeviceTemplate,string sRouter_IP,string sLocalDirectory,bool bLocalMode, int Width, int Height, bool bFullScreen)
+OrbiterLinux *CreateOrbiter(int PK_Device,int PK_DeviceTemplate,string sRouter_IP,string sLocalDirectory,bool bLocalMode, int Width, int Height, bool bFullScreen,bool& bMustQuit)
 {
+	bMustQuit = false;
+
 	OrbiterLinux *pCLinux =
         new OrbiterLinux(
             PK_Device, PK_DeviceTemplate, sRouter_IP,
@@ -382,6 +384,19 @@ OrbiterLinux *CreateOrbiter(int PK_Device,int PK_DeviceTemplate,string sRouter_I
 			return pCLinux;
 		}
 	}
+	else
+	{
+			if( pCLinux->m_pEvent && pCLinux->m_pEvent->m_pClientSocket && pCLinux->m_pEvent->m_pClientSocket->m_eLastError==ClientSocket::cs_err_CannotConnect )
+			{
+				bMustQuit = true;
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "No Router.  Will abort");
+			}
+			else
+			{
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Connect() Failed");
+			}
+	}
+
 	delete pCLinux;
 	return NULL;
 }
@@ -441,10 +456,15 @@ bool SDL_App_Object::Run()
         SetExitCode(1);
         return false;
     }
-    if (! Create())
+
+	bool bAppError = false;
+    if (! Create(bAppError))
     {
         LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Failed to create Orbiter.  Aborting reload since the router must not be running");
-	    SetExitCode(0);
+
+		if(bAppError)
+			SetExitCode(0);
+
         return false;
     }
     
@@ -462,7 +482,7 @@ bool SDL_App_Object::LoadConfig()
     return  true;
 };
 
-bool SDL_App_Object::Create()
+bool SDL_App_Object::Create(bool &bAppError)
 {
 
     m_pSDL_Event_Loop_Data = new SDL_Event_Loop_Data;
@@ -474,7 +494,7 @@ bool SDL_App_Object::Create()
         SetExitCode(1);
         return false;
     }
-	m_pSDL_Event_Loop_Data->pOrbiter = CreateOrbiter(commandlineparams.PK_Device, commandlineparams.PK_DeviceTemplate, commandlineparams.sRouter_IP, commandlineparams.sLocalDirectory, commandlineparams.bLocalMode, commandlineparams.Width, commandlineparams.Height, commandlineparams.bFullScreen);
+	m_pSDL_Event_Loop_Data->pOrbiter = CreateOrbiter(commandlineparams.PK_Device, commandlineparams.PK_DeviceTemplate, commandlineparams.sRouter_IP, commandlineparams.sLocalDirectory, commandlineparams.bLocalMode, commandlineparams.Width, commandlineparams.Height, commandlineparams.bFullScreen,bAppError);
     if (m_pSDL_Event_Loop_Data->pOrbiter == NULL)
     {
         LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "error returned by : CreateOrbiter()");
