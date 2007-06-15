@@ -71,6 +71,8 @@ namespace ProcessUtils
 	extern unsigned long g_SecondsReset;
 	void ResetMsTime();
 	unsigned long GetMsTime();
+
+	bool RunApplicationAndGetOutput(string sCommandLine, string& sOutput);
 };
 
 #endif // PROCESSUTILS

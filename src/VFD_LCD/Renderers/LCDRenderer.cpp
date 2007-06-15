@@ -58,10 +58,6 @@ void LCDRenderer::Render(const DisplayState &display_state)
 		DCE::LoggerWrapper::GetInstance()->Write(LV_WARNING, "LCDRenderer: Sending '%s' to LCD", sText.c_str());
 		m_spSerial->Write(const_cast<char *>(sText.c_str()), sText.length());
 	}
-	else
-	{
-		DCE::LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "LCDRenderer: Won't send '%s' to LCD. The connection is down.", sText.c_str());
-	}
 }
 //--------------------------------------------------------------------------------------------------------
 size_t LCDRenderer::ReadData(string &sData)

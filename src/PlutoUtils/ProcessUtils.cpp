@@ -562,3 +562,27 @@ unsigned long ProcessUtils::GetMsTime()
 	return (ts.tv_sec-g_SecondsReset)*1000 + (ts.tv_nsec/1000000);
 }
 
+bool ProcessUtils::RunApplicationAndGetOutput(string sCommandLine, string& sOutput)
+{
+	char *pFilename = tempnam("/tmp", "pluto-temp-");
+
+	string sOutputFilename = NULL != pFilename ? pFilename : "pluto_temp";
+	sOutputFilename += ".out";
+
+	if(NULL != pFilename)
+	{
+		free(pFilename);
+    	pFilename = NULL;
+	}
+
+	sCommandLine = sCommandLine + " > " + sOutputFilename;
+
+	bool bResult = false;
+	if(-1 != system(sCommandLine.c_str()))
+		bResult = FileUtils::ReadTextFile(sOutputFilename, sOutput);
+
+	if(FileUtils::FileExists(sOutputFilename))
+		FileUtils::DelFile(sOutputFilename);
+
+	return bResult;
+}

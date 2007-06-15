@@ -22,9 +22,13 @@
 			</menuitem>
 		</menuitem>
 		<menuitem description="View settings">
-			<menuitem description="IP" value="{IP}" />
+			<menuitem description="Internal IP" value="{INTERNAL_IP}" />
+			<menuitem description="Internal IP netmask" value="{INTERNAL_NETMASK}" />
+			<menuitem description="Internal NIC MAC" value="{INTERNAL_MAC}" />
+			<menuitem description="External IP" value="{EXTERNAL_IP}" />
+			<menuitem description="External IP netmask" value="{EXTERNAL_NETMASK}" />
+			<menuitem description="External NIC MAC" value="{EXTERNAL_MAC}" />
 			<menuitem description="Gateway" value="{GATEWAY}" />
-			<menuitem description="Netmask" value="{NETMASK}" />
 			<menuitem description="DNS1" value="{DNS1}" />
 			<menuitem description="DNS2" value="{DNS2}" />
 		</menuitem>

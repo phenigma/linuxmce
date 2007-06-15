@@ -36,6 +36,7 @@ private:
 
 	void GenerateOrbiterNodes(MenuItem *pMenuItem);
 	void GenerateMDNodes(MenuItem *pMenuItem);
+	void LoadNetworkInfo();
 
 public:
 

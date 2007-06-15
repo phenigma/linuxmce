@@ -6,6 +6,7 @@
 #include "pluto_main/Table_Device.h"
 #include "pluto_main/Define_DeviceCategory.h"
 #include "pluto_main/Define_DeviceTemplate.h"
+#include "PlutoUtils/ProcessUtils.h"
 //--------------------------------------------------------------------------------------------------------
 #define REFRESH_INTERVAL	400
 #define IDLE_INTERVAL		100
@@ -16,23 +17,13 @@ LCDManager::LCDManager(MenuHolder *pMenuHolder, Database_pluto_main *pDatabase_p
 	m_pDatabase_pluto_main(pDatabase_pluto_main)
 {
 	m_display_state.m_sStatusMessage = "Welcome to Fiire 1.0!";
-
 	m_RenderMutex.Init(NULL);
-
-	//////////////////////////////////////////////////////////////
-	//Testing - remove me
-	SetVariable("{IP}", "192.168.89.2");
-	SetVariable("{NETMASK}", "255.255.255.0");
-	SetVariable("{GATEWAY}", "192.168.89.1");
-	SetVariable("{DNS1}", "192.168.89.1");
-	SetVariable("{DNS2}", "10.0.0.1");
-	SetVariable("{CURRENT_STATUS}", "LMCE LCD Menu 1.0");
-	//////////////////////////////////////////////////////////////
 
 	if(NULL != m_pMenuHolder)
 	{
 		Expand(m_pMenuHolder->RootMenu());
 		SetupCoreNodes(m_pMenuHolder->RootMenu());
+		LoadNetworkInfo();
 	}
 }
 //--------------------------------------------------------------------------------------------------------
@@ -440,4 +431,49 @@ void LCDManager::SetupCoreNodes(MenuItem *pMenuItem)
 	pVideoSettingsNode->ReplaceVariable("{APP_SERVER}", sAppServerID);
 }
 //--------------------------------------------------------------------------------------------------------
+void LCDManager::LoadNetworkInfo()
+{
+	//TODO: embed it in the xml
+	string sDisplayNetworkSettings("/usr/pluto/bin/Display_NetworkSettings.sh");
 
+	string sNetworkInfo;
+	if(!ProcessUtils::RunApplicationAndGetOutput(sDisplayNetworkSettings, sNetworkInfo))
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Got now info from %s", sDisplayNetworkSettings.c_str());
+		return;
+	}
+
+	//sNetworkInfo = 
+	//	"INTERNAL_IP=192.168.89.1\r\n"
+	//	"INTERNAL_NETMASK=255.255.255.0\r\n"
+	//	"INTERNAL_MAC=00-15-F2-21-BE-2B\r\n"
+	//	"EXTERNAL_IP=10..0.89\r\n"
+	//	"EXTERNAL_NETMASK=255.255.255.0\r\n"
+	//	"EXTERNAL_MAC=00-17-E3-76-F2-42\r\n"
+	//	"GATEWAY=10.0.0.1\r\n"
+	//	"DNS1=10.0.0.1\r\n"
+	//	"DNS2=85.77.255.193\r\n";
+
+	//get rid of any \n
+	sNetworkInfo = StringUtils::Replace(sNetworkInfo, "\r\n", "\r");
+
+	vector<string> vectLines;
+	StringUtils::Tokenize(sNetworkInfo, "\r=", vectLines);
+
+	for(vector<string>::iterator it = vectLines.begin(); it != vectLines.end(); ++it)
+	{
+		string sValue;
+		string sVariable = *it;
+
+		++it;
+
+		if(it != vectLines.end())
+		{
+			sValue = *it;
+			SetVariable("{"  + sVariable + "}", sValue);
+		}
+		else
+			break;
+	}
+}
+//--------------------------------------------------------------------------------------------------------
