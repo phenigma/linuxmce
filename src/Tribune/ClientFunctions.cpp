@@ -85,8 +85,8 @@ string ClientFunctions::GetBlackListChannels() {
 	sSQL << "SELECT ChannelName FROM BlackListChannels";
 
 	PlutoSqlResult res;
-	MYSQL_ROW row=NULL;
-	res.r = g_GlobalConfig.m_pDatabase->mysql_query_result( sSQL.str( ) );
+	DB_ROW row=NULL;
+	res.r = g_GlobalConfig.m_pDatabase->db_wrapper_query_result( sSQL.str( ) );
 	if( !res.r )
 	{
 		cerr << "Problem retrieving rows with query1: " << sSQL.str() << endl;
@@ -94,7 +94,7 @@ string ClientFunctions::GetBlackListChannels() {
 	}
 	else
 	{
-		while( ( row = mysql_fetch_row( res.r ) ) )
+		while( ( row = db_wrapper_fetch_row( res.r ) ) )
 		{
 			if( !row[0] )
 			{
@@ -117,7 +117,7 @@ void ClientFunctions::DeleteClientLineup() {
 	
 	sSQL << "DELETE FROM ClientLineup";
 
-	g_GlobalConfig.m_pDatabase->mysql_query_result( sSQL.str( ) );
+	g_GlobalConfig.m_pDatabase->db_wrapper_query_result( sSQL.str( ) );
 
 }
 
@@ -127,7 +127,7 @@ void ClientFunctions::SetClientLineup(string key, string lineup) {
 	
 	sSQL << "INSERT INTO ClientLineup(PK_ClientLineup, LineupName) VALUES (\""+key+"\",\""+lineup+"\")";
 
-	g_GlobalConfig.m_pDatabase->mysql_query_result( sSQL.str( ) );
+	g_GlobalConfig.m_pDatabase->db_wrapper_query_result( sSQL.str( ) );
 
 }
 
@@ -139,8 +139,8 @@ string ClientFunctions::GetClientLineup() {
 	sSQL << "SELECT PK_ClientLineup FROM ClientLineup";
 
 	PlutoSqlResult res;
-	MYSQL_ROW row=NULL;
-	res.r = g_GlobalConfig.m_pDatabase->mysql_query_result( sSQL.str( ) );
+	DB_ROW row=NULL;
+	res.r = g_GlobalConfig.m_pDatabase->db_wrapper_query_result( sSQL.str( ) );
 	if( !res.r )
 	{
 		cerr << "Problem retrieving rows with query1: " << sSQL.str() << endl;
@@ -148,7 +148,7 @@ string ClientFunctions::GetClientLineup() {
 	}
 	else
 	{
-		while( ( row = mysql_fetch_row( res.r ) ) )
+		while( ( row = db_wrapper_fetch_row( res.r ) ) )
 		{
 			if( !row[0] )
 			{
@@ -200,7 +200,7 @@ bool ClientFunctions::ModifyClientDatabase(string path){
 
 			if (line.length()!=0){
 				cout << line << endl;
-				g_GlobalConfig.m_pDatabase->mysql_query_result( line );
+				g_GlobalConfig.m_pDatabase->db_wrapper_query_result( line );
 			}
 			
 			
@@ -210,13 +210,13 @@ bool ClientFunctions::ModifyClientDatabase(string path){
 	return true;
 }
 
-string ClientFunctions::GetUpdateList(){
-	return this.update_list;
+string ClientFunctions::getUpdateList(){
+	return this->update_list;
 }
 
 
-string ClientFunctions::GetDeleteList(){
-	return this.delete_list;
+string ClientFunctions::getDeleteList(){
+	return this->delete_list;
 }
 
 

@@ -346,8 +346,8 @@ int main(int argc, char *argv[]){
 			/** modify the client database*/
  			clientFunct->ModifyClientDatabase(path);
 
-			string updatelist = clientFunct->GetUpdateList();
-			string deletelist = clientFunct->GetDeleteList();
+			string updatelist = clientFunct->getUpdateList();
+			string deletelist = clientFunct->getDeleteList();
 
 			path = "/tmp/updatefile";
  			ofstream updatefile(path.c_str());
