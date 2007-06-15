@@ -210,8 +210,8 @@ string MediaAttributes_LowLevel::GetFilePathFromFileID( int PK_File, int *PK_Med
 {
     string SQL = "SELECT Path,Filename,EK_MediaType FROM File WHERE PK_File=" + StringUtils::itos( PK_File );
     PlutoSqlResult result;
-    MYSQL_ROW row;
-    if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
+    DB_ROW row;
+    if( ( result.r=m_pDatabase_pluto_media->db_wrapper_query_result( SQL ) ) && ( row=db_wrapper_fetch_row( result.r ) ) )
     {
         string strPath = row[0];
         string strFile = row[1];
@@ -237,8 +237,8 @@ int MediaAttributes_LowLevel::GetFileIDFromAttributeID( int PK_Attribute )
         "WHERE Identifier=1 AND FK_Attribute=" + StringUtils::itos( PK_Attribute );
 
     PlutoSqlResult result;
-    MYSQL_ROW row;
-    if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
+    DB_ROW row;
+    if( ( result.r=m_pDatabase_pluto_media->db_wrapper_query_result( SQL ) ) && ( row=db_wrapper_fetch_row( result.r ) ) )
         return atoi( row[0] );
     return 0;
 }
@@ -254,10 +254,10 @@ string MediaAttributes_LowLevel::GetFilePathsFromAttributeID( int PK_Atribute )
         "ORDER BY Path";
 
     PlutoSqlResult result;
-    MYSQL_ROW row;
-    if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) )
+    DB_ROW row;
+    if( ( result.r=m_pDatabase_pluto_media->db_wrapper_query_result( SQL ) ) )
     {
-        while( ( row=mysql_fetch_row( result.r ) ) )
+        while( ( row=db_wrapper_fetch_row( result.r ) ) )
         {
             Result += row[0];
             Result += "|";
@@ -270,7 +270,7 @@ int MediaAttributes_LowLevel::GetFileIDFromFilePath( string File )
 {
     // moved here since we want to fallback on the windows like functionality when we don't have an attributte for the file.
 	PlutoSqlResult result;
-    MYSQL_ROW row;
+    DB_ROW row;
 
 	/*
 #ifdef WIN32
@@ -287,7 +287,7 @@ int MediaAttributes_LowLevel::GetFileIDFromFilePath( string File )
 		Path = Path.substr(0,Path.length()-1);
 	string SQL = "SELECT PK_File FROM File WHERE Path='" + StringUtils::SQLEscape( Path ) +
 		"' AND Filename='" + StringUtils::SQLEscape( FileUtils::FilenameWithoutPath(File) ) + "'";
-    if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
+    if( ( result.r=m_pDatabase_pluto_media->db_wrapper_query_result( SQL ) ) && ( row=db_wrapper_fetch_row( result.r ) ) )
         return atoi( row[0] );
 
     return 0; // Can't do this in Windows
@@ -330,7 +330,7 @@ int MediaAttributes_LowLevel::GetFileIDFromFilePath( string File )
                     string SQL;
 					SQL += "UPDATE File SET Path='" + StringUtils::SQLEscape(FileUtils::ExcludeTrailingSlash(path)) + "', Filename='" + StringUtils::SQLEscape( name ) + "' WHERE PK_File=" + StringUtils::itos(PK_File);
                     // cout << "Query: " << SQL << endl;
-                    m_pDatabase_pluto_media->threaded_mysql_query( SQL );
+                    m_pDatabase_pluto_media->threaded_db_wrapper_query( SQL );
                 }
             }
         }
@@ -349,7 +349,7 @@ int MediaAttributes_LowLevel::GetFileIDFromFilePath( string File )
 
 		string SQL = "SELECT PK_File FROM File WHERE Path='" + StringUtils::SQLEscape( Path ) +
 			"' AND Filename='" + StringUtils::SQLEscape( FileUtils::FilenameWithoutPath(File) ) + "'";
-		if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
+		if( ( result.r=m_pDatabase_pluto_media->db_wrapper_query_result( SQL ) ) && ( row=db_wrapper_fetch_row( result.r ) ) )
 			return atoi( row[0] );
 		else
 			return 0;
@@ -472,8 +472,8 @@ string MediaAttributes_LowLevel::GetPictureFromFileID( int PK_File, int *PK_Pict
 
 //	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MediaAttributes_LowLevel::GetPictureFromFileID() Running query: %s", SQL.c_str());
     PlutoSqlResult result;
-    MYSQL_ROW row;
-    if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
+    DB_ROW row;
+    if( ( result.r=m_pDatabase_pluto_media->db_wrapper_query_result( SQL ) ) && ( row=db_wrapper_fetch_row( result.r ) ) )
     {
         *PK_Picture = atoi( row[0] );
         return row[1];
@@ -486,7 +486,7 @@ string MediaAttributes_LowLevel::GetPictureFromFileID( int PK_File, int *PK_Pict
         "WHERE FK_File=" + StringUtils::itos( PK_File );
 
 //	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MediaAttributes_LowLevel::GetPictureFromFileID() Running another query: %s", SQL.c_str());
-    if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
+    if( ( result.r=m_pDatabase_pluto_media->db_wrapper_query_result( SQL ) ) && ( row=db_wrapper_fetch_row( result.r ) ) )
     {
         *PK_Picture = atoi( row[0] );
         return row[1];
@@ -510,8 +510,8 @@ string MediaAttributes_LowLevel::GetPictureFromDiscID( int PK_Disc, int *PK_Pict
 
 //	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MediaAttributes_LowLevel::GetPictureFromDiscID() Running query: %s", SQL.c_str());
     PlutoSqlResult result;
-    MYSQL_ROW row;
-    if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
+    DB_ROW row;
+    if( ( result.r=m_pDatabase_pluto_media->db_wrapper_query_result( SQL ) ) && ( row=db_wrapper_fetch_row( result.r ) ) )
     {
         *PK_Picture = atoi( row[0] );
         return row[1];
@@ -524,7 +524,7 @@ string MediaAttributes_LowLevel::GetPictureFromDiscID( int PK_Disc, int *PK_Pict
         "WHERE FK_Disc=" + StringUtils::itos( PK_Disc );
 
 //	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MediaAttributes_LowLevel::GetPictureFromDiscID() Running another query: %s", SQL.c_str());
-    if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
+    if( ( result.r=m_pDatabase_pluto_media->db_wrapper_query_result( SQL ) ) && ( row=db_wrapper_fetch_row( result.r ) ) )
     {
         *PK_Picture = atoi( row[0] );
         return row[1];
@@ -540,8 +540,8 @@ string MediaAttributes_LowLevel::GetPictureFromAttributeID( int PK_Attribute, in
         "FK_Picture=PK_Picture "\
         "WHERE FK_Attribute=" + StringUtils::itos( PK_Attribute ) + " limit 1";
     PlutoSqlResult result,result2;
-    MYSQL_ROW row;
-    if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
+    DB_ROW row;
+    if( ( result.r=m_pDatabase_pluto_media->db_wrapper_query_result( SQL ) ) && ( row=db_wrapper_fetch_row( result.r ) ) )
     {
         *PK_Picture = atoi( row[0] );
         return row[1];
@@ -555,7 +555,7 @@ string MediaAttributes_LowLevel::GetPictureFromAttributeID( int PK_Attribute, in
         "JOIN Picture ON FK_Picture=PK_Picture "\
         "WHERE Source.FK_Attribute=" + StringUtils::itos( PK_Attribute ) + " limit 1";
 
-    if( ( result2.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result2.r ) ) )
+    if( ( result2.r=m_pDatabase_pluto_media->db_wrapper_query_result( SQL ) ) && ( row=db_wrapper_fetch_row( result2.r ) ) )
     {
         *PK_Picture = atoi( row[0] );
         return row[1];
@@ -574,9 +574,9 @@ int MediaAttributes_LowLevel::GetAttributeFromFileID( int PK_File )
         "WHERE Identifier=1 AND PK_File=" + StringUtils::itos( PK_File );
 
     PlutoSqlResult result;
-    MYSQL_ROW row;
+    DB_ROW row;
 
-    if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
+    if( ( result.r=m_pDatabase_pluto_media->db_wrapper_query_result( SQL ) ) && ( row=db_wrapper_fetch_row( result.r ) ) )
         return atoi( row[0] );
     return 0;
 }
@@ -590,9 +590,9 @@ int MediaAttributes_LowLevel::GetAttributeFromFilePath( string File )
         "WHERE Identifier=1 AND Path='" + StringUtils::SQLEscape( File ) + "'";
 
     PlutoSqlResult result;
-    MYSQL_ROW row;
+    DB_ROW row;
 
-    if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
+    if( ( result.r=m_pDatabase_pluto_media->db_wrapper_query_result( SQL ) ) && ( row=db_wrapper_fetch_row( result.r ) ) )
         return atoi( row[0] );
     return 0;
 }
@@ -611,7 +611,7 @@ void MediaAttributes_LowLevel::MarkAsMissing(int iKey, string fileName)
 
     string SQL = "UPDATE File SET Missing=1 WHERE PK_File=" + StringUtils::itos( iKey );
 
-    m_pDatabase_pluto_media->threaded_mysql_query_withID( SQL );
+    m_pDatabase_pluto_media->threaded_db_wrapper_query_withID( SQL );
 }
 
 void operator+= (deque<MediaFile *> &dTarget, deque<MediaFile *> &dAdditional)
@@ -731,12 +731,12 @@ void MediaAttributes_LowLevel::UpdateSearchTokens(Row_Attribute *pRow_Attribute)
 {
 	int PK_Attribute = pRow_Attribute->PK_Attribute_get();
     PlutoSqlResult result;
-    MYSQL_ROW row, row2;
+    DB_ROW row, row2;
     string SQL = "SELECT Name FROM Attribute WHERE PK_Attribute=" + StringUtils::itos( PK_Attribute );
-    if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
+    if( ( result.r=m_pDatabase_pluto_media->db_wrapper_query_result( SQL ) ) && ( row=db_wrapper_fetch_row( result.r ) ) )
     {
         SQL = "DELETE FROM SearchToken_Attribute WHERE FK_Attribute=" + StringUtils::itos( PK_Attribute );
-        m_pDatabase_pluto_media->threaded_mysql_query( SQL );
+        m_pDatabase_pluto_media->threaded_db_wrapper_query( SQL );
         char *ptr = row[0];
         string::size_type pos=0;
         while( ptr && *ptr )
@@ -749,7 +749,7 @@ void MediaAttributes_LowLevel::UpdateSearchTokens(Row_Attribute *pRow_Attribute)
                 StringUtils::SQLEscape( Token ) + "'";
             int PK_SearchToken=0;
 			PlutoSqlResult result2;
-            if( ( result2.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) && ( row2=mysql_fetch_row( result2.r ) ) )
+            if( ( result2.r=m_pDatabase_pluto_media->db_wrapper_query_result( SQL ) ) && ( row2=db_wrapper_fetch_row( result2.r ) ) )
             {
                 PK_SearchToken = atoi( row2[0] );
             }
@@ -757,14 +757,14 @@ void MediaAttributes_LowLevel::UpdateSearchTokens(Row_Attribute *pRow_Attribute)
             {
                 SQL = "INSERT INTO SearchToken( Token ) VALUES( '" +
                     StringUtils::SQLEscape( Token ) + "' )";
-                PK_SearchToken = m_pDatabase_pluto_media->threaded_mysql_query_withID( SQL );
+                PK_SearchToken = m_pDatabase_pluto_media->threaded_db_wrapper_query_withID( SQL );
             }
             if( PK_SearchToken )
             {
                 SQL = "INSERT INTO SearchToken_Attribute(FK_SearchToken,FK_Attribute) VALUES( " +
                     StringUtils::itos( PK_SearchToken ) + ", " +
                     StringUtils::itos( PK_Attribute ) + " )";
-                m_pDatabase_pluto_media->threaded_mysql_query( SQL, true );
+                m_pDatabase_pluto_media->threaded_db_wrapper_query( SQL, true );
             }
         }
     }
@@ -1544,11 +1544,11 @@ string MediaAttributes_LowLevel::GetDefaultDescriptionForMediaFile(MediaFile *pM
 			TOSTRING(ATTRIBUTETYPE_Title_CONST) "," TOSTRING(ATTRIBUTETYPE_Performer_CONST) "," TOSTRING(ATTRIBUTETYPE_Album_CONST) ")";
 		
     PlutoSqlResult result;
-    MYSQL_ROW row;
+    DB_ROW row;
 	string sAlbum,sPerformer;
-    if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( sSQL ) ) )
+    if( ( result.r=m_pDatabase_pluto_media->db_wrapper_query_result( sSQL ) ) )
 	{
-		while ( row=mysql_fetch_row( result.r ) )
+		while ( row=db_wrapper_fetch_row( result.r ) )
 		{
 			switch( atoi(row[0]) )
 			{

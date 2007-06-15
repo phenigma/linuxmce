@@ -220,7 +220,7 @@ namespace DCE
 		{
 			// Do this manually since we don't want to reset the psc_mod, causing others to think something has changed for this device
 			string sSQL = "UPDATE Device SET Status='" + StringUtils::SQLEscape(sStatus) + "',psc_mod=psc_mod WHERE PK_Device=" + StringUtils::itos(m_pRow_Device->PK_Device_get());
-			m_pRow_Device->Table_Device_get()->Database_pluto_main_get()->threaded_mysql_query(sSQL);
+			m_pRow_Device->Table_Device_get()->Database_pluto_main_get()->threaded_db_wrapper_query(sSQL);
 			m_pRow_Device->Reload();
 			m_sStatus=sStatus;
 		}
@@ -228,7 +228,7 @@ namespace DCE
 		{
 			// Do this manually since we don't want to reset the psc_mod, causing others to think something has changed for this device
 			string sSQL = "UPDATE Device SET State='" + StringUtils::SQLEscape(sState) + "',psc_mod=psc_mod WHERE PK_Device=" + StringUtils::itos(m_pRow_Device->PK_Device_get());
-			m_pRow_Device->Table_Device_get()->Database_pluto_main_get()->threaded_mysql_query(sSQL);
+			m_pRow_Device->Table_Device_get()->Database_pluto_main_get()->threaded_db_wrapper_query(sSQL);
 			m_pRow_Device->Reload();
 			m_sState=sState;
 		}

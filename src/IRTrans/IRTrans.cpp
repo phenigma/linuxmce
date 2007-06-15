@@ -34,7 +34,6 @@ using namespace DCE;
 #include "pluto_main/Define_DeviceCategory.h"
 #include "PlutoUtils/LinuxSerialUSB.h"
 #include "PlutoUtils/DatabaseUtils.h"
-#include "PlutoUtils/MySQLHelper.h"
 
 #ifdef WIN32
 typedef int WSAEVENT;
@@ -324,7 +323,7 @@ void IRTrans::StartIRServer()
 	if( TTYPort[0]==0 || true )
 #endif
 	{
-		MySqlHelper mySqlHelper(m_sIPAddress,"root","","pluto_main");
+		DBHelper mySqlHelper(m_sIPAddress,"root","","pluto_main");
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"IRTrans not found on default port.  Will scan for it %d",(int) mySqlHelper.m_bConnected);
 		if( mySqlHelper.m_bConnected )
 		{

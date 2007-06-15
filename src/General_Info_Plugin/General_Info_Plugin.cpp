@@ -573,7 +573,7 @@ void General_Info_Plugin::CMD_Halt_Device(int iPK_Device,string sForce,string sM
 	if ( 0 == iPK_Device ) // iPK_Device=0 => find device by MAC Address
 	{		
 		PlutoSqlResult result;
-		MYSQL_ROW row;
+		DB_ROW row;
 		string sSQL = 
 			"SELECT PK_Device "
 			"FROM Device "
@@ -586,9 +586,9 @@ void General_Info_Plugin::CMD_Halt_Device(int iPK_Device,string sForce,string sM
 
 		int iDeviceID = 0;
 		// Execute query
-		if( (result.r = m_pDatabase_pluto_main->mysql_query_result(sSQL.c_str())) )
+		if( (result.r = m_pDatabase_pluto_main->db_wrapper_query_result(sSQL.c_str())) )
 		{
-			while((row = mysql_fetch_row(result.r)))	
+			while((row = db_wrapper_fetch_row(result.r)))	
 			{
 				if(NULL != row[fnDeviceID]) // device found
 				{
@@ -1056,7 +1056,7 @@ class DataGridTable *General_Info_Plugin::StorageDevices( string GridID, string 
 	int iRow=0,iCol=0;
 
 	PlutoSqlResult result;
-	MYSQL_ROW row;
+	DB_ROW row;
 	string sSQL = 
 		"SELECT PK_Device, Device.Description, Device_DeviceData.IK_DeviceData, FK_DeviceCategory, DirectoryStructure.IK_DeviceData "
 		"FROM Device "
@@ -1072,9 +1072,9 @@ class DataGridTable *General_Info_Plugin::StorageDevices( string GridID, string 
 			StringUtils::ltos(DEVICEDATA_Free_Disk_Space_in_MBytes_CONST) + " " +
 		"ORDER BY CAST(Device_DeviceData.IK_DeviceData AS UNSIGNED) DESC";
 
-	if( (result.r = m_pDatabase_pluto_main->mysql_query_result(sSQL.c_str())) )
+	if( (result.r = m_pDatabase_pluto_main->db_wrapper_query_result(sSQL.c_str())) )
 	{
-		while((row = mysql_fetch_row(result.r)))
+		while((row = db_wrapper_fetch_row(result.r)))
 		{
 			if(NULL != row[0] && NULL != row[1] && NULL != row[3])
 			{
@@ -1162,7 +1162,7 @@ class DataGridTable *General_Info_Plugin::CitiesGrid( string GridID, string Parm
 	for(int i=0;i<2;++i)
 	{
 		PlutoSqlResult result;
-		MYSQL_ROW row;
+		DB_ROW row;
 		string sSQL;
 		// Fields are 0=PK_City,1=PK_PostalCode,2=City,3=Region,4=PostalCode,5=Lat,6=Long,7=time zone
 		if( i==0 )
@@ -1180,9 +1180,9 @@ class DataGridTable *General_Info_Plugin::CitiesGrid( string GridID, string Parm
 				"AND City.FK_Country=" + StringUtils::itos(PK_Country) + " " 
 				"ORDER BY City.City like '" + Parms + "%' desc,City.City,Region.Region";  // Put the cities that start with this string first
 
-		if( (result.r = m_pDatabase_pluto_main->mysql_query_result(sSQL.c_str())) )
+		if( (result.r = m_pDatabase_pluto_main->db_wrapper_query_result(sSQL.c_str())) )
 		{
-			while( ( row=mysql_fetch_row( result.r ) ) )
+			while( ( row=db_wrapper_fetch_row( result.r ) ) )
 			{
 				string sName = row[2];
 				if( row[3] )
@@ -1253,10 +1253,10 @@ class DataGridTable *General_Info_Plugin::Rooms( string GridID, string Parms, vo
 		sql = "SELECT DISTINCT PK_Room,Room.Description FROM Room JOIN Device ON FK_Room=PK_Room JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE FK_DeviceCategory=" TOSTRING(DEVICECATEGORY_Media_Director_CONST) " AND Room.FK_Installation=" + StringUtils::itos(m_pRouter->iPK_Installation_get()) + " ORDER BY Description";
 
 	PlutoSqlResult result;
-    MYSQL_ROW row;
-	if( (result.r = m_pDatabase_pluto_main->mysql_query_result(sql.c_str())) )
+    DB_ROW row;
+	if( (result.r = m_pDatabase_pluto_main->db_wrapper_query_result(sql.c_str())) )
 	{
-		while( ( row=mysql_fetch_row( result.r ) ) )
+		while( ( row=db_wrapper_fetch_row( result.r ) ) )
 		{
 			pCell = new DataGridCell( row[1], row[0] );
 			pDataGrid->SetData( iCol++, iRow, pCell );
@@ -1284,10 +1284,10 @@ class DataGridTable *General_Info_Plugin::RoomTypes(string GridID, string Parms,
 		"GROUP BY PK_RoomType "
 		"ORDER BY Description";
 	PlutoSqlResult result;
-	MYSQL_ROW row;
-	if((result.r = m_pDatabase_pluto_main->mysql_query_result(sql.c_str())))
+	DB_ROW row;
+	if((result.r = m_pDatabase_pluto_main->db_wrapper_query_result(sql.c_str())))
 	{
-		while((row=mysql_fetch_row(result.r)))
+		while((row=db_wrapper_fetch_row(result.r)))
 		{
 			string sPK_RoomType = row[0];
 			string sDescription = row[1];
@@ -1320,10 +1320,10 @@ class DataGridTable *General_Info_Plugin::ChildrenInfo(string GridID, string Par
 		"JOIN DeviceTemplate ON FK_DeviceTemplate = PK_DeviceTemplate "
 		"WHERE FK_Device_ControlledVia = " + sPK_Device_Parent;
 	PlutoSqlResult result;
-	MYSQL_ROW row;
-	if((result.r = m_pDatabase_pluto_main->mysql_query_result(sql.c_str())))
+	DB_ROW row;
+	if((result.r = m_pDatabase_pluto_main->db_wrapper_query_result(sql.c_str())))
 	{
-		while((row=mysql_fetch_row(result.r)))
+		while((row=db_wrapper_fetch_row(result.r)))
 		{
 			string PK_ChildDevice = row[0];
 			string sChildName = row[1];
@@ -1399,10 +1399,10 @@ class DataGridTable *General_Info_Plugin::LightsTypes(string GridID, string Parm
 		"ORDER BY Description";
 
 	PlutoSqlResult result;
-	MYSQL_ROW row;
-	if( (result.r = m_pDatabase_pluto_main->mysql_query_result(sql.c_str())) )
+	DB_ROW row;
+	if( (result.r = m_pDatabase_pluto_main->db_wrapper_query_result(sql.c_str())) )
 	{
-		while( ( row=mysql_fetch_row( result.r ) ) )
+		while( ( row=db_wrapper_fetch_row( result.r ) ) )
 		{
 			pCell = new DataGridCell(row[1], row[0]);
 			pDataGrid->SetData( iCol++, iRow, pCell );
@@ -1458,10 +1458,10 @@ class DataGridTable *General_Info_Plugin::InstalledAVDevices(string GridID, stri
 	}
 
 	PlutoSqlResult result;
-	MYSQL_ROW row;
-	if( (result.r = m_pDatabase_pluto_main->mysql_query_result(sql.c_str()) ))
+	DB_ROW row;
+	if( (result.r = m_pDatabase_pluto_main->db_wrapper_query_result(sql.c_str()) ))
 	{
-		while((row = mysql_fetch_row( result.r )))
+		while((row = db_wrapper_fetch_row( result.r )))
 		{
 			pCell = new DataGridCell(row[1], row[0]);
 			pDataGrid->SetData(iCol++, iRow, pCell );
@@ -1490,10 +1490,10 @@ class DataGridTable *General_Info_Plugin::SensorType(string GridID, string Parms
 		StringUtils::ltos(DEVICECATEGORY_Security_Device_CONST);
 
 	PlutoSqlResult result;
-	MYSQL_ROW row;
-	if( (result.r = m_pDatabase_pluto_main->mysql_query_result(sql.c_str())) )
+	DB_ROW row;
+	if( (result.r = m_pDatabase_pluto_main->db_wrapper_query_result(sql.c_str())) )
 	{
-		while( ( row=mysql_fetch_row( result.r ) ) )
+		while( ( row=db_wrapper_fetch_row( result.r ) ) )
 		{
 			pCell = new DataGridCell(row[1], row[0]);
 			pDataGrid->SetData(0, iRow++, pCell );
@@ -1544,10 +1544,10 @@ class DataGridTable *General_Info_Plugin::AddSoftware( string GridID, string Par
 
 	int PK_Software_Last = 0;
 	PlutoSqlResult result;
-	MYSQL_ROW row;
-	if( (result.r = m_pRouter->mysql_query_result(sSQL))  )
+	DB_ROW row;
+	if( (result.r = m_pRouter->db_wrapper_query_result(sSQL))  )
 	{
-		while( (row = mysql_fetch_row( result.r ))!=NULL )
+		while( (row = db_wrapper_fetch_row( result.r ))!=NULL )
 		{
 			if( !row[0] || atoi(row[0])==PK_Software_Last )
 				continue;
@@ -1555,7 +1555,7 @@ class DataGridTable *General_Info_Plugin::AddSoftware( string GridID, string Par
 			pCell = new DataGridCell("",row[0]);
 			if( row[3] )
 			{
-				unsigned long *lengths = mysql_fetch_lengths(result.r);
+				unsigned long *lengths = db_wrapper_fetch_lengths(result.r);
 				char *Data=new char[lengths[3]];
 				memcpy(Data,row[3],lengths[3]);
 				pCell->SetImage(Data, lengths[3], GR_PNG);
@@ -1598,16 +1598,16 @@ class DataGridTable * General_Info_Plugin::AVWhatDelay( string GridID, string Pa
 	LoggerWrapper::GetInstance()->Write( LV_STATUS , Parms.c_str() );
 
 	PlutoSqlResult result;
-	MYSQL_ROW row;
+	DB_ROW row;
 	string header[]={ 
 		"Number of seconds to wait for the device to warm up after sending a code to turn the power on",
 		"Number of seconds to wait before sending other codes after changing inputs or modes on this device ",
 		"Number of seconds* between commands (up to 3 decimal places) when sending a series of codes, such as a sequence of digits to tune to a channel"};
 	int nRow;
 
-	if( (result.r = m_pRouter->mysql_query_result(sql))  )
+	if( (result.r = m_pRouter->db_wrapper_query_result(sql))  )
 	{
-		if( (row = mysql_fetch_row( result.r )) )
+		if( (row = db_wrapper_fetch_row( result.r )) )
 		{
 			for(nRow=0;nRow<3;nRow++)
 			{
@@ -1645,7 +1645,7 @@ class DataGridTable *General_Info_Plugin::AVDiscret( string GridID, string Parms
 	string::size_type pos=0;
 
 	PlutoSqlResult result;
-	MYSQL_ROW row;
+	DB_ROW row;
 	int nRow = 0,nPos = 0 ;
 
 	sManufacturerId = StringUtils::Tokenize( Parms, ",", pos );
@@ -1661,9 +1661,9 @@ class DataGridTable *General_Info_Plugin::AVDiscret( string GridID, string Parms
 	LoggerWrapper::GetInstance()->Write( LV_STATUS , "AV Wizard AVDiscret sql" );
 	LoggerWrapper::GetInstance()->Write( LV_STATUS , sql.c_str() );
 
-	if( (result.r = m_pRouter->mysql_query_result(sql))  )
+	if( (result.r = m_pRouter->db_wrapper_query_result(sql))  )
 	{
-		while( (row = mysql_fetch_row( result.r )) )
+		while( (row = db_wrapper_fetch_row( result.r )) )
 		{
 			sInfraredGrupIds += string(row[0]) + ",";
 		}
@@ -1681,9 +1681,9 @@ class DataGridTable *General_Info_Plugin::AVDiscret( string GridID, string Parms
 	LoggerWrapper::GetInstance()->Write( LV_STATUS , "AV Wizard AVDiscret sql" );
 	LoggerWrapper::GetInstance()->Write( LV_STATUS , sql.c_str() );
 
-	if( (result.r = m_pRouter->mysql_query_result(sql))  )
+	if( (result.r = m_pRouter->db_wrapper_query_result(sql))  )
 	{
-		while( (row = mysql_fetch_row( result.r )) )
+		while( (row = db_wrapper_fetch_row( result.r )) )
 		{
 			if( row[0] )
 				index = string(row[0]) + "," + StringUtils::ltos(nPos++);
@@ -1720,15 +1720,15 @@ class DataGridTable *General_Info_Plugin::AVInputNotListed(string GridID, string
 	LoggerWrapper::GetInstance()->Write( LV_STATUS , sql.c_str() );
 
 	PlutoSqlResult result;
-	MYSQL_ROW row;
+	DB_ROW row;
 	int nRow = 0,nCol = 0,nMaxCol;
 	nMaxCol = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Width_CONST].c_str());;
 	if( nMaxCol <= 0 )
 		nMaxCol = 1;;
 
-	if( (result.r = m_pRouter->mysql_query_result(sql))  )
+	if( (result.r = m_pRouter->db_wrapper_query_result(sql))  )
 	{
-		while( (row = mysql_fetch_row( result.r )) )
+		while( (row = db_wrapper_fetch_row( result.r )) )
 		{
 				pCell = new DataGridCell( row[1], row[0]);
 				pDataGrid->SetData(nCol++, nRow, pCell );
@@ -1757,7 +1757,7 @@ class DataGridTable *General_Info_Plugin::AVMediaType( string GridID, string Par
 	LoggerWrapper::GetInstance()->Write( LV_STATUS , "AV Wizard AVMediaType sql" );
 	LoggerWrapper::GetInstance()->Write( LV_STATUS , sql.c_str() );
 	PlutoSqlResult result;
-	MYSQL_ROW row;
+	DB_ROW row;
 	int nRow = 0,nCol = 0,nMaxCol;
 	nMaxCol = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Width_CONST].c_str());;
 	if( nMaxCol <= 0 )
@@ -1769,9 +1769,9 @@ class DataGridTable *General_Info_Plugin::AVMediaType( string GridID, string Par
 		nRow++;
 	else
 		nCol++;
-	if( (result.r = m_pRouter->mysql_query_result(sql))  )
+	if( (result.r = m_pRouter->db_wrapper_query_result(sql))  )
 	{
-		while( (row = mysql_fetch_row( result.r )) )
+		while( (row = db_wrapper_fetch_row( result.r )) )
 		{
 				pCell = new DataGridCell( row[1], row[0]);
 				pDataGrid->SetData(nCol++, nRow, pCell );
@@ -1801,7 +1801,7 @@ class DataGridTable *General_Info_Plugin::AVMediaConnector( string GridID, strin
 	LoggerWrapper::GetInstance()->Write( LV_STATUS , "AV Wizard AVMediaConnector sql" );
 	LoggerWrapper::GetInstance()->Write( LV_STATUS , sql.c_str() );
 	PlutoSqlResult result;
-	MYSQL_ROW row;
+	DB_ROW row;
 	int nRow = 0,nCol = 0,nMaxCol;
 	nMaxCol = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Width_CONST].c_str());;
 	if( nMaxCol <= 0 )
@@ -1814,9 +1814,9 @@ class DataGridTable *General_Info_Plugin::AVMediaConnector( string GridID, strin
 	else
 		nCol++;
 	
-	if( (result.r = m_pRouter->mysql_query_result(sql))  )
+	if( (result.r = m_pRouter->db_wrapper_query_result(sql))  )
 	{
-		while( (row = mysql_fetch_row( result.r )) )
+		while( (row = db_wrapper_fetch_row( result.r )) )
 		{
 			pCell = new DataGridCell( row[1], row[0]);
 			pDataGrid->SetData(nCol++, nRow, pCell );
@@ -1847,12 +1847,12 @@ class DataGridTable *General_Info_Plugin::AVInputsAvaible( string GridID, string
 	LoggerWrapper::GetInstance()->Write( LV_STATUS , "AV Wizard AVInputsAvaible sql" );
 	LoggerWrapper::GetInstance()->Write( LV_STATUS , sql.c_str() );
 	PlutoSqlResult result;
-	MYSQL_ROW row;
+	DB_ROW row;
 	int nRow = 0;
 		
-	if( (result.r = m_pRouter->mysql_query_result(sql))  )
+	if( (result.r = m_pRouter->db_wrapper_query_result(sql))  )
 	{
-		while( (row = mysql_fetch_row( result.r )) )
+		while( (row = db_wrapper_fetch_row( result.r )) )
 		{
 			if( row[1] )
 				index = string(row[0]) + "," + row[1];
@@ -1887,15 +1887,15 @@ class DataGridTable *General_Info_Plugin::AVDSPMode( string GridID, string Parms
 	LoggerWrapper::GetInstance()->Write( LV_STATUS , "AV Wizard AVDSPMode sql" );
 	LoggerWrapper::GetInstance()->Write( LV_STATUS , sql.c_str() );
 	PlutoSqlResult result;
-	MYSQL_ROW row;
+	DB_ROW row;
 	int nRow = 0,nCol = 0,nMaxCol;
 	nMaxCol = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Width_CONST].c_str());;
 	if( nMaxCol <= 0 )
 		nMaxCol = 1;
 
-	if( (result.r = m_pRouter->mysql_query_result(sql))  )
+	if( (result.r = m_pRouter->db_wrapper_query_result(sql))  )
 	{
-		while( (row = mysql_fetch_row( result.r )) )
+		while( (row = db_wrapper_fetch_row( result.r )) )
 		{
 				if( row[1] )
 					index = string(row[0]) + "," + row[1];
@@ -1927,7 +1927,7 @@ class DataGridTable *General_Info_Plugin::AVDSPModeOrder( string GridID, string 
 	string sTemplateId = Parms;
 	string sql,index;
 	PlutoSqlResult result;
-	MYSQL_ROW row;
+	DB_ROW row;
 	int nRow = 0;
 
 	sql = string( "SELECT PK_Command,Command.Description,DeviceTemplate_DSPMode.OrderNo as DSPMode_Desc \
@@ -1937,9 +1937,9 @@ class DataGridTable *General_Info_Plugin::AVDSPModeOrder( string GridID, string 
 	LoggerWrapper::GetInstance()->Write( LV_STATUS , "AV Wizard AVDSPModeOrder sql" );
 	LoggerWrapper::GetInstance()->Write( LV_STATUS , sql.c_str() );
 
-	if( (result.r = m_pRouter->mysql_query_result(sql))  )
+	if( (result.r = m_pRouter->db_wrapper_query_result(sql))  )
 	{
-		while( (row = mysql_fetch_row( result.r )) )
+		while( (row = db_wrapper_fetch_row( result.r )) )
 		{
 			index = string(row[0]) + "," + StringUtils::ltos(nRow);
 			if( row[1] )
@@ -1962,7 +1962,7 @@ class DataGridTable *General_Info_Plugin::AVIRCodesSets( string GridID, string P
 	string sManufacturerId,sDeviceCategory;
 	string sql,index;
 	PlutoSqlResult result;
-	MYSQL_ROW row;
+	DB_ROW row;
 	int nRow = 0;
 
 	sManufacturerId = StringUtils::Tokenize(Parms, ",", pos);
@@ -1980,9 +1980,9 @@ class DataGridTable *General_Info_Plugin::AVIRCodesSets( string GridID, string P
 	LoggerWrapper::GetInstance()->Write( LV_STATUS , "AV Wizard AVIRCodesSets sql" );
 	LoggerWrapper::GetInstance()->Write( LV_STATUS , sql.c_str() );
 
-	if( (result.r = m_pRouter->mysql_query_result(sql))  )
+	if( (result.r = m_pRouter->db_wrapper_query_result(sql))  )
 	{
-		while( (row = mysql_fetch_row( result.r )) )
+		while( (row = db_wrapper_fetch_row( result.r )) )
 		{
 			index = string(row[0]) + "," + StringUtils::ltos(nRow);
 			if( row[1] && row[1] )
@@ -2006,7 +2006,7 @@ class DataGridTable *General_Info_Plugin::IRCommands( string GridID, string Parm
 	string sIRGroupId;
 	string sql,index;
 	PlutoSqlResult result;
-	MYSQL_ROW row;
+	DB_ROW row;
 	int nRow = 0;
 
 	sIRGroupId = StringUtils::Tokenize(Parms, ",", pos);
@@ -2024,9 +2024,9 @@ class DataGridTable *General_Info_Plugin::IRCommands( string GridID, string Parm
 	LoggerWrapper::GetInstance()->Write( LV_STATUS , "AV Wizard AVIRCodesSets sql" );
 	LoggerWrapper::GetInstance()->Write( LV_STATUS , sql.c_str() );
 
-	if( (result.r = m_pRouter->mysql_query_result(sql))  )
+	if( (result.r = m_pRouter->db_wrapper_query_result(sql))  )
 	{
-		while( (row = mysql_fetch_row( result.r )) )
+		while( (row = db_wrapper_fetch_row( result.r )) )
 		{
 			index = string(row[0]) + "," + StringUtils::ltos(nRow);
 			if( row[2] && row[1] )
@@ -2976,32 +2976,32 @@ void General_Info_Plugin::CMD_Delete_Device(int iPK_Device,string &sCMD_Result,M
 	// First delete any embedded devices
 	string sSQL = "SELECT PK_Device FROM Device where FK_Device_RouteTo=" + StringUtils::itos(iPK_Device);
 	PlutoSqlResult result_set;
-    MYSQL_ROW row;
-	if( (result_set.r=m_pRouter->mysql_query_result(sSQL)) )
-		while ((row = mysql_fetch_row(result_set.r)))
+    DB_ROW row;
+	if( (result_set.r=m_pRouter->db_wrapper_query_result(sSQL)) )
+		while ((row = db_wrapper_fetch_row(result_set.r)))
 			if( row[0] && atoi(row[0]) )
 				CMD_Delete_Device( atoi(row[0]) );
 	
-	m_pDatabase_pluto_main->threaded_mysql_query("UPDATE Device SET FK_Device_ControlledVia=NULL WHERE FK_Device_ControlledVia=" + StringUtils::itos(iPK_Device));
-	m_pDatabase_pluto_main->threaded_mysql_query("DELETE FROM Device WHERE PK_Device=" + StringUtils::itos(iPK_Device));
-	m_pDatabase_pluto_main->threaded_mysql_query("DELETE FROM CommandGroup_Command WHERE FK_Device=" + StringUtils::itos(iPK_Device));
-	m_pDatabase_pluto_main->threaded_mysql_query("DELETE FROM Device_Command WHERE FK_Device=" + StringUtils::itos(iPK_Device));
-	m_pDatabase_pluto_main->threaded_mysql_query("DELETE FROM Device_CommandGroup WHERE FK_Device=" + StringUtils::itos(iPK_Device));
-	m_pDatabase_pluto_main->threaded_mysql_query("DELETE FROM Device_DeviceData WHERE FK_Device=" + StringUtils::itos(iPK_Device));
-	m_pDatabase_pluto_main->threaded_mysql_query("DELETE FROM Device_DeviceGroup WHERE FK_Device=" + StringUtils::itos(iPK_Device));
-	m_pDatabase_pluto_main->threaded_mysql_query("DELETE FROM Device_Device_Related WHERE FK_Device=" + StringUtils::itos(iPK_Device) + " OR FK_Device_Related=" + StringUtils::itos(iPK_Device));
-	m_pDatabase_pluto_main->threaded_mysql_query("DELETE FROM Device_EntertainArea WHERE FK_Device=" + StringUtils::itos(iPK_Device));
+	m_pDatabase_pluto_main->threaded_db_wrapper_query("UPDATE Device SET FK_Device_ControlledVia=NULL WHERE FK_Device_ControlledVia=" + StringUtils::itos(iPK_Device));
+	m_pDatabase_pluto_main->threaded_db_wrapper_query("DELETE FROM Device WHERE PK_Device=" + StringUtils::itos(iPK_Device));
+	m_pDatabase_pluto_main->threaded_db_wrapper_query("DELETE FROM CommandGroup_Command WHERE FK_Device=" + StringUtils::itos(iPK_Device));
+	m_pDatabase_pluto_main->threaded_db_wrapper_query("DELETE FROM Device_Command WHERE FK_Device=" + StringUtils::itos(iPK_Device));
+	m_pDatabase_pluto_main->threaded_db_wrapper_query("DELETE FROM Device_CommandGroup WHERE FK_Device=" + StringUtils::itos(iPK_Device));
+	m_pDatabase_pluto_main->threaded_db_wrapper_query("DELETE FROM Device_DeviceData WHERE FK_Device=" + StringUtils::itos(iPK_Device));
+	m_pDatabase_pluto_main->threaded_db_wrapper_query("DELETE FROM Device_DeviceGroup WHERE FK_Device=" + StringUtils::itos(iPK_Device));
+	m_pDatabase_pluto_main->threaded_db_wrapper_query("DELETE FROM Device_Device_Related WHERE FK_Device=" + StringUtils::itos(iPK_Device) + " OR FK_Device_Related=" + StringUtils::itos(iPK_Device));
+	m_pDatabase_pluto_main->threaded_db_wrapper_query("DELETE FROM Device_EntertainArea WHERE FK_Device=" + StringUtils::itos(iPK_Device));
 
-	m_pDatabase_pluto_main->threaded_mysql_query("DELETE FROM Device_HouseMode WHERE FK_Device=" + StringUtils::itos(iPK_Device));
-	m_pDatabase_pluto_main->threaded_mysql_query("DELETE FROM Device_Orbiter WHERE FK_Device=" + StringUtils::itos(iPK_Device));
-	m_pDatabase_pluto_main->threaded_mysql_query("DELETE FROM Device_StartupScript WHERE FK_Device=" + StringUtils::itos(iPK_Device));
+	m_pDatabase_pluto_main->threaded_db_wrapper_query("DELETE FROM Device_HouseMode WHERE FK_Device=" + StringUtils::itos(iPK_Device));
+	m_pDatabase_pluto_main->threaded_db_wrapper_query("DELETE FROM Device_Orbiter WHERE FK_Device=" + StringUtils::itos(iPK_Device));
+	m_pDatabase_pluto_main->threaded_db_wrapper_query("DELETE FROM Device_StartupScript WHERE FK_Device=" + StringUtils::itos(iPK_Device));
 
-	m_pDatabase_pluto_main->threaded_mysql_query("DELETE FROM Device_Users WHERE FK_Device=" + StringUtils::itos(iPK_Device));
-	m_pDatabase_pluto_main->threaded_mysql_query("DELETE FROM Package_Device WHERE FK_Device=" + StringUtils::itos(iPK_Device));
-	m_pDatabase_pluto_main->threaded_mysql_query("DELETE FROM PaidLicense WHERE FK_Device=" + StringUtils::itos(iPK_Device));
+	m_pDatabase_pluto_main->threaded_db_wrapper_query("DELETE FROM Device_Users WHERE FK_Device=" + StringUtils::itos(iPK_Device));
+	m_pDatabase_pluto_main->threaded_db_wrapper_query("DELETE FROM Package_Device WHERE FK_Device=" + StringUtils::itos(iPK_Device));
+	m_pDatabase_pluto_main->threaded_db_wrapper_query("DELETE FROM PaidLicense WHERE FK_Device=" + StringUtils::itos(iPK_Device));
 
-	m_pDatabase_pluto_main->threaded_mysql_query("DELETE FROM Device_Device_Pipe WHERE FK_Device_From=" + StringUtils::itos(iPK_Device) + " OR FK_Device_To=" + StringUtils::itos(iPK_Device));
-	m_pDatabase_pluto_main->threaded_mysql_query("DELETE FROM PaidLicense WHERE FK_Device=" + StringUtils::itos(iPK_Device));
+	m_pDatabase_pluto_main->threaded_db_wrapper_query("DELETE FROM Device_Device_Pipe WHERE FK_Device_From=" + StringUtils::itos(iPK_Device) + " OR FK_Device_To=" + StringUtils::itos(iPK_Device));
+	m_pDatabase_pluto_main->threaded_db_wrapper_query("DELETE FROM PaidLicense WHERE FK_Device=" + StringUtils::itos(iPK_Device));
 }
 
 //<-dceag-c274-b->
@@ -3080,7 +3080,7 @@ void General_Info_Plugin::CMD_Set_Room_For_Device(int iPK_Device,string sName,in
 		"LEFT JOIN Device As Parent ON Parent.PK_Device=Device.FK_Device_ControlledVia "
 		"SET Device.FK_Room=Parent.FK_Room "
 		"WHERE IK_DeviceData=1";
-	m_pDatabase_pluto_main->threaded_mysql_query(sSQL);
+	m_pDatabase_pluto_main->threaded_db_wrapper_query(sSQL);
 
 	map<int,int>::iterator it=m_mapNewPnpDevicesWaitingForARoom.find(pRow_Device->PK_Device_get());
 	if( it!=m_mapNewPnpDevicesWaitingForARoom.end() )
@@ -3249,7 +3249,7 @@ void General_Info_Plugin::CMD_Set_Enable_Status(int iPK_Device,bool bEnable,stri
 
 		// If it's a serial device, remove the com port
 		string sSQL = "UPDATE Device_DeviceData SET IK_DeviceData=NULL WHERE FK_Device=" + StringUtils::itos(iPK_Device) + " AND FK_DeviceData=" TOSTRING(DEVICEDATA_COM_Port_on_PC_CONST);
-		m_pDatabase_pluto_main->threaded_mysql_query(sSQL,true);
+		m_pDatabase_pluto_main->threaded_db_wrapper_query(sSQL,true);
 	}
 	else
 	{
@@ -3288,7 +3288,7 @@ void General_Info_Plugin::CMD_Get_Available_Storage_Device(int iSize,int *iPK_De
 {
 	PlutoSqlResult result_set;
 	string sSQL;
-	MYSQL_ROW row;
+	DB_ROW row;
 	
 	// Consider that we don't have any drive to store the file 
 	*iPK_Device = 0;
@@ -3315,7 +3315,7 @@ void General_Info_Plugin::CMD_Get_Available_Storage_Device(int iSize,int *iPK_De
 		"WHERE "
 			"Device.FK_DeviceTemplate = 1790 "
 		"LIMIT 1 ";
-	result_set.r = m_pDatabase_pluto_main->mysql_query_result(sSQL);
+	result_set.r = m_pDatabase_pluto_main->db_wrapper_query_result(sSQL);
 	
 	// If no internal drive, try our luck with the network storage devices (cat 158)
 	if (result_set.r == NULL) {
@@ -3343,14 +3343,14 @@ void General_Info_Plugin::CMD_Get_Available_Storage_Device(int iSize,int *iPK_De
 				DeviceTemplate.FK_Category = 158 \
 			LIMIT 1 \
 		";
-		result_set.r = m_pDatabase_pluto_main->mysql_query_result(sSQL);
+		result_set.r = m_pDatabase_pluto_main->db_wrapper_query_result(sSQL);
 	}
 	
 	// If we found a storage device(nas/internal drive) that can store the file
 	if (result_set.r != NULL) 
 	{
 		row = NULL;
-		if ( (row = mysql_fetch_row(result_set.r)) != NULL ) 
+		if ( (row = db_wrapper_fetch_row(result_set.r)) != NULL ) 
 		{
 			*iPK_Device = atoi(row[0]);
 			*sDescription = row[1];
@@ -3375,11 +3375,11 @@ void General_Info_Plugin::CMD_Get_Available_Storage_Device(int iSize,int *iPK_De
 				Device.FK_DeviceTemplate = 7 \
 			LIMIT 1 \
 		";
-		result_set.r = m_pDatabase_pluto_main->mysql_query_result(sSQL);
+		result_set.r = m_pDatabase_pluto_main->db_wrapper_query_result(sSQL);
 		
 		if (result_set.r != NULL) {
 			row = NULL;
-	                if ( (row = mysql_fetch_row(result_set.r)) != NULL ) {
+	                if ( (row = db_wrapper_fetch_row(result_set.r)) != NULL ) {
 				*iPK_Device = atoi(row[0]);
 				*sDescription = "Core /home directory";
 				*sPath = "/home/";
@@ -3475,7 +3475,7 @@ void General_Info_Plugin::CMD_Get_Unused_Serial_Ports(int iPK_Device,string *sVa
 			"AND (D1.PK_Device=" + StringUtils::itos(iPK_Device_PC) + " OR D2.PK_Device=" + StringUtils::itos(iPK_Device_PC) + " OR D3.PK_Device=" + StringUtils::itos(iPK_Device_PC) + " OR D4.PK_Device=" + StringUtils::itos(iPK_Device_PC) + " OR D4.FK_Device_ControlledVia=" + StringUtils::itos(iPK_Device_PC) + ")";
 		
 		PlutoSqlResult result;
-		if( (result.r = m_pRouter->mysql_query_result(sSQL)) && result.r->row_count>0 )
+		if( (result.r = m_pRouter->db_wrapper_query_result(sSQL)) && result.r->row_count>0 )
 			continue;
 		if( sAvailablePorts.size() )
 			sAvailablePorts += ",";
@@ -3582,7 +3582,7 @@ void General_Info_Plugin::CMD_Get_Network_Devices_Shares(char **pCustom_Response
 	multimap<int, pair<int, string> > mapInfo;
 
 	PlutoSqlResult result;
-	MYSQL_ROW row;
+	DB_ROW row;
 	string sSQL = 
 		"SELECT DeviceChild.PK_Device, DeviceParent.IPaddress, DeviceParent.Description, DeviceChild.Description, FK_DeviceData, IK_DeviceData "
 		"FROM Device AS DeviceParent "
@@ -3607,9 +3607,9 @@ void General_Info_Plugin::CMD_Get_Network_Devices_Shares(char **pCustom_Response
 		fnDeviceDataValue
 	};
 
-	if( (result.r = m_pDatabase_pluto_main->mysql_query_result(sSQL.c_str())) )
+	if( (result.r = m_pDatabase_pluto_main->db_wrapper_query_result(sSQL.c_str())) )
 	{
-		while((row = mysql_fetch_row(result.r)))	
+		while((row = db_wrapper_fetch_row(result.r)))	
 		{
 			if(NULL != row[fnDeviceID] && NULL != row[fnIP])
 			{

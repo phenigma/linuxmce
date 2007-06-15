@@ -71,11 +71,11 @@ void MediaState::LoadDbInfo(Database_pluto_media *pDatabase_pluto_media, string 
 		sfHasAttributes
 	};
 
-	MYSQL_ROW row;
+	DB_ROW row;
 	PlutoSqlResult allresult;
-	if(NULL != (allresult.r = pDatabase_pluto_media->mysql_query_result(sSql)))
+	if(NULL != (allresult.r = pDatabase_pluto_media->db_wrapper_query_result(sSql)))
 	{
-		while((row = mysql_fetch_row(allresult.r)))
+		while((row = db_wrapper_fetch_row(allresult.r)))
 		{
 			if(NULL != row && NULL != row[sfFileID] && NULL != row[sfPath] && NULL != row[sfFilename])
 			{
@@ -205,7 +205,7 @@ void MediaState::FileSynchronized(Database_pluto_media *pDatabase_pluto_media, s
 	sUpdateSql += "WHERE PK_File = " + StringUtils::ltos(nFileID);
 
 	if(nFileID != 0)
-		pDatabase_pluto_media->threaded_mysql_query(sUpdateSql);
+		pDatabase_pluto_media->threaded_db_wrapper_query(sUpdateSql);
 
 	m_mapMediaState[make_pair(sDirectory, sFile)] = item;
 }
@@ -272,11 +272,11 @@ MediaItemState MediaState::LoadDbInfoForFile(Database_pluto_media *pDatabase_plu
 		sfHasAttributes
 	};
 
-	MYSQL_ROW row;
+	DB_ROW row;
 	PlutoSqlResult allresult;
-	if(NULL != (allresult.r = pDatabase_pluto_media->mysql_query_result(sSql)))
+	if(NULL != (allresult.r = pDatabase_pluto_media->db_wrapper_query_result(sSql)))
 	{
-		if(NULL != (row = mysql_fetch_row(allresult.r)))
+		if(NULL != (row = db_wrapper_fetch_row(allresult.r)))
 		{
 			if(NULL != row[sfFileID] && NULL != row[sfPath] && NULL != row[sfFilename])
 			{

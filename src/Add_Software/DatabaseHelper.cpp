@@ -307,7 +307,7 @@ void DatabaseHelper::SaveRawIcon(int nPK_Software, char *pData, size_t nSize)
 		int nGoodDataSize = 0;
 		char *pGoodData = new char[nSize * 2 + 1];
 
-		size_t length = nGoodDataSize = mysql_real_escape_string(m_pDatabase_pluto_main->m_pMySQL, pGoodData, pData, (unsigned long)nSize);
+		size_t length = nGoodDataSize = db_wrapper_real_escape_string(m_pDatabase_pluto_main->m_pDB, pGoodData, pData, (unsigned long)nSize);
 
 		delete [] pData;
 		pData = NULL;
@@ -323,7 +323,7 @@ void DatabaseHelper::SaveRawIcon(int nPK_Software, char *pData, size_t nSize)
 		memcpy(pCurrentPos, sEndQuery.c_str(), sEndQuery.length());
 		delete [] pGoodData;
 
-		if(mysql_real_query(m_pDatabase_pluto_main->m_pMySQL, pQueryData, (unsigned long)length))
+		if(db_wrapper_real_query(m_pDatabase_pluto_main->m_pDB, pQueryData, (unsigned long)length))
 		{
 			//LoggerWrapper::GetInstance()->Write(LV_STATUS, "Failed to save icon in db!");
 		}

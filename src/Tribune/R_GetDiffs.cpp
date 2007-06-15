@@ -54,8 +54,8 @@ bool R_GetDiffs::UpdateProgramRecord(string pk_programrecord, bool conversion){
 	string timestamp;
 		
 	PlutoSqlResult res;
-	MYSQL_ROW row=NULL;
-	res.r = g_GlobalConfig.m_pDatabase->mysql_query_result( sSQL.str( ) );
+	DB_ROW row=NULL;
+	res.r = g_GlobalConfig.m_pDatabase->db_wrapper_query_result( sSQL.str( ) );
 	if( !res.r )
 	{
 		cerr << "Problem retrieving rows with query1: " << sSQL.str() << endl;
@@ -64,7 +64,7 @@ bool R_GetDiffs::UpdateProgramRecord(string pk_programrecord, bool conversion){
 	}
 	else
 	{
-		row = mysql_fetch_row( res.r );
+		row = db_wrapper_fetch_row( res.r );
 
 		if( !row[0] )
 		{
@@ -94,8 +94,8 @@ bool R_GetDiffs::UpdateProgramRecord_Genre(string pk_programrecord){
 	sSQL << "SELECT FK_Genre FROM ProgramRecord_Genre WHERE FK_ProgramRecord='" << pk_programrecord<<"'";
 		
 	PlutoSqlResult res;
-	MYSQL_ROW row=NULL;
-	res.r = g_GlobalConfig.m_pDatabase->mysql_query_result( sSQL.str( ) );
+	DB_ROW row=NULL;
+	res.r = g_GlobalConfig.m_pDatabase->db_wrapper_query_result( sSQL.str( ) );
 
 	if( !res.r )
 	{
@@ -105,7 +105,7 @@ bool R_GetDiffs::UpdateProgramRecord_Genre(string pk_programrecord){
 	}
 	else
 	{
-		while( ( row = mysql_fetch_row( res.r ) ) )
+		while( ( row = db_wrapper_fetch_row( res.r ) ) )
 		{
 			std::ostringstream sSQL1;
 
@@ -128,8 +128,8 @@ bool R_GetDiffs::UpdateActor_ProgramRecord(string pk_programrecord){
 	std::ostringstream sSQL;
 	sSQL << "SELECT FK_Actor FROM Actor_ProgramRecord WHERE FK_ProgramRecord='" << pk_programrecord<<"'";
 	PlutoSqlResult res;
-	MYSQL_ROW row=NULL;
-	res.r = g_GlobalConfig.m_pDatabase->mysql_query_result( sSQL.str( ) );
+	DB_ROW row=NULL;
+	res.r = g_GlobalConfig.m_pDatabase->db_wrapper_query_result( sSQL.str( ) );
 
 	if( !res.r )
 	{
@@ -139,7 +139,7 @@ bool R_GetDiffs::UpdateActor_ProgramRecord(string pk_programrecord){
 	}
 	else
 	{
-		while( ( row = mysql_fetch_row( res.r ) ) )
+		while( ( row = db_wrapper_fetch_row( res.r ) ) )
 		{
 			std::ostringstream sSQL1;
 
@@ -164,8 +164,8 @@ bool R_GetDiffs::InsertSchedule(string pk_station){
 	std::ostringstream sSQL;
 	sSQL << "SELECT * from Schedule where FK_Station='"<<pk_station<<"'";
 	PlutoSqlResult res1;
-	MYSQL_ROW row1=NULL;
-	res1.r = g_GlobalConfig.m_pDatabase->mysql_query_result( sSQL.str( ) );
+	DB_ROW row1=NULL;
+	res1.r = g_GlobalConfig.m_pDatabase->db_wrapper_query_result( sSQL.str( ) );
 	if( !res1.r )
 	{
 		cerr << "Problem retrieving rows with query1: " << sSQL.str() << endl;
@@ -173,7 +173,7 @@ bool R_GetDiffs::InsertSchedule(string pk_station){
 	}
 	else
 	{
-		while ( ( row1 = mysql_fetch_row( res1.r ) ) ){
+		while ( ( row1 = db_wrapper_fetch_row( res1.r ) ) ){
 
 			if( !row1[0] )
 			{
@@ -203,8 +203,8 @@ bool R_GetDiffs::InsertProgramRecord_Genre(string pk_programrecord){
 	sSQL << "SELECT FK_Genre FROM ProgramRecord_Genre WHERE FK_ProgramRecord='" << pk_programrecord<<"'";
 
 	PlutoSqlResult res3;
-	MYSQL_ROW row3=NULL;
-	res3.r = g_GlobalConfig.m_pDatabase->mysql_query_result( sSQL.str( ) );
+	DB_ROW row3=NULL;
+	res3.r = g_GlobalConfig.m_pDatabase->db_wrapper_query_result( sSQL.str( ) );
 
 	if( !res3.r )
 	{
@@ -213,7 +213,7 @@ bool R_GetDiffs::InsertProgramRecord_Genre(string pk_programrecord){
 	}
 	else
 	{
-		while( ( row3 = mysql_fetch_row( res3.r ) ) )
+		while( ( row3 = db_wrapper_fetch_row( res3.r ) ) )
 		{
 			clientfile<<"INSERT INTO ProgramRecord_Genre(FK_ProgramRecord, FK_Genre) VALUES(\""<<pk_programrecord<<"\",\""<<row3[0]<<"\") \n";
 
@@ -229,8 +229,8 @@ bool R_GetDiffs::InsertActor_ProgramRecord(string pk_programrecord){
 	
 	sSQL1 << "SELECT FK_Actor FROM Actor_ProgramRecord WHERE FK_ProgramRecord='" << pk_programrecord<<"'";
 	PlutoSqlResult res3;
-	MYSQL_ROW row3=NULL;
-	res3.r = g_GlobalConfig.m_pDatabase->mysql_query_result( sSQL1.str( ) );
+	DB_ROW row3=NULL;
+	res3.r = g_GlobalConfig.m_pDatabase->db_wrapper_query_result( sSQL1.str( ) );
 
 	if( !res3.r )
 	{
@@ -239,7 +239,7 @@ bool R_GetDiffs::InsertActor_ProgramRecord(string pk_programrecord){
 	}
 	else
 	{
-		while( ( row3 = mysql_fetch_row( res3.r ) ) )
+		while( ( row3 = db_wrapper_fetch_row( res3.r ) ) )
 		{
 
 			clientfile<<"INSERT INTO Actor_ProgramRecord(FK_Actor, FK_ProgramRecord) VALUES(\""<<row3[0]<<"\",\""<<pk_programrecord<<"\") \n";
@@ -256,8 +256,8 @@ bool R_GetDiffs::InsertProgramRecord(string pk_station){
 	std::ostringstream sSQL;
 	sSQL<<"SELECT ProgramRecord.* FROM Schedule JOIN ProgramRecord ON ProgramRecord.PK_ProgramRecord = Schedule.FK_ProgramRecord WHERE FK_Station = "<<pk_station;
 	PlutoSqlResult res1;
-	MYSQL_ROW row1=NULL;
-	res1.r = g_GlobalConfig.m_pDatabase->mysql_query_result( sSQL.str( ) );
+	DB_ROW row1=NULL;
+	res1.r = g_GlobalConfig.m_pDatabase->db_wrapper_query_result( sSQL.str( ) );
 	if( !res1.r )
 	{
 		cerr << "Problem retrieving rows with query1: " << sSQL.str() << endl;
@@ -265,7 +265,7 @@ bool R_GetDiffs::InsertProgramRecord(string pk_station){
 	}
 	else
 	{
-		while ( ( row1 = mysql_fetch_row( res1.r ) ) ){
+		while ( ( row1 = db_wrapper_fetch_row( res1.r ) ) ){
 
 			if( !row1[0] )
 			{
@@ -387,8 +387,8 @@ bool R_GetDiffs::ProcessRequest( class RA_Processor *pRA_Processor )
 		//std::ostringstream sSQL;
 		sSQL << "SELECT PK_Genre, Description, Level FROM Genre";
 		PlutoSqlResult res;
-		MYSQL_ROW row=NULL;
-		res.r = g_GlobalConfig.m_pDatabase->mysql_query_result( sSQL.str( ) );
+		DB_ROW row=NULL;
+		res.r = g_GlobalConfig.m_pDatabase->db_wrapper_query_result( sSQL.str( ) );
 		
 		if( !res.r )
 		{
@@ -397,7 +397,7 @@ bool R_GetDiffs::ProcessRequest( class RA_Processor *pRA_Processor )
 		}
 		else
 		{
-			while ( ( row = mysql_fetch_row( res.r ) ) ){
+			while ( ( row = db_wrapper_fetch_row( res.r ) ) ){
 				clientfile<<"INSERT INTO Genre(PK_Genre, Description, Level) VALUES (\""<<row[0]<<"\",\""<<row[1]<<"\",\""<<row[2]<<"\")\n";
 			}
 		}
@@ -425,8 +425,8 @@ bool R_GetDiffs::ProcessRequest( class RA_Processor *pRA_Processor )
 				sSQL << "SELECT Description, Level FROM Genre WHERE PK_Genre='" << iter->first<<"'";
 				
 				PlutoSqlResult res1;
-				MYSQL_ROW row1=NULL;
-				res1.r = g_GlobalConfig.m_pDatabase->mysql_query_result( sSQL.str( ) );
+				DB_ROW row1=NULL;
+				res1.r = g_GlobalConfig.m_pDatabase->db_wrapper_query_result( sSQL.str( ) );
 		
 				if( !res1.r )
 				{
@@ -435,7 +435,7 @@ bool R_GetDiffs::ProcessRequest( class RA_Processor *pRA_Processor )
 				}
 				else
 				{
-					row1 = mysql_fetch_row( res1.r );
+					row1 = db_wrapper_fetch_row( res1.r );
 					clientfile<<"INSERT INTO Genre(PK_Genre, Description, Level) VALUES (\""<<iter->first<<"\",\""<<row1[0]<<"\",\""<<row1[1]<<"\")\n";
 					m_mapGenre[iter->first]="";
 				}
@@ -451,8 +451,8 @@ bool R_GetDiffs::ProcessRequest( class RA_Processor *pRA_Processor )
 		//std::ostringstream sSQL;
 		sSQL << "SELECT PK_Role, Description FROM Role";
 		PlutoSqlResult res;
-		MYSQL_ROW row=NULL;
-		res.r = g_GlobalConfig.m_pDatabase->mysql_query_result( sSQL.str( ) );
+		DB_ROW row=NULL;
+		res.r = g_GlobalConfig.m_pDatabase->db_wrapper_query_result( sSQL.str( ) );
 		
 		if( !res.r )
 		{
@@ -461,7 +461,7 @@ bool R_GetDiffs::ProcessRequest( class RA_Processor *pRA_Processor )
 		}
 		else
 		{
-			while ( ( row = mysql_fetch_row( res.r ) ) ){
+			while ( ( row = db_wrapper_fetch_row( res.r ) ) ){
 				clientfile<<"INSERT INTO Role(PK_Role, Description) VALUES (\""<<row[0]<<"\",\""<<row[1]<<"\")\n";
 			}
 		}
@@ -489,8 +489,8 @@ bool R_GetDiffs::ProcessRequest( class RA_Processor *pRA_Processor )
 				sSQL << "SELECT Description FROM Role WHERE PK_Role='" << iter->first<<"'";
 							
 				PlutoSqlResult res;
-				MYSQL_ROW row=NULL;
-				res.r = g_GlobalConfig.m_pDatabase->mysql_query_result( sSQL.str( ) );
+				DB_ROW row=NULL;
+				res.r = g_GlobalConfig.m_pDatabase->db_wrapper_query_result( sSQL.str( ) );
 	
 				if( !res.r )
 				{
@@ -499,7 +499,7 @@ bool R_GetDiffs::ProcessRequest( class RA_Processor *pRA_Processor )
 				}
 				else
 				{
-					row = mysql_fetch_row( res.r );
+					row = db_wrapper_fetch_row( res.r );
 					clientfile<<"INSERT INTO Role(PK_Role, Description) VALUES (\""<<iter->first<<"\",\""<<row[0]<<"\") \n";
 					m_mapRole[iter->first]="";
 	
@@ -515,8 +515,8 @@ bool R_GetDiffs::ProcessRequest( class RA_Processor *pRA_Processor )
 		//std::ostringstream sSQL;
 		sSQL << "SELECT PK_Actor, FirstName, LastName FROM Actor";
 		PlutoSqlResult res;
-		MYSQL_ROW row=NULL;
-		res.r = g_GlobalConfig.m_pDatabase->mysql_query_result( sSQL.str( ) );
+		DB_ROW row=NULL;
+		res.r = g_GlobalConfig.m_pDatabase->db_wrapper_query_result( sSQL.str( ) );
 		
 		if( !res.r )
 		{
@@ -525,7 +525,7 @@ bool R_GetDiffs::ProcessRequest( class RA_Processor *pRA_Processor )
 		}
 		else
 		{
-			while ( ( row = mysql_fetch_row( res.r ) ) ){
+			while ( ( row = db_wrapper_fetch_row( res.r ) ) ){
 				clientfile<<"INSERT INTO Actor(PK_Actor, FirstName, LastName) VALUES (\""<<row[0]<<"\",\""<<row[1]<<"\",\""<<row[2]<<"\")\n";
 			}
 		}
@@ -554,8 +554,8 @@ bool R_GetDiffs::ProcessRequest( class RA_Processor *pRA_Processor )
 				sSQL << "SELECT FirstName, LastName FROM Actor WHERE PK_Actor=\"" << iter->first<<"\"";
 					
 				PlutoSqlResult res1;
-				MYSQL_ROW row1=NULL;
-				res1.r = g_GlobalConfig.m_pDatabase->mysql_query_result( sSQL.str( ) );
+				DB_ROW row1=NULL;
+				res1.r = g_GlobalConfig.m_pDatabase->db_wrapper_query_result( sSQL.str( ) );
 	
 				if( !res1.r )
 				{
@@ -564,7 +564,7 @@ bool R_GetDiffs::ProcessRequest( class RA_Processor *pRA_Processor )
 				}
 				else
 				{
-					row1 = mysql_fetch_row( res1.r );
+					row1 = db_wrapper_fetch_row( res1.r );
 					clientfile<<"INSERT INTO Actor(PK_Actor, FirstName, LastName) VALUES (\""<<iter->first<<"\",\""<<row1[0]<<"\",\""<<row1[1]<<"\")\n";
 					m_mapActor[iter->first]="";
 				}
@@ -578,8 +578,8 @@ bool R_GetDiffs::ProcessRequest( class RA_Processor *pRA_Processor )
 	if (m_mapActorRole.empty()){
 		sSQL << "SELECT PK_ActorRole, FK_Actor, FK_Role FROM Actor_Role";
 		PlutoSqlResult res;
-		MYSQL_ROW row=NULL;
-		res.r = g_GlobalConfig.m_pDatabase->mysql_query_result( sSQL.str( ) );
+		DB_ROW row=NULL;
+		res.r = g_GlobalConfig.m_pDatabase->db_wrapper_query_result( sSQL.str( ) );
 		
 		if( !res.r )
 		{
@@ -588,7 +588,7 @@ bool R_GetDiffs::ProcessRequest( class RA_Processor *pRA_Processor )
 		}
 		else
 		{
-			while ( ( row = mysql_fetch_row( res.r ) ) ){
+			while ( ( row = db_wrapper_fetch_row( res.r ) ) ){
 				clientfile<<"INSERT INTO Actor_Role(PK_ActorRole, FK_Actor, FK_Role) VALUES (\""<<row[0]<<"\",\""<<row[1]<<"\",\""<<row[2]<<"\")\n";
 			}
 		}
@@ -615,8 +615,8 @@ bool R_GetDiffs::ProcessRequest( class RA_Processor *pRA_Processor )
 				sSQL << "SELECT FK_Actor, FK_Role FROM Actor_Role WHERE PK_ActorRole='" << iter->first<<"'";
 							
 				PlutoSqlResult res;
-				MYSQL_ROW row=NULL;
-				res.r = g_GlobalConfig.m_pDatabase->mysql_query_result( sSQL.str( ) );
+				DB_ROW row=NULL;
+				res.r = g_GlobalConfig.m_pDatabase->db_wrapper_query_result( sSQL.str( ) );
 	
 				if( !res.r )
 				{
@@ -625,7 +625,7 @@ bool R_GetDiffs::ProcessRequest( class RA_Processor *pRA_Processor )
 				}
 				else
 				{
-					row = mysql_fetch_row( res.r );
+					row = db_wrapper_fetch_row( res.r );
 					clientfile<<"INSERT INTO Actor_Role(PK_ActorRole, FK_Actor, FK_Role) VALUES (\""<<iter->first<<"\",\""<<row[0]<<"\", \""<<row[1]<<"\") \n";
 					m_mapActorRole[iter->first]="";
 	
@@ -660,8 +660,8 @@ bool R_GetDiffs::ProcessRequest( class RA_Processor *pRA_Processor )
 			sSQL << "SELECT * FROM Schedule WHERE PK_Schedule=" << it->first;
 	
 			PlutoSqlResult res;
-			MYSQL_ROW row=NULL;
-			res.r = g_GlobalConfig.m_pDatabase->mysql_query_result( sSQL.str( ) );
+			DB_ROW row=NULL;
+			res.r = g_GlobalConfig.m_pDatabase->db_wrapper_query_result( sSQL.str( ) );
 			if( !res.r )
 			{
 				cerr << "Problem retrieving rows with query1: " << sSQL.str() << endl;
@@ -669,7 +669,7 @@ bool R_GetDiffs::ProcessRequest( class RA_Processor *pRA_Processor )
 			}
 			else
 			{
-				row = mysql_fetch_row( res.r );
+				row = db_wrapper_fetch_row( res.r );
 				string timestamp;
 
 				if( !row[0] )
@@ -715,9 +715,9 @@ bool R_GetDiffs::ProcessRequest( class RA_Processor *pRA_Processor )
 			sSQL << "SELECT * FROM Station WHERE PK_Station=" << it->first;
 	
 			PlutoSqlResult res;
-			MYSQL_ROW row=NULL;
+			DB_ROW row=NULL;
 			string timestamp;
-			res.r = g_GlobalConfig.m_pDatabase->mysql_query_result( sSQL.str( ) );
+			res.r = g_GlobalConfig.m_pDatabase->db_wrapper_query_result( sSQL.str( ) );
 			if( !res.r )
 			{
 				cerr << "Problem retrieving rows with query1: " << sSQL.str() << endl;
@@ -725,7 +725,7 @@ bool R_GetDiffs::ProcessRequest( class RA_Processor *pRA_Processor )
 			}
 			else
 			{
-				row = mysql_fetch_row( res.r );
+				row = db_wrapper_fetch_row( res.r );
 
 				if( !row[0] )
 				{
@@ -755,8 +755,8 @@ bool R_GetDiffs::ProcessRequest( class RA_Processor *pRA_Processor )
 	}
 
 	PlutoSqlResult res;
-	MYSQL_ROW row=NULL;
-	res.r = g_GlobalConfig.m_pDatabase->mysql_query_result( sSQL.str( ) );
+	DB_ROW row=NULL;
+	res.r = g_GlobalConfig.m_pDatabase->db_wrapper_query_result( sSQL.str( ) );
 	
 	if( !res.r )
 	{
@@ -765,7 +765,7 @@ bool R_GetDiffs::ProcessRequest( class RA_Processor *pRA_Processor )
 	}
 	else
 	{
-		while ( ( row = mysql_fetch_row( res.r ) ) ){
+		while ( ( row = db_wrapper_fetch_row( res.r ) ) ){
 
 			statnr++;
 			cout << "[ "<< statnr << " ]" <<"----> Inserting station: " << row[2] <<endl;

@@ -31,7 +31,7 @@
 #include "pluto_main/Define_Command.h"
 #include "pluto_main/Define_DeviceData.h"
 #include "pluto_main/Define_CommandParameter.h"
-#include "PlutoUtils/MySQLHelper.h"
+#include "PlutoUtils/DBHelper.h"
 #include <assert.h>
 
 namespace DCE {
@@ -105,11 +105,11 @@ DefaultMessageTranslator::InitDelaysMap(long devtemplid)
 	if(map_PowerDelay.find(devtemplid) == map_PowerDelay.end())
 	{
 		DCEConfig dceconf;
-		MySqlHelper mySqlHelper(dceconf.m_sDBHost, dceconf.m_sDBUser, dceconf.m_sDBPassword, dceconf.m_sDBName,dceconf.m_iDBPort);
+		DBHelper mySqlHelper(dceconf.m_sDBHost, dceconf.m_sDBUser, dceconf.m_sDBPassword, dceconf.m_sDBName,dceconf.m_iDBPort);
 		PlutoSqlResult result_set;
-		MYSQL_ROW row=NULL;
+		DB_ROW row=NULL;
 		sprintf(sql_buff,"SELECT IR_PowerDelay FROM DeviceTemplate_AV WHERE FK_DeviceTemplate='%d'", (int)devtemplid);
-		if( (result_set.r=mySqlHelper.mysql_query_result(sql_buff)) && (row = mysql_fetch_row(result_set.r)) )
+		if( (result_set.r=mySqlHelper.db_wrapper_query_result(sql_buff)) && (row = db_wrapper_fetch_row(result_set.r)) )
 		{
 			map_PowerDelay[devtemplid] = atoi(row[0]);
 		}

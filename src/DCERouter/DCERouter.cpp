@@ -146,7 +146,7 @@ void DeadlockHandler(PlutoLock *pPlutoLock)
 }
 
 Router::Router(int PK_Device,int PK_Installation,string BasePath,string DBHost,string DBUser,string DBPassword,string DBName,int DBPort,int ListenPort) :
-    SocketListener("Router Dev #" + StringUtils::itos(PK_Device)), MySqlHelper(DBHost,DBUser,DBPassword,DBName,DBPort), 
+    SocketListener("Router Dev #" + StringUtils::itos(PK_Device)), DBHelper(DBHost,DBUser,DBPassword,DBName,DBPort), 
 		m_CoreMutex("core"), m_InterceptorMutex("interceptor"), m_MessageQueueMutex("messagequeue")
 {
 	g_pRouter=this;  // For the deadlock handler
@@ -723,12 +723,12 @@ void Router::ExecuteCommandGroup(int PK_CommandGroup,DeviceData_Router *pDevice_
 
 	int RowCount=0;
 	PlutoSqlResult result_set;
-    MYSQL_ROW row;
-	if( (result_set.r=mysql_query_result(sSql)) )
+    DB_ROW row;
+	if( (result_set.r=db_wrapper_query_result(sSql)) )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Execute command group: %d with %d commands from %d",
 			PK_CommandGroup,result_set.r->row_count,sStartingCommand);
-		while ((row = mysql_fetch_row(result_set.r)))
+		while ((row = db_wrapper_fetch_row(result_set.r)))
 		{
 			if( ++RowCount<sStartingCommand )
 				continue;
@@ -740,7 +740,7 @@ void Router::ExecuteCommandGroup(int PK_CommandGroup,DeviceData_Router *pDevice_
 					+ StringUtils::itos(COMMANDPARAMETER_Time_CONST);
 
 				PlutoSqlResult result_set2;
-				if( (result_set.r=mysql_query_result(sSql)) && (row = mysql_fetch_row(result_set.r)) )
+				if( (result_set.r=db_wrapper_query_result(sSql)) && (row = db_wrapper_fetch_row(result_set.r)) )
 				{
 					int Milliseconds = atoi(row[0]);
 					DelayedCommandInfo *pDelayedCommandInfo = new DelayedCommandInfo;
@@ -750,7 +750,7 @@ void Router::ExecuteCommandGroup(int PK_CommandGroup,DeviceData_Router *pDevice_
 
 					sSql = "SELECT Description,Hint FROM CommandGroup WHERE PK_CommandGroup=" + StringUtils::itos(PK_CommandGroup);
 					PlutoSqlResult result_set2;
-					if( (result_set2.r=mysql_query_result(sSql)) && (row = mysql_fetch_row(result_set2.r)) )
+					if( (result_set2.r=db_wrapper_query_result(sSql)) && (row = db_wrapper_fetch_row(result_set2.r)) )
 					{
 						if( row[0] )
 							pDelayedCommandInfo->m_sDescription = row[0];
@@ -788,9 +788,9 @@ void Router::ExecuteCommandGroup(int PK_CommandGroup,DeviceData_Router *pDevice_
 					"WHERE FK_CommandGroup_Command=" + string(row[0]);
 
 				PlutoSqlResult result_set2;
-				if( (result_set2.r=mysql_query_result(sSql)) )
+				if( (result_set2.r=db_wrapper_query_result(sSql)) )
 				{
-					while ((row = mysql_fetch_row(result_set2.r)))
+					while ((row = db_wrapper_fetch_row(result_set2.r)))
 					{
 						if( row[0] && row[1] )
 							pMessage->m_mapParameters[ atoi(row[0]) ] = row[1];
@@ -1362,13 +1362,13 @@ bool Router::ReceivedString(Socket *pSocket, string Line, int nTimeout/* = -1*/)
 				"WHERE Device.FK_Installation=" + StringUtils::itos(m_dwPK_Installation) + " AND (FK_DeviceCategory=" + Line.substr(19) + " OR Parent.PK_DeviceCategory=" + Line.substr(19) + 
 				" OR Parent.FK_DeviceCategory_Parent=" + Line.substr(19) + ")"; // Check 3 levels deep
 		PlutoSqlResult result_set;
-		MYSQL_ROW row;
-		if( (result_set.r=mysql_query_result(sSQL)) )
+		DB_ROW row;
+		if( (result_set.r=db_wrapper_query_result(sSQL)) )
 		{
 			sResponse = "DEVICE_INFO " + StringUtils::ltos(static_cast<unsigned long>(result_set.r->row_count)) + "\t";
 	        PLUTO_SAFETY_LOCK(lm,m_ListenerMutex);
 			ServerSocketMap::iterator iDeviceConnection;
-			while ((row = mysql_fetch_row(result_set.r)))
+			while ((row = db_wrapper_fetch_row(result_set.r)))
 			{
 				sResponse += string(row[0]) + "\t" + row[1] + "\t" + (row[2] ? row[2] : "") + "\t" + (row[3] ? row[3] : "") + "\t";
 				ServerSocket *pServerSocket;
@@ -1447,10 +1447,10 @@ bool Router::ReceivedString(Socket *pSocket, string Line, int nTimeout/* = -1*/)
 
 		string sResponse;
 		PlutoSqlResult result_set;
-		MYSQL_ROW row;
-		if( (result_set.r=mysql_query_result(sSql)) )
+		DB_ROW row;
+		if( (result_set.r=db_wrapper_query_result(sSql)) )
 		{
-			while ((row = mysql_fetch_row(result_set.r)))
+			while ((row = db_wrapper_fetch_row(result_set.r)))
 			{
 				if( row[1]==NULL )
 					continue; // shouldn't happen
@@ -1471,7 +1471,7 @@ bool Router::ReceivedString(Socket *pSocket, string Line, int nTimeout/* = -1*/)
 void Router::OnDisconnected(int DeviceID)
 {
 
-	mysql_thread_end();
+	db_wrapper_thread_end();
 
 
 	m_RunningDevices.erase(DeviceID);
@@ -1494,7 +1494,7 @@ void Router::RegisteredCommandHandler(ServerSocket *pSocket, int DeviceID)
 {
     PLUTO_SAFETY_LOCK(sl,m_CoreMutex);
 
-	mysql_thread_init();
+	db_wrapper_thread_init();
 
     DeviceData_Router *pDevice = m_mapDeviceData_Router_Find(DeviceID);
     if( !pDevice )
@@ -1533,13 +1533,13 @@ void Router::RegisteredCommandHandler(ServerSocket *pSocket, int DeviceID)
 	{
 		// Don't use sql2cpp class because we don't want the psc_mod timestamp to change
 		string sSQL = "UPDATE Device SET Registered=1,psc_mod=psc_mod WHERE PK_Device=" + StringUtils::itos(DeviceID);
-		m_pDatabase_pluto_main->threaded_mysql_query(sSQL);
+		m_pDatabase_pluto_main->threaded_db_wrapper_query(sSQL);
 	}
 	else
 	{
 		// Don't use sql2cpp class because we don't want the psc_mod timestamp to change
 		string sSQL = "UPDATE Device SET Registered=-1,psc_mod=psc_mod WHERE PK_Device=" + StringUtils::itos(DeviceID);
-		m_pDatabase_pluto_main->threaded_mysql_query(sSQL);
+		m_pDatabase_pluto_main->threaded_db_wrapper_query(sSQL);
 	}
 
 }
@@ -2402,7 +2402,7 @@ void Router::Configure()
     AllDevices allDevices; // We're going to want a serialized copy of all the device information
 
 	string sSQL = "UPDATE Device SET Registered=0,psc_mod=psc_mod";
-	m_pDatabase_pluto_main->threaded_mysql_query(sSQL);
+	m_pDatabase_pluto_main->threaded_db_wrapper_query(sSQL);
 
 	// Get the rooms
     vector<Row_Room *> vectRow_Room;
@@ -3022,7 +3022,7 @@ void Router::RemoveAndDeleteSocket( ServerSocket *pServerSocket, bool bDontDelet
 	int PK_Device = pServerSocket->m_dwPK_Device;
 	sl.Release();  // Mysql can get slow.  Don't hold the core mutex while doing a database update
 	string sSQL = "UPDATE Device SET Registered=0,psc_mod=psc_mod WHERE PK_Device=" + StringUtils::itos(PK_Device);
-	m_pDatabase_pluto_main->threaded_mysql_query(sSQL);
+	m_pDatabase_pluto_main->threaded_db_wrapper_query(sSQL);
 	SocketListener::RemoveAndDeleteSocket( pServerSocket, bDontDelete );
 }
 

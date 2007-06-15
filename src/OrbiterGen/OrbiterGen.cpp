@@ -291,7 +291,7 @@ int main(int argc, char *argv[])
 		pOrbiterGenerator->m_pRow_Orbiter->Size_set( pOrbiterGenerator->m_sSize_Regen_Data );
 		pOrbiterGenerator->m_pRow_Orbiter->Table_Orbiter_get()->Commit();
 		string sql = "UPDATE Orbiter SET Modification_LastGen=psc_mod,psc_mod=psc_mod WHERE PK_Orbiter=" + StringUtils::itos(pOrbiterGenerator->m_pRow_Orbiter->PK_Orbiter_get());
-		pOrbiterGenerator->threaded_mysql_query(sql);
+		pOrbiterGenerator->threaded_db_wrapper_query(sql);
 
 	}
 	if( pOrbiterGenerator )
@@ -303,15 +303,15 @@ int main(int argc, char *argv[])
 
 int OrbiterGenerator::DoIt()
 {
-	MySQLConnect(); // Connect our helper
+	DBConnect(); // Connect our helper
 	// and also the sql2cpp classes
-	if( !m_spDatabase_pluto_main->Connect(m_sMySQLHost,m_sMySQLUser,m_sMySQLPass,m_sMySQLDBName,m_iMySQLPort) )
+	if( !m_spDatabase_pluto_main->Connect(m_sDBHost,m_sDBUser,m_sDBPass,m_sDBDBName,m_iDBPort) )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Failed to connect to database");
 		exit(1);
 	}
 
-	if( !m_spDatabase_pluto_media->Connect(m_sMySQLHost,m_sMySQLUser,m_sMySQLPass,"pluto_media",m_iMySQLPort) )
+	if( !m_spDatabase_pluto_media->Connect(m_sDBHost,m_sDBUser,m_sDBPass,"pluto_media",m_iDBPort) )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Failed to connect to pluto_media database");
 		exit(1);
@@ -784,7 +784,7 @@ m_bNoEffects = true;
 
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Regenerating all: Orbiter data changed from %s to %s",m_pRow_Orbiter->Size_get().c_str(),m_sSize_Regen_Data.c_str());
 		string sSQL = "DELETE FROM CachedScreens WHERE FK_Orbiter=" + StringUtils::itos(m_pRow_Orbiter->PK_Orbiter_get());
-		threaded_mysql_query(sSQL);
+		threaded_db_wrapper_query(sSQL);
 	}
 
 	if( !m_bNewOrbiter )
@@ -1007,10 +1007,10 @@ m_bNoEffects = true;
 		" JOIN DesignObjVariation as Parent ON FK_DesignObjVariation_Parent=Parent.PK_DesignObjVariation"
 		" WHERE FK_DesignObjParameter=11 AND FK_DesignObjType=3 AND Value IN ('1','2','3','4','5','16','21')";
 	PlutoSqlResult result_set_array;
-	MYSQL_ROW row;
-	if( (result_set_array.r=mysql_query_result(sql)) )
+	DB_ROW row;
+	if( (result_set_array.r=db_wrapper_query_result(sql)) )
 	{
-		while ((row = mysql_fetch_row(result_set_array.r)))
+		while ((row = db_wrapper_fetch_row(result_set_array.r)))
 			m_mapDesignObj_WithArrays[ atoi(row[0]) ] = true;
 	}
 
@@ -1230,9 +1230,9 @@ loop_to_keep_looking_for_objs_to_include:
 		"=" + StringUtils::itos(COMMAND_Goto_Screen_CONST) + " AND " + COMMANDGROUP_COMMAND_COMMANDPARAMETER_FK_COMMANDPARAMETER_FIELD + "=" + StringUtils::itos(COMMANDPARAMETER_PK_DesignObj_CONST);
 
 	PlutoSqlResult result_set3b;
-	if( (result_set3b.r=mysql_query_result(sql)) )
+	if( (result_set3b.r=db_wrapper_query_result(sql)) )
 	{
-		while ((row = mysql_fetch_row(result_set3b.r)))
+		while ((row = db_wrapper_fetch_row(result_set3b.r)))
 		{
 			try
 			{
@@ -1252,9 +1252,9 @@ loop_to_keep_looking_for_objs_to_include:
 		"=" + StringUtils::itos(COMMAND_Goto_DesignObj_CONST) + " AND " + COMMANDGROUP_COMMAND_COMMANDPARAMETER_FK_COMMANDPARAMETER_FIELD + "=" + StringUtils::itos(COMMANDPARAMETER_PK_DesignObj_CONST);
 
 	PlutoSqlResult result_set3;
-	if( (result_set3.r=mysql_query_result(sql)) )
+	if( (result_set3.r=db_wrapper_query_result(sql)) )
 	{
-		while ((row = mysql_fetch_row(result_set3.r)))
+		while ((row = db_wrapper_fetch_row(result_set3.r)))
 		{
 			try
 			{
@@ -1282,9 +1282,9 @@ loop_to_keep_looking_for_objs_to_include:
 		" AND (FK_DeviceCategory NOT IN (2,3,5) or PK_Device=" + StringUtils::itos(m_pRow_Device->PK_Device_get()) + ");";
 
 	PlutoSqlResult result_set4;
-	if( (result_set4.r=mysql_query_result(sql)) )
+	if( (result_set4.r=db_wrapper_query_result(sql)) )
 	{
-		while ((row = mysql_fetch_row(result_set4.r)))
+		while ((row = db_wrapper_fetch_row(result_set4.r)))
 		{
 			try
 			{
@@ -1376,9 +1376,9 @@ loop_to_keep_looking_for_objs_to_include:
 		" WHERE FK_Skin IS NULL OR FK_Skin=" + StringUtils::itos(m_pRow_Skin->PK_Skin_get());
 
 	PlutoSqlResult result_set4b;
-	if( (result_set4b.r=mysql_query_result(sql)) )
+	if( (result_set4b.r=db_wrapper_query_result(sql)) )
 	{
-		while ((row = mysql_fetch_row(result_set4b.r)))
+		while ((row = db_wrapper_fetch_row(result_set4b.r)))
 		{
 			try
 			{
@@ -1469,9 +1469,9 @@ loop_to_keep_looking_for_objs_to_include:
 	sql = "select DeviceTemplate_DesignObj.FK_DesignObj FROM DeviceTemplate_DesignObj JOIN Device ON Device.FK_DeviceTemplate=DeviceTemplate_DesignObj.FK_DeviceTemplate JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate WHERE PK_DeviceTemplate<>8 AND FK_Installation=" + StringUtils::itos(m_pRow_Device->FK_Installation_get());
 
 	PlutoSqlResult result_set5;
-	if( (result_set5.r=mysql_query_result(sql)) )
+	if( (result_set5.r=db_wrapper_query_result(sql)) )
 	{
-		while ((row = mysql_fetch_row(result_set5.r)))
+		while ((row = db_wrapper_fetch_row(result_set5.r)))
 		{
 			try
 			{
@@ -1897,7 +1897,7 @@ int k=2;
 	{
 		// Don't reset the psc_mod so this doesn't result in a 'new devices' messages
 		string sql = "UPDATE Device SET NeedConfigure=0,psc_mod=psc_mod WHERE PK_Device=" + StringUtils::itos(m_pRow_Device->PK_Device_get());
-		threaded_mysql_query(sql);
+		threaded_db_wrapper_query(sql);
 	}
 
 	return 0;

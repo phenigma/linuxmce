@@ -87,7 +87,7 @@ LoggerWrapper::GetInstance()->Write(LV_WARNING, "pl3 = %s %s",sPlaylistName.c_st
     if ( !pRow_Playlist->Table_Playlist_get()->Commit(true,true) )
     {
         LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot save/create playlist with ID %d error: %s",iPK_Playlist,
-	        m_pDatabase_pluto_media->m_sLastMySqlError.c_str());
+	        m_pDatabase_pluto_media->m_sLastDBError.c_str());
 
 		return false;
     }
@@ -137,7 +137,7 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"Save playlist id %d with %d rows"
 	}
     if( !m_pDatabase_pluto_media->PlaylistEntry_get()->Commit(true,true) || !m_pDatabase_pluto_media->Playlist_get()->Commit(true,true) )
     {
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Could not save the playlist error: %s",m_pDatabase_pluto_media->m_sLastMySqlError.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Could not save the playlist error: %s",m_pDatabase_pluto_media->m_sLastDBError.c_str());
         return false;
     }
 

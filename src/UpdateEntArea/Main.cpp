@@ -137,7 +137,7 @@ int main(int argc, char *argv[])
 	{
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Scenarios were changed.  Updating Orbiters");
 		string sSQL = "UPDATE Orbiter SET ScenariosFloorplans=NULL";
-		updateEntArea.m_pDatabase_pluto_main->threaded_mysql_query(sSQL);
+		updateEntArea.m_pDatabase_pluto_main->threaded_db_wrapper_query(sSQL);
 	}
 	return 0;
 }

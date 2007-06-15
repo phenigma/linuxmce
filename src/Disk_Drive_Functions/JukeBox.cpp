@@ -99,7 +99,7 @@ void JukeBox::UpdateDrivesSlotsFromDatabase()
 		sDeviceList += "," + StringUtils::itos(itDrive->second->m_dwPK_Device_get());
 	string sSQL = "UPDATE DiscLocation SET EK_Device_Ripping=NULL,RipJob=NULL WHERE EK_Device_Ripping IN (" + sDeviceList + ")";
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "JukeBox::UpdateDrivesSlotsFromDatabase SQL: %s", sSQL.c_str());
-	m_pDatabase_pluto_media->threaded_mysql_query(sSQL);
+	m_pDatabase_pluto_media->threaded_db_wrapper_query(sSQL);
 
 	vector<Row_DiscLocation *> vectRow_DiscLocation;
 	m_pDatabase_pluto_media->DiscLocation_get()->GetRows("EK_Device=" + StringUtils::itos(m_pCommand_Impl->m_dwPK_Device),&vectRow_DiscLocation);
@@ -232,7 +232,7 @@ void JukeBox::UpdateDiscLocation(int PK_Device_Original,int Slot_Original,int PK
 {
 	string sSQL = "UPDATE DiscLocation SET EK_Device=" + StringUtils::itos(PK_Device_New) + ",Slot=" + (Slot_New==-1 ? "NULL" : StringUtils::itos(Slot_New)) +
 		" WHERE EK_Device=" + StringUtils::itos(PK_Device_Original) + (Slot_Original==-1 ? "" : " AND Slot=" + StringUtils::itos(Slot_Original));
-	if( m_pDatabase_pluto_media->threaded_mysql_query(sSQL)==0 )
+	if( m_pDatabase_pluto_media->threaded_db_wrapper_query(sSQL)==0 )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"JukeBox::UpdateDiscLocation Nothing in the db for dev %d slot %d, adding",PK_Device_New,Slot_New);
 		AddDiscToDb(PK_Device_New,Slot_New,'U');
@@ -245,7 +245,7 @@ void JukeBox::RemoveDiscFromDb(int PK_Device,int Slot)
 	if( Slot!=-1 )
 		sSQL += " AND Slot=" + StringUtils::itos(Slot);
 
-	m_pDatabase_pluto_media->threaded_mysql_query(sSQL);
+	m_pDatabase_pluto_media->threaded_db_wrapper_query(sSQL);
 	LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"tmp:%s",sSQL.c_str());
 }
 
@@ -253,7 +253,7 @@ void JukeBox::AddDiscToDb(int PK_Device,int Slot,char Type)
 {
 	string sSQL = "INSERT INTO DiscLocation(EK_Device,Slot,Type) VALUES(" + StringUtils::itos(PK_Device) + "," + (Slot ? StringUtils::itos(Slot) : "NULL") + ",'" + Type + "')";
 	LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"tmp:%s",sSQL.c_str());
-	m_pDatabase_pluto_media->threaded_mysql_query(sSQL);
+	m_pDatabase_pluto_media->threaded_db_wrapper_query(sSQL);
 }
 
 void JukeBox::Media_Identified(int iPK_Device,string sValue_To_Assign,string sID,char *pData,int iData_Size,string sFormat,int iPK_MediaType,string sMediaURL,string sURL,int *iEK_Disc)

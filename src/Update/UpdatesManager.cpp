@@ -28,7 +28,7 @@ UpdatesManager::UpdatesManager(const char * xmlPath, const char * updPath, int i
 	  ioError(false),
 	  updatesEnabled(false),
 	  fullDownload(true),
-	  mySqlHelper(dceconf.m_sDBHost, dceconf.m_sDBUser, dceconf.m_sDBPassword, dceconf.m_sDBName,dceconf.m_iDBPort)
+	  dbHelper(dceconf.m_sDBHost, dceconf.m_sDBUser, dceconf.m_sDBPassword, dceconf.m_sDBName,dceconf.m_iDBPort)
 {
 }
 
@@ -42,17 +42,17 @@ bool UpdatesManager::Init(bool bDownload)
 	
 	// check the current Linux MCE systems configuration
 	PlutoSqlResult result_set;
-	MYSQL_ROW row = NULL;
+	DB_ROW row = NULL;
 	string sql_buff = "select FK_Device,IK_DeviceData FROM Device_DeviceData where FK_DeviceData = ";
 	sql_buff += StringUtils::itos( DEVICEDATA_Model_CONST );
 	
 	// select the models from the system
-	if( (result_set.r=mySqlHelper.mysql_query_result(sql_buff.c_str())) == NULL )
+	if( (result_set.r=dbHelper.db_wrapper_query_result(sql_buff.c_str())) == NULL )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "UpdatesManager::Init : SQL FAILED : %s",sql_buff.c_str());
 		return false;
 	}
-	while((row = mysql_fetch_row(result_set.r)))
+	while((row = db_wrapper_fetch_row(result_set.r)))
 	{
 		if( NULL != row[0] && NULL != row[1] )
 		{
@@ -72,12 +72,12 @@ bool UpdatesManager::Init(bool bDownload)
 	// select the last updates from the system
 	sql_buff = "select FK_Device,IK_DeviceData FROM Device_DeviceData where FK_DeviceData = ";
 	sql_buff += StringUtils::itos( DEVICEDATA_LastUpdate_CONST );
-	if( (result_set.r=mySqlHelper.mysql_query_result(sql_buff.c_str())) == NULL )
+	if( (result_set.r=dbHelper.db_wrapper_query_result(sql_buff.c_str())) == NULL )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "UpdatesManager::Init : SQL FAILED : %s",sql_buff.c_str());
 		return false;
 	}
-	while((row = mysql_fetch_row(result_set.r)))
+	while((row = db_wrapper_fetch_row(result_set.r)))
 	{
 		if( NULL != row[0] && NULL != row[1] )
 		{
@@ -99,12 +99,12 @@ bool UpdatesManager::Init(bool bDownload)
 	sql_buff += StringUtils::itos( DEVICECATEGORY_Core_CONST );
 	sql_buff += " AND FK_Installation=";
 	sql_buff += StringUtils::itos( dceconf.m_iPK_Installation );
-	if( (result_set.r=mySqlHelper.mysql_query_result(sql_buff.c_str())) == NULL )
+	if( (result_set.r=dbHelper.db_wrapper_query_result(sql_buff.c_str())) == NULL )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "UpdatesManager::Init : SQL FAILED : %s",sql_buff.c_str());
 		return false;
 	}
-	while((row = mysql_fetch_row(result_set.r)))
+	while((row = db_wrapper_fetch_row(result_set.r)))
 	{
 		if( NULL != row[0] )
 		{
@@ -124,12 +124,12 @@ bool UpdatesManager::Init(bool bDownload)
 	sql_buff += StringUtils::itos( DEVICEDATA_ApplyUpdates_CONST );
 	sql_buff += " AND FK_Device=";
 	sql_buff += StringUtils::itos(coreDevice);
-	if( (result_set.r=mySqlHelper.mysql_query_result(sql_buff.c_str())) == NULL )
+	if( (result_set.r=dbHelper.db_wrapper_query_result(sql_buff.c_str())) == NULL )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "UpdatesManager::Init : SQL FAILED : %s",sql_buff.c_str());
 		return false;
 	}
-	while((row = mysql_fetch_row(result_set.r)))
+	while((row = db_wrapper_fetch_row(result_set.r)))
 	{
 		if( NULL != row[0] )
 		{
@@ -393,7 +393,7 @@ bool UpdatesManager::SetLastUpdate(unsigned uLastUpdate)
 	sql_buff += StringUtils::itos( dceconf.m_iPK_Device_Computer );
 	sql_buff += "'";
 	
-	mySqlHelper.threaded_mysql_query(sql_buff);
+	dbHelper.threaded_db_wrapper_query(sql_buff);
 	
 	return true;
 }

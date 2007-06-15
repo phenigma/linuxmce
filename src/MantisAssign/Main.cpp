@@ -16,7 +16,7 @@
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
-#include "PlutoUtils/MySQLHelper.h"
+#include "PlutoUtils/MySQLHelper_moved.h"
 #include "DCEConfig.h"
 #include "Logger.h"
 

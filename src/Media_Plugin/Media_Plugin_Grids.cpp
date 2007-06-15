@@ -342,14 +342,14 @@ void Media_Plugin::AttributesBrowser( MediaListGrid *pMediaListGrid,int PK_Media
 
 	string sPK_File,sPK_Disc;
     PlutoSqlResult resultf,resultd;
-    MYSQL_ROW row;
-	if( (bFile || bBookmarksOnly) && ( resultf.r=m_pDatabase_pluto_media->mysql_query_result( sSQL_File + sSQL_Where + sOnline + " AND `Ignore`=0 AND Missing=0 " + 
+    DB_ROW row;
+	if( (bFile || bBookmarksOnly) && ( resultf.r=m_pDatabase_pluto_media->db_wrapper_query_result( sSQL_File + sSQL_Where + sOnline + " AND `Ignore`=0 AND Missing=0 " + 
 		(sPath.size() ? " AND Path in (" + sPath + ")" : "") + (PK_AttributeType_Sort!=0 ? " AND IsDirectory=0" : "") ) ) )
-        while( ( row=mysql_fetch_row( resultf.r ) ) )
+        while( ( row=db_wrapper_fetch_row( resultf.r ) ) )
 			sPK_File += row[0] + string(",");
 
-    if( (bDiscs || bBookmarksOnly) && m_sPK_Devices_Online.empty()==false && ( resultd.r=m_pDatabase_pluto_media->mysql_query_result( sSQL_Disc + sSQL_Where + " AND EK_Device IN (" + m_sPK_Devices_Online + ")") ) )
-        while( ( row=mysql_fetch_row( resultd.r ) ) )
+    if( (bDiscs || bBookmarksOnly) && m_sPK_Devices_Online.empty()==false && ( resultd.r=m_pDatabase_pluto_media->db_wrapper_query_result( sSQL_Disc + sSQL_Where + " AND EK_Device IN (" + m_sPK_Devices_Online + ")") ) )
+        while( ( row=db_wrapper_fetch_row( resultd.r ) ) )
 			sPK_Disc += row[0] + string(",");
 
 	// Find all the pictures for the files and discs
@@ -395,12 +395,12 @@ void Media_Plugin::FetchPictures(string sWhichTable,string &sPK_File_Or_Disc,map
 {
 	string sSQL	= "SELECT FK_" + sWhichTable + ",FK_Picture FROM Picture_" + sWhichTable + " WHERE FK_" + sWhichTable + " IN (" + sPK_File_Or_Disc + ")";
     PlutoSqlResult result;
-    MYSQL_ROW row;
+    DB_ROW row;
 	string sPK_AlreadyGot;
 
 FileUtils::WriteBufferIntoFile("/temp.sql",sSQL.c_str(),sSQL.size());
-	if( result.r=m_pDatabase_pluto_media->mysql_query_result( sSQL ) )
-        while( ( row=mysql_fetch_row( result.r ) ) )
+	if( result.r=m_pDatabase_pluto_media->db_wrapper_query_result( sSQL ) )
+        while( ( row=db_wrapper_fetch_row( result.r ) ) )
 		{
 			sPK_AlreadyGot += row[0] + string(",");
 			mapFile_To_Pic[ atoi(row[0]) ] = atoi(row[1]);
@@ -419,8 +419,8 @@ FileUtils::WriteBufferIntoFile("/temp.sql",sSQL.c_str(),sSQL.size());
 	}
     PlutoSqlResult result2;
 FileUtils::WriteBufferIntoFile("/temp.sql",sSQL.c_str(),sSQL.size());
-	if( result2.r=m_pDatabase_pluto_media->mysql_query_result( sSQL ) )
-        while( ( row=mysql_fetch_row( result2.r ) ) )
+	if( result2.r=m_pDatabase_pluto_media->db_wrapper_query_result( sSQL ) )
+        while( ( row=db_wrapper_fetch_row( result2.r ) ) )
 		{
 			sPK_AlreadyGot += row[0] + string(",");
 			mapFile_To_Pic[ atoi(row[0]) ] = atoi(row[1]);
@@ -438,12 +438,12 @@ void Media_Plugin::PopulateFileBrowserInfoForPlayList(MediaListGrid *pMediaListG
     string SQL = "SELECT PK_Playlist, Name, FK_Picture from Playlist where EK_User IS Null OR EK_User IN ( 0 " + sPK_Users_Private + " ) ORDER BY Name";
 
     PlutoSqlResult result;
-    MYSQL_ROW row;
+    DB_ROW row;
     int RowCount=0;
 
 	FileBrowserInfo *pFileBrowserInfo;
-    if( (result.r=m_pDatabase_pluto_media->mysql_query_result(SQL)) )
-        while( (row=mysql_fetch_row(result.r)) )
+    if( (result.r=m_pDatabase_pluto_media->db_wrapper_query_result(SQL)) )
+        while( (row=db_wrapper_fetch_row(result.r)) )
 		{
 			pFileBrowserInfo = new FileBrowserInfo(row[1],string("!P") + row[0],0);
 			if( row[2] )
@@ -457,12 +457,12 @@ void Media_Plugin::PopulateFileBrowserInfoForDisc(MediaListGrid *pMediaListGrid,
 	string sSQL_Sort = "SELECT PK_Disc,Name,FK_FileFormat,Track FROM Disc JOIN Disc_Attribute ON FK_Disc=PK_Disc JOIN Attribute ON FK_Attribute=PK_Attribute AND FK_AttributeType=" + StringUtils::itos(PK_AttributeType_Sort) + " WHERE PK_Disc in (" + sPK_Disk + ")";
 
     PlutoSqlResult result;
-    MYSQL_ROW row;
+    DB_ROW row;
 	map<int,int>::iterator it;
 	FileBrowserInfo *pFileBrowserInfo;
 	// 0 =PK_Disc, 1=Name, 2=FileFormat
-    if( result.r=m_pDatabase_pluto_media->mysql_query_result( sSQL_Sort ) )
-        while( ( row=mysql_fetch_row( result.r ) ) )
+    if( result.r=m_pDatabase_pluto_media->db_wrapper_query_result( sSQL_Sort ) )
+        while( ( row=db_wrapper_fetch_row( result.r ) ) )
 		{
 			pFileBrowserInfo = new FileBrowserInfo(row[1],string("!r") + row[0] + (row[3] && atoi(row[3]) ? string(".") + row[3] : ""),atoi(row[0]),row[2] ? atoi(row[2]) : 0,'D',false,false);
 			if( (it=mapDisk_To_Pic.find( atoi(row[0]) ))!=mapDisk_To_Pic.end() )
@@ -481,13 +481,13 @@ void Media_Plugin::PopulateFileBrowserInfoForFile(MediaListGrid *pMediaListGrid,
 		sSQL_Sort = "SELECT PK_File,'',Name,0,FK_FileFormat,Filename FROM File LEFT JOIN File_Attribute ON FK_File=PK_File LEFT JOIN Attribute ON FK_Attribute=PK_Attribute AND FK_AttributeType=" + StringUtils::itos(PK_AttributeType_Sort) + " WHERE IsDirectory=0 AND PK_File in (" + sPK_File + ") AND (FK_AttributeType IS NULL OR FK_AttributeType=" + StringUtils::itos(PK_AttributeType_Sort) + ") ORDER BY PK_File,PK_Attribute DESC";
 
     PlutoSqlResult result;
-    MYSQL_ROW row;
+    DB_ROW row;
 	map<int,int>::iterator it;
 	FileBrowserInfo *pFileBrowserInfo;
 	int iLastPK_File=0;  // if the there are 2 attributes of the same twice the file may appear more than once
 	// 0 =PK_File, 1=Path, 2=Name, 3=IsDirectory, 4=File Format
-    if( result.r=m_pDatabase_pluto_media->mysql_query_result( sSQL_Sort ) )
-        while( ( row=mysql_fetch_row( result.r ) ) )
+    if( result.r=m_pDatabase_pluto_media->db_wrapper_query_result( sSQL_Sort ) )
+        while( ( row=db_wrapper_fetch_row( result.r ) ) )
 		{
 			int PK_File = atoi(row[0]);
 			if( PK_File==iLastPK_File )
@@ -528,20 +528,20 @@ void Media_Plugin::PopulateFileBrowserInfoForAttribute(MediaListGrid *pMediaList
 FileUtils::WriteBufferIntoFile("/temp.sql",sSQL_Sort.c_str(),sSQL_Sort.size());
 
     PlutoSqlResult result;
-    MYSQL_ROW row;
+    DB_ROW row;
 	map<int,int>::iterator it;
-    if( result.r=m_pDatabase_pluto_media->mysql_query_result( sSQL_Sort ) )
+    if( result.r=m_pDatabase_pluto_media->db_wrapper_query_result( sSQL_Sort ) )
 	{
 		// If we're looking for albums and there are none, just show the songs
 		if( result.r->row_count==0 && PK_AttributeType_Sort==ATTRIBUTETYPE_Album_CONST )
 		{
 			result.ClearResults();
 			sSQL_Sort = "SELECT PK_Attribute,Name,min(FK_Picture) AS FK_Picture FROM " + sTable + " JOIN " + sTable + "_Attribute ON FK_" + sTable + "=PK_" + sTable + " JOIN Attribute ON " + sTable + "_Attribute.FK_Attribute=PK_Attribute AND FK_AttributeType IN (" TOSTRING(ATTRIBUTETYPE_Track_CONST) "," TOSTRING(ATTRIBUTETYPE_Title_CONST) ") LEFT JOIN Picture_Attribute ON Picture_Attribute.FK_Attribute=PK_Attribute WHERE IsDirectory=0 AND PK_" + sTable + " in (" + sPK_File_Or_Disc + ") GROUP BY PK_Attribute,Name";
-			if( (result.r=m_pDatabase_pluto_media->mysql_query_result( sSQL_Sort ))==NULL )
+			if( (result.r=m_pDatabase_pluto_media->db_wrapper_query_result( sSQL_Sort ))==NULL )
 				return;
 		}
 
-        while( ( row=mysql_fetch_row( result.r ) ) )
+        while( ( row=db_wrapper_fetch_row( result.r ) ) )
 		{
 			FileBrowserInfo *pFileBrowserInfo = new FileBrowserInfo(row[1],string("!A") + row[0],atoi(row[0]));
 			if( row[2] )
@@ -567,10 +567,10 @@ void Media_Plugin::PopulateFileBrowserInfoForBookmark(MediaListGrid *pMediaListG
 FileUtils::WriteBufferIntoFile("/temp.sql",sSQL.c_str(),sSQL.size());
 
 		PlutoSqlResult result;
-		MYSQL_ROW row;
+		DB_ROW row;
 		int PK_Bookmark_Last=0; // Don't add the same bookmark twice
-		if( result.r=m_pDatabase_pluto_media->mysql_query_result( sSQL ) )
-			while( ( row=mysql_fetch_row( result.r ) ) )
+		if( result.r=m_pDatabase_pluto_media->db_wrapper_query_result( sSQL ) )
+			while( ( row=db_wrapper_fetch_row( result.r ) ) )
 			{
 				string sDescription;
 				if( row[2] && row[3] ) // Both a title and a bookmark description
@@ -694,9 +694,9 @@ void Media_Plugin::PopulateWithDatabaseInfoOnPath(map<string,DatabaseInfoOnPath 
 		")";
 
 	PlutoSqlResult result;
-	MYSQL_ROW row;
-    if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( sSql ) ) )
-        while( ( row=mysql_fetch_row( result.r ) ) )
+	DB_ROW row;
+    if( ( result.r=m_pDatabase_pluto_media->db_wrapper_query_result( sSql ) ) )
+        while( ( row=db_wrapper_fetch_row( result.r ) ) )
 			mapDatabaseInfoOnPath[row[0]] = new DatabaseInfoOnPath(atoi(row[1]),row[2][0]==1,row[3] ? atoi(row[3]) : 0);
 }
 
@@ -952,12 +952,12 @@ class DataGridTable *Media_Plugin::CDTracks( string GridID, string Parms, void *
 		sSQL = "select Track,Name FROM Attribute JOIN Disc_Attribute ON FK_Attribute=PK_Attribute WHERE FK_AttributeType=" TOSTRING(ATTRIBUTETYPE_Title_CONST) " AND FK_Disc=" + Parms;
 
 	PlutoSqlResult result;
-    MYSQL_ROW row;
+    DB_ROW row;
 
 	int currentPos=0;
 
-    if( (result.r=m_pDatabase_pluto_media->mysql_query_result(sSQL)) )
-        while( (row=mysql_fetch_row(result.r)) )
+    if( (result.r=m_pDatabase_pluto_media->db_wrapper_query_result(sSQL)) )
+        while( (row=db_wrapper_fetch_row(result.r)) )
 		{
 			if( row[0] && row[1] )
 			{
@@ -982,7 +982,7 @@ class DataGridTable *Media_Plugin::MediaSearchAutoCompl( string GridID, string P
 	if( AC.length( )==0 )
         return pDataGrid; // Nothing passed in yet
 
-    MYSQL_ROW row;
+    DB_ROW row;
     PlutoSqlResult result_file;
 	string SQL = "select DISTINCT PK_File,Path,Filename,FK_Picture "
 		"FROM File "
@@ -1002,9 +1002,9 @@ class DataGridTable *Media_Plugin::MediaSearchAutoCompl( string GridID, string P
 
     int RowCount=0;
 
-	if( ( result_file.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) )
+	if( ( result_file.r=m_pDatabase_pluto_media->db_wrapper_query_result( SQL ) ) )
     {
-        while( ( row=mysql_fetch_row( result_file.r ) ) )
+        while( ( row=db_wrapper_fetch_row( result_file.r ) ) )
         {
             string label = row[2];
             label += string( "\n" ) + row[1];
@@ -1037,9 +1037,9 @@ class DataGridTable *Media_Plugin::MediaSearchAutoCompl( string GridID, string P
 
     string AttributesFirstSearch; // Because we're going to search twice and want to exclude any attributes we hit the first search
 
-    if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) )
+    if( ( result.r=m_pDatabase_pluto_media->db_wrapper_query_result( SQL ) ) )
     {
-        while( ( row=mysql_fetch_row( result.r ) ) )
+        while( ( row=db_wrapper_fetch_row( result.r ) ) )
         {
             string label = /* string( "~`S24`" ) + */ row[1];
             label += string( "\n" ) + row[2];
@@ -1084,9 +1084,9 @@ class DataGridTable *Media_Plugin::MediaSearchAutoCompl( string GridID, string P
 
 	result.ClearResults();
 
-    if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) )
+    if( ( result.r=m_pDatabase_pluto_media->db_wrapper_query_result( SQL ) ) )
     {
-        while( ( row=mysql_fetch_row( result.r ) ) )
+        while( ( row=db_wrapper_fetch_row( result.r ) ) )
         {
             string label = /*string( "~`S24`" ) + */ row[1];
             label += string( "\n" ) + row[2];
@@ -1138,12 +1138,12 @@ class DataGridTable *Media_Plugin::MediaAttrFiles( string GridID, string Parms, 
         "WHERE Identifier=1 ORDER BY Name limit 200;";
 
     PlutoSqlResult result;
-    MYSQL_ROW row;
+    DB_ROW row;
     int RowCount=0;
 
-    if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) )
+    if( ( result.r=m_pDatabase_pluto_media->db_wrapper_query_result( SQL ) ) )
     {
-        while( ( row=mysql_fetch_row( result.r ) ) )
+        while( ( row=db_wrapper_fetch_row( result.r ) ) )
         {
             string label = row[1];
             label += string( "\n" ) + row[2];
@@ -1188,12 +1188,12 @@ class DataGridTable *Media_Plugin::MediaAttrCollections( string GridID, string P
         "WHERE Identifier=2 ORDER BY Name limit 100;";
 
     PlutoSqlResult result;
-    MYSQL_ROW row;
+    DB_ROW row;
     int RowCount=0;
 
-    if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) )
+    if( ( result.r=m_pDatabase_pluto_media->db_wrapper_query_result( SQL ) ) )
     {
-        while( ( row=mysql_fetch_row( result.r ) ) )
+        while( ( row=db_wrapper_fetch_row( result.r ) ) )
         {
             string label = row[1];
             label += string( "\n" ) + row[2];
@@ -1245,13 +1245,13 @@ class DataGridTable *Media_Plugin::MediaAttrXref( string GridID, string Parms, v
         "WHERE Identifier>=2 ORDER BY AttributeType.Description limit 30;";
 
     PlutoSqlResult result;
-    MYSQL_ROW row;
+    DB_ROW row;
     int RowCount=0;
 
-    if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) )
+    if( ( result.r=m_pDatabase_pluto_media->db_wrapper_query_result( SQL ) ) )
     {
 LoggerWrapper::GetInstance()->Write(LV_STATUS, "Transformed 2 PK_Attributte: %s", PK_Attribute.c_str());
-        while( ( row=mysql_fetch_row( result.r ) ) )
+        while( ( row=db_wrapper_fetch_row( result.r ) ) )
         {
 LoggerWrapper::GetInstance()->Write(LV_STATUS, "Transformed 4 PK_Attributte: %s", PK_Attribute.c_str());
             string label = row[1];
@@ -1343,12 +1343,12 @@ class DataGridTable *Media_Plugin::MediaItemAttr( string GridID, string Parms, v
     }
 
     PlutoSqlResult result;
-    MYSQL_ROW row;
+    DB_ROW row;
     int RowCount=0;
 
-    if( (result.r=m_pDatabase_pluto_media->mysql_query_result(SQL)) )
+    if( (result.r=m_pDatabase_pluto_media->db_wrapper_query_result(SQL)) )
     {
-        while( (row=mysql_fetch_row(result.r)) )
+        while( (row=db_wrapper_fetch_row(result.r)) )
         {
             string label = row[1];
             label += ": ";
@@ -1463,10 +1463,10 @@ class DataGridTable *Media_Plugin::MediaAttrFile( string GridID, string Parms, v
 	list<DataGridCell *> listCellsAtBottom; // All the ones with mediasort=NULL; mysql puts them at the top, not the bottom
 	DataGridCell *pCell;
 	PlutoSqlResult result;
-    MYSQL_ROW row;
-	if( (result.r=m_pDatabase_pluto_media->mysql_query_result( sSQL )) )
+    DB_ROW row;
+	if( (result.r=m_pDatabase_pluto_media->db_wrapper_query_result( sSQL )) )
 	{
-        while( ( row=mysql_fetch_row( result.r ) ) )
+        while( ( row=db_wrapper_fetch_row( result.r ) ) )
 		{
 			pCell = new DataGridCell("","!A" + string(row[0]));
 			pCell->m_mapAttributes["Title"]=row[2];
@@ -1665,12 +1665,12 @@ class DataGridTable *Media_Plugin::AvailablePlaylists( string GridID, string Par
     string SQL = "SELECT PK_Playlist, Name from Playlist where EK_User IS NULL OR EK_User IN ( 0, " + StringUtils::itos(userID) + " ) ORDER BY NAME LIMIT 30";
 
     PlutoSqlResult result;
-    MYSQL_ROW row;
+    DB_ROW row;
     int RowCount=0;
 
     DataGridTable *pDataGrid = new DataGridTable();
-    if( (result.r=m_pDatabase_pluto_media->mysql_query_result(SQL)) )
-        while( (row=mysql_fetch_row(result.r)) )
+    if( (result.r=m_pDatabase_pluto_media->db_wrapper_query_result(SQL)) )
+        while( (row=db_wrapper_fetch_row(result.r)) )
 		{
             // 	LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Adding this entry \"%s\" to the position %d", row[1], RowCount);
 			if( nHeight==1 ) // It's a horizontal list
@@ -2045,10 +2045,10 @@ class DataGridTable *Media_Plugin::DevicesNeedingProviders( string GridID, strin
 	int iRow=0;
 	string sSQL = "SELECT PK_Device,FK_MediaType,PK_DeviceTemplate_MediaType FROM Device JOIN DeviceTemplate_MediaType ON DeviceTemplate_MediaType.FK_DeviceTemplate = Device.FK_DeviceTemplate and FK_MediaType IN (" TOSTRING(MEDIATYPE_np_LiveTV_CONST) "," TOSTRING(MEDIATYPE_pluto_LiveTV_CONST) ") ";
     PlutoSqlResult result;
-    MYSQL_ROW row;
-	if( ( result.r=m_pDatabase_pluto_main->mysql_query_result(sSQL)) )
+    DB_ROW row;
+	if( ( result.r=m_pDatabase_pluto_main->db_wrapper_query_result(sSQL)) )
 	{
-        while( ( row=mysql_fetch_row( result.r ) ) )
+        while( ( row=db_wrapper_fetch_row( result.r ) ) )
 		{
 			Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow( atoi(row[0]) );
 			if( !pRow_Device )

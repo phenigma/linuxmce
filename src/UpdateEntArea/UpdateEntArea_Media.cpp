@@ -102,10 +102,10 @@ void UpdateEntArea::AddDefaultMediaScenarios(Row_EntertainArea *pRow_EntertainAr
 
 	int iOrder=1;
 	PlutoSqlResult result_set;
-	MYSQL_ROW row;
-	if( (result_set.r=m_pDatabase_pluto_main->mysql_query_result(sSQL)) )
+	DB_ROW row;
+	if( (result_set.r=m_pDatabase_pluto_main->db_wrapper_query_result(sSQL)) )
 	{
-		while ((row = mysql_fetch_row(result_set.r)))
+		while ((row = db_wrapper_fetch_row(result_set.r)))
 		{
 			string sDesc = "TV";
 			if( result_set.r->row_count>1 )
@@ -135,7 +135,7 @@ void UpdateEntArea::AddDefaultMediaScenarios(Row_EntertainArea *pRow_EntertainAr
 			"JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate "
 			"WHERE FK_DeviceCategory=" + StringUtils::itos(DEVICECATEGORY_Disc_Drives_CONST) + " AND FK_EntertainArea=" + StringUtils::itos(pRow_EntertainArea->PK_EntertainArea_get());
 		PlutoSqlResult result_set;
-		if( (result_set.r=m_pDatabase_pluto_main->mysql_query_result(sSQL)) && result_set.r->row_count>0 )
+		if( (result_set.r=m_pDatabase_pluto_main->db_wrapper_query_result(sSQL)) && result_set.r->row_count>0 )
 		{
 			pCommandGroup = commandGroupArray.FindCommandGroupByTemplate(TEMPLATE_Media_Wiz_FileDisc_CONST,"Manage Drives",ICON_Start_Disc_CONST,0,0);
 			if( pCommandGroup )
@@ -162,10 +162,10 @@ void UpdateEntArea::AddDefaultMediaScenarios(Row_EntertainArea *pRow_EntertainAr
 
 		iOrder=1;
 		PlutoSqlResult result_set;
-		MYSQL_ROW row;
-		if( (result_set.r=m_pDatabase_pluto_main->mysql_query_result(sSQL)) )
+		DB_ROW row;
+		if( (result_set.r=m_pDatabase_pluto_main->db_wrapper_query_result(sSQL)) )
 		{
-			while ((row = mysql_fetch_row(result_set.r)))
+			while ((row = db_wrapper_fetch_row(result_set.r)))
 			{
 				Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(atoi(row[0]));
 				if( !pRow_Device->FK_Device_RouteTo_isNull() )

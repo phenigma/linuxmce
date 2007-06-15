@@ -91,8 +91,8 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sDescrip
 		string SQL = "SELECT FK_DeviceTemplate FROM DHCPDevice WHERE PK_DHCPDevice=" + StringUtils::itos(iPK_DHCPDevice);
 
 		PlutoSqlResult result;
-		MYSQL_ROW row;
-		if( ( result.r=mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) && NULL != row[0])
+		DB_ROW row;
+		if( ( result.r=db_wrapper_query_result( SQL ) ) && ( row=db_wrapper_fetch_row( result.r ) ) && NULL != row[0])
 			iPK_DeviceTemplate = atoi(row[0]);
 	}
 
@@ -106,9 +106,9 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sDescrip
 	if( m_iPK_Installation<1 )
 	{
 		PlutoSqlResult result;
-		MYSQL_ROW row;
+		DB_ROW row;
 		string SQL = "SELECT DISTINCT PK_Installation FROM Installation";
-		if( ( result.r=mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) && result.r->row_count==1 )
+		if( ( result.r=db_wrapper_query_result( SQL ) ) && ( row=db_wrapper_fetch_row( result.r ) ) && result.r->row_count==1 )
 			m_iPK_Installation = atoi(row[0]);
 		else
 		{
@@ -120,12 +120,12 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sDescrip
 	map<int,string> mapParametersAdded; // Keep track of what DeviceData we have added as we go through
 	
 	PlutoSqlResult result,result1,result1b,result2,result3,resultPackage,resultAutoAssign;
-	MYSQL_ROW row;
+	DB_ROW row;
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Create device -- querying packages for %d",iPK_DeviceTemplate);
 	int iPK_DeviceCategory;
 	string SQL = "SELECT FK_DeviceCategory,Description,ConfigureScript,IsPlugAndPlay,FK_Package,FK_InfraredGroup FROM DeviceTemplate WHERE PK_DeviceTemplate=" + StringUtils::itos(iPK_DeviceTemplate);
-	if( ( result.r=mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
+	if( ( result.r=db_wrapper_query_result( SQL ) ) && ( row=db_wrapper_fetch_row( result.r ) ) )
 		iPK_DeviceCategory = atoi(row[0]);
 	else
 	{
@@ -169,7 +169,7 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sDescrip
 		SQL += "," + StringUtils::itos(PK_Device_ControlledVia);
 		
 	SQL += ");";
-	int PK_Device = threaded_mysql_query_withID(SQL);
+	int PK_Device = threaded_db_wrapper_query_withID(SQL);
 	if( !PK_Device )
 	{
 		cerr << "Unable to add device" << endl;
@@ -194,31 +194,31 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sDescrip
 		if( iPK_DeviceCategory_Loop==DEVICECATEGORY_Orbiter_CONST )
 			bIsOrbiter=true;
 		SQL = "SELECT FK_DeviceData,IK_DeviceData FROM DeviceCategory_DeviceData WHERE FK_DeviceCategory=" + StringUtils::itos(iPK_DeviceCategory_Loop);
-		if( ( result1.r=mysql_query_result( SQL ) ) )
+		if( ( result1.r=db_wrapper_query_result( SQL ) ) )
 		{
 LoggerWrapper::GetInstance()->Write(LV_STATUS,"Found %d rows with %s",(int) result1.r->row_count,SQL.c_str());
-			while( (row=mysql_fetch_row( result1.r )) )
+			while( (row=db_wrapper_fetch_row( result1.r )) )
 			{
 				mapParametersAdded[ atoi(row[0]) ] = row[1] ? row[1] : "";
 LoggerWrapper::GetInstance()->Write(LV_STATUS,"Added parameter from category %d %s",atoi(row[0]),mapParametersAdded[ atoi(row[0]) ].c_str());
 
 				SQL = "INSERT INTO Device_DeviceData(FK_Device,FK_DeviceData,IK_DeviceData) VALUES(" + StringUtils::itos(PK_Device) + 
 					"," + row[0] + ",'" + (row[1] ? StringUtils::SQLEscape( row[1] ) : string("")) + "');";
-				threaded_mysql_query(SQL,true);
+				threaded_db_wrapper_query(SQL,true);
 			}
 		}
 		SQL = "SELECT FK_DeviceCategory_Parent FROM DeviceCategory WHERE PK_DeviceCategory=" + StringUtils::itos(iPK_DeviceCategory_Loop);
-		if( ( result1b.r=mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result1b.r ) ) && row[0] )
+		if( ( result1b.r=db_wrapper_query_result( SQL ) ) && ( row=db_wrapper_fetch_row( result1b.r ) ) && row[0] )
 			iPK_DeviceCategory_Loop = atoi(row[0]);
 		else
 			iPK_DeviceCategory_Loop = 0;
 	}
 
 	SQL = "SELECT FK_DeviceData,IK_DeviceData FROM DeviceTemplate_DeviceData JOIN DeviceData ON PK_DeviceData=FK_DeviceData WHERE FK_DeviceTemplate=" + StringUtils::itos(iPK_DeviceTemplate);
-	if( ( result2.r=mysql_query_result( SQL ) ) )
+	if( ( result2.r=db_wrapper_query_result( SQL ) ) )
 	{
 LoggerWrapper::GetInstance()->Write(LV_STATUS,"Found %d rows with %s",(int) result2.r->row_count,SQL.c_str());
-		while( (row=mysql_fetch_row( result2.r )) )
+		while( (row=db_wrapper_fetch_row( result2.r )) )
 		{
 			if( mapParametersAdded.find(atoi(row[0]))!=mapParametersAdded.end() )
 			{
@@ -232,17 +232,17 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"Found %d rows with %s",(int) resu
 					"," + row[0] + ",'" + (row[1] ? StringUtils::SQLEscape( row[1] ) : string("")) + "');";
 			}
 LoggerWrapper::GetInstance()->Write(LV_STATUS,"Executing %s",SQL.c_str());
-			threaded_mysql_query(SQL,true);
+			threaded_db_wrapper_query(SQL,true);
 		}
 	}
 
 	if( iPK_DHCPDevice )
 	{
 		SQL = "SELECT FK_DeviceData,IK_DeviceData FROM DHCPDevice_DeviceData WHERE FK_DHCPDevice=" + StringUtils::itos(iPK_DHCPDevice);
-		if( ( result3.r=mysql_query_result( SQL ) ) )
+		if( ( result3.r=db_wrapper_query_result( SQL ) ) )
 		{
 LoggerWrapper::GetInstance()->Write(LV_STATUS,"Found %d rows with %s",(int) result3.r->row_count,SQL.c_str());
-			while( (row=mysql_fetch_row( result3.r )) )
+			while( (row=db_wrapper_fetch_row( result3.r )) )
 			{
 				if( mapParametersAdded.find(atoi(row[0]))!=mapParametersAdded.end() )
 				{
@@ -255,7 +255,7 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"Found %d rows with %s",(int) resu
 					SQL = "INSERT INTO Device_DeviceData(FK_Device,FK_DeviceData,IK_DeviceData) VALUES(" + StringUtils::itos(PK_Device) + 
 						"," + row[0] + ",'" + (row[1] ? StringUtils::SQLEscape( row[1] ) : string("")) + "');";
 				}
-				threaded_mysql_query(SQL,true);
+				threaded_db_wrapper_query(SQL,true);
 			}
 		}
 	}
@@ -295,7 +295,7 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"Found %d rows with %s",(int) resu
 				else if( PK_DeviceData==DEVICEDATA_Description_CONST )
 				{
 					string sSQL = "UPDATE Device SET Description='" + StringUtils::SQLEscape(sValue) + "' WHERE PK_Device=" + StringUtils::itos(PK_Device);
-					threaded_mysql_query(sSQL);
+					threaded_db_wrapper_query(sSQL);
 				}
 			}
 		}
@@ -310,9 +310,9 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"Found %d rows with %s",(int) resu
 	{
 		string SQL = "SELECT FK_DeviceTemplate FROM InstallWizard WHERE `Default`=1 AND Step=5"; // Get the default items to add if this is a Core
 		PlutoSqlResult result_child_dev;
-		if( ( result_child_dev.r=mysql_query_result( SQL ) ) )
+		if( ( result_child_dev.r=db_wrapper_query_result( SQL ) ) )
 		{
-			while( (row=mysql_fetch_row( result_child_dev.r )) )
+			while( (row=db_wrapper_fetch_row( result_child_dev.r )) )
 			{
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Found install wizard %d",atoi(row[0]));
 				DoIt(0,atoi(row[0]),"","","",0,"",PK_Device);
@@ -323,9 +323,9 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"Found %d rows with %s",(int) resu
 	{
 		string SQL = "SELECT FK_DeviceTemplate FROM InstallWizard WHERE `Default`=1 AND Step=6"; // Get the default items to add if this is a Core
 		PlutoSqlResult result_child_dev;
-		if( ( result_child_dev.r=mysql_query_result( SQL ) ) )
+		if( ( result_child_dev.r=db_wrapper_query_result( SQL ) ) )
 		{
-			while( (row=mysql_fetch_row( result_child_dev.r )) )
+			while( (row=db_wrapper_fetch_row( result_child_dev.r )) )
 			{
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Found install wizard %d",atoi(row[0]));
 				DoIt(0,atoi(row[0]),"","","",0,"",PK_Device);
@@ -343,7 +343,7 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"Found %d rows with %s",(int) resu
 		{
 			SQL = "UPDATE Device SET FK_Device_ControlledVia=" + StringUtils::itos(PK_Device_ControlledVia) +
 				" WHERE PK_Device=" + StringUtils::itos(PK_Device);
-			if( threaded_mysql_query(SQL)<0 )
+			if( threaded_db_wrapper_query(SQL)<0 )
 			{
 				cout << "Error updating device controlled via" << endl;
 				return 0;
@@ -355,10 +355,10 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"Found %d rows with %s",(int) resu
 
 	// See if auto assign to parent's room is specified
 	SQL = "SELECT IK_DeviceData FROM DeviceTemplate_DeviceData WHERE FK_DeviceTemplate=" + StringUtils::itos(iPK_DeviceTemplate) + " AND FK_DeviceData=" TOSTRING(DEVICEDATA_Autoassign_to_parents_room_CONST) " AND IK_DeviceData=1";
-	if( ( resultAutoAssign.r=mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( resultAutoAssign.r ) ) )
+	if( ( resultAutoAssign.r=db_wrapper_query_result( SQL ) ) && ( row=db_wrapper_fetch_row( resultAutoAssign.r ) ) )
 	{
 		SQL = "UPDATE Device JOIN Device AS Parent ON Device.FK_Device_ControlledVia=Parent.PK_Device SET Device.FK_Room=Parent.FK_Room WHERE Device.PK_Device=" + StringUtils::itos(PK_Device);
-		threaded_mysql_query(SQL);
+		threaded_db_wrapper_query(SQL);
 	}
 
 	// If this is an orbiter, and it's not an on-screen orbiter, which will get orbitergen'd after a/v wizard, then regen it now
@@ -367,8 +367,8 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"Found %d rows with %s",(int) resu
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"it's an orbiter, time to generate");
 		string SQL = "SELECT PK_Device FROM Device WHERE FK_Installation=" + StringUtils::itos(m_iPK_Installation) + " AND FK_DeviceTemplate=" + StringUtils::itos(DEVICETEMPLATE_Orbiter_Plugin_CONST);
 		PlutoSqlResult result;
-		MYSQL_ROW row;
-		if( ( result.r=mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
+		DB_ROW row;
+		if( ( result.r=db_wrapper_query_result( SQL ) ) && ( row=db_wrapper_fetch_row( result.r ) ) )
 		{
 			int iPK_Device_OP = atoi(row[0]);
 			string sCmd = "/usr/pluto/bin/MessageSend localhost 0 " + StringUtils::itos(iPK_Device_OP) + " 1 " +
@@ -383,7 +383,7 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"Found %d rows with %s",(int) resu
 	if( bEmbedded && PK_Device_ControlledVia )
 	{
 		string sSQL = "UPDATE Device SET FK_Device_RouteTo=" + StringUtils::itos(PK_Device_ControlledVia) + " WHERE PK_Device=" + StringUtils::itos(PK_Device);
-		threaded_mysql_query(sSQL);
+		threaded_db_wrapper_query(sSQL);
 	}
 
 	for(list<CdPipe *>::iterator it=listCdPipe.begin();it!=listCdPipe.end();++it)
@@ -398,18 +398,18 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"Found %d rows with %s",(int) resu
 			(pCdPipe->m_PK_Pipe ? StringUtils::itos(pCdPipe->m_PK_Pipe) : "NULL") + "," + 
 			(pCdPipe->m_PK_Command_Input ? StringUtils::itos(pCdPipe->m_PK_Command_Input) : "NULL") + "," + 
 			(pCdPipe->m_PK_Command_Ouput ? StringUtils::itos(pCdPipe->m_PK_Command_Ouput) : "NULL") + ")";
-		threaded_mysql_query(SQL.c_str(),true); // If it's a device previously created the record may already exist
+		threaded_db_wrapper_query(SQL.c_str(),true); // If it's a device previously created the record may already exist
 
 		if( pCdPipe->m_PK_Command_Input )
 		{
 			SQL = "SELECT Description FROM Command WHERE PK_Command=" + StringUtils::itos(pCdPipe->m_PK_Command_Input);
 			PlutoSqlResult result;
-			MYSQL_ROW row;
-			if( ( result.r=mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) && NULL != row[0])
+			DB_ROW row;
+			if( ( result.r=db_wrapper_query_result( SQL ) ) && ( row=db_wrapper_fetch_row( result.r ) ) && NULL != row[0])
 			{
 				string sLastDescription=row[0];
 				SQL = "UPDATE Device SET Description = concat(Description,'/" + StringUtils::SQLEscape(sLastDescription) + "') WHERE PK_Device=" + StringUtils::itos(PK_Device);
-				threaded_mysql_query(SQL.c_str());
+				threaded_db_wrapper_query(SQL.c_str());
 			}
 		}
 	}
@@ -421,7 +421,7 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"Found %d rows with %s",(int) resu
 		{
 			SQL = "SELECT Name FROM Package_Source JOIN RepositorySource ON FK_RepositorySource=PK_RepositorySource WHERE FK_RepositoryType=1 and FK_Package=" + StringUtils::itos(iPK_Package);
 			PlutoSqlResult result;
-			if( ( result.r=mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
+			if( ( result.r=db_wrapper_query_result( SQL ) ) && ( row=db_wrapper_fetch_row( result.r ) ) )
 			{
 				if( m_bInstallPackagesInBackground )
 				{
@@ -454,31 +454,31 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"Found %d rows with %s",(int) resu
 void CreateDevice::CreateChildrenByCategory(int iPK_Device,int iPK_DeviceCategory)
 {
 	PlutoSqlResult result,result2;
-	MYSQL_ROW row;
+	DB_ROW row;
 
 	string SQL = "SELECT FK_DeviceTemplate,RerouteMessagesToParent,PK_DeviceTemplate_DeviceCategory_ControlledVia FROM DeviceTemplate_DeviceCategory_ControlledVia WHERE AutoCreateChildren=1 AND FK_DeviceCategory=" + StringUtils::itos(iPK_DeviceCategory);
-	if( ( result.r=mysql_query_result( SQL ) ) )
+	if( ( result.r=db_wrapper_query_result( SQL ) ) )
 	{
-		while( (row=mysql_fetch_row( result.r )) )
+		while( (row=db_wrapper_fetch_row( result.r )) )
 		{
 			CreateAutoCreateChildDevice(iPK_Device,atoi(row[0]),row[1] && atoi(row[1]),0,atoi(row[2]));
 		}
 	}
 
 	SQL = "SELECT FK_DeviceCategory_Parent FROM DeviceCategory WHERE PK_DeviceCategory=" + StringUtils::itos(iPK_DeviceCategory);
-	if( ( result2.r=mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result2.r ))!=NULL && row[0] )
+	if( ( result2.r=db_wrapper_query_result( SQL ) ) && ( row=db_wrapper_fetch_row( result2.r ))!=NULL && row[0] )
 		CreateChildrenByCategory( iPK_Device, atoi(row[0]) );
 }
 
 void CreateDevice::CreateChildrenByTemplate(int iPK_Device,int iPK_DeviceTemplate)
 {
 	PlutoSqlResult result;
-	MYSQL_ROW row;
+	DB_ROW row;
 
 	string SQL = "SELECT FK_DeviceTemplate,RerouteMessagesToParent,PK_DeviceTemplate_DeviceTemplate_ControlledVia FROM DeviceTemplate_DeviceTemplate_ControlledVia WHERE AutoCreateChildren=1 AND FK_DeviceTemplate_ControlledVia=" + StringUtils::itos(iPK_DeviceTemplate);
-	if( ( result.r=mysql_query_result( SQL ) ) )
+	if( ( result.r=db_wrapper_query_result( SQL ) ) )
 	{
-		while( (row=mysql_fetch_row( result.r )) )
+		while( (row=db_wrapper_fetch_row( result.r )) )
 		{
 			CreateAutoCreateChildDevice(iPK_Device,atoi(row[0]),row[1] && atoi(row[1]),atoi(row[2]),0);
 		}
@@ -487,14 +487,14 @@ void CreateDevice::CreateChildrenByTemplate(int iPK_Device,int iPK_DeviceTemplat
 
 void CreateDevice::CreateAutoCreateChildDevice(int iPK_Device_Parent,int PK_DeviceTemplate,bool bRerouteMessagesToParent,int PK_DeviceTemplate_DeviceTemplate_ControlledVia,int PK_DeviceTemplate_DeviceCategory_ControlledVia)
 {
-	MYSQL_ROW row;
+	DB_ROW row;
 	string SQL;
 	int PK_Device = DoIt(0,PK_DeviceTemplate,"","","",iPK_Device_Parent);
 	if( bRerouteMessagesToParent )
 	{
 		// Need to reroute messages to parent
 		SQL = "UPDATE Device SET FK_Device_RouteTo=" + StringUtils::itos(iPK_Device_Parent) + " WHERE PK_Device=" + StringUtils::itos(PK_Device);
-		threaded_mysql_query(SQL.c_str());
+		threaded_db_wrapper_query(SQL.c_str());
 	}
 
 	PlutoSqlResult result;
@@ -503,10 +503,10 @@ void CreateDevice::CreateAutoCreateChildDevice(int iPK_Device_Parent,int PK_Devi
 	else
 		SQL = "SELECT FK_Pipe,FK_Command_Input,FK_Command_Output,ToChild,Command.Description FROM DeviceTemplate_DeviceCategory_ControlledVia_Pipe LEFT JOIN Command ON FK_Command_Input=PK_Command WHERE FK_DeviceTemplate_DeviceCategory_ControlledVia=" + StringUtils::itos(PK_DeviceTemplate_DeviceCategory_ControlledVia);
 
-	if( ( result.r=mysql_query_result( SQL ) ) )
+	if( ( result.r=db_wrapper_query_result( SQL ) ) )
 	{
 		string sLastDescription;
-		while( (row=mysql_fetch_row( result.r )) )
+		while( (row=db_wrapper_fetch_row( result.r )) )
 		{
 			SQL = "INSERT INTO Device_Device_Pipe(FK_Device_To,FK_Device_From,FK_Pipe,FK_Command_Input,FK_Command_Output) VALUES(";
 			if( row[3] && atoi(row[3]) )
@@ -514,13 +514,13 @@ void CreateDevice::CreateAutoCreateChildDevice(int iPK_Device_Parent,int PK_Devi
 			else
 				SQL += StringUtils::itos(iPK_Device_Parent) + "," + StringUtils::itos(PK_Device);
 			SQL += string(",") + (row[0] ? row[0] : "NULL") + "," + (row[1] ? row[1] : "NULL")  + "," + (row[2] ? row[2] : "NULL") + ")";
-			threaded_mysql_query(SQL.c_str(),true); // If it's a device previously created the record may already exist
+			threaded_db_wrapper_query(SQL.c_str(),true); // If it's a device previously created the record may already exist
 
 			if( row[4] && sLastDescription!=row[4] ) // We've got a description for the input
 			{
 				sLastDescription=row[4];
 				SQL = "UPDATE Device SET Description = concat(Description,'/" + StringUtils::SQLEscape(sLastDescription) + "') WHERE PK_Device=" + StringUtils::itos(PK_Device);
-				threaded_mysql_query(SQL.c_str());
+				threaded_db_wrapper_query(SQL.c_str());
 			}
 		}
 	}
@@ -529,12 +529,12 @@ void CreateDevice::CreateAutoCreateChildDevice(int iPK_Device_Parent,int PK_Devi
 void CreateDevice::ConfirmAllRelations()
 {
 	PlutoSqlResult result;
-	MYSQL_ROW row;
+	DB_ROW row;
 
 	string SQL = "SELECT PK_Device FROM Device WHERE FK_Installation=" + StringUtils::itos(m_iPK_Installation);
-	if( ( result.r=mysql_query_result( SQL ) ) )
+	if( ( result.r=db_wrapper_query_result( SQL ) ) )
 	{
-		while( (row=mysql_fetch_row( result.r )) )
+		while( (row=db_wrapper_fetch_row( result.r )) )
 		{
 			int PK_Device = atoi(row[0]);
 			ConfirmRelations(PK_Device);
@@ -545,23 +545,23 @@ void CreateDevice::ConfirmAllRelations()
 void CreateDevice::ConfirmRelations(int PK_Device,bool bRecurseChildren,bool bOnlyAddDevicesOnCore)
 {
 	PlutoSqlResult result_dt,result_related,result_related2,result_related3,result_related4,result_related5;
-	MYSQL_ROW row,row3;
+	DB_ROW row,row3;
 
 	int PK_Device_Core=0,PK_Device_DCERouter=0,PK_Device_Parent=0;
 	string SQL = "SELECT PK_Device,FK_Device_ControlledVia FROM Device WHERE FK_DeviceTemplate=" + StringUtils::itos(DEVICETEMPLATE_DCERouter_CONST);
-	if( (result_related4.r=mysql_query_result(SQL)) && (row3=mysql_fetch_row(result_related4.r)) )
+	if( (result_related4.r=db_wrapper_query_result(SQL)) && (row3=db_wrapper_fetch_row(result_related4.r)) )
 	{
 		PK_Device_DCERouter = row3[0] ? atoi(row3[0]) : 0;
 		PK_Device_Core = row3[1] ? atoi(row3[1]) : 0;
 	}
 
 	SQL = "SELECT FK_Device_ControlledVia FROM Device WHERE PK_Device=" + StringUtils::itos(PK_Device);
-	if( (result_related5.r=mysql_query_result(SQL)) && (row3=mysql_fetch_row(result_related5.r)) )
+	if( (result_related5.r=db_wrapper_query_result(SQL)) && (row3=db_wrapper_fetch_row(result_related5.r)) )
 		PK_Device_Parent = row3[0] ? atoi(row3[0]) : 0;
 
 	int PK_DeviceTemplate=0;
 	SQL = "SELECT FK_DeviceTemplate FROM Device WHERE PK_Device=" + StringUtils::itos(PK_Device);
-	if( (result_dt.r=mysql_query_result(SQL)) && (row=mysql_fetch_row(result_dt.r)) )
+	if( (result_dt.r=db_wrapper_query_result(SQL)) && (row=db_wrapper_fetch_row(result_dt.r)) )
 		PK_DeviceTemplate=atoi(row[0]);
 
 	if( !PK_DeviceTemplate )
@@ -572,10 +572,10 @@ void CreateDevice::ConfirmRelations(int PK_Device,bool bRecurseChildren,bool bOn
 
 	// See if this requires dragging any other types of devices
 	SQL = "SELECT FK_DeviceTemplate_Related,Value FROM DeviceTemplate_DeviceTemplate_Related WHERE FK_DeviceTemplate=" + StringUtils::itos(PK_DeviceTemplate) + " ORDER BY FK_DeviceTemplate_Related";  // Use an order by so we can predict exactly in what order this will be done
-	if( ( result_related.r=mysql_query_result( SQL ) ) )
+	if( ( result_related.r=db_wrapper_query_result( SQL ) ) )
 	{
 LoggerWrapper::GetInstance()->Write(LV_STATUS,"Found result_related %d rows with %s",(int) result_related.r->row_count,SQL.c_str());
-		while( (row=mysql_fetch_row( result_related.r )) )
+		while( (row=db_wrapper_fetch_row( result_related.r )) )
 		{
 			int iPK_DeviceTemplate_Related = atoi(row[0]);
 			int iRelation= (row[1] ? atoi(row[1]) : 0);
@@ -621,7 +621,7 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"Found result_related %d rows with
 				if( sPort.empty()==false )
 					SQL += " AND IK_DeviceData='" + sPort + "'";
 
-				if( (result_related2.r=mysql_query_result(SQL)) && result_related2.r->row_count>0 )
+				if( (result_related2.r=db_wrapper_query_result(SQL)) && result_related2.r->row_count>0 )
 					continue;  // It's ok.  We got it
 
 				// That device doesn't exist.  We need to create it
@@ -660,10 +660,10 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"Found result_related %d rows with
 	{
 		PlutoSqlResult result_child_dev;
 		SQL = "SELECT PK_Device FROM Device WHERE FK_Device_ControlledVia=" + StringUtils::itos(PK_Device);
-		if( ( result_child_dev.r=mysql_query_result( SQL ) ) )
+		if( ( result_child_dev.r=db_wrapper_query_result( SQL ) ) )
 		{
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Found result_child_dev %d rows with %s",(int) result_child_dev.r->row_count,SQL.c_str());
-			while( (row=mysql_fetch_row( result_child_dev.r )) )
+			while( (row=db_wrapper_fetch_row( result_child_dev.r )) )
 				ConfirmRelations(atoi(row[0]),true);
 		}
 	}
@@ -675,12 +675,12 @@ void CreateDevice::AssignDeviceData(int PK_Device,int PK_DeviceData,string sValu
 		+ StringUtils::itos(PK_Device) + " AND FK_DeviceData=" + StringUtils::itos(PK_DeviceData);
 
 	PlutoSqlResult result1;
-	result1.r=mysql_query_result( SQL );
+	result1.r=db_wrapper_query_result( SQL );
 	if( !result1.r || result1.r->row_count==0 )
-		threaded_mysql_query("INSERT INTO Device_DeviceData(FK_Device,FK_DeviceData) "
+		threaded_db_wrapper_query("INSERT INTO Device_DeviceData(FK_Device,FK_DeviceData) "
 			"VALUES(" + StringUtils::itos(PK_Device) + "," + StringUtils::itos(PK_DeviceData) + ");",true);
 
-	threaded_mysql_query("UPDATE Device_DeviceData SET IK_DeviceData='"
+	threaded_db_wrapper_query("UPDATE Device_DeviceData SET IK_DeviceData='"
 		+ StringUtils::SQLEscape(sValue) + "' WHERE "
 		"FK_Device=" + StringUtils::itos(PK_Device) + 
 		" AND FK_DeviceData=" + StringUtils::itos(PK_DeviceData) );
@@ -692,9 +692,9 @@ void CreateDevice::CreateRelation(int PK_Device,int PK_Device_Related)
 		+ StringUtils::itos(PK_Device) + " AND FK_Device_Related=" + StringUtils::itos(PK_Device_Related);
 
 	PlutoSqlResult result1;
-	result1.r=mysql_query_result( SQL );
+	result1.r=db_wrapper_query_result( SQL );
 	if( !result1.r || result1.r->row_count==0 )
-		threaded_mysql_query("INSERT INTO Device_Device_Related(FK_Device,FK_Device_Related) "
+		threaded_db_wrapper_query("INSERT INTO Device_Device_Related(FK_Device,FK_Device_Related) "
 			"VALUES(" + StringUtils::itos(PK_Device) + "," + StringUtils::itos(PK_Device_Related) + ");",true);
 }
 
@@ -707,11 +707,11 @@ void CreateDevice::FixControlledViaIfEmbeddedIsMoreValid(int PK_DeviceTemplate,i
 	// 2. Check if there are embedded devices that are valid options
 	string sSQL = "SELECT PK_Device FROM Device WHERE FK_Device_RouteTo=" + StringUtils::itos(PK_Device_ControlledVia);
 	PlutoSqlResult result3;
-	result3.r=mysql_query_result( sSQL );
+	result3.r=db_wrapper_query_result( sSQL );
 	if( result3.r )
 	{
-		MYSQL_ROW row;
-		while( (row=mysql_fetch_row( result3.r )) )
+		DB_ROW row;
+		while( (row=db_wrapper_fetch_row( result3.r )) )
 		{
 			// If this is a valid choice use it instead
 			int PK_Device = atoi(row[0]);

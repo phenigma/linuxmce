@@ -19,7 +19,7 @@
 #ifndef UserUtils_h
 #define UserUtils_h
 
-#include "PlutoUtils/MySQLHelper.h"
+#include "PlutoUtils/DBHelper.h"
 
 namespace DCE
 {
@@ -32,11 +32,11 @@ class UserUtils
 #define FIRST_USER_EXTENSION	301
 #define LAST_USER_EXTENSION		399
 
-	MySqlHelper *m_pMySqlHelper;
+	DBHelper *m_pDBHelper;
 	int m_PK_Installation;
 
 public:
-	UserUtils(MySqlHelper *pMySqlHelper, int PK_Installation);
+	UserUtils(DBHelper *pDBHelper, int PK_Installation);
 	bool AlreadyHasMasterUsers();
 	string GetGoodExtension(map<int,bool> &mapUsedExtensions) ;
 	void CheckExtensions();

@@ -1123,8 +1123,8 @@ bool PnpQueue::LocateDevice(PnpQueueEntry *pPnpQueueEntry)
 			"WHERE VendorModelId like '" + sVendorModelId + "%'";
 
 		PlutoSqlResult result_set;
-		MYSQL_ROW row=NULL;
-		if( ( result_set.r=m_pDatabase_pluto_main->mysql_query_result( sSqlUSB ) )!=0 && ( row = mysql_fetch_row( result_set.r ) )!=NULL && row[0] && atoi(row[0])==DEVICECATEGORY_Serial_Ports_CONST )
+		DB_ROW row=NULL;
+		if( ( result_set.r=m_pDatabase_pluto_main->db_wrapper_query_result( sSqlUSB ) )!=0 && ( row = db_wrapper_fetch_row( result_set.r ) )!=NULL && row[0] && atoi(row[0])==DEVICECATEGORY_Serial_Ports_CONST )
 			sSql_Model += " AND FK_CommMethod=" TOSTRING(COMMMETHOD_RS232_CONST) " ";  // Don't match vendor model.  We'll match the com port only
 		else
 			sSql_Model += " AND DHCPDevice.VendorModelId like '" + sVendorModelId + "%'";
@@ -1683,7 +1683,7 @@ void PnpQueue::SetDisableFlagForDeviceAndChildren(Row_Device *pRow_Device,bool b
 		if( pRow_DeviceTemplate_DeviceData==NULL || atoi(pRow_DeviceTemplate_DeviceData->IK_DeviceData_get().c_str())==0 )
 			DatabaseUtils::SetDeviceData(m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICEDATA_Serial_Number_CONST,"");
 		string sSQL = "UPDATE Device_DeviceData SET IK_DeviceData=NULL where FK_Device=" + StringUtils::itos(pRow_Device->PK_Device_get()) + " AND FK_DeviceData=" TOSTRING(DEVICEDATA_COM_Port_on_PC_CONST);
-		m_pDatabase_pluto_main->threaded_mysql_query(sSQL,true);
+		m_pDatabase_pluto_main->threaded_db_wrapper_query(sSQL,true);
 	}
 
 	vector<Row_Device *> vectRow_Device;
@@ -1757,8 +1757,8 @@ Row_Device *PnpQueue::FindDisabledDeviceTemplateOnPC(int PK_Device_PC,int PK_Dev
 		" OR P3.PK_Device=" + sPK_Device + " OR P4.PK_Device=" + sPK_Device + " OR P4.FK_Device_ControlledVia=" + sPK_Device + ")";
 
 	PlutoSqlResult result_set;
-	MYSQL_ROW row=NULL;
-	if( ( result_set.r=m_pDatabase_pluto_main->mysql_query_result( sSQL ) )==0 || ( row = mysql_fetch_row( result_set.r ) )==NULL || !row[0] )
+	DB_ROW row=NULL;
+	if( ( result_set.r=m_pDatabase_pluto_main->db_wrapper_query_result( sSQL ) )==0 || ( row = db_wrapper_fetch_row( result_set.r ) )==NULL || !row[0] )
 	{
 		LoggerWrapper::GetInstance()->Write( LV_STATUS, "PnpQueue::FindDisabledDeviceTemplateOnPC %s returned nothing %p %p",sSQL.c_str(),row,row ? row[0] : NULL );
 		return NULL;
@@ -1813,10 +1813,10 @@ void PnpQueue::DoneDetectingDevices(string sSignature)
 	map<int,bool> mapDevices_Signature;
 	string sSQL = "SELECT PK_Device FROM Device JOIN Device_DeviceData ON FK_Device=PK_Device WHERE Disabled=0 AND FK_DeviceData=" TOSTRING(DEVICEDATA_PNP_Signature_CONST) " AND IK_DeviceData='" + sSignature + "'";
 	PlutoSqlResult result_set;
-	MYSQL_ROW row=NULL;
-	if( ( result_set.r=m_pDatabase_pluto_main->mysql_query_result( sSQL ) ) )
+	DB_ROW row=NULL;
+	if( ( result_set.r=m_pDatabase_pluto_main->db_wrapper_query_result( sSQL ) ) )
 	{
-		while( row = mysql_fetch_row( result_set.r ) )
+		while( row = db_wrapper_fetch_row( result_set.r ) )
 			mapDevices_Signature[ atoi(row[0]) ] = true;
 	}
 

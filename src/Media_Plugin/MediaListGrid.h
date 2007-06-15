@@ -19,8 +19,6 @@
 #ifndef MediaListGrid_H
 #define MediaListGrid_H
 
-#include <mysql.h>
-
 #include "DataGrid.h"
 namespace DCE
 {

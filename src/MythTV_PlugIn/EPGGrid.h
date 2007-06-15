@@ -1,8 +1,6 @@
 #ifndef EPGGRID_H
 #define EPGGRID_H
 
-#include <mysql.h>
-
 #include "DataGrid.h"
 
 using namespace DCE;
@@ -10,10 +8,10 @@ using namespace DCE;
 
 class EPGGrid : public DataGridTable
 {
-	class MySqlHelper *m_pMySqlHelper_Myth;
+	class DBHelper *m_pDBHelper_Myth;
 
 public:
-	EPGGrid(class MySqlHelper *pMySqlHelper_Myth);
+	EPGGrid(class DBHelper *pDBHelper_Myth);
 	virtual ~EPGGrid();
 
 	string m_sIconFile;

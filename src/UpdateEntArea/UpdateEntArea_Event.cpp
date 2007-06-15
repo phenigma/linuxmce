@@ -152,7 +152,7 @@ void UpdateEntArea::AddDefaultEventHandlers()
 
 void UpdateEntArea::ResetEventHandler_psc_mod(Row_EventHandler *pRow_EventHandler)
 {
-		m_pDatabase_pluto_main->threaded_mysql_query(
+		m_pDatabase_pluto_main->threaded_db_wrapper_query(
 			"UPDATE EventHandler set psc_mod=0 WHERE PK_EventHandler=" + 
 			StringUtils::itos(pRow_EventHandler->PK_EventHandler_get()));
 }
@@ -312,7 +312,7 @@ Row_Criteria *UpdateEntArea::SetLeaveHomeCriteria(Row_EventHandler *pRow_EventHa
 		pRow_Criteria->Description_set("Leave Home");
 		m_pDatabase_pluto_main->Criteria_get()->Commit();
 
-		m_pDatabase_pluto_main->threaded_mysql_query(
+		m_pDatabase_pluto_main->threaded_db_wrapper_query(
 			"UPDATE Criteria set psc_mod=0 WHERE PK_Criteria=" + 
 			StringUtils::itos(pRow_Criteria->PK_Criteria_get()));
 
@@ -576,7 +576,7 @@ Row_Criteria *UpdateEntArea::SetWatchingMediaCriteria(Row_EventHandler *pRow_Eve
 			pRow_Criteria->Description_set("Stop Watching");
 		m_pDatabase_pluto_main->Criteria_get()->Commit();
 
-		m_pDatabase_pluto_main->threaded_mysql_query(
+		m_pDatabase_pluto_main->threaded_db_wrapper_query(
 			"UPDATE Criteria set psc_mod=0 WHERE PK_Criteria=" + 
 			StringUtils::itos(pRow_Criteria->PK_Criteria_get()));
 

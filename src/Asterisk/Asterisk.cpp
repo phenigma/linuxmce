@@ -40,7 +40,7 @@ using namespace DCE;
 #include "asteriskmanager.h"
 
 #include "DCE/DCEConfig.h"
-#include "PlutoUtils/MySQLHelper.h"
+#include "PlutoUtils/DBHelper.h"
 #include "pluto_main/Define_Event.h"
 #include "pluto_main/Define_EventParameter.h"
 #include "pluto_main/Define_DeviceTemplate.h"
@@ -518,16 +518,16 @@ void Asterisk::CreateChildren()
 {
     Asterisk_Command::CreateChildren();
     DCEConfig dceconf;
-    MySqlHelper mySqlHelper(dceconf.m_sDBHost, dceconf.m_sDBUser, dceconf.m_sDBPassword, dceconf.m_sDBName,dceconf.m_iDBPort);
+    DBHelper mySqlHelper(dceconf.m_sDBHost, dceconf.m_sDBUser, dceconf.m_sDBPassword, dceconf.m_sDBName,dceconf.m_iDBPort);
     PlutoSqlResult result_set;
-    MYSQL_ROW row=NULL;
+    DB_ROW row=NULL;
     char *sql_buff1="SELECT PK_Users,Extension FROM Users";
-    if( (result_set.r=mySqlHelper.mysql_query_result(sql_buff1)) == NULL )
+    if( (result_set.r=mySqlHelper.db_wrapper_query_result(sql_buff1)) == NULL )
     {
         LoggerWrapper::GetInstance()->Write(LV_WARNING, "SQL FAILED : %s",sql_buff1);
         return;
     }
-    while((row = mysql_fetch_row(result_set.r)))
+    while((row = db_wrapper_fetch_row(result_set.r)))
     {
         if(row[1])
         {
@@ -535,12 +535,12 @@ void Asterisk::CreateChildren()
         }
     }
     char *sql_buff2="SELECT FK_Device,IK_DeviceData FROM Device_DeviceData WHERE FK_DeviceData=31";
-    if( (result_set.r=mySqlHelper.mysql_query_result(sql_buff2)) == NULL )
+    if( (result_set.r=mySqlHelper.db_wrapper_query_result(sql_buff2)) == NULL )
     {
         LoggerWrapper::GetInstance()->Write(LV_WARNING, "SQL FAILED : %s",sql_buff2);
         return;
     }
-    while((row = mysql_fetch_row(result_set.r)))
+    while((row = db_wrapper_fetch_row(result_set.r)))
     {
         if(row[1])
         {

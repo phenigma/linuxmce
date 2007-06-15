@@ -424,7 +424,7 @@ LoggerWrapper::GetInstance()->Write(LV_WARNING,"Starting File list");
 		{
 			PlutoSqlResult result_set;
 			string sSQL = "SELECT PK_File from `File` where Path='" + StringUtils::SQLEscape(pFileDetails->m_sBaseName) + "' AND Filename='" + StringUtils::SQLEscape(pFileDetails->m_sFileName) + "' and IsDirectory=0";
-			if( (result_set.r=m_pMedia_Plugin->m_pDatabase_pluto_media->mysql_query_result(sSQL)) && result_set.r->row_count )
+			if( (result_set.r=m_pMedia_Plugin->m_pDatabase_pluto_media->db_wrapper_query_result(sSQL)) && result_set.r->row_count )
 				pFileDetails->m_bIsDir=false;
 		}
 

@@ -408,9 +408,9 @@ continue;
 	{
 		string sSQL = "SELECT FK_File,Name FROM File_Attribute JOIN Attribute ON FK_Attribute=PK_Attribute WHERE FK_AttributeType=" TOSTRING(ATTRIBUTETYPE_Purchase_Info_CONST);
 		PlutoSqlResult result;
-		MYSQL_ROW row;
-		if( (result.r = m_pDatabase_pluto_media->mysql_query_result(sSQL))  )
-			while( (row = mysql_fetch_row( result.r )) )
+		DB_ROW row;
+		if( (result.r = m_pDatabase_pluto_media->db_wrapper_query_result(sSQL))  )
+			while( (row = db_wrapper_fetch_row( result.r )) )
 				m_mapPK_FilesForSimulatedPurchase[ atoi(row[0]) ] = row[1];
 	}
 #endif
@@ -2237,7 +2237,7 @@ void Media_Plugin::StreamEnded(MediaStream *pMediaStream,bool bSendOff,bool bDel
 
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Media_Plugin::StreamEnded() no auto resume %s",sWhere.c_str());
 		if( !bError )
-			m_pDatabase_pluto_media->threaded_mysql_query("DELETE FROM Bookmark WHERE " + sWhere);
+			m_pDatabase_pluto_media->threaded_db_wrapper_query("DELETE FROM Bookmark WHERE " + sWhere);
 	}
 	// Unless this user has specified he doesn't ever want to resume this type of media, we should prompt him
 	else if( m_mapPromptResume[make_pair<int,int> (pMediaStream->m_iPK_Users,pMediaStream->m_iPK_MediaType)]!='N' )
@@ -4661,7 +4661,7 @@ int Media_Plugin::DetermineInvolvement(MediaDevice *pMediaDevice, MediaDevice *&
 int Media_Plugin::GetStorageDeviceWithMostFreeSpace(string& sFullDescription, string& sMountedPath)
 {
 	PlutoSqlResult result;
-	MYSQL_ROW row;
+	DB_ROW row;
 	string sSQL = 
 		"SELECT PK_Device, Device.Description, Device_DeviceData.IK_DeviceData, FK_DeviceCategory "
 		"FROM Device "
@@ -4676,9 +4676,9 @@ int Media_Plugin::GetStorageDeviceWithMostFreeSpace(string& sFullDescription, st
 		StringUtils::ltos(DEVICEDATA_Free_Disk_Space_in_MBytes_CONST) + " " +
 		"ORDER BY CAST(Device_DeviceData.IK_DeviceData AS UNSIGNED) DESC ";
 
-	if( (result.r = m_pDatabase_pluto_main->mysql_query_result(sSQL.c_str())) )
+	if( (result.r = m_pDatabase_pluto_main->db_wrapper_query_result(sSQL.c_str())) )
 	{
-		while((row = mysql_fetch_row(result.r)))
+		while((row = db_wrapper_fetch_row(result.r)))
 		{
 			if(NULL != row[0] && NULL != row[1] && NULL != row[3])
 			{
@@ -6023,7 +6023,7 @@ void Media_Plugin::CMD_Specify_Capture_Card_Port(int iPK_Device,int iPK_Device_R
 {
 	// Don't allow 2 devices to use the same capture card port
 	string sSQL = "UPDATE Device_DeviceData SET IK_DeviceData=NULL WHERE IK_DeviceData=" + StringUtils::itos(iPK_Device_Related) + " AND FK_DeviceData=" TOSTRING(DEVICEDATA_FK_Device_Capture_Card_Port_CONST);
-	m_pDatabase_pluto_main->threaded_mysql_query(sSQL);
+	m_pDatabase_pluto_main->threaded_db_wrapper_query(sSQL);
 	DatabaseUtils::SetDeviceData(m_pDatabase_pluto_main,iPK_Device,DEVICEDATA_FK_Device_Capture_Card_Port_CONST,StringUtils::itos(iPK_Device_Related));
 }
 
@@ -6043,11 +6043,11 @@ void Media_Plugin::CMD_Refresh_List_of_Online_Devices(string &sCMD_Result,Messag
 		"AND (IK_DeviceData IS NULL OR IK_DeviceData<>0)";
 
 	PlutoSqlResult result;
-	MYSQL_ROW row;
+	DB_ROW row;
 
-	if( (result.r = m_pDatabase_pluto_main->mysql_query_result(sSQL))  )
+	if( (result.r = m_pDatabase_pluto_main->db_wrapper_query_result(sSQL))  )
 	{
-		while( (row = mysql_fetch_row( result.r )) )
+		while( (row = db_wrapper_fetch_row( result.r )) )
 		{
 			if( atoi(row[1])==DEVICECATEGORY_Disc_Drives_CONST && m_pRouter->DeviceIsRegistered( atoi(row[0]) )==false )
 				continue; // This disc drive isn't online
@@ -6061,7 +6061,7 @@ void Media_Plugin::CMD_Refresh_List_of_Online_Devices(string &sCMD_Result,Messag
 	sSQL = "DELETE `pluto_media`.File FROM `pluto_media`.File "
 		"LEFT JOIN `pluto_main`.Device ON EK_Device=PK_Device "
 		"WHERE EK_Device IS NOT NULL AND EK_Device>0 AND PK_Device IS NULL";
-	m_pDatabase_pluto_media->threaded_mysql_query(sSQL);
+	m_pDatabase_pluto_media->threaded_db_wrapper_query(sSQL);
 
 	m_tLastScanOfOnlineDevices=time(NULL);
 #ifdef DEBUG
@@ -6075,8 +6075,8 @@ string Media_Plugin::GetMRLFromDiscID( int PK_Disc,int PK_Device_Drive )
 	{
 		string SQL = "SELECT EK_Device FROM DiscLocation WHERE FK_Disc=" + StringUtils::itos( PK_Disc );
 		PlutoSqlResult result;
-		MYSQL_ROW row;
-		if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) && NULL != row[0] )
+		DB_ROW row;
+		if( ( result.r=m_pDatabase_pluto_media->db_wrapper_query_result( SQL ) ) && ( row=db_wrapper_fetch_row( result.r ) ) && NULL != row[0] )
 			PK_Device_Drive = atoi(row[0]);
 	}
 
@@ -6110,8 +6110,8 @@ void Media_Plugin::CMD_Check_For_New_Files(string &sCMD_Result,Message *pMessage
 	int PK_File_Last=0;
 	string sSQL = "SELECT max(PK_File) FROM File";
     PlutoSqlResult result;
-    MYSQL_ROW row;
-    if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( sSQL ) ) && ( row=mysql_fetch_row( result.r ) ) && row[0] )
+    DB_ROW row;
+    if( ( result.r=m_pDatabase_pluto_media->db_wrapper_query_result( sSQL ) ) && ( row=db_wrapper_fetch_row( result.r ) ) && row[0] )
 		PK_File_Last = atoi(row[0]);
 
 	string sFileList;

@@ -19,13 +19,13 @@
 #include "DCEConfig.h"
 #include "PlutoUtils/MultiThreadIncludes.h"
 //------------------------------------------------------------------------------------------------------
-#include <mysql.h>
+#include "db_wrapper/db_wrapper.h"
 //------------------------------------------------------------------------------------------------------
 class DCEMySqlConfig : public DCEConfig
 {
 protected:
 	pluto_pthread_mutex_t m_MySqlMutex;
-	MYSQL m_MySQL;
+	DB_LINK m_MySQL;
 
 public:
 	int m_iTransNumber; //maybe we should derive  a class from DCEMySqlConfig with VIPServer specifics (?)
@@ -35,7 +35,7 @@ public:
 	virtual ~DCEMySqlConfig();
 
 	bool MysqlConnect(bool bReset);
-	MYSQL_RES *MySqlQueryResult(string sQuery);
+	DB_RES *MySqlQueryResult(string sQuery);
 	long ThreadedMysqlQuery(string sQuery, bool bIgnoreErrors = false);
 	long ThreadedMysqlQueryWithID(string sQuery);
 };

@@ -183,8 +183,8 @@ string RegenMonitor::QueryAsModString(string sSQL)
 {
 	string sResult;
 	PlutoSqlResult result_set_array;
-	MYSQL_ROW row;
-	if( (result_set_array.r=m_pMySqlHelper->mysql_query_result(sSQL)) && ((row = mysql_fetch_row(result_set_array.r))) )
+	DB_ROW row;
+	if( (result_set_array.r=m_pDBHelper->db_wrapper_query_result(sSQL)) && ((row = db_wrapper_fetch_row(result_set_array.r))) )
 	{
 		for(int i=0;i<(int) result_set_array.r->field_count;++i)
 		{
@@ -245,10 +245,10 @@ string RegenMonitor::GetModInfo_Floorplan(int PK_FloorplanType)
 			"WHERE FK_DeviceData=" + StringUtils::itos(DEVICEDATA_PK_FloorplanObjectType_CONST) + " AND FK_FloorplanType=" + StringUtils::itos(PK_FloorplanType);
 
 		PlutoSqlResult result_set_array;
-		MYSQL_ROW row;
-		if( (result_set_array.r=m_pMySqlHelper->mysql_query_result(sSQL)) )
+		DB_ROW row;
+		if( (result_set_array.r=m_pDBHelper->db_wrapper_query_result(sSQL)) )
 		{
-			while( (row = mysql_fetch_row(result_set_array.r)) )
+			while( (row = db_wrapper_fetch_row(result_set_array.r)) )
 			{
 				if( sPK_Device.size()!=0 )
                     sPK_Device += ",";
@@ -326,8 +326,8 @@ string RegenMonitor::GetModInfo_Genres()
 
 	string sResult;
 	PlutoSqlResult result_set_array;
-	MYSQL_ROW row;
-	if( (result_set_array.r=m_pMySqlHelper_Media->mysql_query_result(sSQL)) && ((row = mysql_fetch_row(result_set_array.r))) )
+	DB_ROW row;
+	if( (result_set_array.r=m_pDBHelper_Media->db_wrapper_query_result(sSQL)) && ((row = db_wrapper_fetch_row(result_set_array.r))) )
 	{
 		for(int i=0;i<(int) result_set_array.r->field_count;++i)
 		{

@@ -24,7 +24,7 @@
 #include "pluto_main/Define_DeviceTemplate.h"
 #include "Gen_Devices/AllCommandsRequests.h"
 #include "IR/IRDevice.h"
-#include "PlutoUtils/MySQLHelper.h"
+#include "PlutoUtils/DBHelper.h"
 #include "DCE/DCEConfig.h"
 using namespace std;
 
@@ -121,11 +121,11 @@ RubyDCECodeSupplier::addCode(Command_Impl *pcmdimpl, DeviceData_Impl* pdevicedat
 					PARAMLIST& paramlist = devicemap_[devid][cmdid];
 					PlutoSqlResult params;
 					DCEConfig dceconf;
-					MySqlHelper mySqlHelper(dceconf.m_sDBHost, dceconf.m_sDBUser, dceconf.m_sDBPassword, dceconf.m_sDBName,dceconf.m_iDBPort);
+					DBHelper mySqlHelper(dceconf.m_sDBHost, dceconf.m_sDBUser, dceconf.m_sDBPassword, dceconf.m_sDBName,dceconf.m_iDBPort);
 					
-					if((params.r = mySqlHelper.mysql_query_result(sql.c_str()))) {
-						MYSQL_ROW rowparam;
-						while((rowparam = mysql_fetch_row(params.r))) {
+					if((params.r = mySqlHelper.db_wrapper_query_result(sql.c_str()))) {
+						DB_ROW rowparam;
+						while((rowparam = db_wrapper_fetch_row(params.r))) {
 							string rbparam = StringUtils::ToLower(FileUtils::ValidCPPName(rowparam[1]).c_str());
 							
 							PARAMPAIR parampair(atoi(rowparam[0]), rbparam);

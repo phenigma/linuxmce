@@ -19,8 +19,6 @@
 #ifndef FILELISTGRID_H
 #define FILELISTGRID_H
 
-#include <mysql.h>
-
 #include "DataGrid.h"
 namespace DCE
 {

@@ -47,8 +47,8 @@ bool R_GetLineups::ProcessRequest( class RA_Processor *pRA_Processor )
 	sSQL << "SELECT PK_Headend, HeadendName FROM " << m_sTable << " WHERE ZipCode=" << m_zipcode;
 
 	PlutoSqlResult res;
-	MYSQL_ROW row=NULL;
-	res.r = g_GlobalConfig.m_pDatabase->mysql_query_result( sSQL.str( ) );
+	DB_ROW row=NULL;
+	res.r = g_GlobalConfig.m_pDatabase->db_wrapper_query_result( sSQL.str( ) );
 	if( !res.r )
 	{
 		cerr << "Problem retrieving rows with query1: " << sSQL.str() << endl;
@@ -56,7 +56,7 @@ bool R_GetLineups::ProcessRequest( class RA_Processor *pRA_Processor )
 	}
 	else
 	{
-		while( ( row = mysql_fetch_row( res.r ) ) )
+		while( ( row = db_wrapper_fetch_row( res.r ) ) )
 		{
 			if( !row[0] )
 			{

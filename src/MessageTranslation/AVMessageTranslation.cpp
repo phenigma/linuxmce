@@ -31,7 +31,7 @@
 #include "pluto_main/Define_Command.h"
 #include "pluto_main/Define_DeviceData.h"
 #include "pluto_main/Define_CommandParameter.h"
-#include "PlutoUtils/MySQLHelper.h"
+#include "PlutoUtils/DBHelper.h"
 
 #include <cmath>
 using namespace std;
@@ -79,16 +79,16 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 	if (input_commands_.empty())
 	{
 		DCEConfig dceconf;
-		MySqlHelper mySqlHelper(dceconf.m_sDBHost, dceconf.m_sDBUser, dceconf.m_sDBPassword, dceconf.m_sDBName,dceconf.m_iDBPort);
+		DBHelper mySqlHelper(dceconf.m_sDBHost, dceconf.m_sDBUser, dceconf.m_sDBPassword, dceconf.m_sDBName,dceconf.m_iDBPort);
 		PlutoSqlResult result_set;
-		MYSQL_ROW row=NULL;
+		DB_ROW row=NULL;
 		sprintf(sql_buff,"SELECT PK_Command FROM Command WHERE FK_CommandCategory='22'");
-		if( (result_set.r=mySqlHelper.mysql_query_result(sql_buff)) == NULL )
+		if( (result_set.r=mySqlHelper.db_wrapper_query_result(sql_buff)) == NULL )
 		{
 			LoggerWrapper::GetInstance()->Write(LV_WARNING, "SQL FAILED : %s",sql_buff);
 			return false;
 		}	
-		while((row = mysql_fetch_row(result_set.r)))
+		while((row = db_wrapper_fetch_row(result_set.r)))
 		{
 			input_commands_[atoi(row[0])] = atoi(row[0]);
 		}
@@ -96,12 +96,12 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 		{
 			int cmd=(*it).first;
 			sprintf(sql_buff,"SELECT FK_DeviceTemplate, OrderNo FROM DeviceTemplate_Input WHERE FK_Command='%d'",cmd);
-			if( (result_set.r=mySqlHelper.mysql_query_result(sql_buff)) == NULL )
+			if( (result_set.r=mySqlHelper.db_wrapper_query_result(sql_buff)) == NULL )
 			{
 				LoggerWrapper::GetInstance()->Write(LV_WARNING, "SQL FAILED : %s",sql_buff);
 				return false;
 			}	
-			while((row = mysql_fetch_row(result_set.r)))
+			while((row = db_wrapper_fetch_row(result_set.r)))
 			{
 				vector<int> *v;
 				if(device_input_command_order_.find(atoi(row[0])) == device_input_command_order_.end())
@@ -644,11 +644,11 @@ AVMessageTranslator::InitDelaysMap(long devtemplid)
 	if(map_ModeDelay.find(devtemplid) == map_ModeDelay.end())
 	{
 		DCEConfig dceconf;
-		MySqlHelper mySqlHelper(dceconf.m_sDBHost, dceconf.m_sDBUser, dceconf.m_sDBPassword, dceconf.m_sDBName,dceconf.m_iDBPort);
+		DBHelper mySqlHelper(dceconf.m_sDBHost, dceconf.m_sDBUser, dceconf.m_sDBPassword, dceconf.m_sDBName,dceconf.m_iDBPort);
 		PlutoSqlResult result_set;
-		MYSQL_ROW row=NULL;
+		DB_ROW row=NULL;
 		sprintf(init_sql_buff,"SELECT IR_ModeDelay, TogglePower, ToggleInput, DigitDelay, NumericEntry FROM DeviceTemplate_AV WHERE FK_DeviceTemplate='%d'", (int)devtemplid);
-		if( (result_set.r=mySqlHelper.mysql_query_result(init_sql_buff)) && (row = mysql_fetch_row(result_set.r)) )
+		if( (result_set.r=mySqlHelper.db_wrapper_query_result(init_sql_buff)) && (row = db_wrapper_fetch_row(result_set.r)) )
 		{
 			map_ModeDelay[devtemplid] = atoi(row[0]);
 			map_TogglePower[devtemplid] = atoi(row[1]);

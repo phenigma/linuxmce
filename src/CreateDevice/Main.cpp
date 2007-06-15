@@ -63,10 +63,10 @@ void ExportChildDevices(CreateDevice &createDevice,int iPK_Device_Controlled_Via
 
 	string sSQL = "SELECT PK_Device,Device.Description,Room.Description,Room.FK_RoomType,FK_DeviceTemplate,IPaddress,MACaddress FROM Device LEFT JOIN Room ON FK_Room=PK_Room where FK_Device_ControlledVia=" + StringUtils::itos(iPK_Device_Controlled_Via);
 	PlutoSqlResult result_child_devices;
-	MYSQL_ROW row_child_device;
-	if( ( result_child_devices.r=createDevice.mysql_query_result( sSQL ) ) )
+	DB_ROW row_child_device;
+	if( ( result_child_devices.r=createDevice.db_wrapper_query_result( sSQL ) ) )
 	{
-		while( row_child_device=mysql_fetch_row( result_child_devices.r ) )
+		while( row_child_device=db_wrapper_fetch_row( result_child_devices.r ) )
 		{
 			// output the FK_DeviceTemplate,Device.Description,Room.Description,Room.FK_RoomType,IP Address, Mac Address
 			fprintf(file,"%s\t%s\t%s\t%s\t%s\t%s",
@@ -78,11 +78,11 @@ void ExportChildDevices(CreateDevice &createDevice,int iPK_Device_Controlled_Via
 				row_child_device[6] ? row_child_device[6] : "");
 			
 			PlutoSqlResult result_device_data;
-			MYSQL_ROW row;
+			DB_ROW row;
 			sSQL = "SELECT FK_DeviceData,IK_DeviceData FROM Device_DeviceData WHERE FK_Device=" + string(row_child_device[0]);
-			if( ( result_device_data.r=createDevice.mysql_query_result( sSQL ) ) )
+			if( ( result_device_data.r=createDevice.db_wrapper_query_result( sSQL ) ) )
 			{
-				while( row=mysql_fetch_row( result_device_data.r ) )
+				while( row=db_wrapper_fetch_row( result_device_data.r ) )
 				{
 					fprintf(file,"\t%s\t%s",
 						row[0],
@@ -252,13 +252,13 @@ int main(int argc, char *argv[])
 
 	if( sUserName.size() )
 	{
-		MySqlHelper mySqlHelper(dceConfig.m_sDBHost,dceConfig.m_sDBUser,dceConfig.m_sDBPassword,dceConfig.m_sDBName,dceConfig.m_iDBPort);
+		DBHelper mySqlHelper(dceConfig.m_sDBHost,dceConfig.m_sDBUser,dceConfig.m_sDBPassword,dceConfig.m_sDBName,dceConfig.m_iDBPort);
 		if( dceConfig.m_iPK_Installation<1 )
 		{
 			PlutoSqlResult result;
-			MYSQL_ROW row;
+			DB_ROW row;
 			string SQL = "SELECT DISTINCT PK_Installation FROM Installation";
-			if( ( result.r=mySqlHelper.mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) && result.r->row_count==1 )
+			if( ( result.r=mySqlHelper.db_wrapper_query_result( SQL ) ) && ( row=db_wrapper_fetch_row( result.r ) ) && result.r->row_count==1 )
 				dceConfig.m_iPK_Installation = atoi(row[0]);
 		}
 		UserUtils userUtils(&mySqlHelper,dceConfig.m_iPK_Installation);

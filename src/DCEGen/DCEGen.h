@@ -16,7 +16,7 @@
 #ifndef DCE_Gen_h
 #define DCE_Gen_h
 
-#include "PlutoUtils/MySQLHelper.h"
+#include "PlutoUtils/DBHelper.h"
 #include "../pluto_main/Database_pluto_main.h"
 #include "../pluto_main/Table_Command.h"
 
@@ -57,7 +57,7 @@ public:
 class Row_EventParameter;
 class Row_CommandParameter;
 
-class DCEGen : public MySqlHelper
+class DCEGen : public DBHelper
 {
 	string m_sGeneratedOutput,m_sTemplateInput,m_sTemplateOutput;
 

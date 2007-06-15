@@ -20,12 +20,12 @@
 #define WizardLogic_h
 
 //-----------------------------------------------------------------------------------------------------
-#include "PlutoUtils/MySQLHelper.h"
+#include "PlutoUtils/DBHelper.h"
 //-----------------------------------------------------------------------------------------------------
 
 class Row_Device;
 
-class WizardLogic : public MySqlHelper
+class WizardLogic : public DBHelper
 {
 private:
 	friend class ScreenHandler;

@@ -32,7 +32,7 @@
 #include "Repository.h"
 #include "Database.h"
 #include "Table.h"
-#include "PlutoUtils/MySQLHelper.h"
+#include "PlutoUtils/MySQLHelper_moved.h"
 
 namespace sqlCVS
 {

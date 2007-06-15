@@ -22,7 +22,7 @@
 
 #include "PlutoUtils/CommonIncludes.h"
 #include "CommonFunctions.h"
-#include "PlutoUtils/MySQLHelper.h"
+#include "PlutoUtils/MySQLHelper_moved.h"
 
 using namespace sqlCVS;
 

@@ -15,7 +15,7 @@
 #include "UpdatesXML.h"
 
 #include "DCE/DCEConfig.h"
-#include "PlutoUtils/MySQLHelper.h"
+#include "PlutoUtils/DBHelper.h"
 
 using namespace std;
 using namespace DCE;
@@ -94,7 +94,7 @@ class UpdatesManager
 		
 		DCEConfig dceconf;
 		
-		MySqlHelper mySqlHelper;
+		DBHelper dbHelper;
 		
 		map<long, string> id2model;
 		

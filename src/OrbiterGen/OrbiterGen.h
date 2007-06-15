@@ -25,12 +25,12 @@
 #include "pluto_media/Database_pluto_media.h"
 #include "DesignObj_Generator.h"
 #include "Orbiter/OrbiterData.h"
-#include "PlutoUtils/MySQLHelper.h"
+#include "PlutoUtils/DBHelper.h"
 #include "RegenMonitor.h"
 
 #include <memory>
 
-class OrbiterGenerator : public OrbiterData, public MySqlHelper
+class OrbiterGenerator : public OrbiterData, public DBHelper
 {
 public:
 	std::auto_ptr<Database_pluto_main> m_spDatabase_pluto_main;
@@ -86,7 +86,7 @@ public:
 	PlutoSize m_sScaledSize;
 
 	OrbiterGenerator(string sGraphicsFiles,string sFontFiles,string sOutputFiles,int PK_Orbiter,string DBHost,string DBUser,string DBPassword,string DBName,int DBPort)
-		: MySqlHelper(DBHost, DBUser, DBPassword, DBName, DBPort)
+		: DBHelper(DBHost, DBUser, DBPassword, DBName, DBPort)
 	{
 		m_spDatabase_pluto_main.reset(new Database_pluto_main(LoggerWrapper::GetInstance()));
 		m_spDatabase_pluto_media.reset(new Database_pluto_media(LoggerWrapper::GetInstance()));

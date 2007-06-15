@@ -27,12 +27,11 @@
 #ifndef Database_h
 #define Database_h
 
-#include "mysql.h"
 #include <iostream>
 //#include "Repository.h"
 #include "Database.h"
 //#include "Table.h"
-#include "PlutoUtils/MySQLHelper.h"
+#include "PlutoUtils/DBHelper.h"
 
 namespace Tribune
 {
@@ -41,7 +40,7 @@ namespace Tribune
 	 * @todo complete documentation
 	 */
 	 
-	class Database : public MySqlHelper
+	class Database : public DBHelper
 	{
 		bool m_bInvalid;
 
@@ -50,13 +49,13 @@ namespace Tribune
 		
 		Database( string db_host, string db_user, string db_pass, string db_name, int db_port );
 		 
-		MYSQL *MYSQL_get( ) { return m_pMySQL; }
+		DB_LINK *DB_LINK_get( ) { return m_pDB; }
 
 		void StartTransaction( );
 		void Commit( );
 		void Rollback( );
 
-		string Name_get( ) { return m_sMySQLDBName; }
+		string Name_get( ) { return m_sDBDBName; }
 		bool bIsInvalid( ) { return m_bInvalid; }
 	};
 

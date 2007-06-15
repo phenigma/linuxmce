@@ -60,7 +60,7 @@ using namespace DCE;
 #include "PlutoUtils/ProcessUtils.h"
 
 #include "DCE/DCEConfig.h"
-#include "PlutoUtils/MySQLHelper.h"
+#include "PlutoUtils/DBHelper.h"
 
 #include "SerializeClass/ShapesColors.h"
 #define MAX_TELECOM_COLORS 5
@@ -1422,15 +1422,15 @@ class DataGridTable *Telecom_Plugin::RecentCallsGrid(string GridID,string Parms,
 	int Row = 0;
 
 	DCEConfig dceconf;
-	MySqlHelper mySqlHelper(dceconf.m_sDBHost, dceconf.m_sDBUser, dceconf.m_sDBPassword, "asteriskcdrdb" ,dceconf.m_iDBPort);
+	DBHelper mySqlHelper(dceconf.m_sDBHost, dceconf.m_sDBUser, dceconf.m_sDBPassword, "asteriskcdrdb" ,dceconf.m_iDBPort);
 	PlutoSqlResult result_set;
-	MYSQL_ROW row=NULL;
-	if( (result_set.r=mySqlHelper.mysql_query_result("SELECT src, dst, calldate, billsec, channel FROM cdr ORDER BY calldate DESC LIMIT 0,20")) == NULL )
+	DB_ROW row=NULL;
+	if( (result_set.r=mySqlHelper.db_wrapper_query_result("SELECT src, dst, calldate, billsec, channel FROM cdr ORDER BY calldate DESC LIMIT 0,20")) == NULL )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "SQL FAILED");
 		return pDataGrid;
 	}
-	while((row = mysql_fetch_row(result_set.r)))
+	while((row = db_wrapper_fetch_row(result_set.r)))
 	{
 		int ext;
 		string sext=row[0];
@@ -1489,16 +1489,16 @@ class DataGridTable *Telecom_Plugin::SpeedDialGrid(string GridID,string Parms,vo
 	sql_buff += " ORDER BY PK_CommandGroup,FK_CommandParameter";
 
 	DCEConfig dceconf;
-	MySqlHelper mySqlHelper(dceconf.m_sDBHost, dceconf.m_sDBUser, dceconf.m_sDBPassword, dceconf.m_sDBName ,dceconf.m_iDBPort);
+	DBHelper mySqlHelper(dceconf.m_sDBHost, dceconf.m_sDBUser, dceconf.m_sDBPassword, dceconf.m_sDBName ,dceconf.m_iDBPort);
 	PlutoSqlResult result_set;
-	MYSQL_ROW row=NULL;
-	if( (result_set.r=mySqlHelper.mysql_query_result(sql_buff)) == NULL )
+	DB_ROW row=NULL;
+	if( (result_set.r=mySqlHelper.db_wrapper_query_result(sql_buff)) == NULL )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "SQL FAILED");
 		return pDataGrid;
 	}
 	char desc[256];
-	while((row = mysql_fetch_row(result_set.r)))
+	while((row = db_wrapper_fetch_row(result_set.r)))
 	{
 		int device=0;
 		if(atoi(row[1])==COMMANDPARAMETER_PK_Device_CONST)
@@ -1511,7 +1511,7 @@ class DataGridTable *Telecom_Plugin::SpeedDialGrid(string GridID,string Parms,vo
 			LoggerWrapper::GetInstance()->Write(LV_WARNING,"This should not happend (1st row not PK_Device)");
 			break;
 		}
-		if((row = mysql_fetch_row(result_set.r))==NULL)
+		if((row = db_wrapper_fetch_row(result_set.r))==NULL)
 		{
 			LoggerWrapper::GetInstance()->Write(LV_WARNING,"This should not happend (no 2nd row for '%s')",desc);
 			break;

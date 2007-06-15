@@ -80,7 +80,7 @@ Database_pluto_main *g_pDatabase_pluto_main;
 Row_Version *g_pRow_Version;
 Row_Distro *g_pRow_Distro;
 DCEConfig dceConfig;
-MySqlHelper *g_pMySqlHelper_pluto_builder=NULL;
+DBHelper *g_pDBHelper_pluto_builder=NULL;
 
 // Int is the package ID, bool is true/false if it's been built.  This will be prepopulated with all the packages and 'false'
 map<int,bool> g_mapPackagesToBuild,g_mapPackagesCompileSourceInOrder;
@@ -323,11 +323,11 @@ int main(int argc, char *argv[])
 
 	if( bUseFileLog )
 	{
-		g_pMySqlHelper_pluto_builder = new MySqlHelper();
-		if( g_pMySqlHelper_pluto_builder->MySQLConnect(dceConfig.m_sDBHost,dceConfig.m_sDBUser,dceConfig.m_sDBPassword,"pluto_builder")==false )
+		g_pDBHelper_pluto_builder = new DBHelper();
+		if( g_pDBHelper_pluto_builder->DBConnect(dceConfig.m_sDBHost,dceConfig.m_sDBUser,dceConfig.m_sDBPassword,"pluto_builder")==false )
 		{
-			delete g_pMySqlHelper_pluto_builder;
-			g_pMySqlHelper_pluto_builder=NULL;
+			delete g_pDBHelper_pluto_builder;
+			g_pDBHelper_pluto_builder=NULL;
 			cout << "Cannot connect to pluto_builder" << endl;
 			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot connect to pluto_builder");
 		}
@@ -512,8 +512,8 @@ int main(int argc, char *argv[])
 		}
 	}
 	cout << "Done!" << endl << endl;
-	delete g_pMySqlHelper_pluto_builder;
-	g_pMySqlHelper_pluto_builder=NULL;
+	delete g_pDBHelper_pluto_builder;
+	g_pDBHelper_pluto_builder=NULL;
 }
 
 bool PackageIsCompatible(Row_Package *pRow_Package)
@@ -1548,12 +1548,12 @@ string Makefile = "none:\n"
 			}
 		
 		
-			if( g_pMySqlHelper_pluto_builder )
+			if( g_pDBHelper_pluto_builder )
 			{
 				Row_Package *pRow_Package_SourceCode = pRow_Package_Source->FK_Package_getrow()->FK_Package_Sourcecode_getrow();
 				string sSQL = "INSERT INTO File(Filename,FK_Package,FK_Package_Source) VALUES('" + StringUtils::SQLEscape(sSource) + "',"
 					+ StringUtils::itos(pRow_Package_Source->FK_Package_get()) + "," + (pRow_Package_SourceCode ? StringUtils::itos(pRow_Package_SourceCode->PK_Package_get()) : "NULL") + ")";
-				g_pMySqlHelper_pluto_builder->threaded_mysql_query(sSQL);
+				g_pDBHelper_pluto_builder->threaded_db_wrapper_query(sSQL);
 			}
 			cout << "COPY: " << sSource << " --> " + sDestination << endl;
 
@@ -1881,12 +1881,12 @@ string Makefile = "none:\n"
 
 			string sDestination = Dir + "/root/" + thePrefix + (*iFileInfo)->m_sDestination;
 		
-			if( g_pMySqlHelper_pluto_builder )
+			if( g_pDBHelper_pluto_builder )
 			{
 				Row_Package *pRow_Package_SourceCode = pRow_Package_Source->FK_Package_getrow()->FK_Package_Sourcecode_getrow();
 				string sSQL = "INSERT INTO File(Filename,FK_Package,FK_Package_Source) VALUES('" + StringUtils::SQLEscape(sSource) + "',"
 					+ StringUtils::itos(pRow_Package_Source->FK_Package_get()) + "," + (pRow_Package_SourceCode ? StringUtils::itos(pRow_Package_SourceCode->PK_Package_get()) : "NULL") + ")";
-				g_pMySqlHelper_pluto_builder->threaded_mysql_query(sSQL);
+				g_pDBHelper_pluto_builder->threaded_db_wrapper_query(sSQL);
 			}
 			cout << "COPY: " << sSource << " --> " + sDestination << endl;
 			if( !g_bSimulate )

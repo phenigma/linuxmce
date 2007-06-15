@@ -2657,10 +2657,10 @@ void Orbiter_Plugin::CMD_Get_Orbiter_Options(string sText,string *sValue_To_Assi
         sSQL = "SELECT PK_DesignObj, Description FROM DesignObj INNER JOIN DeviceTemplate_DesignObj ON DesignObj.PK_DesignObj = DeviceTemplate_DesignObj.FK_DesignObj";
 
 	PlutoSqlResult result_set;
-    MYSQL_ROW row;
-	if( (result_set.r=m_pDatabase_pluto_main->mysql_query_result(sSQL)) )
+    DB_ROW row;
+	if( (result_set.r=m_pDatabase_pluto_main->db_wrapper_query_result(sSQL)) )
 	{
-		while ((row = mysql_fetch_row(result_set.r)))
+		while ((row = db_wrapper_fetch_row(result_set.r)))
 		{
 			(*sValue_To_Assign) += row[0] + string("\t") + row[1];
 			if( sText=="Size" )
@@ -2766,7 +2766,7 @@ void Orbiter_Plugin::CMD_Get_Screen_Saver_Files(int iPK_Device,string *sFilename
 	PlutoSqlResult result_set1,result_set2;
 
 	// The above are the files to use for the screen saver for this orbiter
-	result_set1.r=m_pDatabase_pluto_media->mysql_query_result(sSQL);
+	result_set1.r=m_pDatabase_pluto_media->db_wrapper_query_result(sSQL);
 	PlutoSqlResult *p_result_set = &result_set1;
 
 	if( !result_set1.r || result_set1.r->row_count==0 )
@@ -2780,10 +2780,10 @@ void Orbiter_Plugin::CMD_Get_Screen_Saver_Files(int iPK_Device,string *sFilename
 		// Keywords needs to be ' separated, like 'Dogs','Cats'.  Incoming formate is Dogs,Cats
 		sKeywords = "'" + StringUtils::Replace(sKeywords,",","','") + "'";
 		StringUtils::Replace(&sKeywords," ",""); // Strip spaces
-	    MYSQL_ROW row;
+	    DB_ROW row;
 		string sPK_File;
 
-		while ((row = mysql_fetch_row(result_set1.r)))
+		while ((row = db_wrapper_fetch_row(result_set1.r)))
 			sPK_File += (sPK_File.empty() ? "" : ",") + string(row[0]);
 
 		sSQL = "SELECT DISTINCT PK_File,Path,Filename "
@@ -2794,15 +2794,15 @@ void Orbiter_Plugin::CMD_Get_Screen_Saver_Files(int iPK_Device,string *sFilename
 			"PK_File IN (" + sPK_File + ");";
 
 		// Create a new result set based on the tags
-		result_set2.r=m_pDatabase_pluto_media->mysql_query_result(sSQL);
+		result_set2.r=m_pDatabase_pluto_media->db_wrapper_query_result(sSQL);
 		if( !result_set2.r || result_set2.r->row_count==0 )
 			return;
 
 		p_result_set = &result_set2;  // Assign it to the  pointer we will use below
 	}
 
-    MYSQL_ROW row;
-	while ((row = mysql_fetch_row(p_result_set->r)))
+    DB_ROW row;
+	while ((row = db_wrapper_fetch_row(p_result_set->r)))
 		*sFilename += row[1] + string("/") + row[2] + "\n";
 }
 
@@ -2929,8 +2929,8 @@ void Orbiter_Plugin::CMD_Get_Remote_ID(string sUID,int *iPK_Device,int *iValue,s
 {
 	string sSQL = "SELECT PK_Device FROM Device_DeviceData JOIN Device ON FK_Device=PK_Device WHERE FK_DeviceData=" TOSTRING(DEVICEDATA_Serial_Number_CONST) " AND IK_DeviceData='" + sUID + "' AND FK_DeviceTemplate=" TOSTRING(DEVICETEMPLATE_MCR_Remote_CONST);
 	PlutoSqlResult result_set;
-    MYSQL_ROW row;
-	if( (result_set.r=m_pDatabase_pluto_main->mysql_query_result(sSQL)) && (row = mysql_fetch_row(result_set.r)) )
+    DB_ROW row;
+	if( (result_set.r=m_pDatabase_pluto_main->db_wrapper_query_result(sSQL)) && (row = db_wrapper_fetch_row(result_set.r)) )
 	{
 #ifdef DEBUG
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter_Plugin::CMD_Get_Remote_ID %s is %d",sUID.c_str(),*iPK_Device);
@@ -2953,7 +2953,7 @@ void Orbiter_Plugin::CMD_Get_Remote_ID(string sUID,int *iPK_Device,int *iValue,s
 	sSQL = "SELECT max(IK_DeviceData) FROM Device_DeviceData JOIN Device ON FK_Device=PK_Device WHERE FK_DeviceData=" 
 		TOSTRING(DEVICEDATA_PortChannel_Number_CONST) " AND FK_DeviceTemplate=" TOSTRING(DEVICETEMPLATE_MCR_Remote_CONST);
 	PlutoSqlResult result_set2;
-	if( (result_set2.r=m_pDatabase_pluto_main->mysql_query_result(sSQL)) && (row = mysql_fetch_row(result_set2.r)) && atoi(row[0])>0 )
+	if( (result_set2.r=m_pDatabase_pluto_main->db_wrapper_query_result(sSQL)) && (row = db_wrapper_fetch_row(result_set2.r)) && atoi(row[0])>0 )
 		*iValue = atoi(row[0]) + 1;
 	DatabaseUtils::SetDeviceData(m_pDatabase_pluto_main,*iPK_Device,DEVICEDATA_PortChannel_Number_CONST,StringUtils::itos(*iValue));
 	DatabaseUtils::SetDeviceData(m_pDatabase_pluto_main,*iPK_Device,DEVICEDATA_Serial_Number_CONST,sUID);

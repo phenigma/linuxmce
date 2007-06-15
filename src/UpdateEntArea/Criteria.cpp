@@ -54,7 +54,7 @@ bool CriteriaParmNesting::Commit(CriteriaParmNesting *pCriteriaParmNesting_Paren
 		m_pRow_CriteriaParmNesting->FK_CriteriaParmNesting_Parent_setNull(true);
 
 	m_pRow_CriteriaParmNesting->Table_CriteriaParmNesting_get()->Commit();
-	m_pRow_CriteriaParmNesting->Table_CriteriaParmNesting_get()->Database_pluto_main_get()->threaded_mysql_query(
+	m_pRow_CriteriaParmNesting->Table_CriteriaParmNesting_get()->Database_pluto_main_get()->threaded_db_wrapper_query(
 		"UPDATE CriteriaParmNesting set psc_mod=0 WHERE PK_CriteriaParmNesting=" + 
 		StringUtils::itos(m_pRow_CriteriaParmNesting->PK_CriteriaParmNesting_get()));
 
@@ -110,7 +110,7 @@ bool CriteriaParm::Commit(CriteriaParmNesting *pCriteriaParmNesting_Parent)
 	m_pRow_CriteriaParm->Value_set(m_sValue);
 	m_pRow_CriteriaParm->Operator_set((int) m_Operator);
 	m_pRow_CriteriaParm->Table_CriteriaParm_get()->Commit();
-	m_pRow_CriteriaParm->Table_CriteriaParm_get()->Database_pluto_main_get()->threaded_mysql_query(
+	m_pRow_CriteriaParm->Table_CriteriaParm_get()->Database_pluto_main_get()->threaded_db_wrapper_query(
 		"UPDATE CriteriaParm set psc_mod=0 WHERE PK_CriteriaParm=" + 
 		StringUtils::itos(m_pRow_CriteriaParm->PK_CriteriaParm_get()));
 

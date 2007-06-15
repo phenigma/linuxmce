@@ -414,14 +414,14 @@ class DataGridTable *Infrared_Plugin::DeviceTemplateByMfrModel(string GridID,str
 		"FK_Manufacturer = " + StringUtils::itos(PK_Manufacturer);
 
 	PlutoSqlResult result;
-	MYSQL_ROW row;
+	DB_ROW row;
 
 	map<string, pair<string, string> > mapDevices;	// devicetemplate <-> pair(description, controlledviacategory)
 	string sInfraredInterfaceCategory = StringUtils::ltos(DEVICECATEGORY_Infrared_Interface_CONST);
 
-	if( ( result.r = m_pDatabase_pluto_main->mysql_query_result( sql ) ) )
+	if( ( result.r = m_pDatabase_pluto_main->db_wrapper_query_result( sql ) ) )
 	{
-		while( ( row=mysql_fetch_row( result.r ) ) )
+		while( ( row=db_wrapper_fetch_row( result.r ) ) )
 		{
 			string sPK_DeviceTemplate = row[0];
 			string sDescription = row[1];
@@ -571,12 +571,12 @@ class DataGridTable *Infrared_Plugin::IRGroupCategories(string GridID,string Par
 	string sql = "SELECT DISTINCT PK_DeviceCategory,DeviceCategory.Description FROM InfraredGroup JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory WHERE FK_Manufacturer=" + Parms;
 
 	PlutoSqlResult result;
-    MYSQL_ROW row;
+    DB_ROW row;
     int RowCount=0;
 
-    if( ( result.r=m_pDatabase_pluto_main->mysql_query_result( sql ) ) )
+    if( ( result.r=m_pDatabase_pluto_main->db_wrapper_query_result( sql ) ) )
     {
-        while( ( row=mysql_fetch_row( result.r ) ) )
+        while( ( row=db_wrapper_fetch_row( result.r ) ) )
         {
             pCell = new DataGridCell( row[1], row[0] );
             pDataGrid->SetData( 0, RowCount++, pCell );

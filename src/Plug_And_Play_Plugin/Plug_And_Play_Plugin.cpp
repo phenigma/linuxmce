@@ -103,8 +103,8 @@ bool Plug_And_Play_Plugin::GetConfig()
 
 	string sSQL = "SELECT max(PK_PnpQueue) FROM PnpQueue";
 	PlutoSqlResult result_set;
-	MYSQL_ROW row=NULL;
-	if( ( result_set.r=m_pDatabase_pluto_main->mysql_query_result( sSQL ) ) && ( row = mysql_fetch_row( result_set.r ) ) && row[0] )
+	DB_ROW row=NULL;
+	if( ( result_set.r=m_pDatabase_pluto_main->db_wrapper_query_result( sSQL ) ) && ( row = db_wrapper_fetch_row( result_set.r ) ) && row[0] )
 		m_iPK_PnpQueue_Starting = atoi( row[0] );
 	else
 		m_iPK_PnpQueue_Starting = 0;
@@ -122,7 +122,7 @@ bool Plug_And_Play_Plugin::GetConfig()
 		" JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate "
 		" SET IK_DeviceData='' "
 		" WHERE FK_DeviceData=" TOSTRING(DEVICEDATA_Serial_Number_CONST) " AND FK_CommMethod=" TOSTRING(COMMMETHOD_RS232_CONST);
-	m_pDatabase_pluto_main->threaded_mysql_query(sSQL);
+	m_pDatabase_pluto_main->threaded_db_wrapper_query(sSQL);
 
 	return true;
 }

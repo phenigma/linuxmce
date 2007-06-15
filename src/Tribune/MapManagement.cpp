@@ -37,8 +37,8 @@ bool MapManagement::GetProgramRecordMap(map<string,string> & mapPrimaryKey_Times
 	sSQL << "SELECT PK_ProgramRecord, TimestampF FROM ProgramRecord";
 
 	PlutoSqlResult res;
-	MYSQL_ROW row=NULL;
-	res.r = g_GlobalConfig.m_pDatabase->mysql_query_result( sSQL.str( ) );
+	DB_ROW row=NULL;
+	res.r = g_GlobalConfig.m_pDatabase->db_wrapper_query_result( sSQL.str( ) );
 	if( !res.r )
 	{
 		cerr << "Problem retrieving rows with query1: " << sSQL.str() << endl;
@@ -46,7 +46,7 @@ bool MapManagement::GetProgramRecordMap(map<string,string> & mapPrimaryKey_Times
 	}
 	else
 	{
-		while( ( row = mysql_fetch_row( res.r ) ) )
+		while( ( row = db_wrapper_fetch_row( res.r ) ) )
 		{
 			if( !row[0] )
 			{
@@ -68,8 +68,8 @@ bool MapManagement::GetStationMap(map<int,string> & mapPrimaryKey_Timestam_Stati
 	sSQL << "SELECT PK_Station, TimestampF FROM Station";
 
 	PlutoSqlResult res;
-	MYSQL_ROW row=NULL;
-	res.r = g_GlobalConfig.m_pDatabase->mysql_query_result( sSQL.str( ) );
+	DB_ROW row=NULL;
+	res.r = g_GlobalConfig.m_pDatabase->db_wrapper_query_result( sSQL.str( ) );
 	if( !res.r )
 	{
 		cerr << "Problem retrieving rows with query1: " << sSQL.str() << endl;
@@ -77,7 +77,7 @@ bool MapManagement::GetStationMap(map<int,string> & mapPrimaryKey_Timestam_Stati
 	}
 	else
 	{
-		while( ( row = mysql_fetch_row( res.r ) ) )
+		while( ( row = db_wrapper_fetch_row( res.r ) ) )
 		{
 			if( !row[0] )
 			{
@@ -98,8 +98,8 @@ bool MapManagement::GetScheduleMap(map<u_int64_t,string> & mapPrimaryKey_Timesta
 	sSQL << "SELECT PK_Schedule, TimestampF FROM Schedule";
 
 	PlutoSqlResult res;
-	MYSQL_ROW row=NULL;
-	res.r = g_GlobalConfig.m_pDatabase->mysql_query_result( sSQL.str( ) );
+	DB_ROW row=NULL;
+	res.r = g_GlobalConfig.m_pDatabase->db_wrapper_query_result( sSQL.str( ) );
 	if( !res.r )
 	{
 		cerr << "Problem retrieving rows with query1: " << sSQL.str() << endl;
@@ -107,7 +107,7 @@ bool MapManagement::GetScheduleMap(map<u_int64_t,string> & mapPrimaryKey_Timesta
 	}
 	else
 	{
-		while( ( row = mysql_fetch_row( res.r ) ) )
+		while( ( row = db_wrapper_fetch_row( res.r ) ) )
 		{
 			if( !row[0] )
 			{
@@ -129,8 +129,8 @@ bool MapManagement::GetActorMap(map<string,string> & mapPrimaryKey_Timestam_Acto
 	sSQL << "SELECT PK_Actor FROM Actor";
 
 	PlutoSqlResult res;
-	MYSQL_ROW row=NULL;
-	res.r = g_GlobalConfig.m_pDatabase->mysql_query_result( sSQL.str( ) );
+	DB_ROW row=NULL;
+	res.r = g_GlobalConfig.m_pDatabase->db_wrapper_query_result( sSQL.str( ) );
 	if( !res.r )
 	{
 		cerr << "Problem retrieving rows with query1: " << sSQL.str() << endl;
@@ -138,7 +138,7 @@ bool MapManagement::GetActorMap(map<string,string> & mapPrimaryKey_Timestam_Acto
 	}
 	else
 	{
-		while( ( row = mysql_fetch_row( res.r ) ) )
+		while( ( row = db_wrapper_fetch_row( res.r ) ) )
 		{
 			if( !row[0] )
 			{
@@ -160,8 +160,8 @@ bool MapManagement::GetGenreMap(map<string,string> & mapPrimaryKey_Timestam_Genr
 	sSQL << "SELECT PK_Genre FROM Genre";
 
 	PlutoSqlResult res;
-	MYSQL_ROW row=NULL;
-	res.r = g_GlobalConfig.m_pDatabase->mysql_query_result( sSQL.str( ) );
+	DB_ROW row=NULL;
+	res.r = g_GlobalConfig.m_pDatabase->db_wrapper_query_result( sSQL.str( ) );
 	if( !res.r )
 	{
 		cerr << "Problem retrieving rows with query1: " << sSQL.str() << endl;
@@ -169,7 +169,7 @@ bool MapManagement::GetGenreMap(map<string,string> & mapPrimaryKey_Timestam_Genr
 	}
 	else
 	{
-		while( ( row = mysql_fetch_row( res.r ) ) )
+		while( ( row = db_wrapper_fetch_row( res.r ) ) )
 		{
 			if( !row[0] )
 			{
@@ -191,8 +191,8 @@ bool MapManagement::GetRoleMap(map<string,string> & mapPrimaryKey_Timestam_Role)
 	sSQL << "SELECT PK_Role FROM Role";
 
 	PlutoSqlResult res;
-	MYSQL_ROW row=NULL;
-	res.r = g_GlobalConfig.m_pDatabase->mysql_query_result( sSQL.str( ) );
+	DB_ROW row=NULL;
+	res.r = g_GlobalConfig.m_pDatabase->db_wrapper_query_result( sSQL.str( ) );
 	if( !res.r )
 	{
 		cerr << "Problem retrieving rows with query1: " << sSQL.str() << endl;
@@ -200,7 +200,7 @@ bool MapManagement::GetRoleMap(map<string,string> & mapPrimaryKey_Timestam_Role)
 	}
 	else
 	{
-		while( ( row = mysql_fetch_row( res.r ) ) )
+		while( ( row = db_wrapper_fetch_row( res.r ) ) )
 		{
 			if( !row[0] )
 			{
@@ -222,8 +222,8 @@ bool MapManagement::GetActorRoleMap(map<string,string> & mapPrimaryKey_Timestam_
 	sSQL << "SELECT PK_ActorRole FROM Actor_Role";
 
 	PlutoSqlResult res;
-	MYSQL_ROW row=NULL;
-	res.r = g_GlobalConfig.m_pDatabase->mysql_query_result( sSQL.str( ) );
+	DB_ROW row=NULL;
+	res.r = g_GlobalConfig.m_pDatabase->db_wrapper_query_result( sSQL.str( ) );
 	if( !res.r )
 	{
 		cerr << "Problem retrieving rows with query1: " << sSQL.str() << endl;
@@ -231,7 +231,7 @@ bool MapManagement::GetActorRoleMap(map<string,string> & mapPrimaryKey_Timestam_
 	}
 	else
 	{
-		while( ( row = mysql_fetch_row( res.r ) ) )
+		while( ( row = db_wrapper_fetch_row( res.r ) ) )
 		{
 			if( !row[0] )
 			{

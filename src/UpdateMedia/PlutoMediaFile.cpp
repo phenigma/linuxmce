@@ -360,10 +360,10 @@ void PlutoMediaFile::SaveShortAttributesInDb(bool bAddAllToDb)
 			"WHERE FK_File = " + StringUtils::ltos(PK_File);
 
 		PlutoSqlResult result;
-		MYSQL_ROW row;
-		if((result.r = m_pDatabase_pluto_media->mysql_query_result(SQL)))
+		DB_ROW row;
+		if((result.r = m_pDatabase_pluto_media->db_wrapper_query_result(SQL)))
 		{
-			while((row = mysql_fetch_row(result.r)) && NULL != row[0] && NULL != row[1])
+			while((row = db_wrapper_fetch_row(result.r)) && NULL != row[0] && NULL != row[1])
 			{
 				int nPK_Attribute = atoi(row[0]);
 				int nFK_AttributeType = atoi(row[1]);
@@ -483,10 +483,10 @@ void PlutoMediaFile::SaveLongAttributesInDb(bool bAddAllToDb)
 			"WHERE FK_File = " + StringUtils::ltos(PK_File);
 
 		PlutoSqlResult result;
-		MYSQL_ROW row;
-		if((result.r = m_pDatabase_pluto_media->mysql_query_result(SQL)))
+		DB_ROW row;
+		if((result.r = m_pDatabase_pluto_media->db_wrapper_query_result(SQL)))
 		{
-			while((row = mysql_fetch_row(result.r)) && NULL != row[0] && NULL != row[1])
+			while((row = db_wrapper_fetch_row(result.r)) && NULL != row[0] && NULL != row[1])
 			{
 				int nFK_AttributeType = atoi(row[0]);
 				string sName = row[1];
@@ -614,7 +614,7 @@ void PlutoMediaFile::SaveMiscInfo()
 	else
 		sSQL += "FK_MediaSubType = NULL ";
 
-	m_pDatabase_pluto_media->threaded_mysql_query(sSQL);
+	m_pDatabase_pluto_media->threaded_db_wrapper_query(sSQL);
 }
 //-----------------------------------------------------------------------------------------------------
 void PlutoMediaFile::SaveCoverarts()
@@ -1201,7 +1201,7 @@ void PlutoMediaFile::LoadStartPosition()
 void PlutoMediaFile::LoadShortAttributes()
 {
 	PlutoSqlResult result;
-	MYSQL_ROW row;
+	DB_ROW row;
 	string SQL = 
 		"SELECT PK_Attribute,FK_AttributeType, Name, Track, Section "
 		"FROM Attribute JOIN File_Attribute ON PK_Attribute = FK_Attribute "
@@ -1209,9 +1209,9 @@ void PlutoMediaFile::LoadShortAttributes()
 
 	MapPlutoMediaAttributes mapDBAttributes;
 
-	if((result.r = m_pDatabase_pluto_media->mysql_query_result(SQL)))
+	if((result.r = m_pDatabase_pluto_media->db_wrapper_query_result(SQL)))
 	{
-		while((row = mysql_fetch_row(result.r)) && NULL != row[0] && NULL != row[1])
+		while((row = db_wrapper_fetch_row(result.r)) && NULL != row[0] && NULL != row[1])
 		{
 			int nPK_Attribute = atoi(row[0]);
 			int nFK_AttributeType = atoi(row[1]);
@@ -1316,7 +1316,7 @@ void PlutoMediaFile::LoadShortAttributes()
 void PlutoMediaFile::LoadLongAttributes()
 {
 	PlutoSqlResult result;
-	MYSQL_ROW row;
+	DB_ROW row;
 	string SQL = 
 		"SELECT FK_AttributeType, Text "
 		"FROM LongAttribute "
@@ -1324,9 +1324,9 @@ void PlutoMediaFile::LoadLongAttributes()
 
 	MapPlutoMediaAttributes mapDbLongAttributes;
 
-	if((result.r = m_pDatabase_pluto_media->mysql_query_result(SQL)))
+	if((result.r = m_pDatabase_pluto_media->db_wrapper_query_result(SQL)))
 	{
-		while((row = mysql_fetch_row(result.r)) && NULL != row[0] && NULL != row[1])
+		while((row = db_wrapper_fetch_row(result.r)) && NULL != row[0] && NULL != row[1])
 		{
 			int nFK_AttributeType = atoi(row[0]);
 			string sName = row[1];
@@ -1420,16 +1420,16 @@ void PlutoMediaFile::LoadBookmarkPictures()
 		m_pPlutoMediaAttributes->ClearBookmarks();
 
 	PlutoSqlResult result;
-	MYSQL_ROW row;
+	DB_ROW row;
 	string SQL = 
 		"SELECT FK_Picture, Description, Position FROM Bookmark "
 		"WHERE FK_Picture IS NOT NULL AND "
 		"FK_File = " + StringUtils::ltos(m_pPlutoMediaAttributes->m_nFileID);
 
-	if((result.r = m_pDatabase_pluto_media->mysql_query_result(SQL)))
+	if((result.r = m_pDatabase_pluto_media->db_wrapper_query_result(SQL)))
 	{
 		int nCounter = 0;
-		while((row = mysql_fetch_row(result.r)) && NULL != row[0] && NULL != row[1] && NULL != row[2])
+		while((row = db_wrapper_fetch_row(result.r)) && NULL != row[0] && NULL != row[1] && NULL != row[2])
 		{
 			int nFK_Picture = atoi(row[0]);
 			string sDescription(row[1]);
@@ -1465,14 +1465,14 @@ void PlutoMediaFile::LoadBookmarkPictures()
 void PlutoMediaFile::LoadMiscInfo()
 {
 	PlutoSqlResult result;
-	MYSQL_ROW row;
+	DB_ROW row;
 	string SQL = 
 		"SELECT FK_MediaSubType, FK_FileFormat FROM File WHERE "
 		"PK_File = " + StringUtils::ltos(m_pPlutoMediaAttributes->m_nFileID);
 
-	if((result.r = m_pDatabase_pluto_media->mysql_query_result(SQL)))
+	if((result.r = m_pDatabase_pluto_media->db_wrapper_query_result(SQL)))
 	{
-		while((row = mysql_fetch_row(result.r)) && NULL != row[0] && NULL != row[1])
+		while((row = db_wrapper_fetch_row(result.r)) && NULL != row[0] && NULL != row[1])
 		{
 			m_pPlutoMediaAttributes->m_nMediaSubType = atoi(row[0]);
 			m_pPlutoMediaAttributes->m_nFileFormat = atoi(row[1]);
@@ -1489,15 +1489,15 @@ void PlutoMediaFile::LoadCoverarts()
 		m_pPlutoMediaAttributes->ClearCoverarts();
 
 	PlutoSqlResult result;
-	MYSQL_ROW row;
+	DB_ROW row;
 	string SQL = 
 		"SELECT FK_Picture FROM Picture_File "
 		"WHERE FK_File = " + StringUtils::ltos(m_pPlutoMediaAttributes->m_nFileID);
 
-	if((result.r = m_pDatabase_pluto_media->mysql_query_result(SQL)))
+	if((result.r = m_pDatabase_pluto_media->db_wrapper_query_result(SQL)))
 	{
 		int nCounter = 0;
-		while((row = mysql_fetch_row(result.r)) && NULL != row[0])
+		while((row = db_wrapper_fetch_row(result.r)) && NULL != row[0])
 		{
 			int nFK_Picture = atoi(row[0]);
 

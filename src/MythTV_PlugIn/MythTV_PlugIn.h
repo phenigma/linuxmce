@@ -27,7 +27,7 @@ class Database_FakeEPG;
 class Row_Listing;
 class EPGGrid;
 class MythTvWrapper;
-class MySqlHelper;
+class DBHelper;
 
 #define MINIMUM_MYTH_SCHEMA		1123
 
@@ -120,7 +120,7 @@ namespace DCE
     {
 	//<-dceag-decl-e->
         // friend class MythTvStream;
-		MySqlHelper *m_pMySqlHelper_Myth;
+		DBHelper *m_pDBHelper_Myth;
 		map<int, int> m_mapMythInputsToDevices;
 		EPGGrid *m_pEPGGrid;
 

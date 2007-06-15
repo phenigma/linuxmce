@@ -49,18 +49,18 @@ bool WizardLogic::Setup()
     const char *pMySqlHost = getenv("MySqlHost");
 	string sHost = pMySqlHost && strlen(pMySqlHost) ? pMySqlHost : m_pOrbiter->m_sIPAddress;
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"WizardLogic::Setup using host %s (%p)",sHost.c_str(),pMySqlHost);
-	if( !MySQLConnect(sHost, "root", "", "pluto_main") )
+	if( !DBConnect(sHost, "root", "", "pluto_main") )
 #endif
 		return false;
 
 	string sSQL;
-	MYSQL_ROW row;
+	DB_ROW row;
 
 	sSQL = "SELECT PK_RoomType,Description FROM RoomType ORDER BY Description";
 	{
 		PlutoSqlResult result_set_roomtypes;
-		if( (result_set_roomtypes.r=mysql_query_result(sSQL)) )
-			while ((row = mysql_fetch_row(result_set_roomtypes.r)))
+		if( (result_set_roomtypes.r=db_wrapper_query_result(sSQL)) )
+			while ((row = db_wrapper_fetch_row(result_set_roomtypes.r)))
 			{
 				m_listRoomTypes.push_back( make_pair<int,string> (atoi(row[0]),row[1]) );
 				m_mapRoomTypes[atoi(row[0])] = row[1];
@@ -104,8 +104,8 @@ int WizardLogic::FindFirstDeviceInCategory(int PK_DeviceCategory,int PK_Device_R
 		"OR P3.FK_Device_ControlledVia = " + StringUtils::itos(PK_Device_PC) + ")";
 
 	PlutoSqlResult result_set;
-	MYSQL_ROW row;
-	if( (result_set.r=mysql_query_result(sSQL)) && ((row = mysql_fetch_row(result_set.r))) && row[0] )
+	DB_ROW row;
+	if( (result_set.r=db_wrapper_query_result(sSQL)) && ((row = db_wrapper_fetch_row(result_set.r))) && row[0] )
 	{
 		if( sDescription )
 			*sDescription = row[1];
@@ -132,11 +132,11 @@ void WizardLogic::FindPnpDevices(string sPK_DeviceCategory)
 		"JOIN DHCPDevice ON FK_DeviceTemplate=PK_DeviceTemplate "
 		"WHERE DeviceTemplate.FK_DeviceCategory IN (" + sPK_DeviceCategory + ")";
 
-	MYSQL_ROW row;
+	DB_ROW row;
 	string sPnpDevices;
 	PlutoSqlResult result_set2;
-    if( (result_set2.r=mysql_query_result(sSQL)) )
-		while ((row = mysql_fetch_row(result_set2.r)))
+    if( (result_set2.r=db_wrapper_query_result(sSQL)) )
+		while ((row = db_wrapper_fetch_row(result_set2.r)))
 			sPnpDevices += (sPnpDevices.size() ? ", " : "") + string(row[1]) + ":" + row[0];
 
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, sPnpDevices);
@@ -185,9 +185,9 @@ int WizardLogic::PreSeedRoomInfo( map<int, int > &mapRooms )
     ;
 
 	PlutoSqlResult result_set_room;
-	MYSQL_ROW row;
-	if( (result_set_room.r=mysql_query_result(sSQL)) )
-		while ((row = mysql_fetch_row(result_set_room.r)))
+	DB_ROW row;
+	if( (result_set_room.r=db_wrapper_query_result(sSQL)) )
+		while ((row = db_wrapper_fetch_row(result_set_room.r)))
 		{
             LoggerWrapper::GetInstance()->Write(LV_STATUS,"Room type %d : %d", atoi(row[0]), atoi(row[1]));
             
@@ -204,8 +204,8 @@ string WizardLogic::GetRoomTypeName(int PK_RoomType)
 
     string sResult;
     PlutoSqlResult result_set_room;
-    MYSQL_ROW row;
-    if( (result_set_room.r=mysql_query_result(sSQL)) && (row = mysql_fetch_row(result_set_room.r)) )
+    DB_ROW row;
+    if( (result_set_room.r=db_wrapper_query_result(sSQL)) && (row = db_wrapper_fetch_row(result_set_room.r)) )
         sResult = row[0];
 
     return sResult;
@@ -219,8 +219,8 @@ void WizardLogic::ProcessUpdatedRoomInfo( map<int, int > &mapRooms )
 		string sSQL = "SELECT count(PK_Room) FROM Room WHERE FK_RoomType=" + StringUtils::itos(it->first);
 
 		PlutoSqlResult result_set_room;
-		MYSQL_ROW row;
-		if( (result_set_room.r=mysql_query_result(sSQL)) && (row = mysql_fetch_row(result_set_room.r)) )
+		DB_ROW row;
+		if( (result_set_room.r=db_wrapper_query_result(sSQL)) && (row = db_wrapper_fetch_row(result_set_room.r)) )
 			iNumRooms = atoi(row[0]);
 
 		if( iNumRooms == it->second )
@@ -247,8 +247,8 @@ void WizardLogic::RemoveRoomsOfType( int PK_RoomType, int NumRoomsCurrent, int N
 
 		int PK_Room=0;
 		PlutoSqlResult result_set_room;
-		MYSQL_ROW row;
-		if( (result_set_room.r=mysql_query_result(sSQL)) && (row = mysql_fetch_row(result_set_room.r)) )
+		DB_ROW row;
+		if( (result_set_room.r=db_wrapper_query_result(sSQL)) && (row = db_wrapper_fetch_row(result_set_room.r)) )
 			PK_Room = atoi(row[0]);
 
 		if( !PK_Room )
@@ -259,19 +259,19 @@ void WizardLogic::RemoveRoomsOfType( int PK_RoomType, int NumRoomsCurrent, int N
 		}
 
 		sSQL = "DELETE FROM Room WHERE PK_Room=" + StringUtils::itos(PK_Room);
-		threaded_mysql_query(sSQL);
+		threaded_db_wrapper_query(sSQL);
 
 		sSQL = "UPDATE Device SET FK_Room=NULL WHERE FK_Room=" + StringUtils::itos(PK_Room);
-		threaded_mysql_query(sSQL);
+		threaded_db_wrapper_query(sSQL);
 
 		sSQL = "DELETE FROM CommandGroup_Room WHERE FK_Room=" + StringUtils::itos(PK_Room);
-		threaded_mysql_query(sSQL);
+		threaded_db_wrapper_query(sSQL);
 
 		sSQL = "DELETE FROM EntertainArea WHERE FK_Room=" + StringUtils::itos(PK_Room);
-		threaded_mysql_query(sSQL);
+		threaded_db_wrapper_query(sSQL);
 
 		sSQL = "DELETE FROM Room_Users WHERE FK_Room=" + StringUtils::itos(PK_Room);
-		threaded_mysql_query(sSQL);
+		threaded_db_wrapper_query(sSQL);
 	}
 }
 
@@ -282,9 +282,9 @@ void WizardLogic::AddRoomOfType(int PK_RoomType)
 		" AND FK_Installation = " + Installation_get();
 
 	PlutoSqlResult result_get_rooms;
-	MYSQL_ROW row;
+	DB_ROW row;
 	long nNumberOfRooms = 0;
-	if((result_get_rooms.r=mysql_query_result(sSQL)) && (row = mysql_fetch_row(result_get_rooms.r)))
+	if((result_get_rooms.r=db_wrapper_query_result(sSQL)) && (row = db_wrapper_fetch_row(result_get_rooms.r)))
 		nNumberOfRooms = atoi(row[0]);
 
 	AddRoomsOfType(PK_RoomType, nNumberOfRooms, nNumberOfRooms + 1); //just add a room
@@ -297,9 +297,9 @@ void WizardLogic::RemoveRoomOfType(int PK_RoomType)
 		" AND FK_Installation = " + Installation_get();
 
 	PlutoSqlResult result_get_rooms;
-	MYSQL_ROW row;
+	DB_ROW row;
 	long nNumberOfRooms = 0;
-	if((result_get_rooms.r=mysql_query_result(sSQL)) && (row = mysql_fetch_row(result_get_rooms.r)))
+	if((result_get_rooms.r=db_wrapper_query_result(sSQL)) && (row = db_wrapper_fetch_row(result_get_rooms.r)))
 		nNumberOfRooms = atoi(row[0]);
 
 	if(nNumberOfRooms)
@@ -319,7 +319,7 @@ void WizardLogic::AddRoomsOfType( int PK_RoomType, int NumRoomsCurrent, int NumR
 		string sSQL = "INSERT INTO Room(FK_Installation,FK_RoomType,Description) "
 			"VALUES(" + Installation_get() + "," +
 			StringUtils::itos(PK_RoomType) + ",'" + StringUtils::SQLEscape(sDescription) + "');";
-		threaded_mysql_query(sSQL);
+		threaded_db_wrapper_query(sSQL);
 	}
 }
 
@@ -328,7 +328,7 @@ void WizardLogic::ChangeRoomName(int PK_Room, string sName)
 	if(PK_Room)
 	{
 		string sSQL = "UPDATE Room SET Description = '" + sName + "' WHERE PK_Room = " + StringUtils::ltos(PK_Room);
-		threaded_mysql_query(sSQL);
+		threaded_db_wrapper_query(sSQL);
 	}
 }
 
@@ -337,21 +337,21 @@ void WizardLogic::SetExternalDeviceInRoom(int PK_Device, string sPK_Room)
 	if( sPK_Room=="*" )
 	{
 		string sSQL = "UPDATE Device SET ManuallyConfigureEA=-1 WHERE PK_Device=" + StringUtils::itos(PK_Device);
-		threaded_mysql_query(sSQL);
+		threaded_db_wrapper_query(sSQL);
 		return;
 	}
 	else if( sPK_Room=="0" )
 	{
 		string sSQL = "UPDATE Device SET ManuallyConfigureEA=0 WHERE PK_Device=" + StringUtils::itos(PK_Device);
-		threaded_mysql_query(sSQL);
+		threaded_db_wrapper_query(sSQL);
 		return;
 	}
 
 	string sSQL = "UPDATE Device SET ManuallyConfigureEA=1 WHERE PK_Device=" + StringUtils::itos(PK_Device);
-	threaded_mysql_query(sSQL);
+	threaded_db_wrapper_query(sSQL);
 
 	sSQL = "DELETE FROM Device_EntertainArea WHERE FK_Device=" + StringUtils::itos(PK_Device);
-	threaded_mysql_query(sSQL);
+	threaded_db_wrapper_query(sSQL);
 
 	string::size_type pos=0;
 	while( true )
@@ -360,20 +360,20 @@ void WizardLogic::SetExternalDeviceInRoom(int PK_Device, string sPK_Room)
 		if( sOneRoom.empty() )
 			break;
 
-		MYSQL_ROW row;
+		DB_ROW row;
 
 		sSQL = "SELECT PK_EntertainArea FROM EntertainArea WHERE FK_Room=" + sOneRoom;
 		PlutoSqlResult result_set_EA;
-		if( (result_set_EA.r=mysql_query_result(sSQL))==NULL || result_set_EA.r->row_count==0 )
+		if( (result_set_EA.r=db_wrapper_query_result(sSQL))==NULL || result_set_EA.r->row_count==0 )
 		{
 			sSQL = "INSERT INTO EntertainArea(FK_Room,Description) SELECT PK_Room,Description FROM Room WHERE PK_Room=" + sOneRoom;
-			int PK_EntertainArea = threaded_mysql_query_withID(sSQL);
+			int PK_EntertainArea = threaded_db_wrapper_query_withID(sSQL);
 			if( PK_EntertainArea )
 				DatabaseUtils::AddDeviceToEntertainArea(this,PK_Device,PK_EntertainArea);
 		}
 		else
 		{
-			while ((row = mysql_fetch_row(result_set_EA.r)))
+			while ((row = db_wrapper_fetch_row(result_set_EA.r)))
 				DatabaseUtils::AddDeviceToEntertainArea(this,PK_Device,atoi(row[0]));
 		}
 	}
@@ -386,9 +386,9 @@ int WizardLogic::GetCountry()
 
 
 	PlutoSqlResult result_set;
-	MYSQL_ROW row;
-	if( (result_set.r=mysql_query_result(sSQL)) &&
-      (row = mysql_fetch_row(result_set.r)) && row[0] && atoi(row[0]) )
+	DB_ROW row;
+	if( (result_set.r=db_wrapper_query_result(sSQL)) &&
+      (row = db_wrapper_fetch_row(result_set.r)) && row[0] && atoi(row[0]) )
     return atoi(row[0]);
 
 	return COUNTRY_UNITED_STATES_CONST;
@@ -400,13 +400,13 @@ void WizardLogic::SetCountry(int PK_Country)
 		Installation_get() +
 		" AND FK_Country<>" + StringUtils::itos(PK_Country);
 
-	threaded_mysql_query(sSQL);
+	threaded_db_wrapper_query(sSQL);
 
 	sSQL = "UPDATE Installation SET FK_Country=" + StringUtils::itos(PK_Country) +
 		" WHERE PK_Installation=" +
 		Installation_get();
 
-	threaded_mysql_query(sSQL);
+	threaded_db_wrapper_query(sSQL);
 }
 
 string WizardLogic::GetCityRegion()
@@ -415,9 +415,9 @@ string WizardLogic::GetCityRegion()
 		Installation_get();
 
 	PlutoSqlResult result_set;
-	MYSQL_ROW row;
-	if( (result_set.r=mysql_query_result(sSQL)) &&
-      (row = mysql_fetch_row(result_set.r)) && row[0] )
+	DB_ROW row;
+	if( (result_set.r=db_wrapper_query_result(sSQL)) &&
+      (row = db_wrapper_fetch_row(result_set.r)) && row[0] )
 		return string(row[0]) + (row[1] ? ", " + string(row[1]) : string(""));
 
 	return "";
@@ -428,8 +428,8 @@ int WizardLogic::GetPostalCode()
 	string sSQL = "SELECT FK_PostalCode FROM Installation";
 
 	PlutoSqlResult result_set;
-	MYSQL_ROW row;
-	if( (result_set.r=mysql_query_result(sSQL)) && (row = mysql_fetch_row(result_set.r)) && row[0] )
+	DB_ROW row;
+	if( (result_set.r=db_wrapper_query_result(sSQL)) && (row = db_wrapper_fetch_row(result_set.r)) && row[0] )
 		return atoi(row[0]);
 	else
 		return 0;
@@ -441,8 +441,8 @@ bool WizardLogic::GetLocation()
 		" WHERE PK_Installation=" + StringUtils::itos(m_pOrbiter->m_pData->m_dwPK_Installation);
 
 	PlutoSqlResult result_set;
-	MYSQL_ROW row;
-	if( (result_set.r=mysql_query_result(sSQL)) && ((row = mysql_fetch_row(result_set.r))) )
+	DB_ROW row;
+	if( (result_set.r=db_wrapper_query_result(sSQL)) && ((row = db_wrapper_fetch_row(result_set.r))) )
 	{
 		//0=PK_City,1=PK_PostalCode,2=City,3=Region,4=PostalCode,5=country
 		if( !row[0] || !row[2] || !row[5] || !row[5] )
@@ -483,7 +483,7 @@ bool WizardLogic::SetLocation(string sLocation)
 		"',State='" + StringUtils::SQLEscape(Region) + "',FK_City=" + StringUtils::itos(PK_City) +
 		",FK_PostalCode=" + StringUtils::itos(PK_PostalCode) + ",Zip='" + StringUtils::SQLEscape(PostalCode) + "'"
 		" WHERE PK_Installation=" + StringUtils::itos(m_pOrbiter->m_pData->m_dwPK_Installation);
-	threaded_mysql_query(sSQL);
+	threaded_db_wrapper_query(sSQL);
 
 	SetLongLat(Latitude,Longitude);
 
@@ -511,16 +511,16 @@ bool WizardLogic::SetPostalCode(string PostalCode)
 		+ StringUtils::SQLEscape(PostalCode) + "' AND FK_Country=" + StringUtils::itos(PK_Country);
 
 	PlutoSqlResult result_set;
-	MYSQL_ROW row;
-	if( (result_set.r=mysql_query_result(sSQL)) &&
-      (row = mysql_fetch_row(result_set.r)) && row[0] )
+	DB_ROW row;
+	if( (result_set.r=db_wrapper_query_result(sSQL)) &&
+      (row = db_wrapper_fetch_row(result_set.r)) && row[0] )
 	{
 		sSQL = "UPDATE Installation SET City='" + StringUtils::SQLEscape(row[0]) +
 			"'" +
 			(row[1] ? string(",State='") + StringUtils::SQLEscape(row[1]) + "'": string("")) +
 			(row[2] ? string(",FK_City='") + StringUtils::SQLEscape(row[2]) + "'" : string("")) +
 			",FK_PostalCode=" + row[5];
-		threaded_mysql_query(sSQL);
+		threaded_db_wrapper_query(sSQL);
 
 		if( row[3] && row[4] )
 			SetLongLat(row[4],row[3]);
@@ -539,22 +539,22 @@ void WizardLogic::SetLongLat(string Latitude,string Longitude)
 		string sSQL = "INSERT INTO Device_DeviceData(FK_Device,FK_DeviceData) VALUES(" +
 			StringUtils::itos(pDevice_Event_Plugin->m_dwPK_Device) + "," +
 			StringUtils::itos(DEVICEDATA_Longitude_CONST) + ")";
-		threaded_mysql_query(sSQL,true);  // Ignore errors, this may already be there
+		threaded_db_wrapper_query(sSQL,true);  // Ignore errors, this may already be there
 
 		sSQL = "INSERT INTO Device_DeviceData(FK_Device,FK_DeviceData) VALUES(" +
 			StringUtils::itos(pDevice_Event_Plugin->m_dwPK_Device) + "," +
 			StringUtils::itos(DEVICEDATA_Latitude_CONST) + ")";
-		threaded_mysql_query(sSQL,true);  // Ignore errors, this may already be there
+		threaded_db_wrapper_query(sSQL,true);  // Ignore errors, this may already be there
 
 		sSQL = string("UPDATE Device_DeviceData SET IK_DeviceData='") + Longitude + "'" +
 			" WHERE FK_Device=" + StringUtils::itos(pDevice_Event_Plugin->m_dwPK_Device) +
 			" AND FK_DeviceData=" + StringUtils::itos(DEVICEDATA_Longitude_CONST);
-		threaded_mysql_query(sSQL);
+		threaded_db_wrapper_query(sSQL);
 
 		sSQL = string("UPDATE Device_DeviceData SET IK_DeviceData='") + Latitude + "'" +
 			" WHERE FK_Device=" + StringUtils::itos(pDevice_Event_Plugin->m_dwPK_Device) +
 			" AND FK_DeviceData=" + StringUtils::itos(DEVICEDATA_Latitude_CONST);
-		threaded_mysql_query(sSQL);
+		threaded_db_wrapper_query(sSQL);
 	}
 }
 /*	//check if the manufacturerer is already in database
@@ -566,16 +566,16 @@ int WizardLogic::AddAVDeviceTemplate()
 	if( !ExistManufacturer(m_ManufacturerName) )
 	{
 		sSQL = "INSERT INTO Manufacturer (Description) VALUES('" + m_ManufacturerName + "')";
-		m_nPKManufacuter = threaded_mysql_query_withID(sSQL);
+		m_nPKManufacuter = threaded_db_wrapper_query_withID(sSQL);
 	}
 	
 	sSQL = string("INSERT INTO DeviceTemplate (Description,FK_DeviceCategory,FK_Manufacturer,IRFrequency ,FK_CommMethod) VALUES('") +\
 		 m_AVTemplateName + "'," + "77" + "," + StringUtils::itos(m_nPKManufacuter) + "," + "NULL" + "," + "1" + ")"; 
-	m_nPKAVTemplate = threaded_mysql_query_withID(sSQL);
+	m_nPKAVTemplate = threaded_db_wrapper_query_withID(sSQL);
 
 	sSQL = string("INSERT INTO DeviceTemplate_AV (FK_DeviceTemplate,IR_PowerDelay,IR_ModeDelay,DigitDelay) VALUES(") + \
 		StringUtils::itos(m_nPKAVTemplate) + "," + "2" + "," + "7" + "," + "250" + ")";
-	threaded_mysql_query(sSQL);
+	threaded_db_wrapper_query(sSQL);
 	return m_nPKAVTemplate;
 	return 0;
 }
@@ -585,7 +585,7 @@ void WizardLogic::UpdateAVTemplateDelays(string IR_PowerDelay,string IR_ModeDela
 	string sSQL = "UPDATE DeviceTemplate_AV SET IR_PowerDelay=" + IR_PowerDelay + ",";
 	sSQL += "IR_ModeDelay=" + IR_ModeDelay + "," + "DigitDelay=" + DigitDelay + " ";
 	sSQL += string("WHERE FK_DeviceTemplate=") + StringUtils::itos(m_nPKAVTemplate);
-	threaded_mysql_query(sSQL);
+	threaded_db_wrapper_query(sSQL);
 }
 
 void WizardLogic::UpdateAVTemplateSettings()
@@ -593,7 +593,7 @@ void WizardLogic::UpdateAVTemplateSettings()
 	string sSQL = string("UPDATE DeviceTemplate_AV SET TogglePower=") + 
 		(m_bAVTogglePower ? "1" : "0") + "," += "NumericEntry=" + m_AVTemplateNumericEntry + " ";
 	sSQL += string("WHERE FK_DeviceTemplate=") + StringUtils::itos(m_nPKAVTemplate);
-	threaded_mysql_query(sSQL);
+	threaded_db_wrapper_query(sSQL);
 }
 
 //AV Wizard - single
@@ -629,7 +629,7 @@ void WizardLogic::AddAVDeviceInput()
 		sSQL =string("INSERT IGNORE INTO DeviceTemplate_Input\
 		(FK_DeviceTemplate,FK_Command,FK_ConnectorType) VALUES (") + 
 		StringUtils::ltos(m_nPKAVTemplate) + "," + sInputs + "," + StringUtils::ltos(m_nPKConnectorType) + ")";
-		threaded_mysql_query(sSQL);
+		threaded_db_wrapper_query(sSQL);
 		LoggerWrapper::GetInstance()->Write( LV_WARNING, "AddAVDeviceInput" );
 		LoggerWrapper::GetInstance()->Write( LV_WARNING, sSQL.c_str() );
 
@@ -637,12 +637,12 @@ void WizardLogic::AddAVDeviceInput()
 		sSQL += " VALUES (";
 		sSQL += StringUtils::ltos(m_nPKAVTemplate) + "," + sInputs + "," + sConnectorType + 
 			"," + StringUtils::ltos(nPos) + ")"; 
-		threaded_mysql_query(sSQL);
+		threaded_db_wrapper_query(sSQL);
 
 		sSQL = "UPDATE DeviceTemplate_Input Set OrderNo=" + StringUtils::ltos(nPos++) + " ";
 		sSQL += "WHERE FK_DeviceTemplate='" + StringUtils::ltos(m_nPKAVTemplate) + "' ";
 		sSQL += "AND FK_Command='" + sInputs + "'";
-		threaded_mysql_query(sSQL);
+		threaded_db_wrapper_query(sSQL);
 
 		LoggerWrapper::GetInstance()->Write( LV_WARNING, "AddAVDeviceInput" );
 		LoggerWrapper::GetInstance()->Write( LV_WARNING, sSQL.c_str() );
@@ -654,7 +654,7 @@ void WizardLogic::AddAVDeviceInput()
 			// create embedded device template
 			sSQL = "INSERT INTO DeviceTemplate (Description,FK_Manufacturer,FK_DeviceCategory) VALUES(" ;
 			sSQL += name + "," + StringUtils::ltos(m_nPKManufacuter) + "," + StringUtils::ltos(m_nPKDeviceCategory) + ")";
-			embeddedId = threaded_mysql_query_withID(sSQL);
+			embeddedId = threaded_db_wrapper_query_withID(sSQL);
 			LoggerWrapper::GetInstance()->Write( LV_WARNING, "AddAVDeviceInput" );
 			LoggerWrapper::GetInstance()->Write( LV_WARNING, sSQL.c_str() );
 
@@ -663,7 +663,7 @@ void WizardLogic::AddAVDeviceInput()
 				(FK_DeviceTemplate,FK_DeviceTemplate_ControlledVia,RerouteMessagesToParent,AutoCreateChildren)\
 				VALUES(";
 			sSQL += embeddedId + "," + StringUtils::ltos(m_nPKAVTemplate) + ",1,1)";
-			insertId = threaded_mysql_query_withID(sSQL);
+			insertId = threaded_db_wrapper_query_withID(sSQL);
 			LoggerWrapper::GetInstance()->Write( LV_WARNING, "AddAVDeviceInput" );
 			LoggerWrapper::GetInstance()->Write( LV_WARNING, sSQL.c_str() );
 
@@ -672,7 +672,7 @@ void WizardLogic::AddAVDeviceInput()
 			 (FK_DeviceTemplate_DeviceTemplate_ControlledVia,FK_Pipe,FK_Command_Input)\
 			VALUES (";
 			sSQL += insertId + ",1," + sInputs + ")";
-			threaded_mysql_query(sSQL);	
+			threaded_db_wrapper_query(sSQL);	
 			LoggerWrapper::GetInstance()->Write( LV_WARNING, "AddAVDeviceInput" );
 			LoggerWrapper::GetInstance()->Write( LV_WARNING, sSQL.c_str() );
 
@@ -680,19 +680,19 @@ void WizardLogic::AddAVDeviceInput()
 			 (FK_DeviceTemplate_DeviceTemplate_ControlledVia,FK_Pipe,FK_Command_Input)\
 			VALUES (";
 			sSQL += insertId + ",2," + sInputs + ")";
-			threaded_mysql_query(sSQL);	
+			threaded_db_wrapper_query(sSQL);	
 			LoggerWrapper::GetInstance()->Write( LV_WARNING, "AddAVDeviceInput" );
 			LoggerWrapper::GetInstance()->Write( LV_WARNING, sSQL.c_str() );
 
 			sSQL = "INSERT INTO DeviceTemplate_Input (FK_DeviceTemplate,FK_Command) VALUES(" ;
 			sSQL += embeddedId + "," + sInputs + ")";
-			threaded_mysql_query(sSQL);	
+			threaded_db_wrapper_query(sSQL);	
 			LoggerWrapper::GetInstance()->Write( LV_WARNING, "AddAVDeviceInput" );
 			LoggerWrapper::GetInstance()->Write( LV_WARNING, sSQL.c_str() );
 
 			sSQL = "INSERT INTO DeviceTemplate_MediaType (FK_DeviceTemplate,FK_MediaType) VALUES(";
 			sSQL += embeddedId + "," + sMediaType + ")";
-			threaded_mysql_query(sSQL);	
+			threaded_db_wrapper_query(sSQL);	
 			LoggerWrapper::GetInstance()->Write( LV_WARNING, "AddAVDeviceInput" );
 			LoggerWrapper::GetInstance()->Write( LV_WARNING, sSQL.c_str() );
 		}
@@ -706,7 +706,7 @@ void WizardLogic::AddAVMediaType()
 	sSQL =string("INSERT IGNORE INTO DeviceTemplate_MediaType\
 		(FK_DeviceTemplate,PK_DeviceTemplate_MediaType) VALUES (") + 
 		StringUtils::ltos(m_nPKAVTemplate) + "," + StringUtils::ltos(m_nPKMediaType) + ")";
-	threaded_mysql_query(sSQL);
+	threaded_db_wrapper_query(sSQL);
 }
 
 int WizardLogic::GetAVIRCodesType()
@@ -717,11 +717,11 @@ int WizardLogic::GetAVIRCodesType()
 	bool bToggle = true;
 
 	PlutoSqlResult result;
-	MYSQL_ROW row;
+	DB_ROW row;
 
-	if( (result.r = mysql_query_result(sSQL))  )
+	if( (result.r = db_wrapper_query_result(sSQL))  )
 	{
-		while( (row = mysql_fetch_row( result.r )) )
+		while( (row = db_wrapper_fetch_row( result.r )) )
 		{
 			nCommandId = atoi( row[1] );
 			if( (nCommandId == 192) || (nCommandId == 193) )
@@ -743,7 +743,7 @@ int WizardLogic::GetAVIRCodesType()
 bool WizardLogic::IsIRCodes(string commands)
 {
 	PlutoSqlResult result;
-	MYSQL_ROW row;
+	DB_ROW row;
 	string sql = "SELECT Description,OriginalKey FROM InfraredGroup,InfraredGroup_Command WHERE\
 		PK_InfraredGroup=FK_InfraredGroup AND FK_DeviceCategory='";
 	sql += StringUtils::ltos(m_nPKDeviceCategory) + "'" + "AND FK_Manufacturer='" + 
@@ -751,9 +751,9 @@ bool WizardLogic::IsIRCodes(string commands)
 	if( !commands.empty() )
 		sql += string(" ") + "AND FK_Command IN(" + commands + ")";
 
-	if( (result.r = mysql_query_result(sql))  )
+	if( (result.r = db_wrapper_query_result(sql))  )
 	{
-		if( (row = mysql_fetch_row( result.r )) )
+		if( (row = db_wrapper_fetch_row( result.r )) )
 			return true;
 		else 
 			return false;
@@ -771,15 +771,15 @@ int WizardLogic::GetAVInputType()
 int WizardLogic::GetParentDevice()
 {
 	PlutoSqlResult result_set;
-	MYSQL_ROW row;
+	DB_ROW row;
 	m_nPKParentDevice = 0;
 
 	string sql = "SELECT PK_Device,FK_Device_ControlledVia FROM Device WHERE PK_Device='";
 	sql += StringUtils::ltos(m_nPKDevice) + "'";
 
-	if( (result_set.r=mysql_query_result(sql)) )
+	if( (result_set.r=db_wrapper_query_result(sql)) )
 	{
-		if( (row = mysql_fetch_row(result_set.r)))
+		if( (row = db_wrapper_fetch_row(result_set.r)))
 		{
 			m_nPKParentDevice = atoi( row[1] );
 			return m_nPKParentDevice;
@@ -796,7 +796,7 @@ void WizardLogic::UpdateAVTemplateToggle()
 	sSQL += string("ToggleDSP=") + ( m_bAVToggleDSP ? "1" : "0" ) + ",";
 	sSQL += string("ToggleInput=") + ( m_bAVToggleInput ? "1" : "0" ) + " ";
 	sSQL += "WHERE FK_DeviceTemplate=" + StringUtils::ltos(m_nPKAVTemplate);
-	threaded_mysql_query(sSQL);
+	threaded_db_wrapper_query(sSQL);
 }
 	*/
 
@@ -804,13 +804,13 @@ void WizardLogic::SetAvPath(int PK_Device_From,int PK_Device_To,int PK_Pipe,int 
 {
 	string sSQL = "DELETE FROM Device_Device_Pipe WHERE FK_Device_From=" + StringUtils::itos(PK_Device_From) +
 		" AND FK_Pipe=" + StringUtils::itos(PK_Pipe);
-	threaded_mysql_query(sSQL);
+	threaded_db_wrapper_query(sSQL);
 
 	sSQL = "INSERT INTO Device_Device_Pipe(FK_Device_From,FK_Device_To,FK_Pipe,FK_Command_Input)"
 		" VALUES(" + StringUtils::itos(PK_Device_From) + "," + StringUtils::itos(PK_Device_To) + ","
 		+ StringUtils::itos(PK_Pipe) + "," + StringUtils::itos(PK_Command_Input) + ")";
 
-	threaded_mysql_query(sSQL);
+	threaded_db_wrapper_query(sSQL);
 }
 
 bool WizardLogic::GetAvPath(int PK_Device_From,long &PK_Device_To,int PK_Pipe,long &PK_Command_Input,string &sDescription,string &sCommandDescription)
@@ -818,9 +818,9 @@ bool WizardLogic::GetAvPath(int PK_Device_From,long &PK_Device_To,int PK_Pipe,lo
 	string sSQL = "SELECT PK_Device,Device.Description,FK_Command_Input,Command.Description FROM Device_Device_Pipe JOIN Device ON FK_Device_To=PK_Device "
 		" LEFT JOIN Command ON FK_Command_Input=PK_Command WHERE FK_Device_From=" + StringUtils::itos(PK_Device_From) +
 		" AND FK_Pipe=" + StringUtils::itos(PK_Pipe);
-	MYSQL_ROW row;
+	DB_ROW row;
 	PlutoSqlResult result_set;
-	if( (result_set.r=mysql_query_result(sSQL)) && ((row = mysql_fetch_row(result_set.r))) && row[0] )
+	if( (result_set.r=db_wrapper_query_result(sSQL)) && ((row = db_wrapper_fetch_row(result_set.r))) && row[0] )
 	{
 		PK_Device_To = atoi( row[0] );
 		sDescription = row[1];
@@ -845,7 +845,7 @@ void WizardLogic::InsertDSPModes()
 		sqlFinal = sql + StringUtils::ltos(m_nPKAVTemplate) + "," + *it + "," + StringUtils::ltos(nPos) + ")";
 		if( m_bAVToggleDSP )
 			nPos++;
-		threaded_mysql_query(sqlFinal);
+		threaded_db_wrapper_query(sqlFinal);
 	}
 }
 
@@ -860,12 +860,12 @@ void WizardLogic::ChangeDSPOrder()
 	sql = string("UPDATE DeviceTemplate_DSPMode SET OrderNo=") +  m_secondPos + " ";
 	sql += string("WHERE FK_DeviceTemplate=") + StringUtils::ltos(m_nPKAVTemplate) + " " + "AND FK_Command=" + 
 		m_firstId;
-	threaded_mysql_query(sql);
+	threaded_db_wrapper_query(sql);
 
 	sql = string("UPDATE DeviceTemplate_DSPMode SET OrderNo=") +  m_firstPos + " ";
 	sql += string("WHERE FK_DeviceTemplate=") + StringUtils::ltos(m_nPKAVTemplate) + " " + "AND FK_Command=" + 
 		m_secondId;
-	threaded_mysql_query(sql);
+	threaded_db_wrapper_query(sql);
 }
 
 void WizardLogic::ChangeInputOrder()
@@ -878,12 +878,12 @@ void WizardLogic::ChangeInputOrder()
 	sql = string("UPDATE DeviceTemplate_Input SET OrderNo=") +  m_secondPos + " ";
 	sql += string("WHERE FK_DeviceTemplate=") + StringUtils::ltos(m_nPKAVTemplate) + " " + "AND FK_Command=" + 
 		m_firstId;
-	threaded_mysql_query(sql);
+	threaded_db_wrapper_query(sql);
 
 	sql = string("UPDATE DeviceTemplate_Input SET OrderNo=") +  m_firstPos + " ";
 	sql += string("WHERE FK_DeviceTemplate=") + StringUtils::ltos(m_nPKAVTemplate) + " " + "AND FK_Command=" + 
 		m_secondId;
-	threaded_mysql_query(sql);
+	threaded_db_wrapper_query(sql);
 }
 
 void WizardLogic::CreateIRGroup()
@@ -893,14 +893,14 @@ void WizardLogic::CreateIRGroup()
 	sql = "INSERT INTO InfraredGroup (FK_DeviceCategory,FK_Manufacturer,Description,FK_CommMethod) VALUES (";
 	sql += StringUtils::ltos(m_nPKDeviceCategory) + "," + StringUtils::ltos(m_nPKManufacuter) + ",";
 	sql += StringUtils::ltos(m_nPKAVTemplate) + "," + "1" + ")";
-	m_nPKIRGroup = threaded_mysql_query_withID(sql);
+	m_nPKIRGroup = threaded_db_wrapper_query_withID(sql);
   
 	for(it=m_mapIRCommands.begin();it!=m_mapIRCommands.end();it++)
 	{
 		sql = "INSERT INTO InfraredGroup_Command (FK_InfraredGroup,FK_Command ,FK_DeviceTemplate,IRData) VALUES("; 
 		sql += StringUtils::ltos(m_nPKIRGroup) + "," + StringUtils::ltos(it->first) + ",";
 		sql += StringUtils::ltos(m_nPKAVTemplate) + "," + it->second + ")";
-		threaded_mysql_query(sql);
+		threaded_db_wrapper_query(sql);
 	}
 }
 */
@@ -940,9 +940,9 @@ void WizardLogic::DeleteDevicesInThisRoomOfType(int PK_DeviceCategory)
 		") AND FK_Room=" + StringUtils::itos(m_pOrbiter->m_pData->m_dwPK_Room);
 
 	PlutoSqlResult result_set;
-	MYSQL_ROW row;
-	if( (result_set.r=mysql_query_result(sSQL)) )
-		while ((row = mysql_fetch_row(result_set.r)))
+	DB_ROW row;
+	if( (result_set.r=db_wrapper_query_result(sSQL)) )
+		while ((row = db_wrapper_fetch_row(result_set.r)))
 		{
 			string sResponse;  // Make sure the device is deleted before we continue
 			DCE::CMD_Delete_Device CMD_Delete_Device(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_GeneralInfoPlugIn,atoi(row[0]));
@@ -955,12 +955,12 @@ int WizardLogic::FindManufacturer(string sName)
 	sName = StringUtils::SQLEscape(sName);
 	string sSQL = "SELECT PK_Manufacturer FROM Manufacturer WHERE Description='" + sName + "'";
 	PlutoSqlResult result_set;
-	MYSQL_ROW row;
-	if( (result_set.r=mysql_query_result(sSQL)) && (row = mysql_fetch_row(result_set.r)) && row[0] )
+	DB_ROW row;
+	if( (result_set.r=db_wrapper_query_result(sSQL)) && (row = db_wrapper_fetch_row(result_set.r)) && row[0] )
 		return atoi(row[0]);
 
 	sSQL = "INSERT INTO Manufacturer(Description) VALUES('" + sName + "')";
-	return threaded_mysql_query_withID(sSQL);
+	return threaded_db_wrapper_query_withID(sSQL);
 }
 
 int WizardLogic::FindModel(int PK_DeviceCategory,string sModel)
@@ -971,13 +971,13 @@ int WizardLogic::FindModel(int PK_DeviceCategory,string sModel)
 	sModel = StringUtils::SQLEscape(sModel);
 	string sSQL = "SELECT PK_DeviceTemplate FROM DeviceTemplate WHERE FK_Manufacturer = " + StringUtils::itos(m_dwPK_Manufacturer) + " AND Description='" + sModel + "'";
 	PlutoSqlResult result_set;
-	MYSQL_ROW row;
-	if( (result_set.r=mysql_query_result(sSQL)) && (row = mysql_fetch_row(result_set.r)) && row[0] )
+	DB_ROW row;
+	if( (result_set.r=db_wrapper_query_result(sSQL)) && (row = db_wrapper_fetch_row(result_set.r)) && row[0] )
 		return atoi(row[0]);
 
 	sSQL = "INSERT INTO DeviceTemplate(Description,FK_DeviceCategory,FK_Manufacturer,FK_CommMethod) VALUES('" + sModel + "'," + StringUtils::itos(PK_DeviceCategory) + 
 		"," + StringUtils::itos(m_dwPK_Manufacturer) + "," TOSTRING(COMMMETHOD_Infrared_CONST) ")";
-	return threaded_mysql_query_withID(sSQL);
+	return threaded_db_wrapper_query_withID(sSQL);
 }
 
 string WizardLogic::GetDeviceStatus(long nPK_Device)
@@ -985,8 +985,8 @@ string WizardLogic::GetDeviceStatus(long nPK_Device)
 	string sSQL = "SELECT Status FROM Device WHERE PK_Device = " + StringUtils::ltos(nPK_Device);
 
 	PlutoSqlResult result_set;
-	MYSQL_ROW row;
-	if((result_set.r = mysql_query_result(sSQL)) && (row = mysql_fetch_row(result_set.r)) && row[0])
+	DB_ROW row;
+	if((result_set.r = db_wrapper_query_result(sSQL)) && (row = db_wrapper_fetch_row(result_set.r)) && row[0])
 		return row[0];
 
 	return "";
@@ -1003,9 +1003,9 @@ int WizardLogic::GetNumLights()
 		" OR FK_DeviceCategory_Parent=" + StringUtils::itos(DEVICECATEGORY_Lighting_Device_CONST);
 
 	PlutoSqlResult result_set;
-	MYSQL_ROW row;
-	if( (result_set.r=mysql_query_result(sSQL)) )
-		while ((row = mysql_fetch_row(result_set.r)))
+	DB_ROW row;
+	if( (result_set.r=db_wrapper_query_result(sSQL)) )
+		while ((row = db_wrapper_fetch_row(result_set.r)))
 		{
 			if( !row[1] || !atoi(row[1]) )
 				m_dequeNumLights.push_back(make_pair<int,string> (atoi(row[0]),row[2] ? row[2] : ""));
@@ -1025,9 +1025,9 @@ int WizardLogic::GetNumSensors()
 		" OR FK_DeviceCategory_Parent=" + StringUtils::itos(DEVICECATEGORY_Security_Device_CONST);
 
 	PlutoSqlResult result_set;
-	MYSQL_ROW row;
-	if( (result_set.r=mysql_query_result(sSQL)) )
-		while ((row = mysql_fetch_row(result_set.r)))
+	DB_ROW row;
+	if( (result_set.r=db_wrapper_query_result(sSQL)) )
+		while ((row = db_wrapper_fetch_row(result_set.r)))
 		{
 			if( !row[1] || !atoi(row[1]) || atoi(row[3])==DEVICETEMPLATE_Generic_Sensor_CONST )
 				m_dequeNumSensors.push_back(make_pair<int,string> (atoi(row[0]),row[2] ? row[2] : ""));
@@ -1041,8 +1041,8 @@ string WizardLogic::GetDeviceName(string sPK_Device)
 	string sSQL = "SELECT Description FROM Device WHERE PK_Device = " + sPK_Device;
 
 	PlutoSqlResult result_set;
-	MYSQL_ROW row;
-	if((result_set.r = mysql_query_result(sSQL)) && (row = mysql_fetch_row(result_set.r)) && row[0])
+	DB_ROW row;
+	if((result_set.r = db_wrapper_query_result(sSQL)) && (row = db_wrapper_fetch_row(result_set.r)) && row[0])
 		return row[0];
 
 	return "";
@@ -1051,7 +1051,7 @@ string WizardLogic::GetDeviceName(string sPK_Device)
 void WizardLogic::SetDeviceName(string sPK_Device, string sName)
 {
 	string sSQL = "UPDATE Device SET Description = '" + sName + "' WHERE PK_Device = " + sPK_Device;
-	threaded_mysql_query(sSQL);
+	threaded_db_wrapper_query(sSQL);
 }
 
 long WizardLogic::GetDeviceTemplateForDevice(string sPK_Device)
@@ -1059,8 +1059,8 @@ long WizardLogic::GetDeviceTemplateForDevice(string sPK_Device)
 	string sSQL = "SELECT FK_DeviceTemplate FROM Device WHERE PK_Device = " + sPK_Device;
 
 	PlutoSqlResult result_set;
-	MYSQL_ROW row;
-	if((result_set.r = mysql_query_result(sSQL)) && (row = mysql_fetch_row(result_set.r)) && row[0])
+	DB_ROW row;
+	if((result_set.r = db_wrapper_query_result(sSQL)) && (row = db_wrapper_fetch_row(result_set.r)) && row[0])
 		return atoi(row[0]);
 
 	return 0;
@@ -1069,7 +1069,7 @@ long WizardLogic::GetDeviceTemplateForDevice(string sPK_Device)
 void WizardLogic::ChangeDeviceTemplateForDevice(string sPK_Device, string sFK_DeviceTemplate)
 {
 	string sSQL = "UPDATE Device SET FK_DeviceTemplate = " + sFK_DeviceTemplate + " WHERE PK_Device = " + sPK_Device;
-	threaded_mysql_query(sSQL);
+	threaded_db_wrapper_query(sSQL);
 }
 
 long WizardLogic::GetRoomForDevice(string sPK_Device)
@@ -1077,8 +1077,8 @@ long WizardLogic::GetRoomForDevice(string sPK_Device)
 	string sSQL = "SELECT PK_Room FROM Device LEFT JOIN Room ON FK_Room=PK_Room AND Device.FK_Installation=Room.FK_Installation WHERE PK_Device = " + sPK_Device;  // Do a join so we know the room is valid
 
 	PlutoSqlResult result_set;
-	MYSQL_ROW row;
-	if((result_set.r = mysql_query_result(sSQL)) && (row = mysql_fetch_row(result_set.r)) && row[0])
+	DB_ROW row;
+	if((result_set.r = db_wrapper_query_result(sSQL)) && (row = db_wrapper_fetch_row(result_set.r)) && row[0])
 		return row[0] != NULL ? atoi(row[0]) : 0;
 
 	return 0;
@@ -1092,7 +1092,7 @@ void WizardLogic::SetRoomForDevice(string sPK_Device, string sFK_Room)
 	{
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"WizardLogic::SetRoomForDevice failed");
 		string sSQL = "UPDATE Device SET FK_Room = " + sFK_Room + " WHERE PK_Device = " + sPK_Device;
-		threaded_mysql_query(sSQL);
+		threaded_db_wrapper_query(sSQL);
 	}
 }
 

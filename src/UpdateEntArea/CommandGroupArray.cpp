@@ -274,23 +274,23 @@ if( pCommandGroup->m_pRow_CommandGroup->Description_get().find("Panasonic")!=str
 int k=2;
 	string sPK_CommandGroup = StringUtils::itos(pCommandGroup->m_pRow_CommandGroup->PK_CommandGroup_get());
 	string sSQL = "UPDATE CommandGroup set psc_mod=0 WHERE PK_CommandGroup=" + sPK_CommandGroup;
-	if( m_pDatabase_pluto_main->threaded_mysql_query(sSQL) )
+	if( m_pDatabase_pluto_main->threaded_db_wrapper_query(sSQL) )
 		g_bChangedScenarios=true;
 
 	sSQL = "UPDATE CommandGroup_Command set psc_mod=0 WHERE FK_CommandGroup=" + sPK_CommandGroup;
-	if( m_pDatabase_pluto_main->threaded_mysql_query(sSQL) )
+	if( m_pDatabase_pluto_main->threaded_db_wrapper_query(sSQL) )
 		g_bChangedScenarios=true;
 
 	sSQL = "UPDATE CommandGroup_Command_CommandParameter JOIN CommandGroup_Command ON FK_CommandGroup_Command=PK_CommandGroup_Command set CommandGroup_Command_CommandParameter.psc_mod=0 WHERE FK_CommandGroup=" + sPK_CommandGroup;
-	if( m_pDatabase_pluto_main->threaded_mysql_query(sSQL) )
+	if( m_pDatabase_pluto_main->threaded_db_wrapper_query(sSQL) )
 		g_bChangedScenarios=true;
 
 	sSQL = "UPDATE CommandGroup_Room set psc_mod=0 WHERE FK_CommandGroup=" + sPK_CommandGroup;
-	if( m_pDatabase_pluto_main->threaded_mysql_query(sSQL) )
+	if( m_pDatabase_pluto_main->threaded_db_wrapper_query(sSQL) )
 		g_bChangedScenarios=true;
 
 	sSQL = "UPDATE CommandGroup_EntertainArea set psc_mod=0 WHERE FK_CommandGroup=" + sPK_CommandGroup;
-	if( m_pDatabase_pluto_main->threaded_mysql_query(sSQL) )
+	if( m_pDatabase_pluto_main->threaded_db_wrapper_query(sSQL) )
 		g_bChangedScenarios=true;
 }
 
@@ -505,7 +505,7 @@ bool CommandGroupArray::CommandGroupIsModified(Row_CommandGroup *pRow_CommandGro
 		StringUtils::itos(pRow_CommandGroup->PK_CommandGroup_get()) + " AND "
 		"(CommandGroup.psc_mod>0 OR CommandGroup_Command.psc_mod>0 OR CommandGroup_Command_CommandParameter.psc_mod>0) LIMIT 1";
 
-	if( (result_set1.r=m_pDatabase_pluto_main->mysql_query_result(sSQL)) && result_set1.r->row_count )
+	if( (result_set1.r=m_pDatabase_pluto_main->db_wrapper_query_result(sSQL)) && result_set1.r->row_count )
 		return true;
 
 	sSQL = "SELECT FK_CommandGroup FROM CommandGroup_Room "
@@ -513,7 +513,7 @@ bool CommandGroupArray::CommandGroupIsModified(Row_CommandGroup *pRow_CommandGro
 		StringUtils::itos(pRow_CommandGroup->PK_CommandGroup_get()) + " AND "
 		"psc_mod>0 LIMIT 1";
 
-	if( (result_set2.r=m_pDatabase_pluto_main->mysql_query_result(sSQL)) && result_set2.r->row_count )
+	if( (result_set2.r=m_pDatabase_pluto_main->db_wrapper_query_result(sSQL)) && result_set2.r->row_count )
 		return true;
 
 	sSQL = "SELECT FK_CommandGroup FROM CommandGroup_EntertainArea "
@@ -521,7 +521,7 @@ bool CommandGroupArray::CommandGroupIsModified(Row_CommandGroup *pRow_CommandGro
 		StringUtils::itos(pRow_CommandGroup->PK_CommandGroup_get()) + " AND "
 		"psc_mod>0 LIMIT 1";
 
-	if( (result_set3.r=m_pDatabase_pluto_main->mysql_query_result(sSQL)) && result_set3.r->row_count )
+	if( (result_set3.r=m_pDatabase_pluto_main->db_wrapper_query_result(sSQL)) && result_set3.r->row_count )
 		return true;
 
 	return false;

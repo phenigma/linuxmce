@@ -27,24 +27,23 @@
 #include <dirent.h>
 #endif
 
-#include <mysql.h>
 #include <vector>
 #include <sstream>
 #include <time.h>
 #include <string.h>
 #include "EPGGrid.h"
 
-EPGGrid::EPGGrid(class MySqlHelper *pMySqlHelper_Myth) : m_pMySqlHelper_Myth(pMySqlHelper_Myth)
+EPGGrid::EPGGrid(class DBHelper *pDBHelper_Myth) : m_pDBHelper_Myth(pDBHelper_Myth)
 {
 	string sSQL = "SELECT channum, callsign, chanid, icon FROM channel ORDER BY CAST(channum AS SIGNED)";
 	PlutoSqlResult result_set;
-	MYSQL_ROW row;
+	DB_ROW row;
 	DataGridCell *pCell = new DataGridCell("None","0");
 	SetData(0,0,pCell);
 	int iRow=0;
-	if( (result_set.r=m_pMySqlHelper_Myth->mysql_query_result(sSQL)) )
+	if( (result_set.r=m_pDBHelper_Myth->db_wrapper_query_result(sSQL)) )
 	{
-		while ((row = mysql_fetch_row(result_set.r)))
+		while ((row = db_wrapper_fetch_row(result_set.r)))
 		{
 			size_t fSize;
 			char *fLogo;
@@ -68,7 +67,7 @@ EPGGrid::~EPGGrid()
 void EPGGrid::ToData(string GridID,int &Size, char* &Data, int *ColStart, int *RowStart, int ColCount, int RowCount)
 {
 	PlutoSqlResult result_set;
-	MYSQL_ROW row;
+	DB_ROW row;
 
 	for(int irow=*RowStart;irow<=*RowStart+RowCount && irow<m_TotalRows;++irow)
 	{
@@ -76,7 +75,7 @@ void EPGGrid::ToData(string GridID,int &Size, char* &Data, int *ColStart, int *R
 		string chanid = pCell->GetValue();
 		// Todo "description" in this table will contain the longer program description
 		string sSQL = "SELECT title FROM program WHERE program.chanid = "+chanid+" AND program.starttime < NOW() AND program.endtime > NOW()";
-		if ((result_set.r=m_pMySqlHelper_Myth->mysql_query_result(sSQL)) && (row = mysql_fetch_row(result_set.r)))
+		if ((result_set.r=m_pDBHelper_Myth->db_wrapper_query_result(sSQL)) && (row = db_wrapper_fetch_row(result_set.r)))
 		{
 			SetData(2, irow, new DataGridCell(row[0]));
 		}	

@@ -249,15 +249,15 @@ void UpdateMedia::UpdateSearchTokens()
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Updating search tokens...");
 
 	string SQL = "DELETE FROM SearchToken_Attribute";
-	m_pDatabase_pluto_media->threaded_mysql_query(SQL);
+	m_pDatabase_pluto_media->threaded_db_wrapper_query(SQL);
 
 	SQL = "SELECT PK_Attribute,Name FROM Attribute";
 
 	PlutoSqlResult allresult,result;
-	MYSQL_ROW row,row2;
-	if( ( allresult.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) )
+	DB_ROW row,row2;
+	if( ( allresult.r=m_pDatabase_pluto_media->db_wrapper_query_result( SQL ) ) )
 	{
-		while( ( row=mysql_fetch_row( allresult.r ) ) )
+		while( ( row=db_wrapper_fetch_row( allresult.r ) ) )
 		{
 			if(m_bAsDaemon)
 				Sleep(40);
@@ -272,7 +272,7 @@ void UpdateMedia::UpdateSearchTokens()
 				SQL = "SELECT PK_SearchToken FROM SearchToken WHERE Token='" +
 					StringUtils::SQLEscape( Token ) + "'";
 				int PK_SearchToken=0;
-				if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) && ( row2=mysql_fetch_row( result.r ) ) )
+				if( ( result.r=m_pDatabase_pluto_media->db_wrapper_query_result( SQL ) ) && ( row2=db_wrapper_fetch_row( result.r ) ) )
 				{
 					PK_SearchToken = atoi( row2[0] );
 				}
@@ -280,14 +280,14 @@ void UpdateMedia::UpdateSearchTokens()
 				{
 					SQL = "INSERT INTO SearchToken( Token ) VALUES( '" +
 						StringUtils::SQLEscape( Token ) + "' )";
-					PK_SearchToken = m_pDatabase_pluto_media->threaded_mysql_query_withID( SQL );
+					PK_SearchToken = m_pDatabase_pluto_media->threaded_db_wrapper_query_withID( SQL );
 				}
 				if( PK_SearchToken )
 				{
 					SQL = "INSERT INTO SearchToken_Attribute(FK_SearchToken,FK_Attribute) VALUES( " +
 						StringUtils::itos( PK_SearchToken ) + ", " +
 						row[0] + " )";
-					m_pDatabase_pluto_media->threaded_mysql_query( SQL, true );
+					m_pDatabase_pluto_media->threaded_db_wrapper_query( SQL, true );
 				}
 			}
 		}
@@ -302,10 +302,10 @@ void UpdateMedia::UpdateThumbnails()
 
 	string SQL = "SELECT PK_Picture,Extension FROM Picture";
 	PlutoSqlResult result;
-	MYSQL_ROW row;
-	if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) )
+	DB_ROW row;
+	if( ( result.r=m_pDatabase_pluto_media->db_wrapper_query_result( SQL ) ) )
 	{
-		while( ( row=mysql_fetch_row( result.r ) ) )
+		while( ( row=db_wrapper_fetch_row( result.r ) ) )
 		{
 #ifdef WIN32
 			__time64_t tModTime=0,tTnModTime=0;
@@ -341,11 +341,11 @@ void UpdateMedia::UpdateThumbnails()
 
 				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Picture %s is missing. Deleting all references", row[0]);
 
-				m_pDatabase_pluto_media->threaded_mysql_query("DELETE FROM Picture WHERE PK_Picture=" + string(row[0]));
-				m_pDatabase_pluto_media->threaded_mysql_query("DELETE FROM Picture_Attribute WHERE FK_Picture=" + string(row[0]));
-				m_pDatabase_pluto_media->threaded_mysql_query("DELETE FROM Picture_Disc WHERE FK_Picture=" + string(row[0]));
-				m_pDatabase_pluto_media->threaded_mysql_query("DELETE FROM Picture_File WHERE FK_Picture=" + string(row[0]));
-				m_pDatabase_pluto_media->threaded_mysql_query("UPDATE Bookmark SET FK_Picture=NULL WHERE FK_Picture=" + string(row[0]));
+				m_pDatabase_pluto_media->threaded_db_wrapper_query("DELETE FROM Picture WHERE PK_Picture=" + string(row[0]));
+				m_pDatabase_pluto_media->threaded_db_wrapper_query("DELETE FROM Picture_Attribute WHERE FK_Picture=" + string(row[0]));
+				m_pDatabase_pluto_media->threaded_db_wrapper_query("DELETE FROM Picture_Disc WHERE FK_Picture=" + string(row[0]));
+				m_pDatabase_pluto_media->threaded_db_wrapper_query("DELETE FROM Picture_File WHERE FK_Picture=" + string(row[0]));
+				m_pDatabase_pluto_media->threaded_db_wrapper_query("UPDATE Bookmark SET FK_Picture=NULL WHERE FK_Picture=" + string(row[0]));
 
 				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Thumbs pic #%s deleted!", row[0]);
 			}
@@ -378,11 +378,11 @@ void UpdateMedia::SyncDbWithDirectory(string sDirectory)
 	};
 
 	bool bRowsAffected = false;
-	MYSQL_ROW row;
+	DB_ROW row;
 	PlutoSqlResult allresult;
-	if(NULL != (allresult.r = m_pDatabase_pluto_media->mysql_query_result(sSql)))
+	if(NULL != (allresult.r = m_pDatabase_pluto_media->db_wrapper_query_result(sSql)))
 	{
-		while((row = mysql_fetch_row(allresult.r)))
+		while((row = db_wrapper_fetch_row(allresult.r)))
 		{
 			if(
 				NULL != row && NULL != row[sfFileID] &&  NULL != row[sfPath] && 
@@ -406,7 +406,7 @@ void UpdateMedia::SyncDbWithDirectory(string sDirectory)
 						{
 							bRowsAffected = true;
 							string sUpdateSql = "UPDATE File SET Missing = 1 WHERE PK_File = " + StringUtils::ltos(nFileID);
-							m_pDatabase_pluto_media->threaded_mysql_query(sUpdateSql);
+							m_pDatabase_pluto_media->threaded_db_wrapper_query(sUpdateSql);
 							LoggerWrapper::GetInstance()->Write(LV_STATUS, "Marking record as missing in database: %s", sFilePath.c_str());
 
 							if(m_bAsDaemon)
@@ -416,7 +416,7 @@ void UpdateMedia::SyncDbWithDirectory(string sDirectory)
 						{
 							bRowsAffected = true;
 							string sUpdateSql = "UPDATE File SET Missing = 0 WHERE PK_File = " + StringUtils::ltos(nFileID);
-							m_pDatabase_pluto_media->threaded_mysql_query(sUpdateSql);
+							m_pDatabase_pluto_media->threaded_db_wrapper_query(sUpdateSql);
 							LoggerWrapper::GetInstance()->Write(LV_STATUS, "Marking record as NOT missing in database: %s", sFilePath.c_str());
 
 							if(m_bAsDaemon)

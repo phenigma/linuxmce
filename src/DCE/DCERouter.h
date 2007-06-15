@@ -21,11 +21,10 @@
 #include "AlarmManager.h"
 #include "SerializeClass/SerializeClass.h"
 #include "DeviceData_Router.h"
-#include "PlutoUtils/MySQLHelper.h"
+#include "PlutoUtils/DBHelper.h"
 
 #include <set>
 #include <queue>
-#include <mysql.h>
 
 #include "Command_Impl.h"
 #include "pluto_main/Table_Device_DeviceData.h"
@@ -150,7 +149,7 @@ namespace DCE
 
     */
 
-    class Router : public SocketListener, AlarmEvent, public MySqlHelper
+    class Router : public SocketListener, AlarmEvent, public DBHelper
     {
     private:
         /*

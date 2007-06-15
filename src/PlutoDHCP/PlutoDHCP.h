@@ -19,8 +19,6 @@
 #ifndef PlutoDHCP_h
 #define PlutoDHCP_h
 
-#include "PlutoUtils/MySQLHelper.h"
-
 /*
 	This program does 2 things:  
 	

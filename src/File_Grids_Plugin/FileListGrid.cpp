@@ -22,7 +22,6 @@
 #include "PlutoUtils/Other.h"
 #include "PlutoUtils/CommonIncludes.h"
 
-#include <mysql.h>
 #include <vector>
 #include <sstream>
 #include <time.h>
@@ -86,12 +85,12 @@ void FileListGrid::ToData(string GridID,int &Size, char* &Data, int *ColStart, i
 			")";
 
 		PlutoSqlResult result;
-		MYSQL_ROW row;
+		DB_ROW row;
 		if( 
-			(result.r = m_pMedia_Plugin->m_pDatabase_pluto_media->mysql_query_result(sSql.c_str())) 
+			(result.r = m_pMedia_Plugin->m_pDatabase_pluto_media->db_wrapper_query_result(sSql.c_str())) 
 		)
 		{
-			while(NULL != result.r && (row = mysql_fetch_row(result.r)))
+			while(NULL != result.r && (row = db_wrapper_fetch_row(result.r)))
 			{
 				//got any picture?
 				if(NULL != row[1] && NULL != row[2])

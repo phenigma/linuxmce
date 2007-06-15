@@ -190,9 +190,9 @@ void UpdateEntArea::FixMissingAutoCreateDevices()
 		"WHERE Child.PK_Device IS NULL AND AutoCreateChildren=1";
 
 	PlutoSqlResult result_set;
-	MYSQL_ROW row;
-	if( (result_set.r=m_pDatabase_pluto_main->mysql_query_result(sSQL)) )
-		while ((row = mysql_fetch_row(result_set.r)))
+	DB_ROW row;
+	if( (result_set.r=m_pDatabase_pluto_main->db_wrapper_query_result(sSQL)) )
+		while ((row = db_wrapper_fetch_row(result_set.r)))
 			m_pCreateDevice->CreateAutoCreateChildDevice(atoi(row[3]),atoi(row[0]),row[1] && atoi(row[1]),atoi(row[2]),0);
 
 	// Find any auto create children specified in DeviceTemplate_DeviceCategory_ControlledVia that aren't present
@@ -207,8 +207,8 @@ void UpdateEntArea::FixMissingAutoCreateDevices()
 		"WHERE Child.PK_Device IS NULL AND AutoCreateChildren=1";
 
 	PlutoSqlResult result_set2;
-	if( (result_set2.r=m_pDatabase_pluto_main->mysql_query_result(sSQL)) )
-		while ((row = mysql_fetch_row(result_set2.r)))
+	if( (result_set2.r=m_pDatabase_pluto_main->db_wrapper_query_result(sSQL)) )
+		while ((row = db_wrapper_fetch_row(result_set2.r)))
 			m_pCreateDevice->CreateAutoCreateChildDevice(atoi(row[3]),atoi(row[0]),row[1] && atoi(row[1]),0,atoi(row[2]));
 }
 
@@ -221,7 +221,7 @@ void UpdateEntArea::GetMediaAndRooms()
 		" WHERE Parent.FK_Installation=" + StringUtils::itos(m_iPK_Installation);
 
 	// Keep doing this in case any nested rows missing the installation
-	while( m_pDatabase_pluto_main->threaded_mysql_query(sSQL)>0 );
+	while( m_pDatabase_pluto_main->threaded_db_wrapper_query(sSQL)>0 );
 
 	// Be sure hybrid media director's are in the same room as the core
 	sSQL = "UPDATE Device "
@@ -231,7 +231,7 @@ void UpdateEntArea::GetMediaAndRooms()
 		" SET Device.FK_Room = Parent.FK_Room "
 		" WHERE DeviceTemplate.FK_DeviceCategory=" + StringUtils::itos(DEVICECATEGORY_Media_Director_CONST) +
 		" AND DeviceTemplate_Parent.FK_DeviceCategory=" + StringUtils::itos(DEVICECATEGORY_Core_CONST);
-	m_pDatabase_pluto_main->threaded_mysql_query(sSQL);
+	m_pDatabase_pluto_main->threaded_db_wrapper_query(sSQL);
 
 	// Be sure devices with auto assign to parent's room are in the same room as the parents
 	sSQL = "UPDATE Device "
@@ -239,7 +239,7 @@ void UpdateEntArea::GetMediaAndRooms()
 		"LEFT JOIN Device As Parent ON Parent.PK_Device=Device.FK_Device_ControlledVia "
 		"SET Device.FK_Room=Parent.FK_Room "
 		"WHERE IK_DeviceData=1";
-	m_pDatabase_pluto_main->threaded_mysql_query(sSQL);
+	m_pDatabase_pluto_main->threaded_db_wrapper_query(sSQL);
 
 	// Get all the entertainment areas and populate them with all the devices in those areas
 	Row_Installation *pRow_Installation = m_pDatabase_pluto_main->Installation_get( )->GetRow( m_iPK_Installation );
@@ -337,7 +337,7 @@ void UpdateEntArea::SetEAInRooms()
 
 			// Delete any 'put this device in all rooms with a md' if there's no m/d
 			string sSQL = "DELETE Device_EntertainArea FROM Device_EntertainArea JOIN Device ON FK_Device=PK_Device WHERE ManuallyConfigureEA=-1 AND FK_EntertainArea=" + StringUtils::itos(pRow_EntertainArea->PK_EntertainArea_get());
-			m_pDatabase_pluto_main->threaded_mysql_query(sSQL);
+			m_pDatabase_pluto_main->threaded_db_wrapper_query(sSQL);
 		}
 
 		if( it->second.first==lomNone )
@@ -587,9 +587,9 @@ void UpdateEntArea::GetDevicesTypes(int PK_DeviceCategory,int PK_Room,map<int,in
 		sSQL += " AND FK_Room=" + StringUtils::itos(PK_Room);
     
 	PlutoSqlResult result_set;
-	MYSQL_ROW row;
-	if( (result_set.r=m_pDatabase_pluto_main->mysql_query_result(sSQL)) )
-		while ((row = mysql_fetch_row(result_set.r)))
+	DB_ROW row;
+	if( (result_set.r=m_pDatabase_pluto_main->db_wrapper_query_result(sSQL)) )
+		while ((row = db_wrapper_fetch_row(result_set.r)))
 			(*p_map_Device_Type)[ atoi(row[0]) ] = row[1] ? atoi(row[1]) : 0;
 
 	if( p_mapType )
@@ -610,9 +610,9 @@ void UpdateEntArea::GetDevicesTypesAndRoomTypes(int PK_DeviceCategory,map<int,pa
 		")";
 	
 	PlutoSqlResult result_set;
-	MYSQL_ROW row;
-	if( (result_set.r=m_pDatabase_pluto_main->mysql_query_result(sSQL)) )
-		while ((row = mysql_fetch_row(result_set.r)))
+	DB_ROW row;
+	if( (result_set.r=m_pDatabase_pluto_main->db_wrapper_query_result(sSQL)) )
+		while ((row = db_wrapper_fetch_row(result_set.r)))
 			(*p_map_Device_Type_RoomType)[ atoi(row[0]) ] = make_pair<int,int> (row[1] ? atoi(row[1]) : 0,row[2] ? atoi(row[2]) : 0);
 }
 
@@ -639,6 +639,6 @@ void UpdateEntArea::SetDeviceData(int PK_Device,int PK_DeviceData,string sValue)
 {
 	string sSQL = "UPDATE Device_DeviceData SET IK_DeviceData='" + StringUtils::SQLEscape(sValue) + "',psc_mod=0" +
 		" WHERE FK_Device=" + StringUtils::itos(PK_Device) + " AND FK_DeviceData=" + StringUtils::itos(PK_DeviceData);
-	m_pDatabase_pluto_main->threaded_mysql_query(sSQL);
+	m_pDatabase_pluto_main->threaded_db_wrapper_query(sSQL);
 }
 

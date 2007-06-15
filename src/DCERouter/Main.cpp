@@ -19,7 +19,6 @@
  * $Id: Main.cpp,v 1.3 2004/10/16 12:36:39 aaron Exp $
  */
 #include "PlutoUtils/CommonIncludes.h"	
-#include <mysql.h>
 #include <signal.h>
 #include <iostream>
 #include "DCERouter.h"

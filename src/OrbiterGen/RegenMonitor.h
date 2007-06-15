@@ -19,16 +19,16 @@
 #ifndef RegenMonitor_h
 #define RegenMonitor_h
 
-#include "PlutoUtils/MySQLHelper.h"
+#include "PlutoUtils/DBHelper.h"
 
 class RegenMonitor
 {
-	MySqlHelper *m_pMySqlHelper,*m_pMySqlHelper_Media;
+	DBHelper *m_pDBHelper,*m_pDBHelper_Media;
 	class Row_Room *m_pRow_Room;
 	class Row_EntertainArea *m_pRow_EntertainArea;
 public:
 
-	RegenMonitor(MySqlHelper *pMySqlHelper,MySqlHelper *pMySqlHelper_Media) { m_pMySqlHelper=pMySqlHelper; m_pMySqlHelper_Media=pMySqlHelper_Media; m_pRow_EntertainArea=NULL; m_pRow_Room=NULL; }
+	RegenMonitor(DBHelper *pDBHelper,DBHelper *pDBHelper_Media) { m_pDBHelper=pDBHelper; m_pDBHelper_Media=pDBHelper_Media; m_pRow_EntertainArea=NULL; m_pRow_Room=NULL; }
 	void SetRoomEA(Row_Room *pRow_Room,Row_EntertainArea *pRow_EntertainArea) { m_pRow_Room=pRow_Room;  m_pRow_EntertainArea=pRow_EntertainArea;}
 
 	bool CachedVersionOK(string sString);

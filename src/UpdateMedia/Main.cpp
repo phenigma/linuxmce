@@ -83,7 +83,7 @@ void SyncAttributes()
 {
 	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Synchronizing attributes... "); 
 
-    int nAffectedRecords = g_pDatabase_pluto_media->threaded_mysql_query(
+    int nAffectedRecords = g_pDatabase_pluto_media->threaded_db_wrapper_query(
 		"INSERT INTO Picture_Attribute(FK_Attribute,FK_Picture) "
 		"SELECT PK_Attribute,min(Picture_File.FK_Picture) as FK_Picture FROM Attribute "
 		"JOIN File_Attribute ON File_Attribute.FK_Attribute=PK_Attribute "

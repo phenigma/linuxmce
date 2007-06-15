@@ -364,8 +364,8 @@ bool Pnp_PreCreateOptions::OkayToCreate_Cameras(PnpQueueEntry *pPnpQueueEntry,Ro
 		+ StringUtils::itos(DEVICECATEGORY_Lighting_Device_CONST) + " LIMIT 1";
 
 	PlutoSqlResult result_set_sensors,result_set_lights;
-	bool bHasSensors = ( (result_set_sensors.r=m_pDatabase_pluto_main->mysql_query_result(sSqlSensors)) && result_set_sensors.r->row_count );
-	bool bHasLights = ( (result_set_lights.r=m_pDatabase_pluto_main->mysql_query_result(sSqlLights)) && result_set_lights.r->row_count );
+	bool bHasSensors = ( (result_set_sensors.r=m_pDatabase_pluto_main->db_wrapper_query_result(sSqlSensors)) && result_set_sensors.r->row_count );
+	bool bHasLights = ( (result_set_lights.r=m_pDatabase_pluto_main->db_wrapper_query_result(sSqlLights)) && result_set_lights.r->row_count );
 	if( !bHasSensors && !bHasLights )
 		return true;
 

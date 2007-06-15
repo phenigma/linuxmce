@@ -145,10 +145,10 @@ bool Security_Plugin::GetConfig()
 	// Don't worry about multi-threading--this won't be a concern until we register
 
 	PlutoSqlResult result;
-    MYSQL_ROW row;
-	if( (result.r = m_pDatabase_pluto_security->mysql_query_result(sql.c_str())) )
+    DB_ROW row;
+	if( (result.r = m_pDatabase_pluto_security->db_wrapper_query_result(sql.c_str())) )
     {
-        while( ( row=mysql_fetch_row( result.r ) ) )
+        while( ( row=db_wrapper_fetch_row( result.r ) ) )
 			m_mapRow_ModeChange_Last[row[1] ? atoi(row[1]) : 0] = m_pDatabase_pluto_security->ModeChange_get()->GetRow( atoi(row[0]) );
 	}
 
@@ -376,8 +376,8 @@ void Security_Plugin::CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,s
 		sql << " AND PK_Users=" << iPK_Users;
 
 	PlutoSqlResult result_set;
-	MYSQL_ROW row=NULL;
-	if( ( result_set.r=m_pRouter->mysql_query_result( sql.str( ) ) )==0 || ( row = mysql_fetch_row( result_set.r ) )==NULL )
+	DB_ROW row=NULL;
+	if( ( result_set.r=m_pRouter->db_wrapper_query_result( sql.str( ) ) )==0 || ( row = db_wrapper_fetch_row( result_set.r ) )==NULL )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_WARNING,"User: %d failed to set house mode: %d",iPK_Users,PK_HouseMode);
 		LoggerWrapper::GetInstance()->Write(LV_WARNING,sql.str().c_str());
@@ -1193,8 +1193,8 @@ void Security_Plugin::CMD_Verify_PIN(int iPK_Users,string sPassword,bool *bIsSuc
 		<< "' OR PINCode='" << sPassword << "' OR PINCode='" << m_pRouter->md5(sPassword) << "')";
 
 	PlutoSqlResult result_set;
-	MYSQL_ROW row=NULL;
-	if( ( result_set.r=m_pRouter->mysql_query_result( sql.str( ) ) )==0 || ( row = mysql_fetch_row( result_set.r ) )==NULL )
+	DB_ROW row=NULL;
+	if( ( result_set.r=m_pRouter->db_wrapper_query_result( sql.str( ) ) )==0 || ( row = db_wrapper_fetch_row( result_set.r ) )==NULL )
         *bIsSuccessful=false;
 	else
         *bIsSuccessful=true;

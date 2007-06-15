@@ -21,7 +21,6 @@
 #include "PlutoUtils/Other.h"
 #include "PlutoUtils/CommonIncludes.h"
 
-#include <mysql.h>
 #include <vector>
 #include <sstream>
 #include <time.h>
