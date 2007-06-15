@@ -87,8 +87,15 @@ Logging $TYPE $SEVERITY_NORMAL "LaunchOrbiter" "Primary desktop: $N_Desktops and
 
 ## Prevent kde to display a message every time a cd/dvd is inserted
 mkdir -p /usr/share/kubuntu-default-settings/kde-profile/default/share/config
+
 echo "[Global]" > /usr/share/kubuntu-default-settings/kde-profile/default/share/config/mediamanagerrc
 echo "AutostartEnabled=false" >> /usr/share/kubuntu-default-settings/kde-profile/default/share/config/mediamanagerrc
+
+echo "[Auto Actions]"  > /usr/share/kubuntu-default-settings/kde-profile/default/share/config/medianotifierrc
+for file in /usr/share/mimelnk/media/*  ;do 
+	echo "media/$(basename $file | cut -d '.' -f1)=#NothinAction" > /usr/share/kubuntu-default-settings/kde-profile/default/share/config/medianotifierrc  
+;done
+
 
 ## Export Orbiter desktop information variables
 export ORBITER_PRIMARY_DESKTOP=$((N_Desktops))
