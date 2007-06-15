@@ -79,10 +79,11 @@ function phoneNumberForm($telecomADO,$userID,$addContact){
 	// include language files
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/telecom.lang.php');
+	$userID = (int)@$_SESSION['userID'];
 	
 	/* @var $telecomADO ADOConnection */
 	/* @var $res ADORecordSet */
-	$contacts=getAssocArray('Contact','PK_Contact','Name',$telecomADO);
+	$contacts=getAssocArray('Contact','PK_Contact','Name',$telecomADO,'WHERE EK_Users IS NULL OR EK_Users='.$userID);
 	$PhoneTypes=getAssocArray('PhoneType','PK_PhoneType','Description',$telecomADO);
 	
 	if($addContact==0){
@@ -160,7 +161,7 @@ function phoneNumberForm($telecomADO,$userID,$addContact){
 			<td><input type="text" name="Title" value=""></td>
 		</tr>	
 		<tr>
-			<td><B>'.$TEXT_PUBLIC_CONTACT_CONST.'</B></td>
+			<td><B>'.$TEXT_PRIVATE_CONTACT_CONST.'</B></td>
 			<td><input type="checkbox" name="EK_Users" value="'.$userID.'"></td>
 		</tr>	
 		<tr>
