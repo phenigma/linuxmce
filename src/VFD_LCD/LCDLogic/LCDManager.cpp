@@ -450,11 +450,11 @@ void LCDManager::LoadNetworkInfo()
 		return;
 	}
 
-	//get rid of any \n
-	sNetworkInfo = StringUtils::Replace(sNetworkInfo, "\r\n", "\r");
+	//get rid of any \r
+	sNetworkInfo = StringUtils::Replace(sNetworkInfo, "\r\n", "\n");
 
 	vector<string> vectLines;
-	StringUtils::Tokenize(sNetworkInfo, "\r=", vectLines);
+	StringUtils::Tokenize(sNetworkInfo, "\n=", vectLines);
 
 	for(vector<string>::iterator it = vectLines.begin(); it != vectLines.end(); ++it)
 	{
