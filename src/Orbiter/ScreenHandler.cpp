@@ -3111,6 +3111,10 @@ bool ScreenHandler::AdjustScreenSettings_ObjectSelected(CallBackData *pData)
 		AdjustScreenSettings_SaveOffset(m_ScreenOffset);
 		AdjustScreenSettings_SaveSpacing(m_nScreenSpacing);
 
+		CMD_Regen_Orbiter cmd_Regen_Orbiter(m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device_OrbiterPlugIn,
+			m_pOrbiter->m_dwPK_Device, "", "");
+		m_pOrbiter->SendCommand(cmd_Regen_Orbiter);
+
 		m_pOrbiter->GotoMainMenu();
 	}
 	return false; // Keep processing it
