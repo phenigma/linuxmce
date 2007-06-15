@@ -2477,6 +2477,8 @@
 #define DESIGNOBJ_butRatio4_3_CONST 5496
 #define DESIGNOBJ_butRatio16_9_CONST 5497
 #define DESIGNOBJ_butRatio211_1_CONST 5498
+#define DESIGNOBJ_butNewRoom_NoDevice_CONST 5500
+#define DESIGNOBJ_butConfirm_CONST 5501
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
