@@ -22,6 +22,8 @@ Output="CRT"
 
 DEVICECATEGORY_Video_Cards=125
 DEVICEDATA_Setup_Script=189
+DEVICEDATA_Connector=68
+DEVICEDATA_TV_Standard=229
 
 resHD480=848x480
 resHD720=1280x720
@@ -110,6 +112,9 @@ GetResolutionFromDB()
 	
 	ScanType=
 	Resolution="${ResX}x${ResY}"
+
+	Output=$(GetDeviceData "$ComputerDev" "$DEVICEDATA_Connector")
+	TVStandard=$(GetDeviceData "$ComputerDev" "$DEVICEDATA_TV_Standard")
 }
 
 ParseResolution()
