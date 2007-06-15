@@ -1,15 +1,58 @@
 #!/bin/bash
 
+. /usr/pluto/bin/Config_Ops.sh
+. /usr/pluto/bin/SQL_Ops.sh
+
+function displayNetworkSettings {
+	local Q="SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_DeviceData=32"
+	local R=$(RunSQL "$Q")
+	local ExtPart=$(echo "$R" | cut -d'|' -f1)
+	local IntPart=$(echo "$R" | cut -d'|' -sf2)
+
+	local netExtName="$(echo $ExtPart | cut -d',' -f1)"
+	local netExtIP=$(ifconfig $netExtName | grep "inet addr" | sed 's/.*inet addr:\([0-9.]*\).*Bcast.*/\1/g')
+	local netExtMask=$(ifconfig $netExtName | grep "inet addr" | sed 's/.*Mask:\([0-9.]*\).*$/\1/g')
+	local netExtGate=$(route -n | grep "^0.0.0.0" | head -1 | awk '{print $2}')
+	local netExtDNS1=$(cat /etc/resolv.conf | grep "^nameserver" | head -1 | awk '{print $2}')
+	local netExtDNS2=$(cat /etc/resolv.conf | grep "^nameserver" | tail -1 | awk '{print $2}')
+
+	netUseDhcp=0
+	if ps ax | egrep -q " (/sbin/)?dhclient.? .*${netExtName}\$" ;then
+		netUseDhcp=1
+	fi
+
+	local netIntName="$(echo $IntPart | cut -d',' -f1)"
+	local netIntMask="$(echo $IntPart | cut -d',' -f2)"
+	local netIntIP="$(echo $IntPart | cut -d',' -f3)"
+
+
+	echo "IFACE=$netExtName"
+	echo "DHCP=$netUseDhcp"
+	echo "IP=$netExtIP"
+	echo "NETMASK=$netExtMask"
+	echo "GATEWAY=$netExtGate"
+	echo "DNS1=$netExtDNS1"
+	echo "DNS2=$netExtDNS2"
+	echo
+	echo "IFACE=$netIntName"
+	echo "IP=$netIntIP"
+	echo "NETMASK=$netIntMask"
+
+}
+
+
 for ((i = 1; i <= "$#"; i++)); do
 	case "${!i}" in
 		--orbiter) Orbiter=y ;;
+		--all)
+			displayNetworkSettings
+			exit 0
+			;;
 		*) echo "Unknown option '${!i}'" ;;
 	esac
 done
 
 . /usr/pluto/bin/Network_Parameters.sh
-. /usr/pluto/bin/Config_Ops.sh
-. /usr/pluto/bin/SQL_Ops.sh
 
 case "$DCERouter" in
 	localhost) RouterIP="127.0.0.1" ;;
