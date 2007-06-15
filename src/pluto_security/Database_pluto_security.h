@@ -1,7 +1,6 @@
 #ifndef __Database_pluto_security_H_
 #define __Database_pluto_security_H_
-#include <mysql.h>
-#include "PlutoUtils/MySQLHelper.h"
+#include "PlutoUtils/DBHelper.h"
 #include "DCE/Logger.h"
 #ifdef WIN32
 #ifdef EXPORT_DLL
@@ -16,10 +15,10 @@
 #else
 #define DECLSPECIFIER
 #endif
-class DECLSPECIFIER MySqlHelper;
+class DECLSPECIFIER DBHelper;
 class DECLSPECIFIER SerializeClass;
 
-class DECLSPECIFIER Database_pluto_security: public MySqlHelper
+class DECLSPECIFIER Database_pluto_security: public DBHelper
 {
 public:
 Database_pluto_security(Logger *pLogger=NULL);
@@ -60,7 +59,7 @@ class Table_psc_security_batuser* psc_security_batuser_get() { if( !tblpsc_secur
 class Table_psc_security_repset* psc_security_repset_get() { if( !tblpsc_security_repset ) CreateTable_psc_security_repset(); return tblpsc_security_repset; }
 class Table_psc_security_schema* psc_security_schema_get() { if( !tblpsc_security_schema ) CreateTable_psc_security_schema(); return tblpsc_security_schema; }
 class Table_psc_security_tables* psc_security_tables_get() { if( !tblpsc_security_tables ) CreateTable_psc_security_tables(); return tblpsc_security_tables; }
-string m_sLastMySqlError;
+string m_sLastDBError;
 bool Connect(string host, string user, string pass, string sDBName, int port=3306);
 bool Connect(class DCEConfig *pDCEConfig);
 void Disconnect();

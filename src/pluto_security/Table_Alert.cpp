@@ -28,8 +28,6 @@
 #include <vector>
 #include <map>
 
-#include <mysql.h>
-
 using namespace std;
 #include "PlutoUtils/StringUtils.h"
 #include "Table_Alert.h"
@@ -80,7 +78,7 @@ Table_Alert::~Table_Alert()
 
 void Row_Alert::Delete()
 {
-	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 	Row_Alert *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
@@ -111,7 +109,7 @@ void Row_Alert::Reload()
 {
 	Row_Alert *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 
-	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 	
 	
 	if (!is_added)
@@ -177,215 +175,215 @@ m_psc_restrict = 0;
 	is_modified=false;
 }
 
-long int Row_Alert::PK_Alert_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_Alert::PK_Alert_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return m_PK_Alert;}
-long int Row_Alert::FK_AlertType_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_Alert::FK_AlertType_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return m_FK_AlertType;}
-long int Row_Alert::EK_Device_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_Alert::EK_Device_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return m_EK_Device;}
-string Row_Alert::DetectionTime_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+string Row_Alert::DetectionTime_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return m_DetectionTime;}
-string Row_Alert::ExpirationTime_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+string Row_Alert::ExpirationTime_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return m_ExpirationTime;}
-short int Row_Alert::ResetBeforeExpiration_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+short int Row_Alert::ResetBeforeExpiration_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return m_ResetBeforeExpiration;}
-short int Row_Alert::Benign_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+short int Row_Alert::Benign_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return m_Benign;}
-string Row_Alert::ResetTime_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+string Row_Alert::ResetTime_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return m_ResetTime;}
-long int Row_Alert::EK_Users_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_Alert::EK_Users_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return m_EK_Users;}
-short int Row_Alert::AnnouncementOnly_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+short int Row_Alert::AnnouncementOnly_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return m_AnnouncementOnly;}
-short int Row_Alert::PhotoOnly_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+short int Row_Alert::PhotoOnly_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return m_PhotoOnly;}
-short int Row_Alert::Notification_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+short int Row_Alert::Notification_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return m_Notification;}
-long int Row_Alert::psc_id_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_Alert::psc_id_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return m_psc_id;}
-long int Row_Alert::psc_batch_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_Alert::psc_batch_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return m_psc_batch;}
-long int Row_Alert::psc_user_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_Alert::psc_user_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return m_psc_user;}
-short int Row_Alert::psc_frozen_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+short int Row_Alert::psc_frozen_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return m_psc_frozen;}
-string Row_Alert::psc_mod_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+string Row_Alert::psc_mod_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return m_psc_mod;}
-long int Row_Alert::psc_restrict_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_Alert::psc_restrict_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return m_psc_restrict;}
 
 		
-void Row_Alert::PK_Alert_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Alert::PK_Alert_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 m_PK_Alert = val; is_modified=true; is_null[0]=false;}
-void Row_Alert::FK_AlertType_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Alert::FK_AlertType_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 m_FK_AlertType = val; is_modified=true; is_null[1]=false;}
-void Row_Alert::EK_Device_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Alert::EK_Device_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 m_EK_Device = val; is_modified=true; is_null[2]=false;}
-void Row_Alert::DetectionTime_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Alert::DetectionTime_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 m_DetectionTime = val; is_modified=true; is_null[3]=false;}
-void Row_Alert::ExpirationTime_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Alert::ExpirationTime_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 m_ExpirationTime = val; is_modified=true; is_null[4]=false;}
-void Row_Alert::ResetBeforeExpiration_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Alert::ResetBeforeExpiration_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 m_ResetBeforeExpiration = val; is_modified=true; is_null[5]=false;}
-void Row_Alert::Benign_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Alert::Benign_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 m_Benign = val; is_modified=true; is_null[6]=false;}
-void Row_Alert::ResetTime_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Alert::ResetTime_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 m_ResetTime = val; is_modified=true; is_null[7]=false;}
-void Row_Alert::EK_Users_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Alert::EK_Users_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 m_EK_Users = val; is_modified=true; is_null[8]=false;}
-void Row_Alert::AnnouncementOnly_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Alert::AnnouncementOnly_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 m_AnnouncementOnly = val; is_modified=true; is_null[9]=false;}
-void Row_Alert::PhotoOnly_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Alert::PhotoOnly_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 m_PhotoOnly = val; is_modified=true; is_null[10]=false;}
-void Row_Alert::Notification_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Alert::Notification_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 m_Notification = val; is_modified=true; is_null[11]=false;}
-void Row_Alert::psc_id_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Alert::psc_id_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 m_psc_id = val; is_modified=true; is_null[12]=false;}
-void Row_Alert::psc_batch_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Alert::psc_batch_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 m_psc_batch = val; is_modified=true; is_null[13]=false;}
-void Row_Alert::psc_user_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Alert::psc_user_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 m_psc_user = val; is_modified=true; is_null[14]=false;}
-void Row_Alert::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Alert::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 m_psc_frozen = val; is_modified=true; is_null[15]=false;}
-void Row_Alert::psc_mod_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Alert::psc_mod_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 m_psc_mod = val; is_modified=true; is_null[16]=false;}
-void Row_Alert::psc_restrict_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Alert::psc_restrict_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 m_psc_restrict = val; is_modified=true; is_null[17]=false;}
 
 		
-bool Row_Alert::FK_AlertType_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Alert::FK_AlertType_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return is_null[1];}
-bool Row_Alert::ExpirationTime_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Alert::ExpirationTime_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return is_null[4];}
-bool Row_Alert::ResetBeforeExpiration_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Alert::ResetBeforeExpiration_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return is_null[5];}
-bool Row_Alert::Benign_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Alert::Benign_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return is_null[6];}
-bool Row_Alert::ResetTime_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Alert::ResetTime_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return is_null[7];}
-bool Row_Alert::EK_Users_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Alert::EK_Users_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return is_null[8];}
-bool Row_Alert::AnnouncementOnly_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Alert::AnnouncementOnly_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return is_null[9];}
-bool Row_Alert::PhotoOnly_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Alert::PhotoOnly_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return is_null[10];}
-bool Row_Alert::Notification_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Alert::Notification_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return is_null[11];}
-bool Row_Alert::psc_id_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Alert::psc_id_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return is_null[12];}
-bool Row_Alert::psc_batch_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Alert::psc_batch_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return is_null[13];}
-bool Row_Alert::psc_user_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Alert::psc_user_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return is_null[14];}
-bool Row_Alert::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Alert::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return is_null[15];}
-bool Row_Alert::psc_restrict_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Alert::psc_restrict_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return is_null[17];}
 
 			
-void Row_Alert::FK_AlertType_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Alert::FK_AlertType_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 is_null[1]=val;
 is_modified=true;
 }
-void Row_Alert::ExpirationTime_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Alert::ExpirationTime_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 is_null[4]=val;
 is_modified=true;
 }
-void Row_Alert::ResetBeforeExpiration_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Alert::ResetBeforeExpiration_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 is_null[5]=val;
 is_modified=true;
 }
-void Row_Alert::Benign_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Alert::Benign_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 is_null[6]=val;
 is_modified=true;
 }
-void Row_Alert::ResetTime_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Alert::ResetTime_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 is_null[7]=val;
 is_modified=true;
 }
-void Row_Alert::EK_Users_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Alert::EK_Users_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 is_null[8]=val;
 is_modified=true;
 }
-void Row_Alert::AnnouncementOnly_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Alert::AnnouncementOnly_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 is_null[9]=val;
 is_modified=true;
 }
-void Row_Alert::PhotoOnly_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Alert::PhotoOnly_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 is_null[10]=val;
 is_modified=true;
 }
-void Row_Alert::Notification_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Alert::Notification_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 is_null[11]=val;
 is_modified=true;
 }
-void Row_Alert::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Alert::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 is_null[12]=val;
 is_modified=true;
 }
-void Row_Alert::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Alert::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 is_null[13]=val;
 is_modified=true;
 }
-void Row_Alert::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Alert::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 is_null[14]=val;
 is_modified=true;
 }
-void Row_Alert::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Alert::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 is_null[15]=val;
 is_modified=true;
 }
-void Row_Alert::psc_restrict_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Alert::psc_restrict_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 is_null[17]=val;
 is_modified=true;
 }
@@ -393,7 +391,7 @@ is_modified=true;
 
 string Row_Alert::PK_Alert_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 if (is_null[0])
 return "NULL";
@@ -406,7 +404,7 @@ return buf;
 
 string Row_Alert::FK_AlertType_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 if (is_null[1])
 return "NULL";
@@ -419,7 +417,7 @@ return buf;
 
 string Row_Alert::EK_Device_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 if (is_null[2])
 return "NULL";
@@ -432,13 +430,13 @@ return buf;
 
 string Row_Alert::DetectionTime_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 if (is_null[3])
 return "NULL";
 
 char *buf = new char[39];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_DetectionTime.c_str(), (unsigned long) min((size_t)19,m_DetectionTime.size()));
+db_wrapper_real_escape_string(table->database->m_pDB, buf, m_DetectionTime.c_str(), (unsigned long) min((size_t)19,m_DetectionTime.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
@@ -446,13 +444,13 @@ return s;
 
 string Row_Alert::ExpirationTime_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 if (is_null[4])
 return "NULL";
 
 char *buf = new char[39];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_ExpirationTime.c_str(), (unsigned long) min((size_t)19,m_ExpirationTime.size()));
+db_wrapper_real_escape_string(table->database->m_pDB, buf, m_ExpirationTime.c_str(), (unsigned long) min((size_t)19,m_ExpirationTime.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
@@ -460,7 +458,7 @@ return s;
 
 string Row_Alert::ResetBeforeExpiration_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 if (is_null[5])
 return "NULL";
@@ -473,7 +471,7 @@ return buf;
 
 string Row_Alert::Benign_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 if (is_null[6])
 return "NULL";
@@ -486,13 +484,13 @@ return buf;
 
 string Row_Alert::ResetTime_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 if (is_null[7])
 return "NULL";
 
 char *buf = new char[39];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_ResetTime.c_str(), (unsigned long) min((size_t)19,m_ResetTime.size()));
+db_wrapper_real_escape_string(table->database->m_pDB, buf, m_ResetTime.c_str(), (unsigned long) min((size_t)19,m_ResetTime.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
@@ -500,7 +498,7 @@ return s;
 
 string Row_Alert::EK_Users_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 if (is_null[8])
 return "NULL";
@@ -513,7 +511,7 @@ return buf;
 
 string Row_Alert::AnnouncementOnly_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 if (is_null[9])
 return "NULL";
@@ -526,7 +524,7 @@ return buf;
 
 string Row_Alert::PhotoOnly_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 if (is_null[10])
 return "NULL";
@@ -539,7 +537,7 @@ return buf;
 
 string Row_Alert::Notification_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 if (is_null[11])
 return "NULL";
@@ -552,7 +550,7 @@ return buf;
 
 string Row_Alert::psc_id_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 if (is_null[12])
 return "NULL";
@@ -565,7 +563,7 @@ return buf;
 
 string Row_Alert::psc_batch_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 if (is_null[13])
 return "NULL";
@@ -578,7 +576,7 @@ return buf;
 
 string Row_Alert::psc_user_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 if (is_null[14])
 return "NULL";
@@ -591,7 +589,7 @@ return buf;
 
 string Row_Alert::psc_frozen_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 if (is_null[15])
 return "NULL";
@@ -604,13 +602,13 @@ return buf;
 
 string Row_Alert::psc_mod_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 if (is_null[16])
 return "NULL";
 
 char *buf = new char[29];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_psc_mod.c_str(), (unsigned long) min((size_t)14,m_psc_mod.size()));
+db_wrapper_real_escape_string(table->database->m_pDB, buf, m_psc_mod.c_str(), (unsigned long) min((size_t)14,m_psc_mod.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
@@ -618,7 +616,7 @@ return s;
 
 string Row_Alert::psc_restrict_asSQL()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 if (is_null[17])
 return "NULL";
@@ -640,7 +638,7 @@ Table_Alert::Key::Key(long int in_PK_Alert)
 
 Table_Alert::Key::Key(Row_Alert *pRow)
 {
-			PLUTO_SAFETY_LOCK_ERRORSONLY(sl,pRow->table->database->m_MySqlMutex);
+			PLUTO_SAFETY_LOCK_ERRORSONLY(sl,pRow->table->database->m_DBMutex);
 
 			pk_PK_Alert = pRow->m_PK_Alert;
 	
@@ -656,7 +654,7 @@ return false;
 
 bool Table_Alert::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_DBMutex);
 
 //insert added
 	while (!addedRows.empty())
@@ -673,16 +671,16 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_Alert_asSQL
 		string query = "insert into Alert (`PK_Alert`, `FK_AlertType`, `EK_Device`, `DetectionTime`, `ExpirationTime`, `ResetBeforeExpiration`, `Benign`, `ResetTime`, `EK_Users`, `AnnouncementOnly`, `PhotoOnly`, `Notification`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`, `psc_restrict`) values ("+
 			values_list_comma_separated+")";
 			
-		if (mysql_query(database->m_pMySQL, query.c_str()))
+		if (db_wrapper_query(database->m_pDB, query.c_str()))
 		{	
-			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
-			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-			bool bResult=database->MySQLConnect(true);
+			database->m_sLastDBError = db_wrapper_error(database->m_pDB);
+			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastDBError << endl;
+			bool bResult=database->DBConnect(true);
 			int iResult2=-1;
 			if( bResult )
-				iResult2 = mysql_query(database->m_pMySQL, query.c_str());
+				iResult2 = db_wrapper_query(database->m_pDB, query.c_str());
 			
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Alert::Commit Cannot perform query [%s] %s reconnect: %d result2: %d",query.c_str(),database->m_sLastMySqlError.c_str(),(int) bResult, iResult2);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Alert::Commit Cannot perform query [%s] %s reconnect: %d result2: %d",query.c_str(),database->m_sLastDBError.c_str(),(int) bResult, iResult2);
 			if( iResult2!=0 )  // We can keep going if the time it worked
 			{
 				if( bDeleteFailedInsertRow )
@@ -694,16 +692,16 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_Alert_asSQL
 			}
 		}
 	
-		if (mysql_affected_rows(database->m_pMySQL)!=0)
+		if (db_wrapper_affected_rows(database->m_pDB)!=0)
 		{
 			
 			
-			long int id = (long int) mysql_insert_id(database->m_pMySQL);
+			long int id = (long int) db_wrapper_insert_id(database->m_pDB);
 		
 			if (id!=0)
 		pRow->m_PK_Alert=id;
 else 
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"PK_Alert is auto increment but has no value %s",database->m_sLastMySqlError.c_str());	
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"PK_Alert is auto increment but has no value %s",database->m_sLastDBError.c_str());	
 			
 			addedRows.erase(i);
 			SingleLongKey key(pRow->m_PK_Alert);	
@@ -741,16 +739,16 @@ update_values_list = update_values_list + "`PK_Alert`="+pRow->PK_Alert_asSQL()+"
 	
 		string query = "update Alert set " + update_values_list + " where " + condition;
 			
-		if (mysql_query(database->m_pMySQL, query.c_str()))
+		if (db_wrapper_query(database->m_pDB, query.c_str()))
 		{	
-			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
-			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-			bool bResult=database->MySQLConnect(true);
+			database->m_sLastDBError = db_wrapper_error(database->m_pDB);
+			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastDBError << endl;
+			bool bResult=database->DBConnect(true);
 			int iResult2=-1;
 			if( bResult )
-				iResult2 = mysql_query(database->m_pMySQL, query.c_str());
+				iResult2 = db_wrapper_query(database->m_pDB, query.c_str());
 
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Alert::Commit Cannot perform update query [%s] %s reconnect: %d result2: %d",query.c_str(),database->m_sLastMySqlError.c_str(),(int) bResult, iResult2);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Alert::Commit Cannot perform update query [%s] %s reconnect: %d result2: %d",query.c_str(),database->m_sLastDBError.c_str(),(int) bResult, iResult2);
 			if( iResult2!=0 )  // We can keep going if the time it worked
 			{
 				if( bDeleteFailedModifiedRow )
@@ -795,16 +793,16 @@ condition = condition + "`PK_Alert`=" + tmp_PK_Alert;
 	
 		string query = "delete from Alert where " + condition;
 		
-		if (mysql_query(database->m_pMySQL, query.c_str()))
+		if (db_wrapper_query(database->m_pDB, query.c_str()))
 		{	
-			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
-			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-			bool bResult=database->MySQLConnect(true);
+			database->m_sLastDBError = db_wrapper_error(database->m_pDB);
+			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastDBError << endl;
+			bool bResult=database->DBConnect(true);
 			int iResult2=-1;
 			if( bResult )
-				iResult2 = mysql_query(database->m_pMySQL, query.c_str());
+				iResult2 = db_wrapper_query(database->m_pDB, query.c_str());
 
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Alert::Commit Cannot perform delete query [%s] %s reconnect: %d result2: %d",query.c_str(),database->m_sLastMySqlError.c_str(),(int) bResult, iResult2);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Alert::Commit Cannot perform delete query [%s] %s reconnect: %d result2: %d",query.c_str(),database->m_sLastDBError.c_str(),(int) bResult, iResult2);
 			if( iResult2!=0 )  // We can keep going if the time it worked
 				return false;
 		}	
@@ -819,7 +817,7 @@ condition = condition + "`PK_Alert`=" + tmp_PK_Alert;
 
 bool Table_Alert::GetRows(string where_statement,vector<class Row_Alert*> *rows)
 {
-	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_DBMutex);
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || 
@@ -836,36 +834,36 @@ bool Table_Alert::GetRows(string where_statement,vector<class Row_Alert*> *rows)
 	else
 		query = "select `Alert`.* from Alert";
 		
-	if (mysql_query(database->m_pMySQL, query.c_str()))
+	if (db_wrapper_query(database->m_pDB, query.c_str()))
 	{	
-		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
-		cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-		bool bResult=database->MySQLConnect(true);
+		database->m_sLastDBError = db_wrapper_error(database->m_pDB);
+		cerr << "Cannot perform query: [" << query << "] " << database->m_sLastDBError << endl;
+		bool bResult=database->DBConnect(true);
 		int iResult2=-1;
 		if( bResult )
-			iResult2 = mysql_query(database->m_pMySQL, query.c_str());
+			iResult2 = db_wrapper_query(database->m_pDB, query.c_str());
 
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Alert::GetRows Cannot perform query [%s] %s reconnect: %d result2: %d",query.c_str(),database->m_sLastMySqlError.c_str(),(int) bResult, iResult2);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Alert::GetRows Cannot perform query [%s] %s reconnect: %d result2: %d",query.c_str(),database->m_sLastDBError.c_str(),(int) bResult, iResult2);
 		if( iResult2!=0 )  // We can keep going if the time it worked
 			return false;
 	}	
 
-	MYSQL_RES *res = mysql_store_result(database->m_pMySQL);
+	DB_RES *res = db_wrapper_store_result(database->m_pDB);
 	
 	if (!res)
 	{
-		cerr << "mysql_store_result returned NULL handler" << endl;
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Alert::GetRows mysql_store_result returned NULL handler");
-		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
+		cerr << "db_wrapper_store_result returned NULL handler" << endl;
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Alert::GetRows db_wrapper_store_result returned NULL handler");
+		database->m_sLastDBError = db_wrapper_error(database->m_pDB);
 		return false;
 	}	
 	
-	MYSQL_ROW row;
+	DB_ROW row;
 						
 		
-	while ((row = mysql_fetch_row(res)) != NULL)
+	while ((row = db_wrapper_fetch_row(res)) != NULL)
 	{	
-		unsigned long *lengths = mysql_fetch_lengths(res);
+		unsigned long *lengths = db_wrapper_fetch_lengths(res);
 
 		Row_Alert *pRow = new Row_Alert(this);
 		
@@ -1086,14 +1084,14 @@ sscanf(row[17], "%li", &(pRow->m_psc_restrict));
 		cachedRows[key] = pRow;
 	}
 
-	mysql_free_result(res);			
+	db_wrapper_free_result(res);			
 		
 	return true;					
 }
 
 Row_Alert* Table_Alert::AddRow()
 {
-	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_DBMutex);
 
 	Row_Alert *pRow = new Row_Alert(this);
 	pRow->is_added=true;
@@ -1105,7 +1103,7 @@ Row_Alert* Table_Alert::AddRow()
 
 Row_Alert* Table_Alert::GetRow(long int in_PK_Alert)
 {
-	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_DBMutex);
 
 	SingleLongKey row_key(in_PK_Alert);
 
@@ -1133,7 +1131,7 @@ Row_Alert* Table_Alert::GetRow(long int in_PK_Alert)
 
 Row_Alert* Table_Alert::FetchRow(SingleLongKey &key)
 {
-	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_DBMutex);
 
 	//defines the string query for the value of key
 	char tmp_PK_Alert[32];
@@ -1146,40 +1144,40 @@ condition = condition + "`PK_Alert`=" + tmp_PK_Alert;
 
 	string query = "select * from Alert where " + condition;		
 
-	if (mysql_query(database->m_pMySQL, query.c_str()))
+	if (db_wrapper_query(database->m_pDB, query.c_str()))
 	{	
-		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
-		cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
-		bool bResult=database->MySQLConnect(true);
+		database->m_sLastDBError = db_wrapper_error(database->m_pDB);
+		cerr << "Cannot perform query: [" << query << "] " << database->m_sLastDBError << endl;
+		bool bResult=database->DBConnect(true);
 		int iResult2=-1;
 		if( bResult )
-			iResult2 = mysql_query(database->m_pMySQL, query.c_str());
+			iResult2 = db_wrapper_query(database->m_pDB, query.c_str());
 
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Alert::FetchRow Cannot perform query [%s] %s reconnect: %d result2: %d",query.c_str(),database->m_sLastMySqlError.c_str(),(int) bResult, iResult2);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Alert::FetchRow Cannot perform query [%s] %s reconnect: %d result2: %d",query.c_str(),database->m_sLastDBError.c_str(),(int) bResult, iResult2);
 		if( iResult2!=0 )  // We can keep going if the time it worked
 			return NULL;
 	}	
 
-	MYSQL_RES *res = mysql_store_result(database->m_pMySQL);
+	DB_RES *res = db_wrapper_store_result(database->m_pDB);
 	
 	if (!res)
 	{
-		cerr << "mysql_store_result returned NULL handler" << endl;
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Alert::FetchRow mysql_store_result returned NULL handler");
-		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
+		cerr << "db_wrapper_store_result returned NULL handler" << endl;
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Table_Alert::FetchRow db_wrapper_store_result returned NULL handler");
+		database->m_sLastDBError = db_wrapper_error(database->m_pDB);
 		return NULL;
 	}	
 	
-	MYSQL_ROW row = mysql_fetch_row(res);
+	DB_ROW row = db_wrapper_fetch_row(res);
 	
 	if (!row)
 	{
 		//dataset is empty
-		mysql_free_result(res);			
+		db_wrapper_free_result(res);			
 		return NULL;		
 	}	
 						
-	unsigned long *lengths = mysql_fetch_lengths(res);
+	unsigned long *lengths = db_wrapper_fetch_lengths(res);
 
 	Row_Alert *pRow = new Row_Alert(this);
 		
@@ -1383,7 +1381,7 @@ sscanf(row[17], "%li", &(pRow->m_psc_restrict));
 
 
 
-	mysql_free_result(res);			
+	db_wrapper_free_result(res);			
 	
 	return pRow;						
 }
@@ -1391,7 +1389,7 @@ sscanf(row[17], "%li", &(pRow->m_psc_restrict));
 
 class Row_AlertType* Row_Alert::FK_AlertType_getrow()
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 class Table_AlertType *pTable = table->database->AlertType_get();
 return pTable->GetRow(m_FK_AlertType);
@@ -1400,14 +1398,14 @@ return pTable->GetRow(m_FK_AlertType);
 
 void Row_Alert::Alert_Device_FK_Alert_getrows(vector <class Row_Alert_Device*> *rows)
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 class Table_Alert_Device *pTable = table->database->Alert_Device_get();
 pTable->GetRows("`FK_Alert`=" + StringUtils::itos(m_PK_Alert),rows);
 }
 void Row_Alert::Notification_FK_Alert_getrows(vector <class Row_Notification*> *rows)
 {
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 class Table_Notification *pTable = table->database->Notification_get();
 pTable->GetRows("`FK_Alert`=" + StringUtils::itos(m_PK_Alert),rows);
