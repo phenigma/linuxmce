@@ -435,6 +435,9 @@ bool Pnp_PreCreateOptions::OkayToCreate_CaptureCard(PnpQueueEntry *pPnpQueueEntr
 		return true;  // The user specified this option
 	}
 
+	if( m_pPnpQueue->DetermineOrbitersForPrompting(pPnpQueueEntry,true)==false )
+		return false; // No orbiters.  Skip this one for now
+
 	if( m_pPnpQueue->BlockIfOtherQueuesAtPromptingState(pPnpQueueEntry) )
 		return false; // Let this one get backed up
 
