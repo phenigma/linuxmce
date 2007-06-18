@@ -1,4 +1,6 @@
 <?php
+require('include/config/config.inc.php');
+require('include/utils.inc.php');
 Header( "Content-type: text/xml");
 echo "<?xml version='1.0'?>";
 ?>
@@ -8,6 +10,6 @@ echo "<?xml version='1.0'?>";
   <Prompt>Make Your Selection...</Prompt>
   <MenuItem>
     <Name>Orbiter</Name>
-    <URL>http://192.168.80.1/pluto-admin/index.php?section=proxySocket&amp;command=XML</URL>
+    <URL>http://<?=getCoreIP($dbADO)?>/pluto-admin/index.php?section=proxySocket&amp;command=XML</URL>
   </MenuItem>
 </CiscoIPPhoneMenu>
