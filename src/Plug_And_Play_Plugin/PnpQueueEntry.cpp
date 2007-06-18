@@ -343,7 +343,9 @@ bool PnpQueueEntry::CompareShortSerialNumberAndPCILocation(PnpQueueEntry *pPnpQu
 	string sPCILocation1 = m_mapPK_DeviceData_Find(DEVICEDATA_Location_on_PCI_bus_CONST);
 	string sPCILocation2 = pPnpQueueEntry->m_mapPK_DeviceData_Find(DEVICEDATA_Location_on_PCI_bus_CONST);
 
-	if( sBaseSerialNumber1.empty()==false && sBaseSerialNumber1==sBaseSerialNumber2 && sPCILocation1.empty()==false && sPCILocation1==sPCILocation2 )
+	if( (sBaseSerialNumber1.empty()==false || m_pRow_PnpQueue->SerialNumber_get().empty()==false) && 
+		(sBaseSerialNumber1==sBaseSerialNumber2 || sBaseSerialNumber1==pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get() || sBaseSerialNumber2==m_pRow_PnpQueue->SerialNumber_get())
+		&& sPCILocation1.empty()==false && sPCILocation1==sPCILocation2 )
 		return true;
 	return false;
 }
