@@ -42,6 +42,8 @@ UI_V2_Normal_Horizontal=4
 #<-mkr_b_via_b->
 	CleanupVideo
 	bash -x /home/via/ApplyViaPatch.sh
+	ConfSet "AVWizardDone" "1"
+	exit
 #<-mkr_b_via_e->
 
 . /usr/pluto/bin/TeeMyOutput.sh --outfile /var/log/pluto/AVWizard.log --infile /dev/null --stdboth -- "$@"
