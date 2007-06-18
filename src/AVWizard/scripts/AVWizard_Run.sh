@@ -38,7 +38,6 @@ UI_V2_Normal_Horizontal=4
 . /usr/pluto/bin/AVWizard-Common.sh
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/Utils.sh
-. /usr/pluto/bin/X-CleanupVideo.sh
 
 . /usr/pluto/bin/TeeMyOutput.sh --outfile /var/log/pluto/AVWizard.log --infile /dev/null --stdboth -- "$@"
 
@@ -51,7 +50,6 @@ CleanUp()
 
 SetDefaults()
 {
-	CleanupVideo
 	cp "$ConfFile" "$XF86Config"
 	bash -x "$BaseDir"/Xconfigure.sh --conffile "$XF86Config" --resolution '640x480@60' | tee-pluto /var/log/pluto/Xconfigure.log
 	WizSet Video_Ratio '4_3'
@@ -243,11 +241,12 @@ RemoteCmd=$(/usr/pluto/bin/AVWizard_Remote_Detect.sh | tail -1)
 
 Done=0
 while [[ "$Done" -eq 0 ]]; do
-	echo "$(date -R) $(basename "$0"): Main loop"
+	echo "$(date -R) $(basename "$0"): AVWizard Main loop"
 	CleanUp
 	SetDefaults
 	"$BaseDir"/AVWizardWrapper.sh
 	Ret="$?"
+	echo "$(date -R) $(basename "$0"): AVWizard Main loop ret code $Ret"
 	case "$Ret" in
 		0) Done=1 ;;
 		3)
@@ -257,14 +256,21 @@ while [[ "$Done" -eq 0 ]]; do
 	esac
 done
 
+echo "$(date -R) $(basename "$0"): AVWizard Main loop done"
+
 set -x
 # Finalize wizard: save settings
 ConfSet "AVWizardDone" "1"
 mv "$XF86Config" "$ConfFile"
 mv "$XineConf" /etc/pluto/xine.conf
+echo "$(date -R) $(basename "$0"): AVWizard reset conf file"
 alsactl store
+echo "$(date -R) $(basename "$0"): AVWizard Calling Audio Settings"
 UpdateAudioSettings
+echo "$(date -R) $(basename "$0"): AVWizard Calling UpdateOrbiterDimensions"
 UpdateOrbiterDimensions
+echo "$(date -R) $(basename "$0"): AVWizard Calling UpdateOrbiterUI"
 UpdateOrbiterUI
+echo "$(date -R) $(basename "$0"): AVWizard Calling SetupAudioVideo"
 bash -x /usr/pluto/bin/SetupAudioVideo.sh | tee-pluto /var/log/pluto/avwizard_setup_av.log
 set +x

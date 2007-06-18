@@ -22,7 +22,7 @@ exit
 #<-mkr_b_via_e->
 	. /usr/pluto/bin/Utils.sh;
 
-	bash -x /usr/pluto/bin/Xconfigure.sh --keep-resolution --update-video-driver | tee-pluto /var/log/pluto/Xconfigure.log
+	bash -x /usr/pluto/bin/Xconfigure.sh --keep-resolution | tee-pluto /var/log/pluto/Xconfigure.log
 	pidOfX=\$(ps ax|grep \"X $XDisplay -ignoreABI -ac -allowMouseOpenFail vt$Xvt\"|egrep -v 'grep|SCREEN'|awk '{print \$1}')
 	ReloadDevicesOnThisMachine
 	kill \$pidOfX
