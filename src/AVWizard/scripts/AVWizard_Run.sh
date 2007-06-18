@@ -39,12 +39,6 @@ UI_V2_Normal_Horizontal=4
 . /usr/pluto/bin/Utils.sh
 . /usr/pluto/bin/X-CleanupVideo.sh
 
-#<-mkr_b_via_b->
-	CleanupVideo
-	ConfSet "AVWizardDone" "1"
-	exit
-#<-mkr_b_via_e->
-
 . /usr/pluto/bin/TeeMyOutput.sh --outfile /var/log/pluto/AVWizard.log --infile /dev/null --stdboth -- "$@"
 
 export LD_LIBRARY_PATH=/opt/libxine1-pluto/lib:/opt/libsdl1.2-1.2.7+1.2.8cvs20041007/lib
@@ -57,7 +51,7 @@ CleanUp()
 SetDefaults()
 {
 	CleanupVideo
-	bash -x "$BaseDir"/Xconfigure.sh --conffile "$XF86Config" --defaults --resolution '640x480@60' | tee-pluto /var/log/pluto/Xconfigure.log
+	bash -x /usr/pluto/bin/UpdateXResolutionDB.sh --resolution '640x480@60' | tee /var/log/pluto/UpdateXResolutionDB.log
 	WizSet Video_Ratio '4_3'
 	WizSet Resolution '640x480'
 	WizSet VideoResolution '640x480'
@@ -271,5 +265,5 @@ alsactl store
 UpdateAudioSettings
 UpdateOrbiterDimensions
 UpdateOrbiterUI
-bash -x /usr/pluto/bin/Xconfigure.sh | tee-pluto /var/log/pluto/Xconfigure.log # needed when changing between UI versions
+bash -x /usr/pluto/bin/SetupAudioVideo.sh | tee-pluto /var/log/pluto/avwizard_setup_av.log
 set +x
