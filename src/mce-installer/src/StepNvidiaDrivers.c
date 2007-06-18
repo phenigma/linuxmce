@@ -21,14 +21,11 @@ void on_NvidiaDrivers_forward_clicked(GtkWidget *widget, gpointer data)  {
 		if (gtk_dialog_run(GTK_DIALOG(runWindow)) == 1) {
 			goNext = TRUE;
 		}
-		goNext = TRUE;
-	}
 
-	if (goNext) {
-		g_queue_push_head(history, (gpointer)STEPNVIDIADRIVERS);
-//		gtk_widget_set_sensitive (GTK_WIDGET(widget), FALSE);
-//		start_network_wizard();
-		displayStepNvidiaDriversEnd();
+		if (goNext) {
+			g_queue_push_head(history, (gpointer)STEPNVIDIADRIVERS);
+			displayStepNvidiaDriversEnd();
+		}
 	} else {
 		switch(setting_deviceType) {
 			case DT_CORE:
