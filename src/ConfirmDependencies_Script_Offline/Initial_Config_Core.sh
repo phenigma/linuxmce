@@ -431,6 +431,10 @@ clear
 ## Install autoinstall packages from Bonus CD if needed
 . /usr/pluto/install/BonusCdAutoInst.sh
 
+#<-mkr_b_via_b->
+bash -x /home/via/ApplyViaPatch.sh
+#<-mkr_b_via_e->
+
 ## Install extra packages
 sleep 0.5
 exec 3>&1 1>/dev/tty
