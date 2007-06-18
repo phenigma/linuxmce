@@ -124,6 +124,7 @@ void UnwatchDir(listOfMonitoredDirs & listMonitoredDirs, int wd)
 void WatchDir(listOfMonitoredDirs & listMonitoredDirs, const string & sDirectory, inotify & obj_Inotify)
 {
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Watching directory '%s'", sDirectory.c_str());
+	SetAccessRights(sDirectory);
 
 	// Add directory watch first
 	MonitoredDir struct_MonitoredDir;
