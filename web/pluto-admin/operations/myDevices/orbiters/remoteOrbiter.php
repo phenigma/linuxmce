@@ -78,7 +78,7 @@ function remoteOrbiter($output,$dbADO){
 	}
 	
 	if($action=='form'){
-		$serverIP=(isset($_REQUEST['host']))?$_REQUEST['host']:'192.168.80.1';
+		$serverIP=(isset($_REQUEST['host']))?$_REQUEST['host']:getCoreIP($dbADO);
 		$port=(isset($_POST['port']))?$_POST['port']:'3451';
 		$orbiters=getAssocArray('Device','PK_Device','Description',$dbADO,'WHERE FK_Installation='.$_SESSION['installationID'].' AND FK_DeviceTemplate='.$GLOBALS['Cisco7970Orbiter']);
 		$out.='

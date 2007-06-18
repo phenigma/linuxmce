@@ -246,13 +246,6 @@ function getDeviceIP($deviceID,$dbADO){
 	return getDeviceIP($arr['FK_Device_ControlledVia'][0],$dbADO);
 }
 
-function getCoreIP($dbADO)
-{
-	$res=$dbADO->Execute('SELECT * FROM Device INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE FK_DeviceCategory=?',array($GLOBALS['CategoryCore']));
-	$row=$res->FetchRow();
-	return @$row['IPAddress'];
-}
-
 function xml_die($deviceID,$address,$port,$command,$message,$userFriendlyMessage=''){
 	// the phone has 32 characters limit for values
 	write_log(trim($message));
