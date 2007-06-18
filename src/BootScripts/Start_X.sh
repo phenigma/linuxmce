@@ -35,6 +35,8 @@ function assureXorgSane()
 	fi
 }
 
+/usr/pluto/bin/SetupAudioVideo.sh
+
 AlphaBlending=$(AlphaBlendingEnabled)
 
 #XClient=/usr/pluto/bin/Start_IceWM.sh
