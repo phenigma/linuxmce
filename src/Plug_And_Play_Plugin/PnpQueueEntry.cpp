@@ -238,8 +238,8 @@ void PnpQueueEntry::AssignDeviceData(Row_Device *pRow_Device)
 	for(map<int,string>::iterator it=m_mapPK_DeviceData.begin();it!=m_mapPK_DeviceData.end();++it)
 	{
 #ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"PnpQueueEntry::AssignDeviceData queue %d Device Data %d=%s",
-		m_pRow_PnpQueue->PK_PnpQueue_get(),it->first,it->second.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"PnpQueueEntry::AssignDeviceData queue %d Device %d Data %d=%s",
+		m_pRow_PnpQueue->PK_PnpQueue_get(),pRow_Device->PK_Device_get(),it->first,it->second.c_str());
 #endif
 		DatabaseUtils::SetDeviceData(m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),it->first,it->second);
 	}
@@ -296,9 +296,9 @@ bool PnpQueueEntry::IsDuplicate(PnpQueueEntry *pPnpQueueEntry)
 		m_pRow_PnpQueue->VendorModelId_get()==pPnpQueueEntry->m_pRow_PnpQueue->VendorModelId_get() &&
 		m_pRow_PnpQueue->IPaddress_get()==pPnpQueueEntry->m_pRow_PnpQueue->IPaddress_get() &&
 		m_pRow_PnpQueue->MACaddress_get()==pPnpQueueEntry->m_pRow_PnpQueue->MACaddress_get() &&
-		m_pRow_PnpQueue->SerialNumber_get()==pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get() &&
+		(m_pRow_PnpQueue->SerialNumber_get()==pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get() || CompareShortSerialNumberAndPCILocation(pPnpQueueEntry)) &&
 		m_pRow_PnpQueue->Category_get()==pPnpQueueEntry->m_pRow_PnpQueue->Category_get() &&
-		m_pRow_PnpQueue->Parms_get()==pPnpQueueEntry->m_pRow_PnpQueue->Parms_get()) )
+		CompareParms(pPnpQueueEntry)) )
 	{
 		if( m_pRow_PnpQueue->FK_CommMethod_get()!=COMMMETHOD_Ethernet_CONST && 
 			m_pRow_PnpQueue->FK_Device_Reported_get()!=pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Reported_get() )
@@ -333,6 +333,55 @@ bool PnpQueueEntry::IsDuplicate(PnpQueueEntry *pPnpQueueEntry)
 			m_pRow_PnpQueue->PK_PnpQueue_get(),pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
 #endif
 	return false;
+}
+
+bool PnpQueueEntry::CompareShortSerialNumberAndPCILocation(PnpQueueEntry *pPnpQueueEntry)
+{
+	string sBaseSerialNumber1 = BaseSerialNumber(m_pRow_PnpQueue->SerialNumber_get());
+	string sBaseSerialNumber2 = BaseSerialNumber(pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get());
+
+	string sPCILocation1 = m_mapPK_DeviceData_Find(DEVICEDATA_Location_on_PCI_bus_CONST);
+	string sPCILocation2 = pPnpQueueEntry->m_mapPK_DeviceData_Find(DEVICEDATA_Location_on_PCI_bus_CONST);
+
+	if( sBaseSerialNumber1.empty()==false && sBaseSerialNumber1==sBaseSerialNumber2 && sPCILocation1.empty()==false && sPCILocation1==sPCILocation2 )
+		return true;
+	return false;
+}
+
+bool PnpQueueEntry::CompareParms(PnpQueueEntry *pPnpQueueEntry)
+{
+	for( map<int,string>::iterator it=m_mapPK_DeviceData.begin();it!=m_mapPK_DeviceData.end();++it )
+	{
+		int PK_DeviceData = it->first;
+		// Some hardcoded things to ignore
+		if( m_pRow_PnpQueue->Category_get()=="video4linux" && PK_DeviceData==DEVICEDATA_Block_Device_CONST )  // The same device may have many block devices.  Ignore them because if the pci location is the same it's a duplicate
+			continue;
+		if( pPnpQueueEntry->m_mapPK_DeviceData_Find(it->first)!=it->second )
+			return false;
+	}
+
+	for( map<int,string>::iterator it=m_mapPK_DeviceData.begin();it!=m_mapPK_DeviceData.end();++it )
+	{
+		int PK_DeviceData = it->first;
+		// Some hardcoded things to ignore
+		if( m_pRow_PnpQueue->Category_get()=="video4linux" && PK_DeviceData==DEVICEDATA_Block_Device_CONST )  // The same device may have many block devices.  Ignore them because if the pci location is the same it's a duplicate
+			continue;
+		if( pPnpQueueEntry->m_mapPK_DeviceData_Find(it->first)!=it->second )
+			return false;
+	}
+
+	return true;
+}
+
+string PnpQueueEntry::BaseSerialNumber(string sString)
+{
+	// If the serial number is in the format: /a/b/c/d_e  strip the e.  But only with that syntax
+    string::size_type pos_slash = sString.rfind("/");
+    string::size_type pos_underscore = sString.rfind("_");
+	if( pos_slash==string::npos || pos_underscore==string::npos || pos_underscore<pos_slash )
+		return sString;
+
+	return sString.substr(0,pos_underscore);
 }
 
 string PnpQueueEntry::StageAsText()

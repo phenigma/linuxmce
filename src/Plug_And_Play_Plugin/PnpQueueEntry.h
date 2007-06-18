@@ -112,6 +112,9 @@ namespace DCE
 		void AssignDeviceData(Row_Device *pRow_Device);
 		void RemoveBlockedDeviceData();  // Remove any device data from HAL that is blocked per the device data Pnp Ignore Device Data in DeviceTemplate_DeviceData
 		bool IsDuplicate(PnpQueueEntry *pPnpQueueEntry);  // Returns true if the entry passed in is the same as this one
+		bool CompareShortSerialNumberAndPCILocation(PnpQueueEntry *pPnpQueueEntry);  // String any trailing _XX from the serial #'s.  If they're the same, and the location on PCI bus is the same, it's a match and return true
+		string BaseSerialNumber(string sString); // If the serial number is in the format: /a/b/c/d_e  strip the e.  But only with that syntax
+		bool CompareParms(PnpQueueEntry *pPnpQueueEntry);  // Compare the parameters and return true if they're the same
 		string StageAsText();
 		string ToString();
 	};

@@ -1181,6 +1181,16 @@ bool PnpQueue::LocateDevice(PnpQueueEntry *pPnpQueueEntry)
 			}
 		}
 
+		// If either has a location on the PCI bus, be sure they're both the same
+		string sPCI2 = DatabaseUtils::GetDeviceData(m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICEDATA_Location_on_PCI_bus_CONST);
+		string sPCI1 = pPnpQueueEntry->m_mapPK_DeviceData_Find(DEVICEDATA_Location_on_PCI_bus_CONST);
+		if( (sPCI2.empty()==false || sPCI1.empty()==false) && sPCI1!=sPCI2 )
+		{
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"PnpQueue::LocateDevice queue %d device %d has different location on pci bus %s/%s",
+				pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),pRow_Device->PK_Device_get(),sPCI1.c_str(),sPCI2.c_str());
+			continue;  // It's not the same hard drive
+		}
+
 		bool bDhcpDevice=true;
 		// Don't bother checking criteria if this isn't a DHCP device.  First see if this is a DHCP Device, but just didn't match
 		if( pPnpQueueEntry->m_mapPK_DHCPDevice_possible.size()==0 )
