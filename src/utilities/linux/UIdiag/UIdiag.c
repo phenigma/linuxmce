@@ -1,6 +1,3 @@
-// test.cpp : Defines the entry point for the console application.
-//
-
 #ifdef WIN32
 #include "stdafx.h"
 #include <windows.h>
@@ -25,6 +22,7 @@
 	#include <unistd.h>
 	#include <sys/wait.h>
 	#include <errno.h>
+	#include <glib.h>
 #endif
 
 #include <stdio.h>
@@ -41,9 +39,10 @@ using namespace std;
 #define SCREEN_HEIGHT 600
 #define SCREEN_BPP     32
 
-/* Set up some booleans */
-#define TRUE  1
-#define FALSE 0
+#define _NET_WM_STATE_REMOVE        0    /* remove/unset property */
+#define _NET_WM_STATE_ADD           1    /* add/set property */
+#define _NET_WM_STATE_TOGGLE        2    /* toggle property  */
+#define _NET_WM_STATE_SET          10    /* shortcut: remove & add property */
 
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
 	const Uint32 rmask = 0xff000000;
@@ -569,6 +568,38 @@ bool ReadTextFile(string sFileName, string& sData)
 	return bResult;
 }
 
+int client_msg(Display *disp, Window win, char *msg,
+                       unsigned long data0, unsigned long data1,
+                       unsigned long data2, unsigned long data3,
+                       unsigned long data4)
+{
+    XEvent event;
+    long mask = SubstructureRedirectMask | SubstructureNotifyMask;
+
+    event.xclient.type = ClientMessage;
+    event.xclient.serial = 0;
+    event.xclient.send_event = True;
+    event.xclient.message_type = XInternAtom(disp, msg, False);
+    event.xclient.window = win;
+    event.xclient.format = 32;
+    event.xclient.data.l[0] = data0;
+    event.xclient.data.l[1] = data1;
+    event.xclient.data.l[2] = data2;
+    event.xclient.data.l[3] = data3;
+    event.xclient.data.l[4] = data4;
+
+    if (XSendEvent(disp, DefaultRootWindow(disp), False, mask, &event))
+    {
+		fprintf(stdout, "Success!\n");
+        return EXIT_SUCCESS;
+    }
+    else
+    {
+        fprintf(stderr, "Cannot send %s event.\n", msg);
+        return EXIT_FAILURE;
+    }
+}
+
 #ifdef WIN32
 int _tmain(int argc, char * /*_TCHAR*/ argv[])
 #else
@@ -716,6 +747,24 @@ int main( int argc, char **argv )
 		{
 			fprintf( stderr,  "Video mode set failed: %s\n", SDL_GetError( ) );
 			Quit(1);
+		}
+
+		/* make it topmost */
+		SDL_SysWMinfo info;
+
+		SDL_VERSION(&info.version);
+		if(SDL_GetWMInfo(&info))
+		{
+			fprintf(stdout, "About to make window above\n");
+
+			char *p1 = "above";
+	        gchar *tmp_prop1, *tmp1;
+			tmp_prop1 = g_strdup_printf("_NET_WM_STATE_%s", tmp1 = g_ascii_strup(p1, -1));
+			Atom prop1 = XInternAtom(info.info.x11.display, tmp_prop1, False);
+			g_free(tmp1);
+			g_free(tmp_prop1);
+
+			client_msg(info.info.x11.display, info.info.x11.wmwindow, "_NET_WM_STATE", _NET_WM_STATE_ADD, (unsigned long)prop1, 0, 0, 0);
 		}
 
 		/* initialize OpenGL */
