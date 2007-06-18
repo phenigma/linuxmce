@@ -51,7 +51,8 @@ CleanUp()
 SetDefaults()
 {
 	CleanupVideo
-	bash -x /usr/pluto/bin/UpdateXResolutionDB.sh --resolution '640x480@60' | tee /var/log/pluto/UpdateXResolutionDB.log
+	cp /etc/X11/xorg.conf /etc/X11/xorg.conf.pluto.avwizard
+	/usr/pluto/bin/Xconfigure.sh --resolution '640x480@60' --conffile /etc/X11/xorg.conf.pluto.avwizard
 	WizSet Video_Ratio '4_3'
 	WizSet Resolution '640x480'
 	WizSet VideoResolution '640x480'
