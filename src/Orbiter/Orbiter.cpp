@@ -2036,7 +2036,7 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 					m_pOrbiterRenderer->PromptUser("I cannot read the Orbiter configuration from the server.  I'll try to regenerate it");
 					RegenOrbiter();
 					Sleep(2000);
-					OnQuit();
+					OnReload();
 					return;
 				}
 
@@ -2048,7 +2048,7 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 					m_pOrbiterRenderer->PromptUser("The Orbiter configuration from the server is corrupt.  I'll try to regenerate it");
 					RegenOrbiter();
 					Sleep(2000);
-					OnQuit();
+					OnReload();
 					return;
 				}
 
@@ -2202,7 +2202,7 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 		{
 			LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "No initial screen" );
 			m_pOrbiterRenderer->PromptUser("Something went very wrong. No initial screen!");
-			OnQuit();
+			OnReload();
 			return;
 		}
 
@@ -7405,7 +7405,7 @@ bool Orbiter::OkayToDeserialize(int iSC_Version)
 	{
 		m_pOrbiterRenderer->PromptUser("I'm sorry.  This version of Orbiter is too old.  It uses schema " + StringUtils::itos(ORBITER_SCHEMA)
 			+ " instead of " + StringUtils::itos(iSC_Version) + ".  Please install a newer version.");
-		OnQuit();
+		OnReload();
 		exit(1);
 	}
 	else
@@ -7417,13 +7417,13 @@ bool Orbiter::OkayToDeserialize(int iSC_Version)
 		int iResponse = m_pOrbiterRenderer->PromptUser("The user interface which your Core generated (" + StringUtils::itos(iSC_Version) + ") is too old for this Orbiter(" + StringUtils::itos(ORBITER_SCHEMA) + ").  Shall I ask the Core to rebuild it now?",0,&mapPrompts);
 		if( iResponse==prNo )
 		{
-			OnQuit();
+			OnReload();
 			exit(1);
 			return false;
 		}
 
 		RegenOrbiter();
-		OnQuit();
+		OnReload();
 
 #ifdef WIN32
 		OnUnexpectedDisconnect(); //force a reload
@@ -8482,7 +8482,7 @@ int Orbiter::HandleNotOKStatus(string sStatus,string sRegenStatus,int iRegenPerc
 		}
 		else
 		{
-			OnQuit();
+			OnReload();
 			exit(1);
 		}
 
@@ -8491,7 +8491,7 @@ int Orbiter::HandleNotOKStatus(string sStatus,string sRegenStatus,int iRegenPerc
 	else if( sStatus=="n" )
 	{
 		m_pOrbiterRenderer->PromptUser("Something went wrong and this orbiter's user interface wasn't created.  In Pluto Admin, go to Wizard, Devices, Orbiters and click Regen for Orbiter #" + StringUtils::itos(m_dwPK_Device) + " and try later");
-		OnQuit();
+		OnReload();
 		exit(1);
 		return 0;
 	}
@@ -8514,7 +8514,7 @@ int Orbiter::HandleNotOKStatus(string sStatus,string sRegenStatus,int iRegenPerc
 			Simulator::GetInstance()->m_sDeviceID = "";
 			Simulator::GetInstance()->SaveConfigurationFile();
 		}
-		OnQuit();
+		OnReload();
 		exit(1);
 		return 0;
 	}
@@ -8564,7 +8564,7 @@ int Orbiter::DeviceIdInvalid()
 
 		if(prYes != nResponse)
 		{
-			OnQuit();
+			OnReload();
 			exit(1);
 			return 0;
 		}
@@ -8586,7 +8586,7 @@ int Orbiter::DeviceIdInvalid()
 		int iResponse = m_pOrbiterRenderer->PromptUser("This seems to be a new Orbiter.  Shall I set it up for you?", 0, &mapPrompts);
 		if( iResponse == prCancel || PROMPT_CANCEL == iResponse )
 		{
-			OnQuit();
+			OnReload();
 			exit(1);
 			return 0;
 		}
@@ -8597,7 +8597,7 @@ int Orbiter::DeviceIdInvalid()
 			PK_Device=PickOrbiterDeviceID();
 			if(PROMPT_CANCEL == PK_Device)
 			{
-				OnQuit();
+				OnReload();
 				exit(1);
 				return 0;
 			}
@@ -8606,7 +8606,7 @@ int Orbiter::DeviceIdInvalid()
 
 	if( !PK_Device )
 	{
-		OnQuit();
+		OnReload();
 		exit(1);
 	}
 
@@ -8716,7 +8716,7 @@ int Orbiter::SetupNewOrbiter()
 
 	if( MonitorRegen(PK_Device)==0 )  // User hit cancel
 	{
-		OnQuit();
+		OnReload();
 		exit(1);
 		return 0; // Don't retry to load now
 	}
@@ -8913,7 +8913,7 @@ bool Orbiter::WaitForRelativesIfOSD()
 		{
 			m_pOrbiterRenderer->DisplayProgress("",-1);
 			LoggerWrapper::GetInstance()->Write(LV_WARNING,"Orbiter::WaitForRelativesIfOSD user wants to abort");
-			OnQuit();
+			OnReload();
 			return false;
 		}
 		Sleep(1000); // Sleep and try again
