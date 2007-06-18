@@ -31,8 +31,8 @@
 #define MSG "Please wait while MD filesystem is created. System will reboot when done"
 #define FIL "************************************************************************"
 #else
-#define MSG "We announced ourselves to the router. Use a Orbiter to continue"
-#define FIL "***************************************************************"
+#define MSG "We announced ourselves to the router."
+#define FIL "*************************************"
 #endif
 
 void DisplayPleaseWait()
