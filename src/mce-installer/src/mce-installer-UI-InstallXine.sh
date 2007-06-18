@@ -28,7 +28,7 @@ Install "libxine1-ffmpeg"
 Install "xine-ui"
 
 # Prevent xine to open the config window on the first run 
-for dir in /home/* ;do
+for dir in /home/* /root ;do
 	if [[ -d $dir/Desktop ]] ;then
 		mkdir -p $dir/.xine
 		touch $dir/.xine/config
