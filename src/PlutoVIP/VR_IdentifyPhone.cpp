@@ -36,7 +36,7 @@
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
-#include "PlutoUtils/MySQLHelper.h"
+#include "PlutoUtils/DBHelper.h"
 #include "VIPShared/VIPMenu.h"
 
 #include "VA_SendMenuToPhone.h"
