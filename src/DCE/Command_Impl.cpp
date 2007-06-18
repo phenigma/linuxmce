@@ -958,7 +958,7 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"InternalSendCommand id %d out par
 		pResponse = m_pcRequestSocket->SendReceiveMessage( pPreformedCommand.m_pMessage );
 #ifdef DEBUG
 LoggerWrapper::GetInstance()->Write(LV_STATUS,"InternalSendCommand out done id %d conf %d resp %p %p %d type %d id %d to %d",
-	pPreformedCommand.m_pMessage->m_dwID,iConfirmation,pPreformedCommand.m_pcResponse,pResponse,(pResponse ? pResponse->m_dwID : 0),Type,ID,PK_Device_To);
+	ID,iConfirmation,pPreformedCommand.m_pcResponse,pResponse,(pResponse ? pResponse->m_dwID : 0),Type,ID,PK_Device_To);
 #endif
 	if( !pResponse || pResponse->m_dwID != 0 )
 	{
@@ -991,7 +991,8 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"InternalSendCommand out done id %
 
 	bool bResult = sResponse=="OK";
 #ifdef DEBUG
-LoggerWrapper::GetInstance()->Write(LV_STATUS,"InternalSendCommand out id %d parm exiting conf %d resp %p",pPreformedCommand.m_pMessage->m_dwID,iConfirmation,pPreformedCommand.m_pcResponse);
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"InternalSendCommand out id %d parm exiting conf %d resp %p",
+									ID,iConfirmation,pPreformedCommand.m_pcResponse);
 #endif
 	delete pResponse;
 	return bResult;
