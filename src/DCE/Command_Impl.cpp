@@ -914,7 +914,7 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"InternalSendCommand confirmation 
 
 #ifdef DEBUG
 LoggerWrapper::GetInstance()->Write(LV_STATUS,"InternalSendCommand confirmation done id %d conf %d resp %p (%d) %s type %d id %d to %d",
-					  pPreformedCommand.m_pMessage->m_dwID,iConfirmation,pPreformedCommand.m_pcResponse,(int) bResult,p_sResponse->c_str(),Type,ID,PK_Device_To);
+					  ID, iConfirmation,pPreformedCommand.m_pcResponse,(int) bResult,p_sResponse->c_str(),Type,ID,PK_Device_To);
 #endif
 		if( !bResult )
 		{
