@@ -190,7 +190,7 @@ void displayStepCreateDiskedDevice(void) {
 		pthread_t create_tid;
 		pthread_create(&create_tid, NULL, create_thread, (void*)buttonForward);
 		gtk_widget_set_sensitive(GTK_WIDGET(buttonForward), FALSE);
-		gtk_progress_bar_set_text(GTK_PROGRESS_BAR(progress_CreateDevice), "Use an existing orbiter to continue");
+		gtk_progress_bar_set_text(GTK_PROGRESS_BAR(progress_CreateDevice), "Calling the router to create the device");
 	} else {
 		gtk_progress_bar_set_text(GTK_PROGRESS_BAR(progress_CreateDevice), "Finished Creating Device");
 		gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(progress_CreateDevice), 1);
