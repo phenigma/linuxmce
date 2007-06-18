@@ -21,7 +21,7 @@ void displayStepNotification(void) {
 	cleanupContainer(mainButtonBox);
 
 	// Wizard text
-	GtkWidget *label = gtk_label_new_for_wizard ("Because LinuxMCE includes some custom kernel modules and other components that cannot be upgraded automatically, Kubuntu’s standard mechanism has been disabled.\nLinuxMCE has its own upgrade system, and will notify when you upgrades are available, and will keep both Kubuntu and LinuxMCE updated");
+	GtkWidget *label = gtk_label_new_for_wizard ("LinuxMCE includes some custom kernel modules and other components that Kubuntu's update mechanism doesn't handle and will break.  So Kubuntu's updates have been disabled.\nLinuxMCE has its own upgrade system which will keep both Kubuntu and LinuxMCE current.   You will be notified when upgdates are available.");
 	gtk_box_pack_start(GTK_BOX(mainBox), label, TRUE, TRUE, 0);
 
 	// Button Back

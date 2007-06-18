@@ -105,6 +105,13 @@ void Logger::SetName( const char* pcName )
     m_Name = pcName;
 }
 
+void Logger::LogAll()
+{
+    PLUTO_SAFETY_LOCK_LOGGER( sSM, m_Lock );  // Don't log anything but failures
+	delete m_bLogLevels;
+	m_bLogLevels=NULL;
+}
+
 void Logger::ReloadLogLevels()
 {
     PLUTO_SAFETY_LOCK_LOGGER( sSM, m_Lock );  // Don't log anything but failures

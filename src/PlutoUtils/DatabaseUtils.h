@@ -66,6 +66,8 @@ namespace DatabaseUtils
 	long GetRoomForDevice(DBHelper *pDBHelper, int nPK_Device);
 	long GetRoomByName(DBHelper *pDBHelper, string sDescription, int PK_RoomType);
 	bool DeviceIsWithinCategory(DBHelper *pDBHelper,int PK_Device,int PK_DeviceCategory);
+	void LockTable(DBHelper *pDBHelper,string sTable);
+	void UnLockTables(DBHelper *pDBHelper);
 };
 
 #endif //#ifndef _DatabaseUtils

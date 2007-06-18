@@ -176,6 +176,7 @@ namespace DCE
 		* @bried Reload the log levels from the conf file
 		*/
 		virtual void ReloadLogLevels();
+		virtual void LogAll();  // Removes the log level filter
 
 		/**
 		* @brief an entry to the logger

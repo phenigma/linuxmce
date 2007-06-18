@@ -563,3 +563,14 @@ bool DatabaseUtils::DeviceIsWithinCategory(DBHelper *pDBHelper,int PK_Device,int
 	}
 }
 
+void DatabaseUtils::LockTable(DBHelper *pDBHelper,string sTable)
+{
+	string sSQL = "LOCK TABLES `" + sTable + "` WRITE";
+	pDBHelper->threaded_db_wrapper_query(sSQL);
+}
+
+void DatabaseUtils::UnLockTables(DBHelper *pDBHelper)
+{
+	string sSQL = "UNLOCK TABLES";
+	pDBHelper->threaded_db_wrapper_query(sSQL);
+}

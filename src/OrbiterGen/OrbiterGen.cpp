@@ -89,6 +89,7 @@ static HEAP_ALLOC(wrkmem,LZO1X_1_MEM_COMPRESS);
 #include "pluto_main/Table_CommandGroup_Command.h"
 #include "pluto_main/Table_MediaType.h"
 #include "pluto_media/Table_AttributeType.h"
+#include "PlutoUtils/DatabaseUtils.h"
 #include "DCE/DCEConfig.h"
 
 DCEConfig g_DCEConfig;
@@ -217,6 +218,8 @@ int main(int argc, char *argv[])
 			LoggerWrapper::SetType(LT_LOGGER_NULL);
 		else if( sLogger!="stdout" )
 			LoggerWrapper::SetType(LT_LOGGER_FILE,sLogger);
+
+		LoggerWrapper::GetInstance()->LogAll();
 	}
 	catch(...)
 	{
@@ -278,6 +281,7 @@ int main(int argc, char *argv[])
 	if( pOrbiterGenerator && pOrbiterGenerator->m_pRow_Orbiter )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Setting RegenInProgress_set to false for %d",pOrbiterGenerator->m_pRow_Orbiter->PK_Orbiter_get());
+		DatabaseUtils::LockTable(pOrbiterGenerator->m_spDatabase_pluto_main.get(),"Orbiter");
 		pOrbiterGenerator->m_pRow_Orbiter->Reload();  // We already updated floorplans
 		pOrbiterGenerator->m_pRow_Orbiter->Regen_set(false);
 		pOrbiterGenerator->m_pRow_Orbiter->RegenInProgress_set(false);
@@ -292,7 +296,7 @@ int main(int argc, char *argv[])
 		pOrbiterGenerator->m_pRow_Orbiter->Table_Orbiter_get()->Commit();
 		string sql = "UPDATE Orbiter SET Modification_LastGen=psc_mod,psc_mod=psc_mod WHERE PK_Orbiter=" + StringUtils::itos(pOrbiterGenerator->m_pRow_Orbiter->PK_Orbiter_get());
 		pOrbiterGenerator->threaded_db_wrapper_query(sql);
-
+		DatabaseUtils::UnLockTables(pOrbiterGenerator->m_spDatabase_pluto_main.get());
 	}
 	if( pOrbiterGenerator )
         delete pOrbiterGenerator;
@@ -329,6 +333,8 @@ int OrbiterGenerator::DoIt()
 	m_bIsMobilePhone = m_pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get()==DEVICECATEGORY_Mobile_Orbiter_CONST;
 
 	m_bNewOrbiter=false; // Will set to true if this is the first time this Orbiter was generated
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Locking orbiter before Generating %d",m_iPK_Orbiter);
+	DatabaseUtils::LockTable(m_spDatabase_pluto_main.get(),"Orbiter");
 	m_pRow_Orbiter = m_spDatabase_pluto_main->Orbiter_get()->GetRow(m_iPK_Orbiter);
 	if( !m_pRow_Orbiter )
 	{
@@ -338,6 +344,8 @@ int OrbiterGenerator::DoIt()
 		m_pRow_Orbiter->PK_Orbiter_set(m_iPK_Orbiter);
 		m_pRow_Orbiter->Table_Orbiter_get()->Commit();
 	}
+	else
+		m_pRow_Orbiter->Reload();
 
 	if( m_pRow_Orbiter->RegenInProgress_get() )
 	{
@@ -359,6 +367,7 @@ int OrbiterGenerator::DoIt()
 	m_pRow_Orbiter->RegenInProgress_set(true);
 //	m_pRow_Orbiter->ScenariosFloorplans_set( m_pRegenMonitor->AllScenariosFloorplans() );
 	m_pRow_Orbiter->Table_Orbiter_get()->Commit();
+	DatabaseUtils::UnLockTables(m_spDatabase_pluto_main.get());
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Generating: #%d %s",m_pRow_Device->PK_Device_get(),m_pRow_Device->Description_get().c_str());
 
@@ -396,8 +405,11 @@ int OrbiterGenerator::DoIt()
 	{
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find Orbiter's Skin");
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Setting RegenInProgress_set 2 to false for %d",m_pRow_Orbiter->PK_Orbiter_get());
+
+		DatabaseUtils::LockTable(m_spDatabase_pluto_main.get(),"Orbiter");
 		m_pRow_Orbiter->RegenInProgress_set(false);
 		m_spDatabase_pluto_main->Orbiter_get()->Commit();
+		DatabaseUtils::UnLockTables(m_spDatabase_pluto_main.get());
 		exit(1);
 	}
 
@@ -422,8 +434,10 @@ int OrbiterGenerator::DoIt()
 	{
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find Orbiter's UI");
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Setting RegenInProgress_set 5 to false for %d",m_pRow_Orbiter->PK_Orbiter_get());
+		DatabaseUtils::LockTable(m_spDatabase_pluto_main.get(),"Orbiter");
 		m_pRow_Orbiter->RegenInProgress_set(false);
 		m_spDatabase_pluto_main->Orbiter_get()->Commit();
+		DatabaseUtils::UnLockTables(m_spDatabase_pluto_main.get());
 		exit(1);
 	}
 	m_iUiVersion = m_pRow_UI->Version_get();
@@ -486,8 +500,10 @@ int OrbiterGenerator::DoIt()
 	{
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find Orbiter's Main Menu: ");
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Setting RegenInProgress_set 3 to false for %d",m_pRow_Orbiter->PK_Orbiter_get());
+		DatabaseUtils::LockTable(m_spDatabase_pluto_main.get(),"Orbiter");
 		m_pRow_Orbiter->RegenInProgress_set(false);
 		m_spDatabase_pluto_main->Orbiter_get()->Commit();
+		DatabaseUtils::UnLockTables(m_spDatabase_pluto_main.get());
 		exit(1);
 	}
 
@@ -526,8 +542,10 @@ int OrbiterGenerator::DoIt()
 	{
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find Orbiter's Language");
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Setting RegenInProgress_set 4 to false for %d",m_pRow_Orbiter->PK_Orbiter_get());
+		DatabaseUtils::LockTable(m_spDatabase_pluto_main.get(),"Orbiter");
 		m_pRow_Orbiter->RegenInProgress_set(false);
 		m_spDatabase_pluto_main->Orbiter_get()->Commit();
+		DatabaseUtils::UnLockTables(m_spDatabase_pluto_main.get());
 		exit(1);
 	}
 

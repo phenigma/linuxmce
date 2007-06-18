@@ -69,7 +69,7 @@ void displayStepNvidiaDrivers(void) {
 	cleanupContainer(mainButtonBox);
 
 	// Wizard text
-	GtkWidget *label = gtk_label_new_for_wizard ("You have an nVidia Card.  Neither the open source nv driver nor the vesa driver work well. Shall I switch to the nVidia driver?\n\nNote 1: This will reboot the system and you will need to restart the installer\n\nNote 2: Insert Linux MCE CD 1 if you don't have a working internet connection");
+	GtkWidget *label = gtk_label_new_for_wizard ("You have an nVidia Card, but are not using the nVidia proprietary video driver.  Only that driver works well with LinuxMCE and nVidia cards.  Shall I switch to it now?\n\nNote 1: This will reboot the system and you will need to restart the installer\n\nNote 2: Insert Linux MCE CD 1 if you don't have a working internet connection");
 	gtk_box_pack_start(GTK_BOX(mainBox), label, TRUE, TRUE, 0);
 
 

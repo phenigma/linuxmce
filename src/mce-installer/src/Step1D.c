@@ -46,7 +46,7 @@ void displayStep1D(void) {
         gtk_box_pack_start(GTK_BOX(mainBox), radioYes, TRUE, FALSE, 0);
 
         group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (radioYes));
-        GtkWidget *radioNo = gtk_radio_button_new_with_label(group, "No, i'll use other cmputer(s) and DMA devices(s) to playback\nmedia. Only install core software on this one.");
+        GtkWidget *radioNo = gtk_radio_button_new_with_label(group, "No, i'll use other computer(s) and DMA devices(s) to playback\nmedia. Only install core software on this one.");
         g_signal_connect(G_OBJECT(radioNo), "toggled", G_CALLBACK(on_Step1D_radio_toggled), (gpointer)DT_CORE);
         gtk_box_pack_start(GTK_BOX(mainBox), radioNo, TRUE, FALSE, 0);
 

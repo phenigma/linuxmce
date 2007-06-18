@@ -3823,9 +3823,15 @@ void Media_Plugin::CMD_Rip_Disk(int iPK_Device,string sFilename,int iPK_Users,st
 		}
 
 		MediaFile *pMediaFile = pEntertainArea->m_pMediaStream->GetCurrentMediaFile();
-		if( pMediaFile )
+		if( pMediaFile && pMediaFile->m_dwPK_Disk )
+			pRow_Disc = m_pDatabase_pluto_media->Disc_get()->GetRow(pMediaFile->m_dwPK_Disk);
+		else
 			pRow_Disc = m_pDatabase_pluto_media->Disc_get()->GetRow(pEntertainArea->m_pMediaStream->m_dwPK_Disc);
-		if( !pMediaFile || !pRow_Disc )
+
+		if( pMediaFile && pMediaFile->m_dwPK_Device_Disk_Drive && !pDevice_Disk )
+			pDevice_Disk = m_pRouter->m_mapDeviceData_Router_Find(pMediaFile->m_dwPK_Device_Disk_Drive);
+
+		if( !pDevice_Disk && (!pMediaFile || !pRow_Disc) )
 		{
 			//m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"<%=T" + StringUtils::itos(TEXT_Only_rip_drives_CONST) + "%>");
 			SCREEN_DialogRippingError SCREEN_DialogRippingError(m_dwPK_Device, pMessage->m_dwPK_Device_From,
