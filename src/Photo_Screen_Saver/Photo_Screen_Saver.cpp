@@ -32,16 +32,18 @@ using namespace DCE;
 #include "Gallery.h"
 #include "../pluto_main/Define_DeviceData.h"
 
-#ifndef WIN32
-#include "../utilities/linux/window_manager/WMController/WMController.h"
-#endif
+#define CHECK_IF_GOT_ANY_PICTURES  1
+#define REFRESH_LIST_WITH_PICTURES 2
+
+#define SECONDS_PER_MINUTE	60
+#define SECONDS_PER_HOUR	(SECONDS_PER_MINUTE * 60)
 
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
 Photo_Screen_Saver::Photo_Screen_Saver(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
 	: Photo_Screen_Saver_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
-	, ThreadID(0), m_sPSSWindow("Photo_Screen_Saver")
+	, ThreadID(0), m_sPSSWindow("Photo_Screen_Saver"), m_pAlarmManager(NULL)
 {
 }
 
@@ -57,6 +59,9 @@ Photo_Screen_Saver::Photo_Screen_Saver(Command_Impl *pPrimaryDeviceCommand, Devi
 Photo_Screen_Saver::~Photo_Screen_Saver()
 //<-dceag-dest-e->
 {
+	delete m_pAlarmManager;
+	m_pAlarmManager = NULL;
+
 	Terminate();
 }
 
@@ -70,7 +75,33 @@ bool Photo_Screen_Saver::GetConfig()
 	m_bIsOn=false;
 	CMD_Reload();
 
+	m_pAlarmManager = new AlarmManager();
+    m_pAlarmManager->Start(1);      // number of worker threads
+	m_pAlarmManager->AddRelativeAlarm(10 * SECONDS_PER_MINUTE, this, CHECK_IF_GOT_ANY_PICTURES, NULL);
+	m_pAlarmManager->AddRelativeAlarm(24 * SECONDS_PER_HOUR, this, REFRESH_LIST_WITH_PICTURES, NULL);
+
 	return true;
+}
+
+void Photo_Screen_Saver::AlarmCallback(int id, void* param)
+{
+	if(id == CHECK_IF_GOT_ANY_PICTURES)
+	{
+		if(m_sFileList.empty())
+		{
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Refreshing PSS's list with pictures because ain't got any");
+			CMD_Reload();
+		}
+		else
+		{
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Not refreshing PSS's list with pictures: the list is not empty");
+		}
+	}
+	else if(id == REFRESH_LIST_WITH_PICTURES)
+	{
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Refreshing PSS's list with pictures because they are old");
+		CMD_Reload();
+	}
 }
 
 //<-dceag-reg-b->

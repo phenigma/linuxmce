@@ -26,11 +26,12 @@
 //<-dceag-d-e->
 
 #include <pthread.h>
+#include "AlarmManager.h"
 
 //<-dceag-decl-b->
 namespace DCE
 {
-	class Photo_Screen_Saver : public Photo_Screen_Saver_Command
+	class Photo_Screen_Saver : public Photo_Screen_Saver_Command, public AlarmEvent
 	{
 //<-dceag-decl-e->
 		// Private member variables
@@ -38,7 +39,10 @@ namespace DCE
 		string m_sFileList;
 		bool m_bIsOn;
 		const string m_sPSSWindow;
+		AlarmManager *m_pAlarmManager;
 		// Private methods
+		void AlarmCallback(int id, void* param);
+
 public:
 		// Public member variables
 
