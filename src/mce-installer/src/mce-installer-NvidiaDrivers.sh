@@ -17,7 +17,7 @@ if [[ "$(aptitude show nvidia-glx | grep State | cut -d ' ' -f2)" == "installed"
 fi
 
 if [[ "$nvidia_glx_installed" == "false" ]] ;then
-	dpkg -i /media/cdrom/cachecd1-cache/nvidia-glx_*.deb && nvidia_glx_installed="true"
+	dpkg -i /media/cdrom/deb-cache/nvidia-glx_*.deb && nvidia_glx_installed="true"
 fi
 
 if [[ "$nvidia_glx_installed" == "false" ]] ;then
