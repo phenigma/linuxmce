@@ -72,8 +72,8 @@ function editPipes($output,$dbADO) {
 			FROM Device 
 			INNER JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate
 			INNER JOIN DeviceTemplate_Input ON DeviceTemplate_Input.FK_DeviceTemplate=Device.FK_DeviceTemplate 
-			WHERE Device.FK_DeviceTemplate IN ('.join(',',$avDTIDArray).') AND FK_Installation=?';	
-		$resConnectedToDevices=$dbADO->Execute($queryConnectedToDevices,$installationID);
+			WHERE (Device.FK_DeviceTemplate IN ('.join(',',$avDTIDArray).') OR Device.FK_DeviceTemplate=?) AND FK_Installation=?';	
+		$resConnectedToDevices=$dbADO->Execute($queryConnectedToDevices,array($GLOBALS['LightSwitchOnOff'],$installationID));
 		$conD=array();
 		while($rowConD=$resConnectedToDevices->FetchRow()){
 			$conD[$rowConD['PK_Device']]=$rowConD['Description'];
