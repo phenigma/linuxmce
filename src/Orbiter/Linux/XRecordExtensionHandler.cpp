@@ -240,18 +240,10 @@ void XRecordExtensionHandler::XRecordingDataCallback(XPointer pData, XRecordInte
 			break;
 
 		case XRecordEndOfData:
-			pRecordingHandler->m_isRecordingEnabled = false;
-#ifdef DEBUG
-			LoggerWrapper::GetInstance()->Write(LV_STATUS, "XRecordExtensionHandler::XRecordingDataCallback(): Recording context got end of data.");
-#endif
-			pthread_cond_signal(&pRecordingHandler->recordingStateChangedCondition);
 			break;
 
 		default:
 			pRecordingHandler->processXRecordToOrbiterEvent(pRecordedData, &pRecordingHandler->m_OrbiterEvent, pRecordingHandler->m_pDisplay);
-#ifdef DEBUG
-//LoggerWrapper::GetInstance()->Write(LV_STATUS,"XRecordExtensionHandler::XRecordingDataCallback pRecordingHandler->processXRecordToOrbiterEvent %p rrr",pRecordingHandler->m_pOrbiter);
-#endif
 			if ( pRecordingHandler->m_pOrbiter )
 			{
 				Orbiter::Event *pEvent = new Orbiter::Event;
