@@ -161,7 +161,11 @@ void *create_thread(void *arg) {
 	}
 	close(server_socket);
 
+	gdk_threads_enter();
 	gtk_widget_set_sensitive(GTK_WIDGET(buttonForward), TRUE);
+	g_signal_emit_by_name(G_OBJECT(buttonForward), "clicked");
+	gdk_threads_leave();
+
 	return NULL;
 }
 
