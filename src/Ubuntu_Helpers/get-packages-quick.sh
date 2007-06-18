@@ -41,6 +41,7 @@ cp /var/www/mce-installer*.deb ./cache-cd/
 #	sql_slave_db="pluto_main_build"
 #	export Version=$(echo "select VersionName from Version" | mysql $sql_slave_db | tail -1);
 #fi
-mkisofs -f -J -r -o "${iso_name}-packages.iso" ./cache-cd
+#mkisofs -f -J -r -o "${iso_name}-packages.iso" ./cache-cd
+mkisofs -f -joliet-long -r -o "${iso_name}-packages.iso" ./cache-cd
 mv "${iso_name}-packages.iso" /var/www
 popd

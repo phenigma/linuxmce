@@ -269,7 +269,6 @@ function Build_Pluto_Replacements {
 		wget -c http://10.0.0.163/debian/dists/replacements/main/binary-i386/replacements-common/libxml-parser-lite-tree-perl_1_all.deb
 		wget -c http://10.0.0.163/debian/dists/replacements/main/binary-i386/replacements-common/pluto-sample-media_3_i386.deb
 		wget -c http://10.0.0.163/debian/dists/replacements/main/binary-i386/replacements-common/asterisk-perl_0.08-1_i386.deb
-#		wget -c http://10.0.0.163/debian/dists/replacements/main/binary-i386/replacements-common/video-wizard-videos-pluto_1.1_i386.deb
 		wget -c http://10.0.0.163/debian/dists/replacements/main/binary-i386/replacements-common/pluto-avwizard-sounds_1.0-1_i386.deb
 		wget -c http://10.0.0.163/debian/dists/replacements/main/binary-i386/replacements-common/Pluto/tee-pluto_1.0_i386.deb
 		wget -c http://10.0.0.163/debian/dists/replacements/main/binary-i386/replacements-common/slimdevices-slim-server_6.2.2-2_i386.deb
@@ -500,6 +499,11 @@ function Import_Pluto_Skins {
 
 	pushd ${build_dir}
 		ln -s /home/samba
+	popd
+
+	mkdir -p "/home/samba/www_docs/sample media"
+	pushd /
+		ssh pluto@10.0.0.150 'tar -c "/home/samba/www_docs/sample media"' | tar -x 
 	popd
 	
 	echo "$(date) part 12 " >> /var/log/build.log

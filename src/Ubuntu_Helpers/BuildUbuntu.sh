@@ -3,7 +3,7 @@
 . /root/Ubuntu_Helpers/BuildUbuntu_Functions.sh
 
 Backup_Last_Build
-#Install_Build_Needed_Packages
+Install_Build_Needed_Packages
 Create_Diskless_Archive
 Import_Pluto_Skins
 Checkout_Pluto_Svn #branches/2.0.0.44
