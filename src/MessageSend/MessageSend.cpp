@@ -136,7 +136,7 @@ int main(int argc, char *argv[])
 
 
     string ServerAddress=argv[1];
-	Event_Impl *pEvent = new Event_Impl(DEVICEID_MESSAGESEND, 0, ServerAddress);
+	Event_Impl *pEvent = new Event_Impl(DEVICEID_MESSAGESEND, 0, ServerAddress, true, -1, 1);
 	for(int i=0;true;++i) // Wait up to 30 seconds
 	{
 		pEvent->m_pClientSocket->SendString("READY");

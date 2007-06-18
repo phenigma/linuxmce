@@ -144,10 +144,19 @@ void UpdateEntArea::AddDefaultLightingScenarios(Row_Room *pRow_Room)
 		if( IsLight(it->second) )
 			bRoomHasLights=true;
 
+	/* Sort orders:
+		Off=1
+		On=2
+		Showtime=3
+		Sleep=4
+		Wakeup=5
+		HouseToSleep=6
+	*/
+
 	int iOrder=3; // Start with 3 so lights on is always 1, off is always 2
 	if( bRoomHasLights )
 	{
-		pCommandGroup = commandGroupArray.FindCommandGroupByTemplate(TEMPLATE_Lighting_Automatic_CONST,"On",ICON_Lights_On_CONST,1,0);
+		pCommandGroup = commandGroupArray.FindCommandGroupByTemplate(TEMPLATE_Lighting_Automatic_CONST,"On",ICON_Lights_On_CONST,1,0,NULL,1);
 		if( pCommandGroup )
 		{
 			for(map<int,int>::iterator it=map_Device_Type.begin();it!=map_Device_Type.end();++it)
@@ -156,7 +165,7 @@ void UpdateEntArea::AddDefaultLightingScenarios(Row_Room *pRow_Room)
 		}
 
 		iOrder=1;
-		pCommandGroup = commandGroupArray.FindCommandGroupByTemplate(TEMPLATE_Lighting_Automatic_CONST,"Off",ICON_Lights_Off_CONST,0,0);
+		pCommandGroup = commandGroupArray.FindCommandGroupByTemplate(TEMPLATE_Lighting_Automatic_CONST,"Off",ICON_Lights_Off_CONST,0,0,NULL,2);
 		if( pCommandGroup )
 		{
 			for(map<int,int>::iterator it=map_Device_Type.begin();it!=map_Device_Type.end();++it)
@@ -176,7 +185,7 @@ void UpdateEntArea::AddDefaultLightingScenarios(Row_Room *pRow_Room)
 		if( map_Device_Type_TV.size() )
 		{
 			iOrder=1;
-			pCommandGroup = commandGroupArray.FindCommandGroupByTemplate(TEMPLATE_Lighting_Automatic_CONST,"Showtime",ICON_Showtime_CONST,2,0);  // Showtime is parm1=2
+			pCommandGroup = commandGroupArray.FindCommandGroupByTemplate(TEMPLATE_Lighting_Automatic_CONST,"Showtime",ICON_Showtime_CONST,2,0,NULL,3);  // Showtime is parm1=2
 			if( pCommandGroup )
 			{
 				for(map<int,int>::iterator it=map_Device_Type.begin();it!=map_Device_Type.end();++it)
@@ -198,7 +207,7 @@ void UpdateEntArea::AddDefaultLightingScenarios(Row_Room *pRow_Room)
 	if( pRow_Room->FK_RoomType_get()==ROOMTYPE_Bedroom_Other_CONST || pRow_Room->FK_RoomType_get()==ROOMTYPE_Bedroom_Master_CONST )
 	{
 		iOrder=1;
-		pCommandGroup = commandGroupArray.FindCommandGroupByTemplate(TEMPLATE_Lighting_Automatic_CONST,"Sleep",ICON_Sleep_CONST,3,0);  // Bedtime is parm1=3
+		pCommandGroup = commandGroupArray.FindCommandGroupByTemplate(TEMPLATE_Lighting_Automatic_CONST,"Sleep",ICON_Sleep_CONST,3,0,NULL,4);  // Bedtime is parm1=3
 		if( pCommandGroup )
 		{
 			for(map<int,int>::iterator it=map_Device_Type.begin();it!=map_Device_Type.end();++it)
@@ -215,7 +224,7 @@ void UpdateEntArea::AddDefaultLightingScenarios(Row_Room *pRow_Room)
 		}
 
 		iOrder=1;
-		pCommandGroup = commandGroupArray.FindCommandGroupByTemplate(TEMPLATE_Lighting_Automatic_CONST,"Wakeup",ICON_Sleep_CONST,4,0);  // Wakeup is parm1=4
+		pCommandGroup = commandGroupArray.FindCommandGroupByTemplate(TEMPLATE_Lighting_Automatic_CONST,"Wakeup",ICON_Sleep_CONST,4,0,NULL,5);  // Wakeup is parm1=4  Sort 4
 		if( pCommandGroup )
 		{
 			for(map<int,int>::iterator it=map_Device_Type.begin();it!=map_Device_Type.end();++it)
@@ -233,7 +242,7 @@ void UpdateEntArea::AddDefaultLightingScenarios(Row_Room *pRow_Room)
 	if( pRow_Room->FK_RoomType_get()==ROOMTYPE_Bedroom_Master_CONST )
 	{
 		iOrder=1;
-		pCommandGroup = commandGroupArray.FindCommandGroupByTemplate(TEMPLATE_Lighting_Automatic_CONST,"House to sleep mode",ICON_House_to_Sleep_Mode_CONST,5,0);  // House to sleep mode is parm1=5
+		pCommandGroup = commandGroupArray.FindCommandGroupByTemplate(TEMPLATE_Lighting_Automatic_CONST,"House to sleep mode",ICON_House_to_Sleep_Mode_CONST,5,0,NULL,6);  // House to sleep mode is parm1=5
 		if( pCommandGroup )
 		{
 			vector<Row_EntertainArea *> vectRow_EntertainArea;

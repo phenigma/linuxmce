@@ -74,6 +74,7 @@ OSDScreenHandler::OSDScreenHandler(Orbiter *pOrbiter, map<int,int> *p_MapDesignO
 	m_pWizardLogic = new WizardLogic(pOrbiter);
 	m_dwMessageInterceptorCounter_ReportingChildDevices = 0;
 	m_tWaitingForRegistration = m_tRegistered = 0;
+	m_bTurnedPnpOn=false;
 
 	if(!m_pWizardLogic->Setup())
 	{
@@ -309,7 +310,7 @@ bool OSDScreenHandler::UsersWizard_ObjectSelected(CallBackData *pData)
 					StringUtils::Replace(&sText,"<%=USER%>",sUsername);
 					string sMessage="0 -300 1 " TOSTRING(COMMAND_Goto_DesignObj_CONST) " " TOSTRING(COMMANDPARAMETER_PK_DesignObj_CONST) " " TOSTRING(DESIGNOBJ_FamilyMembers_CONST);
 					DCE::SCREEN_House_Setup_Popup_Message SCREEN_House_Setup_Popup_Message(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,
-						sText,sMessage);
+						sText,sMessage,"1");
 					m_pOrbiter->ReceivedMessage(SCREEN_House_Setup_Popup_Message.m_pMessage);
 					return true;
 				}
@@ -395,7 +396,7 @@ void OSDScreenHandler::SCREEN_CountryWizard(long PK_Screen)
 			m_pOrbiter->ForceCurrentScreenIntoHistory();
 			m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_5_CONST, "VALID_DATA_FOUND");
 			DCE::SCREEN_House_Setup_Popup_Message SCREEN_House_Setup_Popup_Message(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,
-				"Is this your location?\n<%=31%>|Yes|No","0 -300 1 741 159 192|0 -300 1 741 159 194");
+				"Is this your location?\n<%=31%>|Yes|No","0 -300 1 741 159 192|0 -300 1 741 159 194","1");
 			m_pOrbiter->ReceivedMessage(SCREEN_House_Setup_Popup_Message.m_pMessage);
 			return;
 		}
@@ -487,7 +488,7 @@ bool OSDScreenHandler::CountryWizard_ObjectSelected(CallBackData *pData)
 				if( !bLocationOk )
 				{
 					DCE::SCREEN_House_Setup_Popup_Message SCREEN_House_Setup_Popup_Message(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,
-						m_pOrbiter->m_mapTextString[TEXT_Cannot_find_City_CONST] + "|Try again|Skip it","0 -300 1 741 159 194|0 -300 1 741 159 192");
+						m_pOrbiter->m_mapTextString[TEXT_Cannot_find_City_CONST] + "|Try again|Skip it","0 -300 1 741 159 194|0 -300 1 741 159 192","1");
 					m_pOrbiter->ReceivedMessage(SCREEN_House_Setup_Popup_Message.m_pMessage);
 					return true;
 				}
@@ -547,7 +548,7 @@ bool OSDScreenHandler::RoomsWizard_ObjectSelected(CallBackData *pData)
 				if( m_pWizardLogic->AlreadyHasRooms()==false )
 				{
 					DCE::SCREEN_House_Setup_Popup_Message SCREEN_House_Setup_Popup_Message(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,
-						m_pOrbiter->m_mapTextString[TEXT_Must_Create_1_room_CONST],"");
+						m_pOrbiter->m_mapTextString[TEXT_Must_Create_1_room_CONST],"","1");
 					m_pOrbiter->ReceivedMessage(SCREEN_House_Setup_Popup_Message.m_pMessage);
 					return true;
 				}
@@ -561,12 +562,14 @@ bool OSDScreenHandler::RoomsWizard_ObjectSelected(CallBackData *pData)
 			{
 				DCE::CMD_On CMD_On(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_PlugAndPlayPlugIn,0,"");
 				m_pOrbiter->SendCommand(CMD_On);
-				if( m_pOrbiter->m_bNewOrbiter )
+//m_pOrbiter->m_bNewOrbiter =true;
+				if( m_pOrbiter->m_bNewOrbiter && !m_bTurnedPnpOn )
 				{
+					m_bTurnedPnpOn=true;
 					string sText=m_pOrbiter->m_mapTextString[TEXT_pnp_active_CONST] + "|" + m_pOrbiter->m_mapTextString[TEXT_Ok_CONST];
 					string sMessage="0 -300 1 " TOSTRING(COMMAND_Goto_Screen_CONST) " " TOSTRING(COMMANDPARAMETER_PK_Screen_CONST) " " TOSTRING(SCREEN_LightsSetup_CONST);
 					DCE::SCREEN_House_Setup_Popup_Message SCREEN_House_Setup_Popup_Message(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,
-						sText,sMessage);
+						sText,sMessage,"0");
 					m_pOrbiter->ReceivedMessage(SCREEN_House_Setup_Popup_Message.m_pMessage);
 					return true;
 				}
@@ -635,7 +638,7 @@ void OSDScreenHandler::SCREEN_This_Room(long PK_Screen, bool bAlways)
 				"0 -300 1 " TOSTRING(COMMAND_Goto_Screen_CONST) " " TOSTRING(COMMANDPARAMETER_PK_Screen_CONST) " " TOSTRING(SCREEN_This_Room_CONST) " " TOSTRING(COMMANDPARAMETER_Always_CONST) " 1";
 
 			DCE::SCREEN_Media_Player_Setup_Popup_Message SCREEN_Media_Player_Setup_Popup_Message(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,
-				sText,sMessage);
+				sText,sMessage,"1");
 			m_pOrbiter->ReceivedMessage(SCREEN_Media_Player_Setup_Popup_Message.m_pMessage);
 
 			return;
@@ -725,7 +728,7 @@ void OSDScreenHandler::SCREEN_TV_Manufacturer(long PK_Screen)
 				"0 -300 1 " TOSTRING(COMMAND_Goto_Screen_CONST) " " TOSTRING(COMMANDPARAMETER_PK_Screen_CONST) " " TOSTRING(SCREEN_Receiver_CONST);
 
 			DCE::SCREEN_Media_Player_Setup_Popup_Message SCREEN_Media_Player_Setup_Popup_Message(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,
-				sText,sMessage);
+				sText,sMessage,"1");
 			m_pOrbiter->ReceivedMessage(SCREEN_Media_Player_Setup_Popup_Message.m_pMessage);
 		}
 		else
@@ -738,7 +741,7 @@ void OSDScreenHandler::SCREEN_TV_Manufacturer(long PK_Screen)
 				"0 -300 1 " TOSTRING(COMMAND_Goto_Screen_CONST) " " TOSTRING(COMMANDPARAMETER_PK_Screen_CONST) " " TOSTRING(SCREEN_Receiver_CONST);
 
 			DCE::SCREEN_Media_Player_Setup_Popup_Message SCREEN_Media_Player_Setup_Popup_Message(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,
-				sText,sMessage);
+				sText,sMessage,"1");
 			m_pOrbiter->ReceivedMessage(SCREEN_Media_Player_Setup_Popup_Message.m_pMessage);
 		}
 	}
@@ -764,7 +767,7 @@ void OSDScreenHandler::SCREEN_TV_Manufacturer(long PK_Screen)
 		m_pOrbiter->ForceCurrentScreenIntoHistory();
 		string sText=m_pOrbiter->m_mapTextString[TEXT_Waiting_for_device_to_startup_CONST] + "|nobuttons";
 		DCE::SCREEN_Media_Player_Setup_Popup_Message SCREEN_Media_Player_Setup_Popup_Message(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,
-			sText,"");
+			sText,"","1");
 		m_pOrbiter->ReceivedMessage(SCREEN_Media_Player_Setup_Popup_Message.m_pMessage);
 
 		m_pOrbiter->StartScreenHandlerTimer(10000); // Wait 10 seconds before continuing
@@ -885,7 +888,7 @@ bool OSDScreenHandler::TV_Manufacturer_ObjectSelected(CallBackData *pData)
 				string sMessage="0 -300 1 " TOSTRING(COMMAND_Goto_Screen_CONST) " " TOSTRING(COMMANDPARAMETER_PK_Screen_CONST) " " TOSTRING(SCREEN_Receiver_CONST);
 
 				DCE::SCREEN_Media_Player_Setup_Popup_Message SCREEN_Media_Player_Setup_Popup_Message(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,
-					sText,sMessage);
+					sText,sMessage,"1");
 				m_pOrbiter->ReceivedMessage(SCREEN_Media_Player_Setup_Popup_Message.m_pMessage);
 			}
 		}
@@ -977,7 +980,7 @@ void OSDScreenHandler::SCREEN_Receiver(long PK_Screen)
 				"0 -300 1 " TOSTRING(COMMAND_Goto_Screen_CONST) " " TOSTRING(COMMANDPARAMETER_PK_Screen_CONST) " " TOSTRING(SCREEN_AV_Devices_CONST);
 
 			DCE::SCREEN_Media_Player_Setup_Popup_Message SCREEN_Media_Player_Setup_Popup_Message(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,
-				sText,sMessage);
+				sText,sMessage,"1");
 			m_pOrbiter->ReceivedMessage(SCREEN_Media_Player_Setup_Popup_Message.m_pMessage);
 		}
 		else
@@ -990,7 +993,7 @@ void OSDScreenHandler::SCREEN_Receiver(long PK_Screen)
 				"0 -300 1 " TOSTRING(COMMAND_Goto_Screen_CONST) " " TOSTRING(COMMANDPARAMETER_PK_Screen_CONST) " " TOSTRING(SCREEN_AV_Devices_CONST);
 
 			DCE::SCREEN_Media_Player_Setup_Popup_Message SCREEN_Media_Player_Setup_Popup_Message(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,
-				sText,sMessage);
+				sText,sMessage,"1");
 			m_pOrbiter->ReceivedMessage(SCREEN_Media_Player_Setup_Popup_Message.m_pMessage);
 		}
 	}
@@ -1010,7 +1013,7 @@ void OSDScreenHandler::SCREEN_Receiver(long PK_Screen)
 		m_pOrbiter->ForceCurrentScreenIntoHistory();
 		string sText=m_pOrbiter->m_mapTextString[TEXT_Waiting_for_device_to_startup_CONST] + "|nobuttons";
 		DCE::SCREEN_Media_Player_Setup_Popup_Message SCREEN_Media_Player_Setup_Popup_Message(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,
-			sText,"");
+			sText,"","1");
 		m_pOrbiter->ReceivedMessage(SCREEN_Media_Player_Setup_Popup_Message.m_pMessage);
 		m_pOrbiter->StartScreenHandlerTimer(10000); // Wait 10 seconds before continuing
 		m_tWaitingForRegistration=1;  // Special indicator for the timer that it should just return to this screen whenever it's called
@@ -1378,14 +1381,14 @@ bool OSDScreenHandler::VideoWizardDone_OnScreen(CallBackData *pData)
 	return false;
 }
 
-void OSDScreenHandler::SCREEN_House_Setup_Popup_Message(long PK_Screen, string sText, string sCommand_Line)
+void OSDScreenHandler::SCREEN_House_Setup_Popup_Message(long PK_Screen, string sText, string sCommand_Line, string sCannotGoBack)
 {
-	SCREEN_PopupMessage(PK_Screen, sText, sCommand_Line, "", "", "", "1");
+	SCREEN_PopupMessage(PK_Screen, sText, sCommand_Line, "", "", "", sCannotGoBack);
 }
 
-void OSDScreenHandler::SCREEN_Media_Player_Setup_Popup_Message(long PK_Screen, string sText, string sCommand_Line)
+void OSDScreenHandler::SCREEN_Media_Player_Setup_Popup_Message(long PK_Screen, string sText, string sCommand_Line, string sCannotGoBack)
 {
-	SCREEN_PopupMessage(PK_Screen, sText, sCommand_Line, "", "", "", "1");
+	SCREEN_PopupMessage(PK_Screen, sText, sCommand_Line, "", "", "", sCannotGoBack);
 }
 
 void OSDScreenHandler::HandleLightingScreen()
@@ -1410,7 +1413,7 @@ void OSDScreenHandler::HandleLightingScreen()
 					"0 -300 1 " TOSTRING(COMMAND_Goto_DesignObj_CONST) " " TOSTRING(COMMANDPARAMETER_PK_DesignObj_CONST) " " TOSTRING(DESIGNOBJ_Explain_Pair_ZWave_Lights_CONST);
 
 				DCE::SCREEN_House_Setup_Popup_Message SCREEN_House_Setup_Popup_Message(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,
-					sText,sMessage);
+					sText,sMessage,"1");
 				m_pOrbiter->ReceivedMessage(SCREEN_House_Setup_Popup_Message.m_pMessage);
 			}
 			else
@@ -1421,7 +1424,7 @@ void OSDScreenHandler::HandleLightingScreen()
 					"0 -300 1 " TOSTRING(COMMAND_Goto_DesignObj_CONST) " " TOSTRING(COMMANDPARAMETER_PK_DesignObj_CONST) " " TOSTRING(DESIGNOBJ_Explain_Pair_ZWave_Lights_CONST);
 
 				DCE::SCREEN_House_Setup_Popup_Message SCREEN_House_Setup_Popup_Message(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,
-					sText,sMessage);
+					sText,sMessage,"1");
 				m_pOrbiter->ReceivedMessage(SCREEN_House_Setup_Popup_Message.m_pMessage);
 			}
 		}
@@ -1446,7 +1449,7 @@ void OSDScreenHandler::HandleLightingScreen()
 
 		m_pOrbiter->ForceCurrentScreenIntoHistory();
 		DCE::SCREEN_House_Setup_Popup_Message SCREEN_House_Setup_Popup_Message(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,
-			sText,sMessage);
+			sText,sMessage,"1");
 		m_pOrbiter->ReceivedMessage(SCREEN_House_Setup_Popup_Message.m_pMessage);
 	}
 }
@@ -1552,7 +1555,7 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"SDScreenHandler::Lights_OnTimer n
 				m_tWaitingForRegistration = time(NULL);
 				string sText=m_pOrbiter->m_mapTextString[TEXT_Waiting_for_device_to_startup_CONST] + "|nobuttons";
 				DCE::SCREEN_House_Setup_Popup_Message SCREEN_House_Setup_Popup_Message(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,
-					sText,"");
+					sText,"","1");
 				m_pOrbiter->ReceivedMessage(SCREEN_House_Setup_Popup_Message.m_pMessage);
 
 LoggerWrapper::GetInstance()->Write(LV_STATUS,"SDScreenHandler::Lights_OnTimer displaying waiting message %d",(int) m_tWaitingForRegistration);
@@ -1566,7 +1569,7 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"SDScreenHandler::Lights_OnTimer d
 				string sMessage="0 -300 1 " TOSTRING(COMMAND_Goto_Screen_CONST) " " TOSTRING(COMMANDPARAMETER_PK_Screen_CONST) " " TOSTRING(SCREEN_AlarmPanel_CONST);
 
 				DCE::SCREEN_House_Setup_Popup_Message SCREEN_House_Setup_Popup_Message(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,
-					sText,sMessage);
+					sText,sMessage,"1");
 				m_pOrbiter->ReceivedMessage(SCREEN_House_Setup_Popup_Message.m_pMessage);
 
 LoggerWrapper::GetInstance()->Write(LV_STATUS,"SDScreenHandler::Lights_OnTimer registration failed");
@@ -1829,7 +1832,7 @@ void OSDScreenHandler::HandleAlarmScreen()
 
 		m_pOrbiter->ForceCurrentScreenIntoHistory();
 		DCE::SCREEN_House_Setup_Popup_Message SCREEN_House_Setup_Popup_Message(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,
-			sText,sMessage);
+			sText,sMessage,"1");
 		m_pOrbiter->ReceivedMessage(SCREEN_House_Setup_Popup_Message.m_pMessage);
 	}
 }
@@ -1917,7 +1920,7 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"SDScreenHandler::Alarm_OnTimer no
 				m_tWaitingForRegistration = time(NULL);
 				string sText=m_pOrbiter->m_mapTextString[TEXT_Waiting_for_device_to_startup_CONST] + "|nobuttons";
 				DCE::SCREEN_House_Setup_Popup_Message SCREEN_House_Setup_Popup_Message(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,
-					sText,"");
+					sText,"","1");
 				m_pOrbiter->ReceivedMessage(SCREEN_House_Setup_Popup_Message.m_pMessage);
 
 LoggerWrapper::GetInstance()->Write(LV_STATUS,"SDScreenHandler::Alarm_OnTimer displaying waiting message %d",(int) m_tWaitingForRegistration);
@@ -1931,7 +1934,7 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"SDScreenHandler::Alarm_OnTimer di
 				string sMessage="0 -300 1 " TOSTRING(COMMAND_Goto_Screen_CONST) " " TOSTRING(COMMANDPARAMETER_PK_Screen_CONST) " " TOSTRING(SCREEN_VOIP_Provider_CONST);
 
 				DCE::SCREEN_House_Setup_Popup_Message SCREEN_House_Setup_Popup_Message(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,
-					sText,sMessage);
+					sText,sMessage,"1");
 				m_pOrbiter->ReceivedMessage(SCREEN_House_Setup_Popup_Message.m_pMessage);
 
 LoggerWrapper::GetInstance()->Write(LV_STATUS,"SDScreenHandler::Alarm_OnTimer registration failed");

@@ -33,7 +33,7 @@ bool g_bChangedScenarios=false;
 
 using namespace DefaultScenarios;
 
-CommandGroup *CommandGroupArray::FindCommandGroupByTemplate(int PK_Template,string sDescription,int PK_Icon,int TemplateParm1,int TemplateParm2,int *PK_CommandGroup)
+CommandGroup *CommandGroupArray::FindCommandGroupByTemplate(int PK_Template,string sDescription,int PK_Icon,int TemplateParm1,int TemplateParm2,int *PK_CommandGroup,int Sort)
 {
 	CommandGroup *pCommandGroup = m_mapCommandGroup_Find(PK_Template,TemplateParm1,TemplateParm2);
 	if( pCommandGroup )
@@ -44,9 +44,9 @@ CommandGroup *CommandGroupArray::FindCommandGroupByTemplate(int PK_Template,stri
 	}
 
 	if( m_pRow_Room )
-		return FindCommandGroupByTemplate(m_pRow_Room,PK_Template,sDescription,PK_Icon,TemplateParm1,TemplateParm2,PK_CommandGroup);
+		return FindCommandGroupByTemplate(m_pRow_Room,PK_Template,sDescription,PK_Icon,TemplateParm1,TemplateParm2,PK_CommandGroup,Sort);
 	else if( m_pRow_EntertainArea )
-		return FindCommandGroupByTemplate(m_pRow_EntertainArea,PK_Template,sDescription,PK_Icon,TemplateParm1,TemplateParm2,PK_CommandGroup);
+		return FindCommandGroupByTemplate(m_pRow_EntertainArea,PK_Template,sDescription,PK_Icon,TemplateParm1,TemplateParm2,PK_CommandGroup,Sort);
 	else
 		return FindCommandGroupByTemplate_NoRoom(PK_Template,sDescription,PK_Icon,TemplateParm1,TemplateParm2,PK_CommandGroup);
 	return NULL;
@@ -119,7 +119,7 @@ Row_CommandGroup *CommandGroupArray::FindCommandGroupByTemplate(Row_Room *pRow_R
 		return NULL;
 }
 
-CommandGroup *CommandGroupArray::FindCommandGroupByTemplate(Row_Room *pRow_Room,int PK_Template,string sDescription,int PK_Icon,int TemplateParm1,int TemplateParm2,int *PK_CommandGroup)
+CommandGroup *CommandGroupArray::FindCommandGroupByTemplate(Row_Room *pRow_Room,int PK_Template,string sDescription,int PK_Icon,int TemplateParm1,int TemplateParm2,int *PK_CommandGroup,int Sort)
 {
 	string SQL = "JOIN CommandGroup_Room ON FK_CommandGroup=PK_CommandGroup WHERE FK_Room=" + StringUtils::itos(pRow_Room->PK_Room_get()) + 
 		" AND FK_Template=" + StringUtils::itos(PK_Template) + " AND FK_Array=" + StringUtils::itos(m_PK_Array) +
@@ -174,14 +174,14 @@ CommandGroup *CommandGroupArray::FindCommandGroupByTemplate(Row_Room *pRow_Room,
 		Row_CommandGroup_Room *pRow_CommandGroup_Room = m_pDatabase_pluto_main->CommandGroup_Room_get()->AddRow();
 		pRow_CommandGroup_Room->FK_CommandGroup_set(pRow_CommandGroup->PK_CommandGroup_get());
 		pRow_CommandGroup_Room->FK_Room_set(pRow_Room->PK_Room_get());
-		pRow_CommandGroup_Room->Sort_set(pRow_CommandGroup->PK_CommandGroup_get());
+		pRow_CommandGroup_Room->Sort_set(Sort ? Sort : pRow_CommandGroup->PK_CommandGroup_get());
 		m_pDatabase_pluto_main->CommandGroup_Room_get()->Commit();
 	}
 
 	return new CommandGroup(this,pRow_CommandGroup);
 }
 
-CommandGroup *CommandGroupArray::FindCommandGroupByTemplate(Row_EntertainArea *pRow_EntertainArea,int PK_Template,string sDescription,int PK_Icon,int TemplateParm1,int TemplateParm2,int *PK_CommandGroup)
+CommandGroup *CommandGroupArray::FindCommandGroupByTemplate(Row_EntertainArea *pRow_EntertainArea,int PK_Template,string sDescription,int PK_Icon,int TemplateParm1,int TemplateParm2,int *PK_CommandGroup,int Sort)
 {
 	string SQL = "JOIN CommandGroup_EntertainArea ON FK_CommandGroup=PK_CommandGroup WHERE FK_EntertainArea=" + StringUtils::itos(pRow_EntertainArea->PK_EntertainArea_get()) + 
 		" AND FK_Template=" + StringUtils::itos(PK_Template) +
@@ -238,7 +238,7 @@ CommandGroup *CommandGroupArray::FindCommandGroupByTemplate(Row_EntertainArea *p
 		Row_CommandGroup_EntertainArea *pRow_CommandGroup_EntertainArea = m_pDatabase_pluto_main->CommandGroup_EntertainArea_get()->AddRow();
 		pRow_CommandGroup_EntertainArea->FK_CommandGroup_set(pRow_CommandGroup->PK_CommandGroup_get());
 		pRow_CommandGroup_EntertainArea->FK_EntertainArea_set(pRow_EntertainArea->PK_EntertainArea_get());
-		pRow_CommandGroup_EntertainArea->Sort_set(pRow_CommandGroup->PK_CommandGroup_get());
+		pRow_CommandGroup_EntertainArea->Sort_set(Sort ? Sort : pRow_CommandGroup->PK_CommandGroup_get());
 		m_pDatabase_pluto_main->CommandGroup_EntertainArea_get()->Commit();
 	}
 

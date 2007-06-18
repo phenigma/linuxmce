@@ -11786,14 +11786,14 @@ namespace DCE
 	{
 	public:
 		SCREEN_House_Setup_Popup_Message(long DeviceIDFrom, long DeviceIDTo,
-			string sText, string sCommand_Line,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+			string sText, string sCommand_Line, string sCannotGoBack,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
 		{
-			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 6, 
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 7, 
 				COMMANDPARAMETER_PK_Screen_CONST, "237" /* screen ID */
 				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
 				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
 				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */,
-				9 /* The main message followed by up to 4 messages, all | delimited */, sText.c_str(), 137 /* Up to 4 messages for the 4 options, | delimited */, sCommand_Line.c_str());
+				9 /* The main message followed by up to 4 messages, all | delimited */, sText.c_str(), 137 /* Up to 4 messages for the 4 options, | delimited */, sCommand_Line.c_str(), 183 /* Cant go back */, sCannotGoBack.c_str());
 		}
 	};
 
@@ -11801,14 +11801,14 @@ namespace DCE
 	{
 	public:
 		SCREEN_House_Setup_Popup_Message_DL(long DeviceIDFrom, string sDeviceIDTo,
-			string sText, string sCommand_Line,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+			string sText, string sCommand_Line, string sCannotGoBack,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
 		{
-			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 6, 
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 7, 
 				COMMANDPARAMETER_PK_Screen_CONST, "237" /* screen ID */
 				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
 				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
 				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */,
-				9 /* The main message followed by up to 4 messages, all | delimited */, sText.c_str(), 137 /* Up to 4 messages for the 4 options, | delimited */, sCommand_Line.c_str());
+				9 /* The main message followed by up to 4 messages, all | delimited */, sText.c_str(), 137 /* Up to 4 messages for the 4 options, | delimited */, sCommand_Line.c_str(), 183 /* Cant go back */, sCannotGoBack.c_str());
 		}
 	};
 
@@ -11816,14 +11816,14 @@ namespace DCE
 	{
 	public:
 		SCREEN_House_Setup_Popup_Message_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,
-			string sText, string sCommand_Line,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+			string sText, string sCommand_Line, string sCannotGoBack,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
 		{
-			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 6, 
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 7, 
 				COMMANDPARAMETER_PK_Screen_CONST, "237" /* screen ID */
 				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
 				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
 				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */,
-				9 /* The main message followed by up to 4 messages, all | delimited */, sText.c_str(), 137 /* Up to 4 messages for the 4 options, | delimited */, sCommand_Line.c_str());
+				9 /* The main message followed by up to 4 messages, all | delimited */, sText.c_str(), 137 /* Up to 4 messages for the 4 options, | delimited */, sCommand_Line.c_str(), 183 /* Cant go back */, sCannotGoBack.c_str());
 		}
 	};
 
@@ -11831,14 +11831,14 @@ namespace DCE
 	{
 	public:
 		SCREEN_House_Setup_Popup_Message_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,
-			string sText, string sCommand_Line,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+			string sText, string sCommand_Line, string sCannotGoBack,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
 		{
-			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 6, 
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 7, 
 				COMMANDPARAMETER_PK_Screen_CONST, "237" /* screen ID */
 				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
 				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
 				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */,
-				9 /* The main message followed by up to 4 messages, all | delimited */, sText.c_str(), 137 /* Up to 4 messages for the 4 options, | delimited */, sCommand_Line.c_str());
+				9 /* The main message followed by up to 4 messages, all | delimited */, sText.c_str(), 137 /* Up to 4 messages for the 4 options, | delimited */, sCommand_Line.c_str(), 183 /* Cant go back */, sCannotGoBack.c_str());
 		}
 	};
 
@@ -11846,14 +11846,14 @@ namespace DCE
 	{
 	public:
 		SCREEN_Media_Player_Setup_Popup_Message(long DeviceIDFrom, long DeviceIDTo,
-			string sText, string sCommand_Line,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+			string sText, string sCommand_Line, string sCannotGoBack,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
 		{
-			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 6, 
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 7, 
 				COMMANDPARAMETER_PK_Screen_CONST, "238" /* screen ID */
 				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
 				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
 				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */,
-				9 /* The main message followed by up to 4 messages, all | delimited */, sText.c_str(), 137 /* Up to 4 messages for the 4 options, | delimited */, sCommand_Line.c_str());
+				9 /* The main message followed by up to 4 messages, all | delimited */, sText.c_str(), 137 /* Up to 4 messages for the 4 options, | delimited */, sCommand_Line.c_str(), 183 /* Cant go back */, sCannotGoBack.c_str());
 		}
 	};
 
@@ -11861,14 +11861,14 @@ namespace DCE
 	{
 	public:
 		SCREEN_Media_Player_Setup_Popup_Message_DL(long DeviceIDFrom, string sDeviceIDTo,
-			string sText, string sCommand_Line,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+			string sText, string sCommand_Line, string sCannotGoBack,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
 		{
-			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 6, 
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 7, 
 				COMMANDPARAMETER_PK_Screen_CONST, "238" /* screen ID */
 				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
 				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
 				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */,
-				9 /* The main message followed by up to 4 messages, all | delimited */, sText.c_str(), 137 /* Up to 4 messages for the 4 options, | delimited */, sCommand_Line.c_str());
+				9 /* The main message followed by up to 4 messages, all | delimited */, sText.c_str(), 137 /* Up to 4 messages for the 4 options, | delimited */, sCommand_Line.c_str(), 183 /* Cant go back */, sCannotGoBack.c_str());
 		}
 	};
 
@@ -11876,14 +11876,14 @@ namespace DCE
 	{
 	public:
 		SCREEN_Media_Player_Setup_Popup_Message_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,
-			string sText, string sCommand_Line,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+			string sText, string sCommand_Line, string sCannotGoBack,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
 		{
-			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 6, 
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 7, 
 				COMMANDPARAMETER_PK_Screen_CONST, "238" /* screen ID */
 				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
 				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
 				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */,
-				9 /* The main message followed by up to 4 messages, all | delimited */, sText.c_str(), 137 /* Up to 4 messages for the 4 options, | delimited */, sCommand_Line.c_str());
+				9 /* The main message followed by up to 4 messages, all | delimited */, sText.c_str(), 137 /* Up to 4 messages for the 4 options, | delimited */, sCommand_Line.c_str(), 183 /* Cant go back */, sCannotGoBack.c_str());
 		}
 	};
 
@@ -11891,14 +11891,14 @@ namespace DCE
 	{
 	public:
 		SCREEN_Media_Player_Setup_Popup_Message_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,
-			string sText, string sCommand_Line,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+			string sText, string sCommand_Line, string sCannotGoBack,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
 		{
-			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 6, 
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 7, 
 				COMMANDPARAMETER_PK_Screen_CONST, "238" /* screen ID */
 				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
 				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
 				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */,
-				9 /* The main message followed by up to 4 messages, all | delimited */, sText.c_str(), 137 /* Up to 4 messages for the 4 options, | delimited */, sCommand_Line.c_str());
+				9 /* The main message followed by up to 4 messages, all | delimited */, sText.c_str(), 137 /* Up to 4 messages for the 4 options, | delimited */, sCommand_Line.c_str(), 183 /* Cant go back */, sCannotGoBack.c_str());
 		}
 	};
 
@@ -13201,10 +13201,7 @@ namespace DCE
 				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
 				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
 				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */,
-				39 /* // The format is: 
-// PK_DeviceData\tPK_Text for question\tPK_Text for Answer 1\tValue for answer 1\tPK_Text for Answer 2 ....   \n
-// PK_DeviceData ....
- */, sOptions.c_str(), 224 /* The PNP Queue */, StringUtils::ltos(iPK_PnpQueue).c_str());
+				39 /* Options */, sOptions.c_str(), 224 /* PK_PnpQueue */, StringUtils::ltos(iPK_PnpQueue).c_str());
 		}
 	};
 
@@ -13219,10 +13216,7 @@ namespace DCE
 				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
 				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
 				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */,
-				39 /* // The format is: 
-// PK_DeviceData\tPK_Text for question\tPK_Text for Answer 1\tValue for answer 1\tPK_Text for Answer 2 ....   \n
-// PK_DeviceData ....
- */, sOptions.c_str(), 224 /* The PNP Queue */, StringUtils::ltos(iPK_PnpQueue).c_str());
+				39 /* Options */, sOptions.c_str(), 224 /* PK_PnpQueue */, StringUtils::ltos(iPK_PnpQueue).c_str());
 		}
 	};
 
@@ -13237,10 +13231,7 @@ namespace DCE
 				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
 				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
 				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */,
-				39 /* // The format is: 
-// PK_DeviceData\tPK_Text for question\tPK_Text for Answer 1\tValue for answer 1\tPK_Text for Answer 2 ....   \n
-// PK_DeviceData ....
- */, sOptions.c_str(), 224 /* The PNP Queue */, StringUtils::ltos(iPK_PnpQueue).c_str());
+				39 /* Options */, sOptions.c_str(), 224 /* PK_PnpQueue */, StringUtils::ltos(iPK_PnpQueue).c_str());
 		}
 	};
 
@@ -13255,10 +13246,7 @@ namespace DCE
 				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
 				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
 				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */,
-				39 /* // The format is: 
-// PK_DeviceData\tPK_Text for question\tPK_Text for Answer 1\tValue for answer 1\tPK_Text for Answer 2 ....   \n
-// PK_DeviceData ....
- */, sOptions.c_str(), 224 /* The PNP Queue */, StringUtils::ltos(iPK_PnpQueue).c_str());
+				39 /* Options */, sOptions.c_str(), 224 /* PK_PnpQueue */, StringUtils::ltos(iPK_PnpQueue).c_str());
 		}
 	};
 
@@ -13560,8 +13548,8 @@ namespace DCE
 		virtual void SCREEN_NAS_Options_when_Mounting_device(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_New_Pnp_Device_One_Possibility(long PK_Screen, int iPK_Room, int iPK_DHCPDevice, string sDescription, string ssComments, int iPK_PnpQueue){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Wizard_Done(long PK_Screen){ GotoScreen(PK_Screen); }
-		virtual void SCREEN_House_Setup_Popup_Message(long PK_Screen, string sText, string sCommand_Line){ GotoScreen(PK_Screen); }
-		virtual void SCREEN_Media_Player_Setup_Popup_Message(long PK_Screen, string sText, string sCommand_Line){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_House_Setup_Popup_Message(long PK_Screen, string sText, string sCommand_Line, string sCannotGoBack){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_Media_Player_Setup_Popup_Message(long PK_Screen, string sText, string sCommand_Line, string sCannotGoBack){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Add_Software(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Choose_Folder(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Choose_Drive(long PK_Screen){ GotoScreen(PK_Screen); }
@@ -14986,14 +14974,16 @@ namespace DCE
 				{
 					string sText = pMessage->m_mapParameters[9];
 					string sCommand_Line = pMessage->m_mapParameters[137];
-					SCREEN_House_Setup_Popup_Message(nPK_Screen, sText, sCommand_Line);
+					string sCannotGoBack = pMessage->m_mapParameters[183];
+					SCREEN_House_Setup_Popup_Message(nPK_Screen, sText, sCommand_Line, sCannotGoBack);
 					break;
 				}
 				case 238:
 				{
 					string sText = pMessage->m_mapParameters[9];
 					string sCommand_Line = pMessage->m_mapParameters[137];
-					SCREEN_Media_Player_Setup_Popup_Message(nPK_Screen, sText, sCommand_Line);
+					string sCannotGoBack = pMessage->m_mapParameters[183];
+					SCREEN_Media_Player_Setup_Popup_Message(nPK_Screen, sText, sCommand_Line, sCannotGoBack);
 					break;
 				}
 				case 239:

@@ -2092,6 +2092,20 @@ bool MythTV_PlugIn::ScanningProgress( class Socket *pSocket, class Message *pMes
 	{
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::ScanningProgress done for job %d", iPK_Device);
 
+		string sSQL = "SELECT DISTINCT cardid,modulation,tvformat FROM cardinput "
+			"JOIN channel ON cardinput.sourceid=channel.sourceid "
+			"JOIN dtv_multiplex ON dtv_multiplex.mplexid=channel.mplexid ";
+		PlutoSqlResult result;
+		DB_ROW row=NULL;
+		
+		if( ( result.r=m_pDBHelper_Myth->db_wrapper_query_result( sSQL ) ) )
+		{
+			while( ( row=db_wrapper_fetch_row( result.r ) ) )
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::ScanningProgress sql %s %s %s", row[0], row[1], row[2]);
+		}
+		else
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::ScanningProgress sql nothing %p %p", result.r, row);
+
 		// See if we've found a tv format, or can otherwise determine the provider
 		CheckForTvFormatAndProvider( iPK_Device );
 
@@ -2123,13 +2137,16 @@ void MythTV_PlugIn::CheckForTvFormatAndProvider( int iPK_Device )
 		"WHERE cardinput.cardid=" + pRow_Device_DeviceData->IK_DeviceData_get();
 
 	PlutoSqlResult result;
-	DB_ROW row;
+	DB_ROW row=NULL;
 	if( (result.r = m_pDBHelper_Myth->db_wrapper_query_result(sSQL)) && ( row=db_wrapper_fetch_row( result.r ) ) && row[0] && row[1] )
 	{
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::CheckForTvFormatAndProvider row count %s / %s", row[0], row[1]);
 		if( result.r->row_count>1 )
 			LoggerWrapper::GetInstance()->Write(LV_WARNING,"MythTV_PlugIn::CheckForTvFormatAndProvider found more than 1 tv format for %d",iPK_Device);
 		DatabaseUtils::SetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,iPK_Device,DEVICEDATA_Type_CONST,row[0]);
 	}
+	else
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::CheckForTvFormatAndProvider nothing got for %s %p/%p", sSQL.c_str(), result.r, row);
 }
 //<-dceag-c882-b->
 

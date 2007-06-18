@@ -104,7 +104,7 @@ void DCE_Template::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,str
 void DCE_Template::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage)
 //<-dceag-cmduk-e->
 {
-	sCMD_Result = "UNKNOWN DEVICE";
+	sCMD_Result = "UNKNOWN COMMAND";
 }
 
 //<-dceag-sample-b->

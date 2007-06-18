@@ -36,14 +36,14 @@
 
 using namespace DCE;
 
-Event_Impl::Event_Impl( long dwDevice, long dwDeviceTemplate, string sServerAddress, bool bConnectEventHandler, int nSocketTimeout )
+Event_Impl::Event_Impl( long dwDevice, long dwDeviceTemplate, string sServerAddress, bool bConnectEventHandler, int nSocketTimeout, int nConnectRetries )
 {
 	m_dwPK_Device = dwDevice;
 	m_pClientSocket = new ClientSocket( dwDevice, sServerAddress, string( "Event Dev #" ) + StringUtils::itos( dwDevice ) );
 
 	if( bConnectEventHandler )
 	{
-		m_pClientSocket->Connect(dwDeviceTemplate,"Event #" + StringUtils::itos(dwDevice),INITIAL_CONNECT_RETRIES);
+		m_pClientSocket->Connect(dwDeviceTemplate,"Event #" + StringUtils::itos(dwDevice),nConnectRetries==-1 ? INITIAL_CONNECT_RETRIES : nConnectRetries);
 
 		if(-1 != nSocketTimeout)
 			m_pClientSocket->SetReceiveTimeout(nSocketTimeout);

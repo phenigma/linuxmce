@@ -41,7 +41,7 @@ class OSDScreenHandler: public ScreenHandler
 protected:
 	class WizardLogic *m_pWizardLogic;
 	int m_nLightInDequeToAssign,m_nSensorInDequeToAssign; // To keep track of which light we're flashing, or sensor we're getting info on
-	bool m_bLightsFlashThreadQuit,m_bLightsFlashThreadRunning;
+	bool m_bLightsFlashThreadQuit,m_bLightsFlashThreadRunning,m_bTurnedPnpOn;
 	bool m_bHasVideoWizardFiles,m_bWizardIsRunning,m_bAlreadyPlaySeeAndHearMe,m_bAlreadyPlayFinalGreeting;
 	time_t m_tWaitingForRegistration,m_tRegistered;
 
@@ -106,8 +106,8 @@ public:
 	virtual void SCREEN_Wizard_Done(long PK_Screen);
 	virtual bool VideoWizardDone_OnScreen(CallBackData *pData);
 
-	virtual void SCREEN_House_Setup_Popup_Message(long PK_Screen, string sText, string sCommand_Line);
-	virtual void SCREEN_Media_Player_Setup_Popup_Message(long PK_Screen, string sText, string sCommand_Line);
+	virtual void SCREEN_House_Setup_Popup_Message(long PK_Screen, string sText, string sCommand_Line, string sCannotGoBack);
+	virtual void SCREEN_Media_Player_Setup_Popup_Message(long PK_Screen, string sText, string sCommand_Line, string sCannotGoBack);
 
 	// Lights
 	virtual void SCREEN_LightsSetup(long PK_Screen);
