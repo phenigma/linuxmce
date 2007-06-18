@@ -190,6 +190,10 @@ VideoSettings_Check
 AudioSettings_Check
 SaveSettings
 
+if [[ -z "$(pidof X)" ]]; then
+	exit # no X is running
+fi
+
 if [[ "$Reboot" == Reboot ]]; then
 	reboot
 elif [[ "$ReloadX" == ReloadX ]]; then
