@@ -564,6 +564,10 @@ unsigned long ProcessUtils::GetMsTime()
 
 bool ProcessUtils::RunApplicationAndGetOutput(string sCommandLine, string& sOutput)
 {
+	bool bResult = false;
+
+#ifndef WINCE
+
 	char *pFilename = tempnam("/tmp", "pluto-temp-");
 
 	string sOutputFilename = NULL != pFilename ? pFilename : "pluto_temp";
@@ -577,12 +581,13 @@ bool ProcessUtils::RunApplicationAndGetOutput(string sCommandLine, string& sOutp
 
 	sCommandLine = sCommandLine + " > " + sOutputFilename;
 
-	bool bResult = false;
 	if(-1 != system(sCommandLine.c_str()))
 		bResult = FileUtils::ReadTextFile(sOutputFilename, sOutput);
 
 	if(FileUtils::FileExists(sOutputFilename))
 		FileUtils::DelFile(sOutputFilename);
+
+#endif
 
 	return bResult;
 }
