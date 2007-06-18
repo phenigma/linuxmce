@@ -10,6 +10,7 @@ function XorgConfLogging() {
         echo "$myPid $(date -R) $message [$xorgLines]"  >> $xorgLog
 }
 
+ConfFile="/etc/X11/xorg.conf"
 XorgConfLogging "Starting $0 $*"
 trap 'XorgConfLogging "Ending"' EXIT
 
@@ -51,8 +52,8 @@ CleanUp()
 SetDefaults()
 {
 	CleanupVideo
-	cp /etc/X11/xorg.conf /etc/X11/xorg.conf.pluto.avwizard
-	/usr/pluto/bin/Xconfigure.sh --resolution '640x480@60' --conffile /etc/X11/xorg.conf.pluto.avwizard
+	cp "$ConfFile" "$XF86Config"
+	bash -x "$BaseDir"/Xconfigure.sh --conffile "$XF86Config" --resolution '640x480@60' | tee-pluto /var/log/pluto/Xconfigure.log
 	WizSet Video_Ratio '4_3'
 	WizSet Resolution '640x480'
 	WizSet VideoResolution '640x480'
@@ -259,7 +260,6 @@ done
 set -x
 # Finalize wizard: save settings
 ConfSet "AVWizardDone" "1"
-ConfFile="/etc/X11/xorg.conf"
 mv "$XF86Config" "$ConfFile"
 mv "$XineConf" /etc/pluto/xine.conf
 alsactl store
