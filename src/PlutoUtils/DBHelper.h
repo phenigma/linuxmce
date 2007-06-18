@@ -156,7 +156,7 @@ public:
 		return row[0];
 	}
 
-	DB_RES *db_wrapper_query_result(string query)
+	DB_RES *db_wrapper_query_result(string query,bool Retry=false)
 	{
 	#ifdef DEBUG
 		clock_t cStart = clock();
@@ -166,8 +166,13 @@ public:
 		if( (iresult=db_wrapper_query(m_pDB,query.c_str()))!=0 )
 		{
 			
-				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Query failed (%s): %s (%d)",db_wrapper_error(m_pDB),query.c_str(),iresult);
-			DBConnect(true);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Query failed (%s): %s (%d)",db_wrapper_error(m_pDB),query.c_str(),iresult);
+			if( DBConnect(true) && Retry==false )
+			{
+				DB_RES *p = db_wrapper_query_result(query,true);  // Try a second time if we were able to reconnect
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Query failed (%s): %s retry: %p",db_wrapper_error(m_pDB),query.c_str(),p);
+				return p;
+			}
 			return NULL;
 		}
 	//	else
@@ -196,7 +201,7 @@ public:
 		return pDB_RES;
 	}
 
-	int threaded_db_wrapper_query(string query,bool bIgnoreErrors=false)
+	int threaded_db_wrapper_query(string query,bool bIgnoreErrors=false,bool Retry=false)
 	{
 	#ifdef DEBUG
 		clock_t cStart = clock();
@@ -208,8 +213,13 @@ public:
 			if( bIgnoreErrors )
 				return -1;
 			
-				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Query failed (%s): %s (%d)",db_wrapper_error(m_pDB),query.c_str(),iresult);
-			DBConnect(true);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Query failed (%s): %s (%d)",db_wrapper_error(m_pDB),query.c_str(),iresult);
+			if( DBConnect(true) && Retry==false )
+			{
+				int i = threaded_db_wrapper_query(query,bIgnoreErrors,true);  // Try a second time if we were able to reconnect
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Query failed (%s): %s retry: %d",db_wrapper_error(m_pDB),query.c_str(),i);
+				return i;
+			}
 			return -1;
 		}
 
@@ -232,7 +242,7 @@ public:
 		return (int) db_wrapper_affected_rows(m_pDB);
 	}
 
-	int threaded_db_wrapper_query_withID(string query)
+	int threaded_db_wrapper_query_withID(string query,bool Retry=false)
 	{
 	#ifdef DEBUG
 		clock_t cStart = clock();
@@ -242,8 +252,13 @@ public:
 		if( (iresult=db_wrapper_query(m_pDB,query.c_str()))!=0 )
 		{
 			
-				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Query failed (%s): %s (%d)",db_wrapper_error(m_pDB),query.c_str(),iresult);
-			DBConnect(true);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Query failed (%s): %s (%d)",db_wrapper_error(m_pDB),query.c_str(),iresult);
+			if( DBConnect(true) && Retry==false )
+			{
+				int i = threaded_db_wrapper_query_withID(query,true);  // Try a second time if we were able to reconnect
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Query failed (%s): %s retry: %d",db_wrapper_error(m_pDB),query.c_str(),i);
+				return i;
+			}
 			return 0;
 		}
 
