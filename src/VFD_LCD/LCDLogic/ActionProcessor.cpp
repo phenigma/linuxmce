@@ -106,7 +106,7 @@ void ActionProcessor::ExecuteCommand(string sCommandLine, const map<int, string>
 		m_pCommand_Impl->SendMessage(pMessage);
 	else
 	{
-		DCE::LoggerWrapper::GetInstance()->Write(LV_WARNING, "Command NOT sent: we are not connect to the router!");
+		DCE::LoggerWrapper::GetInstance()->Write(LV_WARNING, "Command NOT sent: we are not connected to router!");
 	}
 }
 //--------------------------------------------------------------------------------------------------------
