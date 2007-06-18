@@ -5,6 +5,8 @@ set -e
 . ./filesd-parms.sh $@
 . /usr/pluto/bin/Network_Parameters.sh
 
+
+## Cron job
 File="/etc/cron.daily/synctime"
 Content="usr/sbin/ntpdate dcerouter"
 
@@ -12,3 +14,15 @@ mkdir -p "${Parm_RootLocation}/$(dirname $File)"
 echo -e "${Content}" > "${Parm_RootLocation}/${File}"
 
 chmod +x "${Parm_RootLocation}/${File}"
+
+
+## Configuration for ntpdate startup script
+File="/etc/default/ntpdate"
+Content="
+NTPDATE_USE_NTP_CONF=yes
+NTPSERVERS=\"$IntIP\"
+NTPOPTIONS=\"\"
+"
+mkdir -p "${Parm_RootLocation}/$(dirname $File)"
+echo -e "${Content}" > "${Parm_RootLocation}/${File}"
+

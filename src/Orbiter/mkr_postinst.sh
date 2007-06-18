@@ -31,16 +31,6 @@ PrevVer="$2"
 
 if [[ -n "$PrevVer" ]]; then
 	echo "Upgrading from version '$PrevVer'. Not setting up X again"
-else
-	# only on standalone MDs, not hybrids
-	if ! BlacklistConfFiles '/etc/default/ntpdate' ;then
-		if [ ! -e /etc/default/ntpdate.pbackup ] && [ -e /etc/default/ntpdate ] ;then
-			cp /etc/default/ntpdate /etc/default/ntpdate.pbackup || :
-		fi
-		if ! PackageIsInstalled pluto-dcerouter; then
-			sed -i 's/^NTPSERVERS=.*$/NTPSERVERS="dcerouter"/' /etc/default/ntpdate
-		fi
-	fi
 fi
 
 if [ -e /usr/share/kubuntu-default-settings/kde-profile/default/share/config/ksmserverrc ] ;then
