@@ -93,7 +93,7 @@ echo "AutostartEnabled=false" >> /usr/share/kubuntu-default-settings/kde-profile
 
 echo "[Auto Actions]"  > /usr/share/kubuntu-default-settings/kde-profile/default/share/config/medianotifierrc
 for file in /usr/share/mimelnk/media/*  ;do 
-	echo "media/$(basename $file | cut -d '.' -f1)=#NothinAction" > /usr/share/kubuntu-default-settings/kde-profile/default/share/config/medianotifierrc  
+	echo "media/$(basename $file | cut -d '.' -f1)=#NothinAction" >> /usr/share/kubuntu-default-settings/kde-profile/default/share/config/medianotifierrc  
 done
 
 
