@@ -132,7 +132,7 @@ function get_web_orbiter_screen($deviceID,$dbADO){
 			$address=getDeviceIP($ProxyOrbiterInfo['FK_Device_ControlledVia'][0],$dbADO);
 
 			if(is_null($address)){
-				$address='192.168.80.1';
+				$address=getCoreIP($dbADO);
 				write_log("\n\nGeneric Web Device does not have IP address\n");
 			}
 		}

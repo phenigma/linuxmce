@@ -10,6 +10,7 @@ function proxySocket($output,$dbADO){
 
 	
 	global $port,$address;
+	$GLOBALS['coreIP']=getCoreIP($dbADO);
 	if(!isset($_REQUEST['address']) && !isset($_REQUEST['port'])){
 		$phoneIPAddress=$_SERVER['REMOTE_ADDR'];
 		$ProxyOrbiterInfo=getFieldsAsArray('Device','Device.PK_Device AS DeviceID, FK_Device_ControlledVia,IPAddress,DD1.IK_DeviceData AS PhoneIP,DD2.IK_DeviceData AS Port',$dbADO,'INNER JOIN Device_DeviceData DD1 ON DD1.FK_Device=PK_Device AND DD1.FK_DeviceData='.$GLOBALS['RemotePhoneIP'].' INNER JOIN Device_DeviceData DD2 ON DD2.FK_Device=PK_Device AND DD2.FK_DeviceData='.$GLOBALS['ListenPort'].' WHERE DD1.IK_DeviceData=\''.$phoneIPAddress.'\' AND FK_DeviceTemplate='.$GLOBALS['Cisco7970Orbiter']);
@@ -19,7 +20,7 @@ function proxySocket($output,$dbADO){
 				//$address=getDeviceIP($ProxyOrbiterInfo['FK_Device_ControlledVia'][0],$dbADO);
 				$address=getCoreIP($dbADO);
 				if(is_null($address)){
-					$address='192.168.80.1';
+					$address=$GLOBALS['coreIP'];
 					write_log("\n\n$TEXT_ERROR_MISSING_IP_ADDRESS_CONST\n");
 				}
 			}
@@ -263,10 +264,10 @@ function xml_die($deviceID,$address,$port,$command,$message,$userFriendlyMessage
 	<Prompt>'.substr($xmlMessage,0,31).'</Prompt>
 	<LocationX>0</LocationX>
 	<LocationY>0</LocationY>
-	<URL>http://192.168.80.1/pluto-admin/security_images/generic_xml_error.png</URL>
+	<URL>http://'.$GLOBALS['coreIP'].'/pluto-admin/security_images/generic_xml_error.png</URL>
 	<MenuItem>
 		<Name>Button</Name>
-			<URL>http://192.168.80.1/pluto-admin/security_images/generic_xml_error.png</URL>
+			<URL>http://'.$GLOBALS['coreIP'].'/pluto-admin/security_images/generic_xml_error.png</URL>
 		<TouchArea X1="0" Y1="0" X2="0" Y2="0"/>
 	</MenuItem>	
 </CiscoIPPhoneGraphicFileMenu>';
