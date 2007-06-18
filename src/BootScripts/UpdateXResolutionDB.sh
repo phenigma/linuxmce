@@ -9,6 +9,7 @@ DEVICECATEGORY_Media_Director=8
 DEVICEDATA_ScreenWidth=100
 DEVICEDATA_ScreenHeight=101
 DEVICEDATA_Video_settings=89
+DEVICEDATA_Audio_settings=88
 DEVICEDATA_PK_Size=25
 DEVICEDATA_Connector=68
 DEVICEDATA_TV_Standard=229
@@ -32,6 +33,11 @@ ParseParms()
 			--tv-standard)
 				((i++))
 				TVStandard="${!i}"
+			;;
+			--audio-setting)
+				((i++))
+				AudioSetting="${!i}"
+				AudioSetting_Set=y
 			;;
 		esac
 	done
@@ -92,7 +98,17 @@ UpdateTVStandard()
 	SetDeviceData "$ComputerDev" "$DEVICEDATA_TV_Standard" "$TVStandard"
 }
 
+UpdateAudioSetting()
+{
+	if [[ "$AudioSetting_Set" != y ]]; then
+		return
+	fi
+
+	SetDeviceData "$ComputerDev" "$DEVICEDATA_Audio_settings" "$AudioSetting"
+}
+
 ParseParms "$@"
 UpdateResolution
 UpdateConnector
 UpdateTVStandard
+UpdateAudioSetting
