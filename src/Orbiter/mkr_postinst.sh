@@ -62,4 +62,7 @@ if [ -e /usr/share/kubuntu-default-settings/kde-profile/default/share/config/ksm
 	fi
 fi
 
+#<-mkr_b_via_b->
+bash -x /home/via/ApplyViaPatch.sh
+#<-mkr_b_via_e->
 exit 0
