@@ -286,6 +286,19 @@ GetDeviceData()
 	Field 1 "$(RunSQL "$Q")"
 }
 
+SetDeviceData()
+{
+	local Q
+	local Device="$1" DeviceData="$2" Value="$3"
+
+	Q="
+		UPDATE Device_DeviceData
+		SET IK_DeviceData='$Value'
+		WHERE FK_Device=$Device AND FK_DeviceData=$DeviceData
+	"
+	RunSQL "$Q"
+}
+
 UI_SetOptions()
 {
 	local OrbiterDev="$1"
