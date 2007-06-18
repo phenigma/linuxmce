@@ -1670,6 +1670,11 @@ string Message::ToXML()
 	pthread_cond_broadcast(&m_MessageQueueCond);
 	Sleep(1000); // Let the sockets close
 
+	//mark all devices as unregistered
+	string sSQL = "UPDATE Device SET Registered = 0, psc_mod = psc_mod";
+	m_pDatabase_pluto_main->threaded_db_wrapper_query(sSQL);
+
+	//start watchdog
 	pthread_t watchdog_thread;
 	g_WatchDogFlag = true;
 	pthread_create(&watchdog_thread, NULL,WatchDogRoutine, NULL);
@@ -3021,8 +3026,13 @@ void Router::RemoveAndDeleteSocket( ServerSocket *pServerSocket, bool bDontDelet
 	}
 	int PK_Device = pServerSocket->m_dwPK_Device;
 	sl.Release();  // Mysql can get slow.  Don't hold the core mutex while doing a database update
-	string sSQL = "UPDATE Device SET Registered=0,psc_mod=psc_mod WHERE PK_Device=" + StringUtils::itos(PK_Device);
-	m_pDatabase_pluto_main->threaded_db_wrapper_query(sSQL);
+
+	if(!m_bQuit)
+	{
+		string sSQL = "UPDATE Device SET Registered=0,psc_mod=psc_mod WHERE PK_Device=" + StringUtils::itos(PK_Device);
+		m_pDatabase_pluto_main->threaded_db_wrapper_query(sSQL);
+	}
+
 	SocketListener::RemoveAndDeleteSocket( pServerSocket, bDontDelete );
 }
 
