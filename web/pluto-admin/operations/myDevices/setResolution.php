@@ -34,6 +34,20 @@ function setResolution($output,$dbADO) {
 		'120'=>'120 Hz',
 	);
 	
+	$connectorsArray=array(
+		'DVI/HDMI'=>'DVI/HDMI',
+		'VGA'=>'VGA',
+		'Component'=>'Component',
+		'SVideo'=>'SVideo',
+		'Composite'=>'Composite'
+	);
+	$tvStandardArray=array(
+		'NTSC'=>'NTSC',
+		'Pal'=>'Pal',
+		'Secam'=>'Secam'
+	);
+	
+	
 	$oldValues=getFieldsAsArray('Device_DeviceData','IK_DeviceData',$dbADO,'WHERE FK_Device='.$mdID.' AND FK_DeviceData='.$GLOBALS['VideoSettings']);
 	if(!is_null(@$oldValues['IK_DeviceData'])){
 		$oldDD=explode('/',$oldValues['IK_DeviceData'][0]);
@@ -42,6 +56,9 @@ function setResolution($output,$dbADO) {
 	}
 	$mdDetails=getFieldsAsArray('Device','IPaddress,FK_Device_ControlledVia',$dbADO,'WHERE PK_Device='.$mdID);
 	$ipAddress=(is_null($mdDetails['FK_Device_ControlledVia'][0]))?$mdDetails['IPaddress'][0]:'127.0.0.1';
+
+	$connector=getDeviceData($mdID,$GLOBALS['DD_CONNECTOR'],$dbADO);
+	$tvStandard=getDeviceData($mdID,$GLOBALS['DD_TV_STANDARD'],$dbADO);
 
 	
 	if ($action=='form') {
@@ -70,6 +87,16 @@ $out.='
 		<td><B>'.$TEXT_REFRESH_CONST.' *</B></td>
 		<td>'.pulldownFromArray($refreshArray,'refresh',@$oldRefresh).'</td>
 	</tr>
+	<tr>
+		<td><B>'.$TEXT_CONNECTOR_CONST.' *</B></td>
+		<td>'.pulldownFromArray(@$connectorsArray,'connector',@$connector).'</td>
+	</tr>
+	<tr>
+		<td><B>'.$TEXT_TV_STANDARD_CONST.' *</B></td>
+		<td>'.pulldownFromArray(@$tvStandardArray,'tvstandard',@$tvStandard).'</td>
+	</tr>
+	
+
 		<tr>
 			<td><b>'.$TEXT_SET_RESOLUTION_QUICKRELOAD_ROUTER_CONST.'</b></td>
 			<td align="right"><input type="checkbox" name="updateOrbiters" value="1" checked></td>
@@ -101,6 +128,9 @@ $out.='
 					
 		$dbADO->Execute('UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?',array($newVS,$mdID,$GLOBALS['VideoSettings']));
 		
+		set_device_data($mdID,$GLOBALS['DD_CONNECTOR'],$_POST['connector'],$dbADO);
+		set_device_data($mdID,$GLOBALS['DD_TV_STANDARD'],$_POST['tvstandard'],$dbADO);
+
 		if(@$_POST['updateOrbiters']==1){
 			// update device data for onscreen orbiter or orbiter
 			$orbiterArray=getOSDFromMD($mdID,$dbADO);

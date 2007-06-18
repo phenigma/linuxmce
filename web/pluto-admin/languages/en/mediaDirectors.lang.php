@@ -30,6 +30,5 @@ $TEXT_SCREEN_SAVER_CONST='Screen saver';
 $TEXT_SOFTWARE_MODULES_CONST='Software modules';
 $TEXT_UI_CONST='UI';
 $TEXT_OS_ON_HARD_DRIVE_CONST='OS on hard drive';
-$TEXT_CONNECTOR_CONST='Connector';
-$TEXT_TV_STANDARD_CONST='TV Standard';
+$TEXT_VIDEO_SETTINGS_CONST='Video settings';
 ?>

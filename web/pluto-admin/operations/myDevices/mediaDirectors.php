@@ -31,18 +31,6 @@ function mediaDirectors($output,$dbADO) {
 		'114'=>'UI2 with alpha blending',
 		'104'=>'UI2 without alpha blending'
 	);	
-	$connectorsArray=array(
-		'DVI'=>'DVI/HDMI',
-		'VGA'=>'VGA',
-		'Component'=>'Component',
-		'SVideo'=>'SVideo',
-		'Composite'=>'Composite'
-	);
-	$tvStandardArray=array(
-		'NTSC'=>'NTSC',
-		'Pal'=>'Pal',
-		'Secam'=>'Secam'
-	);
 	
 	$infraredReceiversArray=getDescendantsForCategory($GLOBALS['InfraredReceivers'],$dbADO);
 	$osOnHardArray=array(
@@ -293,8 +281,6 @@ function mediaDirectors($output,$dbADO) {
 						$diq=(!in_array($raw_diq,array_keys($deinterlaceQualityArray)))?'*':$raw_diq;
 
 						$osOnHardDrive=getDeviceData($rowD['PK_Device'],$GLOBALS['DD_OS_ON_HARD_DRIVE'],$dbADO);
-						$connector=getDeviceData($rowD['PK_Device'],$GLOBALS['DD_CONNECTOR'],$dbADO);
-						$tvStandard=getDeviceData($rowD['PK_Device'],$GLOBALS['DD_TV_STANDARD'],$dbADO);
 						
 						$out.='
 							<input type="hidden" name="oldSound_'.$rowD['PK_Device'].'" value="'.$soundDevice.'">
@@ -315,9 +301,7 @@ function mediaDirectors($output,$dbADO) {
 											</td>
 											<td valign="top" rowspan="2"></td>
 											<td align="right" valign="top" class="alternate_back">'.$TEXT_VIDEO_CARD_CONST.' '.pulldownFromArray(@$videoArray,'VideoCard_'.$rowD['PK_Device'],$videoDevice,'onChange="if(confirm(\''.$TEXT_CHANGE_VIDEO_CARD_CONFIRMATION_CONST.'\')){document.mediaDirectors.action.value=\'externalSubmit\';document.mediaDirectors.submit();}"','key','Standard Video Card').'<br>
-											'.$TEXT_CONNECTOR_CONST.' '.pulldownFromArray(@$connectorsArray,'connector_'.$rowD['PK_Device'],@$connector,'onChange="document.mediaDirectors.action.value=\'externalSubmit\';document.mediaDirectors.submit();"').'<br>
-											'.$TEXT_TV_STANDARD_CONST.' '.pulldownFromArray(@$tvStandardArray,'tvstandard_'.$rowD['PK_Device'],@$tvStandard,'onChange="document.mediaDirectors.action.value=\'externalSubmit\';document.mediaDirectors.submit();"').'<br>
-											<input type="button" class="button_fixed" name="setResolution" value="'.$TEXT_SET_RESOLUTION_REFRESH_CONST.'" onclick="self.location=\'index.php?section=setResolution&mdID='.$rowD['PK_Device'].'\'";>
+											<input type="button" class="button_fixed" name="setResolution" value="'.$TEXT_VIDEO_SETTINGS_CONST.'" onclick="self.location=\'index.php?section=setResolution&mdID='.$rowD['PK_Device'].'\'";>
 											</td>
 										</tr>
 									</table>
@@ -559,16 +543,6 @@ function mediaDirectors($output,$dbADO) {
 					if(isset($_POST['osOnHardDrive_'.$value])){
 						set_device_data($value,$GLOBALS['DD_OS_ON_HARD_DRIVE'],$_POST['osOnHardDrive_'.$value],$dbADO);
 					}
-					
-					if(isset($_POST['connector_'.$value])){
-						set_device_data($value,$GLOBALS['DD_CONNECTOR'],$_POST['connector_'.$value],$dbADO);
-						set_connector($value,$_POST['connector_'.$value]);
-					}
-					if(isset($_POST['tvstandard_'.$value])){
-						set_device_data($value,$GLOBALS['DD_TV_STANDARD'],$_POST['tvstandard_'.$value],$dbADO);
-						set_tv_standard($value,$_POST['tvstandard_'.$value]);
-					}
-					
 				}
 			}
 			

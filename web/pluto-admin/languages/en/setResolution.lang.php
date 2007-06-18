@@ -12,4 +12,6 @@ $TEXT_ERROR_RESOLUTION_FAILED_CONST='Cannot retrieve valid resolution and refres
 $TEXT_SET_RESOLUTION_QUICKRELOAD_ROUTER_CONST='Quick reload router & regenerate the UI at this resolution now?';
 $TEXT_SET_RESOLUTION_SUCCESS_CONST='Resolution and refresh updated.';
 $TEXT_APPLY_CONST='Apply';
+$TEXT_CONNECTOR_CONST='Connector';
+$TEXT_TV_STANDARD_CONST='TV Standard';
 ?>
