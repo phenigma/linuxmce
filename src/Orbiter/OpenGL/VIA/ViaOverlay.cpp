@@ -226,14 +226,16 @@ void ViaOverlay::ApplyAlphaMask(int x, int y, int w, int h, const unsigned char 
 {
 	PLUTO_SAFETY_LOCK(sm, m_ScreenMutex); 
 
-	InternalApplyAlphaMask(x, y, w, h, mask);
+	if(m_bOverlayInitialized)
+		InternalApplyAlphaMask(x, y, w, h, mask);
 }
 //-------------------------------------------------------------------------------------------------------
 void ViaOverlay::FillRectangleInAlphaMask(int x, int y, int w, int h, unsigned char value, bool bMergeToScreen/*=false*/)
 {
 	PLUTO_SAFETY_LOCK(sm, m_ScreenMutex); 
 
-	InternalFillRectangleInAlphaMask(x, y, w, h, value, bMergeToScreen);
+	if(m_bOverlayInitialized)
+		InternalFillRectangleInAlphaMask(x, y, w, h, value, bMergeToScreen);
 }
 //-------------------------------------------------------------------------------------------------------
 void ViaOverlay::InternalApplyAlphaMask(int x, int y, int w, int h, const unsigned char *mask)
@@ -376,6 +378,9 @@ bool ViaOverlay::UpdateAlphaSurface()
 void ViaOverlay::DumpMask()
 {
 #ifndef VIA_DIAG_TEST_UNIT
+	if(!m_bOverlayInitialized)
+		return;
+
 	SDL_Surface *pSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, m_nWidth, m_nHeight, 32, rmask, gmask, bmask, amask);
 
 	for(int j = 0; j < m_nHeight; j++)
@@ -389,6 +394,9 @@ void ViaOverlay::DumpMask()
 //-------------------------------------------------------------------------------------------------------
 void ViaOverlay::ShowPopup(int x, int y, int w, int h)
 {
+	if(!m_bOverlayInitialized)
+		return;
+
 	PLUTO_SAFETY_LOCK(sm, m_ScreenMutex); 
 	LoggerWrapper::GetInstance()->Write(LV_TV, "#VIA Show popup %d %d %d %d", x, y, w, h);
 
@@ -405,6 +413,9 @@ void ViaOverlay::ShowPopup(int x, int y, int w, int h)
 //-------------------------------------------------------------------------------------------------------
 void ViaOverlay::HidePopup(int x, int y, int w, int h)
 {
+	if(!m_bOverlayInitialized)
+		return;
+
 	PLUTO_SAFETY_LOCK(sm, m_ScreenMutex); 
 	LoggerWrapper::GetInstance()->Write(LV_TV, "#VIA Hide popup %d %d %d %d", x, y, w, h);
 
