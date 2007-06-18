@@ -373,8 +373,6 @@ bool Xine_Stream::CreateWindows()
 	int completionEvent;
 	int xpos, ypos, width, height;
 
-	double res_h, res_v;
-
 	XLockDisplay( m_pFactory->m_pXDisplay );
 
 	windows[ 0 ] = m_pFactory->windows[ 0 ];
@@ -394,16 +392,6 @@ bool Xine_Stream::CreateWindows()
 
 	if ( m_pDynamic_Pointer )
 		m_pDynamic_Pointer->pointer_hide();
-
-	res_h = ( DisplayWidth( m_pFactory->m_pXDisplay, m_iCurrentScreen ) * 1000 / DisplayWidthMM( m_pFactory->m_pXDisplay, m_iCurrentScreen ) );
-	res_v = ( DisplayHeight( m_pFactory->m_pXDisplay, m_iCurrentScreen ) * 1000 / DisplayHeightMM( m_pFactory->m_pXDisplay, m_iCurrentScreen ) );
-
-	m_dScreenPixelAspect = res_v / res_h;
-
-	LoggerWrapper::GetInstance()->Write( LV_STATUS, "XServer screen aspect %f", m_dScreenPixelAspect );
-
-	if ( fabs( m_dScreenPixelAspect - 1.0 ) < 0.01 )
-		m_dScreenPixelAspect = 1.0;
 
 	//XSync( m_pXDisplay, True );
 	XUnlockDisplay( m_pFactory->m_pXDisplay );
@@ -2773,7 +2761,7 @@ void Xine_Stream::destinationSizeCallback( void *data, int video_width, int vide
 
 	*dest_width = pStream->m_pFactory->m_iImgWidth;
 	*dest_height = pStream->m_pFactory->m_iImgHeight;
-	*dest_pixel_aspect = video_pixel_aspect;
+	*dest_pixel_aspect = pStream->m_pFactory->m_dScreenPixelAspect;
 }
 
 void Xine_Stream::frameOutputCallback( void *data, int video_width, int video_height, double video_pixel_aspect,
@@ -2799,7 +2787,7 @@ void Xine_Stream::frameOutputCallback( void *data, int video_width, int video_he
 	*win_y = pStream->m_pFactory->m_iImgYPos;
 	*dest_width = pStream->m_pFactory->m_iImgWidth;
 	*dest_height = pStream->m_pFactory->m_iImgHeight;
-	*dest_pixel_aspect = video_pixel_aspect;
+	*dest_pixel_aspect = pStream->m_pFactory->m_dScreenPixelAspect;
 }
 
 bool Xine_Stream::setDebuggingLevel( bool newValue )

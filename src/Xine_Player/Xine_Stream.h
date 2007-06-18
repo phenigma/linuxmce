@@ -162,9 +162,6 @@ namespace DCE
 			Cursor cursors[ 2 ];
 			Pixmap noCursor;
 						
-			// pixel aspect ratio
-			double m_dScreenPixelAspect;
-
 			// creates X11 windows for output
 			bool CreateWindows();
 			bool DestroyWindows();

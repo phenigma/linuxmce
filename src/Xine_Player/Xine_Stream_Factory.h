@@ -123,6 +123,8 @@ namespace DCE
 			void HideStreamWindows(int iStreamID);
 			
 			int m_iLastRenderingStream;
+			
+			double m_dScreenPixelAspect;
 	};
 
 }

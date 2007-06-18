@@ -17,6 +17,7 @@
 #include "DCE/DCEConfig.h"
 
 #include <dlfcn.h>	
+#include <cmath>
 
 #include "Xine_Stream_Factory.h"
 #include "Xine_Stream.h"
@@ -74,6 +75,9 @@ Xine_Stream_Factory::Xine_Stream_Factory(Xine_Player *pOwner):
 	// default drivers names
 	m_sXineAudioDriverName = "alsa";
 	m_sXineVideoDriverName = "xv";
+	
+	// default pixel aspect
+	m_dScreenPixelAspect = 1.0;
 	
 	// set window size
 	m_iImgWidth = 0;
@@ -296,7 +300,7 @@ void Xine_Stream_Factory::setAudioSettings()
 	string sAlsaFrontDevice = "";
 	string sSpeakersArrangement = "Stereo 2.0";
 	
-	for (int i=0; i<sAudioSettings.length(); i++)
+	for (uint i=0; i<sAudioSettings.length(); i++)
 	{
 		switch (sAudioSettings[i])
 		{
@@ -573,8 +577,6 @@ bool Xine_Stream_Factory::CreateWindows()
 	int completionEvent;
 	int xpos, ypos, width, height;
 
-	double res_h, res_v;
-
 	if ( ( m_pXDisplay = XOpenDisplay( getenv( "DISPLAY" ) ) ) == NULL )
 	{
 		LoggerWrapper::GetInstance()->Write( LV_WARNING, "Could not open X DISPLAY from: %s", getenv( "DISPLAY" ) );
@@ -619,6 +621,18 @@ bool Xine_Stream_Factory::CreateWindows()
 	XSetStandardProperties( m_pXDisplay, windows[ 0 ], m_sWindowTitle.c_str(), m_sWindowTitle.c_str(), None, NULL, 0, 0 );
 	XSetStandardProperties( m_pXDisplay, windows[ 1 ], "pluto-stub", "pluto-stub", None, NULL, 0, 0 );
 
+	// calculating pixel aspect
+	double res_h = ( DisplayWidth( m_pXDisplay, m_iCurrentScreen ) * 1000 / DisplayWidthMM( m_pXDisplay, m_iCurrentScreen ) );
+	double res_v = ( DisplayHeight( m_pXDisplay, m_iCurrentScreen ) * 1000 / DisplayHeightMM( m_pXDisplay, m_iCurrentScreen ) );
+
+	m_dScreenPixelAspect = res_v / res_h;
+
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "XServer screen aspect %f", m_dScreenPixelAspect );
+
+	if ( fabs( m_dScreenPixelAspect - 1.0 ) < 0.01 )
+		m_dScreenPixelAspect = 1.0;
+	
+	// changing wm hints
 	sizeHints.win_gravity = StaticGravity;
 	sizeHints.flags = PPosition | PSize | PWinGravity;
 
