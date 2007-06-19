@@ -37,7 +37,11 @@ amixer set CD playback off
 # don't ask me why 'capture1' turns on cd capture...
 
 #/usr/pluto/bin/sqlCVS -R 4000 -H sqlcvs.plutohome.com -C 3 -n -h localhost -D pluto_myth -a -U anonymous~anonymous -r myth -e checkin
-mysql_command="mysql -s -B -u $DBUserName -h $DBHostName -p$DBPassword $DBName";
+if [[  "$DBPassword" != "" ]] ;then
+	mysql_command="mysql -s -B -u $DBUserName -h $DBHostName -p$DBPassword $DBName";
+else
+	mysql_command="mysql -s -B -u $DBUserName -h $DBHostName $DBName";
+fi
 query="select count(*) from settings where hostname='`hostname`' AND value LIKE 'Backend%'";
 
 function addEntries
