@@ -52,7 +52,7 @@
 #include "pluto_main/Define_Button.h"
 #include "pluto_main/Define_Screen.h"
 #include "PlutoUtils/PlutoButtonsToX.h"
-#include "ScreenHistory.h"
+#include "../ScreenHistory.h"
 #include "OSDScreenHandler.h"
 #include "MouseBehavior_Linux.h"
 #include "pluto_main/Define_DesignObjParameter.h"
