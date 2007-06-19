@@ -182,6 +182,7 @@ umount $TEMP_DIR/proc
 mv "$TEMP_DIR"/sbin/start-stop-daemon{.pluto-install,}
 mv "$TEMP_DIR"/usr/sbin/invoke-rc.d{.pluto-install,}
 rm -f "$TEMP_DIR"/etc/chroot-install
+rm -f "$TEMP_DIR"/etc/X11/xorg.conf || :
 
 #invoke-rc.d nfs-common restart
 
