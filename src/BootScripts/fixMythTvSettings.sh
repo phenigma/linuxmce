@@ -1,11 +1,19 @@
 #!/bin/bash
 
 . /usr/pluto/bin/Config_Ops.sh
+. /usr/pluto/bin/SQL_Ops.sh
 
 if [ ! -e /etc/mythtv/mysql.txt ]; then
 	echo "Mythtv doesn't seem to be installed here";
 	exit 0;
 fi;
+
+FK_DeviceTemplate=$(RunSQL "SELECT FK_DeviceTemplate from Device WHERE PK_Device=$PK_Device")
+if [[ "$FK_DeviceTemplate" == "28" ]] ; then # If is 'Generic PC as MD' 
+	sed -i "s/^DBHostName.*/DBHostName=dcerouter/g" /etc/mythtv/mysql.txt
+	sed -i "s/^DBUserName.*/DBUserName=root/g" /etc/mythtv/mysql.txt
+	sed -i "s/^DBPassword.*/DBPassword=/g" /etc/mythtv/mysql.txt
+fi
 
 Q="select IK_DeviceData from Device_DeviceData JOIN Device ON FK_Device=PK_Device where FK_DeviceData=206 AND FK_DeviceTemplate=36"
 AutoConf=$(echo "$Q" | /usr/bin/mysql -h $MySqlHost pluto_main | tail +2)
