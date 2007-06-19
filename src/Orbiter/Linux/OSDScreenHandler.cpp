@@ -113,6 +113,7 @@ void OSDScreenHandler::SCREEN_VideoWizard(long PK_Screen)
 
 	if( m_pOrbiter->m_dwPK_Device_LocalMediaPlayer && m_pOrbiter->DeviceIsRegistered(m_pOrbiter->m_dwPK_Device_LocalMediaPlayer)!='Y' && time(NULL)-m_tWizardIsRunning<15 )
 	{
+		DisplayMessageOnOrbiter(0,"One moment");
 		m_pOrbiter->StartScreenHandlerTimer(2000);
 		RegisterCallBack(cbOnTimer,	(ScreenHandlerCallBack) &OSDScreenHandler::VideoWizard_OnTimer, new CallBackData());
 		return;
