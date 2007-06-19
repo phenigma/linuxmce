@@ -44,6 +44,7 @@ while [[ "$Done" -eq 0 ]]; do
 	echo "Interrupted in step '$WizStep'"
 
 	case "$WizStep" in
+		$STEP_Welcome) NextStep=$STEP_Welcome ;;
 		$STEP_VideoResolution) NextStep=$STEP_VideoResolutionConfirm ;;
 		-$STEP_VideoResolution) NextStep=$STEP_VideoResolution ;;
 		$STEP_VideoResolutionConfirm) NextStep=$STEP_VideoResolution ;;
