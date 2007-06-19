@@ -5,6 +5,11 @@
 Output=VGA
 Resolution=640x480
 
+if [[ -f /tmp/avwizard-resolution-defaults.txt ]]; then
+	DefaultSettings=$(</tmp/avwizard-resolution-defaults.txt)
+	Output=$(SpcField 5 "$DefaultSettings")
+fi
+
 ParseParms()
 {
 	local i
