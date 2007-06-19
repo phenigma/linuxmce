@@ -2266,7 +2266,7 @@ int k=2;
 	ScaleCommandList(ocDesignObj,ocDesignObj->m_Action_UnhighlightList);
 
 	// It probably makes more sense to just leave all the action groups attached to buttons within the orbiters, and only export action groups
-	// associated with events to event manager.  Perhaps then all the fkid_object_goto's should be eliminated, and it is all just actions??/
+	// associated with events to event manager.  Perhaps then all the fkid_object_goto's should be eliminated, and it is all just actions??
 	// Or leave fkid_object_goto in the database, but just make it an additional local action when it gets exported.
 	// I WAS TRYING TO MOVE THE LOCAL ACTION INTO ACTION GROUPS, BUT THE PROBLEM IS THAT WHEN YOU TOUCH A BUTTON, A LOCAL ACTION IS NEVER SENT!!!
 	// issues with removing fkid_action from objectvariation; action groups attached to an object with fkid_installation=null
