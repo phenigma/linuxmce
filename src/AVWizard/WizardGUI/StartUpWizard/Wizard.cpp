@@ -270,7 +270,6 @@ void Wizard::DoApplyScreen(SettingsDictionary* Settings)
 		}
 	}
 
-	printf("*****************Current Page %d\n", CurrentPage);
 	if (CurrentPage == 5)
 	{
 		CurrentPage+=1;
