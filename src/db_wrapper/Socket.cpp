@@ -73,6 +73,8 @@ bool Socket::send ( const TLV &tlv ) const
 
 	flush();
 
+	delete[] buf;
+
 	return true;
 }
 
