@@ -13,12 +13,13 @@ case "$Param" in
 		fi
 		killall -USR2 AVWizard
 		bash -x "$BaseDir"/Xconfigure.sh --conffile "$XF86Config" --defaults --resolution '640x480' | tee-pluto /var/log/pluto/Xconfigure.log
-		echo '640x480 60 640 480' >/tmp/avwizard-resolution.txt
+		echo '640x480 60 640 480 VGA' >/tmp/avwizard-resolution.txt
 	;;
 	set_resolution)
 		set -x
 		RequestedResolution="$2"
 		RequestedRefresh="$3"
+		RequestedConnector="${4:-VGA}"
 		echo "--> Setting resolution: $RequestedResolution@$RequestedRefresh"
 		ResolutionFullName=$(Resolution_GetFullName "$RequestedResolution")
 
@@ -32,10 +33,10 @@ case "$Param" in
 
 		killall -USR1 AVWizard
 
-		bash -x "$BaseDir"/Xconfigure.sh --conffile "$XF86Config" --defaults --resolution "$VideoResolution_Size@$RequestedRefresh" | tee-pluto /var/log/pluto/Xconfigure.log
+		bash -x "$BaseDir"/Xconfigure.sh --conffile "$XF86Config" --defaults --resolution "$VideoResolution_Size@$RequestedRefresh" --output "$RequestedConnector" | tee-pluto /var/log/pluto/Xconfigure.log
 		WindowWidth="${VideoResolution_Size%x*}"
 		WindowHeight="${VideoResolution_Size#*x}"
-		echo "$VideoResolution_Name $RequestedRefresh $WindowWidth $WindowHeight" >/tmp/avwizard-resolution.txt
+		echo "$VideoResolution_Name $RequestedRefresh $WindowWidth $WindowHeight $RequestedConnector" >/tmp/avwizard-resolution.txt
 		echo "--> Finished setting resolution"
 		set +x
 	;;
