@@ -113,10 +113,12 @@ void OSDScreenHandler::SCREEN_VideoWizard(long PK_Screen)
 	{
 		if( m_tWizardIsRunning==0 )
 		{
-			ScreenHandlerBase::SCREEN_VideoWizard(PK_Screen);  // So we have a current screen before displaying the one moment message
-			DisplayMessageOnOrbiter(0,"One moment");
+			SCREEN_PopupMessage(SCREEN_PopupMessage_CONST, "One moment", "", "", "", "", "1");
 			m_tWizardIsRunning = time(NULL);
 		}
+		else
+			DisplayMessageOnOrbiter(0,"One moment");
+
 		m_pOrbiter->StartScreenHandlerTimer(2000);
 		RegisterCallBack(cbOnTimer,	(ScreenHandlerCallBack) &OSDScreenHandler::VideoWizard_OnTimer, new CallBackData());
 		return;
