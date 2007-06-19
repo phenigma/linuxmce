@@ -142,6 +142,10 @@ class Wizard
 	 *  Focus clicked button, if a button was clicked
 	 */
 	void DoMouseClick(int x, int y);
+	/**
+	 *  Do numeric key action
+	 */
+	void DoNumberKey(int KeyCode);
 	
 	void EvaluateEvent(WM_Event& Event);
 

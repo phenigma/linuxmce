@@ -117,6 +117,19 @@ void WM_Event::ConvertFromSDLEvent(SDL_Event& Event)
 				case SDLK_RETURN:
 					EnterKey();
 					break;
+				case SDLK_0:
+				case SDLK_1:
+				case SDLK_2:
+				case SDLK_3:
+				case SDLK_4:
+				case SDLK_5:
+				case SDLK_6:
+				case SDLK_7:
+				case SDLK_8:
+				case SDLK_9:
+					this->Type = WMET_NUMBER_KEY;
+					this->KeyCode = Event.key.keysym.sym;
+					break;
 				default:
 					Type = 0;
 			}

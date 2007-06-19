@@ -38,6 +38,7 @@ WizardPageWelcome::WizardPageWelcome(GenericBackEnd* FrontEnd, std::string Name)
 #ifdef DEBUG
 		std::cout<<"WizardPageWelcome::WizardPageWelcome"<<std::endl;
 #endif
+		system("beep -l 100 -f 1000 -n -l 100 -f 1500 -n -l 100 -f 2000");
 }
 
 /*virtual*/ WizardPageWelcome::~WizardPageWelcome()
@@ -71,6 +72,55 @@ WizardPageWelcome::WizardPageWelcome(GenericBackEnd* FrontEnd, std::string Name)
 		std::cout<<"WizardPageWelcome::DoCancelSetting"<<std::endl;
 #endif
 	Wizard::GetInstance()->SetExitWithCode(3);
+}
+
+/*virtual*/ void WizardPageWelcome::DoNumberKey(int KeyCode)
+{
+	const string CommandXConfigure = "/usr/pluto/bin/XConfigure.sh --conffile /etc/X11/xorg.conf.avwizard";
+	string Command = "";
+
+	switch (KeyCode)
+	{
+		case SDLK_0:
+			Command = CommandXConfigure + " --resolution 640x480 --output DVI";
+			break;
+		case SDLK_1:
+			Command = CommandXConfigure + " --resolution 640x480 --output VGA";
+			break;
+		case SDLK_2:
+			Command = CommandXConfigure + " --resolution 640x480 --output Component";
+			break;
+		case SDLK_3:
+			Command = CommandXConfigure + " --resolution 640x480 --output Composite";
+			break;
+		case SDLK_4:
+			Command = CommandXConfigure + " --resolution 640x480 --output S-Video";
+			break;
+		case SDLK_5:
+			Command = CommandXConfigure + " --resolution 640x480";
+			break;
+		case SDLK_6:
+			Command = CommandXConfigure + " --resolution 1024x768";
+			break;
+		case SDLK_7:
+			Command = CommandXConfigure + " --resolution 1280x720";
+			break;
+		case SDLK_8:
+			Command = CommandXConfigure + " --resolution 1920x1080 --scantype interlace";
+			break;
+		case SDLK_9:
+			Command = CommandXConfigure + " --resolution 1920x1080";
+			break;
+		default:
+			/* NOOP */
+			break;
+	}
+
+	if (Command != "")
+	{
+		system(Command.c_str());
+		kill(getpid(), SIGUSR1);
+	}
 }
 
 /*virtual*/ void WizardPageWelcome::DoClickWidget(WizardWidgetBase * pWidget)

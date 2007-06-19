@@ -38,6 +38,7 @@
 #define WMET_RIGHT_KEY			2002
 #define WMET_UP_KEY				2003
 #define WMET_DOWN_KEY			2004
+#define WMET_NUMBER_KEY			2005
 
 #define WMET_ENTER_KEY			2010
 #define WMET_ESCAPE_KEY			2030
@@ -60,6 +61,7 @@ class WM_Event
 public:
 	int Type;
 	int MouseX, MouseY; // mouse position for mouse events
+	int KeyCode; // ASCII code for pressed key
 
 	/**
 	 *	Set the current event as Quit Event

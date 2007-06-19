@@ -328,6 +328,11 @@ void Wizard::DoMouseClick(int x, int y)
 	MainPage->DoMouseClick(x, y);
 }
 
+void Wizard::DoNumberKey(int KeyCode)
+{
+	MainPage->DoNumberKey(KeyCode);
+}
+
 void Wizard::PushEvent(WM_Event& Event)
 {
 	SafetyLock Lock(&SafeMutex);
@@ -423,6 +428,11 @@ void Wizard::EvaluateEvents()
 		std::cout << "Mouse clicked at: " << Event.MouseX << ", " << Event.MouseY << std::endl;
 		DoMouseClick(Event.MouseX, Event.MouseY);
 		break;
+	case WMET_NUMBER_KEY:
+#ifdef DEBUG
+		std::cout<<"Numeric key pressed: "<<char(Event.KeyCode)<<std::endl;
+#endif
+		DoNumberKey(Event.KeyCode);
 	default:
 		StatusChange = false;
 		}

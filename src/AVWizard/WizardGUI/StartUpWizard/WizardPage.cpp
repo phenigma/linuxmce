@@ -109,6 +109,10 @@ void WizardPage::SetWizard(Wizard* MainWizard)
 {
 }
 
+/*virtual*/ void WizardPage::DoNumberKey(int KeyCode)
+{
+}
+
 #include <iostream>
 
 /*virtual*/ void WizardPage::DoMouseClick(int x, int y)

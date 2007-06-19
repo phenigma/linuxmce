@@ -112,6 +112,11 @@ public:
 	virtual void DoMouseClick(int x, int y);
 
 	/**
+	 *  Run action associated with numeric key
+	 */
+	virtual void DoNumberKey(int KeyCode);
+
+	/**
 	 *	Builds the list with focusable items
 	 */
 	void FindFocusableControls();
