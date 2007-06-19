@@ -10,7 +10,7 @@ fi;
 
 FK_DeviceTemplate=$(RunSQL "SELECT FK_DeviceTemplate from Device WHERE PK_Device=$PK_Device")
 if [[ "$FK_DeviceTemplate" == "28" ]] ; then # If is 'Generic PC as MD' 
-	sed -i "s/^DBHostName.*/DBHostName=dcerouter/g" /etc/mythtv/mysql.txt
+	sed -i "s/^DBHostName.*/DBHostName=$MySqlHost/g" /etc/mythtv/mysql.txt
 	sed -i "s/^DBUserName.*/DBUserName=root/g" /etc/mythtv/mysql.txt
 	sed -i "s/^DBPassword.*/DBPassword=/g" /etc/mythtv/mysql.txt
 fi
