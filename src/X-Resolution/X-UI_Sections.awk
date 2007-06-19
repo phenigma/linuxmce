@@ -27,6 +27,7 @@ function outputScreenOrDevice()
 	print "\tOption \"AllowGLXWithComposite\" \"true\"";
 	print "\tOption \"AddARGBGLXVisuals\" \"true\"";
 	print "\tOption \"renderAccel\" \"true\"";
+	print "\tOption \"NoDDCValue\"";
 }
 
 function outputExtensions()
@@ -53,6 +54,7 @@ function outputExtensions()
 /Section..*"Screen"/ || /Section..*"Device"/ { SectionScreenOrDevice = 1; print; next; }
 SectionScreenOrDevice == 1 && (/Option..*"XvmcUsesTextures"/ || /Option..*"AllowGLXWithComposite"/ || /Option..*"AddARGBGLXVisuals"/ || /Option..*"renderAccel"/ \
 	|| /Option..*"AccelMethod"/ || /Option..*"ExaScratchSize"/ || /Option..*"MaxDRIMem"/ || /Option..*"MigrationHeuristic"/ \
+	|| /Option..*"NoDDCValue"/ \
 ) { next; }
 SectionScreenOrDevice == 1 && /EndSection/ { SectionScreenOrDevice = 0; outputScreenOrDevice(); print; next; }
 SectionScreenOrDevice == 1 { print; next; }
