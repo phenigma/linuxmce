@@ -928,12 +928,16 @@ function resizeImage($source, $destination, $new_width, $new_height,$forcedPNG=0
 	$src_img=(@$tmpArray[2]==2)?ImageCreateFromJpeg($source):imagecreatefrompng($source);
 	if(!@imagecopyresized($dst_img,$src_img,0,0,$src_x,$src_y,$new_w,$new_h,$src_w,$src_h))
 		return 3; // resize error
-	if($forcedPNG==1 && !@imagepng($dst_img, str_replace('.jpg','.png',$destination), 100)){
-		return 5; // writing png thumbnail error
+	if($forcedPNG==1){
+		
+		if(!imagepng($dst_img, str_replace('.jpg','.png',$destination))){
+			return 5; // writing png thumbnail error
+		}
+		
 	}else{
 		if(($destinationType=='jpg') && !imagejpeg($dst_img, $destination, 100))
 			return 4; // writing jpg thumbnail error
-		elseif(@$destinationType=='png' && !@imagepng($dst_img, $destination, 100))
+		elseif(@$destinationType=='png' && !@imagepng($dst_img, $destination))
 			return 5;	// writing png thumbnail error
 	}
 
