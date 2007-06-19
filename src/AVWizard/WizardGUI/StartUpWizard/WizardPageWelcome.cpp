@@ -76,40 +76,40 @@ WizardPageWelcome::WizardPageWelcome(GenericBackEnd* FrontEnd, std::string Name)
 
 /*virtual*/ void WizardPageWelcome::DoNumberKey(int KeyCode)
 {
-	const string CommandXConfigure = "/usr/pluto/bin/Xconfigure.sh --conffile /etc/X11/xorg.conf.pluto.avwizard";
+	const string CommandXConfigure = "/usr/pluto/bin/AVWizard_BlindVideoSettings.sh --resolution ";
 	string Command = "";
 
 	switch (KeyCode)
 	{
 		case SDLK_0:
-			Command = CommandXConfigure + " --resolution 640x480 --output DVI";
+			Command = CommandXConfigure + "640x480 --output DVI";
 			break;
 		case SDLK_1:
-			Command = CommandXConfigure + " --resolution 640x480 --output VGA";
+			Command = CommandXConfigure + "640x480 --output VGA";
 			break;
 		case SDLK_2:
-			Command = CommandXConfigure + " --resolution 640x480 --output Component";
+			Command = CommandXConfigure + "640x480 --output Component";
 			break;
 		case SDLK_3:
-			Command = CommandXConfigure + " --resolution 640x480 --output Composite";
+			Command = CommandXConfigure + "640x480 --output Composite";
 			break;
 		case SDLK_4:
-			Command = CommandXConfigure + " --resolution 640x480 --output S-Video";
+			Command = CommandXConfigure + "640x480 --output S-Video";
 			break;
 		case SDLK_5:
-			Command = CommandXConfigure + " --resolution 640x480";
+			Command = CommandXConfigure + "640x480";
 			break;
 		case SDLK_6:
-			Command = CommandXConfigure + " --resolution 1024x768";
+			Command = CommandXConfigure + "1024x768";
 			break;
 		case SDLK_7:
-			Command = CommandXConfigure + " --resolution 1280x720";
+			Command = CommandXConfigure + "720p";
 			break;
 		case SDLK_8:
-			Command = CommandXConfigure + " --resolution 1920x1080 --scantype interlace";
+			Command = CommandXConfigure + "1080i";
 			break;
 		case SDLK_9:
-			Command = CommandXConfigure + " --resolution 1920x1080";
+			Command = CommandXConfigure + "1080p";
 			break;
 		default:
 			/* NOOP */
