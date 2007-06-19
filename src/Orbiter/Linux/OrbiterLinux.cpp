@@ -50,7 +50,9 @@
 #include <SDL/SDL_syswm.h>
 
 #include "pluto_main/Define_Button.h"
+#include "pluto_main/Define_Screen.h"
 #include "PlutoUtils/PlutoButtonsToX.h"
+#include "ScreenHistory.h"
 #include "OSDScreenHandler.h"
 #include "MouseBehavior_Linux.h"
 #include "pluto_main/Define_DesignObjParameter.h"
@@ -683,8 +685,13 @@ void OrbiterLinux::ApplyMask(PlutoRectangle rectTotal, PlutoPoint point)
 	m_bMaskApplied = true;
 
 #if defined(VIA_OVERLAY) && defined(ORBITER_OPENGL)
-	ViaOverlay::Instance().FillRectangleInAlphaMask(point.X + rectTotal.X, point.Y + rectTotal.Y, 
-		rectTotal.Width, rectTotal.Height, 0x00);
+	//for VIA, if we are in dvd menu, we won't restart the alpha mask
+	//since alpha overlay is the only way of seeing xine
+	if(NULL != m_pScreenHistory_Current && m_pScreenHistory_Current->PK_Screen() != SCREEN_DVDMenuFullScreen_CONST)
+	{
+		ViaOverlay::Instance().FillRectangleInAlphaMask(point.X + rectTotal.X, point.Y + rectTotal.Y, 
+			rectTotal.Width, rectTotal.Height, 0x00);
+	}
 #endif
 }
 
