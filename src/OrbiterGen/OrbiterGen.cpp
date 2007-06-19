@@ -293,9 +293,12 @@ int main(int argc, char *argv[])
 			pOrbiterGenerator->m_pRow_Orbiter->PK_Orbiter_get(),sAllScenariosFloorplans.c_str());
 		pOrbiterGenerator->m_pRow_Orbiter->ScenariosFloorplans_set( sAllScenariosFloorplans );
 		pOrbiterGenerator->m_pRow_Orbiter->Size_set( pOrbiterGenerator->m_sSize_Regen_Data );
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Committing");
 		pOrbiterGenerator->m_pRow_Orbiter->Table_Orbiter_get()->Commit();
 		string sql = "UPDATE Orbiter SET Modification_LastGen=psc_mod,psc_mod=psc_mod WHERE PK_Orbiter=" + StringUtils::itos(pOrbiterGenerator->m_pRow_Orbiter->PK_Orbiter_get());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Updating");
 		pOrbiterGenerator->threaded_db_wrapper_query(sql);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Unlocking");
 		DatabaseUtils::UnLockTables(pOrbiterGenerator->m_spDatabase_pluto_main.get());
 	}
 	if( pOrbiterGenerator )
@@ -1329,7 +1332,7 @@ loop_to_keep_looking_for_objs_to_include:
 						LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find FK_DesignObj_Popup: %s",row[2]);
 					else
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
-					m_mapPopups[drNewDesignObj->PK_DesignObj_get()]=true;
+					m_mapPopups_set(drNewDesignObj->PK_DesignObj_get(),true);
 				}
 				if( row[3] ) // FK_Screen_FileList
 				{
@@ -1346,7 +1349,7 @@ loop_to_keep_looking_for_objs_to_include:
 						LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find FK_Screen_OSD: %s",row[4]);
 					else
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
-					m_mapPopups[drNewDesignObj->PK_DesignObj_get()]=true;
+					m_mapPopups_set(drNewDesignObj->PK_DesignObj_get(),true);
 				}
 				if( row[5] ) // FK_Screen_Alt
 				{
@@ -1355,7 +1358,7 @@ loop_to_keep_looking_for_objs_to_include:
 						LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find FK_Screen_Alt: %s",row[5]);
 					else
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
-					m_mapPopups[drNewDesignObj->PK_DesignObj_get()]=true;
+					m_mapPopups_set(drNewDesignObj->PK_DesignObj_get(),true);
 				}
 				if( row[6] && m_bIsOSD ) // FK_Screen_Alt_OSD
 				{
@@ -1364,7 +1367,7 @@ loop_to_keep_looking_for_objs_to_include:
 						LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find FK_Screen_Alt_OSD: %s",row[6]);
 					else
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
-					m_mapPopups[drNewDesignObj->PK_DesignObj_get()]=true;
+					m_mapPopups_set(drNewDesignObj->PK_DesignObj_get(),true);
 				}
 				if( row[7] && m_bIsOSD ) // FK_Screen_OSD_Speed
 				{
@@ -1373,7 +1376,7 @@ loop_to_keep_looking_for_objs_to_include:
 						LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find FK_Screen_OSD_Speed: %s",row[7]);
 					else
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
-					m_mapPopups[drNewDesignObj->PK_DesignObj_get()]=true;
+					m_mapPopups_set(drNewDesignObj->PK_DesignObj_get(),true);
 				}
 				if( row[8] && m_bIsOSD ) // FK_Screen_OSD_Track
 				{
@@ -1382,7 +1385,7 @@ loop_to_keep_looking_for_objs_to_include:
 						LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find FK_Screen_OSD_Speed: %s",row[8]);
 					else
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
-					m_mapPopups[drNewDesignObj->PK_DesignObj_get()]=true;
+					m_mapPopups_set(drNewDesignObj->PK_DesignObj_get(),true);
 				}
 			}
 			catch(...)
@@ -1416,7 +1419,7 @@ loop_to_keep_looking_for_objs_to_include:
 					else
 					{
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
-						m_mapPopups[drNewDesignObj->PK_DesignObj_get()]=true;
+						m_mapPopups_set(drNewDesignObj->PK_DesignObj_get(),true);
 					}
 				}
 				if( row[2] ) // FK_Screen_FileList
@@ -1595,7 +1598,7 @@ loop_to_keep_looking_for_objs_to_include:
 			if( m_pRow_UI->PK_UI_get()==UI_V2_Normal_Horizontal_16_9_CONST )
 			{
 				ocDesignObj->m_bIsPopup=true;
-				m_mapPopups[ocDesignObj->m_pRow_DesignObj->PK_DesignObj_get()]=true;
+				m_mapPopups_set(ocDesignObj->m_pRow_DesignObj->PK_DesignObj_get(),true);
 			}
 			else
 				ocDesignObj->Process();
@@ -1759,8 +1762,6 @@ loop_to_keep_looking_for_objs_to_include:
 				// Don't force popups to be full-screen
 				if( oco->m_bDontScale==false && m_mapPopups.find(oco->m_pRow_DesignObj->PK_DesignObj_get())==m_mapPopups.end() )
 				{
-if( oco->m_pRow_DesignObj->PK_DesignObj_get()==4967 || oco->m_pRow_DesignObj->PK_DesignObj_get()==3558 )
-int k=2;
 					oco->m_rPosition.Right(m_Width-m_rSpacing.Width);
 					oco->m_rPosition.Bottom(m_Height-m_rSpacing.Height);
 					oco->m_rBackgroundPosition.Right(m_Width-m_rSpacing.Width);
@@ -2004,7 +2005,7 @@ fclose(file);
 							(oca->m_PK_Command == COMMAND_Set_Floorplan_CONST && 
 							oca->m_ParameterList.find(COMMANDPARAMETER_TrueFalse_CONST)!=oca->m_ParameterList.end() &&
 							oca->m_ParameterList[COMMANDPARAMETER_TrueFalse_CONST]=="1") )
-						m_mapPopups[m_iPK_DesignObj_Screen] = true;
+						m_mapPopups_set(m_iPK_DesignObj_Screen,true);
 	 				DesignObj_Generator *ocDesignObj = new DesignObj_Generator(this,p_m_pRow_DesignObj,PlutoRectangle(0,0,0,0),NULL,true,false);
 					SearchForGotos(ocDesignObj);
 				}

@@ -163,7 +163,7 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"const %p %d",this,drDesignObj->PK
 		LoggerWrapper::GetInstance()->Write(LV_WARNING,"%d start 1 DESIGNOBJ_butFBSF_Go_CONST",m_pRow_DesignObj->PK_DesignObj_get());
 	}
 
-if( m_pRow_DesignObj->PK_DesignObj_get()==4868 ) // ||  m_pRow_DesignObj->PK_DesignObj_get()==5362 )// ||  m_pRow_DesignObj->PK_DesignObj_get()==5112 ) 
+if( m_pRow_DesignObj->PK_DesignObj_get()==4871 ||  m_pRow_DesignObj->PK_DesignObj_get()==5088 )// ||  m_pRow_DesignObj->PK_DesignObj_get()==5112 ) 
 //   m_pRow_DesignObj->PK_DesignObj_get()==4292 )// ||  m_pRow_DesignObj->PK_DesignObj_get()==2211 ||
 //   m_pRow_DesignObj->PK_DesignObj_get()==1881 ||  m_pRow_DesignObj->PK_DesignObj_get()==2228 ||
 //   m_pRow_DesignObj->PK_DesignObj_get()==3531 ||  m_pRow_DesignObj->PK_DesignObj_get()==3534 )// || m_pRow_DesignObj->PK_DesignObj_get()==3471 )// && m_ocoParent->m_pRow_DesignObj->PK_DesignObj_get()==2134 )//2821 && bAddToGenerated )*/
@@ -1258,7 +1258,7 @@ if( pRow_DesignObj_Child->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Go_CONST || pRow
 				int PK_DesignObj_Goto = atoi(itParm->second.c_str());
 				if( oca->m_ParameterList.find(COMMANDPARAMETER_TrueFalse_CONST)!=oca->m_ParameterList.end() &&
 						oca->m_ParameterList[COMMANDPARAMETER_TrueFalse_CONST]=="1" )
-					m_pOrbiterGenerator->m_mapPopups[PK_DesignObj_Goto] = true;
+					m_pOrbiterGenerator->m_mapPopups_set(PK_DesignObj_Goto,true);
 		
 				bool bDontShare=m_bDontShare;
 				m_bDontShare=false;  // Floorplans are shared across all rooms
@@ -1396,7 +1396,7 @@ int DesignObj_Generator::LookForGoto(DesignObjCommandList *alCommands)
                     {
                         PK_DesignObj_Goto = atoi(objgoto.c_str());
 						if( oca->m_PK_Command == COMMAND_Show_Popup_CONST )
-							m_pOrbiterGenerator->m_mapPopups[PK_DesignObj_Goto] = true;
+							m_pOrbiterGenerator->m_mapPopups_set(PK_DesignObj_Goto,true);
                     }
                     catch(...)
                     {

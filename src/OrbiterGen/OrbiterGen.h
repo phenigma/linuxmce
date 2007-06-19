@@ -123,6 +123,10 @@ public:
 	int DoIt();
 	Row_DesignObj *GetDesignObjFromScreen(int PK_Screen);
 	Row_DesignObj *GetDesignObjFromScreen(Row_Screen *pRow_Screen);
+	m_mapPopups_set(int PK_DesignObj,bool bValue)
+	{
+		m_mapPopups[PK_DesignObj]=bValue;
+	}
 
 private:
 	map<int,string> htDevicePages;
