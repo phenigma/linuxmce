@@ -92,6 +92,9 @@ if [[ ! -f /etc/diskless.conf ]]; then
 
 	## Check system /home partition for free space (/home)
 	homeDevice=$( cat /etc/fstab | awk '{ if ($2 == "/home") { print $1 } }' )
+	if [[ -z $homeDevice ]] ;then
+                homeDevice=$( cat /etc/fstab | awk '{ if ($2 == "/") { print $1 } }' )
+        fi
 	
 	if [[ "$homeDevice" == "UUID"* ]] ;then
 		homeDevice=$(echo $homeDevice | cut -d'=' -f2)
