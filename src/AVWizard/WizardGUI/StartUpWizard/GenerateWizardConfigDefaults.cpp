@@ -269,8 +269,8 @@ void GenerateWizardConfigDefaults::GeneratePage1(
 
 
 	Page->AddChild(CreateControlScrollList("ResolutionScroll",
-		80, 260,
-		200, 140,
+		30, 260,
+		160, 140,
 		ScrollBackColor,
 		ScrollBackFocusedColor,
 		HighScrollBackColor,
@@ -279,17 +279,17 @@ void GenerateWizardConfigDefaults::GeneratePage1(
 	Page->AddChild(CreateControlImage(
 		"ResolutionUp",
 		ImageFolder + "up_off.png",
-		285, 260
+		195, 260
 		));
 	Page->AddChild(CreateControlImage(
 		"ResolutionDown",
 		ImageFolder + "down_off.png",
-		285, 368
+		195, 368
 		));
 
 	Page->AddChild(CreateControlScrollList("RefreshScroll",
-		340, 260,
-		200, 140,
+		240, 260,
+		100, 140,
 		ScrollBackColor,
 		ScrollBackFocusedColor,
 		HighScrollBackColor,
@@ -298,13 +298,34 @@ void GenerateWizardConfigDefaults::GeneratePage1(
 	Page->AddChild(CreateControlImage(
 		"RefreshUp",
 		ImageFolder + "up_off.png",
-		545, 260
+		345, 260
 		));
 	Page->AddChild(CreateControlImage(
 		"RefreshDown",
 		ImageFolder + "down_off.png",
-		545, 368
+		345, 368
 		));
+
+	Page->AddChild(CreateControlScrollList("VideoConnectorScroll",
+		390, 260,
+		190, 140,
+		ScrollBackColor,
+		ScrollBackFocusedColor,
+		HighScrollBackColor,
+		HighScrollBackFocusedColor,
+		false));
+	Page->AddChild(CreateControlImage(
+		"VideoConnectorUp",
+		ImageFolder + "up_off.png",
+		585, 260
+		));
+	Page->AddChild(CreateControlImage(
+		"VideoConnectorDown",
+		ImageFolder + "down_off.png",
+		585, 368
+		));
+
+
 
 	Page->AddChild(CreateControlButton("BtnOK",
 		" OK ",

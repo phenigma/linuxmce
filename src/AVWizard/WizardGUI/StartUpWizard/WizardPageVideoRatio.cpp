@@ -54,11 +54,16 @@ WizardPageVideoRatio::~WizardPageVideoRatio(void)
 	std::string RefreshValue = List->GetSelectedValue();
 	std::cout<<"Selected Refresh is: "<<RefreshValue;
 
+	List = dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("VideoConnectorScroll"));
+	std::string VideoConnectorValue = List->GetSelectedValue();
+	std::cout<<"Selected Video Connector is: "<< VideoConnectorValue;
+
 	Dictionary->Set("Resolution", ResolutionValue);
 	Dictionary->Set("Refresh", RefreshValue);
+	Dictionary->Set("VideoOutput", VideoConnectorValue);
 
 	system((SkinGenerator::Instance()->CommandChangeResolution + " " + ResolutionValue
-		+ " " + RefreshValue).c_str());
+		+ " " + RefreshValue + " " + VideoConnectorValue).c_str());
 	
 	return 0;
 }
@@ -134,7 +139,19 @@ WizardPageVideoRatio::~WizardPageVideoRatio(void)
 	else
 		List->SetItemIndex(0);
 
-
+	List = dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("VideoConnectorScroll"));
+	List->AddItem("VGA", "VGA");
+	List->AddItem("DVI", "DVI");
+	List->AddItem("Component", "Component");
+	List->AddItem("Composite", "Composite");
+	List->AddItem("S-Video","S-Video");
+	if(AVWizardSettings->Exists("VideoOutput")) {
+		std::string VideoConnectorValue = AVWizardSettings->GetValue("VideoOutput");
+		List->SetItemIndex(VideoConnectorValue);
+	} else {
+		List->SetItemIndex(0);
+	}
+	List->SetFocus(false);
 
 	Selected = dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("ResolutionScroll"));
 }
@@ -142,14 +159,22 @@ WizardPageVideoRatio::~WizardPageVideoRatio(void)
 void WizardPageVideoRatio::DoIncreaseSetting()
 {
 	Selected->SetFocus(false);
-	Selected = dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("RefreshScroll"));
+	if ( Selected ==  dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("RefreshScroll")) ) {
+		Selected = dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("VideoConnectorScroll")); 
+	} else {
+		Selected = dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("RefreshScroll"));
+	}
 	Selected->SetFocus(true);
 }
 
 void WizardPageVideoRatio::DoDecreaseSetting()
 {
 	Selected->SetFocus(false);
-	Selected = dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("ResolutionScroll"));
+	if ( Selected != dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("VideoConnectorScroll"))) {
+		Selected = dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("ResolutionScroll"));
+	} else {
+		Selected = dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("RefreshScroll"));
+	}
 	Selected->SetFocus(true);
 }
 
@@ -223,6 +248,30 @@ void WizardPageVideoRatio::DoDecreaseSetting()
 				{
 					Selected->SetFocus(false);
 					Selected = dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("RefreshScroll"));
+					Selected->SetFocus(true);
+
+					SDL_Event Event;
+					Event.type = SDL_KEYUP;
+					Event.key.state = SDL_RELEASED;
+					Event.key.keysym.sym = SDLK_DOWN;
+					SDL_PushEvent(&Event);
+				} 
+				else if (NewSelectedImage->GetName() == "VideoConnectorUp")
+				{
+					Selected->SetFocus(false);
+					Selected = dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("VideoConnectorScroll"));
+					Selected->SetFocus(true);
+
+					SDL_Event Event;
+					Event.type = SDL_KEYUP;
+					Event.key.state = SDL_RELEASED;
+					Event.key.keysym.sym = SDLK_UP;
+					SDL_PushEvent(&Event);
+				}
+				else if (NewSelectedImage->GetName() == "VideoConnectorDown") 
+				{
+					Selected->SetFocus(false);
+					Selected = dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("VideoConnectorScroll"));
 					Selected->SetFocus(true);
 
 					SDL_Event Event;
