@@ -280,7 +280,7 @@ ParseParameters()
 			--force-vesa) ForceVESA=y ;;
 			--conffile) ConfigFile="$2"; shift ;;
 			--skiplock) SkipLock=1 ;;
-			--output) Output="$2" ; shift ;; # VGA, DVI, Component
+			--output) Output="$2" ; shift ;; # VGA, DVI, Component, Composite, S-Video
 			--tv-standard) TVStandard="$2"; shift ;; # PAL, SECAM, NTSC
 			*) echo "Unknown option '$1'"; exit 1 ;;
 		esac
