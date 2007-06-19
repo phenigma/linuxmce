@@ -37,7 +37,7 @@ while [[ "$Done" -eq 0 ]]; do
 		WizSet VideoRefresh "$VideoRefresh"
 		WizSet WindowWidth "$WindowWidth"
 		WizSet WindowHeight "$WindowHeight"
-		WizSet Video_Output "$Connector"
+		WizSet VideoOutput "$Connector"
 		set +x
 
 		rm -f /tmp/avwizard-resolution.txt
