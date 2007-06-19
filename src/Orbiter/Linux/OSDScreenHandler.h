@@ -42,8 +42,8 @@ protected:
 	class WizardLogic *m_pWizardLogic;
 	int m_nLightInDequeToAssign,m_nSensorInDequeToAssign; // To keep track of which light we're flashing, or sensor we're getting info on
 	bool m_bLightsFlashThreadQuit,m_bLightsFlashThreadRunning,m_bTurnedPnpOn;
-	bool m_bHasVideoWizardFiles,m_bWizardIsRunning,m_bAlreadyPlaySeeAndHearMe,m_bAlreadyPlayFinalGreeting;
-	time_t m_tWaitingForRegistration,m_tRegistered;
+	bool m_bHasVideoWizardFiles,m_bAlreadyPlaySeeAndHearMe,m_bAlreadyPlayFinalGreeting;
+	time_t m_tWaitingForRegistration,m_tRegistered,m_tWizardIsRunning;
 
 public:
 	OSDScreenHandler(Orbiter *pOrbiter, map<int,int> *p_MapDesignObj);

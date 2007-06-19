@@ -67,7 +67,7 @@
 OSDScreenHandler::OSDScreenHandler(Orbiter *pOrbiter, map<int,int> *p_MapDesignObj) :
         ScreenHandler(pOrbiter, p_MapDesignObj)
 {
-	m_bWizardIsRunning = false;
+	m_tWizardIsRunning = 0;
 	m_bAlreadyPlaySeeAndHearMe = false;
 	m_bAlreadyPlayFinalGreeting = false;
 	m_bLightsFlashThreadRunning=m_bLightsFlashThreadQuit=false;
@@ -108,7 +108,18 @@ void OSDScreenHandler::DisableAllVideo()
 //-----------------------------------------------------------------------------------------------------
 void OSDScreenHandler::SCREEN_VideoWizard(long PK_Screen)
 {
-	m_bWizardIsRunning = true;
+	if( m_tWizardIsRunning==0 )
+		m_tWizardIsRunning = time(NULL);
+
+	if( m_pOrbiter->m_dwPK_Device_LocalMediaPlayer && m_pOrbiter->DeviceIsRegistered(m_pOrbiter->m_dwPK_Device_LocalMediaPlayer)!='Y' && time(NULL)-m_tWizardIsRunning<15 )
+	{
+		m_pOrbiter->StartScreenHandlerTimer(2000);
+		RegisterCallBack(cbOnTimer,	(ScreenHandlerCallBack) &OSDScreenHandler::VideoWizard_OnTimer, new CallBackData());
+		return;
+	}
+
+	DCE::CMD_Play_Media CMD_Play_Media(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_LocalMediaPlayer,0,0,"","/home/videowiz/greetings.mpg");
+	m_pOrbiter->SendCommand(CMD_Play_Media);
 
 	// The video wizard is playing video overlays using a non-standard method; it's just sending play media's directly to Xine
 	// which means that set now playing isn't called, and thus the xine window isn't activated.  Just force it to be active for now.
@@ -165,7 +176,6 @@ void OSDScreenHandler::SCREEN_VideoWizard(long PK_Screen)
 	}
 
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &OSDScreenHandler::VideoWizard_ObjectSelected, new ObjectInfoBackData());
-	RegisterCallBack(cbOnTimer,	(ScreenHandlerCallBack) &OSDScreenHandler::VideoWizard_OnTimer, new CallBackData());
 	RegisterCallBack(cbOnRenderScreen, (ScreenHandlerCallBack) &OSDScreenHandler::VideoWizard_OnScreen, new RenderScreenCallBackData());
 }
 
@@ -181,6 +191,13 @@ bool OSDScreenHandler::VideoWizard_OnScreen(CallBackData *pData)
 
 bool OSDScreenHandler::VideoWizard_OnTimer(CallBackData *pData)
 {
+	if( m_pOrbiter->m_bBypassScreenSaver==false )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "OSDScreenHandler::VideoWizard_OnTimer Waiting for media player to register");
+		DCE::SCREEN_VideoWizard SCREEN_VideoWizard(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device);
+		m_pOrbiter->SendCommand(SCREEN_VideoWizard);
+		return true;
+	}
 	if( GetCurrentScreen_PK_DesignObj()==DESIGNOBJ_NoRemoteControl_CONST )
 	{
 		if(m_pWizardLogic->HasRemoteControl(false))
@@ -2421,7 +2438,7 @@ bool OSDScreenHandler::PlayBackControlSelected(CallBackData *pData)
 
 void OSDScreenHandler::SCREEN_PopupMessage(long PK_Screen, string sText, string sCommand_Line, string sDescription, string sPromptToResetRouter, string sTimeout, string sCannotGoBack)
 {
-	if( m_bWizardIsRunning && sDescription=="new_device_reload" )
+	if( m_tWizardIsRunning && sDescription=="new_device_reload" )
 		return;  // Don't display these messages during the wizard
 
 	ScreenHandler::SCREEN_PopupMessage(PK_Screen, sText, sCommand_Line, sDescription, sPromptToResetRouter, sTimeout, sCannotGoBack);
@@ -2429,7 +2446,7 @@ void OSDScreenHandler::SCREEN_PopupMessage(long PK_Screen, string sText, string 
 
 void OSDScreenHandler::ReceivedGotoScreenMessage(int nPK_Screen, Message *pMessage)
 {
-	if( m_bWizardIsRunning )
+	if( m_tWizardIsRunning )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"OSDScreenHandler::ReceivedGotoScreenMessage checking screen %d",nPK_Screen);
 		if( nPK_Screen == SCREEN_PopupMessage_CONST && pMessage && pMessage->m_mapParameters[COMMANDPARAMETER_Description_CONST]=="new_device_reload" )
