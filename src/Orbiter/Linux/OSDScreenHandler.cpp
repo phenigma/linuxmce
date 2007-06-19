@@ -108,16 +108,22 @@ void OSDScreenHandler::DisableAllVideo()
 //-----------------------------------------------------------------------------------------------------
 void OSDScreenHandler::SCREEN_VideoWizard(long PK_Screen)
 {
-	if( m_tWizardIsRunning==0 )
-		m_tWizardIsRunning = time(NULL);
 
-	if( m_pOrbiter->m_dwPK_Device_LocalMediaPlayer && m_pOrbiter->DeviceIsRegistered(m_pOrbiter->m_dwPK_Device_LocalMediaPlayer)!='Y' && time(NULL)-m_tWizardIsRunning<15 )
+	if( m_pOrbiter->m_dwPK_Device_LocalMediaPlayer && m_pOrbiter->DeviceIsRegistered(m_pOrbiter->m_dwPK_Device_LocalMediaPlayer)!='Y' && (m_tWizardIsRunning==0 || time(NULL)-m_tWizardIsRunning<15) )
 	{
-		DisplayMessageOnOrbiter(0,"One moment");
+		if( m_tWizardIsRunning==0 )
+		{
+			ScreenHandlerBase::SCREEN_VideoWizard(PK_Screen);  // So we have a current screen before displaying the one moment message
+			DisplayMessageOnOrbiter(0,"One moment");
+			m_tWizardIsRunning = time(NULL);
+		}
 		m_pOrbiter->StartScreenHandlerTimer(2000);
 		RegisterCallBack(cbOnTimer,	(ScreenHandlerCallBack) &OSDScreenHandler::VideoWizard_OnTimer, new CallBackData());
 		return;
 	}
+
+	if( m_tWizardIsRunning==0 )
+		m_tWizardIsRunning = time(NULL);
 
 	DCE::CMD_Play_Media CMD_Play_Media(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_LocalMediaPlayer,0,0,"","/home/videowiz/greetings.mpg");
 	m_pOrbiter->SendCommand(CMD_Play_Media);
