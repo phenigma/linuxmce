@@ -7281,7 +7281,7 @@ void Orbiter::CMD_Set_Timeout(string sPK_DesignObj,string sTime,string &sCMD_Res
 	pObj->m_dwTimeoutSeconds = atoi(sTime.c_str());
 
 #ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write( LV_STATUS, "set timeout on %s to %d  %p = %p",pObj->m_ObjectID.c_str(),pObj->m_dwTimeoutSeconds,pObj,m_pScreenHistory_Current->GetObj() );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "set timeout on %s to %d  %p = %p",pObj->m_ObjectID.c_str(),pObj->m_dwTimeoutSeconds,pObj,m_pScreenHistory_Current ? m_pScreenHistory_Current->GetObj() : NULL );
 #endif
 	if( NULL != m_pScreenHistory_Current && pObj==m_pScreenHistory_Current->GetObj() && pObj->m_dwTimeoutSeconds )
 		CallMaintenanceInMiliseconds( pObj->m_dwTimeoutSeconds * 1000, &Orbiter::Timeout, (void *) pObj, pe_ALL, true );
