@@ -76,7 +76,7 @@ WizardPageWelcome::WizardPageWelcome(GenericBackEnd* FrontEnd, std::string Name)
 
 /*virtual*/ void WizardPageWelcome::DoNumberKey(int KeyCode)
 {
-	const string CommandXConfigure = "/usr/pluto/bin/XConfigure.sh --conffile /etc/X11/xorg.conf.avwizard";
+	const string CommandXConfigure = "/usr/pluto/bin/Xconfigure.sh --conffile /etc/X11/xorg.conf.pluto.avwizard";
 	string Command = "";
 
 	switch (KeyCode)
@@ -118,6 +118,7 @@ WizardPageWelcome::WizardPageWelcome(GenericBackEnd* FrontEnd, std::string Name)
 
 	if (Command != "")
 	{
+		printf("Running command: %s\n", Command.c_str());
 		system(Command.c_str());
 		kill(getpid(), SIGUSR1);
 	}
