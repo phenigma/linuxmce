@@ -310,7 +310,6 @@ int main(int argc, char *argv[])
 
 int OrbiterGenerator::DoIt()
 {
-	DBConnect(); // Connect our helper
 	// and also the sql2cpp classes
 	if( !m_spDatabase_pluto_main->Connect(m_sDBHost,m_sDBUser,m_sDBPass,m_sDBDBName,m_iDBPort) )
 	{
@@ -324,7 +323,7 @@ int OrbiterGenerator::DoIt()
 		exit(1);
 	}
 
-	m_pRegenMonitor = new RegenMonitor(this, m_spDatabase_pluto_media.get());
+	m_pRegenMonitor = new RegenMonitor(m_spDatabase_pluto_main.get(), m_spDatabase_pluto_media.get());
 
 	m_pRow_Device = m_spDatabase_pluto_main->Device_get()->GetRow(m_iPK_Orbiter);
 	if( !m_pRow_Device )
@@ -805,7 +804,7 @@ m_bNoEffects = true;
 
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Regenerating all: Orbiter data changed from %s to %s",m_pRow_Orbiter->Size_get().c_str(),m_sSize_Regen_Data.c_str());
 		string sSQL = "DELETE FROM CachedScreens WHERE FK_Orbiter=" + StringUtils::itos(m_pRow_Orbiter->PK_Orbiter_get());
-		threaded_db_wrapper_query(sSQL);
+		m_spDatabase_pluto_main->threaded_db_wrapper_query(sSQL);
 	}
 
 	if( !m_bNewOrbiter )
@@ -1029,7 +1028,7 @@ m_bNoEffects = true;
 		" WHERE FK_DesignObjParameter=11 AND FK_DesignObjType=3 AND Value IN ('1','2','3','4','5','16','21')";
 	PlutoSqlResult result_set_array;
 	DB_ROW row;
-	if( (result_set_array.r=db_wrapper_query_result(sql)) )
+	if( (result_set_array.r=m_spDatabase_pluto_main->db_wrapper_query_result(sql)) )
 	{
 		while ((row = db_wrapper_fetch_row(result_set_array.r)))
 			m_mapDesignObj_WithArrays[ atoi(row[0]) ] = true;
@@ -1251,7 +1250,7 @@ loop_to_keep_looking_for_objs_to_include:
 		"=" + StringUtils::itos(COMMAND_Goto_Screen_CONST) + " AND " + COMMANDGROUP_COMMAND_COMMANDPARAMETER_FK_COMMANDPARAMETER_FIELD + "=" + StringUtils::itos(COMMANDPARAMETER_PK_DesignObj_CONST);
 
 	PlutoSqlResult result_set3b;
-	if( (result_set3b.r=db_wrapper_query_result(sql)) )
+	if( (result_set3b.r=m_spDatabase_pluto_main->db_wrapper_query_result(sql)) )
 	{
 		while ((row = db_wrapper_fetch_row(result_set3b.r)))
 		{
@@ -1273,7 +1272,7 @@ loop_to_keep_looking_for_objs_to_include:
 		"=" + StringUtils::itos(COMMAND_Goto_DesignObj_CONST) + " AND " + COMMANDGROUP_COMMAND_COMMANDPARAMETER_FK_COMMANDPARAMETER_FIELD + "=" + StringUtils::itos(COMMANDPARAMETER_PK_DesignObj_CONST);
 
 	PlutoSqlResult result_set3;
-	if( (result_set3.r=db_wrapper_query_result(sql)) )
+	if( (result_set3.r=m_spDatabase_pluto_main->db_wrapper_query_result(sql)) )
 	{
 		while ((row = db_wrapper_fetch_row(result_set3.r)))
 		{
@@ -1303,7 +1302,7 @@ loop_to_keep_looking_for_objs_to_include:
 		" AND (FK_DeviceCategory NOT IN (2,3,5) or PK_Device=" + StringUtils::itos(m_pRow_Device->PK_Device_get()) + ");";
 
 	PlutoSqlResult result_set4;
-	if( (result_set4.r=db_wrapper_query_result(sql)) )
+	if( (result_set4.r=m_spDatabase_pluto_main->db_wrapper_query_result(sql)) )
 	{
 		while ((row = db_wrapper_fetch_row(result_set4.r)))
 		{
@@ -1397,7 +1396,7 @@ loop_to_keep_looking_for_objs_to_include:
 		" WHERE FK_Skin IS NULL OR FK_Skin=" + StringUtils::itos(m_pRow_Skin->PK_Skin_get());
 
 	PlutoSqlResult result_set4b;
-	if( (result_set4b.r=db_wrapper_query_result(sql)) )
+	if( (result_set4b.r=m_spDatabase_pluto_main->db_wrapper_query_result(sql)) )
 	{
 		while ((row = db_wrapper_fetch_row(result_set4b.r)))
 		{
@@ -1490,7 +1489,7 @@ loop_to_keep_looking_for_objs_to_include:
 	sql = "select DeviceTemplate_DesignObj.FK_DesignObj FROM DeviceTemplate_DesignObj JOIN Device ON Device.FK_DeviceTemplate=DeviceTemplate_DesignObj.FK_DeviceTemplate JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate WHERE PK_DeviceTemplate<>8 AND FK_Installation=" + StringUtils::itos(m_pRow_Device->FK_Installation_get());
 
 	PlutoSqlResult result_set5;
-	if( (result_set5.r=db_wrapper_query_result(sql)) )
+	if( (result_set5.r=m_spDatabase_pluto_main->db_wrapper_query_result(sql)) )
 	{
 		while ((row = db_wrapper_fetch_row(result_set5.r)))
 		{
@@ -1916,7 +1915,7 @@ loop_to_keep_looking_for_objs_to_include:
 	{
 		// Don't reset the psc_mod so this doesn't result in a 'new devices' messages
 		string sql = "UPDATE Device SET NeedConfigure=0,psc_mod=psc_mod WHERE PK_Device=" + StringUtils::itos(m_pRow_Device->PK_Device_get());
-		threaded_db_wrapper_query(sql);
+		m_spDatabase_pluto_main->threaded_db_wrapper_query(sql);
 	}
 
 	return 0;

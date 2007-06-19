@@ -80,13 +80,19 @@ public:
 	string m_sFloorPlanData;
 	int m_iNumFloorplanItems;
 
-	//	string m_sMySQLHost,m_sMySQLUser,m_sMySQLPass,m_sMySQLDBName;
+	string m_sDBHost,m_sDBUser,m_sDBPass,m_sDBDBName;
+	int m_iDBPort;
 	string m_sOutputPath,m_sGraphicsBasePath,m_sFontPath;
-//	int m_iMySQLPort;
 	PlutoSize m_sScaledSize;
 
 	OrbiterGenerator(string sGraphicsFiles,string sFontFiles,string sOutputFiles,int PK_Orbiter,string DBHost,string DBUser,string DBPassword,string DBName,int DBPort)
 	{
+		m_sDBHost=DBHost;
+		m_sDBUser=DBUser;
+		m_sDBPass=DBPassword;
+		m_sDBDBName=DBName;
+		m_iDBPort=DBPort;
+
 		m_spDatabase_pluto_main.reset(new Database_pluto_main(LoggerWrapper::GetInstance()));
 		m_spDatabase_pluto_media.reset(new Database_pluto_media(LoggerWrapper::GetInstance()));
 
