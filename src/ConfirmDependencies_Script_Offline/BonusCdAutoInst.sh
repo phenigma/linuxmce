@@ -19,3 +19,6 @@ if [[ "$BonusCD" != N && "$BonusCD" != n ]]; then
 	apt-get -f -y install id-my-disc || :
 fi
 
+#<-mkr_b_via_b->
+apt-get -f -y install via-alsa-2.6.16.20-pluto-2-686 || :
+#<-mkr_b_via_e->
