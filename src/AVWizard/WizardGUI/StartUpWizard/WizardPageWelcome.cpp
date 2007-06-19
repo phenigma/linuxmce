@@ -81,34 +81,34 @@ WizardPageWelcome::WizardPageWelcome(GenericBackEnd* FrontEnd, std::string Name)
 
 	switch (KeyCode)
 	{
-		case SDLK_0:
+		case SDLK_1:
 			Command = CommandXConfigure + "640x480 --output DVI";
 			break;
-		case SDLK_1:
+		case SDLK_2:
 			Command = CommandXConfigure + "640x480 --output VGA";
 			break;
-		case SDLK_2:
+		case SDLK_3:
 			Command = CommandXConfigure + "640x480 --output Component";
 			break;
-		case SDLK_3:
+		case SDLK_4:
 			Command = CommandXConfigure + "640x480 --output Composite";
 			break;
-		case SDLK_4:
+		case SDLK_5:
 			Command = CommandXConfigure + "640x480 --output S-Video";
 			break;
-		case SDLK_5:
+		case SDLK_6:
 			Command = CommandXConfigure + "640x480";
 			break;
-		case SDLK_6:
+		case SDLK_7:
 			Command = CommandXConfigure + "1024x768";
 			break;
-		case SDLK_7:
+		case SDLK_8:
 			Command = CommandXConfigure + "720p";
 			break;
-		case SDLK_8:
+		case SDLK_9:
 			Command = CommandXConfigure + "1080i";
 			break;
-		case SDLK_9:
+		case SDLK_0:
 			Command = CommandXConfigure + "1080p";
 			break;
 		default:
