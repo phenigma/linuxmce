@@ -352,8 +352,68 @@ int main()
 		
 		try_to(db_wrapper_query(&db_link, query.c_str())!=0, "db_wrapper_query doesn't work after disconnection");
 		
+		mysql_close(&mysql_link);
 	}
+
+// the second connection will fail because independent process will already exit at this point
+#ifndef	INDEPENDENT_WRAPPER_PROCESS
+	// similar test but for dynamic allocation of DB_LINK and MYSQL
+	{
+		cout << endl << "Checking dynamic allocation of DB_LINK" << endl;
+		DB_LINK *db_link;
+		MYSQL *mysql_link;
 	
+		cout << "Running tests:" << endl;
+		
+		// init DB structures
+		cout << endl << "Initialize DB structures.." << endl;
+		
+		try_to( db_link = db_wrapper_init(NULL), "db_wrapper_init");
+		try_to( mysql_link = mysql_init(NULL), "mysql_init");
+		
+		// connect to DB
+		cout << endl << "Connecting to DB.." << endl;
+		
+		try_to(db_wrapper_real_connect(db_link, "localhost", "root", "", "pluto_test", 3306, NULL, 0), "db_wrapper_real_connect");
+		try_to(mysql_real_connect(mysql_link, "localhost", "root", "", "pluto_test", 3306, NULL, 0), "mysql_real_connect");
+	
+		// execute trivial query, fetch results, compare
+		{
+			string query = "SELECT 2+2";
+			cout << endl << "Executing simple math query: " << query << endl;
+			
+			try_to(db_wrapper_query(db_link, query.c_str())==0, "db_wrapper_query");
+			try_to(mysql_query(mysql_link, query.c_str())==0, "mysql_query");
+		
+			DB_RES *db_res = db_wrapper_store_result(db_link);
+			try_to(db_res, "db_wrapper_store_result");
+			
+			MYSQL_RES *mysql_res = mysql_store_result(mysql_link);
+			try_to(mysql_res, "mysql_store_result");
+			
+			cout << "DB rows: " << db_res->row_count << endl << "MYSQL rows: " << mysql_res->row_count << endl;
+			try_to( (mysql_res->row_count == db_res->row_count), "rows count is OK");
+			try_to( (mysql_res->field_count == db_res->field_count), "field count is OK");
+			
+			DB_ROW db_row = db_wrapper_fetch_row(db_res);
+			try_to(db_row, "db_wrapper_fetch_row");
+			
+			MYSQL_ROW mysql_row = mysql_fetch_row(mysql_res);
+			try_to(mysql_row, "mysql_fetch_row");
+			
+			cout << "db_row[0] = " << db_row[0] << endl;
+			cout << "mysql_row[0] = " << mysql_row[0] << endl;
+			
+			try_to(strcmp(db_row[0], mysql_row[0])==0, "db_wrapper_fetch_row()  == mysql_fetch_row()");
+			
+			db_wrapper_free_result(db_res);
+			mysql_free_result(mysql_res);
+		}
+	
+		db_wrapper_close(db_link);
+		mysql_close(mysql_link);
+	}
+#endif	
 	
 	return 0;
 }

@@ -22,10 +22,21 @@ class ClientSocket;
 
 class DB_LINK
 {
+	// for access to isAllocated
+	friend DB_LINK* db_wrapper_init(DB_LINK *db_link);
+	friend void db_wrapper_close(DB_LINK *db_link);
+	friend const char *db_wrapper_error(DB_LINK *db_link);
+
 	pthread_mutex_t access_mutex;
 	
 	DB_Wrapper::ClientSocket *client_socket;
 	bool isConnected;
+
+	// if it was allocated during db_wrapper_init call
+	bool isAllocated;
+
+	// last error message
+	char *last_error;
 
 public:
 	bool real_connect(const char *host, const char *user, const char *passwd, const char *db, unsigned int port);
@@ -41,8 +52,18 @@ public:
 	void unlock();
 };
 
+typedef char** DB_ROW;
+
 class DB_RES
 {
+	// for access to current_row
+	friend DB_ROW db_wrapper_fetch_row(DB_RES *db_res);
+	friend void db_wrapper_free_result(DB_RES *db_res);
+	friend unsigned long *db_wrapper_fetch_lengths(DB_RES *db_res);
+
+	char** current_row;
+	unsigned long current_cols;
+	unsigned long *current_lengths;
 public:
 	unsigned long result_id;
 	unsigned long row_count;
@@ -50,10 +71,9 @@ public:
 
 	DB_LINK *db_link;
 	
-	DB_RES() : row_count(0), field_count(0), db_link(NULL) {};
+	DB_RES();
+	~DB_RES();
 };
-
-typedef char** DB_ROW;
 
 DB_LINK* db_wrapper_init(DB_LINK *db_link);
 

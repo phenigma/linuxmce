@@ -21,10 +21,15 @@ using namespace std;
 DB_LINK::DB_LINK() : client_socket(NULL), isConnected(false)
 {
 	pthread_mutex_init(&access_mutex, NULL);
+	isAllocated = false;
+	last_error = NULL;
 }
 
 DB_LINK::~DB_LINK()
 {
+	delete[] last_error;
+	last_error = NULL;
+
 	pthread_mutex_destroy(&access_mutex);
 }
 
@@ -141,6 +146,25 @@ bool DB_LINK::real_disconnect()
 	return true;
 }
 
+DB_RES:: DB_RES() : current_row(NULL), current_cols(0), current_lengths(NULL),  row_count(0), field_count(0), db_link(NULL)
+{
+}
+
+DB_RES::~DB_RES()
+{
+	if (current_row)
+	{
+		for (uint i=0; i<current_cols; i++)
+			delete[] current_row[i];
+		delete[] current_row;
+	}
+		
+	current_cols = 0;
+	current_row = NULL;
+	
+	delete[] current_lengths;
+}
+
 DB_LINK* db_wrapper_init(DB_LINK *db_link)
 {
 	DB_LINK *link = NULL;
@@ -148,7 +172,10 @@ DB_LINK* db_wrapper_init(DB_LINK *db_link)
 	if (db_link)
 		link = db_link;
 	else
+	{
 		link = new DB_LINK();
+		link->isAllocated = true;
+	}
 	
 	return link;
 }
@@ -171,6 +198,9 @@ void db_wrapper_close(DB_LINK *db_link)
 		return;
 	
 	db_link->real_disconnect();
+	
+	if (db_link->isAllocated)
+		delete db_link;
 }
 
 DB_LINK *db_wrapper_real_connect(DB_LINK *db_link, const char *host, const char *user, const char *passwd, const char *db, unsigned int port, const char *unix_socket, unsigned long client_flag)
@@ -201,7 +231,8 @@ const char *db_wrapper_error(DB_LINK *db_link)
 	else
 	{
 		db_link->unlock();
-		return in.c_str();
+		delete[] db_link->last_error;
+		return db_link->last_error = in.c_str();
 	}
 }
 
@@ -299,8 +330,17 @@ DB_ROW db_wrapper_fetch_row(DB_RES *db_res)
 				row[i][colLength] = 0;
 				p += colLength;
 			}
-			
 		}
+
+		if (db_res->current_row)
+		{
+			for (uint i=0; i<db_res->current_cols; i++)
+				delete[] db_res->current_row[i];
+			delete[] db_res->current_row;
+		}
+		
+		db_res->current_row = row;
+		db_res->current_cols = cols;
 		
 		db_res->db_link->unlock();
 		return row;
@@ -426,6 +466,8 @@ unsigned long *db_wrapper_fetch_lengths(DB_RES *db_res)
 		int elements = in.length / sizeof(unsigned long);
 		unsigned long *p = new unsigned long[elements];
 		memcpy(p, in.value, in.length);
+		delete[] db_res->current_lengths;
+		db_res->current_lengths = p;
 		db_res->db_link->unlock();
 		return p;
 	}
