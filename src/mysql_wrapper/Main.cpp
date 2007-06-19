@@ -501,6 +501,8 @@ int main(int argc, char **argv) {
 	{
 		LOG << "CONNECT ERROR: Exception was caught: " << e.description() << " Exiting." << endl;
 	}
+
+	mysql_close(&mysql);
 	
 	return 0;
 }
