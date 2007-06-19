@@ -847,7 +847,7 @@ bool Media_Plugin::PlaybackCompleted( class Socket *pSocket,class Message *pMess
 				if( pMS->m_pMediaDevice_Source && pMS->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device==pMessage->m_dwPK_Device_From )
 				{
 					if( !pMS->m_bStopped )
-						pMS->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia(pMediaStream);
+						pMS->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia(pMS);
 					StreamEnded(pMS);
 					bLoopAgain=true;
 					break;
