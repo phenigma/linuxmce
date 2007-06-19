@@ -297,7 +297,7 @@ int main(int argc, char *argv[])
 		pOrbiterGenerator->m_pRow_Orbiter->Table_Orbiter_get()->Commit();
 		string sql = "UPDATE Orbiter SET Modification_LastGen=psc_mod,psc_mod=psc_mod WHERE PK_Orbiter=" + StringUtils::itos(pOrbiterGenerator->m_pRow_Orbiter->PK_Orbiter_get());
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Updating");
-		pOrbiterGenerator->threaded_db_wrapper_query(sql);
+		pOrbiterGenerator->m_spDatabase_pluto_main->threaded_db_wrapper_query(sql);
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Unlocking");
 		DatabaseUtils::UnLockTables(pOrbiterGenerator->m_spDatabase_pluto_main.get());
 	}

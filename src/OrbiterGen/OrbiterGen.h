@@ -86,7 +86,6 @@ public:
 	PlutoSize m_sScaledSize;
 
 	OrbiterGenerator(string sGraphicsFiles,string sFontFiles,string sOutputFiles,int PK_Orbiter,string DBHost,string DBUser,string DBPassword,string DBName,int DBPort)
-		: DBHelper(DBHost, DBUser, DBPassword, DBName, DBPort)
 	{
 		m_spDatabase_pluto_main.reset(new Database_pluto_main(LoggerWrapper::GetInstance()));
 		m_spDatabase_pluto_media.reset(new Database_pluto_media(LoggerWrapper::GetInstance()));
