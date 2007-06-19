@@ -175,3 +175,10 @@ WizGet()
 	[[ -z "$Var" ]] && return 1
 	"$Wiz" -get "$Var" 2>/dev/null
 }
+
+SpcField()
+{
+	local Field="$1" Data="$2"
+
+	echo "$Data" | cut -d' ' -f"$Field"
+}

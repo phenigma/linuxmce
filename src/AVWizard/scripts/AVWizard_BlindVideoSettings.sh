@@ -18,3 +18,4 @@ ParseParms()
 
 ParseParms "$@"
 /usr/pluto/bin/AVWizard_UpdateResolution.sh set_resolution "$Resolution" 60 "$Output"
+cp /tmp/avwizard-resolution.txt /tmp/avwizard-resolution-defaults.txt

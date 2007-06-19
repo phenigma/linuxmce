@@ -3,13 +3,6 @@
 . /usr/pluto/bin/AVWizard-Common.sh
 . /usr/pluto/bin/Config_Ops.sh 2>/dev/null || exit 1  ## So the orbiter can get the environment variable for the mysql server
 
-SpcField()
-{
-	local Field="$1" Data="$2"
-
-	echo "$Data" | cut -d' ' -f"$Field"
-}
-
 Done=0
 NextStep=$STEP_Welcome
 export DISPLAY=:$(( $Display  + 1 ))

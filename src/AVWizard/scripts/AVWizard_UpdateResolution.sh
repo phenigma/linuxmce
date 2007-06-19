@@ -7,13 +7,24 @@ case "$Param" in
 	reset)
 		VideoResolution=$(WizGet VideoResolution)
 		VideoRefresh=$(WizGet VideoRefresh)
-		echo "--> Reset resolution to default (was resolution: $VideoResolution@$VideoRefresh)"
-		if [[ "$VideoRefresh" == 60 && "$VideoResolution" == 640x480 ]]; then
+		VideoOutput=$(WizGet VideoOutput)
+
+		ResolutionDefaults="640x480 60 640 480 VGA"
+		if [[ -f "/tmp/avwizard-resolution-default.txt" ]]; then
+			ResolutionDefaults="$(</tmp/avwizard-resolution.txt)"
+		fi
+
+		DefaultResolution=$(SpcField 1 "$ResolutionDefaults")
+		DefaultRefresh=$(SpcField 2 "$ResolutionDefaults")
+		DefaultConnector=$(SpcField 5 "$ResolutionDefaults")
+
+		echo "--> Reset resolution to default: $DefaultResolution@$DefaultRefresh/$DefaultConnector (was resolution: $VideoResolution@$VideoRefresh/$VideoOutput)"
+		if [[ "$VideoRefresh" == "$DefaultRefresh" && "$VideoResolution" == "$DefaultResolution" && "$VideoOutput" == "$DefaultConnector" ]]; then
 			exit 0 # No change required
 		fi
 		killall -USR2 AVWizard
-		bash -x "$BaseDir"/Xconfigure.sh --conffile "$XF86Config" --defaults --resolution '640x480' | tee-pluto /var/log/pluto/Xconfigure.log
-		echo '640x480 60 640 480 VGA' >/tmp/avwizard-resolution.txt
+		bash -x "$BaseDir"/Xconfigure.sh --conffile "$XF86Config" --defaults --resolution "$DefaultResolution" --output "$DefaultConnector" | tee-pluto /var/log/pluto/Xconfigure.log
+		echo "$ResolutionDefaults" >/tmp/avwizard-resolution.txt
 	;;
 	set_resolution)
 		set -x
