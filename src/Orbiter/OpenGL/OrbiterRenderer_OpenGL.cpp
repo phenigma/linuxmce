@@ -648,7 +648,7 @@ void OrbiterRenderer_OpenGL::OnIdle()
 	Position.X += OrbiterLogic()->m_pObj_Highlighted->m_pPopupPoint.X;
 	Position.Y += OrbiterLogic()->m_pObj_Highlighted->m_pPopupPoint.Y;
 
-	Engine->Highlight(&Position, NULL);
+	Engine->Highlight(Position, NULL);
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::SelectObject( DesignObj_Orbiter *pObj, PlutoPoint point )

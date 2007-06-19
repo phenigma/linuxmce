@@ -64,8 +64,7 @@ OpenGL3DEngine::OpenGL3DEngine() :
 	OriginalCurrentLayer(NULL),
 	OldLayer(NULL),
 	SelectedFrame(NULL),
-	HighLightFrame(NULL),
-	HighLightPopup(NULL),
+	m_pHighlightFrame(NULL),
 	FrameBuilder(NULL),			 
 	FrameDatagrid(NULL),
 	ModifyGeometry(0),
@@ -165,48 +164,27 @@ bool OpenGL3DEngine::Paint()
 		
 	GL.EnableZBuffer(false);
 
-	//LoggerWrapper::GetInstance()->Write(LV_WARNING, "OpenGL3DEngine::Paint before highlight");
 	bool bDatagridAnimation = m_spDatagridAnimationManager->Update();
+
 	if(bDatagridAnimation)
-	{
 		m_bWorldChanged = true;
-	}
 	else
 	{
-		if(HighLightPopup)
+		if(m_pHighlightFrame)
 		{
-			//LoggerWrapper::GetInstance()->Write(LV_WARNING, "OpenGL3DEngine::Paint after highlight");
 			Point3D Color;
-			Color.X = 1.0f;
-			Color.Y = 1.0f;
-			Color.Z = (GetTick() / 2 % 512) / 255.0f*MilisecondsHighLight/300;
-			Color.Z = fabs(Color.Z - 1.0f)/2.0f+ 0.5f;
-			Color.X = Color.Z;
-			Color.Y = Color.Z;
-
-			HighLightPopup->SetColor(Color);
-		}
-
-		if(HighLightFrame)
-		{
-			//LoggerWrapper::GetInstance()->Write(LV_WARNING, "OpenGL3DEngine::Paint after highlight");
-			Point3D Color;
-			Color.X = 1.0f;
-			Color.Y = 1.0f;
-			Color.Z = (GetTick() / 2 % 512) / 255.0f*MilisecondsHighLight/300;
-			Color.Z = fabs(Color.Z - 1.0f)/2.0f+ 0.5f;
-			Color.X = Color.Z;
-			Color.Y = Color.Z;
-			HighLightFrame->SetColor(Color);
+			Color.X = (GetTick() / 2 % 512) / 255.0f * MilisecondsHighLight/300;
+			Color.X = fabs(Color.X - 1.0f)/2.0f+ 0.5f;
+			m_pHighlightFrame->SetColor(Color);
 		}
 	}
+
 	UpdateTopMostObjects();
 
 	Compose->Paint();
-	//LoggerWrapper::GetInstance()->Write(LV_STATUS, "Flip!");
 	GL.Flip();
 	
-	if(m_bWorldChanged && !m_bDatagridRendering)// && !m_spDatagridAnimationManager->HasAnimations())
+	if(m_bWorldChanged && !m_bDatagridRendering)
 	{
 		m_bWorldChanged = false;
 
@@ -399,7 +377,7 @@ inline void OpenGL3DEngine::DumpScene()
 	CurrentLayer->AddChild(SelectedFrame);
 }
 
-/*virtual*/ void OpenGL3DEngine::Highlight(PlutoRectangle* HightlightArea, OpenGLGraphic* HighSurface)
+/*virtual*/ void OpenGL3DEngine::Highlight(PlutoRectangle rectHighlightArea, OpenGLGraphic* HighSurface)
 {
 #ifdef DISABLE_HIGHLIGHT
 	return;
@@ -409,65 +387,50 @@ inline void OpenGL3DEngine::DumpScene()
 	
 	if(NULL == CurrentLayer)
 		return;
-	if(NULL == HightlightArea)
-		return;
 
-	MeshTransform Transform;
+	MeshFrame *pLeftBar = new MeshFrame("highlight-frame-left");
+	MeshFrame *pTopBar = new MeshFrame("highlight-frame-top");
+	MeshFrame *pRightBar = new MeshFrame("highlight-frame-right");
+	MeshFrame *pBottomBar = new MeshFrame("highlight-frame-bottom");
+	
+	PlutoRectangle rect(rectHighlightArea);
+	PlutoRectangle rectOriginal(rect);
 
-	MeshBuilder MB;
-	MB.SetAlpha(0.4f);
-	MB.Begin(MBMODE_TRIANGLE_STRIP);
-	MB.SetColor(1.0f, 1.0f, 1.0f);
+	const int nSize = 3;
 
-	MB.SetTexture2D(
-		float(HightlightArea->Left())/GL.Width,
-		1- float(HightlightArea->Top())/GL.Height
-		);
-	MB.AddVertexFloat(0, 0, 0);
+	rect.Width = nSize;
+	pLeftBar->SetMeshContainer(MeshBuilder::BuildRectangle(rect, NULL));
 
-	MB.SetTexture2D(
-		float(HightlightArea->Right())/GL.Width,
-		1- float(HightlightArea->Top())/GL.Height
-		);
-	MB.AddVertexFloat(1, 0, 0);
+	rect = rectOriginal;
+	rect.Height = nSize;
+	pTopBar->SetMeshContainer(MeshBuilder::BuildRectangle(rect, NULL));
 
-	MB.SetTexture2D(
-		float(HightlightArea->Left())/GL.Width,
-		1- float(HightlightArea->Bottom())/GL.Height
-		);
-	MB.AddVertexFloat(0, 1, 0);
-	MB.SetTexture2D(
-		float(HightlightArea->Right())/GL.Width,
-		1- float(HightlightArea->Bottom())/GL.Height
-		);
+	rect = rectOriginal;
+	rect.X += rect.Width - nSize;
+	rect.Width = nSize;
+	pRightBar->SetMeshContainer(MeshBuilder::BuildRectangle(rect, NULL));
 
-	MB.AddVertexFloat(1, 1, 0);
+	rect = rectOriginal;
+	rect.Y += rect.Height - nSize;
+	rect.Height = nSize;
+	pBottomBar->SetMeshContainer(MeshBuilder::BuildRectangle(rect, NULL));
 
-	//Transform.ApplyScale(1.2f, 1.2f, 1.2f);
-	//Transform.ApplyTranslate(-0.1f, -0.1f, 0.1f);
-	Transform.ApplyScale(
-		float(HightlightArea->Width),
-		float(HightlightArea->Height),
-		1.0f);
-	Transform.ApplyTranslate(
-		float(HightlightArea->Left()),
-		float(HightlightArea->Top()),
-		0.f);
-
-	MeshContainer* Container = MB.End();
 	UnHighlight();
 
-	//LoggerWrapper::GetInstance()->Write(LV_WARNING, "OpenGL3DEngine::Highlight: %d %d %d %d",
-	//	HightlightArea->Left(), HightlightArea->Top(), 
-	//	HightlightArea->Width, HightlightArea->Height);
+	m_pHighlightFrame = new MeshFrame("highlight-frame");
+	m_pHighlightFrame->AddChild(pLeftBar);
+	m_pHighlightFrame->AddChild(pTopBar);
+	m_pHighlightFrame->AddChild(pRightBar);
+	m_pHighlightFrame->AddChild(pBottomBar);
+	m_pHighlightFrame->MarkAsVolatileRecursively();
 
-	HighLightFrame = new MeshFrame("highlight");
+	Point3D Color;
+	Color.X = 1.0f;
 
-	HighLightFrame->SetTransform(Transform);
-	HighLightFrame->SetMeshContainer(Container);
+	m_pHighlightFrame->SetColor(Color);
 
 	if(NULL != OriginalCurrentLayer)
-		OriginalCurrentLayer->AddChild(HighLightFrame);
+		OriginalCurrentLayer->AddChild(m_pHighlightFrame);
 
 	AddTopMostObject("highlight");
 }
@@ -476,13 +439,12 @@ inline void OpenGL3DEngine::DumpScene()
 {
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, SceneMutex);
 
-	if(NULL != HighLightFrame)
+	if(NULL != m_pHighlightFrame)
 	{
-		//LoggerWrapper::GetInstance()->Write(LV_WARNING, "OpenGL3DEngine::Unhighlight");
-		CurrentLayer->RemoveChild(HighLightFrame, true);
-		HighLightFrame->CleanUp();
-		delete HighLightFrame;
-		HighLightFrame = NULL;
+		CurrentLayer->RemoveChild(m_pHighlightFrame, true);
+		m_pHighlightFrame->CleanUp();
+		delete m_pHighlightFrame;
+		m_pHighlightFrame = NULL;
 	}
 }
 
@@ -501,7 +463,7 @@ inline void OpenGL3DEngine::DumpScene()
 
 bool OpenGL3DEngine::NeedUpdateScreen()
 {
-	return Compose->HasEffects() || HighLightFrame != NULL || m_bNeedToRefresh;
+	return Compose->HasEffects() || m_pHighlightFrame != NULL || m_bNeedToRefresh;
 }
 
 MeshFrame* OpenGL3DEngine::GetMeshFrameFromDesktop(string ObjectID)
@@ -617,81 +579,6 @@ MeshFrame* OpenGL3DEngine::EndFrameDrawing(string sObjectHash)
 
 	FrameBuilder = NULL;
 	return Result;
-}
-
-void OpenGL3DEngine::ShowHighlightRectangle(PlutoRectangle Rect)
-{
-	return;
-	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, SceneMutex);
-
-	MeshFrame * LeftBar = new MeshFrame("highlight-frame-left");
-	MeshFrame * TopBar = new MeshFrame("highlight-frame-top");
-	MeshFrame * RightBar = new MeshFrame("highlight-frame-right");
-	MeshFrame * BottomBar = new MeshFrame("highlight-frame-bottom");
-	
-	PlutoRectangle Original (Rect);
-
-	Rect.Width = 2;
-	LeftBar->SetMeshContainer(
-		MeshBuilder::BuildRectangle(Rect, NULL)
-		);
-	Rect = Original;
-	Rect.Height = 2;
-	TopBar->SetMeshContainer(
-		MeshBuilder::BuildRectangle(Rect, NULL)
-		);
-
-	Rect = Original;
-	Rect.Y += Rect.Width;
-	Rect.Width = 2;
-	RightBar->SetMeshContainer(
-		MeshBuilder::BuildRectangle(Rect, NULL)
-		);
-
-	Rect = Original;
-	
-	Rect.Y += Rect.Height;
-	Rect.Height = 2;
-	BottomBar->SetMeshContainer(
-		MeshBuilder::BuildRectangle(Rect, NULL)
-		);
-
-	HideHighlightRectangle();
-
-	if(HighLightPopup)
-	{
-		//HighLightPopup->CleanUp();
-//		delete HighLightPopup;
-		//HighLightPopup = NULL;
-	}
-	HighLightPopup = new MeshFrame("highlight-frame");
-	HighLightPopup->AddChild(LeftBar);
-	HighLightPopup->AddChild(TopBar);
-	HighLightPopup->AddChild(RightBar);
-	HighLightPopup->AddChild(BottomBar);
-	HighLightPopup->MarkAsVolatileRecursively();
-
-
-	//LoggerWrapper::GetInstance()->Write(LV_WARNING, "OpenGL3DEngine::Highlight: %d %d %d %d",
-	//	HightlightArea->Left(), HightlightArea->Top(), 
-	//	HightlightArea->Width, HightlightArea->Height);
-
-
-}
-
-void OpenGL3DEngine::HideHighlightRectangle()
-{
-	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, SceneMutex);
-	m_bWorldChanged = true;
-
-	if(NULL != HighLightFrame)
-	{
-		//LoggerWrapper::GetInstance()->Write(LV_WARNING, "OpenGL3DEngine::Unhighlight");
-		CurrentLayer->RemoveChild(HighLightFrame, true);
-		HighLightFrame->CleanUp();
-		delete HighLightFrame;
-		HighLightFrame = NULL;
-	}
 }
 
 void OpenGL3DEngine::RemoveMeshFrameFromDesktopForID(string ObjectID)

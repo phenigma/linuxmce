@@ -58,8 +58,7 @@ class OpenGL3DEngine
 	MeshFrame* OriginalCurrentLayer; //alias for CurrentLayer
 	MeshFrame* OldLayer;
 	MeshFrame* SelectedFrame;
-	MeshFrame* HighLightFrame;
-	MeshFrame* HighLightPopup;
+	MeshFrame* m_pHighlightFrame;
 	MeshFrame* FrameBuilder, *FrameDatagrid;
 	
 
@@ -130,7 +129,7 @@ public:
 	/**
 	 *	Highlight an area on creen
 	 */
-	virtual void Highlight(PlutoRectangle* HightlightArea, OpenGLGraphic* HighSurface);
+	virtual void Highlight(PlutoRectangle rectHighlightArea, OpenGLGraphic* HighSurface);
 	/**
 	 *	Unhighlight previously highlight area
 	 */
@@ -154,15 +153,6 @@ public:
 	 */
 	void StartFrameDrawing(std::string ObjectHash);
 	MeshFrame* EndFrameDrawing(std::string sObjectHash);
-
-	/**
-	 *	Flash rectangle 	
-	 */
-	void ShowHighlightRectangle(PlutoRectangle Rect);
-	/**
-	 *	Hide a flash rectangle
-	 */
-	void HideHighlightRectangle();
 
 	/**
 	 *	Bypassing displaying screen changes until it ends	
