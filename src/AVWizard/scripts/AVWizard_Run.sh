@@ -23,6 +23,7 @@ DEVICEDATA_ScreenWidth=100
 DEVICEDATA_ScreenHeight=101
 DEVICEDATA_PK_Size=25
 DEVICEDATA_Video_settings=89
+DEVICEDATA_Connector=68
 DEVICEDATA_Spacing=150
 DEVICEDATA_Offset=167
 
@@ -182,6 +183,11 @@ UpdateOrbiterDimensions()
 	# Store value for "Video settings"
 	Video_settings="$OrbiterWidth $OrbiterHeight/$OrbiterRefresh"
 	Q="UPDATE Device_DeviceData SET IK_DeviceData='$Video_settings' WHERE FK_Device='$ComputerDev' AND FK_DeviceData='$DEVICEDATA_Video_settings'"
+	RunSQL "$Q"
+
+	# Store value for "Video output connector"
+	Video_Connector=$(WizGet VideoOutput)
+	Q="UPDATE Device_DeviceData SET IK_DeviceData='$Video_Connector' WHERE FK_Device='$ComputerDev' AND FK_DeviceData='$DEVICEDATA_Connector'"
 	RunSQL "$Q"
 	
 	# Store PK_Size

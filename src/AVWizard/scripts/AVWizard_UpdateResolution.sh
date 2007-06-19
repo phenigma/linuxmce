@@ -32,7 +32,7 @@ case "$Param" in
 			exit 0 # No change required
 		fi
 		killall -USR2 AVWizard
-		bash -x "$BaseDir"/Xconfigure.sh --conffile "$XF86Config" --defaults --resolution "$DefaultResolution_Size" --output "$DefaultConnector" | tee-pluto /var/log/pluto/Xconfigure.log
+		bash -x "$BaseDir"/Xconfigure.sh --conffile "$XF86Config" --resolution "$DefaultResolution_Size" --output "$DefaultConnector" | tee-pluto /var/log/pluto/Xconfigure.log
 		echo "$ResolutionDefaults" >/tmp/avwizard-resolution.txt
 	;;
 	set_resolution)
@@ -53,7 +53,7 @@ case "$Param" in
 
 		killall -USR1 AVWizard
 
-		bash -x "$BaseDir"/Xconfigure.sh --conffile "$XF86Config" --defaults --resolution "$VideoResolution_Size@$RequestedRefresh" --output "$RequestedConnector" | tee-pluto /var/log/pluto/Xconfigure.log
+		bash -x "$BaseDir"/Xconfigure.sh --conffile "$XF86Config" --resolution "$VideoResolution_Size@$RequestedRefresh" --output "$RequestedConnector" | tee-pluto /var/log/pluto/Xconfigure.log
 		WindowWidth="${VideoResolution_Size%x*}"
 		WindowHeight="${VideoResolution_Size#*x}"
 		echo "$VideoResolution_Name $RequestedRefresh $WindowWidth $WindowHeight $RequestedConnector" >/tmp/avwizard-resolution.txt
