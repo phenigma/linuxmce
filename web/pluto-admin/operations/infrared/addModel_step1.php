@@ -102,7 +102,7 @@
 			
 			
 			$create_device=(int)@$_REQUEST['create_device'];
-			if(session_name()=='Pluto-admin' && $create_device==1){
+			if(session_name()=='Web-admin' && $create_device==1){
 				// add the device
 				global $dbPlutoMainDatabase;
 				$installationID=(int)$_SESSION['installationID'];

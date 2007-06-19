@@ -82,7 +82,7 @@
 		<br>
 		</form>
 		';
-		if(session_name()=='Pluto-admin'){
+		if(session_name()=='Web-admin'){
 			$out.='<iframe name="codeTester" src="" style="display:none;"></iframe>';
 		}
 	}elseif($action=='changeParent'){

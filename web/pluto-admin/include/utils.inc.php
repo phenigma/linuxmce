@@ -3497,7 +3497,7 @@ function getIrGroup_CommandsMatrix($dtID,$InfraredGroupsArray,$userID,$comMethod
 		$commandGrouped[$codesData['FK_InfraredGroup'][$i]][$codesData['FK_Command'][$i]]=$codesData['PK_InfraredGroup_Command'][$i];
 		$irgNames[$codesData['FK_InfraredGroup'][$i]]=$codesData['IRG_Name'][$i];
 	}
-	if(session_name()=='Pluto-admin'){
+	if(session_name()=='Web-admin'){
 		if($deviceID>0){
 			$deviceInfo=getFieldsAsArray('Device','FK_Device_ControlledVia,FK_DeviceCategory',$publicADO,'INNER JOIN DeviceTemplate ON Fk_DeviceTemplate=PK_DeviceTemplate WHERE PK_Device='.$deviceID);
 		}
@@ -3532,7 +3532,7 @@ function getIrGroup_CommandsMatrix($dtID,$InfraredGroupsArray,$userID,$comMethod
 			<td><B><a href="index.php?section=irCodes&dtID='.$dtID.'&irGroup='.$keysArray[$i].'&deviceID='.@$_REQUEST['deviceID'].'&action=pick_code&resync=true">'.$irgNames[$keysArray[$i]].'</a></B></td>';
 		foreach ($restrictedCommandsArray AS $cmdID=>$cmdName){
 			$pk_irgc=@$commandGrouped[$keysArray[$i]][$cmdID];
-			$testCodeBtn=(session_name()=='Pluto-admin' && isset($pk_irgc))?' <input type="button" class="button" name="testCode" value="T" 
+			$testCodeBtn=(session_name()=='Web-admin' && isset($pk_irgc))?' <input type="button" class="button" name="testCode" value="T" 
 			onClick="frames[\'codeTester\'].location=\'index.php?section=testCode&irData=\'+escape(\''.urlencode($irDataArray[$pk_irgc]).'\')+\'&deviceID='.@$_REQUEST['deviceID'].'&sender='.urlencode('addModel&step=7').'\';">':'';
 			$out.='<td align="center">'.((isset($commandGrouped[$keysArray[$i]][$cmdID]))?'<input type="button" class="button" name="copyCB" value="V" onClick="window.open(\'index.php?section=displayCode&irgcID='.$pk_irgc.'\',\'_blank\',\'\');">'.$testCodeBtn:'N/A').'</td>';
 		}

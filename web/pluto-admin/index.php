@@ -5,7 +5,7 @@ header("Cache-Control: no-store, no-cache, must-revalidate");
 header("Cache-Control: post-check=0, pre-check=0", false);
 header("Pragma: no-cache");
 
-session_name('Pluto-admin');
+session_name('Web-admin');
 session_start();
 
 require('include/config/config.inc.php');
@@ -1046,7 +1046,7 @@ switch ($section) {
 	    include_once('operations/infrared/learnCode.php');
 	    learnCode($output,$dbADO);
 	break;	
-	// changed name to preserve compatibility between pluto admin and plutohome
+	// changed name to preserve compatibility 
 	case 'newIRCode';
 		$output = new Template($dbADO);
 		$output->setTemplateFileType('small');

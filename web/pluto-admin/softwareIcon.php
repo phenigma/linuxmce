@@ -1,5 +1,5 @@
 <?
-session_name('Pluto-admin');
+session_name('Web-admin');
 session_start();
 
 require('include/config/config.inc.php');
