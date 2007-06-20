@@ -74,6 +74,5 @@ void ProcessMediaIdentifiedJob::Run()
 		}
 	}
 	m_eJobStatus=job_Done;
-	JobDone();
 	m_pJobHandler->BroadcastCond();
 }
