@@ -88,7 +88,8 @@ main (int argc, char *argv[])
 	gtk_init (&argc, &argv);
 
 	gxml = glade_xml_new (GLADE_FILE, NULL, NULL);
-	
+
+
 	/* This is important */
 	glade_xml_signal_autoconnect (gxml);
 	mainWindow = glade_xml_get_widget (gxml, "mainWindow");
@@ -98,7 +99,6 @@ main (int argc, char *argv[])
 
        	g_signal_connect (G_OBJECT (mainWindow), "delete_event", G_CALLBACK (delete_event), NULL);	 
 	gtk_image_set_from_file(mainImage, "pluto.png");
-
 
 	// Initializations
 	setting_coreIP = detectCoreIpAddress();
@@ -113,8 +113,8 @@ main (int argc, char *argv[])
 	setting_linuxmceCdFrom = FROM_CD;
 	history = g_queue_new();
 
-#if 0
-displayStepDvdCss();
+#if 1
+displayStepCheckSystem();
 //	displayStepLinuxMceCD();
 #else
 	if (setting_coreIP != NULL) {

@@ -120,6 +120,9 @@ void on_back_clicked(GObject object, gpointer data) {
 			case STEPNOTIFICATION:
 				displayStepNotification();
 				break;
+			case STEPCHECKSYSTEM:
+				displayStepCheckSystem();
+				break;
 			default:
 				printf("Unknown screen in history [%d]", prevScreen);
 		}

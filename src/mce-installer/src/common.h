@@ -59,6 +59,7 @@
 #include "StepConfFiles.h"
 #include "StepCreateDiskedDevice.h"
 #include "StepNotification.h"
+#include "StepCheckSystem.h"
 
 #include "network-common.h"
 
@@ -85,6 +86,7 @@
 #define STEPNVIDIADRIVERS 22
 #define STEPCREATEMD 23
 #define STEPNOTIFICATION 24
+#define STEPCHECKSYSTEM 25
 
 #define INSTALL_TYPE_CD   1
 #define INSTALL_TYPE_ISO  2

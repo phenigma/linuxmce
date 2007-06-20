@@ -73,6 +73,8 @@ mce_installer_SOURCES = \
 	StepCreateDiskedDevice.c \
 	StepConfFiles.h \
 	StepConfFiles.c \
+	StepCheckSystem.c \
+	StepCheckSystem.h \
 	StepNotification.h \
 	StepNotification.c
 
