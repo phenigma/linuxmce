@@ -68,11 +68,11 @@ END {
 	{
 		if (Driver != "\"nvidia\"" && Driver != "\"via\"" && Driver != "\"ati\"")
 			warnings[warncount++] = "Warning: you try to run UI2 with mask on the " Driver " driver. Performance will be affected.";
-		if (XvmcUsesTextures != 1)
+		if (XvmcUsesTextures != 1 && Driver == "\"nvidia\"")
 			errors[errcount++] = "Error: UI2 with mask needs XvmcUsesTextures";
-		if (AllowGLXWithComposite != 1)
+		if (AllowGLXWithComposite != 1 && Driver == "\"nvidia\"")
 			errors[errcount++] = "Error: UI2 with mask needs AllowGLXWithComposite";
-		if (RenderAccel != 1)
+		if (RenderAccel != 1 && Driver == "\"nvidia\"")
 			errors[errcount++] = "Error: UI2 with mask needs RenderAccel";
 	}
 	
@@ -82,11 +82,11 @@ END {
 		if (Driver != "\"nvidia\"")
 			errors[errcount++] = "Error: Can't run UI2 with alpha blending on other drivers than nvidia."
 #<-mkr_B_via_e->
-		if (XvmcUsesTextures != 1)
+		if (XvmcUsesTextures != 1 && Driver == "\"nvidia\"")
 			errors[errcount++] = "Error: UI2 with alpha blending needs XvmcUsesTextures";
-		if (AllowGLXWithComposite != 1)
+		if (AllowGLXWithComposite != 1 && Driver == "\"nvidia\"")
 			errors[errcount++] = "Error: UI2 with alpha blending needs AllowGLXWithComposite";
-		if (RenderAccel != 1)
+		if (RenderAccel != 1 && Driver == "\"nvidia\"")
 			errors[errcount++] = "Error: UI2 with alpha blending needs RenderAccel";
 		if (Composite != 1)
 			errors[errcount++] = "Error: UI2 with alpha blending needs Composite";
