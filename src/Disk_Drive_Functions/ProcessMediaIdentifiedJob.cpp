@@ -73,4 +73,7 @@ void ProcessMediaIdentifiedJob::Run()
 			m_pDisk_Drive_Functions->UpdateDiscLocation(cMediaType,m_iEK_Disc);
 		}
 	}
+	m_eJobStatus=job_Done;
+	JobDone();
+	m_pJobHandler->BroadcastCond();
 }

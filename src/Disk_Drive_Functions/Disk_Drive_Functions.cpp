@@ -584,6 +584,7 @@ void Disk_Drive_Functions::FixupRippingInfo(Disk_Drive_Functions *pDisk_Drive_Fu
 	StringUtils::Replace( &sDirectory, "'", "" );
 	StringUtils::Replace( &sDirectory, "[", "" );
 	StringUtils::Replace( &sDirectory, "]", "" );
+	StringUtils::Replace( &sDirectory, "?", "" );
 
 	if( pRow_Disc )
 		PK_MediaType=pRow_Disc->EK_MediaType_get();
