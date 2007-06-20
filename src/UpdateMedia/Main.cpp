@@ -114,7 +114,7 @@ void *UpdateMediaThread(void *)
 	{
 		//load info about ModificationData, AttrCount, AttrDate, attributes, timestamp for all files
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Loading fresh data from db...");
-		MediaState::Instance().LoadDbInfo(g_pDatabase_pluto_media, FileUtils::ExcludeTrailingSlash(UpdateMediaVars::sDirectory));
+		MediaState::Instance().LoadDbInfo(g_pDatabase_pluto_media, UpdateMediaVars::sDirectory);
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Loaded fresh data from db");
 
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Worker thread: \"I'm wake!\"");        
@@ -287,16 +287,23 @@ int main(int argc, char *argv[])
 
 	if(!bRunAsDaemon)
 	{
-		UpdateMedia UpdateMedia(dceConfig.m_sDBHost,dceConfig.m_sDBUser,dceConfig.m_sDBPassword,
-			dceConfig.m_iDBPort,sDirectory,bSyncFilesOnly);
-		if( sDirectory.size() )
-			UpdateMedia.DoIt();
+		vector<string> vectFolders;
+		StringUtils::Tokenize(sDirectory, "|", vectFolders);
+		for(vector<string>::iterator it = vectFolders.begin(); it != vectFolders.end(); ++it)
+		{
+			string sFolder = *it;
 
-		if( bUpdateSearchTokens )
-			UpdateMedia.UpdateSearchTokens();
+			UpdateMedia UpdateMedia(dceConfig.m_sDBHost,dceConfig.m_sDBUser,dceConfig.m_sDBPassword,
+				dceConfig.m_iDBPort,sFolder,bSyncFilesOnly);
+			if(!sFolder.empty())
+				UpdateMedia.DoIt();
 
-		if( bUpdateThumbnails )
-			UpdateMedia.UpdateThumbnails();
+			if( bUpdateSearchTokens )
+				UpdateMedia.UpdateSearchTokens();
+
+			if( bUpdateThumbnails )
+				UpdateMedia.UpdateThumbnails();
+		}
 	}
 	else
 	{
@@ -331,7 +338,11 @@ int main(int argc, char *argv[])
 
 		FileNotifier fileNotifier(g_pDatabase_pluto_media);
 		fileNotifier.RegisterCallbacks(OnModify, OnModify); //we'll use the same callback for OnCreate and OnDelete events
-  		fileNotifier.Watch(sDirectory);
+
+		vector<string> vectFolders;
+		StringUtils::Tokenize(sDirectory, "|", vectFolders);
+		for(vector<string>::iterator it = vectFolders.begin(); it != vectFolders.end(); ++it)
+	  		fileNotifier.Watch(*it);
 
 		pthread_t UpdateMediaThreadId;
 		pthread_create(&UpdateMediaThreadId, NULL, UpdateMediaThread, NULL);

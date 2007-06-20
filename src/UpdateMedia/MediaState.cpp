@@ -27,11 +27,26 @@
 #include "../pluto_media/Database_pluto_media.h"
 #include "DCE/Logger.h"
 using namespace DCE;
+
 //-----------------------------------------------------------------------------------------------------
 MediaState MediaState::m_instance;
 //-----------------------------------------------------------------------------------------------------
 void MediaState::LoadDbInfo(Database_pluto_media *pDatabase_pluto_media, string sRootDirectory)
 {
+	string sWhere = "1 = 1 ";
+
+	vector<string> vectFolders;
+	StringUtils::Tokenize(sRootDirectory, "|", vectFolders);
+	for(vector<string>::iterator it = vectFolders.begin(); it != vectFolders.end(); ++it)
+	{
+		string sFolder = *it;
+
+		sWhere += 
+			"AND Path LIKE '" + StringUtils::SQLEscape(FileUtils::ExcludeTrailingSlash(sFolder), true) + "%' "
+			"OR (Path = '" + StringUtils::SQLEscape(FileUtils::ExcludeTrailingSlash(FileUtils::BasePath(sFolder))) + "' AND "
+			"Filename = '" + StringUtils::SQLEscape(FileUtils::FilenameWithoutPath(sFolder)) + "' ) ";
+	}
+
 	string sSql = 
 		"SELECT PK_File, Path, Filename, INode, "
 		"GREATEST("
@@ -51,9 +66,7 @@ void MediaState::LoadDbInfo(Database_pluto_media *pDatabase_pluto_media, string 
 		"LEFT JOIN Attribute ON File_Attribute.FK_Attribute = PK_Attribute "
 		"LEFT JOIN LongAttribute ON LongAttribute.FK_File = PK_File "
 		"LEFT JOIN Picture_File ON Picture_File.FK_File = PK_File "
-		"WHERE Path LIKE '" + StringUtils::SQLEscape(FileUtils::ExcludeTrailingSlash(sRootDirectory), true) + "%' "
-		"OR (Path = '" + StringUtils::SQLEscape(FileUtils::ExcludeTrailingSlash(FileUtils::BasePath(sRootDirectory))) + "' AND "
-		"Filename = '" + StringUtils::SQLEscape(FileUtils::FilenameWithoutPath(sRootDirectory)) + "' ) "
+		"WHERE " + sWhere + 
 		"AND Missing = 0 "
 		"GROUP BY PK_File, Path, Filename";
 
