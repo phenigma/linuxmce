@@ -97,6 +97,13 @@ APT::Get::AllowUnauthenticated "true";
 '
 	echo -n "$pluto_apt_conf" >/etc/apt/apt.conf.d/30pluto
 
+	pluto_apt_preferences='
+Package: *
+Pin: origin
+Pin-Priority: 9999
+'
+	echo -n "$pluto_apt_preferences" >/etc/apt/preferences
+
 	ln -s /usr/pluto/var/apt.conf.offline /etc/apt/apt.conf.d/99offline
 
 	./mce-installer-preseed.sh
