@@ -21,7 +21,8 @@ void run_shell_reaper_child_exited(VteTerminal *terminal, gint pid, gint errcode
 		gdk_threads_enter();
 		gtk_widget_hide_all(GTK_WIDGET(runWindow));
 
-		if (errcode != 0) {
+		if (errcode != 0 ) {
+			if (strcmp(runErrorMessage,"") != 0) {
 			GtkWidget* runErrorDialog = gtk_dialog_new_with_buttons ("Message", GTK_WINDOW(mainWindow), 
 					GTK_DIALOG_DESTROY_WITH_PARENT,GTK_STOCK_OK, GTK_RESPONSE_NONE, NULL);
 			gtk_window_set_title(GTK_WINDOW(runErrorDialog), "Error");
@@ -29,9 +30,9 @@ void run_shell_reaper_child_exited(VteTerminal *terminal, gint pid, gint errcode
 			GtkWidget *errorLabel = gtk_label_new(runErrorMessage);
 			gtk_container_add(GTK_CONTAINER(GTK_DIALOG(runErrorDialog)->vbox), errorLabel);
 			gtk_widget_show_all(runErrorDialog);
-
-			gtk_dialog_run(GTK_DIALOG(runErrorDialog));
-			gtk_widget_destroy (GTK_WIDGET(runErrorDialog));
+				gtk_dialog_run(GTK_DIALOG(runErrorDialog));
+				gtk_widget_destroy (GTK_WIDGET(runErrorDialog));
+			}
 		} else {
 			gtk_dialog_response(runWindow, 1);
 		}

@@ -5,9 +5,6 @@ local_list="/tmp/local.list"
 diff_list="/tmp/diff.list"
 clean_system="true"
 
-sleep 2
-exit 1 
-
 function GenerateDiff {
 	while read orig_name orig_ver ;do
 		local local_line=$(grep "^$orig_name " $local_list)
@@ -44,6 +41,9 @@ function GenerateList {
 GenerateList
 GenerateDiff
 
+sleep 1
 if [[ "$clean_system" == "false" ]] ;then
 	exit 1
+else
+	echo "Everything OK" > "$diff_list"
 fi

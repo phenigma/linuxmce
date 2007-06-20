@@ -117,12 +117,7 @@ main (int argc, char *argv[])
 displayStepCheckSystem();
 //	displayStepLinuxMceCD();
 #else
-	if (setting_coreIP != NULL) {
-		displayStep1C();
-	} else {
-		//displayStep1D();
-		displayStepNotification();
-	}
+	displayStepCheckSystem();
 #endif
 
 	gtk_main ();
