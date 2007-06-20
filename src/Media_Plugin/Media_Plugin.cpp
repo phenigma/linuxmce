@@ -5868,9 +5868,9 @@ void Media_Plugin::CMD_Get_Default_Ripping_Info(int iEK_Disc,string *sFilename,b
 
 	*iDriveID = GetStorageDeviceWithMostFreeSpace(*sStorage_Device_Name, *sPath);
 
-	// See if this is one where we use Pluto's directory structure.  If not, we won't save this in a sub-directory except what the user chooses
+	// See if this is one where we use Pluto's directory structure (incl the Core).  If not, we won't save this in a sub-directory except what the user chooses
 	DeviceData_Router *pDevice_Drive = m_pRouter->m_mapDeviceData_Router_Find(*iDriveID);
-	if( pDevice_Drive && pDevice_Drive->m_mapParameters_Find(DEVICEDATA_PK_Users_CONST)!="-1" )
+	if( pDevice_Drive && pDevice_Drive->m_mapParameters_Find(DEVICEDATA_PK_Users_CONST)!="-1" && pDevice_Drive->WithinCategory(DEVICECATEGORY_Core_CONST)==false )
 		*bUseDefault=false;
 	else
 		*bUseDefault=true;

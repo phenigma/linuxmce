@@ -1376,7 +1376,7 @@ void ScreenHandler::SCREEN_DialogRippingInstructions(long PK_Screen)
 {
 	DisplayMessageOnOrbiter(PK_Screen,
 		"<%=T" + StringUtils::itos(TEXT_Ripping_Instructions_CONST) + "%>",
-        false, "40", false,
+        false, "40", true,
 		//Monitor progress text
 		"<%=T" + StringUtils::itos(TEXT_Monitor_progress_CONST) + "%>",
 		//the command
