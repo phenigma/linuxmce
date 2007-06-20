@@ -577,16 +577,9 @@ bool Disk_Drive_Functions::mountDVD(string fileName, string & strMediaUrl)
 void Disk_Drive_Functions::FixupRippingInfo(Disk_Drive_Functions *pDisk_Drive_Functions,int &PK_MediaType,string &sFilename,string &sTracks,int iEK_Disc,string &sDirectory)
 {
 	Row_Disc *pRow_Disc = m_pDatabase_pluto_media->Disc_get()->GetRow(iEK_Disc);
-//if !
-	StringUtils::Replace( &sFilename, "'", "" );
-	StringUtils::Replace( &sFilename, "[", "" );
-	StringUtils::Replace( &sFilename, "]", "" );
-	StringUtils::Replace( &sFilename, "?", "" );
 
-	StringUtils::Replace( &sDirectory, "'", "" );
-	StringUtils::Replace( &sDirectory, "[", "" );
-	StringUtils::Replace( &sDirectory, "]", "" );
-	StringUtils::Replace( &sDirectory, "?", "" );
+	sFilename=FileUtils::ValidFileName(sFilename);
+	sDirectory=FileUtils::ValidFileName(sDirectory);
 
 	if( pRow_Disc )
 		PK_MediaType=pRow_Disc->EK_MediaType_get();
@@ -626,7 +619,7 @@ void Disk_Drive_Functions::FixupRippingInfo(Disk_Drive_Functions *pDisk_Drive_Fu
 				if( it->second.empty() )
 					sNewTracks += "Track " + StringUtils::itos(it->first);
 				else
-					sNewTracks += it->second;
+					sNewTracks += FileUtils::ValidFileName(it->second);
 				sNewTracks += "|";
 			}
 		}
@@ -642,7 +635,7 @@ void Disk_Drive_Functions::FixupRippingInfo(Disk_Drive_Functions *pDisk_Drive_Fu
 				string sName = mapTracks[iTrack];
 				if( sName.empty() )
 					sName = "Track " + StringUtils::itos(iTrack);
-				sNewTracks += sName + "|";
+				sNewTracks += FileUtils::ValidFileName(sName) + "|";
 			}
 		}
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Transformed %s into %s",sTracks.c_str(),sNewTracks.c_str());
