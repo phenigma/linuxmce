@@ -581,6 +581,8 @@ void Disk_Drive_Functions::FixupRippingInfo(Disk_Drive_Functions *pDisk_Drive_Fu
 	StringUtils::Replace( &sFilename, "'", "" );
 	StringUtils::Replace( &sFilename, "[", "" );
 	StringUtils::Replace( &sFilename, "]", "" );
+	StringUtils::Replace( &sFilename, "?", "" );
+
 	StringUtils::Replace( &sDirectory, "'", "" );
 	StringUtils::Replace( &sDirectory, "[", "" );
 	StringUtils::Replace( &sDirectory, "]", "" );
