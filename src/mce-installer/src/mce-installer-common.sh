@@ -16,7 +16,6 @@ deb file:/usr/pluto/deb-cache/ ./
 deb $mirror feisty main restricted universe multiverse
 deb $mirror feisty-security main restricted universe multiverse
 deb $mirror feisty-updates  main restricted universe multiverse
-deb http://linuxmce.com/ununtu ./
 "
 
 	while read line ;do
