@@ -342,7 +342,10 @@ int main(int argc, char *argv[])
 		vector<string> vectFolders;
 		StringUtils::Tokenize(sDirectory, "|", vectFolders);
 		for(vector<string>::iterator it = vectFolders.begin(); it != vectFolders.end(); ++it)
+		{
 	  		fileNotifier.Watch(*it);
+			vectModifiedFolders.push_back(*it);
+		}
 
 		pthread_t UpdateMediaThreadId;
 		pthread_create(&UpdateMediaThreadId, NULL, UpdateMediaThread, NULL);
