@@ -1,23 +1,6 @@
 #!/bin/bash
 
-. /usr/pluto/bin/AVWizard-Common.sh
+. /usr/pluto/bin/Config_Ops.sh
 
-Param="$1"
-case "$Param" in
-	volume[+-])
-		GetAudioMixerSettings
-		case "${Param#volume}" in
-			+)
-				/usr/pluto/bin/SoundCards_AudioVolume.sh up
-			;;
-			-)
-				/usr/pluto/bin/SoundCards_AudioVolume.sh down
-			;;
-		esac
-	;;
-	-set)
-		/usr/pluto/bin/SoundCards_AudioVolume.sh set "$2"
-	;;
-esac
-GetAudioMixerSettings
-echo "$AudioVolumeCurrent"
+VolumePercent="$1"
+/usr/pluto/bin/MessageSend dcerouter -targetType template -bl same_computer $PK_Device 26 1 313 76 "$VolumePercent"
