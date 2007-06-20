@@ -113,7 +113,7 @@ main (int argc, char *argv[])
 	setting_linuxmceCdFrom = FROM_CD;
 	history = g_queue_new();
 
-#if 1
+#if 0
 displayStepCheckSystem();
 //	displayStepLinuxMceCD();
 #else
