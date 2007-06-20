@@ -213,3 +213,6 @@ fi
 
 ## Rebuild NIS cache
 make -C /var/yp
+
+/usr/pluto/bin/UpdateMediaDaemonControl.sh  -disable
+/usr/pluto/bin/UpdateMediaDaemonControl.sh  -enable
