@@ -1035,6 +1035,7 @@ function getDevicesArrayFromCategory($categoryID,$dbADO)
 
 function deleteDevice($PK_Device,$dbADO)
 {
+	$dbADO->Execute('BEGIN');
 	getDeviceChildsArray($PK_Device,$dbADO);
 	
 	$toDelete = cleanArray($GLOBALS['childsArray']);
@@ -1052,6 +1053,7 @@ function deleteDevice($PK_Device,$dbADO)
 		$queryDelDevice = 'DELETE FROM Device WHERE PK_Device = '.$elem;
 		$dbADO->_Execute($queryDelDevice);
 	}
+	$dbADO->Execute('COMMIT');
 }
 
 function addDeviceToEntertainArea($deviceID,$entArea,$dbADO)
