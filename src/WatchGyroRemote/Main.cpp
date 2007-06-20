@@ -50,9 +50,18 @@ extern "C"
 		#include <usb.h>
 }
 
+bool g_bQuit=false;
+
+void sig_int(int sig)
+{
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Got signal");
+	g_bQuit=true;
+}
+
 int main(int argc, char *argv[])
 {
-	LoggerWrapper::SetType(LT_LOGGER_FILE,"/var/log/pluto/WatchGyroRemote.log");
+	signal(SIGINT, sig_int);
+	signal(SIGTERM, sig_int);
 
 	usb_dev_handle *p_usb_dev_handle;
 	struct usb_bus *busses;
@@ -96,7 +105,7 @@ int main(int argc, char *argv[])
 
 				char inPacket[6];
 				int cnt=0;
-				while(true)
+				while(!g_bQuit)
 				{
 					res = usb_interrupt_read(p_usb_dev_handle, 0x82, inPacket, 6, 250);
 					if (res<0&&res!=-110) break;
@@ -117,6 +126,12 @@ int main(int argc, char *argv[])
 							{
 								LoggerWrapper::GetInstance()->Write(LV_STATUS,"WatchGyroRemote button %d %d %d %d",
 									(int) inPacket[2],(int) inPacket[3],(int) inPacket[4],(int) inPacket[5]);
+								if( inPacket[3]==-62 )
+								{
+									LoggerWrapper::GetInstance()->Write(LV_STATUS,"WatchGyroRemote button -- activating AV Wizard");
+									dceConfig.AddString("AVWizardOverride","1");
+									dceConfig.WriteSettings();
+								}
 							}
 						}
 					}
