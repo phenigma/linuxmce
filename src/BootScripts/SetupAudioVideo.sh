@@ -131,6 +131,7 @@ VideoSettings_Check()
 		NewSetting_VideoSetting="$DB_VideoSetting"
 	fi
 	if [[ -n "$DB_OpenGL" && "$DB_OpenGL" != "$OldSetting_OpenGL" ]]; then
+		Update_XorgConf="XorgConf"
 		NewSetting_OpenGL="$DB_OpenGL"
 	fi
 	if [[ -n "$DB_AlphaBlending" && "$DB_AlphaBlending" != "$OldSetting_AlphaBlending" ]]; then
