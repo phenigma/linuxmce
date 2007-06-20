@@ -2077,13 +2077,15 @@ class DataGridTable *Media_Plugin::DevicesNeedingProviders( string GridID, strin
 			pDataGrid->SetData(0,iRow++,pCell);
 
 			Row_Device_DeviceData *pRow_Device_DeviceData_VideoStandard = m_pDatabase_pluto_main->Device_DeviceData_get()->GetRow(pRow_Device->PK_Device_get(),DEVICEDATA_Type_CONST);
-
 			pCell->m_mapAttributes["PK_DeviceTemplate_MediaType"] = row[2];
 
 			Row_Device_DeviceData *pRow_Device_DeviceData = m_pDatabase_pluto_main->Device_DeviceData_get()->GetRow(pRow_Device->PK_Device_get(),DEVICEDATA_EK_MediaProvider_CONST);
 			Row_MediaProvider *pRow_MediaProvider = NULL;
 			if( pRow_Device_DeviceData )
+			{
+				pRow_Device_DeviceData->Reload();
 				pRow_MediaProvider = m_pDatabase_pluto_media->MediaProvider_get()->GetRow(atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str()));
+			}
 			if( pRow_MediaProvider )
 			{
 				pCell->m_mapAttributes["PK_MediaProvider"] = StringUtils::itos(pRow_MediaProvider->PK_MediaProvider_get());
@@ -2091,10 +2093,16 @@ class DataGridTable *Media_Plugin::DevicesNeedingProviders( string GridID, strin
 				if( pRow_ProviderSource )
 					pCell->m_mapAttributes["MediaProvider_Selected"] = pRow_ProviderSource->Description_get() + " " + pRow_MediaProvider->Description_get();
 				else if( pRow_Device_DeviceData_VideoStandard )
+				{
+					pRow_Device_DeviceData_VideoStandard->Reload();
 					pCell->m_mapAttributes["MediaProvider_Selected"] = pRow_Device_DeviceData_VideoStandard->IK_DeviceData_get();
+				}
 			}
 			else if( pRow_Device_DeviceData_VideoStandard )
+			{
+				pRow_Device_DeviceData_VideoStandard->Reload();
 				pCell->m_mapAttributes["MediaProvider_Selected"] = pRow_Device_DeviceData_VideoStandard->IK_DeviceData_get();
+			}
 
 			// See what we have as the media providers for this type
 			vector<Row_ProviderSource *> vectRow_ProviderSource;

@@ -45,6 +45,7 @@ using namespace StringUtils;
 #include "PowerfileJukebox.h"
 #include "Disk_Drive_Functions/RipJob.h"
 #include "Disk_Drive_Functions/RipTask.h"
+#include "Disk_Drive_Functions/ProcessMediaIdentifiedJob.h"
 
 namespace nsJobHandler
 {
@@ -1276,7 +1277,8 @@ void Powerfile_Job::Remove_PowerfileTask_Slot(int iSlot)
 void Powerfile_C200::CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,string sID,char *pData,int iData_Size,string sFormat,int iPK_MediaType,string sMediaURL,string sURL,int *iEK_Disc,string &sCMD_Result,Message *pMessage)
 //<-dceag-c742-e->
 {
-	m_pPowerfileJukebox->Media_Identified(iPK_Device,sValue_To_Assign,sID,pData,iData_Size,sFormat,iPK_MediaType,sMediaURL,sURL,iEK_Disc);
+	ProcessMediaIdentifiedJob *pProcessMediaIdentifiedJob = new ProcessMediaIdentifiedJob(m_pPowerfileJukebox->m_pJobHandler,iPK_Device,sValue_To_Assign,sID,pData,iData_Size,sFormat,iPK_MediaType,sMediaURL,sURL,iEK_Disc,m_pPowerfileJukebox,NULL);
+	m_pPowerfileJukebox->m_pJobHandler->AddJob(pProcessMediaIdentifiedJob);
 }
 //<-dceag-c743-b->
 

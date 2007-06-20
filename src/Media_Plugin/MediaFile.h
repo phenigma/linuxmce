@@ -65,6 +65,13 @@ public:
 		m_dwPK_MediaType=m_dwPK_CommandGroup_Start=m_dwPK_CommandGroup_Stop=0;
 		m_sExtension=StringUtils::ToUpper(FileUtils::FindExtension(sMRL));
 		m_bWaitingForJukebox=false;
+		if( StringUtils::StartsWith(sMRL,"cdda:/",true) )
+		{
+			// It's a cd.  Set m_iTrack if there's a trailing track number
+			string sTrack = FileUtils::FilenameWithoutPath(sMRL);
+			if( StringUtils::itos(atoi(sTrack.c_str()))==sTrack )  // It's purely numeric
+				m_iTrack = atoi(sTrack.c_str());
+		}
 	}
 
 	MediaFile(MediaAttributes_LowLevel *pMediaAttributes_LowLevel, string sFullyQualifiedFile) {

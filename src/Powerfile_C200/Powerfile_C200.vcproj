@@ -168,6 +168,9 @@
 				RelativePath=".\PowerfileJukebox.cpp">
 			</File>
 			<File
+				RelativePath="..\Disk_Drive_Functions\ProcessMediaIdentifiedJob.cpp">
+			</File>
+			<File
 				RelativePath="..\Disk_Drive_Functions\RipJob.cpp">
 			</File>
 			<File

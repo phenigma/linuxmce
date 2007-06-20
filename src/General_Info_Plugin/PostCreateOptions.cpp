@@ -168,7 +168,7 @@ void PostCreateOptions::PostCreateDevice_CaptureCard(Row_Device *pRow_Device, OH
 	string sUseAutomatically = DatabaseUtils::GetDeviceData(m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICEDATA_Use_Automatically_CONST);
 	if( atoi(sUseAutomatically.c_str()) )
 	{
-		DCE::CMD_Sync_Providers_and_Cards_Cat CMD_Sync_Providers_and_Cards_Cat(g_pCommand_Impl->m_dwPK_Device,DEVICECATEGORY_Media_Player_Plugins_CONST,false,BL_SameHouse,pOH_Orbiter ? pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device : 0);
+		DCE::CMD_Sync_Providers_and_Cards_Cat CMD_Sync_Providers_and_Cards_Cat(g_pCommand_Impl->m_dwPK_Device,DEVICECATEGORY_Media_Player_Plugins_CONST,false,BL_SameHouse,0,pOH_Orbiter ? pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device : 0);
 		g_pCommand_Impl->SendCommand(CMD_Sync_Providers_and_Cards_Cat);
 		if( pDevice_Orbiter )
 		{

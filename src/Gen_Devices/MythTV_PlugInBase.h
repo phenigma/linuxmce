@@ -234,7 +234,7 @@ public:
 	virtual void CMD_Schedule_Recording(string sType,string sOptions,string sProgramID,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Get_Extended_Media_Data(string sPK_DesignObj,string sProgramID,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Active_Menu(string sText,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Sync_Providers_and_Cards(int iPK_Device,int iPK_Orbiter,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Make_Thumbnail(string sFilename,char *pData,int iData_Size,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Abort_Task(int iParameter_ID,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Reporting_EPG_Status(string sText,bool bIsSuccessful,string sTask,string &sCMD_Result,class Message *pMessage) {};
@@ -381,8 +381,9 @@ public:
 				case COMMAND_Sync_Providers_and_Cards_CONST:
 					{
 						string sCMD_Result="OK";
+						int iPK_Device=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Device_CONST].c_str());
 						int iPK_Orbiter=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Orbiter_CONST].c_str());
-						CMD_Sync_Providers_and_Cards(iPK_Orbiter,sCMD_Result,pMessage);
+						CMD_Sync_Providers_and_Cards(iPK_Device,iPK_Orbiter,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -399,7 +400,7 @@ public:
 						{
 							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Sync_Providers_and_Cards(iPK_Orbiter,sCMD_Result,pMessage);
+								CMD_Sync_Providers_and_Cards(iPK_Device,iPK_Orbiter,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

@@ -2763,7 +2763,7 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sFilename,int iPK_Med
 				return; // Nothing to do; the grid was empty
 		}
 		else
-			m_pMediaAttributes->m_pMediaAttributes_LowLevel->TransformFilenameToDeque(sFilename, dequeMediaFile);  // This will convert any !A, !F, !B etc.
+			TransformFilenameToDeque(sFilename, dequeMediaFile);  // This will convert any !A, !F, !B etc.
  	}
 
 	int iPK_MediaProvider=0;
@@ -2811,9 +2811,6 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sFilename,int iPK_Med
 		 || (dequeMediaFile.size()==0 && iPK_MediaType==0) ) // We got nothing -- find a disk drive within the entertainment area and send it a reset
     {
 		EntertainArea *pEntertainArea = vectEntertainArea[0];
-		bool bDiskIsRipping = false;
-		bool bDiskWasReset  = false;
-		int PK_Device_Ripping=0;
 
 		if( !pMediaDevice_Source )
 		{
@@ -2828,57 +2825,25 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sFilename,int iPK_Med
 			}
 		}
 
-		if( pMediaDevice_Source )
+		if( pMediaDevice_Source && DiskDriveIsRipping(pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device) )
 		{
-			if ( ! DiskDriveIsRipping(pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device) )
-			{
-				pMediaDevice_Source->m_pOH_Orbiter_Reset = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(iPK_Device_Orbiter);
-				pMediaDevice_Source->m_tReset = time(NULL);
-
-				DCE::CMD_Reset_Disk_Drive CMD_Reset_Disk_Drive(m_dwPK_Device, pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
-                SendCommand(CMD_Reset_Disk_Drive);
-				bDiskWasReset = true;
-			}
-			else
-			{
-				PK_Device_Ripping=pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device;
-				bDiskIsRipping = true;
-			}
-        }
-
-		if ( !bDiskWasReset && bDiskIsRipping ) // we weren't able to reset any drives and at least one of them was ripping.
-		{
-			/*
-			m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From, "<%=T" + StringUtils::itos(TEXT_ripping_cant_play_disc_CONST) + "%>",false,10,true,
-				"<%=T" + StringUtils::itos(TEXT_Abort_ripping_CONST) + "%>",
-				StringUtils::itos(pMessage->m_dwPK_Device_From) + " " + StringUtils::itos(PK_Device_Ripping) + " 1 " + StringUtils::itos(COMMAND_Abort_Ripping_CONST),
-				"<%=T" + StringUtils::itos(TEXT_Monitor_progress_CONST) + "%>","0 " + StringUtils::itos(DEVICETEMPLATE_This_Orbiter_CONST) + 
-				" 1 " + StringUtils::itos(COMMAND_Goto_Screen_CONST) + " " + StringUtils::itos(COMMANDPARAMETER_PK_DesignObj_CONST) + " " + StringUtils::itos(DESIGNOBJ_mnuPendingTasks_CONST));
-			*/
 			SCREEN_DialogRippingInProgress SCREEN_DialogRippingInProgress(m_dwPK_Device, pMessage->m_dwPK_Device_From,
-				StringUtils::itos(pMessage->m_dwPK_Device_From), StringUtils::itos(PK_Device_Ripping));
+				StringUtils::itos(pMessage->m_dwPK_Device_From), StringUtils::itos(pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device));
 			SendCommand(SCREEN_DialogRippingInProgress);
+			return;
+		}
 
-			return;
-		}
-		else if( bDiskWasReset )
+		if( !pMediaDevice_Source )
 		{
-			//m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From, "<%=T" + StringUtils::itos(TEXT_Checking_drive_CONST) + "%>",false,20);
-			SCREEN_DialogCheckingDrive SCREEN_DialogCheckingDrive(m_dwPK_Device, pMessage->m_dwPK_Device_From);
-			SendCommand(SCREEN_DialogCheckingDrive);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find source device in EA %d",pEntertainArea->m_iPK_EntertainArea);
+			SCREEN_DialogCannotPlayMedia SCREEN_DialogCannotPlayMedia(m_dwPK_Device, pMessage->m_dwPK_Device_From, "");
+			SendCommand(SCREEN_DialogCannotPlayMedia);
 			return;
 		}
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot reset disk: reset %d ripping %d dev rip %d EA %d",(int) bDiskWasReset, (int) bDiskIsRipping,PK_Device_Ripping,pEntertainArea->m_iPK_EntertainArea);
-		//m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From, "<%=T" + StringUtils::itos(TEXT_Cannot_play_media_CONST) + "%>");
-		SCREEN_DialogCannotPlayMedia SCREEN_DialogCannotPlayMedia(m_dwPK_Device, pMessage->m_dwPK_Device_From, "");
-		SendCommand(SCREEN_DialogCannotPlayMedia);
 	}
-	else
-	{
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::CMD_MH_Play_Media playing MediaType: %d Provider %d Orbiter %d Device %d Template %d",
-			iPK_MediaType,iPK_MediaProvider,iPK_Device_Orbiter,iPK_Device,iPK_DeviceTemplate);
-		StartMedia(iPK_MediaType,iPK_MediaProvider,iPK_Device_Orbiter,vectEntertainArea,iPK_Device,iPK_DeviceTemplate,&dequeMediaFile,bResume,iRepeat,"");  // We'll let the plug-in figure out the source, and we'll use the default remote
-	}
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::CMD_MH_Play_Media playing MediaType: %d Provider %d Orbiter %d Device %d Template %d",
+		iPK_MediaType,iPK_MediaProvider,iPK_Device_Orbiter,iPK_Device,iPK_DeviceTemplate);
+	StartMedia(iPK_MediaType,iPK_MediaProvider,iPK_Device_Orbiter,vectEntertainArea,iPK_Device,iPK_DeviceTemplate,&dequeMediaFile,bResume,iRepeat,"");  // We'll let the plug-in figure out the source, and we'll use the default remote
 }
 
 //<-dceag-c65-b->
@@ -5764,7 +5729,7 @@ void Media_Plugin::CMD_Get_Attributes_For_Media(string sFilename,string sPK_Ente
 		return;
 	}
     deque<MediaFile *> dequeMediaFile;
-	m_pMediaAttributes->m_pMediaAttributes_LowLevel->TransformFilenameToDeque(sFilename, dequeMediaFile);  // This will convert any !A, !F, !B etc.
+	TransformFilenameToDeque(sFilename, dequeMediaFile);  // This will convert any !A, !F, !B etc.
 	if( dequeMediaFile.size() )
 		pMediaFile = dequeMediaFile[0];
 	
@@ -6015,7 +5980,7 @@ void Media_Plugin::CMD_Specify_Media_Provider(int iPK_Device,string sText,string
 	DatabaseUtils::SetDeviceData(m_pDatabase_pluto_main,iPK_Device,DEVICEDATA_EK_MediaProvider_CONST,StringUtils::itos(pRow_MediaProvider->PK_MediaProvider_get()));
 	DatabaseUtils::SetDeviceData(m_pDatabase_pluto_main,iPK_Device,DEVICEDATA_Source_CONST,"");  // Got to get this again
 
-	DCE::CMD_Sync_Providers_and_Cards_Cat CMD_Sync_Providers_and_Cards_Cat(m_dwPK_Device,DEVICECATEGORY_Media_Player_Plugins_CONST,false,BL_SameHouse,pMessage ? pMessage->m_dwPK_Device_From : 0);
+	DCE::CMD_Sync_Providers_and_Cards_Cat CMD_Sync_Providers_and_Cards_Cat(m_dwPK_Device,DEVICECATEGORY_Media_Player_Plugins_CONST,false,BL_SameHouse,0,pMessage ? pMessage->m_dwPK_Device_From : 0);
 	SendCommand(CMD_Sync_Providers_and_Cards_Cat);
 }
 //<-dceag-c825-b->
@@ -6670,4 +6635,113 @@ void Media_Plugin::WaitingForJukebox( MediaStream *pMediaStream )
 		int StreamID = pMediaStream->m_iStreamID_get( );
 		m_pAlarmManager->AddRelativeAlarm(1,this,WAITING_FOR_JUKEBOX,(void *) StreamID);
 	}
+}
+
+void Media_Plugin::TransformFilenameToDeque(string sFilename,deque<MediaFile *> &dequeFilenames)
+{
+	if( sFilename.length()==0 )
+		return;
+
+	if( sFilename[0] != '!' || sFilename.length()<3 )
+	{
+		dequeFilenames.push_back(new MediaFile(m_pMediaAttributes->m_pMediaAttributes_LowLevel,sFilename));  // Just a normal file
+		return;
+	}
+
+	if( sFilename[1] == 'A' || sFilename[1] == 'a' )
+	{
+		Row_Attribute *pRow_Attribute = m_pDatabase_pluto_media->Attribute_get()->GetRow( atoi(sFilename.substr(2).c_str()) );
+		if( !pRow_Attribute )
+		{
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Media_Plugin::TransformFilenameToDeque Attribute lookup on %s is invalid",sFilename.c_str());
+			return;
+		}
+
+		vector<Row_File_Attribute *> vectRow_File_Attribute;
+		pRow_Attribute->File_Attribute_FK_Attribute_getrows(&vectRow_File_Attribute);
+		for(size_t s=0;s<vectRow_File_Attribute.size();++s)
+		{
+			Row_File_Attribute *pRow_File_Attribute = vectRow_File_Attribute[s];
+			dequeFilenames.push_back(new MediaFile(m_pMediaAttributes->m_pMediaAttributes_LowLevel,pRow_File_Attribute->FK_File_get(),m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetFilePathFromFileID(pRow_File_Attribute->FK_File_get())));
+		}
+	}
+	else if( sFilename[1] == 'F' || sFilename[1] == 'f' )
+	{
+		int PK_MediaType=0;
+		MediaFile *pMediaFile = new MediaFile(m_pMediaAttributes->m_pMediaAttributes_LowLevel,atoi(sFilename.substr(2).c_str()),m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetFilePathFromFileID(atoi(sFilename.substr(2).c_str()),&PK_MediaType));
+		pMediaFile->m_dwPK_MediaType=PK_MediaType;
+		dequeFilenames.push_back(pMediaFile);
+	}
+	else if( sFilename[1] == 'B' || sFilename[1] == 'b' )
+	{
+		Row_Bookmark *pRow_Bookmark = m_pDatabase_pluto_media->Bookmark_get()->GetRow(atoi(sFilename.substr(2).c_str()));
+		if( pRow_Bookmark )
+		{
+			Row_File *pRow_File = pRow_Bookmark->FK_File_getrow();
+			if( pRow_File )
+			{
+				MediaFile *pMediaFile = new MediaFile(m_pMediaAttributes->m_pMediaAttributes_LowLevel,pRow_File->PK_File_get(),pRow_File->Path_get() + "/" + pRow_File->Filename_get());
+				pMediaFile->m_sStartPosition = pRow_Bookmark->Position_get();
+				dequeFilenames.push_back(pMediaFile);
+			}
+		}	
+	}
+	else if( sFilename[1] == 'r' || sFilename[1] == 'R' )  // Removable media (ie a disc) as !r[PK_Disc][.track]:[PK_Device_Disk]:[Slot]  This can be followed by a : and a disk drive to prevent ambiguity if there are multiple sources, and another : and a slot
+	{
+		int PK_Device_Disk_Drive=0;
+		int Slot=-1;
+		string::size_type pos=sFilename.find(':');
+		if( pos!=string::npos )
+		{
+			PK_Device_Disk_Drive = atoi( sFilename.substr(pos+1).c_str() );
+			pos=sFilename.find(':',pos+1);
+			if( pos!=string::npos )
+				Slot = atoi( sFilename.substr(pos+1).c_str() );
+		}
+
+		Row_DiscLocation *pRow_DiscLocation = NULL;
+
+		if( PK_Device_Disk_Drive )
+			pRow_DiscLocation = m_pDatabase_pluto_media->DiscLocation_get()->GetRow(PK_Device_Disk_Drive,0);
+
+		int PK_MediaType = pRow_DiscLocation ? m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetMediaType(pRow_DiscLocation) : 0;
+
+		pos = sFilename.find('.');
+		if( pos!=string::npos || PK_MediaType!=MEDIATYPE_pluto_CD_CONST || !PK_Device_Disk_Drive )
+		{
+			MediaFile *pMediaFile = new MediaFile(atoi(sFilename.substr(2).c_str()),PK_Device_Disk_Drive,Slot);
+			if( pos!=string::npos )
+				pMediaFile->m_iTrack = atoi( sFilename.substr(pos+1).c_str() );
+			if( PK_MediaType )
+				pMediaFile->m_dwPK_MediaType = PK_MediaType;
+
+			dequeFilenames.push_back(pMediaFile);
+		}
+		else  // It's a cd.  Need to add tracks
+		{
+			string sDisks,sURL,sBlock_Device;
+			DCE::CMD_Get_Disk_Info CMD_Get_Disk_Info(m_dwPK_Device,PK_Device_Disk_Drive,&PK_MediaType,&sDisks,&sURL,&sBlock_Device);
+			if( SendCommand(CMD_Get_Disk_Info) )
+			{
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::TransformFilenameToDeque Got cd info MT %d disks %s url %s block %s",
+					PK_MediaType,sDisks.c_str(),sURL.c_str(),sBlock_Device.c_str());
+
+				vector<string> Tracks;
+				StringUtils::Tokenize(sURL,"\n",Tracks);
+				for(vector<string>::iterator it=Tracks.begin();it!=Tracks.end();++it)
+				{
+					string sTrack = *it;
+					MediaFile *pMediaFile = new MediaFile(sTrack);
+					pMediaFile->m_dwPK_Disk = atoi(sFilename.substr(2).c_str());
+					pMediaFile->m_dwPK_Device_Disk_Drive = PK_Device_Disk_Drive;
+					pMediaFile->m_Slot = Slot;
+					dequeFilenames.push_back(pMediaFile);
+				}
+			}
+			else
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::TransformFilenameToDeque unable to get cd info from %d",PK_Device_Disk_Drive);
+		}
+	}
+	else
+		dequeFilenames.push_back(new MediaFile(m_pMediaAttributes->m_pMediaAttributes_LowLevel,sFilename));  // Just a normal file
 }

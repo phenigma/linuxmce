@@ -44,6 +44,7 @@ DCEConfig g_DCEConfig;
 
 #include "Disk_Drive_Functions/RipJob.h"
 #include "Disk_Drive_Functions/RipTask.h"
+#include "Disk_Drive_Functions/ProcessMediaIdentifiedJob.h"
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -512,20 +513,8 @@ void Disk_Drive::CMD_Get_Default_Ripping_Info(int iEK_Disc,string *sFilename,boo
 void Disk_Drive::CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,string sID,char *pData,int iData_Size,string sFormat,int iPK_MediaType,string sMediaURL,string sURL,int *iEK_Disc,string &sCMD_Result,Message *pMessage)
 //<-dceag-c742-e->
 {
-	DCE::CMD_Media_Identified_DT CMD_Media_Identified_DT(m_dwPK_Device,DEVICETEMPLATE_Media_Plugin_CONST,
-		BL_SameHouse,m_dwPK_Device,sValue_To_Assign,sID,pData,iData_Size,sFormat,iPK_MediaType,sMediaURL,sURL,iEK_Disc);
-	SendCommand(CMD_Media_Identified_DT);
-
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive::CMD_Media_Identified disc is %d",*iEK_Disc);
-	if( *iEK_Disc )
-	{
-		char cMediaType='M'; // The default
-		if( iPK_MediaType==MEDIATYPE_pluto_CD_CONST )
-			cMediaType='c';
-		else if( iPK_MediaType==MEDIATYPE_pluto_DVD_CONST )
-			cMediaType='d';
-		m_pDisk_Drive_Functions->UpdateDiscLocation(cMediaType,*iEK_Disc);
-	}
+	ProcessMediaIdentifiedJob *pProcessMediaIdentifiedJob = new ProcessMediaIdentifiedJob(m_pJobHandler,iPK_Device,sValue_To_Assign,sID,pData,iData_Size,sFormat,iPK_MediaType,sMediaURL,sURL,iEK_Disc,NULL,m_pDisk_Drive_Functions);
+	m_pJobHandler->AddJob(pProcessMediaIdentifiedJob);
 }
 //<-dceag-c871-b->
 

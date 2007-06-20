@@ -1247,10 +1247,28 @@ class DataGridTable *General_Info_Plugin::Rooms( string GridID, string Parms, vo
 	int iRow=0,iCol=0;
 	string sql;
 	
-	if( Parms.empty() || Parms[0]!='1' )
+	if( Parms.empty() || (Parms[0]!='1' && Parms[0]!='2') )
 		sql = "SELECT PK_Room,Description FROM Room WHERE FK_Installation=" + StringUtils::itos(m_pRouter->iPK_Installation_get()) + " ORDER BY Description";
-	else
+	else if( Parms[0]=='1' )
 		sql = "SELECT DISTINCT PK_Room,Room.Description FROM Room JOIN Device ON FK_Room=PK_Room JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE FK_DeviceCategory=" TOSTRING(DEVICECATEGORY_Media_Director_CONST) " AND Room.FK_Installation=" + StringUtils::itos(m_pRouter->iPK_Installation_get()) + " ORDER BY Description";
+	else
+	{
+		// Filter out rooms with media directors
+		string sRoomsWithMDs;
+		string sSQL2 = "SELECT FK_Room FROM Device JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE FK_DeviceCategory=" TOSTRING(DEVICECATEGORY_Media_Director_CONST);
+		PlutoSqlResult result;
+		DB_ROW row;
+		if( (result.r = m_pDatabase_pluto_main->db_wrapper_query_result(sSQL2.c_str())) )
+		{
+			while( ( row=db_wrapper_fetch_row( result.r ) ) )
+			{
+				if( sRoomsWithMDs.empty()==false )
+					sRoomsWithMDs += ",";
+				sRoomsWithMDs += row[0];
+			}
+		}
+		sql = "SELECT PK_Room,Description FROM Room WHERE FK_Installation=" + StringUtils::itos(m_pRouter->iPK_Installation_get()) + " AND PK_Room NOT IN(" + sRoomsWithMDs + ") ORDER BY Description";
+	}
 
 	PlutoSqlResult result;
     DB_ROW row;

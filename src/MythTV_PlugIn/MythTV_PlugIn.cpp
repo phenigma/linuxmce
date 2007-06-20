@@ -928,10 +928,12 @@ void MythTV_PlugIn::CMD_Set_Active_Menu(string sText,string &sCMD_Result,Message
 
 	/** @brief COMMAND: #824 - Sync Providers and Cards */
 	/** Synchronize settings for pvr cards and provders */
+		/** @param #2 PK_Device */
+			/** If specified, this is the capture card that triggered this change to call checktvproviders for */
 		/** @param #198 PK_Orbiter */
 			/** If specified, this is the orbiter to notify of the progress if this results in scanning for channels */
 
-void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Result,Message *pMessage)
+void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Device,int iPK_Orbiter,string &sCMD_Result,Message *pMessage)
 //<-dceag-c824-e->
 {
 	DeviceData_Router *pDevice_Core = m_pRouter->m_mapDeviceData_Router_Find( m_pRouter->iPK_Device_get() );
@@ -1369,6 +1371,9 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Re
 	sSQL = "delete program FROM program left join channel on program.chanid=channel.chanid where channel.chanid is null";
 	m_pDBHelper_Myth->threaded_db_wrapper_query(sSQL);
 
+	if( iPK_Device )
+		CheckForTvFormatAndProvider( iPK_Device ); 		// See if we've found a tv format, or can otherwise determine the provider
+
 	if( m_mapPendingScans.empty()==false )
 		return;
 
@@ -1631,7 +1636,7 @@ void MythTV_PlugIn::AlarmCallback(int id, void* param)
 	else if( id==CONFIRM_MASTER_BACKEND_OK )
 		ConfirmMasterBackendOk((int) param);
 	else if( id==SYNC_PROVIDERS_AND_CARDS )
-		CMD_Sync_Providers_and_Cards(0);
+		CMD_Sync_Providers_and_Cards(0,0);
 }
 
 bool MythTV_PlugIn::NewBookmarks( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
@@ -2106,10 +2111,7 @@ bool MythTV_PlugIn::ScanningProgress( class Socket *pSocket, class Message *pMes
 		else
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::ScanningProgress sql nothing %p %p", result.r, row);
 
-		// See if we've found a tv format, or can otherwise determine the provider
-		CheckForTvFormatAndProvider( iPK_Device );
-
-		DCE::CMD_Sync_Providers_and_Cards CMD_Sync_Providers_and_Cards(m_dwPK_Device,m_dwPK_Device,pScanJob->m_iPK_Orbiter);
+		DCE::CMD_Sync_Providers_and_Cards CMD_Sync_Providers_and_Cards(m_dwPK_Device,m_dwPK_Device,iPK_Device,pScanJob->m_iPK_Orbiter);
 		QueueMessageToRouter(CMD_Sync_Providers_and_Cards.m_pMessage);  // Do this asynchronously
 		m_mapPendingScans.erase(it);
 		delete pScanJob;

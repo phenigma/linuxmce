@@ -17,7 +17,7 @@ LDFLAGS += -lmysqlclient_r
 CPPFLAGS += -DUSE_MYSQL_WRAPPER
 #<-mkr_b_use_mysql_wrapper_e->
 
-sources = Disk_Drive_Functions.cpp RipTask.cpp RipJob.cpp IdentifyJob.cpp IdentifyTask.cpp MoveDiscTask.cpp FixupRippingInfoTask.cpp LoadUnloadJob.cpp JukeBox.cpp ../Media_Plugin/MediaAttributes_LowLevel.cpp 
+sources = Disk_Drive_Functions.cpp RipTask.cpp RipJob.cpp IdentifyJob.cpp IdentifyTask.cpp ProcessMediaIdentifiedJob.cpp MoveDiscTask.cpp FixupRippingInfoTask.cpp LoadUnloadJob.cpp JukeBox.cpp ../Media_Plugin/MediaAttributes_LowLevel.cpp 
 
 all: $(sources:.cpp=.o)
 	$(CXX) -shared -o lib$(MYNAME).so $+ $(LDFLAGS) $(LDLIBS)

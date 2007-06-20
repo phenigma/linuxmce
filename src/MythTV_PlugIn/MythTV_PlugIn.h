@@ -305,11 +305,13 @@ live, nonlive, osd */
 
 	/** @brief COMMAND: #824 - Sync Providers and Cards */
 	/** Synchronize settings for pvr cards and provders */
+		/** @param #2 PK_Device */
+			/** If specified, this is the capture card that triggered this change to call checktvproviders for */
 		/** @param #198 PK_Orbiter */
 			/** If specified, this is the orbiter to notify of the progress if this results in scanning for channels */
 
-	virtual void CMD_Sync_Providers_and_Cards(int iPK_Orbiter) { string sCMD_Result; CMD_Sync_Providers_and_Cards(iPK_Orbiter,sCMD_Result,NULL);};
-	virtual void CMD_Sync_Providers_and_Cards(int iPK_Orbiter,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Sync_Providers_and_Cards(int iPK_Device,int iPK_Orbiter) { string sCMD_Result; CMD_Sync_Providers_and_Cards(iPK_Device,iPK_Orbiter,sCMD_Result,NULL);};
+	virtual void CMD_Sync_Providers_and_Cards(int iPK_Device,int iPK_Orbiter,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #846 - Make Thumbnail */
@@ -354,6 +356,7 @@ live, nonlive, osd */
 
 	virtual void CMD_Remove_Scheduled_Recording(string sID,string sProgramID) { string sCMD_Result; CMD_Remove_Scheduled_Recording(sID.c_str(),sProgramID.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_Remove_Scheduled_Recording(string sID,string sProgramID,string &sCMD_Result,Message *pMessage);
+
 
 //<-dceag-h-e->
     };

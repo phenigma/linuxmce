@@ -146,8 +146,6 @@ public:
 	void AddAttributeToFile(Row_File *pRow_File,Row_Attribute *pRow_Attribute,int Track,int Section);
 	void AddAttributeToDisc(Row_Disc *pRow_Disc,Row_Attribute *pRow_Attribute,int Track,int Section);
 
-	void TransformFilenameToDeque(string sFilename,deque<MediaFile *> &dequeMediaFile);
-
 	MediaSection *GetMediaSection(deque<MediaSection *> *p_dequeMediaSection,unsigned int Section) 
 	{
 		while( Section>p_dequeMediaSection->size() )
