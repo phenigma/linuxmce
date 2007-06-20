@@ -280,6 +280,10 @@ int main(int argc, char *argv[])
 	}
 	if( pOrbiterGenerator && pOrbiterGenerator->m_pRow_Orbiter )
 	{
+		string sAllScenariosFloorplans = pOrbiterGenerator->m_pRegenMonitor->AllScenariosFloorplans();
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter %d setting AllScenariosFloorplans to %s",
+			pOrbiterGenerator->m_pRow_Orbiter->PK_Orbiter_get(),sAllScenariosFloorplans.c_str());
+
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Setting RegenInProgress_set to false for %d",pOrbiterGenerator->m_pRow_Orbiter->PK_Orbiter_get());
 		DatabaseUtils::LockTable(pOrbiterGenerator->m_spDatabase_pluto_main.get(),"Orbiter");
 		pOrbiterGenerator->m_pRow_Orbiter->Reload();  // We already updated floorplans
@@ -288,9 +292,6 @@ int main(int argc, char *argv[])
 		pOrbiterGenerator->m_pRow_Orbiter->RegenStatus_set("Done");
 		pOrbiterGenerator->m_pRow_Orbiter->RegenPercent_set(100);
 		pOrbiterGenerator->m_pRow_Orbiter->FirstRegen_set(pOrbiterGenerator->m_bNewOrbiter);
-		string sAllScenariosFloorplans = pOrbiterGenerator->m_pRegenMonitor->AllScenariosFloorplans();
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter %d setting AllScenariosFloorplans to %s",
-			pOrbiterGenerator->m_pRow_Orbiter->PK_Orbiter_get(),sAllScenariosFloorplans.c_str());
 		pOrbiterGenerator->m_pRow_Orbiter->ScenariosFloorplans_set( sAllScenariosFloorplans );
 		pOrbiterGenerator->m_pRow_Orbiter->Size_set( pOrbiterGenerator->m_sSize_Regen_Data );
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Committing");
