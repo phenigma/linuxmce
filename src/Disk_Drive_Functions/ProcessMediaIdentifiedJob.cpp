@@ -36,6 +36,7 @@ ProcessMediaIdentifiedJob::ProcessMediaIdentifiedJob(JobHandler *pJobHandler,int
 	m_sValue_To_Assign=sValue_To_Assign;
 	m_sID=sID;
 	m_pData = NULL;
+	m_iData_Size = 0;
 	if( pData && iData_Size )
 	{
 		m_iData_Size=iData_Size;
