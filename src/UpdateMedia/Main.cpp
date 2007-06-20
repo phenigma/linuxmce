@@ -271,7 +271,7 @@ int main(int argc, char *argv[])
 	{
 		cout << "UpdateMedia, v." << VERSION << endl
 			<< "Usage: UpdateMedia [-h hostname] [-u username] [-p password] [-D database] [-P mysql port]" << endl
-			<< "[-d Directory] [-s] [-t]" << endl
+			<< "[-d The list with directories, pipe delimited] [-s] [-t]" << endl
 			<< "hostname    -- address or DNS of database host, default is `dce_router`" << endl
 			<< "username    -- username for database connection" << endl
 			<< "password    -- password for database connection, default is `` (empty)" << endl
