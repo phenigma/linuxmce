@@ -555,12 +555,14 @@ void OrbiterLinux::CMD_Surrender_to_OS(string sOnOff,bool bFully_release_keyboar
 
 void OrbiterLinux::X_LockDisplay()
 {
-    m_pX11->Lock();
+	if(NULL != m_pX11)
+		m_pX11->Lock();
 }
 
 void OrbiterLinux::X_UnlockDisplay()
 {
-    m_pX11->Unlock();
+	if(NULL != m_pX11)
+		m_pX11->Unlock();	
 }
 
 void OrbiterLinux::GrabPointer(bool bEnable)
