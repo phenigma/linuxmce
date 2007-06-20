@@ -131,8 +131,8 @@ void WizardPageAudioVolume::DoIncreaseSetting()
 
 	AudioVolumeCurrent = NewVolume;
 
-	std::string VolumeLabelCaption = Utils::Int32ToString((AudioVolumeCurrent - AudioVolumeMin) 
-		* 100 / (AudioVolumeMax - AudioVolumeMin)) + "%";
+	int VolumePercent = (AudioVolumeCurrent - AudioVolumeMin) * 100 / (AudioVolumeMax - AudioVolumeMin);
+	std::string VolumeLabelCaption = Utils::Int32ToString(VolumePercent) + "%";
 
 	VolumeLabel = dynamic_cast<WizardWidgetLabel*> (Page->GetChildRecursive("SpeakerVolumeTextShadow"));
 	VolumeLabel->SetCaption(VolumeLabelCaption);
@@ -140,7 +140,7 @@ void WizardPageAudioVolume::DoIncreaseSetting()
 	VolumeLabel = dynamic_cast<WizardWidgetLabel*> (Page->GetChildRecursive("SpeakerVolumeText"));
 	VolumeLabel->SetCaption(VolumeLabelCaption);
 
-	std::string Command = "/usr/pluto/bin/SoundCards_AudioVolume.sh set " + Utils::Int32ToString(AudioVolumeCurrent) + " unmute";
+	std::string Command = "/usr/pluto/bin/AVWizard_UpdateVolume.sh " + Utils::Int32ToString(VolumePercent);
 	system(Command.c_str());
 
 }
@@ -155,14 +155,15 @@ void WizardPageAudioVolume::DoDecreaseSetting()
 		NewVolume = AudioVolumeMin;
 	AudioVolumeCurrent = NewVolume;
 
+	int VolumePercent = (AudioVolumeCurrent - AudioVolumeMin) * 100 / (AudioVolumeMax - AudioVolumeMin);
+	std::string VolumeLabelCaption = Utils::Int32ToString(VolumePercent) + "%";
 
-	std::string VolumeLabelCaption = Utils::Int32ToString((AudioVolumeCurrent - AudioVolumeMin)*100/(AudioVolumeMax - AudioVolumeMin)) + "%";
 	VolumeLabel = dynamic_cast<WizardWidgetLabel*> (Page->GetChildRecursive("SpeakerVolumeTextShadow"));
 	VolumeLabel->SetCaption(VolumeLabelCaption);
 	VolumeLabel = dynamic_cast<WizardWidgetLabel*> (Page->GetChildRecursive("SpeakerVolumeText"));
 	VolumeLabel->SetCaption(VolumeLabelCaption);
 	
-	std::string Command = "/usr/pluto/bin/SoundCards_AudioVolume.sh set " + Utils::Int32ToString(AudioVolumeCurrent) + " unmute";
+	std::string Command = "/usr/pluto/bin/AVWizard_UpdateVolume.sh " + Utils::Int32ToString(VolumePercent);
 	system(Command.c_str());
 }
 
