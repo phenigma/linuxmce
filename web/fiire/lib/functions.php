@@ -1319,18 +1319,24 @@ function get_get_fiired(){
 
 function get_dealer($conn){
 	process_add_rating($conn);
+	$dealerTypes=array(
+		1=>'Dealer',
+		2=>'Custom installer',
+		3=>'Open house event'
+	);
 	
 	$selCountry=(int)@$_REQUEST['country'];
 	$selRegion=(int)@$_REQUEST['region'];
 	$selCity=(int)@$_REQUEST['city'];
-	
+	$selDealerType=(isset($_REQUEST['dealerType']))?(int)@$_REQUEST['dealerType']:1;
 
 	$variables=array();
 	$page_template=implode('',file('templates/dealer.html'));
-	$variables=set_variable($variables,'country_pulldown',countriesPulldown('country',$selCountry,$conn,'onChange="document.form1.submit();"'));
-	$variables=set_variable($variables,'region_pulldown',regionsPulldown('region',$selRegion,$selCountry,$conn,'onChange="document.form1.submit();"'));
-	$variables=set_variable($variables,'city_pulldown',citiesPulldown('city',$selCity,$selRegion,$conn,'onChange="document.form1.submit();"'));
-	$variables=set_variable($variables,'dealers_table',get_dealers_list($conn,$selCountry,$selRegion,$selCity));
+	$variables=set_variable($variables,'dealer_type_pulldown',pulldownFromArray($dealerTypes,'dealerType',$selDealerType,'onChange="document.form1.submit();"'));
+	$variables=set_variable($variables,'country_pulldown',countriesPulldown('country',$selCountry,$conn,'onChange="document.form1.submit();"',$selDealerType));
+	$variables=set_variable($variables,'region_pulldown',regionsPulldown('region',$selRegion,$selCountry,$conn,'onChange="document.form1.submit();"',$selDealerType));
+	$variables=set_variable($variables,'city_pulldown',citiesPulldown('city',$selCity,$selRegion,$conn,'onChange="document.form1.submit();"',$selDealerType));
+	$variables=set_variable($variables,'dealers_table',get_dealers_list($conn,$selCountry,$selRegion,$selCity,$selDealerType));
 	if(isset($_SESSION['message'])){
 		$variables=set_variable($variables,'message',$_SESSION['message']);
 		unset($_SESSION['message']);
@@ -1712,9 +1718,9 @@ function record_dealer_form($categs,$conn){
 	$variables=array();
 	$page_template=implode('',file('templates/record_dealer.html'));
 	$variables=set_variable($variables,'form_action','record_dealer.php');
-	$variables=set_variable($variables,'country_pulldown',countriesPulldown('country',$selCountry,$conn,'onChange="document.form1.submit();"'));
-	$variables=set_variable($variables,'region_pulldown',regionsPulldown('region',$selRegion,$selCountry,$conn,'onChange="document.form1.submit();"'));
-	$variables=set_variable($variables,'city_pulldown',citiesPulldown('city',$selCity,$selRegion,$conn,'onChange="document.form1.submit();"'));
+	$variables=set_variable($variables,'country_pulldown',countriesPulldown('country',$selCountry,$conn,'onChange="document.form1.submit();"',$categ));
+	$variables=set_variable($variables,'region_pulldown',regionsPulldown('region',$selRegion,$selCountry,$conn,'onChange="document.form1.submit();"',$categ));
+	$variables=set_variable($variables,'city_pulldown',citiesPulldown('city',$selCity,$selRegion,$conn,'onChange="document.form1.submit();"',$categ));
 	$variables=set_variable($variables,'categ_pulldown',pulldownFromArray($categs,'categ',$categ,'onChange="document.form1.submit();"'));
 	
 	$dateFromInput='<input type=text name="date_from" size=12 maxlength=10 value="'.$date_from.'" onclick="popUpCalendar(this, form1.date_from, \'dd/mm/yyyy\');" onFocus="blur()">';
@@ -1738,10 +1744,10 @@ function record_dealer_form($categs,$conn){
 	return outputHTML($variables,$page_template,1);		
 }
 
-function countriesPulldown($name,$selected,$conn,$extra){
+function countriesPulldown($name,$selected,$conn,$extra,$dealerType){
 	$res=query("
 		SELECT Country.*,user_id FROM Country 
-		LEFT JOIN dealers on FK_Country=PK_Country
+		LEFT JOIN dealers on FK_Country=PK_Country AND category=$dealerType
 		GROUP BY PK_Country
 		ORDER BY Country.Description ASC",$conn);
 	$select='<select name="'.$name.'" '.$extra.'>
@@ -1755,10 +1761,10 @@ function countriesPulldown($name,$selected,$conn,$extra){
 	return $select;
 }
 
-function regionsPulldown($name,$selected,$country,$conn,$extra){
+function regionsPulldown($name,$selected,$country,$conn,$extra,$dealerType){
 	$res=query("
 		SELECT Region.*,user_id FROM Region 
-		LEFT JOIN dealers on FK_Region=PK_Region
+		LEFT JOIN dealers on FK_Region=PK_Region AND category=$dealerType
 		WHERE Region.FK_Country=$country
 		GROUP BY PK_Region
 		ORDER BY Region.Region ASC",$conn);
@@ -1773,10 +1779,10 @@ function regionsPulldown($name,$selected,$country,$conn,$extra){
 	return $select;
 }
 
-function citiesPulldown($name,$selected,$region,$conn,$extra){
+function citiesPulldown($name,$selected,$region,$conn,$extra,$dealerType){
 	$res=query("
 		SELECT City.*,user_id FROM City
-		LEFT JOIN dealers on FK_City=PK_City
+		LEFT JOIN dealers on FK_City=PK_City AND category=$dealerType
 		WHERE City.FK_Region=$region
 		GROUP BY PK_City
 		ORDER BY City.City ASC",$conn);
@@ -1829,11 +1835,11 @@ function process_record_dealer($categs,$conn){
 	return record_dealer_form($categs,$conn);
 }
 
-function get_dealers_list($conn,$selCountry,$selRegion,$selCity){
+function get_dealers_list($conn,$selCountry,$selRegion,$selCity,$selType){
 	if($selCountry==0){
 		return '';
 	}
-	$filters='';
+	$filters=' AND category='.$selType;
 	if($selRegion!=0){
 		$filters.=' AND dealers.FK_Region='.$selRegion;
 	}
@@ -1860,7 +1866,14 @@ function get_dealers_list($conn,$selCountry,$selRegion,$selCity){
 		GROUP BY dealers.id ",$conn);
 	$no=mysql_num_rows($res);
 	if($no==0){
-		return 'We are sorry, there are no dealers for the area you selected.';
+		return '
+			<p>
+					No dealers yet.  Fiire is a brand new product.  
+					However, with our <a href="sure-fiire.php"><img src="images/t_sure_fiire.gif" alt="Sure Fiire" width="97" height="13" border="0" /></a>
+					guarantee, you have nothing to worry about it.  We guarantee our trained tech support staff will get your Fiire system up and going and working
+					with all your existing devices.  If you\'re not totally satisifed, you get a full refund.
+				</p>		
+		';
 	}
 	$out='
 	<table width="100%">
@@ -1870,9 +1883,10 @@ function get_dealers_list($conn,$selCountry,$selRegion,$selCity){
 	$dealers=array();
 	while($row=mysql_fetch_assoc($res)){
 		$rating=(is_null($row['myrating']))?pulldownFromArray($ratingArray,'rating_'.$row['id'],0,'onChange="document.form1.submit();"'):'';
+		$interval=($row['category']==3)?format_mysql_date($row['date_from'],'M d Y').' - '.format_mysql_date($row['date_to'],'M d Y').'<br>':'';
 		$out.='
 			<tr>
-				<td><b>'.$row['title'].' ('.$row['Region'].', '.$row['City'].')</b><br><a href="'.$row['url'].'">'.$row['url'].'</a><br>'.nl2br($row['description']).'</td>
+				<td><b>'.$row['title'].' ('.$row['Region'].', '.$row['City'].')</b><br>'.$interval.'<a href="'.$row['url'].'">'.$row['url'].'</a><br>'.nl2br($row['description']).'</td>
 			</tr>
 			<tr>
 				<td align="right">'.star_rating(ceil($row['rating'])).' '.$rating.'<hr></td>
@@ -1954,9 +1968,9 @@ function edit_dealer_form($id,$categs,$conn){
 	$variables=array();
 	$page_template=implode('',file('templates/record_dealer.html'));
 	$variables=set_variable($variables,'form_action','edit_dealer.php');
-	$variables=set_variable($variables,'country_pulldown',countriesPulldown('country',$selCountry,$conn,'onChange="document.form1.submit();"'));
-	$variables=set_variable($variables,'region_pulldown',regionsPulldown('region',$selRegion,$selCountry,$conn,'onChange="document.form1.submit();"'));
-	$variables=set_variable($variables,'city_pulldown',citiesPulldown('city',$selCity,$selRegion,$conn,'onChange="document.form1.submit();"'));
+	$variables=set_variable($variables,'country_pulldown',countriesPulldown('country',$selCountry,$conn,'onChange="document.form1.submit();"',$categ));
+	$variables=set_variable($variables,'region_pulldown',regionsPulldown('region',$selRegion,$selCountry,$conn,'onChange="document.form1.submit();"',$categ));
+	$variables=set_variable($variables,'city_pulldown',citiesPulldown('city',$selCity,$selRegion,$conn,'onChange="document.form1.submit();"',$categ));
 	$variables=set_variable($variables,'categ_pulldown',pulldownFromArray($categs,'categ',$categ,'onChange="document.form1.submit();"'));
 	
 	$dateFromInput='<input type=text name="date_from" size=12 maxlength=10 value="'.$date_from.'" onclick="popUpCalendar(this, form1.date_from, \'dd/mm/yyyy\');" onFocus="blur()">';
