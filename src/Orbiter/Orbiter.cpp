@@ -8439,7 +8439,8 @@ void Orbiter::CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal,stri
 				m_pMouseBehavior->Clear(false);
 			m_bShowingSpeedBar=false;
 		}
-		else if( m_sNowPlaying_Speed.empty()==false && m_bContainsVideo && m_iPK_Screen_OSD_Speed && m_pScreenHistory_Current && m_pScreenHistory_Current->PK_Screen()!=m_iPK_Screen_OSD_Speed && !m_bShowingSpeedBar 
+		else if( m_sNowPlaying_Speed.empty()==false && m_bContainsVideo && m_iPK_Screen_OSD_Speed && m_pScreenHistory_Current && 
+			m_pScreenHistory_Current->PK_Screen()!=m_iPK_Screen_OSD_Speed && !m_bShowingSpeedBar 
 			&& m_pMouseBehavior && m_pMouseBehavior->m_tIgnoreSpeedChangesUntil<time(NULL) )
 		{
 			// If we're not on the speed screen already (ie the speed was adjusted with an i/r remote or other means besides this osd)
@@ -8447,7 +8448,9 @@ void Orbiter::CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal,stri
 			m_bShowingSpeedBar=true;  // SpeedMouseHandler knows to ignore mouse movements when this is true
 			CMD_Goto_Screen("",m_iPK_Screen_OSD_Speed);
 #ifdef DEBUG
-			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::CMD_Update_Time_Code going to %d",m_iPK_Screen_OSD_Speed);
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::CMD_Update_Time_Code going to %d m_sNowPlaying_Speed %s m_bContainsVideo %d PK_Screen %d time %d/%d",
+				m_iPK_Screen_OSD_Speed,m_sNowPlaying_Speed.c_str(),(int) m_bContainsVideo,m_pScreenHistory_Current->PK_Screen(),
+				(int) m_pMouseBehavior->m_tIgnoreSpeedChangesUntil,(int) time(NULL));
 #endif
 		}
 	}

@@ -136,8 +136,9 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 				if(!retransmit)
 				{
 					laststatus_power_[devid] = !laststatus_power_[devid];
-					// reset the select input
-					laststatus_input_[devid] = 0;
+					// reset the select input unless it's a toggle input in which case we don't want to resend
+					if( ToggleInput==0 )
+						laststatus_input_[devid] = 0;
 				}
 				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Command <%d> translated to <%d>",pmsg->m_dwID,COMMAND_Toggle_Power_CONST);
 				return true;
@@ -159,7 +160,8 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 			{
 				laststatus_power_[devid] = (cmd==COMMAND_Generic_On_CONST);
 				// reset the select input
-				laststatus_input_[devid] = 0;
+				if( ToggleInput==0 )
+					laststatus_input_[devid] = 0;
 			}
 			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Command <%d> translated to <%d>",pmsg->m_dwID,cmd);
 			return true;
@@ -181,7 +183,8 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 					laststatus_power_[devid] = 0;
 				
 				// reset the select input
-				laststatus_input_[devid] = 0;
+				if( ToggleInput==0 )
+					laststatus_input_[devid] = 0;
 			}
 		}
 	}

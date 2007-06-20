@@ -60,7 +60,8 @@ SpeedMouseHandler::SpeedMouseHandler(DesignObj_Orbiter *pObj,string sOptions,Mou
 	if( m_pMouseBehavior->m_pOrbiter->m_bShowingSpeedBar || !m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying )
 	{
 #ifdef DEBUG
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"SpeedMouseHandler::SpeedMouseHandler skipping because the speed wasn't changed by the mouse or nothing is playing");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"SpeedMouseHandler::SpeedMouseHandler skipping because the speed wasn't changed by the mouse or nothing is playing %d/%d",
+			(int) m_pMouseBehavior->m_pOrbiter->m_bShowingSpeedBar,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying);
 #endif
 		return;
 	}
@@ -73,7 +74,8 @@ SpeedMouseHandler::~SpeedMouseHandler()
 	if( m_pMouseBehavior->m_pOrbiter->m_bShowingSpeedBar )
 	{
 #ifdef DEBUG
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"SpeedMouseHandler::]`SpeedMouseHandler skipping because the speed wasn't changed by the mouse");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"SpeedMouseHandler::]`SpeedMouseHandler skipping because the speed wasn't changed by the mouse %d/%d",
+			(int) m_pMouseBehavior->m_pOrbiter->m_bShowingSpeedBar,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying);
 #endif
 		return;
 	}
@@ -91,7 +93,8 @@ void SpeedMouseHandler::Start()
 	if( m_pMouseBehavior->m_pOrbiter->m_bShowingSpeedBar || !m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying )
 	{
 #ifdef DEBUG
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"SpeedMouseHandler::Start skipping because the speed wasn't changed by the mouse");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"SpeedMouseHandler::Start skipping because the speed wasn't changed by the mouse %d/%d",
+			(int) m_pMouseBehavior->m_pOrbiter->m_bShowingSpeedBar,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying);
 #endif
 		return;
 	}
@@ -139,7 +142,8 @@ bool SpeedMouseHandler::ButtonDown(int PK_Button)
 	if( m_pMouseBehavior->m_pOrbiter->m_bShowingSpeedBar )
 	{
 #ifdef DEBUG
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"SpeedMouseHandler::ButtonDown skipping because the speed wasn't changed by the mouse");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"SpeedMouseHandler::ButtonDown skipping because the speed wasn't changed by the mouse %d/%d",
+			(int) m_pMouseBehavior->m_pOrbiter->m_bShowingSpeedBar,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying);
 #endif
 		return false; // Keep processing
 	}
@@ -148,7 +152,7 @@ bool SpeedMouseHandler::ButtonDown(int PK_Button)
 		m_pMouseBehavior->m_tIgnoreSpeedChangesUntil = time(NULL) + 3;  // Ignore all speed changes for 2 seconds so the player has a chance to settle down
 		m_pMouseBehavior->m_pMouseGovernor->Purge();
 #ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"SpeedMouseHandler::ButtonDown setting playback speed to 0");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"SpeedMouseHandler::ButtonDown setting playback speed to 0 ignore till %d",(int) m_pMouseBehavior->m_tIgnoreSpeedChangesUntil);
 #endif
 		DCE::CMD_Change_Playback_Speed CMD_Change_Playback_Speed(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,0,1000,false);
 		m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Change_Playback_Speed);
@@ -168,7 +172,8 @@ bool SpeedMouseHandler::ButtonUp(int PK_Button)
 	if( m_pMouseBehavior->m_pOrbiter->m_bShowingSpeedBar )
 	{
 #ifdef DEBUG
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"SpeedMouseHandler::ButtonUp skipping because the speed wasn't changed by the mouse");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"SpeedMouseHandler::ButtonUp skipping because the speed wasn't changed by the mouse %d/%d",
+			(int) m_pMouseBehavior->m_pOrbiter->m_bShowingSpeedBar,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying);
 #endif
 		return false; // Keep processing
 	}
@@ -192,7 +197,8 @@ void SpeedMouseHandler::Move(int X,int Y,int PK_Direction)
 	if( m_pMouseBehavior->m_pOrbiter->m_bShowingSpeedBar )
 	{
 #ifdef DEBUG
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"SpeedMouseHandler::Move skipping because the speed wasn't changed by the mouse");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"SpeedMouseHandler::Move skipping because the speed wasn't changed by the mouse %d/%d",
+			(int) m_pMouseBehavior->m_pOrbiter->m_bShowingSpeedBar,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying);
 #endif
 		return;
 	}

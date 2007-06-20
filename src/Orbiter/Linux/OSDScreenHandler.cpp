@@ -2287,7 +2287,7 @@ bool OSDScreenHandler::AV_Devices_CapturedKeyboardBufferChanged(CallBackData *pD
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OSDScreenHandler::SCREEN_mnuVolume(long PK_Screen)
 {
-	LoggerWrapper::GetInstance()->Write( LV_STATUS, "ScreenHandler::SCREEN_mnuAmbiance" );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "ScreenHandler::SCREEN_mnuVolume" );
 	ScreenHandlerBase::SCREEN_mnuVolume(PK_Screen);
 	
 	RegisterCallBack( cbOnCustomRender, (ScreenHandlerCallBack)&OSDScreenHandler::VolumeControlCustomRender, new RenderScreenCallBackData() );
@@ -2361,7 +2361,7 @@ bool OSDScreenHandler::VolumeControlCustomRender(CallBackData *pData)
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OSDScreenHandler::SCREEN_mnuLights(long PK_Screen)
 {
-	LoggerWrapper::GetInstance()->Write( LV_STATUS, "ScreenHandler::SCREEN_mnuAmbiance" );
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "ScreenHandler::SCREEN_mnuLights" );
 	ScreenHandlerBase::SCREEN_mnuLights(PK_Screen);
 	
 	RegisterCallBack( cbOnCustomRender, (ScreenHandlerCallBack)&OSDScreenHandler::LightControlCustomRender, new RenderScreenCallBackData() );
