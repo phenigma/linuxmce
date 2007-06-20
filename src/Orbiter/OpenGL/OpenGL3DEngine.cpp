@@ -173,8 +173,11 @@ bool OpenGL3DEngine::Paint()
 		if(m_pHighlightFrame)
 		{
 			Point3D Color;
-			Color.X = (GetTick() / 2 % 512) / 255.0f * MilisecondsHighLight/300;
-			Color.X = fabs(Color.X - 1.0f)/2.0f+ 0.5f;
+
+			Color.X = 1.0f;
+			Color.Y = (GetTick() / 2 % 512) / 255.0f * MilisecondsHighLight / 300;
+			Color.Y = fabs(Color.Y - 1.0f);
+			Color.Z = Color.Y;
 			m_pHighlightFrame->SetColor(Color);
 		}
 	}
@@ -394,10 +397,12 @@ inline void OpenGL3DEngine::DumpScene()
 	MeshFrame *pBottomBar = new MeshFrame("highlight-frame-bottom");
 	
 	PlutoRectangle rect(rectHighlightArea);
-	PlutoRectangle rectOriginal(rect);
+	
+	const int nSize = GL.Width / 200;
+	PlutoRectangle rectOriginal(rect.X - nSize + 1, rect.Y - nSize + 1, 
+		rect.Width + 2 * nSize - 2, rect.Height + 2 * nSize - 2);
 
-	const int nSize = 3;
-
+	rect = rectOriginal;
 	rect.Width = nSize;
 	pLeftBar->SetMeshContainer(MeshBuilder::BuildRectangle(rect, NULL));
 
