@@ -15,6 +15,11 @@ void on_StepCheckSystem_forward_clicked(GtkWidget *widget, gpointer data) {
 //	displayStep3();
 }
 
+
+void on_StepCheckSystem_details_callback( GtkWidget *widget, gpointer data) {
+    g_print ("Hello again - %s was pressed\n", (char *) data);
+}
+
 void displayStepCheckSystem(void) {
 	printf("StepCheckSystem\n");
 
@@ -44,13 +49,33 @@ void displayStepCheckSystem(void) {
 	
 	label = gtk_label_new_for_wizard ("Test Results:");
 	gtk_box_pack_start(GTK_BOX(mainBox), label, FALSE, FALSE, 0);
-
+	GtkWidget *table, *label1, *button;
+	table = gtk_table_new (1, 3, TRUE);
+	
 	if (packages_test) { 
-		label = gtk_label_new_for_wizard ("Installed Packages: FAILED");
+		//label = gtk_label_new_for_wizard ("Installed Packages: FAILED");
+		label = gtk_label_new_for_wizard ("Installed Packages");
+		label1 = gtk_label_new_for_wizard ("FAILED");
+		button = gtk_button_new_with_label ("Details");
+		gtk_signal_connect (GTK_OBJECT (button), "clicked",
+		      GTK_SIGNAL_FUNC (on_StepCheckSystem_details_callback), (gpointer) "button 1");
+		gtk_table_attach_defaults (GTK_TABLE(table), label, 0, 1, 0, 1);
+		gtk_table_attach_defaults (GTK_TABLE(table), label1, 1, 2, 0, 1);
+		gtk_table_attach_defaults (GTK_TABLE(table), button, 2, 3, 0, 1);
 	} else {
-		label = gtk_label_new_for_wizard ("installed Pacakage: PASS");
+		label = gtk_label_new_for_wizard ("Installed Packages");
+		label1 = gtk_label_new_for_wizard ("PASS");
+		button = gtk_button_new_with_label ("Details");
+		gtk_signal_connect (GTK_OBJECT (button), "clicked",
+		      GTK_SIGNAL_FUNC (on_StepCheckSystem_details_callback), (gpointer) "button 1");
+		gtk_table_attach_defaults (GTK_TABLE(table), label, 0, 1, 0, 1);
+		gtk_table_attach_defaults (GTK_TABLE(table), label1, 1, 2, 0, 1);
+		gtk_table_attach_defaults (GTK_TABLE(table), button, 2, 3, 0, 1);
+		//label = gtk_label_new_for_wizard ("installed Pacakage: PASS");
 	}
-	gtk_box_pack_start(GTK_BOX(mainBox), label, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(mainBox), table, FALSE, FALSE, 0);
+	//gtk_box_pack_start(GTK_BOX(mainBox), label, FALSE, FALSE, 0);
+	
 	// Button Forward
 	buttonForward = gtk_button_new_from_stock(GTK_STOCK_GO_FORWARD);
 	gtk_container_add(GTK_CONTAINER(mainButtonBox), buttonForward);
