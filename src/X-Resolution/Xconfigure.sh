@@ -227,9 +227,9 @@ UpdateModules()
 
 UpdateUISections()
 {
-	local AlphaBlending="$1"
+	local OpenGL="$1" AlphaBlending="$2"
 	
-	awk -v"OpenGL=$AlphaBlending" -f/usr/pluto/bin/X-UI_Sections.awk "$ConfigFile" >"$ConfigFile.$$"
+	awk -v"OpenGL=$OpenGL" -v"AlphaBlending=$AlphaBlending" -f/usr/pluto/bin/X-UI_Sections.awk "$ConfigFile" >"$ConfigFile.$$"
 	mv "$ConfigFile"{.$$,}
 }
 
@@ -346,9 +346,9 @@ elif [[ -n "$UpdateVideoDriver" && "$DisplayDriver" != "$CurrentDisplayDriver" ]
 fi
 
 UpdateModules
-#OpenGL=$(OpenGLeffects)
-OpenGL=$(AlphaBlendingEnabled)
-UpdateUISections "$OpenGL"
+OpenGL=$(OpenGLeffects)
+AlphaBlending=$(AlphaBlendingEnabled)
+UpdateUISections "$OpenGL" "$AlphaBlending"
 libXvMC=$(XvMC_Lib)
 
 if ! BlacklistConfFiles "/etc/X11/XvMCConfig" ;then

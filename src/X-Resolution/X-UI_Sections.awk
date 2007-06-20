@@ -3,9 +3,16 @@ BEGIN {
 	SectionScreenOrDevice = 0;
 	if (OpenGL == "")
 		OpenGL = "0";
+	if (AlphaBlending == "")
+		AlphaBlending = "0";
 	if (OpenGL != "0" && OpenGL != "1")
 	{
 		print "Invalid OpenGL variable value: " OpenGL;
+		exit 1;
+	}
+	if (AlphaBlending != "0" && AlphaBlending != "1")
+	{
+		print "Invalid AlphaBlending variable value: " AlphaBlending;
 		exit 1;
 	}
 }
@@ -34,7 +41,7 @@ function outputExtensions()
 {
 	print "Section \"Extensions\"";
 #<-mkr_B_via_b->
-	if (OpenGL == 1)
+	if (AlphaBlending == 1)
 	{
 		print "\tOption \"Composite\" \"true\"";
 	}
