@@ -542,7 +542,7 @@ string FileUtils::ExcludeTrailingSlash(string sDirectoryPath)
     return sDirectoryPath;
 }
 
-string FileUtils::ValidFileName(string sInput,bool bAllowSlashes)
+string FileUtils::ValidFileName(string sInput,bool bAllowSlashes,bool bStrict)
 {
     StringUtils::TrimSpaces(sInput); // eliminting the spaces
     StringUtils::Replace(&sInput,"\\"," ");
@@ -555,6 +555,12 @@ string FileUtils::ValidFileName(string sInput,bool bAllowSlashes)
 	StringUtils::Replace(&sInput,"\"","'");
 	StringUtils::Replace(&sInput,"*","'");
 	StringUtils::Replace(&sInput,"?","");
+	if( bStrict )
+	{
+		StringUtils::Replace(&sInput,"["," ");
+		StringUtils::Replace(&sInput,"]"," ");
+		StringUtils::Replace(&sInput,"'"," ");
+	}
 	return sInput;
 }
 

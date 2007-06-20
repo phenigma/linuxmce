@@ -578,8 +578,8 @@ void Disk_Drive_Functions::FixupRippingInfo(Disk_Drive_Functions *pDisk_Drive_Fu
 {
 	Row_Disc *pRow_Disc = m_pDatabase_pluto_media->Disc_get()->GetRow(iEK_Disc);
 
-	sFilename=FileUtils::ValidFileName(sFilename);
-	sDirectory=FileUtils::ValidFileName(sDirectory);
+	sFilename=FileUtils::ValidFileName(sFilename,true,true);
+	sDirectory=FileUtils::ValidFileName(sDirectory,true,true);
 
 	if( pRow_Disc )
 		PK_MediaType=pRow_Disc->EK_MediaType_get();
@@ -619,7 +619,7 @@ void Disk_Drive_Functions::FixupRippingInfo(Disk_Drive_Functions *pDisk_Drive_Fu
 				if( it->second.empty() )
 					sNewTracks += "Track " + StringUtils::itos(it->first);
 				else
-					sNewTracks += FileUtils::ValidFileName(it->second);
+					sNewTracks += FileUtils::ValidFileName(it->second,true,true);
 				sNewTracks += "|";
 			}
 		}
@@ -635,7 +635,7 @@ void Disk_Drive_Functions::FixupRippingInfo(Disk_Drive_Functions *pDisk_Drive_Fu
 				string sName = mapTracks[iTrack];
 				if( sName.empty() )
 					sName = "Track " + StringUtils::itos(iTrack);
-				sNewTracks += FileUtils::ValidFileName(sName) + "|";
+				sNewTracks += FileUtils::ValidFileName(sName,true,true) + "|";
 			}
 		}
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Transformed %s into %s",sTracks.c_str(),sNewTracks.c_str());
@@ -843,10 +843,7 @@ void Disk_Drive_Functions::GetTracksForDisc(Row_Disc *pRow_Disc,map<int,string> 
 		Row_Attribute *pRow_Attribute = pRow_Disc_Attribute->FK_Attribute_getrow();
 		if( pRow_Attribute )
 		{
-			string sName = FileUtils::ValidFileName(pRow_Attribute->Name_get());
-			StringUtils::Replace( &sName, "'", "" );  // Samba shares don't allow this
-			StringUtils::Replace( &sName, "[", "" );
-			StringUtils::Replace( &sName, "]", "" );
+			string sName = FileUtils::ValidFileName(pRow_Attribute->Name_get(),false,true);
 			mapTracks[ pRow_Disc_Attribute->Track_get() ] = sName;
 		}
 	}

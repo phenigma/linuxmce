@@ -65,7 +65,7 @@ namespace FileUtils
     string FilenameWithoutPath( string sFullPath, bool bIncludeExtension=true ); /** < returnes only the file name from a path/filename string */
     string IncludeTrailingSlash(string sDirectoryPath);
     string ExcludeTrailingSlash(string sDirectoryPath);
-	string ValidFileName(string sInput,bool bAllowSlashes=false); /** < converts the input file name to a valid file name (stripping / and \, for example) */
+	string ValidFileName(string sInput,bool bAllowSlashes=false,bool bStrict=false); /** < converts the input file name to a valid file name (stripping / and \, for example) Strict=true makes it compatable with samba*/
 	string GetSymlincDest(string sFile);
 	int GetLinuxDeviceId(string sFilename);
 	int GetInode(string sFilename);
