@@ -28,5 +28,5 @@ if su - "$TheChosenOne" -c "DISPLAY=:$Display kcheckrunning"; then
 	exit
 fi
 
-su - "$TheChosenOne" -c "DISPLAY=:$Display startkde" &>/dev/null </dev/null &
+su - "$TheChosenOne" -c "DISPLAY=:$Display /usr/pluto/bin/startkde-keepdcop" &>/dev/null </dev/null &
 disown -a
