@@ -1286,6 +1286,14 @@ function get_sure_fiire(){
 	return outputHTML($variables,$page_template,1);		
 }
 
+function get_dealer_explained(){
+	$variables=array();
+	$page_template=implode('',file('templates/dealer_explained.html'));
+	
+
+	return outputHTML($variables,$page_template,1);		
+}
+
 function get_fiire_is_hiring(){
 	$variables=array();
 	$page_template=implode('',file('templates/fiire-is-hiring.html'));
@@ -1868,10 +1876,10 @@ function get_dealers_list($conn,$selCountry,$selRegion,$selCity,$selType){
 	if($no==0){
 		return '
 			<p>
-					No dealers yet.  Fiire is a brand new product.  
+					Fiire is a brand new product, so there may not be a dealer in your area.  
 					However, with our <a href="sure-fiire.php"><img src="images/t_sure_fiire.gif" alt="Sure Fiire" width="97" height="13" border="0" /></a>
 					guarantee, you have nothing to worry about it.  We guarantee our trained tech support staff will get your Fiire system up and going and working
-					with all your existing devices.  If you\'re not totally satisifed, you get a full refund.
+					with all your existing devices, without every having to come to your home.  If you\'re not totally satisifed, you get a full refund.
 				</p>		
 		';
 	}
