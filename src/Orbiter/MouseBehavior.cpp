@@ -223,7 +223,7 @@ DesignObj_Orbiter *MouseBehavior::FindChildObjectAtPosition(DesignObj_Orbiter *p
 		if( pObj_Child )
 			return pObj_Child;
 	}
-	if( pObj_Parent->m_bTabStop )
+	if( pObj_Parent->m_bTabStop &&  !pObj_Parent->IsHidden())
 	{
 		if( Y==-1 )
 		{
@@ -416,6 +416,9 @@ bool MouseBehavior::ButtonUp(int PK_Button)
 
 void MouseBehavior::HighlightObject(DesignObj_Orbiter *pObj)
 {
+	if(NULL != pObj && pObj->IsHidden())
+		return;
+		
 	if(m_pObj_Previously_Highlighted)
 	{
 		if( pObj==m_pObj_Previously_Highlighted )
