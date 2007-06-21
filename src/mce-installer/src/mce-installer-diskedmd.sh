@@ -45,7 +45,7 @@ function Configure_Mounts
 {
 	
 	local nfsOptions="intr,rsize=32768,wsize=32768,retrans=10,timeo=50"
-	local homeDirs="cameras coredump coverartscan flickr logs mediapics mydvd mythtv public quick_start_icons securitypic temp_pvr tv_listing videowiz"
+	local homeDirs="cameras coredump coverartscan flickr logs mediapics mydvd mythtv public quick_start_icons securitypic temp_pvr tv_listing videowiz updates"
 	local Content=""
 
 	mkdir -p /usr/pluto/var
