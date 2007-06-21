@@ -87,7 +87,7 @@ if [[ -f ${Parm_RootLocation}/etc/group ]] &&  ! BlacklistConfFiles "${Parm_Root
 fi
 
 ## Add to /etc/hosts the 'dcerouter' hostname just in case nis fails to start on diskless mds
-DisklessBoot=$(RunSQL "SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device = '$Parm_Device' AND FK_DeviceData = '$DEVICEDATA_DISKLESS_BOOT'")
+DisklessBoot=$(RunSQL "SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device = '$Parm_Device' AND FK_DeviceData = '9'")
 if [[ "$DisklessBoot" == "1" ]] ;then
 	File="/etc/hosts"
 	mkdir -p "${Parm_RootLocation}/$(dirname $File)"
