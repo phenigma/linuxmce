@@ -5772,7 +5772,11 @@ void Media_Plugin::CMD_Get_Attributes_For_Media(string sFilename,string sPK_Ente
 
 	if( PK_Picture )
 		*sValue_To_Assign += "PICTURE\t/home/mediapics/" + StringUtils::itos(PK_Picture) + "." + (sExtension.empty() ? "jpg" : sExtension) + "\t";
-
+	
+	// cleanup
+	for (deque<MediaFile *>::iterator it = dequeMediaFile.begin(); it != dequeMediaFile.end(); ++it)
+		delete *it;
+	
 }
 //<-dceag-c817-b->
 
