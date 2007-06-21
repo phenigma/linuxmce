@@ -148,10 +148,23 @@ bool Telecom_Plugin::GetConfig()
 	for(vector<Row_Users *>::iterator it = vectRow_Users.begin(), end = vectRow_Users.end(); it != end; ++it)
 	{
 		Row_Users *pRow_Users = *it;
-		string sExtension = StringUtils::ltos(pRow_Users->Extension_get());
-
-		char * args[] = { "/usr/pluto/bin/SendVoiceMailEvent.sh", (char *) sExtension.c_str(), NULL };
-		ProcessUtils::SpawnDaemon(args[0], args);
+		int iExtension = pRow_Users->Extension_get();
+		string sExtension = StringUtils::ltos(iExtension);
+		string sUserName = pRow_Users->UserName_get();
+		
+		if( iExtension > 0 && !sUserName.empty() )
+		{
+			map_username2ext[sUserName] = iExtension;
+			map_ext2username[iExtension] = sUserName;
+			
+			char * args[] = { "/usr/pluto/bin/SendVoiceMailEvent.sh", (char *) sExtension.c_str(), NULL };
+			ProcessUtils::SpawnDaemon(args[0], args);
+		}
+		else
+		{
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Telecom_Plugin::GetConfig - user %s, ext %d",
+												sUserName.c_str(), iExtension);
+		}
 	}
 
 	m_pDevice_pbx = find_AsteriskDevice();
@@ -1078,8 +1091,9 @@ void Telecom_Plugin::CMD_Phone_Initiate(int iPK_Device,string sPhoneExtension,st
 		iPK_Device = pMessage->m_dwPK_Device_From;
 	int phoneID=map_orbiter2embedphone[iPK_Device];
 	
-	// check if extension field is actualy a device id
-	// see intercom screen (Eugen)
+	// check if extension field is actualy a device id => dev
+	// check if extension field is actualy a user name => usr
+	// see intercom screen (Eugen & Dan)
 	string sPhExtension;
 	if( 3 < sPhoneExtension.size() && sPhoneExtension.substr(0, 3) == "dev" )
 	{
@@ -1095,11 +1109,79 @@ void Telecom_Plugin::CMD_Phone_Initiate(int iPK_Device,string sPhoneExtension,st
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,
 				"Telecom_Plugin::CMD_Phone_Initiate no extension for device %d", iDevice);
 #endif
+			// /usr/pluto/bin/MessageSend localhost From To Command COMMAND_Goto_Screen_CONST
+			// COMMANDPARAMETER_ID_CONST "TelecomNotify"
+			// COMMANDPARAMETER_PK_Screen_CONST SCREEN_PopupMessage_CONST
+			// COMMANDPARAMETER_Text_CONST "Invalid extension"
+			// COMMANDPARAMETER_Command_Line_CONST "$Action_Yes"
+			if( iPK_Device > 0 )
+			{
+				DCE::CMD_Goto_Screen
+					cmd(m_dwPK_Device, iPK_Device, "Telecom Notify", SCREEN_PopupMessage_CONST, interuptAlways, true, false);
+				cmd.m_pMessage->m_mapParameters[COMMANDPARAMETER_Text_CONST] = "Invalid extension for this device";
+				cmd.m_pMessage->m_mapParameters[COMMANDPARAMETER_Command_Line_CONST] = "$Action_Yes";
+				SendCommand(cmd);
+			}
+			
+			sCMD_Result="Invalid extension for device";
+			return;
+		}
+	}
+	else if( 3 < sPhoneExtension.size() && sPhoneExtension.substr(0, 3) == "usr" )
+	{
+		string sUserName = sPhoneExtension.substr(3);
+		map<string,int>::iterator itFind = map_username2ext.find(sUserName);
+		if( itFind != map_username2ext.end() )
+		{
+			sPhExtension = StringUtils::itos( (*itFind).second );
+		}
+		else
+		{
+#ifdef DEBUG
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,
+				"Telecom_Plugin::CMD_Phone_Initiate no extension for user %s", sUserName.c_str());
+#endif
+			// /usr/pluto/bin/MessageSend localhost From To Command COMMAND_Goto_Screen_CONST
+			// COMMANDPARAMETER_ID_CONST "TelecomNotify"
+			// COMMANDPARAMETER_PK_Screen_CONST SCREEN_PopupMessage_CONST
+			// COMMANDPARAMETER_Text_CONST "Invalid extension"
+			// COMMANDPARAMETER_Command_Line_CONST "$Action_Yes"
+			if( iPK_Device > 0 )
+			{
+				DCE::CMD_Goto_Screen
+					cmd(m_dwPK_Device, iPK_Device, "Telecom Notify", SCREEN_PopupMessage_CONST, interuptAlways, true, false);
+				cmd.m_pMessage->m_mapParameters[COMMANDPARAMETER_Text_CONST] = "Invalid extension for this user";
+				cmd.m_pMessage->m_mapParameters[COMMANDPARAMETER_Command_Line_CONST] = "$Action_Yes";
+				SendCommand(cmd);
+			}
+			
+			sCMD_Result="Invalid extension for user";
+			return;
 		}
 	}
 	else
 	{
 		sPhExtension = sPhoneExtension;
+	}
+	
+	if( sPhExtension.empty() )
+	{
+		// /usr/pluto/bin/MessageSend localhost From To Command COMMAND_Goto_Screen_CONST
+		// COMMANDPARAMETER_ID_CONST "TelecomNotify"
+		// COMMANDPARAMETER_PK_Screen_CONST SCREEN_PopupMessage_CONST
+		// COMMANDPARAMETER_Text_CONST "Invalid extension"
+		// COMMANDPARAMETER_Command_Line_CONST "$Action_Yes"
+		if( iPK_Device > 0 )
+		{
+			DCE::CMD_Goto_Screen
+				cmd(m_dwPK_Device, iPK_Device, "Telecom Notify", SCREEN_PopupMessage_CONST, interuptAlways, true, false);
+			cmd.m_pMessage->m_mapParameters[COMMANDPARAMETER_Text_CONST] = "Invalid extension";
+			cmd.m_pMessage->m_mapParameters[COMMANDPARAMETER_Command_Line_CONST] = "$Action_Yes";
+			SendCommand(cmd);
+		}
+		
+		sCMD_Result="Invalid extension";
+		return;
 	}
 	
 	if(phoneID>0 || iPK_Device>0 )
@@ -1114,8 +1196,8 @@ void Telecom_Plugin::CMD_Phone_Initiate(int iPK_Device,string sPhoneExtension,st
 			pCallData->setOwnerDevID(phoneID);
 			CallManager::getInstance()->addCall(pCallData);
 		}
-		
-		// Set the remote control that originated this
+	
+	// Set the remote control that originated this
 		OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find( pMessage->m_dwPK_Device_From );
 		if( pOH_Orbiter )
 		{

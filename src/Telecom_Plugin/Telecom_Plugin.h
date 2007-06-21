@@ -319,6 +319,8 @@ private:
 	map<int,int> map_embedphone2orbiter;
 	map<int,int> map_ext2device;
 	map<int,int> map_device2ext;
+	map<string,int> map_username2ext;
+	map<int,string> map_ext2username;
 	
 	map<string,long> map_err_messages;
 	unsigned long next_conf_room;
