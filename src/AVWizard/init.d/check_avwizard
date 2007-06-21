@@ -2,6 +2,7 @@
 
 if [[ -x /usr/pluto/bin/WatchGyroRemote ]] ;then
 	 /usr/pluto/bin/WatchGyroRemote &
+	 sleep 2
 fi
 
 if [[ -x /usr/pluto/bin/shift_state ]] ;then
