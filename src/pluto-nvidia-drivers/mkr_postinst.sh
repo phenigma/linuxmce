@@ -15,3 +15,10 @@ fi
 for KVer in <-mkr_t_MakeRelease_Kernel->; do
 	depmod "$KVer" || :
 done
+
+mkdir -p /etc/rcS.d || :
+echo "#!/bin/bash
+modprobe -r nvidia
+modprobe nvidia
+" > /etc/rcS.d/99_fix_nvidia_kernel  || :
+chmod +x /etc/rcS.d/98_fix_nvidia_kernel || :
