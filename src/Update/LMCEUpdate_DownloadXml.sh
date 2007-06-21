@@ -1,5 +1,11 @@
 #!/bin/bash -e
 
+. /usr/pluto/bin/SQL_Ops.sh
+FK_DeviceTemplate=$(RunSQL "SELECT FK_DeviceTemplate FROM Device WHERE PK_Device='$PK_Device'")
+if [[ "$FK_DeviceTemplate" != "7" ]] ;then
+	exit 0
+fi
+
 if [[ "$1" != "background" ]] ;then
         screen -d -m -S LMCEUpdate_DownloadXML "$0" background
         exit 0
