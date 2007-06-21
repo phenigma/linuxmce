@@ -6505,6 +6505,9 @@ void Orbiter::CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,s
 #ifdef ENABLE_MOUSE_BEHAVIOR
 	if( m_pMouseBehavior && m_iStreamID!=iStreamID )  // If we're changing media
 		m_pMouseBehavior->SetMediaInfo("","","","","",false);
+
+	if(NULL != m_pMouseBehavior && iStreamID == 0)
+		m_pMouseBehavior->MediaStopped();
 #endif
 
 	m_iStreamID=iStreamID;

@@ -303,3 +303,8 @@ string HorizMenuMouseHandler::GetMainMenuPopup(DesignObj_Orbiter *pObj_MenuPad)
 	return "";
 }
 
+int HorizMenuMouseHandler::ActivePopupID()
+{
+	return NULL != m_pObj_ActiveSubMenu ? m_pObj_ActiveSubMenu->m_iBaseObjectID : 0;
+}
+

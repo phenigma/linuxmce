@@ -267,6 +267,19 @@ m_pOrbiter->Renderer()->RenderObjectAsync(pSpeedMouseHandler->m_pObj);
 	}
 }
 
+void MouseBehavior::MediaStopped()
+{
+	if(m_pMouseHandler && m_pMouseHandler->TypeOfMouseHandler() == MouseHandler::mh_HorizMenu)
+	{
+		HorizMenuMouseHandler *pHorizMenuMouseHandler = dynamic_cast<HorizMenuMouseHandler *>(m_pMouseHandler);
+		if(NULL != pHorizMenuMouseHandler)
+		{
+			if(pHorizMenuMouseHandler->ActivePopupID() == m_pOrbiter->m_iPK_DesignObj_Remote_Popup)
+				m_pOrbiter->CMD_Remove_Popup("", "submenu");
+		}
+	}
+}
+
 bool MouseBehavior::ButtonDown(int PK_Button)
 {
 #ifdef DEBUG

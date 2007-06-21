@@ -60,6 +60,7 @@ namespace DCE
 		void ShowPopup(DesignObj_Orbiter *pObj_MenuPad);
 		string GetMainMenuPopup(DesignObj_Orbiter *pObj_MenuPad);
 		string GetFileBrowserPopup(DesignObj_Orbiter *pObj_MenuPad);
+		int ActivePopupID();
 	};
 
 }

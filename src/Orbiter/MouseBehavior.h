@@ -179,6 +179,7 @@ namespace DCE
 		void m_pLastPosition_set(int X,int Y) { m_pLastPosition.X=X; m_pLastPosition.Y=Y; }
 
 		void SetMediaInfo(string sTime,string sTotal,string sSpeed,string sTitle,string sSection,bool bHasTimeline);
+		void MediaStopped();
 
 		const MouseHandler* GetMouseHandler() const;
 
