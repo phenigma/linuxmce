@@ -1,7 +1,10 @@
 #!/bin/bash
 
 if [[ -x /usr/pluto/bin/shift_state ]] ;then
+	beep -l 500
+	sleep 0.5
 	if [[ "$( /usr/pluto/bin/shift_state )" == "1" ]] ;then
+		beep -l 500
 		. /usr/pluto/bin/Config_Ops.sh 
 		ConfSet "AVWizardOverride" "1"
 	fi
