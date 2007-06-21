@@ -89,6 +89,7 @@ mount none -t proc  $TEMP_DIR/proc
 ## FIXME: maybe we need to make sources.list from scratch ?
 cp /etc/apt/sources.list $TEMP_DIR/etc/apt
 cp {,"$TEMP_DIR"}/etc/apt/apt.conf.d/30pluto
+cp {,"$TEMP_DIR"}/etc/apt/preferences
 
 ## Update the chrooted system (needed when created from archive)
 #chroot $TEMP_DIR /bin/bash
