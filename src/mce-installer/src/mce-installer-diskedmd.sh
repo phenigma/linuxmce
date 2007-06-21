@@ -87,7 +87,7 @@ function Unpack_Config_Files
 
 function Run_Installer_Script
 {
-	apt-get -y install pluto-boot-scripts
+	apt-get -y --force-yes install pluto-boot-scripts
 	. /usr/pluto/install/activation.sh
 }
 
@@ -159,7 +159,7 @@ script
 end script
 " > /etc/event.d/media-cernter-startup
 
-apt-get -f -y install pluto-mysql-wrapper
+apt-get -f -y --force-yes install pluto-mysql-wrapper
 Setup_NIS
 Configure_Mounts
 Unpack_Config_Files
