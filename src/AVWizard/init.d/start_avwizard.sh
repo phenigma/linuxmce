@@ -1,0 +1,8 @@
+#!/bin/bash
+
+. /usr/pluto/bin/Config_Ops.sh
+
+if [[ "$AVWizardOverride" == "1" ]] ;then
+	ConfSet "AVWizardOverride" "0"
+	/usr/pluto/bin/AVWizard_Run.sh
+fi
