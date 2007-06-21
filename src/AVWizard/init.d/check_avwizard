@@ -1,5 +1,9 @@
 #!/bin/bash
 
+if [[ -x /usr/pluto/bin/WatchGyroRemote ]] ;then
+	 /usr/pluto/bin/WatchGyroRemote &
+fi
+
 if [[ -x /usr/pluto/bin/shift_state ]] ;then
 	beep -l 500
 	sleep 0.5
@@ -9,3 +13,4 @@ if [[ -x /usr/pluto/bin/shift_state ]] ;then
 		ConfSet "AVWizardOverride" "1"
 	fi
 fi
+
