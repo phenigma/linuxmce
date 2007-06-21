@@ -81,6 +81,17 @@ namespace DCE
     {
         int m_iStreamID; /** A unique number to identify this stream -- cannot change this */
 
+    // picture information
+    private:
+	char	*m_pPictureData;
+	size_t	m_iPictureSize;
+
+    // picture information access members
+    public:
+	void	SetPicture(char *pPictureData,int iPictureSize) { delete[] m_pPictureData; m_pPictureData=pPictureData; m_iPictureSize=iPictureSize; }
+	char	*m_pPictureData_get() { return m_pPictureData; }
+	size_t	m_iPictureSize_get() { return m_iPictureSize; }
+
     public:
         class MediaHandlerInfo *m_pMediaHandlerInfo; /** Which handler has primary responsibility for this media stream */
 
@@ -122,9 +133,6 @@ namespace DCE
 
 		int 			 m_iPK_MediaType;        	/** The type of media in this stream. */
 		int				 m_iPK_MediaProvider;		/** The media provider in this stream. */
-
-		char 		*m_pPictureData;
-        size_t 		 m_iPictureSize;
 
 		map<int,RemoteControlSet *>	m_mapRemoteControlSet;  /** The remote controls to use for this stream, the int=the orbiter 
 															Since each orbiter may have a different set of remote controls. 
@@ -180,7 +188,6 @@ namespace DCE
         virtual void UpdateDescriptions(bool bAllFiles=false,MediaFile *pMediaFile_In=NULL);
         int m_iStreamID_get() { return m_iStreamID; }
 
-        void SetPicture(char *pPictureData,int iPictureSize) { delete[] m_pPictureData; m_pPictureData=pPictureData; m_iPictureSize=iPictureSize; }
 		string GetAllOSD();
 
 		virtual bool isMovable();

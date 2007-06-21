@@ -2045,9 +2045,7 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"Just send it to the media device"
 void Media_Plugin::MediaInfoChanged( MediaStream *pMediaStream, bool bRefreshScreen )
 {
 	pMediaStream->UpdateDescriptions();
-    delete[] pMediaStream->m_pPictureData;
-	pMediaStream->m_pPictureData = NULL;
-    pMediaStream->m_iPictureSize = 0;
+	pMediaStream->SetPicture(NULL, 0);
 
 	if( pMediaStream->m_dwPK_Disc )
 	{
@@ -2056,10 +2054,14 @@ void Media_Plugin::MediaInfoChanged( MediaStream *pMediaStream, bool bRefreshScr
 
 LoggerWrapper::GetInstance()->Write(LV_STATUS, "Getting m_pPictureData for disc %d size %d",pMediaStream->m_dwPK_Disc,(int) vectRow_Picture_Disc.size());
 		if( vectRow_Picture_Disc.size() )
-	        pMediaStream->m_pPictureData = FileUtils::ReadFileIntoBuffer("/home/mediapics/" + StringUtils::itos(vectRow_Picture_Disc[0]->FK_Picture_get()) + ".jpg", pMediaStream->m_iPictureSize);
+		{
+			size_t iSize = 0;
+			char *pData = FileUtils::ReadFileIntoBuffer("/home/mediapics/" + StringUtils::itos(vectRow_Picture_Disc[0]->FK_Picture_get()) + ".jpg", iSize);
+			pMediaStream->SetPicture(pData, iSize);
+		}
 	}
 
-    if( !pMediaStream->m_pPictureData && pMediaStream->m_dequeMediaFile.size() )
+    if( !pMediaStream->m_pPictureData_get() && pMediaStream->m_dequeMediaFile.size() )
     {
 LoggerWrapper::GetInstance()->Write(LV_STATUS, "We have %d media entries in the playback list", pMediaStream->m_dequeMediaFile.size());
 		MediaFile *pMediaFile = pMediaStream->GetCurrentMediaFile();
@@ -2108,10 +2110,14 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS, "Found PK_Picture to be: %d.", PK
 //#endif
 
 		if(PK_Picture)
-			pMediaStream->m_pPictureData = FileUtils::ReadFileIntoBuffer("/home/mediapics/" + StringUtils::itos(PK_Picture) + ".jpg", pMediaStream->m_iPictureSize);
+		{
+			size_t iSize = 0;
+			char *pData = FileUtils::ReadFileIntoBuffer("/home/mediapics/" + StringUtils::itos(PK_Picture) + ".jpg", iSize);
+			pMediaStream->SetPicture(pData, iSize);
+		}
 
     }
-LoggerWrapper::GetInstance()->Write(LV_STATUS, "Ready to update bound remotes with %p %d",pMediaStream->m_pPictureData,pMediaStream->m_iPictureSize);
+LoggerWrapper::GetInstance()->Write(LV_STATUS, "Ready to update bound remotes with %p %d",pMediaStream->m_pPictureData_get(),pMediaStream->m_iPictureSize_get());
 
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
     for( MapEntertainArea::iterator it=pMediaStream->m_mapEntertainArea.begin( );it!=pMediaStream->m_mapEntertainArea.end( );++it )

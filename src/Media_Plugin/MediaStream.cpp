@@ -213,6 +213,9 @@ MediaStream::~MediaStream( )
 	for(map<int,class OldStreamInfo *>::iterator it = m_mapOldStreamInfo.begin(); it != m_mapOldStreamInfo.end(); ++it)
 		delete it->second;
 	m_mapOldStreamInfo.clear();
+
+	delete[] m_pPictureData;
+	m_pPictureData = NULL;
 }
 
 bool MediaStream::ProcessJumpPosition(string sJumpSpecification)

@@ -43,14 +43,14 @@ void BoundRemote::UpdateOrbiter( MediaStream *pMediaStream, bool bRefreshScreen,
 			"BoundRemote::UpdateOrbiter(): Updating object: %s on device %d with size of %d",
 				m_sPK_DesignObj_GraphicImage.c_str(),
 				m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
-				pMediaStream->m_iPictureSize );
+				pMediaStream->m_iPictureSize_get() );
 
     // TODO -- Figure out the media information, like track, timecode, picture, etc. For now just update the text object. Also need to update the pictures
 //  size_t size; char *pPic = FileUtils::ReadFileIntoBuffer( "/image.jpg", size );
 	Message *pMessage_Out=NULL;
 	if( m_sPK_DesignObj_GraphicImage.empty()==false )
 	{
-		DCE::CMD_Update_Object_Image CMD_Update_Object_Image( 0, m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, m_sPK_DesignObj_GraphicImage, "jpg", pMediaStream->m_pPictureData, pMediaStream->m_iPictureSize, "0" );
+		DCE::CMD_Update_Object_Image CMD_Update_Object_Image( 0, m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, m_sPK_DesignObj_GraphicImage, "jpg", pMediaStream->m_pPictureData_get(), pMediaStream->m_iPictureSize_get(), "0" );
 		pMessage_Out = CMD_Update_Object_Image.m_pMessage;
 	}
 
