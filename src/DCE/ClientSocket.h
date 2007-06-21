@@ -37,7 +37,8 @@
 #include "Socket.h"
 
 #define MAX_RETRIES 3	// Maximum retries to establish TCP connection
-
+#define MAX_CONNECT_STEPS 10
+		 
 namespace DCE
 {
 	class SocketListener; /** < to be able to use it in declarations; we include it's header in the cpp file */
@@ -67,7 +68,7 @@ namespace DCE
 		 * @brief it establishes the connection to the server and eventually send the ExtraInfo using OnConnect; also writes to the logger
 		 * @see OnConnect
 		 */
-		virtual bool Connect( int PK_DeviceTemplate=0,string sExtraInfo="",int iConnectRetries=-1 );
+		virtual bool Connect( int PK_DeviceTemplate=0,string sExtraInfo="",int iConnectRetries=-1, int nConnectStepsLeft = MAX_CONNECT_STEPS);
 
 		/**
 		 * @brief sends the extra info and expects for an OK signal from the server

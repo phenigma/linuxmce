@@ -63,7 +63,7 @@ ClientSocket::~ClientSocket()
 	Disconnect();
 }
 
-bool ClientSocket::Connect( int PK_DeviceTemplate,string sExtraInfo,int iConnectRetries )
+bool ClientSocket::Connect( int PK_DeviceTemplate,string sExtraInfo,int iConnectRetries, int nConnectStepsLeft )
 {
 	if( iConnectRetries==-1 )
 		iConnectRetries=m_dwMaxRetries;
@@ -195,6 +195,19 @@ bool ClientSocket::Connect( int PK_DeviceTemplate,string sExtraInfo,int iConnect
 		fcntl(m_Socket, F_SETFD, dwFlags);
 #endif
 		bSuccess = OnConnect( PK_DeviceTemplate, sExtraInfo );
+
+		if(!bSuccess && nConnectStepsLeft > 0)
+		{
+			//handshake failed; we'll retry
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Handshake failed. Retrying in 1 second");
+
+			Disconnect();
+			m_eLastError = cs_err_None;
+
+			Sleep(1000);
+			
+			return Connect(PK_DeviceTemplate, sExtraInfo, iConnectRetries, --nConnectStepsLeft);
+		}
 	}
 	else
 		m_eLastError=cs_err_CannotConnect;
@@ -207,8 +220,7 @@ bool ClientSocket::OnConnect( int PK_DeviceTemplate,string sExtraInfo )
 	string sResponse;
 	if ( !ReceiveString( sResponse ) )
 	{
-		
-			LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Lost connection device: %d", m_dwPK_Device );
+		LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Lost connection device: %d", m_dwPK_Device );
 		m_eLastError=cs_err_CannotConnect;
 		return false;
 	}
