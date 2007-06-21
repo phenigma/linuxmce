@@ -580,7 +580,7 @@ LoggerWrapper::GetInstance()->Write( LV_DATAGRID, "cell count %d",m_CellCount );
 	delete[] pCellData;
 	delete[] pCellSize;
 #ifndef DISABLE_LZO_DATAGRID
-	Data = new char[UncompressedSize + UncompressedSize / 64 + 16 + 3 + 4];
+	Data = new char[UncompressedSize + UncompressedSize / 16 + 64 + 3 + 4];
     lzo_uint out_len;
 	*((int *)Data)=UncompressedSize;
     lzo1x_1_compress((lzo_byte *)UncompressedData,UncompressedSize,(lzo_byte *)Data+4,&out_len,wrkmem);
