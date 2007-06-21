@@ -150,7 +150,9 @@ public:
 	MediaListGrid(class Datagrid_Plugin *pDatagrid_Plugin,class Media_Plugin *pMedia_Plugin,MediaListGrid *pMediaListGrid) : m_pDatagrid_Plugin(pDatagrid_Plugin), m_pMedia_Plugin(pMedia_Plugin), m_pMediaListGrid_Master(pMediaListGrid) { m_pFileBrowserInfoPtr=NULL; }
 	~MediaListGrid()
 	{
-		delete m_pFileBrowserInfoPtr;
+		delete[] m_pFileBrowserInfoPtr;
+		m_pFileBrowserInfoPtr=NULL;
+
 		for(list<FileBrowserInfo *>::iterator it=m_listFileBrowserInfo.begin();it!=m_listFileBrowserInfo.end();++it)
 			delete *it;
 	}
