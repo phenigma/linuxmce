@@ -2671,22 +2671,33 @@ bool ScreenHandler::JukeboxManager_ObjectSelected(CallBackData *pData)
 				}
 				else if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_icoRip_CONST )
 				{
-					string sRipMessage = 
-						StringUtils::itos(m_pOrbiter->m_dwPK_Device) + " " +
-						StringUtils::itos(m_pOrbiter->m_dwPK_Device_MediaPlugIn) + " 1 "
-						TOSTRING(COMMAND_Rip_Disk_CONST) " "
-						TOSTRING(COMMANDPARAMETER_PK_Users_CONST) " <%=U%> "
-						TOSTRING(COMMANDPARAMETER_Filename_CONST) " \"<%=17%>\" "
-						TOSTRING(COMMANDPARAMETER_DriveID_CONST) " \"<%=45%>\" "
-						TOSTRING(COMMANDPARAMETER_Directory_CONST) " \"<%=9%>\" "
-						TOSTRING(COMMANDPARAMETER_EK_Disc_CONST) " \"" + pCell->m_mapAttributes["PK_Disc"] + "\" "
-						TOSTRING(COMMANDPARAMETER_Slot_Number_CONST) " \"" + pCell->m_mapAttributes["Slot"] + "\" "
-						TOSTRING(COMMANDPARAMETER_PK_Device_CONST) " \"" + pCell->m_mapAttributes["PK_Device"] + "\" ";  // This will be either a drive or jukebox depending on which cell was chosen
+					string sEK_Device_Ripping = pCell->m_mapAttributes_Find("EK_Device_Ripping");
+					if( sEK_Device_Ripping.empty()==false )
+					{
+						int PK_Device = atoi( pCell->m_mapAttributes_Find("PK_Device").c_str() );
+						string sRipJob = pCell->m_mapAttributes["RipJob"];
+						DCE::CMD_Abort_Task CMD_Abort_Task(m_pOrbiter->m_dwPK_Device,PK_Device,atoi(sRipJob.c_str()));
+						m_pOrbiter->SendCommand(CMD_Abort_Task);
+					}
+					else
+					{
+						string sRipMessage = 
+							StringUtils::itos(m_pOrbiter->m_dwPK_Device) + " " +
+							StringUtils::itos(m_pOrbiter->m_dwPK_Device_MediaPlugIn) + " 1 "
+							TOSTRING(COMMAND_Rip_Disk_CONST) " "
+							TOSTRING(COMMANDPARAMETER_PK_Users_CONST) " <%=U%> "
+							TOSTRING(COMMANDPARAMETER_Filename_CONST) " \"<%=17%>\" "
+							TOSTRING(COMMANDPARAMETER_DriveID_CONST) " \"<%=45%>\" "
+							TOSTRING(COMMANDPARAMETER_Directory_CONST) " \"<%=9%>\" "
+							TOSTRING(COMMANDPARAMETER_EK_Disc_CONST) " \"" + pCell->m_mapAttributes["PK_Disc"] + "\" "
+							TOSTRING(COMMANDPARAMETER_Slot_Number_CONST) " \"" + pCell->m_mapAttributes["Slot"] + "\" "
+							TOSTRING(COMMANDPARAMETER_PK_Device_CONST) " \"" + pCell->m_mapAttributes["PK_Device"] + "\" ";  // This will be either a drive or jukebox depending on which cell was chosen
 
-					string sTitle = m_pOrbiter->m_mapTextString[TEXT_Choose_Filename_CONST];
-					
-					DCE::SCREEN_FileSave SCREEN_FileSave(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,atoi(pCell->m_mapAttributes_Find("PK_Disc").c_str()),sTitle,sRipMessage,true);
-					m_pOrbiter->SendCommand(SCREEN_FileSave);
+						string sTitle = m_pOrbiter->m_mapTextString[TEXT_Choose_Filename_CONST];
+						
+						DCE::SCREEN_FileSave SCREEN_FileSave(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,atoi(pCell->m_mapAttributes_Find("PK_Disc").c_str()),sTitle,sRipMessage,true);
+						m_pOrbiter->SendCommand(SCREEN_FileSave);
+					}
 				}
 				else if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_icoID_CONST )
 				{

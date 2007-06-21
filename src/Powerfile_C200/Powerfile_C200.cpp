@@ -1446,3 +1446,24 @@ void Powerfile_C200::CMD_Refresh(string sDataGrid_ID,string &sCMD_Result,Message
 {
 	m_pPowerfileJukebox->Get_Jukebox_Status(NULL,true);
 }
+
+//<-dceag-c882-b->
+
+	/** @brief COMMAND: #882 - Abort Task */
+	/** Abort a task */
+		/** @param #248 Parameter ID */
+			/** The ID of the task to abort */
+
+void Powerfile_C200::CMD_Abort_Task(int iParameter_ID,string &sCMD_Result,Message *pMessage)
+//<-dceag-c882-e->
+{
+	PLUTO_SAFETY_LOCK(jm,*m_pPowerfileJukebox->m_pJobHandler->m_ThreadMutex_get());
+	Job *pJob = m_pPowerfileJukebox->m_pJobHandler->FindJob(iParameter_ID);
+	if( !pJob )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Powerfile_C200::CMD_Abort_Task invalid job %d",iParameter_ID);
+		return;
+	}
+
+	pJob->Abort();
+}

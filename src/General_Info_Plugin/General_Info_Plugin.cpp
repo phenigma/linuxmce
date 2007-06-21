@@ -2141,6 +2141,8 @@ class DataGridTable *General_Info_Plugin::JukeBoxes( string GridID, string Parms
 	{
 		DeviceData_Router *pDevice = *it;
 		pCell = new DataGridCell(pDevice->m_sDescription,StringUtils::itos(pDevice->m_dwPK_Device));
+		pCell->m_mapAttributes["Room"]=pDevice->m_pRoom ? pDevice->m_pRoom->m_sDescription : "";
+		pCell->m_mapAttributes["Name"]=pDevice->m_sDescription;
 		pDataGrid->SetData(0,iRow++,pCell);
 	}
 	return pDataGrid;
@@ -2309,7 +2311,7 @@ class DataGridTable *General_Info_Plugin::JukeboxSlots( string GridID, string Pa
 		Row_Disc *pRow_Disc = pRow_DiscLocation->FK_Disc_getrow();
 		pCell = new DataGridCell(StringUtils::itos(pRow_DiscLocation->Slot_get()),pRow_Disc ? StringUtils::itos(pRow_Disc->PK_Disc_get()) : "");
 		pCell->m_mapAttributes["PK_Device"] = StringUtils::itos(pRow_DiscLocation->EK_Device_get());
-		pCell->m_mapAttributes["Slot"] = StringUtils::itos(pRow_DiscLocation->Slot_get());
+		pCell->m_mapAttributes["Slot"] = StringUtils::itos(pRow_DiscLocation->Slot_get()) + " " + pRow_DiscLocation->Type_get();
 
 		if( pRow_DiscLocation->EK_Device_Ripping_isNull()==false )
 		{

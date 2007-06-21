@@ -28,6 +28,8 @@ if [[ "$UseOpenGL" == "1"  ]]; then
 	Executable=./OrbiterGL
 fi
 
+killall WatchGyroRemote  # In case it was running it will be grabbing the hid device
+
 export DISPLAY=:$Display
 
 AlphaBlending=$(AlphaBlendingEnabled)

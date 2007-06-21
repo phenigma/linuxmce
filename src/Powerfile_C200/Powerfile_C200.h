@@ -399,6 +399,15 @@ only slots that were scheduled for ripping will appear in the string */
 	virtual void CMD_Lock(int iPK_Device,string sID,bool bTurn_On,string *sText,bool *bIsSuccessful,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #882 - Abort Task */
+	/** Abort a task */
+		/** @param #248 Parameter ID */
+			/** The ID of the task to abort */
+
+	virtual void CMD_Abort_Task(int iParameter_ID) { string sCMD_Result; CMD_Abort_Task(iParameter_ID,sCMD_Result,NULL);};
+	virtual void CMD_Abort_Task(int iParameter_ID,string &sCMD_Result,Message *pMessage);
+
+
 	/** @brief COMMAND: #913 - Load Disk */
 	/** Load a disk into the jukebox */
 		/** @param #259 Multiple */
@@ -421,6 +430,7 @@ only slots that were scheduled for ripping will appear in the string */
 
 	virtual void CMD_Get_Disk_Info(int *iPK_MediaType,string *sDisks,string *sURL,string *sBlock_Device) { string sCMD_Result; CMD_Get_Disk_Info(iPK_MediaType,sDisks,sURL,sBlock_Device,sCMD_Result,NULL);};
 	virtual void CMD_Get_Disk_Info(int *iPK_MediaType,string *sDisks,string *sURL,string *sBlock_Device,string &sCMD_Result,Message *pMessage);
+
 
 //<-dceag-h-e->
 		private:

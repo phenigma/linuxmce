@@ -243,6 +243,7 @@ public:
 	virtual void CMD_Get_Default_Ripping_Info(int iEK_Disc,string *sFilename,bool *bUseDefault,string *sPath,int *iDriveID,string *sDirectory,string *sStorage_Device_Name,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Update_Ripping_Status(string sText,string sFilename,string sTime,string sStatus,int iPercent,string sTask,string sJob,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Lock(int iPK_Device,string sID,bool bTurn_On,string *sText,bool *bIsSuccessful,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Abort_Task(int iParameter_ID,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Load_Disk(bool bMultiple,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Get_Disk_Info(int *iPK_MediaType,string *sDisks,string *sURL,string *sBlock_Device,string &sCMD_Result,class Message *pMessage) {};
 
@@ -1018,6 +1019,32 @@ public:
 							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Lock(iPK_Device,sID.c_str(),bTurn_On,&sText,&bIsSuccessful,sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case COMMAND_Abort_Task_CONST:
+					{
+						string sCMD_Result="OK";
+						int iParameter_ID=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Parameter_ID_CONST].c_str());
+						CMD_Abort_Task(iParameter_ID,sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(itRepeat->second.c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Abort_Task(iParameter_ID,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

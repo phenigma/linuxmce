@@ -126,7 +126,7 @@ int main(int argc, char *argv[])
 							{
 								LoggerWrapper::GetInstance()->Write(LV_STATUS,"WatchGyroRemote button %d %d %d %d",
 									(int) inPacket[2],(int) inPacket[3],(int) inPacket[4],(int) inPacket[5]);
-								if( inPacket[3]==-62 )
+								if( inPacket[3]==-62 )  // The AV Menu button
 								{
 									LoggerWrapper::GetInstance()->Write(LV_STATUS,"WatchGyroRemote button -- activating AV Wizard");
 									dceConfig.AddString("AVWizardOverride","1");
