@@ -29,7 +29,7 @@ Install "xine-ui"
 
 # Prevent xine to open the config window on the first run 
 for dir in /home/* /root ;do
-	if [[ -d $dir/Desktop ]] ;then
+	if [[ -d $dir/Desktop ]]  || [[ "$dir" == "/root" ]] ;then
 		mkdir -p $dir/.xine
 		touch $dir/.xine/config
 	fi
