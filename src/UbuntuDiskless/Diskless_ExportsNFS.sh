@@ -22,7 +22,7 @@ done
 				
 Exports_CommonDiskless="
 /home                   $INTERNAL_SUBNET/$INTERNAL_SUBNET_MASK(rw,no_root_squash,no_all_squash,sync,no_subtree_check)
-/usr/pluto/orbiter      $INTERNAL_SUBNET/$INTERNAL_SUBNET_MASK(rw,no_root_squash,no_all_squash,sync,no_subtree_check)
+/usr/pluto/orbiter      $INTERNAL_SUBNET/$INTERNAL_SUBNET_MASK(ro,no_root_squash,no_all_squash,sync,no_subtree_check)
 /usr/pluto/keys         $INTERNAL_SUBNET/$INTERNAL_SUBNET_MASK(ro,no_root_squash,no_all_squash,sync,no_subtree_check)
 /usr/pluto/deb-cache    $INTERNAL_SUBNET/$INTERNAL_SUBNET_MASK(ro,no_root_squash,no_all_squash,sync,no_subtree_check)
 /usr/pluto/var          $INTERNAL_SUBNET/$INTERNAL_SUBNET_MASK(rw,no_root_squash,no_all_squash,sync,no_subtree_check)
