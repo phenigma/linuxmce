@@ -124,7 +124,7 @@ function setup_hosts_file
 function update_config_files
 {
 	local ScriptDir="/usr/pluto/bin/files.d"
-	local ScriptsList="cron.d-synctime fstab-diskless interfaces mythtv-mysql.txt nis-client pluto.conf resolv.conf syslog.conf timezone mountnfs.sh event.d apt.conf hostname mythtv-fix"
+	local ScriptsList="cron.d-synctime fstab-diskless interfaces mythtv-mysql.txt nis-client pluto.conf resolv.conf syslog.conf timezone mountnfs.sh event.d apt.conf hostname mythtv-fix firstrun"
 	for Script in $ScriptsList ;do
 		if [[ ! -x $ScriptDir/$Script ]] ;then
 			echo "WARNING: Script $Script cannot be executed"

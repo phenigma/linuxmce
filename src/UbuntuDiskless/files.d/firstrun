@@ -1,0 +1,6 @@
+#!/bin/bash 
+
+trap 'rm -f /etc/rcS.d/S99firstrun' EXIT
+if lspci | grep -qi "VGA .*nvidia" ;then 
+	apt-get -y -f install pluto-nvidia-video-drivers 
+fi
