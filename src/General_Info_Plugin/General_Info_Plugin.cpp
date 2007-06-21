@@ -166,7 +166,7 @@ General_Info_Plugin::~General_Info_Plugin()
 {
 	delete m_pPostCreateOptions;
 	delete m_pDatabase_pluto_main;
-	
+	delete m_pDatabase_pluto_media;	
 }
 
 //<-dceag-reg-b->
