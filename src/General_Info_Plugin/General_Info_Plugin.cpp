@@ -1264,7 +1264,8 @@ class DataGridTable *General_Info_Plugin::Rooms( string GridID, string Parms, vo
 			{
 				if( sRoomsWithMDs.empty()==false )
 					sRoomsWithMDs += ",";
-				sRoomsWithMDs += row[0];
+
+				sRoomsWithMDs += NULL != row[0] ? row[0] : "0";
 			}
 		}
 		sql = "SELECT PK_Room,Description FROM Room WHERE FK_Installation=" + StringUtils::itos(m_pRouter->iPK_Installation_get()) + " AND PK_Room NOT IN(" + sRoomsWithMDs + ") ORDER BY Description";
