@@ -296,6 +296,7 @@ void SocketListener::RemoveAndDeleteSocket( ServerSocket *pServerSocket, bool bD
 void SocketListener::RegisterEventHandler( ServerSocket *Socket, int iDeviceID )
 {
 	Socket->m_eSocketType=Socket::st_ServerEvent;
+	Socket->SetReceiveTimeout( IsPlugin(iDeviceID) ? SOCKET_TIMEOUT_PLUGIN : SOCKET_TIMEOUT );
 	RegisteredEventHandler( Socket, iDeviceID );
 }
 

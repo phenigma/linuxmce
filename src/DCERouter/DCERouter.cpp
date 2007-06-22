@@ -511,14 +511,19 @@ void Router::RegisterAllPlugins()
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Activating %d plug-ins",(int) list_fRAP.size());
 	for (i_fRAP = list_fRAP.begin(); i_fRAP != list_fRAP.end(); i_fRAP++)
 	{
+        m_mapPlugIn[i_fRAP->PK_Device] = NULL;
+
 		Command_Impl * pPlugIn = PlugIn_Activate(i_fRAP->PK_Device, i_fRAP->func, i_fRAP->log);
         if( !pPlugIn )
         {
             LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot initialize plug-in for device: %d", i_fRAP->PK_Device);
+			map<int, Command_Impl *>::iterator it = m_mapPlugIn.find(i_fRAP->PK_Device);
+			if(it != m_mapPlugIn.end())
+				m_mapPlugIn.erase(it);
         }
         else
         {
-            m_mapPlugIn[i_fRAP->PK_Device] = pPlugIn;
+			m_mapPlugIn[i_fRAP->PK_Device] = pPlugIn;
             ListCommand_Impl *pListCommand_Impl = m_mapPlugIn_DeviceTemplate[i_fRAP->PK_DeviceTemplate];
             if( !pListCommand_Impl )
             {
@@ -3176,7 +3181,8 @@ void Router::ShowSockets()
 
 bool Router::IsPlugin(int iPK_Device)
 {
-	return NULL != m_mapPlugIn_Find(iPK_Device);
+	map<int,class Command_Impl *>::iterator it = m_mapPlugIn.find(iPK_Device); 
+	return it != m_mapPlugIn.end();
 }
 
 bool SerializeMessageXML(Message *pMessage, char *&pData, size_t &nSize)
