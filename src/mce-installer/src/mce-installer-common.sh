@@ -217,7 +217,7 @@ function UI_SetOptions {
 
 	local xorg_file="/etc/X11/xorg.conf"
 	local composite_value="true"
-	if [[ "$UI_Version" == "1" ]] ;then
+	if [[ "$AlphaBlending" == "0" ]] ;then
 		composite_value="false"
 	fi
 
