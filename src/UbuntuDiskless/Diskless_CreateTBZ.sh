@@ -174,6 +174,7 @@ if [[ -d /usr/share/doc/libdvdcss2 ]] ;then
 fi
 
 chroot $TEMP_DIR apt-get -y install kubuntu-desktop
+mv "$TEMP_DIR"/etc/init.d/kdm{,.save}
 
 ## Install dummy linux-image package on diskless image
 chroot $TEMP_DIR apt-get -y install linux-image-dummy
