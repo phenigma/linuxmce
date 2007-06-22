@@ -26,7 +26,7 @@ echo "Deleting SSH host key from Core"
 sed -i "/$IP/ d" /root/.ssh/known_hosts &>/dev/null
 
 echo "Filesystem"
-rm -rf /home/diskless/"$PK_Device"
+rm -rf /usr/pluto/diskless/"$PK_Device"
 
 echo "TFTP"
 rm -rf /tftpboot/"$PK_Device"
