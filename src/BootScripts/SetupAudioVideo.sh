@@ -214,6 +214,7 @@ elif [[ "$ReloadX" == ReloadX ]]; then
 		fi
 	else
 		export TERM=linux
-		/etc/init.d/kdm restart
+		/etc/init.d/kdm restart &>/dev/null </dev/null &
+		disown -a
 	fi
 fi
