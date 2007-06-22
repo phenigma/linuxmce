@@ -2776,7 +2776,7 @@ bool ScreenHandler::JukeboxManager_ObjectSelected(CallBackData *pData)
 			StringUtils::itos(PK_Device_JukeBox) + " 1 "
 			TOSTRING(COMMAND_Bulk_Rip_CONST) " "
 			TOSTRING(COMMANDPARAMETER_PK_Users_CONST) " <%=U%> "
-			TOSTRING(COMMANDPARAMETER_Directory_CONST) " \"<%=17%>\" ";
+			TOSTRING(COMMANDPARAMETER_Filename_CONST) " \"<%=9%>\" ";
 		string sTitle = m_pOrbiter->m_mapTextString[TEXT_Choose_Filename_CONST];
 		
 		DCE::SCREEN_FileSave SCREEN_FileSave(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,0,-999,sTitle,sRipMessage,true);

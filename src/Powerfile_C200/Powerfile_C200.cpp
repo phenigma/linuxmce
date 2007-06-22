@@ -546,7 +546,7 @@ void Powerfile_C200::CMD_Bulk_Rip(string sFilename,int iPK_Users,string sFormat,
 	size_t i;
 
 	vector<string> vect_sSlots;
-	if (sDisks == "*" || sDisks.empty() )
+	if (sDisks == "*" || sDisks.empty())
 	{
 		for(map_int_Slotp::iterator it=m_pPowerfileJukebox->m_mapSlot.begin();it!=m_pPowerfileJukebox->m_mapSlot.end();++it)
 		{
