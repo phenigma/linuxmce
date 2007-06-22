@@ -1,4 +1,3 @@
-
 /*
  General_Info_Plugin
  
@@ -1246,6 +1245,7 @@ class DataGridTable *General_Info_Plugin::Rooms( string GridID, string Parms, vo
 
 	int iRow=0,iCol=0;
 	string sql;
+	map<int,string> mapRoomsWithMDs;
 	
 	if( Parms.empty() || (Parms[0]!='1' && Parms[0]!='2') )
 		sql = "SELECT PK_Room,Description FROM Room WHERE FK_Installation=" + StringUtils::itos(m_pRouter->iPK_Installation_get()) + " ORDER BY Description";
@@ -1255,20 +1255,18 @@ class DataGridTable *General_Info_Plugin::Rooms( string GridID, string Parms, vo
 	{
 		// Filter out rooms with media directors
 		string sRoomsWithMDs;
-		string sSQL2 = "SELECT FK_Room FROM Device JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE FK_DeviceCategory=" TOSTRING(DEVICECATEGORY_Media_Director_CONST);
+		string sSQL2 = "SELECT FK_Room,PK_Device FROM Device JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE FK_DeviceCategory=" TOSTRING(DEVICECATEGORY_Media_Director_CONST);
 		PlutoSqlResult result;
 		DB_ROW row;
 		if( (result.r = m_pDatabase_pluto_main->db_wrapper_query_result(sSQL2.c_str())) )
 		{
 			while( ( row=db_wrapper_fetch_row( result.r ) ) )
 			{
-				if( sRoomsWithMDs.empty()==false )
-					sRoomsWithMDs += ",";
-
-				sRoomsWithMDs += NULL != row[0] ? row[0] : "0";
+				if( row[0] )
+					mapRoomsWithMDs[ atoi(row[0]) ]=row[1];
 			}
 		}
-		sql = "SELECT PK_Room,Description FROM Room WHERE FK_Installation=" + StringUtils::itos(m_pRouter->iPK_Installation_get()) + " AND PK_Room NOT IN(" + sRoomsWithMDs + ") ORDER BY Description";
+		sql = "SELECT PK_Room,Description FROM Room WHERE FK_Installation=" + StringUtils::itos(m_pRouter->iPK_Installation_get()) + " ORDER BY Description";
 	}
 
 	PlutoSqlResult result;
@@ -1278,6 +1276,12 @@ class DataGridTable *General_Info_Plugin::Rooms( string GridID, string Parms, vo
 		while( ( row=db_wrapper_fetch_row( result.r ) ) )
 		{
 			pCell = new DataGridCell( row[1], row[0] );
+			if( mapRoomsWithMDs.find( atoi( row[0] ) )!=mapRoomsWithMDs.end() )
+			{
+				pCell->m_mapAttributes["PK_Device"] = mapRoomsWithMDs[ atoi( row[0] ) ];
+				pCell->m_AltColor=1;
+			}
+
 			pDataGrid->SetData( iCol++, iRow, pCell );
 			if( iCol>=iWidth )
 			{
@@ -2727,7 +2731,7 @@ bool General_Info_Plugin::LowSystemDiskSpace ( class Socket *pSocket, class Mess
 }
 
 // It will be like this:
-// [internal id] \t [description] \t [room name] \t [device template] \t [floorplan id] \n
+// [internal id] \t [description] \t [room name] \t [device template] \t [floorplan id] \t [PK_DeviceData] \t [Value] ... \n
 
 Row_Device *General_Info_Plugin::ProcessChildDevice(Row_Device *pRow_Device,string sLine)
 {
@@ -2811,6 +2815,15 @@ Row_Device *General_Info_Plugin::ProcessChildDevice(Row_Device *pRow_Device,stri
 	}
 
 	pRow_Device_DeviceData->IK_DeviceData_set( sPK_FloorplanObjectType );
+
+	while(pos<sLine.size())
+	{
+		int PK_DeviceData = atoi(StringUtils::Tokenize(sLine,"\t",pos).c_str());
+		string sValue = StringUtils::Tokenize(sLine,"\t",pos);
+		if( PK_DeviceData )
+			DatabaseUtils::SetDeviceData(m_pDatabase_pluto_main,pRow_Device_Child->PK_Device_get(),PK_DeviceData,sValue);
+	}
+
 	return pRow_Device_Child;
 }
 

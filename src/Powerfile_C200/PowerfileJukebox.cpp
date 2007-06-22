@@ -150,7 +150,6 @@ bool PowerfileJukebox::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 						}
 						else if( pRow_DiscLocation->FK_Disc_isNull()==false )
 						{
-							LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"tmp:slot %d is disc %d",nSlot,pRow_DiscLocation->FK_Disc_get());
 							pSlot->m_eStatus = Slot::slot_identified_disc;
 						}
 					}
@@ -369,11 +368,11 @@ bool PowerfileJukebox::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 
 			/*
 			A list like this:
-			[internal id] \t [description] \t [room name] \t [device template] \t [floorplan id] \n
+			[internal id] \t [description] \t [room name] \t [device template] \t [floorplan id] \t [PK_DeviceData] \t [Value] ... \n
 			*/
 			sReportingChildDevices += StringUtils::itos(nDrive) + "\t" + "Drive " + StringUtils::itos(nDrive)
-				+ "\t\t" + TOSTRING(DEVICETEMPLATE_Disc_Drive_Embedded_CONST) + "\n";
-
+				+ "\t\t" + TOSTRING(DEVICETEMPLATE_Disc_Drive_Embedded_CONST) + "\t\t" +
+				TOSTRING(DEVICEDATA_Block_Device_CONST) + "\t" + vsFF[6] + "\n";
 			nDrive++;
 		}
 	}

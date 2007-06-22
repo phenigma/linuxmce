@@ -77,7 +77,7 @@ int RipTask::Run()
 	if( pRipJob->m_pDisk_Drive_Functions->m_mediaDiskStatus==DISCTYPE_CD_MIXED || pRipJob->m_pDisk_Drive_Functions->m_mediaDiskStatus==DISCTYPE_CD_AUDIO )
 		StringUtils::Replace(&((RipJob *) m_pJob)->m_sFileName,"___audio___or___video___","audio");
 	else if( pRipJob->m_pDisk_Drive_Functions->m_mediaDiskStatus==DISCTYPE_DVD_VIDEO || pRipJob->m_pDisk_Drive_Functions->m_mediaDiskStatus==DISCTYPE_CD_VCD )
-		StringUtils::Replace(&((RipJob *) m_pJob)->m_sFileName,"___audio___or___video___","video");
+		StringUtils::Replace(&((RipJob *) m_pJob)->m_sFileName,"___audio___or___video___","videos");
 
 	string strParameters;
 	strParameters = StringUtils::itos(pRipJob->m_pDisk_Drive_Functions->m_pCommand_Impl->m_dwPK_Device) + "\t" 
@@ -221,7 +221,7 @@ void RipTask::ReportFailure()
 {
 	SCREEN_PopupMessage SCREEN_PopupMessage(m_pRipJob->m_pDisk_Drive_Functions->m_pCommand_Impl->m_dwPK_Device, 
 		m_pRipJob->m_iPK_Orbiter,
-		"Ripping failed: " + ((RipJob *) m_pJob)->m_sFileName, // Main message
+		"Ripping failed " + m_sText + ": " + ((RipJob *) m_pJob)->m_sFileName, // Main message
 		"", // Command Line
 		"ripping_failed", // Description
 		"0", // sPromptToResetRouter
