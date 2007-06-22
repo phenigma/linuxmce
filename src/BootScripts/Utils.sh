@@ -281,7 +281,7 @@ GetDeviceData()
 	Q="
 		SELECT IK_DeviceData
 		FROM Device_DeviceData
-		WHERE FK_Device=$Device AND FK_DeviceData=$DeviceData
+		WHERE FK_Device='$Device' AND FK_DeviceData='$DeviceData'
 	"
 	Field 1 "$(RunSQL "$Q")"
 }
