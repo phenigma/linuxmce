@@ -340,6 +340,7 @@ void DesignObj_DataGrid::DataGridTable_Set(DataGridTable *pDataGridTable,int Cur
 	}
 	vm.Release();
 
+	PLUTO_SAFETY_LOCK(dm, m_pOrbiter->m_DatagridMutex);
 	DesignObj_Orbiter::Flush(bFlushGraphics);
 	m_pDataGridTable_Current=NULL;
 	for(map< pair<int,int>, DataGridTable *>::iterator itm=m_mapDataGridTable_Cache.begin();itm!=m_mapDataGridTable_Cache.end();++itm)
