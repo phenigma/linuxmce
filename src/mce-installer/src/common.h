@@ -60,6 +60,7 @@
 #include "StepCreateDiskedDevice.h"
 #include "StepNotification.h"
 #include "StepCheckSystem.h"
+#include "StepUbuntuLiveCD.h"
 
 #include "network-common.h"
 
@@ -87,6 +88,7 @@
 #define STEPCREATEMD 23
 #define STEPNOTIFICATION 24
 #define STEPCHECKSYSTEM 25
+#define STEPUBUNTULIVECD 26
 
 #define INSTALL_TYPE_CD   1
 #define INSTALL_TYPE_ISO  2
@@ -149,4 +151,7 @@ gchar*   setting_linuxmceCdIsoPath;
 
 gint	 flag_mirror;
 gchar	 *other_mirror;
+
+gint     setting_ubuntuLiveCdFrom;
+gchar*   setting_ubuntuLiveCdIsoPath;
 #endif

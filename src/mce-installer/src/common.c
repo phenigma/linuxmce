@@ -123,6 +123,9 @@ void on_back_clicked(GObject object, gpointer data) {
 			case STEPCHECKSYSTEM:
 				displayStepCheckSystem();
 				break;
+			case STEPUBUNTULIVECD:
+				displayStepUbuntuExtraCD();
+				break;
 			default:
 				printf("Unknown screen in history [%d]", prevScreen);
 		}
@@ -202,6 +205,8 @@ void write_config_file(void) {
 				"c_linuxmceCdIsoPath='%s'\n"
 				"c_ubuntuExtraCdFrom=%d\n"
 				"c_ubuntuExtraCdPath='%s'\n"
+				"c_ubuntuLiveCdFrom=%d\n"
+                                "c_ubuntuLiveCdPath='%s'\n"
 				,setting_deviceType
 				,setting_netIfaceNo
 				,setting_netExtName
@@ -223,6 +228,8 @@ void write_config_file(void) {
 				,setting_linuxmceCdIsoPath
 				,setting_ubuntuExtraCdFrom
 				,setting_ubuntuExtraCdIsoPath
+				,setting_ubuntuLiveCdFrom
+				,setting_ubuntuLiveCdIsoPath
 		);
 	} else {
 		output = g_strdup_printf(

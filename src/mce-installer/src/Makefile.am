@@ -76,7 +76,9 @@ mce_installer_SOURCES = \
 	StepCheckSystem.c \
 	StepCheckSystem.h \
 	StepNotification.h \
-	StepNotification.c
+	StepNotification.c \
+	StepUbuntuLiveCD.c \
+	StepUbuntuLiveCD.h
 
 
 mce_installer_LDFLAGS = 

@@ -25,7 +25,7 @@ void on_StepUbuntuExtraCD_forward_clicked(GtkWidget *widget, gpointer data)  {
 	if (goNext) {
 		g_queue_push_head(history, (gpointer)STEPUBUTUEXTRACD);
 		//displayStepLinuxMceCD();
-		displayStep3();
+		displayStepUbuntuLiveCD();
 	}
 }
 
