@@ -240,16 +240,41 @@ void ViaOverlay::FillRectangleInAlphaMask(int x, int y, int w, int h, unsigned c
 //-------------------------------------------------------------------------------------------------------
 void ViaOverlay::InternalApplyAlphaMask(int x, int y, int w, int h, const unsigned char *mask)
 {
+	//clipping for masking
+
+	int offset_x = 0;
+	int offset_y = 0;
+	int clipped_w = w;
+	int clipped_h = h;
+
+	if(x < 0)	
+		offset_x = -x;
+
+	if(y < 0)	
+		offset_y = -y;
+
+	if(w + x > m_nWidth)
+		clipped_w = m_nWidth - x;
+
+	if(h + y > m_nHeight)
+		clipped_h = m_nHeight - y;
+
 	if(x + w <= m_nWidth && x >= 0 && y >= 0 && y + h <= m_nHeight && NULL != mask)
 	{
 		LoggerWrapper::GetInstance()->Write(LV_TV, "#VIA Applying alpha for %p (%d,%d,%d,%d) ...", mask, x, y, w, h);
 
-		if(x == 0 && y == 0 && w == m_nWidth && h == m_nHeight)
+		if(
+			x == 0 && y == 0 && w == m_nWidth && h == m_nHeight && 
+			offset_x == 0 && offset_y == 0 && clipped_w == w && clipped_h == h
+		)
 			memcpy(m_BufferMask, mask, w * h);
 		else
 		{
-			for(int i = 0; i < h; i++)
-				memcpy(m_BufferMask + (y + i) * m_nWidth + x, mask + i * w, w);
+			if(offset_x < w || offset_y < h)
+			{
+				for(int i = offset_y; i < clipped_h; i++)
+					memcpy(m_BufferMask + (y + i) * m_nWidth + x + offset_x, mask + i * w + offset_x, clipped_w);
+			}
 		}
 	}
 }
@@ -257,36 +282,37 @@ void ViaOverlay::InternalApplyAlphaMask(int x, int y, int w, int h, const unsign
 void ViaOverlay::InternalFillRectangleInAlphaMask(int x, int y, int w, int h, unsigned char value, bool bMergeToScreen/*=false*/)
 {
 	//clip rectangle instead of rejecting it
-	if(x < 0)	x = 0;
-	if(y < 0)	y = 0;
+	if(x < 0)	
+		x = 0;
 
-	if(x + w <= m_nWidth && y + h <= m_nHeight)
+	if(y < 0)	
+		y = 0;
+
+	if(w + x > m_nWidth)
+		w = m_nWidth - x;
+
+	if(h + y > m_nHeight)
+		h = m_nHeight - y;
+
+	LoggerWrapper::GetInstance()->Write(LV_TV, "#VIA Filled rectangle in alpha mask (%d,%d,%d,%d), value %d...", 
+		x, y, w, h, value);
+
+	if(x == 0 && y == 0 && w == m_nWidth && h == m_nHeight)
 	{
-		LoggerWrapper::GetInstance()->Write(LV_TV, "#VIA Filled rectangle in alpha mask (%d,%d,%d,%d), value %d...", 
-			x, y, w, h, value);
+		memset(m_BufferMask, value, w * h);
 
-		if(x == 0 && y == 0 && w == m_nWidth && h == m_nHeight)
-		{
-			memset(m_BufferMask, value, w * h);
-
-			if(bMergeToScreen)
-				memset(m_ScreenMask, value, w * h);
-		}
-		else
-		{
-			for(int i = 0; i < h; i++)
-			{
-				memset(m_BufferMask + (y + i) * m_nWidth + x, value, w);
-
-				if(bMergeToScreen)
-					memset(m_ScreenMask + (y + i) * m_nWidth + x, value, w);
-			}
-		}
+		if(bMergeToScreen)
+			memset(m_ScreenMask, value, w * h);
 	}
 	else
 	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "#VIA Unable to fill rectangle in alpha mask (%d,%d,%d,%d) value %d !", 
-			x, y, w, h, value);
+		for(int i = 0; i < h; i++)
+		{
+			memset(m_BufferMask + (y + i) * m_nWidth + x, value, w);
+
+			if(bMergeToScreen)
+				memset(m_ScreenMask + (y + i) * m_nWidth + x, value, w);
+		}
 	}
 }
 //-------------------------------------------------------------------------------------------------------
