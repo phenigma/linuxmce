@@ -214,4 +214,29 @@ function UI_SetOptions {
 	     VALUES ('$OrbiterDev', '$DEVICEDATA_PK_UI', '$UI_Version')"
 	RunSQL "$Q"
 
+
+	local xorg_file="/etc/X11/xorg.conf"
+	local composite_value="true"
+	if [[ "$UI_Version" == "1" ]] ;then
+		composite_value="false"
+	fi
+
+	if grep -qi "Section.*\"Extensions\"" "$xorg_file" ;then
+		echo 'Found `Section "Extensions"` in xorg.conf'
+
+		if grep -qi "Option \"Composite\"" "$xorg_file" ;then
+			echo 'Found `Option "Composite"` in xorg.conf'
+
+			sed -i "s/Option.*\"Composite\".*/Option \"Composite\" \"$composite_value\"/ig" "$xorg_file"
+		else
+			echo 'Not Found `Option "Composite"` in xorg.conf'
+
+			sed -i "s/Section.*\"Extensions\"/Section \"Extensions\"\\nOption \"Composite\" \"$composite_value\"/ig" "$xorg_file"
+		fi
+	else
+		echo 'Not Found `Section "Extenstions"` or `Option "Composite"`'
+		echo 'Section "Extensions"' >> "$xorg_file"
+		echo "    Option \"Composite\" \"$composite_value\"" >> "$xorg_file"
+		echo 'EndSection' >> "$xorg_file"
+	fi
 }
