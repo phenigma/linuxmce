@@ -246,13 +246,11 @@ void JukeBox::RemoveDiscFromDb(int PK_Device,int Slot)
 		sSQL += " AND Slot=" + StringUtils::itos(Slot);
 
 	m_pDatabase_pluto_media->threaded_db_wrapper_query(sSQL);
-	LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"tmp:%s",sSQL.c_str());
 }
 
 void JukeBox::AddDiscToDb(int PK_Device,int Slot,char Type)
 {
 	string sSQL = "INSERT INTO DiscLocation(EK_Device,Slot,Type) VALUES(" + StringUtils::itos(PK_Device) + "," + (Slot ? StringUtils::itos(Slot) : "NULL") + ",'" + Type + "')";
-	LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"tmp:%s",sSQL.c_str());
 	m_pDatabase_pluto_media->threaded_db_wrapper_query(sSQL);
 }
 
