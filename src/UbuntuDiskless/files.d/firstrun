@@ -1,6 +1,21 @@
-#!/bin/bash 
+#!/bin/bash
+# vim:set ft=sh:
 
-trap 'rm -f /etc/rcS.d/S99firstrun' EXIT
-if lspci | grep -qi "VGA .*nvidia" ;then 
-	apt-get -y -f install pluto-nvidia-video-drivers 
+set -e 
+. ./filesd-parms.sh $@
+. /usr/pluto/bin/Config_Ops.sh
+. /usr/pluto/bin/Network_Parameters.sh
+
+## fstab for diskless mds
+File="/etc/rcS.d/S99firstrun"
+Content="#!/bin/bash
+trap 'rm -f $File' EXIT
+
+if lspci  | grep -qi \"VGA .* nvidia\" ;then
+	apt-get -y -f install pluto-nvidia-video-drivers
 fi
+"
+
+mkdir -p "${Parm_RootLocation}/$(dirname $File)"
+echo -e $Content > "${Parm_RootLocation}/${File}"
+chmod +x "${Parm_RootLocation}/${File}"
