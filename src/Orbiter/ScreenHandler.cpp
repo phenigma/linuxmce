@@ -2249,7 +2249,7 @@ bool ScreenHandler::FileSave_ObjectSelected(CallBackData *pData)
 				else
 				{
 					if( sSubDir.empty() )
-						sSubDir = m_pOrbiter->m_iPK_MediaType == MEDIATYPE_pluto_DVD_CONST ? "videos" : "audio";
+						sSubDir = "___audio___or___video___";
 					if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_objPlayListSavePublic_CONST)
 						m_sSaveFile_FullBasePath = m_sSaveFile_MountedFolder + "public/data/" + sSubDir + "/";
 					else

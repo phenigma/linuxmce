@@ -113,7 +113,7 @@ void OSDScreenHandler::SCREEN_VideoWizard(long PK_Screen)
 	{
 		if( m_tWizardIsRunning==0 )
 		{
-			SCREEN_PopupMessage(SCREEN_PopupMessage_CONST, "One moment", "", "", "", "", "1");
+			SCREEN_PopupMessage(SCREEN_PopupMessage_CONST, "One moment", " ", "", "", "", "1");
 			m_tWizardIsRunning = time(NULL);
 		}
 		else
@@ -682,6 +682,9 @@ bool OSDScreenHandler::This_Room_GridSelected(CallBackData *pData)
 	if(GetCurrentScreen_PK_DesignObj()==DESIGNOBJ_InWhichRoomIsTheSystem_CONST)
 	{
 		int PK_Room = atoi(pCellInfoData->m_sValue.c_str());
+		string sPK_Device = pCellInfoData->m_pDataGridCell->m_mapAttributes_Find("PK_Device");
+		if( sPK_Device.empty()==false )
+			return true;
 		m_pOrbiter->CMD_Show_Object( TOSTRING(DESIGNOBJ_butTVProvider_CONST), 0,"","", PK_Room ? "1" : "0" );
 	}
 
