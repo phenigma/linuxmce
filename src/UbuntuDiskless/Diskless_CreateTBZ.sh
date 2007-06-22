@@ -173,6 +173,8 @@ if [[ -d /usr/share/doc/libdvdcss2 ]] ;then
 	popd
 fi
 
+chroot $TEMP_DIR apt-get -y install kubuntu-desktop
+
 ## Install dummy linux-image package on diskless image
 chroot $TEMP_DIR apt-get -y install linux-image-dummy
 
