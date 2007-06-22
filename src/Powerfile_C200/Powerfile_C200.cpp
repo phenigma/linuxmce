@@ -544,10 +544,9 @@ void Powerfile_C200::CMD_Bulk_Rip(string sFilename,int iPK_Users,string sFormat,
 //<-dceag-c720-e->
 {
 	size_t i;
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "CMD_Bulk_Rip; sDisks='%s'", sDisks.c_str());
 
 	vector<string> vect_sSlots;
-	if (sDisks == "*")
+	if (sDisks == "*" || sDisks.empty() )
 	{
 		for(map_int_Slotp::iterator it=m_pPowerfileJukebox->m_mapSlot.begin();it!=m_pPowerfileJukebox->m_mapSlot.end();++it)
 		{
@@ -561,6 +560,8 @@ void Powerfile_C200::CMD_Bulk_Rip(string sFilename,int iPK_Users,string sFormat,
 	}
 	else
 		StringUtils::Tokenize(sDisks, ",", vect_sSlots);
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "CMD_Bulk_Rip; sDisks='%s' slots %d/%d", sDisks.c_str(), m_pPowerfileJukebox->m_mapSlot.size(), (int) vect_sSlots.size());
 
 	for (i = 0; i < vect_sSlots.size(); i++)
 	{
