@@ -2176,7 +2176,7 @@ void ScreenHandler::SCREEN_FileSave(long PK_Screen, int iPK_MediaType, int iEK_D
 	m_pOrbiter->CMD_Set_Text(StringUtils::ltos(m_p_MapDesignObj_Find(PK_Screen)), sCaption, TEXT_STATUS_CONST);
 	ScreenHandlerBase::SCREEN_FileSave(PK_Screen, iPK_MediaType, iEK_Disc, sCaption, sCommand, bAdvanced_options);
 	if( iEK_Disc==-999 )  // Special things means go to the bulk ripping screen
-		m_pOrbiter->CMD_Goto_DesignObj(0,TOSTRING(DESIGNOBJ_mnuBulkRipping_CONSTu),"","",false,true);
+		m_pOrbiter->CMD_Goto_DesignObj(0,TOSTRING(DESIGNOBJ_mnuBulkRipping_CONST),"","",false,true);
 
 
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::FileSave_ObjectSelected,	
@@ -2242,7 +2242,7 @@ bool ScreenHandler::FileSave_ObjectSelected(CallBackData *pData)
 				m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_4_CONST, sParentFolder + sNewFolder + "/");
 			}
 		}
-		else if(GetCurrentScreen_PK_DesignObj() == DESIGNOBJ_mnuFileSave_CONST)
+		else if(GetCurrentScreen_PK_DesignObj() == DESIGNOBJ_mnuFileSave_CONST || GetCurrentScreen_PK_DesignObj() == DESIGNOBJ_mnuBulkRipping_CONST)
 		{
 			if(
 				pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_objPlayListSavePrivate_CONST ||
@@ -2269,10 +2269,14 @@ bool ScreenHandler::FileSave_ObjectSelected(CallBackData *pData)
 				}
 				
 				m_nPK_Users_SaveFile = pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_objPlayListSavePrivate_CONST ? m_pOrbiter->m_dwPK_Users : 0;
-				if(m_bSaveFile_Advanced_options && bUnknownSubdirectory==false)  // We can't prompt for the sub-directory if we're using pluto's directory structure and don't know if it's audio or video because it's an unidentified disk in a jukebox
+				if(m_bSaveFile_Advanced_options && bUnknownSubdirectory==false && GetCurrentScreen_PK_DesignObj() != DESIGNOBJ_mnuBulkRipping_CONST)  // We can't prompt for the sub-directory if we're using pluto's directory structure and don't know if it's audio or video because it's an unidentified disk in a jukebox
 					SaveFile_GotoChooseFolderDesignObj();
 				else
+				{
+					if( bUnknownSubdirectory || GetCurrentScreen_PK_DesignObj() == DESIGNOBJ_mnuBulkRipping_CONST )
+						m_pOrbiter->CMD_Set_Variable(VARIABLE_Path_CONST,m_sSaveFile_FullBasePath);
 					SaveFile_SendCommand(m_nPK_Users_SaveFile);
+				}
 
 				return true;
 			}
@@ -2769,11 +2773,10 @@ bool ScreenHandler::JukeboxManager_ObjectSelected(CallBackData *pData)
 	{
 		string sRipMessage = 
 			StringUtils::itos(m_pOrbiter->m_dwPK_Device) + " " +
-			StringUtils::itos(m_pOrbiter->m_dwPK_Device_MediaPlugIn) + " 1 "
+			StringUtils::itos(PK_Device_JukeBoxm) + " 1 "
 			TOSTRING(COMMAND_Bulk_Rip_CONST) " "
 			TOSTRING(COMMANDPARAMETER_PK_Users_CONST) " <%=U%> "
-			TOSTRING(COMMANDPARAMETER_Filename_CONST) " \"<%=17%>\" "
-			TOSTRING(COMMANDPARAMETER_Directory_CONST) " \"<%=9%>\" ";
+			TOSTRING(COMMANDPARAMETER_Directory_CONST) " \"<%=17%>\" ";
 		string sTitle = m_pOrbiter->m_mapTextString[TEXT_Choose_Filename_CONST];
 		
 		DCE::SCREEN_FileSave SCREEN_FileSave(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,0,-999,sTitle,sRipMessage,true);

@@ -5035,7 +5035,7 @@ void Media_Plugin::CMD_Save_Bookmark(int iPK_Users,char *pData,int iData_Size,in
 				"\n<%=!%> <%=V-106%> 1 411 5 \"<%=17%>\" 129 " + StringUtils::itos(pRow_Bookmark->PK_Bookmark_get());
 
 			DCE::SCREEN_FileSave SCREEN_FileSave(m_dwPK_Device,pMessage->m_dwPK_Device_From, 
-				0, "<%=T" + StringUtils::itos(TEXT_Name_Bookmark_CONST) + "%>", sCmdToRenameBookmark, false);
+				pMediaStream->m_iPK_MediaType,0, "<%=T" + StringUtils::itos(TEXT_Name_Bookmark_CONST) + "%>", sCmdToRenameBookmark, false);
 			SendCommand(SCREEN_FileSave);
 		}
 	}
@@ -5804,7 +5804,7 @@ void Media_Plugin::CMD_Get_Default_Ripping_Info(int iEK_Disc,string *sFilename,b
 
 	PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
 	
-	if( iEK_Disc )
+	if( iEK_Disc && iEK_Disc!=-999 )
 	{
 		Row_Disc *pRow_Disc = m_pDatabase_pluto_media->Disc_get()->GetRow(iEK_Disc);
 		if( !pRow_Disc )

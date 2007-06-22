@@ -543,27 +543,20 @@ If this parameter starts with a "/" it is considered absolute.  Otherwise it is 
 void Powerfile_C200::CMD_Bulk_Rip(string sFilename,int iPK_Users,string sFormat,string sDisks,string &sCMD_Result,Message *pMessage)
 //<-dceag-c720-e->
 {
-#ifdef NOTDEF
 	size_t i;
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "CMD_Bulk_Rip; sDisks='%s'", sDisks.c_str());
-
-	// to replace this with "append if not empty but don't start anything; make new list if empty and start it"
-	if (m_pJob->PendingTasks())
-	{
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Not in IDLE state (%d tasks pending). Can't start mass rip", m_pJob->PendingTasks());
-		sCMD_Result = "FAILED";
-		return;
-	}
-	
-	m_pJob->Reset();
 
 	vector<string> vect_sSlots;
 	if (sDisks == "*")
 	{
-		for (size_t i = 0; i < m_vectSlotStatus.size(); i++)
+		for(map_int_Slotp::iterator it=m_pPowerfileJukebox->m_mapSlot.begin();it!=m_pPowerfileJukebox->m_mapSlot.end();++it)
 		{
-			if (m_vectSlotStatus[i])
-				vect_sSlots.push_back(StringUtils::itos(i + 1));
+			Slot *pSlot = it->second;
+			if( pSlot->m_eStatus==Slot::slot_identified_disc || pSlot->m_eStatus==Slot::slot_unknown_medium )
+			{
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "CMD_Bulk_Rip; Adding slot %d/%d disc %d", pSlot->m_SlotNumber, (int) pSlot->m_eStatus, pSlot->m_pRow_Disc ? pSlot->m_pRow_Disc->PK_Disc_get() : 0);
+				vect_sSlots.push_back(StringUtils::itos(pSlot->m_SlotNumber));
+			}
 		}
 	}
 	else
@@ -573,39 +566,22 @@ void Powerfile_C200::CMD_Bulk_Rip(string sFilename,int iPK_Users,string sFormat,
 	{
 		string sSlot = vect_sSlots[i];
 		int iSlot = atoi(sSlot.c_str());
-		PowerfileRip_Task * pTask = new PowerfileRip_Task(iPK_Users,sFormat,sFilename,"Rip Slot " + vect_sSlots[i], 0, m_pJob);
-		pTask->m_iSlot = iSlot;
-		string::size_type pos=0;
-		StringUtils::Tokenize(sSlot, "|", pos);
-		while(pos<sSlot.size())
+		Slot *pSlot = m_pPowerfileJukebox->m_mapSlot_Find(iSlot);
+		if( !pSlot )
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Powerfile_C200::CMD_Bulk_Rip Can't find slot %d", iSlot);
+		else if( pSlot->m_eStatus==Slot::slot_identified_disc || pSlot->m_eStatus==Slot::slot_unknown_medium )
 		{
-			int Track = atoi(StringUtils::Tokenize(sSlot, "|", pos).c_str());
-			if( Track )
-				pTask->m_mapTracks[Track]="";
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "CMD_Bulk_Rip; Adding slot %d/%d disc %d", pSlot->m_SlotNumber, (int) pSlot->m_eStatus,  pSlot->m_pRow_Disc ? pSlot->m_pRow_Disc->PK_Disc_get() : 0);
+			RipJob *pRipJob = new RipJob(m_pPowerfileJukebox->m_pDatabase_pluto_media,
+				m_pPowerfileJukebox->m_pJobHandler,NULL,pSlot,iPK_Users,0,
+				pMessage ? pMessage->m_dwPK_Device_From : 0,sFormat,"",sFilename,"A",this);
+			m_pPowerfileJukebox->m_pJobHandler->AddJob(pRipJob);
 		}
-		m_pJob->AddTask(pTask);
-	}
-
-	if (!m_pJob->PendingTasks())
-	{
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Received empty track list");
-		sCMD_Result = "FAILED";
-		return;
-	}
-
-	for (size_t i = 0; i < m_vectDrive.size(); i++)
-	{
-		if (!m_vectDriveStatus[i].second)
-			continue; // unit offline; skip
-		Task * pTask = m_pJob->GetNextTask();
-		if (pTask)
-			pTask->Execute();
 		else
-			break;
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "CMD_Bulk_Rip; Skipping slot %d/%d disc %d", pSlot->m_SlotNumber, (int) pSlot->m_eStatus, pSlot->m_pRow_Disc ? pSlot->m_pRow_Disc->PK_Disc_get() : 0);
 	}
-	sCMD_Result = "OK";
-#endif
 }
+
 //<-dceag-c738-b->
 
 	/** @brief COMMAND: #738 - Play Disk */
