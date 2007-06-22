@@ -161,6 +161,14 @@ VideoSettings_Check()
 		else
 			ReloadX="ReloadX"
 		fi
+
+		# Orbiter Regen
+		Q="
+			UPDATE Orbiter
+			SET Regen=1
+			WHERE PK_Orbiter='$OrbiterDev'
+		"
+		RunSQL "$Q"
 	fi
 }
 
