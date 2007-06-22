@@ -517,9 +517,7 @@ void Router::RegisterAllPlugins()
         if( !pPlugIn )
         {
             LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot initialize plug-in for device: %d", i_fRAP->PK_Device);
-			map<int, Command_Impl *>::iterator it = m_mapPlugIn.find(i_fRAP->PK_Device);
-			if(it != m_mapPlugIn.end())
-				m_mapPlugIn.erase(it);
+	    m_mapPlugIn.erase(i_fRAP->PK_Device);
         }
         else
         {
@@ -3181,8 +3179,7 @@ void Router::ShowSockets()
 
 bool Router::IsPlugin(int iPK_Device)
 {
-	map<int,class Command_Impl *>::iterator it = m_mapPlugIn.find(iPK_Device); 
-	return it != m_mapPlugIn.end();
+	return ( m_mapPlugIn.find(iPK_Device) !=  m_mapPlugIn.end() );
 }
 
 bool SerializeMessageXML(Message *pMessage, char *&pData, size_t &nSize)
