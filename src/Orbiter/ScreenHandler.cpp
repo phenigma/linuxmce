@@ -2773,7 +2773,7 @@ bool ScreenHandler::JukeboxManager_ObjectSelected(CallBackData *pData)
 	{
 		string sRipMessage = 
 			StringUtils::itos(m_pOrbiter->m_dwPK_Device) + " " +
-			StringUtils::itos(PK_Device_JukeBoxm) + " 1 "
+			StringUtils::itos(PK_Device_JukeBox) + " 1 "
 			TOSTRING(COMMAND_Bulk_Rip_CONST) " "
 			TOSTRING(COMMANDPARAMETER_PK_Users_CONST) " <%=U%> "
 			TOSTRING(COMMANDPARAMETER_Directory_CONST) " \"<%=17%>\" ";
