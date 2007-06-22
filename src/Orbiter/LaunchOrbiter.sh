@@ -32,19 +32,6 @@ killall WatchGyroRemote  # In case it was running it will be grabbing the hid de
 
 export DISPLAY=:$Display
 
-AlphaBlending=$(AlphaBlendingEnabled)
-
-## Configure window manager trasparancy manager
-WMTweaksFile="/root/.config/xfce4/mcs_settings/wmtweaks.xml"
-if [[ "$AlphaBlending" != 1 ]]; then
-	WMParm=(--compositor=off)
-	WMCompTweakVal=0
-else
-	WMParm=()
-	WMCompTweakVal=1
-fi
-sed -i '/Xfwm\/UseCompositing/ s/value="."/value="'"$WMCompTweakVal"'"/g' "$WMTweaksFile"
-
 N_Desktops=$(wmctrl -d | wc -l) # zero based
 
 Logging $TYPE $SEVERITY_NORMAL "LaunchOrbiter" "Number of desktops found: $N_Desktops ; desktops activated? $DesktopActivated"
