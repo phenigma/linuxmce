@@ -80,7 +80,7 @@ SetWMCompositor()
 	local WMTweaksFile
 	local user
 
-	for user in /home/*; do
+	for user in /home/* /root; do
 		if [[ ! -d "$user" ]]; then
 			continue
 		fi
