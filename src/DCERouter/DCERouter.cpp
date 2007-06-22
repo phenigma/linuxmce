@@ -1930,9 +1930,7 @@ void Router::HandleCommandPipes(Socket *pSocket,SafetyMessage *pSafetyMessage)
 			}
 			if( PK_PipeID )
 			{
-				map<int,MapPipe *>::iterator it = pDeviceData_Router->m_mapPipe_Temporary.find(PK_PipeID);
-				if( it!=pDeviceData_Router->m_mapPipe_Temporary.end() )
-					pDeviceData_Router->m_mapPipe_Temporary.erase(it);
+				pDeviceData_Router->m_mapPipe_Temporary.erase(PK_PipeID);
 				delete pMapPipe;
 			}
 			else
