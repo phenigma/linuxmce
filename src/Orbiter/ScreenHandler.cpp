@@ -2124,7 +2124,7 @@ bool ScreenHandler::AddSoftware_GridSelected(CallBackData *pData)
 	return false; // Keep processing it
 }
 //-----------------------------------------------------------------------------------------------------
-void ScreenHandler::SCREEN_FileSave(long PK_Screen, int iEK_Disc, string sCaption, string sCommand, bool bAdvanced_options)
+void ScreenHandler::SCREEN_FileSave(long PK_Screen, int iPK_MediaType, int iEK_Disc, string sCaption, string sCommand, bool bAdvanced_options)
 {
 	//the command to execute with the selected file
 	m_sSaveFile_Command = sCommand;
@@ -2156,6 +2156,14 @@ void ScreenHandler::SCREEN_FileSave(long PK_Screen, int iEK_Disc, string sCaptio
 			m_sSaveFile_MountedFolder = sMounterFolder;
 			m_bUseDirectoryStructure = bUseDirectoryStructure;
 		}
+
+		if( sFolder.empty() )  // It's possible a valid disk wasn't passed in, but we at least know the type
+		{
+			if( iPK_MediaType==MEDIATYPE_pluto_CD_CONST )
+				sFolder = "audio";
+			else if( iPK_MediaType==MEDIATYPE_pluto_DVD_CONST )
+				sFolder = "videos";
+		}
 	}
 
 	//setup variables
@@ -2166,7 +2174,7 @@ void ScreenHandler::SCREEN_FileSave(long PK_Screen, int iEK_Disc, string sCaptio
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, m_sSaveFile_FileName);
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Status_CONST, sFolder);
 	m_pOrbiter->CMD_Set_Text(StringUtils::ltos(m_p_MapDesignObj_Find(PK_Screen)), sCaption, TEXT_STATUS_CONST);
-	ScreenHandlerBase::SCREEN_FileSave(PK_Screen, iEK_Disc, sCaption, sCommand, bAdvanced_options);
+	ScreenHandlerBase::SCREEN_FileSave(PK_Screen, iPK_MediaType, iEK_Disc, sCaption, sCommand, bAdvanced_options);
 	if( iEK_Disc==-999 )  // Special things means go to the bulk ripping screen
 		m_pOrbiter->CMD_Goto_DesignObj(0,TOSTRING(DESIGNOBJ_mnuBulkRipping_CONSTu),"","",false,true);
 
@@ -2243,13 +2251,17 @@ bool ScreenHandler::FileSave_ObjectSelected(CallBackData *pData)
 			{
 				m_sSaveFile_FileName = m_pOrbiter->m_mapVariable_Find(VARIABLE_Seek_Value_CONST);
 
+				bool bUnknownSubdirectory=false;
 				string sSubDir = m_pOrbiter->m_mapVariable_Find(VARIABLE_Status_CONST);
 				if( m_bUseDirectoryStructure==false )
 					m_sSaveFile_FullBasePath = m_sSaveFile_MountedFolder;
 				else
 				{
 					if( sSubDir.empty() )
+					{
+						bUnknownSubdirectory=true;
 						sSubDir = "___audio___or___video___";
+					}
 					if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_objPlayListSavePublic_CONST)
 						m_sSaveFile_FullBasePath = m_sSaveFile_MountedFolder + "public/data/" + sSubDir + "/";
 					else
@@ -2257,7 +2269,7 @@ bool ScreenHandler::FileSave_ObjectSelected(CallBackData *pData)
 				}
 				
 				m_nPK_Users_SaveFile = pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_objPlayListSavePrivate_CONST ? m_pOrbiter->m_dwPK_Users : 0;
-				if(m_bSaveFile_Advanced_options)
+				if(m_bSaveFile_Advanced_options && bUnknownSubdirectory==false)  // We can't prompt for the sub-directory if we're using pluto's directory structure and don't know if it's audio or video because it's an unidentified disk in a jukebox
 					SaveFile_GotoChooseFolderDesignObj();
 				else
 					SaveFile_SendCommand(m_nPK_Users_SaveFile);
@@ -2555,7 +2567,7 @@ bool ScreenHandler::DriveOverview_ObjectSelected(CallBackData *pData)
 							TOSTRING(COMMANDPARAMETER_PK_Device_CONST) " \"" + string(pCell->GetValue()) + "\" ";  // This will be either a drive or jukebox depending on which cell was chosen
 
 					string sTitle = m_pOrbiter->m_mapTextString[TEXT_Choose_Filename_CONST];
-					DCE::SCREEN_FileSave SCREEN_FileSave(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,atoi(pCell->m_mapAttributes_Find("PK_Disc").c_str()),sTitle,sRipMessage,true);
+					DCE::SCREEN_FileSave SCREEN_FileSave(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,atoi(pCell->m_mapAttributes_Find("PK_MediaType").c_str()),atoi(pCell->m_mapAttributes_Find("PK_Disc").c_str()),sTitle,sRipMessage,true);
 					m_pOrbiter->SendCommand(SCREEN_FileSave);
 				}
 				else if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_icoID_CONST )
@@ -2695,7 +2707,7 @@ bool ScreenHandler::JukeboxManager_ObjectSelected(CallBackData *pData)
 
 						string sTitle = m_pOrbiter->m_mapTextString[TEXT_Choose_Filename_CONST];
 						
-						DCE::SCREEN_FileSave SCREEN_FileSave(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,atoi(pCell->m_mapAttributes_Find("PK_Disc").c_str()),sTitle,sRipMessage,true);
+						DCE::SCREEN_FileSave SCREEN_FileSave(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,atoi(pCell->m_mapAttributes_Find("PK_MediaType").c_str()),atoi(pCell->m_mapAttributes_Find("PK_Disc").c_str()),sTitle,sRipMessage,true);
 						m_pOrbiter->SendCommand(SCREEN_FileSave);
 					}
 				}
@@ -2764,7 +2776,7 @@ bool ScreenHandler::JukeboxManager_ObjectSelected(CallBackData *pData)
 			TOSTRING(COMMANDPARAMETER_Directory_CONST) " \"<%=9%>\" ";
 		string sTitle = m_pOrbiter->m_mapTextString[TEXT_Choose_Filename_CONST];
 		
-		DCE::SCREEN_FileSave SCREEN_FileSave(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,-999,sTitle,sRipMessage,true);
+		DCE::SCREEN_FileSave SCREEN_FileSave(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,0,-999,sTitle,sRipMessage,true);
 		m_pOrbiter->SendCommand(SCREEN_FileSave);
 	}
 	else if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_butJukeboxRefresh_CONST )

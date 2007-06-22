@@ -60,6 +60,7 @@ using namespace DCE;
 #include "pluto_main/Define_DeviceCategory.h"
 #include "pluto_main/Define_Text.h"
 #include "pluto_main/Define_Screen.h"
+#include "pluto_main/Define_MediaType.h"
 #include "pluto_main/Table_Room.h"
 #include "pluto_main/Define_FloorplanType.h"
 #include "pluto_main/Define_FloorplanObjectType.h"
@@ -2105,6 +2106,10 @@ class DataGridTable *General_Info_Plugin::Discs( string GridID, string Parms, vo
 				pCell->m_mapAttributes["RipJob"] = StringUtils::itos(pRow_DiscLocation->RipJob_get());
 			}
 			pCell->m_mapAttributes["PK_Disc"]=StringUtils::itos(pRow_DiscLocation->FK_Disc_get());
+			if( pRow_DiscLocation->Type_get()=="c" )
+				pCell->m_mapAttributes["PK_MediaType"] = TOSTRING(MEDIATYPE_pluto_CD_CONST);
+			else if( pRow_DiscLocation->Type_get()=="d" )
+				pCell->m_mapAttributes["PK_MediaType"] = TOSTRING(MEDIATYPE_pluto_DVD_CONST);
 
 			Row_Disc *pRow_Disc = pRow_DiscLocation->FK_Disc_getrow();
 			if( pRow_Disc )
@@ -2323,6 +2328,10 @@ class DataGridTable *General_Info_Plugin::JukeboxSlots( string GridID, string Pa
 			pCell->m_mapAttributes["EK_Device_Ripping"] = StringUtils::itos(pRow_DiscLocation->EK_Device_Ripping_get());
 			pCell->m_mapAttributes["RipJob"] = StringUtils::itos(pRow_DiscLocation->RipJob_get());
 		}
+		if( pRow_DiscLocation->Type_get()=="c" )
+			pCell->m_mapAttributes["PK_MediaType"] = TOSTRING(MEDIATYPE_pluto_CD_CONST);
+		else if( pRow_DiscLocation->Type_get()=="d" )
+			pCell->m_mapAttributes["PK_MediaType"] = TOSTRING(MEDIATYPE_pluto_DVD_CONST);
 
 		if( pRow_Disc )
 		{

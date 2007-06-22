@@ -1050,14 +1050,14 @@ namespace DCE
 	{
 	public:
 		SCREEN_FileSave(long DeviceIDFrom, long DeviceIDTo,
-			int iEK_Disc, string sCaption, string sCommand, bool bAdvanced_options,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+			int iPK_MediaType, int iEK_Disc, string sCaption, string sCommand, bool bAdvanced_options,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
 		{
-			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 8, 
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 9, 
 				COMMANDPARAMETER_PK_Screen_CONST, "19" /* screen ID */
 				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
 				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
 				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */,
-				131 /* If ripping a disc, the disc to rip */, StringUtils::ltos(iEK_Disc).c_str(), 162 /* Caption */, sCaption.c_str(), 236 /* Command to be executed */, sCommand.c_str(), 237 /* Show advanced options like choose folder or choose drive */, StringUtils::ltos(bAdvanced_options).c_str());
+				29 /* The type of media being saved, if known */, StringUtils::ltos(iPK_MediaType).c_str(), 131 /* If ripping a disc, the disc to rip */, StringUtils::ltos(iEK_Disc).c_str(), 162 /* Caption */, sCaption.c_str(), 236 /* Command to be executed */, sCommand.c_str(), 237 /* Show advanced options like choose folder or choose drive */, StringUtils::ltos(bAdvanced_options).c_str());
 		}
 	};
 
@@ -1065,14 +1065,14 @@ namespace DCE
 	{
 	public:
 		SCREEN_FileSave_DL(long DeviceIDFrom, string sDeviceIDTo,
-			int iEK_Disc, string sCaption, string sCommand, bool bAdvanced_options,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+			int iPK_MediaType, int iEK_Disc, string sCaption, string sCommand, bool bAdvanced_options,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
 		{
-			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 8, 
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 9, 
 				COMMANDPARAMETER_PK_Screen_CONST, "19" /* screen ID */
 				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
 				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
 				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */,
-				131 /* If ripping a disc, the disc to rip */, StringUtils::ltos(iEK_Disc).c_str(), 162 /* Caption */, sCaption.c_str(), 236 /* Command to be executed */, sCommand.c_str(), 237 /* Show advanced options like choose folder or choose drive */, StringUtils::ltos(bAdvanced_options).c_str());
+				29 /* The type of media being saved, if known */, StringUtils::ltos(iPK_MediaType).c_str(), 131 /* If ripping a disc, the disc to rip */, StringUtils::ltos(iEK_Disc).c_str(), 162 /* Caption */, sCaption.c_str(), 236 /* Command to be executed */, sCommand.c_str(), 237 /* Show advanced options like choose folder or choose drive */, StringUtils::ltos(bAdvanced_options).c_str());
 		}
 	};
 
@@ -1080,14 +1080,14 @@ namespace DCE
 	{
 	public:
 		SCREEN_FileSave_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,
-			int iEK_Disc, string sCaption, string sCommand, bool bAdvanced_options,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+			int iPK_MediaType, int iEK_Disc, string sCaption, string sCommand, bool bAdvanced_options,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
 		{
-			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 8, 
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 9, 
 				COMMANDPARAMETER_PK_Screen_CONST, "19" /* screen ID */
 				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
 				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
 				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */,
-				131 /* If ripping a disc, the disc to rip */, StringUtils::ltos(iEK_Disc).c_str(), 162 /* Caption */, sCaption.c_str(), 236 /* Command to be executed */, sCommand.c_str(), 237 /* Show advanced options like choose folder or choose drive */, StringUtils::ltos(bAdvanced_options).c_str());
+				29 /* The type of media being saved, if known */, StringUtils::ltos(iPK_MediaType).c_str(), 131 /* If ripping a disc, the disc to rip */, StringUtils::ltos(iEK_Disc).c_str(), 162 /* Caption */, sCaption.c_str(), 236 /* Command to be executed */, sCommand.c_str(), 237 /* Show advanced options like choose folder or choose drive */, StringUtils::ltos(bAdvanced_options).c_str());
 		}
 	};
 
@@ -1095,14 +1095,14 @@ namespace DCE
 	{
 	public:
 		SCREEN_FileSave_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,
-			int iEK_Disc, string sCaption, string sCommand, bool bAdvanced_options,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+			int iPK_MediaType, int iEK_Disc, string sCaption, string sCommand, bool bAdvanced_options,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
 		{
-			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 8, 
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 9, 
 				COMMANDPARAMETER_PK_Screen_CONST, "19" /* screen ID */
 				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
 				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
 				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */,
-				131 /* If ripping a disc, the disc to rip */, StringUtils::ltos(iEK_Disc).c_str(), 162 /* Caption */, sCaption.c_str(), 236 /* Command to be executed */, sCommand.c_str(), 237 /* Show advanced options like choose folder or choose drive */, StringUtils::ltos(bAdvanced_options).c_str());
+				29 /* The type of media being saved, if known */, StringUtils::ltos(iPK_MediaType).c_str(), 131 /* If ripping a disc, the disc to rip */, StringUtils::ltos(iEK_Disc).c_str(), 162 /* Caption */, sCaption.c_str(), 236 /* Command to be executed */, sCommand.c_str(), 237 /* Show advanced options like choose folder or choose drive */, StringUtils::ltos(bAdvanced_options).c_str());
 		}
 	};
 
@@ -13201,7 +13201,9 @@ namespace DCE
 				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
 				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
 				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */,
-				39 /* Options */, sOptions.c_str(), 224 /* PK_PnpQueue */, StringUtils::ltos(iPK_PnpQueue).c_str());
+				39 /* The format is:
+PK_DeviceData\tPK_Text for question\tPK_Text for Answer 1\tValue for answer 1\tPK_Text for Answer 2 ....\n
+PK_DeviceData .... */, sOptions.c_str(), 224 /* PK_PnpQueue */, StringUtils::ltos(iPK_PnpQueue).c_str());
 		}
 	};
 
@@ -13216,7 +13218,9 @@ namespace DCE
 				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
 				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
 				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */,
-				39 /* Options */, sOptions.c_str(), 224 /* PK_PnpQueue */, StringUtils::ltos(iPK_PnpQueue).c_str());
+				39 /* The format is:
+PK_DeviceData\tPK_Text for question\tPK_Text for Answer 1\tValue for answer 1\tPK_Text for Answer 2 ....\n
+PK_DeviceData .... */, sOptions.c_str(), 224 /* PK_PnpQueue */, StringUtils::ltos(iPK_PnpQueue).c_str());
 		}
 	};
 
@@ -13231,7 +13235,9 @@ namespace DCE
 				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
 				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
 				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */,
-				39 /* Options */, sOptions.c_str(), 224 /* PK_PnpQueue */, StringUtils::ltos(iPK_PnpQueue).c_str());
+				39 /* The format is:
+PK_DeviceData\tPK_Text for question\tPK_Text for Answer 1\tValue for answer 1\tPK_Text for Answer 2 ....\n
+PK_DeviceData .... */, sOptions.c_str(), 224 /* PK_PnpQueue */, StringUtils::ltos(iPK_PnpQueue).c_str());
 		}
 	};
 
@@ -13246,7 +13252,9 @@ namespace DCE
 				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
 				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
 				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */,
-				39 /* Options */, sOptions.c_str(), 224 /* PK_PnpQueue */, StringUtils::ltos(iPK_PnpQueue).c_str());
+				39 /* The format is:
+PK_DeviceData\tPK_Text for question\tPK_Text for Answer 1\tValue for answer 1\tPK_Text for Answer 2 ....\n
+PK_DeviceData .... */, sOptions.c_str(), 224 /* PK_PnpQueue */, StringUtils::ltos(iPK_PnpQueue).c_str());
 		}
 	};
 
@@ -13346,7 +13354,7 @@ namespace DCE
 		virtual void SCREEN_Intercom(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_QuadViewCameras(long PK_Screen, string sList_PK_Device){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_VideoCallInProgress(long PK_Screen){ GotoScreen(PK_Screen); }
-		virtual void SCREEN_FileSave(long PK_Screen, int iEK_Disc, string sCaption, string sCommand, bool bAdvanced_options){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_FileSave(long PK_Screen, int iPK_MediaType, int iEK_Disc, string sCaption, string sCommand, bool bAdvanced_options){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_ManagePlaylist(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_MakeCallDevice(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_MakeCallPhonebook2(long PK_Screen){ GotoScreen(PK_Screen); }
@@ -13701,11 +13709,12 @@ namespace DCE
 				case 19:
 				{
 					ResetCallBacks();
+					int iPK_MediaType = atoi(pMessage->m_mapParameters[29].c_str());
 					int iEK_Disc = atoi(pMessage->m_mapParameters[131].c_str());
 					string sCaption = pMessage->m_mapParameters[162];
 					string sCommand = pMessage->m_mapParameters[236];
 					bool bAdvanced_options = pMessage->m_mapParameters[237] == "1";
-					SCREEN_FileSave(nPK_Screen, iEK_Disc, sCaption, sCommand, bAdvanced_options);
+					SCREEN_FileSave(nPK_Screen, iPK_MediaType, iEK_Disc, sCaption, sCommand, bAdvanced_options);
 					break;
 				}
 				case 20:

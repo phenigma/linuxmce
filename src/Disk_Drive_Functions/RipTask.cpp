@@ -128,6 +128,11 @@ int RipTask::RunAlreadySpawned()
 
 void RipTask::UpdateProgress(string sStatus,int iPercent,int iTime,string sText,string sFilename)
 {
+	if( m_eTaskStatus_get()==TASK_COMPLETED )
+	{
+		LoggerWrapper::GetInstance()->Write(STATUS, "RipTask::UpdateProgress ignoring because we're done status %s message %s file %s", sStatus.c_str(), m_sText.c_str(),sFilename.c_str());
+		return;
+	}
 	m_sText=sText;
 
 	LoggerWrapper::GetInstance()->Write(LV_WARNING, "RipTask::UpdateProgress status %s message %s file %s", sStatus.c_str(), m_sText.c_str(),sFilename.c_str());
