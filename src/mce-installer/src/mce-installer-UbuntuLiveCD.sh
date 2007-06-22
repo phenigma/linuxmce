@@ -16,7 +16,7 @@ else
 	mount /dev/cdrom "$CD_Dir" || exit 1
 fi
 
-if ! mount -o loop -t squashfs "$CD_DIR"/casper/filesystem.squashfs "$Squash_Dir"; then
+if ! mount -o loop -t squashfs "$CD_Dir"/casper/filesystem.squashfs "$Squash_Dir"; then
 	umount -lf "$CD_Dir" || :
 	exit 2
 fi
