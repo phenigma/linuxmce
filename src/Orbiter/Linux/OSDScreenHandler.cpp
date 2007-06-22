@@ -2256,7 +2256,7 @@ bool OSDScreenHandler::SpeedControlCustomRender(CallBackData *pData)
 		PROFILE_START( ctText );
 		TextStyle *pTextStyle = pText->m_mapTextStyle_Find( 0 );
 		string TextToDisplay = m_pOrbiter->SubstituteVariables(m_pOrbiter->SubstituteVariables(pText->m_sText, pText->m_pObject, 0, 0), pText->m_pObject, 0, 0);
-		m_pOrbiter->Renderer()->RenderText( TextToDisplay, pText, pTextStyle, point, "speedtext");
+		m_pOrbiter->Renderer()->RenderText( TextToDisplay, pText, pTextStyle, point, "speedtext_" + StringUtils::ltos(pText->m_PK_Text));
 		PROFILE_STOP( ctText,  "Text ( obj below )" );
 	}
 
