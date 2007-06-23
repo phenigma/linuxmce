@@ -9,9 +9,7 @@ CPPFLAGS += -I/usr/include/mysql
 LDFLAGS += -lmysqlclient_r
 #<-mkr_B_use_mysql_wrapper_e->
 
-#<-mkr_b_use_mysql_wrapper_b->
-CPPFLAGS += -DUSE_MYSQL_WRAPPER
-#<-mkr_b_use_mysql_wrapper_e->
+#
 
 sources = ../db_wrapper/db_wrapper.cpp ../db_wrapper/ClientSocket.cpp ../db_wrapper/Socket.cpp Database_pluto_media.cpp TableRow.cpp \
 Table_Attribute.cpp \
@@ -48,6 +46,7 @@ Table_Picture_File.cpp \
 Table_Playlist.cpp \
 Table_PlaylistEntry.cpp \
 Table_ProviderSource.cpp \
+Table_RipStatus.cpp \
 Table_SearchToken.cpp \
 Table_SearchToken_Attribute.cpp \
 Table_psc_media_batdet.cpp \

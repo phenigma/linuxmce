@@ -93,6 +93,8 @@ class Table_PlaylistEntry* tblPlaylistEntry;
 bool Commit_PlaylistEntry(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 class Table_ProviderSource* tblProviderSource;
 bool Commit_ProviderSource(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
+class Table_RipStatus* tblRipStatus;
+bool Commit_RipStatus(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 class Table_SearchToken* tblSearchToken;
 bool Commit_SearchToken(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 class Table_SearchToken_Attribute* tblSearchToken_Attribute;
@@ -144,6 +146,7 @@ class Table_Picture_File* Picture_File_get() { if( !tblPicture_File ) CreateTabl
 class Table_Playlist* Playlist_get() { if( !tblPlaylist ) CreateTable_Playlist(); return tblPlaylist; }
 class Table_PlaylistEntry* PlaylistEntry_get() { if( !tblPlaylistEntry ) CreateTable_PlaylistEntry(); return tblPlaylistEntry; }
 class Table_ProviderSource* ProviderSource_get() { if( !tblProviderSource ) CreateTable_ProviderSource(); return tblProviderSource; }
+class Table_RipStatus* RipStatus_get() { if( !tblRipStatus ) CreateTable_RipStatus(); return tblRipStatus; }
 class Table_SearchToken* SearchToken_get() { if( !tblSearchToken ) CreateTable_SearchToken(); return tblSearchToken; }
 class Table_SearchToken_Attribute* SearchToken_Attribute_get() { if( !tblSearchToken_Attribute ) CreateTable_SearchToken_Attribute(); return tblSearchToken_Attribute; }
 class Table_psc_media_batdet* psc_media_batdet_get() { if( !tblpsc_media_batdet ) CreateTable_psc_media_batdet(); return tblpsc_media_batdet; }
@@ -192,6 +195,7 @@ void CreateTable_Picture_File();
 void CreateTable_Playlist();
 void CreateTable_PlaylistEntry();
 void CreateTable_ProviderSource();
+void CreateTable_RipStatus();
 void CreateTable_SearchToken();
 void CreateTable_SearchToken_Attribute();
 void CreateTable_psc_media_batdet();
@@ -234,6 +238,7 @@ void DeleteTable_Picture_File();
 void DeleteTable_Playlist();
 void DeleteTable_PlaylistEntry();
 void DeleteTable_ProviderSource();
+void DeleteTable_RipStatus();
 void DeleteTable_SearchToken();
 void DeleteTable_SearchToken_Attribute();
 void DeleteTable_psc_media_batdet();

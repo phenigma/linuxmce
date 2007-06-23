@@ -42,6 +42,7 @@ using namespace std;
 #include "Table_Disc_Users.h"
 #include "Table_LongAttribute.h"
 #include "Table_Picture_Disc.h"
+#include "Table_RipStatus.h"
 
 
 void Database_pluto_media::CreateTable_Disc()
@@ -1313,6 +1314,13 @@ void Row_Disc::Picture_Disc_FK_Disc_getrows(vector <class Row_Picture_Disc*> *ro
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 class Table_Picture_Disc *pTable = table->database->Picture_Disc_get();
+pTable->GetRows("`FK_Disc`=" + StringUtils::itos(m_PK_Disc),rows);
+}
+void Row_Disc::RipStatus_FK_Disc_getrows(vector <class Row_RipStatus*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
+
+class Table_RipStatus *pTable = table->database->RipStatus_get();
 pTable->GetRows("`FK_Disc`=" + StringUtils::itos(m_PK_Disc),rows);
 }
 

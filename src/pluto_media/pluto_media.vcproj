@@ -220,6 +220,9 @@
 				RelativePath=".\Table_ProviderSource.cpp">
 			</File>
 			<File
+				RelativePath=".\Table_RipStatus.cpp">
+			</File>
+			<File
 				RelativePath=".\Table_SearchToken.cpp">
 			</File>
 			<File
