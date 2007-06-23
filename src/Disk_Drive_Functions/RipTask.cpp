@@ -23,10 +23,13 @@
 
 #include "pluto_main/Define_Event.h"
 #include "pluto_main/Define_EventParameter.h"
+#include "pluto_media/Table_RipStatus.h"
+#include "pluto_media/Table_DiscLocation.h"
 #include "Gen_Devices/AllCommandsRequests.h"
 #include "Gen_Devices/AllScreens.h"
 #include "PlutoUtils/FileUtils.h"
 #include "Media_Plugin/Media_Plugin.h"
+#include "JukeBox.h"
 
 using namespace nsJobHandler;
 
@@ -37,62 +40,78 @@ RipTask::RipTask(RipJob *pRipJob,string sName,int iTrack)
 	m_iTime=0;
 	m_bSpawnedRip=false;
 	m_pRipJob=pRipJob; // A duplicate of m_pJob, but we don't need to keep recasting
+	m_pRow_RipStatus=NULL;
 }
 
 int RipTask::Run()
 {
+	if( !m_pRow_RipStatus )
+	{
+		m_pRow_RipStatus = m_pRipJob->m_pDatabase_pluto_media->RipStatus_get()->AddRow();
+		if( m_pRipJob->m_pDisk_Drive_Functions )
+			m_pRow_RipStatus->EK_Device_set(m_pRipJob->m_pDisk_Drive_Functions->m_dwPK_Device_get());
+		if( m_pRipJob->m_pSlot )
+			m_pRow_RipStatus->Slot_set(m_pRipJob->m_pSlot->m_SlotNumber);
+		if( m_pRipJob->m_pRow_DiscLocation )
+		{
+			m_pRow_RipStatus->Type_set(m_pRipJob->m_pRow_DiscLocation->Type_get());
+			if( m_pRipJob->m_pRow_DiscLocation->FK_Disc_get() )
+				m_pRow_RipStatus->Slot_set(m_pRipJob->m_pRow_DiscLocation->FK_Disc_get());
+		}
+		m_pRow_RipStatus->RipJob_set( m_pRipJob->m_iID_get() );
+		m_pRipJob->m_pDatabase_pluto_media->RipStatus_get()->Commit();
+	}
+
 	if( m_bSpawnedRip )
 		return RunAlreadySpawned();  // We already spawned.  Another run which checks to see if the task is still active
 
-	RipJob *pRipJob = (RipJob *) m_pJob;
-
-	if (!pRipJob->m_pDisk_Drive_Functions->m_pDevice_AppServer)
+	if (!m_pRipJob->m_pDisk_Drive_Functions->m_pDevice_AppServer)
 	{
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Cannot rip -- no appserver");
 		return 0;
 	}
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Going to rip %s; drive number: %d", m_sName.c_str(), pRipJob->m_pDisk_Drive_Functions->m_dwPK_Device);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Going to rip %s; drive number: %d", m_sName.c_str(), m_pRipJob->m_pDisk_Drive_Functions->m_dwPK_Device);
 
-	if (!pRipJob->m_pDisk_Drive_Functions->m_mediaInserted)
+	if (!m_pRipJob->m_pDisk_Drive_Functions->m_mediaInserted)
 	{
-		pRipJob->m_pDisk_Drive_Functions->EVENT_Ripping_Progress("",RIP_RESULT_NO_DISC, "", m_sName, pRipJob->m_iEK_Disc);
+		m_pRipJob->m_pDisk_Drive_Functions->EVENT_Ripping_Progress("",RIP_RESULT_NO_DISC, "", m_sName, m_pRipJob->m_iEK_Disc);
 		return 0;
 	}
 
-	if (pRipJob->m_pDisk_Drive_Functions->m_mediaDiskStatus != DISCTYPE_CD_AUDIO && 
-		pRipJob->m_pDisk_Drive_Functions->m_mediaDiskStatus != DISCTYPE_DVD_VIDEO && 
-		pRipJob->m_pDisk_Drive_Functions->m_mediaDiskStatus != DISCTYPE_CD_MIXED && 
-		pRipJob->m_pDisk_Drive_Functions->m_mediaDiskStatus != DISCTYPE_CD_VCD)
+	if (m_pRipJob->m_pDisk_Drive_Functions->m_mediaDiskStatus != DISCTYPE_CD_AUDIO && 
+		m_pRipJob->m_pDisk_Drive_Functions->m_mediaDiskStatus != DISCTYPE_DVD_VIDEO && 
+		m_pRipJob->m_pDisk_Drive_Functions->m_mediaDiskStatus != DISCTYPE_CD_MIXED && 
+		m_pRipJob->m_pDisk_Drive_Functions->m_mediaDiskStatus != DISCTYPE_CD_VCD)
 	{
-		pRipJob->m_pDisk_Drive_Functions->EVENT_Ripping_Progress("", RIP_RESULT_INVALID_DISC_TYPE, "", m_sName, pRipJob->m_iEK_Disc);
+		m_pRipJob->m_pDisk_Drive_Functions->EVENT_Ripping_Progress("", RIP_RESULT_INVALID_DISC_TYPE, "", m_sName, m_pRipJob->m_iEK_Disc);
 		return 0;
 	}
 
-	if (pRipJob->m_pDisk_Drive_Functions->isRipping())
+	if (m_pRipJob->m_pDisk_Drive_Functions->isRipping())
 	{
-		pRipJob->m_pDisk_Drive_Functions->EVENT_Ripping_Progress("", RIP_RESULT_ALREADY_RIPPING, "", m_sName, pRipJob->m_iEK_Disc);
+		m_pRipJob->m_pDisk_Drive_Functions->EVENT_Ripping_Progress("", RIP_RESULT_ALREADY_RIPPING, "", m_sName, m_pRipJob->m_iEK_Disc);
 		return 0;
 	}
 
-	if( pRipJob->m_pDisk_Drive_Functions->m_mediaDiskStatus==DISCTYPE_CD_MIXED || pRipJob->m_pDisk_Drive_Functions->m_mediaDiskStatus==DISCTYPE_CD_AUDIO )
+	if( m_pRipJob->m_pDisk_Drive_Functions->m_mediaDiskStatus==DISCTYPE_CD_MIXED || m_pRipJob->m_pDisk_Drive_Functions->m_mediaDiskStatus==DISCTYPE_CD_AUDIO )
 		StringUtils::Replace(&((RipJob *) m_pJob)->m_sFileName,"___audio___or___video___","audio");
-	else if( pRipJob->m_pDisk_Drive_Functions->m_mediaDiskStatus==DISCTYPE_DVD_VIDEO || pRipJob->m_pDisk_Drive_Functions->m_mediaDiskStatus==DISCTYPE_CD_VCD )
+	else if( m_pRipJob->m_pDisk_Drive_Functions->m_mediaDiskStatus==DISCTYPE_DVD_VIDEO || m_pRipJob->m_pDisk_Drive_Functions->m_mediaDiskStatus==DISCTYPE_CD_VCD )
 		StringUtils::Replace(&((RipJob *) m_pJob)->m_sFileName,"___audio___or___video___","videos");
 
 	string strParameters;
-	strParameters = StringUtils::itos(pRipJob->m_pDisk_Drive_Functions->m_pCommand_Impl->m_dwPK_Device) + "\t" 
+	strParameters = StringUtils::itos(m_pRipJob->m_pDisk_Drive_Functions->m_pCommand_Impl->m_dwPK_Device) + "\t" 
 		+ StringUtils::itos(m_pJob->m_iID_get()) + "\t" 
 		+ StringUtils::itos(m_iID_get()) + "\t"
-		+ ((RipJob *) m_pJob)->m_sFileName + "\t" + pRipJob->m_pDisk_Drive_Functions->m_sDrive + "\t" 
-		+ StringUtils::itos(pRipJob->m_pDisk_Drive_Functions->m_mediaDiskStatus) + "\t" 
-		+ StringUtils::itos(pRipJob->m_iPK_Users) + "\t" 
-		+ pRipJob->m_sFormat + "\t" + pRipJob->m_sTracks;
+		+ ((RipJob *) m_pJob)->m_sFileName + "\t" + m_pRipJob->m_pDisk_Drive_Functions->m_sDrive + "\t" 
+		+ StringUtils::itos(m_pRipJob->m_pDisk_Drive_Functions->m_mediaDiskStatus) + "\t" 
+		+ StringUtils::itos(m_pRipJob->m_iPK_Users) + "\t" 
+		+ m_pRipJob->m_sFormat + "\t" + m_pRipJob->m_sTracks;
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Launching ripping job2 with name \"%s\" for disk with type \"%d\" parms %s", 
-		m_sName.c_str(), pRipJob->m_pDisk_Drive_Functions->m_mediaDiskStatus, strParameters.c_str());
+		m_sName.c_str(), m_pRipJob->m_pDisk_Drive_Functions->m_mediaDiskStatus, strParameters.c_str());
 
 	string sResultMessage =
-		StringUtils::itos(pRipJob->m_pDisk_Drive_Functions->m_dwPK_Device) + " " + StringUtils::itos(pRipJob->m_pDisk_Drive_Functions->m_pCommand_Impl->m_dwPK_Device) +
+		StringUtils::itos(m_pRipJob->m_pDisk_Drive_Functions->m_dwPK_Device) + " " + StringUtils::itos(m_pRipJob->m_pDisk_Drive_Functions->m_pCommand_Impl->m_dwPK_Device) +
 			" " + StringUtils::itos(MESSAGETYPE_COMMAND) +
 			" " + StringUtils::itos(COMMAND_Update_Ripping_Status_CONST) + " " + StringUtils::itos(COMMANDPARAMETER_Task_CONST) + " " + StringUtils::itos(m_iID_get()) +
 			" " + StringUtils::itos(COMMANDPARAMETER_Job_CONST) + " " + StringUtils::itos(m_pJob->m_iID_get()) + " " +
@@ -101,8 +120,8 @@ int RipTask::Run()
 	m_sSpawnName="rip_job_" + StringUtils::itos(m_pJob->m_iID_get()) + "_task_" + StringUtils::itos(m_iID);
 
 	DCE::CMD_Spawn_Application
-		spawnApplication(pRipJob->m_pDisk_Drive_Functions->m_pCommand_Impl->m_dwPK_Device,
-						pRipJob->m_pDisk_Drive_Functions->m_pDevice_AppServer->m_dwPK_Device,
+		spawnApplication(m_pRipJob->m_pDisk_Drive_Functions->m_pCommand_Impl->m_dwPK_Device,
+						m_pRipJob->m_pDisk_Drive_Functions->m_pDevice_AppServer->m_dwPK_Device,
 						"/usr/pluto/bin/ripDiskWrapper.sh", 
 						m_sSpawnName,
 						strParameters,
@@ -111,7 +130,7 @@ int RipTask::Run()
 						false, false, false, true);
 
 	string sResponse;
-    if (! pRipJob->m_pDisk_Drive_Functions->m_pCommand_Impl->SendCommand(spawnApplication,&sResponse) || sResponse != "OK")
+    if (! m_pRipJob->m_pDisk_Drive_Functions->m_pCommand_Impl->SendCommand(spawnApplication,&sResponse) || sResponse != "OK")
 	{
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Trying to rip - App server returned %s",sResponse.c_str());
 		return 0;
@@ -133,9 +152,17 @@ void RipTask::UpdateProgress(string sStatus,int iPercent,int iTime,string sText,
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "RipTask::UpdateProgress ignoring because we're done status %s message %s file %s", sStatus.c_str(), m_sText.c_str(),sFilename.c_str());
 		return;
 	}
+
+	if( m_pRow_RipStatus )
+	{
+		m_pRow_RipStatus->Status_set(sStatus);
+		m_pRow_RipStatus->Message_set(sText);
+	}
+
 	m_sText=sText;
 
-	LoggerWrapper::GetInstance()->Write(LV_WARNING, "RipTask::UpdateProgress status %s message %s file %s", sStatus.c_str(), m_sText.c_str(),sFilename.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "RipTask::UpdateProgress id %d m_eTaskStatus_get %d status %s message %s file %s (%s)", 
+		m_pRipJob->m_iID_get(), m_eTaskStatus_get(), sStatus.c_str(), sText.c_str(),m_pRipJob->m_sFileName.c_str(), sFilename.c_str());
 
 	if( sStatus=="p" )
 	{

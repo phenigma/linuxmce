@@ -196,7 +196,7 @@ int RipJob::SecondsRemaining()
 string RipJob::ToString()
 { 
 	if( !m_pDisk_Drive_Functions )
-		return "Waiting... (" + m_sFileName + ")";
+		return "Waiting... (" + m_sFileName + ")" + (m_pSlot ? " Slot: " + StringUtils::itos(m_pSlot->m_SlotNumber) : "");
 
 	PLUTO_SAFETY_LOCK(jm,m_ThreadMutex);
 	int iTaskNum=0;  // This will be which task we're working on

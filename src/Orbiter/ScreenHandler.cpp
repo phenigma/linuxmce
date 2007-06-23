@@ -2176,7 +2176,10 @@ void ScreenHandler::SCREEN_FileSave(long PK_Screen, int iPK_MediaType, int iEK_D
 	m_pOrbiter->CMD_Set_Text(StringUtils::ltos(m_p_MapDesignObj_Find(PK_Screen)), sCaption, TEXT_STATUS_CONST);
 	ScreenHandlerBase::SCREEN_FileSave(PK_Screen, iPK_MediaType, iEK_Disc, sCaption, sCommand, bAdvanced_options);
 	if( iEK_Disc==-999 )  // Special things means go to the bulk ripping screen
+	{
 		m_pOrbiter->CMD_Goto_DesignObj(0,TOSTRING(DESIGNOBJ_mnuBulkRipping_CONST),"","",false,true);
+		m_pOrbiter->CMD_Set_Text(TOSTRING(DESIGNOBJ_mnuBulkRipping_CONST), m_pOrbiter->m_mapTextString[TEXT_Bulk_rip_choose_name_CONST], TEXT_STATUS_CONST);
+	}
 
 
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::FileSave_ObjectSelected,	

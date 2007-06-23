@@ -22,6 +22,8 @@
 
 #include "JobHandler/Task.h"
 
+class Row_RipStatus;
+
 namespace nsJobHandler
 {
 	class RipTask : public Task
@@ -30,6 +32,7 @@ namespace nsJobHandler
 		bool m_bSpawnedRip;
 		string m_sText,m_sSpawnName;
 		class RipJob *m_pRipJob;
+		Row_RipStatus *m_pRow_RipStatus;
 
 	public:
 		RipTask(class RipJob *pRipJob,string sName,int iTrack);
