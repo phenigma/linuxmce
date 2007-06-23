@@ -191,6 +191,7 @@ public:
 	void AddPictureToFile(int PK_File,int PK_Picture);
 	void AddPictureToAttribute(int PK_Attribute,int PK_Picture);
 	int GetMediaType(Row_DiscLocation *pRow_DiscLocation);
+	void GetDefaultRippingName(Row_Disc *pRow_Disc,string *sFilename,string *sDirectory);
 
 	void PurgeListMediaAttribute(listMediaAttribute &listMediaAttribute_)
 	{

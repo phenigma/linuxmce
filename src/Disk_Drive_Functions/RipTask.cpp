@@ -51,7 +51,7 @@ int RipTask::Run()
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Cannot rip -- no appserver");
 		return 0;
 	}
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Going to rip %s; drive number: %d", m_sName.c_str(), pRipJob->m_iDrive_Number);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Going to rip %s; drive number: %d", m_sName.c_str(), pRipJob->m_pDisk_Drive_Functions->m_dwPK_Device);
 
 	if (!pRipJob->m_pDisk_Drive_Functions->m_mediaInserted)
 	{

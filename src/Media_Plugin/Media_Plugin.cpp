@@ -5813,27 +5813,7 @@ void Media_Plugin::CMD_Get_Default_Ripping_Info(int iEK_Disc,string *sFilename,b
 			return;
 		}
 		*sFilename=""; // May not have been empty
-		if( pRow_Disc->EK_MediaType_get()==MEDIATYPE_pluto_CD_CONST )
-		{
-			string sPerformer,sAlbum;
-			m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetAttributeFromDisc(iEK_Disc,ATTRIBUTETYPE_Performer_CONST,sPerformer);
-			m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetAttributeFromDisc(iEK_Disc,ATTRIBUTETYPE_Album_CONST,sAlbum);
-			*sFilename = FileUtils::ValidFileName(sPerformer);
-			if(sFilename->size())
-				*sFilename += "/"; // We got a performer
-
-			*sFilename += FileUtils::ValidFileName(sAlbum);
-			*sDirectory = "audio";
-		}
-		else
-			*sDirectory = "videos";
-
-		if( sFilename->empty() )
-		{
-			string sTitle;
-			m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetAttributeFromDisc(iEK_Disc,ATTRIBUTETYPE_Title_CONST,sTitle);
-			*sFilename = FileUtils::ValidFileName(sTitle);
-		}
+		m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetDefaultRippingName(pRow_Disc,sFilename,sDirectory);
 	}
 	else
 	{

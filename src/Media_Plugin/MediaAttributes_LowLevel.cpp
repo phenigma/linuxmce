@@ -1614,3 +1614,29 @@ int MediaAttributes_LowLevel::GetMediaType(Row_DiscLocation *pRow_DiscLocation)
 	}
 	return 0;
 }
+
+void MediaAttributes_LowLevel::GetDefaultRippingName(Row_Disc *pRow_Disc,string *sFilename,string *sDirectory)
+{
+	if( pRow_Disc->EK_MediaType_get()==MEDIATYPE_pluto_CD_CONST )
+	{
+		string sPerformer,sAlbum;
+		GetAttributeFromDisc(pRow_Disc->PK_Disc_get(),ATTRIBUTETYPE_Performer_CONST,sPerformer);
+		GetAttributeFromDisc(pRow_Disc->PK_Disc_get(),ATTRIBUTETYPE_Album_CONST,sAlbum);
+		*sFilename = FileUtils::ValidFileName(sPerformer);
+		if(sFilename->size())
+			*sFilename += "/"; // We got a performer
+
+		*sFilename += FileUtils::ValidFileName(sAlbum);
+		*sDirectory = "audio";
+	}
+	else
+		*sDirectory = "videos";
+
+	if( sFilename->empty() )
+	{
+		string sTitle;
+		GetAttributeFromDisc(pRow_Disc->PK_Disc_get(),ATTRIBUTETYPE_Title_CONST,sTitle);
+		*sFilename = FileUtils::ValidFileName(sTitle);
+	}
+}
+

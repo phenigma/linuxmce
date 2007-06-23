@@ -49,7 +49,7 @@ namespace nsJobHandler
 	private:
 		Disk_Drive_Functions *m_pDisk_Drive_Functions;
 		Slot *m_pSlot;
-		int m_iPK_Users, m_iEK_Disc, m_iDrive_Number,m_iPK_MediaType;
+		int m_iPK_Users, m_iEK_Disc, m_iPK_MediaType;
 		string m_sFormat, m_sFileName, m_sDirectory, m_sTracks;
 		Row_DiscLocation *m_pRow_DiscLocation;
 		Database_pluto_media *m_pDatabase_pluto_media;

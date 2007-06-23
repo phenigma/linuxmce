@@ -35,7 +35,7 @@ or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more detai
 #include "pluto_media/Define_AttributeType.h"
 #include "Gen_Devices/AllCommandsRequests.h"
 #include "VFD_LCD/VFD_LCD_Base.h"
-
+#include "../Media_Plugin/MediaAttributes_LowLevel.h"
 #include "RipJob.h"
 
 #include <fcntl.h>
@@ -578,6 +578,9 @@ void Disk_Drive_Functions::FixupRippingInfo(Disk_Drive_Functions *pDisk_Drive_Fu
 {
 	Row_Disc *pRow_Disc = m_pDatabase_pluto_media->Disc_get()->GetRow(iEK_Disc);
 
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive_Functions::FixupRippingInfo disc %p PK_MediaType %d sFilename %s sTracks %s iEK_Disc %d sDirectory %s",
+		pRow_Disc, PK_MediaType,sFilename.c_str(),sTracks.c_str(),iEK_Disc,sDirectory.c_str());
+
 	sFilename=FileUtils::ValidFileName(sFilename,true,true);
 	sDirectory=FileUtils::ValidFileName(sDirectory,true,true);
 
@@ -638,7 +641,7 @@ void Disk_Drive_Functions::FixupRippingInfo(Disk_Drive_Functions *pDisk_Drive_Fu
 				sNewTracks += FileUtils::ValidFileName(sName,true,true) + "|";
 			}
 		}
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Transformed %s into %s",sTracks.c_str(),sNewTracks.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive_Functions::FixupRippingInfo Transformed %s into %s",sTracks.c_str(),sNewTracks.c_str());
 		sTracks=sNewTracks;
 	}
 
@@ -646,13 +649,24 @@ void Disk_Drive_Functions::FixupRippingInfo(Disk_Drive_Functions *pDisk_Drive_Fu
 	// Validate the name and be sure it's unique
 	if( sFilename.size()==0 )
 	{
-		sFilename = "Unknown disc";
-		bUsingUnknownDiscName=true;
+		// We have a disc.  Try to get a real name
+		string sDirectory2;
+		if( pRow_Disc )
+		{
+			m_pMediaAttributes_LowLevel->GetDefaultRippingName(pRow_Disc,&sFilename,&sDirectory2);
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive_Functions::FixupRippingInfo GetDefaultRippingName got %s", sFilename.c_str());
+		}
+		if( sFilename.size()==0 )
+		{
+			sFilename = PK_MediaType==MEDIATYPE_pluto_DVD_CONST ? "Unknown DVD" : "Unknown CD";
+			bUsingUnknownDiscName=true;
+		}
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive_Functions::FixupRippingInfo fixed directory %s / %s / %s", sDirectory.c_str(), sFilename.c_str(), sDirectory2.c_str());
 	}
 
 	sFilename = sDirectory + sFilename;
 
-	if( bUsingUnknownDiscName && FileUtils::DirExists(sFilename) )  // Be sure the directory name is unique if we're using the default
+	if( bUsingUnknownDiscName && ( (PK_MediaType==MEDIATYPE_pluto_CD_CONST && FileUtils::DirExists(sFilename)) || (PK_MediaType==MEDIATYPE_pluto_DVD_CONST && FileUtils::FileExists(sFilename)) ) )  // Be sure the directory name is unique if we're using the default
 	{
 		int Counter=1;
 		string sNewName = sFilename + "_" + StringUtils::itos(Counter++);
@@ -660,6 +674,9 @@ void Disk_Drive_Functions::FixupRippingInfo(Disk_Drive_Functions *pDisk_Drive_Fu
 			sNewName = sFilename + "_" + StringUtils::itos(Counter++);
 		sFilename = sNewName;
 	}
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive_Functions::FixupRippingInfo done PK_MediaType %d sFilename %s sTracks %s iEK_Disc %d sDirectory %s",
+		PK_MediaType,sFilename.c_str(),sTracks.c_str(),iEK_Disc,sDirectory.c_str());
 }
 
 string Disk_Drive_Functions::getTracks(string mrl)
