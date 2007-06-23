@@ -612,6 +612,17 @@ void Disk_Drive_Functions::FixupRippingInfo(Disk_Drive_Functions *pDisk_Drive_Fu
 		map<int,string> mapTracks;
 		if( pRow_Disc )
 			GetTracksForDisc(pRow_Disc,mapTracks);
+		else
+		{
+			string sTemp = getTracks("");
+			string::size_type pos=0;
+			while(pos<sTemp.size())
+			{
+				string s = StringUtils::Tokenize(sTemp,"\n",pos);
+				mapTracks[ atoi(s.c_str()) ] = "Track " + s;
+			}
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive_Functions::FixupRippingInfo got %d tracks from: %s", (int) mapTracks.size(), sTemp.c_str());
+		}
 
 		string sNewTracks="";
 		if( sTracks=="A" )

@@ -54,8 +54,6 @@ RipJob::RipJob(Database_pluto_media *pDatabase_pluto_media,
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "RipJob::RipJob %d drive %d slot %d %s / %s", m_iID, m_pDisk_Drive_Functions ? m_pDisk_Drive_Functions->m_dwPK_Device_get() : 0,
 		m_pSlot ? m_pSlot->m_SlotNumber : 0, m_sDirectory.c_str(), m_sFileName.c_str());
 
-
-
 	string sWhere;
 	if( m_pDisk_Drive_Functions )
 	{
@@ -93,6 +91,10 @@ RipJob::RipJob(Database_pluto_media *pDatabase_pluto_media,
 
 RipJob::~RipJob()
 {
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "RipJob::~RipJob %d drive %d slot %d %s / %s", m_iID, m_pDisk_Drive_Functions ? m_pDisk_Drive_Functions->m_dwPK_Device_get() : 0,
+		m_pSlot ? m_pSlot->m_SlotNumber : 0, m_sDirectory.c_str(), m_sFileName.c_str());
+
+	m_pRow_DiscLocation->Reload();
 	m_pRow_DiscLocation->EK_Device_Ripping_setNull(true);
 	m_pRow_DiscLocation->RipJob_setNull(true);
 	m_pRow_DiscLocation->Table_DiscLocation_get()->Commit();
