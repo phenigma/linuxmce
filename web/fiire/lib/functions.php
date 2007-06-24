@@ -1687,7 +1687,7 @@ function process_contact_form($page,$conn){
 
 function record_dealer($categs,$conn){
 	if(!isset($_SESSION['uID']) || (int)$_SESSION['uID']==0){
-		return 'Please login in order to update your account.';
+		return 'Read how Fiire's program works <a href="dealer_explained.php">here</a>.  Then register or login to sign up.';
 	}	
 
 	
@@ -1936,9 +1936,8 @@ function star_rating($no){
 
 function edit_dealer($id,$categs,$conn){
 	if(!isset($_SESSION['uID']) || (int)$_SESSION['uID']==0){
-		return 'Please login in order to update your account.';
+		return 'Read how Fiire's program works <a href="dealer_explained.php">here</a>.  Then register or login to sign up.';
 	}	
-
 	
 	if(isset($_POST['save'])){
 		return process_edit_dealer($categs,$conn);
