@@ -464,6 +464,7 @@ void Powerfile_C200::CMD_Mount_Disk_Image(string sFilename,string *sMediaURL,str
 void Powerfile_C200::CMD_Abort_Ripping(string &sCMD_Result,Message *pMessage)
 //<-dceag-c55-e->
 {
+	m_pPowerfileJukebox->AbortAll();
 }
 
 //<-dceag-c56-b->

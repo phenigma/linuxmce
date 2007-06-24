@@ -163,6 +163,7 @@ namespace nsJukeBox
 		// High level functions
 		void MassIdentify(string sSlots,int PK_Orbiter);
 
+		virtual void AbortAll();
 		virtual void Media_Identified(int iPK_Device,string sValue_To_Assign,string sID,char *pData,int iData_Size,string sFormat,int iPK_MediaType,string sMediaURL,string sURL,int *iEK_Disc);
 		virtual JukeBoxReturnCode LoadDiscs(bool bMultiple,int PK_Orbiter);
 		virtual JukeBoxReturnCode Load_from_Slot_into_Drive(int iSlot_Number,int *iPK_Device,int iPK_Orbiter);

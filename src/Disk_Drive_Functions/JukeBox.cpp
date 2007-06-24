@@ -255,6 +255,20 @@ void JukeBox::AddDiscToDb(int PK_Device,int Slot,char Type)
 	m_pDatabase_pluto_media->threaded_db_wrapper_query(sSQL);
 }
 
+void JukeBox::AbortAll()
+{
+	PLUTO_SAFETY_LOCK(jm,*m_pJobHandler->m_ThreadMutex_get());
+	const ListJob *plistJob = m_pJobHandler->m_listJob_get();
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"PowerfileJukebox::AbortAll %d jobs", plistJob->size());
+
+	for(ListJob::const_iterator it=plistJob->begin();it!=plistJob->end();++it)
+	{
+		Job *pJob = *it;
+		pJob->Abort();
+	}
+}
+
 void JukeBox::Media_Identified(int iPK_Device,string sValue_To_Assign,string sID,char *pData,int iData_Size,string sFormat,int iPK_MediaType,string sMediaURL,string sURL,int *iEK_Disc)
 {
 	DCE::CMD_Media_Identified_DT CMD_Media_Identified_DT(m_pCommand_Impl->m_dwPK_Device,DEVICETEMPLATE_Media_Plugin_CONST,
