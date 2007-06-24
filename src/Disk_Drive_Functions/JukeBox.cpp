@@ -27,6 +27,7 @@
 #include "pluto_main/Define_Event.h"
 #include "pluto_main/Define_EventParameter.h"
 #include "pluto_media/Table_DiscLocation.h"
+#include "pluto_media/Table_Disc.h"
 #include "Gen_Devices/AllCommandsRequests.h"
 #include "Gen_Devices/AllScreens.h"
 #include "PlutoUtils/FileUtils.h"
@@ -304,6 +305,25 @@ void JukeBox::Media_Identified(int iPK_Device,string sValue_To_Assign,string sID
 				Task *pTask = pIdentifyJob->GetNextTask();
 				if( pTask && pTask->GetType()=="IdentifyTask" )
 				{
+					pTask->m_eTaskStatus_set(TASK_COMPLETED);
+					return;
+				}
+			}
+		}
+		else if( pJob->GetType()=="RipJob" )
+		{
+			RipJob *pRipJob = (RipJob *) pJob;
+			if( pRipJob->m_pDisk_Drive_Functions && pRipJob->m_pDisk_Drive_Functions->m_dwPK_Device_get()==iPK_Device )
+			{
+				// Found the job.  Now get the pending task
+				Task *pTask = pRipJob->GetNextTask();
+				if( pTask && pTask->GetType()=="IdentifyTask" )
+				{
+					Row_Disc *pRow_Disc = m_pDatabase_pluto_media->Disc_get()->GetRow(*iEK_Disc);
+					if( pRow_Disc )
+						pRipJob->m_iEK_Disc = *iEK_Disc;
+
+					LoggerWrapper::GetInstance()->Write(LV_STATUS,"PowerfileJukebox::Media_Identified updated bulk rip to %d %p", *iEK_Disc, pRow_Disc);
 					pTask->m_eTaskStatus_set(TASK_COMPLETED);
 					return;
 				}

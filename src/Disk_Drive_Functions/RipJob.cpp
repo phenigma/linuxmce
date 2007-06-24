@@ -26,6 +26,7 @@
 #include "MoveDiscTask.h"
 #include "FixupRippingInfoTask.h"
 #include "pluto_media/Table_DiscLocation.h"
+#include "IdentifyTask.h"
 
 using namespace nsJobHandler;
 using namespace DCE;
@@ -122,6 +123,7 @@ bool RipJob::ReadyToRun()
 
 	m_pDisk_Drive_Functions=pDrive;
 	AddTask(new MoveDiscTask(this,"SlotToDrive",MoveDiscTask::mdt_SlotToDrive,m_pSlot->m_pJukeBox,pDrive,m_pSlot));
+	AddTask(new IdentifyTask(this,m_pDisk_Drive_Functions,m_pCommand_Impl,"Identify"));
 	AddTask(new FixupRippingInfoTask(this,"FixupRippingInfo"));
 	AddRippingTasks();
 	AddTask(new MoveDiscTask(this,"DriveToSlot",MoveDiscTask::mdt_DriveToSlot,m_pSlot->m_pJukeBox,pDrive,m_pSlot));

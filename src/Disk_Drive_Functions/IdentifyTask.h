@@ -22,15 +22,20 @@
 
 #include "JobHandler/Task.h"
 
+class Disk_Drive_Functions;
+namespace DCE { class Command_Impl; }
+using namespace DCE;
+
 namespace nsJobHandler
 {
 	class IdentifyTask : public Task
 	{
-		class IdentifyJob *m_pIdentifyJob;
+		Disk_Drive_Functions *m_pDisk_Drive_Functions;
+		Command_Impl *m_pCommand_Impl;
 		time_t m_tSentIdCommand;
 
 	public:
-		IdentifyTask(class IdentifyJob *pIdentifyJob,string sName);
+		IdentifyTask(Job *pJob,Disk_Drive_Functions *pDisk_Drive_Functions,Command_Impl *pCommand_Impl,string sName);
 		virtual ~IdentifyTask() {}
 		virtual string GetType() { return "IdentifyTask"; }
 

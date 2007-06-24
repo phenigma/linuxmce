@@ -45,6 +45,7 @@ namespace nsJobHandler
 	{
 		friend class RipTask;
 		friend class FixupRippingInfoTask;
+		friend class JukeBox;
 
 	private:
 		Disk_Drive_Functions *m_pDisk_Drive_Functions;

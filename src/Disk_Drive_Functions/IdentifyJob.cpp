@@ -99,7 +99,7 @@ bool IdentifyJob::ReadyToRun()
 
 void IdentifyJob::AddIdentifyTasks()
 {
-	AddTask(new IdentifyTask(this,"Identify"));
+	AddTask(new IdentifyTask(this,m_pDisk_Drive_Functions,m_pCommand_Impl,"Identify"));
 }
 
 bool IdentifyJob::ReportPendingTasks(PendingTaskList *pPendingTaskList)
