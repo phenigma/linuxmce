@@ -1687,7 +1687,7 @@ function process_contact_form($page,$conn){
 
 function record_dealer($categs,$conn){
 	if(!isset($_SESSION['uID']) || (int)$_SESSION['uID']==0){
-		return 'Read how Fiire's program works <a href="dealer_explained.php">here</a>.  Then register or login to sign up.';
+		return 'Read how Fiire\'s program works <a href="dealer_explained.php">here</a>.  Then register or login to sign up.';
 	}	
 
 	
