@@ -607,8 +607,10 @@ void Disk_Drive_Functions::FixupRippingInfo(Disk_Drive_Functions *pDisk_Drive_Fu
 			return;
 		}
 	}
+
 	if( PK_MediaType==MEDIATYPE_pluto_CD_CONST )
 	{
+		StringUtils::Replace(&sDirectory,"___audio___or___video___","audio");
 		map<int,string> mapTracks;
 		if( pRow_Disc )
 			GetTracksForDisc(pRow_Disc,mapTracks);
@@ -629,6 +631,8 @@ void Disk_Drive_Functions::FixupRippingInfo(Disk_Drive_Functions *pDisk_Drive_Fu
 		{
 			for(map<int,string>::iterator it=mapTracks.begin();it!=mapTracks.end();++it)
 			{
+				if( it->first<1 )
+					continue;
 				sNewTracks += StringUtils::itos(it->first) + ",";
 				if( it->second.empty() )
 					sNewTracks += "Track " + StringUtils::itos(it->first);
@@ -655,6 +659,8 @@ void Disk_Drive_Functions::FixupRippingInfo(Disk_Drive_Functions *pDisk_Drive_Fu
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive_Functions::FixupRippingInfo Transformed %s into %s",sTracks.c_str(),sNewTracks.c_str());
 		sTracks=sNewTracks;
 	}
+	else if( PK_MediaType==MEDIATYPE_pluto_DVD_CONST )
+		StringUtils::Replace(&sDirectory,"___audio___or___video___","videos");
 
 	bool bUsingUnknownDiscName=false;
 	// Validate the name and be sure it's unique

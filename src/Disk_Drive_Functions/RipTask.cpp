@@ -93,11 +93,6 @@ int RipTask::Run()
 		return 0;
 	}
 
-	if( m_pRipJob->m_pDisk_Drive_Functions->m_mediaDiskStatus==DISCTYPE_CD_MIXED || m_pRipJob->m_pDisk_Drive_Functions->m_mediaDiskStatus==DISCTYPE_CD_AUDIO )
-		StringUtils::Replace(&((RipJob *) m_pJob)->m_sFileName,"___audio___or___video___","audio");
-	else if( m_pRipJob->m_pDisk_Drive_Functions->m_mediaDiskStatus==DISCTYPE_DVD_VIDEO || m_pRipJob->m_pDisk_Drive_Functions->m_mediaDiskStatus==DISCTYPE_CD_VCD )
-		StringUtils::Replace(&((RipJob *) m_pJob)->m_sFileName,"___audio___or___video___","videos");
-
 	string strParameters;
 	strParameters = StringUtils::itos(m_pRipJob->m_pDisk_Drive_Functions->m_pCommand_Impl->m_dwPK_Device) + "\t" 
 		+ StringUtils::itos(m_pJob->m_iID_get()) + "\t" 
