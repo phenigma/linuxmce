@@ -60,6 +60,7 @@ int RipTask::Run()
 				m_pRow_RipStatus->Slot_set(m_pRipJob->m_pRow_DiscLocation->FK_Disc_get());
 		}
 		m_pRow_RipStatus->RipJob_set( m_pRipJob->m_iID_get() );
+		m_pRow_RipStatus->File_set( m_pRipJob->m_sDirectory + "/" + m_pRipJob->m_sFileName );
 		m_pRipJob->m_pDatabase_pluto_media->RipStatus_get()->Commit();
 	}
 
