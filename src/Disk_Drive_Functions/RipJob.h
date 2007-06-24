@@ -47,7 +47,7 @@ namespace nsJobHandler
 		friend class FixupRippingInfoTask;
 		friend class JukeBox;
 
-	private:
+	public:  // Should be private.  Works under windows, but under linux, it doesn't respect the friend class JukeBox and complains about JukeBox accessing the private members!
 		Disk_Drive_Functions *m_pDisk_Drive_Functions;
 		Slot *m_pSlot;
 		int m_iPK_Users, m_iEK_Disc, m_iPK_MediaType;
