@@ -523,7 +523,7 @@ void Powerfile_C200::CMD_Rip_Disk(int iPK_Device,string sFilename,int iPK_Users,
 	}
 	RipJob *pRipJob = new RipJob(m_pPowerfileJukebox->m_pDatabase_pluto_media,
 		m_pPowerfileJukebox->m_pJobHandler,pDrive,pSlot,iPK_Users,iEK_Disc,
-		pMessage ? pMessage->m_dwPK_Device_From : 0,sFormat.empty() ? "ogg" : sFormat,sFilename,sDirectory,sTracks,this);
+		pMessage ? pMessage->m_dwPK_Device_From : 0,sFormat.empty() ? "ogg" : sFormat,sFilename,sDirectory,sTracks,true,this);
 	m_pPowerfileJukebox->m_pJobHandler->AddJob(pRipJob);
 }
 //<-dceag-c720-b->
@@ -576,7 +576,7 @@ void Powerfile_C200::CMD_Bulk_Rip(string sFilename,int iPK_Users,string sFormat,
 			LoggerWrapper::GetInstance()->Write(LV_STATUS, "CMD_Bulk_Rip; Adding slot %d/%d disc %d", pSlot->m_SlotNumber, (int) pSlot->m_eStatus,  pSlot->m_pRow_Disc ? pSlot->m_pRow_Disc->PK_Disc_get() : 0);
 			RipJob *pRipJob = new RipJob(m_pPowerfileJukebox->m_pDatabase_pluto_media,
 				m_pPowerfileJukebox->m_pJobHandler,NULL,pSlot,iPK_Users,0,
-				pMessage ? pMessage->m_dwPK_Device_From : 0,sFormat.empty() ? "ogg" : sFormat,"",sFilename,"A",this);
+				pMessage ? pMessage->m_dwPK_Device_From : 0,sFormat.empty() ? "ogg" : sFormat,"",sFilename,"A",false,this);
 			m_pPowerfileJukebox->m_pJobHandler->AddJob(pRipJob);
 		}
 		else

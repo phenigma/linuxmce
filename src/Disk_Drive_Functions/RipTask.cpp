@@ -33,7 +33,7 @@
 
 using namespace nsJobHandler;
 
-RipTask::RipTask(RipJob *pRipJob,string sName,int iTrack)
+RipTask::RipTask(RipJob *pRipJob,string sName,bool bReportResult,int iTrack)
 	: Task(pRipJob,sName)
 {
 	m_iTrack=iTrack;
@@ -41,6 +41,7 @@ RipTask::RipTask(RipJob *pRipJob,string sName,int iTrack)
 	m_bSpawnedRip=false;
 	m_pRipJob=pRipJob; // A duplicate of m_pJob, but we don't need to keep recasting
 	m_pRow_RipStatus=NULL;
+	m_bReportResult=bReportResult;
 }
 
 int RipTask::Run()
@@ -167,14 +168,16 @@ void RipTask::UpdateProgress(string sStatus,int iPercent,int iTime,string sText,
 	}
 	else if( sStatus=="e" )
 	{
-		ReportFailure();
+		if( m_bReportResult )
+			ReportFailure();
 		m_eTaskStatus_set(TASK_COMPLETED);  // Mark it completed, not failure, so if there's another task to unload this slot it still gets done
 	}
 	else if( sStatus=="s" )
 	{
 		m_pRipJob->m_pDisk_Drive_Functions->m_pMediaAttributes_LowLevel->AddRippedDiscToDatabase(m_pRipJob->m_iEK_Disc,
 			m_pRipJob->m_iPK_MediaType,m_pRipJob->m_sFileName,m_pRipJob->m_sTracks);
-		ReportSuccess();
+		if( m_bReportResult )
+			ReportSuccess();
 		m_eTaskStatus_set(TASK_COMPLETED);
 	}
 }

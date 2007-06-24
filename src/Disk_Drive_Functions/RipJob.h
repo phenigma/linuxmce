@@ -54,6 +54,7 @@ namespace nsJobHandler
 		string m_sFormat, m_sFileName, m_sDirectory, m_sTracks;
 		Row_DiscLocation *m_pRow_DiscLocation;
 		Database_pluto_media *m_pDatabase_pluto_media;
+		bool m_bReportResult;
 
 	public:
 		RipJob(Database_pluto_media *pDatabase_pluto_media,
@@ -63,6 +64,7 @@ namespace nsJobHandler
 			int iPK_Users, int iEK_Disc,
 			int iPK_Orbiter,
 			string sFormat, string sFileName, string sDirectory, string sTracks,
+			bool bReportResult,
 			Command_Impl *pCommand_Impl);
 		virtual ~RipJob();
 

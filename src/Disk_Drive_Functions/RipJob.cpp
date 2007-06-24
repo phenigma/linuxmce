@@ -38,9 +38,11 @@ RipJob::RipJob(Database_pluto_media *pDatabase_pluto_media,
 			int iPK_Users, int iEK_Disc,
 			int iPK_Orbiter,
 			string sFormat, string sFileName, string sDirectory, string sTracks,
+			bool bReportResult,
 			Command_Impl *pCommand_Impl)
 	: Job(pJobHandler,"RipJob",iPK_Orbiter,pCommand_Impl)
 {
+	m_bReportResult=bReportResult;
 	m_pDatabase_pluto_media=pDatabase_pluto_media;
 	m_pDisk_Drive_Functions=pDisk_Drive_Functions;
 	m_pSlot=pSlot;
@@ -138,7 +140,7 @@ void RipJob::JobDone()
 
 void RipJob::AddRippingTasks()
 {
-	AddTask(new RipTask(this,"Rip",0));
+	AddTask(new RipTask(this,"Rip",m_bReportResult,0));
 }
 
 bool RipJob::ReportPendingTasks(PendingTaskList *pPendingTaskList)

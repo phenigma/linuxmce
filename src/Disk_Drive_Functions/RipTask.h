@@ -33,9 +33,10 @@ namespace nsJobHandler
 		string m_sText,m_sSpawnName;
 		class RipJob *m_pRipJob;
 		Row_RipStatus *m_pRow_RipStatus;
+		bool m_bReportResult;
 
 	public:
-		RipTask(class RipJob *pRipJob,string sName,int iTrack);
+		RipTask(class RipJob *pRipJob,string sName,bool bReportResult,int iTrack);
 		virtual ~RipTask() {}
 		virtual string GetType() { return "RipTask"; }
 

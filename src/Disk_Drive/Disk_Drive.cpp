@@ -461,7 +461,7 @@ void Disk_Drive::CMD_Rip_Disk(int iPK_Device,string sFilename,int iPK_Users,stri
 //<-dceag-c337-e->
 {
 	RipJob *pRipJob = new RipJob(m_pDatabase_pluto_media,m_pJobHandler,m_pDisk_Drive_Functions,NULL,iPK_Users,iEK_Disc,
-		pMessage ? pMessage->m_dwPK_Device_From : 0,sFormat,sFilename,sDirectory,sTracks,this);
+		pMessage ? pMessage->m_dwPK_Device_From : 0,sFormat,sFilename,sDirectory,sTracks,true,this);
 	m_pJobHandler->AddJob(pRipJob);
 }
 //<-dceag-c817-b->
