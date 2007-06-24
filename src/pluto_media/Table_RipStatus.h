@@ -102,6 +102,7 @@ long int m_RipJob;
 string m_DateTime;
 string m_Status;
 string m_Message;
+string m_File;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
@@ -109,7 +110,7 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[15];
+		bool is_null[16];
 	
 	public:
 		long int PK_RipStatus_get();
@@ -121,6 +122,7 @@ long int RipJob_get();
 string DateTime_get();
 string Status_get();
 string Message_get();
+string File_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -138,6 +140,7 @@ void RipJob_set(long int val);
 void DateTime_set(string val);
 void Status_set(string val);
 void Message_set(string val);
+void File_set(string val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -154,6 +157,7 @@ bool RipJob_isNull();
 bool DateTime_isNull();
 bool Status_isNull();
 bool Message_isNull();
+bool File_isNull();
 bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
@@ -169,6 +173,7 @@ void RipJob_setNull(bool val);
 void DateTime_setNull(bool val);
 void Status_setNull(bool val);
 void Message_setNull(bool val);
+void File_setNull(bool val);
 void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
@@ -194,7 +199,7 @@ void psc_restrict_setNull(bool val);
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_RipStatus+ m_EK_Device+ m_Slot+ m_FK_Disc+ m_Type+ m_RipJob+ m_DateTime+ m_Status+ m_Message+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_PK_RipStatus+ m_EK_Device+ m_Slot+ m_FK_Disc+ m_Type+ m_RipJob+ m_DateTime+ m_Status+ m_Message+ m_File+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
@@ -208,6 +213,7 @@ string RipJob_asSQL();
 string DateTime_asSQL();
 string Status_asSQL();
 string Message_asSQL();
+string File_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();

@@ -21,6 +21,8 @@
 #define RIPSTATUS_STATUS_TABLE_FIELD "RipStatus.Status"
 #define RIPSTATUS_MESSAGE_FIELD "Message"
 #define RIPSTATUS_MESSAGE_TABLE_FIELD "RipStatus.Message"
+#define RIPSTATUS_FILE_FIELD "File"
+#define RIPSTATUS_FILE_TABLE_FIELD "RipStatus.File"
 #define RIPSTATUS_PSC_ID_FIELD "psc_id"
 #define RIPSTATUS_PSC_ID_TABLE_FIELD "RipStatus.psc_id"
 #define RIPSTATUS_PSC_BATCH_FIELD "psc_batch"
