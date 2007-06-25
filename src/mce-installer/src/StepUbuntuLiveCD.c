@@ -9,6 +9,13 @@
 */
 #include "common.h"
 
+void on_StepUbuntuLiveCD_OK_clicked( GtkWidget *widget, gpointer data ) {
+
+	//g_queue_push_head(history, (gpointer)STEPUBUNTULIVECD);
+	displayStep3();
+}
+
+
 void on_StepUbuntuLiveCD_forward_clicked(GtkWidget *widget, gpointer data)  {
 
 	gboolean goNext = TRUE;
@@ -23,9 +30,22 @@ void on_StepUbuntuLiveCD_forward_clicked(GtkWidget *widget, gpointer data)  {
 	}
 
 	if (goNext) {
+
+		GtkWidget *dialog, *dg_label, *dg_OK;
+		dialog = gtk_dialog_new();
+		dg_label = gtk_label_new ("Please remove the Live CD");
+		dg_OK = gtk_button_new_with_label("OK");
+		gtk_window_set_modal(GTK_WINDOW(dialog), TRUE);
+	        gtk_window_set_default_size(GTK_WINDOW(dialog), 300, 70);	
+		gtk_signal_connect (GTK_OBJECT (dg_OK), "clicked", GTK_SIGNAL_FUNC (on_StepUbuntuLiveCD_OK_clicked), NULL);
+		gtk_signal_connect_object(GTK_OBJECT (dg_OK), "clicked", GTK_SIGNAL_FUNC(gtk_widget_destroy), GTK_OBJECT(dialog));
+		gtk_container_add (GTK_CONTAINER (GTK_DIALOG(dialog)->action_area), dg_OK);
+		gtk_container_add (GTK_CONTAINER (GTK_DIALOG(dialog)->vbox), dg_label);
+		gtk_widget_show_all (dialog);
+		gtk_widget_grab_focus(dialog);
+	
 		g_queue_push_head(history, (gpointer)STEPUBUNTULIVECD);
-		//displayStepLinuxMceCD();
-		displayStep3();
+		//displayStep3();
 	}
 }
 
