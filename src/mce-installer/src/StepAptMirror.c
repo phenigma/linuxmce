@@ -9,7 +9,7 @@
 */
 #include "common.h"
 
-GHashTable *mirrors;
+//GHashTable *mirrors;
 GtkWidget *txt_entry;
 
 void on_StepAptMirror_forward_clicked(GtkWidget *widget, gpointer data)  {
@@ -19,13 +19,33 @@ void on_StepAptMirror_forward_clicked(GtkWidget *widget, gpointer data)  {
 		setting_installMirror=other_mirror;
 		//printf("am ramas cu ohter mirror: >>>%s<<<<", setting_installMirror);
 	}
+	
+	if (g_str_has_prefix(setting_installMirror,"---")) {
+		GtkWidget *dialog, *dg_label, *dg_OK;
+                dialog = gtk_dialog_new();
+                dg_label = gtk_label_new ("Please choose a mirror");
+                dg_OK = gtk_button_new_with_label("OK");
+                gtk_window_set_modal(GTK_WINDOW(dialog), TRUE);
+                gtk_window_set_default_size(GTK_WINDOW(dialog), 300, 70);
+                //gtk_signal_connect (GTK_OBJECT (dg_OK), "clicked", GTK_SIGNAL_FUNC (on_StepUbuntuLiveCD_OK_clicked), NULL);
+                gtk_signal_connect_object(GTK_OBJECT (dg_OK), "clicked", GTK_SIGNAL_FUNC(gtk_widget_destroy), GTK_OBJECT(dialog));
+                gtk_container_add (GTK_CONTAINER (GTK_DIALOG(dialog)->action_area), dg_OK);
+                gtk_container_add (GTK_CONTAINER (GTK_DIALOG(dialog)->vbox), dg_label);
+                gtk_widget_show_all (dialog);
+                gtk_widget_grab_focus(dialog);
+
+	} else {
+		printf("intru pe aici \n");
+		displayStepLinuxMceCD();
+	} 
 
 	//displayStepUbuntuExtraCD();
-	displayStepLinuxMceCD();
+	//displayStepLinuxMceCD();
 }
 
 void on_StepAptMirror_combo_changed(GtkWidget *widget, gpointer data) {
-	setting_installMirror = g_hash_table_lookup(mirrors, gtk_combo_box_get_active_text(GTK_COMBO_BOX(widget)));
+	//setting_installMirror = g_hash_table_lookup(mirrors, gtk_combo_box_get_active_text(GTK_COMBO_BOX(widget)));
+	setting_installMirror = gtk_combo_box_get_active_text(GTK_COMBO_BOX(widget));
 	//printf("Am schimbat in >> %s << \n", setting_installMirror);
 }
 
@@ -58,18 +78,18 @@ void displayStepAptMirror(void) {
 	//read the list of mirrors
 	FILE *fmirror = fopen("./mirrors", "r");
 	char line[1024];
-	gchar **tokens;
-	mirrors = g_hash_table_new(g_str_hash, g_str_equal);
+	//gchar **tokens;
+	//mirrors = g_hash_table_new(g_str_hash, g_str_equal);
 	GtkWidget *comboMirror = gtk_combo_box_new_text();
 	while (1) {
 		fgets(line,1024,fmirror);
 		if (feof(fmirror)) break;
 		//printf("Read %s--\n",line);
 		line[strlen(line)-1] = '\0';
-		tokens = g_strsplit(line,"|",0);
-		g_hash_table_insert(mirrors,tokens[0],tokens[1]);
+		//tokens = g_strsplit(line,"|",0);
+		//g_hash_table_insert(mirrors,nr,line);
 		//printf("name: %s -- mirror: %s\n",tokens[0], tokens[1]);
-		gtk_combo_box_append_text(GTK_COMBO_BOX(comboMirror),tokens[0]);
+		gtk_combo_box_append_text(GTK_COMBO_BOX(comboMirror),line);
 	}
 
 	//GtkWidget *comboMirror = gtk_combo_box_new_text();
@@ -77,7 +97,8 @@ void displayStepAptMirror(void) {
 	//gtk_combo_box_append_text(GTK_COMBO_BOX(comboMirror),"Mirror 2");
 
 	gtk_combo_box_set_active(GTK_COMBO_BOX(comboMirror),0);
-	setting_installMirror = g_hash_table_lookup(mirrors, gtk_combo_box_get_active_text(GTK_COMBO_BOX(comboMirror)));
+	setting_installMirror = "---Please choose a mirror---";
+	//setting_installMirror = g_hash_table_lookup(mirrors, gtk_combo_box_get_active_text(GTK_COMBO_BOX(comboMirror)));
 	//printf("Initial %s\n", setting_installMirror);
 
 	g_signal_connect(G_OBJECT(comboMirror), "changed", G_CALLBACK(on_StepAptMirror_combo_changed), (gpointer)tableMirror);
