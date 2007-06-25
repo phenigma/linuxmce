@@ -64,36 +64,6 @@ GetVideoSetting()
 	fi
 }
 
-wmtweaks_default()
-{
-	echo '<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mcs-option SYSTEM "mcs-option.dtd">
-
-<mcs-option>
-	<option name="Xfwm/UseCompositing" type="int" value="1"/>
-</mcs-option>'
-}
-
-SetWMCompositor()
-{
-	local UseCompositing="$1"
-	local WMTweaksFile
-	local user
-
-	for user in /home/* /root; do
-		if [[ ! -d "$user" ]]; then
-			continue
-		fi
-		WMTweaksFile="$user/.config/xfce4/mcs_settings/wmtweaks.xml"
-		mkdir -p "$(dirname "$WMTweaksFile")"
-		if [[ -f "$WMTweaksFile" ]]; then
-			sed -i '/Xfwm\/UseCompositing/ s/value="."/value="'"$UseCompositing"'"/g' "$WMTweaksFile"
-		else
-			wmtweaks_default >"$WMTweaksFile"
-		fi
-	done
-}
-
 SaveSettings()
 {
 	local Var VarName
@@ -116,7 +86,7 @@ SaveSettings()
 
 VideoSettings_Check()
 {
-	local Update_XorgConf="NoXorgConf" Update_WMcompositor="NoWMcompositor"
+	local Update_XorgConf="NoXorgConf"
 	local DB_VideoSetting DB_OpenGL DB_AlphaBlending DB_Connector DB_TVStandard DB_Reboot
 
 	DB_VideoSetting=$(GetVideoSetting)
@@ -136,7 +106,6 @@ VideoSettings_Check()
 	fi
 	if [[ -n "$DB_AlphaBlending" && "$DB_AlphaBlending" != "$OldSetting_AlphaBlending" ]]; then
 		Update_XorgConf="XorgConf"
-		Update_WMcompositor="WMcompositor"
 		NewSetting_AlphaBlending="$DB_AlphaBlending"
 	fi
 	if [[ -n "$DB_Connector" && "$DB_Connector" != "$OldSetting_Connector" ]]; then
@@ -150,12 +119,7 @@ VideoSettings_Check()
 
 	if [[ "$Update_XorgConf" == "XorgConf" ]]; then
 		/usr/pluto/bin/Xconfigure.sh
-	fi
-	if [[ "$Update_WMcompositor" == "WMcompositor" ]]; then
-		SetWMCompositor "$DB_AlphaBlending"
-	fi
 
-	if [[ "$Update_XorgConf" == "XorgConf" || "$Update_WMcompositor" == "WMcompositor" ]]; then
 		if [[ "$DB_Reboot" == 1 ]]; then
 			Reboot="Reboot"
 		else

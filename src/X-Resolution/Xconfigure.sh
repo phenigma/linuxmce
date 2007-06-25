@@ -309,6 +309,36 @@ EnsureResolutionVariables()
 	fi
 }
 
+wmtweaks_default()
+{
+	echo '<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mcs-option SYSTEM "mcs-option.dtd">
+
+<mcs-option>
+	<option name="Xfwm/UseCompositing" type="int" value="1"/>
+</mcs-option>'
+}
+
+SetWMCompositor()
+{
+	local UseCompositing="$1"
+	local WMTweaksFile
+	local user
+
+	for user in /home/* /root; do
+		if [[ ! -d "$user" ]]; then
+			continue
+		fi
+		WMTweaksFile="$user/.config/xfce4/mcs_settings/wmtweaks.xml"
+		mkdir -p "$(dirname "$WMTweaksFile")"
+		if [[ -f "$WMTweaksFile" ]]; then
+			sed -i '/Xfwm\/UseCompositing/ s/value="."/value="'"$UseCompositing"'"/g' "$WMTweaksFile"
+		else
+			wmtweaks_default >"$WMTweaksFile"
+		fi
+	done
+}
+
 ScriptCustomization
 CheckComponents
 ParseParameters "$@"
@@ -349,6 +379,7 @@ UpdateModules
 OpenGL=$(OpenGLeffects)
 AlphaBlending=$(AlphaBlendingEnabled)
 UpdateUISections "$OpenGL" "$AlphaBlending"
+SetWMCompositor "$AlphaBlending"
 libXvMC=$(XvMC_Lib)
 
 if ! BlacklistConfFiles "/etc/X11/XvMCConfig" ;then
