@@ -47,7 +47,7 @@ public:
 	* @brief Constructors
 	*/
 	Infrared_Plugin_Event(int DeviceID, string ServerAddress, bool bConnectEventHandler=true) :
-		Event_Impl(DeviceID, DEVICETEMPLATE_Infrared_Plugin_CONST, ServerAddress, bConnectEventHandler, SOCKET_TIMEOUT) {};
+		Event_Impl(DeviceID, DEVICETEMPLATE_Infrared_Plugin_CONST, ServerAddress, bConnectEventHandler, SOCKET_TIMEOUT_PLUGIN) {};
 	Infrared_Plugin_Event(class ClientSocket *pOCClientSocket, int DeviceID) : Event_Impl(pOCClientSocket, DeviceID) {};
 
 	/**
