@@ -12,6 +12,7 @@ if [[ "$c_ubuntuExtraCdFrom" == "$FROM_ISO" ]] ;then
 else
 	mount /dev/cdrom "$CD_Dir" || exit 4
 fi
+trap "umount -lf \"$CD_Dir\"" EXIT
 
 mkdir -p /usr/pluto/deb-cache || exit 2
 cp "${CD_Dir}"/cachecd1-cache/*.deb /usr/pluto/deb-cache || exit 3
