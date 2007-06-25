@@ -9,7 +9,7 @@
 	prerotate
 		cumulativeLogFile="/var/log/pluto/CumulativeSpawn.log"
 		for logfile in /var/log/pluto/Spawn_*.log ;do
-			[[ -r $logfile ]] || continue	
+			[ -r $logfile ] || continue	
 
 			echo "Processing  $logfile ..."
 			echo 			>> $cumulativeLogFile
@@ -21,7 +21,7 @@
 		
 		cumulativeLogFile="/var/log/pluto/CumulativeSpawnDaemon.log"
 		for logfile in /var/log/pluto/SpawnDaemon_*.log ;do
-			[[ -r $logfile ]] || continue
+			[ -r $logfile ] || continue
 			
 			echo "Processing $logfile ..."
 			echo 			>> $cumulativeLogFile
@@ -34,5 +34,13 @@
 	postrotate
 		/usr/pluto/bin/MessageSend dcerouter 0 -1000 7 10 || :
 		killall -USR1 tee-pluto || :
+
+                for logfile in /var/log/pluto/Spawn_*.log ;do
+                        rm -f "$logfile"
+                done
+
+                for logfile in /var/log/pluto/SpawnDaemon_*.log ;do
+                        rm -f "$logfile"
+                done
 	endscript
 }
