@@ -15,7 +15,7 @@ gint run_shell_command_progress_pulse(gpointer data) {
 
 void run_shell_reaper_child_exited(VteTerminal *terminal, gint pid, gint errcode, gpointer data) {
 	if (runApplicationPid == pid) {
-		printf("Exited with error code : %d\n", errcode);
+//		printf("Exited with error code : %d\n", errcode);
 //		g_source_remove((gint)runTagProgessBar);
 
 		gdk_threads_enter();

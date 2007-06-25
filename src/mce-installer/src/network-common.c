@@ -11,7 +11,6 @@
 #include <sys/types.h>
  
 void start_network_wizard(void) {
-
 	// Display wait message
 	cleanupContainer(mainBox); 
         cleanupContainer(mainButtonBox); 
@@ -22,69 +21,52 @@ void start_network_wizard(void) {
 	gtk_widget_show_all(mainBox);
 	gtk_widget_show_all(mainButtonBox);
 
-	// Read network configuration
-	int fd[2];
-	pid_t script_pid;
 	int hasInternet = 0;
 
-	pipe(fd);
-	script_pid=fork();
+	GtkWidget *runWindow =  run_shell_command("./mce-installer-getnetdata.sh", "Detecting Network Settings", "");
+	gtk_widget_show_all(runWindow);
+	gtk_dialog_run(GTK_DIALOG(runWindow));
 
-	if (script_pid == 0) {
-		close(fd[0]);
-		close(1);
-		dup(fd[1]);
-		execlp("./mce-installer-getnetdata.sh","./mce-installer-getnetdata.sh",NULL);
+	gchar readbuffer[1024];
+	int size=0;
+	memset(readbuffer, 0, 1024);
 
-	} else if (script_pid > 0) {
-		close(fd[1]);
-		gchar readbuffer[1024];
-		int size=0;
-
-		memset(readbuffer, 0, 1024);
-		size = read(fd[0], readbuffer, 1023);
+	int output_fd = open("/tmp/get_net_data_output", 0);
+	if (output_fd > 0) {
+		size = read(output_fd, readbuffer, 1023);
 		readbuffer[size-1] = '\0';
-	//	printf("Read: %s --\n",readbuffer);
+	} else {
+		size = 0;
+	}
 
-		if(size==0 || g_ascii_strcasecmp(readbuffer, "0")==0) {
-			printf("No network cards detected\n");
-			setting_netIfaceNo=0;
-		} else {
-			gchar **tokens;
-			setting_netIfaceNo = g_ascii_strtoll(readbuffer, NULL, 10);
+	if(size==0 || g_ascii_strcasecmp(readbuffer, "0")==0) {
+		printf("No network cards detected\n");
+		setting_netIfaceNo=0;
 
-			// Get inerface names
-			memset(readbuffer, 0, 1024);
-			size = read(fd[0], readbuffer, 1023);
-			readbuffer[size-1] = '\0';
-	//		printf("Read: %s --\n",readbuffer);
+	} else {
+		gchar **line = g_strsplit(readbuffer, "\n", 3);
 
-			tokens = g_strsplit(readbuffer, "|", 2);
-			setting_netExtName = tokens[0];	
-			setting_netIntName = tokens[1];
+		gchar **tokens;
+		setting_netIfaceNo = g_ascii_strtoll(line[0], NULL, 10);
 
-			// Get external interface settings
-			memset(readbuffer, 0, 1024);
-			size = read(fd[0], readbuffer, 1023);
-			readbuffer[size-1] = '\0';
-	//		printf("Read: %s --\n",readbuffer);
+		tokens = g_strsplit(line[1], "|", 2);
+		setting_netExtName = tokens[0];
+		setting_netIntName = tokens[1];
 
-			tokens = g_strsplit(readbuffer, "|", 7);
-			setting_netExtIP = tokens[0];
-			setting_netExtMask = tokens[1];
-			setting_netExtGateway = tokens[2];
-			setting_netExtDNS1 = tokens[3];
-			setting_netExtDNS2 = tokens[4];
-			setting_netExtUseDhcp = g_ascii_strtoll(tokens[5], NULL, 10);
-			hasInternet = g_ascii_strtoll(tokens[6], NULL, 10);
-		}
-
+		// Get external interface settings
+		tokens = g_strsplit(line[2], "|", 7);
+		setting_netExtIP = tokens[0];
+		setting_netExtMask = tokens[1];
+		setting_netExtGateway = tokens[2];
+		setting_netExtDNS1 = tokens[3];
+		setting_netExtDNS2 = tokens[4];
+		setting_netExtUseDhcp = g_ascii_strtoll(tokens[5], NULL, 10);
+		hasInternet = g_ascii_strtoll(tokens[6], NULL, 10);
 	}
 
 
 	if (setting_netIfaceNo == 0) {
-	       displayStep2F();
-	
+	       displayStep2F();	
 	} else {
 		if (hasInternet) {
 			displayStep2A();

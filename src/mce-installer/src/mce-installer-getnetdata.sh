@@ -48,6 +48,7 @@ if ps ax | egrep -q " (/sbin/)?dhclient.? .*${netExtName}\$" ;then
 	netUseDhcp=1
 fi
 
-echo "$netCards"
-echo "$netExtName|$netIntName"
-echo "$netExtIP|$netExtMask|$netExtGate|$netExtDNS1|$netExtDNS2|$netUseDhcp|$netInternetWorking"
+echo -n > /tmp/get_net_data_output
+echo "$netCards" >> /tmp/get_net_data_output
+echo "$netExtName|$netIntName" >> /tmp/get_net_data_output
+echo "$netExtIP|$netExtMask|$netExtGate|$netExtDNS1|$netExtDNS2|$netUseDhcp|$netInternetWorking" >> /tmp/get_net_data_output
