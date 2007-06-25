@@ -363,7 +363,12 @@ void Asterisk::CMD_PBX_Transfer(string sPhoneExtension,int iCommandID,string sPh
 					}
 					else
 					{
-						if(rest2 == "")
+						if( 5 < chan.size() && chan.substr(0,5) == string("DIAL/") )
+						{
+							// ignore DIAL channel
+							LoggerWrapper::GetInstance()->Write(LV_WARNING, "Ignore DIAL channel");
+						}
+						else if(rest2 == "")
 						{
 							rest2=chan;
 						}
