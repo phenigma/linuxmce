@@ -24,19 +24,19 @@ function displayNetworkSettings {
 
 	local netIntName="$(echo $IntPart | cut -d',' -f1)"
 	local netIntMac=$(ifconfig $netIntName | grep "HWaddr" | sed 's/.*HWaddr \([0-9.:A-F]*\).*$/\1/g')
-	local netIntMask="$(echo $IntPart | cut -d',' -f2)"
-	local netIntIP="$(echo $IntPart | cut -d',' -f3)"
+	local netIntMask="$(echo $IntPart | cut -d',' -f3)"
+	local netIntIP="$(echo $IntPart | cut -d',' -f2)"
 
 
 	echo "EXTERNAL_IFACE=$netExtName"
 	echo "EXTERNAL_MAC=$netExtMac"
-	echo "EXTERNAL_DHCP=$netUseDhcp"
 	echo "EXTERNAL_IP=$netExtIP"
 	echo "EXTERNAL_NETMASK=$netExtMask"
+	echo "EXTERNAL_DHCP=$netUseDhcp"
 	echo "INTERNAL_IFACE=$netIntName"
-	echo "INTERNAL_NETMASK=$netIntMask"
-	echo "INTERNAL_IP=$netIntIP"
 	echo "INTERNAL_MAC=$netIntMac"
+	echo "INTERNAL_IP=$netIntIP"
+	echo "INTERNAL_NETMASK=$netIntMask"
 	echo "GATEWAY=$netExtGate"
 	echo "DNS1=$netExtDNS1"
 	echo "DNS2=$netExtDNS2"
