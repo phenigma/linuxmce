@@ -2057,6 +2057,17 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 
 			if(  !m_bLocalMode  )
 			{
+				int Width = atoi( m_pEvent->GetDeviceDataFromDatabase( m_dwPK_Device, DEVICEDATA_ScreenWidth_CONST ).c_str() );
+				int Height = atoi( m_pEvent->GetDeviceDataFromDatabase( m_dwPK_Device, DEVICEDATA_ScreenHeight_CONST ).c_str() );
+				if( Width!=m_Width || Height!=m_Height )
+				{
+					m_pOrbiterRenderer->PromptUser("The resolution has changed.  I'll regenerate the user interface.");
+					RegenOrbiter();
+					Sleep(2000);
+					OnReload();
+					return;
+				}
+
 				PLUTO_SAFETY_LOCK_ERRORSONLY( sSM, GetEvents(  )->m_pClientSocket->m_SocketMutex );  // Don't log anything but failures
 				string sResult = GetEvents(  )->SendReceiveString( "TIME" );
 

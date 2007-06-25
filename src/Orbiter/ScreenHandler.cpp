@@ -1491,7 +1491,7 @@ void ScreenHandler::DisplayMessageOnOrbiter(int PK_Screen,
 			"<%=" + StringUtils::ltos(VARIABLE_Display_Message_Button_1_CONST) + "%>", TEXT_STATUS_CONST);
 		m_pOrbiter->CMD_Set_Variable(VARIABLE_Message_1_CONST, sMessage1);
 	}
-	m_pOrbiter->CMD_Show_Object(sPK_DesignObj + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse1_CONST), 0, "", "", sOption1.size() ? "1" : "0" );
+	m_pOrbiter->CMD_Show_Object(sPK_DesignObj + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse1_CONST), 0, "", "", sOption1.size() && sOption1!="NO_BUTTON" ? "1" : "0" );
 
 	if(sOption2.size())
 	{

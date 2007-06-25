@@ -1225,6 +1225,8 @@
 #define TEXT_pnp_active_CONST 1969
 #define TEXT_Save_settings_and_Regen_Orbiter_CONST 1970
 #define TEXT_Bulk_rip_choose_name_CONST 1972
+#define TEXT_Must_add_users_rooms_CONST 1973
+#define TEXT_Must_pick_room_CONST 1974
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

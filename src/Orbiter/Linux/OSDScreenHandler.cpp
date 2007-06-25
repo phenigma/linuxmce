@@ -113,11 +113,11 @@ void OSDScreenHandler::SCREEN_VideoWizard(long PK_Screen)
 	{
 		if( m_tWizardIsRunning==0 )
 		{
-			SCREEN_PopupMessage(SCREEN_PopupMessage_CONST, "One moment", " ", "", "", "", "1");
+			SCREEN_PopupMessage(SCREEN_PopupMessage_CONST, "One moment|NO_BUTTON", "", "", "", "", "1");
 			m_tWizardIsRunning = time(NULL);
 		}
 		else
-			DisplayMessageOnOrbiter(0,"One moment");
+			DisplayMessageOnOrbiter(0,"One moment",false,"0",true,"NO_BUTTON");
 
 		m_pOrbiter->StartScreenHandlerTimer(2000);
 		RegisterCallBack(cbOnTimer,	(ScreenHandlerCallBack) &OSDScreenHandler::VideoWizard_OnTimer, new CallBackData());
@@ -1390,6 +1390,16 @@ bool OSDScreenHandler::AV_Devices_GridSelected(CallBackData *pData)
 
 void OSDScreenHandler::SCREEN_Wizard_Done(long PK_Screen)
 {
+	if( m_pWizardLogic->WhatRoomIsThisDeviceIn(m_pWizardLogic->GetTopMostDevice(m_pOrbiter->m_dwPK_Device))==0 )
+	{
+		string sMessage="0 -300 1 " TOSTRING(COMMAND_Goto_Screen_CONST) " " TOSTRING(COMMANDPARAMETER_PK_Screen_CONST) " " TOSTRING(SCREEN_This_Room_CONST);
+
+		DCE::SCREEN_Media_Player_Setup_Popup_Message SCREEN_Media_Player_Setup_Popup_Message(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,
+			m_pOrbiter->m_mapTextString[TEXT_Must_pick_room_CONST] + "|" + m_pOrbiter->m_mapTextString[TEXT_Ok_CONST],sMessage,"1");
+		m_pOrbiter->ReceivedMessage(SCREEN_Media_Player_Setup_Popup_Message.m_pMessage);
+		return;
+	}
+
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_DesignObj_CurrentSecti_CONST, TOSTRING(DESIGNOBJ_butDoneMediaSetup_CONST));
 	ScreenHandler::SCREEN_Wizard_Done(PK_Screen);
 #ifdef DEBUG
@@ -2177,6 +2187,16 @@ bool OSDScreenHandler::VOIP_Provider_ObjectSelected(CallBackData *pData)
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OSDScreenHandler::SCREEN_Final_House_Setup(long PK_Screen)
 {
+	if( m_pWizardLogic->HouseAlreadySetup()==false )
+	{
+		string sMessage="0 -300 1 " TOSTRING(COMMAND_Goto_Screen_CONST) " " TOSTRING(COMMANDPARAMETER_PK_Screen_CONST) " " TOSTRING(SCREEN_UsersWizard_CONST);
+
+		DCE::SCREEN_House_Setup_Popup_Message SCREEN_House_Setup_Popup_Message(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,
+			m_pOrbiter->m_mapTextString[TEXT_Must_add_users_rooms_CONST] + "|" + m_pOrbiter->m_mapTextString[TEXT_Ok_CONST],sMessage,"1");
+		m_pOrbiter->ReceivedMessage(SCREEN_House_Setup_Popup_Message.m_pMessage);
+		return;
+	}
+
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_DesignObj_CurrentSecti_CONST, TOSTRING(DESIGNOBJ_butDoneHouseSetup_CONST)); 
 	ScreenHandlerBase::SCREEN_Final_House_Setup(PK_Screen);
 }
