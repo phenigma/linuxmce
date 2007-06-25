@@ -21,8 +21,8 @@ function LogMsg ()
 
 if [[ "$1" == "-enable" ]];then
 # enable option
-        if [[ ! -z "$(pidof /usr/pluto/bin/UpdateMedia)" ]]; then
-                LogMsg "UpdateMedia is allready running (PID $(pidof /usr/pluto/bin/UpdateMedia))"
+        if [[ ! -z "$(pidof -x UpdateMediaDaemon.sh)" ]]; then
+                LogMsg "UpdateMedia is allready running (PID $(pidof -x UpdateMediaDaemon.sh))"
         else
 					
 		LogMsg ": Enabling UpdateMediaDaemon on the system(s)"
@@ -32,26 +32,23 @@ if [[ "$1" == "-enable" ]];then
 elif [[ "$1" == "-disable" ]];then
 # disable option
 
-	if [[ -z "$(pidof /usr/pluto/bin/UpdateMedia)" ]]; then
+	if [[ -z "$(pidof -x UpdateMediaDaemon.sh)" ]]; then
                 LogMsg "UpdateMedia is stopped"
         else
 							
 		LogMsg ": Disabling UpdateMediaDaemon on the system(s)"
-		UMD_scr_pid=$(ps auxw | grep -i screen | grep -i updatemedia | awk '{print $2}')	
-		kill -9 $UMD_scr_pid
-		rm -f /var/run/screen/S-root/*BkgSS-UpdateMediaDaemon.sh
+		kill -9 $(pidof -x UpdateMediaDaemon.sh)
 	fi
 
 elif [[ "$1" == "-status" ]]; then
 # status option
 
-	if [[ -z "$(pidof /usr/pluto/bin/UpdateMedia)" ]]; then
+	if [[ -z "$(pidof -x UpdateMediaDaemon.sh)" ]]; then
 		LogMsg "UpdateMedia is stopped"
 	else 
-		LogMsg "UpdateMedia is running (PID - $(pidof /usr/pluto/bin/UpdateMedia))"
+		LogMsg "UpdateMedia is running (PID - $(pidof -x UpdateMediaDaemon.sh))"
 		
 	fi
-
 else 
 # wrong param
 
