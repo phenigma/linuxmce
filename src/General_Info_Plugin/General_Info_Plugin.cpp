@@ -184,7 +184,7 @@ bool General_Info_Plugin::Register()
 		return false;
 	}
 
-	m_pPostCreateOptions = new PostCreateOptions(m_pDatabase_pluto_main,m_pRouter);
+	m_pPostCreateOptions = new PostCreateOptions(m_pDatabase_pluto_main,m_pRouter,this);
 	
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
 			new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &General_Info_Plugin::PendingTasksGrid ) )

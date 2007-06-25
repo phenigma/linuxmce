@@ -31,10 +31,9 @@
 #include "pluto_main/Define_FloorplanObjectType.h"
 #include "pluto_main/Table_Device_Device_Related.h"
 
-extern class Command_Impl *g_pCommand_Impl;
-
-PostCreateOptions::PostCreateOptions(Database_pluto_main *pDatabase_pluto_main,Router *pRouter)
+PostCreateOptions::PostCreateOptions(Database_pluto_main *pDatabase_pluto_main,Router *pRouter,Command_Impl *pCommand_Impl)
 {
+	m_pCommand_Impl=pCommand_Impl;
 	m_pDatabase_pluto_main=pDatabase_pluto_main;
 	m_pRouter=pRouter;
 	m_pOrbiter_Plugin=( Orbiter_Plugin * ) m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_Orbiter_Plugin_CONST);
@@ -122,8 +121,8 @@ void PostCreateOptions::PostCreateDevice_NetworkStorage(Row_Device *pRow_Device,
 	Command_Impl *pCommand_Impl_GIP = m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_General_Info_Plugin_CONST);
 	if( pCommand_Impl_GIP ) // Should always be there
 	{
-		DCE::CMD_Check_Mounts CMD_Check_Mounts(g_pCommand_Impl->m_dwPK_Device,pCommand_Impl_GIP->m_dwPK_Device);
-		g_pCommand_Impl->SendCommand(CMD_Check_Mounts);
+		DCE::CMD_Check_Mounts CMD_Check_Mounts(m_pCommand_Impl->m_dwPK_Device,pCommand_Impl_GIP->m_dwPK_Device);
+		m_pCommand_Impl->SendCommand(CMD_Check_Mounts);
 	}
 
 	string sName = DatabaseUtils::GetDeviceData(m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICEDATA_Share_Name_CONST);
@@ -168,16 +167,16 @@ void PostCreateOptions::PostCreateDevice_CaptureCard(Row_Device *pRow_Device, OH
 	string sUseAutomatically = DatabaseUtils::GetDeviceData(m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICEDATA_Use_Automatically_CONST);
 	if( atoi(sUseAutomatically.c_str()) )
 	{
-		DCE::CMD_Sync_Providers_and_Cards_Cat CMD_Sync_Providers_and_Cards_Cat(g_pCommand_Impl->m_dwPK_Device,DEVICECATEGORY_Media_Player_Plugins_CONST,false,BL_SameHouse,0,pOH_Orbiter ? pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device : 0);
-		g_pCommand_Impl->SendCommand(CMD_Sync_Providers_and_Cards_Cat);
+		DCE::CMD_Sync_Providers_and_Cards_Cat CMD_Sync_Providers_and_Cards_Cat(m_pCommand_Impl->m_dwPK_Device,DEVICECATEGORY_Media_Player_Plugins_CONST,false,BL_SameHouse,0,pOH_Orbiter ? pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device : 0);
+		m_pCommand_Impl->SendCommand(CMD_Sync_Providers_and_Cards_Cat);
 		if( pDevice_Orbiter )
 		{
 			OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(pDevice_Orbiter->m_dwPK_Device);
 			if( pOH_Orbiter && pOH_Orbiter->m_bFirstRegen==false )  // Don't go to the provider screen if we're still setting it up
 			{
 				Sleep(2000);  // temporary hack to allow sync providers to send it's "this will take 10 minutes" before this goto screen so they come in the right order
-				DCE::SCREEN_Choose_Provider_for_Device SCREEN_Choose_Provider_for_Device(g_pCommand_Impl->m_dwPK_Device,pDevice_Orbiter->m_dwPK_Device);
-				g_pCommand_Impl->SendCommand(SCREEN_Choose_Provider_for_Device);
+				DCE::SCREEN_Choose_Provider_for_Device SCREEN_Choose_Provider_for_Device(m_pCommand_Impl->m_dwPK_Device,pDevice_Orbiter->m_dwPK_Device);
+				m_pCommand_Impl->SendCommand(SCREEN_Choose_Provider_for_Device);
 			}
 		}
 	}
@@ -199,8 +198,8 @@ void PostCreateOptions::PostCreateDevice_LightingInterface(Row_Device *pRow_Devi
 		OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(pDevice_Orbiter->m_dwPK_Device);
 		if( pOH_Orbiter && pOH_Orbiter->m_bFirstRegen==false )  // Don't go to the screen if we're still setting it up
 		{
-			DCE::SCREEN_LightsSetup SCREEN_LightsSetup(g_pCommand_Impl->m_dwPK_Device,pDevice_Orbiter->m_dwPK_Device);
-			g_pCommand_Impl->SendCommand(SCREEN_LightsSetup);
+			DCE::SCREEN_LightsSetup SCREEN_LightsSetup(m_pCommand_Impl->m_dwPK_Device,pDevice_Orbiter->m_dwPK_Device);
+			m_pCommand_Impl->SendCommand(SCREEN_LightsSetup);
 		}
 	}
 }
@@ -221,8 +220,8 @@ void PostCreateOptions::PostCreateDevice_TV(Row_Device *pRow_Device, OH_Orbiter 
 		OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(pDevice_Orbiter->m_dwPK_Device);
 		if( pOH_Orbiter && pOH_Orbiter->m_bFirstRegen==false )  // Don't go to the screen if we're still setting it up
 		{
-			DCE::SCREEN_TV_Manufacturer SCREEN_TV_Manufacturer(g_pCommand_Impl->m_dwPK_Device,pDevice_Orbiter->m_dwPK_Device);
-			g_pCommand_Impl->SendCommand(SCREEN_TV_Manufacturer);
+			DCE::SCREEN_TV_Manufacturer SCREEN_TV_Manufacturer(m_pCommand_Impl->m_dwPK_Device,pDevice_Orbiter->m_dwPK_Device);
+			m_pCommand_Impl->SendCommand(SCREEN_TV_Manufacturer);
 		}
 	}
 }
@@ -243,8 +242,8 @@ void PostCreateOptions::PostCreateDevice_Receiver(Row_Device *pRow_Device, OH_Or
 		OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(pDevice_Orbiter->m_dwPK_Device);
 		if( pOH_Orbiter && pOH_Orbiter->m_bFirstRegen==false )  // Don't go to the screen if we're still setting it up
 		{
-			DCE::SCREEN_Receiver SCREEN_Receiver(g_pCommand_Impl->m_dwPK_Device,pDevice_Orbiter->m_dwPK_Device);
-			g_pCommand_Impl->SendCommand(SCREEN_Receiver);
+			DCE::SCREEN_Receiver SCREEN_Receiver(m_pCommand_Impl->m_dwPK_Device,pDevice_Orbiter->m_dwPK_Device);
+			m_pCommand_Impl->SendCommand(SCREEN_Receiver);
 		}
 	}
 }

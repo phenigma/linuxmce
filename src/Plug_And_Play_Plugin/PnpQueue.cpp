@@ -1487,7 +1487,7 @@ void PnpQueue::ReadOutstandingQueueEntries()
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"PnpQueue::ReadOutstandingQueueEntries not adding signatured queue %d",
 				pRow_PnpQueue->PK_PnpQueue_get());
 #endif
-			pRow_PnpQueue->Processed_set(1);
+		pRow_PnpQueue->Processed_set(1);
 			continue;
 		}
 

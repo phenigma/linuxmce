@@ -1886,17 +1886,7 @@ void Orbiter_Plugin::CMD_Regen_Orbiter(int iPK_Device,string sForce,string sRese
 				return;
 			}
 			else
-			{
                 pOH_Orbiter->m_tRegenTime = time(NULL);
-				Row_Orbiter *pRow_Orbiter = m_pDatabase_pluto_main->Orbiter_get()->GetRow( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device );  // If we marked this as 'first regen', we're now regening, so don't treat it as first or else we'll supress pnp messages
-				if( pRow_Orbiter && pRow_Orbiter->FirstRegen_get() )
-				{
-					LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter: %d FirstRegen resetting to false", pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
-					pRow_Orbiter->FirstRegen_set(0);
-					m_pDatabase_pluto_main->Orbiter_get()->Commit();
-					pOH_Orbiter->m_bFirstRegen=false;
-				}
-			}
 		}
 
 		if( iPK_Device==0 && !IsRegenerating(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device) ) //we'll regen all of them
@@ -1964,6 +1954,15 @@ void Orbiter_Plugin::CMD_Regen_Orbiter_Finished(int iPK_Device,string &sCMD_Resu
 		mm.Release();
 		PrepareFloorplanInfo(pOH_Orbiter);
 	}
+
+	Row_Orbiter *pRow_Orbiter = m_pDatabase_pluto_main->Orbiter_get()->GetRow( iPK_Device );  // If we marked this as 'first regen', we're now regening, so don't treat it as first or else we'll supress pnp messages
+	if( pRow_Orbiter && pOH_Orbiter )
+	{
+		pRow_Orbiter->Reload();
+		pOH_Orbiter->m_bFirstRegen=(pRow_Orbiter->FirstRegen_get()==1);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter: %d FirstRegen setting to %d/%d", pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,(int) pRow_Orbiter->FirstRegen_get(),(int) pOH_Orbiter->m_bFirstRegen);
+	}
+
 }
 
 //<-dceag-createinst-b->!

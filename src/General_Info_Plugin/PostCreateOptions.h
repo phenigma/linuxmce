@@ -35,8 +35,9 @@ namespace DCE
 		Database_pluto_main *m_pDatabase_pluto_main;
 		class Router *m_pRouter;
 		class Orbiter_Plugin *m_pOrbiter_Plugin;
+		class Command_Impl *m_pCommand_Impl;
 	public:
-		PostCreateOptions(Database_pluto_main *pDatabase_pluto_main,Router *pRouter);
+		PostCreateOptions(Database_pluto_main *pDatabase_pluto_main,Router *pRouter,Command_Impl *pCommand_Impl);
 
 		void PostCreateDevice(Row_Device *pRow_Device, OH_Orbiter *pOH_Orbiter);
 		void PostCreateDevice_AlarmPanel(Row_Device *pRow_Device, OH_Orbiter *pOH_Orbiter);
