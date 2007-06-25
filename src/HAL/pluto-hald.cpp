@@ -311,13 +311,26 @@ void PlutoHalD::myDeviceAdded(LibHalContext * ctx, const char * udi)
 			int subsys_device_product_id = libhal_device_get_property_int(ctx, udi, "pci.subsys_product_id", NULL);
 			int subsys_device_vendor_id = libhal_device_get_property_int(ctx, udi, "pci.subsys_vendor_id", NULL);
 			
+			// command parameters
+			gchar *sysfs_path = libhal_device_get_property_string(ctx, udi, "pci.linux.sysfs_path", NULL);
+			string deviceData;
+			if( sysfs_path != NULL )
+			{
+				LoggerWrapper::GetInstance()->Write(LV_DEBUG, "=== PCI %s", sysfs_path);
+				deviceData += StringUtils::itos( DEVICEDATA_Location_on_PCI_bus_CONST );
+				deviceData += "|";
+				deviceData += sysfs_path;
+			}
+			g_free(sysfs_path);
+			sysfs_path = NULL;
+			
 			char buffer[64];
 			snprintf(buffer, sizeof(buffer), "%08x%08x",
 				(unsigned int) ((device_vendor_id & 0xffff) << 16) | (device_product_id & 0xffff),
 				(unsigned int) ((subsys_device_vendor_id & 0xffff) << 16) | (subsys_device_product_id & 0xffff));
 			
-			halDevice->EVENT_Device_Detected("", "", "", 0, buffer, PCI_COMM_METHOD, 0, udi, "", "", halDevice->m_sSignature_get());
-
+			halDevice->EVENT_Device_Detected("", "", "", 0, buffer, PCI_COMM_METHOD, 0, udi, deviceData.c_str(), "", halDevice->m_sSignature_get());
+			
 			LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Finished firing event for %s",buffer);
 	}
 	else
@@ -629,12 +642,25 @@ void PlutoHalD::initialize(LibHalContext * ctx)
 				int subsys_device_product_id = libhal_device_get_property_int(ctx, udi, "pci.subsys_product_id", NULL);
 				int subsys_device_vendor_id = libhal_device_get_property_int(ctx, udi, "pci.subsys_vendor_id", NULL);
 				
+				// command parameters
+				gchar *sysfs_path = libhal_device_get_property_string(ctx, udi, "pci.linux.sysfs_path", NULL);
+				string deviceData;
+				if( sysfs_path != NULL )
+				{
+					LoggerWrapper::GetInstance()->Write(LV_DEBUG, "=== PCI %s", sysfs_path);
+					deviceData += StringUtils::itos( DEVICEDATA_Location_on_PCI_bus_CONST );
+					deviceData += "|";
+					deviceData += sysfs_path;
+				}
+				g_free(sysfs_path);
+				sysfs_path = NULL;
+			
 				char buffer[64];
 				snprintf(buffer, sizeof(buffer), "%08x%08x",
 					(unsigned int) ((device_vendor_id & 0xffff) << 16) | (device_product_id & 0xffff),
 					(unsigned int) ((subsys_device_vendor_id & 0xffff) << 16) | (subsys_device_product_id & 0xffff));
 				
-				halDevice->EVENT_Device_Detected("", "", "", 0, buffer, PCI_COMM_METHOD, 0, udi, "", "", halDevice->m_sSignature_get());
+				halDevice->EVENT_Device_Detected("", "", "", 0, buffer, PCI_COMM_METHOD, 0, udi, deviceData.c_str(), "", halDevice->m_sSignature_get());
 	
 				LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Finished firing event for %s",buffer);
 		}
