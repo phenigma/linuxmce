@@ -5866,7 +5866,7 @@ function setAcceleration($orbiterMDChild,$value,$dbADO){
  * execute command line stat --format="%F" <director/fisier>
 */
 function is_dir64($file){
-	$type=exec('stat --format="%F" -L \''.$file.'\'');
+	$type=exec_batch_command("stat --format=\"%F\" -L \"".str_replace(array('"','$','\\'),array('\"','\$','\\\\'),$file)."\"",1);
 	if($type=='directory'){
 		return true;
 	}
