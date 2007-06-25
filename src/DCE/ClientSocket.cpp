@@ -196,7 +196,7 @@ bool ClientSocket::Connect( int PK_DeviceTemplate,string sExtraInfo,int iConnect
 #endif
 		bSuccess = OnConnect( PK_DeviceTemplate, sExtraInfo );
 
-		if(!bSuccess && nConnectStepsLeft > 0)
+		if(!bSuccess && m_eLastError == cs_err_CannotConnect && nConnectStepsLeft > 0)
 		{
 			//handshake failed; we'll retry
 			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Handshake failed. Retrying in 1 second");
