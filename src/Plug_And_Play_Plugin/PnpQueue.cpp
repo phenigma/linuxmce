@@ -901,6 +901,13 @@ bool PnpQueue::Process_Detect_Stage_Add_Device(PnpQueueEntry *pPnpQueueEntry)
 			LoggerWrapper::GetInstance()->Write(LV_STATUS, "PnpQueue::Process_Detect_Stage_Add_Device: enable device %d: %s", pRow_Device->PK_Device_get(), pPnpQueueEntry->ToString().c_str());
 			ReenableDevice(pPnpQueueEntry,pRow_Device);
 		}
+		else if( pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts.empty()==false )
+		{
+			string sMessage = StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()) + " Added device: " + pRow_Device->Description_get();
+			DCE::CMD_Display_Alert_DL CMD_Display_Alert_DL(pPnpQueueEntry->m_pRow_Device_Reported->PK_Device_get(),pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts,
+				sMessage,"pnp_added_" + StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()),"5",interuptAlways);
+			m_pPlug_And_Play_Plugin->SendCommand(CMD_Display_Alert_DL);
+		}
 	}
 
 #ifdef DEBUG
@@ -1734,7 +1741,7 @@ bool PnpQueue::ReenableDevice(PnpQueueEntry *pPnpQueueEntry,Row_Device *pRow_Dev
 	if( pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts.empty()==false )
 	{
 		DCE::CMD_Display_Alert_DL CMD_Display_Alert_DL(pPnpQueueEntry->m_pRow_Device_Reported->PK_Device_get(),pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts,
-			sMessage,"pnp_enabled_" + StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()),"5",interuptNoVideo);
+			sMessage,"pnp_enabled_" + StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()),"5",interuptAlways);
 		m_pPlug_And_Play_Plugin->SendCommand(CMD_Display_Alert_DL);
 	}
 

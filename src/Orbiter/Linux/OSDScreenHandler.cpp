@@ -108,7 +108,6 @@ void OSDScreenHandler::DisableAllVideo()
 //-----------------------------------------------------------------------------------------------------
 void OSDScreenHandler::SCREEN_VideoWizard(long PK_Screen)
 {
-
 	if( m_pOrbiter->m_dwPK_Device_LocalMediaPlayer && m_pOrbiter->DeviceIsRegistered(m_pOrbiter->m_dwPK_Device_LocalMediaPlayer)!='Y' && (m_tWizardIsRunning==0 || time(NULL)-m_tWizardIsRunning<15) )
 	{
 		if( m_tWizardIsRunning==0 )
@@ -124,27 +123,10 @@ void OSDScreenHandler::SCREEN_VideoWizard(long PK_Screen)
 		return;
 	}
 
-	if( m_tWizardIsRunning==0 )
-		m_tWizardIsRunning = time(NULL);
+	PrepForWizard();
 
 	DCE::CMD_Play_Media CMD_Play_Media(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_LocalMediaPlayer,0,0,"","/home/videowiz/greetings.mpg");
 	m_pOrbiter->SendCommand(CMD_Play_Media);
-
-	// The video wizard is playing video overlays using a non-standard method; it's just sending play media's directly to Xine
-	// which means that set now playing isn't called, and thus the xine window isn't activated.  Just force it to be active for now.
-	// This will create an issue that when the user leaves the video wizard it won't re-activate the screen saver because we have no
-	// practical way to know when the user leaves this section.  If we are going to have video overlays in other places we
-	// should come up with a standard way of doing this.
-	m_pOrbiter->CMD_Activate_Window("pluto-xine-playback-window.pluto-xine-playback-window");
-
-	m_pOrbiter->m_bBypassScreenSaver = true;
-	if( m_pOrbiter->m_pDevice_ScreenSaver && m_pOrbiter->m_pDevice_ScreenSaver->m_bDisabled==false )
-	{
-		m_pOrbiter->PurgeCallBack(&Orbiter::SendOnToSS);
-		m_pOrbiter->CallMaintenanceInMiliseconds( 0, &Orbiter::SendOffToSS, NULL, pe_ALL, false );
-	}
-
-	m_pOrbiter->StopScreenSaver();
 
 	DesignObjText *pText = m_pOrbiter->FindText( m_pOrbiter->FindObject(DESIGNOBJ_Greetings_CONST),TEXT_STATUS_CONST );
 	if( !m_bHasVideoWizardFiles )
@@ -279,6 +261,7 @@ bool OSDScreenHandler::VideoWizard_ObjectSelected(CallBackData *pData)
 //-----------------------------------------------------------------------------------------------------
 void OSDScreenHandler::SCREEN_UsersWizard(long PK_Screen)
 {
+	PrepForWizard();
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, "");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, "");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Datagrid_Input_CONST, "");
@@ -411,6 +394,7 @@ bool OSDScreenHandler::UsersWizard_DatagridSelected(CallBackData *pData)
 //-----------------------------------------------------------------------------------------------------
 void OSDScreenHandler::SCREEN_CountryWizard(long PK_Screen)
 {
+	PrepForWizard();
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_DesignObj_CurrentSecti_CONST, TOSTRING(DESIGNOBJ_butLocationWizard_CONST));
 
 	ScreenHandlerBase::SCREEN_CountryWizard(PK_Screen);
@@ -530,6 +514,7 @@ bool OSDScreenHandler::CountryWizard_ObjectSelected(CallBackData *pData)
 //-----------------------------------------------------------------------------------------------------
 void OSDScreenHandler::SCREEN_RoomsWizard(long PK_Screen)
 {
+	PrepForWizard();
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_DesignObj_CurrentSecti_CONST, TOSTRING(DESIGNOBJ_butRoomsWizard_CONST));
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_4_CONST, "");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, "");
@@ -649,6 +634,7 @@ bool OSDScreenHandler::RoomsWizard_DatagridSelected(CallBackData *pData)
 
 void OSDScreenHandler::SCREEN_This_Room(long PK_Screen, bool bAlways)
 {
+	PrepForWizard();
 	ScreenHandler::SCREEN_This_Room(PK_Screen,bAlways);
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_DesignObj_CurrentSecti_CONST, TOSTRING(DESIGNOBJ_butThisRoom_CONST));
 	if( !bAlways )
@@ -723,6 +709,7 @@ bool OSDScreenHandler::ThisRoom_ObjectSelected(CallBackData *pData)
 //-----------------------------------------------------------------------------------------------------
 void OSDScreenHandler::SCREEN_TV_Manufacturer(long PK_Screen)
 {
+	PrepForWizard();
 	ScreenHandlerBase::SCREEN_TV_Manufacturer(PK_Screen);
 	m_tWaitingForRegistration = 0;
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_DesignObj_CurrentSecti_CONST, TOSTRING(DESIGNOBJ_butTVManufWizard_CONST));
@@ -966,6 +953,7 @@ bool OSDScreenHandler::TV_Manufacturer_ObjectSelected(CallBackData *pData)
 //-----------------------------------------------------------------------------------------------------
 void OSDScreenHandler::SCREEN_Receiver(long PK_Screen)
 {
+	PrepForWizard();
 	m_tWaitingForRegistration = 0;
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_DesignObj_CurrentSecti_CONST, TOSTRING(DESIGNOBJ_butReceiverWizard_CONST));
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, "");
@@ -1229,6 +1217,7 @@ bool OSDScreenHandler::Receiver_ObjectSelected(CallBackData *pData)
 //-----------------------------------------------------------------------------------------------------
 void OSDScreenHandler::SCREEN_AV_Devices(long PK_Screen)
 {
+	PrepForWizard();
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_DesignObj_CurrentSecti_CONST, TOSTRING(DESIGNOBJ_butAVDevicesWizard_CONST));
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Datagrid_Filter_CONST, "");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, "");
@@ -1390,6 +1379,7 @@ bool OSDScreenHandler::AV_Devices_GridSelected(CallBackData *pData)
 
 void OSDScreenHandler::SCREEN_Wizard_Done(long PK_Screen)
 {
+	PrepForWizard();
 	if( m_pWizardLogic->WhatRoomIsThisDeviceIn(m_pWizardLogic->GetTopMostDevice(m_pOrbiter->m_dwPK_Device))==0 )
 	{
 		string sMessage="0 -300 1 " TOSTRING(COMMAND_Goto_Screen_CONST) " " TOSTRING(COMMANDPARAMETER_PK_Screen_CONST) " " TOSTRING(SCREEN_This_Room_CONST);
@@ -1422,11 +1412,13 @@ bool OSDScreenHandler::VideoWizardDone_OnScreen(CallBackData *pData)
 
 void OSDScreenHandler::SCREEN_House_Setup_Popup_Message(long PK_Screen, string sText, string sCommand_Line, string sCannotGoBack)
 {
+	PrepForWizard();
 	SCREEN_PopupMessage(PK_Screen, sText, sCommand_Line, "", "", "", sCannotGoBack);
 }
 
 void OSDScreenHandler::SCREEN_Media_Player_Setup_Popup_Message(long PK_Screen, string sText, string sCommand_Line, string sCannotGoBack)
 {
+	PrepForWizard();
 	SCREEN_PopupMessage(PK_Screen, sText, sCommand_Line, "", "", "", sCannotGoBack);
 }
 
@@ -1496,6 +1488,7 @@ void OSDScreenHandler::HandleLightingScreen()
 //-----------------------------------------------------------------------------------------------------
 void OSDScreenHandler::SCREEN_LightsSetup(long PK_Screen)
 {
+	PrepForWizard();
 	m_tWaitingForRegistration=m_tRegistered=0;
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_DesignObj_CurrentSecti_CONST, TOSTRING(DESIGNOBJ_butLightsWizard_CONST)); 
 	ScreenHandler::SCREEN_LightsSetup(PK_Screen);
@@ -1878,6 +1871,7 @@ void OSDScreenHandler::HandleAlarmScreen()
 //-----------------------------------------------------------------------------------------------------
 void OSDScreenHandler::SCREEN_AlarmPanel(long PK_Screen)
 {
+	PrepForWizard();
 	m_tWaitingForRegistration=m_tRegistered=0;
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_DesignObj_CurrentSecti_CONST, TOSTRING(DESIGNOBJ_butAlarmPanelWizard_CONST)); 
 	ScreenHandlerBase::SCREEN_AlarmPanel(PK_Screen);
@@ -2057,6 +2051,7 @@ bool OSDScreenHandler::AlarmSetup_SelectedGrid(CallBackData *pData)
 //-----------------------------------------------------------------------------------------------------
 void OSDScreenHandler::SCREEN_VOIP_Provider(long PK_Screen)
 {
+	PrepForWizard();
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, "");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, "");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST, "");
@@ -2181,12 +2176,14 @@ bool OSDScreenHandler::VOIP_Provider_ObjectSelected(CallBackData *pData)
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OSDScreenHandler::SCREEN_Floorplan_Editor(long PK_Screen)
 {
+	PrepForWizard();
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_DesignObj_CurrentSecti_CONST, TOSTRING(DESIGNOBJ_butFloorplan_CONST));
 	ScreenHandlerBase::SCREEN_Floorplan_Editor(PK_Screen);
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OSDScreenHandler::SCREEN_Final_House_Setup(long PK_Screen)
 {
+	PrepForWizard();
 	if( m_pWizardLogic->HouseAlreadySetup()==false )
 	{
 		string sMessage="0 -300 1 " TOSTRING(COMMAND_Goto_Screen_CONST) " " TOSTRING(COMMANDPARAMETER_PK_Screen_CONST) " " TOSTRING(SCREEN_UsersWizard_CONST);
@@ -2494,6 +2491,7 @@ void OSDScreenHandler::ReceivedGotoScreenMessage(int nPK_Screen, Message *pMessa
 //-----------------------------------------------------------------------------------------------------
 void OSDScreenHandler::SCREEN_Get_Capture_Card_Port(long PK_Screen)
 {
+	PrepForWizard();
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_DesignObj_CurrentSecti_CONST, TOSTRING(DESIGNOBJ_butInputs_CONST));
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_Device_1_CONST, "");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, "");
@@ -2607,6 +2605,7 @@ bool OSDScreenHandler::CaptureCardPort_DatagridSelected(CallBackData *pData)
 
 void OSDScreenHandler::SCREEN_Choose_Provider_for_Device(long PK_Screen)
 {
+	PrepForWizard();
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_DesignObj_CurrentSecti_CONST, TOSTRING(DESIGNOBJ_butProviders_CONST));
 #ifdef DEBUG
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::SCREEN_Choose_Provider_for_Device");
@@ -3054,4 +3053,28 @@ bool OSDScreenHandler::Scanning_Progress_GridRendering(CallBackData *pData)
 	}
 
 	return false;
+}
+
+void OSDScreenHandler::PrepForWizard()
+{
+	if( m_tWizardIsRunning==0 )
+		return; // Already did this
+
+	m_tWizardIsRunning = time(NULL);
+
+	// The video wizard is playing video overlays using a non-standard method; it's just sending play media's directly to Xine
+	// which means that set now playing isn't called, and thus the xine window isn't activated.  Just force it to be active for now.
+	// This will create an issue that when the user leaves the video wizard it won't re-activate the screen saver because we have no
+	// practical way to know when the user leaves this section.  If we are going to have video overlays in other places we
+	// should come up with a standard way of doing this.
+	m_pOrbiter->CMD_Activate_Window("pluto-xine-playback-window.pluto-xine-playback-window");
+
+	m_pOrbiter->m_bBypassScreenSaver = true;
+	if( m_pOrbiter->m_pDevice_ScreenSaver && m_pOrbiter->m_pDevice_ScreenSaver->m_bDisabled==false )
+	{
+		m_pOrbiter->PurgeCallBack(&Orbiter::SendOnToSS);
+		m_pOrbiter->CallMaintenanceInMiliseconds( 0, &Orbiter::SendOffToSS, NULL, pe_ALL, false );
+	}
+
+	m_pOrbiter->StopScreenSaver();
 }

@@ -186,6 +186,7 @@ public:
 	virtual void SCREEN_Scanning_Progress(long PK_Screen);
 	bool Scanning_Progress_GridRendering(CallBackData *pData);
 
+	void PrepForWizard();  // Stops PSS and activates Xine
 };
 
 #endif
