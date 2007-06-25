@@ -8,7 +8,10 @@ FROM_ISO=2
 CD_Dir=$(mktemp -d)
 Squash_Dir=$(mktemp -d)
 
-apt-get -f -y install dpkg-repack
+dpkg -i /usr/pluto/deb-cache/dpkg-dev_*.deb
+dpkg -i /usr/pluto/deb-cache/dpkg-repack_*.deb
+
+#pt-get -f -y install dpkg-repack
 
 if [[ "$c_ubuntuLiveCdFrom" == "$FROM_ISO" ]] ;then
 	mount -o loop "$c_ubuntuLiveCdPath" "$CD_Dir" || exit 1
