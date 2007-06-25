@@ -27,8 +27,6 @@ DEVICEDATA_Connector=68
 DEVICEDATA_Spacing=150
 DEVICEDATA_Offset=167
 
-COMMAND_Regen_Orbiter=266
-
 COMMANDPARAMETER_PK_Device=2
 COMMANDPARAMETER_Force=21
 COMMANDPARAMETER_Reset=24
@@ -205,19 +203,6 @@ UpdateOrbiterDimensions()
 	# Store value for "Offset"
 	Q="UPDATE Device_DeviceData SET IK_DeviceData='$OrbiterShiftX,$OrbiterShiftY' WHERE FK_Device='$OrbiterDev' AND FK_DeviceData='$DEVICEDATA_Offset'"
 	RunSQL "$Q"
-
-	# Regen Orbiter
-	Q="UPDATE Orbiter SET Modification_LastGen=0 WHERE PK_Orbiter='$OrbiterDev'"
-	RunSQL "$Q"
-	Q="UPDATE Device SET NeedConfigure=1 WHERE PK_Device='$OrbiterDev'"
-	RunSQL "$Q"
-
-	while ! /usr/pluto/bin/MessageSend "$DCERouter" -targetType template "$OrbiterDev" "$DEVICETEMPLATE_OrbiterPlugin" 1 "$COMMAND_Regen_Orbiter" "$COMMANDPARAMETER_PK_Device" "$OrbiterDev" "$COMMANDPARAMETER_Force" "-r" "$COMMANDPARAMETER_Reset" Y; do
-		:
-	done
-
-	# Restart X
-	/usr/pluto/bin/RestartX.sh
 }
 
 UpdateOrbiterUI()
