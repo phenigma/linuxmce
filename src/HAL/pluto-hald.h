@@ -87,6 +87,16 @@ class PlutoHalD
 			int * busType , std::string & sysfsPath);
 		
 		/***/
+		static void getParentId(LibHalContext * ctx, const char * udi,
+								const char * tag, const char * value,
+								std::string & parentId);
+		
+		/***/
+		static void getChildId(LibHalContext * ctx, const char * udi,
+								const char * tag, const char * value,
+								std::string & childId);
+		
+		/***/
 		static gboolean timeoutHandler (DBusConnection *bus);
 };
 

@@ -77,6 +77,59 @@ void PlutoHalD::getPortIdentification(string portFromBus, string& portID)
 	}
 }
 
+void PlutoHalD::getParentId(LibHalContext * ctx, const char * udi,
+							const char * tag, const char * value,
+							std::string & parentId)
+{
+	gchar *parent = libhal_device_get_property_string (ctx, udi, "info.parent", NULL);
+	
+	if( parent != NULL )
+	{
+		string tagValue = value;
+		gchar *halTag = libhal_device_get_property_string (ctx, parent, tag, NULL);
+		LoggerWrapper::GetInstance()->Write(LV_DEBUG, "+++++++ getParentId = %s || %s", halTag, tagValue.c_str());
+		if( halTag != NULL && tagValue == halTag)
+		{
+			parentId = parent;
+		}
+		else
+		{
+			getParentId(ctx, parent, tag, value, parentId);
+		}
+		g_free (halTag);
+		halTag = NULL;
+	}
+	
+	g_free (parent);
+	parent = NULL;
+}
+
+void PlutoHalD::getChildId(LibHalContext * ctx, const char * udi,
+							const char * tag, const char * value,
+							std::string & childId)
+{
+	int num_childs;
+	char **childs = NULL;
+	childs = libhal_manager_find_device_string_match (ctx, "info.parent", udi, &num_childs, NULL);
+	if(childs != NULL && num_childs > 0)
+	{
+		string tagValue = value;
+		for(int i=0; i<num_childs; i++)
+		{
+			gchar *halTag = libhal_device_get_property_string (ctx, childs[i], tag, NULL);
+			LoggerWrapper::GetInstance()->Write(LV_DEBUG, "+++++++ getChildId = %s || %s", childs[i], halTag);
+			if( halTag != NULL && halTag == tagValue )
+			{
+				childId = childs[i];
+				break;
+			}
+			g_free (halTag);
+			halTag = NULL;
+		}
+	}
+	libhal_free_string_array (childs);
+}
+
 void PlutoHalD::myDeviceAdded(LibHalContext * ctx, const char * udi)
 {
 	if( ctx == NULL || udi == NULL )
@@ -107,36 +160,58 @@ void PlutoHalD::myDeviceAdded(LibHalContext * ctx, const char * udi)
 	}
 	else if( category != NULL )
 	{
-		if(  0 == strcmp(category, "serial") && strlen(category) == strlen("serial") )
+		if( 0 == strcmp(category, "serial") && strlen(category) == strlen("serial") )
 		{
-			gchar *parent = libhal_device_get_property_string (ctx, libhal_device_get_property_string(ctx, udi, "info.parent", NULL), "info.parent", NULL);
-			gchar *info_udi = libhal_device_get_property_string (ctx, parent, "info.udi", NULL);
-			int usb_device_product_id = libhal_device_get_property_int(ctx, parent, "usb_device.product_id", NULL);
-			int usb_device_vendor_id = libhal_device_get_property_int(ctx, parent, "usb_device.vendor_id", NULL);
-			
-		// /MessageSend dcerouter -targetType category 999 159 2 65 55 "37|usb2/2-2/2-2:1.7" 52 4 51 "0403f850"
-			gchar *serial_port = libhal_device_get_property_string (ctx, libhal_device_get_property_string(ctx, udi, "info.parent", NULL), "linux.sysfs_path", NULL);
-			if(serial_port != NULL)
+			string parent;
+				
+			getParentId(ctx, udi, "info.bus", "usb_device", parent);
+			if( !parent.empty() )
 			{
-				LoggerWrapper::GetInstance()->Write(LV_DEBUG, "+++++ Serial device added = %s", udi);
+				string serial_parent;
+				getChildId(ctx, parent.c_str(), "info.bus", "usb", serial_parent);
+					
+				if( !serial_parent.empty() )
+				{
+					gchar *info_udi = libhal_device_get_property_string (ctx, parent.c_str(), "info.udi", NULL);
+					int usb_device_product_id = libhal_device_get_property_int(ctx, parent.c_str(), "usb_device.product_id", NULL);
+					int usb_device_vendor_id = libhal_device_get_property_int(ctx, parent.c_str(), "usb_device.vendor_id", NULL);
+						
+					// /MessageSend dcerouter -targetType category 999 159 2 65 55 "37|usb2/2-2/2-2:1.7" 52 4 51 "0403f850"
+					gchar *serial_port = libhal_device_get_property_string (ctx, serial_parent.c_str(), "linux.sysfs_path", NULL);
+						
+					LoggerWrapper::GetInstance()->Write(LV_DEBUG, "+++++++* Serial device added = %s\nSP=%s\nP=%s\nid: %d||%d\nSerial=%s",
+					udi, serial_parent.c_str(), parent.c_str(),
+					usb_device_product_id, usb_device_vendor_id,
+					serial_port );
 				
-				string portID;
-				getPortIdentification(string(serial_port), portID);
+					if(serial_port != NULL)
+					{
+						LoggerWrapper::GetInstance()->Write(LV_DEBUG, "+++++++ Serial device added = %s", udi);
+					
+						string portID;
+						getPortIdentification(string(serial_port), portID);
+					
+						char buffer[64];
+						snprintf(buffer, sizeof(buffer), "%08x", (unsigned int) ((usb_device_vendor_id & 0xffff) << 16) | (usb_device_product_id & 0xffff));
 				
-				char buffer[64];
-				snprintf(buffer, sizeof(buffer), "%08x", (unsigned int) ((usb_device_vendor_id & 0xffff) << 16) | (usb_device_product_id & 0xffff));
-			
-				halDevice->EVENT_Device_Detected("", "", "", 0, buffer, USB_COMM_METHOD, 0, info_udi, "37|" + portID, category,halDevice->m_sSignature_get());
-				LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Finished firing event for %s",buffer);
+						halDevice->EVENT_Device_Detected("", "", "", 0, buffer, 4, 0, info_udi, "37|" + portID, category, halDevice->m_sSignature_get());
+						LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Finished firing event for %s",buffer);
+					}
+				
+					g_free (serial_port);
+					serial_port = NULL;
+					g_free (info_udi);
+					info_udi = NULL;
+				}
+				else
+				{
+					LoggerWrapper::GetInstance()->Write(LV_DEBUG, "+++++++ Serial parent null = %s", udi);
+				}
 			}
-		
-			g_free (serial_port);
-			serial_port = NULL;
-			
-			g_free (parent);
-			parent = NULL;
-			g_free (info_udi);
-			info_udi = NULL;
+			else
+			{
+				LoggerWrapper::GetInstance()->Write(LV_DEBUG, "+++++++ Parent null = %s", udi);
+			}
 		}
 		else if( 0 == strcmp(category, "bluetooth_hci") && strlen(category) == strlen("bluetooth_hci") )
 		{
@@ -426,7 +501,7 @@ void PlutoHalD::initialize(LibHalContext * ctx)
 			int usb_device_product_id = libhal_device_get_property_int(ctx, udi, "usb_device.product_id", NULL);
 			int usb_device_vendor_id = libhal_device_get_property_int(ctx, udi, "usb_device.vendor_id", NULL);
 			
-// /MessageSend dcerouter -targetType category 999 159 2 65 52 4 51 "0403f850"
+			// /MessageSend dcerouter -targetType category 999 159 2 65 52 4 51 "0403f850"
 			char buffer[64];
 			snprintf(buffer, sizeof(buffer), "%08x", (unsigned int) ((usb_device_vendor_id & 0xffff) << 16) | (usb_device_product_id & 0xffff));
 			
@@ -439,34 +514,56 @@ void PlutoHalD::initialize(LibHalContext * ctx)
 		{
 			if( 0 == strcmp(category, "serial") && strlen(category) == strlen("serial") )
 			{
-				gchar *parent = libhal_device_get_property_string (ctx, libhal_device_get_property_string(ctx, udi, "info.parent", NULL), "info.parent", NULL);
-				gchar *info_udi = libhal_device_get_property_string (ctx, parent, "info.udi", NULL);
-				int usb_device_product_id = libhal_device_get_property_int(ctx, parent, "usb_device.product_id", NULL);
-				int usb_device_vendor_id = libhal_device_get_property_int(ctx, parent, "usb_device.vendor_id", NULL);
+				string parent;
 				
-	// /MessageSend dcerouter -targetType category 999 159 2 65 55 "37|usb2/2-2/2-2:1.7" 52 4 51 "0403f850"
-				gchar *serial_port = libhal_device_get_property_string (ctx, libhal_device_get_property_string(ctx, udi, "info.parent", NULL), "linux.sysfs_path", NULL);
-				if(serial_port != NULL)
+				getParentId(ctx, udi, "info.bus", "usb_device", parent);
+				if( !parent.empty() )
 				{
-					LoggerWrapper::GetInstance()->Write(LV_DEBUG, "+++++++ Serial device added = %s", udi);
+					string serial_parent;
+					getChildId(ctx, parent.c_str(), "info.bus", "usb", serial_parent);
 					
-					string portID;
-					getPortIdentification(string(serial_port), portID);
-					
-					char buffer[64];
-					snprintf(buffer, sizeof(buffer), "%08x", (unsigned int) ((usb_device_vendor_id & 0xffff) << 16) | (usb_device_product_id & 0xffff));
+					if( !serial_parent.empty() )
+					{
+						gchar *info_udi = libhal_device_get_property_string (ctx, parent.c_str(), "info.udi", NULL);
+						int usb_device_product_id = libhal_device_get_property_int(ctx, parent.c_str(), "usb_device.product_id", NULL);
+						int usb_device_vendor_id = libhal_device_get_property_int(ctx, parent.c_str(), "usb_device.vendor_id", NULL);
+						
+						// /MessageSend dcerouter -targetType category 999 159 2 65 55 "37|usb2/2-2/2-2:1.7" 52 4 51 "0403f850"
+						gchar *serial_port = libhal_device_get_property_string (ctx, serial_parent.c_str(), "linux.sysfs_path", NULL);
+						
+						LoggerWrapper::GetInstance()->Write(LV_DEBUG, "+++++++* Serial device added = %s\nSP=%s\nP=%s\nid: %d||%d\nSerial=%s",
+							udi, serial_parent.c_str(), parent.c_str(),
+							usb_device_product_id, usb_device_vendor_id,
+							serial_port );
 				
-					halDevice->EVENT_Device_Detected("", "", "", 0, buffer, 4, 0, info_udi, "37|" + portID, category, halDevice->m_sSignature_get());
-					LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Finished firing event for %s",buffer);
+						if(serial_port != NULL)
+						{
+							LoggerWrapper::GetInstance()->Write(LV_DEBUG, "+++++++ Serial device added = %s", udi);
+					
+							string portID;
+							getPortIdentification(string(serial_port), portID);
+					
+							char buffer[64];
+							snprintf(buffer, sizeof(buffer), "%08x", (unsigned int) ((usb_device_vendor_id & 0xffff) << 16) | (usb_device_product_id & 0xffff));
+				
+							halDevice->EVENT_Device_Detected("", "", "", 0, buffer, 4, 0, info_udi, "37|" + portID, category, halDevice->m_sSignature_get());
+							LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Finished firing event for %s",buffer);
+						}
+				
+						g_free (serial_port);
+						serial_port = NULL;
+						g_free (info_udi);
+						info_udi = NULL;
+					}
+					else
+					{
+						LoggerWrapper::GetInstance()->Write(LV_DEBUG, "+++++++ Serial parent null = %s", udi);
+					}
 				}
-				
-				g_free (serial_port);
-				serial_port = NULL;
-				
-				g_free (parent);
-				parent = NULL;
-				g_free (info_udi);
-				info_udi = NULL;
+				else
+				{
+					LoggerWrapper::GetInstance()->Write(LV_DEBUG, "+++++++ Parent null = %s", udi);
+				}
 			}
 			else if( 0 == strcmp(category, "bluetooth_hci") && strlen(category) == strlen("bluetooth_hci") )
 			{
