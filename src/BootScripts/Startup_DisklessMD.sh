@@ -104,6 +104,9 @@ rm -f /usr/pluto/locks/pluto_spawned_local_devices.txt
 StartService "Configuring Pluto Storage Devices" "/usr/pluto/bin/StorageDevices_Setup.sh" "&"
 StartDaemon "Report machine is on" "/usr/pluto/bin/Report_MachineOn.sh" "ReportingOn"
 
+/etc/init.d/check_avwizard
+/etc/init.d/0start_avwizard
+
 . /usr/pluto/bin/Config_Ops.sh
 export DISPLAY=:${Display}
 while /bin/true ;do
