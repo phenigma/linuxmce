@@ -39,3 +39,9 @@ select {  font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10px; c
 	border-top:1px solid #cccccc;
 	border-bottom:1px solid #cccccc;
 }
+hr {
+border: 0;
+color: #9E9E9E;
+background-color: #9E9E9E;
+height: 1px;
+}

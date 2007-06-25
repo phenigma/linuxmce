@@ -988,6 +988,13 @@ function process_register($conn){
 		return register_form($regusername,$regemail,$referrerName,$error);
 	}
 	
+	// check if username is alphanumeric, . or _
+	$isAlpha=preg_match("/^[a-zA-Z0-9\._]+$/", $regusername);
+	if($isAlpha==0){
+		$error='Allowed characters for username are alphanumeric, dot and underscore.';
+		return register_form($regusername,$regemail,$referrerName,$error);		
+	}
+	
 	// check if the email is not already registered
 	$emailData=getAssocArray('Users','id','name',$conn,'WHERE email LIKE \''.$regemail.'\'');
 	if(count($emailData)>0){
@@ -1241,7 +1248,8 @@ function get_my_dealers($user_id,$conn){
 		}
 		$out.='
 		<tr>
-			<td colspan="2">Country: '.$row['Country'].', region '.$row['Region'].', city '.$row['City'].' </td>
+			<td colspan="2">Country: '.$row['Country'].', region '.$row['Region'].', city '.$row['City'].(($row['email']!='')?', email: '.$row['email']:'').(($row['phone']!='')?', phone: '.$row['phone']:'').'
+			</td>
 		</tr>
 		<tr>
 			<td colspan="2"><a href="'.$row['url'].'">'.$row['url'].'</a><br>'.nl2br($row['description']).'</td>
@@ -1328,6 +1336,7 @@ function get_get_fiired(){
 function get_dealer($conn){
 	process_add_rating($conn);
 	$dealerTypes=array(
+		0=>'Show everything',
 		1=>'Dealer',
 		2=>'Custom installer',
 		3=>'Open house event'
@@ -1336,7 +1345,7 @@ function get_dealer($conn){
 	$selCountry=(int)@$_REQUEST['country'];
 	$selRegion=(int)@$_REQUEST['region'];
 	$selCity=(int)@$_REQUEST['city'];
-	$selDealerType=(isset($_REQUEST['dealerType']))?(int)@$_REQUEST['dealerType']:1;
+	$selDealerType=(isset($_REQUEST['dealerType']))?(int)@$_REQUEST['dealerType']:0;
 
 	$variables=array();
 	$page_template=implode('',file('templates/dealer.html'));
@@ -1710,6 +1719,8 @@ function record_dealer_form($categs,$conn){
 		$title=cleanString($_POST['title']);
 		$description=cleanString($_POST['description']);
 		$url=cleanString($_POST['url']);
+		$email=cleanString($_POST['email']);
+		$phone=cleanString($_POST['phone']);
 	}else{
 		$selCountry=0;
 		$selRegion=0;
@@ -1719,10 +1730,12 @@ function record_dealer_form($categs,$conn){
 		$title='';
 		$description='';
 		$url='';
+		$email='';
+		$phone='';
 	}
 
 	$categ=(int)@$_REQUEST['categ'];
-	
+
 	$variables=array();
 	$page_template=implode('',file('templates/record_dealer.html'));
 	$variables=set_variable($variables,'form_action','record_dealer.php');
@@ -1743,6 +1756,8 @@ function record_dealer_form($categs,$conn){
 	$variables=set_variable($variables,'title',$title);
 	$variables=set_variable($variables,'description',$description);
 	$variables=set_variable($variables,'url',$url);
+	$variables=set_variable($variables,'email',$email);
+	$variables=set_variable($variables,'phone',$phone);
 
 	if(isset($_SESSION['message'])){
 		$variables=set_variable($variables,'message',$_SESSION['message']);
@@ -1753,9 +1768,10 @@ function record_dealer_form($categs,$conn){
 }
 
 function countriesPulldown($name,$selected,$conn,$extra,$dealerType){
+	$where=($dealerType!=0)?'AND category='.$dealerType:'';
 	$res=query("
 		SELECT Country.*,user_id FROM Country 
-		LEFT JOIN dealers on FK_Country=PK_Country AND category=$dealerType
+		LEFT JOIN dealers on FK_Country=PK_Country $where
 		GROUP BY PK_Country
 		ORDER BY Country.Description ASC",$conn);
 	$select='<select name="'.$name.'" '.$extra.'>
@@ -1770,9 +1786,10 @@ function countriesPulldown($name,$selected,$conn,$extra,$dealerType){
 }
 
 function regionsPulldown($name,$selected,$country,$conn,$extra,$dealerType){
+	$where=($dealerType!=0)?'AND category='.$dealerType:'';
 	$res=query("
 		SELECT Region.*,user_id FROM Region 
-		LEFT JOIN dealers on FK_Region=PK_Region AND category=$dealerType
+		LEFT JOIN dealers on FK_Region=PK_Region $where
 		WHERE Region.FK_Country=$country
 		GROUP BY PK_Region
 		ORDER BY Region.Region ASC",$conn);
@@ -1788,9 +1805,10 @@ function regionsPulldown($name,$selected,$country,$conn,$extra,$dealerType){
 }
 
 function citiesPulldown($name,$selected,$region,$conn,$extra,$dealerType){
+	$where=($dealerType!=0)?'AND category='.$dealerType:'';
 	$res=query("
 		SELECT City.*,user_id FROM City
-		LEFT JOIN dealers on FK_City=PK_City AND category=$dealerType
+		LEFT JOIN dealers on FK_City=PK_City $where
 		WHERE City.FK_Region=$region
 		GROUP BY PK_City
 		ORDER BY City.City ASC",$conn);
@@ -1818,7 +1836,9 @@ function process_record_dealer($categs,$conn){
 	$description=cleanString($_POST['description']);
 	$date_from=cleanString(@$_POST['date_from']);
 	$date_to=cleanString(@$_POST['date_to']);
-	
+	$email=cleanString(@$_POST['email']);
+	$phone=cleanString(@$_POST['phone']);
+
 	if($selCountry==0 || $selRegion==0 || ($selCity==0 && $cityname=='')){
 		$_SESSION['message']=msg_error('Please provide geographical info.');
 		return record_dealer_form($categs,$conn);
@@ -1834,9 +1854,9 @@ function process_record_dealer($categs,$conn){
 		$selCity=mysql_insert_id($conn);
 	}
 	query("
-	INSERT INTO dealers (FK_Country,FK_Region,FK_City,cityname,category,url,description,user_id,date_from,date_to,title) 
+	INSERT INTO dealers (FK_Country,FK_Region,FK_City,cityname,category,url,description,user_id,date_from,date_to,title,email,phone) 
 	VALUES 
-	('$selCountry','$selRegion','$selCity','$cityname','$categ','$url','$description',$id,'$date_from','$date_to','$title')",$conn);
+	('$selCountry','$selRegion','$selCity','$cityname','$categ','$url','$description',$id,'$date_from','$date_to','$title','$email','$phone')",$conn);
 	$_SESSION['message']=msg_notice('Account updated.');
 	unset($_POST);
 	
@@ -1847,7 +1867,11 @@ function get_dealers_list($conn,$selCountry,$selRegion,$selCity,$selType){
 	if($selCountry==0){
 		return '';
 	}
-	$filters=' AND category='.$selType;
+	
+	$filters='';
+	if($selType!=0){
+		$filters.=' AND category='.$selType;
+	}
 	if($selRegion!=0){
 		$filters.=' AND dealers.FK_Region='.$selRegion;
 	}
@@ -1894,7 +1918,9 @@ function get_dealers_list($conn,$selCountry,$selRegion,$selCity,$selType){
 		$interval=($row['category']==3)?format_mysql_date($row['date_from'],'M d Y').' - '.format_mysql_date($row['date_to'],'M d Y').'<br>':'';
 		$out.='
 			<tr>
-				<td><b>'.$row['title'].' ('.$row['Region'].', '.$row['City'].')</b><br>'.$interval.'<a href="'.$row['url'].'">'.$row['url'].'</a><br>'.nl2br($row['description']).'</td>
+				<td><b>'.$row['title'].' ('.$row['Region'].', '.$row['City'].')</b><br>'.$interval.'<a href="'.$row['url'].'">'.$row['url'].'</a><br>
+				'.$row['City'].(($row['email']!='')?', email: '.$row['email']:'').(($row['phone']!='')?', phone: '.$row['phone']:'').'<br>
+				'.nl2br($row['description']).'</td>
 			</tr>
 			<tr>
 				<td align="right">'.star_rating(ceil($row['rating'])).' '.$rating.'<hr></td>
@@ -1958,6 +1984,8 @@ function edit_dealer_form($id,$categs,$conn){
 		$title=cleanString($_POST['title']);
 		$description=cleanString($_POST['description']);
 		$url=cleanString($_POST['url']);
+		$email=cleanString(@$_POST['email']);
+		$phone=cleanString(@$_POST['phone']);
 	}else{
 		$selCountry=$data[0]['FK_Country'];
 		$selRegion=$data[0]['FK_Region'];
@@ -1967,6 +1995,8 @@ function edit_dealer_form($id,$categs,$conn){
 		$title=$data[0]['title'];
 		$description=$data[0]['description'];
 		$url=$data[0]['url'];
+		$email=$data[0]['email'];
+		$phone=$data[0]['phone'];
 	}
 	
 	
@@ -2015,6 +2045,8 @@ function process_edit_dealer($categs,$conn){
 	$description=cleanString($_POST['description']);
 	$date_from=cleanString(@$_POST['date_from']);
 	$date_to=cleanString(@$_POST['date_to']);
+	$email=cleanString(@$_POST['email']);
+	$phone=cleanString(@$_POST['phone']);
 
 	if($selCountry==0 || $selRegion==0 || ($selCity==0 && $cityname=='')){
 		$_SESSION['message']=msg_error('Please provide geographical info.');
@@ -2031,7 +2063,7 @@ function process_edit_dealer($categs,$conn){
 		$selCity=mysql_insert_id($conn);
 	}
 	
-	query("UPDATE dealers SET FK_Country='$selCountry',FK_Region='$selRegion',FK_City='$selCity',cityname='$cityname',category='$categ',url='$url',description='$url',date_from='$date_from',date_to='$date_to',title='$title' WHERE id=$id",$conn);
+	query("UPDATE dealers SET FK_Country='$selCountry',FK_Region='$selRegion',FK_City='$selCity',cityname='$cityname',category='$categ',url='$url',description='$url',date_from='$date_from',date_to='$date_to',title='$title',email='$email',phone='$phone' WHERE id=$id",$conn);
 	$_SESSION['message']=msg_notice('Account updated.');
 	unset($_POST);
 	
