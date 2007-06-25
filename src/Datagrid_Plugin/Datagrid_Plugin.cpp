@@ -170,7 +170,7 @@ void Datagrid_Plugin::CMD_Request_Datagrid_Contents(string sID,string sDataGrid_
 	*pData=NULL;
 
 #ifdef DEBUG
-	clock_t cStart=clock(); // move this to within #debug
+	clock_t cStart=clock(); 
 	LoggerWrapper::GetInstance()->Write( LV_DATAGRID, "Requesting grid: %s", sDataGrid_ID.c_str() );
 #endif
 	PLUTO_SAFETY_LOCK( s, m_DataGridMutex );
@@ -179,7 +179,7 @@ void Datagrid_Plugin::CMD_Request_Datagrid_Contents(string sID,string sDataGrid_
 	DataGridMap::iterator dg = m_DataGrids.find( sDataGrid_ID );
 	if ( dg == m_DataGrids.end() )
 	{
-		LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Requesting data from unknown grid %s", sDataGrid_ID.c_str() );
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "Requesting data from unknown grid %s", sDataGrid_ID.c_str() );
 		return;
 	}
 
@@ -237,7 +237,7 @@ void Datagrid_Plugin::CMD_Request_Datagrid_Contents(string sID,string sDataGrid_
 				string CellText = bValue ? StringUtils::ToUpper(pCell->m_Value ? pCell->m_Value : "") : StringUtils::ToUpper(pCell->m_Text ? pCell->m_Text : "");
 				if( CellText.length()==0 )
 				{
-					LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Request grid, we're seeking on a column that has empty cells ioffset: %d seek: %s id: %s",iOffset,sSeek.c_str(),sDataGrid_ID.c_str());
+					LoggerWrapper::GetInstance()->Write(LV_WARNING,"Request grid, we're seeking on a column that has empty cells ioffset: %d seek: %s id: %s",iOffset,sSeek.c_str(),sDataGrid_ID.c_str());
 					continue;
 				}
 

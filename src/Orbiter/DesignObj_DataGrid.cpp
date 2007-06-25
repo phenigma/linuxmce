@@ -386,8 +386,8 @@ void DesignObj_DataGrid::CacheGrid()
 	DataGridTable *pDataGridTable = DataGridTable_Get( m_CurrentLocation.first, m_CurrentLocation.second );
 	if( !pDataGridTable )
 	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"DesignObj_DataGrid::CacheGrid  -- no current grid"); // Shouldn't happen
-		return;
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "DesignObj_DataGrid::CacheGrid  -- no current grid"); // Shouldn't happen
+		return; 
 	}
 	bool bResult;
 	if( m_PagesCached.first==DIRECTION_Up_CONST || m_PagesCached.first==DIRECTION_Down_CONST )

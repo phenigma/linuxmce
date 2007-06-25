@@ -251,7 +251,7 @@ void SocketListener::RemoveAndDeleteSocket( ServerSocket *pServerSocket, bool bD
 	if(pServerSocket->m_iReferencesOutstanding_get() > 1)
 	{  
 		// Something besides us is still referencing this pointer
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Removing socket %d, ourstanding refercences: %d",
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Removing socket %d, ourstanding refercences: %d",
 			pServerSocket->m_dwPK_Device, pServerSocket->m_iReferencesOutstanding_get());
 		Sleep(100);
 	}

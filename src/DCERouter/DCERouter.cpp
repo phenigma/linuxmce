@@ -1575,7 +1575,7 @@ void Router::StopAllDevices(bool bReload)
 
 void Router::DoLogRotation()
 {
-	LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Starting log rotation...");
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Starting log rotation...");
 	LoggerWrapper::GetInstance()->Rotate();
 	PLUTO_SAFETY_LOCK(lm,m_ListenerMutex); // I don't know if this is needed, but DoReload uses it...
     ServerSocketMap::iterator iDC;

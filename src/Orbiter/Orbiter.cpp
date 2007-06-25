@@ -2303,7 +2303,7 @@ void Orbiter::InitializeGrid( DesignObj_DataGrid *pObj )
 		DCE::CMD_Populate_Datagrid CMD_Populate_Datagrid( m_dwPK_Device,  m_dwPK_Device_DatagridPlugIn,  StringUtils::itos( m_dwIDataGridRequestCounter ), pObj->m_sGridID,
 			pObj->m_iPK_Datagrid, sParams, PK_DeviceTemplate, &iPK_Variable, &sValue_To_Assign, &bResponse, &pObj->m_iPopulatedWidth, &pObj->m_iPopulatedHeight  );
 		if(  !SendCommand( CMD_Populate_Datagrid ) || !bResponse  ) // wait for a response
-			LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Populate datagrid: %d failed", pObj->m_iPK_Datagrid );
+			LoggerWrapper::GetInstance()->Write( LV_WARNING, "Populate datagrid: %d failed", pObj->m_iPK_Datagrid );
 		else if(iPK_Variable)
 			CMD_Set_Variable(iPK_Variable, sValue_To_Assign);
 	}
@@ -4006,7 +4006,7 @@ void Orbiter::ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList
 					atoi( pCommand->m_ParameterList[COMMANDPARAMETER_PK_DeviceTemplate_CONST].c_str(  ) ),
 					&iPK_Variable, &sValue_To_Assign, &bResponse, &iWidth, &iHeight );
 				if(  !SendCommand( CMD_Populate_Datagrid ) || !bResponse  ) // wait for a response
-					LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Populate datagrid from command: %d failed", atoi( pCommand->m_ParameterList[COMMANDPARAMETER_PK_DataGrid_CONST].c_str(  ) ) );
+					LoggerWrapper::GetInstance()->Write( LV_WARNING, "Populate datagrid from command: %d failed", atoi( pCommand->m_ParameterList[COMMANDPARAMETER_PK_DataGrid_CONST].c_str(  ) ) );
 				else if(iPK_Variable)
 					CMD_Set_Variable(iPK_Variable, sValue_To_Assign);
 
