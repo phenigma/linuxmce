@@ -35,12 +35,16 @@
 		/usr/pluto/bin/MessageSend dcerouter 0 -1000 7 10 || :
 		killall -USR1 tee-pluto || :
 
-                for logfile in /var/log/pluto/Spawn_*.log ;do
+                for logfile in /var/log/pluto/Spawn_*.log* ;do
                         rm -f "$logfile"
                 done
 
-                for logfile in /var/log/pluto/SpawnDaemon_*.log ;do
+                for logfile in /var/log/pluto/SpawnDaemon_*.log* ;do
                         rm -f "$logfile"
                 done
+
+		for logfile in /var/log/pluto/kernmod*log* ;do
+			rm -rf "$logfile"
+		done
 	endscript
 }
