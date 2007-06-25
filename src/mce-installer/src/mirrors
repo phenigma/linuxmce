@@ -1,129 +1,234 @@
-Australia iiNet (Oceania/Australia)|http://ftp.iinet.net.au/pub/ubuntu-releases/
-Australia Planetmirror.com (Oceania/Australia)|http://planetmirror.com/pub/ubuntu/releases/
-Austria Gregstar.at (Europe)|http://mirror.gregstar.at/ubuntu/
-Austria Ubuntu.gds.tuwien.ac.at (Europe)|http://ubuntu.gds.tuwien.ac.at/cdimage/releases/
-Belgium Ftp.easynet.be (Europe)|ftp://ftp.easynet.be/ubuntu-iso/
-Belgium Ubuntu.mirrors.skynet.be (Europe)|http://ubuntu.mirrors.skynet.be/pub/ubuntu.com/releases/
-Bosnia and Herzegovina BiHnet ISP, BH Telecom (Europe)|http://releases.ubuntu.com.ba/
-Brazil Edugraf - INE - CTC - UFSC (South America)|http://espelhos.edugraf.ufsc.br/ubuntu-releases/
-Brazil Ubuntu.c3sl.ufpr.br (South America)|http://ubuntu.c3sl.ufpr.br/releases/
-Bulgaria ipacct (Europe)|http://ubuntu.ipacct.com/releases/
-Bulgaria Linux-BG.org (Europe)|http://ubuntu.linux-bg.org/releases/
-China Mirror.lupaworld.com (Asia)|http://mirror.lupaworld.com/ubuntu/releases/
-China rootguide.org (Asia)|http://mirror.rootguide.org/ubuntu-releases/
-Costa Rica Ftp.ucr.ac.cr (South America)|http://ftp.ucr.ac.cr/ubuntu-cd/
-Croatia University of Zagreb, Croatia; Faculty of civil engineering (Europe)|http://hr.archive.ubuntu.com/ubuntu-releases/
-Czech Republic Advokatni kancelar Kindl&Partneri (Europe)|http://ubuntu.supp.name/releases/
-Czech Republic Ubuntu-releases.sh.cvut.cz (Europe)|http://ubuntu-releases.sh.cvut.cz/
-Denmark KLID (Europe)|http://klid.dk/ftp/ubuntu-cd/
-Denmark Www.klid.dk (Europe)|http://www.klid.dk/homeftp/ubuntu-cd/
-Estonia Elion Enterprises Ltd (Europe)|http://ftp.estpak.ee/pub/ubuntu-releases/
-Finland CSC / Funet (Europe)|http://www.nic.funet.fi/pub/mirrors/releases.ubuntu.com/
-France CRIHAN (Europe)|http://ftp.crihan.fr/releases/
-France Free (Europe)|ftp://ftp.free.fr/mirrors/ftp.ubuntu.com/releases/
-France Ftp.lip6.fr (Europe)|http://ftp.lip6.fr/pub/linux/distributions/Ubuntu/
-France Ftp.uvsq.fr (Europe)|ftp://ftp.uvsq.fr/pub/ubuntu/releases/
-France Mirrors.dotsrc.org (Europe)|http://mirrors.dotsrc.org/ubuntu-cd/
-France Orange Business Services (Europe)|http://ftp.oleane.net/ubuntu-cd/
-France Ubuntu.univ-nantes.fr (Europe)|ftp://ubuntu.univ-nantes.fr/ubuntu-cd/
-France Université de Picardie (Europe)|http://ftp.u-picardie.fr/mirror/ubuntu/releases/
-Germany Cable & Wireless (Europe)|http://ftp.cw.net/pub/linux/ftp.ubuntu.com/releases/
-Germany De.archive.ubuntu.com-release (Europe)|http://de.archive.ubuntu.com/ubuntu-releases/
-Germany Freie Universität Berlin (Europe)|ftp://ftp.fu-berlin.de/linux/ubuntu/releases/
-Germany Ftp.rz.tu-bs.de (Europe)|http://ftp.rz.tu-bs.de/pub/mirror/ubuntu-cd-releases/
-Germany Ftp-stud.fht-esslingen.de (Europe)|http://ftp-stud.fht-esslingen.de/Mirrors/releases.ubuntu.com/
-Germany Ftp.tu-chemnitz.de (Europe)|http://ftp.tu-chemnitz.de/pub/linux/ubuntu-releases/
-Germany Host Europe (Europe)|http://ftp.hosteurope.de/mirror/releases.ubuntu.com/
-Germany intergenia AG (Europe)|http://ubuntu.intergenia.de/releases/
-Germany Releases.ubuntu.mirror.at.stealer.net (Europe)|http://releases.ubuntu.mirror.at.stealer.net/
-Germany RRZN, Leibniz Universität Hannover (Europe)|ftp://ftp.rrzn.uni-hannover.de/pub/mirror/linux/ubuntu-releases/
-Germany RWTH Aachen University (Europe)|http://ftp.halifax.rwth-aachen.de/ubuntu-releases/
-Germany Secaron (Europe)|ftp://mirror.secaron.lu/ubuntu/
-Germany Snert.mi.hs-heilbronn.de (Europe)|http://snert.mi.hs-heilbronn.de/pub/ubuntu/releases/
-Germany StudNet Bonn (Europe)|http://ftp.stw-bonn.de/ubuntu-cd/
-Germany Technische Universitaet Clausthal (Europe)|http://ftp.tu-clausthal.de/ftp/mirror/ubuntu/releases/
-Germany Univerity of Muensters (Europe)|http://ftp.uni-muenster.de/pub/mirrors/ftp.ubuntu.com/releases/
-Germany Universitaet Bayreuth (Europe)|http://ftp.uni-bayreuth.de/linux/ubuntu/releases/
-Germany University of Applied Sciences Wolfenbuettel (Europe)|http://releases.ubuntu.uasw.edu/
-Germany University of Kaiserslautern (Europe)|http://ftp.uni-kl.de/pub/linux/ubuntu.iso/
-Germany Wankoo.org (Europe)|http://ubuntu.wankoo.org/
-Great Britain (UK) Canonical Ltd (Europe)|http://releases.ubuntu.com/
-Great Britain (UK) datahop.it (Europe)|http://ubuntu-releases.datahop.it/
-Great Britain (UK) Oxford University Computing Services (Europe)|http://mirror.ox.ac.uk/sites/releases.ubuntu.com/releases/
-Great Britain (UK) Ticklers.Org (Europe)|http://ftp.ticklers.org/releases.ubuntu.org/releases/
-Great Britain (UK) UK Mirror Service, University of Kent (Europe)|http://www.mirrorservice.org/sites/releases.ubuntu.com/
-Great Britain (UK) Vault5 (Europe)|http://mirror.vault5.com/ubuntu/
-Great Britain (UK) Virgin Media (Europe)|http://ubuntu.virginmedia.com/releases/
-Greece Democritus University of Thrace (Europe)|http://ftp.duth.gr/pub/ubuntu-releases/
-Greece National Technical University of Athens (Europe)|http://ftp.ntua.gr/pub/linux/ubuntu-releases/
-Hungary Ubuntu.elasztik.hu (Europe)|http://ubuntu.elasztik.hu/
-Iceland Ubuntu.hugi.is (Europe)|http://ubuntu.hugi.is/releases/
-Indonesia IndikaNet (Asia)|http://ubuntu.indika.net.id/ubuntu-releases/
-Ireland Ftp.esat.net (Europe)|http://ftp.esat.net/mirrors/releases.ubuntu.com/releases/
-Ireland HEAnet (Europe)|http://ie.releases.ubuntu.com/
-Israel INTERHOST (Asia)|http://ubuntu.interhost.co.il/
-Italy fastbull (Europe)|http://ubuntu.fastbull.org/ubuntu-releases/
-Italy GARR/CILEA mirror service (Europe)|http://na.mirror.garr.it/mirrors/ubuntu-releases/
-Japan Ftp.ecc.u-tokyo.ac.jp (Asia)|http://ftp.ecc.u-tokyo.ac.jp/UBUNTU-CDS/
-Japan Yamagata Univeristy (Asia)|http://ftp.yz.yamagata-u.ac.jp/pub/linux/ubuntu/releases/
-Korea, Republic of Ftp.kaist.ac.kr (Asia)|http://ftp.kaist.ac.kr/pub/ubuntu-cd/
-Korea, Republic of Mirror.letsopen.com (Asia)|http://mirror.letsopen.com/os/ubuntu-ISO/
-Latvia Ftp.linux.edu.lv (Europe)|http://ftp.linux.edu.lv/pub/ubuntu/
-Mongolia Mongolian Open Source Initiative NGO (Asia)|http://releases.mnosi.org/
-Namibia Ftp.polytechnic.edu.na (Africa)|ftp://ftp.polytechnic.edu.na/pub/ubuntulinux-releases/
-Namibia Polytechnic of Namibia (Africa)|ftp://ftp.polytechnic.edu.na/pub/ubuntulinux-releases/
-Netherlands BIT B.V. (Europe)|http://nl.releases.ubuntu.com/releases/
-Netherlands Ftpserv.tudelft.nl (Europe)|ftp://ftpserv.tudelft.nl/pub/Linux/releases.ubuntu.com/
-Netherlands Technische Universiteit Delft (Europe)|ftp://ftp.tudelft.nl/pub/Linux/releases.ubuntu.com/
-Netherlands Tiscali NL (Europe)|http://ftp.tiscali.nl/ubuntu-releases/
-Netherlands University of Twente (Europe)|http://ftp.snt.utwente.nl/pub/linux/ubuntu/
-New Zealand (Aotearoa) Ftp.citylink.co.nz (Oceania/Australia)|http://ftp.citylink.co.nz/ubuntu-releases/
-Norway Ftp.uninett.no (Europe)|ftp://ftp.uninett.no/linux/ubuntu-iso/
-Norway The Student Society in Trondhjem, Norway (Europe)|http://no.releases.ubuntu.com/
-Poland Ftp.man.szczecin.pl (Europe)|ftp://ftp.man.szczecin.pl/pub/Linux/ubuntu-cd/
-Poland Ubuntu.task.gda.pl (Europe)|http://ubuntu.task.gda.pl/ubuntu-releases/
-Poland Vectra (Europe)|http://ftp.vectranet.pl/ubuntu-releases/
-Portugal DEI-FCTUC, University of Coimbra (Europe)|http://ftp.dei.uc.pt/pub/linux/ubuntu/releases/
-Portugal NEACM - University of Porto (Europe)|http://neacm.fe.up.pt/pub/ubuntu-releases/
-Romania Ftp.iasi.roedu.net (Europe)|http://ftp.iasi.roedu.net/mirrors/ubuntulinux.org/releases/
-Russian Federation Ftp.chg.ru (Asia)|http://ftp.chg.ru/pub/Linux/ubuntu/releases/
-Serbia and Montenegro RC ETF (Europe)|http://yu.releases.ubuntu.com/releases/
-Singapore Ftp.science.nus.edu.sg (Asia)|http://ftp.science.nus.edu.sg/linux/ubuntu-ISO/
-Slovakia Technical University of Kosice (Europe)|http://ftp.tuke.sk/ubuntu-releases/
-Slovakia YNET & kubuntu.sk (Europe)|http://ubuntu.ynet.sk/release/
-South Africa Internet Solutions (Africa)|http://ubuntuarchive.is.co.za./ubuntu-releases/
-Spain CICA (Europe)|http://es.releases.ubuntu.com/
-Spain Delegación de Alumnos de Teleco - ETSIT - UPM (Europe)|http://ftp.dateleco.es/ubuntu-releases/
-Spain Ftp.caliu.info (Europe)|http://ftp.caliu.info/pub/distribucions/ubuntu/releases/
-Sweden Academic Computer Club, Umeå University (Europe)|http://se.releases.ubuntu.com/
-Sweden DatorSektionen, Högskolan i Jönköping (Europe)|http://ftp.ds.karen.hj.se/pub/os/linux/ubuntu-iso/
-Switzerland SWITCH (Europe)|http://mirror.switch.ch/ftp/mirror/ubuntu-cdimage/
-Taiwan Ftp.cse.yzu.edu.tw (Asia)|http://ftp.cse.yzu.edu.tw/ftp/Linux/Ubuntu/ubuntu-cd/
-Taiwan HCC Net Center (Asia)|http://apt.nc.hcc.edu.tw/ubuntu-cd/
-Taiwan Institute of Computer Science, National Chiao-Tung University, Hsin-Chu, Taiwan (Asia)|http://ubuntu.csie.nctu.edu.tw/ubuntu-releases/
-Taiwan National Chi Nan University (Asia)|http://ftp.ncnu.edu.tw/Linux/ubuntu/ubuntu-cd/
-Taiwan National Taitung University (Asia)|http://mirror.nttu.edu.tw/ubuntu-releases/
-Taiwan National Taiwan University (Asia)|http://tw.releases.ubuntu.com/
-Taiwan TaiChung County Education Network Center (Asia)|http://ftp.tcc.edu.tw/iso/Ubuntu/
-Ukraine Releases.ubuntu.org.ua (Europe)|http://releases.ubuntu.org.ua/
-United States Argonne National Laboratory (North America)|http://us.releases.ubuntu.com/
-United States Columbia University (North America)|http://mirror.cc.columbia.edu/pub/linux/ubuntu/releases/
-United States CSU Monterey Bay (North America)|http://mirrors.csumb.edu/ubuntu/
-United States daemonbox.net (North America)|ftp://mirror.daemonbox.net/pub/ubuntu/
-United States Drifty (North America)|http://ubuntu.mirrors.hamishlobb.com/
-United States easynews.com-releases (North America)|http://mirrors.easynews.com/linux/ubuntu-releases/
-United States Ftp.ale.org (North America)|http://ftp.ale.org/mirrors/ubuntu-releases/
-United States Ftp.osuosl.org (North America)|http://ftp.osuosl.org/pub/ubuntu-releases/
-United States Ftp.ussg.iu.edu (North America)|http://ftp.ussg.iu.edu/linux/ubuntu-releases/
-United States Ftp.wayne.edu (North America)|http://ftp.wayne.edu/linux_distributions/ubuntu/
-United States Georgia Tech. Software Library (North America)|http://www.gtlib.gatech.edu/pub/ubuntu-releases/
-United States Gigenet (North America)|http://mirrors.gigenet.com/ubuntu/
-United States ImagePile.net (North America)|http://ubuntu.mirrors.imagepile.net/
-United States Mirrors.cs.wmich.edu (North America)|http://mirrors.cs.wmich.edu/ubuntu-releases/
-United States Mirrors.kernel.org (North America)|http://mirrors.kernel.org/ubuntu-releases/
-United States Portland State University (North America)|http://mirrors.cat.pdx.edu/ubuntu-iso/
-United States Ubuntu.cs.wisc.edu (North America)|http://ubuntu.cs.wisc.edu/pub/mirrors/linux/ubuntu/releases/
-United States University of Minnesota Ubuntu Releases (North America)|http://ubuntu-releases.cs.umn.edu/
-United States University of Utah (North America)|http://ubuntu.cs.utah.edu/releases/
-United States Walla Walla College (North America)|http://ftp.wwc.edu/pub/mirrors/ubuntu-releases/
-United States Xmission (North America)|http://mirrors.xmission.com/ubuntu-cd/
+--- Please choose a mirror ---
+--- Australia
+http://ftp.iinet.net.au/pub/ubuntu
+http://mirror.optus.net/ubuntu/
+http://mirror.pacific.net.au/linux/ubuntu/
+--- Austria
+http://ubuntu.inode.at/ubuntu/
+ftp://ubuntu.inode.at/ubuntu/
+http://gd.tuwien.ac.at/opsys/linux/ubuntu/archive/
+--- Belgium
+http://ftp.belnet.be/linux/ubuntu/ubuntu/
+http://ubuntu.mirrors.skynet.be/pub/ubuntu.com/ubuntu/
+--- Bosnia and Herzegovina
+http://archive.ubuntu.com.ba/ubuntu/
+--- Botswana
+http://bw.archive.ubuntu.com/ubuntu/
+--- Brazil
+http://br.archive.ubuntu.com/ubuntu/
+http://sft.if.usp.br/ubuntu/
+ftp://sft.if.usp.br/ubuntu/
+http://espelhos.edugraf.ufsc.br/ubuntu/
+http://ubuntu.c3sl.ufpr.br/ubuntu/
+--- Bulgaria
+http://ubuntu.linux-bg.org/ubuntu/
+http://ubuntu.ipacct.com/ubuntu/
+ftp://ubuntu.ipacct.com/ubuntu/
+--- Canada
+http://gulus.USherbrooke.ca/ubuntu/
+ftp://gulus.USherbrooke.ca/ubuntu/
+http://mirror.cpsc.ucalgary.ca/mirror/ubuntu.com/
+http://mirror.arcticnetwork.ca/pub/ubuntu/packages/
+http://ubuntu.mirror.rafal.ca/ubuntu/
+--- Chile
+http://cl.archive.ubuntu.com/ubuntu/
+ftp://cl.archive.ubuntu.com/ubuntu/
+--- China
+http://mirror.lupaworld.com/ubuntu/archive/
+--- Costa Rica
+http://ftp.ucr.ac.cr/ubuntu/
+--- Hrvatska (Croatia)
+http://hr.archive.ubuntu.com/ubuntu/
+--- Czech Republic
+http://cz.archive.ubuntu.com/ubuntu/
+ftp://cz.archive.ubuntu.com/MIRRORS/archive.ubuntu.com/mirror/ubuntu/
+http://ubuntu.supp.name/ubuntu/
+http://ubuntu.sh.cvut.cz/
+--- Denmark
+http://dk.archive.ubuntu.com/ubuntu/
+http://klid.dk/ftp/ubuntu/
+http://mirror.uni-c.dk/ubuntu/
+--- Finland
+http://www.nic.funet.fi/pub/mirrors/archive.ubuntu.com/
+ftp://ftp.funet.fi/pub/mirrors/archive.ubuntu.com/
+http://mirrors.nic.funet.fi/ubuntu/
+--- France
+ftp://ftp.free.fr/mirrors/ftp.ubuntu.com/ubuntu/
+ftp://ftp.free.fr/mirrors/ftp.ubuntu.com/ubuntu/
+http://ftp.crihan.fr/ubuntu/
+ftp://ftp.crihan.fr/ubuntu/
+http://ftp.oleane.net/ubuntu/
+http://ftp.u-picardie.fr/mirror/ubuntu/ubuntu/
+ftp://ftp.u-picardie.fr/mirror/ubuntu/ubuntu/
+http://ubuntu.univ-nantes.fr/ubuntu/
+ftp://ubuntu.univ-nantes.fr/ubuntu/
+--- Georgia
+http://ubuntu.eriders.ge/ubuntu/
+--- Germany
+http://ubuntu.intergenia.de/ubuntu/
+http://de.archive.ubuntu.com/ubuntu/
+ftp://ftp.uni-muenster.de/pub/mirrors/ftp.ubuntu.com/ubuntu/
+ftp://ftp.fu-berlin.de/linux/ubuntu/
+ftp://ftp.fu-berlin.de/linux/ubuntu/
+http://ftp.halifax.rwth-aachen.de/ubuntu/
+ftp://ftp.halifax.rwth-aachen.de/ubuntu/
+http://ftp.stw-bonn.de/ubuntu/
+ftp://ftp.stw-bonn.de/ubuntu/
+http://ftp.uni-kl.de/pub/linux/ubuntu/
+ftp://ftp.uni-kl.de/pub/linux/ubuntu/
+http://archive.ubuntu.uasw.edu/
+ftp://ftp.uasw.edu/linux/ubuntu/archive/
+http://debian.charite.de/ubuntu/
+http://ftp.hosteurope.de/mirror/archive.ubuntu.com/
+ftp://ftp.hosteurope.de/mirror/archive.ubuntu.com/
+http://ftp-stud.fht-esslingen.de/Mirrors/ubuntu/
+http://ftp.tu-chemnitz.de/pub/linux/ubuntu/
+http://snert.mi.hs-heilbronn.de/pub/ubuntu/ubuntu/
+--- Greece
+http://ftp.duth.gr/pub/ubuntu/
+ftp://ftp.duth.gr/pub/ubuntu/
+http://ftp.ntua.gr/pub/linux/ubuntu/
+ftp://ftp.ntua.gr/pub/linux/ubuntu/
+http://gr.archive.ubuntu.com/ubuntu/
+ftp://gr.archive.ubuntu.com/ubuntu/
+--- Hungary
+http://ftp.fsn.hu/pub/linux/distributions/ubuntu
+http://packages.midian.hu//pub/linux/distributions/ubuntu
+--- Iceland
+http://ubuntu.lhi.is/ubuntu/
+--- India
+http://ftp.iitm.ac.in/ubuntu
+--- Indonesia
+http://ubuntu.indika.net.id/ubuntu/
+ftp://ubuntu.indika.net.id/ubuntu/
+--- Ireland
+http://ie.archive.ubuntu.com/ubuntu/
+http://ftp.esat.net/mirrors/archive.ubuntu.com/
+http://ftp.heanet.ie/pub/ubuntu/
+--- Italy
+http://ubuntu.fastbull.org/ubuntu/
+ftp://ubuntu.fastbull.org/ubuntu/
+http://na.mirror.garr.it/mirrors/ubuntu-archive/
+ftp://na.mirror.garr.it/mirrors/ubuntu-archive/
+--- Japan
+http://ftp.ecc.u-tokyo.ac.jp/ubuntu/
+--- Korea
+http://kr.archive.ubuntu.com/ubuntu/
+ftp://kr.archive.ubuntu.com/ubuntu/
+http://ftp.kaist.ac.kr/pub/ubuntu/
+http://mirror.letsopen.com/os/ubuntu/
+--- Latvia
+http://ftp.linux.edu.lv/ubuntu/
+--- Lithuania
+http://ftp.litnet.lt/pub/ubuntu/
+--- Mongolia
+--- Netherlands
+http://nl.archive.ubuntu.com/ubuntu/
+ftp://nl.archive.ubuntu.com/ubuntu/
+http://ftp.tiscali.nl/ubuntu/
+ftp://ftp.tudelft.nl/pub/Linux/archive.ubuntu.com/
+ftp://ftp.tudelft.nl/pub/Linux/archive.ubuntu.com/
+http://ubuntu.tiscali.nl/
+ftp://ubuntu.tiscali.nl/
+ftp://ftpserv.tudelft.nl/pub/Linux/archive.ubuntu.com/
+ftp://ftpserv.tudelft.nl/pub/Linux/archive.ubuntu.com/
+--- New Zealand
+http://ftp.citylink.co.nz/ubuntu/
+--- Norway
+http://ftp.uninett.no/ubuntu/
+ftp://ftp.uninett.no/ubuntu/
+--- Poland
+http://ftp.vectranet.pl/ubuntu/
+ftp://ftp.man.szczecin.pl/pub/Linux/ubuntu/
+ftp://ftp.man.szczecin.pl/pub/Linux/ubuntu/
+http://ubuntu.task.gda.pl/ubuntu/
+--- Portugal
+http://ftp.dei.uc.pt/pub/linux/ubuntu/archive/
+ftp://ftp.dei.uc.pt/pub/linux/ubuntu/archive/
+http://ubuntu.dcc.fc.up.pt/
+http://ftp.gil.di.uminho.pt/ubuntu/
+ftp://ftp.gil.di.uminho.pt/ubuntu/
+http://mosel.estg.ipleiria.pt/mirror/distros/ubuntu/archive/
+http://neacm.fe.up.pt/ubuntu/
+ftp://neacm.fe.up.pt/pub/ubuntu/
+--- Romania
+http://ftp.lug.ro/ubuntu/
+--- Russian Federation
+http://ftp.chg.ru/pub/Linux/ubuntu/archive/
+--- Serbia and Montenegro
+http://yu.archive.ubuntu.com/ubuntu/
+http://mirror.etf.bg.ac.yu/distributions/ubuntu/ubuntu-archive/
+http://mirror2.etf.bg.ac.yu/distributions/ubuntu/ubuntu-archive/
+--- Slovakia (Slovak Republic)
+http://ubuntu.ynet.sk/ubuntu/
+--- South Africa
+http://ubuntu.mirror.ac.za/ubuntu-archive/
+http://ftp.leg.uct.ac.za/pub/linux/ubuntu/
+ftp://ftp.leg.uct.ac.za/pub/linux/ubuntu/
+--- Spain
+http://es.archive.ubuntu.com/ubuntu/
+ftp://es.archive.ubuntu.com/ubuntu/
+http://ftp.dateleco.es/ubuntu/
+ftp://ftp.dateleco.es/ubuntu/
+http://ftp.gui.uva.es/sites/ubuntu.com/ubuntu/
+--- Sweden
+http://se.archive.ubuntu.com/ubuntu/
+ftp://se.archive.ubuntu.com/ubuntu/
+http://ftp.port80.se/ubuntu/
+--- Switzerland
+http://mirror.switch.ch/ftp/mirror/ubuntu/
+ftp://mirror.switch.ch/mirror/ubuntu/
+--- Taiwan
+http://free.nchc.org.tw/ubuntu
+http://ftp.cse.yzu.edu.tw/pub/Linux/Ubuntu/ubuntu/
+ftp://ftp.cse.yzu.edu.tw/pub/Linux/Ubuntu/ubuntu/
+http://ftp.twaren.net/Linux/Ubuntu/ubuntu/
+ftp://ftp.twaren.net/Linux/Ubuntu/ubuntu/
+http://mirror.nttu.edu.tw/ubuntu/
+ftp://mirror.nttu.edu.tw/ubuntu/
+http://tw.archive.ubuntu.com/ubuntu/
+http://debian.linux.org.tw/ubuntu/
+--- United Kingdom of Great Britain & N. Ireland
+http://ubuntu-archive.datahop.it/ubuntu/
+ftp://ubuntu-archive.datahop.it/ubuntu/
+http://www.mirrorservice.org/sites/archive.ubuntu.com/ubuntu/
+ftp://ftp.mirrorservice.org/sites/archive.ubuntu.com/ubuntu/
+http://archive.ubuntu.com/ubuntu/
+ftp://archive.ubuntu.com/ubuntu/
+http://ftp.ticklers.org/archive.ubuntu.org/ubuntu/
+ftp://ftp.ticklers.org/archive.ubuntu.org/ubuntu/
+http://ubuntu.virginmedia.com/archive/
+--- United States of America
+http://mirror.anl.gov/pub/ubuntu/
+ftp://mirror.anl.gov/pub/ubuntu/
+http://carroll.cac.psu.edu/pub/linux/distributions/ubuntu/
+http://ftp.usf.edu/pub/ubuntu/
+ftp://ftp.usf.edu/pub/ubuntu/
+http://mirrors.cat.pdx.edu/ubuntu/
+http://mirrors.easynews.com/linux/ubuntu/
+http://mirrors.kernel.org/ubuntu/
+ftp://mirrors.kernel.org/ubuntu/
+http://mirrors.xmission.com/ubuntu/
+ftp://mirrors.xmission.com/ubuntu/
+http://ubuntu.mirrors.tds.net/pub/ubuntu/
+ftp://ubuntu.mirrors.tds.net/pub/ubuntu/
+http://www.gtlib.gatech.edu/pub/ubuntu/
+http://mirror.cc.columbia.edu/pub/linux/ubuntu/archive/
+ftp://mirror.cc.columbia.edu/pub/linux/ubuntu/archive/
+http://mirror.imbrandon.com/ubuntu/
+http://mirror.cs.umn.edu/ubuntu/
+http://mirror.lcsee.wvu.edu/ubuntu/
+http://ubuntu.cs.uaf.edu/ubuntu/
+http://cudlug.cudenver.edu/ubuntu/
+ftp://cudlug.cudenver.edu/ubuntu/
+http://ftp.unina.it/pub/linux/distributions/ubuntu/
+http://ftp.ussg.iu.edu/linux/ubuntu/
+http://lug.mtu.edu/ubuntu/
+ftp://lug.mtu.edu/ubuntu/
+http://mirror.clarkson.edu/pub/distributions/ubuntu/
+http://mirrors.cs.wmich.edu/ubuntu/
+http://ubuntu.cs.utah.edu/ubuntu/
+http://ubuntu.secs.oakland.edu/
+--- Uzbekistan
+http://ubuntu.snet.uz/ubuntu/
+ftp://ubuntu.snet.uz/ubuntu/
