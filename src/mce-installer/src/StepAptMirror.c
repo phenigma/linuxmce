@@ -35,7 +35,6 @@ void on_StepAptMirror_forward_clicked(GtkWidget *widget, gpointer data)  {
                 gtk_widget_grab_focus(dialog);
 
 	} else {
-		printf("intru pe aici \n");
 		displayStepLinuxMceCD();
 	} 
 
