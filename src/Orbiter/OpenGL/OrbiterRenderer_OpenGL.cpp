@@ -883,7 +883,7 @@ void OrbiterRenderer_OpenGL::RenderPopup(PlutoPopup *pPopup, PlutoPoint point, i
 	DesignObj_Orbiter *pObj = OrbiterLogic()->FindObject( sPK_DesignObj );
 	if(!pObj)
 	{
-		LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Got update object image but cannot find: %s", sPK_DesignObj.c_str());
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "Got update object image but cannot find: %s", sPK_DesignObj.c_str());
 		return;
 	}
 

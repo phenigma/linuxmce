@@ -848,7 +848,7 @@ void Command_Impl::ProcessMessageQueue()
 				// let the framework restart us
 #ifdef LINK_TO_ROUTER
 				if(NULL != m_pRouter && m_pRouter->IsPlugin(m_pcRequestSocket->m_dwPK_Device))
-					LoggerWrapper::GetInstance()->Write(LV_WARNING,"InternalSendCommand ProcessMessageQueue cannot send.  Won't quit, we're a plugin");
+					LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"InternalSendCommand ProcessMessageQueue cannot send.  Won't quit, we're a plugin");
 				else
 #endif
 				{
@@ -923,7 +923,7 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"InternalSendCommand confirmation 
 			// let the framework restart us
 #ifdef LINK_TO_ROUTER
 			if(NULL != m_pRouter && m_pRouter->IsPlugin(m_pcRequestSocket->m_dwPK_Device))
-				LoggerWrapper::GetInstance()->Write(LV_WARNING,"InternalSendCommand ProcessMessageQueue cannot send.  Won't quit, we're a plugin");
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"InternalSendCommand ProcessMessageQueue cannot send.  Won't quit, we're a plugin");
 			else
 #endif
 			{
@@ -971,7 +971,7 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"InternalSendCommand out done id %
 			// let the framework restart us
 #ifdef LINK_TO_ROUTER
 			if(NULL != m_pRouter && m_pRouter->IsPlugin(m_pcRequestSocket->m_dwPK_Device))
-				LoggerWrapper::GetInstance()->Write(LV_WARNING,"InternalSendCommand ProcessMessageQueue cannot send.  Won't quit, we're a plugin");
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"InternalSendCommand ProcessMessageQueue cannot send.  Won't quit, we're a plugin");
 			else
 #endif
 			{

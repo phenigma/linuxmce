@@ -45,15 +45,16 @@ bool GraphicImage::Load(string FileName)
 	{
 		if( LocalSurface->w * LocalSurface->h > 3240000 )  // 1800x1800 is a reasonable max size
 		{
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Aborting load of %s because size w: %d h: %d is too big",FileName.c_str(),LocalSurface->w,LocalSurface->h);
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Aborting load of %s because size w: %d h: %d is too big",FileName.c_str(),LocalSurface->w,LocalSurface->h);
 			SDL_FreeSurface(LocalSurface);
 			LocalSurface=NULL;
 		}
 		else
-			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Loaded %s w: %d h: %d",FileName.c_str(),LocalSurface->w,LocalSurface->h);
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Loaded %s w: %d h: %d",FileName.c_str(),LocalSurface->w,LocalSurface->h);
 	}
 	else
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Failed to load %s",FileName.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Failed to load '%s'", FileName.c_str());
+
 	return NULL != LocalSurface;
 }
 

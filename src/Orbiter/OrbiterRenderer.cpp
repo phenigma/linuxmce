@@ -1459,7 +1459,7 @@ char *pData, int iData_Size, string sDisable_Aspect_Lock)
 	if(!pObj)
 	{
 		DesignObj_Orbiter *pObj_Current = OrbiterLogic()->GetCurrentDesignObj();
-		LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "OrbiterRenderer::UpdateObjectImage Got update object image but cannot find: %s, currently %s", sPK_DesignObj.c_str(), pObj_Current ? pObj_Current->m_ObjectID.c_str() : "*none*");
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "OrbiterRenderer::UpdateObjectImage Got update object image but cannot find: %s, currently %s", sPK_DesignObj.c_str(), pObj_Current ? pObj_Current->m_ObjectID.c_str() : "*none*");
 		return;
 	}
 

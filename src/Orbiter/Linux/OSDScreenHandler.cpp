@@ -2234,7 +2234,7 @@ bool OSDScreenHandler::SpeedControlCustomRender(CallBackData *pData)
 		const SpeedMouseHandler *pcSpeedMouseHandler = dynamic_cast<const SpeedMouseHandler *>(pMouseHandler);
 		if(NULL == pcSpeedMouseHandler)
 		{
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "OSDScreenHandler::SpeedControlCustomRender() : "
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "OSDScreenHandler::SpeedControlCustomRender() : "
 				"Unable to get SpeedMouseHandler");
 			return false;
 		}
