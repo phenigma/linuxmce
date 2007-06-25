@@ -5269,7 +5269,7 @@ void Orbiter::CMD_Show_Object(string sPK_DesignObj,int iPK_Variable,string sComp
 		DesignObj_Orbiter *pObj = FindObject( sPK_DesignObj );
 		if(  !pObj  )
 		{
-			LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Cannot find object in CMD_Show_Object: %s", sPK_DesignObj.c_str(  ) );
+			LoggerWrapper::GetInstance()->Write( LV_STATUS, "Cannot find object in CMD_Show_Object: %s", sPK_DesignObj.c_str(  ) );
 			return;
 		}
 		bool bShow=sOnOff!="0";
@@ -7473,7 +7473,7 @@ void Orbiter::CMD_Set_Entertainment_Area(string sPK_EntertainArea,string &sCMD_R
 			return;
 		}
 	}
-	LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Can't set ea to %s",sPK_EntertainArea.c_str() );
+	LoggerWrapper::GetInstance()->Write( LV_WARNING, "Can't set ea to %s",sPK_EntertainArea.c_str() );
 }
 
 //<-dceag-c77-b->
@@ -7496,7 +7496,7 @@ void Orbiter::CMD_Set_Current_Room(int iPK_Room,string &sCMD_Result,Message *pMe
 			return;
 		}
 	}
-	LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Can't set ea to %d",iPK_Room );
+	LoggerWrapper::GetInstance()->Write( LV_WARNING, "Can't set ea to %d",iPK_Room );
 }
 //<-dceag-c389-b->
 
