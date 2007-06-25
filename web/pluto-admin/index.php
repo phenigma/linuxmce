@@ -1569,7 +1569,12 @@ switch ($section) {
 	    include_once('operations/mediaBrowser/editLongAttribute.php');
 	    editLongAttribute($output,$mediadbADO);	    
 	break;
-	
+	case 'rippingStatus':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/mediaBrowser/rippingStatus.php');
+	    rippingStatus($output,$dbADO,$mediadbADO);	    
+	break;	
 	
 	case 'index';
 		@$_SESSION['lastLeftFrameSrc']='';

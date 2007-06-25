@@ -1,0 +1,10 @@
+<?
+$TEXT_RIPPING_STATUS_CONST='Ripping Status';
+$TEXT_SLOT_CONST='Slot';
+$TEXT_DISC_CONST='Disc';
+$TEXT_RIP_JOB_CONST='Rip Job';
+$TEXT_DATETIME_CONST='Date Time';
+$TEXT_MESSAGE_CONST='Message';
+$TEXT_PURGE_ALL_CONST='Purge all';
+$TEXT_RIP_STATUS_PURGED_CONST='Rip status purged.';
+?>
