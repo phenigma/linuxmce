@@ -279,24 +279,26 @@ void Xine_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPo
 	}
 	
 	Xine_Stream *pStream =  ptrFactory->GetStream( iStreamID, true, pMessage?pMessage->m_dwPK_Device_From:0, false, m_iDefaultZoomLevel );
-	if (!pStream->m_bBroadcastOnly)
+	if (pStream)
 	{
-		 ptrFactory->m_iLastRenderingStream = iStreamID;
-		 LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() set stream %d as last rendering to screen.", iStreamID);
+		if (!pStream->m_bBroadcastOnly)
+		{
+			ptrFactory->m_iLastRenderingStream = iStreamID;
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() set stream %d as last rendering to screen.", iStreamID);
+		}
+		else
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() stream %d is not rendering to screen.", iStreamID);
 	}
-	else
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() stream %d is not rendering to screen.", iStreamID);
-
-	
-	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() called for id %d filename: %s (%s) with corresponding stream %p.", iStreamID, sMediaURL.c_str(),sMediaPosition.c_str(),pStream);
-	
-	if (pStream==NULL)
+	else	
 	{
 		StopNbdDevice();
 		EVENT_Playback_Completed(sMediaURL,iStreamID,true);  // true = there was an error, don't keep repeating
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() stream is NULL, aborting - init failure?");
 		return;
 	}
+	
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() called for id %d filename: %s (%s) with corresponding stream %p.", iStreamID, sMediaURL.c_str(),sMediaPosition.c_str(),pStream);
+	
 	
 	// hiding menu if it was on screen
 	if (pStream->m_iMenuButtons!=0)
