@@ -1337,9 +1337,9 @@ function get_dealer($conn){
 	process_add_rating($conn);
 	$dealerTypes=array(
 		0=>'Show everything',
-		1=>'Dealer',
-		2=>'Custom installer',
-		3=>'Open house event'
+		1=>'Dealers',
+		2=>'Custom installers',
+		3=>'Open house events'
 	);
 	
 	$selCountry=(int)@$_REQUEST['country'];
@@ -1349,6 +1349,7 @@ function get_dealer($conn){
 
 	$variables=array();
 	$page_template=implode('',file('templates/dealer.html'));
+	$variables=set_variable($variables,'dealer_title',(($selDealerType==0)?'Dealers, custom installers and open house events':$dealerTypes[$selDealerType]));
 	$variables=set_variable($variables,'dealer_type_pulldown',pulldownFromArray($dealerTypes,'dealerType',$selDealerType,'onChange="document.form1.submit();"'));
 	$variables=set_variable($variables,'country_pulldown',countriesPulldown('country',$selCountry,$conn,'onChange="document.form1.submit();"',$selDealerType));
 	$variables=set_variable($variables,'region_pulldown',regionsPulldown('region',$selRegion,$selCountry,$conn,'onChange="document.form1.submit();"',$selDealerType));
@@ -1931,7 +1932,12 @@ function get_dealers_list($conn,$selCountry,$selRegion,$selCity,$selType){
 				'.nl2br($row['description']).'</td>
 			</tr>
 			<tr>
-				<td align="right">'.star_rating(ceil($row['rating'])).' '.$rating.'<hr></td>
+				<td align="right"><table width="100%">
+					<tr>
+						<td align="left"><a href="view-dealer.php?id='.$row['id'].'">View comments</a></td>
+						<td align="right">'.star_rating(ceil($row['rating'])).' '.$rating.'</td>
+					</tr>
+					</table><hr></td>
 			</tr>			
 		';
 		$dealers[]=$row['id'];
@@ -2098,7 +2104,17 @@ function report_issue_form($conn){
 		$variables=set_variable($variables,'message',$_SESSION['message']);
 		unset($_SESSION['message']);
 	}
-
+	if((int)@$_REQUEST['cid']!=0){
+		$cid=(int)@$_REQUEST['cid'];
+		$data=getFields('comments','LEFT join Users on user_id=Users.id WHERE comments.id='.$cid,$conn,'','comments.*,username');
+		if(count($data)!=0){
+			$msg='Comments abuse from user '.$data[0]['username'].' posted on '.format_mysql_date($data[0]['posted'],'d M Y h:i').', comment #'.$cid."\n";
+			$msg.="Title:\n".$data[0]['title']."\nComment:\n".$data[0]['comment'];
+			$variables=set_variable($variables,'description',$msg);
+		}
+	}
+	
+	
 	return outputHTML($variables,$page_template,1);	
 }
 
@@ -2476,5 +2492,135 @@ function del_svn($id,$conn){
 	return msg_notice('The record was deleted.').'<br><br><a href="myaccount.php">Back to my account</a>';
 }
 
+function get_dealer_comments($id,$conn){
+	$ratingArray=array(
+		0=>'Rate dealer',
+		5=>'Excelent',
+		4=>'Very good',
+		3=>'Good',
+		2=>'Average',
+		1=>'Bad'
+	);
+	$ipaddress=$_SERVER['REMOTE_ADDR'];
+	
+	$res=query("SELECT dealers.*,avg(rating.rating) AS rating,myrating.rating as myrating,City.City, Region.Region
+		FROM dealers
+		INNER JOIN City ON dealers.FK_City=PK_City
+		INNER JOIN Region ON dealers.FK_Region=PK_Region
+		LEFT JOIN rating ON rating.dealer_id=dealers.id
+		LEFT JOIN rating myrating on myrating.dealer_id=dealers.id AND myrating.ipaddress='$ipaddress'
+		WHERE dealers.id=$id
+		GROUP BY dealers.id ",$conn);
+	$no=mysql_num_rows($res);
+	if($no==0){
+		return msg_error('Invalid ID');
+	}
+	$out='
+	<table width="100%">';
+	$dealers=array();
+	$row=mysql_fetch_assoc($res);
+		$rating=(is_null($row['myrating']))?pulldownFromArray($ratingArray,'rating_'.$row['id'],0,'onChange="document.form1.submit();"'):'';
+		$interval=($row['category']==3)?format_mysql_date($row['date_from'],'M d Y').' - '.format_mysql_date($row['date_to'],'M d Y').'<br>':'';
+		$out.='
+			<tr>
+				<td><b>'.$row['title'].' ('.$row['Region'].', '.$row['City'].')</b><br>'.$interval.'<a href="'.$row['url'].'">'.$row['url'].'</a><br>
+				'.$row['City'].(($row['email']!='')?', email: '.$row['email']:'').(($row['phone']!='')?', phone: '.$row['phone']:'').'<br>
+				'.nl2br($row['description']).'</td>
+			</tr>
+			<tr>
+				<td align="right">'.star_rating(ceil($row['rating'])).' '.$rating.'<hr></td>
+			</tr>			
+			<tr>
+				<td align="left">'.get_comments($id,$conn).'</td>
+			</tr>			
+			<tr>
+				<td align="left">'.add_comment_form($id).'</td>
+			</tr>			
+		';
+	$out.='</table>';
+	
+	return $out;
+}
 
+function get_comments($id,$conn){
+	$res=query("SELECT comments.*,username FROM comments LEFT join Users on user_id=Users.id ORDER BY posted DESC",$conn);
+	if(mysql_num_rows($res)==0){
+		return 'No comments for selected dealer.';
+	}
+	
+	$out='<table>';
+	while($row=mysql_fetch_assoc($res)){
+		$out.='
+		<tr>
+			<td><b>'.$row['title'].'</b><br><em>Posted by '.$row['username'].' on '.format_mysql_date($row['posted'],'d M Y h:i').'</em></td>
+		</tr>
+		<tr>
+			<td>'.nl2br($row['comment']).'</td>
+		</tr>
+		<tr>
+			<td align="right"><a href="report.php?cid='.$row['id'].'">Report abuse or unfair posting</a><hr></td>
+		</tr>
+		
+		';
+	}
+	$out.='</table>';
+	
+	return $out;
+}
+
+function add_comment_form($id){
+	$out='
+	<form name="addcomment" method="POST" action="addcomment.php">
+	<input type="hidden" name="id" value="'.$id.'">
+	<a name="add"></a>
+	<table>
+		<tr>
+			<td colspan="2" align="left"><b>Add your comment</b></td>
+		</tr>	
+		<tr>
+			<td colspan="2">'.@$_SESSION['add_comment_msg'].'</td>
+		</tr>		
+		<tr>
+			<td>Title *</td>
+			<td><input type="text" name="title" value=""></td>
+		</tr>
+		<tr>
+			<td>Comment *</td>
+			<td><textarea name="comment" rows="5" style="width:300px;"></textarea></td>
+		</tr>
+		<tr>
+			<td colspan="2" align="left"><em>* Required</em></td>
+		</tr>		
+		<tr>
+			<td colspan="2" align="center"><input type="submit" name="add" value="Add comment"></td>
+		</tr>				
+	</table>
+	</form>
+	';
+	unset($_SESSION['add_comment_msg']);
+	
+	return $out;
+}
+
+function process_add_comment($conn){
+	$title=cleanString(trim(strip_tags($_POST['title'])));
+	$comment=cleanString(trim(strip_tags($_POST['comment'])));
+	$id=(int)@$_POST['id'];
+	
+	if($title=='' || $comment==''){
+		$_SESSION['add_comment_msg']=msg_error('Please fill all fields.');
+		header("Location: view-dealer.php?id=".$id."#add");
+		exit();
+	}
+	if(!isset($_SESSION['uID'])){
+		$_SESSION['add_comment_msg']=msg_error('Please login in order to post a comment.');
+		header("Location: view-dealer.php?id=".$id."#add");
+		exit();
+	}
+	
+	$userID=(int)$_SESSION['uID'];
+	query("INSERT INTO comments (dealer_id,user_id,title,comment,posted) VALUES ($id,$userID,'$title','$comment',NOW())",$conn);
+	
+	$_SESSION['add_comment_msg']=msg_notice('Your comment was recorded.');
+}
 ?>
