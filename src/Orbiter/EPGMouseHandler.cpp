@@ -155,7 +155,7 @@ void EPGMouseHandler::Move(int X,int Y,int PK_Direction)
 		// The user was in the channels list and moved to the right to the grid listing
 		m_pDatagridMouseHandlerHelper->ReleaseRelative();
 
-		int Row = int((Y-m_pDesignObj_DataGrid_Active->m_rPosition.Y)/((float) m_pDesignObj_DataGrid_Active->m_rPosition.Height / m_pDesignObj_DataGrid_Active->m_MaxRow));
+		int Row = (Y-m_pDesignObj_DataGrid_Active->m_rPosition.Y)/m_pDesignObj_DataGrid_Active->m_FixedRowHeight;
 		DataGridTable *pDataGridTable = m_pDesignObj_DataGrid_Active->m_pDataGridTable_Current_get();
 		if( !pDataGridTable )
 			return;
@@ -205,7 +205,7 @@ void EPGMouseHandler::Move(int X,int Y,int PK_Direction)
 		DataGridTable *pDataGridTable = m_pDesignObj_DataGrid_Active ? m_pDesignObj_DataGrid_Active->m_pDataGridTable_Current_get() : NULL;
 		if( pDataGridTable )
 		{
-			int Row = int((Y-m_pDesignObj_DataGrid_Active->m_rPosition.Y)/((float) m_pDesignObj_DataGrid_Active->m_rPosition.Height / m_pDesignObj_DataGrid_Active->m_MaxRow));
+			int Row = (Y-m_pDesignObj_DataGrid_Active->m_rPosition.Y)/m_pDesignObj_DataGrid_Active->m_FixedRowHeight;
 			if( Row!=m_iRow_Last )
 			{
 				NeedToRender render( m_pMouseBehavior->m_pOrbiter, "Move on grid" );
@@ -243,7 +243,7 @@ void EPGMouseHandler::Move(int X,int Y,int PK_Direction)
 		DataGridTable *pDataGridTable = m_pDesignObj_DataGrid_Active ? m_pDesignObj_DataGrid_Active->m_pDataGridTable_Current_get() : NULL;
 		if( pDataGridTable )
 		{
-			int Row = int((Y-m_pDesignObj_DataGrid_Active->m_rPosition.Y)/((float) m_pDesignObj_DataGrid_Active->m_rPosition.Height / m_pDesignObj_DataGrid_Active->m_MaxRow));
+			int Row = (Y-m_pDesignObj_DataGrid_Active->m_rPosition.Y)/m_pDesignObj_DataGrid_Active->m_FixedRowHeight;
 			if( Row!=m_iRow_Last )
 			{
 				NeedToRender render( m_pMouseBehavior->m_pOrbiter, "Move on grid" );

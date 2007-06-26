@@ -558,6 +558,8 @@ class DataGridTable *MythTV_PlugIn::CurrentShows(string GridID,string Parms,void
 	
 	string::size_type pos = 0;
 	string sChanId = StringUtils::Tokenize( Parms, ",", pos);
+	if( sChanId.size() && sChanId[0]=='i' )
+		sChanId = sChanId.substr(1);
 	int iPK_Users = atoi(StringUtils::Tokenize( Parms, ",", pos).c_str());
 	bool bOnePageOnly = pos < Parms.size(); // If there's trailing data, we're supposed to only cache one page
 	
