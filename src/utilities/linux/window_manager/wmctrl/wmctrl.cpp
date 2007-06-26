@@ -847,8 +847,10 @@ int WmCtrl::activate_window(Display *disp, Window win,
         {
             p_verbose("Cannot switch desktop.\n");
         }
-        g_free(desktop);
     }
+
+    if (desktop)
+	g_free(desktop);
 
     client_msg(disp, win, "_NET_ACTIVE_WINDOW",
                0, 0, 0, 0, 0);
