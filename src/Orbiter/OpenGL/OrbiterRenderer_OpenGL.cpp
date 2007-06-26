@@ -738,11 +738,6 @@ DesignObj_Orbiter *pObj, PlutoPoint *ptPopup/* = NULL*/)
 		m_spPendingGLEffects->m_nOnScreenTransitionEffectID = pObj->m_PK_Effect_On_Screen;
 
 	OrbiterRenderer::ObjectOnScreen(pVectDesignObj_Orbiter, pObj, ptPopup);
-
-#ifdef VIA
-	if(pObj->m_iBaseObjectID == DESIGNOBJ_butKDEDesktop_CONST)
-		pObj->m_bHidden = true;
-#endif
 }
 //----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::ObjectOffScreen(DesignObj_Orbiter *pObj)

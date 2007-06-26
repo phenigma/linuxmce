@@ -1239,6 +1239,11 @@ void OrbiterRenderer::ObjectOnScreen( VectDesignObj_Orbiter *pVectDesignObj_Orbi
 	if(  pObj->m_GraphicToDisplay==GRAPHIC_SELECTED  )
 		OrbiterLogic()->m_vectObjs_Selected.push_back( pObj );
 
+#if defined(VIA) || defined(WIN32)
+	if(pObj->m_iBaseObjectID == DESIGNOBJ_butKDEDesktop_CONST || pObj->m_iBaseObjectID == DESIGNOBJ_butKDEDesktop_CONST + 1)
+		pObj->m_bHidden = true;
+#endif
+
 	// Move InitializeGrid down so it gets called after the LoadActions,  which may set variables that it will use
 
 	//  Move this down because there's a hide object in the onload
