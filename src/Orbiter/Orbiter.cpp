@@ -2690,47 +2690,49 @@ ACCEPT OUTSIDE INPUT
 
 void Orbiter::QueueEventForProcessing( void *eventData )
 {
-	Orbiter::Event *pEvent = (Orbiter::Event*)eventData;
+	//using std's "smart" point: event data will be deleted automatically when spEvent goes out of scope
+	auto_ptr<Orbiter::Event> spEvent((Orbiter::Event*)eventData);
+
 #ifdef DEBUG
-	if( pEvent->type == Orbiter::Event::MOUSE_MOVE )
+	if( spEvent->type == Orbiter::Event::MOUSE_MOVE )
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::QueueEventForProcessing mouse x %d y %d",
-			pEvent->data.region.m_iX,pEvent->data.region.m_iY);
+			spEvent->data.region.m_iX,spEvent->data.region.m_iY);
 	else
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::QueueEventForProcessing type %d key %d keycode %d (sim=%d)",
-			pEvent->type, pEvent->data.button.m_iPK_Button, pEvent->data.button.m_iKeycode, (int) pEvent->data.button.m_bSimulated);
+			spEvent->type, spEvent->data.button.m_iPK_Button, spEvent->data.button.m_iKeycode, (int) spEvent->data.button.m_bSimulated);
 #endif
 
-	map< pair<int,int>,pair<int,int> >::iterator it = m_mapEventToSubstitute.find( make_pair<int,int> (pEvent->type,pEvent->data.button.m_iKeycode) );
+	map< pair<int,int>,pair<int,int> >::iterator it = m_mapEventToSubstitute.find( make_pair<int,int> (spEvent->type,spEvent->data.button.m_iKeycode) );
 	if( it!=m_mapEventToSubstitute.end() )
 	{
-		pEvent->type = (DCE::Orbiter::Event::EventType) it->second.first;
-		pEvent->data.button.m_iKeycode = it->second.second;
+		spEvent->type = (DCE::Orbiter::Event::EventType) it->second.first;
+		spEvent->data.button.m_iKeycode = it->second.second;
 #ifdef DEBUG
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::QueueEventForProcessing translated to type %d key %d",
-		  pEvent->type, pEvent->data.button.m_iKeycode);
+		  spEvent->type, spEvent->data.button.m_iKeycode);
 #endif
 	}
 
-	PreprocessEvent(*pEvent);  // This will fill in the PK_Button if it's not already there
+	PreprocessEvent(*spEvent.get());  // This will fill in the PK_Button if it's not already there
 
-	if( (pEvent->type == Orbiter::Event::BUTTON_DOWN || pEvent->type == Orbiter::Event::REGION_DOWN) &&
-        !GotActivity( pEvent->type == Orbiter::Event::BUTTON_DOWN ? pEvent->data.button.m_iPK_Button : 0 ) )  // Use pEvent->type not Type since if it's not a known type it won't map to m_iPK_Button
+	if( (spEvent->type == Orbiter::Event::BUTTON_DOWN || spEvent->type == Orbiter::Event::REGION_DOWN) &&
+        !GotActivity( spEvent->type == Orbiter::Event::BUTTON_DOWN ? spEvent->data.button.m_iPK_Button : 0 ) )  // Use spEvent->type not Type since if it's not a known type it won't map to m_iPK_Button
 	{
 		// Ignore the up when it comes in
-		m_TypeToIgnore = pEvent->type == Orbiter::Event::BUTTON_DOWN ? Orbiter::Event::BUTTON_UP : Orbiter::Event::REGION_UP;
+		m_TypeToIgnore = spEvent->type == Orbiter::Event::BUTTON_DOWN ? Orbiter::Event::BUTTON_UP : Orbiter::Event::REGION_UP;
 		return;
 	}
 
 	// Check if we were just woken up above and need to ignore the corresponding up
-	if( pEvent->type==m_TypeToIgnore )
+	if( spEvent->type==m_TypeToIgnore )
 	{
 		m_TypeToIgnore=Orbiter::Event::NONE;
 		return;
 	}
 	m_TypeToIgnore=Orbiter::Event::NONE;
 
-	if( pEvent->data.button.m_bSimulated==false && (pEvent->type == Orbiter::Event::BUTTON_DOWN || pEvent->type == Orbiter::Event::BUTTON_UP) 
-		&& (m_bYieldInput==false || m_mapScanCodeToIgnoreOnYield.find( pEvent->data.button.m_iKeycode ) == m_mapScanCodeToIgnoreOnYield.end()) )  // Use Type instead of pEvent->type since the user may have some mapping for this
+	if( spEvent->data.button.m_bSimulated==false && (spEvent->type == Orbiter::Event::BUTTON_DOWN || spEvent->type == Orbiter::Event::BUTTON_UP) 
+		&& (m_bYieldInput==false || m_mapScanCodeToIgnoreOnYield.find( spEvent->data.button.m_iKeycode ) == m_mapScanCodeToIgnoreOnYield.end()) )  // Use Type instead of spEvent->type since the user may have some mapping for this
 	{
 		StopRepeatCode();  // In case the IRReceiverBase was repeating a key sequence
 
@@ -2740,7 +2742,7 @@ void Orbiter::QueueEventForProcessing( void *eventData )
 
 		// and we're looking for scan codes
 		//char cAction = 'D'; // Action is D=down, U=up, R=Repeat, H=Held Down
-		if( pEvent->type == Orbiter::Event::BUTTON_UP )
+		if( spEvent->type == Orbiter::Event::BUTTON_UP )
 		{
 			timespec tButtonUp;
 			gettimeofday(&tButtonUp,NULL);
@@ -2752,21 +2754,21 @@ void Orbiter::QueueEventForProcessing( void *eventData )
 #endif
 
 			if( tMilisecondsPassed > KEY_DOWN_DURATION )
-				it = m_mapScanCodeToRemoteButton.find( make_pair<int,char> (pEvent->data.button.m_iKeycode, 'H'));
+				it = m_mapScanCodeToRemoteButton.find( make_pair<int,char> (spEvent->data.button.m_iKeycode, 'H'));
 
 			if( it == m_mapScanCodeToRemoteButton.end() )  // Either we didn't hold the button or there is no hold specific event
-				it = m_mapScanCodeToRemoteButton.find( make_pair<int,char> (pEvent->data.button.m_iKeycode, 'U'));
+				it = m_mapScanCodeToRemoteButton.find( make_pair<int,char> (spEvent->data.button.m_iKeycode, 'U'));
 
 			// There's nothing for the 'up'.  See if there was a down or repeat.  If so we'll ignore
 			// this up so it's not processed by the framework.  Otherwise the i/r mechanism may do something for
 			// the down, and the framework something else for the up
 			if( it == m_mapScanCodeToRemoteButton.end() ) 
 			{
-				if( m_mapScanCodeToRemoteButton.find( make_pair<int,char> (pEvent->data.button.m_iKeycode, 'D'))!=m_mapScanCodeToRemoteButton.end() ||
-					m_mapScanCodeToRemoteButton.find( make_pair<int,char> (pEvent->data.button.m_iKeycode, 'R'))!=m_mapScanCodeToRemoteButton.end() )
+				if( m_mapScanCodeToRemoteButton.find( make_pair<int,char> (spEvent->data.button.m_iKeycode, 'D'))!=m_mapScanCodeToRemoteButton.end() ||
+					m_mapScanCodeToRemoteButton.find( make_pair<int,char> (spEvent->data.button.m_iKeycode, 'R'))!=m_mapScanCodeToRemoteButton.end() )
 				{
 #ifdef DEBUG
-					LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::QueueEventForProcessing ignoring keycode %d up because there's a DOWN",pEvent->data.button.m_iKeycode);
+					LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::QueueEventForProcessing ignoring keycode %d up because there's a DOWN",spEvent->data.button.m_iKeycode);
 #endif
 					return;
 				}
@@ -2778,9 +2780,9 @@ void Orbiter::QueueEventForProcessing( void *eventData )
 #ifdef DEBUG
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::QueueEventForProcessing m_tButtonDown %d.%d",(int) m_tButtonDown.tv_sec,(int) m_tButtonDown.tv_nsec);
 #endif
-			it = m_mapScanCodeToRemoteButton.find( make_pair<int,char> (pEvent->data.button.m_iKeycode, 'D') );
+			it = m_mapScanCodeToRemoteButton.find( make_pair<int,char> (spEvent->data.button.m_iKeycode, 'D') );
 
-			map< pair<int,char>, string>::iterator itRepeat = m_mapScanCodeToRemoteButton.find( make_pair<int,char> (pEvent->data.button.m_iKeycode, 'R'));
+			map< pair<int,char>, string>::iterator itRepeat = m_mapScanCodeToRemoteButton.find( make_pair<int,char> (spEvent->data.button.m_iKeycode, 'R'));
 			if( itRepeat!=m_mapScanCodeToRemoteButton.end() )
 			{
 				sRepeatKey = itRepeat->second;  // This is the key to repeat
@@ -2791,10 +2793,10 @@ void Orbiter::QueueEventForProcessing( void *eventData )
 					it = itRepeat;
 			}
 			if( it==m_mapScanCodeToRemoteButton.end() && 
-				m_mapScanCodeToRemoteButton.find( make_pair<int,char> (pEvent->data.button.m_iKeycode, 'U') )!=m_mapScanCodeToRemoteButton.end() )
+				m_mapScanCodeToRemoteButton.find( make_pair<int,char> (spEvent->data.button.m_iKeycode, 'U') )!=m_mapScanCodeToRemoteButton.end() )
 			{
 #ifdef DEBUG
-				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::QueueEventForProcessing ignoring keycode %d down because there's an UP",pEvent->data.button.m_iKeycode);
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::QueueEventForProcessing ignoring keycode %d down because there's an UP",spEvent->data.button.m_iKeycode);
 #endif
 				return;
 			}
@@ -2821,7 +2823,7 @@ void Orbiter::QueueEventForProcessing( void *eventData )
 		}
 	}
     
-	ProcessEvent(*pEvent);
+	ProcessEvent(*spEvent.get());
 }
 
 bool Orbiter::PreprocessEvent(Orbiter::Event &event)
