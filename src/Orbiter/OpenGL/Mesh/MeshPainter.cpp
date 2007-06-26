@@ -159,7 +159,7 @@ void MeshPainter::Setup(ExtensionManager *ExtensionManager)
 		ExtensionManager_->EnableBlended(false);
 	}
 	
-	delete Vertexes;	
+	delete[] Vertexes;	
 }
 
 void MeshPainter::CleanUp()

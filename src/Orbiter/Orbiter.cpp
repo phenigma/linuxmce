@@ -2196,7 +2196,7 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 			}
 			m_pOrbiterFileBrowser_Collection = new OrbiterFileBrowser_Collection;
 			m_pOrbiterFileBrowser_Collection->SerializeRead(iSize,pData);
-			delete pData;
+			delete[] pData;
 
 			// Create another map to go from remote id to device id
 			for(map<string, pair<int,int> >::iterator it=m_pOrbiterFileBrowser_Collection->m_mapRemoteControls.begin();
