@@ -68,6 +68,8 @@ using namespace DCE;
 #include "pluto_main/Table_Software.h"
 #include "pluto_main/Table_Software_Device.h"
 #include "pluto_main/Table_FloorplanObjectType_Color.h"
+#include "pluto_main/Define_RoomType.h"
+
 #include "pluto_media/Database_pluto_media.h"
 #include "pluto_media/Table_Disc.h"
 #include "pluto_media/Table_DiscLocation.h"
@@ -3091,6 +3093,7 @@ void General_Info_Plugin::CMD_Set_Room_For_Device(int iPK_Device,string sName,in
 		{
 			pRow_Room = m_pDatabase_pluto_main->Room_get()->AddRow();
 			pRow_Room->Description_set(sName);
+			pRow_Room->FK_RoomType_set(ROOMTYPE_Bedroom_Other_CONST);
 			pRow_Room->FK_Installation_set(m_pRouter->iPK_Installation_get());
 			m_pDatabase_pluto_main->Room_get()->Commit();
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"General_Info_Plugin::CMD_Set_Room_For_Device added room %p %d %s",pRow_Room,pRow_Room->PK_Room_get(),pRow_Room->Description_get().c_str());
