@@ -17,5 +17,5 @@ fi
 "
 
 mkdir -p "${Parm_RootLocation}/$(dirname $File)"
-echo -e $Content > "${Parm_RootLocation}/${File}"
+echo "$Content" > "${Parm_RootLocation}/${File}"
 chmod +x "${Parm_RootLocation}/${File}"
