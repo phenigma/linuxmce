@@ -61,7 +61,7 @@ namespace StringUtils
 #ifdef SYMBIAN
 	static
 #endif
-    string ToLower( string sInput );
+    string ToLower( const string &sInput );
 
     /**
      * @brief converts input string to uppercase
@@ -69,7 +69,7 @@ namespace StringUtils
 #ifdef SYMBIAN
 	static
 #endif
-    string ToUpper( string sInput );
+    string ToUpper( const string &sInput );
 
     /**
      * @brief returns the string representing the integer

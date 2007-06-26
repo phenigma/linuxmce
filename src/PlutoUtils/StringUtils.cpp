@@ -108,36 +108,34 @@ string StringUtils::Tokenize( string &sInput, string sToken, string::size_type &
     return sReturnValue;
 }
 
-string StringUtils::ToUpper(string sInput)
+string StringUtils::ToUpper(const string &sInput)
 {
+    string sOutput(sInput);
 #ifndef SYMBIAN
-    for (string::iterator i = sInput.begin(); i != sInput.end(); i++)
+    string::size_type length = sInput.length();
+    for (string::size_type i=0; i<length; ++i)
     {
-        *i = static_cast<char>(toupper(*i));
+	    sOutput[i] = static_cast<char>( toupper( sInput[i]) );
     }
-//  transform( sInput.begin(), sInput.end(), sInput.begin(), toupper );
-    return sInput;
 #else
-    string sOutput( sInput );
     sOutput.toupper();
-    return sOutput;
 #endif
+    return sOutput;
 }
 
-string StringUtils::ToLower(string sInput)
+string StringUtils::ToLower(const string &sInput)
 {
-#ifndef SYMBIAN
-    for (string::iterator i = sInput.begin(); i != sInput.end(); i++)
-    {
-        *i = static_cast<char>(tolower(*i));
-    }
-//  transform( sInput.begin(), sInput.end(), sInput.begin(), tolower );
-    return sInput;
-#else
     string sOutput(sInput);
+#ifndef SYMBIAN
+    string::size_type length = sInput.length();
+    for (string::size_type i=0; i<length; ++i)
+    {
+        sOutput[i] = static_cast<char>( tolower( sInput[i]) );
+    }
+#else
     sOutput.tolower();
-    return sOutput;
 #endif
+    return sOutput;
 }
 
 #ifndef SYMBIAN
