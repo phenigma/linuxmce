@@ -130,12 +130,12 @@ namespace StringUtils
 	/**
      * @brief returns true if sFirst starts with sSecond
      */
-    bool StartsWith( string sSearchIn, string sSearchFor, bool bIgnoreCase=false );
+    bool StartsWith( const string &sSearchIn, const string &sSearchFor, bool bIgnoreCase=false );
 
 	/**
      * @brief returns true if sFirst ends with sSecond
      */
-    bool EndsWith( string sSearchIn, string sSearchFor, bool bIgnoreCase=false );
+    bool EndsWith( const string &sSearchIn, const string &sSearchFor, bool bIgnoreCase=false );
 
 	/**
      * @brief returns true if sInput contains only white space

@@ -840,7 +840,7 @@ string StringUtils::SQLEscape( string sInput, bool bForLikeStatement /*= false*/
     return sOutput;
 }
 
-bool StringUtils::StartsWith( string sSearchIn, string sSearchFor, bool bIgnoreCase )
+bool StringUtils::StartsWith( const string &sSearchIn, const string &sSearchFor, bool bIgnoreCase )
 {
     if( bIgnoreCase )
         return sSearchIn.length()>=sSearchFor.length() && StringUtils::ToLower(sSearchIn.substr(0,sSearchFor.length()))==StringUtils::ToLower(sSearchFor);
@@ -848,7 +848,7 @@ bool StringUtils::StartsWith( string sSearchIn, string sSearchFor, bool bIgnoreC
         return sSearchIn.length()>=sSearchFor.length() && sSearchIn.substr(0,sSearchFor.length())==sSearchFor;
 }
 
-bool StringUtils::EndsWith( string sSearchIn, string sSearchFor, bool bIgnoreCase )
+bool StringUtils::EndsWith( const string &sSearchIn, const string &sSearchFor, bool bIgnoreCase )
 {
     if( bIgnoreCase )
         return sSearchIn.length()>=sSearchFor.length() && StringUtils::ToLower(sSearchIn.substr(sSearchIn.length()-sSearchFor.length()))==StringUtils::ToLower(sSearchFor);
