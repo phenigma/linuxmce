@@ -5,7 +5,9 @@
 # Copyright © martin f. krafft <madduck@madduck.net>
 # Released under the terms of the Artistic Licence 2.0
 #
-# Radu Cristescu <radu.c@plutohome.com>, 2007-06-26, corrected to work on Bash
+# Radu Cristescu <radu.c@plutohome.com>, 2007-06-26
+#  * corrected to work on Bash
+#  * made to work for regular user
 #
 # $Id$
 #
@@ -69,7 +71,7 @@ if [ ${cleanup:-0} -eq 1 ]; then
 
   cd $DEST
   for i in *; do
-    test -L $i && losetup -d $i 2>/dev/null && rm $i && continue
+    test -L $i && /sbin/losetup -d $i 2>/dev/null && rm $i && continue
     echo "W: $ME: skipping file: $i" >&2
   done
   exit 0
