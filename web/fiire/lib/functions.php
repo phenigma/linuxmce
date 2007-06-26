@@ -1609,6 +1609,14 @@ function get_accesories($conn){
 	return outputHTML($variables,$page_template,1);		
 }
 
+function get_faq($conn){
+	$variables=array();
+	$page_template=implode('',file('templates/faq.html'));
+
+	return outputHTML($variables,$page_template,1);		
+}
+
+
 function forgot_password($conn){
 	if(isset($_POST['send'])){
 		return process_forgot_password($conn);
