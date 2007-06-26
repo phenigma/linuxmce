@@ -1196,7 +1196,7 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Device,int iPK_Orbiter,
 
 			// When we're first doing a channel scan, we'll add a source, but not a card input, and give the source the name UNKNOWN_[cardid]
 			// See if there is such a source, and if it has any channels
- 			string s = DatabaseUtils::GetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICEDATA_Source_CONST);
+			string s = DatabaseUtils::GetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,pRow_Device_External ? pRow_Device_External->PK_Device_get() : pRow_Device->PK_Device_get(),DEVICEDATA_Source_CONST);
 			int sourceid=atoi(s.c_str());
 			if( sourceid )
 			{
@@ -1221,15 +1221,6 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Device,int iPK_Orbiter,
 					bRenameUnknown=true;
 					LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::CMD_Sync_Providers_and_Cards card id %d has unknown source %d", cardid, sourceid);
 				}
-				else
-				{
-					// See what source we have for this card already
-					sSQL = "SELECT sourceid FROM cardinput WHERE cardid=" + StringUtils::itos(cardid) + " LIMIT 1";
-					PlutoSqlResult result_set_has_source;
-					if( (result_set_has_source.r=m_pDBHelper_Myth->db_wrapper_query_result(sSQL)) && 
-						(row2=db_wrapper_fetch_row(result_set_has_source.r)) && atoi(row2[0]) )
-							sourceid = atoi(row2[0]);
-				}
 			}
 
 			// This it the query to see if we have channels
@@ -1241,8 +1232,8 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Device,int iPK_Orbiter,
 					bHasChannels = true;
 			}
 
-			LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::SyncCardsAndProviders device %d source %d prov %p channels %d",
-				pRow_Device->PK_Device_get(),sourceid,pRow_MediaProvider,(int) bHasChannels);
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::SyncCardsAndProviders device %d/%d source %d prov %p channels %d",
+				pRow_Device->PK_Device_get(),pRow_Device_External ? pRow_Device_External->PK_Device_get() : 0,sourceid,pRow_MediaProvider,(int) bHasChannels);
 
 			if( pRow_MediaProvider!=NULL || bHasChannels )  // If we have channels, we must already have a source id
 			{
@@ -1346,7 +1337,7 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Device,int iPK_Orbiter,
 				}
 			}
 
-			DatabaseUtils::SetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICEDATA_Source_CONST,StringUtils::itos(sourceid));
+			DatabaseUtils::SetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,pRow_Device_External ? pRow_Device_External->PK_Device_get() : pRow_Device->PK_Device_get(),DEVICEDATA_Source_CONST,StringUtils::itos(sourceid));
 		}
 	}
 
