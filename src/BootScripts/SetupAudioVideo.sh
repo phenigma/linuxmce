@@ -170,5 +170,6 @@ fi
 if [[ "$Reboot" == Reboot ]]; then
 	reboot
 elif [[ "$ReloadX" == ReloadX ]]; then
-	/usr/pluto/bin/RestartLocalX.sh
+	/usr/pluto/bin/RestartLocalX.sh &
+	disown -a
 fi

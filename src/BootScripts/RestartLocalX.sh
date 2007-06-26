@@ -7,6 +7,5 @@ if [[ -f /etc/event.d/pluto || "$PK_Distro" == 1 ]]; then
 	fi
 else
 	export TERM=linux
-	/etc/init.d/kdm restart &>/dev/null </dev/null &
-	disown -a
+	/etc/init.d/kdm restart &>/dev/null </dev/null
 fi
