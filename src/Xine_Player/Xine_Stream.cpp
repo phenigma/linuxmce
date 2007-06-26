@@ -2317,8 +2317,7 @@ bool Xine_Stream::DestroyWindows()
 {
 	if ( m_pFactory->m_pXDisplay != NULL )
 	{
-		if (!m_pDynamic_Pointer)
-			delete m_pDynamic_Pointer;
+		delete m_pDynamic_Pointer;
 		m_pDynamic_Pointer = NULL;
 		
 		XLockDisplay( m_pFactory->m_pXDisplay );

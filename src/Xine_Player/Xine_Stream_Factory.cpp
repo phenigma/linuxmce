@@ -230,6 +230,12 @@ void Xine_Stream_Factory::DetectOutputDrivers()
 	else
 		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Video driver key was not defined in the config file, using hardcoded default: %s", m_sXineVideoDriverName.c_str() );
 	
+	i = 0;
+	while (driver_ids[i])
+	{
+		free( driver_ids[i] );
+		i++;
+	}
 	free( driver_ids );
 
 
