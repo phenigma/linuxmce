@@ -1791,12 +1791,15 @@ bool ScreenHandler::TV_Channels_ObjectSelected(CallBackData *pData)
 	{
 		DesignObj_DataGrid *pDesignObj_DataGrid = (DesignObj_DataGrid *) m_pOrbiter->FindObject(DESIGNOBJ_dgUpcomingShows_CONST);
 
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::TV_Channels_ObjectSelected DESIGNOBJ_dgUpcomingShows_CONST %p",pDesignObj_DataGrid);
+
 		if( pDesignObj_DataGrid )
 		{
 			DataGridTable *pDataGridTable = pDesignObj_DataGrid->DataGridTable_Get();
 			if( pDataGridTable )
 			{
 				DataGridCell *pCell = pDataGridTable->GetData( 0, pDesignObj_DataGrid->m_iHighlightedRow + pDesignObj_DataGrid->m_GridCurRow );
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::TV_Channels_ObjectSelected cell %p",pCell);
 				if( !pCell )
 					return false;
 
@@ -1812,6 +1815,7 @@ bool ScreenHandler::TV_Channels_ObjectSelected(CallBackData *pData)
 					if( sProgram.empty()==false )
 						sBookmark = " PROG:" + sProgram;
 				}
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::TV_Channels_ObjectSelected series %s bookmark %s/%d",sSeries.c_str(),sBookmark.c_str(),(int) sBookmark.empty());
 				if( sBookmark.empty()==false )
 				{
 					DCE::CMD_Save_Bookmark CMD_Save_Bookmark(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,
@@ -1827,12 +1831,15 @@ bool ScreenHandler::TV_Channels_ObjectSelected(CallBackData *pData)
 	{
 		DesignObj_DataGrid *pDesignObj_DataGrid = (DesignObj_DataGrid *) m_pOrbiter->FindObject(DESIGNOBJ_dgTvChannels_UI2_CONST);
 
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::TV_Channels_ObjectSelected DESIGNOBJ_dgTvChannels_UI2_CONST %p",pDesignObj_DataGrid);
+
 		if( pDesignObj_DataGrid )
 		{
 			DataGridTable *pDataGridTable = pDesignObj_DataGrid->DataGridTable_Get();
 			if( pDataGridTable )
 			{
 				DataGridCell *pCell = pDataGridTable->GetData( 0, pDesignObj_DataGrid->m_iHighlightedRow + pDesignObj_DataGrid->m_GridCurRow );
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::TV_Channels_ObjectSelected cell %p",pCell);
 				if( !pCell )
 					return false;
 
@@ -1853,6 +1860,7 @@ bool ScreenHandler::TV_Channels_ObjectSelected(CallBackData *pData)
 						}
 					}
 				}
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::TV_Channels_ObjectSelected sChannel %s bookmark %s/%d",sChannel.c_str(),sBookmark.c_str(),(int) sBookmark.empty());
 				if( sBookmark.empty()==false )
 				{
 					DCE::CMD_Save_Bookmark CMD_Save_Bookmark(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,

@@ -1717,7 +1717,7 @@ void MythTV_PlugIn::RefreshBookmarks()
 			}
 			else if( (pPos=strstr(row[2]," CHAN:"))!=NULL )
 			{
-				int ChanId = atoi( (const char *) &row[2][6] );
+				int ChanId = atoi( (const char *) (row[2][6]=='i' ? &row[2][7] : &row[2][6]) );  // Skip any leading 'i'
 				MythChannel *pMythChannel = m_mapMythChannel_Find(ChanId);
 				if( pMythChannel )
 					pMythChannel->m_mapBookmark[ row[1] ? atoi(row[1]) : 0 ] = atoi(row[0]);
