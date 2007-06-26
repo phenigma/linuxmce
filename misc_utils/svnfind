@@ -9,4 +9,4 @@ for ((i = 1; i <= "$#"; i++)); do
 	fi
 done
 
-find -type d -name .svn -prune -or -type f "${Names[@]}" -print
+find -type d -name .svn -prune -or -type f "${Names[@]}" -print0
