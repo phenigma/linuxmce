@@ -122,6 +122,8 @@ OrbiterLinux::~OrbiterLinux()
 {
     pthread_t hackthread;
     pthread_create(&hackthread, NULL, HackThread, (void*)this);
+    pthread_detach(hackthread);
+
 
     if (m_pProgressWnd)
     {
