@@ -9,8 +9,36 @@ mkdir -p "$WORK_DIR"
 HDD_SIZE="$(( 10240 / 2 ))" # MBytes
 HDD_FILE="$WORK_DIR/qemu.img"
 PART_DIR="$WORK_DIR/partlinks"
-PART_FILE="$PART_DIR/$(basename $HDD_FILE)_p"
+#PART_FILE="$PART_DIR/$(basename $HDD_FILE)_p"
+PART_FILE="/dev/mapper/qemu_p"
+DEBOOTSTRAP_DIR="$WORK_DIR/debootstrap"
 
+function partition_links {
+	local Pattern="${HDD_FILE}p?([[:digit:]]+)[*[:space:]]+([[:digit:]]+)[[:space:]]+([[:digit:]]+)[[:space:]]+([[:digit:]]+)[[:space:]]+([[:xdigit:]]+)[[:space:]].*"
+	local line
+	local Loop
+	local Partition Start End Blocks Type Rest
+	modprobe dm-mod
+	while read Partition Start End Blocks Type Rest; do
+		if [[ " 82 83 " != *" $Type "* ]]; then
+			continue
+		fi
+
+		## Setup loop and device mapper devices
+		LoopDev=$(losetup -f)
+		losetup "$LoopDev" "$HDD_FILE" -o $((512*$Start))
+		echo "0 $Blocks linear $LoopDev 0" >"$PART_FILE$Partition.cf"
+		dmsetup create "qemu_p$Partition" "$PART_FILE$Partition.cf"
+		rm -f "$PART_FILE$Partition.cf"
+	done < <(fdisk -lu "$HDD_FILE" | sed -nre "s,$Pattern,\1 \2 \3 \4 \5,p")
+}
+
+function partition_clear {
+	local Dev
+	for Dev in /dev/mapper/qemu_p*; do
+		dmsetup remove "$(basename "$Dev")"
+	done
+}
 
 function hdd_create {
 	local ROOT_PARTITION_SIZE="$((($HDD_SIZE/1024)-1))" # GBytes
@@ -27,30 +55,29 @@ function hdd_create {
 
 	## Generate the loopback devices for all the partitions of the harddrive
 	mkdir -p "$PART_DIR"
-	/root/misc_utils/plosetup "$HDD_FILE" "$PART_DIR" "82 83 fd"
+	partition_links
 
-	## Fromat the '/' partition of the harddrive
+	## Format the '/' and swap partitions of the harddrive
 	mkfs.ext3 "${PART_FILE}1"
 	mkswap "${PART_FILE}5"
 }
 
 function hdd_debootstrap {
-	local DEBOOTRAP_DIR="$WORK_DIR/debootstrap"
-	mkdir -p $DEBOOTRAP_DIR
+	mkdir -p $DEBOOTSTRAP_DIR
 
-	mount "${PART_FILE}1" "$DEBOOTRAP_DIR"
-	debootstrap "feisty" "$DEBOOTRAP_DIR" "http://ro.archive.ubuntu.com/ubuntu/"
+	mount "${PART_FILE}1" "$DEBOOTSTRAP_DIR"
+	debootstrap "feisty" "$DEBOOTSTRAP_DIR" "http://ro.archive.ubuntu.com/ubuntu/"
 	umount "${PART_FILE}1"
 }
 
 function hdd_prepare_for_install {
-	mount "${PART_FILE}1" "$DEBOOTRAP_DIR"
-	chroot "${PART_FILE}1" apt-get -f -y install sshd
+	mount "${PART_FILE}1" "$DEBOOTSTRAP_DIR"
+	chroot "$DEBOOTSTRAP_DIR" apt-get -f -y install sshd
 	umount "${PART_FILE}1"
 }
 
 function hdd_cleanup {
-	/root/misc_utils/plosetup -c "$PART_DIR"
+	partition_clear
 }
 
 hdd_create
