@@ -231,7 +231,7 @@ void write_config_file(void) {
 				,setting_ubuntuExtraCdIsoPath
 				,setting_ubuntuLiveCdFrom
 				,setting_ubuntuLiveCdIsoPath
-				,*setting_installDvdCss
+				,setting_installDvdCss
 		);
 	} else {
 		output = g_strdup_printf(

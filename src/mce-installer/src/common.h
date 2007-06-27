@@ -155,5 +155,5 @@ gchar	 *other_mirror;
 gint     setting_ubuntuLiveCdFrom;
 gchar*   setting_ubuntuLiveCdIsoPath;
 
-gint*	 setting_installDvdCss;
+gint	 setting_installDvdCss;
 #endif
