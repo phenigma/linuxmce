@@ -72,7 +72,7 @@ function hdd_debootstrap {
 
 function hdd_prepare_for_install {
 	mount "${PART_FILE}1" "$DEBOOTSTRAP_DIR"
-	chroot "$DEBOOTSTRAP_DIR" apt-get -f -y install sshd
+	chroot "$DEBOOTSTRAP_DIR" apt-get -f -y install ssh
 	umount "${PART_FILE}1"
 }
 
