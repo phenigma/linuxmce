@@ -13,7 +13,7 @@
 void on_StepDvdCss_forward_clicked(GtkWidget *widget, gpointer data)  {
 
 	gboolean goNext = TRUE;
-	gint setting_installDvdCss = * (gint *)data;
+	setting_installDvdCss = * (gint *)data;
 	//GtkWidget* runWindow;
 
 	/*switch(setting_installDvdCss) {
