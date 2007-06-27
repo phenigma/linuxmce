@@ -52,6 +52,28 @@ if [[ "$c_ubuntuLiveCdFrom" == "$FROM_ISO" ]] ;then
 fi
 
 
+case "$c_installDvdCss" in
+	"1")
+		./mce-installer-DvdCss.sh
+		if [[ "$?" != "0" ]] ;then
+                	ExitInstaller 'Could not install libdvdcss2'
+        	fi
+	;;
+	"2")
+		./mce-installer-Lame.sh
+		if [[ "$?" != "0" ]] ;then
+                        ExitInstaller 'Could not install lame'
+                fi
+	;;
+	"3")
+		./mce-installer-DvdCssandLame.sh
+		if [[ "$?" != "0" ]] ;then
+                        ExitInstaller 'Could not install lame'
+                fi
+	;;
+esac
+
+
 if [[ "$c_deviceType" == "$DT_MEDIA_DIRECTOR" ]] ;then
 	:
 else
