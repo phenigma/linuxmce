@@ -126,7 +126,7 @@ ObjectRenderer::ObjectRenderer(DesignObj_Orbiter *pOwner) : m_pObj_Owner(pOwner)
 		pGraphicFile = NULL;
 	}
 
-	if(pPlutoGraphic->IsEmpty() && !sFileName.empty())
+	if(pPlutoGraphic->IsEmpty() && !sFileName.empty() && sFileName.find("dynamic object") != 0)
 	{
 		if(!FileUtils::FileExists(sFileName))
 		{

@@ -9156,7 +9156,7 @@ void Orbiter::SetChildrenVisibilityContext(DesignObj_Orbiter *pObj,
 		itmap = mapVisibilityContext.find(pChildObj);
 		if(itmap != mapVisibilityContext.end() && pChildObj->m_bHidden != itmap->second)
 		{
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "* Changing visibility status for %s from %d to %d",
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "* Changing visibility status for %s from %d to %d",
 				pChildObj->m_ObjectID.c_str(), pChildObj->m_bHidden, itmap->second);
 			pChildObj->m_bHidden = itmap->second;
 		}
