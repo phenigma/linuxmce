@@ -332,8 +332,6 @@ Message::Message( string sMessageInStringFormat )
 	int iPosNext=0;
 	char **pArgs = StringUtils::ConvertStringToArgs(sMessageInStringFormat,iNumArgs,&iPosNext);
 	BuildFromArgs( iNumArgs, pArgs );
-	//StringUtils::FreeArgs(pArgs, iNumArgs);
-	//pArgs = NULL;
 
 	int iPosNextCumulative=iPosNext;
 	while( iPosNext )  // If there's not at least 5 characters it can't be a valid message
@@ -345,10 +343,10 @@ Message::Message( string sMessageInStringFormat )
 			iPosNextCumulative+=iPosNext;
 			Message *pMessage = new Message();
 			pMessage->BuildFromArgs( iNumArgs, pArgs );
-			//StringUtils::FreeArgs(pArgs, iNumArgs);
-			//pArgs = NULL;
 			m_vectExtraMessages.push_back(pMessage);
 		}
+		else
+			PLUTO_SAFE_DELETE_ARRAY_OF_ARRAYS(pArgs, iNumArgs);
 	}
 }
 
