@@ -7,7 +7,7 @@ Standards-Version: 3.6.1
 
 Package: bootsplash
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, bootsplash-theme-pluto | bootsplash-theme-monster | bootsplash-theme
+Depends: ${shlibs:Depends}, ${misc:Depends}, bootsplash-theme-linuxmce | bootsplash-theme-pluto | bootsplash-theme-monster | bootsplash-theme
 Recommends: sysv-rc (>= 2.86.ds1-1pluto)
 Replaces: bootsplash-theme-pluto, bootsplash-theme-monster
 Description: Bootsplash user space utilities and scripts.
