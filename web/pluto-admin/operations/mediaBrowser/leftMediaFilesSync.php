@@ -47,7 +47,7 @@ function leftMediaFilesSync($output,$mediadbADO,$dbADO) {
 		$pathsArray=explode('/',$startPath);
 		$pathTo='';
 		$indent='';
-		$childsArray=getDirectories ($startPath);
+		$childsArray=getDirectories (stripslashes($startPath));
 		foreach ($pathsArray AS $directory){
 			if($directory!=''){
 				$pathTo.='/'.$directory;
@@ -106,13 +106,14 @@ function leftMediaFilesSync($output,$mediadbADO,$dbADO) {
 
 function getDirectories ($path) {
 	$dirs=array();
-	if (($d = @opendir ($path)) === false) {
+	if (($d = opendir ($path)) === false) {
 		return $dirs;
 	}
 	else {
 		while (false !== ($f = readdir($d))) {
 			if ($f != "." && $f != "..") {
-				if (@is_dir ($path .'/'.$f)) {
+				//echo $path.'/'.$f.'<br>';
+				if (@is_dir64($path .'/'.$f)) {
 					$dirs[$path.'/'.$f]=$f;
 				} 
 			}
@@ -121,7 +122,7 @@ function getDirectories ($path) {
 	}
 	asort($dirs,SORT_STRING);
 	reset($dirs);
-	
+
 	return $dirs;
 }
 
