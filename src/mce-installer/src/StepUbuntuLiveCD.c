@@ -12,7 +12,7 @@
 void on_StepUbuntuLiveCD_OK_clicked( GtkWidget *widget, gpointer data ) {
 
 	//g_queue_push_head(history, (gpointer)STEPUBUNTULIVECD);
-	displayStep3();
+	displayStepInstallDependencies();	
 }
 
 

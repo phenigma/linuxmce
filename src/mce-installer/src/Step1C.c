@@ -27,7 +27,6 @@ void on_Step1C_forward_clicked(GtkWidget *widget, gpointer data) {
 		} else {
 			displayStepCreateDiskedDevice();
 		}
-		//displayStepAptMirror();
         } else {
                 displayStep1D();
         }

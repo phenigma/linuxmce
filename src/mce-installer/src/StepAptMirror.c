@@ -35,11 +35,9 @@ void on_StepAptMirror_forward_clicked(GtkWidget *widget, gpointer data)  {
                 gtk_widget_grab_focus(dialog);
 
 	} else {
-		displayStepLinuxMceCD();
+		displayStep3();
 	} 
 
-	//displayStepUbuntuExtraCD();
-	//displayStepLinuxMceCD();
 }
 
 void on_StepAptMirror_combo_changed(GtkWidget *widget, gpointer data) {
