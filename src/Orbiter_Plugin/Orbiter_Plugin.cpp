@@ -3173,4 +3173,22 @@ bool Orbiter_Plugin::SafeToReload(string &sReason)
 void Orbiter_Plugin::CMD_Start_AV_Wizard(int iPK_Device,string &sCMD_Result,Message *pMessage)
 //<-dceag-c918-e->
 {
+	DeviceData_Router *pDevice = m_pRouter->m_mapDeviceData_Router_Find(iPK_Device);
+	if(NULL != pDevice)
+	{
+		DeviceData_Router *pDevice_App_Server = (DeviceData_Router *)pDevice->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_App_Server_CONST);
+
+		if(NULL != pDevice_App_Server)
+		{
+			DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice_App_Server->m_dwPK_Device,
+				"/usr/pluto/bin/RebootWithAVWizard.sh","RebootWithAVWizard","","","",false,false,false,false);
+			CMD_Spawn_Application.m_pMessage->m_eRetry=MR_Retry;
+			SendCommand(CMD_Spawn_Application);
+		}
+		else
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Couldn't find an app server for device %d", iPK_Device);
+	}
+	else
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Invalid device %d. The device was registered?", iPK_Device);
 }
+
