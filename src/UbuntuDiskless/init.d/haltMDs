@@ -12,7 +12,7 @@ case "$1" in
   restart)
         ;;
   *)
-        echo \"Usage: /etc/init.d/haltMDs {start|stop|reload|force-reload|restart}\"
+        echo "Usage: /etc/init.d/haltMDs {start|stop|reload|force-reload|restart}"
         exit 1
 esac
 
