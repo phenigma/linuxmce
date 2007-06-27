@@ -846,15 +846,8 @@ void Command_Impl::ProcessMessageQueue()
 				// If the connection between this device and dcerouter is still ok, we will have always gotten a true,
 				// whether the destination device responded or not.  If we didn't, our socket must be bad.  Exit and
 				// let the framework restart us
-#ifdef LINK_TO_ROUTER
-				if(NULL != m_pRouter && m_pRouter->IsPlugin(m_pcRequestSocket->m_dwPK_Device))
-					LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"InternalSendCommand ProcessMessageQueue cannot send.  Won't quit, we're a plugin");
-				else
-#endif
-				{
-					LoggerWrapper::GetInstance()->Write(LV_WARNING,"InternalSendCommand ProcessMessageQueue cannot send.  Going to quit");
-					OnReload();
-				}
+				LoggerWrapper::GetInstance()->Write(LV_WARNING,"InternalSendCommand ProcessMessageQueue cannot send.  Going to quit");
+				OnReload();
 			}
 		}
 		mq.Relock();
@@ -921,16 +914,8 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"InternalSendCommand confirmation 
 			// If the connection between this device and dcerouter is still ok, we will have always gotten a response,
 			// whether the destination device responded or not.  If we didn't, our socket must be bad.  Exit and
 			// let the framework restart us
-#ifdef LINK_TO_ROUTER
-			if(NULL != m_pRouter && m_pRouter->IsPlugin(m_pcRequestSocket->m_dwPK_Device))
-				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"InternalSendCommand ProcessMessageQueue cannot send.  Won't quit, we're a plugin");
-			else
-#endif
-			{
-				LoggerWrapper::GetInstance()->Write(LV_WARNING,"InternalSendCommand cannot send message type %d id %d to %d with confirmation.  Going to quit",
-					Type,ID,PK_Device_To);
-				OnReload();
-			}
+			LoggerWrapper::GetInstance()->Write(LV_WARNING,"InternalSendCommand cannot send message type %d id %d to %d with confirmation.  Going to quit", Type,ID,PK_Device_To);
+			OnReload();
 		}
 		return bResult && *p_sResponse == "OK";
 	}
@@ -969,16 +954,8 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"InternalSendCommand out done id %
 			// If the connection between this device and dcerouter is still ok, we will have always gotten a response,
 			// whether the destination device responded or not.  If we didn't, our socket must be bad.  Exit and
 			// let the framework restart us
-#ifdef LINK_TO_ROUTER
-			if(NULL != m_pRouter && m_pRouter->IsPlugin(m_pcRequestSocket->m_dwPK_Device))
-				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"InternalSendCommand ProcessMessageQueue cannot send.  Won't quit, we're a plugin");
-			else
-#endif
-			{
-				LoggerWrapper::GetInstance()->Write(LV_WARNING,"InternalSendCommand cannot send with return message.  type %d id %d to %d Going to quit",
-					Type,ID,PK_Device_To);
-				OnReload();
-			}
+			LoggerWrapper::GetInstance()->Write(LV_WARNING,"InternalSendCommand cannot send with return message.  type %d id %d to %d Going to quit", Type,ID,PK_Device_To);
+			OnReload();
 		}
 
 		return false;
