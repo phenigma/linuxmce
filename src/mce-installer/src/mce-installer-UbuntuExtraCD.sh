@@ -28,6 +28,4 @@ dpkg -i /usr/pluto/deb-cache/video-wizard-videos_*.deb || :
 umount -lf $CD_Dir || :
 rm -rf $CD_Dir
 
-trap "" EXIT
-
 exit 0

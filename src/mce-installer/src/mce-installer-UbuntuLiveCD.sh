@@ -39,7 +39,5 @@ umount -lf "$Squash_Dir" || :
 umount -lf "$CD_Dir" || :
 rm -rf "$Squash_Dir" "$CD_Dir"
 
-trap "" EXIT
-
 eject /dev/cdrom
 exit 0
