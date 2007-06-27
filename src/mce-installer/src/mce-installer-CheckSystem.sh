@@ -7,7 +7,7 @@ clean_system="true"
 
 function GenerateDiff {
 	while read orig_name orig_ver ;do
-		local local_line=$(grep "^$orig_name " $local_list)
+		local local_line=$(grep "^$orig_name " $local_list | head -1)
 		if [[ "$local_line" == "" ]] ;then
 			echo "MISSING '$orig_name'" > "$diff_list"
 			clean_system="false"

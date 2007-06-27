@@ -17,7 +17,7 @@ cp ../../utilities/linux/UIdiag/UIdiag ./
 cp ../../utilities/linux/UIdiag/*.png ./
 
 
-tar -czf mce-installer.tar.gz mce-installer mce-installer-*.sh mce-installer.glade mce-installer-core.sh mce-installer-preseed.sh mce-installer-diskedmd.sh wget-wrapper.sh pluto.png mce-installer-getnetdata.sh libvte.so* libglade*so* libSDL* mirrors dpkg-scanpackages UIdiag *.png xcompmgr
+tar -czf mce-installer.tar.gz *.list mce-installer mce-installer-*.sh mce-installer.glade mce-installer-core.sh mce-installer-preseed.sh mce-installer-diskedmd.sh wget-wrapper.sh pluto.png mce-installer-getnetdata.sh libvte.so* libglade*so* libSDL* mirrors dpkg-scanpackages UIdiag *.png xcompmgr
 cat ../mce-installer-header.sh mce-installer.tar.gz > ../mce-installer.sh
 rm libvte.so*
 rm libglade*so*
