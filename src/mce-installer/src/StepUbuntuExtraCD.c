@@ -15,8 +15,14 @@ void on_StepUbuntuExtraCD_forward_clicked(GtkWidget *widget, gpointer data)  {
 
 	if (setting_ubuntuExtraCdFrom != FROM_NET) {	
 		goNext = FALSE;
-		GtkWidget* runWindow = run_shell_command("./mce-installer-UbuntuExtraCD.sh", "Caching LinuxMCE Disc 2", "Failed to cache the LinuxMCE Disc 2");
-		gtk_widget_show_all(runWindow);
+		GtkWidget* runWindow;
+		if (setting_ubuntuExtraCdFrom == FROM_ISO) {
+                        runWindow = run_shell_command("./mce-installer-UbuntuExtraCD.sh", "Verifing if the iso path is correct", "There is no iso in specified path");
+                        gtk_widget_show_all(runWindow);
+                } else {
+			runWindow = run_shell_command("./mce-installer-UbuntuExtraCD.sh", "Caching LinuxMCE Disc 2", "Failed to cache the LinuxMCE Disc 2");
+			gtk_widget_show_all(runWindow);
+		}
 		if (gtk_dialog_run(GTK_DIALOG(runWindow)) == 1) {
 			goNext = TRUE;
 		}

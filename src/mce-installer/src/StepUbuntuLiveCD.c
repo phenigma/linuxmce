@@ -22,14 +22,21 @@ void on_StepUbuntuLiveCD_forward_clicked(GtkWidget *widget, gpointer data)  {
 
 	if (setting_ubuntuLiveCdFrom != FROM_NET) {	
 		goNext = FALSE;
-		GtkWidget* runWindow = run_shell_command("./mce-installer-UbuntuLiveCD.sh", "Caching Kubuntu Live CD", "Failed to cache Kubuntu Live CD");
-		gtk_widget_show_all(runWindow);
+		GtkWidget* runWindow;
+                if (setting_ubuntuLiveCdFrom == FROM_ISO) {
+                        runWindow = run_shell_command("./mce-installer-UbuntuLiveCD.sh", "Verifing if the iso path is correct", "There is no iso in specified path");
+                        gtk_widget_show_all(runWindow);
+                } else {
+
+			runWindow = run_shell_command("./mce-installer-UbuntuLiveCD.sh", "Caching Kubuntu Live CD", "Failed to cache Kubuntu Live CD");
+			gtk_widget_show_all(runWindow);
+		}
 		if (gtk_dialog_run(GTK_DIALOG(runWindow)) == 1) {
 			goNext = TRUE;
 		}
 	}
 
-	if (goNext) {
+	if ((goNext) && (setting_ubuntuLiveCdFrom == FROM_CD)) {
 
 		GtkWidget *dialog, *dg_label, *dg_OK;
 		dialog = gtk_dialog_new();
@@ -46,6 +53,10 @@ void on_StepUbuntuLiveCD_forward_clicked(GtkWidget *widget, gpointer data)  {
 	
 		g_queue_push_head(history, (gpointer)STEPUBUNTULIVECD);
 		//displayStep3();
+	} else if ((goNext) && (setting_ubuntuLiveCdFrom == FROM_ISO)) {
+		
+		g_queue_push_head(history, (gpointer)STEPUBUNTULIVECD);
+		displayStepInstallDependencies();
 	}
 }
 

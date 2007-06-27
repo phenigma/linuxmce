@@ -15,8 +15,15 @@ void on_StepLinuxMceCD_forward_clicked(GtkWidget *widget, gpointer data)  {
 
 	if (setting_linuxmceCdFrom != FROM_NET) {
 		goNext = FALSE;
-		GtkWidget* runWindow = run_shell_command("./mce-installer-LinuxMceCD.sh", "Caching LinuxMCE Disc 1", "Failed to cache LinuxMCE Disc 1");
-		gtk_widget_show_all(runWindow);
+		GtkWidget* runWindow;
+		if (setting_linuxmceCdFrom == FROM_ISO) {
+			runWindow = run_shell_command("./mce-installer-LinuxMceCD.sh", "Verifing if the iso path is correct", "There is no iso in specified path");
+	                gtk_widget_show_all(runWindow);
+		} else {
+			runWindow = run_shell_command("./mce-installer-LinuxMceCD.sh", "Caching LinuxMCE Disc 1", "Failed to cache LinuxMCE Disc 1");
+			gtk_widget_show_all(runWindow);
+		}
+
 		if (gtk_dialog_run(GTK_DIALOG(runWindow)) == 1) {
 			goNext = TRUE;
 		}

@@ -27,6 +27,30 @@ apt-get -y -f remove adept adept-notifier adept-batch adept-common adept-install
 /etc/init.d/networking restart
 
 Setup_NIS
+FROM_CD=1
+FROM_ISO=2
+
+if [[ "$c_linuxmceCdFrom" == "$FROM_ISO" ]] ;then
+	./mce-installer-LinuxMceCD.sh 'cache'
+	if [[ "$?" != "0" ]] ;then
+		ExitInstaller 'Could not cache LMCE CD 1'
+	fi
+fi
+
+if [[ "$c_ubuntuExtraCdFrom" == "$FROM_ISO" ]] ;then
+        ./mce-installer-UbuntuExtraCD.sh 'cache'
+        if [[ "$?" != "0" ]] ;then
+                ExitInstaller 'Could not cache LMCE CD 2'
+        fi
+fi
+
+if [[ "$c_ubuntuLiveCdFrom" == "$FROM_ISO" ]] ;then
+        ./mce-installer-UbuntuLiveCD.sh 'cache'
+        if [[ "$?" != "0" ]] ;then
+                ExitInstaller 'Could not cache Kubuntu Live CD'
+        fi
+fi
+
 
 if [[ "$c_deviceType" == "$DT_MEDIA_DIRECTOR" ]] ;then
 	:
