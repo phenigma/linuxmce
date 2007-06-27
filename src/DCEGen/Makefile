@@ -1,13 +1,23 @@
 ROOT = ..
 CXXFLAGS = -pipe -Wall -ggdb3
-CPPFLAGS = -I/usr/local/include -I$(ROOT)/DCE -I.. -I. -I/usr/include/mysql
+CPPFLAGS = -I/usr/local/include -I$(ROOT)/DCE -I.. -I. 
 LDFLAGS = -L$(ROOT)/lib
-LDLIBS = -ldl -lmysqlclient -lpthread -lpluto_main -lDCECommon -lSerializeClass -lPlutoUtils
+LDLIBS = -ldl -lpthread -lpluto_main -lDCECommon -lSerializeClass -lPlutoUtils
+
+#<-mkr_B_use_mysql_wrapper_b->
+CPPFLAGS += -I/usr/include/mysql
+LDFLAGS += -lmysqlclient_r
+#<-mkr_B_use_mysql_wrapper_e->
+
+#<-mkr_b_use_mysql_wrapper_b->
+CPPFLAGS += -DUSE_MYSQL_WRAPPER
+#<-mkr_b_use_mysql_wrapper_e->
 
 APPNAME = DCEGen
 VERSION = 2.0.0
 
-sources = DCEGen.cpp
+sources = ../db_wrapper/db_wrapper.cpp ../db_wrapper/ClientSocket.cpp ../db_wrapper/Socket.cpp \
+DCEGen.cpp
 
 all: $(sources:.cpp=.o)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o DCEGen $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
