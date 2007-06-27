@@ -828,6 +828,7 @@
 #define COMMAND_Enable_Device_CONST 915
 #define COMMAND_Set_Aspect_Ratio_CONST 916
 #define COMMAND_Set_Zoom_CONST 917
+#define COMMAND_Start_AV_Wizard_CONST 918
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"

@@ -104,11 +104,11 @@ public:
 			EVENTPARAMETER_PK_Room_Left_CONST, StringUtils::itos(iPK_Room_Left).c_str()));
 	}
 
-	virtual void Device_Detected(string sMac_Address,string sText,string sIP_Address,int iPK_DeviceTemplate,string sVendorModelID,int iPK_CommMethod,int iPK_PnpProtocol,string sPNP_Serial_Number,string sDeviceData,string sCategory)
+	virtual void Device_Detected(string sMac_Address,string sText,string sIP_Address,int iPK_DeviceTemplate,string sVendorModelID,int iPK_CommMethod,int iPK_PnpProtocol,string sPNP_Serial_Number,string sDeviceData,string sCategory,string sSignature)
 	{
 		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 
 			EVENT_Device_Detected_CONST,
-			10 /* number of parameter's pairs (id, value) */,
+			11 /* number of parameter's pairs (id, value) */,
 			EVENTPARAMETER_Mac_Address_CONST, sMac_Address.c_str(),
 			EVENTPARAMETER_Text_CONST, sText.c_str(),
 			EVENTPARAMETER_IP_Address_CONST, sIP_Address.c_str(),
@@ -118,7 +118,8 @@ public:
 			EVENTPARAMETER_PK_PnpProtocol_CONST, StringUtils::itos(iPK_PnpProtocol).c_str(),
 			EVENTPARAMETER_PNP_Serial_Number_CONST, sPNP_Serial_Number.c_str(),
 			EVENTPARAMETER_DeviceData_CONST, sDeviceData.c_str(),
-			EVENTPARAMETER_Category_CONST, sCategory.c_str()));
+			EVENTPARAMETER_Category_CONST, sCategory.c_str(),
+			EVENTPARAMETER_Signature_CONST, sSignature.c_str()));
 	}
 
 };
@@ -330,7 +331,7 @@ public:
 	void EVENT_Follow_Me_Media(int iPK_Orbiter,int iPK_Device,int iPK_Users,int iPK_EntArea,int iPK_EntArea_Left) { GetEvents()->Follow_Me_Media(iPK_Orbiter,iPK_Device,iPK_Users,iPK_EntArea,iPK_EntArea_Left); }
 	void EVENT_Follow_Me_Telecom(int iPK_Orbiter,int iPK_Device,int iPK_Room,int iPK_Users,int iPK_Room_Left) { GetEvents()->Follow_Me_Telecom(iPK_Orbiter,iPK_Device,iPK_Room,iPK_Users,iPK_Room_Left); }
 	void EVENT_Follow_Me_Security(int iPK_Orbiter,int iPK_Device,int iPK_Room,int iPK_Users,int iPK_Room_Left) { GetEvents()->Follow_Me_Security(iPK_Orbiter,iPK_Device,iPK_Room,iPK_Users,iPK_Room_Left); }
-	void EVENT_Device_Detected(string sMac_Address,string sText,string sIP_Address,int iPK_DeviceTemplate,string sVendorModelID,int iPK_CommMethod,int iPK_PnpProtocol,string sPNP_Serial_Number,string sDeviceData,string sCategory) { GetEvents()->Device_Detected(sMac_Address.c_str(),sText.c_str(),sIP_Address.c_str(),iPK_DeviceTemplate,sVendorModelID.c_str(),iPK_CommMethod,iPK_PnpProtocol,sPNP_Serial_Number.c_str(),sDeviceData.c_str(),sCategory.c_str()); }
+	void EVENT_Device_Detected(string sMac_Address,string sText,string sIP_Address,int iPK_DeviceTemplate,string sVendorModelID,int iPK_CommMethod,int iPK_PnpProtocol,string sPNP_Serial_Number,string sDeviceData,string sCategory,string sSignature) { GetEvents()->Device_Detected(sMac_Address.c_str(),sText.c_str(),sIP_Address.c_str(),iPK_DeviceTemplate,sVendorModelID.c_str(),iPK_CommMethod,iPK_PnpProtocol,sPNP_Serial_Number.c_str(),sDeviceData.c_str(),sCategory.c_str(),sSignature.c_str()); }
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_Set_Current_User(int iPK_Users,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Entertainment_Area(string sPK_EntertainArea,string &sCMD_Result,class Message *pMessage) {};
@@ -355,6 +356,7 @@ public:
 	virtual void CMD_Get_Remote_ID(string sUID,int *iPK_Device,int *iValue,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Active_Remote(int iPK_Device,bool bFire_Event,int iPK_Orbiter,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Abort_Task(int iParameter_ID,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Start_AV_Wizard(int iPK_Device,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual ReceivedMessageResult ReceivedMessage(class Message *pMessageOriginal)
@@ -1035,6 +1037,32 @@ public:
 							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Abort_Task(iParameter_ID,sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case COMMAND_Start_AV_Wizard_CONST:
+					{
+						string sCMD_Result="OK";
+						int iPK_Device=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Device_CONST].c_str());
+						CMD_Start_AV_Wizard(iPK_Device,sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(itRepeat->second.c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Start_AV_Wizard(iPK_Device,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

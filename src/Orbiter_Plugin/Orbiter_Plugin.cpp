@@ -562,7 +562,7 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"in process");
 	Description += "  Category: " + sDeviceCategory;
 	Description += "  Bluetooth ID: " + pUnknownDeviceInfos->m_sID;
 
-	EVENT_Device_Detected(sMacAddress,Description,"",0,"",COMMMETHOD_Bluetooth_CONST,PNPPROTOCOL_Proprietary_CONST,"","","mobile_phone");
+	EVENT_Device_Detected(sMacAddress,Description,"",0,"",COMMMETHOD_Bluetooth_CONST,PNPPROTOCOL_Proprietary_CONST,"","","mobile_phone","");
 }
 
 bool Orbiter_Plugin::IdentifyDevice(const string& sMacAddress, string &sDeviceCategoryDesc, int &iPK_DeviceTemplate, string &sManufacturerDesc)
@@ -3163,3 +3163,14 @@ bool Orbiter_Plugin::SafeToReload(string &sReason)
 	return false;
 }
 
+//<-dceag-c918-b->
+
+	/** @brief COMMAND: #918 - Start AV Wizard */
+	/** Start AV Wizard on the given device. */
+		/** @param #2 PK_Device */
+			/** The device to do this for. */
+
+void Orbiter_Plugin::CMD_Start_AV_Wizard(int iPK_Device,string &sCMD_Result,Message *pMessage)
+//<-dceag-c918-e->
+{
+}

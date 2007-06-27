@@ -1328,7 +1328,7 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Device,int iPK_Orbiter,
 
 				if( pRow_Device_External )
 				{
-					sSQL = "UPDATE cardinput SET externalcommand='/usr/pluto/bin/TuneToChannel.sh " + StringUtils::itos(pRow_Device_External->PK_Device_get()) + "' WHERE cardinputid=" + StringUtils::itos(cardinputid);
+					sSQL = "UPDATE cardinput SET externalcommand='/usr/pluto/bin/TuneToChannel.sh " + StringUtils::itos(pRow_Device_External->PK_Device_get()) + " " + StringUtils::itos(sourceid) + "' WHERE cardinputid=" + StringUtils::itos(cardinputid);
 					if( m_pDBHelper_Myth->threaded_db_wrapper_query(sSQL)>0 )
 					{
 						LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::CMD_Sync_Providers_and_Cards bModifiedRows=true %s",sSQL.c_str());

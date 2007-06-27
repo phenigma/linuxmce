@@ -270,7 +270,7 @@ public:
 	void EVENT_Follow_Me_Media(int iPK_Orbiter,int iPK_Device,int iPK_Users,int iPK_EntArea,int iPK_EntArea_Left);
 	void EVENT_Follow_Me_Telecom(int iPK_Orbiter,int iPK_Device,int iPK_Room,int iPK_Users,int iPK_Room_Left);
 	void EVENT_Follow_Me_Security(int iPK_Orbiter,int iPK_Device,int iPK_Room,int iPK_Users,int iPK_Room_Left);
-	void EVENT_Device_Detected(string sMac_Address,string sText,string sIP_Address,int iPK_DeviceTemplate,string sVendorModelID,int iPK_CommMethod,int iPK_PnpProtocol,string sPNP_Serial_Number,string sDeviceData,string sCategory);
+	void EVENT_Device_Detected(string sMac_Address,string sText,string sIP_Address,int iPK_DeviceTemplate,string sVendorModelID,int iPK_CommMethod,int iPK_PnpProtocol,string sPNP_Serial_Number,string sDeviceData,string sCategory,string sSignature);
 
 			*****COMMANDS***** we need to implement
 	*/
@@ -566,6 +566,16 @@ format */
 
 	virtual void CMD_Abort_Task(int iParameter_ID) { string sCMD_Result; CMD_Abort_Task(iParameter_ID,sCMD_Result,NULL);};
 	virtual void CMD_Abort_Task(int iParameter_ID,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #918 - Start AV Wizard */
+	/** Start AV Wizard on the given device. */
+		/** @param #2 PK_Device */
+			/** The device to do this for. */
+
+	virtual void CMD_Start_AV_Wizard(int iPK_Device) { string sCMD_Result; CMD_Start_AV_Wizard(iPK_Device,sCMD_Result,NULL);};
+	virtual void CMD_Start_AV_Wizard(int iPK_Device,string &sCMD_Result,Message *pMessage);
+
 
 //<-dceag-h-e->
 };
