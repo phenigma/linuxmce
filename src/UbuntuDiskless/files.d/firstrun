@@ -11,6 +11,8 @@ File="/etc/rcS.d/S99firstrun"
 Content="#!/bin/bash
 trap 'rm -f $File' EXIT
 
+apt-get update
+apt-get -y -f install linux-restricted-modules-2.6.20-15-generic
 if lshwd | grep -qi 'VGA .* (nv)'; then
 	apt-get -y -f install pluto-nvidia-video-drivers
 fi
