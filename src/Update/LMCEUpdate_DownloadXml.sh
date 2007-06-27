@@ -12,7 +12,7 @@ if [[ "$1" != "background" ]] ;then
 fi
 
 
-UPDATES_XML_URI="http://10.0.0.83/updates.xml"
+UPDATES_XML_URI="http://updates.linuxmce.com/updates.xml"
 UPDATES_DIR="/home/updates"
 
 XML_OLD="${UPDATES_DIR}/updates.xml.old"
