@@ -64,7 +64,7 @@ public:
     string m_mapWatchedFiles_Find(int wd)	
     { 
         map<int, string>::iterator it = m_mapWatchedFiles.find(wd); 
-        return it == m_mapWatchedFiles.end() ? NULL : (*it).second; 
+        return it == m_mapWatchedFiles.end() ? "" : (*it).second; 
     }
 
 	void FireOnCreate(list<string> &listFiles);
