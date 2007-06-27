@@ -25,4 +25,6 @@ popd
 umount -lf $CD_Dir || :
 rm -rf $CD_Dir
 
+trap "" EXIT
+
 exit 0
