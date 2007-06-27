@@ -81,7 +81,7 @@ void displayStepDvdCss(void) {
 
 	gboolean libdvdcss, lame;
 	setting_installDvdCss = (gboolean *)malloc(sizeof(gboolean));
-	setting_installDvdCss = 0; lame = FALSE; libdvdcss = FALSE;
+	*setting_installDvdCss = 0; lame = FALSE; libdvdcss = FALSE;
 
 	if (access("/usr/share/doc/libdvdcss2/changelog.gz", F_OK) == 0) {
 		libdvdcss = TRUE;
@@ -102,7 +102,7 @@ void displayStepDvdCss(void) {
 	if ((libdvdcss == FALSE) && (lame == FALSE)) {
 		label = gtk_label_new_for_wizard ("The software to play encrypted, commercial dvd’s (libdvdcss) and the sofware to create compressed audio files (lame), are not installed.  Is this legal in your area and should it be installed?");
 		gtk_box_pack_start(GTK_BOX(mainBox), label, TRUE, TRUE, 0);
-		setting_installDvdCss = 1;
+		*setting_installDvdCss = 1;
 		// Radio : Yes libdvdcss
 		GtkWidget *radioYesDvdCss = gtk_radio_button_new_with_label(group, "Yes, I want libdvdcss installed.");
 		gtk_box_pack_start(GTK_BOX(mainBox), radioYesDvdCss, TRUE, TRUE, 0);
@@ -124,7 +124,7 @@ void displayStepDvdCss(void) {
 		// Radio : Yes libdvdcss
 		label = gtk_label_new_for_wizard ("The software to play encrypted, commercial dvd’s (libdvdcss) is not installed.  Is this legal in your area and should it be installed?");
 		gtk_box_pack_start(GTK_BOX(mainBox), label, TRUE, TRUE, 0);
-		setting_installDvdCss = 1;
+		*setting_installDvdCss = 1;
 		GtkWidget *radioYesDvdCss = gtk_radio_button_new_with_label(group, "Yes, I want libdvdcss installed.");
 		gtk_box_pack_start(GTK_BOX(mainBox), radioYesDvdCss, TRUE, TRUE, 0);
 		g_signal_connect(G_OBJECT(radioYesDvdCss), "toggled", G_CALLBACK(on_StepDvdCss_radio_yes_dvdcss_toggled), (gpointer)setting_installDvdCss);
@@ -133,7 +133,7 @@ void displayStepDvdCss(void) {
 		// Radio : Yes lame
 		label = gtk_label_new_for_wizard ("The sofware to create compressed audio files (lame) is not installed.  Is this legal in your area and should it be installed?");
 		gtk_box_pack_start(GTK_BOX(mainBox), label, TRUE, TRUE, 0);
-		setting_installDvdCss = 2;
+		*setting_installDvdCss = 2;
 		GtkWidget *radioYesLame = gtk_radio_button_new_with_label(group, "Yes, I want lame installed.");
 		gtk_box_pack_start(GTK_BOX(mainBox), radioYesLame, TRUE, TRUE, 0);
 		g_signal_connect(G_OBJECT(radioYesLame), "toggled", G_CALLBACK(on_StepDvdCss_radio_yes_lame_toggled), (gpointer)setting_installDvdCss);
