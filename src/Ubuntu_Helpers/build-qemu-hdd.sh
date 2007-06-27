@@ -13,21 +13,23 @@ PART_DIR="$WORK_DIR/partlinks"
 PART_FILE="/dev/mapper/qemu_p"
 DEBOOTSTRAP_DIR="$WORK_DIR/debootstrap"
 
+LoopDev="$(losetup -f)"
+
 function partition_links {
 	local Pattern="${HDD_FILE}p?([[:digit:]]+)[*[:space:]]+([[:digit:]]+)[[:space:]]+([[:digit:]]+)[[:space:]]+([[:digit:]]+)[[:space:]]+([[:xdigit:]]+)[[:space:]].*"
 	local line
-	local Loop
 	local Partition Start End Blocks Type Rest
+
+	losetup "$LoopDev" "$HDD_FILE"
+
 	modprobe dm-mod
 	while read Partition Start End Blocks Type Rest; do
 		if [[ " 82 83 " != *" $Type "* ]]; then
 			continue
 		fi
 
-		## Setup loop and device mapper devices
-		LoopDev=$(losetup -f)
-		losetup "$LoopDev" "$HDD_FILE" -o $((512*$Start))
-		echo "0 $Blocks linear $LoopDev 0" >"$PART_FILE$Partition.cf"
+		## Setup device mapper devices
+		echo "0 $Blocks linear $LoopDev $Start" >"$PART_FILE$Partition.cf"
 		dmsetup create "qemu_p$Partition" "$PART_FILE$Partition.cf"
 		rm -f "$PART_FILE$Partition.cf"
 	done < <(fdisk -lu "$HDD_FILE" | sed -nre "s,$Pattern,\1 \2 \3 \4 \5,p")
@@ -38,6 +40,7 @@ function partition_clear {
 	for Dev in /dev/mapper/qemu_p*; do
 		dmsetup remove "$(basename "$Dev")"
 	done
+	losetup -d "$LoopDev"
 }
 
 function hdd_create {
@@ -72,6 +75,7 @@ function hdd_debootstrap {
 
 function hdd_prepare_for_install {
 	mount "${PART_FILE}1" "$DEBOOTSTRAP_DIR"
+	# TODO: configure apt in chroot to skip authentication
 	chroot "$DEBOOTSTRAP_DIR" apt-get -f -y install ssh
 	umount "${PART_FILE}1"
 }
@@ -82,5 +86,5 @@ function hdd_cleanup {
 
 hdd_create
 hdd_debootstrap
-hdd_prepare_for_install
+#hdd_prepare_for_install
 hdd_cleanup
