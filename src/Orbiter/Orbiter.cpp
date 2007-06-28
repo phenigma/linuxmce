@@ -8909,6 +8909,12 @@ bool Orbiter::WaitForRelativesIfOSD()
 void Orbiter::CMD_Goto_Screen(string sID,int iPK_Screen,int iInterruption,bool bTurn_On,bool bQueue,string &sCMD_Result,Message *pMessage)
 //<-dceag-c741-e->
 {
+	if(iPK_Screen == 0)
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Can't go to screen 0");
+		return;
+	}
+
 	if( m_pScreenHistory_Current && m_mapScreen_Interrupt[m_pScreenHistory_Current->PK_Screen()]==0 && !OkayToInterrupt(iInterruption) )
 	{
 		if( bQueue )
