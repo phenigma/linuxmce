@@ -8981,6 +8981,11 @@ void Orbiter::CMD_Goto_Screen(string sID,int iPK_Screen,int iInterruption,bool b
 //-----------------------------------------------------------------------------------------------------
 bool Orbiter::ExecuteScreenHandlerCallback(CallBackType aCallBackType)
 {
+	ScreenHandlerCallBack pPersistentCallBack = m_pScreenHandler->m_mapPersistentCallBack_Find(aCallBackType);
+	if(NULL != pPersistentCallBack)
+		if(CALL_MEMBER_FN(*m_pScreenHandler, pPersistentCallBack)(m_pScreenHandler->m_mapPersistentCallBackData_Find(aCallBackType)))
+			return true;
+
 	ScreenHandlerCallBack pCallBack = m_pScreenHandler->m_mapCallBack_Find(aCallBackType);
 	if(NULL != pCallBack)
 		return CALL_MEMBER_FN(*m_pScreenHandler, pCallBack)(m_pScreenHandler->m_mapCallBackData_Find(aCallBackType));

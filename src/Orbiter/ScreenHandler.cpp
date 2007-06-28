@@ -79,6 +79,28 @@ void ScreenHandler::RegisterCallBack(CallBackType aCallBackType, ScreenHandlerCa
 	m_mapCallBackData[aCallBackType] = pCallBackData;
 }
 //-----------------------------------------------------------------------------------------------------
+void ScreenHandler::RegisterPersistentCallBack(CallBackType aCallBackType, 
+	ScreenHandlerCallBack aScreenHandlerCallBack, CallBackData *pCallBackData)
+{
+	PLUTO_SAFETY_LOCK(vm, m_MapMutex);
+	m_mapPersistentCallBack[aCallBackType] = aScreenHandlerCallBack;
+	m_mapPersistentCallBackData[aCallBackType] = pCallBackData;
+}
+//-----------------------------------------------------------------------------------------------------
+ScreenHandlerCallBack ScreenHandler::m_mapPersistentCallBack_Find(CallBackType aCallBackType)
+{
+	PLUTO_SAFETY_LOCK(vm, m_MapMutex);
+	map<CallBackType, ScreenHandlerCallBack>::iterator it = m_mapPersistentCallBack.find(aCallBackType);
+	return it == m_mapPersistentCallBack.end() ? NULL : it->second;
+}
+//-----------------------------------------------------------------------------------------------------
+CallBackData *ScreenHandler::m_mapPersistentCallBackData_Find(CallBackType aCallBackType)
+{
+	PLUTO_SAFETY_LOCK(vm, m_MapMutex);
+	map<CallBackType, CallBackData *>::iterator it = m_mapPersistentCallBackData.find(aCallBackType);
+	return it == m_mapPersistentCallBackData.end() ? NULL : it->second;
+}
+//-----------------------------------------------------------------------------------------------------
 void ScreenHandler::ResetCallBacks()
 {
 #ifdef DEBUG

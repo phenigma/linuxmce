@@ -38,6 +38,10 @@ typedef class ScreenHandler * (* RAOP_FType) (class Orbiter *,  map<int,int> *p_
 	CALLBACK_CLASS *pCallBackData = dynamic_cast<CALLBACK_CLASS*>(SCREEN_HANDLER->m_mapCallBackData_Find(CALLBACK_TYPE)); \
 	if(NULL != pCallBackData) \
 		pCallBackData->Setup PARAMETERS; \
+\
+	CALLBACK_CLASS *pPersistentCallBackData = dynamic_cast<CALLBACK_CLASS*>(SCREEN_HANDLER->m_mapPersistentCallBackData_Find(CALLBACK_TYPE)); \
+	if(NULL != pPersistentCallBackData) \
+		pPersistentCallBackData->Setup PARAMETERS; \
 }
 //-----------------------------------------------------------------------------------------------------
 class MediaFileBrowserOptions
@@ -129,8 +133,13 @@ class ScreenHandler : public ScreenHandlerBase
 {
 protected:
 	Orbiter *m_pOrbiter;
+	
 	map<CallBackType, ScreenHandlerCallBack> m_mapCallBack;
 	map<CallBackType, CallBackData *> m_mapCallBackData;
+
+	map<CallBackType, ScreenHandlerCallBack> m_mapPersistentCallBack;
+	map<CallBackType, CallBackData *> m_mapPersistentCallBackData;
+
 	string m_sActiveApplication_Description,m_sActiveApplication_Window;
 	int m_PK_Screen_ActiveApp_OSD,m_PK_Screen_ActiveApp_Remote;
 	int m_iStage; // Some screens go through stages and need a variable to track that
@@ -164,9 +173,18 @@ public:
 	//callback related stuff
 	void RegisterCallBack(CallBackType aCallBackType, ScreenHandlerCallBack aScreenHandlerCallBack, 
 		CallBackData *pCallBackData);
-	virtual void ResetCallBacks();
+
 	ScreenHandlerCallBack m_mapCallBack_Find(CallBackType aCallBackType);
 	CallBackData *m_mapCallBackData_Find(CallBackType aCallBackType);
+
+	void RegisterPersistentCallBack(CallBackType aCallBackType, ScreenHandlerCallBack aScreenHandlerCallBack, 
+		CallBackData *pCallBackData);
+
+	ScreenHandlerCallBack m_mapPersistentCallBack_Find(CallBackType aCallBackType);
+	CallBackData *m_mapPersistentCallBackData_Find(CallBackType aCallBackType);
+
+	virtual void ResetCallBacks();
+
 
 	map<string,string> m_mapKeywords;  // Used for storing keywords to be substituded into text
 	string m_mapKeywords_Find(string sKeyword) { PLUTO_SAFETY_LOCK( vm, m_pOrbiter->m_VariableMutex ); map<string,string>::iterator it = m_mapKeywords.find(sKeyword); return it==m_mapKeywords.end() ? "" : (*it).second; }

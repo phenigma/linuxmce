@@ -187,6 +187,7 @@ public:
 	bool Scanning_Progress_GridRendering(CallBackData *pData);
 
 	void PrepForWizard();  // Stops PSS and activates Xine
+	bool VideoWizard_OnGotoScreen(CallBackData *pData);
 };
 
 #endif

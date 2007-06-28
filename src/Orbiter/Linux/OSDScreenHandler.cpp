@@ -3060,6 +3060,8 @@ void OSDScreenHandler::PrepForWizard()
 	if( m_tWizardIsRunning==0 )
 		m_tWizardIsRunning = time(NULL);
 
+	RegisterCallBack(cbOnGotoScreen, (ScreenHandlerCallBack) &OSDScreenHandler::VideoWizard_OnGotoScreen, new GotoScreenCallBackData());
+
 	// The video wizard is playing video overlays using a non-standard method; it's just sending play media's directly to Xine
 	// which means that set now playing isn't called, and thus the xine window isn't activated.  Just force it to be active for now.
 	// This will create an issue that when the user leaves the video wizard it won't re-activate the screen saver because we have no
@@ -3075,4 +3077,16 @@ void OSDScreenHandler::PrepForWizard()
 	}
 
 	m_pOrbiter->StopScreenSaver();
+}
+
+bool OSDScreenHandler::VideoWizard_OnGotoScreen(CallBackData *pData)
+{
+	GotoScreenCallBackData *pGotoScreenCallBackData = dynamic_cast<GotoScreenCallBackData *>(pData);
+
+//	uncomment this to prevent the user to go main menu when pressing F7 or "main menu"
+
+//	if(NULL != pGotoScreenCallBackData && pGotoScreenCallBackData->m_nPK_Screen == SCREEN_Main_CONST)
+//		return true;
+
+	return false;
 }
