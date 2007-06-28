@@ -33,7 +33,13 @@ typedef bool (ScreenHandler::*ScreenHandlerCallBack)(CallBackData *pData);
 //-----------------------------------------------------------------------------------------------------
 typedef class ScreenHandler * (* RAOP_FType) (class Orbiter *,  map<int,int> *p_MapDesignObj, Logger *);
 //-----------------------------------------------------------------------------------------------------
-
+#define SETUP_SCREEN_HANDLER_CALLBACK(SCREEN_HANDLER, CALLBACK_TYPE, CALLBACK_CLASS, PARAMETERS) \
+{ \
+	CALLBACK_CLASS *pCallBackData = dynamic_cast<CALLBACK_CLASS*>(SCREEN_HANDLER->m_mapCallBackData_Find(CALLBACK_TYPE)); \
+	if(NULL != pCallBackData) \
+		pCallBackData->Setup PARAMETERS; \
+}
+//-----------------------------------------------------------------------------------------------------
 class MediaFileBrowserOptions
 {
 public:

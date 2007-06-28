@@ -241,14 +241,8 @@ void OrbiterRenderer::ClipRectangle(PlutoRectangle &rect)
 
 	if(!bRenderGraphicsOnly)
 	{
-		CallBackData *pCallBackData = OrbiterLogic()->m_pScreenHandler->m_mapCallBackData_Find(cbOnRenderScreen);
-		if(pCallBackData)
-		{
-			RenderScreenCallBackData *pRenderScreenCallBackData = (RenderScreenCallBackData *)pCallBackData;
-			pRenderScreenCallBackData->m_nPK_Screen = OrbiterLogic()->m_pScreenHistory_Current->PK_Screen();
-			pRenderScreenCallBackData->m_pObj = OrbiterLogic()->m_pScreenHistory_Current->GetObj();
-		}
-
+		SETUP_SCREEN_HANDLER_CALLBACK(OrbiterLogic()->m_pScreenHandler, cbOnRenderScreen, RenderScreenCallBackData, 
+			(OrbiterLogic()->m_pScreenHistory_Current->PK_Screen(), OrbiterLogic()->m_pScreenHistory_Current->GetObj()))
 		OrbiterLogic()->ExecuteScreenHandlerCallback(cbOnRenderScreen);
 	}
 
@@ -385,13 +379,8 @@ void OrbiterRenderer::OnReload()
 	if( !OrbiterLogic()->m_pObj_Highlighted )
 		return;
 
-	CallBackData *pCallBackData = m_pOrbiter->m_pScreenHandler->m_mapCallBackData_Find(cbObjectHighlighted);
-	if(pCallBackData)
-	{
-		ObjectInfoBackData *pObjectData = (ObjectInfoBackData *)pCallBackData;
-		pObjectData->m_pObj = OrbiterLogic()->m_pObj_Highlighted;
-		pObjectData->m_PK_DesignObj_SelectedObject = OrbiterLogic()->m_pObj_Highlighted->m_iBaseObjectID;
-	}
+	SETUP_SCREEN_HANDLER_CALLBACK(m_pOrbiter->m_pScreenHandler, cbObjectHighlighted, ObjectInfoBackData, 
+		(OrbiterLogic()->m_pObj_Highlighted, 0, 0, OrbiterLogic()->m_pObj_Highlighted->m_iBaseObjectID))
 	if(m_pOrbiter->ExecuteScreenHandlerCallback(cbObjectHighlighted))
 		return;
 

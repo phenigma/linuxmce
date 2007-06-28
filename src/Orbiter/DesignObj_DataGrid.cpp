@@ -121,15 +121,7 @@ LoggerWrapper::GetInstance()->Write(LV_ACTION, "Orbiter::AcquireGrid orbiter gri
 
 	if (pDataGridTable )
 	{
-
-		CallBackData *pCallBackData = m_pOrbiter->m_pScreenHandler_get()->m_mapCallBackData_Find(cbDataGridRendering);
-		if(pCallBackData)
-		{
-			DatagridAcquiredBackData *pGridData = (DatagridAcquiredBackData *)pCallBackData;
-			pGridData->m_pObj = this;
-			pGridData->m_pDataGridTable = pDataGridTable;
-		}
-
+		SETUP_SCREEN_HANDLER_CALLBACK(m_pOrbiter->m_pScreenHandler_get(), cbDataGridRendering, DatagridAcquiredBackData, (this, pDataGridTable))
 		if(m_pOrbiter->ExecuteScreenHandlerCallback(cbDataGridRendering))
 			return;
 

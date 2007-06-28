@@ -78,12 +78,23 @@ class KeyCallBackData : public CallBackData
 {
 public:
 	int m_nPlutoKey;
+
+	void Setup(int nPlutoKey)
+	{
+		m_nPlutoKey = nPlutoKey;
+	}
 };
 //-----------------------------------------------------------------------------------------------------
 class MouseClickCallBackData : public CallBackData
 {
 public:
 	int m_x, m_y;
+
+	void Setup(int x, int y)
+	{
+		m_x = x;
+		m_y = y;
+	}
 };
 //-----------------------------------------------------------------------------------------------------
 class ObjectInfoBackData : public CallBackData
@@ -93,6 +104,13 @@ public:
 	class DesignObj_Orbiter *m_pObj;
 	int m_X,m_Y;
 	ObjectInfoBackData() : m_pObj(NULL) { m_X=m_Y=0; }
+	void Setup(DesignObj_Orbiter *pObj, int X, int Y, long nPK_DesignObj_SelectedObject)
+	{
+		m_pObj = pObj;
+		m_X = X;
+		m_Y = Y;
+		m_PK_DesignObj_SelectedObject = nPK_DesignObj_SelectedObject;
+	}
 };
 //-----------------------------------------------------------------------------------------------------
 class DatagridCellBackData : public CallBackData
@@ -106,6 +124,19 @@ public:
 	int m_Row,m_Column;
 
 	DatagridCellBackData() : m_pDataGridCell(NULL), m_pDesignObj_DataGrid(NULL), m_Row(0), m_Column(0) {}
+
+	void Setup(DataGridCell *pDataGridCell, DesignObj_DataGrid *pDesignObj_DataGrid, 
+		int iRow, int iColumn, string sText, string sValue, long nPK_Datagrid)
+	{
+		m_pDataGridCell = pDataGridCell;
+		m_pDesignObj_DataGrid = pDesignObj_DataGrid;
+		m_Row = iRow;
+		m_Column = iColumn;
+		m_sText = sText;
+		m_sValue = sValue;
+		m_nPK_Datagrid = nPK_Datagrid;
+
+	}
 };
 //-----------------------------------------------------------------------------------------------------
 class DatagridAcquiredBackData : public CallBackData
@@ -115,6 +146,12 @@ public:
 	DataGridTable *m_pDataGridTable;
 
 	DatagridAcquiredBackData() : m_pObj(NULL), m_pDataGridTable(NULL) {}
+
+	void Setup(DesignObj_DataGrid *pObj, DataGridTable *pDataGridTable)
+	{
+		m_pObj = pObj;
+		m_pDataGridTable = pDataGridTable;
+	}
 };
 //-----------------------------------------------------------------------------------------------------
 namespace DCE
@@ -130,6 +167,14 @@ public:
 	DCE::Socket *m_pSocket;
 	DCE::Message *m_pMessage;
 	DCE::DeviceData_Base *m_pDeviceFrom, *m_pDeviceTo;
+
+	void Setup(DCE::Socket *pSocket, DCE::Message *pMessage, DCE::DeviceData_Base *pDeviceFrom, DCE::DeviceData_Base *pDeviceTo)
+	{
+		m_pSocket = pSocket;
+		m_pMessage = pMessage;
+		m_pDeviceFrom = pDeviceFrom;
+		m_pDeviceTo = pDeviceTo;
+	}
 };
 //-----------------------------------------------------------------------------------------------------
 class RenderScreenCallBackData : public CallBackData
@@ -137,6 +182,12 @@ class RenderScreenCallBackData : public CallBackData
 public:
 	int m_nPK_Screen;
 	class DesignObj_Orbiter *m_pObj;
+
+	void Setup(int nPK_Screen, DesignObj_Orbiter *pObj)
+	{
+		m_nPK_Screen  = nPK_Screen;
+		m_pObj = pObj;
+	}
 };
 //-----------------------------------------------------------------------------------------------------
 class GotoScreenCallBackData : public CallBackData
@@ -148,6 +199,12 @@ public:
 	GotoScreenCallBackData()
 	{
 		m_pMessage=NULL;
+	}
+
+	void Setup(int nPK_Screen, DCE::Message *pMessage)
+	{
+		m_nPK_Screen = nPK_Screen;
+		m_pMessage = pMessage;
 	}
 };
 //-----------------------------------------------------------------------------------------------------
@@ -344,6 +401,11 @@ class RemoteKeyCodeCallBackData : public CallBackData
 {
 public:
 	string m_sKeyCode;
+
+	void Setup(string sKey)
+	{
+		m_sKeyCode = sKey;
+	}
 };
 //-----------------------------------------------------------------------------------------------------
 #endif

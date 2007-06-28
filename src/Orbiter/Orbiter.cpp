@@ -1087,16 +1087,7 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  SelectionMethod selectio
 	if(NULL != pObj->m_pParentObject)
 		m_pObj_SelectedLastScreen = pObj;
 
-	CallBackData *pCallBackData = m_pScreenHandler->m_mapCallBackData_Find(cbObjectSelected);
-	if(pCallBackData)
-	{
-		ObjectInfoBackData *pObjectData = (ObjectInfoBackData *)pCallBackData;
-		pObjectData->m_pObj = pObj;
-		pObjectData->m_X=X;
-		pObjectData->m_Y=Y;
-		pObjectData->m_PK_DesignObj_SelectedObject = pObj->m_iBaseObjectID;
-	}
-
+	SETUP_SCREEN_HANDLER_CALLBACK(m_pScreenHandler, cbObjectSelected, ObjectInfoBackData, (pObj, X, Y, pObj->m_iBaseObjectID))
 	if(ExecuteScreenHandlerCallback(cbObjectSelected))
 		return;
 
@@ -1417,19 +1408,9 @@ bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  DataGridCe
 	}
 
 	list<DesignObj_DataGrid *> listObj_ToFlush; // A list of grids which are being redrawn within this action and must be refreshed
-	CallBackData *pCallBackData = m_pScreenHandler->m_mapCallBackData_Find(cbDataGridSelected);
-	if(pCallBackData)
-	{
-		DatagridCellBackData *pCellData = (DatagridCellBackData *)pCallBackData;
-		pCellData->m_pDataGridCell = pCell;
-		pCellData->m_pDesignObj_DataGrid = pDesignObj_DataGrid;
-		pCellData->m_Row = iRow;
-		pCellData->m_Column = iColumn;
-		pCellData->m_sText = pCell->GetText();
-		pCellData->m_sValue = pCell->GetValue();
-		pCellData->m_nPK_Datagrid = pDesignObj_DataGrid->m_iPK_Datagrid;
-	}
 
+	SETUP_SCREEN_HANDLER_CALLBACK(m_pScreenHandler, cbDataGridSelected, DatagridCellBackData, 
+		(pCell, pDesignObj_DataGrid, iRow, iColumn, pCell->GetText(), pCell->GetValue(), pDesignObj_DataGrid->m_iPK_Datagrid))
 	if(ExecuteScreenHandlerCallback(cbDataGridSelected))
 		return true;
 
@@ -2809,13 +2790,7 @@ void Orbiter::QueueEventForProcessing( void *eventData )
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::QueueEventForProcessing received key %s repeat %s",sKey.c_str(),sRepeatKey.c_str());
 #endif
 
-			CallBackData *pCallBackData = m_pScreenHandler->m_mapCallBackData_Find(cbOnRemoteKeyCodeIntercepted);
-			if(pCallBackData)
-			{
-				RemoteKeyCodeCallBackData *pRemoteKeyCodeCallBackData = (RemoteKeyCodeCallBackData *)pCallBackData;
-				pRemoteKeyCodeCallBackData->m_sKeyCode = sKey;
-			}
-			
+			SETUP_SCREEN_HANDLER_CALLBACK(m_pScreenHandler, cbOnRemoteKeyCodeIntercepted, RemoteKeyCodeCallBackData, (sKey))
 			if(!ExecuteScreenHandlerCallback(cbOnRemoteKeyCodeIntercepted))
 				ReceivedCode(0,sKey.c_str(),sRepeatKey.c_str());
 
@@ -3205,13 +3180,7 @@ bool Orbiter::ButtonDown( int iPK_Button )
 {
 	if(NULL != m_pScreenHandler)
 	{
-		CallBackData *pCallBackData = m_pScreenHandler->m_mapCallBackData_Find(cbOnKeyDown);
-		if(pCallBackData)
-		{
-			KeyCallBackData *pKeyData = (KeyCallBackData *)pCallBackData;
-			pKeyData->m_nPlutoKey = iPK_Button;
-		}
-
+		SETUP_SCREEN_HANDLER_CALLBACK(m_pScreenHandler, cbOnKeyDown, KeyCallBackData, (iPK_Button))
 		if(ExecuteScreenHandlerCallback(cbOnKeyDown))
 			return true;
 	}
@@ -3271,13 +3240,7 @@ bool Orbiter::ButtonUp( int iPK_Button )
 {
 	if(NULL != m_pScreenHandler)
 	{
-		CallBackData *pCallBackData = m_pScreenHandler->m_mapCallBackData_Find(cbOnKeyUp);
-		if(pCallBackData)
-		{
-			KeyCallBackData *pKeyData = (KeyCallBackData *)pCallBackData;
-			pKeyData->m_nPlutoKey = iPK_Button;
-		}
-
+		SETUP_SCREEN_HANDLER_CALLBACK(m_pScreenHandler, cbOnKeyUp, KeyCallBackData, (iPK_Button))
 		if(ExecuteScreenHandlerCallback(cbOnKeyUp))
 			return true;
 	}
@@ -3474,14 +3437,7 @@ bool Orbiter::RegionUp( int x,  int y )
 	}
 #endif
 
-	CallBackData *pCallBackData = m_pScreenHandler->m_mapCallBackData_Find(cbOnMouseUp);
-	if(pCallBackData)
-	{
-		MouseClickCallBackData *pKeyData = (MouseClickCallBackData *)pCallBackData;
-		pKeyData->m_x = x;
-		pKeyData->m_y = y;
-	}
-
+	SETUP_SCREEN_HANDLER_CALLBACK(m_pScreenHandler, cbOnMouseUp, MouseClickCallBackData, (x, y))
 	if(ExecuteScreenHandlerCallback(cbOnMouseUp))
 		return true;
 
@@ -3506,14 +3462,7 @@ bool Orbiter::RegionDown( int x,  int y )
 	}
 #endif
 
-	CallBackData *pCallBackData = m_pScreenHandler->m_mapCallBackData_Find(cbOnMouseDown);
-	if(pCallBackData)
-	{
-		MouseClickCallBackData *pKeyData = (MouseClickCallBackData *)pCallBackData;
-		pKeyData->m_x = x;
-		pKeyData->m_y = y;
-	}
-
+	SETUP_SCREEN_HANDLER_CALLBACK(m_pScreenHandler, cbOnMouseDown, MouseClickCallBackData, (x, y))
 	if(ExecuteScreenHandlerCallback(cbOnMouseDown))
 		return true;
 
@@ -8983,14 +8932,8 @@ void Orbiter::CMD_Goto_Screen(string sID,int iPK_Screen,int iInterruption,bool b
 			iPK_Screen=SCREEN_VideoWizard_CONST;
 	}
 
-	CallBackData *pCallBackData = m_pScreenHandler->m_mapCallBackData_Find(cbOnGotoScreen);
-	if(pCallBackData)
-	{
-		GotoScreenCallBackData *pGotoScreenCallBackData = (GotoScreenCallBackData *)pCallBackData;
-		pGotoScreenCallBackData->m_nPK_Screen = iPK_Screen;
-		pGotoScreenCallBackData->m_pMessage = pMessage;
-	}
-	if( ExecuteScreenHandlerCallback(cbOnGotoScreen) )
+	SETUP_SCREEN_HANDLER_CALLBACK(m_pScreenHandler, cbOnGotoScreen, GotoScreenCallBackData, (iPK_Screen, pMessage))
+	if(ExecuteScreenHandlerCallback(cbOnGotoScreen))
 		return;
 
 	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
@@ -9094,12 +9037,8 @@ bool Orbiter::ScreenHandlerMsgInterceptor( class Socket *pSocket, class Message 
 	CallBackData *pCallBackData = m_pScreenHandler->m_mapCallBackData_Find(cbMessageIntercepted);
 	if(pCallBackData)
 	{
-		MsgInterceptorCellBackData *pMsgInterceptorCellBackData = (MsgInterceptorCellBackData *)pCallBackData;
-		pMsgInterceptorCellBackData->m_pSocket = pSocket;
-		pMsgInterceptorCellBackData->m_pMessage = pMessage;
-		pMsgInterceptorCellBackData->m_pDeviceFrom = pDeviceFrom;
-		pMsgInterceptorCellBackData->m_pDeviceTo = pDeviceTo;
-
+		SETUP_SCREEN_HANDLER_CALLBACK(m_pScreenHandler, cbMessageIntercepted, MsgInterceptorCellBackData, 
+			(pSocket, pMessage, pDeviceFrom, pDeviceTo))
 		return ExecuteScreenHandlerCallback(cbMessageIntercepted);
 	}
 

@@ -438,14 +438,10 @@ ObjectRenderer::ObjectRenderer(DesignObj_Orbiter *pOwner) : m_pObj_Owner(pOwner)
 
 	if( m_pObj_Owner->m_bCustomRender )
 	{
-		CallBackData *pCallBackData = m_pObj_Owner->m_pOrbiter->m_pScreenHandler->m_mapCallBackData_Find(cbOnCustomRender);
-		if(pCallBackData)
-		{
-			RenderScreenCallBackData *pRenderScreenCallBackData = (RenderScreenCallBackData *)pCallBackData;
-			pRenderScreenCallBackData->m_nPK_Screen = m_pObj_Owner->m_pOrbiter->CurrentScreen();
-			pRenderScreenCallBackData->m_pObj = m_pObj_Owner; 
-		}
+		SETUP_SCREEN_HANDLER_CALLBACK(m_pObj_Owner->m_pOrbiter->m_pScreenHandler, cbOnCustomRender, RenderScreenCallBackData, 
+			(m_pObj_Owner->m_pOrbiter->CurrentScreen(), m_pObj_Owner))
 		m_pObj_Owner->m_pOrbiter->ExecuteScreenHandlerCallback(cbOnCustomRender);
+
 		m_pObj_Owner->m_pOrbiter->Renderer()->ObjectRendered(m_pObj_Owner, point);
 		return false;
 	}
