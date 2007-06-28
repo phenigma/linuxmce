@@ -3058,9 +3058,10 @@ bool OSDScreenHandler::Scanning_Progress_GridRendering(CallBackData *pData)
 void OSDScreenHandler::PrepForWizard()
 {
 	if( m_tWizardIsRunning==0 )
+	{
+		RegisterPersistentCallBack(cbOnGotoScreen, (ScreenHandlerCallBack) &OSDScreenHandler::VideoWizard_OnGotoScreen, new GotoScreenCallBackData());
 		m_tWizardIsRunning = time(NULL);
-
-	RegisterCallBack(cbOnGotoScreen, (ScreenHandlerCallBack) &OSDScreenHandler::VideoWizard_OnGotoScreen, new GotoScreenCallBackData());
+	}
 
 	// The video wizard is playing video overlays using a non-standard method; it's just sending play media's directly to Xine
 	// which means that set now playing isn't called, and thus the xine window isn't activated.  Just force it to be active for now.
