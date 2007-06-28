@@ -33,7 +33,7 @@
 namespace DCE {
 
 CallData::CallData()
-	:  CALLSTATE state_(STATE_NOTDEFINED),
+	:  state_(STATE_NOTDEFINED),
 	   pendingCmdID_(0),
 	   ownerDevID_(0),
 	   m_PK_Device_Remote(0),
