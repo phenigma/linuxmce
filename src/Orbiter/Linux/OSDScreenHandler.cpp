@@ -112,6 +112,7 @@ void OSDScreenHandler::SCREEN_VideoWizard(long PK_Screen)
 	{
 		if( m_tWizardIsRunning==0 )
 		{
+			RegisterPersistentCallBack(cbOnGotoScreen, (ScreenHandlerCallBack) &OSDScreenHandler::VideoWizard_OnGotoScreen, new GotoScreenCallBackData());
 			SCREEN_PopupMessage(SCREEN_PopupMessage_CONST, "One moment|NO_BUTTON", "", "", "", "", "1");
 			m_tWizardIsRunning = time(NULL);
 		}
@@ -3084,10 +3085,13 @@ bool OSDScreenHandler::VideoWizard_OnGotoScreen(CallBackData *pData)
 {
 	GotoScreenCallBackData *pGotoScreenCallBackData = dynamic_cast<GotoScreenCallBackData *>(pData);
 
-//	uncomment this to prevent the user to go main menu when pressing F7 or "main menu"
+	if(NULL != pGotoScreenCallBackData && pGotoScreenCallBackData->m_nPK_Screen == SCREEN_Main_CONST)
+	{
+		if(NULL != m_pOrbiter->m_pScreenHistory_Current && m_pOrbiter->m_pScreenHistory_Current->PK_Screen() == 53)
+			m_pOrbiter->CMD_Go_back("", "");
 
-//	if(NULL != pGotoScreenCallBackData && pGotoScreenCallBackData->m_nPK_Screen == SCREEN_Main_CONST)
-//		return true;
+		return true;
+	}
 
 	return false;
 }
