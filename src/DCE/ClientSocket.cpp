@@ -160,7 +160,7 @@ bool ClientSocket::Connect( int PK_DeviceTemplate,string sExtraInfo,int iConnect
 #endif
 				Sleep(1000); // Don't retry too fast and use a lot of cpu
 #ifndef WINCE
-				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Connect() failed, Error Code %d (%s))", ec, strerror(ec));
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Connect() failed, Error Code %d (%s))", ec, strerror(ec));
 #endif
 			}
 
@@ -170,7 +170,7 @@ bool ClientSocket::Connect( int PK_DeviceTemplate,string sExtraInfo,int iConnect
 		if ( !bSuccess)
 		{
 			
-				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "ClientSocket::Connect() not successful");
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "ClientSocket::Connect() not successful");
 			Disconnect();
 		}
 	}
