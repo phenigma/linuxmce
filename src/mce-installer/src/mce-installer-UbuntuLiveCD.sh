@@ -19,6 +19,8 @@ else
 	#pt-get -f -y install dpkg-repack
 
 	if [[ "$c_ubuntuLiveCdFrom" == "$FROM_ISO" ]] ;then
+		lp=$(losetup -f)
+	        losetup -d "$lp" || :
 		mount -o loop "$c_ubuntuLiveCdPath" "$CD_Dir" || exit 1
 	else
 		mount /dev/cdrom "$CD_Dir" || exit 1
