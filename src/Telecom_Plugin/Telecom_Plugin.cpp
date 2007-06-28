@@ -1627,23 +1627,55 @@ bool Telecom_Plugin::Hangup( class Socket *pSocket, class Message *pMessage,
 
 //	CallManager::getInstance()->printCalls();
 	
-	int iPhoneExtension = atoi(pMessage->m_mapParameters[EVENTPARAMETER_PhoneExtension_CONST].c_str());
+	string sExtension = pMessage->m_mapParameters[EVENTPARAMETER_PhoneExtension_CONST];
+	int iPhoneExtension = atoi(sExtension.c_str());
+	
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Hangup %d(#%d) event received from PBX.",iPhoneExtension,map_ext2device[iPhoneExtension]);
+	CallManager::getInstance()->printCalls();
+	
 	CallData *pCallData = CallManager::getInstance()->findCallByOwnerDevID(map_ext2device[iPhoneExtension]);
 	if(pCallData) {
-		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Will hangup on device %d callid %s",map_ext2device[iPhoneExtension],pCallData->getID().c_str());
+		string sCallId = pCallData->getID();
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Will hangup on device %d callid %s",map_ext2device[iPhoneExtension], sCallId.c_str());
 
-		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Removed calldata %p/%s", pCallData, pCallData->getID().c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Removed calldata %p/%s\nCaller=%s\nCommand=%d\nDev=%d",
+			pCallData, sCallId.c_str(),
+			pCallData->getCallerID().c_str(), pCallData->getPendingCmdID(), pCallData->getOwnerDevID());
 		CallManager::getInstance()->removeCall(pCallData);
+		
+		pCallData = CallManager::getInstance()->findCallByCallId(sCallId);
+		if(pCallData) {
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Will hangup on device %d callid %s",
+			pCallData->getOwnerDevID(),pCallData->getID().c_str());
+
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Removed calldata %p/%s\nCaller=%s\nCommand=%d\nDev=%d",
+			pCallData, pCallData->getID().c_str(),
+			pCallData->getCallerID().c_str(), pCallData->getPendingCmdID(), pCallData->getOwnerDevID());
+			CallManager::getInstance()->removeCall(pCallData);
+		}
 	}
 	else
 	{
 		RemoveExtesionFromChannels(pMessage->m_mapParameters[EVENTPARAMETER_PhoneExtension_CONST]);
 	}
+	
+	// remove the calls where the extension is caller id
+	pCallData = CallManager::getInstance()->findCallByCallerId(sExtension);
+	if(pCallData) {
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Will hangup on device %d callid %s",
+		pCallData->getOwnerDevID(),pCallData->getID().c_str());
 
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Removed calldata %p/%s\nCaller=%s\nCommand=%d\nDev=%d",
+		pCallData, pCallData->getID().c_str(),
+		pCallData->getCallerID().c_str(), pCallData->getPendingCmdID(), pCallData->getOwnerDevID());
+		CallManager::getInstance()->removeCall(pCallData);
+	}
+	
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "---------- Dupa remove");
+	CallManager::getInstance()->printCalls();
+	
 	for(list<ConferenceData>::iterator it = m_listConferences.begin(); it != m_listConferences.end(); ++it)
 	{
-		string sExtension = StringUtils::ltos(iPhoneExtension);
 		if(it->IsMaster(sExtension))
 		{
 			for(list<string>::const_iterator it_slave = it->GetSlaves().begin(); 

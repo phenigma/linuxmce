@@ -60,6 +60,7 @@ public:
 	CallData* findCallByPendingCmdID(int id);
 	CallData* findCallByOwnerDevID(int id);
 	CallData* findCallByCallId(string id);
+	CallData* findCallByCallerId(string id);
 	ListCallData_Manager* getCallList();
 	
 private:
