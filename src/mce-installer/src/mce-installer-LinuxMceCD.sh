@@ -26,6 +26,8 @@ else
 	popd
 
 	umount -lf $CD_Dir || :
+	lp=$(losetup -f)
+        losetup -d "$lp" || :
 	rm -rf $CD_Dir
 
 	trap "" EXIT

@@ -30,6 +30,8 @@ else
 	dpkg -i /usr/pluto/deb-cache/video-wizard-videos_*.deb || :
 
 	umount -lf $CD_Dir || :
+	lp=$(losetup -f)
+        losetup -d "$lp" || :
 	rm -rf $CD_Dir
 
 	trap "" EXIT

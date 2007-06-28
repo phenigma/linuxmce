@@ -42,6 +42,8 @@ else
 
 	umount -lf "$Squash_Dir" || :
 	umount -lf "$CD_Dir" || :
+	lp=$(losetup -f)
+	losetup -d "$lp" || :
 	rm -rf "$Squash_Dir" "$CD_Dir"
 
 	trap "" EXIT
