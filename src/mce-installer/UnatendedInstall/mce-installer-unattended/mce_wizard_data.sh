@@ -1,5 +1,5 @@
 c_deviceType=2 # 1-Core, 2-Hybrid, 3-DiskedMD
-c_netIfaceNo=2
+c_netIfaceNo=1
 c_netExtName='eth0'
 c_netExtIP=''
 c_netExtMask=''
@@ -8,7 +8,7 @@ c_netExtDNS1=''
 c_netExtDNS2=''
 c_netExtUseDhcp=1 # 1 - Yes / 0 - No
 c_runDhcpServer=1 # 1 - Yes / 0 - No
-c_netIntName='eth1'
+c_netIntName='eth0:1'
 c_netIntIPN='192.168.80'
 c_startupType=1 #0 - Start Kde / 1 - Start LMCE
 c_installType=1

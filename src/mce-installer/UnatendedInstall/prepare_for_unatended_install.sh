@@ -52,15 +52,14 @@ function create_debcache_on_virtual_machine {
 	scp "$ISO_DIR"/cachecd1-cache/*.deb root@"$VMWARE_IP":/usr/pluto/deb-cache
 	umount "$ISO_DIR"
 	decho "Finish Caching CD2"
+
 }
 
 function copy_installer_on_virtual_machine {
 	decho "Copying installer on virutal machine"
 	ssh root@"$VMWARE_IP" "mkdir -p /usr/pluto/install"
-	
-	scp ./mce-installer-core.sh root@"$VMWARE_IP":/usr/pluto/install
-	scp ./mce-installer-common.sh root@"$VMWARE_IP":/usr/pluto/install
-	scp ./mce_wizard_data.sh root@"$VMWARE_IP":/usr/pluto/install
+
+	scp ./mce-installer-unattended/* root@"$VMWARE_IP":/usr/pluto/install
 
 	decho "Finished copying installer on virtual machine"
 }
