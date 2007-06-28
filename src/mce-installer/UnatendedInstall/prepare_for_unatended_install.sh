@@ -53,18 +53,30 @@ function create_debcache_on_virtual_machine {
 	umount "$ISO_DIR"
 	decho "Finish Caching CD2"
 
+	## Build Packages.gz
+	decho "Building Pacakges.gz on virtual machine"
+	scp /usr/bin/dpkg-scanpackages root@"$VMWARE_IP":/usr/pluto/deb-cache
+	ssh root@"$VMWARE_IP" "cd /usr/pluto/deb-cache && ./dpkg-scanpackages . /dev/null > Packages && gzip -c Packages > Packages.gz && rm dpkg-scanpackages"
+	decho "Finish building Packages.gz on virtual machine"
+
+
 }
 
 function copy_installer_on_virtual_machine {
 	decho "Copying installer on virutal machine"
 	ssh root@"$VMWARE_IP" "mkdir -p /usr/pluto/install"
-
 	scp ./mce-installer-unattended/* root@"$VMWARE_IP":/usr/pluto/install
-
 	decho "Finished copying installer on virtual machine"
+}
+
+function run_installer_on_virtual_machine {
+	decho "Starting installer on virtual machine"
+	ssh root@"$VMWARE_IP" "cd /usr/pluto/install && ./mce-installer.sh"
+	decho "Finished installing on virtual machine"
 }
 
 #create_virtual_machine
 #start_virtual_machine
 #create_debcache_on_virtual_machine
 copy_installer_on_virtual_machine
+run_installer_on_virtual_machine
