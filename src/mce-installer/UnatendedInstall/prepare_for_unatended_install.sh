@@ -60,7 +60,7 @@ function copy_installer_on_virtual_machine {
 	
 	scp ./mce-installer-core.sh root@"$VMWARE_IP":/usr/pluto/install
 	scp ./mce-installer-common.sh root@"$VMWARE_IP":/usr/pluto/install
-	scp ./mce_wizard_data.sh root@"VMWARE_IP":/usr/pluto/install
+	scp ./mce_wizard_data.sh root@"$VMWARE_IP":/usr/pluto/install
 
 	decho "Finished copying installer on virtual machine"
 }
