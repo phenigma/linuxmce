@@ -49,7 +49,16 @@ tempMntDir=/tmp/mnt/$pid
 mkdir -p $tempMntDir
 
 ## For every share of this samba server
-for share in $(smbclient -U ${Device_Username}%${Device_Password} --list=//$Device_IP  --grepable | grep "^Disk" | cut -d'|' -f2 | tr ' ' '\\') ;do
+AuthPart=""
+if [[ "${Device_Username}" != "" ]] && [[ "$Device_Password" != "" ]] ;then
+	AuthPart=" -U ${Device_Username}%${Device_Password} "
+fi
+
+if [[ "$Device_Username" != "" ]] && [[ "$Device_Password" == "" ]] ;then
+	AuthPart=" -U ${Device_Username} "
+fi
+
+for share in $(smbclient $AuthPart --list=//$Device_IP  --grepable | grep "^Disk" | cut -d'|' -f2 | tr ' ' '\\') ;do
 
 	share=$(echo $share | tr '\\' ' ')
 	pnpUID="\\\\${Device_IP}\\${share}"
