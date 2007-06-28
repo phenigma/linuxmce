@@ -71,12 +71,11 @@ function copy_installer_on_virtual_machine {
 
 function run_installer_on_virtual_machine {
 	decho "Starting installer on virtual machine"
-	ssh root@"$VMWARE_IP" "cd /usr/pluto/install && ./mce-installer.sh"
-	decho "Finished installing on virtual machine"
+	ssh root@"$VMWARE_IP" "cd /usr/pluto/install && screen -d -m -S 'Install' ./mce-installer.sh"
 }
 
-#create_virtual_machine
-#start_virtual_machine
-#create_debcache_on_virtual_machine
+create_virtual_machine
+start_virtual_machine
+create_debcache_on_virtual_machine
 copy_installer_on_virtual_machine
 run_installer_on_virtual_machine
