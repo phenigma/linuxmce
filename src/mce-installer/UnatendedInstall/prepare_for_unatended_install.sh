@@ -13,8 +13,10 @@ function decho {
 }
 
 function create_virtual_machine {
+	decho "Creating virual machine"
 	mkdir -p "$VMWARE_DIR"
 	cp -r /var/Kubuntu7.04/* "$VMWARE_DIR"
+	decho "Finished creating virtual machine"
 }
 
 function start_virtual_machine {
@@ -52,10 +54,18 @@ function create_debcache_on_virtual_machine {
 	decho "Finish Caching CD2"
 }
 
-function copy_unatended_installer_on_virtual_machine {
+function copy_installer_on_virtual_machine {
+	decho "Copying installer on virutal machine"
+	ssh root@"$VMWARE_IP" "mkdir -p /usr/pluto/install"
+	
+	scp ./mce-installer-core.sh root@"$VMWARE_IP":/usr/pluto/install
+	scp ./mce-installer-common.sh root@"$VMWARE_IP":/usr/pluto/install
+	scp ./mce_wizard_data.sh root@"VMWARE_IP":/usr/pluto/install
 
+	decho "Finished copying installer on virtual machine"
 }
 
-create_virtual_machine
+#create_virtual_machine
 #start_virtual_machine
 #create_debcache_on_virtual_machine
+copy_installer_on_virtual_machine
