@@ -16,6 +16,8 @@ mysql pluto_main < /usr/pluto/database/city.dump
 
 Q="GRANT ALL PRIVILEGES ON pluto_main.* TO 'root'@'127.0.0.1'; FLUSH PRIVILEGES;"
 echo "$Q" | /usr/bin/mysql
+Q="GRANT ALL PRIVILEGES ON pluto_main.* TO 'plutomedia'@'localhost'; FLUSH PRIVILEGES;"
+echo "$Q" | /usr/bin/mysql
 
 # update quick start icons
 /bin/bash /usr/pluto/bin/UpdateQuickStartIcons.sh || /bin/true
