@@ -214,6 +214,7 @@ Socket::Socket(string Name,string sIPAddress, string sMacAddress) : m_SocketMute
 	m_pcCurInsockBuffer = NULL;
 	m_Socket = INVALID_SOCKET;
 	m_iReceiveTimeout = 0;
+	m_iSendReceiveTimeout = 0;
 	pthread_mutexattr_init( &m_SocketMutexAttr );
 	pthread_mutexattr_settype( &m_SocketMutexAttr, PTHREAD_MUTEX_RECURSIVE_NP );
 	pthread_cond_init( &m_PingLoopCond, NULL );
@@ -340,7 +341,7 @@ Message *Socket::SendReceiveMessage( Message *pMessage)
 	string sResult;
 	Message *pOutMessage;
 
-	bool bResult = ReceiveString( sResult, m_iReceiveTimeout > 0 ? m_iReceiveTimeout : MAX_DELAY_FOR_RECEIVE_RESPONSE );
+	bool bResult = ReceiveString( sResult, m_iSendReceiveTimeout > 0 ? m_iSendReceiveTimeout : MAX_DELAY_FOR_RECEIVE_RESPONSE );
 	if (bResult && sResult.substr(0,7) == "MESSAGE" && sResult.size() > 7) // got the response we expected
 	{
 		pOutMessage = ReceiveMessageRaw(sResult);
@@ -359,7 +360,7 @@ bool Socket::SendMessageWithConfirmation(Message *pMessage, string &sRefResponse
 	if( !SendMessage( pMessage ) ) // message couldn't be send
 		return false;
 
-	return ReceiveString(sRefResponse, m_iReceiveTimeout > 0 ? m_iReceiveTimeout : MAX_DELAY_FOR_RECEIVE_RESPONSE );
+	return ReceiveString(sRefResponse, m_iSendReceiveTimeout > 0 ? m_iSendReceiveTimeout : MAX_DELAY_FOR_RECEIVE_RESPONSE );
 }	
 
 Message *Socket::ReceiveMessage( int iLength, DataFormat format)
@@ -775,8 +776,13 @@ string Socket::SendReceiveString( string sLine, int nTimeout/* = -1*/)
 	PLUTO_SAFETY_LOCK_ERRORSONLY( sSM, m_SocketMutex );  // Don't log anything but failures
 	SendString( sLine );
 
+	int nInternalSendReceiveTimeout = 
+		nTimeout != -1 ?
+		nTimeout : 
+		m_iSendReceiveTimeout > 0 ? m_iSendReceiveTimeout : MAX_DELAY_FOR_RECEIVE_RESPONSE;
+
 	string sResponse;
-	if( ReceiveString( sResponse, nTimeout!=-1 || m_iReceiveTimeout ? nTimeout : MAX_DELAY_FOR_RECEIVE_RESPONSE) )
+	if( ReceiveString( sResponse, nInternalSendReceiveTimeout ) )
 		return sResponse;
 	return "";
 }
@@ -835,6 +841,15 @@ void Socket::SetReceiveTimeout( int TimeoutSeconds )
 
 #ifdef DEBUG
 	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Setting timeout for socket %d to %d", m_Socket, m_iReceiveTimeout);
+#endif
+}
+
+void Socket::SetSendReceiveTimeout( int TimeoutSeconds ) 
+{
+	m_iSendReceiveTimeout = TimeoutSeconds;
+
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Setting sendreceive timeout for socket %d to %d", m_Socket, m_iReceiveTimeout);
 #endif
 }
 

@@ -296,7 +296,6 @@ void SocketListener::RemoveAndDeleteSocket( ServerSocket *pServerSocket, bool bD
 void SocketListener::RegisterEventHandler( ServerSocket *Socket, int iDeviceID )
 {
 	Socket->m_eSocketType=Socket::st_ServerEvent;
-// this is causing sockets to die.  Comment out for the moment.	Socket->SetReceiveTimeout( IsPlugin(iDeviceID) ? SOCKET_TIMEOUT_PLUGIN : SOCKET_TIMEOUT );
 	RegisteredEventHandler( Socket, iDeviceID );
 }
 

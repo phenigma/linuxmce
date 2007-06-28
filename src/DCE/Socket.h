@@ -51,6 +51,7 @@ namespace DCE
 	{
 	private:
 		int m_iReceiveTimeout; /** < the interval after witch the sockets stops expecting for an answer in seconds */
+		int m_iSendReceiveTimeout; /** < how long to wait for a reply to a string or message */
 		bool m_bQuit; /** < set when the socket should terminate */
 
 	public:
@@ -100,15 +101,16 @@ namespace DCE
 		 */
 		virtual ~Socket();
 		
-		/** @todo check message */
-		//	void DCESocketLock();
-		//	void DCESocketUnlock();
-
 		/**
 		 * @brief use to set the member
 		 */
 		void SetReceiveTimeout( int TimeoutSeconds );
-		
+
+		/**
+		 * @brief use to set the member
+		 */
+		void SetSendReceiveTimeout( int TimeoutSeconds );
+
 		/**
 		 * @brief sends the message data imediatlly and deletes the message object if required
 		 * @param bDeleteMessage specifies if the message should be deleted after use

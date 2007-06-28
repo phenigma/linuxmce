@@ -487,6 +487,11 @@ bool Command_Impl::Connect(int iPK_DeviceTemplate, std::string)
 	if( m_Socket == INVALID_SOCKET )
 		bResult = false;
 
+#ifdef LINK_TO_ROUTER
+	if(NULL != m_pRouter && m_pRouter->IsPlugin(m_dwPK_Device))
+		m_pcRequestSocket->m_pClientSocket->SetSendReceiveTimeout(SOCKET_TIMEOUT_PLUGIN);
+#endif
+
 	if( m_pData && m_pData->m_bUsePingToKeepAlive )
 	{
 		// No need to start the ping loop for this socket because the CommandImpl
@@ -941,6 +946,7 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"InternalSendCommand id %d out par
 	}
 	else
 		pResponse = m_pcRequestSocket->SendReceiveMessage( pPreformedCommand.m_pMessage );
+
 #ifdef DEBUG
 LoggerWrapper::GetInstance()->Write(LV_STATUS,"InternalSendCommand out done id %d conf %d resp %p %p %d type %d id %d to %d",
 	ID,iConfirmation,pPreformedCommand.m_pcResponse,pResponse,(pResponse ? pResponse->m_dwID : 0),Type,ID,PK_Device_To);
