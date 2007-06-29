@@ -368,3 +368,4 @@ done
 #fi
 
 StatsMessage "Installation Finished"
+init 0
