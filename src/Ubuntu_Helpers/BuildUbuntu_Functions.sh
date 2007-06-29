@@ -297,7 +297,9 @@ function Build_Pluto_Stuff {
 	mkdir -p /usr/pluto/dummy-packages/
 	touch /usr/pluto/dummy-packages/Readme.PlutoConsoleUtilities.dummy
 
-	export PATH=/usr/lib/ccache:$PATH:${svn_dir}/trunk/src/bin
+	export PATH=$PATH:${svn_dir}/trunk/src/bin
+#	export PATH=/usr/lib/ccache:$PATH:${svn_dir}/trunk/src/bin
+
 	export LD_LIBRARY_PATH="$mkr_dir:${svn_dir}/trunk/src/lib"
 
 	SVNrevision=$(svn info "${svn_dir}"/trunk/src |grep ^Revision | cut -d" " -f2)

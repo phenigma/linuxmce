@@ -15,7 +15,15 @@ Create_Fake_Windows_Binaries
 Build_Pluto_Stuff #-b
 Create_Local_Repository
 Create_ISO
-Upload_Build_Archive
+Upload_Build_Archive &
+
+## Build preinstalled dvd
+pushd /root/UnatendedInstall/
+	./install_in_vmware.sh
+popd
+pushd /root/R/ubuntu-lite-installer/
+	./build-cd.sh
+popd
 
 echo "Finished"
 date -R
