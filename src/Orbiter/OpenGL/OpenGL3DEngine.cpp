@@ -615,15 +615,19 @@ void OpenGL3DEngine::AddTopMostObject(string ObjectID)
 {
 	if(ObjectID== "")
 		return;
+
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, SceneMutex);
+
 	if(TopMostObjects.find(ObjectID) != TopMostObjects.end())
 		return;
 
-	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, SceneMutex);
 	TopMostObjects[ObjectID] = ObjectID;
 }
 
 void OpenGL3DEngine::RemoveTopMostObject(string ObjectID)
-{
+{	
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, SceneMutex);
+
 	map<string,string>::iterator Item = TopMostObjects.find(ObjectID);
 	if(Item != TopMostObjects.end())
 		TopMostObjects.erase(Item);
@@ -631,12 +635,12 @@ void OpenGL3DEngine::RemoveTopMostObject(string ObjectID)
 
 void OpenGL3DEngine::UpdateTopMostObjects()
 {
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, SceneMutex);
+
 	if(TopMostObjects.size() == 0 || NULL == OriginalCurrentLayer)
 		return;
 
 	bool bOldWorldChanged = m_bWorldChanged;
-	
-	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, SceneMutex);
 
 	map<string,string>::iterator Item;
 	for(Item = TopMostObjects.begin(); Item != TopMostObjects.end(); )
