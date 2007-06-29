@@ -86,6 +86,7 @@ ExtractArchive()
 	echo "Extracting archive (this will take about 10 minutes)"
 	cat /cdrom/lmce-image/linux-mce.tar.gz* | tar -C /media/target -zx --checkpoint=10000
 #	tar -C /media/target -xzf /cdrom/lmce-image/hybrid-archive.tar.gz
+	cp /cdrom/lmce-image/firstrun /etc/rc2.d/S90firstrun
 }
 
 UnmountPartitions()

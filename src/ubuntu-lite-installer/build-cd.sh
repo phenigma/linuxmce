@@ -9,6 +9,7 @@ SquashFStgz="$WorkDir/ubuntu-squashfs-base.tgz"
 ## TODO: change paths to SVN checkout directory
 InstallerScript="lite-installer.sh"
 RcSScript="install-lmce"
+FirstRunScript="firstrun"
 
 LiveCDISO="$WorkDir/kubuntu-linuxmce.iso"
 InstallerArchive="/var/plutobuild/vmware/Kubuntu7.04/linux-mce.tar.gz"
@@ -35,6 +36,7 @@ CreateLiveCD()
 {
 	mkdir -p "$LiveCDDir/lmce-image/"
 	ln "$InstallerArchive"_* "$LiveCDDir/lmce-image/"
+	cp "$FirstRunScript" "$LiveCDDir/lmce-image/"
 	(cd "$LiveCDDir" && find . -type f -not -path ./md5sum.txt -print0 | xargs -0 md5sum | tee md5sum.txt)
 	mkisofs -o "$LiveCDISO" \
 		-b isolinux/isolinux.bin \
