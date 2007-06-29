@@ -22,6 +22,11 @@
 #include "DesignObj_Orbiter.h"
 #include "CacheImageManager.h"
 
+#define FLOORPLAN_OBJ_NAME	"floorplan object"
+#define HOLLOW_OBJ_NAME		"hollow"
+#define DATAGRID_THUMB_NAME "datagrid-thumb"
+#define DYNAMIC_OBJ_NAME	"dynamic object"
+
 class ObjectRenderer
 {
 	friend class DesignObj_Orbiter;

@@ -335,7 +335,7 @@ DataGridRenderer::DataGridRenderer(DesignObj_Orbiter *pOwner): ObjectRenderer(pO
 		if (pCell->m_pGraphic)
 		{
 			string sCellObjectID, sCellObjectHash;
-			sCellObjectID = sCellObjectHash = "datagrid-thumb-" + StringUtils::ltos(x) + "-" + StringUtils::ltos(y) + 
+			sCellObjectID = sCellObjectHash = DATAGRID_THUMB_NAME " - " + StringUtils::ltos(x) + "-" + StringUtils::ltos(y) + 
 				(NULL == pCell->m_ImagePath ? "" : string("-pic ") + pCell->m_ImagePath);
 			m_pObj_Owner_DataGrid->m_pOrbiter->Renderer()->RenderGraphic(pCell->m_pGraphic, 
 				PlutoRectangle(x,  y,  w,  h), 

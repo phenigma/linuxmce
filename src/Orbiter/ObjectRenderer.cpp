@@ -583,7 +583,7 @@ ObjectRenderer::ObjectRenderer(DesignObj_Orbiter *pOwner) : m_pObj_Owner(pOwner)
 					m_pObj_Owner->m_rBackgroundPosition.Width+i+i, 
 					m_pObj_Owner->m_rBackgroundPosition.Height+i+i,
 					(i==1 || i==2 ? PlutoColor::Black() : PlutoColor::White()), 
-					"", "Hollow "+m_pObj_Owner->m_ObjectID
+					"", HOLLOW_OBJ_NAME " - " + m_pObj_Owner->m_ObjectID
 				);
 
 			//force an update because the object boundaries are not respected
@@ -592,7 +592,7 @@ ObjectRenderer::ObjectRenderer(DesignObj_Orbiter *pOwner) : m_pObj_Owner(pOwner)
 		}
 		else
 		{
-			m_pObj_Owner->m_pOrbiter->Renderer()->UnSelectObject("", "Hollow "+m_pObj_Owner->m_ObjectID);
+			m_pObj_Owner->m_pOrbiter->Renderer()->UnSelectObject("", HOLLOW_OBJ_NAME " - " + m_pObj_Owner->m_ObjectID);
 		}
 
 	}

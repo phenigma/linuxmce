@@ -1388,7 +1388,7 @@ void *ImageLoadThread(void *p)
 			pBackgroundImage->m_pObj_Grid->GetGridCellDimensions(pBackgroundImage->m_pCell->m_Colspan,  pBackgroundImage->m_pCell->m_Rowspan,  j,  i,  x,  y,  w,  h );
 
 			string sCellObjectID, sCellObjectHash;
-			sCellObjectID = sCellObjectHash = "datagrid-thumb-" + StringUtils::ltos(x) + "-" + StringUtils::ltos(y) + 
+			sCellObjectID = sCellObjectHash = DATAGRID_THUMB_NAME " - " + StringUtils::ltos(x) + "-" + StringUtils::ltos(y) + 
 				(NULL == pBackgroundImage->m_pCell->m_ImagePath ? "" : string("-pic ") + pBackgroundImage->m_pCell->m_ImagePath);
 			pBackgroundImage->m_pObj_Grid->m_pOrbiter->Renderer()->RenderGraphic(pBackgroundImage->m_pCell->m_pGraphic, PlutoRectangle(x,  y,  w,  h), 
 				pBackgroundImage->m_pObj_Grid->m_bDisableAspectLock, point, 255, 
@@ -1493,7 +1493,7 @@ char *pData, int iData_Size, string sDisable_Aspect_Lock)
 	}
 
 	PlutoGraphic *pPlutoGraphic = CreateGraphic();
-	pPlutoGraphic->m_Filename = "dynamic object";
+	pPlutoGraphic->m_Filename = DYNAMIC_OBJ_NAME;
 
 	if(sType == "bmp")
 		pPlutoGraphic->m_GraphicFormat = GR_BMP;

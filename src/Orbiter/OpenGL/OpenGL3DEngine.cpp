@@ -548,14 +548,14 @@ MeshFrame* OpenGL3DEngine::EndDatagridDrawing(string ObjectHash)
 
 void OpenGL3DEngine::InvalidateFrame(string ObjectHash)
 {
-	MeshFrame *pDatagridFrame = CurrentLayer->FindChild(ObjectHash);
+	MeshFrame *pMeshFrame = CurrentLayer->FindChild(ObjectHash);
 
 	m_bWorldChanged = true;
-	if(NULL != pDatagridFrame)
+	if(NULL != pMeshFrame)
 	{
-		MeshFrame *pNewDummyDatagridFrame = new MeshFrame(ObjectHash);
-		pNewDummyDatagridFrame->MarkAsVolatile();
-		CurrentLayer->ReplaceChild(pDatagridFrame, pNewDummyDatagridFrame);
+		MeshFrame *pNewDummyFrame = new MeshFrame(ObjectHash);
+		pNewDummyFrame->MarkAsVolatile();
+		CurrentLayer->ReplaceChild(pMeshFrame, pNewDummyFrame);
 	}
 }
 
@@ -688,4 +688,29 @@ void OpenGL3DEngine::ReplaceMeshInAnimations(MeshFrame *OldFrame, MeshFrame *New
 	m_spDatagridAnimationManager->ReplaceMeshInAnimations(OldFrame, NewFrame);
 }
 
+void OpenGL3DEngine::InvalidateFramesStartingWith(string sPrefix, MeshFrame *pParent/*=NULL*/)
+{
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, SceneMutex);
 
+	if(NULL == pParent)
+		pParent = OriginalCurrentLayer;
+
+	if(NULL != pParent)
+	{
+		for(vector<MeshFrame*>::iterator it = pParent->Children.begin(); it != pParent->Children.end(); ++it)
+		{
+			MeshFrame *pMeshFrame = *it;
+
+			if(NULL != pMeshFrame && pMeshFrame->Name().find(sPrefix) == 0)
+			{
+				MeshFrame *pNewDummyFrame = new MeshFrame(pMeshFrame->Name());
+				pNewDummyFrame->MarkAsVolatile();
+				pParent->ReplaceChild(pMeshFrame, pNewDummyFrame);
+			}
+			else
+			{
+                InvalidateFramesStartingWith(sPrefix, pMeshFrame);								
+			}
+		}
+	}
+}

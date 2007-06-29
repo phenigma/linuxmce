@@ -310,6 +310,11 @@ public:
 	virtual void ProcessingInputEvent() {}
 
 	virtual void DestroyGraphic(string sObjectID) {}
+
+	/*
+	*  Remove all floorplan objects from current screen
+	*/
+	virtual void ClearFloorplan() {}
 };
 
 #endif //__ORBITER_RENDERER_H__

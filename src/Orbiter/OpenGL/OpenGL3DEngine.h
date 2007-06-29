@@ -190,6 +190,11 @@ public:
 	 *  Notify the engine that it needs to update the screen	
 	 */
 	void RefreshScreen() { m_bNeedToRefresh = true; }
+
+	/**
+	 *  Invalidate all children frames starting with prefix
+	 */
+	void InvalidateFramesStartingWith(string sPrefix, MeshFrame *pParent = NULL);
 };
 
 #endif

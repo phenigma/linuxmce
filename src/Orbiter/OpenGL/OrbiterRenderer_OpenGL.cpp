@@ -350,7 +350,7 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 		Area.Y = y;
 
 		RenderGraphic(ReplacementGraphic, Area, false, pObj_WithGraphic->m_pPopupPoint, 255,  
-			"", string("floorplan object - ") + pObj->m_ObjectID);
+			"", FLOORPLAN_OBJ_NAME " - " + pObj->m_ObjectID);
 	}
 }
 //-----------------------------------------------------------------------------------------------------
@@ -506,7 +506,7 @@ g_PlutoProfiler->Start("ObjectRenderer_OpenGL::RenderGraphic2");
 
 #ifdef VIA_OVERLAY
 	//make datagrid's thumbs opaque
-	if(Frame->Name().find("datagrid-thumb") == 0)
+	if(Frame->Name().find(DATAGRID_THUMB_NAME) == 0)
 	{
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "VIA Rendering a datagrid thumb : %d %d %d %d", 
 			point.X + rectTotal.X, point.Y + rectTotal.Y, rectTotal.Width, rectTotal.Height);
@@ -522,7 +522,7 @@ g_PlutoProfiler->Stop("ObjectRenderer_OpenGL::RenderGraphic2");
 		if(
 			(!OrbiterLogic()->m_bMemoryManagementEnabled || point.X != 0 || point.Y != 0)
 			&& 
-			Graphic->m_Filename.find("dynamic object") != 0
+			Graphic->m_Filename.find(DYNAMIC_OBJ_NAME) != 0
 		)
 		{
 			TextureManager::Instance()->AddCacheItem(ObjectHash, Frame);
@@ -925,7 +925,7 @@ void OrbiterRenderer_OpenGL::RenderPopup(PlutoPopup *pPopup, PlutoPoint point, i
 	OpenGLGraphic *pOpenGLGraphic = dynamic_cast<OpenGLGraphic *>(pPlutoGraphic);
 	if(NULL != pOpenGLGraphic)
 	{
-		pOpenGLGraphic->m_Filename = "dynamic object " + pObj->GenerateObjectHash(pObj->m_pPopupPoint);
+		pOpenGLGraphic->m_Filename = DYNAMIC_OBJ_NAME " - " + pObj->GenerateObjectHash(pObj->m_pPopupPoint);
 
 		TextureManager::Instance()->InvalidateItem(pObj->GenerateObjectHash(pObj->m_pPopupPoint));
 
@@ -1062,5 +1062,10 @@ void OrbiterRenderer_OpenGL::DrawArrow(PlutoPoint p1, PlutoPoint p2, PlutoSize s
 	Engine->AddMeshFrameToDesktop(ParentObjectID, Frame);	
 }
 
-
+void OrbiterRenderer_OpenGL::ClearFloorplan()
+{
+	Engine->UnHighlight();
+	Engine->InvalidateFramesStartingWith(FLOORPLAN_OBJ_NAME);
+	Engine->InvalidateFramesStartingWith(HOLLOW_OBJ_NAME);
+}
 

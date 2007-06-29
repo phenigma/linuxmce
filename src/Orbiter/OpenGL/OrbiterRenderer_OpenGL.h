@@ -165,6 +165,11 @@ namespace DCE
 
 		virtual void ObjectRendered(DesignObj_Orbiter *pObj, PlutoPoint point);
 
+		/*
+		*  Remove all floorplan objects from current screen
+		*/
+		virtual void ClearFloorplan();
+
 		OpenGL3DEngine* Engine;	
 		pthread_cond_t Condition;
 		pluto_pthread_mutex_t Mutex; 

@@ -6305,6 +6305,8 @@ void Orbiter::RenderFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter, DesignObj_O
 
 	if( fpObjVector )
 	{
+		m_pOrbiterRenderer->ClearFloorplan();
+
 		string::size_type pos = 0;
 		FloorplanObjectVector::iterator it;
 		for(it = fpObjVector->begin(); it != fpObjVector->end(); ++it)

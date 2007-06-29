@@ -136,7 +136,7 @@ void ObjectRenderer_OpenGL::LoadPicture(PlutoGraphic* pPlutoGraphic)
 
 		if (!iSizeGraphicFile)
 		{
-			if(pPlutoGraphic->m_Filename.find("dynamic object") != 0)
+			if(pPlutoGraphic->m_Filename.find(DYNAMIC_OBJ_NAME) != 0)
 				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Unable to get file from server %s", pPlutoGraphic->m_Filename.c_str());
 
 			return;
@@ -165,7 +165,7 @@ void ObjectRenderer_OpenGL::LoadPicture(PlutoGraphic* pPlutoGraphic)
 	{
 		if(!FileUtils::FileExists(sFileName))
 		{
-			if(pPlutoGraphic->m_Filename.find("dynamic object") != 0)
+			if(pPlutoGraphic->m_Filename.find(DYNAMIC_OBJ_NAME) != 0)
 				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Unable to read file %s", (sFileName).c_str());
 
 			return;
