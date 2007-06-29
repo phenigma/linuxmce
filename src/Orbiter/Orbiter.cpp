@@ -9103,6 +9103,9 @@ void Orbiter::SetChildrenVisibilityContext(DesignObj_Orbiter *pObj,
 	{
 		DesignObj_Orbiter *pChildObj = (DesignObj_Orbiter *)*it;
 
+		if(NULL == pChildObj)
+			continue;
+
 		itmap = mapVisibilityContext.find(pChildObj);
 		if(itmap != mapVisibilityContext.end() && pChildObj->m_bHidden != itmap->second)
 		{
