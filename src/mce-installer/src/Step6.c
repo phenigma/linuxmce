@@ -13,6 +13,9 @@
 GtkWidget *buttonFinish;
 
 void on_Step6_finish_clicked(GtkWidget *widget, gpointer data) {
+	if (setting_ubuntuLiveCdFrom == FROM_CD){
+		system("eject");
+	}
 	gtk_main_quit();
 }
 
@@ -42,8 +45,13 @@ void displayStep6(void) {
 		gtk_box_pack_start(GTK_BOX(mainBox), label, TRUE, TRUE, 0);
 
 	} else {
-		label = gtk_label_new_for_wizard ("Installation is finished.  You should now reboot. \n\nNOTE: The first time you start LinuxMCE it will take several minutes to verity the new installation and generate the UI’s");
-		gtk_box_pack_start(GTK_BOX(mainBox), label, TRUE, TRUE, 0);
+		if (setting_ubuntuLiveCdFrom == FROM_CD) {
+			label = gtk_label_new_for_wizard ("Installation is finished. Before reboot please remove Kubuntu Live CD after hitting 'Close' button. \n\nNOTE: The first time you start LinuxMCE it will take several minutes to verity the new installation and generate the UI’s");
+                        gtk_box_pack_start(GTK_BOX(mainBox), label, TRUE, TRUE, 0);
+		} else {
+			label = gtk_label_new_for_wizard ("Installation is finished.  You should now reboot. \n\nNOTE: The first time you start LinuxMCE it will take several minutes to verity the new installation and generate the UI’s");
+			gtk_box_pack_start(GTK_BOX(mainBox), label, TRUE, TRUE, 0);
+		}
 	}
 
 	

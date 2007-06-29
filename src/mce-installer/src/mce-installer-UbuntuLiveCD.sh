@@ -50,6 +50,5 @@ else
 
 	trap "" EXIT
 
-	eject /dev/cdrom
 	exit 0
 fi

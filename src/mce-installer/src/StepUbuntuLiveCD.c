@@ -36,7 +36,7 @@ void on_StepUbuntuLiveCD_forward_clicked(GtkWidget *widget, gpointer data)  {
 		}
 	}
 
-	if ((goNext) && (setting_ubuntuLiveCdFrom == FROM_CD)) {
+	/*if ((goNext) && (setting_ubuntuLiveCdFrom == FROM_CD)) {
 
 		GtkWidget *dialog, *dg_label, *dg_OK;
 		dialog = gtk_dialog_new();
@@ -53,7 +53,8 @@ void on_StepUbuntuLiveCD_forward_clicked(GtkWidget *widget, gpointer data)  {
 	
 		g_queue_push_head(history, (gpointer)STEPUBUNTULIVECD);
 		//displayStep3();
-	} else if ((goNext) && (setting_ubuntuLiveCdFrom == FROM_ISO)) {
+	}*/
+	if (goNext) {
 		
 		g_queue_push_head(history, (gpointer)STEPUBUNTULIVECD);
 		displayStepInstallDependencies();
