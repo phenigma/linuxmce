@@ -36,6 +36,12 @@ function build_installer_script
 	/usr/pluto/bin/ConfirmDependencies -o 14 -r -D pluto_main -h dcerouter -u root -p '' -d $Moon_DeviceID install > "${DestDir}/usr/pluto/install/activation.sh"
 }
 
+function put_sample_movie
+{
+	mkdir -p "${DestDir}/usr/pluto"
+	cp /usr/pluto/sample.mpg "${DestDir}/usr/pluto"
+}
+
 function create_archive
 {
 	pushd ${DestDir}
@@ -119,6 +125,7 @@ for Row in $R ;do
 
 	update_config_files
 	build_installer_script
+	put_sample_movie
 	create_archive
 	setup_mysql_access
 done
