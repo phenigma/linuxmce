@@ -1261,3 +1261,10 @@ void Powerfile_C200::CMD_Abort_Task(int iParameter_ID,string &sCMD_Result,Messag
 
 	pJob->Abort();
 }
+
+void Powerfile_C200::PostConnect()
+{
+	DCE::CMD_Refresh_List_of_Online_Devices_Cat CMD_Refresh_List_of_Online_Devices_Cat(m_dwPK_Device,DEVICECATEGORY_Media_Plugins_CONST,
+		true,BL_SameHouse);
+	SendCommand(CMD_Refresh_List_of_Online_Devices_Cat);
+}

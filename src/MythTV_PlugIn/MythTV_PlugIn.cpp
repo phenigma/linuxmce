@@ -93,11 +93,6 @@ bool MythTV_PlugIn::GetConfig()
 
 	m_pAlarmManager = new AlarmManager();
     m_pAlarmManager->Start(2);      //4 = number of worker threads
-	m_pAlarmManager->AddRelativeAlarm(30,this,CHECK_FOR_NEW_RECORDINGS,NULL);
-	m_pAlarmManager->AddRelativeAlarm(5,this,RUN_BACKEND_STARTER,NULL);
-	m_pAlarmManager->AddRelativeAlarm(15,this,CHECK_FOR_SCHEDULED_RECORDINGS,NULL);
-	m_pAlarmManager->AddRelativeAlarm(60,this,CONFIRM_MASTER_BACKEND_OK,NULL);
-	m_pAlarmManager->AddRelativeAlarm(45,this,SYNC_PROVIDERS_AND_CARDS,NULL);  // Do this after pnp has had a chance to update all incoming devices
 	return true;
 }
 
@@ -193,6 +188,12 @@ bool MythTV_PlugIn::Register()
 	BuildAttachedInfraredTargetsMap();
 
 	BuildChannelList();
+
+	m_pAlarmManager->AddRelativeAlarm(30,this,CHECK_FOR_NEW_RECORDINGS,NULL);
+	m_pAlarmManager->AddRelativeAlarm(5,this,RUN_BACKEND_STARTER,NULL);
+	m_pAlarmManager->AddRelativeAlarm(15,this,CHECK_FOR_SCHEDULED_RECORDINGS,NULL);
+	m_pAlarmManager->AddRelativeAlarm(60,this,CONFIRM_MASTER_BACKEND_OK,NULL);
+	m_pAlarmManager->AddRelativeAlarm(45,this,SYNC_PROVIDERS_AND_CARDS,NULL);  // Do this after pnp has had a chance to update all incoming devices
 
 	m_pMythBackEnd_Socket = new MythBackEnd_Socket(this,m_pRouter->sDBHost_get( ));  // The master backend is on the same server as mysql
 	m_pMythBackEnd_Socket->Connect();
@@ -1185,6 +1186,8 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Device,int iPK_Orbiter,
 					bModifiedRows=true;
 				}
 			}
+			else
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::SyncCardsAndProviders -- no block device for %d", cardid);
 
 			if( (bNewCard || pRow_Device_CaptureCard->NeedConfigure_get()==1 || pRow_Device->NeedConfigure_get()==1) && sScanningScript.empty()==false )
 			{

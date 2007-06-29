@@ -617,6 +617,7 @@ bool PnpQueue::Process_Detect_Stage_Prompting_User_For_DT(PnpQueueEntry *pPnpQue
 		Row_DeviceTemplate_DeviceData *pRow_DeviceTemplate_DeviceData = m_pDatabase_pluto_main->DeviceTemplate_DeviceData_get()->GetRow(pRow_DeviceTemplate->PK_DeviceTemplate_get(),DEVICEDATA_PNP_Create_Without_Prompting_CONST);
 		if( pRow_DeviceTemplate_DeviceData && atoi(pRow_DeviceTemplate_DeviceData->IK_DeviceData_get().c_str()) )
 		{
+			pPnpQueueEntry->m_bCreateWithoutPrompting=true;
 			pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_RUNNING_PRE_PNP_SCRIPT);
 			return Process_Detect_Stage_Running_Pre_Pnp_Script(pPnpQueueEntry);
 		}
@@ -707,13 +708,13 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Pr
 			if( pPnpQueueEntry->m_pRow_PnpQueue->FK_CommMethod_get()!=COMMMETHOD_Ethernet_CONST && (!pRow_DeviceTemplate_DeviceData || atoi(pRow_DeviceTemplate_DeviceData->IK_DeviceData_get().c_str())==0) )
 			{
 #ifdef DEBUG
-LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"PnpQueue::Process_Detect_Stage_Prompting_User_For_DT pk: %d %s room %d",
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Prompting_User_For_DT pk: %d %s room %d",
 					  pPnpQueueEntry->m_pRow_Device_Reported->PK_Device_get(),pPnpQueueEntry->m_pRow_Device_Reported->Description_get().c_str(),pPnpQueueEntry->m_pRow_Device_Reported->FK_Room_get());
 #endif
 
 				pPnpQueueEntry->m_pRow_Device_Reported->Reload();
 #ifdef DEBUG
-LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"PnpQueue::Process_Detect_Stage_Prompting_User_For_DT 2 pk: %d %s room %d",
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Prompting_User_For_DT 2 pk: %d %s room %d",
 					  pPnpQueueEntry->m_pRow_Device_Reported->PK_Device_get(),pPnpQueueEntry->m_pRow_Device_Reported->Description_get().c_str(),pPnpQueueEntry->m_pRow_Device_Reported->FK_Room_get());
 #endif
 				PK_Room = pPnpQueueEntry->m_pRow_Device_Reported->FK_Room_get();

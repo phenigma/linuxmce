@@ -318,7 +318,7 @@ continue;
                     pRow_Device_EntertainArea->FK_Device_getrow( )->Device_FK_Device_ControlledVia_getrows( &vectRow_Device ); // all it's children
                     for( size_t child=0;child<vectRow_Device.size( );++child )
                         AddDeviceToEntertainArea( pEntertainArea, vectRow_Device[child] );
-                }
+                }	
             }
         }
     }
@@ -1798,9 +1798,34 @@ ReceivedMessageResult Media_Plugin::ReceivedMessage( class Message *pMessage )
 					return rmr_Processed;
 				}
 
-				// Could be a timing issue that the stream finished and Orbiter didn't change the screen yet
-				LoggerWrapper::GetInstance()->Write( LV_WARNING, "An orbiter sent the media handler message type: %d id: %d, but it's not for me and I can't find a entertainment area", pMessage->m_dwMessage_Type, pMessage->m_dwID );
-				return rmr_NotProcessed;
+				// Worst case just find an entertainment area in the same room.  It may be a new remote that we haven't reloaded yet, and it may not have a room but at least have a parent
+				Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(pMessage->m_dwPK_Device_From);
+				Row_Device *pRow_Device_Parent = NULL;
+				int PK_Room=0;
+				if( pRow_Device && ((PK_Room=pRow_Device->FK_Room_get()) || ((pRow_Device_Parent=pRow_Device->FK_Device_ControlledVia_getrow())!=NULL && (PK_Room=pRow_Device_Parent->FK_Room_get()))) )
+				{
+					for( map<int, EntertainArea *>::iterator itEntArea=m_mapEntertainAreas.begin( );itEntArea!=m_mapEntertainAreas.end( );++itEntArea )
+					{
+						EntertainArea *pE = ( *itEntArea ).second;
+						if( pE->m_pRoom && pE->m_pRoom->m_dwPK_Room==PK_Room )
+						{
+							pEntertainArea = pE;
+							break;
+						}
+					}
+					if( !pEntertainArea )
+					{
+						// Could be a timing issue that the stream finished and Orbiter didn't change the screen yet
+						LoggerWrapper::GetInstance()->Write( LV_WARNING, "An orbiter sent the media handler message type: %d id: %d, but it's not for me and I can't find a entertainment area", pMessage->m_dwMessage_Type, pMessage->m_dwID );
+						return rmr_NotProcessed;
+					}
+				}
+				else
+				{
+					// Could be a timing issue that the stream finished and Orbiter didn't change the screen yet
+					LoggerWrapper::GetInstance()->Write( LV_WARNING, "An orbiter sent the media handler message type: %d id: %d, but it's not for me and I can't find a entertainment area", pMessage->m_dwMessage_Type, pMessage->m_dwID );
+					return rmr_NotProcessed;
+				}
 			}
 			else
 				pEntertainArea=pOH_Orbiter->m_pEntertainArea;
@@ -6000,10 +6025,10 @@ void Media_Plugin::CMD_Refresh_List_of_Online_Devices(string &sCMD_Result,Messag
 //<-dceag-c831-e->
 {
 	m_sPK_Devices_Online="";
-	string sSQL = "SELECT PK_Device,FK_DeviceCategory FROM Device "
+	string sSQL = "SELECT PK_Device,FK_DeviceCategory,FK_DeviceTemplate,FK_Device_ControlledVia FROM Device "
 		"JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate "
 		"LEFT JOIN Device_DeviceData ON FK_Device=PK_Device AND FK_DeviceData=" TOSTRING(DEVICEDATA_Online_CONST) " "
-		"WHERE FK_DeviceCategory IN (" TOSTRING(DEVICECATEGORY_Hard_Drives_CONST) "," TOSTRING(DEVICECATEGORY_Network_Storage_CONST) "," TOSTRING(DEVICECATEGORY_Disc_Drives_CONST) ") "
+		"WHERE FK_DeviceCategory IN (" TOSTRING(DEVICECATEGORY_Hard_Drives_CONST) "," TOSTRING(DEVICECATEGORY_Network_Storage_CONST) "," TOSTRING(DEVICECATEGORY_Disc_Drives_CONST) "," TOSTRING(DEVICECATEGORY_CDDVD_Jukeboxes_CONST) ") "
 		"AND (IK_DeviceData IS NULL OR IK_DeviceData<>0)";
 
 	PlutoSqlResult result;
@@ -6013,6 +6038,9 @@ void Media_Plugin::CMD_Refresh_List_of_Online_Devices(string &sCMD_Result,Messag
 	{
 		while( (row = db_wrapper_fetch_row( result.r )) )
 		{
+			if( atoi(row[2])==DEVICETEMPLATE_Disc_Drive_Embedded_CONST && (!row[3] || m_pRouter->DeviceIsRegistered( atoi(row[3]) )==false) )
+				continue; // It's an embedded device and the parent isn't online
+
 			if( atoi(row[1])==DEVICECATEGORY_Disc_Drives_CONST && m_pRouter->DeviceIsRegistered( atoi(row[0]) )==false )
 				continue; // This disc drive isn't online
 			if( m_sPK_Devices_Online.empty()==false )

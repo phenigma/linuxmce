@@ -782,7 +782,7 @@ void OSDScreenHandler::SCREEN_TV_Manufacturer(long PK_Screen)
 	if( !m_pWizardLogic->m_nPK_Device_TV && m_tLastDeviceAdded && time(NULL)-m_tLastDeviceAdded<10 ) // The user just recently added a new tv or other device.  Wait a few seconds to confirm
 	{
 		m_pOrbiter->ForceCurrentScreenIntoHistory();
-		string sText=m_pOrbiter->m_mapTextString[TEXT_Waiting_for_device_to_startup_CONST] + "|nobuttons";
+		string sText=m_pOrbiter->m_mapTextString[TEXT_Waiting_for_device_to_startup_CONST] + "|NO_BUTTON";
 		DCE::SCREEN_Media_Player_Setup_Popup_Message SCREEN_Media_Player_Setup_Popup_Message(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,
 			sText,"","1");
 		m_pOrbiter->ReceivedMessage(SCREEN_Media_Player_Setup_Popup_Message.m_pMessage);
@@ -1029,7 +1029,7 @@ void OSDScreenHandler::SCREEN_Receiver(long PK_Screen)
 	if( !m_pWizardLogic->m_nPK_Device_Receiver && m_tLastDeviceAdded && time(NULL)-m_tLastDeviceAdded<10 ) // The user just recently added a new receiver or other device.  Wait a few seconds to confirm
 	{
 		m_pOrbiter->ForceCurrentScreenIntoHistory();
-		string sText=m_pOrbiter->m_mapTextString[TEXT_Waiting_for_device_to_startup_CONST] + "|nobuttons";
+		string sText=m_pOrbiter->m_mapTextString[TEXT_Waiting_for_device_to_startup_CONST] + "|NO_BUTTON";
 		DCE::SCREEN_Media_Player_Setup_Popup_Message SCREEN_Media_Player_Setup_Popup_Message(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,
 			sText,"","1");
 		m_pOrbiter->ReceivedMessage(SCREEN_Media_Player_Setup_Popup_Message.m_pMessage);
@@ -1496,7 +1496,16 @@ void OSDScreenHandler::SCREEN_LightsSetup(long PK_Screen)
 
 	m_pWizardLogic->m_nPK_Device_Lighting =	m_pWizardLogic->FindFirstDeviceInCategory(DEVICECATEGORY_Lighting_Interface_CONST,0);
 	if( m_pWizardLogic->m_nPK_Device_Lighting )
-		HandleLightingScreen();
+	{
+		char cRegistered = m_pOrbiter->DeviceIsRegistered(m_pWizardLogic->m_nPK_Device_Lighting);
+		if( cRegistered != 'Y' )
+		{
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"OSDScreenHandler::SCREEN_LightsSetup interface hasn't registered yet");
+			m_pOrbiter->StartScreenHandlerTimer(500);
+		}
+		else
+			HandleLightingScreen();
+	}
 	else
 	{
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"OSDScreenHandler::SCREEN_LightsSetup setting pnp devices");
@@ -1586,7 +1595,7 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"SDScreenHandler::Lights_OnTimer n
 			else if( !m_tWaitingForRegistration )
 			{
 				m_tWaitingForRegistration = time(NULL);
-				string sText=m_pOrbiter->m_mapTextString[TEXT_Waiting_for_device_to_startup_CONST] + "|nobuttons";
+				string sText=m_pOrbiter->m_mapTextString[TEXT_Waiting_for_device_to_startup_CONST] + "|NO_BUTTON";
 				DCE::SCREEN_House_Setup_Popup_Message SCREEN_House_Setup_Popup_Message(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,
 					sText,"","1");
 				m_pOrbiter->ReceivedMessage(SCREEN_House_Setup_Popup_Message.m_pMessage);
@@ -1952,7 +1961,7 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"SDScreenHandler::Alarm_OnTimer no
 			else if( !m_tWaitingForRegistration )
 			{
 				m_tWaitingForRegistration = time(NULL);
-				string sText=m_pOrbiter->m_mapTextString[TEXT_Waiting_for_device_to_startup_CONST] + "|nobuttons";
+				string sText=m_pOrbiter->m_mapTextString[TEXT_Waiting_for_device_to_startup_CONST] + "|NO_BUTTON";
 				DCE::SCREEN_House_Setup_Popup_Message SCREEN_House_Setup_Popup_Message(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,
 					sText,"","1");
 				m_pOrbiter->ReceivedMessage(SCREEN_House_Setup_Popup_Message.m_pMessage);

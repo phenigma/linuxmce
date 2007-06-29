@@ -66,6 +66,7 @@ public:
 
 		bool SafeToReload(string &sReason);
 		bool ReportPendingTasks(PendingTaskList *pPendingTaskList);
+		void PostConnect();
 
 //<-dceag-const2-b->!
 		// The following constructor is only used if this a class instance embedded within a DCE Device.  In that case, it won't create it's own connection to the router
