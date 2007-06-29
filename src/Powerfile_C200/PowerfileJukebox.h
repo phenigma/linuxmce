@@ -43,6 +43,9 @@ namespace nsJukeBox
 				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Executing: %s",sCmd.c_str());
 				system(sCmd.c_str());
 			}
+
+			// Commands often fail a lot for no reason.  This function will retry the command up to 5 times with a 2 second delay in between each until sSearchToken is found in the output
+			bool RetryPowerfileCommand(const char * path, const char *const args[], string & sOutput, string & sStdErr, string sSearchToken1,string sSearchToken2);
 	};
 };
 
