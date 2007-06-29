@@ -211,7 +211,7 @@ void PreRenderInstructions()
 			pSurfaceTextLines[1] = TTF_RenderUTF8_Blended(pFont, "c - toggle composite", color);
 			pSurfaceTextLines[2] = TTF_RenderUTF8_Blended(pFont, "m - toggle masking", color);
 			pSurfaceTextLines[3] = TTF_RenderUTF8_Blended(pFont, "F1 - toggle fullscreen", color);
-			pSurfaceTextLines[4] = TTF_RenderUTF8_Blended(pFont, "any other key - quit", color);
+			pSurfaceTextLines[4] = TTF_RenderUTF8_Blended(pFont, "Escape - quit", color);
 
 			SDL_Surface *pSurfaceText = SDL_CreateRGBSurface(SDL_SWSURFACE, 128, 64, 32, rmask, gmask, bmask, amask);
 			
@@ -328,8 +328,11 @@ bool handleKeyPress( SDL_keysym *keysym )
 			bUseComposite = !bUseComposite;
 			return true;
 
-		default:
+		case SDLK_ESCAPE:
 			Quit( 0 );
+			break;
+
+		default:
 			break;
 	}
 
@@ -614,8 +617,6 @@ int main( int argc, char **argv )
 	SDL_Event event;
 	/* this holds some info about our display */
 	const SDL_VideoInfo *videoInfo;
-	/* whether or not the window is active */
-	int isActive = TRUE;
 
 	sTextureName = "logo.png";
 
@@ -785,32 +786,9 @@ int main( int argc, char **argv )
 			{
 				switch( event.type )
 				{
-
-				case SDL_ACTIVEEVENT:
-					/* Something's happend with our focus
-					* If we lost focus or we are iconified, we
-					* shouldn't draw the screen
-					*/
-					if ( event.active.gain == 0 )
-						isActive = FALSE;
-					else
-						isActive = TRUE;
-					break;			    
-
-				case SDL_VIDEORESIZE:
-					/* handle resize event */
-					surface = SDL_SetVideoMode( event.resize.w,
-						event.resize.h,
-						32, videoFlags );
-					if ( !surface )
-					{
-						fprintf( stderr, "Could not get a surface after resize: %s\n", SDL_GetError( ) );
-						Quit( 1 );
-					}
-					resizeWindow( event.resize.w, event.resize.h );
-					break;
 				case SDL_KEYDOWN:
 					/* handle key presses */
+					printf("got a key %d!\n", event.key.keysym.sym);
 					if(handleKeyPress( &event.key.keysym))
 						done = TRUE;
 
