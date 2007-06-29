@@ -4,3 +4,6 @@ trap 'rm -f /etc/rc2.d/S90firstrun' EXIT
 
 export NPflagReconfNetwork=yes
 /usr/pluto/bin/Network_Setup.sh
+
+rm -f /etc/ssh/ssh_host_*
+dpkg-reconfigure -pcritical openssh-server
