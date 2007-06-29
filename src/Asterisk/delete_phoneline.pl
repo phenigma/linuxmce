@@ -12,25 +12,28 @@ my $LINE_NAME = $ARGV[1];
 
 $LINE_NAME =~ s/(\w+)[-]out/$1/;
 
-system("curl 'http://localhost/pluto-admin/amp/admin/config.php?display=6&extdisplay=OUT_$LINE_NR&action=deltrunk' &>/dev/null ");
 if (defined($ARGV[2]))
 {
 	my $PHONE_NR = $ARGV[2];
-	system("curl 'http://localhost/pluto-admin/amp/admin/config.php?display=7&extdisplay=$PHONE_NR/&action=delIncoming' &>/dev/null");
+	`curl 'http://localhost/pluto-admin/amp/admin/config.php?display=7&extdisplay=$PHONE_NR/&action=delIncoming' &>/dev/null`;
 }
 
-system("curl -o /tmp/curl.log 'http://localhost/pluto-admin/amp/admin/config.php?display=8' &> /dev/null");
+`curl -o /tmp/curl.log 'http://localhost/pluto-admin/amp/admin/config.php?display=8' &> /dev/null`;
+
 open(PAGE,"/tmp/curl.log") or die "Bad thing happend";
 my $OUT_ROUTE = "";
 while(<PAGE>)
 {
     chomp;
-    if($_ =~ /<a\s+[^>]+href[=]\"[^"]+?extdisplay[=]([^"]+)\">\d+\s+$LINE_NAME<\/a>/)
+    if($_ =~ /<a\s+[^>]+href[=]\"[^"]+?extdisplay[=]([^"]+)\">\d+\s+$LINE_NAME(|[-]out)<\/a>/)
     {
         $OUT_ROUTE = $1;
     }
 }
 close(PAGE);
-system("curl 'http://localhost/pluto-admin/amp/admin/config.php?display=8&extdisplay=$OUT_ROUTE&action=delroute' &>/dev/null");
-system("curl 'http://localhost/pluto-admin/amp/admin/config.php?display=8&clk_reload=true' &>/dev/null");
 
+`curl 'http://localhost/pluto-admin/amp/admin/config.php?display=8&extdisplay=$OUT_ROUTE&action=delroute' &>/dev/null`;
+
+`curl 'http://localhost/pluto-admin/amp/admin/config.php?display=6&extdisplay=OUT_$LINE_NR&action=deltrunk' &>/dev/null`;
+
+`curl 'http://localhost/pluto-admin/amp/admin/config.php?display=8&clk_reload=true' &>/dev/null`;
