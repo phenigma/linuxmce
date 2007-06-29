@@ -8,6 +8,12 @@ TargetHdd=
 RootUUID=
 SwapUUID=
 
+GetConsole()
+{
+	exec &>/dev/tty1 </dev/tty1
+	dmesg -n1
+}
+
 GetHddToUse()
 {
 	local HddList Done Drive i Choice
@@ -135,6 +141,7 @@ Reboot()
 	shutdown -h now
 }
 
+GetConsole
 GetHddToUse
 PartitionHdd
 FormatPartitions
