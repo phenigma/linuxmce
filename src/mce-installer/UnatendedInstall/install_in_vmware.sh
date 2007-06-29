@@ -10,6 +10,10 @@ VMWARE_WORK_MACHINE="${VMWARE_DIR}/Kubuntu7.04.vmx"
 VMWARE_IP="192.168.76.128"
 
 
+# Export display so vmware will run in vnc server
+export DISPLAY=:1
+
+
 function decho {
 	echo "$(date -R) $*"
 }
@@ -147,9 +151,9 @@ function create_disk_image {
 
 }
 
-#create_virtual_machine
-#start_virtual_machine
-#create_debcache_on_virtual_machine
-#copy_installer_on_virtual_machine
-#run_installer_on_virtual_machine
+create_virtual_machine
+start_virtual_machine
+create_debcache_on_virtual_machine
+copy_installer_on_virtual_machine
+run_installer_on_virtual_machine
 create_disk_image
