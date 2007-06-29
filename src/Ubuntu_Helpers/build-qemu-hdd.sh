@@ -19,6 +19,7 @@ function partition_links {
 	local Pattern="${HDD_FILE}p?([[:digit:]]+)[*[:space:]]+([[:digit:]]+)[[:space:]]+([[:digit:]]+)[[:space:]]+([[:digit:]]+)[[:space:]]+([[:xdigit:]]+)[[:space:]].*"
 	local line
 	local Partition Start End Blocks Type Rest
+	local PartSize
 
 	losetup "$LoopDev" "$HDD_FILE"
 
@@ -29,7 +30,8 @@ function partition_links {
 		fi
 
 		## Setup device mapper devices
-		echo "0 $Blocks linear $LoopDev $Start" >"$PART_FILE$Partition.cf"
+		((PartSize=End-Start+1))
+		echo "0 $PartSize linear $LoopDev $Start" >"$PART_FILE$Partition.cf"
 		dmsetup create "qemu_p$Partition" "$PART_FILE$Partition.cf"
 		rm -f "$PART_FILE$Partition.cf"
 	done < <(fdisk -lu "$HDD_FILE" | sed -nre "s,$Pattern,\1 \2 \3 \4 \5,p")
@@ -53,8 +55,8 @@ function hdd_create {
 	## Create partitions on the new generated hdd file
 	parted -s "$HDD_FILE" -- mklabel msdos
 	parted -s "$HDD_FILE" -- mkpart primary ext2 0 "$ROOT_PARTITION_SIZE"GB
-	parted -s "$HDD_FILE" -- mkpart extended "$ROOT_PARTITION_SIZE"GB -1
-	parted -s "$HDD_FILE" -- mkpart logical linux-swap "$ROOT_PARTITION_SIZE"GB -1
+	parted -s "$HDD_FILE" -- mkpart extended "$ROOT_PARTITION_SIZE"GB -1s
+	parted -s "$HDD_FILE" -- mkpart logical linux-swap "$ROOT_PARTITION_SIZE"GB -1s
 
 	## Generate the loopback devices for all the partitions of the harddrive
 	mkdir -p "$PART_DIR"
