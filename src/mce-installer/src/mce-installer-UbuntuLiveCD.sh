@@ -27,7 +27,7 @@ else
 	fi
 
 	if ! mount -o loop -t squashfs "$CD_Dir"/casper/filesystem.squashfs "$Squash_Dir"; then
-		umount -lf "$CD_Dir" || :
+		umount -f "$CD_Dir" || :
 		exit 2
 	fi
 
@@ -42,8 +42,8 @@ else
 		gzip -c Packages > Packages.gz
 	popd
 
-	umount -lf "$Squash_Dir" || :
-	umount -lf "$CD_Dir" || :
+	umount -f "$Squash_Dir" || :
+	umount -f "$CD_Dir" || :
 	lp=$(losetup -f)
 	losetup -d "$lp" || :
 	rm -rf "$Squash_Dir" "$CD_Dir"
