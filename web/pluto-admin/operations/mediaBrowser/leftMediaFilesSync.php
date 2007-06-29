@@ -106,7 +106,7 @@ function leftMediaFilesSync($output,$mediadbADO,$dbADO) {
 
 function getDirectories ($path) {
 	$dirs=array();
-	if (($d = opendir ($path)) === false) {
+	if (($d = @opendir ($path)) === false) {
 		return $dirs;
 	}
 	else {

@@ -34,7 +34,7 @@ $searchString.=(isset($_REQUEST['Keyword2Type']))?'&'.$_REQUEST['Keyword2Type'].
 $searchString.=(isset($_REQUEST['Keyword3Type']))?'&'.$_REQUEST['Keyword3Type'].'='.$Keyword3Search:'';
 
 // Make the request for cover arts
-$request='http://webservices.amazon.com/onca/xml?Service=AWSECommerceService&AssociateTag='.ASSOCIATES_ID.'&Version='.AES_VERSION.'&SubscriptionId='. SUBID.'&Operation=ItemSearch&SearchIndex='.$searchIndex.'&ResponseGroup=Medium&Sort=salesrank&'.$searchString;
+$request='http://webservices.amazon.com/onca/xml?Service=AWSECommerceService&AssociateTag='.ASSOCIATES_ID.'&Version='.AES_VERSION.'&SubscriptionId='. SUBID.'&Operation=ItemSearch&SearchIndex='.$searchIndex.'&ResponseGroup=Medium&Sort=relevancerank&'.$searchString;
 echo $request;
 writeFile($GLOBALS['WebExecLogFile'],date('d-m-Y H:i:s')."\t".$request."\n",'a+');
 
