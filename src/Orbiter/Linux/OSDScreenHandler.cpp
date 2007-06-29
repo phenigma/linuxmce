@@ -3081,6 +3081,12 @@ void OSDScreenHandler::PrepForWizard()
 	m_pOrbiter->StopScreenSaver();
 }
 
+/*virtual*/ void OSDScreenHandler::SCREEN_Add_Software(long PK_Screen)
+{
+	PrepForWizard();
+	ScreenHandler::SCREEN_Add_Software(PK_Screen);
+}
+
 bool OSDScreenHandler::VideoWizard_OnGotoScreen(CallBackData *pData)
 {
 	GotoScreenCallBackData *pGotoScreenCallBackData = dynamic_cast<GotoScreenCallBackData *>(pData);

@@ -188,6 +188,8 @@ public:
 
 	void PrepForWizard();  // Stops PSS and activates Xine
 	bool VideoWizard_OnGotoScreen(CallBackData *pData);
+
+	virtual void SCREEN_Add_Software(long PK_Screen);
 };
 
 #endif
