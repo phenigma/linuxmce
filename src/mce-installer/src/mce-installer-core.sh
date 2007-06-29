@@ -317,18 +317,12 @@ mkdir -p /usr/pluto/deb-cache
 if [[ "$c_startupType" == "1" ]] ;then
 	mv /etc/init.d/gdm /etc/init.d/gdm.saved
 	mv /etc/init.d/kdm /etc/init.d/kdm.saved
-	echo "
-start on runlevel 2
-
-stop on shutdown
-stop on runlevel 3
-stop on runlevel 4
-stop on runlevel 5
-
-script
-/usr/pluto/bin/Startup_Core-Hybrid.sh
-end script
-" > /etc/event.d/pluto
+	echo '#!/bin/bash
+if [[ "$1" == start ]]; then
+	/usr/pluto/bin/Startup_Core-Hybrid.sh
+fi
+' > /etc/init.d/kdm
+chmod +x /etc/init.d/kdm
 #elif [[ "$c_startupType" == "2" ]] ;then
 #	echo "
 #start on runlevel 2
