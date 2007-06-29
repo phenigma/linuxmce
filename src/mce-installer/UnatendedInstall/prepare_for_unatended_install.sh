@@ -2,8 +2,9 @@
 set -x
 set -e
 
-VMWARE_DIR="/var/plutobuild/vmware/Kubuntu7.04"
-VMWARE_DISK_IMAGE="${VMWARE_DIR}/Kubuntu7.04.vmdk"
+WORK_DIR="/var/plutobuild/vmware/"
+VMWARE_DIR="${WORK_DIR}/Kubuntu7.04"
+VMWARE_DISK_IMAGE="${VMWARE_DIR}/Kubuntu7.04-flat.vmdk"
 VMWARE_WORK_MACHINE="${VMWARE_DIR}/Kubuntu7.04.vmx"
 VMWARE_IP="192.168.76.128"
 
@@ -71,7 +72,7 @@ function copy_installer_on_virtual_machine {
 
 function run_installer_on_virtual_machine {
 	decho "Starting installer on virtual machine"
-#	ssh root@"$VMWARE_IP" "cd /usr/pluto/install && screen -d -m -S 'Install' ./mce-installer.sh"
+	ssh root@"$VMWARE_IP" "cd /usr/pluto/install && screen -d -m -S 'Install' ./mce-installer.sh"
 	
 	while [[ "$(pidof vmplayer)" != "" ]] ;do
 		sleep 5
@@ -81,8 +82,51 @@ function run_installer_on_virtual_machine {
 
 }
 
+function create_disk_image {
+	local PART_FILE="/dev/mapper/qemu_p"
+	local LoopDev="$(losetup -f)"
+	
+	# Map partitions to loop device
+	decho "Map virtual machine partitions to loop device"
+	local Pattern="${VMWARE_DISK_IMAGE}p?([[:digit:]]+)[*[:space:]]+([[:digit:]]+)[[:space:]]+([[:digit:]]+)[[:space:]]+([[:digit:]]+)[[:space:]]+([[:xdigit:]]+)[[:space:]].*"
+	local Partition Start End Blocks Type Rest
+	losetup "$LoopDev" "${VMWARE_DISK_IMAGE}"
+	modprobe dm-mod
+	
+	while read Partition Start End Blocks Type Rest; do
+		if [[ " 82 83 " != *" $Type "* ]] ;then
+			continue
+		fi
+
+		echo "0 $(( End - Start + 1 )) linear $LoopDev $Start" >"${PART_FILE}${Partition}.cf"
+		dmsetup create "qemu_p${Partition}" "${PART_FILE}${Partition}.cf"
+		rm -f "${PART_FILE}${Partition}.cf"
+	done  < <(fdisk -lu "${VMWARE_DISK_IMAGE}" | sed -nre "s,${Pattern},\1 \2 \3 \4 \5,p")
+
+
+	# Mount the / partition and create tar.gz
+	decho "Creating tar.gz from virtual / partition"
+	VMWARE_MOUNT_DIR="${WORK_DIR}/mount"
+	mkdir -p "${VMWARE_MOUNT_DIR}"
+	mount "${PART_FILE}1" "${VMWARE_MOUNT_DIR}"
+	bash
+	umount "${VMWARE_MOUNT_DIR}"
+
+
+	# Unmap partitions from loop device
+	decho "Unmap virtual machine partitions from loop device"
+	local Dev
+	for Dev in /dev/mapper/qemu_p*; do
+		dmsetup remove "$(basename "$Dev")"
+	done
+	losetup -d "$LoopDev"
+
+
+}
+
 #create_virtual_machine
 #start_virtual_machine
 #create_debcache_on_virtual_machine
 #copy_installer_on_virtual_machine
-run_installer_on_virtual_machine
+#run_installer_on_virtual_machine
+create_disk_image
