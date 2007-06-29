@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -ex
+set -e
 
 Debug=0
 
@@ -51,10 +51,16 @@ GetHddToUse()
 
 PartitionHdd()
 {
+set +e
+	swapoff -a
 	parted -s "$TargetHdd" -- mklabel msdos
 	parted -s "$TargetHdd" -- mkpart primary ext2 0 -2GB
 	parted -s "$TargetHdd" -- mkpart extended -2GB -1s
 	parted -s "$TargetHdd" -- mkpart logical linux-swap -2GB -1s
+	sleep 1
+	blockdev --rereadpt "$TargetHdd"
+	sleep 5
+set -e
 }
 
 FormatPartitions()
@@ -78,7 +84,7 @@ MountPartitions()
 ExtractArchive()
 {
 	echo "Extracting archive (this will take about 10 minutes)"
-	cat /cdrom/lmce-image/linux-mce.tar.gz* | tar -C /media/target -zx --checkpoint
+	cat /cdrom/lmce-image/linux-mce.tar.gz* | tar -C /media/target -zx --checkpoint=10000
 #	tar -C /media/target -xzf /cdrom/lmce-image/hybrid-archive.tar.gz
 }
 

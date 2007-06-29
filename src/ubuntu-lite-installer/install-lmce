@@ -1,0 +1,17 @@
+#!/bin/bash
+
+case "$1" in
+	start)
+		/bin/bash /usr/bin/lite-installer.sh
+	;;
+	stop)
+	;;
+	reload|force-reload)
+	;;
+	restart)
+	;;
+	*)
+		echo "Usage: /etc/init.d/install-lmce {start|stop|reload|force-reload|restart}"
+		exit 1
+	;;
+esac
