@@ -113,6 +113,8 @@ void PlutoHalD::getChildId(LibHalContext * ctx, const char * udi,
 	childs = libhal_manager_find_device_string_match (ctx, "info.parent", udi, &num_childs, NULL);
 	if(childs != NULL && num_childs > 0)
 	{
+		LoggerWrapper::GetInstance()->Write(LV_DEBUG, "+++++++ getChildId Nr = %d", num_childs);
+		
 		string tagValue = value;
 		for(int i=0; i<num_childs; i++)
 		{
@@ -168,8 +170,19 @@ void PlutoHalD::myDeviceAdded(LibHalContext * ctx, const char * udi)
 			if( !parent.empty() )
 			{
 				string serial_parent;
-				getChildId(ctx, parent.c_str(), "info.bus", "usb", serial_parent);
+				
+				for(int i=0; i<10; i++)
+				{
+					// wait for HAL to build all the children
+					// 100 ms should be enough
+					usleep(100000);
+				
+					getChildId(ctx, parent.c_str(), "info.bus", "usb", serial_parent);
 					
+					if( !serial_parent.empty() )
+						break;
+				}
+				
 				if( !serial_parent.empty() )
 				{
 					gchar *info_udi = libhal_device_get_property_string (ctx, parent.c_str(), "info.udi", NULL);
