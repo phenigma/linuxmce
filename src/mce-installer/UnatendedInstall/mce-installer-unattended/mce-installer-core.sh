@@ -308,9 +308,8 @@ Setup_XOrg
 /usr/pluto/bin/Network_Setup.sh
 /usr/pluto/bin/DHCP_config.sh
 
-StatsMessage "Building a disk image for your Diskless Media Directors"
-/usr/pluto/bin/Diskless_CreateTBZ.sh
-
+#StatsMessage "Building a disk image for your Diskless Media Directors"
+#/usr/pluto/bin/Diskless_CreateTBZ.sh
 
 mkdir -p /usr/pluto/deb-cache
 
