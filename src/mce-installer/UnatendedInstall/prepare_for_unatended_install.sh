@@ -5,6 +5,7 @@ set -e
 WORK_DIR="/var/plutobuild/vmware/"
 VMWARE_DIR="${WORK_DIR}/Kubuntu7.04"
 VMWARE_DISK_IMAGE="${VMWARE_DIR}/Kubuntu7.04-flat.vmdk"
+VMWARE_TARGZ="${VMWARE_DIR}/linux-mce.tar.gz"
 VMWARE_WORK_MACHINE="${VMWARE_DIR}/Kubuntu7.04.vmx"
 VMWARE_IP="192.168.76.128"
 
@@ -82,6 +83,23 @@ function run_installer_on_virtual_machine {
 
 }
 
+function cleanup_filesystem {
+	FILESYSTEM_ROOT="$1"
+	if [[ "$FILESYSTEM_ROOT" == "" ]] ;the
+		return
+	fi
+
+	## Remove xorg.conf cause it was build under vmware
+	rm -f "${FILESYSTEM_ROOT}"/etc/X11/xorg.conf
+
+	## Set AVWizardOverride to 1 so AVWizard Starts on the first boot
+	if grep -q "^AVWizardOverride " ${FILESYSTEM_ROOT}/etc/pluto.conf ;then
+		sed -i "s/^AVWizardOverride .*/AVWizardOverride = 1/g" "${FILESYSTEM_ROOT}/etc/pluto.conf"
+	else
+		echo "AVWizardOverride = 1" > "${FILESYSTEM_ROOT}/etc/pluto.conf"
+	fi
+}
+
 function create_disk_image {
 	local PART_FILE="/dev/mapper/qemu_p"
 	local LoopDev="$(losetup -f)"
@@ -109,8 +127,13 @@ function create_disk_image {
 	VMWARE_MOUNT_DIR="${WORK_DIR}/mount"
 	mkdir -p "${VMWARE_MOUNT_DIR}"
 	mount "${PART_FILE}1" "${VMWARE_MOUNT_DIR}"
-	bash
+
+	cleanup_filesystem "${VMWARE_MOUNT_DIR}"
+
+	tar -C "${VMWARE_MOUNT_DIR}" --exclude=dev --exclude=proc -zc . | split --numeric-suffixes --bytes=2000m - "${VMWARE_TARGZ}_"
+
 	umount "${VMWARE_MOUNT_DIR}"
+	decho "Finish creating the tar.gz of / partition"
 
 
 	# Unmap partitions from loop device
