@@ -388,7 +388,7 @@ function deletePhoneLine($id,$line_name,$phone_nr){
 	// command to del phone line usr/pluto/bin/delete_phoneline.pl <line_nr> <line_name> <phone_nr>
 	$cmd="sudo -u root /usr/pluto/bin/delete_phoneline.pl $id $line_name $phone_nr";
 
-	$answer=exec($cmd);
+	$answer=exec_batch_command($cmd,1);
 	
 	return $answer;
 }
