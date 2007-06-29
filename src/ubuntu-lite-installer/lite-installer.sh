@@ -78,7 +78,8 @@ MountPartitions()
 ExtractArchive()
 {
 	echo "Extracting archive (this will take about 10 minutes)"
-	tar -C /media/target -xzf /cdrom/lmce-image/hybrid-archive.tar.gz
+	cat /cdrom/lmce-image/linux-mce.tar.gz* | tar -C /media/target -zx
+#	tar -C /media/target -xzf /cdrom/lmce-image/hybrid-archive.tar.gz
 }
 
 UnmountPartitions()
