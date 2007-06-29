@@ -15,4 +15,5 @@ $TEXT_ADD_DISC_PICTURE_CONST='Add disc picture';
 $TEXT_NO_DISC_PICTURES_CONST='No disc pictures.';
 $TEXT_DISC_PICTURE_UPLOADED_CONST='The picture was uploaded.';
 $TEXT_ERROR_UPLOAD_FAILS_PERMISIONS_CONST='ERROR: upload failed, please check permissions for the path ';
+$TEXT_DISC_UPDATED_CONST='Disc updated';
 ?>
