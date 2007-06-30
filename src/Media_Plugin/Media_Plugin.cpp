@@ -3882,28 +3882,28 @@ void Media_Plugin::CMD_Rip_Disk(int iPK_Device,string sFilename,int iPK_Users,st
 		return;
 	}
 
-	MediaStream *pMediaStream=NULL; // See if there's a media stream using this disc or this device
+	MediaStream *pMediaStream_Using=NULL; // See if there's a media stream using this disc or this device
 	for( MapMediaStream::iterator it=m_mapMediaStream.begin();it!=m_mapMediaStream.end();++it )
 	{
 		MediaStream *pMS = (*it).second;
 		MediaFile *pMediaFile = pMS->GetCurrentMediaFile();
 		if( pRow_Disc && pMS->m_dwPK_Disc==pRow_Disc->PK_Disc_get() )
 		{
-			pMediaStream = pMS;
+			pMediaStream_Using = pMS;
 			break;
 		}
 		if( pDevice_Disk && pMediaFile && pMediaFile->m_dwPK_Device_Disk_Drive==pDevice_Disk->m_dwPK_Device )
 		{
-			pMediaStream = pMS;
+			pMediaStream_Using = pMS;
 			break;
 		}
 	}
-	if( pMediaStream )
+	if( pMediaStream_Using )
 	{
 		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Sending stop media before rip" );
-		pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia( pMediaStream );
+		pMediaStream_Using->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia( pMediaStream_Using );
 		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Called StopMedia begfore rip" );
-		StreamEnded(pMediaStream);
+		StreamEnded(pMediaStream_Using);
 	}
 
 	if( sFormat.size()==0 )
