@@ -32,6 +32,7 @@ using namespace std;
 #include "PlutoUtils/StringUtils.h"
 #include "Table_RipStatus.h"
 #include "Table_Disc.h"
+#include "Table_File.h"
 
 
 
@@ -141,23 +142,25 @@ m_Slot = 0;
 is_null[3] = true;
 m_FK_Disc = 0;
 is_null[4] = true;
+m_FK_File = 0;
 is_null[5] = true;
-m_RipJob = 0;
 is_null[6] = true;
+m_RipJob = 0;
 is_null[7] = true;
 is_null[8] = true;
 is_null[9] = true;
 is_null[10] = true;
-m_psc_id = 0;
 is_null[11] = true;
-m_psc_batch = 0;
+m_psc_id = 0;
 is_null[12] = true;
+m_psc_batch = 0;
+is_null[13] = true;
 m_psc_user = 0;
 m_psc_frozen = 0;
-is_null[13] = false;
-m_psc_mod = "00000000000000";
 is_null[14] = false;
-is_null[15] = true;
+m_psc_mod = "00000000000000";
+is_null[15] = false;
+is_null[16] = true;
 m_psc_restrict = 0;
 
 
@@ -178,6 +181,9 @@ return m_Slot;}
 long int Row_RipStatus::FK_Disc_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return m_FK_Disc;}
+long int Row_RipStatus::FK_File_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
+
+return m_FK_File;}
 string Row_RipStatus::Type_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return m_Type;}
@@ -228,42 +234,45 @@ m_Slot = val; is_modified=true; is_null[2]=false;}
 void Row_RipStatus::FK_Disc_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 m_FK_Disc = val; is_modified=true; is_null[3]=false;}
+void Row_RipStatus::FK_File_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
+
+m_FK_File = val; is_modified=true; is_null[4]=false;}
 void Row_RipStatus::Type_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
-m_Type = val; is_modified=true; is_null[4]=false;}
+m_Type = val; is_modified=true; is_null[5]=false;}
 void Row_RipStatus::RipJob_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
-m_RipJob = val; is_modified=true; is_null[5]=false;}
+m_RipJob = val; is_modified=true; is_null[6]=false;}
 void Row_RipStatus::DateTime_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
-m_DateTime = val; is_modified=true; is_null[6]=false;}
+m_DateTime = val; is_modified=true; is_null[7]=false;}
 void Row_RipStatus::Status_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
-m_Status = val; is_modified=true; is_null[7]=false;}
+m_Status = val; is_modified=true; is_null[8]=false;}
 void Row_RipStatus::Message_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
-m_Message = val; is_modified=true; is_null[8]=false;}
+m_Message = val; is_modified=true; is_null[9]=false;}
 void Row_RipStatus::File_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
-m_File = val; is_modified=true; is_null[9]=false;}
+m_File = val; is_modified=true; is_null[10]=false;}
 void Row_RipStatus::psc_id_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
-m_psc_id = val; is_modified=true; is_null[10]=false;}
+m_psc_id = val; is_modified=true; is_null[11]=false;}
 void Row_RipStatus::psc_batch_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
-m_psc_batch = val; is_modified=true; is_null[11]=false;}
+m_psc_batch = val; is_modified=true; is_null[12]=false;}
 void Row_RipStatus::psc_user_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
-m_psc_user = val; is_modified=true; is_null[12]=false;}
+m_psc_user = val; is_modified=true; is_null[13]=false;}
 void Row_RipStatus::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
-m_psc_frozen = val; is_modified=true; is_null[13]=false;}
+m_psc_frozen = val; is_modified=true; is_null[14]=false;}
 void Row_RipStatus::psc_mod_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
-m_psc_mod = val; is_modified=true; is_null[14]=false;}
+m_psc_mod = val; is_modified=true; is_null[15]=false;}
 void Row_RipStatus::psc_restrict_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
-m_psc_restrict = val; is_modified=true; is_null[15]=false;}
+m_psc_restrict = val; is_modified=true; is_null[16]=false;}
 
 		
 bool Row_RipStatus::EK_Device_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
@@ -275,39 +284,42 @@ return is_null[2];}
 bool Row_RipStatus::FK_Disc_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return is_null[3];}
-bool Row_RipStatus::Type_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
+bool Row_RipStatus::FK_File_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return is_null[4];}
-bool Row_RipStatus::RipJob_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
+bool Row_RipStatus::Type_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return is_null[5];}
-bool Row_RipStatus::DateTime_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
+bool Row_RipStatus::RipJob_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return is_null[6];}
-bool Row_RipStatus::Status_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
+bool Row_RipStatus::DateTime_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return is_null[7];}
-bool Row_RipStatus::Message_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
+bool Row_RipStatus::Status_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return is_null[8];}
-bool Row_RipStatus::File_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
+bool Row_RipStatus::Message_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return is_null[9];}
-bool Row_RipStatus::psc_id_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
+bool Row_RipStatus::File_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return is_null[10];}
-bool Row_RipStatus::psc_batch_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
+bool Row_RipStatus::psc_id_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return is_null[11];}
-bool Row_RipStatus::psc_user_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
+bool Row_RipStatus::psc_batch_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return is_null[12];}
-bool Row_RipStatus::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
+bool Row_RipStatus::psc_user_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return is_null[13];}
+bool Row_RipStatus::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
+
+return is_null[14];}
 bool Row_RipStatus::psc_restrict_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
-return is_null[15];}
+return is_null[16];}
 
 			
 void Row_RipStatus::EK_Device_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
@@ -322,48 +334,52 @@ void Row_RipStatus::FK_Disc_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,ta
 is_null[3]=val;
 is_modified=true;
 }
-void Row_RipStatus::Type_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
+void Row_RipStatus::FK_File_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 is_null[4]=val;
 is_modified=true;
 }
-void Row_RipStatus::RipJob_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
+void Row_RipStatus::Type_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 is_null[5]=val;
 is_modified=true;
 }
-void Row_RipStatus::DateTime_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
+void Row_RipStatus::RipJob_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 is_null[6]=val;
 is_modified=true;
 }
-void Row_RipStatus::Status_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
+void Row_RipStatus::DateTime_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 is_null[7]=val;
 is_modified=true;
 }
-void Row_RipStatus::Message_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
+void Row_RipStatus::Status_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 is_null[8]=val;
 is_modified=true;
 }
-void Row_RipStatus::File_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
+void Row_RipStatus::Message_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 is_null[9]=val;
 is_modified=true;
 }
-void Row_RipStatus::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
+void Row_RipStatus::File_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 is_null[10]=val;
 is_modified=true;
 }
-void Row_RipStatus::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
+void Row_RipStatus::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 is_null[11]=val;
 is_modified=true;
 }
-void Row_RipStatus::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
+void Row_RipStatus::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 is_null[12]=val;
 is_modified=true;
 }
-void Row_RipStatus::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
+void Row_RipStatus::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 is_null[13]=val;
 is_modified=true;
 }
+void Row_RipStatus::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
+is_null[14]=val;
+is_modified=true;
+}
 void Row_RipStatus::psc_restrict_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
-is_null[15]=val;
+is_null[16]=val;
 is_modified=true;
 }
 	
@@ -420,11 +436,24 @@ sprintf(buf, "%li", m_FK_Disc);
 return buf;
 }
 
-string Row_RipStatus::Type_asSQL()
+string Row_RipStatus::FK_File_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 if (is_null[4])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_FK_File);
+
+return buf;
+}
+
+string Row_RipStatus::Type_asSQL()
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
+
+if (is_null[5])
 return "NULL";
 
 char *buf = new char[3];
@@ -438,7 +467,7 @@ string Row_RipStatus::RipJob_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
-if (is_null[5])
+if (is_null[6])
 return "NULL";
 
 char buf[32];
@@ -451,7 +480,7 @@ string Row_RipStatus::DateTime_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
-if (is_null[6])
+if (is_null[7])
 return "NULL";
 
 char *buf = new char[39];
@@ -465,7 +494,7 @@ string Row_RipStatus::Status_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
-if (is_null[7])
+if (is_null[8])
 return "NULL";
 
 char *buf = new char[3];
@@ -479,7 +508,7 @@ string Row_RipStatus::Message_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
-if (is_null[8])
+if (is_null[9])
 return "NULL";
 
 char *buf = new char[81];
@@ -493,7 +522,7 @@ string Row_RipStatus::File_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
-if (is_null[9])
+if (is_null[10])
 return "NULL";
 
 char *buf = new char[511];
@@ -507,7 +536,7 @@ string Row_RipStatus::psc_id_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
-if (is_null[10])
+if (is_null[11])
 return "NULL";
 
 char buf[32];
@@ -520,7 +549,7 @@ string Row_RipStatus::psc_batch_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
-if (is_null[11])
+if (is_null[12])
 return "NULL";
 
 char buf[32];
@@ -533,7 +562,7 @@ string Row_RipStatus::psc_user_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
-if (is_null[12])
+if (is_null[13])
 return "NULL";
 
 char buf[32];
@@ -546,7 +575,7 @@ string Row_RipStatus::psc_frozen_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
-if (is_null[13])
+if (is_null[14])
 return "NULL";
 
 char buf[32];
@@ -559,7 +588,7 @@ string Row_RipStatus::psc_mod_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
-if (is_null[14])
+if (is_null[15])
 return "NULL";
 
 char *buf = new char[29];
@@ -573,7 +602,7 @@ string Row_RipStatus::psc_restrict_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
-if (is_null[15])
+if (is_null[16])
 return "NULL";
 
 char buf[32];
@@ -620,10 +649,10 @@ bool Table_RipStatus::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFailedIns
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_RipStatus_asSQL()+", "+pRow->EK_Device_asSQL()+", "+pRow->Slot_asSQL()+", "+pRow->FK_Disc_asSQL()+", "+pRow->Type_asSQL()+", "+pRow->RipJob_asSQL()+", "+pRow->DateTime_asSQL()+", "+pRow->Status_asSQL()+", "+pRow->Message_asSQL()+", "+pRow->File_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_restrict_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_RipStatus_asSQL()+", "+pRow->EK_Device_asSQL()+", "+pRow->Slot_asSQL()+", "+pRow->FK_Disc_asSQL()+", "+pRow->FK_File_asSQL()+", "+pRow->Type_asSQL()+", "+pRow->RipJob_asSQL()+", "+pRow->DateTime_asSQL()+", "+pRow->Status_asSQL()+", "+pRow->Message_asSQL()+", "+pRow->File_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_restrict_asSQL();
 
 	
-		string query = "insert into RipStatus (`PK_RipStatus`, `EK_Device`, `Slot`, `FK_Disc`, `Type`, `RipJob`, `DateTime`, `Status`, `Message`, `File`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`, `psc_restrict`) values ("+
+		string query = "insert into RipStatus (`PK_RipStatus`, `EK_Device`, `Slot`, `FK_Disc`, `FK_File`, `Type`, `RipJob`, `DateTime`, `Status`, `Message`, `File`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`, `psc_restrict`) values ("+
 			values_list_comma_separated+")";
 			
 		if (db_wrapper_query(database->m_pDB, query.c_str()))
@@ -689,7 +718,7 @@ condition = condition + "`PK_RipStatus`=" + tmp_PK_RipStatus;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "`PK_RipStatus`="+pRow->PK_RipStatus_asSQL()+", `EK_Device`="+pRow->EK_Device_asSQL()+", `Slot`="+pRow->Slot_asSQL()+", `FK_Disc`="+pRow->FK_Disc_asSQL()+", `Type`="+pRow->Type_asSQL()+", `RipJob`="+pRow->RipJob_asSQL()+", `DateTime`="+pRow->DateTime_asSQL()+", `Status`="+pRow->Status_asSQL()+", `Message`="+pRow->Message_asSQL()+", `File`="+pRow->File_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL()+", `psc_restrict`="+pRow->psc_restrict_asSQL();
+update_values_list = update_values_list + "`PK_RipStatus`="+pRow->PK_RipStatus_asSQL()+", `EK_Device`="+pRow->EK_Device_asSQL()+", `Slot`="+pRow->Slot_asSQL()+", `FK_Disc`="+pRow->FK_Disc_asSQL()+", `FK_File`="+pRow->FK_File_asSQL()+", `Type`="+pRow->Type_asSQL()+", `RipJob`="+pRow->RipJob_asSQL()+", `DateTime`="+pRow->DateTime_asSQL()+", `Status`="+pRow->Status_asSQL()+", `Message`="+pRow->Message_asSQL()+", `File`="+pRow->File_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL()+", `psc_restrict`="+pRow->psc_restrict_asSQL();
 
 	
 		string query = "update RipStatus set " + update_values_list + " where " + condition;
@@ -869,133 +898,144 @@ sscanf(row[3], "%li", &(pRow->m_FK_Disc));
 if (row[4] == NULL)
 {
 pRow->is_null[4]=true;
-pRow->m_Type = "";
+pRow->m_FK_File = 0;
 }
 else
 {
 pRow->is_null[4]=false;
-pRow->m_Type = string(row[4],lengths[4]);
+sscanf(row[4], "%li", &(pRow->m_FK_File));
 }
 
 if (row[5] == NULL)
 {
 pRow->is_null[5]=true;
-pRow->m_RipJob = 0;
+pRow->m_Type = "";
 }
 else
 {
 pRow->is_null[5]=false;
-sscanf(row[5], "%li", &(pRow->m_RipJob));
+pRow->m_Type = string(row[5],lengths[5]);
 }
 
 if (row[6] == NULL)
 {
 pRow->is_null[6]=true;
-pRow->m_DateTime = "";
+pRow->m_RipJob = 0;
 }
 else
 {
 pRow->is_null[6]=false;
-pRow->m_DateTime = string(row[6],lengths[6]);
+sscanf(row[6], "%li", &(pRow->m_RipJob));
 }
 
 if (row[7] == NULL)
 {
 pRow->is_null[7]=true;
-pRow->m_Status = "";
+pRow->m_DateTime = "";
 }
 else
 {
 pRow->is_null[7]=false;
-pRow->m_Status = string(row[7],lengths[7]);
+pRow->m_DateTime = string(row[7],lengths[7]);
 }
 
 if (row[8] == NULL)
 {
 pRow->is_null[8]=true;
-pRow->m_Message = "";
+pRow->m_Status = "";
 }
 else
 {
 pRow->is_null[8]=false;
-pRow->m_Message = string(row[8],lengths[8]);
+pRow->m_Status = string(row[8],lengths[8]);
 }
 
 if (row[9] == NULL)
 {
 pRow->is_null[9]=true;
-pRow->m_File = "";
+pRow->m_Message = "";
 }
 else
 {
 pRow->is_null[9]=false;
-pRow->m_File = string(row[9],lengths[9]);
+pRow->m_Message = string(row[9],lengths[9]);
 }
 
 if (row[10] == NULL)
 {
 pRow->is_null[10]=true;
-pRow->m_psc_id = 0;
+pRow->m_File = "";
 }
 else
 {
 pRow->is_null[10]=false;
-sscanf(row[10], "%li", &(pRow->m_psc_id));
+pRow->m_File = string(row[10],lengths[10]);
 }
 
 if (row[11] == NULL)
 {
 pRow->is_null[11]=true;
-pRow->m_psc_batch = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[11]=false;
-sscanf(row[11], "%li", &(pRow->m_psc_batch));
+sscanf(row[11], "%li", &(pRow->m_psc_id));
 }
 
 if (row[12] == NULL)
 {
 pRow->is_null[12]=true;
-pRow->m_psc_user = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[12]=false;
-sscanf(row[12], "%li", &(pRow->m_psc_user));
+sscanf(row[12], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[13] == NULL)
 {
 pRow->is_null[13]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[13]=false;
-sscanf(row[13], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[13], "%li", &(pRow->m_psc_user));
 }
 
 if (row[14] == NULL)
 {
 pRow->is_null[14]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[14]=false;
-pRow->m_psc_mod = string(row[14],lengths[14]);
+sscanf(row[14], "%hi", &(pRow->m_psc_frozen));
 }
 
 if (row[15] == NULL)
 {
 pRow->is_null[15]=true;
-pRow->m_psc_restrict = 0;
+pRow->m_psc_mod = "";
 }
 else
 {
 pRow->is_null[15]=false;
-sscanf(row[15], "%li", &(pRow->m_psc_restrict));
+pRow->m_psc_mod = string(row[15],lengths[15]);
+}
+
+if (row[16] == NULL)
+{
+pRow->is_null[16]=true;
+pRow->m_psc_restrict = 0;
+}
+else
+{
+pRow->is_null[16]=false;
+sscanf(row[16], "%li", &(pRow->m_psc_restrict));
 }
 
 
@@ -1161,133 +1201,144 @@ sscanf(row[3], "%li", &(pRow->m_FK_Disc));
 if (row[4] == NULL)
 {
 pRow->is_null[4]=true;
-pRow->m_Type = "";
+pRow->m_FK_File = 0;
 }
 else
 {
 pRow->is_null[4]=false;
-pRow->m_Type = string(row[4],lengths[4]);
+sscanf(row[4], "%li", &(pRow->m_FK_File));
 }
 
 if (row[5] == NULL)
 {
 pRow->is_null[5]=true;
-pRow->m_RipJob = 0;
+pRow->m_Type = "";
 }
 else
 {
 pRow->is_null[5]=false;
-sscanf(row[5], "%li", &(pRow->m_RipJob));
+pRow->m_Type = string(row[5],lengths[5]);
 }
 
 if (row[6] == NULL)
 {
 pRow->is_null[6]=true;
-pRow->m_DateTime = "";
+pRow->m_RipJob = 0;
 }
 else
 {
 pRow->is_null[6]=false;
-pRow->m_DateTime = string(row[6],lengths[6]);
+sscanf(row[6], "%li", &(pRow->m_RipJob));
 }
 
 if (row[7] == NULL)
 {
 pRow->is_null[7]=true;
-pRow->m_Status = "";
+pRow->m_DateTime = "";
 }
 else
 {
 pRow->is_null[7]=false;
-pRow->m_Status = string(row[7],lengths[7]);
+pRow->m_DateTime = string(row[7],lengths[7]);
 }
 
 if (row[8] == NULL)
 {
 pRow->is_null[8]=true;
-pRow->m_Message = "";
+pRow->m_Status = "";
 }
 else
 {
 pRow->is_null[8]=false;
-pRow->m_Message = string(row[8],lengths[8]);
+pRow->m_Status = string(row[8],lengths[8]);
 }
 
 if (row[9] == NULL)
 {
 pRow->is_null[9]=true;
-pRow->m_File = "";
+pRow->m_Message = "";
 }
 else
 {
 pRow->is_null[9]=false;
-pRow->m_File = string(row[9],lengths[9]);
+pRow->m_Message = string(row[9],lengths[9]);
 }
 
 if (row[10] == NULL)
 {
 pRow->is_null[10]=true;
-pRow->m_psc_id = 0;
+pRow->m_File = "";
 }
 else
 {
 pRow->is_null[10]=false;
-sscanf(row[10], "%li", &(pRow->m_psc_id));
+pRow->m_File = string(row[10],lengths[10]);
 }
 
 if (row[11] == NULL)
 {
 pRow->is_null[11]=true;
-pRow->m_psc_batch = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[11]=false;
-sscanf(row[11], "%li", &(pRow->m_psc_batch));
+sscanf(row[11], "%li", &(pRow->m_psc_id));
 }
 
 if (row[12] == NULL)
 {
 pRow->is_null[12]=true;
-pRow->m_psc_user = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[12]=false;
-sscanf(row[12], "%li", &(pRow->m_psc_user));
+sscanf(row[12], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[13] == NULL)
 {
 pRow->is_null[13]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[13]=false;
-sscanf(row[13], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[13], "%li", &(pRow->m_psc_user));
 }
 
 if (row[14] == NULL)
 {
 pRow->is_null[14]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[14]=false;
-pRow->m_psc_mod = string(row[14],lengths[14]);
+sscanf(row[14], "%hi", &(pRow->m_psc_frozen));
 }
 
 if (row[15] == NULL)
 {
 pRow->is_null[15]=true;
-pRow->m_psc_restrict = 0;
+pRow->m_psc_mod = "";
 }
 else
 {
 pRow->is_null[15]=false;
-sscanf(row[15], "%li", &(pRow->m_psc_restrict));
+pRow->m_psc_mod = string(row[15],lengths[15]);
+}
+
+if (row[16] == NULL)
+{
+pRow->is_null[16]=true;
+pRow->m_psc_restrict = 0;
+}
+else
+{
+pRow->is_null[16]=false;
+sscanf(row[16], "%li", &(pRow->m_psc_restrict));
 }
 
 
@@ -1304,6 +1355,13 @@ PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 class Table_Disc *pTable = table->database->Disc_get();
 return pTable->GetRow(m_FK_Disc);
+}
+class Row_File* Row_RipStatus::FK_File_getrow()
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
+
+class Table_File *pTable = table->database->File_get();
+return pTable->GetRow(m_FK_File);
 }
 
 

@@ -238,6 +238,7 @@ void File_Users_FK_File_getrows(vector <class Row_File_Users*> *rows);
 void LongAttribute_FK_File_getrows(vector <class Row_LongAttribute*> *rows);
 void Picture_File_FK_File_getrows(vector <class Row_Picture_File*> *rows);
 void PlaylistEntry_FK_File_getrows(vector <class Row_PlaylistEntry*> *rows);
+void RipStatus_FK_File_getrows(vector <class Row_RipStatus*> *rows);
 
 
 		// Setup binary serialization

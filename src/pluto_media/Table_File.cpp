@@ -43,6 +43,7 @@ using namespace std;
 #include "Table_LongAttribute.h"
 #include "Table_Picture_File.h"
 #include "Table_PlaylistEntry.h"
+#include "Table_RipStatus.h"
 
 
 void Database_pluto_media::CreateTable_File()
@@ -1795,6 +1796,13 @@ void Row_File::PlaylistEntry_FK_File_getrows(vector <class Row_PlaylistEntry*> *
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 class Table_PlaylistEntry *pTable = table->database->PlaylistEntry_get();
+pTable->GetRows("`FK_File`=" + StringUtils::itos(m_PK_File),rows);
+}
+void Row_File::RipStatus_FK_File_getrows(vector <class Row_RipStatus*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
+
+class Table_RipStatus *pTable = table->database->RipStatus_get();
 pTable->GetRows("`FK_File`=" + StringUtils::itos(m_PK_File),rows);
 }
 

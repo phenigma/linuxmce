@@ -97,6 +97,7 @@ class DECLSPECIFIER Row_RipStatus : public TableRow, public SerializeClass
 long int m_EK_Device;
 long int m_Slot;
 long int m_FK_Disc;
+long int m_FK_File;
 string m_Type;
 long int m_RipJob;
 string m_DateTime;
@@ -110,13 +111,14 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[16];
+		bool is_null[17];
 	
 	public:
 		long int PK_RipStatus_get();
 long int EK_Device_get();
 long int Slot_get();
 long int FK_Disc_get();
+long int FK_File_get();
 string Type_get();
 long int RipJob_get();
 string DateTime_get();
@@ -135,6 +137,7 @@ long int psc_restrict_get();
 void EK_Device_set(long int val);
 void Slot_set(long int val);
 void FK_Disc_set(long int val);
+void FK_File_set(long int val);
 void Type_set(string val);
 void RipJob_set(long int val);
 void DateTime_set(string val);
@@ -152,6 +155,7 @@ void psc_restrict_set(long int val);
 		bool EK_Device_isNull();
 bool Slot_isNull();
 bool FK_Disc_isNull();
+bool FK_File_isNull();
 bool Type_isNull();
 bool RipJob_isNull();
 bool DateTime_isNull();
@@ -168,6 +172,7 @@ bool psc_restrict_isNull();
 		void EK_Device_setNull(bool val);
 void Slot_setNull(bool val);
 void FK_Disc_setNull(bool val);
+void FK_File_setNull(bool val);
 void Type_setNull(bool val);
 void RipJob_setNull(bool val);
 void DateTime_setNull(bool val);
@@ -192,6 +197,7 @@ void psc_restrict_setNull(bool val);
 
 		// Return the rows for foreign keys 
 		class Row_Disc* FK_Disc_getrow();
+class Row_File* FK_File_getrow();
 
 
 		// Return the rows in other tables with foreign keys pointing here
@@ -199,7 +205,7 @@ void psc_restrict_setNull(bool val);
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_RipStatus+ m_EK_Device+ m_Slot+ m_FK_Disc+ m_Type+ m_RipJob+ m_DateTime+ m_Status+ m_Message+ m_File+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_PK_RipStatus+ m_EK_Device+ m_Slot+ m_FK_Disc+ m_FK_File+ m_Type+ m_RipJob+ m_DateTime+ m_Status+ m_Message+ m_File+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
@@ -208,6 +214,7 @@ void psc_restrict_setNull(bool val);
 string EK_Device_asSQL();
 string Slot_asSQL();
 string FK_Disc_asSQL();
+string FK_File_asSQL();
 string Type_asSQL();
 string RipJob_asSQL();
 string DateTime_asSQL();
