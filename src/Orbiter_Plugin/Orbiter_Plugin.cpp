@@ -471,44 +471,41 @@ bool Orbiter_Plugin::ReportPendingTasks(PendingTaskList *pPendingTaskList)
 			string sProgress = "Regen Orbiter " + StringUtils::itos(*it);
 			OH_Orbiter *pOH_Orbiter = m_mapOH_Orbiter_Find(*it);
 
-			if( pOH_Orbiter )
-			{
-				int Minutes = (int)(time(NULL) - pOH_Orbiter->m_tRegenTime) / 60;
-                int Seconds = (int)(time(NULL) - pOH_Orbiter->m_tRegenTime) % 60;
+			int Minutes = pOH_Orbiter ? (int)(time(NULL) - pOH_Orbiter->m_tRegenTime) / 60 : 0;
+			int Seconds = pOH_Orbiter ? (int)(time(NULL) - pOH_Orbiter->m_tRegenTime) % 60 : 0;
 
-                string sRoom = 
-                    pOH_Orbiter->m_dwPK_Room ? 
-                    m_pDatabase_pluto_main->Room_get()->GetRow(pOH_Orbiter->m_dwPK_Room)->Description_get() :
-                    "";
+			Row_Orbiter *pRow_Orbiter = m_pDatabase_pluto_main->Orbiter_get()->GetRow(*it);
+			if( pRow_Orbiter )
+			{
+				pRow_Orbiter->Reload();
+
+				Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(pRow_Orbiter->PK_Orbiter_get());
+				Row_Room *pRow_Room = pRow_Device ? pRow_Device->FK_Room_getrow() : NULL;
+				string sRoom = pRow_Room ? pRow_Room->Description_get() : "";
 
 				sProgress += 
-                    " (" + pOH_Orbiter->m_pDeviceData_Router->m_sDescription + 
-                    (sRoom != "" ? " / " + sRoom : "") + ") " + 
-                    StringUtils::itos(Minutes) + " min " + StringUtils::itos(Seconds) + " sec";
+					" (" + (pRow_Device ? pRow_Device->Description_get() : "") + 
+					(sRoom != "" ? " / " + sRoom : "") + ") " + 
+					StringUtils::itos(Minutes) + " min " + StringUtils::itos(Seconds) + " sec";
 
-				Row_Orbiter *pRow_Orbiter = m_pDatabase_pluto_main->Orbiter_get()->GetRow(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
-				if( pRow_Orbiter )
-				{
-					pRow_Orbiter->Reload();
 
-                    if(pRow_Orbiter->RegenPercent_get() == 100)
-                    {
-                        //OrbiterGen didn't start to regen this orbiter
-                        //if OrbiterGen finished with this Orbiter, we shouldn't see it as a pending task anymore
-                        sProgress += "\nScheduled";
-                    }
-                    else
-                    {
-                        sProgress += "\n" + pRow_Orbiter->RegenStatus_get() + " " + 
-                            StringUtils::itos(pRow_Orbiter->RegenPercent_get()) + "%";
-                    }
-				}
-
-				pPendingTaskList->m_listPendingTask.push_back(new PendingTask(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
-					m_dwPK_Device,m_dwPK_Device,
-					"orbitergen",sProgress,
-					-1,0,false));
+                if(pRow_Orbiter->RegenPercent_get() == 100)
+                {
+                    //OrbiterGen didn't start to regen this orbiter
+                    //if OrbiterGen finished with this Orbiter, we shouldn't see it as a pending task anymore
+                    sProgress += "\nScheduled";
+                }
+                else
+                {
+                    sProgress += "\n" + pRow_Orbiter->RegenStatus_get() + " " + 
+                        StringUtils::itos(pRow_Orbiter->RegenPercent_get()) + "%";
+                }
 			}
+
+			pPendingTaskList->m_listPendingTask.push_back(new PendingTask(*it,
+				m_dwPK_Device,m_dwPK_Device,
+				"orbitergen",sProgress,
+				-1,0,false));
 		}
 	}
 
