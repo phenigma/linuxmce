@@ -1231,14 +1231,16 @@ Row_File *MediaAttributes_LowLevel::AddDirectoryToDatabase(int PK_MediaType,stri
 	return pRow_File;
 }
 
-void MediaAttributes_LowLevel::AddRippedDiscToDatabase(int PK_Disc,int PK_MediaType,string sDestination,string sTracks)
+int MediaAttributes_LowLevel::AddRippedDiscToDatabase(int PK_Disc,int PK_MediaType,string sDestination,string sTracks)
 {
+	int PK_File=0;
 	if(FileUtils::DirExists(sDestination))
 	{
 #ifdef DEBUG
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"MediaAttributes_LowLevel::AddRippedDiscToDatabase %s is a dir: %s",sDestination.c_str(),sTracks.c_str());
 #endif
 		Row_File *pRow_File = AddDirectoryToDatabase(PK_MediaType==MEDIATYPE_pluto_CD_CONST ? MEDIATYPE_pluto_StoredAudio_CONST : PK_MediaType,sDestination);
+		PK_File = pRow_File->PK_File_get();
 		AddDiscAttributesToFile(pRow_File->PK_File_get(),PK_Disc,-1);  // Track ==0
 		vector<Row_Disc_Attribute *> vectRow_Disc_Attribute;
 		m_pDatabase_pluto_media->Disc_Attribute_get()->GetRows(
@@ -1340,7 +1342,7 @@ void MediaAttributes_LowLevel::AddRippedDiscToDatabase(int PK_Disc,int PK_MediaT
 		if( listFiles.size()!=1 )
 		{
 			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find ripped disc lock file: %s / %s %d",sDestination.c_str(),sFileNameBase.c_str(),(int) listFiles.size());
-			return;
+			return 0;
 		}
 		string sLockFile = listFiles.front();
 #else
@@ -1353,7 +1355,7 @@ void MediaAttributes_LowLevel::AddRippedDiscToDatabase(int PK_Disc,int PK_MediaT
 		if( listFiles.size()!=1 )
 		{
 			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find ripped disc for lock file: %s",sLockFile.c_str());
-			return;
+			return 0;
 		}
 		string sRippedFile = listFiles.front();
 #else
@@ -1384,6 +1386,7 @@ void MediaAttributes_LowLevel::AddRippedDiscToDatabase(int PK_Disc,int PK_MediaT
 		pRow_File->Filename_set( FileUtils::FilenameWithoutPath(sRippedFile) );
 		pRow_File->INode_set( FileUtils::GetInode( pRow_File->Path_get() + "/" + pRow_File->Filename_get() ) );
 		m_pDatabase_pluto_media->File_get()->Commit();
+		PK_File = pRow_File->PK_File_get();
 
 		LoggerWrapper::GetInstance()->Write( LV_STATUS, "MediaAttributes_LowLevel::AddRippedDiscToDatabase %s PK_File %d Inode %d",
 			(pRow_File->Path_get() + "/" + pRow_File->Filename_get()).c_str(), pRow_File->PK_File_get(), pRow_File->INode_get() );
@@ -1394,6 +1397,7 @@ void MediaAttributes_LowLevel::AddRippedDiscToDatabase(int PK_Disc,int PK_MediaT
 		AddDiscAttributesToFile(pRow_File->PK_File_get(),PK_Disc,-1);  // We won't have tracks then we ripped.  -1=ripped whole thing
 		FileUtils::DelFile(sDestination + "/" + sLockFile);
 	}
+	return PK_File;
 }
 
 void MediaAttributes_LowLevel::AddDiscAttributesToFile(int PK_File,int PK_Disc,int Track)

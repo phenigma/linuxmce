@@ -36,6 +36,9 @@
 using namespace nsJobHandler;
 using namespace nsJukeBox;
 
+#include "DCE/DCEConfig.h"
+DCEConfig g_DCEConfig_JB;
+
 JukeBox::JukeBox(Command_Impl *pCommand_Impl)
 	: m_DriveMutex("Jukebox drive mutex", true)
 {
@@ -79,8 +82,12 @@ bool JukeBox::Init()
 	m_pJobHandler = new JobHandler();
 	m_pJobHandler->StartThread();
 	m_pDatabase_pluto_media = new Database_pluto_media(LoggerWrapper::GetInstance());
-	// TODO: the connection data is stored in pluto.conf; use it
-	if (!m_pDatabase_pluto_media->Connect(m_pCommand_Impl->m_sIPAddress, "root", "", "pluto_media", 3306))
+
+	string sIP = g_DCEConfig_JB.m_mapParameters_Find("MySqlHost");
+	if( sIP.empty() )
+		sIP = m_pCommand_Impl->m_sIPAddress;
+
+	if (!m_pDatabase_pluto_media->Connect(sIP, "root", "", "pluto_media", 3306))
 	{
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Cannot connect to database!");
 		m_pCommand_Impl->m_bQuit_set(true);

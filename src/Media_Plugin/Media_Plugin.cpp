@@ -3874,8 +3874,8 @@ void Media_Plugin::CMD_Rip_Disk(int iPK_Device,string sFilename,int iPK_Users,st
 
 	// If it's a cd and no tracks were specified, prompt the user, otherwise fill in the file names
 	if( sTracks.size()==0 && 
-		(pRow_Disc && pRow_Disc->EK_MediaType_get()==MEDIATYPE_pluto_CD_CONST) || (pRow_DiscLocation && pRow_DiscLocation->Type_get()=="C") || 
-		(pMediaStream && pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_CD_CONST) || (pMediaFile && pMediaFile->m_dwPK_MediaType==MEDIATYPE_pluto_CD_CONST) )
+		((pRow_Disc && pRow_Disc->EK_MediaType_get()==MEDIATYPE_pluto_CD_CONST) || (pRow_DiscLocation && pRow_DiscLocation->Type_get()=="C") || 
+		(pMediaStream && pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_CD_CONST) || (pMediaFile && pMediaFile->m_dwPK_MediaType==MEDIATYPE_pluto_CD_CONST)) )
 	{
 		SCREEN_CDTrackCopy SCREEN_CDTrackCopy(m_dwPK_Device,pMessage->m_dwPK_Device_From, iPK_Users,sFormat,sFilename,iEK_Disc,iSlot_Number,iDriveID);
 		SendCommand(SCREEN_CDTrackCopy);
@@ -6763,6 +6763,7 @@ void Media_Plugin::TransformFilenameToDeque(string sFilename,deque<MediaFile *> 
 					pMediaFile->m_dwPK_Disk = atoi(sFilename.substr(2).c_str());
 					pMediaFile->m_dwPK_Device_Disk_Drive = PK_Device_Disk_Drive;
 					pMediaFile->m_Slot = Slot;
+					pMediaFile->m_dwPK_MediaType = MEDIATYPE_pluto_CD_CONST;
 					dequeFilenames.push_back(pMediaFile);
 				}
 			}

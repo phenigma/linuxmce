@@ -695,3 +695,14 @@ void Disk_Drive::VerifyDriveIsNotEmbedded(string &sDrive)
 		}
 	}
 }
+
+bool Disk_Drive::SafeToReload(string &sReason)
+{
+	PLUTO_SAFETY_LOCK(dm,m_pDisk_Drive_Functions->m_DiskMutex);
+
+	if(m_pJobHandler->HasJobs()==false)
+		return true;
+
+	sReason = "See Pending Tasks.  Disk_Drive is busy.";
+	return false;
+}

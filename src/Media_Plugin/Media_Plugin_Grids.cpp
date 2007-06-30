@@ -928,6 +928,8 @@ class DataGridTable *Media_Plugin::CDTracks( string GridID, string Parms, void *
     DataGridTable *pDataGrid = new DataGridTable();
     DataGridCell *pCell;
 
+	MediaStream *pMediaStream = NULL;
+
 	string sSQL;
 	if( atoi(Parms.c_str())==0 )
 	{
@@ -935,12 +937,12 @@ class DataGridTable *Media_Plugin::CDTracks( string GridID, string Parms, void *
 		DetermineEntArea( pMessage->m_dwPK_Device_From, 0, "", vectEntertainArea );
 		EntertainArea *pEntertainArea = vectEntertainArea.size() ? vectEntertainArea[0] : NULL;
 		MediaFile *pMediaFile=NULL;
-		if( !pEntertainArea || !pEntertainArea->m_pMediaStream || (pMediaFile=pEntertainArea->m_pMediaStream->GetCurrentMediaFile())==NULL
-			|| (pMediaFile->m_dwPK_Disk==0 && pEntertainArea->m_pMediaStream->m_dwPK_Disc==0) )
+		if( !pEntertainArea || !pEntertainArea->m_pMediaStream || (pMediaFile=pEntertainArea->m_pMediaStream->GetCurrentMediaFile())==NULL )
 		{
 		    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Media_Plugin::CDTracks no disk for %p %p", pEntertainArea, pMediaFile);
 			return pDataGrid;
 		}
+		pMediaStream = pEntertainArea->m_pMediaStream;
 		if( pMediaFile->m_dwPK_Disk )
 			sSQL = "select Track,Name FROM Attribute JOIN Disc_Attribute ON FK_Attribute=PK_Attribute WHERE FK_AttributeType=" TOSTRING(ATTRIBUTETYPE_Title_CONST) 
 				" AND FK_Disc=" + StringUtils::itos(pMediaFile->m_dwPK_Disk);
@@ -956,6 +958,8 @@ class DataGridTable *Media_Plugin::CDTracks( string GridID, string Parms, void *
 
 	int currentPos=0;
 
+	map<int,bool> mapTracksAdded;
+
     if( (result.r=m_pDatabase_pluto_media->db_wrapper_query_result(sSQL)) )
         while( (row=db_wrapper_fetch_row(result.r)) )
 		{
@@ -963,8 +967,23 @@ class DataGridTable *Media_Plugin::CDTracks( string GridID, string Parms, void *
 			{
 				pCell = new DataGridCell(row[1],row[0]);
 				pDataGrid->SetData(0, currentPos++,pCell);
+				mapTracksAdded[ atoi(row[0]) ]=true;
 			}
 		}
+
+	if( pMediaStream )
+	{
+		for(deque<MediaFile *>::iterator it=pMediaStream->m_dequeMediaFile.begin();it!=pMediaStream->m_dequeMediaFile.end();++it)
+		{
+			MediaFile *pMediaFile = *it;
+			if( mapTracksAdded.find( pMediaFile->m_iTrack )==mapTracksAdded.end() )
+			{
+				// It's an unidentified track
+				pCell = new DataGridCell("Track " + StringUtils::itos(pMediaFile->m_iTrack),StringUtils::itos(pMediaFile->m_iTrack));
+				pDataGrid->SetData(0, currentPos++,pCell);
+			}
+		}
+	}
 
     return pDataGrid;
 }

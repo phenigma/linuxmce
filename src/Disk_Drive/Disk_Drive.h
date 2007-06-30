@@ -68,6 +68,8 @@ public:
 
 	void VerifyDriveIsNotEmbedded(string &sDrive);
 
+	bool SafeToReload(string &sReason);
+
 //<-dceag-h-b->
 	/*
 				AUTO-GENERATED SECTION

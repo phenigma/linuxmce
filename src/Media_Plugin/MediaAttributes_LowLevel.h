@@ -163,7 +163,7 @@ public:
 
 	Row_File *AddDirectoryToDatabase(int PK_MediaType,string sDirectory);
 	void AddAttributesToDisc(Row_Disc *pRow_Disc,int iFileOrTrack,int iSection,map<int,int> *p_mapPK_Attribute);
-	void AddRippedDiscToDatabase(int PK_Disc,int PK_MediaType,string sDestination,string sTracks);
+	int AddRippedDiscToDatabase(int PK_Disc,int PK_MediaType,string sDestination,string sTracks);
 	void AddDiscAttributesToFile(int PK_File,int PK_Disc,int Track);
 	bool FixMediaAttributes(listMediaAttribute &listMediaAttribute_,int &Tracks);
 

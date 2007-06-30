@@ -177,8 +177,12 @@ void RipTask::UpdateProgress(string sStatus,int iPercent,int iTime,string sText,
 	}
 	else if( sStatus=="s" )
 	{
-		m_pRipJob->m_pDisk_Drive_Functions->m_pMediaAttributes_LowLevel->AddRippedDiscToDatabase(m_pRipJob->m_iEK_Disc,
+		int PK_File = m_pRipJob->m_pDisk_Drive_Functions->m_pMediaAttributes_LowLevel->AddRippedDiscToDatabase(m_pRipJob->m_iEK_Disc,
 			m_pRipJob->m_iPK_MediaType,m_pRipJob->m_sFileName,m_pRipJob->m_sTracks);
+
+		if( m_pRow_RipStatus && PK_File )
+			m_pRow_RipStatus->FK_File_set(PK_File);
+
 		if( m_bReportResult )
 			ReportSuccess();
 		m_eTaskStatus_set(TASK_COMPLETED);

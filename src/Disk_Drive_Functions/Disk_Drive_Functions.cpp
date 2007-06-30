@@ -581,9 +581,6 @@ void Disk_Drive_Functions::FixupRippingInfo(Disk_Drive_Functions *pDisk_Drive_Fu
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive_Functions::FixupRippingInfo disc %d PK_MediaType %d sFilename %s sTracks %s iEK_Disc %d sDirectory %s",
 		pRow_Disc ? pRow_Disc->PK_Disc_get() : -1, PK_MediaType,sFilename.c_str(),sTracks.c_str(),iEK_Disc,sDirectory.c_str());
 
-	sFilename=FileUtils::ValidFileName(sFilename,true,true);
-	sDirectory=FileUtils::ValidFileName(sDirectory,true,true);
-
 	if( pRow_Disc )
 		PK_MediaType=pRow_Disc->EK_MediaType_get();
 	else
@@ -680,6 +677,9 @@ void Disk_Drive_Functions::FixupRippingInfo(Disk_Drive_Functions *pDisk_Drive_Fu
 		}
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive_Functions::FixupRippingInfo fixed directory %s / %s / %s", sDirectory.c_str(), sFilename.c_str(), sDirectory2.c_str());
 	}
+
+	sFilename=FileUtils::ValidFileName(sFilename,true,true);
+	sDirectory=FileUtils::ValidFileName(sDirectory,true,true);
 
 	sFilename = sDirectory + sFilename;
 
