@@ -13,8 +13,8 @@ else
 	CD_Dir=$(mktemp -d)
 	Squash_Dir=$(mktemp -d)
 
-	dpkg -i ./dpkg-dev_*.deb
-	dpkg -i ./dpkg-repack_*.deb
+	dpkg -i /usr/pluto/deb-cache/dpkg-dev_*.deb
+	dpkg -i /usr/pluto/deb-cache/dpkg-repack_*.deb
 
 	#pt-get -f -y install dpkg-repack
 
