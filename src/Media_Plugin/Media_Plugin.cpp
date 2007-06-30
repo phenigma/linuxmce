@@ -3863,6 +3863,10 @@ void Media_Plugin::CMD_Rip_Disk(int iPK_Device,string sFilename,int iPK_Users,st
 		return;
 	}
 
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Media_Plugin::CMD_Rip_Disk disc: %d mt: %d type: %s tracks: %s",
+		pRow_Disc ? pRow_Disc->PK_Disc_get() : -1, pRow_Disc ? pRow_Disc->EK_MediaType_get() : -1,
+		pRow_DiscLocation ? pRow_DiscLocation->Type_get().c_str() : "*NULL*", sTracks.c_str() );
+
 	// If it's a cd and no tracks were specified, prompt the user, otherwise fill in the file names
 	if( sTracks.size()==0 && 
 		(pRow_Disc && pRow_Disc->EK_MediaType_get()==MEDIATYPE_pluto_CD_CONST) || (pRow_DiscLocation && pRow_DiscLocation->Type_get()=="C") )
