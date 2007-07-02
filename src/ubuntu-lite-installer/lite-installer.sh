@@ -12,6 +12,7 @@ GetConsole()
 {
 	exec &>/dev/tty1 </dev/tty1
 	dmesg -n1
+	chvt 1
 }
 
 GetHddToUse()
@@ -97,7 +98,9 @@ ExtractArchive()
 
 UnmountPartitions()
 {
+set +e
 	umount /media/target
+set -e
 }
 
 SetupFstab()
@@ -127,13 +130,15 @@ InstallGrub()
 	umount /media/target/dev/
 	cp -r /dev/.static/dev/* /media/target/dev/
 
-	sed -ir "s/root=UUID=.* ro quiet splash/root=UUID=$RootUUID ro quiet splash/g" /media/target/boot/grub/menu.lst
-	sed -ir "s/root=UUID=.* ro single/root=UUID=$RootUUID ro single/g" /media/target/boot/grub/menu.lst
+	sed -ir "s,root=UUID=.* ro quiet splash,root=$TargetHdd ro quiet splash,g" /media/target/boot/grub/menu.lst
+	sed -ir "s,root=UUID=.* ro single,root=$TargetHdd ro single,g" /media/target/boot/grub/menu.lst
 }
 
 TargetCleanup()
 {
 	echo "" > /media/target/etc/iftab
+	chroot /media/target update-initramfs
+	#chroot /media/target update-grub
 }
 
 Reboot()
