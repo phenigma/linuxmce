@@ -89,12 +89,20 @@ function run_installer_on_virtual_machine {
 
 function cleanup_filesystem {
 	FILESYSTEM_ROOT="$1"
-	if [[ "$FILESYSTEM_ROOT" == "" ]] ;the
+	if [[ "$FILESYSTEM_ROOT" == "" ]] ;then
 		return
 	fi
 
 	## Remove xorg.conf cause it was build under vmware
 	rm -f "${FILESYSTEM_ROOT}"/etc/X11/xorg.conf
+
+	## Remove iftab
+	rm -f "${FILESYSTEM_ROOT}"/etc/iftab
+
+	## Create some dirs it they are not the
+	mkdir -p "${FILESYSTEM_ROOT}"/dev 
+	mkdir -p "${FILESYSTEM_ROOT}"/sys
+	mkdir -p "${FILESYSTEM_ROOT}"/proc
 
 	## Set AVWizardOverride to 1 so AVWizard Starts on the first boot
 	if grep -q "^AVWizardOverride " ${FILESYSTEM_ROOT}/etc/pluto.conf ;then
