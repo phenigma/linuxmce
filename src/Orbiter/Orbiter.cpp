@@ -9292,7 +9292,13 @@ void Orbiter::CMD_Display_Alert(string sText,string sTokens,string sTimeout,int 
 //<-dceag-c809-e->
 {
 	if( m_pScreenHistory_Current && m_mapScreen_Interrupt[m_pScreenHistory_Current->PK_Screen()]==0 && !OkayToInterrupt(iInterruption) )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::CMD_Display_Alert skipping: %s", sText.c_str());
 		return;
+	}
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::CMD_Display_Alert showing: %s", sText.c_str());
+
 	PlutoAlert *pPlutoAlert=NULL;
 	PLUTO_SAFETY_LOCK( vm, m_VariableMutex );
 
