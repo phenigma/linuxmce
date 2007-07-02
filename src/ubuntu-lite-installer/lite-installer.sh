@@ -143,7 +143,7 @@ InstallGrub()
 TargetCleanup()
 {
 	echo "" > /media/target/etc/iftab
-	chroot /media/target update-initramfs
+	chroot /media/target update-initramfs -u
 	#chroot /media/target update-grub
 }
 
