@@ -134,11 +134,6 @@ namespace DCE
 		*/
 		virtual void PostInitializeActions();
 
-		/**
-		* @brief Render a popup
-		*/
-		virtual void RenderPopup(PlutoPopup *pPopup, PlutoPoint point, int EffectID);
-
 		virtual bool HandleHidePopup(PlutoPopup* Popup);
 		virtual bool HandleShowPopup(PlutoPopup* Popup, PlutoPoint Position, int EffectID);
 

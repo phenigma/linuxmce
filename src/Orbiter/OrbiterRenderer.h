@@ -223,11 +223,6 @@ public:
 	virtual void HidePopups(DesignObj_Orbiter *pObj);
 
 	/**
-	* @brief Render a popup
-	*/
-	virtual void RenderPopup(PlutoPopup *pPopup, PlutoPoint point, int EffectID);
-
-	/**
 	* @brief These will redraw any objects in m_vectObjsToRedraw. Use this to queue objects to redraw, such as those tht
 	*/
 	virtual void RedrawObjects();

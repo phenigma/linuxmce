@@ -282,13 +282,13 @@ void OrbiterRenderer::ClipRectangle(PlutoRectangle &rect)
 	}
 
 	for(list<class PlutoPopup*>::iterator it=OrbiterLogic()->m_listPopups.begin();it!=OrbiterLogic()->m_listPopups.end();++it)
-		RenderPopup(*it, (*it)->m_Position, 1);
+		HandleShowPopup(*it, (*it)->m_Position, 1);
 
 	if( OrbiterLogic()->m_pScreenHistory_Current  )
 	{
 		for(list<class PlutoPopup*>::iterator it=OrbiterLogic()->m_pScreenHistory_Current->GetObj()->m_listPopups.begin();
 			it!=OrbiterLogic()->m_pScreenHistory_Current->GetObj()->m_listPopups.end();++it)
-			RenderPopup(*it, (*it)->m_Position, 1);
+			HandleShowPopup(*it, (*it)->m_Position, 1);
 	}
 
 	cm.Release(  );
@@ -955,23 +955,6 @@ void OrbiterRenderer::RenderShortcut(DesignObj_Orbiter *pObj)
 	}
 }
 //-----------------------------------------------------------------------------------------------------
-/*virtual*/ void OrbiterRenderer::RenderPopup(PlutoPopup *pPopup, PlutoPoint point, int EffectID)
-{
-#ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"ShowPopup: %s", pPopup->m_pObj->m_ObjectID.c_str());
-#endif
-	PLUTO_SAFETY_LOCK(sm, OrbiterLogic()->m_ScreenMutex);
-
-	//int nPopupEffect = 1;
-
-	if(pPopup->m_pObj)
-	{
-		pPopup->m_pObj->RenderObject(pPopup->m_pObj, point);
-	}
-	else
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Cannot render the popup %s: object doesn't exist", pPopup->m_sName.c_str()/*, pPopup->m_pObj->m_ObjectID.c_str()*/);
-}
-//-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer::RedrawObjects()
 {
 	PLUTO_SAFETY_LOCK(rm, m_NeedRedrawVarMutex);
@@ -1443,8 +1426,18 @@ LoggerWrapper::GetInstance()->Write(LV_EVENT,"OrbiterRenderer::BackgroundImageLo
 	}
 }
 
-/*virtual*/ bool OrbiterRenderer::HandleShowPopup(PlutoPopup* Popup, PlutoPoint Position, int EffectID)
+/*virtual*/ bool OrbiterRenderer::HandleShowPopup(PlutoPopup* pPopup, PlutoPoint point, int EffectID)
 {
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"ShowPopup: %s", pPopup->m_pObj->m_ObjectID.c_str());
+#endif
+	PLUTO_SAFETY_LOCK(sm, OrbiterLogic()->m_ScreenMutex);
+
+	if(pPopup->m_pObj)
+		pPopup->m_pObj->RenderObject(pPopup->m_pObj, point);
+	else
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Cannot render the popup %s: object doesn't exist", pPopup->m_sName.c_str()/*, pPopup->m_pObj->m_ObjectID.c_str()*/);
+
 	return false;
 }
 
