@@ -977,24 +977,33 @@ g_PlutoProfiler->DumpResults();
 		}
 
 		PLUTO_SAFETY_LOCK( vm, m_VariableMutex );
-		if(
-			!m_listScreenHistory.size() ||
-			(m_pScreenHistory_Current != pScreenHistory && m_listScreenHistory.back()->PK_Screen() != m_pScreenHistory_Current->PK_Screen())
-			)
+
+		//update the list only if the screen is changed
+		if(ScreenHistory::m_bAddToHistory)
 		{
-			//update the list only if the screen is changed
-			if(ScreenHistory::m_bAddToHistory)
+			if(
+				!m_listScreenHistory.size() ||
+				(
+					m_pScreenHistory_Current != pScreenHistory && 
+					m_listScreenHistory.back()->PK_Screen() != m_pScreenHistory_Current->PK_Screen()
+				)
+			)
 			{
 				m_listScreenHistory.push_back( m_pScreenHistory_Current );
-#ifdef DEBUG
+	#ifdef DEBUG
 				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Orbiter::NeedToChangeScreens m_listScreenHistory Adding to screens history list screen %d size %d", m_pScreenHistory_Current->PK_Screen(),(int) m_listScreenHistory.size());
-#endif
-			}
+	#endif
 
-			if ( m_listScreenHistory.size(  ) > 64 )
+				if ( m_listScreenHistory.size(  ) > 64 )
+				{
+					delete m_listScreenHistory.front();
+					m_listScreenHistory.pop_front(  );
+				}
+			}
+			else
 			{
-				delete m_listScreenHistory.front();
-				m_listScreenHistory.pop_front(  );
+				//add current design object to current screen history's list
+				m_pScreenHistory_Current->AddToHistory();
 			}
 		}
 	}
@@ -5033,7 +5042,7 @@ void Orbiter::CMD_Go_back(string sPK_DesignObj_CurrentScreen,string sForce,strin
 	DumpScreenHistory();
 #endif
 
-	ScreenHistory::m_bAddToHistory = true;
+	//ScreenHistory::m_bAddToHistory = true;
 }
 
 //<-dceag-c5-b->

@@ -1236,7 +1236,7 @@ void OrbiterRenderer::ObjectOnScreen( VectDesignObj_Orbiter *pVectDesignObj_Orbi
 #endif
 ///////////////////////////////////////////////////////////////////////////
 // Hidden on WIN32/WINCE
-#if defined(WIN32)
+#if defined(WIN32) && !defined(TEST_OSD)
 	if(pObj->m_iBaseObjectID == DESIGNOBJ_butStartAVwizard_CONST || pObj->m_iBaseObjectID == DESIGNOBJ_butStartWizard_CONST)
 		pObj->m_bHidden = true;
 #endif
