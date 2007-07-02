@@ -3100,12 +3100,20 @@ bool OSDScreenHandler::VideoWizard_OnGotoScreen(CallBackData *pData)
 {
 	GotoScreenCallBackData *pGotoScreenCallBackData = dynamic_cast<GotoScreenCallBackData *>(pData);
 
-	if(NULL != pGotoScreenCallBackData && pGotoScreenCallBackData->m_nPK_Screen == SCREEN_Main_CONST)
+	if(NULL != pGotoScreenCallBackData)
 	{
-		if(NULL != m_pOrbiter->m_pScreenHistory_Current && m_pOrbiter->m_pScreenHistory_Current->PK_Screen() == 53)
-			m_pOrbiter->CMD_Go_back("", "");
+		 if(pGotoScreenCallBackData->m_nPK_Screen == SCREEN_Main_CONST)
+		 {
+			if(NULL != m_pOrbiter->m_pScreenHistory_Current && m_pOrbiter->m_pScreenHistory_Current->PK_Screen() == SCREEN_PopupMessage_CONST)
+				m_pOrbiter->CMD_Go_back("", "");
 
-		return true;
+			return true;
+		 }
+
+		if(pGotoScreenCallBackData->m_nPK_Screen == SCREEN_mnuAmbiance_CONST || pGotoScreenCallBackData->m_nPK_Screen == SCREEN_mnuPlaybackControl_CONST)
+		{
+			return true;
+		}
 	}
 
 	return false;
