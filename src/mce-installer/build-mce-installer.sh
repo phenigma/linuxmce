@@ -15,7 +15,8 @@ pushd ../../utilities/linux/UIdiag/
 popd
 cp ../../utilities/linux/UIdiag/UIdiag ./
 cp ../../utilities/linux/UIdiag/*.png ./
-
+aptitude download dpkg-dev
+aptitude download dpkg-repack
 
 tar -czf mce-installer.tar.gz *.list mce-installer mce-installer-*.sh mce-installer.glade mce-installer-core.sh mce-installer-preseed.sh mce-installer-diskedmd.sh wget-wrapper.sh pluto.png mce-installer-getnetdata.sh libvte.so* libglade*so* libSDL* mirrors dpkg-scanpackages UIdiag *.png xcompmgr *.deb
 cat ../mce-installer-header.sh mce-installer.tar.gz > ../mce-installer.sh
