@@ -24,7 +24,12 @@ function rippingStatus($output,$dbADO,$mediadbADO) {
 			<input type="hidden" name="section" value="rippingStatus">
 			<input type="hidden" name="action" value="update">
 	';
-	$res=$mediadbADO->Execute('SELECT RipStatus.*,Device.Description FROM '.$dbPlutoMediaDatabase.'.RipStatus LEFT JOIN '.$dbPlutoMainDatabase.'.Device ON EK_Device=PK_Device ORDER BY PK_RipStatus DESC');
+	$res=$mediadbADO->Execute('
+		SELECT RipStatus.*,Device.Description,File.Filename, File.Path,File.PK_File 
+		FROM '.$dbPlutoMediaDatabase.'.RipStatus 
+		LEFT JOIN '.$dbPlutoMainDatabase.'.Device ON RipStatus.EK_Device=PK_Device 
+		LEFT JOIN File ON RipStatus.FK_File=PK_File
+		ORDER BY PK_RipStatus DESC');
 	$out.='
 	<a href="index.php?section=rippingStatus&action=purge">'.$TEXT_PURGE_ALL_CONST.'</a>
 	<table>
@@ -32,6 +37,7 @@ function rippingStatus($output,$dbADO,$mediadbADO) {
 			<td>'.$TEXT_DEVICE_CONST.'</td>
 			<td>'.$TEXT_SLOT_CONST.'</td>
 			<td>'.$TEXT_DISC_CONST.'</td>
+			<td>'.$TEXT_FILE_CONST.'</td>
 			<td>'.$TEXT_TYPE_CONST.'</td>
 			<td>'.$TEXT_RIP_JOB_CONST.'</td>
 			<td>'.$TEXT_DATETIME_CONST.'</td>
@@ -51,6 +57,7 @@ function rippingStatus($output,$dbADO,$mediadbADO) {
 			<td align="center"><a href="index.php?section=editDeviceParams&deviceID='.$row['EK_Device'].'">'.$row['Description'].'</a></td>
 			<td align="center">'.$row['Slot'].'</td>
 			<td align="center"><a href="index.php?section=discAttributes&discID='.$row['FK_Disc'].'">'.$row['FK_Disc'].'</a></td>
+			<td align="center">'.((is_null($row['FK_File']))?'&nbsp;':'<a href="index.php?section=editMediaFile&fileID='.$row['PK_File'].'">'.$row['Path'].'/'.$row['Filename'].'</a>').'</td>
 			<td align="center">'.$row['Type'].'</td>
 			<td align="center">'.$row['RipJob'].'</td>
 			<td align="center">'.$row['DateTime'].'</td>
