@@ -2,8 +2,14 @@
 
 trap 'rm -f /etc/rc2.d/S90firstrun' EXIT
 
+
+## Reconfigure netowkring
 export NPflagReconfNetwork=yes
 /usr/pluto/bin/Network_Setup.sh
 
+## Create new set of ssh keys
 rm -f /etc/ssh/ssh_host_*
 dpkg-reconfigure -pcritical openssh-server
+
+## Install video-wizard-video
+apt-get -y -f install video-wizard-videos
