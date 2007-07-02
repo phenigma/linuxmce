@@ -9,7 +9,7 @@ SquashFStgz="$WorkDir/ubuntu-squashfs-base.tgz"
 ## TODO: change paths to SVN checkout directory
 InstallerScript="lite-installer.sh"
 RcSScript="install-lmce"
-FirstRunScript="firstrun"
+FirstRunScript="firstboot"
 
 LiveCDISO="$WorkDir/kubuntu-linuxmce.iso"
 InstallerArchive="/var/plutobuild/vmware/Kubuntu7.04/linux-mce.tar.gz"

@@ -99,7 +99,7 @@ ExtractArchive()
 	blkid -c /media/target/etc/blkid.tab
 
 	#Copy the fist run script
-	cp /cdrom/lmce-image/firstrun /etc/rc2.d/S90firstrun
+	cp /cdrom/lmce-image/firstboot /etc/rc2.d/S90firstboot
 }
 
 UnmountPartitions()

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-trap 'rm -f /etc/rc2.d/S90firstrun' EXIT
+trap 'rm -f /etc/rc2.d/S90firstboot' EXIT
 
 
 ## Reconfigure netowkring
