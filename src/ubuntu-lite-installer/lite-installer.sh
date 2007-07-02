@@ -137,7 +137,7 @@ InstallGrub()
 	cp -r /dev/.static/dev/* /media/target/dev/
 
 	sed -ir "s,root=UUID=.* ro quiet splash,root=${TargetHdd}1 ro quiet splash,g" /media/target/boot/grub/menu.lst
-	sed -ir "s,root=UUID=.* ro single,root={$TargetHdd}1 ro single,g" /media/target/boot/grub/menu.lst
+	sed -ir "s,root=UUID=.* ro single,root=${TargetHdd}1 ro single,g" /media/target/boot/grub/menu.lst
 }
 
 TargetCleanup()
