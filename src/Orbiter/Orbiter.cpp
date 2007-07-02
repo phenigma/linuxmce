@@ -1000,11 +1000,6 @@ g_PlutoProfiler->DumpResults();
 					m_listScreenHistory.pop_front(  );
 				}
 			}
-			else
-			{
-				//add current design object to current screen history's list
-				m_pScreenHistory_Current->AddToHistory();
-			}
 		}
 	}
 
