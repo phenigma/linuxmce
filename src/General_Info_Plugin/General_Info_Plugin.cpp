@@ -82,6 +82,8 @@ using namespace DCE;
 #include "Event_Plugin/Event_Plugin.h"
 #include "Gen_Devices/AllScreens.h"
 
+#include "SerializeClass/ShapesColors.h"
+
 #include "Web_DHCP_Query.h"
 using namespace nsWeb_DHCP_Query;
 using namespace DefaultScenarios;
@@ -1282,7 +1284,7 @@ class DataGridTable *General_Info_Plugin::Rooms( string GridID, string Parms, vo
 			if( mapRoomsWithMDs.find( atoi( row[0] ) )!=mapRoomsWithMDs.end() )
 			{
 				pCell->m_mapAttributes["PK_Device"] = mapRoomsWithMDs[ atoi( row[0] ) ];
-				pCell->m_AltColor=1;
+				pCell->m_AltColor = PlutoColor::Gray().AsARGB();
 			}
 
 			pDataGrid->SetData( iCol++, iRow, pCell );
