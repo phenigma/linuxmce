@@ -78,6 +78,7 @@ FormatPartitions()
 	echo y|mkfs.ext3 "$TargetHdd"1
 	mkswap "$TargetHdd"5
 
+	blkid -c /etc/blkid.tab || :
 	RootUUID=$(vol_id -u "$TargetHdd"1)
 	SwapUUID=$(vol_id -u "$TargetHdd"5)
 }
@@ -92,7 +93,12 @@ ExtractArchive()
 {
 	echo "Extracting archive (this will take about 10 minutes)"
 	cat /cdrom/lmce-image/linux-mce.tar.gz* | tar -C /media/target -zx --checkpoint=10000
-#	tar -C /media/target -xzf /cdrom/lmce-image/hybrid-archive.tar.gz
+
+	# Update the UUIDs
+	rm /media/target/etc/blkid.tab || :
+	blkid -c /media/target/etc/blkid.tab
+
+	#Copy the fist run script
 	cp /cdrom/lmce-image/firstrun /etc/rc2.d/S90firstrun
 }
 
@@ -110,10 +116,10 @@ SetupFstab()
 #
 # <file system> <mount point>   <type>  <options>       <dump>  <pass>
 proc            /proc           proc    defaults        0       0
-# ${TargetHdd}1
-UUID=$RootUUID /               ext3    defaults,errors=remount-ro 0       1
-# ${TargetHdd}5
-UUID=$SwapUUID none            swap    sw              0       0
+#UUID=$RootUUID
+${TargetHdd}1 /               ext3    defaults,errors=remount-ro 0       1
+#UUID=$SwapUUID
+${TargetHdd}5 none            swap    sw              0       0
 /dev/cdrom        /media/cdrom0   udf,iso9660 user,noauto     0       0
 "
 	echo "$fstab_text" > /media/target/etc/fstab
@@ -130,8 +136,8 @@ InstallGrub()
 	umount /media/target/dev/
 	cp -r /dev/.static/dev/* /media/target/dev/
 
-	sed -ir "s,root=UUID=.* ro quiet splash,root=$TargetHdd ro quiet splash,g" /media/target/boot/grub/menu.lst
-	sed -ir "s,root=UUID=.* ro single,root=$TargetHdd ro single,g" /media/target/boot/grub/menu.lst
+	sed -ir "s,root=UUID=.* ro quiet splash,root=${TargetHdd}1 ro quiet splash,g" /media/target/boot/grub/menu.lst
+	sed -ir "s,root=UUID=.* ro single,root={$TargetHdd}1 ro single,g" /media/target/boot/grub/menu.lst
 }
 
 TargetCleanup()
