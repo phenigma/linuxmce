@@ -78,7 +78,7 @@ FormatPartitions()
 	echo y|mkfs.ext3 "$TargetHdd"1
 	mkswap "$TargetHdd"5
 
-	blkid -c /etc/blkid.tab || :
+	blkid -w /etc/blkid.tab || :
 	RootUUID=$(vol_id -u "$TargetHdd"1)
 	SwapUUID=$(vol_id -u "$TargetHdd"5)
 }
@@ -96,7 +96,7 @@ ExtractArchive()
 
 	# Update the UUIDs
 	rm /media/target/etc/blkid.tab || :
-	blkid -c /media/target/etc/blkid.tab
+	blkid -w /media/target/etc/blkid.tab
 
 	#Copy the fist run script
 	cp /cdrom/lmce-image/firstboot /media/target/etc/rc2.d/S90firstboot
