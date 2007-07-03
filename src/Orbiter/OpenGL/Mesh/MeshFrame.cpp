@@ -267,14 +267,17 @@ void MeshFrame::Paint(MeshTransform ChildTransform)
 	Transform.ApplyTransform(ChildTransform);
 	MeshPainter* Painter = MeshPainter::Instance();
 
-	if(m_pMeshContainer != NULL && MeshIsValid())
-		Painter->PaintContainer(*m_pMeshContainer, Transform, TextureTransform);
+	if(MeshIsValid())
+	{
+		if(m_pMeshContainer != NULL)
+			Painter->PaintContainer(*m_pMeshContainer, Transform, TextureTransform);
 
-	vector<MeshFrame *>::iterator Child, EndChild;
-	for(Child = Children.begin(), EndChild = Children.end(); Child != EndChild; ++Child)
-	{  
-		MeshFrame *pMeshFrame = *Child;
-		pMeshFrame->Paint(Transform);
+		vector<MeshFrame *>::iterator Child, EndChild;
+		for(Child = Children.begin(), EndChild = Children.end(); Child != EndChild; ++Child)
+		{  
+			MeshFrame *pMeshFrame = *Child;
+			pMeshFrame->Paint(Transform);
+		}
 	}
 }
 
