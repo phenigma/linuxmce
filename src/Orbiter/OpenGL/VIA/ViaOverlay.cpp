@@ -426,14 +426,14 @@ void ViaOverlay::ShowPopup(int x, int y, int w, int h)
 	PLUTO_SAFETY_LOCK(sm, m_ScreenMutex); 
 	LoggerWrapper::GetInstance()->Write(LV_TV, "#VIA Show popup %d %d %d %d", x, y, w, h);
 
-	InternalFillRectangleInAlphaMask(x, y, w, h, 0x00);
-
 	if(!m_bHasPopups)
 	{
 		//make sure with have the screen mask up-to-date
-		memcpy(m_BufferMask, m_ScreenMask, m_nWidth * m_nHeight);
+		memcpy(m_ScreenMask, m_BufferMask, m_nWidth * m_nHeight);
 	}
 
+        InternalFillRectangleInAlphaMask(x, y, w, h, 0x00);
+		
 	m_bHasPopups = true;
 }
 //-------------------------------------------------------------------------------------------------------
