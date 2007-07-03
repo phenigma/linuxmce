@@ -1496,8 +1496,8 @@ void MythTV_PlugIn::CheckForNewRecordings()
 		// Find the file isn mythconverg.recorded and import the attributes
 
 		sSQL = 
-			"SELECT recorded.chanid,recorded.starttime,recorded.title,recorded.subtitle,recorded.stars,recorded.category,recorded.description,"
-			"recordedprogram.hdtv,recordedprogram.category_type,channel.name,recordedrating.rating,recgroup,recordedprogram.seriesid,recordedprogram.programid FROM recorded "
+			"SELECT recorded.chanid, recorded.starttime, recorded.title, recorded.subtitle, recorded.stars, recorded.category, recorded.description,"
+			"recordedprogram.hdtv, recordedprogram.category_type, channel.name, recordedrating.rating, recgroup, recordedprogram.seriesid, recordedprogram.programid, channel.icon FROM recorded "
 			"LEFT JOIN recordedprogram ON recorded.chanid=recordedprogram.chanid and recorded.starttime=recordedprogram.starttime "
 			"LEFT JOIN channel ON recorded.chanid=channel.chanid "
 			"LEFT JOIN recordedrating ON recorded.chanid=recordedrating.chanid and recorded.starttime=recordedrating.starttime "
@@ -1550,9 +1550,9 @@ void MythTV_PlugIn::CheckForNewRecordings()
 			if( row[10] )
 				m_pMedia_Plugin->CMD_Add_Media_Attribute(row[10],0,"",ATTRIBUTETYPE_Rated_CONST,"",pRow_File->PK_File_get(),&PK_Attribute_Misc);
 
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::CheckForNewRecordings file: %s %d %d",pRow_File->Filename_get().c_str(),PK_Attribute_Title,PK_Attribute_Episode);
 
-LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"CheckForNewRecordings %d %d",PK_Attribute_Title,PK_Attribute_Episode);
-/*
+			int PK_Picture = 0;
 			if( PK_Attribute_Title || PK_Attribute_Episode )
 			{
 				if( row[12] )
@@ -1569,18 +1569,49 @@ LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"CheckForNewRecordings %d %d",PK
 				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"CheckForNewRecordings %s",sSQL.c_str());
 
 				PlutoSqlResult result;
-				if( (result.r=m_pDBHelper_Myth->db_wrapper_query_result( "SELECT EK_Picture FROM `pluto_myth`.Picture WHERE " + sSQL ) ) && ( row=db_wrapper_fetch_row( result.r ) ) )
+			    DB_ROW row_pic;
+				if( (result.r=m_pDBHelper_Myth->db_wrapper_query_result( "SELECT EK_Picture FROM `pluto_myth`.Picture WHERE " + sSQL ) ) && ( row_pic=db_wrapper_fetch_row( result.r ) ) && row_pic[0] && atoi(row_pic[0]) )
 				{
-LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"CheckForNewRecordings ok - %s",sSQL.c_str());
+					LoggerWrapper::GetInstance()->Write(LV_STATUS,"CheckForNewRecordings ok - %s",sSQL.c_str());
+					PK_Picture = atoi(row_pic[0]);
 					if( PK_Attribute_Title )
-						m_pMedia_Plugin->m_pMediaAttributes->m_pMediaAttributes_LowLevel->AddPictureToAttribute(PK_Attribute_Title,atoi(row[0]));
+						m_pMedia_Plugin->m_pMediaAttributes->m_pMediaAttributes_LowLevel->AddPictureToAttribute(PK_Attribute_Title,atoi(row_pic[0]));
 					if( PK_Attribute_Episode )
-						m_pMedia_Plugin->m_pMediaAttributes->m_pMediaAttributes_LowLevel->AddPictureToAttribute(PK_Attribute_Episode,atoi(row[0]));
+						m_pMedia_Plugin->m_pMediaAttributes->m_pMediaAttributes_LowLevel->AddPictureToAttribute(PK_Attribute_Episode,atoi(row_pic[0]));
+				}
+				else  // Look for a channel logo
+				{
+					PlutoSqlResult result;
+					if( (result.r=m_pDBHelper_Myth->db_wrapper_query_result( "SELECT EK_Picture FROM `pluto_myth`.Picture WHERE chanid=" + string(row[0]) ) ) && ( row_pic=db_wrapper_fetch_row( result.r ) ) && row_pic[0] && atoi(row_pic[0]) )
+					{
+						LoggerWrapper::GetInstance()->Write(LV_STATUS,"CheckForNewRecordings ok - %s",sSQL.c_str());
+						PK_Picture = atoi(row_pic[0]);
+						if( PK_Attribute_Title )
+							m_pMedia_Plugin->m_pMediaAttributes->m_pMediaAttributes_LowLevel->AddPictureToAttribute(PK_Attribute_Title,atoi(row_pic[0]));
+						if( PK_Attribute_Episode )
+							m_pMedia_Plugin->m_pMediaAttributes->m_pMediaAttributes_LowLevel->AddPictureToAttribute(PK_Attribute_Episode,atoi(row_pic[0]));
+					}
+					else if( row[14] )  // Use the icon from myth channel
+					{
+						Row_Picture *pRow_Picture = m_pMedia_Plugin->m_pMediaAttributes->m_pMediaAttributes_LowLevel->AddPicture(row[14]);
+						if( !pRow_Picture )
+							LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Failed to add picture %s",row[15]);
+						else
+						{
+							LoggerWrapper::GetInstance()->Write(LV_STATUS,"Adding Picture %d / %s", pRow_Picture->PK_Picture_get(), row[15]);
+							PK_Picture = pRow_Picture->PK_Picture_get();
+							if( PK_Attribute_Title )
+								m_pMedia_Plugin->m_pMediaAttributes->m_pMediaAttributes_LowLevel->AddPictureToAttribute(PK_Attribute_Title,pRow_Picture->PK_Picture_get());
+							if( PK_Attribute_Episode )
+								m_pMedia_Plugin->m_pMediaAttributes->m_pMediaAttributes_LowLevel->AddPictureToAttribute(PK_Attribute_Episode,pRow_Picture->PK_Picture_get());
+						}
+					}
 				}
 			}
 
-*/				
-
+			if( PK_Picture )
+				m_pMedia_Plugin->m_pMediaAttributes->m_pMediaAttributes_LowLevel->AddPictureToFile(pRow_File->PK_File_get(),PK_Picture);
+			
 			sSQL = 
 				"SELECT role,name FROM recordedcredits JOIN people on recordedcredits.person=people.person "
 				"WHERE chanid='" + string(row[0]) + "' AND starttime='" + row[1] + "'";

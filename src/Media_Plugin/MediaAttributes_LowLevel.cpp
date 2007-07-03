@@ -651,6 +651,48 @@ Row_Picture * MediaAttributes_LowLevel::AddPicture(char *pData,int iData_Size,st
 	return NULL;
 }
 
+Row_Picture * MediaAttributes_LowLevel::AddPicture(string sFile)
+{
+	if( !FileUtils::FileExists(sFile) )
+		return NULL;
+
+	string sFormat = StringUtils::ToLower(FileUtils::FindExtension(sFile));
+	string sMediaPicsFolder = "/home/mediapics/";
+
+	Row_Picture *pRow_Picture = m_pDatabase_pluto_media->Picture_get()->AddRow();
+	pRow_Picture->Extension_set("jpg");
+	pRow_Picture->URL_set(sFile);
+	m_pDatabase_pluto_media->Picture_get()->Commit();
+
+	string sPictureFileName = sMediaPicsFolder + StringUtils::itos(pRow_Picture->PK_Picture_get()) + ".jpg";
+
+	if( sFormat!="jpg" )
+	{
+		// All our pictures can only be jpg
+		string Cmd = "convert \"" + sFile + "\" \"" + sPictureFileName + "\"";
+		int result;
+		if( ( result=system( Cmd.c_str( ) ) )!=0 )
+			LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Thumbnail picture %s returned %d", Cmd.c_str( ), result );
+		else
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"MediaAttributes_LowLevel::AddPicture %d %s result: %s",
+				pRow_Picture->PK_Picture_get(),sFile.c_str(),Cmd.c_str());
+	}
+	else
+	{
+		bool bResult = FileUtils::PUCopyFile(sFile,sPictureFileName); /** < Copies a file from sSource to sDestination.  returns false if it fails, true otherwise */
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"MediaAttributes_LowLevel::AddPicture %d %s result: %d",
+			pRow_Picture->PK_Picture_get(),sFile.c_str(),(int) bResult);
+	}
+
+	string Cmd = "convert -sample 75x75 /home/mediapics/" + StringUtils::itos( pRow_Picture->PK_Picture_get() ) + "." + sFormat +
+		" /home/mediapics/" + StringUtils::itos( pRow_Picture->PK_Picture_get() ) + "_tn." + sFormat;
+	int result;
+	if( ( result=system( Cmd.c_str( ) ) )!=0 )
+		LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Thumbnail picture %s returned %d", Cmd.c_str( ), result );
+
+	return pRow_Picture;
+}
+
 void MediaAttributes_LowLevel::UpdateSearchTokens(Row_Attribute *pRow_Attribute)
 {
 	int PK_Attribute = pRow_Attribute->PK_Attribute_get();

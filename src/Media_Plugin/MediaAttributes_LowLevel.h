@@ -120,6 +120,7 @@ public:
 	//void ChangeAttribute(int OldPK_AttributeType,int NewPK_AttributeType,string OldName,string NewName);
     //void ChangeAttribute(int PK_Attribute,string NewName);
 	Row_Picture *AddPicture(char *pData,int iData_Size,string sFormat,string sURL);
+	Row_Picture *AddPicture(string sFile);
     void UpdateSearchTokens(Row_Attribute *pRow_Attribute);
     void ScanDirectory(string Path);
 
