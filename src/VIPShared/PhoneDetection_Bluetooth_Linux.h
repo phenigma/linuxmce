@@ -49,7 +49,7 @@ class PhoneDetection_Bluetooth_Linux : public PhoneDetectionEngine
 
 public:
 	PhoneDetection_Bluetooth_Linux();
-    virtual ~PhoneDetection_Bluetooth_Linux() {}
+    virtual ~PhoneDetection_Bluetooth_Linux() { StopScanning(); }
 
     virtual int GetLinkQuality(const char *addr);	   
 
