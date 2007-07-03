@@ -24,7 +24,7 @@ mkdir -p "$UPDATES_DIR"
 
 function Debug {
 	echo "$(date -R) $*"
-	echo "$(date -R) LMCEUpdate_DownloadXml.sh $*" >> /var/log/UpdateHelper.log
+	echo "$(date -R) LMCEUpdate_DownloadXml.sh $*" >> /var/log/pluto/UpdateHelper.log
 }
 
 Debug "DownloadXml started"

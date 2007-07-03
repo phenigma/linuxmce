@@ -9,7 +9,7 @@ PIN=100
 ## Usefull functions
 function Debug {
 	echo "$(date -R) $*" >&2
-	echo "$(date -R) $*" >> /var/log/UpdateHelper.log
+	echo "$(date -R) $*" >> /var/log/pluto/UpdateHelper.log
 }
 
 function Receive {
