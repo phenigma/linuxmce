@@ -180,7 +180,20 @@ void OnModify(list<string> &listFiles)
 		string sItem = *it;
 
 		struct stat st;
-		stat(sItem.c_str(), &st);
+		if(0 != stat(sItem.c_str(), &st))
+		{
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "stat failed for %s. We'll try to parent!", sItem.c_str());
+			
+			size_t nPos = sItem.rfind("/");
+			if(nPos != string::npos)
+				sItem = sItem.substr(0, nPos);
+
+			if(0 != stat(sItem.c_str(), &st))
+			{
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "stat failed for %s. We'll skip it!", sItem.c_str());
+				continue;
+			}
+		}
 
 		if(!(st.st_mode & S_IFDIR))
 		{
