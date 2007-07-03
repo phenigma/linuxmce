@@ -345,7 +345,7 @@ bool OrbiterRenderer_Linux::DisplayProgress(string sMessage, const map<string, b
         pOrbiterLinux->m_pProgressWnd = new XProgressWnd();
         pOrbiterLinux->m_pProgressWnd->UpdateProgress(sMessage, nProgress);
         pOrbiterLinux->m_pProgressWnd->Run();
-        pOrbiterLinux->m_pWinListManager->MaximizeWindow(pOrbiterLinux->m_pProgressWnd->m_wndName);
+        pOrbiterLinux->m_pWinListManager->PositionWindow(pOrbiterLinux->m_pProgressWnd->m_wndName, 0, 0, pOrbiterLinux->m_iImageWidth, pOrbiterLinux->m_iImageHeight);
 		pOrbiterLinux->m_pWinListManager->SetSdlWindowVisibility(false);
 		pOrbiterLinux->m_pWinListManager->ApplyContext();
         return false;
@@ -391,7 +391,7 @@ bool OrbiterRenderer_Linux::DisplayProgress(string sMessage, int nProgress)
         pOrbiterLinux->m_pProgressWnd = new XProgressWnd();
         pOrbiterLinux->m_pProgressWnd->UpdateProgress(sMessage, nProgress);
         pOrbiterLinux->m_pProgressWnd->Run();
-        pOrbiterLinux->m_pWinListManager->MaximizeWindow(pOrbiterLinux->m_pProgressWnd->m_wndName);
+		pOrbiterLinux->m_pWinListManager->PositionWindow(pOrbiterLinux->m_pProgressWnd->m_wndName, 0, 0, pOrbiterLinux->m_iImageWidth, pOrbiterLinux->m_iImageHeight);
 		pOrbiterLinux->m_pWinListManager->SetSdlWindowVisibility(false);
 		pOrbiterLinux->m_pWinListManager->ApplyContext();
         return false;
@@ -434,7 +434,7 @@ int OrbiterRenderer_Linux::PromptUser(string sPrompt, int iTimeoutSeconds, map<i
     XPromptUser promptDlg(sPrompt, iTimeoutSeconds, p_mapPrompts);
     promptDlg.SetButtonPlacement(XPromptUser::BTN_VERT);
     promptDlg.Init();
-    pOrbiterLinux->m_pWinListManager->MaximizeWindow(promptDlg.m_wndName);
+	pOrbiterLinux->m_pWinListManager->PositionWindow(promptDlg.m_wndName, 0, 0, pOrbiterLinux->m_iImageWidth, pOrbiterLinux->m_iImageHeight);
 	pOrbiterLinux->m_pWinListManager->ApplyContext();
     int nUserAnswer = promptDlg.RunModal();
     promptDlg.DeInit();
