@@ -399,12 +399,16 @@ MeshFrame *MeshFrame::FindChild(string Name)
 		ChildMesh = this;
 	else
 	{
-		for(vector<MeshFrame*>::iterator it = Children.begin(), end = Children.end(); it != end; ++it)
+		//skip datagrid's children
+		if(m_sName.find("datagrid ") != 0)
 		{
-			ChildMesh = (*it)->FindChild(Name);
+			for(vector<MeshFrame*>::iterator it = Children.begin(), end = Children.end(); it != end; ++it)
+			{
+				ChildMesh = (*it)->FindChild(Name);
 
-			if(NULL != ChildMesh)
-				return ChildMesh;
+				if(NULL != ChildMesh)
+					return ChildMesh;
+			}
 		}
 	}
 

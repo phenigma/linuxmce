@@ -160,6 +160,8 @@ namespace DCE
 
 		virtual void ObjectRendered(DesignObj_Orbiter *pObj, PlutoPoint point);
 
+		virtual void ResetDatagrids(DesignObj_Orbiter *pObj);
+
 		/*
 		*  Remove all floorplan objects from current screen
 		*/

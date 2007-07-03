@@ -745,13 +745,6 @@ DesignObj_Orbiter *pObj, PlutoPoint *ptPopup/* = NULL*/)
 	if(pObj->m_PK_Effect_Off_Screen > 0)
 		m_spPendingGLEffects->m_nOffScreenTransitionEffectID = pObj->m_PK_Effect_Off_Screen;
 
-	if(pObj->m_ObjectType == DESIGNOBJTYPE_Datagrid_CONST)
-	{
-		DataGridRenderer_OpenGL *pDatagridRenderer = dynamic_cast<DataGridRenderer_OpenGL *>(pObj->Renderer());
-		if(NULL != pDatagridRenderer)
-			pDatagridRenderer->Reset();
-	}
-
 	if(pObj->m_pPopupPoint.X != 0 || pObj->m_pPopupPoint.Y != 0)
 	{
 		//we are on a popup; keep me cached!
@@ -805,7 +798,14 @@ DesignObj_Orbiter *pObj, PlutoPoint *ptPopup/* = NULL*/)
 #endif
 
 	Engine->BeginModifyGeometry();
+
+	//make sure the datagrids are reseted (previous "image" with mesh frames for the datagrid - used for animations)
+	if(NULL != OrbiterLogic()->m_pScreenHistory_Current)
+		ResetDatagrids(OrbiterLogic()->m_pScreenHistory_Current->GetObj());
+
+	//render the screen
 	OrbiterRenderer::RenderScreen(bRenderGraphicsOnly);
+
 	Engine->EndModifyGeometry();
 	
 	NeedToUpdateScreen_ = true;
@@ -1059,3 +1059,20 @@ void OrbiterRenderer_OpenGL::ClearFloorplan()
 	Engine->InvalidateFramesStartingWith(HOLLOW_OBJ_NAME);
 }
 
+void OrbiterRenderer_OpenGL::ResetDatagrids(DesignObj_Orbiter *pObj)
+{
+	if(NULL != pObj)
+	{
+		if(pObj->m_ObjectType == DESIGNOBJTYPE_Datagrid_CONST)
+		{
+			DataGridRenderer_OpenGL *pDatagridRenderer = dynamic_cast<DataGridRenderer_OpenGL *>(pObj->Renderer());
+			if(NULL != pDatagridRenderer)
+				pDatagridRenderer->Reset();
+		}
+		else
+		{
+			for(DesignObj_DataList::iterator it = pObj->m_ChildObjects.begin(); it != pObj->m_ChildObjects.end(); ++it)
+				ResetDatagrids(dynamic_cast<DesignObj_Orbiter *>(*it));
+		}
+	}
+}
