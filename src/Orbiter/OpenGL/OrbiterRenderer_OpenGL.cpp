@@ -851,8 +851,8 @@ DesignObj_Orbiter *pObj, PlutoPoint *ptPopup/* = NULL*/)
 #endif
 
 #ifdef VIA_OVERLAY
-	ViaOverlay::Instance().ShowPopup(Popup->m_Position.X, Popup->m_Position.Y, 
-		Popup->m_pObj->m_rPosition.Width, Popup->m_pObj->m_rPosition.Height);
+	ViaOverlay::Instance().ShowPopup(pPopup->m_Position.X, pPopup->m_Position.Y, 
+		pPopup->m_pObj->m_rPosition.Width, pPopup->m_pObj->m_rPosition.Height);
 #endif
 
 	if(Popups)
@@ -1076,3 +1076,4 @@ void OrbiterRenderer_OpenGL::ResetDatagrids(DesignObj_Orbiter *pObj)
 		}
 	}
 }
+
