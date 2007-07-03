@@ -258,8 +258,31 @@ function ApplyUntar {
 }
 
 function Apply_Option {
-	Send "OK"
-	return 0
+	echo "** APPLY_OPTION $*"
+
+	local update_no="$1"
+	local option="$2"
+
+
+	if [[ "$option" == "reboot" ]] ;then
+		Debug "REBOOT REQUESTED"
+		xmessage -center -timeout 30 -buttons "Reboot Now:0" "Updates applyed, the system is going to reboot"
+		Debug "PERFORMING REBOOT"
+		reboot &
+		sleep 60
+		exit 
+#		Send "OK"
+#		return 0
+	fi
+
+	if [[ "$option" == "reload" ]] ;then
+		Debug "***** RELOADING THE ROUTER *******"
+		Send "OK"
+		return 0
+	fi
+
+	Send "FAIL Unknown option ($option)"
+	return 1
 }
 
 ## Message loop
@@ -295,7 +318,7 @@ while /bin/true ;do
 			;;
 		"APPLY_OPTION")
 			# APPLY_OPTION
-			Apply_Option "$(Parm 2 "$line")"
+			Apply_Option "$(Param 2 "$line")" "$(Param 3 "$line")"
 			;;
 		"EXIT")
 			# EXIT
