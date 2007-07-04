@@ -1385,6 +1385,8 @@ int Xine_Stream::getStreamPlaybackPosition( int &positionTime, int &totalTime, i
 	if (!m_bInitialized)
 	{
 		LoggerWrapper::GetInstance()->Write( LV_WARNING, "getStreamPlaybackPosition called on non-initialized stream - aborting command");
+		if (getResult)
+			*getResult = false;
 		return false;
 	}
 	
@@ -2596,6 +2598,12 @@ void Xine_Stream::playbackCompleted( bool bWithErrors )
 		m_pFactory->m_pPlayer->EVENT_Playback_Completed(m_sCurrentFile,m_iStreamID, bWithErrors );
 		m_pFactory->m_pPlayer->StopNbdDevice();
 	}
+}
+
+bool Xine_Stream::hasChapters()
+{
+	PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
+	return xine_get_stream_info(m_pXineStream, XINE_STREAM_INFO_HAS_CHAPTERS);
 }
 
 int Xine_Stream::DisableBroadcast( )

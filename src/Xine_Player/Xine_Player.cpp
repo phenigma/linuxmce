@@ -671,14 +671,45 @@ void Xine_Player::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &
 		else
 			ChaptersToSkip = atoi(sValue_To_Assign.c_str())-pStream->m_iChapter;
 
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::Skipping %d chapters",ChaptersToSkip);
-
-		if( ChaptersToSkip<0 )
-			for(int i=0;i>ChaptersToSkip;i--)
-				pStream->sendInputEvent(XINE_EVENT_INPUT_PREVIOUS);
-		else
-			for(int i=0;i<ChaptersToSkip;i++)
-				pStream->sendInputEvent(XINE_EVENT_INPUT_NEXT);
+		if ( pStream->hasChapters() )
+		{
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Jump_Position_In_Playlist() skipping %d chapters",ChaptersToSkip);
+	
+			if( ChaptersToSkip<0 )
+				for(int i=0;i>ChaptersToSkip;i--)
+					pStream->sendInputEvent(XINE_EVENT_INPUT_PREVIOUS);
+			else
+				for(int i=0;i<ChaptersToSkip;i++)
+					pStream->sendInputEvent(XINE_EVENT_INPUT_NEXT);
+		}
+		else		
+		{
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Jump_Position_In_Playlist() stream doesn't have chapters, jumping %d*30 seconds",ChaptersToSkip);
+			int positionTime, totalTime;
+			bool bResult;
+			pStream->getStreamPlaybackPosition(positionTime, totalTime, 1, &bResult);
+			if (bResult)
+			{
+				positionTime += ChaptersToSkip * 30*1000;
+				if (positionTime<0)
+				{
+					positionTime=0;
+					LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Jump_Position_In_Playlist() target position is negative, setting it to 0");
+				}
+				else
+					if (positionTime>=totalTime)
+					{
+						positionTime=totalTime-1*1000;
+						LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Jump_Position_In_Playlist() target position is behind stream end, setting it to (stream end-1) seconds");
+					}
+				pStream->Seek(positionTime,0);
+				pStream->changePlaybackSpeed(Xine_Stream::PLAYBACK_NORMAL);
+			}
+			else
+			{
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Jump_Position_In_Playlist() failed to query stream position, aborting jump");
+			}
+		}
 	}
 	
 }

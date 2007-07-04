@@ -89,6 +89,8 @@ namespace DCE
 						
 			static int CalculatePosition(string &sMediaPosition,string *sMRL,int *Subtitle,int *Angle,int *AudioTrack);
 			
+			bool hasChapters();
+			
 		private:
 			// stream access controlling mutex
 			pluto_pthread_mutex_t m_streamMutex;
