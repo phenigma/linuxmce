@@ -39,7 +39,7 @@ bool TextLineExtract::lineSplitter(char c)
  */ 
 bool TextLineExtract::wordSplitter(char c)
 {
-	return c == '-' || c == ' ';
+	return c == '-' || c == ' ' || c == '.';
 }
 
 void TextLineExtract::AddRow(Row line)
