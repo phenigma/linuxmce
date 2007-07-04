@@ -182,7 +182,7 @@ MediaSyncMode MediaState::SyncModeNeeded(string sDirectory, string sFile)
             if(it->second.m_nINode == INode && (sDirectory != it->second.m_sPath || sFile != it->second.m_sFilename))
             {
 				//double check that the file has that inode
-				int INode_DBFile = FileUtils::GetInode(sDirectory + "/" + sFile);
+				int INode_DBFile = FileUtils::GetInode(it->second.m_sPath + "/" + it->second.m_sFilename);
                 if(INode_DBFile == INode && FileUtils::FileExists(it->second.m_sPath + "/" + it->second.m_sFilename))
                 {
                         LoggerWrapper::GetInstance()->Write(LV_STATUS, "GGG modeNone for %d %s vs %s and %s vs %s", INode, sDirectory.c_str(), it->second.m_sPath.c_str(), sFile.c_str(), it->second.m_sFilename.c_str());
