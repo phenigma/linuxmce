@@ -1191,8 +1191,9 @@ bool PnpQueue::LocateDevice(PnpQueueEntry *pPnpQueueEntry)
 		pRow_Device = *it;
 		if( bUsbSerial && (pRow_Device->Disabled_get()==1 || bSpecifiedComPort==false) )
 		{
-				LoggerWrapper::GetInstance()->Write(LV_STATUS,"PnpQueue::LocateDevice queue %d device %d skipping because this is usb->serial %d/%d",
-					pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),pRow_Device->PK_Device_get(),pRow_Device->Disabled_get(),bSpecifiedComPort);
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"PnpQueue::LocateDevice queue %d device %d skipping because this is usb->serial %d/%d",
+				pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),pRow_Device->PK_Device_get(),pRow_Device->Disabled_get(),bSpecifiedComPort);
+			continue;
 		}
 		if( pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get()==DEVICECATEGORY_Hard_Drives_CONST )
 		{
