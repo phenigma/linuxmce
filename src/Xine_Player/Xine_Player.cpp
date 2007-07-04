@@ -85,8 +85,7 @@ bool Xine_Player::GetConfig()
 	m_iDefaultZoomLevel = DATA_Get_Zoom_Level();
 	
 	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::GetConfig default zoom %d", m_iDefaultZoomLevel);
-	EVENT_Playback_Completed("",0,false);  // In case media plugin thought something was playing, let it know that there's not
-
+	
 	string sNbdClient;
 	int Count=0;
 	for(Map_DeviceData_Base::iterator it=m_pData->m_AllDevices.m_mapDeviceData_Base.begin();it!=m_pData->m_AllDevices.m_mapDeviceData_Base.end();++it)
@@ -1268,6 +1267,8 @@ bool Xine_Player::Connect(int iPK_DeviceTemplate )
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Configured port for time/speed notification is: %i, IP is %s", iPort, m_sIPofMD.c_str());
 
 	m_pNotificationSocket->StartListening (iPort);
+
+	EVENT_Playback_Completed("",0,false);  // In case media plugin thought something was playing, let it know that there's not
 
 	return true;
 }
