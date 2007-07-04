@@ -229,36 +229,36 @@ int PlutoMediaFile::HandleFileNotInDatabase(int PK_MediaType)
 		PK_File = GetFileAttribute();
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "%s/%s not IN db-attr: %d INode: %d", m_sDirectory.c_str(), m_sFile.c_str(), PK_File, INode);
 
-    if(!PK_File)
+    // Is it a media file?
+    if(!PK_MediaType)
+	{
+        PK_MediaType = PlutoMediaIdentifier::Identify(m_sDirectory + "/" + m_sFile);
+		m_nPK_MediaType = PK_MediaType;
+	}
+
+	if(PK_MediaType == 0)
+	{
+		if(m_bIsDir)
+		{
+			string sFullPath = FileUtils::IncludeTrailingSlash(m_sDirectory) + m_sFile;
+			string sBasePath = "/home/public/data/";
+			if(sFullPath.find(sBasePath + "videos") == 0)
+				PK_MediaType = MEDIATYPE_pluto_StoredVideo_CONST;
+			else if(sFullPath.find(sBasePath + "audio") == 0)
+				PK_MediaType = MEDIATYPE_pluto_StoredAudio_CONST;
+			else if(sFullPath.find(sBasePath + "pictures") == 0)
+				PK_MediaType = MEDIATYPE_pluto_Pictures_CONST;
+			else if(sFullPath.find(sBasePath + "documents") == 0)
+				PK_MediaType = MEDIATYPE_misc_DocViewer_CONST;
+			else
+				PK_MediaType = MEDIATYPE_misc_DocViewer_CONST;
+		}
+	}
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Media Type is: %d, is folder %d", PK_MediaType, m_bIsDir);
+
+	if(!PK_File)
     {
-        // Is it a media file?
-        if(!PK_MediaType)
-		{
-            PK_MediaType = PlutoMediaIdentifier::Identify(m_sDirectory + "/" + m_sFile);
-			m_nPK_MediaType = PK_MediaType;
-		}
-
-		if(PK_MediaType == 0)
-		{
-			if(m_bIsDir)
-			{
-				string sFullPath = FileUtils::IncludeTrailingSlash(m_sDirectory) + m_sFile;
-				string sBasePath = "/home/public/data/";
-				if(sFullPath.find(sBasePath + "videos") == 0)
-					PK_MediaType = MEDIATYPE_pluto_StoredVideo_CONST;
-				else if(sFullPath.find(sBasePath + "audio") == 0)
-					PK_MediaType = MEDIATYPE_pluto_StoredAudio_CONST;
-				else if(sFullPath.find(sBasePath + "pictures") == 0)
-					PK_MediaType = MEDIATYPE_pluto_Pictures_CONST;
-				else if(sFullPath.find(sBasePath + "documents") == 0)
-					PK_MediaType = MEDIATYPE_misc_DocViewer_CONST;
-				else
-					PK_MediaType = MEDIATYPE_misc_DocViewer_CONST;
-			}
-		}
-
-		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Media Type is: %d, is folder %d", PK_MediaType, m_bIsDir);
-
 		if(PK_MediaType || m_bIsDir)
             return AddFileToDatabase(PK_MediaType);
         else
@@ -269,6 +269,8 @@ int PlutoMediaFile::HandleFileNotInDatabase(int PK_MediaType)
     }
     else
     {
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Reusing file, updating media type to %d", PK_MediaType);
+
         Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->GetRow(PK_File);
         if( !pRow_File )
         {
@@ -279,6 +281,7 @@ int PlutoMediaFile::HandleFileNotInDatabase(int PK_MediaType)
         // it was in the database, but it's been moved to a different directory or renamed
         pRow_File->Path_set(m_sDirectory);
         pRow_File->Filename_set(m_sFile);
+		pRow_File->EK_MediaType_set(PK_MediaType);
         pRow_File->Table_File_get()->Commit();
     }
     return PK_File;
