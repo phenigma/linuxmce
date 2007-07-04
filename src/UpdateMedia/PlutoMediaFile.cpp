@@ -282,7 +282,11 @@ int PlutoMediaFile::HandleFileNotInDatabase(int PK_MediaType)
         pRow_File->Path_set(m_sDirectory);
         pRow_File->Filename_set(m_sFile);
 		pRow_File->EK_MediaType_set(PK_MediaType);
+		pRow_File->IsDirectory_set(m_bIsDir);
         pRow_File->Table_File_get()->Commit();
+
+		m_pPlutoMediaAttributes->m_nFileID = PK_File;
+		AssignPlutoDevice();
     }
     return PK_File;
 }
