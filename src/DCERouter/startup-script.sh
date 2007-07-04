@@ -82,6 +82,8 @@ fi
 
 
 StartService "Starting MySQL Server" "/etc/init.d/mysql start"
+RunSQL "UPDATE Orbiter set Regen=2,RegenInProgress=0 where RegenInProgress=1"
+
 StartService "Starting DHCP Server" "/etc/init.d/dhcp3-server start"
 StartService "Starting DNS Server" "/etc/init.d/bind9 start"
 StartService "Configuring Network Firewall" "/usr/pluto/bin/Network_Firewall.sh"
