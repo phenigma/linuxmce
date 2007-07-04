@@ -17,12 +17,12 @@ GetConsole()
 
 GetHddToUse()
 {
-	local HddList Done Drive i Choice
+	local HddList Done Drive i Choice DiskSize DiskDev
 	local -a Hdd
 
-	HddList=$(fdisk -l|grep ^Disk |cut -d' ' -f2|cut -d: -sf1)
+	HddList=$(fdisk -l|grep ^Disk |cut -d' ' -f2-4|sed -r 's,[:,],,g; s, ,:,g')
 	if [[ "$Debug" == 1 ]]; then
-		HddList="/dev/loop0"
+		HddList="/dev/loop0:0:GB"
 	fi
 	if [[ -z "$HddList" ]]; then # No hard drives
 		echo "Error: No hard drives found"
@@ -33,8 +33,10 @@ GetHddToUse()
 		while [[ "$Done" == 0 ]]; do
 			i=1
 			for Drive in $HddList; do
-				echo "$i. $Drive"
-				Hdd[$i]="$Drive"
+				DiskDev="${Drive%%:*}"
+				DiskSize="${Drive#*:}"
+				echo "$i. $DiskDev (${DiskSize//:/ })"
+				Hdd[$i]="$DiskDev"
 				((i++))
 			done
 			((i--))
@@ -149,7 +151,12 @@ TargetCleanup()
 
 Reboot()
 {
-	shutdown -h now
+	clear
+	echo "*******************************************************************************"
+	echo "Installation complete. Press Enter or Control+Alt+Delete to reboot the computer"
+	echo "*******************************************************************************"
+	read
+	reboot
 }
 
 GetConsole
