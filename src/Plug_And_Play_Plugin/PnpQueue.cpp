@@ -246,7 +246,7 @@ bool PnpQueue::Process_Detect_Stage_Detected(PnpQueueEntry *pPnpQueueEntry)
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "PnpQueue::Process_Detect_Stage_Detected: %s", pPnpQueueEntry->ToString().c_str());
 #endif
 
-	if( pPnpQueueEntry->m_pRow_PnpQueue->Signature_get().empty()==false && m_mapSignaturesReady.find(pPnpQueueEntry->m_pRow_PnpQueue->Signature_get())==m_mapSignaturesReady.end() )
+	if( false && pPnpQueueEntry->m_pRow_PnpQueue->Signature_get().empty()==false && m_mapSignaturesReady.find(pPnpQueueEntry->m_pRow_PnpQueue->Signature_get())==m_mapSignaturesReady.end() )
 	{
 		pPnpQueueEntry->Block( PnpQueueEntry::pnpqe_blocked_waiting_for_initial_detection );
 		return false;
@@ -1150,7 +1150,10 @@ bool PnpQueue::LocateDevice(PnpQueueEntry *pPnpQueueEntry)
 			sSql_Model += " AND FK_CommMethod=" TOSTRING(COMMMETHOD_RS232_CONST) " ";  // Don't match vendor model.  We'll match the com port only
 		}
 		else
+		{
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"PnpQueue::LocateDevice queue %d is not a usb to serial %s %p %s", sSqlUSB.c_str(), row, row ? row[0] : "*NULL*");
 			sSql_Model += " AND DHCPDevice.VendorModelId like '" + sVendorModelId + "%'";
+		}
 	}
 
 	if( pPnpQueueEntry->m_mapPK_DeviceData.find(DEVICEDATA_COM_Port_on_PC_CONST)!=pPnpQueueEntry->m_mapPK_DeviceData.end() )
