@@ -99,14 +99,14 @@ void PostCreateOptions::PostCreateSecurityDevice(Row_Device *pRow_Device, OH_Orb
 
 void PostCreateOptions::PostCreateDevice_FileServer(Row_Device *pRow_Device, OH_Orbiter *pOH_Orbiter)
 {
-#ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"PostCreateOptions::PostCreateDevice_NetworkStorage device  %d template %d",
-		pRow_Device->PK_Device_get(),pRow_Device->FK_DeviceTemplate_get());
-#endif
 	string sName = DatabaseUtils::GetDeviceData(m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICEDATA_Description_CONST);
 	if( sName.empty()==false )
 	{
-		pRow_Device->Description_set(pRow_Device->Description_get() + ": " + sName);
+		sName = pRow_Device->Description_get() + ": " + sName;
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"PostCreateOptions::PostCreateDevice_NetworkStorage device  %d template %d new name: %s",
+			pRow_Device->PK_Device_get(),pRow_Device->FK_DeviceTemplate_get(),sName.c_str());
+
+		pRow_Device->Description_set(sName);
 		m_pDatabase_pluto_main->Device_get()->Commit();
 	}
 }
