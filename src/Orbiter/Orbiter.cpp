@@ -9650,7 +9650,7 @@ void Orbiter::StartScreenSaver(bool bGotoScreenSaverDesignObj)
 	// If we're watching video, go to that instead
 	if( m_bIsOSD && m_iPK_Screen_RemoteOSD && m_bContainsVideo && m_iLocation_Initial==m_pLocationInfo->iLocation )
 	{
-		if( bGotoScreenSaverDesignObj && (!m_pScreenHistory_Current || m_pScreenHistory_Current->PK_Screen()!=m_iPK_Screen_RemoteOSD) )
+		if( bGotoScreenSaverDesignObj && (!m_pScreenHistory_Current || m_pScreenHistory_Current->PK_Screen()!=m_iPK_Screen_RemoteOSD) && (!m_pScreenHistory_NewEntry || m_pScreenHistory_NewEntry->PK_Screen()!=m_iPK_Screen_RemoteOSD) )
 			CMD_Goto_Screen("",m_iPK_Screen_RemoteOSD); // Go to the remote instead
 		return;
 	}

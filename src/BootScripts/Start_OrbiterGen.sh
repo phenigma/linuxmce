@@ -23,9 +23,6 @@ ToSplash=""
 
 /usr/pluto/bin/UpdateEntArea -h localhost > >(tee -a /var/log/pluto/updateea.log)
 
-Q="UPDATE Orbiter SET RegenInProgress=0"  # This is only run at bootup, so no regens are in progress
-RunSQL "$Q"
-
 Q="SELECT PK_Installation FROM Installation LIMIT 1"
 installation=$(echo "$Q;" | /usr/bin/mysql -h $MySqlHost pluto_main | tail +2)
 
@@ -41,7 +38,7 @@ JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
 JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory
 LEFT JOIN Orbiter ON PK_Device=PK_Orbiter
 WHERE (FK_DeviceCategory=5 OR FK_DeviceCategory_Parent=5)
-AND (Regen IS Null Or Regen=1 OR PK_Orbiter IS NULL OR Device.NeedConfigure=1 OR RegenInProgress=1)
+AND (Regen IS Null Or Regen=1 Or Regen=2 OR PK_Orbiter IS NULL OR Device.NeedConfigure=1 OR RegenInProgress=1)
 AND FK_Installation=$installation"
 
 	Orbiters=$(echo "$Q;" | /usr/bin/mysql -h $MySqlHost pluto_main | tail +2 | tr '\n' ' ')

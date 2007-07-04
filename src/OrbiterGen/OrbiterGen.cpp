@@ -364,6 +364,12 @@ int OrbiterGenerator::DoIt()
 		}
 	}
 
+	if( m_pRow_Orbiter->Regen_get()==2 )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Full regen for %d",m_pRow_Orbiter->PK_Orbiter_get());
+		m_bOrbiterChanged=true;
+	}
+
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Generating %d",m_pRow_Orbiter->PK_Orbiter_get());
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Setting RegenInProgress_set to true for %d",m_pRow_Orbiter->PK_Orbiter_get());

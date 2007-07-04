@@ -1042,6 +1042,7 @@ bool PnpQueue::Process_Remove_Stage_Removed(PnpQueueEntry *pPnpQueueEntry)
 #ifdef DEBUG
 			LoggerWrapper::GetInstance()->Write(LV_STATUS, "PnpQueue::Process_Remove_Stage_Removed: removing extra queue %d", pPnpQueueEntry2->m_pRow_PnpQueue->PK_PnpQueue_get());
 #endif
+			pPnpQueueEntry2->m_EBlockedState=PnpQueueEntry::pnpqe_blocked_none;
 			pPnpQueueEntry2->Stage_set(PNP_DETECT_STAGE_DONE);
 			DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL(
 				m_pPlug_And_Play_Plugin->m_dwPK_Device, m_pPlug_And_Play_Plugin->m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters, StringUtils::itos(pPnpQueueEntry2->m_pRow_PnpQueue->PK_PnpQueue_get()), SCREEN_NewPnpDevice_CONST);
@@ -1139,7 +1140,15 @@ bool PnpQueue::LocateDevice(PnpQueueEntry *pPnpQueueEntry)
 		PlutoSqlResult result_set;
 		DB_ROW row=NULL;
 		if( ( result_set.r=m_pDatabase_pluto_main->db_wrapper_query_result( sSqlUSB ) )!=0 && ( row = db_wrapper_fetch_row( result_set.r ) )!=NULL && row[0] && atoi(row[0])==DEVICECATEGORY_Serial_Ports_CONST )
+		{
+			if( pPnpQueueEntry->m_mapPK_DeviceData.find(DEVICEDATA_COM_Port_on_PC_CONST)==pPnpQueueEntry->m_mapPK_DeviceData.end() )
+			{
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"PnpQueue::LocateDevice queue %d is a usb to serial with no com port",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
+				return false;  // If there's no port specified don't bother
+			}
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"PnpQueue::LocateDevice queue %d is a usb to serial with a com port",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
 			sSql_Model += " AND FK_CommMethod=" TOSTRING(COMMMETHOD_RS232_CONST) " ";  // Don't match vendor model.  We'll match the com port only
+		}
 		else
 			sSql_Model += " AND DHCPDevice.VendorModelId like '" + sVendorModelId + "%'";
 	}
