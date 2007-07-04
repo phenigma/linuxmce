@@ -364,7 +364,7 @@ function getIpFromParts($partName,$startIndex=1)
 }
 
 function get_network_settings(){
-	$command='/usr/pluto/bin/Network_DisplaySettings.sh --all';
+	$command='sudo -u root /usr/pluto/bin/Network_DisplaySettings.sh --all';
 	$ret=exec_batch_command($command,1);
 	
 	$lines=explode("\n",$ret);
