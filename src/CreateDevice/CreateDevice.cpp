@@ -292,7 +292,7 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"Found %d rows with %s",(int) resu
 					for(vector<string>::iterator it=vectDevices.begin();it!=vectDevices.end();++it)
 						CreateRelation(PK_Device,atoi(it->c_str()));
 				}
-				else if( PK_DeviceData==DEVICEDATA_Description_CONST )
+				else if( PK_DeviceData==DEVICEDATA_Description_CONST && sValue.empty()==false )
 				{
 					string sSQL = "UPDATE Device SET Description='" + StringUtils::SQLEscape(sValue) + "' WHERE PK_Device=" + StringUtils::itos(PK_Device);
 					threaded_db_wrapper_query(sSQL);
