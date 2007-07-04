@@ -1,0 +1,18 @@
+#!/bin/bash
+
+case "$1" in
+	start)
+		usplash_write TEXT "Starting Linux MCE Update"
+		/usr/pluto/bin/LMCEUpdate_Apply.sh
+		usplash_write TEXT "Finished Linux MCE Update"
+		;;
+	
+	stop|restart|reload|force-reload)
+        	echo "Error: argument '$1' not supported" >&2
+	        exit 3
+		;;
+	*)
+		echo "Usage: $0 start" >&2
+		exit 3
+		;;
+esac
