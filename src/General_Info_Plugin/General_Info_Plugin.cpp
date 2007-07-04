@@ -2917,7 +2917,7 @@ void General_Info_Plugin::CMD_Create_Device(int iPK_DeviceTemplate,string sMac_a
 		m_pPostCreateOptions->PostCreateDevice(pRow_Device,pOH_Orbiter);
 	}
 
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Created device %d %s",*iPK_Device,pRow_Device->Description_get());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Created device %d %s",*iPK_Device,pRow_Device->Description_get().c_str());
 	CMD_Check_for_updates();
 
 	m_pAlarmManager->AddRelativeAlarm(1,this,UPDATE_ENT_AREA,NULL);
