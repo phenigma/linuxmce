@@ -27,6 +27,7 @@ function create_virtual_machine {
 
 function start_virtual_machine {
 	decho "Starting virtual machine"
+	vncserver :1 -geometry 800x600 || :
 	vmplayer "$VMWARE_WORK_MACHINE" &
 
 	decho "Waiting for ssh connnection to virtual machine"
