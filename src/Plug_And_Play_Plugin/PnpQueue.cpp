@@ -1151,7 +1151,7 @@ bool PnpQueue::LocateDevice(PnpQueueEntry *pPnpQueueEntry)
 		}
 		else
 		{
-			LoggerWrapper::GetInstance()->Write(LV_STATUS,"PnpQueue::LocateDevice queue %d is not a usb to serial %s %p %s", sSqlUSB.c_str(), row, row ? row[0] : "*NULL*");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"PnpQueue::LocateDevice queue %d is not a usb to serial %s %p %s", pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(), sSqlUSB.c_str(), row, row ? row[0] : "*NULL*");
 			sSql_Model += " AND DHCPDevice.VendorModelId like '" + sVendorModelId + "%'";
 		}
 	}
