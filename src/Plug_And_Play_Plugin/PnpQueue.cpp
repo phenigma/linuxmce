@@ -1129,6 +1129,7 @@ bool PnpQueue::LocateDevice(PnpQueueEntry *pPnpQueueEntry)
 	if( sMacAddress.size() )
 		sSql_Model += " AND Device.MacAddress like '%" + sMacAddress + "%'";
 
+	bool bUsbSerial=false,bSpecifiedComPort=false;
 	string sVendorModelId = pPnpQueueEntry->m_pRow_PnpQueue->VendorModelId_get();
 	if( sVendorModelId.size() )
 	{
@@ -1141,6 +1142,7 @@ bool PnpQueue::LocateDevice(PnpQueueEntry *pPnpQueueEntry)
 		DB_ROW row=NULL;
 		if( ( result_set.r=m_pDatabase_pluto_main->db_wrapper_query_result( sSqlUSB ) )!=0 && ( row = db_wrapper_fetch_row( result_set.r ) )!=NULL && row[0] && atoi(row[0])==DEVICECATEGORY_Serial_Ports_CONST )
 		{
+			bUsbSerial=true;
 			if( pPnpQueueEntry->m_mapPK_DeviceData.find(DEVICEDATA_COM_Port_on_PC_CONST)==pPnpQueueEntry->m_mapPK_DeviceData.end() )
 			{
 				LoggerWrapper::GetInstance()->Write(LV_STATUS,"PnpQueue::LocateDevice queue %d is a usb to serial with no com port",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
@@ -1158,9 +1160,8 @@ bool PnpQueue::LocateDevice(PnpQueueEntry *pPnpQueueEntry)
 
 	if( pPnpQueueEntry->m_mapPK_DeviceData.find(DEVICEDATA_COM_Port_on_PC_CONST)!=pPnpQueueEntry->m_mapPK_DeviceData.end() )
 	{
-#ifdef DEBUG
+		bSpecifiedComPort=true;
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"PnpQueue::LocateDevice queue %d has com port %s",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),pPnpQueueEntry->m_mapPK_DeviceData[DEVICEDATA_COM_Port_on_PC_CONST].c_str());
-#endif
 		if( pPnpQueueEntry->m_pRow_PnpQueue->FK_CommMethod_get()==COMMMETHOD_RS232_CONST )
 			// This is just RS232.  There's no way to tell if the user moved a device or not.  If there's still an active device on this port
 			// We can assume it's a match, since it would have been disabled if the user didn't remove it.  We don't want to always re-identify the same devices
@@ -1188,6 +1189,11 @@ bool PnpQueue::LocateDevice(PnpQueueEntry *pPnpQueueEntry)
 	for(vector<Row_Device *>::iterator it=vectRow_Device.begin();it!=vectRow_Device.end();++it)
 	{
 		pRow_Device = *it;
+		if( bUsbSerial && (pRow_Device->Disabled_get()==1 || bSpecifiedComPort==false) )
+		{
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"PnpQueue::LocateDevice queue %d device %d skipping because this is usb->serial %d/%d",
+					pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),pRow_Device->PK_Device_get(),pRow_Device->Disabled_get(),bSpecifiedComPort);
+		}
 		if( pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get()==DEVICECATEGORY_Hard_Drives_CONST )
 		{
 #ifdef DEBUG
