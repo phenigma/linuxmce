@@ -3106,14 +3106,14 @@ bool OSDScreenHandler::VideoWizard_OnGotoScreen(CallBackData *pData)
 		 {
 			if(NULL != m_pOrbiter->m_pScreenHistory_Current && m_pOrbiter->m_pScreenHistory_Current->PK_Screen() == SCREEN_PopupMessage_CONST)
 				m_pOrbiter->CMD_Go_back("", "");
+			else
+				m_pOrbiter->CMD_Goto_Screen("vw final", SCREEN_Wizard_Done_CONST, 1, 0, 0);
 
 			return true;
 		 }
 
 		if(pGotoScreenCallBackData->m_nPK_Screen == SCREEN_mnuAmbiance_CONST || pGotoScreenCallBackData->m_nPK_Screen == SCREEN_mnuPlaybackControl_CONST)
-		{
 			return true;
-		}
 	}
 
 	return false;
