@@ -81,6 +81,7 @@ while : ;do
 		## If the IP is not there already
 		if [[ "$Result" == "" && "$serverIP" != "$IntIP" ]] ;then
 			## Report it to the router
+			sleep 10
 			/usr/pluto/bin/MessageSend $DCERouter $PK_Device -1001 2 65 56 "fileserver" 52 3 53 2 49 1837 5 "$serverMAC" 28 "$serverIP" 55 "186|$serverName" 54 "\\\\$serverIP"
 			Log "Reporting $serverIP [$serverName] to the router"
 			
