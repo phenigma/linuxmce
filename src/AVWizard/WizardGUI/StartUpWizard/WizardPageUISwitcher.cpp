@@ -91,8 +91,10 @@ WizardPageUISwitcher::~WizardPageUISwitcher(void)
 	#endif
 		return;
 	}
+//<-mkr_B_via_b->
 	List->AddItem("Static images, no overlay (lightweight)", "UI1");
 	List->AddItem("OpenGL with overlay (medium)", "UI2_med");
+//<-mkr_B_via_e->
 	List->AddItem("OpenGL with alpha blending (high-end)", "UI2_hi");
 	List->SetFocus(true);
 }
