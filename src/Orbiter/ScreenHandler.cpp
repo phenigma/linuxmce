@@ -876,7 +876,6 @@ void ScreenHandler::SelectedAttributeCell(DataGridCell *pCell)
 
 	}
 
-	m_pOrbiter->m_pOrbiterRenderer->UnHighlightObject();
 	mediaFileBrowserOptions.ReacquireGrids();
 	MediaBrowser_Render(NULL);
 	m_pOrbiter->CMD_Refresh("*");
@@ -3353,4 +3352,28 @@ bool ScreenHandler::PNP_Generic_Options_DatagridSelected(CallBackData *pData)
 	m_pOrbiter->CMD_Remove_Screen_From_History(m_pOrbiter->m_pScreenHistory_Current->ScreenID(),m_pOrbiter->m_pScreenHistory_Current->PK_Screen());
 
 	return true;  // Always return true since we're handing everything datagrid related here
+}
+
+void MediaFileBrowserOptions::ReacquireGrids()
+{
+	m_pOrbiter->Renderer()->UnHighlightObject();
+
+	if( m_pObj_ListGrid )
+	{
+		if( !m_pObj_ListGrid->m_bParsed )
+			m_pOrbiter->ParseGrid(m_pObj_ListGrid);
+		m_pObj_ListGrid->m_GridCurCol = m_pObj_ListGrid->m_iInitialColNum;
+		m_pObj_ListGrid->m_GridCurRow = m_pObj_ListGrid->m_iInitialRowNum;
+		m_pObj_ListGrid->m_bFlushOnScreen=false;
+		m_pObj_ListGrid->Flush();
+	}
+	if( m_pObj_PicGrid )
+	{
+		if( !m_pObj_PicGrid->m_bParsed )
+			m_pOrbiter->ParseGrid(m_pObj_PicGrid);
+		m_pObj_PicGrid->m_GridCurCol = m_pObj_PicGrid->m_iInitialColNum;
+		m_pObj_PicGrid->m_GridCurRow = m_pObj_PicGrid->m_iInitialRowNum;
+		m_pObj_PicGrid->m_bFlushOnScreen=false;
+		m_pObj_PicGrid->Flush();
+	}
 }

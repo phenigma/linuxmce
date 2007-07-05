@@ -101,28 +101,7 @@ public:
 		ReacquireGrids();
 	}
 
-	void ReacquireGrids()
-	{
-		if( m_pObj_ListGrid )
-		{
-			if( !m_pObj_ListGrid->m_bParsed )
-				m_pOrbiter->ParseGrid(m_pObj_ListGrid);
-			m_pObj_ListGrid->m_GridCurCol = m_pObj_ListGrid->m_iInitialColNum;
-			m_pObj_ListGrid->m_GridCurRow = m_pObj_ListGrid->m_iInitialRowNum;
-			m_pObj_ListGrid->m_bFlushOnScreen=false;
-			m_pObj_ListGrid->Flush();
-		}
-		if( m_pObj_PicGrid )
-		{
-			if( !m_pObj_PicGrid->m_bParsed )
-				m_pOrbiter->ParseGrid(m_pObj_PicGrid);
-			m_pObj_PicGrid->m_GridCurCol = m_pObj_PicGrid->m_iInitialColNum;
-			m_pObj_PicGrid->m_GridCurRow = m_pObj_PicGrid->m_iInitialRowNum;
-			m_pObj_PicGrid->m_bFlushOnScreen=false;
-			m_pObj_PicGrid->Flush();
-		}
-	}
-
+	void ReacquireGrids();
 	void SelectArrays(DesignObj_Orbiter *pObj,int PK_Array,string &sValues);
 	void SelectArrays(DesignObj_Orbiter *pObj,int PK_Array,int &iValue);
 	void SelectedArray(DesignObj_Orbiter *pObj,int PK_Array,string &sValues,bool bTreatZeroAsAll);
