@@ -60,6 +60,12 @@ function create_debcache_on_virtual_machine {
 	umount "$ISO_DIR"
 	decho "Finish Caching CD2"
 
+	## CACHE Kubuntu CD
+	decho "Caching Kubuntu CD"
+	scp /var/plutobuild/kubuntu-cd/*.deb root@"VMWARE_IP":/usr/pluto/deb-cache
+	decho "Finished Caching Kubuntu CD"
+
+
 	## Build Packages.gz
 	decho "Building Pacakges.gz on virtual machine"
 	scp /usr/bin/dpkg-scanpackages root@"$VMWARE_IP":/usr/pluto/deb-cache
