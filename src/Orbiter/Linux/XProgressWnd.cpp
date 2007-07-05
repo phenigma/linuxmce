@@ -318,9 +318,9 @@ int XProgressWnd::CreateWindow(Display *pDisplay, int screen, Window wndParent, 
     X3DWindow::CreateWindow(pDisplay, screen, wndParent, x, y, cx, cy);
 
     m_nTextX = 20;
-    m_nTextY = m_nWidth / 2;
+    m_nTextY = m_nWidth / 4;
     m_nBarX = 20;
-    m_nBarY = m_nHeight - 100;
+    m_nBarY = m_nHeight/2;
     m_nBarWidth = m_nWidth - 40;
     m_nBarHeight = 50;
 
