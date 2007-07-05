@@ -144,7 +144,26 @@ InstallGrub()
 
 TargetCleanup()
 {
-	echo "" > /media/target/etc/iftab
+	local NR ifnr ifname link ifmac rest line
+
+	NR=0
+	echo "# This file assigns persistent names to network interfaces.
+# See iftab(5) for syntax.
+" >/media/target/etc/iftab
+
+	while read line; do
+		if ((NR < 2)); then
+			((NR++))
+			continue
+		fi
+		if ((NR % 2 == 0)); then
+			read ifnr ifname rest < <(echo "$line")
+		else
+			read link ifmac rest < <(echo "$line")
+			echo "${ifname%:} mac $ifmac arp 1"
+		fi
+		((NR++))
+	done < <(/sbin/ip l) >>/media/target/etc/iftab
 	chroot /media/target update-initramfs -u
 	#chroot /media/target update-grub
 }
