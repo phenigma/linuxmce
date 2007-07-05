@@ -102,15 +102,24 @@ bool XProgressWnd::DrawWindow()
         unsigned long mask = GCForeground | GCBackground | GCLineWidth;
         XGCValues values;
 		
-		const int nDesktopBackground = 0x000080;
+//		const int nDesktopBackground = 0x000080;
+		const int nDesktopBackground = 0xC0C0C0;
 		const int nBarBorderColor = 0xF0F0F0;
-		const int nBarBorderShadowColor = 0x000000;
-		const int nBarBackgroundColor = 0xFFFF80;
-		const int nBarFillColor = 0x00A040;
+		const int nBarBorderShadowColor = 0x808080;
+		const int nBarBackgroundColor = 0xFFFFFF;
+//		const int nBarFillColor = 0x00A040;
+		const int nBarFillColor = 0x2ED331;
 		const int nBarBorderWidth = 2;
 		const int nBarBorderShadowDepth = 4;
 		const int nBarBorderShadowWidth = 6;
-        int nBarWidth = (m_nBarWidth - nBarBorderWidth * 2)  * m_nProgress / 100;	
+	int nBarWidth = (m_nBarWidth - nBarBorderWidth * 2)  * m_nProgress / 100;
+	
+	// N tiles + (N+1) intervals around = full internal bar width
+	// tile width = (full internal bar width - interval) / N - interval width
+	const int iTileInterval = 2;
+	const int iTilesMaxCount = 50;
+	int iBarTileWidth = (m_nBarWidth - nBarBorderWidth*2 - iTileInterval) / iTilesMaxCount - iTileInterval;
+	
 				
 		//bar - background
         values.line_width = nBarBorderWidth;
@@ -142,41 +151,52 @@ bool XProgressWnd::DrawWindow()
         values.background = nBarBackgroundColor;
 		values.foreground = nBarBackgroundColor;
         GC gcBarBackground = XCreateGC(m_pDisplay, m_wndThis, mask, &values);
-        XFillRectangle(m_pDisplay, m_wndThis, gcBarBackground, m_nBarX+2, m_nBarY+2, 
-			m_nBarWidth-4, m_nBarHeight-4);
+	XFillRectangle(m_pDisplay, m_wndThis, gcBarBackground, m_nBarX+nBarBorderWidth, m_nBarY+nBarBorderWidth, 
+		       m_nBarWidth-2*nBarBorderWidth, m_nBarHeight-2*nBarBorderWidth);
 		XFreeGC(m_pDisplay, gcBarBackground);
 		
-		//bar - fill color
+	//bar - fill color
         values.background = nBarFillColor;
-		values.foreground = nBarFillColor;
-        GC gcBar = XCreateGC(m_pDisplay, m_wndThis, mask, &values);
-        XFillRectangle(m_pDisplay, m_wndThis, gcBar, m_nBarX + 2, m_nBarY + 2, 
-			nBarWidth - 4 > 0 ? nBarWidth - 4 : 0, m_nBarHeight - 4);
-		XFreeGC(m_pDisplay, gcBar);
-		
-		//render caption text
-        Font font = XLoadFont(m_pDisplay, "-*-helvetica-bold-R-Normal--*-240-75-75-*-*");
-        mask = GCForeground | GCBackground | GCLineWidth | GCFont;
-        values.foreground = 0xFFFFFF;
-        values.background = 0xFFFFFF;
-        values.font = font;
-        GC gcText = XCreateGC(m_pDisplay, m_wndThis, mask, &values);
-        XDrawString(m_pDisplay, m_wndThis, gcText, m_nTextX, m_nTextY, m_sText.c_str(), m_sText.length());
-		XUnloadFont(m_pDisplay, font);
-		XFreeGC(m_pDisplay, gcText);
+	values.foreground = nBarFillColor;
+	GC gcBar = XCreateGC(m_pDisplay, m_wndThis, mask, &values);
+	int iTilesCount = nBarWidth / (iTileInterval + iBarTileWidth );
+	for (int i=0; i<iTilesCount; i++)
+	{
+		//XFillRectangle(m_pDisplay, m_wndThis, gcBar, m_nBarX + nBarBorderWidth, m_nBarY + nBarBorderWidth, nBarWidth - 2*nBarBorderWidth > 0 ? nBarWidth - 2*nBarBorderWidth : 0, m_nBarHeight - 2*nBarBorderWidth);
+		XFillRectangle(m_pDisplay, m_wndThis, gcBar, m_nBarX + nBarBorderWidth + iTileInterval + i*(iTileInterval + iBarTileWidth ),
+			       m_nBarY + nBarBorderWidth + iTileInterval, iBarTileWidth, m_nBarHeight - 2*nBarBorderWidth - 2*iTileInterval);
+	}
+	
+	
+	XFreeGC(m_pDisplay, gcBar);
 
-		//render progress text		
+	//render caption text
+	Font font = XLoadFont(m_pDisplay, "-*-helvetica-bold-R-Normal--*-240-75-75-*-*");
+	mask = GCForeground | GCBackground | GCLineWidth | GCFont;
+	values.foreground = 0x000000;
+	values.background = 0x000000;
+	values.font = font;
+	GC gcText = XCreateGC(m_pDisplay, m_wndThis, mask, &values);
+	XDrawString(m_pDisplay, m_wndThis, gcText, m_nTextX, m_nTextY, m_sText.c_str(), m_sText.length());
+	XUnloadFont(m_pDisplay, font);
+	XFreeGC(m_pDisplay, gcText);
+
+/*
+	//render progress text		
         font = XLoadFont(m_pDisplay, "-*-helvetica-bold-R-Normal--*-240-75-75-*-*");
         mask = GCForeground | GCBackground | GCLineWidth | GCFont;
         values.foreground = 0x000000;
         values.background = 0x000000;
         values.font = font;
         gcText = XCreateGC(m_pDisplay, m_wndThis, mask, &values);
-		string sPercentText = StringUtils::ltos(m_nProgress) + "%";
-		XDrawString(m_pDisplay, m_wndThis, gcText, m_nBarX + m_nBarWidth / 2, m_nBarY + 30, sPercentText.c_str(), sPercentText.length());
-		XUnloadFont(m_pDisplay, font);
-		XFreeGC(m_pDisplay, gcText);		
-    }
+	string sPercentText = StringUtils::ltos(m_nProgress) + "%";
+	int iTextW=0, iTextH=0;
+	GetTextSizeHint(sPercentText.c_str(), font, iTextW, iTextH);
+	XDrawString(m_pDisplay, m_wndThis, gcText, m_nBarX + (m_nBarWidth-iTextW) / 2, m_nBarY + m_nBarHeight+iTextH)/2, sPercentText.c_str(), sPercentText.length());
+	XUnloadFont(m_pDisplay, font);
+	XFreeGC(m_pDisplay, gcText);		
+*/
+	}
 
     //XUnlockDisplay(m_pDisplay);
     return bRet;
@@ -338,4 +358,44 @@ int XProgressWnd::CreateWindow(Display *pDisplay, int screen, Window wndParent, 
 Display * XProgressWnd::GetDisplay()
 {
 	return m_pDisplay;
+}
+
+list<string> XProgressWnd::SplitTextInLines(string sText)
+{
+	list<string> lines;
+
+	int nP1, nP2 = 0;
+	nP1 = sText.find('\n', nP2);
+	while (nP1 >= 0) {
+		lines.push_back(sText.substr(nP2, nP1 - nP2));
+		nP2 = nP1 + 1;
+		nP1 = sText.find('\n', nP2);
+	}
+	lines.push_back(sText.substr(nP2, sText.length() - nP2));
+	
+	return lines;
+}
+
+bool XProgressWnd::GetTextSizeHint(string sText, Font font, int &width, int &height)
+{
+	const int m_nSpaceBetweenLines = 0;
+	width = height = 0;
+	if (sText.length() == 0) return true;
+	if (font == 0) return false;
+	if (m_pDisplay == NULL) return false;
+
+	int dir, ascent, descent;
+	XCharStruct charStr;
+	list<string> textLines = SplitTextInLines(sText);
+	list<string>::iterator it = textLines.begin();
+	while (it != textLines.end()) {
+		XQueryTextExtents(m_pDisplay, font, (*it).c_str(), (*it).length(),
+				  &dir, &ascent, &descent, &charStr);
+
+		if (width < charStr.width) width = charStr.width;
+		height += ascent + descent + m_nSpaceBetweenLines;
+		it++;
+	}
+	
+	return true;
 }

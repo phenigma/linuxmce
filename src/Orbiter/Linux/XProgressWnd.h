@@ -84,6 +84,10 @@ public:
     static Bool CheckIfEvent(Display *pDisplay, XEvent *pEvent, XPointer arg);
 
 	Display * GetDisplay();
+
+private:
+	list<string> SplitTextInLines(string sText);
+	bool GetTextSizeHint(string sText, Font font, int &width, int &height);
 };
 
 }	// namespace DCE
