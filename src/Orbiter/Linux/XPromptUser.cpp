@@ -91,11 +91,11 @@ int XPromptUser::CreateWindow(Display *pDisplay, int nScreen, Window wndParent, 
 
 	int textWidth, textHeight;
 	if (m_textFont == 0) {
-		m_textFont = XLoadFont(m_pDisplay, "-*-*-*-R-Normal--*-120-75-75-*-*");
+		m_textFont = XLoadFont(m_pDisplay, "-*-*-*-R-Normal--*-180-75-75-*-*");
 		m_bFreeTextFont = true;
 	}
 	if (m_btnFont == 0) {
-		m_btnFont =XLoadFont(m_pDisplay, "-*-*-*-R-Normal--*-120-75-75-*-*");
+		m_btnFont =XLoadFont(m_pDisplay, "-*-*-*-R-Normal--*-180-75-75-*-*");
 		m_bFreeBtnFont = true;
 	}
 

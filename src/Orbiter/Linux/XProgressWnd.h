@@ -88,6 +88,7 @@ public:
 private:
 	list<string> SplitTextInLines(string sText);
 	bool GetTextSizeHint(string sText, Font font, int &width, int &height);
+	list<string> WrapTextLines(list<string> lText, Font font, int maxWidth, int &RequiredHeight);
 };
 
 }	// namespace DCE

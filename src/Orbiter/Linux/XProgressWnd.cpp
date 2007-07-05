@@ -172,16 +172,34 @@ bool XProgressWnd::DrawWindow()
 
 	//render caption text
 	Font font = XLoadFont(m_pDisplay, "-*-helvetica-bold-R-Normal--*-240-75-75-*-*");
+	int maxWidth = m_nWidth - m_nTextX;
+	int requiredHeight = 0;
+	list<string> lCaption = WrapTextLines(SplitTextInLines(m_sText), font, maxWidth, requiredHeight);
+	
+	
 	mask = GCForeground | GCBackground | GCLineWidth | GCFont;
 	values.foreground = 0x000000;
 	values.background = 0x000000;
 	values.font = font;
+	
+	if (m_nTextY+requiredHeight>=m_nBarY)
+		m_nTextY = m_nBarY - requiredHeight;
+	
 	GC gcText = XCreateGC(m_pDisplay, m_wndThis, mask, &values);
-	XDrawString(m_pDisplay, m_wndThis, gcText, m_nTextX, m_nTextY, m_sText.c_str(), m_sText.length());
+	int dY = 0;
+	for (list<string>::iterator it=lCaption.begin(); it != lCaption.end(); it++) {
+		string sLine = *it;
+	
+		XDrawString(m_pDisplay, m_wndThis, gcText, m_nTextX, m_nTextY+dY, sLine.c_str(), sLine.length());
+		
+		int w,h;
+		GetTextSizeHint(sLine, font, w, h);
+		dY += h;
+	}
+	
 	XUnloadFont(m_pDisplay, font);
 	XFreeGC(m_pDisplay, gcText);
 
-/*
 	//render progress text		
         font = XLoadFont(m_pDisplay, "-*-helvetica-bold-R-Normal--*-240-75-75-*-*");
         mask = GCForeground | GCBackground | GCLineWidth | GCFont;
@@ -192,10 +210,9 @@ bool XProgressWnd::DrawWindow()
 	string sPercentText = StringUtils::ltos(m_nProgress) + "%";
 	int iTextW=0, iTextH=0;
 	GetTextSizeHint(sPercentText.c_str(), font, iTextW, iTextH);
-	XDrawString(m_pDisplay, m_wndThis, gcText, m_nBarX + (m_nBarWidth-iTextW) / 2, m_nBarY + m_nBarHeight+iTextH)/2, sPercentText.c_str(), sPercentText.length());
+	XDrawString(m_pDisplay, m_wndThis, gcText, m_nBarX + (m_nBarWidth-iTextW) / 2, m_nBarY +( m_nBarHeight+iTextH)/2, sPercentText.c_str(), sPercentText.length() );
 	XUnloadFont(m_pDisplay, font);
 	XFreeGC(m_pDisplay, gcText);		
-*/
 	}
 
     //XUnlockDisplay(m_pDisplay);
@@ -338,7 +355,7 @@ int XProgressWnd::CreateWindow(Display *pDisplay, int screen, Window wndParent, 
     X3DWindow::CreateWindow(pDisplay, screen, wndParent, x, y, cx, cy);
 
     m_nTextX = 20;
-    m_nTextY = m_nWidth / 4;
+    m_nTextY = m_nHeight / 8;
     m_nBarX = 20;
     m_nBarY = m_nHeight/2;
     m_nBarWidth = m_nWidth - 40;
@@ -398,4 +415,62 @@ bool XProgressWnd::GetTextSizeHint(string sText, Font font, int &width, int &hei
 	}
 	
 	return true;
+}
+
+list<string> XProgressWnd::WrapTextLines(list<string> lText, Font font, int maxWidth, int &requiredHeight)
+{
+	requiredHeight = 0;
+	int lastHeight = 0;
+	
+	list<string> resultList;
+	
+	for (list<string>::iterator i=lText.begin(); i!=lText.end(); ++i)
+	{
+		string sLine = *i;
+		
+		while (sLine != "") {
+			string::size_type pos=0, old_pos = 0;
+			int w,h;
+			bool bResult;
+		
+			// trim left
+			string::size_type not_pos =  sLine.find_first_not_of(" \t");
+			if (not_pos)
+				sLine.erase(0, not_pos);
+			
+			do {
+				old_pos = pos;
+				pos = sLine.find_first_of(" \t", pos+1);
+				string sText = sLine.substr(0, pos);
+				
+				bResult = GetTextSizeHint(sText, font, w, h);
+
+				if (bResult)
+				{
+					lastHeight = h;
+				}
+				
+			} while ( bResult && w<maxWidth && pos!=string::npos );
+			
+			if (w>=maxWidth)
+				pos = old_pos;
+			else
+				pos = string::npos;
+			
+			string sText = sLine.substr(0, pos);
+			cout << "WHILE: " << sText << endl;
+			
+			if (sText != "")
+			{
+				resultList.push_back(sText);
+				requiredHeight += lastHeight;
+			}
+			if (pos != string::npos)
+				sLine.erase(0, pos+1);
+			else
+				sLine = "";
+		}
+	}
+	
+	return resultList;
 }
