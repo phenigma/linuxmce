@@ -586,7 +586,6 @@ Row_Attribute *MediaAttributes_LowLevel::GetAttributeFromDescription(int PK_Medi
 		pRow_Attribute->FK_AttributeType_set(PK_AttributeType);
 		pRow_Attribute->Name_set(sName);
 		pRow_Attribute->Table_Attribute_get()->Commit();
-		UpdateSearchTokens(pRow_Attribute);
 		return pRow_Attribute;
 	}
 }

@@ -113,7 +113,7 @@ private:
     pthread_mutexattr_t m_MutexAttr;
     MapMediaStream m_mapMediaStream; // All active streams
 	string m_sPK_Devices_Online; // List of available storage devices, comma separated
-	time_t m_tLastScanOfOnlineDevices;
+	time_t m_tLastScanOfOnlineDevices,m_tLastSearchTokenUpdate;
 	map< pair<int,int>,bool > m_mapMediaType_AttributeType_Identifier;  // MediaType/AttributeType Combinations that uniquely identify a media file
 	map< int, pair<time_t,bool> > m_mapMediaDevicesOnline; // PK_Device (for NAS, drives, etc.) with the last time the status was checked and true if it's online
 	pair<time_t,bool> m_mapMediaDevicesOnline_Find(int iPK_Device) { map< int, pair<time_t,bool> >::iterator it = m_mapMediaDevicesOnline.find(iPK_Device); return it==m_mapMediaDevicesOnline.end() ? make_pair<time_t,bool> (0,false) : (*it).second; }
@@ -346,6 +346,7 @@ public:
 	// For the alarm callbacks
 	virtual void AlarmCallback(int id, void* param);
 	void ProcessMediaFileTimeout(MediaStream *pMediaStream);
+	void UpdateSearchTokens();
 
     /**
      * @brief Helper functions for the process of auto-creating entertainment areas

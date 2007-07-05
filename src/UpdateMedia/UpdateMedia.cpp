@@ -81,6 +81,9 @@ namespace UpdateMediaSig
 	static bool bSignalTrapCaught = false;
 };
 
+#include "DCE/DCEConfig.h"
+DCEConfig g_DCEConfig;
+
 void sigtrap_hook(int sig)
 {
 	LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Signal %d caught! Exiting...",  sig);
@@ -248,6 +251,13 @@ void UpdateMedia::UpdateSearchTokens()
 {
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Updating search tokens...");
 
+	// Find the naximum token
+	string sSQL = "SELECT max(psc_mod) FROM Attribute";
+	PlutoSqlResult result_max;
+	DB_ROW row_max = NULL;
+	if( (result_max.r = m_pDatabase_pluto_media->db_wrapper_query_result(sSQL)) )
+		row_max = db_wrapper_fetch_row( result_max.r );
+	
 	string SQL = "DELETE FROM SearchToken_Attribute";
 	m_pDatabase_pluto_media->threaded_db_wrapper_query(SQL);
 
@@ -291,6 +301,17 @@ void UpdateMedia::UpdateSearchTokens()
 				}
 			}
 		}
+	}
+
+	if( row_max )
+	{
+		time_t tLastUpdate = StringUtils::SQLDateTime(row_max[0]);
+		if( tLastUpdate )
+		{
+			g_DCEConfig.AddString("LastSearchTokenUpdate",StringUtils::itos(tLastUpdate));
+			g_DCEConfig.WriteSettings();
+		}
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "UpdateMedia::UpdateSearchTokens Update search tokens last: %d / %s",tLastUpdate,row_max[0]);
 	}
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Update search tokens ended.");

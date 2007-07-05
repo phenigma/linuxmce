@@ -850,9 +850,9 @@ void Disk_Drive_Functions::UpdateDiscLocation(char cType,int PK_Disc)
 		pRow_DiscLocation->EK_Device_set(m_dwPK_Device);
 	}
 
-	if( PK_Disc )
+	if( PK_Disc>0 )
 		pRow_DiscLocation->FK_Disc_set(PK_Disc);
-	else
+	else if( PK_Disc==0 )
 		pRow_DiscLocation->FK_Disc_setNull(true);
 
 	char c[2]=" ";

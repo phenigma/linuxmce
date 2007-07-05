@@ -104,6 +104,7 @@ DCEConfig g_DCEConfig;
 #define CHECK_FOR_NEW_FILES						2
 #define WAITING_FOR_JUKEBOX						3
 #define UPDATE_VIEW_DATE						4
+#define UPDATE_SEARCH_TOKENS					5
 
 #define TIMEOUT_JUKEBOX							30
 
@@ -419,10 +420,14 @@ continue;
 	if( pDevice )
 		m_dwPK_Device_MediaIdentification = pDevice->m_dwPK_Device;
 
+	string sLastSearchTokenUpdate = g_DCEConfig.m_mapParameters_Find("LastSearchTokenUpdate");
+	m_tLastSearchTokenUpdate = atoi(sLastSearchTokenUpdate.c_str());
+
 	m_pAlarmManager = new AlarmManager();
-    m_pAlarmManager->Start(1);      // number of worker threads
+    m_pAlarmManager->Start(2);      // number of worker threads
 	CMD_Refresh_List_of_Online_Devices();
 	m_pAlarmManager->AddRelativeAlarm(15,this,CHECK_FOR_NEW_FILES,NULL);
+	m_pAlarmManager->AddRelativeAlarm(600,this,UPDATE_SEARCH_TOKENS,NULL);
 
 	return true;
 }
@@ -1405,7 +1410,7 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 				bToggle ? "100" : "2", "", "", false, false, false, true);
 			SendCommand(CMD_Spawn_Application_DT);
 			DCE::SCREEN_PopupMessage SCREEN_PopupMessage(m_dwPK_Device,pMediaStream->m_pOH_Orbiter_StartedMedia->m_pDeviceData_Router->m_dwPK_Device,
-				"Please wait up to 20 seconds while I load that disc","","load_jukebox","0","10","1");
+				"Please wait up to 30 seconds while I load that disc.  Playback will start when the disc is loaded","","load_jukebox","0","10","1");
 			SendCommand(SCREEN_PopupMessage);
 			Sleep(5000);   // Not good.  We're holding the mutex, but it's a temporary simulation
 		}
@@ -4569,7 +4574,6 @@ void Media_Plugin::CMD_Set_Media_Attribute_Text(string sValue_To_Assign,int iEK_
 
 		pRow_Attribute->Name_set(sValue_To_Assign);
 		pRow_Attribute->Table_Attribute_get()->Commit();
-		m_pMediaAttributes->m_pMediaAttributes_LowLevel->UpdateSearchTokens(pRow_Attribute);
 
 		/* Don't do this now.  It takes too long
         vector<Row_File *> vectRow_File;
@@ -5632,6 +5636,8 @@ void Media_Plugin::AlarmCallback(int id, void* param)
 		if( pMediaStream )
 			UpdateViewDate(pMediaStream);
 	}
+	else if( id==UPDATE_SEARCH_TOKENS )
+		UpdateSearchTokens();
 }
 
 void Media_Plugin::ProcessMediaFileTimeout(MediaStream *pMediaStream)
@@ -6605,7 +6611,7 @@ bool Media_Plugin::AssignDriveForDisc(MediaStream *pMediaStream,MediaFile *pMedi
 		if( pMediaStream->m_pOH_Orbiter_StartedMedia )
 		{
 			DCE::SCREEN_PopupMessage SCREEN_PopupMessage(m_dwPK_Device,pMediaStream->m_pOH_Orbiter_StartedMedia->m_pDeviceData_Router->m_dwPK_Device,
-				"Please wait up to 20 seconds while I load that disc","","load_jukebox","0","10","1");
+				"Please wait up to 30 seconds while I load that disc.  Playback will start when the disc is loaded.","","load_jukebox","0","10","1");
 			SendCommand(SCREEN_PopupMessage);
 		}
 		pMediaFile->m_dwPK_Device_Disk_Drive = PK_Device_Disk; // This is the disc we'll be using now
@@ -6773,4 +6779,34 @@ void Media_Plugin::TransformFilenameToDeque(string sFilename,deque<MediaFile *> 
 	}
 	else
 		dequeFilenames.push_back(new MediaFile(m_pMediaAttributes->m_pMediaAttributes_LowLevel,sFilename));  // Just a normal file
+}
+
+void Media_Plugin::UpdateSearchTokens()
+{
+	string sSQL = "SELECT max(psc_mod) FROM Attribute";
+
+	PlutoSqlResult result;
+	DB_ROW row;
+	if( (result.r = m_pDatabase_pluto_media->db_wrapper_query_result(sSQL))==NULL || ( (row = db_wrapper_fetch_row( result.r )) )==NULL )
+		return; // Shouldn't happen
+
+	time_t tLastAttribute = StringUtils::SQLDateTime(row[0]);
+
+	vector<Row_Attribute *> vectRow_Attribute;
+	string sWhere = "psc_mod>'" + StringUtils::SQLDateTime(m_tLastSearchTokenUpdate ? m_tLastSearchTokenUpdate : 1) + "'";
+	m_pDatabase_pluto_media->Attribute_get()->GetRows( sWhere, &vectRow_Attribute );
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::UpdateSearchTokens m_tLastAttribute %d tLastAttribute %d size %d",
+		m_tLastSearchTokenUpdate,tLastAttribute,vectRow_Attribute.size());
+
+	for( vector<Row_Attribute *>::iterator it=vectRow_Attribute.begin();it!=vectRow_Attribute.end();++it )
+	{
+		Row_Attribute *pRow_Attribute = *it;
+		m_pMediaAttributes->m_pMediaAttributes_LowLevel->UpdateSearchTokens(pRow_Attribute);
+	}
+	
+	m_tLastSearchTokenUpdate = tLastAttribute;
+	g_DCEConfig.AddString("LastSearchTokenUpdate",StringUtils::itos(m_tLastSearchTokenUpdate));
+	g_DCEConfig.WriteSettings();
+	m_pAlarmManager->AddRelativeAlarm(600,this,UPDATE_SEARCH_TOKENS,NULL);  // Do this every 10 minutes
 }

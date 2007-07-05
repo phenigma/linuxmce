@@ -5054,7 +5054,7 @@ void Orbiter::CMD_Go_back(string sPK_DesignObj_CurrentScreen,string sForce,strin
 void Orbiter::CMD_Goto_DesignObj(int iPK_Device,string sPK_DesignObj,string sID,string sPK_DesignObj_CurrentScreen,bool bStore_Variables,bool bCant_Go_Back,string &sCMD_Result,Message *pMessage)
 //<-dceag-c5-e->
 {
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"CMD_Goto_DesignObj: %s with cant go back %d",sPK_DesignObj.c_str(),(int) bCant_Go_Back);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::CMD_Goto_DesignObj: %s with cant go back %d",sPK_DesignObj.c_str(),(int) bCant_Go_Back);
 
 	PLUTO_SAFETY_LOCK( sm, m_ScreenMutex );  // Nothing more can happen
 
@@ -5096,7 +5096,7 @@ void Orbiter::CMD_Goto_DesignObj(int iPK_Device,string sPK_DesignObj,string sID,
 
 	if ( !pObj_New )
 	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Could not find design object matching this specification: %s", sDestScreen.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Orbiter::CMD_Goto_DesignObj Could not find design object matching this specification: %s", sDestScreen.c_str());
 		CMD_Go_back("","1");
 		return;
 	}
@@ -5104,7 +5104,7 @@ void Orbiter::CMD_Goto_DesignObj(int iPK_Device,string sPK_DesignObj,string sID,
 	if( pObj_New->m_iBaseObjectID == atoi(m_sMainMenu.c_str()) )
 	{
 #ifdef DEBUG
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Forcing go to the main menu");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::CMD_Goto_DesignObj Forcing go to the main menu");
 #endif
 		pObj_New=m_ScreenMap_Find( m_sMainMenu );
 	}
@@ -5132,10 +5132,20 @@ void Orbiter::CMD_Goto_DesignObj(int iPK_Device,string sPK_DesignObj,string sID,
 	{
 		if(!m_pScreenHistory_Current->m_bPutObjectsOffScreen)
 		{
-			LoggerWrapper::GetInstance()->Write(LV_STATUS, "ObjectOffScreen : screen id %d, obj id %s",
+			ScreenHistory *pScreenHistory = m_pScreenHistory_Current;
+			vm.Release();
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Orbiter::CMD_Goto_DesignObj ObjectOffScreen : screen id %d, obj id %s",
 				m_pScreenHistory_Current->PK_Screen(), m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str());
 
 			m_pOrbiterRenderer->ObjectOffScreen(m_pScreenHistory_Current->GetObj());
+			vm.Relock();
+			if( pScreenHistory!=m_pScreenHistory_Current )
+			{
+				// ObjectOffScreen was blocking the variable mutex too long with bind to media remote.  So I release the mutex,
+				// but as a sanity check and confirming that while it was released nothing modified m_pScreenHistory_Current
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Orbiter::CMD_Goto_DesignObj m_pScreenHistory_Current while doing the object offscreen");
+				return;
+			}
 		}
 
 		m_pScreenHistory_Current->m_bPutObjectsOffScreen = false;
