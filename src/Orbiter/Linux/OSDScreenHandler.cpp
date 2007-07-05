@@ -2879,7 +2879,7 @@ bool OSDScreenHandler::ChooseProvider_DatagridSelected(CallBackData *pData)
 		ChooseProviderGetNextStage();
 	}
 
-	return false; // Keep processing it
+	return true; 
 }
 //-----------------------------------------------------------------------------------------------------
 void OSDScreenHandler::ChooseProviderGetNextStage()
