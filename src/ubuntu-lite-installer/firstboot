@@ -6,6 +6,8 @@ trap 'rm -f /etc/rc2.d/S90firstboot' EXIT
 ## Reconfigure netowkring
 export NPflagReconfNetwork=yes
 /usr/pluto/bin/Network_Setup.sh
+/usr/pluto/bin/DHCP_config.sh
+/usr/pluto/bin/Network_Firewall.sh
 
 ## Create new set of ssh keys
 rm -f /etc/ssh/ssh_host_*
