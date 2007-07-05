@@ -372,7 +372,7 @@ bool PowerfileJukebox::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 			*/
 			sReportingChildDevices += StringUtils::itos(nDrive) + "\t" + "Drive " + StringUtils::itos(nDrive)
 				+ "\t\t" + TOSTRING(DEVICETEMPLATE_Disc_Drive_Embedded_CONST) + "\t\t" +
-				TOSTRING(DEVICEDATA_Block_Device_CONST) + "\t" + vsFF[6] + "\n";
+				TOSTRING(DEVICEDATA_Drive_CONST) + "\t" + vsFF[6] + "\n";
 			nDrive++;
 		}
 	}
