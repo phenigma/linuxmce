@@ -102,67 +102,66 @@ bool XProgressWnd::DrawWindow()
         unsigned long mask = GCForeground | GCBackground | GCLineWidth;
         XGCValues values;
 		
-//		const int nDesktopBackground = 0x000080;
-		const int nDesktopBackground = 0xC0C0C0;
-		const int nBarBorderColor = 0xF0F0F0;
-		const int nBarBorderShadowColor = 0x808080;
-		const int nBarBackgroundColor = 0xFFFFFF;
-//		const int nBarFillColor = 0x00A040;
-		const int nBarFillColor = 0x2ED331;
-		const int nBarBorderWidth = 2;
-		const int nBarBorderShadowDepth = 4;
-		const int nBarBorderShadowWidth = 6;
+//	const int nDesktopBackground = 0x000080;
+	const int nDesktopBackground = 0xC0C0C0;
+	const int nBarBorderColor = 0xF0F0F0;
+	const int nBarBorderShadowColor = 0x808080;
+	const int nBarBackgroundColor = 0xFFFFFF;
+//	const int nBarFillColor = 0x00A040;
+	const int nBarFillColor = 0x2ED331;
+	const int nBarBorderWidth = 2;
+	const int nBarBorderShadowDepth = 4;
+	const int nBarBorderShadowWidth = 6;
 	int nBarWidth = (m_nBarWidth - nBarBorderWidth * 2)  * m_nProgress / 100;
 	
+	// calculating tile size
 	// N tiles + (N+1) intervals around = full internal bar width
 	// tile width = (full internal bar width - interval) / N - interval width
 	const int iTileInterval = 2;
 	const int iTilesMaxCount = 50;
 	int iBarTileWidth = (m_nBarWidth - nBarBorderWidth*2 - iTileInterval) / iTilesMaxCount - iTileInterval;
+
 	
-				
-		//bar - background
-        values.line_width = nBarBorderWidth;
-        values.foreground = nDesktopBackground;
-        values.background = nDesktopBackground;
-        GC gcBackground = XCreateGC(m_pDisplay, m_wndThis, mask, &values);
-        XFillRectangle(m_pDisplay, m_wndThis, gcBackground, 2, 2, m_nWidth-4, m_nHeight-4);
-		XFreeGC(m_pDisplay, gcBackground);
-		
-		//bar - border - shadow
-		values.line_width = nBarBorderShadowWidth;
-        values.foreground = nBarBorderShadowColor;
-        values.background = nBarBorderShadowColor;
-        GC gcBorderShadow = XCreateGC(m_pDisplay, m_wndThis, mask, &values);
-        XDrawRectangle(m_pDisplay, m_wndThis, gcBorderShadow, 
-			m_nBarX + nBarBorderShadowDepth, m_nBarY + nBarBorderShadowDepth, 
-			m_nBarWidth, m_nBarHeight);
-		XFreeGC(m_pDisplay, gcBorderShadow);
-				
-		//bar - border
-		values.line_width = 0;
-        values.background = nBarBorderColor;
-		values.foreground = nBarBorderColor;
-        GC gcBorder = XCreateGC(m_pDisplay, m_wndThis, mask, &values);
-        XDrawRectangle(m_pDisplay, m_wndThis, gcBorder, m_nBarX, m_nBarY, m_nBarWidth, m_nBarHeight);	
-		XFreeGC(m_pDisplay, gcBorder);
-		
-		//bar - background color
-        values.background = nBarBackgroundColor;
-		values.foreground = nBarBackgroundColor;
-        GC gcBarBackground = XCreateGC(m_pDisplay, m_wndThis, mask, &values);
+	// window - background
+	values.line_width = nBarBorderWidth;
+	values.foreground = nDesktopBackground;
+	values.background = nDesktopBackground;
+	GC gcBackground = XCreateGC(m_pDisplay, m_wndThis, mask, &values);
+	XFillRectangle(m_pDisplay, m_wndThis, gcBackground, 2, 2, m_nWidth-4, m_nHeight-4);
+	XFreeGC(m_pDisplay, gcBackground);
+
+	//bar - border - shadow
+	values.line_width = nBarBorderShadowWidth;
+	values.foreground = nBarBorderShadowColor;
+	values.background = nBarBorderShadowColor;
+	GC gcBorderShadow = XCreateGC(m_pDisplay, m_wndThis, mask, &values);
+	XFillRectangle(m_pDisplay, m_wndThis, gcBorderShadow, 
+	m_nBarX + nBarBorderShadowDepth, m_nBarY + nBarBorderShadowDepth, m_nBarWidth, m_nBarHeight);
+	XFreeGC(m_pDisplay, gcBorderShadow);
+
+	//bar - border
+	values.line_width = nBarBorderWidth;
+	values.background = nBarBorderColor;
+	values.foreground = nBarBorderColor;
+	GC gcBorder = XCreateGC(m_pDisplay, m_wndThis, mask, &values);
+	XFillRectangle(m_pDisplay, m_wndThis, gcBorder, m_nBarX, m_nBarY, m_nBarWidth, m_nBarHeight);	
+	XFreeGC(m_pDisplay, gcBorder);
+
+	//bar - background color
+	values.background = nBarBackgroundColor;
+	values.foreground = nBarBackgroundColor;
+	GC gcBarBackground = XCreateGC(m_pDisplay, m_wndThis, mask, &values);
 	XFillRectangle(m_pDisplay, m_wndThis, gcBarBackground, m_nBarX+nBarBorderWidth, m_nBarY+nBarBorderWidth, 
-		       m_nBarWidth-2*nBarBorderWidth, m_nBarHeight-2*nBarBorderWidth);
-		XFreeGC(m_pDisplay, gcBarBackground);
-		
+	m_nBarWidth-2*nBarBorderWidth, m_nBarHeight-2*nBarBorderWidth);
+	XFreeGC(m_pDisplay, gcBarBackground);
+
 	//bar - fill color
-        values.background = nBarFillColor;
+	values.background = nBarFillColor;
 	values.foreground = nBarFillColor;
 	GC gcBar = XCreateGC(m_pDisplay, m_wndThis, mask, &values);
 	int iTilesCount = nBarWidth / (iTileInterval + iBarTileWidth );
 	for (int i=0; i<iTilesCount; i++)
 	{
-		//XFillRectangle(m_pDisplay, m_wndThis, gcBar, m_nBarX + nBarBorderWidth, m_nBarY + nBarBorderWidth, nBarWidth - 2*nBarBorderWidth > 0 ? nBarWidth - 2*nBarBorderWidth : 0, m_nBarHeight - 2*nBarBorderWidth);
 		XFillRectangle(m_pDisplay, m_wndThis, gcBar, m_nBarX + nBarBorderWidth + iTileInterval + i*(iTileInterval + iBarTileWidth ),
 			       m_nBarY + nBarBorderWidth + iTileInterval, iBarTileWidth, m_nBarHeight - 2*nBarBorderWidth - 2*iTileInterval);
 	}
