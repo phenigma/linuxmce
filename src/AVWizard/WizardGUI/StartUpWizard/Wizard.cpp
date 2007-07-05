@@ -254,6 +254,7 @@ void Wizard::DoApplyScreen(SettingsDictionary* Settings)
 	if (Quit)
 		return;
 
+
 	if(Result != 0)
 		CurrentPage -=2;
 
@@ -269,6 +270,7 @@ void Wizard::DoApplyScreen(SettingsDictionary* Settings)
 				CurrentPage+=3;
 		}
 	}
+
 
 	if (CurrentPage == 5)
 	{
@@ -321,6 +323,10 @@ void Wizard::DoCancelScreen()
 				CurrentPage -= 2;
 		
 
+	}
+
+	if (CurrentPage == 6) {
+		CurrentPage-=1;
 	}
 	CurrentPage -- ;
 	CreateDialogs();
