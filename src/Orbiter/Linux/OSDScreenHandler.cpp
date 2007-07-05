@@ -126,9 +126,6 @@ void OSDScreenHandler::SCREEN_VideoWizard(long PK_Screen)
 
 	PrepForWizard();
 
-	DCE::CMD_Play_Media CMD_Play_Media(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_LocalMediaPlayer,0,0,"","/home/videowiz/greetings.mpg");
-	m_pOrbiter->SendCommand(CMD_Play_Media);
-
 	DesignObjText *pText = m_pOrbiter->FindText( m_pOrbiter->FindObject(DESIGNOBJ_Greetings_CONST),TEXT_STATUS_CONST );
 	if( !m_bHasVideoWizardFiles )
 	{
@@ -169,6 +166,9 @@ void OSDScreenHandler::SCREEN_VideoWizard(long PK_Screen)
 
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &OSDScreenHandler::VideoWizard_ObjectSelected, new ObjectInfoBackData());
 	RegisterCallBack(cbOnRenderScreen, (ScreenHandlerCallBack) &OSDScreenHandler::VideoWizard_OnScreen, new RenderScreenCallBackData());
+
+	DCE::CMD_Play_Media CMD_Play_Media(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_LocalMediaPlayer,0,0,"","/home/videowiz/greetings.mpg");
+	m_pOrbiter->SendCommand(CMD_Play_Media);
 }
 
 bool OSDScreenHandler::VideoWizard_OnScreen(CallBackData *pData)
