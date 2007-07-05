@@ -35,7 +35,11 @@ GetHddToUse()
 			for Drive in $HddList; do
 				DiskDev="${Drive%%:*}"
 				DiskSize="${Drive#*:}"
-				echo "$i. $DiskDev (${DiskSize//:/ })"
+				set +e
+				DiskDescription="$(hdparm -I $DiskDev | grep "Model Number:" | cut -d ':' -f2 | sed 's/^ *//g')"
+				DiskSerial="$(hdparm -I $DiskDev | grep "Serial Number:" | cut -d ':' -f2 | sed 's/^ *//g')"
+				set -e
+				echo "$i. $DiskDev ($DiskDescription $DiskSerial ${DiskSize//:/ })"
 				Hdd[$i]="$DiskDev"
 				((i++))
 			done
