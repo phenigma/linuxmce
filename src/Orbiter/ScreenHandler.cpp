@@ -875,6 +875,8 @@ void ScreenHandler::SelectedAttributeCell(DataGridCell *pCell)
 		}
 
 	}
+
+	m_pOrbiter->m_pOrbiterRenderer->UnHighlightObject();
 	mediaFileBrowserOptions.ReacquireGrids();
 	MediaBrowser_Render(NULL);
 	m_pOrbiter->CMD_Refresh("*");
