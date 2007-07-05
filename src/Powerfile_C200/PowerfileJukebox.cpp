@@ -379,7 +379,7 @@ bool PowerfileJukebox::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 
 	if (!Get_Jukebox_Status(NULL,true))
 		return false;
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Finished config");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Finished config.  child devices: %s", sReportingChildDevices.c_str());
 
 	string sDefective = m_pPowerfile->DATA_Get_Defective_Units();
 	vector<string> vect_sDefective;
@@ -407,6 +407,7 @@ bool PowerfileJukebox::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 		}
 	}
 
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Reporting child devices: %s", sReportingChildDevices.c_str());
 	Message *pMessage = new Message(m_pPowerfile->m_dwPK_Device,DEVICEID_EVENTMANAGER,PRIORITY_NORMAL,MESSAGETYPE_EVENT,EVENT_Reporting_Child_Devices_CONST,1,
 		EVENTPARAMETER_Text_CONST,sReportingChildDevices.c_str());
 	m_pPowerfile->QueueMessageToRouter(pMessage);
