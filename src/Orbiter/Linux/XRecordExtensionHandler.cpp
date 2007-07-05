@@ -240,6 +240,11 @@ void XRecordExtensionHandler::XRecordingDataCallback(XPointer pData, XRecordInte
 			break;
 
 		case XRecordEndOfData:
+			pRecordingHandler->m_isRecordingEnabled = false;
+#ifdef DEBUG
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "XRecordExtensionHandler::XRecordingDataCallback(): Recording context got end of data.");
+#endif
+			pthread_cond_signal(&pRecordingHandler->recordingStateChangedCondition);
 			break;
 
 		default:
