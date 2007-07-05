@@ -67,7 +67,7 @@ function Detect {
 			## Get info about this partition
 			halUDI=$(hal-find-by-property --key 'block.device' --string '/dev/$partition')
 			
-			Send="false"
+			Sent="false"
 			Count=0
 			while [[ "$Sent" == "false" ]] ;do
 				/usr/pluto/bin/MessageSend $DCERouter $PK_Device -1001 2 65 55 "152|/dev/$partition" 52 8 49 1790	
@@ -82,7 +82,7 @@ function Detect {
 
 
 				if [[ "$Count" == "10" ]] ;then
-					Send="true"
+					Sent="true"
 				fi
 			done
 		done
