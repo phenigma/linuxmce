@@ -10,8 +10,10 @@ VMWARE_WORK_MACHINE="${VMWARE_DIR}/Kubuntu7.04.vmx"
 VMWARE_IP="192.168.76.128"
 
 
-# Export display so vmware will run in vnc server
+# Export display so vmware will run in X11
+
 export DISPLAY=:1
+screen -d -m -S X11-Display1 X -ac :1
 
 
 function decho {
@@ -27,7 +29,6 @@ function create_virtual_machine {
 
 function start_virtual_machine {
 	decho "Starting virtual machine"
-	vncserver :1 -geometry 800x600 || :
 	vmplayer "$VMWARE_WORK_MACHINE" &
 
 	decho "Waiting for ssh connnection to virtual machine"
