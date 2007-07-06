@@ -39,7 +39,7 @@ CreateLiveCD()
 
 	mkdir -p "$LiveCDDir/lmce-image-via/"
 	for Archive in "${FilesystemArchives[@]}"; do
-		ln "$Archive" "$LiveCDDir/lmce-image-via/"
+		ln "$WorkDir/$Archive" "$LiveCDDir/lmce-image-via/"
 	done
 	cp "$FirstRunScript" "$LiveCDDir/lmce-image-via/"
 	(cd "$LiveCDDir" && find . -type f -not -path ./md5sum.txt -print0 | xargs -0 md5sum | tee md5sum.txt)
