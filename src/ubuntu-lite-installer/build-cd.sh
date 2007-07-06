@@ -35,11 +35,12 @@ stop on runlevel 1
 stop on runlevel 6
 
 exec /usr/bin/$(basename "$InstallerScript")
-" >"$SquashFSDir/etc/event.d/tty1"
+" >"$SquashFSDir/etc/event.d/installer-lmce"
+	rm -f "$SquashFSDir/etc/event.d/tty1"
 
 	cp "$InstallerScript" "$SquashFSDir/usr/bin/"
 	cp "$RcSScript" "$SquashFSDir/etc/init.d/"
-	#ln -snf "/etc/init.d/$(basename "$RcSScript")" "$SquashFSDir/etc/rcS.d/S99install-lmce"
+	rm -f "$SquashFSDir"/etc/rcS.d/S99install-lmce
 	chroot "$SquashFSDir" dpkg-query -W --showformat='${Package} ${Version}\n' \
 	   > "$LiveCDDir/casper/filesystem.manifest"
 	mksquashfs "$SquashFSDir" "$LiveCDDir/casper/filesystem.squashfs"

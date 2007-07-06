@@ -14,6 +14,7 @@ GetConsole()
 {
 	exec &>/dev/tty1 </dev/tty1
 	dmesg -n1
+	clear
 	chvt 1
 }
 
@@ -103,8 +104,6 @@ MountPartitions()
 	mount "$TargetHdd"1 /media/target/boot
 	mount "$TargetHdd"6 /media/target/debian
 	mount "$TargetHdd"7 /media/target/ubuntu
-	mount --bind /media/target/boot /media/target/debian/boot
-	mount --bind /media/target/boot /media/target/ubuntu/boot
 }
 
 ExtractArchives()
@@ -113,22 +112,26 @@ ExtractArchives()
 
 	# Boot
 	echo "Boot archive"
-	tar -C /media/target --checkpoint=10000 -zxf /cdrom/lmce-image/boot.tgz
+	tar -C /media/target/boot --checkpoint=10000 -zxf /cdrom/lmce-image-via/boot.tgz
 
 	# Debian
 	echo "Debian archive"
-	tar -C /media/target --checkpoint=10000 -zxf /cdrom/lmce-image/pluto44.tgz
+	tar -C /media/target/debian --checkpoint=10000 -zxf /cdrom/lmce-image-via/pluto44.tgz
 
 	# Kubuntu
 	echo "Kubuntu archive"
-	tar -C /media/target --checkpoint=10000 -zxf /cdrom/lmce-image/kubuntu.tgz
+	tar -C /media/target/ubuntu --checkpoint=10000 -zxf /cdrom/lmce-image-via/kubuntu.tgz
 
 	# Update the UUIDs
 	rm /media/target/ubuntu/etc/blkid.tab || :
 	blkid -w /media/target/ubuntu/etc/blkid.tab
 
+	#Bind boot into debian and ubuntu filesystems
+	mount --bind /media/target/boot /media/target/debian/boot
+	mount --bind /media/target/boot /media/target/ubuntu/boot
+
 	#Copy the fist run script
-	cp /cdrom/lmce-image-via/firstboot-via /media/target/debian/etc/rc2.d/S90firstboot
+	cp /cdrom/lmce-image-via/firstboot-via /media/target/debian/etc/rc2.d/S90firstboot-via
 }
 
 SetupFstab()
@@ -168,9 +171,9 @@ InstallGrub()
 	grub-install --recheck --root-directory=/media/target/ubuntu "$TargetHdd"
 	umount /media/target/ubuntu/{proc,dev}
 
-	sed -ir "s,root=UUID=.* ro quiet splash,root=${TargetHdd}7 ro quiet splash,g" /media/target/boot/grub/menu.lst
-	sed -ir "s,root=UUID=.* ro single,root=${TargetHdd}7 ro single,g" /media/target/boot/grub/menu.lst
-	sed -ir 's/^default[\t ]+.*$/default saved/g' /media/target/boot/grub/menu.lst
+	## XXX: "sed -i" doesn't seem to work
+	sed -r "s,root=UUID=[^ ]*,root=${TargetHdd}7,g" /media/target/boot/grub/menu.lst >/tmp/menu1.lst
+	sed -r 's/^default[\t ]+.*$/default saved/g' /tmp/menu1.lst >/media/target/boot/grub/menu.lst
 	/usr/sbin/grub-set-default --root-directory=/media/target/boot 2 # boot Debian by default
 }
 
@@ -223,6 +226,7 @@ GetConsole
 GetHddToUse
 PartitionHdd
 FormatPartitions
+MountPartitions
 ExtractArchives
 SetupFstab
 InstallGrub
