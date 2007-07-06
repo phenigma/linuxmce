@@ -1608,11 +1608,30 @@ class DataGridTable *Telecom_Plugin::SpeedDialGrid(string GridID,string Parms,vo
 			LoggerWrapper::GetInstance()->Write(LV_WARNING,"This should not happend ('%s' != '%s')",desc,row[0]);
 			break;
 		}
-
+		string phoneExtension = row[2];
 		string text = string(row[0])+string(" (")+string(row[2])+string(")");
+		
+		// TODO: what to do with caller id ??
+		// callerid
+		if((row = db_wrapper_fetch_row(result_set.r))==NULL)
+		{
+			LoggerWrapper::GetInstance()->Write(LV_WARNING,"This should not happend (no 3nd row for '%s')",desc);
+			break;
+		}
+		if(atoi(row[1])!=COMMANDPARAMETER_PhoneCallerID_CONST)
+		{
+			LoggerWrapper::GetInstance()->Write(LV_WARNING,"This should not happend (3nd row not PhoneCallerId)");
+			break;
+		}
+		if(strcmp(row[0],desc))
+		{
+			LoggerWrapper::GetInstance()->Write(LV_WARNING,"This should not happend ('%s' != '%s')",desc,row[0]);
+			break;
+		}
+
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"WILL SHOW  %s / %d",text.c_str(),device);
 		pCell = new DataGridCell(text,"");
-		DCE::CMD_PL_Originate CMD_PL_Originate_(m_dwPK_Device,m_dwPK_Device,device,row[2],"");
+		DCE::CMD_PL_Originate CMD_PL_Originate_(m_dwPK_Device,m_dwPK_Device,device, phoneExtension,"");
 		pCell->m_pMessage=CMD_PL_Originate_.m_pMessage;
 		pDataGrid->SetData(0,Row,pCell);
 		Row++;
