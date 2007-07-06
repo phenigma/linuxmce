@@ -354,8 +354,8 @@ namespace DCE
 			PLUTO_SAFETY_LOCK(lm,m_ListenerMutex);
 
 			list<int> listServerSocketDevices;
-			for(ServerSocketMap::iterator iDC = m_mapServerSocket.begin(); iDC!=m_mapServerSocket.end(); ++iDC)
-				listServerSocketDevices.push_back(iDC->first);
+			for(ServerSocketMap::iterator itSS = m_mapServerSocket.begin(); itSS!=m_mapServerSocket.end(); ++itSS)
+				listServerSocketDevices.push_back(itSS->first);
 
 			lm.Release();
 
@@ -375,12 +375,12 @@ namespace DCE
 						string sReason;
 						if( !pServerSocket->SafeToReload(sReason) )
 						{
-							LoggerWrapper::GetInstance()->Write(LV_STATUS,"Aborting reload per device %d = %s",(*iDC).first, sReason.c_str());
+							LoggerWrapper::GetInstance()->Write(LV_STATUS,"Aborting reload per device %d = %s", pServerSocket, sReason.c_str());
 							if( PK_Device_Requesting )
 							{
 								ReceivedMessage(NULL,new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 
 									EVENT_Reload_Aborted_CONST,3,
-									EVENTPARAMETER_PK_Device_CONST,StringUtils::itos((*iDC).first).c_str(),
+									EVENTPARAMETER_PK_Device_CONST,StringUtils::itos(pServerSocket->m_dwPK_Device).c_str(),
 									EVENTPARAMETER_Text_CONST,sReason.c_str(),
 									EVENTPARAMETER_PK_Orbiter_CONST,StringUtils::itos(PK_Device_Requesting).c_str()));
 							}
