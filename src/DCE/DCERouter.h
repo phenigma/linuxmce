@@ -375,7 +375,7 @@ namespace DCE
 						string sReason;
 						if( !pServerSocket->SafeToReload(sReason) )
 						{
-							LoggerWrapper::GetInstance()->Write(LV_STATUS,"Aborting reload per device %d = %s", pServerSocket, sReason.c_str());
+							LoggerWrapper::GetInstance()->Write(LV_STATUS,"Aborting reload per device %d = %s", pServerSocket->m_dwPK_Device, sReason.c_str());
 							if( PK_Device_Requesting )
 							{
 								ReceivedMessage(NULL,new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 
