@@ -349,13 +349,27 @@ namespace DCE
 		{
 			// If it's not safe to do a reload now returns false and fires a EVENT_Reload_Aborted_CONST event
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Received reload command from %d",PK_Device_Requesting);
+
+			//get the list with devices
 			PLUTO_SAFETY_LOCK(lm,m_ListenerMutex);
-			ServerSocketMap::iterator iDC;
-			for(iDC = m_mapServerSocket.begin(); iDC!=m_mapServerSocket.end(); ++iDC)
+
+			list<int> listServerSocketDevices;
+			for(ServerSocketMap::iterator iDC = m_mapServerSocket.begin(); iDC!=m_mapServerSocket.end(); ++iDC)
+				listServerSocketDevices.push_back(iDC->first);
+
+			lm.Release();
+
+            //got the list; let's iterate and get server socket for each devices and send safe to reload
+			for(list<int>::iterator it = listServerSocketDevices.begin(); it != listServerSocketDevices.end(); ++it)
 			{
-				ServerSocket *pServerSocket = (*iDC).second;
-				PLUTO_SAFETY_LOCK(slConnMutex,(pServerSocket->m_ConnectionMutex))
+				ServerSocket *pServerSocket;
+				GET_SERVER_SOCKET(gs, pServerSocket, *it);
+
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "SafeToReload for device %d, server socket %p", *it, pServerSocket);
+
+				if(NULL != pServerSocket)
 				{
+					PLUTO_SAFETY_LOCK(slConnMutex,(pServerSocket->m_ConnectionMutex))
 					if( pServerSocket->m_bAskBeforeReload )
 					{
 						string sReason;
@@ -375,8 +389,8 @@ namespace DCE
 					}
 				}
 			}
-			LoggerWrapper::GetInstance()->Write(LV_STATUS,"RELOAD OK");
 
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"RELOAD OK");
 			return true;
 		}
         void OutputChildren(class DeviceData_Impl *pDevice,string &Response);
