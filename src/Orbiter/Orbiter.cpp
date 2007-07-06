@@ -79,6 +79,8 @@ using namespace DCE;
 #include "Xine_Player/AskXine_Socket.h"
 #include "VFD_LCD/VFD_LCD_Base.h"
 
+#define	MAX_REPEAT		5		// Don't go crazy if a user holds a button down
+
 #ifdef ENABLE_MOUSE_BEHAVIOR
 #include "MouseBehavior.h"
 #include "MouseGovernor.h"
@@ -4017,7 +4019,7 @@ void Orbiter::ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList
 #endif
 			}
 			if( Repeat && !bAlreadySetRepeat )
-				pThisMessage->m_mapParameters[COMMANDPARAMETER_Repeat_Command_CONST]=StringUtils::itos(Repeat);
+				pThisMessage->m_mapParameters[COMMANDPARAMETER_Repeat_Command_CONST]=StringUtils::itos(max(Repeat,MAX_REPEAT));
 
 
 			pThisMessage->m_dwPK_Device_Group_ID_To=pCommand->m_PK_DeviceGroup;

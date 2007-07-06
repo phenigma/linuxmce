@@ -2080,7 +2080,11 @@ class DataGridTable *Media_Plugin::DevicesNeedingProviders( string GridID, strin
 			string sDescription = pRow_Device->Description_get();
 			Row_Device *pRow_Device_Parent = pRow_Device->FK_Device_ControlledVia_getrow();
 			if( pRow_Device_Parent && pRow_Device_Parent->Disabled_get()==1 )
-				continue;
+			{
+				Row_DeviceTemplate *pRow_DeviceTemplate = pRow_Device_Parent->FK_DeviceTemplate_getrow();
+				if( pRow_DeviceTemplate && pRow_DeviceTemplate->FK_DeviceCategory_get()!=DEVICECATEGORY_Infrared_Interface_CONST && pRow_DeviceTemplate->FK_DeviceCategory_get()!=DEVICECATEGORY_Infrared_Receivers_CONST )
+					continue;
+			}
 			while( pRow_Device_Parent )
 			{
 				sDescription += " / " + pRow_Device_Parent->Description_get();

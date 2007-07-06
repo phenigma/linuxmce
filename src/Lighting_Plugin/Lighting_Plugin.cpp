@@ -454,7 +454,7 @@ void Lighting_Plugin::AlarmCallback(int id, void* param)
 	PLUTO_SAFETY_LOCK(lm,m_LightingMutex);
 
 	time_t tNow = time(NULL);
-	LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Lighting_Plugin::AlarmCallback at time %s with map size %d",tNow,m_mapLightsToRestore.size());
+	LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Lighting_Plugin::AlarmCallback at time %d with map size %d",tNow,m_mapLightsToRestore.size());
 	// Find the next alarm
 	for(map<int, pair<time_t,string> >::iterator it=m_mapLightsToRestore.begin();it!=m_mapLightsToRestore.end();)
 	{
