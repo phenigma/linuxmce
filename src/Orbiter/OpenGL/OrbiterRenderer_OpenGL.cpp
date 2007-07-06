@@ -168,11 +168,11 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ OrbiterRenderer_OpenGL::~OrbiterRenderer_OpenGL()
 {
-	if(NULL != Engine)
-		Engine->m_bQuit=true;
-
 	delete Popups;
 	Popups = NULL;
+
+	if(NULL != Engine)
+		Engine->m_bQuit=true;
 
 	if(GLThread != 0)
 		pthread_join(GLThread, NULL);
