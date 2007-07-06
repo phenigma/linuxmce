@@ -96,6 +96,10 @@ ServerSocket::~ServerSocket()
 	//Announce socket we're done
 	Close();
 
+	//Make sure we are no longer in listener's lists
+	if(!m_bAlreadyRemoved && m_dwPK_Device != DEVICEID_MESSAGESEND)
+		m_pListener->RemoveAndDeleteSocket(this, true /*don't delete me*/); 
+
 	//Wait for our thread to finish
 	if( ((pthread_t)NULL) != m_ClientThreadID )
 	{
@@ -103,10 +107,6 @@ ServerSocket::~ServerSocket()
 		pthread_join(m_ClientThreadID, NULL);
 		m_ClientThreadID = (pthread_t)NULL;
 	}
-
-	//Make sure we are no longer in listener's lists
-	if(!m_bAlreadyRemoved && m_dwPK_Device != DEVICEID_MESSAGESEND)
-		m_pListener->RemoveAndDeleteSocket(this, true /*don't delete me*/); 
 
 	//Wait for any outstanding locks to finish
 	PLUTO_SAFETY_LOCK(cm, m_ConnectionMutex);
