@@ -1,0 +1,5 @@
+#!/bin/bash
+
+trap 'rm -f /etc/rc2.d/S90firstboot-via' EXIT
+
+/usr/pluto/install/via-disked-md.sh
