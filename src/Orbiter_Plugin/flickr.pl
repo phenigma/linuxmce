@@ -29,7 +29,7 @@ if (-e '/var/flickr_start'){
 		if ($nrSeconds > 18000){
 			`touch /var/flickr_start`;
 		} else {
-			exit (0);
+#			exit (0);
 		}
 	}
 } else {
@@ -129,15 +129,20 @@ if ($search_string){
 			$IMGS->{$id}->{'username'}=$r->{'photo'}->{'owner'}->{'username'};
 			$response= $api->execute_method('flickr.photos.getSizes',{'photo_id' => $id});
 			if (!isFileOnDisk($id, $IMGS->{$id}, $search_string)){
+				
 				wait_child();
+
 				if (!defined($child_pid = fork())) {
 					die "cannot fork: $!";
+
 				} elsif ($child_pid) {
 					# I'm the parent
 					next;
+
 				} else {
 					# I'm the child
 					get_files($search_string, $IMGS->{$id}, $id);
+					activate_image($id, $IMGS->{$id}, $search_string);
 					CORE::exit(0);
 					#exit(0);
 				} 
@@ -208,6 +213,7 @@ if ($search_string){
 						# I'm the child
 						print "CC: $child_count";
 						get_files('', $IMGS->{$id}, $id);
+						activate_image($id, $IMGS->{$id}, $search_string);
 						CORE::exit(0);
 					} 
 				}
@@ -228,7 +234,7 @@ if ($picture_nr >= $min_nr) {
 }
 
 #resizing images
-resize_images();
+#resize_images();
 
 #deleting old files;
 delete_old();
@@ -282,82 +288,91 @@ sub get_files {
 	close(TEST);
 }
 
-sub resize_images {
-
-	my ($i, $width, $height, $finaldst, $symdest, $partdst);
+sub activate_image {
 	open TEST, ">>/var/log/pluto/Flickr.log";
-	print TEST "-------------------\n";
-	print TEST "Resizing images \n";	
-	print TEST "-------------------\n";
-	for $i ( 0 .. $#AoH ) {	
-		$symdest = "/home/public/data/pictures/flickr";
-		$finaldst = $AoH[$i]{File}; 
-		`touch "$finaldst.lock"`;
-		$partdst = $finaldst;
-		$partdst =~ s/\/home\/flickr//g;  
-		$symdest .= "$partdst";
-		$width = $AoH[$i]{Width};
-		$height = $AoH[$i]{Height};
-		#$xs=Image::Magick->new;
-		#$r=$xs->Read("$finaldst");
-		#warn "$r" if "$r";
-		my $test_date = `date`;
-		print TEST "Old image width: $width and height: $height\n";
-		if (($width > 1024 || $height > 1024)||
-		    ($width > 1024 && $height > 1024)) {
-			if($width > $height){
-				$height = floor(($height/$width)*1024);
-				$height = 768 if($height > 768);
-				$width = 1024;
-			} 
-			elsif($height > $width){
-				$width = floor(($width/$height)*1024);
-				$width = 768 if($width > 768);
-				$height = 1024;
-			}
-			elsif($height == $width){
-				$width = 768;
-				$height = 768;
-			}
-			print TEST "Resizing: New image width: $width and height: $height\n";
-		
-			#$r=$xs->Scale(width=>$width, 
-			#	      height=>$height);
-			#warn "$r" if "$r";
-			#$r=$xs->Write($finaldst);
-			`/usr/bin/convert -sample "$width"x"$height" $finaldst $finaldst`;
-			print "[flickr.pl] Writing file $finaldst.\n";
-		}
+	my $id = shift;
+	my $image = shift; 
+	my $pattern = shift;
+	my $finaldst;
 
-	#	$r = $xs->Annotate( font=>'/usr/share/fonts/truetype/ttf-bitstream-vera/Vera.ttf', 
-	#				pointsize=>20, 
-	#				fill=>'red', 
-	#				x=>'20',
-	#				y=>'40',
-	#				text=>chr(169).$image->{'username'});
-		$test_date = `date`;
-		print TEST "$test_date Sending /usr/pluto/bin/MessageSend dcerouter -targetType template -r -o 0 2 1 819 13 $symdest\n";
-		print TEST "-------------------\n";
+	if ($pattern eq '') 
+	{
+		my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime($image->{'time'});
+		$year=1900+$year;
+		$mon=$mon+1;
+		$mon="0".$mon if($mon <= 9);
+		$mday="0".$mday if ($mday <=9);
 
-		$fms = qx | /usr/pluto/bin/MessageSend dcerouter -targetType template -r -o 0 2 1 819 13 "$symdest" |; 
-					
-		## If the router is not available for the moment
-		while ( $fms =~ m/Cannot communicate with router/ ) {
-			printf "Waiting for router to come up";
-			sleep 10;
-			$fms = qx | /usr/pluto/bin/MessageSend dcerouter -targetType template -r -o 0 2 1 819 13 "$symdest" |;
-		}
-					
-		`rm -f $finaldst.lock`;
-		$fms =~ s/\n//g;
-		@out = split (/:/, $fms);
-		$ffield = $out[2];
-		#warn "$r" if "$r";
-						
-		# second message send
-		#	print "Fire-ing second messagesend event\n";
-		qx | /usr/pluto/bin/MessageSend dcerouter -targetType template -r -o 0 2 1 391 145 "$ffield" 122 30 5 "*" |;
+		print TEST  $dest."/".$year."/".$mon."/".$mday."/".$id.".".$image->{'format'}."\n";
+		$finaldst = $dest."/".$year."/".$mon."/".$mday."/".$id.".".$image->{'format'};
+	} else {
+		$finaldst = $dest."/".'tags'."/".$buff.".".$image->{'format'};
 	}
+
+	print TEST "-------------------\n";
+	print TEST "Resizing image $finaldst \n";	
+	print TEST "-------------------\n";
+	my ($i, $width, $height, $symdest, $partdst);
+
+	$symdest = "/home/public/data/pictures/flickr";
+	`touch "$finaldst.lock"`;
+	$partdst = $finaldst;
+	$partdst =~ s/\/home\/flickr//g;  
+	$symdest .= "$partdst";
+	$width = $image->{'width'};
+	$height = $image->{'height'};
+	
+	my $test_date = `date`;
+	print TEST "Old image width: $width and height: $height\n";
+	if (($width > 1024 || $height > 1024)||
+	    ($width > 1024 && $height > 1024)) {
+		if($width > $height){
+			$height = floor(($height/$width)*1024);
+			$height = 768 if($height > 768);
+			$width = 1024;
+		} 
+		elsif($height > $width){
+			$width = floor(($width/$height)*1024);
+			$width = 768 if($width > 768);
+			$height = 1024;
+		}
+		elsif($height == $width){
+			$width = 768;
+			$height = 768;
+		}
+		print TEST "Resizing: New image width: $width and height: $height\n";
+	
+		#$r=$xs->Scale(width=>$width, 
+		#	      height=>$height);
+		#warn "$r" if "$r";
+		#$r=$xs->Write($finaldst);
+		`/usr/bin/convert -sample "$width"x"$height" $finaldst $finaldst`;
+		print "[flickr.pl] Writing file $finaldst.\n";
+	}
+
+	print TEST "1. Sending /usr/pluto/bin/MessageSend dcerouter -targetType template -r -o 0 2 1 819 13 $symdest\n";
+	$fms = qx | /usr/pluto/bin/MessageSend dcerouter -targetType template -r -o 0 2 1 819 13 "$symdest" |; 
+				
+	## If the router is not available for the moment
+	while ( $fms =~ m/Cannot communicate with router/ ) {
+		printf "Waiting for router to come up";
+		sleep 10;
+		print TEST "2. Sending /usr/pluto/bin/MessageSend dcerouter -targetType template -r -o 0 2 1 819 13 \"$symdest\"\n";
+		$fms = qx | /usr/pluto/bin/MessageSend dcerouter -targetType template -r -o 0 2 1 819 13 "$symdest" |;
+	}
+				
+	`rm -f $finaldst.lock`;
+	$fms =~ s/\n//g;
+	@out = split (/:/, $fms);
+	$ffield = $out[2];
+	#warn "$r" if "$r";
+					
+	# second message send
+	#	print "Fire-ing second messagesend event\n";
+	
+	print TEST "3. Sending /usr/pluto/bin/MessageSend dcerouter -targetType template -r -o 0 2 1 391 145 \"$ffield\" 122 30 5 \"*\"\n";
+	qx | /usr/pluto/bin/MessageSend dcerouter -targetType template -r -o 0 2 1 391 145 "$ffield" 122 30 5 "*" |;
+
 	
 	close(TEST);
 }
