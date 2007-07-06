@@ -56,7 +56,15 @@ OriginateCommand::setPhoneNum(std::string phonenum) {
 
 void 
 OriginateCommand::setPhoneType(std::string phonetype) {
-	LOCKED_OP(this->phonetype = phonetype);
+	LOCKED_OP(
+		this->phonetype = phonetype;
+		// SIP5061 -> SIP
+		if( 3 < this->phonetype.size() &&
+			"SIP" == this->phonetype.substr(0, 3) )
+		{
+			this->phonetype = "SIP";
+		}
+	);
 }
 
 void 
