@@ -131,7 +131,8 @@ ExtractArchives()
 	mount --bind /media/target/boot /media/target/ubuntu/boot
 
 	#Copy the fist run script
-	cp /cdrom/lmce-image-via/firstboot-via /media/target/debian/etc/rc2.d/S90firstboot-via
+	cp /cdrom/lmce-image-via/firstboot-via /media/target/debian/etc/init.d/firstboot-via
+	ln -s /etc/init.d/firstboot-via /media/target/debian/etc/rc2.d/S90firstboot-via
 }
 
 SetupFstab()
