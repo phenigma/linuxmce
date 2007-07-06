@@ -927,7 +927,12 @@ void OrbiterLinux::StopActivateExternalWindowTask()
 
 void OrbiterLinux::ConfirmPcDesktop()
 {
+#if defined(VIA_OVERLAY) && defined(ORBITER_OPENGL)
+	if(!ProcessUtils::SpawnDaemon("/usr/pluto/bin/Fiire_KDE.sh", "", true))
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Failed to start KDE (with Fiire_KDE.sh)");
+#else
 	if(!ProcessUtils::SpawnDaemon("/usr/pluto/bin/Start_KDE.sh", "", true))
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Failed to start KDE");
+#endif
 }
 

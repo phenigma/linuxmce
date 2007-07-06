@@ -1211,19 +1211,14 @@ void OrbiterRenderer::ObjectOnScreen( VectDesignObj_Orbiter *pVectDesignObj_Orbi
 	if(  pObj->m_GraphicToDisplay==GRAPHIC_SELECTED  )
 		OrbiterLogic()->m_vectObjs_Selected.push_back( pObj );
 
-///////////////////////////////////////////////////////////////////////////
-// Hidden on VIA and WIN32/WINCE
-#if defined(VIA) || defined(WIN32)
-	if(pObj->m_iBaseObjectID == DESIGNOBJ_butKDEDesktop_CONST || pObj->m_iBaseObjectID == DESIGNOBJ_butKDEDesktop_CONST + 1)
-		pObj->m_bHidden = true;
-#endif
-///////////////////////////////////////////////////////////////////////////
 // Hidden on WIN32/WINCE
 #if defined(WIN32) && !defined(TEST_OSD)
+	if(pObj->m_iBaseObjectID == DESIGNOBJ_butKDEDesktop_CONST || pObj->m_iBaseObjectID == DESIGNOBJ_butKDEDesktop_CONST + 1)
+		pObj->m_bHidden = true;
+
 	if(pObj->m_iBaseObjectID == DESIGNOBJ_butStartAVwizard_CONST || pObj->m_iBaseObjectID == DESIGNOBJ_butStartWizard_CONST)
 		pObj->m_bHidden = true;
 #endif
-///////////////////////////////////////////////////////////////////////////
 
 	// Move InitializeGrid down so it gets called after the LoadActions,  which may set variables that it will use
 
