@@ -90,7 +90,7 @@ void *GeneratorThread( void *p)
 
 		if(!pOrbiter || pOrbiter->m_bQuit_get())
 		{
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Orbiter is NULL!");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Orbiter is NULL. Stopping simulator...");
 			pSimulator->m_bIsRunning = false;
 			return NULL;
 		}

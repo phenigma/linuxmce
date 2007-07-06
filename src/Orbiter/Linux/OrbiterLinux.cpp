@@ -214,17 +214,18 @@ bool OrbiterLinux::X11_Init()
 
 bool OrbiterLinux::X11_Exit()
 {
-    if (m_pX11 == NULL)
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "OrbiterLinux::X11_Exit()");
+	
+	if (m_pX11 != NULL)
     {
-        LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "OrbiterLinux::X11_Exit() : NULL pointer");
-        return false;
+		// display was opened by SDL, it should be closed by SDL
+		delete m_pX11;
+		m_pX11 = NULL;
+		m_pDisplay_SDL = NULL;
     }
-    LoggerWrapper::GetInstance()->Write(LV_STATUS, "OrbiterLinux::X11_Exit()");
-    // display was opened by SDL, it should be closed by SDL
-    delete m_pX11;
-    m_pX11 = NULL;
-    m_pDisplay_SDL = NULL;
-    LoggerWrapper::GetInstance()->Write(LV_STATUS, "OrbiterLinux::X11_Exit() : done");
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "OrbiterLinux::X11_Exit() : done");
+
     return true;
 }
 
