@@ -1,6 +1,7 @@
 <?
 function phoneLines($output,$astADO,$dbADO) {
-
+	global $wikiHost;
+	
 	// include language files
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/phoneLines.lang.php');
@@ -122,6 +123,8 @@ function phoneLines($output,$astADO,$dbADO) {
 	}
 	
 	if($action=='form'){
+		$manualConfiguration=isManualConfig($dbADO);
+		$manualConfigNote='<div align="center">'.$TEXT_MANUAL_CONFIG_NOTE_CONST.' <a href="index.php?section=amp">'.$TEXT_CLICK_HERE_CONST.'</a></div>';
 		
 		$out.='
 		<div align="center" class="err">'.stripslashes(@$_REQUEST['error']).'</div>
@@ -134,7 +137,9 @@ function phoneLines($output,$astADO,$dbADO) {
 			<input type="hidden" name="action" value="update">
 			
 			<h3 align="center">'.$TEXT_PHONE_LINES_CONST.'</h3>
-			'.phoneLinesTable($astADO).'
+			'.(($manualConfiguration===true)?$manualConfigNote:phoneLinesTable($astADO));
+		if(isset($GLOBALS['count']) && $GLOBALS['count']==0){
+			$out.='
 			<table align="center">
 				<tr>
 					<td>'.$TEXT_CHOOSE_PROVIDER_CONST.'</td>
@@ -147,9 +152,23 @@ function phoneLines($output,$astADO,$dbADO) {
 					<td colspan="2">'.@$userBox.'</td>
 				</tr>		
 			</table>
-		
+		';
+		}
+	
+		$activateAutomaticConfiguration='<br><input type="button" class="button" name="activate_auto" value="Activate Automatic Configuration" onClick="self.location=\'index.php?section=phoneLines&action=activateAuto\'">';
+		$activateManualConfiguration='To learn about how to add more than 1 phone line, or to add a voice over ip provider that\'s not on the list, click <a href="'.$wikiHost.'index.php/Manual_Phones_Configuration" target="_blank">here</a>.<br><br> <input type="button" class="button" name="activate_manual" value="Deactivate Automatic Configuration" onClick="self.location=\'index.php?section=phoneLines&action=activateManual\'">';
+			
+		$out.='
+			<div align="center">
+			'.(($manualConfiguration===true)?$activateAutomaticConfiguration:$activateManualConfiguration).'	
+			</div>
+			
 		</form>
 		';
+	}elseif($action=='activateAuto'){
+		$out=activate_autoconfig_form();
+	}elseif($action=='activateManual'){
+		$out=activate_manualconfig_form();
 	}else{
 	// process area
 		if(isset($_POST['Add'])){
@@ -208,6 +227,29 @@ function phoneLines($output,$astADO,$dbADO) {
 			exit();
 		}
 		
+		if(isset($_REQUEST['activate_manual'])){
+			manualConfigSwitch($dbADO);
+			
+			header('Location: index.php?section=phoneLines&msg='.$TEXT_MANUAL_CONFIGURATION_ACTIVATED_CONST);
+			exit();
+		}
+
+		if(isset($_REQUEST['activate_auto'])){
+			manualConfigSwitch($dbADO);
+			
+			header('Location: index.php?section=phoneLines&msg='.$TEXT_AUTOMATIC_CONFIGURATION_ACTIVATED_CONST);
+			exit();
+		}
+
+		if(isset($_REQUEST['activate_auto_override'])){
+			// todo: asterisk cleanup
+			manualConfigSwitch($dbADO);
+			
+			header('Location: index.php?section=phoneLines&msg='.$TEXT_AUTOMATIC_OVERRIDE_CONFIGURATION_ACTIVATED_CONST);
+			exit();
+		}
+
+		
 		header('Location: index.php?section=phoneLines');
 	}
 
@@ -227,7 +269,7 @@ function phoneLinesTable($astADO){
 	
 	$phoneState=getPhonesState();
 	
-	$count=0;
+	$GLOBALS['count']=0;
 	$res=$astADO->Execute("
 		SELECT sip.id,sip.data,sips.data AS sdata, sipp.data AS pdata,siph.data AS hdata 
 		FROM sip 
@@ -251,8 +293,8 @@ function phoneLinesTable($astADO){
 		$incomingData=array_values(getAssocArray('incoming','destination','extension',$astADO,'WHERE destination=\'from-pluto-custom,10'.substr($row['id'],-1).',1\''));
 		$phoneNumber=@$incomingData[0];
 	
-		$count++;
-		$color=($count%2==0)?'#F0F3F8':'#FFFFFF';
+		$GLOBALS['count']++;
+		$color=($GLOBALS['count']%2==0)?'#F0F3F8':'#FFFFFF';
 		$out.='
 		<tr bgcolor="'.$color.'">
 			<td>SIP</td>
@@ -281,8 +323,8 @@ function phoneLinesTable($astADO){
 		$incomingData=array_values(getAssocArray('incoming','destination','extension',$astADO,'WHERE destination=\'from-pluto-custom,10'.substr($row['id'],-1).',1\''));
 		$phoneNumber=@$incomingData[0];
 		
-		$count++;
-		$color=($count%2==0)?'#F0F3F8':'#FFFFFF';
+		$GLOBALS['count']++;
+		$color=($GLOBALS['count']%2==0)?'#F0F3F8':'#FFFFFF';
 		$out.='
 		<tr bgcolor="'.$color.'">
 			<td>
@@ -302,7 +344,7 @@ function phoneLinesTable($astADO){
 	}
 	
 	$out.='</table><br>';
-	if($count==0){
+	if($GLOBALS['count']==0){
 		$out='';
 	}
 	
@@ -434,7 +476,7 @@ function getSIPState(){
 				$parsed[]=$value;
 			}
 		}
-		$state[str_replace('@s','',$parsed[1])]=(!isset($parsed[4]))?$parsed[3]:$parsed[3].' '.$parsed[4];
+		$state[str_replace('@s','',@$parsed[1])]=(!isset($parsed[4]))?@$parsed[3]:$parsed[3].' '.$parsed[4];
 	}
 
 
@@ -464,10 +506,67 @@ function getIAXState(){
 				$parsed[]=$value;
 			}
 		}
-		$state[str_replace('@s','',$parsed[1])]=(!isset($parsed[4]))?$parsed[3]:$parsed[3].' '.$parsed[4];
+		$state[str_replace('@s','',@$parsed[1])]=(!isset($parsed[4]))?@$parsed[3]:$parsed[3].' '.$parsed[4];
 	}
 
 	return $state;
+}
+
+function isManualConfig($dbADO){
+	$rs=$dbADO->Execute('SELECT IK_DeviceData FROM Device_DeviceData INNER JOIN Device ON FK_Device=PK_Device WHERE FK_DeviceData=? AND FK_DeviceTemplate=?',array($GLOBALS['DD_ManualConfiguration'],$GLOBALS['Asterisk']));
+	if($rs->RecordCount()==0){
+		return false;
+	}
+	$row=$rs->FetchRow();
+	
+	return ($row['IK_DeviceData']==1)?true:false;
+}
+
+function manualConfigSwitch($dbADO){
+	$rs=$dbADO->Execute('UPDATE Device_DeviceData INNER JOIN Device ON FK_Device=PK_Device SET IK_DeviceData=IF(IK_DeviceData=1,0,1) WHERE FK_DeviceData=? AND FK_DeviceTemplate=?',array($GLOBALS['DD_ManualConfiguration'],$GLOBALS['Asterisk']));
+	if($rs->RecordCount()==0){
+		return false;
+	}
+	$row=$rs->FetchRow();
+	
+	return ($row['IK_DeviceData']==1)?true:false;
+}
+
+function activate_autoconfig_form(){
+	$out='
+		<form action="index.php" method="POST" name="phoneLines">
+		<input type="hidden" name="section" value="phoneLines">
+		<input type="hidden" name="action" value="update">
+
+		<div align="center">
+			Automatic phone lines configuration may not work with the phone lines configured in advanced mode.<br>
+			<h3><font color="red">Are you sure you want to activate automatic configuration?</font></h3><br><br>
+			<input type="submit" class="button" name="activate_auto" value="Yes and keep my advanced settings"> <input type="submit" class="button" name="activate_auto_override" value="Yes and remove my advanced settings"> <input type="submit" class="button" name="cancel" value="No">
+		</div>
+			
+		</form>
+		';
+	return $out;
+}
+
+function activate_manualconfig_form(){
+	global $wikiHost;
+	
+	$out='
+		<form action="index.php" method="POST" name="phoneLines">
+		<input type="hidden" name="section" value="phoneLines">
+		<input type="hidden" name="action" value="update">
+
+		<div align="center">
+			<h3><font color="red">Are you sure you want to activate manual phone lines configuration? </font></h3>
+			<a href="'.$wikiHost.'index.php/Manual_Phones_Configuration" target="_blank">(read more)</a><br><br>
+			
+			<input type="submit" class="button" name="activate_manual" value="Yes"> <input type="submit" class="button" name="cancel" value="No">
+		</div>
+			
+		</form>
+		';
+	return $out;
 }
 
 ?>

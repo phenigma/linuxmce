@@ -222,6 +222,7 @@
 	$GLOBALS['DD_RemoteAssistancePorts']=212;	// Remote Assistance Ports
 	$GLOBALS['DD_CONNECTOR']=68;				// Connector
 	$GLOBALS['DD_TV_STANDARD']=229;				// TV standard
+	$GLOBALS['DD_ManualConfiguration']=237;		// Phones manual configuration
 	
 	// PK_FloorplanType from table FloorplanType 
 

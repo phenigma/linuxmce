@@ -19,4 +19,8 @@ $TEXT_LOCAL_NUMBER_LENGTH_CONST='Local Number Length';
 $TEXT_ERROR_TELECOM_PLUGIN_NOT_FOUND_CONST='Telecom plugin not found.';
 $TEXT_PHONE_SETTINGS_UPDATED_CONST='Phone lines local settings were updated';
 $TEXT_PHONES_SETUP_CONST='Phones setup';
+$TEXT_MANUAL_CONFIGURATION_ACTIVATED_CONST='Manual configuration activated.';
+$TEXT_AUTOMATIC_CONFIGURATION_ACTIVATED_CONST='Automatic configuration activated.';
+$TEXT_AUTOMATIC_OVERRIDE_CONFIGURATION_ACTIVATED_CONST='Automatic configuration activated, all addvanced settings removed.';
+$TEXT_MANUAL_CONFIG_NOTE_CONST='Manual configuration activated. To configure AMP, click ';
 ?>
