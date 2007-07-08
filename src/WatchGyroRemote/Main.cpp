@@ -58,6 +58,29 @@ void sig_int(int sig)
 	g_bQuit=true;
 }
 
+bool ProcessBindRequest(char *inPacket)
+{
+	unsigned char *pSerialNumber = (unsigned char *) inPacket; // Unsigned so it's not negative numbers
+	char sSerialNumber[30];
+	sprintf(sSerialNumber,"%x.%x.%x.%x",(int) pSerialNumber[2],(int) pSerialNumber[3],(int) pSerialNumber[4],(int) pSerialNumber[5]);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"got a bind request for %s",sSerialNumber);
+
+	char write_packet[5];
+	write_packet[0]=8;
+	write_packet[1]=0x20;
+	write_packet[2]=(char) 98;
+	write_packet[3]=0;
+	int ctrl = usb_control_msg(m_p_usb_dev_handle, 0x21, 0x9, 8+(0x03<<8) /*int value*/, 1 /* int index */, write_packet, 4, 250);
+	if (ctrl<0)
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"usb_control_msg %d\n",(int) ctrl);
+		perror("error: ");
+		return false;
+	}
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"wrote message %d",ctrl);
+	return true;
+}
+
 int main(int argc, char *argv[])
 {
 	signal(SIGINT, sig_int);
@@ -122,7 +145,9 @@ int main(int argc, char *argv[])
 
 						if( res==6 && inPacket[0]==8 )  // It's for us
 						{
-							if( inPacket[1]==0x25 )  // A button
+							if( inPacket[1]==0x20 || inPacket[1]==0x26 )  // A bind request
+								ProcessBindRequest(inPacket);
+							else if( inPacket[1]==0x25 )  // A button
 							{
 								LoggerWrapper::GetInstance()->Write(LV_STATUS,"WatchGyroRemote button %d %d %d %d",
 									(int) inPacket[2],(int) inPacket[3],(int) inPacket[4],(int) inPacket[5]);
