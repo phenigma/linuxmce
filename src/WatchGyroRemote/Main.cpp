@@ -83,7 +83,7 @@ bool ProcessBindRequest(usb_dev_handle *p_usb_dev_handle,char *inPacket)
 
 int main(int argc, char *argv[])
 {
-	LoggerWrapper::SetType(LT_LOGGER_FILE,"/var/log/pluto/WatchGyro.log");
+//	LoggerWrapper::SetType(LT_LOGGER_FILE,"/var/log/pluto/WatchGyro.log");
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"WatchGyroRemote starting");
 
 	signal(SIGINT, sig_int);
@@ -95,82 +95,89 @@ int main(int argc, char *argv[])
 
 	usb_init();
 
-	usb_find_busses();
-	usb_find_devices();
-
-	busses = usb_get_busses();
-
-	struct usb_bus *bus;
-	//int c, i, a;
-
-	/* ... */
-
-	for (bus = busses; bus; bus = bus->next) 
+	while(!g_bQuit)
 	{
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"WatchGyroRemote bus %s",bus->dirname);
-		struct usb_device *dev;
+		usb_find_busses();
+		usb_find_devices();
 
-		for (dev = bus->devices; dev; dev = dev->next) {
+		busses = usb_get_busses();
 
-			LoggerWrapper::GetInstance()->Write(LV_STATUS,"WatchGyroRemote %04x:%04x\n", dev->descriptor.idVendor, dev->descriptor.idProduct);
-			if ( (dev->descriptor.idVendor==0x0c16) && (dev->descriptor.idProduct==0x0006) )  // The gyration remote
-			{
-				LoggerWrapper::GetInstance()->Write(LV_STATUS,"WatchGyroRemote device found!");
+		struct usb_bus *bus;
+		//int c, i, a;
 
-				p_usb_dev_handle = usb_open(dev);
+		/* ... */
 
-				int res = 0;
-				res = usb_claim_interface(p_usb_dev_handle, 1);
-				if (res<0)
-				{ 
-					LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"WatchGyroRemote claim interface: %i\n", res);
-					perror("error: ");
-					break;
-				}
+		for (bus = busses; bus; bus = bus->next) 
+		{
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"WatchGyroRemote bus %s",bus->dirname);
+			struct usb_device *dev;
 
-				char inPacket[6];
-				int cnt=0;
-				while(!g_bQuit)
+			for (dev = bus->devices; dev; dev = dev->next) {
+
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"WatchGyroRemote %04x:%04x\n", dev->descriptor.idVendor, dev->descriptor.idProduct);
+				if ( (dev->descriptor.idVendor==0x0c16) && (dev->descriptor.idProduct==0x0006) )  // The gyration remote
 				{
-					res = usb_interrupt_read(p_usb_dev_handle, 0x82, inPacket, 6, 250);
-					if (res<0&&res!=-110) break;
-					if (res<=0)
-					{
-						if (cnt%100==20) 
-							LoggerWrapper::GetInstance()->Write(LV_STATUS,"WatchGyroRemote %d .", cnt++);
-					}
-					else
-					{
-						unsigned char *pPtr = (unsigned char *) inPacket;
-						LoggerWrapper::GetInstance()->Write(LV_STATUS,"WatchGyroRemote [READER] %04i.%03i: read bytes: %d %x.%x.%x.%x.%x.%x", 
-							cnt/100, cnt%100, res, (int) pPtr[0],(int) pPtr[1],(int) pPtr[2],(int) pPtr[3],(int) pPtr[4],(int) pPtr[5]);
+					LoggerWrapper::GetInstance()->Write(LV_STATUS,"WatchGyroRemote device found!");
 
-						if( res==6 && inPacket[0]==8 )  // It's for us
+					p_usb_dev_handle = usb_open(dev);
+
+					int res = 0;
+					res = usb_claim_interface(p_usb_dev_handle, 1);
+					if (res<0)
+					{ 
+						LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"WatchGyroRemote claim interface: %i\n", res);
+						perror("error: ");
+						break;
+					}
+
+					char inPacket[6];
+					int cnt=0;
+					while(!g_bQuit)
+					{
+						res = usb_interrupt_read(p_usb_dev_handle, 0x82, inPacket, 6, 250);
+						if (res<0&&res!=-110) break;
+						if (res<=0)
 						{
-							if( inPacket[1]==0x20 || inPacket[1]==0x26 )  // A bind request
-								ProcessBindRequest(p_usb_dev_handle,inPacket);
-							else if( inPacket[1]==0x25 )  // A button
+							if (cnt%100==20) 
+								LoggerWrapper::GetInstance()->Write(LV_STATUS,"WatchGyroRemote %d .", cnt++);
+						}
+						else
+						{
+							unsigned char *pPtr = (unsigned char *) inPacket;
+							LoggerWrapper::GetInstance()->Write(LV_STATUS,"WatchGyroRemote [READER] %04i.%03i: read bytes: %d %x.%x.%x.%x.%x.%x", 
+								cnt/100, cnt%100, res, (int) pPtr[0],(int) pPtr[1],(int) pPtr[2],(int) pPtr[3],(int) pPtr[4],(int) pPtr[5]);
+
+							if( res==6 && inPacket[0]==8 )  // It's for us
 							{
-								LoggerWrapper::GetInstance()->Write(LV_STATUS,"WatchGyroRemote button %d %d %d %d",
-									(int) inPacket[2],(int) inPacket[3],(int) inPacket[4],(int) inPacket[5]);
-								if( inPacket[3]==-62 )  // The AV Menu button
+								if( inPacket[1]==0x20 || inPacket[1]==0x26 )  // A bind request
+									ProcessBindRequest(p_usb_dev_handle,inPacket);
+								else if( inPacket[1]==0x25 )  // A button
 								{
-									LoggerWrapper::GetInstance()->Write(LV_STATUS,"WatchGyroRemote button -- activating AV Wizard");
-									dceConfig.AddString("AVWizardOverride","1");
-									dceConfig.WriteSettings();
+									LoggerWrapper::GetInstance()->Write(LV_STATUS,"WatchGyroRemote button %d %d %d %d",
+										(int) inPacket[2],(int) inPacket[3],(int) inPacket[4],(int) inPacket[5]);
+									if( inPacket[3]==-62 )  // The AV Menu button
+									{
+										LoggerWrapper::GetInstance()->Write(LV_STATUS,"WatchGyroRemote button -- activating AV Wizard");
+										dceConfig.AddString("AVWizardOverride","1");
+										dceConfig.WriteSettings();
+									}
 								}
 							}
 						}
 					}
-				}
 
-				LoggerWrapper::GetInstance()->Write(LV_STATUS,"WatchGyroRemote");
-				usb_release_interface(p_usb_dev_handle, 1);
-				usb_close(p_usb_dev_handle);
+					LoggerWrapper::GetInstance()->Write(LV_STATUS,"WatchGyroRemote");
+					usb_release_interface(p_usb_dev_handle, 1);
+					usb_close(p_usb_dev_handle);
+				}
 			}
 		}
+		if( !g_bQuit )
+		{
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Didn't get remote.  Sleep 2 seconds and try again");
+			Sleep(2000);
+		}
 	}
-
 	return 0;
 }
 
