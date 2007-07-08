@@ -83,6 +83,9 @@ bool ProcessBindRequest(usb_dev_handle *p_usb_dev_handle,char *inPacket)
 
 int main(int argc, char *argv[])
 {
+	LoggerWrapper::SetType(LT_LOGGER_FILE,"/var/log/pluto/WatchGyro.log");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"WatchGyroRemote starting");
+
 	signal(SIGINT, sig_int);
 	signal(SIGTERM, sig_int);
 
@@ -91,7 +94,6 @@ int main(int argc, char *argv[])
 	usb_set_debug(255);
 
 	usb_init();
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"WatchGyroRemote starting");
 
 	usb_find_busses();
 	usb_find_devices();
