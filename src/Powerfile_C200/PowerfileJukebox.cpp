@@ -486,8 +486,7 @@ bool PowerfileJukebox::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 			}
 			else
 			{
-				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Can't get disc type. Since we're sure there's a disc in there (we just loaded it), assuming defective unit. Marking drive %d as OFFLINE", pDrive->m_DriveNumber);
-				pDrive->m_bFunctional = false;
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Can't get disc type. We're sure there's a disc in there (we just loaded it), assuming defective unit.  drive %d", pDrive->m_DriveNumber);
 			}
 		}
 		else

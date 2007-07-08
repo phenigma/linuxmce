@@ -161,6 +161,7 @@ public:
 		string sBinary,string sArguments,string sDescription,int PK_QuickStartTemplate=0);
 */
 	bool ReportingChildDevices( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
+	void ReportingChildDevices( void *pVoid );
 	bool LowSystemDiskSpace( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
 
 

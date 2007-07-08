@@ -344,6 +344,8 @@ bool PlutoHIDInterface::ProcessHIDButton(char *inPacket)
 	int iRemoteID = p_Packet[2];
 	if( iRemoteID==0xff )
 	{
+		m_pOrbiter->CMD_Display_Alert("Press Connect on your remote","mustconnectremote","5",interuptAlways);
+		m_pOrbiter->GotActivity(0);  // In case the tv is off or the screen saver
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDButton Remote was bound while booting up and has ID ff.  Re-connecting...");
 		Rebind();
 	}
@@ -351,6 +353,8 @@ bool PlutoHIDInterface::ProcessHIDButton(char *inPacket)
 	{
 		if( SetActiveRemote(iRemoteID,false)==false )
 		{
+			m_pOrbiter->CMD_Display_Alert("Press Connect on your remote","mustconnectremote","5",interuptAlways);
+			m_pOrbiter->GotActivity(0);  // In case the tv is off or the screen saver
 			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"PlutoHIDInterface::ProcessHIDButton user needs to connect first");
 			Rebind();
 		}

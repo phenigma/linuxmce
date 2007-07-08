@@ -97,7 +97,8 @@ static const string sURL_Base = "http://10.0.0.175/plutohome-com/getRegisteredDe
 #include "DCEConfig.h"
 DCEConfig dceConfig; // Needed by CreateDevice
 
-#define UPDATE_ENT_AREA		1
+#define UPDATE_ENT_AREA				1
+#define PROCESS_CHILD_DEVICES		2
 
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
@@ -2676,6 +2677,14 @@ Message *General_Info_Plugin::BuildMessageToSpawnApp(DeviceData_Router *pDevice_
 }
 */
 
+struct ChildDeviceProcessing
+{
+	string m_sChildren;
+	Row_Device *m_pRow_Device;
+
+	ChildDeviceProcessing(Row_Device *pRow_Device,string sChildren) { m_sChildren=sChildren; m_pRow_Device=pRow_Device; }
+};
+
 bool General_Info_Plugin::ReportingChildDevices( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
 {
 	string sError = pMessage->m_mapParameters[EVENTPARAMETER_Error_Message_CONST];
@@ -2695,19 +2704,28 @@ bool General_Info_Plugin::ReportingChildDevices( class Socket *pSocket, class Me
 	}
 
 	string sChildren = pMessage->m_mapParameters[EVENTPARAMETER_Text_CONST];
+	ChildDeviceProcessing *pChildDeviceProcessing = new ChildDeviceProcessing(pRow_Device,sChildren);  // Do this in a separate thread since create_device is slow and we don't want to block teh socket
+	m_pAlarmManager->AddRelativeAlarm(1,this,PROCESS_CHILD_DEVICES,(void *) pChildDeviceProcessing);
+	return false;
+}
+
+void General_Info_Plugin::ReportingChildDevices( void *pVoid )
+{
+	ChildDeviceProcessing *pChildDeviceProcessing = (ChildDeviceProcessing *) pVoid;
+
 	map<int,bool> mapCurrentChildren;
 	vector<string> vectLines;
-	StringUtils::Tokenize(sChildren,"\n",vectLines);
+	StringUtils::Tokenize(pChildDeviceProcessing->m_sChildren,"\n",vectLines);
 	for(size_t s=0;s<vectLines.size();++s)
 	{
 		// This will add the child device if it doesn't exist
-		Row_Device *pRow_Device_Child = ProcessChildDevice(pRow_Device,vectLines[s]);
+		Row_Device *pRow_Device_Child = ProcessChildDevice(pChildDeviceProcessing->m_pRow_Device,vectLines[s]);
 		if( pRow_Device_Child )
 			mapCurrentChildren[pRow_Device_Child->PK_Device_get()]=true;
 	}
 
 	// See if any child devices have since disappeared
-	string sSQL = "FK_Device_ControlledVia=" + StringUtils::itos(pMessage->m_dwPK_Device_From);
+	string sSQL = "FK_Device_ControlledVia=" + StringUtils::itos(pChildDeviceProcessing->m_pRow_Device->PK_Device_get());
 	vector<Row_Device *> vectRow_Device;
 	m_pDatabase_pluto_main->Device_get()->GetRows(sSQL,&vectRow_Device);
 	for(size_t s=0;s<vectRow_Device.size();++s)
@@ -2726,7 +2744,7 @@ bool General_Info_Plugin::ReportingChildDevices( class Socket *pSocket, class Me
 	m_pDatabase_pluto_main->Device_get()->Commit();
 	m_pDatabase_pluto_main->Device_DeviceData_get()->Commit();
 
-	return false;
+	delete pChildDeviceProcessing;
 }
 
 bool General_Info_Plugin::LowSystemDiskSpace ( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
@@ -2755,7 +2773,7 @@ Row_Device *General_Info_Plugin::ProcessChildDevice(Row_Device *pRow_Device,stri
 	int PK_DeviceTemplate = atoi(StringUtils::Tokenize(sLine,"\t",pos).c_str());
 	string sPK_FloorplanObjectType = StringUtils::Tokenize(sLine,"\t",pos);
 	Row_DeviceTemplate *pRow_DeviceTemplate = m_pDatabase_pluto_main->DeviceTemplate_get()->GetRow(PK_DeviceTemplate);
-	if( !PK_DeviceTemplate )
+	if( !pRow_DeviceTemplate )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"General_Info_Plugin::ProcessChildDevice Line %s malformed",sLine.c_str());
 		return NULL;
@@ -3873,6 +3891,7 @@ bool General_Info_Plugin::SafeToReload(string &sReason)
 void General_Info_Plugin::CMD_Enable_Device(int iPK_Device,int iPK_Orbiter,string &sCMD_Result,Message *pMessage)
 //<-dceag-c915-e->
 {
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "General_Info_Plugin::CMD_Enable_Device %d %d",iPK_Device,iPK_Orbiter);
 	Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(iPK_Device);
 	if( pRow_Device )
 	{
@@ -3887,6 +3906,8 @@ void General_Info_Plugin::AlarmCallback(int id, void* param)
 {
 	if( id==UPDATE_ENT_AREA )
 		UpdateEntAreas();
+	else if( id==PROCESS_CHILD_DEVICES )
+		ReportingChildDevices(param);
 }
 
 void General_Info_Plugin::UpdateEntAreas()

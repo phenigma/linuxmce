@@ -916,23 +916,6 @@ else
 
 //update modified
 
-	FILE *fdebug = fopen("/var/log/pluto/DeviceCommit.log","ab");
-    timeval tv;
-#ifdef WIN32
-    SYSTEMTIME lt;
-    ::GetLocalTime( &lt );
-
-    /** @todo Need to fill tv */
-    tv.tv_sec = (long)time( NULL );
-    tv.tv_usec = lt.wMilliseconds * 1000;
-#else
-    gettimeofday( &tv, NULL );
-#endif
-struct tm *t = localtime((time_t *)&tv.tv_sec);
-char acBuff[50];
-double dwSec = (double)(tv.tv_usec/1E6) + t->tm_sec;
-snprintf( acBuff, sizeof(acBuff), "%02d/%02d/%02d %d:%02d:%06.3f", (int)t->tm_mon + 1, (int)t->tm_mday, (int)t->tm_year - 100, (int)t->tm_hour, (int)t->tm_min, dwSec );
-
 	for (map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
 		if	(((*i).second)->is_modified_get())
 	{
@@ -954,7 +937,7 @@ update_values_list = update_values_list + "`PK_Device`="+pRow->PK_Device_asSQL()
 	
 		string query = "update Device set " + update_values_list + " where " + condition;
 
-fprintf(fdebug,"%s %s",acBuff,query.c_str());
+LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Table_Device::Commit %s",query.c_str());
 	string sql = "select * FROM Device where " + condition;
 	db_wrapper_query(database->m_pDB, sql.c_str());
 	DB_RES *res = db_wrapper_store_result(database->m_pDB);
@@ -968,12 +951,9 @@ fprintf(fdebug,"%s %s",acBuff,query.c_str());
 			{
 				st += StringUtils::itos(i) + ":" + (row[i] ? row[i] : "NULL") + "      ";
 			}
-			fprintf(fdebug,"%s %s",acBuff,st.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Table_Device::Commit %s",st.c_str());
 		}
 	}			
-
-
-
 
 		if (db_wrapper_query(database->m_pDB, query.c_str()))
 		{	
@@ -992,7 +972,6 @@ fprintf(fdebug,"%s %s",acBuff,query.c_str());
 					cachedRows.erase(i);
 					delete pRow;
 				}
-fclose(fdebug);
 				return false;
 			}
 		}
@@ -1000,7 +979,6 @@ fclose(fdebug);
 		pRow->is_modified = false;	
 	}	
 	
-fclose(fdebug);
 //delete deleted added
 	while (!deleted_addedRows.empty())
 	{	

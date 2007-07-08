@@ -2384,14 +2384,14 @@ void Router::ParseDevice(int MasterDeviceID, int ParentDeviceID, class DeviceDat
 
 		if( pDevice->m_bImplementsDCE && !pDevice->m_bIsEmbedded )
 		{
-			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Created DCE device %d %s (mdl: %d) routed to: %d (%s)",pDevice->m_dwPK_Device,
-				pDevice->m_sDescription.c_str(),pDevice->m_dwPK_DeviceTemplate,pDevice->m_dwPK_Device,sTop.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Created DCE device %d %s (mdl: %d) routed to: %d (%s) disabled %d",pDevice->m_dwPK_Device,
+				pDevice->m_sDescription.c_str(),pDevice->m_dwPK_DeviceTemplate,pDevice->m_dwPK_Device,sTop.c_str(),(int) pDevice->m_bDisabled);
 			m_Routing_DeviceToController[pDevice->m_dwPK_Device] = pDevice->m_dwPK_Device;
 		}
 		else
 		{
-			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Created device %d %s (mdl: %d) routed to: %d (%s)",pDevice->m_dwPK_Device,
-				pDevice->m_sDescription.c_str(),pDevice->m_dwPK_DeviceTemplate,MasterDeviceID,sTop.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Created device %d %s (mdl: %d) routed to: %d (%s) disabled %d",pDevice->m_dwPK_Device,
+				pDevice->m_sDescription.c_str(),pDevice->m_dwPK_DeviceTemplate,MasterDeviceID,sTop.c_str(),(int) pDevice->m_bDisabled);
 			m_Routing_DeviceToController[pDevice->m_dwPK_Device] = MasterDeviceID;
 		}
     }

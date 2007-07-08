@@ -8871,9 +8871,16 @@ bool Orbiter::WaitForRelativesIfOSD()
 			break;
 		if( time(NULL)>tTimeout )
 		{
+			string sDevices;
+			for(map<int,bool>::iterator it=mapUnregisteredRelatives.begin();it!=mapUnregisteredRelatives.end();++it)
+			{
+				if( it->second==false )
+					sDevices += StringUtils::itos(it->first) + ",";
+			}
+
 			string sMessage = m_mapTextString[TEXT_Not_all_devices_started_CONST];
 			m_pOrbiterRenderer->PromptUser(sMessage);
-			LoggerWrapper::GetInstance()->Write(LV_WARNING,"Continuing anyway with %d devices not registered",iUnregisteredRelatives);
+			LoggerWrapper::GetInstance()->Write(LV_WARNING,"Continuing anyway with %d devices not registered: %s",iUnregisteredRelatives,sDevices.c_str());
 			break;
 		}
 

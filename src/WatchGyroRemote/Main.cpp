@@ -68,7 +68,7 @@ bool ProcessBindRequest(usb_dev_handle *p_usb_dev_handle,char *inPacket)
 	char write_packet[5];
 	write_packet[0]=8;
 	write_packet[1]=0x20;
-	write_packet[2]=(char) 98;
+	write_packet[2]=(char) 0xff;
 	write_packet[3]=0;
 	int ctrl = usb_control_msg(p_usb_dev_handle, 0x21, 0x9, 8+(0x03<<8) /*int value*/, 1 /* int index */, write_packet, 4, 250);
 	if (ctrl<0)
@@ -83,7 +83,7 @@ bool ProcessBindRequest(usb_dev_handle *p_usb_dev_handle,char *inPacket)
 
 int main(int argc, char *argv[])
 {
-//	LoggerWrapper::SetType(LT_LOGGER_FILE,"/var/log/pluto/WatchGyro.log");
+	LoggerWrapper::SetType(LT_LOGGER_FILE,"/var/log/pluto/WatchGyro.log");
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"WatchGyroRemote starting");
 
 	signal(SIGINT, sig_int);
@@ -140,6 +140,7 @@ int main(int argc, char *argv[])
 						{
 							if (cnt%100==20) 
 								LoggerWrapper::GetInstance()->Write(LV_STATUS,"WatchGyroRemote %d .", cnt++);
+							cnt++;
 						}
 						else
 						{

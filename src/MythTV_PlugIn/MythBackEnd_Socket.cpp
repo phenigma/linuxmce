@@ -125,6 +125,7 @@ bool MythBackEnd_Socket::SendMythStringGetOk(string sValue)
 
 bool MythBackEnd_Socket::Connect( )
 {
+	xxx don't block socket
 	PLUTO_SAFETY_LOCK(sSM,m_pMythTV_PlugIn->m_pMedia_Plugin->m_MediaMutex);
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythBackEnd_Socket::Connect m_bConnected %d m_Socket %p",
 		(int) m_bConnected, m_pSocket);
