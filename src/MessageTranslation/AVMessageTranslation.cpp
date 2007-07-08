@@ -368,7 +368,7 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Translate pause media->pause");
 
 		bool ret = false;
-		if(retransmit || (lastcmdwaspause_[devid] == true))
+		if(retransmit || (lastcmdwaspause_[devid] == true && false))
 		{
 			ret = true;
 			MessageReplicator msgrepl(
