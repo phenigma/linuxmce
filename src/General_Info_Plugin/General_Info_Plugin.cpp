@@ -2709,7 +2709,7 @@ bool General_Info_Plugin::ReportingChildDevices( class Socket *pSocket, class Me
 	return false;
 }
 
-void General_Info_Plugin::ReportingChildDevices( void *pVoid )
+void General_Info_Plugin::ReportingChildDevices_Offline( void *pVoid )
 {
 	ChildDeviceProcessing *pChildDeviceProcessing = (ChildDeviceProcessing *) pVoid;
 
@@ -3907,7 +3907,7 @@ void General_Info_Plugin::AlarmCallback(int id, void* param)
 	if( id==UPDATE_ENT_AREA )
 		UpdateEntAreas();
 	else if( id==PROCESS_CHILD_DEVICES )
-		ReportingChildDevices(param);
+		ReportingChildDevices_Offline(param);
 }
 
 void General_Info_Plugin::UpdateEntAreas()
