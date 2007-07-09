@@ -51,7 +51,7 @@ class XProgressWnd : public X3DWindow
 protected:
     X3DButton *m_pButton;
     int m_nBarX, m_nBarY, m_nTextX, m_nTextY;
-    int m_nBarWidth, m_nBarHeight;
+    int m_nBarWidth, m_nBarHeight, m_nTextWidth;
 
     std::string m_sText;
     int m_nProgress;

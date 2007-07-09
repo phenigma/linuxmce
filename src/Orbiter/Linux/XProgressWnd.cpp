@@ -170,10 +170,9 @@ bool XProgressWnd::DrawWindow()
 	XFreeGC(m_pDisplay, gcBar);
 
 	//render caption text
-	Font font = XLoadFont(m_pDisplay, "-*-helvetica-bold-R-Normal--*-240-75-75-*-*");
-	int maxWidth = m_nWidth - m_nTextX;
+	Font font = XLoadFont(m_pDisplay, "-*-helvetica-bold-R-Normal--*-140-75-75-*-*");
 	int requiredHeight = 0;
-	list<string> lCaption = WrapTextLines(SplitTextInLines(m_sText), font, maxWidth, requiredHeight);
+	list<string> lCaption = WrapTextLines(SplitTextInLines(m_sText), font, m_nTextWidth, requiredHeight);
 	
 	
 	mask = GCForeground | GCBackground | GCLineWidth | GCFont;
@@ -200,7 +199,7 @@ bool XProgressWnd::DrawWindow()
 	XFreeGC(m_pDisplay, gcText);
 
 	//render progress text		
-        font = XLoadFont(m_pDisplay, "-*-helvetica-bold-R-Normal--*-240-75-75-*-*");
+        font = XLoadFont(m_pDisplay, "-*-helvetica-bold-R-Normal--*-140-75-75-*-*");
         mask = GCForeground | GCBackground | GCLineWidth | GCFont;
         values.foreground = 0x000000;
         values.background = 0x000000;
@@ -353,11 +352,12 @@ int XProgressWnd::CreateWindow(Display *pDisplay, int screen, Window wndParent, 
 {
     X3DWindow::CreateWindow(pDisplay, screen, wndParent, x, y, cx, cy);
 
-    m_nTextX = 20;
     m_nTextY = m_nHeight / 8;
-    m_nBarX = 20;
     m_nBarY = m_nHeight/2;
-    m_nBarWidth = m_nWidth - 40;
+    m_nBarWidth = (m_nWidth - 40) * 0.6;
+    m_nBarX = (m_nWidth - m_nBarWidth)/2;
+    m_nTextX = m_nBarX;
+    m_nTextWidth = m_nBarWidth;
     m_nBarHeight = 50;
 
     if (LoggerWrapper::GetInstance()) LoggerWrapper::GetInstance()->Write(LV_STATUS, "Constructing ProgressWindow");
