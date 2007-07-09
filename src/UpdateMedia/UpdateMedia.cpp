@@ -308,7 +308,7 @@ void UpdateMedia::UpdateSearchTokens()
 		time_t tLastUpdate = StringUtils::SQLDateTime(row_max[0]);
 		if( tLastUpdate )
 		{
-			g_DCEConfig.AddString("LastSearchTokenUpdate",StringUtils::itos(tLastUpdate));
+			g_DCEConfig.AddString("LastSearchTokenUpdate",StringUtils::itos(static_cast<int>(tLastUpdate)));
 			g_DCEConfig.WriteSettings();
 		}
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "UpdateMedia::UpdateSearchTokens Update search tokens last: %d / %s",tLastUpdate,row_max[0]);
