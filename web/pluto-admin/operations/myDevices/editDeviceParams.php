@@ -17,6 +17,12 @@ $registeredArray=array(
 	-1=>$TEXT_REGISTERED_RELOAD_NEEDED_CONST
 );
 
+$manualyConfigureArray=array(
+	0=>'Auto Configure',
+	1=>'Manually Configure',
+	-1=>'Force into every room'
+);
+
 	if (!isset($_SESSION['userLoggedIn']) || $_SESSION['userLoggedIn']!=true) {
 		header("Location: index.php?section=login&last=editDeviceParams&deviceID=$deviceID");
 		exit();
@@ -252,7 +258,7 @@ $registeredArray=array(
 			</tr>					
 			<tr>
 				<td>Manually Configure EA</td>
-				<td><input name="ManuallyConfigureEA" type="checkbox" value="1" '.(($ManuallyConfigureEA==1)?'checked':'').'></td>
+				<td>'.pulldownFromArray($manualyConfigureArray,'ManuallyConfigureEA',$ManuallyConfigureEA,'','key','- Please select -',-100).'</td>
 			</tr>			
 			<tr>
 				<td>IP Address</td>
