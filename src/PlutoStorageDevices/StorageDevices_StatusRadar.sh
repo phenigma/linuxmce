@@ -69,7 +69,7 @@ function SetKidsOnline() {
 	local Device_Child=""
 	
 	Q="SELECT PK_Device FROM Device WHERE FK_Device_ControlledVia = '$Device_ID' AND FK_DeviceTemplate IN ($TPL_INTERNAL_DRIVE, $TPL_WINDOWS_SHARE, $TPL_NFS_SHARE)"
-	R=$(RunSQL "$Q")
+	R=$(RunCSQL "$Q")
 	for Device_Child in $R ;do
 		Device_Child=$(Field 1 "$Device_Child")
 		SetDeviceOnline "$Device_Child" "$OnlineValue"
@@ -82,7 +82,15 @@ function Log() {
 	echo "$(date -R) $Message"
 }
 
+InitCSQL "StorageDevices_StatusRadar"
+PurgeCSQL "StorageDevices_StatusRadar"
+LastRouterReload=""
 while : ;do
+#TODO: Purge SQL cache only when last router reload has changed
+#	if [[ "$LastRouterReload" != "" ]] ;then
+#		LastRouterReload=""
+		PurgeCSQL "StorageDevices_StatusRadar"
+#	fi
 	## Get a list with all the File Servers from the database
 	Q="
 		SELECT 
@@ -98,7 +106,7 @@ while : ;do
 			Device.FK_DeviceTemplate IN ($TPL_BUFFALO, $TPL_FILESERVER)
 			
 	"
-	FileServerList=$(RunSQL "$Q")
+	FileServerList=$(RunCSQL "$Q")
 
 	## Test each file server
 	for FileServer in $FileServerList ;do 
@@ -141,7 +149,7 @@ while : ;do
 			AND
 			FK_DeviceTemplate = '$TPL_WINDOWS_SHARE'
 		"
-		SambaShareList=$(RunSQL "$Q")
+		SambaShareList=$(RunCSQL "$Q")
 
 		## Test each samba share to see if is available or not
 		for SambaShare in $SambaShareList ;do
@@ -206,7 +214,7 @@ while : ;do
                         AND
                         FK_DeviceTemplate = '$TPL_NFS_SHARE'
                 "
-		NFSShareList=$(RunSQL "$Q")
+		NFSShareList=$(RunCSQL "$Q")
 
 		## Test each nfs share to see if is available on not
 		for NFSShare in $NFSShareList ;do
@@ -260,7 +268,7 @@ while : ;do
 		WHERE
 			FK_DeviceTemplate IN ($TPL_INTERNAL_DRIVE, $TPL_RAID_0, $TPL_RAID_1, $TPL_RAID_5)
 	"
-	InternalDriveList=$(RunSQL "$Q")
+	InternalDriveList=$(RunCSQL "$Q")
 	
 	## Test each internal drive and see if is available
 	for InternalDrive in $InternalDriveList ;do
@@ -307,7 +315,7 @@ while : ;do
 		else
 
 			## Get the ip of the parent device
-			IDrive_IP=$(RunSQL "SELECT IPaddress FROM Device WHERE PK_Device='${IDrive_Parent}'")
+			IDrive_IP=$(RunCSQL "SELECT IPaddress FROM Device WHERE PK_Device='${IDrive_Parent}'")
 			IDrive_IP=$(Field "1" "$IDrive_IP")
 
                         ## Test to see if the parent is online or not
