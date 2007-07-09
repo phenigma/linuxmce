@@ -38,9 +38,9 @@ static void stub() {}
 static void call_received(LinphoneCore *linphoneCore, const char *from);
 static void bye_received(LinphoneCore *linphoneCore, const char *from);
 static void auth_requested(LinphoneCore *linphoneCore, const char *realm, const char *username);
-static void display_something(LinphoneCore * linphoneCore, LINPHONE_CONST char *something);
-static void display_url(LinphoneCore * linphoneCore, LINPHONE_CONST char *something, LINPHONE_CONST char *url);
-static void display_warning (LinphoneCore * linphoneCore, LINPHONE_CONST char *something);
+static void display_something(LinphoneCore * linphoneCore, const char *something);
+static void display_url(LinphoneCore * linphoneCore, const char *something, const char *url);
+static void display_warning (LinphoneCore * linphoneCore, const char *something);
 	
 /* C Object, private members */
 static LinphoneCore LS_LinphoneCore;
@@ -207,7 +207,6 @@ void * LS_Thread(void * arg)
 	signal(SIGTERM, SIG_DFL);
 	signal(SIGINT, SIG_DFL);
 
-	exit(0);
 	return NULL;
 }
 
@@ -322,17 +321,17 @@ static void auth_requested(LinphoneCore *linphoneCore, const char *realm, const 
 	func_exit("callback: auth_requested");
 }
 
-static void display_something(LinphoneCore * linphoneCore, LINPHONE_CONST char *something)
+static void display_something(LinphoneCore * linphoneCore, const char *something)
 {
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "SimplePhone: lib message: '%s'", something);
 }
 
-static void display_url(LinphoneCore * linphoneCore, LINPHONE_CONST char *something, LINPHONE_CONST char *url)
+static void display_url(LinphoneCore * linphoneCore, const char *something, const char *url)
 {
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "SimplePhone: lib url: '%s' '%s'", something, url);
 }
 
-static void display_warning (LinphoneCore * linphoneCore, LINPHONE_CONST char *something)
+static void display_warning (LinphoneCore * linphoneCore, const char *something)
 {
 	LoggerWrapper::GetInstance()->Write(LV_WARNING, "SimplePhone: lib warning: '%s'", something);
 }
