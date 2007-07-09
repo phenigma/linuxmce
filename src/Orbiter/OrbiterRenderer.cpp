@@ -1110,8 +1110,10 @@ void OrbiterRenderer::RenderShortcut(DesignObj_Orbiter *pObj)
 #endif
 
 	PLUTO_SAFETY_LOCK(nd, m_NeedRedrawVarMutex);
-	m_vectObjs_NeedRedraw.push_back(pObj);
-	nd.Release();
+
+	//add it to the list with objects to render only if it's not there yet!
+	if(find(m_vectObjs_NeedRedraw.begin(), m_vectObjs_NeedRedraw.end(), pObj) == m_vectObjs_NeedRedraw.end())
+		m_vectObjs_NeedRedraw.push_back(pObj);
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer::RenderTextAsync(DesignObjText *pObj)

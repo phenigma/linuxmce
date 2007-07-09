@@ -43,9 +43,9 @@ bool DatagridAnimationManager::Update()
 	if(!m_vectCurrentAnimations.size())
 		return false;
 
-	bool bAnimationFinished = false;
-
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, m_pEngine->GetSceneMutex());
+
+	bool bAnimationFinished = false;
 
 	for(vector<AnimationScrollDatagrid*>::iterator it = m_vectCurrentAnimations.begin();
 		it != m_vectCurrentAnimations.end(); ++it)
