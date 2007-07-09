@@ -882,7 +882,12 @@ function grabFiles($path,$fileParm='-type f',$startingWith='') {
 	return $filesArray;
 }
 
-function resizeImage($source, $destination, $new_width, $new_height,$forcedPNG=0)
+function resizeImage($source, $destination, $new_width, $new_height,$forcedPNG=0){
+	$cmd='sudo -u root /usr/bin/convert -sample '.$new_width.'x'.$new_height.' '.$source.' '.$destination;
+	exec_batch_command($cmd); 	
+}
+
+function resizeImage_old($source, $destination, $new_width, $new_height,$forcedPNG=0)
 {
 	if(!file_exists($source))
 		return 1;	// Source file does not exists
