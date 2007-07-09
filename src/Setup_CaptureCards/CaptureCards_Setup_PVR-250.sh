@@ -84,4 +84,8 @@ UpdatePorts()
 	fi
 }
 
+Slot="$(RunSQL "$Q")"
+Slot="${Slot##*/}"
+Slot="${Slot#*:}"
+
 UpdatePorts "$Device" "$Slot"
