@@ -131,8 +131,22 @@ ExtractArchives()
 	mount --bind /media/target/boot /media/target/ubuntu/boot
 
 	#Copy the fist run script
-	cp /cdrom/lmce-image-via/firstboot-via /media/target/debian/etc/init.d/firstboot-via
-	ln -s /etc/init.d/firstboot-via /media/target/debian/etc/rc2.d/S90firstboot-via
+	#cp /cdrom/lmce-image-via/firstboot-via /media/target/debian/etc/init.d/firstboot-via
+	#ln -s /etc/init.d/firstboot-via /media/target/debian/etc/rc2.d/S90firstboot-via
+
+	# Make disked MD
+	mount -t proc -o bind /proc /media/target/debian/proc
+	pushd /media/target/debian >/dev/null
+	sed -r 's/^reboot.*$//g; s/^read.*$//g' ./usr/pluto/install/via-disked-md.sh >./usr/pluto/install/via-disked-md.sh.new
+	mv ./usr/pluto/install/via-disked-md.sh{.new,}
+	chmod +x ./usr/pluto/install/via-disked-md.sh
+	chroot . /usr/pluto/install/via-disked-md.sh
+	popd >/dev/null
+	umount /media/target/debian/proc
+
+	set +e
+	killall dhclient ypbind
+	set -e
 }
 
 SetupFstab()
