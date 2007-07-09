@@ -23,7 +23,7 @@ AptSrc_AddSource()
 	fi
 #<-mkr_b_etch|via_b->
 	# HACK: Don't add ubuntu sources to etch
-	if [[ "$distribution" == feisty || "$distribution" == "replacements_ubuntu" || "$distribution" == edgy || "$distribution" == 20dev_ubuntu ]]; then
+	if [[ "$distribution" == feisty* || "$distribution" == "replacements_ubuntu" || "$distribution" == edgy* || "$distribution" == 20dev_ubuntu ]]; then
 		return 1
 	fi
 #<-mkr_b_etch|via_e->
