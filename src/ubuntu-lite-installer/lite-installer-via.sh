@@ -130,23 +130,33 @@ ExtractArchives()
 	mount --bind /media/target/boot /media/target/debian/boot
 	mount --bind /media/target/boot /media/target/ubuntu/boot
 
+#	# Make disked MD
+#	mount -t proc -o bind /proc /media/target/debian/proc
+#	pushd /media/target/debian >/dev/null
+#	sed -r 's/^reboot.*$//g; s/^read.*$//g' ./usr/pluto/install/via-disked-md.sh >./usr/pluto/install/via-disked-md.sh.new
+#	mv ./usr/pluto/install/via-disked-md.sh{.new,}
+#	chmod +x ./usr/pluto/install/via-disked-md.sh
+#	chroot . /usr/pluto/install/via-disked-md.sh
+#	popd >/dev/null
+#	umount /media/target/debian/proc
+#
+#	set +e
+#	killall dhclient ypbind
+#	set -e
+}
+
+PrepareFirstBoot()
+{
 	#Copy the fist run script
-	#cp /cdrom/lmce-image-via/firstboot-via /media/target/debian/etc/init.d/firstboot-via
+	cp /cdrom/lmce-image-via/firstboot-via /media/target/debian/etc/init.d/firstboot-via
 	#ln -s /etc/init.d/firstboot-via /media/target/debian/etc/rc2.d/S90firstboot-via
+	sed '/^1:2345:/ s,^.*$,1:2345:once:/etc/init.d/firstboot-via,g' /media/target/debian/etc/inittab >/media/target/debian/etc/inittab.new
+	mv /media/target/debian/etc/inittab{.new,}
 
-	# Make disked MD
-	mount -t proc -o bind /proc /media/target/debian/proc
-	pushd /media/target/debian >/dev/null
-	sed -r 's/^reboot.*$//g; s/^read.*$//g' ./usr/pluto/install/via-disked-md.sh >./usr/pluto/install/via-disked-md.sh.new
-	mv ./usr/pluto/install/via-disked-md.sh{.new,}
-	chmod +x ./usr/pluto/install/via-disked-md.sh
-	chroot . /usr/pluto/install/via-disked-md.sh
-	popd >/dev/null
-	umount /media/target/debian/proc
-
-	set +e
-	killall dhclient ypbind
-	set -e
+	rm -f /media/target/debian/etc/rc2.d/*Pluto*
+	>/media/target/debian/usr/pluto/install/.notdone
+	sed '/^FirstBoot/d' /media/target/debian/etc/pluto.conf >/media/target/debian/etc/pluto.conf.new
+	mv /media/target/debian/etc/pluto.conf{.new,}
 }
 
 SetupFstab()
@@ -243,6 +253,7 @@ PartitionHdd
 FormatPartitions
 MountPartitions
 ExtractArchives
+PrepareFirstBoot
 SetupFstab
 InstallGrub
 TargetCleanup
