@@ -170,7 +170,7 @@ bool XProgressWnd::DrawWindow()
 	XFreeGC(m_pDisplay, gcBar);
 
 	//render caption text
-	Font font = XLoadFont(m_pDisplay, "-*-helvetica-bold-R-Normal--*-140-75-75-*-*");
+	Font font = XLoadFont(m_pDisplay, "-*-helvetica-bold-R-Normal--*-180-75-75-*-*");
 	int requiredHeight = 0;
 	list<string> lCaption = WrapTextLines(SplitTextInLines(m_sText), font, m_nTextWidth, requiredHeight);
 	
@@ -199,7 +199,7 @@ bool XProgressWnd::DrawWindow()
 	XFreeGC(m_pDisplay, gcText);
 
 	//render progress text		
-        font = XLoadFont(m_pDisplay, "-*-helvetica-bold-R-Normal--*-140-75-75-*-*");
+        font = XLoadFont(m_pDisplay, "-*-helvetica-bold-R-Normal--*-180-75-75-*-*");
         mask = GCForeground | GCBackground | GCLineWidth | GCFont;
         values.foreground = 0x000000;
         values.background = 0x000000;
