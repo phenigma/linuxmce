@@ -6575,9 +6575,9 @@ function set_tv_standard($mediaDirectorID,$value){
 
 function getCoreIP($dbADO)
 {
-	$res=$dbADO->Execute('SELECT * FROM Device INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE FK_DeviceCategory=?',array($GLOBALS['CategoryCore']));
+	$res=$dbADO->Execute('SELECT IPaddress FROM Device INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE FK_DeviceCategory=?',array($GLOBALS['CategoryCore']));
 	$row=$res->FetchRow();
-	return @$row['IPAddress'];
+	return $row['IPaddress'];
 }
 
 ?>
