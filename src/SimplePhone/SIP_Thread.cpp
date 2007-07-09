@@ -1,64 +1,49 @@
 /*
  Main
-
  Copyright (C) 2004 Pluto, Inc., a Florida Corporation
-
  www.plutohome.com
  
-
  Phone: +1 (877) 758-8648
-
-
  This program is distributed according to the terms of the Pluto Public License, available at:
  http://plutohome.com/index.php?section=public_license
-
  This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more details.
-
  */
 #include "SIP_Thread.h"
-
 #include <linphonecore.h>
 #include "DCE/Logger.h"
 #include "DCE/DCEConfig.h"
 using namespace DCE;
-
 static inline void func_enter(const char * func)
 {
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "%s - called", func);
 }
-
 static inline void func_exit(const char * func)
 {
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "%s - exited", func);
 }
-
 /* Callbacks for linphone core */
 static void stub() {}
 static void call_received(LinphoneCore *linphoneCore, const char *from);
 static void bye_received(LinphoneCore *linphoneCore, const char *from);
 static void auth_requested(LinphoneCore *linphoneCore, const char *realm, const char *username);
-static void display_something(LinphoneCore * linphoneCore, const char *something);
-static void display_url(LinphoneCore * linphoneCore, const char *something, const char *url);
-static void display_warning (LinphoneCore * linphoneCore, const char *something);
+static void display_something(LinphoneCore * linphoneCore, LINPHONE_CONST char *something);
+static void display_url(LinphoneCore * linphoneCore, LINPHONE_CONST char *something, LINPHONE_CONST char *url);
+static void display_warning (LinphoneCore * linphoneCore, LINPHONE_CONST char *something);
 	
 /* C Object, private members */
 static LinphoneCore LS_LinphoneCore;
 static LinphoneCoreVTable LS_LinphoneCoreVTable;
 static LinphoneProxyConfig * LS_pLinphoneProxyConfig = NULL;
 static LinphoneAuthInfo * LS_pLinphoneAuthInfo = NULL;
-
 static SimplePhone * LS_pSimplePhone;
 pluto_pthread_mutex_t LS_linphone_mutex("linphone_simplephone"); // this mutex protects the access to the linphone library
-
 static bool LS_bActiveCall = false;
 static string LS_Auth_Username;
 static string LS_Auth_Realm;
 static int LS_Auth_Received = 0;
-
 /* C Object, public members */
 bool LS_bQuit = false;
-
 /* C Object, private methods - declaration */
 static void LS_RegisterWithAsterisk();
 static void LS_Main_Loop();
@@ -70,9 +55,7 @@ static void LS_SignalHandler(int ExitStatus);
 static void LS_AcceptCall_nolock();
 static void LS_DropCall_nolock();
 static void LS_ProcessEvents();
-
 /* C Object, private methods - implementation */
-
 /** Register with Asterisk */
 static void LS_RegisterWithAsterisk()
 {
@@ -82,7 +65,6 @@ static void LS_RegisterWithAsterisk()
 	linphone_core_enable_logs(stdout);
 	//linphone_core_disable_logs();
 	linphone_core_init(&LS_LinphoneCore, &LS_LinphoneCoreVTable, "/etc/pluto/simplephone.conf", NULL);
-
 	if (LS_pLinphoneProxyConfig != NULL)
 	{
 		linphone_core_add_proxy_config(&LS_LinphoneCore, LS_pLinphoneProxyConfig);
@@ -92,10 +74,8 @@ static void LS_RegisterWithAsterisk()
 	{
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "LS_RegisterWithAsterisk: Proxy wasn't registered");
 	}
-
 	func_exit("LS_RegisterWithAsterisk");
 }
-
 /** Thread main loop */
 static void LS_Main_Loop()
 {
@@ -103,25 +83,21 @@ static void LS_Main_Loop()
 	while (!LS_bQuit)
 	{
 		LS_ProcessEvents();
-
 		Sleep(20);
 		if (LS_Auth_Received == 1)
 			LS_SetupAuth();
 	}
 	func_exit("LS_Main_Loop");
 }
-
 /** Unregister with Asterisk */
 static void LS_UnregisterWithAsterisk()
 {
 	PLUTO_SAFETY_LOCK(sl, LS_linphone_mutex);
-
 	func_enter("LS_UnregisterWithAsterisk");
 	linphone_core_terminate_call(&LS_LinphoneCore, NULL);
 	linphone_core_uninit(&LS_LinphoneCore);
 	func_exit("LS_UnregisterWithAsterisk");
 }
-
 /** Initialize LinphoneCoreVTable variable */
 static void LS_InitVTable()
 {
@@ -135,7 +111,6 @@ static void LS_InitVTable()
 	LS_LinphoneCoreVTable.display_url = display_url;
 	LS_LinphoneCoreVTable.display_question = (DisplayQuestionCb) stub;
 }
-
 /** Initialize LinphoneProxyConfig variable */
 static void LS_InitProxy()
 {
@@ -148,8 +123,8 @@ static void LS_InitProxy()
 	sProxy = "sip:" + sProxy;
 	
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,
-			"LS_InitProxy -- Proxy: %s; Extension: %s; Identity: %s",
-			sProxy.c_str(), sExtension.c_str(), sIdentity.c_str());
+	"LS_InitProxy -- Proxy: %s; Extension: %s; Identity: %s",
+	sProxy.c_str(), sExtension.c_str(), sIdentity.c_str());
 	
 	LS_pLinphoneProxyConfig = linphone_proxy_config_new(sProxy.c_str());
 	if (! LS_pLinphoneProxyConfig)
@@ -164,26 +139,21 @@ static void LS_InitProxy()
 	linphone_proxy_config_expires(LS_pLinphoneProxyConfig, 600);
 	func_exit("LS_InitProxy");
 }
-
 /** Setup SIP authentication */
 static void LS_SetupAuth()
 {
 	PLUTO_SAFETY_LOCK(sl, LS_linphone_mutex);
-
 	string sPassword = LS_pSimplePhone->GetExtension();
 	linphone_auth_info_set_passwd(LS_pLinphoneAuthInfo, sPassword.c_str());
 	linphone_core_add_auth_info(&LS_LinphoneCore, LS_pLinphoneAuthInfo);
 	LS_Auth_Received = 0;
 }
-
 static void LS_SignalHandler(int ExitStatus)
 {
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "SimplePhone: terminated by signal");
 	LS_bQuit = true;
 }
-
 /* C Object, public methods - implementation */
-
 /** Linphone SIP Thread */
 void * LS_Thread(void * arg)
 {
@@ -193,92 +163,72 @@ void * LS_Thread(void * arg)
 	signal(SIGINT, LS_SignalHandler);
 	
 	LS_linphone_mutex.Init(NULL);
-
 	LS_InitVTable();
 	LS_InitProxy();
 	
 	/* start doing stuff */
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Started SIP/Linphone thread");
-
 	LS_RegisterWithAsterisk();
 	LS_Main_Loop();
 	LS_UnregisterWithAsterisk();
-
 	signal(SIGTERM, SIG_DFL);
 	signal(SIGINT, SIG_DFL);
-
 	return NULL;
 }
-
 /** Returns true of a call is in progress, false otherwise */
 bool LS_ActiveCall()
 {
 	return LS_bActiveCall;
 }
-
 /** Send a DTMF tone though and active call */
 void LS_SentDTMF(char cDTMF)
 {
 	PLUTO_SAFETY_LOCK(sl, LS_linphone_mutex);
-
 	linphone_core_send_dtmf(&LS_LinphoneCore, cDTMF);
 }
-
 /** Initiate a call */
 void LS_InitiateCall(string sNumber)
 {
 	PLUTO_SAFETY_LOCK(sl, LS_linphone_mutex);
-
 	linphone_core_invite(&LS_LinphoneCore, sNumber.c_str());
 	LS_bActiveCall = true;
 }
-
 /** Drop the active call */
 void LS_DropCall()
 {
 	PLUTO_SAFETY_LOCK(sl, LS_linphone_mutex);
-
 	LS_DropCall_nolock();
 }
-
 /** Drop the active call - version without mutex */
 void LS_DropCall_nolock()
 {
 	func_enter("LS_DropCall");
 	linphone_core_terminate_call(&LS_LinphoneCore, NULL);
 	LS_bActiveCall = false;
-
 	string tmp;
 	LS_pSimplePhone->CallDroppedScreen();
 	func_exit("LS_DropCall");
 }
-
 /** Process linphone events */
 void LS_ProcessEvents()
 {
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sl, LS_linphone_mutex);
-
 	linphone_core_iterate(&LS_LinphoneCore);
 }
-
 /** Accept the incoming call */
 void LS_AcceptCall()
 {
 	PLUTO_SAFETY_LOCK(sl, LS_linphone_mutex);
-
 	LS_AcceptCall_nolock();
 }
-
 /** Accept the incoming call - version without mutex */
 void LS_AcceptCall_nolock()
 {
 	linphone_core_accept_call(&LS_LinphoneCore, NULL);
 	LS_bActiveCall = true;
 }
-
 /* Linphone callbacks - implementation */
 /* Note: the lock is already taken in LS_ProcessEvents; these functions are called from linphone_core_iterate */
-
 static void call_received(LinphoneCore *linphoneCore, const char *from)
 {
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "SimplePhone: Received call, from '%s'", from);
@@ -294,18 +244,15 @@ static void call_received(LinphoneCore *linphoneCore, const char *from)
 		LS_pSimplePhone->IncomingCallScreen(from);
 	}
 }
-
 static void bye_received(LinphoneCore *linphoneCore, const char *from)
 {
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "SimplePhone: Received bye, from '%s'", from);
 	LS_DropCall_nolock(); // lock is already taken in LS_Main_Loop
 }
-
 static void auth_requested(LinphoneCore *linphoneCore, const char *realm, const char *username)
 {
 	func_enter("callback: auth_requested");
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "SimplePhone: Authorisation requested, realm: '%s', username '%s'", realm, username);
-
 	if (LS_pLinphoneAuthInfo != NULL)
 	{
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "SimplePhone: Authorisation requested one too many times");
@@ -320,18 +267,15 @@ static void auth_requested(LinphoneCore *linphoneCore, const char *realm, const 
 	LS_pLinphoneAuthInfo = linphone_auth_info_new(username, NULL, NULL, NULL, realm);
 	func_exit("callback: auth_requested");
 }
-
-static void display_something(LinphoneCore * linphoneCore, const char *something)
+static void display_something(LinphoneCore * linphoneCore, LINPHONE_CONST char *something)
 {
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "SimplePhone: lib message: '%s'", something);
 }
-
-static void display_url(LinphoneCore * linphoneCore, const char *something, const char *url)
+static void display_url(LinphoneCore * linphoneCore, LINPHONE_CONST char *something, LINPHONE_CONST char *url)
 {
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "SimplePhone: lib url: '%s' '%s'", something, url);
 }
-
-static void display_warning (LinphoneCore * linphoneCore, const char *something)
+static void display_warning (LinphoneCore * linphoneCore, LINPHONE_CONST char *something)
 {
 	LoggerWrapper::GetInstance()->Write(LV_WARNING, "SimplePhone: lib warning: '%s'", something);
 }
