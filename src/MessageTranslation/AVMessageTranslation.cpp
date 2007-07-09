@@ -368,7 +368,8 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Translate pause media->pause");
 
 		bool ret = false;
-		if(retransmit || (lastcmdwaspause_[devid] == true && false))
+		// NO MORE convertion to play, ask Aaron or Eugen
+/*		if(retransmit || lastcmdwaspause_[devid] == true)
 		{
 			ret = true;
 			MessageReplicator msgrepl(
@@ -376,8 +377,8 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 						PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Play_CONST, 0));
 			outrepls.push_back(msgrepl);
 			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Pause translated to Play.");
-		}
-		else if( !inrepl.isImplemented() && pmsg->m_dwID == COMMAND_Pause_Media_CONST )
+		}*/
+		if( !inrepl.isImplemented() && pmsg->m_dwID == COMMAND_Pause_Media_CONST )
 		{
 			ret = true;
 			MessageReplicator msgrepl(
@@ -388,7 +389,7 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 		}
 		if(!retransmit)
 		{
-			lastcmdwaspause_[devid] = !lastcmdwaspause_[devid];
+			lastcmdwaspause_[devid] = true;
 		}
 		return ret;
 	} else 
