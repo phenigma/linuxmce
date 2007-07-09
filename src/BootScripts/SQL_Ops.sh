@@ -7,6 +7,9 @@ HEADER_SQL_Ops=included
 
 . /usr/pluto/bin/Config_Ops.sh
 
+CSQL_DIR="/var/run/SQL_Ops"
+CSQL_ID=""
+
 #Example:
 #  QUERY="SELECT field1, field2 FROM table"
 #  RESULT=$(RunSQL "$QUERY")
@@ -30,6 +33,35 @@ RunSQL()
 	if [[ -n "$Q" ]]; then
 		echo "$Q;" | mysql -A -N "$SQL_DB" -h "$MySqlHost" -u "$MySqlUser" $Pass | SQL_Translate
 	fi
+}
+
+RunCSQL()
+{
+	local Q Q_id
+	Q="$*"
+
+	if [[ "$CSQL_ID" == "" ]] ;then
+		RunSQL "$Q"
+		return
+	fi
+
+	Q_id=$(echo "$Q" | sha1sum - | cut -d' ' -f1)
+	echo "---$Q_id---"
+	if [[ ! -f "$CSQL_DIR/$CSQL_ID/$Q_id" ]] ;then
+		RunSQL "$Q" > "$CSQL_DIR/$CSQL_ID/$Q_id"
+	fi
+
+	cat "$CSQL_DIR/$CSQL_ID/$Q_id"
+}
+
+PurgeCSQL() {
+	CSQL_ID="$1"
+	rm -rf "$CSQL_DIR/$CSQL_ID"
+}
+
+InitCSQL() {
+	CSQL_ID="$1"
+	mkdir -p "$CSQL_DIR/$CSQL_ID" 
 }
 
 #Usage:
