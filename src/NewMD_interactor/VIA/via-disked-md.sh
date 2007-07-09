@@ -175,7 +175,7 @@ RunSQL "
 "
 
 # remove DCE router report on first console
-sed -ir '/^1:2345:respawn:/ s,^.*$,1:2345:respawn:/sbin/getty 38400 tty1,g' /etc/inittab
+sed -ir '/^1:2345:/ s,^.*$,1:2345:respawn:/sbin/getty 38400 tty1,g' /etc/inittab
 init q
 
 # changes passwd,group and shadow files to look over nis too
