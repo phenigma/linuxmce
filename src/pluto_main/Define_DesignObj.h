@@ -2493,7 +2493,9 @@
 #define DESIGNOBJ_butLegacyHelp_CONST 5513
 #define DESIGNOBJ_butLegacyMore_CONST 5516
 #define DESIGNOBJ_mnuLegacyPvrCableBox_CONST 5517
-#define DESIGNOBJ_butNone_CONST 5518
+#define DESIGNOBJ_butNoneAudioInputs_CONST 5518
+#define DESIGNOBJ_butNoneVideoInputs_CONST 5519
+#define DESIGNOBJ_butNoneTvInput_CONST 5520
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
