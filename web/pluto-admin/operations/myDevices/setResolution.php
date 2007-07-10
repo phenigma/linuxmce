@@ -35,8 +35,8 @@ function setResolution($output,$dbADO) {
 	);
 	
 	$connectorsArray=array(
-		'DVI'=>'DVI/HDMI',
 		'VGA'=>'VGA',
+		'DVI'=>'DVI/HDMI',
 		'Component'=>'Component',
 		'S-Video'=>'S-Video',
 		'Composite'=>'Composite'
