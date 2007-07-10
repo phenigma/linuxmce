@@ -38,6 +38,10 @@ namespace DCE
 		// Private methods
 public:
 		// Public member variables
+		/** Logging thread */
+		static pthread_t m_LoggingThread;
+		static bool m_bStopLogging;
+		static int m_FdPipe[2];
 
 //<-dceag-const-b->
 public:

@@ -26,10 +26,19 @@ using namespace DCE;
 #include "Gen_Devices/AllCommandsRequests.h"
 //<-dceag-d-e->
 
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+
 #include "DCE/DCEConfig.h"
 #include "RubyIOManager.h"
 
 #define GSD_COMMAND_LINE	"Generic_Serial_Device"
+
+pthread_t Generic_Serial_Device::m_LoggingThread = (pthread_t)NULL;
+bool Generic_Serial_Device::m_bStopLogging = true;
+int Generic_Serial_Device::m_FdPipe[2] = { -1, -1 };
 
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
@@ -37,6 +46,43 @@ Generic_Serial_Device::Generic_Serial_Device(int DeviceID, string ServerAddress,
 	: Generic_Serial_Device_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
 {
+}
+
+void* DoLogging(void* p)
+{
+	Generic_Serial_Device * pGSD = (Generic_Serial_Device*)p;
+	if(pGSD != NULL)
+	{
+		char buffer[1024];
+		int iMax = sizeof(buffer) - 1;
+		int iRead = 0;
+		int flags = 0;
+		pGSD->m_bStopLogging = false;
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "DoLogging start.");
+		if (-1 == (flags = fcntl(pGSD->m_FdPipe[1], F_GETFL, 0)))
+			flags = 0;
+		fcntl(pGSD->m_FdPipe[1], F_SETFL, flags | O_NONBLOCK);
+		while(  !pGSD->m_bStopLogging )
+		{
+			iRead = read(pGSD->m_FdPipe[1], buffer, iMax);
+			if( 0 > iRead || iRead > iMax )
+			{
+				// TODO: it can be just a non blocking operation, see EAGAIN
+/*				LoggerWrapper::GetInstance()->Write(LV_STATUS, "DoLogging read error %d.", iRead);
+				break;*/
+			}
+			else
+			{
+				buffer[iRead] = 0;
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "%s", buffer);
+			}
+			
+			usleep(1000);
+		}
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "DoLogging end.");
+	}
+	
+	return NULL;
 }
 
 //<-dceag-getconfig-b->
@@ -49,6 +95,31 @@ bool Generic_Serial_Device::GetConfig()
 	pmanager->setEventDispatcher(GetEvents());
 	GSDMessageProcessor::setAllDevices(&(GetData()->m_AllDevices));
 	Start();
+	
+	// start logging thread
+	if( !socketpair(AF_UNIX, SOCK_STREAM, 0, m_FdPipe) )
+	{
+		if( -1 != dup2(m_FdPipe[0], 1) )
+		{
+			if( !pthread_create(&m_LoggingThread, NULL, DoLogging, (void*)this) )
+			{
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "DoLogging thread is started.");
+			}
+			else
+			{
+				m_LoggingThread = (pthread_t)NULL;
+			}
+		}
+		else
+		{
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "DoLogging dup2 error.");
+		}
+	}
+	else
+	{
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "DoLogging pipe error.");
+	}
+	
 	return true;
 }
 
@@ -58,7 +129,23 @@ bool Generic_Serial_Device::GetConfig()
 Generic_Serial_Device::~Generic_Serial_Device()
 //<-dceag-dest-e->
 {
-
+	m_bStopLogging = true;
+	if( m_LoggingThread )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "DoLogging before join.");
+		pthread_join(m_LoggingThread, NULL);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "DoLogging after join.");
+	}
+	if( -1 != m_FdPipe[0] )
+	{
+		close(m_FdPipe[0]);
+		m_FdPipe[0] = -1;
+	}
+	if( -1 != m_FdPipe[1] )
+	{
+		close(m_FdPipe[1]);
+		m_FdPipe[1] = -1;
+	}
 }
 
 bool Generic_Serial_Device::Connect(int iPK_DeviceTemplate )
