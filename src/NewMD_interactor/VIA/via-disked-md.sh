@@ -97,7 +97,7 @@ mount -a
 
 # get configs from server
 DeviceID=$(</etc/Disked_DeviceID)
-tar -C / --exclude='usr/pluto/install' -xzf /usr/pluto/var/Disked_$DeviceID.tar.gz
+tar -C / --exclude='usr/pluto/install' --exclude='etc/apt/sources.list' -xzf /usr/pluto/var/Disked_$DeviceID.tar.gz
 
 ConfEval
 
