@@ -48,6 +48,7 @@ Device == 1 && /EndSection/ {
 		print "\tOption\t\t\"ConnectedMonitor\" \"" ConnectedMonitor "\"";
 	if (TVOutFormat != "")
 		print "\tOption\t\t\"TVOutFormat\" \"" TVOutFormat "\"";
+	Device = 0;
 }
 
 { print }
