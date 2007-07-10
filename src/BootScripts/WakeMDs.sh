@@ -12,13 +12,19 @@ if [ "$P" == "D" ]; then
 	FROM Device_DeviceData
 	JOIN Device ON PK_Device=FK_Device
 	JOIN DeviceTemplate ON PK_DeviceTemplate=FK_DeviceTemplate
-	WHERE FK_DeviceTemplate=28 AND FK_DeviceData=9 AND IPaddress IS NOT NULL AND MACaddress IS NOT NULL AND IK_DeviceData='1'"
+	WHERE FK_DeviceTemplate=28 AND FK_DeviceData=9 AND IPaddress IS NOT NULL AND MACaddress IS NOT NULL AND IK_DeviceData='1'
+	UNION
+	SELECT MACaddress FROM Device WHERE FK_DeviceTemplate = 1893 AND IPaddress IS NOT NULL AND MACaddress IS NOT NULL
+	"
 else
 	# Selecting all MDs
 	Q="SELECT MACaddress
 	FROM Device
 	JOIN DeviceTemplate ON PK_DeviceTemplate=FK_DeviceTemplate
-	WHERE FK_DeviceTemplate=28 AND IPaddress IS NOT NULL AND MACaddress IS NOT NULL"
+	WHERE FK_DeviceTemplate=28 AND IPaddress IS NOT NULL AND MACaddress IS NOT NULL
+	UNION
+	SELECT MACaddress FROM Device WHERE FK_DeviceTemplate = 1893 AND IPaddress IS NOT NULL AND MACaddress IS NOT NULL
+	"
 fi
 
 R=$(RunSQL "$Q")
