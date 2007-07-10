@@ -38,6 +38,16 @@ using namespace DCE;
 #define SECONDS_PER_MINUTE	60
 #define SECONDS_PER_HOUR	(SECONDS_PER_MINUTE * 60)
 
+#ifdef VIA_OVERLAY
+	extern "C" 
+	{
+		#include "Orbiter/OpenGL/VIA/via_types.h"
+		#include "Orbiter/OpenGL/VIA/viavid.h"
+	}; 
+
+	static VMI_INFO_PARAM VMI_Info;
+#endif
+
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
 Photo_Screen_Saver::Photo_Screen_Saver(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
@@ -79,6 +89,14 @@ bool Photo_Screen_Saver::GetConfig()
     m_pAlarmManager->Start(1);      // number of worker threads
 	m_pAlarmManager->AddRelativeAlarm(10 * SECONDS_PER_MINUTE, this, CHECK_IF_GOT_ANY_PICTURES, NULL);
 	m_pAlarmManager->AddRelativeAlarm(24 * SECONDS_PER_HOUR, this, REFRESH_LIST_WITH_PICTURES, NULL);
+
+#ifdef VIA_OVERLAY
+	unsigned char dwRet = VMI_Create(&VMI_Info);
+	if(dwRet == VMI_OK)
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Created connection to VIA driver!");
+	else
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Failed to create the connection to VIA driver!");
+#endif
 
 	return true;
 }
@@ -231,6 +249,15 @@ bool GallerySetup::GetUseAnimation()
 void Photo_Screen_Saver::CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &sCMD_Result,Message *pMessage)
 //<-dceag-c192-e->
 {
+#ifdef VIA_OVERLAY
+	unsigned int flag = THREEDOVERLAY;
+	unsigned long dwRet = VMI_DriverProc(&VMI_Info, DISABLEOVERLAY, (void *)&flag, NULL);
+	if (dwRet != VMI_OK)
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Failed to enable THREEDOVERLAY overlay for PSS");
+	else
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Enabled THREEDOVERLAY overlay for PSS!");
+#endif 	
+
 	if(0 == ThreadID)
 	{
 		string w = m_pEvent->GetDeviceDataFromDatabase(m_pData->m_dwPK_Device_ControlledVia, DEVICEDATA_ScreenWidth_CONST);
@@ -259,6 +286,15 @@ void Photo_Screen_Saver::CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &sCM
 void Photo_Screen_Saver::CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage)
 //<-dceag-c193-e->
 {
+#ifdef VIA_OVERLAY
+	unsigned int flag = THREEDOVERLAY;
+	unsigned long dwRet = VMI_DriverProc(&VMI_Info, ENABLEOVERLAY, (void *)&flag, NULL);
+	if (dwRet != VMI_OK)
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Failed to disable THREEDOVERLAY overlay for PSS");
+	else
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Disabled THREEDOVERLAY overlay for PSS!");
+#endif 	
+
 	Gallery::Instance().Pause();
 	m_bIsOn=false;
 }

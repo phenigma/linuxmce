@@ -55,6 +55,8 @@ public:
 
 	bool Update(void);
 	void RefreshFileList(string sFileList);
+
+	void Reset();
 };
 
 #endif

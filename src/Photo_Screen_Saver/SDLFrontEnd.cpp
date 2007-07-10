@@ -118,13 +118,6 @@ int SDLFrontEnd::StartVideoMode(int Width, int Height, bool FullScreen)
 	Flags |=  SDL_OPENGL;
 //	Flags |=  SDL_NOFRAME;
 
-#ifdef VIA_OVERLAY
-	LoggerWrapper::GetInstance()->Write(LV_WARNING, "VIA : set env VIA_3D_OVERLAY");	
-	unsigned long dwRet = setenv("VIA_3D_OVERLAY","yes",1);
-	if(dwRet !=0)
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "VIA : couldn't set env VIA_3D_OVERLAY");
-#endif 	
-	
 	Display = SDL_SetVideoMode(Width, Height, 0, Flags);
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Setting video to w: %d h: %d",Width,Height);
 	if(!Display)

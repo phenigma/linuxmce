@@ -1,37 +1,4 @@
 /*
-     Copyright (C) 2004 Pluto, Inc., a Florida Corporation
-
-     www.plutohome.com
-
-     Phone: +1 (877) 758-8648
- 
-
-     This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
-     This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-     of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-
-     See the GNU General Public License for more details.
-
-*/
-/*
- Main
-
- Copyright (C) 2004 Pluto, Inc., a Florida Corporation
-
- www.plutohome.com
- 
-
- Phone: +1 (877) 758-8648
-
-
- This program is distributed according to the terms of the Pluto Public License, available at:
- http://plutohome.com/index.php?section=public_license
-
- This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more details.
-
- */
-/*
  * Copyright 1998-2006 VIA Technologies, Inc. All Rights Reserved.
  * Copyright 2001-2006 S3 Graphics, Inc. All Rights Reserved.
  *
@@ -125,12 +92,14 @@
 #define SETTVOVERLAY         CREATEDRIVER +33
 //william
 #define DISABLEALPHA            CREATEDRIVER+34
-#define DISABLEOVERLAY          CREATEDRIVER+35
-//william
 #define VIDEO_ALPHA     1
 #define ThreeD_ALPHA    2
-#define VIDEO_OVERLAY   1
-#define ThreeD_OVERLAY  2
+
+//william
+#define DISABLEOVERLAY          CREATEDRIVER+35
+#define ENABLEOVERLAY           CREATEDRIVER+36
+#define VIDEOOVERLAY    1
+#define THREEDOVERLAY   2
 
 
 /* =========================================================================

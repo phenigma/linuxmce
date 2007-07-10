@@ -61,6 +61,17 @@ GalleryScenario::~GalleryScenario(void)
 	TextureManager::Destroy();
 }
 
+void GalleryScenario::Reset()
+{
+	delete AfterPicture;
+	delete BeforePicture;
+	delete StateMachine;
+
+	AfterPicture = new AnimatedPicture(Width, Height);
+	BeforePicture = new AnimatedPicture(Width, Height);
+	StateMachine = new GaleryStateMachine();
+}
+
 bool GalleryScenario::Update(void)
 {
 	glEnable(GL_BLEND);

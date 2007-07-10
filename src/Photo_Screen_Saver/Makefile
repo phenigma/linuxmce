@@ -58,6 +58,10 @@ sources += AnimatedPicture.cpp \
 	../utilities/linux/window_manager/wmctrl/wmctrl.cpp 
 			
 
+ifneq (,$(findstring -DVIA_OVERLAY, $(CPPFLAGS)))
+	XTRALDLIBS += -lddmpeg
+endif 
+
 #<-dceag-mf-b->
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
 

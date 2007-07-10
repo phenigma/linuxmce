@@ -107,12 +107,19 @@ void GraphicImage::Convert(void)
 	/* Linear Filtering */
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR ); 
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Allocated texture size %d", Width * Height * 4);
 }
 
 void GraphicImage::ReleaseTexture(void)
 {
-	glDeleteTextures(1, &Texture);
-	Texture = 0;
+	if(Texture)
+	{
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Releasing texture size %d", Width * Height * 4);
+
+		glDeleteTextures(1, &Texture);
+		Texture = 0;
+	}
 }
 
 void GraphicImage::ScaleImage(int nScreenWidth, int nScreenHeight)
