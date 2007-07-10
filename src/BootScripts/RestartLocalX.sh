@@ -1,10 +1,12 @@
 #!/bin/bash
 
+. /usr/pluto/bin/Config_Ops.sh
+
 set -x
 exec >>/var/log/pluto/RestartLocalX.log 2>&1
 date -R
 
-if [[ -f /etc/event.d/pluto || "$PK_Distro" == 1 ]]; then
+if [[ -f /etc/event.d/pluto || "$PK_Distro" == 1 ]] || grep -q Startup_Core-Hybrid /etc/rc2.d/S99kdm; then
 	kill $(pidof X)
 	if [[ "$PK_Distro" == 1 ]]; then
 		sleep 1
