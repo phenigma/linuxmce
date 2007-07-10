@@ -23,12 +23,14 @@ function decho {
 function create_virtual_machine {
 	decho "Creating virual machine"
 	mkdir -p "$VMWARE_DIR"
+	killall -9 vmplayer || :
 	cp -r /var/Kubuntu7.04/* "$VMWARE_DIR"
 	decho "Finished creating virtual machine"
 }
 
 function start_virtual_machine {
 	decho "Starting virtual machine"
+	killall vmplayer || :
 	vmplayer "$VMWARE_WORK_MACHINE" &
 
 	decho "Waiting for ssh connnection to virtual machine"
@@ -63,7 +65,7 @@ function create_debcache_on_virtual_machine {
 
 	## CACHE Kubuntu CD
 	decho "Caching Kubuntu CD"
-	scp /var/plutobuild/kubuntu-cd/*.deb root@"VMWARE_IP":/usr/pluto/deb-cache
+	scp /var/plutobuild/kubuntu-cd/*.deb root@"$VMWARE_IP":/usr/pluto/deb-cache
 	decho "Finished Caching Kubuntu CD"
 
 
