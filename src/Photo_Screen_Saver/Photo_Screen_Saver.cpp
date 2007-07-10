@@ -250,8 +250,12 @@ void Photo_Screen_Saver::CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &sCM
 //<-dceag-c192-e->
 {
 #ifdef VIA_OVERLAY
+	unsigned long dwRet = setenv("VIA_3D_OVERLAY", "yes", 1);
+	if (dwRet != 0)
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Failed to set env VIA_3D_OVERLAY");
+
 	unsigned int flag = THREEDOVERLAY;
-	unsigned long dwRet = VMI_DriverProc(&VMI_Info, DISABLEOVERLAY, (void *)&flag, NULL);
+	dwRet = VMI_DriverProc(&VMI_Info, ENABLEOVERLAY, (void *)&flag, NULL);
 	if (dwRet != VMI_OK)
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Failed to enable THREEDOVERLAY overlay for PSS");
 	else
@@ -288,7 +292,7 @@ void Photo_Screen_Saver::CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMess
 {
 #ifdef VIA_OVERLAY
 	unsigned int flag = THREEDOVERLAY;
-	unsigned long dwRet = VMI_DriverProc(&VMI_Info, ENABLEOVERLAY, (void *)&flag, NULL);
+	unsigned long dwRet = VMI_DriverProc(&VMI_Info, DISABLEOVERLAY, (void *)&flag, NULL);
 	if (dwRet != VMI_OK)
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Failed to disable THREEDOVERLAY overlay for PSS");
 	else
