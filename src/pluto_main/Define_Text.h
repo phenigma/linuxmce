@@ -1224,9 +1224,18 @@
 #define TEXT_Media_providers_CONST 1968
 #define TEXT_pnp_active_CONST 1969
 #define TEXT_Save_settings_and_Regen_Orbiter_CONST 1970
+#define TEXT_Only_rooms_without_an_MD_CONST 1971
 #define TEXT_Bulk_rip_choose_name_CONST 1972
 #define TEXT_Must_add_users_rooms_CONST 1973
 #define TEXT_Must_pick_room_CONST 1974
+#define TEXT_On_Demand_CONST 1975
+#define TEXT_Next_day_CONST 1976
+#define TEXT_Previous_day_CONST 1977
+#define TEXT_Help_CONST 1978
+#define TEXT_Page_down_CONST 1979
+#define TEXT_Page_up_CONST 1980
+#define TEXT_PVR_Menu_CONST 1981
+#define TEXT_None_CONST 1982
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

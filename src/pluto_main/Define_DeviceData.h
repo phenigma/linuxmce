@@ -207,6 +207,7 @@
 #define DEVICEDATA_LastUpdate_CONST 234
 #define DEVICEDATA_ApplyUpdates_CONST 235
 #define DEVICEDATA_Reboot_CONST 236
+#define DEVICEDATA_Manual_configuration_CONST 237
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"

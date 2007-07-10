@@ -2479,6 +2479,21 @@
 #define DESIGNOBJ_butRatio211_1_CONST 5498
 #define DESIGNOBJ_butNewRoom_NoDevice_CONST 5500
 #define DESIGNOBJ_butConfirm_CONST 5501
+#define DESIGNOBJ_butRestartDCERouter_MainMenu_CONST 5502
+#define DESIGNOBJ_dgEditRooms_NoMD_CONST 5503
+#define DESIGNOBJ_butLegacyMenu_CONST 5504
+#define DESIGNOBJ_butLegacyPVR_CONST 5505
+#define DESIGNOBJ_butLegacyOnDemand_CONST 5506
+#define DESIGNOBJ_butLegacyFavs_CONST 5507
+#define DESIGNOBJ_butLegacyInstantReplay_CONST 5508
+#define DESIGNOBJ_butLegacyDay_Next_CONST 5509
+#define DESIGNOBJ_butLegacyDay_Prev_CONST 5510
+#define DESIGNOBJ_butLegacyPageDown_CONST 5511
+#define DESIGNOBJ_butLegacyPageUp_CONST 5512
+#define DESIGNOBJ_butLegacyHelp_CONST 5513
+#define DESIGNOBJ_butLegacyMore_CONST 5516
+#define DESIGNOBJ_mnuLegacyPvrCableBox_CONST 5517
+#define DESIGNOBJ_butNone_CONST 5518
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
