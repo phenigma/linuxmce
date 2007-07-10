@@ -106,12 +106,10 @@ Gallery& Gallery::Instance(void)
 
 void Gallery::Pause()
 {
+	m_bSuspended = true;
+
 	if(NULL != Scenario)
 		Scenario->Reset();
-
-	Sleep(200);
-
-	m_bSuspended = true;
 }
 
 void Gallery::Resume()
