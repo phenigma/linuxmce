@@ -107,7 +107,26 @@ DataGridRenderer::DataGridRenderer(DesignObj_Orbiter *pOwner): ObjectRenderer(pO
 			{
 				if( bContainsCells && DGRow!=pDataGridTable->m_iUpRow && DGRow!=pDataGridTable->m_iDownRow )
 				{
-					map< pair<int,int>, DesignObj_Orbiter *>::iterator it=m_pObj_Owner_DataGrid->m_mapChildDgObjects.find( make_pair<int,int> (DGColumn,DGRow % pDataGridTable->m_RowCount) );
+					//translate the absolute row number to row position in current page
+					//if it has "scroll up"/"scroll down" cells, skip 'em
+
+					bool bAddArrows = m_pObj_Owner_DataGrid->m_sExtraInfo.find('P') != string::npos;
+					if(bAddArrows && m_pObj_Owner_DataGrid->m_MaxRow > 1)
+					{
+						DGRow -= 
+							//for first page, skip the "scroll down" cell
+							(DGRow < (m_pObj_Owner_DataGrid->m_MaxRow - 1) ? 0 : 1) + 
+							//for second, third, etc. pages, skip both "scroll up" and "scroll down" cells
+							(m_pObj_Owner_DataGrid->m_MaxRow - 2) * (DGRow / (m_pObj_Owner_DataGrid->m_MaxRow - 1));
+					}
+					else
+					{
+						DGRow %= pDataGridTable->m_RowCount;
+					}
+
+					map< pair<int,int>, DesignObj_Orbiter *>::iterator it = 
+						m_pObj_Owner_DataGrid->m_mapChildDgObjects.find(make_pair<int,int> (DGColumn, DGRow));
+
 					if(	it!=m_pObj_Owner_DataGrid->m_mapChildDgObjects.end() )
 					{
 //DesignObj_Orbiter *pObj = it->second;
