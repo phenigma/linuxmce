@@ -7,6 +7,7 @@ BEGIN {
 	Monitor = 0;
 	Display = 0;
 	Screen = 0;
+	Device = 0;
 	IGNORECASE = 1;
 }
 /Modeline/ { next }
@@ -40,4 +41,13 @@ Screen == 1 && /EndSection/ && nvHD != "" {
 	print "\tOption\t\"TVStandard\"\t\"" nvHD "\"";
 	Screen = 0;
 }
+/Section..*"Device"/ { Device = 1; }
+Device == 1 && (/Option.*"ConnectedMonitor"/ || /Option.*"TVOutFormat"/) { next }
+Device == 1 && /EndSection/ {
+	if (ConnectedMonitor != "")
+		print "\tOption\t\t\"ConnectedMonitor\" \"" ConnectedMonitor "\"";
+	if (TVOutFormat != "")
+		print "\tOption\t\t\"TVOutFormat\" \"" TVOutFormat "\"";
+}
+
 { print }

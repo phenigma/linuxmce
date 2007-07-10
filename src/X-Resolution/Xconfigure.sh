@@ -167,6 +167,28 @@ SetResolution()
 		fi
 	done
 
+	local ConnectedMonitor
+	case "$Output" in
+		VGA)
+			ConnectedMonitor="CRT"
+		;;
+		DVI)
+			ConnectedMonitor="DFP"
+		;;
+		Component)
+			ConnectedMonitor="TV"
+			TVOutFormat="Component"
+		;;
+		Composite)
+			ConnectedMonitor="TV"
+			TVOutFormat="Composite"
+		;;
+		S-Video)
+			ConnectedMonitor="TV"
+			TVOutFormat="SVideo"
+		;;
+	esac
+
 	Modeline=
 	# Use modeline for HD modes, non-standard VESA modes (60, 75 Hz are considered standard by X), 1024x768@60, NV: 640x480@60
 	if grep -q 'Driver.*"nvidia"' "$ConfigFile"; then
@@ -182,7 +204,7 @@ SetResolution()
 		# we don't have a nVidia card; we use the nvHD variable to detect non-VESA modes too (not a perfect way to do so though)
 		nvHD=
 	fi
-	awk -v"ResX=$ResX" -v"ResY=$ResY" -v"Refresh=$Refresh" -v"Modeline=$Modeline" -v"Force=$Force" -v"nvHD=$nvHD" -f/usr/pluto/bin/X-ChangeResolution.awk "$ConfigFile" >"$ConfigFile.$$"
+	awk -v"ResX=$ResX" -v"ResY=$ResY" -v"Refresh=$Refresh" -v"Modeline=$Modeline" -v"Force=$Force" -v"nvHD=$nvHD" -v"ConnectedMonitor=$ConnectedMonitor" -v"TVOutFormat=$TVOutFormat" -f/usr/pluto/bin/X-ChangeResolution.awk "$ConfigFile" >"$ConfigFile.$$"
 	mv "$ConfigFile"{.$$,}
 }
 
