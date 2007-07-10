@@ -35,10 +35,10 @@ function setResolution($output,$dbADO) {
 	);
 	
 	$connectorsArray=array(
-		'DVI/HDMI'=>'DVI/HDMI',
+		'DVI'=>'DVI/HDMI',
 		'VGA'=>'VGA',
 		'Component'=>'Component',
-		'SVideo'=>'SVideo',
+		'S-Video'=>'S-Video',
 		'Composite'=>'Composite'
 	);
 	$tvStandardArray=array(
