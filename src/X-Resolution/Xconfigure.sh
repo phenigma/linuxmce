@@ -92,14 +92,19 @@ GetResolutionFromDB()
 	VideoSetting=$(RunSQL "$Q")
 	VideoSetting=$(Field "1" "$VideoSetting")
 
+	ScanType=
 	if [[ -n "$VideoSetting" ]]; then
 		Refresh=$(echo $VideoSetting | cut -d '/' -f2)
 		ResolutionInfo=$(echo $VideoSetting | cut -d '/' -f1)
 		ResX=$(echo $ResolutionInfo | cut -d' ' -f1)
 		ResY=$(echo $ResolutionInfo | cut -d' ' -f2)
+		ResScanType=$(echo $ResolutionInfo | cut -d' ' -f3)
 		if [[ -z "$Refresh" || -z "$ResX" || -z "$ResY" ]]; then
 			Logging "$TYPE" "$SEVERITY_CRITICAL" "Xconfigure" "Malformed DeviceData: VideoSetting='$VideoSetting'"
 			MalformedVideoSetting='Malformed VideoSetting'
+		fi
+		if [[ "$ResScanType" == i ]]; then
+			ScanType=interlace
 		fi
 	fi
 
@@ -108,9 +113,9 @@ GetResolutionFromDB()
 		ResX='640'
 		ResY='480'
 		Refresh='60'
+		ScanType=
 	fi
 	
-	ScanType=
 	Resolution="${ResX}x${ResY}"
 
 	Output=$(GetDeviceData "$ComputerDev" "$DEVICEDATA_Connector")
