@@ -920,6 +920,11 @@ bool OSDScreenHandler::TV_Manufacturer_ObjectSelected(CallBackData *pData)
 					m_pWizardLogic->SetAvPath(m_pOrbiter->m_pData->m_dwPK_Device_ControlledVia,
                                               m_pWizardLogic->m_nPK_Device_TV,2,m_pWizardLogic->m_nPK_Command_Input_Video_On_TV); // 2 = video
 			}
+			else if(DESIGNOBJ_butNoneTvInput_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
+			{
+				m_pWizardLogic->SetAvPath(m_pOrbiter->m_pData->m_dwPK_Device_ControlledVia,
+					m_pWizardLogic->m_nPK_Device_TV, 2, 0); // 2 = video
+			}
 		}
 		break;
 
@@ -1207,6 +1212,17 @@ bool OSDScreenHandler::Receiver_ObjectSelected(CallBackData *pData)
                                               m_pWizardLogic->m_nPK_Device_TV,2 /* video */,m_pWizardLogic->m_nPK_Command_Input_Video_On_TV);
                 }
             }
+			else if(DESIGNOBJ_butNoneAudioInputs_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
+			{
+                m_pWizardLogic->SetAvPath(m_pOrbiter->m_pData->m_dwPK_Device_ControlledVia,
+	                m_pWizardLogic->m_nPK_Device_Receiver,1 /* audio */, 0);
+
+				if( m_pWizardLogic->m_bUsingReceiverForVideo )
+				{
+					m_pWizardLogic->SetAvPath(m_pOrbiter->m_pData->m_dwPK_Device_ControlledVia,
+						m_pWizardLogic->m_nPK_Device_Receiver,2 /* video */,0);
+				}
+			}
         }
         break;
 	}
@@ -1302,6 +1318,11 @@ bool OSDScreenHandler::AV_Devices_ObjectSelected(CallBackData *pData)
                                               m_pWizardLogic->m_nPK_Device_AV_Installed, 2 /* video */, atoi(sInput.c_str()));
 				}
 			}
+			else if(DESIGNOBJ_butNoneVideoInputs_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
+			{
+				m_pWizardLogic->SetAvPath(m_pWizardLogic->m_nPK_Device_Last_AV,
+		            m_pWizardLogic->m_nPK_Device_AV_Installed, 2 /* video */, 0);
+			}
 		}
 		break;
 
@@ -1330,6 +1351,11 @@ bool OSDScreenHandler::AV_Devices_ObjectSelected(CallBackData *pData)
 					m_pWizardLogic->SetAvPath(m_pWizardLogic->m_nPK_Device_Last_AV,
                                               m_pWizardLogic->m_nPK_Device_AV_Installed, 1 /* audio */, atoi(sInput.c_str()));
 				}
+			}
+			else if(DESIGNOBJ_butNoneAudioInputs_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
+			{
+				m_pWizardLogic->SetAvPath(m_pWizardLogic->m_nPK_Device_Last_AV,
+		            m_pWizardLogic->m_nPK_Device_AV_Installed, 1 /* audio */, 0);
 			}
 		}
 		break;

@@ -807,9 +807,11 @@ void WizardLogic::SetAvPath(int PK_Device_From,int PK_Device_To,int PK_Pipe,int 
 		" AND FK_Pipe=" + StringUtils::itos(PK_Pipe);
 	threaded_db_wrapper_query(sSQL);
 
+	string sCommandInput = PK_Command_Input != 0 ? StringUtils::itos(PK_Command_Input) : "NULL";
+
 	sSQL = "INSERT INTO Device_Device_Pipe(FK_Device_From,FK_Device_To,FK_Pipe,FK_Command_Input)"
 		" VALUES(" + StringUtils::itos(PK_Device_From) + "," + StringUtils::itos(PK_Device_To) + ","
-		+ StringUtils::itos(PK_Pipe) + "," + StringUtils::itos(PK_Command_Input) + ")";
+		+ StringUtils::itos(PK_Pipe) + "," + sCommandInput + ")";
 
 	threaded_db_wrapper_query(sSQL);
 }
