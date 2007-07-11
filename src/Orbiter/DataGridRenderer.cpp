@@ -325,12 +325,6 @@ DataGridRenderer::DataGridRenderer(DesignObj_Orbiter *pOwner): ObjectRenderer(pO
 	if ( w>4 && h >4 )
 	{
 		PlutoColor CellColor = PlutoColor::Gray();
-		if ( !bTransparentCell )
-		{
-			CellColor = pCell->m_AltColor ? pCell->m_AltColor : pTextStyle->m_BackColor;
-			CellColor.SetAlpha(nAlphaChannel);
-			m_pObj_Owner_DataGrid->m_pOrbiter->Renderer()->SolidRectangle( point.X + x,  point.Y + y,  w,  h,  CellColor);
-		}
 
 		PLUTO_SAFETY_LOCK(M,m_pObj_Owner_DataGrid->m_pOrbiter->m_VariableMutex);
 
@@ -351,6 +345,14 @@ DataGridRenderer::DataGridRenderer(DesignObj_Orbiter *pOwner): ObjectRenderer(pO
 			// Todo, since we're leaving the graphic in native format from this point foward,
 			// we can probably delete the compressed-format image here.
 		}
+
+		if(!bTransparentCell)
+		{
+			CellColor = pCell->m_AltColor ? pCell->m_AltColor : pTextStyle->m_BackColor;
+			CellColor.SetAlpha(nAlphaChannel);
+			m_pObj_Owner_DataGrid->m_pOrbiter->Renderer()->SolidRectangle( point.X + x,  point.Y + y,  w,  h,  CellColor);
+		}
+
 		if (pCell->m_pGraphic)
 		{
 			string sCellObjectID, sCellObjectHash;
@@ -366,6 +368,7 @@ DataGridRenderer::DataGridRenderer(DesignObj_Orbiter *pOwner): ObjectRenderer(pO
 				sCellObjectHash  //Object hash
 			);
 		}
+
 #ifdef DEBUG
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Rendering cell with %s",pCell->GetText());        
 #endif
@@ -381,22 +384,23 @@ DataGridRenderer::DataGridRenderer(DesignObj_Orbiter *pOwner): ObjectRenderer(pO
 
 		string sText = m_pObj_Owner_DataGrid->m_pOrbiter->SubstituteVariables(pCell->GetText(), m_pObj_Owner_DataGrid, 0, 0);
 
-		PlutoColor TextColor = pTextStyle->m_ForeColor;
-		if(CellColor.R() == TextColor.R() && CellColor.G() == TextColor.G() &&
-			CellColor.B() == TextColor.B()
-		)
+		if(!sText.empty())
 		{
-			pTextStyle->m_ForeColor.R( pTextStyle->m_ForeColor.R() ^ 0xff );
-			pTextStyle->m_ForeColor.G( pTextStyle->m_ForeColor.G() ^ 0xff );
-			pTextStyle->m_ForeColor.B( pTextStyle->m_ForeColor.B() ^ 0xff );
-			LoggerWrapper::GetInstance()->Write( LV_WARNING,  "Datagrid foreground is same as background.  Using xor" );
-		}
+			PlutoColor TextColor = pTextStyle->m_ForeColor;
+			if(CellColor.R() == TextColor.R() && CellColor.G() == TextColor.G() && CellColor.B() == TextColor.B())
+			{
+				pTextStyle->m_ForeColor.R( pTextStyle->m_ForeColor.R() ^ 0xff );
+				pTextStyle->m_ForeColor.G( pTextStyle->m_ForeColor.G() ^ 0xff );
+				pTextStyle->m_ForeColor.B( pTextStyle->m_ForeColor.B() ^ 0xff );
+				LoggerWrapper::GetInstance()->Write( LV_WARNING,  "Datagrid foreground is same as background.  Using xor" );
+			}
 
-		PlutoColor BackColor = pTextStyle->m_BackColor;
-		pTextStyle->m_BackColor = CellColor;
-		m_pObj_Owner_DataGrid->m_pOrbiter->Renderer()->RenderText(sText, &Text, pTextStyle, point);
-		pTextStyle->m_BackColor = BackColor;
-		pTextStyle->m_ForeColor = TextColor;
+			PlutoColor BackColor = pTextStyle->m_BackColor;
+			pTextStyle->m_BackColor = CellColor;
+			m_pObj_Owner_DataGrid->m_pOrbiter->Renderer()->RenderText(sText, &Text, pTextStyle, point);
+			pTextStyle->m_BackColor = BackColor;
+			pTextStyle->m_ForeColor = TextColor;
+		}
 	}
 	else
 		LoggerWrapper::GetInstance()->Write( LV_WARNING,  "Datagrid width or height is too small" );
