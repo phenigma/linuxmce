@@ -9,6 +9,8 @@ export NPflagReconfNetwork=yes
 /etc/init.d/networking restart
 /usr/pluto/bin/DHCP_config.sh
 /usr/pluto/bin/Network_Firewall.sh
+/usr/pluto/bin/ConfirmInstallation.sh
+/usr/pluto/bin/Timezone_Detect.sh
 
 ## Create new set of ssh keys
 rm -f /etc/ssh/ssh_host_*
