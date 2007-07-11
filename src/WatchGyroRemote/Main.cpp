@@ -151,7 +151,10 @@ int main(int argc, char *argv[])
 							if( res==6 && inPacket[0]==8 )  // It's for us
 							{
 								if( inPacket[1]==0x20 || inPacket[1]==0x26 )  // A bind request
+								{
 									ProcessBindRequest(p_usb_dev_handle,inPacket);
+									system("beep -f 200");
+								}
 								else if( inPacket[1]==0x25 )  // A button
 								{
 									LoggerWrapper::GetInstance()->Write(LV_STATUS,"WatchGyroRemote button %d %d %d %d",
@@ -161,6 +164,7 @@ int main(int argc, char *argv[])
 										LoggerWrapper::GetInstance()->Write(LV_STATUS,"WatchGyroRemote button -- activating AV Wizard");
 										dceConfig.AddString("AVWizardOverride","1");
 										dceConfig.WriteSettings();
+										system("beep -f 2000");
 									}
 								}
 							}
@@ -179,6 +183,7 @@ int main(int argc, char *argv[])
 			Sleep(2000);
 		}
 	}
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Exiting");
 	return 0;
 }
 

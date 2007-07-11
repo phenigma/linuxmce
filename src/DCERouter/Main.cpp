@@ -69,6 +69,8 @@ int main(int argc, char *argv[])
 {
 #endif
 
+	system("touch /usr/pluto/var/DCERouter.running");
+
 	g_sBinary = FileUtils::FilenameWithoutPath(argv[0]);
 	g_sBinaryPath = FileUtils::BasePath(argv[0]);
    		
@@ -193,6 +195,7 @@ int main(int argc, char *argv[])
 
 	MutexTracking::Delete();
 
+	system("rm /usr/pluto/var/DCERouter.running");
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "PlutoServer: terminating now with %d",(int) bResult);
 
 	if( bResult )

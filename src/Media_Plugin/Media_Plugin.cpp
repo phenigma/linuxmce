@@ -2056,9 +2056,19 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"It's a valid command");
 			}
 			else
 			{
-LoggerWrapper::GetInstance()->Write(LV_STATUS,"Just send it to the media device");
-				// Just send it to the media device.  We don't know what it is
-                pMessage->m_dwPK_Device_To = pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device;
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Just send it to the media device");
+				// Look for special cases
+				if( pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND && pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo==m_pGenericMediaHandlerInfo &&
+					pEntertainArea->m_pMediaStream->m_pDevice_CaptureCard && pMessage->m_dwID==COMMAND_Set_Zoom_CONST )
+				{
+						DeviceData_Router *pDevice_MediaPlayer = (DeviceData_Router *) ((DeviceData_Router *) pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard)->FindFirstRelatedDeviceOfTemplate(DEVICETEMPLATE_Xine_Player_CONST);
+						if( pDevice_MediaPlayer )
+							pMessage->m_dwPK_Device_To = pDevice_MediaPlayer->m_dwPK_Device;
+				}
+				else
+					// Just send it to the media device.  We don't know what it is
+		            pMessage->m_dwPK_Device_To = pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device;
+
 	            Message *pNewMessage = new Message( pMessage );
 				QueueMessageToRouter( pNewMessage );
 			}
