@@ -155,6 +155,9 @@ UpdateOrbiterDimensions()
 	OrbiterResolutionFullName=$(Resolution_GetFullName "$OrbiterResolutionName")
 	if [[ "$OrbiterResolutionFullName" == *=* ]]; then
 		OrbiterResolution=${OrbiterResolutionFullName#*=}
+		if [[ "$OrbiterResolution" == *i ]]; then
+			Iletter=" i"
+		fi
 		OrbiterResolution=${OrbiterResolution%i}
 		OrbiterResolution=${OrbiterResolution%p}
 	else
@@ -179,7 +182,7 @@ UpdateOrbiterDimensions()
 	RunSQL "$Q"
 
 	# Store value for "Video settings"
-	Video_settings="$OrbiterWidth $OrbiterHeight/$OrbiterRefresh"
+	Video_settings="$OrbiterWidth $OrbiterHeight$Iletter/$OrbiterRefresh"
 	Q="UPDATE Device_DeviceData SET IK_DeviceData='$Video_settings' WHERE FK_Device='$ComputerDev' AND FK_DeviceData='$DEVICEDATA_Video_settings'"
 	RunSQL "$Q"
 
