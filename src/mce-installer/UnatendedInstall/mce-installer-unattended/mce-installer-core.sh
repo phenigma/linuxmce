@@ -358,6 +358,10 @@ for dir in /home/* ;do
 	fi
 done
 
+#Install libdvdcss
+apt-get -f -y install  libdvdread3
+/usr/share/doc/libdvdread3/install-css.sh
+
 #if [[ "$c_ubuntuExtraCDFrom" == "3" ]] ;then
 #	apt-get -y dist-upgrade || ExitInstaller "Failed while upgrading the system. Installation finished but you system might be left in a unstable state."
 #fi

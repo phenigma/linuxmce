@@ -136,6 +136,7 @@ function create_disk_image {
 	decho "Map virtual machine partitions to loop device"
 	local Pattern="${VMWARE_DISK_IMAGE}p?([[:digit:]]+)[*[:space:]]+([[:digit:]]+)[[:space:]]+([[:digit:]]+)[[:space:]]+([[:digit:]]+)[[:space:]]+([[:xdigit:]]+)[[:space:]].*"
 	local Partition Start End Blocks Type Rest
+	dmsetup remove_all || :
 	losetup "$LoopDev" "${VMWARE_DISK_IMAGE}"
 	modprobe dm-mod
 	
@@ -162,7 +163,6 @@ function create_disk_image {
 
 	umount "${VMWARE_MOUNT_DIR}"
 	decho "Finish creating the tar.gz of / partition"
-
 
 	# Unmap partitions from loop device
 	decho "Unmap virtual machine partitions from loop device"
