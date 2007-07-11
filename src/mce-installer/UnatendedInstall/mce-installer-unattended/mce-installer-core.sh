@@ -362,6 +362,10 @@ done
 apt-get -f -y install  libdvdread3
 /usr/share/doc/libdvdread3/install-css.sh
 
+
+#Remove everything from the Installation table
+RunSQL "DELETE FROM Installation"
+
 #if [[ "$c_ubuntuExtraCDFrom" == "3" ]] ;then
 #	apt-get -y dist-upgrade || ExitInstaller "Failed while upgrading the system. Installation finished but you system might be left in a unstable state."
 #fi
