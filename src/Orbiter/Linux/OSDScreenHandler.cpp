@@ -1816,6 +1816,7 @@ bool OSDScreenHandler::LightsSetup_Intercepted(CallBackData *pData)
 		if( pMsgInterceptorCellBackData->m_pMessage->m_dwMessage_Type==MESSAGETYPE_EVENT &&
             pMsgInterceptorCellBackData->m_pMessage->m_dwID==EVENT_Download_Config_Done_CONST )
 		{
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"OSDScreenHandler::LightsSetup_Intercepted got EVENT_Download_Config_Done_CONST");
 			DesignObjText *pText = m_pOrbiter->FindText( m_pOrbiter->FindObject(DESIGNOBJ_NoLights_CONST),TEXT_STATUS_CONST );
 			string sResult = pMsgInterceptorCellBackData->m_pMessage->m_mapParameters[EVENTPARAMETER_Error_Message_CONST];
 
@@ -1838,6 +1839,7 @@ bool OSDScreenHandler::LightsSetup_Intercepted(CallBackData *pData)
             pMsgInterceptorCellBackData->m_pMessage->m_dwID==EVENT_Reporting_Child_Devices_CONST )
 		{
 			string sResult = pMsgInterceptorCellBackData->m_pMessage->m_mapParameters[EVENTPARAMETER_Error_Message_CONST];
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"OSDScreenHandler::LightsSetup_Intercepted got EVENT_Reporting_Child_Devices_CONST %s",sResult.c_str());
 			if( sResult.size() )
 			{
 				DesignObjText *pText = m_pOrbiter->FindText( m_pOrbiter->FindObject(DESIGNOBJ_NoLights_CONST),TEXT_STATUS_CONST );
@@ -1848,6 +1850,7 @@ bool OSDScreenHandler::LightsSetup_Intercepted(CallBackData *pData)
 			}
 
 			int iNumLightsTotal = m_pWizardLogic->GetNumLights();
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"OSDScreenHandler::LightsSetup_Intercepted got EVENT_Reporting_Child_Devices_CONST %d lights",iNumLightsTotal);
 
 			if( iNumLightsTotal==0 )
 			{
