@@ -6,3 +6,5 @@ if [[ "$AVWizardOverride" == "1" ]] ;then
 	ConfSet "AVWizardOverride" "0"
 	/usr/pluto/bin/AVWizard_Run.sh 1>/dev/null 2>/dev/null </dev/null
 fi
+
+killall WatchGyroRemote 2>/dev/null
