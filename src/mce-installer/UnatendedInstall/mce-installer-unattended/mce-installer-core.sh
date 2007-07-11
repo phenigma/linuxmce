@@ -364,7 +364,17 @@ apt-get -f -y install  libdvdread3
 
 
 #Remove everything from the Installation table
-RunSQL "DELETE FROM Installation"
+RunSQL "UPDATE Installation SET PK_Installation = 1"
+RunSQL "UPDATE Installation SET Description = 'LinuxMCE DVD Build $(date +%d-%m-%y)'"
+RunSQL "UPDATE Installation SET Name = NULL" 
+RunSQL "UPDATE Installation SET Address = NULL" 
+RunSQL "UPDATE Installation SET City = NULL" 
+RunSQL "UPDATE Installation SET State = NULL" 
+RunSQL "UPDATE Installation SET Zip = NULL" 
+RunSQL "UPDATE Installation SET FK_Country = 0" 
+RunSQL "UPDATE Installation SET FK_City = 0" 
+RunSQL "UPDATE Installation SET FK_PostalCode = 0" 
+
 
 #if [[ "$c_ubuntuExtraCDFrom" == "3" ]] ;then
 #	apt-get -y dist-upgrade || ExitInstaller "Failed while upgrading the system. Installation finished but you system might be left in a unstable state."
