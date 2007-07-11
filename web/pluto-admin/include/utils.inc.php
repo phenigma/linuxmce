@@ -883,7 +883,7 @@ function grabFiles($path,$fileParm='-type f',$startingWith='') {
 }
 
 function resizeImage($source, $destination, $new_width, $new_height,$forcedPNG=0){
-	$cmd='sudo -u root /usr/bin/convert -sample '.$new_width.'x'.$new_height.' '.$source.' '.$destination;
+	$cmd='/usr/bin/convert -sample '.$new_width.'x'.$new_height.' '.$source.' '.$destination;
 	exec_batch_command($cmd); 	
 }
 
