@@ -6800,7 +6800,10 @@ void Media_Plugin::UpdateSearchTokens()
 	if( (result.r = m_pDatabase_pluto_media->db_wrapper_query_result(sSQL))==NULL || ( (row = db_wrapper_fetch_row( result.r )) )==NULL )
 		return; // Shouldn't happen
 
-	time_t tLastAttribute = StringUtils::SQLDateTime(row[0]);
+	time_t tLastAttribute = 0;
+	
+	if(NULL != row[0])
+		tLastAttribute = StringUtils::SQLDateTime(row[0]);
 
 	vector<Row_Attribute *> vectRow_Attribute;
 	string sWhere = "psc_mod>'" + StringUtils::SQLDateTime(m_tLastSearchTokenUpdate ? m_tLastSearchTokenUpdate : 1) + "'";
