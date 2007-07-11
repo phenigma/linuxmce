@@ -18,7 +18,7 @@ XorgConfLogging "Starting $0 $*"
 . /usr/pluto/bin/LockUtils.sh
 
 ConfigFile="/etc/X11/xorg.conf"
-Output="CRT"
+Output="VGA"
 
 DEVICECATEGORY_Video_Cards=125
 DEVICEDATA_Setup_Script=189
