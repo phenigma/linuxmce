@@ -31,6 +31,8 @@ if ! BlacklistConfFiles '/etc/ypserv.securenets' ;then
 	$IntNetmask $IntNetIP
 	" > /etc/ypserv.securenets
 fi
+sed -i 's/master|slave|\[Yy\]/slave|[Yy]/g' /etc/init.d/nis
+
 invoke-rc.d nis stop
 echo | /usr/lib/yp/ypinit -m
 invoke-rc.d nis start
