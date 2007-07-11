@@ -39,6 +39,10 @@ ParseParms()
 				AudioSetting="${!i}"
 				AudioSetting_Set=y
 			;;
+			--scantype)
+				((i++))
+				Scantype="${!i}"
+			;;
 		esac
 	done
 }
@@ -64,7 +68,13 @@ UpdateResolution()
 	
 	Width="${WidthHeight%x*}"
 	Height="${WidthHeight#*x}"
-	Video_settings="$Width $Height/$Refresh"
+
+	local Iletter=
+	if [[ "$Scantype" == interlace ]]; then
+		Iletter=" i"
+	fi
+
+	Video_settings="$Width $Height$Iletter/$Refresh"
 
 	Q="SELECT PK_Size FROM Size WHERE Description LIKE '%$OrbiterResolutionName%'"
 	PK_Size=$(RunSQL "$Q")
