@@ -42,7 +42,7 @@ Screen == 1 && /EndSection/ && nvHD != "" {
 	Screen = 0;
 }
 /Section..*"Device"/ { Device = 1; }
-Device == 1 && (/Option.*"ConnectedMonitor"/ || /Option.*"TVOutFormat"/) { next }
+/Option.*"ConnectedMonitor"/ || /Option.*"TVOutFormat"/ { next }
 Device == 1 && /EndSection/ {
 	if (ConnectedMonitor != "")
 		print "\tOption\t\t\"ConnectedMonitor\" \"" ConnectedMonitor "\"";
