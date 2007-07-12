@@ -419,7 +419,9 @@ void DataGridTable::SetData(int Column, int Row, DataGridCell *Value)
 
 	DataGridCell *oldValue = GetData(Column, Row);	
 	m_MemoryDataTable[MAKECOLROW(Column, Row)]=Value;
-	delete oldValue;
+
+	if(oldValue != Value)
+		delete oldValue;
 }
 
 void DataGridTable::ClearData()
