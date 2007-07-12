@@ -111,14 +111,16 @@ DataGridRenderer::DataGridRenderer(DesignObj_Orbiter *pOwner): ObjectRenderer(pO
 					//if it has "scroll up"/"scroll down" cells, skip 'em
 
 					bool bAddArrows = m_pObj_Owner_DataGrid->m_sExtraInfo.find('P') != string::npos;
-					if(bAddArrows && m_pObj_Owner_DataGrid->m_MaxRow > 1)
+
+					if(bAddArrows && m_pObj_Owner_DataGrid->m_MaxRow > 1 && pDataGridTable->getTotalRowCount() > m_pObj_Owner_DataGrid->m_MaxRow)
 					{
-						DGRow -= 
-							//for first page, skip the "scroll down" cell
-							(DGRow < (m_pObj_Owner_DataGrid->m_MaxRow - 1) ? 0 : 1) + 
-							//for second, third, etc. pages, skip both "scroll up" and "scroll down" cells
-							(m_pObj_Owner_DataGrid->m_MaxRow - 2) * (DGRow / (m_pObj_Owner_DataGrid->m_MaxRow - 1));
-					}
+						//for first page, skip the "scroll down" cell, if needed (more the one page)
+						DGRow -= (DGRow < m_pObj_Owner_DataGrid->m_MaxRow - 1) ? 0 : 1; 
+
+						//for second, third, etc. pages, skip both "scroll up" and "scroll down" cells
+						DGRow -= (m_pObj_Owner_DataGrid->m_MaxRow - 2) * 
+							(DGRow / (m_pObj_Owner_DataGrid->m_MaxRow - 1));
+					} 
 					else
 					{
 						DGRow %= pDataGridTable->m_RowCount;
