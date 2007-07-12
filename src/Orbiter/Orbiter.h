@@ -131,6 +131,7 @@ namespace DCE
 		class PlutoGraphic * m_pBackgroundImage;
 		static Orbiter *m_pInstance; 
 		list<PlutoAlert *> m_listPlutoAlert;  // Current alerts displayed on the screen as a popup message
+		string DetectCoreIpAddress();
 
 	protected:
 		void DumpScreenHistory(); // temporary function

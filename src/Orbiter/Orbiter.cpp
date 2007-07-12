@@ -597,9 +597,10 @@ bool Orbiter::GetConfig()
 	if( !bResult )
 	{
 #ifdef WIN32
-		if( m_pEvent->m_pClientSocket->m_eLastError==cs_err_CannotConnect && m_sHostName!="192.168.80.1" )
+		string sDetectedIPAddress = DetectCoreIpAddress();
+		if( m_pEvent->m_pClientSocket->m_eLastError==cs_err_CannotConnect && m_sHostName != sDetectedIPAddress)
 		{
-			m_sHostName="192.168.80.1";
+			m_sHostName = sDetectedIPAddress;
 			if( !Orbiter_Command::GetConfig() )
 			{
 				WriteStatusOutput("Couldn't connect to the router.");
@@ -9890,3 +9891,65 @@ void Orbiter::CMD_Activate_PC_Desktop(bool bTrueFalse,string &sCMD_Result,Messag
 {
 }
 
+string Orbiter::DetectCoreIpAddress() 
+{
+#ifdef WIN32
+
+	//create datagram socket
+	SOCKET s = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+	
+	//make it nonblocking
+	int nonblocking = 1;
+	ioctlsocket(s, FIONBIO, (unsigned long*) &nonblocking);
+
+	//set opt broadcast
+	int on = 1;
+	setsockopt(s, SOL_SOCKET, SO_BROADCAST, (const char *)&on, sizeof(on));
+
+	//setup sockaddr
+	struct sockaddr_in si_other;
+	int slen = sizeof(si_other);
+	memset((char *) &si_other, sizeof(si_other), 0);
+	si_other.sin_family = AF_INET;
+	si_other.sin_port = htons(33333);
+	si_other.sin_addr.s_addr = inet_addr("255.255.255.255");
+
+	//send query
+	char send_buf[] = "Search DCERouter";
+	sendto(s, send_buf, sizeof(send_buf), 0, (const sockaddr *)&si_other, slen);
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Search for a router...");
+
+	//wait for response
+	char recv_buf[128];
+	memset(recv_buf, 0, sizeof(recv_buf));
+	time_t start_time = time(0);
+	while ((time(0) - start_time) < 2) 
+	{
+		int a = recvfrom(s, recv_buf, sizeof(recv_buf), 0, (sockaddr *)&si_other, &slen);
+		if(a > 0)
+			break;
+	}
+
+	//close socket
+	closesocket(s);
+
+	//get ip address
+	char *ret = inet_ntoa(si_other.sin_addr);
+
+	string sIP;
+	if(NULL != ret)
+		sIP = ret;
+
+	if(sIP != "255.255.255.255")
+	{
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Found router on %s", sIP.c_str());
+		return sIP;
+	}
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Failed to find a router");
+
+#endif
+
+	return "";
+} 
