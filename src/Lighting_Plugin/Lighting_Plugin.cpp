@@ -458,7 +458,7 @@ void Lighting_Plugin::AlarmCallback(int id, void* param)
 	// Find the next alarm
 	for(map<int, pair<time_t,string> >::iterator it=m_mapLightsToRestore.begin();it!=m_mapLightsToRestore.end();)
 	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Lighting_Plugin::AlarmCallback We've got a light for %d with state %s and time %s",it->first,(it->second.second).c_str(),it->second.first);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Lighting_Plugin::AlarmCallback We've got a light for %d with state %s and time %d",it->first,(it->second.second).c_str(),(int) it->second.first);
 		if( it->second.first<=tNow )
 		{
 			string sState = it->second.second;
