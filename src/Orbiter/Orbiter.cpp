@@ -9851,7 +9851,10 @@ void Orbiter::SendOffToSS( void *data )
 #ifdef DEBUG
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::SendOffToSS screen saver not available.  try again in 1 second");
 #endif
+
+#ifndef TEST_OSD
 		CallMaintenanceInMiliseconds( 1000, &Orbiter::SendOffToSS, NULL, pe_ALL, false );
+#endif
 	}
 }
 

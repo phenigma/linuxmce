@@ -1222,6 +1222,12 @@ void OrbiterRenderer::ObjectOnScreen( VectDesignObj_Orbiter *pVectDesignObj_Orbi
 		pObj->m_bHidden = true;
 #endif
 
+//NOT hidden on WIN32/WINCE
+#if defined(WIN32)
+	if(pObj->m_iBaseObjectID == DESIGNOBJ_objExitController2_CONST)
+		pObj->m_bHidden = false;
+#endif
+
 	// Move InitializeGrid down so it gets called after the LoadActions,  which may set variables that it will use
 
 	//  Move this down because there's a hide object in the onload
