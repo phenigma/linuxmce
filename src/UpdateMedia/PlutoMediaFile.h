@@ -84,6 +84,9 @@ private:
 	void SaveMiscInfo();
 	void SaveEveryThingToDb();
 
+	int NumberOfCoverartsFromDB();
+	int NumberOfBookmarksFromDB();
+
 	//misc helpers
 	int AddFileToDatabase(int PK_MediaType);
 	void AssignPlutoDevice();

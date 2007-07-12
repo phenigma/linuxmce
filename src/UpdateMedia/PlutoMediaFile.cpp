@@ -94,7 +94,7 @@ PlutoMediaFile::PlutoMediaFile(Database_pluto_media *pDatabase_pluto_media, int 
 	m_nOurInstallationID = PK_Installation;
 	m_nPK_MediaType = 0;
 	m_bNewFileToDb = false;
-	
+
 	string sFilePath = sDirectory + "/" + sFile;
 	m_bIsDir = IsDirectory(sFilePath);
 
@@ -562,7 +562,8 @@ void PlutoMediaFile::SaveLongAttributesInDb(bool bAddAllToDb)
 //-----------------------------------------------------------------------------------------------------
 void PlutoMediaFile::SaveBookmarkPictures()
 {
-	if(m_bNewFileToDb)
+	//got bookmarks in id3 file, but none in the database?
+	if(!m_pPlutoMediaAttributes->m_listBookmarks.empty() && !NumberOfBookmarksFromDB())
 	{
 		int nCounter = 0;
 		for(ListBookmarks::iterator it = m_pPlutoMediaAttributes->m_listBookmarks.begin(), 
@@ -626,7 +627,8 @@ void PlutoMediaFile::SaveMiscInfo()
 //-----------------------------------------------------------------------------------------------------
 void PlutoMediaFile::SaveCoverarts()
 {
-	if(m_bNewFileToDb)
+	//got coverarts in id3 file, but none in the database?
+	if(!m_pPlutoMediaAttributes->m_mapCoverarts.empty() && !NumberOfCoverartsFromDB())
 	{
 		MapPictures::iterator it = m_pPlutoMediaAttributes->m_mapCoverarts.begin();
 		MapPictures::iterator end = m_pPlutoMediaAttributes->m_mapCoverarts.end();
@@ -1423,7 +1425,8 @@ void PlutoMediaFile::LoadLongAttributes()
 //-----------------------------------------------------------------------------------------------------
 void PlutoMediaFile::LoadBookmarkPictures()
 {
-	if(!m_bNewFileToDb)
+	//if the file was added before, but we already have bookmarks in db ignore those from id3
+	if(!m_bNewFileToDb && NumberOfBookmarksFromDB())
 		m_pPlutoMediaAttributes->ClearBookmarks();
 
 	PlutoSqlResult result;
@@ -1492,7 +1495,8 @@ void PlutoMediaFile::LoadMiscInfo()
 //-----------------------------------------------------------------------------------------------------
 void PlutoMediaFile::LoadCoverarts()
 {
-	if(!m_bNewFileToDb)
+	//if the file was added before, but we already have coverarts in db ignore those from id3
+	if(!m_bNewFileToDb && NumberOfCoverartsFromDB())
 		m_pPlutoMediaAttributes->ClearCoverarts();
 
 	PlutoSqlResult result;
@@ -1569,6 +1573,38 @@ int PlutoMediaFile::GetOwnerForPath(string sPath)
 	return nEK_Users_Private;
 }
 //-----------------------------------------------------------------------------------------------------
+int PlutoMediaFile::NumberOfCoverartsFromDB()
+{
+	PlutoSqlResult result_count;
+	DB_ROW row_count;
+	string SQLCount = 
+		"SELECT Count(*) FROM Picture_File "
+		"WHERE FK_File = " + StringUtils::ltos(m_pPlutoMediaAttributes->m_nFileID);
+
+	int nNumberOfCoverartsFromDB = 0;
+    if((result_count.r = m_pDatabase_pluto_media->db_wrapper_query_result(SQLCount)) && (row_count = db_wrapper_fetch_row(result_count.r)) && NULL != row_count[0])
+		nNumberOfCoverartsFromDB = atoi(row_count[0]);
+
+	return nNumberOfCoverartsFromDB;
+}
+//-----------------------------------------------------------------------------------------------------
+int PlutoMediaFile::NumberOfBookmarksFromDB()
+{
+	PlutoSqlResult result_count;
+	DB_ROW row_count;
+	string SQLCount = 
+		"SELECT Count(*) FROM Bookmark "
+		"WHERE FK_Picture IS NOT NULL AND "
+		"FK_File = " + StringUtils::ltos(m_pPlutoMediaAttributes->m_nFileID);
+
+	int nNumberOfBookmarksFromDB = 0;
+    if((result_count.r = m_pDatabase_pluto_media->db_wrapper_query_result(SQLCount)) && (row_count = db_wrapper_fetch_row(result_count.r)) && NULL != row_count[0])
+		nNumberOfBookmarksFromDB = atoi(row_count[0]);
+
+	return nNumberOfBookmarksFromDB;
+}
+//-----------------------------------------------------------------------------------------------------
+
 
 //-----------------------------------------------------------------------------------------------------
 //
