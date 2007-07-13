@@ -75,6 +75,14 @@ public:
 	/**
 	 */
 	virtual void AddItem(std::string ItemName, std::string ItemValue);
+	
+	/**
+	 */
+	virtual void RemoveItem(std::string ItemValue);
+	
+	/**
+	 */
+	virtual void Clear();
 };
 
 #endif

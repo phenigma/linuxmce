@@ -25,7 +25,9 @@
 //---------------------------------------------------------------------------
 
 WizardWidgetScrollList::WizardWidgetScrollList(GenericBackEnd* FrontEnd, std::string Name)
-	: WizardWidgetBase(FrontEnd, Name), ItemIndex(-1)
+	: WizardWidgetBase(FrontEnd, Name),
+	  Focused(false),
+	  ItemIndex(-1)
 {
 	this->BackColor = Utils::StringToColorDesc("70A070");
 	this->BackFocusedColor = Utils::StringToColorDesc("A0A0A0");
@@ -36,6 +38,13 @@ WizardWidgetScrollList::WizardWidgetScrollList(GenericBackEnd* FrontEnd, std::st
 WizardWidgetScrollList::~WizardWidgetScrollList()
 {
 	delete BackColor;
+	BackColor = NULL;
+	delete BackFocusedColor;
+	BackFocusedColor = NULL;
+	delete HighBackColor;
+	HighBackColor = NULL;
+	delete HighBackFocusedColor;
+	HighScrollBackFocusedColor = NULL;
 }
 
 /*virtual*/ void WizardWidgetScrollList::SetUpAttribute(std::string Attribute, std::string DataValue)
@@ -89,6 +98,18 @@ WizardWidgetPage* WizardWidgetScrollList::GetContainerPage()
 	ItemValues.push_back(ItemValue);
 }
 
+void WizardWidgetScrollList::RemoveItem(std::string ItemValue)
+{
+	// TODO
+}
+
+void WizardWidgetScrollList::Clear()
+{
+	ItemNames.clear();
+	ItemValues.clear();
+	ItemIndex = -1;
+}
+
 int WizardWidgetScrollList::GetItemIndex()
 {
 	return ItemIndex;
@@ -117,6 +138,7 @@ int WizardWidgetScrollList::GetItemIndex()
 
 
 	delete Black;
+	Black = NULL;
 
 	int NoItems = ItemNames.size();
 	int NoOfDrawableItems = Height / 20;
@@ -165,7 +187,9 @@ void WizardWidgetScrollList::WriteItem(std::string Name, bool Selected,
 	}
 	FrontEnd->TextOutput((char*)Name.c_str(), Left+4,
 		Top+2+(Index - TopItemIndex)*ItemHeight, *Black, 0);
+	
 	delete Black;
+	Black = NULL;
 }
 
 	

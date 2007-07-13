@@ -181,11 +181,29 @@ void WizardPageVideoRatio::DoDecreaseSetting()
 /*virtual*/ void WizardPageVideoRatio::DoNextFocusItem()
 {
 	Selected->SetItemIndex(Selected->GetItemIndex()+1);
+	
+	// TODO
+	if ( Selected ==  dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("RefreshScroll")) ) {
+		
+	} else if( Selected == dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("VideoConnectorScroll")) ) {
+		
+	} else {
+		
+	}
 }
 
 /*virtual*/ void WizardPageVideoRatio::DoPreviousFocusItem()
 {
 	Selected->SetItemIndex(Selected->GetItemIndex()-1);
+	
+	// TODO
+	if ( Selected ==  dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("RefreshScroll")) ) {
+		
+	} else if( Selected == dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("VideoConnectorScroll")) ) {
+		
+	} else {
+		
+	}
 }
 
 /*virtual*/ void WizardPageVideoRatio::DoClickWidget(WizardWidgetBase *pWidget)
