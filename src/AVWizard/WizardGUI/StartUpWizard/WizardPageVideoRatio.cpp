@@ -84,7 +84,7 @@ WizardPageVideoRatio::~WizardPageVideoRatio(void)
 	// Fill connector select list
 	WizardWidgetScrollList *List = dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("VideoConnectorScroll"));
 	List->AddItem("VGA", "VGA");
-	List->AddItem("DVI", "DVI");
+	List->AddItem("DVI/HDMI", "DVI");
 	List->AddItem("Component", "Component");
 //<-mkr_B_via_b->
 	List->AddItem("Composite", "Composite");
