@@ -53,6 +53,9 @@ WizardPageVideoRatio::~WizardPageVideoRatio(void)
 
 	List = dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("RefreshScroll"));
 	std::string RefreshValue = List->GetSelectedValue();
+	if (RefreshValue == "") {
+		RefreshValue = "60";
+	}
 	std::cout<<"Selected Refresh is: "<<RefreshValue;
 
 	List = dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("VideoConnectorScroll"));
