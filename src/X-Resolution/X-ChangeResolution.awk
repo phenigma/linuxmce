@@ -18,11 +18,11 @@ Monitor == 1 && /EndSection/ {
 		print "\tModeline \t" Modeline;
 	if (Force != "")
 	{
-		print "\tHorizSync\t28-500";
+		print "\tHorizSync\t20-500";
 	}
 	else
 	{
-		print "\tHorizSync\t28-500";
+		print "\tHorizSync\t20-500";
 	}
 	print "\tVertRefresh\t" Refresh-1 "-" Refresh+1;
 	Monitor = 0;
