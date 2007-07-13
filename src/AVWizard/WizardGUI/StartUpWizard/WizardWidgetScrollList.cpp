@@ -213,6 +213,17 @@ std::string WizardWidgetScrollList::GetSelectedValue()
 	return Result;
 }
 
+std::string WizardWidgetScrollList::GetSelectedName()
+{
+	std::string Result;
+	int Index = GetItemIndex();
+	if (-1 == Index)
+		return Result;
+	Result = ItemNames[Index];
+	return Result;
+}
+
+
 void WizardWidgetScrollList::SetItemIndex(int ItemIndex)
 {
 	this->ItemIndex = ItemIndex;

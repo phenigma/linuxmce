@@ -62,6 +62,7 @@ public:
 	bool GetFocus();
 
 	std::string GetSelectedValue();
+	std::string GetSelectedName();
 
 	/**
 	 *	Paints the control and the children of the curent component

@@ -48,7 +48,8 @@ WizardPageVideoRatio::~WizardPageVideoRatio(void)
 		return -1;
 	WizardWidgetScrollList* List = dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("ResolutionScroll"));
 	std::string ResolutionValue = List->GetSelectedValue();
-	std::cout<<"Selected resolution is: "<< ResolutionValue;
+	std::string ResolutionName  = List->GetSelectedName();
+	std::cout<<"Selected resolution is: "<< ResolutionValue << "(" << ResolutionName << ")" ;
 
 	List = dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("RefreshScroll"));
 	std::string RefreshValue = List->GetSelectedValue();
@@ -56,15 +57,27 @@ WizardPageVideoRatio::~WizardPageVideoRatio(void)
 
 	List = dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("VideoConnectorScroll"));
 	std::string VideoConnectorValue = List->GetSelectedValue();
+	int VideoConnectorIndex = List->GetItemIndex();
 	std::cout<<"Selected Video Connector is: "<< VideoConnectorValue;
 
 	Dictionary->Set("Resolution", ResolutionValue);
 	Dictionary->Set("Refresh", RefreshValue);
 	Dictionary->Set("VideoOutput", VideoConnectorValue);
 
-	system((SkinGenerator::Instance()->CommandChangeResolution + " " + ResolutionValue
-		+ " " + RefreshValue + " " + VideoConnectorValue).c_str());
-	
+	if ( VideoConnectorIndex > 1 ) {
+		printf(("\n--------"+SkinGenerator::Instance()->CommandChangeResolution + " '" + ResolutionValue
+			+ "' '" + RefreshValue + "' '" + VideoConnectorValue +"' '" + ResolutionName +"'\n").c_str());
+
+		system((SkinGenerator::Instance()->CommandChangeResolution + " '" + ResolutionValue
+			+ "' '" + RefreshValue + "' '" + VideoConnectorValue +"' '" + ResolutionName +"'").c_str());
+	} else {
+		printf(("\n---------"+SkinGenerator::Instance()->CommandChangeResolution + " '" + ResolutionValue
+			+ "' '" + RefreshValue + "' '" + VideoConnectorValue +"'\n").c_str());
+
+		system((SkinGenerator::Instance()->CommandChangeResolution + " '" + ResolutionValue
+			+ "' '" + RefreshValue + "' '" + VideoConnectorValue +"'").c_str());
+	}
+
 	return 0;
 }
 
@@ -141,12 +154,15 @@ void WizardPageVideoRatio::FillResolutionStandard(WizardWidgetScrollList* List, 
 			break;
 		case 2:
 		case 3:
-			List->AddItem("PAL", "PAL");
-			List->AddItem("NTSC", "NTSC");
-			List->AddItem("SECAM", "SECAM");
+			List->AddItem("PAL", "768x576");
+			List->AddItem("NTSC", "768x483");
+			List->AddItem("SECAM", "");
 			break;
 		case 4:	
-			List->AddItem("HD1080i/60", "HD1080i/60");
+			List->AddItem("480p", "720x480");
+			List->AddItem("720p", "1280x720");
+			List->AddItem("1080i", "1920x1080");
+			List->AddItem("1080p", "1920x1080");
 			break;
 	}
 
