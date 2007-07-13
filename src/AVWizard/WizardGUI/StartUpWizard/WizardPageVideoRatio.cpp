@@ -157,15 +157,23 @@ void WizardPageVideoRatio::FillResolutionStandard(WizardWidgetScrollList* List, 
 			break;
 		case 2:
 		case 3:
-			List->AddItem("PAL", "640x480");
-			List->AddItem("NTSC", "640x480");
-			List->AddItem("SECAM", "640x480");
+			List->AddItem("PAL-B", "640x480");
+			List->AddItem("PAL-D", "640x480");
+			List->AddItem("PAL-G", "640x480");
+			List->AddItem("PAL-H", "640x480");
+			List->AddItem("PAL-I", "640x480");
+			List->AddItem("PAL-K1", "640x480");
+			List->AddItem("PAL-M", "640x480");
+			List->AddItem("PAL-N", "640x480");
+			List->AddItem("PAL-NC", "640x480");
+			List->AddItem("NTSC-J", "640x480");
+			List->AddItem("NTSC-M", "640x480");
 			break;
 		case 4:	
-			List->AddItem("480p", "720x480");
-			List->AddItem("720p", "1280x720");
-			List->AddItem("1080i", "1920x1080i");
-			List->AddItem("1080p", "1920x1080");
+			List->AddItem("HD480p", "720x480");
+			List->AddItem("HD720p", "1280x720");
+			List->AddItem("HD1080i", "1920x1080i");
+			List->AddItem("HD1080p", "1920x1080");
 			break;
 	}
 
