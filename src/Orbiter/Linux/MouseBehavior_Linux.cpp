@@ -178,7 +178,7 @@ bool MouseBehavior_Linux::ConstrainMouse(const PlutoRectangle &rect)
 	}
 	else
 	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "MouseBehavior_Linux::ConstrainMouse(%d, %d, %d, %d) : error",
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "MouseBehavior_Linux::ConstrainMouse(%d, %d, %d, %d) : error",
 			rect.X, rect.Y, rect.Width, rect.Height);
 	}
 	return bResult;
