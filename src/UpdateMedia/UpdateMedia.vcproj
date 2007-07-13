@@ -134,6 +134,9 @@
 				RelativePath="..\inotify\FileNotifier.cpp">
 			</File>
 			<File
+				RelativePath=".\FileStatusObserver.cpp">
+			</File>
+			<File
 				RelativePath="..\PlutoUtils\FileUtils.cpp">
 			</File>
 			<File
@@ -172,6 +175,9 @@
 			Filter="h;hpp;hxx;hm;inl;inc">
 			<File
 				RelativePath="..\PlutoUtils\CommonIncludes.h">
+			</File>
+			<File
+				RelativePath=".\FileStatusObserver.h">
 			</File>
 			<File
 				RelativePath="..\PlutoUtils\FileUtils.h">

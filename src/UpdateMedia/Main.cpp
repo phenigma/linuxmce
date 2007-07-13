@@ -24,6 +24,8 @@
 #include "UpdateMedia.h"
 #include "PlutoUtils/MultiThreadIncludes.h"
 
+#include "FileStatusObserver.h"
+
 #include <iostream>
 #include <sstream>
 #include <fstream>
@@ -363,10 +365,11 @@ int main(int argc, char *argv[])
 		pthread_t UpdateMediaThreadId;
 		pthread_create(&UpdateMediaThreadId, NULL, UpdateMediaThread, NULL);
 
+		FileStatusObserver::Instance().SetFileNotifier(&fileNotifier);
+
 		fileNotifier.Run();//it waits for worker thread to exit; the user must press CTRL+C to finish it
 
-        pthread_mutex_destroy(&g_ConnectionMutex.mutex);
-		pthread_mutex_destroy(&g_FoldersListMutex.mutex);
+		FileStatusObserver::Instance().UnsetFileNotifier();
 
 		delete g_pDatabase_pluto_media;
 		g_pDatabase_pluto_media = NULL;

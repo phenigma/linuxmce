@@ -66,6 +66,8 @@ or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more detai
 #include <sys/stat.h>
 #include <stdio.h>
 
+#include "FileStatusObserver.h"
+
 #define  VERSION "<=version=>"
 //#define  USE_DEVEL_DATABASES 
 
@@ -476,6 +478,15 @@ bool UpdateMedia::ScanFiles(string sDirectory)
 		if(AnyReasonToSkip(sDirectory, sFile))
 			continue;
 
+		if(FileStatusObserver::IsFileOpen(sDirectory + "/" + sFile))
+		{
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "File %s/%s is opened for writting. Adding to file status observer's thread...",
+				sDirectory.c_str(), sFile.c_str());
+
+			FileStatusObserver::Instance().Observe(sDirectory + "/" + sFile);
+			continue;
+		}
+
 		if(m_bAsDaemon)
 			Sleep(1);
 
@@ -696,3 +707,4 @@ bool UpdateMedia::AnyReasonToSkip(string sDirectory, string sFile)
 
 	return false;
 }
+
