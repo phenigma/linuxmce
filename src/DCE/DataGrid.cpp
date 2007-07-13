@@ -408,20 +408,21 @@ void DataGridTable::SetData(int Column, int Row, DataGridCell *Value)
 	if (Column < 0 || Row <0)
 		return;
 
-	if (Row+1 > m_TotalRows)
-		m_TotalRows = Row+1;
-
-	if (Column >= m_ColumnCount+1+m_StartingColumn)
-		m_ColumnCount = Column+1-m_StartingColumn;
-
-	if (Column+1 > m_TotalColumns)
-		m_TotalColumns = Column+1;
-
 	DataGridCell *oldValue = GetData(Column, Row);	
-	m_MemoryDataTable[MAKECOLROW(Column, Row)]=Value;
-
 	if(oldValue != Value)
+	{
+		if (Row+1 > m_TotalRows)
+			m_TotalRows = Row+1;
+
+		if (Column >= m_ColumnCount+1+m_StartingColumn)
+			m_ColumnCount = Column+1-m_StartingColumn;
+
+		if (Column+1 > m_TotalColumns)
+			m_TotalColumns = Column+1;
+
+		m_MemoryDataTable[MAKECOLROW(Column, Row)]=Value;
 		delete oldValue;
+	}
 }
 
 void DataGridTable::ClearData()
