@@ -39,7 +39,7 @@ function outputScreenOrDevice()
 	print "\tOption \"ExactModeTimingsDVI\" \"true\"";
 	print "\tOption \"NoLogo\" \"true\"";
 	print "\tOption \"NoBandWidthTest\" \"true\"";
-	print "\tOption \"ModeValidation\" \"NoDFPNativeResolutionCheck, NoEdidMaxPClkCheck, NoMaxPClkCheck\"";
+	print "\tOption \"ModeValidation\" \"NoDFPNativeResolutionCheck, NoEdidMaxPClkCheck, NoMaxPClkCheck, AllowInterlacedModes\"";
 	print "\tOption \"DynamicTwinView\" \"false\"";
 }
 
