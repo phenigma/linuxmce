@@ -34,8 +34,6 @@ while [[ "$Done" -eq 0 ]]; do
 		WizSet VideoOutput "$Connector"
 		WizSet TVStandard "$TVStandard"
 		set +x
-
-		rm -f /tmp/avwizard-resolution.txt
 	fi
 
 	echo "Interrupted in step '$WizStep'"

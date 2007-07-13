@@ -26,6 +26,7 @@ DEVICEDATA_Video_settings=89
 DEVICEDATA_Connector=68
 DEVICEDATA_Spacing=150
 DEVICEDATA_Offset=167
+DEVICEDATA_TV_Standard=229
 
 COMMANDPARAMETER_PK_Device=2
 COMMANDPARAMETER_Force=21
@@ -58,7 +59,7 @@ SetDefaults()
 	WizSet WindowHeight 480
 	WizSet Refresh '60'
 	WizSet VideoRefresh '60'
-	WizSet VideoOutput 'VGA' #TODO: parse X log and extract autodetected output
+	WizSet VideoOutput 'VGA'
 	WizSet ResolutionSelected 1
 	WizSet AudioConnector 'Analog Stereo'
 	GetAudioMixerSettings
@@ -148,10 +149,18 @@ UpdateAudioSettings()
 
 UpdateOrbiterDimensions()
 {
+	WizResolution=$(< /tmp/avwizard-resolution.txt)
+	VideoResolution_Name=$(SpcField 1 "$WizResolution")
+	VideoRefresh=$(SpcField 2 "$WizResolution")
+	WindowWidth=$(SpcField 3 "$WizResolution")
+	WindowHeight=$(SpcField 4 "$WizResolution")
+	Connector=$(SpcField 5 "$WizResolution")
+	TVStandard=$(SpcField 6 "$WizResolution")
+
 	ComputerDev=$(FindDevice_Category "$PK_Device" "$DEVICECATEGORY_Media_Director" '' 'include-parent')
 	OrbiterDev=$(FindDevice_Template "$PK_Device" "$DEVICETEMPLATE_OnScreen_Orbiter")
-	OrbiterResolutionName=$(WizGet 'VideoResolution')
-	OrbiterRefresh=$(WizGet 'VideoRefresh')
+	OrbiterResolutionName="$VideoResolution_Name"
+	OrbiterRefresh="$VideoRefresh"
 	OrbiterResolutionFullName=$(Resolution_GetFullName "$OrbiterResolutionName")
 	if [[ "$OrbiterResolutionFullName" == *=* ]]; then
 		OrbiterResolution=${OrbiterResolutionFullName#*=}
@@ -187,10 +196,14 @@ UpdateOrbiterDimensions()
 	RunSQL "$Q"
 
 	# Store value for "Video output connector"
-	Video_Connector=$(WizGet VideoOutput)
+	Video_Connector="$Connector"
 	Q="UPDATE Device_DeviceData SET IK_DeviceData='$Video_Connector' WHERE FK_Device='$ComputerDev' AND FK_DeviceData='$DEVICEDATA_Connector'"
 	RunSQL "$Q"
 	
+	# Store value for "TV Standard"
+	Q="UPDATE Device_DeviceData SET IK_DeviceData='$TVStandard' WHERE FK_Device='$ComputerDev' AND FK_DeviceData='$DEVICEDATA_TV_Standard'"
+	RunSQL "$Q"
+
 	# Store PK_Size
 	Q="SELECT PK_Size FROM Size WHERE Description LIKE '%$OrbiterResolutionName%'"
 	PK_Size=$(RunSQL "$Q")
