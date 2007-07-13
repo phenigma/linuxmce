@@ -188,9 +188,6 @@ void WizardPageVideoRatio::FillRefresh(WizardWidgetScrollList* List, const int F
 			List->AddItem("85 Hz", "85");
 			break;
 		case 2: // Component
-			List->AddItem("50 Hz", "50");
-			List->AddItem("60 Hz", "60");
-			break;
 		case 3: // Composite
 		case 4:	// S-Video
 			break;
