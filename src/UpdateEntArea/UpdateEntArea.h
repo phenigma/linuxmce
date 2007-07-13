@@ -131,6 +131,8 @@ public:
 	bool IsPublicInteriorRoom(int PK_RoomType);
 	bool IsInteriorRoom(int PK_RoomType);
 	bool IsExterior(int PK_RoomType);
+
+	void AddDevicesToEntArea(Row_Device *pRow_Device,Row_EntertainArea *pRow_EntertainArea,bool bOneEAOnly=true);
 };
 
 }

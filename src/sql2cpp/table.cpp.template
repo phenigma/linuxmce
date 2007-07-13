@@ -168,6 +168,7 @@ bool Table_@table_name@::Key_Less::operator()(const Table_@table_name@::Key &key
 
 bool Table_@table_name@::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
+	bool bSuccessful=true;
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_DBMutex);
 
 //insert added
@@ -199,7 +200,7 @@ bool Table_@table_name@::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFailed
 					addedRows.erase(i);
 					delete pRow;
 				}
-				return false;
+				break;   // Go ahead and continue to do the updates
 			}
 		}
 	
@@ -255,7 +256,7 @@ bool Table_@table_name@::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFailed
 					cachedRows.erase(i);
 					delete pRow;
 				}
-				return false;
+				break;  // Go ahead and do the deletes
 			}
 		}
 	
@@ -305,7 +306,7 @@ bool Table_@table_name@::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFailed
 		deleted_cachedRows.erase(key);
 	}
 	@endif_have_primary_keys@
-	return true;
+	return bSuccessful;
 }
 
 bool Table_@table_name@::GetRows(string where_statement,vector<class Row_@table_name@*> *rows)

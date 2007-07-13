@@ -497,10 +497,7 @@ void UpdateEntArea::AddAVDevicesToEntArea(Row_EntertainArea *pRow_EntertainArea)
 			{
 				LoggerWrapper::GetInstance()->Write( LV_WARNING, "adding device %d %s to ent area %d %s",pRow_Device->PK_Device_get(),pRow_Device->Description_get().c_str(),
 					pRow_EntertainArea->PK_EntertainArea_get(),pRow_EntertainArea->Description_get().c_str());
-				pRow_Device_EntertainArea = m_pDatabase_pluto_main->Device_EntertainArea_get()->AddRow();
-				pRow_Device_EntertainArea->FK_Device_set(pRow_Device->PK_Device_get());
-				pRow_Device_EntertainArea->FK_EntertainArea_set(pRow_EntertainArea->PK_EntertainArea_get());
-				m_pDatabase_pluto_main->Device_EntertainArea_get()->Commit();
+				AddDevicesToEntArea(pRow_Device,pRow_EntertainArea);
 			}
 		}
 	}
@@ -534,10 +531,7 @@ void UpdateEntArea::AddMDsDevicesToEntArea(Row_EntertainArea *pRow_EntertainArea
 		if( !pRow_Device_EntertainArea )
 		{
 			LoggerWrapper::GetInstance()->Write( LV_STATUS, "adding device %d %s to all ent area %d %s",pRow_Device->PK_Device_get(),pRow_Device->Description_get().c_str(),pRow_EntertainArea->PK_EntertainArea_get(),pRow_EntertainArea->Description_get().c_str());
-			pRow_Device_EntertainArea = m_pDatabase_pluto_main->Device_EntertainArea_get()->AddRow();
-			pRow_Device_EntertainArea->FK_Device_set(pRow_Device->PK_Device_get());
-			pRow_Device_EntertainArea->FK_EntertainArea_set(pRow_EntertainArea->PK_EntertainArea_get());
-			m_pDatabase_pluto_main->Device_EntertainArea_get()->Commit();
+			AddDevicesToEntArea(pRow_Device,pRow_EntertainArea,false);
 		}
 	}
 }
@@ -560,10 +554,7 @@ void UpdateEntArea::AddMDsDevicesToEntArea(Row_Device *pRow_Device,Row_Entertain
 	if( !pRow_Device_EntertainArea )
 	{
 		LoggerWrapper::GetInstance()->Write( LV_STATUS, "adding device %d %s to ent area %d %s",pRow_Device->PK_Device_get(),pRow_Device->Description_get().c_str(),pRow_EntertainArea->PK_EntertainArea_get(),pRow_EntertainArea->Description_get().c_str());
-		pRow_Device_EntertainArea = m_pDatabase_pluto_main->Device_EntertainArea_get()->AddRow();
-		pRow_Device_EntertainArea->FK_Device_set(pRow_Device->PK_Device_get());
-		pRow_Device_EntertainArea->FK_EntertainArea_set(pRow_EntertainArea->PK_EntertainArea_get());
-		m_pDatabase_pluto_main->Device_EntertainArea_get()->Commit();
+		AddDevicesToEntArea(pRow_Device,pRow_EntertainArea);
 	}
 
 	vector<Row_Device *> vectRow_Device_Child;
@@ -642,3 +633,29 @@ void UpdateEntArea::SetDeviceData(int PK_Device,int PK_DeviceData,string sValue)
 	m_pDatabase_pluto_main->threaded_db_wrapper_query(sSQL);
 }
 
+void UpdateEntArea::AddDevicesToEntArea(Row_Device *pRow_Device,Row_EntertainArea *pRow_EntertainArea,bool bOneEAOnly)
+{
+	Row_Device_EntertainArea *pRow_Device_EntertainArea = m_pDatabase_pluto_main->Device_EntertainArea_get()->GetRow(pRow_Device->PK_Device_get(),pRow_EntertainArea->PK_EntertainArea_get());
+	if( !pRow_Device_EntertainArea )
+	{
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, " UpdateEntArea::AddDevicesToEntArea adding device %d %s to ent area %d %s",pRow_Device->PK_Device_get(),pRow_Device->Description_get().c_str(),
+			pRow_EntertainArea->PK_EntertainArea_get(),pRow_EntertainArea->Description_get().c_str());
+
+		// Before adding a new row, see if there's already one we should just change
+		vector<Row_Device_EntertainArea *> vectRow_Device_EntertainArea;
+		if( bOneEAOnly==true )
+			pRow_Device->Device_EntertainArea_FK_Device_getrows(&vectRow_Device_EntertainArea);
+		
+		for(vector<Row_Device_EntertainArea *>::iterator it=vectRow_Device_EntertainArea.begin();it!=vectRow_Device_EntertainArea.end();++it)
+		{
+			pRow_Device_EntertainArea = *it;
+			pRow_Device_EntertainArea->Delete();
+		}
+
+		pRow_Device_EntertainArea = m_pDatabase_pluto_main->Device_EntertainArea_get()->AddRow();
+
+		pRow_Device_EntertainArea->FK_Device_set(pRow_Device->PK_Device_get());
+		pRow_Device_EntertainArea->FK_EntertainArea_set(pRow_EntertainArea->PK_EntertainArea_get());
+		m_pDatabase_pluto_main->Device_EntertainArea_get()->Commit();
+	}
+}
