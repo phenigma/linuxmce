@@ -69,7 +69,7 @@ WizardPageVideoRatio::~WizardPageVideoRatio(void)
 
 	std::string Cmd = SkinGenerator::Instance()->CommandChangeResolution + " '" + ResolutionValue
 		+ "' '" + RefreshValue + "' '" + VideoConnectorValue +"' '" + ResolutionName +"'";
-	std::cout << "\n-------- "+Cmd << std::endl;
+	std::cout << "\n-------- " << Cmd << std::endl;
 
 	system(Cmd.c_str());
 
@@ -150,10 +150,10 @@ void WizardPageVideoRatio::FillResolutionStandard(WizardWidgetScrollList* List, 
 			List->AddItem("1600x1200 (4:3)", "1600x1200");
 			break;
 		case 2: // Component
-			List->AddItem("HD480p", "720x480");
-			List->AddItem("HD720p", "1280x720");
-			List->AddItem("HD1080i", "1920x1080i");
-			List->AddItem("HD1080p", "1920x1080");
+			List->AddItem("HD480p", "480p");
+			List->AddItem("HD720p", "720p");
+			List->AddItem("HD1080i", "1080i");
+			List->AddItem("HD1080p", "1080p");
 			break;
 		case 3: // Composite
 		case 4:	// S-Video
