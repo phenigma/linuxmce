@@ -106,18 +106,18 @@ DeviceData_Base *DeviceData_Router::FindFirstRelatedDeviceOfTemplate(int PK_Devi
 						if( tTimeout < time(NULL) )
 						{
 							
-							LoggerWrapper::GetInstance()->Write(LV_WARNING, "FindFirstRelatedDeviceOfTemplate %d never registered",m_dwPK_Device);
+							LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "FindFirstRelatedDeviceOfTemplate %d never registered",m_dwPK_Device);
 							return NULL;
 						}
 						Sleep(1000);
 						break;
 					case 'D':
 						
-							LoggerWrapper::GetInstance()->Write(LV_WARNING, "FindFirstRelatedDeviceOfTemplate %d is disabled",m_dwPK_Device);
+							LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "FindFirstRelatedDeviceOfTemplate %d is disabled",m_dwPK_Device);
 						return NULL;
 					case 'E':
 						
-							LoggerWrapper::GetInstance()->Write(LV_WARNING, "FindFirstRelatedDeviceOfTemplate %d comm error",m_dwPK_Device);
+							LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "FindFirstRelatedDeviceOfTemplate %d comm error",m_dwPK_Device);
 						return NULL;
 				}
 			}
