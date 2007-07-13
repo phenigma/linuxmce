@@ -54,6 +54,7 @@ class Gallery
 	bool m_bQuit;
 	pluto_pthread_mutex_t m_FrontEndMutex;
 	bool m_bSuspended;
+	bool m_bTextureReseted;
 
 	/**
 	* Last pending event definition

@@ -59,7 +59,8 @@ unsigned long ProcessUtils::GetMicroTime()
 
 Gallery Gallery::m_Instance;
 
-Gallery::Gallery(): m_bQuit(false), FrontEnd(NULL), Scenario(NULL), m_FrontEndMutex("front end mutex"), m_bSuspended(false)
+Gallery::Gallery(): m_bQuit(false), FrontEnd(NULL), Scenario(NULL), 
+	m_FrontEndMutex("front end mutex"), m_bSuspended(false), m_bTextureReseted(false)
 {
 	m_FrontEndMutex.Init(NULL);
 }
@@ -86,13 +87,24 @@ void Gallery::MainLoop(Photo_Screen_Saver *pPhoto_Screen_Saver)
 
 		if(!pPhoto_Screen_Saver->m_bQuit_get() && m_bQuit==false )
 		{
+			PLUTO_SAFETY_LOCK(vm, m_FrontEndMutex);
 			if(StatusChange && !m_bSuspended)
 			{
 				PaintScreen();
+				vm.Release();
 				_Sleep(35);
+			}
+			else if(m_bSuspended)
+			{
+				if(NULL != Scenario && !m_bTextureReseted)
+				{
+					Scenario->Reset();
+					m_bTextureReseted = true;
+				}
 			}
 			else
 			{
+				vm.Release();
 				_Sleep(80);
 			}
 		}
@@ -106,14 +118,14 @@ Gallery& Gallery::Instance(void)
 
 void Gallery::Pause()
 {
+	PLUTO_SAFETY_LOCK(vm, m_FrontEndMutex);
+	m_bTextureReseted = false;
 	m_bSuspended = true;
-
-	if(NULL != Scenario)
-		Scenario->Reset();
 }
 
 void Gallery::Resume()
 {
+	PLUTO_SAFETY_LOCK(vm, m_FrontEndMutex);
 	m_bSuspended = false;
 }
 
