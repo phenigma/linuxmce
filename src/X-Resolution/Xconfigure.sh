@@ -12,10 +12,14 @@ function XorgConfLogging() {
 
 XorgConfLogging "Starting $0 $*"
 
+#nVidia modeline, driver bug workaround
+Modeline_640x480_60='"640x480" 25.18 640 656 752 800 480 490 492 525'
+
 . /usr/pluto/bin/pluto.func
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/Utils.sh
 . /usr/pluto/bin/LockUtils.sh
+. /usr/pluto/bin/X-Common.sh
 
 ConfigFile="/etc/X11/xorg.conf"
 Output="VGA"
@@ -25,60 +29,10 @@ DEVICEDATA_Setup_Script=189
 DEVICEDATA_Connector=68
 DEVICEDATA_TV_Standard=229
 
-resHD480=848x480
-resHD720=1280x720
-resHD1080=1920x1080
-resHD576=720x576 # SDTV actually, EDTV with doublescan, but nVidia calls it HD so...
-
-# Hardcoded^W Predefined modelines, found on the web: http://forums.entechtaiwan.net/viewtopic.php?t=3730
-# Things to notice:
-# - the dot clock value is fixed, regardless of refresh, and the other timings are elongated to compensate
-# - none of the modeline generation utilities out there are able to generate these for me
-# - no modeline utility is able to fix both the refresh rate and the dot clock and adjust the timings to compensate
-# - these don't seem to comply to VESA GTF in any way
-
-Modeline_1280x720_50='"1280x720" 74.250 1280 1720 1760 1980 720 741 746 750 +hsync +vsync'
-Modeline_1920x540_50='"1920x540" 74.250 1920 2448 2492 2640 540 574 579 562 +hsync +vsync'
-Modeline_720x576_50='"720x576" 27.000 720 732 796 864 576 581 586 625 -hsync -vsync'
-Modeline_1280x720_60='"1280x720" 74.250 1280 1390 1430 1650 720 725 730 750 +hsync +vsync'
-#Modeline_1280x720_60='"1280x720" 74.160 1280 1352 1392 1648 720 725 730 750 -hsync -vsync' # HDTV derived
-Modeline_1920x540_60='"1920x540" 74.250 1920 2008 2052 2200 540 542 547 562 +hsync +vsync'
-Modeline_720x480_60='"720x480" 27.000 720 736 798 858 480 489 495 525 -hsync -vsync'
-Modeline_720x576_60='"720x576" 27.000 720 732 796 864 576 581 586 625 -hsync -vsync'
-Modeline_1920x1080i_50='"1920x1080" 74.250 1920 2448 2492 2640 1080 1148 1158 1124 interlace +hsync +vsync'
-#Modeline_1920x1080i_60='"1920x1080" 74.250 1920 2008 2052 2200 1080 1084 1094 1124 interlace +hsync +vsync'
-Modeline_1920x1080i_60='"1920x1080" 77.6 1920 1952 2240 2272 1080 1104 1110 1135 interlace'
-Modeline_1024x768_60='"1024x768" 60.80 1024 1056 1128 1272 768 768 770 796'
-Modeline_640x480_60='"640x480" 25.18 640 656 752 800 480 490 492 525'
-
 TestConfig()
 {
 	X :$(($Display+2)) -ignoreABI -probeonly -config "$ConfigFile" -logverbose 9 &>/dev/null
 	return $?
-}
-
-GenModeline()
-{
-	local ResX="$1" ResY="$2" Refresh="${3:-60}" ScanType="$4"
-	local Modeline
-	local VarName
-
-	VarName="Modeline_${ResX}x${ResY}"
-	if [[ "$ScanType" == interlace ]]; then
-		VarName="${VarName}i"
-	fi
-	VarName="${VarName}_${Refresh}"
-
-	if [[ -n "${!VarName}" ]]; then
-		# use a hardcoded^W predefined modline if exists
-		Modeline="${!VarName}"
-	else
-		# generate a modeline otherwise
-		Modeline=$(/usr/pluto/bin/xtiming.pl "$ResX" "$ResY" "$Refresh" "$ScanType")
-		Modeline="${Modeline/@*\"/\"}"
-	fi
-
-	echo "$Modeline"
 }
 
 GetResolutionFromDB()
@@ -156,18 +110,6 @@ SetResolution()
 {
 	local Resolution="$1" ResX="$2" ResY="$3" Refresh="$4" ScanType="$5" Output="$6" TVStandard="$7"
 	
-	for Var in ${!resHD*}; do
-		if [[ "$Resolution" == "${!Var}" ]]; then
-			nvHD=${Var#res}
-			if [[ "$ScanType" == interlace && "$Var" != *720* ]]; then
-				nvHD="${nvHD}i"
-			else
-				nvHD="${nvHD}p"
-			fi
-			break
-		fi
-	done
-
 	local ConnectedMonitor
 	case "$Output" in
 		VGA)
@@ -190,22 +132,9 @@ SetResolution()
 		;;
 	esac
 
-	Modeline=
-	# Use modeline for HD modes, non-standard VESA modes (60, 75 Hz are considered standard by X), 1024x768@60, NV: 640x480@60
-	if grep -q 'Driver.*"nvidia"' "$ConfigFile"; then
-		ForcedModelines="1024x768@60 640x480@60"
-	else
-		ForcedModelines="1024x768@60"
-	fi
-	if [[ -n "$nvHD" || ( -z "$nvHD" && " 60 75 " != *" $Refresh "* ) || ( " $ForcedModelines " ==  *" $Resolution@$Refresh "* ) ]]; then
-		Modeline="$(GenModeline "$ResX" "$ResY" "$Refresh" "$ScanType")"
-	fi
+	Modeline="$(GenModeline "$ResX" "$ResY" "$Refresh" "$ScanType")"
 
-	if ! grep -q "Driver.*\"nvidia\"" "$ConfigFile"; then
-		# we don't have a nVidia card; we use the nvHD variable to detect non-VESA modes too (not a perfect way to do so though)
-		nvHD=
-	fi
-	awk -v"ResX=$ResX" -v"ResY=$ResY" -v"Refresh=$Refresh" -v"Modeline=$Modeline" -v"Force=$Force" -v"nvHD=$nvHD" -v"ConnectedMonitor=$ConnectedMonitor" -v"TVOutFormat=$TVOutFormat" -f/usr/pluto/bin/X-ChangeResolution.awk "$ConfigFile" >"$ConfigFile.$$"
+	awk -v"ResX=$ResX" -v"ResY=$ResY" -v"Refresh=$Refresh" -v"Modeline=$Modeline" -v"Force=$Force" -v"nvHD=$TVStandard" -v"ConnectedMonitor=$ConnectedMonitor" -v"TVOutFormat=$TVOutFormat" -f/usr/pluto/bin/X-ChangeResolution.awk "$ConfigFile" >"$ConfigFile.$$"
 	mv "$ConfigFile"{.$$,}
 }
 
@@ -309,7 +238,7 @@ ParseParameters()
 			--conffile) ConfigFile="$2"; shift ;;
 			--skiplock) SkipLock=1 ;;
 			--output) Output="$2" ; shift ;; # VGA, DVI, Component, Composite, S-Video
-			--tv-standard) TVStandard="$2"; shift ;; # PAL, SECAM, NTSC
+			--tv-standard) TVStandard="$2"; shift ;; # PAL, SECAM, NTSC, HD480p, HD720p, HD1080i, HD1080p
 			*) echo "Unknown option '$1'"; exit 1 ;;
 		esac
 		shift
