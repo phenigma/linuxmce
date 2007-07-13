@@ -1210,7 +1210,7 @@ char Command_Impl::DeviceIsRegistered(int PK_Device) // Returns Y, N, D (for dis
 	string sResponse = m_pEvent->m_pClientSocket->SendReceiveString("DEVICE_REGISTERED " + StringUtils::itos(PK_Device));
 	if( sResponse.substr(0,17)!="DEVICE_REGISTERED" )
 	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot determine if device %d registered",PK_Device);
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"Cannot determine if device %d registered",PK_Device);
 		return 'E';
 	}
 	return sResponse[18];
