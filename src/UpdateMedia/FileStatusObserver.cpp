@@ -1,5 +1,6 @@
 #include "FileStatusObserver.h"
 #include "inotify/FileNotifier.h"
+#include "PlutoUtils/ProcessUtils.h"
 //------------------------------------------------------------------------------------------
 #define CHECK_OBSERVED_FILES_STATUS 1
 #define OBSERVER_SCANNING_INTERVAL  3 //seconds
@@ -113,20 +114,33 @@ bool FileStatusObserver::IsFileOpen(string sFilename)
 
 #else
 
-/*
-	//TODO
+	//HACK HACK HACK! LINUX DOESN'T HAVE A WORKING C FUNCTION TO DETECT IF A FILE IS OPENED! :(
+	/*
+	open function man:
 
-	FILE *f = NULL;
-	if(NULL != (f = fopen(sFilename.c_str(), "rx+")))
+	       O_EXCL When used with O_CREAT, if the file already exists it is an error and the open() will fail. In this context, a symbolic link exists, regardâ
+              less  of  where  it  points to.  O_EXCL is broken on NFS file systems; programs which rely on it for performing locking tasks will contain a
+              race condition.  The solution for performing atomic file locking using a lockfile is to create a unique file on the same file system  (e.g.,
+              incorporating  hostname  and  pid), use link(2) to make a link to the lockfile. If link() returns 0, the lock is successful.  Otherwise, use
+              stat(2) on the unique file to check if its link count has increased to 2, in which case the lock is also successful.
+	*/
+
+	string sCommandLine = "fuser -a \"" + sFilename + "\" ";
+	string sOutput;
+
+	if(ProcessUtils::RunApplicationAndGetOutput(sCommandLine, sOutput))
 	{
-		fclose(f);
-		return false;
+		int nPID = atoi(sOutput.c_str());
+		if(nPID != 0)
+		{
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "OBSERVER: File %s is used by process %d", 
+				sFilename.c_str(), nPID);
+			return true;
+		}
 	}
-	return true;
-*/
+
 	return false;
 
 #endif
-
 }
 //------------------------------------------------------------------------------------------
