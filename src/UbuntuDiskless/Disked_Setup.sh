@@ -125,7 +125,7 @@ for Row in $R ;do
 
 	update_config_files
 	build_installer_script
-	put_sample_movie
+	#put_sample_movie
 	create_archive
 	setup_mysql_access
 done
