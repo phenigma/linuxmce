@@ -268,7 +268,7 @@ void GenerateWizardConfigDefaults::GeneratePage1(
 	std::string HighScrollBackFocusedColor = SkinGenerator::Instance()->HighScrollBackFocusedColor;
 
 
-	Page->AddChild(CreateControlScrollList("ResolutionScroll",
+	Page->AddChild(CreateControlScrollList("VideoConnectorScroll",
 		30, 260,
 		160, 140,
 		ScrollBackColor,
@@ -277,19 +277,38 @@ void GenerateWizardConfigDefaults::GeneratePage1(
 		HighScrollBackFocusedColor,
 		false));
 	Page->AddChild(CreateControlImage(
-		"ResolutionUp",
+		"VideoConnectorUp",
 		ImageFolder + "up_off.png",
 		195, 260
 		));
 	Page->AddChild(CreateControlImage(
-		"ResolutionDown",
+		"VideoConnectorDown",
 		ImageFolder + "down_off.png",
 		195, 368
 		));
 
-	Page->AddChild(CreateControlScrollList("RefreshScroll",
+	Page->AddChild(CreateControlScrollList("ResolutionScroll",
 		240, 260,
-		100, 140,
+		170, 140,
+		ScrollBackColor,
+		ScrollBackFocusedColor,
+		HighScrollBackColor,
+		HighScrollBackFocusedColor,
+		false));
+	Page->AddChild(CreateControlImage(
+		"ResolutionUp",
+		ImageFolder + "up_off.png",
+		415, 260
+		));
+	Page->AddChild(CreateControlImage(
+		"ResolutionDown",
+		ImageFolder + "down_off.png",
+		415, 368
+		));
+
+	Page->AddChild(CreateControlScrollList("RefreshScroll",
+		460, 260,
+		120, 140,
 		ScrollBackColor,
 		ScrollBackFocusedColor,
 		HighScrollBackColor,
@@ -298,29 +317,10 @@ void GenerateWizardConfigDefaults::GeneratePage1(
 	Page->AddChild(CreateControlImage(
 		"RefreshUp",
 		ImageFolder + "up_off.png",
-		345, 260
-		));
-	Page->AddChild(CreateControlImage(
-		"RefreshDown",
-		ImageFolder + "down_off.png",
-		345, 368
-		));
-
-	Page->AddChild(CreateControlScrollList("VideoConnectorScroll",
-		390, 260,
-		190, 140,
-		ScrollBackColor,
-		ScrollBackFocusedColor,
-		HighScrollBackColor,
-		HighScrollBackFocusedColor,
-		false));
-	Page->AddChild(CreateControlImage(
-		"VideoConnectorUp",
-		ImageFolder + "up_off.png",
 		585, 260
 		));
 	Page->AddChild(CreateControlImage(
-		"VideoConnectorDown",
+		"RefreshDown",
 		ImageFolder + "down_off.png",
 		585, 368
 		));

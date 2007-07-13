@@ -40,6 +40,9 @@ class WizardPageVideoRatio :
 	int RatioMode;
 
 	void SearchSelectedItem();
+	void FillResolutionStandard(WizardWidgetScrollList*, const int);
+	void FillRefresh(WizardWidgetScrollList*, const int);
+
 public:
 	virtual void DefaultSetup(SettingsDictionary* AVWizardSettings);
 

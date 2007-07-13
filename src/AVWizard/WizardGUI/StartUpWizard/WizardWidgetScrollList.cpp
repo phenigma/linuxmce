@@ -44,7 +44,7 @@ WizardWidgetScrollList::~WizardWidgetScrollList()
 	delete HighBackColor;
 	HighBackColor = NULL;
 	delete HighBackFocusedColor;
-	HighScrollBackFocusedColor = NULL;
+	HighBackFocusedColor = NULL;
 }
 
 /*virtual*/ void WizardWidgetScrollList::SetUpAttribute(std::string Attribute, std::string DataValue)

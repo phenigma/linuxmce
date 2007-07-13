@@ -71,64 +71,45 @@ WizardPageVideoRatio::~WizardPageVideoRatio(void)
 /*virtual*/ void WizardPageVideoRatio::DefaultSetup(SettingsDictionary* AVWizardSettings)
 {
 	system(SkinGenerator::Instance()->CommandResetResolution.c_str());
+	
 
-	WizardWidgetScrollList* List = dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("ResolutionScroll"));
-	int NoResolutions = Utils::StringToInt32(AVWizardSettings->GetValue("ResolutionCount"));
-	//Resulution0 ... ResolutionN-1
-	//AspectRatio0...
-	//-> Resulution
+	// Fill connector select list
+	WizardWidgetScrollList *List = dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("VideoConnectorScroll"));
+	List->AddItem("VGA", "VGA");
+	List->AddItem("DVI", "DVI");
+	List->AddItem("Composite", "Composite");
+	List->AddItem("S-Video","S-Video");
+	List->AddItem("Component", "Component");
+	if(AVWizardSettings->Exists("VideoOutput")) {
+		std::string VideoConnectorValue = AVWizardSettings->GetValue("VideoOutput");
+		List->SetItemIndex(VideoConnectorValue);
+	} else {
+		List->SetItemIndex(0);
+	}
+	List->SetFocus(true);
+	Selected = dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("VideoConnectorScroll"));
+	int SelectedConnector = List->GetItemIndex();
 
-	//Comenzi: Reset la intrare in pagina
-	//La sfarsit: CommandSetResolution Resolution Refresh
-	if (NoResolutions == 0)
-	{
-		List->AddItem("640x480 (4:3)", "640x480");
-		List->AddItem("480p (16:9)", "480p");
-		List->AddItem("800x600 (4:3)", "800x600");
-		List->AddItem("720p (16:9)", "720p");
-		List->AddItem("1024x768 (4:3)", "1024x768");
-		List->AddItem("1280x800 (custom)", "1280x800");
-		List->AddItem("1280x1024 (5:4)", "1280x1024");
-		List->AddItem("1080i (16:9)", "1080i");
-		List->AddItem("1080p (16:9)", "1080p");
-		List->AddItem("1600x1200 (4:3)", "1600x1200");
-	}
-	else
-	{
-		std::string ResolutionIdentifier = "Resolution";
-		std::string AspectRatioIdentifier = "AspectRatio";
-		
-		for(int i = 0; i<NoResolutions; i++)
-		{
-			std::string ItemCaption, ItemValue;
-			ItemValue = AVWizardSettings->GetValue(ResolutionIdentifier +
-				Utils::Int32ToString(i) );
-			ItemCaption = ItemValue;
-			ItemCaption = ItemCaption + " (" + AVWizardSettings->GetValue(AspectRatioIdentifier +
-				Utils::Int32ToString(i) ) + ")";
-			List->AddItem( ItemCaption, ItemValue);
-		}
-	}
+
+	// Fill resolution / video standard list
+	List = dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("ResolutionScroll"));
+	FillResolutionStandard(List, SelectedConnector);
+
 	List = dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("ResolutionScroll"));
 	if(AVWizardSettings->Exists("Resolution"))
 	{
 		std::string ResolutionValue = AVWizardSettings->GetValue("Resolution");
 		List->SetItemIndex(ResolutionValue);
 	}
-	else
+	else 
+	{
 		List->SetItemIndex(0);
-	
-	List->SetFocus(true);
+	}
+	List->SetFocus(false);
 
 
 	List = dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("RefreshScroll"));
-	List->AddItem("50 Hz", "50");
-	List->AddItem("60 Hz", "60");
-	List->AddItem("65 Hz", "65");
-	List->AddItem("70 Hz", "70");
-	List->AddItem("75 Hz", "75");
-	List->AddItem("80 Hz", "80");
-	List->AddItem("85 Hz", "85");
+	FillRefresh(List, SelectedConnector);
 	List->SetFocus(false);
 
 	if(AVWizardSettings->Exists("Refresh"))
@@ -139,28 +120,67 @@ WizardPageVideoRatio::~WizardPageVideoRatio(void)
 	else
 		List->SetItemIndex(0);
 
-	List = dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("VideoConnectorScroll"));
-	List->AddItem("VGA", "VGA");
-	List->AddItem("DVI", "DVI");
-	List->AddItem("Component", "Component");
-	List->AddItem("Composite", "Composite");
-	List->AddItem("S-Video","S-Video");
-	if(AVWizardSettings->Exists("VideoOutput")) {
-		std::string VideoConnectorValue = AVWizardSettings->GetValue("VideoOutput");
-		List->SetItemIndex(VideoConnectorValue);
-	} else {
-		List->SetItemIndex(0);
-	}
-	List->SetFocus(false);
+}
 
-	Selected = dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("ResolutionScroll"));
+void WizardPageVideoRatio::FillResolutionStandard(WizardWidgetScrollList* List, const int FillType) {
+	List->Clear();	
+	switch (FillType) {
+		default:
+		case 0:
+		case 1:
+			List->AddItem("640x480 (4:3)", "640x480");
+			List->AddItem("480p (16:9)", "480p");
+			List->AddItem("800x600 (4:3)", "800x600");
+			List->AddItem("720p (16:9)", "720p");
+			List->AddItem("1024x768 (4:3)", "1024x768");
+			List->AddItem("1280x800 (custom)", "1280x800");
+			List->AddItem("1280x1024 (5:4)", "1280x1024");
+			List->AddItem("1080i (16:9)", "1080i");
+			List->AddItem("1080p (16:9)", "1080p");
+			List->AddItem("1600x1200 (4:3)", "1600x1200");
+			break;
+		case 2:
+		case 3:
+			List->AddItem("PAL", "PAL");
+			List->AddItem("NTSC", "NTSC");
+			List->AddItem("SECAM", "SECAM");
+			break;
+		case 4:	
+			List->AddItem("HD1080i/60", "HD1080i/60");
+			break;
+	}
+
+}
+
+void WizardPageVideoRatio::FillRefresh(WizardWidgetScrollList* List, const int FillType) {
+	List->Clear();
+	switch(FillType) {
+		default:
+		case 0:
+		case 1:
+			List->AddItem("50 Hz", "50");
+			List->AddItem("60 Hz", "60");
+			List->AddItem("65 Hz", "65");
+			List->AddItem("70 Hz", "70");
+			List->AddItem("75 Hz", "75");
+			List->AddItem("80 Hz", "80");
+			List->AddItem("85 Hz", "85");
+			break;
+		case 2:
+		case 3:
+			break;
+		case 4:	
+			List->AddItem("50 Hz", "50");
+			List->AddItem("60 Hz", "60");
+			break;
+	}
 }
 
 void WizardPageVideoRatio::DoIncreaseSetting()
 {
 	Selected->SetFocus(false);
-	if ( Selected ==  dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("RefreshScroll")) ) {
-		Selected = dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("VideoConnectorScroll")); 
+	if ( Selected ==  dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("VideoConnectorScroll")) ) {
+		Selected = dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("ResolutionScroll")); 
 	} else {
 		Selected = dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("RefreshScroll"));
 	}
@@ -170,10 +190,10 @@ void WizardPageVideoRatio::DoIncreaseSetting()
 void WizardPageVideoRatio::DoDecreaseSetting()
 {
 	Selected->SetFocus(false);
-	if ( Selected != dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("VideoConnectorScroll"))) {
+	if ( Selected == dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("RefreshScroll"))) {
 		Selected = dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("ResolutionScroll"));
 	} else {
-		Selected = dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("RefreshScroll"));
+		Selected = dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("VideoConnectorScroll"));
 	}
 	Selected->SetFocus(true);
 }
@@ -182,29 +202,28 @@ void WizardPageVideoRatio::DoDecreaseSetting()
 {
 	Selected->SetItemIndex(Selected->GetItemIndex()+1);
 	
-	// TODO
-	if ( Selected ==  dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("RefreshScroll")) ) {
-		
-	} else if( Selected == dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("VideoConnectorScroll")) ) {
-		
-	} else {
-		
-	}
+	WizardWidgetScrollList* ResolutionStandardList = dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive ("ResolutionScroll"));
+	WizardWidgetScrollList* RefreshList = dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive ("RefreshScroll"));
+
+	if ( Selected == dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("VideoConnectorScroll"))) {
+		FillResolutionStandard(ResolutionStandardList, Selected->GetItemIndex());
+		FillRefresh(RefreshList, Selected->GetItemIndex());
+	}	
 }
 
 /*virtual*/ void WizardPageVideoRatio::DoPreviousFocusItem()
 {
 	Selected->SetItemIndex(Selected->GetItemIndex()-1);
 	
-	// TODO
-	if ( Selected ==  dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("RefreshScroll")) ) {
-		
-	} else if( Selected == dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("VideoConnectorScroll")) ) {
-		
-	} else {
-		
+	WizardWidgetScrollList* ResolutionStandardList = dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive ("ResolutionScroll"));
+	WizardWidgetScrollList* RefreshList = dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive ("RefreshScroll"));
+
+	if ( Selected == dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("VideoConnectorScroll"))) {
+		FillResolutionStandard(ResolutionStandardList, Selected->GetItemIndex());
+		FillRefresh(RefreshList, Selected->GetItemIndex());
 	}
 }
+
 
 /*virtual*/ void WizardPageVideoRatio::DoClickWidget(WizardWidgetBase *pWidget)
 {
