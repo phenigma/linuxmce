@@ -430,6 +430,7 @@ return false;
 
 bool Table_CriteriaParmNesting::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
+	bool bSuccessful=true;
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_DBMutex);
 
 //insert added
@@ -464,7 +465,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_CriteriaPar
 					addedRows.erase(i);
 					delete pRow;
 				}
-				return false;
+				break;   // Go ahead and continue to do the updates
 			}
 		}
 	
@@ -532,7 +533,7 @@ update_values_list = update_values_list + "`PK_CriteriaParmNesting`="+pRow->PK_C
 					cachedRows.erase(i);
 					delete pRow;
 				}
-				return false;
+				break;  // Go ahead and do the deletes
 			}
 		}
 	
@@ -588,7 +589,7 @@ condition = condition + "`PK_CriteriaParmNesting`=" + tmp_PK_CriteriaParmNesting
 		deleted_cachedRows.erase(key);
 	}
 	
-	return true;
+	return bSuccessful;
 }
 
 bool Table_CriteriaParmNesting::GetRows(string where_statement,vector<class Row_CriteriaParmNesting*> *rows)

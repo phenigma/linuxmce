@@ -412,6 +412,7 @@ return false;
 
 bool Table_CommandGroup_Command_CommandParameter::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
+	bool bSuccessful=true;
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_DBMutex);
 
 //insert added
@@ -446,7 +447,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_CommandGrou
 					addedRows.erase(i);
 					delete pRow;
 				}
-				return false;
+				break;   // Go ahead and continue to do the updates
 			}
 		}
 	
@@ -514,7 +515,7 @@ update_values_list = update_values_list + "`FK_CommandGroup_Command`="+pRow->FK_
 					cachedRows.erase(i);
 					delete pRow;
 				}
-				return false;
+				break;  // Go ahead and do the deletes
 			}
 		}
 	
@@ -573,7 +574,7 @@ condition = condition + "`FK_CommandGroup_Command`=" + tmp_FK_CommandGroup_Comma
 		deleted_cachedRows.erase(key);
 	}
 	
-	return true;
+	return bSuccessful;
 }
 
 bool Table_CommandGroup_Command_CommandParameter::GetRows(string where_statement,vector<class Row_CommandGroup_Command_CommandParameter*> *rows)

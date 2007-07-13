@@ -433,6 +433,7 @@ return false;
 
 bool Table_ConfigType_Token::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
+	bool bSuccessful=true;
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_DBMutex);
 
 //insert added
@@ -467,7 +468,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_ConfigType_
 					addedRows.erase(i);
 					delete pRow;
 				}
-				return false;
+				break;   // Go ahead and continue to do the updates
 			}
 		}
 	
@@ -538,7 +539,7 @@ update_values_list = update_values_list + "`FK_ConfigType_Setting`="+pRow->FK_Co
 					cachedRows.erase(i);
 					delete pRow;
 				}
-				return false;
+				break;  // Go ahead and do the deletes
 			}
 		}
 	
@@ -600,7 +601,7 @@ condition = condition + "`FK_ConfigType_Setting`=" + tmp_FK_ConfigType_Setting+"
 		deleted_cachedRows.erase(key);
 	}
 	
-	return true;
+	return bSuccessful;
 }
 
 bool Table_ConfigType_Token::GetRows(string where_statement,vector<class Row_ConfigType_Token*> *rows)

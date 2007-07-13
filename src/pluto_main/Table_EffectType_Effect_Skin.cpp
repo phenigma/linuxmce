@@ -411,6 +411,7 @@ return false;
 
 bool Table_EffectType_Effect_Skin::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
+	bool bSuccessful=true;
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_DBMutex);
 
 //insert added
@@ -445,7 +446,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_EffectType_
 					addedRows.erase(i);
 					delete pRow;
 				}
-				return false;
+				break;   // Go ahead and continue to do the updates
 			}
 		}
 	
@@ -516,7 +517,7 @@ update_values_list = update_values_list + "`FK_EffectType`="+pRow->FK_EffectType
 					cachedRows.erase(i);
 					delete pRow;
 				}
-				return false;
+				break;  // Go ahead and do the deletes
 			}
 		}
 	
@@ -578,7 +579,7 @@ condition = condition + "`FK_EffectType`=" + tmp_FK_EffectType+" AND "+"`FK_Effe
 		deleted_cachedRows.erase(key);
 	}
 	
-	return true;
+	return bSuccessful;
 }
 
 bool Table_EffectType_Effect_Skin::GetRows(string where_statement,vector<class Row_EffectType_Effect_Skin*> *rows)

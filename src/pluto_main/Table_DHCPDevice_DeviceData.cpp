@@ -412,6 +412,7 @@ return false;
 
 bool Table_DHCPDevice_DeviceData::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
+	bool bSuccessful=true;
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_DBMutex);
 
 //insert added
@@ -446,7 +447,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_DHCPDevice_
 					addedRows.erase(i);
 					delete pRow;
 				}
-				return false;
+				break;   // Go ahead and continue to do the updates
 			}
 		}
 	
@@ -514,7 +515,7 @@ update_values_list = update_values_list + "`FK_DHCPDevice`="+pRow->FK_DHCPDevice
 					cachedRows.erase(i);
 					delete pRow;
 				}
-				return false;
+				break;  // Go ahead and do the deletes
 			}
 		}
 	
@@ -573,7 +574,7 @@ condition = condition + "`FK_DHCPDevice`=" + tmp_FK_DHCPDevice+" AND "+"`FK_Devi
 		deleted_cachedRows.erase(key);
 	}
 	
-	return true;
+	return bSuccessful;
 }
 
 bool Table_DHCPDevice_DeviceData::GetRows(string where_statement,vector<class Row_DHCPDevice_DeviceData*> *rows)

@@ -465,6 +465,7 @@ return false;
 
 bool Table_InstallWizard_Distro::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
+	bool bSuccessful=true;
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_DBMutex);
 
 //insert added
@@ -499,7 +500,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_InstallWiza
 					addedRows.erase(i);
 					delete pRow;
 				}
-				return false;
+				break;   // Go ahead and continue to do the updates
 			}
 		}
 	
@@ -567,7 +568,7 @@ update_values_list = update_values_list + "`PK_InstallWizard_Distro`="+pRow->PK_
 					cachedRows.erase(i);
 					delete pRow;
 				}
-				return false;
+				break;  // Go ahead and do the deletes
 			}
 		}
 	
@@ -623,7 +624,7 @@ condition = condition + "`PK_InstallWizard_Distro`=" + tmp_PK_InstallWizard_Dist
 		deleted_cachedRows.erase(key);
 	}
 	
-	return true;
+	return bSuccessful;
 }
 
 bool Table_InstallWizard_Distro::GetRows(string where_statement,vector<class Row_InstallWizard_Distro*> *rows)

@@ -2147,7 +2147,6 @@
 #define DESIGNOBJ_butFBSF_Play_CONST 5089
 #define DESIGNOBJ_butFBSF_Close_CONST 5090
 #define DESIGNOBJ_hiddenShowCover_CONST 5091
-#define DESIGNOBJ_hiddenShowFileDetails_CONST 5092
 #define DESIGNOBJ_mnuMediaSortFilter_CONST 5093
 #define DESIGNOBJ_popFBSF_MediaType_CONST 5094
 #define DESIGNOBJ_popFBSF_PrivateMedia_CONST 5095

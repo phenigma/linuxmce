@@ -384,6 +384,7 @@ return false;
 
 bool Table_CriteriaList_CriteriaParmList::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
+	bool bSuccessful=true;
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_DBMutex);
 
 //insert added
@@ -418,7 +419,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_CriteriaLis
 					addedRows.erase(i);
 					delete pRow;
 				}
-				return false;
+				break;   // Go ahead and continue to do the updates
 			}
 		}
 	
@@ -486,7 +487,7 @@ update_values_list = update_values_list + "`FK_CriteriaList`="+pRow->FK_Criteria
 					cachedRows.erase(i);
 					delete pRow;
 				}
-				return false;
+				break;  // Go ahead and do the deletes
 			}
 		}
 	
@@ -545,7 +546,7 @@ condition = condition + "`FK_CriteriaList`=" + tmp_FK_CriteriaList+" AND "+"`FK_
 		deleted_cachedRows.erase(key);
 	}
 	
-	return true;
+	return bSuccessful;
 }
 
 bool Table_CriteriaList_CriteriaParmList::GetRows(string where_statement,vector<class Row_CriteriaList_CriteriaParmList*> *rows)

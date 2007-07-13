@@ -384,6 +384,7 @@ return false;
 
 bool Table_Household_Installation::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
+	bool bSuccessful=true;
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_DBMutex);
 
 //insert added
@@ -418,7 +419,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_Household_a
 					addedRows.erase(i);
 					delete pRow;
 				}
-				return false;
+				break;   // Go ahead and continue to do the updates
 			}
 		}
 	
@@ -486,7 +487,7 @@ update_values_list = update_values_list + "`FK_Household`="+pRow->FK_Household_a
 					cachedRows.erase(i);
 					delete pRow;
 				}
-				return false;
+				break;  // Go ahead and do the deletes
 			}
 		}
 	
@@ -545,7 +546,7 @@ condition = condition + "`FK_Household`=" + tmp_FK_Household+" AND "+"`FK_Instal
 		deleted_cachedRows.erase(key);
 	}
 	
-	return true;
+	return bSuccessful;
 }
 
 bool Table_Household_Installation::GetRows(string where_statement,vector<class Row_Household_Installation*> *rows)

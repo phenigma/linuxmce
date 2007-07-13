@@ -1122,6 +1122,7 @@ return false;
 
 bool Table_DeviceTemplate::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
+	bool bSuccessful=true;
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_DBMutex);
 
 //insert added
@@ -1156,7 +1157,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_DeviceTempl
 					addedRows.erase(i);
 					delete pRow;
 				}
-				return false;
+				break;   // Go ahead and continue to do the updates
 			}
 		}
 	
@@ -1224,7 +1225,7 @@ update_values_list = update_values_list + "`PK_DeviceTemplate`="+pRow->PK_Device
 					cachedRows.erase(i);
 					delete pRow;
 				}
-				return false;
+				break;  // Go ahead and do the deletes
 			}
 		}
 	
@@ -1280,7 +1281,7 @@ condition = condition + "`PK_DeviceTemplate`=" + tmp_PK_DeviceTemplate;
 		deleted_cachedRows.erase(key);
 	}
 	
-	return true;
+	return bSuccessful;
 }
 
 bool Table_DeviceTemplate::GetRows(string where_statement,vector<class Row_DeviceTemplate*> *rows)

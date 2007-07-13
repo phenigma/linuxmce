@@ -659,6 +659,7 @@ return false;
 
 bool Table_Distro::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
+	bool bSuccessful=true;
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_DBMutex);
 
 //insert added
@@ -693,7 +694,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_Distro_asSQ
 					addedRows.erase(i);
 					delete pRow;
 				}
-				return false;
+				break;   // Go ahead and continue to do the updates
 			}
 		}
 	
@@ -761,7 +762,7 @@ update_values_list = update_values_list + "`PK_Distro`="+pRow->PK_Distro_asSQL()
 					cachedRows.erase(i);
 					delete pRow;
 				}
-				return false;
+				break;  // Go ahead and do the deletes
 			}
 		}
 	
@@ -817,7 +818,7 @@ condition = condition + "`PK_Distro`=" + tmp_PK_Distro;
 		deleted_cachedRows.erase(key);
 	}
 	
-	return true;
+	return bSuccessful;
 }
 
 bool Table_Distro::GetRows(string where_statement,vector<class Row_Distro*> *rows)
