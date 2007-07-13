@@ -67,19 +67,11 @@ WizardPageVideoRatio::~WizardPageVideoRatio(void)
 	Dictionary->Set("Refresh", RefreshValue);
 	Dictionary->Set("VideoOutput", VideoConnectorValue);
 
-	if ( VideoConnectorIndex > 1 ) {
-		printf(("\n--------"+SkinGenerator::Instance()->CommandChangeResolution + " '" + ResolutionValue
-			+ "' '" + RefreshValue + "' '" + VideoConnectorValue +"' '" + ResolutionName +"'\n").c_str());
+	std::string Cmd = SkinGenerator::Instance()->CommandChangeResolution + " '" + ResolutionValue
+		+ "' '" + RefreshValue + "' '" + VideoConnectorValue +"' '" + ResolutionName +"'";
+	std::cout << "\n-------- "+Cmd << std::endl;
 
-		system((SkinGenerator::Instance()->CommandChangeResolution + " '" + ResolutionValue
-			+ "' '" + RefreshValue + "' '" + VideoConnectorValue +"' '" + ResolutionName +"'").c_str());
-	} else {
-		printf(("\n---------"+SkinGenerator::Instance()->CommandChangeResolution + " '" + ResolutionValue
-			+ "' '" + RefreshValue + "' '" + VideoConnectorValue +"'\n").c_str());
-
-		system((SkinGenerator::Instance()->CommandChangeResolution + " '" + ResolutionValue
-			+ "' '" + RefreshValue + "' '" + VideoConnectorValue +"'").c_str());
-	}
+	system(Cmd.c_str());
 
 	return 0;
 }
