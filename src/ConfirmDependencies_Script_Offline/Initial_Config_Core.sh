@@ -30,8 +30,8 @@ if ! BlacklistConfFiles '/etc/apt/sources.list' ;then
 		cp /etc/apt/sources.list /etc/apt/sources.list.pbackup
 	fi
 	AptSrc_AddSource "deb file:/usr/pluto/deb-cache/ sarge main"
-	AptSrc_AddSource "deb http://deb.plutohome.com/debian/ <-mkr_t_maindeb-> main"
-	AptSrc_AddSource "deb http://deb.plutohome.com/debian/ <-mkr_t_replacementsdeb-> main"
+	AptSrc_AddSource "deb http://deb.plutohome.com/debian/ <-mkr_t_maindeb_debian-> main"
+	AptSrc_AddSource "deb http://deb.plutohome.com/debian/ <-mkr_t_replacementsdeb_debian-> main"
 	AptSrc_AddSource "deb http://deb.plutohome.com/debian/ sarge main non-free contrib"
 	AptSrc_AddSource "deb http://deb.plutohome.com/debian/ unstable mythtv"
 	AptSrc_AddSource "deb http://www.yttron.as.ro/ sarge main"
