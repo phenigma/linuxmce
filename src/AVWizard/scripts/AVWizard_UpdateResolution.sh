@@ -40,7 +40,8 @@ case "$Param" in
 		RequestedResolution="$2"
 		RequestedRefresh="$3"
 		RequestedConnector="${4:-VGA}"
-		echo "--> Setting resolution: $RequestedResolution@$RequestedRefresh"
+		RequestedTVStandard="$5"
+		echo "--> Setting resolution: $RequestedResolution@$RequestedRefresh (Connector: $RequestedConnector, TVStandard: $RequestedTVStandard)"
 		ResolutionFullName=$(Resolution_GetFullName "$RequestedResolution")
 
 		if [[ "$ResolutionFullName" == *=* ]]; then
@@ -53,10 +54,10 @@ case "$Param" in
 
 		killall -USR1 AVWizard
 
-		bash -x "$BaseDir"/Xconfigure.sh --conffile "$XF86Config" --resolution "$VideoResolution_Size@$RequestedRefresh" --output "$RequestedConnector" | tee-pluto /var/log/pluto/Xconfigure.log
+		bash -x "$BaseDir"/Xconfigure.sh --conffile "$XF86Config" --resolution "$VideoResolution_Size@$RequestedRefresh" --output "$RequestedConnector" --tv-standard "$RequestedTVStandard" | tee-pluto /var/log/pluto/Xconfigure.log
 		WindowWidth="${VideoResolution_Size%x*}"
 		WindowHeight="${VideoResolution_Size#*x}"
-		echo "$VideoResolution_Name $RequestedRefresh $WindowWidth $WindowHeight $RequestedConnector" >/tmp/avwizard-resolution.txt
+		echo "$VideoResolution_Name $RequestedRefresh $WindowWidth $WindowHeight $RequestedConnector $RequestedTVStandard" >/tmp/avwizard-resolution.txt
 		echo "--> Finished setting resolution"
 		set +x
 	;;

@@ -24,6 +24,7 @@ while [[ "$Done" -eq 0 ]]; do
 		WindowWidth=$(SpcField 3 "$WizResolution")
 		WindowHeight=$(SpcField 4 "$WizResolution")
 		Connector=$(SpcField 5 "$WizResolution")
+		TVStandard=$(SpcField 6 "$WizResolution")
 
 		set -x
 		WizSet VideoResolution "$VideoResolution_Name"
@@ -31,6 +32,7 @@ while [[ "$Done" -eq 0 ]]; do
 		WizSet WindowWidth "$WindowWidth"
 		WizSet WindowHeight "$WindowHeight"
 		WizSet VideoOutput "$Connector"
+		WizSet TVStandard "$TVStandard"
 		set +x
 
 		rm -f /tmp/avwizard-resolution.txt
