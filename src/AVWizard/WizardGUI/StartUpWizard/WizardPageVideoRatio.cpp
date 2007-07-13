@@ -93,9 +93,11 @@ WizardPageVideoRatio::~WizardPageVideoRatio(void)
 	WizardWidgetScrollList *List = dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("VideoConnectorScroll"));
 	List->AddItem("VGA", "VGA");
 	List->AddItem("DVI", "DVI");
+	List->AddItem("Component", "Component");
+//<-mkr_B_via_b->
 	List->AddItem("Composite", "Composite");
 	List->AddItem("S-Video","S-Video");
-	List->AddItem("Component", "Component");
+//<-mkr_B_via_e->
 	if(AVWizardSettings->Exists("VideoOutput")) {
 		std::string VideoConnectorValue = AVWizardSettings->GetValue("VideoOutput");
 		List->SetItemIndex(VideoConnectorValue);
@@ -142,8 +144,8 @@ void WizardPageVideoRatio::FillResolutionStandard(WizardWidgetScrollList* List, 
 	List->Clear();	
 	switch (FillType) {
 		default:
-		case 0:
-		case 1:
+		case 0: // VGA
+		case 1: // DVI
 			List->AddItem("640x480 (4:3)", "640x480");
 			List->AddItem("480p (16:9)", "480p");
 			List->AddItem("800x600 (4:3)", "800x600");
@@ -155,8 +157,14 @@ void WizardPageVideoRatio::FillResolutionStandard(WizardWidgetScrollList* List, 
 			List->AddItem("1080p (16:9)", "1080p");
 			List->AddItem("1600x1200 (4:3)", "1600x1200");
 			break;
-		case 2:
-		case 3:
+		case 2: // Component
+			List->AddItem("HD480p", "720x480");
+			List->AddItem("HD720p", "1280x720");
+			List->AddItem("HD1080i", "1920x1080i");
+			List->AddItem("HD1080p", "1920x1080");
+			break;
+		case 3: // Composite
+		case 4:	// S-Video
 			List->AddItem("PAL-B", "640x480");
 			List->AddItem("PAL-D", "640x480");
 			List->AddItem("PAL-G", "640x480");
@@ -169,12 +177,6 @@ void WizardPageVideoRatio::FillResolutionStandard(WizardWidgetScrollList* List, 
 			List->AddItem("NTSC-J", "640x480");
 			List->AddItem("NTSC-M", "640x480");
 			break;
-		case 4:	
-			List->AddItem("HD480p", "720x480");
-			List->AddItem("HD720p", "1280x720");
-			List->AddItem("HD1080i", "1920x1080i");
-			List->AddItem("HD1080p", "1920x1080");
-			break;
 	}
 
 }
@@ -183,8 +185,8 @@ void WizardPageVideoRatio::FillRefresh(WizardWidgetScrollList* List, const int F
 	List->Clear();
 	switch(FillType) {
 		default:
-		case 0:
-		case 1:
+		case 0: // VGA
+		case 1: // DVI
 			List->AddItem("50 Hz", "50");
 			List->AddItem("60 Hz", "60");
 			List->AddItem("65 Hz", "65");
@@ -193,12 +195,12 @@ void WizardPageVideoRatio::FillRefresh(WizardWidgetScrollList* List, const int F
 			List->AddItem("80 Hz", "80");
 			List->AddItem("85 Hz", "85");
 			break;
-		case 2:
-		case 3:
-			break;
-		case 4:	
+		case 2: // Component
 			List->AddItem("50 Hz", "50");
 			List->AddItem("60 Hz", "60");
+			break;
+		case 3: // Composite
+		case 4:	// S-Video
 			break;
 	}
 }
