@@ -320,8 +320,13 @@ void ExtensionManager::Resize(int Width, int Height)
 /*static*/ bool ExtensionManager::CheckExtension(const char* checkFor)
 {
 	const GLubyte* extensions = glGetString(GL_EXTENSIONS);
-	string sExtensions(reinterpret_cast<const char *>(extensions));
-	return sExtensions.find(checkFor) != string::npos;
+	if(NULL != extensions)
+	{
+		string sExtensions(reinterpret_cast<const char *>(extensions));
+		return sExtensions.find(checkFor) != string::npos;
+	}
+
+	return false;
 }
 
 /*virtual*/ void ExtensionManager::DrawArea(int X, int Y, int Width, int Height)

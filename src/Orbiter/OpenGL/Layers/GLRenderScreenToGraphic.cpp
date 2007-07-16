@@ -36,6 +36,8 @@ or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more detai
 
 #include "../GLMathUtils.h"
 
+#define DISABLE_SCREEN_TRANSITIONS 
+
 namespace GLEffect2D 
 {
 
@@ -44,7 +46,10 @@ GLRenderScreenToGraphic::GLRenderScreenToGraphic(int Width, int Height)
 {
 	this->Width = Width;
 	this->Height = Height;
+
+#ifndef DISABLE_SCREEN_TRANSITIONS
 	CreateRenderTexture();
+#endif
 }
 
 GLRenderScreenToGraphic::~GLRenderScreenToGraphic(void)
@@ -54,22 +59,26 @@ GLRenderScreenToGraphic::~GLRenderScreenToGraphic(void)
 
 OpenGLGraphic* GLRenderScreenToGraphic::GetRenderGraphic()
 {
-	return this->RenderGraphic;
+	return RenderGraphic;
 }
 
 void GLRenderScreenToGraphic::RenderFrameToGraphic()
 {
-	glBindTexture(GL_TEXTURE_2D, RenderGraphic->Texture);
-	glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, 
-		MathUtils::MinPowerOf2(Width),
-		MathUtils::MinPowerOf2(Height),
-		0); 
+	if(NULL != RenderGraphic)
+	{
+		glBindTexture(GL_TEXTURE_2D, RenderGraphic->Texture);
+		glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, 
+			MathUtils::MinPowerOf2(Width),
+			MathUtils::MinPowerOf2(Height),
+			0); 
+	}
 }
 
 void GLRenderScreenToGraphic::CreateRenderTexture()
 {
-	if(RenderGraphic)
+	if(NULL != RenderGraphic)
 		return;
+
 	RenderGraphic = new OpenGLGraphic(Width, Height);
 	RenderGraphic->m_Filename = "screen";
 	TextureManager::Instance()->PrepareConvert(RenderGraphic);
