@@ -97,8 +97,8 @@ bool UpdatesManager::Init(bool bDownload)
 	// find the Core device
 	sql_buff = "SELECT PK_Device FROM Device JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE FK_DeviceCategory=";
 	sql_buff += StringUtils::itos( DEVICECATEGORY_Core_CONST );
-	sql_buff += " AND FK_Installation=";
-	sql_buff += StringUtils::itos( dceconf.m_iPK_Installation );
+/*	sql_buff += " AND FK_Installation=";
+	sql_buff += StringUtils::itos( dceconf.m_iPK_Installation );*/
 	if( (result_set.r=dbHelper.db_wrapper_query_result(sql_buff.c_str())) == NULL )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "UpdatesManager::Init : SQL FAILED : %s",sql_buff.c_str());
