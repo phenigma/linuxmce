@@ -62,25 +62,32 @@ function Action_Ask() {
 	
 	## Sent the Message to the orbiters
 	Action_Yes="-targetType device <%=!%> $AppServerID 1 67 13 \"/usr/pluto/bin/LMCEUpdate_Notify.sh\" 51 \"--answer${Tab}yes\""
-	 Action_No="-targetType device <%=!%> $AppServerID 1 67 13 \"/usr/pluto/bin/LMCEUpdate_Notify.sh\" 51 \"--answer${Tab}no\""
+	Action_No="-targetType device <%=!%> $AppServerID 1 67 13 \"/usr/pluto/bin/LMCEUpdate_Notify.sh\" 51 \"--answer${Tab}no\""
+	Action_Later="-targetType device <%=!%> $AppServerID 1 67 13 \"/usr/pluto/bin/LMCEUpdate_Notify.sh\" 51 \"--answer${Tab}later\""
 	
-	/usr/pluto/bin/MessageSend $DCERouter 0 $OrbiterIDList 1 741 10 "UpdatesNotify" 159 53 9 "New updates available. Would you like to install them next time you start Linux MCE ?|Yes|No" 137 "$Action_Yes|$Action_No" || exit 1
+	/usr/pluto/bin/MessageSend $DCERouter 0 $OrbiterIDList 1 741 10 "UpdatesNotify" 159 53 9 "New updates available. Would you like to install them next time you start Linux MCE ?|Yes|No|Later" 137 "$Action_Yes|$Action_No|$Action_Later" || exit 1
 }
 
 function Action_Answer {
 	/usr/pluto/bin/MessageSend $DCERouter 0 $OrbiterIDList 1 8 10 "UpdatesNotify" 159 53
 
 	local answer="$1"
-	if [[ "$answer" == "yes" ]] ;then
-		Q="Update Device_DeviceData SET IK_DeviceData = '1' WHERE FK_Device='$PK_Device' AND FK_DeviceData='235'"
-	else
-		Q="Update Device_DeviceData SET IK_DeviceData = '0' WHERE FK_Device='$PK_Device' AND FK_DeviceData='235'"
-	fi
-
-	RunSQL "$Q"
-
-	## Update the last processed xml
-	cp -r "${XML_CURRENT}" "${XML_OLD}"
+	case "$answer" in
+		"yes")
+			Q="Update Device_DeviceData SET IK_DeviceData = '1' WHERE FK_Device='$PK_Device' AND FK_DeviceData='235'"
+			RunSQL "$Q"
+			cp -r "${XML_CURRENT}" "${XML_OLD}"
+			;;
+		"no")
+			Q="Update Device_DeviceData SET IK_DeviceData = '0' WHERE FK_Device='$PK_Device' AND FK_DeviceData='235'"
+			RunSQL "$Q"
+			cp -r "${XML_CURRENT}" "${XML_OLD}"
+			;;
+		"later")
+			Q="Update Device_DeviceData SET IK_DeviceData = '0' WHERE FK_Device='$PK_Device' AND FK_DeviceData='235'"
+			RunSQL "$Q"
+			;;
+	esac
 }
 
 Ask="true"

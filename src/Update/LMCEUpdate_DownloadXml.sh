@@ -11,7 +11,6 @@ if [[ "$1" != "background" ]] ;then
         exit 0
 fi
 
-
 UPDATES_XML_URI="http://updates.linuxmce.com/updates.xml"
 UPDATES_DIR="/home/updates"
 
