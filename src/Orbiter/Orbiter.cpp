@@ -3799,7 +3799,11 @@ void Orbiter::ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList
 
 		if(	
 			Simulator::GetInstance()->IsRunning() &&
-			(PK_Command == COMMAND_Regen_Orbiter_CONST || PK_Command == COMMAND_Reload_CONST)
+			(
+				PK_Command == COMMAND_Regen_Orbiter_CONST	|| 
+				PK_Command == COMMAND_Reload_CONST			||
+				PK_Command == COMMAND_Delete_File_CONST
+			)
 		)
 			continue;
 
