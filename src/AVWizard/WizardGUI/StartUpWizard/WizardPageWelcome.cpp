@@ -88,13 +88,13 @@ WizardPageWelcome::WizardPageWelcome(GenericBackEnd* FrontEnd, std::string Name)
 			Command = CommandXConfigure + "640x480 --output VGA";
 			break;
 		case SDLK_3:
-			Command = CommandXConfigure + "640x480 --output Component";
+			Command = CommandXConfigure + "720x480 --output Component --tvstandard HD480p";
 			break;
 		case SDLK_4:
-			Command = CommandXConfigure + "640x480 --output Composite";
+			Command = CommandXConfigure + "640x480 --output Composite --tvstandard NTSC-M";
 			break;
 		case SDLK_5:
-			Command = CommandXConfigure + "640x480 --output S-Video";
+			Command = CommandXConfigure + "640x480 --output S-Video --tvstandard NTSC-M";
 			break;
 		case SDLK_6:
 			Command = CommandXConfigure + "640x480";
@@ -103,13 +103,13 @@ WizardPageWelcome::WizardPageWelcome(GenericBackEnd* FrontEnd, std::string Name)
 			Command = CommandXConfigure + "1024x768";
 			break;
 		case SDLK_8:
-			Command = CommandXConfigure + "720p";
+			Command = CommandXConfigure + "720p --tvstandard HD720p";
 			break;
 		case SDLK_9:
-			Command = CommandXConfigure + "1080i";
+			Command = CommandXConfigure + "1080i --tvstandard HD1080i";
 			break;
 		case SDLK_0:
-			Command = CommandXConfigure + "1080p";
+			Command = CommandXConfigure + "1080p --tvstandard HD1080p";
 			break;
 		default:
 			/* NOOP */
