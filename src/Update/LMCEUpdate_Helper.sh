@@ -266,13 +266,12 @@ function Apply_Option {
 
 	if [[ "$option" == "reboot" ]] ;then
 		Debug "REBOOT REQUESTED"
-		xmessage -center -timeout 30 -buttons "Reboot Now:0" "Updates applyed, the system is going to reboot"
 		Debug "PERFORMING REBOOT"
 		reboot &
 		sleep 60
 		exit 
 #		Send "OK"
-#		return 0
+		return 0
 	fi
 
 	if [[ "$option" == "reload" ]] ;then
