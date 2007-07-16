@@ -29,6 +29,7 @@ using namespace DCE;
 
 #include "Xine_Stream_Factory.h"
 #include "pluto_main/Define_Button.h"
+#include "pluto_main/Define_DeviceCategory.h"
 #include "PlutoUtils/ProcessUtils.h"
 
 //<-dceag-const-b->
@@ -252,6 +253,18 @@ void Xine_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPo
 //<-dceag-c37-e->
 {
 	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() called for id %d filename: %s (%s)", iStreamID, sMediaURL.c_str(),sMediaPosition.c_str());
+	
+	//stopping PSS to get more video memory
+	DeviceData_Base *pDevice_pss = m_pData->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_Screen_Savers_CONST,this);
+	if (pDevice_pss)
+	{
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() stopping PSS");
+		DCE::CMD_Off cmd(m_dwPK_Device, pDevice_pss->m_dwPK_Device, 0);
+		SendCommandNoResponse(cmd);
+	}
+	else
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() stopping PSS failed - no PSS found");
+	
 	
 	if (iStreamID==0)
 		iStreamID = 1;
