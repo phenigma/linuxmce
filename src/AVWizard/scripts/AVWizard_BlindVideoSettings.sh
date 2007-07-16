@@ -17,10 +17,11 @@ ParseParms()
 		case "${!i}" in
 			--resolution) ((i++)); Resolution="${!i}" ;;
 			--output) ((i++)); Output="${!i}" ;;
+			--tvstandard) ((i++)); TVStandard="${!i}" ;;
 		esac
 	done
 }
 
 ParseParms "$@"
-/usr/pluto/bin/AVWizard_UpdateResolution.sh set_resolution "$Resolution" 60 "$Output"
+/usr/pluto/bin/AVWizard_UpdateResolution.sh set_resolution "$Resolution" 60 "$Output" "$TVStandard"
 cp /tmp/avwizard-resolution.txt /tmp/avwizard-resolution-defaults.txt
