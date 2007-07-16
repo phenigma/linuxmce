@@ -53,6 +53,8 @@ class Gallery
 	SDLFrontEnd* FrontEnd;
 	bool m_bQuit;
 	pluto_pthread_mutex_t m_FrontEndMutex;
+	pthread_cond_t m_FrontEndCond;
+
 	bool m_bSuspended;
 	bool m_bTextureReseted;
 

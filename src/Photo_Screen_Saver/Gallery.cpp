@@ -62,7 +62,8 @@ Gallery Gallery::m_Instance;
 Gallery::Gallery(): m_bQuit(false), FrontEnd(NULL), Scenario(NULL), 
 	m_FrontEndMutex("front end mutex"), m_bSuspended(false), m_bTextureReseted(false)
 {
-	m_FrontEndMutex.Init(NULL);
+	pthread_cond_init(&m_FrontEndCond, NULL);
+	m_FrontEndMutex.Init(NULL, &m_FrontEndCond);
 }
 
 Gallery::~Gallery(void)
@@ -100,6 +101,8 @@ void Gallery::MainLoop(Photo_Screen_Saver *pPhoto_Screen_Saver)
 				{
 					Scenario->Reset();
 					m_bTextureReseted = true;
+
+					pthread_cond_broadcast(&m_FrontEndCond);
 				}
 			}
 			else
@@ -121,6 +124,12 @@ void Gallery::Pause()
 	PLUTO_SAFETY_LOCK(vm, m_FrontEndMutex);
 	m_bTextureReseted = false;
 	m_bSuspended = true;
+
+	//wait for textures to be released, but no more then 5 seconds
+	if(ETIMEDOUT == vm.TimedCondWait(5, 0))
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "PSS's timed out releasing it's textures!");
+	else
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "PSS released its textures!");
 }
 
 void Gallery::Resume()
