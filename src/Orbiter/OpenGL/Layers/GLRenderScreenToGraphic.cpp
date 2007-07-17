@@ -44,7 +44,11 @@ GLRenderScreenToGraphic::GLRenderScreenToGraphic(int Width, int Height)
 {
 	this->Width = Width;
 	this->Height = Height;
+
+#ifndef VIA_OVERLAY
+	//CANNOT ENABLE THIS OPTIMIZATION ON VIA MACHINE : THE TEXTURE WILL HAVE WEIRD ARTEFACTS
 	CreateRenderTexture();
+#endif
 }
 
 GLRenderScreenToGraphic::~GLRenderScreenToGraphic(void)
@@ -54,22 +58,26 @@ GLRenderScreenToGraphic::~GLRenderScreenToGraphic(void)
 
 OpenGLGraphic* GLRenderScreenToGraphic::GetRenderGraphic()
 {
-	return this->RenderGraphic;
+	return RenderGraphic;
 }
 
 void GLRenderScreenToGraphic::RenderFrameToGraphic()
 {
-	glBindTexture(GL_TEXTURE_2D, RenderGraphic->Texture);
-	glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, 
-		MathUtils::MinPowerOf2(Width),
-		MathUtils::MinPowerOf2(Height),
-		0); 
+	if(NULL != RenderGraphic)
+	{
+		glBindTexture(GL_TEXTURE_2D, RenderGraphic->Texture);
+		glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, 
+			MathUtils::MinPowerOf2(Width),
+			MathUtils::MinPowerOf2(Height),
+			0); 
+	}
 }
 
 void GLRenderScreenToGraphic::CreateRenderTexture()
 {
 	if(RenderGraphic)
 		return;
+
 	RenderGraphic = new OpenGLGraphic(Width, Height);
 	RenderGraphic->m_Filename = "screen";
 	TextureManager::Instance()->PrepareConvert(RenderGraphic);
