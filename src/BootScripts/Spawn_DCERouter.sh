@@ -3,6 +3,15 @@
 . /usr/pluto/bin/pluto.func
 . /usr/pluto/bin/PlutoVersion.h
 . /usr/pluto/bin/Utils.sh
+. /usr/pluto/bin/LockUtils.sh
+
+trap 'Unlock "DCERouter" "Spawn_DCERouter" EXIT'
+Lock "DCERouter" "Spawn_DCERouter" || exit 1
+
+# hack: cleaning lockfile on router start to allow
+# local devices to start
+# TODO: remove this when correct locking will be implemented
+rm -f /usr/pluto/locks/pluto_spawned_local_devices.txt
 
 LogFile="/var/log/pluto/DCERouter.log";
 
@@ -58,20 +67,3 @@ while [[ "$i" -le "$MAX_LOOP_COUNT" ]]; do
 	fi
 	echo out
 done
-
-# old
-#screen -d -m -S DCERouter bash -c "(echo \$(date) Starting; $VGcmd/usr/pluto/bin/DCERouter -h localhost)
-#timeout=60
-#waited=0
-#while ! nc -z localhost 3450 &>/dev/null && [ "$waited" -lt "$timeout" ]; do
-#	sleep 1
-#	waited=$((waited + 1))
-#done
-#if [ "$waited" -eq "$timeout" ]; then
-#	Logging "$TYPE" "$SEVERITY_CRITICAL" "$0" "--> DCERouter failed to start"
-#	exit 1
-#else
-#	Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "DCERouter started ok"
-#	PID=$(ps ax | grep /usr/pluto/bin/DCERouter | egrep -v 'SCREEN|grep|bash' | awk '{ print $1 }')
-#	echo "$PID DCERouter (by $0)" >>/var/log/pluto/running.pids
-#fi
