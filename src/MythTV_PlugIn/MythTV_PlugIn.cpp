@@ -2241,13 +2241,18 @@ void MythTV_PlugIn::SetPaths()
 
 void MythTV_PlugIn::RunBackendStarter()
 {
-	DeviceData_Base *pDevice_App_Server = m_pData->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_App_Server_CONST);
+	DeviceData_Base *pDevice_App_Server = m_pData->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_App_Server_CONST,this);
 	if( pDevice_App_Server )
 	{
 		DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice_App_Server->m_dwPK_Device,
 			"/usr/bin/screen","restart_myth","-d\t-m\t-S\tRestart_Myth_Backend\t/usr/pluto/bin/Restart_MythBackend.sh","","",false,false,false,false);
 		CMD_Spawn_Application.m_pMessage->m_eRetry=MR_Retry;
 		SendCommand(CMD_Spawn_Application);
+
+		string sStatus = GetStatus();
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::RunBackendStarter %s", sStatus.c_str());
+		if( sStatus=="FILLDATABASE" )
+			StartFillDatabase();
 	}
 }
 
@@ -2272,6 +2277,8 @@ void MythTV_PlugIn::StartFillDatabase()
 			m_bFillDbRunning=false;
 			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythTV_PlugIn::StartFillDatabase failed m_bFillDbRunning=false");
 		}
+
+		SetStatus("FILLDATABASE");  // A marker so we know if we do a reload before this finishes
 
 		DCE::SCREEN_PopupMessage SCREEN_PopupMessage(m_dwPK_Device, DEVICETEMPLATE_VirtDev_All_Orbiters_CONST,
 			"It will take about 10 minutes to retrieve your channel listing.  Wait until you see the message \"MythTV is ready\" before you start using TV features.", // Main message
@@ -2312,6 +2319,7 @@ void MythTV_PlugIn::CMD_Reporting_EPG_Status(string sText,bool bIsSuccessful,str
 	{
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::CMD_Reporting_EPG_Status done m_bFillDbRunning=false");
 		m_bFillDbRunning=false;
+		SetStatus("");  // A marker so we know if we do a reload before this finishes
 	}
 }
 

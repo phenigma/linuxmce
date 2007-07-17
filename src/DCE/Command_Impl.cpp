@@ -1295,6 +1295,7 @@ void Command_Impl::OnQuit()
 
 void Command_Impl::OnReload() 
 { 
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Command_Impl::OnReload %d", m_dwPK_Device);
 	m_bReload = true; 
 	m_bQuit_set(true); 
 	m_bTerminate=true; 

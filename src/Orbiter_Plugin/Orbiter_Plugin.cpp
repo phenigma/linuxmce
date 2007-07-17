@@ -1979,6 +1979,10 @@ bool Orbiter_Plugin::OSD_OnOff( class Socket *pSocket, class Message *pMessage, 
 	if( !pOH_Orbiter || !pDeviceTo->m_pDevice_MD )
 		return false;
 
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Orbiter_Plugin::OSD_OnOff orbiter %d md %d DestIsMd %d pipes %d",
+		pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, pDeviceTo->m_pDevice_MD->m_dwPK_Device, (int) bDestIsMD,
+		(int) ((DeviceData_Router *) pDeviceTo)->m_mapPipe_Available.size());
+
 	// If this is coming from an OSD Orbiter, the Force parameter can be specified and set to 1, meaning even if there
 	// is no active pipe, still force an 'off' on all available pipes
 	if( bDestIsMD && pDeviceTo && 
@@ -1990,9 +1994,16 @@ bool Orbiter_Plugin::OSD_OnOff( class Socket *pSocket, class Message *pMessage, 
         if( pMessage->m_mapParameters.find(COMMANDPARAMETER_PK_Pipe_CONST)!=pMessage->m_mapParameters.end() )
 			PK_Pipe = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Pipe_CONST].c_str());
 
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Orbiter_Plugin::OSD_OnOff device %d available pipes %d",
+			pDeviceData_Router->m_dwPK_Device,(int) pDeviceData_Router->m_mapPipe_Available.size());
+	
 		for(map<int,Pipe *>::iterator it=pDeviceData_Router->m_mapPipe_Available.begin();it!=pDeviceData_Router->m_mapPipe_Available.end();++it)
         {
             Pipe *pPipe = (*it).second;
+		
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Orbiter_Plugin::OSD_OnOff pipe %p PK_Pipe %d dontsend %d",
+				pPipe, PK_Pipe, (int) pPipe->m_bDontSendOff);
+
 			if( (PK_Pipe && PK_Pipe!=pPipe->m_PK_Pipe) || pPipe->m_bDontSendOff )
 				continue;
 
@@ -2023,6 +2034,7 @@ bool Orbiter_Plugin::OSD_OnOff( class Socket *pSocket, class Message *pMessage, 
 		{
 			DeviceData_Router *pDevice_MD = m_pRouter->m_mapDeviceData_Router_Find(pMessage->m_dwPK_Device_To);
 			bool bMD_Uses_External_Video=false;  // See if there's a video path, like going to a TV
+
 			for( map<int,Pipe *>::iterator it=pDevice_MD->m_mapPipe_Available.begin();it!=pDevice_MD->m_mapPipe_Available.end();++it)
 			{
 				Pipe *pPipe = it->second;
@@ -2032,6 +2044,8 @@ bool Orbiter_Plugin::OSD_OnOff( class Socket *pSocket, class Message *pMessage, 
 					break;
 				}
 			}
+
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Orbiter_Plugin::OSD_OnOff off uses external %d size %d", (int) bMD_Uses_External_Video, (int) pDevice_MD->m_mapPipe_Available.size());
 
 			if( bMD_Uses_External_Video )
 			{
@@ -2055,6 +2069,8 @@ bool Orbiter_Plugin::OSD_OnOff( class Socket *pSocket, class Message *pMessage, 
 			pMediaDevice->m_tLastPowerCommand=time(NULL);
 			pMediaDevice->m_dwPK_Command_LastPower=pMessage->m_dwID;
 		}
+
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Orbiter_Plugin::OSD_OnOff off forwarding to non md");
 
 		Message *pMessage_New = new Message(pMessage);
 		pMessage_New->m_dwPK_Device_To = pDeviceTo->m_pDevice_MD->m_dwPK_Device;
@@ -2333,11 +2349,18 @@ void Orbiter_Plugin::OverrideAVPipe(DeviceData_Router *pDevice_OSD,bool bOverrid
 	MediaDevice *pMediaDevice = m_pMedia_Plugin->m_mapMediaDevice_Find(pDevice_MD->m_dwPK_Device);
 	if( pMediaDevice )
 		pMediaDevice->m_bDontSendOffIfOSD_ON=bOverride;
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Orbiter_Plugin::OverrideAVPipe OSD %d pDevice_MD %d pMediaDevice %p Override %d",
+		pDevice_OSD->m_dwPK_Device, pDevice_MD->m_dwPK_Device, pMediaDevice, (int) bOverride);
+
 	SetPipesEnable(pDevice_MD,bOverride);
 }
 
 void Orbiter_Plugin::SetPipesEnable(DeviceData_Router *pDevice,bool bOverride)
 {
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Orbiter_Plugin::SetPipesEnable device %d pipes %d override %d",
+		pDevice->m_dwPK_Device, (int) pDevice->m_mapPipe_Available.size(), (int) bOverride);
+		
 	for(map<int, class Pipe *>::iterator it=pDevice->m_mapPipe_Available.begin();
 		it!=pDevice->m_mapPipe_Available.end();++it)
 	{
@@ -2353,6 +2376,10 @@ void Orbiter_Plugin::SetPipesEnable(DeviceData_Router *pDevice,bool bOverride)
 			continue; // shouldn't happen -- it's not a/v equipment
 		}
 		pMediaDevice->m_bDontSendOffIfOSD_ON=bOverride;
+
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Orbiter_Plugin::SetPipesEnable device %d m_bDontSendOffIfOSD_ON %d # of sending pipes %d",
+			pMediaDevice->m_pDeviceData_Router->m_dwPK_Device, (int) pMediaDevice->m_bDontSendOffIfOSD_ON, (int) pMediaDevice->m_pDeviceData_Router->m_vectDevices_SendingPipes.size());
+
 		for(size_t s=0;s<pMediaDevice->m_pDeviceData_Router->m_vectDevices_SendingPipes.size();++s)
 		{
 			// Find the pipes used to send to our output devices and disable them
@@ -2361,8 +2388,12 @@ void Orbiter_Plugin::SetPipesEnable(DeviceData_Router *pDevice,bool bOverride)
 				it2!=pAVDevice->m_mapPipe_Available.end();++it2)
 			{
 				class Pipe *pPipe2 = it2->second;
+
 				if( pPipe2->m_pDevice_To->m_dwPK_Device==pMediaDevice->m_pDeviceData_Router->m_dwPK_Device )
+				{
 					pPipe2->m_bDontSendOff=bOverride;
+					LoggerWrapper::GetInstance()->Write(LV_STATUS, "Orbiter_Plugin::SetPipesEnable pipe %p to %d dont sendoff %d",pPipe2, pPipe2->m_pDevice_To->m_dwPK_Device, (int) pPipe2->m_bDontSendOff);
+				}
 			}
 		}
 	}

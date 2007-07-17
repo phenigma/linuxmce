@@ -1087,6 +1087,7 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted, bo
 					LoggerWrapper::GetInstance()->Write(LV_WARNING,"Aborting reload per RequestReload");
 					return;
 				}
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Reloading per id %d", (*SafetyMessage)->m_dwID);
 				m_bQuit = false;
 				m_bReload = true;
                 break;
@@ -1350,6 +1351,7 @@ bool Router::ReceivedString(Socket *pSocket, string Line, int nTimeout/* = -1*/)
 		if( RequestReload(0) )
 		{
 		    pSocket->SendString("OK");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Reloading per line %s", Line.c_str());
 			m_bReload=true;
 		}
 		else
