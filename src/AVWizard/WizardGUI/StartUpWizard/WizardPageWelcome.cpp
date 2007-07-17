@@ -88,7 +88,7 @@ WizardPageWelcome::WizardPageWelcome(GenericBackEnd* FrontEnd, std::string Name)
 			Command = CommandXConfigure + "640x480 --output VGA";
 			break;
 		case SDLK_3:
-			Command = CommandXConfigure + "720x480 --output Component --tvstandard HD480p";
+			Command = CommandXConfigure + "480p --output Component --tvstandard HD480p";
 			break;
 		case SDLK_4:
 			Command = CommandXConfigure + "640x480 --output Composite --tvstandard NTSC-M";
