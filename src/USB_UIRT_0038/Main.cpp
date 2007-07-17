@@ -152,6 +152,7 @@ int main(int argc, char* argv[])
 			sLogger = argv[++optnum];
 			break;
 		case 'p':
+            bLocalMode = true;
 			sPort = argv[++optnum];
 			break;
 		case 'P':
