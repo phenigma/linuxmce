@@ -74,6 +74,7 @@ class TextureManager
 	OpenGL3DEngine *Engine;
 	int ReleaseTextureSuspended;
 	bool m_bMemoryManagementEnabled;
+	bool m_bSafeToReleaseTextures;
 
 public:
 	static TextureManager* Instance();
@@ -82,7 +83,10 @@ public:
 	void EnableMemoryManagement()   { m_bMemoryManagementEnabled = true; }
 	bool MemoryManagementEnabled()  { return m_bMemoryManagementEnabled; }
 
-	
+	void SafeToReleaseTextures(bool bValue)	{ m_bSafeToReleaseTextures = bValue; }
+	bool IsSafeToReleaseTextures()			{ return m_bSafeToReleaseTextures;	 }
+
+	void EmptyCache();
 	bool ExistInCache(MeshFrame *pFrame);
 	void Setup(OpenGL3DEngine *Engine);
 

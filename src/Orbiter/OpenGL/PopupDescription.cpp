@@ -51,10 +51,12 @@ PopupDescription::~PopupDescription(void)
 {
 	Engine->RemoveMeshFrameFromDesktop(PopupFrame);
 
+	/*
 	bool bRemoveAllReplacedFrame = TextureManager::Instance()->MemoryManagementEnabled();
 	PopupFrame->CleanUp(bRemoveAllReplacedFrame);
 	delete PopupFrame;
 	PopupFrame = NULL;
+	*/
 }
 
 void PopupDescription::Hide()

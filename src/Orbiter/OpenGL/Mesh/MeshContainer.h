@@ -86,7 +86,7 @@ public:
 	/**
 	*	Makes a list with all texture mapped on its triangles and release them
 	*/
-	void DisposeTextures();
+	void DisposeTextures(bool bDestroyGraphics);
 };
 
 #endif 

@@ -789,8 +789,15 @@ DesignObj_Orbiter *pObj, PlutoPoint *ptPopup/* = NULL*/)
 	if(NULL != OrbiterLogic()->m_pScreenHistory_Current)
 		sScreenName = "desktop - " + OrbiterLogic()->m_pScreenHistory_Current->GetObj()->GenerateObjectHash(PlutoPoint(0, 0), false);
 
+
+	TextureManager::Instance()->SafeToReleaseTextures(true);
+
 	Popups->Reset();
 	Engine->NewScreen(sScreenName);
+	TextureManager::Instance()->EmptyCache();
+
+	TextureManager::Instance()->SafeToReleaseTextures(false);
+
 	m_pLastHighlightedObject = NULL;
 
 #ifdef VIA_OVERLAY

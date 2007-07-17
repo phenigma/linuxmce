@@ -48,22 +48,28 @@ MeshContainer::~MeshContainer(void)
 	delete [] Triangles;
 }
 
-void MeshContainer::DisposeTextures()
+void MeshContainer::DisposeTextures(bool bDestroyGraphics)
 {
 	map<OpenGLGraphic *, bool> mapTextures;
 
 	for(int i = 0; i < NoTriangles; i++)
+	{
 		if(NULL != Triangles[i].Texture)
 		{
 			mapTextures[Triangles[i].Texture] = true;
 			Triangles[i].Texture = NULL;
 		}
+	}
 
 	for(map<OpenGLGraphic *, bool>::iterator it = mapTextures.begin(); it != mapTextures.end(); ++it)
 	{
 		OpenGLGraphic *pGraphic = it->first;
-		delete pGraphic;
+		if(bDestroyGraphics)
+			delete pGraphic;
+		else if(TextureManager::Instance()->IsSafeToReleaseTextures())
+			pGraphic->Clear();
 	}
+
 	mapTextures.clear();
 }
 

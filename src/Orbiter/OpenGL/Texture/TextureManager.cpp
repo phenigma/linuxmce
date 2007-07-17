@@ -61,7 +61,8 @@ TextureManager::TextureManager(void)
 	TextureLock("texture mutex"),
 	Engine(NULL),
 	ReleaseTextureSuspended(0),
-	m_bMemoryManagementEnabled(false)
+	m_bMemoryManagementEnabled(false),
+	m_bSafeToReleaseTextures(false)
 {
 	m_bCacheEnabled = true;
 
@@ -74,6 +75,17 @@ TextureManager::TextureManager(void)
 
 TextureManager::~TextureManager(void)
 {
+	EmptyCache();
+
+	ReleaseTextureSuspended = false;
+
+    ReleaseTextures();
+	WaitForRelease.clear();
+}
+
+void TextureManager::EmptyCache()
+{
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, TextureLock);
 	while(Graphics.size())
 	{
 		std::map<std::string, MeshFrame*>::iterator it = Graphics.begin();
@@ -85,12 +97,6 @@ TextureManager::~TextureManager(void)
 		delete pFrame;
 	}
 	Graphics.clear();
-	ReleaseTextureSuspended = false;
-
-    ReleaseTextures();
-	WaitForRelease.clear();
-
-	pthread_mutex_destroy(&TextureLock.mutex);
 }
 
 void TextureManager::Setup(OpenGL3DEngine *Engine)

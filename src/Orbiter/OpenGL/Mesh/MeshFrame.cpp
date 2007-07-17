@@ -70,8 +70,11 @@ MeshFrame::~MeshFrame(void)
 		DCE::LoggerWrapper::GetInstance()->Write(LV_STATUS, "MeshFrame:Dtor Not releasing texture for %p/%s, volatile %d", this, m_sName.c_str(), m_bVolatile);
 #endif
 
-	if(IsVolatile() && NULL != m_pMeshContainer && !m_bDontReleaseTexture)
-		m_pMeshContainer->DisposeTextures();
+	if(NULL != m_pMeshContainer)
+	{
+		bool bDestroyGraphics = IsVolatile() && !m_bDontReleaseTexture;
+		m_pMeshContainer->DisposeTextures(bDestroyGraphics);
+	}
 
 	delete m_pMeshContainer;
 	m_pMeshContainer = NULL;
