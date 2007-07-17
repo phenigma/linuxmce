@@ -45,8 +45,8 @@ GLRenderScreenToGraphic::GLRenderScreenToGraphic(int Width, int Height)
 	this->Width = Width;
 	this->Height = Height;
 
-#ifndef VIA_OVERLAY
-	//CANNOT ENABLE THIS OPTIMIZATION ON VIA MACHINE : THE TEXTURE WILL HAVE WEIRD ARTEFACTS
+#ifdef VIA_OVERLAY
+	//CANNOT DISABLE THIS OPTIMIZATION ON VIA MACHINE : THE TEXTURE WILL HAVE WEIRD ARTEFACTS
 	CreateRenderTexture();
 #endif
 }
