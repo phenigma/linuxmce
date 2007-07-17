@@ -62,6 +62,7 @@ OpenGL3DEngine::OpenGL3DEngine() :
 	SceneMutex("scene mutex"),
 	CurrentLayer(NULL),
 	OriginalCurrentLayer(NULL),
+	OldLayer(NULL),
 	SelectedFrame(NULL),
 	m_pHighlightFrame(NULL),
 	FrameBuilder(NULL),			 
@@ -108,8 +109,14 @@ void OpenGL3DEngine::Finalize(void)
 
 	bool ReleaseVolatileOnly = !TextureManager::Instance()->MemoryManagementEnabled();
 
+	if(OldLayer)
+		OldLayer->CleanUp(ReleaseVolatileOnly);
+
 	if(CurrentLayer)
 		CurrentLayer->CleanUp(ReleaseVolatileOnly);
+
+	delete OldLayer;
+	OldLayer = NULL;
 
 	delete CurrentLayer;
 	CurrentLayer = NULL;
@@ -213,12 +220,14 @@ void OpenGL3DEngine::NewScreen(string ScreenName)
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sm, SceneMutex);
 	m_bWorldChanged = true;
 
-	if(NULL != CurrentLayer)
+	if(NULL != OldLayer)
 	{
 		bool bReleaseVolatileOnly = !TextureManager::Instance()->MemoryManagementEnabled();
-		CurrentLayer->CleanUp(bReleaseVolatileOnly);
-		delete CurrentLayer;
+		OldLayer->CleanUp(bReleaseVolatileOnly);
+		delete OldLayer;
 	}
+	OldLayer = CurrentLayer;
+	
 	StartTick = GetTick();
 
 	CurrentLayer = new MeshFrame(ScreenName);
@@ -231,7 +240,7 @@ void OpenGL3DEngine::NewScreen(string ScreenName)
 #endif
 	
 	if(NULL != Compose)
-		Compose->UpdateLayers(CurrentLayer, /*OldLayer*/CurrentLayer);
+		Compose->UpdateLayers(CurrentLayer, OldLayer);
 }
 
 void OpenGL3DEngine::Setup()
