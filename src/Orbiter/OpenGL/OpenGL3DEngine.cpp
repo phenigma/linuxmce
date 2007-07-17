@@ -236,6 +236,8 @@ void OpenGL3DEngine::NewScreen(string ScreenName)
 
 void OpenGL3DEngine::Setup()
 {
+	TextureManager::Instance()->SupportTextureNonPowerOfTwo();
+	
 	GL.Setup();
 	Compose = GLEffect2D::LayersCompose::Instance();
 	Compose->Setup(GL.Width, GL.Height);
