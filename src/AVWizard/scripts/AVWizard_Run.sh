@@ -78,6 +78,7 @@ SetDefaults()
 	WizSet RemoteAVWizardServerPort "$AVWizard_Port"
 	WizSet RemoteCmd "$RemoteCmd"
 	WizSet ExitCode 1 # by default, we fail (i.e. on Ctrl+Alt+Bkspc)
+	rm -f /tmp/avwizard-resolution.txt
 }
 
 # Update audio settings of this machine
