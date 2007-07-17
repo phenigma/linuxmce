@@ -56,7 +56,6 @@ class OpenGL3DEngine
 
 	MeshFrame* CurrentLayer;
 	MeshFrame* OriginalCurrentLayer; //alias for CurrentLayer
-	MeshFrame* OldLayer;
 	MeshFrame* SelectedFrame;
 	MeshFrame* m_pHighlightFrame;
 	MeshFrame* FrameBuilder, *FrameDatagrid;
