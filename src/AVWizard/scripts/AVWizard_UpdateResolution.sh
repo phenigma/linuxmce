@@ -5,9 +5,11 @@
 Param="$1"
 case "$Param" in
 	reset)
-		VideoResolution=$(WizGet VideoResolution)
-		VideoRefresh=$(WizGet VideoRefresh)
-		VideoOutput=$(WizGet VideoOutput)
+		WizResolution=$(< /tmp/avwizard-resolution.txt)
+		VideoResolution=$(SpcField 1 "$WizResolution")
+		VideoRefresh=$(SpcField 2 "$WizResolution")
+		VideoOutput=$(SpcField 5 "$WizResolution")
+		TVStandard=$(SpcField 6 "$WizResolution")
 
 		ResolutionDefaults="640x480 60 640 480 VGA"
 		if [[ -f "/tmp/avwizard-resolution-defaults.txt" ]]; then
@@ -17,6 +19,7 @@ case "$Param" in
 		DefaultResolution=$(SpcField 1 "$ResolutionDefaults")
 		DefaultRefresh=$(SpcField 2 "$ResolutionDefaults")
 		DefaultConnector=$(SpcField 5 "$ResolutionDefaults")
+		DefaultTVStandard=$(SpcField 6 "$ResolutionDefaults")
 
 		DefaultResolutionFullName=$(Resolution_GetFullName "$DefaultResolution")
 		if [[ "$DefaultResolutionFullName" == *=* ]]; then
@@ -27,12 +30,12 @@ case "$Param" in
 			DefaultResolution_Size="$DefaultResolutionFullName"
 		fi
 
-		echo "--> Reset resolution to default: $DefaultResolution@$DefaultRefresh/$DefaultConnector (was resolution: $VideoResolution@$VideoRefresh/$VideoOutput)"
-		if [[ "$VideoRefresh" == "$DefaultRefresh" && "$VideoResolution" == "$DefaultResolution" && "$VideoOutput" == "$DefaultConnector" ]]; then
+		echo "--> Reset resolution to default: $DefaultResolution@$DefaultRefresh/$DefaultConnector,$DefaultTVStandard (was resolution: $VideoResolution@$VideoRefresh/$VideoOutput,$TVStandard)"
+		if [[ "$VideoRefresh" == "$DefaultRefresh" && "$VideoResolution" == "$DefaultResolution" && "$VideoOutput" == "$DefaultConnector" && "$TVStandard" == "$DefaultTVStandard" ]]; then
 			exit 0 # No change required
 		fi
 		killall -USR2 AVWizard
-		bash -x "$BaseDir"/Xconfigure.sh --conffile "$XF86Config" --resolution "$DefaultResolution_Size" --output "$DefaultConnector" | tee-pluto /var/log/pluto/Xconfigure.log
+		bash -x "$BaseDir"/Xconfigure.sh --conffile "$XF86Config" --resolution "$DefaultResolution_Size" --output "$DefaultConnector" --tv-standard "$DefaultTVStandard" | tee-pluto /var/log/pluto/Xconfigure.log
 		echo "$ResolutionDefaults" >/tmp/avwizard-resolution.txt
 	;;
 	set_resolution)
