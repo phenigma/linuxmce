@@ -42,7 +42,10 @@ while [[ "$Done" -eq 0 ]]; do
 		$STEP_Welcome) NextStep=$STEP_Welcome ;;
 		$STEP_VideoResolution) NextStep=$STEP_VideoResolutionConfirm ;;
 		-$STEP_VideoResolution) NextStep=$STEP_VideoResolution ;;
-		$STEP_VideoResolutionConfirm) NextStep=$STEP_VideoResolution ;;
+		$STEP_VideoResolutionConfirm)
+			NextStep=$STEP_VideoResolution
+			/usr/pluto/bin/AVWizard_UpdateResolution.sh reset
+		;;
 		*)
 			echo "Interrupted in step '$WizStep', but shouldn't be"
 			if [[ "$WizStep" -lt 0 ]]; then
