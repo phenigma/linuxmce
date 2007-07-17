@@ -36,6 +36,9 @@ or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more detai
 
 #include "../GLMathUtils.h"
 
+#include "DCE/DCEConfig.h"
+#include "DCE/Logger.h"
+
 namespace GLEffect2D 
 {
 
@@ -46,9 +49,11 @@ GLRenderScreenToGraphic::GLRenderScreenToGraphic(int Width, int Height)
 	this->Height = Height;
 
 #ifdef VIA_OVERLAY
-	//CANNOT DISABLE THIS CODE ON VIA MACHINE : THE TEXTURES WILL HAVE WEIRD ARTEFACTS
-	//VIA DRIVERS BUG ?
-	CreateRenderTexture();
+	DCEConfig config;
+	string sValue = config.m_mapParameters_Find("DisableDummyTextures");
+
+	if(sValue != "1")
+		CreateRenderTexture();
 #endif
 }
 
@@ -78,6 +83,8 @@ void GLRenderScreenToGraphic::CreateRenderTexture()
 {
 	if(RenderGraphic)
 		return;
+
+	DCE::LoggerWrapper::GetInstance()->Write(LV_WARNING, "Allocating %d video memory for a dummy texture!", Width * Height * 4);
 
 	RenderGraphic = new OpenGLGraphic(Width, Height);
 	RenderGraphic->m_Filename = "screen";
