@@ -299,8 +299,11 @@ void Photo_Screen_Saver::CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMess
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Disabled THREEDOVERLAY overlay for PSS!");
 #endif 	
 
-	Gallery::Instance().Pause();
-	m_bIsOn=false;
+	if(m_bIsOn)
+	{
+		Gallery::Instance().Pause();
+		m_bIsOn=false;
+	}
 }
 
 void Photo_Screen_Saver::Terminate()
