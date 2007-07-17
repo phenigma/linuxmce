@@ -62,7 +62,6 @@ function phoneLines($output,$astADO,$dbADO) {
 	foreach (array_keys($providerData) AS $option){
 		$pulldownOptions.='<option value="'.$option.'" '.((@$provider==$option)?'selected':'').'>'.$option.'</option>';
 	}
-
 		
 	if(isset($provider)){
 		$providerUrl=@$providerData[@$_REQUEST['provider']]['url'];
@@ -138,7 +137,7 @@ function phoneLines($output,$astADO,$dbADO) {
 			
 			<h3 align="center">'.$TEXT_PHONE_LINES_CONST.'</h3>
 			'.(($manualConfiguration===true)?$manualConfigNote:phoneLinesTable($astADO));
-		if(isset($GLOBALS['count']) && $GLOBALS['count']==0){
+		if(isset($GLOBALS['count']) && $GLOBALS['count']==0 || $editedID!=0){
 			$out.='
 			<table align="center">
 				<tr>
