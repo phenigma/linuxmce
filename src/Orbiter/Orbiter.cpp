@@ -404,7 +404,7 @@ Orbiter::~Orbiter()
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Maint thread dead");
 
-	if(NULL != m_pcRequestSocket) // Will be NULL if we died without successfully getting our config
+	if(NULL != m_pcRequestSocket && m_bRouterReloading==false ) // Will be NULL if we died without successfully getting our config
 	{
 		if(NULL != m_pcRequestSocket->m_pClientSocket)
 			m_pcRequestSocket->m_pClientSocket->SetReceiveTimeout(3);
@@ -2087,7 +2087,7 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 			{
 				class LocationInfo *pLocationInfo = m_dequeLocation[s];
 #ifdef DEBUG
-				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Checing %d/%d room: %d ea %d against %d %d",
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Checking %d/%d room: %d ea %d against %d %d",
 					(int) s,pLocationInfo->iLocation,pLocationInfo->PK_Room,pLocationInfo->PK_EntertainArea,iPK_Room,iPK_EntertainArea);
 #endif
 				// If a room/ent area is passed in use that location instead of m_iLocation_Initial

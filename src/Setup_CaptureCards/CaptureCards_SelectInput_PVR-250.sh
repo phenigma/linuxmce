@@ -13,4 +13,4 @@ Input_Antenna=3
 # Inputs=("" SVideo Composite Antenna)
 Inputs=("" 1 2 0)
 
-ivtvctl -d "$DevEntry" -p "${Inputs[$Input]}"
+v4l2-ctl --device="$DevEntry" --set-input="${Inputs[$Input]}"

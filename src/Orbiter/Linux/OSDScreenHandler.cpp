@@ -973,18 +973,32 @@ void OSDScreenHandler::SCREEN_Receiver(long PK_Screen)
 	m_pWizardLogic->m_nPK_Device_Receiver = 0;  // We will refind this
 	/*bool bHasReceiverInPath = */m_pWizardLogic->GetAvPath(m_pOrbiter->m_pData->m_dwPK_Device_ControlledVia,
                                               m_pWizardLogic->m_nPK_Device_Receiver,1,PK_Command_Input,sReceiver,sInput);
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "OSDScreenHandler::SCREEN_Receiver receiver %d %s input %d",
+		m_pWizardLogic->m_nPK_Device_Receiver, sReceiver.c_str(), PK_Command_Input);
+
 	if( m_pWizardLogic->m_nPK_Device_Receiver )
 	{
 		// Be sure it's really a receiver and not just the TV being used as the audio device
 		string sTV,sInput;
 		/*bool bHasTvInPath = */m_pWizardLogic->GetAvPath(m_pOrbiter->m_pData->m_dwPK_Device_ControlledVia,
 												m_pWizardLogic->m_nPK_Device_TV,2,m_pWizardLogic->m_nPK_Command_Input_Video_On_TV,sTV,sInput);
+
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "OSDScreenHandler::SCREEN_Receiver receiver %d tv %d",
+			m_pWizardLogic->m_nPK_Device_Receiver, m_pWizardLogic->m_nPK_Device_TV);
+
 		if( m_pWizardLogic->m_nPK_Device_TV==m_pWizardLogic->m_nPK_Device_Receiver ) // It's just the tv
+		{
 			m_pWizardLogic->m_nPK_Device_Receiver=0;
+			PK_Command_Input=0;
+		}
 	}
 
 	if( !m_pWizardLogic->m_nPK_Device_Receiver )
+	{
 		m_pWizardLogic->m_nPK_Device_Receiver = m_pWizardLogic->FindFirstDeviceInCategory(DEVICECATEGORY_AmpsPreampsReceiversTuners_CONST,m_pOrbiter->m_dwPK_Device,&sReceiver);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "OSDScreenHandler::SCREEN_Receiver no receiver category matched: %d", m_pWizardLogic->m_nPK_Device_Receiver);
+	}
 
 	if( m_pWizardLogic->m_nPK_Device_Receiver )
 	{

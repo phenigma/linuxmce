@@ -109,7 +109,7 @@ bool Disk_Drive::GetConfig()
 		m_pDatabase_pluto_media=NULL;
 	}
 	
-	m_pMediaAttributes_LowLevel = new MediaAttributes_LowLevel(m_pDatabase_pluto_media,g_DCEConfig.m_iPK_Installation);
+	m_pMediaAttributes_LowLevel = new MediaAttributes_LowLevel(m_pDatabase_pluto_media);
 
 	m_pDisk_Drive_Functions = new Disk_Drive_Functions(m_dwPK_Device,this, sDrive, m_pJobHandler,m_pDatabase_pluto_media,m_pMediaAttributes_LowLevel);
 	m_pDisk_Drive_Functions->UpdateDiscLocation('E',0); // For now say the drive is empty, when the script starts it will get set again

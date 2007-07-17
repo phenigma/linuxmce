@@ -93,7 +93,7 @@ bool JukeBox::Init()
 		m_pCommand_Impl->m_bQuit_set(true);
 		return false;
 	}
-	m_pMediaAttributes_LowLevel = new MediaAttributes_LowLevel(m_pDatabase_pluto_media, 0);
+	m_pMediaAttributes_LowLevel = new MediaAttributes_LowLevel(m_pDatabase_pluto_media);
 	return true;
 }
 

@@ -139,7 +139,8 @@ namespace DCE
 	public:
 		// Set the following two flags in your DCE Device's constructor since the flags are passed in on the Connect()
 		bool m_bAskBeforeReload, // If set to true ask this device if it's ok to reload before processing a reload request
-			m_bImplementsPendingTasks; // If set to true, this device implements the PendingTasks() to report pending tasks it may be doing
+			m_bImplementsPendingTasks, // If set to true, this device implements the PendingTasks() to report pending tasks it may be doing
+			m_bRouterReloading; // Set to true if the router is reloading
 
 		Command_Impl *m_pParent; /** < if the command was created as an embedded command, keep a pointer to it's parent */
 		MapCommand_Impl m_mapCommandImpl_Children; /** < map containing the commands that this command has created */

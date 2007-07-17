@@ -246,7 +246,7 @@ bool PnpQueue::Process_Detect_Stage_Detected(PnpQueueEntry *pPnpQueueEntry)
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "PnpQueue::Process_Detect_Stage_Detected: %s", pPnpQueueEntry->ToString().c_str());
 #endif
 
-	if( false && pPnpQueueEntry->m_pRow_PnpQueue->Signature_get().empty()==false && m_mapSignaturesReady.find(pPnpQueueEntry->m_pRow_PnpQueue->Signature_get())==m_mapSignaturesReady.end() )
+	if( pPnpQueueEntry->m_pRow_PnpQueue->Signature_get().empty()==false && m_mapSignaturesReady.find(pPnpQueueEntry->m_pRow_PnpQueue->Signature_get())==m_mapSignaturesReady.end() )
 	{
 		pPnpQueueEntry->Block( PnpQueueEntry::pnpqe_blocked_waiting_for_initial_detection );
 		return false;

@@ -136,15 +136,18 @@ bool MythBackEnd_Socket::Connect( )
 
 	if( m_pSocket==NULL || m_pSocket->m_Socket == INVALID_SOCKET )
 	{
-		if( m_pSocket )
-			delete m_pSocket;
-		m_pSocket = new MythBackEnd_Socket_Wrapper(this,m_sIPAddress + ":6543");
-		if( m_pSocket->Connect(0,"")==false )
+		sSM.Release();
+		MythBackEnd_Socket_Wrapper *pSocket = new MythBackEnd_Socket_Wrapper(this,m_sIPAddress + ":6543");
+		if( pSocket->Connect(0,"")==false )
 		{
+			sSM.Relock();
 			DeleteSocket();
 			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythBackEnd_Socket::Connect failed m_bConnected=false");
 			return false;
 		}
+		sSM.Relock();
+		DeleteSocket();
+		m_pSocket = pSocket;
 	}
 
 	m_bConnected=true;

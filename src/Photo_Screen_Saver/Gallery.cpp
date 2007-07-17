@@ -88,7 +88,7 @@ void Gallery::MainLoop(Photo_Screen_Saver *pPhoto_Screen_Saver)
 
 		if(!pPhoto_Screen_Saver->m_bQuit_get() && m_bQuit==false )
 		{
-			PLUTO_SAFETY_LOCK(vm, m_FrontEndMutex);
+			PLUTO_SAFETY_LOCK_ERRORSONLY(vm, m_FrontEndMutex);
 			if(StatusChange && !m_bSuspended)
 			{
 				PaintScreen();

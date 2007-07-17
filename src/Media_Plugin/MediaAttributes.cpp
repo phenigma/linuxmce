@@ -56,7 +56,7 @@ MediaAttributes::MediaAttributes(string host, string user, string pass, string d
         LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Cannot connect to database!" );
         throw "Cannot connect";
     }
-	m_pMediaAttributes_LowLevel = new MediaAttributes_LowLevel(m_pDatabase_pluto_media, m_nPK_Installation);
+	m_pMediaAttributes_LowLevel = new MediaAttributes_LowLevel(m_pDatabase_pluto_media);
 }
 
 MediaAttributes::~MediaAttributes()

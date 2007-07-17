@@ -119,6 +119,7 @@ void *WatchDogThread( void *pData )
 Command_Impl::Command_Impl( int DeviceID, string ServerAddress, bool bLocalMode, class Router *pRouter )
 	: HandleRequestSocket( DeviceID, ServerAddress, "Command_Impl1 Dev #" + StringUtils::itos(DeviceID) ), m_listMessageQueueMutex( "MessageQueue" )
 {
+	m_bRouterReloading = false;
 	m_iInstanceID = (int) time(NULL);
 	m_pEvent = NULL;
 	m_pData = NULL;
@@ -144,6 +145,7 @@ Command_Impl::Command_Impl( int DeviceID, string ServerAddress, bool bLocalMode,
 Command_Impl::Command_Impl( Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, class Router *pRouter )
 	: HandleRequestSocket( pData->m_dwPK_Device, pPrimaryDeviceCommand->m_sIPAddress, "Command_Impl2 Dev #" ), m_listMessageQueueMutex( "MessageQueue" )
 {
+	m_bRouterReloading = false;
 	m_bKillSpawnedDevicesOnExit=true;
 	m_pRouter = pRouter;
 	m_pcRequestSocket = NULL;
@@ -698,6 +700,8 @@ ReceivedMessageResult Command_Impl::ReceivedMessage( Message *pMessage )
 	{
 		if( pMessage->m_dwID == SYSCOMMAND_RELOAD && pMessage->m_dwPK_Device_To==m_dwPK_Device )
 		{
+			if( pMessage->m_mapParameters.find(1)!=pMessage->m_mapParameters.end() )
+				m_bRouterReloading=true;
 			LoggerWrapper::GetInstance()->Write(LV_WARNING,"Got a reload command from %d %s",pMessage->m_dwPK_Device_From,pMessage->m_mapParameters[COMMANDPARAMETER_Description_CONST].c_str());
 			SendString("BYE");
 			Sleep(250);

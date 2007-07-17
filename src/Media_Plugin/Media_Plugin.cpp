@@ -5981,6 +5981,9 @@ void Media_Plugin::CMD_Get_ID_from_Filename(string sFilename,int *iEK_File,strin
 void Media_Plugin::CMD_Specify_Media_Provider(int iPK_Device,string sText,string sDescription,string &sCMD_Result,Message *pMessage)
 //<-dceag-c823-e->
 {
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Media_Plugin::CMD_Specify_Media_Provider iPK_Device %d sText %s sDescription %s",
+		iPK_Device,sText.c_str(),sDescription.c_str() );
+
 	// No provider for this.
 	if( sText=="NONE" )
 	{
@@ -6003,6 +6006,8 @@ void Media_Plugin::CMD_Specify_Media_Provider(int iPK_Device,string sText,string
 		return; // shouldn't happen
 	}
 
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Media_Plugin::CMD_Specify_Media_Provider ready to get rows" );
+
 	vector<Row_MediaProvider *> vectRow_MediaProvider;
 	m_pDatabase_pluto_media->MediaProvider_get()->GetRows("ID='" + StringUtils::SQLEscape(sText) + "'",&vectRow_MediaProvider);
 
@@ -6018,8 +6023,11 @@ void Media_Plugin::CMD_Specify_Media_Provider(int iPK_Device,string sText,string
 		pRow_MediaProvider->ID_set( sText );
 		m_pDatabase_pluto_media->MediaProvider_get()->Commit();
 	}
+
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Media_Plugin::CMD_Specify_Media_Provider ready to set data" );
 	DatabaseUtils::SetDeviceData(m_pDatabase_pluto_main,iPK_Device,DEVICEDATA_EK_MediaProvider_CONST,StringUtils::itos(pRow_MediaProvider->PK_MediaProvider_get()));
 	DatabaseUtils::SetDeviceData(m_pDatabase_pluto_main,iPK_Device,DEVICEDATA_Source_CONST,"");  // Got to get this again
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Media_Plugin::CMD_Specify_Media_Provider ready to sync" );
 
 	DCE::CMD_Sync_Providers_and_Cards_Cat CMD_Sync_Providers_and_Cards_Cat(m_dwPK_Device,DEVICECATEGORY_Media_Player_Plugins_CONST,false,BL_SameHouse,0,pMessage ? pMessage->m_dwPK_Device_From : 0);
 	SendCommand(CMD_Sync_Providers_and_Cards_Cat);

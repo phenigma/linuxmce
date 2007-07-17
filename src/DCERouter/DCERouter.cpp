@@ -1090,6 +1090,12 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted, bo
 				m_bQuit = false;
 				m_bReload = true;
                 break;
+
+			case SYSCOMMAND_RETRIEVE_INSTALLATION_ID:
+				(*SafetyMessage)->m_bRespondedToMessage=true;
+				pSocket->SendMessage(new Message(m_dwPK_Device, (*SafetyMessage)->m_dwPK_Device_From, PRIORITY_NORMAL, MESSAGETYPE_REPLY, 0, 1, 0, StringUtils::itos(m_dwPK_Installation).c_str()));
+				break;
+
             case SYSCOMMAND_SEGFAULT:
 				{
 					LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Forcing a crash");
@@ -1565,7 +1571,7 @@ void Router::StopAllDevices(bool bReload)
         ServerSocket *pServerSocket = (*iDC).second;
         PLUTO_SAFETY_LOCK(slConnMutex,(pServerSocket->m_ConnectionMutex))
         {
-			pServerSocket->SendMessage(new Message(0, (*iDC).first, PRIORITY_URGENT, MESSAGETYPE_SYSCOMMAND, bReload ? SYSCOMMAND_RELOAD : SYSCOMMAND_QUIT, 0));
+			pServerSocket->SendMessage(new Message(0, (*iDC).first, PRIORITY_URGENT, MESSAGETYPE_SYSCOMMAND, bReload ? SYSCOMMAND_RELOAD : SYSCOMMAND_QUIT, 1, 1, "1"));
         }
     }
 
