@@ -249,7 +249,7 @@ bool USB_UIRT_0038::GetConfig()
 	if( !USB_UIRT_0038_Command::GetConfig() )
 		return false;
 //<-dceag-getconfig-e->
-	if( m_dwPK_Device!=DEVICEID_MESSAGESEND )
+	if( m_dwPK_Device!=DEVICEID_MESSAGESEND && !m_bLocalMode )
 	{
 		if( !m_Virtual_Device_Translator.GetConfig(m_pData) )
 			return false;
@@ -266,6 +266,7 @@ bool USB_UIRT_0038::GetConfig()
 		strcpy(devicePath, m_sPort.c_str());
 	else
 		strcpy(devicePath, TranslateSerialUSB(DATA_Get_COM_Port_on_PC()).c_str());
+
 	if (devicePath[0]==0)
 	{
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "No port specified.");
