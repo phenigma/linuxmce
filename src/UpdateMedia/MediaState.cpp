@@ -86,8 +86,10 @@ void MediaState::LoadDbInfo(Database_pluto_media *pDatabase_pluto_media, string 
 
 	DB_ROW row;
 	PlutoSqlResult allresult;
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MediaState::LoadDbInfo ready to run big query");
 	if(NULL != (allresult.r = pDatabase_pluto_media->db_wrapper_query_result(sSql)))
 	{
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "MediaState::LoadDbInfo got %d rows", allresult.r->row_count);
 		while((row = db_wrapper_fetch_row(allresult.r)))
 		{
 			if(NULL != row && NULL != row[sfFileID] && NULL != row[sfPath] && NULL != row[sfFilename])
@@ -291,8 +293,10 @@ MediaItemState MediaState::LoadDbInfoForFile(Database_pluto_media *pDatabase_plu
 
 	DB_ROW row;
 	PlutoSqlResult allresult;
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MediaState::LoadDbInfoForFile ready to run big query");
 	if(NULL != (allresult.r = pDatabase_pluto_media->db_wrapper_query_result(sSql)))
 	{
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "MediaState::LoadDbInfoForFile got %d rows", allresult.r->row_count);
 		if(NULL != (row = db_wrapper_fetch_row(allresult.r)))
 		{
 			if(NULL != row[sfFileID] && NULL != row[sfPath] && NULL != row[sfFilename])

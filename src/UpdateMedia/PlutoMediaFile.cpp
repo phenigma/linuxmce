@@ -435,7 +435,7 @@ void PlutoMediaFile::SaveShortAttributesInDb(bool bAddAllToDb)
 					if( (iPass==0 && pPlutoMediaAttribute->m_nType==ATTRIBUTETYPE_Album_CONST) || (iPass==1 && pPlutoMediaAttribute->m_nType!=ATTRIBUTETYPE_Album_CONST) )
 						continue; // See notes above
 
-					MediaAttributes_LowLevel mediaAttributes_LowLevel(m_pDatabase_pluto_media, m_nOurInstallationID);
+					MediaAttributes_LowLevel mediaAttributes_LowLevel(m_pDatabase_pluto_media);
 					Row_Attribute *pRow_Attribute = mediaAttributes_LowLevel.GetAttributeFromDescription(m_nPK_MediaType,
 						pPlutoMediaAttribute->m_nType, pPlutoMediaAttribute->m_sName, PK_Attribute_Performer);
 
@@ -754,7 +754,7 @@ int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
 		{
 			//It's a "new" file, but we know the picture url
 			//we'll download the picture and record in Picture table
-			MediaAttributes_LowLevel mediaAttributes_LowLevel(m_pDatabase_pluto_media, m_nOurInstallationID);
+			MediaAttributes_LowLevel mediaAttributes_LowLevel(m_pDatabase_pluto_media);
 			Row_Picture *pRow_Picture = mediaAttributes_LowLevel.AddPicture(NULL, 0, 
 				FileUtils::FindExtension(m_pPlutoMediaAttributes->m_sPictureUrl), 
 				m_pPlutoMediaAttributes->m_sPictureUrl
@@ -928,7 +928,7 @@ int PlutoMediaFile::GetPicAttribute(int PK_File)
 
 			//It's a "new" file, but we know the picture url
 			//we'll download the picture and record in Picture table
-			MediaAttributes_LowLevel mediaAttributes_LowLevel(m_pDatabase_pluto_media, m_nOurInstallationID);
+			MediaAttributes_LowLevel mediaAttributes_LowLevel(m_pDatabase_pluto_media);
 			Row_Picture *pRow_Picture = mediaAttributes_LowLevel.AddPicture(NULL, 0, 
 				FileUtils::FindExtension(m_pPlutoMediaAttributes->m_sPictureUrl), 
 				m_pPlutoMediaAttributes->m_sPictureUrl

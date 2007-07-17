@@ -2105,8 +2105,10 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 			if(  !m_pLocationInfo_Initial  )
 			{
 				LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "No initial Location" );
-				m_pOrbiterRenderer->PromptUser("Something went very wrong. No initial location!");
-				exit( 1 );
+				m_pOrbiterRenderer->PromptUser("Something went very wrong. No initial location!  I'll try to do a regen.");
+				RegenOrbiter();
+				Sleep(2000);
+				OnReload();
 			}
 #ifdef DEBUG
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Setting current location and initial screen %s",m_sInitialScreen.c_str());

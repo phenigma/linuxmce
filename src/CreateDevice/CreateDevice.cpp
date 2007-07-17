@@ -122,7 +122,7 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sDescrip
 	PlutoSqlResult result,result1,result1b,result2,result3,resultPackage,resultAutoAssign;
 	DB_ROW row;
 
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Create device -- querying packages for %d",iPK_DeviceTemplate);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"CreateDevice::DoIt querying packages for %d",iPK_DeviceTemplate);
 	int iPK_DeviceCategory;
 	string SQL = "SELECT FK_DeviceCategory,Description,ConfigureScript,IsPlugAndPlay,FK_Package,FK_InfraredGroup FROM DeviceTemplate WHERE PK_DeviceTemplate=" + StringUtils::itos(iPK_DeviceTemplate);
 	if( ( result.r=db_wrapper_query_result( SQL ) ) && ( row=db_wrapper_fetch_row( result.r ) ) )
@@ -133,7 +133,7 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sDescrip
 		return 0;
 	}
 
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Create device -- getting i/r codes for %d",iPK_DeviceTemplate);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"CreateDevice::DoIt getting i/r codes for %d",iPK_DeviceTemplate);
 	if( row[5] && atoi(row[5]) )  // Only ask for the i/r codes if there is an infrared group
 	{
 		string sPK_DeviceTemplate = StringUtils::itos(iPK_DeviceTemplate);
@@ -145,13 +145,13 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sDescrip
 	// Use a temporary PK_Device_ControlledVia_temp because in rare circumstances this can't be determined until after the device is created
 	// because the controlling device doesn't exist.  In such cases we don't care because there can't be another such device if there's nothing
 	// to control it
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Create device -- finding controlled via for %d",iPK_DeviceTemplate);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"CreateDevice::DoIt Create device -- finding controlled via for %d",iPK_DeviceTemplate);
 	int PK_Device_Existing,PK_Device_ControlledVia_temp = PK_Device_ControlledVia;
 	if( !PK_Device_ControlledVia_temp )
 		PK_Device_ControlledVia_temp=DatabaseUtils::FindControlledViaCandidate(this,0,iPK_DeviceTemplate,iPK_Device_RelatedTo,m_iPK_Installation);
 	if( PK_Device_ControlledVia_temp && (PK_Device_Existing=DatabaseUtils::ViolatesDuplicateRules(this,PK_Device_ControlledVia_temp,iPK_DeviceTemplate))!=0 )
 	{
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Not creating duplicate device template %d on %d, using %d",iPK_DeviceTemplate,PK_Device_ControlledVia_temp,PK_Device_Existing);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"CreateDevice::DoIt Not creating duplicate device template %d on %d, using %d",iPK_DeviceTemplate,PK_Device_ControlledVia_temp,PK_Device_Existing);
 		return PK_Device_Existing;
 	}
 		
@@ -169,6 +169,9 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sDescrip
 		SQL += "," + StringUtils::itos(PK_Device_ControlledVia);
 		
 	SQL += ");";
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"CreateDevice::DoIt Ready to insert %s", SQL.c_str());
+
 	int PK_Device = threaded_db_wrapper_query_withID(SQL);
 	if( !PK_Device )
 	{
@@ -180,10 +183,11 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sDescrip
 	{
 		char cmd[1024];
 		snprintf(cmd, 1024, "/usr/pluto/bin/PlutoDHCP.sh -d %d -a", PK_Device);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"CreateDevice::DoIt %s",cmd);
 		system(cmd);
 	}
 
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Inserted device: %d Package: %d installation: %d configure: %d",
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"CreateDevice::DoIt Inserted device: %d Package: %d installation: %d configure: %d",
 		PK_Device,iPK_Package,m_iPK_Installation,(int) m_bDontCallConfigureScript);
 
 	bool bIsOrbiter=false;
@@ -196,11 +200,11 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sDescrip
 		SQL = "SELECT FK_DeviceData,IK_DeviceData FROM DeviceCategory_DeviceData WHERE FK_DeviceCategory=" + StringUtils::itos(iPK_DeviceCategory_Loop);
 		if( ( result1.r=db_wrapper_query_result( SQL ) ) )
 		{
-LoggerWrapper::GetInstance()->Write(LV_STATUS,"Found %d rows with %s",(int) result1.r->row_count,SQL.c_str());
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"CreateDevice::DoIt Found %d rows with %s",(int) result1.r->row_count,SQL.c_str());
 			while( (row=db_wrapper_fetch_row( result1.r )) )
 			{
 				mapParametersAdded[ atoi(row[0]) ] = row[1] ? row[1] : "";
-LoggerWrapper::GetInstance()->Write(LV_STATUS,"Added parameter from category %d %s",atoi(row[0]),mapParametersAdded[ atoi(row[0]) ].c_str());
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"CreateDevice::DoIt Added parameter from category %d %s",atoi(row[0]),mapParametersAdded[ atoi(row[0]) ].c_str());
 
 				SQL = "INSERT INTO Device_DeviceData(FK_Device,FK_DeviceData,IK_DeviceData) VALUES(" + StringUtils::itos(PK_Device) + 
 					"," + row[0] + ",'" + (row[1] ? StringUtils::SQLEscape( row[1] ) : string("")) + "');";
@@ -217,7 +221,7 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"Added parameter from category %d 
 	SQL = "SELECT FK_DeviceData,IK_DeviceData FROM DeviceTemplate_DeviceData JOIN DeviceData ON PK_DeviceData=FK_DeviceData WHERE FK_DeviceTemplate=" + StringUtils::itos(iPK_DeviceTemplate);
 	if( ( result2.r=db_wrapper_query_result( SQL ) ) )
 	{
-LoggerWrapper::GetInstance()->Write(LV_STATUS,"Found %d rows with %s",(int) result2.r->row_count,SQL.c_str());
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"CreateDevice::DoIt Found %d rows with %s",(int) result2.r->row_count,SQL.c_str());
 		while( (row=db_wrapper_fetch_row( result2.r )) )
 		{
 			if( mapParametersAdded.find(atoi(row[0]))!=mapParametersAdded.end() )
@@ -231,7 +235,7 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"Found %d rows with %s",(int) resu
 				SQL = "INSERT INTO Device_DeviceData(FK_Device,FK_DeviceData,IK_DeviceData) VALUES(" + StringUtils::itos(PK_Device) + 
 					"," + row[0] + ",'" + (row[1] ? StringUtils::SQLEscape( row[1] ) : string("")) + "');";
 			}
-LoggerWrapper::GetInstance()->Write(LV_STATUS,"Executing %s",SQL.c_str());
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"CreateDevice::DoIt Executing %s",SQL.c_str());
 			threaded_db_wrapper_query(SQL,true);
 		}
 	}
@@ -241,7 +245,7 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"Executing %s",SQL.c_str());
 		SQL = "SELECT FK_DeviceData,IK_DeviceData FROM DHCPDevice_DeviceData WHERE FK_DHCPDevice=" + StringUtils::itos(iPK_DHCPDevice);
 		if( ( result3.r=db_wrapper_query_result( SQL ) ) )
 		{
-LoggerWrapper::GetInstance()->Write(LV_STATUS,"Found %d rows with %s",(int) result3.r->row_count,SQL.c_str());
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"CreateDevice::DoIt Found %d rows with %s",(int) result3.r->row_count,SQL.c_str());
 			while( (row=db_wrapper_fetch_row( result3.r )) )
 			{
 				if( mapParametersAdded.find(atoi(row[0]))!=mapParametersAdded.end() )
@@ -314,7 +318,7 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"Found %d rows with %s",(int) resu
 		{
 			while( (row=db_wrapper_fetch_row( result_child_dev.r )) )
 			{
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Found install wizard %d",atoi(row[0]));
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"CreateDevice::DoIt Found install wizard %d",atoi(row[0]));
 				DoIt(0,atoi(row[0]),"","","",0,"",PK_Device);
 			}
 		}
@@ -327,7 +331,7 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"Found %d rows with %s",(int) resu
 		{
 			while( (row=db_wrapper_fetch_row( result_child_dev.r )) )
 			{
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Found install wizard %d",atoi(row[0]));
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"CreateDevice::DoIt Found install wizard %d",atoi(row[0]));
 				DoIt(0,atoi(row[0]),"","","",0,"",PK_Device);
 			}
 		}
@@ -338,7 +342,7 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"Found %d rows with %s",(int) resu
 	if( !PK_Device_ControlledVia )
 	{
 		PK_Device_ControlledVia=DatabaseUtils::FindControlledViaCandidate(this,PK_Device,iPK_DeviceTemplate,iPK_Device_RelatedTo,m_iPK_Installation);
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Searching for controlled via returned %d",PK_Device_ControlledVia);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"CreateDevice::DoIt Searching for controlled via returned %d",PK_Device_ControlledVia);
 		if( PK_Device_ControlledVia)
 		{
 			SQL = "UPDATE Device SET FK_Device_ControlledVia=" + StringUtils::itos(PK_Device_ControlledVia) +
@@ -364,7 +368,7 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"Found %d rows with %s",(int) resu
 	// If this is an orbiter, and it's not an on-screen orbiter, which will get orbitergen'd after a/v wizard, then regen it now
 	if( bIsOrbiter && PK_Device_ControlledVia==0 )
 	{
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"it's an orbiter, time to generate");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"CreateDevice::DoIt it's an orbiter, time to generate");
 		string SQL = "SELECT PK_Device FROM Device WHERE FK_Installation=" + StringUtils::itos(m_iPK_Installation) + " AND FK_DeviceTemplate=" + StringUtils::itos(DEVICETEMPLATE_Orbiter_Plugin_CONST);
 		PlutoSqlResult result;
 		DB_ROW row;
@@ -373,7 +377,7 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"Found %d rows with %s",(int) resu
 			int iPK_Device_OP = atoi(row[0]);
 			string sCmd = "/usr/pluto/bin/MessageSend localhost 0 " + StringUtils::itos(iPK_Device_OP) + " 1 " +
 				StringUtils::itos(COMMAND_Regen_Orbiter_CONST) + " " + StringUtils::itos(COMMANDPARAMETER_PK_Device_CONST) + " " + StringUtils::itos(PK_Device);
-			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Calling %s",sCmd.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"CreateDevice::DoIt Calling %s",sCmd.c_str());
 			system(sCmd.c_str());
 		}
 		else
@@ -425,7 +429,7 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"Found %d rows with %s",(int) resu
 			{
 				if( m_bInstallPackagesInBackground )
 				{
-					LoggerWrapper::GetInstance()->Write(LV_STATUS,"Executing /usr/pluto/bin/InstallNewDevice.sh %d %s",
+					LoggerWrapper::GetInstance()->Write(LV_STATUS,"CreateDevice::DoIt Executing /usr/pluto/bin/InstallNewDevice.sh %d %s",
 						PK_Device,(row[0] ? row[0] : ""));
 					string sPK_Device = StringUtils::itos(PK_Device);
 					char * args[] = { "/usr/pluto/bin/InstallNewDevice.sh", (char *)(sPK_Device.c_str()), (char *)(row[0] ? row[0] : ""), NULL };
@@ -434,18 +438,18 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"Found %d rows with %s",(int) resu
 				else
 				{
 					string sCmd = "/usr/pluto/bin/InstallNewDevice.sh " + StringUtils::itos(PK_Device) + " \"" + row[0] + "\"";
-					LoggerWrapper::GetInstance()->Write(LV_STATUS,"Executing %s",sCmd.c_str());
+					LoggerWrapper::GetInstance()->Write(LV_STATUS,"CreateDevice::DoIt Executing %s",sCmd.c_str());
 					system(sCmd.c_str());
 				}
 			}
 			else
-				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"No installation info for package %d",iPK_Package);
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"CreateDevice::DoIt No installation info for package %d",iPK_Package);
 		}
 		else
-			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Not installing package %d because %d top most is not %d",iPK_Package,PK_Device_TopMost,dceConfig.m_iPK_Device_Computer);
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"CreateDevice::DoIt Not installing package %d because %d top most is not %d",iPK_Package,PK_Device_TopMost,dceConfig.m_iPK_Device_Computer);
 	}
 	else
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Not installing package %d",iPK_Package);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"CreateDevice::DoIt Not installing package %d",iPK_Package);
 
 
 	return PK_Device;
