@@ -140,6 +140,9 @@ void WM_Event::ConvertFromSDLEvent(SDL_Event& Event)
 				case SDL_BUTTON_LEFT:
 					MouseButton(Event.button.x, Event.button.y);
 					break;
+				case SDL_BUTTON_RIGHT:
+					EscapeKey();
+					break;
 				case SDL_BUTTON_WHEELUP:
 					UpKey();
 					break;
