@@ -96,6 +96,8 @@ case $Action in
 						Row="$(RunSQL "$Q")"
 						echo "Package installed successfully"
 					else
+						Q="UPDATE Software_Device SET Status='N' WHERE FK_Device=$DeviceID AND FK_Software=$PackageID"
+						Row="$(RunSQL "$Q")"
 						echo "Package installation failed, installer returned non-zero code ($RetCode)"
 					fi
 					
@@ -112,6 +114,12 @@ case $Action in
 			fi
 			
 		done
+
+		if [ -n "$Err" ]; then
+			Q="UPDATE Software_Device SET Status='N' WHERE FK_Device=$DeviceID AND FK_Software=$PackageID"
+			Row="$(RunSQL "$Q")"
+		fi
+
 		[ -n "$Err" ] && exit 10 || exit 0
 	;;
 
