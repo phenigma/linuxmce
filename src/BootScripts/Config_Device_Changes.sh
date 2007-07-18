@@ -138,10 +138,10 @@ if [[ "$StartLocalDevice" == "y" ]]; then
         /usr/pluto/bin/MessageSend "$DCERouter" 0 "$PK_Device" 7 12
 fi
 
+#<-mkr_b_via_b->
 # Run alsaconf-noninteractive
 if [[ -x /usr/pluto/bin/alsaconf-noninteractive ]]; then
 	/usr/pluto/bin/alsaconf-noninteractive
-#<-mkr_b_via_b->
 	amixer sset 'Master Front' 74% unmute
-#<-mkr_b_via_e->
 fi
+#<-mkr_b_via_e->
