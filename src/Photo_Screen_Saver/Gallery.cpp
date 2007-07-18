@@ -104,6 +104,9 @@ void Gallery::MainLoop(Photo_Screen_Saver *pPhoto_Screen_Saver)
 
 					pthread_cond_broadcast(&m_FrontEndCond);
 				}
+
+				vm.Release();
+				_Sleep(80);
 			}
 			else
 			{
