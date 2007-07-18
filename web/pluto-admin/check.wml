@@ -210,10 +210,19 @@ function displaySecuritySelected($alertID,$dbADO,$securityADO)
 			return 'Invalid alert ID';
 		}
 		$row=$rs->FetchRow();
-		$alertDevice=getFieldsAsArray('Alert_Device','PK_Alert_Device',$securityADO,'WHERE FK_Alert='.$alertID.' AND EK_Device='.$row['EK_Device']);
+		$alertDevice=getFieldsAsArray('Alert_Device','PK_Alert_Device,EK_Device',$securityADO,'WHERE FK_Alert='.$alertID.' AND EK_Device='.$row['EK_Device']);
+		$resD=$dbADO->Execute('SELECT * FROM Device LEFT JOIN Device_Device_Related ON FK_Device=PK_Device WHERE PK_Device =?',$alertDevice['EK_Device'][0]);
+		$picsArray=array();
+		while($rowD=$resD->FetchRow()){
+			$picPath='alert_'.$alertDevice['PK_Alert_Device'][0].'_cam'.$rowD['FK_Device_Related'];
+			$alertPic=get_alert_pic($picPath);		
+			$picsArray[]='<img src="include/image.php?imagepath='.$alertPic.'" alt="Loading..."/>';
+		}
+		
+		
 		$msg.='
 			<b>'.$row['Description'].'</b> ['.(!isset($roomsArray[$row['EK_Device']])?'No room':$roomsArray[$row['EK_Device']]).'] - '.date($DateFormat,$row['UnixTime']).'<br/>
-		<img src="security_images/'.$alertDevice['PK_Alert_Device'][0].'.jpg" alt="Loading..."/><br/>
+		'.join('<br/>',$picsArray).'<br/>
 		<b>What to do?</b><br/>';
 		if(isset($sosForm)){
 			$msg.=$sosForm;
@@ -248,8 +257,10 @@ function indexLogged($dbADO)
 		2. <a href="check.wml?opt=2'.extraLinks().@$shmSufix.'">Set house mode</a><br/>
 		3. '.$speakInTheHouseLink.'<br/>
 		4. <a href="check.wml?opt=4'.extraLinks().'">View Cameras</a><br/>
-<!--		5. <a href="check.wml?opt=5'.extraLinks().'">All Orbiter Scenarios</a><br/>
-		6. <a href="check.wml?opt=6'.extraLinks().'">Advanced options</a><br/>-->
+		5. <a href="check.wml?security=0'.extraLinks().'">Security alerts</a><br/>
+		
+<!--		6. <a href="check.wml?opt=5'.extraLinks().'">All Orbiter Scenarios</a><br/>
+		7. <a href="check.wml?opt=6'.extraLinks().'">Advanced</a><br/>-->
 		';
 		
 	return $msg;

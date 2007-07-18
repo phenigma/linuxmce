@@ -6589,4 +6589,17 @@ function getCoreIP($dbADO)
 function write_weblog($str){
 	writeFile($GLOBALS['WebExecLogFile'],date('d-m-Y H:i:s')."\t".$str."\n",'a+');
 }
+
+function get_alert_pic($picname){
+	$extensionsArray=array('png','jpg','gif');
+	
+	foreach ($extensionsArray AS $extension){
+		$picPath=$GLOBALS['SecurityPicsPath'].$picname.'.'.$extension;	
+		if(file_exists($picPath)){
+			return $picPath;
+		}
+	}
+	
+	return APPROOT.'include/images/alert_no_pic.png';
+}
 ?>
