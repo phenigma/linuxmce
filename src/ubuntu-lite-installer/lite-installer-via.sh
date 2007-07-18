@@ -167,23 +167,22 @@ SetupFstab()
 #
 # <file system> <mount point>   <type>  <options>       <dump>  <pass>                                                                                      proc            /proc           proc    defaults        0       0
 ${TargetHdd}6   /               ext3    defaults,errors=remount-ro,user_xattr 0       1
-${TargetHdd}1   /boot           ext3    defaults,user_xattr 0       2
-${TargetHdd}5   none            swap    sw              0       0
-/dev/cdrom      /media/cdrom0   udf,iso9660 user,noauto     0       0
+${TargetHdd}1   /boot           ext3    defaults,user_xattr                   0       2
+${TargetHdd}5   none            swap    sw                                    0       0
+${TargetHdd}7   /media/ubuntu   ext3    default,error=remount-ro              0       1
+/dev/cdrom      /media/cdrom0   udf,iso9660 user,noauto                       0       0
 "
 	echo "$fstab_text" >/media/target/debian/etc/fstab
 
 	fstab_text="# /etc/fstab: static file system information.
 #
-# <file system> <mount point>   <type>  <options>       <dump>  <pass>
-proc            /proc           proc    defaults        0       0
-#UUID=$RootUbuntuUUID
-${TargetHdd}7 /               ext3    defaults,errors=remount-ro 0       1
-#UUID=$BootUUID
-${TargetHdd}1 /boot           ext3    defaults          0       2
-#UUID=$SwapUUID
-${TargetHdd}5 none            swap    sw              0       0
-/dev/cdrom        /media/cdrom0   udf,iso9660 user,noauto     0       0
+# <file system> <mount point>    <type>  <options>                 <dump>  <pass>
+proc              /proc           proc    defaults                   0       0
+${TargetHdd}7     /               ext3    defaults,errors=remount-ro 0       1
+${TargetHdd}1     /boot           ext3    defaults                   0       2
+${TargetHdd}5     none            swap    sw                         0       0
+${TargetHdd}6     /media/linuxmce ext3    defaults,errors=remount-ro 0       0
+/dev/cdrom        /media/cdrom0   udf,iso9660 user,noauto            0       0
 "
 	echo "$fstab_text" >/media/target/ubuntu/etc/fstab
 }
@@ -226,7 +225,12 @@ TargetCleanup()
 	done < <(/sbin/ip l) >>/media/target/ubuntu/etc/iftab
 	#chroot /media/target/debian/ update-initramfs -u
 	chroot /media/target/ubuntu/ update-initramfs -u
+
 	#chroot /media/target update-grub
+
+	# Create mount point for eachother's filesystems
+	mkdir -p /media/target/ubuntu/media/debian
+	mkdir -p /media/target/debian/media/ubuntu
 }
 
 UnmountPartitions()
