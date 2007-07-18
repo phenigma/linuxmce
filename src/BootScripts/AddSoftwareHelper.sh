@@ -4,6 +4,11 @@
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/SQL_Ops.sh
 
+Action=$1
+DeviceID=$2
+PackageID=$3
+OrbiterID=$4
+
 FindDeviceIP()
 {
 	Q="SELECT IPAddress FROM Device WHERE PK_Device='$1'"
@@ -18,10 +23,13 @@ FindPackageName()
 	echo "$(Field 1 "$Row")"
 }
 
-
-Action=$1
-DeviceID=$2
-PackageID=$3
+NotifyOrbiter()
+{
+	# notifyinf Orbiter if asked
+	if [[ "$OrbiterID" != "" ]]; then
+		/usr/pluto/bin/MessageSend dcerouter 0 $OrbiterID 1 14 15 "*"
+	fi
+}
 
 case $Action in
 	install|remove)
@@ -33,6 +41,8 @@ case $Action in
 	
 		echo "Launching $Action on $DeviceIP"
 		/usr/pluto/bin/LaunchRemoteCmd.sh "$DeviceIP" "/usr/pluto/bin/AddSoftwareHelper.sh $Action-actual $DeviceID $PackageID"
+
+		NotifyOrbiter
 	;;
 	
 	
@@ -135,7 +145,8 @@ case $Action in
 	;;
 	
 	*)
-		echo "Incorrect syntax, please use: $0 (install|install-actual|remove|remove-actual) DeviceID PackageID"
+		echo "Incorrect syntax, please use: $0 (install|install-actual|remove|remove-actual) DeviceID PackageID [OrbiterID]"
+		echo "where action is executed for software package PackageID on machine DeviceID, and orbiter OrbiterID is notified at the end"
 	;;
 esac
 
