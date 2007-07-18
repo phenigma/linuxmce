@@ -56,32 +56,29 @@ while : ;do
 		nbtscan_output=""
 	fi
 	
+	Q="
+		SELECT IPaddress FROM Device INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE FK_DeviceCategory IN ($CAT_MD, $CAT_FILESERVER);
+		SELECT IPaddress FROM UnknownDevices;
+		SELECT IPaddress FROM PnpQueue WHERE Category='fileserver';
+	"
+	IP_List="_$(RunSQL "$Q" | sed 's/  */_/g')_"
 	
 	for outputLine in $nbtscan_output ;do
+		sleep 10
 		## Get the important info
 		serverIP=$(echo $outputLine | cut -d'#' -f1)
 		serverName=$(echo $outputLine | cut -d'#' -f2)
 		serverMAC=$(echo $outputLine | cut -d'#' -f5)
-
 		if [[ "$serverMAC" == "00:00:00:00:00:00" ]]; then
 			serverMAC_ARP=$(arp -n "$serverIP" | tail +2 | grep ether | awk '{print $3}')
 			[[ -n "$serverMAC_ARP" ]] && serverMAC="$serverMAC_ARP"
 		fi
-
+		
 		Log "Processing $serverIP"
 
-		## Check to see if the ip is already in the database
-		Q="
-			SELECT PK_Device FROM Device INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE FK_DeviceCategory IN ($CAT_MD, $CAT_FILESERVER) AND IPaddress='${serverIP}' LIMIT 1;
-			SELECT IPaddress FROM UnknownDevices WHERE IPaddress='${serverIP}' LIMIT 1;
-			SELECT IPaddress FROM PnpQueue WHERE IPaddress='${serverIP}' AND Category='fileserver' LIMIT 1
-		"
-		Result=$(RunSQL "$Q")
-
 		## If the IP is not there already
-		if [[ "$Result" == "" && "$serverIP" != "$IntIP" ]] ;then
+		if [[ "$IP_List" == *"_${IntIP}_"* ]] && [[ "$serverIP" != "$IntIP" ]] ;then
 			## Report it to the router
-			sleep 10
 			/usr/pluto/bin/MessageSend $DCERouter $PK_Device -1001 2 65 56 "fileserver" 52 3 53 2 49 1837 5 "$serverMAC" 28 "$serverIP" 55 "186|$serverName" 54 "\\\\$serverIP"
 			Log "Reporting $serverIP [$serverName] to the router"
 			
