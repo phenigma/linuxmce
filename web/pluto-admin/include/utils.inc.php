@@ -2373,15 +2373,16 @@ function createDevice($FK_DeviceTemplate,$FK_Installation,$controlledBy,$roomID,
 		$msgSendCommand.=($macAddress!='')?' 47 \''.$macAddress.'\'':'';
 		
 		$out=exec_batch_command($msgSendCommand,1);
+		write_weblog($out);
 		
 		if(strpos($out,'0:OK')===false){
 			error_redirect('ERROR: Error creating device.','');
 		}
 		
-		$insertID=substr($out,7);
+		$insertID=(int)trim(substr($out,7));
 	
 	
-		if($insertID===false){
+		if($insertID==0){
 			error_redirect('ERROR: device not created, check if DCE router is running.','');
 		}
 	}
@@ -6585,4 +6586,7 @@ function getCoreIP($dbADO)
 	return $row['IPaddress'];
 }
 
+function write_weblog($str){
+	writeFile($GLOBALS['WebExecLogFile'],date('d-m-Y H:i:s')."\t".$str."\n",'a+');
+}
 ?>
