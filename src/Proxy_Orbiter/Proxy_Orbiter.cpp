@@ -46,6 +46,7 @@ void WriteStatusOutput(const char *) {} //do nothing
 #define REQUEST_INTERVAL_TIMEOUT 400
 #define CISCO_FAILURE_WATCHDOG_INTERVAL 1000
 #define MINIMUM_PUSH_INTERVAL 6000
+#define XML_MAX_TOUCH_ZONES 32
 
 //-----------------------------------------------------------------------------------------------------
 Proxy_Orbiter::Proxy_Orbiter(int DeviceID, int PK_DeviceTemplate, string ServerAddress)
@@ -217,52 +218,55 @@ void Proxy_Orbiter::StopProcessingRequest(void *p)
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Proxy_Orbiter::SaveXML(string sFileName)
 {
-    m_dequeXMLItems.clear();
-    GenerateXMLItems(m_pScreenHistory_Current->GetObj());
-    string sSoftKeys = GenerateSoftKeys(m_pScreenHistory_Current->GetObj());
+	if(m_iListenPort >= CISCO_LISTEN_PORT_START && m_iListenPort < CISCO_LISTEN_PORT_START + 10) //only cisco orbiters
+	{
+		m_dequeXMLItems.clear();
+		GenerateXMLItems(m_pScreenHistory_Current->GetObj());
+		string sSoftKeys = GenerateSoftKeys(m_pScreenHistory_Current->GetObj());
 
-    string sXMLItems;
-    int nCount = 1;
-    deque<string>::iterator it;
-    for(it = m_dequeCellXMLItems.begin(); it != m_dequeCellXMLItems.end(); it++)
-    {
-        if(nCount > 32)
-        {
-            LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "More then 32 objects needed! Screen: %s", 
-                m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str());
-            break;
-        }
+		string sXMLItems;
+		int nCount = 1;
+		deque<string>::iterator it;
+		for(it = m_dequeCellXMLItems.begin(); it != m_dequeCellXMLItems.end(); it++)
+		{
+			if(nCount > XML_MAX_TOUCH_ZONES)
+			{
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "More than " TOSTRING(XML_MAX_TOUCH_ZONES) " objects needed! Screen: %s", 
+					m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str());
+				break;
+			}
 
-        sXMLItems += *it;
-        nCount++;
-    }
+			sXMLItems += *it;
+			nCount++;
+		}
 
-    for(it = m_dequeXMLItems.begin(); it != m_dequeXMLItems.end(); it++)
-    {
-        if(nCount > 32)
-        {
-            LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "More then 32 objects needed! Screen: %s", 
-                m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str());
-            break;
-        }
+		for(it = m_dequeXMLItems.begin(); it != m_dequeXMLItems.end(); it++)
+		{
+			if(nCount > XML_MAX_TOUCH_ZONES)
+			{
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "More than " TOSTRING(XML_MAX_TOUCH_ZONES) " objects needed! Screen: %s", 
+					m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str());
+				break;
+			}
 
-        sXMLItems += *it;
-        nCount++;
-    }
+			sXMLItems += *it;
+			nCount++;
+		}
 
-    string sPrompt;
-    string sXMLString = 
-        "<CiscoIPPhoneGraphicFileMenu>\r\n"
-        "<Title>Pluto Orbiter</Title>\r\n"
-        "<Prompt>" + sPrompt + "</Prompt>\r\n"
-        "<LocationX>0</LocationX>\r\n"
-        "<LocationY>0</LocationY>\r\n"
-        "<URL>" + m_sPngImageUrl + "</URL>\r\n" + 
-        sXMLItems + 
-        sSoftKeys + 
-        "</CiscoIPPhoneGraphicFileMenu>\r\n";
+		string sPrompt;
+		string sXMLString = 
+			"<CiscoIPPhoneGraphicFileMenu>\r\n"
+			"<Title>Pluto Orbiter</Title>\r\n"
+			"<Prompt>" + sPrompt + "</Prompt>\r\n"
+			"<LocationX>0</LocationX>\r\n"
+			"<LocationY>0</LocationY>\r\n"
+			"<URL>" + m_sPngImageUrl + "</URL>\r\n" + 
+			sXMLItems + 
+			sSoftKeys + 
+			"</CiscoIPPhoneGraphicFileMenu>\r\n";
 
-    FileUtils::WriteBufferIntoFile(GetDeviceXmlFileName(), sXMLString.c_str(), sXMLString.size());
+		FileUtils::WriteBufferIntoFile(GetDeviceXmlFileName(), sXMLString.c_str(), sXMLString.size());
+	}
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Proxy_Orbiter::GenerateXMLItems(DesignObj_Orbiter *pObj) //recursive

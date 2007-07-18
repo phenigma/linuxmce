@@ -161,13 +161,11 @@ void ObjectRenderer_OpenGL::LoadPicture(PlutoGraphic* pPlutoGraphic)
 		pGraphicFile = NULL;
 	}
 
-	if(pPlutoGraphic->IsEmpty() && !sFileName.empty())
+	if(pPlutoGraphic->IsEmpty() && !sFileName.empty() && sFileName.find(DYNAMIC_OBJ_NAME) != 0)
 	{
 		if(!FileUtils::FileExists(sFileName))
 		{
-			if(pPlutoGraphic->m_Filename.find(DYNAMIC_OBJ_NAME) != 0)
-				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Unable to read file %s", (sFileName).c_str());
-
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Unable to read file %s", (sFileName).c_str());
 			return;
 		}
 
