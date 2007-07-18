@@ -14,7 +14,6 @@ FileStatusObserver::FileStatusObserver() :
 
 	m_pAlarmManager = new AlarmManager();
     m_pAlarmManager->Start(1); 
-	m_pAlarmManager->AddRelativeAlarm(3, this, CHECK_OBSERVED_FILES_STATUS, NULL);
 }
 //------------------------------------------------------------------------------------------
 FileStatusObserver::~FileStatusObserver()
@@ -45,12 +44,15 @@ void FileStatusObserver::UnsetFileNotifier()
 void FileStatusObserver::Observe(string sFilename)
 {
 	PLUTO_SAFETY_LOCK(ofm, m_ObservedFilesMutex);
-
 	list<string>::iterator it = find(m_listFileToObserve.begin(), m_listFileToObserve.end(), sFilename);
 	if(it == m_listFileToObserve.end())
 	{
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "OBSERVER: File added to list with files to be observed: %s", sFilename.c_str());
 		m_listFileToObserve.push_back(sFilename);
+
+		//start alarm if not already started
+		if(-1 == m_pAlarmManager->FindAlarmByType(CHECK_OBSERVED_FILES_STATUS))
+			m_pAlarmManager->AddRelativeAlarm(3, this, CHECK_OBSERVED_FILES_STATUS, NULL);
 	}
 }
 //------------------------------------------------------------------------------------------
@@ -84,7 +86,9 @@ void FileStatusObserver::AlarmCallback(int id, void* param)
 			}
 		}
 
-		m_pAlarmManager->AddRelativeAlarm(3, this, CHECK_OBSERVED_FILES_STATUS, NULL);
+		//start alarm again only if needed
+		if(!m_listFileToObserve.empty())
+			m_pAlarmManager->AddRelativeAlarm(3, this, CHECK_OBSERVED_FILES_STATUS, NULL);
 	}
 }
 
