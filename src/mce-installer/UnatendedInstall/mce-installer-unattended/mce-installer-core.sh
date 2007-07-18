@@ -359,8 +359,8 @@ for dir in /home/* ;do
 done
 
 #Install libdvdcss
-apt-get -f -y install  libdvdread3
-/usr/share/doc/libdvdread3/install-css.sh
+#apt-get -f -y install  libdvdread3
+#/usr/share/doc/libdvdread3/install-css.sh
 
 
 #Remove everything from the Installation table
