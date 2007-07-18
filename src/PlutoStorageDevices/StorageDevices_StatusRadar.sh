@@ -84,13 +84,13 @@ function Log() {
 
 InitCSQL "StorageDevices_StatusRadar"
 PurgeCSQL "StorageDevices_StatusRadar"
-LastRouterReload=""
+LastRouterReload="$(stat -c %Y /usr/pluto/var/DCERouter.running)"
 while : ;do
-#TODO: Purge SQL cache only when last router reload has changed
-#	if [[ "$LastRouterReload" != "" ]] ;then
-#		LastRouterReload=""
+	if [[ "$LastRouterReload" != "$(stat -c %Y /usr/pluto/var/DCERouter.running)" ]] ;then
+		LastRouterReload="$(stat -c %Y /usr/pluto/var/DCERouter.running)"
 		PurgeCSQL "StorageDevices_StatusRadar"
-#	fi
+	fi
+
 	## Get a list with all the File Servers from the database
 	Q="
 		SELECT 
