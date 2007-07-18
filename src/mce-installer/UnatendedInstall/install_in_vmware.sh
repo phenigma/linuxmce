@@ -67,7 +67,10 @@ function create_debcache_on_virtual_machine {
 	decho "Caching Kubuntu CD"
 	scp /var/plutobuild/kubuntu-cd/*.deb root@"$VMWARE_IP":/usr/pluto/deb-cache
 	decho "Finished Caching Kubuntu CD"
-
+	
+	## Sample mpg
+	decho "Copying sample.mpg"
+	scp /root/ExtraFiles/UIdiag/sample.mpg root@"$VMWARE_IP":/usr/pluto || :
 
 	## Build Packages.gz
 	decho "Building Pacakges.gz on virtual machine"
