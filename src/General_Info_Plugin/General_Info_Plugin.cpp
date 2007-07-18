@@ -1533,12 +1533,29 @@ class DataGridTable *General_Info_Plugin::SensorType(string GridID, string Parms
 
 class DataGridTable *General_Info_Plugin::AddSoftware( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
 {
+	DeviceData_Router *pDevice = m_pRouter->m_mapDeviceData_Router_Find(atoi(Parms.c_str()));
+	if( pDevice )
+		pDevice = pDevice->GetTopMostDevice();
+	if(!pDevice)
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"General_Info_Plugin::AddSoftware can't find device %s",Parms.c_str());
+		return NULL;
+	}
+
+	vector<class Row_Device_DeviceData*> vpRows;
+	if ( !m_pDatabase_pluto_main->Device_DeviceData_get()->GetRows(" FK_Device="+StringUtils::itos(pDevice->m_dwPK_Device) + " AND FK_DeviceData=" + StringUtils::itos(DEVICEDATA_PK_Distro_CONST), 
+	      &vpRows) || vpRows.empty() )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"General_Info_Plugin::AddSoftware No Distro set for device %d", pDevice->m_dwPK_Device);
+		return NULL;
+	}
+
+	int PK_Distro = atoi( vpRows[0]->IK_DeviceData_get().c_str() );
+
 	DataGridTable *pDataGrid = new DataGridTable();
 
-	int PK_Distro = atoi( dceConfig.m_mapParameters_Find("PK_Distro").c_str() );
-	if( PK_Distro==0 )
-		PK_Distro = 1;
 	string sPlutoVersion = dceConfig.m_mapParameters_Find("PlutoVersion");
+	
 	Row_Distro *pRow_Distro = m_pDatabase_pluto_main->Distro_get()->GetRow(PK_Distro);
 
 	if( !pRow_Distro )
@@ -1548,16 +1565,8 @@ class DataGridTable *General_Info_Plugin::AddSoftware( string GridID, string Par
 	}
 
 #ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_WARNING,"General_Info_Plugin::AddSoftware Starting install list with distro %d Version %s",PK_Distro,sPlutoVersion.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_WARNING,"General_Info_Plugin::AddSoftware Starting install list for device %d with distro %d Version %s", pDevice->m_dwPK_Device, PK_Distro,sPlutoVersion.c_str());
 #endif
-	DeviceData_Router *pDevice = m_pRouter->m_mapDeviceData_Router_Find(atoi(Parms.c_str()));
-	if( pDevice )
-		pDevice = pDevice->GetTopMostDevice();
-	if(!pDevice)
-	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"General_Info_Plugin::AddSoftware can't find device %s",Parms.c_str());
-		return NULL;
-	}
 
 	DataGridCell *pCell;
 
@@ -3589,7 +3598,7 @@ void General_Info_Plugin::CMD_Add_Software(int iPK_Device,bool bTrueFalse,int iP
 	}
 
 	string sCommand="/usr/pluto/bin/AddSoftwareHelper.sh";
-	string sArguments=( bTrueFalse ? "install" : "remove" ) + string("\t") + StringUtils::itos(pDevice->m_dwPK_Device) + "\t" + StringUtils::itos(pRow_Software->PK_Software_get());
+	string sArguments=( bTrueFalse ? "install" : "remove" ) + string("\t") + StringUtils::itos(pDevice->m_dwPK_Device) + "\t" + StringUtils::itos(pRow_Software->PK_Software_get()) + "\t" + StringUtils::itos(pMessage->m_dwPK_Device_From);
 
 	DeviceData_Base *pDevice_AppServer = m_pData->FindFirstRelatedDeviceOfCategory( DEVICECATEGORY_App_Server_CONST, this, 0 ); 
 	if( pDevice_AppServer )
