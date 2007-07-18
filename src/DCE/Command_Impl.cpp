@@ -808,6 +808,12 @@ ReceivedMessageResult Command_Impl::ReceivedMessage( Message *pMessage )
 
 void Command_Impl::QueueMessageToRouter( Message *pMessage )
 {
+	if( m_bRouterReloading )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Command_Impl::QueueMessageToRouter m_bRouterReloading ignoring message type %d id %d to %d",
+			pMessage->m_dwMessage_Type, pMessage->m_dwID, pMessage->m_dwPK_Device_To);
+		return;
+	}
 	if( m_bLocalMode )
 	{
 #ifndef WINCE
@@ -865,6 +871,13 @@ void Command_Impl::ProcessMessageQueue()
 
 bool Command_Impl::InternalSendCommand( PreformedCommand &pPreformedCommand, int iConfirmation, string *p_sResponse )
 {
+	if( m_bRouterReloading )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Command_Impl::InternalSendCommand m_bRouterReloading ignoring message type %d id %d to %d",
+			pPreformedCommand.m_pMessage->m_dwMessage_Type, pPreformedCommand.m_pMessage->m_dwID, pPreformedCommand.m_pMessage->m_dwPK_Device_To);
+		return true;  // Router is reloading anyway
+	}
+
 	// Just put it in the queue.  The queue will delete pPreformedCommand.m_pMessage after sending
 	if( iConfirmation == 0 || ( iConfirmation == -1 && !pPreformedCommand.m_pcResponse ) )
 	{

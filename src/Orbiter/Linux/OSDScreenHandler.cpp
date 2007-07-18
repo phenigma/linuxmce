@@ -1605,10 +1605,36 @@ bool OSDScreenHandler::LightsSetup_OnScreen(CallBackData *pData)
 
 bool OSDScreenHandler::Lights_OnTimer(CallBackData *pData)
 {
-	if( GetCurrentScreen_PK_DesignObj()==DESIGNOBJ_NoLights_CONST || m_tWaitingForRegistration || m_tRegistered )
+	if( GetCurrentScreen_PK_DesignObj()==DESIGNOBJ_CopyZWaveData_CONST )
+	{
+		int iNumLightsTotal = m_pWizardLogic->GetNumLights();
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"OSDScreenHandler::Lights_OnTimer got EVENT_Reporting_Child_Devices_CONST %d lights",iNumLightsTotal);
+
+		if( iNumLightsTotal==0 )
+		{
+			DesignObjText *pText = m_pOrbiter->FindText( m_pOrbiter->FindObject(DESIGNOBJ_NoLights_CONST),TEXT_STATUS_CONST );
+			if( pText )
+				pText->m_sText = m_pOrbiter->m_mapTextString[TEXT_No_Lights_Found_CONST];
+			m_pOrbiter->CMD_Refresh("");
+			return false;
+		}
+
+		m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST,StringUtils::itos(iNumLightsTotal));
+		m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST,StringUtils::itos((int) m_pWizardLogic->m_dequeNumLights.size()));
+
+		if( m_pWizardLogic->m_dequeNumLights.size()>0 )
+		{
+			m_nLightInDequeToAssign=0;
+			m_pOrbiter->CMD_Goto_DesignObj(0,StringUtils::itos(DESIGNOBJ_LightsSetupInclude_CONST),"","",false,false);
+		}
+		else
+			m_pOrbiter->CMD_Goto_Screen("",SCREEN_AlarmPanel_CONST);
+		return false;
+	}
+	else if( GetCurrentScreen_PK_DesignObj()==DESIGNOBJ_NoLights_CONST || m_tWaitingForRegistration || m_tRegistered )
 	{
 		m_pWizardLogic->m_nPK_Device_Lighting =	m_pWizardLogic->FindFirstDeviceInCategory(DEVICECATEGORY_Lighting_Interface_CONST,0);
-LoggerWrapper::GetInstance()->Write(LV_STATUS,"SDScreenHandler::Lights_OnTimer light %d waiting %d",m_pWizardLogic->m_nPK_Device_Lighting,(int) m_tWaitingForRegistration );
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"OSDScreenHandler::Lights_OnTimer light %d waiting %d",m_pWizardLogic->m_nPK_Device_Lighting,(int) m_tWaitingForRegistration );
 		if( m_pWizardLogic->m_nPK_Device_Lighting )
 		{
 			char cRegistered = m_tRegistered ? 'Y' : m_pOrbiter->DeviceIsRegistered(m_pWizardLogic->m_nPK_Device_Lighting);
@@ -1863,28 +1889,7 @@ bool OSDScreenHandler::LightsSetup_Intercepted(CallBackData *pData)
 				return false;
 			}
 
-			int iNumLightsTotal = m_pWizardLogic->GetNumLights();
-			LoggerWrapper::GetInstance()->Write(LV_STATUS,"OSDScreenHandler::LightsSetup_Intercepted got EVENT_Reporting_Child_Devices_CONST %d lights",iNumLightsTotal);
-
-			if( iNumLightsTotal==0 )
-			{
-				DesignObjText *pText = m_pOrbiter->FindText( m_pOrbiter->FindObject(DESIGNOBJ_NoLights_CONST),TEXT_STATUS_CONST );
-				if( pText )
-					pText->m_sText = m_pOrbiter->m_mapTextString[TEXT_No_Lights_Found_CONST] + ": " + sResult;
-				m_pOrbiter->CMD_Refresh("");
-				return false;
-			}
-
-			m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST,StringUtils::itos(iNumLightsTotal));
-			m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST,StringUtils::itos((int) m_pWizardLogic->m_dequeNumLights.size()));
-
-			if( m_pWizardLogic->m_dequeNumLights.size()>0 )
-			{
-				m_nLightInDequeToAssign=0;
-				m_pOrbiter->CMD_Goto_DesignObj(0,StringUtils::itos(DESIGNOBJ_LightsSetupInclude_CONST),"","",false,false);
-			}
-			else
-				m_pOrbiter->CMD_Goto_Screen("",SCREEN_AlarmPanel_CONST);
+			m_pOrbiter->StartScreenHandlerTimer(2000);  // Wait 2 seconds for the lights to be created
 
 			return false;
 		}

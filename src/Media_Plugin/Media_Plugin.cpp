@@ -106,7 +106,7 @@ DCEConfig g_DCEConfig;
 #define UPDATE_VIEW_DATE						4
 #define UPDATE_SEARCH_TOKENS					5
 
-#define TIMEOUT_JUKEBOX							30
+#define TIMEOUT_JUKEBOX							60
 
 int UniqueColors[MAX_MEDIA_COLORS];
 
@@ -2257,7 +2257,8 @@ void Media_Plugin::StreamEnded(MediaStream *pMediaStream,bool bSendOff,bool bDel
 		return;
 	}
 	
-	ReleaseDriveLock(pMediaStream);
+	if( bDeleteStream )   // Release the drive if the stream is really over and not just being moved
+		ReleaseDriveLock(pMediaStream);
 
 	PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
 
@@ -6072,10 +6073,12 @@ void Media_Plugin::CMD_Refresh_List_of_Online_Devices(string &sCMD_Result,Messag
 	{
 		while( (row = db_wrapper_fetch_row( result.r )) )
 		{
-			if( atoi(row[2])==DEVICETEMPLATE_Disc_Drive_Embedded_CONST && (!row[3] || m_pRouter->DeviceIsRegistered( atoi(row[3]) )==false) )
-				continue; // It's an embedded device and the parent isn't online
-
-			if( atoi(row[1])==DEVICECATEGORY_Disc_Drives_CONST && m_pRouter->DeviceIsRegistered( atoi(row[0]) )==false )
+			if( atoi(row[2])==DEVICETEMPLATE_Disc_Drive_Embedded_CONST )
+			{
+				if( !row[3] || m_pRouter->DeviceIsRegistered( atoi(row[3]) )==false )
+					continue; // It's an embedded device and the parent isn't online
+			}
+			else if( atoi(row[1])==DEVICECATEGORY_Disc_Drives_CONST && m_pRouter->DeviceIsRegistered( atoi(row[0]) )==false )
 				continue; // This disc drive isn't online
 			if( m_sPK_Devices_Online.empty()==false )
 				m_sPK_Devices_Online+=",";
@@ -6665,6 +6668,28 @@ void Media_Plugin::WaitingForJukebox( MediaStream *pMediaStream )
 			if( sURL.empty()==false )
 				pMediaFile->m_sFilename=sURL;
 		}
+
+		if( pMediaFile->m_dwPK_Device_Disk_Drive )
+		{
+			string sText="STREAM " + StringUtils::itos(pMediaStream->m_iStreamID_get());
+			bool bIsSuccessful=false;
+			DCE::CMD_Lock CMD_Lock(m_dwPK_Device,pMediaFile->m_dwPK_Device_Disk_Drive,m_dwPK_Device,
+				"",true,&sText,&bIsSuccessful);
+			if( !SendCommand(CMD_Lock) || bIsSuccessful==false )
+			{
+				LoggerWrapper::GetInstance()->Write(LV_WARNING,"Media_Plugin::WaitingForJukebox Cannot lock drive %d", pMediaFile->m_dwPK_Device_Disk_Drive);
+				if( pMediaStream->m_pOH_Orbiter_StartedMedia )
+				{
+					SCREEN_DialogCannotPlayMedia SCREEN_DialogCannotPlayMedia(m_dwPK_Device, 
+						pMediaStream->m_pOH_Orbiter_StartedMedia->m_pDeviceData_Router->m_dwPK_Device, "Jukebox Drive is not available");
+					SendCommand(SCREEN_DialogCannotPlayMedia);
+				}
+				StreamEnded(pMediaStream);
+				return;
+			}
+		}
+
+		pMediaFile->m_bWaitingForJukebox=false;
 		StartMedia(pMediaStream);
 		return;
 	}
@@ -6676,7 +6701,7 @@ void Media_Plugin::WaitingForJukebox( MediaStream *pMediaStream )
 		if( pMediaStream->m_pOH_Orbiter_StartedMedia )
 		{
 			SCREEN_DialogCannotPlayMedia SCREEN_DialogCannotPlayMedia(m_dwPK_Device, 
-				pMediaStream->m_pOH_Orbiter_StartedMedia->m_pDeviceData_Router->m_dwPK_Device, "Drive is not available");
+				pMediaStream->m_pOH_Orbiter_StartedMedia->m_pDeviceData_Router->m_dwPK_Device, "Jukebox is not available");
 			SendCommand(SCREEN_DialogCannotPlayMedia);
 		}
 		StreamEnded(pMediaStream);
