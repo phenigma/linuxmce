@@ -46,7 +46,6 @@ RunCSQL()
 	fi
 
 	Q_id=$(echo "$Q" | sha1sum - | cut -d' ' -f1)
-	echo "---$Q_id---"
 	if [[ ! -f "$CSQL_DIR/$CSQL_ID/$Q_id" ]] ;then
 		RunSQL "$Q" > "$CSQL_DIR/$CSQL_ID/$Q_id"
 	fi
@@ -56,7 +55,7 @@ RunCSQL()
 
 PurgeCSQL() {
 	CSQL_ID="$1"
-	rm -rf "$CSQL_DIR/$CSQL_ID"
+	rm -rf "$CSQL_DIR/$CSQL_ID/*"
 }
 
 InitCSQL() {
