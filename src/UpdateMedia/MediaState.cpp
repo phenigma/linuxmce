@@ -33,7 +33,7 @@ MediaState MediaState::m_instance;
 //-----------------------------------------------------------------------------------------------------
 void MediaState::LoadDbInfo(Database_pluto_media *pDatabase_pluto_media, string sRootDirectory)
 {
-	string sWhere = "1 = 1 ";
+	string sWhere = "1 = 1 AND (";
 
 	vector<string> vectFolders;
 	StringUtils::Tokenize(sRootDirectory, "|", vectFolders);
@@ -41,11 +41,16 @@ void MediaState::LoadDbInfo(Database_pluto_media *pDatabase_pluto_media, string 
 	{
 		string sFolder = *it;
 
+		if(it != vectFolders.begin())
+			sWhere += " AND ";
+
 		sWhere += 
-			"AND Path LIKE '" + StringUtils::SQLEscape(FileUtils::ExcludeTrailingSlash(sFolder), true) + "%' "
+			"Path LIKE '" + StringUtils::SQLEscape(FileUtils::ExcludeTrailingSlash(sFolder), true) + "%' "
 			"OR (Path = '" + StringUtils::SQLEscape(FileUtils::ExcludeTrailingSlash(FileUtils::BasePath(sFolder))) + "' AND "
 			"Filename = '" + StringUtils::SQLEscape(FileUtils::FilenameWithoutPath(sFolder)) + "' ) ";
 	}
+
+	sWhere += " ) ";
 
 	string sSql = 
 		"SELECT PK_File, Path, Filename, INode, "
