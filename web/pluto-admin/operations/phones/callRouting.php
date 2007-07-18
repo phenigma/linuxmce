@@ -283,6 +283,8 @@ function step_options($selected,$user,$dbADO,$suffix='',$oldValues=''){
 				$out.='<div id="div_user_'.$suffix.'" '.$styleHidden.'>'.$div_user.'</div>';
 			break;		
 			case 'voicemail':
+				// if old value is 0, set it to userID to be displayed as selected
+				$oldValues=((int)@$oldValues==0)?$user:(int)@$oldValues;
 				$users=getAssocArray('Users','PK_Users','Username',$dbADO,'INNER JOIN Installation_Users ON FK_Users=PK_Users WHERE FK_Installation='.(int)$_SESSION['installationID']);
 				$div_voicemail=pulldownFromArray($users,'voicemail_'.$suffix,(int)@$oldValues,'','key','');
 				$out.='<div id="div_voicemail_'.$suffix.'" '.$styleHidden.'>'.$div_voicemail.'<br>'.$TEXT_VOICEMAIL_INFO_CONST.'</div>';
