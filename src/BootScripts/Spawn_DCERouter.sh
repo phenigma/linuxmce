@@ -5,7 +5,7 @@
 . /usr/pluto/bin/Utils.sh
 . /usr/pluto/bin/LockUtils.sh
 
-trap 'Unlock "DCERouter" "Spawn_DCERouter" EXIT'
+trap 'Unlock "DCERouter" "Spawn_DCERouter"' EXIT
 Lock "DCERouter" "Spawn_DCERouter" || exit 1
 
 # hack: cleaning lockfile on router start to allow
