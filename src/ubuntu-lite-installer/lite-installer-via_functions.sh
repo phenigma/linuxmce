@@ -213,6 +213,12 @@ InstallGrub()
 	## XXX: "sed -i" doesn't seem to work
 	sed -r "s,root=UUID=[^ ]*,root=${TargetHdd}8,g" /media/target/boot/grub/menu.lst >/tmp/menu1.lst
 	sed -r 's/^default[\t ]+.*$/default saved/g' /tmp/menu1.lst >/media/target/boot/grub/menu.lst
+	echo "
+	title           System Recovery
+	root            (hd0,6)
+	kernel          /boot/vmlinuz-2.6.20-15-generic root=${TargetHdd}7
+	initrd          /boot/initrd.img-2.6.20-15-generic
+	" >> /media/target/boot/grub/menu.lst
 	/usr/sbin/grub-set-default --root-directory=/media/target/boot 2 # boot Debian by default
 }
 
