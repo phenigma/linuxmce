@@ -243,6 +243,9 @@ string PlutoDHCP::GetDHCPConfig()
 
 	int iMoonNumber = 0, iNoBootNumber = 0;
 	string sMoonEntries, sNoBootEntries, sNoMacEntries;
+	int *p_iIpAddress = (int *) malloc (sizeof(int) * m_mapIP_Device.size());
+	int i_NoOfIpAdresses = 0;
+
 	for(map<unsigned long,class Row_Device *>::iterator it=m_mapIP_Device.begin();it!=m_mapIP_Device.end();++it)
 	{
 		Row_Device *pRow_Device = it->second;
@@ -274,18 +277,39 @@ string PlutoDHCP::GetDHCPConfig()
 			sNoBootEntries += "\n\thost pc" + StringUtils::itos(++iNoBootNumber)
 				+ " { hardware ethernet " + pd_1.m_sMacAddress + "; fixed-address " + ip.AsText() + "; }";
 		}
+
+		if ( (int)ip.AsInt() >= (int)ipAddressDhcpStart.AsInt()) {
+			cout << "++++++" << ip.AsInt() << " " << ipAddressDhcpStart.AsInt() << "\n";
+			p_iIpAddress[i_NoOfIpAdresses++] = ip.AsInt();
+		}
 	}
+
 
 	// The dhcp.conf stuff
 	string sDynamicPool("");
 	if (ipAddressDhcpStart.AsInt() != 0)
 	{
 		sDynamicPool =
-			"\tpool {"																					"\n"
-			"\t\t allow unknown-clients;"																"\n"
-			"\t\t range " + ipAddressDhcpStart.AsText() + " " + ipAddressDhcpStop.AsText() + ";"		"\n"
-			"\t}"																						"\n"
-		;
+		"\tpool {"																					"\n"
+		"\t\t allow unknown-clients;"																"\n";
+		if (i_NoOfIpAdresses > 0) {
+			if (ipAddressDhcpStart.AsInt() <= p_iIpAddress[0] - 1) {
+				sDynamicPool += "\t\t range " + ipAddressDhcpStart.AsText() + " " +  IPAddress(p_iIpAddress[0] - 1).AsText() +  "; \n";
+			}
+
+			for (int i = 0; i < i_NoOfIpAdresses - 1 ; i++) {
+				if (p_iIpAddress[i+1] - 1 >= p_iIpAddress[i] + 1 ) {
+					sDynamicPool += "\t\t range " + IPAddress(p_iIpAddress[i] + 1).AsText() + " " + IPAddress(p_iIpAddress[i+1] - 1 ).AsText() + "; \n";
+				}
+			}
+
+			if (p_iIpAddress[i_NoOfIpAdresses - 1] < ipAddressDhcpStop.AsInt()) {
+				sDynamicPool += "\t\t range " + IPAddress(p_iIpAddress[i_NoOfIpAdresses - 1] + 1).AsText() + " " + ipAddressDhcpStop.AsText() + "; \n";
+			}
+		} else {
+			sDynamicPool = "\t\t range " + ipAddressDhcpStart.AsText() + " " + ipAddressDhcpStop.AsText() + "; \n"; 
+		}
+		sDynamicPool += "\t}\n";
 	}
 	string sResult = string("") +
 		"# option definitions common to all supported networks..."									"\n"
