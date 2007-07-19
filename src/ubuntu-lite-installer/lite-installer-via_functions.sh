@@ -74,8 +74,8 @@ set +e
 	parted -s "$TargetHdd" -- mkpart extended 500MB -1s
 	parted -s "$TargetHdd" -- mkpart logical linux-swap 500MB 1500MB # swap
 	parted -s "$TargetHdd" -- mkpart logical ext2 1500MB 6500MB # / for Debian/Pluto
-	parted -s "$TargetHdd" -- mkpart logical ext2 6500MB 11500MB # / for Kubuntu
-	parted -s "$TargetHdd" -- mkpart logical ext2 11500MB 21500MB # recovery system
+	parted -s "$TargetHdd" -- mkpart logical ext2 6500MB 16500MB # recovery system
+	parted -s "$TargetHdd" -- mkpart logical ext2 16500MB -1s # / for Kubuntu
 	sleep 1
 	blockdev --rereadpt "$TargetHdd"
 	sleep 5
@@ -90,14 +90,14 @@ FormatPartitions()
 	echo y|mkfs.ext3 "$TargetHdd"1
 	mkswap "$TargetHdd"5
 	echo y|mkfs.ext3 "$TargetHdd"6 # / for Debian/Pluto
-	echo y|mkfs.ext3 "$TargetHdd"7 # / for Kubuntu
-	echo y|mkfs.ext3 "$TargetHdd"8 # recovery system
+	echo y|mkfs.ext3 "$TargetHdd"7 # recovery system
+	echo y|mkfs.ext3 "$TargetHdd"8 # / for Kubuntu
 
 	blkid -w /etc/blkid.tab || :
 	BootUUID=$(vol_id -u "$TargetHdd"1)
 	SwapUUID=$(vol_id -u "$TargetHdd"5)
 	RootDebianUUID=$(vol_id -u "$TargetHdd"6)
-	RootUbuntuUUID=$(vol_id -u "$TargetHdd"7)
+	RootUbuntuUUID=$(vol_id -u "$TargetHdd"8)
 }
 
 MountPartitions()
@@ -106,8 +106,8 @@ MountPartitions()
 	mkdir -p /media/recovery
 	mount "$TargetHdd"1 /media/target/boot
 	mount "$TargetHdd"6 /media/target/debian
-	mount "$TargetHdd"7 /media/target/ubuntu
-	mount "$TargetHdd"8 /media/recovery
+	mount "$TargetHdd"7 /media/recovery
+	mount "$TargetHdd"8 /media/target/ubuntu
 }
 
 CopyDVD()
@@ -184,7 +184,7 @@ SetupFstab()
 ${TargetHdd}6   /               ext3    defaults,errors=remount-ro,user_xattr 0       1
 ${TargetHdd}1   /boot           ext3    defaults,user_xattr                   0       2
 ${TargetHdd}5   none            swap    sw                                    0       0
-${TargetHdd}7   /media/ubuntu   ext3    default,error=remount-ro              0       1
+${TargetHdd}8   /media/ubuntu   ext3    default,error=remount-ro              0       1
 /dev/cdrom      /media/cdrom0   udf,iso9660 user,noauto                       0       0
 "
 	echo "$fstab_text" >/media/target/debian/etc/fstab
@@ -193,7 +193,7 @@ ${TargetHdd}7   /media/ubuntu   ext3    default,error=remount-ro              0 
 #
 # <file system> <mount point>    <type>  <options>                 <dump>  <pass>
 proc              /proc           proc    defaults                   0       0
-${TargetHdd}7     /               ext3    defaults,errors=remount-ro 0       1
+${TargetHdd}8     /               ext3    defaults,errors=remount-ro 0       1
 ${TargetHdd}1     /boot           ext3    defaults                   0       2
 ${TargetHdd}5     none            swap    sw                         0       0
 ${TargetHdd}6     /media/linuxmce ext3    defaults,errors=remount-ro 0       0
@@ -211,7 +211,7 @@ InstallGrub()
 	umount /media/target/ubuntu/{proc,dev}
 
 	## XXX: "sed -i" doesn't seem to work
-	sed -r "s,root=UUID=[^ ]*,root=${TargetHdd}7,g" /media/target/boot/grub/menu.lst >/tmp/menu1.lst
+	sed -r "s,root=UUID=[^ ]*,root=${TargetHdd}8,g" /media/target/boot/grub/menu.lst >/tmp/menu1.lst
 	sed -r 's/^default[\t ]+.*$/default saved/g' /tmp/menu1.lst >/media/target/boot/grub/menu.lst
 	/usr/sbin/grub-set-default --root-directory=/media/target/boot 2 # boot Debian by default
 }
