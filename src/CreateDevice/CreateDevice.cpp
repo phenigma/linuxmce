@@ -186,6 +186,11 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sDescrip
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"CreateDevice::DoIt %s",cmd);
 		system(cmd);
 	}
+	else if( sIPAddress.empty()==false )
+	{
+		char * args[] = { "/usr/pluto/bin/PlutoDHCP.sh", NULL };
+		ProcessUtils::SpawnDaemon(args[0], args);
+	}
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"CreateDevice::DoIt Inserted device: %d Package: %d installation: %d configure: %d",
 		PK_Device,iPK_Package,m_iPK_Installation,(int) m_bDontCallConfigureScript);
