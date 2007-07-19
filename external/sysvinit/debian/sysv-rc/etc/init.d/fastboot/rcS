@@ -400,6 +400,11 @@ if [[ "$FirstBoot" != "false" && ! -f /usr/pluto/install/.notdone ]] ;then
 	ConfSet "FirstBoot" "false" 2>/dev/null 1>/dev/null
 fi
 
+if [[ -x /usr/pluto/bin/WatchGyroRemote ]] ;then
+	 /usr/pluto/bin/WatchGyroRemote &
+	 sleep 2
+fi
+
 if [[ -x /etc/init.d/Pluto_SSH_Keys.sh ]]; then
 	Message "Setting ssh keys"
 	/etc/init.d/Pluto_SSH_Keys.sh &
@@ -467,7 +472,7 @@ fi
 Message "Starting Pluto HAL daemon"
 /usr/pluto/bin/StartHAL.sh
 
-if [[ "$AVWizardDone" != "1" || "$ShiftState" == 1 ]] ;then
+if [[ "$AVWizardDone" != "1" || "$AVWizardOverride" == 1 || "$ShiftState" == 1 ]] ;then
 	if [[ -x /usr/pluto/bin/AVWizard_Run.sh ]]; then	
 		Message "Starting Audio/Video Wizard${ShiftMsg}"
 		/usr/pluto/bin/AVWizard_Run.sh
