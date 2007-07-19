@@ -40,6 +40,7 @@ exec /usr/bin/$(basename "$InstallerScript")
 	rm -f "$SquashFSDir/etc/event.d/tty1"
 
 	cp "$InstallerScript" "$SquashFSDir/usr/bin/"
+	cp "lite-installer-via_functions.sh" "$SquashFSDir/usr/bin/"
 	cp "$RcSScript" "$SquashFSDir/etc/init.d/"
 	rm -f "$SquashFSDir"/etc/rcS.d/S99install-lmce
 	chroot "$SquashFSDir" dpkg-query -W --showformat='${Package} ${Version}\n' \
