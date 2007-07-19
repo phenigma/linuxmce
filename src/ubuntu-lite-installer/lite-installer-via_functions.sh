@@ -67,6 +67,9 @@ GetHddToUse()
 
 PartitionHdd()
 {
+	if [[ "$FromHdd" == "1" ]] ;then
+		return
+	fi
 set +e
 	swapoff -a
 	parted -s "$TargetHdd" -- mklabel msdos
@@ -88,9 +91,11 @@ FormatPartitions()
 		return 0
 	fi
 	echo y|mkfs.ext3 "$TargetHdd"1
-	mkswap "$TargetHdd"5
 	echo y|mkfs.ext3 "$TargetHdd"6 # / for Debian/Pluto
-	echo y|mkfs.ext3 "$TargetHdd"7 # recovery system
+	if [[ "$FromHdd" != "1" ]] ;then
+		echo y|mkfs.ext3 "$TargetHdd"7 # recovery system
+		mkswap "$TargetHdd"5
+	fi
 	echo y|mkfs.ext3 "$TargetHdd"8 # / for Kubuntu
 
 	blkid -w /etc/blkid.tab || :
@@ -104,14 +109,19 @@ MountPartitions()
 {
 	mkdir -p /media/target/{boot,debian,ubuntu}
 	mkdir -p /media/recovery
+	if [[ "$FromHdd" != "1" ]] ;then
+		mount "$TargetHdd"7 /media/recovery
+	fi
 	mount "$TargetHdd"1 /media/target/boot
 	mount "$TargetHdd"6 /media/target/debian
-	mount "$TargetHdd"7 /media/recovery
 	mount "$TargetHdd"8 /media/target/ubuntu
 }
 
 CopyDVD()
 {
+	if [[ "$FromHdd" == "1" ]] ;then
+		return
+	fi
 	local DVDdir=$(mktemp -d)
 	mount -t squashfs -o loop,ro /cdrom/casper/filesystem.squashfs "$DVDdir"
 	cp -a "$DVDdir"/. /media/recovery/
@@ -144,20 +154,6 @@ ExtractArchives()
 	#Bind boot into debian and ubuntu filesystems
 	mount --bind /media/target/boot /media/target/debian/boot
 	mount --bind /media/target/boot /media/target/ubuntu/boot
-
-#	# Make disked MD
-#	mount -t proc -o bind /proc /media/target/debian/proc
-#	pushd /media/target/debian >/dev/null
-#	sed -r 's/^reboot.*$//g; s/^read.*$//g' ./usr/pluto/install/via-disked-md.sh >./usr/pluto/install/via-disked-md.sh.new
-#	mv ./usr/pluto/install/via-disked-md.sh{.new,}
-#	chmod +x ./usr/pluto/install/via-disked-md.sh
-#	chroot . /usr/pluto/install/via-disked-md.sh
-#	popd >/dev/null
-#	umount /media/target/debian/proc
-#
-#	set +e
-#	killall dhclient ypbind
-#	set -e
 }
 
 PrepareFirstBoot()
@@ -216,7 +212,7 @@ InstallGrub()
 	echo "
 	title           System Recovery
 	root            (hd0,6)
-	kernel          /boot/vmlinuz-2.6.20-15-generic root=${TargetHdd}7
+	kernel          /boot/vmlinuz-2.6.20-15-generic root=${TargetHdd}7 from_hdd_recovery
 	initrd          /boot/initrd.img-2.6.20-15-generic
 	" >> /media/target/boot/grub/menu.lst
 	/usr/sbin/grub-set-default --root-directory=/media/target/boot 2 # boot Debian by default
@@ -272,17 +268,3 @@ Reboot()
 	read
 	reboot
 }
-
-GetConsole
-GetHddToUse
-PartitionHdd
-FormatPartitions
-MountPartitions
-CopyDVD
-ExtractArchives
-PrepareFirstBoot
-SetupFstab
-InstallGrub
-TargetCleanup
-UnmountPartitions
-Reboot
