@@ -1224,7 +1224,7 @@ void Command_Impl::FindUnregisteredRelativesLoop(DeviceData_Base *pDevice,map<in
 
 char Command_Impl::DeviceIsRegistered(int PK_Device) // Returns Y, N, D (for disabled)
 {
-	string sResponse = m_pEvent->m_pClientSocket->SendReceiveString("DEVICE_REGISTERED " + StringUtils::itos(PK_Device));
+	string sResponse = m_pcRequestSocket->m_pClientSocket->SendReceiveString("DEVICE_REGISTERED " + StringUtils::itos(PK_Device));
 	if( sResponse.substr(0,17)!="DEVICE_REGISTERED" )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot determine if device %d registered",PK_Device);
