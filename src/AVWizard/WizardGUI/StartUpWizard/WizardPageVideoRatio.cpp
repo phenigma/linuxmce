@@ -86,10 +86,8 @@ WizardPageVideoRatio::~WizardPageVideoRatio(void)
 	List->AddItem("VGA", "VGA");
 	List->AddItem("DVI/HDMI", "DVI");
 	List->AddItem("Component", "Component");
-//<-mkr_B_via_b->
 	List->AddItem("Composite", "Composite");
 	List->AddItem("S-Video","S-Video");
-//<-mkr_B_via_e->
 	if(AVWizardSettings->Exists("VideoOutput")) {
 		std::string VideoConnectorValue = AVWizardSettings->GetValue("VideoOutput");
 		List->SetItemIndex(VideoConnectorValue);
