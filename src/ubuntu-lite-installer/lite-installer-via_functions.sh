@@ -111,12 +111,11 @@ MountPartitions()
 	mkdir -p /media/recovery
 	if [[ "$FromHdd" != "1" ]] ;then
 		mount "$TargetHdd"7 /media/recovery
-		mount "$TargetHdd"1 /media/target/boot
 	else
 		mount -o bind /     /media/recovery
-		mount -o bind /boot /media/target/boot
 	fi
 
+	mount "$TargetHdd"1 /media/target/boot
 	mount "$TargetHdd"6 /media/target/debian
 	mount "$TargetHdd"8 /media/target/ubuntu
 }
@@ -130,6 +129,7 @@ CopyDVD()
 	mount -t squashfs -o loop,ro /cdrom/casper/filesystem.squashfs "$DVDdir"
 	cp -a "$DVDdir"/. /media/recovery/
 	cp /cdrom/lmce-image-via/firstboot-via /media/recovery
+	cp /cdrom/lmce-image-via/LinuxMCE.desktop /media/recovery
 	umount "$DVDdir"
 	
 	mkdir -p /media/recovery/archives/
@@ -164,14 +164,13 @@ ExtractArchives()
 PrepareFirstBoot()
 {
 	#Copy the fist run script
-	if [[ "$FromHdd" != "1" ]] ;then
-		cp /cdrom/lmce-image-via/firstboot-via /media/target/debian/etc/init.d/firstboot-via
-	else
-		cp /media/recovery/firstboot-via /media/target/debian/etc/init.d/firstboot-via
-	fi
+	cp /media/recovery/firstboot-via /media/target/debian/etc/init.d/firstboot-via
 	#ln -s /etc/init.d/firstboot-via /media/target/debian/etc/rc2.d/S90firstboot-via
 	sed '/^1:2345:/ s,^.*$,1:2345:once:/etc/init.d/firstboot-via,g' /media/target/debian/etc/inittab >/media/target/debian/etc/inittab.new
 	mv /media/target/debian/etc/inittab{.new,}
+
+	mkdir -p /media/target/ubuntu/usr/share/apps/kdesktop/Desktop/
+	cp /media/recovery/LinuxMCE.desktop /media/target/ubuntu/usr/share/apps/kdesktop/Desktop/
 
 	rm -f /media/target/debian/etc/rc2.d/*Pluto*
 	>/media/target/debian/usr/pluto/install/.notdone
@@ -189,7 +188,7 @@ SetupFstab()
 ${TargetHdd}6   /               ext3    defaults,errors=remount-ro,user_xattr 0       1
 ${TargetHdd}1   /boot           ext3    defaults,user_xattr                   0       2
 ${TargetHdd}5   none            swap    sw                                    0       0
-${TargetHdd}8   /media/ubuntu   ext3    default,error=remount-ro              0       1
+${TargetHdd}8   /media/ubuntu   ext3    defaults,errors=remount-ro              0       1
 /dev/cdrom      /media/cdrom0   udf,iso9660 user,noauto                       0       0
 "
 	echo "$fstab_text" >/media/target/debian/etc/fstab

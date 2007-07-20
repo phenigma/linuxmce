@@ -3,12 +3,16 @@
 exec &>/dev/tty1 </dev/tty1
 chvt 1
 
-trap 'rm -f /usr/pluto/install/.notdone' EXIT
-
 ## Transform Debian-Via into a Disked MD
 /usr/pluto/install/via-disked-md.sh
 
-## Tweak Ubuntu's fstab to  mount the shared /home and /usr/pluto/varin /media/debian
+if [[ "$?" -ne 0 ]]; then
+	exit 1
+fi
+
+rm -f /usr/pluto/install/.notdone
+
+## Tweak Ubuntu's fstab to  mount the shared /home and /usr/pluto/var in /media/debian
 UbuntuRoot="/media/ubuntu"
 RouterIP=$(/sbin/route -n | awk '/^0\.0\.0\.0/ { print $2 }')
 echo "$RouterIP:/usr/pluto/var /media/debian/usr/pluto/var nfs intr,udp,rsize=32768,wsize=32768,retrans=10,timeo=50 1 1" >> "$UbuntuRoot"/etc/fstab
