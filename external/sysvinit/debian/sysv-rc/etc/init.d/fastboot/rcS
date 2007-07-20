@@ -4,6 +4,7 @@ function box() { true; }
 test -f "/etc/bootsplash/themes/current/config/bootsplash-`/sbin/fbresolution`.cfg" && . /etc/bootsplash/themes/current/config/bootsplash-`/sbin/fbresolution`.cfg
 
 Message() {
+	Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Boot log: $*" 2>/dev/null || /bin/true
     echo -e "\033[1m# $*"
     tput sgr0
 
