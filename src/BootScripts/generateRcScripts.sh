@@ -198,6 +198,7 @@ export PATH=\"/usr/pluto/bin:\$PATH\"
 . /usr/pluto/bin/pluto.func
 
 if [[ -e /usr/pluto/install/.notdone ]]; then
+	Logging \"$TYPE\" \"$SEVERITY_NORMAL\" \"\$0\" \"Not running '$scriptName' because .notdone exists\"
 	exit 1
 fi
 
