@@ -2,7 +2,7 @@
 Comment=
 Comment[en_US]=
 Encoding=UTF-8
-Exec=kdesu /usr/pluto/bin/KDE_Fiire.sh
+Exec=kdesu /media/debian/usr/pluto/bin/KDE_Fiire.sh
 GenericName=Reboot into LinuxMCE
 GenericName[en_US]=Reboot into LinuxMCE
 Icon=
