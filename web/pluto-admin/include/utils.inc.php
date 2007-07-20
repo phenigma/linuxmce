@@ -1890,7 +1890,7 @@ function lightingDevicesTable($cgID,$dbADO)
 				eval("isDim=document.scenarioWizard.command_"+devicesArray[i]+"[3].checked");
 				if(isDim==true){
 					eval("dimVal=parseInt(document.scenarioWizard.dimValue_"+devicesArray[i]+".value)");
-					if(dimVal<0 || dimVal>100 || isNaN(dimVal)){
+					if(dimVal<-100 || dimVal>100 || isNaN(dimVal)){
 						alert("'.$TEXT_NUMBER_RANGE_REQUIRED_CONST.'");
 						eval("document.scenarioWizard.dimValue_"+devicesArray[i]+".focus()");
 						return false;
