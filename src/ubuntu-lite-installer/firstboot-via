@@ -17,3 +17,8 @@ UbuntuRoot="/media/ubuntu"
 RouterIP=$(/sbin/route -n | awk '/^0\.0\.0\.0/ { print $2 }')
 echo "$RouterIP:/usr/pluto/var /media/debian/usr/pluto/var nfs intr,udp,rsize=32768,wsize=32768,retrans=10,timeo=50 1 1" >> "$UbuntuRoot"/etc/fstab
 echo "//${RouterIP}/home /media/debian/home cifs credentials=/media/debian/usr/pluto/var/sambaCredentials.secret 1 1" >> "$UbuntuRoot"/etc/fstab
+
+clear
+echo "Initial Media Director Setup process done. Press enter to reboot."
+read
+reboot
