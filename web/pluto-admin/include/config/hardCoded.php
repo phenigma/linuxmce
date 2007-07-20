@@ -85,7 +85,7 @@
 	$GLOBALS['LightingAutomaticTemplate']=31;		// Lighting Automatic Scenarios
 	$GLOBALS['ClimateScenariosTemplate']=10;		// Climate Scenarios
 	$GLOBALS['securityScenariosTemplate']=12;		// Security Scenarios
-	$GLOBALS['MediaScenariosTemplate']=1;			// Media Scenarios
+	$GLOBALS['MediaScenariosTemplate']=32;			// Media Scenarios
 	$GLOBALS['EventsHandlerTemplate']=11;			// Events Handler
 	$GLOBALS['SecurityArmDisarmTemplate']=13;		// Security - Arm Disarm
 	$GLOBALS['SecuritySOSTemplate']=14;				// Security - SOS
