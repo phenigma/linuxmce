@@ -1,0 +1,19 @@
+[Desktop Entry]
+Comment=
+Comment[en_US]=
+Encoding=UTF-8
+Exec=kdesu /usr/pluto/bin/KDE_Fiire.sh
+GenericName=Reboot into LinuxMCE
+GenericName[en_US]=Reboot into LinuxMCE
+Icon=
+MimeType=
+Name=Reboot into LinuxMCE
+Name[en_US]=Reboot into LinuxMCE
+Path=
+StartupNotify=true
+Terminal=false
+TerminalOptions=
+Type=Application
+X-DCOP-ServiceType=
+X-KDE-SubstituteUID=false
+X-KDE-Username=
