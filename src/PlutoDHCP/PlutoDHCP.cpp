@@ -307,7 +307,7 @@ string PlutoDHCP::GetDHCPConfig()
 				sDynamicPool += "\t\t range " + IPAddress(p_iIpAddress[i_NoOfIpAdresses - 1] + 1).AsText() + " " + ipAddressDhcpStop.AsText() + "; \n";
 			}
 		} else {
-			sDynamicPool = "\t\t range " + ipAddressDhcpStart.AsText() + " " + ipAddressDhcpStop.AsText() + "; \n"; 
+			sDynamicPool += "\t\t range " + ipAddressDhcpStart.AsText() + " " + ipAddressDhcpStop.AsText() + "; \n"; 
 		}
 		sDynamicPool += "\t}\n";
 	}
