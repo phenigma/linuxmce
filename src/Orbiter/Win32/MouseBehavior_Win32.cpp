@@ -85,6 +85,8 @@ bool MouseBehavior_Win32::ConstrainMouse(const PlutoRectangle &rect)
 
 void MouseBehavior_Win32::SetMouseCursorStyle(MouseCursorStyle mouseCursorStyle)
 {
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "SetMouseCursorStyle %d", mouseCursorStyle);
+
 	LPCTSTR lpCursor;
 
 	switch(mouseCursorStyle)
@@ -105,7 +107,8 @@ void MouseBehavior_Win32::SetMouseCursorStyle(MouseCursorStyle mouseCursorStyle)
 		lpCursor =	IDC_CROSS;
 		break;
 	};
-	HCURSOR hCursor = LoadCursor(NULL, IDC_WAIT); 
+
+	HCURSOR hCursor = LoadCursor(NULL, lpCursor);
 	SetCursor(hCursor);
 }
 
