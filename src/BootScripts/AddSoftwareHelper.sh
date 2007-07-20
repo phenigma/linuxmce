@@ -3,11 +3,21 @@
 . /usr/pluto/bin/LockUtils.sh
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/SQL_Ops.sh
+. /usr/pluto/bin/Utils.sh
 
 Action=$1
 DeviceID=$2
 PackageID=$3
 OrbiterID=$4
+
+ASH_LogFile="/var/log/pluto/AddSoftwareHelper.log"
+
+MyLog()
+{
+	Now=`date`
+	Log $ASH_LogFile "$Now    $1"
+	echo $1
+}
 
 FindDeviceIP()
 {
@@ -31,15 +41,18 @@ NotifyOrbiter()
 	fi
 }
 
+MyLog "======================================="
+MyLog "Started"
+
 case $Action in
 	install|remove)
 		DeviceIP="$(FindDeviceIP "$DeviceID")"
 		if [[ -z "$DeviceIP" ]]; then
-			echo "IP for the device $DeviceID is not set"
+			MyLog "IP for the device $DeviceID is not set"
 			exit 1
 		fi
 	
-		echo "Launching $Action on $DeviceIP"
+		MyLog "Launching $Action on $DeviceIP"
 		/usr/pluto/bin/LaunchRemoteCmd.sh "$DeviceIP" "/usr/pluto/bin/AddSoftwareHelper.sh $Action-actual $DeviceID $PackageID"
 
 		NotifyOrbiter
@@ -56,7 +69,7 @@ case $Action in
 		Row="$(RunSQL "$Q")"
 		Distro=$(Field 1 "$Row")
 
-		echo "Using Distro $Distro"
+		MyLog "Using Distro $Distro"
 		PackageName="$(FindPackageName "$PackageID")"
 		
 		#getting sources for packages
@@ -64,10 +77,9 @@ case $Action in
 		#echo $Q
 		Row="$(RunSQL "$Q")"
 		SourcesCount="$(Field 1 "$Row")"
-		echo "Found $SourcesCount sources for package $PackageName"
+		MyLog "Found $SourcesCount sources for package $PackageName"
 		
 		for i in `seq 1 $SourcesCount`; do
-			echo "Trying source $i from $SourcesCount"
 			SourcesShift=$(( i - 1 ))
 			Q="SELECT Downloadurl,Sum_md5,Sum_sha,PK_Software_Source,Version+0 AS Software_Version FROM Software_Source WHERE Distro='$Distro' AND FK_Software=$PackageID AND Virus_Free=1 ORDER BY Software_Version DESC LIMIT $SourcesShift,1"
 			#echo $Q
@@ -76,15 +88,19 @@ case $Action in
 			MD5Sum="$(Field 2 "$Row")"
 			SHA1Sum="$(Field 3 "$Row")"
 			PK_Software_Source="$(Field 4 "$Row")"
+
+			MyLog "Trying source $i from $SourcesCount : $DownloadURL"
 			
 			#Result="$(InstallPackage "$DownloadURL" "$MD5Sum" "$SHA1Sum")"
 			wget -t 5 -T 120 -O "/tmp/$PackageName.deb" "$DownloadURL"
 			RetCode=$?
 			if [ "$RetCode" -eq 0 ]; then
+				MyLog "Package fetched successfully, testing checksums"
 				MD5Package=`md5sum /tmp/$PackageName.deb | cut -f1 -d' '`
 				SHA1Package=`sha1sum /tmp/$PackageName.deb | cut -f1 -d' '`
 				
 				if [[ ($MD5Package == $MD5Sum)&&($SHA1Package == $SHA1Sum) ]]; then
+					MyLog "Installing package from file /tmp/$PackageName.deb"
 					WaitLock "InstallNewDevice" "AddSoftwareHelper"
 					
 					dpkg -i /tmp/$PackageName.deb
@@ -94,22 +110,22 @@ case $Action in
 					if [ "$RetCode" -eq 0 ]; then
 						Q="INSERT INTO Software_Device(FK_Software,FK_Software_Source, Status, FK_Device) VALUES($PackageID,$PK_Software_Source, 'I', $DeviceID) ON DUPLICATE KEY UPDATE FK_Software_Source=$PK_Software_Source, Status='I'"
 						Row="$(RunSQL "$Q")"
-						echo "Package installed successfully"
+						MyLog "Package installed successfully"
 					else
 						Q="UPDATE Software_Device SET Status='N' WHERE FK_Device=$DeviceID AND FK_Software=$PackageID"
 						Row="$(RunSQL "$Q")"
-						echo "Package installation failed, installer returned non-zero code ($RetCode)"
+						MyLog "Package installation failed, installer returned non-zero code ($RetCode)"
 					fi
 					
 					Unlock "InstallNewDevice" "AddSoftwareHelper"
 					break
 				else
-					echo "Installation failed, checksums not match: MD5=$MD5Package (should be $MD5Sum), SHA1=$SHA1Package (should be $SHA1Sum)"
+					MyLog "Installation failed, checksums test failed: MD5=$MD5Package (should be $MD5Sum), SHA1=$SHA1Package (should be $SHA1Sum)"
 					Err="yes"
 					break
 				fi
 			else
-				echo "Download failed (direct link)"
+				MyLog "Download failed (direct link)"
 				Err="yes"
 			fi
 			
@@ -127,11 +143,11 @@ case $Action in
 		# getting package name
 		PackageName="$(FindPackageName "$PackageID")"
 		if [[ -z "$PackageName" ]]; then
-			echo "Package with ID=$PackageID is not found"
+			MyLog "Package with ID=$PackageID is not found"
 			exit 10
 		fi
 		
-		echo "Removing package $PackageName"
+		MyLog "Removing package $PackageName"
 		WaitLock "RemoveNewDevice"
 		
 		dpkg --remove $PackageName
@@ -139,9 +155,9 @@ case $Action in
 		RetCode=$?
 		
 		if [ "$RetCode" -eq 0 ]; then
-			echo "Package removed OK"
+			MyLog "Package removed OK"
 		else
-			echo "Package removing error: installer returned non-zero code ($RetCode), marking package as non-installed anyway"
+			MyLog "Package removing error: installer returned non-zero code ($RetCode), marking package as non-installed anyway"
 			Err="yes"
 		fi
 		
