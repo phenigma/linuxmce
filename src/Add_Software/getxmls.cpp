@@ -32,6 +32,8 @@ See the GNU General Public License for more details.
 #define MaxBuf 17
 #define UserAgent "--user-agent=\"Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.4) Gecko/20060406 Firefox/1.5.0.4 (Debian-1.5.dfsg+1.5.0.4-1)\""
 
+#define PLUTO_LOG_DIR "/var/log/pluto"
+
 using namespace DCE;
 using namespace std;
 
@@ -59,6 +61,11 @@ bool FetchURL(string sUrl, string sOutputFile, string sUserAgent)
 	string sCmd = string("wget --timeout 60 --tries=1 -q ")+UserAgent+" -O " + sOutputFile + " \""+sUrl+"\"";
 //	cout << "DEBUG[FetchURL] " << sCmd.c_str() << endl;
 	return !system(sCmd.c_str());
+}
+
+void Log(int level, string s)
+{
+	DCE::LoggerWrapper::GetInstance()->Write( level, s.c_str() );
 }
 
 int main(int argc, char *argv[])
@@ -93,8 +100,13 @@ int main(int argc, char *argv[])
 		return false;
 	}
 	
+	DCE::LoggerWrapper::SetType(LT_LOGGER_FILE, PLUTO_LOG_DIR "/getxmls.log");
+
+	Log(LV_STATUS, "========================================");
+	Log(LV_STATUS, "Started update of packages list");
+
 	// getting list of virus free packages
-	cout << "Getting virus-free packages list" << endl;
+	Log(LV_STATUS, "Getting virus-free packages list");
 	res = FetchURL("http://linuxmce.com/virus_free.php", "/tmp/virusfree.list", UserAgent);
 	vector<string> virusFree;
 	// loading virus-free list
@@ -110,14 +122,14 @@ int main(int argc, char *argv[])
 	}
 	else
 	{
-		cout << "Failed to download virus-free list" << endl;
+		Log(LV_WARNING, "Failed to download virus-free list");
 	}
 
 	vector<string> processedXML;
 
 	for(size_t noEngine=0;noEngine<url.size();noEngine++)
 	{
-		cout << "Processing search engine: " << url[noEngine] << endl;
+		Log(LV_STATUS, "Processing search engine: " + url[noEngine] );
 		res = FetchURL(url[noEngine], "/tmp/search.html", UserAgent);
 		if (res)
 		{
@@ -129,16 +141,16 @@ int main(int argc, char *argv[])
 				string sUrl = *it;
 				vector<string> vectXMLs;
 				
-				cout << "Analyzing URL: " << sUrl << endl;
+				Log(LV_STATUS, "Analyzing URL: " + sUrl);
 				
 				if (StringUtils::EndsWith(sUrl, ".xml", true))
 				{
-					cout << "URL is XML, adding to processing queue" << endl;
+					Log(LV_STATUS,  "URL is XML, adding to processing queue");
 					vectXMLs.push_back(sUrl);
 				}
 				else
 				{
-					cout << "URL is non-XML, scanning for links to XML" << endl;
+					Log(LV_STATUS,  "URL is non-XML, scanning for links to XML" );
 					sUrl = StringUtils::Replace(sUrl, "\"", "\\\"");
 					res = FetchURL(sUrl, "/tmp/out.html", UserAgent);
 					if (res)
@@ -147,7 +159,7 @@ int main(int argc, char *argv[])
 					}
 					else
 					{
-						cout << "Failed to download URL: " << sUrl << endl;
+						Log(LV_WARNING,  "Failed to download URL: " + sUrl );
 					}
 				}
 				
@@ -156,11 +168,11 @@ int main(int argc, char *argv[])
 					string sXmlUrl = *itx;
 					if ( find(processedXML.begin(), processedXML.end(), sXmlUrl) != processedXML.end() )
 					{
-						cout << "Ignoring already processed XML: " << sXmlUrl << endl;
+						Log(LV_STATUS,  "Ignoring already processed XML: " + sXmlUrl );
 						continue;
 					}
 
-					cout << "XML to download : " << sXmlUrl << endl;
+					Log(LV_STATUS,  "XML to download : " + sXmlUrl );
 
 					sXmlUrl = StringUtils::Replace(sXmlUrl, "\"", "\\\"");
 					bool res = FetchURL(sXmlUrl, "/tmp/out.xml", UserAgent);
@@ -171,12 +183,14 @@ int main(int argc, char *argv[])
 					}
 					else
 					{
-						cout << "Failed to download XML: " << sXmlUrl << endl;
+						Log(LV_WARNING,  "Failed to download XML: " + sXmlUrl );
 					}
 				}
 			}
 		}
 	}
 
-	return true;
+	Log(LV_STATUS, "Finished update of packages list");
+
+	return 0;
 }

@@ -124,7 +124,7 @@ void PackageXMLParser::Parse(string sXmlData)
 		xmlFreeTextReader(Reader);
 		if (ret != 0) 
 		{
-			fprintf(stderr, "%s : failed to parse\n");
+			DCE::LoggerWrapper::GetInstance()->Write( LV_WARNING, "Failed to parse: %s", sXmlData.c_str() );
 		}
 	} 
 

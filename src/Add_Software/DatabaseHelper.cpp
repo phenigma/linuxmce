@@ -71,17 +71,17 @@ void DatabaseHelper::ProcessPackages(const list<PackageInfo>& listPackages, cons
 		
 		if ( vSoftware.empty() )
 		{
-			cout << "No package '" << sPackageName << "' exist, adding it" << endl;
+			LoggerWrapper::GetInstance()->Write( LV_STATUS, ("No package '" + sPackageName + "' exist, adding it").c_str() );
 			Row_Software *pRow = m_pDatabase_pluto_main->Software_get()->AddRow();
 			pRow->PackageName_set(sPackageName);
 			pRow->Table_Software_get()->Commit();
-			cout << "Added with PKID=" << pRow->PK_Software_get() << endl;
+			LoggerWrapper::GetInstance()->Write( LV_STATUS, ( "Added with PKID=" + StringUtils::itos(pRow->PK_Software_get()) ).c_str() );
 			iSoftwareID = pRow->PK_Software_get();
 		}
 		else
 		{
 			Row_Software *pRow = *vSoftware.begin();
-			cout << "Package '" << sPackageName << "' has PKID=" << pRow->PK_Software_get() << endl;
+			LoggerWrapper::GetInstance()->Write( LV_STATUS, ( "Package '" + sPackageName + " exists with PKID=" + StringUtils::itos(pRow->PK_Software_get()) ).c_str() );
 			iSoftwareID = pRow->PK_Software_get();
 		}
 		
@@ -189,7 +189,7 @@ void DatabaseHelper::ProcessPackages(const list<PackageInfo>& listPackages, cons
 //--------------------------------------------------------------------------------------------------
 PackageStatus DatabaseHelper::GetPackageStatus(const PackageInfo& package, int DeviceID)
 {
-	/*
+	/ *
 	string sPackageName = GetValue(package, niPackagename);
 	string sVersion = GetValue(package, niVersion);
 
