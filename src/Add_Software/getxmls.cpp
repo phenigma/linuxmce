@@ -108,7 +108,13 @@ int main(int argc, char *argv[])
 			virusFree.push_back(buf);
 		}
 	}
-	
+	else
+	{
+		cout << "Failed to download virus-free list" << endl;
+	}
+
+	vector<string> processedXML;
+
 	for(size_t noEngine=0;noEngine<url.size();noEngine++)
 	{
 		cout << "Processing search engine: " << url[noEngine] << endl;
@@ -137,19 +143,36 @@ int main(int argc, char *argv[])
 					res = FetchURL(sUrl, "/tmp/out.html", UserAgent);
 					if (res)
 					{
-					XMLFinder::FindXMLs("/tmp/out.html", vectXMLs);
+						XMLFinder::FindXMLs("/tmp/out.html", vectXMLs);
+					}
+					else
+					{
+						cout << "Failed to download URL: " << sUrl << endl;
 					}
 				}
 				
 				for(vector<string>::iterator itx = vectXMLs.begin(); itx != vectXMLs.end(); ++itx)
 				{
 					string sXmlUrl = *itx;
+					if ( find(processedXML.begin(), processedXML.end(), sXmlUrl) != processedXML.end() )
+					{
+						cout << "Ignoring already processed XML: " << sXmlUrl << endl;
+						continue;
+					}
+
 					cout << "XML to download : " << sXmlUrl << endl;
 
 					sXmlUrl = StringUtils::Replace(sXmlUrl, "\"", "\\\"");
 					bool res = FetchURL(sXmlUrl, "/tmp/out.xml", UserAgent);
 					if(res)
+					{
 						ProcessXML("/tmp/out.xml", virusFree);
+						processedXML.push_back(sXmlUrl);
+					}
+					else
+					{
+						cout << "Failed to download XML: " << sXmlUrl << endl;
+					}
 				}
 			}
 		}
