@@ -148,6 +148,14 @@ void Logger::ReloadLogLevels()
 		sLogs += StringUtils::itos(*it) + ",";
 	}
 }
+                void LoggerWrapper::SetType(int Type,string sFilename)
+                {
+                        m_iType=Type;
+                        m_sFilename=sFilename;
+                        Logger *pPlutoLogger=m_pPlutoLogger;
+                        m_pPlutoLogger=NULL;
+                        delete pPlutoLogger;
+}
 
 void Logger::Write( int iLevel, const char *pcFormat, ... )
 {

@@ -378,11 +378,7 @@ namespace DCE
 
 		static int GetType() { return m_iType; }
 
-		static void SetType(int Type,string sFilename="")
-		{
-			m_iType=Type;
-			m_sFilename=sFilename;
-		}
+		static void SetType(int Type,string sFilename="");
 	};
 }
 
