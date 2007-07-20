@@ -9,7 +9,7 @@ WaitLock "PlutoDHCP" "PlutoDHCP.sh"
 Ret=$?
 Unlock "PlutoDHCP" "PlutoDHCP.sh"
 
-/usr/pluto/bin/DHCP_config.sh
+(exec 3>&-; /usr/pluto/bin/DHCP_config.sh &)
 
 exec 1>&3 3>&-
 exit $Ret
