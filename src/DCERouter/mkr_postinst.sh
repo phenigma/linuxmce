@@ -68,10 +68,10 @@ if ! grep -qF "$bash_flag" /root/.bashrc; then
 fi
 
 echo "Adding user_xattr to filesystems that support it and remounting them"
-awk '/^#/ || ($3 != "ext2" && $3 != "ext3" && $3 != "xfs") || /user_xattr/ {print; next}
+awk '/^#/ || ($3 != "ext2" && $3 != "ext3") || /user_xattr/ {print; next}
 	{printf "%-15s %-15s %-7s %-15s %-7s %-7s\n", $1, $2, $3, $4 ",user_xattr", $5, $6}' /etc/fstab >/etc/fstab.$$
 mv /etc/fstab.$$ /etc/fstab
-awk '!/^#/ && ($3 == "ext2" || $3 == "ext3" || $3 == "xfs") {print $2}' /etc/fstab | while read line; do
+awk '!/^#/ && ($3 == "ext2" || $3 == "ext3") {print $2}' /etc/fstab | while read line; do
 	echo -n "$line "
 	mount -o remount $line && echo "Ok" || echo "Failed"
 done
