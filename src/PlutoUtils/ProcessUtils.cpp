@@ -492,6 +492,7 @@ bool ProcessUtils::SpawnDaemon(const char * path, char * args[], bool bLogOutput
 			{
 				case 0: /* daemon */
 				{ // start of variable scope limitation
+					setpgrp();
 					string sAppIdentifier = FileUtils::FilenameWithoutPath(path);
 					string sLogFile;
 					if (bLogOutput)
