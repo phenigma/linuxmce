@@ -9,7 +9,7 @@ include('lib/site.php');
 
 $id=(int)@$_REQUEST['id'];
 
-$title='Support tickets - Edit incident #'.$id;
+$title='Support tickets - Edit ticket #'.$id;
 
 // main content
 $page_template=implode('',file('templates/template.html'));

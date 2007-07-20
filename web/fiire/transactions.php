@@ -6,14 +6,17 @@ include('lib/config.php');
 include('lib/functions.php');
 include('lib/init.php');
 
-$title='FIIRE :: My Commisions';
+$id=(int)@$_REQUEST['uid'];
+
+$title='FIIRE :: Sure Fiire';
 $page_template=implode('',file('templates/template.html'));
-$content=get_my_commisions($conn);
+$content=get_transactions_by_user($id,$conn);
 $login_form=login_header($conn);
 $navArray=array(
 	'index.php'=>'Home',
 	'myaccount.php'=>'My Account',
-	'mycommisions.php'=>'My Commisions'
+	'mycommisions.php'=>'My Commisions',
+	'transactions.php?id='.$id=>'Transactions history'
 );
 
 // set dynamic fields

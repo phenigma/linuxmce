@@ -27,7 +27,7 @@ function display_new_user(val){
 		</tr>
 		<tr>
 			<td>Email address *</td>
-			<td><input type="text" name="email" value="{email}"></td>
+			<td><input type="text" name="email" value="{email}" style="width:500px;"></td>
 		</tr>
 		<tr>
 			<td colspan="2" class="cat_title"></td>
@@ -36,36 +36,29 @@ function display_new_user(val){
 			<td>&nbsp;</td>
 		</tr>		
 		<tr>
-			<td><B>Incident info</B></td>
+			<td><B>Ticket info</B></td>
+		</tr>
+		<tr>
+			<td>Category</td>
+			<td>{bug_result}</td>
 		</tr>
 		<tr>
 			<td>Date</td>
 			<td><input type="text" name="date_reported" value="{date_reported}"></td>
 		</tr>
 		<tr>
+			<td>Title</td>
+			<td><input type="text" name="title" value="{title}" style="width:500px;"></td>
+		</tr>
+		
+		<tr>
 			<td>Description</td>
-			<td><TEXTAREA name="description" rows="5">{description}</TEXTAREA></td>
+			<td><TEXTAREA name="description" rows="5" style="width:500px;">{description}</TEXTAREA></td>
 		</tr>
 		<tr>
 			<td>Resolution</td>
-			<td><TEXTAREA name="resolution" rows="5">{resolution}</TEXTAREA></td>
+			<td><TEXTAREA name="resolution" rows="5" style="width:500px;">{resolution}</TEXTAREA></td>
 		</tr>		
-		<tr>
-			<td>Workaround</td>
-			<td><TEXTAREA name="workaround" rows="3">{workaround}</TEXTAREA></td>
-		</tr>
-		<tr>
-			<td>Bug report</td>
-			<td><input type="text" name="bug_report" value="{bug_report}"></td>
-		</tr>
-		<tr>
-			<td>Bug option</td>
-			<td>{bug_option}</td>
-		</tr>
-		<tr>
-			<td>Result</td>
-			<td>{bug_result}</td>
-		</tr>
 		<tr>
 			<td>Status</td>
 			<td>{status_pulldown}</td>

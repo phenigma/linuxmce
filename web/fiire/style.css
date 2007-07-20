@@ -34,6 +34,9 @@ textarea {  font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10px;
 input {  font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10px; color: #777777; }
 select {  font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10px; color: #777777; }
 .alternate{ font-family: Verdana, Arial, Helvetica, sans-serif; background-color:#ECECEC;}
+.alternate_row{ font-family: Verdana, Arial, Helvetica, sans-serif; background-color:#FFF1DF;}
+.blocked{ font-family: Verdana, Arial, Helvetica, sans-serif; background-color:#F9FFDF;}
+
 .gri {
 	background-color:#f5f5f5;
 	border-top:1px solid #cccccc;

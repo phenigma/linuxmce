@@ -31,6 +31,7 @@ $GLOBALS['smf_db_prefix']='smf_';
 // contact email
 $GLOBALS['contact_email']='your_name@your_address.com';
 $GLOBALS['support_email']='support@your_address.com';
+$GLOBALS['webmaster_email']='webmaster@your_address.com';
 
 // override PHP settings, if necessary
 ini_set('max_execution_time',30000);
@@ -71,6 +72,18 @@ $GLOBALS['incident_status_array']=array(
 );
 
 $GLOBALS['linuxmce_mantis_url']='http://mantis.linuxmce.com/';
+
+$GLOBALS['pollywell_report']='http://www.polywell.com/';
+
+// log file need to be writtable by web server
+$GLOBALS['polywell_import_log']='/var/log/polywell-import.log';
+
+$GLOBALS['level_1_commision']=0.10;
+$GLOBALS['level_2_commision']=0.04;
+$GLOBALS['level_3_commision']=0.01;
+
+// the number of days since the order is marked as finished to allow the commision to be payed
+$GLOBALS['returning_period']=70;
 
 // override standard settings with local one
 // to avoid saving in svn real users and passwords

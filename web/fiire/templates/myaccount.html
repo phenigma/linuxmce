@@ -36,7 +36,7 @@ Tell your friends about Fiire, and be sure to tell them to put your username as 
 			  		<td><table width="100%">
 			  			<tr>
 			  				<td>Your total commission earned is: <B>${commisionsTotal}</B></td>
-			  				<td align="right"><a href="mycommisions.php?all=1">[&nbsp;show&nbsp;me&nbsp;]</a></td>
+			  				<td align="right"><a href="mycommisions.php">[&nbsp;show&nbsp;me&nbsp;]</a></td>
 			  			</tr>
 			  		</table></td>
 			  	</tr>
@@ -44,7 +44,7 @@ Tell your friends about Fiire, and be sure to tell them to put your username as 
 			  		<td><table width="100%">
 			  			<tr>
 			  				<td>You have <B>${commisionsBlocked}</B> in commissions that will be available as soon as the return period expires. </td>
-			  				<td align="right"><a href="mycommisions.php?blocked=1">[&nbsp;show&nbsp;me&nbsp;]</a></td>
+			  				<td align="right"><a href="mycommisions.php?option=blocked">[&nbsp;show&nbsp;me&nbsp;]</a></td>
 			  			</tr>
 			  		</table></td>
 			  	</tr>
@@ -52,7 +52,7 @@ Tell your friends about Fiire, and be sure to tell them to put your username as 
 			  		<td><table width="100%">
 			  			<tr>
 			  				<td>You have <B>${commisionsAvailable}</B> available now. </td>
-			  				<td align="right"><a href="mycommisions.php">[ show me / send me my money! ]</a></td>
+			  				<td align="right"><a href="mycommisions.php?option=available">[ show me / send me my money! ]</a></td>
 			  			</tr>
 			  		</table></td>
 			  	</tr>
@@ -75,7 +75,7 @@ Tell your friends about Fiire, and be sure to tell them to put your username as 
 						</tr>
 						<tr>
 							<td>Email</td>
-							<td><input type="text" name="email" value="{email}"></td>
+							<td><input type="text" name="email" value="{email}" style="width:300px;"></td>
 						</tr>						
 						<tr>
 							<td>Old password</td>
@@ -104,8 +104,8 @@ Tell your friends about Fiire, and be sure to tell them to put your username as 
 							<td colspan="2"><input type="checkbox" name="publicComments" value="1" {publicCommentsChecked}> Make the comments above also visible to the general public.</td>
 						</tr>			  		
 			  			<tr>
-			  				<td class="black"><B>Polywell email</B> * <a name="polywell"></a></td>
-			  				<td><input type="text" name="pemail" value="{polywell_email}"></td>
+			  				<td class="black"><B>Polywell email</B> * <a name="polywell"></a><br>{polywell_email_not_validated}</td>
+			  				<td><input type="text" name="pemail" value="{polywell_email}" style="width:300px;"></td>
 			  			</tr>
 			  			<tr>
 			  				<td>&nbsp;</td>

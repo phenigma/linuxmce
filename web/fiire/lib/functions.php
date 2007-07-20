@@ -1032,7 +1032,7 @@ function process_register($conn){
 	}
 
 	
-	$res=query("INSERT INTO Users (username, password, uniqueid,regdate,referrer_id,activated,comments,publicUser,publicComments,email) VALUES ('$regusername','$regpassword','$unique',NOW(),'$referrer',1,'$comments',$publicUser,$publicComments,'$regemail')",$conn);
+	$res=query("INSERT INTO Users (username, password, uniqueid,regdate,referrer_id,activated,comments,publicUser,publicComments,email,polywell_email,polywell_validated) VALUES ('$regusername','$regpassword','$unique',NOW(),'$referrer',1,'$comments',$publicUser,$publicComments,'$regemail','$regemail',1)",$conn);
 	if(mysql_affected_rows($conn)==0){
 		$error='Registration failed due a database error.An email was dispached to a site admin, please try again later.  We are sorry for the inconvenience.';
 		// todo: mail to admin
@@ -1173,6 +1173,14 @@ function get_main(){
 }
 
 function get_myaccount($conn){
+	if(isset($_SESSION['polywell_activated'])){
+		$msg=$_SESSION['polywell_activated'];
+		unset($_SESSION['polywell_activated']);
+		return $msg.'<br>Show <a href="myaccount.php">my account</a>.';
+		
+	}	
+	
+	
 	if(!isset($_SESSION['uID']) || (int)$_SESSION['uID']==0){
 		return 'Please login in order to access your account.';
 	}	
@@ -1198,6 +1206,8 @@ function get_myaccount($conn){
 	$variables=set_variable($variables,'publicUserChecked',(($udata[0]['publicUser']==1)?'checked':''));
 	$variables=set_variable($variables,'publicCommentsChecked',(($udata[0]['publicComments']==1)?'checked':''));
 	$variables=set_variable($variables,'polywell_email',$udata[0]['polywell_email']);
+	$variables=set_variable($variables,'polywell_email_not_validated',($udata[0]['polywell_validated']==0)?msg_error('Not validated!'):'');
+	
 	$variables=set_variable($variables,'comments',$udata[0]['comments']);
 	$variables=set_variable($variables,'email',$udata[0]['email']);
 	$variables=set_variable($variables,'support_requests',get_support_request($conn));	
@@ -1447,6 +1457,7 @@ function get_referrals_summary_array($uID,$conn){
 		3=>0
 	);
 	$parents=array($uID);
+
 	foreach ($rArray AS $pos=>$count){
 		$referrals=array();
 		if(count($parents)!=0){
@@ -1505,6 +1516,7 @@ function process_update_account($conn){
 	$publicComments=(int)@$_POST['publicComments'];
 	$pemail=cleanString($_POST['pemail']);
 	$email=cleanString($_POST['email']);
+	$udata=getFields('Users','WHERE Users.id='.$_SESSION['uID'],$conn);
 	
 	$emailData=getAssocArray('Users','id','name',$conn,'WHERE email LIKE \''.$email.'\' AND id!='.$id);
 	if(count($emailData)>0){
@@ -1513,8 +1525,35 @@ function process_update_account($conn){
 		exit();
 	}
 	
-	$res=query("UPDATE Users SET comments='$comments',publicUser=$publicUser,publicComments=$publicComments,polywell_email='$pemail',email='$email' WHERE id=$id",$conn);
-	$message=msg_notice('Account info updated.');
+	if($pemail!=$udata[0]['polywell_email']){
+		if($pemail!=$email){
+			// check if polywell email is not already used
+			$poywellUser=getFields('Users','WHERE polywell_email=\''.$pemail.'\'',$conn);
+			if(count($poywellUser)!=0){
+				$note=msg_error('This Polywell email is already used');
+			}else{
+				$validationCode=md5($_SESSION['uID'].microtime());
+				$updatePolywellValidated=',polywell_validated=0,validation_code=\''.$validationCode.'\',polywell_email=\''.$pemail.'\'';
+				// send email asking user for confirmation
+				
+				
+				$msg='Hello '.$udata[0]['username'].',<br>';
+				$msg.='To confirm that the email address you are using to purchase Fiire products on Polywell website belong to you, please click <a href="'.$GLOBALS['website_url'].'pvalidate.php?code='.$validationCode.'">here</a>.<br>';
+				$msg.='<br>';
+				$msg.='If you didn\'t registered on <a href="http://fiire.com">fiire.com</a> and didn\'t specified that this email address is used for Polywell, please disregard this message.';
+				$msg.='<br>';
+				$msg.='Thank you,<br>';
+				$msg.='Fiire team';
+				send_mail('Fiire','noreply@fiire.com',$udata[0]['username'],$pemail,'Validate Polywell email on Fiire.com',$msg);
+				$note=msg_notice(' Please check your Polywell email account in order to validate your address.');
+			}
+		}else{
+			$updatePolywellValidated=',polywell_validated=1,validation_code=null,polywell_email=\''.$pemail.'\'';
+		}
+	}
+	
+	$res=query("UPDATE Users SET comments='$comments',publicUser=$publicUser,publicComments=$publicComments,email='$email' ".@$updatePolywellValidated." WHERE id=$id",$conn);
+	$message=msg_notice('Account info updated.').@$note;
 	
 	if($old_password!=''){
 		$res=query("SELECT id FROM Users WHERE id=$id AND password='".md5($old_password)."'",$conn);
@@ -1597,10 +1636,171 @@ function nav_menu($navArray){
 }
 
 function get_my_commisions($conn){
+	if(!isset($_SESSION['uID']) || (int)$_SESSION['uID']==0){
+		return 'Please login in order to access your account.';
+	}
+		
+	$option=@$_REQUEST['option'];
+	switch($option){
+		case 'blocked':
+			$content=commisions_table((int)@$_SESSION['uID'],$conn,1);
+		break;
+		case 'available':
+			$content=get_available_commisions((int)@$_SESSION['uID'],$conn);
+		break;
+		
+		default:
+			$content=commisions_table((int)@$_SESSION['uID'],$conn);
+		break;
+	}
+	
 	$variables=array();
 	$page_template=implode('',file('templates/mycommisions.html'));
-
+	$variables=set_variable($variables,'commisions',$content);
+	
 	return outputHTML($variables,$page_template,1);		
+}
+
+function get_available_commisions($userID,$conn){
+	
+}
+
+function commisions_table($userID,$conn,$blocked=0){
+	// TODO: treat blocked param
+	
+	if($userID==0){
+		return 'ERROR: invalid userID';
+	}
+	$lv1_refferals=array(0)+getAssocArray('Users','id','username',$conn,'WHERE referrer_id='.$userID);
+	$lv2_refferals=array(0)+getAssocArray('Users','id','username',$conn,'WHERE referrer_id IN ('.join(',',array_keys($lv1_refferals)).')');
+	$lv3_refferals=array(0)+getAssocArray('Users','id','username',$conn,'WHERE referrer_id IN ('.join(',',array_keys($lv2_refferals)).')');
+
+	$_SESSION['total_commision_confirmed']=0;
+	$_SESSION['total_commision_blocked']=0;
+	
+	$out='
+	<table>
+		<tr>
+			<td><b>Level 1 referrals</b></td>
+		</tr>	
+		<tr>
+			<td>'.get_referral_table($lv1_refferals,$GLOBALS['level_1_commision'],$conn).'</td>
+		</tr>		
+		<tr>
+			<td>&nbsp;</td>
+		</tr>	
+		<tr>
+			<td><b>Level 2 referrals</b></td>
+		</tr>	
+		<tr>
+			<td>'.get_referral_table($lv2_refferals,$GLOBALS['level_2_commision'],$conn).'</td>
+		</tr>		
+		<tr>
+			<td>&nbsp;</td>
+		</tr>	
+		<tr>
+			<td><b>Level 3 referrals</b></td>
+		</tr>	
+		<tr>
+			<td>'.get_referral_table($lv3_refferals,$GLOBALS['level_3_commision'],$conn).'</td>
+		</tr>	
+		<tr>
+			<td>&nbsp;</td>
+		</tr>		
+		<tr>
+			<td><b>Total commisions earned: '.($_SESSION['total_commision_confirmed']+$_SESSION['total_commision_blocked']).' USD</b></td>
+		</tr>			
+		<tr>
+			<td><b>Total commisions blocked: '.$_SESSION['total_commision_blocked'].' USD</b></td>
+		</tr>			
+		
+	</table>';
+
+	return $out;
+}
+
+function get_referral_table($refferals,$commision,$conn){
+	if(count($refferals)>0){
+
+		$res=query("SELECT Users.id AS id,username,total,TO_DAYS(NOW()) - TO_DAYS(last_modified) AS days_passed FROM orders inner join Users ON fiire_users_id=Users.id WHERE fiire_users_id IN (".join(',',array_keys($refferals)).")",$conn);
+		$tree=array();
+		while($row=mysql_fetch_assoc($res)){
+			$tree[$row['id']]['username']=$row['username'];
+			@$tree[$row['id']][(($row['days_passed']<$GLOBALS['returning_period'])?'amount_blocked':'amount_confirmed')]+=$row['total'];
+			@$tree[$row['id']][(($row['days_passed']<$GLOBALS['returning_period'])?'no_blocked':'no_confirmed')]+=1;
+		}
+
+		$out='
+		<table>
+		<tr class="head_row" bgcolor="#ECECEC">
+			<td align="center" rowspan="2"><b>Referral</b></td>
+			<td align="center" colspan="3"><b>Confirmed transactions</b></td>
+			<td align="center" colspan="3"><b>Pending transactions</b></td>
+		</tr>
+		<tr class="head_row" bgcolor="#ECECEC">
+			<td align="center"><b># of transactions</b></td>
+			<td align="center"><b>Amount</b></td>
+			<td align="center"><b>My commision</b></td>
+			<td align="center" class="blocked"><b># of transactions</b></td>
+			<td align="center" class="blocked"><b>Amount</b></td>
+			<td align="center" class="blocked"><b>My commision</b></td>
+		</tr>
+		';		
+		if(mysql_num_rows($res)==0){
+			$out.='
+			<tr>
+				<td colspan="7">No records.</td>
+			</tr>';
+		}
+		$total_transactions_confirmed=0;
+		$total_amount_confirmed=0;
+		$total_commision_confirmed=0;
+		$total_transactions_blocked=0;
+		$total_amount_blocked=0;
+		$total_commision_blocked=0;		
+		$pos=0;
+		foreach ($tree as $id=>$data) {
+			$pos++;
+			$class=($pos%2==0)?'alternate_row':'';
+			
+			$total_transactions_confirmed+=@$data['no_confirmed'];
+			$total_amount_confirmed+=@$data['amount_confirmed'];
+			$total_commision_confirmed+=$commision*@$data['amount_confirmed'];
+			$total_transactions_blocked+=@$data['no_blocked'];
+			$total_amount_blocked+=@$data['amount_blocked'];
+			$total_commision_blocked+=$commision*@$data['amount_blocked'];
+			
+			@$_SESSION['total_commision_confirmed']=$_SESSION['total_commision_confirmed']+$commision*@$data['amount_confirmed'];
+			@$_SESSION['total_commision_blocked']=$_SESSION['total_commision_blocked']+$commision*@$data['amount_blocked'];
+
+			$out.='
+			<tr class="'.$class.'">
+				<td align="center"><a href="transactions.php?uid='.$id.'">'.$data['username'].'</a></td>
+				<td align="center">'.(int)@$data['no_confirmed'].'</td>
+				<td align="center">'.round(@$data['amount_confirmed'],2).'</td>
+				<td align="center">'.$commision*@$data['amount_confirmed'].'</td>
+				<td align="center">'.(int)@$data['no_blocked'].'</td>
+				<td align="center">'.round(@$data['amount_blocked'],2).'</td>
+				<td align="center">'.$commision*@$data['amount_blocked'].'</td>
+				
+			</tr>';
+		}
+		$out.='
+			<tr bgcolor="#ECECEC">
+				<td align="right"><b>Total</b></td>
+				<td align="center"><b>'.$total_transactions_confirmed.'</b></td>
+				<td align="center"><b>'.round($total_amount_confirmed,2).'</b></td>
+				<td align="center"><b>'.$total_commision_confirmed.'</b></td>
+				<td align="center"><b>'.$total_transactions_blocked.'</b></td>
+				<td align="center"><b>'.round($total_amount_blocked,2).'</b></td>
+				<td align="center"><b>'.$total_commision_blocked.'</b></td>
+			</tr>		
+		</table>';
+	}else{
+		return 'No refferals.';
+	}	
+	
+	return $out;
 }
 
 function get_accesories($conn){
@@ -1691,6 +1891,7 @@ function process_contact_form($page,$conn){
 	}
 	
 	query("INSERT INTO SiteContacts (page,name,email,subject,description) VALUES ('$page','$cname','$cemail','$csubject','$cdescription')",$conn);
+	$msgID=mysql_insert_id($conn);
 	
 	$mailSubject='Fiire contact form';
 	$message='Contact name: '.$cname.'<br>';
@@ -1700,7 +1901,7 @@ function process_contact_form($page,$conn){
 	
 	send_mail('Fiire','noreply@fiire.com',$GLOBALS['contact_email'],$GLOBALS['contact_email'],$mailSubject,$message);
 	$_SESSION['msg_sent']=1;
-	return msg_notice('Thank you, your message was recorded.');
+	return msg_notice('Your communication is received with the ID: '.$msgID.'  Please make a note of it.  We will follow up shortly.');
 }
 
 function record_dealer($categs,$conn){
@@ -2622,5 +2823,313 @@ function process_add_comment($conn){
 	query("INSERT INTO comments (dealer_id,user_id,title,comment,posted) VALUES ($id,$userID,'$title','$comment',NOW())",$conn);
 	
 	$_SESSION['add_comment_msg']=msg_notice('Your comment was recorded.');
+}
+
+function get_last_order_product_modified($osDB){
+	$data=getFields('orders','',$osDB,'ORDER BY last_modified DESC LIMIT 0,1','last_modified');
+	if(count($data)==0){
+		return '';
+	}
+	
+	return $data[0]['last_modified'];
+}
+
+function write_file($filename,$content,$mode){
+   if (!$handle = fopen($filename, $mode)) {
+         return 1; // Cannot open file ($filename)
+    }
+
+    // Write $content to our opened file.
+    if (fwrite($handle, $content) === FALSE) {
+        return 2;	// Cannot write to file ($filename)
+    }	
+    
+    fclose($handle);
+    
+    return 0; 	
+}
+
+function write_polywell_log($str){
+	write_file($GLOBALS['polywell_import_log'],date('d-m-Y H:i:s')."\t".$str."\n",'a+'); 
+}
+
+function polywell_import($osDB,$conn,$all=0){
+	//script retrieve last changed records, if all!=1
+	
+	$last_modified=get_last_order_product_modified($osDB);
+	$url=$GLOBALS['pollywell_report'];
+	$url=($all==0)?$url.'?last_modified='.$last_modified:$url;
+	$cmd='wget --header=\'User-Agent: Lynx/2.8.5rel.1 libwww-FM/2.14 SSL-MM/1.4.1 GNUTLS/1.0.16\' -O - \''.$url.'\'';
+	write_polywell_log("Retrieving Polywell report\n");
+	write_polywell_log($cmd);
+	exec($cmd,$retArray);
+	write_polywell_log(join("\n",$retArray));
+
+	if(!isset($retArray) || !is_array($retArray)){
+		$error='ERROR: couldn\'t retrieving the report.';
+		write_polywell_log($error);
+		return $error;
+	}
+
+	$max=count($retArray);
+	if($retArray[0]!='-- start orders --' && @$retArray[$max]!='-- end orders_products_attributes --'){
+		$error='ERROR: invalid or incomplete report.';
+		write_polywell_log($error);
+		return $error;
+		
+	}
+	
+	// retrieve orders
+	
+	$startOrder=array_search('-- start orders --',$retArray);
+	$endOrder=array_search('-- end orders --',$retArray);
+	if($startOrder===false || $endOrder===false){
+		$error='ERROR: couldn\'t find orders delimitators.';
+		write_polywell_log($error);
+		return $error;
+	}
+		
+	$orderFields=$retArray[$startOrder+1];
+	$ordersValues=array_slice($retArray,$startOrder+2,$endOrder-$startOrder-2);
+	
+	$orders_changed=0;
+	foreach ($ordersValues as $values) {
+		query("REPLACE INTO orders ($orderFields) VALUES ($values)",$osDB);	
+		$orders_changed+=mysql_affected_rows($osDB);
+	}
+
+	
+	// retrieve orders products
+	$startOrderProducts=array_search('-- start orders_products --',$retArray);
+	$endOrderProducts=array_search('-- end orders_products --',$retArray);
+	if($startOrderProducts===false || $endOrderProducts===false){
+		$error='ERROR: couldn\'t find orders products delimitators.';
+		write_polywell_log($error);
+		return $error;
+
+	}
+	
+	$ordersProductsFields=$retArray[$startOrderProducts+1];
+	$ordersProductsValues=array_slice($retArray,$startOrderProducts+2,$endOrderProducts-$startOrderProducts-2);
+
+	$orders_products_changed=0;
+	foreach ($ordersProductsValues as $values) {
+		query("REPLACE INTO orders_products ($ordersProductsFields) VALUES ($values)",$osDB);	
+		$orders_products_changed+=mysql_affected_rows($osDB);
+	}	
+
+	
+	// retrieve orders products attributes
+	$startOrderProductsAttributes=array_search('-- start orders_products_attributes --',$retArray);
+	$endOrderProductsAttributes=array_search('-- end orders_products_attributes --',$retArray);
+	if($startOrderProductsAttributes===false || $endOrderProductsAttributes===false){
+		$error='ERROR: couldn\'t find orders products attributes delimitators.';
+		write_polywell_log($error);
+		return $error;
+
+	}
+	
+	$ordersProductsAttributesFields=$retArray[$startOrderProductsAttributes+1];
+	$ordersProductsAttributesValues=array_slice($retArray,$startOrderProductsAttributes+2,$endOrderProductsAttributes-$startOrderProductsAttributes-2);
+
+	$orders_products_attributes_changed=0;
+	foreach ($ordersProductsAttributesValues as $values) {
+		query("REPLACE INTO orders_products_attributes ($ordersProductsAttributesFields) VALUES ($values)",$osDB);	
+		$orders_products_attributes_changed+=mysql_affected_rows($osDB);
+	}	
+	
+	$msg='Import finished, orders added/changed: '.$orders_changed.', orders products added/changed: '.$orders_products_changed.', orders products attributes added/changed: '.$orders_products_attributes_changed;
+	write_polywell_log($msg);
+	
+	// update fiire.orders table with totals of products + accesories (final_price = product_price+accesories)
+	query("
+		REPLACE INTO fiire.orders
+		(customers_email_address,orders_id,total,currency,date_purchased,orders_status,last_modified)
+
+		(SELECT customers_email_address,orders_products.orders_id,sum(final_price*products_quantity),currency,date_purchased,orders_status,last_modified 
+		FROM fiire_oscommerce.orders_products
+		INNER JOIN fiire_oscommerce.orders on fiire_oscommerce.orders.orders_id=fiire_oscommerce.orders_products.orders_id
+		GROUP BY orders_id)",$osDB);
+
+	// update orders with fiire user id for those who are validated
+	query("
+		UPDATE fiire.orders 
+		LEFT JOIN Users  ON orders.customers_email_address=Users.polywell_email AND polywell_validated=1
+		SET fiire_users_id=Users.id",$conn);
+	
+	// calculate the comissions, who update Users table too
+	calculate_commisions($conn,0.1,0.04,0.01);
+	
+	return $msg;
+}
+
+function calculate_commisions($conn,$commision1,$commision2,$commision3){
+	query("BEGIN",$conn);
+	query("UPDATE Users SET commisionsTotal=0,commisionsBlocked=0",$conn);
+	$total_deleted=mysql_affected_rows($conn);
+	query("
+		UPDATE orders 
+		INNER JOIN Users on Users.id=fiire_users_id
+		LEFT JOIN Users R1 on R1.id=Users.referrer_id
+		LEFT JOIN Users R2 on R2.id=R1.referrer_id
+		LEFT JOIN Users R3 on R3.id=R2.referrer_id
+		SET R1.commisionsTotal=R1.commisionsTotal+total*$commision1, R2.commisionsTotal=R2.commisionsTotal+total*$commision2, R3.commisionsTotal=R3.commisionsTotal+total*$commision3",$conn);
+	$total_updated=mysql_affected_rows($conn);
+	
+	query("
+		UPDATE orders INNER JOIN Users on Users.id=fiire_users_id 
+		LEFT JOIN Users R1 on R1.id=Users.referrer_id 
+		LEFT JOIN Users R2 on R2.id=R1.referrer_id 
+		LEFT JOIN Users R3 on R3.id=R2.referrer_id SET R1.commisionsBlocked=R1.commisionsBlocked+total*$commision1, R2.commisionsBlocked=R2.commisionsBlocked+total*$commision2, R3.commisionsBlocked=R3.commisionsBlocked+total*$commision3
+		WHERE TO_DAYS(NOW()) - TO_DAYS(last_modified)<".$GLOBALS['returning_period']."	
+	",$conn);	
+	$total_blocked_updated=mysql_affected_rows($conn);
+	
+	if($total_deleted!=0 && $total_blocked_updated==0 && $total_updated==0){
+		// records deleted, but nothing recalculated
+		$msg='Hello,<br>';
+		$msg.='Updating comissions failed after Polywell import script.<br>';
+		$msg.='The transaction was rolled back.<br>';
+		$msg.='Check if there are fiire users who are also Polywell clients, and if import/export scripts works.<br>';
+		$msg.='<br>This is an automatic email sent when automatic update fail to update fiire user comissions.<br>';
+		$msg.='Regards, Fiire team.';
+		
+		send_mail('Fiire','noreply@fiire.com','Fiire',$GLOBALS['webmaster_email'],'Polywell import issue',$msg);
+	}else{
+		query("COMMIT",$conn);
+	}
+}
+
+function polywell_validate($code,$conn){
+	if($code==''){
+		return 'ERROR: invalid code.';
+	}
+	
+	$userArray=array_keys(getAssocArray('Users','id','username',$conn,'WHERE validation_code=\''.$code.'\''));
+	if(count($userArray)==0){
+		return 'ERROR: invalid code or email already activated.';
+	}
+
+	query('UPDATE Users SET polywell_validated=1,validation_code=\'\' WHERE validation_code=\''.$code.'\'',$conn);
+	$_SESSION['polywell_activated']='Your Polywell email address was validated.';
+	
+	return true;
+}
+
+function get_transactions_by_user($id,$conn){
+	$userID=$_SESSION['uID'];
+	$uData=getFields('Users','WHERE id='.$id,$conn);
+	if(count($uData)==0){
+		return 'Invalid user ID.';
+	}
+	$lv1_refferals=array(0)+getAssocArray('Users','id','username',$conn,'WHERE referrer_id='.$userID);
+	$lv2_refferals=array(0)+getAssocArray('Users','id','username',$conn,'WHERE referrer_id IN ('.join(',',array_keys($lv1_refferals)).')');
+	$lv3_refferals=array(0)+getAssocArray('Users','id','username',$conn,'WHERE referrer_id IN ('.join(',',array_keys($lv2_refferals)).')');
+
+	$tables='';
+	$level=0;
+	$commision=0;
+	if(in_array($id,array_keys($lv1_refferals))){
+		$level=1;
+		$tables.=get_transactions_details($id,$GLOBALS['level_1_commision'],$conn);
+		$tables.='<br><br><b>Level 2 referrals</b><br>';
+		$direct_referrals=getAssocArray('Users','id','username',$conn,'WHERE referrer_id='.$id);
+		$tables.=get_referral_table($direct_referrals,$GLOBALS['level_2_commision'],$conn);
+	}
+	if(in_array($id,array_keys($lv2_refferals))){
+		$level=2;
+		$tables.=get_transactions_details($id,$GLOBALS['level_2_commision'],$conn);
+		$tables.='<br><b>Level 3 referrals</b><br>';
+		$direct_referrals=getAssocArray('Users','id','username',$conn,'WHERE referrer_id='.$id);
+		$tables.=get_referral_table($direct_referrals,$GLOBALS['level_3_commision'],$conn);
+	}
+	if(in_array($id,array_keys($lv3_refferals))){
+		$level=3;
+		$tables.=get_transactions_details($id,$GLOBALS['level_3_commision'],$conn);
+	}	
+	if($level==0){
+		return 'The user ID specified is not one of your level 1,2 or 3 referrals.';
+	}
+
+	$out='
+		<table>
+			<tr class="head_row" bgcolor="#ECECEC">
+				<td><b>Username</b></td>
+				<td><b>'.$uData[0]['username'].'</b></td>
+				<td bgcolor="#FFFFFF">&nbsp;</td>
+			</tr>
+			<tr class="head_row" bgcolor="#ECECEC">
+				<td><b>Referral level</b></td>
+				<td><b>'.$level.'</b></td>
+				<td bgcolor="#FFFFFF">&nbsp;</td>
+			</tr>
+			<tr class="head_row" bgcolor="#ECECEC">
+				<td><b>Your commision per transaction</b></td>
+				<td><b>'.($GLOBALS['level_'.$level.'_commision']*100).'%</b></td>
+				<td bgcolor="#FFFFFF"><a href="'.(($level==1)?'mycommisions.php':'transactions.php?uid='.$uData[0]['referrer_id']).'">Back</a></td>
+			</tr>
+		</table><br>';
+	$out.=$tables;
+	
+	return generic_page('Transactions by user',$out);
+}
+
+
+function get_transactions_details($id,$commision,$conn){
+
+	$res=query("SELECT orders_id,last_modified,total,TO_DAYS(NOW()) - TO_DAYS(last_modified) AS days_passed FROM orders WHERE fiire_users_id=$id",$conn);
+	$out='
+		<table cellpadding="3" cellspacing="1">
+		<tr class="head_row" bgcolor="#ECECEC">
+			<td align="center"><b>Date confirmed</b></td>
+			<td align="center"><b>Order ID</b></td>
+			<td align="center"><b>Amount</b></td>
+			<td align="center"><b>Your commision</b></td>
+			<td align="center"><b>Status</b></td>
+		</tr>			';		
+	if(mysql_num_rows($res)==0){
+		$out.='
+			<tr>
+				<td colspan="5">No records.</td>
+			</tr>';
+	}
+	$total=0;
+	$mycommision=0;
+	$pos=0;
+	while($row=mysql_fetch_assoc($res)){
+		$pos++;
+		$class=($pos%2==0)?'alternate_row':'';	
+		$class=($row['days_passed']<$GLOBALS['returning_period'])?'blocked':$class;
+		$out.='
+			<tr class="'.$class.'">
+				<td align="center">'.format_mysql_date($row['last_modified'],'d-m-Y h:i').'</td>
+				<td align="center">'.$row['orders_id'].'</td>
+				<td align="center">'.round($row['total'],2).'</td>
+				<td align="center">'.$commision*$row['total'].'</td>
+				<td align="center">'.(($row['days_passed']<$GLOBALS['returning_period'])?'pending':'confirmed').'</td>
+			</tr>';
+		$total+=$row['total'];
+		$mycommision+=$commision*$row['total'];
+	}
+	$out.='
+		<tr class="head_row" bgcolor="#ECECEC">
+			<td align="right" colspan="2"><b>Total</b></td>
+			<td align="center"><b>'.$total.'</b></td>
+			<td align="center"><b>'.$mycommision.'</b></td>
+			<td align="center"><b>&nbsp;</b></td>
+		</tr>	
+	</table>';
+
+	return $out;
+}
+
+
+function generic_page($title,$content){	
+	$variables=array();
+	$page_template=implode('',file('templates/generic.html'));
+	$variables=set_variable($variables,'title',$title);
+	$variables=set_variable($variables,'content',$content);
+
+	return outputHTML($variables,$page_template,1);		
 }
 ?>

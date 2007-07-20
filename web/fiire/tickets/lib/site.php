@@ -81,10 +81,9 @@ function get_incidents($conn){
 		);
 	}
 
+	$f_title=(int)@$_REQUEST['f_title'];
 	$f_description=(int)@$_REQUEST['f_description'];
-	$f_workaround=(int)@$_REQUEST['f_workaround'];
 	$f_resolution=(int)@$_REQUEST['f_resolution'];
-	$f_bug_report=(int)@$_REQUEST['f_bug_report'];
 	$f_bug_result=(int)@$_REQUEST['f_bug_result'];
 	
 	$timeFilterArray=array(
@@ -97,8 +96,8 @@ function get_incidents($conn){
 	
 	// setting defaults
 	if(!isset($_REQUEST['sstring'])){
+		$f_title=1;
 		$f_description=1;
-		$f_workaround=1;
 		$f_bug_report=1;
 		$f_resolution=1;
 		$f_bug_result=1;
@@ -109,22 +108,20 @@ function get_incidents($conn){
 		'date_reported'=>'Date',
 		$userfield=>'Reported by'
 	);
-	
+
+	if($f_bug_result==1){
+		$fieldsArray['bug_result']='Category';
+	}
+	if($f_description==1){
+		$fieldsArray['title']='Title';
+	}
 	if($f_description==1){
 		$fieldsArray['description']='Description';
-	}
-	if($f_workaround==1){
-		$fieldsArray['workaround']='Workaround';
 	}
 	if($f_resolution==1){
 		$fieldsArray['resolution']='Resolution';
 	}
-	if($f_bug_report==1){
-		$fieldsArray['CONCAT(bug_report,\'|\',IF(bug_option IS NULL,\'Not specified\',bug_option)) AS ff_bug_report_url']='Bug Report';
-	}
-	if($f_bug_result==1){
-		$fieldsArray['bug_result']='Bug Result';
-	}
+
 	if(isset($_SESSION['staffID'])){
 		$fieldsArray['IF(staff_id IS NULL,\'user\',Staff.username) AS staff']='Recorded by';		
 	}
@@ -146,7 +143,7 @@ function get_incidents($conn){
 			case 0:
 				foreach ($words AS $word){
 					if($word!='AND' && $word!='OR'){
-						$whereArray[]="(LOWER(description) LIKE '%$word%' OR LOWER(workaround) LIKE '%$word%' OR LOWER(resolution) LIKE '%$word%')";
+						$whereArray[]="(LOWER(description) LIKE '%$word%' OR LOWER(resolution) LIKE '%$word%')";
 					}
 				}
 			break;
@@ -158,11 +155,6 @@ function get_incidents($conn){
 				}
 			break;
 			case 2:
-				foreach ($words AS $word){
-					if($word!='AND' && $word!='OR'){
-						$whereArray[]="LOWER(workaround) LIKE '%$word%'";
-					}
-				}
 			break;
 			case 3:
 				foreach ($words AS $word){
@@ -223,16 +215,14 @@ function get_incidents($conn){
 			<td colspan="12" class="alternate" align="center"><B>Select fields to be displayed</B></td>
 		</tr>
 		<tr>
+			<td><input type="checkbox" value="1" name="f_title" onclick="document.incidents.submit();" '.(($f_title==1)?'checked':'').'></td>
+			<td>Title</td>
 			<td><input type="checkbox" value="1" name="f_description" onclick="document.incidents.submit();" '.(($f_description==1)?'checked':'').'></td>
 			<td>Description</td>
-			<td><input type="checkbox" value="1" name="f_workaround" onclick="document.incidents.submit();" '.(($f_workaround==1)?'checked':'').'></td>
-			<td>Workaround</td>
 			<td><input type="checkbox" value="1" name="f_resolution" onclick="document.incidents.submit();" '.(($f_resolution==1)?'checked':'').'></td>
 			<td>Resolution</td>
-			<td><input type="checkbox" value="1" name="f_bug_report" onclick="document.incidents.submit();" '.(($f_bug_report==1)?'checked':'').'></td>
-			<td>Bug report</td>
 			<td><input type="checkbox" value="1" name="f_bug_result" onclick="document.incidents.submit();" '.(($f_bug_result==1)?'checked':'').'></td>
-			<td>Bug result</td>
+			<td>Category</td>
 		</tr>
 		<tr>
 			<td colspan="12" class="alternate" align="center"><B>Filters	</B></td>
@@ -244,10 +234,13 @@ function get_incidents($conn){
 					<td><input type="text" name="sstring" value="'.$sstring.'"> 
 						<input type="radio" name="srange" value="0" '.(($srange==0)?'checked':'').'> Everywhere 
 						<input type="radio" name="srange" value="1" '.(($srange==1)?'checked':'').'> Description 
-						<input type="radio" name="srange" value="2" '.(($srange==2)?'checked':'').'> Workaround 
 						<input type="radio" name="srange" value="3" '.(($srange==3)?'checked':'').'> Resolution
 					</td>
 				</tr>
+				<tr>
+					<td>Category</td>
+					<td>'.pulldownFromArray(array(0=>'ALL')+getAssocArray('BugResults','id','bug_result',$conn,'ORDER BY bug_result ASC'),'sstatus',$sstatus).'</td>
+				</tr>				
 				<tr>
 					<td>Status</td>
 					<td>'.pulldownFromArray(array(0=>'ANY')+$GLOBALS['incident_status_array'],'sstatus',$sstatus).'</td>
@@ -290,7 +283,8 @@ function bug_report_url($value,$conn,$id){
 	if(count($parts)!=2){
 		return $value;
 	}
-	$url=(strpos($parts[0],'http://')===false)?$parts[1].': '.$parts[0]:'<a href="'.$parts[0].'">'.$parts[1].'</a>';
+
+	$url=(strpos($parts[0],'http://')===false)?$parts[1].' '.$parts[0]:'<a href="'.$parts[0].'">'.$parts[1].'</a>';
 	
 	return $url;
 }
@@ -335,7 +329,6 @@ function add_incident_form($conn){
 	$variables=set_variable($variables,'users_pulldown',$users_pulldown.'<br>');
 	$variables=set_variable($variables,'description',@$_REQUEST['description']);
 	$variables=set_variable($variables,'resolution',@$_REQUEST['resolution']);
-	$variables=set_variable($variables,'workaround',@$_REQUEST['workaround']);
 	$variables=set_variable($variables,'bug_report',@$_REQUEST['bug_report']);
 
 	
@@ -353,7 +346,6 @@ function process_add_incident($conn){
 	$date_reported=cleanString($_POST['date_reported']);
 	$description=cleanString($_POST['description']);
 	$resolution=cleanString($_POST['resolution']);
-	$workaround=cleanString($_POST['workaround']);
 	$bug_report=cleanString(@$_POST['bug_report']);
 	$bug_option_id=(int)@$_POST['bug_option'];
 	$bug_option_id=($bug_option_id==0)?NULL:$bug_option_id;
@@ -373,7 +365,7 @@ function process_add_incident($conn){
 		$user_id=mysql_insert_id($conn);
 	}
 
-	query("INSERT INTO Incidents (user_id,date_reported,description,resolution,workaround,bug_report,bug_option_id,bug_result_id, `status_id`,staff_id) VALUES ($user_id,'$date_reported','$description','$resolution','$workaround','$bug_report','$bug_option_id',$bug_result_id,$status_id,'$staff_id')",$conn);
+	query("INSERT INTO Incidents (user_id,date_reported,description,resolution,bug_report,bug_option_id,bug_result_id, `status_id`,staff_id) VALUES ($user_id,'$date_reported','$description','$resolution','$bug_report','$bug_option_id',$bug_result_id,$status_id,'$staff_id')",$conn);
 	$incident_id=mysql_insert_id($conn);
 	
 	$duration=(int)@$_POST['duration'];
@@ -432,9 +424,9 @@ function edit_incident_form($conn){
 	$variables=set_variable($variables,'date_reported',$data[0]['date_reported']);
 	$variables=set_variable($variables,'username',$data[0]['username']);
 	$variables=set_variable($variables,'email',$data[0]['email']);
+	$variables=set_variable($variables,'title',$data[0]['title']);
 	$variables=set_variable($variables,'description',$data[0]['description']);
 	$variables=set_variable($variables,'resolution',$data[0]['resolution']);
-	$variables=set_variable($variables,'workaround',$data[0]['workaround']);
 	$variables=set_variable($variables,'bug_report',$data[0]['bug_report']);
 	$variables=set_variable($variables,'status_pulldown',$status_pulldown);
 	$variables=set_variable($variables,'bug_option',$bug_options_pulldown);
@@ -499,9 +491,9 @@ function process_edit_incident($conn){
 	$username=cleanString($_POST['username']);
 	$email=cleanString($_POST['email']);
 	$date_reported=cleanString($_POST['date_reported']);
+	$title=cleanString($_POST['title']);
 	$description=cleanString($_POST['description']);
 	$resolution=cleanString($_POST['resolution']);
-	$workaround=cleanString($_POST['workaround']);
 	$bug_report=cleanString(@$_POST['bug_report']);
 	$bug_option_id=(int)@$_POST['bug_option'];
 	$bug_option_id=($bug_option_id==0)?NULL:$bug_option_id;
@@ -521,7 +513,18 @@ function process_edit_incident($conn){
 	
 	query("UPDATE Users SET username='$username', email='$email' WHERE id=".$data[0]['user_id'],$conn);
 	
-	query("UPDATE Incidents SET date_reported='$date_reported',description='$description',resolution='$resolution',workaround='$workaround',bug_report='$bug_report',bug_option_id='$bug_option_id',bug_result_id=$bug_result_id,`status_id`=$status_id WHERE id=$id",$conn);
+	query("
+	UPDATE Incidents 
+	SET 
+	date_reported='$date_reported',
+	title='$title',
+	description='$description',
+	resolution='$resolution',
+	bug_report='$bug_report',
+	bug_option_id='$bug_option_id',
+	bug_result_id=$bug_result_id,
+	`status_id`=$status_id 
+	WHERE id=$id",$conn);
 
 	// update contacts
 	$contacts=array_keys(getAssocArray('Contacts','id','id',$conn,'WHERE incident_id='.$id));
@@ -720,7 +723,7 @@ function bug_results($conn){
 function bug_results_list($conn){
 	$fieldsArray=array(
 		'id'=>'id',
-		'bug_result'=>'Bug Result'
+		'bug_result'=>'Ticket category'
 	);
 	
 	$extra_links=array(
@@ -732,7 +735,7 @@ function bug_results_list($conn){
 	<p class="normal_row"><b>Bug options</b><br>
 	'.multi_page($fieldsArray,'BugResults','','ORDER BY bug_result ASC','bug_results',$conn,'','','400',10,$extra_links);
 	$out.='<br><br>
-	<a href="bug_results.php?action=add"> Add bug result</a><br>';
+	<a href="bug_results.php?action=add"> Add category</a><br>';
 
 	return $out;
 }
@@ -744,7 +747,7 @@ function add_bug_result_form(){
 	
 	$variables=array();
 	$variables=set_variable($variables,'action','add');
-	$variables=set_variable($variables,'form_title','Add bug result');
+	$variables=set_variable($variables,'form_title','Add category');
 	
 	if(isset($_SESSION['form_error'])){
 		$variables=set_variable($variables,'form_error',$_SESSION['form_error']);
@@ -764,7 +767,7 @@ function process_add_bug_result($conn){
 	
 	query("INSERT INTO BugResults (bug_result) VALUES ('$bug_result')",$conn);
 	
-	return 'The bug result was added.<br><a href="bug_results.php">Back to bug results</a>';
+	return 'The category was added.<br><a href="bug_results.php">Back to categories</a>';
 }
 
 function edit_bug_result_form($conn){
@@ -776,13 +779,13 @@ function edit_bug_result_form($conn){
 	if(count($data)==0){
 		return 'Invalid ID';
 	}
-	
+
 	// main content
 	$page_template=implode('',file('templates/bug_result_form.html'));
 	
 	$variables=array();
 	$variables=set_variable($variables,'action','edit');
-	$variables=set_variable($variables,'form_title','Edit bug result #'.$id);
+	$variables=set_variable($variables,'form_title','Edit category #'.$id);
 	$variables=set_variable($variables,'bug_result',$data[0]['bug_result']);
 	$variables=set_variable($variables,'id',$id);
 	
@@ -806,7 +809,7 @@ function process_edit_bug_result($conn){
 	
 	query("UPDATE BugResults SET bug_result='$bug_result' WHERE id=$id",$conn);
 	
-	return 'The bug result was updated.<br><a href="bug_results.php">Back to bug options</a>';
+	return 'The category was updated.<br><a href="bug_results.php">Back to categories</a>';
 }
 
 function incident_details($conn){
@@ -832,7 +835,6 @@ function incident_details($conn){
 	$variables=set_variable($variables,'email',$data[0]['email']);
 	$variables=set_variable($variables,'description',nl2br($data[0]['description']));
 	$variables=set_variable($variables,'resolution',nl2br($data[0]['resolution']));
-	$variables=set_variable($variables,'workaround',nl2br($data[0]['workaround']));
 	$variables=set_variable($variables,'bug_report',$bug_report);
 	$variables=set_variable($variables,'status',$GLOBALS['incident_status_array'][$data[0]['status_id']]);
 	$variables=set_variable($variables,'bug_result',$data[0]['bug_result']);
