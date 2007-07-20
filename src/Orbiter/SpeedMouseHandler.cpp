@@ -50,8 +50,6 @@ SpeedMouseHandler::SpeedMouseHandler(DesignObj_Orbiter *pObj,string sOptions,Mou
 	DCE::CMD_Bind_to_Media_Remote CMD_Bind_to_Media_Remote(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_MediaPlugIn,0,"","1","", StringUtils::itos( m_pMouseBehavior->m_pOrbiter->m_pLocationInfo->PK_EntertainArea ),0,0);  // 0 for the screen means don't send us to the real remote if we're on the wrong one
 	m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Bind_to_Media_Remote);
 
-	m_pMouseBehavior->SetMouseCursorStyle(MouseBehavior::mcs_LeftRight);
-
 	m_iLastGoodPosition=-1;
 	m_iCancelLevel = 0;
 	m_iLastNotch=0;
@@ -98,6 +96,9 @@ void SpeedMouseHandler::Start()
 #endif
 		return;
 	}
+
+	m_pMouseBehavior->SetMouseCursorStyle(MouseBehavior::mcs_LeftRight);
+
 	PlutoRectangle rect(m_pObj->m_rPosition.X + m_pObj->m_pPopupPoint.X,
 		m_pObj->m_rPosition.Y + m_pObj->m_pPopupPoint.Y + int(m_pObj->m_rPosition.Height*.2),
 		m_pObj->m_rPosition.Width,1);

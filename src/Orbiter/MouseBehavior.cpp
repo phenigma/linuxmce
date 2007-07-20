@@ -191,7 +191,10 @@ void MouseBehavior::Set_Mouse_Behavior(string sOptions,bool bExclusive,string sD
 	}
 	m_pObj_Locked=pObj;
 	if( m_pMouseHandler )
+	{
+		SetMouseCursorStyle(MouseBehavior::mcs_AnyDirection); //set the default to any direction and let mouse handler to change it
 		m_pMouseHandler->Start();
+	}
 }
 
 void MouseBehavior::Move(int X,int Y)
