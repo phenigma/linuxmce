@@ -30,9 +30,9 @@ function mediaRemotes($output,$dbADO) {
 		$avDevicesArray=getDevicesArrayFromCategory($GLOBALS['rootAVEquipment'],$dbADO);
 		$remotesArray=array();
 		if((int)@$_POST['mediaType']!=0){
-			$mtArray=getFieldsAsArray('MediaType_DesignObj','FK_DesignObj,DesignObj.Description',$dbADO,'INNER JOIN DesignObj ON FK_DesignObj=PK_DesignObj WHERE FK_MediaType='.(int)@$_POST['mediaType']);
-			for($i=0;$i<count($mtArray['FK_DesignObj']);$i++){
-				$remotesArray[$mtArray['FK_DesignObj'][$i].':mt_do']=$mtArray['Description'][$i];
+			$mtArray=getFieldsAsArray('MediaType_DesignObj','FK_DesignObj_Popup,DesignObj.Description,Screen.Description AS Screen',$dbADO,'LEFT JOIN DesignObj ON FK_DesignObj_Popup=PK_DesignObj LEFT JOIN Screen on FK_Screen_OSD=PK_Screen WHERE FK_MediaType='.(int)@$_POST['mediaType']);
+			for($i=0;$i<count($mtArray['FK_DesignObj_Popup']);$i++){
+				$remotesArray[$mtArray['FK_DesignObj_Popup'][$i].':mt_do']=$mtArray['Description'][$i].(($mtArray['Screen'][$i]!='')?'/'.$mtArray['Screen'][$i]:'');
 			}
 		}
 
@@ -41,7 +41,7 @@ function mediaRemotes($output,$dbADO) {
 			$dt_mtArray=getFieldsAsArray('DeviceTemplate_MediaType','DesignObj.PK_DesignObj,DesignObj.Description',$dbADO,'
 		INNER JOIN Device ON Device.FK_DeviceTemplate=DeviceTemplate_MediaType.FK_DeviceTemplate
 		INNER JOIN DeviceTemplate_MediaType_DesignObj ON FK_DeviceTemplate_MediaType=PK_DeviceTemplate_MediaType
-		INNER JOIN DesignObj ON DeviceTemplate_MediaType_DesignObj.FK_DesignObj=PK_DesignObj
+		INNER JOIN DesignObj ON DeviceTemplate_MediaType_DesignObj.FK_DesignObj_Popup=PK_DesignObj
 		WHERE PK_Device='.(int)@$_POST['device']);
 			for($i=0;$i<count(@$dt_mtArray['PK_DesignObj']);$i++){
 				$remotesArray[$dt_mtArray['PK_DesignObj'][$i].':dt_mt_do']=$dt_mtArray['Description'][$i];
