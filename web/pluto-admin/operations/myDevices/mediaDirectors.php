@@ -301,7 +301,6 @@ function mediaDirectors($output,$dbADO) {
 											</td>
 											<td valign="top" rowspan="2"></td>
 											<td align="right" valign="top" class="alternate_back">'.$TEXT_VIDEO_CARD_CONST.' '.pulldownFromArray(@$videoArray,'VideoCard_'.$rowD['PK_Device'],$videoDevice,'onChange="if(confirm(\''.$TEXT_CHANGE_VIDEO_CARD_CONFIRMATION_CONST.'\')){document.mediaDirectors.action.value=\'externalSubmit\';document.mediaDirectors.submit();}"','key','Standard Video Card').'<br>
-											<input type="button" class="button_fixed" name="setResolution" value="'.$TEXT_VIDEO_SETTINGS_CONST.'" onclick="self.location=\'index.php?section=setResolution&mdID='.$rowD['PK_Device'].'\'";>
 											</td>
 										</tr>
 									</table>
@@ -319,8 +318,8 @@ function mediaDirectors($output,$dbADO) {
 											<td><B>'.$TEXT_HARDWARE_ACCELERATION_CONST.'</B></td>
 											<td>'.pulldownFromArray($GLOBALS['hardware_acceleration'],'acceleration_'.$rowD['PK_Device'],getAcceleration($orbiterMDChild,$dbADO),'','key','').'</td>
 											<td width="20">&nbsp;</td>
-											<td><B>'.$TEXT_UI_CONST.'</B></td>
-											<td>'.pulldownFromArray($uiArray,'ui_'.$rowD['PK_Device'],$uiSelected).'</td>
+											<td><B>'.((is_null($rowD['FK_Device_ControlledVia']))?$TEXT_OS_ON_HARD_DRIVE_CONST:'&nbsp;').'</B></td>
+											<td>'.((is_null($rowD['FK_Device_ControlledVia']))?pulldownFromArray($osOnHardArray,'osOnHardDrive_'.$rowD['PK_Device'],$osOnHardDrive,'','key',''):'&nbsp;').'</td>
 										</tr>
 										<tr>
 											<td><B>'.$TEXT_INFRARED_REMOTES_YOU_WILL_USE_CONST.'</B></td>
@@ -329,8 +328,9 @@ function mediaDirectors($output,$dbADO) {
 											<td><B>'.$TEXT_DEINTERLACE_QUALITY_CONST.'</B></td>
 											<td>'.pulldownFromArray($deinterlaceQualityArray,'diq_'.$rowD['PK_Device'],$diq,'','key','').'</td>
 											<td>&nbsp;</td>
-											<td><B>'.((is_null($rowD['FK_Device_ControlledVia']))?$TEXT_OS_ON_HARD_DRIVE_CONST:'&nbsp;').'</B></td>
-											<td>'.((is_null($rowD['FK_Device_ControlledVia']))?pulldownFromArray($osOnHardArray,'osOnHardDrive_'.$rowD['PK_Device'],$osOnHardDrive,'','key',''):'&nbsp;').'</td>
+											<td><!--<B>'.$TEXT_UI_CONST.'</B>--></td>
+											<td><!--'.pulldownFromArray($uiArray,'ui_'.$rowD['PK_Device'],$uiSelected).'--></td>
+											
 										</tr>
 										<tr>
 											<td><B>'.$TEXT_COMPUTING_APPLICATIONS_CONST.'</B></td>
@@ -515,7 +515,7 @@ function mediaDirectors($output,$dbADO) {
 					if($_REQUEST['diq_'.$value]!='*'){
 						set_child_device_data($orbiterMDChild,$GLOBALS['DeinterlacingMode'],cleanString($_REQUEST['diq_'.$value]),$dbADO);
 					}
-					setUI($orbiterMDChild,@$_REQUEST['ui_'.$value],$dbADO);
+					// setUI($orbiterMDChild,@$_REQUEST['ui_'.$value],$dbADO);
 					
 					// add/delete PVR Capture Card, sound card and video card
 					
