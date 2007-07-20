@@ -400,6 +400,8 @@ if [[ "$FirstBoot" != "false" && ! -f /usr/pluto/install/.notdone ]] ;then
 	ConfSet "FirstBoot" "false" 2>/dev/null 1>/dev/null
 fi
 
+lshwd &>/dev/null # initialize USB
+
 if [[ -x /usr/pluto/bin/WatchGyroRemote ]] ;then
 	 /usr/pluto/bin/WatchGyroRemote &
 	 sleep 2
@@ -471,6 +473,8 @@ fi
 
 Message "Starting Pluto HAL daemon"
 /usr/pluto/bin/StartHAL.sh
+
+ConfEval
 
 if [[ "$AVWizardDone" != "1" || "$AVWizardOverride" == 1 || "$ShiftState" == 1 ]] ;then
 	if [[ -x /usr/pluto/bin/AVWizard_Run.sh ]]; then	
