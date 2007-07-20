@@ -78,7 +78,7 @@ case $Action in
 			PK_Software_Source="$(Field 4 "$Row")"
 			
 			#Result="$(InstallPackage "$DownloadURL" "$MD5Sum" "$SHA1Sum")"
-			wget -O "/tmp/$PackageName.deb" "$DownloadURL"
+			wget -t 5 -T 120 -O "/tmp/$PackageName.deb" "$DownloadURL"
 			RetCode=$?
 			if [ "$RetCode" -eq 0 ]; then
 				MD5Package=`md5sum /tmp/$PackageName.deb | cut -f1 -d' '`
