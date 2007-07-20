@@ -11,7 +11,7 @@ SwapUUID=
 RootUbuntuUUID=
 RootDebianUUID=
 
-/usr/bin/lite-installer-via_functions.sh
+. /usr/bin/lite-installer-via_functions.sh
 
 GetConsole
 GetHddToUse

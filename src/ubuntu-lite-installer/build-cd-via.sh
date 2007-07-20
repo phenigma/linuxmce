@@ -15,6 +15,8 @@ FirstRunScript="firstboot-via"
 LiveCDISO="$WorkDir/via-linuxmce.iso"
 FilesystemArchives=("boot.tgz" "kubuntu.tgz" "pluto44.tgz")
 
+KubuntuShortcut="LinuxMCE.desktop"
+
 PrepareWorkDir()
 {
 	CleanupWorkDir
@@ -57,7 +59,7 @@ CreateLiveCD()
 	for Archive in "${FilesystemArchives[@]}"; do
 		ln "$WorkDir/$Archive" "$LiveCDDir/lmce-image-via/"
 	done
-	cp "$FirstRunScript" "$LiveCDDir/lmce-image-via/"
+	cp "$KubuntuShortcut" "$FirstRunScript" "$LiveCDDir/lmce-image-via/"
 	(cd "$LiveCDDir" && find . -type f -not -path ./md5sum.txt -print0 | xargs -0 md5sum | tee md5sum.txt)
 	mkisofs -o "$LiveCDISO" \
 		-b isolinux/isolinux.bin \

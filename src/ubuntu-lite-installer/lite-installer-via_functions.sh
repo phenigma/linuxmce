@@ -90,11 +90,11 @@ FormatPartitions()
 	if [[ "$Debug" == 1 ]]; then
 		return 0
 	fi
-	echo y|mkfs.ext3 "$TargetHdd"1
 	echo y|mkfs.ext3 "$TargetHdd"6 # / for Debian/Pluto
 	if [[ "$FromHdd" != "1" ]] ;then
 		echo y|mkfs.ext3 "$TargetHdd"7 # recovery system
 		mkswap "$TargetHdd"5
+		echo y|mkfs.ext3 "$TargetHdd"1
 	fi
 	echo y|mkfs.ext3 "$TargetHdd"8 # / for Kubuntu
 
@@ -111,8 +111,12 @@ MountPartitions()
 	mkdir -p /media/recovery
 	if [[ "$FromHdd" != "1" ]] ;then
 		mount "$TargetHdd"7 /media/recovery
+		mount "$TargetHdd"1 /media/target/boot
+	else
+		mount -o bind /     /media/recovery
+		mount -o bind /boot /media/target/boot
 	fi
-	mount "$TargetHdd"1 /media/target/boot
+
 	mount "$TargetHdd"6 /media/target/debian
 	mount "$TargetHdd"8 /media/target/ubuntu
 }
@@ -125,6 +129,7 @@ CopyDVD()
 	local DVDdir=$(mktemp -d)
 	mount -t squashfs -o loop,ro /cdrom/casper/filesystem.squashfs "$DVDdir"
 	cp -a "$DVDdir"/. /media/recovery/
+	cp /cdrom/lmce-image-via/firstboot-via /media/recovery
 	umount "$DVDdir"
 	
 	mkdir -p /media/recovery/archives/
@@ -159,7 +164,11 @@ ExtractArchives()
 PrepareFirstBoot()
 {
 	#Copy the fist run script
-	cp /cdrom/lmce-image-via/firstboot-via /media/target/debian/etc/init.d/firstboot-via
+	if [[ "$FromHdd" != "1" ]] ;then
+		cp /cdrom/lmce-image-via/firstboot-via /media/target/debian/etc/init.d/firstboot-via
+	else
+		cp /media/recovery/firstboot-via /media/target/debian/etc/init.d/firstboot-via
+	fi
 	#ln -s /etc/init.d/firstboot-via /media/target/debian/etc/rc2.d/S90firstboot-via
 	sed '/^1:2345:/ s,^.*$,1:2345:once:/etc/init.d/firstboot-via,g' /media/target/debian/etc/inittab >/media/target/debian/etc/inittab.new
 	mv /media/target/debian/etc/inittab{.new,}
