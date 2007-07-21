@@ -59,7 +59,16 @@ int RipTask::Run()
 			m_pRow_RipStatus->Type_set(m_pRipJob->m_pRow_DiscLocation->Type_get());
 			if( m_pRipJob->m_pRow_DiscLocation->FK_Disc_get() )
 				m_pRow_RipStatus->Slot_set(m_pRipJob->m_pRow_DiscLocation->FK_Disc_get());
+
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "RipTask::Run m_pRipJob %p jobslot %d dl: device %d slot %d disc %d",
+				m_pRipJob, m_pRipJob->m_pSlot ? m_pRipJob->m_pSlot->m_SlotNumber : -1,
+				m_pRipJob->m_pRow_DiscLocation->EK_Device_get(), m_pRipJob->m_pRow_DiscLocation->Slot_get(), m_pRipJob->m_pRow_DiscLocation->FK_Disc_get());
 		}
+		else
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "RipTask::Run m_pRipJob %p jobslot %d",
+				m_pRipJob, m_pRipJob->m_pSlot ? m_pRipJob->m_pSlot->m_SlotNumber : -1);
+
+
 		m_pRow_RipStatus->DateTime_set(StringUtils::SQLDateTime());
 		m_pRow_RipStatus->RipJob_set( m_pRipJob->m_iID_get() );
 		m_pRow_RipStatus->File_set( m_pRipJob->m_sFileName );
