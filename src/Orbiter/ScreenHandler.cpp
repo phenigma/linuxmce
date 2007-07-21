@@ -3377,3 +3377,26 @@ void MediaFileBrowserOptions::ReacquireGrids()
 		m_pObj_PicGrid->Flush();
 	}
 }
+
+void ScreenHandler::SCREEN_AdvancedOptions(long PK_Screen)
+{
+	ScreenHandlerBase::SCREEN_AdvancedOptions(PK_Screen);
+	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::AdvancedOptions_ObjectSelected,	new ObjectInfoBackData());
+}
+
+bool ScreenHandler::AdvancedOptions_ObjectSelected(CallBackData *pData)
+{
+	ObjectInfoBackData *pObjectInfoData = (ObjectInfoBackData *)pData;
+	if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_butStartAVwizard_CONST )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::AdvancedOptions_ObjectSelected");
+		DCEConfig dceconfig;
+		dceconfig.AddString("AVWizardOverride","1");
+		dceconfig.WriteSettings();
+		DCE::CMD_Halt_Device CMD_Halt_Device(m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device_GeneralInfoPlugIn,
+			m_pOrbiter->m_dwPK_Device,"R","");
+		m_pOrbiter->SendCommand(CMD_Halt_Device);
+		return true;
+	}
+	return false;
+}

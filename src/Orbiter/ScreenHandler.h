@@ -315,6 +315,9 @@ public:
 	bool AdjustScreenSettings_RemoteKeyCodeIntercepted(CallBackData *pData);
 	bool AdjustScreenSettings_ObjectSelected(CallBackData *pData);
 
+	virtual void SCREEN_AdvancedOptions(long PK_Screen);
+	bool AdvancedOptions_ObjectSelected(CallBackData *pData);
+
 	PlutoPoint AdjustScreenSettings_LoadOffset();
 	void AdjustScreenSettings_SaveOffset(PlutoPoint offset);
 	int AdjustScreenSettings_LoadSpacing();
