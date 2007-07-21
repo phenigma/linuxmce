@@ -1410,7 +1410,7 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 				bToggle ? "100" : "2", "", "", false, false, false, true);
 			SendCommand(CMD_Spawn_Application_DT);
 			DCE::SCREEN_PopupMessage SCREEN_PopupMessage(m_dwPK_Device,pMediaStream->m_pOH_Orbiter_StartedMedia->m_pDeviceData_Router->m_dwPK_Device,
-				"Please wait up to 30 seconds while I load that disc.  Playback will start when the disc is loaded","","load_jukebox","0","10","1");
+				"Please wait up to 60 seconds while I load that disc.  Be patient.  Playback will start when the disc is loaded","","load_jukebox","0","10","1");
 			SendCommand(SCREEN_PopupMessage);
 			Sleep(5000);   // Not good.  We're holding the mutex, but it's a temporary simulation
 		}

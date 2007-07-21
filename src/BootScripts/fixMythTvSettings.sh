@@ -23,7 +23,6 @@ if [[ "$AutoConf" == "1" ]]; then
 	exit 0
 fi
 
-
 chown -R mythtv.mythtv /etc/mythtv/mysql.txt
 chown root.root /etc/mythtv
 chmod 751 /etc/mythtv
@@ -44,17 +43,6 @@ else
 fi
 query="select count(*) from settings where hostname='`hostname`' AND value LIKE 'Backend%'";
 
-function addEntries
-{
-        if [ "$3" = "" ]; then
-				echo "delete from settings where hostname IS NULL AND value LIKE '$1'" | $mysql_command;
-                echo "insert into settings(value, data) values('$1', '$2')" | $mysql_command;
-        else
-			echo "delete from settings where hostname='$3' AND value LIKE '$1'" | $mysql_command;
-			echo "insert into settings(value, data, hostname) values('$1', '$2', '$3')" | $mysql_command;
-        fi;
-}
-
 hasSchema=`echo show tables | $mysql_command | grep settings | wc -l`;
 if [ $hasSchema == 0 ]; then
 	echo "There is no schema in the mythconverg database. Exiting";
@@ -72,33 +60,6 @@ if [ "$isSetup" != 0  ]; then
         echo "Removing old mythtv configuration for this machine";
 		echo "delete from settings where value LIkE 'MasterServer%'" | $mysql_command;
 fi;
-
-addEntries MasterServerIP       $routerip;
-addEntries MasterServerPort     6543;
-
-addEntries BackendServerIP 		$hostip $hostname;
-addEntries BackendServerPort 	6543 	$hostname;
-
-# Change this.  Mythtv plugin will set this to one of the mouted drives
-#addEntries RecordFilePrefix 	/home/mythtv/shows/$hostip $hostname;
-addEntries AutoCommercialFlag	0	$hostname;
-addEntries AutoCommflagWhileRecording	0	$hostname;
-addEntries LiveBufferDir 		/home/mythtv/cache/$hostip $hostname;
-addEntries VertScanPercentage	2	$hostname;
-addEntries HorizScanPercentage	1	$hostname;
-addEntries NetworkControlEnabled	1	$hostname;
-addEntries NetworkControlPort	10001	$hostname;
-addEntries PreferredMPEG2Decoder	xv 	$hostname;
-addEntries UseChromaKeyOSD 0    $hostname;
-addEntries UseOpenGLVSync	0	$hostname;
-addEntries SelectChangesChannel	1	$hostname;
-addEntries Deinterlace	1	$hostname;
-addEntries DeinterlaceFilter bobdeint	$hostname;
-addEntries FFRewSpeed0	1	$hostname;
-addEntries FFRewSpeed1  2 	$hostname;
-addEntries FFRewSpeed2	4	$hostname;
-addEntries FFRewSpeed3	8	$hostname;
-addEntries FFRewSpeed4  16 	$hostname;
 
 echo -n Creating and/or setting the cache and recorded folder paths ...
 #mkdir -p 		/home/mythtv/shows/$hostip

@@ -2033,6 +2033,7 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 				if(  !SerializeRead( iSizeConfigFile, pConfigFile, ( void * ) this ) || !ParseConfigurationData( Type ) )
 				{
 					delete pMessage;
+					LoggerWrapper::GetInstance()->Write( LV_CRITICAL,  "Orbiter data corrupt" );
 					m_pOrbiterRenderer->PromptUser("The Orbiter configuration from the server is corrupt.  I'll try to regenerate it");
 					RegenOrbiter();
 					Sleep(2000);
@@ -2049,6 +2050,7 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 				int Height = atoi( m_pEvent->GetDeviceDataFromDatabase( m_dwPK_Device, DEVICEDATA_ScreenHeight_CONST ).c_str() );
 				if( Width!=m_Width || Height!=m_Height )
 				{
+					LoggerWrapper::GetInstance()->Write( LV_WARNING,  "The resolution has changed" );
 					m_pOrbiterRenderer->PromptUser("The resolution has changed.  I'll regenerate the user interface.");
 					RegenOrbiter();
 					Sleep(2000);
@@ -7405,6 +7407,7 @@ bool Orbiter::OkayToDeserialize(int iSC_Version)
 			exit(1);
 			return false;
 		}
+		LoggerWrapper::GetInstance()->Write( LV_CRITICAL,  "UI is %d not %d", iSC_Version, (int) ORBITER_SCHEMA );
 
 		RegenOrbiter();
 		OnReload();
@@ -8759,6 +8762,8 @@ int Orbiter::MonitorRegen(int PK_Device)
 //-----------------------------------------------------------------------------------------------------
 bool Orbiter::RegenOrbiter()
 {
+	LoggerWrapper::GetInstance()->Write( LV_STATUS,  "Orbiter::RegenOrbiter" );
+
 	Event_Impl event_Impl(DEVICEID_MESSAGESEND, 0, m_sIPAddress);
 	string sResponse;
 	DCE::CMD_Regen_Orbiter_DT CMD_Regen_Orbiter_DT( m_dwPK_Device, DEVICETEMPLATE_Orbiter_Plugin_CONST, BL_SameHouse,
