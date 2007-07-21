@@ -201,6 +201,6 @@ fi
 # generate startup scripts (core ran /usr/pluto/bin/Update_StartupScrips.sh for us)
 /usr/pluto/bin/generateRcScripts.sh
 
-echo "Script finished. Press enter to reboot."
-read
-reboot
+sync
+echo "Script finished. Press Control+Alt+Del to reboot."
+exit 0
