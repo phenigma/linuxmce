@@ -1411,7 +1411,7 @@ int MediaAttributes_LowLevel::AddRippedDiscToDatabase(int PK_Disc,int PK_MediaTy
 		AddDirectoryToDatabase(PK_MediaType,FileUtils::BasePath(sDestination));
 
 		vector<Row_File *> vectRow_File;
-		m_pDatabase_pluto_media->File_get()->GetRows("Path='" + StringUtils::SQLEscape(FileUtils::ExcludeTrailingSlash(FileUtils::BasePath(sDestination))) +
+		m_pDatabase_pluto_media->File_get()->GetRows("Path='" + StringUtils::SQLEscape(FileUtils::ExcludeTrailingSlash(sDestination)) +
 			"' AND Filename='" + StringUtils::SQLEscape(FileUtils::FilenameWithoutPath(sRippedFile)) + "'",
 			&vectRow_File);
 
@@ -1443,6 +1443,8 @@ int MediaAttributes_LowLevel::AddRippedDiscToDatabase(int PK_Disc,int PK_MediaTy
 
 void MediaAttributes_LowLevel::AddDiscAttributesToFile(int PK_File,int PK_Disc,int Track)
 {
+	if( !PK_Disc )
+		return; // It's not a known disc
 	Row_Disc *pRow_Disc = m_pDatabase_pluto_media->Disc_get()->GetRow( PK_Disc );
 	Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->GetRow( PK_File );
 	if( !pRow_Disc || !pRow_File )
