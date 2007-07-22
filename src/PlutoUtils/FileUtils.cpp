@@ -560,6 +560,7 @@ string FileUtils::ValidFileName(string sInput,bool bAllowSlashes,bool bStrict)
 		StringUtils::Replace(&sInput,"["," ");
 		StringUtils::Replace(&sInput,"]"," ");
 		StringUtils::Replace(&sInput,"'"," ");
+		StringUtils::Replace(&sInput,":"," ");
 	}
 	return sInput;
 }
