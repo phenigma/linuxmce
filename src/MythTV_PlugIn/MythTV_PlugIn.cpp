@@ -447,6 +447,7 @@ class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *
 			bool bOk=false;
 			for(list_int::iterator it=p_list_int->begin();it!=p_list_int->end();++it)
 			{
+int i=*it;
 				if( *it==pMythChannel->m_pMythSource->m_dwID )
 				{
 					bOk=true;
@@ -476,6 +477,9 @@ class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *
 	DB_ROW row;
 	if( (result.r=m_pDBHelper_Myth->db_wrapper_query_result(sSQL))!=NULL )
 	{
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "MythTV_PlugIn::AllShows rows %d map %d allsource %d sources to use %d",
+			result.r->row_count, (int) m_mapMythChannel.size(), (int) bAllSource, (int) mapVideoSourcesToUse.size() );
+
 		while((row = db_wrapper_fetch_row(result.r)))
 		{
 			MythChannel *pMythChannel = m_mapMythChannel_Find( atoi(row[0]) );
@@ -545,7 +549,8 @@ class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *
 			pDataGridTable->SetData(0,iRow++,pMythChannel->m_pCell);
 	}
 
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MythTV_PlugIn::AllShows cells: %d", (int) pDataGridTable->m_MemoryDataTable.size());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MythTV_PlugIn::AllShows cells: %d source %d plist %p map %d",
+		(int) pDataGridTable->m_MemoryDataTable.size(), PK_Device_Source, p_list_int, (int) m_mapDevicesToSources.size() );
 
 	return pDataGridTable;
 }

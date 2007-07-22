@@ -30,6 +30,7 @@
 #include "pluto_main/Define_DeviceData.h"
 #include "pluto_main/Define_FloorplanObjectType.h"
 #include "pluto_main/Table_Device_Device_Related.h"
+#include "pluto_security/Define_AlertType.h"
 
 PostCreateOptions::PostCreateOptions(Database_pluto_main *pDatabase_pluto_main,Router *pRouter,Command_Impl *pCommand_Impl)
 {
@@ -74,24 +75,30 @@ void PostCreateOptions::PostCreateDevice_AlarmPanel(Row_Device *pRow_Device, OH_
 
 void PostCreateOptions::PostCreateSecurityDevice(Row_Device *pRow_Device, OH_Orbiter *pOH_Orbiter)
 {
-	int PK_FloorplanObjectType=0;
+	int PK_FloorplanObjectType=0,PK_AlertType=0;
 	Row_Device_DeviceData *pRow_Device_DeviceData = m_pDatabase_pluto_main->Device_DeviceData_get()->GetRow(pRow_Device->PK_Device_get(),DEVICEDATA_PK_FloorplanObjectType_CONST);
 	if( pRow_Device_DeviceData )
 		PK_FloorplanObjectType = atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str());
+	pRow_Device_DeviceData = m_pDatabase_pluto_main->Device_DeviceData_get()->GetRow(pRow_Device->PK_Device_get(),DEVICEDATA_EK_AlertType_CONST);
+	if( pRow_Device_DeviceData )
+		PK_AlertType = atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str());
 
 	int iPK_DeviceTemplate=pRow_Device->FK_DeviceTemplate_get();
 	string sDefaultSecuritySetting;
-	if( PK_FloorplanObjectType==FLOORPLANOBJECTTYPE_SECURITY_DOOR_CONST || iPK_DeviceTemplate==DEVICETEMPLATE_Door_Sensor_CONST )
-		sDefaultSecuritySetting = "1,0,N1,1,1,2,N1"; // Monitor mode, security alert when armed, announcement when entertaining
-	else if( PK_FloorplanObjectType==FLOORPLANOBJECTTYPE_SECURITY_WINDOW_CONST || iPK_DeviceTemplate==DEVICETEMPLATE_Window_Sensor_CONST )
-		sDefaultSecuritySetting = "0,0,N1,2,2,0,N1"; // Make an announcement when the user is at home, security breach when away
-	else if( iPK_DeviceTemplate==DEVICETEMPLATE_Glass_Break_Sensor_CONST )
-		sDefaultSecuritySetting = "0,2,N1,N1,N1,2,N1"; // Always announcement or trigger an alarm
-	else if( PK_FloorplanObjectType==FLOORPLANOBJECTTYPE_SECURITY_MOTION_DETECTOR_CONST || iPK_DeviceTemplate==DEVICETEMPLATE_Motion_Detector_CONST )
-		sDefaultSecuritySetting = "0,0,N1,0,0,0,N1"; // Only active when away
-	else if( PK_FloorplanObjectType==FLOORPLANOBJECTTYPE_SECURITY_SMOKE_CONST || iPK_DeviceTemplate==DEVICETEMPLATE_Smoke_Detector_CONST )
+	if( PK_AlertType==ALERTTYPE_Security_CONST )
+	{
+		if( PK_FloorplanObjectType==FLOORPLANOBJECTTYPE_SECURITY_DOOR_CONST || iPK_DeviceTemplate==DEVICETEMPLATE_Door_Sensor_CONST )
+			sDefaultSecuritySetting = "1,0,N1,1,1,2,N1"; // Monitor mode, security alert when armed, announcement when entertaining
+		else if( PK_FloorplanObjectType==FLOORPLANOBJECTTYPE_SECURITY_WINDOW_CONST || iPK_DeviceTemplate==DEVICETEMPLATE_Window_Sensor_CONST )
+			sDefaultSecuritySetting = "0,0,N1,2,2,0,N1"; // Make an announcement when the user is at home, security breach when away
+		else if( iPK_DeviceTemplate==DEVICETEMPLATE_Glass_Break_Sensor_CONST )
+			sDefaultSecuritySetting = "0,2,N1,N1,N1,2,N1"; // Always announcement or trigger an alarm
+		else if( PK_FloorplanObjectType==FLOORPLANOBJECTTYPE_SECURITY_MOTION_DETECTOR_CONST || iPK_DeviceTemplate==DEVICETEMPLATE_Motion_Detector_CONST )
+			sDefaultSecuritySetting = "0,0,N1,0,0,0,N1"; // Only active when away
+	}
+	else if( PK_AlertType==ALERTTYPE_Fire_CONST && (PK_FloorplanObjectType==FLOORPLANOBJECTTYPE_SECURITY_SMOKE_CONST || iPK_DeviceTemplate==DEVICETEMPLATE_Smoke_Detector_CONST) )
 		sDefaultSecuritySetting = "1,N1,N1,N1,N1,N1,N1"; // Always an alarm
-	else if( PK_FloorplanObjectType==FLOORPLANOBJECTTYPE_SECURITY_AIRQUALITY_CONST || iPK_DeviceTemplate==DEVICETEMPLATE_Air_Quality_Sensor_CONST )
+	else if( PK_AlertType==ALERTTYPE_Air_Quality_CONST && (PK_FloorplanObjectType==FLOORPLANOBJECTTYPE_SECURITY_AIRQUALITY_CONST || iPK_DeviceTemplate==DEVICETEMPLATE_Air_Quality_Sensor_CONST) )
 		sDefaultSecuritySetting = "1,N1,N1,N1,N1,N1,N1"; // Always an alarm
 
 	DatabaseUtils::SetDeviceData(m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICEDATA_Alert_CONST,sDefaultSecuritySetting);
