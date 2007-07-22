@@ -195,6 +195,8 @@ void RipTask::UpdateProgress(string sStatus,int iPercent,int iTime,string sText,
 		if( m_bReportResult )
 			ReportSuccess();
 		m_eTaskStatus_set(TASK_COMPLETED);
+
+		m_pRipJob->m_pDatabase_pluto_media->Commit();
 	}
 }
 
