@@ -1150,8 +1150,12 @@ bool Powerfile_C200::SafeToReload(string &sReason)
 	PLUTO_SAFETY_LOCK(jm,*(m_pPowerfileJukebox->m_pJobHandler->m_ThreadMutex_get()));
 
 	if(m_pPowerfileJukebox->m_pJobHandler->HasJobs()==false)
+	{
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Powerfile_C200::SafeToReload true");
 		return true;
+	}
 
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Powerfile_C200::SafeToReload false");
 	sReason = "See Pending Tasks.  Powerfile busy.";
 	return false;
 }

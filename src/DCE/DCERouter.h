@@ -369,7 +369,8 @@ namespace DCE
 				ServerSocket *pServerSocket;
 				GET_SERVER_SOCKET(gs, pServerSocket, *it);
 
-				LoggerWrapper::GetInstance()->Write(LV_STATUS, "SafeToReload for device %d, server socket %p", *it, pServerSocket);
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "SafeToReload for device %d, server socket %p ask %d", *it, pServerSocket,
+					pServerSocket ? (int) pServerSocket->m_bAskBeforeReload : -1 );
 
 				if(NULL != pServerSocket)
 				{

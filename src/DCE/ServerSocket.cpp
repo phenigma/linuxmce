@@ -290,9 +290,15 @@ bool ServerSocket::ServeClient()
 				m_iInstanceID = atoi(sMessage.substr(pos_instance+8).c_str());
 
 			if( sMessage.find("ASK_BEFORE_RELOAD")!=string::npos )
+			{
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "ServerSocket::ServeClient m_bAskBeforeReload device %d %s", m_dwPK_Device, sMessage.c_str());
 				m_bAskBeforeReload=true;
+			}
 			if( sMessage.find("IMPLEMENTS_PENDING_TASKS")!=string::npos )
+			{
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "ServerSocket::ServeClient m_bImplementsPendingTasks device %d %s", m_dwPK_Device, sMessage.c_str());
 				m_bImplementsPendingTasks=true;
+			}
 
 			//string::size_type pos_flags = sMessage.find("INSTANCE");
 			if( pos_instance!=string::npos )
