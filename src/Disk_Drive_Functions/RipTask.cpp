@@ -58,7 +58,7 @@ int RipTask::Run()
 			m_pRipJob->m_pRow_DiscLocation->Reload();
 			m_pRow_RipStatus->Type_set(m_pRipJob->m_pRow_DiscLocation->Type_get());
 			if( m_pRipJob->m_pRow_DiscLocation->FK_Disc_get() )
-				m_pRow_RipStatus->Slot_set(m_pRipJob->m_pRow_DiscLocation->FK_Disc_get());
+				m_pRow_RipStatus->FK_Disc_set(m_pRipJob->m_pRow_DiscLocation->FK_Disc_get());
 
 			LoggerWrapper::GetInstance()->Write(LV_STATUS, "RipTask::Run m_pRipJob %p jobslot %d dl: device %d slot %d disc %d",
 				m_pRipJob, m_pRipJob->m_pSlot ? m_pRipJob->m_pSlot->m_SlotNumber : -1,
