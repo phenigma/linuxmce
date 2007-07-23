@@ -110,7 +110,7 @@ char *Event_Impl::GetConfig( /*unsigned long*/int &dwSize )
 		if( sResponse == "WAIT" ) // router busy
 		{
 			LoggerWrapper::GetInstance()->Write( LV_STATUS, "DCE Router asked us to wait--it's busy at the moment" );
-			Sleep( 5000 );
+			Sleep( 1000 );
 			continue;
 		}
 		if ( sResponse.substr(0,6) == "CONFIG" ) // got it!
