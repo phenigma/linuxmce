@@ -1524,10 +1524,11 @@ bool MythTV_Player::StopMythFrontend()
 	if( !m_pData )
 		return false; // Never started up anyway
 
+	DeviceData_Base *pDevice_App_Server = NULL;
+	string sResponse;
 	if(!m_bRouterReloading)
 	{
-		DeviceData_Base *pDevice_App_Server = m_pData->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_App_Server_CONST,this);
-		string sResponse;
+		pDevice_App_Server = m_pData->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_App_Server_CONST,this);
 		if( pDevice_App_Server )
 		{
 			DCE::CMD_Kill_Application CMD_Kill_Application(m_dwPK_Device,pDevice_App_Server->m_dwPK_Device,
