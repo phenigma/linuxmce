@@ -493,7 +493,23 @@ bool Xine_Plugin::ConfirmSourceIsADestination(string &sMRL,XineMediaStream *pXin
 			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Xine_Plugin::ConfirmSourceIsADestination can't find drive's device %s -- %s",sMRL.c_str(),sDrive.c_str());
 			return false;
 		}
-		string sDrive_New="/dev/device_" + StringUtils::itos(pDevice_Disk_Drive->m_dwPK_Device);
+		
+		int iComputerID = -1;
+		
+		DeviceData_Base *pParent = pDevice_Disk_Drive->m_pDevice_ControlledVia;
+		while ( pParent && !pParent->WithinCategory(DEVICECATEGORY_Computers_CONST) )
+			pParent = pParent->m_pDevice_ControlledVia;
+		
+		if (pParent)
+			iComputerID = pParent->m_dwPK_Device;
+		
+		if (iComputerID == -1)
+		{
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Xine_Plugin::ConfirmSourceIsADestination can't find the computer on which disk drive is: %i", pDevice_Disk_Drive->m_dwPK_Device);
+			return false;
+		}
+		
+		string sDrive_New = "/mnt/optical/" + StringUtils::itos(iComputerID) + "_" + StringUtils::Replace(sDrive, "/dev/", "");
 		StringUtils::Replace(&sMRL,sDrive,sDrive_New);
 	}
 	else
