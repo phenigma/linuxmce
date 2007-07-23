@@ -1524,14 +1524,18 @@ bool MythTV_Player::StopMythFrontend()
 	if( !m_pData )
 		return false; // Never started up anyway
 
-	DeviceData_Base *pDevice_App_Server = m_pData->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_App_Server_CONST,this);
-	string sResponse;
-	if( pDevice_App_Server )
+	if(!m_bRouterReloading)
 	{
-		DCE::CMD_Kill_Application CMD_Kill_Application(m_dwPK_Device,pDevice_App_Server->m_dwPK_Device,
-			"mythfrontend", false);
-		return SendCommand(CMD_Kill_Application,&sResponse);  // Get return confirmation so we know it's gone before we continue
+		DeviceData_Base *pDevice_App_Server = m_pData->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_App_Server_CONST,this);
+		string sResponse;
+		if( pDevice_App_Server )
+		{
+			DCE::CMD_Kill_Application CMD_Kill_Application(m_dwPK_Device,pDevice_App_Server->m_dwPK_Device,
+				"mythfrontend", false);
+			return SendCommand(CMD_Kill_Application,&sResponse);  // Get return confirmation so we know it's gone before we continue
+		}
 	}
+
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MythTV_Player::StopMythFrontend %p %s", pDevice_App_Server,sResponse.c_str());
 	return false;
 }
