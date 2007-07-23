@@ -107,8 +107,6 @@ void ThreadSleeper::SecondTick()
 	std::cout<<"Seconds: "<<Seconds<<std::endl;
 	if (Seconds > 0)
 		Event.DownKey();
-	else
-		Event.EscapeKey();
 	Wizard::GetInstance()->GenerateCustomEvent(Event);
 }
 
@@ -133,16 +131,25 @@ void* SleeperThreadFunc(void* Instance)
 	int Seconds1 = ThreadPtr->GetSecondRemaining();
 	std::cout<<"SleeperThreadFunc..."<<std::endl;
 
-	while(!ThreadPtr->bQuit && ThreadPtr->GetSecondRemaining() > 0)
+	int Remaining;
+	while(!ThreadPtr->bQuit && (Remaining = ThreadPtr->GetSecondRemaining()) > 0)
 	{
 		wizSleep(50);
-		int Seconds2 = ThreadPtr->GetSecondRemaining();
+		int Seconds2 = Remaining;
 
 		if (Seconds2 != Seconds1)
 		{
 			Seconds1 = Seconds2;
 			ThreadPtr->SecondTick();
 		}
+	}
+
+	std::cout << "Countdown remaining: " << Remaining << std::endl;
+	if (Remaining <= 0)
+	{
+		WM_Event Event;
+		Event.EscapeKey();
+		Wizard::GetInstance()->GenerateCustomEvent(Event);
 	}
 
 	std::cout<<"TreadQuit"<<std::endl;
