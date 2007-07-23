@@ -12,10 +12,10 @@ RootDebianUUID=
 
 GetConsole()
 {
-	exec &>/dev/tty1 </dev/tty1
+	exec &>/dev/tty8 </dev/tty8
 	dmesg -n1
 	clear
-	chvt 1
+	chvt 8
 }
 
 GetHddToUse()
