@@ -12,10 +12,10 @@ RootDebianUUID=
 
 GetConsole()
 {
-	exec &>/dev/tty8 </dev/tty8
+	exec &>/dev/tty1 </dev/tty1
 	dmesg -n1
 	clear
-	chvt 8
+	chvt 1
 }
 
 GetHddToUse()
@@ -284,6 +284,9 @@ Reboot()
 {
 	clear
 	if [[ "$FromHdd" != 1 ]]; then
+		exec &>/dev/tty8 </dev/tty8
+		clear
+		chvt 8
 		echo "*******************************************************************************"
 		echo "Installation complete. Press Enter or Control+Alt+Delete to reboot the computer"
 		echo "*******************************************************************************"
