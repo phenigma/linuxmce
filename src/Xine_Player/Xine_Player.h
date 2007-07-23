@@ -36,7 +36,6 @@ namespace DCE
 //<-dceag-decl-e->
 		// Private member variables
 		string m_sIPofMD;
-		int m_iNbdDevice;
 
 		// Private methods
 public:
@@ -512,13 +511,30 @@ public:
 	bool Connect(int iPK_DeviceTemplate );
 	virtual void FireMenuOnScreen(int iDestinationDevice, int iStream_ID, bool bOnOff);
 	string Get_MD_AudioSettings();
-	void StartNbdDevice(string sMediaURL);
-	void StopNbdDevice();
-
+	
+	bool MountRemoteDVD(string sURL);
+	bool UnmountRemoteDVD(string sURL);
+	
+	bool MountRemoteDVD(int iComputerID, string sDevice);
+	bool UnmountRemoteDVD(int iComputerID, string sDevice);
+	
+	// TODO process other remote DVDs if present
+	// pulls the latest remote DVD mounted and unmounts it
+	bool UnmountRemoteDVD();
+	
+	int InvokeRemoteDVDHelper(int iComputerID, string sDevice, string sCommand);
+	
+	string ConvertRemoveDVDToLocalPath(string sURL);
+	pair<int, string> ExtractComputerAndDeviceFromRemoteDVD(string sURL, bool &bResult);
+	bool IsRemoteDVD(string sURL);
+	
 private:
 	// xine streams factory ptr
 	Xine_Stream_Factory *ptrFactory;
 	DeviceData_Base *m_pDeviceData_MediaPlugin;
+	
+	// history of all mounted remote DVDs
+	vector<pair<int, string> > mountedRemoteDVDs;
 	
 	int m_iDefaultZoomLevel;
 	

@@ -40,7 +40,6 @@ Xine_Player::Xine_Player(int DeviceID, string ServerAddress,bool bConnectEventHa
 {
 	m_pDeviceData_MediaPlugin = NULL;
 	ptrFactory = new Xine_Stream_Factory(this);
-	m_iNbdDevice = 0;
 	
 	m_iDefaultZoomLevel = 100;
 	
@@ -55,14 +54,13 @@ Xine_Player::Xine_Player(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *p
 //<-dceag-const2-e->
 {
 	m_pDeviceData_MediaPlugin=NULL;
-	m_iNbdDevice = 0;
 }
 
 //<-dceag-dest-b->
 Xine_Player::~Xine_Player()
 //<-dceag-dest-e->
 {
-	StopNbdDevice();
+	UnmountRemoteDVD();
 	if (ptrFactory)
 	{
 		ptrFactory->ShutdownFactory();
@@ -87,34 +85,6 @@ bool Xine_Player::GetConfig()
 	
 	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::GetConfig default zoom %d", m_iDefaultZoomLevel);
 	
-	string sNbdClient;
-	int Count=0;
-	for(Map_DeviceData_Base::iterator it=m_pData->m_AllDevices.m_mapDeviceData_Base.begin();it!=m_pData->m_AllDevices.m_mapDeviceData_Base.end();++it)
-	{
-		DeviceData_Base *pDevice = it->second;
-		DeviceData_Base *pDevice_TopMost = pDevice->GetTopMostDevice();
-		if( pDevice->WithinCategory(DEVICECATEGORY_Disc_Drives_CONST) && pDevice_TopMost && pDevice_TopMost!=m_pData->GetTopMostDevice() )
-		{
-			sNbdClient += "NBD_DEVICE[" + StringUtils::itos(Count) + "]=/dev/device_" + StringUtils::itos(pDevice->m_dwPK_Device) + "\n";
-			sNbdClient += "NBD_TYPE[" + StringUtils::itos(Count) + "]=r\n";
-			sNbdClient += "NBD_PORT[" + StringUtils::itos(Count) + "]=" + StringUtils::itos(pDevice->m_dwPK_Device+18000) + "\n";
-			sNbdClient += "NBD_HOST[" + StringUtils::itos(Count) + "]=" + pDevice_TopMost->m_sIPAddress + "\n";
-			Count++;
-		}
-	}
-/*
-	string sFileName = "/etc/nbd-client";
-	std::size_t Size;
-	char *pPtr = FileUtils::ReadFileIntoBuffer( sFileName, Size );
-	if( !pPtr || sNbdClient!=pPtr )
-	{
-		bool bResult = FileUtils::WriteBufferIntoFile( sFileName, sNbdClient.c_str(), sNbdClient.size() );
-		LoggerWrapper::GetInstance()->Write(LV_WARNING,"Wrote nbd-client file %d.  changed from %s to %s",
-			(int) bResult,(pPtr ? pPtr : "*NONE*\n"),sNbdClient.c_str());
-	}
-
-	delete pPtr;
-*/	
 	// Put your code here to initialize the data in this class
 	// The configuration parameters DATA_ are now populated
 	return true;
@@ -305,7 +275,7 @@ void Xine_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPo
 	}
 	else	
 	{
-		StopNbdDevice();
+		UnmountRemoteDVD();
 		EVENT_Playback_Completed(sMediaURL,iStreamID,true);  // true = there was an error, don't keep repeating
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() stream is NULL, aborting - init failure?");
 		return;
@@ -338,7 +308,11 @@ void Xine_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPo
 	
 	string sMediaInfo;
 	
-	StartNbdDevice(sMediaURL);
+	if (IsRemoteDVD(sMediaURL))
+	{
+		MountRemoteDVD(sMediaURL);
+		sMediaURL = ConvertRemoveDVDToLocalPath(sMediaURL);
+	}
 
 	if (pStream->OpenMedia( sMediaURL, sMediaInfo,  sMediaPosition))
 	{
@@ -359,14 +333,14 @@ void Xine_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPo
 			{
 				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() failed to play %s without position info",sMediaURL.c_str());
 				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::EVENT_Playback_Completed(streamID=%i)", iStreamID);
-				StopNbdDevice();
+				UnmountRemoteDVD();
 				EVENT_Playback_Completed(sMediaURL,iStreamID,true);  // true = there was an error, don't keep repeating
 			}
 		}
 	}
 	else
 	{
-		StopNbdDevice();
+		UnmountRemoteDVD();
 		EVENT_Playback_Completed(sMediaURL,iStreamID,true);  // true = there was an error, don't keep repeating
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() Failed to open media");
 	}
@@ -1436,68 +1410,114 @@ void Xine_Player::CMD_Start_Streaming(int iPK_MediaType,int iStreamID,string sMe
 	}
 }
 
-void Xine_Player::StartNbdDevice(string sMediaURL)
+// sURL format is:
+// remotedvd:///mnt/optical/computerID_device
+
+// where computerID is int, for core - 1, or the computer ID of M/D
+// device is from /dev/device on serving machine
+
+bool Xine_Player::IsRemoteDVD(string sURL)
 {
-	if( m_iNbdDevice )
-		StopNbdDevice();
-
-	string::size_type pos = sMediaURL.find("/dev/device_");
-	if( pos==string::npos )
-	{
-#ifdef DEBUG
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Xine_Player::StartNbdDevice %s is not a nbd",sMediaURL.c_str());
-#endif
-		return;
-	}
-	m_iNbdDevice = atoi(sMediaURL.substr(pos + 12).c_str());
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Xine_Player::StartNbdDevice %d / %s",m_iNbdDevice,sMediaURL.c_str());
-
-	string sIPAddress;
-	DeviceData_Base *pDevice = m_pData->m_AllDevices.m_mapDeviceData_Base_Find( m_iNbdDevice );
-	if( pDevice )
-	{
-		DeviceData_Base *pDevice_TopMost = pDevice->GetTopMostDevice();
-		if( pDevice_TopMost )
-			sIPAddress = pDevice_TopMost->m_sIPAddress;
-	}
-
-	if( sIPAddress.empty() )
-	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Xine_Player::StartNbdDevice can't find ip for %d",m_iNbdDevice);
-		m_iNbdDevice=0;
-		return;
-	}
-
-	string sCmd = "/usr/pluto/bin/nbd-client-wrapper add " + StringUtils::itos(m_iNbdDevice) + " \"" + sIPAddress + "\"";
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Xine_Player::StartNbdDevice %s",sCmd.c_str());
-	system(sCmd.c_str());
+	bool bResult = false;
+	ExtractComputerAndDeviceFromRemoteDVD(sURL, bResult);
+	return bResult;
 }
 
-void Xine_Player::StopNbdDevice()
-{
-	if( m_iNbdDevice==0 )
-		return;
-
-	string sIPAddress;
-	DeviceData_Base *pDevice = m_pData->m_AllDevices.m_mapDeviceData_Base_Find( m_iNbdDevice );
-	if( pDevice )
-	{
-		DeviceData_Base *pDevice_TopMost = pDevice->GetTopMostDevice();
-		if( pDevice_TopMost )
-			sIPAddress = pDevice_TopMost->m_sIPAddress;
+bool Xine_Player::MountRemoteDVD(string sURL) {
+	// TODO release previously mounted DVD?
+	
+	bool bResult = false;
+	pair<int, string> remoteDVD = ExtractComputerAndDeviceFromRemoteDVD(sURL, bResult);
+	
+	if ( !bResult ) {
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Xine_Player::MountRemoteDVD %s is not a remote DVD",sURL.c_str());
+		return false;
 	}
-
-	if( sIPAddress.empty() )
+	else
 	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Xine_Player::StopNbdDevice can't find ip for %d",m_iNbdDevice);
-		m_iNbdDevice=0;
-		return;
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Xine_Player::MountRemoteDVD trying to mount %s",sURL.c_str());
 	}
+	
+	return MountRemoteDVD(remoteDVD.first, remoteDVD.second);
+}
+			
+bool Xine_Player::UnmountRemoteDVD(string sURL) {
+	return UnmountRemoteDVD();
+}
 
-	string sCmd = "/usr/pluto/bin/nbd-client-wrapper del " + StringUtils::itos(m_iNbdDevice) + " \"" + sIPAddress + "\"";
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Xine_Player::StopNbdDevice %s",sCmd.c_str());
-	system(sCmd.c_str());
-	m_iNbdDevice=0;
+bool Xine_Player::MountRemoteDVD(int iComputerID, string sDevice) {
+	int iResult = InvokeRemoteDVDHelper(iComputerID, sDevice, "start");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Xine_Player::MountRemoteDVD %s", ( (iResult==0)?"mounted OK":"failed to mount") );
+	
+	return (iResult == 0) ;
+}
+
+bool Xine_Player::UnmountRemoteDVD(int iComputerID, string sDevice) {
+	int iResult = InvokeRemoteDVDHelper(iComputerID, sDevice, "stop");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Xine_Player::UnmountRemoteDVD %s", ( (iResult==0)?"unmounted OK":"failed to unmount") );
+	
+	if (iResult == 0)
+		mountedRemoteDVDs.push_back(make_pair(iComputerID, sDevice));
+	
+	return (iResult == 0) ;
+}
+
+int Xine_Player::InvokeRemoteDVDHelper(int iComputerID, string sDevice, string sCommand) {
+	string sHelperCommand = "/usr/pluto/bin/StorageDevices_DVD.sh " + StringUtils::itos(iComputerID) + " " + sDevice + " " + sCommand;
+	int iResult = system( sHelperCommand.c_str() );
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Xine_Player::InvokeRemoteDVDHelper invoked [%s], return code %i", sHelperCommand.c_str(), iResult);
+
+	return iResult;
+}
+
+string Xine_Player::ConvertRemoveDVDToLocalPath(string sURL) {
+	string sResult = StringUtils::Replace(sURL, "remotedvd://", "dvd://");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Xine_Player::ConvertRemoveDVDToLocalPath %s => %s", sURL.c_str(), sResult.c_str());
+	return sResult;
+}
+
+// extracts computerID and device name from URL, sets bResult to true if succeeds, false otherwise
+pair<int, string> Xine_Player::ExtractComputerAndDeviceFromRemoteDVD(string sURL, bool &bResult) {
+	const char prefix[] = "remotedvd:///mnt/optical/";
+	bResult = false;
+	pair<int, string> pResult = make_pair(-1, "");
+	
+	if ( !StringUtils::StartsWith(sURL, prefix) )
+		return pResult;
+	
+	sURL.erase(0, sizeof(prefix));
+	
+	vector<string> vInfo = StringUtils::Split(sURL, "_");
+	if ( vInfo.size() < 2 )
+		return pResult;
+	
+	int iComputerID = atoi( vInfo[0].c_str() );
+	if ( iComputerID == 0 )
+		return pResult;
+		
+	string sDevice = vInfo[1];
+	
+	pResult.first = iComputerID;
+	pResult.second = sDevice;
+	
+	bResult = true;
+	return pResult;
+}
+
+bool Xine_Player::UnmountRemoteDVD() {
+	if (mountedRemoteDVDs.size() != 0)
+	{
+		pair<int, string> rDVD = mountedRemoteDVDs.back();
+		mountedRemoteDVDs.pop_back();
+		bool bResult = UnmountRemoteDVD(rDVD.first, rDVD.second);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Xine_Player::UnmountRemoteDVD() unmount %s", (bResult?"succeeded":"failed") );
+		return bResult;
+	}
+	else
+	{
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Xine_Player::UnmountRemoteDVD() no remote DVD mounted" );
+		return false;
+	}
 }
 
 //<-dceag-c126-b->
@@ -1577,3 +1597,4 @@ void Xine_Player::CMD_Set_Zoom(string sZoom_Level,string &sCMD_Result,Message *p
 	else
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"No default stream"); 
 }
+
