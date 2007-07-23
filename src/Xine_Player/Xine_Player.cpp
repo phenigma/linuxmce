@@ -1448,15 +1448,15 @@ bool Xine_Player::MountRemoteDVD(int iComputerID, string sDevice) {
 	int iResult = InvokeRemoteDVDHelper(iComputerID, sDevice, "start");
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Xine_Player::MountRemoteDVD %s", ( (iResult==0)?"mounted OK":"failed to mount") );
 	
+	if (iResult == 0)
+		mountedRemoteDVDs.push_back(make_pair(iComputerID, sDevice));
+	
 	return (iResult == 0) ;
 }
 
 bool Xine_Player::UnmountRemoteDVD(int iComputerID, string sDevice) {
 	int iResult = InvokeRemoteDVDHelper(iComputerID, sDevice, "stop");
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Xine_Player::UnmountRemoteDVD %s", ( (iResult==0)?"unmounted OK":"failed to unmount") );
-	
-	if (iResult == 0)
-		mountedRemoteDVDs.push_back(make_pair(iComputerID, sDevice));
 	
 	return (iResult == 0) ;
 }
