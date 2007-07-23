@@ -133,7 +133,7 @@ void* SleeperThreadFunc(void* Instance)
 	int Seconds1 = ThreadPtr->GetSecondRemaining();
 	std::cout<<"SleeperThreadFunc..."<<std::endl;
 
-	while(!ThreadPtr->bQuit && ThreadPtr->GetSecondRemaining())
+	while(!ThreadPtr->bQuit && ThreadPtr->GetSecondRemaining() > 0)
 	{
 		wizSleep(50);
 		int Seconds2 = ThreadPtr->GetSecondRemaining();
