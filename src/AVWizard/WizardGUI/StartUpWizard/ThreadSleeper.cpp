@@ -105,7 +105,7 @@ void ThreadSleeper::SecondTick()
 	}
 	WM_Event Event;
 	std::cout<<"Seconds: "<<Seconds<<std::endl;
-	if(Seconds)
+	if (Seconds > 0)
 		Event.DownKey();
 	else
 		Event.EscapeKey();
