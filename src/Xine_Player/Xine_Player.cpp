@@ -1478,7 +1478,7 @@ pair<int, string> Xine_Player::ExtractComputerAndDeviceFromRemoteDVD(string sURL
 	if ( !StringUtils::StartsWith(sURL, prefix) )
 		return pResult;
 	
-	sURL.erase(0, sizeof(prefix));
+	sURL.erase(0, sizeof(prefix)-1);
 	
 	vector<string> vInfo = StringUtils::Split(sURL, "_");
 	if ( vInfo.size() < 2 )
