@@ -11,10 +11,11 @@ Action="$3"
 WorkDir="/mnt/optical"
 
 function Log {
-	echo "$(date -R) $*" >&2 
+	echo "$(date -R) $$ $*" >&2 
 }
 
 mkdir -p "$WorkDir"
+Log "Called $0 $*"
 
 ## If the dvb drive is from this computer
 if [[ "$Action" == "start" ]] ;then
@@ -36,10 +37,14 @@ if [[ "$Action" == "start" ]] ;then
 		## Mount it where it should be
 		mkdir -p "${WorkDir}/${Computer}_${BlockDevice}"
 		if [[ "$(cat /proc/mounts  | grep "^/dev/${BlockDevice} " | cut -d' ' -f2)" != "$WorkDir/${Computer}_${BlockDevice}" ]] ;then
-			umount "/dev/${BlockDevice}" 2>/dev/null
-			mount -t auto -o user,noauto "/dev/${BlockDevice}" "$WorkDir/${Computer}_${BlockDevice}"
+			umount -lf "/dev/${BlockDevice}" 2>/dev/null
+			
+			if ! mount -t auto -o user,noauto "/dev/${BlockDevice}" "$WorkDir/${Computer}_${BlockDevice}" ;then
+				Log "Cannot mount /dev/${BlockDevice}"
+				exit 1
+			fi
 		else
-			mount -o remount,user,noauto "$WorkDir/${Computer}_${BlockDevice}"
+			Log "Device ${BlockDevice} was allready mounted"
 		fi
 
 		## Add a samba share for it so it'll be accesible by other computers too
@@ -64,6 +69,7 @@ if [[ "$Action" == "start" ]] ;then
 
 	## If is from another computer
 	else
+		## Umount if firs, nobody should use it at this point althought is lazy
 		umount -lf "${WorkDir}/${Computer}_${BlockDevice}" 2>/dev/null
 
 		## Get the IP Address of the core
@@ -74,24 +80,24 @@ if [[ "$Action" == "start" ]] ;then
 		fi
 
 		## Tell that computer to enable the dvd drive
-		ssh root@"$IPaddress" "/usr/pluto/bin/StorageDevices_DVD.sh $1 $2 $3" || exit 1
+		if ! ssh root@"$IPaddress" "/usr/pluto/bin/StorageDevices_DVD.sh $1 $2 $3" ;then
+			Log "Cannot comunicate with $Computer to enable DVD Drive sharing but continue anyway"
+		fi
+
+		mkdir -p "${WorkDir}/${Computer}_${BlockDevice}"
 
 		## Mount / Remount the dvd drive
-		mkdir -p "${WorkDir}/${Computer}_${BlockDevice}" || exit 1
-		mount -t "cifs" -o "credentials=/usr/pluto/var/sambaCredentials.secret" "//$IPaddress/Optical_${BlockDevice}\$" "${WorkDir}/${Computer}_${BlockDevice}" || exit 1
+		if ! mount -t "cifs" -o "credentials=/usr/pluto/var/sambaCredentials.secret" "//$IPaddress/Optical_${BlockDevice}\$" "${WorkDir}/${Computer}_${BlockDevice}" ;then
+			Log "Cannot mount the remote DVD"
+			exit 1
+		fi
+
+		Log "Mounted successfull"
 	fi
 
 elif [[ "$Action" == "stop" ]] ;then
 
-	if [[ "$Computer" == "$PK_Device" ]] ;then
-#		PopulateSection "/etc/samba/smb.conf" "Optical_Drive_${BlockDevice}" ""	
-#		if [[ "$(pidof smbd)" == "" ]] ;then
-#			invoke-rc.d samba start &>/dev/null
-#		else
-#			invoke-rc.d samba reload &>/dev/null
-#		fi
-		:
-	else
-		umount "${WorkDir}/${Computer}_${BlockDevice}"
+	if [[ "$Computer" != "$PK_Device" ]] ;then
+		umount -lf "${WorkDir}/${Computer}_${BlockDevice}"
 	fi
 fi
