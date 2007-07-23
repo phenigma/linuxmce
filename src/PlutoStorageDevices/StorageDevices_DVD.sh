@@ -29,7 +29,7 @@ if [[ "$Action" == "start" ]] ;then
 
 		## Test to see if the block device contains a mountable dvd
 		## by checking it's filesystem to be UDF or ISO9660
-		if ! file -s "/dev/${BlockDevice}" | grep -q "UDF\|ISO" ;then
+		if ! file -s -L "/dev/${BlockDevice}" | grep -q "UDF\|ISO" ;then
 			Log "Filesystem on '/dev/${BlockDevice}' is not UDF or ISO9660"
 			exit 1
 		fi
