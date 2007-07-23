@@ -381,8 +381,6 @@ void OpenGLGraphic::putpixel(SDL_Surface *pSDL_Surface,int x, int y, Uint32 pixe
 
 bool OpenGLGraphic::LoadGraphic(char *pData, size_t iSize,int iRotation)
 {
-g_PlutoProfiler->Start("OpenGLGraphic::LoadGraphic");
-	
 	PLUTO_SAFETY_LOCK(oglMutex, m_OpenGlMutex);
 	if(LocalSurface != NULL)
 	{
