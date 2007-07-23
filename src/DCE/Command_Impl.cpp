@@ -1266,6 +1266,11 @@ void Command_Impl::RunLocalMode()
 		while(true)
 		{
 			char ch = getch();
+			if (ch == EOF)
+			{
+				cout << "EOF received" << endl;
+				while (true) sleep(1);
+			}
 			if( ch=='\n' || ch=='\r' )
 				break;
 			cout << ch;
