@@ -283,6 +283,13 @@ int PlutoMediaFile::HandleFileNotInDatabase(int PK_MediaType)
         pRow_File->Filename_set(m_sFile);
 		pRow_File->EK_MediaType_set(PK_MediaType);
 		pRow_File->IsDirectory_set(m_bIsDir);
+
+		int nEK_Users_Private = GetOwnerForPath(m_sDirectory);
+		if(nEK_Users_Private != 0)
+			pRow_File->EK_Users_Private_set(nEK_Users_Private);
+		else
+			pRow_File->EK_Users_Private_setNull(true);
+
         pRow_File->Table_File_get()->Commit();
 
 		m_pPlutoMediaAttributes->m_nFileID = PK_File;
