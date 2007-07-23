@@ -30,7 +30,7 @@ fi
 
 R=$(RunSQL "$Q")
 for Host in $R; do
-	ShutDownRemote "$Host"
+	ShutDownRemote "$Host" &
 done
 
 offline=0
