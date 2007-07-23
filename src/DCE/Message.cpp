@@ -183,7 +183,7 @@ void Message::BuildFromArgs( int iNumArgs, char *cArguments[], int dwPK_DeviceFr
 			baseMessageSpecPos ++;
 		}
 		else
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Create message Unknown argument: %s",cArguments[baseMessageSpecPos]);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Create message Unknown argument: %s",cArguments[baseMessageSpecPos++]);
 	}
 
 	if( bResponseRequired )
