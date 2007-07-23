@@ -2416,7 +2416,6 @@ void ScreenHandler::SaveFile_SendCommand(int PK_Users)
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void ScreenHandler::SCREEN_Floorplan(long PK_Screen, string sPK_DesignObj)
 {
-	ScreenHandlerBase::SCREEN_Floorplan(PK_Screen, sPK_DesignObj);
 	m_pOrbiter->GotoDesignObj(sPK_DesignObj);
 }
 
