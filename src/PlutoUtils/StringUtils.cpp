@@ -1151,4 +1151,24 @@ string StringUtils::BashPatternEscape(string sInput, string sCharsToNotEscape)
     return sOutput;
 }
 
+vector<string> StringUtils::Split(string sInput, string sDelimiters, bool bRemoveEmptyElements/*=false*/) {
+	vector<string> vOutput;
+	
+	while ( !sInput.empty() ) {
+		size_t pos = sInput.find_first_of(sDelimiters);
+		if (pos == string::npos) {
+			if ( !sInput.empty() || !bRemoveEmptyElements )
+				vOutput.push_back(sInput);
+			sInput.clear();
+		}
+		else {
+			string sElement = sInput.substr(0, pos);
+			sInput.erase(0, pos+1);
+			if ( !sElement.empty() || !bRemoveEmptyElements )
+				vOutput.push_back(sElement);
+		}
+	}
+	
+	return vOutput;
+}
 #endif //#ifndef SYMBIAN

@@ -244,6 +244,12 @@ namespace StringUtils
 	 * @brief escape bash pattern special characters in strings
 	 */
 	string BashPatternEscape(string sInput, string sCharsToNotEscape = "");
+	
+	/**
+	 * @brief splits string into elements separated by delimiters
+	 */
+	
+	vector<string> Split(string sInput, string sDelimiters, bool bRemoveEmptyElements=false);
 #endif //#ifndef SYMBIAN
 };
 
