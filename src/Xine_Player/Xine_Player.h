@@ -524,7 +524,6 @@ public:
 	
 	int InvokeRemoteDVDHelper(int iComputerID, string sDevice, string sCommand);
 	
-	string ConvertRemoveDVDToLocalPath(string sURL);
 	pair<int, string> ExtractComputerAndDeviceFromRemoteDVD(string sURL, bool &bResult);
 	bool IsRemoteDVD(string sURL);
 	

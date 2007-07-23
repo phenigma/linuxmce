@@ -311,7 +311,6 @@ void Xine_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPo
 	if (IsRemoteDVD(sMediaURL))
 	{
 		MountRemoteDVD(sMediaURL);
-		sMediaURL = ConvertRemoveDVDToLocalPath(sMediaURL);
 	}
 
 	if (pStream->OpenMedia( sMediaURL, sMediaInfo,  sMediaPosition))
@@ -1411,7 +1410,7 @@ void Xine_Player::CMD_Start_Streaming(int iPK_MediaType,int iStreamID,string sMe
 }
 
 // sURL format is:
-// remotedvd:///mnt/optical/computerID_device
+// dvd:///mnt/optical/computerID_device
 
 // where computerID is int, for core - 1, or the computer ID of M/D
 // device is from /dev/device on serving machine
@@ -1470,15 +1469,9 @@ int Xine_Player::InvokeRemoteDVDHelper(int iComputerID, string sDevice, string s
 	return iResult;
 }
 
-string Xine_Player::ConvertRemoveDVDToLocalPath(string sURL) {
-	string sResult = StringUtils::Replace(sURL, "remotedvd://", "dvd://");
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Xine_Player::ConvertRemoveDVDToLocalPath %s => %s", sURL.c_str(), sResult.c_str());
-	return sResult;
-}
-
 // extracts computerID and device name from URL, sets bResult to true if succeeds, false otherwise
 pair<int, string> Xine_Player::ExtractComputerAndDeviceFromRemoteDVD(string sURL, bool &bResult) {
-	const char prefix[] = "remotedvd:///mnt/optical/";
+	const char prefix[] = "dvd:///mnt/optical/";
 	bResult = false;
 	pair<int, string> pResult = make_pair(-1, "");
 	
