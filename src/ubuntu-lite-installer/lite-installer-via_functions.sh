@@ -22,12 +22,25 @@ GetHddToUse()
 {
 	local HddList Done Drive i Choice DiskSize DiskDev
 	local -a Hdd
+	local BootParm
 
 	HddList=$(fdisk -l|grep ^Disk |cut -d' ' -f2-4|sed -r 's,[:,],,g; s, ,:,g')
 	if [[ "$Debug" == 1 ]]; then
 		HddList="/dev/loop0:0:GB"
 	fi
-	if [[ -z "$HddList" ]]; then # No hard drives
+	if [[ "$FromHdd" == 1 ]]; then
+		for BootParm in $(</proc/cmdline); do
+			if [[ "$BootParm" == "root="* ]]; then
+				TargetHdd="${BootParm#root=}"
+				TargetHdd="${TargetHdd//[0-9]}"
+				break
+			fi
+		done
+		if [[ -z "$TargetHdd" ]]; then
+			echo "Error: Failed to determine current hard drive"
+			exit 1
+		fi
+	elif [[ -z "$HddList" ]]; then # No hard drives
 		echo "Error: No hard drives found"
 		exit 1
 	else
@@ -270,9 +283,11 @@ UnmountPartitions()
 Reboot()
 {
 	clear
-	echo "*******************************************************************************"
-	echo "Installation complete. Press Enter or Control+Alt+Delete to reboot the computer"
-	echo "*******************************************************************************"
-	read
+	if [[ "$FromHdd" != 1 ]]; then
+		echo "*******************************************************************************"
+		echo "Installation complete. Press Enter or Control+Alt+Delete to reboot the computer"
+		echo "*******************************************************************************"
+		read
+	fi
 	reboot
 }
