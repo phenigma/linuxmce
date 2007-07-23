@@ -4701,7 +4701,9 @@ int Media_Plugin::GetStorageDeviceWithMostFreeSpace(string& sFullDescription, st
 		StringUtils::ltos(DEVICECATEGORY_Core_CONST) + ", " + 
 		StringUtils::ltos(DEVICECATEGORY_Hard_Drives_CONST) + ", " + 
 		StringUtils::ltos(DEVICECATEGORY_Storage_Devices_CONST) + ", " + 
-		StringUtils::ltos(DEVICECATEGORY_Network_Storage_CONST) + 
+		StringUtils::ltos(DEVICECATEGORY_Network_Storage_CONST) + ", " + 
+		StringUtils::ltos(DEVICECATEGORY_Raid_Devices_CONST) + ", " + 
+		StringUtils::ltos(DEVICECATEGORY_Raid_Generic_CONST) +
 		+ ") AND FK_DeviceData = " + 
 		StringUtils::ltos(DEVICEDATA_Free_Disk_Space_in_MBytes_CONST) + " " +
 		"ORDER BY CAST(Device_DeviceData.IK_DeviceData AS UNSIGNED) DESC ";
