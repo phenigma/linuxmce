@@ -37,9 +37,9 @@ if [[ "$Action" == "start" ]] ;then
 		mkdir -p "${WorkDir}/${Computer}_${BlockDevice}"
 		if [[ "$(cat /proc/mounts  | grep "^/dev/${BlockDevice} " | cut -d' ' -f2)" != "$WorkDir/${Computer}_${BlockDevice}" ]] ;then
 			umount "/dev/${BlockDevice}" 2>/dev/null
-			mount -t auto "/dev/${BlockDevice}" "$WorkDir/${Computer}_${BlockDevice}"
+			mount -t auto -o user,noauto "/dev/${BlockDevice}" "$WorkDir/${Computer}_${BlockDevice}"
 		else
-			mount -o remount "$WorkDir/${Computer}_${BlockDevice}"
+			mount -o remount,user,noauto "$WorkDir/${Computer}_${BlockDevice}"
 		fi
 
 		## Add a samba share for it so it'll be accesible by other computers too
@@ -64,6 +64,8 @@ if [[ "$Action" == "start" ]] ;then
 
 	## If is from another computer
 	else
+		umount -lf "${WorkDir}/${Computer}_${BlockDevice}" 2>/dev/null
+
 		## Get the IP Address of the core
 		IPaddress=$(RunSQL "SELECT IPaddress from Device WHERE PK_Device = '$Computer' LIMIT 1")
 		if [[ "$IPaddress" == "" ]] ;then
@@ -72,12 +74,11 @@ if [[ "$Action" == "start" ]] ;then
 		fi
 
 		## Tell that computer to enable the dvd drive
-		ssh root@"$IPaddress" "/usr/pluto/bin/StorageDevices_DVD.sh $1 $2 $3"
+		ssh root@"$IPaddress" "/usr/pluto/bin/StorageDevices_DVD.sh $1 $2 $3" || exit 1
 
 		## Mount / Remount the dvd drive
-		mkdir -p "${WorkDir}/${Computer}_${BlockDevice}"
-		umount "${WorkDir}/${Computer}_${BlockDevice}" 2>/dev/null
-		mount -t "cifs" -o "credentials=/usr/pluto/var/sambaCredentials.secret" "//$IPaddress/Optical_${BlockDevice}\$" "${WorkDir}/${Computer}_${BlockDevice}"
+		mkdir -p "${WorkDir}/${Computer}_${BlockDevice}" || exit 1
+		mount -t "cifs" -o "credentials=/usr/pluto/var/sambaCredentials.secret" "//$IPaddress/Optical_${BlockDevice}\$" "${WorkDir}/${Computer}_${BlockDevice}" || exit 1
 	fi
 
 elif [[ "$Action" == "stop" ]] ;then
