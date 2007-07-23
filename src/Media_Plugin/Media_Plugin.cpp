@@ -6065,7 +6065,14 @@ void Media_Plugin::CMD_Refresh_List_of_Online_Devices(string &sCMD_Result,Messag
 	string sSQL = "SELECT PK_Device,FK_DeviceCategory,FK_DeviceTemplate,FK_Device_ControlledVia FROM Device "
 		"JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate "
 		"LEFT JOIN Device_DeviceData ON FK_Device=PK_Device AND FK_DeviceData=" TOSTRING(DEVICEDATA_Online_CONST) " "
-		"WHERE FK_DeviceCategory IN (" TOSTRING(DEVICECATEGORY_Hard_Drives_CONST) "," TOSTRING(DEVICECATEGORY_Network_Storage_CONST) "," TOSTRING(DEVICECATEGORY_Disc_Drives_CONST) "," TOSTRING(DEVICECATEGORY_CDDVD_Jukeboxes_CONST) ") "
+		"WHERE FK_DeviceCategory IN (" 
+			TOSTRING(DEVICECATEGORY_Hard_Drives_CONST) "," 
+			TOSTRING(DEVICECATEGORY_Network_Storage_CONST) "," 
+			TOSTRING(DEVICECATEGORY_Disc_Drives_CONST) "," 
+			TOSTRING(DEVICECATEGORY_CDDVD_Jukeboxes_CONST) ","
+			TOSTRING(DEVICECATEGORY_Raid_Devices_CONST) "," 
+			TOSTRING(DEVICECATEGORY_Raid_Generic_CONST) 
+			") "
 		"AND (IK_DeviceData IS NULL OR IK_DeviceData<>0)";
 
 	PlutoSqlResult result;
