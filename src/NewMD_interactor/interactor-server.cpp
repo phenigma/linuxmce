@@ -99,12 +99,28 @@ int main()
 				sscanf(buffer, "%*s %s %s %s %s", remoteIP, remoteMAC, remoteDeviceData, remoteDeviceTemplate);
 				printf("Split: IP=%s, MAC=%s, DD=%s, DT=%s\n", remoteIP, remoteMAC, remoteDeviceData, remoteDeviceTemplate);
 
-				char * args[] = { "/usr/pluto/bin/MessageSend", "localhost", "0", "-1001", "2", "65",
-					"28", remoteIP, "5", remoteMAC, "52", "3", "53", "5",
-					"49", strlen(remoteDeviceTemplate) == 0 ? (char *) sDT_Generic_PC_as_MD : remoteDeviceTemplate,
-					"55", remoteDeviceData,
-					NULL };
-				GetCommandOutput(args[0], args, NULL);
+				char * MDexists_args[] = {"/usr/pluto/bin/NewMD_Exists.sh", remoteMAC, NULL };
+				string MD_DevID;
+				GetCommandOutput(MDexists_args[0], MDexists_args, &MD_DevID);
+				if (MD_DevID.length() != 0)
+				{
+					printf("Existing MD: %s\n", MD_DevID.c_str());
+					// chomp output
+					while (*MD_DevID.rbegin() == '\n')
+						MD_DevID.resize(MD_DevID.length() - 1);
+					char * args[] = { "/usr/pluto/bin/New_PnP_MD.sh", remoteIP, remoteMAC, (char *) MD_DevID.c_str(), NULL };
+					GetCommandOutput(args[0], args, NULL);
+				}
+				else
+				{
+					printf("New MD\n");
+					char * args[] = { "/usr/pluto/bin/MessageSend", "localhost", "0", "-1001", "2", "65",
+						"28", remoteIP, "5", remoteMAC, "52", "3", "53", "5",
+						"49", strlen(remoteDeviceTemplate) == 0 ? (char *) sDT_Generic_PC_as_MD : remoteDeviceTemplate,
+						"55", remoteDeviceData,
+						NULL };
+					GetCommandOutput(args[0], args, NULL);
+				}
 			}
 			else if (strcmp(cmd, "rooms") == 0)
 			{
