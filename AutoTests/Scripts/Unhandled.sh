@@ -3,7 +3,8 @@
 . /usr/pluto/bin/SQL_Ops.sh
 . /usr/pluto/bin/Config_Ops.sh
 
-Q="SELECT PK_Device FROM Device JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE ImplementsDCE=1"
+FK_Room=$(RunSQL "SELECT FK_Room FROM Device WHERE PK_Device='${PK_Device}'")
+Q="SELECT PK_Device FROM Device JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE ImplementsDCE=1 AND FK_Room=$FK_Room"
 Devs=$(RunSQL "$Q")
 
 echo >> /Unhalded.log
