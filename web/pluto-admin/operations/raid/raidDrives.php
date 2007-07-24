@@ -84,6 +84,7 @@ function raidDrives($output,$dbADO) {
 				<td align="center"><B>'.$TEXT_NO_OF_DRIVES_CONST.'</B></td>
 				<td align="center"><B>'.$TEXT_SIZE_CONST.'</B></td>
 				<td align="center"><B>'.$TEXT_RAID_STATUS_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_RAID_FORMAT_STATUS_CONST.'</B></td>
 				<td align="center"><B>'.$TEXT_ACTION_CONST.'</B></td>				
 			</tr>		
 			<tr class="alternate_back">
@@ -95,6 +96,7 @@ function raidDrives($output,$dbADO) {
 				<td align="center">'.$data['NoOfDisks'][0].'</td>
 				<td align="center">'.$data['RaidSize'][0].'</td>
 				<td align="center">'.$data['Status'][0].'</td>		
+				<td align="center" style="width:200px"><iframe src="index.php?section=raidFormatStatus&raidID='.$data['PK_Device'][0].'" style="width:210px;height:22px;border:0;"></iframe></td>
 				<td align="center">'.$createArrayBtn.'</td>
 				</tr>
 			</table>

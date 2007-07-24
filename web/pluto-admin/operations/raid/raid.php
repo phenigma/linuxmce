@@ -21,15 +21,16 @@ function raid($output,$dbADO) {
 
 	<table>
 		<tr class="tablehead">
-			<td align="center">'.$TEXT_ID_CONST.'</td>
-			<td align="center">'.$TEXT_PARENT_CONST.'</td>
-			<td align="center">'.$TEXT_RAID_CONST.'</td>
-			<td align="center">'.$TEXT_RAID_TYPE_CONST.'</td>
+			<td align="center"><b>'.$TEXT_ID_CONST.'</b></td>
+			<td align="center"><b>'.$TEXT_PARENT_CONST.'</b></td>
+			<td align="center"><b>'.$TEXT_RAID_CONST.'</b></td>
+			<td align="center"><b>'.$TEXT_RAID_TYPE_CONST.'</b></td>
 			<td align="center"><B>'.$TEXT_BLOCK_DEVICE_CONST.'</B></td>
 			<td align="center"><B>'.$TEXT_NO_OF_DRIVES_CONST.'</B></td>
 			<td align="center"><B>'.$TEXT_SIZE_CONST.'</B></td>
-			<td align="center">'.$TEXT_RAID_STATUS_CONST.'</td>
-			<td align="center">'.$TEXT_ACTION_CONST.'</td>
+			<td align="center"><b>'.$TEXT_RAID_STATUS_CONST.'</b></td>
+			<td align="center"><B>'.$TEXT_RAID_FORMAT_STATUS_CONST.'</B></td>
+			<td align="center"><b>'.$TEXT_ACTION_CONST.'</b></td>
 		</tr>';
 		$pos=0;
 		$computers=getDevicesArrayFromCategory($GLOBALS['rootComputerID'],$dbADO);
@@ -80,6 +81,7 @@ function raid($output,$dbADO) {
 				<td align="center">'.$data['NoOfDisks'][$i].'</td>
 				<td align="center">'.$data['RaidSize'][$i].'</td>
 				<td align="center">'.$data['Status'][$i].'</td>
+				<td align="center" style="width:200px"><iframe src="index.php?section=raidFormatStatus&raidID='.$data['PK_Device'][$i].'" style="width:210px;height:22px;border:0;"></iframe></td>
 				<td>
 				<input type="button" class="button_fixed" name="drives_'.$data['PK_Device'][$i].'" value="'.$TEXT_DRIVES_CONST.'"  onClick="self.location=\'index.php?section=raidDrives&deviceID='.$data['PK_Device'][$i].'\';"><br>
 				<input type="button" class="button_fixed" name="edit_'.$data['PK_Device'][$i].'" value="'.$TEXT_ADVANCED_CONST.'"  onClick="self.location=\'index.php?section=editDeviceParams&deviceID='.$data['PK_Device'][$i].'\';"><br>

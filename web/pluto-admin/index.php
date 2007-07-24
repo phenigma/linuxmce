@@ -1575,6 +1575,14 @@ switch ($section) {
 	    include_once('operations/mediaBrowser/rippingStatus.php');
 	    rippingStatus($output,$dbADO,$mediadbADO);	    
 	break;	
+	case 'raidFormatStatus':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('small');
+	    include_once('operations/raid/raidFormatStatus.php');
+	    raidFormatStatus($output,$dbADO);	    
+	break;	
+	
+	
 	
 	case 'index';
 		@$_SESSION['lastLeftFrameSrc']='';

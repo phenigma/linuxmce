@@ -34,4 +34,5 @@ $TEXT_TYPE_REQUIRED_CONST='RAID type required.';
 $TEXT_USE_AUTOMATICALLY_CONST='Use automatically';
 $TEXT_USE_PLUTO_DIRECTORY_STRUCTURE_CONST='Use pluto\'s directory structure';
 $TEXT_RAID_DRIVES_INFO_CONST='Add the drives and partitions you would like to be part of the RAID, and then select "Create RAID Array"';
+$TEXT_RAID_FORMAT_STATUS_CONST='Format status';
 ?>
