@@ -12,6 +12,7 @@ WorkDir="/mnt/optical"
 
 function Log {
 	echo "$(date -R) $$ $*" >&2 
+	echo "$(date -R) $$ $*" >> /var/log/pluto/StorageDevices_DVD.log
 }
 
 mkdir -p "$WorkDir"
