@@ -8,7 +8,7 @@ function raidFormatStatus($output,$dbADO){
 	if($raidID==0){
 		return '';
 	}
-	$command='cat /tmp/'.$raidID.'_Raid.log';
+	$command='cat /usr/pluto/var/'.$raidID.'_Raid.log';
 	$ret=exec_batch_command($command,1);
 	
 
