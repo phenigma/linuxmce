@@ -67,7 +67,8 @@ if [[ "$3" != "demonized" ]] ;then
 	fi
 else
 	## Format the new raid
-	echo "FORMAT,1" > /tmp/${Device}_Raid.log
+	LogFile="/usr/pluto/var/${Device}_Raid.log"
+	echo "FORMAT,1" > $LogFile
 
 	echo "y" | mkfs.ext3 $2 > /var/log/mkfs_${Device} &
 
@@ -88,7 +89,7 @@ else
 			percent=$(((done * 100) / total ))
 		fi
 
-		echo "FORMAT,$percent" > /tmp/${Device}_Raid.log
+		echo "FORMAT,$percent" > $LogFile
 	done
 
 
@@ -96,5 +97,5 @@ else
 	/usr/pluto/bin/StorageDevices_PlutoDirStructure.sh -d $Device
 	/usr/pluto/bin/StorageDevices_Setup.sh
 	
-	rm /tmp/${Device}_Raid.log
+	rm $LogFile
 fi
