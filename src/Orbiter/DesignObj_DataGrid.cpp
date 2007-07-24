@@ -337,6 +337,12 @@ void DesignObj_DataGrid::DataGridTable_Set(DataGridTable *pDataGridTable,int Cur
 	m_pDataGridTable_Current=NULL;
 	for(map< pair<int,int>, DataGridTable *>::iterator itm=m_mapDataGridTable_Cache.begin();itm!=m_mapDataGridTable_Cache.end();++itm)
 	{
+		DataGridTable *pDatagrid = itm->second;
+
+#ifdef ORBITER_OPENGL
+		pDatagrid->DetachGraphics();
+#endif
+
 		delete itm->second;
 	}
 	m_mapDataGridTable_Cache.clear();
