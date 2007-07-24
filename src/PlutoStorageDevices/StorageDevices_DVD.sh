@@ -3,12 +3,17 @@
 . /usr/pluto/bin/Section_Ops.sh
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/SQL_Ops.sh
+. /usr/pluto/bin/LockUtils.sh
+
 
 Computer="$1"
 BlockDevice="$2"
 Action="$3"
 
 WorkDir="/mnt/optical"
+
+trap "Unlock 'DVDShare-$BlockDevice' 'StorageDevices_DVD.sh'"
+WaitLock "DVDShare-$BlockDevice" 'StorageDevices_DVD.sh'
 
 function Log {
 	echo "$(date -R) $$ $*" >&2 
