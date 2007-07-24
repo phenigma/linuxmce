@@ -74,9 +74,9 @@ else
 	echo "y" | mkfs.ext3 $2 > /var/log/mkfs_${Device} &
 
 	percent=0
-	while "$percent" != 100 ;do
-		sleep 4
+	while [[ "$percent" != 100 ]];do
 		mkfsOutput=$(cat /var/log/mkfs_${Device}  | grep "Writing inode tables: " | sed -r 's/.*[^0-9]([0-9]+\/[0-9]+|done)[^0-9]*/\1/')a
+		sleep 4
 
 		if [[ "$mkfsOutput" == "" ]] ;then
 			percent=1
