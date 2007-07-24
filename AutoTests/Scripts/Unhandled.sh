@@ -14,7 +14,9 @@ echo "unhalded" >> /tmp/status.log
 for dev in $Devs ; do
 	resp=$(/usr/pluto/bin/MessageSend $DCERouter -r 0 $dev 1 99999)	
 	if [[ "$resp" == 'RESP: Delivery failed' ]] ;then
-		echo "Device $dev didn't respond with UNHANDLED: $resp" >> /Unhalded.log
+                Q1="SELECT Description FROM Device WHERE PK_Device=$dev"
+                DevName=$(RunSQL "$Q1")
+                echo "Device #$dev/'$DevName' didn't respond with UNHANDLED: $resp" >> /Unhalded.log
 	fi
 done
 
