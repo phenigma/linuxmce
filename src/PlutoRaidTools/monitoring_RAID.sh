@@ -67,6 +67,17 @@ case "$event" in
 	Q="UPDATE Device_DeviceData SET IK_DeviceData = '$raidSize' WHERE FK_Device = $DeviceID and FK_DeviceData = $DISK_SIZE_ID"
 	RunSQL "$Q"
 	 ;;
+	"DegradedArray" )
+		Q="SELECT FK_Device FROM Device_DeviceData WHERE IK_DeviceData = '$md'  AND FK_DeviceData = $BLOCK_DEVICE_ID"
+		DeviceID=$(RunSQL "$Q")
+
+		Q="UPDATE Device_DeviceData SET IK_DeviceData = 1 WHERE FK_Device = $DeviceID and FK_DeviceData = $NEW_ADD_ID"
+		RunSQL "$Q"
+	 
+		Q="UPDATE Device_DeviceData SET IK_DeviceData = 'Devices is workable but degraded for now. Will start rebuilding ' WHERE FK_Device = $DeviceID and FK_DeviceData = $STATE_ID"
+		RunSQL "$Q"
+
+
 	"Fail" )
 	failedDevs=$(mdadm --detail $md | awk '/faulty/ {print $6}')
 	for failedDev in $failedDevs; do
