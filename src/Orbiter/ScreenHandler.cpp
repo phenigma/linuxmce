@@ -2196,6 +2196,13 @@ void ScreenHandler::SCREEN_FileSave(long PK_Screen, int iPK_MediaType, int iEK_D
 				sFolder = "videos";
 		}
 	}
+	
+	if(m_bSaveFile_CreatingFolder)
+	{
+		//wait for app_server to create the folder
+		//maybe it would be better instead to send "spawn_application" command to app_server with confirmation?
+		Sleep(200); 
+	}
 
 	//setup variables
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST, m_sSaveFile_Drive);
