@@ -1269,7 +1269,7 @@ void Command_Impl::RunLocalMode()
 			if (ch == EOF)
 			{
 				cout << "EOF received" << endl;
-				while (true) sleep(1);
+				while (true) Sleep(1000);
 			}
 			if( ch=='\n' || ch=='\r' )
 				break;
