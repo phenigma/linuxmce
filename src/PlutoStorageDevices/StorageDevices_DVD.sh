@@ -18,6 +18,15 @@ function Log {
 mkdir -p "$WorkDir"
 Log "Called $0 $*"
 
+function MountDVD {
+	umount -lf "/dev/${BlockDevice}" 2>/dev/null
+	
+	if ! mount -t auto -o user,noauto "/dev/${BlockDevice}" "$WorkDir/${Computer}_${BlockDevice}" ;then
+		Log "Cannot mount /dev/${BlockDevice}"
+		exit 1
+	fi
+}
+
 ## If the dvb drive is from this computer
 if [[ "$Action" == "start" ]] ;then
 	if [[ "$Computer" == "$PK_Device" ]] ;then
@@ -36,16 +45,15 @@ if [[ "$Action" == "start" ]] ;then
 		fi
 		
 		## Mount it where it should be
+		DvdChecksum_cur=$(/usr/pluto/bin/dvd_unique_id /dev/$BlockDevice)
+		DvdChecksum_old=$(cat $WorkDir/$BlockDevice.checksum)
 		mkdir -p "${WorkDir}/${Computer}_${BlockDevice}"
-		if [[ "$(cat /proc/mounts  | grep "^/dev/${BlockDevice} " | cut -d' ' -f2)" != "$WorkDir/${Computer}_${BlockDevice}" ]] ;then
-			umount -lf "/dev/${BlockDevice}" 2>/dev/null
-			
-			if ! mount -t auto -o user,noauto "/dev/${BlockDevice}" "$WorkDir/${Computer}_${BlockDevice}" ;then
-				Log "Cannot mount /dev/${BlockDevice}"
-				exit 1
-			fi
+		if [[ "$DvdChecksum_cur" != "$DvdChecksum_old" ]] ;then
+			Log "Checksums are different new=$DvdChecksum_cur old=$DvdChecksum_old. Re mounting"
+			MountDVD
+			echo "$DvdChecksum_cur" > "$WorkDir/$BlockDevice.checksum"
 		else
-			Log "Device ${BlockDevice} was allready mounted"
+			Log "Checksums are similar, skiped remounting"
 		fi
 
 		## Add a samba share for it so it'll be accesible by other computers too
