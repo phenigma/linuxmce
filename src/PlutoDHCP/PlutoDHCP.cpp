@@ -279,7 +279,6 @@ string PlutoDHCP::GetDHCPConfig()
 		}
 
 		if ( (int)ip.AsInt() >= (int)ipAddressDhcpStart.AsInt()) {
-			cout << "++++++" << ip.AsInt() << " " << ipAddressDhcpStart.AsInt() << "\n";
 			p_iIpAddress[i_NoOfIpAdresses++] = ip.AsInt();
 		}
 	}
