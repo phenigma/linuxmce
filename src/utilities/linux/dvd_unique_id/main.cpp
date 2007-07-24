@@ -26,6 +26,7 @@ int main(int argc, char *argv[]) {
 	// generate unique disk ID
 	unsigned char uniqueID[32];
 	if ( DVDDiscID(pDVD, uniqueID)!=0 ) {
+		cerr << "Failed to generated unique ID" << endl;
 		iRetCode = 3;
 	}
 	else {
