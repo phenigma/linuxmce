@@ -245,6 +245,8 @@ UpdateOrbiterUI()
 	esac
 }
 
+ConfSet AVWizardOverride 0
+
 RemoteCmd=$(/usr/pluto/bin/AVWizard_Remote_Detect.sh | tail -1)
 
 Done=0
@@ -282,3 +284,5 @@ UpdateOrbiterUI
 echo "$(date -R) $(basename "$0"): AVWizard Calling SetupAudioVideo"
 bash -x /usr/pluto/bin/SetupAudioVideo.sh | tee-pluto /var/log/pluto/avwizard_setup_av.log
 set +x
+
+ConfSet AVWizardOverride 0
