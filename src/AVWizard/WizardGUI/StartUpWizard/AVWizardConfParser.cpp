@@ -20,11 +20,7 @@
 
 AVWizardConfParser::AVWizardConfParser(void)
 {
-#ifdef WIN32
-	DefaultConfigFileName = "avwizardsettings.xml";
-#else
 	DefaultConfigFileName = "/tmp/avwizardsettings.xml";
-#endif	
 }
 
 AVWizardConfParser::~AVWizardConfParser(void)

@@ -616,8 +616,9 @@ void Wizard::ZoomOut()
 	if (!ZoomPage)
 		return;
 
-	if(WizardBorder*5 >= Width)
+	if(WizardBorder*3 >= Width)
 		return;
+
 	WizardBorder += BORDER_JUMP;
 	LeftBorder+= BORDER_JUMP;
 	TopBorder+= BORDER_JUMP;
