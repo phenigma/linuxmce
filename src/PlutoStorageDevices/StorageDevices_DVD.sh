@@ -12,7 +12,7 @@ Action="$3"
 
 WorkDir="/mnt/optical"
 
-trap "Unlock 'DVDShare-$BlockDevice' 'StorageDevices_DVD.sh'"
+trap "Unlock 'DVDShare-$BlockDevice' 'StorageDevices_DVD.sh'" EXIT
 WaitLock "DVDShare-$BlockDevice" 'StorageDevices_DVD.sh'
 
 function Log {
