@@ -42,7 +42,7 @@ public:
     SocketRemoteClient(SocketRemoteServer* Server, int Socket);
 
     ~SocketRemoteClient();
-	std::string RecieveString();
+	std::string ReceiveString();
 	void SendString(std::string Message);
 	void Disconnect();
 };

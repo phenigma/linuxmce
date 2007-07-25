@@ -64,7 +64,7 @@ SocketRemoteClient::~SocketRemoteClient()
 	pthread_mutex_destroy(&SafeMutex);
 }
 
-std::string SocketRemoteClient::RecieveString()
+std::string SocketRemoteClient::ReceiveString()
 {
 	SafetyLock Lock(&SafeMutex);
 	std::string Message="";
@@ -120,7 +120,7 @@ void* SocketClientCallBack(void* SocketClientCallBackPtr)
 	
 	SDL_Event Event;
 	std::cout<<"Start getting information from client"<<std::endl;
-	Message = Client->RecieveString();
+	Message = Client->ReceiveString();
 	Client->Disconnect();
 	std::cout<<"Client disconnected!"<<std::endl;
 
