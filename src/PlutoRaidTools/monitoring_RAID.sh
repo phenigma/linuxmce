@@ -64,17 +64,28 @@ function Raid_UpdateDisksType {
 	for Disk in $R ;do
 		local Disk_DeviceID=$(Field "1" "$Disk")
 		local Disk_Block=$(Field "2" "$Disk")
+		local Disk_Type=""
 		
 		local partition_info_line=$(mdadm --detail "$Raid_Block" | grep "${Disk_Block}$")
-		partition_info_line=$(echo "$partition_info_line" | sed 's/active sync/AS/g')
-		partition_info_line=$(echo "$partition_info_line" | sed 's/spare rebuilding/SR/g')
-		partition_info_line=$(echo "$partition_info_line" | sed 's/faulty spare/FS/g')
-		partition_info_line=$(echo "$partition_info_line" | sed 's/spare/S/g')
+		
+		if [[ "$partition_info_line" != "" ]] ;then
+			partition_info_line=$(echo "$partition_info_line" | sed 's/active sync/AS/g')
+			partition_info_line=$(echo "$partition_info_line" | sed 's/spare rebuilding/SR/g')
+			partition_info_line=$(echo "$partition_info_line" | sed 's/faulty spare/FS/g')
+			partition_info_line=$(echo "$partition_info_line" | sed 's/spare/S/g')
+		
+			Disk_Type="$(echo $partition_info_line | cut -d' ' -f5)"
+		else
+			Disk_Type="ABS"
+		fi
 
-		local Disk_Type="$(echo $partition_info_line | cut -d' ' -f5)"
 
 		
 		case "$Disk_Type" in
+		"ABS") #disk can't be find in raid (absent)
+			RunSQL "UPDATE Device_DeviceData SET IK_DeviceData = 1 WHERE FK_Device = $Disk_DeviceID AND FK_DeviceData = $SPARE_ID"
+			Raid_SetStatus "$Disk_DeviceID" "REMOVED"	
+			;;
 		"SR") #spare rebuilding
 			RunSQL "UPDATE Device_DeviceData SET IK_DeviceData = 1 WHERE FK_Device = $Disk_DeviceID AND FK_DeviceData = $SPARE_ID"
 			Raid_SetStatus "$Disk_DeviceID" "ACTIVATING"
