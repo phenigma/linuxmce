@@ -7,8 +7,8 @@ CXXFLAGS=-I. -I.. -I$(ROOT) -I$(ROOT)/DCE
 LDFLAGS=-L$(ROOT)/lib
 LDLIBS=-lDCECommon -lPlutoUtils -lpthread -lhid
 
-all: Main.o 
-	g++ Main.o -o WatchGyroRemote $(LDFLAGS) $(LDLIBS)
+all: Main.o ../LIRC_DCE/IRReceiverBase.o
+	g++ Main.o ../LIRC_DCE/IRReceiverBase.o -o WatchGyroRemote $(LDFLAGS) $(LDLIBS)
 	cp WatchGyroRemote $(ROOT)/bin/
 
 clean:

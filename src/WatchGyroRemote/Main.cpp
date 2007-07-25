@@ -46,7 +46,7 @@ DCEConfig dceConfig;
 
 #define HAVE_STDBOOL_H
 #define AVWizard_Port	28949
-#define AVWizard_Host	localhost
+#define AVWizard_Host	"localhost"
 
 extern "C" 
 {
@@ -97,11 +97,11 @@ int main(int argc, char *argv[])
 	struct usb_bus *busses;
 	usb_set_debug(255);
 
-	usb_init();
+	IRReceiverBase irReceiverBase(NULL);
 
 	while(!g_bQuit)
 	{
-		IRReceiverBase irReceiverBase(NULL);
+		usb_init();
 		usb_find_busses();
 		usb_find_devices();
 
@@ -173,7 +173,27 @@ int main(int argc, char *argv[])
 										dceConfig.WriteSettings();
 										system("beep -f 2000");
 									}
-									else //if()
+									else if( inPacket[3]==-99 )
+									{
+										LoggerWrapper::GetInstance()->Write(LV_STATUS,"WatchGyroRemote button -- sending chdown");
+										irReceiverBase.ForceKeystroke("chdown", AVWizard_Host, AVWizard_Port);
+									}
+									else if( inPacket[3]==-100 )
+									{
+										LoggerWrapper::GetInstance()->Write(LV_STATUS,"WatchGyroRemote button -- sending chup");
+										irReceiverBase.ForceKeystroke("chup", AVWizard_Host, AVWizard_Port);
+									}
+									else if( inPacket[3]==-22 )
+									{
+										LoggerWrapper::GetInstance()->Write(LV_STATUS,"WatchGyroRemote button -- sending voldown");
+										irReceiverBase.ForceKeystroke("voldn", AVWizard_Host, AVWizard_Port);
+									}
+									else if( inPacket[3]==-23 )
+									{
+										LoggerWrapper::GetInstance()->Write(LV_STATUS,"WatchGyroRemote button -- sending vol up");
+										irReceiverBase.ForceKeystroke("volup", AVWizard_Host, AVWizard_Port);
+									}
+									else if( inPacket[3]==-63 )
 									{
 										LoggerWrapper::GetInstance()->Write(LV_STATUS,"WatchGyroRemote button -- sending back");
 										irReceiverBase.ForceKeystroke("back", AVWizard_Host, AVWizard_Port);
