@@ -444,6 +444,7 @@ void Wizard::EvaluateEvents()
 		std::cout<<"Numeric key pressed: "<<char(Event.KeyCode)<<std::endl;
 #endif
 		DoNumberKey(Event.KeyCode);
+		break;
 	default:
 		StatusChange = false;
 		}
