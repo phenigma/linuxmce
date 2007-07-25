@@ -209,7 +209,11 @@ bool PlutoHIDInterface::ProcessBindRequest(char *inPacket)
 		perror("error: ");
 		return false;
 	}
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"PlutoHIDInterface::ProcessBindRequest wrote message %d",ctrl);
+
+	// Make a beep so the user knows we connected
+	char * args[] = { "/usr/bin/beep", "-f","2000","-n","-f","1800","-n","-f","1600","-n","-f","1800","-n","-f","2000, NULL };
+	ProcessUtils::SpawnDaemon(args[0], args, false);
+
 	m_pOrbiter->CMD_Display_Alert("Remote " + StringUtils::itos(PK_Device) + " connected","connectremote","3",interuptAlways);
 	m_pOrbiter->GotActivity(0);  // In case the tv is off or the screen saver
 	SetActiveRemote(RemoteID,inPacket[1]==0x26);
