@@ -23,6 +23,8 @@ else
 	echo "($date) Catched event $Param_Event for $Param_Raid from $Param_Disk" >> /var/log/pluto/RAID_monitoring.log
 fi
 
+
+
 function Raid_SetStatus {
 	local DeviceID="$1"
 	local StatusMessage="$2"
@@ -40,6 +42,65 @@ function Raid_SetSize {
 }
 
 
+function Raid_UpdateDisksType {
+	local Raid_DeviceID="$1"
+	local Raid_Block=$(RunSQL "SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device=$Raid_DeviceID AND FK_DeviceData='$DD_BLOCK_DEVICE'")
+
+	local Q="
+	SELECT 
+		PK_Device,
+		IK_DeviceData
+	FROM
+		Device
+		INNER JOIN Device_DeviceData on FK_Device = PK_Device
+	WHERE
+		FK_Device_ControlledVia = $Raid_DeviceID
+		AND
+		FK_DeviceData = $DD_BLOCK_DEVICE
+	"
+	local R=$(RunSQL "$Q")
+
+	local Disk
+	for Disk in $R ;do
+		local Disk_DeviceID=$(Field "1" "$Disk")
+		local Disk_Block=$(Field "2" "$Disk")
+		
+		local partition_info_line=$(mdadm --detail "$Raid_Block" | grep "${Disk_Block}$")
+		partition_info_line=$(echo "$partition_info_line" | sed 's/active sync/AS/g')
+		partition_info_line=$(echo "$partition_info_line" | sed 's/spare rebuilding/SR/g')
+		partition_info_line=$(echo "$partition_info_line" | sed 's/faulty spare/FS/g')
+		partition_info_line=$(echo "$partition_info_line" | sed 's/spare/S/g')
+
+		local Disk_Type="$(echo $partition_info_line | cut -d' ' -f5)"
+
+		
+		case "$Disk_Type" in
+		"SR") #spare rebuilding
+			RunSQL "UPDATE Device_DeviceData SET IK_DeviceData = 1 WHERE FK_Device = $Disk_DeviceID AND FK_DeviceData = $SPARE_ID"
+			Raid_SetStatus "$Disk_DeviceID" "ACTIVATING"
+			;;
+		"FS") #faulty spare
+			RunSQL "UPDATE Device_DeviceData SET IK_DeviceData = 1 WHERE FK_Device = $Disk_DeviceID AND FK_DeviceData = $SPARE_ID"
+			Raid_SetStatus "$Disk_DeviceID" "FAULTY"
+			;;
+		"S")
+			RunSQL "UPDATE Device_DeviceData SET IK_DeviceData = 1 WHERE FK_Device = $Disk_DeviceID AND FK_DeviceData = $SPARE_ID"
+			;;
+		"AS") #active sync
+			RunSQL "UPDATE Device_DeviceData SET IK_DeviceData = 0 WHERE FK_Device = $Disk_DeviceID AND FK_DeviceData = $SPARE_ID"
+			Raid_SetStatus "$Disk_DeviceID" "OK"
+			;;
+		esac
+		
+	done	
+		
+}
+
+Raid_DeviceID="$(RunSQL "SELECT FK_Device FROM Device_DeviceData WHERE IK_DeviceData = '$Param_Raid'  AND FK_DeviceData = $DD_BLOCK_DEVICE")"
+if [[ "$Raid_DeviceID" == "" ]] ;then
+	exit 0
+fi
+Raid_UpdateDisksType "$Raid_DeviceID"
 
 case "$Param_Event" in
 	"DeviceDisappeared" )
@@ -94,9 +155,9 @@ case "$Param_Event" in
 	;;
 
 	"Fail" )
-		Q="SELECT FK_Device FROM Device_DeviceData WHERE IK_DeviceData = '$failedDev' AND FK_DeviceData = $DD_BLOCK_DEVICE"
+		Q="SELECT FK_Device FROM Device_DeviceData WHERE IK_DeviceData = '$Param_Disk' AND FK_DeviceData = $DD_BLOCK_DEVICE"
 		DeviceID=$(RunSQL "$Q")
-		Raid_SetStatus "$DeviceID" "FAILED"
+		Raid_SetStatus "$DeviceID" "FAULTY"
 
 		Q="SELECT FK_Device FROM Device_DeviceData WHERE IK_DeviceData = '$Param_Raid'  AND FK_DeviceData = $DD_BLOCK_DEVICE"
 		DeviceID=$(RunSQL "$Q")
@@ -109,7 +170,7 @@ case "$Param_Event" in
 		   INNER JOIN Device ON Device_DeviceData.FK_Device = Device.PK_Device 
 		   WHERE Device.FK_Device_ControlledVia = $DeviceID AND
 			 Device_DeviceData.FK_DeviceData = $STATE_ID AND 
-			 Device_DeviceData.IK_DeviceData = 'Failed disk'"
+			 Device_DeviceData.IK_DeviceData = 'FAULTY'"
 		FailedDriveNr=$(RunSQL "$Q")
 
 		Q="SELECT FK_DeviceTemplate FROM Device WHERE PK_Device = $DeviceID"
@@ -135,7 +196,7 @@ case "$Param_Event" in
 		Q="SELECT FK_Device FROM Device_DeviceData WHERE IK_DeviceData = '$Param_Disk' AND FK_DeviceData = $DD_BLOCK_DEVICE"
 		DeviceID=$(RunSQL "$Q")
 
-		Raid_SetStatus "$DeviceID" "FAILED"
+		Raid_SetStatus "$DeviceID" "FAULTY"
 	;;
 
 	"SpareActive" )
