@@ -36,6 +36,7 @@
 #include "HIDInterface.h"
 #include "Gen_Devices/AllCommandsRequests.h"
 #include "../OrbiterFileBrowser.h"
+#include "../PlutoUtils/ProcessUtils.h"
 
 #include <stdio.h>
 #include <string.h>
