@@ -335,7 +335,7 @@ void KeyboardMouseHandler::IterateExternalApp()
 		case 'U':
 		{
 			DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,
-				StringUtils::itos(BUTTON_Scroll_Up_CONST),"");
+				StringUtils::itos(BUTTON_Scroll_Up_CONST),0,"");
 			m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Simulate_Keypress);
 		}
 		break;
@@ -343,7 +343,7 @@ void KeyboardMouseHandler::IterateExternalApp()
 		case 'D':
 		{
 			DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,
-				StringUtils::itos(BUTTON_Scroll_Down_CONST),"");
+				StringUtils::itos(BUTTON_Scroll_Down_CONST),0,"");
 			m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Simulate_Keypress);
 		}
 		break;
@@ -351,7 +351,7 @@ void KeyboardMouseHandler::IterateExternalApp()
 		case 'u':
 		{
 			DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,
-				StringUtils::itos(BUTTON_Up_Arrow_CONST),"");
+				StringUtils::itos(BUTTON_Up_Arrow_CONST),0,"");
 			m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Simulate_Keypress);
 		}
 		break;
@@ -359,7 +359,7 @@ void KeyboardMouseHandler::IterateExternalApp()
 		case 'd':
 		{
 			DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,
-				StringUtils::itos(BUTTON_Down_Arrow_CONST),"");
+				StringUtils::itos(BUTTON_Down_Arrow_CONST),0,"");
 			m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Simulate_Keypress);
 		}
 		break;
@@ -367,7 +367,7 @@ void KeyboardMouseHandler::IterateExternalApp()
 		case 'L':
 		{
 			DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,
-				StringUtils::itos(BUTTON_Scroll_Left_CONST),"");
+				StringUtils::itos(BUTTON_Scroll_Left_CONST),0,"");
 			m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Simulate_Keypress);
 		}
 		break;
@@ -375,7 +375,7 @@ void KeyboardMouseHandler::IterateExternalApp()
 		case 'R':
 		{
 			DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,
-				StringUtils::itos(BUTTON_Scroll_Right_CONST),"");
+				StringUtils::itos(BUTTON_Scroll_Right_CONST),0,"");
 			m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Simulate_Keypress);
 		}
 		break;
@@ -383,7 +383,7 @@ void KeyboardMouseHandler::IterateExternalApp()
 		case 'l':
 		{
 			DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,
-				StringUtils::itos(BUTTON_Left_Arrow_CONST),"");
+				StringUtils::itos(BUTTON_Left_Arrow_CONST),0,"");
 			m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Simulate_Keypress);
 		}
 		break;
@@ -391,7 +391,7 @@ void KeyboardMouseHandler::IterateExternalApp()
 		case 'r':
 		{
 			DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,
-				StringUtils::itos(BUTTON_Right_Arrow_CONST),"");
+				StringUtils::itos(BUTTON_Right_Arrow_CONST),0,"");
 			m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Simulate_Keypress);
 		}
 		break;

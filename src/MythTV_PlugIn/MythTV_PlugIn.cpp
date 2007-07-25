@@ -750,7 +750,7 @@ void MythTV_PlugIn::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string
 
 	int m_dwTargetDevice = pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device;
 
-	DCE::CMD_Jump_Position_In_Playlist tuneCommand(m_dwPK_Device, m_dwTargetDevice, sValue_To_Assign);
+	DCE::CMD_Jump_Position_In_Playlist tuneCommand(m_dwPK_Device, m_dwTargetDevice, sValue_To_Assign,pMediaStream->m_iStreamID_get());
 	SendCommand(tuneCommand);
 }
 

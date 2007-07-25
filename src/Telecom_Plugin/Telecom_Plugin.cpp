@@ -1070,7 +1070,7 @@ void Telecom_Plugin::CMD_Simulate_Keypress(string sPK_Button,string sName,string
 	int phoneID=map_orbiter2embedphone[pMessage->m_dwPK_Device_From];
 	if(phoneID>0)
 	{
-		DCE::CMD_Simulate_Keypress cmd(m_dwPK_Device,phoneID,sPK_Button,sName);
+		DCE::CMD_Simulate_Keypress cmd(m_dwPK_Device,phoneID,sPK_Button,0,sName);
 		SendCommand(cmd);
 	}
 	sCMD_Result="OK";

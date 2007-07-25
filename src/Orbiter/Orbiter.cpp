@@ -3434,7 +3434,7 @@ bool Orbiter::ButtonUp( int iPK_Button )
 	}
 
 	DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress_(m_dwPK_Device, m_pLocationInfo->m_dwPK_Device_Orbiter,
-		StringUtils::itos(nPK_Button_To_Send), "");
+		StringUtils::itos(nPK_Button_To_Send), 0, "");
 	SendCommand(CMD_Simulate_Keypress_);
 }
 
@@ -8174,7 +8174,7 @@ void Orbiter::CMD_Back_Prior_Menu(string &sCMD_Result,Message *pMessage)
 {
 	if( m_pScreenHistory_Current && m_pScreenHistory_Current->GetObj()->m_bIsARemoteControl )
 	{
-		DCE::CMD_Back_Prior_Menu CMD_Back_Prior_Menu(m_dwPK_Device,m_dwPK_Device_MediaPlugIn);
+		DCE::CMD_Back_Prior_Menu CMD_Back_Prior_Menu(m_dwPK_Device,m_dwPK_Device_MediaPlugIn,0);
 		SendCommand(CMD_Back_Prior_Menu);
 	}
 	else
