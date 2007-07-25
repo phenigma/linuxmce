@@ -162,19 +162,19 @@ void Xine_Player::CMD_Simulate_Keypress(string sPK_Button,int iStreamID,string s
 	switch(PK_Button)
 	{
 		case BUTTON_Up_Arrow_CONST:
-			CMD_Move_Up();
+			CMD_Move_Up(iStreamID);
 			break;
 		case BUTTON_Down_Arrow_CONST:
-			CMD_Move_Down();
+			CMD_Move_Down(iStreamID);
 			break;
 		case BUTTON_Left_Arrow_CONST:
-			CMD_Move_Left();
+			CMD_Move_Left(iStreamID);
 			break;
 		case BUTTON_Right_Arrow_CONST:
-			CMD_Move_Right();
+			CMD_Move_Right(iStreamID);
 			break;
 		case BUTTON_Enter_CONST:
-			CMD_EnterGo();
+			CMD_EnterGo(iStreamID);
 			break;
 		default:
 			LoggerWrapper::GetInstance()->Write(LV_WARNING,"Xine_Player::CMD_Simulate_Keypress -- Can't handle %d",PK_Button);
@@ -196,8 +196,7 @@ void Xine_Player::CMD_Simulate_Keypress(string sPK_Button,int iStreamID,string s
 void Xine_Player::CMD_Simulate_Mouse_Click(int iPosition_X,int iPosition_Y,int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c29-e->
 {
-	//HACK we have to know stream ID here
-	Xine_Stream *pStream =  ptrFactory->GetStream( 0 );
+	Xine_Stream *pStream =  ptrFactory->GetStream( iStreamID );
 	
 	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Simulate_Mouse_Click() with corresponding stream %p.", pStream);
 	
@@ -588,8 +587,7 @@ void Xine_Player::CMD_Jump_to_Position_in_Stream(string sValue_To_Assign,int iSt
 void Xine_Player::CMD_Skip_Fwd_ChannelTrack_Greater(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c63-e->
 {
-	//HACK we need to know stream ID here
-	Xine_Stream *pStream =  ptrFactory->GetStream( 0 );
+	Xine_Stream *pStream =  ptrFactory->GetStream( iStreamID );
 	
 	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Skip_Fwd_ChannelTrack_Greater() with corresponding stream %p.", pStream);
 	
@@ -615,8 +613,7 @@ void Xine_Player::CMD_Skip_Fwd_ChannelTrack_Greater(int iStreamID,string &sCMD_R
 void Xine_Player::CMD_Skip_Back_ChannelTrack_Lower(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c64-e->
 {
-	//HACK we need to know stream ID here
-	Xine_Stream *pStream =  ptrFactory->GetStream( 0 );
+	Xine_Stream *pStream =  ptrFactory->GetStream( iStreamID );
 	
 	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Skip_Fwd_ChannelTrack_Lower() with corresponding stream %p.", pStream);
 	
@@ -647,8 +644,7 @@ void Xine_Player::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,int iStr
 	if( sValue_To_Assign.size()==0 )
 		return;  // Nothing to do
 	
-	//HACK we need to know stream ID here
-	Xine_Stream *pStream =  ptrFactory->GetStream( 0 );
+	Xine_Stream *pStream =  ptrFactory->GetStream( iStreamID );
 	
 	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Jump_Position_In_Playlist() with corresponding stream %p.", pStream);
 	
@@ -880,8 +876,7 @@ void Xine_Player::CMD_Play(int iStreamID,string &sCMD_Result,Message *pMessage)
 void Xine_Player::CMD_Audio_Track(string sValue_To_Assign,int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c140-e->
 {
-	//HACK we need to know stream ID here
-	Xine_Stream *pStream =  ptrFactory->GetStream( 0 );
+	Xine_Stream *pStream =  ptrFactory->GetStream( iStreamID );
 	
 	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Audio_Track() with corresponding stream %p.", pStream);
 	
@@ -906,8 +901,7 @@ void Xine_Player::CMD_Audio_Track(string sValue_To_Assign,int iStreamID,string &
 void Xine_Player::CMD_Subtitle(string sValue_To_Assign,int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c141-e->
 {
-	//HACK we need to know stream ID here
-	Xine_Stream *pStream =  ptrFactory->GetStream( 0 );
+	Xine_Stream *pStream =  ptrFactory->GetStream( iStreamID );
 	
 	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Subtitle() with corresponding stream %p.", pStream);
 	
@@ -932,8 +926,7 @@ void Xine_Player::CMD_Subtitle(string sValue_To_Assign,int iStreamID,string &sCM
 void Xine_Player::CMD_Angle(string sValue_To_Assign,int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c142-e->
 {
-	//HACK we need to know stream ID here
-	Xine_Stream *pStream =  ptrFactory->GetStream( 0 );
+	Xine_Stream *pStream =  ptrFactory->GetStream( iStreamID );
 	
 	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Angle() with corresponding stream %p.", pStream);
 	
@@ -956,8 +949,7 @@ void Xine_Player::CMD_Angle(string sValue_To_Assign,int iStreamID,string &sCMD_R
 void Xine_Player::CMD_EnterGo(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c190-e->
 {
-	//HACK we need to know stream ID here
-	Xine_Stream *pStream =  ptrFactory->GetStream( 0 );
+	Xine_Stream *pStream =  ptrFactory->GetStream( iStreamID );
 	
 	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_EnterGo() with corresponding stream %p.", pStream);
 	
@@ -980,8 +972,7 @@ void Xine_Player::CMD_EnterGo(int iStreamID,string &sCMD_Result,Message *pMessag
 void Xine_Player::CMD_Move_Up(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c200-e->
 {
-	//HACK we need to know stream ID here
-	Xine_Stream *pStream =  ptrFactory->GetStream( 0 );
+	Xine_Stream *pStream =  ptrFactory->GetStream( iStreamID );
 	
 	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Move_Up() with corresponding stream %p.", pStream);
 	
@@ -1004,8 +995,7 @@ void Xine_Player::CMD_Move_Up(int iStreamID,string &sCMD_Result,Message *pMessag
 void Xine_Player::CMD_Move_Down(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c201-e->
 {
-	//HACK we need to know stream ID here
-	Xine_Stream *pStream =  ptrFactory->GetStream( 0 );
+	Xine_Stream *pStream =  ptrFactory->GetStream( iStreamID );
 	
 	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Move_Down() with corresponding stream %p.", pStream);
 	
@@ -1028,8 +1018,7 @@ void Xine_Player::CMD_Move_Down(int iStreamID,string &sCMD_Result,Message *pMess
 void Xine_Player::CMD_Move_Left(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c202-e->
 {
-	//HACK we need to know stream ID here
-	Xine_Stream *pStream =  ptrFactory->GetStream( 0 );
+	Xine_Stream *pStream =  ptrFactory->GetStream( iStreamID );
 	
 	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Move_Left() with corresponding stream %p.", pStream);
 	
@@ -1052,8 +1041,7 @@ void Xine_Player::CMD_Move_Left(int iStreamID,string &sCMD_Result,Message *pMess
 void Xine_Player::CMD_Move_Right(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c203-e->
 {
-	//HACK we need to know stream ID here
-	Xine_Stream *pStream =  ptrFactory->GetStream( 0 );
+	Xine_Stream *pStream =  ptrFactory->GetStream( iStreamID );
 	
 	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Move_Right() with corresponding stream %p.", pStream);
 	
@@ -1589,8 +1577,7 @@ void Xine_Player::CMD_Update_Object_Image(string sPK_DesignObj,string sType,char
 void Xine_Player::CMD_Set_Aspect_Ratio(int iStreamID,string sAspect_Ratio,string &sCMD_Result,Message *pMessage)
 //<-dceag-c916-e->
 {
-	//HACK we need to know stream ID here
-	Xine_Stream *pStream =  ptrFactory->GetStream( 0 );
+	Xine_Stream *pStream =  ptrFactory->GetStream( iStreamID );
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Setting aspect ratio to %s",sAspect_Ratio.c_str()); 
 	
@@ -1616,8 +1603,7 @@ void Xine_Player::CMD_Set_Aspect_Ratio(int iStreamID,string sAspect_Ratio,string
 void Xine_Player::CMD_Set_Zoom(int iStreamID,string sZoom_Level,string &sCMD_Result,Message *pMessage)
 //<-dceag-c917-e->
 {
-	//HACK we need to know stream ID here
-	Xine_Stream *pStream =  ptrFactory->GetStream( 0 );
+	Xine_Stream *pStream =  ptrFactory->GetStream( iStreamID );
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Setting zoom level to %s",sZoom_Level.c_str()); 
 	
