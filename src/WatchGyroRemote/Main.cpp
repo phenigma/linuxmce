@@ -28,6 +28,7 @@
 #include <map>
 #include <list>
 #include "../LIRC_DCE/IRReceiverBase.h"
+#include "../PlutoUtils/ProcessUtils.h"
 
 #ifdef WIN32
 #include <direct.h>
@@ -82,7 +83,7 @@ bool ProcessBindRequest(usb_dev_handle *p_usb_dev_handle,char *inPacket)
 		return false;
 	}
 
-	char * args[] = { "/usr/bin/beep", "-f","2000","-n","-f","1800","-n","-f","1600","-n","-f","1800","-n","-f","2000, NULL };
+	char * args[] = { "/usr/bin/beep", "-f","2000","-n","-f","1800","-n","-f","1600","-n","-f","1800","-n","-f","2000", NULL };
 	ProcessUtils::SpawnDaemon(args[0], args, false);
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"wrote message %d",ctrl);

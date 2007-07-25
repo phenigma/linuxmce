@@ -212,7 +212,7 @@ bool PlutoHIDInterface::ProcessBindRequest(char *inPacket)
 	}
 
 	// Make a beep so the user knows we connected
-	char * args[] = { "/usr/bin/beep", "-f","2000","-n","-f","1800","-n","-f","1600","-n","-f","1800","-n","-f","2000, NULL };
+	char * args[] = { "/usr/bin/beep", "-f","2000","-n","-f","1800","-n","-f","1600","-n","-f","1800","-n","-f","2000", NULL };
 	ProcessUtils::SpawnDaemon(args[0], args, false);
 
 	m_pOrbiter->CMD_Display_Alert("Remote " + StringUtils::itos(PK_Device) + " connected","connectremote","3",interuptAlways);
