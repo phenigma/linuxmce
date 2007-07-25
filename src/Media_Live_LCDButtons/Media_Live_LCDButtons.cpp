@@ -388,7 +388,7 @@ void Media_Live_LCDButtons::DoUpdateDisplay(vector<string> *vectString)
 void Media_Live_LCDButtons::ButtonCallBack(int PK_Button)
 {
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Live_LCDButtons::ButtonCallBackFn Button %d",PK_Button);
-	DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(m_dwPK_Device,m_pDevice_Orbiter->m_dwPK_Device,StringUtils::itos(PK_Button),"keypad");
+	DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(m_dwPK_Device,m_pDevice_Orbiter->m_dwPK_Device,StringUtils::itos(PK_Button),0,"keypad");
 	SendCommand(CMD_Simulate_Keypress);
 }
 
