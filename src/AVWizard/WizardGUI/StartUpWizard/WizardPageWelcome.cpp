@@ -120,7 +120,10 @@ WizardPageWelcome::WizardPageWelcome(GenericBackEnd* FrontEnd, std::string Name)
 	{
 		printf("Running command: %s\n", Command.c_str());
 		system(Command.c_str());
+
+#ifndef WIN32
 		kill(getpid(), SIGUSR1);
+#endif
 	}
 }
 

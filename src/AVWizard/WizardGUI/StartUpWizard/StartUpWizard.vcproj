@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;C:\Pluto\libs\CrossPlatform\SDL-1.2.7\include\&quot;;&quot;C:\Pluto\libs\CrossPlatform\SDL_ttf-2.0.6\&quot;;&quot;C:\Pluto\libs\CrossPlatform\SDL_image-1.2.3&quot;;C:\pluto\libs\CrossPlatform\LibXML2\include;&quot;C:\Pluto\libs\Libraries\pthreads-win32\include&quot;;&quot;C:\Pluto\libs\CrossPlatform\SDL_rotozoom-1.6\&quot;"
+				AdditionalIncludeDirectories="&quot;..\..\..\..\libs\CrossPlatform\SDL-1.2.7\include\&quot;;&quot;..\..\..\..\libs\CrossPlatform\SDL_ttf-2.0.6\&quot;;&quot;..\..\..\..\libs\CrossPlatform\SDL_image-1.2.3&quot;;..\..\..\..\libs\CrossPlatform\LibXML2\include;&quot;..\..\..\..\libs\Libraries\pthreads-win32\include&quot;;&quot;..\..\..\..\libs\CrossPlatform\SDL_rotozoom-1.6\&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -34,9 +34,9 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="SDLmain-pluto-d.lib SDL-pluto-d.lib SDL_ttf-pluto-d.lib SDL_image-pluto-d.lib SDL_rotozoom-pluto-r.lib pthreadVC.lib libxml2.lib OpenGL32.lib"
-				OutputFile="$(OutDir)/StartUpWizard.exe"
+				OutputFile="../../../Debug/StartUpWizard.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;C:\pluto\libs\CrossPlatform\SDL-1.2.7\VisualC7\SDLmain\Debug&quot;;&quot;C:\Pluto\libs\CrossPlatform\SDL-1.2.7\VisualC7\SDL\Debug&quot;;&quot;C:\Pluto\libs\CrossPlatform\SDL_ttf-2.0.6\VisualC\Debug\&quot;;&quot;C:\Pluto\libs\CrossPlatform\SDL_image-1.2.3\VisualC\Debug\&quot;;&quot;C:\Pluto\libs\Libraries\pthreads-win32\lib&quot;;&quot;C:\Pluto\libs\CrossPlatform\SDL_rotozoom-1.6\VisualC\SDL_rotozoom\Release&quot;;C:\pluto\libs\CrossPlatform\LibXML2\lib\"
+				AdditionalLibraryDirectories="&quot;..\..\..\..\libs\CrossPlatform\SDL-1.2.7\VisualC7\SDLmain\Debug&quot;;&quot;..\..\..\..\libs\CrossPlatform\SDL-1.2.7\VisualC7\SDL\Debug&quot;;&quot;..\..\..\..\libs\CrossPlatform\SDL_ttf-2.0.6\VisualC\Debug\&quot;;&quot;..\..\..\..\libs\CrossPlatform\SDL_image-1.2.3\VisualC\Debug\&quot;;&quot;..\..\..\..\libs\Libraries\pthreads-win32\lib&quot;;&quot;..\..\..\..\libs\CrossPlatform\SDL_rotozoom-1.6\VisualC\SDL_rotozoom\Release&quot;;..\..\..\..\libs\CrossPlatform\LibXML2\lib\"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/StartUpWizard.pdb"
 				SubSystem="1"
@@ -288,9 +288,6 @@
 				</File>
 				<File
 					RelativePath=".\WizardConfigParser.cpp">
-				</File>
-				<File
-					RelativePath=".\WizardGUI.cpp">
 				</File>
 				<File
 					RelativePath=".\WizardSettings.cpp">
