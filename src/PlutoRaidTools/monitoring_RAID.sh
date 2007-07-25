@@ -27,7 +27,15 @@ function Raid_SetStatus {
 	local DeviceID="$1"
 	local StatusMessage="$2"
 
-	local Q="UPDATE Device_DeviceData SET IK_DeviceDate = '$StatusMessage' WHERE FK_Device='$DeviceID' AND FK_DeviceData='$STATE_ID'"
+	local Q="UPDATE Device_DeviceData SET IK_DeviceData= '$StatusMessage' WHERE FK_Device='$DeviceID' AND FK_DeviceData='$STATE_ID'"
+	RunSQL "$Q"
+}
+
+function Raid_SetSize {
+	local DeviceID="$1"
+	local Size="$2"
+
+	local Q="UPDATE Device_DeviceData SET IK_DeviceData = '$Size' WHERE FK_Device='$DeviceID' AND FK_DeviceData='$DISK_SIZE_ID'"
 	RunSQL "$Q"
 }
 
@@ -53,8 +61,7 @@ case "$event" in
 		Raid_SetStatus "$DeviceID" "Building Started"
 
 		raidSize=$(mdadm --query $md | head -1 |cut -d' ' -f2)
-		Q="UPDATE Device_DeviceData SET IK_DeviceData = '$raidSize' WHERE FK_Device = $DeviceID and FK_DeviceData = $DISK_SIZE_ID"
-		RunSQL "$Q"
+		Raid_SetSize "$DeviceID" "$raidSize"
 	;; 
 
 	"RebuildFinished" )
@@ -67,8 +74,7 @@ case "$event" in
 		Raid_SetStatus "$DeviceID" "Done"
 
 		raidSize=$(mdadm --query $md | head -1 |cut -d' ' -f2)
-		Q="UPDATE Device_DeviceData SET IK_DeviceData = '$raidSize' WHERE FK_Device = $DeviceID and FK_DeviceData = $DISK_SIZE_ID"
-		RunSQL "$Q"
+		Raid_SetSize "$DeviceID" "$raidSize"
 	;;
 
 	"Rebuild"* )
@@ -83,8 +89,7 @@ case "$event" in
 		Raid_SetStatus "$DeviceID" "Building in Progress ($progress %)"
 
 		raidSize=$(mdadm --query $md | head -1 |cut -d' ' -f2)
-		Q="UPDATE Device_DeviceData SET IK_DeviceData = '$raidSize' WHERE FK_Device = $DeviceID and FK_DeviceData = $DISK_SIZE_ID"
-		RunSQL "$Q"
+		Raid_SetSize "$DeviceID" "$raidSize"
 	;;
 
 	"Fail" )
