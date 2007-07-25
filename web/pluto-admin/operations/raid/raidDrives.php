@@ -272,7 +272,7 @@ function raidDrives($output,$dbADO) {
 			if(count($raidDrives)>0){
 				set_device_data($deviceID,$GLOBALS['NoofDisks'],count($raidDrives),$dbADO);
 			}
-			set_device_data($deviceID,$GLOBALS['State'],'Done',$dbADO);
+			set_device_data($deviceID,$GLOBALS['State'],'Building',$dbADO);
 			
 			header("Location: index.php?section=raidDrives&deviceID=$deviceID&msg=".urlencode($TEXT_RAID_ARRAY_CREATED_CONST));
 			exit();				
