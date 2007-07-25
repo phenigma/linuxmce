@@ -75,7 +75,7 @@ else
 
 	percent=0
 	while [[ "$percent" != 100 ]];do
-		mkfsOutput=$(cat /var/log/mkfs_${Device}  | grep "Writing inode tables: " | sed -r 's/.*[^0-9]([0-9]+\/[0-9]+|done)[^0-9]*/\1/')a
+		mkfsOutput=$(cat /var/log/mkfs_${Device}  | grep "Writing inode tables: " | sed -r 's/.*[^0-9]([0-9]+\/[0-9]+|done)[^0-9]*/\1/')
 		sleep 4
 
 		if [[ "$mkfsOutput" == "" ]] ;then
