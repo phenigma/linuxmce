@@ -58,8 +58,19 @@ function Detect {
 	done
 	availPart=$auxPart
 
+	## Remove partitions that belong to a raid
+	if [[ -x /sbin/mdadm ]] ;then
+		auxPart=""
+		for part in $availPart ;do
+			if [[ "$(mdadm --examine /dev/$part 2>&1)" == *"No md superblock"* ]] ;then
+				auxPart="$auxPart $part"
+			fi
+		done
+		availPart="$auxPart"
+	fi
+
 	## Test if we found any available partitions
-	if [[ $availPart != "" ]] ;then
+	if [[ "$availPart" != "" ]] ;then
 		
 		for partition in $availPart ;do
 			#/usr/pluto/bin/MessageSend $DCERouter 0 $OrbiterIDList 1 741 159 228 109 "/dev/$partition" 156 $PK_Device 163 "$InfoMessage"
