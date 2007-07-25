@@ -93,6 +93,7 @@ else
 
 
 	## Create a pluto directory structure (depending on UsePlutoDirStructure device data)
+	touch /usr/pluto/var/DCERouter.running
 	/usr/pluto/bin/StorageDevices_PlutoDirStructure.sh -d $Device
 	/usr/pluto/bin/StorageDevices_Setup.sh
 
