@@ -42,14 +42,15 @@ function Raid_SetSize {
 
 
 case "$Param_Event" in
-#	"DeviceDisappeared" )
-#		Q="SELECT FK_Device FROM Device_DeviceData WHERE IK_DeviceData = '$Param_Raid'  AND FK_DeviceData = $DD_BLOCK_DEVICE"
-#		DeviceID=$(RunSQL "$Q")
-#		Q="UPDATE Device_DeviceData SET IK_DeviceData = 3 WHERE FK_Device = $DeviceID and FK_DeviceData = $NEW_ADD_ID"
-#		$(RunSQL "$Q")
-#		Q="UPDATE Device_DeviceData SET IK_DeviceData = 'Device appears to no longer be configured' WHERE FK_Device = $DeviceID and FK_DeviceData = $STATE_ID"
-#		$(RunSQL "$Q")
-#	;;
+	"DeviceDisappeared" )
+		Q="SELECT FK_Device FROM Device_DeviceData WHERE IK_DeviceData = '$Param_Raid'  AND FK_DeviceData = $DD_BLOCK_DEVICE"
+		DeviceID=$(RunSQL "$Q")a
+
+		Q="UPDATE Device_DeviceData SET IK_DeviceData = 3 WHERE FK_Device = $DeviceID and FK_DeviceData = $NEW_ADD_ID"
+		$(RunSQL "$Q")
+
+		Raid_SetStatus "$DeviceID" 'FAILED'
+	;;
 
 	"RebuildStarted" )
 		Q="SELECT FK_Device FROM Device_DeviceData WHERE IK_DeviceData = '$Param_Raid'  AND FK_DeviceData = $DD_BLOCK_DEVICE"
