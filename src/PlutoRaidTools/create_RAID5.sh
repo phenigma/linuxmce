@@ -56,6 +56,7 @@ if [[ "$3" != "demonized" ]] ;then
 			echo "y" | mdadm --create $name --auto=yes --level=5 --raid-devices=$NrDrives $ActiveDrives
 
 		fi
+		invoke-rc.d mdadm reload
 		#/usr/pluto/bin/start_RAID_monitoring.sh $name
 
 		sleep 3

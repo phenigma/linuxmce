@@ -47,11 +47,14 @@ if [[ "$3" != "demonized" ]] ;then
 		rm -f "/dev/.static$name"
 		echo "y" | mdadm --create $name --auto=yes --level=0 --raid-devices=$NrDrives $ActiveDrives
 
+		invoke-rc.d mdadm reload
+
 		sleep 3
 		raidSize=$(mdadm --query $name | head -1 |cut -d' ' -f2)
 		Q="UPDATE Device_DeviceData SET IK_DeviceData = '$raidSize' WHERE FK_Device = $Device and FK_DeviceData = $DISK_SIZE_ID"
 		RunSQL "$Q"
 		#/usr/pluto/bin/start_RAID_monitoring.sh $name
+
 		screen -S FormatingRaid0 -d -m /bin/bash $0 $Device $name demonized
 		exit 0
 	fi

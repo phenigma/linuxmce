@@ -58,6 +58,8 @@ if [[ "$3" != "demonized" ]] ;then
 			echo "y" | mdadm --create $name --auto=yes --level=1 --raid-devices=$NrDrives $ActiveDrives
 		fi
 
+		invoke-rc.d mdadm reload
+
 		sleep 3
 		raidSize=$(mdadm --query $name | head -1 |cut -d' ' -f2)
 		Q="UPDATE Device_DeviceData SET IK_DeviceData = '$raidSize' WHERE FK_Device = $Device and FK_DeviceData = $DISK_SIZE_ID"
