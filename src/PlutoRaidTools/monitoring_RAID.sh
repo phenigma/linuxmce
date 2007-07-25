@@ -2,10 +2,10 @@
 
 . /usr/pluto/bin/SQL_Ops.sh
 
-event=$1
-md=$2
-device=$3
-BLOCK_DEVICE_ID=152
+Param_Event=$1
+Param_Raid=$2
+Param_Disk=$3
+DD_BLOCK_DEVICE=152
 NEW_ADD_ID=204
 STATE_ID=200
 DISK_SIZE_ID=201
@@ -17,10 +17,10 @@ RAID0_DEVICE_TEMPLATE=1854
 
 date=$(date)
 
-if [[ -z $device ]]; then
-	echo "($date) Catched event $event for $md" >> /var/log/pluto/RAID_monitoring.log
+if [[ -z $Param_Disk ]]; then
+	echo "($date) Catched event $Param_Event for $Param_Raid" >> /var/log/pluto/RAID_monitoring.log
 else	
-	echo "($date) Catched event $event for $device from $md" >> /var/log/pluto/RAID_monitoring.log
+	echo "($date) Catched event $Param_Event for $Param_Raid from $Param_Disk" >> /var/log/pluto/RAID_monitoring.log
 fi
 
 function Raid_SetStatus {
@@ -41,9 +41,9 @@ function Raid_SetSize {
 
 
 
-case "$event" in
+case "$Param_Event" in
 #	"DeviceDisappeared" )
-#		Q="SELECT FK_Device FROM Device_DeviceData WHERE IK_DeviceData = '$md'  AND FK_DeviceData = $BLOCK_DEVICE_ID"
+#		Q="SELECT FK_Device FROM Device_DeviceData WHERE IK_DeviceData = '$Param_Raid'  AND FK_DeviceData = $DD_BLOCK_DEVICE"
 #		DeviceID=$(RunSQL "$Q")
 #		Q="UPDATE Device_DeviceData SET IK_DeviceData = 3 WHERE FK_Device = $DeviceID and FK_DeviceData = $NEW_ADD_ID"
 #		$(RunSQL "$Q")
@@ -52,56 +52,52 @@ case "$event" in
 #	;;
 
 	"RebuildStarted" )
-		Q="SELECT FK_Device FROM Device_DeviceData WHERE IK_DeviceData = '$md'  AND FK_DeviceData = $BLOCK_DEVICE_ID"
+		Q="SELECT FK_Device FROM Device_DeviceData WHERE IK_DeviceData = '$Param_Raid'  AND FK_DeviceData = $DD_BLOCK_DEVICE"
 		DeviceID=$(RunSQL "$Q")
 
 		Q="UPDATE Device_DeviceData SET IK_DeviceData = 1 WHERE FK_Device = $DeviceID and FK_DeviceData = $NEW_ADD_ID"
 		RunSQL "$Q"
 
-		Raid_SetStatus "$DeviceID" "Building Started"
+		Raid_SetStatus "$DeviceID" "DAMAGED, REBUILDING (0/100)"
 
-		raidSize=$(mdadm --query $md | head -1 |cut -d' ' -f2)
+		raidSize=$(mdadm --query $Param_Raid | head -1 |cut -d' ' -f2)
 		Raid_SetSize "$DeviceID" "$raidSize"
 	;; 
 
 	"RebuildFinished" )
-		Q="SELECT FK_Device FROM Device_DeviceData WHERE IK_DeviceData = '$md'  AND FK_DeviceData = $BLOCK_DEVICE_ID"
+		Q="SELECT FK_Device FROM Device_DeviceData WHERE IK_DeviceData = '$Param_Raid'  AND FK_DeviceData = $DD_BLOCK_DEVICE"
 		DeviceID=$(RunSQL "$Q")
 
 		Q="UPDATE Device_DeviceData SET IK_DeviceData = 4 WHERE FK_Device = $DeviceID and FK_DeviceData = $NEW_ADD_ID"
 		RunSQL "$Q"
 
-		Raid_SetStatus "$DeviceID" "Done"
+		Raid_SetStatus "$DeviceID" "OK"
 
-		raidSize=$(mdadm --query $md | head -1 |cut -d' ' -f2)
+		raidSize=$(mdadm --query $Param_Raid | head -1 |cut -d' ' -f2)
 		Raid_SetSize "$DeviceID" "$raidSize"
 	;;
 
 	"Rebuild"* )
-		Q="SELECT FK_Device FROM Device_DeviceData WHERE IK_DeviceData = '$md'  AND FK_DeviceData = $BLOCK_DEVICE_ID"
+		Q="SELECT FK_Device FROM Device_DeviceData WHERE IK_DeviceData = '$Param_Raid'  AND FK_DeviceData = $DD_BLOCK_DEVICE"
 		DeviceID=$(RunSQL "$Q")
 
 		Q="UPDATE Device_DeviceData SET IK_DeviceData = 1 WHERE FK_Device = $DeviceID and FK_DeviceData = $NEW_ADD_ID"
 		RunSQL "$Q"
 
-		len=$((${#event}))
-		progress=${event:$len-2:$len}
-		Raid_SetStatus "$DeviceID" "Building in Progress ($progress %)"
+		len=$((${#Param_Event}))
+		progress=${Param_Event:$len-2:$len}
+		Raid_SetStatus "$DeviceID" "DAMAGED, REBUILDING ($progress/100)"
 
-		raidSize=$(mdadm --query $md | head -1 |cut -d' ' -f2)
+		raidSize=$(mdadm --query $Param_Raid | head -1 |cut -d' ' -f2)
 		Raid_SetSize "$DeviceID" "$raidSize"
 	;;
 
 	"Fail" )
-		failedDevs=$(mdadm --detail $md | awk '/faulty/ {print $6}')
-		for failedDev in $failedDevs; do
-			Q="SELECT FK_Device FROM Device_DeviceData WHERE IK_DeviceData = '$failedDev' AND FK_DeviceData = $BLOCK_DEVICE_ID"
-			DeviceID=$(RunSQL "$Q")
+		Q="SELECT FK_Device FROM Device_DeviceData WHERE IK_DeviceData = '$failedDev' AND FK_DeviceData = $DD_BLOCK_DEVICE"
+		DeviceID=$(RunSQL "$Q")
+		Raid_SetStatus "$DeviceID" "FAILED"
 
-			Raid_SetStatus "$DeviceID" "Failed Disk"
-		done
-
-		Q="SELECT FK_Device FROM Device_DeviceData WHERE IK_DeviceData = '$md'  AND FK_DeviceData = $BLOCK_DEVICE_ID"
+		Q="SELECT FK_Device FROM Device_DeviceData WHERE IK_DeviceData = '$Param_Raid'  AND FK_DeviceData = $DD_BLOCK_DEVICE"
 		DeviceID=$(RunSQL "$Q")
 
 		Q="SELECT COUNT(PK_Device) FROM Device WHERE FK_DeviceTemplate = $HARD_DRIVE_DEVICE_TEMPLATE AND FK_Device_ControlledVia = $DeviceID"
@@ -120,29 +116,29 @@ case "$event" in
 		case "$RaidTemplate" in 
 			"$RAID5_DEVICE_TEMPLATE" | "$RAID1_DEVICE_TEMPLATE" )
 				if (( $HardDriveNr == 2 && $FailedDriveNr == 1 )) ||  (( $FailedDriveNr > 1 )) ;then
-					Raid_SetStatus "$DeviceID" "Damaged. Device appears to no longer be configured"
+					Raid_SetStatus "$DeviceID" "FAILED"
 				else
-					Raid_SetStatus "$DeviceID" "One active disk is down. In order to correct the problem please add a spare disk. If you already have a spare disk attached, rebuilding will automatically start!"
+					Raid_SetStatus "$DeviceID" "DAMAGED"
 				fi
 			;;
 
 			"$RAID0_DEVICE_TEMPLATE" )
 				if (( $FailedDriveNr >= 1 )) ;then
-					Raid_SetStatus "$DeviceID" "Damaged. Device appears to no longer be configured"
+					Raid_SetStatus "$DeviceID" "FAILED"
 				fi
 			;;
 		esac
 	;;
 
 	"FailSpare" )
-		Q="SELECT FK_Device FROM Device_DeviceData WHERE IK_DeviceData = '$device' AND FK_DeviceData = $BLOCK_DEVICE_ID"
+		Q="SELECT FK_Device FROM Device_DeviceData WHERE IK_DeviceData = '$Param_Disk' AND FK_DeviceData = $DD_BLOCK_DEVICE"
 		DeviceID=$(RunSQL "$Q")
 
-		Raid_SetStatus "$DeviceID" "Spare fialed to rebuild a faulty disk"
+		Raid_SetStatus "$DeviceID" "FAILED"
 	;;
 
 	"SpareActive" )
-		Q="SELECT FK_Device FROM Device_DeviceData WHERE IK_DeviceData = '$device' AND FK_DeviceData = $BLOCK_DEVICE_ID"
+		Q="SELECT FK_Device FROM Device_DeviceData WHERE IK_DeviceData = '$Param_Disk' AND FK_DeviceData = $DD_BLOCK_DEVICE"
 		DeviceID=$(RunSQL "$Q")
 
 		Raid_SetStatus "$DeviceID" "OK"
@@ -152,7 +148,7 @@ case "$event" in
 	;;
 
 	"DegradedArray" )
-		Q="SELECT FK_Device FROM Device_DeviceData WHERE IK_DeviceData = '$md'  AND FK_DeviceData = $BLOCK_DEVICE_ID"
+		Q="SELECT FK_Device FROM Device_DeviceData WHERE IK_DeviceData = '$Param_Raid'  AND FK_DeviceData = $DD_BLOCK_DEVICE"
 		DeviceID=$(RunSQL "$Q")
 
 		Q="UPDATE Device_DeviceData SET IK_DeviceData = 5 WHERE FK_Device = $DeviceID and FK_DeviceData = $NEW_ADD_ID"
