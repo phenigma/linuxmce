@@ -149,10 +149,12 @@ void Xine_Player::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage)
 	/** Send a key to the device's OSD, or simulate keypresses on the device's panel */
 		/** @param #26 PK_Button */
 			/** What key to simulate being pressed.  If 2 numbers are specified, separated by a comma, the second will be used if the Shift key is specified. */
+		/** @param #41 StreamID */
+			/** The stream id */
 		/** @param #50 Name */
 			/** The application to send the keypress to. If not specified, it goes to the DCE device. */
 
-void Xine_Player::CMD_Simulate_Keypress(string sPK_Button,string sName,string &sCMD_Result,Message *pMessage)
+void Xine_Player::CMD_Simulate_Keypress(string sPK_Button,int iStreamID,string sName,string &sCMD_Result,Message *pMessage)
 //<-dceag-c28-e->
 {
 	int PK_Button = atoi(sPK_Button.c_str());
@@ -185,11 +187,13 @@ void Xine_Player::CMD_Simulate_Keypress(string sPK_Button,string sName,string &s
 	/** @brief COMMAND: #29 - Simulate Mouse Click */
 	/** Simlate a mouse click at a certain position on the screen */
 		/** @param #11 Position X */
-			/**  */
+			/** the x pos */
 		/** @param #12 Position Y */
-			/**  */
+			/** the y pos */
+		/** @param #41 StreamID */
+			/** The stream id */
 
-void Xine_Player::CMD_Simulate_Mouse_Click(int iPosition_X,int iPosition_Y,string &sCMD_Result,Message *pMessage)
+void Xine_Player::CMD_Simulate_Mouse_Click(int iPosition_X,int iPosition_Y,int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c29-e->
 {
 	//HACK we have to know stream ID here
@@ -578,8 +582,10 @@ void Xine_Player::CMD_Jump_to_Position_in_Stream(string sValue_To_Assign,int iSt
 
 	/** @brief COMMAND: #63 - Skip Fwd - Channel/Track Greater */
 	/** Raise  the channel, track, station, etc. by 1.  Same as Jump to Pos in Playlist with value +1 for a smart media player */
+		/** @param #41 StreamID */
+			/** The stream id */
 
-void Xine_Player::CMD_Skip_Fwd_ChannelTrack_Greater(string &sCMD_Result,Message *pMessage)
+void Xine_Player::CMD_Skip_Fwd_ChannelTrack_Greater(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c63-e->
 {
 	//HACK we need to know stream ID here
@@ -603,8 +609,10 @@ void Xine_Player::CMD_Skip_Fwd_ChannelTrack_Greater(string &sCMD_Result,Message 
 
 	/** @brief COMMAND: #64 - Skip Back - Channel/Track Lower */
 	/** Lower the channel, track, station, etc. by 1.  Same as Jump to Pos in Playlist with value -1 for a smart media player */
+		/** @param #41 StreamID */
+			/** The stream id */
 
-void Xine_Player::CMD_Skip_Back_ChannelTrack_Lower(string &sCMD_Result,Message *pMessage)
+void Xine_Player::CMD_Skip_Back_ChannelTrack_Lower(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c64-e->
 {
 	//HACK we need to know stream ID here
@@ -630,8 +638,10 @@ void Xine_Player::CMD_Skip_Back_ChannelTrack_Lower(string &sCMD_Result,Message *
 	/** Jump to a specific position in the playlist, or a track, or a chapter.  Smart media players should also understand the skip fwd/skip back (which non-DCE media players use) to be the same thing as a jump +1 or -1 */
 		/** @param #5 Value To Assign */
 			/** The track to go to.  A number is considered an absolute.  "+2" means forward 2, "-1" means back 1. */
+		/** @param #41 StreamID */
+			/** The stream id */
 
-void Xine_Player::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
+void Xine_Player::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c65-e->
 {
 	if( sValue_To_Assign.size()==0 )
@@ -820,8 +830,10 @@ void Xine_Player::CMD_Goto_Media_Menu(int iStreamID,int iMenuType,string &sCMD_R
 
 	/** @brief COMMAND: #92 - Pause */
 	/** Pause the media */
+		/** @param #41 StreamID */
+			/** The stream id */
 
-void Xine_Player::CMD_Pause(string &sCMD_Result,Message *pMessage)
+void Xine_Player::CMD_Pause(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c92-e->
 {
 	CMD_Pause_Media(0);
@@ -831,10 +843,12 @@ void Xine_Player::CMD_Pause(string &sCMD_Result,Message *pMessage)
 
 	/** @brief COMMAND: #95 - Stop */
 	/** Stop the media */
+		/** @param #41 StreamID */
+			/** The stream id */
 		/** @param #203 Eject */
 			/** If true, the drive will be ejected if there is no media currently playing, so a remote's stop button acts as stop/eject. */
 
-void Xine_Player::CMD_Stop(bool bEject,string &sCMD_Result,Message *pMessage)
+void Xine_Player::CMD_Stop(int iStreamID,bool bEject,string &sCMD_Result,Message *pMessage)
 //<-dceag-c95-e->
 {
 	string sMediaPosition;
@@ -845,8 +859,10 @@ void Xine_Player::CMD_Stop(bool bEject,string &sCMD_Result,Message *pMessage)
 
 	/** @brief COMMAND: #139 - Play */
 	/** Play the media */
+		/** @param #41 StreamID */
+			/** The stream id */
 
-void Xine_Player::CMD_Play(string &sCMD_Result,Message *pMessage)
+void Xine_Player::CMD_Play(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c139-e->
 {
 	CMD_Play_Media( 0, 1, "", "");
@@ -858,8 +874,10 @@ void Xine_Player::CMD_Play(string &sCMD_Result,Message *pMessage)
 	/** Go to an audio track */
 		/** @param #5 Value To Assign */
 			/** The audio track to go to.  Simple A/V equipment ignores this and just toggles. */
+		/** @param #41 StreamID */
+			/** The stream id */
 
-void Xine_Player::CMD_Audio_Track(string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
+void Xine_Player::CMD_Audio_Track(string sValue_To_Assign,int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c140-e->
 {
 	//HACK we need to know stream ID here
@@ -882,8 +900,10 @@ void Xine_Player::CMD_Audio_Track(string sValue_To_Assign,string &sCMD_Result,Me
 	/** Go to a subtitle */
 		/** @param #5 Value To Assign */
 			/** The subtitle to go to.  Simple A/V equipment ignores this and just toggles. */
+		/** @param #41 StreamID */
+			/** The stream id */
 
-void Xine_Player::CMD_Subtitle(string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
+void Xine_Player::CMD_Subtitle(string sValue_To_Assign,int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c141-e->
 {
 	//HACK we need to know stream ID here
@@ -906,8 +926,10 @@ void Xine_Player::CMD_Subtitle(string sValue_To_Assign,string &sCMD_Result,Messa
 	/** Go to an angle */
 		/** @param #5 Value To Assign */
 			/** The angle to go to.  Simple A/V equipment ignores this and just toggles. */
+		/** @param #41 StreamID */
+			/** The stream id */
 
-void Xine_Player::CMD_Angle(string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
+void Xine_Player::CMD_Angle(string sValue_To_Assign,int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c142-e->
 {
 	//HACK we need to know stream ID here
@@ -928,8 +950,10 @@ void Xine_Player::CMD_Angle(string sValue_To_Assign,string &sCMD_Result,Message 
 
 	/** @brief COMMAND: #190 - Enter/Go */
 	/** Select the currently highlighted menu item */
+		/** @param #41 StreamID */
+			/** The stream id */
 
-void Xine_Player::CMD_EnterGo(string &sCMD_Result,Message *pMessage)
+void Xine_Player::CMD_EnterGo(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c190-e->
 {
 	//HACK we need to know stream ID here
@@ -950,8 +974,10 @@ void Xine_Player::CMD_EnterGo(string &sCMD_Result,Message *pMessage)
 
 	/** @brief COMMAND: #200 - Move Up */
 	/** Move the highlighter */
+		/** @param #41 StreamID */
+			/** The stream id */
 
-void Xine_Player::CMD_Move_Up(string &sCMD_Result,Message *pMessage)
+void Xine_Player::CMD_Move_Up(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c200-e->
 {
 	//HACK we need to know stream ID here
@@ -972,8 +998,10 @@ void Xine_Player::CMD_Move_Up(string &sCMD_Result,Message *pMessage)
 
 	/** @brief COMMAND: #201 - Move Down */
 	/** Move the highlighter */
+		/** @param #41 StreamID */
+			/** The stream id */
 
-void Xine_Player::CMD_Move_Down(string &sCMD_Result,Message *pMessage)
+void Xine_Player::CMD_Move_Down(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c201-e->
 {
 	//HACK we need to know stream ID here
@@ -994,8 +1022,10 @@ void Xine_Player::CMD_Move_Down(string &sCMD_Result,Message *pMessage)
 
 	/** @brief COMMAND: #202 - Move Left */
 	/** Move the highlighter */
+		/** @param #41 StreamID */
+			/** The stream id */
 
-void Xine_Player::CMD_Move_Left(string &sCMD_Result,Message *pMessage)
+void Xine_Player::CMD_Move_Left(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c202-e->
 {
 	//HACK we need to know stream ID here
@@ -1016,8 +1046,10 @@ void Xine_Player::CMD_Move_Left(string &sCMD_Result,Message *pMessage)
 
 	/** @brief COMMAND: #203 - Move Right */
 	/** Move the highlighter */
+		/** @param #41 StreamID */
+			/** The stream id */
 
-void Xine_Player::CMD_Move_Right(string &sCMD_Result,Message *pMessage)
+void Xine_Player::CMD_Move_Right(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c203-e->
 {
 	//HACK we need to know stream ID here
@@ -1148,8 +1180,10 @@ void Xine_Player::CMD_9(string &sCMD_Result,Message *pMessage)
 
 	/** @brief COMMAND: #240 - Back / Prior Menu */
 	/** Navigate back .. ( Escape ) */
+		/** @param #41 StreamID */
+			/** The stream id */
 
-void Xine_Player::CMD_Back_Prior_Menu(string &sCMD_Result,Message *pMessage)
+void Xine_Player::CMD_Back_Prior_Menu(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c240-e->
 {
 	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Back_Prior_Menu() Not implemented!");
@@ -1232,8 +1266,10 @@ void Xine_Player::CMD_Set_Media_Position(int iStreamID,string sMediaPosition,str
 	/** Show a menu associated with this media */
 		/** @param #9 Text */
 			/** A string indicating which menu should appear.  The parameter is only used for smart media devices */
+		/** @param #41 StreamID */
+			/** The stream id */
 
-void Xine_Player::CMD_Menu(string sText,string &sCMD_Result,Message *pMessage)
+void Xine_Player::CMD_Menu(string sText,int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c548-e->
 {
 	CMD_Goto_Media_Menu(0,0);
@@ -1545,10 +1581,12 @@ void Xine_Player::CMD_Update_Object_Image(string sPK_DesignObj,string sType,char
 
 	/** @brief COMMAND: #916 - Set Aspect Ratio */
 	/** Force aspect ratio */
+		/** @param #41 StreamID */
+			/** The stream id */
 		/** @param #260 Aspect Ratio */
 			/** aspect ratio to set: auto, 1:1, 4:3, 16:9, 2.11:1 */
 
-void Xine_Player::CMD_Set_Aspect_Ratio(string sAspect_Ratio,string &sCMD_Result,Message *pMessage)
+void Xine_Player::CMD_Set_Aspect_Ratio(int iStreamID,string sAspect_Ratio,string &sCMD_Result,Message *pMessage)
 //<-dceag-c916-e->
 {
 	//HACK we need to know stream ID here
@@ -1570,10 +1608,12 @@ void Xine_Player::CMD_Set_Aspect_Ratio(string sAspect_Ratio,string &sCMD_Result,
 
 	/** @brief COMMAND: #917 - Set Zoom */
 	/** Sets zoom level, relative, absolute or 'auto' */
+		/** @param #41 StreamID */
+			/** The stream id */
 		/** @param #261 Zoom Level */
 			/** Zoom level to set */
 
-void Xine_Player::CMD_Set_Zoom(string sZoom_Level,string &sCMD_Result,Message *pMessage)
+void Xine_Player::CMD_Set_Zoom(int iStreamID,string sZoom_Level,string &sCMD_Result,Message *pMessage)
 //<-dceag-c917-e->
 {
 	//HACK we need to know stream ID here
