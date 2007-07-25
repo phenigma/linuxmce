@@ -23,6 +23,16 @@ else
 	echo "($date) Catched event $event for $device from $md" >> /var/log/pluto/RAID_monitoring.log
 fi
 
+function Raid_SetStatus {
+	local DeviceID="$1"
+	local StatusMessage="$2"
+
+	local Q="UPDATE Device_DeviceData SET IK_DeviceDate = '$StatusMessage' WHERE FK_Device='$DeviceID' AND FK_DeviceData='$STATE_ID'"
+	RunSQL "$Q"
+}
+
+
+
 case "$event" in
 #	"DeviceDisappeared" )
 #		Q="SELECT FK_Device FROM Device_DeviceData WHERE IK_DeviceData = '$md'  AND FK_DeviceData = $BLOCK_DEVICE_ID"
@@ -40,8 +50,7 @@ case "$event" in
 		Q="UPDATE Device_DeviceData SET IK_DeviceData = 1 WHERE FK_Device = $DeviceID and FK_DeviceData = $NEW_ADD_ID"
 		RunSQL "$Q"
 
-		Q="UPDATE Device_DeviceData SET IK_DeviceData = 'Building Started' WHERE FK_Device = $DeviceID and FK_DeviceData = $STATE_ID"
-		RunSQL "$Q"
+		Raid_SetStatus "$DeviceID" "Building Started"
 
 		raidSize=$(mdadm --query $md | head -1 |cut -d' ' -f2)
 		Q="UPDATE Device_DeviceData SET IK_DeviceData = '$raidSize' WHERE FK_Device = $DeviceID and FK_DeviceData = $DISK_SIZE_ID"
@@ -55,8 +64,7 @@ case "$event" in
 		Q="UPDATE Device_DeviceData SET IK_DeviceData = 4 WHERE FK_Device = $DeviceID and FK_DeviceData = $NEW_ADD_ID"
 		RunSQL "$Q"
 
-		Q="UPDATE Device_DeviceData SET IK_DeviceData = 'Done' WHERE FK_Device = $DeviceID and FK_DeviceData = $STATE_ID" 
-		RunSQL "$Q"
+		Raid_SetStatus "$DeviceID" "Done"
 
 		raidSize=$(mdadm --query $md | head -1 |cut -d' ' -f2)
 		Q="UPDATE Device_DeviceData SET IK_DeviceData = '$raidSize' WHERE FK_Device = $DeviceID and FK_DeviceData = $DISK_SIZE_ID"
@@ -72,8 +80,7 @@ case "$event" in
 
 		len=$((${#event}))
 		progress=${event:$len-2:$len}
-		Q="UPDATE Device_DeviceData SET IK_DeviceData = 'Building in progress ($progress %)' WHERE FK_Device = $DeviceID and FK_DeviceData = $STATE_ID"
-		RunSQL "$Q"
+		Raid_SetStatus "$DeviceID" "Building in Progress ($progress %)"
 
 		raidSize=$(mdadm --query $md | head -1 |cut -d' ' -f2)
 		Q="UPDATE Device_DeviceData SET IK_DeviceData = '$raidSize' WHERE FK_Device = $DeviceID and FK_DeviceData = $DISK_SIZE_ID"
@@ -85,8 +92,8 @@ case "$event" in
 		for failedDev in $failedDevs; do
 			Q="SELECT FK_Device FROM Device_DeviceData WHERE IK_DeviceData = '$failedDev' AND FK_DeviceData = $BLOCK_DEVICE_ID"
 			DeviceID=$(RunSQL "$Q")
-			Q="UPDATE Device_DeviceData SET IK_DeviceData = 'Failed disk' WHERE FK_Device = $DeviceID and FK_DeviceData = $STATE_ID"
-			RunSQL "$Q"
+
+			Raid_SetStatus "$DeviceID" "Failed Disk"
 		done
 
 		Q="SELECT FK_Device FROM Device_DeviceData WHERE IK_DeviceData = '$md'  AND FK_DeviceData = $BLOCK_DEVICE_ID"
@@ -108,18 +115,15 @@ case "$event" in
 		case "$RaidTemplate" in 
 			"$RAID5_DEVICE_TEMPLATE" | "$RAID1_DEVICE_TEMPLATE" )
 				if (( $HardDriveNr == 2 && $FailedDriveNr == 1 )) ||  (( $FailedDriveNr > 1 )) ;then
-					Q="UPDATE Device_DeviceData SET IK_DeviceData = 'Damaged. Device appears to no longer be configured ' WHERE FK_Device = $DeviceID and FK_DeviceData = $STATE_ID"
-					RunSQL "$Q"
-				else	
-					Q="UPDATE Device_DeviceData SET IK_DeviceData = 'One active disk is down. In order to correct the problem please add a spare disk. If you already have a spare disk attached, rebuilding will automatically start!' WHERE FK_Device = $DeviceID and FK_DeviceData = $STATE_ID"
-					RunSQL "$Q"
+					Raid_SetStatus "$DeviceID" "Damaged. Device appears to no longer be configured"
+				else
+					Raid_SetStatus "$DeviceID" "One active disk is down. In order to correct the problem please add a spare disk. If you already have a spare disk attached, rebuilding will automatically start!"
 				fi
 			;;
 
 			"$RAID0_DEVICE_TEMPLATE" )
 				if (( $FailedDriveNr >= 1 )) ;then
-					Q="UPDATE Device_DeviceData SET IK_DeviceData = 'Damaged. Device appears to no longer be configured ' WHERE FK_Device = $DeviceID and FK_DeviceData = $STATE_ID"
-					RunSQL "$Q"
+					Raid_SetStatus "$DeviceID" "Damaged. Device appears to no longer be configured"
 				fi
 			;;
 		esac
@@ -128,15 +132,16 @@ case "$event" in
 	"FailSpare" )
 		Q="SELECT FK_Device FROM Device_DeviceData WHERE IK_DeviceData = '$device' AND FK_DeviceData = $BLOCK_DEVICE_ID"
 		DeviceID=$(RunSQL "$Q")
-		Q="UPDATE Device_DeviceData SET IK_DeviceData = 'Spare failed to rebuild a faulty disk' WHERE FK_Device = $DeviceID and FK_DeviceData = $STATE_ID"
-		RunSQL "$Q"
+
+		Raid_SetStatus "$DeviceID" "Spare fialed to rebuild a faulty disk"
 	;;
 
 	"SpareActive" )
 		Q="SELECT FK_Device FROM Device_DeviceData WHERE IK_DeviceData = '$device' AND FK_DeviceData = $BLOCK_DEVICE_ID"
 		DeviceID=$(RunSQL "$Q")
-		Q="UPDATE Device_DeviceData SET IK_DeviceData = 'OK' WHERE FK_Device = $DeviceID and FK_DeviceData = $STATE_ID"
-		RunSQL "$Q"
+
+		Raid_SetStatus "$DeviceID" "OK"
+
 		Q="UPDATE Device_DeviceData SET IK_DeviceData = '0' WHERE FK_Device = $DeviceID and FK_DeviceData = $SPARE_ID"
 		RunSQL "$Q"
 	;;
@@ -156,11 +161,9 @@ case "$event" in
 			 Device_DeviceData.IK_DeviceData = 1"
 		SpareNr=$(RunSQL "$Q")
 		if (( $SpareNr >= 1 )) ;then
-			Q="UPDATE Device_DeviceData SET IK_DeviceData = 'Start Building' WHERE FK_Device = $DeviceID and FK_DeviceData = $STATE_ID" 
-			RunSQL "$Q"
+			Raid_SetStatus "$DeviceID" "Start Building"
 		else
-			Q="UPDATE Device_DeviceData SET IK_DeviceData = 'Degraded device. Add a spare disk to correct the problem!' WHERE FK_Device = $DeviceID and FK_DeviceData = $STATE_ID" 
-			RunSQL "$Q"
+			Raid_SetStatus "$DeviceID" "Degraded device. Add a spare disk to correct the problem!"
 		fi
 	;;
 esac
