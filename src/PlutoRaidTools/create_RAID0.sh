@@ -47,7 +47,6 @@ if [[ "$3" != "demonized" ]] ;then
 		rm -f "/dev/.static$name"
 		echo "y" | mdadm --create $name --auto=yes --level=0 --raid-devices=$NrDrives $ActiveDrives
 
-		invoke-rc.d mdadm reload
 
 		sleep 3
 		raidSize=$(mdadm --query $name | head -1 |cut -d' ' -f2)
@@ -89,6 +88,8 @@ else
 	## Create a pluto directory structure (depending on UsePlutoDirStructure device data)
 	/usr/pluto/bin/StorageDevices_PlutoDirStructure.sh -d $Device
 	/usr/pluto/bin/StorageDevices_Setup.sh
+	
+	invoke-rc.d mdadm reload
 	
 	rm $LogFile
 fi

@@ -168,7 +168,7 @@ case "$event" in
 		if (( $SpareNr >= 1 )) ;then
 			Raid_SetStatus "$DeviceID" "Start Building"
 		else
-			Raid_SetStatus "$DeviceID" "Degraded device. Add a spare disk to correct the problem!"
+			Raid_SetStatus "$DeviceID" "Degraded device."
 		fi
 	;;
 esac
