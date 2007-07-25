@@ -10,6 +10,7 @@ if [[ -z $result ]] ;then
 		if [ ! -e /etc/mdadm/mdadm.conf.pbackup ] && [ -e /etc/mdadm/mdadm.conf ] ;then
 			cp /etc/mdadm/mdadm.conf /etc/mdadm/mdadm.conf.pbackup || :
 		fi
+
 		echo "PROGRAM /usr/pluto/bin/monitoring_RAID.sh" >> /etc/mdadm/mdadm.conf
 		invoke-rc.d mdadm reload
 	fi

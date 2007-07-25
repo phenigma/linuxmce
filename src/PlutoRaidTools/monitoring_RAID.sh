@@ -235,9 +235,9 @@ case "$Param_Event" in
 			 Device_DeviceData.IK_DeviceData = 1"
 		SpareNr=$(RunSQL "$Q")
 		if (( $SpareNr >= 1 )) ;then
-			Raid_SetStatus "$DeviceID" "Start Building"
+			Raid_SetStatus "$DeviceID" "DAMAGED, REBUILDING"
 		else
-			Raid_SetStatus "$DeviceID" "Degraded device."
+			Raid_SetStatus "$DeviceID" "DAMAGED"
 		fi
 	;;
 esac
