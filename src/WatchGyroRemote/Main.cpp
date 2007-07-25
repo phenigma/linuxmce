@@ -27,6 +27,7 @@
 #include <vector>
 #include <map>
 #include <list>
+#include "../LIRC_DCE/IRReceiverBase.h"
 
 #ifdef WIN32
 #include <direct.h>
@@ -44,6 +45,9 @@ using namespace DCE;
 DCEConfig dceConfig;
 
 #define HAVE_STDBOOL_H
+#define AVWizard_Port	28949
+#define AVWizard_Host	localhost
+
 extern "C" 
 {
 		#include <hid.h>
@@ -97,6 +101,7 @@ int main(int argc, char *argv[])
 
 	while(!g_bQuit)
 	{
+		IRReceiverBase irReceiverBase(NULL);
 		usb_find_busses();
 		usb_find_devices();
 
@@ -167,6 +172,11 @@ int main(int argc, char *argv[])
 										dceConfig.AddString("AVWizardOverride","1");
 										dceConfig.WriteSettings();
 										system("beep -f 2000");
+									}
+									else //if()
+									{
+										LoggerWrapper::GetInstance()->Write(LV_STATUS,"WatchGyroRemote button -- sending back");
+										irReceiverBase.ForceKeystroke("back", AVWizard_Host, AVWizard_Port);
 									}
 								}
 							}
