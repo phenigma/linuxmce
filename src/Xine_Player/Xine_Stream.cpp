@@ -43,8 +43,19 @@ void* StreamWatchDogRoutine(void* param)
 	if (bStreamWatchDogFlag&&(iStreamWatchDogCounter==iLocalCounter))
 	{
 		DCE::LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Terminating Xine_Player: watchdog detected libxine deadlock\n");
+
+#ifdef DEBUG
+		DCE::LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Asking for coredump...\n");
+#endif
+		
+		DCE::LoggerWrapper::GetInstance()->Flush();
 		fflush(stdout);
+		
+#ifdef DEBUG
+		kill(getpid(), SIGSEGV);
+#else
 		kill(getpid(), SIGKILL);
+#endif
 	}
 		
 	return NULL;
@@ -3171,7 +3182,7 @@ void Xine_Stream::ReadAVInfo()
 				string s = sAudioInfo;
 				s = StringUtils::Replace(s, "A/52", "");
 				s = StringUtils::TrimSpaces(s);
-				int pos = s.find_first_of(".");
+				uint pos = s.find_first_of(".");
 				if ( (pos!=string::npos) && (pos==1) )
 				{
 					m_sAudioInfo += " " + s.substr(0, 1);
@@ -3186,7 +3197,7 @@ void Xine_Stream::ReadAVInfo()
 					string s = sAudioInfo;
 					s = StringUtils::Replace(s, "DTS", "");
 					s = StringUtils::TrimSpaces(s);
-					int pos = s.find_first_of(".");
+					uint pos = s.find_first_of(".");
 					if ( (pos!=string::npos) && (pos==1) )
 					{
 						m_sAudioInfo += " " + s.substr(0, 1);
