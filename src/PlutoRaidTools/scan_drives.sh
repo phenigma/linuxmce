@@ -78,7 +78,7 @@ done
 availPart=$new_list
 
 for device in $availPart; do
-	raid_block=$(mdadm --examine --brief --scan /dev/hdb1 | cut -d' ' -f2)
+	raid_block=$(mdadm --examine --brief --scan /dev/$device | cut -d' ' -f2)
 	# If it belongs to a raid device
 	if [[ "$raid_block" != "" ]] ;then
 		# And the raid device is active
