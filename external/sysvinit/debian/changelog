@@ -1,3 +1,9 @@
+sysvinit (2.86.ds1-1.1pluto73) unstable; urgency=low
+
+  * Logging for rcS
+
+ -- Radu Cristescu <radu.c@plutohome.com>  Thu, 26 Jul 2007 14:02:59 +0300
+
 sysvinit (2.86.ds1-1.1pluto72) unstable; urgency=low
 
   * A few fixes for Gyro
