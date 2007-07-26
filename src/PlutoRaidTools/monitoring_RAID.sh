@@ -141,13 +141,18 @@ case "$Param_Event" in
 		Q="SELECT FK_Device FROM Device_DeviceData WHERE IK_DeviceData = '$Param_Raid'  AND FK_DeviceData = $DD_BLOCK_DEVICE"
 		DeviceID=$(RunSQL "$Q")
 
-		Q="UPDATE Device_DeviceData SET IK_DeviceData = 4 WHERE FK_Device = $DeviceID and FK_DeviceData = $NEW_ADD_ID"
-		RunSQL "$Q"
+		if [[ "$(mdadm --detail "$Param_Raid"  | grep "State :" | grep "degraded")" != "" ]] ;then
+			Raid_SetStatus "$DeviceID" "DAMAGED"
+		else
 
-		Raid_SetStatus "$DeviceID" "OK"
+			Q="UPDATE Device_DeviceData SET IK_DeviceData = 4 WHERE FK_Device = $DeviceID and FK_DeviceData = $NEW_ADD_ID"
+			RunSQL "$Q"
 
-		raidSize=$(mdadm --query $Param_Raid | head -1 |cut -d' ' -f2)
-		Raid_SetSize "$DeviceID" "$raidSize"
+			Raid_SetStatus "$DeviceID" "OK"
+
+			raidSize=$(mdadm --query $Param_Raid | head -1 |cut -d' ' -f2)
+			Raid_SetSize "$DeviceID" "$raidSize"
+		fi
 	;;
 
 	"Rebuild"* )
