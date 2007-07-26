@@ -25,6 +25,6 @@ else
 	RunSQL "$Q"
 fi
 
-#mdadm --manage --set-faulty $array $disk
-#mdadm --manage --remove $array $disk
+mdadm --manage --set-faulty $array $disk
+mdadm --manage --remove $array $disk
 mdadm --zero-superblock $disk
