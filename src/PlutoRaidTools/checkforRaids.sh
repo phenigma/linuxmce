@@ -96,11 +96,12 @@ for device in $availPart; do
 done
 availPart=$new_list
 echo ">>>>$availPart<<<<<"
+
 raid_table=
 echo "" > /tmp/raidarrays
 for device in $availPart; do
 	result=$(mdadm --examine --brief --scan /dev/$device | cut -d' ' -f2) 
-	if [[ -n $result ]]; then 
+	if [[ -n $result ]] && mdadm --detail --brief "$result" >/dev/null; then 
 		if arrayNotExists "$raid_table" "$result" ;then
 			raid_table="$raid_table""$result "
 		fi
@@ -124,14 +125,13 @@ for el in $raid_table ;do
 			device=$(/usr/pluto/bin/MessageSend localhost -targetType template -o 0 27 1 718 44 1854 156 1|tail -1|cut -d':' -f2)
 			;;
 	esac
-	Q="UPDATE Device_DeviceData SET IK_DeviceData='$el' WHERE FK_Device=$device and FK_DeviceData=152"
-        RunSQL "$Q"
-	raidSize=$(mdadm --query $el | head -1 |cut -d' ' -f2)
-        Q="UPDATE Device_DeviceData SET IK_DeviceData='$raidSize' WHERE FK_Device=$device and FK_DeviceData=201"
-        RunSQL "$Q"
-	#no_disks=$(mdadm --query $el | head -1 |cut -d' ' -f4)
-	Q="UPDATE Device_DeviceData SET IK_DeviceData='$no_disks' WHERE FK_Device=$device and FK_DeviceData=199"
-        RunSQL "$Q"
+	
+	raidSize=$(mdadm --query $el | head -1 |cut -d' ' -f2) 
+	RunSQL "UPDATE Device_DeviceData SET IK_DeviceData='$el' WHERE FK_Device=$device and FK_DeviceData=152"
+	RunSQL "UPDATE Device_DeviceData SET IK_DeviceData='$raidSize' WHERE FK_Device=$device and FK_DeviceData=201"
+	RunSQL "UPDATE Device_DeviceData SET IK_DeviceData='$no_disks' WHERE FK_Device=$device and FK_DeviceData=199"
+	RunSQL "UPDATE Device_DeviceData SET IK_DeviceData='3' WHERE FK_Device=$device AND FK_DeviceData=204"
+
 	for dev in $devs ;do
 		disk_device=$(/usr/pluto/bin/MessageSend localhost -targetType template -o 0 27 1 718 44 1850 156 $device|tail -1|cut -d':' -f2)
 		Q="UPDATE Device SET Description='/dev/$dev' WHERE PK_Device=$disk_device"
@@ -145,6 +145,9 @@ for el in $raid_table ;do
 		fi
 	
 	done
+
+	## Triger a refresh of status
+	/usr/pluto/bin/monitoring_RAID.sh 'REFRESH WEB' /dev/md1
 done
 
 ConfSet CheckForRaids 1
