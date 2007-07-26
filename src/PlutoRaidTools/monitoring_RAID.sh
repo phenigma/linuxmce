@@ -171,6 +171,7 @@ case "$Param_Event" in
 	;;
 
 	"Fail" )
+		#TODO: Fix the logic for this event 
 		Q="SELECT FK_Device FROM Device_DeviceData WHERE IK_DeviceData = '$Param_Disk' AND FK_DeviceData = $DD_BLOCK_DEVICE"
 		DeviceID=$(RunSQL "$Q")
 		Raid_SetStatus "$DeviceID" "FAULTY"
