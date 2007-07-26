@@ -1067,6 +1067,7 @@ bool OSDScreenHandler::Receiver_OnTimer(CallBackData *pData)
 {
 	if( m_tWaitingForRegistration==1 )
 	{
+		NeedToRender render( m_pOrbiter, "OSDScreenHandler::Receiver_OnTimer SCREEN_Receiver_CONST" );  // Redraw anything that was changed by this command
 		m_pOrbiter->CMD_Goto_Screen("",SCREEN_Receiver_CONST);
 		return false;
 	}
