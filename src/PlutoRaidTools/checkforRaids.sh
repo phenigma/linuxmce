@@ -112,6 +112,24 @@ for el in $raid_table ;do
 	devs=$(cat /tmp/raidarrays|grep "$el"|cut -d'|' -f2)
 	no_disks=$(cat /tmp/raidarrays|grep "$el"|wc -l)
 	one_dev=$(echo "$devs" | tail -1)
+
+	Q="
+	SELECT
+		PK_Device 
+	FROM 
+		Device
+		JOIN Device_DeviceData ON FK_Device = PK_Device
+	WHERE
+		FK_DeviceTemplate IN (1849, 1851, 1854)
+		AND
+		FK_DeviceData = 152
+		AND
+		IK_DeviceData = '$el'
+	"
+	if [[ "$(RunSQL "$Q")" != "" ]] ;then
+		continue
+	fi
+
 	raid_level=$(mdadm --examine --brief --scan /dev/$one_dev | cut -d' ' -f3 | cut -d'=' -f2)
 	device=
 	case "$raid_level" in
@@ -143,8 +161,7 @@ for el in $raid_table ;do
 	                size=${size:0:$(($length-1))}
 			Q="UPDATE Device_DeviceData SET IK_DeviceData='$size GB' WHERE FK_Device=$disk_device and FK_DeviceData=201"
 			RunSQL "$Q"
-		fi
-	
+		fi	
 	done
 
 	## Triger a refresh of status
