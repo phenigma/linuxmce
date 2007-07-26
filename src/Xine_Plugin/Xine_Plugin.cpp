@@ -496,13 +496,8 @@ bool Xine_Plugin::ConfirmSourceIsADestination(string &sMRL,XineMediaStream *pXin
 		
 		int iComputerID = -1;
 		
-		DeviceData_Base *pParent = pDevice_Disk_Drive->m_pDevice_ControlledVia;
-		while ( pParent && !pParent->WithinCategory(DEVICECATEGORY_Computers_CONST) )
-			pParent = pParent->m_pDevice_ControlledVia;
-		
-		if (pParent)
-			pParent = pParent->GetTopMostDevice();
-		
+		DeviceData_Base *pParent = pDevice_Disk_Drive->GetTopMostDevice();
+
 		if (pParent)
 			iComputerID = pParent->m_dwPK_Device;
 		
