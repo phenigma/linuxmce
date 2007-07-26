@@ -39,6 +39,9 @@
 	$GLOBALS['RaidDrives']=167;					// RAID drives
 	$GLOBALS['StorageDevices']=155;				// Storage devices
 	$GLOBALS['NetworkStorage']=158;				// Network Storage devices
+	$GLOBALS['call_before_timeout']=238;		// No. of sec to ring before IVR
+	$GLOBALS['call_before_phones']=239;			// Ring ext before IVR
+	
 	
 	$GLOBALS['TVdevicesArray']=array($GLOBALS['TVdevices'],$GLOBALS['TVVCRCombo'],$GLOBALS['AmpsReceivers']);
 	

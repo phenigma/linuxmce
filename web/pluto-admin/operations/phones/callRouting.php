@@ -33,9 +33,35 @@ function callRouting($output,$dbADO,$asteriskADO,$telecomADO) {
 	
 
 	if($action=='form'){
-		$out=getUsersRoutingTable($dbADO,$telecomADO);
+		$out=getCallBeforeForm($dbADO);
+		$out.=getUsersRoutingTable($dbADO,$telecomADO);
 	}elseif($action=='step'){
 		$out=addStepForm($dbADO,$telecomADO);
+	}elseif($action=='update_call_before'){
+		// check if the user has the right to modify installation
+		$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$_SESSION['installationID'],$dbADO);
+		if (!$canModifyInstallation){
+			header("Location: index.php?section=callRouting&error=$TEXT_NOT_AUTHORISED_TO_MODIFY_INSTALLATION_CONST");
+			exit(0);
+		}			
+		
+		$timeout=(int)@$_POST['timeout'];
+		$phones=explode(',',$_POST['phones']);
+		$phonesToRing=array();
+		foreach ($phones As $phoneID){
+			if(isset($_REQUEST['phone_'.$phoneID])){
+				$phonesToRing[]=$phoneID;
+			}
+		}
+		$callBeforePhones=join(',',$phonesToRing);
+		$telecomPlugin=getTelecomPlugin($installationID,$dbADO);
+
+		set_device_data($telecomPlugin,$GLOBALS['call_before_timeout'],$timeout,$dbADO);
+		set_device_data($telecomPlugin,$GLOBALS['call_before_phones'],$callBeforePhones,$dbADO);
+		
+		header('Location: index.php?section=callRouting');
+		exit();
+		
 	}else{
 	// process area
 		// check if the user has the right to modify installation
@@ -468,6 +494,47 @@ function updateSteps($telecomADO){
 	
 	header("Location: index.php?section=callRouting&action=step&userID=$selectedUser&mode=$userMode&pr=$priorityCaller&msg=$TEXT_CALL_ROUTING_STEP_UPDATE_CONST");
 	exit();
+}
 
+function getCallBeforeForm($dbADO){
+	$installationID = (int)@$_SESSION['installationID'];
+	$telecomPlugin=getTelecomPlugin($installationID,$dbADO);
+	$timeout=getDeviceData($telecomPlugin,$GLOBALS['call_before_timeout'],$dbADO);
+	$selectedPhones=getDeviceData($telecomPlugin,$GLOBALS['call_before_phones'],$dbADO);
+	
+	$phones=getDevicesArrayFromCategory($GLOBALS['rootPhones'],$dbADO);
+	$oldValuesArray=explode(',',$selectedPhones);
+	
+	$phoneList='';
+	foreach ($phones AS $phoneID=>$phoneName){
+		$phoneList.='<input type="checkbox" name="phone_'.$phoneID.'" value="1" '.(($selectedPhones=='' || in_array($phoneID,$oldValuesArray))?'checked':'').'> '.$phoneName.'<br>';
+	}
+	$phoneList.='<input type="hidden" name="phones" value="'.join(',',array_keys($phones)).'">';
+
+	
+	$out='
+		<form action="index.php" method="POST" name="callRouting_callBefore">
+			<input type="hidden" name="section" value="callRouting">
+			<input type="hidden" name="action" value="update_call_before">
+	
+			<table align="center" cellpadding="2" cellspacing="0">
+				<tr>
+					<td><B># of seconds to ring before ivr (0=none)</b></td>
+					<td><input type="text" name="timeout" value="'.$timeout.'"></td>
+				</tr>
+				<tr>
+					<td valign="top"><B>List of extensions to ring before IVR</B></td>
+					<td>'.$phoneList.'</td>
+				</tr>		
+				<tr>
+					<td colspan="2" align="center"><input type="submit" class="button" name="update" value="Update"></td>
+				</tr>				
+			</table>
+		
+		</form>
+		';
+	
+	return $out;
+	
 }
 ?>
