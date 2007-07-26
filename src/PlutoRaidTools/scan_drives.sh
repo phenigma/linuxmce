@@ -82,7 +82,7 @@ for device in $availPart; do
 	# If it belongs to a raid device
 	if [[ "$raid_block" != "" ]] ;then
 		# And the raid device is active
-		if mdadm --detail --brief &>/dev/null ;then
+		if mdadm --detail --brief $raid_block &>/dev/null ;then
 			continue
 		fi
 	fi
