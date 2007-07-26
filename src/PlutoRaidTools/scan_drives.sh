@@ -78,20 +78,23 @@ done
 availPart=$new_list
 
 for device in $availPart; do
-	result=$(mdadm --examine --brief --scan /dev/$device)
-	#if [[ -n $result ]]; then 
-		#sunt hdd-uri care fac parte din array
-	#else
-	if [[ -z $result ]]; then
-		result=$(mdadm --query /dev/$device | grep 'is not an md array')
-		if [[ -n $result ]]; then
-			size=$(fdisk -l /dev/$device | grep Disk | cut -d' ' -f3,4)
-			length=${#size}
-			 if [[ -n $size ]]; then
-				size=${size:0:$(($length-1))}
-				free_disks="$free_disks/dev/$device,$size;"
-			 fi
+	raid_block=$(mdadm --examine --brief --scan /dev/hdb1 | cut -d' ' -f2)
+	# If it belongs to a raid device
+	if [[ "$raid_block" != "" ]] ;then
+		# And the raid device is active
+		if mdadm --detail --brief &>/dev/null ;then
+			continue
 		fi
+	fi
+
+	result=$(mdadm --query /dev/$device | grep 'is not an md array')
+	if [[ -n $result ]]; then
+		size=$(fdisk -l /dev/$device | grep Disk | cut -d' ' -f3,4)
+		length=${#size}
+		 if [[ -n $size ]]; then
+			size=${size:0:$(($length-1))}
+			free_disks="$free_disks/dev/$device,$size;"
+		 fi
 	fi
 done
 
