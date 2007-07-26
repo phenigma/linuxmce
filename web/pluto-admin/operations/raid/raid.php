@@ -170,7 +170,9 @@ function raid($output,$dbADO) {
 				$parentIP=$_REQUEST['parentIP_'.$device];
 				
 				$cmd='sudo -u root /usr/pluto/bin/LaunchRemoteCmd.sh '.$parentIP.' "/usr/pluto/bin/delete_raid.sh '.$device.'"';
-				exec_batch_command($cmd);
+				$ret=exec_batch_command($cmd,1);
+				
+				// delete moved in delete_raid.sh
 				deleteDevice($device,$dbADO);
 			}
 		}
