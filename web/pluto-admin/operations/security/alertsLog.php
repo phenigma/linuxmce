@@ -159,11 +159,13 @@ function formatAlertsLog($row, $art_index,$securitydbADO,$dbADO)
 	$queryAD='SELECT PK_Alert_Device,EK_Device,UNIX_TIMESTAMP(DetectionTime) AS DetectionTime  FROM Alert_Device WHERE FK_Alert=?';
 	$resAD=$securitydbADO->Execute($queryAD,$row['PK_Alert']);
 	while($rowAD=$resAD->FetchRow()){
+		$picsDisplayed=array();
 		$resD=$dbADO->Execute('SELECT * FROM Device LEFT JOIN Device_Device_Related ON FK_Device=PK_Device WHERE PK_Device =?',$rowAD['EK_Device']);
 		while($rowD=$resD->FetchRow()){
 			// snapshot format: alert_[PK_Alert]_cam[camera].jpg
 			$picPath='alert_'.$rowAD['PK_Alert_Device'].'_cam'.$rowD['FK_Device_Related'];
 			$alertPic=get_alert_pic($picPath);
+			$picsDisplayed[]=$alertPic;
 		$out.='
 			<tr bgcolor="'.(($art_index%2==0)?'#F0F3F8':'').'">
 				<td align="center"><img src="include/image.php?imagepath='.$alertPic.'"></td>
@@ -171,6 +173,20 @@ function formatAlertsLog($row, $art_index,$securitydbADO,$dbADO)
 				<td align="left" colspan="5"><B>Device: </B><a href="index.php?section=editDeviceParams&deviceID='.$rowD['PK_Device'].'">'.$rowD['Description'].'</a></td>
 			</tr>
 			';
+		}
+		$diskAlerts=grabAlertFiles($GLOBALS['SecurityPicsPath'],'alert_'.$rowAD['PK_Alert_Device'].'_cam');
+		$notDisplayed=array_diff($diskAlerts,$picsDisplayed);
+		
+		if(count($notDisplayed>0)){
+			foreach ($notDisplayed AS $extraPic){
+				$out.='
+				<tr>
+					<td align="center"><img src="include/image.php?imagepath='.$extraPic.'"></td>
+					<td align="center">'.date($GLOBALS['defaultDateFormat'],$rowAD['DetectionTime']).'</td>
+					<td align="left" colspan="5"><B>Device: </B> DELETED or N/A</td>
+				</tr>
+				';			
+			}
 		}
 	}	
 	
@@ -206,4 +222,28 @@ function deleteAlerts($adate,$securitydbADO){
 	}
 }
 
+
+function grabAlertFiles($path,$file_prefix='') {
+	$filesArray=array();
+	
+	$f = 0;
+	$filesArray = array();
+	if (@$handle = opendir($path)) {
+		while (false!== ($file = readdir($handle))) {
+			if($file!= "." && $file!= "..") {
+				if($file_prefix=='' || ($file_prefix!='' && strpos($file,$file_prefix)!==false)){
+					$fName = $file;
+					$file = $path.$file;
+					$filesArray[$f++] = $file;
+				}
+			};
+		};
+		closedir($handle);
+	};
+	asort( $filesArray ); 
+	reset( $filesArray );
+
+
+	return $filesArray;
+} 
 ?>
