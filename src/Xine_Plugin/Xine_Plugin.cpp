@@ -501,10 +501,7 @@ bool Xine_Plugin::ConfirmSourceIsADestination(string &sMRL,XineMediaStream *pXin
 			pParent = pParent->m_pDevice_ControlledVia;
 		
 		if (pParent)
-		{
-			DeviceData_Base *pTopMost = pParent->GetTopMostDevice();
-			iComputerID = pTopMost ? pTopMost->m_dwPK_Device : pParent->m_dwPK_Device;
-		}
+			iComputerID = pParent->GetTopMostDevice();
 		
 		if (iComputerID == -1)
 		{
