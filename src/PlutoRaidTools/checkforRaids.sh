@@ -135,7 +135,8 @@ for el in $raid_table ;do
 	for dev in $devs ;do
 		disk_device=$(/usr/pluto/bin/MessageSend localhost -targetType template -o 0 27 1 718 44 1850 156 $device|tail -1|cut -d':' -f2)
 		RunSQL "UPDATE Device SET Description='/dev/$dev' WHERE PK_Device=$disk_device"
-		RunSQL "UPDATE Device_DeviceDate SET IK_Device='/dev/$dev' WHERE FK_Device='$dev' AND FK_DeviceDate=152"
+		RunSQL "UPDATE Device_DeviceData SET IK_DeviceData='/dev/$dev' WHERE FK_Device=$disk_device AND FK_DeviceData=152"
+
 		size=$(fdisk -l /dev/$dev | grep Disk | cut -d' ' -f3,4)
                 length=${#size}
                 if [[ -n $size ]]; then
