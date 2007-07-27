@@ -220,6 +220,14 @@ UpdateOrbiterDimensions()
 	# Store value for "Offset"
 	Q="UPDATE Device_DeviceData SET IK_DeviceData='$OrbiterShiftX,$OrbiterShiftY' WHERE FK_Device='$OrbiterDev' AND FK_DeviceData='$DEVICEDATA_Offset'"
 	RunSQL "$Q"
+
+	# Orbiter Regen
+	Q="
+		UPDATE Orbiter
+		SET Regen=1
+		WHERE PK_Orbiter='$OrbiterDev'
+	"
+	RunSQL "$Q"
 }
 
 UpdateOrbiterUI()
