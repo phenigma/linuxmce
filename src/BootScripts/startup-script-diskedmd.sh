@@ -71,6 +71,7 @@ rm -f /dev/ttyS_*                        # remove all ttyS_* (created by gc100s)
 mkdir -p /usr/pluto/locks                # clean up locks
 rm -f /usr/pluto/locks/*                 # clean up locks
 rm -f /var/run/plutoX*.pid		 # clean up X11 locks
+rm -f /mnt/optical/*.checksum
 
 
 if [[ -f /usr/pluto/bin/Config_Ops.sh ]]; then

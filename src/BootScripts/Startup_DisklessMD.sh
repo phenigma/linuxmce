@@ -57,6 +57,7 @@ rm -f /dev/ttyS_*                        # remove all ttyS_* (created by gc100s)
 mkdir -p /usr/pluto/locks                # clean up locks
 rm -f /usr/pluto/locks/*                 # clean up locks
 rm -f /var/run/plutoX*.pid		 # clean up x11 locks
+rm -f /mnt/optical/*.checksum
 rm -f /etc/rc{0,6}.d/S*{umountnfs.sh,portmap,networking}
 invoke-rc.d nis start
 
