@@ -47,7 +47,11 @@ function callRouting($output,$dbADO,$asteriskADO,$telecomADO) {
 		
 		$timeout=(int)@$_POST['timeout'];
 		$timeout=($timeout<0)?0:$timeout;
+		$telecomPlugin=getTelecomPlugin($installationID,$dbADO);
+
+		set_device_data($telecomPlugin,$GLOBALS['call_before_timeout'],$timeout,$dbADO);
 		
+		/*
 		$phones=explode(',',$_POST['phones']);
 		$phonesToRing=array();
 		foreach ($phones As $phoneID){
@@ -56,10 +60,10 @@ function callRouting($output,$dbADO,$asteriskADO,$telecomADO) {
 			}
 		}
 		$callBeforePhones=(count($phonesToRing)==0)?0:join(',',$phonesToRing);
-		$telecomPlugin=getTelecomPlugin($installationID,$dbADO);
-
-		set_device_data($telecomPlugin,$GLOBALS['call_before_timeout'],$timeout,$dbADO);
+	
+		
 		set_device_data($telecomPlugin,$GLOBALS['call_before_phones'],$callBeforePhones,$dbADO);
+		*/
 		
 		header('Location: index.php?section=callRouting');
 		exit();
@@ -502,6 +506,8 @@ function getCallBeforeForm($dbADO){
 	$installationID = (int)@$_SESSION['installationID'];
 	$telecomPlugin=getTelecomPlugin($installationID,$dbADO);
 	$timeout=getDeviceData($telecomPlugin,$GLOBALS['call_before_timeout'],$dbADO);
+	
+	/* removed
 	$selectedPhones=getDeviceData($telecomPlugin,$GLOBALS['call_before_phones'],$dbADO);
 	
 	$phones=getDevicesArrayFromCategory($GLOBALS['rootPhones'],$dbADO);
@@ -516,7 +522,7 @@ function getCallBeforeForm($dbADO){
 		$phoneList.='<input type="checkbox" name="phone_'.$phoneID.'" value="'.$extensions[$phoneID].'" '.(($selectedPhones=='' || in_array($extensions[$phoneID],$oldValuesArray))?'checked':'').'> '.((!isset($extensions[$phoneID]) || (int)$extensions[$phoneID]==0)?'<span class="err">'.$phoneName.'</span>':$extensions[$phoneID].' - '.$phoneName).'<br>';
 	}
 	$phoneList.='<input type="hidden" name="phones" value="'.join(',',array_keys($phones)).'">';
-
+	*/
 	
 	$out='
 		<form action="index.php" method="POST" name="callRouting_callBefore">
@@ -524,14 +530,10 @@ function getCallBeforeForm($dbADO){
 			<input type="hidden" name="action" value="update_call_before">
 	
 			<table align="center" cellpadding="2" cellspacing="0">
-				<tr>
+				<tr class="alternate_back">
 					<td><B># of seconds to ring before ivr (0=none)</b></td>
-					<td><input type="text" name="timeout" value="'.$timeout.'"></td>
+					<td><input type="text" name="timeout" value="'.$timeout.'" size="3"></td>
 				</tr>
-				<tr>
-					<td valign="top"><B>List of extensions to ring before IVR</B></td>
-					<td>'.$phoneList.'</td>
-				</tr>		
 				<tr>
 					<td colspan="2" align="center"><input type="submit" class="button" name="update" value="Update"></td>
 				</tr>				
