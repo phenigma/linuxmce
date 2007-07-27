@@ -327,6 +327,11 @@ int main(int argc, char *argv[])
 		cout << "#!/bin/bash" << endl;
 		cout << "error=0" << endl;
 		cout << ". /usr/pluto/bin/SQL_Ops.sh" << endl;
+		cout << "if /usr/pluto/bin/CheckInternetConnection.sh; then" << endl;
+		cout << "\texport InternetConnection=InternetConnection" << endl;
+		cout << "else" << endl;
+		cout << "\texport InternetConnection=NoInternetConnection" << endl;
+		cout << "fi" << endl;
 	}
 	PrintCmd(argc, argv);
 

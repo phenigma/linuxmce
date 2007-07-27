@@ -98,7 +98,9 @@ case "$URL_TYPE" in
 		AptSrc_ParseSourcesList
 		if AptSrc_AddSource "deb $EndSlashRepos $REPOS $SECTIONS"; then
 			AptSrc_WriteSourcesList >/etc/apt/sources.list
-			apt-get update
+			if [[ "$InternetConnection" != NoInternetConnection ]]; then
+				apt-get update
+			fi
 		fi
 
 		if ! PackageIsInstalled "$PKG_NAME"; then
