@@ -2,9 +2,11 @@
 
 . /usr/pluto/bin/Config_Ops.sh
 
-if [[ "$AVWizardOverride" == "1" ]] ;then
+if [[ "$AVWizardOverride" == "1" || "$AVWizardDone" != "1" ]] ;then
 	ConfSet "AVWizardOverride" "0"
 	/usr/pluto/bin/AVWizard_Run.sh 1>/dev/null 2>/dev/null </dev/null
+else
+	beep -f 4500  -n -l 20 -f 3500 -n -l 50 -f 2500 -n -l 50 -f 2500
 fi
 
 killall WatchGyroRemote 2>/dev/null

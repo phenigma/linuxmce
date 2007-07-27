@@ -9,22 +9,16 @@ set -e
 . /usr/pluto/bin/Section_Ops.sh
 
 ## Startup sequence
-File="/etc/event.d/pluto"
-Content="
-start on runlevel 2
-
-stop on shutdown
-stop on runlevel 3
-stop on runlevel 4
-stop on runlevel 5
-
-script
-/usr/pluto/bin/Startup_DisklessMD.sh
-end script
-"
+File="/etc/init.d/kdm"
+Content='#!/bin/bash
+if [[ "$1" == "start" ]] ;then
+	/usr/pluto/bin/Startup_DisklessMD.sh
+fi
+'
 
 mkdir -p "${Parm_RootLocation}/$(dirname $File)"
 echo "${Content}" > "${Parm_RootLocation}/${File}"
+chmod +x "${Parm_RootLocation}/${File}"
 
 ## Shutdown sequence
 File="/etc/event.d/pluto-shutdown"

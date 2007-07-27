@@ -91,9 +91,6 @@ fi
 StartService "Setting SSH Keys" "/usr/pluto/bin/SSH_Keys.sh" "&"
 StartService "Configure Device Changes" "/usr/pluto/bin/Config_Device_Changes.sh"
 StartService "Setting Coredump Location" "/usr/pluto/bin/corefile.sh"
-if [[ "$AVWizardDone" != "1" ]] ;then
-	StartService "Starting Audio/Video Wizard" "/usr/pluto/bin/AVWizard_Run.sh"
-fi
 StartService "Creating Firewire 2 Video4Linux Pipes" "/usr/pluto/bin/Firewire2Video4Linux.sh"
 
 # hack: cleaning lockfile on M/D start to allow
@@ -104,9 +101,6 @@ rm -f /usr/pluto/locks/pluto_spawned_local_devices.txt
 #StartService "Starting Local Devices" "/usr/pluto/bin/Start_LocalDevices.sh"
 StartService "Configuring Pluto Storage Devices" "/usr/pluto/bin/StorageDevices_Setup.sh" "&"
 #StartDaemon "Report machine is on" "/usr/pluto/bin/Report_MachineOn.sh" "ReportingOn"
-
-/etc/init.d/check_avwizard
-/etc/init.d/0start_avwizard
 
 . /usr/pluto/bin/Config_Ops.sh
 export DISPLAY=:${Display}

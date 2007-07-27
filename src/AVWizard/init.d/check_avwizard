@@ -1,13 +1,12 @@
 #!/bin/bash
 
 if [[ -x /usr/pluto/bin/WatchGyroRemote ]] ;then
+	 beep -f 2500  -n -l 50 -f 2500 -n -l 50 -f 3500 -n -l 20 -f 4500
 	 /usr/pluto/bin/WatchGyroRemote &
 	 sleep 2
 fi
 
 if [[ -x /usr/pluto/bin/shift_state ]] ;then
-	beep -l 500
-	sleep 0.5
 	if [[ "$( /usr/pluto/bin/shift_state )" == "1" ]] ;then
 		beep -l 500
 		. /usr/pluto/bin/Config_Ops.sh 
