@@ -403,10 +403,7 @@ fi
 
 lshwd &>/dev/null # initialize USB
 
-if [[ -x /usr/pluto/bin/WatchGyroRemote ]] ;then
-	 /usr/pluto/bin/WatchGyroRemote &
-	 sleep 2
-fi
+/usr/pluto/bin/check_avwizard
 
 if [[ -x /etc/init.d/Pluto_SSH_Keys.sh ]]; then
 	Message "Setting ssh keys"
@@ -477,12 +474,7 @@ Message "Starting Pluto HAL daemon"
 
 ConfEval
 
-if [[ "$AVWizardDone" != "1" || "$AVWizardOverride" == 1 || "$ShiftState" == 1 ]] ;then
-	if [[ -x /usr/pluto/bin/AVWizard_Run.sh ]]; then	
-		Message "Starting Audio/Video Wizard${ShiftMsg}"
-		/usr/pluto/bin/AVWizard_Run.sh
-	fi
-fi
+/usr/pluto/bin/0start_avwizard
 
 if [ -x /etc/init.d/Pluto_Start_OrbiterGen.sh ] ;then
     Message "Starting OrbiterGen"
