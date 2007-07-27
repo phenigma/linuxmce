@@ -1620,15 +1620,7 @@ void Xine_Player::CMD_Set_Zoom(int iStreamID,string sZoom_Level,string &sCMD_Res
 
 void Xine_Player::SendMessageToOrbiter(string sMessage)
 {
-  DeviceData_Base *pOrbiter = m_pData->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_Orbiter_CONST);
-  
-  if (pOrbiter)
-  {
-    SCREEN_PopupMessage cmd(m_dwPK_Device, pOrbiter->m_dwPK_Device, sMessage, "", "Xine Player message", "0", "15", "1");
+    DCE::CMD_Display_Alert cmd(m_dwPK_Device, m_pData->m_dwPK_Device_ControlledVia, sMessage, "xine_player_message", "15", 0);
     SendCommandNoResponse(cmd);
-  }
-  else
-  {
-    LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Xine_Player::SendMessageToOrbiter - failed to find Orbiter"); 
-  }
+    LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Xine_Player::SendMessageToOrbiter sent message: %s", sMessage.c_str() ); 
 }
