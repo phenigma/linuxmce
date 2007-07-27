@@ -754,7 +754,7 @@ m_bNoEffects = true;
 	if( pRow_Device_DeviceData && atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str()) )
 	{
 		iSpacingParameter = atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str());
-		if( iSpacingParameter>0 && iSpacingParameter<50 )
+		if( iSpacingParameter>0 && iSpacingParameter<80 )
 		{
 			m_rSpacing.Width = m_rSpacing.X = int(m_pRow_Size->Width_get() * ( ((double) iSpacingParameter)/2 ) / 100);
 			m_rSpacing.Height = m_rSpacing.Y = int(m_pRow_Size->Height_get() * ( ((double) iSpacingParameter)/2 ) / 100);
