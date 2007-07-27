@@ -132,6 +132,44 @@ void PlutoHalD::getChildId(LibHalContext * ctx, const char * udi,
 	libhal_free_string_array (childs);
 }
 
+// linux.sysfs_path = '/sys/class/tty/ttyUSB2' => linux.sysfs_path = '/sys/devices/pci0000:00/0000:00:0b.0/usb1/1-2'
+// readlink /sys/class/tty/ttyUSB2/device
+// ../../../devices/pci0000:00/0000:00:0b.0/usb1/1-2/1-2:1.0/ttyUSB2
+void PlutoHalD::getSerialParent(const char * sysfs, std::string & parentSysfs)
+{
+	string sysfsPath = sysfs;
+	sysfsPath += "/device";
+	char buffer[1024];
+	ssize_t iRet = readlink(sysfsPath.c_str(), buffer, sizeof(buffer));
+	parentSysfs = "";
+	
+	if( iRet > 0 && iRet < (int)sizeof(buffer) )
+	{
+		buffer[iRet] = 0;
+		string parentPath = buffer;
+		size_t iFind1 = parentPath.find("pci");
+		size_t iFind2 = parentPath.rfind(":");
+		if( iFind1 != string::npos && iFind2 != string::npos && iFind1 < iFind2 )
+		{
+			parentSysfs = "/sys/devices/" + parentPath.substr(iFind1, iFind1 - iFind2);
+			size_t iFind3 = parentSysfs.rfind("/");
+			if( iFind3 != string::npos )
+			{
+				parentSysfs = parentSysfs.substr(0, iFind3);
+			}
+		}
+		else
+		{
+			LoggerWrapper::GetInstance()->Write
+				(LV_DEBUG, "+++++++ getSerialParent error = %s\nPath = %s", sysfs, buffer);
+		}
+	}
+	else
+	{
+		LoggerWrapper::GetInstance()->Write(LV_DEBUG, "+++++++ Readlink error = %s", sysfs);
+	}
+}
+
 void PlutoHalD::myDeviceAdded(LibHalContext * ctx, const char * udi)
 {
 	if( ctx == NULL || udi == NULL )
@@ -169,20 +207,68 @@ void PlutoHalD::myDeviceAdded(LibHalContext * ctx, const char * udi)
 			getParentId(ctx, udi, "info.bus", "usb_device", parent);
 			if( !parent.empty() )
 			{
+				string mainParent;
+				string parentSysfs;
 				string serial_parent;
 				
-				for(int i=0; i<10; i++)
+				gchar *sysfs = libhal_device_get_property_string (ctx, udi, "linux.sysfs_path", NULL);
+				if( sysfs != NULL )
 				{
-					// wait for HAL to build all the children
-					// 100 ms should be enough
-					usleep(100000);
-				
-					getChildId(ctx, parent.c_str(), "info.bus", "usb", serial_parent);
-					
-					if( !serial_parent.empty() )
-						break;
+					getSerialParent(sysfs, parentSysfs);
 				}
+				else
+				{
+					LoggerWrapper::GetInstance()->Write(LV_DEBUG, "+++++++ Serial device error: no sysfs");
+				}
+				g_free (sysfs);
+				sysfs = NULL;
 				
+				if( !parentSysfs.empty() )
+				{
+					LoggerWrapper::GetInstance()->Write(LV_DEBUG, "=======##### sysfs = %s", parentSysfs.c_str());
+						
+					gchar *parentSysfsPath = libhal_device_get_property_string (ctx, parent.c_str(), "linux.sysfs_path", NULL);
+						
+//					LoggerWrapper::GetInstance()->Write(LV_DEBUG, "=======####### parentSysfsPath = %s", parentSysfsPath);
+						
+					if( parentSysfsPath != NULL &&
+									   parentSysfsPath == parentSysfs )
+					{
+						mainParent = parent;
+					}
+					else
+					{
+						for(int i=0; i<10; i++)
+						{
+							// wait for HAL to build all the children
+							// 100 ms should be enough
+							usleep(100000);
+								
+							getChildId(ctx, parent.c_str(), "linux.sysfs_path", parentSysfs.c_str(), mainParent);
+								
+							if( !mainParent.empty() )
+								break;
+						}
+					}
+					g_free (parentSysfsPath);
+					parentSysfsPath = NULL;
+				}
+					
+				if( !mainParent.empty() )
+				{
+					for(int i=0; i<10; i++)
+					{
+						// wait for HAL to build all the children
+						// 100 ms should be enough
+						usleep(100000);
+				
+						getChildId(ctx, mainParent.c_str(), "info.bus", "usb", serial_parent);
+					
+						if( !serial_parent.empty() )
+							break;
+					}
+				}
+					
 				if( !serial_parent.empty() )
 				{
 					gchar *info_udi = libhal_device_get_property_string (ctx, parent.c_str(), "info.udi", NULL);
@@ -196,7 +282,7 @@ void PlutoHalD::myDeviceAdded(LibHalContext * ctx, const char * udi)
 					udi, serial_parent.c_str(), parent.c_str(),
 					usb_device_product_id, usb_device_vendor_id,
 					serial_port );
-				
+						
 					if(serial_port != NULL)
 					{
 						LoggerWrapper::GetInstance()->Write(LV_DEBUG, "+++++++ Serial device added = %s", udi);
@@ -532,8 +618,67 @@ void PlutoHalD::initialize(LibHalContext * ctx)
 				getParentId(ctx, udi, "info.bus", "usb_device", parent);
 				if( !parent.empty() )
 				{
+					string mainParent;
+					string parentSysfs;
 					string serial_parent;
-					getChildId(ctx, parent.c_str(), "info.bus", "usb", serial_parent);
+				
+					gchar *sysfs = libhal_device_get_property_string (ctx, udi, "linux.sysfs_path", NULL);
+					if( sysfs != NULL )
+					{
+						getSerialParent(sysfs, parentSysfs);
+					}
+					else
+					{
+						LoggerWrapper::GetInstance()->Write(LV_DEBUG, "+++++++ Serial device error: no sysfs");
+					}
+					g_free (sysfs);
+					sysfs = NULL;
+				
+					if( !parentSysfs.empty() )
+					{
+						LoggerWrapper::GetInstance()->Write(LV_DEBUG, "=======##### sysfs = %s", parentSysfs.c_str());
+						
+						gchar *parentSysfsPath = libhal_device_get_property_string (ctx, parent.c_str(), "linux.sysfs_path", NULL);
+						
+//						LoggerWrapper::GetInstance()->Write(LV_DEBUG, "=======####### parentSysfsPath = %s", parentSysfsPath);
+						
+						if( parentSysfsPath != NULL &&
+							parentSysfsPath == parentSysfs )
+						{
+							mainParent = parent;
+						}
+						else
+						{
+							for(int i=0; i<10; i++)
+							{
+								// wait for HAL to build all the children
+								// 100 ms should be enough
+								usleep(100000);
+								
+								getChildId(ctx, parent.c_str(), "linux.sysfs_path", parentSysfs.c_str(), mainParent);
+								
+								if( !mainParent.empty() )
+									break;
+							}
+						}
+						g_free (parentSysfsPath);
+						parentSysfsPath = NULL;
+					}
+					
+					if( !mainParent.empty() )
+					{
+						for(int i=0; i<10; i++)
+						{
+							// wait for HAL to build all the children
+							// 100 ms should be enough
+							usleep(100000);
+				
+							getChildId(ctx, mainParent.c_str(), "info.bus", "usb", serial_parent);
+					
+							if( !serial_parent.empty() )
+								break;
+						}
+					}
 					
 					if( !serial_parent.empty() )
 					{
@@ -545,10 +690,10 @@ void PlutoHalD::initialize(LibHalContext * ctx)
 						gchar *serial_port = libhal_device_get_property_string (ctx, serial_parent.c_str(), "linux.sysfs_path", NULL);
 						
 						LoggerWrapper::GetInstance()->Write(LV_DEBUG, "+++++++* Serial device added = %s\nSP=%s\nP=%s\nid: %d||%d\nSerial=%s",
-							udi, serial_parent.c_str(), parent.c_str(),
-							usb_device_product_id, usb_device_vendor_id,
-							serial_port );
-				
+						udi, serial_parent.c_str(), parent.c_str(),
+						usb_device_product_id, usb_device_vendor_id,
+						serial_port );
+						
 						if(serial_port != NULL)
 						{
 							LoggerWrapper::GetInstance()->Write(LV_DEBUG, "+++++++ Serial device added = %s", udi);

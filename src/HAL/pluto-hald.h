@@ -96,6 +96,8 @@ class PlutoHalD
 								const char * tag, const char * value,
 								std::string & childId);
 		
+		static void getSerialParent(const char * sysfs, std::string & parentSysfs);
+				
 		/***/
 		static gboolean timeoutHandler (DBusConnection *bus);
 };
