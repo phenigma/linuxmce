@@ -175,10 +175,12 @@ TargetCleanup()
 Reboot()
 {
 	clear
-	echo "*******************************************************************************"
-	echo "Installation complete. Press Enter or Control+Alt+Delete to reboot the computer"
-	echo "*******************************************************************************"
-	read
+	exec &>/dev/tty8 </dev/tty8
+	clear
+	chvt 8
+	echo "**********************"
+	echo "Installation complete."
+	echo "**********************"
 	reboot
 }
 
