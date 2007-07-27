@@ -48,6 +48,15 @@ availPart=$(cat /proc/partitions | awk '/(sd|hd)/ { print $4 }')
 mountedPart=$(mount | awk '/dev\/(sd|hd)/ {print $1}' | sed 's/\/dev\///g')
 availPart=$(substractParts "$availPart" "$mountedPart")
 
+## Remove Internal Drives that are in the database
+R=$(RunSQL "SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_DeviceData = 152")
+for Drive in $R ;do
+	block_dev=$(Field "1" "$Drive")
+	block_dev=$(basename $block_dev)
+	availPart=$(substractParts "$availPart" "$block_dev")
+done
+
+
 ## Remove Unmountable partitions (swap / extended)
 auxPart=""
 for part in $availPart ;do
