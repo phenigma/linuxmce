@@ -55,7 +55,7 @@ function callRouting($output,$dbADO,$asteriskADO,$telecomADO) {
 				$phonesToRing[]=(int)$_REQUEST['phone_'.$phoneID];
 			}
 		}
-		$callBeforePhones=join(',',$phonesToRing);
+		$callBeforePhones=(count($phonesToRing)==0)?0:join(',',$phonesToRing);
 		$telecomPlugin=getTelecomPlugin($installationID,$dbADO);
 
 		set_device_data($telecomPlugin,$GLOBALS['call_before_timeout'],$timeout,$dbADO);
