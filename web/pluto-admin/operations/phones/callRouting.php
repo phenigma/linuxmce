@@ -46,11 +46,13 @@ function callRouting($output,$dbADO,$asteriskADO,$telecomADO) {
 		}			
 		
 		$timeout=(int)@$_POST['timeout'];
+		$timeout=($timeout<0)?0:$timeout;
+		
 		$phones=explode(',',$_POST['phones']);
 		$phonesToRing=array();
 		foreach ($phones As $phoneID){
-			if(isset($_REQUEST['phone_'.$phoneID])){
-				$phonesToRing[]=$phoneID;
+			if(isset($_REQUEST['phone_'.$phoneID]) && (int)$_REQUEST['phone_'.$phoneID]!=0){
+				$phonesToRing[]=(int)$_REQUEST['phone_'.$phoneID];
 			}
 		}
 		$callBeforePhones=join(',',$phonesToRing);
@@ -503,11 +505,15 @@ function getCallBeforeForm($dbADO){
 	$selectedPhones=getDeviceData($telecomPlugin,$GLOBALS['call_before_phones'],$dbADO);
 	
 	$phones=getDevicesArrayFromCategory($GLOBALS['rootPhones'],$dbADO);
+	if(count($phones)>0){
+		$extensions=getAssocArray('Device_DeviceData','FK_Device','IK_DeviceData',$dbADO,'WHERE FK_Device IN ('.join(',',array_keys($phones)).') AND FK_DeviceData='.$GLOBALS['PhoneNumber']);
+	}
+	
 	$oldValuesArray=explode(',',$selectedPhones);
 	
 	$phoneList='';
 	foreach ($phones AS $phoneID=>$phoneName){
-		$phoneList.='<input type="checkbox" name="phone_'.$phoneID.'" value="1" '.(($selectedPhones=='' || in_array($phoneID,$oldValuesArray))?'checked':'').'> '.$phoneName.'<br>';
+		$phoneList.='<input type="checkbox" name="phone_'.$phoneID.'" value="'.$extensions[$phoneID].'" '.(($selectedPhones=='' || in_array($extensions[$phoneID],$oldValuesArray))?'checked':'').'> '.((!isset($extensions[$phoneID]) || (int)$extensions[$phoneID]==0)?'<span class="err">'.$phoneName.'</span>':$extensions[$phoneID].' - '.$phoneName).'<br>';
 	}
 	$phoneList.='<input type="hidden" name="phones" value="'.join(',',array_keys($phones)).'">';
 
