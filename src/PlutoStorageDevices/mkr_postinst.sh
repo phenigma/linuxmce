@@ -14,16 +14,6 @@ if [[ ! -e /etc/cron.d/StorageDevicesRadar ]] ;then
 	invoke-rc.d cron reload
 fi
 
-## Add a init script on the core which will look for samba shares over the network
-if [[ ! -f /etc/diskless.conf ]] ;then
-	ln -s /usr/pluto/bin/StorageDevices_SambaRadar.sh /etc/rc2.d/StorageDevices_SambaRadar.sh || :
-	ln -s /usr/pluto/bin/StorageDevices_SambaRadar.sh /etc/init.d/StorageDevices_SambaRadar.sh || :
-fi
-
-## Add a init script that will scan the devices for state info (online/ofline)
-ln -s /usr/pluto/bin/StorageDevices_StatusRadar.sh /etc/rc2.d/StorageDevices_StatusRadar.sh || :
-ln -s /usr/pluto/bin/StorageDevices_StatusRadar.sh /etc/init.d/StorageDevices_StatusRadar.sh || :
-
 ## Samba Share Helper 
 if [[ "$(id -u sambahelper)" == "" ]] ;then
 	useradd -c "Pluto Samba Share Helper" -d /tmp -s /bin/false sambahelper
