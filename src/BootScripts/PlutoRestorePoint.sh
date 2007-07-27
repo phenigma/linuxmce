@@ -68,6 +68,8 @@ if [[ "$1" == "--restore" ]]; then
 	backupfile=$(ls $MASTERDIR/upload | grep tar)
 	
 	if [[ "$backupfile" != "" ]]; then
+		. /usr/pluto/bin/Config_Ops.sh
+
 		tar xfj "$backupfile"
 		BKPDIR=$(find $MASTERDIR/upload -maxdepth 1 -mindepth 1 -type d)
 		# process data from backup
@@ -92,6 +94,11 @@ if [[ "$1" == "--restore" ]]; then
 
 		rm -rf $MASTERDIR/upload/*
 		rmdir $MASTERDIR/upload
+
+		ConfSet "Display" "$Display"
+		ConfSet "AutostartCore" "$AutostartCore"
+		ConfSet "AutostartMedia" "$AutostartMedia"
+
 	fi
 
 
