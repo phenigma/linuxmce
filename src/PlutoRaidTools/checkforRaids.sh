@@ -2,6 +2,9 @@
 
 . /usr/pluto/bin/SQL_Ops.sh
 . /usr/pluto/bin/Config_Ops.sh
+. /usr/pluto/bin/Utils.sh
+LogFile="/var/log/pluto/CheckForRaids.log"
+Log "$LogFile" "$(date -R) Starting"
 
 function isInList 
 {
@@ -56,10 +59,6 @@ function substractParts {
     echo $retPart
 }
 														    
-if [[ "$CheckForRaids" == 1 ]]; then
-       exit # the script has already been set once
-fi
-
 ## Available partitions
 availPart=$(cat /proc/partitions | awk '/(sd|hd)/ { print $4 }')
 
@@ -172,4 +171,3 @@ for el in $raid_table ;do
 	/usr/pluto/bin/monitoring_RAID.sh 'REFRESH WEB' /dev/md1
 done
 
-ConfSet CheckForRaids 1
