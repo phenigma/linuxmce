@@ -12,9 +12,10 @@ $EK_DeviceTemplate = $esc($_REQUEST['DeviceTemplate']);
 $Uptime = $esc($_REQUEST['Uptime']);
 $Orbiter = $esc($_REQUEST['Orbiter']);
 $Router = $esc($_REQUEST['Router']);
+$UpdateVersion = $esc($_REQUEST['UpdateVersion']);
 $IP = $esc($_SERVER['REMOTE_ADDR']);
 
-$q = "INSERT INTO Status(Date,EK_Installation,EK_Device,EK_DeviceTemplate,Uptime,Version_Orbiter,Version_DCERouter,IPaddress)
-	VALUES(NOW(),'$EK_Installation','$EK_Device','$EK_DeviceTemplate','$Uptime','$Orbiter','$Router','$IP')";
+$q = "INSERT INTO Status(Date,EK_Installation,EK_Device,EK_DeviceTemplate,Uptime,Version_Orbiter,Version_DCERouter,IPaddress,UpdateVersion)
+	VALUES(NOW(),'$EK_Installation','$EK_Device','$EK_DeviceTemplate','$Uptime','$Orbiter','$Router','$IP','$UpdateVersion')";
 mysql_query($q) or die('Err: '.mysql_error());
 ?>
