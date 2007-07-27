@@ -66,6 +66,7 @@ chmod 777 /var/log/pluto 2>/dev/null
 rm -f /dev/ttyS_*                        # remove all ttyS_* (created by gc100s) entries from /dev
 mkdir -p /usr/pluto/locks                # clean up locks
 rm -f /usr/pluto/locks/*                 # clean up locks
+rm -f /var/run/plutoX*.pid		 # clean up x11 locks
 rm -f /etc/rc{0,6}.d/S*{umountnfs.sh,portmap,networking}
 #rm /etc/modprobe.d/lrm-video 
 
