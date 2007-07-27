@@ -502,3 +502,6 @@ if [[ -x /usr/pluto/bin/StorageDevices_Setup.sh ]]; then
 	/usr/pluto/bin/StorageDevices_Setup.sh 1>/dev/null 2>/dev/null &
 fi
 
+if [[ -x /usr/pluto/bin/StorageDevices_StatusRadar.sh ]]; then
+	/usr/pluto/bin/StorageDevices_StatusRadar.sh &>/dev/null </dev/null
+fi
