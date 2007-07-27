@@ -120,6 +120,8 @@ Wizard::Wizard()
 	else
 		snd_pcm_close(playback_handle);
 #endif
+	
+	AVWizardOptions->LoadFromXMLFile(WizardCommandLineParser::GetInstance()->ConfigFileDefault);
 }
 
 Wizard::~Wizard()
@@ -245,7 +247,7 @@ void Wizard::DoApplyScreen(SettingsDictionary* Settings)
 
 	if(MainPage == NULL)
 		return;
-	AVWizardOptions->LoadFromXMLFile(CmdLineParser->ConfigFileDefault);
+
 	int Result = MainPage->DoApplySetting(Settings);
 
 	delete MainPage;
@@ -617,7 +619,7 @@ void Wizard::ZoomOut()
 	if (!ZoomPage)
 		return;
 
-	if(WizardBorder*3 >= Width)
+	if(WizardBorder >= Width)
 		return;
 
 	WizardBorder += BORDER_JUMP;

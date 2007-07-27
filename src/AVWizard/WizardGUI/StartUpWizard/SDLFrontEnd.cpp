@@ -24,6 +24,9 @@
 
 #include <SDL_rotozoom.h>
 
+#define REDUCE_PERCENT 0.9
+#define SPACING_SCREEN 6
+
 SDLFrontEnd::SDLFrontEnd()
 : GenericBackEnd()
 {
@@ -90,66 +93,73 @@ int SDLFrontEnd::StartVideoMode(int Width, int Height, bool FullScreen)
 
 void SDLFrontEnd::Flip(int LeftBorder, int TopBorder, int Border)
 {
-	if (BackColor)
-		SDL_FillRect(Display, NULL, SDL_MapRGBA(Screen->format, BackColor->GetRed(), 
-			BackColor->GetGreen(), 
-			BackColor->GetBlue(), 
-			255));
-
-	double ZoomX = 1;
-	double ZoomY = 1;
-	double ZoomX2 = 1;
-	double ZoomY2 = 1;
  	int Width = Display->w;
 	int Height = Display->h;
 
-	SDL_Rect Rect, RectZoom;
+	int ReducePercent = static_cast<int>(2 * Border / static_cast<double>(Width) * 100);
+	int OrbiterShiftX = LeftBorder - Border;
+	int OrbiterShiftY = TopBorder - Border;
 
-	ZoomX = (Width-2*Border) / 640.0f;
-	ZoomY = (Height-2*Border) / 480.0f;
-	RectZoom.x = LeftBorder;
-	RectZoom.y = TopBorder;
-	RectZoom.w = Width - 2 * Border;
-	RectZoom.h = Height - 2 * Border;
+	cout << 
+		"Width " << Width << endl <<
+		"Height " << Height << endl <<
+		"LeftBorder " << LeftBorder << endl <<
+		"TopBorder " << TopBorder << endl <<
+		"Border " << Border << endl <<
+		"--------------------------" << endl <<
+		"ReducePercent " << ReducePercent << endl <<
+		"OrbiterShiftX  " << OrbiterShiftX << endl <<
+		"OrbiterShiftY  " << OrbiterShiftY << endl;
 
-	if(NeedUpdateBack)
+	if (BackColor)
+		SDL_FillRect(Display, NULL, SDL_MapRGBA(Screen->format, BackColor->GetRed(), BackColor->GetGreen(), 
+			BackColor->GetBlue(), 255));
+
+	double ZoomControlls = 1.0;
+
+	SDL_Rect RectControlls, RectBackArrows;
+
+	double ZoomBackArrows = (100 - ReducePercent) / 100.0;
+	RectBackArrows.x = OrbiterShiftX + ReducePercent * Width / (2 * 100);
+	RectBackArrows.y = OrbiterShiftY + ReducePercent * Height / (2 * 100);
+	RectBackArrows.w = static_cast<int>(ZoomBackArrows * Width);
+	RectBackArrows.h = static_cast<int>(ZoomBackArrows * Height);
+
+	//scale to this resolution from 640x480 graphics
+	double ScaleX = Width / 640.0;
+	double ScaleY = Height / 480.0;
+
+	if(Wizard::GetInstance()->CurrentPage == SPACING_SCREEN)
 	{
-		ScaledBack = zoomSurface(BackSurface, ZoomX, ZoomY, SMOOTHING_ON);
-		NeedUpdateBack = false;
-	}
-	if(ScaledBack)
-		SDL_BlitSurface(ScaledBack, NULL, Display, &RectZoom);
-
-	if(Wizard::GetInstance()->CurrentPage == 6)
-	{
-		// XXX: AdjustVideoSize, hardcoded extra border
-		int Border2 = Border + ARROWS_BORDER;
-		ZoomX2 = (Width-2*Border2) / 640.0f;
-		ZoomY2 = (Height-2*Border2) / 480.0f;
-		Rect.x = LeftBorder + ARROWS_BORDER;
-		Rect.y = TopBorder + ARROWS_BORDER;
-		Rect.w = Width - 2 * Border2;
-		Rect.h = Height - 2 * Border2;
+		ZoomControlls = REDUCE_PERCENT * ZoomBackArrows;
+		RectControlls.x = RectBackArrows.x + static_cast<int>(((1.0 - REDUCE_PERCENT) / 2) * RectBackArrows.w);
+		RectControlls.y = RectBackArrows.y + static_cast<int>(((1.0 - REDUCE_PERCENT) / 2) * RectBackArrows.h);
 	}
 	else
 	{
-		int Border2 = Border;
-		ZoomX2 = (Width-2*Border2) / 640.0f;
-		ZoomY2 = (Height-2*Border2) / 480.0f;
-		Rect.x = LeftBorder;
-		Rect.y = TopBorder;
-		Rect.w = Width - 2 * Border2;
-		Rect.h = Height - 2 * Border2;
+		ZoomControlls = ZoomBackArrows;
+		RectControlls = RectBackArrows;
+	}
+
+	if(NeedUpdateBack)
+	{
+		ScaledBack = zoomSurface(BackSurface, ZoomBackArrows * ScaleX, ZoomBackArrows * ScaleY, SMOOTHING_ON);
+		NeedUpdateBack = false;
+	}
+	if(ScaledBack)
+	{
+		SDL_BlitSurface(ScaledBack, NULL, Display, &RectBackArrows);
 	}
 
 	if(NeedUpdateScreen)
 	{
-		ScaledScreen = zoomSurface(Screen, ZoomX2, ZoomY2, SMOOTHING_ON);
-		//ScaledScreen = zoomSurface(Screen, ZoomX2, ZoomY2, SMOOTHING_OFF);
+		ScaledScreen = zoomSurface(Screen, ZoomControlls * ScaleX, ZoomControlls * ScaleY, SMOOTHING_ON);
 		NeedUpdateScreen = true;
 	}
 	if(ScaledScreen)
-		SDL_BlitSurface(ScaledScreen, NULL, Display, &Rect);
+	{
+		SDL_BlitSurface(ScaledScreen, NULL, Display, &RectControlls);
+	}
 
 	SDL_Flip(Display);	
 }
