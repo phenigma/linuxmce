@@ -35,9 +35,17 @@ FindPackageName()
 
 NotifyOrbiter()
 {
-	# notifyinf Orbiter if asked
+	# notifying Orbiter if asked
 	if [[ "$OrbiterID" != "" ]]; then
 		/usr/pluto/bin/MessageSend dcerouter 0 $OrbiterID 1 14 15 "*"
+	fi
+}
+
+SendMessageToOrbiter()
+{
+	# if Orbiter ID is present
+	if [[ "$OrbiterID" != "" ]]; then
+		/usr/pluto/bin/MessageSend dcerouter 0 $OrbiterID 1 809 9 "$1" 70 "add_software" 182 "5" 251 0
 	fi
 }
 
@@ -53,7 +61,7 @@ case $Action in
 		fi
 	
 		MyLog "Launching $Action on $DeviceIP"
-		/usr/pluto/bin/LaunchRemoteCmd.sh "$DeviceIP" "/usr/pluto/bin/AddSoftwareHelper.sh $Action-actual $DeviceID $PackageID"
+		/usr/pluto/bin/LaunchRemoteCmd.sh "$DeviceIP" "/usr/pluto/bin/AddSoftwareHelper.sh $Action-actual $DeviceID $PackageID $OrbiterID"
 
 		NotifyOrbiter
 	;;
@@ -92,7 +100,7 @@ case $Action in
 			MyLog "Trying source $i from $SourcesCount : $DownloadURL"
 			
 			#Result="$(InstallPackage "$DownloadURL" "$MD5Sum" "$SHA1Sum")"
-			wget -t 5 -T 120 -O "/tmp/$PackageName.deb" "$DownloadURL"
+			wget -t 5 -T 60 -O "/tmp/$PackageName.deb" "$DownloadURL"
 			RetCode=$?
 			if [ "$RetCode" -eq 0 ]; then
 				MyLog "Package fetched successfully, testing checksums"
@@ -118,15 +126,16 @@ case $Action in
 					fi
 					
 					Unlock "InstallNewDevice" "AddSoftwareHelper"
+					Err=""
 					break
 				else
 					MyLog "Installation failed, checksums test failed: MD5=$MD5Package (should be $MD5Sum), SHA1=$SHA1Package (should be $SHA1Sum)"
-					Err="yes"
+					Err="package is corrupted"
 					break
 				fi
 			else
 				MyLog "Download failed (direct link)"
-				Err="yes"
+				Err="failed to download package"
 			fi
 			
 		done
@@ -134,6 +143,9 @@ case $Action in
 		if [ -n "$Err" ]; then
 			Q="UPDATE Software_Device SET Status='N' WHERE FK_Device=$DeviceID AND FK_Software=$PackageID"
 			Row="$(RunSQL "$Q")"
+			SendMessageToOrbiter "Installation of package \"$PackageName\" aborted: $Err"
+		else
+			SendMessageToOrbiter "Installation of package \"$PackageName\" finished"
 		fi
 
 		[ -n "$Err" ] && exit 10 || exit 0
@@ -165,6 +177,9 @@ case $Action in
 		Row="$(RunSQL "$Q")"
 		
 		Unlock "RemoveNewDevice"
+
+		SendMessageToOrbiter "Package \"$PackageName\" removed"	
+	
 		[ -n "$Err" ] && exit 10 || exit 0
 	;;
 	
