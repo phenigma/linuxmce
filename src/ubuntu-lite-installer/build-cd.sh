@@ -28,12 +28,22 @@ CreateSquashFS()
 {
 	echo -n "# Linux MCE installer
 start on runlevel 2
+start on runlevel 3
+start on runlevel 4
+start on runlevel 5
+
 
 stop on runlevel 0
 stop on runlevel 1
 stop on runlevel 6
 
-exec /usr/bin/$(basename "$InstallerScript")
+script
+if grep -q "recovery" /proc/cmdline ;then
+	/usr/bin/RecoveryConsole.sh
+else
+	usr/bin/$(basename "$InstallerScript")
+fi
+end script
 " >"$SquashFSDir/etc/event.d/installer-lmce"
 
 	echo -n "# Recovery
@@ -43,7 +53,6 @@ stop on runlevel 0
 stop on runlevel 1
 stop on runlevel 6
 
-exec /usr/bin/RecoveryConsole.sh
 " > "$SquashFSDir/etc/event.d/recovery-console"
 
 	rm -f "$SquashFSDir/etc/event.d/tty1"
