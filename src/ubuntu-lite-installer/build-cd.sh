@@ -46,15 +46,6 @@ fi
 end script
 " >"$SquashFSDir/etc/event.d/installer-lmce"
 
-	echo -n "# Recovery
-start on runlevel 3
-
-stop on runlevel 0
-stop on runlevel 1
-stop on runlevel 6
-
-" > "$SquashFSDir/etc/event.d/recovery-console"
-
 	rm -f "$SquashFSDir/etc/event.d/tty1"
 
 	cp "$InstallerScript" "$SquashFSDir/usr/bin/"

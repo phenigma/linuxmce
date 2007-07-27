@@ -33,13 +33,25 @@ start on runlevel 3
 start on runlevel 4
 start on runlevel 5
 
+
 stop on runlevel 0
 stop on runlevel 1
 stop on runlevel 6
 
-exec /usr/bin/$(basename "$InstallerScript")
+script
+if grep -q "recovery" /proc/cmdline ;then
+	/usr/bin/RecoveryConsole.sh
+else
+	usr/bin/$(basename "$InstallerScript")
+fi
+end script
 " >"$SquashFSDir/etc/event.d/installer-via"
+	
 	rm -f "$SquashFSDir/etc/event.d/tty1"
+
+	cp "EnableRemoteAssistance.sh" "$SquashFSDir/usr/bin"
+	cp "RecoveryConsole.sh" "$SquashFSDir/usr/bin"
+	cp "NetworkSetup.sh" "$SquashFSDir/usr/bin"
 
 	cp "$InstallerScript" "$SquashFSDir/usr/bin/"
 	cp "lite-installer-via_functions.sh" "$SquashFSDir/usr/bin/"
