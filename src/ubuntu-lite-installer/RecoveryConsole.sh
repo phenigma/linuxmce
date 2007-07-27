@@ -54,7 +54,7 @@ while /bin/true ;do
 			echo
 			echo "When you want to quit the shell press CTRL+D"
 			echo
-			bash
+			bash >/dev/tty1 2>/dev/tty1 </dev/tty1
 			echo -e "\n\nPress ENTER to get back to the menu..."
 			read	
 			;;

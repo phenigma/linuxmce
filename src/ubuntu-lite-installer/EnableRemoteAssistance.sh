@@ -70,33 +70,30 @@ fi
 echo "ok"
 
 ## Connect to remote assistance server
-connected_to_80="true"
-echo -n " * Connecting to ra server on port 80 ... "
-ssh -p 80 -i /lmce-image/pf-linuxmce -R${ra_remote_port}:localhost:22 "pf@radvd.linuxmce.com" 2>/dev/null
-ret=$?
-if [[ "$ret" != "0" ]] ;then
-	echo "fail"
-	connected_to_80="false"
-else
-	echo "ok"
-	connected_to_80="true"
-fi
+connected_to_80="false"
+#echo
+#echo  "Connection on port 80 :"
+#echo "  80 ... "
+#ssh -N -p 80 -i /cdrom/lmce-image/pf-linuxmce -R${ra_remote_port}:localhost:22 "pf@radvd.linuxmce.com" 2>/dev/null
+#ret=$?
+#if [[ "$ret" != "0" ]] ;then
+#	connected_to_80="false"
+#else
+#	connected_to_80="true"
+#fi
 
-connected_to_22="true"
-echo -n " * Connecting to ra server on port 22 ... "
-ssh -p 22 -i /lmce-image/pf-linuxmce -R${ra_remote_port}:localhost:22 "pf@radvd.linuxmce.com" 2>/dev/null
+connected_to_22="false"
+echo 
+echo "Connection on port 22 : "
+ssh -p 22 -i /cdrom/lmce-image/pf-linuxmce -R${ra_remote_port}:localhost:22 "pf@radvd.linuxmce.com" 2>/dev/null 
 ret=$?
 if [[ "$ret" != "0" ]] ;then
-	echo "fail"
-	connected_to_22="false"
+	connected_to_22="falsea"
 else
-	echo "ok"
 	connected_to_22="true"
 fi
 
 if [[ "$connected_to_80" == "false" && "$connected_to_22" == "false" ]] ;then
+	echo "FAILED TO ENABLE REMOTE ASSISTANCE"
 	exit 3
 fi
-
-echo "Remote Assistance is Alive"
-echo
