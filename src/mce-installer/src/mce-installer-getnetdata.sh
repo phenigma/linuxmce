@@ -35,7 +35,7 @@ netExtDNS1=$(cat /etc/resolv.conf | grep "^nameserver" | head -1 | awk '{print $
 netExtDNS2=$(cat /etc/resolv.conf | grep "^nameserver" | tail -1 | awk '{print $2}')
 
 netInternetWorking=0
-nc -z www.google.com 80 2>/dev/null && netInternetWorking=1
+nc -w 2 -z www.google.com 80 2>/dev/null && netInternetWorking=1
 
 # pattern matches these situations:
 # dhclient ..parms.. eth0
