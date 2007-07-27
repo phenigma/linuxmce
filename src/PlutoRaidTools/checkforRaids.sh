@@ -135,12 +135,15 @@ for el in $raid_table ;do
 	case "$raid_level" in
 		"raid5")
 			device=$(/usr/pluto/bin/MessageSend localhost -targetType template -o 0 27 1 718 44 1849 156 1|tail -1|cut -d':' -f2)
+			Log "$LogFile" "Recreating Raid 5 device $device $el"
 			;;
 		"raid1")
 			device=$(/usr/pluto/bin/MessageSend localhost -targetType template -o 0 27 1 718 44 1851 156 1|tail -1|cut -d':' -f2)
+			Log "$LogFile" "Recreating Raid 1 device $device $el"
 			;;
 		"raid0")
 			device=$(/usr/pluto/bin/MessageSend localhost -targetType template -o 0 27 1 718 44 1854 156 1|tail -1|cut -d':' -f2)
+			Log "$LogFile" "Recreating Raid 0 device $device $el"
 			;;
 	esac
 	
@@ -152,6 +155,7 @@ for el in $raid_table ;do
 
 	for dev in $devs ;do
 		disk_device=$(/usr/pluto/bin/MessageSend localhost -targetType template -o 0 27 1 718 44 1850 156 $device|tail -1|cut -d':' -f2)
+		Log "$LogFile" "Added drive $dev device $device $el"
 		RunSQL "UPDATE Device SET Description='/dev/$dev' WHERE PK_Device=$disk_device"
 		RunSQL "UPDATE Device_DeviceData SET IK_DeviceData='/dev/$dev' WHERE FK_Device=$disk_device AND FK_DeviceData=152"
 
