@@ -79,7 +79,6 @@ void MediaListGrid::ToData(string GridID,int &Size, char* &Data, int *ColStart, 
 #endif
 
 			char *pIconBuffer = NULL;
-			size_t stIconSize;
 			string PictureFile_Full;
 			pCell = new DataGridCell("",PictureFile_Full);
 			

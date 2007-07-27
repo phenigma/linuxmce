@@ -804,15 +804,15 @@ class DataGridTable *Media_Plugin::CurrentMediaSections( string GridID, string P
 
     class MediaStream *pMediaStream = DetermineStreamOnOrbiter( pMessage->m_dwPK_Device_From, true );
 
+    DataGridTable *pDataGrid = new DataGridTable();
+
     if ( pMediaStream == NULL )
     {
         LoggerWrapper::GetInstance()->Write(LV_WARNING, "The message was not from an orbiter or it doesn't have a media stream on it!");
-        return NULL;
+
+		//nothing is playing at this moment; return an empty datagrid
+        return pDataGrid;
     }
-
-    DataGridTable *pDataGrid = new DataGridTable();
-    // DataGridCell *pCell = NULL;
-
 
 	// Keep track of the ones we've already picked up from the database so we can show the user the extra ones that aren't there
 	map< pair<int,int>,bool > mapSections;
