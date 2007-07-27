@@ -28,9 +28,6 @@ CreateSquashFS()
 {
 	echo -n "# Linux MCE installer
 start on runlevel 2
-start on runlevel 3
-start on runlevel 4
-start on runlevel 5
 
 stop on runlevel 0
 stop on runlevel 1
@@ -38,10 +35,25 @@ stop on runlevel 6
 
 exec /usr/bin/$(basename "$InstallerScript")
 " >"$SquashFSDir/etc/event.d/installer-lmce"
+
+	echo -n "# Recovery
+start on runlevel 3
+
+stop on runlevel 0
+stop on runlevel 1
+stop on runlevel 6
+
+exec /usr/bin/RecoveryConsole.sh
+" > "$SquashFSDir/etc/event.d/recovery-console"
+
 	rm -f "$SquashFSDir/etc/event.d/tty1"
 
 	cp "$InstallerScript" "$SquashFSDir/usr/bin/"
 	cp "$RcSScript" "$SquashFSDir/etc/init.d/"
+
+	cp "EnableRemoteAssitance.sh" "$SquashFSDir/usr/bin"
+	cp "RecoveryConsole.sh" "$SquashFSDir/usr/bin"
+
 	rm -f "$SquashFSDir"/etc/rcS.d/S99install-lmce
 	chroot "$SquashFSDir" dpkg-query -W --showformat='${Package} ${Version}\n' \
 	   > "$LiveCDDir/casper/filesystem.manifest"
