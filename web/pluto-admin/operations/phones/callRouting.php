@@ -50,7 +50,9 @@ function callRouting($output,$dbADO,$asteriskADO,$telecomADO) {
 		$telecomPlugin=getTelecomPlugin($installationID,$dbADO);
 
 		set_device_data($telecomPlugin,$GLOBALS['call_before_timeout'],$timeout,$dbADO);
-		
+		$cmd='sudo -u root /usr/pluto/bin/create_pluto_dialplan.pl';
+		exec_batch_command($cmd);
+	
 		/*
 		$phones=explode(',',$_POST['phones']);
 		$phonesToRing=array();
@@ -381,7 +383,7 @@ function processAddStep($telecomADO){
 	array($selectedUser,$userMode,$SendStatusFirst,$priorityCaller,$StepOrder,$routingValue));
 	
 	$cmd='sudo -u root /usr/pluto/bin/create_pluto_dialplan.pl';
-	exec($cmd);
+	exec_batch_command($cmd);
 	
 	header("Location: index.php?section=callRouting&action=step&userID=$selectedUser&mode=$userMode&pr=$priorityCaller&msg=$TEXT_CALL_ROUTING_STEP_ADDED_CONST");
 	exit();
@@ -409,7 +411,7 @@ function deleteStep($did,$telecomADO){
 	$telecomADO->Execute('DELETE FROM UserRouting WHERE PK_UserRouting=?',$did);
 
 	$cmd='sudo -u root /usr/pluto/bin/create_pluto_dialplan.pl';
-	exec($cmd);
+	exec_batch_command($cmd);
 		
 	header("Location: index.php?section=callRouting&action=step&userID=$selectedUser&mode=$userMode&pr=$priorityCaller&msg=$TEXT_CALL_ROUTING_STEP_DELETED_CONST");
 	exit();
@@ -434,7 +436,7 @@ function moveStep($mdid,$telecomADO){
 		$telecomADO->Execute('UPDATE UserRouting SET StepOrder=? WHERE PK_UserRouting=?',array($oldOrder,$oldID));
 		
 		$cmd='sudo -u root /usr/pluto/bin/create_pluto_dialplan.pl';
-		exec($cmd);
+		exec_batch_command($cmd);
 				
 		header("Location: index.php?section=callRouting&action=step&userID=$selectedUser&mode=$userMode&pr=$priorityCaller");
 		exit();
@@ -496,7 +498,7 @@ function updateSteps($telecomADO){
 	}
 		
 	$cmd='sudo -u root /usr/pluto/bin/create_pluto_dialplan.pl';
-	exec($cmd);
+	exec_batch_command($cmd);
 	
 	header("Location: index.php?section=callRouting&action=step&userID=$selectedUser&mode=$userMode&pr=$priorityCaller&msg=$TEXT_CALL_ROUTING_STEP_UPDATE_CONST");
 	exit();
