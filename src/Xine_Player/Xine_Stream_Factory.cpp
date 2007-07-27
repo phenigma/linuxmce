@@ -747,4 +747,10 @@ void Xine_Stream_Factory::IdentifyXineStuff()
 #endif
 }
 
+void Xine_Stream_Factory::SendMessageToOrbiter(string sMessage)
+{
+  if (m_pPlayer)
+    m_pPlayer->SendMessageToOrbiter(sMessage);
+}
+
 } // DCE namespace end

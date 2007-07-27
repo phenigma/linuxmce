@@ -125,6 +125,8 @@ namespace DCE
 			int m_iLastRenderingStream;
 			
 			double m_dScreenPixelAspect;
+                        
+                        void SendMessageToOrbiter(string sMessage);
 	};
 
 }

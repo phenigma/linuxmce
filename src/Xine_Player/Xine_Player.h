@@ -567,6 +567,8 @@ public:
 	
 	pair<int, string> ExtractComputerAndDeviceFromRemoteDVD(string sURL, bool &bResult);
 	bool IsRemoteDVD(string sURL);
+        
+        void SendMessageToOrbiter(string sMessage);
 	
 private:
 	// xine streams factory ptr
