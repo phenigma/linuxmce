@@ -14,6 +14,8 @@ FirstRunScript="firstboot"
 LiveCDISO="$WorkDir/kubuntu-linuxmce.iso"
 InstallerArchive="/var/plutobuild/vmware/Kubuntu7.04/linux-mce.tar.gz"
 
+RemoteAssistanceKey=/var/plutobuild/lite-installer/pf-linuxmce
+
 PrepareWorkDir()
 {
 	CleanupWorkDir
@@ -50,7 +52,7 @@ CreateLiveCD()
 {
 	mkdir -p "$LiveCDDir/lmce-image/"
 	ln "$InstallerArchive"_* "$LiveCDDir/lmce-image/"
-	cp "$FirstRunScript" "$LiveCDDir/lmce-image/"
+	cp "$FirstRunScript" "$RemoteAssistanceKey" "$LiveCDDir/lmce-image/"
 	(cd "$LiveCDDir" && find . -type f -not -path ./md5sum.txt -print0 | xargs -0 md5sum | tee md5sum.txt)
 	mkisofs -o "$LiveCDISO" \
 		-b isolinux/isolinux.bin \
