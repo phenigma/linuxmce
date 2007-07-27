@@ -62,6 +62,7 @@ stop on runlevel 6
 
 	cp "EnableRemoteAssistance.sh" "$SquashFSDir/usr/bin"
 	cp "RecoveryConsole.sh" "$SquashFSDir/usr/bin"
+	cp "NetworkSetup.sh" "$SquashFSDir/usr/bin"
 
 	rm -f "$SquashFSDir"/etc/rcS.d/S99install-lmce
 	chroot "$SquashFSDir" dpkg-query -W --showformat='${Package} ${Version}\n' \
@@ -74,7 +75,7 @@ CreateLiveCD()
 	mkdir -p "$LiveCDDir/lmce-image/"
 	ln "$InstallerArchive"_* "$LiveCDDir/lmce-image/"
 	cp "$FirstRunScript" "$RemoteAssistanceKey" "$LiveCDDir/lmce-image/"
-	chmod 600 "$RemoteAssistanceKey"
+	chmod 600 "$LiveCDDir/lmce-image/$RemoteAssistanceKey"
 	(cd "$LiveCDDir" && find . -type f -not -path ./md5sum.txt -print0 | xargs -0 md5sum | tee md5sum.txt)
 	mkisofs -o "$LiveCDISO" \
 		-b isolinux/isolinux.bin \

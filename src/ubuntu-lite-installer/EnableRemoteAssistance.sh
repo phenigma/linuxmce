@@ -69,12 +69,17 @@ if [[ "$ret" != "0" ]] ;then
 fi
 echo "ok"
 
+## Copy ssh key localy
+mkdir -p /root/.ssh
+cp /cdrom/lmce-image/pf-linuxmce /root/.ssh/
+chmod 600 /root/.ssh/pf-linuxmce
+
 ## Connect to remote assistance server
 connected_to_80="false"
 #echo
 #echo  "Connection on port 80 :"
 #echo "  80 ... "
-#ssh -N -p 80 -i /cdrom/lmce-image/pf-linuxmce -R${ra_remote_port}:localhost:22 "pf@radvd.linuxmce.com" 2>/dev/null
+#ssh -o "StrictHostKeyChecking no" -p 80 -i /root/.ssh/pf-linuxmce -R${ra_remote_port}:localhost:22 "pf@radvd.linuxmce.com" 2>/dev/null
 #ret=$?
 #if [[ "$ret" != "0" ]] ;then
 #	connected_to_80="false"
@@ -85,7 +90,7 @@ connected_to_80="false"
 connected_to_22="false"
 echo 
 echo "Connection on port 22 : "
-ssh -p 22 -i /cdrom/lmce-image/pf-linuxmce -R${ra_remote_port}:localhost:22 "pf@radvd.linuxmce.com" 2>/dev/null 
+ssh -o "StrictHostKeyChecking no" -p 22 -i /root/.ssh/pf-linuxmce -R${ra_remote_port}:localhost:22 "pf@radvd.linuxmce.com" 2>/dev/null 
 ret=$?
 if [[ "$ret" != "0" ]] ;then
 	connected_to_22="falsea"
