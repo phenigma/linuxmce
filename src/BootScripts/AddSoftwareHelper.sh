@@ -79,6 +79,16 @@ case $Action in
 
 		MyLog "Using Distro $Distro"
 		PackageName="$(FindPackageName "$PackageID")"
+
+                # checking internet connection
+		/usr/pluto/bin/CheckInternetConnection.sh
+                if [[ $? != 0 ]] ;then
+                        Q="UPDATE Software_Device SET Status='N' WHERE FK_Device=$DeviceID AND FK_Software=$PackageID"
+                        Row="$(RunSQL "$Q")"
+                        SendMessageToOrbiter "Installation of package \"$PackageName\" aborted: no internet connection"
+			MyLog "No internet connection available, aborting"
+                        exit 5
+                fi
 		
 		#getting sources for packages
 		Q="SELECT COUNT(*) FROM Software_Source WHERE Distro='$Distro' AND FK_Software=$PackageID AND Virus_Free=1"
