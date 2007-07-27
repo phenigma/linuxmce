@@ -57,4 +57,13 @@ else
 	fi
 fi
 
+if [[ "$Ret" -ne 0 ]]; then
+	echo "$(date -R) Failed to get data from PK_InfraredGroup=$FK_InfraredGroup&PK_DeviceTemplate=$FK_DeviceTemplate&Restricted=$Restricted"
+	Q="UPDATE Device SET Status='**RUN_GET_IR**' WHERE FK_DeviceTemplate=$FK_DeviceTemplate"
+else
+	echo "$(date -R) Got data from PK_InfraredGroup=$FK_InfraredGroup&PK_DeviceTemplate=$FK_DeviceTemplate&Restricted=$Restricted"
+	Q="UPDATE Device SET Status='' WHERE FK_DeviceTemplate=$FK_DeviceTemplate AND Status='**RUN_GET_IR**'"
+fi
+RunSQL "$Q"
+
 exit "$Ret"

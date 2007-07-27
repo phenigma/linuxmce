@@ -1488,12 +1488,14 @@ void MythTV_PlugIn::CheckForNewRecordings()
 	if( ( result.r=m_pMedia_Plugin->m_pDatabase_pluto_media->db_wrapper_query_result( sSQL ) ) && ( row=db_wrapper_fetch_row( result.r ) ) && row[0] )
 		PK_File_Max = atoi(row[0]);
 
-	sSQL = "LEFT JOIN File_Attribute ON FK_File=PK_File WHERE Path like '%tv_shows_%' AND FK_File IS NULL AND PK_File>" + StringUtils::itos(m_dwPK_File_LastCheckedForNewRecordings);
+	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex); // protect m_sNewRecordings
+	sSQL = "LEFT JOIN File_Attribute ON FK_File=PK_File WHERE (Path like '%tv_shows_%' AND FK_File IS NULL AND PK_File>" + StringUtils::itos(m_dwPK_File_LastCheckedForNewRecordings) + ") OR Filename in (" + m_sNewRecordings + ")";
+	m_sNewRecordings=""; // Reset it
 	vector<Row_File *> vectRow_File;
 	m_pMedia_Plugin->m_pDatabase_pluto_media->File_get()->GetRows( sSQL, &vectRow_File );
 
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::CheckForNewRecordings PK_File_Max %d m_dwPK_File_LastCheckedForNewRecordings %d files: %d",
-		PK_File_Max, m_dwPK_File_LastCheckedForNewRecordings, (int) vectRow_File.size());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::CheckForNewRecordings PK_File_Max %d m_dwPK_File_LastCheckedForNewRecordings %d files: %d %s",
+		PK_File_Max, m_dwPK_File_LastCheckedForNewRecordings, (int) vectRow_File.size(), sSQL.c_str());
 
 	for(vector<Row_File *>::iterator it=vectRow_File.begin();it!=vectRow_File.end();++it)
 	{
@@ -1647,6 +1649,7 @@ void MythTV_PlugIn::CheckForNewRecordings()
 	}
 	
 	m_pMedia_Plugin->m_pDatabase_pluto_media->File_get()->Commit();
+	m_pAlarmManager->CancelAlarmByType(CHECK_FOR_NEW_RECORDINGS);  // Don't get multiple entries in here since this is called by both a timer and new recordings
 	m_pAlarmManager->AddRelativeAlarm(3600,this,CHECK_FOR_NEW_RECORDINGS,NULL);  /* check again in an hour */
 
 	m_dwPK_File_LastCheckedForNewRecordings = PK_File_Max;
@@ -2557,7 +2560,12 @@ bool MythTV_PlugIn::NewRecording( class Socket *pSocket,class Message *pMessage,
 {
 	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
 	string sFile = pMessage->m_mapParameters[EVENTPARAMETER_Name_CONST];
-	LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythTV_PlugIn::NewRecording Should_I Add it, or let updatemedia??");
+	
+	if( m_sNewRecordings.empty()==false )
+		m_sNewRecordings += ",";
+	m_sNewRecordings += "'" + FileUtils::FilenameWithoutPath(sFile) + "'";
+	m_pAlarmManager->AddRelativeAlarm(60,this,CHECK_FOR_NEW_RECORDINGS,NULL);  /* check in 1 minute*/
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::NewRecording now %s", m_sNewRecordings.c_str());
 	return false;
 }
 

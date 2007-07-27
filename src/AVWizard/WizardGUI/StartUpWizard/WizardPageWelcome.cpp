@@ -38,7 +38,7 @@ WizardPageWelcome::WizardPageWelcome(GenericBackEnd* FrontEnd, std::string Name)
 #ifdef DEBUG
 		std::cout<<"WizardPageWelcome::WizardPageWelcome"<<std::endl;
 #endif
-		system("beep -l 100 -f 1000 -n -l 100 -f 1500 -n -l 100 -f 2000");
+		system("beep -l 100 -f 1000 -n -l 100 -f 2000 -n -l 100 -f 1000 -n -l 100 -f 2000 -n -l 100 -f 1000");
 }
 
 /*virtual*/ WizardPageWelcome::~WizardPageWelcome()

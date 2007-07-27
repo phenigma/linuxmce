@@ -2930,62 +2930,66 @@ void General_Info_Plugin::CMD_Create_Device(int iPK_DeviceTemplate,string sMac_a
 			*iPK_Device,iPK_DeviceTemplate,sMac_address.c_str(),iPK_Room,sIP_Address.c_str(),sData_String.c_str());
 #endif
 	Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(*iPK_Device);
+	DeviceData_Router *pDevice = m_pRouter->m_mapDeviceData_Router_Find(*iPK_Device);;
 	if( pRow_Device ) // Should always be there
 	{
-		m_listRow_Device_NewAdditions.push_back(pRow_Device);
-		if( iPK_Room==-1 )  // Means prompt, or just auto-assign.  As opposed to 0 which means put in no room
+		if( pDevice && pDevice->m_bDisabled==false )
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"General_Info_Plugin::CMD_Create_Device %d was already there",pDevice->m_dwPK_Device);
+		else
 		{
-			Row_DeviceTemplate_DeviceData *pRow_DeviceTemplate_DeviceData = m_pDatabase_pluto_main->DeviceTemplate_DeviceData_get()->GetRow(pRow_Device->FK_DeviceTemplate_get(),DEVICEDATA_Autoassign_to_parents_room_CONST);
-			if( pRow_DeviceTemplate_DeviceData && atoi(pRow_DeviceTemplate_DeviceData->IK_DeviceData_get().c_str()) )
+			m_listRow_Device_NewAdditions.push_back(pRow_Device);
+			if( iPK_Room==-1 )  // Means prompt, or just auto-assign.  As opposed to 0 which means put in no room
 			{
-				Row_Device *pRow_Device_ControlledVia = pRow_Device->FK_Device_ControlledVia_getrow();
-				if( pRow_Device_ControlledVia )
-					pRow_Device->FK_Room_set( iPK_Room=pRow_Device_ControlledVia->FK_Room_get() );
+				Row_DeviceTemplate_DeviceData *pRow_DeviceTemplate_DeviceData = m_pDatabase_pluto_main->DeviceTemplate_DeviceData_get()->GetRow(pRow_Device->FK_DeviceTemplate_get(),DEVICEDATA_Autoassign_to_parents_room_CONST);
+				if( pRow_DeviceTemplate_DeviceData && atoi(pRow_DeviceTemplate_DeviceData->IK_DeviceData_get().c_str()) )
+				{
+					Row_Device *pRow_Device_ControlledVia = pRow_Device->FK_Device_ControlledVia_getrow();
+					if( pRow_Device_ControlledVia )
+						pRow_Device->FK_Room_set( iPK_Room=pRow_Device_ControlledVia->FK_Room_get() );
+				}
 			}
-		}
-		m_pPostCreateOptions->PostCreateDevice(pRow_Device,pOH_Orbiter);
-	}
+			m_pPostCreateOptions->PostCreateDevice(pRow_Device,pOH_Orbiter);
 
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Created device %d %s",*iPK_Device,pRow_Device->Description_get().c_str());
-	CMD_Check_for_updates();
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Created device %d %s",*iPK_Device,pRow_Device->Description_get().c_str());
+			CMD_Check_for_updates();
 
-	m_pAlarmManager->AddRelativeAlarm(1,this,UPDATE_ENT_AREA,NULL);
+			m_pAlarmManager->AddRelativeAlarm(1,this,UPDATE_ENT_AREA,NULL);
 
-	if( pRow_Device )
-	{
-		if( iPK_Room==-1 )
-		{
-			LoggerWrapper::GetInstance()->Write(LV_STATUS,"General_Info_Plugin::CMD_Create_Device adding %d to m_listNewPnpDevicesWaitingForARoom size: %d",
-				*iPK_Device,(int) m_mapNewPnpDevicesWaitingForARoom.size());
-			m_mapNewPnpDevicesWaitingForARoom[*iPK_Device]=iPK_Orbiter;
-			ServiceRoomPromptRequests();
-		}
-		else 
-		{
-			if( !iPK_Room )
+			if( iPK_Room==-1 )
 			{
-				/*
-					AB - 7/20/06  -- This shouldn't be here anymore.  If the child should be automatically set to the parent's room we'll do that with the device data.  Lights, for example, should not
-				Row_Device *pRow_Device_ControlledVia = pRow_Device->FK_Device_ControlledVia_getrow();
-				if( pRow_Device_ControlledVia )
-					iPK_Room = pRow_Device_ControlledVia->FK_Room_get();
-				LoggerWrapper::GetInstance()->Write(LV_WARNING,"Temp - CreateDevice, room was empty, now it's %d %p %d",
-					iPK_Room,pRow_Device_ControlledVia,pRow_Device->FK_Device_ControlledVia_get());
-				*/
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"General_Info_Plugin::CMD_Create_Device adding %d to m_listNewPnpDevicesWaitingForARoom size: %d",
+					*iPK_Device,(int) m_mapNewPnpDevicesWaitingForARoom.size());
+				m_mapNewPnpDevicesWaitingForARoom[*iPK_Device]=iPK_Orbiter;
+				ServiceRoomPromptRequests();
 			}
-			Row_Room *pRow_Room = m_pDatabase_pluto_main->Room_get()->GetRow(iPK_Room);
-			if( pRow_Room )
-				SetRoomForDevice(pRow_Device,pRow_Room);
+			else 
+			{
+				if( !iPK_Room )
+				{
+					/*
+						AB - 7/20/06  -- This shouldn't be here anymore.  If the child should be automatically set to the parent's room we'll do that with the device data.  Lights, for example, should not
+					Row_Device *pRow_Device_ControlledVia = pRow_Device->FK_Device_ControlledVia_getrow();
+					if( pRow_Device_ControlledVia )
+						iPK_Room = pRow_Device_ControlledVia->FK_Room_get();
+					LoggerWrapper::GetInstance()->Write(LV_WARNING,"Temp - CreateDevice, room was empty, now it's %d %p %d",
+						iPK_Room,pRow_Device_ControlledVia,pRow_Device->FK_Device_ControlledVia_get());
+					*/
+				}
+				Row_Room *pRow_Room = m_pDatabase_pluto_main->Room_get()->GetRow(iPK_Room);
+				if( pRow_Room )
+					SetRoomForDevice(pRow_Device,pRow_Room);
+			}
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Database reports row as ip %s mac %s",
+				pRow_Device->IPaddress_get().c_str(),pRow_Device->MACaddress_get().c_str());
+
+			Message *pMessage_Event = new Message(m_dwPK_Device,DEVICEID_EVENTMANAGER,PRIORITY_NORMAL,MESSAGETYPE_EVENT,EVENT_New_Device_Created_CONST,
+				1,EVENTPARAMETER_PK_Device_CONST,StringUtils::itos(*iPK_Device).c_str());
+			QueueMessageToRouter(pMessage_Event);
 		}
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Database reports row as ip %s mac %s",
-			pRow_Device->IPaddress_get().c_str(),pRow_Device->MACaddress_get().c_str());
 	}
 	else
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find %d in database",*iPK_Device);
 
-	Message *pMessage_Event = new Message(m_dwPK_Device,DEVICEID_EVENTMANAGER,PRIORITY_NORMAL,MESSAGETYPE_EVENT,EVENT_New_Device_Created_CONST,
-		1,EVENTPARAMETER_PK_Device_CONST,StringUtils::itos(*iPK_Device).c_str());
-	QueueMessageToRouter(pMessage_Event);
 
 }
 
@@ -3503,12 +3507,12 @@ void General_Info_Plugin::PromptUserToReloadAfterNewDevices()
 		Row_DeviceTemplate_DeviceData *pRow_DeviceTemplate_DeviceData = m_pDatabase_pluto_main->DeviceTemplate_DeviceData_get()->GetRow(pRow_Device->FK_DeviceTemplate_get(),DEVICEDATA_Immediate_Reload_Isnt_Necessar_CONST);
 		if( !pRow_DeviceTemplate_DeviceData || atoi(pRow_DeviceTemplate_DeviceData->IK_DeviceData_get().c_str())!=1 )
 		{
-			LoggerWrapper::GetInstance()->Write(LV_STATUS,"General_Info_Plugin::PromptUserToReloadAfterNewDevices devvice %d needs reload",pRow_Device->PK_Device_get());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"General_Info_Plugin::PromptUserToReloadAfterNewDevices device %d needs reload",pRow_Device->PK_Device_get());
 			bDevicesNeedingReload=true;
 			break;
 		}
 		else
-			LoggerWrapper::GetInstance()->Write(LV_STATUS,"General_Info_Plugin::PromptUserToReloadAfterNewDevices devvice %d doesn't need reload",pRow_Device->PK_Device_get());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"General_Info_Plugin::PromptUserToReloadAfterNewDevices device %d doesn't need reload",pRow_Device->PK_Device_get());
 	}
 
 	if( bDevicesNeedingReload && !m_bNewInstall )  // Don't ask this on a new install since the user will need to reload again anyway

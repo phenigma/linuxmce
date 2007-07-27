@@ -140,8 +140,6 @@ int main(int argc, char *argv[])
 						break;
 					}
 
-					system("beep -f 2000; beep -f 1000; beep -f 2000");
-
 					char inPacket[6];
 					int cnt=0;
 					while(!g_bQuit)
@@ -220,7 +218,6 @@ int main(int argc, char *argv[])
 			Sleep(2000);
 		}
 	}
-	system("beep -f 1000; beep -f 2000; beep -f 1000");
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Exiting");
 	return 0;
 }
