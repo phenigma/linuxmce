@@ -61,7 +61,7 @@ void FileStatusObserver::AlarmCallback(int id, void* param)
 	if(id == CHECK_OBSERVED_FILES_STATUS)
 	{
 		PLUTO_SAFETY_LOCK(ofm, m_ObservedFilesMutex);
-		for(list<string>::iterator it = m_listFileToObserve.begin(); it != m_listFileToObserve.end(); ++it)
+		for(list<string>::iterator it = m_listFileToObserve.begin(); it != m_listFileToObserve.end();)
 		{
 			string sFilename = *it;
 
