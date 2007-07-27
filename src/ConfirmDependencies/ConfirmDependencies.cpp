@@ -134,7 +134,7 @@ list<PackageInfo *> listPackageInfo;  // We need a list so we can keep them in t
 DCEConfig dceConfig;
 Row_Distro *pRow_Distro=NULL;
 map<int,Row_Package *> m_mapReportedErrors;
-vector<Row_Device *> m_vectDevicesNeedingConfigure;
+vector<Row_Device *> m_vectDevicesNeedingConfigure,m_vectDevicesNeedingIR;
 int iPK_Orbiter=0;
 
 string GetCommand()
@@ -527,6 +527,12 @@ int main(int argc, char *argv[])
 
 			cout << "#Cleared RUN_CONFIG flag" << endl;
 		}
+		for(size_t s=0;s<m_vectDevicesNeedingIR.size();++s)
+		{
+			Row_Device *pRow_Device = m_vectDevicesNeedingConfigure[s];
+			cout << "#Running I/R script" << endl;
+			cout << "/usr/pluto/bin/WebDB_GetIR.sh 0 " << pRow_Device->FK_DeviceTemplate_get() << endl;
+		}
 		database_pluto_main.Device_get()->Commit();
 
 		for(it=listPackageInfo.begin(); it!=listPackageInfo.end(); ++it)
@@ -730,6 +736,8 @@ void CheckDeviceLoop(Row_Device *pRow_Device,bool bDevelopment)
 {
 	if( pRow_Device->Status_get()=="**RUN_CONFIG**" )
 		m_vectDevicesNeedingConfigure.push_back(pRow_Device);
+	else if( pRow_Device->Status_get()=="**RUN_GET_IR**" )
+		m_vectDevicesNeedingIR.push_back(pRow_Device);
 
 	if( pRow_Device->FK_DeviceTemplate_getrow()->FK_Package_isNull() )
 	{
