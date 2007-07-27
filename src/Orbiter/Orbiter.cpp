@@ -8757,6 +8757,7 @@ int Orbiter::MonitorRegen(int PK_Device)
 	}
 
 	m_pOrbiterRenderer->DisplayProgress("",-1);
+	OnReload();
 	return 2; // Try again
 }
 //-----------------------------------------------------------------------------------------------------
@@ -8866,6 +8867,9 @@ bool SendPingHandler(Socket *pSocket)
 
 bool Orbiter::WaitForRelativesIfOSD()
 {
+	if(m_bQuit_get())
+		return true;
+
 #ifdef NO_WAIT_FOR_RELATIVES
     return true;
 #endif

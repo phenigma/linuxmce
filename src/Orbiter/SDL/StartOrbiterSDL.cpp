@@ -331,8 +331,9 @@ void translateSDLEventToOrbiterEvent(SDL_Event &sdlEvent, Orbiter::Event *orbite
     }
 }
 
-OrbiterLinux *CreateOrbiter(int PK_Device,int PK_DeviceTemplate,string sRouter_IP,string sLocalDirectory,bool bLocalMode, int Width, int Height, bool bFullScreen,bool& bMustQuit)
+OrbiterLinux *CreateOrbiter(int PK_Device,int PK_DeviceTemplate,string sRouter_IP,string sLocalDirectory,bool bLocalMode, int Width, int Height, bool bFullScreen,bool& bMustQuit,bool& bNeedReload)
 {
+	bNeedReload = false;
 	bMustQuit = false;
 
 	OrbiterLinux *pCLinux =
@@ -382,6 +383,11 @@ OrbiterLinux *CreateOrbiter(int PK_Device,int PK_DeviceTemplate,string sRouter_I
 				pCLinux->StartScreenSaver(false);
 
 			return pCLinux;
+		}
+		else
+		{
+			if(pCLinux->m_bReload)
+				bNeedReload = true;
 		}
 	}
 	else
@@ -458,9 +464,13 @@ bool SDL_App_Object::Run()
     }
 
 	bool bAppError = false;
-    if (! Create(bAppError))
+	bool bNeedReload = false;
+    if (! Create(bAppError, bNeedReload))
     {
-        LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Failed to create Orbiter.  Aborting reload since the router must not be running");
+        LoggerWrapper::GetInstance()->Write(LV_STATUS, "No Orbiter instance was created, probably because we needed to reload.  Reloading");
+
+		if(bNeedReload)
+			SetExitCode(2);
 
 		if(bAppError)
 			SetExitCode(0);
@@ -482,7 +492,7 @@ bool SDL_App_Object::LoadConfig()
     return  true;
 };
 
-bool SDL_App_Object::Create(bool &bAppError)
+bool SDL_App_Object::Create(bool &bAppError, bool &bNeedReload)
 {
 
     m_pSDL_Event_Loop_Data = new SDL_Event_Loop_Data;
@@ -494,10 +504,10 @@ bool SDL_App_Object::Create(bool &bAppError)
         SetExitCode(1);
         return false;
     }
-	m_pSDL_Event_Loop_Data->pOrbiter = CreateOrbiter(commandlineparams.PK_Device, commandlineparams.PK_DeviceTemplate, commandlineparams.sRouter_IP, commandlineparams.sLocalDirectory, commandlineparams.bLocalMode, commandlineparams.Width, commandlineparams.Height, commandlineparams.bFullScreen,bAppError);
+	m_pSDL_Event_Loop_Data->pOrbiter = CreateOrbiter(commandlineparams.PK_Device, commandlineparams.PK_DeviceTemplate, commandlineparams.sRouter_IP, commandlineparams.sLocalDirectory, commandlineparams.bLocalMode, commandlineparams.Width, commandlineparams.Height, commandlineparams.bFullScreen,bAppError,bNeedReload);
     if (m_pSDL_Event_Loop_Data->pOrbiter == NULL)
     {
-        LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "error returned by : CreateOrbiter()");
+        LoggerWrapper::GetInstance()->Write(LV_STATUS, "No Orbiter was created. We've probably regen'd and needed to reload");
         return false;
     }
     LoggerWrapper::GetInstance()->Write(LV_STATUS, "Created : ptr=%p", m_pSDL_Event_Loop_Data->pOrbiter);
@@ -508,7 +518,7 @@ bool SDL_App_Object::EventProcess()
 {
     if ( (m_pSDL_Event_Loop_Data == NULL) || (m_pSDL_Event_Loop_Data->pOrbiter == NULL) )
     {
-        SetExitCode(1);
+        SetExitCode(2);
         return false;
     }
     SDL_Event_Process(*m_pSDL_Event_Loop_Data);
