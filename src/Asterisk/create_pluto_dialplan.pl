@@ -31,7 +31,9 @@ $DB_PL_HANDLE = DBI->connect("dbi:mysql:database=pluto_main;host=".$CONF_HOST.";
 $DB_TC_HANDLE = DBI->connect("dbi:mysql:database=pluto_telecom;host=".$CONF_HOST.";user=".$CONF_USER.";password=".$CONF_PASSWD.";") or die "Could not connect to MySQL";
 &get_all_users_extensions();
 &get_all_phones_extensions();
+&get_timeout();
 
+print "TIMEOUT:$TIMEOUT";
 $EXT_BUFFER .= "\n;Lines\n";
 $EXT_BUFFER .= "exten => 100,1,VoiceMail(100)\n";
 $EXT_BUFFER .= "exten => 100,2,Hangup\n";
@@ -159,6 +161,8 @@ while($DB_ROW = $DB_STATEMENT->fetchrow_hashref())
     $EXT_BUFFER .= "exten => $user-um$um-pri$pri-try$try-NOANSWER,1,Goto($user-um$um-pri$pri-try".($try+1).",1)\n";
     $EXT_BUFFER .= "exten => $user-um$um-pri$pri-try$try-CONGESTION,1,Goto($user-um$um-pri$pri-try".($try+1).",1)\n";
     $EXT_BUFFER .= "exten => $user-um$um-pri$pri-try$try-CHANUNAVAIL,1,Goto($user-um$um-pri$pri-try".($try+1).",1)\n";
+    $EXT_BUFFER .= "exten => $user-um$um-pri$pri-try".($try+1).",1,Macro(vm,$user)\n";
+    $EXT_BUFFER .= "exten => $user-um$um-pri$pri-try".($try+1).",2,Hangup\n";
     $tmp = $user."-".$pri."-".$um;
 #    $EXT_BUFFER .= "exten => $user-um$um-try$try,1,Hangup\n";
 
@@ -187,7 +191,8 @@ $EXT_BUFFER .= "exten => 0,1,Dial($tmp,$TIMEOUT)\n";
 $EXT_BUFFER .= "exten => 0,2,Goto(s,1)\n";
 foreach my $user (sort (values(%USERS)))
 {
-    $EXT_BUFFER .= "exten => $1,1,Dial(Local/$user\@trusted,$TIMEOUT)\n" if ($user =~ /(\d)$/);
+    #$EXT_BUFFER .= "exten => $1,1,Dial(Local/$user\@trusted,$TIMEOUT)\n" if ($user =~ /(\d)$/);
+    $EXT_BUFFER .= "exten => $1,1,GoTo(from-pluto-custom,$user,1)\n" if ($user =~ /(\d)$/);
     $EXT_BUFFER .= "exten => $1,2,Goto(s,1)\n" if ($user =~ /(\d)$/);
 }
 $EXT_BUFFER .= "exten => #,1,VoiceMail(100)\n";
@@ -308,5 +313,26 @@ sub get_all_phones_extensions()
     }
     $DB_STATEMENT->finish();
 }
+sub get_timeout()
+{
+    #get timeout 
+    $DB_SQL = "SELECT IK_DeviceData,FK_DeviceData FROM Device_DeviceData JOIN Device ON FK_Device = PK_Device WHERE FK_DeviceTemplate =34 and FK_DeviceData=247;";
+    $DB_STATEMENT = $DB_PL_HANDLE->prepare($DB_SQL) or die "Couldn't prepare query '$DB_SQL': $DBI::errstr\n";
+    $DB_STATEMENT->execute() or die "Couldn't execute query '$DB_SQL': $DBI::errstr\n";
+    if($DB_ROW = $DB_STATEMENT->fetchrow_hashref())
+    {
+	    
+        if($DB_ROW->{'IK_DeviceData'}=="")
+	{
+	    $TIMEOUT=0;
+	}
+	else
+	{
+	    $TIMEOUT=$DB_ROW->{'IK_DeviceData'};        
+	}
+    }
+    $DB_STATEMENT->finish();
+}									
+
 
 `asterisk -rx reload`;
