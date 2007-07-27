@@ -1,5 +1,12 @@
 #!/bin/bash
 
+GetConsole()
+{
+	exec &>/dev/tty1 </dev/tty1
+	dmesg -n1
+	chvt 1
+}
+GetConsole
 
 SelectedOption=""
 

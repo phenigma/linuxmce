@@ -60,7 +60,7 @@ stop on runlevel 6
 	cp "$InstallerScript" "$SquashFSDir/usr/bin/"
 	cp "$RcSScript" "$SquashFSDir/etc/init.d/"
 
-	cp "EnableRemoteAssitance.sh" "$SquashFSDir/usr/bin"
+	cp "EnableRemoteAssistance.sh" "$SquashFSDir/usr/bin"
 	cp "RecoveryConsole.sh" "$SquashFSDir/usr/bin"
 
 	rm -f "$SquashFSDir"/etc/rcS.d/S99install-lmce
