@@ -529,7 +529,7 @@ int main(int argc, char *argv[])
 		}
 		for(size_t s=0;s<m_vectDevicesNeedingIR.size();++s)
 		{
-			Row_Device *pRow_Device = m_vectDevicesNeedingConfigure[s];
+			Row_Device *pRow_Device = m_vectDevicesNeedingIR[s];
 			cout << "#Running I/R script" << endl;
 			cout << "/usr/pluto/bin/WebDB_GetIR.sh 0 " << pRow_Device->FK_DeviceTemplate_get() << endl;
 		}
