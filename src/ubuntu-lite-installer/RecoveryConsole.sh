@@ -13,7 +13,7 @@ SelectedOption=""
 OPTION_ENABLE_RA=1
 OPTION_NETWORK_SETUP=2
 OPTION_OPEN_SHELL=3
-OPTION_SHUTDOWN="X"
+OPTION_SHUTDOWN="X|x"
 
 
 function readOption {
@@ -58,7 +58,7 @@ while /bin/true ;do
 			echo -e "\n\nPress ENTER to get back to the menu..."
 			read	
 			;;
-		"$OPTION_SHUTDOWN"|'x')
+		$OPTION_SHUTDOWN)
 			clear
 			reboot
 			;;
