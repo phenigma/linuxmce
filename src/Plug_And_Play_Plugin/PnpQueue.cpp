@@ -1717,6 +1717,12 @@ void PnpQueue::SetDisableFlagForDeviceAndChildren(Row_Device *pRow_Device,bool b
 {
 	pRow_Device->Disabled_set(bDisabled ? 1 : 0);
 
+	// Be sure we update the main record for the router so it knows this is disabled
+	DeviceData_Router *pDevice = m_pPlug_And_Play_Plugin->m_pRouter->m_mapDeviceData_Router_Find( pRow_Device->PK_Device_get() );
+	if( pDevice && pDevice->m_pRow_Device )
+		pDevice->m_pRow_Device->Reload();
+
+
 #ifdef DEBUG
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"PnpQueue::SetDisableFlagForDeviceAndChildren Device %d is %d",
 		pRow_Device->PK_Device_get(),(int) bDisabled);
