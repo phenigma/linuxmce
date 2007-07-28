@@ -151,7 +151,7 @@ void PlutoHalD::getSerialParent(const char * sysfs, std::string & parentSysfs)
 		size_t iFind2 = parentPath.rfind(":");
 		if( iFind1 != string::npos && iFind2 != string::npos && iFind1 < iFind2 )
 		{
-			parentSysfs = "/sys/devices/" + parentPath.substr(iFind1, iFind1 - iFind2);
+			parentSysfs = "/sys/devices/" + parentPath.substr(iFind1, iFind2 - iFind1);
 			size_t iFind3 = parentSysfs.rfind("/");
 			if( iFind3 != string::npos )
 			{
