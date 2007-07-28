@@ -1084,6 +1084,11 @@ string FileUtils::FileChecksum( char *pData, size_t iSize)
     return md5;
 }
 
+string FileUtils::GetMidFileChecksum( string sFileName, int Bytes )
+{
+	return "";
+}
+
 string FileUtils::GetLastModifiedDateStr(string sFile)
 {
 	struct stat buf;
