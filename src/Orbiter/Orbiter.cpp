@@ -2227,6 +2227,9 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 				continue;
 
 			Message *pMessage = new Message(sMessage);
+			if( pMessage->m_dwPK_Device_From==0 )
+				pMessage->m_dwPK_Device_From = m_dwPK_Device;
+
 			if( pMessage->m_dwPK_Device_To<0 )
 				TranslateVirtualDevice(pMessage->m_dwPK_Device_To,pMessage->m_dwPK_Device_To);
 			m_mapShortcut[ sCharacter[0] ] = pMessage;
@@ -9781,6 +9784,7 @@ void Orbiter::CMD_Execute_Shortcut(int iValue,string &sCMD_Result,Message *pMess
 {
 	char cKey = (char) iValue;
 	map< char, Message *>::iterator it=m_mapShortcut.find(cKey);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::CMD_Execute_Shortcut %d %d", iValue, (int) (it!=m_mapShortcut.end()));
 	if( it!=m_mapShortcut.end() )
 	{
 		Message *pMessage = it->second;
