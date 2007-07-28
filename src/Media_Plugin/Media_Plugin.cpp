@@ -2385,7 +2385,7 @@ void Media_Plugin::MediaInEAEnded(EntertainArea *pEntertainArea,bool bFireEvent)
 			EVENT_Stopped_Listening_To_Medi(pEntertainArea->m_pRoom->m_dwPK_Room);
 	}
 
-LoggerWrapper::GetInstance()->Write( LV_STATUS, "Stream in ea %s ended %d remotes bound", pEntertainArea->m_sDescription.c_str(), (int) pEntertainArea->m_mapBoundRemote.size() );
+LoggerWrapper::GetInstance()->Write( LV_STATUS, "Stream in ea %s ended %d remotes bound bFireEvent %d", pEntertainArea->m_sDescription.c_str(), (int) pEntertainArea->m_mapBoundRemote.size(), (int) bFireEvent );
 	pEntertainArea->m_pMediaStream = NULL;
 	pEntertainArea->m_pMediaDevice_ActiveDest=NULL;
 
@@ -2485,8 +2485,7 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS, "Media_Plugin::CMD_Bind_to_Media_
 			sCMD_Result="No media stream";
 			if( sOptions.find("X")==string::npos )  // Means don't send me to the main menu if there's no media playing
 			{
-				DCE::SCREEN_Main SCREEN_Main(m_dwPK_Device,pMessage->m_dwPK_Device_From,"<%=L%>"); //current location
-				SendCommand(SCREEN_Main);
+				SetNowPlaying(pMessage->m_dwPK_Device_From,NULL,true);
 				LoggerWrapper::GetInstance()->Write(LV_WARNING,"Attempt to bind to a remote in an entertainment area with no media stream");
 			}
 			return; // Don't know what area it should be played in, or there's no media playing there
