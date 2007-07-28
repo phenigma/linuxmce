@@ -308,8 +308,11 @@ bool PnpQueue::Process_Detect_Stage_Detected(PnpQueueEntry *pPnpQueueEntry)
 		}
 	}
 
-	LocateDevice(pPnpQueueEntry);
+	// Check before LocateDevice since this may loop back around after Process_Detect_Stage_Prompting_User_For_DT
 	Row_Device *pRow_Device_Created = pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Created_get() ? pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Created_getrow() : NULL;  // This will be NULL if it's a new device
+	if( !pRow_Device_Created )
+		LocateDevice(pPnpQueueEntry);
+	pRow_Device_Created = pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Created_get() ? pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Created_getrow() : NULL;  // This will be NULL if it's a new device
 	if( pRow_Device_Created )
 	{
 		DetermineOrbitersForPrompting(pPnpQueueEntry,false); // For the Display Alert
@@ -593,6 +596,17 @@ bool PnpQueue::Process_Detect_Stage_Prompting_User_For_DT(PnpQueueEntry *pPnpQue
 #ifdef DEBUG
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "PnpQueue::Process_Detect_Stage_Prompting_User_For_DT: %s", pPnpQueueEntry->ToString().c_str());
 #endif
+
+	// Be sure another duplicate wasn't recently added before we ask the user.  This happened when a device was added as a NAS, and also detected as a file server
+	LocateDevice(pPnpQueueEntry);
+	Row_Device *pRow_Device_Created = pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Created_get() ? pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Created_getrow() : NULL;  
+	if( pRow_Device_Created!=NULL )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "PnpQueue::Process_Detect_Stage_Prompting_User_For_DT: %s it was a new device, but now it's %d", pPnpQueueEntry->ToString().c_str(), pRow_Device_Created->PK_Device_get());
+		pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_DETECTED);
+		return Process_Detect_Stage_Detected(pPnpQueueEntry);  // Loop back around.  We won't come here again
+	}
+
 	if( pPnpQueueEntry->m_iPK_DHCPDevice ) // See if the user already picked this from the menu
 	{
 		if( pPnpQueueEntry->m_iPK_DHCPDevice!=-1 )
@@ -1866,8 +1880,7 @@ bool PnpQueue::LocateFileServer(PnpQueueEntry *pPnpQueueEntry)
 			return true;
 		}
 		Row_DeviceTemplate *pRow_DeviceTemplate = pRow_Device->FK_DeviceTemplate_getrow();
-		if( pRow_DeviceTemplate && (pRow_DeviceTemplate->FK_DeviceCategory_get()==DEVICECATEGORY_FileMedia_Server_CONST || pRow_DeviceTemplate->FK_DeviceCategory_get()==DEVICECATEGORY_Network_Storage_CONST) &&
-			pPnpQueueEntry->m_pRow_PnpQueue->Category_get()=="fileserver" )
+		if( pRow_DeviceTemplate && (pRow_DeviceTemplate->FK_DeviceCategory_get()==DEVICECATEGORY_FileMedia_Server_CONST || pRow_DeviceTemplate->FK_DeviceCategory_get()==DEVICECATEGORY_Network_Storage_CONST) )
 		{
 			LoggerWrapper::GetInstance()->Write( LV_STATUS, "PnpQueue::LocateFileServer queue %d device category matches %d",
 				pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(), pRow_Device->PK_Device_get() );
