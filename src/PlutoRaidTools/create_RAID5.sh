@@ -2,7 +2,6 @@
 
 . /usr/pluto/bin/SQL_Ops.sh
 
-
 function Log {
 	echo "$(date -R) $$ $*" >&2
 	echo "$(date -R) $$ $*" >> /var/log/pluto/CreateRaid5.log
@@ -47,6 +46,7 @@ if [[ "$3" != "demonized" ]] ;then
 			R=$(RunSQL "$Q")
 			Disk=$(Field 1 "$R")
 			IsSpare=$(Field 2 "$R")
+
 			if [[ $IsSpare == 1 ]] ;then
 				Log "Adding Spare drive $Disk to $name"
 				SpareDrives="$SpareDrives "$Disk
@@ -90,7 +90,7 @@ else
 	echo "y" | mkfs.ext3 $2 > /var/log/mkfs_${Device} &
 
 	percent=0
-	while  [[ "$percent" != 100 ]] ;do
+	while [[ "$percent" != 100 ]] ;do
 		mkfsOutput=$(cat /var/log/mkfs_${Device}  | grep "Writing inode tables: " | sed -r 's/.*[^0-9]([0-9]+\/[0-9]+|done)[^0-9]*/\1/')
 		sleep 4
 
@@ -109,7 +109,6 @@ else
 		echo "FORMAT,$percent" > $LogFile
 	done
 	Log "Mkfs finshed"
-
 
 	## Create a pluto directory structure (depending on UsePlutoDirStructure device data)
 	Log "Activating raid to be used as a storage device"

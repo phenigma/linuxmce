@@ -62,7 +62,7 @@ if [[ "$3" != "demonized" ]] ;then
 
 		# Update Raid Information
 		Log "Updating raid information in the database"
-		/usr/pluto/bin/monitor_Raid.sh "REFRESH_FROM_CREATE_RAID5" "/dev/$name"
+		/usr/pluto/bin/monitor_Raid.sh "REFRESH_FROM_CREATE_RAID0" "/dev/$name"
 
 		## Create a ext3 fielsystem on the new raid
                 Log "Start creating a filesystem on the new raid"
