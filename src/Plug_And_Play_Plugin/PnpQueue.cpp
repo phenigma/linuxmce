@@ -1847,15 +1847,34 @@ bool PnpQueue::LocateFileServer(PnpQueueEntry *pPnpQueueEntry)
 {
 	// The file server must be of the same type, with the same mac and ip.  The ip should never change because once it's added dhcp will allocate that ip
 	vector<Row_Device *> vectRow_Device;
-	m_pDatabase_pluto_main->Device_get()->GetRows("FK_DeviceTemplate=" + StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->FK_DeviceTemplate_get())
-		+ " AND IPaddress='" + pPnpQueueEntry->m_pRow_PnpQueue->IPaddress_get() + "'"
+	m_pDatabase_pluto_main->Device_get()->GetRows("IPaddress='" + pPnpQueueEntry->m_pRow_PnpQueue->IPaddress_get() + "'"
 		+ " AND MACaddress='" + pPnpQueueEntry->m_pRow_PnpQueue->MACaddress_get() + "'",
 		&vectRow_Device);
 
-	if( vectRow_Device.size() )
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "PnpQueue::LocateFileServer queue %d records %d",
+		pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(), (int) vectRow_Device.size() );
+
+	for(vector<Row_Device *>::iterator it=vectRow_Device.begin();it!=vectRow_Device.end();++it)
 	{
-		pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Created_set(vectRow_Device[0]->PK_Device_get());
-		return true;
+		Row_Device *pRow_Device = *it;
+		if( pRow_Device->FK_DeviceTemplate_get()==pPnpQueueEntry->m_pRow_PnpQueue->FK_DeviceTemplate_get() )
+		{
+			LoggerWrapper::GetInstance()->Write( LV_STATUS, "PnpQueue::LocateFileServer queue %d device template matches %d",
+				pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(), pRow_Device->PK_Device_get() );
+
+			pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Created_set(pRow_Device->PK_Device_get());
+			return true;
+		}
+		Row_DeviceTemplate *pRow_DeviceTemplate = pRow_Device->FK_DeviceTemplate_getrow();
+		if( pRow_DeviceTemplate && (pRow_DeviceTemplate->FK_DeviceCategory_get()==DEVICECATEGORY_FileMedia_Server_CONST || pRow_DeviceTemplate->FK_DeviceCategory_get()==DEVICECATEGORY_Network_Storage_CONST) &&
+			pPnpQueueEntry->m_pRow_PnpQueue->Category_get()=="fileserver" )
+		{
+			LoggerWrapper::GetInstance()->Write( LV_STATUS, "PnpQueue::LocateFileServer queue %d device category matches %d",
+				pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(), pRow_Device->PK_Device_get() );
+
+			pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Created_set(pRow_Device->PK_Device_get());
+			return true;
+		}
 	}
 
 	return false;
