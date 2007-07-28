@@ -79,15 +79,15 @@ if [[ "$3" != "demonized" ]] ;then
 		## Create a ext3 fielsystem on the new raid
 		Log "Start creating a filesystem on the new raid"
 		screen -S FormatingRaid5 -d -m /bin/bash $0 $Device $name demonized
+
+		Log "Mkfs is started in the background"
+		screen -S FormatingRaid5-Mkfs -d -m bash -c "echo \"y\" | mkfs.ext3 $name > /var/log/mkfs_${Device} 2>/var/log/mkfs_${Device}_err"
 	        exit 0
 	fi
 else
 	## Format the new raid
 	LogFile="/usr/pluto/var/${Device}_Raid.log"
 	echo "FORMAT,1" > $LogFile
-
-	Log "Mkfs is started in the background"
-	echo "y" | mkfs.ext3 $2 > /var/log/mkfs_${Device} &
 
 	percent=0
 	while [[ "$percent" != 100 ]] ;do
