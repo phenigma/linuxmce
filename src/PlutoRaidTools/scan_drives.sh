@@ -1,5 +1,7 @@
 #!/bin/bash
 
+. /usr/pluto/bin/SQL_Ops.sh
+
 function isInList 
 {
 	local disk="$1"

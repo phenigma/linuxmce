@@ -19,7 +19,7 @@ DISK_SIZE_ID=201
 if [[ "$3" != "demonized" ]] ;then	
 	name=$(/usr/pluto/bin/get_RAID_name.sh)
 	name="/dev/$name"
-	RunSQL "UPDATE Device_DeviceData SET IK_DeviceData='$name' WHERE FK_Device = $Device and FK_DeviceData = $BLOCK_DEVICE_ID"
+	RunSQL "UPDATE Device_DeviceData SET IK_DeviceData = '$name' WHERE FK_Device = $Device and FK_DeviceData = $BLOCK_DEVICE_ID"
 
 	#if is new added get the list of active drives and spares
 	NewAdd=$(RunSQL "SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device = $Device and FK_DeviceData = $NEW_ADD_ID")
