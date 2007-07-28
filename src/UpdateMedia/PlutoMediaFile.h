@@ -94,6 +94,7 @@ private:
 	int GetOwnerForPath(string sPath);
 	int GetFileIDFromDB();
 	string AdjustLongAttributeForDisplay(string sText);
+	void UpdateMd5Field();
 
 	//pictures
 	pair<unsigned long, char *> LoadPicture(int nPictureId, bool bThumb = false);

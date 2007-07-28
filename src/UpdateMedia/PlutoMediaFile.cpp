@@ -210,17 +210,25 @@ int PlutoMediaFile::HandleFileNotInDatabase(int PK_MediaType)
 		if( vectRow_File.size() )  // Should only be 1
 		{
 			Row_File *pRow_File = vectRow_File[0];
-			PK_File=pRow_File->PK_File_get();
-			pRow_File->Ignore_set(0);  // This could be a re-used INode
-			pRow_File->IsNew_set(1); // This could be a re-used INode
-			pRow_File->Path_set(m_sDirectory);
-			pRow_File->Filename_set(m_sFile);
-			pRow_File->Table_File_get()->Commit();
-			LoggerWrapper::GetInstance()->Write(LV_STATUS, "PlutoMediaFile::HandleFileNotInDatabase %s/%s N db-attr: %d Inode: %d size %d mt %d/%d", 
-				m_sDirectory.c_str(), m_sFile.c_str(), pRow_File->PK_File_get(), INode, (int) vectRow_File.size(), PK_MediaType, pRow_File->EK_MediaType_get());
+
+			//reuse the file only if it's the same file (midmd5 is the same)
+			if(pRow_File->MD5_get() == FileUtils::GetMidFileChecksum(m_sDirectory + "/" + m_sFile))
+			{
+				PK_File=pRow_File->PK_File_get();
+				pRow_File->Ignore_set(0);  // This could be a re-used INode
+				pRow_File->IsNew_set(1); // This could be a re-used INode
+				pRow_File->Path_set(m_sDirectory);
+				pRow_File->Filename_set(m_sFile);
+				pRow_File->Table_File_get()->Commit();
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "PlutoMediaFile::HandleFileNotInDatabase %s/%s N db-attr: %d Inode: %d size %d mt %d/%d, md5 %s", 
+					m_sDirectory.c_str(), m_sFile.c_str(), pRow_File->PK_File_get(), INode, (int) vectRow_File.size(), PK_MediaType, pRow_File->EK_MediaType_get(),
+					pRow_File->MD5_get().c_str());
+			}
+			else
+			{
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Won't reuse file record %d from db because md5 is different", pRow_File->PK_File_get());
+			}
 		}
-		// Don't return.  Let it determine the media type and save that and whether or not it's a directory
-		// It could be a different media type now than it was before
 	}
 
     // Nope.  It's either a new file, or it was moved here from some other directory.  If so,
@@ -317,6 +325,8 @@ void PlutoMediaFile::SaveEveryThingToDb()
 	SaveBookmarkPictures();
 	SaveMiscInfo();
 	AssignPlutoDevice();
+
+	UpdateMd5Field();
 }
 //-----------------------------------------------------------------------------------------------------
 void PlutoMediaFile::SaveStartPosition()
@@ -820,6 +830,20 @@ void PlutoMediaFile::AssignPlutoDevice()
 	}
 
 #endif //UPDATE_MEDIA
+}
+//-----------------------------------------------------------------------------------------------------
+void PlutoMediaFile::UpdateMd5Field()
+{
+	string sMidMd5 = FileUtils::GetMidFileChecksum(m_sDirectory + "/" + m_sFile);
+
+	Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->GetRow(m_pPlutoMediaAttributes->m_nFileID);
+	if(NULL != pRow_File)
+	{
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "File %s/%s - midmd5 is %s", 
+			m_sDirectory.c_str(), m_sFile.c_str(), sMidMd5.c_str());
+		pRow_File->MD5_set(sMidMd5);
+		pRow_File->Table_File_get()->Commit();
+	}
 }
 //-----------------------------------------------------------------------------------------------------
 void PlutoMediaFile::SetFileAttribute(int PK_File)
