@@ -213,8 +213,7 @@ int PlutoMediaFile::HandleFileNotInDatabase(int PK_MediaType)
 
 			string sMidMD5File = FileUtils::GetMidFileChecksum(m_sDirectory + "/" + m_sFile);
 
-			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Reusing record for %s/%s ? Md5 db %s, md5 file %s",
-					m_sDirectory.c_str(), m_sFile.c_str(), pRow_File->MD5_get().c_str(), sMidMD5File.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Reusing record PK_File %d for %s/%s ? Md5 db %s, md5 file %s", pRow_File->PK_File_get(), m_sDirectory.c_str(), m_sFile.c_str(), pRow_File->MD5_get().c_str(), sMidMD5File.c_str());
 
 			//reuse the file only if it's the same file (midmd5 is the same)
 			if(pRow_File->MD5_get() == sMidMD5File)
@@ -844,8 +843,8 @@ void PlutoMediaFile::UpdateMd5Field()
 	Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->GetRow(m_pPlutoMediaAttributes->m_nFileID);
 	if(NULL != pRow_File)
 	{
-		LoggerWrapper::GetInstance()->Write(LV_STATUS, "File %s/%s - midmd5 is %s", 
-			m_sDirectory.c_str(), m_sFile.c_str(), sMidMd5.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "File %s/%s, PK_File %d - midmd5 is %s", 
+			m_sDirectory.c_str(), m_sFile.c_str(), m_pPlutoMediaAttributes->m_nFileID, sMidMd5.c_str());
 		pRow_File->MD5_set(sMidMd5);
 		pRow_File->Table_File_get()->Commit();
 	}
