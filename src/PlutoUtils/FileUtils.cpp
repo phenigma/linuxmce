@@ -267,7 +267,7 @@ long FileUtils::FileSize(string sFile)
         return buf.st_size;
 #else
 
-	FILE *file = fopen(sFile.c_str(), "r");
+	FILE *file = fopen(sFile.c_str(), "rb");
 
 	if(!file)
 		return 0;
@@ -278,7 +278,7 @@ long FileUtils::FileSize(string sFile)
 	dwSize = ftell(file);
 	fclose(file);
 
-	return 0;
+	return dwSize;
 
 #endif
 }
@@ -1086,7 +1086,33 @@ string FileUtils::FileChecksum( char *pData, size_t iSize)
 
 string FileUtils::GetMidFileChecksum( string sFileName, int Bytes )
 {
-	return "";
+	long FileSize = FileUtils::FileSize(sFileName);
+	if( FileSize<0 )
+		return "";
+
+	int StartPosition=0;
+
+	if( FileSize>Bytes*2 )
+		StartPosition = (FileSize / 2) - (Bytes / 2);
+
+	if( FileSize<Bytes )
+		Bytes=FileSize;
+
+	FILE *file = fopen(sFileName.c_str(), "rb");
+
+	if(!file)
+		return "";
+
+	char *pBuffer = new char[Bytes];
+	int iReturn = fseek(file, StartPosition, SEEK_SET);
+	size_t read = fread(pBuffer,1,Bytes,file);
+	if( read!=Bytes )
+		return ""; // Shouldn't happen
+	fclose(file);
+	
+	string sMd5 = FileUtils::FileChecksum(pBuffer,read);
+	delete[] pBuffer;
+	return sMd5;
 }
 
 string FileUtils::GetLastModifiedDateStr(string sFile)
