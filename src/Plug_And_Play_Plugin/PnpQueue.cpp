@@ -142,7 +142,7 @@ void PnpQueue::Run()
 			else
 				bOnlyBlockedEntries=false;  // There are some entries that are not blocked, so loop again
 
-			LoggerWrapper::GetInstance()->Write(LV_STATUS,"PnpQueue::Run prossing %d at stage %d", pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(), pPnpQueueEntry->m_pRow_PnpQueue->Stage_get());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"PnpQueue::Run processing %d at stage %d", pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(), pPnpQueueEntry->m_pRow_PnpQueue->Stage_get());
 
 			mapPnpQueueEntry_temp[it->first] = it->second;
 		}
@@ -214,6 +214,9 @@ bool PnpQueue::Process(PnpQueueEntry *pPnpQueueEntry)
 		return Process_Detect_Stage_Confirm_Possible_DT(pPnpQueueEntry);
 	case PNP_DETECT_STAGE_RUNNING_DETECTION_SCRIPTS:
 		return Process_Detect_Stage_Running_Detction_Scripts(pPnpQueueEntry);
+	case	PNP_TEMP_STAGE_GO_TO_PROMPTING_USER_FOR_DT:
+		pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_PROMPTING_USER_FOR_DT);
+		return Process_Detect_Stage_Prompting_User_For_DT(pPnpQueueEntry);  // See notes in PnpQueueEntry.h for PNP_TEMP_STAGE_GO_TO_PROMPTING_USER_FOR_DT
 	case	PNP_DETECT_STAGE_PROMPTING_USER_FOR_DT:
 		return Process_Detect_Stage_Prompting_User_For_DT(pPnpQueueEntry);
 	case	PNP_DETECT_STAGE_RUNNING_PRE_PNP_SCRIPT:
@@ -1498,7 +1501,11 @@ void PnpQueue::ReleaseQueuesBlockedFromPromptingState(PnpQueueEntry *pPnpQueueEn
 	{
 		PnpQueueEntry *pPnpQueueEntry2 = it->second;
 		if( pPnpQueueEntry2!=pPnpQueueEntry && pPnpQueueEntry2->m_EBlockedState==PnpQueueEntry::pnpqe_blocked_waiting_for_other_prompting && pPnpQueueEntry2->m_dwPK_PnpQueue_BlockingFor==pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get() )
+		{
 			pPnpQueueEntry2->m_EBlockedState=PnpQueueEntry::pnpqe_blocked_none;
+			if( pPnpQueueEntry2->m_pRow_PnpQueue->Stage_get()==PNP_DETECT_STAGE_PROMPTING_USER_FOR_DT )
+				pPnpQueueEntry2->Stage_set(PNP_TEMP_STAGE_GO_TO_PROMPTING_USER_FOR_DT); // See notes in PnpQueueEntry.h for PNP_TEMP_STAGE_GO_TO_PROMPTING_USER_FOR_DT
+		}
 	}
 }
 

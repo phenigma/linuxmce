@@ -43,6 +43,17 @@ class Row_PnpQueue;
 #define PNP_REMOVE_STAGE_REMOVED				20
 #define PNP_REMOVE_STAGE_DONE					21
 
+
+// We want devices to be processed in the order they're detected because NAS devices are detected before fileservers
+// and you want to ask the user if it's a known NAS before asking if it's a generic file server.  If both entries are queued
+// then when ReleaseQueuesBlockedFromPromptingState releases them, the first one will immediately block in BlockIfOtherQueuesAtPromptingState
+// over the 2nd one.  So, when devices were just released in ReleaseQueuesBlockedFromPromptingState we give them the 
+// temporary stage: PNP_TEMP_STAGE_GO_TO_PROMPTING_USER_FOR_DT so that the Process function, which handles them in order
+// won't block over them.
+#define	PNP_TEMP_STAGE_GO_TO_PROMPTING_USER_FOR_DT	30
+
+
+
 class Database_pluto_main;
 class Row_Device;
 
