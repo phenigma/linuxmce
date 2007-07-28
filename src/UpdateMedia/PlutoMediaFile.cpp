@@ -211,8 +211,13 @@ int PlutoMediaFile::HandleFileNotInDatabase(int PK_MediaType)
 		{
 			Row_File *pRow_File = vectRow_File[0];
 
+			string sMidMD5File = FileUtils::GetMidFileChecksum(m_sDirectory + "/" + m_sFile);
+
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Reusing record for %s/%s ? Md5 db %s, md5 file %s",
+					m_sDirectory.c_str(), m_sFile.c_str(), pRow_File->MD5_get().c_str(), sMidMD5File.c_str());
+
 			//reuse the file only if it's the same file (midmd5 is the same)
-			if(pRow_File->MD5_get() == FileUtils::GetMidFileChecksum(m_sDirectory + "/" + m_sFile))
+			if(pRow_File->MD5_get() == sMidMD5File)
 			{
 				PK_File=pRow_File->PK_File_get();
 				pRow_File->Ignore_set(0);  // This could be a re-used INode
