@@ -257,12 +257,21 @@ case "$Param_Event" in
 		Q="UPDATE Device_DeviceData SET IK_DeviceData = 5 WHERE FK_Device = $DeviceID and FK_DeviceData = $NEW_ADD_ID"
 		RunSQL "$Q"
 
-		Q="SELECT COUNT(IK_DeviceData)
-		   FROM Device_DeviceData 
-		   INNER JOIN Device ON Device_DeviceData.FK_Device = Device.PK_Device 
-		   WHERE Device.FK_Device_ControlledVia = $DeviceID AND
-			 Device_DeviceData.FK_DeviceData = $SPARE_ID AND 
-			 Device_DeviceData.IK_DeviceData = 1"
+		Q="
+		SELECT 
+			COUNT(PK_Device)
+		FROM
+			Device
+			JOIN Device_DeviceData Spare ON PK_Device=Spare.FK_Device
+			JOIN Device_DeviceData State ON PK_Device=State.FK_Device
+		WHERE
+			PK_Device = $DeviceID
+			AND
+			Spare.FK_DeviceData = $SPARE_ID AND Spare.IK_DeviceData = 1
+			AND
+			State.FK_DeviceData = $STATE_ID AND State.IK_DeviceData = 'OK'
+
+		"
 		SpareNr=$(RunSQL "$Q")
 		if (( $SpareNr >= 1 )) ;then
 			Raid_SetStatus "$DeviceID" "DAMAGED, REBUILDING"
