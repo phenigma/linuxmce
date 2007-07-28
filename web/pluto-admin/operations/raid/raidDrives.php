@@ -12,6 +12,7 @@ function raidDrives($output,$dbADO) {
 	$installationID = (int)@$_SESSION['installationID'];
 	$deviceID=@$_REQUEST['deviceID'];
 	
+	
 	$raidDrivesCategories=getDescendantsForCategory($GLOBALS['RaidDrives'],$dbADO);
 	$raidDrivesTemplates=getAssocArray('DeviceTemplate','PK_DeviceTemplate','Description',$dbADO,'WHERE FK_DeviceCategory IN ('.join(',',$raidDrivesCategories).')');
 
@@ -60,6 +61,15 @@ function raidDrives($output,$dbADO) {
 	
 	$RAIDStatus=(int)$data['RAIDStatus'][0];
 	$createArrayBtn=($RAIDStatus==0)?'<input type="submit" class="button" name="createArray" value="'.$TEXT_CREATE_ARRAY_CONST.'">':'-';
+
+	if($RAIDStatus!=0){
+		// send sommand to update raid status
+		// /usr/pluto/bin/monitoring_RAID.sh "WEB_ADMIN_REFRESH" /dev/mdXXX
+		
+		$blockDevice=getDeviceData($deviceID,$GLOBALS['BlockDevice'],$dbADO);
+		$cmd='/usr/pluto/bin/monitoring_RAID.sh "WEB_ADMIN_REFRESH" "'.$blockDevice.'"';
+		$ret=exec_batch_command($cmd,1);
+	}
 		
 	if(count($data)==0){
 		$out.='

@@ -68,6 +68,7 @@ function raid($output,$dbADO) {
 
 		$raidDevices=array();
 		for ($i=0;$i<count(@$data['PK_Device']);$i++){
+			$refreshStatusButton=($data['RAIDStatus'][$i]==0)?'':'<input type="button" class="button_fixed" name="drives_'.$data['PK_Device'][$i].'" value="Refresh status"  onClick="self.location=\'index.php?section=raid&deviceID='.$data['PK_Device'][$i].'&action=refresh\';"><br>';
 			$raidDevices[]=$data['PK_Device'][$i];
 			$bgColor=($data['RAIDStatus'][$i]==0)?'bgcolor="lightgreen"':'class="alternate_back"';
 			$out.='
@@ -84,6 +85,7 @@ function raid($output,$dbADO) {
 				<td align="center" style="width:200px"><iframe src="index.php?section=raidFormatStatus&raidID='.$data['PK_Device'][$i].'" style="width:210px;height:22px;border:0;"></iframe></td>
 				<td>
 				<input type="button" class="button_fixed" name="drives_'.$data['PK_Device'][$i].'" value="'.$TEXT_DRIVES_CONST.'"  onClick="self.location=\'index.php?section=raidDrives&deviceID='.$data['PK_Device'][$i].'\';"><br>
+				'.$refreshStatusButton.'
 				<input type="button" class="button_fixed" name="edit_'.$data['PK_Device'][$i].'" value="'.$TEXT_ADVANCED_CONST.'"  onClick="self.location=\'index.php?section=editDeviceParams&deviceID='.$data['PK_Device'][$i].'\';"><br>
 				<input type="submit" class="button_fixed" name="delete_'.$data['PK_Device'][$i].'" value="'.$TEXT_DELETE_CONST.'"  onClick="if(!confirm(\'Are you sure you want to delete this device?\'))return false;">
 				
@@ -141,6 +143,16 @@ function raid($output,$dbADO) {
 		frmvalidator.addValidation("template","dontselect=0","'.$TEXT_TYPE_REQUIRED_CONST.'");
 	</script>
 	';
+	}elseif ($action=='refresh'){
+		// send sommand to update raid status
+		// /usr/pluto/bin/monitoring_RAID.sh "WEB_ADMIN_REFRESH" /dev/mdXXX
+		$deviceID=@$_REQUEST['deviceID'];
+		$blockDevice=getDeviceData($deviceID,$GLOBALS['BlockDevice'],$dbADO);
+		$cmd='/usr/pluto/bin/monitoring_RAID.sh "WEB_ADMIN_REFRESH" "'.$blockDevice.'"';
+		$ret=exec_batch_command($cmd,1);
+
+		header("Location: index.php?section=raid");
+		exit();
 	} else {
 		// check if the user has the right to modify installation
 		$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$_SESSION['installationID'],$dbADO);
