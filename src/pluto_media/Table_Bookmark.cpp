@@ -628,6 +628,7 @@ return false;
 
 bool Table_Bookmark::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
+	bool bSuccessful=true;
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_DBMutex);
 
 //insert added
@@ -662,7 +663,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_Bookmark_as
 					addedRows.erase(i);
 					delete pRow;
 				}
-				return false;
+				break;   // Go ahead and continue to do the updates
 			}
 		}
 	
@@ -730,7 +731,7 @@ update_values_list = update_values_list + "`PK_Bookmark`="+pRow->PK_Bookmark_asS
 					cachedRows.erase(i);
 					delete pRow;
 				}
-				return false;
+				break;  // Go ahead and do the deletes
 			}
 		}
 	
@@ -786,7 +787,7 @@ condition = condition + "`PK_Bookmark`=" + tmp_PK_Bookmark;
 		deleted_cachedRows.erase(key);
 	}
 	
-	return true;
+	return bSuccessful;
 }
 
 bool Table_Bookmark::GetRows(string where_statement,vector<class Row_Bookmark*> *rows)

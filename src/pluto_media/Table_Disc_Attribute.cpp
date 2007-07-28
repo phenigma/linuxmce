@@ -436,6 +436,7 @@ return false;
 
 bool Table_Disc_Attribute::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
+	bool bSuccessful=true;
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_DBMutex);
 
 //insert added
@@ -470,7 +471,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_Disc_asSQL(
 					addedRows.erase(i);
 					delete pRow;
 				}
-				return false;
+				break;   // Go ahead and continue to do the updates
 			}
 		}
 	
@@ -544,7 +545,7 @@ update_values_list = update_values_list + "`FK_Disc`="+pRow->FK_Disc_asSQL()+", 
 					cachedRows.erase(i);
 					delete pRow;
 				}
-				return false;
+				break;  // Go ahead and do the deletes
 			}
 		}
 	
@@ -609,7 +610,7 @@ condition = condition + "`FK_Disc`=" + tmp_FK_Disc+" AND "+"`FK_Attribute`=" + t
 		deleted_cachedRows.erase(key);
 	}
 	
-	return true;
+	return bSuccessful;
 }
 
 bool Table_Disc_Attribute::GetRows(string where_statement,vector<class Row_Disc_Attribute*> *rows)

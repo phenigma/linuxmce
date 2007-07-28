@@ -415,6 +415,7 @@ return false;
 
 bool Table_Attribute::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
+	bool bSuccessful=true;
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_DBMutex);
 
 //insert added
@@ -449,7 +450,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_Attribute_a
 					addedRows.erase(i);
 					delete pRow;
 				}
-				return false;
+				break;   // Go ahead and continue to do the updates
 			}
 		}
 	
@@ -517,7 +518,7 @@ update_values_list = update_values_list + "`PK_Attribute`="+pRow->PK_Attribute_a
 					cachedRows.erase(i);
 					delete pRow;
 				}
-				return false;
+				break;  // Go ahead and do the deletes
 			}
 		}
 	
@@ -573,7 +574,7 @@ condition = condition + "`PK_Attribute`=" + tmp_PK_Attribute;
 		deleted_cachedRows.erase(key);
 	}
 	
-	return true;
+	return bSuccessful;
 }
 
 bool Table_Attribute::GetRows(string where_statement,vector<class Row_Attribute*> *rows)

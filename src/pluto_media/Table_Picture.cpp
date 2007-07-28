@@ -412,6 +412,7 @@ return false;
 
 bool Table_Picture::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
+	bool bSuccessful=true;
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_DBMutex);
 
 //insert added
@@ -446,7 +447,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_Picture_asS
 					addedRows.erase(i);
 					delete pRow;
 				}
-				return false;
+				break;   // Go ahead and continue to do the updates
 			}
 		}
 	
@@ -514,7 +515,7 @@ update_values_list = update_values_list + "`PK_Picture`="+pRow->PK_Picture_asSQL
 					cachedRows.erase(i);
 					delete pRow;
 				}
-				return false;
+				break;  // Go ahead and do the deletes
 			}
 		}
 	
@@ -570,7 +571,7 @@ condition = condition + "`PK_Picture`=" + tmp_PK_Picture;
 		deleted_cachedRows.erase(key);
 	}
 	
-	return true;
+	return bSuccessful;
 }
 
 bool Table_Picture::GetRows(string where_statement,vector<class Row_Picture*> *rows)
