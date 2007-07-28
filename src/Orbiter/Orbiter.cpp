@@ -8970,7 +8970,7 @@ void Orbiter::CMD_Goto_Screen(string sID,int iPK_Screen,int iInterruption,bool b
 	if( iPK_Screen==SCREEN_Main_CONST )
 	{
 		if( m_bNewOrbiter && atoi(m_sInitialScreen.c_str())==SCREEN_VideoWizard_CONST )
-			iPK_Screen=SCREEN_VideoWizard_CONST;
+			iPK_Screen=SCREEN_Wizard_Done_CONST;  // If the user wants to get out, take the user to the end so he can press 'start using the system'
 	}
 
 	SETUP_SCREEN_HANDLER_CALLBACK(m_pScreenHandler, cbOnGotoScreen, GotoScreenCallBackData, (iPK_Screen, pMessage))
