@@ -305,7 +305,7 @@ void UpdateMedia::UpdateSearchTokens()
 		}
 	}
 
-	if( row_max )
+	if(NULL != row_max && NULL != row_max[0])
 	{
 		time_t tLastUpdate = StringUtils::SQLDateTime(row_max[0]);
 		if( tLastUpdate )
