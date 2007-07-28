@@ -1489,8 +1489,12 @@ void MythTV_PlugIn::CheckForNewRecordings()
 		PK_File_Max = atoi(row[0]);
 
 	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex); // protect m_sNewRecordings
-	sSQL = "LEFT JOIN File_Attribute ON FK_File=PK_File WHERE (Path like '%tv_shows_%' AND FK_File IS NULL AND PK_File>" + StringUtils::itos(m_dwPK_File_LastCheckedForNewRecordings) + ") OR Filename in (" + m_sNewRecordings + ")";
-	m_sNewRecordings=""; // Reset it
+	sSQL = "LEFT JOIN File_Attribute ON FK_File=PK_File WHERE (Missing=0 AND Path like '%tv_shows_%' AND FK_File IS NULL AND PK_File>" + StringUtils::itos(m_dwPK_File_LastCheckedForNewRecordings) + ")";
+	if( m_sNewRecordings.empty()==false )
+	{
+		sSQL += " OR Filename in (" + m_sNewRecordings + ")";
+		m_sNewRecordings=""; // Reset it
+	}
 	vector<Row_File *> vectRow_File;
 	m_pMedia_Plugin->m_pDatabase_pluto_media->File_get()->GetRows( sSQL, &vectRow_File );
 
@@ -1520,8 +1524,10 @@ void MythTV_PlugIn::CheckForNewRecordings()
 				continue;
 			}
 
-			int PK_Attribute_Title=0,PK_Attribute_Episode=0,PK_Attribute_Channel=0,PK_Attribute_Misc;
+			int PK_Attribute_CreationDate,PK_Attribute_Title=0,PK_Attribute_Episode=0,PK_Attribute_Channel=0,PK_Attribute_Misc;
 
+			if( row[1] )
+				m_pMedia_Plugin->CMD_Add_Media_Attribute(row[1],0,"",ATTRIBUTETYPE_Creation_Date_CONST,"",pRow_File->PK_File_get(),&PK_Attribute_CreationDate);
 			if( row[2] )
 				m_pMedia_Plugin->CMD_Add_Media_Attribute(row[2],0,"",ATTRIBUTETYPE_Title_CONST,"",pRow_File->PK_File_get(),&PK_Attribute_Title);
 			if( row[3] )

@@ -396,6 +396,7 @@ string PnpQueueEntry::StageAsText()
 		return "Analyzing";
 	case PNP_DETECT_STAGE_RUNNING_DETECTION_SCRIPTS:
 		return "Querying device.  Please wait...";
+	case PNP_TEMP_STAGE_GO_TO_PROMPTING_USER_FOR_DT:
 	case PNP_DETECT_STAGE_PROMPTING_USER_FOR_DT:
 		return "Confirming";
 	case PNP_DETECT_STAGE_PROMPTING_USER_FOR_OPT:
