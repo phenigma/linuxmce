@@ -148,7 +148,7 @@ function raid($output,$dbADO) {
 		// /usr/pluto/bin/monitoring_RAID.sh "WEB_ADMIN_REFRESH" /dev/mdXXX
 		$deviceID=@$_REQUEST['deviceID'];
 		$blockDevice=getDeviceData($deviceID,$GLOBALS['BlockDevice'],$dbADO);
-		$cmd='/usr/pluto/bin/monitoring_RAID.sh "WEB_ADMIN_REFRESH" "'.$blockDevice.'"';
+		$cmd='sudo -u root /usr/pluto/bin/monitoring_RAID.sh "WEB_ADMIN_REFRESH" "'.$blockDevice.'"';
 		$ret=exec_batch_command($cmd,1);
 
 		header("Location: index.php?section=raid");
