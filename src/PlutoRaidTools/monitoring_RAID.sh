@@ -54,14 +54,31 @@ function Raid_UpdateStatusFromMdadm {
 
 	mdadm_state=$(mdadm --detail "$Raid_Block" | grep "State :" |cut -d":" -f2)
 	case "$mdadm_state" in
-		"clean"|"active")
+		" clean"|" active")
 			Raid_SetStatus "$Raid_DeviceID" "OK"
-			;;
-		"clean, degraded"|"active, degraded")
-			Raid_SetStatus "$Raid_DeviceID" "DAMAGED"
-			;;
-		"clean, degraded, recovering"|"active, degraded, recovering")
+		;;
+		" clean, degraded, recovering"|" active, degraded, recovering")
 			Raid_SetStatus "$Raid_DeviceID" "DAMAGED, REBUILDING"
+		;;
+		" clean, degraded"|" active, degraded"|*)
+#			local working_no=$(mdadm --detail $Raid_Block  | grep "Working Devices :" | cut -d':' -f2)
+#			local failed_no=$(mdadm --detail $Raid_Block  | grep "Failed Devices :" | cut -d':' -f2)
+#			local spare_no=$(mdadm --detail $Raid_Block  | grep "Spare Devices :" | cut -d':' -f2)
+
+			local active_no=$(mdadm --detail $Raid_Block | grep "Active Devices :" | cut -d':' -f2)
+			local needed_no=$(mdadm --detail $Raid_Block | grep "Raid Devices :" | cut -d':' -f2)
+
+			Raid_DeviceTemplate=$(RunSQL "SELECT FK_DeviceTemplate FROM Device WHERE PK_Device = $Raid_DeviceID")
+			if [[ "$RaidTemplate" != "1854" ]] ; then # Than means if is not RAID 0
+				needed_no=$(( needed_no - 1 ))
+			fi
+
+			if (( active_no >= needed_no )) ;then
+				Raid_SetStatus "$Raid_DeviceID" "DAMAGED"
+			else
+				Raid_SetStatus "$Raid_DeviceID" "FAILED"
+			fi
+		;;
 	esac
 }
 
@@ -120,6 +137,7 @@ function Raid_UpdateDisksType {
 			;;
 		"S")
 			RunSQL "UPDATE Device_DeviceData SET IK_DeviceData = 1 WHERE FK_Device = $Disk_DeviceID AND FK_DeviceData = $SPARE_ID"
+			Raid_SetStatus "$Disk_DeviceID" "OK"
 			;;
 		"AS") #active sync
 			RunSQL "UPDATE Device_DeviceData SET IK_DeviceData = 0 WHERE FK_Device = $Disk_DeviceID AND FK_DeviceData = $SPARE_ID"
