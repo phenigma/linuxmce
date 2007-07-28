@@ -770,7 +770,7 @@ void Router::ExecuteCommandGroup(int PK_CommandGroup,DeviceData_Router *pDevice_
 			else
 			{
 				Message *pMessage = new Message();
-				pMessage->m_dwPK_Device_From = m_dwPK_Device;
+				pMessage->m_dwPK_Device_From = pDevice_Sender ? pDevice_Sender->m_dwPK_Device : m_dwPK_Device;
 				pMessage->m_dwMessage_Type = MESSAGETYPE_COMMAND;
 				pMessage->m_dwID = atoi(row[1]);
 				if( row[4][0]=='1' )
@@ -3052,6 +3052,7 @@ bool Router::HandleRouterMessage(Message *pMessage)
 		int PK_CommandGroup = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_CommandGroup_CONST].c_str());
 		if( PK_CommandGroup )
 		{
+		    LoggerWrapper::GetInstance()->Write(LV_STATUS,"Router::HandleRouterMessage COMMAND_Execute_Command_Group_CONST %d", PK_CommandGroup);
 			DeviceData_Router *pDevice = m_mapDeviceData_Router_Find(pMessage->m_dwPK_Device_From);
 			ExecuteCommandGroup(PK_CommandGroup,pDevice);
 		}
