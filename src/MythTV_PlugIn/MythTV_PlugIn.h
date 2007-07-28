@@ -142,6 +142,7 @@ namespace DCE
 		bool m_bBookmarksNeedRefreshing;
 		bool m_bFillDbRunning,  // true if the fill process is currently active
 			m_bNeedToRunFillDb; // if we get more changes, while a fill is active, we'll set this so when the fill stops we know to restart it
+		string m_sNewRecordings;
 
 		class MythBackEnd_Socket *m_pMythBackEnd_Socket;
 		map<string,MapBookmark *> m_mapSeriesBookmarks,m_mapProgramBookmarks;  // What users have bookmarked series and programs
