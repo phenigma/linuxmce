@@ -41,6 +41,30 @@ function Raid_SetSize {
 	RunSQL "$Q"
 }
 
+function Raid_UpdateStatusFromMdadm {
+	local Raid_DeviceID="$1"
+	local Raid_Block=$(RunSQL "SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device=$Raid_DeviceID AND FK_DeviceData='$DD_BLOCK_DEVICE'")
+
+	mdadm --detail --brief "$Raid_Block"
+	mdadm_err=$?
+	if [[ "$mdadm_err" != "0" ]] ;then
+		Raid_SetStatus "$Raid_DeviceID" "FAILED"
+		exit 0
+	fi
+
+	mdadm_state=$(mdadm --detail "$Raid_Block" | grep "State :" |cut -d":" -f2)
+	case "$mdadm_state" in
+		"clean"|"active")
+			Raid_SetStatus "$Raid_DeviceID" "OK"
+			;;
+		"clean, degraded"|"active, degraded")
+			Raid_SetStatus "$Raid_DeviceID" "DAMAGED"
+			;;
+		"clean, degraded, recovering"|"active, degraded, recovering")
+			Raid_SetStatus "$Raid_DeviceID" "DAMAGED, REBUILDING"
+	esac
+}
+
 
 function Raid_UpdateDisksType {
 	local Raid_DeviceID="$1"
@@ -253,6 +277,8 @@ case "$Param_Event" in
 			
 		raidSize=$(mdadm --query $Param_Raid | head -1 |cut -d' ' -f2)
 		Raid_SetSize "$DeviceID" "$raidSize"
+
+		Raid_UpdateStatusFromMdadm "$DeviceID"
 	;;
 esac
 	
