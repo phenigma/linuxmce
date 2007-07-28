@@ -3564,7 +3564,7 @@ bool Orbiter::RegionDown( int x,  int y )
 bool Orbiter::GotActivity( int PK_Button )
 {
 	if( (PK_Button>=BUTTON_1_CONST && PK_Button<=BUTTON_0_CONST) || PK_Button==BUTTON_Asterisk_CONST || PK_Button==BUTTON_Pound_CONST )
-		return false;  // The numeric keys usually execute shortcuts without turning a device on/off
+		return true;  // The numeric keys usually execute shortcuts without turning a device on/off
 
 	m_LastActivityTime=time( NULL );
 
