@@ -246,5 +246,13 @@ case "$Param_Event" in
 			Raid_SetStatus "$DeviceID" "DAMAGED"
 		fi
 	;;
+
+	*)
+		Q="SELECT FK_Device FROM Device_DeviceData WHERE IK_DeviceData = '$Param_Raid'  AND FK_DeviceData = $DD_BLOCK_DEVICE"
+		DeviceID=$(RunSQL "$Q")
+			
+		raidSize=$(mdadm --query $Param_Raid | head -1 |cut -d' ' -f2)
+		Raid_SetSize "$DeviceID" "$raidSize"
+	;;
 esac
 	

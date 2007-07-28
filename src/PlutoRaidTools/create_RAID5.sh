@@ -2,6 +2,12 @@
 
 . /usr/pluto/bin/SQL_Ops.sh
 
+
+function Log {
+	echo "$(date -R) $$ $*" >&2
+	echo "$(date -R) $$ $*" >> /var/log/pluto/CreateRaid5.log
+}
+
 Device=$1
 RAID5_DEVICE_TEMPLATE=1849
 NEW_ADD_ID=204
@@ -10,21 +16,23 @@ BLOCK_DEVICE_ID=152
 SPARE_ID=202
 DISK_SIZE_ID=201
 
-if [[ "$3" != "demonized" ]] ;then
-	Q="SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device = $Device and FK_DeviceData = $NEW_ADD_ID"
-	NewAdd=$(RunSQL "$Q")
+if [[ "$3" != "demonized" ]] ;then	
 	name=$(/usr/pluto/bin/get_RAID_name.sh)
 	name="/dev/$name"
-	Q="UPDATE Device_DeviceData SET IK_DeviceData='$name' WHERE FK_Device = $Device and FK_DeviceData = $BLOCK_DEVICE_ID"
-	RunSQL "$Q"
+	RunSQL "UPDATE Device_DeviceData SET IK_DeviceData='$name' WHERE FK_Device = $Device and FK_DeviceData = $BLOCK_DEVICE_ID"
+
 	#if is new added get the list of active drives and spares
+	NewAdd=$(RunSQL "SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device = $Device and FK_DeviceData = $NEW_ADD_ID")
 	if [[ $NewAdd == 0 ]] ;then
-		Q="SELECT PK_Device FROM Device WHERE FK_DeviceTemplate = $HARD_DRIVE_DEVICE_TEMPLATE AND FK_Device_ControlledVia = $Device"
-		HardDriveList=$(RunSQL "$Q")
+		Log "Creating new RAID 5 on /dev/$name"
+
+		## Counting the number of spares and active diskes
+		## Creating a list with spares and active disks
 		ActiveDrives=
 		SpareDrives=
 		NrDrives=
 		NrSpareDrives=
+		HardDriveList=$(RunSQL "SELECT PK_Device FROM Device WHERE FK_DeviceTemplate = $HARD_DRIVE_DEVICE_TEMPLATE AND FK_Device_ControlledVia = $Device")
 		for Drive in $HardDriveList; do
 			Q="
 				SELECT 
@@ -40,27 +48,36 @@ if [[ "$3" != "demonized" ]] ;then
 			Disk=$(Field 1 "$R")
 			IsSpare=$(Field 2 "$R")
 			if [[ $IsSpare == 1 ]] ;then
+				Log "Adding Spare drive $Disk to $name"
 				SpareDrives="$SpareDrives "$Disk
 				NrSpareDrives=$(($NrSpareDrives+1))
 			else
+				Log "Adding Active drive $Disk to $name"
 				ActiveDrives="$ActiveDrives "$Disk
 				NrDrives=$(($NrDrives+1))
 			fi
 		done
-		#NrDrives=$(($NrDrives+1))
-		#create the array with mdadm
+		
+		## Create the array with mdadm
+		Log "Using mdadm to actually create the raid"
 		rm -f "/dev/.static$name"
 		if [[ $NrSpareDrives > 0 ]] ;then
 			echo "y" | mdadm --create $name --auto=yes --level=5 --spare-devices=$NrSpareDrives $SpareDrives --raid-devices=$NrDrives $ActiveDrives
+			mdadm_err=$?
 		else	
 			echo "y" | mdadm --create $name --auto=yes --level=5 --raid-devices=$NrDrives $ActiveDrives
-
-		fi
+			mdadm_err=$?
+		fi	
+		Log "Process 'mdadm --create' exited with error $mdadm_err"
 
 		sleep 3
-		raidSize=$(mdadm --query $name | head -1 |cut -d' ' -f2)
-		Q="UPDATE Device_DeviceData SET IK_DeviceData = '$raidSize' WHERE FK_Device = $Device and FK_DeviceData = $DISK_SIZE_ID"
-		RunSQL "$Q"
+
+		# Update Raid Information
+		Log "Updating raid information in the database"
+		/usr/pluto/bin/monitor_Raid.sh "REFRESH_FROM_CREATE_RAID5" "/dev/$name"
+
+		## Create a ext3 fielsystem on the new raid
+		Log "Start creating a filesystem on the new raid"
 		screen -S FormatingRaid5 -d -m /bin/bash $0 $Device $name demonized
 	        exit 0
 	fi
@@ -69,6 +86,7 @@ else
 	LogFile="/usr/pluto/var/${Device}_Raid.log"
 	echo "FORMAT,1" > $LogFile
 
+	Log "Mkfs is started in the background"
 	echo "y" | mkfs.ext3 $2 > /var/log/mkfs_${Device} &
 
 	percent=0
@@ -90,9 +108,11 @@ else
 
 		echo "FORMAT,$percent" > $LogFile
 	done
+	Log "Mkfs finshed"
 
 
 	## Create a pluto directory structure (depending on UsePlutoDirStructure device data)
+	Log "Activating raid to be used as a storage device"
 	touch /usr/pluto/var/DCERouter.running
 	/usr/pluto/bin/StorageDevices_PlutoDirStructure.sh -d $Device
 	/usr/pluto/bin/StorageDevices_Setup.sh
