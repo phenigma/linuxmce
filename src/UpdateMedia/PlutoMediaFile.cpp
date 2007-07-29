@@ -308,7 +308,8 @@ int PlutoMediaFile::HandleFileNotInDatabase(int PK_MediaType)
 		AssignPlutoDevice();
     }
 
-	if( PK_MediaType=MEDIATYPE_pluto_Pictures_CONST )
+	LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "x=%d", PK_MediaType);
+	if( PK_MediaType==MEDIATYPE_pluto_Pictures_CONST )
 	{
 		string Output = m_sDirectory + m_sFile;
 		StringUtils::Replace(&Output,"\"","\\\"");
