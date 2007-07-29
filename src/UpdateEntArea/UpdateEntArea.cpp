@@ -95,6 +95,14 @@ void UpdateEntArea::AddDefaultScenarios()
 	AddDefaultEventHandlers();
 }
 
+void UpdateEntArea::AddShortcut(int PK_Room, char cCharacter, int PK_CommandGroup)
+{
+	string sMessage = "0 " TOSTRING(DEVICEID_DCEROUTER) " 1 "
+		TOSTRING(COMMAND_Execute_Command_Group_CONST) " " TOSTRING(COMMANDPARAMETER_PK_CommandGroup_CONST) " " +
+		StringUtils::itos(PK_CommandGroup);
+	AddShortcut(PK_Room,cCharacter,sMessage);
+}
+
 void UpdateEntArea::AddShortcut(int PK_Room, char cCharacter, string sMessage)
 {
 	MapShortcuts *pMapShortcuts=NULL;
@@ -107,7 +115,8 @@ void UpdateEntArea::AddShortcut(int PK_Room, char cCharacter, string sMessage)
 	else
 		pMapShortcuts = it->second;
 
-	(*pMapShortcuts)[cCharacter] = sMessage;
+	if( pMapShortcuts->find(cCharacter)==pMapShortcuts->end() )  // Don't add shortcuts twice
+		(*pMapShortcuts)[cCharacter] = sMessage;
 }
 
 void UpdateEntArea::UpdateOrbiterShortcuts()
@@ -124,9 +133,11 @@ void UpdateEntArea::UpdateOrbiterShortcuts()
 		// Add shortcuts for the top lighting scenarios
         vector<class Row_CommandGroup_Room *> vectRow_CommandGroup_Room;
         string sql = "JOIN CommandGroup ON FK_CommandGroup=PK_CommandGroup WHERE FK_Room=" +
-			StringUtils::itos(pRow_Device->FK_Room_get()) + " AND FK_Array=" TOSTRING(ARRAY_Lighting_Scenarios_CONST) " AND Disabled=0 ORDER BY " COMMANDGROUP_ROOM_SORT_FIELD " LIMIT 9";
+			StringUtils::itos(pRow_Device->FK_Room_get()) + " AND FK_Array=" TOSTRING(ARRAY_Lighting_Scenarios_CONST) " AND Disabled=0 "
+			" AND (FK_Template<>" TOSTRING(TEMPLATE_Lighting_Automatic_CONST) " OR (TemplateParm1<>0 AND TemplateParm1<>1 AND TemplateParm1<>3 AND TemplateParm1<>4)) "  // Skip lights on/off/
+			" ORDER BY " COMMANDGROUP_ROOM_SORT_FIELD " LIMIT 8";
         m_pDatabase_pluto_main->CommandGroup_Room_get()->GetRows(sql,&vectRow_CommandGroup_Room);
-		char cShortcut='1';
+		char cShortcut='4';
 		for(vector<class Row_CommandGroup_Room *>::iterator it=vectRow_CommandGroup_Room.begin();it!=vectRow_CommandGroup_Room.end();++it)
 		{
 			Row_CommandGroup_Room *pRow_CommandGroup_Room = *it;

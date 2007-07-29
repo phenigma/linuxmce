@@ -144,6 +144,13 @@ void UpdateEntArea::AddDefaultLightingScenarios(Row_Room *pRow_Room)
 		if( IsLight(it->second) )
 			bRoomHasLights=true;
 
+	map<int,int> map_Device_Type_MD; // Where type is a floorplan type
+	GetDevicesTypes(DEVICECATEGORY_Media_Director_CONST,pRow_Room->PK_Room_get(),
+		&map_Device_Type_MD,NULL);
+
+	int PK_Device_MD = map_Device_Type_MD.size() ? map_Device_Type_MD.begin()->first : 0;
+
+
 	/* Sort orders:
 		Off=1
 		On=2
@@ -159,6 +166,7 @@ void UpdateEntArea::AddDefaultLightingScenarios(Row_Room *pRow_Room)
 		pCommandGroup = commandGroupArray.FindCommandGroupByTemplate(TEMPLATE_Lighting_Automatic_CONST,"On",ICON_Lights_On_CONST,1,0,NULL,1);
 		if( pCommandGroup )
 		{
+			AddShortcut(pRow_Room->PK_Room_get(),'1',pCommandGroup->m_pRow_CommandGroup->PK_CommandGroup_get());
 			for(map<int,int>::iterator it=map_Device_Type.begin();it!=map_Device_Type.end();++it)
 				if( IsLight(it->second) )
 					pCommandGroup->AddCommand(it->first,COMMAND_Set_Level_CONST,1,1,COMMANDPARAMETER_Level_CONST,"100");
@@ -168,6 +176,7 @@ void UpdateEntArea::AddDefaultLightingScenarios(Row_Room *pRow_Room)
 		pCommandGroup = commandGroupArray.FindCommandGroupByTemplate(TEMPLATE_Lighting_Automatic_CONST,"Off",ICON_Lights_Off_CONST,0,0,NULL,2);
 		if( pCommandGroup )
 		{
+			AddShortcut(pRow_Room->PK_Room_get(),'2',pCommandGroup->m_pRow_CommandGroup->PK_CommandGroup_get());
 			for(map<int,int>::iterator it=map_Device_Type.begin();it!=map_Device_Type.end();++it)
 				if( IsLight(it->second) )
 					pCommandGroup->AddCommand(it->first,COMMAND_Generic_Off_CONST,2,0);
@@ -210,6 +219,7 @@ void UpdateEntArea::AddDefaultLightingScenarios(Row_Room *pRow_Room)
 		pCommandGroup = commandGroupArray.FindCommandGroupByTemplate(TEMPLATE_Lighting_Automatic_CONST,"Sleep",ICON_Sleep_CONST,3,0,NULL,4);  // Bedtime is parm1=3
 		if( pCommandGroup )
 		{
+			AddShortcut(pRow_Room->PK_Room_get(),'0',pCommandGroup->m_pRow_CommandGroup->PK_CommandGroup_get());
 			for(map<int,int>::iterator it=map_Device_Type.begin();it!=map_Device_Type.end();++it)
 			{
 				if( IsLight(it->second) )
@@ -221,12 +231,15 @@ void UpdateEntArea::AddDefaultLightingScenarios(Row_Room *pRow_Room)
 				COMMANDPARAMETER_Bypass_Event_CONST,"1");
 			pCommandGroup->AddCommand(m_dwPK_Device_TelecomPlugIn,COMMAND_Set_User_Mode_CONST,iOrder++,1,
 				COMMANDPARAMETER_PK_UserMode_CONST,StringUtils::itos(USERMODE_Sleeping_CONST).c_str());
+			if( PK_Device_MD )
+				pCommandGroup->AddCommand(PK_Device_MD,COMMAND_Generic_Off_CONST,iOrder++,0);
 		}
 
 		iOrder=1;
 		pCommandGroup = commandGroupArray.FindCommandGroupByTemplate(TEMPLATE_Lighting_Automatic_CONST,"Wakeup",ICON_Sleep_CONST,4,0,NULL,5);  // Wakeup is parm1=4  Sort 4
 		if( pCommandGroup )
 		{
+			AddShortcut(pRow_Room->PK_Room_get(),'3',pCommandGroup->m_pRow_CommandGroup->PK_CommandGroup_get());
 			for(map<int,int>::iterator it=map_Device_Type.begin();it!=map_Device_Type.end();++it)
 			{
 				if( IsLight(it->second) )
@@ -263,6 +276,8 @@ void UpdateEntArea::AddDefaultLightingScenarios(Row_Room *pRow_Room)
 				if( IsPublicInteriorRoom(it->second.second) || IsExterior(it->second.second) )
 					pCommandGroup->AddCommand(it->first,COMMAND_Generic_Off_CONST,iOrder++,0);
 			}
+			if( PK_Device_MD )
+				pCommandGroup->AddCommand(PK_Device_MD,COMMAND_Generic_Off_CONST,iOrder++,0);
 		}
 	}
 }

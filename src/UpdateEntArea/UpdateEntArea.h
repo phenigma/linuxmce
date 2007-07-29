@@ -105,6 +105,7 @@ public:
 	void SetDefaultAnnouncementDevices();
 	void SetDefaultNotifications();
 	void AddShortcut(int PK_Room, char cCharacter, string sMessage);
+	void AddShortcut(int PK_Room, char cCharacter, int PK_CommandGroup);
 
 	// Helper functions for events
 	Row_EventHandler *CreateGenericEventHandler(CommandGroupArray &commandGroupArray,int PK_Template,int Parm1,int Parm2,string sDescription,int PK_Event);

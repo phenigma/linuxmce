@@ -505,6 +505,7 @@ void UpdateEntArea::AddAVDevicesToEntArea(Row_EntertainArea *pRow_EntertainArea)
 
 void UpdateEntArea::AddMDsDevicesToEntArea(Row_EntertainArea *pRow_EntertainArea)
 {
+	bool bHasMd=false;
 	vector<Row_Device *> vectRow_Device; 
 	pRow_EntertainArea->FK_Room_getrow()->Device_FK_Room_getrows(&vectRow_Device);
 	for(size_t s=0;s<vectRow_Device.size();++s)
@@ -513,6 +514,7 @@ void UpdateEntArea::AddMDsDevicesToEntArea(Row_EntertainArea *pRow_EntertainArea
 		// Is this a media director?
 		if( DatabaseUtils::DeviceIsWithinCategory(m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICECATEGORY_Media_Director_CONST) )
 		{
+			bHasMd=true;
 			// If this is a hybrid, the m/d may be a child of the Core.  Get the parent then, so children of the core, like pvr cards
 			// will also be in the same ent area
 			Row_Device *pRow_Device_Parent = pRow_Device->FK_Device_ControlledVia_getrow();
@@ -523,15 +525,19 @@ void UpdateEntArea::AddMDsDevicesToEntArea(Row_EntertainArea *pRow_EntertainArea
 	}
 
 	vectRow_Device.clear();
-	m_pDatabase_pluto_main->Device_get()->GetRows("ManuallyConfigureEA=-1",&vectRow_Device);
-	for(vector<Row_Device *>::iterator it=vectRow_Device.begin();it!=vectRow_Device.end();++it)
+
+	if( bHasMd )
 	{
-		Row_Device *pRow_Device = *it;
-		Row_Device_EntertainArea *pRow_Device_EntertainArea = m_pDatabase_pluto_main->Device_EntertainArea_get()->GetRow(pRow_Device->PK_Device_get(),pRow_EntertainArea->PK_EntertainArea_get());
-		if( !pRow_Device_EntertainArea )
+		m_pDatabase_pluto_main->Device_get()->GetRows("ManuallyConfigureEA=-1",&vectRow_Device);
+		for(vector<Row_Device *>::iterator it=vectRow_Device.begin();it!=vectRow_Device.end();++it)
 		{
-			LoggerWrapper::GetInstance()->Write( LV_STATUS, "adding device %d %s to all ent area %d %s",pRow_Device->PK_Device_get(),pRow_Device->Description_get().c_str(),pRow_EntertainArea->PK_EntertainArea_get(),pRow_EntertainArea->Description_get().c_str());
-			AddDevicesToEntArea(pRow_Device,pRow_EntertainArea,false);
+			Row_Device *pRow_Device = *it;
+			Row_Device_EntertainArea *pRow_Device_EntertainArea = m_pDatabase_pluto_main->Device_EntertainArea_get()->GetRow(pRow_Device->PK_Device_get(),pRow_EntertainArea->PK_EntertainArea_get());
+			if( !pRow_Device_EntertainArea )
+			{
+				LoggerWrapper::GetInstance()->Write( LV_STATUS, "adding device %d %s to all ent area %d %s",pRow_Device->PK_Device_get(),pRow_Device->Description_get().c_str(),pRow_EntertainArea->PK_EntertainArea_get(),pRow_EntertainArea->Description_get().c_str());
+				AddDevicesToEntArea(pRow_Device,pRow_EntertainArea,false);
+			}
 		}
 	}
 }
@@ -547,7 +553,7 @@ void UpdateEntArea::AddMDsDevicesToEntArea(Row_Device *pRow_Device,Row_Entertain
 
 	// Output zones may be in different EA's from the parents
 	Row_DeviceTemplate *pRow_DeviceTemplate = pRow_Device->FK_DeviceTemplate_getrow();
-	if( pRow_DeviceTemplate && pRow_DeviceTemplate->FK_DeviceCategory_get()==DEVICECATEGORY_Output_Zone_CONST )
+	if( pRow_DeviceTemplate && (pRow_DeviceTemplate->FK_DeviceCategory_get()==DEVICECATEGORY_Output_Zone_CONST || pRow_DeviceTemplate->FK_DeviceCategory_get()==DEVICECATEGORY_Network_Audio_Player_CONST) )
 		return;
 
 	Row_Device_EntertainArea *pRow_Device_EntertainArea = m_pDatabase_pluto_main->Device_EntertainArea_get()->GetRow(pRow_Device->PK_Device_get(),pRow_EntertainArea->PK_EntertainArea_get());
@@ -650,6 +656,7 @@ void UpdateEntArea::AddDevicesToEntArea(Row_Device *pRow_Device,Row_EntertainAre
 		{
 			pRow_Device_EntertainArea = *it;
 			pRow_Device_EntertainArea->Delete();
+			m_pDatabase_pluto_main->Device_EntertainArea_get()->Commit();
 		}
 
 		pRow_Device_EntertainArea = m_pDatabase_pluto_main->Device_EntertainArea_get()->AddRow();

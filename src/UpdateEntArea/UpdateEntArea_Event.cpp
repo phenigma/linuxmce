@@ -179,6 +179,12 @@ CommandGroup *UpdateEntArea::CreateLeaveHomeCommandGroup(CommandGroupArray &comm
 			pCommandGroup->AddCommand(it->first,COMMAND_Generic_Off_CONST,iOrder++,0);
 	}
 
+	map_Device_Type_RoomType.clear();
+	GetDevicesTypesAndRoomTypes(DEVICECATEGORY_Media_Director_CONST,&map_Device_Type_RoomType);
+
+	for(map<int,pair<int,int> >::iterator it=map_Device_Type_RoomType.begin();it!=map_Device_Type_RoomType.end();++it)
+		pCommandGroup->AddCommand(it->first,COMMAND_Generic_Off_CONST,iOrder++,0);
+
 	iOrder=1000;
 	vector<Row_EntertainArea *> vectRow_EntertainArea;
 	m_pDatabase_pluto_main->EntertainArea_get()->GetRows("1=1 ORDER BY PK_EntertainArea",&vectRow_EntertainArea);
