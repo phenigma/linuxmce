@@ -81,9 +81,11 @@ void MediaListGrid::ToData(string GridID,int &Size, char* &Data, int *ColStart, 
 			char *pIconBuffer = NULL;
 			string PictureFile_Full;
 			pCell = new DataGridCell("",PictureFile_Full);
-			
-			if(pFileBrowserInfo->m_PK_Picture > 0)
-			{	
+
+			if( m_iPK_MediaType==MEDIATYPE_pluto_Pictures_CONST )
+				pCell->SetImagePath(pFileBrowserInfo->m_sMRL.c_str());
+			else if(pFileBrowserInfo->m_PK_Picture > 0)
+			{
 				PictureFile_Full = "/home/mediapics/" + StringUtils::itos(pFileBrowserInfo->m_PK_Picture) + "_tn.jpg";
 				/*
 				pIconBuffer = FileUtils::ReadFileIntoBuffer( "/home/mediapics/" + StringUtils::itos(pFileBrowserInfo->m_PK_Picture) + "_tn.jpg",stIconSize);

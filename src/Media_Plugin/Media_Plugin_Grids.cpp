@@ -124,7 +124,7 @@ class DataGridTable *Media_Plugin::MediaBrowser( string GridID, string Parms, vo
 	g_bInclFiles=g_bInclDiscs=g_bInclDownload=true;
 #endif
 
-	MediaListGrid *pMediaListGrid = new MediaListGrid(m_pDatagrid_Plugin,this);
+	MediaListGrid *pMediaListGrid = new MediaListGrid(m_pDatagrid_Plugin,this,PK_MediaType);
 	if( sPK_Sources.size()==0 || !PK_MediaType )
 		return pMediaListGrid;
 
@@ -508,7 +508,10 @@ void Media_Plugin::PopulateFileBrowserInfoForFile(MediaListGrid *pMediaListGrid,
 				pFileBrowserInfo = new FileBrowserInfo(row[2] ? row[2] : row[5],string("!F") + row[0],PK_File,row[4] ? atoi(row[4]) : 0,
 					row[5] && strstr(row[5],".dvd")!=NULL ? 'D' : 'F', false,false);
 #else
-				pFileBrowserInfo = new FileBrowserInfo(row[2] ? row[2] : row[5],string("!F") + row[0],PK_File,row[4] ? atoi(row[4]) : 0,'F',false,false);
+				if( pMediaListGrid->m_iPK_MediaType==MEDIATYPE_pluto_Pictures_CONST )
+					pFileBrowserInfo = new FileBrowserInfo(row[2] ? row[2] : row[5],string(row[1]) + "/" + row[2],PK_File,row[4] ? atoi(row[4]) : 0,'F',false,false);
+				else
+					pFileBrowserInfo = new FileBrowserInfo(row[2] ? row[2] : row[5],string("!F") + row[0],PK_File,row[4] ? atoi(row[4]) : 0,'F',false,false);
 #endif
 			if( (it=mapFile_To_Pic.find( atoi(row[0]) ))!=mapFile_To_Pic.end() )
 				pFileBrowserInfo->m_PK_Picture = it->second;

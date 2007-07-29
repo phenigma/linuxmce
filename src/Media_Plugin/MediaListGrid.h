@@ -146,8 +146,8 @@ public:
 	FileBrowserInfoPtr *m_pFileBrowserInfoPtr;  // This will be the same as m_listFileBrowserInfo, but in an array for faster retrieval by row number
 	MediaListGrid *m_pMediaListGrid_Master;
 
-	MediaListGrid(class Datagrid_Plugin *pDatagrid_Plugin,class Media_Plugin *pMedia_Plugin) : m_pDatagrid_Plugin(pDatagrid_Plugin), m_pMedia_Plugin(pMedia_Plugin) { m_pFileBrowserInfoPtr=NULL; m_pMediaListGrid_Master=NULL; }
-	MediaListGrid(class Datagrid_Plugin *pDatagrid_Plugin,class Media_Plugin *pMedia_Plugin,MediaListGrid *pMediaListGrid) : m_pDatagrid_Plugin(pDatagrid_Plugin), m_pMedia_Plugin(pMedia_Plugin), m_pMediaListGrid_Master(pMediaListGrid) { m_pFileBrowserInfoPtr=NULL; }
+	MediaListGrid(class Datagrid_Plugin *pDatagrid_Plugin,class Media_Plugin *pMedia_Plugin,int PK_MediaType) : m_pDatagrid_Plugin(pDatagrid_Plugin), m_pMedia_Plugin(pMedia_Plugin) { m_pFileBrowserInfoPtr=NULL; m_pMediaListGrid_Master=NULL; m_iPK_MediaType=PK_MediaType; }
+	MediaListGrid(class Datagrid_Plugin *pDatagrid_Plugin,class Media_Plugin *pMedia_Plugin,MediaListGrid *pMediaListGrid) : m_pDatagrid_Plugin(pDatagrid_Plugin), m_pMedia_Plugin(pMedia_Plugin), m_pMediaListGrid_Master(pMediaListGrid) { m_pFileBrowserInfoPtr=NULL; m_iPK_MediaType=m_pMediaListGrid_Master->m_iPK_MediaType; }
 	~MediaListGrid()
 	{
 		delete[] m_pFileBrowserInfoPtr;
@@ -159,7 +159,7 @@ public:
 	class Datagrid_Plugin *m_pDatagrid_Plugin;
 	class Media_Plugin *m_pMedia_Plugin;
 	string m_sIconFile;
-	int m_iType;
+	int m_iPK_MediaType;
 	void ToData(string GridID,int &Size, char* &Data, int *ColStart, int *RowStart, int ColCount, int RowCount);
 	list<FileBrowserInfo *> m_listFileBrowserInfo;
 };

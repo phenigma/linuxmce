@@ -746,14 +746,20 @@ bool ScreenHandler::MediaBrowser_DatagridSelected(CallBackData *pData)
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SelectedMediaFile(string sFile)
 {
-	DesignObj_Orbiter *pObj_Play = NULL;
+	DesignObj_Orbiter *pObj_Play = NULL,*pObj_Close = NULL;
 	string sTerms = m_mapKeywords_Find("TERMS");
 	if( sTerms.empty() )
 	{
 		if( m_pOrbiter->m_pScreenHistory_Current && m_pOrbiter->m_pScreenHistory_Current->GetObj()->m_iBaseObjectID==DESIGNOBJ_mnuFilelist_Video_Music_Small_CONST )
+		{
 			pObj_Play = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_mnuFileDetails_SmallUI_CONST) ".0.0." TOSTRING(DESIGNOBJ_butFBSF_Play_CONST) );
+			pObj_Close = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_mnuFileDetails_SmallUI_CONST) ".0.0." TOSTRING(DESIGNOBJ_butFBSF_Close_CONST) );
+		}
 		else
+		{
 			pObj_Play = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_popFileDetails_CONST) ".0.0." TOSTRING(DESIGNOBJ_butFBSF_Play_CONST) );
+			pObj_Close = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_popFileDetails_CONST) ".0.0." TOSTRING(DESIGNOBJ_butFBSF_Close_CONST) );
+		}
 	}
 	else
 		pObj_Play = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_popFilePurchaseDetails_CONST) ".0.0." TOSTRING(DESIGNOBJ_butFBSF_Purchase_CONST) );
@@ -766,7 +772,8 @@ void ScreenHandler::SelectedMediaFile(string sFile)
 	NeedToRender render2( m_pOrbiter, "ScreenHandler::MediaBrowser_DatagridSelected" );
 	m_pOrbiter->CMD_Goto_DesignObj(0,pObj_Play->m_pParentObject->m_ObjectID,"","",false,true);
 
-	string sPicture = m_mapKeywords_Find("PICTURE");
+	string sPicture = mediaFileBrowserOptions.m_PK_MediaType==MEDIATYPE_pluto_Pictures_CONST ? sFile : m_mapKeywords_Find("PICTURE");
+	pObj_Play->m_bHidden = mediaFileBrowserOptions.m_PK_MediaType==MEDIATYPE_pluto_Pictures_CONST;
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::SelectedMediaFile file %s pic %s", sFile.c_str(), sPicture.c_str());
 	if( sPicture.empty()==false )
@@ -789,10 +796,10 @@ void ScreenHandler::SelectedMediaFile(string sFile)
 	if(NULL != pParentObject)
 		m_pOrbiter->Renderer()->RenderObjectAsync(pParentObject);
 
-	m_pOrbiter->m_pObj_Highlighted_set(pObj_Play);
+	m_pOrbiter->m_pObj_Highlighted_set(mediaFileBrowserOptions.m_PK_MediaType==MEDIATYPE_pluto_Pictures_CONST ? pObj_Close : pObj_Play);
 #ifdef ENABLE_MOUSE_BEHAVIOR
 	if( m_pOrbiter->m_pMouseBehavior )
-		m_pOrbiter->m_pMouseBehavior->SetMousePosition(pObj_Play);
+		m_pOrbiter->m_pMouseBehavior->SetMousePosition(mediaFileBrowserOptions.m_PK_MediaType==MEDIATYPE_pluto_Pictures_CONST ? pObj_Close : pObj_Play);
 #endif
 }
 //-----------------------------------------------------------------------------------------------------
