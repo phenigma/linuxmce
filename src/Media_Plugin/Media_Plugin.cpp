@@ -5377,6 +5377,9 @@ int Media_Plugin::CheckForAutoResume(MediaStream *pMediaStream)
 	MediaFile *pMediaFile=pMediaStream->GetCurrentMediaFile();
 	if( pMediaFile )
 	{
+		if( StringUtils::StartsWith(pMediaFile->m_sPath,"/home/public/data/samples/",true) )  // Don't resume the samples
+			return 0;
+
 		if( pMediaFile->m_dwPK_File )
 		{
 			m_pDatabase_pluto_media->Bookmark_get()->GetRows(
