@@ -74,7 +74,7 @@ while : ;do
 			[[ -n "$serverMAC_ARP" ]] && serverMAC="$serverMAC_ARP"
 		fi
 		
-		Log "Processing $serverIP"
+		Log "Processing $serverIP (mac: $serverMAC)"
 
 		## If the IP is not there already
 		if [[ "$IP_List" != *"_${IntIP}_"* ]] && [[ "$serverIP" != "$IntIP" ]] ;then
