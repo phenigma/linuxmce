@@ -6636,7 +6636,7 @@ bool Media_Plugin::AssignDriveForDisc(MediaStream *pMediaStream,MediaFile *pMedi
 		if( pMediaStream->m_pOH_Orbiter_StartedMedia )
 		{
 			DCE::SCREEN_PopupMessage SCREEN_PopupMessage(m_dwPK_Device,pMediaStream->m_pOH_Orbiter_StartedMedia->m_pDeviceData_Router->m_dwPK_Device,
-				"Please wait up to 30 seconds while I load that disc.  Playback will start when the disc is loaded.","","load_jukebox","0","10","1");
+				"Please wait up to 60 seconds while I load that disc.  Playback will start when the disc is loaded.","","load_jukebox","0","10","1");
 			SendCommand(SCREEN_PopupMessage);
 		}
 		pMediaFile->m_dwPK_Device_Disk_Drive = PK_Device_Disk; // This is the disc we'll be using now

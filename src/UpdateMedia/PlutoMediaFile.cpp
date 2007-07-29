@@ -808,13 +808,12 @@ int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
 	m_bNewFileToDb = true;
 	m_bNewFilesAdded = true;
 
-	LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "x=%d", PK_MediaType);
 	if( PK_MediaType==MEDIATYPE_pluto_Pictures_CONST )
 	{
 		string Output = m_sDirectory + "/" + m_sFile;
 		StringUtils::Replace(&Output,"\"","\\\"");
 		string sCmd = "convert \"" + Output + "\" -sample 75x75 \"jpeg:" + Output + ".tnj\"";
-		LoggerWrapper::GetInstance()->Write(LV_STATUS, "%s",sCmd.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Creating thumbnail %s",sCmd.c_str());
 		system(sCmd.c_str());
 	}
 
