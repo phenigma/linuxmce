@@ -307,7 +307,17 @@ int PlutoMediaFile::HandleFileNotInDatabase(int PK_MediaType)
 		m_pPlutoMediaAttributes->m_nFileID = PK_File;
 		AssignPlutoDevice();
     }
-    return PK_File;
+
+	if( PK_MediaType=MEDIATYPE_pluto_Pictures_CONST )
+	{
+		string Output = m_sDirectory + m_sFile;
+		StringUtils::Replace(&Output,"\"","\\\"");
+		string sCmd = "convert \"" + Output + "\" -sample 75x75 \"jpeg:" + Output + ".tnj\"";
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "%s",sCmd.c_str());
+		system(sCmd.c_str());
+	}
+
+	return PK_File;
 }
 //-----------------------------------------------------------------------------------------------------
 void PlutoMediaFile::SaveEveryThingToDb()
