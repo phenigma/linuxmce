@@ -811,7 +811,7 @@ int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
 	LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "x=%d", PK_MediaType);
 	if( PK_MediaType==MEDIATYPE_pluto_Pictures_CONST )
 	{
-		string Output = m_sDirectory + m_sFile;
+		string Output = m_sDirectory + "/" + m_sFile;
 		StringUtils::Replace(&Output,"\"","\\\"");
 		string sCmd = "convert \"" + Output + "\" -sample 75x75 \"jpeg:" + Output + ".tnj\"";
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "%s",sCmd.c_str());
