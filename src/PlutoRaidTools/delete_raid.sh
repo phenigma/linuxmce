@@ -13,7 +13,7 @@ array=$(RunSQL "$Q")
 Q="SELECT PK_Device FROM Device WHERE FK_DeviceTemplate = $HARD_DRIVE_DEVICE_TEMPLATE AND FK_Device_ControlledVia = $RaidDevice"
 HardDriveList=$(RunSQL "$Q")
 for Drive in $HardDriveList; do
-	Q="SELECT Block.IK_DeviceData FROM Device_DeviceData WHERE FK_DeviceData = $BLOCK_DEVICE_ID AND PK_Device=$Drive"
+	Q="SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_DeviceData = $BLOCK_DEVICE_ID AND FK_Device=$Drive"
 	R=$(RunSQL "$Q")
     	/usr/pluto/bin/delete_drive.sh '1' $array $R
 done
