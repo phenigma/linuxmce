@@ -280,11 +280,14 @@ sub get_files {
 	} else {
 		$finaldst = $dest."/".'tags'."/".$buff.".".$image->{'format'};
 	}
-	
+
+	`touch "$finaldst".lock`;
 	`wget $image->{'source'} -O "$finaldst" 1>/dev/null 2>/dev/null`;
+	`convert "$finaldst" -sample 75x75 "jpeg:$finaldst".tnj`;
 
 	open TEST, ">>/var/log/pluto/Flickr.log";
-	print TEST "Downloading image $finaldst \n";	
+	print TEST "Downloaded image $finaldst , created lockfile, created tnj \n";
+		
 	close(TEST);
 }
 
