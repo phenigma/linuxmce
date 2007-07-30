@@ -301,9 +301,9 @@ case "$Param_Event" in
 	*)
 		Q="SELECT FK_Device FROM Device_DeviceData WHERE IK_DeviceData = '$Param_Raid'  AND FK_DeviceData = $DD_BLOCK_DEVICE"
 		DeviceID=$(RunSQL "$Q")
-			
-		x=$(mdadm --detail $Param_Raid  | grep "Array Size" | cut -d ':' -f2 | cut -d ' ' -f2)
-		Raid_SetSize "$DeviceID" "$(( x / 1024 / 1024)) GiB"
+		
+		x=$(mdadm --detail $Param_Raid  | grep "Array Size" | cut -d ':' -f2 | awk '{print $2 $3}' | sed 's/(//')
+		Raid_SetSize "$DeviceID" "$x"	
 
 		Raid_UpdateStatusFromMdadm "$DeviceID"
 	;;
