@@ -93,6 +93,14 @@ bool ClientSocket::Connect( int PK_DeviceTemplate,string sExtraInfo,int iConnect
 	//int b = 1;
 	//setsockopt(m_Socket, IPPROTO_TCP, TCP_NODELAY, (SOCKOPTTYPE) &b, sizeof(b));
 
+	if(m_sIPAddress.empty())
+	{
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Don't know where to connect. The IP address is empty!");
+		Disconnect();
+		m_eLastError=cs_err_CannotConnect;
+		return false;
+	}
+
 	if ( m_Socket != INVALID_SOCKET )
 	{
 		int iRetries = 0, iRet;
