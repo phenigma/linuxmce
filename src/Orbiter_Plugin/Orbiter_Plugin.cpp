@@ -2881,7 +2881,7 @@ void Orbiter_Plugin::StartRetrievingScreenSaverFiles()
 
 		// Also update our list of software while we're at it
 		DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice_App_Server->m_dwPK_Device,
-			"usr/pluto/bin/getxmls","getxmls","","","",false,false,false,false);
+			"/usr/pluto/bin/getxmls","getxmls","","","",false,false,false,false);
 		CMD_Spawn_Application.m_pMessage->m_eRetry=MR_Retry;
 		SendCommand(CMD_Spawn_Application);
 	}
