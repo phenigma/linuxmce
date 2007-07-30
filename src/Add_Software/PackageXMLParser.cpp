@@ -20,6 +20,9 @@
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/FileUtils.h"
 #include "DCE/Logger.h"
+
+#define REQUIRED_LIST_VERSION "1.1"
+
 //--------------------------------------------------------------------------------------------------
 string NodeName[] =
 {
@@ -69,7 +72,26 @@ bool PackageXMLParser::ProcessNode(xmlTextReaderPtr reader)
 	string sName(name);
 	int type = xmlTextReaderNodeType(reader);
 
-	if(sName == "package")
+	if (sName == "packages")
+	{
+		cout << "Found packages tag: " << endl;
+		char *version = (char*) xmlTextReaderGetAttribute(reader, (xmlChar*) "version");
+		if (!version) 
+		{
+			DCE::LoggerWrapper::GetInstance()->Write( LV_WARNING, "Cannot read packages list version, skipping this XML file");
+			return false;
+		}
+		else
+		{
+			DCE::LoggerWrapper::GetInstance()->Write( LV_STATUS, "Detected version of packages list: %s", version);
+			if (strcmp(version, REQUIRED_LIST_VERSION) != 0)
+			{
+				DCE::LoggerWrapper::GetInstance()->Write( LV_WARNING, "Version of packages list doesn't match required one " REQUIRED_LIST_VERSION ", skipping this XML file");
+				return false;
+			}
+		}
+	}
+	else if(sName == "package")
 	{
 		ProcessPackage();
 	}
