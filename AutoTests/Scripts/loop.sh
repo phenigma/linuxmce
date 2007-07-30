@@ -8,7 +8,7 @@ if [[ "$1" != "demonized" ]] ;then
 fi
 
 if [[ "$2" == "" ]] ;then
-	PK_Room="1"
+        PK_Room=$(RunSQL "SELECT FK_Room FROM Device WHERE PK_Device='${PK_Device}'")
 else
 	PK_Room="$2"
 fi
