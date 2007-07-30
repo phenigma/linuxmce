@@ -74,7 +74,7 @@ int main(int argc, char *argv[])
 	bool bError=false;
 	string host="dcerouter",user="root",passwd="",db="pluto_main";
 	vector<string> url;
-	url.push_back("http://www.google.com/search?q=10faostb");
+	url.push_back("http://www.google.com/search?q=10faostb&num=100&filter=0");
 	for(int i=1;i<argc;i++){
 		if(argv[i][0]!='-'){
 			cerr<<"Unknown option"<<endl;
