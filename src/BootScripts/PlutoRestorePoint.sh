@@ -99,6 +99,7 @@ if [[ "$1" == "--restore" ]]; then
 		ConfSet "AutostartCore" "$AutostartCore"
 		ConfSet "AutostartMedia" "$AutostartMedia"
 
+		/usr/pluto/bin/Network_Setup.sh
 	fi
 
 
