@@ -808,7 +808,7 @@ int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
 	m_bNewFileToDb = true;
 	m_bNewFilesAdded = true;
 
-	if( PK_MediaType==MEDIATYPE_pluto_Pictures_CONST )
+	if( PK_MediaType==MEDIATYPE_pluto_Pictures_CONST && !m_bIsDir)
 	{
 		string Output = m_sDirectory + "/" + m_sFile;
 		StringUtils::Replace(&Output,"\"","\\\"");
