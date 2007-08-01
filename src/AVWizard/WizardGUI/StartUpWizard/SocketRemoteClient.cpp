@@ -172,6 +172,57 @@ void* SocketClientCallBack(void* SocketClientCallBackPtr)
 		Event.key.state = SDL_RELEASED;
 		Event.key.keysym.sym = SDLK_MINUS;
 	}
+	if(Message == "0") {
+		Event.type = SDL_KEYUP;
+		Event.key.state = SDL_RELEASED;
+		Event.key.keysym.sym = SDLK_0;
+	}
+	if(Message == "1") {
+		Event.type = SDL_KEYUP;
+		Event.key.state = SDL_RELEASED;
+		Event.key.keysym.sym = SDLK_1;
+	}
+	if(Message == "2") {
+		Event.type = SDL_KEYUP;
+		Event.key.state = SDL_RELEASED;
+		Event.key.keysym.sym = SDLK_2;
+	}
+	if(Message == "3") {
+		Event.type = SDL_KEYUP;
+		Event.key.state = SDL_RELEASED;
+		Event.key.keysym.sym = SDLK_3;
+	}
+	if(Message == "4") {
+		Event.type = SDL_KEYUP;
+		Event.key.state = SDL_RELEASED;
+		Event.key.keysym.sym = SDLK_4;
+	}
+	if(Message == "5") {
+		Event.type = SDL_KEYUP;
+		Event.key.state = SDL_RELEASED;
+		Event.key.keysym.sym = SDLK_5;
+	}
+	if(Message == "6") {
+		Event.type = SDL_KEYUP;
+		Event.key.state = SDL_RELEASED;
+		Event.key.keysym.sym = SDLK_6;
+	}
+	if(Message == "7") {
+		Event.type = SDL_KEYUP;
+		Event.key.state = SDL_RELEASED;
+		Event.key.keysym.sym = SDLK_7;
+	}
+	if(Message == "8") {
+		Event.type = SDL_KEYUP;
+		Event.key.state = SDL_RELEASED;
+		Event.key.keysym.sym = SDLK_8;
+	}
+	if(Message == "9") {
+		Event.type = SDL_KEYUP;
+		Event.key.state = SDL_RELEASED;
+		Event.key.keysym.sym = SDLK_9;
+	}
+
 
 	SafetyLock Lock(&Client->Server->SafeMutex);
 	
