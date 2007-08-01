@@ -303,6 +303,8 @@ void OrbiterRenderer::ClipRectangle(PlutoRectangle &rect)
 
 	ScreenRendered();
 
+	OrbiterLogic()->CallMaintenanceInMiliseconds(0, &Orbiter::ServiceAlerts, NULL, pe_ALL, false);	
+
 	if( bRenderGraphicsOnly )
 		return;
 
