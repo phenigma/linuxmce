@@ -97,7 +97,6 @@ OpenGLGraphic::OpenGLGraphic(SDL_Surface *pSurface) : PlutoGraphic(),
 
 OpenGLGraphic::~OpenGLGraphic()
 {
-	
 	PLUTO_SAFETY_LOCK(oglMutex, m_OpenGlMutex);
 
 	if(NULL != LocalSurface)
@@ -113,8 +112,6 @@ OpenGLGraphic::~OpenGLGraphic()
 
 	delete [] m_pAlphaMask;
 	m_pAlphaMask = NULL;
-
-	pthread_mutex_destroy(&m_OpenGlMutex.mutex);
 
 #if defined(DETECT_LEAKS)
 	LeaksDetector::Instance().DestroyedGraphicObject();
@@ -159,7 +156,6 @@ bool OpenGLGraphic::SetupFromImage(std::string FileName)
 	Prepare();
 	return true;
 }
-
 
 void OpenGLGraphic::Prepare()
 {    

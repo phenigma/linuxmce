@@ -78,11 +78,6 @@ public:
 	 *	Scales the texturing coordinates values to the specified paremeter sizes
 	 */
 	virtual void SetUVMapping(FloatRect Rect);
-
-	/**
-	 *	Creates a geometry clone
-	 */
-	MeshContainer* Clone(bool bShareGraphic);
 	/**
 	*	Makes a list with all texture mapped on its triangles and release them
 	*/

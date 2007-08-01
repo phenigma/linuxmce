@@ -336,15 +336,7 @@ void DesignObj_DataGrid::DataGridTable_Set(DataGridTable *pDataGridTable,int Cur
 	DesignObj_Orbiter::Flush(bFlushGraphics);
 	m_pDataGridTable_Current=NULL;
 	for(map< pair<int,int>, DataGridTable *>::iterator itm=m_mapDataGridTable_Cache.begin();itm!=m_mapDataGridTable_Cache.end();++itm)
-	{
-		DataGridTable *pDatagrid = itm->second;
-
-#ifdef ORBITER_OPENGL
-		pDatagrid->DetachGraphics();
-#endif
-
 		delete itm->second;
-	}
 	m_mapDataGridTable_Cache.clear();
 	m_PagesCached = make_pair<int,int> (0,0);
 	m_CurrentLocation = make_pair<int,int> (0,0);
@@ -544,15 +536,8 @@ void DesignObj_DataGrid::m_pDataGridTable_Current_set(DataGridTable *pDataGridTa
 			DataGridCell *pCell = it->second;
 			if( pCell->m_pGraphic )
 			{
-			//NOTE: for orbiter opengl, the engine will take care of graphics/textures
-			//in this case, we don't want to delete the graphics files at this moment, because
-			//we won't be able to do a datagrid animation (we won't have the coverarts from prev. page of the datagrid)
-			//the engine will deallocate the memory for graphics of the datagrid when the animation stops
-#ifndef ORBITER_OPENGL
 				LoggerWrapper::GetInstance()->Write(LV_STATUS,"delete2 m_pCell->m_pGraphic %p:%p",pCell,pCell->m_pGraphic);
-				delete pCell->m_pGraphic;
-				pCell->m_pGraphic=NULL;
-#endif
+				RELEASE_GRAPHIC(pCell->m_pGraphic);
 			}
 		}
 	}

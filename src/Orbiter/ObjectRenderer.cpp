@@ -164,7 +164,7 @@ ObjectRenderer::ObjectRenderer(DesignObj_Orbiter *pOwner) : m_pObj_Owner(pOwner)
 
 				vector<PlutoGraphic *>::iterator itPlutoGraphic;
 				for(itPlutoGraphic = pVectorPlutoGraphic->begin(); itPlutoGraphic != pVectorPlutoGraphic->end(); ++itPlutoGraphic)
-					delete *itPlutoGraphic;
+					RELEASE_GRAPHIC(*itPlutoGraphic);
 				pVectorPlutoGraphic->clear();
 
 				InMemoryMNG *pInMemoryMNG = InMemoryMNG::CreateInMemoryMNGFromFile(sFileName, rectTotal.Size());
@@ -486,8 +486,7 @@ ObjectRenderer::ObjectRenderer(DesignObj_Orbiter *pOwner) : m_pObj_Owner(pOwner)
 		m_pObj_Owner->m_pvectCurrentGraphic = pvectGraphic_Hold;
 
 		vectGraphicToUndoSelect.clear();
-		delete m_pObj_Owner->m_pGraphicToUndoSelect;
-		m_pObj_Owner->m_pGraphicToUndoSelect=NULL;
+		RELEASE_GRAPHIC(m_pObj_Owner->m_pGraphicToUndoSelect);
 	}
 	else if(  m_pObj_Owner->m_pvectCurrentGraphic  )
 		RenderGraphic(rectTotal, m_pObj_Owner->m_bDisableAspectLock, point );

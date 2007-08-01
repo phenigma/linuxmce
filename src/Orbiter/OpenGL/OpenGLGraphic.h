@@ -105,10 +105,12 @@ class OpenGLGraphic : public PlutoGraphic
 	 *	Safeing texture operations
 	 */
 	pluto_pthread_mutex_t m_OpenGlMutex; 
+
 	Uint32 getpixel(SDL_Surface *pSDL_Surface,int x, int y);
 	void putpixel(SDL_Surface *pSDL_Surface,int x, int y, Uint32 pixel_color);
-
 	void GenerateAlphaMask();
+
+	~OpenGLGraphic();
 
 public:
 	SDL_Surface* LocalSurface;
@@ -126,8 +128,6 @@ public:
 	 */
 
 	OpenGLGraphic(int Width, int Height);
-
-	~OpenGLGraphic();
 
 	bool SetupFromImage(std::string FileName);
 	void Prepare();

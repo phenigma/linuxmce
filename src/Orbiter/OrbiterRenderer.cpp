@@ -405,8 +405,7 @@ void OrbiterRenderer::OnReload()
 	if(pPlutoGraphic)
 	{
 		OrbiterLogic()->m_pOrbiterRenderer->RenderGraphic(pPlutoGraphic, OrbiterLogic()->m_rectLastHighlight);
-		delete pPlutoGraphic;
-		pPlutoGraphic = NULL;
+		RELEASE_GRAPHIC(pPlutoGraphic);
 	}
 
 	for(int i = 0; i < 4; i++)
@@ -432,8 +431,7 @@ void OrbiterRenderer::OnReload()
 		UpdateRect(OrbiterLogic()->m_rectLastHighlight);
 	}
 
-	delete OrbiterLogic()->m_pGraphicBeforeHighlight;
-	OrbiterLogic()->m_pGraphicBeforeHighlight=NULL;
+	RELEASE_GRAPHIC(OrbiterLogic()->m_pGraphicBeforeHighlight);
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer::HighlightFirstObject()
@@ -1201,9 +1199,7 @@ void OrbiterRenderer::ObjectOnScreen( VectDesignObj_Orbiter *pVectDesignObj_Orbi
 	{
 		pObj->m_pvectCurrentGraphic = NULL;
 		for(size_t i = 0; i < pObj->m_vectGraphic.size(); i++)
-		{
-			delete pObj->m_vectGraphic[i];
-		}
+			RELEASE_GRAPHIC(pObj->m_vectGraphic[i]);
 		pObj->m_vectGraphic.clear();
 		pObj->m_iCurrentFrame = 0;
 		OrbiterLogic()->m_vectObjs_VideoOnScreen.push_back(pObj);
@@ -1254,11 +1250,8 @@ void OrbiterRenderer::ObjectOffScreen( DesignObj_Orbiter *pObj )
 		OrbiterLogic()->m_pObj_Highlighted_set(NULL);  // Otherwise an object on popup removed from the screen may remain highlighted
 		
 	pObj->m_bOnScreen=false;
-	if(  pObj->m_pGraphicToUndoSelect  )
-	{
-		delete pObj->m_pGraphicToUndoSelect;
-		pObj->m_pGraphicToUndoSelect=NULL;
-	}
+
+	RELEASE_GRAPHIC(pObj->m_pGraphicToUndoSelect);
 
 	if( !pObj->m_bKeepGraphicInCache )
 	{
@@ -1357,14 +1350,14 @@ void *ImageLoadThread(void *p)
 					pBackgroundImage->m_sPic.c_str(),pBackgroundImage->m_iRequestID,pDataGridTable2 ? pDataGridTable2->m_iRequestID : -999);
 #endif
 				delete pBackgroundImage;
-				delete pPlutoGraphic;
+				RELEASE_GRAPHIC(pPlutoGraphic);
 				continue;
 			}
 
 #ifdef DEBUG
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"delete1 pBackgroundImage->m_pCell->m_pGraphic %p:%p",pBackgroundImage->m_pCell,pBackgroundImage->m_pCell->m_pGraphic);
 #endif
-			delete pBackgroundImage->m_pCell->m_pGraphic;
+			RELEASE_GRAPHIC(pBackgroundImage->m_pCell->m_pGraphic);
 
 			pBackgroundImage->m_pCell->m_pGraphic = pPlutoGraphic;
 			int j=pBackgroundImage->m_ColRow.first;
@@ -1476,9 +1469,7 @@ char *pData, int iData_Size, string sDisable_Aspect_Lock)
 	}
 
 	for(size_t i = 0; i < pObj->m_vectGraphic.size(); i++)
-	{
-		delete pObj->m_vectGraphic[i];
-	}
+		RELEASE_GRAPHIC(pObj->m_vectGraphic[i]);
 	pObj->m_vectGraphic.clear();
 	pObj->m_iCurrentFrame = 0;
 

@@ -24,7 +24,7 @@
 //=======================================================================================================
 //Generic PlutoGraphic class methods
 //-------------------------------------------------------------------------------------------------------
-PlutoGraphic::PlutoGraphic()
+PlutoGraphic::PlutoGraphic(): m_nReferenceCount(1)
 {
 	Initialize();
 
@@ -32,7 +32,7 @@ PlutoGraphic::PlutoGraphic()
 	m_nHeight = 0;
 }
 //-------------------------------------------------------------------------------------------------------
-PlutoGraphic::PlutoGraphic(OrbiterRenderer *pOrbiterRenderer)
+PlutoGraphic::PlutoGraphic(OrbiterRenderer *pOrbiterRenderer): m_nReferenceCount(1)
 {
 	Initialize();
 
@@ -42,7 +42,8 @@ PlutoGraphic::PlutoGraphic(OrbiterRenderer *pOrbiterRenderer)
 }
 
 //-------------------------------------------------------------------------------------------------------
-PlutoGraphic::PlutoGraphic(string Filename, eGraphicManagement GraphicManagement, OrbiterRenderer *pOrbiterRenderer)
+PlutoGraphic::PlutoGraphic(string Filename, eGraphicManagement GraphicManagement, 
+						   OrbiterRenderer *pOrbiterRenderer): m_nReferenceCount(1)
 {
 	Initialize();
 
@@ -56,6 +57,17 @@ PlutoGraphic::PlutoGraphic(string Filename, eGraphicManagement GraphicManagement
 /*virtual*/ PlutoGraphic::~PlutoGraphic()
 {
 	delete[] m_pGraphicData;
+}
+//-------------------------------------------------------------------------------------------------------
+/*virtual*/ void PlutoGraphic::AddRef()
+{
+	++m_nReferenceCount;
+}
+//-------------------------------------------------------------------------------------------------------
+/*virtual*/ void PlutoGraphic::Release()
+{
+	if(0 == --m_nReferenceCount)
+		delete this;
 }
 //-------------------------------------------------------------------------------------------------------
 /*virtual*/ void PlutoGraphic::Initialize() 

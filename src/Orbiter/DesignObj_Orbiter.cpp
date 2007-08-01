@@ -91,21 +91,21 @@ DesignObj_Orbiter::~DesignObj_Orbiter()
 	m_pvectCurrentGraphic = m_pvectCurrentPlayingGraphic = NULL;
 
 	for(VectorPlutoGraphic::iterator itGraphic = m_vectGraphic.begin(); itGraphic != m_vectGraphic.end(); ++itGraphic)
-		delete *itGraphic;
+		RELEASE_GRAPHIC(*itGraphic);
 	m_vectGraphic.clear();
 
 	for(VectorPlutoGraphic::iterator itSelectedGraphic = m_vectSelectedGraphic.begin(); itSelectedGraphic != m_vectSelectedGraphic.end(); ++itSelectedGraphic)
-		delete *itSelectedGraphic;
+		RELEASE_GRAPHIC(*itSelectedGraphic);
 	m_vectSelectedGraphic.clear();
 
 	for(VectorPlutoGraphic::iterator itHighlightedGraphic = m_vectHighlightedGraphic.begin(); itHighlightedGraphic != m_vectHighlightedGraphic.end(); ++itHighlightedGraphic)
-		delete *itHighlightedGraphic;
+		RELEASE_GRAPHIC(*itHighlightedGraphic);
 	m_vectHighlightedGraphic.clear();
 
 	for(vector<VectorPlutoGraphic>::iterator itVectAltGraphic = m_vectAltGraphics.begin(); itVectAltGraphic != m_vectAltGraphics.end(); ++itVectAltGraphic)
 	{
 		for(VectorPlutoGraphic::iterator itAltGraphic = itVectAltGraphic->begin(); itAltGraphic != itVectAltGraphic->end(); ++itAltGraphic)
-			delete *itAltGraphic;
+			RELEASE_GRAPHIC(*itAltGraphic);
 
 		itVectAltGraphic->clear();
 	}

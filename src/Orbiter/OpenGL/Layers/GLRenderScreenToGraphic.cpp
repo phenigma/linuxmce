@@ -59,7 +59,7 @@ GLRenderScreenToGraphic::GLRenderScreenToGraphic(int Width, int Height)
 
 GLRenderScreenToGraphic::~GLRenderScreenToGraphic(void)
 {
-	delete RenderGraphic;
+	RELEASE_GRAPHIC(RenderGraphic);
 }
 
 OpenGLGraphic* GLRenderScreenToGraphic::GetRenderGraphic()

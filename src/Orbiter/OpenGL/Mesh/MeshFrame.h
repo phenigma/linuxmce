@@ -203,12 +203,9 @@ public:
 	 *	Check volatile flag
 	 */
 	bool IsVolatile() { return m_bVolatile; }
-	/*
-	 *	Don't release textures for this mesh frame
+	/**
+	 *    Is this mesh valid ?
 	 */
-	void DontReleaseTexture() { m_bDontReleaseTexture = true; }
-	void AllowReleaseTexture() { m_bDontReleaseTexture = false; }
-
 	bool MeshIsValid();
 };
 

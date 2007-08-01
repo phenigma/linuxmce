@@ -514,6 +514,8 @@ g_PlutoProfiler->Start("ObjectRenderer_OpenGL::RenderGraphic2");
 	}
 #endif
 
+	Graphic->AddRef(); //add a reference to this object
+
 	Engine->AddMeshFrameToDesktop(ParentObjectID, Frame);
 g_PlutoProfiler->Stop("ObjectRenderer_OpenGL::RenderGraphic2");
 
@@ -528,14 +530,7 @@ g_PlutoProfiler->Stop("ObjectRenderer_OpenGL::RenderGraphic2");
 			TextureManager::Instance()->AddCacheItem(ObjectHash, Frame);
 		}
 		else
-		{
 			Frame->MarkAsVolatile();
-			Frame->DontReleaseTexture();
-		}
-	}
-	else
-	{
-		Frame->DontReleaseTexture();
 	}
 }
 //-----------------------------------------------------------------------------------------------------
@@ -750,6 +745,9 @@ DesignObj_Orbiter *pObj, PlutoPoint *ptPopup/* = NULL*/)
 		//we are on a popup; keep me cached!
 		pObj->m_bKeepGraphicInCache = true;
 	}
+
+	if(pObj->m_ObjectType == DESIGNOBJTYPE_Datagrid_CONST)
+		pObj->Flush();
 
 	OrbiterRenderer::ObjectOffScreen(pObj);
 }

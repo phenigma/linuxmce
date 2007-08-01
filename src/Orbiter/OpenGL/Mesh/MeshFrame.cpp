@@ -44,7 +44,6 @@ MeshFrame::MeshFrame(string Name, MeshContainer* Mesh)
 	m_pParent(NULL),
 	m_bVisible(true),
 	m_bVolatile(false),
-	m_bDontReleaseTexture(false),
 	Transform(),
 	TextureTransform()
 {
@@ -65,16 +64,8 @@ MeshFrame::MeshFrame(string Name, MeshContainer* Mesh)
 
 MeshFrame::~MeshFrame(void)
 {
-#ifdef DEBUG_MESH_FRAMES
-	if(m_bDontReleaseTexture)
-		DCE::LoggerWrapper::GetInstance()->Write(LV_STATUS, "MeshFrame:Dtor Not releasing texture for %p/%s, volatile %d", this, m_sName.c_str(), m_bVolatile);
-#endif
-
 	if(NULL != m_pMeshContainer)
-	{
-		bool bDestroyGraphics = IsVolatile() && !m_bDontReleaseTexture;
-		m_pMeshContainer->DisposeTextures(bDestroyGraphics);
-	}
+		m_pMeshContainer->DisposeTextures(IsVolatile());
 
 	delete m_pMeshContainer;
 	m_pMeshContainer = NULL;
@@ -358,14 +349,14 @@ MeshFrame *MeshFrame::Clone()
 {
 	MeshFrame *Result = new MeshFrame(m_sName + " clone");
 
-	if(m_bDontReleaseTexture)
-		Result->m_bDontReleaseTexture = true;
-
 	Result->MarkAsVolatile();
-
 	Result->m_bVisible = m_bVisible;
+
 	if(NULL != m_pMeshContainer)
-		Result->m_pMeshContainer = m_pMeshContainer->Clone(Result->m_bDontReleaseTexture);
+	{
+		Result->m_pMeshContainer = m_pMeshContainer;
+		m_pMeshContainer = NULL;
+	}
 
 	Result->Transform = Transform;
 	Result->TextureTransform = TextureTransform;

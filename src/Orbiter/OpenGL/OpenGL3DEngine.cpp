@@ -103,6 +103,8 @@ OpenGL3DEngine::~OpenGL3DEngine()
 
 void OpenGL3DEngine::Finalize(void)
 {
+	TextureManager::Instance()->SafeToReleaseTextures(true);
+
 	UnHighlight();
 	UnSelect();
 

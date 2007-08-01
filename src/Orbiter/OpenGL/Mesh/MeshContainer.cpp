@@ -64,8 +64,9 @@ void MeshContainer::DisposeTextures(bool bDestroyGraphics)
 	for(map<OpenGLGraphic *, bool>::iterator it = mapTextures.begin(); it != mapTextures.end(); ++it)
 	{
 		OpenGLGraphic *pGraphic = it->first;
+		
 		if(bDestroyGraphics)
-			delete pGraphic;
+			RELEASE_GRAPHIC(pGraphic)
 		else if(TextureManager::Instance()->IsSafeToReleaseTextures())
 			pGraphic->Clear();
 	}
@@ -103,53 +104,5 @@ void MeshContainer::SetColor(Point3D& Color)
 		Vertexes[i].Color = Color;
 	}
 
-}
-
-MeshContainer* MeshContainer::Clone(bool bShareGraphic)
-{
-	MeshContainer* Result = new MeshContainer();
-	Result->Vertexes = new MeshVertex[NoVertexes];
-	Result->NoVertexes = NoVertexes;
-	for(int Counter = 0; Counter < NoVertexes; Counter++)
-		Result->Vertexes[Counter] = Vertexes[Counter];
-
-	Result->Triangles = new MeshTriangle[NoTriangles];
-	Result->NoTriangles = NoTriangles;
-
-	for(int Counter = 0; Counter < NoTriangles; Counter++)
-	{
-		Result->Triangles[Counter] = Triangles[Counter];
-
-		if(!bShareGraphic)
-		{
-			map<OpenGLGraphic*, OpenGLGraphic*> TextureClones;
-			
-			OpenGLGraphic* Texture = Triangles[Counter].Texture;
-			OpenGLGraphic* GraphicClone = NULL;
-			
-			if(NULL != Texture)
-			{
-				map<OpenGLGraphic*, OpenGLGraphic*>::iterator TextureIterator = TextureClones.find(Texture);
-				if(TextureIterator == TextureClones.end())
-				{
-					GraphicClone = new OpenGLGraphic();
-					GraphicClone->m_Filename = "clone of " + Texture->m_Filename;
-					GraphicClone->Texture = Triangles[Counter].Texture->Texture;
-					TextureClones[Texture] = GraphicClone;
-				}
-				else
-					GraphicClone = TextureIterator->second;
-			}
-			Result->Triangles[Counter].Texture = GraphicClone;
-		}
-		else
-		{
-			Result->Triangles[Counter].Texture = Triangles[Counter].Texture;
-		}
-	}
-
-	Result->Blended_ = Blended_;
-
-	return Result;
 }
 

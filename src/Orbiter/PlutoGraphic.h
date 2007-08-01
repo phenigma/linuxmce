@@ -61,6 +61,8 @@ enum GraphicType
 //-------------------------------------------------------------------------------------------------------
 class OrbiterRenderer;
 //-------------------------------------------------------------------------------------------------------
+#define RELEASE_GRAPHIC(x) { if(NULL != (x)) { (x)->Release(); (x) = NULL; } }
+//-------------------------------------------------------------------------------------------------------
 class PlutoGraphic
 {
 public:
@@ -68,7 +70,10 @@ public:
 	PlutoGraphic(OrbiterRenderer *pOrbiterRenderer);
 	PlutoGraphic(string Filename, eGraphicManagement GraphicManagement, OrbiterRenderer *pOrbiterRenderer);
 
-	virtual ~PlutoGraphic();
+	//reference counting methods
+	virtual void AddRef();
+	virtual void Release();
+
 	virtual PlutoGraphic* Clone() = 0; //Must be implemented
 
 	OrbiterRenderer *m_pOrbiterRenderer;
@@ -90,6 +95,14 @@ public:
 
 	int m_nWidth, m_nHeight;
 	string m_Filename;
+
+protected:
+
+	virtual ~PlutoGraphic();
+
+private:
+
+	int m_nReferenceCount;
 };
 //-------------------------------------------------------------------------------------------------------
 typedef list<PlutoGraphic*> PlutoGraphicList, AsyncLoadList;

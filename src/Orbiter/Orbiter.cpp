@@ -429,8 +429,7 @@ Orbiter::~Orbiter()
 	}
 	m_mapObj_All.clear();
 	
-	if (m_pBackgroundImage)
-		delete m_pBackgroundImage;
+	RELEASE_GRAPHIC(m_pBackgroundImage);
 
 	delete m_pOrbiterRenderer;
 	m_pOrbiterRenderer = NULL;

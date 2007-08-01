@@ -138,7 +138,8 @@ DataGridCell::~DataGridCell()
 		delete m_pGraphicData;
 		m_pGraphicData = NULL;
 	}
-	delete m_pGraphic;
+	
+	RELEASE_GRAPHIC(m_pGraphic);
 }
 
 DataGridCell::DataGridCell(string Text, string Value)
