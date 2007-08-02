@@ -675,7 +675,7 @@ bool OSDScreenHandler::This_Room_GridSelected(CallBackData *pData)
 		m_pOrbiter->CMD_Show_Object( TOSTRING(DESIGNOBJ_butTVProvider_CONST), 0,"","", PK_Room ? "1" : "0" );
 	}
 
-	return false;
+	return true;  // Always return true since we're handing everything datagrid related here and may destroy the grids causing SelectedGrid to crash if we return false
 }
 
 
@@ -848,7 +848,7 @@ bool OSDScreenHandler::TV_Manufacturer_GridSelected(CallBackData *pData)
 			break;
 	}
 
-	return false;
+	return true;  // Always return true since we're handing everything datagrid related here and may destroy the grids causing SelectedGrid to crash if we return false
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -1115,7 +1115,7 @@ bool OSDScreenHandler::Receiver_GridSelected(CallBackData *pData)
 			}
 			break;
 	}
-	return false;
+	return true;  // Always return true since we're handing everything datagrid related here and may destroy the grids causing SelectedGrid to crash if we return false
 }
 //-----------------------------------------------------------------------------------------------------
 bool OSDScreenHandler::Receiver_ObjectSelected(CallBackData *pData)
@@ -1416,7 +1416,7 @@ bool OSDScreenHandler::AV_Devices_GridSelected(CallBackData *pData)
 			}
 			break;
 	}
-	return false;
+	return true;  // Always return true since we're handing everything datagrid related here and may destroy the grids causing SelectedGrid to crash if we return false
 }
 
 void OSDScreenHandler::SCREEN_Wizard_Done(long PK_Screen)
@@ -2859,7 +2859,7 @@ bool OSDScreenHandler::ChooseProvider_DatagridSelected(CallBackData *pData)
 {
 	DatagridCellBackData *pCellInfoData = (DatagridCellBackData *)pData;
 	if( pCellInfoData->m_sValue.empty() )
-		return false;
+		return true;
 
 	if( pCellInfoData->m_nPK_Datagrid==DATAGRID_Devices_Needing_Providers_CONST )
 	{

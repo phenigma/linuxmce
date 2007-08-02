@@ -1440,7 +1440,7 @@ void ScreenHandler::SCREEN_CreateViewBookmarks(long PK_Screen)
 bool ScreenHandler::Bookmark_GridSelected(CallBackData *pData)
 {
 	m_pOrbiter->CMD_Go_back("","");
-	return false; // Keep processing
+	return true; 
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_DialogAskToResume(long PK_Screen, string sPK_Device_From, string sPK_Device_MediaSource, 
@@ -2144,7 +2144,7 @@ bool ScreenHandler::AddSoftware_GridSelected(CallBackData *pData)
 		string sInstallation_Status = pCellInfoData->m_pDataGridCell->m_mapAttributes_Find("Installation_status");
 		string sText,sCommand;
 		if( !PK_Software )
-			return false;
+			return true;
 
 		m_PK_Software = PK_Software;
 		m_sInstallationStatus = sInstallation_Status;
@@ -2159,7 +2159,7 @@ bool ScreenHandler::AddSoftware_GridSelected(CallBackData *pData)
 		DisplayMessageOnOrbiter(0,sText,false,"30",false,m_pOrbiter->m_mapTextString[TEXT_YES_CONST],"",m_pOrbiter->m_mapTextString[TEXT_NO_CONST],"","","","","",StringUtils::itos(PK_Software) + "," + sInstallation_Status);
 	}
 
-	return false; // Keep processing it
+	return true; //don't process it
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_FileSave(long PK_Screen, int iPK_MediaType, int iEK_Disc, string sCaption, string sCommand, bool bAdvanced_options)
@@ -2387,7 +2387,7 @@ bool ScreenHandler::FileSave_GridSelected(CallBackData *pData)
 		}
 	}
 
-	return false;
+	return true;
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SaveFile_GotoChooseFolderDesignObj()
