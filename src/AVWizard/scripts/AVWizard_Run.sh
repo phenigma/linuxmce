@@ -254,6 +254,7 @@ UpdateOrbiterUI()
 }
 
 ConfSet AVWizardOverride 0
+rm -f /tmp/AVWizard_Started
 
 RemoteCmd=$(/usr/pluto/bin/AVWizard_Remote_Detect.sh | tail -1)
 

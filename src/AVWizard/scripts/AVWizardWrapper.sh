@@ -39,7 +39,14 @@ while [[ "$Done" -eq 0 ]]; do
 	echo "Interrupted in step '$WizStep'"
 
 	case "$WizStep" in
-		$STEP_Welcome) NextStep=$STEP_Welcome ;;
+		$STEP_Welcome)
+			NextStep=$STEP_Welcome
+			if [[ ! -f /tmp/AVWizard_Started ]]; then
+				rm -f /tmp/avwizard-resolution-defaults.txt
+				/usr/pluto/bin/AVWizard_UpdateResolution.sh reset
+			fi
+			rm -f /tmp/AVWizard_Started
+		;;
 		$STEP_VideoResolution) NextStep=$STEP_VideoResolutionConfirm ;;
 		-$STEP_VideoResolution) NextStep=$STEP_VideoResolution ;;
 		$STEP_VideoResolutionConfirm|-$STEP_VideoResolutionConfirm)
