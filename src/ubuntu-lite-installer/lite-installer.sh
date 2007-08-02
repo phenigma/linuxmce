@@ -106,6 +106,12 @@ ExtractArchive()
 
 	#Copy the fist run script
 	cp /cdrom/lmce-image/firstboot /media/target/etc/rc2.d/S90firstboot
+
+	#Copy demo videos, if any
+	if [[ -d /cdrom/lmce-videos ]]; then
+		mkdir -p /home/public/data/videos/
+		cp -a /cdrom/lmce-videos/. /home/public/data/videos/
+	fi
 }
 
 UnmountPartitions()
