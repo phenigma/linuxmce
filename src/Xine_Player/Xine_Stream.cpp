@@ -193,6 +193,8 @@ Xine_Stream::Xine_Stream(Xine_Stream_Factory* pFactory, xine_t *pXineLibrary, in
 	m_iZoomLevel = 100;
 	
 	m_isSlimClient = false;
+        
+        m_iDiskID = -1;
 	
 	m_pDynamic_Pointer = NULL;
 	
@@ -542,8 +544,6 @@ bool Xine_Stream::OpenMedia(string fileName, string &sMediaInfo, string sMediaPo
 		return false;
 	}
         
-        m_sFileName = fileName;
-	
 	// resetting info about opened stream
 	m_iCachedStreamPosition = 0;
 	m_iCachedStreamLength = 0;
@@ -1971,7 +1971,7 @@ void Xine_Stream::XineStreamEventListener( void *streamObject, const xine_event_
 						message = message  + ((char *) data + data->parameters) ;
                                         
                                         // notifying orbiter
-                                        string sOrbiterMsg = "File not found: " + pXineStream->m_sFileName;
+                                        string sOrbiterMsg = "File not found: " + pXineStream->m_sCurrentFile;
                                         pXineStream->SendMessageToOrbiter(sOrbiterMsg);
                                         
 					break;
@@ -1991,13 +1991,13 @@ void Xine_Stream::XineStreamEventListener( void *streamObject, const xine_event_
                                         
                                         // notifying orbiter
                                         string sOrbiterMsg = "Cannot read ";
-                                        if ( StringUtils::StartsWith(pXineStream->m_sFileName, "dvd:/") )
+                                        if ( StringUtils::StartsWith(pXineStream->m_sCurrentFile, "dvd:/") )
                                         {
                                           sOrbiterMsg += "DVD, disk is not readable or DVDCSS library is not installed";
                                         }
                                         else
                                         {
-                                          sOrbiterMsg += "file " + pXineStream->m_sFileName;
+                                          sOrbiterMsg += "file " + pXineStream->m_sCurrentFile;
                                         }
                                         pXineStream->SendMessageToOrbiter(sOrbiterMsg);
                                         
@@ -2018,13 +2018,13 @@ void Xine_Stream::XineStreamEventListener( void *streamObject, const xine_event_
                                         
                                         // notifying orbiter
                                         string sOrbiterMsg = "Cannot read ";
-                                        if ( StringUtils::StartsWith(pXineStream->m_sFileName, "dvd:/") )
+                                        if ( StringUtils::StartsWith(pXineStream->m_sCurrentFile, "dvd:/") )
                                         {
                                           sOrbiterMsg += "encrypted DVD, probably DVDCSS library is not installed";
                                         }
                                         else
                                         {
-                                          sOrbiterMsg += "encrypted file " + pXineStream->m_sFileName;
+                                          sOrbiterMsg += "encrypted file " + pXineStream->m_sCurrentFile;
                                         }
                                         pXineStream->SendMessageToOrbiter(sOrbiterMsg);
                                         

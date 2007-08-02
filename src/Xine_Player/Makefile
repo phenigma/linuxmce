@@ -16,7 +16,7 @@ VERSION = 2.0.0
 MYDEVTEMPLATEID = 5mplateID
 
 Gen_Dev_Files = $(GENDEV)/Xine_PlayerBase.cpp
-sources = Main.cpp Xine_Player.cpp Colorspace_Utils.cpp JpegEncoderDecoder.cpp Xine_Stream_Factory.cpp Xine_Stream.cpp $(Gen_Dev_Files) ../utilities/linux/window_manager/WMController/WMController.cpp ../utilities/linux/window_manager/wmctrl/wmctrl.cpp
+sources = Main.cpp Xine_Player.cpp Colorspace_Utils.cpp JpegEncoderDecoder.cpp Xine_Stream_Factory.cpp Xine_Stream.cpp XineMediaInfo.cpp $(Gen_Dev_Files) ../utilities/linux/window_manager/WMController/WMController.cpp ../utilities/linux/window_manager/wmctrl/wmctrl.cpp
 #<-dceag-mh-e->
 
 CXXFLAGS +=
