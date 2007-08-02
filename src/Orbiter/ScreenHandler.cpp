@@ -1354,7 +1354,7 @@ bool ScreenHandler::Computing_DatagridSelected(CallBackData *pData)
 		m_pOrbiter->SendCommand(CMD_Spawn_Application);
 	}
 
-	return false;
+	return true;  // Always return true since we're handing everything datagrid related here and may destroy the grids causing SelectedGrid to crash if we return false
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_DialogCannotPlayMedia(long PK_Screen, string sErrors)
@@ -2558,7 +2558,7 @@ bool ScreenHandler::Thumbnail_DatagridSelected(CallBackData *pData)
 	}
 	vm.Release();
 	m_pOrbiter->CMD_Go_back("","");
-	return true;
+	return true;  // Always return true since we're handing everything datagrid related here and may destroy the grids causing SelectedGrid to crash if we return false
 }
 
 void ScreenHandler::SCREEN_Drive_Overview(long PK_Screen)
@@ -3363,8 +3363,7 @@ bool ScreenHandler::PNP_Generic_Options_DatagridSelected(CallBackData *pData)
 	m_pOrbiter->SendCommand(CMD_Set_Pnp_Options);
 
 	m_pOrbiter->CMD_Remove_Screen_From_History(m_pOrbiter->m_pScreenHistory_Current->ScreenID(),m_pOrbiter->m_pScreenHistory_Current->PK_Screen());
-
-	return true;  // Always return true since we're handing everything datagrid related here
+	return true;  // Always return true since we're handing everything datagrid related here and may destroy the grids causing SelectedGrid to crash if we return false
 }
 
 void MediaFileBrowserOptions::ReacquireGrids()

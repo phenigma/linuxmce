@@ -388,7 +388,7 @@ bool OSDScreenHandler::UsersWizard_DatagridSelected(CallBackData *pData)
 		break;
 	}
 
-	return false;
+	return true;  // Always return true since we're handing everything datagrid related here and may destroy the grids causing SelectedGrid to crash if we return false
 }
 //-----------------------------------------------------------------------------------------------------
 // Country Wizard
@@ -630,7 +630,7 @@ bool OSDScreenHandler::RoomsWizard_DatagridSelected(CallBackData *pData)
 		break;
 	}
 
-	return false;
+	return true;  // Always return true since we're handing everything datagrid related here and may destroy the grids causing SelectedGrid to crash if we return false
 }
 
 void OSDScreenHandler::SCREEN_This_Room(long PK_Screen, bool bAlways)
@@ -2645,7 +2645,7 @@ bool OSDScreenHandler::CaptureCardPort_DatagridSelected(CallBackData *pData)
 		m_pOrbiter->CMD_Goto_DesignObj(0,TOSTRING(DESIGNOBJ_RoomsForExternalDevice_CONST),"","",false,true);
 	}
 
-	return false;
+	return true;  // Always return true since we're handing everything datagrid related here and may destroy the grids causing SelectedGrid to crash if we return false
 }
 //-----------------------------------------------------------------------------------------------------
 // Create some 'choose provider stages' to keep track of where we are
@@ -2928,7 +2928,7 @@ bool OSDScreenHandler::ChooseProvider_DatagridSelected(CallBackData *pData)
 		ChooseProviderGetNextStage();
 	}
 
-	return true; 
+	return true;  // Always return true since we're handing everything datagrid related here and may destroy the grids causing SelectedGrid to crash if we return false
 }
 //-----------------------------------------------------------------------------------------------------
 void OSDScreenHandler::ChooseProviderGetNextStage()
