@@ -489,8 +489,8 @@ bool ScreenHandler::MediaBrowser_ObjectSelected(CallBackData *pData)
 	}
 	else if( pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butFBSF_Play_CONST || pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butFBSF_Purchase_CONST  )
 	{
-		if( !mediaFileBrowserOptions.m_pObj_ListGrid->DataGridTable_Get() )
-			return false; //shouldn't happen
+//		if( !mediaFileBrowserOptions.m_pObj_ListGrid->DataGridTable_Get() )
+//			return false; //shouldn't happen
 
 LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::MediaBrowser_ObjectSelected Play Media higlighted %s",mediaFileBrowserOptions.m_sSelectedFile.c_str());
 
