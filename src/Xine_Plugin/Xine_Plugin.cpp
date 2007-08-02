@@ -270,6 +270,13 @@ bool Xine_Plugin::StartMedia( MediaStream *pMediaStream,string &sError )
 		if( pMediaFile && pMediaFile->m_iTrack )
 			mediaURL += "/" + StringUtils::itos(pMediaFile->m_iTrack);
 	}
+        
+        // appeding Disk ID to ensure it will be reported to Xine_Player
+        if (pMediaFile && pMediaFile->m_dwPK_Disk)
+        {
+            mediaURL += "|" + StringUtils::itos(pMediaFile->m_dwPK_Disk);
+            LoggerWrapper::GetInstance()->Write(LV_STATUS,"Xine_Plugin::StartMedia - appending to mediaURL the disk ID %i", pMediaFile->m_dwPK_Disk);
+        }
 
 	// If the source is one ea and the destination in another, it could be remotely playing a disc, so 
 	// let ConfirmSourceIsADestination process it

@@ -230,9 +230,9 @@ void Xine_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPo
 {
         //sMediaURL contains "name_of_file_to_play\tdiskID"
         string::size_type pos=0;
-        string sURL = StringUtils::Tokenize(sMediaURL, "\t", pos);
+        string sURL = StringUtils::Tokenize(sMediaURL, "|", pos);
         int iDiskID = -1;
-        string sDiskID = StringUtils::Tokenize(sMediaURL, "\t", pos);
+        string sDiskID = StringUtils::Tokenize(sMediaURL, "|", pos);
         if ( !sDiskID.empty() )
             iDiskID = atoi(sDiskID.c_str());
         
@@ -1297,6 +1297,7 @@ void Xine_Player::ReportTimecodeViaIP(int iStreamID, int Speed)
         mediaInfo.m_iTitle = pStream->m_iTitle;
         mediaInfo.m_iChapter = pStream->m_iChapter;
         mediaInfo.m_sFileName = pStream->m_sCurrentFile;
+        mediaInfo.m_iPK_Disc = pStream->m_iDiskID;
 	
         string sIPTimeCodeInfo = mediaInfo.ToString();
 	
