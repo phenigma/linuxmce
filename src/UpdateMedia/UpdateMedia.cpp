@@ -349,7 +349,7 @@ void UpdateMedia::UpdateThumbnails()
 				if(m_bAsDaemon)
 					Sleep(40);
 
-				string Cmd = "convert -sample 75x75 /home/mediapics/" + string(row[0])  + "." + row[1] +
+				string Cmd = "convert -scale 256x256 -antialias /home/mediapics/" + string(row[0])  + "." + row[1] +
 					" /home/mediapics/" + row[0] + "_tn." + row[1];
 				int result;
 				if( ( result=system( Cmd.c_str( ) ) )!=0 )

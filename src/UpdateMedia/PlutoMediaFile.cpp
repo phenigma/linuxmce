@@ -817,7 +817,7 @@ int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
 	{
 		string Output = m_sDirectory + "/" + m_sFile;
 		StringUtils::Replace(&Output,"\"","\\\"");
-		string sCmd = "convert \"" + Output + "\" -sample 75x75 \"jpeg:" + Output + ".tnj\"";
+		string sCmd = "convert \"" + Output + "\" -scale 256x256 -antialias \"jpeg:" + Output + ".tnj\"";
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Creating thumbnail %s",sCmd.c_str());
 		system(sCmd.c_str());
 	}

@@ -638,7 +638,7 @@ Row_Picture * MediaAttributes_LowLevel::AddPicture(char *pData,int iData_Size,st
 
 		fwrite((void *) pData,iData_Size,1,file);
 		fclose(file);
-		string Cmd = "convert -sample 75x75 /home/mediapics/" + StringUtils::itos( pRow_Picture->PK_Picture_get() ) + "." + sFormat +
+		string Cmd = "convert -scale 256x256 -antialias /home/mediapics/" + StringUtils::itos( pRow_Picture->PK_Picture_get() ) + "." + sFormat +
 			" /home/mediapics/" + StringUtils::itos( pRow_Picture->PK_Picture_get() ) + "_tn." + sFormat;
 		int result;
 		if( ( result=system( Cmd.c_str( ) ) )!=0 )
@@ -683,7 +683,7 @@ Row_Picture * MediaAttributes_LowLevel::AddPicture(string sFile)
 			pRow_Picture->PK_Picture_get(),sFile.c_str(),(int) bResult);
 	}
 
-	string Cmd = "convert -sample 75x75 /home/mediapics/" + StringUtils::itos( pRow_Picture->PK_Picture_get() ) + "." + sFormat +
+	string Cmd = "convert -scale 256x256 -antialias /home/mediapics/" + StringUtils::itos( pRow_Picture->PK_Picture_get() ) + "." + sFormat +
 		" /home/mediapics/" + StringUtils::itos( pRow_Picture->PK_Picture_get() ) + "_tn." + sFormat;
 	int result;
 	if( ( result=system( Cmd.c_str( ) ) )!=0 )
