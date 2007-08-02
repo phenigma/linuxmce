@@ -33,8 +33,6 @@ using namespace DCE;
 #include "pluto_main/Define_DeviceCategory.h"
 #include "PlutoUtils/ProcessUtils.h"
 
-#include "XineMediaInfo.h"
-
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
 Xine_Player::Xine_Player(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
@@ -228,17 +226,7 @@ void Xine_Player::CMD_Simulate_Mouse_Click(int iPosition_X,int iPosition_Y,int i
 void Xine_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPosition,string sMediaURL,string &sCMD_Result,Message *pMessage)
 //<-dceag-c37-e->
 {
-        //sMediaURL contains "name_of_file_to_play\tdiskID"
-        string::size_type pos=0;
-        string sURL = StringUtils::Tokenize(sMediaURL, "|", pos);
-        int iDiskID = -1;
-        string sDiskID = StringUtils::Tokenize(sMediaURL, "|", pos);
-        if ( !sDiskID.empty() )
-            iDiskID = atoi(sDiskID.c_str());
-        
-        sMediaURL = sURL;
-
-	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() called for id %d filename: %s (%s) DiskID %i", iStreamID, sMediaURL.c_str(),sMediaPosition.c_str(), iDiskID);
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() called for id %d filename: %s (%s)", iStreamID, sMediaURL.c_str(),sMediaPosition.c_str());
 	
 	if(!m_bRouterReloading)
 	{
@@ -319,9 +307,8 @@ void Xine_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPo
 		pStream->playStream( sMediaPosition);
 		return;
 	}
-        
+	
 	pStream->m_sCurrentFile=sMediaURL;
-        pStream->m_iDiskID = iDiskID;
 	
 	string sMediaInfo;
 	
@@ -1289,17 +1276,20 @@ void Xine_Player::ReportTimecodeViaIP(int iStreamID, int Speed)
 	if( !m_pDeviceData_MediaPlugin )
 		return;
 
-        // filling media info structure
-        XineMediaInfo mediaInfo;
-        mediaInfo.m_iSpeed = Speed;
-        pStream->getStreamPlaybackPosition( mediaInfo.m_iPositionInMilliseconds, mediaInfo.m_iTotalLengthInMilliseconds, 10, NULL, true);
-        mediaInfo.m_iStreamID = iStreamID;
-        mediaInfo.m_iTitle = pStream->m_iTitle;
-        mediaInfo.m_iChapter = pStream->m_iChapter;
-        mediaInfo.m_sFileName = pStream->m_sCurrentFile;
-        mediaInfo.m_iPK_Disc = pStream->m_iDiskID;
-	
-        string sIPTimeCodeInfo = mediaInfo.ToString();
+	int currentTime, totalTime;	
+	int iMediaPosition = pStream->getStreamPlaybackPosition( currentTime, totalTime, 10, NULL, true);
+
+	// IP speed an position notification
+	char buffer_current[32];
+	snprintf(buffer_current, 32, "%02i:%02i:%02i.%03i", 
+		iMediaPosition / 1000 / 3600, iMediaPosition / 1000 % 3600 / 60, iMediaPosition / 1000 % 3600 % 60, iMediaPosition % 1000);
+
+	char buffer_total[32];
+	snprintf(buffer_total, 32, "%02i:%02i:%02i.%03i", 
+		totalTime / 1000 / 3600, totalTime / 1000 % 3600 / 60, totalTime / 1000 % 3600 % 60, totalTime % 1000);
+
+	string sIPTimeCodeInfo = StringUtils::itos(Speed) + "," + buffer_current + "," + buffer_total + "," + StringUtils::itos(iStreamID)
+		+ "," + StringUtils::itos(pStream->m_iTitle) + "," + StringUtils::itos(pStream->m_iChapter);
 	
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"reporting timecode stream %d speed %d %s", iStreamID, Speed, sIPTimeCodeInfo.c_str() );
 	m_pNotificationSocket->SendStringToAll( sIPTimeCodeInfo );
