@@ -239,6 +239,11 @@ int PlutoMediaFile::HandleFileNotInDatabase(int PK_MediaType)
     // then the the attribute should be set.
 	if( !PK_File )
 		PK_File = GetFileAttribute();
+	
+	//make sure it's not already in the database
+	if(!PK_File)
+		PK_File = GetFileIDFromDB();
+
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "%s/%s not IN db-attr: %d INode: %d", m_sDirectory.c_str(), m_sFile.c_str(), PK_File, INode);
 
     // Is it a media file?
@@ -906,7 +911,7 @@ int PlutoMediaFile::GetFileIDFromDB()
 {
 	vector<Row_File *> vectRow_File;
 	m_pDatabase_pluto_media->File_get()->GetRows("Path='" + StringUtils::SQLEscape(m_sDirectory) + 
-		"' AND Filename='" + StringUtils::SQLEscape(m_sFile) + "'", &vectRow_File);
+		"' AND Filename='" + StringUtils::SQLEscape(m_sFile) + "' AND Missing = 0", &vectRow_File);
 	if( vectRow_File.size() )
 		return vectRow_File[0]->PK_File_get();
 	else
