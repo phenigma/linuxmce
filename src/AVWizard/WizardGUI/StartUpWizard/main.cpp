@@ -47,6 +47,9 @@ int main(int argc, char *argv[])
 
 	Wizard* m_Wizard = Wizard::GetInstance();
 	m_Wizard->ParseCommandLineParameters(argc, argv);
+	FILE * f = fopen("/tmp/AVWizard_Started", "w");
+	if (f != NULL)
+		fclose(f);
 	m_Wizard->StartSDLVideoMode();
 	m_Wizard->CreateDialogs();
 	m_Wizard->MainLoop();
