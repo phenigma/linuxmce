@@ -388,7 +388,7 @@ bool OSDScreenHandler::UsersWizard_DatagridSelected(CallBackData *pData)
 		break;
 	}
 
-	return true;  // Always return true since we're handing everything datagrid related here and may destroy the grids causing SelectedGrid to crash if we return false
+	return false;
 }
 //-----------------------------------------------------------------------------------------------------
 // Country Wizard
@@ -630,7 +630,7 @@ bool OSDScreenHandler::RoomsWizard_DatagridSelected(CallBackData *pData)
 		break;
 	}
 
-	return true;  // Always return true since we're handing everything datagrid related here and may destroy the grids causing SelectedGrid to crash if we return false
+	return false;
 }
 
 void OSDScreenHandler::SCREEN_This_Room(long PK_Screen, bool bAlways)
@@ -675,7 +675,7 @@ bool OSDScreenHandler::This_Room_GridSelected(CallBackData *pData)
 		m_pOrbiter->CMD_Show_Object( TOSTRING(DESIGNOBJ_butTVProvider_CONST), 0,"","", PK_Room ? "1" : "0" );
 	}
 
-	return true;  // Always return true since we're handing everything datagrid related here and may destroy the grids causing SelectedGrid to crash if we return false
+	return false;
 }
 
 
@@ -848,7 +848,7 @@ bool OSDScreenHandler::TV_Manufacturer_GridSelected(CallBackData *pData)
 			break;
 	}
 
-	return true;  // Always return true since we're handing everything datagrid related here and may destroy the grids causing SelectedGrid to crash if we return false
+	return false;
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -1115,7 +1115,7 @@ bool OSDScreenHandler::Receiver_GridSelected(CallBackData *pData)
 			}
 			break;
 	}
-	return true;  // Always return true since we're handing everything datagrid related here and may destroy the grids causing SelectedGrid to crash if we return false
+	return false;
 }
 //-----------------------------------------------------------------------------------------------------
 bool OSDScreenHandler::Receiver_ObjectSelected(CallBackData *pData)
@@ -1416,7 +1416,7 @@ bool OSDScreenHandler::AV_Devices_GridSelected(CallBackData *pData)
 			}
 			break;
 	}
-	return true;  // Always return true since we're handing everything datagrid related here and may destroy the grids causing SelectedGrid to crash if we return false
+	return false;
 }
 
 void OSDScreenHandler::SCREEN_Wizard_Done(long PK_Screen)
@@ -2643,9 +2643,10 @@ bool OSDScreenHandler::CaptureCardPort_DatagridSelected(CallBackData *pData)
 		m_pOrbiter->SendCommand(CMD_Specify_Capture_Card_Port,&sResponse);
 
 		m_pOrbiter->CMD_Goto_DesignObj(0,TOSTRING(DESIGNOBJ_RoomsForExternalDevice_CONST),"","",false,true);
+		return true; // We did a goto screen
 	}
 
-	return true;  // Always return true since we're handing everything datagrid related here and may destroy the grids causing SelectedGrid to crash if we return false
+	return false;
 }
 //-----------------------------------------------------------------------------------------------------
 // Create some 'choose provider stages' to keep track of where we are
@@ -2859,7 +2860,7 @@ bool OSDScreenHandler::ChooseProvider_DatagridSelected(CallBackData *pData)
 {
 	DatagridCellBackData *pCellInfoData = (DatagridCellBackData *)pData;
 	if( pCellInfoData->m_sValue.empty() )
-		return true;
+		return false;
 
 	if( pCellInfoData->m_nPK_Datagrid==DATAGRID_Devices_Needing_Providers_CONST )
 	{
@@ -2928,7 +2929,7 @@ bool OSDScreenHandler::ChooseProvider_DatagridSelected(CallBackData *pData)
 		ChooseProviderGetNextStage();
 	}
 
-	return true;  // Always return true since we're handing everything datagrid related here and may destroy the grids causing SelectedGrid to crash if we return false
+	return true; 
 }
 //-----------------------------------------------------------------------------------------------------
 void OSDScreenHandler::ChooseProviderGetNextStage()

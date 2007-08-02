@@ -1352,9 +1352,10 @@ bool ScreenHandler::Computing_DatagridSelected(CallBackData *pData)
 			m_pOrbiter->CMD_Set_Active_Application(sActiveApplication_Description,PK_Screen_OSD,sActiveApplication_Window,PK_Screen_Remote);
 		}
 		m_pOrbiter->SendCommand(CMD_Spawn_Application);
+		return true; // We did a goto screen
 	}
 
-	return true;  // Always return true since we're handing everything datagrid related here and may destroy the grids causing SelectedGrid to crash if we return false
+	return false;
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_DialogCannotPlayMedia(long PK_Screen, string sErrors)
@@ -1440,7 +1441,7 @@ void ScreenHandler::SCREEN_CreateViewBookmarks(long PK_Screen)
 bool ScreenHandler::Bookmark_GridSelected(CallBackData *pData)
 {
 	m_pOrbiter->CMD_Go_back("","");
-	return true; 
+	return true; // We did a goto screen
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_DialogAskToResume(long PK_Screen, string sPK_Device_From, string sPK_Device_MediaSource, 
@@ -2144,7 +2145,7 @@ bool ScreenHandler::AddSoftware_GridSelected(CallBackData *pData)
 		string sInstallation_Status = pCellInfoData->m_pDataGridCell->m_mapAttributes_Find("Installation_status");
 		string sText,sCommand;
 		if( !PK_Software )
-			return true;
+			return false;
 
 		m_PK_Software = PK_Software;
 		m_sInstallationStatus = sInstallation_Status;
@@ -2157,9 +2158,10 @@ bool ScreenHandler::AddSoftware_GridSelected(CallBackData *pData)
 		if( pCell )
 			sText+="\n" + pCell->m_mapAttributes["Title"];
 		DisplayMessageOnOrbiter(0,sText,false,"30",false,m_pOrbiter->m_mapTextString[TEXT_YES_CONST],"",m_pOrbiter->m_mapTextString[TEXT_NO_CONST],"","","","","",StringUtils::itos(PK_Software) + "," + sInstallation_Status);
+		return true; // We did a goto screen
 	}
 
-	return true; //don't process it
+	return false; // Keep processing it
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_FileSave(long PK_Screen, int iPK_MediaType, int iEK_Disc, string sCaption, string sCommand, bool bAdvanced_options)
@@ -2387,7 +2389,7 @@ bool ScreenHandler::FileSave_GridSelected(CallBackData *pData)
 		}
 	}
 
-	return true;
+	return false;
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SaveFile_GotoChooseFolderDesignObj()
@@ -2558,7 +2560,7 @@ bool ScreenHandler::Thumbnail_DatagridSelected(CallBackData *pData)
 	}
 	vm.Release();
 	m_pOrbiter->CMD_Go_back("","");
-	return true;  // Always return true since we're handing everything datagrid related here and may destroy the grids causing SelectedGrid to crash if we return false
+	return true; // We did a goto screen
 }
 
 void ScreenHandler::SCREEN_Drive_Overview(long PK_Screen)
@@ -3363,7 +3365,8 @@ bool ScreenHandler::PNP_Generic_Options_DatagridSelected(CallBackData *pData)
 	m_pOrbiter->SendCommand(CMD_Set_Pnp_Options);
 
 	m_pOrbiter->CMD_Remove_Screen_From_History(m_pOrbiter->m_pScreenHistory_Current->ScreenID(),m_pOrbiter->m_pScreenHistory_Current->PK_Screen());
-	return true;  // Always return true since we're handing everything datagrid related here and may destroy the grids causing SelectedGrid to crash if we return false
+
+	return true;  // Always return true since we're handing everything datagrid related here
 }
 
 void MediaFileBrowserOptions::ReacquireGrids()
