@@ -44,6 +44,7 @@ while [[ "$Done" -eq 0 ]]; do
 			if [[ ! -f /tmp/AVWizard_Started ]]; then
 				rm -f /tmp/avwizard-resolution-defaults.txt
 				/usr/pluto/bin/AVWizard_UpdateResolution.sh reset
+				beep -f 500 -l 400 -r 5
 			fi
 			rm -f /tmp/AVWizard_Started
 		;;
