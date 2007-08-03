@@ -353,6 +353,9 @@ sub activate_image {
 		print "[flickr.pl] Writing file $finaldst.\n";
 	}
 
+	## Don't send the messages too fast
+	sleep 1;
+	print `date`;
 	print TEST "1. Sending /usr/pluto/bin/MessageSend dcerouter -targetType template -r -o 0 2 1 819 13 $symdest\n";
 	$fms = qx | /usr/pluto/bin/MessageSend dcerouter -targetType template -r -o 0 2 1 819 13 "$symdest" |; 
 				
