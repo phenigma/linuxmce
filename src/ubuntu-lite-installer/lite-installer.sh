@@ -110,7 +110,7 @@ ExtractArchive()
 	#Copy demo videos, if any
 	if [[ -d /cdrom/lmce-videos ]]; then
 		mkdir -p /home/public/data/videos/
-		cp -a /cdrom/lmce-videos/. /home/public/data/videos/
+		cp -a /cdrom/lmce-videos/. /media/target/home/public/data/videos/
 	fi
 }
 
