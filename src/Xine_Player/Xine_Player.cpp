@@ -228,17 +228,7 @@ void Xine_Player::CMD_Simulate_Mouse_Click(int iPosition_X,int iPosition_Y,int i
 void Xine_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPosition,string sMediaURL,string &sCMD_Result,Message *pMessage)
 //<-dceag-c37-e->
 {
-        //sMediaURL contains "name_of_file_to_play\tdiskID"
-        string::size_type pos=0;
-        string sURL = StringUtils::Tokenize(sMediaURL, "|", pos);
-        int iDiskID = -1;
-        string sDiskID = StringUtils::Tokenize(sMediaURL, "|", pos);
-        if ( !sDiskID.empty() )
-            iDiskID = atoi(sDiskID.c_str());
-        
-        sMediaURL = sURL;
-
-	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() called for id %d filename: %s (%s) DiskID %i", iStreamID, sMediaURL.c_str(),sMediaPosition.c_str(), iDiskID);
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() called for id %d filename: %s (%s)", iStreamID, sMediaURL.c_str(),sMediaPosition.c_str());
 	
 	if(!m_bRouterReloading)
 	{
@@ -321,8 +311,8 @@ void Xine_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPo
 	}
         
 	pStream->m_sCurrentFile=sMediaURL;
-        pStream->m_sMediaType = "D";
-        pStream->m_iMediaID = iDiskID;
+        pStream->m_sMediaType = "N";
+        pStream->m_iMediaID = -1;
 	
 	string sMediaInfo;
 	
@@ -1258,7 +1248,7 @@ void Xine_Player::CMD_Set_Media_Position(int iStreamID,string sMediaPosition,str
 	{
 		// as we are changing position, then do not report about
 		pStream->m_bDontReportCompletion = true;
-		CMD_Play_Media(0,pStream->m_iStreamID,sMediaPosition,pStream->m_sCurrentFile+"|"+StringUtils::itos(pStream->m_iMediaID),sCMD_Result,pMessage);
+		CMD_Play_Media(0,pStream->m_iStreamID,sMediaPosition,pStream->m_sCurrentFile,sCMD_Result,pMessage);
 		pStream->m_bDontReportCompletion = false;		
 	}
 }
@@ -1411,7 +1401,7 @@ void Xine_Player::CMD_Start_Streaming(int iPK_MediaType,int iStreamID,string sMe
 	{
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Start_Streaming() - starting main target playback");
 		pStream->m_sBroadcastTargets = sStreamingTargets;
-                CMD_Play_Media( iPK_MediaType, pStream->m_iStreamID, sMediaPosition, sMediaURL+"|"+StringUtils::itos(pStream->m_iMediaID));
+                CMD_Play_Media( iPK_MediaType, pStream->m_iStreamID, sMediaPosition, sMediaURL);
 		
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Start_Streaming() - enabling stream broadcast");
 		pStream->EnableBroadcast();
@@ -1654,9 +1644,15 @@ void Xine_Player::CMD_Set_Media_ID(string sID,int iStreamID,string &sCMD_Result,
     
     if (pStream)
     {
-        bool bRes = pStream->setZoomLevel(sZoom_Level);
-        if (!bRes)
-            LoggerWrapper::GetInstance()->Write(LV_STATUS,"Failed to set zoom level"); 
+        pStream->m_sMediaType = "N";
+        pStream->m_iMediaID = -1;
+        
+        if (!sID.empty())
+        {
+            pStream->m_sMediaType = sID[0];
+            sID.erase(0,1);
+            pStream->m_iMediaID = atoi(sID.c_str());
+        }
     }
     else
         LoggerWrapper::GetInstance()->Write(LV_STATUS,"No stream found"); 
