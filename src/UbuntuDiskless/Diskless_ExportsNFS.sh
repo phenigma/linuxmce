@@ -5,7 +5,7 @@
 . /usr/pluto/bin/Network_Parameters.sh
 . /usr/pluto/bin/Utils.sh
 
-DEVICEDATA_DisklessImages=249
+DEVICEDATA_DisklessImages=258
 
 ## We should not run un diskless mds
 if [[ -f /etc/diskless.conf ]]; then

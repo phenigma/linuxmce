@@ -12,7 +12,7 @@ DEVICEDATA_Extra_Parameters=139
 DEVICEDATA_Extra_Parameters_Override=140
 DEVICEDATA_Architecture=112
 DEVICEDATA_DisklessBoot=9
-DEVICEDATA_DisklessImages=249
+DEVICEDATA_DisklessImages=258
 
 function setup_tftp_boot 
 {
