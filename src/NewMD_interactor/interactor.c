@@ -50,9 +50,9 @@ int main(int argc, char * argv[])
 	int do_reboot = 0;
 	char buffer[1024], cmd[1024];
 	int bytes, tmp;
-	const char * Gateway, * myIP, * myMAC, * myArchitecture;
+	const char * Gateway, * myIP, * myMAC, * myArchitecture, * myDeviceTemplate;
 
-	if (argc != 5)
+	if (argc != 6)
 	{
 		printf("(Interactor) Wrong number of arguments: %d\n", argc);
 		return 1;
@@ -62,6 +62,7 @@ int main(int argc, char * argv[])
 	myIP = argv[2];
 	myMAC = argv[3];
 	myArchitecture = argv[4];
+	myDeviceTemplate = argv[5];
 
 	saddr_client.sin_family = AF_INET;
 	saddr_client.sin_port = htons(INTERACTOR_PORT);
@@ -114,7 +115,7 @@ int main(int argc, char * argv[])
 		return 1;
 	}
 
-	bytes = snprintf(buffer, 1024, "newmd %s %s 9|1|112|%s\n", myIP, myMAC, myArchitecture);
+	bytes = snprintf(buffer, 1024, "newmd %s %s 9|1|112|%s %s\n", myIP, myMAC, myArchitecture, myDeviceTemplate);
 	write(s, buffer, bytes < 1024 ? bytes : 1024);
 	
 	close(s);
