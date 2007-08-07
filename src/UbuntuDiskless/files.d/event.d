@@ -30,4 +30,5 @@ script
 end script
 "
 
+mkdir -p "${Parm_RootLocation}/$(dirname $File)"
 echo "$Content" > "$Parm_RootLocation/$File"
