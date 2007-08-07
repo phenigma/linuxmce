@@ -311,6 +311,7 @@ void Xine_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPo
 	}
         
 	pStream->m_sCurrentFile=sMediaURL;
+        
         pStream->m_sMediaType = "N";
         pStream->m_iMediaID = -1;
 	
@@ -1248,8 +1249,14 @@ void Xine_Player::CMD_Set_Media_Position(int iStreamID,string sMediaPosition,str
 	{
 		// as we are changing position, then do not report about
 		pStream->m_bDontReportCompletion = true;
+                string sType = pStream->m_sMediaType;
+                int iID = pStream->m_iMediaID;
+
 		CMD_Play_Media(0,pStream->m_iStreamID,sMediaPosition,pStream->m_sCurrentFile,sCMD_Result,pMessage);
-		pStream->m_bDontReportCompletion = false;		
+                
+                pStream->m_sMediaType = sType;
+                pStream->m_iMediaID = iID;
+                pStream->m_bDontReportCompletion = false;		
 	}
 }
 
