@@ -1,3 +1,9 @@
+sysvinit (2.86.ds1-1.1pluto76) unstable; urgency=low
+
+  * Fixed AVWizard common script calls *grr*
+
+ -- Radu Cristescu <radu.c@plutohome.com>  Wed, 08 Aug 2007 02:07:21 +0300
+
 sysvinit (2.86.ds1-1.1pluto75) unstable; urgency=low
 
   * Use common scripts for AVWizard check and start actions

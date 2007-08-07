@@ -405,7 +405,7 @@ fi
 
 lshwd &>/dev/null # initialize USB
 
-/usr/pluto/bin/check_avwizard
+/etc/init.d/check_avwizard
 
 if [[ -x /etc/init.d/Pluto_SSH_Keys.sh ]]; then
 	Message "Setting ssh keys"
@@ -476,7 +476,7 @@ Message "Starting Pluto HAL daemon"
 
 ConfEval
 
-/usr/pluto/bin/0start_avwizard
+/etc/init.d/0start_avwizard
 
 if [ -x /etc/init.d/Pluto_Start_OrbiterGen.sh ] ;then
     Message "Starting OrbiterGen"
