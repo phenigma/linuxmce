@@ -95,7 +95,7 @@ public:
 		/** @param #26 PK_Button */
 			/** What key to simulate being pressed.  If 2 numbers are specified, separated by a comma, the second will be used if the Shift key is specified. */
 		/** @param #41 StreamID */
-			/** The stream id */
+			/** ID of stream to apply */
 		/** @param #50 Name */
 			/** The application to send the keypress to. If not specified, it goes to the DCE device. */
 
@@ -106,11 +106,11 @@ public:
 	/** @brief COMMAND: #29 - Simulate Mouse Click */
 	/** Simlate a mouse click at a certain position on the screen */
 		/** @param #11 Position X */
-			/** the x pos */
+			/** position X */
 		/** @param #12 Position Y */
-			/** the y pos */
+			/** position Y */
 		/** @param #41 StreamID */
-			/** The stream id */
+			/** ID of stream to apply */
 
 	virtual void CMD_Simulate_Mouse_Click(int iPosition_X,int iPosition_Y,int iStreamID) { string sCMD_Result; CMD_Simulate_Mouse_Click(iPosition_X,iPosition_Y,iStreamID,sCMD_Result,NULL);};
 	virtual void CMD_Simulate_Mouse_Click(int iPosition_X,int iPosition_Y,int iStreamID,string &sCMD_Result,Message *pMessage);
@@ -202,7 +202,7 @@ public:
 	/** @brief COMMAND: #63 - Skip Fwd - Channel/Track Greater */
 	/** Raise  the channel, track, station, etc. by 1.  Same as Jump to Pos in Playlist with value +1 for a smart media player */
 		/** @param #41 StreamID */
-			/** The stream id */
+			/** ID of stream to apply */
 
 	virtual void CMD_Skip_Fwd_ChannelTrack_Greater(int iStreamID) { string sCMD_Result; CMD_Skip_Fwd_ChannelTrack_Greater(iStreamID,sCMD_Result,NULL);};
 	virtual void CMD_Skip_Fwd_ChannelTrack_Greater(int iStreamID,string &sCMD_Result,Message *pMessage);
@@ -211,7 +211,7 @@ public:
 	/** @brief COMMAND: #64 - Skip Back - Channel/Track Lower */
 	/** Lower the channel, track, station, etc. by 1.  Same as Jump to Pos in Playlist with value -1 for a smart media player */
 		/** @param #41 StreamID */
-			/** The stream id */
+			/** ID of stream to apply */
 
 	virtual void CMD_Skip_Back_ChannelTrack_Lower(int iStreamID) { string sCMD_Result; CMD_Skip_Back_ChannelTrack_Lower(iStreamID,sCMD_Result,NULL);};
 	virtual void CMD_Skip_Back_ChannelTrack_Lower(int iStreamID,string &sCMD_Result,Message *pMessage);
@@ -222,7 +222,7 @@ public:
 		/** @param #5 Value To Assign */
 			/** The track to go to.  A number is considered an absolute.  "+2" means forward 2, "-1" means back 1. */
 		/** @param #41 StreamID */
-			/** The stream id */
+			/** ID of stream to apply */
 
 	virtual void CMD_Jump_Position_In_Playlist(string sValue_To_Assign,int iStreamID) { string sCMD_Result; CMD_Jump_Position_In_Playlist(sValue_To_Assign.c_str(),iStreamID,sCMD_Result,NULL);};
 	virtual void CMD_Jump_Position_In_Playlist(string sValue_To_Assign,int iStreamID,string &sCMD_Result,Message *pMessage);
@@ -283,7 +283,7 @@ public:
 	/** @brief COMMAND: #92 - Pause */
 	/** Pause the media */
 		/** @param #41 StreamID */
-			/** The stream id */
+			/** ID of stream to apply */
 
 	virtual void CMD_Pause(int iStreamID) { string sCMD_Result; CMD_Pause(iStreamID,sCMD_Result,NULL);};
 	virtual void CMD_Pause(int iStreamID,string &sCMD_Result,Message *pMessage);
@@ -292,7 +292,7 @@ public:
 	/** @brief COMMAND: #95 - Stop */
 	/** Stop the media */
 		/** @param #41 StreamID */
-			/** The stream id */
+			/** ID of stream to apply */
 		/** @param #203 Eject */
 			/** If true, the drive will be ejected if there is no media currently playing, so a remote's stop button acts as stop/eject. */
 
@@ -310,7 +310,7 @@ public:
 	/** @brief COMMAND: #139 - Play */
 	/** Play the media */
 		/** @param #41 StreamID */
-			/** The stream id */
+			/** ID of stream to apply */
 
 	virtual void CMD_Play(int iStreamID) { string sCMD_Result; CMD_Play(iStreamID,sCMD_Result,NULL);};
 	virtual void CMD_Play(int iStreamID,string &sCMD_Result,Message *pMessage);
@@ -321,7 +321,7 @@ public:
 		/** @param #5 Value To Assign */
 			/** The audio track to go to.  Simple A/V equipment ignores this and just toggles. */
 		/** @param #41 StreamID */
-			/** The stream id */
+			/** ID of stream to apply */
 
 	virtual void CMD_Audio_Track(string sValue_To_Assign,int iStreamID) { string sCMD_Result; CMD_Audio_Track(sValue_To_Assign.c_str(),iStreamID,sCMD_Result,NULL);};
 	virtual void CMD_Audio_Track(string sValue_To_Assign,int iStreamID,string &sCMD_Result,Message *pMessage);
@@ -332,7 +332,7 @@ public:
 		/** @param #5 Value To Assign */
 			/** The subtitle to go to.  Simple A/V equipment ignores this and just toggles. */
 		/** @param #41 StreamID */
-			/** The stream id */
+			/** ID of stream to apply */
 
 	virtual void CMD_Subtitle(string sValue_To_Assign,int iStreamID) { string sCMD_Result; CMD_Subtitle(sValue_To_Assign.c_str(),iStreamID,sCMD_Result,NULL);};
 	virtual void CMD_Subtitle(string sValue_To_Assign,int iStreamID,string &sCMD_Result,Message *pMessage);
@@ -343,7 +343,7 @@ public:
 		/** @param #5 Value To Assign */
 			/** The angle to go to.  Simple A/V equipment ignores this and just toggles. */
 		/** @param #41 StreamID */
-			/** The stream id */
+			/** ID of stream to apply */
 
 	virtual void CMD_Angle(string sValue_To_Assign,int iStreamID) { string sCMD_Result; CMD_Angle(sValue_To_Assign.c_str(),iStreamID,sCMD_Result,NULL);};
 	virtual void CMD_Angle(string sValue_To_Assign,int iStreamID,string &sCMD_Result,Message *pMessage);
@@ -352,7 +352,7 @@ public:
 	/** @brief COMMAND: #190 - Enter/Go */
 	/** Select the currently highlighted menu item */
 		/** @param #41 StreamID */
-			/** The stream id */
+			/** ID of stream to apply */
 
 	virtual void CMD_EnterGo(int iStreamID) { string sCMD_Result; CMD_EnterGo(iStreamID,sCMD_Result,NULL);};
 	virtual void CMD_EnterGo(int iStreamID,string &sCMD_Result,Message *pMessage);
@@ -361,7 +361,7 @@ public:
 	/** @brief COMMAND: #200 - Move Up */
 	/** Move the highlighter */
 		/** @param #41 StreamID */
-			/** The stream id */
+			/** ID of stream to apply */
 
 	virtual void CMD_Move_Up(int iStreamID) { string sCMD_Result; CMD_Move_Up(iStreamID,sCMD_Result,NULL);};
 	virtual void CMD_Move_Up(int iStreamID,string &sCMD_Result,Message *pMessage);
@@ -370,7 +370,7 @@ public:
 	/** @brief COMMAND: #201 - Move Down */
 	/** Move the highlighter */
 		/** @param #41 StreamID */
-			/** The stream id */
+			/** ID of stream to apply */
 
 	virtual void CMD_Move_Down(int iStreamID) { string sCMD_Result; CMD_Move_Down(iStreamID,sCMD_Result,NULL);};
 	virtual void CMD_Move_Down(int iStreamID,string &sCMD_Result,Message *pMessage);
@@ -379,7 +379,7 @@ public:
 	/** @brief COMMAND: #202 - Move Left */
 	/** Move the highlighter */
 		/** @param #41 StreamID */
-			/** The stream id */
+			/** ID of stream to apply */
 
 	virtual void CMD_Move_Left(int iStreamID) { string sCMD_Result; CMD_Move_Left(iStreamID,sCMD_Result,NULL);};
 	virtual void CMD_Move_Left(int iStreamID,string &sCMD_Result,Message *pMessage);
@@ -388,7 +388,7 @@ public:
 	/** @brief COMMAND: #203 - Move Right */
 	/** Move the highlighter */
 		/** @param #41 StreamID */
-			/** The stream id */
+			/** ID of stream to apply */
 
 	virtual void CMD_Move_Right(int iStreamID) { string sCMD_Result; CMD_Move_Right(iStreamID,sCMD_Result,NULL);};
 	virtual void CMD_Move_Right(int iStreamID,string &sCMD_Result,Message *pMessage);
@@ -467,7 +467,7 @@ public:
 	/** @brief COMMAND: #240 - Back / Prior Menu */
 	/** Navigate back .. ( Escape ) */
 		/** @param #41 StreamID */
-			/** The stream id */
+			/** ID of stream to apply */
 
 	virtual void CMD_Back_Prior_Menu(int iStreamID) { string sCMD_Result; CMD_Back_Prior_Menu(iStreamID,sCMD_Result,NULL);};
 	virtual void CMD_Back_Prior_Menu(int iStreamID,string &sCMD_Result,Message *pMessage);
@@ -519,7 +519,7 @@ public:
 		/** @param #9 Text */
 			/** A string indicating which menu should appear.  The parameter is only used for smart media devices */
 		/** @param #41 StreamID */
-			/** The stream id */
+			/** ID of stream to apply */
 
 	virtual void CMD_Menu(string sText,int iStreamID) { string sCMD_Result; CMD_Menu(sText.c_str(),iStreamID,sCMD_Result,NULL);};
 	virtual void CMD_Menu(string sText,int iStreamID,string &sCMD_Result,Message *pMessage);
@@ -528,7 +528,7 @@ public:
 	/** @brief COMMAND: #916 - Set Aspect Ratio */
 	/** Force aspect ratio */
 		/** @param #41 StreamID */
-			/** The stream id */
+			/** ID of stream to apply */
 		/** @param #260 Aspect Ratio */
 			/** aspect ratio to set: auto, 1:1, 4:3, 16:9, 2.11:1 */
 
@@ -539,13 +539,23 @@ public:
 	/** @brief COMMAND: #917 - Set Zoom */
 	/** Sets zoom level, relative, absolute or 'auto' */
 		/** @param #41 StreamID */
-			/** The stream id */
+			/** ID of stream to apply */
 		/** @param #261 Zoom Level */
 			/** Zoom level to set */
 
 	virtual void CMD_Set_Zoom(int iStreamID,string sZoom_Level) { string sCMD_Result; CMD_Set_Zoom(iStreamID,sZoom_Level.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_Set_Zoom(int iStreamID,string sZoom_Level,string &sCMD_Result,Message *pMessage);
 
+
+	/** @brief COMMAND: #920 - Set Media ID */
+	/** Set Media ID - information about media stream */
+		/** @param #10 ID */
+			/** Media ID (special format) */
+		/** @param #41 StreamID */
+			/** ID of stream to set media information for */
+
+	virtual void CMD_Set_Media_ID(string sID,int iStreamID) { string sCMD_Result; CMD_Set_Media_ID(sID.c_str(),iStreamID,sCMD_Result,NULL);};
+	virtual void CMD_Set_Media_ID(string sID,int iStreamID,string &sCMD_Result,Message *pMessage);
 
 //<-dceag-h-e->
 	void ReportTimecodeViaIP(int iStreamID, int Speed);

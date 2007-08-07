@@ -134,7 +134,6 @@ namespace DCE
 		public:
 			int m_iMenuButtons;			
 			void FireMenuOnScreen(int iButtons);
-			string m_sFileName;
                         void SendMessageToOrbiter(string sMessage);
                         
 		private:
@@ -152,6 +151,10 @@ namespace DCE
 			
 			bool m_bUseDeinterlacing;
 			string m_sDeinterlacingConfig;
+                        int m_iMediaID;
+                        string m_sMediaType;
+                        
+                        void UpdateTitleChapterInfo();
 			
 		private:
 			int m_iSpecialSeekSpeed;

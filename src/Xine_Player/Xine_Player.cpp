@@ -33,6 +33,8 @@ using namespace DCE;
 #include "pluto_main/Define_DeviceCategory.h"
 #include "PlutoUtils/ProcessUtils.h"
 
+#include "XineMediaInfo.h"
+
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
 Xine_Player::Xine_Player(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
@@ -151,7 +153,7 @@ void Xine_Player::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage)
 		/** @param #26 PK_Button */
 			/** What key to simulate being pressed.  If 2 numbers are specified, separated by a comma, the second will be used if the Shift key is specified. */
 		/** @param #41 StreamID */
-			/** The stream id */
+			/** ID of stream to apply */
 		/** @param #50 Name */
 			/** The application to send the keypress to. If not specified, it goes to the DCE device. */
 
@@ -188,11 +190,11 @@ void Xine_Player::CMD_Simulate_Keypress(string sPK_Button,int iStreamID,string s
 	/** @brief COMMAND: #29 - Simulate Mouse Click */
 	/** Simlate a mouse click at a certain position on the screen */
 		/** @param #11 Position X */
-			/** the x pos */
+			/** position X */
 		/** @param #12 Position Y */
-			/** the y pos */
+			/** position Y */
 		/** @param #41 StreamID */
-			/** The stream id */
+			/** ID of stream to apply */
 
 void Xine_Player::CMD_Simulate_Mouse_Click(int iPosition_X,int iPosition_Y,int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c29-e->
@@ -226,7 +228,17 @@ void Xine_Player::CMD_Simulate_Mouse_Click(int iPosition_X,int iPosition_Y,int i
 void Xine_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPosition,string sMediaURL,string &sCMD_Result,Message *pMessage)
 //<-dceag-c37-e->
 {
-	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() called for id %d filename: %s (%s)", iStreamID, sMediaURL.c_str(),sMediaPosition.c_str());
+        //sMediaURL contains "name_of_file_to_play\tdiskID"
+        string::size_type pos=0;
+        string sURL = StringUtils::Tokenize(sMediaURL, "|", pos);
+        int iDiskID = -1;
+        string sDiskID = StringUtils::Tokenize(sMediaURL, "|", pos);
+        if ( !sDiskID.empty() )
+            iDiskID = atoi(sDiskID.c_str());
+        
+        sMediaURL = sURL;
+
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() called for id %d filename: %s (%s) DiskID %i", iStreamID, sMediaURL.c_str(),sMediaPosition.c_str(), iDiskID);
 	
 	if(!m_bRouterReloading)
 	{
@@ -307,8 +319,10 @@ void Xine_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPo
 		pStream->playStream( sMediaPosition);
 		return;
 	}
-	
+        
 	pStream->m_sCurrentFile=sMediaURL;
+        pStream->m_sMediaType = "D";
+        pStream->m_iMediaID = iDiskID;
 	
 	string sMediaInfo;
 	
@@ -583,7 +597,7 @@ void Xine_Player::CMD_Jump_to_Position_in_Stream(string sValue_To_Assign,int iSt
 	/** @brief COMMAND: #63 - Skip Fwd - Channel/Track Greater */
 	/** Raise  the channel, track, station, etc. by 1.  Same as Jump to Pos in Playlist with value +1 for a smart media player */
 		/** @param #41 StreamID */
-			/** The stream id */
+			/** ID of stream to apply */
 
 void Xine_Player::CMD_Skip_Fwd_ChannelTrack_Greater(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c63-e->
@@ -609,7 +623,7 @@ void Xine_Player::CMD_Skip_Fwd_ChannelTrack_Greater(int iStreamID,string &sCMD_R
 	/** @brief COMMAND: #64 - Skip Back - Channel/Track Lower */
 	/** Lower the channel, track, station, etc. by 1.  Same as Jump to Pos in Playlist with value -1 for a smart media player */
 		/** @param #41 StreamID */
-			/** The stream id */
+			/** ID of stream to apply */
 
 void Xine_Player::CMD_Skip_Back_ChannelTrack_Lower(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c64-e->
@@ -637,7 +651,7 @@ void Xine_Player::CMD_Skip_Back_ChannelTrack_Lower(int iStreamID,string &sCMD_Re
 		/** @param #5 Value To Assign */
 			/** The track to go to.  A number is considered an absolute.  "+2" means forward 2, "-1" means back 1. */
 		/** @param #41 StreamID */
-			/** The stream id */
+			/** ID of stream to apply */
 
 void Xine_Player::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c65-e->
@@ -828,7 +842,7 @@ void Xine_Player::CMD_Goto_Media_Menu(int iStreamID,int iMenuType,string &sCMD_R
 	/** @brief COMMAND: #92 - Pause */
 	/** Pause the media */
 		/** @param #41 StreamID */
-			/** The stream id */
+			/** ID of stream to apply */
 
 void Xine_Player::CMD_Pause(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c92-e->
@@ -841,7 +855,7 @@ void Xine_Player::CMD_Pause(int iStreamID,string &sCMD_Result,Message *pMessage)
 	/** @brief COMMAND: #95 - Stop */
 	/** Stop the media */
 		/** @param #41 StreamID */
-			/** The stream id */
+			/** ID of stream to apply */
 		/** @param #203 Eject */
 			/** If true, the drive will be ejected if there is no media currently playing, so a remote's stop button acts as stop/eject. */
 
@@ -857,7 +871,7 @@ void Xine_Player::CMD_Stop(int iStreamID,bool bEject,string &sCMD_Result,Message
 	/** @brief COMMAND: #139 - Play */
 	/** Play the media */
 		/** @param #41 StreamID */
-			/** The stream id */
+			/** ID of stream to apply */
 
 void Xine_Player::CMD_Play(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c139-e->
@@ -872,7 +886,7 @@ void Xine_Player::CMD_Play(int iStreamID,string &sCMD_Result,Message *pMessage)
 		/** @param #5 Value To Assign */
 			/** The audio track to go to.  Simple A/V equipment ignores this and just toggles. */
 		/** @param #41 StreamID */
-			/** The stream id */
+			/** ID of stream to apply */
 
 void Xine_Player::CMD_Audio_Track(string sValue_To_Assign,int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c140-e->
@@ -897,7 +911,7 @@ void Xine_Player::CMD_Audio_Track(string sValue_To_Assign,int iStreamID,string &
 		/** @param #5 Value To Assign */
 			/** The subtitle to go to.  Simple A/V equipment ignores this and just toggles. */
 		/** @param #41 StreamID */
-			/** The stream id */
+			/** ID of stream to apply */
 
 void Xine_Player::CMD_Subtitle(string sValue_To_Assign,int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c141-e->
@@ -922,7 +936,7 @@ void Xine_Player::CMD_Subtitle(string sValue_To_Assign,int iStreamID,string &sCM
 		/** @param #5 Value To Assign */
 			/** The angle to go to.  Simple A/V equipment ignores this and just toggles. */
 		/** @param #41 StreamID */
-			/** The stream id */
+			/** ID of stream to apply */
 
 void Xine_Player::CMD_Angle(string sValue_To_Assign,int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c142-e->
@@ -945,7 +959,7 @@ void Xine_Player::CMD_Angle(string sValue_To_Assign,int iStreamID,string &sCMD_R
 	/** @brief COMMAND: #190 - Enter/Go */
 	/** Select the currently highlighted menu item */
 		/** @param #41 StreamID */
-			/** The stream id */
+			/** ID of stream to apply */
 
 void Xine_Player::CMD_EnterGo(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c190-e->
@@ -968,7 +982,7 @@ void Xine_Player::CMD_EnterGo(int iStreamID,string &sCMD_Result,Message *pMessag
 	/** @brief COMMAND: #200 - Move Up */
 	/** Move the highlighter */
 		/** @param #41 StreamID */
-			/** The stream id */
+			/** ID of stream to apply */
 
 void Xine_Player::CMD_Move_Up(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c200-e->
@@ -991,7 +1005,7 @@ void Xine_Player::CMD_Move_Up(int iStreamID,string &sCMD_Result,Message *pMessag
 	/** @brief COMMAND: #201 - Move Down */
 	/** Move the highlighter */
 		/** @param #41 StreamID */
-			/** The stream id */
+			/** ID of stream to apply */
 
 void Xine_Player::CMD_Move_Down(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c201-e->
@@ -1014,7 +1028,7 @@ void Xine_Player::CMD_Move_Down(int iStreamID,string &sCMD_Result,Message *pMess
 	/** @brief COMMAND: #202 - Move Left */
 	/** Move the highlighter */
 		/** @param #41 StreamID */
-			/** The stream id */
+			/** ID of stream to apply */
 
 void Xine_Player::CMD_Move_Left(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c202-e->
@@ -1037,7 +1051,7 @@ void Xine_Player::CMD_Move_Left(int iStreamID,string &sCMD_Result,Message *pMess
 	/** @brief COMMAND: #203 - Move Right */
 	/** Move the highlighter */
 		/** @param #41 StreamID */
-			/** The stream id */
+			/** ID of stream to apply */
 
 void Xine_Player::CMD_Move_Right(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c203-e->
@@ -1170,7 +1184,7 @@ void Xine_Player::CMD_9(string &sCMD_Result,Message *pMessage)
 	/** @brief COMMAND: #240 - Back / Prior Menu */
 	/** Navigate back .. ( Escape ) */
 		/** @param #41 StreamID */
-			/** The stream id */
+			/** ID of stream to apply */
 
 void Xine_Player::CMD_Back_Prior_Menu(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c240-e->
@@ -1244,7 +1258,7 @@ void Xine_Player::CMD_Set_Media_Position(int iStreamID,string sMediaPosition,str
 	{
 		// as we are changing position, then do not report about
 		pStream->m_bDontReportCompletion = true;
-		CMD_Play_Media(0,pStream->m_iStreamID,sMediaPosition,pStream->m_sCurrentFile,sCMD_Result,pMessage);
+		CMD_Play_Media(0,pStream->m_iStreamID,sMediaPosition,pStream->m_sCurrentFile+"|"+StringUtils::itos(pStream->m_iMediaID),sCMD_Result,pMessage);
 		pStream->m_bDontReportCompletion = false;		
 	}
 }
@@ -1256,7 +1270,7 @@ void Xine_Player::CMD_Set_Media_Position(int iStreamID,string sMediaPosition,str
 		/** @param #9 Text */
 			/** A string indicating which menu should appear.  The parameter is only used for smart media devices */
 		/** @param #41 StreamID */
-			/** The stream id */
+			/** ID of stream to apply */
 
 void Xine_Player::CMD_Menu(string sText,int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c548-e->
@@ -1276,20 +1290,18 @@ void Xine_Player::ReportTimecodeViaIP(int iStreamID, int Speed)
 	if( !m_pDeviceData_MediaPlugin )
 		return;
 
-	int currentTime, totalTime;	
-	int iMediaPosition = pStream->getStreamPlaybackPosition( currentTime, totalTime, 10, NULL, true);
-
-	// IP speed an position notification
-	char buffer_current[32];
-	snprintf(buffer_current, 32, "%02i:%02i:%02i.%03i", 
-		iMediaPosition / 1000 / 3600, iMediaPosition / 1000 % 3600 / 60, iMediaPosition / 1000 % 3600 % 60, iMediaPosition % 1000);
-
-	char buffer_total[32];
-	snprintf(buffer_total, 32, "%02i:%02i:%02i.%03i", 
-		totalTime / 1000 / 3600, totalTime / 1000 % 3600 / 60, totalTime / 1000 % 3600 % 60, totalTime % 1000);
-
-	string sIPTimeCodeInfo = StringUtils::itos(Speed) + "," + buffer_current + "," + buffer_total + "," + StringUtils::itos(iStreamID)
-		+ "," + StringUtils::itos(pStream->m_iTitle) + "," + StringUtils::itos(pStream->m_iChapter);
+        // filling media info structure
+        XineMediaInfo mediaInfo;
+        mediaInfo.m_iSpeed = Speed;
+        pStream->getStreamPlaybackPosition( mediaInfo.m_iPositionInMilliseconds, mediaInfo.m_iTotalLengthInMilliseconds, 10, NULL, true);
+        mediaInfo.m_iStreamID = iStreamID;
+        mediaInfo.m_iTitle = pStream->m_iTitle;
+        mediaInfo.m_iChapter = pStream->m_iChapter;
+        mediaInfo.m_sFileName = pStream->m_sCurrentFile;
+        mediaInfo.m_sMediaType = pStream->m_sMediaType;
+        mediaInfo.m_iMediaID = pStream->m_iMediaID;
+	
+        string sIPTimeCodeInfo = mediaInfo.ToString();
 	
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"reporting timecode stream %d speed %d %s", iStreamID, Speed, sIPTimeCodeInfo.c_str() );
 	m_pNotificationSocket->SendStringToAll( sIPTimeCodeInfo );
@@ -1399,7 +1411,7 @@ void Xine_Player::CMD_Start_Streaming(int iPK_MediaType,int iStreamID,string sMe
 	{
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Start_Streaming() - starting main target playback");
 		pStream->m_sBroadcastTargets = sStreamingTargets;
-		CMD_Play_Media( iPK_MediaType, pStream->m_iStreamID, sMediaPosition, sMediaURL);
+                CMD_Play_Media( iPK_MediaType, pStream->m_iStreamID, sMediaPosition, sMediaURL+"|"+StringUtils::itos(pStream->m_iMediaID));
 		
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Start_Streaming() - enabling stream broadcast");
 		pStream->EnableBroadcast();
@@ -1571,7 +1583,7 @@ void Xine_Player::CMD_Update_Object_Image(string sPK_DesignObj,string sType,char
 	/** @brief COMMAND: #916 - Set Aspect Ratio */
 	/** Force aspect ratio */
 		/** @param #41 StreamID */
-			/** The stream id */
+			/** ID of stream to apply */
 		/** @param #260 Aspect Ratio */
 			/** aspect ratio to set: auto, 1:1, 4:3, 16:9, 2.11:1 */
 
@@ -1597,7 +1609,7 @@ void Xine_Player::CMD_Set_Aspect_Ratio(int iStreamID,string sAspect_Ratio,string
 	/** @brief COMMAND: #917 - Set Zoom */
 	/** Sets zoom level, relative, absolute or 'auto' */
 		/** @param #41 StreamID */
-			/** The stream id */
+			/** ID of stream to apply */
 		/** @param #261 Zoom Level */
 			/** Zoom level to set */
 
@@ -1624,3 +1636,29 @@ void Xine_Player::SendMessageToOrbiter(string sMessage)
     SendCommandNoResponse(cmd);
     LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Xine_Player::SendMessageToOrbiter sent message: %s", sMessage.c_str() ); 
 }
+//<-dceag-c920-b->
+
+	/** @brief COMMAND: #920 - Set Media ID */
+	/** Set Media ID - information about media stream */
+		/** @param #10 ID */
+			/** Media ID (special format) */
+		/** @param #41 StreamID */
+			/** ID of stream to set media information for */
+
+void Xine_Player::CMD_Set_Media_ID(string sID,int iStreamID,string &sCMD_Result,Message *pMessage)
+//<-dceag-c920-e->
+{
+    Xine_Stream *pStream =  ptrFactory->GetStream( iStreamID );
+
+    LoggerWrapper::GetInstance()->Write(LV_STATUS,"Setting stream media info to %s",sID.c_str()); 
+    
+    if (pStream)
+    {
+        bool bRes = pStream->setZoomLevel(sZoom_Level);
+        if (!bRes)
+            LoggerWrapper::GetInstance()->Write(LV_STATUS,"Failed to set zoom level"); 
+    }
+    else
+        LoggerWrapper::GetInstance()->Write(LV_STATUS,"No stream found"); 
+}
+

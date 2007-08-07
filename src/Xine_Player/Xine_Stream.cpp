@@ -193,6 +193,9 @@ Xine_Stream::Xine_Stream(Xine_Stream_Factory* pFactory, xine_t *pXineLibrary, in
 	m_iZoomLevel = 100;
 	
 	m_isSlimClient = false;
+        
+        m_sMediaType = "N";
+        m_iMediaID = -1;
 	
 	m_pDynamic_Pointer = NULL;
 	
@@ -542,8 +545,6 @@ bool Xine_Stream::OpenMedia(string fileName, string &sMediaInfo, string sMediaPo
 		return false;
 	}
         
-        m_sFileName = fileName;
-	
 	// resetting info about opened stream
 	m_iCachedStreamPosition = 0;
 	m_iCachedStreamLength = 0;
@@ -1219,6 +1220,9 @@ void Xine_Stream::Seek(int pos,int tolerance_ms)
 													tsElapsed.tv_sec * 1000 + tsElapsed.tv_nsec / 1000000,
 													pos,positionTime, getPositionResult?"exact":"estimate",
 													positionTime-pos);
+                
+                UpdateTitleChapterInfo();
+                
 		return ;
 	}
 
@@ -1261,6 +1265,8 @@ void Xine_Stream::Seek(int pos,int tolerance_ms)
 			}
 		}
 	}
+        
+        UpdateTitleChapterInfo();
 }
 
 void Xine_Stream::HandleSpecialSeekSpeed()
@@ -1747,8 +1753,11 @@ void Xine_Stream::XineStreamEventListener( void *streamObject, const xine_event_
 			int iButtons = ( ( xine_ui_data_t * ) event->data ) ->num_buttons;
 
 			LoggerWrapper::GetInstance()->Write( LV_STATUS, "Menu with %d buttons", iButtons );
-									
+			
+                        pXineStream->UpdateTitleChapterInfo();
+                        
 			pXineStream->FireMenuOnScreen(iButtons);
+
 			
 		}
 		break;
@@ -1971,7 +1980,7 @@ void Xine_Stream::XineStreamEventListener( void *streamObject, const xine_event_
 						message = message  + ((char *) data + data->parameters) ;
                                         
                                         // notifying orbiter
-                                        string sOrbiterMsg = "File not found: " + pXineStream->m_sFileName;
+                                        string sOrbiterMsg = "File not found: " + pXineStream->m_sCurrentFile;
                                         pXineStream->SendMessageToOrbiter(sOrbiterMsg);
                                         
 					break;
@@ -1991,13 +2000,13 @@ void Xine_Stream::XineStreamEventListener( void *streamObject, const xine_event_
                                         
                                         // notifying orbiter
                                         string sOrbiterMsg = "Cannot read ";
-                                        if ( StringUtils::StartsWith(pXineStream->m_sFileName, "dvd:/") )
+                                        if ( StringUtils::StartsWith(pXineStream->m_sCurrentFile, "dvd:/") )
                                         {
                                           sOrbiterMsg += "DVD, disk is not readable or DVDCSS library is not installed";
                                         }
                                         else
                                         {
-                                          sOrbiterMsg += "file " + pXineStream->m_sFileName;
+                                          sOrbiterMsg += "file " + pXineStream->m_sCurrentFile;
                                         }
                                         pXineStream->SendMessageToOrbiter(sOrbiterMsg);
                                         
@@ -2018,13 +2027,13 @@ void Xine_Stream::XineStreamEventListener( void *streamObject, const xine_event_
                                         
                                         // notifying orbiter
                                         string sOrbiterMsg = "Cannot read ";
-                                        if ( StringUtils::StartsWith(pXineStream->m_sFileName, "dvd:/") )
+                                        if ( StringUtils::StartsWith(pXineStream->m_sCurrentFile, "dvd:/") )
                                         {
                                           sOrbiterMsg += "encrypted DVD, probably DVDCSS library is not installed";
                                         }
                                         else
                                         {
-                                          sOrbiterMsg += "encrypted file " + pXineStream->m_sFileName;
+                                          sOrbiterMsg += "encrypted file " + pXineStream->m_sCurrentFile;
                                         }
                                         pXineStream->SendMessageToOrbiter(sOrbiterMsg);
                                         
@@ -2674,7 +2683,9 @@ int Xine_Stream::DisableBroadcast( )
 		bStreamWatchDogFlag = false;
 		
 		m_iBroadcastPort = 0;
-	}	
+	}
+        	
+        return 0;
 }
 
 int Xine_Stream::EnableBroadcast( )
@@ -3143,7 +3154,7 @@ string Xine_Stream::readMediaInfo()
 	{
 		string drvName = m_sCurrentFile;
 		drvName = StringUtils::Replace(drvName, "cdda://", "");
-		int last_slash = drvName.find_last_of("/");
+		uint last_slash = drvName.find_last_of("/");
 		if (last_slash!=string::npos)
 		{
 			drvName.erase(last_slash);
@@ -3367,5 +3378,14 @@ void Xine_Stream::SendMessageToOrbiter(string sMessage)
     m_pFactory->SendMessageToOrbiter(sMessage);
 }
 
+void Xine_Stream::UpdateTitleChapterInfo()
+{
+    // updating title/chapter info when menu is on screen
+    {
+        PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
+        m_iTitle = xine_get_stream_info(m_pXineStream, XINE_STREAM_INFO_DVD_TITLE_NUMBER);
+        m_iChapter = xine_get_stream_info(m_pXineStream, XINE_STREAM_INFO_DVD_CHAPTER_NUMBER);
+    }
+}
 
 } // DCE namespace end
