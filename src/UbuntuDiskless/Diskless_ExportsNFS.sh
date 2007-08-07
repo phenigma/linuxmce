@@ -3,6 +3,9 @@
 . /usr/pluto/bin/SQL_Ops.sh
 . /usr/pluto/bin/Section_Ops.sh
 . /usr/pluto/bin/Network_Parameters.sh
+. /usr/pluto/bin/Utils.sh
+
+DEVICEDATA_DisklessImages=249
 
 ## We should not run un diskless mds
 if [[ -f /etc/diskless.conf ]]; then
@@ -38,7 +41,7 @@ Q="
     	Device
     	JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
     WHERE 
-    	PK_DeviceTemplate=28 
+	FK_DeviceCategory=8
 	AND 
 	FK_Device_ControlledVia IS NULL
 "
@@ -63,12 +66,31 @@ for Client in $DisklessMDs; do
 	    FROM Device_DeviceData
 	    JOIN Device ON PK_Device=FK_Device
 	    JOIN DeviceTemplate ON PK_DeviceTemplate=FK_DeviceTemplate
-	    WHERE FK_DeviceTemplate=28 AND FK_DeviceData=9 AND IK_DeviceData='1' AND PK_Device='$DisklessMD_ID'
+	    WHERE FK_DeviceCategory=8 AND FK_DeviceData=9 AND IK_DeviceData='1' AND PK_Device='$DisklessMD_ID'
 	"
 	IsDiskless=$(RunSQL "$Q")
 
 	if [ -n "$IsDiskless" ]; then
-		Exports_DisklessMDRoots="$Exports_DisklessMDRoots\n$DisklessMD_Root	$INTERNAL_SUBNET/$INTERNAL_SUBNET_MASK(rw,no_root_squash,no_all_squash,sync,no_subtree_check)"
+		DisklessImages=$(GetDeviceData "$DisklessMD_ID" "$DEVICEDATA_DisklessImages")
+		if [[ -z "$DisklessImages" ]]; then
+			Exports_DisklessMDRoots="$Exports_DisklessMDRoots\n$DisklessMD_Root	$INTERNAL_SUBNET/$INTERNAL_SUBNET_MASK(rw,no_root_squash,no_all_squash,sync,no_subtree_check)"
+		else
+			for line in $DisklessImages; do
+				NameKernel="${line%%=*}"
+				if [[ "$NameKernel" == *-* ]]; then
+					Name="${NameKernel%%-*}"
+					Kernel="${NameKernel#*-}"
+				else
+					Name="$NameKernel"
+					Kernel=
+				fi
+				Value="${line#*=}"
+				if [[ -z "$Kernel" ]]; then
+					continue
+				fi
+				Exports_DisklessMDRoots="$Exports_DisklessMDRoots\n$DisklessMD_Root/$Name	$INTERNAL_SUBNET/$INTERNAL_SUBNET_MASK(rw,no_root_squash,no_all_squash,sync,no_subtree_check)"
+			done
+		fi
 	fi
 done
 

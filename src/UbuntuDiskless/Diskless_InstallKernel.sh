@@ -1,8 +1,11 @@
 #!/bin/bash
 
 . /usr/pluto/bin/pluto.func
+. /usr/pluto/bin/Utils.sh
 
 set -e
+
+DEVICEDATA_DisklessImages=249
 
 if [[ "$#" -ne 1 ]]; then
 	echo "Syntax: $0 <Device>"
@@ -10,6 +13,11 @@ if [[ "$#" -ne 1 ]]; then
 fi
 Moon_DeviceID="$1"
 Moon_RootLocation="/usr/pluto/diskless/${Moon_DeviceID}"
+
+DisklessImages=$(GetDeviceData "$Moon_DeviceID" "$DEVICEDATA_DisklessImages")
+if [[ -n "$DisklessImages" ]]; then
+	exit 0
+fi
 
 ## Determine what kernel are we going to use
 #Moon_KernelVersion=$(basename $(ls /boot/vmlinuz-* | head -1) | cut -d"-" -f2-99)

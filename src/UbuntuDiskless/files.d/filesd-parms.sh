@@ -7,6 +7,7 @@ for ((i = 1; i <= "$#"; i++)); do
 	case "$Parm" in
 		--root) ((i++)); Parm_RootLocation="${!i}" ;;
 		--device) ((i++)); Parm_Device="${!i}" ;;
+		--subname) ((i++)); Parm_Subname="${!i}" ;;
 		*) echo "ERR: Unknown parameter '$Parm'"; exit 1 ;;
 	esac
 done

@@ -6,13 +6,13 @@ set -e
 . /usr/pluto/bin/Config_Ops.sh 2>/dev/null
 . /usr/pluto/bin/Section_Ops.sh 2>/dev/null
 . /usr/pluto/bin/LockUtils.sh 2>/dev/null
-
+. /usr/pluto/bin/Utils.sh 2>/dev/null
 
 DEVICEDATA_Extra_Parameters=139
 DEVICEDATA_Extra_Parameters_Override=140
 DEVICEDATA_Architecture=112
 DEVICEDATA_DisklessBoot=9
-
+DEVICEDATA_DisklessImages=249
 
 function setup_tftp_boot 
 {
@@ -30,21 +30,49 @@ function setup_tftp_boot
 		BootParams="${BootParams_Extra}"
 	fi
 
-
+	local DefaultBootName=
+	
 	mkdir -p /tftpboot/pxelinux.cfg
 
-	BootConf="${BootConf}DEFAULT Pluto\n"
-	BootConf="${BootConf}LABEL Pluto\n"
-	BootConf="${BootConf}KERNEL ${Moon_DeviceID}/vmlinuz\n"
-	BootConf="${BootConf}APPEND initrd=${Moon_DeviceID}/initrd.img ramdisk=10240 rw root=/dev/nfs boot=nfs nfsroot=${IntIP}:/usr/pluto/diskless/${Moon_DeviceID} ${BootParams_Extra}\n"
-	
-	echo -e "$BootConf" > "$Moon_BootConfFile"
+	if [[ -z "$Moon_DisklessImages" ]]; then
+		BootConf="${BootConf}DEFAULT Pluto\n"
+		BootConf="${BootConf}LABEL Pluto\n"
+		BootConf="${BootConf}KERNEL ${Moon_DeviceID}/vmlinuz\n"
+		BootConf="${BootConf}APPEND initrd=${Moon_DeviceID}/initrd.img ramdisk=10240 rw root=/dev/nfs boot=nfs nfsroot=${IntIP}:/usr/pluto/diskless/${Moon_DeviceID} ${BootParams_Extra}\n"
+		
+		echo -e "$BootConf" > "$Moon_BootConfFile"
 
-	mkdir -p /tftpboot/${Moon_DeviceID}
-	rm -f /tftpboot/${Moon_DeviceID}/vmlinuz
-	ln -s ${Moon_RootLocation}/boot/vmlinuz /tftpboot/${Moon_DeviceID}/vmlinuz
-	rm -f /tftpboot/${Moon_DeviceID}/initrd.img
-	ln -s ${Moon_RootLocation}/boot/initrd.img /tftpboot/${Moon_DeviceID}/initrd.img
+		mkdir -p /tftpboot/${Moon_DeviceID}
+		rm -f /tftpboot/${Moon_DeviceID}/vmlinuz
+		ln -s ${Moon_RootLocation}/boot/vmlinuz /tftpboot/${Moon_DeviceID}/vmlinuz
+		rm -f /tftpboot/${Moon_DeviceID}/initrd.img
+		ln -s ${Moon_RootLocation}/boot/initrd.img /tftpboot/${Moon_DeviceID}/initrd.img
+	else
+		for line in $Moon_DisklessImages; do
+			NameKernel="${line%%=*}"
+			if [[ "$NameKernel" == *-* ]]; then
+				Name="${NameKernel%%-*}"
+				Kernel="${NameKernel#*-}"
+			else
+				Name="$NameKernel"
+				Kernel=
+			fi
+			[[ -z "$Kernel" ]] && continue || :
+			[[ -z "$DefaultBootName" ]] && DefaultBootName="$Name" || :
+			Value="${line#*=}"
+			mkdir -p "/tftpboot/${Moon_DeviceID}/$Name"
+			rm -f "/tftpboot/${Moon_DeviceID}/$Name/"{vmlinuz,initrd.img}
+			ln -s "${Moon_RootLocation}/boot/vmlinuz-${Kernel}" "/tftpboot/${Moon_DeviceID}/$Name/vmlinuz"
+			ln -s "${Moon_RootLocation}/boot/initrd.img-${Kernel}" "/tftpboot/${Moon_DeviceID}/$Name/initrd.img"
+		done
+
+		BootConf="${BootConf}DEFAULT Pluto\n"
+		BootConf="${BootConf}LABEL Pluto\n"
+		BootConf="${BootConf}KERNEL ${Moon_DeviceID}/$DefaultBootName/vmlinuz\n"
+		BootConf="${BootConf}APPEND initrd=${Moon_DeviceID}/$DefaultBootName/initrd.img ramdisk=10240 rw root=/dev/nfs boot=nfs nfsroot=${IntIP}:/usr/pluto/diskless/${Moon_DeviceID}/$DefaultBootName ${BootParams_Extra}\n"
+		
+		echo -e "$BootConf" > "$Moon_BootConfFile"
+	fi
 }
 
 function setup_mysql_access 
@@ -125,6 +153,22 @@ function update_config_files
 {
 	local ScriptDir="/usr/pluto/bin/files.d"
 	local ScriptsList="cron.d-synctime fstab-diskless interfaces mythtv-mysql.txt nis-client pluto.conf resolv.conf syslog.conf timezone mountnfs.sh event.d apt.conf hostname mythtv-fix firstrun"
+	local -a Names
+	local NameKernel Name Kernel
+	if [[ -n "$Moon_DisklessImages" ]]; then
+		for line in $Moon_DisklessImages; do
+			NameKernel="${line%%=*}"
+			if [[ "$NameKernel" == *-* ]]; then
+				Name="${NameKernel%%-*}"
+				Kernel="${NameKernel#*-}"
+			else
+				Name="$NameKernel"
+				Kernel=
+			fi
+			[[ -z "$Kernel" ]] && continue || :
+			Names=("${Names[@]}" "$Name")
+		done
+	fi
 	for Script in $ScriptsList ;do
 		if [[ ! -x $ScriptDir/$Script ]] ;then
 			echo "WARNING: Script $Script cannot be executed"
@@ -132,7 +176,13 @@ function update_config_files
 		fi
 
 		pushd $ScriptDir
-		$ScriptDir/$Script --root "$Moon_RootLocation" --device "$Moon_DeviceID"
+		if [[ "${#Names[@]}" -eq 0 ]]; then
+			$ScriptDir/$Script --root "$Moon_RootLocation" --device "$Moon_DeviceID"
+		else
+			for Name in "${Names[@]}"; do
+				$ScriptDir/$Script --root "$Moon_RootLocation/$Name" --device "$Moon_DeviceID" --subname "$Name"
+			done
+		fi
 		popd
 	done
 }
@@ -219,6 +269,8 @@ for Row in $R; do
 
 	Moon_RootLocation="/usr/pluto/diskless/$Moon_DeviceID"
 	Moon_BootConfFile="/tftpboot/pxelinux.cfg/01-$(echo ${Moon_MAC//:/-} | tr 'A-Z' 'a-z')"
+	Moon_DisklessImages=$(GetDeviceData "$Moon_DeviceID" "$DEVICEDATA_DisklessImages")
+
 
 	
 	## Adding moon to hosts (/etc/hosts)

@@ -1,8 +1,11 @@
 #!/bin/bash
 
 . /usr/pluto/bin/pluto.func
+. /usr/pluto/bin/Utils.sh
 
 set -e
+
+DEVICEDATA_DisklessImages=249
 
 if [[ "$#" -ne 1 ]]; then
 	echo "Syntax: $0 <Device>"
@@ -19,7 +22,28 @@ Moon_RootLocation="/usr/pluto/diskless/${Moon_DeviceID}"
 Moon_RootArchive="/usr/pluto/install/PlutoMD.tar.bz2"
 
 function unpack_filesystem {
-	if [[ ! -e ${Moon_RootLocation}/var/lib/dpkg/status ]] ;then
+	local DisklessImages=$(GetDeviceData "$Moon_DeviceID" "$DEVICEDATA_DisklessImages")
+	local NameKernel Kernel Name Value
+	if [[ -n "$DisklessImages" ]]; then
+		if [[ -d "$Moon_RootLocation" ]]; then
+			return 0
+		fi
+		for line in $DisklessImages; do
+			NameKernel="${line%%=*}"
+			if [[ "$NameKernel" == *-* ]]; then
+				Name="${NameKernel%%-*}"
+				Kernel="${NameKernel#*-}"
+			else
+				Name="$NameKernel"
+				Kernel=
+			fi
+			Value="${line#*=}"
+			mkdir -p "$Moon_RootLocation/$Name"
+			pushd "$Moon_RootLocation/$Name"
+				tar -xzf "/usr/pluto/install/$Value"
+			popd
+		done
+	elif [[ ! -e ${Moon_RootLocation}/var/lib/dpkg/status ]] ;then
 		mkdir -p "${Moon_RootLocation}"	
 		pushd $Moon_RootLocation
 			tar -xf $Moon_RootArchive
