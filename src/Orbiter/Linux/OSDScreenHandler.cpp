@@ -252,6 +252,21 @@ bool OSDScreenHandler::VideoWizard_ObjectSelected(CallBackData *pData)
 					return true;
 				}
 			}
+			break;
+		}
+
+		case DESIGNOBJ_Final_CONST:
+		{
+			string sResponse;
+			CMD_Regen_Orbiter cmd_Regen_Orbiter(m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device_OrbiterPlugIn, m_pOrbiter->m_dwPK_Device, "", "Y");
+			m_pOrbiter->SendCommand(cmd_Regen_Orbiter, &sResponse);
+
+			if(sResponse != "OK")
+			{
+				SCREEN_PopupMessage(SCREEN_PopupMessage_CONST, "The router is busy at this moment and it cannot reload. Pleasy try again later.|NO_BUTTON", 
+					"", "", "", "", "1");
+				return true;
+			}
 		}
 	};
 	return false;
@@ -1438,6 +1453,7 @@ void OSDScreenHandler::SCREEN_Wizard_Done(long PK_Screen)
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"OSDScreenHandler::SCREEN_Wizard_Done selected DESIGNOBJ_Final_CONST already played %d",(int) m_bAlreadyPlayFinalGreeting);
 #endif
 	RegisterCallBack(cbOnRenderScreen, (ScreenHandlerCallBack) &OSDScreenHandler::VideoWizardDone_OnScreen, new RenderScreenCallBackData());
+	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &OSDScreenHandler::VideoWizard_ObjectSelected, new ObjectInfoBackData());
 }
 
 bool OSDScreenHandler::VideoWizardDone_OnScreen(CallBackData *pData)
