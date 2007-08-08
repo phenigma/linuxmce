@@ -2106,7 +2106,7 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 			if(  !m_pLocationInfo_Initial  )
 			{
 				LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "No initial Location" );
-				m_pOrbiterRenderer->PromptUser("Something went very wrong. No initial location!  I'll try to do a regen.");
+//				m_pOrbiterRenderer->PromptUser("Something went very wrong. No initial location!  I'll try to do a regen.");
 				RegenOrbiter();
 				Sleep(2000);
 				OnReload();
@@ -8485,9 +8485,9 @@ int Orbiter::HandleNotOKStatus(string sStatus,string sRegenStatus,int iRegenPerc
 	}
 	else if( sStatus=="n" )
 	{
-		m_pOrbiterRenderer->PromptUser("Something went wrong and this orbiter's user interface wasn't created.  In Pluto Admin, go to Wizard, Devices, Orbiters and click Regen for Orbiter #" + StringUtils::itos(m_dwPK_Device) + " and try later");
+		RegenOrbiter();
 		OnReload();
-		exit(1);
+		exit(2);
 		return 0;
 	}
 	else if( sStatus=="D" || sStatus=="U" )
