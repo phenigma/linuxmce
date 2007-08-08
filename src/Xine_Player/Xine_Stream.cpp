@@ -3380,12 +3380,15 @@ void Xine_Stream::SendMessageToOrbiter(string sMessage)
 
 void Xine_Stream::UpdateTitleChapterInfo()
 {
+// VIA has older version xine-lib, without this feature
+#ifndef VIA
     // updating title/chapter info when menu is on screen
     {
         PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
         m_iTitle = xine_get_stream_info(m_pXineStream, XINE_STREAM_INFO_DVD_TITLE_NUMBER);
         m_iChapter = xine_get_stream_info(m_pXineStream, XINE_STREAM_INFO_DVD_CHAPTER_NUMBER);
     }
+#endif
 }
 
 } // DCE namespace end
