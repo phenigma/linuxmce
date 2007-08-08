@@ -2,6 +2,7 @@
 
 . /usr/pluto/bin/SQL_Ops.sh 2>/dev/null
 . /usr/pluto/bin/Utils.sh 2>/dev/null
+. /usr/pluto/bin/Network_Parameters.sh 2>/dev/null
 
 Moon_DeviceID="$1"
 ImageName="$2"
