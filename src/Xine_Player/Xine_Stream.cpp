@@ -2830,9 +2830,9 @@ void Xine_Stream::frameOutputCallback( void *data, int video_width, int video_he
 																						int *dest_x, int *dest_y, int *dest_width, int *dest_height,
 																						double *dest_pixel_aspect,
 																						int *win_x, int *win_y 
-#<-mkr_b_via_b->
+//<-mkr_b_via_b->
 																						, int *dispay_no
-#<-mkr_b_via_e->
+//<-mkr_b_via_e->
 																						)
 {
 	Xine_Stream * pStream = ( Xine_Stream* ) data;
@@ -3380,7 +3380,7 @@ void Xine_Stream::SendMessageToOrbiter(string sMessage)
 
 void Xine_Stream::UpdateTitleChapterInfo()
 {
-#<-mkr_B_via_b->
+//<-mkr_B_via_b->
 // VeXP has older version xine-lib, without this feature
     // updating title/chapter info when menu is on screen
     {
@@ -3388,7 +3388,7 @@ void Xine_Stream::UpdateTitleChapterInfo()
         m_iTitle = xine_get_stream_info(m_pXineStream, XINE_STREAM_INFO_DVD_TITLE_NUMBER);
         m_iChapter = xine_get_stream_info(m_pXineStream, XINE_STREAM_INFO_DVD_CHAPTER_NUMBER);
     }
-#<-mkr_B_via_e->
+//<-mkr_B_via_e->
 }
 
 } // DCE namespace end

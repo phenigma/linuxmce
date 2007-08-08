@@ -366,9 +366,9 @@ namespace DCE
 																			 int *dest_width, int *dest_height,
 																			 double *dest_pixel_aspect,
 																			 int *win_x, int *win_y 
-#<-mkr_b_via_b->
+//<-mkr_b_via_b->
 																			, int *display_np
-#<-mkr_b_via_e->																			 
+//<-mkr_b_via_e->																			 
 																			 );
 
 		public:
