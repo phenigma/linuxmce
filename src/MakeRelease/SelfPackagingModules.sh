@@ -18,7 +18,7 @@ fi
 
 Packages=(nvidia lirc asterisk kernel_upgrade)
 
-PackageDir_nvidia=nvidia-graphics-drivers-1.0.9746
+PackageDir_nvidia=nvidia-graphics-drivers-1.0.9755
 PackageDir_lirc=lirc
 PackageDir_asterisk=asterisk
 PackageDir_kernel_upgrade=pluto-kernel-upgrade

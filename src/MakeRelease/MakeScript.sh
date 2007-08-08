@@ -2,6 +2,11 @@
 
 set -x
 
+if [[ "$(id -u)" == 0 ]]; then
+	echo "ERROR: This script can't be run as root."
+	exit 1
+fi
+
 nobuild=""
 
 branch="trunk"
@@ -62,7 +67,7 @@ for ((i = 1; i <= "$#"; i++)); do
 done
 
 exec 1> >(tee /tmp/MakeScript-$flavor.log) 2>&1
-echo "Building: branch=$branch, rev=$rev_pub,$rev_prv, flavor=$flavor,nobuild=$nobuild,nocheckout=$nocheckout,nosqlcvs=$nosqlcvs,nosqlcvs_sync=$nosqlcvs_sync,dont_compile_existing=$dont_compile_existing,no-upload=$no-upload"
+echo "Building: branch=$branch, rev=$rev_pub,$rev_prv, flavor=$flavor,nobuild=$nobuild,nocheckout=$nocheckout,nosqlcvs=$nosqlcvs,nosqlcvs_sync=$nosqlcvs_sync,dont_compile_existing=$dont_compile_existing,upload=$upload"
 
 if [[ "$flavor" == pluto_debug ]]; then
 	. /home/WorkNew/src/BootScripts/LockUtils.sh
@@ -126,13 +131,13 @@ echo Using version with id: "$version"
 			bash -x /home/database-dumps/sync-sqlcvs.sh
 		fi
 		rm -f /tmp/sqlcvs_dumps_"$flavor".tar.gz
-		ssh uploads@plutohome.com "
+		ssh -i ~/.ssh/uploads_plutohome_build_150_key uploads@plutohome.com "
 			rm -f /tmp/main_sqlcvs_\"$flavor\".dump /tmp/myth_sqlcvs_\"$flavor\" /home/uploads/sqlcvs_dumps_\"$flavor\".tar.gz;
 			mysqldump -e --quote-names --allow-keywords --add-drop-table -u root -pmoscow70bogata main_sqlcvs > /tmp/main_sqlcvs_\"$flavor\".dump;
 			mysqldump -e --quote-names --allow-keywords --add-drop-table -u root -pmoscow70bogata myth_sqlcvs > /tmp/myth_sqlcvs_\"$flavor\".dump;
 			cd /tmp;
 			tar zcvf /home/uploads/sqlcvs_dumps_\"$flavor\".tar.gz main_sqlcvs_\"$flavor\".dump myth_sqlcvs_\"$flavor\".dump"
-		scp uploads@plutohome.com:/home/uploads/sqlcvs_dumps_"$flavor".tar.gz /tmp/
+		scp -i ~/.ssh/uploads_plutohome_build_150_key uploads@plutohome.com:/home/uploads/sqlcvs_dumps_"$flavor".tar.gz /tmp/
 		cd /tmp
 		tar zxvf sqlcvs_dumps_"$flavor".tar.gz
 
@@ -217,12 +222,14 @@ if [[ "$nobuild" == "" ]]; then
 				echo ln -s $build_dir{,/private}/trunk/"$BaseDir1"/"$BaseDir2"
 			done
 		done
+
+		cp $build_dir/trunk/src/Fiire_Scripts/UpdateCodec.sh $build_dir/trunk/src/Xine_Player
 	fi
 		
 	mkdir -p $build_dir/trunk/src/bin
 	cd $build_dir/trunk/src/bin
 	if [[ "$branch" == trunk ]]; then
-		rm ../pluto_main/*
+		rm -f ../pluto_main/*
 		# We have to use pluto_main so the class is named correctly, but that means we need to be sure  the local pluto_main is up to date
 		sql2cpp -D pluto_main -h localhost
 		cd ../pluto_main
@@ -291,13 +298,13 @@ if [[ "$MakeRelease_Flavor" == pluto_debug ]]; then
 		FROM File
 	"
 	RunSQL "$Q"
-	rm -r "$CDHB_OUT_FOLDER"
+	rm -rf "$CDHB_OUT_FOLDER"
 	
 	MakeRelease_Gparm=-g
 fi
 
 echo "Marker: starting compilation `date`"
-if ! MakeRelease $MakeRelease_Gparm $fastrun $nobuild $dont_compile_existing -O "$BASE_OUT_FOLDER/$version_name" -D main_sqlcvs_"$flavor" -c -a -o 1 -r 2,9,11 -m 1 -s $build_dir/trunk -n / -R $svninfo -v $version > >(tee $build_dir/MakeRelease1.log); then
+if ! MakeRelease $MakeRelease_Gparm $fastrun $nobuild $dont_compile_existing -O "$BASE_OUT_FOLDER/$version_name" -D main_sqlcvs_"$flavor" -c -o 1 -r 2,9,11 -m 1 -s $build_dir/trunk -n / -R $svninfo -v $version > >(tee $build_dir/MakeRelease1.log); then
 	echo "MakeRelease Failed.  Press any key"
 	reportError
 	read
@@ -308,7 +315,7 @@ fi
 cp /home/builds/Windows_Output/src/bin/* $build_dir/trunk/src/bin
 
 echo "Marker: starting package building `date`"
-if ! MakeRelease $MakeRelease_Gparm $fastrun -D main_sqlcvs_"$flavor" -O "$BASE_OUT_FOLDER/$version_name" -b -a -o 1 -r 2,9,11 -m 1 -s $build_dir/trunk -n / -R $svninfo -v $version > >(tee $build_dir/MakeRelease1.log); then
+if ! MakeRelease $MakeRelease_Gparm $fastrun -D main_sqlcvs_"$flavor" -O "$BASE_OUT_FOLDER/$version_name" -b -o 1 -r 2,9,11 -m 1 -s $build_dir/trunk -n / -R $svninfo -v $version > >(tee $build_dir/MakeRelease1.log); then
 	echo "MakeRelease Failed.  Press any key"
 	reportError
 	read
@@ -392,35 +399,35 @@ if [[ "$version" !=  "1" || "$upload" == "y" ]]; then
 	echo "Marker: uploading download.tar.gz `date`"
 	
 	## Create tarball containing /home/builds/build directory and upload it
-	rm ../upload/download.$flavor.tar.gz; ssh uploads@deb.plutohome.com "rm download.$flavor.tar.gz; rm replacements.$flavor.tar.gz"
+	rm -f ../upload/download.$flavor.tar.gz; ssh -i ~/.ssh/uploads_linuxmce_build_150_key uploads@deb.plutohome.com "rm -f download.$flavor.tar.gz; rm -f replacements.$flavor.tar.gz"
 	tar zcvf ../upload/download.$flavor.tar.gz *
-	scp ../upload/download.$flavor.tar.gz uploads@deb.plutohome.com:~/
+	scp -i ~/.ssh/uploads_linuxmce_build_150_key ../upload/download.$flavor.tar.gz uploads@deb.plutohome.com:~/
 
 	## Create replacements repo tarball and upload it
-	rm ../upload/replacements.$flavor.tar.gz
+	rm -f ../upload/replacements.$flavor.tar.gz
 	pushd /home/samba/repositories/$flavor/$replacementsdeb
 	tar -hzcvf /home/builds/upload/replacements.$flavor.tar.gz  *
 	popd
-	scp ../upload/replacements.$flavor.tar.gz uploads@deb.plutohome.com:~/
+	scp -i ~/.ssh/uploads_linuxmce_build_150_key ../upload/replacements.$flavor.tar.gz uploads@deb.plutohome.com:~/
 
 	if [ "$flavor" != "pluto" ]; then
 		## Extract the files on plutohome.com
 		echo "Marker: setting up `date`"
-		ssh uploads@deb.plutohome.com "/home/uploads/SetupUploads.sh \"$flavor\" \"$replacementsdeb\"  \"$maindeb\""
+		ssh -i ~/.ssh/uploads_linuxmce_build_150_key uploads@deb.plutohome.com "/home/uploads/SetupUploads.sh \"$flavor\" \"$replacementsdeb\"  \"$maindeb\""
 	else
-#		ssh uploads@plutohome.com "rm ~/*download* ~/*replace*"
+#		ssh -i ~/.ssh/uploads_plutohome_build_150_key uploads@plutohome.com "rm -f ~/*download* ~/*replace*"
 #		tar zcvf ../upload/download.tar.gz *
-#		scp ../upload/download.tar.gz uploads@plutohome.com:~/
+#		scp -i ~/.ssh/uploads_plutohome_build_150_key ../upload/download.tar.gz uploads@plutohome.com:~/
 #		cd ../upload
 #	    sh -x `dirname $0`/scripts/DumpVersionPackage.sh
-#		scp dumpvp.tar.gz uploads@plutohome.com:~/
+#		scp -i ~/.ssh/uploads_plutohome_build_150_key dumpvp.tar.gz uploads@plutohome.com:~/
 #
 #		echo "Marker: uploading replacements `date`"
 #
 #		cd /home/WorkNew/src/MakeRelease
 #		bash -x DirPatch.sh
-#		scp replacements.tar.gz uploads@plutohome.com:~/
-#		scp replacements.patch.sh uploads@plutohome.com:~/
+#		scp -i ~/.ssh/uploads_plutohome_build_150_key replacements.tar.gz uploads@plutohome.com:~/
+#		scp -i ~/.ssh/uploads_plutohome_build_150_key replacements.patch.sh uploads@plutohome.com:~/
 		:
 	fi
 
