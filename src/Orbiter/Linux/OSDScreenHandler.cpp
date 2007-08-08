@@ -263,8 +263,9 @@ bool OSDScreenHandler::VideoWizard_ObjectSelected(CallBackData *pData)
 
 			if(sResponse != "OK")
 			{
-				SCREEN_PopupMessage(SCREEN_PopupMessage_CONST, "The router is busy at this moment and it cannot reload. Pleasy try again later.|NO_BUTTON", 
-					"", "", "", "", "1");
+				SCREEN_PopupMessage(SCREEN_PopupMessage_CONST, "The router is busy at this moment and it cannot reload. "
+					"Please try again later.|OK", 
+					"0 -300 1 4", "", "", "", "1");
 				return true;
 			}
 		}
