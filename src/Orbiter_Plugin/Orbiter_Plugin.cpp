@@ -1843,11 +1843,15 @@ void Orbiter_Plugin::CMD_Regen_Orbiter(int iPK_Device,string sForce,string sRese
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter_Plugin::CMD_Regen_Orbiter Starting regen orbiter for %d reset: %s with m_listRegenCommands %d size",iPK_Device,sReset.c_str(),(int) m_listRegenCommands.size());
 	if( sReset.size() && (sReset[0]=='Y' || sReset[0]=='1') )
 	{
+		/*
+		We can't do this here. This will cause DCERouter to go into a deadlock.
+
 		if( !m_pRouter->RequestReload(pMessage->m_dwPK_Device_From) )
 		{
 			sCMD_Result = "CANNOT RELOAD NOW";
 			return;
 		}
+		*/
 
 		SetStatus( iPK_Device ? StringUtils::itos(iPK_Device) : string("*") );
 		m_pRouter->Reload();
