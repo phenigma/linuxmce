@@ -112,6 +112,11 @@ ExtractArchive()
 		mkdir -p /media/target/home/public/data/videos/
 		cp -a /cdrom/lmce-videos/. /media/target/home/public/data/videos/
 	fi
+
+	if [[ -d /cdrom/via-archives ]]; then
+		mkdir -p /media/target/usr/pluto/install/via/
+		cp -a /cdrom/via-archives/. /media/target/usr/pluto/install/via/
+	fi
 }
 
 UnmountPartitions()

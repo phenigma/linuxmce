@@ -14,6 +14,9 @@ FirstRunScript="firstboot"
 LiveCDISO="$WorkDir/kubuntu-linuxmce.iso"
 InstallerArchive="/var/plutobuild/vmware/Kubuntu7.04/linux-mce.tar.gz"
 
+VIA_BaseDir="/var/plutobuild/lite-installer-via"
+VIA_Archives=("boot.tgz kubuntu.tgz pluto44md.tgz")
+
 RemoteAssistanceKey=/var/plutobuild/lite-installer/pf-linuxmce
 
 PrepareWorkDir()
@@ -68,6 +71,12 @@ CreateLiveCD()
 	cp "$FirstRunScript" "$RemoteAssistanceKey" "$LiveCDDir/lmce-image/"
 	chmod 600 "$LiveCDDir/lmce-image/$RemoteAssistanceKey"
 	(cd "$LiveCDDir" && find . -type f -not -path ./md5sum.txt -print0 | xargs -0 md5sum | tee md5sum.txt)
+
+	mkdir -p "$LiveCDDir/via-archives/"
+	for File in "${VIA_Archives[@]}"; do
+		ln "$VIA_BaseDir/$File" "$LiveCDDir/via-archives/"
+	done
+
 	mkisofs -o "$LiveCDISO" \
 		-b isolinux/isolinux.bin \
 		-c isolinux/boot.cat \
