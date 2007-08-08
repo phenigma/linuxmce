@@ -374,11 +374,22 @@ namespace DCE
 
 				if(NULL != pServerSocket)
 				{
-					PLUTO_SAFETY_LOCK(slConnMutex,(pServerSocket->m_ConnectionMutex))
 					if( pServerSocket->m_bAskBeforeReload )
 					{
+						bool bAbortReload = false;
 						string sReason;
-						if( !pServerSocket->SafeToReload(sReason) )
+						if(IsPlugin(pServerSocket->m_dwPK_Device))
+						{
+							Command_Impl *pCommand_Impl = m_mapPlugIn_Find(pServerSocket->m_dwPK_Device);
+							bAbortReload = !pCommand_Impl->SafeToReload(sReason);
+						}
+						else 
+						{
+							PLUTO_SAFETY_LOCK(slConnMutex,(pServerSocket->m_ConnectionMutex))
+							bAbortReload = !pServerSocket->SafeToReload(sReason);
+						}
+						
+						if(bAbortReload)
 						{
 							LoggerWrapper::GetInstance()->Write(LV_STATUS,"Aborting reload per device %d = %s", pServerSocket->m_dwPK_Device, sReason.c_str());
 							if( PK_Device_Requesting )
