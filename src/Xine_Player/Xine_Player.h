@@ -589,7 +589,12 @@ private:
 	vector<pair<int, string> > mountedRemoteDVDs;
 	
 	int m_iDefaultZoomLevel;
-	
+        
+#<-mkr_b_via_b-> 
+        bool m_bCodecIsOK;
+        void checkCodec();
+#<-mkr_b_via_e->
+        
 	// socket listener for playback info notification
 	
 	class XineNotification_SocketListener : public SocketListener
