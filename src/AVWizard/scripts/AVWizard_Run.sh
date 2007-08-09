@@ -253,8 +253,38 @@ UpdateOrbiterUI()
 	esac
 }
 
+SetupViaXine()
+{
+	local Q OrbiterDev XineDev
+#<-mkr_b_via_b->
+	Q="
+		SELECT PK_Device
+		FROM Device
+		WHERE FK_DeviceTemplate=62 AND FK_Device_ControlledVia=$PK_Device
+	"
+	OrbiterDev="$(RunSQL "$Q")"
+
+	Q="
+		SELECT PK_Device
+		FROM Device
+		WHERE FK_DeviceTemplate=5 AND FK_Device_ControlledVia=$OrbiterDev
+	"
+	XineDev="$(RunSQL "$Q")"
+
+	# Hardware acceleration
+	RunSQL "
+		UPDATE Device_DeviceData
+		SET IK_DeviceData='cle266x11'
+		WHERE FK_DeviceData=168 AND FK_Device=$XineDev
+	"
+	/usr/pluto/bin/MessageSend $DCERouter 0 -1000 7 1 # reload router so Xine can get the new database setting; fingers crossed and prey router can reload
+#<-mkr_b_via_e->
+}
+
 ConfSet AVWizardOverride 0
 rm -f /tmp/AVWizard_Started
+
+SetupViaXine
 
 RemoteCmd=$(/usr/pluto/bin/AVWizard_Remote_Detect.sh | tail -1)
 
