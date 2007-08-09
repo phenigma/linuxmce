@@ -9419,7 +9419,12 @@ void Orbiter::ServiceAlerts( void *iData )
 		Renderer()->RenderObjectAsync(pObj);
 		DesignObjText *pText = FindText( pObj,TEXT_STATUS_CONST );
 		if( pText )
+		{
 			pText->m_sText = sMessages;
+
+			TextStyle *pTextStyle = pText->m_mapTextStyle_Find(0);
+			pTextStyle->m_iPixelHeight = sMessages.size() > 120 ? 12 : 16;
+		}
 		CMD_Show_Popup(TOSTRING(DESIGNOBJ_popAlertMessage_CONST),m_rSpacing.X,m_rSpacing.Y,"","popup_alert",false,true);
 	}
 	else
