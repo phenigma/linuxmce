@@ -257,16 +257,19 @@ bool OSDScreenHandler::VideoWizard_ObjectSelected(CallBackData *pData)
 
 		case DESIGNOBJ_Final_CONST:
 		{
-			string sResponse;
-			CMD_Regen_Orbiter cmd_Regen_Orbiter(m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device_OrbiterPlugIn, m_pOrbiter->m_dwPK_Device, "", "Y");
-			m_pOrbiter->SendCommand(cmd_Regen_Orbiter, &sResponse);
-
-			if(sResponse != "OK")
+			if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butStartUsingMonster_CONST)
 			{
-				SCREEN_PopupMessage(SCREEN_PopupMessage_CONST, "The router is busy at this moment and it cannot reload. "
-					"Please try again later.|OK", 
-					"0 -300 1 4", "", "", "", "1");
-				return true;
+				string sResponse;
+				CMD_Regen_Orbiter cmd_Regen_Orbiter(m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device_OrbiterPlugIn, m_pOrbiter->m_dwPK_Device, "", "Y");
+				m_pOrbiter->SendCommand(cmd_Regen_Orbiter, &sResponse);
+
+				if(sResponse != "OK")
+				{
+					SCREEN_PopupMessage(SCREEN_PopupMessage_CONST, "The router is busy at this moment and it cannot reload. "
+						"Please try again later.|OK", 
+						"0 -300 1 4", "", "", "", "1");
+					return true;
+				}
 			}
 		}
 	};
