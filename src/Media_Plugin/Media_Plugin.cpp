@@ -5607,6 +5607,10 @@ void Media_Plugin::CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,s
 #ifdef DEBUG
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::CMD_Media_Identified disc %d resume on orbiter %d",PK_Disc,iPK_Orbiter_PromptingToResume);
 #endif
+                // notifying player that disk ID changed
+                string sMediaID = "D"+StringUtils::itos(PK_Disc);
+                DCE::CMD_Set_Media_ID cmd(m_dwPK_Device, pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device, sMediaID, pMediaStream->m_iStreamID_get());
+                SendCommand(cmd);
 	}
 
 	m_pMediaAttributes->m_pMediaAttributes_LowLevel->PurgeListMediaAttribute(listMediaAttribute_);
