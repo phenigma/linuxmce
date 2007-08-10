@@ -119,6 +119,24 @@ ExtractArchive()
 	fi
 }
 
+NetworkSetup()
+{
+	## XXX: hardcoded for now
+	## TODO: autodetect the Internet-facing interface
+	echo "
+auto lo
+iface lo inet loopback
+
+auto eth1
+iface eth1 dhcp
+
+auto eth0
+iface eth0 inet static
+	address 192.168.80.1
+	netmask 255.255.255.0
+" >/media/target/etc/network/interfaces
+}
+
 UnmountPartitions()
 {
 set +e
@@ -203,6 +221,7 @@ MountPartitions
 ExtractArchive
 SetupFstab
 InstallGrub
+NetworkSetup
 TargetCleanup
 UnmountPartitions
 Reboot
