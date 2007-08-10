@@ -29,3 +29,6 @@ echo "
 	REPLACE INTO Device_DeviceData(IK_DeviceData, FK_Device, FK_DeviceData)
 	VALUE('eth1,dhcp|eth0,192.168.80.1,255.255.255.0', 1, 32)
 " | mysql pluto_main
+/usr/pluto/bin/Network_Setup.sh
+/usr/pluto/bin/DHCP_Config.sh
+/etc/init.d/networking restart

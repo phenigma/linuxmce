@@ -15,7 +15,7 @@ LiveCDISO="$WorkDir/kubuntu-linuxmce.iso"
 InstallerArchive="/var/plutobuild/vmware/Kubuntu7.04/linux-mce.tar.gz"
 
 VIA_BaseDir="/var/plutobuild/lite-installer-via"
-VIA_Archives=("boot.tgz kubuntu.tgz pluto44md.tgz")
+VIA_Archives=("boot.tgz" "kubuntu.tgz" "pluto44md.tgz")
 
 RemoteAssistanceKey=/var/plutobuild/lite-installer/pf-linuxmce
 
