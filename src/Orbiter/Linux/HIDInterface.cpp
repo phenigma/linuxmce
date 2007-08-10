@@ -343,10 +343,11 @@ bool PlutoHIDInterface::ProcessHIDButton(char *inPacket)
 {
 	unsigned char *p_Packet = (unsigned char *) inPacket;
 
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDButton for %d %d %d %d",
-		(int) p_Packet[2],(int) p_Packet[3],(int) p_Packet[4],(int) p_Packet[5]);
-
 	int iRemoteID = p_Packet[2];
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDButton for remote %d/%d %d %d %d %d",
+		iRemoteID,m_iRemoteID,(int) p_Packet[2],(int) p_Packet[3],(int) p_Packet[4],(int) p_Packet[5]);
+
 	if( iRemoteID==0xff )
 	{
 		m_pOrbiter->CMD_Display_Alert("Press Connect on your remote","mustconnectremote","5",interuptAlways);
@@ -398,6 +399,9 @@ bool PlutoHIDInterface::ProcessHIDButton(char *inPacket)
 	pEvent->data.button.m_bSimulated = false;
 	pEvent->data.button.m_iPK_Button = 0;
 	pEvent->data.button.m_iKeycode = m_iHoldingDownButton + 100000; // We're using especially high numbers, > 100000 for these special buttons
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDButton m_iHoldingDownButton %d keycode %d", 
+		m_iHoldingDownButton, pEvent->data.button.m_iKeycode);
 
 	m_pOrbiter->CallMaintenanceInMiliseconds(0, &Orbiter::QueueEventForProcessing, pEvent, pe_NO, false );
 	return true;
