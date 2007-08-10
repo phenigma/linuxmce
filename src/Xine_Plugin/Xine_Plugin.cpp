@@ -319,6 +319,24 @@ bool Xine_Plugin::StartMedia( MediaStream *pMediaStream,string &sError )
 		// No handling of errors (it will in some cases deadlock the router.)
 		SendCommand(cmd);
 	}
+        
+        // if the disk ID not known, trying to see if we have a file with this name
+        int iPK_File=0;
+        if (pMediaFile)
+          iPK_File = pMediaFile->m_dwPK_File;
+        // if file or disk ID is already known, sending it
+        if ( iPK_File || pMediaStream->m_dwPK_Disc )
+        {
+          string sMediaID = (iPK_File?"F":"D");
+          sMediaID += StringUtils::itos(iPK_File?iPK_File:pMediaStream->m_dwPK_Disc);
+          DCE::CMD_Set_Media_ID cmd(m_dwPK_Device, pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device, sMediaID, pXineMediaStream->m_iStreamID_get());
+          SendCommand(cmd);
+          LoggerWrapper::GetInstance()->Write(LV_WARNING, "set media id command sent with id %s", sMediaID.c_str());
+        }
+        else
+        {
+          LoggerWrapper::GetInstance()->Write(LV_WARNING, "set media id command not sent");
+        }
 
 	if( pMediaFile && pXineMediaStream->m_iPK_Playlist==0 )  // If this is part of a playlist, rather than just a normal bookmark, the user will likely want it to keep resuming at the set position
 		pMediaFile->m_sStartPosition=""; // Be sure to reset the start position so next time we start at the beginning of the file if this is in a queue
