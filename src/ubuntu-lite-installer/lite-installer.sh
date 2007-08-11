@@ -128,7 +128,7 @@ auto lo
 iface lo inet loopback
 
 auto eth1
-iface eth1 dhcp
+iface eth1 inet dhcp
 
 auto eth0
 iface eth0 inet static
