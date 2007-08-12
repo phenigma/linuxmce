@@ -2740,8 +2740,9 @@ void Orbiter::QueueEventForProcessing( void *eventData )
 		{
 			timespec tButtonUp;
 			gettimeofday(&tButtonUp,NULL);
-			timespec m_tInterval = m_tButtonDown>0 ? tButtonUp - m_tButtonDown : 0
-			long tMilisecondsPassed = m_tInterval.tv_sec * 1000 + m_tInterval.tv_nsec / 1000000;
+			timespec m_tInterval = tButtonUp - m_tButtonDown;
+			long tMilisecondsPassed = m_tButtonDown.tv_sec==0 ? 0 : m_tInterval.tv_sec * 1000 + m_tInterval.tv_nsec / 1000000;
+
 #ifdef DEBUG
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::QueueEventForProcessing m_tButtonDown %d.%d up %d.%d interval %d",
 				(int) m_tButtonDown.tv_sec,(int) m_tButtonDown.tv_nsec,(int) tButtonUp.tv_sec,(int) tButtonUp.tv_nsec,(int) tMilisecondsPassed);
@@ -2753,7 +2754,7 @@ void Orbiter::QueueEventForProcessing( void *eventData )
 			if( it == m_mapScanCodeToRemoteButton.end() )  // Either we didn't hold the button or there is no hold specific event
 				it = m_mapScanCodeToRemoteButton.find( make_pair<int,char> (spEvent->data.button.m_iKeycode, 'U'));
 
-			m_tButtonDown=0;
+			m_tButtonDown.tv_sec=0;
 
 			// There's nothing for the 'up'.  See if there was a down or repeat.  If so we'll ignore
 			// this up so it's not processed by the framework.  Otherwise the i/r mechanism may do something for
