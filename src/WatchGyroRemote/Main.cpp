@@ -147,8 +147,11 @@ int main(int argc, char *argv[])
 						if (res<0&&res!=-110) break;
 
 						char c = 6;
-						int iResult = ioctl(0, TIOCLINUX, &c);
-						LoggerWrapper::GetInstance()->Write(LV_STATUS,"result %d c %d", iResult, (int) c);
+						for(int i=0;i<10;++i)
+						{
+							int iResult = ioctl(i, TIOCLINUX, &c);
+							LoggerWrapper::GetInstance()->Write(LV_STATUS,"terminal %d result %d c %d", i, iResult, (int) c);
+						}
 
 						if (res<=0)
 						{
