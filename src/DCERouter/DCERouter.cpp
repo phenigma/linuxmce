@@ -2418,6 +2418,9 @@ void Router::Configure()
 	string sSQL = "UPDATE Device SET Registered=0,psc_mod=psc_mod";
 	m_pDatabase_pluto_main->threaded_db_wrapper_query(sSQL);
 
+	sSQL = "UPDATE Device JOIN Device AS Parent ON Device.FK_Device_ControlledVia=Parent.PK_Device SET Device.FK_Installation=Parent.FK_Installation";
+	m_pDatabase_pluto_main->threaded_db_wrapper_query(sSQL);
+
 	// Get the rooms
     vector<Row_Room *> vectRow_Room;
     GetDatabase()->Room_get()->GetRows("1=1",&vectRow_Room);  // All rows
