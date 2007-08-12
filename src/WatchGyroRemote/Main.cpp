@@ -149,8 +149,12 @@ int main(int argc, char *argv[])
 						char c = 6;
 						for(int i=0;i<10;++i)
 						{
-							int iResult = ioctl(i, TIOCLINUX, &c);
-							LoggerWrapper::GetInstance()->Write(LV_STATUS,"terminal %d result %d c %d", i, iResult, (int) c);
+							char Console = "/dev/ttyX";
+							Console[8] = '0' + i;
+							int fd = open(Console, O_RDONLY);
+							int iResult = ioctl(fd, TIOCLINUX, &c);
+							close(fd);
+							LoggerWrapper::GetInstance()->Write(LV_STATUS,"terminal %s %d result %d c %d", Console, i, iResult, (int) c);
 						}
 
 						if (res<=0)
