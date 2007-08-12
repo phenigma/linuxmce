@@ -60,6 +60,8 @@ private:
 	int m_mapSerialNumber_RemoteID_Find(string sSerialNumber) { map<string,int>::iterator it = m_mapSerialNumber_RemoteID.find(sSerialNumber); return it==m_mapSerialNumber_RemoteID.end() ? NULL : (*it).second; }
 	*/
 	int m_iHoldingDownButton; // The button currently being held down
+	int m_iRepeat; // How many times the last button has been pressed in a row
+	time_t m_tLastButtonPress; // The time the last button was pressed
 	Orbiter *m_pOrbiter;
 
 public:
