@@ -32,6 +32,11 @@
 
 #include <iostream>
 
+void DoBeep()
+{
+	system("beep -f 2000");
+}
+
 WizardPageWelcome::WizardPageWelcome(GenericBackEnd* FrontEnd, std::string Name)
 	: WizardPage(FrontEnd, Name)
 {
@@ -83,33 +88,43 @@ WizardPageWelcome::WizardPageWelcome(GenericBackEnd* FrontEnd, std::string Name)
 	{
 		case SDLK_1:
 			Command = CommandXConfigure + "640x480 --output DVI";
+			DoBeep();
 			break;
 		case SDLK_2:
 			Command = CommandXConfigure + "640x480 --output VGA";
+			DoBeep();
 			break;
 		case SDLK_3:
 			Command = CommandXConfigure + "480p --output Component --tvstandard HD480p";
+			DoBeep();
 			break;
 		case SDLK_4:
 			Command = CommandXConfigure + "640x480 --output Composite --tvstandard NTSC-M";
+			DoBeep();
 			break;
 		case SDLK_5:
 			Command = CommandXConfigure + "640x480 --output S-Video --tvstandard NTSC-M";
+			DoBeep();
 			break;
 		case SDLK_6:
 			Command = CommandXConfigure + "640x480";
+			DoBeep();
 			break;
 		case SDLK_7:
 			Command = CommandXConfigure + "1024x768";
+			DoBeep();
 			break;
 		case SDLK_8:
 			Command = CommandXConfigure + "720p --tvstandard HD720p";
+			DoBeep();
 			break;
 		case SDLK_9:
 			Command = CommandXConfigure + "1080i --tvstandard HD1080i";
+			DoBeep();
 			break;
 		case SDLK_0:
 			Command = CommandXConfigure + "1080p --tvstandard HD1080p";
+			DoBeep();
 			break;
 		default:
 			/* NOOP */
