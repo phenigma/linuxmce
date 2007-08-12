@@ -326,6 +326,7 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 #ifdef DEBUG
 		LoggerWrapper::GetInstance()->Write(LV_FESTIVAL,"MouseBehavior::ButtonDown showing media menu");
 #endif
+		m_pOrbiter->m_bShowingSpeedBar=false;  // We're going to explicitly display the speed bar now
 		NeedToRender render( m_pOrbiter, "mousebehavior" );  // Redraw anything that was changed by this command
 		if( m_pOrbiter->m_iPK_Screen_OSD_Speed && m_pOrbiter->m_iPK_Screen_OSD_Track )
 			m_pOrbiter->CMD_Goto_Screen("", SCREEN_mnuPlaybackControl_CONST);
