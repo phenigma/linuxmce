@@ -302,6 +302,9 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 #ifdef DEBUG
 		LoggerWrapper::GetInstance()->Write(LV_FESTIVAL,"MouseBehavior::ButtonDown showing main menu");
 #endif
+		if( m_pMouseHandler && m_pMouseHandler->TypeOfMouseHandler()==mh_Speed )
+			m_pMouseHandler->ButtonDown(PK_Button);
+
 		NeedToRender render( m_pOrbiter, "mousebehavior" );  // Redraw anything that was changed by this command
 		m_pOrbiter->CMD_Set_Main_Menu("N");
 		m_pOrbiter->CMD_Goto_Screen("",SCREEN_Main_CONST);
@@ -344,6 +347,10 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 #ifdef DEBUG
 		LoggerWrapper::GetInstance()->Write(LV_FESTIVAL,"MouseBehavior::ButtonDown showing ambiance menu");
 #endif
+
+		if( m_pMouseHandler && m_pMouseHandler->TypeOfMouseHandler()==mh_Speed )
+			m_pMouseHandler->ButtonDown(PK_Button);
+
 		NeedToRender render( m_pOrbiter, "mousebehavior" );  // Redraw anything that was changed by this command
 		m_pOrbiter->CMD_Goto_Screen("", SCREEN_mnuAmbiance_CONST);
 		ShowMouse(true);
