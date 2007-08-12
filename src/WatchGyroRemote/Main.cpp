@@ -89,6 +89,8 @@ void StartAVWizard()
 	system("beep -f 2000");
 }
 
+void CheckShiftState();
+
 int main(int argc, char *argv[])
 {
 	LoggerWrapper::SetType(LT_LOGGER_FILE,"/var/log/pluto/WatchGyro.log");
@@ -146,16 +148,7 @@ int main(int argc, char *argv[])
 						res = usb_interrupt_read(p_usb_dev_handle, 0x82, inPacket, 6, 250);
 						if (res<0&&res!=-110) break;
 
-						char c = 6;
-						for(int i=0;i<10;++i)
-						{
-							char Console = "/dev/ttyX";
-							Console[8] = '0' + i;
-							int fd = open(Console, O_RDONLY);
-							int iResult = ioctl(fd, TIOCLINUX, &c);
-							close(fd);
-							LoggerWrapper::GetInstance()->Write(LV_STATUS,"terminal %s %d result %d c %d", Console, i, iResult, (int) c);
-						}
+						CheckShiftState();
 
 						if (res<=0)
 						{
@@ -224,10 +217,7 @@ int main(int argc, char *argv[])
 		if( !g_bQuit )
 		{
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Didn't get remote.  Sleep 2 seconds and try again");
-			char c = 6;
-			int iResult = ioctl(0, TIOCLINUX, &c);
-			LoggerWrapper::GetInstance()->Write(LV_STATUS,"result %d c %d", iResult, (int) c);
-
+			CheckShiftState();
 			Sleep(2000);
 		}
 	}
@@ -235,3 +225,21 @@ int main(int argc, char *argv[])
 	return 0;
 }
 
+
+void CheckShiftState()
+{
+	char c = 6;
+	for(int i=0;i<10;++i)
+	{
+		char Console = "/dev/ttyX";
+		Console[8] = '0' + i;
+		int fd = open(Console, O_RDONLY);
+		if( !fd )
+			continue;
+		int iResult = ioctl(fd, TIOCLINUX, &c);
+		close(fd);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"terminal %s %d fd %d result %d c %d", Console, i, fd, iResult, (int) c);
+		if( iResult==0 && c==1 )
+			StartAVWizard();
+	}
+}
