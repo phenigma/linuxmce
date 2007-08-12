@@ -61,6 +61,7 @@ private:
 	*/
 	int m_iHoldingDownButton; // The button currently being held down
 	int m_iRepeat; // How many times the last button has been pressed in a row
+	int m_iLastButtonPress; // The last button pressed
 	time_t m_tLastButtonPress; // The time the last button was pressed
 	Orbiter *m_pOrbiter;
 

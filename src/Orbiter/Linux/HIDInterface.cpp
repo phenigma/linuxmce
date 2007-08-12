@@ -59,6 +59,7 @@ PlutoHIDInterface::PlutoHIDInterface(Orbiter *pOrbiter) : m_HIDMutex("HID")
 	m_MouseStartStop=mssNone;
 	m_iRepeat=0;
 	m_tLastButtonPress=0;
+	m_iLastButtonPress=0;
 }
 
 void PlutoHIDInterface::ProcessHIDEvents()
@@ -401,25 +402,25 @@ LoggerWrapper::GetInstance()->Write(LV_WARNING,
 "PlutoHIDInterface::ProcessHIDButton m_iHoldingDownButton  %d p_Packet[3] %d m_tLastButtonPress %d time %d m_tLastButtonPress %d",
 m_iHoldingDownButton, (int) p_Packet[3], m_tLastButtonPress, (int) time(NULL), (int) m_tLastButtonPress);
 
-	if( m_iHoldingDownButton==p_Packet[3] && m_tLastButtonPress && time(NULL)-m_tLastButtonPress<=2 )
-	{
+	if( m_iLastButtonPress==p_Packet[3] && m_tLastButtonPress && time(NULL)-m_tLastButtonPress<=2 )
 		m_iRepeat++;
-		m_iHoldingDownButton=p_Packet[3];
-	}
 	else
 	{
-		if( m_iHoldingDownButton==103 && m_iRepeat>=4 && (p_Packet[3]==233 || p_Packet[3]==156) )
+		if( m_iLastButtonPress==103 && m_iRepeat>=4 && (p_Packet[3]==233 || p_Packet[3]==156) )
 		{
 			DCE::CMD_Halt_Device CMD_Halt_Device(m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device_GeneralInfoPlugIn,
 				m_pOrbiter->m_dwPK_Device,p_Packet[3]==233 ? "R" : "H","");
 			m_pOrbiter->SendCommand(CMD_Halt_Device);
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDButton %s",p_Packet[3]==233 ? "R" : "H");
+			return true;
 		}
 		else
-			m_iHoldingDownButton=p_Packet[3];
-		m_iRepeat = 0;
+			m_iRepeat = 0;
 	}
 
+	m_iLastButtonPress=p_Packet[3];
 	m_tLastButtonPress=time(NULL);
+	m_iHoldingDownButton=p_Packet[3];
 
 	Orbiter::Event *pEvent = new Orbiter::Event;
 	pEvent->type=Orbiter::Event::BUTTON_DOWN;
