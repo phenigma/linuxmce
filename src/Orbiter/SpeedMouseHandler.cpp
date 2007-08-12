@@ -148,7 +148,7 @@ bool SpeedMouseHandler::ButtonDown(int PK_Button)
 #endif
 		return false; // Keep processing
 	}
-	if( PK_Button==BUTTON_Mouse_1_CONST || PK_Button==BUTTON_Mouse_6_CONST || PK_Button==BUTTON_Mouse_2_CONST )
+	if( PK_Button==BUTTON_Mouse_1_CONST || PK_Button==BUTTON_Mouse_6_CONST || PK_Button==BUTTON_Mouse_2_CONST || PK_Button==BUTTON_Mouse_8_CONST )
 	{
 		m_pMouseBehavior->m_tIgnoreSpeedChangesUntil = time(NULL) + 3;  // Ignore all speed changes for 2 seconds so the player has a chance to settle down
 		m_pMouseBehavior->m_pMouseGovernor->Purge();
