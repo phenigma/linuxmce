@@ -107,12 +107,25 @@ void UpdateEntArea::AddDefaultMediaScenarios(Row_EntertainArea *pRow_EntertainAr
 	{
 		while ((row = db_wrapper_fetch_row(result_set.r)))
 		{
+			Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow( atoi(row[0]) );
 			string sDesc = "TV";
 			if( result_set.r->row_count>1 )
 				sDesc += string("\n") + row[1];
 			pCommandGroup = commandGroupArray.FindCommandGroupByTemplate(TEMPLATE_Media_Wiz_Pluto_Sources_CONST,sDesc,ICON_TV_CONST,atoi(row[0]),MEDIATYPE_pluto_LiveTV_CONST,NULL,iOrder);
 			if( pCommandGroup )
-				pCommandGroup->AddCommand(m_dwPK_Device_MediaPlugIn,COMMAND_MH_Play_Media_CONST,iOrder++,2,COMMANDPARAMETER_PK_MediaType_CONST,StringUtils::itos(MEDIATYPE_pluto_LiveTV_CONST).c_str(),COMMANDPARAMETER_PK_Device_CONST,row[0]);
+			{
+				if( pRow_Device && pRow_Device->FK_DeviceTemplate_get()==DEVICETEMPLATE_MythTV_Player_CONST && 
+					pRow_Device->FK_Device_ControlledVia_getrow() && pRow_Device->FK_Device_ControlledVia_getrow()->FK_Device_ControlledVia_getrow() &&
+					pRow_Device->FK_Device_ControlledVia_getrow()->FK_Device_ControlledVia_getrow()->FK_DeviceTemplate_get()==DEVICETEMPLATE_Fiire_Station_1_CONST
+					)
+				{
+					pCommandGroup->AddCommand(m_dwPK_Device_OrbiterPlugIn,COMMAND_Display_Message_CONST,iOrder++,2,
+						COMMANDPARAMETER_List_PK_Device_CONST,StringUtils::itos(pRow_Device->FK_Device_ControlledVia_get()).c_str(),
+						COMMANDPARAMETER_Text_CONST,"Sorry.  MythTV doesn't currently run on this platform.");
+				}
+				else
+					pCommandGroup->AddCommand(m_dwPK_Device_MediaPlugIn,COMMAND_MH_Play_Media_CONST,iOrder++,2,COMMANDPARAMETER_PK_MediaType_CONST,StringUtils::itos(MEDIATYPE_pluto_LiveTV_CONST).c_str(),COMMANDPARAMETER_PK_Device_CONST,row[0]);
+			}
 		}
 	}
 

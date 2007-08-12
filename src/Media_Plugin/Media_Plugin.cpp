@@ -689,8 +689,8 @@ void Media_Plugin::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage)
 void Media_Plugin::AddDeviceToEntertainArea( EntertainArea *pEntertainArea, Row_Device *pRow_Device )
 {
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
-    if( pEntertainArea->m_mapMediaDevice_Find( pRow_Device->PK_Device_get( ) ) )
-        return; // We already added this one
+    if( pEntertainArea->m_mapMediaDevice_Find( pRow_Device->PK_Device_get( ) ) || m_pRouter->m_mapDeviceData_Router_Find( pRow_Device->PK_Device_get( ) )==NULL )
+        return; // We already added this one, or it's not in our installation
 
     // See if we already have this media device in our master list
     MediaDevice *pMediaDevice = m_mapMediaDevice_Find( pRow_Device->PK_Device_get( ) );

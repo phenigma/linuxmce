@@ -5,6 +5,10 @@
 . /usr/pluto/bin/LockUtils.sh
 . /usr/pluto/bin/Utils.sh
 
+#<-mkr_b_via_b->
+ConfSet PK_Distro 1
+#<-mkr_b_via_e->
+
 LogFile="/var/log/pluto/Config_Device_Changes.log"
 . /usr/pluto/bin/TeeMyOutput.sh --outfile "$LogFile" --stdboth --append --exclude "^W: GPG error" -- "$@"
 
