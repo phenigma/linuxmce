@@ -30,6 +30,7 @@
 #include "../LIRC_DCE/IRReceiverBase.h"
 #include "../PlutoUtils/ProcessUtils.h"
 #include <sys/ioctl.h>
+#include <fcntl.h>
 
 #define  VERSION "<=version=>"
 
@@ -231,14 +232,13 @@ void CheckShiftState()
 	char c = 6;
 	for(int i=0;i<10;++i)
 	{
-		char Console = "/dev/ttyX";
-		Console[8] = '0' + i;
-		int fd = open(Console, O_RDONLY);
+		char Console[10] = "/dev/ttyX";
+                Console[8] = '0' + i;
+                int fd = open(Console, O_RDONLY);
 		if( !fd )
 			continue;
-		int iResult = ioctl(fd, TIOCLINUX, &c);
-		close(fd);
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"terminal %s %d fd %d result %d c %d", Console, i, fd, iResult, (int) c);
+                int iResult = ioctl(fd, TIOCLINUX, &c);
+                close(fd);
 		if( iResult==0 && c==1 )
 			StartAVWizard();
 	}
