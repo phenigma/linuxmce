@@ -29,15 +29,7 @@
 #include <list>
 #include "../LIRC_DCE/IRReceiverBase.h"
 #include "../PlutoUtils/ProcessUtils.h"
-
-#ifdef WIN32
-#include <direct.h>
-#include <conio.h>
-#define chdir _chdir  // Why, Microsoft, why?
-#define mkdir _mkdir  // Why, Microsoft, why?
-#else
-
-#endif
+#include <sys/ioctl.h>
 
 #define  VERSION "<=version=>"
 
