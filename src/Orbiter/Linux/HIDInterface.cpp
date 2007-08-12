@@ -410,7 +410,7 @@ LoggerWrapper::GetInstance()->Write(LV_CRITICAL,
 "PlutoHIDInterface::ProcessHIDButton m_iLastButtonPress %d p_Packet[3] %d m_iRepeat %d",
 m_iLastButtonPress, (int) p_Packet[3], m_iRepeat);
 
-		if( m_iLastButtonPress==103 && m_iRepeat>=3 && (p_Packet[3]==233 || p_Packet[3]==156) )
+		if( m_iLastButtonPress==130 && m_iRepeat>=3 && (p_Packet[3]==233 || p_Packet[3]==156) )
 		{
 			DCE::CMD_Halt_Device CMD_Halt_Device(m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device_GeneralInfoPlugIn,
 				m_pOrbiter->m_dwPK_Device,p_Packet[3]==233 ? "R" : "H","");
