@@ -2740,7 +2740,7 @@ void Orbiter::QueueEventForProcessing( void *eventData )
 		{
 			timespec tButtonUp;
 			gettimeofday(&tButtonUp,NULL);
-			timespec m_tInterval = tButtonUp - m_tButtonDown;
+			timespec m_tInterval = m_tButtonDown ? tButtonUp - m_tButtonDown : 0
 			long tMilisecondsPassed = m_tInterval.tv_sec * 1000 + m_tInterval.tv_nsec / 1000000;
 #ifdef DEBUG
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::QueueEventForProcessing m_tButtonDown %d.%d up %d.%d interval %d",
@@ -2752,6 +2752,8 @@ void Orbiter::QueueEventForProcessing( void *eventData )
 
 			if( it == m_mapScanCodeToRemoteButton.end() )  // Either we didn't hold the button or there is no hold specific event
 				it = m_mapScanCodeToRemoteButton.find( make_pair<int,char> (spEvent->data.button.m_iKeycode, 'U'));
+
+			m_tButtonDown=0;
 
 			// There's nothing for the 'up'.  See if there was a down or repeat.  If so we'll ignore
 			// this up so it's not processed by the framework.  Otherwise the i/r mechanism may do something for
@@ -3568,8 +3570,8 @@ bool Orbiter::GotActivity( int PK_Button )
 	m_LastActivityTime=time( NULL );
 
 #ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::GotActivity m_bDisplayOn is %d m_bScreenSaverActive %d ui2 %d",
-		(int) m_bDisplayOn,(int) m_bScreenSaverActive,(int) UsesUIVersion2());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::GotActivity m_bDisplayOn is %d m_bScreenSaverActive %d ui2 %d PK_Button %d",
+		(int) m_bDisplayOn,(int) m_bScreenSaverActive,(int) UsesUIVersion2(),(int) PK_Button);
 #endif
 
 	if(m_bQuit_get())
@@ -3591,7 +3593,7 @@ bool Orbiter::GotActivity( int PK_Button )
 
 		if( !UsesUIVersion2() ||
 			(PK_Button != BUTTON_F6_CONST && PK_Button != BUTTON_Mouse_6_CONST && PK_Button != BUTTON_F7_CONST &&
-			PK_Button != BUTTON_Mouse_7_CONST && PK_Button != BUTTON_F8_CONST && PK_Button != BUTTON_Mouse_8_CONST) )
+			PK_Button != BUTTON_Mouse_7_CONST && PK_Button != BUTTON_F8_CONST && PK_Button != BUTTON_Mouse_8_CONST && PK_Button!=BUTTON_Power_CONST) )
 		{
 			if( m_pScreenHistory_Current && m_pDesignObj_Orbiter_ScreenSaveMenu && m_pScreenHistory_Current->GetObj() == m_pDesignObj_Orbiter_ScreenSaveMenu )
 				CMD_Go_back("","1");

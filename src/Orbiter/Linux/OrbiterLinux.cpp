@@ -739,6 +739,9 @@ int OrbiterLinux::TranslateXKeyCodeToPlutoButton(int Keycode,int Type)
 	case 164:
 		iPK_Button =  BUTTON_Stop_CONST;
 		break;
+	case 100130:
+		iPK_Button =  BUTTON_Power_CONST;
+		break;
 	};
 
 	if( iPK_Button )

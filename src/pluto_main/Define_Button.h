@@ -162,6 +162,7 @@
 #define BUTTON_Fast_Forward_CONST 218
 #define BUTTON_Skip_Next_CONST 219
 #define BUTTON_Skip_Prior_CONST 220
+#define BUTTON_Power_CONST 221
 
 #define BUTTON_TABLE "Button"
 #define BUTTON_PK_BUTTON_FIELD "PK_Button"
