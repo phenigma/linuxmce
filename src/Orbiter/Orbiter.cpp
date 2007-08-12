@@ -2740,7 +2740,7 @@ void Orbiter::QueueEventForProcessing( void *eventData )
 		{
 			timespec tButtonUp;
 			gettimeofday(&tButtonUp,NULL);
-			timespec m_tInterval = m_tButtonDown ? tButtonUp - m_tButtonDown : 0
+			timespec m_tInterval = m_tButtonDown>0 ? tButtonUp - m_tButtonDown : 0
 			long tMilisecondsPassed = m_tInterval.tv_sec * 1000 + m_tInterval.tv_nsec / 1000000;
 #ifdef DEBUG
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::QueueEventForProcessing m_tButtonDown %d.%d up %d.%d interval %d",
