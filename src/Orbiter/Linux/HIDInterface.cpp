@@ -397,6 +397,10 @@ bool PlutoHIDInterface::ProcessHIDButton(char *inPacket)
 
 	// Special hacks to power down or reboot when you don't have a picture on the screen.  If the user presses power 4 times in
 	// a row with 2 seconds or delay between each, and then presses vol up or ch up, that's a reboot or power off
+LoggerWrapper::GetInstance()->Write(LV_WARNING,
+"PlutoHIDInterface::ProcessHIDButton m_iHoldingDownButton  %d p_Packet[3] %d m_tLastButtonPress %d time %d m_tLastButtonPress %d",
+m_iHoldingDownButton, (int) p_Packet[3], m_tLastButtonPress, (int) time(NULL), (int) m_tLastButtonPress);
+
 	if( m_iHoldingDownButton==p_Packet[3] && m_tLastButtonPress && time(NULL)-m_tLastButtonPress<=2 )
 	{
 		m_iRepeat++;
