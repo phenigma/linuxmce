@@ -576,41 +576,48 @@ void General_Info_Plugin::CMD_Halt_Device(int iPK_Device,string sForce,string sM
 //<-dceag-c323-e->
 {	
 	if ( 0 == iPK_Device ) // iPK_Device=0 => find device by MAC Address
-	{		
-		PlutoSqlResult result;
-		DB_ROW row;
-		string sSQL = 
-			"SELECT PK_Device "
-			"FROM Device "
-			"WHERE MACaddress = '" + sMac_address +"'";
-
-		enum FieldNames
+	{
+		if( sMac_address.empty() )
 		{
-			fnDeviceID			
-		};
-
-		int iDeviceID = 0;
-		// Execute query
-		if( (result.r = m_pDatabase_pluto_main->db_wrapper_query_result(sSQL.c_str())) )
-		{
-			while((row = db_wrapper_fetch_row(result.r)))	
-			{
-				if(NULL != row[fnDeviceID]) // device found
-				{
-					 iDeviceID = atoi(row[fnDeviceID]);
-					 break;
-				}
-			}
-			if ( 0 == iDeviceID ){
-				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot halt device %s - device not found in database", sMac_address.c_str() );
-				return;
-			}
-			else iPK_Device = iDeviceID;
+			iPK_Device = pMessage->m_dwPK_Device_From;
 		}
 		else
 		{
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot halt device %s - error executing SQL", sMac_address.c_str());
-			return;
+			PlutoSqlResult result;
+			DB_ROW row;
+			string sSQL = 
+				"SELECT PK_Device "
+				"FROM Device "
+				"WHERE MACaddress = '" + sMac_address +"'";
+
+			enum FieldNames
+			{
+				fnDeviceID			
+			};
+
+			int iDeviceID = 0;
+			// Execute query
+			if( (result.r = m_pDatabase_pluto_main->db_wrapper_query_result(sSQL.c_str())) )
+			{
+				while((row = db_wrapper_fetch_row(result.r)))	
+				{
+					if(NULL != row[fnDeviceID]) // device found
+					{
+						iDeviceID = atoi(row[fnDeviceID]);
+						break;
+					}
+				}
+				if ( 0 == iDeviceID ){
+					LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot halt device %s - device not found in database", sMac_address.c_str() );
+					return;
+				}
+				else iPK_Device = iDeviceID;
+			}
+			else
+			{
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot halt device %s - error executing SQL", sMac_address.c_str());
+				return;
+			}
 		}
 	}
 
