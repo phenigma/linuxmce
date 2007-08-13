@@ -3292,7 +3292,7 @@ bool Orbiter::ButtonUp( int iPK_Button )
 	timespec tButtonUp;
 	gettimeofday(&tButtonUp,NULL);
 	timespec m_tInterval = tButtonUp - m_tButtonDown;
-	long tMilisecondsPassed = m_tInterval.tv_sec * 1000 + m_tInterval.tv_nsec / 1000000;
+	long tMilisecondsPassed = m_tButtonDown.tv_sec==0 ? 0 : m_tInterval.tv_sec * 1000 + m_tInterval.tv_nsec / 1000000;
 
 	if(tMilisecondsPassed > 500) //more then half of second
 	{
