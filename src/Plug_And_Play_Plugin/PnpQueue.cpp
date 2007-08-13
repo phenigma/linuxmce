@@ -1887,7 +1887,9 @@ bool PnpQueue::LocateFileServer(PnpQueueEntry *pPnpQueueEntry)
 			return true;
 		}
 		Row_DeviceTemplate *pRow_DeviceTemplate = pRow_Device->FK_DeviceTemplate_getrow();
-		if( pRow_DeviceTemplate && (pRow_DeviceTemplate->FK_DeviceCategory_get()==DEVICECATEGORY_FileMedia_Server_CONST || pRow_DeviceTemplate->FK_DeviceCategory_get()==DEVICECATEGORY_Network_Storage_CONST) )
+		if( pRow_DeviceTemplate && (pRow_DeviceTemplate->FK_DeviceCategory_get()==DEVICECATEGORY_FileMedia_Server_CONST || 
+			pRow_DeviceTemplate->FK_DeviceCategory_get()==DEVICECATEGORY_Network_Storage_CONST ||
+			pRow_DeviceTemplate->FK_DeviceCategory_get()==DEVICECATEGORY_Media_Director_CONST) )  // media directors are't file servers
 		{
 			LoggerWrapper::GetInstance()->Write( LV_STATUS, "PnpQueue::LocateFileServer queue %d device category matches %d",
 				pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(), pRow_Device->PK_Device_get() );
