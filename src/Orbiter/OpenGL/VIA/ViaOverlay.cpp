@@ -277,6 +277,10 @@ void ViaOverlay::InternalApplyAlphaMask(int x, int y, int w, int h, const unsign
 			}
 		}
 	}
+	else
+	{
+		LoggerWrapper::GetInstance()->Write(LV_TV, "#VIA Applying alpha for %p (%d,%d,%d,%d) NOT APPLIED!", mask, x, y, w, h);
+	}
 }
 //-------------------------------------------------------------------------------------------------------
 void ViaOverlay::InternalFillRectangleInAlphaMask(int x, int y, int w, int h, unsigned char value, bool bMergeToScreen/*=false*/)
