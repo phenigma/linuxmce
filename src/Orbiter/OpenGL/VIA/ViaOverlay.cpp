@@ -259,7 +259,7 @@ void ViaOverlay::InternalApplyAlphaMask(int x, int y, int w, int h, const unsign
 	if(h + y > m_nHeight)
 		clipped_h = m_nHeight - y;
 
-	if(x + w <= m_nWidth && x >= 0 && y >= 0 && y + h <= m_nHeight && NULL != mask)
+	if(x + w <= m_nWidth + clipped_w && x >= 0 && y >= 0 && y + h <= m_nHeight + clipped_h && NULL != mask)
 	{
 		LoggerWrapper::GetInstance()->Write(LV_TV, "#VIA Applying alpha for %p (%d,%d,%d,%d) ...", mask, x, y, w, h);
 
