@@ -177,10 +177,10 @@ function update_config_files
 
 		pushd $ScriptDir
 		if [[ "${#Names[@]}" -eq 0 ]]; then
-			$ScriptDir/$Script --root "$Moon_RootLocation" --device "$Moon_DeviceID"
+			$ScriptDir/$Script --root "$Moon_RootLocation" --device "$Moon_DeviceID" --template "$Moon_DeviceTemplate"
 		else
 			for Name in "${Names[@]}"; do
-				$ScriptDir/$Script --root "$Moon_RootLocation/$Name" --device "$Moon_DeviceID" --subname "$Name"
+				$ScriptDir/$Script --root "$Moon_RootLocation/$Name" --device "$Moon_DeviceID" --subname "$Name" --template "$Moon_DeviceTemplate"
 			done
 		fi
 		popd
@@ -222,7 +222,8 @@ Q="
 		IPaddress, 
 		MACaddress, 
 		Device.Description,
-		Device.NeedConfigure
+		Device.NeedConfigure,
+		Device.FK_DeviceTemplate
 	FROM 
 		Device
 		JOIN Device_DeviceData ON PK_Device = FK_Device AND FK_DeviceData = $DEVICEDATA_DisklessBoot
@@ -261,6 +262,8 @@ for Row in $R; do
 		echo "INFO : Skiping moon$Moon_DeviceID because NeedConfigure flag is not set"
 		continue
 	fi
+
+	Moon_DeviceTemplate=$(Field 6 "$Row")
 
 	Moon_Architecture=$(RunSQL "SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device='$Moon_DeviceID' AND FK_DeviceData='$DEVICEDATA_Architecture'")
 	if [[ "$Moon_Architecture" == "" ]] ;then

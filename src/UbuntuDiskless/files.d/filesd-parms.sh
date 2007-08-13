@@ -8,6 +8,7 @@ for ((i = 1; i <= "$#"; i++)); do
 		--root) ((i++)); Parm_RootLocation="${!i}" ;;
 		--device) ((i++)); Parm_Device="${!i}" ;;
 		--subname) ((i++)); Parm_Subname="${!i}" ;;
+		--template) ((i++)); Parm_Template="${!i}" ;;
 		*) echo "ERR: Unknown parameter '$Parm'"; exit 1 ;;
 	esac
 done

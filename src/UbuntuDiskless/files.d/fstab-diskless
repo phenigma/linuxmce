@@ -23,7 +23,11 @@ Content="${Content}${IntIP}:/usr/pluto/diskless/${DisklessDir} /                
 Content="${Content}${IntIP}:/usr/pluto/var                    /usr/pluto/var      nfs  intr,udp,rsize=32768,wsize=32768,retrans=10,timeo=50 1 1\n"
 Content="${Content}${IntIP}:/usr/pluto/orbiter                /usr/pluto/orbiter  nfs  intr,udp,rsize=32768,wsize=32768,retrans=10,timeo=50 1 1\n"
 Content="${Content}${IntIP}:/usr/pluto/keys                   /usr/pluto/keys     nfs  intr,udp,rsize=32768,wsize=32768,retrans=10,timeo=50 1 1\n"
-Content="${Content}${IntIP}:/usr/pluto/deb-cache              /usr/pluto/deb-cache nfs  intr,udp,rsize=32768,wsize=32768,retrans=10,timeo=50 1 1\n"
+
+if [[ "$Parm_Template" != 1893 ]]; then
+	Content="${Content}${IntIP}:/usr/pluto/deb-cache              /usr/pluto/deb-cache nfs  intr,udp,rsize=32768,wsize=32768,retrans=10,timeo=50 1 1\n"
+fi
+
 Content="${Content}//${IntIP}/home                           /home               cifs credentials=/usr/pluto/var/sambaCredentials.secret   1 1\n"
 Content="${Content}\n"
 
