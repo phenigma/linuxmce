@@ -2419,7 +2419,7 @@ void Router::Configure()
 	m_pDatabase_pluto_main->threaded_db_wrapper_query(sSQL);
 
 	sSQL = "UPDATE Device JOIN Device AS Parent ON Device.FK_Device_ControlledVia=Parent.PK_Device SET Device.FK_Installation=Parent.FK_Installation";
-	m_pDatabase_pluto_main->threaded_db_wrapper_query(sSQL);
+	while( m_pDatabase_pluto_main->threaded_db_wrapper_query(sSQL)>0 );
 
 	// Get the rooms
     vector<Row_Room *> vectRow_Room;
