@@ -144,19 +144,25 @@ AudioSettings_Check()
 	DB_AudioSetting=$(GetDeviceData "$ComputerDev" "$DEVICEDATA_Audio_settings")
 	DB_Reboot=$(GetDeviceData "$AudioCardDev" "$DEVICEDATA_Reboot")
 
-	if [[ "$DB_AudioSetting" != "$OldSetting_AudioSetting" ]]; then
-		DB_AudioScript=$(GetDeviceData "$SoundCardDev" "$DEVICEDATA_Setup_Script")
-		ScriptPath="/usr/pluto/bin/$DB_AudioScript"
-		if [[ -n "$DB_AudioSetting" && -f "$ScriptPath" ]]; then
-			"$ScriptPath" "$DB_AudioSetting"
-		fi
-		NewSetting_AudioSetting="$DB_AudioSetting"
+	Logging "$TYPE" "$SEVERITY_NORMAL" "SetupAudioVideo" "'"
 
-		if [[ "$DB_Reboot" == 1 ]]; then
-			Reboot="Reboot"
-		fi
+	DB_AudioScript=$(GetDeviceData "$SoundCardDev" "$DEVICEDATA_Setup_Script")
+	ScriptPath="/usr/pluto/bin/$DB_AudioScript"
+
+	Logging "$TYPE" "$SEVERITY_NORMAL" "SetupAudioVideo" "DBSetting: $DB_AudioSetting Reboot: $DB_Reboot Script Path: $ScriptPath"
+
+	if [[ -n "$DB_AudioSetting" && -f "$ScriptPath" ]]; then
+		Logging "$TYPE" "$SEVERITY_NORMAL" "SetupAudioVideo" "Running: $ScriptPath"
+		"$ScriptPath" "$DB_AudioSetting"
+	fi
+	NewSetting_AudioSetting="$DB_AudioSetting"
+
+	if [[ "$DB_Reboot" == 1 ]]; then
+		Reboot="Reboot"
 	fi
 }
+
+Logging "$TYPE" "$SEVERITY_NORMAL" "SetupAudioVideo" "Starting"
 
 ReadConf
 VideoSettings_Check
