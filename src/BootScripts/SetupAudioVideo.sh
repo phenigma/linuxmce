@@ -54,7 +54,7 @@ GetVideoSetting()
 		ResX=$(echo $ResolutionInfo | cut -d' ' -f1)
 		ResY=$(echo $ResolutionInfo | cut -d' ' -f2)
 		if [[ -z "$Refresh" || -z "$ResX" || -z "$ResY" ]]; then
-			Logging "$TYPE" "$SEVERITY_CRITICAL" "Xconfigure" "Malformed DeviceData: VideoSetting='$VideoSetting'"
+			Logging "$TYPE" "$SEVERITY_CRITICAL" "SetupAudioVideo.sh" "Malformed DeviceData: VideoSetting='$VideoSetting'"
 			MalformedVideoSetting='Malformed VideoSetting'
 		fi
 	fi
