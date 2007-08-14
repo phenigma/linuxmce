@@ -1,5 +1,6 @@
 #!/bin/bash
 
+. /usr/pluto/bin/pluto.func
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/Utils.sh
 . /usr/pluto/bin/SQL_Ops.sh
@@ -152,7 +153,7 @@ AudioSettings_Check()
 	Logging "$TYPE" "$SEVERITY_NORMAL" "SetupAudioVideo" "DBSetting: $DB_AudioSetting Reboot: $DB_Reboot Script Path: $ScriptPath"
 
 	if [[ -n "$DB_AudioSetting" && -f "$ScriptPath" ]]; then
-		Logging "$TYPE" "$SEVERITY_NORMAL" "SetupAudioVideo" "Running: $ScriptPath"
+		Logging "$TYPE" "$SEVERITY_NORMAL" "SetupAudioVideo" "Running: $ScriptPath $DB_AudioSetting"
 		"$ScriptPath" "$DB_AudioSetting"
 	fi
 	NewSetting_AudioSetting="$DB_AudioSetting"
