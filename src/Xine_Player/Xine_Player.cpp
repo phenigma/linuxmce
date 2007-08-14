@@ -1700,7 +1700,7 @@ void Xine_Player::checkCodec()
             LoggerWrapper::GetInstance()->Write(LV_STATUS, "Xine is controlled via #%i", pDevice->m_dwPK_Device);
         }
         else
-            LoggerWrapper::GetInstance()->Write(LV_STATUS, "Cannot find device controlling Xine");
+            LoggerWrapper::GetInstance()->Write(LV_WARNING, "Cannot find device controlling Xine");
 
         iRet = system(sCmd.c_str());
         if (iRet == 0)
@@ -1713,7 +1713,7 @@ void Xine_Player::checkCodec()
                                 
         if (iRet != 0)
         {
-            LoggerWrapper::GetInstance()->Write(LV_STATUS, "Failed, exiting");
+            LoggerWrapper::GetInstance()->Write(LV_WARNING, "Failed to initialize , exiting");
             m_bReload=false;
             OnQuit();
         }
