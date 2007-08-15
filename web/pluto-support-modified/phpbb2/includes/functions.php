@@ -573,6 +573,10 @@ function message_die($msg_code, $msg_text = '', $msg_title = '', $err_line = '',
 	global $userdata, $user_ip, $session_length;
 	global $starttime;
 
+	// Wed Aug 15 20:25:19 EEST 2007
+	// HACK: somewhere the $db and $dbADO is mixed, declaring this as global to ensure it is visible to inner layers
+	global $dbADO;
+
 	if(defined('HAS_DIED'))
 	{
 		die("message_die() was called multiple times. This isn't supposed to happen. Was message_die() used in page_tail.php?");
