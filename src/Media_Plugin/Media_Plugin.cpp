@@ -988,6 +988,15 @@ void Media_Plugin::HandleAVAdjustments(MediaStream *pMediaStream,string sAudio,s
 			DCE::Message *pMessage = new DCE::Message(m_dwPK_Device,pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,
 				PRIORITY_NORMAL,MESSAGETYPE_COMMAND,PK_Command,0);
 			QueueMessageToRouter(pMessage);
+
+			if( pMediaStream->m_pMediaDevice_Source )
+			{
+				Command *pCommand = m_pRouter->m_mapCommand_Find(PK_Command);
+				string sCommand = pCommand ? pCommand->m_sDescription : "CMD #" + StringUtils::itos(PK_Command);
+				DCE::CMD_Display_Alert CMD_Display_Alert(m_dwPK_Device,pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device_ControlledVia,
+					"Blackbird data: " + sVideo + " = " + sCommand,"bbvid","5",interuptAlways);
+				SendCommand(CMD_Display_Alert);
+			}
 		}
 
 		PK_Command = pMediaDevice->m_mapAdjustmentRules_Find(sAudio);
@@ -997,6 +1006,15 @@ void Media_Plugin::HandleAVAdjustments(MediaStream *pMediaStream,string sAudio,s
 			DCE::Message *pMessage = new DCE::Message(m_dwPK_Device,pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,
 				PRIORITY_NORMAL,MESSAGETYPE_COMMAND,PK_Command,0);
 			QueueMessageToRouter(pMessage);
+
+			if( pMediaStream->m_pMediaDevice_Source )
+			{
+				Command *pCommand = m_pRouter->m_mapCommand_Find(PK_Command);
+				string sCommand = pCommand ? pCommand->m_sDescription : "CMD #" + StringUtils::itos(PK_Command);
+				DCE::CMD_Display_Alert CMD_Display_Alert(m_dwPK_Device,pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device_ControlledVia,
+					"Blackbird data: " + sAudio + " = " + sCommand,"bbaud","5",interuptAlways);
+				SendCommand(CMD_Display_Alert);
+			}
 		}
 
 		string::size_type pos=0;
