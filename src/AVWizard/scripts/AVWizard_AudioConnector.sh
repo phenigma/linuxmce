@@ -14,4 +14,4 @@ case "$Param" in
 		XineConfSet audio.alsa_front_device asym_spdif "$XineConf"
 	;;
 esac
-/usr/pluto/bin/SoundCards_Setup.sh
+/usr/pluto/bin/SetupAudioVideo.sh
