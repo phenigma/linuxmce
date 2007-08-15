@@ -9593,7 +9593,7 @@ void Orbiter::UpdateTimeCodeLoop()
 			return;
 	}
 
-	while(!m_bQuit_get())
+	while(!m_bQuit_get() && NULL != m_pAskXine_Socket && !m_pAskXine_Socket->m_bQuit_get())
 	{
 		if( m_pAskXine_Socket->m_dwPK_Device!=m_dwPK_Device_NowPlaying )
 		{
