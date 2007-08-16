@@ -517,6 +517,7 @@ g_PlutoProfiler->Start("ObjectRenderer_OpenGL::RenderGraphic2");
 	Graphic->AddRef(); //add a reference to this object
 
 	Engine->AddMeshFrameToDesktop(ParentObjectID, Frame);
+
 g_PlutoProfiler->Stop("ObjectRenderer_OpenGL::RenderGraphic2");
 
 	if(TextureManager::Instance()->CacheEnabled())
@@ -870,6 +871,14 @@ DesignObj_Orbiter *pObj, PlutoPoint *ptPopup/* = NULL*/)
 /*virtual*/ void OrbiterRenderer_OpenGL::UpdateObjectImage(string sPK_DesignObj, string sType, 
 	char *pData, int iData_Size, string sDisable_Aspect_Lock)
 {
+	PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_VariableMutex);
+	if(!m_listBackgroundImage.empty())
+	{
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "Got update object image, but we are still loading the background images");
+		return;	
+	}
+	vm.Release();
+
 	DesignObj_Orbiter *pObj = OrbiterLogic()->FindObject( sPK_DesignObj );
 	if(!pObj)
 	{
