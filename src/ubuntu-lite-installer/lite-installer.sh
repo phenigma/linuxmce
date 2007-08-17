@@ -121,17 +121,30 @@ ExtractArchive()
 
 NetworkSetup()
 {
-	## XXX: hardcoded for now
-	## TODO: autodetect the Internet-facing interface
+	# detect cards
+	NCards=$(ip addr | grep -cF 'link/ether')
+	if [[ "$NCards" -eq 1 ]]; then
+		ExtIf="eth0"
+		IntIf="eth0:0"
+	else
+		if host -W 1 www.google.com && ping -qc1 -I eth0 www.google.com &>/dev/null; then
+			ExtIf="eth0"
+			IntIf="eth1"
+		else
+			ExtIf="eth1"
+			IntIf="eth0"
+		fi
+	fi
+
 	echo "
 auto lo
 iface lo inet loopback
 
-auto eth1
-iface eth1 inet dhcp
+auto $ExtIf
+iface $ExtIf inet dhcp
 
-auto eth0
-iface eth0 inet static
+auto $IntIf
+iface $IntIf inet static
 	address 192.168.80.1
 	netmask 255.255.255.0
 " >/media/target/etc/network/interfaces
