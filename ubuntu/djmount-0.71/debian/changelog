@@ -1,0 +1,6 @@
+djmount (0.71-1) unstable; urgency=low
+
+  * Initial release (Closes: #nnnn)  <nnnn is the bug number of your ITP>
+
+ -- Razvan Gavril <razvan.gavril@gmail.com>  Tue, 21 Aug 2007 14:14:38 +0300
+
