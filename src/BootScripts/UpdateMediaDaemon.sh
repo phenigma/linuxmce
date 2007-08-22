@@ -14,7 +14,7 @@ done
 
 counter=30
 while ((counter > 0)); do
-	nice -n 20 /usr/pluto/bin/UpdateMedia -h localhost -u "/mnt/upnp" -d "${dir_list}" -B -t | tee-pluto -a /var/log/pluto/UpdateMedia.log
+	nice -n 20 /usr/pluto/bin/UpdateMedia -h localhost -U "/mnt/upnp" -d "${dir_list}" -B -t | tee-pluto -a /var/log/pluto/UpdateMedia.log
 	((counter--))
 done
 
