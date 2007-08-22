@@ -47,6 +47,12 @@ fi
 ## Creates symlinks to storage device in /home (runs only on core)
 /usr/pluto/bin/StorageDevices_Symlinks.sh
 
+## Start UPNP media files client
+mkdir -p /mnt/upnp
+if ! mountpoint /mnt/upnp ;then
+	djmount /mnt/upnp
+fi
+
 ## Call this script on the other machines too
 if [[ $TrigerCascade == "true" ]] ;then
 	/usr/pluto/bin/MessageSend dcerouter -targetType template 0 26 1 67 13 "/usr/pluto/bin/StorageDevices_Setup.sh" 51 "--nocascade"
