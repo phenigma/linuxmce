@@ -113,6 +113,8 @@ void *UpdateMediaThread(void *)
 
 	time_t tStart = time(NULL);
 
+	vector<string> vsUPnPDevices;
+	
 	while(true)
 	{
 		//load info about ModificationData, AttrCount, AttrDate, attributes, timestamp for all files
@@ -121,6 +123,32 @@ void *UpdateMediaThread(void *)
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Loaded fresh data from db");
 
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Worker thread: \"I'm wake!\"");        
+		
+		//UPnP changes: as UPnP mount share doesn't work with inotify (?? 
+		//at least I don't see it firing any expected events, we are manually 
+		//checking contents of 'devices' list for any changes
+		//FIXME if UPnP server went down and up with new content within 2 mins sleep
+		//changes in it's contents can go unnoticed
+		if (!sUPnPMountPoint.empty())
+		{
+			vector<string> vsNewDevices;
+			FileUtils::ReadFileIntoVector(sUPnPMountPoint+"/devices", vsNewDevices);
+			sort(vsNewDevices.begin(), vsNewDevices.end());
+			
+			vector<string> vsChanges;
+			set_symmetric_difference(vsNewDevices.begin(), vsNewDevices.end(), vsUPnPDevices.begin(), vsUPnPDevices.end(), back_inserter(vsChanges));
+			
+			if (!vsChanges.empty())
+			{
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "UPnP mount point devices list changed, adding %s for processing: %s", sUPnPMountPoint.c_str());	
+				vsUPnPDevices = vsNewDevices;
+				vectModifiedFolders.push_back(sUPnPMountPoint);
+			}
+			else
+			{
+				//TODO process list if devices list appear to be same - see fixme note above
+			}
+		}		
 
 		PLUTO_SAFETY_LOCK(flm, g_FoldersListMutex);
 		while(vectModifiedFolders.size())
@@ -383,13 +411,6 @@ int main(int argc, char *argv[])
 			vectModifiedFolders.push_back(*it);
 		}
 
-		// extra code to process UPnP mount point
-		if (!sUPnPMountPoint.empty())
-		{
-			fileNotifier.Watch(sUPnPMountPoint);
-			vectModifiedFolders.push_back(sUPnPMountPoint);
-		}		
-		
 		pthread_t UpdateMediaThreadId;
 		pthread_create(&UpdateMediaThreadId, NULL, UpdateMediaThread, NULL);
 
