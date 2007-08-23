@@ -86,6 +86,7 @@ namespace UpdateMediaSig
 namespace UpdateMediaVars
 {
 	extern string sUPnPMountPoint;
+	extern string sLocalUPnPServerName;
 };
 
 #include "DCE/DCEConfig.h"
@@ -588,13 +589,19 @@ bool UpdateMedia::ScanSubfolders(string sDirectory, bool& bDirIsDvd)
 		// also skipping folders starting from "MythTV AV Media Server"
 		if ( StringUtils::StartsWith(sSubDir, UpdateMediaVars::sUPnPMountPoint+"/") && ( StringUtils::EndsWith(sSubDir,"/.debug") || StringUtils::EndsWith(sSubDir,"/.metadata") || StringUtils::EndsWith(sSubDir,"/_search") ) )
 		{
-			LoggerWrapper::GetInstance()->Write(LV_WARNING, "The directory %s/%s is UPnP service dir. We'll skip it!", sDirectory.c_str(), sSubDir.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "The directory %s is UPnP service dir. We'll skip it!", sSubDir.c_str());
 			continue;
 		}
 		
 		if ( StringUtils::StartsWith(sSubDir, UpdateMediaVars::sUPnPMountPoint+"/MythTV AV Media Server") )
 		{
-			LoggerWrapper::GetInstance()->Write(LV_WARNING, "The directory %s/%s is MythTV UPnP dir. We'll skip it!", sDirectory.c_str(), sSubDir.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "The directory %s is MythTV UPnP dir. We'll skip it!", sSubDir.c_str());
+			continue;
+		}
+		
+		if ( !UpdateMediaVars::sLocalUPnPServerName.empty() && (sSubDir == (UpdateMediaVars::sUPnPMountPoint+"/" + UpdateMediaVars::sLocalUPnPServerName)) )
+		{
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "The directory %s is LinuxMCE UPnP dir. We'll skip it!", sSubDir.c_str());
 			continue;
 		}
 		

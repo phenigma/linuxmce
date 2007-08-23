@@ -67,6 +67,7 @@ namespace UpdateMediaVars
     bool bError, bUpdateThumbnails, bUpdateSearchTokens, bRunAsDaemon;
     string sDirectory;
     string sUPnPMountPoint;
+    string sLocalUPnPServerName;
 	bool bSyncFilesOnly;
 	vector<string> vectModifiedFolders;
 
@@ -332,6 +333,13 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 
+	// detecting local UPnP server name
+	if (sUPnPMountPoint!="")
+	{
+		//FIXME add real detection here
+		sLocalUPnPServerName = "LinuxMCE";
+	}
+	
 	if(!bRunAsDaemon)
 	{
 		vector<string> vectFolders;
