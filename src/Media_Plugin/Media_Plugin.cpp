@@ -994,7 +994,7 @@ void Media_Plugin::HandleAVAdjustments(MediaStream *pMediaStream,string sAudio,s
 				Command *pCommand = m_pRouter->m_mapCommand_Find(PK_Command);
 				string sCommand = pCommand ? pCommand->m_sDescription : "CMD #" + StringUtils::itos(PK_Command);
 				DCE::CMD_Display_Alert CMD_Display_Alert(m_dwPK_Device,pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device_ControlledVia,
-					"Blackbird data: " + sVideo + " = " + sCommand,"bbvid","300",interuptAlways);
+					"Blackbird data: " + sVideo + " = " + sCommand,"bbvid","60",interuptAlways);
 				SendCommand(CMD_Display_Alert);
 			}
 		}
@@ -1012,7 +1012,7 @@ void Media_Plugin::HandleAVAdjustments(MediaStream *pMediaStream,string sAudio,s
 				Command *pCommand = m_pRouter->m_mapCommand_Find(PK_Command);
 				string sCommand = pCommand ? pCommand->m_sDescription : "CMD #" + StringUtils::itos(PK_Command);
 				DCE::CMD_Display_Alert CMD_Display_Alert(m_dwPK_Device,pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device_ControlledVia,
-					"Blackbird data: " + sAudio + " = " + sCommand,"bbaud","300",interuptAlways);
+					"Blackbird data: " + sAudio + " = " + sCommand,"bbaud","60",interuptAlways);
 				SendCommand(CMD_Display_Alert);
 			}
 		}
