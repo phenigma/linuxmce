@@ -66,6 +66,7 @@ namespace UpdateMediaVars
 {
     bool bError, bUpdateThumbnails, bUpdateSearchTokens, bRunAsDaemon;
     string sDirectory;
+    string sUPnPMountPoint;
 	bool bSyncFilesOnly;
 	vector<string> vectModifiedFolders;
 
@@ -275,6 +276,9 @@ int main(int argc, char *argv[])
 		case 'w':
 			bSyncFilesOnly = true;
 			break;
+		case 'U':
+			sUPnPMountPoint = argv[++optnum];
+			break;
 		default:
 			cout << "Unknown: " << argv[optnum] << endl;
 			bError=true;
@@ -286,7 +290,7 @@ int main(int argc, char *argv[])
 	{
 		cout << "UpdateMedia, v." << VERSION << endl
 			<< "Usage: UpdateMedia [-h hostname] [-u username] [-p password] [-D database] [-P mysql port]" << endl
-			<< "[-d The list with directories, pipe delimited] [-s] [-t]" << endl
+			<< "[-d The list with directories, pipe delimited] [-U UPnP mount point to scan] [-s] [-t]" << endl
 			<< "hostname    -- address or DNS of database host, default is `dce_router`" << endl
 			<< "username    -- username for database connection" << endl
 			<< "password    -- password for database connection, default is `` (empty)" << endl
@@ -318,6 +322,23 @@ int main(int argc, char *argv[])
 
 			if( bUpdateThumbnails )
 				UpdateMedia.UpdateThumbnails();
+		}
+		
+		// extra code to process UPnP mount point
+		if (!sUPnPMountPoint.empty())
+		{
+			UpdateMedia UpdateMedia(dceConfig.m_sDBHost,dceConfig.m_sDBUser,dceConfig.m_sDBPassword,
+					dceConfig.m_iDBPort,sUPnPMountPoint,bSyncFilesOnly);
+			UpdateMedia.DoIt();
+
+			//TODO check and uncomment if necessary
+/*
+			if( bUpdateSearchTokens )
+				UpdateMedia.UpdateSearchTokens();
+
+			if( bUpdateThumbnails )
+				UpdateMedia.UpdateThumbnails();
+*/
 		}
 	}
 	else
@@ -362,6 +383,13 @@ int main(int argc, char *argv[])
 			vectModifiedFolders.push_back(*it);
 		}
 
+		// extra code to process UPnP mount point
+		if (!sUPnPMountPoint.empty())
+		{
+			fileNotifier.Watch(sUPnPMountPoint);
+			vectModifiedFolders.push_back(sUPnPMountPoint);
+		}		
+		
 		pthread_t UpdateMediaThreadId;
 		pthread_create(&UpdateMediaThreadId, NULL, UpdateMediaThread, NULL);
 

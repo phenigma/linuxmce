@@ -83,6 +83,11 @@ namespace UpdateMediaSig
 	static bool bSignalTrapCaught = false;
 };
 
+namespace UpdateMediaVars
+{
+	extern string sUPnPMountPoint;
+};
+
 #include "DCE/DCEConfig.h"
 DCEConfig g_DCEConfig;
 
@@ -579,6 +584,23 @@ bool UpdateMedia::ScanSubfolders(string sDirectory, bool& bDirIsDvd)
 	{
 		string sSubDir = *it;
 
+		// UPnP changes: skipping .metadata .debug and _search subfolders
+		// also skipping folders starting from "MythTV AV Media Server"
+		if (  ( (sDirectory == UpdateMediaVars::sUPnPMountPoint)
+				       || StringUtils::StartsWith(sDirectory, UpdateMediaVars::sUPnPMountPoint+"/")
+		      ) && ( (sSubDir==".debug") || (sSubDir==".metadata") || (sSubDir=="_search") ) )
+		{
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "The directory %s/%s is UPnP service dir. We'll skip it!", sDirectory.c_str(), sSubDir.c_str());
+			continue;
+		}
+		
+		if ( (sDirectory == UpdateMediaVars::sUPnPMountPoint) &&
+				    StringUtils::StartsWith(sSubDir, "MythTV AV Media Server") )
+		{
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "The directory %s/%s is MythTV UPnP dir. We'll skip it!", sDirectory.c_str(), sSubDir.c_str());
+			continue;
+		}
+		
 		//is sDirectory a ripped dvd ?
 		if( 
 			StringUtils::ToUpper(FileUtils::FilenameWithoutPath(sSubDir))=="VIDEO_TS" || 
@@ -705,6 +727,16 @@ bool UpdateMedia::AnyReasonToSkip(string sDirectory, string sFile)
 		}
 	}
 
+	// UPnP-related changes - skipping service files
+	// sUPnPMountPoint + "/devices"
+	// sUPnPMountPoint + "/something.../" + ".status"
+	if ( ((sDirectory == UpdateMediaVars::sUPnPMountPoint) && (sFile == "devices")) || (StringUtils::StartsWith(sDirectory, UpdateMediaVars::sUPnPMountPoint+"/") && (sFile == ".status")) )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "The file %s/%s is UPnP service file. We'll skip it!",
+					   sDirectory.c_str(), sFile.c_str());
+		return true;
+	}
+		
 	return false;
 }
 
