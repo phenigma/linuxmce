@@ -140,7 +140,7 @@ void *UpdateMediaThread(void *)
 			
 			if (!vsChanges.empty())
 			{
-				LoggerWrapper::GetInstance()->Write(LV_WARNING, "UPnP mount point devices list changed, adding %s for processing: %s", sUPnPMountPoint.c_str());	
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "UPnP mount point devices list changed, adding %s for processing", sUPnPMountPoint.c_str());	
 				vsUPnPDevices = vsNewDevices;
 				vectModifiedFolders.push_back(sUPnPMountPoint);
 			}
