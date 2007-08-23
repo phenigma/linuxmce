@@ -9365,9 +9365,13 @@ void Orbiter::CMD_Display_Alert(string sText,string sTokens,string sTimeout,int 
 	{
 		pPlutoAlert->m_tStopTime = pPlutoAlert->m_tStartTime + atoi(sTimeout.c_str());
 
-		// Must be a positive number, and no more than 60 seconds
-		if( pPlutoAlert->m_tStopTime<=pPlutoAlert->m_tStartTime || pPlutoAlert->m_tStopTime-60>pPlutoAlert->m_tStartTime )
+		// Must be a positive number
+		if( pPlutoAlert->m_tStopTime<=pPlutoAlert->m_tStartTime )
 			pPlutoAlert->m_tStopTime = pPlutoAlert->m_tStartTime + 3; // Default to 3 seconds
+
+		// and no more than 60 seconds
+		if( pPlutoAlert->m_tStopTime-pPlutoAlert->m_tStartTime>60 )
+			pPlutoAlert->m_tStopTime = pPlutoAlert->m_tStartTime + 60; // Truncating to 60 seconds
 	}
 
 	m_listPlutoAlert.push_back(pPlutoAlert);
