@@ -16,6 +16,6 @@ fi
 
 echo $$ >"$Lock"
 while :; do
-	socat -v TCP4:"$IP":"$Port" PTY,link="$Dev",echo=false,icanon=false,raw >>"/var/log/pluto/socat_$DevName".log 2>&1
+	socat -v TCP4:"$IP":"$Port" PTY,link="$Dev",echo=0,icanon=0,raw >>"/var/log/pluto/socat_$DevName".log 2>&1
 	sleep 1
 done
