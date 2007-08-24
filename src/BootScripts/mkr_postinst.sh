@@ -68,3 +68,9 @@ fi
 if ! grep -qF 'LogLevels = 1,5,7,8' /etc/pluto.conf ;then
 	echo "LogLevels = 1,5,7,8" >> /etc/pluto.conf
 fi
+
+## Remove dash divertion of /bin/sh
+if [[ -f /bin/sh.distrib ]] ;then
+	mv /bin/sh.distrib /bin/sh || :
+	dpkg-divert --remove /bin/sh || :
+fi
