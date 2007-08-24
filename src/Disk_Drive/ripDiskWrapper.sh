@@ -66,6 +66,15 @@ trackList="$9"
 
 ripFormat=${ripFormatString%%;*}
 
+#Freedb information
+URL="http://freedb.freedb.org/~cddb/cddb.cgi"
+ProtoVersion=5
+User=pluto
+Host=$(hostname)
+Tab="$(echo -e "\t")"
+TrackNumber=0
+# end Freedb information
+
 # Disk type possbile values:
 #	0 DISCTYPE_CD_AUDIO 
 #	1 DISCTYPE_CD
@@ -83,6 +92,34 @@ case $diskType in
 		command='/usr/pluto/bin/disc_unlock "$sourceDevice"; nice -n 15 /usr/pluto/bin/disk_copy "$sourceDevice" "$targetFileName.dvd.in-progress" > '"$ProgressOutput"
 	;;
 	0|1|6|7|8)
+
+		DiscID="$(/usr/bin/cd-discid "$sourceDevice")"		
+		if ! Query="$(/usr/bin/cddb-tool query "$URL" "$ProtoVersion" "$User" "$Host" "$DiscID")"; then
+			Err=$Err_Query
+			echo "Error in query"
+		else
+			echo "Query Successful"
+			Code=$(echo "$Query" | head -1 | cut -d' ' -f1)
+			case "$Code" in
+				200) # one match
+					QueryID=$(echo "$Query" | cut -d' ' -f2,3)
+					echo "Query ID code 200, QueryID = $QueryID" > /tmp/QueryID
+				;;
+				202|403|409|503) # no match/error
+					Err=$Err_NoMatch
+				;;
+				210|211) # multiple match (210 - exact, 211 - inexact)
+					QueryID=$(echo "$Query" | head -2 | tail -1 | cut -d' ' -f1,2)
+				;;
+			esac
+		fi
+
+		/usr/bin/cddb-tool read "$URL" "$ProtoVersion" "$User" "$Host" "$QueryID" > /tmp/cddbread.$$
+		Read="$(/usr/bin/cddb-tool parse /tmp/cddbread.$$)"
+		eval "$Read"
+		rm -f /tmp/cddbread.$$
+		Tag="$DiscID$Tab$DARTIST$Tab$DALBUM$Tab$CDGENRE$Tab$CDYEAR"
+		
 		Dir="$targetFileName"
 		case "$ripFormat" in
 			wav)
@@ -92,17 +129,18 @@ case $diskType in
 			
 			ogg)
 				FinalExt="ogg"
-				OutputFile='>(oggenc -Q -o "$Dir/$FileName.'"$FinalExt"'.in-progress" -)' # encoder
+				OutputFile='>(oggenc -Q --artist "$DARTIST" --album "$DALBUM" --date "$CDYEAR" --genre "$CDGENRE" --tracknum "$TrackNumber" -o "$Dir/$FileName.'"$FinalExt"'.in-progress" -)' # encoder
 			;;
 			
 			flac)
 				FinalExt="flac"
-				OutputFile='>(flac -o "$Dir/$FileName.'"$FinalExt"'.in-progress" -)' # encoder
+				OutputFile='>(flac -T "Title=$FileName" -T "Artist=$DARTIST" -T "Album=$DALBUM" -T "TrackNumber=$TrackNumber" -T "Year=$CDYEAR" -T "Genre=$CDGENRE" -o "$Dir/$FileName.'"$FinalExt"'.in-progress" -)' # encoder
+
 			;;
 			
 			mp3)
 				FinalExt="mp3"
-				OutputFile='>(lame -h - "$Dir/$FileName.'"$FinalExt"'.in-progress")' # encoder
+				OutputFile='>(lame -h --tt "$FileName" --ta "$DARTIST" --tl "$DALBUM" --tn "$TrackNumber" --ty "$CDYEAR" --tg "$CDGENRE" - "$Dir/$FileName.'"$FinalExt"'.in-progress")' # encoder
 			;;
 			
 			*)
@@ -159,7 +197,8 @@ elif [[ "$diskType" == 0 || "$diskType" == 1 || "$diskType" == 6 || "$diskType" 
 		Track=${File%%,*}
 		FileName=${File#*,}
 		FileName=${FileName//\//-}
-		
+		TrackNumber=$Track		
+
 		echo "Track: $Track; Filename: $FileName"
 		if /usr/pluto/bin/IsDataTrack "$sourceDevice" "$Track"; then
 			echo "Skipping track '$Track' because it is a data track on a audio CD"
@@ -190,6 +229,9 @@ elif [[ "$diskType" == 0 || "$diskType" == 1 || "$diskType" == 6 || "$diskType" 
 			rm "$Dir/$Filename.$FinalExt.in-progress" &>/dev/null
 			exit 1;
 		fi
+				
+
+
 		echo "File ripped ok; moving: $Dir/$FileName.$FinalExt.in-progress"
 		touch "$Dir/$FileName.$FinalExt.lock"
 		mv "$Dir/$FileName.$FinalExt"{.in-progress,}
