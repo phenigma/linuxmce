@@ -81,7 +81,15 @@ case "$Template" in
 			fi
 			
 			## Do the mount
-			echo "-fstype=auto :$DD_BlockDevice"
+			if  file -s "$DD_BlockDevice" | grep -qi "ntfs" ;then
+				if [[ -x /sbin/mount.ntfs-3g ]] ;then
+					echo "-fstype=ntfs-3g :$DD_BlockDevice"
+				else
+					echo "-fstype=ntfs :$DD_BlockDevice"
+				fi
+			else
+				echo "-fstype=auto :$DD_BlockDevice"
+			fi
 		
 		## It's a remote internal storage device
 		else
