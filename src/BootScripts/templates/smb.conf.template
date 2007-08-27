@@ -6,7 +6,7 @@
 
 [global]
 ## BEGIN : Domain and Hostname
-	workgroup = pluto
+	workgroup = LinuxMCE
 	server string = %h server (Samba %v)
 ## END : Domain and Hostname
 	smb ports = 139

@@ -256,6 +256,9 @@ DD_ComputerName=188
 Q="SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_DeviceData=$DD_Domain AND FK_Device=$PK_Device"
 DomainName=$(RunSQL "$Q")
 DomainName=$(Field "1" "$DomainName")
+if [[ "$DomainName" == "" ]] ;then
+	DomainName="LinuxMCE"
+fi
 
 Q="SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_DeviceData=$DD_ComputerName AND FK_Device=$PK_Device"
 ComputerName=$(RunSQL "$Q")
@@ -271,9 +274,7 @@ SambaDomainHost="
 	server string =	$ComputerName
 	netbios name = $ComputerName
 "
-if ! BlacklistConfFiles '/etc/samba/smb.conf' ;then
-	PopulateSection "/etc/samba/smb.conf" "Domain and Hostname" "$SambaDomainHost"
-fi
+PopulateSection "/etc/samba/smb.conf" "Domain and Hostname" "$SambaDomainHost"
 
 if [[ "$(pidof smbd)" != "" ]] ;then
 	invoke-rc.d samba reload
