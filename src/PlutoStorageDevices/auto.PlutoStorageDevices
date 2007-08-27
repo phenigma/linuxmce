@@ -151,6 +151,15 @@ case "$Template" in
 		Q="SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device='$StorageDevice' AND FK_DeviceData=$DD_PASSWORD"
 		Password=$(RunSQL "$Q")
 		
+		## Filesystem for the samba share (zaerc@xs4all.nl)
+		Q="SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device='$StorageDevice' AND FK_DeviceData=$DD_FILESYSTEM"
+		FileSystem=$(RunSQL "$Q")
+		if [[ "$FileSystem" == "smbfs" ]] ;then
+			CIFS_FileSystem="smbfs"
+		else
+			CIFS_FileSystem="cifs"
+		fi
+
 		## Do the mount
 		if [[ "$Username" == "" || "$Username" == "guest" ]] ;then
 			echo "-fstype=$CIFS_FileSystem,username=guest,guest,dir_mode=0777,file_mode=0777$CIFS_ExtraOpts ://${IPaddress}/${Share}"
