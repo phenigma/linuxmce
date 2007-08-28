@@ -1320,6 +1320,36 @@ void Telecom_Plugin::CMD_Set_User_Mode(int iPK_Users,int iPK_UserMode,string &sC
 void Telecom_Plugin::CMD_PL_Add_VOIP_Account(string sName,string sPhoneNumber,string sPassword,string sUsers,string &sCMD_Result,Message *pMessage)
 //<-dceag-c751-e->
 {
+	
+	// ONLY if the automatically VoIP management is ON
+	// If not then send a popup message to the Orbiter, so that the user will see the problem
+	// Eugen
+	ListDeviceData_Router *pListDeviceData_Router = m_pRouter->m_mapDeviceByTemplate_Find( DEVICETEMPLATE_Asterisk_CONST );
+	if( !pListDeviceData_Router || !pListDeviceData_Router->size() )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Telecom_Plugin::CMD_PL_Add_VOIP_Account : no Asterisk device !");
+		return;
+	}
+	DeviceData_Router *pDevice = *pListDeviceData_Router->begin();
+	string manualVoIP = pDevice->m_mapParameters_Find( DEVICEDATA_Manual_configuration_CONST );
+	
+	if( !manualVoIP.empty() && 1 == atoi(manualVoIP.c_str()) )
+	{
+		// send popup message to pMessage->m_dwPK_Device_From
+		DeviceData_Router *pDeviceOrbiter = m_pRouter->m_mapDeviceData_Router_Find( pMessage->m_dwPK_Device_From );
+		if( pDeviceOrbiter && pDeviceOrbiter->WithinCategory(DEVICECATEGORY_Orbiter_CONST) )
+		{
+			DCE::CMD_Goto_Screen
+					cmd(m_dwPK_Device, pMessage->m_dwPK_Device_From, "Telecom Notify", SCREEN_PopupMessage_CONST, interuptAlways, true, false);
+			cmd.m_pMessage->m_mapParameters[COMMANDPARAMETER_Text_CONST] =
+					"Please use the Phones Setup to change VoIP configuration because the manual VoIP configuration is activated.\nOr please first activate the automatic VoIP configuration from Phone Lines.";
+			cmd.m_pMessage->m_mapParameters[COMMANDPARAMETER_Command_Line_CONST] = "$Action_Yes";
+			SendCommand(cmd);
+		}
+		
+		return;
+	}
+	
 	string cmdline = "";
 
 	if(sName == "broadvoice")
