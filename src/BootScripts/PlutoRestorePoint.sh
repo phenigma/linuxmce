@@ -100,6 +100,7 @@ if [[ "$1" == "--restore" ]]; then
 		ConfSet "AutostartMedia" "$AutostartMedia"
 
 		/usr/pluto/bin/Network_Setup.sh
+		/usr/pluto/bin/Diskless_Setup.sh
 	fi
 
 
