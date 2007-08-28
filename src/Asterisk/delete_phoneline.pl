@@ -18,6 +18,13 @@ if (defined($ARGV[2]))
 	`curl 'http://localhost/pluto-admin/amp/admin/config.php?display=7&extdisplay=$PHONE_NR/&action=delIncoming' &>/dev/null`;
 }
 
+####### del inphonex / incoming router ######
+if ( $LINE_NAME eq "inphonex" )
+{
+ `curl 'http://localhost/pluto-admin/amp/admin/config.php?display=7&extdisplay=/&action=delIncoming' &>/dev/null`;
+}
+#############################################
+
 `curl -o /tmp/curl.log 'http://localhost/pluto-admin/amp/admin/config.php?display=8' &> /dev/null`;
 
 open(PAGE,"/tmp/curl.log") or die "Bad thing happend";

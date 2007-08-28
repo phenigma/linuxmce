@@ -4,9 +4,9 @@ use strict;
 use diagnostics;
 use DBI;
 
-my $DECLARED_USERNAME;
-my $DECLARED_USERPASSWD;
-my $DECLARED_NUMBER;
+my $DECLARED_USERNAME = "";
+my $DECLARED_USERPASSWD = "";
+my $DECLARED_NUMBER = "";
 my $DECLARED_HOST = "sip.inphonex.com";
 my $DECLARED_PREFIX = "9";
 my $LOCAL_PREFIX1 = "";
@@ -53,9 +53,10 @@ $TRUNK_VARS{'dialrules'}=$LOCAL_PREFIX1;
 $TRUNK_VARS{'autopop'}="";
 $TRUNK_VARS{'dialoutprefix'}="";
 $TRUNK_VARS{'channelid'}="inphonex";
-$TRUNK_VARS{'peerdetails'} ="allow=alaw\n";
-$TRUNK_VARS{'peerdetails'}.="context=from-internal\n";
-$TRUNK_VARS{'peerdetails'}.="disallow=all\n";
+$TRUNK_VARS{'peerdetails'}="context=from-internal\n";
+#$TRUNK_VARS{'peerdetails'}.="disallow=all\n";
+$TRUNK_VARS{'peerdetails'}.="allow=alaw\n";
+$TRUNK_VARS{'peerdetails'}.="allow=all\n";
 $TRUNK_VARS{'peerdetails'}.="host=$DECLARED_HOST\n";
 $TRUNK_VARS{'peerdetails'}.="username=$DECLARED_USERNAME\n";
 $TRUNK_VARS{'peerdetails'}.="user=$DECLARED_USERNAME\n";
@@ -67,13 +68,16 @@ $TRUNK_VARS{'peerdetails'}.="nat=yes\n";
 $TRUNK_VARS{'peerdetails'}.="qualify=yes\n";
 $TRUNK_VARS{'peerdetails'}.="type=peer\n";
 $TRUNK_VARS{'peerdetails'}.="canreinvite=no\n";
-$TRUNK_VARS{'peerdetails'}.="insecure=very\n";
+$TRUNK_VARS{'peerdetails'}.="insecure=very";
 
-$TRUNK_VARS{'usercontext'}=$DECLARED_NUMBER;
-$TRUNK_VARS{'userconfig'}=
-$TRUNK_VARS{'userconfig'}.="context=from-ptsn\n";
-$TRUNK_VARS{'userconfig'}.="secret=$DECLARED_USERPASSWD\n";;
-$TRUNK_VARS{'userconfig'}.="type=user\n";
+$TRUNK_VARS{'usercontext'}="sip.inphonex.com";
+$TRUNK_VARS{'userconfig'}="username=$DECLARED_USERNAME\n";
+$TRUNK_VARS{'userconfig'}.="user=$DECLARED_USERNAME\n";
+$TRUNK_VARS{'userconfig'}.="context=from-pstn\n";
+$TRUNK_VARS{'userconfig'}.="type=friend\n";
+$TRUNK_VARS{'userconfig'}.="fromdomain=inphonex.com\n";
+$TRUNK_VARS{'userconfig'}.="host=$DECLARED_HOST\n";
+$TRUNK_VARS{'userconfig'}.="insecure=very";
 
 $TRUNK_VARS{'register'}="$DECLARED_USERNAME:$DECLARED_USERPASSWD\@$DECLARED_HOST";
 
@@ -119,7 +123,7 @@ foreach my $var (keys %OUT_VARS)
 $IN_VARS{'display'}="7";
 $IN_VARS{'extdisplay'}="";
 $IN_VARS{'action'}="addIncoming";
-$IN_VARS{'extension'}=$DECLARED_NUMBER;
+$IN_VARS{'extension'}="";
 $IN_VARS{'goto0'}="custom";
 $IN_VARS{'custom_args0'}="from-pluto-custom,10".$1.",1" if($OUT_ROUTE=~/(\d)$/);
 foreach my $var (keys %IN_VARS)
@@ -134,6 +138,12 @@ foreach my $var (keys %IN_VARS)
 `curl 'http://localhost/pluto-admin/amp/admin/config.php?display=6&clk_reload=true' > /dev/null`;
 #create telecom defaults
 `/usr/pluto/bin/create_telecom_defaults.pl`;
+
+#####################
+#create dial plan
+`/usr/pluto/bin/create_pluto_dialplan.pl`;
+#####################
+
 #reload asterisk
 `asterisk -r -x reload`;
 
