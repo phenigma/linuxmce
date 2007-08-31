@@ -29,7 +29,7 @@ xmlns:SOAP-ENC='http://schemas.xmlsoap.org/soap/encoding/'>
 </SOAP-ENV:Envelope>
 ">>$POSTFILE
 
-	/usr/bin/wget -q --http-user=$USER --http-passwd=$PASS --post-file=$POSTFILE --header=Accept-Encoding:gzip "http://datadirect.webservices.zap2it.com/tvlistings/xtvdService" --output-document=-|gzip -d>$RESPONSE
+	/usr/bin/wget -q --http-user=$USER --http-passwd=$PASS --post-file=$POSTFILE --header=Accept-Encoding:gzip "http://webservices.schedulesdirect.tmsdatadirect.com/schedulesdirect/tvlistings/xtvdService" --output-document=-|gzip -d>$RESPONSE
 	echo "OK"
 	BEGINL="\\<lineup id\\=\\'$LINEUP\\'"
 	ENDL="\\<\\/lineup>"
