@@ -361,6 +361,7 @@ if [[ -f /usr/pluto/bin/SQL_Ops.sh ]] ;then
 fi
 
 ## Load the modules listed media director's device data
+insmod /lib/modules/`uname -r`/kernel/drivers/input/misc/pcspkr.ko
 if [[ -x /usr/pluto/bin/LoadMDModules.sh ]] ;then
 	/usr/pluto/bin/LoadMDModules.sh
 fi
@@ -417,31 +418,9 @@ if [ -x /etc/init.d/Pluto_ConfirmInstallation.sh ] ;then
     /etc/init.d/Pluto_ConfirmInstallation.sh
 fi
 
-#f [ -x  /etc/init.d/Pluto_Update_Packages.sh ] ;then
-#   Message "Checking for Updates"
-#   /etc/init.d/Pluto_Update_Packages.sh
-#i
-if [ -x /usr/pluto/bin/ApplyUpdates.sh ]; then
-	rm -f /var/run/screen/S-root/*.BkgSS-ApplyUpdates
-	
+if [ -x /usr/pluto/bin/LMCEUpdate_Apply.sh ]; then
 	Message "Updating system"
-	/usr/pluto/bin/ApplyUpdates.sh
-
-	sleep 0.1
-	
-    file=$(echo /var/run/screen/S-root/*.BkgSS-ApplyUpdates);
-    if [[ "$file" == "" ]]; then
-		done="true"
-	else
-		done="false"
-    fi
-	
-	while [[ "$done" == "false" ]]; do
-		file=$(echo /var/run/screen/S-root/*.BkgSS-ApplyUpdates);
-		if [[ "$file" == "" ]]; then
-			done="true"
-		fi
-	done
+	/usr/pluto/bin/LMCEUpdate_Apply.sh	
 fi
 
 Message "Running depmod"
