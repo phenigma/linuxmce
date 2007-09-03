@@ -841,8 +841,11 @@ DesignObj_Orbiter *pObj, PlutoPoint *ptPopup/* = NULL*/)
 			Popup->m_pObj->m_rPosition.Width, Popup->m_pObj->m_rPosition.Height);
 #endif
 
+		//the popup alerts are dynamic; we don't want to reuse them
+		bool bMarkAsVolation = Popup->m_sName == "popup_alert";
+
 		Popups->HidePopup(Popup->m_pObj->GenerateObjectHash(Popup->m_Position, false),
-			Popup->m_pObj->GenerateObjectHash(Popup->m_Position));
+			Popup->m_pObj->GenerateObjectHash(Popup->m_Position), bMarkAsVolation);
 	}
 	Engine->UnHighlight();
 	return true;

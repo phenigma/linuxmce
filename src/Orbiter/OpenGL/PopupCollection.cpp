@@ -65,7 +65,7 @@ void PopupCollection::Reset()
 }
 
 
-void PopupCollection::HidePopup(string ID, string ObjectHash)
+void PopupCollection::HidePopup(string ID, string ObjectHash, bool bMarkAsVolation)
 {
 #ifdef DEBUG
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "PopupCollection::HidePopup %s", ObjectHash.c_str());
@@ -74,7 +74,19 @@ void PopupCollection::HidePopup(string ID, string ObjectHash)
 	Item = Popups[ObjectHash];
 	if(Item)
 	{
-		Item->Hide();
+		if(bMarkAsVolation && Item->Frame())
+		{
+			Item->Frame()->MarkAsVolatileRecursively();
+
+			map<string, PopupDescription* >::iterator it = Popups.find(ObjectHash);
+			Popups.erase(it);
+			delete Item;
+		}
+		else
+		{
+			Item->Hide();
+		}
+
 		if(ObjectHash == Current)
 			Current = "";
 	}

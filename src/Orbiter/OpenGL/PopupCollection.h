@@ -71,7 +71,7 @@ public:
 	/**
 	 *	Hide an existing showed popup
 	 */
-	void HidePopup(std::string ID, std::string ObjectHash);
+	void HidePopup(std::string ID, std::string ObjectHash, bool bMarkAsVolation = false);
 	/**
 	 *	Hides all popups
 	 */
