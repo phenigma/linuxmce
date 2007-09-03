@@ -24,6 +24,7 @@
 #define SERIALIZE_DATA_TYPE_MULTIMAP_PICTURES		2101
 #define SERIALIZE_DATA_TYPE_LIST_BOOKMARKS			2102
 #define SERIALIZE_PLUTO_MEDIA_ATTRIBUTES_VERSION	1
+#define SERIALIZE_PLUTO_MEDIA_BOOKMARKS_VERSION		1
 //-----------------------------------------------------------------------------------------------------
 //
 //  PlutoMediaAttribute class
@@ -68,6 +69,8 @@ public:
 
 	bool operator ==(PlutoMediaBookmark& bookmark);
 	PlutoMediaBookmark& operator =(PlutoMediaBookmark& bookmark);
+
+	bool OkayToDeserialize(int iSC_Version);
 };
 //-----------------------------------------------------------------------------------------------------
 typedef multimap<long, PlutoMediaAttribute *> MapPlutoMediaAttributes;

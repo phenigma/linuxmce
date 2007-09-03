@@ -83,6 +83,7 @@ PlutoMediaBookmark::PlutoMediaBookmark() : SerializeClass()
 PlutoMediaBookmark::PlutoMediaBookmark(string sDescription, string sPosition) :
 	SerializeClass(), m_sDescription(sDescription), m_sPosition(sPosition)
 {
+	m_iSC_Version = SERIALIZE_PLUTO_MEDIA_BOOKMARKS_VERSION;
 }
 //-----------------------------------------------------------------------------------------------------
 PlutoMediaBookmark::~PlutoMediaBookmark()
@@ -112,6 +113,11 @@ PlutoMediaBookmark& PlutoMediaBookmark::operator =(PlutoMediaBookmark& bookmark)
 	m_dataPictureThumb = bookmark.m_dataPictureThumb;
 
 	return *this;
+}
+//-----------------------------------------------------------------------------------------------------
+bool PlutoMediaBookmark::OkayToDeserialize(int iSC_Version)
+{
+	return SERIALIZE_PLUTO_MEDIA_BOOKMARKS_VERSION == iSC_Version;
 }
 //-----------------------------------------------------------------------------------------------------
 //
@@ -297,7 +303,14 @@ bool PlutoMediaAttributes::UnknownSerialize(ItemToSerialize *pItem,bool bWriting
 					for(unsigned long i = 0; i<count; ++i)
 					{
 						PlutoMediaBookmark *pPlutoMediaBookmark = new PlutoMediaBookmark();
-						pPlutoMediaBookmark->Serialize(bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition);
+						if(!pPlutoMediaBookmark->Serialize(bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition))
+						{
+							//something is wrong -- we cannot deserialize this
+							LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Cannot deserialize list with bookmarks; the id3 file seems to be corrupted! Skipping deserialization....");
+							delete pPlutoMediaBookmark;
+							return true;
+						}
+
 						pList->push_back(pPlutoMediaBookmark);
 					}
 					return true;  // We handled it
