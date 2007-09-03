@@ -4169,6 +4169,17 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 			Output += sCmdOutput;
 #endif
 		}
+		else if(Variable == "LUV")
+		{
+			string sLastUpdatedVersion = "N/A";
+
+			if(m_pData->m_dwPK_Device_Core)
+				sLastUpdatedVersion = m_pEvent->GetDeviceDataFromDatabase(m_pData->m_dwPK_Device_Core, DEVICEDATA_LastUpdate_CONST);
+			else if(m_pData->m_dwPK_Device_MD)
+				sLastUpdatedVersion = m_pEvent->GetDeviceDataFromDatabase(m_pData->m_dwPK_Device_MD, DEVICEDATA_LastUpdate_CONST);
+
+			Output += sLastUpdatedVersion;
+		}
 		else if(  Variable[0]=='!'  )  // It starts with ! -- that's a not followed by a variable, if the variable is 1 we return 0, anything else we return 1
 		{
 			int PK_Variable = atoi( Variable.substr(1).c_str() );
