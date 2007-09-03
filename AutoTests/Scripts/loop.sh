@@ -8,7 +8,8 @@ if [[ "$1" != "demonized" ]] ;then
 fi
 
 if [[ "$2" == "" ]] ;then
-        PK_Room=$(RunSQL "SELECT FK_Room FROM Device WHERE PK_Device='${PK_Device}'")
+	Q="SELECT FK_Room FROM Device where PK_Device=$PK_Device"
+	PK_Room=$(echo "$Q;" | /usr/bin/mysql --skip-column-names -h $MySqlHost pluto_main)
 else
 	PK_Room="$2"
 fi
