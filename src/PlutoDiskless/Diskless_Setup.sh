@@ -391,5 +391,14 @@ RunSQL "$Q"
 
 /usr/pluto/bin/Update_StartupScrips.sh
 
+## Do the update fix for current debian computers
+for dir in /usr/pluto/diskless/* ;do
+	if [[ -f \"\$dir/debian/etc/init.d/fastboot/rcS\" ]] ;then
+		sed -i 's/ApplyUpdates.sh/LMCEUpdate_Apply.sh/g' \"\$dir/debian/etc/init.d/fastboot/rcS\" || :
+		rm -f \"\$dir/debian/etc/rc2.d/S98LMCEUpdate\" || :
+	fi
+done
+
+
 echo "Finished setting up network boot for media directors."
 echo "If new media director(s) were added, do a quick reload router."
