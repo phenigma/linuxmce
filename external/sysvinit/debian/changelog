@@ -1,3 +1,10 @@
+sysvinit (2.86.ds1-1.1pluto77) unstable; urgency=low
+
+  * Fix pcspkr problem on via 
+  * Fix update script that runs in background
+
+ -- Razvan Gavril <razvan.g@plutohome.com>  Mon, 03 Sep 2007 11:12:08 +0300
+
 sysvinit (2.86.ds1-1.1pluto76) unstable; urgency=low
 
   * Fixed AVWizard common script calls *grr*
