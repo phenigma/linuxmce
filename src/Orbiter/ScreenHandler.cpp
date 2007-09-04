@@ -1475,7 +1475,7 @@ void ScreenHandler::SCREEN_DialogAskToResume(long PK_Screen, string sPK_Device_F
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_DialogGC100Error(long PK_Screen, string sDescription, string sCannotGoBack)
 {
-	DisplayMessageOnOrbiter(PK_Screen, sDescription, false, "0", false);
+	DisplayMessageOnOrbiter(PK_Screen, sDescription, false, "0", sCannotGoBack == "1");
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::DisplayMessageOnOrbiter(int PK_Screen,
