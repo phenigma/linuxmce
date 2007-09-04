@@ -33,7 +33,7 @@ fi
 #	exit # timezone has already been set once
 #fi
 
-Info=$(wget --timeout=10 -O - http://timezone.plutohome.com/geoip/detect_timezone.php)
+Info=$(wget --timeout=10 --tries=5 -O - http://timezone.plutohome.com/geoip/detect_timezone.php)
 if [[ -z "$Info" ]]; then
 	exit # timezone/location could not be detected
 fi
