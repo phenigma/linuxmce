@@ -62,6 +62,7 @@ DD_BLOCK_DEVICE=152
 DD_SHARE_NAME=126
 DD_USERNAME=127
 DD_PASSWORD=128
+DD_FILESYSTEM=159
 
 NFS_MOUNT_OPTS="-fstype=nfs,udp,proto=udp,soft,timeo=7,retrans=3,retry=2,rsize=8192,wsize=8192"
 
