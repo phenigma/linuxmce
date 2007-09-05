@@ -4454,23 +4454,52 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"CMD_MH_Set_Volume");
 
 LoggerWrapper::GetInstance()->Write(LV_STATUS,"For EA %s found active device %d",s.c_str(),PK_Device_Dest);
 
+		long dwApp_Server = 0;
+		if(NULL != pEntertainArea->m_pMediaDevice_ActiveDest && NULL != pEntertainArea->m_pMediaDevice_ActiveDest->m_pDeviceData_Router)
+		{
+			MediaDevice *pMediaDevice = m_mapMediaDevice_Find(pEntertainArea->m_pMediaDevice_ActiveDest->m_pDeviceData_Router->m_dwPK_Device_MD); // We have an app server to control the volume
+			if(NULL != pMediaDevice && NULL != pMediaDevice->m_pDevice_Audio && pMediaDevice->m_pDevice_Audio->m_dwPK_DeviceTemplate==DEVICETEMPLATE_App_Server_CONST )  // We have an MD and it uses appserver for the volume
+				dwApp_Server = pMediaDevice->m_pDevice_Audio->m_dwPK_Device;
+		}
+
 		if( sLevel=="-1" )
 		{
 			DCE::CMD_Vol_Down CMD_Vol_Down(pMessage->m_dwPK_Device_From,PK_Device_Dest,1);
 			CheckForCustomPipe(pEntertainArea,CMD_Vol_Down.m_pMessage);
 			SendCommand(CMD_Vol_Down);
+
+			if(dwApp_Server != 0)
+			{
+				DCE::CMD_Vol_Down CMD_Vol_Down_App_Server(pMessage->m_dwPK_Device_From,dwApp_Server,1);
+				CheckForCustomPipe(pEntertainArea,CMD_Vol_Down_App_Server.m_pMessage);
+				SendCommand(CMD_Vol_Down_App_Server);
+			}
 		}
 		else if( sLevel=="+1" )
 		{
 			DCE::CMD_Vol_Up CMD_Vol_Up(pMessage->m_dwPK_Device_From,PK_Device_Dest,1);
 			CheckForCustomPipe(pEntertainArea,CMD_Vol_Up.m_pMessage);
 			SendCommand(CMD_Vol_Up);
+
+			if(dwApp_Server != 0)
+			{
+				DCE::CMD_Vol_Up CMD_Vol_Up_App_Server(pMessage->m_dwPK_Device_From,dwApp_Server,1);
+				CheckForCustomPipe(pEntertainArea,CMD_Vol_Up_App_Server.m_pMessage);
+				SendCommand(CMD_Vol_Up_App_Server);
+			}
 		}
 		else
 		{
 			DCE::CMD_Set_Volume CMD_Set_Volume(pMessage->m_dwPK_Device_From,PK_Device_Dest,sLevel);
 			CheckForCustomPipe(pEntertainArea,CMD_Set_Volume.m_pMessage);
 			SendCommand(CMD_Set_Volume);
+
+			if(dwApp_Server != 0)
+			{
+				DCE::CMD_Set_Volume CMD_Set_Volume_App_Server(pMessage->m_dwPK_Device_From,dwApp_Server,sLevel);
+				CheckForCustomPipe(pEntertainArea,CMD_Set_Volume_App_Server.m_pMessage);
+				SendCommand(CMD_Set_Volume_App_Server);
+			}
 		}
 	}
 }
