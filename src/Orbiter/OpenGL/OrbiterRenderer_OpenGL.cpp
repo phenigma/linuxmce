@@ -595,7 +595,7 @@ void OrbiterRenderer_OpenGL::OnIdle()
 					&(pObj->m_vectGraphic) :
 					&(pObj->m_vectSelectedGraphic);
 
-			pObj->Renderer()->RenderGraphic(pObj->m_rPosition, pObj->m_bDisableAspectLock, pObj->m_pPopupPoint);
+			RenderObjectAsync(pObj);
 		}
 	}
 
