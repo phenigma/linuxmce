@@ -36,7 +36,6 @@
 
 using namespace std;
 using namespace DCE;
-DCEConfig dceConfig;
 
 #define HAVE_STDBOOL_H
 #define AVWizard_Port	28949
@@ -85,6 +84,7 @@ bool ProcessBindRequest(usb_dev_handle *p_usb_dev_handle,char *inPacket)
 
 void StartAVWizard()
 {
+	DCEConfig dceConfig;
 	dceConfig.AddString("AVWizardOverride","1");
 	dceConfig.WriteSettings();
 	system("beep -f 2000");
