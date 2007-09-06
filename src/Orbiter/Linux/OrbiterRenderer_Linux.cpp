@@ -108,6 +108,12 @@ bool OrbiterRenderer_Linux::HandleShowPopup(PlutoPopup* Popup, PlutoPoint Positi
 		ApplyMasks();
 	}
 
+	if (pOrbiterLinux != NULL && pOrbiterLinux->IsYieldInput() && Popup->m_sName == "popup_alert")
+	{
+		PlutoRectangle rectTotal(0, 0, Popup->m_pObj->m_rPosition.Width, Popup->m_pObj->m_rPosition.Height);
+		pOrbiterLinux->ApplyMask(rectTotal, Popup->m_Position, mtShowPopupMask);
+	}
+
 	return BASE_CLASS::HandleShowPopup(Popup, Position, EffectID);
 }
 
@@ -135,6 +141,12 @@ bool OrbiterRenderer_Linux::HandleHidePopup(PlutoPopup* Popup)
 			false );
 		
 		ApplyMasks();
+	}
+
+	if (pOrbiterLinux != NULL && pOrbiterLinux->IsYieldInput() && Popup->m_sName == "popup_alert")
+	{
+		PlutoRectangle rectTotal(0, 0, Popup->m_pObj->m_rPosition.Width, Popup->m_pObj->m_rPosition.Height);
+		pOrbiterLinux->ApplyMask(rectTotal, Popup->m_Position, mtHidePopupMask);
 	}
 
 	return BASE_CLASS::HandleHidePopup(Popup);

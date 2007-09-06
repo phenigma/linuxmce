@@ -59,6 +59,13 @@ namespace DCE
 	class OrbiterRenderer_Linux;
 };
 
+enum MaskTypes
+{
+	mtNormalMask,
+	mtShowPopupMask,
+	mtHidePopupMask
+};
+
 class OrbiterLinux : public Orbiter
 {
 private:
@@ -101,7 +108,7 @@ private:
 	
 	bool MaskApplied();
 	void ResetAppliedMask();
-	void ApplyMask(PlutoRectangle rectTotal, PlutoPoint point);
+	void ApplyMask(PlutoRectangle rectTotal, PlutoPoint point, MaskTypes mask_type);
 
 	void ConfirmPcDesktop();
 

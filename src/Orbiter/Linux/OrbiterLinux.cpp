@@ -307,7 +307,7 @@ bool OrbiterLinux::RenderDesktop( class DesignObj_Orbiter *pObj, PlutoRectangle 
 		//the keyboard is released to OS, so this is firefox, dvd menu or maybe mythtv-setup 
 		//we'll apply a mask with xshape
 		if (IsYieldInput())
-			ApplyMask(rectTotal, point);
+			ApplyMask(rectTotal, point, mtNormalMask);
     }
 
 #ifdef DEBUG
@@ -622,72 +622,116 @@ void OrbiterLinux::ResetAppliedMask()
 	m_bMaskApplied = false;
 }
 
-void OrbiterLinux::ApplyMask(PlutoRectangle rectTotal, PlutoPoint point)
+void OrbiterLinux::ApplyMask(PlutoRectangle rectTotal, PlutoPoint point, MaskTypes mask_type)
 {
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Applying mask: rectangle %d,%d,%d,%d",
-		point.X + rectTotal.X, point.Y + rectTotal.Y, rectTotal.Width, rectTotal.Height);
-
-	enum rectIndex
+	if(mask_type == mtShowPopupMask)
 	{
-		riTop,
-		riBottom,
-		riLeft,
-		riRight
-	};
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Applying xshape to show popup: rectangle %d,%d,%d,%d",
+			point.X + rectTotal.X, point.Y + rectTotal.Y, rectTotal.Width, rectTotal.Height);
 
-	XRectangle rects[4] = 
-	{
-		{0, 0, 0, 0},
-		{0, 0, 0, 0},
-		{0, 0, 0, 0},
-		{0, 0, 0, 0}
-	};
+		XRectangle rects[1] = 
+		{
+			{point.X + rectTotal.X, point.Y + rectTotal.Y, rectTotal.Width, rectTotal.Height}
+		};
 
-	if(point.Y + rectTotal.Y > 0)
-	{
-		//top
-		//rects[riTop].x = 0;
-		//rects[riTop].y = 0;
-		rects[riTop].width = m_iImageWidth;
-		rects[riTop].height = point.Y + rectTotal.Y;
+		XShapeCombineRectangles (
+			m_pX11->GetDisplay(),
+			m_pX11->GetWmWindow(),
+			ShapeBounding,
+			0, 0,
+			rects,
+			1, ShapeUnion, Unsorted);
 	}
+	else if(mask_type == mtHidePopupMask)
+	{
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Applying xshape to hide popup: rectangle %d,%d,%d,%d",
+			point.X + rectTotal.X, point.Y + rectTotal.Y, rectTotal.Width, rectTotal.Height);
 
-	if(m_iImageHeight - point.Y - rectTotal.Y - rectTotal.Height > 0)
-	{
-		//bottom
-		//rects[riBottom].x = 0;
-		rects[riBottom].y = point.Y + rectTotal.Y + rectTotal.Height;
-		rects[riBottom].width = m_iImageWidth;
-		rects[riBottom].height = m_iImageHeight - point.Y - rectTotal.Y - rectTotal.Height;
-	}
-	
-	if(point.X + rectTotal.X > 0)
-	{
-		//left
-		//rects[riLeft].x = 0;
-		rects[riLeft].y = point.Y + rectTotal.Y;
-		rects[riLeft].width = point.X + rectTotal.X;
-		rects[riLeft].height = rectTotal.Height;
-	}
+		XRectangle rects[1] = 
+		{
+			{point.X + rectTotal.X, point.Y + rectTotal.Y, rectTotal.Width, rectTotal.Height}
+		};
 
-	if(m_iImageWidth - point.X - rectTotal.X - rectTotal.Width > 0)
-	{
-		//right
-		rects[riRight].x = point.X + rectTotal.X + rectTotal.Width;
-		rects[riRight].y = point.Y + rectTotal.Y;
-		rects[riRight].width = m_iImageWidth - point.X - rectTotal.X - rectTotal.Width;
-		rects[riRight].height = rectTotal.Height;
+		XShapeCombineRectangles (
+			m_pX11->GetDisplay(),
+			m_pX11->GetWmWindow(),
+			ShapeBounding,
+			0, 0,
+			rects,
+			1, ShapeSubtract, Unsorted);		
+
+		if(mask_type == mtNormalMask)
+		{
+			m_bMaskApplied = true;
+		}
 	}
-			
-	XShapeCombineRectangles (
-		m_pX11->GetDisplay(),
-		m_pX11->GetWmWindow(),
-		ShapeBounding,
-		0, 0,
-		rects,
-		4, ShapeSet, Unsorted);
-	
-	m_bMaskApplied = true;
+	else if(mask_type == mtNormalMask)
+	{
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Applying xshape: rectangle %d,%d,%d,%d",
+			point.X + rectTotal.X, point.Y + rectTotal.Y, rectTotal.Width, rectTotal.Height);
+
+		enum rectIndex
+		{
+			riTop,
+			riBottom,
+			riLeft,
+			riRight
+		};
+
+		XRectangle rects[4] = 
+		{
+			{0, 0, 0, 0},
+			{0, 0, 0, 0},
+			{0, 0, 0, 0},
+			{0, 0, 0, 0}
+		};
+
+		if(point.Y + rectTotal.Y > 0)
+		{
+			//top
+			//rects[riTop].x = 0;
+			//rects[riTop].y = 0;
+			rects[riTop].width = m_iImageWidth;
+			rects[riTop].height = point.Y + rectTotal.Y;
+		}
+
+		if(m_iImageHeight - point.Y - rectTotal.Y - rectTotal.Height > 0)
+		{
+			//bottom
+			//rects[riBottom].x = 0;
+			rects[riBottom].y = point.Y + rectTotal.Y + rectTotal.Height;
+			rects[riBottom].width = m_iImageWidth;
+			rects[riBottom].height = m_iImageHeight - point.Y - rectTotal.Y - rectTotal.Height;
+		}
+		
+		if(point.X + rectTotal.X > 0)
+		{
+			//left
+			//rects[riLeft].x = 0;
+			rects[riLeft].y = point.Y + rectTotal.Y;
+			rects[riLeft].width = point.X + rectTotal.X;
+			rects[riLeft].height = rectTotal.Height;
+		}
+
+		if(m_iImageWidth - point.X - rectTotal.X - rectTotal.Width > 0)
+		{
+			//right
+			rects[riRight].x = point.X + rectTotal.X + rectTotal.Width;
+			rects[riRight].y = point.Y + rectTotal.Y;
+			rects[riRight].width = m_iImageWidth - point.X - rectTotal.X - rectTotal.Width;
+			rects[riRight].height = rectTotal.Height;
+		}
+				
+		XShapeCombineRectangles (
+			m_pX11->GetDisplay(),
+			m_pX11->GetWmWindow(),
+			ShapeBounding,
+			0, 0,
+			rects,
+			4, ShapeSet, Unsorted);
+
+		m_bMaskApplied = true;
+	}
 
 #if defined(VIA_OVERLAY) && defined(ORBITER_OPENGL)
 	//for VIA, if we are in dvd menu, we won't restart the alpha mask
