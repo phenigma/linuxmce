@@ -179,6 +179,7 @@ LoggerWrapper::GetInstance()->Write(LV_PROCESSUTILS,"dupped arg %d %s\n",i,ps);
 			PidData *pPidData = new PidData();
 			pPidData->m_pData = attachedData;
 			pPidData->in = in[1];
+			pPidData->bDetached = bDetach;
 			g_mapIdentifierToPidData[sAppIdentifier][pid] = pPidData;
 
 			int ret;
