@@ -1,6 +1,6 @@
 #!/bin/bash
 
-MAILADDR="developers@plutohome.com"
+MAILADDR="devplutohome@gmail.com"
 
 echo "SendEmail.sh" >> /tmp/status.log
 
