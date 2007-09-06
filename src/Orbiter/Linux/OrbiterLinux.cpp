@@ -451,6 +451,9 @@ void OrbiterLinux::CMD_Activate_PC_Desktop(bool bTrueFalse,string &sCMD_Result,M
 
 		//check if kde is running and if not, start it
 		ConfirmPcDesktop();
+
+		//re-activate repeated keys
+		system("/usr/bin/X11/xset r"); 
 	}
 	else
 	{
@@ -462,6 +465,9 @@ void OrbiterLinux::CMD_Activate_PC_Desktop(bool bTrueFalse,string &sCMD_Result,M
 			m_pWinListManager->HandleOnCommand();
 
 		Orbiter::CMD_Surrender_to_OS("0", false, false);
+
+		//disable repeated keys
+		system("/usr/bin/X11/xset r off"); 
 	}
 }
 
