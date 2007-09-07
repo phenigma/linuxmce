@@ -3077,6 +3077,8 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::ProcessEvent3 %d type %d
 				bHandled |= CaptureKeyboard_EditText_AppendChar( '+' );
 			if( PK_Button == BUTTON_colon_CONST )
 				bHandled |= CaptureKeyboard_EditText_AppendChar( ':' );
+			if( PK_Button == BUTTON_period_CONST )
+				bHandled |= CaptureKeyboard_EditText_AppendChar( '.' );
 			if( PK_Button == BUTTON_slash_CONST )
 				bHandled |= CaptureKeyboard_EditText_AppendChar( '/' );
 			else if(
