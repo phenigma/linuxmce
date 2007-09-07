@@ -2778,7 +2778,7 @@ Row_DesignObj *OrbiterGenerator::GetDesignObjFromScreen(Row_Screen *pRow_Screen)
 Row_Skin *OrbiterGenerator::TranslateSkin(Row_Skin *pRow_Skin)
 {
 	int PK_Skin_New=0;
-	for(map<string,string>::iterator it=g_DCEConfig.m_mapParameters.begin();it!=g_DCEConfig.m_mapParameters.end();++it)
+	for(map<string,string>::const_iterator it=g_DCEConfig.Parameters().begin();it!=g_DCEConfig.Parameters().end();++it)
 	{
 		if( StringUtils::StartsWith(it->first,"UseSkinSettings_") )
 		{

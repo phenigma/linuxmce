@@ -61,6 +61,7 @@ void DCEConfig::ParseFile(vector<string> &vectString)
 			Value = vectString[s].substr(pos_Equal+1,pos_Slash-pos_Equal-1);
 
 		m_mapParameters[Token]=StringUtils::TrimSpaces(Value);
+		m_mapModifiedParameters[Token]=false;
     }
 
     vectString.clear();
@@ -84,6 +85,7 @@ void DCEConfig::ParseFile(vector<string> &vectString)
 /*virtual*/ DCEConfig::~DCEConfig()
 {
     m_mapParameters.clear();
+	m_mapModifiedParameters.clear();
 }
 //------------------------------------------------------------------------------------------------------
 /*inline*/ int DCEConfig::ReadInteger(string sToken, int iDefaultValue/* = 0*/)
@@ -120,7 +122,6 @@ bool DCEConfig::WriteSettings()
 	// Make a copy of the parameters.  We'll go through the existing file and modify any changed values
 	map<string,string> mapParameters_Copy = m_mapParameters;
 
-
 	for(size_t s=0;s<vectString.size();++s)
 	{
 		string::size_type pos_Equal;
@@ -149,11 +150,14 @@ bool DCEConfig::WriteSettings()
 			continue; // The value is the same as what's in the file.  Skip it
 		}
 
-		// We need to update what's in the file to reflect this value
-		if( pos_Slash==string::npos )
-			vectString[s].replace(pos_Equal+1, vectString[s].length()-pos_Equal-1, mapParameters_Copy[Token]);
-		else // Preserve the // and anything after it
-			vectString[s].replace(pos_Equal+1, pos_Slash-pos_Equal-2, mapParameters_Copy[Token]);
+		if(m_mapModifiedParameters[Token]) //we've modified this
+		{
+			// We need to update what's in the file to reflect this value
+			if( pos_Slash==string::npos )
+				vectString[s].replace(pos_Equal+1, vectString[s].length()-pos_Equal-1, mapParameters_Copy[Token]);
+			else // Preserve the // and anything after it
+				vectString[s].replace(pos_Equal+1, pos_Slash-pos_Equal-2, mapParameters_Copy[Token]);
+		}
 
 		mapParameters_Copy.erase(Token); // We're taking care of this one here since the token exists
     }
@@ -165,3 +169,21 @@ bool DCEConfig::WriteSettings()
 	// Rewrite the config file
 	return FileUtils::WriteVectorToFile(m_sConfigFile, vectString);
 }
+//------------------------------------------------------------------------------------------------------
+void DCEConfig::AddString(string sToken, string sValue) 
+{ 
+	m_mapModifiedParameters[sToken] = true;
+	m_mapParameters[sToken]=sValue; 
+}
+//------------------------------------------------------------------------------------------------------
+void DCEConfig::AddInteger(string sToken, int iValue) 
+{ 
+	m_mapModifiedParameters[sToken] = true;
+	m_mapParameters[sToken]=StringUtils::itos(iValue); 
+}
+//------------------------------------------------------------------------------------------------------
+const map<string, string>& DCEConfig::Parameters() const
+{
+	return m_mapParameters;
+}
+//------------------------------------------------------------------------------------------------------

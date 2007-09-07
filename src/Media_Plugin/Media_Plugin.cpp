@@ -5347,7 +5347,7 @@ void Media_Plugin::SaveLastFilePosition(MediaStream *pMediaStream)
 
 void Media_Plugin::RestoreMediaResumePreferences()
 {
-	for(map<string,string>::iterator it=g_DCEConfig.m_mapParameters.begin();it!=g_DCEConfig.m_mapParameters.end();++it)
+	for(map<string,string>::const_iterator it=g_DCEConfig.Parameters().begin();it!=g_DCEConfig.Parameters().end();++it)
 	{
 		if( StringUtils::StartsWith(it->first,"auto_resume_user_") )
 		{
@@ -5355,7 +5355,8 @@ void Media_Plugin::RestoreMediaResumePreferences()
 			string::size_type pos=0;
 			while(pos<it->second.length())
 			{
-				string sToken = StringUtils::Tokenize(it->second,",",pos);
+				string sInput = it->second;
+				string sToken = StringUtils::Tokenize(sInput,",",pos);
 				string::size_type pos_equal = sToken.find('-');
 				if( pos_equal==string::npos )
 					return;
