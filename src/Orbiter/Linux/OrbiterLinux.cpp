@@ -134,6 +134,9 @@ OrbiterLinux::~OrbiterLinux()
     KillMaintThread();
 
     Destroy();
+
+    //re-activate repeated keys
+    system("/usr/bin/X11/xset r");  
 }
 
 void OrbiterLinux::HideOtherWindows()
