@@ -649,6 +649,8 @@ void PlutoMediaFile::SaveMiscInfo()
 	else
 		sSQL += "FK_MediaSubType = NULL ";
 
+	sSQL += "WHERE PK_File = " + StringUtils::ltos(m_pPlutoMediaAttributes->m_nFileID);
+
 	m_pDatabase_pluto_media->threaded_db_wrapper_query(sSQL);
 }
 //-----------------------------------------------------------------------------------------------------
