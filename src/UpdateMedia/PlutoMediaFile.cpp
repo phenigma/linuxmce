@@ -637,21 +637,21 @@ void PlutoMediaFile::SaveMiscInfo()
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "# SaveMiscInfo: FK_FileFormat %d, FK_MediaSubType %d", 
 		m_pPlutoMediaAttributes->m_nFileFormat, m_pPlutoMediaAttributes->m_nMediaSubType);
 
-	string sSQL = "UPDATE File SET ";
+	Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->GetRow(m_pPlutoMediaAttributes->m_nFileID);
+	if(NULL != pRow_File)
+	{
+		if(m_pPlutoMediaAttributes->m_nFileFormat != 0)
+			pRow_File->FK_FileFormat_set(m_pPlutoMediaAttributes->m_nFileFormat);
+		else
+			pRow_File->FK_FileFormat_setNull(true);
 
-	if(m_pPlutoMediaAttributes->m_nFileFormat != 0)
-		sSQL += "FK_FileFormat = " + StringUtils::ltos(m_pPlutoMediaAttributes->m_nFileFormat) + ", ";
-	else
-		sSQL += "FK_FileFormat = NULL, ";
+		if(m_pPlutoMediaAttributes->m_nMediaSubType != 0)
+			pRow_File->FK_MediaSubType_set(m_pPlutoMediaAttributes->m_nMediaSubType);
+		else
+			pRow_File->FK_MediaSubType_setNull(true);
 
-	if(m_pPlutoMediaAttributes->m_nMediaSubType != 0)
-		sSQL += "FK_MediaSubType = " + StringUtils::ltos(m_pPlutoMediaAttributes->m_nMediaSubType) + " ";
-	else
-		sSQL += "FK_MediaSubType = NULL ";
-
-	sSQL += "WHERE PK_File = " + StringUtils::ltos(m_pPlutoMediaAttributes->m_nFileID);
-
-	m_pDatabase_pluto_media->threaded_db_wrapper_query(sSQL);
+		pRow_File->Table_File_get()->Commit();
+	}
 }
 //-----------------------------------------------------------------------------------------------------
 void PlutoMediaFile::SaveCoverarts()
