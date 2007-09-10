@@ -640,9 +640,9 @@ void PlutoMediaFile::SaveMiscInfo()
 	string sSQL = "UPDATE File SET ";
 
 	if(m_pPlutoMediaAttributes->m_nFileFormat != 0)
-		sSQL += "FK_FileFormat = " + StringUtils::ltos(m_pPlutoMediaAttributes->m_nFileFormat) + " AND ";
+		sSQL += "FK_FileFormat = " + StringUtils::ltos(m_pPlutoMediaAttributes->m_nFileFormat) + ", ";
 	else
-		sSQL += "FK_FileFormat = NULL AND ";
+		sSQL += "FK_FileFormat = NULL, ";
 
 	if(m_pPlutoMediaAttributes->m_nMediaSubType != 0)
 		sSQL += "FK_MediaSubType = " + StringUtils::ltos(m_pPlutoMediaAttributes->m_nMediaSubType) + " ";
