@@ -70,8 +70,11 @@ public:
 	// Interceptors
 	bool ClimateCommand( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
 	void PreprocessClimateMessage(DeviceData_Router *pDevice,Message *pMessage);
+	
 	int GetClimateLevel(DeviceData_Router *pDevice,int iLevel_Default);
 	string GetTemperature(DeviceData_Router *pDevice);
+	void SetStateValue(DeviceData_Router *pDevice, string sOn, string sMode, string sFan, string sSetPoint, string sTemp);
+	void GetStateVar(DeviceData_Router *pDevice, string& sOn, string& sMode, string& sFan, string& sSetPoint, string& sTemp);
 
 //<-dceag-h-b->
 	/*

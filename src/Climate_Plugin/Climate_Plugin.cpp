@@ -224,6 +224,13 @@ void Climate_Plugin::PreprocessClimateMessage(DeviceData_Router *pDevice,Message
 	if( !pDevice || !pMessage || !pDevice->WithinCategory(DEVICECATEGORY_Climate_Device_CONST) )
 		return;
 
+	string sOn;
+	string sMode;
+	string sFan;
+	string sSetPoint;
+	string sTemp;
+	GetStateVar(pDevice, sOn, sMode, sFan, sSetPoint, sTemp);
+	
 	// The State is in the format ON|OFF/SET TEMP (CURRENT TEMP)
 	if( pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND )
 	{
@@ -251,36 +258,114 @@ void Climate_Plugin::PreprocessClimateMessage(DeviceData_Router *pDevice,Message
 		}
 
 		if( pMessage->m_dwID==COMMAND_Generic_On_CONST )
-			pDevice->m_sState_set("ON/" + StringUtils::itos(GetClimateLevel(pDevice,100)) + GetTemperature(pDevice));
+			SetStateValue(pDevice, "ON", sMode, sFan, sSetPoint, sTemp);
 		else if( pMessage->m_dwID==COMMAND_Generic_Off_CONST )
-			pDevice->m_sState_set("OFF/" + StringUtils::itos(GetClimateLevel(pDevice,0)) + GetTemperature(pDevice));
+			SetStateValue(pDevice, "OFF", sMode, sFan, sSetPoint, sTemp);
 		else if( pMessage->m_dwID==COMMAND_Set_HeatCool_CONST )
 		{
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Climate_Plugin: COMMAND_Set_HeatCool_CONST !");
 			string sState = pMessage->m_mapParameters[COMMANDPARAMETER_OnOff_CONST];
 			if( sState=="H" )
-				pDevice->m_sState_set("HEAT/" + StringUtils::itos(GetClimateLevel(pDevice,0)) + GetTemperature(pDevice));
+				SetStateValue(pDevice, sOn, "HEAT", sFan, sSetPoint, sTemp);
 			else if( sState=="C" )
-				pDevice->m_sState_set("COOL/" + StringUtils::itos(GetClimateLevel(pDevice,0)) + GetTemperature(pDevice));
+				SetStateValue(pDevice, sOn, "COOL", sFan, sSetPoint, sTemp);
+			else if( sState=="F" )
+				SetStateValue(pDevice, sOn, "FAN_ONLY", sFan, sSetPoint, sTemp);
 			else
-				pDevice->m_sState_set("AUTO/" + StringUtils::itos(GetClimateLevel(pDevice,0)) + GetTemperature(pDevice));
+				SetStateValue(pDevice, sOn, "AUTO", sFan, sSetPoint, sTemp);
+		}
+		else if( pMessage->m_dwID == COMMAND_Set_Fan_CONST )
+		{
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Climate_Plugin: COMMAND_Set_Fan_CONST !");
+			string sState = pMessage->m_mapParameters[COMMANDPARAMETER_OnOff_CONST];
+			if( 1 == atoi(sState.c_str()) )
+			{
+				SetStateValue(pDevice, sOn, "FAN_ONLY", "HIGH", sSetPoint, sTemp);
+			}
+			else
+			{
+				SetStateValue(pDevice, sOn, "AUTO", "AUTO", sSetPoint, sTemp);
+			}
 		}
 	}
 	else if( pMessage->m_dwMessage_Type==MESSAGETYPE_EVENT && pMessage->m_dwID==EVENT_Temperature_Changed_CONST )
 	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Climate_Plugin: EVENT_Temperature_Changed_CONST !");
 		// Replace the current temp
 		string sLevel = pMessage->m_mapParameters[EVENTPARAMETER_Value_CONST];
-		string sCurrentState = pDevice->m_sState_get();
-		string::size_type pos = sCurrentState.find('(');
-		if( pos!=string::npos )
-			sCurrentState = sCurrentState.substr(0,pos-1); // Get rid of the current temp
-		pDevice->m_sState_set(sCurrentState + " (" + sLevel + ")");
+		SetStateValue(pDevice, sOn, sMode, sFan, sSetPoint, sLevel);
+	}
+	else if( pMessage->m_dwMessage_Type==MESSAGETYPE_EVENT && pMessage->m_dwID==EVENT_Thermostat_Set_Point_Chan_CONST )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Climate_Plugin: EVENT_Thermostat_Set_Point_Chan_CONST !");
+		// Replace the current temp
+		string sLevel = pMessage->m_mapParameters[EVENTPARAMETER_Value_CONST];
+		char type = sLevel.c_str()[0];
+		switch ( type )
+		{
+			default:
+				SetStateValue(pDevice, sOn, sMode, sFan, sLevel, sTemp);
+				break;
+				
+			case 't':
+				sLevel = sLevel.substr(2);
+				SetStateValue(pDevice, sOn, sMode, sFan, sLevel, sTemp);
+				break;
+				
+			case 'm':
+			{
+				sLevel = sLevel.substr(2);
+				int iMode = atoi(sLevel.c_str());
+				switch(iMode)
+				{
+					default:
+					case 10:
+						SetStateValue(pDevice, sOn, "AUTO", sFan, sSetPoint, sTemp);
+						break;
+					
+					case 1:
+						SetStateValue(pDevice, sOn, "HEAT", sFan, sSetPoint, sTemp);
+						break;
+					
+					case 2:
+						SetStateValue(pDevice, sOn, "COOL", sFan, sSetPoint, sTemp);
+						break;
+					
+					case 6:
+						SetStateValue(pDevice, sOn, "FAN_ONLY", sFan, sSetPoint, sTemp);
+						break;
+				}
+			}
+				break;
+			
+			case 'f':
+			{
+				sLevel = sLevel.substr(2);
+				int iMode = atoi(sLevel.c_str());
+				switch(iMode)
+				{
+					default:
+					case 0:
+					case 1:
+						SetStateValue(pDevice, sOn, sMode, "AUTO", sSetPoint, sTemp);
+						break;
+					
+					case 2:
+					case 3:
+						SetStateValue(pDevice, sOn, sMode, "HIGH", sSetPoint, sTemp);
+						break;
+				}
+			}
+				break;
+				
+		}
 	}
 }
 
 int Climate_Plugin::GetClimateLevel(DeviceData_Router *pDevice,int iLevel_Default)
 {
 	string sState = pDevice->m_sState_get();
-	string::size_type pos = sState.find("/");
+	string::size_type pos = sState.rfind("/");
 	if( pos<sState.size()-1 && pos!=string::npos )
 		return atoi(sState.substr(pos+1).c_str());
 	else
@@ -291,9 +376,77 @@ string Climate_Plugin::GetTemperature(DeviceData_Router *pDevice)
 {
 	// Replace the current temp
 	string sCurrentState = pDevice->m_sState_get();
-	string::size_type pos = sCurrentState.find('(');
+	string::size_type pos = sCurrentState.rfind('(');
 	if( pos!=string::npos )
 		return sCurrentState.substr(pos); // Get rid of the current temp
 	else
 		return "";
+}
+
+void Climate_Plugin::GetStateVar(DeviceData_Router *pDevice,
+	string& sOn, string& sMode, string& sFan, string& sSetPoint, string& sTemp)
+{
+	string sCurrentState = pDevice->m_sState_get();
+	
+	// temperature
+	string::size_type pos1 = sCurrentState.rfind('(');
+	string::size_type pos2 = sCurrentState.rfind(')');
+	if( pos1!=string::npos && pos2!=string::npos && pos1 < pos2 )
+	{
+		sTemp = sCurrentState.substr(pos1+1,pos2-pos1-1);
+		sCurrentState = sCurrentState.substr(0, pos1);
+	}
+	else
+	{
+		sTemp = "25";
+	}
+	
+	// on/off
+	if( sCurrentState.substr(0,3) == "OFF" )
+	{
+		sOn = "OFF";
+	}
+	else
+	{
+		sOn = "ON";
+	}
+	
+	// mode and fan
+	sMode = "AUTO";
+	sFan = "AUTO";
+	pos1 = sCurrentState.find('/');
+	pos2 = sCurrentState.rfind('/');
+	if( pos1!=string::npos && pos2!=string::npos && pos1 < pos2 )
+	{
+		string::size_type pos3 = sCurrentState.find('/', pos1 + 1);
+		if( pos3!=string::npos && pos1 < pos3 && pos3 < pos2 )
+		{
+			sMode = sCurrentState.substr(pos1+1, pos3-pos1-1);
+			sFan = sCurrentState.substr(pos3+1, pos2-pos3-1);
+		}
+	}
+	else if( pos1!=string::npos )
+	{
+		if( sCurrentState.c_str()[0] != 'O' )
+		{
+			sMode = sCurrentState.substr(0, pos1);
+		}
+	}
+	
+	// set point
+	sSetPoint = "25";
+	if( pos2!=string::npos && pos2+1<sCurrentState.size() )
+	{
+		int iSetPoint = atoi( sCurrentState.substr(pos2+1).c_str() );
+		if( 0 != iSetPoint )
+		{
+			sSetPoint = StringUtils::itos(iSetPoint);
+		}
+	}
+}
+
+void Climate_Plugin::SetStateValue(DeviceData_Router *pDevice,
+	   string sOn, string sMode, string sFan, string sSetPoint, string sTemp)
+{
+	pDevice->m_sState_set(sOn + "/" + sMode + "/" + sFan + "/" + sSetPoint + " (" + sTemp + ")");
 }
