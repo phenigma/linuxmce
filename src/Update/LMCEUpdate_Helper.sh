@@ -1,5 +1,5 @@
 #!/bin/bash
-/usr/pluto/bin/TeeMyOutput.sh --outfile /var/log/pluto/LMCEUpdate.log --stdboth --append -- "$@"
+. /usr/pluto/bin/TeeMyOutput.sh --outfile /var/log/pluto/LMCEUpdate.log --stdboth --append -- "$@"
 set -e
 
 UPDATES_XML_URI="http://10.0.0.83/updates.xml"
