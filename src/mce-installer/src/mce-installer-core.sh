@@ -125,9 +125,9 @@ function Create_And_Config_Devices {
 	DEVICE_TEMPLATE_MediaDirector=28
 
 	## Update the 'LastUpdate' Device Data on the templates
-	RunSQL "UPDATE DeviceData SET IK_DeviceData=1 WHERE PK_DeviceTemplate = 1"
-	RunSQL "UPDATE DeviceData SET IK_DeviceData=2 WHERE PK_DeviceTemplate = 28"
-	RunSQL "UPDATE DeviceData SET IK_DeviceData=3 WHERE PK_DeviceTemplate = 1893"
+	RunSQL "UPDATE DeviceTemplate_DeviceData SET IK_DeviceData=1 WHERE FK_DeviceTemplate = 7    AND FK_DeviceData=234"
+        RunSQL "UPDATE DeviceTemplate_DeviceData SET IK_DeviceData=2 WHERE FK_DeviceTemplate = 28   AND FK_DeviceData=234"
+        RunSQL "UPDATE DeviceTemplate_DeviceData SET IK_DeviceData=3 WHERE FK_DeviceTemplate = 1893 AND FK_DeviceData=234"
 
 	## Update some info in the database
 	Q="INSERT INTO Installation(Description, ActivationCode) VALUES('Pluto', '1111')"
