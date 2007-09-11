@@ -244,9 +244,13 @@ public:
 
 	/** @brief COMMAND: #247 - Get Device State */
 	/** Gets a device's current state */
+		/** @param #2 PK_Device */
+			/** The device id which you need information for. */
+		/** @param #5 Value To Assign */
+			/** The state data for the device. */
 
-	virtual void CMD_Get_Device_State() { string sCMD_Result; CMD_Get_Device_State(sCMD_Result,NULL);};
-	virtual void CMD_Get_Device_State(string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Get_Device_State(int iPK_Device,string *sValue_To_Assign) { string sCMD_Result; CMD_Get_Device_State(iPK_Device,sValue_To_Assign,sCMD_Result,NULL);};
+	virtual void CMD_Get_Device_State(int iPK_Device,string *sValue_To_Assign,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #248 - Get Device Status */
