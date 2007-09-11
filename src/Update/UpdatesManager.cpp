@@ -142,28 +142,7 @@ bool UpdatesManager::Init(bool bDownload)
 	
 	if( download )
 	{
-		// fill model2update
-		for(map<long, string>::const_iterator it=id2model.begin(); it!=id2model.end(); ++it)
-		{
-			map<long, unsigned>::iterator itUpdate = id2update.find( (*it).first );
-			if( itUpdate == id2update.end() )
-			{
-				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Device id %d has model %s but no update info",
-					(*it).first, (*it).second.c_str());
-				continue;
-			}
-		
-			map<string, unsigned>::iterator itFind = model2update.find( (*it).second );
-			if( itFind != model2update.end() )
-			{
-				if( (*itUpdate).second < (*itFind).second )
-					(*itFind).second = (*itUpdate).second;
-			}
-			else
-			{
-				model2update[(*it).second] = (*itUpdate).second;
-			}
-		}
+		FillModel2Update();
 	
 		// load the xml data
 		xml.Clean();
@@ -189,7 +168,7 @@ bool UpdatesManager::Init(bool bDownload)
 		{
 			// check each model
 			for(map<string, unsigned>::iterator itModel=model2update.begin();
-						 itModel!=model2update.end(); ++itModel)
+				 itModel!=model2update.end(); ++itModel)
 			{
 				// check each update
 				vector<UpdateNode*> &updates = xml.Updates();
@@ -364,6 +343,7 @@ bool UpdatesManager::Run()
 					else
 					{
 						LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "XML error for update %u", (*it));
+						return false;
 					}
 				}
 			}
@@ -374,6 +354,78 @@ bool UpdatesManager::Run()
 		}
 		LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Updates processing - end");
 	}
+	
+	return true;
+}
+
+bool UpdatesManager::GetUpdatesDescription(const char * fileName)
+{
+	string updatesDescription;
+	
+	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "UpdatesDescription processing - start");
+	
+	FillModel2Update();
+	
+	vector<unsigned> existingUpdates;
+	if( ExistingUpdates(existingUpdates) )
+	{
+		map<long, string>::const_iterator itCoreModel = id2model.find(coreDevice);
+		map<long, unsigned>::const_iterator itCoreUpd = id2update.find(coreDevice);
+		
+		for(vector<unsigned>::const_iterator it=existingUpdates.begin(); it!=existingUpdates.end(); ++it)
+		{
+			char temp[256];
+			snprintf(temp, sizeof(temp), "%d", (*it));
+			string xmlPath = updatesPath + "/" + temp + "/update.xml";
+		
+			xml.Clean();
+			xml.SetXML(xmlPath);
+			xml.ParseXML();
+		
+			if( !xml.Failed() )
+			{
+				UpdateNode * pUpdate = xml.Updates().front();
+				LoggerWrapper::GetInstance()->Write(LV_DEBUG, "UpdatesDescription Check = %u", pUpdate->UpdateId());
+				
+				// check each model
+				for(map<string, unsigned>::iterator itModel=model2update.begin();
+					itModel!=model2update.end(); ++itModel)
+				{
+					unsigned lastUpdate = (*itModel).second;
+					string model = (*itModel).first;
+					LoggerWrapper::GetInstance()->Write(LV_DEBUG, "UpdatesDescription Model = %s | LastUpdate = %u",
+						(*itModel).first.c_str(), lastUpdate);
+					
+					if( lastUpdate < pUpdate->UpdateId() && 
+						pUpdate->IsModel(model) )
+					{
+						updatesDescription += StringUtils::itos(pUpdate->UpdateId()) + " : " + pUpdate->Description() + "\n";
+						break;
+					}
+				}
+			}
+			else
+			{
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "XML error for update %u", (*it));
+				return false;
+			}
+		}
+	}
+	
+	FILE * pFile = NULL;
+	pFile = fopen(fileName, "w");
+	if( pFile != NULL )
+	{
+		fprintf(pFile, "%s", updatesDescription.c_str());
+		fclose(pFile);
+	}
+	else
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "UpdatesDescription: cannot write into file %s", fileName);
+		return false;
+	}
+	
+	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "UpdatesDescription processing - end");
 	
 	return true;
 }
@@ -754,4 +806,30 @@ bool UpdatesManager::Debug(const char * name)
 	xml.GenerateXML(name);
 	
 	return true;
+}
+
+void UpdatesManager::FillModel2Update()
+{
+	// fill model2update
+	for(map<long, string>::const_iterator it=id2model.begin(); it!=id2model.end(); ++it)
+	{
+		map<long, unsigned>::iterator itUpdate = id2update.find( (*it).first );
+		if( itUpdate == id2update.end() )
+		{
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Device id %d has model %s but no update info",
+			(*it).first, (*it).second.c_str());
+			continue;
+		}
+		
+		map<string, unsigned>::iterator itFind = model2update.find( (*it).second );
+		if( itFind != model2update.end() )
+		{
+			if( (*itUpdate).second < (*itFind).second )
+				(*itFind).second = (*itUpdate).second;
+		}
+		else
+		{
+			model2update[(*it).second] = (*itUpdate).second;
+		}
+	}
 }

@@ -54,6 +54,8 @@ class UpdatesManager
 			fullDownload = full;
 		}
 		
+		bool GetUpdatesDescription(const char * fileName);
+		
 		// system calls
 		
 		bool CheckUpdate(unsigned uId);
@@ -71,6 +73,8 @@ class UpdatesManager
 	private:
 		
 		bool SetLastUpdate(unsigned uLastUpdate);
+		
+		void FillModel2Update();
 		
 		string updatesPath;
 		

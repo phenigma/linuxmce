@@ -19,17 +19,18 @@ int main(int argc, char* argv[])
 	g_sBinaryPath = FileUtils::BasePath(argv[0]);
 
 	cout << "LMCEUpdate, v." << VERSION << endl
-		<< "Visit www.linuxmce.com for source code and license information" << endl << endl;
+		<< "Visit www.linuxmce.org for source code and license information" << endl << endl;
 
 	string sRouter_IP="dcerouter";
 	string sLogger="stdout";
 	string sXmlPath = "updates.xml";
 	string sUpdatesPath = "/home/updates";
+	string sOutput="updates.out";
 
 	bool bError=false; // An error parsing the command line
 	bool bDownload = true;
 	bool bFullDownload = true;
-	char c;
+	char c=0;
 	for(int optnum=1;optnum<argc;++optnum)
 	{
 		if( argv[optnum][0]!='-' )
@@ -58,6 +59,10 @@ int main(int argc, char* argv[])
 				bDownload = false;
 				break;
 				
+			case 'd':
+				sOutput = argv[++optnum];
+				break;
+			
 			case 'l':
 				sLogger = argv[++optnum];
 				break;
@@ -76,6 +81,7 @@ int main(int argc, char* argv[])
 	if (bError)
 	{
 		cout << "A Pluto DCE Device.  See www.plutohome.com/dce for details." << endl
+				<< "-d -- Search the updates description and save them into the file name." << endl
 				<< "-r -- the IP address of the DCE Router  Defaults to 'dcerouter'." << endl
 				<< "-u -- Apply the updates." << endl
 				<< "-x -- The optional XML file name used for reading the updates information." << endl
@@ -147,11 +153,22 @@ int main(int argc, char* argv[])
 	sout = manager2script[1];
 	
 	UpdatesManager updManager(sXmlPath.c_str(), sUpdatesPath.c_str(), sin, sout);
-	updManager.SetFullDownload(bFullDownload);
-	if( !updManager.Init(bDownload) || !updManager.Run() )
+	if( c == 'd' )
 	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Updates manager failure.");
-		return 1;
+		if( !updManager.Init(false) || !updManager.GetUpdatesDescription(sOutput.c_str()) )
+		{
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Updates manager failure.");
+			return 1;
+		}
+	}
+	else
+	{
+		updManager.SetFullDownload(bFullDownload);
+		if( !updManager.Init(bDownload) || !updManager.Run() )
+		{
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Updates manager failure.");
+			return 1;
+		}
 	}
 //		updManager.Debug("debug.xml");
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "LMCEUpdate ending");
