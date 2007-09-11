@@ -35,6 +35,7 @@
 #include "DCE/Logger.h"
 #include "../pluto_main/Define_Button.h"
 #include "../pluto_main/Define_Direction.h"
+#include "../pluto_main/Define_Screen.h"
 #include "../Simulator.h"
 #include "../Main.h"
 #include "../ScreenHistory.h"
@@ -360,7 +361,7 @@ OrbiterLinux *CreateOrbiter(int PK_Device,int PK_DeviceTemplate,string sRouter_I
 				pCLinux->CreateChildren();
 				pCLinux->WaitForRelativesIfOSD();
 
-				if(NULL != pCLinux->m_pScreenHistory_Current)
+				if(NULL != pCLinux->m_pScreenHistory_Current && pCLinux->m_pScreenHistory_Current->PK_Screen() != SCREEN_VideoWizard_CONST)
 					pCLinux->CMD_Regen_Screen();
 			}
 
