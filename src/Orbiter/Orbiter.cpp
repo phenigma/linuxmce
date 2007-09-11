@@ -5200,20 +5200,23 @@ void Orbiter::CMD_Goto_DesignObj(int iPK_Device,string sPK_DesignObj,string sID,
 	string sLastObject = pScreenHistory_New->GetObj() ? pScreenHistory_New->GetObj()->m_ObjectID : "";
 	bool bLastCantGoBack = pScreenHistory_New->CantGoBack();
 
-	pScreenHistory_New->SetObj(pObj_New);
-
 	//we have to restore the context. nothing to save, it's all there
 	if(NULL == m_pContextToBeRestored)
 	{
-		map<DesignObj_Orbiter *, bool> mapVisibilityContext;
-		GetChildrenVisibilityContext(pScreenHistory_New->GetObj(), mapVisibilityContext);
-		pScreenHistory_New->SaveContext(m_mapVariable, mapVisibilityContext);
+		if(NULL != pScreenHistory_New->GetObj())
+		{
+			map<DesignObj_Orbiter *, bool> mapVisibilityContext;
+			GetChildrenVisibilityContext(pScreenHistory_New->GetObj(), mapVisibilityContext);
+			pScreenHistory_New->SaveContext(m_mapVariable, mapVisibilityContext);
+		}
 
 		if(sID != "" && pScreenHistory_New->ScreenID() == "")
 			pScreenHistory_New->ScreenID(sID);
 	}
 	else
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "We have all in screen history item. Nothing new to save.");
+
+	pScreenHistory_New->SetObj(pObj_New);
 
 #ifdef DEBUG
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"CMD_Goto_DesignObj: %s pScreenHistory_New->m_bCantGoBack %d bCant_Go_Back %d pObj_New->m_bCantGoBack %d",
@@ -9140,13 +9143,16 @@ bool Orbiter::IsSelfInstallable()
 void Orbiter::GetChildrenVisibilityContext(DesignObj_Orbiter *pObj,
 										  map<DesignObj_Orbiter *, bool>& mapVisibilityContext)
 {
-	DesignObj_DataList::iterator it;
-	for(it = pObj->m_ChildObjects.begin(); it != pObj->m_ChildObjects.end(); ++it)
+	if(NULL != pObj)
 	{
-		DesignObj_Orbiter *pChildObj = (DesignObj_Orbiter *)*it;
-		mapVisibilityContext[pChildObj] = pChildObj->IsHidden();
+		DesignObj_DataList::iterator it;
+		for(it = pObj->m_ChildObjects.begin(); it != pObj->m_ChildObjects.end(); ++it)
+		{
+			DesignObj_Orbiter *pChildObj = (DesignObj_Orbiter *)*it;
+			mapVisibilityContext[pChildObj] = pChildObj->IsHidden();
 
-		GetChildrenVisibilityContext(pChildObj, mapVisibilityContext);
+			GetChildrenVisibilityContext(pChildObj, mapVisibilityContext);
+		}
 	}
 }
 //-----------------------------------------------------------------------------------------------------
