@@ -133,6 +133,7 @@ public:
 	//virtual bool GetConfig();
 
 	void HideOtherWindows();
+	void HideWindow(string sWindowName);
 
     void setWindowName(string strDesktopWindowName);
     void setDisplayName(string strDisplayName);

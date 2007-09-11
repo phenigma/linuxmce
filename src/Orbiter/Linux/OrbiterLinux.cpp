@@ -166,6 +166,12 @@ void OrbiterLinux::HideOtherWindows()
 	}
 }
 
+void OrbiterLinux::HideWindow(string sWindowName)
+{
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "OrbiterLinux::HideWindow %s", sWindowName.c_str());
+	m_pWinListManager->HideWindow(sWindowName);
+}
+
 void OrbiterLinux::reinitGraphics()
 {
     LoggerWrapper::GetInstance()->Write(LV_STATUS, "OrbiterLinux::reinitGraphics()");

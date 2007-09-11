@@ -6621,6 +6621,8 @@ void Orbiter::CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,s
 	}
 	else
 	{
+		HideWindow(m_sNowPlaying_Window);
+
 		if( UsesUIVersion2() )
 			StartScreenSaver(false);  // Don't go to the menu, just start the app in the background
 	}

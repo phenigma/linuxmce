@@ -238,7 +238,7 @@ bool WinListManager::IsWindowAvailable(const string &sClassName)
 bool WinListManager::HideWindow(const string &sClassName)
 {
 #ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "WinListManager::ShowWindow %s",sClassName.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "WinListManager::HideWindow %s",sClassName.c_str());
 #endif
 	PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
 	PendingContext(sClassName).Visible(false);
@@ -360,7 +360,7 @@ void WinListManager::ApplyContext(string sExternalWindowName/*=""*/)
 			if(pending_context.IsFullScreen() != current_context.IsFullScreen())
 				bResult = bResult && m_pWMController->SetFullScreen(sWindowName, pending_context.IsFullScreen());
 
-			if(pending_context.IsVisible() != current_context.IsVisible())
+			//if(pending_context.IsVisible() != current_context.IsVisible())
 				bResult = bResult && m_pWMController->SetVisible(sWindowName, pending_context.IsVisible());
 
 			PlutoRectangle rect = pending_context.Position();

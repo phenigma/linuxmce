@@ -298,6 +298,9 @@ namespace DCE
 		*/
 		virtual bool SelfUpdate() { return false; };
 
+
+		virtual void HideWindow(string sWindowName) {}
+
 		pluto_pthread_mutex_t m_MaintThreadMutex;  // This will also protect the callback map
 		pluto_pthread_mutex_t m_ScreenMutex; /** < Anything that should not be done during a screen render, change, etc. Blocking this will prevent screen changes */
 		pluto_pthread_mutex_t m_VariableMutex; /** < Short mutex to protect members like strings and maps */
