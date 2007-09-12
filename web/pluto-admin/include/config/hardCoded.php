@@ -226,6 +226,9 @@
 	$GLOBALS['DD_CONNECTOR']=68;				// Connector
 	$GLOBALS['DD_TV_STANDARD']=229;				// TV standard
 	$GLOBALS['DD_ManualConfiguration']=237;		// Phones manual configuration
+	$GLOBALS['DD_updateErrors']=259;			// Update errors 
+	$GLOBALS['DD_model']=233;					// model
+	$GLOBALS['DD_LastUpdate']=234;				// Last Update
 	
 	// PK_FloorplanType from table FloorplanType 
 

@@ -1581,6 +1581,12 @@ switch ($section) {
 	    include_once('operations/raid/raidFormatStatus.php');
 	    raidFormatStatus($output,$dbADO);	    
 	break;	
+	case 'updateErrors':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/others/updateErrors.php');
+	    updateErrors($output,$dbADO);	    
+	break;	
 	
 	
 	
