@@ -179,8 +179,7 @@ is_null[7] = true;
 m_FK_Device_ControlledVia = 0;
 m_IPaddress = "";
 is_null[8] = false;
-m_MACaddress = "";
-is_null[9] = false;
+is_null[9] = true;
 m_IgnoreOnOff = 0;
 is_null[10] = false;
 is_null[11] = true;
@@ -209,7 +208,7 @@ is_null[22] = true;
 m_psc_user = 0;
 m_psc_frozen = 0;
 is_null[23] = false;
-m_psc_mod = "00000000000000";
+m_psc_mod = "0000-00-00 00:00:00";
 is_null[24] = false;
 is_null[25] = true;
 m_psc_restrict = 0;
@@ -395,6 +394,9 @@ return is_null[6];}
 bool Row_Device::FK_Device_ControlledVia_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return is_null[7];}
+bool Row_Device::MACaddress_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
+
+return is_null[9];}
 bool Row_Device::FK_Device_RouteTo_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return is_null[11];}
@@ -442,6 +444,10 @@ is_modified=true;
 }
 void Row_Device::FK_Device_ControlledVia_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 is_null[7]=val;
+is_modified=true;
+}
+void Row_Device::MACaddress_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
+is_null[9]=val;
 is_modified=true;
 }
 void Row_Device::FK_Device_RouteTo_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
@@ -608,8 +614,8 @@ PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 if (is_null[9])
 return "NULL";
 
-char *buf = new char[37];
-db_wrapper_real_escape_string(table->database->m_pDB, buf, m_MACaddress.c_str(), (unsigned long) min((size_t)18,m_MACaddress.size()));
+char *buf = new char[35];
+db_wrapper_real_escape_string(table->database->m_pDB, buf, m_MACaddress.c_str(), (unsigned long) min((size_t)17,m_MACaddress.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
@@ -806,8 +812,8 @@ PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 if (is_null[24])
 return "NULL";
 
-char *buf = new char[29];
-db_wrapper_real_escape_string(table->database->m_pDB, buf, m_psc_mod.c_str(), (unsigned long) min((size_t)14,m_psc_mod.size()));
+char *buf = new char[39];
+db_wrapper_real_escape_string(table->database->m_pDB, buf, m_psc_mod.c_str(), (unsigned long) min((size_t)19,m_psc_mod.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
@@ -853,6 +859,7 @@ return false;
 
 bool Table_Device::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
+	bool bSuccessful=true;
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_DBMutex);
 
 //insert added
@@ -887,7 +894,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_Device_asSQ
 					addedRows.erase(i);
 					delete pRow;
 				}
-				return false;
+				break;   // Go ahead and continue to do the updates
 			}
 		}
 	
@@ -915,6 +922,7 @@ else
 
 
 //update modified
+	
 
 	for (map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
 		if	(((*i).second)->is_modified_get())
@@ -936,25 +944,7 @@ update_values_list = update_values_list + "`PK_Device`="+pRow->PK_Device_asSQL()
 
 	
 		string query = "update Device set " + update_values_list + " where " + condition;
-
-LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Table_Device::Commit %s",query.c_str());
-	string sql = "select * FROM Device where " + condition;
-	db_wrapper_query(database->m_pDB, sql.c_str());
-	DB_RES *res = db_wrapper_store_result(database->m_pDB);
-	if( res )
-	{
-		DB_ROW row;
-		while ((row = db_wrapper_fetch_row(res)) != NULL)
-		{
-			string st;
-			for(int i=0;i<res->field_count;++i)
-			{
-				st += StringUtils::itos(i) + ":" + (row[i] ? row[i] : "NULL") + "      ";
-			}
-			LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Table_Device::Commit %s",st.c_str());
-		}
-	}			
-
+			
 		if (db_wrapper_query(database->m_pDB, query.c_str()))
 		{	
 			database->m_sLastDBError = db_wrapper_error(database->m_pDB);
@@ -972,13 +962,14 @@ LoggerWrapper::GetInstance()->Write(LV_DEBUG,"Table_Device::Commit %s",query.c_s
 					cachedRows.erase(i);
 					delete pRow;
 				}
-				return false;
+				break;  // Go ahead and do the deletes
 			}
 		}
 	
 		pRow->is_modified = false;	
 	}	
 	
+
 //delete deleted added
 	while (!deleted_addedRows.empty())
 	{	
@@ -1027,7 +1018,7 @@ condition = condition + "`PK_Device`=" + tmp_PK_Device;
 		deleted_cachedRows.erase(key);
 	}
 	
-	return true;
+	return bSuccessful;
 }
 
 bool Table_Device::GetRows(string where_statement,vector<class Row_Device*> *rows)

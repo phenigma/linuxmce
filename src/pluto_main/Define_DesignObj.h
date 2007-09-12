@@ -2233,7 +2233,6 @@
 #define DESIGNOBJ_dgProviders_CONST 5180
 #define DESIGNOBJ_mnuGenericDataGrid_CONST 5181
 #define DESIGNOBJ_dgGenericDataGrid_CONST 5182
-#define DESIGNOBJ_butUserStatusButton_CONST 5183
 #define DESIGNOBJ_butContainerFileBrowserBack_CONST 5184
 #define DESIGNOBJ_Specify_Inputs_CONST 5185
 #define DESIGNOBJ_butNoCaptureCardPort_CONST 5186
@@ -2495,6 +2494,8 @@
 #define DESIGNOBJ_butNoneAudioInputs_CONST 5518
 #define DESIGNOBJ_butNoneVideoInputs_CONST 5519
 #define DESIGNOBJ_butNoneTvInput_CONST 5520
+#define DESIGNOBJ_objHouseStatusIndicator_Button_CONST 5521
+#define DESIGNOBJ_butUserStatus_Button_CONST 5522
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

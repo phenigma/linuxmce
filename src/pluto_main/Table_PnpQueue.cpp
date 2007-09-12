@@ -171,7 +171,7 @@ is_null[20] = true;
 m_psc_user = 0;
 m_psc_frozen = 0;
 is_null[21] = false;
-m_psc_mod = "00000000000000";
+m_psc_mod = "0000-00-00 00:00:00";
 is_null[22] = false;
 is_null[23] = true;
 m_psc_restrict = 0;
@@ -564,8 +564,8 @@ PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 if (is_null[5])
 return "NULL";
 
-char *buf = new char[37];
-db_wrapper_real_escape_string(table->database->m_pDB, buf, m_MACaddress.c_str(), (unsigned long) min((size_t)18,m_MACaddress.size()));
+char *buf = new char[35];
+db_wrapper_real_escape_string(table->database->m_pDB, buf, m_MACaddress.c_str(), (unsigned long) min((size_t)17,m_MACaddress.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
@@ -790,8 +790,8 @@ PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 if (is_null[22])
 return "NULL";
 
-char *buf = new char[29];
-db_wrapper_real_escape_string(table->database->m_pDB, buf, m_psc_mod.c_str(), (unsigned long) min((size_t)14,m_psc_mod.size()));
+char *buf = new char[39];
+db_wrapper_real_escape_string(table->database->m_pDB, buf, m_psc_mod.c_str(), (unsigned long) min((size_t)19,m_psc_mod.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;

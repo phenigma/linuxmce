@@ -208,6 +208,9 @@
 #define DEVICEDATA_ApplyUpdates_CONST 235
 #define DEVICEDATA_Reboot_CONST 236
 #define DEVICEDATA_Manual_configuration_CONST 237
+#define DEVICEDATA_No_of_sec_to_ring_before_IVR_CONST 247
+#define DEVICEDATA_Ring_ext_before_IVR_CONST 248
+#define DEVICEDATA_Diskless_Archives_CONST 258
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"
