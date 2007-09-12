@@ -280,7 +280,7 @@ bool UpdatesManager::Run()
 					{
 						UpdateNode * pUpdate = xml.Updates().front();
 						if( lastUpdate < pUpdate->UpdateId() && 
-											  pUpdate->IsModel(model) )
+							pUpdate->IsModel(model) )
 						{
 							// check if the core is updated
 							if( coreDevice != dceconf.m_iPK_Device_Computer )
@@ -752,7 +752,16 @@ bool UpdatesManager::ExistingUpdates(vector<unsigned> & updList)
 	DIR *dir_pointer;
 	struct dirent  *dp;
 	struct stat statbuf;
-  
+	
+	// save the current path
+	char currentPath[1024];
+	memset(currentPath, 0, sizeof(currentPath));
+	if( NULL == getcwd(currentPath, sizeof(currentPath)-1) )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "ExistingUpdates : current path is too large.");
+		return false;
+	}
+	
 /*
 	* If can't opendir, user doesn't have permission to read for
 	* this dir
@@ -760,7 +769,7 @@ bool UpdatesManager::ExistingUpdates(vector<unsigned> & updList)
 	chdir(updatesPath.c_str());
 	dir_pointer = opendir(".");
 	if (!dir_pointer) {
-		printf("Can't open directory %s for reading.\n", ".");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Can't open directory %s for reading.\n", updatesPath.c_str());
 		return false;
 	}
 
@@ -793,6 +802,8 @@ bool UpdatesManager::ExistingUpdates(vector<unsigned> & updList)
 		}
 	}
 	closedir(dir_pointer);
+	// go back to the current path
+	chdir(currentPath);
   
 	sort(updList.begin(), updList.end());
 	
