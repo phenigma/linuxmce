@@ -84,9 +84,12 @@ void GLRenderScreenToGraphic::CreateRenderTexture()
 	if(RenderGraphic)
 		return;
 
-	DCE::LoggerWrapper::GetInstance()->Write(LV_WARNING, "Allocating %d video memory for a dummy texture!", Width * Height * 4);
+	int nLocalWidth = 1024;
+	int nLocalHeight = 1024;
+	
+	DCE::LoggerWrapper::GetInstance()->Write(LV_WARNING, "Allocating %d video memory for a dummy texture!", nLocalWidth * nLocalHeight * 4);
 
-	RenderGraphic = new OpenGLGraphic(Width, Height);
+	RenderGraphic = new OpenGLGraphic(nLocalWidth, nLocalHeight);
 	RenderGraphic->m_Filename = "screen";
 	TextureManager::Instance()->PrepareConvert(RenderGraphic);
 }
