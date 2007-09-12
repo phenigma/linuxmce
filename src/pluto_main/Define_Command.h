@@ -794,6 +794,7 @@
 #define COMMAND_Dotbydot_CONST 876
 #define COMMAND_4_3_CONST 877
 #define COMMAND_Full_CONST 878
+#define COMMAND_16_9_CONST 879
 #define COMMAND_Full2_CONST 880
 #define COMMAND_Abort_Task_CONST 882
 #define COMMAND_Film_CONST 884
