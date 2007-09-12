@@ -7,6 +7,10 @@ fi
 		
 kill $(cat /var/loop.pid)
 
+# let's give time to others to get this script and try to execute it
+sleep 60
+
+# ready to gather info
 /bin/bash /tmp/AutoTests/Scripts/DisableOrbiterSimulator.sh
 /bin/bash /tmp/AutoTests/Scripts/PlayedMedia.sh
 /bin/bash /tmp/AutoTests/Scripts/MediaPlugin.sh
