@@ -10,6 +10,7 @@ my $EXT_FILE = "/etc/asterisk/extensions_pluto_dial.conf";
 my $EXT_BUFFER = "[ext-local-custom]\ninclude =>from-pluto-custom\n\n[from-pluto-custom]\n";
 
 my %USERS = ();
+my %USERS_MB = ();
 my %MAILS = ();
 my %NAMES = ();
 my %PHONES = ();
@@ -222,26 +223,27 @@ while(<FILE>)
         my $key;
         while($line =~ /[^\[]/)
         {
-            $VM_BUFFER .= $line."\n";
-            foreach $key (keys (%USERS))
+            foreach $key (keys (%USERS_MB))
             {
-                $user = $USERS{$key};
+                $user = $USERS_MB{$key};
                 if($line =~ /^$user\s[=][>]/)
                 {
+                    $VM_BUFFER .= $line."\n";
                     $founduser .= $user.",";
                 }
             }
             if($line =~ /^100\s[=][>]/)
             {
+                $VM_BUFFER .= $line."\n";
                 $founduser .= "100,";
             }
 
             $line = <FILE>;
             chomp $line;
         }
-        foreach $key (keys (%USERS))
+        foreach $key (keys (%USERS_MB))
         {
-            $user = $USERS{$key};
+            $user = $USERS_MB{$key};
             unless($founduser =~ /,$user,/)
             {
                 $VM_BUFFER .= "$user => $user,".$NAMES{$key}.",".$MAILS{$key}.",,attach=yes|saycid=no|envelope=yes|delete=no|nextaftercmd=no|operator=no\n";
@@ -290,12 +292,16 @@ sub read_pluto_config()
 
 sub get_all_users_extensions()
 {
-    $DB_SQL = "select PK_Users,UserName,Extension,ForwardEmail from Users where `Extension` like '30%'";
+    $DB_SQL = "select PK_Users,UserName,Extension,ForwardEmail,HasMailbox from Users where `Extension` like '30%'";
     $DB_STATEMENT = $DB_PL_HANDLE->prepare($DB_SQL) or die "Couldn't prepare query '$DB_SQL': $DBI::errstr\n";
     $DB_STATEMENT->execute() or die "Couldn't execute query '$DB_SQL': $DBI::errstr\n";
     while($DB_ROW = $DB_STATEMENT->fetchrow_hashref())
     {
         $USERS{$DB_ROW->{'PK_Users'}} = $DB_ROW->{'Extension'};
+	if( $DB_ROW->{'HasMailbox'} == 1 )
+	{
+             $USERS_MB{$DB_ROW->{'PK_Users'}} = $DB_ROW->{'Extension'};
+	}
         $MAILS{$DB_ROW->{'PK_Users'}} = $DB_ROW->{'ForwardEmail'};
         $NAMES{$DB_ROW->{'PK_Users'}} = $DB_ROW->{'UserName'};
     }

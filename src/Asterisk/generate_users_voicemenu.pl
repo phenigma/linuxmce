@@ -31,7 +31,7 @@ $list = "";
 $list .= "/var/lib/asterisk/sounds/pluto/pluto-default-voicemenu1.gsm ";
 $list .= "/var/lib/asterisk/sounds/pluto/pluto-default-voicemenu2.gsm ";
 
-$DB_SQL = "select UserName,Extension from Users where `Extension` like '30%'";
+$DB_SQL = "select UserName,Extension from Users where `Extension` like '30%' and HasMailbox = 1";
 $DB_STATEMENT = $DB_PL_HANDLE->prepare($DB_SQL) or die "Couldn't prepare query '$DB_SQL': $DBI::errstr\n";
 $DB_STATEMENT->execute() or die "Couldn't execute query '$DB_SQL': $DBI::errstr\n";
 while(my $DB_ROW = $DB_STATEMENT->fetchrow_hashref())
