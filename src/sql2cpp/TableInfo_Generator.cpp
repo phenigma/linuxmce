@@ -843,7 +843,7 @@ string TableInfo_Generator::get_fields_sql_getters_definition()
 		else
 			if ((*i)->getCType() == "string")
 		{
-			int iSize = 1+2*(*i)->m_iLength;
+			unsigned int iSize = (unsigned int)(1+2*(*i)->m_iLength);
 			if( iSize>5000000 )
 				iSize=5000000;  // Don't allow runaway fields with big text.  Assume 5MB is the maximum we would need to use
 
