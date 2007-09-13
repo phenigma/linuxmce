@@ -64,8 +64,22 @@ function Action_Ask() {
 	Action_Yes="-targetType device <%=!%> $AppServerID 1 67 13 \"/usr/pluto/bin/LMCEUpdate_Notify.sh\" 51 \"--answer${Tab}yes\""
 	Action_No="-targetType device <%=!%> $AppServerID 1 67 13 \"/usr/pluto/bin/LMCEUpdate_Notify.sh\" 51 \"--answer${Tab}no\""
 	Action_Later="-targetType device <%=!%> $AppServerID 1 67 13 \"/usr/pluto/bin/LMCEUpdate_Notify.sh\" 51 \"--answer${Tab}later\""
-	
-	/usr/pluto/bin/MessageSend $DCERouter 0 $OrbiterIDList 1 741 10 "UpdatesNotify" 159 53 9 "New updates available. Would you like to apply the updates the next time you restart your computer ?|Yes|No|Later" 137 "$Action_Yes|$Action_No|$Action_Later" || exit 1
+
+	## Get a hint on what this upgrade is about
+	MessageFile=$(mktemp)
+	/usr/pluto/bin/LMCEUpdate -d "$MessageFile"
+	Message=$(cat "$MessageFile")
+	rm -f "$MessageFile"
+
+	## Spread the word
+	if [[ "$Message" != "" ]] ;then
+		Message="NEW UPDATES AVAILABLE:
+--------
+$Message
+--------
+Would you like to apply the updates the next time you restart your computer ?|Yes|No|Later"
+		/usr/pluto/bin/MessageSend $DCERouter 0 $OrbiterIDList 1 741 10 "UpdatesNotify" 159 53 9 "$Message" 137 "$Action_Yes|$Action_No|$Action_Later" || exit 1
+	fi
 }
 
 function Action_Answer {
