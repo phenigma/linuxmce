@@ -211,6 +211,7 @@
 #define DEVICEDATA_No_of_sec_to_ring_before_IVR_CONST 247
 #define DEVICEDATA_Ring_ext_before_IVR_CONST 248
 #define DEVICEDATA_Diskless_Archives_CONST 258
+#define DEVICEDATA_Update_errors_CONST 259
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"
