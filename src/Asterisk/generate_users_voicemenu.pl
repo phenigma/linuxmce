@@ -88,4 +88,5 @@ sub generate_voice()
     `/usr/bin/sox /tmp/curl.wav -r 8000 -c 1 $FILE resample -ql`;
 }
 
-`/usr/pluto/bin/create_telecom_defaults.pl`;
+#`/usr/pluto/bin/create_telecom_defaults.pl`;
+`/usr/pluto/bin/create_pluto_dialplan.pl`;
