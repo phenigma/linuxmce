@@ -412,6 +412,9 @@ bool UpdatesManager::GetUpdatesDescription(const char * fileName)
 		}
 	}
 	
+	// replace | with ! because | isn't supported by the Orbiter screen
+	updatesDescription = StringUtils::Replace(updatesDescription, "|", "!");
+	
 	FILE * pFile = NULL;
 	pFile = fopen(fileName, "w");
 	if( pFile != NULL )
