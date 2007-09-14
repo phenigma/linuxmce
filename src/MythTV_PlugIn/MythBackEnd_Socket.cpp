@@ -38,7 +38,6 @@ MythBackEnd_Socket::~MythBackEnd_Socket()
 
 bool MythBackEnd_Socket::SendMythString(string sValue,string *sResponse,string sContaining)
 {
-	PLUTO_SAFETY_LOCK(sSM,m_pMythTV_PlugIn->m_pMedia_Plugin->m_MediaMutex);
 	if( InternalSendMythString(sValue,sResponse,sContaining) )
 		return true;
 
@@ -58,8 +57,13 @@ bool MythBackEnd_Socket::SendMythString(string sValue,string *sResponse,string s
 bool MythBackEnd_Socket::InternalSendMythString(string sValue,string *sResponse,string sContaining)
 {
 	PLUTO_SAFETY_LOCK(sSM,m_pMythTV_PlugIn->m_pMedia_Plugin->m_MediaMutex);
-	if( (!m_bConnected || m_pSocket==NULL || m_pSocket->m_Socket == INVALID_SOCKET) && !Connect() )
-		return false;
+	if( !m_bConnected || m_pSocket==NULL || m_pSocket->m_Socket == INVALID_SOCKET )
+	{
+		sSM.Release();
+		if( !Connect() )
+			return false;
+		sSM.Relock();
+	}
 
 	// There might be stray stuff left in the buffer
 	PurgeSocketBuffer();
