@@ -4,7 +4,7 @@
      www.plutohome.com
 
      Phone: +1 (877) 758-8648
- 
+
 
      This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
      This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
@@ -13,6 +13,22 @@
      See the GNU General Public License for more details.
 
 */
+/** @file Main.cpp
+ *@brief The X10 CM11A main-line program.
+
+Usage: CM11A [-r Router's IP] [-d My Device ID] [-l dcerouter|stdout|null|filename]
+
+  -r -- the IP address of the DCE Router  Defaults to 'dcerouter'.
+
+  -d -- This device's ID number.  If not specified, it will be requested from the router based on our IP address.
+
+  -l -- Where to save the log files.
+Specify 'dcerouter' to have the messages logged to the DCE Router.
+Defaults to stdout.
+
+
+*/
+
 //<-dceag-incl-b->
 #include "CM11A.h"
 #include "DCE/Logger.h"
@@ -97,7 +113,7 @@ extern "C" {
 //<-dceag-plug-e->
 
 //<-dceag-main-b->
-int main(int argc, char* argv[]) 
+int main(int argc, char* argv[])
 {
 	g_sBinary = FileUtils::FilenameWithoutPath(argv[0]);
 	g_sBinaryPath = FileUtils::BasePath(argv[0]);
@@ -186,7 +202,7 @@ int main(int argc, char* argv[])
 	try
 	{
 		CM11A *pCM11A = new CM11A(PK_Device, sRouter_IP,true,bLocalMode);
-		if ( pCM11A->GetConfig() && pCM11A->Connect(pCM11A->PK_DeviceTemplate_get()) ) 
+		if ( pCM11A->GetConfig() && pCM11A->Connect(pCM11A->PK_DeviceTemplate_get()) )
 		{
 			g_pCommand_Impl=pCM11A;
 			g_pDeadlockHandler=DeadlockHandler;
@@ -199,8 +215,8 @@ int main(int argc, char* argv[])
 				pthread_join(pCM11A->m_RequestHandlerThread, NULL);  // This function will return when the device is shutting down
 			g_pDeadlockHandler=NULL;
 			g_pSocketCrashHandler=NULL;
-		} 
-		else 
+		}
+		else
 		{
 			bAppError = true;
 			if( pCM11A->m_pEvent && pCM11A->m_pEvent->m_pClientSocket && pCM11A->m_pEvent->m_pClientSocket->m_eLastError==ClientSocket::cs_err_CannotConnect )
