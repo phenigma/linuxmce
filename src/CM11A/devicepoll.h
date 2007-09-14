@@ -4,7 +4,7 @@
      www.plutohome.com
 
      Phone: +1 (877) 758-8648
- 
+
 
      This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
      This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
@@ -13,10 +13,14 @@
      See the GNU General Public License for more details.
 
 */
+
+/** @file devicepoll.h
+ *@brief Handle device poll class.
+ */
 //
 // C++ Interface: devicepoll
 //
-// Description: 
+// Description:
 //
 //
 // Author: igor <igor@dexx>, (C) 2004
@@ -35,38 +39,52 @@
 #include "Serial/SerialPort.h"
 #include "Gen_Devices/CM11ABase.h"
 
+/**
+@namespace CM11ADEV
+The X10 CM11A Controller device namespace.
+*/
 namespace CM11ADEV {
 
 /**
-@author igor
+@class CM11ADEV::DevicePoll
+This class is used to communicate with an X-10 controller ( CM11A ).
 */
-class DevicePoll : public Thread 
+class DevicePoll : public Thread
 {
 public:
+    /** Standard constructor */
     DevicePoll();
+    /** Standard destructor */
     ~DevicePoll();
 
+    /** setSerialPort
+    @param serport is a string naming the port
+    */
 	inline void setSerialPort(const char* serport) {
 		serport_ = serport;
 	}
+
+    /** getSerialPort
+    returns a string that is the ports name.
+    */
 	inline const char* getSerialPort() {
 		return serport_.c_str();
 	}
 	inline void setCM11A(DCE::CM11A_Command *cm11a) {
 		real_cm11a = cm11a;
 	}
-	
+
 public:
 	int SendRequest(const Message* pMesg);
 	std::map <std::string, int> device_status;
-	
+
 protected:
 	virtual void* _Run();
-	
-	int SendPacket(CSerialPort* pport, 
+
+	int SendPacket(CSerialPort* pport,
 			unsigned char highByte, unsigned char lowByte);
 	int SendClock(CSerialPort* pport);
-	
+
 	virtual int SendAddress(CSerialPort* pport, const Message* pMesg);
 	virtual int SendFunction(CSerialPort* pport, const Message* pMesg);
 

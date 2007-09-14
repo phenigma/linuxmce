@@ -4,7 +4,7 @@
      www.plutohome.com
 
      Phone: +1 (877) 758-8648
- 
+
 
      This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
      This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
@@ -13,6 +13,10 @@
      See the GNU General Public License for more details.
 
 */
+
+/** @file CM11A.h
+Handle the X10 CM11A interface module.
+ */
 //<-dceag-d-b->
 #ifndef CM11A_h
 #define CM11A_h
@@ -26,8 +30,26 @@
 #include <map>
 
 //<-dceag-decl-b->
+
+/**
+@namespace DCE
+The Data Commands and Events (DCE) namespace.
+*/
 namespace DCE
 {
+
+/**
+@class CM11A
+Class to handle the X-10 CM11A controller.
+
+This module is to communicate to the CM11A controller.
+It uses Serial to communicate to the module via rs232.
+Other modules call this with X10 commands such as turn on/turn off/dim/ etc.
+It will formulate the actual messages.
+
+The CM11A_Command class comes from Gen_Devices/CM11ABase.h.
+*/
+
 	class CM11A : public CM11A_Command
 	{
 //<-dceag-decl-e->
@@ -39,15 +61,44 @@ public:
 
 //<-dceag-const-b->
 public:
-		// Constructors/Destructor
+		/** Constructor
+@param DeviceID is an int.
+@param ServerAddress is the IP address of the server??
+@param bConnectEventHandler is ???
+@param bLocalMode is ???
+@param pRouter is ???
+        */
 		CM11A(int DeviceID, string ServerAddress,bool bConnectEventHandler=true,bool bLocalMode=false,class Router *pRouter=NULL);
+        /** Standard destructor */
 		virtual ~CM11A();
+
+        /** GetConfig
+        @returns success flag
+        */
 		virtual bool GetConfig();
+
+        /** Register is used to check if a device is registered
+        @returns registered flag
+        */
 		virtual bool Register();
-		virtual void ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sCMD_Result,Message *pMessage);
+
+        /** ReceivedCommandForChild is
+        @param pDeviceData_Impl is a pointer to ???
+        @param sCMD_Result is a string ???
+        @param pMessage is a pointer to ???
+        */
+		virtual void ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sCMD_Result, Message *pMessage);
+
+        /** ReceivedUnknownCommand is called when an error happens.
+        @param sCMD_Result is ???
+        @param pMessage is the message that was incorrect
+        */
 		virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
 //<-dceag-const-e->
 
+        /** Connect will connect to the X10 controller
+        @param iPK_DeviceTemplate is the templates ???
+        */
 		virtual bool Connect(int iPK_DeviceTemplate);
 
 //<-dceag-h-b->
@@ -69,6 +120,7 @@ public:
 //<-dceag-h-e->
 
 private:
+    /** devpoll is a private ID */
 		CM11ADEV::DevicePoll devpoll;
 	};
 
