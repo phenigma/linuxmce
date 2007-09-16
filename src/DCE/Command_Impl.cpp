@@ -14,16 +14,6 @@
 	See the GNU General Public License for more details.
 */
 
-/**
- *
- * @file Command_Impl.cpp
- * @brief source file for the Command_Impl class
- * @author
- * @todo notcommented
- *
- */
-
-
 #include "PlutoUtils/CommonIncludes.h"
 #include "DCE/Logger.h"
 #include "Gen_Devices/AllCommandsRequests.h"
@@ -57,7 +47,7 @@ void* MessageQueueThread_DCECI( void* param ) // renamed to cancel link-time nam
 	if( p->m_bMessageQueueThreadRunning )  // The constructor should have set this to true
 		p->ProcessMessageQueue();
 	p->m_bMessageQueueThreadRunning=false;
-	
+
 	LoggerWrapper::GetInstance()->Write(LV_SOCKET,"Exiting MessageQueueThread_DCECI thread...");
 
 	return NULL;
@@ -176,7 +166,7 @@ Command_Impl::~Command_Impl()
 	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Waiting for message queue thread to quit" );
 
 	m_bQuit_set(true);
-	
+
 	PrepareToDelete();
 
 	if (m_pData)
@@ -218,7 +208,7 @@ void Command_Impl::PrepareToDelete()
 			exit(1);
 		}
 	}
-	
+
 	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Message queue thread quit" );
 	if( m_pthread_queue_id != 0 )
 	{
@@ -256,7 +246,7 @@ void Command_Impl::CreateChildren()
 			continue;
 		}
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Creating child %d", pDeviceData_Impl_Child->m_dwPK_Device);
-		
+
 		// This device has it's own executible. Try to spawn it. If that fails, we will try to create it ourselves
 		if( pDeviceData_Impl_Child->m_bImplementsDCE && !pDeviceData_Impl_Child->m_bIsEmbedded )
 		{
@@ -388,7 +378,7 @@ void Command_Impl::KillSpawnedDevices()
 //	string sCmd = string("/usr/pluto/bin/KillScreens.sh ") + sSpawnedDevices;
 //	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Cmd: %s", sCmd.c_str());
 // Temporary hack - for some unexplainable reason, the KillScreens script, although it appears correct
-// is actually causing *everything* to die, including the screen session and bash that runs Orbiter, preventing them from 
+// is actually causing *everything* to die, including the screen session and bash that runs Orbiter, preventing them from
 // ever restarting.  Temporarily remove this, and let the spawned devices re-spawn themselves, not being tied to Orbiter
 	//	system(sCmd.c_str());
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Killing completed.");
@@ -510,7 +500,7 @@ bool Command_Impl::Connect(int iPK_DeviceTemplate, std::string)
 #ifdef WIN32
 	//StartWatchDog(10000);
 #endif
-	
+
 	MiscCleanup();
 	if( bResult )
 		PostConnect();
@@ -655,7 +645,7 @@ void Command_Impl::ReceivedString( string sLine, int nTimeout/*= -1*/)
 	}
 }
 
-ReceivedMessageResult Command_Impl::ReceivedMessage( Message *pMessage ) 
+ReceivedMessageResult Command_Impl::ReceivedMessage( Message *pMessage )
 {
 	if( pMessage->m_dwMessage_Type == MESSAGETYPE_MESSAGE_INTERCEPTED )
 	{
@@ -913,7 +903,7 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"InternalSendCommand confirmation 
 		int Type = pPreformedCommand.m_pMessage->m_dwMessage_Type;
 		int ID = pPreformedCommand.m_pMessage->m_dwID;
 		int PK_Device_To = pPreformedCommand.m_pMessage->m_dwPK_Device_To;
-		
+
 		if( m_bLocalMode )
 		{
 #ifndef WINCE
@@ -952,7 +942,7 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"InternalSendCommand id %d out par
 	int Type = pPreformedCommand.m_pMessage->m_dwMessage_Type;
 	int ID = pPreformedCommand.m_pMessage->m_dwID;
 	int PK_Device_To = pPreformedCommand.m_pMessage->m_dwPK_Device_To;
-		
+
 	if( m_bLocalMode )
 	{
 #ifndef WINCE
@@ -1151,11 +1141,11 @@ bool Command_Impl::ReportPendingTasksFromDevice(Socket *pSocket,int PK_Device_Re
 			}
 		}
 	}
-	
+
 	return bFoundTasks;
 }
 
-void Command_Impl::EnableDevice( int PK_Device, bool bEnabled ) 
+void Command_Impl::EnableDevice( int PK_Device, bool bEnabled )
 {
 	DCE::CMD_Set_Enable_Status_DT CMD_Set_Enable_Status_DT(m_dwPK_Device,DEVICETEMPLATE_General_Info_Plugin_CONST,BL_SameHouse,PK_Device,bEnabled);
 	SendCommand(CMD_Set_Enable_Status_DT);
@@ -1237,7 +1227,7 @@ bool Command_Impl::GetChildDeviceData( int PK_Device, int PK_DeviceData, string 
 {
 	if( !pDeviceData_Impl )
 		pDeviceData_Impl = m_pData; // Only happens on the top level
-	
+
 	if( !pDeviceData_Impl )
 		return false;
 
@@ -1290,7 +1280,7 @@ Message *Command_Impl::GetLocalModeResponse()
 	return NULL;
 }
 
-void Command_Impl::OnQuit() 
+void Command_Impl::OnQuit()
 {
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Command_Impl::OnQuit forwarding quit's to children");
 	PLUTO_SAFETY_LOCK( sSM, m_listMessageQueueMutex );  // Use this to protect m_mapSpawnedDevices
@@ -1301,9 +1291,9 @@ void Command_Impl::OnQuit()
 	}
 	sSM.Release();
 
-	m_bQuit_set(true); 
-	m_bTerminate=true; 
-	pthread_cond_broadcast( &m_listMessageQueueCond ); 
+	m_bQuit_set(true);
+	m_bTerminate=true;
+	pthread_cond_broadcast( &m_listMessageQueueCond );
 
 #ifdef LINK_TO_ROUTER
 	if(NULL != m_pRouter && m_pRouter->IsPlugin(m_pcRequestSocket->m_dwPK_Device))
@@ -1311,12 +1301,12 @@ void Command_Impl::OnQuit()
 #endif
 }
 
-void Command_Impl::OnReload() 
-{ 
+void Command_Impl::OnReload()
+{
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Command_Impl::OnReload %d", m_dwPK_Device);
-	m_bReload = true; 
-	m_bQuit_set(true); 
-	m_bTerminate=true; 
+	m_bReload = true;
+	m_bQuit_set(true);
+	m_bTerminate=true;
 	pthread_cond_broadcast( &m_listMessageQueueCond );
 
 #ifdef LINK_TO_ROUTER

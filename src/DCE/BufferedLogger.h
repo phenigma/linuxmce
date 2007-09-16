@@ -4,7 +4,7 @@
      www.plutohome.com
 
      Phone: +1 (877) 758-8648
- 
+
 
      This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
      This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
@@ -13,12 +13,21 @@
      See the GNU General Public License for more details.
 
 */
+
+/** @file BufferedLogger.h
+ *@brief The BufferedLogger class.
+ */
+
 #ifndef BufferedLogger_H
 #define BufferedLogger_H
 
 namespace DCE
 {
 
+    /**
+    @class BufferedLogger
+     Defines log methods.
+     */
 	class BufferedLogger : public MultiLogger, public AlarmEvent
 	{
 	public:

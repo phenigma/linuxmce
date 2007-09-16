@@ -4,7 +4,7 @@
      www.plutohome.com
 
      Phone: +1 (877) 758-8648
- 
+
 
      This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
      This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
@@ -13,6 +13,11 @@
      See the GNU General Public License for more details.
 
 */
+
+/** @file DCERouter.h
+ The DCE Router class.
+ */
+
 #ifndef Router_H
 #define Router_H
 
@@ -43,8 +48,17 @@ Classes to hold pointers to the call back functions, and general helper classes
 
 */
 
+/**
+@namespace DCE
+The Data Commands and Events (DCE) namespace
+*/
 namespace DCE
 {
+
+/**
+@class MessageInterceptorCallBack
+This class is for ???
+*/
 //class ClientSocket;
     // Contains a pointer to the message interceptor
     class MessageInterceptorCallBack
@@ -58,7 +72,7 @@ namespace DCE
 		// The list that contains this interceptor in case we want to remove it.  Since external devices
 		// can register as interceptors, and they can go away, and then re-register, there needs to be a
 		// way to cleanly remove its interceptors
-		list<class MessageInterceptorCallBack *> *m_plistMessageInterceptor;  
+		list<class MessageInterceptorCallBack *> *m_plistMessageInterceptor;
 
         MessageInterceptorCallBack(class Command_Impl *pPlugIn,MessageInterceptorFn pMessageInterceptorFn)
         {
@@ -78,6 +92,10 @@ namespace DCE
     };
 
 
+/**
+@class MessageFromInterceptor
+This class is for ???
+*/
     // Store information about MessageInterceptors
 
     class MessageFromInterceptor
@@ -91,6 +109,10 @@ namespace DCE
 		}
     };
 
+/**
+@class MessageCategoryInterceptor
+This class is for ???
+*/
     class MessageCategoryInterceptor
     {
     public:
@@ -102,6 +124,10 @@ namespace DCE
 		}
     };
 
+/**
+@class MessageToInterceptor
+This class is for ???
+*/
     class MessageToInterceptor
     {
     public:
@@ -112,7 +138,12 @@ namespace DCE
 				delete (*it).second;
 		}
     };
-    class MessageMDLInterceptor
+
+ /**
+@class MessageMDLInterceptor
+This class is for ???
+*/
+   class MessageMDLInterceptor
     {
     public:
         map<int,class MessageToInterceptor *> m_mapMessageToInterceptor;
@@ -122,6 +153,11 @@ namespace DCE
 				delete (*it).second;
 		}
     };
+
+/**
+@class MessageIDInterceptor
+This class is for ???
+*/
     class MessageIDInterceptor
     {
     public:
@@ -132,6 +168,11 @@ namespace DCE
 				delete (*it).second;
 		}
     };
+
+/**
+@class MessageTypeInterceptor
+This class is for ???
+*/
     class MessageTypeInterceptor
     {
     public:
@@ -143,11 +184,15 @@ namespace DCE
 		}
     };
 
-    /*
+/**
+@class Router
+The DCE Router class
 
-    The DCE Router class
-
-    */
+There are 3 layers to Device classes: _Base, _Impl and _Router.
+Each layer adds more data.
+m_DeviceStructure contains the minimal information, _Base,
+ which is sent to all devices when they register
+*/
 
     class Router : public SocketListener, AlarmEvent, public DBHelper
     {
@@ -251,9 +296,9 @@ namespace DCE
         Router(int PK_Device,int PK_Installation,string BasePath,string DBHost,string DBUser,string DBPassword,string DBName,int DBPort,int ListenPort);
         virtual ~Router();
 		void Reload()
-		{ 
+		{
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"DCERouter::Reload");
-			m_bReload=true; m_bClosed=true; 
+			m_bReload=true; m_bClosed=true;
 		}
 
         // Plug-In's
@@ -383,18 +428,18 @@ namespace DCE
 							Command_Impl *pCommand_Impl = m_mapPlugIn_Find(pServerSocket->m_dwPK_Device);
 							bAbortReload = !pCommand_Impl->SafeToReload(sReason);
 						}
-						else 
+						else
 						{
 							PLUTO_SAFETY_LOCK(slConnMutex,(pServerSocket->m_ConnectionMutex))
 							bAbortReload = !pServerSocket->SafeToReload(sReason);
 						}
-						
+
 						if(bAbortReload)
 						{
 							LoggerWrapper::GetInstance()->Write(LV_STATUS,"Aborting reload per device %d = %s", pServerSocket->m_dwPK_Device, sReason.c_str());
 							if( PK_Device_Requesting )
 							{
-								ReceivedMessage(NULL,new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 
+								ReceivedMessage(NULL,new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT,
 									EVENT_Reload_Aborted_CONST,3,
 									EVENTPARAMETER_PK_Device_CONST,StringUtils::itos(pServerSocket->m_dwPK_Device).c_str(),
 									EVENTPARAMETER_Text_CONST,sReason.c_str(),
@@ -445,7 +490,7 @@ namespace DCE
         string GetPublicIP();
         void CleanFileName(string &FileName);
         Message *GetActionForInput(int PK_Device,int PK_Input);
-        
+
 		bool DeviceIsRegistered(int PK_Device)
 		{
 			PLUTO_SAFETY_LOCK(slCore,m_CoreMutex);

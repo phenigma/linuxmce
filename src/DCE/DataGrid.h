@@ -4,7 +4,7 @@
      www.plutohome.com
 
      Phone: +1 (877) 758-8648
- 
+
 
      This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
      This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
@@ -13,6 +13,10 @@
      See the GNU General Public License for more details.
 
 */
+
+/** @file DataGrid.h
+ DataGrid classes.
+ */
 #ifndef DATAGRID2_H
 #define DATAGRID2_H
 
@@ -35,6 +39,10 @@
 namespace DCE
 {
 
+/**
+@class DataGridCellSerializableData
+This class is ???
+*/
 	class DataGridCellSerializableData
 	{
 	public:
@@ -47,6 +55,10 @@ namespace DCE
 		bool m_bDontFireGridEvent; // usefull for the cells with scroll arrows
 	};
 
+/**
+@class DataGridCell
+This class is ???
+*/
 	class DataGridCell : public DataGridCellSerializableData
 	{
 	public:
@@ -86,6 +98,10 @@ namespace DCE
 	typedef unsigned int ColRowType;
 	typedef map<ColRowType, DataGridCell *> MemoryDataTable;
 
+/**
+@class DataGridTableCellIndex
+This class is ???
+*/
 	class DataGridTableCellIndex
 	{
 	public:
@@ -93,6 +109,10 @@ namespace DCE
 		unsigned int m_Size;
 	};
 
+/**
+@class DataGridTableSerializableData
+This class is ???
+*/
 	class DataGridTableSerializableData
 	{
 	protected:
@@ -110,6 +130,10 @@ namespace DCE
 		const int getTotalRowCount() const { return m_TotalRows; };
 	};
 
+/**
+@class DataGridTable
+This class is ???
+*/
 	class DataGridTable : public DataGridTableSerializableData
 	{
 	public:
@@ -119,7 +143,7 @@ namespace DCE
 		// These aren't serialized.  Just used internally by the plugin
 		int m_iPK_Datagrid;
 		string m_sOptions;
-		bool m_bRePopulateEachTimeRequested; 
+		bool m_bRePopulateEachTimeRequested;
 
 		// Used only by Orbiter, these are the rows which have up/down arrows.  If up==-1, there is no up arrow, same for down.  Otherwise it's 0 based
 		// Orbiter may shift data around to make room for up/down arrows

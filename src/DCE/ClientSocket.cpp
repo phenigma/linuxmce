@@ -15,15 +15,6 @@
 */
 
 
-/**
- *
- * @file ClientSocket.cpp
- * @brief source file for the ClientSocket class
- * @author
- * @todo notcommented
- *
- */
-
 #include "PlutoUtils/CommonIncludes.h"
 
 #ifndef WIN32
@@ -75,7 +66,7 @@ bool ClientSocket::Connect( int PK_DeviceTemplate,string sExtraInfo,int iConnect
 	if ( m_Socket != INVALID_SOCKET )
 	{
 #ifdef DEBUG
-		
+
 			LoggerWrapper::GetInstance()->Write( LV_SOCKET, "ClientSocket::Connect - disconnecting previous socket this: %p device: %d m_Socket: %d", this, m_dwPK_Device, m_Socket );
 #endif
 		Disconnect();
@@ -128,7 +119,7 @@ bool ClientSocket::Connect( int PK_DeviceTemplate,string sExtraInfo,int iConnect
 #else
 					int ec = h_errno;
 #endif
-					
+
 						LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "gethostbyname for '%s', failed, Last Error Code %d, Device: %d", sAddress.c_str(), ec, m_dwPK_Device );
 					Disconnect();
 					break;
@@ -177,14 +168,14 @@ bool ClientSocket::Connect( int PK_DeviceTemplate,string sExtraInfo,int iConnect
 		//setsockopt(m_Socket, IPPROTO_TCP, TCP_NODELAY, (const char *)&on, sizeof(on));
 		if ( !bSuccess)
 		{
-			
+
 				LoggerWrapper::GetInstance()->Write(LV_WARNING, "ClientSocket::Connect() not successful");
 			Disconnect();
 		}
 	}
 	else
 	{
-			
+
 			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "socket() failed, is the TCP stack initialized?, device: %d", m_dwPK_Device);
 	}
 	if ( bSuccess )
@@ -213,7 +204,7 @@ bool ClientSocket::Connect( int PK_DeviceTemplate,string sExtraInfo,int iConnect
 			m_eLastError = cs_err_None;
 
 			Sleep(1000);
-			
+
 			return Connect(PK_DeviceTemplate, sExtraInfo, iConnectRetries, --nConnectStepsLeft);
 		}
 	}
@@ -254,8 +245,8 @@ bool ClientSocket::OnConnect( int PK_DeviceTemplate,string sExtraInfo )
 			m_eLastError=cs_err_BadDevice;
 		else
 			m_eLastError=cs_err_CannotConnect;
-		
-			LoggerWrapper::GetInstance()->Write( m_eLastError==cs_err_NeedReload ? LV_WARNING : LV_CRITICAL, "Connection for client socket reported %s, device %d last error %d", 
+
+			LoggerWrapper::GetInstance()->Write( m_eLastError==cs_err_NeedReload ? LV_WARNING : LV_CRITICAL, "Connection for client socket reported %s, device %d last error %d",
 				sResponse.c_str(), m_dwPK_Device,(int) m_eLastError );
 
 		if( m_eLastError!=cs_err_NeedReload )
@@ -275,7 +266,7 @@ bool ClientSocket::OnConnect( int PK_DeviceTemplate,string sExtraInfo )
 	{
 		if( m_dwPK_Device && m_dwPK_Device != PK_Device_New )
 		{
-			
+
 				LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Server reported we are dev %d but we are device %d", PK_Device_New, m_dwPK_Device );
 		}
 		else

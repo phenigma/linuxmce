@@ -1,16 +1,16 @@
-/* 
+/*
 	DeviceData_Base
-	
+
 	Copyright (C) 2004 Pluto, Inc., a Florida Corporation
-	
-	www.plutohome.com		
-	
+
+	www.plutohome.com
+
 	Phone: +1 (877) 758-8648
-	
+
 	This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
-	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty 
-	of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
-	
+	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+	of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
 	See the GNU General Public License for more details.
 */
 
@@ -18,15 +18,13 @@
  *
  * @file DeviceData_Base.cpp
  * @brief source file for the AllDevices class
- * @author
- * @todo notcommented
  *
  */
 
 
 #include "Logger.h"
 #include "Command_Impl.h"
-#include "PlutoUtils/CommonIncludes.h"	
+#include "PlutoUtils/CommonIncludes.h"
 #include "DeviceData_Base.h"
 
 using namespace DCE;
@@ -94,14 +92,14 @@ bool AllDevices::Serialize( bool bWriting, char *&pcDataBlock, unsigned long &dw
 			}
 		}
 	}
-	
+
 	return bResult;
 }
 
 bool AllDevices::UnknownSerialize( ItemToSerialize *pItem, bool bWriting, char *&pcDataBlock, unsigned long &dwAllocatedSize, char *&pcCurrentPosition )
 {
 	m_pcDataBlock = pcDataBlock; m_dwAllocatedSize = dwAllocatedSize; m_pcCurrentPosition = pcCurrentPosition;
-	
+
 	if( bWriting ) // writing
 	{
 		switch( pItem->m_iSerializeDataType )
@@ -142,7 +140,7 @@ bool AllDevices::UnknownSerialize( ItemToSerialize *pItem, bool bWriting, char *
 				return true; // We handled it
 			}
 			break;
-			
+
 		};
 	}
 	else // reading
@@ -162,7 +160,7 @@ bool AllDevices::UnknownSerialize( ItemToSerialize *pItem, bool bWriting, char *
 				return true;  // We handled it
 			}
 			break;
-		
+
 		case SERIALIZE_DATA_TYPE_MAP_DCEDEVICEDATA_BASE:
 			{
 				Map_DeviceData_Base *pMap = (Map_DeviceData_Base *) pItem->m_pItem;
@@ -176,7 +174,7 @@ bool AllDevices::UnknownSerialize( ItemToSerialize *pItem, bool bWriting, char *
 				return true;  // We handled it
 			}
 			break;
-			
+
 		case SERIALIZE_DATA_TYPE_MAP_DCECATEGORY:
 			{
 				Map_DeviceCategory *pMap = (Map_DeviceCategory *) pItem->m_pItem;
@@ -190,7 +188,7 @@ bool AllDevices::UnknownSerialize( ItemToSerialize *pItem, bool bWriting, char *
 				return true;  // We handled it
 			}
 			break;
-			
+
 		};
 	}
 
@@ -198,7 +196,7 @@ bool AllDevices::UnknownSerialize( ItemToSerialize *pItem, bool bWriting, char *
 	return true;
 }
 
-DeviceData_Base *AllDevices::m_mapDeviceData_Base_FindFirstOfCategory( unsigned long dwPK_DeviceCategory ) 
+DeviceData_Base *AllDevices::m_mapDeviceData_Base_FindFirstOfCategory( unsigned long dwPK_DeviceCategory )
 {
 	for(map<int,class DeviceData_Base *>::iterator it = m_mapDeviceData_Base.begin();it != m_mapDeviceData_Base.end();++it)
 		if( (*it).second->m_dwPK_DeviceCategory==dwPK_DeviceCategory )
@@ -206,7 +204,7 @@ DeviceData_Base *AllDevices::m_mapDeviceData_Base_FindFirstOfCategory( unsigned 
 	return NULL;
 }
 
-DeviceData_Base *AllDevices::m_mapDeviceData_Base_FindFirstOfTemplate( long dwPK_DeviceTemplate ) 
+DeviceData_Base *AllDevices::m_mapDeviceData_Base_FindFirstOfTemplate( long dwPK_DeviceTemplate )
 {
 	for(map<int,class DeviceData_Base *>::iterator it = m_mapDeviceData_Base.begin();it != m_mapDeviceData_Base.end();++it)
 		if( (*it).second->m_dwPK_DeviceTemplate==dwPK_DeviceTemplate )
@@ -244,26 +242,26 @@ DeviceData_Base *DeviceData_Base::FindFirstRelatedDeviceOfCategory(int PK_Device
 					case 'N': // not registered
 						if( tTimeout < time(NULL) )
 						{
-							
+
 								LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "FindFirstRelatedDeviceOfCategory %d dev %d never registered",PK_DeviceCategory,m_dwPK_Device);
 							return NULL;
 						}
 #ifdef DEBUG
-						
+
 							LoggerWrapper::GetInstance()->Write(LV_STATUS, "FindFirstRelatedDeviceOfCategory %d dev %d waiting for device",PK_DeviceCategory,m_dwPK_Device);
 #endif
 						Sleep(1000);
 						break;
 					case 'D':
-						
+
 							LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "FindFirstRelatedDeviceOfCategory %d dev %d is disabled",PK_DeviceCategory,m_dwPK_Device);
 						return NULL;
 					case 'E':
-						
+
 							LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "FindFirstRelatedDeviceOfCategory %d dev %d comm error",PK_DeviceCategory,m_dwPK_Device);
 						return NULL;
 					default:
-						
+
 							LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "FindFirstRelatedDeviceOfCategory %d dev %d has unknown status %c",PK_DeviceCategory,m_dwPK_Device,Status);
 				}
 			}
@@ -313,18 +311,18 @@ DeviceData_Base *DeviceData_Base::FindFirstRelatedDeviceOfTemplate(int PK_Device
 					case 'N': // not registered
 						if( tTimeout < time(NULL) )
 						{
-							
+
 								LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "FindFirstRelatedDeviceOfTemplate %d never registered",m_dwPK_Device);
 							return NULL;
 						}
 						Sleep(1000);
 						break;
 					case 'D':
-						
+
 							LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "FindFirstRelatedDeviceOfTemplate %d is disabled",m_dwPK_Device);
 						return NULL;
 					case 'E':
-						
+
 							LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "FindFirstRelatedDeviceOfTemplate %d comm error",m_dwPK_Device);
 						return NULL;
 				}

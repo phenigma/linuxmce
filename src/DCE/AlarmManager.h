@@ -4,7 +4,7 @@
      www.plutohome.com
 
      Phone: +1 (877) 758-8648
- 
+
 
      This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
      This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
@@ -13,6 +13,10 @@
      See the GNU General Public License for more details.
 
 */
+
+/** @file AlarmManager.h
+ *@brief The Alarm Manager.
+ */
 #ifndef __ALARM_MANAGER_H__87f105
 #define __ALARM_MANAGER_H__87f105
 
@@ -24,6 +28,11 @@
 namespace DCE
 {
 
+
+/**
+@class AlarmEvent
+This class is Called by AlarmManager when an alarm expires.
+*/
 	class AlarmEvent
 	{
 	public:
@@ -32,8 +41,11 @@ namespace DCE
 		virtual ~AlarmEvent() {};
 	};
 
-	/** Manage a list of alarms
-	*/
+
+/**
+@class AlarmManager
+This class manages a list of alarms.
+*/
 	class AlarmManager
 	{
 	public:
@@ -65,7 +77,7 @@ namespace DCE
 		int FindAlarmByType(int type);
 
 		/** Get an alarms info from it's ID
-		* 
+		*
 		* @return true if the ID exists, false on failure
 		*/
 		bool GetAlarmInfo(int id, long* when=NULL, int* type=NULL, void** param=NULL);
@@ -98,7 +110,7 @@ namespace DCE
 			bool deleted;
 		};
 
-	protected:	
+	protected:
 		SortedAlarmMap m_SortedAlarms;
 		AlarmIDMap m_AlarmIDMap;
 
