@@ -12,20 +12,30 @@
 	See the GNU General Public License for more details.
 */
 
+/** @file IOConnection.h
+Header file.
+*/
 #ifndef DCEIOCONNECTION_H
 #define DCEIOCONNECTION_H
 
+/** @namespace DCE
+The Data Commands and Events (DCE) namespace.
+*/
 namespace DCE {
 
-/**
-@author Igor Spac,,,
-*/
+/** @class IOConnection
+A base class for all I/O
 
+This class is all pure virtual to force all methods to be present in
+all derived classes.
+Check the inheritance diagram in the API documentation to see who
+uses this interface.
+*/
 class IOConnection {
 public:
 	virtual bool Open() = 0;
 	virtual void Close() = 0;
-	
+
 	virtual int Send(const char* buff, unsigned int size) = 0;
 	virtual int Recv(char* buff, unsigned int size, int timeout) = 0;
 

@@ -12,6 +12,9 @@
 	See the GNU General Public License for more details.
 */
 
+/** @file Generic_Serial_Device.h
+Core ?
+*/
 //<-dceag-d-b->
 #ifndef Generic_Serial_Device_h
 #define Generic_Serial_Device_h
@@ -28,10 +31,18 @@
 
 
 //<-dceag-decl-b->!
+
+/** @namespace DCE
+The Data Commands and Events (DCE) namespace.
+*/
 namespace DCE
 {
-	class Generic_Serial_Device : 
-			public Generic_Serial_Device_Command, 
+
+/** @class Generic_Serial_Device
+A cass for ???
+*/
+	class Generic_Serial_Device :
+			public Generic_Serial_Device_Command,
 			public GSDMessageProcessor
 	{
 //<-dceag-decl-e->
@@ -59,7 +70,7 @@ public:
 
 		virtual void RunThread();
 		virtual void ParseDeviceHierarchy(DeviceData_Impl *pdevdata = NULL);
-		
+
 //<-dceag-const2-b->!
 
 //<-dceag-h-b->
@@ -82,7 +93,7 @@ public:
 //<-dceag-h-e->
 
 protected:
-		virtual void DispatchMessage(Message* pmsg); 
+		virtual void DispatchMessage(Message* pmsg);
 /*
 public:
 		DeviceData_Impl* RecursiveFindChildDevice(unsigned dwPK_Device, DeviceData_Impl* pDeviceData_Impl);

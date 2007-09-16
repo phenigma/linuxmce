@@ -12,16 +12,22 @@
 	See the GNU General Public License for more details.
 */
 
+/** @file SerialIOConnection.h
+Header file.
+*/
 #ifndef DCESERIALIOCONNECTION_H
 #define DCESERIALIOCONNECTION_H
 
 #include "IOConnection.h"
 #include "Serial/SerialPort.h"
 
+/** @namespace DCE
+The Data Commands and Events (DCE) namespace.
+*/
 namespace DCE {
 
-/**
-@author Igor Spac,,,
+/** @class SerialIOConnection
+A class for using I/O connections over a serial device.
 */
 class SerialIOConnection : public IOConnection {
 public:
@@ -35,21 +41,21 @@ public:
 	const char* getSerialPort() {
 		return serport_.c_str();
 	}
-	
+
 	void setBPS(unsigned int bps) {
 		bps_ = bps;
 	}
 	unsigned int getBPS() {
 		return bps_;
 	}
-	
+
 	void setParityBitStop(eParityBitStop bs) {
 		bs_ = bs;
 	}
 	unsigned int getParityBitStop() {
 		return bs_;
 	}
-	
+
 	void setEnableFlowControl(bool fc) {
 		fc_ = fc;
 	}
@@ -60,10 +66,10 @@ public:
 public:
 	virtual bool Open();
 	virtual void Close();
-	
+
 	virtual int Send(const char* buff, unsigned int size);
 	virtual int Recv(char* buff, unsigned int size, int timeout);
-	
+
 	virtual bool isOpened();
 	virtual bool isDataAvailable(int timeout);
 
@@ -71,7 +77,7 @@ public:
 
 private:
 	CSerialPort* psp_;
-	
+
 	std::string serport_;
 	unsigned int bps_;
 	eParityBitStop bs_;

@@ -12,6 +12,19 @@
 	See the GNU General Public License for more details.
 */
 
+/** @file Main.cpp
+The main core for the Generic_Serial_Device utility.
+
+A LinuxMCE DCE Device.
+
+Usage: Generic_Serial_Device [-r Router's IP] [-d My Device ID] [-l dcerouter|stdout|null|filename]
+
+-r -- the IP address of the DCE Router  Defaults to 'dcerouter'.
+
+-d -- This device's ID number.  If not specified, it will be requested from the router based on our IP address.
+
+-l -- Where to save the log files.  Specify 'dcerouter' to have the messages logged to the DCE Router.  Defaults to stdout.
+*/
 //<-dceag-incl-b->
 #include "Generic_Serial_Device.h"
 #include "DCE/Logger.h"
@@ -72,8 +85,8 @@ void Plugin_SocketCrashHandler(Socket *pSocket)
 //<-dceag-incl-e->
 
 extern "C" {
-	int IsRuntimePlugin() 
-	{ 
+	int IsRuntimePlugin()
+	{
 		// If you want this plug-in to be able to register and be used even if it is not in the Device table, set this to true.
 		// Then the Router will scan for all .so or .dll files, and if found they will be registered with a temporary device number
 		bool bIsRuntimePlugin=false;
@@ -110,7 +123,7 @@ extern "C" {
 //<-dceag-plug-e->
 
 //<-dceag-main-b->
-int main(int argc, char* argv[]) 
+int main(int argc, char* argv[])
 {
 	g_sBinary = FileUtils::FilenameWithoutPath(argv[0]);
 	g_sBinaryPath = FileUtils::BasePath(argv[0]);
@@ -199,7 +212,7 @@ int main(int argc, char* argv[])
 	try
 	{
 		Generic_Serial_Device *pGeneric_Serial_Device = new Generic_Serial_Device(PK_Device, sRouter_IP,true,bLocalMode);
-		if ( pGeneric_Serial_Device->GetConfig() && pGeneric_Serial_Device->Connect(pGeneric_Serial_Device->PK_DeviceTemplate_get()) ) 
+		if ( pGeneric_Serial_Device->GetConfig() && pGeneric_Serial_Device->Connect(pGeneric_Serial_Device->PK_DeviceTemplate_get()) )
 		{
 			g_pCommand_Impl=pGeneric_Serial_Device;
 			g_pDeadlockHandler=DeadlockHandler;
@@ -212,8 +225,8 @@ int main(int argc, char* argv[])
 				pthread_join(pGeneric_Serial_Device->m_RequestHandlerThread, NULL);  // This function will return when the device is shutting down
 			g_pDeadlockHandler=NULL;
 			g_pSocketCrashHandler=NULL;
-		} 
-		else 
+		}
+		else
 		{
 			bAppError = true;
 			if( pGeneric_Serial_Device->m_pEvent && pGeneric_Serial_Device->m_pEvent->m_pClientSocket && pGeneric_Serial_Device->m_pEvent->m_pClientSocket->m_eLastError==ClientSocket::cs_err_CannotConnect )

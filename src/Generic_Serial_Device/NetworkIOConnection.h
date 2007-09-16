@@ -12,6 +12,9 @@
 	See the GNU General Public License for more details.
 */
 
+/** @file NetworkIOConnection.h
+Header file.
+*/
 #ifndef DCENETWORKIOCONNECTION_H
 #define DCENETWORKIOCONNECTION_H
 
@@ -19,10 +22,13 @@
 
 #include "IOConnection.h"
 
+/** @namespace DCE
+The Data Commands and Events (DCE) namespace.
+*/
 namespace DCE {
 
-/**
-@author Igor Spac,,,
+/** @class NetworkIOConnection
+A class to ???
 */
 class NetworkIOConnection : public IOConnection {
 public:
@@ -36,7 +42,7 @@ public:
 	const char* getHost() {
 		return host_.c_str();
 	}
-	
+
 	void setPort(int port) {
 		port_ = port;
 	}
@@ -47,14 +53,14 @@ public:
 public:
 	virtual bool Open();
 	virtual void Close();
-	
+
 	virtual int Send(const char* buff, unsigned int size);
 	virtual int Recv(char* buff, unsigned int size, int timeout);
 
 	virtual bool isOpened();
 	virtual bool isDataAvailable(int timeout);
 
-	void Flush() {};	
+	void Flush() {};
 private:
 	std::string host_;
 	int port_;

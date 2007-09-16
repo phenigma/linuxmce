@@ -80,7 +80,7 @@ WARN_LOGFILE           =
 #---------------------------------------------------------------------------
 # configuration options related to the input files
 #---------------------------------------------------------------------------
-INPUT                  = /home/igor/work/pluto/trunk/src/Generic_Serial_Device
+INPUT                  = /home/briank/svn/linuxmce/Generic_Serial_Device
 FILE_PATTERNS          = *.c \
                          *.cc \
                          *.cxx \

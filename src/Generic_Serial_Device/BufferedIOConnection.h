@@ -11,6 +11,10 @@
 
 	See the GNU General Public License for more details.
 */
+
+/** @file BufferedIOConnection.h
+Header file.
+*/
 #ifndef DCEBUFFEREDIOCONNECTION_H
 #define DCEBUFFEREDIOCONNECTION_H
 
@@ -20,10 +24,13 @@
 #include "IOConnection.h"
 
 
+/** @namespace DCE
+The Data Commands and Events (DCE) namespace.
+*/
 namespace DCE {
 
-/**
-@author Igor Spac,,,
+/** @class BufferedIOConnection
+Class for ???.
 */
 class BufferedIOConnection : public IOConnection {
 public:
@@ -32,7 +39,7 @@ public:
 		operator =(conn);
 	}
     virtual ~BufferedIOConnection();
-	
+
 public:
 	/*proxied members*/
 	virtual bool Open() {
@@ -53,7 +60,7 @@ public:
 	virtual bool isDataAvailable(int timeout) {
 		return (!buff_.in_avail()) || (pconn_ ? pconn_->isDataAvailable(timeout) : false);
 	}
-	
+
 	void Flush() {
 		if(pconn_) {
 			pconn_->Flush();
@@ -73,14 +80,14 @@ protected:
 	IOConnection* getConnection() {
 		return pconn_;
 	}
-	
+
 public:
 	BufferedIOConnection& operator =(const BufferedIOConnection& conn) {
 		pconn_ = conn.pconn_;
 		/*cache buff is lost*/
 		return *this;
 	}
-	
+
 private:
 	IOConnection* pconn_;
 	std::stringbuf buff_;
