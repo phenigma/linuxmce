@@ -4,7 +4,7 @@
      www.plutohome.com
 
      Phone: +1 (877) 758-8648
- 
+
 
      This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
      This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
@@ -13,6 +13,11 @@
      See the GNU General Public License for more details.
 
 */
+
+/** @file PlutoLockLogger.h
+ Header file for the PlutoLockLogger class.
+ @todo notcommented
+ */
 #ifndef PlutoLockLogger_h
 #define PlutoLockLogger_h
 
@@ -41,6 +46,10 @@ using namespace ::std;
 
 namespace DCE
 {
+    /**
+    @class PlutoLockLogger
+    This class ???
+     */
 	class PlutoLockLogger
 	{
 	public:
@@ -69,7 +78,7 @@ namespace DCE
 			m_Line=Line;
 			m_bGotLock = false;
 
-			// AB 3/5/2004 - For some reason trylock doesn't work under Windows CE.  Do normal thread 
+			// AB 3/5/2004 - For some reason trylock doesn't work under Windows CE.  Do normal thread
 			// logging instead
 	#ifdef UNDER_CE
 			pthread_mutex_lock(&m_pLock->mutex);
@@ -79,7 +88,7 @@ namespace DCE
 			return;
 	#endif
 			time_t t = time(NULL);
-			
+
 			while( t+5>time(NULL) && !m_bGotLock)
 			{
 				m_bGotLock = (pthread_mutex_trylock(&m_pLock->mutex)!=EBUSY);
@@ -109,13 +118,13 @@ namespace DCE
 					StringUtils::itos(PK_Installation) + "&Severity=3&Message=" + StringUtils::URLEncode(Message) + "\"").c_str(), "r");
 				if(f != NULL)
 					fclose(f);
-	// TODO -- need to somehow do this in a separate thread and not inline -- the whole system dies while this is happening
+	/// @TODO -- need to somehow do this in a separate thread and not inline -- the whole system dies while this is happening
 	#endif
 
 	#else
 				SYSTEMTIME lt;
 				::GetLocalTime(&lt);
-				//TODO Need to fill tv
+				///@TODO Need to fill tv
 				tv.tv_sec = (long) time(NULL);
 				tv.tv_usec = lt.wMilliseconds * 1000;
 	#endif
@@ -153,7 +162,7 @@ namespace DCE
 		~PlutoLockLogger()
 		{
 			Release();
-		}	
+		}
 		void Release()
 		{
 			if( !m_bReleased )

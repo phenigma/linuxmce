@@ -14,17 +14,6 @@ of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 See the GNU General Public License for more details.
 */
 
-/**
-*
-* @file SocketListener.cpp
-* @brief source file for the SocketListener class
-* @author
-* @todo notcommented
-*
-*/
-
-
-
 #include "PlutoUtils/CommonIncludes.h"
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
@@ -74,7 +63,7 @@ SocketListener::~SocketListener()
 		m_Socket = INVALID_SOCKET; // now it is invalid
 	}
 
-	if (m_ListenerThreadID) 
+	if (m_ListenerThreadID)
 		pthread_join( m_ListenerThreadID, 0 ); // wait for it to finish
 
 	//drop all sockets
@@ -82,7 +71,7 @@ SocketListener::~SocketListener()
 
 	pthread_mutexattr_destroy(&m_MutexAttr);
 	// killing the mutex
-	pthread_mutex_destroy( &m_ListenerMutex.mutex ); 
+	pthread_mutex_destroy( &m_ListenerMutex.mutex );
 }
 
 void SocketListener::StartListening( int iPortNumber )
@@ -249,7 +238,7 @@ void SocketListener::RemoveAndDeleteSocket( ServerSocket *pServerSocket, bool bD
 
 	PLUTO_SAFETY_LOCK( lm, m_ListenerMutex );
 	if(pServerSocket->m_iReferencesOutstanding_get() > 1)
-	{  
+	{
 		// Something besides us is still referencing this pointer
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Removing socket %d, ourstanding refercences: %d",
 			pServerSocket->m_dwPK_Device, pServerSocket->m_iReferencesOutstanding_get());
@@ -273,7 +262,7 @@ void SocketListener::RemoveAndDeleteSocket( ServerSocket *pServerSocket, bool bD
 		}
 	}
 
-	ServerSocketVector::iterator it_serversocket = std::find(m_vectorServerSocket.begin(), m_vectorServerSocket.end(), pServerSocket); 
+	ServerSocketVector::iterator it_serversocket = std::find(m_vectorServerSocket.begin(), m_vectorServerSocket.end(), pServerSocket);
 	if(it_serversocket != m_vectorServerSocket.end())
 	{
 		m_vectorServerSocket.erase(it_serversocket);
@@ -282,10 +271,10 @@ void SocketListener::RemoveAndDeleteSocket( ServerSocket *pServerSocket, bool bD
 			m_mapServerSocket.size(), m_vectorServerSocket.size());
 
 		// Will be true if the socket's destructor is calling this
-		if(!bDontDelete)  
-		{	
+		if(!bDontDelete)
+		{
 			// Otherwise the socket's destructor will call this
-			pServerSocket->m_bAlreadyRemoved = true;  
+			pServerSocket->m_bAlreadyRemoved = true;
 
 			//deallocate the memory for it
 			delete pServerSocket;
@@ -411,12 +400,12 @@ void SocketListener::DropAllSockets()
 			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Big problem: can't wait for server sockets anymore!");
 			break;
 		}
-	
+
 		ServerSocket *pServerSocket = m_mapServerSocket.begin()->second;
-		
+
 		if(!pServerSocket->IsSelfDestroying())
 			RemoveAndDeleteSocket(pServerSocket);
-		
+
 		lm.Release();
 		Sleep(10);
 		lm.Relock();
@@ -428,17 +417,17 @@ void SocketListener::DropAllSockets()
 		{
 			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Big problem: can't wait for server sockets anymore!");
 			break;
-		}		
-		
+		}
+
 		ServerSocket *pServerSocket = *m_vectorServerSocket.begin();
-		
+
 		if(!pServerSocket->IsSelfDestroying())
 			RemoveAndDeleteSocket(pServerSocket);
-		
+
 		lm.Release();
 		Sleep(10);
 		lm.Relock();
 	}
-	
+
 	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Done dropping sockets!");
 }

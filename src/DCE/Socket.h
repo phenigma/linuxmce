@@ -4,7 +4,7 @@
      www.plutohome.com
 
      Phone: +1 (877) 758-8648
- 
+
 
      This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
      This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
@@ -13,16 +13,13 @@
      See the GNU General Public License for more details.
 
 */
+
 /**
- *
- * @file Socket.h
- * @brief header file for the Socket class
- * @author
- * @todo notcommented
- *
- */
+@file Socket.h
+Header file for the Socket class
 
-
+@todo notcommented
+*/
 #ifndef SOCKET_H
 #define SOCKET_H
 
@@ -38,55 +35,61 @@
 #include "DCE/Logger.h"
 #include "DCE/Message.h"
 
+/**
+@namespace DCE
+The Data Commands and Events (DCE) namespace
+*/
 namespace DCE
 {
-	
-	//class Message; /** < to be able to use it in declarations; we include it's header in the cpp file */
+
+	//class Message; /**< to be able to use it in declarations; we include it's header in the cpp file */
 
 	/**
-	 * @brief defines a socket that works under different architectures
-	 * @todo ask !!!
+    @class Socket
+	 Defines a socket that works under different architectures
+
+    @todo ask !!!
 	 */
 	class Socket
 	{
 	private:
-		int m_iReceiveTimeout; /** < the interval after witch the sockets stops expecting for an answer in seconds */
-		int m_iSendReceiveTimeout; /** < how long to wait for a reply to a string or message */
-		bool m_bQuit; /** < set when the socket should terminate */
+		int m_iReceiveTimeout; /**< the interval after witch the sockets stops expecting for an answer in seconds */
+		int m_iSendReceiveTimeout; /**< how long to wait for a reply to a string or message */
+		bool m_bQuit; /**< set when the socket should terminate */
 
 	public:
 
 		enum SocketType { st_Unknown, st_ServerCommand, st_ServerEvent, st_ClientCommand, st_ClientEvent } m_eSocketType;
 
-		/** < If true,  the framework will send a ping every 10 seconds or so to be sure the network
+		/** If true,  the framework will send a ping every 10 seconds or so to be sure the network
 		is ok.  This is useful for poor wireless connections */
 		bool m_bUsePingToKeepAlive;
-		DataFormat m_DataFormat; /** < If true, messages will be sent in plain text format, just like a MessageSend string */
+		DataFormat m_DataFormat; /** If true, messages will be sent in plain text format, just like a MessageSend string */
 
-		SOCKET m_Socket; /** < the actual socket @todo ask */
-		
-		string m_sName; /** < a name for the socket */
-		string m_sIPAddress,m_sHostName; /** < The hostname is the original name for the server, which may be a name--not an IP, IP is always the IP of the server */
-		string m_sMyIPAddress; /** < Only used on a client side, this is the IP address the server reported for the incoming connection */
-		string m_sMacAddress; /** < On both client/server sockets, the client's mac address */
-		
-		int m_iSocketCounter; /** < counts the sockets actually created */
+		SOCKET m_Socket; /**< the actual socket @todo ask */
 
-		char *m_pcSockLogFile; /** < name of log file for the socket */
-		char *m_pcSockLogErrorFile; /** < name of error log file for the socket */	
-		pluto_pthread_mutex_t m_SocketMutex; /** < for synchronisation between threads @todo ask */
-		pthread_mutexattr_t m_SocketMutexAttr;  /** < for synchronisation between threads @todo ask */
+		string m_sName; /**< a name for the socket */
+		string m_sIPAddress,m_sHostName; /**< The hostname is the original name for the server, which may be a name--not an IP, IP is always the IP of the server */
+		string m_sMyIPAddress; /**< Only used on a client side, this is the IP address the server reported for the incoming connection */
+		string m_sMacAddress; /**< On both client/server sockets, the client's mac address */
 
-		pthread_t m_pthread_pingloop_id; /** < the thread id for the tread that's treating the messages from the message queue */
-		pthread_cond_t m_PingLoopCond; /** < condition for the messages in the queue */
+		int m_iSocketCounter; /**< counts the sockets actually created */
 
-		char *m_pcInSockBuffer; /** < input buffer for the socket @todo ask */
-		char *m_pcCurInsockBuffer; /** < input buffer current position @todo ask */
-		
-		int m_iSockBufBytesLeft; /** < bytes left in the socket buffer @todo ask */
-        bool m_bCancelSocketOp; /** < cancel any operations with the socket right away */
+		char *m_pcSockLogFile; /**< name of log file for the socket */
+		char *m_pcSockLogErrorFile; /**< name of error log file for the socket */
+		pluto_pthread_mutex_t m_SocketMutex; /**< for synchronisation between threads @todo ask */
+		pthread_mutexattr_t m_SocketMutexAttr;  /**< for synchronisation between threads @todo ask */
 
-		/** < If non null, then any socket failures will be sent to the
+		pthread_t m_pthread_pingloop_id; /**< the thread id for the tread that's treating the messages from the message queue */
+		pthread_cond_t m_PingLoopCond; /**< condition for the messages in the queue */
+
+		char *m_pcInSockBuffer; /**< input buffer for the socket @todo ask */
+		char *m_pcCurInsockBuffer; /**< input buffer current position @todo ask */
+
+		int m_iSockBufBytesLeft; /**< bytes left in the socket buffer @todo ask */
+        bool m_bCancelSocketOp; /**< cancel any operations with the socket right away */
+
+		/** If non null, then any socket failures will be sent to the
 		m_pSocket_PingFailure rather than handled locally */
 		Socket *m_pSocket_PingFailure;
 
@@ -95,12 +98,12 @@ namespace DCE
 		 * @brief creates a new socket objest with the specified name, and it also writes a log
 		 */
 		Socket( string sName,string sIPAddress="",string sMacAddress="" );
-		
+
 		/**
 		 * @brief frees the allocated memory and closes the base socket, and it also writes a log
 		 */
 		virtual ~Socket();
-		
+
 		/**
 		 * @brief use to set the member
 		 */
@@ -132,22 +135,22 @@ namespace DCE
 		 * @brief just sends raw data to the socket.
 		 */
 		virtual bool SendData( int iSize, const char *pcData );
-		
+
 		/**
 		 * @brief just reads raw data from the socket
          * if 'nTimeout' is -1, the default timeout will be used.  Timeout is in seconds
 		 * -2 is a special timeout meaning don't wait at all, just return false if the buffer is empty
 		 */
-		virtual bool ReceiveData( int iSize, char *pcData, int nTimeout = -1 ); 
+		virtual bool ReceiveData( int iSize, char *pcData, int nTimeout = -1 );
 
 		/**
 		 * @brief sends a string to the socket.
 		 * @return false on errors
 		 */
 		virtual bool SendString( string sToSend );
-		
+
 		/**
-		 * @brief reads a string from the socket. 
+		 * @brief reads a string from the socket.
 		 * if 'nTimeout' is -1, the default timeout will be used.  Timeout is in seconds
 		 * -2 is a special timeout meaning don't wait at all, just return false if the buffer is empty
 		 * @return false on errors
@@ -203,6 +206,11 @@ namespace DCE
 	};
 
     extern pluto_pthread_mutex_t *g_pSocketInfoMutex;
+
+    /**
+    @class SocketInfo
+     Defines a socket's data
+     */
 	class SocketInfo
 	{
 	public:

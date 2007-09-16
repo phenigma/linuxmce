@@ -14,17 +14,6 @@
 	See the GNU General Public License for more details.
 */
 
-/**
- *
- * @file Socket.cpp
- * @brief source file for the Socket class
- * @author
- * @todo notcommented
- *
- */
-
-
-
 #include "PlutoUtils/CommonIncludes.h"
 #include "DCE/Logger.h"
 
@@ -107,7 +96,7 @@ void hexmemcpy( char *pDest, const char *pSource, int NumBytes )
 void* PingLoop( void* param ) // renamed to cancel link-time name collision in MS C++ 7.0 / VS .NET 2002
 {
 #ifdef WINCE //give Orbiter CE time to start
-	Sleep(40000); 
+	Sleep(40000);
 #endif
 
 	Socket *pSocket = (Socket *) param;
@@ -127,7 +116,7 @@ void* PingLoop( void* param ) // renamed to cancel link-time name collision in M
 			pSocket->m_bUsePingToKeepAlive=false;
 			return NULL; // Don't try anymore
 		}
-		
+
 		if( g_pSendPingHandler )
 		{
 			if( !(*g_pSendPingHandler)(pSocket) )
@@ -140,7 +129,7 @@ void* PingLoop( void* param ) // renamed to cancel link-time name collision in M
 		else
 		{
 			string sResponse=pSocket->SendReceiveString("PING",PING_TIMEOUT);
-			
+
 	#ifdef DEBUG
 			LoggerWrapper::GetInstance()->Write( LV_STATUS, "Sent PING on %p and got %s",pSocket,sResponse.c_str());
 	#endif
@@ -166,7 +155,7 @@ Socket::Socket(string Name,string sIPAddress, string sMacAddress) : m_SocketMute
 	// code unusable; there's a memory leak in libc6 2.3.2
 	struct addrinfo hints;
 	struct addrinfo * res;
-			
+
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_protocol = IPPROTO_TCP;
 	hints.ai_flags = AI_CANONNAME;
@@ -191,7 +180,7 @@ Socket::Socket(string Name,string sIPAddress, string sMacAddress) : m_SocketMute
 
 		if (res != NULL)
 		{
-			m_sIPAddress = 
+			m_sIPAddress =
 				StringUtils::ltos(res->h_addr[0] & 0xFF) + "." +
 				StringUtils::ltos(res->h_addr[1] & 0xFF) + "." +
 				StringUtils::ltos(res->h_addr[2] & 0xFF) + "." +
@@ -326,7 +315,7 @@ bool Socket::SendMessage( Message *pMessage, bool bDeleteMessage )
 		pOutMessage = ReceiveMessage(atoi(sData.substr(csXmlKeyword.size()).c_str()), dfXml);
 	else if(sData.find(csBinaryKeyword) == 0 && sData.size() > csBinaryKeyword.size() + 2)
 		pOutMessage = ReceiveMessage(atoi(sData.substr(csBinaryKeyword.size()).c_str()), dfBinary);
-	
+
 	return pOutMessage;
 }
 
@@ -361,7 +350,7 @@ bool Socket::SendMessageWithConfirmation(Message *pMessage, string &sRefResponse
 		return false;
 
 	return ReceiveString(sRefResponse, m_iSendReceiveTimeout > 0 ? m_iSendReceiveTimeout : MAX_DELAY_FOR_RECEIVE_RESPONSE );
-}	
+}
 
 Message *Socket::ReceiveMessage( int iLength, DataFormat format)
 {
@@ -448,8 +437,8 @@ bool Socket::SendData( int iSize, const char *pcData )
 	{
 		fd_set wrfds;
 		struct timeval tv_total, tv;
-        struct timeval tv_select_1; 
-        struct timeval tv_select_2; 
+        struct timeval tv_select_1;
+        struct timeval tv_select_2;
         struct timeval tv_select;
 
 		if ( m_Socket == INVALID_SOCKET )
@@ -567,8 +556,8 @@ bool Socket::ReceiveData( int iSize, char *pcData, int nTimeout/* = -1*/ )
 		{
 			fd_set rfds;
 			struct timeval tv, tv_total;
-            struct timeval tv_select_1; 
-            struct timeval tv_select_2; 
+            struct timeval tv_select_1;
+            struct timeval tv_select_2;
             struct timeval tv_select;
 
 			int iRet;
@@ -590,14 +579,14 @@ bool Socket::ReceiveData( int iSize, char *pcData, int nTimeout/* = -1*/ )
 				if( nInternalReceiveTimeout==-2 )
 				{
 					tv.tv_sec = 0;
-					tv.tv_usec = 0;  
+					tv.tv_usec = 0;
 				}
 				else
 				{
 					tv.tv_sec = 1;
 					tv.tv_usec = 0;
 				}
-                
+
                 //before select
                 gettimeofday(&tv_select_1, NULL);
 
@@ -776,9 +765,9 @@ string Socket::SendReceiveString( string sLine, int nTimeout/* = -1*/)
 	PLUTO_SAFETY_LOCK_ERRORSONLY( sSM, m_SocketMutex );  // Don't log anything but failures
 	SendString( sLine );
 
-	int nInternalSendReceiveTimeout = 
+	int nInternalSendReceiveTimeout =
 		nTimeout != -1 ?
-		nTimeout : 
+		nTimeout :
 		m_iSendReceiveTimeout > 0 ? m_iSendReceiveTimeout : MAX_DELAY_FOR_RECEIVE_RESPONSE;
 
 	string sResponse;
@@ -797,7 +786,7 @@ void Socket::StartPingLoop()
 		LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Cannot create ping loop %p ch: %p", this, g_pSocketCrashHandler );
 	}
 
-	//we have a design issue here: we can't join PingLoop thread because 
+	//we have a design issue here: we can't join PingLoop thread because
 	//this thread is the one which detects network problems and deallocate the socket
 	//we'll have to create it detached, to avoid resources leaks.
 	pthread_detach(m_pthread_pingloop_id);
@@ -805,7 +794,7 @@ void Socket::StartPingLoop()
 
 void Socket::PingFailed()
 {
-	LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Socket::PingFailed %p %s (socket id in destructor: %d %p, ch: %p)", 
+	LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Socket::PingFailed %p %s (socket id in destructor: %d %p, ch: %p)",
 		this, m_sName.c_str(), m_Socket, m_pSocket_PingFailure, g_pSocketCrashHandler );
 	if( m_pSocket_PingFailure )
 	{
@@ -835,7 +824,7 @@ void Socket::Close()
 	m_Socket = INVALID_SOCKET;
 }
 
-void Socket::SetReceiveTimeout( int TimeoutSeconds ) 
+void Socket::SetReceiveTimeout( int TimeoutSeconds )
 {
 	m_iReceiveTimeout = TimeoutSeconds;
 
@@ -844,7 +833,7 @@ void Socket::SetReceiveTimeout( int TimeoutSeconds )
 #endif
 }
 
-void Socket::SetSendReceiveTimeout( int TimeoutSeconds ) 
+void Socket::SetSendReceiveTimeout( int TimeoutSeconds )
 {
 	m_iSendReceiveTimeout = TimeoutSeconds;
 
@@ -860,7 +849,7 @@ void Socket::SetSendReceiveTimeout( int TimeoutSeconds )
 		pMessage = new Message( pcBuffer ); // making a message from the string
 	else if(format == dfBinary)
 		pMessage = new Message( nLength, pcBuffer[0] ? pcBuffer : pcBuffer + 1 ); // making a message from the data
-	else 
+	else
 	{
 		pMessage = new Message();
 		//todo: check return code:

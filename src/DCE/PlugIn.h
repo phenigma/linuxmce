@@ -4,7 +4,7 @@
      www.plutohome.com
 
      Phone: +1 (877) 758-8648
- 
+
 
      This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
      This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
@@ -13,6 +13,11 @@
      See the GNU General Public License for more details.
 
 */
+
+/** @file PlugIn.h
+ Header file for the PlugIn class.
+ @todo notcommented
+ */
 #ifndef PlugIn_h
 #define PlugIn_h
 
@@ -23,6 +28,10 @@ using namespace std;
 
 namespace DCE
 {
+    /**
+    @class PlugIn
+    This class ???
+     */
 	class PlugIn
 	{
 	public:
@@ -38,7 +47,7 @@ namespace DCE
 		virtual bool Register()=0;   // returns true if successful
 		virtual int ID_get()=0;	// HACK - this changes now	 // returns the ID of the Plug-in
 		virtual ::std::string Description_get()=0; // HACK	// Returns a textual description of the plug-in
-		virtual ReceivedMessageResult ReceivedMessage(class Message *pMessage) { return false; } // HACK =0; 
+		virtual ReceivedMessageResult ReceivedMessage(class Message *pMessage) { return false; } // HACK =0;
 
 		// Some Plug-ins may want to get pointers to, or register with other plug-ins
 		// Init will be called when all the Plug-in's have registered

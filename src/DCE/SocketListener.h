@@ -4,7 +4,7 @@
      www.plutohome.com
 
      Phone: +1 (877) 758-8648
- 
+
 
      This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
      This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
@@ -13,18 +13,18 @@
      See the GNU General Public License for more details.
 
 */
-/**
-*
-* @file SocketListener.h
-* @brief header file for the SocketListener class
-* This listens for server sockets, and contains a m_mapServerSocket with all connections
-* In order to get a pointer to a server socket you must use the GET_SERVER_SOCKET macro,
-* which returns the pointer and automatically increments the ServerSocket::m_iReferencesOutstanding
-* The macro causes this to decrement automatically when it falls out of scope.  To remove a socket
-* call RemoveAndDeleteSocket.  This will only remove the socket when the number of references is 1
+
+/** @file SocketListener.h
+Header file for the SocketListener class.
+
+This listens for server sockets, and contains a m_mapServerSocket with all connections
+In order to get a pointer to a server socket you must use the GET_SERVER_SOCKET macro,
+ which returns the pointer and automatically increments the
+ ServerSocket::m_iReferencesOutstanding.
+The macro causes this to decrement automatically when it falls out of scope.
+To remove a socket call RemoveAndDeleteSocket.
+This will only remove the socket when the number of references is 1.
 */
-
-
 #ifndef SOCKETLISTENER_H
 #define SOCKETLISTENER_H
 
@@ -36,55 +36,60 @@
 
 namespace DCE
 {
-	class ServerSocket;  /** < to be able to use it in declarations; we include it's header in the cpp file */
-	class Message;  /** < to be able to use it in declarations; we include it's header in the cpp file */
+	class ServerSocket;  /**< to be able to use it in declarations; we include it's header in the cpp file */
+	class Message;  /**< to be able to use it in declarations; we include it's header in the cpp file */
 
-	typedef ::std::map<int, ServerSocket *> ServerSocketMap; /** < integer map of  */
-	typedef ::std::vector<ServerSocket *> ServerSocketVector; /** < vector of  */
+	typedef ::std::map<int, ServerSocket *> ServerSocketMap; /**< integer map of  */
+	typedef ::std::vector<ServerSocket *> ServerSocketVector; /**< vector of  */
 
 	/**
-	* @brief opens a socket on a server waiting for incomming connections
+    @class SocketListener
+	Opens a socket on a server waiting for incomming connections
 	*/
 	class SocketListener
 	{
 
 	protected:
 
-		pthread_t m_ListenerThreadID; /** < the thread on witch the socket runs */
-		int m_iListenPort; /** < the port on witch to listen */
-		SOCKET m_Socket; /** < the socket that listens for incomming connections */
+		pthread_t m_ListenerThreadID; /**< the thread on witch the socket runs */
+		int m_iListenPort; /**< the port on witch to listen */
+		SOCKET m_Socket; /**< the socket that listens for incomming connections */
 		bool m_bAllowIncommingConnections;
 
 	public:
 
-		string m_sName; /** < the socket listener name */
-		pluto_pthread_mutex_t m_ListenerMutex; /** < to control access to the shared memory.  Don't use m_mapServerSocket or m_vectorServerSocket without this  */
-		pthread_mutexattr_t m_MutexAttr; /** < make it recursive */
+		string m_sName; /**< the socket listener name */
+		pluto_pthread_mutex_t m_ListenerMutex; /**< to control access to the shared memory.  Don't use m_mapServerSocket or m_vectorServerSocket without this  */
+		pthread_mutexattr_t m_MutexAttr; /**< make it recursive */
 
-		bool m_bTerminate; /** < set to true when the listener terminates (from the destructor)  */
-		bool m_bRunning; /** < specifies if the listener is running - set by StartListening */
-		bool m_bClosed; /** < specifies if the socket is closed @todo ask how it's used */
-		bool m_bFailedToBind; /** < The listener failed to start because it couldn't bind to the socket */
+		bool m_bTerminate; /**< set to true when the listener terminates (from the destructor)  */
+		bool m_bRunning; /**< specifies if the listener is running - set by StartListening */
+		bool m_bClosed; /**< specifies if the socket is closed @todo ask how it's used */
+		bool m_bFailedToBind; /**< The listener failed to start because it couldn't bind to the socket */
 
-		bool m_bSendOnlySocket; /** <specifies if this socket works in send-only mode (actually this is a hack around blocking reads) */
+		bool m_bSendOnlySocket; /**< specifies if this socket works in send-only mode (actually this is a hack around blocking reads) */
 
-		//		::std::list<Socket *> m_listClients; /** < a list of sockets created for incoming connections */	
-		ServerSocketMap m_mapServerSocket; /** < map of server sockets associated with clients (command handlers) */
-		ServerSocketVector m_vectorServerSocket; /** < vector of all created server sockets */
+		//		::std::list<Socket *> m_listClients; /**< a list of sockets created for incoming connections */
+		ServerSocketMap m_mapServerSocket; /**< map of server sockets associated with clients (command handlers) */
+		ServerSocketVector m_vectorServerSocket; /**< vector of all created server sockets */
 
-		/**
-		* @brief constructor, creates a SocketListener and gives it the name specified by the parameter; the other member data receive default values
-		* @see the implementation for the mb data default values
+		/** Constructor.
+        @param sName is the name of the socket.
+
+        Creates a SocketListener and gives it the name specified by the parameter.
+        The other member data receive default values.
+
+        @see the implementation for the mb data default values.
 		*/
 		SocketListener( string sName );
 
-		/**
-		* @brief destructor, cleanins up and waits for the thread to die (writes an entry to the log also)
+		/** Destructor.
+        Cleans up and waits for the thread to die (writes an entry to the log also).
 		*/
 		virtual ~SocketListener();
 
-		/**
-		* @brief Normally called only by the GET_SERVER_SOCKET macro
+		/** Normally called only by the GET_SERVER_SOCKET macro.
+        @param dwPK_Device is device.
 		*/
 		ServerSocket *GetServerSocket(int dwPK_Device)
 		{
@@ -94,28 +99,22 @@ namespace DCE
 			return i->second;
 		}
 
-		/**
-		* @brief creates the thread that will listen at the specified port
-		* @todo ask
+		/** Creates the thread that will listen at the specified port.
+      @param iPortNumber is the port.
+		@todo ask
 		*/
 		void StartListening( int iPortNumber );
 
-		/** @todo check comment */
-		// void StopListening();
-
-		/**
-		* @brief runs the listener by creating the master socket, setting it up and telling it to start listening 
+		/** Runs the listener by creating the master socket, setting it up and telling it to start listening.
 		*/
 		void Run();
 
-		/**
-		* @brief creates a socket listener based on the parameter data
-		* @see the class member data
+		/** Creates a socket listener based on the parameter data.
+		@see the class member data
 		*/
 		virtual Socket *CreateSocket( SOCKET newsock, string sName, string sIPAddress="", string sMacAddress="" );
 
-		/**
-		* @brief removes the socket from the listClients mb data and clears any dependencies
+		/** Removes the socket from the listClients mb data and clears any dependencies.
 		*/
 		virtual void RemoveAndDeleteSocket( ServerSocket *pServerSocket, bool bDontDelete=false );
 
@@ -202,12 +201,15 @@ namespace DCE
 		*/
 		void DropAllSockets();
 
-		// Called when a ping test fails
+		/** Called when a ping test fails. */
 		virtual void PingFailed( ServerSocket * /*pServerSocket*/, int /*dwPK_Device*/ ) {};
 
 		virtual void RefuseIncomingConnections() { m_bAllowIncommingConnections = false; }
 	};
 
+    /** @class get_server_socket
+    Another class.
+    */
 	class get_server_socket
 	{
 		SocketListener *m_pSocketListener;

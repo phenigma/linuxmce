@@ -4,7 +4,7 @@
      www.plutohome.com
 
      Phone: +1 (877) 758-8648
- 
+
 
      This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
      This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
@@ -13,6 +13,11 @@
      See the GNU General Public License for more details.
 
 */
+
+/** @file ServerLogger.h
+ Header file for the ServerLogger class.
+ @todo notcommented
+ */
 #ifndef ServerLogger_H
 #define ServerLogger_H
 
@@ -23,6 +28,10 @@
 namespace DCE
 {
 
+    /**
+    @class ServerLogger
+    This class ???
+     */
 class ServerLogger : public Logger, public ClientSocket
 {
 public:
@@ -32,11 +41,11 @@ public:
 
 	virtual void WriteBlock(const char *pBlock, size_t sBlockLen ) {}
 	virtual void WriteEntry(class Logger::Entry& entry);
-	
+
 	virtual void Start();
 	virtual bool OnConnect( int PK_DeviceTemplate,string sExtraInfo="" )
-	{ 
-		m_bConnected = ClientSocket::OnConnect(PK_DeviceTemplate,"servlog"); 
+	{
+		m_bConnected = ClientSocket::OnConnect(PK_DeviceTemplate,"servlog");
 		return m_bConnected;
 	};
 

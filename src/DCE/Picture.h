@@ -4,7 +4,7 @@
      www.plutohome.com
 
      Phone: +1 (877) 758-8648
- 
+
 
      This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
      This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
@@ -17,6 +17,11 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+/** @file Picture.h
+ Header file for the CPicture class.
+ @todo notcommented
+ */
+
 #if !defined(AFX_PICTURE_H__6098A4C3_D6D5_4711_BC7B_1595F459B480__INCLUDED_)
 #define AFX_PICTURE_H__6098A4C3_D6D5_4711_BC7B_1595F459B480__INCLUDED_
 
@@ -26,7 +31,11 @@
 #include <atlbase.h>
 
 
-class CPicture  
+    /**
+    @class CPicture
+    This class ???
+     */
+class CPicture
 {
 public:
 	CPicture();

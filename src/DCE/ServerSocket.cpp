@@ -14,18 +14,6 @@ of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 See the GNU General Public License for more details.
 */
 
-
-/**
-*
-* @file ServerSocket.cpp
-* @brief source file for the ServerSocket class
-* @author
-* @todo notcommented
-*
-*/
-
-
-
 #include "PlutoUtils/CommonIncludes.h"
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
@@ -98,7 +86,7 @@ ServerSocket::~ServerSocket()
 
 	//Make sure we are no longer in listener's lists
 	if(!m_bAlreadyRemoved && m_dwPK_Device != DEVICEID_MESSAGESEND)
-		m_pListener->RemoveAndDeleteSocket(this, true /*don't delete me*/); 
+		m_pListener->RemoveAndDeleteSocket(this, true /*don't delete me*/);
 
 	//Wait for our thread to finish
 	if( ((pthread_t)NULL) != m_ClientThreadID )
@@ -120,7 +108,7 @@ ServerSocket::~ServerSocket()
 }
 
 
-void ServerSocket::Run() 
+void ServerSocket::Run()
 {
 	int iResult = pthread_create(&m_ClientThreadID, NULL, BeginWapClientThread, (void *)this);
 
@@ -237,7 +225,7 @@ bool ServerSocket::ServeClient()
 			else
 			{
 				int iResponse = m_pListener->ConfirmDeviceTemplate( m_dwPK_Device, PK_DeviceTemplate );
-				
+
 				if( iResponse==0 )
 				{
 					SendString( "NOT IN THIS INSTALLATION" + sIPAndMac);
@@ -282,7 +270,7 @@ bool ServerSocket::ServeClient()
 
 			if( sMessage[0]=='C' )
 				m_dwPK_Device = atoi( sMessage.substr(7).c_str() );
-			else  // TODO -- DELETE THIS ONCE ALL USE COMMAND 
+			else  // TODO -- DELETE THIS ONCE ALL USE COMMAND
 				m_dwPK_Device = atoi( sMessage.substr(14).c_str() );
 
 			string::size_type pos_instance = sMessage.find("INSTANCE");
@@ -355,7 +343,7 @@ bool ServerSocket::ServeClient()
 					m_pListener->ReceivedMessage( this, pMessage );
 				}
 			}
-			else 
+			else
 				m_pListener->ReceivedString( this, sMessage );
 		}
 	}
