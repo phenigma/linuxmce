@@ -49,25 +49,25 @@ so: Generic_Serial_Device.so ruby
 
 ruby: Ruby_$(MYNAME).so
 
-Generic_Serial_Device.so: $(sources:.cpp=.o) 
+Generic_Serial_Device.so: $(sources:.cpp=.o)
 	$(CXX) -shared -o $(MYNAME).so $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
 	chmod +x post_make.sh
 	./post_make.sh $@
-		
+
 Generic_Serial_Device: $(sources:.cpp=.o)
 	$(CXX) -o $(MYNAME) $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
 	./post_make.sh $@
 
 
-Ruby_$(MYNAME).so: Ruby_$(MYNAME)_wrap.o 
+Ruby_$(MYNAME).so: Ruby_$(MYNAME)_wrap.o
 	ln -s /usr/lib/libtcl8.4.so.0 /usr/lib/libtcl8.4.so | true
 	$(CXX) -shared -o Ruby_$(MYNAME).so $(LDFLAGS) $(LDLIBS) Ruby_$(MYNAME)_wrap.o RubySerialWrapper.o RubySerialIOWrapper.o RubyDeviceWrapper.o RubyCommandWrapper.o RubySerialIOConnectionWrapper.o BufferedIOConnection.o -ltcl8.4 -lstdc++
 	cp $@ ../bin
-	
+
 Ruby_$(MYNAME)_wrap.o: Ruby_$(MYNAME)_wrap.cxx
-	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) Ruby_$(MYNAME)_wrap.cxx RubySerialWrapper.cpp RubySerialIOWrapper.cpp RubyDeviceWrapper.cpp RubyCommandWrapper.cpp RubySerialIOConnectionWrapper.cpp BufferedIOConnection.cpp -I/usr/include/tcl8.4 
+	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) Ruby_$(MYNAME)_wrap.cxx RubySerialWrapper.cpp RubySerialIOWrapper.cpp RubyDeviceWrapper.cpp RubyCommandWrapper.cpp RubySerialIOConnectionWrapper.cpp BufferedIOConnection.cpp -I/usr/include/tcl8.4
 
 Ruby_Generic_Serial_Device_wrap.cxx:
 	swig -ruby -c++ Ruby_Generic_Serial_Device.i
@@ -78,6 +78,9 @@ clean: clean-recursive
 package:
 	chmod +x make_package.sh
 	./make_package.sh $(MYNAME) $(VERSION) $(MYDEVTEMPLATEID)
+
+docs:
+	doxygen Doxyfile
 
 include $(ROOT)/PlutoUtils/make.rules
 ifeq (,$(findstring clean, $(MAKECMDGOALS)))
