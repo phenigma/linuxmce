@@ -4,7 +4,7 @@
      www.plutohome.com
 
      Phone: +1 (877) 758-8648
- 
+
 
      This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
      This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
@@ -13,9 +13,18 @@
      See the GNU General Public License for more details.
 
 */
+
+/**
+ * @file FilterLogger.h
+ Header file for the FilterLogger class.
+*/
 #ifndef FilterLogger_H
 #define FilterLogger_H
 
+    /**
+    @class FilterLogger
+    This derived class ???
+     */
 class FilterLogger : public MultiLogger
 {
 public:
@@ -29,7 +38,7 @@ public:
 protected:
 	bool LevelMatch(int Level);
 	bool ParseLevels(::std::string str);
-	
+
 	::std::set<int> m_Levels;
 	int m_GreaterThan;
 	int m_LessThan;

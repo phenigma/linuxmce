@@ -1,27 +1,18 @@
-/* 
+/*
 	Event_Impl
-	
+
 	Copyright (C) 2004 Pluto, Inc., a Florida Corporation
-	
-	www.plutohome.com		
-	
+
+	www.plutohome.com
+
 	Phone: +1 (877) 758-8648
-	
+
 	This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
-	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty 
-	of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
-	
+	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+	of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
 	See the GNU General Public License for more details.
 */
-
-/**
- *
- * @file Event_Impl.cpp
- * @brief source file for the Event_Impl class
- * @author
- * @todo notcommented
- *
- */
 
 #include "PlutoUtils/CommonIncludes.h"
 #include "PlutoUtils/FileUtils.h"
@@ -51,8 +42,8 @@ Event_Impl::Event_Impl( long dwDevice, long dwDeviceTemplate, string sServerAddr
 		if( m_pClientSocket->m_dwPK_Device )
 			m_dwPK_Device = m_pClientSocket->m_dwPK_Device;
 	}
-	
-	/** @todo check comment */	
+
+	/** @todo check comment */
 	/*
 	#ifdef DEBUG
 		g_pDCELogger->Write(LV_SOCKET,"DeviceEvent constructor %p device ID %d server IP %s socket %p %d",
@@ -120,7 +111,7 @@ char *Event_Impl::GetConfig( /*unsigned long*/int &dwSize )
 			m_pClientSocket->ReceiveData( dwSize, pcBuff );
 			return pcBuff;
 		}
-		
+
 		LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "DCE Router cannot give us config: %s", sResponse.c_str() ); // logging it
 		return NULL;
 	}
@@ -150,7 +141,7 @@ string Event_Impl::GetCurrentDeviceData( int PK_Device, int PK_DeviceData )
 
 	if( pResponse )
 		return pResponse->m_mapParameters[PK_DeviceData];
-	
+
 	return "";
 }
 
@@ -166,6 +157,6 @@ string Event_Impl::GetDeviceDataFromDatabase( int PK_Device, int PK_DeviceData )
 		delete pResponse;
 		return sValue;
 	}
-	
+
 	return "";
 }

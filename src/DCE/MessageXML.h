@@ -1,3 +1,9 @@
+
+
+/** @file MessageXML.h
+ Header file for the MessageXML class.
+ @todo notcommented
+ */
 #ifndef __MESSAGE_XML_H__
 #define __MESSAGE_XML_H__
 //--------------------------------------------------------------------------------------------------
@@ -10,6 +16,10 @@
 //--------------------------------------------------------------------------------------------------
 namespace DCE
 {
+    /**
+    @class MessageXML
+    This class ???
+     */
 	class MessageXML
 	{
 	public:
@@ -19,7 +29,7 @@ namespace DCE
 
 		Message *GetMessage();
 		std::string GetXML();
-		bool Failed() { return m_bFailed; } 
+		bool Failed() { return m_bFailed; }
 
 	private:
 		Message *m_pMessage;
@@ -33,7 +43,7 @@ namespace DCE
 
 		//helpers
 		static void ParseAttributes(xmlNode *pNode, map<string, string>& mapAttributes);
-		
+
 		void ParseFromNode(xmlNode *pNode);
 		void ParseTargetNode(xmlNode *pNode);
 		void ParseExpectedResponseNode(xmlNode *pNode);

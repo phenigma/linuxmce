@@ -4,7 +4,7 @@
      www.plutohome.com
 
      Phone: +1 (877) 758-8648
- 
+
 
      This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
      This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
@@ -13,13 +13,10 @@
      See the GNU General Public License for more details.
 
 */
-/**
- *
- * @file Logger.h
- * @brief header file for the Logger, NullLogger and FileLogger classes
- * @author
+
+/** @file Logger.h
+ Header file for the Logger, NullLogger and FileLogger classes.
  * @todo notcommented
- *
  */
 
 
@@ -51,7 +48,7 @@
 #define LV_LIGHTING			14
 #define LV_CONTROLLER		15
 #define LV_APPDAEMON		16
-#define LV_CAMERA			17	
+#define LV_CAMERA			17
 #define LV_CORPCLIENT		18
 #define LV_FILEREQUEST		19
 #define LV_DATAGRID			20
@@ -85,7 +82,7 @@
 #define LT_LOGGER_SERVER	 3
 #define LT_LOGGER_ORBITERWIN 4
 
-namespace DCE 
+namespace DCE
 {
 	/**
 	* While global variables aren't recommended, every object within the same memory space
@@ -94,38 +91,38 @@ namespace DCE
 	* instance of g_pDCELogger, using whatever derived class is appropriate.  Also, we'll put
 	* 2 strings that the main() function can use to store the currently executing binary and path
 	* which may be useful for logging
-	*/ 
+	*/
 	extern string g_sBinary,g_sBinaryPath;
 
-	/**
-	* @brief logger for the data command and events
+	/** @class Logger
+	* Logger for the data command and events
 	*/
 	class Logger
 	{
-	
+
 	protected:
-	
-		std::string m_Name; /** < name of the logger */
-		int m_dwPK_Installation; /** < the installation */
-		pluto_pthread_mutex_t m_Lock; /** < @todo ask */
-		pthread_mutexattr_t m_MutexAttr; /** < @todo ask */
+
+		std::string m_Name; /**< name of the logger */
+		int m_dwPK_Installation; /**< the installation */
+		pluto_pthread_mutex_t m_Lock; /**< @todo ask */
+		pthread_mutexattr_t m_MutexAttr; /**< @todo ask */
 		bool *m_bLogLevels;
 		int m_iMaxLogLevel;
-	
+
 	public:
-	
+
 		class Entry;
-	
+
 		/**
 		* @brief default constructor
 		*/
 		Logger( const char* name = NULL );
-		
+
 		/**
 		* @brief destructor
 		*/
 		virtual ~Logger();
-		
+
 		/**
 		* @brief sets the value for the type of logger
 		*/
@@ -135,22 +132,22 @@ namespace DCE
 		* @brief sets the value for the m_dwPK_Installation member
 		*/
 		virtual void SetInstallation(int Installation);
-		
+
 		/**
 		* @brief sets the name for logger
 		*/
 		virtual void SetName(const char* pcName);
-		
+
 		/**
 		* @brief should be overriden to start the logger
 		*/
 		virtual void Start() {}
-		
+
 		/**
 		* @brief should be overriden to flush the logger
 		*/
 		virtual void Flush() {}
-	
+
 		/**
 		* @brief Write a block of data in the log
 		*/
@@ -161,7 +158,7 @@ namespace DCE
 		* @todo ask
 		*/
 		virtual void Write( int iLevel, const char *pcFormat, ... );
-	
+
 		/**
 		* @brief writes an entry to the log
 		*/
@@ -183,17 +180,17 @@ namespace DCE
 		*/
 		class Entry : public SerializeClass
 		{
-		
+
 		public:
-		
-			int m_iLevel; /** < this entry's level > @todo ask*/
-			timeval m_TimeStamp; /** < the time for the entry time */
-			std::string m_sName; /** < entry name */
-			std::string m_sData; /** < entry data */
-			int m_dwPK_Device; /** < the device that generated the entry */
-	
-			Entry() {} /** < default (empty) constructor */
-			
+
+			int m_iLevel; /**< this entry's level > @todo ask*/
+			timeval m_TimeStamp; /**< the time for the entry time */
+			std::string m_sName; /**< entry name */
+			std::string m_sData; /**< entry data */
+			int m_dwPK_Device; /**< the device that generated the entry */
+
+			Entry() {} /**< default (empty) constructor */
+
 			/**
 			* @brief constructor that assignes values to the data members
 			*/
@@ -202,7 +199,7 @@ namespace DCE
 				m_iLevel = Level; m_TimeStamp = TimeStamp;
 				m_sName = sName; m_sData = sData; m_dwPK_Device = iPK_Device;
 			}
-		
+
 			/**
 			* @brief serializes the class data
 			*/
@@ -210,7 +207,7 @@ namespace DCE
 			{
 				StartSerializeList() +	m_iLevel + m_TimeStamp.tv_sec + m_TimeStamp.tv_usec + m_sName + m_sData + m_dwPK_Device;
 			}
-			
+
 			/**
 			* @brief returns the class name so that the SerializeClass will know how to serialize it
 			* @todo ask if I got it right
@@ -218,19 +215,18 @@ namespace DCE
 			virtual string BinarySerializeClassName() { return "Logger::Entry"; }
 		};
 	};
-	
-	/**
-	* @brief a null DCE logger
-	* @todo ask
+
+	/** @class NullLogger
+	A null DCE logger
 	*/
 	class NullLogger : public Logger
 	{
-	
+
 	public:
-	
+
 		NullLogger() : Logger("")
 		{}
-	
+
 		virtual ~NullLogger()
 		{}
 
@@ -242,59 +238,58 @@ namespace DCE
 
 		virtual int GetType() { return LT_LOGGER_NULL; }
 	};
-	
-	/**
-	* @brief logger thet writes entries to a file
-	* @todo ask
+
+	/** @class FileLogger
+	A logger thet writes entries to a file.
 	*/
 	class FileLogger : public Logger
 	{
-	
+
 	protected:
-	
-		FILE* m_LogFile; /** < the file to write the log to */
+
+		FILE* m_LogFile; /**< the file to write the log to */
 
 		string m_sFilename;
 
-		bool m_bNeedToClose; /** < set to truth if the file needs to be closed, default value false */
-	
+		bool m_bNeedToClose; /**< set to truth if the file needs to be closed, default value false */
+
 	public:
-	
+
 		/**
 		* @brief constructor, gets a FILE pointer, standard value for m_LogFile is stderr, m_bNeedToClose default is false
 		*/
 		FileLogger( FILE* log = stderr );
-		
+
 		/**
 		* @brief writes the log to a file specified by name
 		* open mode = append, m_bNeedToClose default is true,
 		* if error while opening the file redirect to stderr
 		*/
 		FileLogger( const char* pcFile );
-		
+
 		/**
 		* @brief destructor
 		* closes the m_LogFile if m_bNeedToClose is set to true
 		*/
 		virtual ~FileLogger();
-	
+
 		/**
 		* @brief returnes a new FileLogger to the file specified in the ts parameter
 		* @param ts the file name should be specified like this: {filename}
 		*/
 //		static FileLogger* Parse( TokenStream& ts, StringStringMap& vars );
-		
+
 		/**
 		* @brief used to the console foreground and background color and bold attribute if in Windows
 		* @param iColor depending of it's value sets an specific scheme @see the implementation
 		*/
 		virtual void SetColor( int iColor );
-		
+
 		/**
 		* @brief clrscr under windows
 		*/
 		virtual void ClearConsole();
-		
+
 		virtual void WriteBlock(const char *pBlock, size_t sBlockLen );
 
 		/**
@@ -308,24 +303,24 @@ namespace DCE
 
 	};
 
-	/**
+	/** @class WinOrbiterLogger
 	* @brief a WinOrbiter DCE logger
 	*/
 #ifdef WIN32
 	class WinOrbiterLogger : public Logger
 	{
 		HWND m_hWndList;
-	
+
 	public:
-	
+
 		WinOrbiterLogger(HWND hWndList) : Logger("")
 		{ m_hWndList = hWndList; }
-	
+
 		virtual ~WinOrbiterLogger()
 		{}
 
 		virtual int GetType() { return LT_LOGGER_ORBITERWIN; }
-	
+
 		virtual void WriteBlock(const char *pBlock, size_t sBlockLen ) {}
 
 		virtual void WriteEntry( class Logger::Entry& entry );
@@ -337,6 +332,10 @@ namespace DCE
 	typedef map<string, string> StringStringMap;
 
 
+    /**
+    @class LoggerWrapper
+    This class ???
+     */
 	class LoggerWrapper
 	{
 	private:

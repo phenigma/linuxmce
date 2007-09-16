@@ -14,16 +14,6 @@
 	See the GNU General Public License for more details.
 */
 
-/**
- *
- * @file MessageBuffer.cpp
- * @brief source file for the MessageBuffer.cpp class
- * @author
- * @todo notcommented
- *
- */
-
-
 #include "PlutoUtils/CommonIncludes.h"
 #include "PlutoUtils/MultiThreadIncludes.h"
 #include "Logger.h"
@@ -42,7 +32,7 @@ void* MessageBufferThread( void* param ) // renamed to cancel link-time name col
 	if( p->m_bThreadRunning )  // The constructor should have set this to true
 		p->Run();
 	p->m_bThreadRunning=false;
-	
+
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Exiting MessageBufferThread thread...");
 
 	return NULL;

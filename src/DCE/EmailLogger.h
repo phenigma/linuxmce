@@ -4,7 +4,7 @@
      www.plutohome.com
 
      Phone: +1 (877) 758-8648
- 
+
 
      This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
      This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
@@ -13,12 +13,20 @@
      See the GNU General Public License for more details.
 
 */
+
+/**
+ * @file EmailLogger.h
+ Header file for the EmailLogger class.
+*/
 #ifndef EmailLogger_H
 #define EmailLogger_H
 
 namespace DCE
 {
 
+    /** @class EMailLogger
+     The EmailLogger class.
+     */
 	class EMailLogger : public Logger
 	{
 	public:

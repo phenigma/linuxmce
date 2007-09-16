@@ -4,7 +4,7 @@
      www.plutohome.com
 
      Phone: +1 (877) 758-8648
- 
+
 
      This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
      This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
@@ -21,7 +21,7 @@
  * @todo notcommented
  *
  */
- 
+
 
 #ifndef DEVICEDATA_IMPL_h
 #define DEVICEDATA_IMPL_h
@@ -38,29 +38,29 @@ namespace DCE
 
 	typedef vector<class DeviceData_Impl *> VectDeviceData_Impl;
 
-	/**
-	 * @brief containes the actual device data
-	 * from this we derive the class containing data for each specific device
-	 * @see DeviceData_Base class
+	/** @class DeviceData_Impl
+	 Containes the actual device data from this we derive the class containing data for each specific device
+
+    @see DeviceData_Base class
 	 */
 	class DeviceData_Impl : public DeviceData_Base
 	{
-	
+
 	public:
-		Event_Impl *m_pEvent_Impl; /** < pointer to an event implementation assicieted with the current device @todo ask */
-		map<int, string> m_mapParameters; /** < integer-keyed map with the parameters this device has @todo ask - is string=paramvalue? */
+		Event_Impl *m_pEvent_Impl; /**< pointer to an event implementation assicieted with the current device @todo ask */
+		map<int, string> m_mapParameters; /**< integer-keyed map with the parameters this device has @todo ask - is string=paramvalue? */
         string m_mapParameters_Find(int PK_DeviceData) { map<int, string>::iterator it = m_mapParameters.find(PK_DeviceData); return it==m_mapParameters.end() ? "" : (*it).second; }
-		
-		VectDeviceData_Impl m_vectDeviceData_Impl_Children; /** < vector containing the child devices  */
+
+		VectDeviceData_Impl m_vectDeviceData_Impl_Children; /**< vector containing the child devices  */
 		bool m_bUsePingToKeepAlive,m_bRunningWithoutDeviceData;
-	
-		/** @todo check comment */	
+
+		/** @todo check comment */
 		/*
 		DCEDeviceData_Impl(char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition,int x)
 			: DCEDeviceData_Base(pDataBlock,AllocatedSize,CurrentPosition,x)
 		{
 			Read_string(m_sDescription);
-	
+
 			unsigned long NumParms = Read_unsigned_long();
 			for(unsigned long lP=0;lP<NumParms;++lP)
 			{
@@ -69,7 +69,7 @@ namespace DCE
 				Read_string(Value);
 				SetParm(ParmNum,Value.c_str());
 			}
-	
+
 			unsigned long NumChildDevice = Read_unsigned_long();
 			for(unsigned long lC=0;lC<NumChildDevice;++lC)
 			{
@@ -82,17 +82,17 @@ namespace DCE
 		/**
 		 * @brief default constructor
 		 */
-		DeviceData_Impl() 
+		DeviceData_Impl()
 		{
 			m_bRunningWithoutDeviceData=false;
 			m_bUsePingToKeepAlive=false;
 			m_bDeviceData_Impl = true;
 		}
-		
+
 		/**
 		 * @brief constructor, it just assigns values to the member data (and calls the base class constructor)
 		 */
-		DeviceData_Impl( unsigned long dwPK_Device, unsigned long dwPK_Installation, unsigned long dwPK_Device_Template, unsigned long  dwPK_Device_Controlled_Via, 
+		DeviceData_Impl( unsigned long dwPK_Device, unsigned long dwPK_Installation, unsigned long dwPK_Device_Template, unsigned long  dwPK_Device_Controlled_Via,
 			unsigned long m_dwPK_DeviceCategory, unsigned long dwPK_Room, bool bImplementsDCE, bool bIsEmbedded, string sCommandLine, bool bIsPlugIn, string sDescription,
 			string sIPAddress, string sMacAddress, bool bInheritsMacFromPC, bool bDisabled )
 			: DeviceData_Base( dwPK_Device, dwPK_Installation, dwPK_Device_Template, dwPK_Device_Controlled_Via, m_dwPK_DeviceCategory, dwPK_Room,
@@ -108,11 +108,11 @@ namespace DCE
 			for(size_t iIndex = 0; iIndex < m_vectDeviceData_Impl_Children.size(); iIndex++)
 				delete m_vectDeviceData_Impl_Children[iIndex];
 		}
-		
+
 		// TODO -- This should be pure virtual as below.  for some reason MS won't link when it's implemented in the auto-generated
 		// derived classes.  Got to figure out why.
 		//virtual class DeviceData_Impl *CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition)=0;
-		
+
 		/**
 		 * @brief returnes the parameter value for the specified parameter
 		 */
@@ -122,12 +122,12 @@ namespace DCE
 			return it == m_mapParameters.end() ? "" : (*it).second;
 		}
 
-		
+
 		/**
 		 * @brief should be overriden to return the description for the device as a char*
 		 */
 		virtual const char *GetDeviceDescription() { return NULL; };
-		
+
 		/**
 		 * @brief setups serialization for the class member data
 		 * @warning the m_vectDeviceData_Impl_Children vector is serialized custom
@@ -139,14 +139,14 @@ namespace DCE
 			StartSerializeList() + m_mapParameters + m_bUsePingToKeepAlive;
 			(*this) + m_vectDeviceData_Impl_Children; // this is serialized custom
 		}
-		
+
 		/**
 		 * @returns "DeviceData_Impl" so that the SerializeClass knows what to serialize
-		 */		
+		 */
 		virtual string SerializeClassClassName() { return "DeviceData_Impl"; }
 
 		/** overloding + for our custom serialize types */
-		
+
 		/**
 		 * @brief adds a new ItemToSerialize to the m_vectItemToSerialize list (the m_vectDeviceData_Impl_Children vector)
 		 */
@@ -165,7 +165,7 @@ namespace DCE
 		 * @todo This should be pure virtual as below.  for some reason MS won't link when it's implemented in the auto-generated derived classes.  Got to figure out why.
 		 * virtual class DeviceData_Impl *CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char CurrentPosition)=0;
 		 */
-		virtual class DeviceData_Impl *CreateData( DeviceData_Impl * /*pParent*/, char * /*pcDataBlock*/, 
+		virtual class DeviceData_Impl *CreateData( DeviceData_Impl * /*pParent*/, char * /*pcDataBlock*/,
 				unsigned long /*dwAllocatedSize*/, char * /*pcCurrentPosition*/) { return NULL; }
 
 		/*
@@ -186,10 +186,10 @@ namespace DCE
 			return NULL;
 		}
 
-		/** 
+		/**
 		 * @brief sets the specified value for the specified parameter
 		 */
-		virtual void SetParm( unsigned long dwParmNum, const char *pcParm ) 
+		virtual void SetParm( unsigned long dwParmNum, const char *pcParm )
 		{
 			m_mapParameters[dwParmNum] = pcParm;
 		}

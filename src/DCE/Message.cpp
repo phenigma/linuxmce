@@ -14,16 +14,6 @@
     See the GNU General Public License for more details.
 */
 
-/**
- *
- * @file Message.cpp
- * @brief source file for the Message class
- * @author
- * @todo notcommented
- *
- */
-
-
 #include "PlutoUtils/CommonIncludes.h"
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
@@ -269,7 +259,7 @@ void Message::BuildFromArgs( int iNumArgs, char *cArguments[], int dwPK_DeviceFr
 		{
 			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Message constructor malformed with wrong param id '%s'", pParamID);
 			Clear();
-			return;			
+			return;
 		}
 
 		size_t tSizeParmValue = 0;
@@ -319,7 +309,7 @@ void Message::BuildFromArgs( int iNumArgs, char *cArguments[], int dwPK_DeviceFr
 		else
 			m_mapParameters[ParamNum] = pParmValue;
     }
-	
+
 	m_pcDataBlock = NULL; // Be sure the SerializeClass destructor doesn't also try to delete this
 
     if(bDeleteArray)
@@ -738,7 +728,7 @@ void Message::FromData( unsigned long dwSize, char *pcData )
     m_bRelativeToSender = Read_unsigned_char()==1;
     m_eExpectedResponse=(eExpectedResponse) Read_long();
     Read_string( m_sPK_Device_List_To );
-    
+
     if( dwStart != 1234 ) {
 	// dump debug info
 	LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "**** dwStart: %d", dwStart );

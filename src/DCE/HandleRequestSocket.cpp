@@ -14,17 +14,6 @@
 	See the GNU General Public License for more details.
 */
 
-/**
- *
- * @file HandleRequestSocket.cpp
- * @brief source file for the HandleRequestSocket class
- * @author
- * @todo notcommented
- *
- */
-
-
-
 #include "PlutoUtils/CommonIncludes.h"
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
@@ -90,7 +79,7 @@ void HandleRequestSocket::DisconnectAndWait()
 	if( m_bRunning && m_RequestHandlerThread )
 	{
 		LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Requesthandler %p (device: %d) runThread won't die!", this, m_dwPK_Device );
-		
+
 #ifndef WINCE //not defined under ce :(
 		pthread_cancel(m_RequestHandlerThread);
 #endif
@@ -117,16 +106,16 @@ bool HandleRequestSocket::OnConnect( int PK_DeviceTemplate,string sExtraInfo )
 	}
 
 	m_bTerminate = false;
-	
+
 	if( 0 != pthread_create( &m_RequestHandlerThread, NULL, BeginHandleRequestThread, (void *)this ) )
 		return false;
-	
+
 	return true;
 }
 
 void HandleRequestSocket::RunThread()
 {
-	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Requesthandler %p (device: %d) runThread now running", 
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Requesthandler %p (device: %d) runThread now running",
 		this, m_dwPK_Device );
 	m_bRunning = true;
 
@@ -206,7 +195,7 @@ void HandleRequestSocket::RunThread()
 				ReceivedString( sMessage );
 		}
 	}
-	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Requesthandler %p (device: %d) Closing request handler connection", 
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Requesthandler %p (device: %d) Closing request handler connection",
 		this, m_dwPK_Device );
 
 //	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Closing event handler connection %d (%d,%s), Terminate: %d %s\n",

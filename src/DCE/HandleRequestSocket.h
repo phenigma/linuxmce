@@ -4,7 +4,7 @@
      www.plutohome.com
 
      Phone: +1 (877) 758-8648
- 
+
 
      This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
      This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
@@ -13,13 +13,10 @@
      See the GNU General Public License for more details.
 
 */
-/**
- *
- * @file HandleRequestSocket.h
- * @brief header file for the HandleRequestSocket class
- * @author
+
+/** @file HandleRequestSocket.h
+ Header file for the HandleRequestSocket class.
  * @todo notcommented
- *
  */
 
 
@@ -32,19 +29,19 @@ namespace DCE
 {
 	typedef enum { rmr_NotProcessed=0, rmr_Processed, rmr_Buffered } ReceivedMessageResult;
 
-	/**
+	/** @class HandleRequestSocket
 	 * @brief socket that handles requests
 	 */
 	class HandleRequestSocket : public ClientSocket
 	{
-		
-	public:
-		
-		pthread_t m_RequestHandlerThread; /** < he thread that runs the main loop */
 
-		bool m_bRunning; /** < the socket is running */
-		bool m_bTerminate; /** < specifies that the socket terminated (the main loop exits) */
-		bool m_bUnexpected; /** < set if the socket got an unexpected error */
+	public:
+
+		pthread_t m_RequestHandlerThread; /**< he thread that runs the main loop */
+
+		bool m_bRunning; /**< the socket is running */
+		bool m_bTerminate; /**< specifies that the socket terminated (the main loop exits) */
+		bool m_bUnexpected; /**< set if the socket got an unexpected error */
 
 		/**
 		 * @brief calls the base class constructor and assignes 0 to m_RequestHandlerThread

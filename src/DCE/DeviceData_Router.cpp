@@ -1,32 +1,22 @@
-/* 
+/*
 	DeviceData_Router
-	
+
 	Copyright (C) 2004 Pluto, Inc., a Florida Corporation
-	
-	www.plutohome.com		
-	
+
+	www.plutohome.com
+
 	Phone: +1 (877) 758-8648
-	
+
 	This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
-	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty 
-	of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
-	
+	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+	of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
 	See the GNU General Public License for more details.
 */
 
-/**
- *
- * @file DeviceData_Router.cpp
- * @brief source file for the AllDevices class
- * @author
- * @todo notcommented
- *
- */
-
-
 #include "Logger.h"
 #include "Command_Impl.h"
-#include "PlutoUtils/CommonIncludes.h"	
+#include "PlutoUtils/CommonIncludes.h"
 #include "DeviceData_Router.h"
 #include "DCERouter.h"
 
@@ -52,18 +42,18 @@ DeviceData_Base *DeviceData_Router::FindFirstRelatedDeviceOfCategory(int PK_Devi
 					case 'N': // not registered
 						if( tTimeout < time(NULL) )
 						{
-							
+
 								LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "FindFirstRelatedDeviceOfCategory %d dev %d never registered",PK_DeviceCategory,m_dwPK_Device);
 							return NULL;
 						}
 						Sleep(1000);
 						break;
 					case 'D':
-						
+
 							LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "FindFirstRelatedDeviceOfCategory %d dev %d is disabled",PK_DeviceCategory,m_dwPK_Device);
 						return NULL;
 					case 'E':
-						
+
 							LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "FindFirstRelatedDeviceOfCategory %d dev %d comm error",PK_DeviceCategory,m_dwPK_Device);
 						return NULL;
 				}
@@ -105,18 +95,18 @@ DeviceData_Base *DeviceData_Router::FindFirstRelatedDeviceOfTemplate(int PK_Devi
 					case 'N': // not registered
 						if( tTimeout < time(NULL) )
 						{
-							
+
 							LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "FindFirstRelatedDeviceOfTemplate %d never registered",m_dwPK_Device);
 							return NULL;
 						}
 						Sleep(1000);
 						break;
 					case 'D':
-						
+
 							LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "FindFirstRelatedDeviceOfTemplate %d is disabled",m_dwPK_Device);
 						return NULL;
 					case 'E':
-						
+
 							LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "FindFirstRelatedDeviceOfTemplate %d comm error",m_dwPK_Device);
 						return NULL;
 				}

@@ -14,17 +14,6 @@
     See the GNU General Public License for more details.
 */
 
-/**
- *
- * @file Logger.cpp
- * @brief source file for the Logger, NullLogger and FileLogger classes
- * @author Aaron
- * @todo notcommented
- *
- */
-
-
-
 #include <time.h>
 #ifndef WIN32
 #include <sys/time.h>
@@ -357,7 +346,7 @@ void FileLogger::WriteEntry( Entry& Entry )
 #endif
 
 #ifdef DEBUG
-    fflush( m_LogFile ); 
+    fflush( m_LogFile );
 #else
 	if( g_bFlushLog )
 	    fflush( m_LogFile );   // Try leaving this out of release builds to get faster disk performance.  For debug, we want to see the logs in real-time
@@ -372,10 +361,10 @@ void WinOrbiterLogger::WriteEntry( Entry& entry )
 	struct tm *t = localtime((time_t *)&entry.m_TimeStamp.tv_sec);
 	char acBuff[50];
 	double dwSec = (double)(entry.m_TimeStamp.tv_usec/1E6) + t->tm_sec;
-	snprintf( 
-		acBuff, 
-		sizeof(acBuff), //"%02d/%02d/%02d %d:%02d:%06.3f", 
-		"%d:%02d:%02.3f", 
+	snprintf(
+		acBuff,
+		sizeof(acBuff), //"%02d/%02d/%02d %d:%02d:%06.3f",
+		"%d:%02d:%02.3f",
 		/*(int)t->tm_mon + 1, (int)t->tm_mday, (int)t->tm_year - 100,*/
 		(int)t->tm_hour, (int)t->tm_min, dwSec );
 

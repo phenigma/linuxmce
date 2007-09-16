@@ -47,6 +47,8 @@ clean:
 package:
 	./make_package.sh $(APPNAME) $(VERSION)
 
+docs:
+	doxygen Doxyfile
 
 include $(ROOT)/PlutoUtils/make.rules
 ifeq (,$(findstring clean, $(MAKECMDGOALS)))
