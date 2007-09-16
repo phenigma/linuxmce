@@ -13,7 +13,7 @@ endif
 
 CPPFLAGS = -I./ -I../../ -I../ -I../DCE/ -I../../DCE -I../VIPShared/ -I../../VIPShared -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -DUSE_LZO_DATAGRID $(SNR_CPPFLAGS)
 CXX = g++
-LDFLAGS = 
+LDFLAGS =
 
 ifneq ($(strip $(have_httpfetcher)),)
 	LDLIBS += -lhttp_fetcher
@@ -36,13 +36,16 @@ all: libPlutoUtils.so all-recursive
 libPlutoUtils.so: $(sources:.cpp=.o)
 	$(CXX) -shared $(CXXFLAGS) $(CPPFLAGS) -o $@ $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../lib
-	
+
 libPlutoUtils.a: $(sources:.cpp=.o)
 	$(AR) rc $@ $(call cpath,$+)
 	cp $@ ../lib
-	
-clean: 
+
+clean:
 	rm -f $(call cpath,$(sources:.cpp=.o) $(sources:.cpp=.d)) libPlutoUtils.so libPlutoUtils.a >/dev/null
+
+docs:
+	doxygen Doxyfile
 
 include $(ROOT)/PlutoUtils/make.rules
 -include $(sources:.cpp=.d)
