@@ -4,7 +4,7 @@
      www.plutohome.com
 
      Phone: +1 (877) 758-8648
- 
+
 
      This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
      This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
@@ -13,12 +13,22 @@
      See the GNU General Public License for more details.
 
 */
+
+/**
+ * @file singleton.h
+ Header file for ??? .
+ */
 #ifndef __SINGLETON_HPP__
 #define __SINGLETON_HPP__
 
 #include "typetraits.h"
 #include "threads.h"
 
+
+/**
+@namespace cpp
+For ???.
+*/
 namespace cpp {
 
 ///////////////////////////////////////////////////////////////////////////
@@ -28,7 +38,7 @@ namespace cpp {
 	//	disables creation of object
 	template<typename T>
 	class NoCreation {
-	protected : 
+	protected :
 		inline explicit NoCreation() {}
 		inline ~NoCreation() {}
 
@@ -36,7 +46,7 @@ namespace cpp {
 		inline static T* CreateInstance() { throw std::logic_error("NoCreation::CreateInstance called"); }
 		inline static void DestroyInstance(T*) { throw std::logic_error("NoCreation::DestroyInstance called"); }
 
-	private : 
+	private :
 		inline explicit NoCreation(NoCreation const&) {}
 		inline NoCreation& operator=(NoCreation const&) { return *this; }
 	};	//	end of class NoCreation
@@ -48,7 +58,7 @@ namespace cpp {
 	//	creates the object with a normal new invocation
 	template<typename T>
 	class CreateUsingNew {
-	protected : 
+	protected :
 		inline explicit CreateUsingNew() {}
 		inline ~CreateUsingNew() {}
 
@@ -56,7 +66,7 @@ namespace cpp {
 		inline static T* CreateInstance() { return new T(); }
 		inline static void DestroyInstance(T* t) { delete t; }
 
-	private : 
+	private :
 		inline explicit CreateUsingNew(CreateUsingNew const&) {}
 		inline CreateUsingNew& operator=(CreateUsingNew const&) { return *this; }
 	};	//	end of class CreateUsingNew
@@ -69,7 +79,7 @@ namespace cpp {
 	//	but not static lifespan
 	template<typename T>
 	class CreateUsingStatic {
-	protected : 
+	protected :
 		inline explicit CreateUsingStatic() {}
 		inline ~CreateUsingStatic() {}
 
@@ -80,10 +90,10 @@ namespace cpp {
 		}
 		inline static void DestroyInstance(T* t) { t->~T(); }
 
-	private : 
+	private :
 		static unsigned char t_[];
 
-	private : 
+	private :
 		inline explicit CreateUsingStatic(CreateUsingStatic const&) {}
 		inline CreateUsingStatic& operator=(CreateUsingStatic const&) { return *this; }
 	};	//	end of class CreateUsingStatic
@@ -100,7 +110,7 @@ namespace cpp {
 	//	dead reference throws an exception
 	template<typename T>
 	class DefaultLifetime {
-	protected : 
+	protected :
 		inline explicit DefaultLifetime() {}
 		inline ~DefaultLifetime() {}
 
@@ -108,7 +118,7 @@ namespace cpp {
 		inline static void OnDeadReference() { throw string("Dead Reference Detected"); }
 		inline static void ScheduleForDestruction(void (*pFun)()) { std::atexit(pFun); }
 
-	private : 
+	private :
 		inline explicit DefaultLifetime(DefaultLifetime const&) {}
 		inline DefaultLifetime& operator=(DefaultLifetime const&) { return *this; }
 	};	//	end of class DefaultLifetime
@@ -120,7 +130,7 @@ namespace cpp {
 	//	allows recurring singleton
 	template<typename T>
 	class PhoenixSingleton {
-	protected : 
+	protected :
 		inline explicit PhoenixSingleton() {}
 		inline ~PhoenixSingleton() {}
 
@@ -128,7 +138,7 @@ namespace cpp {
 		inline static void OnDeadReference() {}
 		inline static void ScheduleForDestruction(void (*pFun)()) { std::atexit(pFun); }
 
-	private : 
+	private :
 		inline explicit PhoenixSingleton(PhoenixSingleton const&) {}
 		inline PhoenixSingleton& operator=(PhoenixSingleton const&) { return *this; }
 	};	//	end of class PhoenixSingleton
@@ -140,7 +150,7 @@ namespace cpp {
 	//	no destruction calls, unlimited lifetime
 	template<typename T>
 	class NoDestruction {
-	protected : 
+	protected :
 		inline explicit NoDestruction() {}
 		inline ~NoDestruction() {}
 
@@ -148,7 +158,7 @@ namespace cpp {
 		inline static void OnDeadReference() {}
 		inline static void ScheduleForDestruction(void (*)()) {}
 
-	private : 
+	private :
 		inline explicit NoDestruction(NoDestruction const&) {}
 		inline NoDestruction& operator=(NoDestruction const&) { return *this; }
 	};	//	end of class NoDestruction
@@ -163,7 +173,7 @@ namespace cpp {
 	//	extends the typetraits just to take advantage of the basic typedefs
 	template<typename T, typename CreationPolicy = CreateUsingNew<T>, template <typename> class LifetimePolicy = DefaultLifetime, template <typename> class ThreadingModel = cpp::Threading::SingleThreaded>
 	class Singleton : public cpp::Traits::TypeTraits<typename ThreadingModel<T>::VolatileType>, public CreationPolicy, public LifetimePolicy<T>, public ThreadingModel<T> {
-	public : 
+	public :
 		//	grabs the singleton's instance, if any
 		//	otherwise creates an instance
 		static typename cpp::Singleton<T, CreationPolicy, LifetimePolicy, ThreadingModel>::RefType Instance();
@@ -172,19 +182,19 @@ namespace cpp {
 		//	resets the singleton instance with a new user created instance
 		static void Reset(typename cpp::Singleton<T, CreationPolicy, LifetimePolicy, ThreadingModel>::PointerType, void (*pFun)(T*));
 
-	protected : 
+	protected :
 		inline explicit Singleton() { Singleton::instance_ = static_cast<typename cpp::Singleton<T, CreationPolicy, LifetimePolicy, ThreadingModel>::PointerType>(this); Singleton::destroyed_ = false; Singleton::pFun_ = 0; }
 		inline ~Singleton() { Singleton::instance_ = 0; Singleton::destroyed_ = true; Singleton::pFun_ = 0; }
 
-	private : 
+	private :
 		typedef void (*UserSuppliedDestroy)(T*);
 
-	private : 
+	private :
 		static typename cpp::Singleton<T, CreationPolicy, LifetimePolicy, ThreadingModel>::PointerType instance_;
 		static bool destroyed_;
 		static UserSuppliedDestroy pFun_;
 
-	private : 
+	private :
 		inline explicit Singleton(Singleton const&) {}
 		inline Singleton& operator=(Singleton const&) { return *this; }
 	};	//	end of class Singleton

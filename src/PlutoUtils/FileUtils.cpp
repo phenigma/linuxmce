@@ -14,16 +14,6 @@
 	See the GNU General Public License for more details.
 */
 
-/**
- *
- * @file FileUtils.cpp
- * @brief source file for the file utils namespace
- * @author
- * @todo notcommented
- *
- */
-
-
 #include "FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
@@ -151,9 +141,9 @@ char *FileUtils::ReadURL(string sUrl, size_t &Size,bool bNullTerminate)
 		Size = 0;
 		return NULL;
 	}
-		
+
 	string sDownloadedFile = fileName;
-	
+
 	string sCommand = "wget " + sUrl + " -O " + sDownloadedFile;
 	int iRetCode = system(sCommand.c_str());
 	if (iRetCode)
@@ -161,7 +151,7 @@ char *FileUtils::ReadURL(string sUrl, size_t &Size,bool bNullTerminate)
 		Size = 0;
 		return NULL;
 	}
-	
+
 	char *pData = FileUtils::ReadFileIntoBuffer(sDownloadedFile, Size);
 	FileUtils::DelFile(sDownloadedFile);
 
@@ -427,7 +417,7 @@ bool FileUtils::DelDir(string sDirectory)
 			sCurrentItem = string(pPath);
 		#else
 			sPath += findData.cFileName;
-			sCurrentItem = findData.cFileName;			
+			sCurrentItem = findData.cFileName;
 		#endif
 
 			if(sCurrentItem == "." || sCurrentItem == "..")
@@ -596,8 +586,8 @@ string FileUtils::ValidCPPName(string sInput)
     StringUtils::Replace(&sInput,"&","");
     StringUtils::Replace(&sInput,"+","");
     StringUtils::Replace(&sInput,"'","");
-    StringUtils::Replace(&sInput,"’","");
-    
+    StringUtils::Replace(&sInput,"ï¿½","");
+
     // taking out the underscores from the begining of the file name
     while(sInput.length() && sInput[0]=='_')
         sInput=sInput.substr(1);
@@ -654,7 +644,7 @@ bool FileUtils::FindFiles(list<string> &listFiles,string sDirectory,string sFile
 #ifndef WIN32
 		,map<u_int64_t,bool> *pMapInodes
 #endif
-	) 
+	)
 {
     if( !StringUtils::EndsWith(sDirectory,"/") )
         sDirectory += "/";
@@ -913,7 +903,7 @@ bool FileUtils::FindDirectories(list<string> &listDirectories,string sDirectory,
 				closedir(dirp);
 				return true;
 			}
-        
+
 			if (bRecurse && FindDirectories( listDirectories, sDirectory + entry.d_name, true, bFullyQualifiedPath, iMaxFileCount, PrependedPath + entry.d_name + "/",pMapInodes ) )
 			{
 				if( bCreatedTempMap )
@@ -1109,7 +1099,7 @@ string FileUtils::GetMidFileChecksum( string sFileName, int Bytes )
 	if( read!=Bytes )
 		return ""; // Shouldn't happen
 	fclose(file);
-	
+
 	string sMd5 = FileUtils::FileChecksum(pBuffer,read);
 	delete[] pBuffer;
 	return sMd5;
@@ -1125,7 +1115,7 @@ string FileUtils::GetLastModifiedDateStr(string sFile)
 	if(!result && (buf.st_mode & S_IFDIR))
 	{
 		struct tm tm;
-		localtime_r(&buf.st_mtime,&tm);   // Convert time to struct tm form 
+		localtime_r(&buf.st_mtime,&tm);   // Convert time to struct tm form
 		char acDateTime[100];
 		sprintf( acDateTime, "%04d%02d%02d%02d%02d%02d",
 			tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec );

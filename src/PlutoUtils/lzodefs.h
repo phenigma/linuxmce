@@ -33,7 +33,10 @@
    http://www.oberhumer.com/opensource/lzo/
  */
 
-
+/**
+ * @file lzodefs.h
+ Header file LZO library.
+ */
 #ifndef __LZODEFS_H_INCLUDED
 #define __LZODEFS_H_INCLUDED 1
 

@@ -4,7 +4,7 @@
      www.plutohome.com
 
      Phone: +1 (877) 758-8648
- 
+
 
      This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
      This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
@@ -13,6 +13,11 @@
      See the GNU General Public License for more details.
 
 */
+
+/**
+ * @file DBHelper.h
+ Header file
+ */
 #ifndef DBHelper_h
 #define DBHelper_h
 
@@ -22,13 +27,15 @@
 
 using namespace DCE;
 
-// Use this to be sure the results are automatically freed
+/** @class PlutoSqlResult
+Use this class to be sure the results are automatically freed.
+*/
 class PlutoSqlResult
 {
 public:
 	DB_RES *r;
 	PlutoSqlResult() : r(NULL) {};
-	~PlutoSqlResult() 
+	~PlutoSqlResult()
 	{
 		ClearResults();
 	}
@@ -42,7 +49,10 @@ public:
 	}
 };
 
-// You can add this to a base class to get some helper db functions
+/** @class PlutoSqlResult
+You can add this to a base class to get some helper db functions.
+*/
+//
 class DBHelper
 {
 private:
@@ -111,7 +121,7 @@ public:
 		PLUTO_SAFETY_LOCK_ERRORSONLY(sl,m_DBMutex);
 		if( bReset && m_pDB )
 		{
-			
+
 				LoggerWrapper::GetInstance()->Write(LV_WARNING,"Resetting db_wrapper connection");
 			db_wrapper_close(m_pDB);
 			m_pDB=NULL;
@@ -129,7 +139,7 @@ public:
 
 		if (db_wrapper_real_connect(m_pDB, m_sDBHost.c_str(), m_sDBUser.c_str(), m_sDBPass.c_str(), m_sDBDBName.c_str(), m_iDBPort, NULL, 0) == NULL)
 		{
-			
+
 				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Connect failed %s",db_wrapper_error(m_pDB));
 			m_bConnected=false;
 		}
@@ -165,7 +175,7 @@ public:
 		int iresult;
 		if( (iresult=db_wrapper_query(m_pDB,query.c_str()))!=0 )
 		{
-			
+
 			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Query failed (%s): %s (%d)",db_wrapper_error(m_pDB),query.c_str(),iresult);
 			if( DBConnect(true) && Retry==false )
 			{
@@ -184,18 +194,18 @@ public:
 		clock_t cStop = clock();
 		if( cStop-cStart>CLOCKS_PER_SEC/2 )  // Nothing should take 500 ms
 		{
-			
+
 				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Query: %s took %d ms",query.c_str(),(int) (cStop-cStart));
 		} else if( cStop-cStart>CLOCKS_PER_SEC/10 )
 		{
-			
+
 				LoggerWrapper::GetInstance()->Write(LV_WARNING,"Query: %s took %d ms",query.c_str(),(int) (cStop-cStart));
 		}
 	#endif
 
 		DB_RES *pDB_RES = db_wrapper_store_result(m_pDB);
 #ifdef LOG_ALL_QUERIES
-		
+
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Query returned %d rows: %s",(int) (pDB_RES ? pDB_RES->row_count : 0), query.c_str());
 #endif
 		return pDB_RES;
@@ -212,7 +222,7 @@ public:
 		{
 			if( bIgnoreErrors )
 				return -1;
-			
+
 			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Query failed (%s): %s (%d)",db_wrapper_error(m_pDB),query.c_str(),iresult);
 			if( DBConnect(true) && Retry==false )
 			{
@@ -227,16 +237,16 @@ public:
 		clock_t cStop = clock();
 		if( cStop-cStart>CLOCKS_PER_SEC/2 )  // Nothing should take 500 ms
 		{
-			
+
 				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Query: %s took %d ms",query.c_str(),(int) (cStop-cStart));
 		} else if( cStop-cStart>CLOCKS_PER_SEC/10 )
 		{
-			
+
 				LoggerWrapper::GetInstance()->Write(LV_WARNING,"Query: %s took %d ms",query.c_str(),(int) (cStop-cStart));
 		}
 	#endif
 #ifdef LOG_ALL_QUERIES
-		
+
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Executed query %s (%d rows)", query.c_str(), (int) db_wrapper_affected_rows(m_pDB));
 #endif
 		return (int) db_wrapper_affected_rows(m_pDB);
@@ -251,7 +261,7 @@ public:
 		int iresult;
 		if( (iresult=db_wrapper_query(m_pDB,query.c_str()))!=0 )
 		{
-			
+
 			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Query failed (%s): %s (%d)",db_wrapper_error(m_pDB),query.c_str(),iresult);
 			if( DBConnect(true) && Retry==false )
 			{
@@ -266,16 +276,16 @@ public:
 		clock_t cStop = clock();
 		if( cStop-cStart>CLOCKS_PER_SEC/2 )  // Nothing should take 500 ms
 		{
-			
+
 				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Query: %s took %d ms",query.c_str(),(int) (cStop-cStart));
 		} else if( cStop-cStart>CLOCKS_PER_SEC/10 )
 		{
-			
+
 				LoggerWrapper::GetInstance()->Write(LV_WARNING,"Query: %s took %d ms",query.c_str(),(int) (cStop-cStart));
 		}
 	#endif
 #ifdef LOG_ALL_QUERIES
-		
+
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Query has ID %d: %s", (int) db_wrapper_insert_id(m_pDB), query.c_str());
 #endif
 		return (int) db_wrapper_insert_id(m_pDB);

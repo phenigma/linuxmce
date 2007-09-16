@@ -4,7 +4,7 @@
      www.plutohome.com
 
      Phone: +1 (877) 758-8648
- 
+
 
      This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
      This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
@@ -13,21 +13,20 @@
      See the GNU General Public License for more details.
 
 */
-/**
- *
- * @file ProcessUtils.h
- * @brief header file for the file utils namespace
- * @author
- * @todo notcommented
- *
- */
 
+/** @file ProcessUtils.h
+ Header file for the file utils namespace
+ */
 #ifndef PROCESSUTILS
 #define PROCESSUTILS
 
 #include <string>
 #include <vector>
 
+/**
+@namespace ProcessUtils
+For ???.
+*/
 namespace ProcessUtils
 {
 	using std::string;
@@ -62,7 +61,7 @@ namespace ProcessUtils
 
 	// This is used to get elapsed time in milliseconds for quick comparissons.
 	// clock is no good because it's only CPU time, not actual time.  timespec
-	// is cumbersome.  You must call ResetMsTime to 'start' the stop watch, and 
+	// is cumbersome.  You must call ResetMsTime to 'start' the stop watch, and
 	// then GetMsTime will report the elapsed time in milliseconds.  Because it's a
 	// 32-bit integer, the values will roll over after 40 days, so ResetMsTime
 	// must be called periodically.  The counter will start at the last 1 second break,

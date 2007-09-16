@@ -4,7 +4,7 @@
      www.plutohome.com
 
      Phone: +1 (877) 758-8648
- 
+
 
      This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
      This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
@@ -13,13 +13,10 @@
      See the GNU General Public License for more details.
 
 */
-/**
- *
- * @file DatabaseUtils.h
- * @brief header file for the DatabaseUtils namespace
- * @author
+
+/** @file DatabaseUtils.h
+ Header file for the DatabaseUtils namespace
  * @todo notcommented
- *
  */
 
 
@@ -35,6 +32,10 @@
 
 using namespace std;
 
+/**
+@namespace DatabaseUtils
+Utilities for Database access.
+*/
 namespace DatabaseUtils
 {
 	int GetTopMostDevice(DBHelper *pDBHelper,int PK_Device);

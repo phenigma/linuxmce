@@ -4,7 +4,7 @@
      www.plutohome.com
 
      Phone: +1 (877) 758-8648
- 
+
 
      This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
      This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
@@ -13,6 +13,11 @@
      See the GNU General Public License for more details.
 
 */
+
+/**
+ * @file MyStl.h
+ Header file for ??? .
+ */
 #ifndef MyStl_h
 #define MyStl_h
 
@@ -36,7 +41,7 @@
 #define MYSTL_GET_SECOND_LONG_MAP(IteratorName) (*IteratorName).second
 #define MYSTL_GET_AT_LONG_MAP(CollectionName,ValueObjectType,ValueObject,Position) \
     map<long, ValueObjectType*>::iterator it = CollectionName.find(Position); \
-    ValueObjectType* ValueObject = it == CollectionName.end() ? NULL : (*it).second; 
+    ValueObjectType* ValueObject = it == CollectionName.end() ? NULL : (*it).second;
 
 #else
 // Symbian version of the <string>

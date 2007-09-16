@@ -4,7 +4,7 @@
      www.plutohome.com
 
      Phone: +1 (877) 758-8648
- 
+
 
      This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
      This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
@@ -13,6 +13,11 @@
      See the GNU General Public License for more details.
 
 */
+
+/**
+ * @file property.h
+ Header file for ??? .
+ */
 #ifndef CPP_PROPERTIES_HPP
 #define CPP_PROPERTIES_HPP
 
@@ -21,7 +26,7 @@
 
 
 /*
-*		C++ object properties library 
+*		C++ object properties library
 *		(C) 2005 Achilleas Margaritis
 *
 *		The header file 'property.h' provides object properties.
@@ -30,14 +35,20 @@
 *
 */
 
-/** generic namespace for all libraries from this source.
+
+/**
+@namespace cpp
+Generic namespace for all libraries from PlutoUtils.
  */
 namespace cpp {
 
 
 
 
-/** Provides properties to objects.
+/**
+@namespace properties
+
+Provides properties to objects.
 
     <p>The purpose of this library is to provide object properties. Instead of
     coding setter and getter methods, it is better to use properties because
@@ -68,7 +79,7 @@ namespace cpp {
 
     protected:
         virtual void data_changed() {
-        }        
+        }
     };
     </pre>
 
@@ -90,8 +101,8 @@ namespace cpp {
     write-only) and the type of storage (variable or property_interface) can be
     changed by supplying different template parameters.
     </p>
-    
-    <p>property_interface properties are properties that don't store the value, but 
+
+    <p>property_interface properties are properties that don't store the value, but
     they call the owner object for getting and setting the value of the
     property.
     </p>
@@ -105,7 +116,7 @@ namespace cpp {
     public:
         property<MyClass, int, read_write, property_interface> data;
 
-        MyClass() : 
+        MyClass() :
             m_data(0),
             data(this, &MyClass::data_get, &MyClass::data_set) {
         }
@@ -115,7 +126,7 @@ namespace cpp {
 
         const int &data_get() const {
             return m_data;
-        }        
+        }
 
         void data_set(const int &value) {
             m_data = value;
@@ -281,10 +292,10 @@ public:
 //default property template
 template <class C, class T, class A, class S> class _property {};
 
-    
+
 //read_write, variable
 template <class C, class T> class _property<C, T, read_write, variable> {
-public:    
+public:
     //constructor
     _property(C *o, void (C::*m)(), const T &v = T()) :
         m_object(o), m_method(m), m_value(v) {
@@ -305,11 +316,11 @@ private:
     void (C::*m_method)();
     T m_value;
 };
-    
-    
+
+
 //read_write, property_interface
 template <class C, class T> class _property<C, T, read_write, property_interface> {
-public:    
+public:
     //constructor
     _property(C *o, const T &(C::*g)() const, void (C::*s)(const T &)) :
         m_object(o), m_getter(g), m_setter(s)
@@ -327,11 +338,11 @@ private:
     const T &(C::*m_getter)() const;
     void (C::*m_setter)(const T &);
 };
-  
 
-//read_only, variable      
+
+//read_only, variable
 template <class C, class T> class _property<C, T, read_only, variable> {
-public:    
+public:
     //constructor
     _property(const T &v = T()) : m_value(v) {
     }
@@ -343,10 +354,10 @@ private:
     T m_value;
 };
 
-    
+
 //read_only, property_interface
 template <class C, class T> class _property<C, T, read_only, property_interface> {
-public:    
+public:
     //constructor
     _property(C *o, const T &(C::*g)() const) :
         m_object(o), m_getter(g)
@@ -361,10 +372,10 @@ private:
     const T &(C::*m_getter)() const;
 };
 
-    
-//write_only, variable      
+
+//write_only, variable
 template <class C, class T> class _property<C, T, write_only, variable> {
-public:    
+public:
     //constructor
     _property(C *o, void (C::*m)(), const T &v = T()) :
         m_object(o), m_method(m), m_value(v) {
@@ -383,10 +394,10 @@ private:
     T m_value;
 };
 
-    
+
 //write_only, property_interface
 template <class C, class T> class _property<C, T, write_only, property_interface> {
-public:    
+public:
     //constructor
     _property(C *o, void (C::*s)(const T &)) :
         m_object(o), m_setter(s)
@@ -401,7 +412,7 @@ private:
     void (C::*m_setter)(const T &);
 };
 
-    
+
 #endif
 
 
@@ -411,7 +422,7 @@ private:
     @param A access policy: one of read_write, read_only, write_only
     @param S storage policy: one of variable, property_interface
  */
-template <class C, class T, class A = read_write, class S = variable> class property : public 
+template <class C, class T, class A = read_write, class S = variable> class property : public
 #ifdef _MSC_VER
     _property1<C, T>::_property2<A, S>
 #else
@@ -427,7 +438,7 @@ public:
 
     /** read_write or write_only, variable constructor
         @param o owner object; usually 'this'; must not be null
-        @param m method to use for notifying object; must not be null 
+        @param m method to use for notifying object; must not be null
         @param v initial value
      */
     property(C *o, void (C::*m)(), const T &v = T()) :
@@ -499,7 +510,7 @@ public:
         @param p property to copy the value of to this
         @return reference to this
      */
-    template <class A1, class S1> 
+    template <class A1, class S1>
     property<C, T, A, S> &operator = (const property<C, T, A1, S1> &p) {
         set(p.get());
         return *this;

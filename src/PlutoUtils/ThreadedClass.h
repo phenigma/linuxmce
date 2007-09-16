@@ -4,7 +4,7 @@
  Copyright (C) 2004 Pluto, Inc., a Florida Corporation
 
  www.plutohome.com
- 
+
 
  Phone: +1 (877) 758-8648
 
@@ -26,6 +26,10 @@
 
 */
 
+/**
+ * @file ThreadedClass.h
+ Header file for Threading class.
+ */
 #ifndef ThreadedClass_h
 #define ThreadedClass_h
 
@@ -33,8 +37,16 @@
 using namespace std;
 #include "PlutoUtils/MultiThreadIncludes.h"
 
+/**
+@namespace nsThreadedClass
+For ???.
+*/
 namespace nsThreadedClass
 {
+
+/** @class ThreadedClass
+ Class for Threading
+ */
 	class ThreadedClass
 	{
 	private:
@@ -45,7 +57,7 @@ namespace nsThreadedClass
 		int m_iTimeoutSecondsForStopThread; // How long StopThread should wait for the thread to quit, or 0 for indefinate
 		pthread_t m_pthread; /** < the thread id for the tread that's processing the jobs */
 		pthread_cond_t m_ThreadCondition; /** < condition to wakeup when something has changed */
-	    pluto_pthread_mutex_t m_ThreadMutex; 
+	    pluto_pthread_mutex_t m_ThreadMutex;
 	    pthread_mutexattr_t m_ThreadAttribute;
 
 	public:

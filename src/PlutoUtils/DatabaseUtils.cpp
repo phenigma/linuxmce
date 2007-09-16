@@ -14,14 +14,6 @@
     See the GNU General Public License for more details.
 */
 
-/**
- *
- * @file DatabaseUtils.cpp
- * @brief source file for the DatabaseUtils
- * @author
- * @todo notcommented
- *
- */
 #include "StringUtils.h"
 #include "DatabaseUtils.h"
 #include "Other.h"
@@ -101,10 +93,10 @@ int DatabaseUtils::GetDeviceTemplateForDevice(DBHelper *pDBHelper,int PK_Device)
 void DatabaseUtils::SetDeviceTemplateForDevice(DBHelper *pDBHelper,int PK_Device,int PK_DeviceTemplate)
 {
 	string sSQL = "UPDATE Device SET FK_DeviceTemplate=" + StringUtils::itos(PK_DeviceTemplate) + " WHERE PK_Device=" + StringUtils::itos(PK_Device);
-	pDBHelper->threaded_db_wrapper_query(sSQL);	
+	pDBHelper->threaded_db_wrapper_query(sSQL);
 }
 
-void DatabaseUtils::GetUnusedPortsOnAllPCs(DBHelper *pDBHelper,vector< pair<int,string> > &vectAllPorts, 
+void DatabaseUtils::GetUnusedPortsOnAllPCs(DBHelper *pDBHelper,vector< pair<int,string> > &vectAllPorts,
 										   long nFK_Installation/*=0*/)
 {
 	string sSQL = "SELECT PK_Device FROM Device WHERE FK_Device_ControlledVia IS NULL";
@@ -180,7 +172,7 @@ void DatabaseUtils::GetUnusedPortsOnPC(DBHelper *pDBHelper,int PK_Device,vector<
 
 void DatabaseUtils::SetDeviceData(DBHelper *pDBHelper,int PK_Device,int PK_DeviceData,string IK_DeviceData)
 {
-	string sSQL = "SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device=" + StringUtils::itos(PK_Device) 
+	string sSQL = "SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device=" + StringUtils::itos(PK_Device)
 		+ " AND FK_DeviceData=" + StringUtils::itos(PK_DeviceData);
 
 	PlutoSqlResult result;
@@ -192,12 +184,12 @@ void DatabaseUtils::SetDeviceData(DBHelper *pDBHelper,int PK_Device,int PK_Devic
 			+ StringUtils::itos(PK_Device) + "," + StringUtils::itos(PK_DeviceData) + ",'"
 			+ StringUtils::SQLEscape(IK_DeviceData) + "');";
 
-	pDBHelper->threaded_db_wrapper_query(sSQL);	
+	pDBHelper->threaded_db_wrapper_query(sSQL);
 }
 
 string DatabaseUtils::GetDeviceData(DBHelper *pDBHelper,int PK_Device,int PK_DeviceData)
 {
-	string sSQL = "SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device=" + StringUtils::itos(PK_Device) 
+	string sSQL = "SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device=" + StringUtils::itos(PK_Device)
 		+ " AND FK_DeviceData=" + StringUtils::itos(PK_DeviceData);
 
 	PlutoSqlResult result;
@@ -267,7 +259,7 @@ string DatabaseUtils::GetDescriptionFromTable(DBHelper *pDBHelper,string sTable,
 void DatabaseUtils::SetDescriptionForDevice(DBHelper *pDBHelper,int PK_Device,string sDescription)
 {
 	string sSQL = "UPDATE Device set Description='" + StringUtils::SQLEscape(sDescription) + "' WHERE PK_Device=" + StringUtils::itos(PK_Device);
-	pDBHelper->threaded_db_wrapper_query(sSQL);	
+	pDBHelper->threaded_db_wrapper_query(sSQL);
 }
 
 bool DatabaseUtils::SetDeviceInRoom(DBHelper *pDBHelper,int PK_Device,int PK_Room)
@@ -367,7 +359,7 @@ int DatabaseUtils::FindControlledViaCandidate(DBHelper *pDBHelper,int iPK_Device
 	if( iPK_Device_RelatedTo )
 		DatabaseUtils::GetAllDevicesInTree(pDBHelper,iPK_Device_RelatedTo,mapDeviceTree);
 
-	// If the user wants a device that is related to iPK_Device_RelatedTo, but we can't find one, here is a 
+	// If the user wants a device that is related to iPK_Device_RelatedTo, but we can't find one, here is a
 	// un-related fallback device
 	int iPK_Device_Fallback = 0;
 	int iPK_Device_ControlledVia = 0; // The controlled via device that works
@@ -459,7 +451,7 @@ long DatabaseUtils::GetRoomForDevice(DBHelper *pDBHelper, int nPK_Device)
 {
 	string sSQL = "SELECT PK_Room FROM Device LEFT JOIN Room "
 		"ON FK_Room=PK_Room AND Device.FK_Installation=Room.FK_Installation "
-		"WHERE PK_Device = " + StringUtils::ltos(nPK_Device);  
+		"WHERE PK_Device = " + StringUtils::ltos(nPK_Device);
 
 	PlutoSqlResult result_set;
 	DB_ROW row;
@@ -513,7 +505,7 @@ string DatabaseUtils::GetDeviceCategoryForDeviceTemplate(DBHelper *pDBHelper,int
 			}
 		}
 	}
-	
+
 	return sResult;
 }
 
@@ -526,7 +518,7 @@ bool DatabaseUtils::IsValidControlledVia(DBHelper *pDBHelper,int PK_DeviceTempla
 	PlutoSqlResult result1;
 	result1.r=pDBHelper->db_wrapper_query_result( sSQL );
 	if( result1.r && result1.r->row_count>0 )
-		return true; // It's a match. 
+		return true; // It's a match.
 
 	sSQL = "SELECT PK_DeviceTemplate_DeviceCategory_ControlledVia FROM DeviceTemplate_DeviceCategory_ControlledVia "
 		"WHERE FK_DeviceCategory IN (" + DatabaseUtils::GetDeviceCategoryForDeviceTemplate(pDBHelper,PK_DeviceTemplate_ControlledVia) + ") AND FK_DeviceTemplate=" + StringUtils::itos(PK_DeviceTemplate);

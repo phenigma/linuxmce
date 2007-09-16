@@ -14,16 +14,6 @@
     See the GNU General Public License for more details.
 */
 
-/**
- *
- * @file StringUtils.cpp
- * @brief source file for the StringUtils
- * @author
- * @todo notcommented
- *
- */
-
-
 #include "FileUtils.h"
 #include "StringUtils.h"
 #include "Other.h"
@@ -188,7 +178,7 @@ string StringUtils::Replace( string sInput, const string &sSearch, const string 
 
 string StringUtils::Replace( string *sInput, const string &sSearch, const string &sReplace )
 {
-	return (*sInput) = StringUtils::Replace( (*sInput),sSearch,sReplace );	
+	return (*sInput) = StringUtils::Replace( (*sInput),sSearch,sReplace );
 }
 
 #ifndef SYMBIAN
@@ -220,7 +210,7 @@ void StringUtils::Tokenize(string &Input, string Tokens, vector<string> &vect_st
 				pPtr++;
 
 		// We're stopped on a token, terminate this string and skip over any more tokens
-		while( *pPtr && 
+		while( *pPtr &&
 			( *pPtr==pTokens[0] ||
 			  (Size>1 && *pPtr==pTokens[1]) ||
 			  (Size>2 && *pPtr==pTokens[2]) ) )
@@ -733,7 +723,7 @@ time_t StringUtils::SQLDateTime( string sSQLDate )
 
 		t.tm_sec = atoi(sSQLDate.substr(p2+1).c_str());
 	}
-	else 
+	else
     {
         const char *pcDate = sSQLDate.c_str();
         t.tm_year = atoi( &pcDate[0] )-1900;
@@ -807,18 +797,18 @@ string StringUtils::SQLEscape( string sInput, bool bForLikeStatement /*= false*/
 		{
 			case '\'':  sOutput += "\\\'";  break;
 			case '\"':  sOutput += "\\\"";  break;
-			case '\\':  
+			case '\\':
 			{
 				//Note: http://dev.mysql.com/doc/refman/5.0/en/string-comparison-functions.html
-				//Because MySQL uses C escape syntax in strings (for example, 
-				//‘\n’ to represent a newline character), you must double any ‘\’ 
-				//that you use in LIKE strings. For example, to search for ‘\n’, specify it as ‘\\n’. 
-				//To search for ‘\’, specify it as ‘\\\\’; this is because the backslashes are 
-				//stripped once by the parser and again when the pattern match is made, 
-				//leaving a single backslash to be matched against. 
-				//(Exception: At the end of the pattern string, backslash can be specified as ‘\\’. 
-				//At the end of the string, backslash stands for itself because there 
-				//is nothing following to escape.) 
+				//Because MySQL uses C escape syntax in strings (for example,
+				//ï¿½\nï¿½ to represent a newline character), you must double any ï¿½\ï¿½
+				//that you use in LIKE strings. For example, to search for ï¿½\nï¿½, specify it as ï¿½\\nï¿½.
+				//To search for ï¿½\ï¿½, specify it as ï¿½\\\\ï¿½; this is because the backslashes are
+				//stripped once by the parser and again when the pattern match is made,
+				//leaving a single backslash to be matched against.
+				//(Exception: At the end of the pattern string, backslash can be specified as ï¿½\\ï¿½.
+				//At the end of the string, backslash stands for itself because there
+				//is nothing following to escape.)
 
 				if(bForLikeStatement && nPosition != int(sInput.size()) - 1)
 				{
@@ -877,8 +867,8 @@ bool StringUtils::OnlyWhiteSpace( const char *pInput )
 }
 
 bool StringUtils::OnlyWhiteSpace( string &sInput )
-{ 
-	return OnlyWhiteSpace( (const char *) sInput.c_str()); 
+{
+	return OnlyWhiteSpace( (const char *) sInput.c_str());
 }
 
 time_t StringUtils::StringToDate(string Value)
@@ -974,7 +964,7 @@ char **StringUtils::ConvertStringToArgs(string sInput,int &iNumArgs,int *p_iPosN
 
 		if( pos_start>=sInput.size() )
 			return pArgs;
-		
+
 		if( sInput[pos_start]=='\n' || sInput[pos_start]=='\r' || (sInput[pos_start]=='&' && pos_start+1<sInput.size() && sInput[pos_start+1]==' ') )  // There's another set of args that follows, either separated by a \n or an & all by itself outside of any quotes
 		{
 			if( p_iPosNext )
@@ -1067,7 +1057,7 @@ int StringUtils::TimeAsSeconds(string Time)
 {
 	int hours=0, minutes=0, seconds=0;
 	vector<string> Parts;
-	
+
 	Tokenize(Time, ":", Parts);
 	vector<string>::size_type cur = Parts.size();
 	if (cur > 0)
@@ -1089,7 +1079,7 @@ string StringUtils::PrecisionTime()
 	char acBuff[50];
 	double dwSec = (double)(ts.tv_nsec/1E9) + t.tm_sec;
 	snprintf( acBuff, sizeof(acBuff), "%02d/%02d/%02d %d:%02d:%06.3f", (int)t.tm_mon + 1, (int)t.tm_mday, (int)t.tm_year - 100, (int)t.tm_hour, (int)t.tm_min, dwSec );
-	
+
 	return acBuff;
 }
 
@@ -1153,7 +1143,7 @@ string StringUtils::BashPatternEscape(string sInput, string sCharsToNotEscape)
 
 vector<string> StringUtils::Split(string sInput, string sDelimiters, bool bRemoveEmptyElements/*=false*/) {
 	vector<string> vOutput;
-	
+
 	while ( !sInput.empty() ) {
 		size_t pos = sInput.find_first_of(sDelimiters);
 		if (pos == string::npos) {
@@ -1168,7 +1158,7 @@ vector<string> StringUtils::Split(string sInput, string sDelimiters, bool bRemov
 				vOutput.push_back(sElement);
 		}
 	}
-	
+
 	return vOutput;
 }
 #endif //#ifndef SYMBIAN

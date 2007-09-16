@@ -4,7 +4,7 @@
      www.plutohome.com
 
      Phone: +1 (877) 758-8648
- 
+
 
      This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
      This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
@@ -13,17 +13,10 @@
      See the GNU General Public License for more details.
 
 */
-/**
- *
- * @file StringUtils.h
- * @brief header file for the StringUtils namespace
- * @author
- * @todo notcommented
- *
+
+/** @file StringUtils.h
+ Header file for the StringUtils namespace.
  */
-
-
-
 #ifndef STRINGUTILS
 #define STRINGUTILS
 
@@ -42,6 +35,11 @@
 #ifdef SYMBIAN
 struct StringUtils
 #else
+
+/**
+@namespace StringUtils
+For String Utilities.
+*/
 namespace StringUtils
 #endif //SYMBIAN
 {
@@ -244,11 +242,11 @@ namespace StringUtils
 	 * @brief escape bash pattern special characters in strings
 	 */
 	string BashPatternEscape(string sInput, string sCharsToNotEscape = "");
-	
+
 	/**
 	 * @brief splits string into elements separated by delimiters
 	 */
-	
+
 	vector<string> Split(string sInput, string sDelimiters, bool bRemoveEmptyElements=false);
 #endif //#ifndef SYMBIAN
 };

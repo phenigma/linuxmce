@@ -4,7 +4,7 @@
      www.plutohome.com
 
      Phone: +1 (877) 758-8648
- 
+
 
      This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
      This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
@@ -13,6 +13,11 @@
      See the GNU General Public License for more details.
 
 */
+
+/**
+ * @file PlutoButtonsToX.h
+ Header file for ??? .
+ */
 #ifndef PlutoButtonsToX_h
 #define PlutoButtonsToX_h
 
@@ -126,7 +131,7 @@ pair<bool,int> PlutoButtonsToX(int PK_Button)
 		return make_pair<bool,int> (false,XK_y);
 	case BUTTON_z_CONST:
 		return make_pair<bool,int> (false,XK_z);
-		
+
 	case BUTTON_1_CONST:
 		return make_pair<bool,int> (false,XK_1);
 	case BUTTON_2_CONST:
@@ -190,7 +195,7 @@ pair<bool,int> PlutoButtonsToX(int PK_Button)
 	case BUTTON_F5_CONST:
 		return make_pair<bool,int> (false,XK_F5);
 
-	case BUTTON_Back_CONST:   
+	case BUTTON_Back_CONST:
 		return make_pair<bool,int> (false,XK_BackSpace);
 	case BUTTON_space_CONST:
 		return make_pair<bool,int> (false,XK_space);
@@ -215,7 +220,7 @@ pair<bool,int> PlutoButtonsToX(int PK_Button)
 
     case BUTTON_semicolumn_CONST:
         return make_pair<bool,int> (false,XK_semicolon);
-    case BUTTON_colon_CONST:	
+    case BUTTON_colon_CONST:
         return make_pair<bool,int> (true,XK_semicolon);
 
     case BUTTON_single_quote_CONST:
@@ -226,7 +231,7 @@ pair<bool,int> PlutoButtonsToX(int PK_Button)
     case BUTTON_dot_CONST:
         return make_pair<bool,int> (false,XK_period);
 
-		
+
 	}
 	return make_pair<bool,int> (false,0);
 }

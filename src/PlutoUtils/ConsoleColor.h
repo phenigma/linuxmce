@@ -4,7 +4,7 @@
      www.plutohome.com
 
      Phone: +1 (877) 758-8648
- 
+
 
      This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
      This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
@@ -13,6 +13,11 @@
      See the GNU General Public License for more details.
 
 */
+
+/**
+ * @file ConsoleColor.h
+ Header file for ???
+ */
 //RICK.H Originally written December 12, 2000
 //All of these functions are for use in vc++ win32 console windows
 //and are written using API calls.
@@ -56,43 +61,43 @@
 
 #define RICK_H
 
-/* Standard error macro for reporting API errors */ 
+/* Standard error macro for reporting API errors */
 #define PERR(bSuccess, api){if(!(bSuccess)) printf("%s:Error %d from %s on line %d\n", __FILE__, GetLastError(), api, __LINE__);}
 
 void cls( HANDLE hConsole )
 {
     COORD coordScreen = { 0, 0 };    /* here's where we'll home the
-                                        cursor */ 
+                                        cursor */
     BOOL bSuccess;
     DWORD cCharsWritten;
-    CONSOLE_SCREEN_BUFFER_INFO csbi; /* to get buffer info */ 
+    CONSOLE_SCREEN_BUFFER_INFO csbi; /* to get buffer info */
     DWORD dwConSize;                 /* number of character cells in
-                                        the current buffer */ 
+                                        the current buffer */
 
-    /* get the number of character cells in the current buffer */ 
+    /* get the number of character cells in the current buffer */
 
     bSuccess = GetConsoleScreenBufferInfo( hConsole, &csbi );
     PERR( bSuccess, "GetConsoleScreenBufferInfo" );
     dwConSize = csbi.dwSize.X * csbi.dwSize.Y;
 
-    /* fill the entire screen with blanks */ 
+    /* fill the entire screen with blanks */
 
     bSuccess = FillConsoleOutputCharacter( hConsole, (TCHAR) ' ',
        dwConSize, coordScreen, &cCharsWritten );
     PERR( bSuccess, "FillConsoleOutputCharacter" );
 
-    /* get the current text attribute */ 
+    /* get the current text attribute */
 
     bSuccess = GetConsoleScreenBufferInfo( hConsole, &csbi );
     PERR( bSuccess, "ConsoleScreenBufferInfo" );
 
-    /* now set the buffer's attributes accordingly */ 
+    /* now set the buffer's attributes accordingly */
 
     bSuccess = FillConsoleOutputAttribute( hConsole, csbi.wAttributes,
        dwConSize, coordScreen, &cCharsWritten );
     PERR( bSuccess, "FillConsoleOutputAttribute" );
 
-    /* put the cursor at (0, 0) */ 
+    /* put the cursor at (0, 0) */
 
 	bSuccess = SetConsoleCursorPosition( hConsole, coordScreen );
 	PERR( bSuccess, "SetConsoleCursorPosition" );

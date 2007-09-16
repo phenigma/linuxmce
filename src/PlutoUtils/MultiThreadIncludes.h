@@ -4,7 +4,7 @@
      www.plutohome.com
 
      Phone: +1 (877) 758-8648
- 
+
 
      This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
      This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
@@ -13,11 +13,16 @@
      See the GNU General Public License for more details.
 
 */
+
+/**
+ * @file MultiThreadIncludes.h
+ Header file for ??? .
+ */
 #ifndef MultiThreadIncludes_h
 #define MultiThreadIncludes_h
 
 #include <pthread.h>
-#include "PlutoUtils/CommonIncludes.h"	
+#include "PlutoUtils/CommonIncludes.h"
 
 // Todo: temporarily increase these values for valgrid
 #define TRYLOCK_TIMEOUT_WARNING		30 // normally 5
@@ -89,8 +94,11 @@ void valid_timespec(struct timespec &ts);
 	#endif
 #endif
 
-// A Wrapper for pthread mutex
-class pluto_pthread_mutex_t 
+
+/** @class pluto_pthread_mutex_t
+A Wrapper for pthread mutex.
+*/
+class pluto_pthread_mutex_t
 {
 public:
     bool m_bInitialized;
@@ -101,8 +109,8 @@ public:
 	string m_sName;
 	int m_NumLocks;  // For tracking recursive
 	pthread_cond_t *m_pthread_cond_t; // non null if there's a condition associated with this
-	pluto_pthread_mutex_t(string Name,bool bAutoInit=false) 
-		: m_bInitialized(false), m_Line(0), m_LockNum(0), m_sFileName("NONE"), m_thread(pthread_self()), m_sName(Name) 
+	pluto_pthread_mutex_t(string Name,bool bAutoInit=false)
+		: m_bInitialized(false), m_Line(0), m_LockNum(0), m_sFileName("NONE"), m_thread(pthread_self()), m_sName(Name)
 	{
 		m_NumLocks=0;
 		m_pthread_cond_t=NULL;
@@ -111,7 +119,7 @@ public:
 	}
 	virtual ~pluto_pthread_mutex_t() { if( m_bInitialized ) pthread_mutex_destroy(&mutex); }
 	int Init(pthread_mutexattr_t *type,pthread_cond_t *pthread_cond_t=NULL)
-	{ 
+	{
 		int iResult=pthread_mutex_init(&mutex, type);
 		m_bInitialized=true;
 		m_pthread_cond_t=pthread_cond_t;
@@ -119,13 +127,17 @@ public:
 	}
 };
 
+
+/** @class PlutoLock
+A ?
+*/
 class PlutoLock
 {
 public:
 	string m_sFileName;
 	int m_Line,m_LockNum;
 	bool m_bReleased,m_bLog,m_bLogErrorsOnly,m_bGotLock,m_bIgnoreDeadlock;
-	
+
 	string m_sMessage;
 	pluto_pthread_mutex_t *m_pMyLock;
 	time_t m_tTime;
@@ -148,6 +160,9 @@ public:
 	static void ConfirmNoLocks(string File,int Line);
 };
 
+/** @class MutexTracking
+A ?
+*/
 class MutexTracking
 {
 private:

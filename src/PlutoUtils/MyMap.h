@@ -4,7 +4,7 @@
      www.plutohome.com
 
      Phone: +1 (877) 758-8648
- 
+
 
      This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
      This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
@@ -13,12 +13,21 @@
      See the GNU General Public License for more details.
 
 */
+
+/**
+ * @file MyMap.h
+ Header file for ??? .
+ */
 #ifndef __MyMap_h
 #define __MyMap_h
 
 #include <e32base.h>
 #include <s32btree.h>
 
+
+/** @class TLongMap
+ Class for Mapping
+ */
 template <class EntryType> class TLongMap: public CBase {
 	private:
 		int size;
@@ -36,14 +45,14 @@ template <class EntryType> class TLongMap: public CBase {
 				long left = *(long*)aLeft;
 				long right = *(long*)aRight;
 
-				if (left < right) 
+				if (left < right)
 					return -1;
 
-				if (left > right) 
+				if (left > right)
 					return 1;
 
 				return 0;
-				
+
 			}
 			virtual const TAny* Key(const TAny* anEntry) const {
 				Entry* e=(Entry*)anEntry;
@@ -74,16 +83,16 @@ template <class EntryType> class TLongMap: public CBase {
 		EntryType GetCurrent();
 		EntryType GetNext();
 		TBool IsLast();
-		
+
 };
 
 
 template <class EntryType> void TLongMap<EntryType>::AddData(long Key, EntryType data) {
 	TBtreePos pos;
 	Entry e;
-	e.key = Key; 
+	e.key = Key;
 	e.data = data;
-	
+
 	iTree->InsertL(pos, e);
 	size++;
 }
@@ -127,7 +136,7 @@ template <class EntryType> TLongMap<EntryType>::~TLongMap() {
 	delete iPool;
 }
 
-template <class EntryType> EntryType TLongMap<EntryType>::GetFirst() 
+template <class EntryType> EntryType TLongMap<EntryType>::GetFirst()
 {
 	if(!size)
 		return NULL;
@@ -144,7 +153,7 @@ template <class EntryType> EntryType TLongMap<EntryType>::GetFirst()
 	}
 }
 
-template <class EntryType> EntryType TLongMap<EntryType>::GetCurrent() 
+template <class EntryType> EntryType TLongMap<EntryType>::GetCurrent()
 {
 	if(!size)
 		return NULL;
@@ -152,14 +161,14 @@ template <class EntryType> EntryType TLongMap<EntryType>::GetCurrent()
 	if (!wasLast) {
 		Entry e;
 		iTree->ExtractAtL(currentPos, e);
-		return e.data;	
+		return e.data;
 	}
-	else 
+	else
 		return 0;
 }
 
 
-template <class EntryType> EntryType TLongMap<EntryType>::GetNext() 
+template <class EntryType> EntryType TLongMap<EntryType>::GetNext()
 {
 	if(!size)
 		return NULL;
@@ -181,7 +190,7 @@ template <class EntryType> EntryType TLongMap<EntryType>::GetNext()
 	}
 }
 
-template <class EntryType> TBool TLongMap<EntryType>::IsLast() 
+template <class EntryType> TBool TLongMap<EntryType>::IsLast()
 {
 	if(!size)
 		return true;

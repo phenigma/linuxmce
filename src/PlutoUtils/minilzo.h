@@ -39,7 +39,10 @@
  *   http://www.oberhumer.com/opensource/lzo/
  */
 
-
+/**
+ * @file minilzo.h
+ Header file for a mini LZO.
+ */
 #ifndef __MINILZO_H
 #define __MINILZO_H
 

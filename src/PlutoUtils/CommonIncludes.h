@@ -4,7 +4,7 @@
      www.plutohome.com
 
      Phone: +1 (877) 758-8648
- 
+
 
      This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
      This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
@@ -13,6 +13,13 @@
      See the GNU General Public License for more details.
 
 */
+
+/**
+ * @file CommonIncludes.h
+ Header file for the DeviceCategory, DeviceData_Base and AllDevices classes
+
+ @todo not commented
+ */
 #ifndef COMMONINCLUDES_H
 #define COMMONINCLUDES_H
 
@@ -29,7 +36,7 @@
 
 using namespace std;
 
-#ifndef WIN32 
+#ifndef WIN32
 	// Linux stuff ------------------------
 	#include <stdio.h>
 	#include <unistd.h>
@@ -67,7 +74,7 @@ using namespace std;
 // Windows Stuff ----------------------
 	#pragma warning( disable : 4996 )
 
-	#define trunc(s) s 
+	#define trunc(s) s
 
 	typedef __int8  int8_t;
 	typedef __int16 int16_t;
@@ -89,7 +96,7 @@ using namespace std;
 	#else
 		struct tm * __stdcall wce_localtime(const time_t *);
 		time_t		__stdcall wce_time(time_t *);
-	#endif 
+	#endif
 
 	#define SOCKOPTTYPE char *
 	#include <time.h>
@@ -107,18 +114,24 @@ using namespace std;
 	#define PROF_START() clock_t x = clock();
 	#define PROF_STOP(Desc) LoggerWrapper::GetInstance()->Write(LV_STATUS, "%s took %d ms", Desc, clock() - x);
 #else
-	#define PROFILE_START(x) 
+	#define PROFILE_START(x)
 	#define PROFILE_STOP(x, Desc)
 
-	#define PROF_START() 
+	#define PROF_START()
 	#define PROF_STOP(Desc)
-#endif 
+#endif
 
-#define CALL_MEMBER_FN(object,ptrToMember)  ((object).*(ptrToMember)) 
+#define CALL_MEMBER_FN(object,ptrToMember)  ((object).*(ptrToMember))
 #define STRINGIFY(x) #x  // Allows you to have a #define that's a number (#define MYNUM 2) that you concatenate to a string: string x = "abc" + TOSTRING(MYNUM)
 #define TOSTRING(x) STRINGIFY(x)
 
 #ifndef _WIN32_WCE
+
+
+    /**
+       @class PlutoFile
+     This class ???
+     */
 class PlutoFile
 {
 public:
@@ -140,9 +153,9 @@ public:
 
 #ifdef CENET
 	extern "C" // Use extern "c" for C++ file only
-	{ 
+	{
 		#include "PKFUNCS.H"
-	}; 
+	};
 #endif
 
 bool AskYNQuestion(string Question,bool bDefault,int Timeout=0);

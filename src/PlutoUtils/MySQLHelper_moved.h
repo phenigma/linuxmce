@@ -4,7 +4,7 @@
      www.plutohome.com
 
      Phone: +1 (877) 758-8648
- 
+
 
      This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
      This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
@@ -13,6 +13,11 @@
      See the GNU General Public License for more details.
 
 */
+
+/**
+ * @file MySQLHelper_moved.h
+ Header file for ??? .
+ */
 #ifndef MySqlHelper_h
 #define MySqlHelper_h
 
@@ -22,13 +27,18 @@
 
 using namespace DCE;
 
-// Use this to be sure the results are automatically freed
+
+/** @class PlutoSqlResult
+ Class for Threading.
+
+Use this to be sure the results are automatically freed
+*/
 class PlutoSqlResult
 {
 public:
 	MYSQL_RES *r;
 	PlutoSqlResult() : r(NULL) {};
-	~PlutoSqlResult() 
+	~PlutoSqlResult()
 	{
 		ClearResults();
 	}
@@ -42,7 +52,10 @@ public:
 	}
 };
 
-// You can add this to a base class to get some helper mysql functions
+/** @class MySqlHelper
+
+ You can add this to a base class to get some helper mysql functions.
+ */
 class MySqlHelper
 {
 private:
@@ -111,7 +124,7 @@ public:
 		PLUTO_SAFETY_LOCK_ERRORSONLY(sl,m_MySqlMutex);
 		if( bReset && m_pMySQL )
 		{
-			
+
 				LoggerWrapper::GetInstance()->Write(LV_WARNING,"Resetting mysql connection");
 			mysql_close(m_pMySQL);
 			m_pMySQL=NULL;
@@ -129,7 +142,7 @@ public:
 
 		if (mysql_real_connect(m_pMySQL, m_sMySQLHost.c_str(), m_sMySQLUser.c_str(), m_sMySQLPass.c_str(), m_sMySQLDBName.c_str(), m_iMySQLPort, NULL, 0) == NULL)
 		{
-			
+
 				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Connect failed %s",mysql_error(m_pMySQL));
 			m_bConnected=false;
 		}
@@ -165,7 +178,7 @@ public:
 		int iresult;
 		if( (iresult=mysql_query(m_pMySQL,query.c_str()))!=0 )
 		{
-			
+
 			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Query failed (%s): %s (%d)",mysql_error(m_pMySQL),query.c_str(),iresult);
 			if( MySQLConnect(true) && Retry==false )
 			{
@@ -184,18 +197,18 @@ public:
 		clock_t cStop = clock();
 		if( cStop-cStart>CLOCKS_PER_SEC/2 )  // Nothing should take 500 ms
 		{
-			
+
 				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Query: %s took %d ms",query.c_str(),(int) (cStop-cStart));
 		} else if( cStop-cStart>CLOCKS_PER_SEC/10 )
 		{
-			
+
 				LoggerWrapper::GetInstance()->Write(LV_WARNING,"Query: %s took %d ms",query.c_str(),(int) (cStop-cStart));
 		}
 	#endif
 
 		MYSQL_RES *pMYSQL_RES = mysql_store_result(m_pMySQL);
 #ifdef LOG_ALL_QUERIES
-		
+
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Query returned %d rows: %s",(int) (pMYSQL_RES ? pMYSQL_RES->row_count : 0), query.c_str());
 #endif
 		return pMYSQL_RES;
@@ -212,7 +225,7 @@ public:
 		{
 			if( bIgnoreErrors )
 				return -1;
-			
+
 			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Query failed (%s): %s (%d)",mysql_error(m_pMySQL),query.c_str(),iresult);
 			if( MySQLConnect(true) && Retry==false )
 			{
@@ -227,16 +240,16 @@ public:
 		clock_t cStop = clock();
 		if( cStop-cStart>CLOCKS_PER_SEC/2 )  // Nothing should take 500 ms
 		{
-			
+
 				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Query: %s took %d ms",query.c_str(),(int) (cStop-cStart));
 		} else if( cStop-cStart>CLOCKS_PER_SEC/10 )
 		{
-			
+
 				LoggerWrapper::GetInstance()->Write(LV_WARNING,"Query: %s took %d ms",query.c_str(),(int) (cStop-cStart));
 		}
 	#endif
 #ifdef LOG_ALL_QUERIES
-		
+
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Executed query %s (%d rows)", query.c_str(), (int) mysql_affected_rows(m_pMySQL));
 #endif
 		return (int) mysql_affected_rows(m_pMySQL);
@@ -251,7 +264,7 @@ public:
 		int iresult;
 		if( (iresult=mysql_query(m_pMySQL,query.c_str()))!=0 )
 		{
-			
+
 			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Query failed (%s): %s (%d)",mysql_error(m_pMySQL),query.c_str(),iresult);
 			if( MySQLConnect(true) && Retry==false )
 			{
@@ -266,16 +279,16 @@ public:
 		clock_t cStop = clock();
 		if( cStop-cStart>CLOCKS_PER_SEC/2 )  // Nothing should take 500 ms
 		{
-			
+
 				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Query: %s took %d ms",query.c_str(),(int) (cStop-cStart));
 		} else if( cStop-cStart>CLOCKS_PER_SEC/10 )
 		{
-			
+
 				LoggerWrapper::GetInstance()->Write(LV_WARNING,"Query: %s took %d ms",query.c_str(),(int) (cStop-cStart));
 		}
 	#endif
 #ifdef LOG_ALL_QUERIES
-		
+
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Query has ID %d: %s", (int) mysql_insert_id(m_pMySQL), query.c_str());
 #endif
 		return (int) mysql_insert_id(m_pMySQL);

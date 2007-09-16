@@ -4,7 +4,7 @@
      www.plutohome.com
 
      Phone: +1 (877) 758-8648
- 
+
 
      This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
      This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
@@ -13,25 +13,34 @@
      See the GNU General Public License for more details.
 
 */
+
+/**
+ * @file MyString.h
+ Header file for ??? .
+ */
 #ifndef __MyString_h
 #define __MyString_h
 
 #include <e32std.h>
 #include <e32base.h>
 //-----------------------------------------------------------------------------------------
-class string:public CBase 
+
+/** @class string
+ Class for strings.
+ */
+class string:public CBase
 {
 	public:
 
 		typedef TUint size_type;
 		enum { npos = -1 };
 		//static const size_type npos = ~(size_type)0;
-		
+
 		// Default empty constuctor
 		string():tmp_buff(NULL) {
 			base_str = HBufC::NewL(0);
 		}
-		
+
 		string(const char *str);
 
 		string(const string& str);
@@ -40,14 +49,14 @@ class string:public CBase
 
 		// Destructor
 		virtual ~string();
-		
+
 		// Returns pointer to the zero-terminating string
 		const char* c_str();
 
 		TPtr Des() const {
 			return base_str->Des();
 		}
-		
+
 		// Returns length of a string
 		size_type length() const {
 			return base_str->Length();
@@ -55,13 +64,13 @@ class string:public CBase
 
 		/*
 		string  substr(TInt first, TInt last) {
-			return string(base_str->Des().Mid(first, 
+			return string(base_str->Des().Mid(first,
 						last - first));
 		}
 		*/
 
 		string  substr(TInt first, TInt length) {
-			return string(base_str->Des().Mid(first, 
+			return string(base_str->Des().Mid(first,
 						length));
 		}
 
@@ -97,7 +106,7 @@ class string:public CBase
 			return (char)(base_str->Des()[n]);
 		}
 
-		void SetAt(char Char, size_type pos) 
+		void SetAt(char Char, size_type pos)
 		{
 			base_str->Des()[pos] = Char;
 		}
@@ -115,9 +124,9 @@ class string:public CBase
 		size_type strlen(const char *str);
 };
 //-----------------------------------------------------------------------------------------
-string operator + (string a, string b); 
-TBool operator < (string a, string b); 
-TBool operator > (string a, string b); 
+string operator + (string a, string b);
+TBool operator < (string a, string b);
+TBool operator > (string a, string b);
 TBool operator == (string a, string b);
 TBool operator != (string a, string b);
 //-----------------------------------------------------------------------------------------

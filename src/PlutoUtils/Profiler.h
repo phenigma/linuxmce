@@ -4,7 +4,7 @@
      www.plutohome.com
 
      Phone: +1 (877) 758-8648
- 
+
 
      This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
      This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
@@ -13,6 +13,11 @@
      See the GNU General Public License for more details.
 
 */
+
+/**
+ * @file Profiler.h
+ Header file for ??? .
+ */
 #ifndef Profiler_h
 #define Profiler_h
 
@@ -21,6 +26,10 @@
 using namespace DCE;
 
 #if !defined( WIN32 ) || !defined( DEBUG )
+
+/** @class PlutoProfiler
+ Class for Threading
+ */
 class PlutoProfiler
 {
 public:
@@ -33,6 +42,11 @@ public:
 #else
 
 typedef map<string, pair<LARGE_INTEGER,int> > MapProfiles;
+
+
+/** @class PlutoProfiler
+ Class for Threading
+ */
 class PlutoProfiler
 {
 public:
