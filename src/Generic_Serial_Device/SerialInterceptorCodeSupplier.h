@@ -12,6 +12,9 @@
 	See the GNU General Public License for more details.
 */
 
+/** @file SerialInterceptorCodeSupplier.h
+Unimplemented.
+*/
 #ifndef SERIALINTERCEPTORCODESUPPLIER_H
 #define SERIALINTERCEPTORCODESUPPLIER_H
 
@@ -19,8 +22,8 @@
 
 #include <string>
 
-/**
-@author Igor Spac,,,
+/** @class SerialInterceptorCodeSupplier
+Unimplemented.
 */
 class SerialInterceptorCodeSupplier : public EMBRUBY::RubyEmbederCodeSupplier
 {

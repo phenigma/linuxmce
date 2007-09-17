@@ -12,31 +12,52 @@
 	See the GNU General Public License for more details.
 */
 
+/** @file RubyExceptions.h
+For ?
+*/
 #ifndef EMBRUBYRUBYEXCEPTIONS_H
 #define EMBRUBYRUBYEXCEPTIONS_H
 
 #include <string>
 
+/** @namespace EMBRUBY
+Embedded Ruby ???
+*/
 namespace EMBRUBY {
 
-/**
-@author Igor Spac,,,
+/** @class RubyException
+For ???
 */
-
 class RubyException {
 public:
+    /** Constructor.
+    */
 	RubyException();
+
+    /** Constructor.
+    @param msg is 'C' style string message.
+    */
     RubyException(const char* msg);
+
+    /** Constructor.
+    @param msg is the 'C++' style string message.
+    */
     RubyException(const std::string& msg);
+
+    /** Destructor.
+    */
     ~RubyException();
 
 public:
+
+    /** @Returns the message.
+    */
 	const char* getMessage() {
 		return msg_.c_str();
 	}
 
 private:
-	std::string msg_;
+	std::string msg_; /**< Exception message storage area. */
 };
 
 typedef RubyException* RubyExceptionPtr;

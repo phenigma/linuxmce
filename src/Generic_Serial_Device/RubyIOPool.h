@@ -12,6 +12,9 @@
 	See the GNU General Public License for more details.
 */
 
+/** @file RubyIOPool.h
+Base classe for IOEvent.
+*/
 #ifndef DCERUBYIOPOOLMANAGER_H
 #define DCERUBYIOPOOLMANAGER_H
 
@@ -22,12 +25,15 @@
 #include "RubyDCEConnector.h"
 #include "RubyDCEDeviceNode.h"
 
+/** @namespace DCE
+The Data Commands and Events (DCE) namespace.
+*/
 namespace DCE {
 
 class DeviceData_Impl;
 
-/**
-@author Igor Spac,,,
+/** @class RubyIOPool
+For ?
 */
 class RubyIOPool : protected IOPool, public RubyDCEDeviceNode {
 	friend class RubyIOManager;
@@ -48,16 +54,16 @@ protected:
 	bool handleStartup();
 	bool handleNoMessage();
 	void handleTerminate();
-	
+
 protected:
 	class RubyIOState : public IOPoolState {
 		friend class RubyIOPool;
 	protected:
-		RubyIOState(RubyIOPool* psm) 
+		RubyIOState(RubyIOPool* psm)
 			: IOPoolState(psm) {};
 		virtual void handleRead(IOConnection* pconn);
 	} defstate_;
-		
+
 private:
 	IOPool* ppool_;
 	bool relpool_;

@@ -12,6 +12,9 @@
 	See the GNU General Public License for more details.
 */
 
+/** @file RubyEmbededClass.h
+For ???
+*/
 #ifndef EMBRUBYRUBYEMBEDEDCLASS_H
 #define EMBRUBYRUBYEMBEDEDCLASS_H
 
@@ -21,18 +24,19 @@
 #include <ruby.h>
 #include <stdarg.h>
 
+/** @namespace EMBRUBY
+Embedded Ruby ???
+*/
 namespace EMBRUBY {
 
-/**
-@author Igor Spac,,,
+/** @class RubyEmbededClass
+For ???
 */
-
-
 class RubyEmbededClass {
 public:
 	RubyEmbededClass();
 	~RubyEmbededClass();
-	
+
 public:
 	const VALUE getValue() {
 		return value_;
@@ -56,18 +60,18 @@ protected:
 		const char* member_;
 		int argc_;
 		VALUE *argv_;
-		
-		ARGUMENTS(const char* sclass, const char* member, int argc, VALUE* argv) 
+
+		ARGUMENTS(const char* sclass, const char* member, int argc, VALUE* argv)
 			: member_(member), argc_(argc), argv_(argv)	{
-			class_.classname_ = sclass; 
+			class_.classname_ = sclass;
 		}
-		
-		ARGUMENTS(VALUE vclass, const char* member, int argc, VALUE* argv) 
+
+		ARGUMENTS(VALUE vclass, const char* member, int argc, VALUE* argv)
 			: member_(member), argc_(argc), argv_(argv)	{
-			class_.classvalue_ = vclass; 
+			class_.classvalue_ = vclass;
 		}
 	};
-	
+
 	static VALUE _callclass(VALUE arg);
 	static VALUE _callmethod(VALUE arg);
 	static std::string _backtrace();
@@ -75,11 +79,15 @@ protected:
 protected:
 	static VALUE StrToValue(const char* str);
 	static VALUE IntToValue(int n);
-	
+
 private:
 	VALUE value_;
 };
 
+
+/** @class RubyEmbededClassImpl
+For ???
+*/
 template <class T = RubyEmbededClass>
 class RubyEmbededClassImpl : public RubyEmbededClass {
 public:
@@ -152,38 +160,38 @@ VALUE RubyEmbededClassImpl<T>::callmethod(const char* methodname, const std::lis
 			pv[i] = *it;
 		}
 	}
-	
+
 	int error = 0;
 	ARGUMENTS args(getValue(), methodname, params.size(), pv);
 	VALUE vret = rb_protect(T::_callmethod, reinterpret_cast<VALUE>(&args), &error);
 	if(pv != NULL) {
 		delete pv;
 	}
-	
+
 	if(error) {
 		VALUE exception_instance = rb_gv_get("$!");
 		VALUE message = rb_obj_as_string(exception_instance);
-		
+
 		std::string errpoint;
 		errpoint = "\nerror: ";
 		errpoint += RSTRING(message)->ptr;
 		errpoint += ", line: ";
-		
+
 		char tmpbuff[12];
 		sprintf(tmpbuff, "%d", ruby_sourceline);
 		errpoint += tmpbuff;
-		
+
 		errpoint += "\n";
 		throw RubyException(std::string("Cannot call class method: ") + methodname + errpoint + "backtrace: " + _backtrace());
 	}
-	
+
 	return vret;
 }
 
 #define DEFINE_CLASS_NAME(name) \
 	static const char* _ClassName() { \
 		return name; \
-	} 
+	}
 };
 
 #endif

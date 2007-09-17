@@ -12,17 +12,23 @@
 	See the GNU General Public License for more details.
 */
 
-#ifndef DCEIOUTILS_H
+#/** @file IOUtils.h
+Base classe for IOUtils.
+*/
+ifndef DCEIOUTILS_H
 #define DCEIOUTILS_H
 
 #include <string>
 
 #pragma warning( disable : 4996 )
 
+/** @namespace DCE
+The Data Commands and Events (DCE) namespace.
+*/
 namespace DCE {
 
-/**
-@author Igor Spac,,,
+/** @class IOUtils
+Utilities?
 */
 class IOUtils{
 public:

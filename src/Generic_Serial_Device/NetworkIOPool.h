@@ -12,16 +12,22 @@
 	See the GNU General Public License for more details.
 */
 
+/** @file NetworkIOPool.h
+Base classe for IOEvent.
+*/
 #ifndef DCENETWORKIOPOOL_H
 #define DCENETWORKIOPOOL_H
 
 #include "IOPool.h"
 #include "NetworkIOConnection.h"
 
+/** @namespace DCE
+The Data Commands and Events (DCE) namespace.
+*/
 namespace DCE {
 
-/**
-@author Igor Spac,,,
+/** @class NetworkIOPool
+Network ?
 */
 class NetworkIOPool : public IOPool {
 public:
@@ -30,22 +36,27 @@ public:
 
 public:
 	virtual IOConnection* getConnection();
-	
-protected:	
-	/*callback from IOPool*/
+
+protected:
+	/** Callback from IOPool
+    */
 	virtual bool handleIteration();
 
 protected:
+
+    /** @class NetworkIOState
+Network ?
+*/
 	class NetworkIOState : public IOPoolState {
 		friend class NetworkIOPool;
 	protected:
-		NetworkIOState(NetworkIOPool* psm) 
+		NetworkIOState(NetworkIOPool* psm)
 			: IOPoolState(psm) {};
 		virtual void handleOpen(IOConnection* pconn);
 		virtual void handleRead(IOConnection* pconn);
 		virtual void handleClose(IOConnection* pconn);
 	} defstate_;
-	
+
 protected:
 	NetworkIOConnection netconn;
 };

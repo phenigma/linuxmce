@@ -12,6 +12,9 @@
 	See the GNU General Public License for more details.
 */
 
+/** @file LoopStateMachine.h
+Class for Loop state machines.
+*/
 #ifndef DCELOOPSTATEMACHINE_H
 #define DCELOOPSTATEMACHINE_H
 
@@ -20,10 +23,14 @@
 #include "IOMutex.h"
 #include "IOEvent.h"
 
+
+/** @namespace DCE
+The Data Commands and Events (DCE) namespace.
+*/
 namespace DCE {
 
-/**
-@author Igor Spac,,,
+/** @class LoopStateMachine
+Derived class for loops.
 */
 class LoopStateMachine : public StateMachine {
 public:
@@ -37,17 +44,17 @@ public:
 	unsigned getIdleDelay() {
 		return idledelay_;
 	}
-	
-		
+
+
 public:
 	virtual bool handleStartup();
 	virtual bool handleIteration();
 	virtual void handleTerminate();
-	
+
 private:
 	unsigned idledelay_;
 	struct timespec lastidle_;
-	
+
 /*
 	//thread callback
 protected:
@@ -55,12 +62,16 @@ protected:
 	virtual void handleTerminate();
 	virtual void* _Run();
 */
-	/*states*/	
+	/*states*/
 protected:
+
+    /** @class LoopState
+Derived class for loops.
+*/
 	class LoopState : public State {
 		friend class LoopStateMachine;
 	protected:
-		LoopState(LoopStateMachine* psm) 
+		LoopState(LoopStateMachine* psm)
 			: State(psm) {};
 		virtual void handleStart()
 		{};

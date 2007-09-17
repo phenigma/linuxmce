@@ -11,6 +11,10 @@
 
 	See the GNU General Public License for more details.
 */
+
+/** @file FileCodeSupplier.h
+Load ruby code files.
+*/
 #ifndef EMBRUBYFILECODESUPPLIER_H
 #define EMBRUBYFILECODESUPPLIER_H
 
@@ -18,15 +22,24 @@
 
 #include <string>
 
+/** @namespace EMBRUBY
+Embedded Ruby ???
+*/
 namespace EMBRUBY {
 
-/**
-@author Igor Spac,,,
+/** @class FileCodeSupplier
+Load a file of ruby code.
 */
 
 class FileCodeSupplier : public EMBRUBY::RubyEmbederCodeSupplier {
 public:
+
+    /** Constructor.
+    */
     FileCodeSupplier();
+
+    /** Destructor.
+    */
     virtual ~FileCodeSupplier();
 
 public:

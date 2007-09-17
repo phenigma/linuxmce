@@ -12,6 +12,9 @@
 	See the GNU General Public License for more details.
 */
 
+/** @file RubyEmbeder.h
+Load ruby code files.
+*/
 #ifndef RUBYEMBEDER_H
 #define RUBYEMBEDER_H
 
@@ -19,14 +22,16 @@
 
 #include <ruby.h>
 
-namespace EMBRUBY {
-
-/**
-@author Igor Spac,,,
+/** @namespace EMBRUBY
+Embedded Ruby ???
 */
+namespace EMBRUBY {
 
 class RubyEmbederCodeSupplier;
 
+/** @class RubyEmbeder
+Base class for ?
+*/
 class RubyEmbeder {
 public:
     RubyEmbeder();
@@ -40,7 +45,7 @@ public:
 
 private:
 	static VALUE _loadcode(VALUE arg);
-	
+
 private:
 	static RubyEmbeder* s_instance_;
 
@@ -48,9 +53,15 @@ private:
 	std::string addLineNumbers(std::string str);
 };
 
+
+/** @class RubyEmbederCodeSupplier
+Base class for ?
+*/
 class RubyEmbederCodeSupplier {
 	friend class RubyEmbeder;
 protected:
+    /** pure virtual to get ruby code.
+    */
 	virtual const char* getRubyCode() = 0;
 };
 

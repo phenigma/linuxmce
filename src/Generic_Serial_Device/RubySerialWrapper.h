@@ -4,7 +4,7 @@
      www.plutohome.com
 
      Phone: +1 (877) 758-8648
- 
+
 
      This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
      This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
@@ -13,10 +13,14 @@
      See the GNU General Public License for more details.
 
 */
+
+/** @file RubySerialWrapper.h
+For ?
+*/
 //
 // C++ Interface: %{MODULE}
 //
-// Description: 
+// Description:
 //
 //
 // Author: %{AUTHOR} <%{EMAIL}>, (C) %{YEAR}
@@ -43,10 +47,13 @@
 #include <list>
 #include <ruby.h>
 
+/** @namespace DCE
+The Data Commands and Events (DCE) namespace.
+*/
 namespace DCE {
 
-/**
-@author Igor Spac,,,
+/** @class RubySerialWrapper
+For ?
 */
 class RubySerialWrapper {
 public:
@@ -60,14 +67,14 @@ public:
 	RubyDeviceWrapper& getDevice() {
 		return device_;
 	}
-	
+
 	void setDCEConnector(RubyDCEConnector* pdce) {
 		pdce_ = pdce;
 	}
 	RubyDCEConnector* getDCEConnector() {
 		return pdce_;
 	}
-	
+
 	void setParent(VALUE parent) {
 	    parent_ = parent;
 	}
@@ -78,7 +85,7 @@ public:
 
 public:
 	void SendCommand(RubyCommandWrapper* pcmd);
-	
+
 	/*accessed from ruby code*/
 public:
 	VALUE parent_;
@@ -89,7 +96,7 @@ public:
 
 	void SetDeviceDataInDB( int PK_Device, int PK_DeviceData, const char* value );
 	const char* GetCurrentDeviceData( int PK_Device, int PK_DeviceData );
-	
+
 private:
 	RubyDCEConnector* pdce_;
 };

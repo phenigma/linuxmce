@@ -12,18 +12,27 @@
 	See the GNU General Public License for more details.
 */
 
+/** @file TestRubyEmbederCodeSupplier.h
+Header for ?
+*/
 #ifndef EMBRUBYTESTRUBYEMBEDERCODESUPPLIER_H
 #define EMBRUBYTESTRUBYEMBEDERCODESUPPLIER_H
 
 #include "RubyEmbeder.h"
 
+/** @namespace EMBRUBY
+Embedded Ruby ???
+*/
 namespace EMBRUBY {
 
-/**
-@author Igor Spac,,,
+/** @class TestRubyEmbederCodeSupplier
+Test cass ?
 */
 class TestRubyEmbederCodeSupplier : public RubyEmbederCodeSupplier {
 public:
+
+    /** Get the ruby code.
+    */
 	const char* getRubyCode();
 };
 

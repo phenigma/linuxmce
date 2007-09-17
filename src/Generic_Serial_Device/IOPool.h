@@ -12,6 +12,9 @@
 	See the GNU General Public License for more details.
 */
 
+/** @file IOPool.h
+Classes for pool state machines.
+*/
 #ifndef DCEIOPOOL_H
 #define DCEIOPOOL_H
 
@@ -20,10 +23,13 @@
 
 #include <list>
 
+/** @namespace DCE
+The Data Commands and Events (DCE) namespace.
+*/
 namespace DCE {
 
-/**
-@author Igor Spac,,,
+/** @class IOPool
+Class for ???
 */
 class IOPool : public LoopStateMachine {
 public:
@@ -32,7 +38,7 @@ public:
 
 public:
 	virtual IOConnection* getConnection() = 0;
-	
+
 	/*pool handling*/
 public:
 	virtual bool handleStartup();
@@ -41,10 +47,14 @@ public:
 
 	/*states*/
 protected:
+
+/** @class IOPoolState
+Class for ???
+*/
 	class IOPoolState : public LoopState {
 		friend class IOPool;
 	protected:
-		IOPoolState(IOPool* psm) 
+		IOPoolState(IOPool* psm)
 			: LoopState(psm) {};
 		virtual void handleOpen(IOConnection* pconn)
 		{};
@@ -54,7 +64,7 @@ protected:
 		{};
 	};
 
-private:	
+private:
 };
 
 };

@@ -12,49 +12,88 @@
 	See the GNU General Public License for more details.
 */
 
+/** @file StateMachine.h
+Base classes for state machines.
+*/
 #ifndef DCESTATEMACHINE_H
 #define DCESTATEMACHINE_H
 
+
+/** @namespace DCE
+The Data Commands and Events (DCE) namespace.
+*/
 namespace DCE {
 
-/**
-@author Igor Spac,,,
+/** @class StateMachine
+Base class for ?
 */
 class StateMachine {
 public:
+
+    /** Constructor.
+    */
     StateMachine();
+
+    /** Destructor.
+    */
     virtual ~StateMachine();
 
 	/*state access*/
 protected:
 	class State;
-	
+
+    /** setState.
+    @param pstate is a pointer to a state.
+    */
 	void setState(State* pstate);
+
+    /** getState
+    @returns a pointer to a state.
+    */
 	State* getState();
-	
+
 	/*states*/
 protected:
+
+
+    /** @class State
+    Class for States.
+    */
 	class State {
 		friend class StateMachine;
 		friend class StateImpl;
 	protected:
+        /** Constructor.
+        @param psm is a pointer to a StateMachine instance.
+        */
 		State(StateMachine* psm) : psm_(psm) {};
-		
+
+        /** getSM
+        @returns a pointer to a StateMachine instance.
+        */
 		StateMachine* getSM() {
 			return psm_;
 		}
 
 	protected:
-		virtual void handleEnter() 
+        /** handleEnter
+        Handle entry into a state.
+        */
+		virtual void handleEnter()
 		{};
+
+        /** handleExit
+        Handle exit from a state.
+        */
 		virtual void handleExit()
 		{};
-	private:
-		StateMachine* psm_;
+
+        private:
+		StateMachine* psm_; /**< Holds a State machine pointer. */
 	};
-	
+
 public:
-	State* state_;
+	State* state_; /**< Holds a state. */
 };
 
 };

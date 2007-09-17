@@ -12,41 +12,46 @@
 	See the GNU General Public License for more details.
 */
 
+/** @file RubyStdStreamRedirector.h
+Handle ruby streams?
+*/
 #ifndef EMBRUBYRUBYSTDSTREAMREDIRECTOR_H
 #define EMBRUBYRUBYSTDSTREAMREDIRECTOR_H
 
-namespace EMBRUBY {
-
-/**
-@author Igor Spac,,,
+/** @namespace EMBRUBY
+Embedded Ruby ???
 */
+namespace EMBRUBY {
 
 #define HF_STDIN 	0
 #define HF_STDOUT 	1
 #define HF_STDERR 	2
 
+/** @class RubyStdStreamRedirector
+Redirects??
+*/
 class RubyStdStreamRedirector{
 public:
     RubyStdStreamRedirector();
     RubyStdStreamRedirector(int stdstream);
     ~RubyStdStreamRedirector();
-	
+
 	void Open(int stdstream);
 	void Close();
-	
+
 public:
 	operator int() {
 		return rstream_;
 	}
-	
+
 	int getOriginalStream() {
 		return savstream_;
 	}
 
 private:
-	int rstream_; // redirected tail
-	int ostream_; // the other tail
-	
+	int rstream_; /**< redirected tail. */
+	int ostream_; /**< the other tail. */
+
 	int savstream_;
 };
 

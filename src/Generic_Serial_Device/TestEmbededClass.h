@@ -12,21 +12,27 @@
 	See the GNU General Public License for more details.
 */
 
+/** @file TestEmbededClass.h
+Class ?
+*/
 #ifndef EMBRUBYTESTEMBEDEDCLASS_H
 #define EMBRUBYTESTEMBEDEDCLASS_H
 
 
 #include "RubyEmbededClass.h"
 
+/** @namespace EMBRUBY
+Embedded Ruby ???
+*/
 namespace EMBRUBY {
 
-/**
-@author Igor Spac,,,
+/** @class TestEmbededClass
+For ?
 */
 class TestEmbededClass : public RubyEmbededClassImpl<TestEmbededClass> {
 public:
 	DEFINE_CLASS_NAME("Test");
-    
+
 	TestEmbededClass();
     ~TestEmbededClass();
 

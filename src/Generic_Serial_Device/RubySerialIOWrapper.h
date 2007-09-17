@@ -12,16 +12,22 @@
 	See the GNU General Public License for more details.
 */
 
+/** @file RubySerialIOWrapper.h
+For ?
+*/
 #ifndef DCERUBYSERIALIOWRAPPER_H
 #define DCERUBYSERIALIOWRAPPER_H
 
 #include "RubySerialWrapper.h"
 #include <list>
 
+/** @namespace DCE
+The Data Commands and Events (DCE) namespace.
+*/
 namespace DCE {
 
-/**
-@author Igor Spac,,,
+/** @class RubySerialIOWrapper
+For ?
 */
 class RubySerialIOWrapper : public RubySerialWrapper {
 	friend class RubySerialIOPool;
@@ -38,7 +44,7 @@ public:
 	RubySerialIOConnectionWrapper& getConn() {
 		return conn_;
 	}
-	
+
 	/*accessed from ruby code*/
 public:
 	RubySerialIOConnectionWrapper conn_; /*connection*/

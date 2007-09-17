@@ -39,7 +39,7 @@ namespace DCE
 {
 
 /** @class Generic_Serial_Device
-A cass for ???
+A class for ???
 */
 	class Generic_Serial_Device :
 			public Generic_Serial_Device_Command,

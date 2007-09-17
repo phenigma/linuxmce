@@ -12,15 +12,21 @@
 	See the GNU General Public License for more details.
 */
 
+/** @file IOEvent.h
+Base classe for IOEvent.
+*/
 #ifndef EIBBUSEVENT_H
 #define EIBBUSEVENT_H
 
 #include <pthread.h>
 
+/** @namespace DCE
+The Data Commands and Events (DCE) namespace.
+*/
 namespace DCE {
 
-/**
-@author 
+/** @class IOEvent
+For I/O Events
 */
 class IOEvent
 {

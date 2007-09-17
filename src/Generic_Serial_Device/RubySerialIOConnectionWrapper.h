@@ -12,15 +12,21 @@
 	See the GNU General Public License for more details.
 */
 
+/** @file RubySerialIOConnectionWrapper.h
+For ?
+*/
 #ifndef DCERUBYSERIALIOCONNECTIONWRAPPER_H
 #define DCERUBYSERIALIOCONNECTIONWRAPPER_H
 
 #include "BufferedIOConnection.h"
 
+/** @namespace DCE
+The Data Commands and Events (DCE) namespace.
+*/
 namespace DCE {
 
-/**
-@author Igor Spac,,,
+/** @class RubySerialIOConnectionWrapper
+For ?
 */
 class RubySerialIOConnectionWrapper : protected BufferedIOConnection {
 public:
@@ -32,7 +38,7 @@ public:
 	int Recv(char* buff, unsigned int size, int timeout) {
 		return BufferedIOConnection::Recv(buff, size, timeout);
 	}
-	std::string 
+	std::string
 	RecvDelimited(const char* delimbuff, unsigned int delimsize, int timeout) {
 		return BufferedIOConnection::RecvDelimited(delimbuff, delimsize, timeout);
 	}
@@ -51,11 +57,11 @@ public:
 	}
 
 	bool Reconnect();
-	
+
 	void Close() {
 		BufferedIOConnection::Close();
 	}
-	
+
 };
 
 };

@@ -12,6 +12,14 @@
 	See the GNU General Public License for more details.
 */
 
+/** @file RubyIOManager.h
+Manages instances of serial pools.
+
+Manager was added because of limitation of ruby to run only in process
+ context and not in thread context.
+Because of this we will not use each Pool's state machine,
+ intead will use this class to manage comunication between ruby and DCE.
+*/
 #ifndef DCERUBYSERIALIOMANAGER_H
 #define DCERUBYSERIALIOMANAGER_H
 
@@ -25,56 +33,74 @@
 #include "RubyIOPool.h"
 #include "PlutoUtils/MultiThreadIncludes.h"
 
+/** @namespace DCE
+The Data Commands and Events (DCE) namespace.
+*/
 namespace DCE {
 
 class DeviceData_Base;
 class DeviceData_Impl;
 class Event_Impl;
 
-/**
-@author Igor Spac,,,
+/** @class RubyIOManager
+Mmanages instances of serial pools.
 */
-
-/*manages instances of serial pools*/
-/* ----!!!!!!!!!!!!!
-	manager was added because of limitation of ruby to run only in process context and not in thread context,
-	because of this we will not use each Pool's state machine, intead will use this class to manage comunication between ruby and DCE
-	*/
 class RubyIOManager : protected RubyDCEConnector, public IOThread {
+
+    /** Constructor.
+    */
     RubyIOManager();
+
+    /** Destructor.
+    */
     virtual ~RubyIOManager();
 
 	friend class RubyDCEDeviceNode;
-	
+
 public:
 	static RubyIOManager* getInstance();
-	
+
 public:
 
 	void setEventDispatcher(Event_Impl* pevdisp) {
 		pevdisp_ = pevdisp;
 	}
-	Event_Impl* getEventDispatcher() {
+
+    Event_Impl* getEventDispatcher() {
 		return pevdisp_;
 	}
-		
+
 	int addDevice(Command_Impl* pcmdimpl, DeviceData_Impl* pdevdata);
+
+    /** NOT Implemented.
+    */
 	int removeDevice(DeviceData_Impl* pdevdata);
-	bool hasDevice(DeviceData_Base* pdevdata);
-	RubyDCECodeSupplier getCodeSupplier() {
+
+    bool hasDevice(DeviceData_Base* pdevdata);
+
+    RubyDCECodeSupplier getCodeSupplier() {
 		return cs_;
 	}
-	
+
 public:
 	int RouteMessage(DeviceData_Base* pdevdata, Message *pMessage);
 	virtual void SendMessage(Message* pmsg);
 	virtual void SendString(string str);
-	virtual void SetDeviceData( int PK_Device,int PK_DeviceData,string Value );
-	pluto_pthread_mutex_t m_MsgMutex;
-	
+
+    /** This is sort of obsolete, since using it (and moving it's definition back to
+the base RubyDCEConnector) whould turn the framework for ruby into a mess.
+    */
+    virtual void SetDeviceData( int PK_Device,int PK_DeviceData,string Value );
+
+    pluto_pthread_mutex_t m_MsgMutex;
+
 protected:
-	/*methods for comunicating with DCE, accessed by wrappers */
+	/** Methods for comunicating with DCE, accessed by wrappers.
+    */
 	virtual void SendCommand(RubyCommandWrapper* pcmd);
+
+    /** Methods for comunicating with DCE, accessed by wrappers.
+    */
 	virtual string SendCommandReceiveString(RubyCommandWrapper* pcmd);
 
 protected:
@@ -87,16 +113,16 @@ protected:
 		PORTTYPE_SERIAL,
 		PORTTYPE_NETWORK
 	};
-		
+
 private:
 	RubyDCEDeviceNode* InstantiateNode(Command_Impl* pcmdimpl, DeviceData_Impl* pdevdata);
 	RubyDCEDeviceNode* addDevice(Command_Impl* pcmdimpl, DeviceData_Impl* pdevdata, RubyDCEDeviceNode* pNode);
 	bool hasDevice(DeviceData_Base* pdevdata, RubyDCEDeviceNode* pNode);
 	bool DispatchMessage(Message *pmsg, unsigned deviceid, RubyDCEDeviceNode* pNode);
-	
+
 private:
 	static RubyIOManager* s_instance_;
-	
+
 private:
 	RubyDCECodeSupplier cs_;
 	Event_Impl* pevdisp_;
@@ -109,9 +135,9 @@ private:
 	/*[serial port <--> pool] map*/
 	/*
 	typedef std::map<std::string, RubyIOPool*> POOLMAP;
-	POOLMAP pools_; 
+	POOLMAP pools_;
 	*/
-	RubyDCEDeviceNode* rootnode_;	
+	RubyDCEDeviceNode* rootnode_;
 };
 
 };
