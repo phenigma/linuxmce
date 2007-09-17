@@ -4,7 +4,7 @@
  Copyright (C) 2004 Pluto, Inc., a Florida Corporation
 
  www.plutohome.com
- 
+
 
  Phone: +1 (877) 758-8648
 
@@ -16,9 +16,16 @@
  or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more details.
 
  */
+
+ /** @file EventList.h
+For ???
+ */
 #ifndef EVENT_H
 #define EVENT_H
 
+/** @class Event
+For ???
+*/
 class Event
 {
 public:

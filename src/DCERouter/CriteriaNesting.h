@@ -4,7 +4,7 @@
  Copyright (C) 2004 Pluto, Inc., a Florida Corporation
 
  www.plutohome.com
- 
+
 
  Phone: +1 (877) 758-8648
 
@@ -16,12 +16,20 @@
  or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more details.
 
  */
+
+/** @file CriteriaNesting.h
+For ???
+ */
 #ifndef CRITERIANESTING_H
 #define CRITERIANESTING_H
 
-#include "PlutoUtils/CommonIncludes.h"	
+#include "PlutoUtils/CommonIncludes.h"
 #include "CriteriaParm.h"
 
+
+/** @class CriteriaNesting
+For ???
+*/
 class CriteriaNesting
 {
 public:
@@ -53,7 +61,7 @@ public:
 		}
 		// If this is an 'and' we're true because we got through everything without a false,
 		// If this is an 'or' we're false because we never got a true value
-		return !(!bNot ^ bAnd);  
+		return !(!bNot ^ bAnd);
 	}
 	*/
 };

@@ -4,7 +4,7 @@
  Copyright (C) 2004 Pluto, Inc., a Florida Corporation
 
  www.plutohome.com
- 
+
 
  Phone: +1 (877) 758-8648
 
@@ -16,14 +16,21 @@
  or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more details.
 
  */
+
+ /** @file CriteriaInfo.h
+For ???
+ */
 #ifndef CRITERIAINFO_H
 #define CRITERIAINFO_H
 
+/** @class CriteriaInfo
+For ???
+*/
 class CriteriaInfo
 {
 public:
 	class Message *pMessage;
-	
+
 	class EventHandler *pEventHandler;
 	class DeviceData_Router *pDevice;
 	class Event_Impl *pEvent_Impl;

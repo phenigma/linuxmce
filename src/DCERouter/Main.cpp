@@ -1,24 +1,46 @@
 /*
  Main
- 
+
  Copyright (C) 2004 Pluto, Inc., a Florida Corporation
- 
- www.plutohome.com		
- 
+
+ www.plutohome.com
+
  Phone: +1 (877) 758-8648
- 
- This program is distributed according to the terms of the Pluto Public License, available at: 
- http://plutohome.com/index.php?section=public_license 
- 
- This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
+
+ This program is distributed according to the terms of the Pluto Public License, available at:
+ http://plutohome.com/index.php?section=public_license
+
+ This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more details.
- 
+
  */
- 
-/* 
+
+
+ /** @file Main.cpp
+Usage: Router [-i installation] [-d device] [-h hostname]
+
+[-u username] [-p password] [-D database] [-P mysql port]
+
+[-t tcp/ip port to listen on] [-f Base Path][-l Logger]
+
+-h hostname  -- address or DNS of database host, default is `dcerouter`
+
+-u username  -- username for database connection
+
+-p password  -- password for database connection, default is `` (empty)
+
+-D database  -- database name
+
+-P port      -- port for database connection, default is 3306
+
+-f base path -- device requests for files will be relative to this path
+
+-l logger    -- where to put the log
+ */
+/*
  * $Id: Main.cpp,v 1.3 2004/10/16 12:36:39 aaron Exp $
  */
-#include "PlutoUtils/CommonIncludes.h"	
+#include "PlutoUtils/CommonIncludes.h"
 #include <signal.h>
 #include <iostream>
 #include "DCERouter.h"
@@ -33,7 +55,7 @@ const char *g_szCompile_Date="<=compile_date=>";
 
 using namespace DCE;
 
-namespace DCE 
+namespace DCE
 {
 	class Router *g_pRouter;
 }
@@ -44,7 +66,7 @@ DCEConfig g_DCEConfig;
 void sig_int(int sig)
 {
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, SIGINT_NOTIFY_MESSAGE);
-	
+
 	if(g_pRouter) {
 		g_pRouter->Quit();
 	}
@@ -73,7 +95,7 @@ int main(int argc, char *argv[])
 
 	g_sBinary = FileUtils::FilenameWithoutPath(argv[0]);
 	g_sBinaryPath = FileUtils::BasePath(argv[0]);
-   		
+
 		cout<<"Copyright (C) 2004 Pluto, Inc., a Florida Corporation"<<endl
 		    <<"www.plutohome.com"<<endl
 		    <<"Phone: +1 (877) 758-8648"<<endl
@@ -82,7 +104,7 @@ int main(int argc, char *argv[])
 		    <<"This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; "<<endl
 		    <<"without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. "<<endl
 		    <<"See the Pluto Public License for more details."<<endl << "---------------" << endl << endl;
- 
+
 	srand((int) time(NULL));
 
 	string DBHost="dcerouter",DBUser="root",DBPassword="",DBName="pluto_main",BasePath="";
@@ -156,8 +178,8 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-		
-	
+
+
 	try
 	{
 		if( sLogger=="null" )

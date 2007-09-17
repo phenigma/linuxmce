@@ -4,7 +4,7 @@
  Copyright (C) 2004 Pluto, Inc., a Florida Corporation
 
  www.plutohome.com
- 
+
 
  Phone: +1 (877) 758-8648
 
@@ -16,15 +16,23 @@
  or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more details.
 
  */
+
+ /** @file EventHandler_CriteriaList.h
+For ???
+ */
 #ifndef EVENTHANDLER_CRITERIALIST_H
 #define EVENTHANDLER_CRITERIALIST_H
 
 #include "CriteriaList.h"
 
+
+/** @class EventHandler_CriteriaList
+For ???
+*/
 class EventHandler_CriteriaList : public CriteriaList
 {
 public:
-	EventHandler_CriteriaList(int PK_CriteriaList,int PK_Criteria,class CriteriaNesting *ptrCriteriaNesting) : 
+	EventHandler_CriteriaList(int PK_CriteriaList,int PK_Criteria,class CriteriaNesting *ptrCriteriaNesting) :
 		CriteriaList(PK_CriteriaList,PK_Criteria,ptrCriteriaNesting) {}
 	virtual ~EventHandler_CriteriaList()
 	{}

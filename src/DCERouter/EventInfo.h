@@ -4,7 +4,7 @@
  Copyright (C) 2004 Pluto, Inc., a Florida Corporation
 
  www.plutohome.com
- 
+
 
  Phone: +1 (877) 758-8648
 
@@ -16,11 +16,19 @@
  or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more details.
 
  */
+
+ /** @file EventInfo.h
+For ???
+ */
 #ifndef EVENTINFO_H
 #define EVENTINFO_H
 
 #include "EventHandler.h"
 
+
+/** @class EventInfo
+For ???
+*/
 class EventInfo
 {
 public:
@@ -28,7 +36,7 @@ public:
 	class Event *pEvent;
 	class PlutoEvents *m_pPlutoEvents;
 	class Message *pMessage;
-	
+
 	class EventHandler *pEventHandler;
 	class DeviceData_Router *pDevice;
 	int PK_C_Mode_Room,PK_C_Mode_House;
@@ -36,7 +44,7 @@ public:
 
 	EventInfo(class PlutoEvents *plutoEvents,class Event *eventlist,class Message *message,class DeviceData_Router *device,int C_Mode_Room,int C_Mode_House) :
 		pEvent(eventlist), m_pPlutoEvents(plutoEvents), pMessage(message),
-		pEventHandler(NULL), pDevice(device),PK_C_Mode_Room(C_Mode_Room),PK_C_Mode_House(C_Mode_House) 
+		pEventHandler(NULL), pDevice(device),PK_C_Mode_Room(C_Mode_Room),PK_C_Mode_House(C_Mode_House)
 	{};
 	~EventInfo()
 	{

@@ -4,7 +4,7 @@
  Copyright (C) 2004 Pluto, Inc., a Florida Corporation
 
  www.plutohome.com
- 
+
 
  Phone: +1 (877) 758-8648
 
@@ -16,11 +16,19 @@
  or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more details.
 
  */
+
+ /** @file EventHandler.h
+For ???
+ */
 #ifndef EVENTHANDLER_H
 #define EVENTHANDLER_H
 
 typedef vector<class Command *> CommandVector;
 
+
+/** @class EventHndler
+For ???
+*/
 class EventHandler
 {
 public:

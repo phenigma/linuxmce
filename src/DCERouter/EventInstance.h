@@ -4,7 +4,7 @@
  Copyright (C) 2004 Pluto, Inc., a Florida Corporation
 
  www.plutohome.com
- 
+
 
  Phone: +1 (877) 758-8648
 
@@ -16,11 +16,23 @@
  or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more details.
 
  */
+
+ /** @file EventInstance.h
+For ???
+ */
 #ifndef EVENTINSTANCE_H
 #define EVENTINSTANCE_H
 
 #include "Message.h"
+
+/** @namespace DCE
+DCE
+*/
 using namespace DCE;
+
+/** @class EventInstance
+For ???
+*/
 class EventInstance
 {
 public:
@@ -29,7 +41,7 @@ public:
 	int m_ID,m_CommandNum,m_PK_Device_OriginatedThisEvent;
 	clock_t m_tTime;
 //	clock_t m_ctWaitUntil;
-	
+
 	int m_TimerID;
 
 	EventInstance(int ID,class EventHandler *ptrEventHandler)
