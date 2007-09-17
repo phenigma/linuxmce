@@ -17,3 +17,10 @@ ldapexception.cpp
 ldapexception.h
 ldapmanager.cpp
 ldapmanager.h
+calldata.cpp
+calldata.h
+Doxyfile
+Main.cpp
+Makefile
+Telecom_Plugin.kdevelop
+Telecom_Plugin.kdevelop.filelist
