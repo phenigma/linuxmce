@@ -47,7 +47,9 @@ clean:
 package:
 	./make_package.sh $(APPNAME) $(VERSION)
 
-docs:
+docs: docs_api
+
+docs_api:
 	doxygen Doxyfile
 
 include $(ROOT)/PlutoUtils/make.rules
