@@ -143,9 +143,9 @@ void WizardPageVideoRatio::FillResolutionStandard(WizardWidgetScrollList* List, 
 			List->AddItem("1024x768 (4:3)", "1024x768");
 			List->AddItem("1280x800 (custom)", "1280x800");
 			List->AddItem("1280x1024 (5:4)", "1280x1024");
+			List->AddItem("1080p (16:9)", "1080p");
 #if 0
 			List->AddItem("1080i (16:9)", "1080i");
-			List->AddItem("1080p (16:9)", "1080p");
 			List->AddItem("1600x1200 (4:3)", "1600x1200");
 #endif
 			break;
