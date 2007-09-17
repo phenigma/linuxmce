@@ -28,11 +28,7 @@ function outputScreenOrDevice()
 	print "\tOption \"MigrationHeuristic\" \"always\"";
 #<-mkr_b_via_e->
 
-	if (OpenGL == 0)
-		return;
 	print "\tOption \"XvmcUsesTextures\" \"true\"";
-	print "\tOption \"AllowGLXWithComposite\" \"true\"";
-	print "\tOption \"AddARGBGLXVisuals\" \"true\"";
 	print "\tOption \"renderAccel\" \"true\"";
 	print "\tOption \"NoDDCValue\"";
 	print "\tOption \"UseEDID\" \"false\"";
@@ -41,6 +37,11 @@ function outputScreenOrDevice()
 	print "\tOption \"NoBandWidthTest\" \"true\"";
 	print "\tOption \"ModeValidation\" \"NoDFPNativeResolutionCheck, NoEdidMaxPClkCheck, NoMaxPClkCheck, AllowInterlacedModes, AllowNon60HzDFPModes\"";
 	print "\tOption \"DynamicTwinView\" \"false\"";
+
+	if (OpenGL == 0)
+		return;
+	print "\tOption \"AllowGLXWithComposite\" \"true\"";
+	print "\tOption \"AddARGBGLXVisuals\" \"true\"";
 }
 
 function outputExtensions()
