@@ -6,7 +6,11 @@
     <version>$VERSION$</version>
     <projectmanagement>KDevCustomProject</projectmanagement>
     <primarylanguage>C++</primarylanguage>
-    <ignoreparts/>
+    <ignoreparts>
+      <part>kdevfilegroups</part>
+      <part>kdevfilelist</part>
+      <part>kdevfileselector</part>
+    </ignoreparts>
     <projectdirectory>.</projectdirectory>
     <absoluteprojectpath>false</absoluteprojectpath>
     <description></description>
