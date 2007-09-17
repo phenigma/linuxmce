@@ -12,16 +12,22 @@
 	See the GNU General Public License for more details.
 */
 
+/** @file RubyDeviceWrapper.h
+For ?
+*/
 #ifndef DCERUBYDEVICEWRAPPER_H
 #define DCERUBYDEVICEWRAPPER_H
 
 #include <string>
 #include <map>
 
+/** @namespace DCE
+The Data Commands and Events (DCE) namespace.
+*/
 namespace DCE {
 
-/**
-@author Igor Spac,,,
+/** @class RubyDeviceWrapper
+For ???
 */
 class RubyDeviceWrapper {
 public:
@@ -35,21 +41,21 @@ public:
 	void setDevId(int devid) {
 		devid_ = devid;
 	}
-	
+
 	int getDevTemplId() {
 		return devtemplid_;
 	}
 	void setDevTemplId(int devtemplid) {
 		devtemplid_ = devtemplid;
 	}
-	
+
 	const std::map<int, std::string>& getData() {
 		return devdata_;
 	}
 	void setData(const std::map<int, std::string>& devdata) {
 		devdata_ = devdata;
 	}
-	
+
 	DCE::RubyDeviceWrapper* getParent() {
 		return parent_;
 	}
@@ -64,14 +70,14 @@ public:
 	void setChildDevices(std::map<int, DCE::RubyDeviceWrapper>& devices) {
 		childdevices_ = devices;
 	}
-	
+
 	std::map<std::string, int>& getMapPortChannel_Device() {
 		return mapPortChannel_Device_;
 	}
 	void setMapPortChannel_Device(std::map<std::string, int>& mapPC_D) {
 		mapPortChannel_Device_ = mapPC_D;
 	}
-	
+
 	std::map<int, std::string>& getMapDevice_PortChannel() {
 		return mapDevice_PortChannel_;
 	}
@@ -81,7 +87,7 @@ public:
 
 public:
 	RubyDeviceWrapper* FindChildDevice(int devid);
-		
+
 public:
 	int devid_;
 	int devtemplid_;
@@ -89,7 +95,7 @@ public:
 
 	DCE::RubyDeviceWrapper* parent_;
 	std::map<int, DCE::RubyDeviceWrapper> childdevices_; /*child device*/
-	
+
 	std::map<std::string, int> mapPortChannel_Device_;
 	std::map<int, std::string> mapDevice_PortChannel_;
 };

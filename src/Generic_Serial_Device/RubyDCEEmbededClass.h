@@ -12,24 +12,30 @@
 	See the GNU General Public License for more details.
 */
 
+/** @file RubyDCEEmbededClass.h
+For ?
+*/
 #ifndef DCERUBYDCEEMBEDEDCLASS_H
 #define DCERUBYDCEEMBEDEDCLASS_H
 
 #include "RubyEmbededClass.h"
 #include "RubyDCECodeSupplier.h"
 
+/** @namespace DCE
+The Data Commands and Events (DCE) namespace.
+*/
 namespace DCE {
 
 class Message;
 class RubyDeviceWrapper;
 
-/**
-@author Igor Spac,,,
+/** @class RubyDCEEmbededClass
+For ???
 */
 class RubyDCEEmbededClass : public EMBRUBY::RubyEmbededClassImpl<RubyDCEEmbededClass> {
 public:
 	DEFINE_CLASS_NAME("DCE");
-	
+
 	RubyDCEEmbededClass();
     RubyDCEEmbededClass(RubyDCECodeSupplier* pcs, int dwPK_Device);
     ~RubyDCEEmbededClass();

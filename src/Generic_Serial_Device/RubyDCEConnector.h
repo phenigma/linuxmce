@@ -12,15 +12,21 @@
 	See the GNU General Public License for more details.
 */
 
+/** @file RubyDCEConnector.h
+For ?
+*/
 #ifndef DCERUBYDCECONNECTOR_H
 #define DCERUBYDCECONNECTOR_H
 
 #include "RubyCommandWrapper.h"
 
+/** @namespace DCE
+The Data Commands and Events (DCE) namespace.
+*/
 namespace DCE {
 
-/**
-@author Igor Spac,,,
+/** @class RubyDCEConnector
+For ???
 */
 class RubyDCEConnector {
 public:

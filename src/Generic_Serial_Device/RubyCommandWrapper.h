@@ -12,6 +12,9 @@
 	See the GNU General Public License for more details.
 */
 
+/** @file RubyCommandWrapper.h
+For ?
+*/
 #ifndef DCERUBYCOMMANDWRAPPER_H
 #define DCERUBYCOMMANDWRAPPER_H
 
@@ -20,10 +23,13 @@
 
 #include "DCE/Message.h"
 
+/** @namespace DCE
+The Data Commands and Events (DCE) namespace.
+*/
 namespace DCE {
 
-/**
-@author Igor Spac,,,
+/** @class RubyCommandWrapper
+For ???
 */
 class RubyCommandWrapper {
 public:
@@ -34,7 +40,7 @@ public:
 	void setParam(long id, const char* val) {
 		params_[id] = val;
 	}
-	
+
 	const char* getParam(long id) {
 		return params_[id].c_str();
 	}
@@ -45,28 +51,28 @@ public:
 	void setParams(const std::map<long, std::string>& params) {
 		params_ = params;
 	}
-	
+
 	long getDevIdFrom() { return devidfrom_; }
 	void setDevIdFrom(long devidfrom) { devidfrom_ = devidfrom; }
-	
+
 	long getDevIdTo() { return devidto_; }
 	void setDevIdTo(long devidto) { devidto_ = devidto; }
-	
+
 	long getPriority() { return priority_; }
 	void setPriority(long priority) { priority_ = priority; }
-	
+
 	long getType() { return type_; }
 	void setType(long type) { type_ = type; }
-	
+
 	long getId() { return id_; }
 	void setId(long id) { id_ = id; }
-	
+
 	long getCategory() { return category_; }
 	void setCategory(long category) { category_ = category; devidto_ = DEVICEID_CATEGORY; }
 
 	long getTemplate() { return template_; }
 	void setTemplate(long the_template) { template_ = the_template; devidto_ = DEVICEID_MASTERDEVICE; }
-	
+
 public:
 	long devidfrom_;
 	long devidto_;

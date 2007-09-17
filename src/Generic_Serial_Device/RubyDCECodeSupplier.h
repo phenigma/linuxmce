@@ -12,6 +12,9 @@
 	See the GNU General Public License for more details.
 */
 
+/** @file RubyDCECodeSupplier.h
+For ?
+*/
 #ifndef DCERUBYDCECODESUPPLIER_H
 #define DCERUBYDCECODESUPPLIER_H
 
@@ -20,13 +23,16 @@
 #include <map>
 #include <list>
 
+/** @namespace DCE
+The Data Commands and Events (DCE) namespace.
+*/
 namespace DCE {
 
 class DeviceData_Impl;
 class Command_Impl;
 
-/**
-@author Igor Spac,,,
+/** @class RubyDCECodeSupplier
+For ???
 */
 class RubyDCECodeSupplier : public EMBRUBY::RubyEmbederCodeSupplier {
 public:
@@ -36,14 +42,14 @@ public:
 public:
 	void addCode(Command_Impl *pcmdimpl, DeviceData_Impl* pdevicedata, bool io);
 	void clearCode();
-	
+
 public:
 	const char* getRubyCode() {
 		return rcode_.c_str();
 	}
 
 	bool isCmdImplemented(unsigned devid, int cmd);
-	bool isPrivateAssigned(unsigned devid) {	
+	bool isPrivateAssigned(unsigned devid) {
 		return privateassigned_[devid];
 	}
 	bool isProcChildCommandAssigned(unsigned devid) {
@@ -52,17 +58,17 @@ public:
 	int getParamsOrderForCmd(unsigned devid, /*in*/int cmd, /*out*/std::list<int>& params);
 	int getParamsNamesForCmd(unsigned devid, /*in*/int cmd, /*out*/std::list<std::string>& params);
 	int getParamType(int param);
-	
+
 private:
 	std::string TranslateCommandToRuby(const std::string& cmdtxt);
 
 private:
 	/*command to param names mapping*/
-	typedef 
+	typedef
 		std::pair<int, std::string> PARAMPAIR; /*list of pairs: param id and ruby param name*/
-	typedef 
+	typedef
 		std::list< std::pair<int, std::string> > PARAMLIST; /*list of pairs: param id and ruby param name*/
-	typedef 
+	typedef
 		std::map<int, PARAMLIST> COMMANDPARAMMAP; /*map between command id and param map*/
 	typedef
 		std::map<unsigned, COMMANDPARAMMAP> DEVICEMAP;

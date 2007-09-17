@@ -4,7 +4,7 @@
      www.plutohome.com
 
      Phone: +1 (877) 758-8648
- 
+
 
      This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
      This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
@@ -13,10 +13,14 @@
      See the GNU General Public License for more details.
 
 */
+
+/** @file RubyDCEDeviceNode.h
+For ?
+*/
 //
 // C++ Interface: %{MODULE}
 //
-// Description: 
+// Description:
 //
 //
 // Author: %{AUTHOR} <%{EMAIL}>, (C) %{YEAR}
@@ -36,10 +40,13 @@
 #include "RubyDCEConnector.h"
 #include "RubyDCEDeviceNode.h"
 
+/** @namespace DCE
+The Data Commands and Events (DCE) namespace.
+*/
 namespace DCE {
 
-/**
-@author Igor Spac,,,
+/** @class RubyDCEDeviceNode
+For ???
 */
 class RubyDCEDeviceNode {
 	friend class RubyIOManager;
@@ -50,21 +57,21 @@ public:
 public:
 	virtual bool Init(RubyDCECodeSupplier* pcs);
 	virtual void Cleanup();
-	
+
 	void setDeviceData(DeviceData_Impl* pdevdata) {
 		pdevdata_ = pdevdata;
 	}
 	DeviceData_Impl* getDeviceData() {
 		return pdevdata_;
 	}
-	
+
 	RubyDCEDeviceNode* getParent() {
 		return parent_;
 	}
 	void setParent(RubyDCEDeviceNode* parent) {
 		parent_ = parent;
 	}
-	
+
 	int addChild(RubyDCEDeviceNode* pnode) {
 		pnode->setParent(this);
 		children_.push_back(pnode);
@@ -82,7 +89,7 @@ public:
 	unsigned getIdleDelay() {
 		return idledelay_;
 	}
-		
+
 protected:
 	virtual bool handleNoMessage();
 	virtual bool handleMessage(Message* pmsg);
@@ -96,7 +103,7 @@ protected:
 
 private:
 	void PopulateDevice(DeviceData_Impl* pdevdata, RubyDeviceWrapper& devwrap);
-	
+
 private:
 	RubyDCEDeviceNode* parent_;
 	std::list<RubyDCEDeviceNode*> children_;
@@ -104,7 +111,7 @@ private:
 private:
 	unsigned idledelay_;
 	struct timespec lastidle_;
-	
+
 private:
 	DeviceData_Impl* pdevdata_;
 	RubyDCEEmbededClass* pembclass_; // Ruby class instance
