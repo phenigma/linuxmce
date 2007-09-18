@@ -23,7 +23,7 @@
 
 /**
 @namespace cpp
-for ???.
+Generic namespace for all libraries from PlutoUtils.
 */
 namespace cpp {
 

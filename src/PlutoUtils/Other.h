@@ -15,7 +15,7 @@
 */
 
 /** @file Other.h
- Header file for the other utilities class
+ Header file for the FastParser class.
  */
 #ifndef OTHERH
 #define OTHERH
@@ -47,37 +47,52 @@ using namespace ::std;
 #ifndef SYMBIAN
 
 /** @class FastParser
+For ???
 
+Includes windows specific code that may not show up if documented on a Linux box.
  */
 class FastParser
 {
-    char m_cDelimiter; /** < the delimiter used by the parser */
-    char *m_pcData; /** < the pointer to the data to be parsed */
-    char *m_pcEnd; /** < pointer to show the end of the data */
+
+    /** The delimiter used by the parser.
+    */
+    char m_cDelimiter;
+
+    /** The pointer to the data to be parsed.
+    */
+    char *m_pcData;
+
+    /** Pointer to show the end of the data.
+    */
+    char *m_pcEnd;
 
 public:
+    /** Checks to see if the end of the data has been reached.
+    */
+    inline bool IsAtEnd() { return ( m_pcData > m_pcEnd ); };
 
-    inline bool IsAtEnd() { return ( m_pcData > m_pcEnd ); }; /** < checks to see if the end of the data has been reached */
-    inline const char *GetCurrentPtr() { return m_pcData; }; /** < returns current position of the pointer to the data */
+    /** Returns current position of the pointer to the data.
+    */
+    inline const char *GetCurrentPtr() { return m_pcData; };
 
-    /**
-     * @brief sets the member variables with initial values
+    /** Sets the member variables with initial values.
+    @param pcData is data to be parsed.
+    @param cDelimiter is the delimiter character.
      */
     void Setup(char *pcData, const char cDelimiter) { m_pcEnd = pcData + strlen(pcData); m_pcData = pcData; m_cDelimiter = cDelimiter; };
 
-    /**
-     * @brief sets the member variables with initial values
-     * @param iLength the length of the data to be considered
+    /** Sets the member variables with initial values
+    @param pcData is data to be parsed.
+    @param cDelimiter is the delimiter character.
+    @param iLength the length of the data to be considered.
      */
     void Setup(char *pcData, const char cDelimiter, int iLength) { m_pcEnd = pcData + iLength - 1; m_pcData = pcData; m_cDelimiter = cDelimiter; };
 
-    /**
-     * @brief returns the next numeric parameter
+    /** Returns the next numeric parameter.
      */
     int GetNextNumParm();
 
-    /**
-     * @brief returns the next parameter
+    /** Returns the next parameter
      */
     const char *GetNextParm();
 };
@@ -85,13 +100,19 @@ public:
 #ifndef WIN32
 
 
-/**
- * @brief putting it here for a lack of a better place
+/** GetTickCount.
+Windows only function.
+
+Putting it here for a lack of a better place
  */
 extern long GetTickCount();
 
 #endif //#ifndef WIN32
 
+/** Generate.
+
+Looks like it is country specific.
+*/
 string GenerateCallerID(long nAlertType);
 
 #endif //#ifndef SYMBIAN

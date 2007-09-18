@@ -41,39 +41,39 @@ Utilities for File access.
 namespace FileUtils
 {
 #ifndef SYMBIAN
-    char *ReadFileIntoBuffer( string sFileName, size_t &Size ); /** < reads file into buffer; buffer must be freed by caller */
-	bool WriteBufferIntoFile( string sFileName, const char *pBuffer, size_t Size ); /** < writes a buffer into a file */
-	char *ReadURL(string sUrl, size_t &Size,bool bNullTerminate=false); /** < download a file into buffer; buffer must be freed by caller */
+    char *ReadFileIntoBuffer( string sFileName, size_t &Size ); /**< reads file into buffer; buffer must be freed by caller */
+	bool WriteBufferIntoFile( string sFileName, const char *pBuffer, size_t Size ); /**< writes a buffer into a file */
+	char *ReadURL(string sUrl, size_t &Size,bool bNullTerminate=false); /**< download a file into buffer; buffer must be freed by caller */
 
 	bool ReadTextFile(string sFileName, string& sData);
 	bool WriteTextFile(string sFileName, const string& sData);
 
-	void ReadFileIntoVector( string sFileName, vector<string> &vectString ); /** < reads file into a vector of strings for each line */
-    bool WriteVectorToFile( string sFileName, vector<string> &vectString ); /** < writes a file where the vector of strings are the lines */
-    bool FileExists( string sFileName ); /** < checks if the specified file exists */
-    long FileSize(string sFileName); /** < returns the file size or zero if error */
-    string FindExtension ( string sFileName ); /** < returns the extension of the file name specified */
-    void MakeDir(string sDirectory); /** < makes a directory, including all necessary parent directories, like mkdir -p in Linux */
-    bool DirExists(string sDirectory); /** < Returns true if the directory exists */
+	void ReadFileIntoVector( string sFileName, vector<string> &vectString ); /**< reads file into a vector of strings for each line */
+    bool WriteVectorToFile( string sFileName, vector<string> &vectString ); /**< writes a file where the vector of strings are the lines */
+    bool FileExists( string sFileName ); /**< checks if the specified file exists */
+    long FileSize(string sFileName); /**< returns the file size or zero if error */
+    string FindExtension ( string sFileName ); /**< returns the extension of the file name specified */
+    void MakeDir(string sDirectory); /**< makes a directory, including all necessary parent directories, like mkdir -p in Linux */
+    bool DirExists(string sDirectory); /**< Returns true if the directory exists */
 	bool DelFile(string sFileName);
 	bool DelDir(string sDirectory);
-    string BasePath( string sFileName ); /** < returns the path one dir up @todo ask */
-    string FileWithoutExtension ( string sFileName ); /** < returns the filename without the extension */
-    string FilenameWithoutPath( string sFullPath, bool bIncludeExtension=true ); /** < returnes only the file name from a path/filename string */
+    string BasePath( string sFileName ); /**< returns the path one dir up @todo ask */
+    string FileWithoutExtension ( string sFileName ); /**< returns the filename without the extension */
+    string FilenameWithoutPath( string sFullPath, bool bIncludeExtension=true ); /**< returnes only the file name from a path/filename string */
     string IncludeTrailingSlash(string sDirectoryPath);
     string ExcludeTrailingSlash(string sDirectoryPath);
-	string ValidFileName(string sInput,bool bAllowSlashes=false,bool bStrict=false); /** < converts the input file name to a valid file name (stripping / and \, for example) Strict=true makes it compatable with samba*/
+	string ValidFileName(string sInput,bool bAllowSlashes=false,bool bStrict=false); /**< converts the input file name to a valid file name (stripping / and \, for example) Strict=true makes it compatable with samba*/
 	string GetSymlincDest(string sFile);
 	int GetLinuxDeviceId(string sFilename);
 	int GetInode(string sFilename);
 
 #ifndef WINCE
-    string ValidCPPName( string sInput ); /** < converts the input file name to a valid CPP file name */
-    time_t FileDate(string sFileName); /** < returns the date of the last file modification or 0 if error */
+    string ValidCPPName( string sInput ); /**< converts the input file name to a valid CPP file name */
+    time_t FileDate(string sFileName); /**< returns the date of the last file modification or 0 if error */
 
-	bool BlackListedFileSystem(string sDirectory); /** < check if a directory is on a blacklisted filesystem (ex: proc) */
+	bool BlackListedFileSystem(string sDirectory); /**< check if a directory is on a blacklisted filesystem (ex: proc) */
 
-	/** < scan sDirectory, for files matching any of the sFileSpec_TabSep (ie *.jpg\ta*\tbcd*.mpg), and store the names in listFiles.
+	/** scan sDirectory, for files matching any of the sFileSpec_TabSep (ie *.jpg\\ta*\\tbcd*.mpg), and store the names in listFiles.
 	Optionally recurse into sub-directories up to a level (0 = no limit). If the max depth was hit return true.
 	The prepended path will be prepended to any files that are found.  Normally this is for internal use only while recursing.
 	if pMapInodes is supplied, it will be filled in with the inodes all all files, and any files that are already in the map
@@ -85,19 +85,19 @@ namespace FileUtils
 		,map<u_int64_t,bool> *pMapInodes=NULL
 #endif
 	);
-	/** < same thing as FindFiles, but returns Directories instead */
+	/**< same thing as FindFiles, but returns Directories instead */
 	bool FindDirectories(list<string> &listDirectories,string sDirectory,bool bRecurse=false,bool bFullyQualifiedPath=false, int iMaxFileCount = 0, string PrependedPath=""
 #ifndef WIN32
 		,map<u_int64_t,bool> *pMapInodes=NULL
 #endif
 	);
-	bool PUCopyFile(string sSource,string sDestination); /** < Copies a file from sSource to sDestination.  returns false if it fails, true otherwise */
+	bool PUCopyFile(string sSource,string sDestination); /**< Copies a file from sSource to sDestination.  returns false if it fails, true otherwise */
 	bool LaunchProcessInBackground(string sCommandLine);
-    string FileChecksum( string sFileName); /** < returns file's checksum */
-    string FileChecksum( char *pData, size_t iSize); /** < returns file's checksum */
-	string GetMidFileChecksum( string sFileName, int Bytes=1024 ); /** < returns the checksum of the Bytes in the middle of the file for a quick check if a file has changed */
-	string GetLastModifiedDateStr(string sFile); /** < returns last modified date for a file as a string */
-	time_t GetLastModifiedDate(string sFile); /** < returns last modified date for a file as time_t */
+    string FileChecksum( string sFileName); /**< returns file's checksum */
+    string FileChecksum( char *pData, size_t iSize); /**< returns file's checksum */
+	string GetMidFileChecksum( string sFileName, int Bytes=1024 ); /**< returns the checksum of the Bytes in the middle of the file for a quick check if a file has changed */
+	string GetLastModifiedDateStr(string sFile); /**< returns last modified date for a file as a string */
+	time_t GetLastModifiedDate(string sFile); /**< returns last modified date for a file as time_t */
 #endif
 
 #endif //#ifndef SYMBIAN

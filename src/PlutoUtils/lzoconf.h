@@ -277,6 +277,9 @@ typedef void      (__LZO_CDECL *lzo_free_func_t)
 typedef void (__LZO_CDECL *lzo_progress_func_t)
     (lzo_callback_p, lzo_uint, lzo_uint, int);
 
+/** @struct lzo_callback_t
+Holds LZO information.
+*/
 struct lzo_callback_t
 {
     /* custom allocators (set to 0 to disable) */

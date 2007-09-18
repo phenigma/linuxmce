@@ -373,7 +373,9 @@ private:
 };
 
 
+/** @template
 //write_only, variable
+*/
 template <class C, class T> class _property<C, T, write_only, variable> {
 public:
     //constructor

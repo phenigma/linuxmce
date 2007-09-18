@@ -14,8 +14,7 @@
 
 */
 
-/**
- * @file MySQLHelper_moved.h
+/** @file MySQLHelper_moved.h
  Header file for ??? .
  */
 #ifndef MySqlHelper_h
@@ -29,7 +28,7 @@ using namespace DCE;
 
 
 /** @class PlutoSqlResult
- Class for Threading.
+ Class for ???
 
 Use this to be sure the results are automatically freed
 */

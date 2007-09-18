@@ -27,7 +27,7 @@
 
 /**
 @namespace cpp
-For ???.
+Generic namespace for all libraries from PlutoUtils.
 */
 namespace cpp {
 
@@ -35,7 +35,9 @@ namespace cpp {
 //	class NoCreation
 ///////////////////////////////////////////////////////////////////////////
 
-	//	disables creation of object
+    /** @class NoCreation
+    Disables creation of object.
+    */
 	template<typename T>
 	class NoCreation {
 	protected :
@@ -55,7 +57,9 @@ namespace cpp {
 //	class CreateUsingNew
 ///////////////////////////////////////////////////////////////////////////
 
-	//	creates the object with a normal new invocation
+    /** @class CreateUsingNew
+	 Creates the object with a normal new invocation
+    */
 	template<typename T>
 	class CreateUsingNew {
 	protected :
@@ -75,8 +79,9 @@ namespace cpp {
 //	class CreateUsingStatic
 ///////////////////////////////////////////////////////////////////////////
 
-	//	creates the object with a static memory allocation
-	//	but not static lifespan
+    /** @class CreateUsingStatic
+	 Creates the object with a static memory allocation but not static lifespan.
+    */
 	template<typename T>
 	class CreateUsingStatic {
 	protected :
@@ -105,9 +110,11 @@ namespace cpp {
 //	class DefaultLifetime
 ///////////////////////////////////////////////////////////////////////////
 
-	//	dictates a default/normal life time of LIFO destruction
-	//	uses atexit
-	//	dead reference throws an exception
+    /** @class DefaultLifetime
+		dictates a default/normal life time of LIFO destruction.
+		uses atexit.
+		dead reference throws an exception.
+    */
 	template<typename T>
 	class DefaultLifetime {
 	protected :
@@ -127,7 +134,9 @@ namespace cpp {
 //	class PhoenixSingleton
 ///////////////////////////////////////////////////////////////////////////
 
-	//	allows recurring singleton
+    /** @class PhoenixSingleton
+	 Allows recurring singleton.
+    */
 	template<typename T>
 	class PhoenixSingleton {
 	protected :
@@ -147,7 +156,9 @@ namespace cpp {
 //	class PhoenixSingleton
 ///////////////////////////////////////////////////////////////////////////
 
-	//	no destruction calls, unlimited lifetime
+    /** @class NoDestruction
+	 No destruction calls, unlimited lifetime.
+    */
 	template<typename T>
 	class NoDestruction {
 	protected :
@@ -167,10 +178,12 @@ namespace cpp {
 //	class Singleton
 ///////////////////////////////////////////////////////////////////////////
 
-	//	Gives a class a singleton property
-	//	protected access of ctor and dtor allows creation of subclass of singleton
-	//	to acheieve the effect of YourSingleton::Instance()
-	//	extends the typetraits just to take advantage of the basic typedefs
+    /** @class Singleton
+	Gives a class a singleton property
+	protected access of ctor and dtor allows creation of subclass of singleton
+	to acheieve the effect of YourSingleton::Instance()
+	extends the typetraits just to take advantage of the basic typedefs
+    */
 	template<typename T, typename CreationPolicy = CreateUsingNew<T>, template <typename> class LifetimePolicy = DefaultLifetime, template <typename> class ThreadingModel = cpp::Threading::SingleThreaded>
 	class Singleton : public cpp::Traits::TypeTraits<typename ThreadingModel<T>::VolatileType>, public CreationPolicy, public LifetimePolicy<T>, public ThreadingModel<T> {
 	public :

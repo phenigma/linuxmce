@@ -14,8 +14,7 @@
 
 */
 
-/**
- * @file DBHelper.h
+/** @file DBHelper.h
  Header file
  */
 #ifndef DBHelper_h
@@ -26,6 +25,7 @@
 #include "PlutoUtils/MultiThreadIncludes.h"
 
 using namespace DCE;
+
 
 /** @class PlutoSqlResult
 Use this class to be sure the results are automatically freed.
@@ -49,7 +49,7 @@ public:
 	}
 };
 
-/** @class PlutoSqlResult
+/** @class DBHelper
 You can add this to a base class to get some helper db functions.
 */
 //
@@ -66,6 +66,8 @@ public:
 	string m_sDBHost,m_sDBUser,m_sDBPass,m_sDBDBName;
 	int m_iDBPort;
 
+    /** Default constructor.
+    */
 	DBHelper()
 		: m_DBMutex("db_wrapper")
 	{
@@ -78,6 +80,13 @@ public:
 		m_bConnectFromConstructor = false;
 	}
 
+    /** Constructor.
+    @param host is the host name for the database server.
+    @param user is the username for the database.
+    @param pass is the password for the database.
+    @param db_name is the database name.
+    @param port is the database port (default 3306).
+    */
 	DBHelper(string host, string user, string pass, string db_name, int port=3306)
 		: m_DBMutex("db_wrapper")
 	{
@@ -95,6 +104,8 @@ public:
 		DBConnect();
 	}
 
+    /** Destructor.
+    */
 	virtual ~DBHelper()
 	{
 		if( m_pDB )
