@@ -93,6 +93,8 @@ int RipTask::Run()
 
 	if (m_pRipJob->m_pDisk_Drive_Functions->m_mediaDiskStatus != DISCTYPE_CD_AUDIO && 
 		m_pRipJob->m_pDisk_Drive_Functions->m_mediaDiskStatus != DISCTYPE_DVD_VIDEO && 
+		m_pRipJob->m_pDisk_Drive_Functions->m_mediaDiskStatus != DISCTYPE_HDDVD && 
+		m_pRipJob->m_pDisk_Drive_Functions->m_mediaDiskStatus != DISCTYPE_BD && 
 		m_pRipJob->m_pDisk_Drive_Functions->m_mediaDiskStatus != DISCTYPE_CD_MIXED && 
 		m_pRipJob->m_pDisk_Drive_Functions->m_mediaDiskStatus != DISCTYPE_CD_VCD)
 	{
