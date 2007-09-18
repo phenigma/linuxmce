@@ -139,7 +139,20 @@ bool Disk_Drive_Functions::internal_reset_drive(bool bFireEvent,int *iPK_MediaTy
 			*iPK_MediaType = MEDIATYPE_pluto_DVD_CONST;
 			UpdateDiscLocation('d');  // We know it's media
 			break;
+// commented block: not sure if this is required for now
+/*
+		case DISCTYPE_HDDVD:
+			*sURL = m_sDrive;
+			*iPK_MediaType = MEDIATYPE_pluto_HDDVD_CONST;
+			UpdateDiscLocation('d');  // We know it's media
+			break;
 
+		case DISCTYPE_BD:
+			*sURL = m_sDrive;
+			*iPK_MediaType = MEDIATYPE_pluto_BD_CONST;
+			UpdateDiscLocation('d');  // We know it's media
+			break;
+*/
 		case DISCTYPE_BLANK:
 			*iPK_MediaType = MEDIATYPE_misc_BlankMedia_CONST;
 			UpdateDiscLocation('b');  // We know it's media
@@ -449,6 +462,16 @@ int Disk_Drive_Functions::cdrom_checkdrive(const char * filename, int * flag, bo
 				{
 					LoggerWrapper::GetInstance()->Write(LV_STATUS, "I think it's a DVD...");
 					* flag =DISCTYPE_DVD_VIDEO;
+				}
+				else if (cdrom_has_dir(fd, "hvdvd_ts") > 0)
+				{
+					LoggerWrapper::GetInstance()->Write(LV_STATUS, "I think it's a HD-DVD...");
+					* flag =DISCTYPE_HDDVD;
+				}
+				else if (cdrom_has_dir(fd, "bdmv") > 0)
+				{
+					LoggerWrapper::GetInstance()->Write(LV_STATUS, "I think it's a Blu-ray Disc...");
+					* flag =DISCTYPE_BD;
 				}
 				else if (cdrom_has_dir(fd, "vcd") > 0)
 				{

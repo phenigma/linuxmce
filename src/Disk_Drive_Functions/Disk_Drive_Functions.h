@@ -79,7 +79,9 @@ enum DiscTypes {
     DISCTYPE_CD_MIXED   =  6,
     DISCTYPE_CD_VCD     =  7,
     DISCTYPE_CD_SVCD    =  8,
-    DISCTYPE_DVD_AUDIO  =  9
+    DISCTYPE_DVD_AUDIO  =  9,
+    DISCTYPE_HDDVD	= 10,
+    DISCTYPE_BD		= 11	// Blu-ray Disc
 };
 
 class Disk_Drive_Functions
