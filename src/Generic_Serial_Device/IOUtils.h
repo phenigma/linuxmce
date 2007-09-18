@@ -12,10 +12,10 @@
 	See the GNU General Public License for more details.
 */
 
-#/** @file IOUtils.h
+/** @file IOUtils.h
 Base classe for IOUtils.
 */
-ifndef DCEIOUTILS_H
+#ifndef DCEIOUTILS_H
 #define DCEIOUTILS_H
 
 #include <string>
