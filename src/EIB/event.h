@@ -4,7 +4,7 @@
      www.plutohome.com
 
      Phone: +1 (877) 758-8648
- 
+
 
      This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
      This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
@@ -13,10 +13,14 @@
      See the GNU General Public License for more details.
 
 */
+
+/** @file event.h
+Header for Event class.
+*/
 //
 // C++ Interface: event
 //
-// Description: 
+// Description:
 //
 //
 // Author:  <>, (C) 2005
@@ -29,10 +33,13 @@
 
 #include <pthread.h>
 
+/** @namespace EIBBUS
+For ???
+*/
 namespace EIBBUS {
 
-/**
-@author 
+/** @class Event
+For Events.
 */
 class Event
 {

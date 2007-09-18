@@ -4,13 +4,26 @@
      www.plutohome.com
 
      Phone: +1 (877) 758-8648
- 
+
 
      This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
      This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
      of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
      See the GNU General Public License for more details.
+
+*/
+
+/** @file Main.cpp
+The main program file for EIB (European Installation Bus) Lighting control.
+
+Usage: EIB [-r Router's IP] [-d My Device ID] [-l dcerouter|stdout|null|filename]
+
+-r -- the IP address of the DCE Router  Defaults to 'dcerouter'.
+
+-d -- This device's ID number.  If not specified, it will be requested from the router based on our IP address.
+
+-l -- Where to save the log files.  Specify 'dcerouter' to have the messages logged to the DCE Router.  Defaults to stdout.
 
 */
 //<-dceag-incl-b->
@@ -73,8 +86,8 @@ void Plugin_SocketCrashHandler(Socket *pSocket)
 //<-dceag-incl-e->
 
 extern "C" {
-	int IsRuntimePlugin() 
-	{ 
+	int IsRuntimePlugin()
+	{
 		// If you want this plug-in to be able to register and be used even if it is not in the Device table, set this to true.
 		// Then the Router will scan for all .so or .dll files, and if found they will be registered with a temporary device number
 		bool bIsRuntimePlugin=false;
@@ -113,7 +126,7 @@ extern "C" {
 long g_dwTelegramDelay	= 10;
 
 //<-dceag-main-b->
-int main(int argc, char* argv[]) 
+int main(int argc, char* argv[])
 {
 	g_sBinary = FileUtils::FilenameWithoutPath(argv[0]);
 	g_sBinaryPath = FileUtils::BasePath(argv[0]);
@@ -202,7 +215,7 @@ int main(int argc, char* argv[])
 	try
 	{
 		EIB *pEIB = new EIB(PK_Device, sRouter_IP,true,bLocalMode);
-		if ( pEIB->GetConfig() && pEIB->Connect(pEIB->PK_DeviceTemplate_get()) ) 
+		if ( pEIB->GetConfig() && pEIB->Connect(pEIB->PK_DeviceTemplate_get()) )
 		{
 			g_pCommand_Impl=pEIB;
 			g_pDeadlockHandler=DeadlockHandler;
@@ -215,8 +228,8 @@ int main(int argc, char* argv[])
 				pthread_join(pEIB->m_RequestHandlerThread, NULL);  // This function will return when the device is shutting down
 			g_pDeadlockHandler=NULL;
 			g_pSocketCrashHandler=NULL;
-		} 
-		else 
+		}
+		else
 		{
 			bAppError = true;
 			if( pEIB->m_pEvent && pEIB->m_pEvent->m_pClientSocket && pEIB->m_pEvent->m_pClientSocket->m_eLastError==ClientSocket::cs_err_CannotConnect )

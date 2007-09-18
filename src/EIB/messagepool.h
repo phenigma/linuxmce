@@ -14,6 +14,10 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
+
+/** @file messagepool.h
+Header for all the MessagePool classes.
+*/
 #ifndef EIBMESSAGEPOOL_H
 #define EIBMESSAGEPOOL_H
 
@@ -25,34 +29,40 @@
 
 #include <list>
 #include "Serial/SerialPort.h"
+
+/** @namespace EIBBUS
+For ???
+*/
 namespace EIBBUS {
 
 class BusConnector;
 
-/**
-@author igor
+/** @class MessagePoolInterceptor
+For ???
 */
-
 class MessagePoolInterceptor {
 public:
 	virtual void handleTelegram(const TelegramMessage *pt) = 0;
 };
 
+/** @class MessagePool
+For ???
+*/
 class MessagePool : public Thread, protected StateMachine {
 public:
     MessagePool(bool monitormode = true);
     ~MessagePool();
-	
+
 public:
 	inline void setSerialPort(const char* serport, int serbps, enum eParityBitStop serparity) {
 		serport_ = serport;
 		serbps_ = serbps;
-		serparity_ = serparity;				
+		serparity_ = serparity;
 	}
 	inline const char* getSerialPort() {
 		return serport_.c_str();
 	}
-	
+
 	int regInterceptor(MessagePoolInterceptor *pi);
 	void unregInterceptor(MessagePoolInterceptor *pi);
 
@@ -62,7 +72,7 @@ public:
 
 protected:
 	virtual void* _Run();
-	
+
 	virtual bool handleStartup();
 	virtual void handleTerminate();
 	virtual void handleNewState();
@@ -82,9 +92,12 @@ private:
 	Event esq_, erq_; /*event for arriving in send/recv queues*/
 	std::list<TelegramMessage> recvqueue_;
 	std::list<TelegramMessage> sendqueue_;
-	
+
 protected:
 	/*BaseState*/
+/** @class BaseState
+For ???
+*/
 	friend class BaseState;
 	class BaseState : public State {
 	public:
@@ -94,8 +107,11 @@ protected:
 		bool readAcknowledge();
 		void logTelegram(const TelegramMessage *pt);
 	};
-	
+
 	/*InitState*/
+/** @class InitState
+For ???
+*/
 	friend class InitState;
 	class InitState : public BaseState {
 	public:
@@ -104,8 +120,11 @@ protected:
 	protected:
 		virtual void Handle(void* p);
 	} initstate_;
-	
+
 	/*RecvState*/
+/** @class RecvState
+For ???
+*/
 	friend class RecvState;
 	class RecvState : public BaseState {
 	public:
@@ -114,8 +133,11 @@ protected:
 	protected:
 		virtual void Handle(void* p);
 	} recvstate_;
-	
+
 	/*SendState*/
+/** @class SendState
+For ???
+*/
 	friend class SendState;
 	class SendState : public BaseState {
 	public:
@@ -126,8 +148,11 @@ protected:
 	private:
 		int errcount_;
 	} sendstate_;
-	
+
 	/*ReadyState*/
+/** @class ReadyState
+For ???
+*/
 	friend class ReadyState;
 	class ReadyState : public BaseState  {
 	public:

@@ -7,17 +7,11 @@ busconnector.cpp
 busconnector.h
 Doxyfile
 EIB.cpp
-EIB.def
 EIB.h
 EIB.kdevelop
-EIB.kdevelop.pcs
-EIB.kdevses
-EIB.vcproj
-EIB_DLL.vcproj
 event.cpp
 event.h
 Main.cpp
-make_package.sh
 Makefile
 message.cpp
 message.h
@@ -27,8 +21,6 @@ monitorrequestmessage.cpp
 monitorrequestmessage.h
 mutex.cpp
 mutex.h
-Package.Info
-post_make.sh
 statemachine.cpp
 statemachine.h
 telegrammessage.cpp
@@ -39,3 +31,8 @@ thread.h
 /DuplicateFilterPoolInterceptor.cpp
 duplicatefilterpoolinterceptor.cpp
 duplicatefilterpoolinterceptor.h
+EIB.kdevelop.filelist
+extendedserialport.cpp
+extendedserialport.h
+timetracker.cpp
+timetracker.h

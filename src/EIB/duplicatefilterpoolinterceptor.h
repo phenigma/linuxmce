@@ -4,7 +4,7 @@
      www.plutohome.com
 
      Phone: +1 (877) 758-8648
- 
+
 
      This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
      This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
@@ -13,10 +13,14 @@
      See the GNU General Public License for more details.
 
 */
+
+/** @file duplicatefilterpoolinterceptor.h
+Header for DuplicateFilterPoolInterceptor class.
+*/
 //
 // C++ Interface: %{MODULE}
 //
-// Description: 
+// Description:
 //
 //
 // Author: %{AUTHOR} <%{EMAIL}>, (C) %{YEAR}
@@ -31,10 +35,13 @@
 
 #include <list>
 
+/** @namespace EIBBUS
+For EIB (European Installation Bus) Lighting control.
+*/
 namespace EIBBUS {
 
-/**
-@author 
+/** @class DuplicateFilterPoolInterceptor
+For ???
 */
 class DuplicateFilterPoolInterceptor : public MessagePoolInterceptor {
 public:
@@ -43,7 +50,7 @@ public:
 
 public:
 	virtual void handleUniqueTelegram(const TelegramMessage *pt) = 0;
-	
+
 protected:
 	virtual void handleTelegram(const TelegramMessage *pt);
 
@@ -56,7 +63,7 @@ private:
 			this->atm = atm;
 		}
 	} TIMEDMESSAGE;
-		
+
 	std::list<TIMEDMESSAGE> messages_;
 };
 

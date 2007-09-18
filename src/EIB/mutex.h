@@ -4,7 +4,7 @@
      www.plutohome.com
 
      Phone: +1 (877) 758-8648
- 
+
 
      This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
      This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
@@ -13,10 +13,14 @@
      See the GNU General Public License for more details.
 
 */
+
+/** @file mutex.h
+Header for Mutex class.
+*/
 //
 // C++ Interface: %{MODULE}
 //
-// Description: 
+// Description:
 //
 //
 // Author: %{AUTHOR} <%{EMAIL}>, (C) %{YEAR}
@@ -29,20 +33,23 @@
 
 #include <pthread.h>
 
+/** @namespace EIBBUS
+For Mutexes.
+*/
 namespace EIBBUS {
 
-/**
-@author 
+/** @class Mutex
+Yet another Mutex class.
 */
 class Mutex {
 public:
     Mutex();
     ~Mutex();
 
-public:	
+public:
     int Lock();
     void Unlock();
-	
+
     pthread_mutex_t getHandle() const {
 		return mutexid;
     }

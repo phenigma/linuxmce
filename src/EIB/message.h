@@ -14,18 +14,24 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
+
+/** @file message.h
+Header for all the Message classes.
+*/
 #ifndef EIBMESSAGE_H
 #define EIBMESSAGE_H
 
+/** @namespace EIBBUS
+For ???
+*/
 namespace EIBBUS {
 
 class BusConnector;
 
 
-/**
-@author igor
+/** @class Message
+For Messages.
 */
-
 class Message {
 	friend class MessagePool;
 public:
@@ -39,29 +45,32 @@ public:
 		RECV_OK,
 		RECV_UNKNOWN
 	};
-	
-	virtual int Send(BusConnector *pbusconn) 
+
+	virtual int Send(BusConnector *pbusconn)
 	{ return RECV_INVALID; };
 	virtual int Recv(BusConnector *pbusconn)
 	{ return RECV_INVALID; };
 
 protected:
-	int SendBuffer(BusConnector *pbusconn, 
+	int SendBuffer(BusConnector *pbusconn,
 		const unsigned char* msg, unsigned int length);
-	int RecvBuffer(BusConnector *pbusconn, 
+	int RecvBuffer(BusConnector *pbusconn,
 		unsigned char* msg, unsigned int length);
-	int UndoRecvBuffer(BusConnector *pbusconn, 
+	int UndoRecvBuffer(BusConnector *pbusconn,
 		const unsigned char* msg, unsigned int length);
 };
 
 
 #define MAX_USERDATA_LENGTH		20
 
+/** @class PeiMessage
+For Messages.
+*/
 class PeiMessage : public Message {
 protected:
-	int SendPeiBuffer(BusConnector *pbusconn, 
+	int SendPeiBuffer(BusConnector *pbusconn,
 		unsigned char type, unsigned char code, const unsigned char* msg, unsigned int length);
-	int ReceivePeiBuffer(BusConnector *pbusconn, 
+	int ReceivePeiBuffer(BusConnector *pbusconn,
 		unsigned char type, unsigned char& code, unsigned char* msg, unsigned int& length);
 };
 

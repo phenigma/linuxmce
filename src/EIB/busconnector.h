@@ -14,16 +14,24 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
+
+/** @file busconnector.h
+Header for BusConnector class.
+*/
 #ifndef EIBBUSCONNECTOR_H
 #define EIBBUSCONNECTOR_H
 
 #include "mutex.h"
 #include "extendedserialport.h"
 #include "Serial/SerialPort.h"
+
+/** @namespace EIBBUS
+For EIB (European Installation Bus) Lighting control.
+*/
 namespace EIBBUS {
 
-/**
-@author igor
+/** @class BusConnector
+For ???
 */
 class BusConnector {
 public:
@@ -44,7 +52,7 @@ public:
 	int Send(const unsigned char* buff, unsigned int size);
 	void Skip(unsigned int size);
 	void Clear();
-		
+
 public:
 	inline void incFrameBit() {
 		framebit_ = !framebit_;
@@ -58,12 +66,12 @@ public:
 	inline void setLastFrameTimestamp(unsigned short ts) {
 		framets_ = ts;
 	}
-	
+
 private:
 	ExtendedSerialPort* psp_;
 	bool framebit_;
 	unsigned short framets_;
-	
+
 public:
 	static BusConnector* getInstance();
 

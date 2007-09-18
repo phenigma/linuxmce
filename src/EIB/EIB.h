@@ -4,7 +4,7 @@
      www.plutohome.com
 
      Phone: +1 (877) 758-8648
- 
+
 
      This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
      This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
@@ -12,6 +12,10 @@
 
      See the GNU General Public License for more details.
 
+*/
+
+/** @file EIB.h
+Header for EIB class.
 */
 //<-dceag-d-b->
 #ifndef EIB_h
@@ -26,9 +30,15 @@
 #include "duplicatefilterpoolinterceptor.h"
 
 //<-dceag-decl-b->!
+/** @namespace DCE
+The Data Commands and Events (DCE) namespace
+*/
 namespace DCE
 {
-	
+
+    /** @class EIB
+    For EIB (European Installation Bus) Lighting control.
+    */
 	class EIB : public EIB_Command, public EIBBUS::DuplicateFilterPoolInterceptor
 	{
 //<-dceag-decl-e->
@@ -63,12 +73,12 @@ private:
 		/*process telegram methods*/
 		bool processTelegram(const EIBBUS::TelegramMessage *pt, DeviceData_Impl *pDevData);
 
-		/*helper methods*/		
+		/*helper methods*/
 		/*
-		static bool getParamsFromChannel(const std::string& sChannel, 
+		static bool getParamsFromChannel(const std::string& sChannel,
 							unsigned int index, std::string& param);
 		*/
-		static int getParamsFromChannel(const std::string& sChannel, 
+		static int getParamsFromChannel(const std::string& sChannel,
 							std::vector<std::string>& params);
 		static float getFloatFromUShort(unsigned short tempr);
 		static unsigned short getUShortFromFloat( float tempr );
@@ -89,7 +99,7 @@ private:
 		DT_COUNTER8				= 14,		/*1 Byte*/
 		DT_STRING				= 15		/*23 Bytes*/
 	};
-	
+
 	EIBBUS::MessagePool m_msgPool;
 
 //<-dceag-h-b->
@@ -190,7 +200,7 @@ private:
 //<-dceag-h-e->
 	};
 
-	
+
 //<-dceag-end-b->
 }
 #endif
