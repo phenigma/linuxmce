@@ -120,6 +120,10 @@
       <hidenonprojectfiles>false</hidenonprojectfiles>
       <hidenonlocation>false</hidenonlocation>
     </groups>
+    <tree>
+      <hidepatterns>*.o,*.lo,CVS</hidepatterns>
+      <hidenonprojectfiles>true</hidenonprojectfiles>
+    </tree>
   </kdevfileview>
   <cppsupportpart>
     <filetemplates>
@@ -153,5 +157,6 @@
       <inlineGet>true</inlineGet>
       <inlineSet>true</inlineSet>
     </creategettersetter>
+    <references/>
   </kdevcppsupport>
 </kdevelop>
