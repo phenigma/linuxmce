@@ -85,6 +85,13 @@ void Plugin_SocketCrashHandler(Socket *pSocket)
 //<-dceag-incl-e->
 
 extern "C" {
+
+    /**
+    If you want this plug-in to be able to register and be used
+      even if it is not in the Device table, set this to true.
+    Then the Router will scan for all .so or .dll files, and if
+      found they will be registered with a temporary device number.
+    */
 	int IsRuntimePlugin()
 	{
 		// If you want this plug-in to be able to register and be used even if it is not in the Device table, set this to true.
@@ -123,6 +130,9 @@ extern "C" {
 //<-dceag-plug-e->
 
 //<-dceag-main-b->
+/** @class main
+See the Main.cpp file docs for more documentation.
+*/
 int main(int argc, char* argv[])
 {
 	g_sBinary = FileUtils::FilenameWithoutPath(argv[0]);
@@ -190,6 +200,7 @@ int main(int argc, char* argv[])
 	}
 #endif
 
+    // This section will set up a logger if possible.
 	try
 	{
 		if( sLogger=="dcerouter" )

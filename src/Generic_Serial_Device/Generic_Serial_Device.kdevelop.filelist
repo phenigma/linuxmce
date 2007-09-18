@@ -92,3 +92,6 @@ TestEmbededClass.cpp
 TestEmbededClass.h
 TestRubyEmbederCodeSupplier.cpp
 TestRubyEmbederCodeSupplier.h
+Generic_Serial_Device.kdevelop.filelist
+Test_Generic_Serial_Device.rb
+Ruby_Generic_Serial_Device.i
