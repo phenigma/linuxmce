@@ -34,6 +34,13 @@ string int2string(int i)
 	return s;
 }
 
+string int64_2string(u_int64_t i)
+{
+	char s[1000];
+	sprintf(s, "%I64i", i);
+	return s;
+}
+
 string getTableFromForeignKey(string sField,map<string,class TableInfo_Generator *> *mapTableNames)
 {
 	// Skip fields that are not foreign keys, and also the _RecordInfo.  Otherwise

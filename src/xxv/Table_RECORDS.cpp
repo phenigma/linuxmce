@@ -52,7 +52,7 @@ bool Database_xxv::Commit_RECORDS(bool bDeleteFailedModifiedRow,bool bDeleteFail
 
 Table_RECORDS::~Table_RECORDS()
 {
-	map<Table_RECORDS::Key, class TableRow*, Table_RECORDS::Key_Less>::iterator it;
+	map<SingleLong64Key, class TableRow*, SingleLong64Key_Less>::iterator it;
 	for(it=cachedRows.begin();it!=cachedRows.end();++it)
 	{
 		Row_RECORDS *pRow = (Row_RECORDS *) (*it).second;
@@ -92,8 +92,8 @@ void Row_RECORDS::Delete()
 		}
 		else
 		{
-			Table_RECORDS::Key key(pRow->m_eventid);
-			map<Table_RECORDS::Key, TableRow*, Table_RECORDS::Key_Less>::iterator i = table->cachedRows.find(key);
+			SingleLong64Key key(pRow->m_eventid);
+			map<SingleLong64Key, TableRow*, SingleLong64Key_Less>::iterator i = table->cachedRows.find(key);
 			if (i!=table->cachedRows.end())
 				table->cachedRows.erase(i);
 						
@@ -111,7 +111,7 @@ void Row_RECORDS::Reload()
 	
 	if (!is_added)
 	{
-		Table_RECORDS::Key key(pRow->m_eventid);
+		SingleLong64Key key(pRow->m_eventid);
 		Row_RECORDS *pRow = table->FetchRow(key);
 		
 		if (pRow!=NULL)
@@ -427,7 +427,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->eventid_asSQL(
 				
 			
 			addedRows.erase(i);
-			Table_RECORDS::Key key(pRow->m_eventid);	
+			SingleLong64Key key(pRow->m_eventid);	
 			cachedRows[key] = pRow;
 					
 			
@@ -441,14 +441,14 @@ values_list_comma_separated = values_list_comma_separated + pRow->eventid_asSQL(
 //update modified
 	
 
-	for (map<Table_RECORDS::Key, class TableRow*, Table_RECORDS::Key_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
+	for (map<SingleLong64Key, class TableRow*, SingleLong64Key_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
 		if	(((*i).second)->is_modified_get())
 	{
 		Row_RECORDS* pRow = (Row_RECORDS*) (*i).second;	
-		Table_RECORDS::Key key(pRow->m_eventid);
+		SingleLong64Key key(pRow->m_eventid);
 
 		char tmp_eventid[32];
-sprintf(tmp_eventid, "%I64i", key.pk_eventid);
+sprintf(tmp_eventid, "%I64i", key.pk);
 
 
 string condition;
@@ -501,13 +501,13 @@ update_values_list = update_values_list + "`eventid`="+pRow->eventid_asSQL()+", 
 	
 	while (!deleted_cachedRows.empty())
 	{	
-		map<Table_RECORDS::Key, class TableRow*, Table_RECORDS::Key_Less>::iterator i = deleted_cachedRows.begin();
+		map<SingleLong64Key, class TableRow*, SingleLong64Key_Less>::iterator i = deleted_cachedRows.begin();
 	
-		Table_RECORDS::Key key = (*i).first;
+		SingleLong64Key key = (*i).first;
 		Row_RECORDS* pRow = (Row_RECORDS*) (*i).second;	
 
 		char tmp_eventid[32];
-sprintf(tmp_eventid, "%I64i", key.pk_eventid);
+sprintf(tmp_eventid, "%I64i", key.pk);
 
 
 string condition;
@@ -693,9 +693,9 @@ pRow->m_addtime = string(row[8],lengths[8]);
 
 		//checking for duplicates
 
-		Table_RECORDS::Key key(pRow->m_eventid);
+		SingleLong64Key key(pRow->m_eventid);
 		
-		map<Table_RECORDS::Key, class TableRow*, Table_RECORDS::Key_Less>::iterator i = cachedRows.find(key);
+		map<SingleLong64Key, class TableRow*, SingleLong64Key_Less>::iterator i = cachedRows.find(key);
 			
 		if (i!=cachedRows.end())
 		{
@@ -729,9 +729,9 @@ Row_RECORDS* Table_RECORDS::GetRow(u_int64_t in_eventid)
 {
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_DBMutex);
 
-	Table_RECORDS::Key row_key(in_eventid);
+	SingleLong64Key row_key(in_eventid);
 
-	map<Table_RECORDS::Key, class TableRow*, Table_RECORDS::Key_Less>::iterator i;
+	map<SingleLong64Key, class TableRow*, SingleLong64Key_Less>::iterator i;
 	i = deleted_cachedRows.find(row_key);	
 		
 	//row was deleted	
@@ -753,13 +753,13 @@ Row_RECORDS* Table_RECORDS::GetRow(u_int64_t in_eventid)
 
 
 
-Row_RECORDS* Table_RECORDS::FetchRow(Table_RECORDS::Key &key)
+Row_RECORDS* Table_RECORDS::FetchRow(SingleLong64Key &key)
 {
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_DBMutex);
 
 	//defines the string query for the value of key
 	char tmp_eventid[32];
-sprintf(tmp_eventid, "%I64i", key.pk_eventid);
+sprintf(tmp_eventid, "%I64i", key.pk);
 
 
 string condition;

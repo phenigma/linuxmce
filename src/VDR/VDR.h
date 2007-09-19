@@ -22,8 +22,6 @@
 #include "Gen_Devices/VDRBase.h"
 //<-dceag-d-e->
 
-#include "DCE/PlainClientSocket.h"
-
 //<-dceag-decl-b->
 namespace DCE
 {
@@ -66,7 +64,6 @@ public:
 
                 virtual void KillSpawnedDevices();
                 virtual void CreateChildren();
-		bool SendVDRCommand(string sCommand,string &sVDRResponse);
 		void ParseCurrentChannel(string sChannel);
 
 //<-dceag-const2-b->!

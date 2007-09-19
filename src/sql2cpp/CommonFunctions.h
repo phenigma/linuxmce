@@ -29,6 +29,7 @@
 using namespace std;
 
 string int2string( int i ); /** < converts the integer parameter to a string */
+string int64_2string(u_int64_t i); /** < converts the 64 bit integer parameter to a string */
 string getTableFromForeignKey( string sField, map<string, class TableInfo_Generator *> *mapTableNames ); /** returnes a table name from a foreign key field name */
 
 #endif

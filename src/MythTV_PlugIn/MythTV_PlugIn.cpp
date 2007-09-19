@@ -142,31 +142,30 @@ bool MythTV_PlugIn::Register()
 
     m_pMedia_Plugin->RegisterMediaPlugin(this, this, DEVICETEMPLATE_MythTV_Player_CONST, true);
 
+	// Use the player, not the plugin, as the template for datagrids so that <%=NPDT%> in orbiter works
     m_pDatagrid_Plugin->RegisterDatagridGenerator( new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&MythTV_PlugIn::CurrentShows))
-                                                ,DATAGRID_EPG_Current_Shows_CONST,PK_DeviceTemplate_get());
+                                                ,DATAGRID_EPG_Current_Shows_CONST,DEVICETEMPLATE_MythTV_Player_CONST);
 
     m_pDatagrid_Plugin->RegisterDatagridGenerator( new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&MythTV_PlugIn::AllShows))
-                                                ,DATAGRID_EPG_All_Shows_CONST,PK_DeviceTemplate_get());
+                                                ,DATAGRID_EPG_All_Shows_CONST,DEVICETEMPLATE_MythTV_Player_CONST);
 
 	m_pDatagrid_Plugin->RegisterDatagridGenerator( new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&MythTV_PlugIn::TvProviders))
-												,DATAGRID_TV_Providers_CONST,PK_DeviceTemplate_get());
+												,DATAGRID_TV_Providers_CONST,DEVICETEMPLATE_MythTV_Player_CONST);
 
     m_pDatagrid_Plugin->RegisterDatagridGenerator( new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &MythTV_PlugIn::FavoriteChannels ))
-										        , DATAGRID_Favorite_Channels_CONST,PK_DeviceTemplate_get() );
+										        , DATAGRID_Favorite_Channels_CONST,DEVICETEMPLATE_MythTV_Player_CONST );
 
     m_pDatagrid_Plugin->RegisterDatagridGenerator( new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &MythTV_PlugIn::FavoriteShows ))
-										        , DATAGRID_Favorite_Shows_CONST,PK_DeviceTemplate_get() );
+										        , DATAGRID_Favorite_Shows_CONST,DEVICETEMPLATE_MythTV_Player_CONST );
 
     m_pDatagrid_Plugin->RegisterDatagridGenerator( new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &MythTV_PlugIn::ThumbnailableAttributes ))
-										        , DATAGRID_Thumbnailable_Attributes_CONST,PK_DeviceTemplate_get() );
+										        , DATAGRID_Thumbnailable_Attributes_CONST,DEVICETEMPLATE_MythTV_Player_CONST );
     m_pDatagrid_Plugin->RegisterDatagridGenerator( new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &MythTV_PlugIn::ThumbnailableAttributes ))
 										        , DATAGRID_Thumbnailable_Attributes_CONST,DEVICETEMPLATE_MythTV_Player_CONST );
 
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &MythTV_PlugIn::MediaInfoChanged), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_MythTV_Channel_Changed_CONST );
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &MythTV_PlugIn::NewRecording), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_MythTV_Show_Recorded_CONST );
-    RegisterMsgInterceptor( ( MessageInterceptorFn )( &MythTV_PlugIn::NewBookmarks ), 0, 0, 0, 0, MESSAGETYPE_COMMAND, COMMAND_Save_Bookmark_CONST );
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &MythTV_PlugIn::ScanningProgress ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Channel_Scan_Progress_CONST );
-    RegisterMsgInterceptor( ( MessageInterceptorFn )( &MythTV_PlugIn::TuneToChannel ), 0, 0, 0, 0, MESSAGETYPE_COMMAND, COMMAND_Tune_to_channel_CONST );
 
 	ListDeviceData_Router *pListDeviceData_Router = m_pRouter->m_mapDeviceByTemplate_Find(DEVICETEMPLATE_MythTV_Player_CONST);
 	if( pListDeviceData_Router )
@@ -175,6 +174,8 @@ bool MythTV_PlugIn::Register()
 		{
 			DeviceData_Router *pDevice_MythPlayer = *it;
 			RegisterMsgInterceptor( ( MessageInterceptorFn )( &MythTV_PlugIn::PlaybackStarted ), pDevice_MythPlayer->m_dwPK_Device, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Playback_Started_CONST );
+			RegisterMsgInterceptor( ( MessageInterceptorFn )( &MythTV_PlugIn::NewBookmarks ), 0, pDevice_MythPlayer->m_dwPK_Device, 0, 0, MESSAGETYPE_COMMAND, COMMAND_Save_Bookmark_CONST );
+			RegisterMsgInterceptor( ( MessageInterceptorFn )( &MythTV_PlugIn::TuneToChannel ), 0, pDevice_MythPlayer->m_dwPK_Device, 0, 0, MESSAGETYPE_COMMAND, COMMAND_Tune_to_channel_CONST );
 		}
 	}
 

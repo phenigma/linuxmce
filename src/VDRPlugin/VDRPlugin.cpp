@@ -94,20 +94,31 @@ bool VDRPlugin::Register()
 	vectPK_DeviceTemplate.push_back(DEVICETEMPLATE_VDR_CONST);
 	m_pMedia_Plugin->RegisterMediaPlugin( this, this, vectPK_DeviceTemplate, true );
 
+	// Use the player, not the plugin, as the template for datagrids so that <%=NPDT%> in orbiter works.  Myth plugin does the same grids
 	m_pDatagrid_Plugin->RegisterDatagridGenerator( new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&VDRPlugin::CurrentShows))
-		,DATAGRID_EPG_Current_Shows_CONST,PK_DeviceTemplate_get());
+		,DATAGRID_EPG_Current_Shows_CONST,DEVICETEMPLATE_VDR_CONST);
 
 	m_pDatagrid_Plugin->RegisterDatagridGenerator( new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&VDRPlugin::AllShows))
-		,DATAGRID_EPG_All_Shows_CONST,PK_DeviceTemplate_get());
+		,DATAGRID_EPG_All_Shows_CONST,DEVICETEMPLATE_VDR_CONST);
 
 	m_pDatagrid_Plugin->RegisterDatagridGenerator( new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&VDRPlugin::FavoriteChannels))
-		,DATAGRID_Favorite_Channels_CONST,PK_DeviceTemplate_get());
+		,DATAGRID_Favorite_Channels_CONST,DEVICETEMPLATE_VDR_CONST);
 
 	m_pDatagrid_Plugin->RegisterDatagridGenerator( new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&VDRPlugin::FavoriteShows))
-		,DATAGRID_Favorite_Shows_CONST,PK_DeviceTemplate_get());
+		,DATAGRID_Favorite_Shows_CONST,DEVICETEMPLATE_VDR_CONST);
 
 	m_pDatagrid_Plugin->RegisterDatagridGenerator( new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&VDRPlugin::OtherShowtimes))
-		,DATAGRID_Other_Showtimes_CONST,PK_DeviceTemplate_get());
+		,DATAGRID_Other_Showtimes_CONST,DEVICETEMPLATE_VDR_CONST);
+
+	ListDeviceData_Router *pListDeviceData_Router = m_pRouter->m_mapDeviceByTemplate_Find(DEVICETEMPLATE_VDR_CONST);
+	if( pListDeviceData_Router )
+	{
+		for(ListDeviceData_Router::iterator it=pListDeviceData_Router->begin();it!=pListDeviceData_Router->end();++it)
+		{
+			DeviceData_Router *pDevice_VDRPlayer = *it;
+			RegisterMsgInterceptor( ( MessageInterceptorFn )( &VDRPlugin::TuneToChannel ), 0, pDevice_VDRPlayer->m_dwPK_Device, 0, 0, MESSAGETYPE_COMMAND, COMMAND_Tune_to_channel_CONST );
+		}
+	}
 
 	BuildChannelList();
 
@@ -190,7 +201,6 @@ class MediaStream *VDRPlugin::CreateMediaStream( class MediaHandlerInfo *pMediaH
 
 bool VDRPlugin::StartMedia( class MediaStream *pMediaStream,string &sError )
 {
-	/*
 	VDRMediaStream *pVDRMediaStream = (VDRMediaStream *) pMediaStream;
 	LoggerWrapper::GetInstance()->Write( LV_STATUS, "VDRPlugin::StartMedia() Starting media stream playback. pos: %d", pVDRMediaStream->m_iDequeMediaFile_Pos );
 	int PK_Device = pVDRMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device;
@@ -200,25 +210,13 @@ bool VDRPlugin::StartMedia( class MediaStream *pMediaStream,string &sError )
 		it->second = false;
 
 	PLUTO_SAFETY_LOCK(vm,m_VDRMutex);
-	VDREPG::EPG *pEPG = m_mapEPG_Find(PK_Device);
-	if( !pEPG && m_mapEPG.size() )
-		pEPG = m_mapEPG.begin()->second;
-
-	VDREPG::Event *pEvent = GetStartingEvent(pEPG,pVDRMediaStream->m_iPK_Users);
-	if( !pEPG || !pEvent )
-	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot start without any EPG data %p %p",pEPG,pEvent);
-		sError = "Cannot start TV with no EPG Data.  Check the connection and try again in 20 minutes.";
-		return false;
-	}
-	pVDRMediaStream->m_EventID = pEvent->m_EventID;
+	VDRChannel *pVDRChannel = *(m_ListVDRChannel.begin());
+	pVDRMediaStream->m_pVDRChannel = pVDRChannel;
 	DCE::CMD_Play_Media CMD_Play_Media(m_dwPK_Device,PK_Device,pVDRMediaStream->m_iPK_MediaType,
-		pVDRMediaStream->m_iStreamID_get(), " CHAN:" + StringUtils::itos(pEvent->m_pChannel->m_ChannelID),"");
+		pVDRMediaStream->m_iStreamID_get(), " CHAN:" + StringUtils::itos(pVDRMediaStream->m_pVDRChannel->m_dwChanNum),"");
 
 	SendCommand(CMD_Play_Media);
 	return MediaHandlerBase::StartMedia(pMediaStream,sError);
-	*/
-	return false;
 }
 
 bool VDRPlugin::StopMedia( class MediaStream *pMediaStream )
@@ -353,61 +351,108 @@ void VDRPlugin::CMD_Schedule_Recording(string sProgramID,string &sCMD_Result,Mes
 
 class DataGridTable *VDRPlugin::CurrentShows(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, Message *pMessage)
 {
-	DataGridTable *pDataGrid = new DataGridTable();
-	DataGridCell *pDataGridCell;
-	/*
+//	if( m_bBookmarksNeedRefreshing )
+//		RefreshBookmarks();
+    int nHeight = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Height_CONST].c_str());
+	DataGridTable *pDataGridTable = new DataGridTable();
+	
+	string::size_type pos = 0;
+	string sChanId = StringUtils::Tokenize( Parms, ",", pos);
+	if( sChanId.size() && sChanId[0]=='i' )
+		sChanId = sChanId.substr(1);
+	int iPK_Users = atoi(StringUtils::Tokenize( Parms, ",", pos).c_str());
+	bool bOnePageOnly = pos < Parms.size(); // If there's trailing data, we're supposed to only cache one page
 
-	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
-	PLUTO_SAFETY_LOCK(vm,m_VDRMutex);
-	MediaDevice *pMediaDevice; VDREPG::EPG *pEPG;  VDRMediaStream *pVDRMediaStream;
-	if( !GetVdrAndEpgFromOrbiter(pMessage->m_dwPK_Device_From,pMediaDevice,pEPG,pVDRMediaStream) )
-	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"VDRPlugin::CurrentShows No EPG");
-		return pDataGrid;
-	}
-LoggerWrapper::GetInstance()->Write(LV_STATUS,"VDRPlugin::CurrentShows 2");
+	VDRChannel *pVDRChannel = m_mapVDRChannel_Find(sChanId);
+	if( pVDRChannel==NULL )
+		return pDataGridTable;
 
-	int iColumns=atoi(Parms.c_str());
-	int iRow=0,iColumn=0;
-	for(list<VDREPG::Channel *>::iterator it=pEPG->m_listChannel.begin();it!=pEPG->m_listChannel.end();++it)
+	time_t tNow = time(NULL);
+	struct tm t;
+	localtime_r(&tNow,&t);
+	int Month = t.tm_mon;
+	int Day = t.tm_mday;
+
+	DataGridCell *pCell;
+	int iRow=0;
+
+	PLUTO_SAFETY_LOCK(mm, m_pMedia_Plugin->m_MediaMutex);
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "VDRV_PlugIn::CurrentShows A datagrid for all the shows was requested %s params %s", GridID.c_str(), Parms.c_str());
+
+	VDRProgramInstance *pVDRProgramInstance = pVDRChannel->GetCurrentProgramInstance(tNow);
+	while(pVDRProgramInstance)
 	{
-		VDREPG::Channel *pChannel = *it;
-LoggerWrapper::GetInstance()->Write(LV_STATUS,"VDRPlugin::CurrentShows 3");
-		VDREPG::Event *pEvent = pChannel->GetCurrentEvent();
-LoggerWrapper::GetInstance()->Write(LV_STATUS,"VDRPlugin::CurrentShows 4");
-		if( pEvent )
+		pCell = new DataGridCell(pVDRProgramInstance->GetTitle());
+		pCell->m_mapAttributes["chanid"]=sChanId;
+		pCell->m_mapAttributes["programid"]=pVDRProgramInstance->GetProgramId();
+		pCell->m_mapAttributes["seriesid"]=pVDRProgramInstance->GetSeriesId();
+		pCell->m_mapAttributes["starttime"]=StringUtils::itos(pVDRProgramInstance->m_tStartTime);
+		pCell->m_mapAttributes["endtime"]=StringUtils::itos(pVDRProgramInstance->m_tStopTime);
+
+/*
+		mythRecording.data.time.StartTime = tStart;
+		if( (it_mapScheduledRecordings=m_mapScheduledRecordings.find(mythRecording.data.int64))!=m_mapScheduledRecordings.end() )
 		{
-			pDataGridCell = new DataGridCell(pEvent->m_pChannel->m_sChannelName,"E" + StringUtils::itos(pEvent->m_EventID));
-			pDataGrid->SetData((iColumn*5),iRow,pDataGridCell);
-			pDataGridCell = new DataGridCell(pEvent->m_pProgram->m_sTitle,"E" + StringUtils::itos(pEvent->m_EventID));
-			pDataGridCell->m_Colspan=3;
-			pDataGrid->SetData((iColumn*5)+1,iRow,pDataGridCell);
-
-			struct tm *tmptr = localtime(&pEvent->m_tStartTime);
-			struct tm tmStart = *tmptr;
-			tmptr = localtime(&pEvent->m_tStopTime);
-LoggerWrapper::GetInstance()->Write(LV_STATUS,"VDRPlugin::CurrentShows 5");
-
-			string sDesc;
-			sDesc += 
-				StringUtils::itos(tmStart.tm_hour) + ":" + (tmStart.tm_min<10 ? "0" : "") +
-				StringUtils::itos(tmStart.tm_min) + " - " +
-				StringUtils::itos(tmptr->tm_hour) + ":" + (tmptr->tm_min<10 ? "0" : "") +
-				StringUtils::itos(tmptr->tm_min);
-
-			pDataGridCell = new DataGridCell(sDesc,"E" + StringUtils::itos(pEvent->m_EventID));
-			pDataGrid->SetData((iColumn*5)+4,iRow,pDataGridCell);
-			iColumn++;
-			if( iColumn>iColumns )
-			{
-				iColumn=0;
-				iRow++;
-			}
+			szRecording[0] = it_mapScheduledRecordings->second.first;
+			pCell->m_mapAttributes["recording"] = szRecording;
+			pCell->m_mapAttributes["recordid"] = StringUtils::itos(it_mapScheduledRecordings->second.second);
 		}
+*/
+		struct tm t;
+		time_t tStartTime = pVDRProgramInstance->m_tStartTime;
+		localtime_r(&tStartTime,&t);
+		string sDate;
+		if( t.tm_mon==Month && t.tm_mday==Day )
+			sDate = "Today";
+		else
+			sDate = StringUtils::itos(t.tm_mon+1) + "/" + StringUtils::itos(t.tm_mday);
+
+		string sTime = StringUtils::HourMinute(tStartTime) + "-" + StringUtils::HourMinute(pVDRProgramInstance->m_tStopTime);
+		/*
+		string sPK_Picture;
+		if( row[8] && row[8][0] )
+			sPK_Picture = row[8];
+		else if( row[7] && row[7][0] )
+			sPK_Picture = row[7];
+
+		if( sPK_Picture.empty()==false )
+		{
+			size_t size;
+			char *pPic = FileUtils::ReadFileIntoBuffer("/home/mediapics/" + sPK_Picture + "_tn.jpg",size);
+			if( pPic )
+				pCell->SetImage( pPic, size, GR_JPG );
+		}
+
+		if( row[2] &&
+			(pMapBookmark_Series_Or_Program=m_mapSeriesBookmarks_Find(row[2])) &&
+			(
+				(it=pMapBookmark_Series_Or_Program->find(0))!=pMapBookmark_Series_Or_Program->end() ||
+				(it=pMapBookmark_Series_Or_Program->find(iPK_Users))!=pMapBookmark_Series_Or_Program->end()
+			))
+		{
+			// It's a user's favorited series
+			pCell->m_mapAttributes["PK_Bookmark"] = it->second;
+		}
+		else if( row[1] &&
+			(pMapBookmark_Series_Or_Program=m_mapProgramBookmarks_Find(row[1])) &&
+			(
+				(it=pMapBookmark_Series_Or_Program->find(0))!=pMapBookmark_Series_Or_Program->end() ||
+				(it=pMapBookmark_Series_Or_Program->find(iPK_Users))!=pMapBookmark_Series_Or_Program->end()
+			))
+		{
+			// It's a user's favorited series.
+			pCell->m_mapAttributes["PK_Bookmark"] = it->second;
+		}
+*/
+		pCell->m_mapAttributes["Date"] = sDate;
+		pCell->m_mapAttributes["Time"] = sTime;
+		pCell->m_mapAttributes["Synopsis"] = pVDRProgramInstance->GetSynopsis();
+
+		pDataGridTable->SetData(0,iRow++,pCell);
+		pVDRProgramInstance = pVDRProgramInstance->m_pVDRProgramInstance_Next;
 	}
-LoggerWrapper::GetInstance()->Write(LV_STATUS,"VDRPlugin::CurrentShows 6");
-	*/
-	return pDataGrid;
+ 
+	return pDataGridTable;
 }
 
 class DataGridTable *VDRPlugin::AllShows(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, Message *pMessage)
@@ -428,13 +473,15 @@ class DataGridTable *VDRPlugin::AllShows(string GridID, string Parms, void *Extr
 		return pDataGridTable;
 	}
 
+	time_t tNow = time(NULL);
+
 	string sProvider;
 	map<int,bool> mapVideoSourcesToUse;
 	// The source is 0, means all VDR channels and video sources.  Otherwise, just those for the given device (like a cable box)
 	int PK_Device_Source = pEntertainArea->m_pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_LiveTV_CONST ? 0 : pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device;
 	list_int *p_list_int = NULL;
-	if( PK_Device_Source && m_mapDevicesToSources.find(PK_Device_Source)!=m_mapDevicesToSources.end() )
-		p_list_int = &(m_mapDevicesToSources[PK_Device_Source]);
+//	if( PK_Device_Source && m_mapDevicesToSources.find(PK_Device_Source)!=m_mapDevicesToSources.end() )
+//		p_list_int = &(m_mapDevicesToSources[PK_Device_Source]);
 
 	// Go through all the channels, and set the cell to NULL if we're not supposed to include it
 	// or to a new value if we are.  We'll update the description with the show down below
@@ -446,7 +493,6 @@ class DataGridTable *VDRPlugin::AllShows(string GridID, string Parms, void *Extr
 			bool bOk=false;
 			for(list_int::iterator it=p_list_int->begin();it!=p_list_int->end();++it)
 			{
-int i=*it;
 				if( *it==pVDRChannel->m_pVDRSource->m_dwID )
 				{
 					bOk=true;
@@ -455,97 +501,79 @@ int i=*it;
 			}
 			if( !bOk )
 			{
-				m_pVDRSource->m_pCell=NULL;
+				pVDRChannel->m_pCell=NULL;
 				continue;
 			}
 		}
 		string sChannelName = StringUtils::itos(pVDRChannel->m_dwChanNum) + " " + pVDRChannel->m_sShortName;
-		pVDRChannel->m_pCell = new DataGridCell(sChannelName,"i" + StringUtils::itos(pVDRChannel->m_dwID));
+		pVDRChannel->m_pCell = new DataGridCell(sChannelName,"i" + pVDRChannel->m_sID);
 		pVDRChannel->m_pCell->m_mapAttributes["Name"] = sChannelName;
 		pVDRChannel->m_pCell->m_mapAttributes["Source"] = pVDRChannel->m_pVDRSource->m_sDescription;
 	}
 
-	string sVDRResponse;
-	if( !SendVDRCommand(m_sVDRIp,"LSTC",sVDRResponse) )
-	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"VDRPlugin::AllShows cannot get channel list");
-		return pDataGridTable;
-	}
-
-	// When tune to channel gets an 'i' in front, it's assumed that it's a channel id
-	string sSQL = "SELECT chanid, title, starttime, endtime, seriesid, programid "
-		"FROM program "
-		"WHERE starttime < '" + StringUtils::SQLDateTime() + "' AND endtime>'" + StringUtils::SQLDateTime() + "' " + sProvider;
-
-	bool bAllSource = mapVideoSourcesToUse.empty();
 	int iRow=0;
-	PlutoSqlResult result;
-	DB_ROW row;
-	if( (result.r=m_pDBHelper_VDR->db_wrapper_query_result(sSQL))!=NULL )
+	for(ListVDRChannel::iterator it=m_ListVDRChannel.begin();it!=m_ListVDRChannel.end();++it)
 	{
-		LoggerWrapper::GetInstance()->Write(LV_STATUS, "VDRTV_PlugIn::AllShows rows %d map %d allsource %d sources to use %d",
-			result.r->row_count, (int) m_mapVDRChannel.size(), (int) bAllSource, (int) mapVideoSourcesToUse.size() );
+		VDRChannel *pVDRChannel = *it;
+		if( !pVDRChannel || !pVDRChannel->m_pCell )
+			continue; // Shouldn't happen that pVDRChannel is NULL, if cell is, we're not including it
 
-		while((row = db_wrapper_fetch_row(result.r)))
+//		if( bAllSource==false && mapVideoSourcesToUse[ pVDRChannel->m_pVDRSource->m_dwID ]==false )  // Not a source for this list
+//			continue;
+
+		VDRProgramInstance *pVDRProgramInstance = pVDRChannel->GetCurrentProgramInstance(tNow);
+
+		if( pVDRChannel->m_pPic )
 		{
-			VDRChannel *pVDRChannel = m_mapVDRChannel_Find( atoi(row[0]) );
-			if( !pVDRChannel || !pVDRChannel->m_pCell )
-				continue; // Shouldn't happen that pVDRChannel is NULL, if cell is, we're not including it
-
-			if( bAllSource==false && mapVideoSourcesToUse[ pVDRChannel->m_pVDRSource->m_dwID ]==false )  // Not a source for this list
-				continue;
-
-			pVDRChannel->m_pCell->SetText( string(pVDRChannel->m_pCell->GetText()) + row[1] );
-			if( pVDRChannel->m_pPic )
-			{
-				char *pPic = new char[ pVDRChannel->m_Pic_size ];
-				memcpy(pPic,pVDRChannel->m_pPic,pVDRChannel->m_Pic_size);
-				pVDRChannel->m_pCell->SetImage( pPic, pVDRChannel->m_Pic_size, GR_JPG );
-			}
-
-			time_t tStart = StringUtils::SQLDateTime( row[2] );
-			time_t tStop = StringUtils::SQLDateTime( row[3] );
-			string sTime = StringUtils::HourMinute(tStart) + " - " + StringUtils::HourMinute(tStop);
-			string sNumber = NULL != row[0] ? row[0] : "";
-			string sInfo = NULL != row[4] ? row[1]: "";
-
-			pVDRChannel->m_pCell->m_mapAttributes["Number"] = sNumber;
-			pVDRChannel->m_pCell->m_mapAttributes["Time"] = sTime;
-			pVDRChannel->m_pCell->m_mapAttributes["Info"] = sInfo;
-			if( row[4] )
-				pVDRChannel->m_pCell->m_mapAttributes["Series"] = row[4];
-			if( row[5] )
-				pVDRChannel->m_pCell->m_mapAttributes["Program"] = row[5];
-			MapBookmark *pMapBookmark_Series_Or_Program;
-			MapBookmark::iterator it;
-			if( (it=pVDRChannel->m_mapBookmark.find(0))!=pVDRChannel->m_mapBookmark.end() ||
-				(it=pVDRChannel->m_mapBookmark.find(iPK_Users))!=pVDRChannel->m_mapBookmark.end() )
-			{
-				// It's a user's favorited channel
-				pVDRChannel->m_pCell->m_mapAttributes["PK_Bookmark"] = it->second;
-				pDataGridTable->SetData(0,iRow++,new DataGridCell(pVDRChannel->m_pCell)); // A copy since we'll add this one later too
-			}
-			else if( row[4] &&
-				(pMapBookmark_Series_Or_Program=m_mapSeriesBookmarks_Find(row[4])) &&
-				(
-					(it=pMapBookmark_Series_Or_Program->find(0))!=pMapBookmark_Series_Or_Program->end() ||
-					(it=pMapBookmark_Series_Or_Program->find(iPK_Users))!=pMapBookmark_Series_Or_Program->end()
-				))
-			{
-				// It's a user's favorited series
-				pDataGridTable->SetData(0,iRow++,new DataGridCell(pVDRChannel->m_pCell)); // A copy since we'll add this one later too
-			}
-			else if( row[5] &&
-				(pMapBookmark_Series_Or_Program=m_mapProgramBookmarks_Find(row[5])) &&
-				(
-					(it=pMapBookmark_Series_Or_Program->find(0))!=pMapBookmark_Series_Or_Program->end() ||
-					(it=pMapBookmark_Series_Or_Program->find(iPK_Users))!=pMapBookmark_Series_Or_Program->end()
-				))
-			{
-				// It's a user's favorited series.
-				pDataGridTable->SetData(0,iRow++,new DataGridCell(pVDRChannel->m_pCell)); // A copy since we'll add this one later too
-			}
+			char *pPic = new char[ pVDRChannel->m_Pic_size ];
+			memcpy(pPic,pVDRChannel->m_pPic,pVDRChannel->m_Pic_size);
+			pVDRChannel->m_pCell->SetImage( pPic, pVDRChannel->m_Pic_size, GR_JPG );
 		}
+
+		string sTime,sNumber,sInfo;
+		if( pVDRProgramInstance )
+		{
+			string sTime = StringUtils::HourMinute(pVDRProgramInstance->m_tStartTime) + " - " + StringUtils::HourMinute(pVDRProgramInstance->m_tStopTime);
+			string sNumber = StringUtils::itos(pVDRChannel->m_dwChanNum);
+			string sInfo = pVDRProgramInstance->GetSynopsis();
+			pVDRChannel->m_pCell->m_mapAttributes["Series"] = pVDRProgramInstance->GetSeriesId();
+			pVDRChannel->m_pCell->m_mapAttributes["Program"] = pVDRProgramInstance->GetProgramId();
+		}
+
+		pVDRChannel->m_pCell->m_mapAttributes["Number"] = sNumber;
+		pVDRChannel->m_pCell->m_mapAttributes["Time"] = sTime;
+		pVDRChannel->m_pCell->m_mapAttributes["Info"] = "testinfo";//sInfo;
+		MapBookmark *pMapBookmark_Series_Or_Program;
+		MapBookmark::iterator itB;
+		if( (itB=pVDRChannel->m_mapBookmark.find(0))!=pVDRChannel->m_mapBookmark.end() ||
+			(itB=pVDRChannel->m_mapBookmark.find(iPK_Users))!=pVDRChannel->m_mapBookmark.end() )
+		{
+			// It's a user's favorited channel
+			pVDRChannel->m_pCell->m_mapAttributes["PK_Bookmark"] = itB->second;
+			pDataGridTable->SetData(0,iRow++,new DataGridCell(pVDRChannel->m_pCell)); // A copy since we'll add this one later too
+		}
+/*
+		else if( row[4] &&
+			(pMapBookmark_Series_Or_Program=m_mapSeriesBookmarks_Find(row[4])) &&
+			(
+				(itB=pMapBookmark_Series_Or_Program->find(0))!=pMapBookmark_Series_Or_Program->end() ||
+				(itB=pMapBookmark_Series_Or_Program->find(iPK_Users))!=pMapBookmark_Series_Or_Program->end()
+			))
+		{
+			// It's a user's favorited series
+			pDataGridTable->SetData(0,iRow++,new DataGridCell(pVDRChannel->m_pCell)); // A copy since we'll add this one later too
+		}
+		else if( row[5] &&
+			(pMapBookmark_Series_Or_Program=m_mapProgramBookmarks_Find(row[5])) &&
+			(
+				(itB=pMapBookmark_Series_Or_Program->find(0))!=pMapBookmark_Series_Or_Program->end() ||
+				(itB=pMapBookmark_Series_Or_Program->find(iPK_Users))!=pMapBookmark_Series_Or_Program->end()
+			))
+		{
+			// It's a user's favorited series.
+			pDataGridTable->SetData(0,iRow++,new DataGridCell(pVDRChannel->m_pCell)); // A copy since we'll add this one later too
+		}
+*/
 	}
 
 	for(ListVDRChannel::iterator it=m_ListVDRChannel.begin();it!=m_ListVDRChannel.end();++it)
@@ -555,8 +583,8 @@ int i=*it;
 			pDataGridTable->SetData(0,iRow++,pVDRChannel->m_pCell);
 	}
 
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "VDRTV_PlugIn::AllShows cells: %d source %d plist %p map %d",
-		(int) pDataGridTable->m_MemoryDataTable.size(), PK_Device_Source, p_list_int, (int) m_mapDevicesToSources.size() );
+//	LoggerWrapper::GetInstance()->Write(LV_STATUS, "VDRTV_PlugIn::AllShows cells: %d source %d plist %p map %d",
+//		(int) pDataGridTable->m_MemoryDataTable.size(), PK_Device_Source, p_list_int, (int) m_mapDevicesToSources.size() );
 
 	return pDataGridTable;
 }
@@ -938,6 +966,17 @@ VDRSource *VDRPlugin::GetNewSource(string sSource)
 	return pVDRSource;
 }
 
+VDRSeries *VDRPlugin::GetNewSeries(string sID)
+{
+	VDRSeries *pVDRSeries = m_mapVDRSeries_Find(sID);
+	if( pVDRSeries==NULL )
+	{
+		pVDRSeries = new VDRSeries(sID);
+		m_mapVDRSeries[sID]=pVDRSeries;
+	}
+	return pVDRSeries;
+}
+
 void VDRPlugin::BuildChannelList()
 {
 	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
@@ -945,6 +984,7 @@ void VDRPlugin::BuildChannelList()
 
 	string sVDRResponse;
 	if( !SendVDRCommand(m_sVDRIp,"LSTC",sVDRResponse) )
+
 	{
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"VDRPlugin::BuildChannelList cannot get channel list");
 		return;
@@ -978,10 +1018,118 @@ void VDRPlugin::BuildChannelList()
 
 		VDRSource *pVDRSource = GetNewSource(sSource);
 		int iChannel = atoi(sChannel.c_str());
-		VDRChannel *pVDRChannel = new VDRChannel(iChannel,iChannel,pVDRSource,"","",NULL,0);
+		string sChannelID = sSource + "-" + sNID + "-" + sTID + "-" + sSID;
+		VDRChannel *pVDRChannel = new VDRChannel(sChannelID,iChannel,pVDRSource,sChannel,sChannel,NULL,0);
+		m_mapVDRChannel[sChannelID]=pVDRChannel;
 		m_ListVDRChannel.push_back(pVDRChannel);
 	}
-/*
+
+	sVDRResponse="";
+	if( !SendVDRCommand(m_sVDRIp,"LSTE",sVDRResponse) )
+
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"VDRPlugin::BuildChannelList cannot get epg");
+		return;
+	}
+
+	VDRChannel *pVDRChannel = NULL;
+	VDRProgramInstance *pVDRProgramInstance = NULL, *pVDRProgramInstance_Last = NULL;
+	string sSeriesDescription="",sSeriesID="",sEpisodeDescription="",sEpisodeID="",sDescription="";
+	string::size_type pos=0;
+	while( true )
+	{
+		sLine = StringUtils::Tokenize(sVDRResponse,"\n",pos);
+		if( sLine.empty()==true )
+			break;
+
+		if( sLine[0]=='C' )
+		{
+			pVDRProgramInstance=pVDRProgramInstance_Last=NULL;
+			string::size_type pos_space = sLine.find(' ',2);
+			if( pos_space!=string::npos )
+			{
+				string sChannelID = sLine.substr(2,pos_space-2);
+				pVDRChannel = m_mapVDRChannel_Find(sChannelID);
+				if( !pVDRChannel )
+					LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"VDRPlugin::BuildChannelList cannot find channel %s",sLine.c_str());
+			}
+		}
+
+		if( pVDRChannel )
+		{
+			if( sLine[0]=='E' )
+			{
+				pVDRProgramInstance = new VDRProgramInstance();
+				if( pVDRChannel->m_pVDRProgramInstance_First==NULL )
+					pVDRChannel->m_pVDRProgramInstance_First = pVDRProgramInstance;
+				else if( pVDRProgramInstance_Last )
+					pVDRProgramInstance_Last->m_pVDRProgramInstance_Next = pVDRProgramInstance;
+
+				pVDRProgramInstance_Last = pVDRProgramInstance;
+				
+				string::size_type pos=2;
+				string sID = StringUtils::Tokenize(sLine," ",pos);
+				string sStartTime = StringUtils::Tokenize(sLine," ",pos);
+				string sDuration = StringUtils::Tokenize(sLine," ",pos);
+				string s4 = StringUtils::Tokenize(sLine," ",pos);
+				string s5 = StringUtils::Tokenize(sLine," ",pos);
+
+				pVDRProgramInstance->m_tStartTime = atoi(sStartTime.c_str());
+				pVDRProgramInstance->m_tStopTime = pVDRProgramInstance->m_tStartTime + atoi(sDuration.c_str());
+			
+			}
+			else if( pVDRProgramInstance )
+			{
+				if( sLine[0]=='T' )
+					sSeriesDescription = sLine.substr(2);
+				else if( sLine[0]=='S' )
+					sEpisodeDescription = sLine.substr(2);
+				else if( sLine[0]=='D' )
+					sDescription = sLine.substr(2);
+				else if( sLine[0]=='e' )
+				{
+					string::size_type pos_extraInfo = sDescription.find("|||");
+					if( pos_extraInfo!=string::npos )
+					{
+						string::size_type pos_EpisodeID = sDescription.find("EpisodeID:");
+						if( pos_EpisodeID!=string::npos )
+						{
+							pos_EpisodeID+=11;
+							string::size_type pos_Termination = sDescription.find('|',pos_EpisodeID);
+							string sEpisode = pos_Termination==string::npos ? sDescription.substr(pos_EpisodeID) : sDescription.substr(pos_EpisodeID,pos_Termination-pos_EpisodeID);
+							string::size_type pos_Dot = sEpisode.find('.');
+							if( pos_Dot!=string::npos )
+							{
+								sSeriesID = sEpisode.substr(0,pos_Dot);
+								sEpisodeID = sEpisode.substr(pos_Dot+1);
+							}
+							else
+								sSeriesID = sEpisode;
+						}
+					}
+
+					if( sSeriesID.empty() )
+						sSeriesID = sSeriesDescription;
+					if( sEpisodeID.empty() )
+						sEpisodeID = sEpisodeDescription;
+
+					VDRSeries *pVDRSeries = GetNewSeries(sSeriesID);
+					pVDRSeries->m_sDescription = sSeriesDescription;
+					VDREpisode *pVDREpisode = pVDRSeries->GetNewEpisode(sEpisodeID);
+					pVDREpisode->m_sDescription = sEpisodeDescription;
+					pVDRProgramInstance->m_pVDREpisode = pVDREpisode;
+
+					sSeriesDescription="";
+					sSeriesID="";
+					sEpisodeDescription="";
+					sEpisodeID="";
+					sDescription="";
+				}
+			}
+		}
+	}	
+int k=2;	
+	/*
 	
 	VDRSource *pVDRSource = m_mapVDRSource_Find( atoi(row[6]) );
 			if( !pVDRSource )
@@ -1024,4 +1172,46 @@ void VDRPlugin::BuildChannelList()
 	}
 	m_ListVDRChannel.sort(ChannelComparer);
 */
+/*
+	VDRSource *pVDRSource = new VDRSource(1,"source 1");
+	time_t tNow = time(NULL);
+	size_t size;
+	char *pPic = FileUtils::ReadFileIntoBuffer("C:\\temp\\lmce.jpg",size);
+	for(int i=0;i<100;++i)
+	{
+		VDRChannel *pVDRChannel = new VDRChannel(i,i,pVDRSource,"ch" + StringUtils::itos(i),"channel " + StringUtils::itos(i),pPic,size);
+		m_ListVDRChannel.push_back(pVDRChannel);
+
+		VDRProgramInstance *pVDRProgramInstance_Prior = NULL;
+		for(int t=0;t<10;++t)
+		{
+			VDRProgramInstance *pVDRProgramInstance = new VDRProgramInstance();
+			pVDRProgramInstance->m_tStartTime = tNow + (t*30*60);
+			pVDRProgramInstance->m_tStopTime = tNow + ((t+1)*30*60);
+			if( pVDRProgramInstance_Prior )
+				pVDRProgramInstance_Prior->m_pVDRProgramInstance_Next = pVDRProgramInstance;
+			else 
+				pVDRChannel->m_pVDRProgramInstance_First=pVDRProgramInstance;
+			pVDRProgramInstance_Prior=pVDRProgramInstance;
+		}
+	}
+*/
+}
+
+bool VDRPlugin::TuneToChannel( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
+{
+	if( pMessage->m_dwPK_Device_To!=m_pMedia_Plugin->m_dwPK_Device &&  // Let media plugin convert this to the destination device and add the stream id
+		pMessage->m_mapParameters.find(COMMANDPARAMETER_ProgramID_CONST)!=pMessage->m_mapParameters.end() )
+	{
+		MediaStream *pMediaStream = m_pMedia_Plugin->m_mapMediaStream_Find(atoi(pMessage->m_mapParameters[COMMANDPARAMETER_StreamID_CONST].c_str()),0);
+
+		string sProgramID = pMessage->m_mapParameters[COMMANDPARAMETER_ProgramID_CONST];
+		if( sProgramID.size()>1 && sProgramID[0]=='i' )
+		{
+			VDRChannel *pVDRChannel = m_mapVDRChannel_Find( sProgramID.substr(1) );
+			if( pVDRChannel )
+				pMessage->m_mapParameters[COMMANDPARAMETER_ProgramID_CONST] = StringUtils::itos(pVDRChannel->m_dwChanNum);
+		}
+	}
+	return false;
 }

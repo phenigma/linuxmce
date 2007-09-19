@@ -41,7 +41,8 @@ namespace DCE
 	{
 	public:
 		class VDRPlugin *m_pVDRPlugin;
-		int m_EventID; // The current event
+		class VDRChannel *m_pVDRChannel; // The current channel
+		class VDRProgramInstance *m_pVDRProgramInstance;  // The current prgram instance
 		map<int,bool> m_mapOrbiter_HasInitialPosition;
 
 		VDRMediaStream(VDRPlugin *pVDRPlugin,

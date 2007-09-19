@@ -45,6 +45,17 @@ struct DECLSPECIFIER SingleLongKey_Less
 	bool operator()(const SingleLongKey &key1, const SingleLongKey &key2) const;
 };
 
+struct DECLSPECIFIER SingleLong64Key
+{
+	u_int64_t pk;
+	SingleLong64Key(u_int64_t in);
+};
+
+struct DECLSPECIFIER SingleLong64Key_Less
+{			
+	bool operator()(const SingleLong64Key &key1, const SingleLong64Key &key2) const;
+};
+
 struct DECLSPECIFIER DoubleLongKey
 {
 	long int pk1,pk2;
@@ -120,6 +131,12 @@ class DECLSPECIFIER SingleStringKeyBase
 public:
 	map<SingleStringKey, class TableRow*, SingleStringKey_Less> cachedRows;
 	map<SingleStringKey, class TableRow*, SingleStringKey_Less> deleted_cachedRows;
+};
+class DECLSPECIFIER SingleLong64KeyBase
+{
+public:
+	map<SingleLong64Key, class TableRow*, SingleLong64Key_Less> cachedRows;
+	map<SingleLong64Key, class TableRow*, SingleLong64Key_Less> deleted_cachedRows;
 };
 
 #endif

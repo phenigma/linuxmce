@@ -35,7 +35,7 @@ using namespace std;
 // entire new copy of the map template for this type of object, making the database code become
 // incredibly huge.  So, we identify some standard primary key, like a single long number, or 2 longs,
 // and use those stock structures instead whenever possible.
-enum KnownPkTypes { PKTYPES_UNKNOWN,PKTYPES_SINGLE_LONG,PKTYPES_DOUBLE_LONG,PKTYPES_TRIPLE_LONG,PKTYPES_SINGLE_STRING };
+enum KnownPkTypes { PKTYPES_UNKNOWN,PKTYPES_SINGLE_LONG,PKTYPES_DOUBLE_LONG,PKTYPES_TRIPLE_LONG,PKTYPES_SINGLE_STRING,PKTYPES_SINGLE_LONG64 };
 
 class TableInfo_Generator : public TableInfo
 {

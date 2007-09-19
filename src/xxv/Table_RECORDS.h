@@ -31,7 +31,7 @@
 class DECLSPECIFIER TableRow;
 class DECLSPECIFIER SerializeClass;
 
-class DECLSPECIFIER Table_RECORDS : public TableBase 
+class DECLSPECIFIER Table_RECORDS : public TableBase , SingleLong64KeyBase
 {
 private:
 	Database_xxv *database;
@@ -60,8 +60,8 @@ private:
 		bool operator()(const Table_RECORDS::Key &key1, const Table_RECORDS::Key &key2) const;
 	};	
 
-	map<Table_RECORDS::Key, class TableRow*, Table_RECORDS::Key_Less> cachedRows;
-	map<Table_RECORDS::Key, class TableRow*, Table_RECORDS::Key_Less> deleted_cachedRows;
+	
+	
 
 public:				
 	// Normally the framework never deletes any Row_X objects, since the application will
@@ -81,7 +81,7 @@ public:
 private:	
 	
 		
-	class Row_RECORDS* FetchRow(Table_RECORDS::Key &key);
+	class Row_RECORDS* FetchRow(SingleLong64Key &key);
 		
 			
 };

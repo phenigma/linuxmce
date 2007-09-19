@@ -31,7 +31,7 @@
 class DECLSPECIFIER TableRow;
 class DECLSPECIFIER SerializeClass;
 
-class DECLSPECIFIER Table_CHANNELS : public TableBase 
+class DECLSPECIFIER Table_CHANNELS : public TableBase , SingleStringKeyBase
 {
 private:
 	Database_xxv *database;
@@ -60,8 +60,8 @@ private:
 		bool operator()(const Table_CHANNELS::Key &key1, const Table_CHANNELS::Key &key2) const;
 	};	
 
-	map<Table_CHANNELS::Key, class TableRow*, Table_CHANNELS::Key_Less> cachedRows;
-	map<Table_CHANNELS::Key, class TableRow*, Table_CHANNELS::Key_Less> deleted_cachedRows;
+	
+	
 
 public:				
 	// Normally the framework never deletes any Row_X objects, since the application will
@@ -81,7 +81,7 @@ public:
 private:	
 	
 		
-	class Row_CHANNELS* FetchRow(Table_CHANNELS::Key &key);
+	class Row_CHANNELS* FetchRow(SingleStringKey &key);
 		
 			
 };

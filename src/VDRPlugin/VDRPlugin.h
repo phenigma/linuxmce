@@ -33,93 +33,167 @@
 #include "VDRMediaStream.h"
 class Row_Bookmark;
 
-class VDRSource
-{
-public:
-	VDRSource(int dwID,string sDescription) : m_dwID(dwID), m_sDescription(sDescription) {}
-
-	int m_dwID;
-	string m_sDescription;
-};
-
-typedef map<int,int> MapBookmark;  // Map of PK_Users to PK_Bookmarks 
-class VDRChannel
-{
-public:
-	int m_dwID,m_dwChanNum;
-	VDRSource *m_pVDRSource;
-	string m_sShortName,m_sLongName;
-	char *m_pPic;
-	size_t m_Pic_size;
-	MapBookmark m_mapBookmark;  // Map of PK_Users to PK_Bookmarks who have bookmarked this
-	DataGridCell *m_pCell;  // A temporary pointer only valid while created a grid
-
-	VDRChannel(int dwID,int dwChanNum,VDRSource *pVDRSource, string sShortName,string sLongName,char *pPic, size_t Pic_size)
-	{
-		m_pVDRSource=pVDRSource;
-		m_dwID=dwID;
-		m_dwChanNum=dwChanNum;
-		m_sShortName=sShortName;
-		m_sLongName=sLongName;
-		m_pPic=pPic;
-		m_Pic_size=Pic_size;
-		m_pCell=NULL;
-	}
-
-	~VDRChannel()
-	{
-		delete m_pPic;
-		m_pPic=NULL;
-		m_Pic_size=0;
-	}
-};
-
-// A particular airing of a show (ie a channel & start time)
-class VDRProgramInstance
-{
-public:
-	time_t m_tStartTime,m_tStopTime;
-	VDREpisode *m_pVDREpisode;
-};
-
-// A program is a unique episode of a series, or a unique showing if there's not a series
-class VDREpisode
-{
-public:
-	VDRSeries *m_pVDRSeries;  // The series, like the Simpsons, or if this is a one-time show, it points to the description like "Batman 2"
-	string m_sSubTitle; // Bart learns to drive
-	list<VDRPerformer *> m_listVDRPerformer;
-};
-
-// The series info i.e. "The Simpsons", "Batman 2"
-class VDRSeries
-{
-public:
-	string m_sDescription; // i.e. "The Simpsons", "Batman 2"
-};
-
-// A performer
-class VDRPerformer
-{
-public:
-	string m_sName;
-	list<VDREpisode *> m_listVDREpisode;
-};
-
-typedef list<VDRChannel *> ListVDRChannel;
-
-
 
 //<-dceag-decl-b->!
 namespace DCE
 {
+	class VDRSource
+	{
+	public:
+		VDRSource(int dwID,string sDescription) : m_dwID(dwID), m_sDescription(sDescription) {}
+
+		int m_dwID;
+		string m_sDescription;
+	};
+
+	typedef map<int,int> MapBookmark;  // Map of PK_Users to PK_Bookmarks 
+
+	// A program is a unique episode of a series, or a unique showing if there's not a series
+	class VDREpisode
+	{
+	public:
+		class VDRSeries *m_pVDRSeries;  // The series, like the Simpsons, or if this is a one-time show, it points to the description like "Batman 2"
+		string m_sID;
+		string m_sDescription; // Bart learns to drive
+		string m_sSynopsis;
+		list<class VDRPerformer *> m_listVDRPerformer;
+
+		VDREpisode(string sID,class VDRSeries *pVDRSeries) : m_sID(sID),m_pVDRSeries(pVDRSeries) {} 
+	};
+
+	// The series info i.e. "The Simpsons", "Batman 2"
+	class VDRSeries
+	{
+	public:
+		string m_sDescription; // i.e. "The Simpsons", "Batman 2"
+		string m_sID;
+		map<string,VDREpisode *> m_mapVDREpisode;
+		VDREpisode *m_mapVDREpisode_Find(string sEpisodeID) { map<string,VDREpisode *>::iterator it = m_mapVDREpisode.find(sEpisodeID); return it==m_mapVDREpisode.end() ? NULL : (*it).second; }
+
+		VDRSeries(string sID) : m_sID(sID) {}
+
+		VDREpisode *GetNewEpisode(string sID)
+		{
+			VDREpisode *pVDREpisode = m_mapVDREpisode_Find(sID);
+			if( !pVDREpisode )
+				pVDREpisode = new VDREpisode(sID,this);
+			return pVDREpisode;
+		}
+	};
+
+	// A performer
+	class VDRPerformer
+	{
+	public:
+		string m_sName;
+		list<VDREpisode *> m_listVDREpisode;
+	};
+
+	// A particular airing of a show (ie a channel & start time)
+	class VDRProgramInstance
+	{
+	public:
+		time_t m_tStartTime,m_tStopTime;
+		class VDREpisode *m_pVDREpisode;
+		VDRProgramInstance *m_pVDRProgramInstance_Next;
+
+		VDRProgramInstance() : m_pVDRProgramInstance_Next(NULL), m_pVDREpisode(NULL) {}
+
+		string GetSynopsis()
+		{
+			if( m_pVDREpisode )
+				return m_pVDREpisode->m_sSynopsis;
+			else
+				return "";
+		}
+
+		string GetSeriesId()
+		{
+			if( m_pVDREpisode && m_pVDREpisode->m_pVDRSeries )
+				return m_pVDREpisode->m_pVDRSeries->m_sID;
+			else
+				return "";
+		}
+
+		string GetProgramId()
+		{
+			if( m_pVDREpisode )
+				return m_pVDREpisode->m_sID;
+			else
+				return "";
+		}
+
+		string GetTitle()
+		{
+			if( m_pVDREpisode && m_pVDREpisode->m_pVDRSeries )
+				return m_pVDREpisode->m_pVDRSeries->m_sDescription;
+			else if( m_pVDREpisode )
+				return m_pVDREpisode->m_sDescription;
+			else
+				return "";
+		}
+	};
+
+	class VDRChannel
+	{
+	public:
+		int m_dwChanNum;
+		string m_sID;
+		VDRSource *m_pVDRSource;
+		VDRProgramInstance *m_pVDRProgramInstance_First;
+		string m_sShortName,m_sLongName;
+		char *m_pPic;
+		size_t m_Pic_size;
+		MapBookmark m_mapBookmark;  // Map of PK_Users to PK_Bookmarks who have bookmarked this
+		DataGridCell *m_pCell;  // A temporary pointer only valid while created a grid
+
+		VDRChannel(string sID,int dwChanNum,VDRSource *pVDRSource, string sShortName,string sLongName,char *pPic, size_t Pic_size)
+		{
+			m_pVDRSource=pVDRSource;
+			m_sID=sID;
+			m_dwChanNum=dwChanNum;
+			m_sShortName=sShortName;
+			m_sLongName=sLongName;
+			m_pPic=pPic;
+			m_Pic_size=Pic_size;
+			m_pCell=NULL;
+			m_pVDRProgramInstance_First=NULL;
+		}
+
+		~VDRChannel()
+		{
+			delete m_pPic;
+			m_pPic=NULL;
+			m_Pic_size=0;
+		}
+
+		class VDRProgramInstance *GetCurrentProgramInstance(time_t tTime)
+		{
+			VDRProgramInstance *pVDRProgramInstance = m_pVDRProgramInstance_First;
+			while(pVDRProgramInstance && pVDRProgramInstance->m_tStopTime < tTime )
+				pVDRProgramInstance = pVDRProgramInstance->m_pVDRProgramInstance_Next;
+
+			if( !pVDRProgramInstance || pVDRProgramInstance->m_tStartTime>tTime )
+				return NULL;
+			return pVDRProgramInstance;
+		}
+	};
+
+	typedef list<VDRChannel *> ListVDRChannel;
 	class VDRPlugin : public VDRPlugin_Command, public MediaHandlerBase, public DataGridGeneratorPlugIn
 	{
 //<-dceag-decl-e->
 		// Private member variables
 		ListVDRChannel m_ListVDRChannel; // The channels in the right order for display
+		map<string,VDRChannel *> m_mapVDRChannel; // The channels for quick searching
+		VDRChannel *m_mapVDRChannel_Find(string sChannelID) { map<string,VDRChannel *>::iterator it = m_mapVDRChannel.find(sChannelID); return it==m_mapVDRChannel.end() ? NULL : (*it).second; }
+
 		map<string,VDRSource *> m_mapVDRSource;
 		VDRSource *m_mapVDRSource_Find(string sSourceID) { map<string,VDRSource *>::iterator it = m_mapVDRSource.find(sSourceID); return it==m_mapVDRSource.end() ? NULL : (*it).second; }
+
+		map<string,VDRSeries *> m_mapVDRSeries;
+		VDRSeries *m_mapVDRSeries_Find(string sSeriesID) { map<string,VDRSeries *>::iterator it = m_mapVDRSeries.find(sSeriesID); return it==m_mapVDRSeries.end() ? NULL : (*it).second; }
+
 		string m_sVDRIp;
 
 		class Orbiter_Plugin *m_pOrbiter_Plugin;
@@ -145,6 +219,7 @@ public:
 		void PurgeChannelList();
 		void BuildChannelList();
 		VDRSource *GetNewSource(string sSource);
+		VDRSeries *GetNewSeries(string sSeriesID);
 
 		virtual void PrepareToDelete();
 		// Datagrids
@@ -160,6 +235,7 @@ public:
 		VDREPG::Event *GetStartingEvent(VDREPG::EPG *pEPG,int PK_Users);
 		VDREPG::Event *GetEventForBookmark(VDREPG::EPG *pEPG,Row_Bookmark *pRow_Bookmark,int &iPriority_Bookmark);
 		*/
+		bool TuneToChannel( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
 
 //<-dceag-const2-b->!
 		/**

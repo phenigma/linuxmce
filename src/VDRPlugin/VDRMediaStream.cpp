@@ -48,7 +48,8 @@ namespace DCE
             : MediaStream(pMediaHandlerInfo, iPK_MediaProvider, pMediaDevice, PK_Users, sourceType, iStreamID)
 	{
 		m_pVDRPlugin=pVDRPlugin;
-		m_EventID=0;
+		m_pVDRChannel=NULL;
+		m_pVDRProgramInstance=NULL;
 	}
 
 	VDRMediaStream::~VDRMediaStream()

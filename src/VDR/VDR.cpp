@@ -33,11 +33,11 @@ using namespace DCE;
 #include "pluto_main/Define_CommandParameter.h"
 #include "pluto_main/Define_DesignObj.h"
 #include "pluto_main/Define_MediaType.h"
+#include "VDRCommon.h"
 
 #include <sstream>
 #include <pthread.h>
 
-#define VDR_SOCKET_TIMEOUT	3  // SECONDS
 VDR *g_pVDR = NULL;
 
 #ifndef WIN32
@@ -442,54 +442,6 @@ void VDR::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &sCMD_Res
 
 void VDR::KillSpawnedDevices()
 {
-}
-
-bool VDR::SendVDRCommand(string sCommand,string &sVDRResponse)
-{
-	LoggerWrapper::GetInstance()->Write(LV_WARNING,"Going to send command %s",sCommand.c_str());
-	PlainClientSocket _PlainClientSocket(m_sXineIP + ":2001");
-	if( !_PlainClientSocket.Connect() )
-	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Unable to connect to VDR client");
-		return false;
-	}
-LoggerWrapper::GetInstance()->Write(LV_STATUS,"connected");
-	string sResponse;
-	if( !_PlainClientSocket.ReceiveString(sResponse,VDR_SOCKET_TIMEOUT) || sResponse.substr(0,3)!="220" )
-	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"VDR not ready got %s",sResponse.c_str());
-		return false;
-	}
-
-	if( !_PlainClientSocket.SendString(sCommand) )
-	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Could not send string");
-		return false;
-	}
-
-	if( !_PlainClientSocket.ReceiveString(sResponse,VDR_SOCKET_TIMEOUT) || sResponse.substr(0,3)!="250" )
-	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"VDR not ok with command got %s",sResponse.c_str());
-		return false;
-	}
-	
-	if( sResponse.size()>4 )
-		sVDRResponse = sResponse.substr(4);
-LoggerWrapper::GetInstance()->Write(LV_WARNING,"VDR Responded %s",sResponse.c_str());
-	if( !_PlainClientSocket.SendString("QUIT") )
-	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Could not send string");
-		return false;
-	}
-
-	if( !_PlainClientSocket.ReceiveString(sResponse,VDR_SOCKET_TIMEOUT) || sResponse.substr(0,3)!="221" )
-	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"VDR not ok with quit got %s",sResponse.c_str());
-		return false;
-	}
-	
-	_PlainClientSocket.Close();
-	return true;
 }
 
 void VDR::ParseCurrentChannel(string sChannel)

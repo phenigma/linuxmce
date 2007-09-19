@@ -52,7 +52,7 @@ bool Database_xxv::Commit_CHANNELS(bool bDeleteFailedModifiedRow,bool bDeleteFai
 
 Table_CHANNELS::~Table_CHANNELS()
 {
-	map<Table_CHANNELS::Key, class TableRow*, Table_CHANNELS::Key_Less>::iterator it;
+	map<SingleStringKey, class TableRow*, SingleStringKey_Less>::iterator it;
 	for(it=cachedRows.begin();it!=cachedRows.end();++it)
 	{
 		Row_CHANNELS *pRow = (Row_CHANNELS *) (*it).second;
@@ -92,8 +92,8 @@ void Row_CHANNELS::Delete()
 		}
 		else
 		{
-			Table_CHANNELS::Key key(pRow->m_Id);
-			map<Table_CHANNELS::Key, TableRow*, Table_CHANNELS::Key_Less>::iterator i = table->cachedRows.find(key);
+			SingleStringKey key(pRow->m_Id);
+			map<SingleStringKey, TableRow*, SingleStringKey_Less>::iterator i = table->cachedRows.find(key);
 			if (i!=table->cachedRows.end())
 				table->cachedRows.erase(i);
 						
@@ -111,7 +111,7 @@ void Row_CHANNELS::Reload()
 	
 	if (!is_added)
 	{
-		Table_CHANNELS::Key key(pRow->m_Id);
+		SingleStringKey key(pRow->m_Id);
 		Row_CHANNELS *pRow = table->FetchRow(key);
 		
 		if (pRow!=NULL)
@@ -648,7 +648,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->Id_asSQL()+", 
 				
 			
 			addedRows.erase(i);
-			Table_CHANNELS::Key key(pRow->m_Id);	
+			SingleStringKey key(pRow->m_Id);	
 			cachedRows[key] = pRow;
 					
 			
@@ -662,14 +662,14 @@ values_list_comma_separated = values_list_comma_separated + pRow->Id_asSQL()+", 
 //update modified
 	
 
-	for (map<Table_CHANNELS::Key, class TableRow*, Table_CHANNELS::Key_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
+	for (map<SingleStringKey, class TableRow*, SingleStringKey_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
 		if	(((*i).second)->is_modified_get())
 	{
 		Row_CHANNELS* pRow = (Row_CHANNELS*) (*i).second;	
-		Table_CHANNELS::Key key(pRow->m_Id);
+		SingleStringKey key(pRow->m_Id);
 
 		char tmp_Id[201];
-db_wrapper_real_escape_string(database->m_pDB,tmp_Id, key.pk_Id.c_str(), (unsigned long) key.pk_Id.size());
+db_wrapper_real_escape_string(database->m_pDB,tmp_Id, key.pk.c_str(), (unsigned long) key.pk.size());
 
 
 string condition;
@@ -722,13 +722,13 @@ update_values_list = update_values_list + "`Id`="+pRow->Id_asSQL()+", `Name`="+p
 	
 	while (!deleted_cachedRows.empty())
 	{	
-		map<Table_CHANNELS::Key, class TableRow*, Table_CHANNELS::Key_Less>::iterator i = deleted_cachedRows.begin();
+		map<SingleStringKey, class TableRow*, SingleStringKey_Less>::iterator i = deleted_cachedRows.begin();
 	
-		Table_CHANNELS::Key key = (*i).first;
+		SingleStringKey key = (*i).first;
 		Row_CHANNELS* pRow = (Row_CHANNELS*) (*i).second;	
 
 		char tmp_Id[201];
-db_wrapper_real_escape_string(database->m_pDB,tmp_Id, key.pk_Id.c_str(), (unsigned long) key.pk_Id.size());
+db_wrapper_real_escape_string(database->m_pDB,tmp_Id, key.pk.c_str(), (unsigned long) key.pk.size());
 
 
 string condition;
@@ -991,9 +991,9 @@ sscanf(row[15], "%li", &(pRow->m_POS));
 
 		//checking for duplicates
 
-		Table_CHANNELS::Key key(pRow->m_Id);
+		SingleStringKey key(pRow->m_Id);
 		
-		map<Table_CHANNELS::Key, class TableRow*, Table_CHANNELS::Key_Less>::iterator i = cachedRows.find(key);
+		map<SingleStringKey, class TableRow*, SingleStringKey_Less>::iterator i = cachedRows.find(key);
 			
 		if (i!=cachedRows.end())
 		{
@@ -1027,9 +1027,9 @@ Row_CHANNELS* Table_CHANNELS::GetRow(string in_Id)
 {
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_DBMutex);
 
-	Table_CHANNELS::Key row_key(in_Id);
+	SingleStringKey row_key(in_Id);
 
-	map<Table_CHANNELS::Key, class TableRow*, Table_CHANNELS::Key_Less>::iterator i;
+	map<SingleStringKey, class TableRow*, SingleStringKey_Less>::iterator i;
 	i = deleted_cachedRows.find(row_key);	
 		
 	//row was deleted	
@@ -1051,13 +1051,13 @@ Row_CHANNELS* Table_CHANNELS::GetRow(string in_Id)
 
 
 
-Row_CHANNELS* Table_CHANNELS::FetchRow(Table_CHANNELS::Key &key)
+Row_CHANNELS* Table_CHANNELS::FetchRow(SingleStringKey &key)
 {
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_DBMutex);
 
 	//defines the string query for the value of key
 	char tmp_Id[201];
-db_wrapper_real_escape_string(database->m_pDB,tmp_Id, key.pk_Id.c_str(), (unsigned long) key.pk_Id.size());
+db_wrapper_real_escape_string(database->m_pDB,tmp_Id, key.pk.c_str(), (unsigned long) key.pk.size());
 
 
 string condition;

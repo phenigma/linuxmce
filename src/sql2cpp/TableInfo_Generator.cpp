@@ -39,7 +39,7 @@ bool TableInfo_Generator::loadFromDB( string sTable )
 	bool bResult = TableInfo::loadFromDB( sTable ); // Fill the fields structure 
 
 	// See if this hass a known pattern of primary key, like a single int, etc.
-	int iNumLongPrimaryKeys=0,iNumStringPrimaryKeys=0;
+	int iNumLongPrimaryKeys=0,iNumStringPrimaryKeys=0,iNumLong64PrimaryKeys=0;
 	for ( vector<FieldInfo*>::iterator i = m_Fields.begin(); i != m_Fields.end(); i++ )
 	{
 		if ((*i)->m_iFlags & PRI_KEY_FLAG)
@@ -47,6 +47,10 @@ bool TableInfo_Generator::loadFromDB( string sTable )
 			string sType = (*i)->getCType();
 			if( sType=="long int" )
 				iNumLongPrimaryKeys++;
+			else if( sType=="u_int64_t" )
+				iNumLong64PrimaryKeys++;
+			else if( sType=="string" )
+				iNumStringPrimaryKeys++;
 			else
 			{
 				cout << m_sTableName << " will have a custom Key" << endl;
@@ -56,6 +60,8 @@ bool TableInfo_Generator::loadFromDB( string sTable )
 	}
 
 	// We had no primary keys of unknown types
+	if( iNumLong64PrimaryKeys==1 )
+		m_eKnownPkTypes = PKTYPES_SINGLE_LONG64;
 	if( iNumStringPrimaryKeys==0 && iNumLongPrimaryKeys==1 )
 		m_eKnownPkTypes = PKTYPES_SINGLE_LONG;
 	else if( iNumStringPrimaryKeys==0 && iNumLongPrimaryKeys==2 )
@@ -363,6 +369,8 @@ string TableInfo_Generator::get_table_key()
 		return "TripleLongKey";
 	else if( m_eKnownPkTypes==PKTYPES_SINGLE_STRING )
 		return "SingleStringKey";
+	else if( m_eKnownPkTypes==PKTYPES_SINGLE_LONG64 )
+		return "SingleLong64Key";
 	else
 		return "Table_" + m_sTableName + "::Key";
 }
@@ -377,6 +385,8 @@ string TableInfo_Generator::get_table_base()
 		return ", TripleLongKeyBase";
 	else if( m_eKnownPkTypes==PKTYPES_SINGLE_STRING )
 		return ", SingleStringKeyBase";
+	else if( m_eKnownPkTypes==PKTYPES_SINGLE_LONG64 )
+		return ", SingleLong64KeyBase";
 	else
 		return ""; // We'll declare the maps locally
 }
@@ -404,6 +414,8 @@ string TableInfo_Generator::get_table_key_comparer()
 		return "TripleLongKey_Less";
 	else if( m_eKnownPkTypes==PKTYPES_SINGLE_STRING )
 		return "SingleStringKey_Less";
+	else if( m_eKnownPkTypes==PKTYPES_SINGLE_LONG64 )
+		return "SingleLong64Key_Less";
 	else
 		return "Table_" + m_sTableName + "::Key_Less";
 }
@@ -573,6 +585,8 @@ string TableInfo_Generator::get_bind_parameters_to_key()
 			{
 				if( m_eKnownPkTypes==PKTYPES_SINGLE_LONG )
 					s = s + "parameters[" + int2string(iPrimaryIndex) + "].buffer=&(key.pk);\n";
+				else if( m_eKnownPkTypes==PKTYPES_SINGLE_LONG64 )
+					s = s + "parameters[" + int64_2string(iPrimaryIndex) + "].buffer=&(key.pk);\n";
 				else if( m_eKnownPkTypes==PKTYPES_DOUBLE_LONG || m_eKnownPkTypes==PKTYPES_TRIPLE_LONG )
 					s = s + "parameters[" + int2string(iPrimaryIndex) + "].buffer=&(key.pk" + StringUtils::itos(iPKCounter) + ");\n";
 				else
@@ -669,6 +683,8 @@ string TableInfo_Generator::get_build_query_for_key()
 				sCode = sCode + "char tmp_" + (*i)->m_pcFieldName + "[" ;
 				sCode = sCode + "32];\n";
 				if( m_eKnownPkTypes==PKTYPES_SINGLE_LONG )
+					sCode = sCode + "sprintf(tmp_" + (*i)->m_pcFieldName+", \"" + (*i)->getPrintFormat() + "\", " + "key.pk);\n\n";
+				else if( m_eKnownPkTypes==PKTYPES_SINGLE_LONG64 )
 					sCode = sCode + "sprintf(tmp_" + (*i)->m_pcFieldName+", \"" + (*i)->getPrintFormat() + "\", " + "key.pk);\n\n";
 				else if( m_eKnownPkTypes==PKTYPES_DOUBLE_LONG || m_eKnownPkTypes==PKTYPES_TRIPLE_LONG )
 					sCode = sCode + "sprintf(tmp_" + (*i)->m_pcFieldName+", \"" + (*i)->getPrintFormat() + "\", " + "key.pk" + StringUtils::itos(iPKCounter) + ");\n\n";
