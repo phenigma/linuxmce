@@ -10,7 +10,7 @@ function outsideAccess($output,$dbADO) {
 	$accessFile=$GLOBALS['pluto.conf'];
 	exec('cat '.$accessFile.' | grep -v -E "^#|^$" ',$retArray);	
 	foreach ($retArray as $comf){
-		parse_str(str_replace(' = ','=',$comf));
+		parse_str(preg_replace('/ ?= ?/','=',$comf));
 	}
 	
 	$out='';
