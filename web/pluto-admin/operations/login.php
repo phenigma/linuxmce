@@ -103,7 +103,7 @@ function login($output,$dbADO) {
 
 							exec('cat '.$GLOBALS['pluto.conf'].' | grep -v -E "^#|^$" ',$retArray);
 							foreach ($retArray as $comf){
-								parse_str(preg_replace(' ?= ?','=',$comf));
+								parse_str(preg_replace('/ ?= ?/','=',$comf));
 							}
 							if(isset($remote) && $remote==$_SESSION['password']){
 								// search for an user who can modify installation
