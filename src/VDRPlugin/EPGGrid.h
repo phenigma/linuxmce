@@ -27,7 +27,7 @@ namespace DCE
 	class VDRPlugin;
 	class VDRMediaStream;
 }
-
+xxx
 namespace VDREPG
 {
 	class Channel;

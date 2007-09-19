@@ -32,7 +32,8 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE.lib  libmysql.lib pluto_main.lib pluto_media.lib pluto-id3lib-d.lib"
+				AdditionalOptions="/FORCE:MULTIPLE"
+				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE.lib  libmysql.lib pluto_main.lib pluto_media.lib pluto-id3lib-d.lib xxv.lib"
 				OutputFile="../Debug/VDRPlugin.dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="/mysql/lib/debug;../../libs/Libraries/pthreads-win32/lib;../lib;&quot;../../libs/CrossPlatform/id3lib-3.8.3/prj/Debug&quot;"
@@ -134,12 +135,6 @@
 				RelativePath="..\Gen_Devices\Datagrid_PluginBase.cpp">
 			</File>
 			<File
-				RelativePath=".\EPG.cpp">
-			</File>
-			<File
-				RelativePath=".\EPGGrid.cpp">
-			</File>
-			<File
 				RelativePath="..\File_Grids_Plugin\FileListGrid.cpp">
 			</File>
 			<File
@@ -164,9 +159,6 @@
 				RelativePath="..\Media_Plugin\Media_Plugin_Grids.cpp">
 			</File>
 			<File
-				RelativePath="..\Media_Plugin\MediaListGrid.cpp">
-			</File>
-			<File
 				RelativePath="..\Gen_Devices\Media_PluginBase.cpp">
 			</File>
 			<File
@@ -185,7 +177,13 @@
 				RelativePath="..\UpdateMedia\MediaIdentifier.cpp">
 			</File>
 			<File
+				RelativePath="..\Media_Plugin\MediaListGrid.cpp">
+			</File>
+			<File
 				RelativePath="..\Media_Plugin\MediaStream.cpp">
+			</File>
+			<File
+				RelativePath="..\UpdateMedia\PlutoMediaAttributes.cpp">
 			</File>
 			<File
 				RelativePath="..\UpdateMedia\PlutoMediaFile.cpp">

@@ -58,6 +58,7 @@ namespace DCE
 
 	void VDRMediaStream::UpdateDescriptions(bool bAllFiles,MediaFile *pMediaFile_In)
 	{
+		/*
 		PLUTO_SAFETY_LOCK(vm,m_pVDRPlugin->m_VDRMutex);
 		VDREPG::EPG *pEPG = m_pVDRPlugin->m_mapEPG_Find(m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
 		if( !pEPG )
@@ -76,5 +77,6 @@ namespace DCE
 				m_sMediaSynopsis = pEvent->m_sDescription_Short;
 			m_sTimecode = pEvent->GetShortShowtime();
 		}
+		*/
 	}
 };

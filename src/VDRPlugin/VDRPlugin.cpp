@@ -30,21 +30,13 @@ using namespace DCE;
 #include "Gen_Devices/AllCommandsRequests.h"
 //<-dceag-d-e->
 
-#include "EPG.h"
-#include "EPGGrid.h"
 #include "VDRMediaStream.h"
 #include "Orbiter_Plugin/Orbiter_Plugin.h"
 #include "../Datagrid_Plugin/Datagrid_Plugin.h"
 #include "../pluto_main/Define_DataGrid.h"
 #include "../pluto_media/Table_Bookmark.h"
-
-void* EPG_Thread( void* param ) // renamed to cancel link-time name collision in MS C++ 7.0 / VS .NET 2002
-{
-	VDRPlugin *p = (VDRPlugin*)param;
-	system("/etc/init.d/vdr start");  // First just be sure vdr is running
-	p->FetchEPG();
-	return NULL;
-}
+#include "../VDR/VDRCommon.h"
+#include "../DCE/DataGrid.h"
 
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
@@ -53,11 +45,10 @@ VDRPlugin::VDRPlugin(int DeviceID, string ServerAddress,bool bConnectEventHandle
 //<-dceag-const-e->
 , m_VDRMutex("vdr")
 {
-	m_bEPGThreadRunning = false;
 	pthread_cond_init( &m_VDRCond, NULL );
 	m_VDRMutex.Init(NULL,&m_VDRCond);
+	m_sVDRIp="192.168.0.100";
 }
-VDREPG::EPG *pEPG;
 //<-dceag-getconfig-b->
 bool VDRPlugin::GetConfig()
 {
@@ -65,13 +56,6 @@ bool VDRPlugin::GetConfig()
 		return false;
 //<-dceag-getconfig-e->
 
-	m_bEPGThreadRunning=true;
-	pthread_t pt_epg;
-	if(pthread_create( &pt_epg, NULL, EPG_Thread, (void*)this) )
-	{
-		m_bEPGThreadRunning=false;
-		LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Cannot create EPG thread" );
-	}
 	return true;
 }
 
@@ -81,121 +65,14 @@ bool VDRPlugin::GetConfig()
 VDRPlugin::~VDRPlugin()
 //<-dceag-dest-e->
 {
-	// Wait 10 seconds for the epg thread to quit
-	m_bQuit_set(true);
-
-	PLUTO_SAFETY_LOCK(vm,m_VDRMutex);
-	for(map<int,VDREPG::EPG *>::iterator it=m_mapEPG.begin();it!=m_mapEPG.end();++it)
-		delete it->second;
 }
 
 void VDRPlugin::PrepareToDelete()
 {
 	Command_Impl::PrepareToDelete();
-	for(int i=0;i<1000;++i)
-		if( !m_bEPGThreadRunning )
-			break;
-		else
-		{
-			pthread_cond_broadcast(&m_VDRCond);
-			Sleep(10);
-		}
-
-		if( m_bEPGThreadRunning )
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Could not kill EPG thread");
 }
 
 
-void VDRPlugin::FetchEPG()
-{
-	ListDeviceData_Router *pListDeviceData_Router = 
-		m_pRouter->m_mapDeviceByTemplate_Find(DEVICETEMPLATE_VDR_CONST);
-
-	if(!pListDeviceData_Router)
-	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "m_pRouter->m_mapDeviceByTemplate_Find(DEVICETEMPLATE_VDR_CONST) is NULL!!!");
-		return;
-	}
-		
-
-	bool bFirstRun=true;
-	while(!m_bQuit_get())
-	{
-		PLUTO_SAFETY_LOCK(vm,m_VDRMutex);
-		bool bErrorsParsing=false;
-		for(ListDeviceData_Router::iterator it=pListDeviceData_Router->begin();it!=pListDeviceData_Router->end();++it)
-		{
-			vm.TimedCondWait(1,0);  // 1 second delay here just to slow this down so it doesn't cause too much activity all at once
-			vm.Release();
-			DeviceData_Router *pDevice_VDR = *it;
-			DeviceData_Router *pDevice_MD = (DeviceData_Router *) pDevice_VDR->m_pDevice_ControlledVia;
-			DeviceData_Router *pDevice_Router = m_pRouter->m_mapDeviceData_Router_Find( m_pRouter->iPK_Device_get() );
-			if( !pDevice_MD )
-			{
-				LoggerWrapper::GetInstance()->Write(LV_WARNING,"Skipping VDR %d because it's not on a media director",pDevice_VDR->m_dwPK_Device);
-				continue;
-			}
-
-			bool bIsHybrid = pDevice_Router && pDevice_MD->m_dwPK_Device_ControlledVia==pDevice_Router->m_dwPK_Device_ControlledVia;
-			string sPath = pDevice_VDR->m_mapParameters_Find(DEVICEDATA_File_Name_and_Path_CONST);
-			// for the moment hardcode this			if( sPath.size()==0 )
-
-			sPath = "/var/cache/vdr";
-			if( bIsHybrid )
-				sPath = "/usr/pluto/diskless/" + StringUtils::ltos(pDevice_MD->m_dwPK_Device) + "/" + sPath;
-#ifdef WIN32
-			sPath = "Y:/home/root/var/cache/vdr";
-#endif
-			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Reading EPG from %s",sPath.c_str());
-			VDREPG::EPG *pEPG = new VDREPG::EPG();
-			pEPG->ReadFromFile(sPath + "/epg.data",StringUtils::Replace(sPath,"/cache/","/lib/") + "/channels.conf");
-
-			// Read the logos
-			sPath = "/usr/share/vdr-channellogos";
-			if( bIsHybrid )
-				sPath = "/usr/pluto/diskless/" + StringUtils::ltos(pDevice_MD->m_dwPK_Device) + "/" + sPath;
-#ifdef WIN32
-			sPath = "Y:/home/root/usr/share/vdr-channellogos";
-#endif
-			pEPG->ReadLogos(sPath);
-
-			sPath = "/var/lib/vdr";
-			if( bIsHybrid )
-				sPath = "/usr/pluto/diskless/" + StringUtils::ltos(pDevice_MD->m_dwPK_Device) + "/" + sPath;
-#ifdef WIN32
-			sPath = "Y:/home/root/var/lib/vdr";
-#endif
-			pEPG->ReadTimers(sPath);
-
-			vm.Relock();  // Lock here since it needs to be locked before the continue below
-			if( pEPG->m_listChannel.size()==0 || pEPG->m_mapEvent.size()==0 )
-			{
-				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"EPG file %s was badly parsed",sPath.c_str());
-				bErrorsParsing=true;
-				continue;
-			}
-			VDREPG::EPG *pEPG_Old = m_mapEPG[pDevice_VDR->m_dwPK_Device];
-			if( pEPG_Old )
-				delete pEPG_Old;
-			m_mapEPG[pDevice_VDR->m_dwPK_Device] = pEPG;
-			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Done Reading EPG from %s",sPath.c_str());
-		}
-		// The first time refresh after 20 minutes to be sure we at least picked up the first days stuff
-		if( bErrorsParsing )
-		{
-			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Trouble parsing all EPG.  Will try again in 3 minutes");
-			vm.TimedCondWait(180,0);
-		}
-		else if( bFirstRun )
-		{
-			bFirstRun=false;
-			vm.TimedCondWait(1200,0);  // 20 minutes delay after the first run since it will be repopulating channels
-		}
-		else
-			vm.TimedCondWait(7200,0);  // 2 hours
-	}
-	m_bEPGThreadRunning=false;
-}
 
 
 //<-dceag-reg-b->
@@ -231,6 +108,8 @@ bool VDRPlugin::Register()
 
 	m_pDatagrid_Plugin->RegisterDatagridGenerator( new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&VDRPlugin::OtherShowtimes))
 		,DATAGRID_Other_Showtimes_CONST,PK_DeviceTemplate_get());
+
+	BuildChannelList();
 
 	return Connect(PK_DeviceTemplate_get()); 
 }
@@ -311,6 +190,7 @@ class MediaStream *VDRPlugin::CreateMediaStream( class MediaHandlerInfo *pMediaH
 
 bool VDRPlugin::StartMedia( class MediaStream *pMediaStream,string &sError )
 {
+	/*
 	VDRMediaStream *pVDRMediaStream = (VDRMediaStream *) pMediaStream;
 	LoggerWrapper::GetInstance()->Write( LV_STATUS, "VDRPlugin::StartMedia() Starting media stream playback. pos: %d", pVDRMediaStream->m_iDequeMediaFile_Pos );
 	int PK_Device = pVDRMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device;
@@ -337,6 +217,8 @@ bool VDRPlugin::StartMedia( class MediaStream *pMediaStream,string &sError )
 
 	SendCommand(CMD_Play_Media);
 	return MediaHandlerBase::StartMedia(pMediaStream,sError);
+	*/
+	return false;
 }
 
 bool VDRPlugin::StopMedia( class MediaStream *pMediaStream )
@@ -397,6 +279,7 @@ COMMANDS TO IMPLEMENT
 void VDRPlugin::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
 //<-dceag-c65-e->
 {
+	/*
 	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
 	PLUTO_SAFETY_LOCK(vm,m_VDRMutex);
 	MediaDevice *pMediaDevice; VDREPG::EPG *pEPG; VDRMediaStream *pVDRMediaStream;
@@ -453,6 +336,7 @@ void VDRPlugin::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &sC
 	}
 	else
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"VDRPlugin::CMD_Jump_Position_In_Playlist confused");
+		*/
 }
 
 //<-dceag-c185-b->
@@ -471,6 +355,7 @@ class DataGridTable *VDRPlugin::CurrentShows(string GridID, string Parms, void *
 {
 	DataGridTable *pDataGrid = new DataGridTable();
 	DataGridCell *pDataGridCell;
+	/*
 
 	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
 	PLUTO_SAFETY_LOCK(vm,m_VDRMutex);
@@ -521,30 +406,165 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"VDRPlugin::CurrentShows 5");
 		}
 	}
 LoggerWrapper::GetInstance()->Write(LV_STATUS,"VDRPlugin::CurrentShows 6");
+	*/
 	return pDataGrid;
 }
 
 class DataGridTable *VDRPlugin::AllShows(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, Message *pMessage)
 {
-	int iGridResolutions = atoi(Parms.c_str());
-	if( !iGridResolutions )
-		iGridResolutions = 5;
+	DataGridTable *pDataGridTable = new DataGridTable();
 
-	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
-	PLUTO_SAFETY_LOCK(vm,m_VDRMutex);
-	MediaDevice *pMediaDevice; VDREPG::EPG *pEPG; VDRMediaStream *pVDRMediaStream;
-	if( !GetVdrAndEpgFromOrbiter(pMessage->m_dwPK_Device_From,pMediaDevice,pEPG,pVDRMediaStream) )
+	string::size_type pos=0;
+	int iPK_Users = atoi(StringUtils::Tokenize(Parms,",",pos).c_str());
+	int iPK_EntertainArea = atoi(StringUtils::Tokenize(Parms,",",pos).c_str());
+
+	PLUTO_SAFETY_LOCK(mm, m_pMedia_Plugin->m_MediaMutex);
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "VDRTV_PlugIn::AllShows A datagrid for all the shows was requested %s params %s", GridID.c_str(), Parms.c_str());
+    
+	EntertainArea *pEntertainArea = m_pMedia_Plugin->m_mapEntertainAreas_Find( iPK_EntertainArea );
+	if( !pEntertainArea || !pEntertainArea->m_pMediaStream || !pEntertainArea->m_pMediaStream->m_pMediaDevice_Source )
 	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"VDRPlugin::CurrentShows No EPG");
-		return NULL;
+	    LoggerWrapper::GetInstance()->Write(LV_STATUS, "VDRPlugin::AllShows cannot find a stream %p",pEntertainArea);
+		return pDataGridTable;
 	}
 
-	return new VDREPG::EpgGrid(this,pVDRMediaStream,pMessage->m_dwPK_Device_From,iGridResolutions);  // Fallback, just return any VDR grid
+	string sProvider;
+	map<int,bool> mapVideoSourcesToUse;
+	// The source is 0, means all VDR channels and video sources.  Otherwise, just those for the given device (like a cable box)
+	int PK_Device_Source = pEntertainArea->m_pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_LiveTV_CONST ? 0 : pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device;
+	list_int *p_list_int = NULL;
+	if( PK_Device_Source && m_mapDevicesToSources.find(PK_Device_Source)!=m_mapDevicesToSources.end() )
+		p_list_int = &(m_mapDevicesToSources[PK_Device_Source]);
+
+	// Go through all the channels, and set the cell to NULL if we're not supposed to include it
+	// or to a new value if we are.  We'll update the description with the show down below
+	for(ListVDRChannel::iterator it=m_ListVDRChannel.begin();it!=m_ListVDRChannel.end();++it)
+	{
+		VDRChannel *pVDRChannel = *it;
+		if( p_list_int )
+		{
+			bool bOk=false;
+			for(list_int::iterator it=p_list_int->begin();it!=p_list_int->end();++it)
+			{
+int i=*it;
+				if( *it==pVDRChannel->m_pVDRSource->m_dwID )
+				{
+					bOk=true;
+					break;
+				}
+			}
+			if( !bOk )
+			{
+				m_pVDRSource->m_pCell=NULL;
+				continue;
+			}
+		}
+		string sChannelName = StringUtils::itos(pVDRChannel->m_dwChanNum) + " " + pVDRChannel->m_sShortName;
+		pVDRChannel->m_pCell = new DataGridCell(sChannelName,"i" + StringUtils::itos(pVDRChannel->m_dwID));
+		pVDRChannel->m_pCell->m_mapAttributes["Name"] = sChannelName;
+		pVDRChannel->m_pCell->m_mapAttributes["Source"] = pVDRChannel->m_pVDRSource->m_sDescription;
+	}
+
+	string sVDRResponse;
+	if( !SendVDRCommand(m_sVDRIp,"LSTC",sVDRResponse) )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"VDRPlugin::AllShows cannot get channel list");
+		return pDataGridTable;
+	}
+
+	// When tune to channel gets an 'i' in front, it's assumed that it's a channel id
+	string sSQL = "SELECT chanid, title, starttime, endtime, seriesid, programid "
+		"FROM program "
+		"WHERE starttime < '" + StringUtils::SQLDateTime() + "' AND endtime>'" + StringUtils::SQLDateTime() + "' " + sProvider;
+
+	bool bAllSource = mapVideoSourcesToUse.empty();
+	int iRow=0;
+	PlutoSqlResult result;
+	DB_ROW row;
+	if( (result.r=m_pDBHelper_VDR->db_wrapper_query_result(sSQL))!=NULL )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "VDRTV_PlugIn::AllShows rows %d map %d allsource %d sources to use %d",
+			result.r->row_count, (int) m_mapVDRChannel.size(), (int) bAllSource, (int) mapVideoSourcesToUse.size() );
+
+		while((row = db_wrapper_fetch_row(result.r)))
+		{
+			VDRChannel *pVDRChannel = m_mapVDRChannel_Find( atoi(row[0]) );
+			if( !pVDRChannel || !pVDRChannel->m_pCell )
+				continue; // Shouldn't happen that pVDRChannel is NULL, if cell is, we're not including it
+
+			if( bAllSource==false && mapVideoSourcesToUse[ pVDRChannel->m_pVDRSource->m_dwID ]==false )  // Not a source for this list
+				continue;
+
+			pVDRChannel->m_pCell->SetText( string(pVDRChannel->m_pCell->GetText()) + row[1] );
+			if( pVDRChannel->m_pPic )
+			{
+				char *pPic = new char[ pVDRChannel->m_Pic_size ];
+				memcpy(pPic,pVDRChannel->m_pPic,pVDRChannel->m_Pic_size);
+				pVDRChannel->m_pCell->SetImage( pPic, pVDRChannel->m_Pic_size, GR_JPG );
+			}
+
+			time_t tStart = StringUtils::SQLDateTime( row[2] );
+			time_t tStop = StringUtils::SQLDateTime( row[3] );
+			string sTime = StringUtils::HourMinute(tStart) + " - " + StringUtils::HourMinute(tStop);
+			string sNumber = NULL != row[0] ? row[0] : "";
+			string sInfo = NULL != row[4] ? row[1]: "";
+
+			pVDRChannel->m_pCell->m_mapAttributes["Number"] = sNumber;
+			pVDRChannel->m_pCell->m_mapAttributes["Time"] = sTime;
+			pVDRChannel->m_pCell->m_mapAttributes["Info"] = sInfo;
+			if( row[4] )
+				pVDRChannel->m_pCell->m_mapAttributes["Series"] = row[4];
+			if( row[5] )
+				pVDRChannel->m_pCell->m_mapAttributes["Program"] = row[5];
+			MapBookmark *pMapBookmark_Series_Or_Program;
+			MapBookmark::iterator it;
+			if( (it=pVDRChannel->m_mapBookmark.find(0))!=pVDRChannel->m_mapBookmark.end() ||
+				(it=pVDRChannel->m_mapBookmark.find(iPK_Users))!=pVDRChannel->m_mapBookmark.end() )
+			{
+				// It's a user's favorited channel
+				pVDRChannel->m_pCell->m_mapAttributes["PK_Bookmark"] = it->second;
+				pDataGridTable->SetData(0,iRow++,new DataGridCell(pVDRChannel->m_pCell)); // A copy since we'll add this one later too
+			}
+			else if( row[4] &&
+				(pMapBookmark_Series_Or_Program=m_mapSeriesBookmarks_Find(row[4])) &&
+				(
+					(it=pMapBookmark_Series_Or_Program->find(0))!=pMapBookmark_Series_Or_Program->end() ||
+					(it=pMapBookmark_Series_Or_Program->find(iPK_Users))!=pMapBookmark_Series_Or_Program->end()
+				))
+			{
+				// It's a user's favorited series
+				pDataGridTable->SetData(0,iRow++,new DataGridCell(pVDRChannel->m_pCell)); // A copy since we'll add this one later too
+			}
+			else if( row[5] &&
+				(pMapBookmark_Series_Or_Program=m_mapProgramBookmarks_Find(row[5])) &&
+				(
+					(it=pMapBookmark_Series_Or_Program->find(0))!=pMapBookmark_Series_Or_Program->end() ||
+					(it=pMapBookmark_Series_Or_Program->find(iPK_Users))!=pMapBookmark_Series_Or_Program->end()
+				))
+			{
+				// It's a user's favorited series.
+				pDataGridTable->SetData(0,iRow++,new DataGridCell(pVDRChannel->m_pCell)); // A copy since we'll add this one later too
+			}
+		}
+	}
+
+	for(ListVDRChannel::iterator it=m_ListVDRChannel.begin();it!=m_ListVDRChannel.end();++it)
+	{
+		VDRChannel *pVDRChannel = *it;
+		if( pVDRChannel->m_pCell )
+			pDataGridTable->SetData(0,iRow++,pVDRChannel->m_pCell);
+	}
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "VDRTV_PlugIn::AllShows cells: %d source %d plist %p map %d",
+		(int) pDataGridTable->m_MemoryDataTable.size(), PK_Device_Source, p_list_int, (int) m_mapDevicesToSources.size() );
+
+	return pDataGridTable;
 }
 
 class DataGridTable *VDRPlugin::OtherShowtimes(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, Message *pMessage)
 {
 	DataGridTable *pDataGrid = new DataGridTable();
+	/*
 	if( Parms.size()==0 )
 		return pDataGrid;  // Shouldn't happen
 
@@ -575,13 +595,14 @@ class DataGridTable *VDRPlugin::OtherShowtimes(string GridID, string Parms, void
 		DataGridCell *pDataGridCell = new DataGridCell(sDesc, "E" + StringUtils::itos(pEvent_Other->m_EventID));
 		pDataGrid->SetData(0,iRow++,pDataGridCell);
 	}
-
+*/
 	return pDataGrid;
 }
 
 class DataGridTable *VDRPlugin::FavoriteChannels(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, Message *pMessage)
 {
 	DataGridTable *pDataGrid = new DataGridTable();
+	/*
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "VDRPlugin::FavoriteChannels Called to populate: %s", Parms.c_str());
 
 	int PK_Users = atoi(Parms.c_str());
@@ -596,13 +617,14 @@ class DataGridTable *VDRPlugin::FavoriteChannels(string GridID, string Parms, vo
 		DataGridCell *pDataGridCell = new DataGridCell(sDescription, "B" + StringUtils::itos(pRow_Bookmark->PK_Bookmark_get()));
 		pDataGrid->SetData(0,s,pDataGridCell);
 	}
-
+*/
 	return pDataGrid;
 }
 
 class DataGridTable *VDRPlugin::FavoriteShows(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, Message *pMessage)
 {
 	DataGridTable *pDataGrid = new DataGridTable();
+/*
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "VDRPlugin::FavoriteShows Called to populate: %s", Parms.c_str());
 
 	int PK_Users = atoi(Parms.c_str());
@@ -617,9 +639,10 @@ class DataGridTable *VDRPlugin::FavoriteShows(string GridID, string Parms, void 
 		DataGridCell *pDataGridCell = new DataGridCell(sDescription, "B" + StringUtils::itos(pRow_Bookmark->PK_Bookmark_get()));
 		pDataGrid->SetData(0,s,pDataGridCell);
 	}
-
+*/
 	return pDataGrid;
 }
+	/*
 
 bool VDRPlugin::GetVdrAndEpgFromOrbiter(int PK_Device,MediaDevice *&pMediaDevice_VDR,VDREPG::EPG *&pEPG,VDRMediaStream *&pVDRMediaStream)
 {
@@ -676,9 +699,9 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"VDRPlugin::GetVdrAndEpgFromOrbite
 		return false;
 	}
 LoggerWrapper::GetInstance()->Write(LV_STATUS,"VDRPlugin::GetVdrAndEpgFromOrbiter 4");
-	
 	return true;
 }
+*/	
 //<-dceag-c698-b->
 
 	/** @brief COMMAND: #698 - Get Extended Media Data */
@@ -691,6 +714,7 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"VDRPlugin::GetVdrAndEpgFromOrbite
 void VDRPlugin::CMD_Get_Extended_Media_Data(string sPK_DesignObj,string sProgramID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c698-e->
 {
+	/*
 	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
 	PLUTO_SAFETY_LOCK(vm,m_VDRMutex);
 	MediaDevice *pMediaDevice; VDREPG::EPG *pEPG; VDRMediaStream *pVDRMediaStream;
@@ -741,8 +765,10 @@ void VDRPlugin::CMD_Get_Extended_Media_Data(string sPK_DesignObj,string sProgram
 		}
 		SendCommand(CMD_Set_Variable1);
 	}
+	*/
 }
 
+	/*
 VDREPG::Event *VDRPlugin::GetStartingEvent(VDREPG::EPG *pEPG,int PK_Users)
 {
 	VDREPG::Event *pEvent = NULL;  // This will be the one with the highest priority
@@ -775,8 +801,11 @@ VDREPG::Event *VDRPlugin::GetStartingEvent(VDREPG::EPG *pEPG,int PK_Users)
 		}
 	}
 	return pEvent;
+	return NULL;
 }
+	*/
 
+	/*
 VDREPG::Event *VDRPlugin::GetEventForBookmark(VDREPG::EPG *pEPG,Row_Bookmark *pRow_Bookmark,int &iPriority_Bookmark)
 {
 	time_t tNow = time(NULL);
@@ -822,6 +851,7 @@ VDREPG::Event *VDRPlugin::GetEventForBookmark(VDREPG::EPG *pEPG,Row_Bookmark *pR
 		iPriority_Bookmark = 4;
 	return pEvent;
 }
+	*/
 //<-dceag-c409-b->
 
 	/** @brief COMMAND: #409 - Save Bookmark */
@@ -834,6 +864,7 @@ VDREPG::Event *VDRPlugin::GetEventForBookmark(VDREPG::EPG *pEPG,Row_Bookmark *pR
 void VDRPlugin::CMD_Save_Bookmark(string sOptions,string sPK_EntertainArea,string &sCMD_Result,Message *pMessage)
 //<-dceag-c409-e->
 {
+	/*
 	string sBookmark;
 	OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(pMessage->m_dwPK_Device_From);
 	VDREPG::Event *pEvent = NULL;
@@ -868,6 +899,7 @@ void VDRPlugin::CMD_Save_Bookmark(string sOptions,string sPK_EntertainArea,strin
 	pRow_Bookmark->Table_Bookmark_get()->Commit();
 	DCE::CMD_Refresh CMD_Refresh(m_dwPK_Device,pMessage->m_dwPK_Device_From,"*");
 	SendCommand(CMD_Refresh);
+	*/
 }
 //<-dceag-c764-b->
 
@@ -889,4 +921,107 @@ void VDRPlugin::CMD_Set_Active_Menu(string sText,string &sCMD_Result,Message *pM
 void VDRPlugin::CMD_Sync_Providers_and_Cards(string &sCMD_Result,Message *pMessage)
 //<-dceag-c824-e->
 {
+}
+
+void VDRPlugin::PurgeChannelList()
+{
+}
+
+VDRSource *VDRPlugin::GetNewSource(string sSource)
+{
+	VDRSource *pVDRSource = m_mapVDRSource_Find(sSource);
+	if( pVDRSource==NULL )
+	{
+		pVDRSource = new VDRSource(1,sSource);
+		m_mapVDRSource[sSource]=pVDRSource;
+	}
+	return pVDRSource;
+}
+
+void VDRPlugin::BuildChannelList()
+{
+	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
+	PurgeChannelList();
+
+	string sVDRResponse;
+	if( !SendVDRCommand(m_sVDRIp,"LSTC",sVDRResponse) )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"VDRPlugin::BuildChannelList cannot get channel list");
+		return;
+	}
+	string::size_type pos_line=0;
+	string sLine;
+	while( true )
+	{
+		sLine = StringUtils::Tokenize(sVDRResponse,"\n",pos_line);
+		if( sLine.empty()==true )
+			break;
+
+		string::size_type pos_delimit = 0;
+		string sChannel = StringUtils::Tokenize(sLine,":",pos_delimit);
+		StringUtils::Replace(sChannel,"|",":");
+		string sC1 = StringUtils::Tokenize(sLine,":",pos_delimit);
+		string sC2 = StringUtils::Tokenize(sLine,":",pos_delimit);
+		string sSource = StringUtils::Tokenize(sLine,":",pos_delimit);
+		string sC4 = StringUtils::Tokenize(sLine,":",pos_delimit);
+		string sC5 = StringUtils::Tokenize(sLine,":",pos_delimit);
+		string sC6 = StringUtils::Tokenize(sLine,":",pos_delimit);
+		string sC7 = StringUtils::Tokenize(sLine,":",pos_delimit);
+		string sC8 = StringUtils::Tokenize(sLine,":",pos_delimit);
+		string sSID = StringUtils::Tokenize(sLine,":",pos_delimit);
+		string sNID = StringUtils::Tokenize(sLine,":",pos_delimit);
+		string sTID = StringUtils::Tokenize(sLine,":",pos_delimit);
+		string sC12 = StringUtils::Tokenize(sLine,":",pos_delimit);
+		string sC13 = StringUtils::Tokenize(sLine,":",pos_delimit);
+		string sC14 = StringUtils::Tokenize(sLine,":",pos_delimit);
+		string sC15 = StringUtils::Tokenize(sLine,":",pos_delimit);
+
+		VDRSource *pVDRSource = GetNewSource(sSource);
+		int iChannel = atoi(sChannel.c_str());
+		VDRChannel *pVDRChannel = new VDRChannel(iChannel,iChannel,pVDRSource,"","",NULL,0);
+		m_ListVDRChannel.push_back(pVDRChannel);
+	}
+/*
+	
+	VDRSource *pVDRSource = m_mapVDRSource_Find( atoi(row[6]) );
+			if( !pVDRSource )
+			{
+				string sDescription = row[6];
+
+				sSQL = "select name from videosource where sourceid=" + string(row[6]);
+				PlutoSqlResult result2;
+				DB_ROW row2;
+				if( (result2.r=m_pDBHelper_VDR->db_wrapper_query_result(sSQL))!=NULL && (row2 = db_wrapper_fetch_row(result2.r))!=NULL )
+				{
+					string s = row2[0];
+					// This is probably in the format Provider X.  Try to get that better description
+					if( s.size()>9 )
+					{
+						int Provider = atoi(s.substr(8).c_str());
+						Row_MediaProvider *pRow_MediaProvider = m_pMedia_Plugin->m_pDatabase_pluto_media->MediaProvider_get()->GetRow(Provider);
+						if( pRow_MediaProvider && pRow_MediaProvider->Description_get().empty()==false )
+							sDescription += " " + pRow_MediaProvider->Description_get();
+					}
+					else
+						sDescription += " " + s;
+				}
+				pVDRSource = new VDRSource(atoi(row[6]),sDescription);
+				m_mapVDRSource[ pVDRSource->m_dwID ] =pVDRSource;
+			}
+
+			string sFilename;
+			if( row[5] )
+				sFilename = "/home/mediapics/" + string(row[5]) + "_tn.jpg";
+			else if( row[4] )
+				sFilename = row[4];
+
+			size_t size=0;
+			char *pData = sFilename.empty() ? NULL : FileUtils::ReadFileIntoBuffer(sFilename,size);
+			VDRChannel *pVDRChannel = new VDRChannel( atoi(row[0]), atoi(row[1]), pVDRSource, row[2] ? row[2] : "", row[3] ? row[3] : "", pData, size );
+			m_mapVDRChannel[pVDRChannel->m_dwID] = pVDRChannel;
+			m_ListVDRChannel.push_back(pVDRChannel);
+		}
+	}
+	m_ListVDRChannel.sort(ChannelComparer);
+*/
 }

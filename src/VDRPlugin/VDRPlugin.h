@@ -25,13 +25,90 @@
 #include "Gen_Devices/VDRPluginBase.h"
 //<-dceag-d-e->
 
+#include "DCE/PlainClientSocket.h"
+
 #include "../Media_Plugin/Media_Plugin.h"
 #include "../Media_Plugin/MediaStream.h"
 #include "../Media_Plugin/MediaHandlerBase.h"
 #include "VDRMediaStream.h"
-#include "EPG.h"
-#include "EPGGrid.h"
 class Row_Bookmark;
+
+class VDRSource
+{
+public:
+	VDRSource(int dwID,string sDescription) : m_dwID(dwID), m_sDescription(sDescription) {}
+
+	int m_dwID;
+	string m_sDescription;
+};
+
+typedef map<int,int> MapBookmark;  // Map of PK_Users to PK_Bookmarks 
+class VDRChannel
+{
+public:
+	int m_dwID,m_dwChanNum;
+	VDRSource *m_pVDRSource;
+	string m_sShortName,m_sLongName;
+	char *m_pPic;
+	size_t m_Pic_size;
+	MapBookmark m_mapBookmark;  // Map of PK_Users to PK_Bookmarks who have bookmarked this
+	DataGridCell *m_pCell;  // A temporary pointer only valid while created a grid
+
+	VDRChannel(int dwID,int dwChanNum,VDRSource *pVDRSource, string sShortName,string sLongName,char *pPic, size_t Pic_size)
+	{
+		m_pVDRSource=pVDRSource;
+		m_dwID=dwID;
+		m_dwChanNum=dwChanNum;
+		m_sShortName=sShortName;
+		m_sLongName=sLongName;
+		m_pPic=pPic;
+		m_Pic_size=Pic_size;
+		m_pCell=NULL;
+	}
+
+	~VDRChannel()
+	{
+		delete m_pPic;
+		m_pPic=NULL;
+		m_Pic_size=0;
+	}
+};
+
+// A particular airing of a show (ie a channel & start time)
+class VDRProgramInstance
+{
+public:
+	time_t m_tStartTime,m_tStopTime;
+	VDREpisode *m_pVDREpisode;
+};
+
+// A program is a unique episode of a series, or a unique showing if there's not a series
+class VDREpisode
+{
+public:
+	VDRSeries *m_pVDRSeries;  // The series, like the Simpsons, or if this is a one-time show, it points to the description like "Batman 2"
+	string m_sSubTitle; // Bart learns to drive
+	list<VDRPerformer *> m_listVDRPerformer;
+};
+
+// The series info i.e. "The Simpsons", "Batman 2"
+class VDRSeries
+{
+public:
+	string m_sDescription; // i.e. "The Simpsons", "Batman 2"
+};
+
+// A performer
+class VDRPerformer
+{
+public:
+	string m_sName;
+	list<VDREpisode *> m_listVDREpisode;
+};
+
+typedef list<VDRChannel *> ListVDRChannel;
+
+
 
 //<-dceag-decl-b->!
 namespace DCE
@@ -40,16 +117,15 @@ namespace DCE
 	{
 //<-dceag-decl-e->
 		// Private member variables
-		bool m_bEPGThreadRunning;
+		ListVDRChannel m_ListVDRChannel; // The channels in the right order for display
+		map<string,VDRSource *> m_mapVDRSource;
+		VDRSource *m_mapVDRSource_Find(string sSourceID) { map<string,VDRSource *>::iterator it = m_mapVDRSource.find(sSourceID); return it==m_mapVDRSource.end() ? NULL : (*it).second; }
+		string m_sVDRIp;
+
 		class Orbiter_Plugin *m_pOrbiter_Plugin;
 		class Datagrid_Plugin *m_pDatagrid_Plugin;
-		map<int,VDREPG::EPG *> m_mapEPG;  // Map of all grids according to the VDR Device
-		VDREPG::EPG *m_mapEPG_Find(int iPK_Device) { map<int,VDREPG::EPG *>::iterator it = m_mapEPG.find(iPK_Device); return it==m_mapEPG.end() ? NULL : (*it).second; }
 	    pluto_pthread_mutex_t m_VDRMutex; // Protect the maps
 		pthread_cond_t m_VDRCond; /** < condition for the messages in the queue */
-
-		friend class VDREPG::EpgGrid; // needs to use our mutex
-		friend class VDRMediaStream;
 
 		// Private methods
 public:
@@ -66,6 +142,10 @@ public:
 		virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
 //<-dceag-const-e->
 
+		void PurgeChannelList();
+		void BuildChannelList();
+		VDRSource *GetNewSource(string sSource);
+
 		virtual void PrepareToDelete();
 		// Datagrids
 		class DataGridTable *CurrentShows(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, Message *pMessage);
@@ -75,10 +155,11 @@ public:
 		class DataGridTable *OtherShowtimes(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, Message *pMessage);
 
 		// Utilities
+		/*
 		bool GetVdrAndEpgFromOrbiter(int PK_Device,class MediaDevice *&pMediaDevice_VDR,VDREPG::EPG *&pEPG,VDRMediaStream *&pVDRMediaStream);
-		void FetchEPG();
 		VDREPG::Event *GetStartingEvent(VDREPG::EPG *pEPG,int PK_Users);
 		VDREPG::Event *GetEventForBookmark(VDREPG::EPG *pEPG,Row_Bookmark *pRow_Bookmark,int &iPriority_Bookmark);
+		*/
 
 //<-dceag-const2-b->!
 		/**

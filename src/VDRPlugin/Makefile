@@ -24,7 +24,7 @@ LDFLAGS +=
 XTRALDLIBS =
 
 Gen_Dev_Files +=
-sources += EPG.cpp EPGGrid.cpp VDRMediaStream.cpp
+sources += VDRMediaStream.cpp
 
 #<-dceag-mf-b->
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
