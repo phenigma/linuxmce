@@ -1,0 +1,37 @@
+#ifndef __Define_OLDEPG_H__
+#define __Define_OLDEPG_H__
+
+
+#define OLDEPG_TABLE "OLDEPG"
+#define OLDEPG_EVENTID_FIELD "eventid"
+#define OLDEPG_EVENTID_TABLE_FIELD "OLDEPG.eventid"
+#define OLDEPG_TITLE_FIELD "title"
+#define OLDEPG_TITLE_TABLE_FIELD "OLDEPG.title"
+#define OLDEPG_SUBTITLE_FIELD "subtitle"
+#define OLDEPG_SUBTITLE_TABLE_FIELD "OLDEPG.subtitle"
+#define OLDEPG_DESCRIPTION_FIELD "description"
+#define OLDEPG_DESCRIPTION_TABLE_FIELD "OLDEPG.description"
+#define OLDEPG_CHANNEL_ID_FIELD "channel_id"
+#define OLDEPG_CHANNEL_ID_TABLE_FIELD "OLDEPG.channel_id"
+#define OLDEPG_STARTTIME_FIELD "starttime"
+#define OLDEPG_STARTTIME_TABLE_FIELD "OLDEPG.starttime"
+#define OLDEPG_DURATION_FIELD "duration"
+#define OLDEPG_DURATION_TABLE_FIELD "OLDEPG.duration"
+#define OLDEPG_TABLEID_FIELD "tableid"
+#define OLDEPG_TABLEID_TABLE_FIELD "OLDEPG.tableid"
+#define OLDEPG_IMAGE_FIELD "image"
+#define OLDEPG_IMAGE_TABLE_FIELD "OLDEPG.image"
+#define OLDEPG_VERSION_FIELD "version"
+#define OLDEPG_VERSION_TABLE_FIELD "OLDEPG.version"
+#define OLDEPG_VIDEO_FIELD "video"
+#define OLDEPG_VIDEO_TABLE_FIELD "OLDEPG.video"
+#define OLDEPG_AUDIO_FIELD "audio"
+#define OLDEPG_AUDIO_TABLE_FIELD "OLDEPG.audio"
+#define OLDEPG_ADDTIME_FIELD "addtime"
+#define OLDEPG_ADDTIME_TABLE_FIELD "OLDEPG.addtime"
+#define OLDEPG_VPSTIME_FIELD "vpstime"
+#define OLDEPG_VPSTIME_TABLE_FIELD "OLDEPG.vpstime"
+
+
+#endif
+
