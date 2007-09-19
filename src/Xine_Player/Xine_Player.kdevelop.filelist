@@ -11,3 +11,9 @@ Xine_Stream_Factory.cpp
 Xine_Stream_Factory.h
 Xine_Stream.cpp
 Xine_Stream.h
+Doxyfile
+XineMediaInfo.cpp
+XineMediaInfo.h
+Xine_Player.kdevelop
+Xine_Player.kdevelop.filelist
+AskXine_Socket.h

@@ -4,7 +4,7 @@
      www.plutohome.com
 
      Phone: +1 (877) 758-8648
- 
+
 
      This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
      This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
@@ -13,10 +13,9 @@
      See the GNU General Public License for more details.
 
 */
-/**
-*
-* @file Xine_Stream_Factory.h
-* @brief header for Xine_Stream_Factory class
+
+/** @file Xine_Stream_Factory.h
+Header for Xine_Stream_Factory class.
 *
 */
 
@@ -44,7 +43,7 @@ namespace DCE
 {
 	class Xine_Stream;
 	class Xine_Player;
-	
+
 	class Xine_Stream_Factory
 	{
 		friend class Xine_Stream;
@@ -52,80 +51,80 @@ namespace DCE
 			bool m_bInitialized;
 			xine_t *m_pXineLibrary;
 			string m_sConfigFile;
-			
+
 			string m_sXineAudioDriverName;
 			string m_sXineVideoDriverName;
-			
+
 			bool m_bUseDeinterlacing;
 			string m_sDeinterlacingConfig;
-			
+
 			// detects current output video and audio drivers
 			void DetectOutputDrivers();
-			
+
 			map<int, Xine_Stream*> streamsMap;
 			//map<int, Xine_Stream*> broadcastersMap;
-			
+
 			// factory access controlling mutex
 			pluto_pthread_mutex_t m_factoryMutex;
-			
+
 			// X subsystem properties
 			string m_sWindowTitle;
-			
+
 		public: // hack for g++-3.3
 			Display *m_pXDisplay;
 
 		private:
 			int m_iCurrentScreen;
 			int m_iCurrentWindow;
-			
+
 			// window init routines
 			bool CreateWindows();
 			bool DestroyWindows();
-			
+
 			// X11 windows
 			Window windows[ 2 ];
-			
+
 			int m_iImgWidth;
 			int m_iImgHeight;
 			int m_iImgXPos;
 			int m_iImgYPos;
-			
+
 			// owning player
 			Xine_Player *m_pPlayer;
-			
+
 			// identifying xine version and setting stuff
 			void IdentifyXineStuff();
-			
+
 		public:
 			Xine_Stream_Factory(Xine_Player *pOwner);
 			~Xine_Stream_Factory();
-			
+
 			bool StartupFactory();
 			bool ShutdownFactory();
 
 			string GetAudioDriver() { return m_sXineAudioDriverName; };
 			string GetVideoDriver() { return m_sXineVideoDriverName; };
-			
+
 			void setAudioSettings();
 			void setVideoDriver(string strVideoDriver);
-			
+
 			Xine_Stream *GetStream(int streamID, bool createIfNotExist=false, int requestingObject=-1, bool bBroadcasting=false, int iZoomLevel=100 );
-			
+
 			void ReportAudioTracks(string sTracks);
 			void ReportSubtitles(string sSubtitles);
 			void ReportTimecodeViaIP(int iStreamID, int Speed);
 			void ReportAVInfo( string sFilename, int iStreamID, string sMediaInfo, string sAudioInfo, string sVideoInfo );
-			
+
 			void CloseStreamAV(int iStreamID);
-			
+
 			void DestroyStream(int iStreamID);
-			
+
 			void HideStreamWindows(int iStreamID);
-			
+
 			int m_iLastRenderingStream;
-			
+
 			double m_dScreenPixelAspect;
-                        
+
                         void SendMessageToOrbiter(string sMessage);
 	};
 

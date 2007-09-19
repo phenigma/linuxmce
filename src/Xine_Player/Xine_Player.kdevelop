@@ -6,23 +6,27 @@
     <version>$VERSION$</version>
     <projectmanagement>KDevCustomProject</projectmanagement>
     <primarylanguage>C++</primarylanguage>
-    <ignoreparts/>
+    <ignoreparts>
+      <part>kdevfilegroups</part>
+      <part>kdevfilelist</part>
+      <part>kdevfileselector</part>
+    </ignoreparts>
     <projectdirectory>.</projectdirectory>
     <absoluteprojectpath>false</absoluteprojectpath>
     <description></description>
     <projectname>Xine_Player</projectname>
-    <defaultencoding></defaultencoding>
+    <defaultencoding/>
   </general>
   <kdevcustomproject>
     <run>
-      <mainprogram>/home/fenikso/work/pluto/pluto_public/trunk/src/Xine_Player/Xine_Player</mainprogram>
+      <mainprogram>home/fenikso/work/pluto/pluto_public/trunk/src/Xine_Player/Xine_Player</mainprogram>
       <directoryradio>executable</directoryradio>
       <customdirectory>/</customdirectory>
       <programargs></programargs>
       <terminal>false</terminal>
       <autocompile>true</autocompile>
       <envvars/>
-      <globaldebugarguments></globaldebugarguments>
+      <globaldebugarguments/>
       <globalcwd>/home/fenikso/work/pluto/pluto_public/trunk/src/Xine_Player</globalcwd>
       <useglobalprogram>false</useglobalprogram>
       <autoinstall>false</autoinstall>
@@ -184,7 +188,7 @@
     </groups>
     <tree>
       <hidepatterns>*.o,*.lo,CVS</hidepatterns>
-      <hidenonprojectfiles>false</hidenonprojectfiles>
+      <hidenonprojectfiles>true</hidenonprojectfiles>
     </tree>
   </kdevfileview>
 </kdevelop>
