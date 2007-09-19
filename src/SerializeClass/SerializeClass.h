@@ -4,7 +4,7 @@
      www.plutohome.com
 
      Phone: +1 (877) 758-8648
- 
+
 
      This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
      This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
@@ -13,16 +13,10 @@
      See the GNU General Public License for more details.
 
 */
-/**
- *
- * @file SerializeClass.h
- * @brief header file for the SerializeClass
- * @author
- * @todo notcommented
- *
+
+/** @file SerializeClass.h
+ Header file for the SerializeClass
  */
-
-
 #ifndef SERIALIZECLASS_H
 #define SERIALIZECLASS_H
 
@@ -62,6 +56,11 @@ class PlutoColor;
 class PlutoPoint;
 class PlutoSize;
 class PlutoRectangle;
+
+/** @class PlutoDataBlock
+For serializing data.
+@see SerializeClass.txt before using !!!
+*/
 class PlutoDataBlock
 {
 public:
@@ -97,16 +96,96 @@ public:
 #define SERIALIZE_DATA_TYPE_RECTANGLE		53
 #define SERIALIZE_DATA_TYPE_BLOCK			54
 
-/**
- * @brief class containing info about the item to serialize
- */
+/** @class ItemToSerialize
+ Class containing info about the item to serialize
+@see SerializeClass.txt before using !!!
+
+Derive a class you want to serialize from this class, and then use it in a combination of 2 ways.
+You can call StartReading/StartWriting and then call all the Read_/Write_
+functions directly.  This will allocate a block of memory, pointed to by m_pcDataBlock, and CurrentSize() will always have the size.
+
+Or, this can be done automatically.  Add the members that you want to have serialized when the object is created, either
+by calling to AddToAutoSerializeList(...), or with the syntax:
+StartSerializeList() + m_iMember1 + m_vectorMember2, etc.  (see operator +)
+
+Call SerializeWrite and SerializeRead to serialize the data members.  Pass in a filename to have them save to the file.
+
+If your derived class has objects that are not of a standard type that SerializeClass knows how to handle, you must create
+your own methods to add them to the serialize list, like this a typedef list<DesignObj_Data *> DesignObj_DataList object:
+
+#define SERIALIZE_DATA_TYPE_INT_DESIGNOBJCHILDLIST  1000    // Be sure this doesn't conflict with any other class in the tree
+void AddToAutoSerializeList(DesignObj_DataList &i) { m_listItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_INT_DESIGNOBJCHILDLIST,(void *) &i)); }
+DesignObj_Data &operator+ (DesignObjCommandList &i) { AddToAutoSerializeList(i); return (*this); }
+
+Then, implement the UnknownSerialize method, like this:
+
+@code
+virtual bool UnknownSerialize(ItemToSerialize *pItem,bool bWriting,char *&pDataBlock,unsigned long &iAllocatedSize,char *&pCurrentPosition) s
+{
+    m_pcDataBlock=pDataBlock; m_dwAllocatedSize=iAllocatedSize; m_pcCurrentPosition=pCurrentPosition;
+    if( bWriting )
+    {
+        switch(pItem->m_iSerializeDataType)
+        {
+        case SERIALIZE_DATA_TYPE_INT_DESIGNOBJACTIONLIST:
+            {
+                DesignObjCommandList *pList = (DesignObjCommandList *) pItem->m_pItem;
+                Write_unsigned_long((unsigned long) pList->size());
+                for(DesignObjCommandList::iterator it=pList->begin();it!=pList->end();++it)
+                {
+                    (*it)->Serialize(bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition);
+                }
+                return true;  // We handled it
+            }
+            break;
+        .
+        .
+        .
+        .
+    }
+    else
+    {
+        switch(pItem->m_iSerializeDataType)
+        {
+        case SERIALIZE_DATA_TYPE_INT_DESIGNOBJACTIONLIST:
+            {
+                DesignObjCommandList *pList = (DesignObjCommandList *) pItem->m_pItem;
+                unsigned long count = Read_unsigned_long();
+                for(unsigned long i=0;i<count;++i)
+                {
+                    DesignObjCommand *pAction = new DesignObjCommand();
+                    pAction->Serialize(bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition);
+                    pList->push_back(pAction);
+                }
+                return true;  // We handled it
+            }
+            break;
+        .
+        .
+        .
+        .
+    }
+@endcode
+
+*/
+
+/** @class ItemToSerialize
+Info about the item.
+@see SerializeClass.txt before using !!!
+*/
 class ItemToSerialize
 {
 
 public:
 
-	int m_iSerializeDataType; /** < type of item to serialize. can be user defined (over 2000) or one of the predefined types */
-	void *m_pItem; /** < pointer to the item to be serialized */
+    /** Ttype of item to serialize.
+    Can be user defined (use number over 2000) or one of the predefined types.
+    */
+	int m_iSerializeDataType;
+
+    /** Pointer to the item to be serialized
+    */
+	void *m_pItem;
 
 	/**
 	 * @brief basic constructor
@@ -119,6 +198,14 @@ public:
 		m_pItem = pItem;
 	}
 };
+
+
+/** @class SerializeClass
+The main class.
+@see SerializeClass.txt before using !!!
+
+Defined in one of two different ways depending if compiling for SYMBIAN.
+*/
 
 #ifdef SYMBIAN
 
@@ -137,13 +224,14 @@ class SerializeClass
 
 public:
 
-	char *m_pcDataBlock; /** < the data to be serialized */
-	unsigned long m_dwAllocatedSize; /** < how much is allocated for the data */
-	char *m_pcCurrentPosition; /** < current position in the DataBlock */
-	void *m_pExtraSerializationData;  /** < this is only used in the Serialize method to store misc data */
-	unsigned long m_iSC_Version; /** < A schema version.  Set this in your constructor to support multiple schemas. */
-	/** < If the following is true, then it won't call SetupSerialization, it will assume it's done manually.
-	This allows the class to be used in general serialization, like this: 
+	char *m_pcDataBlock; /**< the data to be serialized */
+	unsigned long m_dwAllocatedSize; /**< how much is allocated for the data */
+	char *m_pcCurrentPosition; /**< current position in the DataBlock */
+	void *m_pExtraSerializationData;  /**< this is only used in the Serialize method to store misc data */
+	unsigned long m_iSC_Version; /**< A schema version.  Set this in your constructor to support multiple schemas. */
+
+    /** If the following is true, then it won't call SetupSerialization, it will assume it's done manually.
+	This allows the class to be used in general serialization, like this:
 	SerializeClass sc;  sc + myMapIntStrings; sc.SerializeWrite(); */
 	bool m_bManuallySetupSerialization;
 
@@ -167,7 +255,7 @@ public:
 		{
 			delete pItem;
 		}
-		// We should not delete m_pcDataBlock because if there are several devices nested that 
+		// We should not delete m_pcDataBlock because if there are several devices nested that
 		// were serialized, then will all have the same datablock.  It is the responsibility
 		// of whoever called SerializeWrite to be sure they delete the datablock
 	}
@@ -176,7 +264,7 @@ public:
 	 * @brief free datablock - complements the destructor
 	 */
 	void FreeSerializeMemory() { delete[] m_pcDataBlock; m_pcDataBlock=m_pcCurrentPosition=NULL; }
-	
+
 	/**
 	 * @brief computes the current size of processed data
 	 * @return how much of the data block was processed
@@ -196,7 +284,7 @@ public:
 	 */
 	void StartWriting()
 	{
-		// We should not delete m_pcDataBlock because if there are several devices nested that 
+		// We should not delete m_pcDataBlock because if there are several devices nested that
 		// were serialized, then will all have the same datablock.  It is the responsibility
 		// of whoever called SerializeWrite to be sure they delete the datablock.  Just start
 		// with a new one
@@ -261,14 +349,14 @@ public:
 	SerializeClass &operator+ (PlutoSize &i) { MYSTL_ADDTO_LIST(m_vectItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_SIZE,(void *) &i)); return (*this); } /** < @brief overloading + to take an PlutoSize object */
 	SerializeClass &operator+ (PlutoRectangle &i) { MYSTL_ADDTO_LIST(m_vectItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_RECTANGLE,(void *) &i)); return (*this); } /** < @brief overloading + to take a PlutoRectangle object*/
 	SerializeClass &operator+ (PlutoDataBlock &i) { MYSTL_ADDTO_LIST(m_vectItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_BLOCK,(void *) &i)); return (*this); } /** < @brief overloading + to take a PlutoDataBlock object*/
-	
+
 	/**
 	 * @brief serializes data to be written
 	 * @todo write something about the params
 	 *
 	 */
 	virtual bool Serialize(bool bWriting, char *&pcDataBlock, unsigned long &dwAllocatedSize, char *&pcCurrentPosition, void *pExtraSerializationData=NULL);
-	
+
 	/**
 	 * @brief serialize writes the data to memory block
 	 */
@@ -307,7 +395,7 @@ public:
 #else
 		RFs aFs;
 		aFs.Connect();
-		
+
 		RFile file;
 		file.Open(aFs, sFilename.Des(), EFileShareReadersOnly | EFileStream | EFileWrite);
 
@@ -325,7 +413,7 @@ public:
 			bResult = false;
 
 		delete base_str;
-		base_str = NULL; /** @todo comment */	
+		base_str = NULL; /** @todo comment */
 
 		file.Close();
 		aFs.Close();
@@ -341,12 +429,12 @@ public:
 	/**
 	 * @brief override this if you are adding other objects in your derived class
 	 */
-	virtual bool UnknownSerialize(ItemToSerialize * /*pItem*/, bool /*bWriting*/, char *&/*pcDataBlock*/, unsigned long & /*dwAllocatedSize*/, char *& /*pcCurrentPosition*/) { return false; } 
+	virtual bool UnknownSerialize(ItemToSerialize * /*pItem*/, bool /*bWriting*/, char *&/*pcDataBlock*/, unsigned long & /*dwAllocatedSize*/, char *& /*pcCurrentPosition*/) { return false; }
 
 	/**
 	 * @brief override this with your own list of members to serialize.  Don't forget to call your base class too
 	 */
-	virtual void SetupSerialization(int /*iSC_Version*/) {}; 
+	virtual void SetupSerialization(int /*iSC_Version*/) {};
 
 	/**
 	 * @brief override this if you want to be sure you only Deserialize a particular schema version
@@ -502,7 +590,7 @@ public:
 		CheckWrite((unsigned long) str.length()+1);
 	    int i = 0;
 		int len = str.length();
-		while ( i < len ) 
+		while ( i < len )
 		{
 		    *(m_pcCurrentPosition++)= (char) str[i];
 			 i++;
@@ -579,7 +667,7 @@ public:
 		long *pl = (long *) m_pcCurrentPosition;
 		m_pcCurrentPosition += sizeof(long);
 
-		/** @todo this */	
+		/** @todo this */
 		unsigned char v1 = ((unsigned char *)pl)[0];
 		unsigned char v2 = ((unsigned char *)pl)[1];
 		unsigned char v3 = ((unsigned char *)pl)[2];
@@ -646,7 +734,7 @@ public:
 		m_pcCurrentPosition += str.length()+1;
 #else
 		str.SetLength(0);
-		while ( *m_pcCurrentPosition ) 
+		while ( *m_pcCurrentPosition )
 		{
 			 str.Append(*m_pcCurrentPosition++);
 		}

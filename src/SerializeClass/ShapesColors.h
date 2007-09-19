@@ -4,7 +4,7 @@
      www.plutohome.com
 
      Phone: +1 (877) 758-8648
- 
+
 
      This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
      This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
@@ -13,6 +13,10 @@
      See the GNU General Public License for more details.
 
 */
+
+/** @file ShapesColors.h
+ Header file for the PlutoColor class
+ */
 #ifndef ShapesColor_h
 #define ShapesColor_h
 
@@ -23,10 +27,16 @@
 #define DIRECTION_Left_CONST 3
 #define DIRECTION_Right_CONST 4
 
-// alpha values:
+/** @class PlutoColor
+For working with colors.
+
+@verbatim
+ alpha values:
 // 0   : full-transparency
 // 255 : opaque
 // 128 : optimized semi-transparency
+@endverbatim
+*/
 
 class PlutoColor : public SerializeClass
 {
@@ -68,6 +78,9 @@ public:
 	}
 };
 
+/** @class PlutoPoint
+Info about a point - X,Y coords.
+*/
 class PlutoPoint : public SerializeClass
 {
 public:
@@ -151,6 +164,10 @@ public:
 	}
 };
 
+
+/** @class PlutoSize
+Info about the size.
+*/
 class PlutoSize : public SerializeClass
 {
 public:
@@ -161,13 +178,13 @@ public:
 	{
 		Width=pt.X;
 		Height=pt.Y;
-		
+
 	}
 	PlutoSize(PlutoPoint *pt)
 	{
 		Width=pt->X;
 		Height=pt->Y;
-		
+
 	}
 	PlutoSize(int W,int H) { Width=W; Height=H;  }
 	void Rotate(int iDegrees)
@@ -187,9 +204,13 @@ public:
 	virtual string SerializeClassClassName() { return "PlutoSize"; }
 };
 
+
+/** @class PlutoRectangle
+Info about a rectangle.
+
+Define our own rect class since there's no ANSI standard for rectangles.
+*/
 class PlutoRectangle : public SerializeClass
-// Define our own rect class since there's no ANSI standard
-// for rectangles.
 {
 public:
 	PlutoRectangle() {X=Y=Width=Height=0; };
@@ -198,7 +219,7 @@ public:
 	PlutoRectangle(PlutoPoint pt,PlutoSize sz) { X=pt.X; Y=pt.Y; Width=sz.Width; Height=sz.Height; }
 	PlutoRectangle(PlutoPoint origin,PlutoPoint corner) { X=origin.X; Y=origin.Y; Width=corner.X-origin.X; Height=corner.Y-origin.Y; }
 	PlutoRectangle(const PlutoRectangle &Rect) : SerializeClass() { X = Rect.X; Y=Rect.Y; Width=Rect.Width; Height=Rect.Height; }
-	
+
 	int Top() { return Y; }
 	int Bottom() { return Y + Height - 1; }
 	int Left() { return X; }
@@ -212,9 +233,9 @@ public:
 	void Location(PlutoPoint p) { X=p.X; Y=p.Y; }
 	PlutoSize Size() { return PlutoSize(Width,Height); }
 	void Size(PlutoSize s) { Width=s.Width; Height=s.Height; }
-	bool Contains(int dX, int dY) 
-	{ 
-		return (dX >= X && dY >=Y && dX < (X+Width) && dY < (Y+Height)); 
+	bool Contains(int dX, int dY)
+	{
+		return (dX >= X && dY >=Y && dX < (X+Width) && dY < (Y+Height));
 	};
 	bool Contains(const PlutoRectangle& rect)
 	{
@@ -233,7 +254,7 @@ public:
 		if (((r.X >= X && r.X <= Right()) || (r.Right() >= X && r.Right() <= Right())) &&
 			((r.Y >= Y && r.Y <= Bottom()) || (r.Bottom() >= Y && r.Bottom() <= Bottom())))
 			return true;
-		
+
 		return false;
 	}
 	void Union(PlutoRectangle &RectToUnite)

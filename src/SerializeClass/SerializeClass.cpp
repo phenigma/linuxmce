@@ -1,29 +1,18 @@
-/* 
+/*
 	SerializeClass
-	
+
 	Copyright (C) 2004 Pluto, Inc., a Florida Corporation
-	
-	www.plutohome.com		
-	
+
+	www.plutohome.com
+
 	Phone: +1 (877) 758-8648
-	
+
 	This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
-	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty 
-	of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
-	
+	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+	of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
 	See the GNU General Public License for more details.
 */
-
-/**
- *
- * @file SerializeClass.cpp
- * @brief source file for the SerializeClass
- * @author
- * @todo notcommented
- *
- */
-
-
 
 #ifndef SYMBIAN
 #include "PlutoUtils/CommonIncludes.h"
@@ -32,11 +21,11 @@
 
 #include "SerializeClass.h"
 
-bool SerializeClass::Serialize( bool bWriting, char *&pcDataBlock, unsigned long &dwAllocatedSize, char *&pcCurrentPosition, void *pExtraSerializationData )	
+bool SerializeClass::Serialize( bool bWriting, char *&pcDataBlock, unsigned long &dwAllocatedSize, char *&pcCurrentPosition, void *pExtraSerializationData )
 {
 	// Save the starting points
 	m_pcDataBlock=pcDataBlock; m_dwAllocatedSize=dwAllocatedSize; m_pcCurrentPosition=pcCurrentPosition;
-		
+
 	// In some cases a class may need extra data to properly serialize in UnknownSerialize.  This is an extra void pointer that can be cast to something useful
 	m_pExtraSerializationData=pExtraSerializationData;
 
@@ -79,13 +68,13 @@ bool SerializeClass::Serialize( bool bWriting, char *&pcDataBlock, unsigned long
 	MYSTL_ITERATE_VECT(m_vectItemToSerialize,ItemToSerialize,pItem,it)
 	{
 
-		// These are self-serializing, we don't need the if( bWriting ) split.  However, these classes are 
+		// These are self-serializing, we don't need the if( bWriting ) split.  However, these classes are
 		// derived from SerializeClass.  Therefore, we can't include the class definitions before binary
 		// serialize.  We do a forward declaration, and have to put the actual switch block in a .cpp
 		// file to avoid the cylcical dependencies
 		if( SelfSerializing(bWriting,pItem) )
 			continue;
-			
+
 		if( bWriting )
 		{
 #ifdef DEBUG_SERIALIZATION
@@ -257,7 +246,7 @@ bool SerializeClass::Serialize( bool bWriting, char *&pcDataBlock, unsigned long
 						cout << "Unknown Serialize failed" << endl;
 #else
 
-#ifndef SYMBIAN						
+#ifndef SYMBIAN
 
 						throw ("Don't know how to serialize data type" + StringUtils::itos(pItem->m_iSerializeDataType)).c_str();
 #else
@@ -443,12 +432,12 @@ bool SerializeClass::Serialize( bool bWriting, char *&pcDataBlock, unsigned long
 						cout << "Unknown Serialize failed" << endl;
 #else
 
-#ifndef SYMBIAN							
+#ifndef SYMBIAN
 						throw ("Don't know how to serialize data type" + StringUtils::itos(pItem->m_iSerializeDataType)).c_str();
 #else
 						/** @todo show a popup */
 #endif
-							
+
 #endif
 						return false;
 					}
@@ -481,10 +470,10 @@ bool SerializeClass::SerializeRead( string sFilename, void *pExtraSerializationD
 #else
 	RFs aFs;
 	aFs.Connect();
-		
+
 	RFile file;
 	file.Open(aFs, sFilename.Des(), EFileShareReadersOnly | EFileStream | EFileRead);
-		
+
 	TInt lSize;
 	file.Size(lSize);
 
@@ -507,9 +496,9 @@ bool SerializeClass::SerializeRead( string sFilename, void *pExtraSerializationD
 #endif
 
 	return SerializeRead(lSize, pBuf, pExtraSerializationData);
-}	
+}
 
-	
+
 bool SerializeClass::SelfSerializing(bool bWriting,ItemToSerialize *pItem)
 {
 #ifndef SYMBIAN
