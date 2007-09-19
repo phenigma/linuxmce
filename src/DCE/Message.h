@@ -54,29 +54,29 @@ The Data Commands and Events (DCE) namespace
 namespace DCE
 {
 
-    /** @enum
-     Enum containing values associated with message types
+    /** @enum eMessageType
+     Enum containing values associated with message types.
      */
-    enum { MESSAGETYPE_COMMAND=1, MESSAGETYPE_EVENT=2, MESSAGETYPE_DATAPARM_CHANGE=3, MESSAGETYPE_REPLY=4,
+    enum eMessageType { MESSAGETYPE_COMMAND=1, MESSAGETYPE_EVENT=2, MESSAGETYPE_DATAPARM_CHANGE=3, MESSAGETYPE_REPLY=4,
 		MESSAGETYPE_DATAPARM_REQUEST=5, MESSAGETYPE_LOG=6, MESSAGETYPE_SYSCOMMAND=7,
 		MESSAGETYPE_REGISTER_INTERCEPTOR=8, MESSAGETYPE_MESSAGE_INTERCEPTED=9, MESSAGETYPE_EXEC_COMMAND_GROUP=10,
 		MESSAGETYPE_START_PING=11, MESSAGETYPE_STOP_PING=12, MESSAGETYPE_PURGE_INTERCEPTORS=13,
 		MESSAGETYPE_PENDING_TASKS=14 };
 
     /** @enum
-     Enum containing values for the criteria used in a message interceptor
+     Enum containing values for the criteria used in a message interceptor.
      */
 	enum { PARM_FROM=1, PARM_TO, PARM_TEMPLATE, PARM_CATEGORY, PARM_MESSAGE_TYPE, PARM_MESSAGE_ID };
 
 
     /** @enum
-     Enum containing values associated with log entry params
+     Enum containing values associated with log entry params.
      */
     enum { LOG_PARAM_TIMESTAMP=0, LOG_PARAM_NAME=1, LOG_PARAM_DEVICE=2,LOG_PARAM_DATA=3, LOG_PARAM_LEVEL=4 };
 
     /** @enum
-     Enum containing values associeted with syscommands
-		RELOAD_FORCED means do the reload no matter what, ignoring the plugins PendingTasks
+     Enum containing values associeted with syscommands.
+		RELOAD_FORCED means do the reload no matter what, ignoring the plugins PendingTasks.
      */
     enum { SYSCOMMAND_QUIT=0, SYSCOMMAND_RELOAD=1, SYSCOMMAND_START_MODULE=2, SYSCOMMAND_STOP_MODULE=3, SYSCOMMAND_SEGFAULT=4,
 		SYSCOMMAND_DEADLOCK=5, SYSCOMMAND_RELOAD_FORCED=6, SYSCOMMAND_SHOW_SOCKETS=7, SYSCOMMAND_DEVICE_UP=8,
