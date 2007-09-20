@@ -234,7 +234,7 @@ void VDR::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPosition,s
 	{
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Will start with channel %s",sMediaPosition.substr(pos+5).c_str());
 		string sResponse;
-		if( SendVDRCommand("CHAN " + sMediaPosition.substr(pos+5),sResponse) )
+		if( SendVDRCommand(m_sXineIP,"CHAN " + sMediaPosition.substr(pos+5),sResponse) )
 			ParseCurrentChannel(sResponse);
 	}
 }
@@ -370,7 +370,7 @@ void VDR::CMD_Tune_to_channel(string sOptions,string sProgramID,string &sCMD_Res
 //<-dceag-c187-e->
 {
 	string sResponse;
-	if( SendVDRCommand("CHAN " + sProgramID,sResponse) )
+	if( SendVDRCommand(m_sXineIP,"CHAN " + sProgramID,sResponse) )
 		ParseCurrentChannel(sResponse);
 }
 
@@ -475,7 +475,7 @@ void VDR::CMD_Simulate_Keypress(string sPK_Button,string sName,string &sCMD_Resu
 //<-dceag-c28-e->
 {
 	string sResponse;
-	if( !SendVDRCommand("HITK " + sName,sResponse) )
+	if( !SendVDRCommand(m_sXineIP,"HITK " + sName,sResponse) )
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Failed to send HITK %s",sResponse.c_str());
 }
 //<-dceag-c548-b->
