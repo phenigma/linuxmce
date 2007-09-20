@@ -1,14 +1,10 @@
 # KDevelop Custom Project File List
 Linphone.cpp
-Linphone.def
 Linphone.h
 Linphone.kdevelop
-Linphone.vcproj
-Linphone_DLL.vcproj
 Main.cpp
-make_package.sh
 Makefile
-Package.Info
-post_make.sh
-/LinphoneManager.h
-/LinphoneManager.cpp
+LinphoneManager.h
+LinphoneManager.cpp
+Linphone.kdevelop.filelist
+Doxyfile

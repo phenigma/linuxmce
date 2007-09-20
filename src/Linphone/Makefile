@@ -1,7 +1,7 @@
 #<-dceag-mh-b->!
 GENDEV=../Gen_Devices
 
-SNR_CPPFLAGS ?= <-mkr_t_compile_defines->
+SNR_CPPFLAGS ?= #<-mkr_t_compile_defines->
 
 ROOT = ..
 CXX = g++
@@ -43,7 +43,7 @@ Linphone.so: $(sources:.cpp=.o)
 	cp $@ ../bin
 	chmod +x post_make.sh
 	./post_make.sh $@
-		
+
 Linphone: $(sources:.cpp=.o)
 	LD_LIBRARY_PATH=/usr/pluto/lib $(CXX) -o $(MYNAME) $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
