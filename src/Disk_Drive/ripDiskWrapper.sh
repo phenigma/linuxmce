@@ -10,7 +10,7 @@ ERR_RESULT_FAILURE=6
 ERR_SUCCESS=5
 
 
-# internal sript errors
+# internal script errors
 ERR_NONE=0
 
 function isFullDisk
@@ -78,9 +78,13 @@ TrackNumber=0
 # Disk type possbile values:
 #	0 DISCTYPE_CD_AUDIO 
 #	1 DISCTYPE_CD
-#   2 DISCTYPE_DVD_VIDEO 
+#	2 DISCTYPE_DVD_VIDEO 
 #	6 DISCTYPE_CD_MIXED 
 #	7 DISCTYPE_CD_VCD
+#	8 DISCTYPE_CD_SVCD
+#	9 DISCTYPE_DVD_AUDIO
+#	10 DISCTYPE_HDDVD
+#	11 DISCTYPE_BD
 
 echo "Ripping $sourceDevice to \"$targetFileName\" with a disk of type $diskType for user $ownerID";
 
@@ -150,6 +154,17 @@ case $diskType in
 		esac
 		ProgressOutput='>(/usr/pluto/bin/Paranoia_Progress.sh|/usr/pluto/bin/Pluto_Progress.sh "$diskDriveDeviceID" "$jobID" "$taskID" "$Dir/$FileName")'
 		command='nice -n 15 cdparanoia -e -d "$sourceDevice" "$Track" - 2> '"$ProgressOutput"' > '"$OutputFile"
+	;;
+	10|11)
+		# HD-DVD and Blu-ray are ripped into the folder
+		RipperBDHD='/usr/pluto/bin/ripBDHD.sh'
+		if [ -f "$RipperBDHD" ]; then
+			command=$RipperBDHD
+			Dir="$targetFileName"
+		else
+			command=""
+			result=$ERR_NOT_SUPPORTED_YET
+		fi
 	;;
 	*)	result=$ERR_NOT_SUPPORTED_YET;;
 esac
@@ -238,6 +253,22 @@ elif [[ "$diskType" == 0 || "$diskType" == 1 || "$diskType" == 6 || "$diskType" 
 	done
 	echo "Ripping successful"
 	exit 0;
+elif [[ "$diskType" == 11 || "$diskType" == 12 ]]; then
+	mkdir -p "$Dir"
+	if [[ ! -d "$Dir" ]]; then
+		$Message="Couldn't create directory";
+		/usr/pluto/bin/MessageSend "$DCERouter" "$diskDriveDeviceID" "$diskDriveDeviceID" 1 871 258 "$jobID" 257 "$taskID" 199 "e" 9 "$Message" >/dev/null
+		echo "Ripping failed: $Message" >> /tmp/riplog
+		exit 1
+	fi
+	if eval "$command"; then
+		echo "Ripping successful"
+		exit 0;
+	else
+		echo "Ripping failed" >> /tmp/riplog
+		/usr/pluto/bin/MessageSend "$DCERouter" "$diskDriveDeviceID" "$diskDriveDeviceID" 1 871 258 "$jobID" 257 "$taskID" 199 "e" 9 "$Message" >/dev/null
+		exit 1;
+	fi
 fi
 
 echo "Exiting ripping script"
