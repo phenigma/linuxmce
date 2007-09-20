@@ -110,6 +110,8 @@ bool VDRPlugin::Register()
 	m_pDatagrid_Plugin->RegisterDatagridGenerator( new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&VDRPlugin::OtherShowtimes))
 		,DATAGRID_Other_Showtimes_CONST,DEVICETEMPLATE_VDR_CONST);
 
+	RegisterMsgInterceptor( ( MessageInterceptorFn )( &VDRPlugin::NewBookmarks ), 0, 0, 0, 0, MESSAGETYPE_COMMAND, COMMAND_Save_Bookmark_CONST );
+
 	ListDeviceData_Router *pListDeviceData_Router = m_pRouter->m_mapDeviceByTemplate_Find(DEVICETEMPLATE_VDR_CONST);
 	if( pListDeviceData_Router )
 	{
@@ -121,6 +123,9 @@ bool VDRPlugin::Register()
 	}
 
 	BuildChannelList();
+	m_bBookmarksNeedRefreshing=false;
+	RefreshBookmarks();
+	UpdateTimers();
 
 	return Connect(PK_DeviceTemplate_get()); 
 }
@@ -273,8 +278,10 @@ COMMANDS TO IMPLEMENT
 	/** Change channels.  +1 and -1 mean up and down 1 channel. */
 		/** @param #5 Value To Assign */
 			/** The track to go to.  A number is considered an absolute.  "+2" means forward 2, "-1" means back 1. */
+		/** @param #41 StreamID */
+			/** ID of stream to apply */
 
-void VDRPlugin::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
+void VDRPlugin::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c65-e->
 {
 	/*
@@ -341,19 +348,86 @@ void VDRPlugin::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &sC
 
 	/** @brief COMMAND: #185 - Schedule Recording */
 	/** This will schedule a recording. */
+		/** @param #14 Type */
+			/** The type of recording: O=Once, C=Channel */
+		/** @param #39 Options */
+			/** Options for this recording, tbd later */
 		/** @param #68 ProgramID */
 			/** The program which will need to be recorded. (The format is defined by the device which created the original datagrid) */
 
-void VDRPlugin::CMD_Schedule_Recording(string sProgramID,string &sCMD_Result,Message *pMessage)
+void VDRPlugin::CMD_Schedule_Recording(string sType,string sOptions,string sProgramID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c185-e->
 {
+	string::size_type pos=0;
+	string sChannelID = StringUtils::Tokenize(sProgramID,",",pos);
+	time_t tStartTime = atoi(StringUtils::Tokenize(sProgramID,",",pos).c_str());
+	time_t tStopTime = atoi(StringUtils::Tokenize(sProgramID,",",pos).c_str());
+
+	struct tm tmStart,tmStop;
+	localtime_r(&tStartTime,&tmStart);
+	localtime_r(&tStopTime,&tmStop);
+
+	VDRChannel *pVDRChannel = m_mapVDRChannel_Find(sChannelID);
+	if( !pVDRChannel )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"VDRPlugin::CMD_Schedule_Recording invalid channel %s",sProgramID.c_str());
+		return;
+	}
+	VDRProgramInstance *pVDRProgramInstance = pVDRChannel->m_pVDRProgramInstance_First;
+	while(pVDRProgramInstance && pVDRProgramInstance->m_tStartTime!=tStartTime)
+		pVDRProgramInstance = pVDRProgramInstance->m_pVDRProgramInstance_Next;
+	if( !pVDRProgramInstance )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"VDRPlugin::CMD_Schedule_Recording invalid program %s %d",sProgramID.c_str(),tStartTime);
+		return;
+	}
+
+	if( sType=="O" )
+	{
+		char sDate[20];
+		sprintf(sDate,"%d-%d-%d", tmStart.tm_year+100, tmStart.tm_mon+1, tmStart.tm_mday);
+
+		string sVDRResponse;
+		bool bResult = SendVDRCommand(m_sVDRIp,"NEWT 1:" + StringUtils::itos(pVDRChannel->m_dwChanNum) + 
+			":" + StringUtils::itos(tmStart.tm_mon) + ":" + 
+			sDate + ":" + 
+			StringUtils::itos(tmStop.tm_hour) + (tmStop.tm_min<10 ? "0" : "") + StringUtils::itos(tmStop.tm_min) + ":" + 
+			"99:50:" + pVDRProgramInstance->GetTitle() + ":",sVDRResponse);
+
+		int iTimer = atoi(sVDRResponse.c_str());
+		if( !bResult || iTimer<1 )
+		{
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"VDRPlugin::CMD_Schedule_Recording bad response %s %d %s",sProgramID.c_str(),tStartTime,sVDRResponse.c_str());
+			return;
+		}
+	}
+	else if( sType=="C" )
+	{
+		string sCommand;
+		if( pVDRProgramInstance->m_pVDREpisode->m_sID!=pVDRProgramInstance->m_pVDREpisode->m_sDescription )
+			// U.S. style with a unique episode ID
+			sCommand = "NEWS 9:3:12:29=0:" + pVDRProgramInstance->m_pVDREpisode->m_sID;
+		else
+			// Ues the description
+			sCommand = "NEWS 9:3:12:29=0:" + pVDRProgramInstance->GetTitle();
+		string sVDRResponse;
+		bool bResult = SendVDRCommand(m_sVDRIp,sCommand,sVDRResponse);
+
+		int iTimer = atoi(sVDRResponse.c_str());
+		if( !bResult || iTimer<1 )
+		{
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"VDRPlugin::CMD_Schedule_Recording bad recurring response %s %d %s",sProgramID.c_str(),tStartTime,sVDRResponse.c_str());
+			return;
+		}
+	}
 }
 
 class DataGridTable *VDRPlugin::CurrentShows(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, Message *pMessage)
 {
-//	if( m_bBookmarksNeedRefreshing )
-//		RefreshBookmarks();
-    int nHeight = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Height_CONST].c_str());
+	if( m_bBookmarksNeedRefreshing )
+		RefreshBookmarks();
+
+	int nHeight = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Height_CONST].c_str());
 	DataGridTable *pDataGridTable = new DataGridTable();
 	
 	string::size_type pos = 0;
@@ -422,9 +496,10 @@ class DataGridTable *VDRPlugin::CurrentShows(string GridID, string Parms, void *
 			if( pPic )
 				pCell->SetImage( pPic, size, GR_JPG );
 		}
-
-		if( row[2] &&
-			(pMapBookmark_Series_Or_Program=m_mapSeriesBookmarks_Find(row[2])) &&
+*/
+		MapBookmark *pMapBookmark_Series_Or_Program;
+		MapBookmark::iterator it;
+		if( (pMapBookmark_Series_Or_Program=m_mapSeriesBookmarks_Find(pVDRProgramInstance->GetSeriesId())) &&
 			(
 				(it=pMapBookmark_Series_Or_Program->find(0))!=pMapBookmark_Series_Or_Program->end() ||
 				(it=pMapBookmark_Series_Or_Program->find(iPK_Users))!=pMapBookmark_Series_Or_Program->end()
@@ -433,8 +508,7 @@ class DataGridTable *VDRPlugin::CurrentShows(string GridID, string Parms, void *
 			// It's a user's favorited series
 			pCell->m_mapAttributes["PK_Bookmark"] = it->second;
 		}
-		else if( row[1] &&
-			(pMapBookmark_Series_Or_Program=m_mapProgramBookmarks_Find(row[1])) &&
+		else if( (pMapBookmark_Series_Or_Program=m_mapProgramBookmarks_Find(pVDRProgramInstance->GetProgramId())) &&
 			(
 				(it=pMapBookmark_Series_Or_Program->find(0))!=pMapBookmark_Series_Or_Program->end() ||
 				(it=pMapBookmark_Series_Or_Program->find(iPK_Users))!=pMapBookmark_Series_Or_Program->end()
@@ -443,7 +517,7 @@ class DataGridTable *VDRPlugin::CurrentShows(string GridID, string Parms, void *
 			// It's a user's favorited series.
 			pCell->m_mapAttributes["PK_Bookmark"] = it->second;
 		}
-*/
+
 		pCell->m_mapAttributes["Date"] = sDate;
 		pCell->m_mapAttributes["Time"] = sTime;
 		pCell->m_mapAttributes["Synopsis"] = pVDRProgramInstance->GetSynopsis();
@@ -457,6 +531,9 @@ class DataGridTable *VDRPlugin::CurrentShows(string GridID, string Parms, void *
 
 class DataGridTable *VDRPlugin::AllShows(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, Message *pMessage)
 {
+	if( m_bBookmarksNeedRefreshing )
+		RefreshBookmarks();
+
 	DataGridTable *pDataGridTable = new DataGridTable();
 
 	string::size_type pos=0;
@@ -538,11 +615,11 @@ class DataGridTable *VDRPlugin::AllShows(string GridID, string Parms, void *Extr
 			string sInfo = pVDRProgramInstance->GetSynopsis();
 			pVDRChannel->m_pCell->m_mapAttributes["Series"] = pVDRProgramInstance->GetSeriesId();
 			pVDRChannel->m_pCell->m_mapAttributes["Program"] = pVDRProgramInstance->GetProgramId();
+			pVDRChannel->m_pCell->m_mapAttributes["Info"] = pVDRProgramInstance->GetTitle();
 		}
 
 		pVDRChannel->m_pCell->m_mapAttributes["Number"] = sNumber;
 		pVDRChannel->m_pCell->m_mapAttributes["Time"] = sTime;
-		pVDRChannel->m_pCell->m_mapAttributes["Info"] = "testinfo";//sInfo;
 		MapBookmark *pMapBookmark_Series_Or_Program;
 		MapBookmark::iterator itB;
 		if( (itB=pVDRChannel->m_mapBookmark.find(0))!=pVDRChannel->m_mapBookmark.end() ||
@@ -552,9 +629,8 @@ class DataGridTable *VDRPlugin::AllShows(string GridID, string Parms, void *Extr
 			pVDRChannel->m_pCell->m_mapAttributes["PK_Bookmark"] = itB->second;
 			pDataGridTable->SetData(0,iRow++,new DataGridCell(pVDRChannel->m_pCell)); // A copy since we'll add this one later too
 		}
-/*
-		else if( row[4] &&
-			(pMapBookmark_Series_Or_Program=m_mapSeriesBookmarks_Find(row[4])) &&
+		else if( pVDRProgramInstance &&
+			(pMapBookmark_Series_Or_Program=m_mapSeriesBookmarks_Find(pVDRProgramInstance->GetSeriesId())) &&
 			(
 				(itB=pMapBookmark_Series_Or_Program->find(0))!=pMapBookmark_Series_Or_Program->end() ||
 				(itB=pMapBookmark_Series_Or_Program->find(iPK_Users))!=pMapBookmark_Series_Or_Program->end()
@@ -563,8 +639,8 @@ class DataGridTable *VDRPlugin::AllShows(string GridID, string Parms, void *Extr
 			// It's a user's favorited series
 			pDataGridTable->SetData(0,iRow++,new DataGridCell(pVDRChannel->m_pCell)); // A copy since we'll add this one later too
 		}
-		else if( row[5] &&
-			(pMapBookmark_Series_Or_Program=m_mapProgramBookmarks_Find(row[5])) &&
+		else if( pVDRProgramInstance &&
+			(pMapBookmark_Series_Or_Program=m_mapProgramBookmarks_Find(pVDRProgramInstance->GetProgramId())) &&
 			(
 				(itB=pMapBookmark_Series_Or_Program->find(0))!=pMapBookmark_Series_Or_Program->end() ||
 				(itB=pMapBookmark_Series_Or_Program->find(iPK_Users))!=pMapBookmark_Series_Or_Program->end()
@@ -573,7 +649,6 @@ class DataGridTable *VDRPlugin::AllShows(string GridID, string Parms, void *Extr
 			// It's a user's favorited series.
 			pDataGridTable->SetData(0,iRow++,new DataGridCell(pVDRChannel->m_pCell)); // A copy since we'll add this one later too
 		}
-*/
 	}
 
 	for(ListVDRChannel::iterator it=m_ListVDRChannel.begin();it!=m_ListVDRChannel.end();++it)
@@ -880,55 +955,7 @@ VDREPG::Event *VDRPlugin::GetEventForBookmark(VDREPG::EPG *pEPG,Row_Bookmark *pR
 	return pEvent;
 }
 	*/
-//<-dceag-c409-b->
 
-	/** @brief COMMAND: #409 - Save Bookmark */
-	/** Save the current channel or program as a bookmark.  Text should have CHAN: or PROG: in there */
-		/** @param #39 Options */
-			/** For TV, CHAN: or PROG: indicating if it's the channel or program to bookmark */
-		/** @param #45 PK_EntertainArea */
-			/** The entertainment area with the media */
-
-void VDRPlugin::CMD_Save_Bookmark(string sOptions,string sPK_EntertainArea,string &sCMD_Result,Message *pMessage)
-//<-dceag-c409-e->
-{
-	/*
-	string sBookmark;
-	OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(pMessage->m_dwPK_Device_From);
-	VDREPG::Event *pEvent = NULL;
-
-	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
-	PLUTO_SAFETY_LOCK(vm,m_VDRMutex);
-	MediaDevice *pMediaDevice; VDREPG::EPG *pEPG; VDRMediaStream *pVDRMediaStream;
-	if( !pOH_Orbiter || !GetVdrAndEpgFromOrbiter(pMessage->m_dwPK_Device_From,pMediaDevice,pEPG,pVDRMediaStream) ||
-		(pEvent = pEPG->m_mapEvent_Find(pVDRMediaStream->m_EventID))==NULL )
-	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"VDRPlugin::CMD_Save_Bookmark No EPG");
-		return;
-	}
-
-	string sPosition,sDescription;
-	if( sOptions.find("PROG")!=string::npos )
-	{
-		sPosition = " PROG:" + pEvent->m_pProgram->m_sTitle;
-		sDescription = pEvent->m_pProgram->m_sTitle;
-	}
-	else
-	{
-		sPosition = " CHAN:" + pEvent->m_pChannel->m_sChannelName;
-		sDescription = pEvent->m_pChannel->m_sChannelName;
-	}
-
-	Row_Bookmark *pRow_Bookmark = m_pMedia_Plugin->GetMediaDatabaseConnect()->Bookmark_get()->AddRow();
-	pRow_Bookmark->EK_MediaType_set(MEDIATYPE_pluto_LiveTV_CONST);
-	pRow_Bookmark->Description_set(sDescription);
-	pRow_Bookmark->Position_set(sPosition);
-	pRow_Bookmark->EK_Users_set(pOH_Orbiter->m_pOH_User->m_iPK_Users);
-	pRow_Bookmark->Table_Bookmark_get()->Commit();
-	DCE::CMD_Refresh CMD_Refresh(m_dwPK_Device,pMessage->m_dwPK_Device_From,"*");
-	SendCommand(CMD_Refresh);
-	*/
-}
 //<-dceag-c764-b->
 
 	/** @brief COMMAND: #764 - Set Active Menu */
@@ -945,14 +972,26 @@ void VDRPlugin::CMD_Set_Active_Menu(string sText,string &sCMD_Result,Message *pM
 
 	/** @brief COMMAND: #824 - Sync Providers and Cards */
 	/** Synchronize settings for pvr cards and provders */
+		/** @param #2 PK_Device */
+			/** If specified, this is the capture card that triggered this change to call checktvproviders for */
+		/** @param #198 PK_Orbiter */
+			/** If specified, this is the orbiter to notify of the progress if this results in scanning for channels */
 
-void VDRPlugin::CMD_Sync_Providers_and_Cards(string &sCMD_Result,Message *pMessage)
+void VDRPlugin::CMD_Sync_Providers_and_Cards(int iPK_Device,int iPK_Orbiter,string &sCMD_Result,Message *pMessage)
 //<-dceag-c824-e->
 {
 }
 
 void VDRPlugin::PurgeChannelList()
 {
+	for(map<string,VDRChannel *>::iterator it=m_mapVDRChannel.begin();it!=m_mapVDRChannel.end();++it)
+		delete it->second;
+	m_mapVDRChannel.clear();
+	m_ListVDRChannel.clear();
+
+	for(map<string,VDRSource *>::iterator it=m_mapVDRSource.begin();it!=m_mapVDRSource.end();++it)
+		delete it->second;
+	m_mapVDRSource.clear();
 }
 
 VDRSource *VDRPlugin::GetNewSource(string sSource)
@@ -1016,10 +1055,20 @@ void VDRPlugin::BuildChannelList()
 		string sC14 = StringUtils::Tokenize(sLine,":",pos_delimit);
 		string sC15 = StringUtils::Tokenize(sLine,":",pos_delimit);
 
+		string::size_type pos_semicolon = sChannel.find(';',2);
+		string sChannelNameLong,sChannelNameShort;
+		if( pos_semicolon!=string::npos )
+		{
+			sChannelNameShort = sChannel.substr(2,pos_semicolon-2);
+			sChannelNameLong = sChannel.substr(pos_semicolon+1);
+		}
+		else
+			sChannelNameShort = sChannelNameLong = sChannel.substr(2);
+
 		VDRSource *pVDRSource = GetNewSource(sSource);
 		int iChannel = atoi(sChannel.c_str());
 		string sChannelID = sSource + "-" + sNID + "-" + sTID + "-" + sSID;
-		VDRChannel *pVDRChannel = new VDRChannel(sChannelID,iChannel,pVDRSource,sChannel,sChannel,NULL,0);
+		VDRChannel *pVDRChannel = new VDRChannel(sChannelID,iChannel,pVDRSource,sChannelNameShort,sChannelNameLong,NULL,0);
 		m_mapVDRChannel[sChannelID]=pVDRChannel;
 		m_ListVDRChannel.push_back(pVDRChannel);
 	}
@@ -1074,6 +1123,7 @@ void VDRPlugin::BuildChannelList()
 				string s4 = StringUtils::Tokenize(sLine," ",pos);
 				string s5 = StringUtils::Tokenize(sLine," ",pos);
 
+				pVDRProgramInstance->m_iID = atoi(sID.c_str());
 				pVDRProgramInstance->m_tStartTime = atoi(sStartTime.c_str());
 				pVDRProgramInstance->m_tStopTime = pVDRProgramInstance->m_tStartTime + atoi(sDuration.c_str());
 			
@@ -1117,6 +1167,7 @@ void VDRPlugin::BuildChannelList()
 					pVDRSeries->m_sDescription = sSeriesDescription;
 					VDREpisode *pVDREpisode = pVDRSeries->GetNewEpisode(sEpisodeID);
 					pVDREpisode->m_sDescription = sEpisodeDescription;
+					pVDREpisode->m_sSynopsis = pos_extraInfo==string::npos ? sDescription : sDescription.substr(0,pos_extraInfo);
 					pVDRProgramInstance->m_pVDREpisode = pVDREpisode;
 
 					sSeriesDescription="";
@@ -1214,4 +1265,135 @@ bool VDRPlugin::TuneToChannel( class Socket *pSocket, class Message *pMessage, c
 		}
 	}
 	return false;
+}
+
+void VDRPlugin::RefreshBookmarks()
+{
+	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
+	m_bBookmarksNeedRefreshing=false;
+
+	for(map<string,MapBookmark *>::iterator it=m_mapSeriesBookmarks.begin();it!=m_mapSeriesBookmarks.end();++it)
+		delete it->second;
+	m_mapSeriesBookmarks.clear();
+	for(map<string,MapBookmark *>::iterator it=m_mapProgramBookmarks.begin();it!=m_mapProgramBookmarks.end();++it)
+		delete it->second;
+	m_mapProgramBookmarks.clear();
+	for(map<string,VDRChannel *>::iterator it=m_mapVDRChannel.begin();it!=m_mapVDRChannel.end();++it)
+		it->second->m_mapBookmark.clear();
+
+	string sSQL = "SELECT PK_Bookmark,EK_Users,Position FROM Bookmark WHERE EK_MediaType=" TOSTRING(MEDIATYPE_pluto_LiveTV_CONST);
+	PlutoSqlResult result;
+	DB_ROW row;
+	if( (result.r = m_pMedia_Plugin->m_pDatabase_pluto_media->db_wrapper_query_result(sSQL)) )
+	{
+		while( ( row=db_wrapper_fetch_row( result.r ) ) )
+		{
+			char *pPos = NULL;
+			if( !row[2] )
+				continue;
+			if( (pPos=strstr(row[2]," PROG:"))!=NULL )
+			{
+				string sProgram = (const char *) &row[2][6];
+				MapBookmark *pMapBookmark;
+				map<string,MapBookmark *>::iterator it=m_mapProgramBookmarks.find(sProgram);
+				if( it==m_mapProgramBookmarks.end() )
+				{
+					pMapBookmark = new MapBookmark;
+					m_mapProgramBookmarks[sProgram]=pMapBookmark;
+				}
+				else
+					pMapBookmark = it->second;
+				(*pMapBookmark)[ row[1] ? atoi(row[1]) : 0 ] = atoi(row[0]);
+			}
+			else if( (pPos=strstr(row[2]," SERIES:"))!=NULL )
+			{
+				string sProgram = (const char *) &row[2][8];
+				MapBookmark *pMapBookmark;
+				map<string,MapBookmark *>::iterator it=m_mapSeriesBookmarks.find(sProgram);
+				if( it==m_mapSeriesBookmarks.end() )
+				{
+					pMapBookmark = new MapBookmark;
+					m_mapSeriesBookmarks[sProgram]=pMapBookmark;
+				}
+				else
+					pMapBookmark = it->second;
+				(*pMapBookmark)[ row[1] ? atoi(row[1]) : 0 ] = atoi(row[0]);
+			}
+			else if( (pPos=strstr(row[2]," CHAN:"))!=NULL )
+			{
+				const char *ChanId = ( (const char *) (row[2][6]=='i' ? &row[2][7] : &row[2][6]) );  // Skip any leading 'i'
+				VDRChannel *pVDRChannel = m_mapVDRChannel_Find(ChanId);
+				if( pVDRChannel )
+					pVDRChannel->m_mapBookmark[ row[1] ? atoi(row[1]) : 0 ] = atoi(row[0]);
+			}
+		}
+	}
+}
+
+bool VDRPlugin::NewBookmarks( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
+{
+	m_bBookmarksNeedRefreshing=true;
+	return false;
+}
+//<-dceag-c846-b->
+
+	/** @brief COMMAND: #846 - Make Thumbnail */
+	/** Thumbnail the current frame */
+		/** @param #13 Filename */
+			/** Can be a fully qualified filename, or a !F+number, or !A+number for an attribute */
+		/** @param #19 Data */
+			/** The picture */
+
+void VDRPlugin::CMD_Make_Thumbnail(string sFilename,char *pData,int iData_Size,string &sCMD_Result,Message *pMessage)
+//<-dceag-c846-e->
+{
+}
+
+//<-dceag-c910-b->
+
+	/** @brief COMMAND: #910 - Reporting EPG Status */
+	/** Reporting the status of an EPG update */
+		/** @param #9 Text */
+			/** Any messages about this */
+		/** @param #40 IsSuccessful */
+			/** true if the process succeeded */
+		/** @param #257 Task */
+			/** The type of EPG task: channel (retrieving channels), guide (retrieving guide) */
+
+void VDRPlugin::CMD_Reporting_EPG_Status(string sText,bool bIsSuccessful,string sTask,string &sCMD_Result,Message *pMessage)
+//<-dceag-c910-e->
+{
+}
+
+//<-dceag-c911-b->
+
+	/** @brief COMMAND: #911 - Remove Scheduled Recording */
+	/** Remove a scheduled recording */
+		/** @param #10 ID */
+			/** The ID of the recording rule to remove.  This will remove all recordings with this ID, and ProgramID is ignored if this is specified. */
+		/** @param #68 ProgramID */
+			/** The ID of the program to remove.  If ID is empty, remove just this program. */
+
+void VDRPlugin::CMD_Remove_Scheduled_Recording(string sID,string sProgramID,string &sCMD_Result,Message *pMessage)
+//<-dceag-c911-e->
+{
+}
+
+void VDRPlugin::UpdateTimers()
+{
+	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
+	string sVDRResponse;
+	if( SendVDRCommand(m_sVDRIp,"LSTT",sVDRResponse) )
+	{
+		string::size_type pos=0;
+		while(true)
+		{
+			string sLine = StringUtils::Tokenize(sVDRResponse,"\n",pos);
+			if( sLine.empty() )
+				break;
+			string::size_type pos_colon=0;
+			string s1 = StringUtils::Tokenize(sLine,":",pos_colon);
+			string s2 = StringUtils::Tokenize(sLine,":",pos_colon);
+		}
+	}
 }

@@ -96,8 +96,9 @@ namespace DCE
 		time_t m_tStartTime,m_tStopTime;
 		class VDREpisode *m_pVDREpisode;
 		VDRProgramInstance *m_pVDRProgramInstance_Next;
+		int m_iID;
 
-		VDRProgramInstance() : m_pVDRProgramInstance_Next(NULL), m_pVDREpisode(NULL) {}
+		VDRProgramInstance() : m_pVDRProgramInstance_Next(NULL), m_pVDREpisode(NULL), m_iID(0) {}
 
 		string GetSynopsis()
 		{
@@ -201,6 +202,11 @@ namespace DCE
 	    pluto_pthread_mutex_t m_VDRMutex; // Protect the maps
 		pthread_cond_t m_VDRCond; /** < condition for the messages in the queue */
 
+		bool m_bBookmarksNeedRefreshing;
+		map<string,MapBookmark *> m_mapSeriesBookmarks,m_mapProgramBookmarks;  // What users have bookmarked series and programs
+		MapBookmark *m_mapSeriesBookmarks_Find(string sSeries) { map<string,MapBookmark *>::iterator it = m_mapSeriesBookmarks.find(sSeries); return it==m_mapSeriesBookmarks.end() ? NULL : (*it).second; }
+		MapBookmark *m_mapProgramBookmarks_Find(string sProgram) { map<string,MapBookmark *>::iterator it = m_mapProgramBookmarks.find(sProgram); return it==m_mapProgramBookmarks.end() ? NULL : (*it).second; }
+
 		// Private methods
 public:
 		// Public member variables
@@ -218,6 +224,7 @@ public:
 
 		void PurgeChannelList();
 		void BuildChannelList();
+		void RefreshBookmarks();
 		VDRSource *GetNewSource(string sSource);
 		VDRSeries *GetNewSeries(string sSeriesID);
 
@@ -236,6 +243,8 @@ public:
 		VDREPG::Event *GetEventForBookmark(VDREPG::EPG *pEPG,Row_Bookmark *pRow_Bookmark,int &iPriority_Bookmark);
 		*/
 		bool TuneToChannel( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
+		bool NewBookmarks( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
+		void UpdateTimers();
 
 //<-dceag-const2-b->!
 		/**
@@ -276,29 +285,24 @@ public:
 	/** Change channels.  +1 and -1 mean up and down 1 channel. */
 		/** @param #5 Value To Assign */
 			/** The track to go to.  A number is considered an absolute.  "+2" means forward 2, "-1" means back 1. */
+		/** @param #41 StreamID */
+			/** ID of stream to apply */
 
-	virtual void CMD_Jump_Position_In_Playlist(string sValue_To_Assign) { string sCMD_Result; CMD_Jump_Position_In_Playlist(sValue_To_Assign.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Jump_Position_In_Playlist(string sValue_To_Assign,int iStreamID) { string sCMD_Result; CMD_Jump_Position_In_Playlist(sValue_To_Assign.c_str(),iStreamID,sCMD_Result,NULL);};
+	virtual void CMD_Jump_Position_In_Playlist(string sValue_To_Assign,int iStreamID,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #185 - Schedule Recording */
 	/** This will schedule a recording. */
+		/** @param #14 Type */
+			/** The type of recording: O=Once, C=Channel */
+		/** @param #39 Options */
+			/** Options for this recording, tbd later */
 		/** @param #68 ProgramID */
 			/** The program which will need to be recorded. (The format is defined by the device which created the original datagrid) */
 
-	virtual void CMD_Schedule_Recording(string sProgramID) { string sCMD_Result; CMD_Schedule_Recording(sProgramID.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Schedule_Recording(string sProgramID,string &sCMD_Result,Message *pMessage);
-
-
-	/** @brief COMMAND: #409 - Save Bookmark */
-	/** Save the current channel or program as a bookmark.  Text should have CHAN: or PROG: in there */
-		/** @param #39 Options */
-			/** For TV, CHAN: or PROG: indicating if it's the channel or program to bookmark */
-		/** @param #45 PK_EntertainArea */
-			/** The entertainment area with the media */
-
-	virtual void CMD_Save_Bookmark(string sOptions,string sPK_EntertainArea) { string sCMD_Result; CMD_Save_Bookmark(sOptions.c_str(),sPK_EntertainArea.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Save_Bookmark(string sOptions,string sPK_EntertainArea,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Schedule_Recording(string sType,string sOptions,string sProgramID) { string sCMD_Result; CMD_Schedule_Recording(sType.c_str(),sOptions.c_str(),sProgramID.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Schedule_Recording(string sType,string sOptions,string sProgramID,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #698 - Get Extended Media Data */
@@ -324,9 +328,48 @@ live, nonlive, osd */
 
 	/** @brief COMMAND: #824 - Sync Providers and Cards */
 	/** Synchronize settings for pvr cards and provders */
+		/** @param #2 PK_Device */
+			/** If specified, this is the capture card that triggered this change to call checktvproviders for */
+		/** @param #198 PK_Orbiter */
+			/** If specified, this is the orbiter to notify of the progress if this results in scanning for channels */
 
-	virtual void CMD_Sync_Providers_and_Cards() { string sCMD_Result; CMD_Sync_Providers_and_Cards(sCMD_Result,NULL);};
-	virtual void CMD_Sync_Providers_and_Cards(string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Sync_Providers_and_Cards(int iPK_Device,int iPK_Orbiter) { string sCMD_Result; CMD_Sync_Providers_and_Cards(iPK_Device,iPK_Orbiter,sCMD_Result,NULL);};
+	virtual void CMD_Sync_Providers_and_Cards(int iPK_Device,int iPK_Orbiter,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #846 - Make Thumbnail */
+	/** Thumbnail the current frame */
+		/** @param #13 Filename */
+			/** Can be a fully qualified filename, or a !F+number, or !A+number for an attribute */
+		/** @param #19 Data */
+			/** The picture */
+
+	virtual void CMD_Make_Thumbnail(string sFilename,char *pData,int iData_Size) { string sCMD_Result; CMD_Make_Thumbnail(sFilename.c_str(),pData,iData_Size,sCMD_Result,NULL);};
+	virtual void CMD_Make_Thumbnail(string sFilename,char *pData,int iData_Size,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #910 - Reporting EPG Status */
+	/** Reporting the status of an EPG update */
+		/** @param #9 Text */
+			/** Any messages about this */
+		/** @param #40 IsSuccessful */
+			/** true if the process succeeded */
+		/** @param #257 Task */
+			/** The type of EPG task: channel (retrieving channels), guide (retrieving guide) */
+
+	virtual void CMD_Reporting_EPG_Status(string sText,bool bIsSuccessful,string sTask) { string sCMD_Result; CMD_Reporting_EPG_Status(sText.c_str(),bIsSuccessful,sTask.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Reporting_EPG_Status(string sText,bool bIsSuccessful,string sTask,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #911 - Remove Scheduled Recording */
+	/** Remove a scheduled recording */
+		/** @param #10 ID */
+			/** The ID of the recording rule to remove.  This will remove all recordings with this ID, and ProgramID is ignored if this is specified. */
+		/** @param #68 ProgramID */
+			/** The ID of the program to remove.  If ID is empty, remove just this program. */
+
+	virtual void CMD_Remove_Scheduled_Recording(string sID,string sProgramID) { string sCMD_Result; CMD_Remove_Scheduled_Recording(sID.c_str(),sProgramID.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Remove_Scheduled_Recording(string sID,string sProgramID,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

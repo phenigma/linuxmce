@@ -2,8 +2,8 @@
 Package = DCE_Destination_Package
 Dir = 
 desc = DCE Implemenation for #1704 VDR-Plugin
-Maintainer = DCE_MaintainerName
-Email = DCE_MaintainerEmail
+Maintainer = ErwinName
+Email = 
 Depend = DCE_Dependencies
 <-dceag-p-e->
 
