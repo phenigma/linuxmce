@@ -30,6 +30,10 @@
 
 #include "../../pluto_media/Define_AttributeType.h"
 
+#ifdef ENABLE_TEST_UNIT
+	#include "PlutoUtils/FileUtils.h"
+#endif
+
 using namespace dami;
 using std::cout;
 using std::endl;
@@ -93,10 +97,12 @@ void SetUserDefinedInformation(string sFilename, char *pData, size_t& Size)
     tag.Update(ID3TT_ID3); 
 }
 
-void GetInformation(const ID3_Tag &myTag, map<int,string>& mapAttributes)
+void GetInformation(const ID3_Tag &myTag, map<int,string>& mapAttributes,
+					list<pair<char *, size_t> >& listPictures)
 {
   ID3_Tag::ConstIterator* iter = myTag.CreateIterator();
   const ID3_Frame* frame = NULL;
+
   while (NULL != (frame = iter->GetNext()))
   {
     const char* desc = frame->GetDescription();
@@ -269,6 +275,18 @@ void GetInformation(const ID3_Tag &myTag, map<int,string>& mapAttributes)
         size_t
         nPicType   = frame->GetField(ID3FN_PICTURETYPE)->Get(),
         nDataSize  = frame->GetField(ID3FN_DATA)->Size();
+
+		char *pPictureData = NULL;
+
+        ID3_Field* fld = frame->GetField(ID3FN_DATA);
+        if (fld)
+        {
+			size_t nBinSize = fld->BinSize();
+			pPictureData = new char[fld->BinSize()];
+			memcpy(pPictureData, fld->GetRawBinary(), fld->BinSize());
+			listPictures.push_back(make_pair(pPictureData, fld->BinSize()));
+		}
+
         cout << "(" << sDesc << ")[" << sFormat << ", "
              << int(nPicType) << "]: " << sMimeType << ", " << int(nDataSize)
              << " bytes" << endl;
@@ -335,45 +353,6 @@ void GetInformation(const ID3_Tag &myTag, map<int,string>& mapAttributes)
              << ", " << int(nDataSize) << " bytes" << endl;
         break;
       }
-      case ID3FID_SYNCEDLYRICS:
-      {
-		  /*
-        char 
-        *sDesc = ID3_GetString(frame, ID3FN_DESCRIPTION), 
-        *sLang = ID3_GetString(frame, ID3FN_LANGUAGE);
-        size_t
-        nTimestamp = frame->GetField(ID3FN_TIMESTAMPFORMAT)->Get(),
-        nRating = frame->GetField(ID3FN_CONTENTTYPE)->Get();
-        const char* format = (2 == nTimestamp) ? "ms" : "frames";
-        cout << "(" << sDesc << ")[" << sLang << "]: ";
-        switch (nRating)
-        {
-          case ID3CT_OTHER:    cout << "Other"; break;
-          case ID3CT_LYRICS:   cout << "Lyrics"; break;
-          case ID3CT_TEXTTRANSCRIPTION:     cout << "Text transcription"; break;
-          case ID3CT_MOVEMENT: cout << "Movement/part name"; break;
-          case ID3CT_EVENTS:   cout << "Events"; break;
-          case ID3CT_CHORD:    cout << "Chord"; break;
-          case ID3CT_TRIVIA:   cout << "Trivia/'pop up' information"; break;
-        }
-        cout << endl;
-        ID3_Field* fld = frame->GetField(ID3FN_DATA);
-        if (fld)
-        {
-          ID3_MemoryReader mr(fld->GetRawBinary(), ID3_Reader::size_type(fld->BinSize()));
-          while (!mr.atEnd())
-          {
-            //cout << io::readString(mr).c_str();
-            //cout << " [" << io::readBENumber(mr, sizeof(uint32)) << " " 
-            //     << format << "] ";
-          }
-        }
-        cout << endl;
-        delete [] sDesc;
-        delete [] sLang;
-		*/
-        break;
-      }
       case ID3FID_AUDIOCRYPTO:
       case ID3FID_EQUALIZATION:
       case ID3FID_EVENTTIMING:
@@ -421,12 +400,13 @@ void GetInformation(const ID3_Tag &myTag, map<int,string>& mapAttributes)
   delete iter;
 }
 
-void GetId3Info(string sFilename, map<int,string>& mapAttributes)
+void GetId3Info(string sFilename, map<int,string>& mapAttributes,
+				list<pair<char *, size_t> >& listPictures)
 {
 	ID3_Tag myTag; 
 	myTag.Link(sFilename.c_str(), ID3TT_ALL);
 	myTag.GetMp3HeaderInfo();
-    GetInformation(myTag, mapAttributes);
+    GetInformation(myTag, mapAttributes, listPictures);
 }
 
 size_t ID3_RemoveComposers(ID3_Tag *tag)
@@ -517,7 +497,37 @@ ID3_Frame* ID3_AddUserDefinedText(ID3_Tag *tag, const char *text, bool replace =
 	return frame;
 } 
 
-void SetId3Info(string sFilename, const map<int,string>& mapAttributes)
+void RemoveId3PictureTag(ID3_Tag *tag)
+{
+    size_t num_removed = 0;
+    ID3_Frame *frame = NULL;
+
+    while ((frame = tag->Find(ID3FID_PICTURE)))
+    {
+        frame = tag->RemoveFrame(frame);
+        delete frame;
+        num_removed++;
+    }
+}
+
+ID3_Frame* AddID3PictureTag(ID3_Tag *tag, const char *pData, size_t nSize)
+{
+	ID3_Frame* frame = NULL;
+	if (NULL != tag && NULL != pData && nSize > 0)
+	{
+		frame = new ID3_Frame(ID3FID_PICTURE);
+		if (frame)
+		{
+			frame->GetField(ID3FN_DATA)->Set(reinterpret_cast<const uchar *>(pData), nSize);
+			tag->AttachFrame(frame);
+		}
+	}
+
+	return frame;
+} 
+
+void SetId3Info(string sFilename, const map<int,string>& mapAttributes, 
+				const list<pair<char *, size_t> >& listPictures)
 {
     ID3_Tag myTag; 
     myTag.Link(sFilename.c_str());
@@ -563,6 +573,10 @@ void SetId3Info(string sFilename, const map<int,string>& mapAttributes)
                 cout << "Don't know yet how to save tag with PK_Attr = " << PK_Attr << " and value " << sValue << endl;
         }
     }
+
+	RemoveId3PictureTag(&myTag);
+	for(list<pair<char *, size_t> >::const_iterator itp = listPictures.begin(); itp != listPictures.end(); itp++)
+		AddID3PictureTag(&myTag, itp->first, itp->second);
     
     myTag.Update(ID3TT_ID3); 
 }
@@ -610,6 +624,20 @@ void RemoveId3Tag(string sFilename, int nTagType, string sValue)
 }
 
 #ifdef ENABLE_TEST_UNIT
+
+void DisplayInfo(const map<int,string>& mapAttributes, const list<pair<char *, size_t> >& listPictures)
+{
+    cout << endl << "Size: " << int(mapAttributes.size()) << endl;
+    for(map<int,string>::const_iterator it = mapAttributes.begin(); it != mapAttributes.end(); it++)
+	    cout << "PK_Attr = " << (*it).first << "\t\t" << (*it).second << endl;
+
+	for(list<pair<char *, size_t> >::const_iterator itp = listPictures.begin(); itp != listPictures.end(); itp++)
+	{
+		size_t nSize = itp->second;
+		cout << "Picture size " << static_cast<unsigned long>(nSize) << endl;
+	}
+}
+
 int main( unsigned int argc, char * const argv[])
 {
     if(argc != 2)
@@ -619,29 +647,13 @@ int main( unsigned int argc, char * const argv[])
     }
 
     map<int,string> mapAttributes;
+	list<pair<char *, size_t> > listPictures;
 
     //reading attr
-    GetId3Info(argv[1], mapAttributes);
+    GetId3Info(argv[1], mapAttributes, listPictures);
 
-    //display attr
-    cout << endl << "Size: " << int(mapAttributes.size()) << endl;
-    for(map<int,string>::iterator it = mapAttributes.begin(); it != mapAttributes.end(); it++)
-	    cout << "PK_Attr = " << (*it).first << "\t\t" << (*it).second << endl;
-
-    //write attr
-    mapAttributes.clear();
-    mapAttributes[ATTRIBUTETYPE_Composer_CONST] = "bubu";
-    SetId3Info(argv[1], mapAttributes);
-
-    //reading attr
-    mapAttributes.clear();
-    GetId3Info(argv[1], mapAttributes);
-
-    //display attr
-    cout << endl << "Size: " << int(mapAttributes.size()) << endl;
-    for(map<int,string>::iterator it = mapAttributes.begin(); it != mapAttributes.end(); it++)
-        cout << "PK_Attr = " << (*it).first << "\t\t" << (*it).second << endl;
-
+	//display info
+	DisplayInfo(mapAttributes, listPictures);
     return 0;
 }
 #endif

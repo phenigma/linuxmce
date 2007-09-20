@@ -20,12 +20,14 @@
 #define __ID3INFO_H_
 
 #include <map>
+#include <list>
 #include <string>
 using namespace std;
 
-void GetId3Info(string sFilename, map<int,string>& mapAttributes);
-void SetId3Info(string sFilename, const map<int,string>& mapAttributes);
+void GetId3Info(string sFilename, map<int,string>& mapAttributes, list<pair<char *, size_t> >& listPictures);
+void SetId3Info(string sFilename, const map<int,string>& mapAttributes, const list<pair<char *, size_t> >& listPictures);
 void RemoveId3Tag(string sFilename, int nTagType, string sValue);
+void RemoveId3PictureTag(class ID3_Tag *tag);
 
 void GetUserDefinedInformation(string sFilename, char *&pData, size_t& Size);
 void SetUserDefinedInformation(string sFilename, char *pData, size_t& Size);

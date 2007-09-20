@@ -50,6 +50,8 @@ private:
 	MediaSyncMode m_MediaSyncMode;
 	PlutoMediaAttributes *m_pPlutoMediaAttributes;
 
+	list<pair<char *, size_t> > m_listPicturesForID3Tags;
+
     string m_sDirectory;
     string m_sFile;
 	int m_nOurInstallationID;
@@ -63,7 +65,6 @@ private:
 
 	//id3 operations - load:
 	void LoadPlutoAttributes(string sFullFileName);
-	void LoadLegacyAttributes(string sFullFileName);
 	//id3 operations - save:
 	void SavePlutoAttributes(string sFullFileName);
 

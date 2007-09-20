@@ -117,18 +117,6 @@ PlutoMediaFile::PlutoMediaFile(Database_pluto_media *pDatabase_pluto_media, int 
 		"Found %d attributes, %d long attributes in id3 file", 
 		m_sDirectory.c_str(), m_sFile.c_str(), m_pPlutoMediaAttributes->m_mapAttributes.size(),
 		m_pPlutoMediaAttributes->m_mapLongAttributes.size());
-
-	if(!IsSupported(m_sFile) && !m_bIsDir)
-	{
-		string sLegacyId3File = FileUtils::FileWithoutExtension(m_sDirectory + "/" + m_sFile) + ".id3";
-		if(FileUtils::FileExists(sLegacyId3File))
-		{
-			LoadLegacyAttributes(sLegacyId3File);
-
-			LoggerWrapper::GetInstance()->Write(LV_STATUS, "# Removing legacy id3 file %s", sLegacyId3File.c_str());
-			FileUtils::DelFile(sLegacyId3File);
-		}
-	}
 }
 //-----------------------------------------------------------------------------------------------------
 PlutoMediaFile::~PlutoMediaFile()
@@ -824,6 +812,43 @@ int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
 		system(sCmd.c_str());
 	}
 
+	if(m_pPlutoMediaAttributes->m_mapCoverarts.empty())
+	{
+		for(list<pair<char *, size_t> >::iterator itp = m_listPicturesForID3Tags.begin();
+			itp != m_listPicturesForID3Tags.end(); ++itp)
+		{
+			char *pPictureData = itp->first;
+			size_t nPictureSize = itp->second;
+
+			if(FileUtils::WriteBufferIntoFile("UpdateMedia_lastimage.jpg", pPictureData, nPictureSize))
+			{
+				string Cmd = "convert -scale 256x256 -antialias UpdateMedia_lastimage.jpg UpdateMedia_lastimage_tn.jpg";
+				int result;
+				if((result = system(Cmd.c_str())) != 0)
+					LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Thumbnail picture %s returned %d", Cmd.c_str(), result);
+				else
+				{
+					size_t nPictureThumbSize = 0;
+					char *PictureThumbData = FileUtils::ReadFileIntoBuffer("UpdateMedia_lastimage_tn.jpg", nPictureThumbSize);
+
+					if(NULL != PictureThumbData && nPictureThumbSize > 0)
+					{
+						m_pPlutoMediaAttributes->m_mapCoverarts.insert(make_pair(static_cast<unsigned long>(nPictureSize), pPictureData));
+						m_pPlutoMediaAttributes->m_mapCoverartsThumbs.insert(make_pair(static_cast<unsigned long>(nPictureThumbSize), PictureThumbData));
+					}
+					else
+					{
+						LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Cannot read image from disk: UpdateMedia_lastimage_tn.jpg");
+					}				
+				}
+			}
+			else
+			{
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Cannot save image to disk: UpdateMedia_lastimage.jpg");
+			}
+		}
+	}
+
     return pRow_File->PK_File_get();
 }
 //-----------------------------------------------------------------------------------------------------
@@ -1076,8 +1101,16 @@ void PlutoMediaFile::SavePlutoAttributes(string sFullFileName)
 		mapAttributes[it->first] = it->second->m_sName;
 	}
 
+	list<pair<char *, size_t> > listPictures;
+	for(MapPictures::iterator itc = m_pPlutoMediaAttributes->m_mapCoverarts.begin();
+		itc != m_pPlutoMediaAttributes->m_mapCoverarts.end(); ++itc)
+	{
+		listPictures.push_back(make_pair(itc->second, itc->first));
+	}
+
 	//Save common id3 tags
-	SetId3Info(sFullFileName, mapAttributes);
+	SetId3Info(sFullFileName, mapAttributes, listPictures);
+	listPictures.clear();
 
 	//Save user defined text
 	char *pDataCurrentPosition = NULL;
@@ -1119,7 +1152,8 @@ void PlutoMediaFile::LoadPlutoAttributes(string sFullFileName)
 
 	//get common id3 attributes
 	map<int, string> mapAttributes;
-	GetId3Info(sFullFileName, mapAttributes);	
+	m_listPicturesForID3Tags.clear();
+	GetId3Info(sFullFileName, mapAttributes, m_listPicturesForID3Tags);	
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "# LoadPlutoAttributes: id3 attributes loaded (from id3 file - common tags) %d", 
 		mapAttributes.size());
@@ -1144,92 +1178,6 @@ void PlutoMediaFile::LoadPlutoAttributes(string sFullFileName)
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "# LoadPlutoAttributes: pluto attributes merged (for id3 file) %d", 
 		m_pPlutoMediaAttributes->m_mapAttributes.size());
-}
-//-----------------------------------------------------------------------------------------------------
-void PlutoMediaFile::LoadLegacyAttributes(string sFullFileName)
-{
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "# LoadLegacyAttributes (from id3 file): %s", sFullFileName.c_str());
-
-	PlutoMediaAttributes *pPlutoLegacyAttributes = new PlutoMediaAttributes();
-
-	//deserialize data from user defined tag
-	char *pData = NULL;
-	size_t Size = 0;
-	GetUserDefinedInformation(sFullFileName, pData, Size);
-
-	if(NULL != pData)
-	{
-		pPlutoLegacyAttributes->SerializeRead((unsigned long)Size, pData);
-		delete []pData;
-		pData = NULL;
-	}
-
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "# LoadPlutoAttributes: pluto legacy attributes loaded (from id3 file - general object tag) %d", 
-		pPlutoLegacyAttributes->m_mapAttributes.size());
-
-	//get common id3 attributes
-	map<int, string> mapAttributes;
-	GetId3Info(sFullFileName, mapAttributes);	
-
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "# LoadPlutoAttributes: id3 legacy attributes loaded (from id3 file - common tags) %d", 
-		mapAttributes.size());
-
-	//merge common id3 legacy attributes
-	for(map<int, string>::iterator it = mapAttributes.begin(), end = mapAttributes.end(); it != end; ++it)
-	{
-		int nType = it->first;
-		string sValue = it->second;
-
-		MapPlutoMediaAttributes::iterator itm = m_pPlutoMediaAttributes->m_mapAttributes.find(nType);
-		if(itm == m_pPlutoMediaAttributes->m_mapAttributes.end())
-			m_pPlutoMediaAttributes->m_mapAttributes.insert(
-				std::make_pair(
-					nType, 
-					new PlutoMediaAttribute(0,nType, sValue)
-				)
-			);
-		else
-			itm->second->m_sName = sValue;
-	}
-
-	//merge legacy attributes
-	for(MapPlutoMediaAttributes::iterator itp = pPlutoLegacyAttributes->m_mapAttributes.begin(),
-		endp = pPlutoLegacyAttributes->m_mapAttributes.end(); itp != endp; ++itp)
-	{
-		PlutoMediaAttribute *pPlutoMediaAttribute = itp->second;
-
-		bool bFound = false;
-
-		for(MapPlutoMediaAttributes::iterator itm = m_pPlutoMediaAttributes->m_mapAttributes.begin(),
-			endm = m_pPlutoMediaAttributes->m_mapAttributes.end(); itm != endm; ++itm)
-		{
-			if(*itm->second == *pPlutoMediaAttribute)
-			{
-				bFound = true;
-				break;
-			}
-		}
-
-		if(!bFound)
-		{
-            m_pPlutoMediaAttributes->m_mapAttributes.insert(
-				make_pair(
-					pPlutoMediaAttribute->m_nType, 
-					new PlutoMediaAttribute(
-						0,
-						pPlutoMediaAttribute->m_nType, pPlutoMediaAttribute->m_sName,
-						pPlutoMediaAttribute->m_nTrack, pPlutoMediaAttribute->m_nSection
-					)
-				)
-			);
-		}
-	}
-
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "# LoadPlutoAttributes: pluto attributes after merge (for id3 file) %d", 
-		m_pPlutoMediaAttributes->m_mapAttributes.size());
-
-	delete pPlutoLegacyAttributes;
-	pPlutoLegacyAttributes = NULL;
 }
 //-----------------------------------------------------------------------------------------------------
 void PlutoMediaFile::LoadEverythingFromDb()
