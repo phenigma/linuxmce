@@ -248,11 +248,11 @@ int UpdateMedia::ReadDirectory(string sDirectory)
 	if(!ScanFiles(sDirectory))
 		return 0;
 
-	bool bDirIsDvd = false;
-	if(!ScanSubfolders(sDirectory, bDirIsDvd))
+	FolderType folder_type = ftNormal;
+	if(!ScanSubfolders(sDirectory, folder_type))
 		return 0;
 
-    return SetupDirectory(sDirectory, bDirIsDvd);
+    return SetupDirectory(sDirectory, folder_type);
 }
 
 void UpdateMedia::UpdateSearchTokens()
@@ -566,7 +566,7 @@ bool UpdateMedia::ScanFiles(string sDirectory)
 	return true;
 }
 
-bool UpdateMedia::ScanSubfolders(string sDirectory, bool& bDirIsDvd)
+bool UpdateMedia::ScanSubfolders(string sDirectory, FolderType& folder_type)
 {
 	list<string> listSubDirectories;
 
@@ -612,7 +612,23 @@ bool UpdateMedia::ScanSubfolders(string sDirectory, bool& bDirIsDvd)
 			)
 		{
 			LoggerWrapper::GetInstance()->Write(LV_STATUS, "'%s' is a ripped dvd", sDirectory.c_str());
-			bDirIsDvd = true;
+			folder_type = ftDVD;
+			break;
+		}
+
+		//HD?
+		if(StringUtils::ToUpper(FileUtils::FilenameWithoutPath(sSubDir))=="HVDVD_TS")
+		{
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "'%s' is a HDDVD", sDirectory.c_str());
+			folder_type = ftHDDVD;
+			break;
+		}
+
+		//BluRay?
+		if(StringUtils::ToUpper(FileUtils::FilenameWithoutPath(sSubDir))=="BDMV")
+		{
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "'%s' is a BDMV", sDirectory.c_str());
+			folder_type = ftBluRay;
 			break;
 		}
 
@@ -622,7 +638,7 @@ bool UpdateMedia::ScanSubfolders(string sDirectory, bool& bDirIsDvd)
 	return true;
 }
 
-int UpdateMedia::SetupDirectory(string sDirectory, bool bDirIsDvd)
+int UpdateMedia::SetupDirectory(string sDirectory, FolderType folder_type)
 {
 	auto_ptr<PlutoMediaFile> spPlutoMediaParentFolder;
 	spPlutoMediaParentFolder.reset();
@@ -657,7 +673,7 @@ int UpdateMedia::SetupDirectory(string sDirectory, bool bDirIsDvd)
 
 	if(NULL != spPlutoMediaParentFolder.get())
 	{
-		if(!bDirIsDvd)
+		if(folder_type == ftNormal)
 		{
 			if(!MediaState::Instance().AlreadyInDatabase(FileUtils::BasePath(sDirectory), FileUtils::FilenameWithoutPath(sDirectory)))
 			{
@@ -671,9 +687,12 @@ int UpdateMedia::SetupDirectory(string sDirectory, bool bDirIsDvd)
 		}
 		else
 		{
+			int nMediaType = folder_type ==  ftDVD ? MEDIATYPE_pluto_StoredVideo_CONST :
+					folder_type ==  ftHDDVD ? MEDIATYPE_pluto_HDDVD_CONST : MEDIATYPE_pluto_BD_CONST;
+
 			// Add this directory like it were a file
-			int PK_File = spPlutoMediaParentFolder->HandleFileNotInDatabase(MEDIATYPE_pluto_StoredVideo_CONST);
-			LoggerWrapper::GetInstance()->Write(LV_STATUS,"UpdateMedia::ReadDirectory MEDIATYPE_pluto_StoredVideo_CONST PlutoMediaFile_.HandleFileNotInDatabase %d",PK_File);
+			int PK_File = spPlutoMediaParentFolder->HandleFileNotInDatabase(nMediaType);
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"UpdateMedia::ReadDirectory media type %d PlutoMediaFile_.HandleFileNotInDatabase %d",nMediaType, PK_File);
 			Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->GetRow(PK_File);
 			pRow_File->IsDirectory_set(false);
 			m_pDatabase_pluto_media->File_get()->Commit();

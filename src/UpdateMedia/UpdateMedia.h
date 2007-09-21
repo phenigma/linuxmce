@@ -25,6 +25,14 @@ or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more detai
 
 class UpdateMedia 
 {
+	enum FolderType
+	{
+		ftNormal,
+		ftDVD,
+		ftHDDVD,
+		ftBluRay
+	};
+
 	string m_sDirectory,m_sExtensions;
 	bool m_bAsDaemon;
 	int m_nPK_Installation;
@@ -34,8 +42,8 @@ class UpdateMedia
 	void SetupInstallation();
 
 	bool ScanFiles(string sDirectory);
-	bool ScanSubfolders(string sDirectory, bool& bDirIsDvd);
-	int SetupDirectory(string sDirectory, bool bDirIsDvd);
+	bool ScanSubfolders(string sDirectory, FolderType& folder_type);
+	int SetupDirectory(string sDirectory, FolderType folder_type);
 
 	bool AnyReasonToSkip(string sDirectory, string sFile);
 
