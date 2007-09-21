@@ -140,20 +140,19 @@ bool Disk_Drive_Functions::internal_reset_drive(bool bFireEvent,int *iPK_MediaTy
 			*iPK_MediaType = MEDIATYPE_pluto_DVD_CONST;
 			UpdateDiscLocation('d');  // We know it's media
 			break;
-// commented block: not sure if this is required for now
-/*
+
 		case DISCTYPE_HDDVD:
 			*sURL = m_sDrive;
 			*iPK_MediaType = MEDIATYPE_pluto_HDDVD_CONST;
-			UpdateDiscLocation('d');  // We know it's media
+			UpdateDiscLocation('H');  // We know it's media
 			break;
 
 		case DISCTYPE_BD:
 			*sURL = m_sDrive;
 			*iPK_MediaType = MEDIATYPE_pluto_BD_CONST;
-			UpdateDiscLocation('d');  // We know it's media
+			UpdateDiscLocation('R');  // We know it's media
 			break;
-*/
+
 		case DISCTYPE_BLANK:
 			*iPK_MediaType = MEDIATYPE_misc_BlankMedia_CONST;
 			UpdateDiscLocation('b');  // We know it's media
