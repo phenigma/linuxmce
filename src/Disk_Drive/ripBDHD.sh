@@ -1,8 +1,15 @@
 #!/bin/bash
 
-CurrDir=`pwd`
+OwnerID=$3
 SourceDevice="$1"
-DestFolder=`echo -n "$CurrDir/$2" | tr [:space:] _`
+
+if [[ "$OwnerID" == 0 ]]; then
+	DataDir="/home/public/data/videos"
+else
+	DataDir="/home/user_$OwnerID/data/videos"
+fi
+
+DestFolder=`echo -n "$DataDir/$2" | tr [:space:] _`
 
 MountDir=`mktemp -d /mnt/ripXXXXXX`
 mount $SourceDevice $MountDir
@@ -12,15 +19,15 @@ mount $SourceDevice $MountDir
 
 #ripping files
 pushd /usr/pluto/tools/dumphd
-#./dumphd.sh $MountDir "$DestFolder"
+./dumphd.sh $MountDir "$DestFolder"
 
 #rip only couple of files to make it run faster
-./dumphd.sh $MountDir/BDMV/STREAM/00017.m2ts "$DestFolder"
-./dumphd.sh $MountDir/HVDVD_TS/BLACK.EVO "$DestFolder"
+#./dumphd.sh $MountDir/BDMV/STREAM/00017.m2ts "$DestFolder"
+#./dumphd.sh $MountDir/HVDVD_TS/BLACK.EVO "$DestFolder"
 
 popd
 
-mv "$DestFolder" "$2"
+mv "$DestFolder" "$DataDir/$2"
 
 umount $MountDir
 rmdir $MountDir

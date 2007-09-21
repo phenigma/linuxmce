@@ -159,7 +159,7 @@ case $diskType in
 		# HD-DVD and Blu-ray are ripped into the folder
 		RipperBDHD='/usr/pluto/bin/ripBDHD.sh'
 		if [ -f "$RipperBDHD" ]; then
-			command="$RipperBDHD $sourceDevice '$targetFileName'"
+			command="$RipperBDHD $sourceDevice '$targetFileName' $ownerID"
 			Dir="$targetFileName"
 		else
 			command=""
