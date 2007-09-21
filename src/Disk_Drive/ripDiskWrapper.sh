@@ -159,7 +159,7 @@ case $diskType in
 		# HD-DVD and Blu-ray are ripped into the folder
 		RipperBDHD='/usr/pluto/bin/ripBDHD.sh'
 		if [ -f "$RipperBDHD" ]; then
-			command="$RipperBDHD $sourceDevice $targetFileName"
+			command="$RipperBDHD $sourceDevice '$targetFileName'"
 			Dir="$targetFileName"
 		else
 			command=""
@@ -253,14 +253,14 @@ elif [[ "$diskType" == 0 || "$diskType" == 1 || "$diskType" == 6 || "$diskType" 
 	done
 	echo "Ripping successful"
 	exit 0;
-elif [[ "$diskType" == 11 || "$diskType" == 12 ]]; then
-	mkdir -p "$Dir"
-	if [[ ! -d "$Dir" ]]; then
-		$Message="Couldn't create directory";
-		/usr/pluto/bin/MessageSend "$DCERouter" "$diskDriveDeviceID" "$diskDriveDeviceID" 1 871 258 "$jobID" 257 "$taskID" 199 "e" 9 "$Message" >/dev/null
-		echo "Ripping failed: $Message" >> /tmp/riplog
-		exit 1
-	fi
+elif [[ "$diskType" == 10 || "$diskType" == 11 ]]; then
+	#mkdir -p "$Dir"
+	#if [[ ! -d "$Dir" ]]; then
+	#	$Message="Couldn't create directory";
+	#	/usr/pluto/bin/MessageSend "$DCERouter" "$diskDriveDeviceID" "$diskDriveDeviceID" 1 871 258 "$jobID" 257 "$taskID" 199 "e" 9 "$Message" >/dev/null
+	#	echo "Ripping failed: $Message" >> /tmp/riplog
+	#	exit 1
+	#fi
 	if eval "$command"; then
 		echo "Ripping successful"
 		exit 0;
