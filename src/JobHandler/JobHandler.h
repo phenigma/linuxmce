@@ -4,7 +4,7 @@
  Copyright (C) 2004 Pluto, Inc., a Florida Corporation
 
  www.plutohome.com
- 
+
 
  Phone: +1 (877) 758-8648
 
@@ -17,14 +17,15 @@
 
  */
 
-/*
+/** @file JobHandler.h
+ Tasks.
 
 A JobHandler lets you add job's and tasks which need to be done asynchronously.
 
 A Job can be something like Rip a Disc, Generate an Orbiter's GUI, etc.
 Derive a class from Job for your particular type of job.  The JobHandler
-will check your Job to see if it's ready to do something, and if so, make the 
-Job start.  The Job will be started in it's own thread.  Several Jobs may 
+will check your Job to see if it's ready to do something, and if so, make the
+Job start.  The Job will be started in it's own thread.  Several Jobs may
 run in parallel up to the maximum specified.
 
 Within a job are a series of Tasks which much be run in order.  You do not need to
@@ -49,15 +50,28 @@ return and set the status to ABORTED.
 using namespace std;
 #include "PlutoUtils/ThreadedClass.h"
 
+
+/** @namespace DCE
+For DCE
+*/
 namespace DCE
 {
 	class PendingTaskList;
 }
 using namespace DCE;
 
+
+/** @namespace nsJobHandler
+For JobHandler
+*/
 namespace nsJobHandler
 {
 	typedef list<class Job *> ListJob;
+
+    /** @class JobHandler
+    For deriving jobs.
+    @see file JobHandler.h.
+    */
 	class JobHandler : public nsThreadedClass::ThreadedClass
 	{
 		ListJob m_listJob;
@@ -68,7 +82,7 @@ namespace nsJobHandler
 
 		bool AbortAllJobs();
 		void PurgeCompletedJobs();
-		bool WaitForJobsToFinish(bool bAbort=true,int iSeconds=5);  // By default abort and wait 5 seconds for jobs to finish
+		bool WaitForJobsToFinish(bool bAbort=true,int iSeconds=5);  //!< By default abort and wait 5 seconds for jobs to finish
 
 		void AddJob(Job *pJob);
 		string ToString();
@@ -79,9 +93,19 @@ namespace nsJobHandler
 
 		void Run();
 
-		// Be sure to grab a mutex before using these, like this: PLUTO_SAFETY_LOCK(jm,*m_pJobHandler->m_ThreadMutex_get());
+		/** Be sure to grab a mutex before using this.
+        like this: PLUTO_SAFETY_LOCK(jm,*m_pJobHandler->m_ThreadMutex_get());
+        */
 		Job *FindJob(int jobID);
+
+        /** Be sure to grab a mutex before using this.
+        like this: PLUTO_SAFETY_LOCK(jm,*m_pJobHandler->m_ThreadMutex_get());
+        */
 		class Task *FindTask(int jobID,int taskID);
+
+        /** Be sure to grab a mutex before using this.
+        like this: PLUTO_SAFETY_LOCK(jm,*m_pJobHandler->m_ThreadMutex_get());
+        */
 		const ListJob *m_listJob_get() { return &m_listJob; }
 
 		bool ReportPendingTasks(PendingTaskList *pPendingTaskList);

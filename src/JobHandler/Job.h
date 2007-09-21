@@ -4,7 +4,7 @@
  Copyright (C) 2004 Pluto, Inc., a Florida Corporation
 
  www.plutohome.com
- 
+
 
  Phone: +1 (877) 758-8648
 
@@ -15,6 +15,10 @@
  This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more details.
 
+ */
+
+/** @file Job.h
+ Tasks.
  */
 #ifndef Job_h
 #define Job_h
@@ -27,17 +31,28 @@
 using namespace std;
 using namespace nsThreadedClass;
 
+
+/** @namespace DCE
+For DCE
+*/
 namespace DCE
 {
 	class PendingTaskList;
 }
 using namespace DCE;
 
+
+/** @namespace nsJobHandler
+For DCE
+*/
 namespace nsJobHandler
 {
 	class Task;
 	class JobHandler;
-	
+
+    /** @class Job
+    For tasks.
+    */
 	class Job : public ThreadedClass
 	{
 	public:
@@ -64,10 +79,17 @@ namespace nsJobHandler
 		JobStatus m_eJobStatus;
 		class JobHandler *m_pJobHandler;
 		list<Task *> m_listTask;
-		time_t m_tNextRunAttempt;  // Set this to non-zero if you want to your ReadyToRun() to be called no later than this time.  Zero means don't call until something changes
-		int m_iPK_Orbiter;  // If passed into the constructor, send this Orbiter a 'refresh' when something changes with this job
-		Command_Impl *m_pCommand_Impl;  // If passed, use this to refresh the orbiter above in RefreshOrbiter();
-		
+
+        /** Set this to non-zero if you want to your ReadyToRun() to be called no later than this time.
+        Zero means don't call until something changes.
+        */
+		time_t m_tNextRunAttempt;
+
+          /** If passed into the constructor, send this Orbiter a 'refresh' when something changes with this job.
+          */
+		int m_iPK_Orbiter;
+		Command_Impl *m_pCommand_Impl;  //!< If passed, use this to refresh the orbiter above in RefreshOrbiter();
+
 	public:
 		Job(JobHandler *pJobHandler,string sName,int PK_Orbiter=0,Command_Impl *pCommand_Impl=NULL);
 		virtual ~Job();

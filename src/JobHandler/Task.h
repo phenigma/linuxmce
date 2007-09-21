@@ -4,7 +4,7 @@
  Copyright (C) 2004 Pluto, Inc., a Florida Corporation
 
  www.plutohome.com
- 
+
 
  Phone: +1 (877) 758-8648
 
@@ -16,6 +16,10 @@
  or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more details.
 
  */
+
+ /** @file Task.h
+ Tasks.
+ */
 #ifndef Task_h
 #define Task_h
 
@@ -23,6 +27,9 @@
 using namespace std;
 #include "PlutoUtils/MultiThreadIncludes.h"
 
+/** @namespace nsJobHandler
+For job handler
+*/
 namespace nsJobHandler
 {
 	typedef enum {
@@ -34,6 +41,10 @@ namespace nsJobHandler
 		TASK_CANCELED
 	} TaskStatus;
 
+
+    /** @class Task
+    For tasks.
+    */
 	class Task
 	{
 		friend class Job;
@@ -57,12 +68,12 @@ namespace nsJobHandler
 		int m_iID_get() { return m_iID; }
 		virtual string ToString() { return m_sName; }
 		virtual string GetType()=0; // Should override
-		virtual int Run()=0;  // Return 0 if the task is done, or a number of milliseconds if you want Run to be called again in that many ms
+		virtual int Run()=0;  //!< Return 0 if the task is done, or a number of milliseconds if you want Run to be called again in that many ms
 		TaskStatus m_eTaskStatus_get() { return m_eTaskStatus; }
 		void m_eTaskStatus_set(TaskStatus taskStatus);
 		virtual int PercentComplete() { return m_iPercent; }
 		virtual int SecondsRemaining()
-		{ 
+		{
 			if( m_iPercent==0 || m_tStarted==0 )
 				return 0;
 
