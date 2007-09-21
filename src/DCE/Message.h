@@ -63,10 +63,10 @@ namespace DCE
 		MESSAGETYPE_START_PING=11, MESSAGETYPE_STOP_PING=12, MESSAGETYPE_PURGE_INTERCEPTORS=13,
 		MESSAGETYPE_PENDING_TASKS=14 };
 
-    /** @enum
+    /** @enum eParmType
      Enum containing values for the criteria used in a message interceptor.
      */
-	enum { PARM_FROM=1, PARM_TO, PARM_TEMPLATE, PARM_CATEGORY, PARM_MESSAGE_TYPE, PARM_MESSAGE_ID };
+	enum eParmType { PARM_FROM=1, PARM_TO, PARM_TEMPLATE, PARM_CATEGORY, PARM_MESSAGE_TYPE, PARM_MESSAGE_ID };
 
 
     /** @enum

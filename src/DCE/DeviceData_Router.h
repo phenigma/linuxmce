@@ -93,9 +93,19 @@ public:
 
     /** @class Command
     The Command class.
+    This class holds each instnce of a command.
+    All data is public - no accessors used here.
     */
     class Command {
 public:
+    /** Constructor.
+    This builds a command object and stores all the data as public.
+    @param PK_Command is the command.
+    @param sDescription is the description of the command.
+    @param PK_CommandCategory the command category
+    @param sCommandCategory_Description describes the category.
+    @param bLog is a flag to allow logging.
+    */
         Command(int PK_Command,string sDescription,int PK_CommandCategory,string sCommandCategory_Description,bool bLog) {
             m_dwPK_Command=PK_Command;
             m_sDescription=sDescription;
@@ -206,6 +216,11 @@ public:
 public:
         class DeviceData_Router *m_pDevice;
         string m_sParms;
+
+        /** Constructor.
+        @param pDevice is
+        @param sParms are the parameters for the device.
+        */
         DeviceRelation(class DeviceData_Router *pDevice,string sParms) {
             m_pDevice=pDevice;
             m_sParms=sParms;
@@ -224,10 +239,18 @@ public:
 class DeviceData_Router : public DeviceData_Impl {
 private:
         // The following are stored in the Device table so they persist
-        string m_sStatus; // A device can set a generic status message, such as "triggered".  There is no predefined purpose.  Status is considered a constantly changing value
 
-        string m_sState;  // This is user defined.  Examples are: on, off, 50%, bypassed, etc.  State is the value that the user set and wants the device to stay in
+        /** A device can set a generic status message, such as "triggered".
+        There is no predefined purpose.
+        Status is considered a constantly changing value.
+        */
+        string m_sStatus;
 
+        /** This is user defined.
+        Examples are: on, off, 50%, bypassed, etc.
+        State is the value that the user set and wants the device to stay in.
+        */
+        string m_sState;
 public:
 
         // **** SERIALIZED VALUES FROM THE DATABASE ****
@@ -256,10 +279,12 @@ public:
         bool m_bIgnoreOnOff;
 
         MapPipe m_mapPipe_Available; /**< The available pipes. */
+
         Pipe *m_mapPipe_Available_Find(int PK_Pipe) {
             map<int,class Pipe *>::iterator it = m_mapPipe_Available.find(PK_Pipe);
             return it==m_mapPipe_Available.end() ? NULL : (*it).second;
         }
+
         MapPipe m_mapPipe_Active; /**< The currently activated pipes. */
         Pipe *m_mapPipe_Active_Find(int PK_Pipe) {
             map<int,class Pipe *>::iterator it = m_mapPipe_Active.find(PK_Pipe);
@@ -284,14 +309,14 @@ public:
 
         // **** FLAGS AND INFORMATION SET AT RUNTIME ****
 
-        bool m_bIsRegistered,m_bIsReady; // Some devices will set this by sending a ready message/event
-        bool m_bBusy; // A device can be marked busy.  It's messages will be queued until this flag is cleared
-        bool m_bAlert;  // A device with this flag set is having a problem
+        bool m_bIsRegistered,m_bIsReady; //!< Some devices will set this by sending a ready message/event
+        bool m_bBusy; //!< A device can be marked busy.  It's messages will be queued until this flag is cleared
+        bool m_bAlert;  //!< A device with this flag set is having a problem
 
         string m_IPAddr;
         time_t m_tCanReceiveNextCommand,m_tLastused;
 
-        char *m_pMySerializedData;  // A copy of the device serialized so we don't have to do it for each request
+        char *m_pMySerializedData;  //!< A copy of the device serialized so we don't have to do it for each request
         int m_iConfigSize;
 
         string m_sStatus_get() {
