@@ -884,6 +884,10 @@ int main( int argc, char **argv )
 					printf("colormap_size %d \n", visinfo->colormap_size);
 					printf("bits_per_rgb %d \n", visinfo->bits_per_rgb);
 					printf("================================================\n");
+
+					char buff[24];
+					sprintf(buff, "0x%x", visinfo->visualid);
+					setenv("SDL_VIDEO_X11_VISUALID", buff, 1);
 					break;
 				}
 
