@@ -72,19 +72,28 @@ PlutoSize SDL_RenderText::RealRenderText(RendererImage *pRenderImage, DesignObjT
 	//BOM (Byte Order Mask) header for UTF-8 strings
 	const char BOM_header[3] = { (char)0xef, (char)0xbb, (char)0xbf };
 
-	//UTF-8 string?
-	bool bHasBOMHeader = !memcmp(BOM_header, pDesignObjText->m_sText.data(), sizeof(BOM_header));
+	//already a UTF-8 string?
+	bool bAlreadyHasBOMHeader = !memcmp(BOM_header, pDesignObjText->m_sText.data(), sizeof(BOM_header));
 
-	if(bHasBOMHeader)
+	char *pUTF8TextToRender = NULL;
+	if(!bAlreadyHasBOMHeader)
 	{
-		//render utf-8 text
-		RenderedText = TTF_RenderUTF8_Blended((TTF_Font *)pTextStyle->m_pTTF_Font, 
-			pDesignObjText->m_sText.c_str(), SDL_color);
+		//create crafted utf-8 text. it was appended BOM header
+		pUTF8TextToRender = new char[sizeof(BOM_header) + pDesignObjText->m_sText.length() + 1];
+		memcpy(pUTF8TextToRender, BOM_header, sizeof(BOM_header));
+		memcpy(pUTF8TextToRender + sizeof(BOM_header), pDesignObjText->m_sText.data(), pDesignObjText->m_sText.length());
+		pUTF8TextToRender[sizeof(BOM_header) + pDesignObjText->m_sText.length()] = '\0';
 	}
-	else
+
+	//render utf-8 text
+	RenderedText = TTF_RenderUTF8_Blended((TTF_Font *)pTextStyle->m_pTTF_Font, 
+		bAlreadyHasBOMHeader ? pDesignObjText->m_sText.c_str() : pUTF8TextToRender, SDL_color);
+
+	if(!bAlreadyHasBOMHeader)
 	{
-		RenderedText = TTF_RenderText_Blended((TTF_Font *)pTextStyle->m_pTTF_Font, 
-			pDesignObjText->m_sText.c_str(), SDL_color);
+		//deallocate memory for crafted utf-8 text
+		delete [] pUTF8TextToRender; 
+		pUTF8TextToRender = NULL;
 	}
 
 	if (RenderedText == NULL)

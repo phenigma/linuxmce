@@ -971,23 +971,9 @@ void OrbiterRenderer_PocketFrog::RenderText(HDC hdc,string &TextToDisplay,PlutoR
 	hFontNew = ::CreateFontIndirect(&lf);
 	hFontOld = (HFONT) ::SelectObject(hdc_drawing, hFontNew);
 	
-	//BOM (Byte Order Mask) header for UTF-8 strings
-	const char BOM_header[3] = { (char)0xef, (char)0xbb, (char)0xbf };
-
-	//UTF-8 string?
-	bool bHasBOMHeader = !memcmp(BOM_header, TextToDisplay.data(), sizeof(BOM_header));
-
 	//calculate rect first
-	if(bHasBOMHeader)
-	{
-		DrawTextExUTF8(hdc_drawing, (LPSTR)TextToDisplay.data(), (int)TextToDisplay.length(), &rectLocation, 
-			DT_WORDBREAK | DT_NOPREFIX | DT_CALCRECT | DT_MODIFYSTRING | DT_END_ELLIPSIS, NULL); 
-	}
-	else
-	{
-		DrawTextEx(hdc_drawing, (LPSTR)TextToDisplay.data(), (int)TextToDisplay.length(), &rectLocation, 
-			DT_WORDBREAK | DT_NOPREFIX | DT_CALCRECT | DT_MODIFYSTRING | DT_END_ELLIPSIS, NULL);
-	}
+	DrawTextExUTF8(hdc_drawing, (LPSTR)TextToDisplay.data(), (int)TextToDisplay.length(), &rectLocation, 
+		DT_WORDBREAK | DT_NOPREFIX | DT_CALCRECT | DT_MODIFYSTRING | DT_END_ELLIPSIS, NULL); 
 
 	int iRealHeight = rectLocation.bottom;
 	if( iRealHeight>rPosition.Height )
@@ -1013,10 +999,7 @@ void OrbiterRenderer_PocketFrog::RenderText(HDC hdc,string &TextToDisplay,PlutoR
 	if(iPK_HorizAlignment != HORIZALIGNMENT_Left_CONST)
 		uiFlag |= DT_CENTER;
 
-	if(bHasBOMHeader)
-		DrawTextExUTF8(hdc_drawing, (LPSTR)TextToDisplay.data(), (int)TextToDisplay.length(), &rectLocation, uiFlag, NULL);
-	else
-		DrawTextEx(hdc_drawing, (LPSTR)TextToDisplay.data(), (int)TextToDisplay.length(), &rectLocation, uiFlag, NULL);
+	DrawTextExUTF8(hdc_drawing, (LPSTR)TextToDisplay.data(), (int)TextToDisplay.length(), &rectLocation, uiFlag, NULL);
 
 	::SelectObject(hdc_drawing, hFontOld);
 	::DeleteObject(hFontNew);
