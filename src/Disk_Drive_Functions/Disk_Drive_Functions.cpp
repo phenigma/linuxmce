@@ -41,6 +41,7 @@ or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more detai
 #include <fcntl.h>
 #ifndef WIN32
 #include <sys/ioctl.h>
+#include <sys/mount.h>
 #endif
 
 #include <sstream>
@@ -463,16 +464,6 @@ int Disk_Drive_Functions::cdrom_checkdrive(const char * filename, int * flag, bo
 					LoggerWrapper::GetInstance()->Write(LV_STATUS, "I think it's a DVD...");
 					* flag =DISCTYPE_DVD_VIDEO;
 				}
-				else if (cdrom_has_dir(fd, "hvdvd_ts") > 0)
-				{
-					LoggerWrapper::GetInstance()->Write(LV_STATUS, "I think it's a HD-DVD...");
-					* flag =DISCTYPE_HDDVD;
-				}
-				else if (cdrom_has_dir(fd, "bdmv") > 0)
-				{
-					LoggerWrapper::GetInstance()->Write(LV_STATUS, "I think it's a Blu-ray Disc...");
-					* flag =DISCTYPE_BD;
-				}
 				else if (cdrom_has_dir(fd, "vcd") > 0)
 				{
 					LoggerWrapper::GetInstance()->Write(LV_STATUS, "I think it's a VCD...");
@@ -485,8 +476,49 @@ int Disk_Drive_Functions::cdrom_checkdrive(const char * filename, int * flag, bo
 				}
 				else
 				{
-					LoggerWrapper::GetInstance()->Write(LV_STATUS, "Doesn't have any directories -- must be data.");
-					* flag = DISCTYPE_DATA;
+					// trying to mount the disk as UDF and check presence of
+					// HD-DVD or Blu-ray system folders
+					bool bDetected = false;
+					
+					char *mntDir = tempnam("/mnt", "diskid");
+					if (mntDir)
+					{
+						if (mkdir(mntDir, S_IRUSR|S_IWUSR|S_IXUSR)==0)
+						{
+							if (mount(filename, mntDir, "udf", MS_RDONLY, NULL)==0)
+							{
+								string sFolder = mntDir;
+								sFolder += "/HVDVD_TS";
+								if (FileUtils::DirExists(sFolder))
+								{
+									LoggerWrapper::GetInstance()->Write(LV_STATUS, "I think it's a HD-DVD...");
+									* flag =DISCTYPE_HDDVD;
+									bDetected = true;
+								}
+								else
+								{
+									sFolder = mntDir;
+									sFolder += "/BDMV";
+									if (FileUtils::DirExists(sFolder))
+									{
+										LoggerWrapper::GetInstance()->Write(LV_STATUS, "I think it's a Blu-ray Disc...");
+										* flag =DISCTYPE_BD;
+										bDetected = true;
+									}
+								}
+								
+								umount(mntDir);
+							}
+							rmdir(mntDir);
+						}
+						free(mntDir);
+                                        }
+					
+					if (!bDetected)
+					{
+						LoggerWrapper::GetInstance()->Write(LV_STATUS, "Doesn't have any directories -- must be data.");
+						* flag = DISCTYPE_DATA;
+					}
 				}
 			}
 			break;
