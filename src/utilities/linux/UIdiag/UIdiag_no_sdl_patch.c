@@ -83,6 +83,8 @@ bool bFullScreen = false;
 float MaxU = 1.0f;
 float MaxV = 1.0f;
 
+#define DONT_USER_OPENGL 1
+
 void WaitForChildren()
 {
 	int status = 0;
@@ -103,7 +105,7 @@ void Quit( int returnCode )
 	/* clean up the window */
 	SDL_Quit( );
 
-	WaitForChildren();
+	//WaitForChildren();
 
 	/* and exit appropriately */
 	exit( returnCode );
@@ -736,51 +738,142 @@ int main( int argc, char **argv )
 	printf("Composite: %s\n", bUseComposite ? "enabled" : "disabled");
 	printf("Mask: %s\n", bUseMask ? "enabled" : "disabled");
 
-	pid_player = fork();
-	if(pid_player == 0)
-	{
-		string sCommand = "cat /etc/mailcap | grep \"^video/mpeg;\"  | head -1 | cut -d';' -f2 > /tmp/player-name";
-		system(sCommand.c_str());
-
-		string sPlayerCommandTemplate;
-		char pPlayerCommand[1024];
-
-		if (access("/usr/bin/xine", F_OK) == 0) 
-		{	
-			sPlayerCommandTemplate="xine -l -g -V xv '%s'";
-			sprintf(pPlayerCommand, sPlayerCommandTemplate.c_str(), "/usr/pluto/sample.mpg");
-	
-			printf("Running player application %s", pPlayerCommand); 
-			system(pPlayerCommand);
-		} 
-		else if(ReadTextFile("/tmp/player-name", sPlayerCommandTemplate)) 
-		{
-			sprintf(pPlayerCommand, sPlayerCommandTemplate.c_str(), "/usr/pluto/sample.mpg");
-	
-			printf("Running player application %s", pPlayerCommand); 
-			system(pPlayerCommand);
-		}
-		else
-		{
-			printf("Error : cannot find the default player application!");
-		}
-
-		exit(0);
-	}
-
-	pid_xcompmgr = fork();
-	if(pid_xcompmgr == 0)
-	{
-		printf("Launching xcompmgr...\n");
-		execvp("xcompmgr", NULL);
-		exit(0);
-	}
-
 	SDL_WM_SetCaption("UI diagnostics", "UI diagnostics");
 
 	while(true)
 	{
 		done = FALSE;
+
+#ifndef WIN32
+	if(bUseComposite)
+	{
+		int attrib[] = {
+			GLX_RENDER_TYPE, GLX_RGBA_BIT,
+			GLX_DRAWABLE_TYPE, GLX_WINDOW_BIT,
+			GLX_RED_SIZE, 1,
+			GLX_GREEN_SIZE, 1,
+			GLX_BLUE_SIZE, 1,
+			GLX_ALPHA_SIZE, 1,
+			GLX_BUFFER_SIZE, 1,
+			GLX_DOUBLEBUFFER, True,
+			GLX_DEPTH_SIZE, 1,
+			None };
+
+		GLXFBConfig *fbconfigs, fbconfig;
+		int numfbconfigs, render_event_base, render_error_base;
+		XVisualInfo *visinfo;
+		XRenderPictFormat *pictFormat;
+		Display *dpy = XOpenDisplay(":0.0");
+
+		if(NULL == dpy)
+		{
+			printf("Failed to open display!\n");
+			return -1;
+		}
+
+		XSynchronize(dpy, 1);
+
+		printf("Trying to use composite...\n");
+
+		/* Make sure we have the RENDER extension */
+		if(!XRenderQueryExtension(dpy, &render_event_base, &render_error_base)) {
+			printf("No RENDER extension found\n");
+			return -1;
+		}
+
+		/* Get the list of FBConfigs that match our criteria */
+		fbconfigs = glXChooseFBConfig(dpy, DefaultScreen(dpy), attrib, &numfbconfigs);
+		if (!fbconfigs) 
+		{
+			printf("None matched\n");
+			/* None matched */
+			return -1;
+		}
+
+		int i = 0;
+
+		printf("Number of FB configs found %d\n", numfbconfigs);
+
+		/* Find an FBConfig with a visual that has a RENDER picture format that
+		* has alpha */
+		for (i = 0; i < numfbconfigs; i++) 
+		{
+			visinfo = glXGetVisualFromFBConfig(dpy, fbconfigs[i]);
+			if (!visinfo) continue;
+
+			pictFormat = XRenderFindVisualFormat(dpy, visinfo->visual);
+			if (!pictFormat) continue;
+
+			if(pictFormat->direct.alphaMask > 0) 
+			{
+				fbconfig = fbconfigs[i];
+
+				printf("================================================\n");
+				printf("Found visual with alpha and render:\n");
+				printf("Found visual 0x%x \n", visinfo->visualid);
+				printf("visual %p \n", visinfo->visual);
+				printf("screen %d \n", visinfo->screen);
+				printf("depth %d \n", visinfo->depth);
+				printf("red_mask 0x%x \n", visinfo->red_mask);
+				printf("green_mask 0x%x \n", visinfo->green_mask);
+				printf("blue_mask 0x%x \n", visinfo->blue_mask);
+				printf("colormap_size %d \n", visinfo->colormap_size);
+				printf("bits_per_rgb %d \n", visinfo->bits_per_rgb);
+				printf("================================================\n");
+
+				char buff[24];
+				sprintf(buff, "0x%x", visinfo->visualid);
+				setenv("SDL_VIDEO_X11_VISUALID", buff, 1);
+				break;
+			}
+
+			XFree(visinfo);
+		}
+
+		if (i == numfbconfigs) 
+		{
+			/* None of the FBConfigs have alpha.  Use a normal (opaque) FBConfig instead */
+			printf("None of the FBConfigs have alpha.  Use a normal (opaque) FBConfig instead\n");
+
+			fbconfig = fbconfigs[0];
+			visinfo = glXGetVisualFromFBConfig(dpy, fbconfig);
+			pictFormat = XRenderFindVisualFormat(dpy, visinfo->visual);
+		}
+
+		XFree(fbconfigs);
+
+//		if(NULL != visinfo)
+//		{
+//			XSetWindowAttributes xattr;
+//			XWMHints *hints;
+//			XTextProperty titleprop, iconprop;
+//			xattr.override_redirect = True;
+//			xattr.background_pixel = BlackPixel(dpy, XDefaultScreen(dpy));
+//			xattr.border_pixel = 0;
+//			xattr.colormap = XCreateColormap(dpy, RootWindow(dpy, XDefaultScreen(dpy)) , visinfo->visual, AllocNone); ;
+//
+//printf("About to create the window ...\n");
+//
+//			Window FSwindow = XCreateWindow(dpy, RootWindow(dpy, XDefaultScreen(dpy)),
+//									 0, 0, 32, 32, 0,
+//						 visinfo->depth, InputOutput, visinfo->visual,
+//						 CWOverrideRedirect | CWBackPixel | CWBorderPixel | CWColormap,
+//						 &xattr); 
+//
+//printf("Window created %d ...\n", (int)FSwindow);
+//
+//			//XSelectInput(dpy, FSwindow, StructureNotifyMask);
+//
+//			char buff[24];
+//			sprintf(buff, "0x%x", (int)FSwindow);
+//			printf("Window ID to use 0x%x\n", (int)FSwindow);
+//			setenv("SDL_WINDOWID", buff, 1);
+//		}
+
+		XCloseDisplay(dpy);
+	}
+
+#endif
 
 		/* initialize SDL */
 		if ( SDL_Init( SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE ) < 0 )
@@ -789,6 +882,17 @@ int main( int argc, char **argv )
 				SDL_GetError( ) );
 			Quit(1);
 		}
+
+#ifndef WIN32
+		if(bUseComposite)
+		{
+			SDL_GL_SetAttribute(SDL_GL_RED_SIZE,      8);
+			SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE,    8);
+			SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE,     8);
+			SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE,    8);
+			SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,    24);
+		}
+#endif
 
 		/* Fetch the video info */
 		videoInfo = SDL_GetVideoInfo( );
@@ -800,10 +904,15 @@ int main( int argc, char **argv )
 		}
 
 		/* the flags to pass to SDL_SetVideoMode */
-		videoFlags  = SDL_OPENGL;          /* Enable OpenGL in SDL */
+
+		videoFlags = 0;
+
+#ifndef DONT_USER_OPENGL
+		videoFlags |= SDL_OPENGL;          /* Enable OpenGL in SDL */
+#endif
+
 		videoFlags |= SDL_GL_DOUBLEBUFFER; /* Enable double buffering */
 		videoFlags |= SDL_HWPALETTE;       /* Store the palette in hardware */
-		videoFlags |= SDL_RESIZABLE;       /* Enable window resizing */
 
 		/* This checks to see if surfaces can be stored in memory */
 		if ( videoInfo->hw_available )
@@ -817,115 +926,6 @@ int main( int argc, char **argv )
 
 		/* Sets up OpenGL double buffering */
 		SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
-
-#ifndef WIN32
-	if(bUseComposite)
-	{
-		SDL_SysWMinfo info;
-		SDL_VERSION(&info.version); 
-		if(SDL_GetWMInfo(&info))
-		{
-			int attrib[] = {
-				GLX_RENDER_TYPE, GLX_RGBA_BIT,
-				GLX_DRAWABLE_TYPE, GLX_WINDOW_BIT,
-				GLX_RED_SIZE, 1,
-				GLX_GREEN_SIZE, 1,
-				GLX_BLUE_SIZE, 1,
-				GLX_ALPHA_SIZE, 1,
-				GLX_DOUBLEBUFFER, True,
-				GLX_DEPTH_SIZE, 1,
-				None };
-
-			GLXFBConfig *fbconfigs, fbconfig;
-			int numfbconfigs, render_event_base, render_error_base;
-			XVisualInfo *visinfo;
-			XRenderPictFormat *pictFormat;
-
-			printf("Trying to use composite...\n");
-
-			/* Make sure we have the RENDER extension */
-			if(!XRenderQueryExtension(info.info.x11.display, &render_event_base, &render_error_base)) {
-				printf("No RENDER extension found\n");
-				Quit(1);
-			}
-
-			/* Get the list of FBConfigs that match our criteria */
-			fbconfigs = glXChooseFBConfig(info.info.x11.display, 0, attrib, &numfbconfigs);
-			if (!fbconfigs) 
-			{
-				printf("None matched\n");
-				/* None matched */
-				Quit(1);
-			}
-
-			int i = 0;
-
-			/* Find an FBConfig with a visual that has a RENDER picture format that
-			* has alpha */
-			for (i = 0; i < numfbconfigs; i++) 
-			{
-				visinfo = glXGetVisualFromFBConfig(info.info.x11.display, fbconfigs[i]);
-				if (!visinfo) continue;
-				pictFormat = XRenderFindVisualFormat(info.info.x11.display, visinfo->visual);
-				if (!pictFormat) continue;
-
-				if(pictFormat->direct.alphaMask > 0) 
-				{
-					fbconfig = fbconfigs[i];
-
-					printf("================================================\n");
-					printf("Found visual 0x%x \n", visinfo->visualid);
-					printf("visual %p \n", visinfo->visual);
-					printf("screen %d \n", visinfo->screen);
-					printf("depth %d \n", visinfo->depth);
-					printf("red_mask 0x%x \n", visinfo->red_mask);
-					printf("green_mask 0x%x \n", visinfo->green_mask);
-					printf("blue_mask 0x%x \n", visinfo->blue_mask);
-					printf("colormap_size %d \n", visinfo->colormap_size);
-					printf("bits_per_rgb %d \n", visinfo->bits_per_rgb);
-					printf("================================================\n");
-
-					char buff[24];
-					sprintf(buff, "0x%x", visinfo->visualid);
-					setenv("SDL_VIDEO_X11_VISUALID", buff, 1);
-					break;
-				}
-
-				XFree(visinfo);
-			}
-
-			if (i == numfbconfigs) 
-			{
-				/* None of the FBConfigs have alpha.  Use a normal (opaque) FBConfig instead */
-				printf("None of the FBConfigs have alpha.  Use a normal (opaque) FBConfig instead\n");
-
-				fbconfig = fbconfigs[0];
-				visinfo = glXGetVisualFromFBConfig(info.info.x11.display, fbconfig);
-				pictFormat = XRenderFindVisualFormat(info.info.x11.display, visinfo->visual);
-			}
-
-			XFree(fbconfigs);
-
-			printf("Ready.\n");
-
-			//Visual ID: 72  depth=32  class=TrueColor
-			//    bufferSize=32 level=0 renderType=rgba doubleBuffer=1 stereo=0
-			//    rgba: redSize=8 greenSize=8 blueSize=8 alphaSize=8
-			//    auxBuffers=4 depthSize=24 stencilSize=8
-			//    accum: redSize=16 greenSize=16 blueSize=16 alphaSize=16
-			//    multiSample=0  multiSampleBuffers=0
-			//    visualCaveat=None
-			//    Opaque.
-
-			SDL_GL_SetAttribute(SDL_GL_RED_SIZE,      8);
-			SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE,    8);
-			SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE,     8);
-			SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE,    8);
-			SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER,  1);
-			SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,    24);
-		}
-	}
-#endif
 
 		/* get a SDL surface */
 		surface = SDL_SetVideoMode( SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BPP, videoFlags );
@@ -955,11 +955,32 @@ int main( int argc, char **argv )
 			client_msg(info.info.x11.display, info.info.x11.wmwindow, "_NET_WM_STATE", _NET_WM_STATE_ADD, (unsigned long)prop1, 0, 0, 0);
 		}
 
+
+		///get infos
+		XWindowAttributes a;
+		XGetWindowAttributes(info.info.x11.display, info.info.x11.wmwindow, &a);
+		printf("SDL's window visual: 0x%x and depth %d \n", XVisualIDFromVisual(a.visual), a.depth);
+		/////////////////
+
+#ifdef DONT_USER_OPENGL
+		SDL_Rect Rectangle;
+
+		Rectangle.x = 0; Rectangle.y = 0; Rectangle.w = SCREEN_WIDTH; Rectangle.h = SCREEN_HEIGHT;
+		SDL_FillRect(surface, &Rectangle, SDL_MapRGBA(surface->format, 0xFF, 0x00, 0x00, 0xFF));
+		Rectangle.x = 0; Rectangle.y = 0; Rectangle.w = SCREEN_WIDTH / 2; Rectangle.h = SCREEN_HEIGHT / 2;
+		SDL_FillRect(surface, &Rectangle, SDL_MapRGBA(surface->format, 0x20, 0x20, 0xFF, 0xB0));
+		Rectangle.x = SCREEN_WIDTH / 2; Rectangle.y = SCREEN_HEIGHT / 2; Rectangle.w = SCREEN_WIDTH; Rectangle.h = SCREEN_HEIGHT;
+		SDL_FillRect(surface, &Rectangle, SDL_MapRGBA(surface->format, 0x20, 0x20, 0xFF, 0x40));
+		SDL_Flip(surface);
+#endif
+
 		/* initialize OpenGL */
+#ifndef DONT_USER_OPENGL
 		initGL( );
 
 		/* resize the initial window */
 		resizeWindow( SCREEN_WIDTH, SCREEN_HEIGHT );
+#endif
 
 		if(bFullScreen)
 			SDL_WM_ToggleFullScreen( surface );
@@ -992,7 +1013,9 @@ int main( int argc, char **argv )
 				}
 			}
 
+#ifndef DONT_USER_OPENGL
 			drawGLScene( );
+#endif
 		}
 
 		/* clean up the window */
