@@ -83,7 +83,7 @@ bool bFullScreen = false;
 float MaxU = 1.0f;
 float MaxV = 1.0f;
 
-#define DONT_USER_OPENGL 1
+//#define DONT_USE_OPENGL 1
 
 void WaitForChildren()
 {
@@ -740,6 +740,8 @@ int main( int argc, char **argv )
 
 	SDL_WM_SetCaption("UI diagnostics", "UI diagnostics");
 
+	Display *dpy = XOpenDisplay(":0.0");
+
 	while(true)
 	{
 		done = FALSE;
@@ -763,7 +765,6 @@ int main( int argc, char **argv )
 		int numfbconfigs, render_event_base, render_error_base;
 		XVisualInfo *visinfo;
 		XRenderPictFormat *pictFormat;
-		Display *dpy = XOpenDisplay(":0.0");
 
 		if(NULL == dpy)
 		{
@@ -842,35 +843,31 @@ int main( int argc, char **argv )
 
 		XFree(fbconfigs);
 
-//		if(NULL != visinfo)
-//		{
-//			XSetWindowAttributes xattr;
-//			XWMHints *hints;
-//			XTextProperty titleprop, iconprop;
-//			xattr.override_redirect = True;
-//			xattr.background_pixel = BlackPixel(dpy, XDefaultScreen(dpy));
-//			xattr.border_pixel = 0;
-//			xattr.colormap = XCreateColormap(dpy, RootWindow(dpy, XDefaultScreen(dpy)) , visinfo->visual, AllocNone); ;
-//
-//printf("About to create the window ...\n");
-//
-//			Window FSwindow = XCreateWindow(dpy, RootWindow(dpy, XDefaultScreen(dpy)),
-//									 0, 0, 32, 32, 0,
-//						 visinfo->depth, InputOutput, visinfo->visual,
-//						 CWOverrideRedirect | CWBackPixel | CWBorderPixel | CWColormap,
-//						 &xattr); 
-//
-//printf("Window created %d ...\n", (int)FSwindow);
-//
-//			//XSelectInput(dpy, FSwindow, StructureNotifyMask);
-//
-//			char buff[24];
-//			sprintf(buff, "0x%x", (int)FSwindow);
-//			printf("Window ID to use 0x%x\n", (int)FSwindow);
-//			setenv("SDL_WINDOWID", buff, 1);
-//		}
+		if(NULL != visinfo)
+		{
+			XSetWindowAttributes xattr;
+			XWMHints *hints;
+			XTextProperty titleprop, iconprop;
+			xattr.override_redirect = True;
+			xattr.background_pixel = BlackPixel(dpy, XDefaultScreen(dpy));
+			xattr.border_pixel = 0;
+			xattr.colormap = XCreateColormap(dpy, RootWindow(dpy, XDefaultScreen(dpy)) , visinfo->visual, AllocNone); ;
 
-		XCloseDisplay(dpy);
+			printf("About to create the window ...\n");
+
+			Window FSwindow = XCreateWindow(dpy, RootWindow(dpy, XDefaultScreen(dpy)),
+				0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 1,
+				visinfo->depth, InputOutput, visinfo->visual,
+				CWOverrideRedirect | CWBackPixel | CWBorderPixel | CWColormap,
+				&xattr); 
+
+			XMapWindow(dpy, FSwindow);
+
+			char buff[24];
+			sprintf(buff, "0x%x", (int)FSwindow);
+			printf("Window ID to use 0x%x\n", (int)FSwindow);
+			setenv("SDL_WINDOWID", buff, 1);
+		}
 	}
 
 #endif
@@ -907,7 +904,7 @@ int main( int argc, char **argv )
 
 		videoFlags = 0;
 
-#ifndef DONT_USER_OPENGL
+#ifndef DONT_USE_OPENGL
 		videoFlags |= SDL_OPENGL;          /* Enable OpenGL in SDL */
 #endif
 
@@ -962,7 +959,7 @@ int main( int argc, char **argv )
 		printf("SDL's window visual: 0x%x and depth %d \n", XVisualIDFromVisual(a.visual), a.depth);
 		/////////////////
 
-#ifdef DONT_USER_OPENGL
+#ifdef DONT_USE_OPENGL
 		SDL_Rect Rectangle;
 
 		Rectangle.x = 0; Rectangle.y = 0; Rectangle.w = SCREEN_WIDTH; Rectangle.h = SCREEN_HEIGHT;
@@ -975,7 +972,7 @@ int main( int argc, char **argv )
 #endif
 
 		/* initialize OpenGL */
-#ifndef DONT_USER_OPENGL
+#ifndef DONT_USE_OPENGL
 		initGL( );
 
 		/* resize the initial window */
@@ -1013,7 +1010,7 @@ int main( int argc, char **argv )
 				}
 			}
 
-#ifndef DONT_USER_OPENGL
+#ifndef DONT_USE_OPENGL
 			drawGLScene( );
 #endif
 		}
@@ -1021,6 +1018,8 @@ int main( int argc, char **argv )
 		/* clean up the window */
 		SDL_Quit( );
 	}
+
+	XCloseDisplay(dpy);
 
 	/* Should never get here */
 	return(0);
