@@ -5,9 +5,13 @@
 #include <GL/glx.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <memory.h>
+#include <stdio.h>
 //---------------------------------------------------------------------------------------------------------------
 XVisualInfo *GetVisualForComposite(Display *dpy)
 {
+	XLockDisplay(dpy); 
+
 	int attrib[] = {
 		GLX_RENDER_TYPE, GLX_RGBA_BIT,
 		GLX_DRAWABLE_TYPE, GLX_WINDOW_BIT,
@@ -28,8 +32,10 @@ XVisualInfo *GetVisualForComposite(Display *dpy)
 	printf("Trying to use composite...\n");
 
 	/* Make sure we have the RENDER extension */
-	if(!XRenderQueryExtension(dpy, &render_event_base, &render_error_base)) {
+	if(!XRenderQueryExtension(dpy, &render_event_base, &render_error_base)) 
+	{
 		printf("No RENDER extension found\n");
+		XUnlockDisplay(dpy);
 		return NULL;
 	}
 
@@ -39,6 +45,7 @@ XVisualInfo *GetVisualForComposite(Display *dpy)
 	{
 		printf("None matched\n");
 		/* None matched */
+		XUnlockDisplay(dpy);
 		return NULL;
 	}
 
@@ -62,19 +69,19 @@ XVisualInfo *GetVisualForComposite(Display *dpy)
 
 			printf("================================================\n");
 			printf("Found visual with alpha and render:\n");
-			printf("Found visual 0x%x \n", visinfo->visualid);
+			printf("Found visual 0x%x \n", (int)visinfo->visualid);
 			printf("visual %p \n", visinfo->visual);
-			printf("screen %d \n", visinfo->screen);
-			printf("depth %d \n", visinfo->depth);
-			printf("red_mask 0x%x \n", visinfo->red_mask);
-			printf("green_mask 0x%x \n", visinfo->green_mask);
-			printf("blue_mask 0x%x \n", visinfo->blue_mask);
-			printf("colormap_size %d \n", visinfo->colormap_size);
-			printf("bits_per_rgb %d \n", visinfo->bits_per_rgb);
+			printf("screen %d \n", (int)visinfo->screen);
+			printf("depth %d \n", (int)visinfo->depth);
+			printf("red_mask 0x%x \n", (int)visinfo->red_mask);
+			printf("green_mask 0x%x \n", (int)visinfo->green_mask);
+			printf("blue_mask 0x%x \n", (int)visinfo->blue_mask);
+			printf("colormap_size %d \n", (int)visinfo->colormap_size);
+			printf("bits_per_rgb %d \n", (int)visinfo->bits_per_rgb);
 			printf("================================================\n");
 
 			char buff[24];
-			sprintf(buff, "0x%x", visinfo->visualid);
+			sprintf(buff, "0x%x", (int)visinfo->visualid);
 			setenv("SDL_VIDEO_X11_VISUALID", buff, 1);
 			break;
 		}
@@ -93,17 +100,26 @@ XVisualInfo *GetVisualForComposite(Display *dpy)
 	}
 
 	XFree(fbconfigs);
-
+	XUnlockDisplay(dpy);
 	return visinfo;
+}
+//---------------------------------------------------------------------------------------------------------------
+void FillTextProperty(XTextProperty* p, const char* text)
+{
+  char *list[2];
+
+  list[0] = (char*)text;
+  list[1] = NULL;
+  XStringListToTextProperty(list,1,p);         /* convert string */
 }
 //---------------------------------------------------------------------------------------------------------------
 bool RegisterReplacementWindowForSDL(Display *dpy, XVisualInfo *visinfo, int nWidth, int nHeight)
 {
+	XLockDisplay(dpy); 
+
 	if(NULL != visinfo)
 	{
 		XSetWindowAttributes xattr;
-		XWMHints *hints;
-		XTextProperty titleprop, iconprop;
 		xattr.override_redirect = True;
 		xattr.background_pixel = BlackPixel(dpy, XDefaultScreen(dpy));
 		xattr.border_pixel = 0;
@@ -117,8 +133,52 @@ bool RegisterReplacementWindowForSDL(Display *dpy, XVisualInfo *visinfo, int nWi
 			CWOverrideRedirect | CWBackPixel | CWBorderPixel | CWColormap,
 			&xattr); 
 
-        // We want to get MapNotify events
-        XSelectInput(dpy, FSwindow, StructureNotifyMask);
+		/* Tell KDE to keep the fullscreen window on top */
+		{
+			XEvent ev;
+			long mask;
+
+			memset(&ev, 0, sizeof(ev));
+			ev.xclient.type = ClientMessage;
+			ev.xclient.window = RootWindow(dpy, XDefaultScreen(dpy));
+			ev.xclient.message_type = XInternAtom(dpy, "KWM_KEEP_ON_TOP", False);
+			ev.xclient.format = 32;
+			ev.xclient.data.l[0] = FSwindow;
+			ev.xclient.data.l[1] = CurrentTime;
+			mask = SubstructureRedirectMask;
+			XSendEvent(dpy, RootWindow(dpy, XDefaultScreen(dpy)), False, mask, &ev);
+		}
+
+		XWMHints *hints = XAllocWMHints();
+		hints->input = True;
+		hints->flags = InputHint;
+		hints->initial_state = NormalState;
+		hints->flags |= StateHint;
+		XSetWMHints(dpy, FSwindow, hints);
+		XFree(hints); 
+
+		XTextProperty titleprop, iconprop;
+		FillTextProperty(&titleprop, "OrbiterGL");
+		XSetWMName(dpy, FSwindow, &titleprop);
+		XFree(titleprop.value);
+		FillTextProperty(&iconprop, "OrbiterGL");
+		XSetWMIconName(dpy, FSwindow, &iconprop);
+		XFree(iconprop.value);
+
+		XSelectInput(dpy, FSwindow, FocusChangeMask | KeyPressMask | KeyReleaseMask | PropertyChangeMask | StructureNotifyMask | KeymapStateMask);
+
+		/* Set the class hints so we can get an icon (AfterStep) */
+		{
+		XClassHint *classhints;
+		classhints = XAllocClassHint();
+			if(classhints != NULL) 
+			{
+				classhints->res_name = "OrbiterGL";
+				classhints->res_class = "OrbiterGL";
+				XSetClassHint(dpy, FSwindow, classhints);
+				XFree(classhints);
+			}
+		}
 
 		XMapWindow(dpy, FSwindow);
 
@@ -126,9 +186,12 @@ bool RegisterReplacementWindowForSDL(Display *dpy, XVisualInfo *visinfo, int nWi
 		sprintf(buff, "0x%x", (int)FSwindow);
 		printf("Window ID to use 0x%x\n", (int)FSwindow);
 		setenv("SDL_WINDOWID", buff, 1);
+
+		XUnlockDisplay(dpy);
 		return true;
 	}
 
+	XUnlockDisplay(dpy);
 	return false;
 }
 //---------------------------------------------------------------------------------------------------------------
