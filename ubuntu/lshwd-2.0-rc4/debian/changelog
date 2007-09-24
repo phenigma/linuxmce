@@ -1,3 +1,10 @@
+lshwd (2.0-rc4-1pluto12) unstable; urgency=low
+
+  * Added nVidia GeForce 7050 PV motherboard integrated video card to the
+    device list
+
+ -- Radu Cristescu <radu.c@plutohome.com>  Mon, 24 Sep 2007 15:05:06 +0300
+
 lshwd (2.0-rc4-1pluto11) unstable; urgency=low
 
   * Removed buggy USB bus scanning part as is not used by us and causes only

@@ -3164,6 +3164,7 @@
 0x10de	0x03f5	"unknown"	"nVidia Corporation|MCP61 Memory Controller"
 0x10de	0x03f6	"sata_nv"	"nVidia Corporation|MCP61 SATA Controller"
 0x10de	0x03f7	"sata_nv"	"nVidia Corporation|MCP61 SATA Controller"
+0x10de	0x053a	"Card:NVIDIA GeForce 7 Series"	"nVidia Corp.|GeForce 7050 PV"
 0x10df	0x10df	"lpfc"	"Emulex Corp.|Light Pulse Fibre Channel Adapter"
 0x10df	0x1ae5	"lpfc"	"Emulex Corp.|LP6000 Fibre Channel Host Adapter"
 0x10df	0x1ae6	"lpfc"	"Emulex Corp.|LP 8000 Fibre Channel Host Adapter Alternate ID (JX1:2-3, JX2:1-2)"
