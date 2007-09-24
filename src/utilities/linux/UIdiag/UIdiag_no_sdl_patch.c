@@ -105,7 +105,7 @@ void Quit( int returnCode )
 	/* clean up the window */
 	SDL_Quit( );
 
-	//WaitForChildren();
+	WaitForChildren();
 
 	/* and exit appropriately */
 	exit( returnCode );
@@ -738,6 +738,46 @@ int main( int argc, char **argv )
 	printf("Composite: %s\n", bUseComposite ? "enabled" : "disabled");
 	printf("Mask: %s\n", bUseMask ? "enabled" : "disabled");
 
+	pid_player = fork();
+	if(pid_player == 0)
+	{
+		string sCommand = "cat /etc/mailcap | grep \"^video/mpeg;\"  | head -1 | cut -d';' -f2 > /tmp/player-name";
+		system(sCommand.c_str());
+
+		string sPlayerCommandTemplate;
+		char pPlayerCommand[1024];
+
+		if (access("/usr/bin/xine", F_OK) == 0) 
+		{	
+			sPlayerCommandTemplate="xine -l -g -V xv '%s'";
+			sprintf(pPlayerCommand, sPlayerCommandTemplate.c_str(), "/usr/pluto/sample.mpg");
+	
+			printf("Running player application %s", pPlayerCommand); 
+			system(pPlayerCommand);
+		} 
+		else if(ReadTextFile("/tmp/player-name", sPlayerCommandTemplate)) 
+		{
+			sprintf(pPlayerCommand, sPlayerCommandTemplate.c_str(), "/usr/pluto/sample.mpg");
+	
+			printf("Running player application %s", pPlayerCommand); 
+			system(pPlayerCommand);
+		}
+		else
+		{
+			printf("Error : cannot find the default player application!");
+		}
+
+		exit(0);
+	}
+
+	pid_xcompmgr = fork();
+	if(pid_xcompmgr == 0)
+	{
+		printf("Launching xcompmgr...\n");
+		execvp("xcompmgr", NULL);
+		exit(0);
+	} 
+
 	SDL_WM_SetCaption("UI diagnostics", "UI diagnostics");
 
 	Display *dpy = XOpenDisplay(":0.0");
@@ -860,6 +900,9 @@ int main( int argc, char **argv )
 				visinfo->depth, InputOutput, visinfo->visual,
 				CWOverrideRedirect | CWBackPixel | CWBorderPixel | CWColormap,
 				&xattr); 
+
+            // We want to get MapNotify events
+            XSelectInput(dpy, FSwindow, StructureNotifyMask);
 
 			XMapWindow(dpy, FSwindow);
 
