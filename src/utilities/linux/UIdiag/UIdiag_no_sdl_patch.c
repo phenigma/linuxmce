@@ -1,30 +1,19 @@
-#ifdef WIN32
-#include "stdafx.h"
-#include <windows.h>
-#endif
-
-#include <GL/gl.h>
-#include <GL/glu.h>
-
-#ifndef WIN32
 #include <SDL/SDL_syswm.h>
 #include <X11/extensions/XTest.h>
 #include <X11/extensions/Xrender.h>
 #include <X11/extensions/shape.h>
-#endif
 
-#ifdef WIN32
-	#include "GL/glext.h"
-#else
-	#include <GL/glx.h>
-	#include <fcntl.h>
-	#include <sys/ipc.h>
-	#include <sys/sem.h>
-	#include <unistd.h>
-	#include <sys/wait.h>
-	#include <errno.h>
-	#include <glib.h>
-#endif
+#include <GL/gl.h>
+#include <GL/glu.h>
+#include <GL/glx.h>
+
+#include <fcntl.h>
+#include <sys/ipc.h>
+#include <sys/sem.h>
+#include <unistd.h>
+#include <sys/wait.h>
+#include <errno.h>
+#include <glib.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -34,6 +23,8 @@
 #include <fstream>
 #include <string>
 using namespace std;
+
+#include "../CompositeHelper.h"
 
 /* screen width, height, and bit depth */
 #define SCREEN_WIDTH  800
@@ -82,8 +73,6 @@ bool bFullScreen = false;
 
 float MaxU = 1.0f;
 float MaxV = 1.0f;
-
-//#define DONT_USE_OPENGL 1
 
 void WaitForChildren()
 {
@@ -789,23 +778,6 @@ int main( int argc, char **argv )
 #ifndef WIN32
 	if(bUseComposite)
 	{
-		int attrib[] = {
-			GLX_RENDER_TYPE, GLX_RGBA_BIT,
-			GLX_DRAWABLE_TYPE, GLX_WINDOW_BIT,
-			GLX_RED_SIZE, 1,
-			GLX_GREEN_SIZE, 1,
-			GLX_BLUE_SIZE, 1,
-			GLX_ALPHA_SIZE, 1,
-			GLX_BUFFER_SIZE, 1,
-			GLX_DOUBLEBUFFER, True,
-			GLX_DEPTH_SIZE, 1,
-			None };
-
-		GLXFBConfig *fbconfigs, fbconfig;
-		int numfbconfigs, render_event_base, render_error_base;
-		XVisualInfo *visinfo;
-		XRenderPictFormat *pictFormat;
-
 		if(NULL == dpy)
 		{
 			printf("Failed to open display!\n");
@@ -813,106 +785,13 @@ int main( int argc, char **argv )
 		}
 
 		XSynchronize(dpy, 1);
+		XVisualInfo *visinfo = GetVisualForComposite(dpy);
 
-		printf("Trying to use composite...\n");
-
-		/* Make sure we have the RENDER extension */
-		if(!XRenderQueryExtension(dpy, &render_event_base, &render_error_base)) {
-			printf("No RENDER extension found\n");
-			return -1;
-		}
-
-		/* Get the list of FBConfigs that match our criteria */
-		fbconfigs = glXChooseFBConfig(dpy, DefaultScreen(dpy), attrib, &numfbconfigs);
-		if (!fbconfigs) 
+		if(NULL != visinfo && RegisterReplacementWindowForSDL(dpy, visinfo, SCREEN_WIDTH, SCREEN_HEIGHT))
 		{
-			printf("None matched\n");
-			/* None matched */
-			return -1;
-		}
-
-		int i = 0;
-
-		printf("Number of FB configs found %d\n", numfbconfigs);
-
-		/* Find an FBConfig with a visual that has a RENDER picture format that
-		* has alpha */
-		for (i = 0; i < numfbconfigs; i++) 
-		{
-			visinfo = glXGetVisualFromFBConfig(dpy, fbconfigs[i]);
-			if (!visinfo) continue;
-
-			pictFormat = XRenderFindVisualFormat(dpy, visinfo->visual);
-			if (!pictFormat) continue;
-
-			if(pictFormat->direct.alphaMask > 0) 
-			{
-				fbconfig = fbconfigs[i];
-
-				printf("================================================\n");
-				printf("Found visual with alpha and render:\n");
-				printf("Found visual 0x%x \n", visinfo->visualid);
-				printf("visual %p \n", visinfo->visual);
-				printf("screen %d \n", visinfo->screen);
-				printf("depth %d \n", visinfo->depth);
-				printf("red_mask 0x%x \n", visinfo->red_mask);
-				printf("green_mask 0x%x \n", visinfo->green_mask);
-				printf("blue_mask 0x%x \n", visinfo->blue_mask);
-				printf("colormap_size %d \n", visinfo->colormap_size);
-				printf("bits_per_rgb %d \n", visinfo->bits_per_rgb);
-				printf("================================================\n");
-
-				char buff[24];
-				sprintf(buff, "0x%x", visinfo->visualid);
-				setenv("SDL_VIDEO_X11_VISUALID", buff, 1);
-				break;
-			}
-
-			XFree(visinfo);
-		}
-
-		if (i == numfbconfigs) 
-		{
-			/* None of the FBConfigs have alpha.  Use a normal (opaque) FBConfig instead */
-			printf("None of the FBConfigs have alpha.  Use a normal (opaque) FBConfig instead\n");
-
-			fbconfig = fbconfigs[0];
-			visinfo = glXGetVisualFromFBConfig(dpy, fbconfig);
-			pictFormat = XRenderFindVisualFormat(dpy, visinfo->visual);
-		}
-
-		XFree(fbconfigs);
-
-		if(NULL != visinfo)
-		{
-			XSetWindowAttributes xattr;
-			XWMHints *hints;
-			XTextProperty titleprop, iconprop;
-			xattr.override_redirect = True;
-			xattr.background_pixel = BlackPixel(dpy, XDefaultScreen(dpy));
-			xattr.border_pixel = 0;
-			xattr.colormap = XCreateColormap(dpy, RootWindow(dpy, XDefaultScreen(dpy)) , visinfo->visual, AllocNone); ;
-
-			printf("About to create the window ...\n");
-
-			Window FSwindow = XCreateWindow(dpy, RootWindow(dpy, XDefaultScreen(dpy)),
-				0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 1,
-				visinfo->depth, InputOutput, visinfo->visual,
-				CWOverrideRedirect | CWBackPixel | CWBorderPixel | CWColormap,
-				&xattr); 
-
-            // We want to get MapNotify events
-            XSelectInput(dpy, FSwindow, StructureNotifyMask);
-
-			XMapWindow(dpy, FSwindow);
-
-			char buff[24];
-			sprintf(buff, "0x%x", (int)FSwindow);
-			printf("Window ID to use 0x%x\n", (int)FSwindow);
-			setenv("SDL_WINDOWID", buff, 1);
+			printf("Replacement SDL window created!\n");
 		}
 	}
-
 #endif
 
 		/* initialize SDL */
@@ -922,17 +801,6 @@ int main( int argc, char **argv )
 				SDL_GetError( ) );
 			Quit(1);
 		}
-
-#ifndef WIN32
-		if(bUseComposite)
-		{
-			SDL_GL_SetAttribute(SDL_GL_RED_SIZE,      8);
-			SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE,    8);
-			SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE,     8);
-			SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE,    8);
-			SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,    24);
-		}
-#endif
 
 		/* Fetch the video info */
 		videoInfo = SDL_GetVideoInfo( );
@@ -944,13 +812,7 @@ int main( int argc, char **argv )
 		}
 
 		/* the flags to pass to SDL_SetVideoMode */
-
-		videoFlags = 0;
-
-#ifndef DONT_USE_OPENGL
-		videoFlags |= SDL_OPENGL;          /* Enable OpenGL in SDL */
-#endif
-
+		videoFlags = SDL_OPENGL;          /* Enable OpenGL in SDL */
 		videoFlags |= SDL_GL_DOUBLEBUFFER; /* Enable double buffering */
 		videoFlags |= SDL_HWPALETTE;       /* Store the palette in hardware */
 
@@ -979,7 +841,6 @@ int main( int argc, char **argv )
 
 		/* make it topmost */
 		SDL_SysWMinfo info;
-
 		SDL_VERSION(&info.version);
 		if(SDL_GetWMInfo(&info))
 		{
@@ -995,32 +856,16 @@ int main( int argc, char **argv )
 			client_msg(info.info.x11.display, info.info.x11.wmwindow, "_NET_WM_STATE", _NET_WM_STATE_ADD, (unsigned long)prop1, 0, 0, 0);
 		}
 
-
-		///get infos
+		//are we using the right visual?
 		XWindowAttributes a;
 		XGetWindowAttributes(info.info.x11.display, info.info.x11.wmwindow, &a);
 		printf("SDL's window visual: 0x%x and depth %d \n", XVisualIDFromVisual(a.visual), a.depth);
-		/////////////////
-
-#ifdef DONT_USE_OPENGL
-		SDL_Rect Rectangle;
-
-		Rectangle.x = 0; Rectangle.y = 0; Rectangle.w = SCREEN_WIDTH; Rectangle.h = SCREEN_HEIGHT;
-		SDL_FillRect(surface, &Rectangle, SDL_MapRGBA(surface->format, 0xFF, 0x00, 0x00, 0xFF));
-		Rectangle.x = 0; Rectangle.y = 0; Rectangle.w = SCREEN_WIDTH / 2; Rectangle.h = SCREEN_HEIGHT / 2;
-		SDL_FillRect(surface, &Rectangle, SDL_MapRGBA(surface->format, 0x20, 0x20, 0xFF, 0xB0));
-		Rectangle.x = SCREEN_WIDTH / 2; Rectangle.y = SCREEN_HEIGHT / 2; Rectangle.w = SCREEN_WIDTH; Rectangle.h = SCREEN_HEIGHT;
-		SDL_FillRect(surface, &Rectangle, SDL_MapRGBA(surface->format, 0x20, 0x20, 0xFF, 0x40));
-		SDL_Flip(surface);
-#endif
 
 		/* initialize OpenGL */
-#ifndef DONT_USE_OPENGL
 		initGL( );
 
 		/* resize the initial window */
 		resizeWindow( SCREEN_WIDTH, SCREEN_HEIGHT );
-#endif
 
 		if(bFullScreen)
 			SDL_WM_ToggleFullScreen( surface );
@@ -1053,9 +898,7 @@ int main( int argc, char **argv )
 				}
 			}
 
-#ifndef DONT_USE_OPENGL
 			drawGLScene( );
-#endif
 		}
 
 		/* clean up the window */
