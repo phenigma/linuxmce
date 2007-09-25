@@ -138,21 +138,15 @@ bool RegisterReplacementWindowForSDL(Display *dpy, XVisualInfo *visinfo, int nWi
 			0, 0, nWidth, nHeight, 
 			InputOnly, 
 			visinfo->depth, InputOutput, visinfo->visual,
-			CWOverrideRedirect | CWBackPixel | CWBorderPixel | CWColormap,
+			/*CWOverrideRedirect |*/ CWBackPixel | CWBorderPixel | CWColormap,
 			&xattr);
-/*
-		//the params:
-      Display *display;
-      Window parent;
-      int x, y; 
-      unsigned int width, height;
-      unsigned int border_width;
-      int depth;
-      unsigned int class;
-      Visual *visual
-      unsigned long valuemask;
-      XSetWindowAttributes *attributes;
-*/
+
+		//display, parent, 
+		//x, y, width, height, 
+		//border_width, 
+		//depth, class, visual, 
+		//valuemask, 
+		//attributes
 
 		// Tell KDE to keep the fullscreen window on top 
 		{
