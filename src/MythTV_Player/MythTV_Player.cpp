@@ -500,8 +500,9 @@ string MythTV_Player::sendMythCommand(const char *Cmd)
 	{
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Could not send QUIT string");
 		return sResponse;
-	}
-	m_pMythSocket->Close(); */
+	}*/
+	
+	m_pMythSocket->Close();
 	return sResponse;
 }
 
