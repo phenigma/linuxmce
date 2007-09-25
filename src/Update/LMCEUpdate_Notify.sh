@@ -78,7 +78,7 @@ function Action_Ask() {
 $Message
 --------
 Would you like to apply the updates the next time you restart your computer ?|Yes|No|Later"
-		/usr/pluto/bin/MessageSend $DCERouter 0 $OrbiterIDList 1 741 10 "UpdatesNotify" 159 53 9 "$Message" 137 "$Action_Yes|$Action_No|$Action_Later" || exit 1
+		/usr/pluto/bin/MessageSend $DCERouter 0 $OrbiterIDList 1 741 10 "UpdatesNotify" 159 53 183 0 9 "$Message" 137 "$Action_Yes|$Action_No|$Action_Later" || exit 1
 	fi
 }
 
