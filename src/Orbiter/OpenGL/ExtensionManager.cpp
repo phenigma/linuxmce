@@ -57,6 +57,10 @@ using namespace DCE;
 
 #include "SDL_syswm.h"
 
+#if !defined(WIN32) && !defined(VIA_OVERLAY)
+	#include "utilities/linux/CompositeHelper.h"
+#endif
+
 ExtensionManager::ExtensionManager(void)
 : Width(0), Height(0)
 {
@@ -142,6 +146,27 @@ void ExtensionManager::Resize(int Width, int Height)
 /*virtual*/ bool ExtensionManager::InitVideoMode(int Width, int Height, int Bpp, bool FullScreen, 
 		bool UseComposite)
 {
+#if !defined(WIN32) && !defined(VIA_OVERLAY)	
+	if(UseComposite)
+	{
+		Display *dpy = XOpenDisplay(":0.0");
+
+		if(NULL == dpy)
+		{
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Failed to open display!");
+			return false;
+		}
+
+		XSynchronize(dpy, 1);
+		XVisualInfo *visinfo = GetVisualForComposite(dpy);
+
+		if(NULL != visinfo && RegisterReplacementWindowForSDL(dpy, visinfo, Width, Height))
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Replacement SDL window created!");
+		
+		XSynchronize(dpy, 1);
+	}
+#endif
+
 	if(SDL_INIT_VIDEO & SDL_WasInit(SDL_INIT_VIDEO))
 		SDL_Quit();
 
@@ -153,21 +178,6 @@ void ExtensionManager::Resize(int Width, int Height)
 	/* Sets up OpenGL double buffering */
 	SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
 	
-#if !defined(WIN32) && !defined(VIA_OVERLAY)	
-	if(UseComposite)
-	{
- 		SDL_GL_SetAttribute(SDL_GL_RENDER_TYPE,   GLX_RGBA_BIT);
-		SDL_GL_SetAttribute(SDL_GL_DRAWABLE_TYPE, GLX_WINDOW_BIT);
-
-		SDL_GL_SetAttribute(SDL_GL_RED_SIZE,      8);
-		SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE,    8);
-		SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE,     8);
-		SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE,    8);
-		SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER,  0);
-		SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,    0);
-	}
-#endif
-
 	Uint32 uVideoModeFlags = SDL_OPENGL;
 
 	#ifndef WIN32
@@ -188,7 +198,7 @@ void ExtensionManager::Resize(int Width, int Height)
 		  LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "VIA : couldn't set env VIA_3D_OVERLAY");
 	  }
 	#endif
-	
+
 	Screen = SDL_SetVideoMode(Width, Height, Bpp, uVideoModeFlags);
 
 	if(NULL != Screen)
