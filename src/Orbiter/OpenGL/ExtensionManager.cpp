@@ -57,8 +57,10 @@ using namespace DCE;
 
 #include "SDL_syswm.h"
 
-#if !defined(WIN32) && !defined(VIA_OVERLAY)
-	#include "utilities/linux/CompositeHelper.h"
+#ifndef USE_SDL_GL_PATCH
+	#if !defined(WIN32) && !defined(VIA_OVERLAY)
+		#include "utilities/linux/CompositeHelper.h"
+	#endif
 #endif
 
 ExtensionManager::ExtensionManager(void)
@@ -146,6 +148,7 @@ void ExtensionManager::Resize(int Width, int Height)
 /*virtual*/ bool ExtensionManager::InitVideoMode(int Width, int Height, int Bpp, bool FullScreen, 
 		bool UseComposite)
 {
+#ifndef USE_SDL_GL_PATCH
 #if !defined(WIN32) && !defined(VIA_OVERLAY)	
 	if(UseComposite)
 	{
@@ -166,6 +169,7 @@ void ExtensionManager::Resize(int Width, int Height)
 		XSynchronize(dpy, 1);
 	}
 #endif
+#endif //USE_SDL_GL_PATCH
 
 	if(SDL_INIT_VIDEO & SDL_WasInit(SDL_INIT_VIDEO))
 		SDL_Quit();
@@ -177,7 +181,24 @@ void ExtensionManager::Resize(int Width, int Height)
 
 	/* Sets up OpenGL double buffering */
 	SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
-	
+
+#ifdef USE_SDL_GL_PATCH
+#if !defined(WIN32) && !defined(VIA_OVERLAY) 
+	if(UseComposite)
+	{
+		SDL_GL_SetAttribute(SDL_GL_RENDER_TYPE,   GLX_RGBA_BIT);
+		SDL_GL_SetAttribute(SDL_GL_DRAWABLE_TYPE, GLX_WINDOW_BIT);
+
+		SDL_GL_SetAttribute(SDL_GL_RED_SIZE,      8);
+		SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE,    8);
+		SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE,     8);
+		SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE,    8);
+		SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER,  0);
+		SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,    0);
+	}
+#endif
+#endif
+
 	Uint32 uVideoModeFlags = SDL_OPENGL;
 
 	#ifndef WIN32
