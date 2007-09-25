@@ -7,6 +7,12 @@
 #include <stdlib.h>
 #include <memory.h>
 #include <stdio.h>
+
+#include <X11/X.h>
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#include <X11/cursorfont.h>
+#include <X11/Xatom.h>
 //---------------------------------------------------------------------------------------------------------------
 XVisualInfo *GetVisualForComposite(Display *dpy)
 {
@@ -127,13 +133,28 @@ bool RegisterReplacementWindowForSDL(Display *dpy, XVisualInfo *visinfo, int nWi
 
 		printf("About to create the window ...\n");
 
-		Window FSwindow = XCreateWindow(dpy, RootWindow(dpy, XDefaultScreen(dpy)),
-			0, 0, nWidth, nHeight, 1,
+		Window FSwindow = XCreateWindow(
+			dpy, RootWindow(dpy, XDefaultScreen(dpy)), 
+			0, 0, nWidth, nHeight, 
+			InputOnly, 
 			visinfo->depth, InputOutput, visinfo->visual,
 			CWOverrideRedirect | CWBackPixel | CWBorderPixel | CWColormap,
-			&xattr); 
+			&xattr);
+/*
+		//the params:
+      Display *display;
+      Window parent;
+      int x, y; 
+      unsigned int width, height;
+      unsigned int border_width;
+      int depth;
+      unsigned int class;
+      Visual *visual
+      unsigned long valuemask;
+      XSetWindowAttributes *attributes;
+*/
 
-		/* Tell KDE to keep the fullscreen window on top */
+		// Tell KDE to keep the fullscreen window on top 
 		{
 			XEvent ev;
 			long mask;
@@ -167,18 +188,48 @@ bool RegisterReplacementWindowForSDL(Display *dpy, XVisualInfo *visinfo, int nWi
 
 		XSelectInput(dpy, FSwindow, FocusChangeMask | KeyPressMask | KeyReleaseMask | PropertyChangeMask | StructureNotifyMask | KeymapStateMask);
 
-		/* Set the class hints so we can get an icon (AfterStep) */
+		// Set the class hints so we can get an icon (AfterStep) 
 		{
 		XClassHint *classhints;
 		classhints = XAllocClassHint();
 			if(classhints != NULL) 
 			{
-				classhints->res_name = "OrbiterGL";
-				classhints->res_class = "OrbiterGL";
+				classhints->res_name = "Orbiter";
+				classhints->res_class = "Orbiter";
 				XSetClassHint(dpy, FSwindow, classhints);
 				XFree(classhints);
 			}
 		}
+
+		Atom atom = None;
+
+		atom = XInternAtom (dpy, "_NET_WM_ACTION_CLOSE", False);
+		XChangeProperty (dpy, FSwindow, XInternAtom (dpy,"_NET_WM_ALLOWED_ACTIONS",False), XA_ATOM, 32, PropModeAppend, (unsigned char *) &atom, 1); 
+		atom = XInternAtom (dpy, "_NET_WM_ACTION_CHANGE_DESKTOP", False);
+		XChangeProperty (dpy, FSwindow, XInternAtom (dpy,"_NET_WM_ALLOWED_ACTIONS",False), XA_ATOM, 32, PropModeAppend, (unsigned char *) &atom, 1); 
+		atom = XInternAtom (dpy, "_NET_WM_ACTION_STICK", False);
+		XChangeProperty (dpy, FSwindow, XInternAtom (dpy,"_NET_WM_ALLOWED_ACTIONS",False), XA_ATOM, 32, PropModeAppend, (unsigned char *) &atom, 1); 
+		atom = XInternAtom (dpy, "_NET_WM_ACTION_SHADE", False);
+		XChangeProperty (dpy, FSwindow, XInternAtom (dpy,"_NET_WM_ALLOWED_ACTIONS",False), XA_ATOM, 32, PropModeAppend, (unsigned char *) &atom, 1); 
+
+		atom = XInternAtom (dpy, "_WIN_HINTS", False);
+		XChangeProperty (dpy, FSwindow, XInternAtom (dpy,"_WIN_HINTS",False), XA_ATOM, 32, PropModeAppend, (unsigned char *) &atom, 1); 
+
+		Atom WM_HINTS = XInternAtom(dpy, "_WIN_HINTS", True);
+		if(WM_HINTS != None) 
+		{
+			long lWM_Hints = 0;
+			XChangeProperty(dpy, FSwindow, WM_HINTS, WM_HINTS, 32, PropModeReplace, (unsigned char *)&lWM_Hints, sizeof(lWM_Hints)/4);
+		}
+
+		Atom WM_DELETE_WINDOW = XInternAtom(dpy, "WM_DELETE_WINDOW", False);
+		XSetWMProtocols(dpy, FSwindow, &WM_DELETE_WINDOW, 1); 
+
+		Atom wm_state = XInternAtom(dpy, "WM_STATE", True);
+		unsigned long data_wm_state[2];
+		data_wm_state[0] = (unsigned long) 1;
+		data_wm_state[1] = (unsigned long) None;
+		XChangeProperty(dpy, FSwindow, wm_state, wm_state, 32, PropModeReplace, (unsigned char *)data_wm_state, 2);
 
 		XMapWindow(dpy, FSwindow);
 
