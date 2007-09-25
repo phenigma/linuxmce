@@ -53,7 +53,7 @@ using namespace DCE;
 #include <pthread.h>
 // #include "MythMainWindowResizable.h"
 MythTV_Player *g_pMythPlayer = NULL;
-#define MYTH_SOCKET_TIMEOUT	5  // SECONDS
+#define MYTH_SOCKET_TIMEOUT	10  // SECONDS
 
 #ifndef WIN32
 
@@ -73,7 +73,7 @@ void* monitorMythThread(void* param)
 		else
 		{
 			g_pMythPlayer->pollMythStatus();
-			Sleep(1000);
+			Sleep(5000);
 		}
 	}
 	return NULL;
@@ -277,7 +277,7 @@ void MythTV_Player::pollMythStatus()
 				bCommunication=true;  // We at least have communication
 
 			mm.Release();
-            Sleep(1000);
+            Sleep(3000);
 			mm.Relock();
 			string sResult = sendMythCommand("query location");
 			if( sResult.find("Playback")!=string::npos && sResult.find("ERROR")==string::npos )
@@ -461,17 +461,19 @@ string MythTV_Player::sendMythCommand(const char *Cmd)
 	}
 	
 
+	LoggerWrapper::GetInstance()->Write(LV_WARNING,"========== Before mythtv promt");
 	// Wait for Myth's console prompt.
 	do
 	{
 		if ( !m_pMythSocket->ReceiveData( 1, &ch, MYTH_SOCKET_TIMEOUT ) ) 
 		{
-			delete m_pMythSocket;
-			m_pMythSocket = NULL;
+/*			delete m_pMythSocket;
+			m_pMythSocket = NULL;*/
 			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Timeout waiting for Myth prompt.");
 			return "";
 		}
 	} while(ch!='#');
+	LoggerWrapper::GetInstance()->Write(LV_WARNING,"========== After mythtv promt");
 	if( !m_pMythSocket->SendString(Cmd) )
 	{
 		delete m_pMythSocket;
@@ -479,19 +481,21 @@ string MythTV_Player::sendMythCommand(const char *Cmd)
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Could not send string");
 		return "";
 	}
+	LoggerWrapper::GetInstance()->Write(LV_WARNING,"========== Command is sent");
 	// Receive the response
 	do
 	{
 		if( !m_pMythSocket->ReceiveString(sResponse,MYTH_SOCKET_TIMEOUT) )
 		{
-			delete m_pMythSocket;
-			m_pMythSocket = NULL;
+/*			delete m_pMythSocket;
+			m_pMythSocket = NULL;*/
 			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Didn't get reply.");
 			return "";
 		}
 	// FIXIT: In Myth's networkcontrol.cpp, it's possible that Myth replies to a previous command with a "lost" query location.  If we get "OK" when asking for status,
 	// we're off kilter.  Receive one more line.
 	} while (!strcmp(Cmd, "query location") && sResponse=="OK");
+	LoggerWrapper::GetInstance()->Write(LV_WARNING,"========== Got the answer: %s", sResponse.c_str());
 		
 	sResponse = StringUtils::TrimSpaces(sResponse);
 	LoggerWrapper::GetInstance()->Write(LV_WARNING,"Myth Responded: %s",sResponse.c_str());
@@ -502,7 +506,8 @@ string MythTV_Player::sendMythCommand(const char *Cmd)
 		return sResponse;
 	}*/
 	
-	m_pMythSocket->Close();
+//	m_pMythSocket->Close();
+	
 	return sResponse;
 }
 
@@ -1419,6 +1424,7 @@ void MythTV_Player::ReleaseOrbiterPointer()
 void MythTV_Player::CMD_Input_Select(int iPK_Command_Input,string &sCMD_Result,Message *pMessage)
 //<-dceag-c91-e->
 {
+	PLUTO_SAFETY_LOCK(mm, m_MythMutex);
 #ifndef WIN32
 	sendMythCommand("key c");
 #endif
