@@ -62,11 +62,14 @@
 	#define BASE_CLASS OrbiterRenderer_SDL
 #endif
 
+#ifdef ORBITER_OPENGL
 #ifndef USE_SDL_GL_PATCH
 	#if !defined(VIA_OVERLAY)
 		#include "utilities/linux/CompositeHelper.h"
 	#endif
 #endif
+#endif
+
 
 using namespace DCE;
 
@@ -478,7 +481,7 @@ void OrbiterRenderer_Linux::UnlockDisplay()
 #ifndef MAEMO_NOKIA770
 void OrbiterRenderer_Linux::EventLoop()
 {
-#ifdef USE_SDL_PATCH
+#if (defined(USE_SDL_PATCH) || !defined(ORBITER_OPENGL)) && !defined(VIA_OVERLAY)
 
 	int SDL_Event_Pending = 0;
 
