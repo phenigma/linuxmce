@@ -2,7 +2,7 @@ libdvdcss (1.2.9-2medibuntu2+build1kir1) feisty; urgency=low
 
   * Added patch for key caching of riped dvds
 
- -- The LinuxMCE Team <support@linuxmce.com> feisty; urgency=low  Wed, 26 Sep 2007 14:39:16 +0300
+ -- The LinuxMCE Team <support@linuxmce.com>  Wed, 26 Sep 2007 14:39:16 +0300
 
 libdvdcss (1.2.9-2medibuntu2+build1) feisty; urgency=low
 
