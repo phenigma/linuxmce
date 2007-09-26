@@ -39,7 +39,26 @@ namespace DCE
 {
 
 /** @class Generic_Serial_Device
-A class for ???
+A class for adding support for new devices.
+
+The "Generic Serial Device" module (GSD) is designed for the thousands
+of devices that are controlled over RS232 and Ethernet.
+It allows a LinuxMCE driver to be added using a point-and-click,
+fill-in-the-blanks interface.
+Basic protocols can be implemented with no programming at all.
+
+For more complicated tasks GSD embeds the Ruby language.
+Ruby is a high-level interpreted language with flexible string handling,
+like Perl, but the syntax is simpler.
+The protocol and embedded Ruby for GSD devices is stored in the database
+and automatically synchronized with all other LinuxMCE systems as long
+as you leave checked the "Share my IR codes and GSD device" box on
+the A/V Equipment wizard.
+So there's no compiling and no code to check in.
+
+GSD devices that control a/v equipment, lighting, etc., can be done
+in as little as an hour or two, almost never more than a day for
+complex protocols.
 */
 	class Generic_Serial_Device :
 			public Generic_Serial_Device_Command,
