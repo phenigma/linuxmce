@@ -105,6 +105,11 @@ int SDLFrontEnd::StartVideoMode(int Width, int Height, bool FullScreen)
 	int Flags = 0;
 	if(Display)
 		SDL_Quit();
+
+	//make sure we are not reusing any window
+	//let sdl create its own window
+	unsetenv("SDL_WINDOWID");
+
 	//Test if SDL inits nicely
 	if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_NOPARACHUTE)== -1)
 	{
