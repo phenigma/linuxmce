@@ -220,27 +220,6 @@ int LoadGLTextures( )
 		/* Typical Texture Generation Using Data From The Bitmap */
 		glBindTexture( GL_TEXTURE_2D, face_texture );
 
-		//if(bUseComposite)
-		//{
-		//	//premultiply: http://us.download.nvidia.com/XFree86/Linux-x86/1.0-9755/README/appendix-s.html
-		//	//When rendering to a 32-bit window, keep in mind that the X RENDER extension, used by most composite managers, 
-		//	//expects "premultiplied alpha" colors. This means that if your color has components (r,g,b) and alpha value a, then you must render (a*r, a*g, a*b, a) into the target window.
-
-		//	for (int j = 0; j < pTextureImage->h; j++)
-		//	{
-		//		for (int i = 0; i < pTextureImage->w; i++)
-		//		{
-		//			// we may need locking on the surface
-		//			Uint32 Pixel = getpixel(pTextureImage,i, j);
-		//			unsigned char *pPixel = (unsigned char *) &Pixel;
-		//			pPixel[0] = pPixel[0] * pPixel[3];
-		//			pPixel[1] = pPixel[1] * pPixel[3];
-		//			pPixel[2] = pPixel[2] * pPixel[3];
-		//			putpixel(pTextureImage,i, j, Pixel);
-		//		}
-		//	}
-		//}
-
 		if(pTextureImage->format->BytesPerPixel == 4)
 		{
 			/* Generate The Texture */
@@ -741,19 +720,19 @@ int main( int argc, char **argv )
 			sPlayerCommandTemplate="xine -l -g -V xv '%s'";
 			sprintf(pPlayerCommand, sPlayerCommandTemplate.c_str(), "/usr/pluto/sample.mpg");
 	
-			printf("Running player application %s", pPlayerCommand); 
+			printf("Running player application %s\n", pPlayerCommand); 
 			system(pPlayerCommand);
 		} 
 		else if(ReadTextFile("/tmp/player-name", sPlayerCommandTemplate)) 
 		{
 			sprintf(pPlayerCommand, sPlayerCommandTemplate.c_str(), "/usr/pluto/sample.mpg");
 	
-			printf("Running player application %s", pPlayerCommand); 
+			printf("Running player application %s\n", pPlayerCommand); 
 			system(pPlayerCommand);
 		}
 		else
 		{
-			printf("Error : cannot find the default player application!");
+			printf("Error : cannot find the default player application!\n");
 		}
 
 		exit(0);
@@ -769,8 +748,6 @@ int main( int argc, char **argv )
 
 	SDL_WM_SetCaption("UI diagnostics", "UI diagnostics");
 
-	Display *dpy = XOpenDisplay(":0.0");
-
 	while(true)
 	{
 		done = FALSE;
@@ -778,19 +755,21 @@ int main( int argc, char **argv )
 #ifndef WIN32
 	if(bUseComposite)
 	{
+		Display *dpy = CompositeHelper::GetInstance().GetDisplay();
+
 		if(NULL == dpy)
 		{
 			printf("Failed to open display!\n");
-			return -1;
+			return false;
 		}
 
 		XSynchronize(dpy, 1);
-		XVisualInfo *visinfo = GetVisualForComposite(dpy);
+		XVisualInfo *visinfo = CompositeHelper::GetInstance().GetVisualForComposite();
 
-		if(NULL != visinfo && RegisterReplacementWindowForSDL(dpy, visinfo, SCREEN_WIDTH, SCREEN_HEIGHT))
-		{
-			printf("Replacement SDL window created!\n");
-		}
+		if(NULL != visinfo && CompositeHelper::GetInstance().RegisterReplacementWindowForSDL(visinfo, SCREEN_WIDTH, SCREEN_HEIGHT))
+			printf("Created replacement window for SDL!\n");
+		
+		XSynchronize(dpy, 1); 
 	}
 #endif
 
@@ -904,8 +883,6 @@ int main( int argc, char **argv )
 		/* clean up the window */
 		SDL_Quit( );
 	}
-
-	XCloseDisplay(dpy);
 
 	/* Should never get here */
 	return(0);
