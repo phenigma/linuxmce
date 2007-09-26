@@ -14,9 +14,22 @@
 #include <X11/cursorfont.h>
 #include <X11/Xatom.h>
 //---------------------------------------------------------------------------------------------------------------
-XVisualInfo *GetVisualForComposite(Display *dpy)
+CompositeHelper CompositeHelper::m_Instance;
+//---------------------------------------------------------------------------------------------------------------
+CompositeHelper::CompositeHelper()
 {
-	XLockDisplay(dpy); 
+	m_display = XOpenDisplay(":0.0");
+}
+//---------------------------------------------------------------------------------------------------------------
+CompositeHelper::~CompositeHelper()
+{
+	XCloseDisplay(m_display);
+	m_display = NULL;
+}
+//---------------------------------------------------------------------------------------------------------------
+XVisualInfo *CompositeHelper::GetVisualForComposite()
+{
+	XLockDisplay(m_display); 
 
 	int attrib[] = {
 		GLX_RENDER_TYPE, GLX_RGBA_BIT,
@@ -38,20 +51,20 @@ XVisualInfo *GetVisualForComposite(Display *dpy)
 	printf("Trying to use composite...\n");
 
 	/* Make sure we have the RENDER extension */
-	if(!XRenderQueryExtension(dpy, &render_event_base, &render_error_base)) 
+	if(!XRenderQueryExtension(m_display, &render_event_base, &render_error_base)) 
 	{
 		printf("No RENDER extension found\n");
-		XUnlockDisplay(dpy);
+		XUnlockDisplay(m_display);
 		return NULL;
 	}
 
 	/* Get the list of FBConfigs that match our criteria */
-	fbconfigs = glXChooseFBConfig(dpy, DefaultScreen(dpy), attrib, &numfbconfigs);
+	fbconfigs = glXChooseFBConfig(m_display, DefaultScreen(m_display), attrib, &numfbconfigs);
 	if (!fbconfigs) 
 	{
 		printf("None matched\n");
 		/* None matched */
-		XUnlockDisplay(dpy);
+		XUnlockDisplay(m_display);
 		return NULL;
 	}
 
@@ -63,10 +76,10 @@ XVisualInfo *GetVisualForComposite(Display *dpy)
 	* has alpha */
 	for (i = 0; i < numfbconfigs; i++) 
 	{
-		visinfo = glXGetVisualFromFBConfig(dpy, fbconfigs[i]);
+		visinfo = glXGetVisualFromFBConfig(m_display, fbconfigs[i]);
 		if (!visinfo) continue;
 
-		pictFormat = XRenderFindVisualFormat(dpy, visinfo->visual);
+		pictFormat = XRenderFindVisualFormat(m_display, visinfo->visual);
 		if (!pictFormat) continue;
 
 		if(pictFormat->direct.alphaMask > 0) 
@@ -101,16 +114,16 @@ XVisualInfo *GetVisualForComposite(Display *dpy)
 		printf("None of the FBConfigs have alpha.  Use a normal (opaque) FBConfig instead\n");
 
 		fbconfig = fbconfigs[0];
-		visinfo = glXGetVisualFromFBConfig(dpy, fbconfig);
-		pictFormat = XRenderFindVisualFormat(dpy, visinfo->visual);
+		visinfo = glXGetVisualFromFBConfig(m_display, fbconfig);
+		pictFormat = XRenderFindVisualFormat(m_display, visinfo->visual);
 	}
 
 	XFree(fbconfigs);
-	XUnlockDisplay(dpy);
+	XUnlockDisplay(m_display);
 	return visinfo;
 }
 //---------------------------------------------------------------------------------------------------------------
-void FillTextProperty(XTextProperty* p, const char* text)
+void CompositeHelper::FillTextProperty(XTextProperty* p, const char* text)
 {
   char *list[2];
 
@@ -119,34 +132,32 @@ void FillTextProperty(XTextProperty* p, const char* text)
   XStringListToTextProperty(list,1,p);         /* convert string */
 }
 //---------------------------------------------------------------------------------------------------------------
-bool RegisterReplacementWindowForSDL(Display *dpy, XVisualInfo *visinfo, int nWidth, int nHeight)
+bool CompositeHelper::RegisterReplacementWindowForSDL(XVisualInfo *visinfo, int nWidth, int nHeight)
 {
-	XLockDisplay(dpy); 
+	XLockDisplay(m_display); 
 
 	if(NULL != visinfo)
 	{
 		XSetWindowAttributes xattr;
 		xattr.override_redirect = True;
-		xattr.background_pixel = BlackPixel(dpy, XDefaultScreen(dpy));
+		xattr.background_pixel = BlackPixel(m_display, XDefaultScreen(m_display));
 		xattr.border_pixel = 0;
-		xattr.colormap = XCreateColormap(dpy, RootWindow(dpy, XDefaultScreen(dpy)) , visinfo->visual, AllocNone); ;
+		xattr.colormap = XCreateColormap(m_display, RootWindow(m_display, XDefaultScreen(m_display)) , visinfo->visual, AllocNone); ;
 
 		printf("About to create the window ...\n");
 
 		Window FSwindow = XCreateWindow(
-			dpy, RootWindow(dpy, XDefaultScreen(dpy)), 
+			m_display, RootWindow(m_display, XDefaultScreen(m_display)), 
 			0, 0, nWidth, nHeight, 
 			InputOnly, 
 			visinfo->depth, InputOutput, visinfo->visual,
-			/*CWOverrideRedirect |*/ CWBackPixel | CWBorderPixel | CWColormap,
+			CWBackPixel | CWBorderPixel | CWColormap,
 			&xattr);
 
-		//display, parent, 
-		//x, y, width, height, 
-		//border_width, 
-		//depth, class, visual, 
-		//valuemask, 
-		//attributes
+		XSelectInput(m_display, FSwindow, 
+			EnterWindowMask | LeaveWindowMask | FocusChangeMask | 
+			KeyPressMask | KeyReleaseMask | PropertyChangeMask | 
+			StructureNotifyMask | KeymapStateMask | ExposureMask | VisibilityChangeMask);
 
 		// Tell KDE to keep the fullscreen window on top 
 		{
@@ -155,13 +166,13 @@ bool RegisterReplacementWindowForSDL(Display *dpy, XVisualInfo *visinfo, int nWi
 
 			memset(&ev, 0, sizeof(ev));
 			ev.xclient.type = ClientMessage;
-			ev.xclient.window = RootWindow(dpy, XDefaultScreen(dpy));
-			ev.xclient.message_type = XInternAtom(dpy, "KWM_KEEP_ON_TOP", False);
+			ev.xclient.window = RootWindow(m_display, XDefaultScreen(m_display));
+			ev.xclient.message_type = XInternAtom(m_display, "KWM_KEEP_ON_TOP", False);
 			ev.xclient.format = 32;
 			ev.xclient.data.l[0] = FSwindow;
 			ev.xclient.data.l[1] = CurrentTime;
 			mask = SubstructureRedirectMask;
-			XSendEvent(dpy, RootWindow(dpy, XDefaultScreen(dpy)), False, mask, &ev);
+			XSendEvent(m_display, RootWindow(m_display, XDefaultScreen(m_display)), False, mask, &ev);
 		}
 
 		XWMHints *hints = XAllocWMHints();
@@ -169,18 +180,16 @@ bool RegisterReplacementWindowForSDL(Display *dpy, XVisualInfo *visinfo, int nWi
 		hints->flags = InputHint;
 		hints->initial_state = NormalState;
 		hints->flags |= StateHint;
-		XSetWMHints(dpy, FSwindow, hints);
+		XSetWMHints(m_display, FSwindow, hints);
 		XFree(hints); 
 
 		XTextProperty titleprop, iconprop;
 		FillTextProperty(&titleprop, "OrbiterGL");
-		XSetWMName(dpy, FSwindow, &titleprop);
+		XSetWMName(m_display, FSwindow, &titleprop);
 		XFree(titleprop.value);
 		FillTextProperty(&iconprop, "OrbiterGL");
-		XSetWMIconName(dpy, FSwindow, &iconprop);
+		XSetWMIconName(m_display, FSwindow, &iconprop);
 		XFree(iconprop.value);
-
-		XSelectInput(dpy, FSwindow, FocusChangeMask | KeyPressMask | KeyReleaseMask | PropertyChangeMask | StructureNotifyMask | KeymapStateMask);
 
 		// Set the class hints so we can get an icon (AfterStep) 
 		{
@@ -190,53 +199,53 @@ bool RegisterReplacementWindowForSDL(Display *dpy, XVisualInfo *visinfo, int nWi
 			{
 				classhints->res_name = "Orbiter";
 				classhints->res_class = "Orbiter";
-				XSetClassHint(dpy, FSwindow, classhints);
+				XSetClassHint(m_display, FSwindow, classhints);
 				XFree(classhints);
 			}
 		}
 
 		Atom atom = None;
 
-		atom = XInternAtom (dpy, "_NET_WM_ACTION_CLOSE", False);
-		XChangeProperty (dpy, FSwindow, XInternAtom (dpy,"_NET_WM_ALLOWED_ACTIONS",False), XA_ATOM, 32, PropModeAppend, (unsigned char *) &atom, 1); 
-		atom = XInternAtom (dpy, "_NET_WM_ACTION_CHANGE_DESKTOP", False);
-		XChangeProperty (dpy, FSwindow, XInternAtom (dpy,"_NET_WM_ALLOWED_ACTIONS",False), XA_ATOM, 32, PropModeAppend, (unsigned char *) &atom, 1); 
-		atom = XInternAtom (dpy, "_NET_WM_ACTION_STICK", False);
-		XChangeProperty (dpy, FSwindow, XInternAtom (dpy,"_NET_WM_ALLOWED_ACTIONS",False), XA_ATOM, 32, PropModeAppend, (unsigned char *) &atom, 1); 
-		atom = XInternAtom (dpy, "_NET_WM_ACTION_SHADE", False);
-		XChangeProperty (dpy, FSwindow, XInternAtom (dpy,"_NET_WM_ALLOWED_ACTIONS",False), XA_ATOM, 32, PropModeAppend, (unsigned char *) &atom, 1); 
+		atom = XInternAtom (m_display, "_NET_WM_ACTION_CLOSE", False);
+		XChangeProperty (m_display, FSwindow, XInternAtom (m_display,"_NET_WM_ALLOWED_ACTIONS",False), XA_ATOM, 32, PropModeAppend, (unsigned char *) &atom, 1); 
+		atom = XInternAtom (m_display, "_NET_WM_ACTION_CHANGE_DESKTOP", False);
+		XChangeProperty (m_display, FSwindow, XInternAtom (m_display,"_NET_WM_ALLOWED_ACTIONS",False), XA_ATOM, 32, PropModeAppend, (unsigned char *) &atom, 1); 
+		atom = XInternAtom (m_display, "_NET_WM_ACTION_STICK", False);
+		XChangeProperty (m_display, FSwindow, XInternAtom (m_display,"_NET_WM_ALLOWED_ACTIONS",False), XA_ATOM, 32, PropModeAppend, (unsigned char *) &atom, 1); 
+		atom = XInternAtom (m_display, "_NET_WM_ACTION_SHADE", False);
+		XChangeProperty (m_display, FSwindow, XInternAtom (m_display,"_NET_WM_ALLOWED_ACTIONS",False), XA_ATOM, 32, PropModeAppend, (unsigned char *) &atom, 1); 
 
-		atom = XInternAtom (dpy, "_WIN_HINTS", False);
-		XChangeProperty (dpy, FSwindow, XInternAtom (dpy,"_WIN_HINTS",False), XA_ATOM, 32, PropModeAppend, (unsigned char *) &atom, 1); 
+		atom = XInternAtom (m_display, "_WIN_HINTS", False);
+		XChangeProperty (m_display, FSwindow, XInternAtom (m_display,"_WIN_HINTS",False), XA_ATOM, 32, PropModeAppend, (unsigned char *) &atom, 1); 
 
-		Atom WM_HINTS = XInternAtom(dpy, "_WIN_HINTS", True);
+		Atom WM_HINTS = XInternAtom(m_display, "_WIN_HINTS", True);
 		if(WM_HINTS != None) 
 		{
 			long lWM_Hints = 0;
-			XChangeProperty(dpy, FSwindow, WM_HINTS, WM_HINTS, 32, PropModeReplace, (unsigned char *)&lWM_Hints, sizeof(lWM_Hints)/4);
+			XChangeProperty(m_display, FSwindow, WM_HINTS, WM_HINTS, 32, PropModeReplace, (unsigned char *)&lWM_Hints, sizeof(lWM_Hints)/4);
 		}
 
-		Atom WM_DELETE_WINDOW = XInternAtom(dpy, "WM_DELETE_WINDOW", False);
-		XSetWMProtocols(dpy, FSwindow, &WM_DELETE_WINDOW, 1); 
+		Atom WM_DELETE_WINDOW = XInternAtom(m_display, "WM_DELETE_WINDOW", False);
+		XSetWMProtocols(m_display, FSwindow, &WM_DELETE_WINDOW, 1); 
 
-		Atom wm_state = XInternAtom(dpy, "WM_STATE", True);
+		Atom wm_state = XInternAtom(m_display, "WM_STATE", True);
 		unsigned long data_wm_state[2];
 		data_wm_state[0] = (unsigned long) 1;
 		data_wm_state[1] = (unsigned long) None;
-		XChangeProperty(dpy, FSwindow, wm_state, wm_state, 32, PropModeReplace, (unsigned char *)data_wm_state, 2);
+		XChangeProperty(m_display, FSwindow, wm_state, wm_state, 32, PropModeReplace, (unsigned char *)data_wm_state, 2);
 
-		XMapWindow(dpy, FSwindow);
+		XMapWindow(m_display, FSwindow);
 
 		char buff[24];
 		sprintf(buff, "0x%x", (int)FSwindow);
 		printf("Window ID to use 0x%x\n", (int)FSwindow);
 		setenv("SDL_WINDOWID", buff, 1);
 
-		XUnlockDisplay(dpy);
+		XUnlockDisplay(m_display);
 		return true;
 	}
 
-	XUnlockDisplay(dpy);
+	XUnlockDisplay(m_display);
 	return false;
 }
 //---------------------------------------------------------------------------------------------------------------

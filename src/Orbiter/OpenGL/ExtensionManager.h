@@ -40,6 +40,7 @@ class ExtensionManager
 {
 	SDL_Surface* Screen;
 	float CleanRed, CleanGreen, CleanBlue;
+
 public:
 	int Width, Height;
 	ExtensionManager(void);

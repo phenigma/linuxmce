@@ -62,6 +62,12 @@
 	#define BASE_CLASS OrbiterRenderer_SDL
 #endif
 
+#ifndef USE_SDL_GL_PATCH
+	#if !defined(VIA_OVERLAY)
+		#include "utilities/linux/CompositeHelper.h"
+	#endif
+#endif
+
 using namespace DCE;
 
 OrbiterRenderer_Linux::OrbiterRenderer_Linux(Orbiter *pOrbiter) : BASE_CLASS(pOrbiter), 
@@ -472,6 +478,8 @@ void OrbiterRenderer_Linux::UnlockDisplay()
 #ifndef MAEMO_NOKIA770
 void OrbiterRenderer_Linux::EventLoop()
 {
+#ifdef USE_SDL_PATCH
+
 	int SDL_Event_Pending = 0;
 
 	SDL_Event Event;
@@ -490,6 +498,8 @@ void OrbiterRenderer_Linux::EventLoop()
 			Orbiter::Event orbiterEvent;
 			orbiterEvent.type = Orbiter::Event::NOT_PROCESSED;
 
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Event type %d", Event.type);
+
 			if (Event.type == SDL_QUIT)
 			{
 				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Received sdl event SDL_QUIT");
@@ -500,7 +510,7 @@ void OrbiterRenderer_Linux::EventLoop()
 			{
 				Engine->RefreshScreen();
 			}
-#endif
+#endif //ORBITER_OPENGL
                         else if(Event.type == SDL_ACTIVEEVENT)
                         {
                             /* See what happened */
@@ -518,5 +528,88 @@ void OrbiterRenderer_Linux::EventLoop()
 			OnIdle();
 		}
 	}  // while
+
+#else
+
+	Display *dpy = CompositeHelper::GetInstance().GetDisplay();
+    if (!dpy) 
+	{
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Unable to open display!");
+		return;
+    }
+
+	XSetWindowAttributes attr;
+    XWindowAttributes wattr;
+
+    /* select for all events */
+    attr.event_mask = KeyPressMask | KeyReleaseMask | ButtonPressMask |
+			   ButtonReleaseMask | EnterWindowMask |
+			   LeaveWindowMask | PointerMotionMask | 
+			   Button1MotionMask |
+			   Button2MotionMask | Button3MotionMask |
+			   Button4MotionMask | Button5MotionMask |
+			   ButtonMotionMask | KeymapStateMask |
+			   ExposureMask | VisibilityChangeMask | 
+			   StructureNotifyMask | /* ResizeRedirectMask | */
+			   SubstructureNotifyMask | SubstructureRedirectMask |
+			   FocusChangeMask | PropertyChangeMask |
+			   ColormapChangeMask | OwnerGrabButtonMask;
+
+	OrbiterLinux *pOrbiterLinux = dynamic_cast<OrbiterLinux *>(OrbiterLogic());
+	if(NULL != pOrbiterLinux->m_pX11)
+	{
+		XGetWindowAttributes(dpy, pOrbiterLinux->m_pX11->GetMainWindow(), &wattr);
+		if (wattr.all_event_masks & ButtonPressMask)
+			attr.event_mask &= ~ButtonPressMask;
+		attr.event_mask &= ~SubstructureRedirectMask;
+		XSelectInput(dpy, pOrbiterLinux->m_pX11->GetMainWindow(), attr.event_mask);
+	}
+	
+	XEvent report;   // event union reference
+	SDL_Event Event;
+	int SDL_Event_Pending = 0;
+
+	while (!OrbiterLogic()->m_bQuit_get()&& !OrbiterLogic()->m_bReload)
+	{	
+		SDL_Event_Pending = SDL_PollEvent(&Event);
+		if (SDL_Event_Pending && Event.type == SDL_QUIT)
+		{
+			//it's all over now...
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Received sdl event SDL_QUIT");
+			break;
+		}
+
+		// event loop
+		XNextEvent(dpy, &report);
+		switch (report.type)
+		{
+			case EnterNotify: 
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "EnterNotify!");
+				OrbiterLogic()->CMD_Activate_PC_Desktop(0);
+				break;
+
+			case LeaveNotify: 
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "LeaveNotify!");
+				break;
+
+			case VisibilityNotify:
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "VisibilityNotify!");
+				break;
+
+			case FocusIn:
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "FocusIn!");
+				break;
+
+			case FocusOut:
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "FocusOut!");
+				break;
+
+			default:
+				//LoggerWrapper::GetInstance()->Write(LV_WARNING, "got an event %d -- ignore it!", report.type);
+			break;
+		}            
+	}       
+
+#endif //USE_SDL_PATCH
 }
 #endif //MAEMO_NOKIA770

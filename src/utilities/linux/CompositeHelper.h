@@ -5,7 +5,24 @@
 #include <X11/extensions/Xrender.h>
 #include <X11/extensions/shape.h>
 //---------------------------------------------------------------------------------------------------------------
-XVisualInfo *GetVisualForComposite(Display *dpy);
-bool RegisterReplacementWindowForSDL(Display *dpy, XVisualInfo *visinfo, int nWidth, int nHeight);
+class CompositeHelper
+{
+private:
+
+	Display *m_display;
+	static CompositeHelper m_Instance;
+
+	CompositeHelper();
+	void FillTextProperty(XTextProperty* p, const char* text);
+
+public:
+
+	~CompositeHelper();
+	static CompositeHelper& GetInstance() { return m_Instance; }
+	Display *GetDisplay() { return m_display; }
+
+	XVisualInfo *GetVisualForComposite();
+	bool RegisterReplacementWindowForSDL(XVisualInfo *visinfo, int nWidth, int nHeight);
+};
 //---------------------------------------------------------------------------------------------------------------
 #endif //__COMPOSITE_HELPER_H__

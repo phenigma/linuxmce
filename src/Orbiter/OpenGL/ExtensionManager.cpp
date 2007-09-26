@@ -152,7 +152,7 @@ void ExtensionManager::Resize(int Width, int Height)
 #if !defined(WIN32) && !defined(VIA_OVERLAY)	
 	if(UseComposite)
 	{
-		Display *dpy = XOpenDisplay(":0.0");
+		Display *dpy = CompositeHelper::GetInstance().GetDisplay();
 
 		if(NULL == dpy)
 		{
@@ -161,9 +161,9 @@ void ExtensionManager::Resize(int Width, int Height)
 		}
 
 		XSynchronize(dpy, 1);
-		XVisualInfo *visinfo = GetVisualForComposite(dpy);
+		XVisualInfo *visinfo = CompositeHelper::GetInstance().GetVisualForComposite();
 
-		if(NULL != visinfo && RegisterReplacementWindowForSDL(dpy, visinfo, Width, Height))
+		if(NULL != visinfo && CompositeHelper::GetInstance().RegisterReplacementWindowForSDL(visinfo, Width, Height))
 			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Replacement SDL window created!");
 		
 		XSynchronize(dpy, 1);
