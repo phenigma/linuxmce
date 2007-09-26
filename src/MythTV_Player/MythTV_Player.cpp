@@ -495,6 +495,18 @@ string MythTV_Player::sendMythCommand(const char *Cmd)
 	// FIXIT: In Myth's networkcontrol.cpp, it's possible that Myth replies to a previous command with a "lost" query location.  If we get "OK" when asking for status,
 	// we're off kilter.  Receive one more line.
 	} while (!strcmp(Cmd, "query location") && sResponse=="OK");
+	
+	
+	if( sResponse.find("ERROR")!=string::npos )
+	{
+		m_pMythSocket->SendString("key enter");
+		if( !m_pMythSocket->ReceiveString(sResponse,MYTH_SOCKET_TIMEOUT) )
+		{
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Didn't get reply.");
+			return "";
+		}
+	}
+		
 	LoggerWrapper::GetInstance()->Write(LV_WARNING,"========== Got the answer: %s", sResponse.c_str());
 		
 	sResponse = StringUtils::TrimSpaces(sResponse);
