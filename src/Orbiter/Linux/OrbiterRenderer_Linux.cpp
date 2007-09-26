@@ -582,8 +582,14 @@ void OrbiterRenderer_Linux::EventLoop()
 			break;
 		}
 
+		if(!XCheckMaskEvent(dpy, attr.event_mask, &report))
+		{
+			//no event in the queue
+			OnIdle();
+			continue;
+		}
+
 		// event loop
-		XNextEvent(dpy, &report);
 		switch (report.type)
 		{
 			case EnterNotify: 

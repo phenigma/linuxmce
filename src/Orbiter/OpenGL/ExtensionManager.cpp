@@ -176,6 +176,12 @@ void ExtensionManager::Resize(int Width, int Height)
 
 	if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE)<0)
 		return false;
+
+#ifndef USE_SDL_GL_PATCH
+#if !defined(WIN32) && !defined(VIA_OVERLAY)
+	CompositeHelper::GetInstance().UnregisterReplacementWindowForSDL();
+#endif
+#endif
 		
 	SDL_WM_SetCaption("OrbiterGL", "OrbiterGL");
 
@@ -221,12 +227,6 @@ void ExtensionManager::Resize(int Width, int Height)
 	#endif
 
 	Screen = SDL_SetVideoMode(Width, Height, Bpp, uVideoModeFlags);
-
-#ifndef USE_SDL_GL_PATCH
-#if !defined(WIN32) && !defined(VIA_OVERLAY)
-	CompositeHelper::GetInstance().UnregisterReplacementWindowForSDL();
-#endif
-#endif
 
 	if(NULL != Screen)
 	{
