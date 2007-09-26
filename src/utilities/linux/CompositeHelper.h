@@ -23,6 +23,7 @@ public:
 
 	XVisualInfo *GetVisualForComposite();
 	bool RegisterReplacementWindowForSDL(XVisualInfo *visinfo, int nWidth, int nHeight);
+	bool UnregisterReplacementWindowForSDL();
 };
 //---------------------------------------------------------------------------------------------------------------
 #endif //__COMPOSITE_HELPER_H__

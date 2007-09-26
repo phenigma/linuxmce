@@ -249,3 +249,9 @@ bool CompositeHelper::RegisterReplacementWindowForSDL(XVisualInfo *visinfo, int 
 	return false;
 }
 //---------------------------------------------------------------------------------------------------------------
+bool CompositeHelper::UnregisterReplacementWindowForSDL()
+{
+	setenv("SDL_WINDOWID", "", 1);
+	return true;
+}
+//---------------------------------------------------------------------------------------------------------------

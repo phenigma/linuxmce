@@ -222,6 +222,12 @@ void ExtensionManager::Resize(int Width, int Height)
 
 	Screen = SDL_SetVideoMode(Width, Height, Bpp, uVideoModeFlags);
 
+#ifndef USE_SDL_GL_PATCH
+#if !defined(WIN32) && !defined(VIA_OVERLAY)
+	CompositeHelper::GetInstance().UnregisterReplacementWindowForSDL();
+#endif
+#endif
+
 	if(NULL != Screen)
 	{
 
