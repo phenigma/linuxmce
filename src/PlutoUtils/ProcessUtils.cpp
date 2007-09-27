@@ -229,10 +229,11 @@ bool ProcessUtils::KillApplication(string sAppIdentifier, vector<void *> &associ
 	MapPidToData::const_iterator itPidsToData = mapPidsToData.begin();
 	while (itPidsToData != mapPidsToData.end())
 	{
-		if (itPidsToData->second->bDetached)
-			continue;
-		pidsArray.push_back(itPidsToData->first);
-		associatedData.push_back(itPidsToData->second->m_pData);
+		if (! itPidsToData->second->bDetached)
+		{
+			pidsArray.push_back(itPidsToData->first);
+			associatedData.push_back(itPidsToData->second->m_pData);
+		}
 		itPidsToData++;
 	}
 
