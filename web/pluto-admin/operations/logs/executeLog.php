@@ -1,4 +1,6 @@
 <?
+require('include/utils.inc.php');
+
 $scriptID=$_REQUEST['script'];
 switch($scriptID){
 	case 1:
@@ -21,7 +23,7 @@ switch($scriptID){
 	break;	
 	case 3:
 		$path=stripslashes($_REQUEST['path']);
-		$command[]='sudo -u root /usr/pluto/bin/UpdateMedia -d "'.$path.'"';
+		 $command[]=str_replace('"','\"','sudo -u root /usr/pluto/bin/UpdateMedia -d "'.$path.'"');
 		$title='Resynchronize directory '.$path;
 	break;	
 	case 4:
@@ -42,7 +44,9 @@ for ($i = 0; $i < count($command); $i++)
 	print $command[$i].'<br><br>';
 	if($command[$i]!=''){
 		if(!isset($showTmpFile)){
-			system("bash -c \"$command[$i]\"' > >(tee -a /var/log/pluto/php-executeLog.log|/usr/pluto/bin/ansi2html); sleep 1'", $retval);
+			$cmd="bash -c \"$command[$i]\"' > >(tee -a /var/log/pluto/php-executeLog.log|/usr/pluto/bin/ansi2html); sleep 1'";
+			writeFile('/var/log/pluto/webExecLog.log',date('d-m-Y H:i:s')."\t".$cmd."\n",'a+');
+			system($cmd, $retval);
 			if ($retval != 0){
 				$message = "Failed setting up diskless Media Directors";
 				break;
@@ -50,6 +54,7 @@ for ($i = 0; $i < count($command); $i++)
 			print '<br><br>';
 		}else{
 			$cmd=$command[$i]." | tee -a /var/log/pluto/php-executeLog.log|/usr/pluto/bin/ansi2html";
+			writeFile('/var/log/pluto/webExecLog.log',date('d-m-Y H:i:s')."\t".$cmd."\n",'a+');
 			system($cmd,$retval);
 			if($retval==0){
 				print 'Status: success';
