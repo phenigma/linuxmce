@@ -18,6 +18,11 @@ FileStatusObserver::FileStatusObserver() :
 //------------------------------------------------------------------------------------------
 FileStatusObserver::~FileStatusObserver()
 {
+	Finalize();
+}
+//------------------------------------------------------------------------------------------
+void FileStatusObserver::Finalize()
+{
 	delete m_pAlarmManager;
 	m_pAlarmManager = NULL;
 }

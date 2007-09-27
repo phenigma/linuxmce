@@ -29,6 +29,7 @@ public:
 
 	void SetFileNotifier(FileNotifier *pFileNotifier);
 	void UnsetFileNotifier();
+	void Finalize();
 
 	void Observe(string sFilename);
 

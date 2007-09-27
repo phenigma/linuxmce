@@ -434,6 +434,7 @@ int main(int argc, char *argv[])
 		g_pDatabase_pluto_main = NULL;
 	}
 
+	FileStatusObserver::Instance().Finalize();
 	MutexTracking::Delete();
 	
 	return 0;
