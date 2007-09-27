@@ -123,3 +123,4 @@ StartService "Samba Server Detection" "/usr/pluto/bin/StorageDevices_SambaRadar.
 StartService "Detecting Timezone" "/usr/pluto/bin/Timezone_Detect.sh" "&"
 StartService "Status Radar" "/usr/pluto/bin/StorageDevices_StatusRadar.sh"
 StartService "Samba Radar" "/usr/pluto/bin/StorageDevices_SambaRadar.sh"
+StartService "PVR-250 tuner restore" "/usr/pluto/bin/CaptureCards_BootConfig_PVR-250.sh"
