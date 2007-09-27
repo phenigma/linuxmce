@@ -103,6 +103,7 @@ rm -f /usr/pluto/locks/pluto_spawned_local_devices.txt
 StartService "Configuring Pluto Storage Devices" "/usr/pluto/bin/StorageDevices_Setup.sh" "&"
 #StartDaemon "Report machine is on" "/usr/pluto/bin/Report_MachineOn.sh" "ReportingOn"
 StartService "Status Radar" "/usr/pluto/bin/StorageDevices_StatusRadar.sh"
+StartService "PVR-250 tuner restore" "/usr/pluto/bin/CaptureCards_BootConfig_PVR-250.sh"
 
 . /usr/pluto/bin/Config_Ops.sh
 export DISPLAY=:${Display}
