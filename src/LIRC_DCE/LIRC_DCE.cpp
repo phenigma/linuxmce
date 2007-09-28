@@ -130,8 +130,8 @@ bool LIRC_DCE::GetConfig()
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "->Using Driver %s in database",sLIRCDriver.c_str());
 
-	remove("/etc/lircd.conf");
-	fp = fopen("/etc/lircd.conf", "wt");
+	remove("/etc/lirc/lircd.conf");
+	fp = fopen("/etc/lirc/lircd.conf", "wt");
 	int iNumRemotes=0;
 	// Find all our sibblings that are remote controls 
 	for(Map_DeviceData_Base::iterator itD=m_pData->m_AllDevices.m_mapDeviceData_Base.begin();
@@ -194,7 +194,7 @@ bool LIRC_DCE::GetConfig()
 		return true;
 	}
 
-	system((string("lircd") + " -H " + sLIRCDriver + " -d " + sSerialPort + " /etc/lircd.conf").c_str());
+	system((string("lircd") + " -H " + sLIRCDriver + " -d " + sSerialPort + " /etc/lirc/lircd.conf").c_str());
 //TODO: Check if it started
 
 	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Creating Leeching Thread for %d remotes",iNumRemotes);
