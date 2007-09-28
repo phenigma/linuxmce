@@ -25,6 +25,7 @@ Moon_KernelVersion=$(uname -r)
 
 ## Move kernel from core to md
 cp /boot/vmlinuz-${Moon_KernelVersion} ${Moon_RootLocation}/boot/
+cp /boot/System.map-${Moon_KernelVersion} ${Moon_RootLocation}/boot/
 cp -r /lib/modules/${Moon_KernelVersion} ${Moon_RootLocation}/lib/modules
 
 
