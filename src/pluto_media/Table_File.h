@@ -113,6 +113,7 @@ short int m_IsNew;
 short int m_Ignore;
 long int m_INode;
 string m_MD5;
+string m_Source;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
@@ -120,7 +121,7 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[26];
+		bool is_null[27];
 	
 	public:
 		long int PK_File_get();
@@ -143,6 +144,7 @@ short int IsNew_get();
 short int Ignore_get();
 long int INode_get();
 string MD5_get();
+string Source_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -171,6 +173,7 @@ void IsNew_set(short int val);
 void Ignore_set(short int val);
 void INode_set(long int val);
 void MD5_set(string val);
+void Source_set(string val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -192,6 +195,7 @@ bool AttrDate_isNull();
 bool DateLastViewed_isNull();
 bool INode_isNull();
 bool MD5_isNull();
+bool Source_isNull();
 bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
@@ -212,6 +216,7 @@ void AttrDate_setNull(bool val);
 void DateLastViewed_setNull(bool val);
 void INode_setNull(bool val);
 void MD5_setNull(bool val);
+void Source_setNull(bool val);
 void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
@@ -248,7 +253,7 @@ void RipStatus_FK_File_getrows(vector <class Row_RipStatus*> *rows);
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_File+ m_EK_MediaType+ m_FK_MediaSubType+ m_FK_FileFormat+ m_FK_FileGroup+ m_DateAdded+ m_Path+ m_Filename+ m_Missing+ m_IsDirectory+ m_EK_Users_Private+ m_EK_Device+ m_ModificationDate+ m_AttrCount+ m_AttrDate+ m_DateLastViewed+ m_IsNew+ m_Ignore+ m_INode+ m_MD5+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_PK_File+ m_EK_MediaType+ m_FK_MediaSubType+ m_FK_FileFormat+ m_FK_FileGroup+ m_DateAdded+ m_Path+ m_Filename+ m_Missing+ m_IsDirectory+ m_EK_Users_Private+ m_EK_Device+ m_ModificationDate+ m_AttrCount+ m_AttrDate+ m_DateLastViewed+ m_IsNew+ m_Ignore+ m_INode+ m_MD5+ m_Source+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
@@ -273,6 +278,7 @@ string IsNew_asSQL();
 string Ignore_asSQL();
 string INode_asSQL();
 string MD5_asSQL();
+string Source_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();

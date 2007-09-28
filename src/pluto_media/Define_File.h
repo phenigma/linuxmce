@@ -43,6 +43,8 @@
 #define FILE_INODE_TABLE_FIELD "File.INode"
 #define FILE_MD5_FIELD "MD5"
 #define FILE_MD5_TABLE_FIELD "File.MD5"
+#define FILE_SOURCE_FIELD "Source"
+#define FILE_SOURCE_TABLE_FIELD "File.Source"
 #define FILE_PSC_ID_FIELD "psc_id"
 #define FILE_PSC_ID_TABLE_FIELD "File.psc_id"
 #define FILE_PSC_BATCH_FIELD "psc_batch"
