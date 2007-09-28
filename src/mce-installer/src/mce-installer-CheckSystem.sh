@@ -6,10 +6,11 @@ diff_list="/tmp/diff.list"
 clean_system="true"
 
 function GenerateDiff {
+	echo > "$diff_list"
 	while read orig_name orig_ver ;do
 		local local_line=$(grep "^$orig_name " $local_list | head -1)
 		if [[ "$local_line" == "" ]] ;then
-			echo "MISSING '$orig_name'" > "$diff_list"
+			echo "MISSING '$orig_name'" >> "$diff_list"
 			clean_system="false"
 			continue
 		fi
@@ -18,7 +19,7 @@ function GenerateDiff {
 		local local_ver=$(echo $local_line | cut -d' ' -f2-99)
 		
 		if [[ "$orig_ver" != "$local_ver" ]] ;then
-			echo "CHANGED '$orig_name' '$local_ver' '$orig_ver'" > "$diff_list"
+			echo "CHANGED '$orig_name' '$local_ver' '$orig_ver'" >> "$diff_list"
 			clean_system="false"
 			continue
 		fi
