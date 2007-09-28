@@ -37,6 +37,12 @@ long MasterMix::GetVolMax()
 
 void MasterMix::GetVolumeLimits()
 {
+	if (! m_bUsable)
+	{
+		m_VolMin = m_VolMax = 0;
+		return;
+	}
+
 	// get min and max limits
 	if (snd_mixer_selem_has_playback_volume(m_MixerElem))
 	{
@@ -49,6 +55,9 @@ void MasterMix::GetVolumeLimits()
 
 long MasterMix::GetVolume()
 {
+	if (! m_bUsable)
+		return 0;
+
 	long Volume;
 	if (!snd_mixer_selem_has_common_volume(m_MixerElem))
 	{
@@ -69,6 +78,9 @@ int MasterMix::GetVolumePercent()
 
 int MasterMix::IsOn()
 {
+	if (! m_bUsable)
+		return 0;
+
 	int IsOn;
 	if (!snd_mixer_selem_has_common_switch(m_MixerElem))
 	{
@@ -84,17 +96,23 @@ int MasterMix::IsOn()
 
 void MasterMix::SetVolume(long Volume)
 {
+	if (! m_bUsable)
+		return;
+
 	snd_mixer_selem_set_playback_volume(m_MixerElem, (snd_mixer_selem_channel_id_t)0, Volume);
 	snd_mixer_selem_set_playback_volume(m_MixerElem, (snd_mixer_selem_channel_id_t)1, Volume);
 }
 
 void MasterMix::SetVolumePercent(int Percent)
 {
-	SetVolume(round(Percent / 100.0 * m_VolMax));
+	SetVolume(lrintl(Percent / 100.0 * m_VolMax));
 }
 
 void MasterMix::SetOn(int On)
 {
+	if (! m_bUsable)
+		return;
+
 	snd_mixer_selem_set_playback_switch(m_MixerElem, (snd_mixer_selem_channel_id_t)0, On);
 	snd_mixer_selem_set_playback_switch(m_MixerElem, (snd_mixer_selem_channel_id_t)1, On);
 }
@@ -144,8 +162,14 @@ void MasterMix::CloseMixerHandle()
 void MasterMix::GetMasterMixerElem()
 {
 	if (! m_bUsable)
+	{
+		m_MixerHandle = NULL;
 		return;
+	}
+
+	/*
 	snd_mixer_t *handle;
+	*/
 	snd_mixer_selem_id_t *sid;
 	snd_mixer_elem_t *elem;
 	snd_mixer_selem_id_alloca(&sid);
