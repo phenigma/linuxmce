@@ -12,6 +12,14 @@ echo "--- start mce wizard data ---"
 cat /tmp/mce_wizard_data.sh 
 echo "--- end mce wizard data ---"
 
+function FakeUpdates {
+	mkdir -p /home/update
+	for i in `seq 1 4` ;do
+		mkdir -p "/home/updates/$i"
+		touch "/home/updates/$i/update.xml"
+	done
+}
+
 function ExitInstaller {
 	echo 
 	echo "ERROR : $*" >&2
@@ -126,8 +134,8 @@ function Create_And_Config_Devices {
 
 	## Update the 'LastUpdate' Device Data on the templates
 	RunSQL "UPDATE DeviceTemplate_DeviceData SET IK_DeviceData=1 WHERE FK_DeviceTemplate = 7 AND FK_DeviceData=234"
-	RunSQL "UPDATE DeviceTemplate_DeviceData SET IK_DeviceData=1 WHERE FK_DeviceTemplate = 28 AND FK_DeviceData=234"
-	RunSQL "UPDATE DeviceTemplate_DeviceData SET IK_DeviceData=1 WHERE FK_DeviceTemplate = 1893 AND FK_DeviceData=234"
+	RunSQL "UPDATE DeviceTemplate_DeviceData SET IK_DeviceData=2 WHERE FK_DeviceTemplate = 28 AND FK_DeviceData=234"
+	RunSQL "UPDATE DeviceTemplate_DeviceData SET IK_DeviceData=3 WHERE FK_DeviceTemplate = 1893 AND FK_DeviceData=234"
 
 	## Update some info in the database
 	Q="INSERT INTO Installation(Description, ActivationCode) VALUES('Pluto', '1111')"
@@ -302,6 +310,7 @@ if [[ "$c_netExtKeep" != "true" ]] ;then
 	Setup_Network_Intefaces
 fi
 Setup_Apt_Conffiles
+FakeUpdates
 Setup_Pluto_Conf
 Install_DCERouter
 Create_And_Config_Devices
@@ -385,5 +394,6 @@ RunSQL "UPDATE Installation SET FK_PostalCode = 0"
 #	apt-get -y dist-upgrade || ExitInstaller "Failed while upgrading the system. Installation finished but you system might be left in a unstable state."
 #fi
 
+apt-get -y -f dist-upgrade
 StatsMessage "Installation Finished"
 init 0
