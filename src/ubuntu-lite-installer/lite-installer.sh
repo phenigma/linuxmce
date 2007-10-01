@@ -4,7 +4,7 @@ set -e
 
 Debug=0
 FromHdd=0
-grep -q "from_hdd_recovery" /proc/cmdline && FromHdd="1"
+grep -q "install_from_hdd" /proc/cmdline && FromHdd="1"
 
 TargetHdd=
 RootUUID=
@@ -126,6 +126,7 @@ CopyDVD()
 	if [[ "$FromHdd" == "1" ]] ;then
 		return
 	fi
+	echo "Copying DVD to hard drive"
 	local DVDdir=$(mktemp -d)
 	mount -t squashfs -o loop,ro /cdrom/casper/filesystem.squashfs "$DVDdir"
 	cp -a "$DVDdir"/. /media/recovery/
@@ -209,6 +210,8 @@ iface $IntIf inet static
 
 SetupFstab()
 {
+	mkdir -p /media/target/mnt/recovery
+
 	local fstab_text="
 # /etc/fstab: static file system information.
 #
@@ -218,6 +221,7 @@ proc            /proc           proc    defaults        0       0
 ${TargetHdd}1 /               ext3    defaults,errors=remount-ro 0       1
 #UUID=$SwapUUID
 ${TargetHdd}5 none            swap    sw              0       0
+${TargetHdd}6 /mnt/recovery   ext3    ro              0       0
 /dev/cdrom        /media/cdrom0   udf,iso9660 user,noauto     0       0
 "
 	echo "$fstab_text" > /media/target/etc/fstab
@@ -240,7 +244,7 @@ InstallGrub()
 	echo "
 	title		System Recovery
 	root		(hd0,5)
-	kernel		/boot/vmlinuz-2.6.20-15-generic root=${TargetHdd}7 from_hdd_recovery
+	kernel		/boot/vmlinuz-2.6.20-15-generic root=${TargetHdd}6 install_from_hdd
 	initrd		/boot/initrd.img-2.6.20-15-generic
 	" >> /media/target/boot/grub/menu.lst
 }
