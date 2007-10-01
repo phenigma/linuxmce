@@ -575,7 +575,7 @@ bool Socket::ReceiveDataDelimited(int &iSize, char *& pcData, char cDelimiter, i
 			m_nInternalBuffer_Position -= static_cast<int>(pInternalBuffer_Cursor - m_pInternalBuffer_Data);
 
 			//reset remaining data
-			memset(pInternalBuffer_Cursor + 1, 0, m_pInternalBuffer_Data + INTERNAL_BUFFER_SIZE - pInternalBuffer_Cursor);
+			memset(m_pInternalBuffer_Data + m_nInternalBuffer_Position, 0, pInternalBuffer_Cursor - m_pInternalBuffer_Data);
 
 			//allocate memory for received data buffer
 			iSize = static_cast<int>(listReceivedData.size());
