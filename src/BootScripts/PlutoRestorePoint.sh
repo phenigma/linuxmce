@@ -44,10 +44,10 @@ if [[ "$1" == "--backup" ]]; then
 	
 	# backup pluto-admin
 	mkdir -p $FULLPATH/usr/pluto/orbiter
-	cp -r /usr/pluto/orbiter/floorplans $FULLPATH/usr/pluto/orbiter
-	cp -r /usr/pluto/orbiter/users $FULLPATH/usr/pluto/orbiter
-	cp -r /usr/pluto/orbiter/rooms $FULLPATH/usr/pluto/orbiter
-	cp -r /usr/pluto/orbiter/scenarios $FULLPATH/usr/pluto/orbiter
+	cp -Lr /usr/pluto/orbiter/floorplans $FULLPATH/usr/pluto/orbiter
+	cp -Lr /usr/pluto/orbiter/users $FULLPATH/usr/pluto/orbiter
+	cp -Lr /usr/pluto/orbiter/rooms $FULLPATH/usr/pluto/orbiter
+	cp -Lr /usr/pluto/orbiter/scenarios $FULLPATH/usr/pluto/orbiter
 	
 	# backup conf files
 	mkdir -p $FULLPATH/etc
