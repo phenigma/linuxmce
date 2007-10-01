@@ -44,7 +44,7 @@ script
 if grep -q "recovery" /proc/cmdline ;then
 	/usr/bin/RecoveryConsole.sh
 else
-	usr/bin/$(basename "$InstallerScript")
+	/usr/bin/$(basename "$InstallerScript")
 fi
 end script
 " >"$SquashFSDir/etc/event.d/installer-lmce"

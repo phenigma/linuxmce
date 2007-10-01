@@ -150,6 +150,18 @@ CopyDVD()
 		mkdir -p /media/recovery/archives/via-archives
 		cp -a /cdrom/via-archives/. /media/recovery/archives/via-archives/
 	fi
+
+	local interfaces="
+auto lo
+iface lo inet loopback
+
+auto eth0
+iface eth0 inet dhcp
+
+auto eth1
+iface eth1 inet dhcp
+"
+	echo "$interfaces" >/media/recovery/etc/network/interfaces
 }
 
 ExtractArchive()
