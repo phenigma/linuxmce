@@ -64,7 +64,8 @@ void MediaState::LoadDbInfo(Database_pluto_media *pDatabase_pluto_media, string 
 		") AS CurrentDbAttrDate, "
 		"(COUNT(Bookmark.PK_Bookmark) + COUNT(File_Attribute.FK_Attribute) + COUNT(Attribute.PK_Attribute) + COUNT(LongAttribute.PK_LongAttribute) + COUNT(Picture_File.FK_Picture)) AS CurrentDbAttrCount, "
 		"AttrDate AS OldDbAttrDate, AttrCount AS OldDbAttrCount, ModificationDate AS OldFileDate, "
-		"(COUNT(File_Attribute.FK_Attribute) + COUNT(LongAttribute.PK_LongAttribute)) AS HasAttributes "
+		"(COUNT(File_Attribute.FK_Attribute) + COUNT(LongAttribute.PK_LongAttribute)) AS HasAttributes, "
+		"File.Source "
 		"FROM File "
 		"LEFT JOIN Bookmark ON Bookmark.FK_File = PK_File "
 		"LEFT JOIN File_Attribute ON File_Attribute.FK_File = PK_File "
@@ -86,7 +87,8 @@ void MediaState::LoadDbInfo(Database_pluto_media *pDatabase_pluto_media, string 
 		sfOldDbAttrDate,
 		sfOldDbAttrCount,
 		sfOldFileDate,
-		sfHasAttributes
+		sfHasAttributes,
+		sfSource
 	};
 
 	DB_ROW row;
@@ -110,10 +112,11 @@ void MediaState::LoadDbInfo(Database_pluto_media *pDatabase_pluto_media, string 
 				int sOldDbAttrCount = NULL != row[sfOldDbAttrCount] ? atoi(row[sfOldDbAttrCount]) : 0;
 				string sOldFileDate = NULL != row[sfOldFileDate] ? row[sfOldFileDate] : string();
 				bool bHasAttributes = NULL != row[sfHasAttributes] ? atoi(row[sfHasAttributes]) > 0 : false;
+				char cSource = NULL != row[sfSource] ? row[sfSource][0] : 0;
 
 				m_mapMediaState[make_pair(sPath, sFilename)] = MediaItemState(nFileID, sPath, sFilename, nInode,
 					sCurrentDbAttrDate, sCurrentDbAttrCount, 
-					sOldDbAttrDate, sOldDbAttrCount, sOldFileDate, bHasAttributes);
+					sOldDbAttrDate, sOldDbAttrCount, sOldFileDate, bHasAttributes, cSource);
 			}
 		}
 	}	
@@ -131,6 +134,11 @@ MediaSyncMode MediaState::SyncModeNeeded(string sDirectory, string sFile)
 	if(it != m_mapMediaState.end())
 	{
 		MediaItemState item = it->second;
+
+		//is this our file ?
+		if(item.m_cSource != 'F' && item.m_cSource != 'P')
+			return modeNone;
+
 		if(StringUtils::SQLDateTime(item.m_sOldFileDate) != StringUtils::SQLDateTime(sCurrentFileDate))
 		{
 			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Need to update db for %s/%s: old file data %s, current file date %s", 
@@ -271,7 +279,8 @@ MediaItemState MediaState::LoadDbInfoForFile(Database_pluto_media *pDatabase_plu
 		") AS CurrentDbAttrDate, "
 		"(COUNT(Bookmark.PK_Bookmark) + COUNT(File_Attribute.FK_Attribute) + COUNT(Attribute.PK_Attribute) + COUNT(LongAttribute.PK_LongAttribute) + COUNT(Picture_File.FK_Picture)) AS CurrentDbAttrCount, "
 		"AttrDate AS OldDbAttrDate, AttrCount AS OldDbAttrCount, ModificationDate AS OldFileDate, "
-		"(COUNT(File_Attribute.FK_Attribute) + COUNT(LongAttribute.PK_LongAttribute)) AS HasAttributes "
+		"(COUNT(File_Attribute.FK_Attribute) + COUNT(LongAttribute.PK_LongAttribute)) AS HasAttributes, "
+		"Source "
 		"FROM File "
 		"LEFT JOIN Bookmark ON Bookmark.FK_File = PK_File "
 		"LEFT JOIN File_Attribute ON File_Attribute.FK_File = PK_File "
@@ -293,7 +302,8 @@ MediaItemState MediaState::LoadDbInfoForFile(Database_pluto_media *pDatabase_plu
 		sfOldDbAttrDate,
 		sfOldDbAttrCount,
 		sfOldFileDate,
-		sfHasAttributes
+		sfHasAttributes,
+		sfSource
 	};
 
 	DB_ROW row;
@@ -317,10 +327,11 @@ MediaItemState MediaState::LoadDbInfoForFile(Database_pluto_media *pDatabase_plu
 				int sOldDbAttrCount = NULL != row[sfOldDbAttrCount] ? atoi(row[sfOldDbAttrCount]) : 0;
 				string sOldFileDate = NULL != row[sfOldFileDate] ? row[sfOldFileDate] : string();
 				bool bHasAttributes = NULL != row[sfHasAttributes] ? atoi(row[sfHasAttributes]) > 0 : false;
+				char cSource = NULL != row[sfSource] ? row[sfSource][0] : 0;
 
 				return MediaItemState(nFileID, sPath, sFilename, nInode,
 					sCurrentDbAttrDate, sCurrentDbAttrCount, sOldDbAttrDate, 
-					sOldDbAttrCount, sOldFileDate, bHasAttributes);
+					sOldDbAttrCount, sOldFileDate, bHasAttributes, cSource);
 			}
 		}
 	}
