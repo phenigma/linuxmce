@@ -545,10 +545,19 @@ bool Socket::ReceiveDataDelimited(int &iSize, char *& pcData, char cDelimiter, i
 	{
 		//read anything for internal buffer
 		char *pInternalBuffer_Cursor = m_pInternalBuffer_Data;
-		while(pInternalBuffer_Cursor < m_pInternalBuffer_Data + m_nInternalBuffer_Position && *pInternalBuffer_Cursor != cDelimiter)
+		while(pInternalBuffer_Cursor < m_pInternalBuffer_Data + m_nInternalBuffer_Position)
 		{
 			listReceivedData.push_back(*pInternalBuffer_Cursor);
-			++pInternalBuffer_Cursor;
+
+			if(*pInternalBuffer_Cursor == cDelimiter)
+			{
+				++pInternalBuffer_Cursor;
+				break;
+			}
+			else
+			{
+				++pInternalBuffer_Cursor;
+			}
 		}
 
 		//read everything from internal buffer ?
@@ -570,7 +579,7 @@ bool Socket::ReceiveDataDelimited(int &iSize, char *& pcData, char cDelimiter, i
 
 			//allocate memory for received data buffer
 			iSize = static_cast<int>(listReceivedData.size());
-			char *pcData = new char[iSize + 1];
+			pcData = new char[iSize + 1];
 			char *pcData_Cursor = pcData;
 		
 			//copy the data
@@ -581,7 +590,7 @@ bool Socket::ReceiveDataDelimited(int &iSize, char *& pcData, char cDelimiter, i
 			}
 
 			//just in case the user needs it as a string, add a dummy '\0' terminator
-			pcData_Cursor[iSize] = '\0';
+			pcData[iSize] = '\0';
 
 			//got everything
 			return true;
