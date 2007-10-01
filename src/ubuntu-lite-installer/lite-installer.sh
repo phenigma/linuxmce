@@ -256,7 +256,7 @@ InstallGrub()
 	echo "
 	title		System Recovery
 	root		(hd0,5)
-	kernel		/boot/vmlinuz-2.6.20-15-generic root=${TargetHdd}6 install_from_hdd
+	kernel		/boot/vmlinuz-2.6.20-15-generic root=${TargetHdd}6 quiet install_from_hdd
 	initrd		/boot/initrd.img-2.6.20-15-generic
 	" >> /media/target/boot/grub/menu.lst
 }
