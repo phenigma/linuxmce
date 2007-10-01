@@ -1,0 +1,17 @@
+ROOT=..
+
+CXX=g++
+CC=$(CXX)
+CPPFLAGS=-W -Wall -pipe -ggdb3 -DENABLE_TEST_UNIT
+CXXFLAGS=-I. -I.. -I$(ROOT)
+LDFLAGS=-L$(ROOT)/lib -L/usr/local/lib
+LDLIBS= -lDCECommon -lPlutoUtils
+
+sources = VDR_TestUnit.cpp 
+
+all: $(sources:.cpp=.o)
+	$(CXX) -o VDR_TestUnit $+ $(LDFLAGS) $(LDLIBS)
+	chmod +x VDR_TestUnit
+
+clean:
+	rm -f VDR_TestUnit $(sources:.cpp=.o) 

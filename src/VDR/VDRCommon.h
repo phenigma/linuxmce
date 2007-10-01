@@ -30,13 +30,19 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"connected");
 
 	for(int iLines=0;;++iLines)
 	{
-		if( !_PlainClientSocket.ReceiveString(sResponse,VDR_SOCKET_TIMEOUT) )
+		char *pData = NULL;
+		int nSize = 0;
+
+		if(!_PlainClientSocket.ReceiveDataDelimited(nSize, pData, '\n') || NULL == pData)
 		{
 			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"VDR not ok with command got %d lines then failed: %s",iLines,sVDRResponse.c_str());
 			return false;
 		}
 
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"VDR line %d: %s", iLines,sResponse.c_str());
+		//we want a string
+		string sResponse(pData);
+
+		//LoggerWrapper::GetInstance()->Write(LV_STATUS,"VDR line %d: %s", iLines,sResponse.c_str());
 		
 		if( sResponse.substr(0,3)!="250" && sResponse.substr(0,3)!="215" )
 		{
