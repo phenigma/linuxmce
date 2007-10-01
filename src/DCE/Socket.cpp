@@ -32,6 +32,8 @@
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
 
+#include <list>
+
 #ifdef PLUTOSERVER
 	const char *Module="PlutoServer";
 #else
@@ -143,7 +145,8 @@ void* PingLoop( void* param ) // renamed to cancel link-time name collision in M
 	}
 }
 
-Socket::Socket(string Name,string sIPAddress, string sMacAddress) : m_SocketMutex("socket mutex " + Name)
+Socket::Socket(string Name,string sIPAddress, string sMacAddress) : m_SocketMutex("socket mutex " + Name),
+	m_pInternalBuffer_Data(NULL), m_nInternalBuffer_Position(0), m_bReceiveData_TimedOut(false)
 {
     m_bCancelSocketOp = false;
 	m_pcSockLogFile=m_pcSockLogErrorFile=NULL;
@@ -513,9 +516,153 @@ bool Socket::SendData( int iSize, const char *pcData )
 	return true; // success
 }
 
+bool Socket::ReceiveDataDelimited(int &iSize, char *& pcData, char cDelimiter, int /*nTimeout = -1*/)
+{
+	//first time to use the internal buffer ? 
+	if(NULL == m_pInternalBuffer_Data)
+	{
+		//allocate memory for internal buffer
+		m_pInternalBuffer_Data = new char[INTERNAL_BUFFER_SIZE];
+
+		if(NULL != m_pInternalBuffer_Data)
+		{
+			//reset internal buffer
+			m_nInternalBuffer_Position = 0;
+			memset(m_pInternalBuffer_Data, 0, INTERNAL_BUFFER_SIZE);
+		}
+		else
+		{
+			//out of memory
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Socket::ReceiveDataDelimited - failed to allocate memory for internal buffer!");
+			return false;
+		}
+	}
+
+	std::list<char> listReceivedData;
+
+	while(true)
+	{
+		//read anything for internal buffer
+		char *pInternalBuffer_Cursor = m_pInternalBuffer_Data;
+		while(pInternalBuffer_Cursor < m_pInternalBuffer_Data + m_nInternalBuffer_Position && *pInternalBuffer_Cursor != cDelimiter)
+		{
+			listReceivedData.push_back(*pInternalBuffer_Cursor);
+			++pInternalBuffer_Cursor;
+		}
+
+		//read everything from internal buffer ?
+		if(pInternalBuffer_Cursor == m_pInternalBuffer_Data + m_nInternalBuffer_Position)
+		{
+			//reset internal buffer
+			m_nInternalBuffer_Position = 0;
+			memset(m_pInternalBuffer_Data, 0, INTERNAL_BUFFER_SIZE);
+		}
+		else
+		{
+			//we still have usefull data in internal buffer 
+			//shift data to the begining
+			memcpy(m_pInternalBuffer_Data, pInternalBuffer_Cursor, m_pInternalBuffer_Data + m_nInternalBuffer_Position - pInternalBuffer_Cursor);
+			m_nInternalBuffer_Position -= static_cast<int>(pInternalBuffer_Cursor - m_pInternalBuffer_Data);
+
+			//reset remaining data
+			memset(pInternalBuffer_Cursor + 1, 0, m_pInternalBuffer_Data + INTERNAL_BUFFER_SIZE - pInternalBuffer_Cursor);
+
+			//allocate memory for received data buffer
+			iSize = static_cast<int>(listReceivedData.size());
+			char *pcData = new char[iSize];
+			char *pcData_Cursor = pcData;
+		
+			//copy the data
+			for(list<char>::const_iterator it = listReceivedData.begin(), end = listReceivedData.end(); it != end; ++it)
+			{
+				*pcData_Cursor = *it;
+				++pcData_Cursor;
+			}
+
+			//got everything
+			return true;
+		}
+
+		//reset the cursor
+		pInternalBuffer_Cursor = m_pInternalBuffer_Data;
+
+		//if we are here, this means we need to read more data from the socket
+		//if the socket timed out last time, we won't get any more data
+		if(m_bReceiveData_TimedOut)
+		{
+			//can't get any more data
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Socket::ReceiveDataDelimited - the socket %d timed out!", m_Socket);
+			return false;
+		}
+
+		//internal buffer is empty now, but we still need more data
+		bool bResult = ReceiveData(INTERNAL_BUFFER_SIZE, m_pInternalBuffer_Data, 1);
+		
+		//the socket timed out ?
+		if(m_bReceiveData_TimedOut)
+		{
+			//couldn't read more then this, but this should be enough
+			m_nInternalBuffer_Position = INTERNAL_BUFFER_SIZE - m_nReceiveData_BytesLeft;
+		}
+		else if(bResult)
+		{
+			//got all the buffer full
+			m_nInternalBuffer_Position = INTERNAL_BUFFER_SIZE;
+		}
+		else
+		{
+			//failed to read data, something is wrong with the socket
+			return false;
+		}
+	}
+
+	//shouldn't got here
+	LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Socket::ReceiveDataDelimited - unknown error with socket %d!", m_Socket);
+	return false;
+}
+
 bool Socket::ReceiveData( int iSize, char *pcData, int nTimeout/* = -1*/ )
 {
+	m_bReceiveData_TimedOut = false;
+
     int nInternalReceiveTimeout = nTimeout != -1 ? nTimeout : m_iReceiveTimeout;
+	int iBytesLeft = iSize;
+
+	//got data in the internal buffer ?
+	if(NULL != m_pInternalBuffer_Data && m_nInternalBuffer_Position > 0)
+	{
+		//copy data from buffer first
+		memcpy(pcData, m_pInternalBuffer_Data, min(iSize, m_nInternalBuffer_Position));
+
+		//any data left in the internal buffer ?
+		if(iSize < m_nInternalBuffer_Position)
+		{
+			char *pInternalBuffer_Cursor = m_pInternalBuffer_Data + iSize;
+
+			//we still have usefull data in internal buffer 
+			//shift data to the begining
+			memcpy(m_pInternalBuffer_Data, pInternalBuffer_Cursor, m_pInternalBuffer_Data + m_nInternalBuffer_Position - pInternalBuffer_Cursor);
+			m_nInternalBuffer_Position -= static_cast<int>(pInternalBuffer_Cursor - m_pInternalBuffer_Data);
+
+			//reset remaining data
+			memset(pInternalBuffer_Cursor + 1, 0, m_pInternalBuffer_Data + INTERNAL_BUFFER_SIZE - pInternalBuffer_Cursor);
+
+			//got everything we need
+			return true;
+		}
+		else
+		{
+			//update the number of bytes left to read
+			iBytesLeft -= m_nInternalBuffer_Position;
+
+			//reset internal buffer
+			m_nInternalBuffer_Position = 0;
+			memset(m_pInternalBuffer_Data, 0, INTERNAL_BUFFER_SIZE);
+		}
+	}
+
+	//need to read more data
+	//we won't use the internal buffer here
 
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sSM,m_SocketMutex);  // don't log anything but failures
 	sSM.m_bIgnoreDeadlock=true;  // This socket can block a long time on receive.  Don't treat that as a deadlock
@@ -534,8 +681,6 @@ bool Socket::ReceiveData( int iSize, char *pcData, int nTimeout/* = -1*/ )
 	clock_t clk_start=clock();
 	clock_t clk_select1=0, clk_select1b=0, clk_select2=0, clk_select2b=0;
 #endif
-
-	int iBytesLeft = iSize;
 
 	while( iBytesLeft > 0 )
 	{
@@ -611,6 +756,13 @@ bool Socket::ReceiveData( int iSize, char *pcData, int nTimeout/* = -1*/ )
 			} while (iRet != -1 && iRet != 1);
 #endif
 
+			if(iRet == 0)
+			{
+				//register the time out
+				m_bReceiveData_TimedOut = true;
+				m_nReceiveData_BytesLeft = iBytesLeft;
+			}
+
 			if( iRet == 0 || iRet == -1 )
 			{
 				if( nInternalReceiveTimeout==-2 )
@@ -633,7 +785,6 @@ bool Socket::ReceiveData( int iSize, char *pcData, int nTimeout/* = -1*/ )
 			}
 
 			m_iSockBufBytesLeft = recv( m_Socket, m_pcInSockBuffer, INSOCKBUFFER_SIZE - 1, 0 );
-
 
 #ifndef PLATFORM_PR_MC1_CABLE
 			if ( m_iSockBufBytesLeft <= 0 )

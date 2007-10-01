@@ -29,6 +29,7 @@ Header file for the Socket class
 
 #define SOCKET_TIMEOUT			20
 #define SOCKET_TIMEOUT_PLUGIN	30
+#define INTERNAL_BUFFER_SIZE	4096
 
 #define PING_TIMEOUT		5
 
@@ -56,6 +57,12 @@ namespace DCE
 		int m_iReceiveTimeout; /**< the interval after witch the sockets stops expecting for an answer in seconds */
 		int m_iSendReceiveTimeout; /**< how long to wait for a reply to a string or message */
 		bool m_bQuit; /**< set when the socket should terminate */
+
+		char *m_pInternalBuffer_Data; /** < internal buffer for received data */
+		int m_nInternalBuffer_Position; /** < the position in the internal buffer */
+
+		bool m_bReceiveData_TimedOut; /** < this will become true if ReceiveData times out */
+		int m_nReceiveData_BytesLeft; /** < the number of bytes left to receive */
 
 	public:
 
@@ -140,8 +147,18 @@ namespace DCE
 		 * @brief just reads raw data from the socket
          * if 'nTimeout' is -1, the default timeout will be used.  Timeout is in seconds
 		 * -2 is a special timeout meaning don't wait at all, just return false if the buffer is empty
+		 * NOTE 1: the user is responsible to allocate memory for pcData!
+		 * NOTE 2: parameter nTimeout is reserved for future use
 		 */
 		virtual bool ReceiveData( int iSize, char *pcData, int nTimeout = -1 );
+
+		/**
+		 * @brief just reads raw data from the socket until delimiter is received
+         * if 'nTimeout' is -1, the default timeout will be used.  Timeout is in seconds
+		 * -2 is a special timeout meaning don't wait at all, just return false if the buffer is empty
+		 * NOTE: the method will allocate memory for pcData!
+		 */
+		virtual bool ReceiveDataDelimited(int &iSize, char *& pcData, char cDelimiter, int nTimeout = -1);
 
 		/**
 		 * @brief sends a string to the socket.
