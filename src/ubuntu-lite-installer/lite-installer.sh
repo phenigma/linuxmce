@@ -296,6 +296,7 @@ GetHddToUse
 PartitionHdd
 FormatPartitions
 MountPartitions
+CopyDVD
 ExtractArchive
 SetupFstab
 InstallGrub
