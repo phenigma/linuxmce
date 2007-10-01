@@ -145,8 +145,9 @@ void* PingLoop( void* param ) // renamed to cancel link-time name collision in M
 	}
 }
 
-Socket::Socket(string Name,string sIPAddress, string sMacAddress) : m_SocketMutex("socket mutex " + Name),
-	m_pInternalBuffer_Data(NULL), m_nInternalBuffer_Position(0), m_bReceiveData_TimedOut(false)
+Socket::Socket(string Name,string sIPAddress, string sMacAddress) : 
+	m_pInternalBuffer_Data(NULL), m_nInternalBuffer_Position(0), 
+	m_bReceiveData_TimedOut(false), m_SocketMutex("socket mutex " + Name)
 {
     m_bCancelSocketOp = false;
 	m_pcSockLogFile=m_pcSockLogErrorFile=NULL;
