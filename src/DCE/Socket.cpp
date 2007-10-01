@@ -560,12 +560,17 @@ bool Socket::ReceiveDataDelimited(int &iSize, char *& pcData, char cDelimiter, i
 			}
 		}
 
+		bool bDoneReceivingData = false;
+
 		//read everything from internal buffer ?
 		if(pInternalBuffer_Cursor == m_pInternalBuffer_Data + m_nInternalBuffer_Position)
 		{
 			//reset internal buffer
 			m_nInternalBuffer_Position = 0;
 			memset(m_pInternalBuffer_Data, 0, INTERNAL_BUFFER_SIZE);
+
+			if(m_bReceiveData_TimedOut)
+				bDoneReceivingData = true;
 		}
 		else
 		{
@@ -577,6 +582,11 @@ bool Socket::ReceiveDataDelimited(int &iSize, char *& pcData, char cDelimiter, i
 			//reset remaining data
 			memset(m_pInternalBuffer_Data + m_nInternalBuffer_Position, 0, pInternalBuffer_Cursor - m_pInternalBuffer_Data);
 
+			bDoneReceivingData = true;
+		}
+
+		if(bDoneReceivingData)
+		{
 			//allocate memory for received data buffer
 			iSize = static_cast<int>(listReceivedData.size());
 			pcData = new char[iSize + 1];
@@ -600,14 +610,6 @@ bool Socket::ReceiveDataDelimited(int &iSize, char *& pcData, char cDelimiter, i
 		pInternalBuffer_Cursor = m_pInternalBuffer_Data;
 
 		//if we are here, this means we need to read more data from the socket
-		//if the socket timed out last time, we won't get any more data
-		if(m_bReceiveData_TimedOut)
-		{
-			//can't get any more data
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Socket::ReceiveDataDelimited - the socket %d timed out!", m_Socket);
-			return false;
-		}
-
 		//internal buffer is empty now, but we still need more data
 		bool bResult = ReceiveData(INTERNAL_BUFFER_SIZE, m_pInternalBuffer_Data, 1);
 		
@@ -778,6 +780,12 @@ bool Socket::ReceiveData( int iSize, char *pcData, int nTimeout/* = -1*/ )
 
 			if( iRet == 0 || iRet == -1 )
 			{
+				if(NULL != m_pInternalBuffer_Data)
+				{
+					//when using internal buffer, don't close connection on time out
+					return true;
+				}
+
 				if( nInternalReceiveTimeout==-2 )
 					return false; // Special value means don't timeout
 				LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Socket::ReceiveData-a %p failed ret %d",this, (int) iRet);

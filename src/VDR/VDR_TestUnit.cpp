@@ -21,7 +21,7 @@ int main()
 	}
 #endif
 
-	if(SendVDRCommand("10.0.0.86", "LSTE", sResponse))
+	if(SendVDRCommand("localhost", "LSTE", sResponse))
 	{
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Received response: \n\n%s", sResponse.c_str());
 	}
