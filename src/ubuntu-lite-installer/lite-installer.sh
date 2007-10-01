@@ -3,6 +3,8 @@
 set -e
 
 Debug=0
+FromHdd=0
+grep -q "from_hdd_recovery" /proc/cmdline && FromHdd="1"
 
 TargetHdd=
 RootUUID=
@@ -24,7 +26,19 @@ GetHddToUse()
 	if [[ "$Debug" == 1 ]]; then
 		HddList="/dev/loop0:0:GB"
 	fi
-	if [[ -z "$HddList" ]]; then # No hard drives
+	if [[ "$FromHdd" == 1 ]]; then
+		for BootParm in $(</proc/cmdline); do
+			if [[ "$BootParm" == "root="* ]]; then
+				TargetHdd="${BootParm#root=}"
+				TargetHdd="${TargetHdd//[0-9]}"
+				break
+			fi
+		done
+		if [[ -z "$TargetHdd" ]]; then
+			echo "Error: Failed to determine current hard drive"
+			exit 1
+		fi
+	elif [[ -z "$HddList" ]]; then # No hard drives
 		echo "Error: No hard drives found"
 		exit 1
 	else
@@ -64,12 +78,16 @@ GetHddToUse()
 
 PartitionHdd()
 {
+	if [[ "$FromHdd" == 1 ]]; then
+		return
+	fi
 set +e
 	swapoff -a
 	parted -s "$TargetHdd" -- mklabel msdos
-	parted -s "$TargetHdd" -- mkpart primary ext2 0 -2GB
-	parted -s "$TargetHdd" -- mkpart extended -2GB -1s
-	parted -s "$TargetHdd" -- mkpart logical linux-swap -2GB -1s
+	parted -s "$TargetHdd" -- mkpart primary ext2 0 -12GB # root filesystem
+	parted -s "$TargetHdd" -- mkpart extended -12GB -1s
+	parted -s "$TargetHdd" -- mkpart logical linux-swap -12GB -10GB # swap
+	parted -s "$TargetHdd" -- mkpart logical ext2 -10GB -1s # recovery system
 	sleep 1
 	blockdev --rereadpt "$TargetHdd"
 	sleep 5
@@ -81,8 +99,11 @@ FormatPartitions()
 	if [[ "$Debug" == 1 ]]; then
 		return 0
 	fi
-	echo y|mkfs.ext3 "$TargetHdd"1
-	mkswap "$TargetHdd"5
+	echo y|mkfs.ext3 "$TargetHdd"1 # root filesystem
+	if [[ "$FromHdd" != 1 ]]; then
+		mkswap "$TargetHdd"5 # swap
+		echo y|mkfs.ext3 "$TargetHdd"6 # recovery system
+	fi
 
 	blkid -w /etc/blkid.tab || :
 	RootUUID=$(vol_id -u "$TargetHdd"1)
@@ -91,31 +112,67 @@ FormatPartitions()
 
 MountPartitions()
 {
-	mkdir -p /media/target
+	mkdir -p /media/target /media/recovery
 	mount "$TargetHdd"1 /media/target
+	if [[ "$FromHdd" != 1 ]]; then
+		mount "$TargetHdd"6 /media/recovery
+	else
+		mount -o bind / /media/recovery
+	fi
+}
+
+CopyDVD()
+{
+	if [[ "$FromHdd" == "1" ]] ;then
+		return
+	fi
+	local DVDdir=$(mktemp -d)
+	mount -t squashfs -o loop,ro /cdrom/casper/filesystem.squashfs "$DVDdir"
+	cp -a "$DVDdir"/. /media/recovery/
+	umount "$DVDdir"
+
+	#Copy archives
+	mkdir -p /media/recovery/archives/
+	cp -a /cdrom/lmce-image/. /media/recovery/archives/
+
+	#Copy the first run script
+	cp /cdrom/lmce-image/firstboot /media/recovery/archives/
+
+	#Copy demo videos, if any
+	if [[ -d /cdrom/lmce-videos ]]; then
+		mkdir -p /media/recovery/archives/lmce-videos
+		cp -a /cdrom/lmce-videos/. /media/recovery/archives/lmce-videos/
+	fi
+
+	#Copy VIA archives
+	if [[ -d /cdrom/via-archives ]]; then
+		mkdir -p /media/recovery/archives/via-archives
+		cp -a /cdrom/via-archives/. /media/recovery/archives/via-archives/
+	fi
 }
 
 ExtractArchive()
 {
 	echo "Extracting archive (this will take about 10 minutes)"
-	cat /cdrom/lmce-image/linux-mce.tar.gz* | tar -C /media/target -zx --checkpoint=10000
+	cat /media/recovery/archives/linux-mce.tar.gz* | tar -C /media/target -zx --checkpoint=10000
 
 	# Update the UUIDs
 	rm /media/target/etc/blkid.tab || :
 	blkid -w /media/target/etc/blkid.tab
 
 	#Copy the fist run script
-	cp /cdrom/lmce-image/firstboot /media/target/etc/rc2.d/S90firstboot
+	cp /media/recovery/archives/firstboot /media/target/etc/rc2.d/S90firstboot
 
 	#Copy demo videos, if any
-	if [[ -d /cdrom/lmce-videos ]]; then
+	if [[ -d /media/recovery/archives/lmce-videos ]]; then
 		mkdir -p /media/target/home/public/data/videos/
-		cp -a /cdrom/lmce-videos/. /media/target/home/public/data/videos/
+		cp -a /media/recovery/archives/lmce-videos/. /media/target/home/public/data/videos/
 	fi
 
-	if [[ -d /cdrom/via-archives ]]; then
+	#Copy VIA archives
+	if [[ -d /media/recovery/archives/via-archives ]]; then
 		mkdir -p /media/target/usr/pluto/install/via/
-		cp -a /cdrom/via-archives/. /media/target/usr/pluto/install/via/
+		cp -a /media/recovery/archives/via-archives/. /media/target/usr/pluto/install/via/
 	fi
 }
 
@@ -150,13 +207,6 @@ iface $IntIf inet static
 " >/media/target/etc/network/interfaces
 }
 
-UnmountPartitions()
-{
-set +e
-	umount /media/target
-set -e
-}
-
 SetupFstab()
 {
 	local fstab_text="
@@ -186,6 +236,13 @@ InstallGrub()
 
 	sed -ir "s,root=UUID=.* ro quiet splash,root=${TargetHdd}1 ro quiet splash,g" /media/target/boot/grub/menu.lst
 	sed -ir "s,root=UUID=.* ro single,root=${TargetHdd}1 ro single,g" /media/target/boot/grub/menu.lst
+
+	echo "
+	title		System Recovery
+	root		(hd0,5)
+	kernel		/boot/vmlinuz-2.6.20-15-generic root=${TargetHdd}7 from_hdd_recovery
+	initrd		/boot/initrd.img-2.6.20-15-generic
+	" >> /media/target/boot/grub/menu.lst
 }
 
 TargetCleanup()
@@ -212,6 +269,14 @@ TargetCleanup()
 	done < <(/sbin/ip l) >>/media/target/etc/iftab
 	chroot /media/target update-initramfs -u
 	#chroot /media/target update-grub
+}
+
+UnmountPartitions()
+{
+set +e
+	umount /media/target
+	umount /media/recovery
+set -e
 }
 
 Reboot()
