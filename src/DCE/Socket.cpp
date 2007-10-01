@@ -569,7 +569,7 @@ bool Socket::ReceiveDataDelimited(int &iSize, char *& pcData, char cDelimiter, i
 
 			//allocate memory for received data buffer
 			iSize = static_cast<int>(listReceivedData.size());
-			char *pcData = new char[iSize];
+			char *pcData = new char[iSize + 1];
 			char *pcData_Cursor = pcData;
 		
 			//copy the data
@@ -578,6 +578,9 @@ bool Socket::ReceiveDataDelimited(int &iSize, char *& pcData, char cDelimiter, i
 				*pcData_Cursor = *it;
 				++pcData_Cursor;
 			}
+
+			//just in case the user needs it as a string, add a dummy '\0' terminator
+			pcData_Cursor[iSize] = '\0';
 
 			//got everything
 			return true;
