@@ -42,7 +42,7 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"connected");
 		//we want a string
 		string sResponse(pData);
 
-		//LoggerWrapper::GetInstance()->Write(LV_STATUS,"VDR line %d: %s", iLines,sResponse.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"VDR line %d: %s", iLines,sResponse.c_str());
 		
 		if( sResponse.substr(0,3)!="250" && sResponse.substr(0,3)!="215" )
 		{
