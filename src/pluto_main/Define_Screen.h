@@ -234,7 +234,7 @@
 #define SCREEN_Get_Capture_Card_Port_CONST 247
 #define SCREEN_Floorplan_CONST 248
 #define SCREEN_Halt_System_CONST 249
-#define SCREEN_Floorplan_Editor_CONST 250
+#define SCREEN_PVR_Software_CONST 250
 #define SCREEN_Final_House_Setup_CONST 251
 #define SCREEN_ExternalDeviceFullScreen_CONST 252
 #define SCREEN_ExternalDeviceFullScreen_Opts_CONST 253

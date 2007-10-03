@@ -2323,13 +2323,13 @@
 #define DESIGNOBJ_fbico_Disc_CONST 5315
 #define DESIGNOBJ_fbico_Payment_CONST 5316
 #define DESIGNOBJ_but_FileBrowserUI2_CONST 5317
-#define DESIGNOBJ_butFloorplan_CONST 5318
+#define DESIGNOBJ_butPVRSoftware_CONST 5318
 #define DESIGNOBJ_butDoneHouseSetup_CONST 5319
 #define DESIGNOBJ_butInputs_CONST 5320
 #define DESIGNOBJ_butProviders_CONST 5321
 #define DESIGNOBJ_butDoneMediaSetup_CONST 5322
 #define DESIGNOBJ_ChooseProvider_CONST 5323
-#define DESIGNOBJ_Floorplan_CONST 5324
+#define DESIGNOBJ_PVR_Software_CONST 5324
 #define DESIGNOBJ_FinalHouseSetup_CONST 5325
 #define DESIGNOBJ_butFloorplan_vp_CONST 5326
 #define DESIGNOBJ_butFinalHouseSetup_CONST 5327
@@ -2496,6 +2496,8 @@
 #define DESIGNOBJ_butNoneTvInput_CONST 5520
 #define DESIGNOBJ_objHouseStatusIndicator_Button_CONST 5521
 #define DESIGNOBJ_butUserStatus_Button_CONST 5522
+#define DESIGNOBJ_butMyth_CONST 5523
+#define DESIGNOBJ_butVDR_CONST 5524
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

@@ -764,7 +764,7 @@
 #define TEXT_Use_OSD_CONST 1468
 #define TEXT_Web_Sites_CONST 1470
 #define TEXT_What_Type_Phone_CONST 1471
-#define TEXT_Floorplan_CONST 1472
+#define TEXT_PVR_Software_CONST 1472
 #define TEXT_See_playlist_CONST 1473
 #define TEXT_new_pnp_device_CONST 1474
 #define TEXT_No_ignore_it_CONST 1475
@@ -1135,7 +1135,7 @@
 #define TEXT_Cell_Attributes_Text_CONST 1852
 #define TEXT_done_CONST 1853
 #define TEXT_Providers_CONST 1854
-#define TEXT_Floorplan_info_CONST 1855
+#define TEXT_PVR_Software_choice_CONST 1855
 #define TEXT_Explain_inputs_CONST 1856
 #define TEXT_In_use_device_CONST 1857
 #define TEXT_Specify_device_for_port_CONST 1858
@@ -1236,6 +1236,9 @@
 #define TEXT_Page_up_CONST 1980
 #define TEXT_PVR_Menu_CONST 1981
 #define TEXT_None_CONST 1982
+#define TEXT_MythTV_CONST 1983
+#define TEXT_VDR_CONST 1984
+#define TEXT_Which_PVR_software_CONST 1985
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
