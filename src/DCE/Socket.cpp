@@ -519,6 +519,9 @@ bool Socket::SendData( int iSize, const char *pcData )
 
 bool Socket::ReceiveDataDelimited(int &iSize, char *& pcData, char cDelimiter, int /*nTimeout = -1*/)
 {
+	//reset previous state
+	m_bReceiveData_TimedOut = false;
+
 	//first time to use the internal buffer ? 
 	if(NULL == m_pInternalBuffer_Data)
 	{
@@ -570,7 +573,11 @@ bool Socket::ReceiveDataDelimited(int &iSize, char *& pcData, char cDelimiter, i
 			memset(m_pInternalBuffer_Data, 0, INTERNAL_BUFFER_SIZE);
 
 			if(m_bReceiveData_TimedOut)
+			{
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "ReceivedDataDelimited: Last time we've called ReceiveData, it timed out!"); 
+
 				bDoneReceivingData = true;
+			}
 		}
 		else
 		{
