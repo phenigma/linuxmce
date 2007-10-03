@@ -498,7 +498,10 @@ TV::~TV(void)
     gContext->removeCurrentLocation();
 
     runMainLoop = false;
+
+	osdlock.unlock();
     pthread_join(event, NULL);
+	osdlock.lock();
 
     if (prbuffer)
         delete prbuffer;
@@ -4099,7 +4102,7 @@ void TV::ChangeChannel(uint chanid, const QString &chan)
     if (!prevChan.empty() && prevChan.back() == channum)
         return;
 
-    if (!activerecorder->CheckChannel(channum))
+    if (NULL != activerecorder && !activerecorder->CheckChannel(channum))
         return;
 
     if (nvp)
@@ -4131,7 +4134,8 @@ void TV::ChangeChannel(uint chanid, const QString &chan)
         activenvp->ResetTeletext();
     }
 
-    activerecorder->SetChannel(channum);
+	if(NULL != activerecorder)
+		activerecorder->SetChannel(channum);
 
     if (muted)
         muteTimer->start(kMuteTimeout * 2, true);
@@ -6846,7 +6850,8 @@ void TV::PauseLiveTV(void)
     }
 
     // XXX: Get rid of this?
-    activerecorder->PauseRecorder();
+	if(NULL != activerecorder)
+		activerecorder->PauseRecorder();
 
     osdlock.lock();
     lastSignalMsg.clear();
@@ -6855,13 +6860,16 @@ void TV::PauseLiveTV(void)
 
     lockTimerOn = false;
 
-    QString input = activerecorder->GetInput();
-    uint timeout  = activerecorder->GetSignalLockTimeout(input);
-    if (timeout < 0xffffffff)
-    {
-        lockTimer.start();
-        lockTimerOn = true;
-    }
+	if(NULL != activerecorder)
+	{
+		QString input = activerecorder->GetInput();
+		uint timeout  = activerecorder->GetSignalLockTimeout(input);
+		if (timeout < 0xffffffff)
+		{
+			lockTimer.start();
+			lockTimerOn = true;
+		}
+	}
 }
 
 /** \fn TV::UnpauseLiveTV(void)

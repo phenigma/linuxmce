@@ -141,6 +141,7 @@ NuppelVideoPlayer::NuppelVideoPlayer(QString inUseID, const ProgramInfo *info)
       decoder(NULL),                decoder_change_lock(true),
       videoOutput(NULL),            nvr_enc(NULL), 
       m_playbackinfo(NULL),
+	  program_info_lock(true),		decoder_instance_lock(true),
       // Window stuff
       parentWidget(NULL), embedid(0), embx(-1), emby(-1), embw(-1), embh(-1),
       // State
@@ -262,6 +263,7 @@ NuppelVideoPlayer::NuppelVideoPlayer(QString inUseID, const ProgramInfo *info)
 
     if (info)
     {
+		QMutexLocker locker(&program_info_lock);
         m_playbackinfo = new ProgramInfo(*info);
         m_playbackinfo->MarkAsInUse(true, m_recusage);
     }
@@ -294,11 +296,14 @@ NuppelVideoPlayer::~NuppelVideoPlayer(void)
     if (audioOutput)
         delete audioOutput;
 
-    if (m_playbackinfo)
-    {
-        m_playbackinfo->MarkAsInUse(false);
-        delete m_playbackinfo;
-    }
+	{
+		QMutexLocker locker(&program_info_lock);
+		if (m_playbackinfo)
+		{
+			m_playbackinfo->MarkAsInUse(false);
+			delete m_playbackinfo;
+		}
+	}
 
     if (weMadeBuffer)
         delete ringBuffer;
@@ -922,6 +927,7 @@ int NuppelVideoPlayer::OpenFile(bool skipDsp, uint retries,
         if (!ringBuffer)
         {
             QString msg("");
+			QMutexLocker locker(&program_info_lock);
 
             if (m_playbackinfo)
             {
@@ -2782,14 +2788,17 @@ void NuppelVideoPlayer::SwitchToProgram(void)
 
     bool newIsDummy = livetvchain->GetCardType(newid) == "DUMMY";
 
-    if (m_playbackinfo)
-    {
-        m_playbackinfo->MarkAsInUse(false);
-        delete m_playbackinfo;
-    }
+	{
+		QMutexLocker locker(&program_info_lock);
+		if (m_playbackinfo)
+		{
+			m_playbackinfo->MarkAsInUse(false);
+			delete m_playbackinfo;
+		}
 
-    m_playbackinfo = pginfo;
-    m_playbackinfo->MarkAsInUse(true, m_recusage);
+		m_playbackinfo = pginfo;
+		m_playbackinfo->MarkAsInUse(true, m_recusage);
+	}
 
     ringBuffer->Pause();
     ringBuffer->WaitForPause();
@@ -2897,14 +2906,17 @@ void NuppelVideoPlayer::JumpToProgram(void)
     long long nextpos = livetvchain->GetJumpPos();
     bool newIsDummy = livetvchain->GetCardType(newid) == "DUMMY";
     
-    if (m_playbackinfo)
-    {
-        m_playbackinfo->MarkAsInUse(false);
-        delete m_playbackinfo;
-    }
+	{
+		QMutexLocker locker(&program_info_lock);
+		if (m_playbackinfo)
+		{
+			m_playbackinfo->MarkAsInUse(false);
+			delete m_playbackinfo;
+		}
 
-    m_playbackinfo = pginfo;
-    m_playbackinfo->MarkAsInUse(true, m_recusage);
+		m_playbackinfo = pginfo;
+		m_playbackinfo->MarkAsInUse(true, m_recusage);
+	}
 
     ringBuffer->Pause();
     ringBuffer->WaitForPause();
@@ -3124,7 +3136,10 @@ void NuppelVideoPlayer::StartPlaying(void)
         GetDecoder()->setExactSeeks(seeks);
 
         if (gContext->GetNumSetting("ClearSavedPosition", 1))
+		{
+			QMutexLocker locker(&program_info_lock);
             m_playbackinfo->SetBookmark(0);
+		}
     }
 
     commBreakMapLock.lock();
@@ -3143,8 +3158,11 @@ void NuppelVideoPlayer::StartPlaying(void)
 
     while (!killplayer && !errored)
     {
-        if (m_playbackinfo)
-            m_playbackinfo->UpdateInUseMark();
+		{
+			QMutexLocker locker(&program_info_lock);
+			if (m_playbackinfo)
+				m_playbackinfo->UpdateInUseMark();
+		}
 
         if (isDummy && livetvchain && livetvchain->HasNext())
         {
@@ -3633,10 +3651,14 @@ void NuppelVideoPlayer::AddAudioData(short int *lbuffer, short int *rbuffer,
 
 void NuppelVideoPlayer::SetBookmark(void)
 {
-    if (!m_playbackinfo || !osd)
-        return;
+	{
+		QMutexLocker locker(&program_info_lock);
+		if (!m_playbackinfo || !osd)
+			return;
 
-    m_playbackinfo->SetBookmark(framesPlayed);
+	    m_playbackinfo->SetBookmark(framesPlayed);
+	}
+
     osd->SetSettingsText(QObject::tr("Position Saved"), 1);
 
     struct StatusPosInfo posInfo;
@@ -3646,15 +3668,21 @@ void NuppelVideoPlayer::SetBookmark(void)
 
 void NuppelVideoPlayer::ClearBookmark(void)
 {
-    if (!m_playbackinfo || !osd)
-        return;
+	{
+		QMutexLocker locker(&program_info_lock);
+		if (!m_playbackinfo || !osd)
+			return;
 
-    m_playbackinfo->SetBookmark(0);
+		m_playbackinfo->SetBookmark(0);
+	}
+
     osd->SetSettingsText(QObject::tr("Position Cleared"), 1);
 }
 
 long long NuppelVideoPlayer::GetBookmark(void) const
 {
+	QMutexLocker locker(&program_info_lock);
+
     if (!m_playbackinfo)
         return 0;
 
@@ -4169,11 +4197,14 @@ bool NuppelVideoPlayer::EnableEdit(void)
         return false;
     }
 
-    if (!hasFullPositionMap || !m_playbackinfo || !osd)
-        return false;
+	bool alreadyediting = false;
+	{
+		QMutexLocker locker(&program_info_lock);
+		if (!hasFullPositionMap || !m_playbackinfo || !osd)
+			return false;
 
-    bool alreadyediting = false;
-    alreadyediting = m_playbackinfo->IsEditing();
+		alreadyediting = m_playbackinfo->IsEditing();
+	}
 
     if (alreadyediting)
         return false;
@@ -4192,8 +4223,12 @@ bool NuppelVideoPlayer::EnableEdit(void)
     dialogname = "";
 
     QMap<QString, QString> infoMap;
-    m_playbackinfo->ToMap(infoMap);
-    osd->SetText("editmode", infoMap, -1);
+	{
+		QMutexLocker locker(&program_info_lock);
+		m_playbackinfo->ToMap(infoMap);
+	}
+
+	osd->SetText("editmode", infoMap, -1);
 
     UpdateEditSlider();
     UpdateTimeDisplay();
@@ -4211,7 +4246,10 @@ bool NuppelVideoPlayer::EnableEdit(void)
              AddMark(it.key(), it.data());
     }
 
-    m_playbackinfo->SetEditing(true);
+	{
+		QMutexLocker locker(&program_info_lock);
+		m_playbackinfo->SetEditing(true);
+	}
 
     return editmode;
 }
@@ -4220,8 +4258,11 @@ void NuppelVideoPlayer::DisableEdit(void)
 {
     editmode = false;
 
-    if (!m_playbackinfo)
-        return;
+	{
+		QMutexLocker locker(&program_info_lock);
+		if (!m_playbackinfo)
+			return;
+	}
 
     QMap<long long, int>::Iterator i = deleteMap.begin();
     for (; i != deleteMap.end(); ++i)
@@ -4243,7 +4284,10 @@ void NuppelVideoPlayer::DisableEdit(void)
         hasdeletetable = false;
     }
 
-    m_playbackinfo->SetEditing(false);
+	{
+		QMutexLocker locker(&program_info_lock);
+		m_playbackinfo->SetEditing(false);
+	}
 }
 
 bool NuppelVideoPlayer::DoKeypress(QKeyEvent *e)
@@ -4803,8 +4847,11 @@ bool NuppelVideoPlayer::IsInDelete(long long testframe) const
 
 void NuppelVideoPlayer::SaveCutList(void)
 {
-    if (!m_playbackinfo)
-        return;
+	{
+		QMutexLocker locker(&program_info_lock);
+		if (!m_playbackinfo)
+			return;
+	}
 
     long long startpos = 0;
     long long endpos = 0;
@@ -4863,13 +4910,18 @@ void NuppelVideoPlayer::SaveCutList(void)
     if (indelete)
         deleteMap[totalFrames] = 0;
 
-    m_playbackinfo->SetMarkupFlag(MARK_UPDATED_CUT, true);
-    m_playbackinfo->SetCutList(deleteMap);
+	{
+		QMutexLocker locker(&program_info_lock);
+		m_playbackinfo->SetMarkupFlag(MARK_UPDATED_CUT, true);
+		m_playbackinfo->SetCutList(deleteMap);
+	}
 }
 
 void NuppelVideoPlayer::LoadCutList(void)
 {
-    if (!m_playbackinfo)
+	QMutexLocker locker(&program_info_lock);
+ 
+	if (!m_playbackinfo)
         return;
 
     m_playbackinfo->GetCutList(deleteMap);
@@ -4877,6 +4929,8 @@ void NuppelVideoPlayer::LoadCutList(void)
 
 void NuppelVideoPlayer::LoadCommBreakList(void)
 {
+	QMutexLocker locker(&program_info_lock);
+
     if (!m_playbackinfo)
         return;
 
@@ -4956,6 +5010,7 @@ char *NuppelVideoPlayer::GetScreenGrab(int secondsin, int &bufflen,
 
     if (!hasFullPositionMap)
     {
+		QMutexLocker locker(&program_info_lock);
         VERBOSE(VB_IMPORTANT, LOC + "Recording does not have position map.\n" +
                 QString("\t\t\tRun 'mythcommflag --file %1 --rebuild' to fix")
                 .arg(m_playbackinfo->GetRecordBasename()));
@@ -5074,8 +5129,11 @@ char *NuppelVideoPlayer::GetScreenGrab(int secondsin, int &bufflen,
  */
 VideoFrame* NuppelVideoPlayer::GetRawVideoFrame(long long frameNumber)
 {
-    if (m_playbackinfo)
-        m_playbackinfo->UpdateInUseMark();
+	{
+		QMutexLocker locker(&program_info_lock);
+		if (m_playbackinfo)
+			m_playbackinfo->UpdateInUseMark();
+	}
 
     if (frameNumber >= 0)
     {
@@ -5154,8 +5212,11 @@ void NuppelVideoPlayer::InitForTranscode(bool copyaudio, bool copyvideo)
 bool NuppelVideoPlayer::TranscodeGetNextFrame(QMap<long long, int>::Iterator &dm_iter,
                                               int *did_ff, bool *is_key, bool honorCutList)
 {
-    if (m_playbackinfo)
-        m_playbackinfo->UpdateInUseMark();
+	{
+		QMutexLocker locker(&program_info_lock);
+		if (m_playbackinfo)
+			m_playbackinfo->UpdateInUseMark();
+	}
 
     if (dm_iter == NULL && honorCutList)
         dm_iter = deleteMap.begin();
@@ -5241,10 +5302,13 @@ bool NuppelVideoPlayer::RebuildSeekTable(bool showPercentage, StatusCallback cb,
     framesPlayed = 0;
     using_null_videoout = true;
 
-    // clear out any existing seektables
-    m_playbackinfo->ClearPositionMap(MARK_KEYFRAME);
-    m_playbackinfo->ClearPositionMap(MARK_GOP_START);
-    m_playbackinfo->ClearPositionMap(MARK_GOP_BYFRAME);
+	{
+		QMutexLocker locker(&program_info_lock);
+		// clear out any existing seektables
+		m_playbackinfo->ClearPositionMap(MARK_KEYFRAME);
+		m_playbackinfo->ClearPositionMap(MARK_GOP_START);
+		m_playbackinfo->ClearPositionMap(MARK_GOP_BYFRAME);
+	}
 
     if (OpenFile() < 0)
         return(0);
@@ -5280,8 +5344,11 @@ bool NuppelVideoPlayer::RebuildSeekTable(bool showPercentage, StatusCallback cb,
 
         if ((myFramesPlayed % 100) == 0)
         {
-            if (m_playbackinfo)
-                m_playbackinfo->UpdateInUseMark();
+			{
+				QMutexLocker locker(&program_info_lock);
+				if (m_playbackinfo)
+					m_playbackinfo->UpdateInUseMark();
+			}
 
             if (totalFrames)
             {
@@ -5562,8 +5629,11 @@ bool NuppelVideoPlayer::DoSkipCommercials(int direction)
         }
 
         QString message = "COMMFLAG_REQUEST ";
-        message += m_playbackinfo->chanid + " " +
-                   m_playbackinfo->recstartts.toString(Qt::ISODate);
+		{
+			QMutexLocker locker(&program_info_lock);
+			message += m_playbackinfo->chanid + " " +
+					m_playbackinfo->recstartts.toString(Qt::ISODate);
+		}
         RemoteSendMessage(message);
 
         return false;
@@ -6266,6 +6336,7 @@ void NuppelVideoPlayer::SetDecoder(DecoderBase *dec)
 {
     //VERBOSE(VB_IMPORTANT, "SetDecoder("<<dec<<") was "<<decoder);
     QMutexLocker locker(&decoder_change_lock);
+	QMutexLocker decoder_locker(&decoder_lock);
 
     if (!decoder)
         decoder = dec;

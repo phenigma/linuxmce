@@ -415,7 +415,11 @@ class NuppelVideoPlayer : public CC608Reader, public CC708Reader
     // Private decoder stuff
     void  SetDecoder(DecoderBase *dec);
     /// Returns the stream decoder currently in use.
-    DecoderBase *GetDecoder(void) { return decoder; }
+    DecoderBase *GetDecoder(void) 
+	{ 
+		QMutexLocker locker(&decoder_instance_lock);
+		return decoder; 
+	}
     /// Returns the stream decoder currently in use.
     const DecoderBase *GetDecoder(void) const { return decoder; }
     bool DecodeFrame(struct rtframeheader *frameheader,
@@ -503,6 +507,9 @@ class NuppelVideoPlayer : public CC608Reader, public CC708Reader
     VideoOutput   *videoOutput;
     RemoteEncoder *nvr_enc;
     ProgramInfo   *m_playbackinfo;
+
+	mutable QMutex	program_info_lock;
+	mutable QMutex	decoder_instance_lock;
 
     // Window stuff
     QWidget *parentWidget;
