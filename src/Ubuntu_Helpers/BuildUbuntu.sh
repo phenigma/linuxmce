@@ -2,8 +2,8 @@
 
 . /root/Ubuntu_Helpers/BuildUbuntu_Functions.sh
 
-Backup_Last_Build
-Install_Build_Needed_Packages
+#Backup_Last_Build
+#Install_Build_Needed_Packages
 Create_Diskless_Archive
 Import_Pluto_Skins
 Checkout_Pluto_Svn #branches/2.0.0.44
@@ -15,7 +15,7 @@ Create_Fake_Windows_Binaries
 Build_Pluto_Stuff #-b
 Create_Local_Repository
 Create_ISO
-Upload_Build_Archive &
+#Upload_Build_Archive &
 
 ## Build preinstalled dvd
 pushd /root/UnatendedInstall/
@@ -27,5 +27,6 @@ popd
 
 echo "Finished"
 date -R
+bash -x ~/Ubuntu_Helpers/sendiso.sh
 read
 

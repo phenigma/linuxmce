@@ -66,7 +66,8 @@ function Checkout_Pluto_Svn {
 	
 	for svn_module in ${BranchParts}; do
 		mkdir -p ${svn_dir}/trunk/$svn_module
-		svn co ${svn_url}/pluto/"$Branch"/$svn_module  ${svn_dir}/trunk/$svn_module
+		#svn co -r 17898  ${svn_url}/pluto/"$Branch"/$svn_module  ${svn_dir}/trunk/$svn_module
+		svn co  ${svn_url}/pluto/"$Branch"/$svn_module  ${svn_dir}/trunk/$svn_module
 	done
 
 	# get unmarked parts from trunk
@@ -77,6 +78,7 @@ function Checkout_Pluto_Svn {
 		fi
 		#get part from trunk
 		mkdir -p ${svn_dir}/trunk/$svn_module
+		#svn co -r 17898 ${svn_url}/pluto/trunk/$svn_module  ${svn_dir}/trunk/$svn_module
 		svn co ${svn_url}/pluto/trunk/$svn_module  ${svn_dir}/trunk/$svn_module
 	done
 
@@ -148,15 +150,15 @@ function Build_Pluto_Replacements {
 	rm -rf "$vvv_temp_dir"
 
 	#Package: libsdl-pluto
-	apt-get -y install quilt nasm libxv-dev libarts1-dev debhelper fakeroot
-	apt-get -y install dbs libaa1-dev libslang2-dev xlibs-dev libsvga1-dev type-handling automake1.7
-	pushd ${svn_dir}/trunk/ubuntu/libsdl1.2-1.2.7+1.2.8cvs20041007/
-		dpkg-buildpackage -us -uc -rfakeroot -b
-		dpkg -i ../libsdl1.2debian-pluto-all_1.2.7+1.2.8cvs20041007+pluto-2_i386.deb
-		dpkg -i ../libsdl1.2debian-pluto_1.2.7+1.2.8cvs20041007+pluto-2_i386.deb
-		dpkg -i ../libsdl1.2-pluto-dev_1.2.7+1.2.8cvs20041007+pluto-2_i386.deb
-		cp ../libsdl*.deb ${temp_dir}
-	popd
+#	apt-get -y install quilt nasm libxv-dev libarts1-dev debhelper fakeroot
+#	apt-get -y install dbs libaa1-dev libslang2-dev xlibs-dev libsvga1-dev type-handling automake1.7
+#	pushd ${svn_dir}/trunk/ubuntu/libsdl1.2-1.2.7+1.2.8cvs20041007/
+#		dpkg-buildpackage -us -uc -rfakeroot -b
+#		dpkg -i ../libsdl1.2debian-pluto-all_1.2.7+1.2.8cvs20041007+pluto-2_i386.deb
+#		dpkg -i ../libsdl1.2debian-pluto_1.2.7+1.2.8cvs20041007+pluto-2_i386.deb
+#		dpkg -i ../libsdl1.2-pluto-dev_1.2.7+1.2.8cvs20041007+pluto-2_i386.deb
+#		cp ../libsdl*.deb ${temp_dir}
+#	popd
 
 	#Package: libxine
 	apt-get -y install libcaca-dev liblircclient-dev libtheora-dev libflac-dev libmodplug-dev libgnomevfs2-dev libsmbclient-dev libspeex-dev libmad0-dev libxvmc-dev automake1.9 autoconf libtool libcdio-dev sgmltools-lite dpatch transfig libavformat-dev libpostproc-dev libavcodec-dev libraw1394-dev libdc1394-13-dev
@@ -572,4 +574,5 @@ function Backup_Last_Build {
 	mkdir -p "${BUILD_BACKUP_DIR}/${lastPackagesIso_Date}"
 	cp "/var/www/${PACKAGES_ISO_NAME}" "${BUILD_BACKUP_DIR}/${lastPackagesIso_Date}/${lastPackagesIso_Date}_${lastPackagesIso_Time}_${PACKAGES_ISO_NAME}"
 	cp "/var/www/${CACHE_ISO_NAME}" "${BUILD_BACKUP_DIR}/${lastPackagesIso_Date}/${lastPackagesIso_Date}_${lastPackagesIso_Time}_${CACHE_ISO_NAME}"
+	cp "/var/www/kubuntu-linuxmce.iso" "${BUILD_BACKUP_DIR}/${lastPackagesIso_Date}/${lastPackagesIso_Date}_${lastPackagesIso_Time}_kubuntu-linuxmce.iso"
 }
