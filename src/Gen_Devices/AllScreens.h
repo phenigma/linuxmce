@@ -12490,10 +12490,10 @@ namespace DCE
 		}
 	};
 
-	class SCREEN_Floorplan_Editor : public PreformedCommand
+	class SCREEN_PVR_Software : public PreformedCommand
 	{
 	public:
-		SCREEN_Floorplan_Editor(long DeviceIDFrom, long DeviceIDTo,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+		SCREEN_PVR_Software(long DeviceIDFrom, long DeviceIDTo,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
 		{
 			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
 				COMMANDPARAMETER_PK_Screen_CONST, "250" /* screen ID */
@@ -12503,10 +12503,10 @@ namespace DCE
 		}
 	};
 
-	class SCREEN_Floorplan_Editor_DL : public PreformedCommand
+	class SCREEN_PVR_Software_DL : public PreformedCommand
 	{
 	public:
-		SCREEN_Floorplan_Editor_DL(long DeviceIDFrom, string sDeviceIDTo,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+		SCREEN_PVR_Software_DL(long DeviceIDFrom, string sDeviceIDTo,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
 		{
 			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
 				COMMANDPARAMETER_PK_Screen_CONST, "250" /* screen ID */
@@ -12516,10 +12516,10 @@ namespace DCE
 		}
 	};
 
-	class SCREEN_Floorplan_Editor_DT : public PreformedCommand
+	class SCREEN_PVR_Software_DT : public PreformedCommand
 	{
 	public:
-		SCREEN_Floorplan_Editor_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+		SCREEN_PVR_Software_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
 		{
 			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
 				COMMANDPARAMETER_PK_Screen_CONST, "250" /* screen ID */
@@ -12529,10 +12529,10 @@ namespace DCE
 		}
 	};
 
-	class SCREEN_Floorplan_Editor_Cat : public PreformedCommand
+	class SCREEN_PVR_Software_Cat : public PreformedCommand
 	{
 	public:
-		SCREEN_Floorplan_Editor_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+		SCREEN_PVR_Software_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
 		{
 			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
 				COMMANDPARAMETER_PK_Screen_CONST, "250" /* screen ID */
@@ -13621,7 +13621,7 @@ PK_DeviceData .... */, sOptions.c_str(), 224 /* PK_PnpQueue */, StringUtils::lto
 		virtual void SCREEN_Get_Capture_Card_Port(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Floorplan(long PK_Screen, string sPK_DesignObj){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Halt_System(long PK_Screen){ GotoScreen(PK_Screen); }
-		virtual void SCREEN_Floorplan_Editor(long PK_Screen){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_PVR_Software(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Final_House_Setup(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_ExternalDeviceFullScreen(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_ExternalDeviceFullScreen_Opts(long PK_Screen){ GotoScreen(PK_Screen); }
@@ -15121,7 +15121,7 @@ PK_DeviceData .... */, sOptions.c_str(), 224 /* PK_PnpQueue */, StringUtils::lto
 				case 250:
 				{
 					ResetCallBacks();
-					SCREEN_Floorplan_Editor(nPK_Screen);
+					SCREEN_PVR_Software(nPK_Screen);
 					break;
 				}
 				case 251:

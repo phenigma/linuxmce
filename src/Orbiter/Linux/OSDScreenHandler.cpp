@@ -2252,11 +2252,23 @@ bool OSDScreenHandler::VOIP_Provider_ObjectSelected(CallBackData *pData)
 	return false;
 }
 //-----------------------------------------------------------------------------------------------------
-/*virtual*/ void OSDScreenHandler::SCREEN_Floorplan_Editor(long PK_Screen)
+/*virtual*/ void OSDScreenHandler::SCREEN_PVR_Software(long PK_Screen)
 {
 	PrepForWizard();
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_DesignObj_CurrentSecti_CONST, TOSTRING(DESIGNOBJ_butFloorplan_CONST));
-	ScreenHandlerBase::SCREEN_Floorplan_Editor(PK_Screen);
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_DesignObj_CurrentSecti_CONST, TOSTRING(DESIGNOBJ_butPVRSoftware_CONST));
+	ScreenHandlerBase::SCREEN_PVR_Software(PK_Screen);
+	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &OSDScreenHandler::PVRSoftware_ObjectSelected, new ObjectInfoBackData());
+}
+//-----------------------------------------------------------------------------------------------------
+bool OSDScreenHandler::PVRSoftware_ObjectSelected(CallBackData *pData)
+{
+	ObjectInfoBackData *pObjectInfoData = (ObjectInfoBackData *)pData;
+	if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butMyth_CONST )
+		m_pWizardLogic->SetPVRSoftware('M');
+	else if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butVDR_CONST)
+		m_pWizardLogic->SetPVRSoftware('V');
+
+	return false;
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OSDScreenHandler::SCREEN_Final_House_Setup(long PK_Screen)

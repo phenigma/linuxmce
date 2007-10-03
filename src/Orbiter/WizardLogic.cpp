@@ -1108,3 +1108,45 @@ int WizardLogic::WhatRoomIsThisDeviceIn(int PK_Device)
 {
 	return GetRoomForDevice(StringUtils::ltos(DatabaseUtils::GetTopMostDevice(this, PK_Device)));
 }
+
+void WizardLogic::SetPVRSoftware(char PVRSoftware)
+{
+	int PK_DeviceTemplate_RemovePlugin = PVRSoftware=='V' ? DEVICETEMPLATE_MythTV_PlugIn_CONST : DEVICETEMPLATE_VDRPlugin_CONST,
+		PK_DeviceTemplate_RemovePlayer = PVRSoftware=='V' ? DEVICETEMPLATE_MythTV_Player_CONST : DEVICETEMPLATE_VDR_CONST,
+		PK_DeviceTemplate_AddPlugin = PVRSoftware=='V' ? DEVICETEMPLATE_VDRPlugin_CONST : DEVICETEMPLATE_MythTV_PlugIn_CONST,
+		PK_DeviceTemplate_AddPlayer = PVRSoftware=='V' ? DEVICETEMPLATE_VDR_CONST : DEVICETEMPLATE_MythTV_Player_CONST;
+
+	char s[2]=" ";
+	s[0]=PVRSoftware;
+	DeviceData_Base *pDevice_Core = m_pOrbiter->m_pData->m_AllDevices.m_mapDeviceData_Base_FindFirstOfCategory(DEVICECATEGORY_Core_CONST);
+	if( pDevice_Core )
+		DatabaseUtils::SetDeviceData(this,pDevice_Core->m_dwPK_Device,DEVICEDATA_TV_Standard_CONST,s);
+
+	string sSQL = "SELECT PK_Device FROM Device WHERE FK_DeviceTemplate IN (" + StringUtils::itos(PK_DeviceTemplate_RemovePlugin) + "," + StringUtils::itos(PK_DeviceTemplate_RemovePlayer) + ")";
+
+	PlutoSqlResult result_set;
+	DB_ROW row;
+	if((result_set.r = db_wrapper_query_result(sSQL)) )
+	{
+		while (row = db_wrapper_fetch_row(result_set.r))
+		{
+			DCE::CMD_Delete_Device CMD_Delete_Device(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_GeneralInfoPlugIn,atoi(row[0]));
+			m_pOrbiter->SendCommand(CMD_Delete_Device);
+		}
+	}
+
+	int PK_Device;
+	DCE::CMD_Create_Device CMD_Create_Device(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_GeneralInfoPlugIn,PK_DeviceTemplate_AddPlugin,"",0,"","",0,0,"",0,0,&PK_Device);
+	m_pOrbiter->SendCommand(CMD_Create_Device);
+
+	sSQL = "SELECT PK_Device FROM Device WHERE FK_DeviceTemplate=" TOSTRING(DEVICETEMPLATE_OnScreen_Orbiter_CONST);
+	PlutoSqlResult result_set_osd;
+	if((result_set_osd.r = db_wrapper_query_result(sSQL)) )
+	{
+		while (row = db_wrapper_fetch_row(result_set_osd.r))
+		{
+			DCE::CMD_Create_Device CMD_Create_Device(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_GeneralInfoPlugIn,PK_DeviceTemplate_AddPlayer,"",0,"","",0,atoi(row[0]),"",0,0,&PK_Device);
+			m_pOrbiter->SendCommand(CMD_Create_Device);
+		}
+	}
+}

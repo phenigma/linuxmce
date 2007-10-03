@@ -127,6 +127,8 @@ public:
 	int FindModel(int PK_DeviceCategory,string sModel);
 	void FindPnpDevices(string sPK_DeviceCategory);
 
+	void SetPVRSoftware(char PVRSoftware);
+
 	/*
 		ALARM PANEL
 	*/

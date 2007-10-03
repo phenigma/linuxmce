@@ -340,6 +340,20 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"CreateDevice::DoIt Found %d rows 
 				DoIt(0,atoi(row[0]),"","","",0,"",PK_Device);
 			}
 		}
+
+		// See what PVR software this uses
+		SQL = "SELECT IK_DeviceData FROM Device_DeviceData JOIN Device ON FK_Device=PK_Device WHERE FK_DeviceData=" TOSTRING(DEVICEDATA_TV_Standard_CONST) 
+			" AND FK_DeviceTemplate=" TOSTRING(DEVICETEMPLATE_Generic_PC_as_Core_CONST) " AND FK_Installation=" + StringUtils::itos(m_iPK_Installation);
+
+		char cPVR='M'; // Default to MythTV
+		PlutoSqlResult result_pvr;
+		if( ( result_child_dev.r=db_wrapper_query_result( SQL ) ) && (row=db_wrapper_fetch_row( result_child_dev.r )) && row[0] )
+			cPVR = row[0][0];
+
+		if( cPVR=='V' )
+			DoIt(0,DEVICETEMPLATE_VDR_CONST,"","","",0,"",PK_Device);
+		else
+			DoIt(0,DEVICETEMPLATE_MythTV_Player_CONST,"","","",0,"",PK_Device);
 	}
 
 	// If we weren't given a controlled via, try to find an appropriate one
