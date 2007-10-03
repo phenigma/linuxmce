@@ -7,7 +7,6 @@
 
 bool SendVDRCommand(string sIP, string sCommand,string &sVDRResponse)
 {
-sIP="91.34.2.39";
 	LoggerWrapper::GetInstance()->Write(LV_WARNING,"SendVDRCommand Going to send command %s",sCommand.c_str());
 	PlainClientSocket _PlainClientSocket(sIP + ":2001");
 	if( !_PlainClientSocket.Connect() )
@@ -49,18 +48,14 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"connected");
 
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"VDR line %d: %s", iLines,sResponse.c_str());
 		
-		if( sResponse.substr(0,3)!="250" && sResponse.substr(0,3)!="215" )
+		if( sResponse.substr(0,3)!="250" && sResponse.substr(0,3)!="215" && sResponse.substr(0,3)!="550" )
 		{
 			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"VDR not ok with command got %d lines then got: %s",iLines,sResponse.c_str());
 			return false;
 		}
 
 		if( sResponse.size()>4 )
-		{
-			if( sVDRResponse.empty()==false )
-				sVDRResponse += "\n";
 			sVDRResponse += sResponse.substr(4);
-		}
 
 		if( sResponse[3]!='-' )
 			break;

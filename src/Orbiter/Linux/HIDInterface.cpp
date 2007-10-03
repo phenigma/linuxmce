@@ -402,12 +402,12 @@ bool PlutoHIDInterface::ProcessHIDButton(char *inPacket)
 		m_iRepeat++;
 	else
 	{
-		if( m_iLastButtonPress==130 && m_iRepeat>=3 && time(NULL)-m_tLastButtonPress<=2 && (p_Packet[3]==233 || p_Packet[3]==156) )
+		if( m_iLastButtonPress==130 && m_iRepeat>=3 && time(NULL)-m_tLastButtonPress<=2 && (p_Packet[3]==233 /*volup*/ || p_Packet[3]==156 /*chup*/ ) )
 		{
 			DCE::CMD_Halt_Device CMD_Halt_Device(m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device_GeneralInfoPlugIn,
 				m_pOrbiter->m_dwPK_Device,p_Packet[3]==233 ? "R" : "H","");
 			m_pOrbiter->SendCommand(CMD_Halt_Device);
-			LoggerWrapper::GetInstance()->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDButton %s",p_Packet[3]==233 ? "R" : "H");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"PlutoHIDInterface::ProcessHIDButton %s",p_Packet[3]==233 ? "R"  /*volup*/ : "H" /*chup*/ );
 			return true;
 		}
 		else

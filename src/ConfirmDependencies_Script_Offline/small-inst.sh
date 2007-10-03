@@ -62,6 +62,7 @@ Display = 0
 SharedDesktop = 1
 OfflineMode = false
 LogLevels = 1,5,7,8
+#ImmediatelyFlushLog = 1
 "
 	echo "$PlutoConf" > /etc/pluto.conf
 	chmod 777 /etc/pluto.conf &>/dev/null

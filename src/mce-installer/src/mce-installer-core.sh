@@ -97,6 +97,7 @@ OfflineMode = false
 UseVideoWizard = 1
 #<-mkr_b_videowizard_e->
 LogLevels = 1,5,7,8
+#ImmediatelyFlushLog = 1
 AutostartCore=$AutostartCore
 AutostartMedia=$AutostartMedia
 "

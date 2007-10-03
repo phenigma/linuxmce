@@ -84,6 +84,7 @@ bool ProcessBindRequest(usb_dev_handle *p_usb_dev_handle,char *inPacket)
 
 void StartAVWizard()
 {
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"WatchGyroRemote StartAVWizard");
 	DCEConfig dceConfig;
 	dceConfig.AddString("AVWizardOverride","1");
 	dceConfig.WriteSettings();
