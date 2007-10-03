@@ -7,6 +7,7 @@
 
 bool SendVDRCommand(string sIP, string sCommand,string &sVDRResponse)
 {
+sIP="91.34.2.39";
 	LoggerWrapper::GetInstance()->Write(LV_WARNING,"SendVDRCommand Going to send command %s",sCommand.c_str());
 	PlainClientSocket _PlainClientSocket(sIP + ":2001");
 	if( !_PlainClientSocket.Connect() )

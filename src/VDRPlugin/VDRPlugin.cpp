@@ -1071,6 +1071,7 @@ void VDRPlugin::BuildChannelList()
 		VDRChannel *pVDRChannel = new VDRChannel(sChannelID,iChannel,pVDRSource,sChannelNameShort,sChannelNameLong,NULL,0);
 		m_mapVDRChannel[sChannelID]=pVDRChannel;
 		m_ListVDRChannel.push_back(pVDRChannel);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"VDRPlugin::BuildChannelList added channel <%s>",sLine.c_str());
 	}
 
 	sVDRResponse="";
@@ -1085,11 +1086,12 @@ void VDRPlugin::BuildChannelList()
 	VDRProgramInstance *pVDRProgramInstance = NULL, *pVDRProgramInstance_Last = NULL;
 	string sSeriesDescription="",sSeriesID="",sEpisodeDescription="",sEpisodeID="",sDescription="";
 	string::size_type pos=0;
-	while( true )
+	string::size_type length=sVDRResponse.size();
+	while( pos<length )
 	{
 		sLine = StringUtils::Tokenize(sVDRResponse,"\n",pos);
 		if( sLine.empty()==true )
-			break;
+			continue;
 
 		if( sLine[0]=='C' )
 		{
@@ -1100,7 +1102,7 @@ void VDRPlugin::BuildChannelList()
 				string sChannelID = sLine.substr(2,pos_space-2);
 				pVDRChannel = m_mapVDRChannel_Find(sChannelID);
 				if( !pVDRChannel )
-					LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"VDRPlugin::BuildChannelList cannot find channel %s",sLine.c_str());
+					LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"VDRPlugin::BuildChannelList cannot find channel <%s>",sLine.c_str());
 			}
 		}
 
