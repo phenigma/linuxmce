@@ -41,6 +41,8 @@ Log $LOG_NOTE "CALLED TO MOUNT DEVICE $StorageDevice"
 ## Try to see if we have this device in the database else exit
 Q="SELECT FK_DeviceTemplate, FK_Device_ControlledVia FROM Device WHERE PK_Device='$StorageDevice' LIMIT 1 "
 R=$(RunSQL "$Q")
+R=$(Field 1 "$Q")
+
 if [[ "$R" = "" ]] ;then
 	Log $LOG_WARN "Cannot find device $StorageDevice in the database"
 	exit 0
@@ -74,6 +76,7 @@ case "$Template" in
 		if [[ "$ControlledVia" == "$PK_Device" ]] ;then
 			## Get the block device that we want to mount
 			DD_BlockDevice=$(RunSQL "SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device=$StorageDevice AND FK_DeviceData=$DD_BLOCK_DEVICE")
+			DD_BlockDevice=$(Field 1 "$DD_BlockDevice")
 			
 			## Test to see if the block device is there
 			if [[ ! -b "$DD_BlockDevice" ]] ;then
@@ -97,6 +100,7 @@ case "$Template" in
 			## Get the ip address of the computer that contains that drive
 			Q="SELECT IPaddress FROM Device WHERE PK_Device = '$ControlledVia' LIMIT 1"
 			IPaddress=$(RunSQL "$Q")
+			IPaddress=$(Field 1 "$IPaddress")
 
 			## Try to see if the computer is up
 			ping -qnc 1 -W 1 "$IPaddress" &> /dev/null
@@ -138,7 +142,8 @@ case "$Template" in
 
 		## Samba share name
 		Q="SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device='$StorageDevice' AND FK_DeviceData=$DD_SHARE_NAME"
-		Share=$(RunSQL "$Q" |  sed 's|\$|\\\$|g' )
+		Share=$(RunSQL "$Q")
+		Share=$(Field 1 "$Share" |  sed 's|\$|\\\$|g' )
 		if [[ "$Share" == "" ]] ;then
 			Log $LOG_ERR "Device '$StorageDevice' doesn't have a samba share name associated with it"
 			exit 0
@@ -147,14 +152,17 @@ case "$Template" in
 		## Username for the samba share
 		Q="SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device='$StorageDevice' AND FK_DeviceData=$DD_USERNAME"
 		Username=$(RunSQL "$Q")
+		Username=$(Field 1 "$Username")
 
 		## Password for the samba share
 		Q="SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device='$StorageDevice' AND FK_DeviceData=$DD_PASSWORD"
 		Password=$(RunSQL "$Q")
+		Password=$(Field 1 "$Password")
 		
 		## Filesystem for the samba share (zaerc@xs4all.nl)
 		Q="SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device='$StorageDevice' AND FK_DeviceData=$DD_FILESYSTEM"
 		FileSystem=$(RunSQL "$Q")
+		FileSystem=$(Field 1 "$FileSystem")
 		if [[ "$FileSystem" == "smbfs" ]] ;then
 			CIFS_FileSystem="smbfs"
 		else
@@ -195,6 +203,7 @@ case "$Template" in
 		## Shared nfs directory name
                 Q="SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device=$StorageDevice AND FK_DeviceData=$DD_SHARE_NAME"
                 Share=$(RunSQL "$Q")
+		Share=$(Field 1 "$Share")
                 if [[ "$Share" == "" ]] ;then
                         Log $LOG_ERR "Device '$StorageDevice' doesn't have a nfs directory name associated with it"
                         exit 0
