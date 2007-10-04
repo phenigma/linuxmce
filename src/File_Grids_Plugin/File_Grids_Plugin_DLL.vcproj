@@ -148,9 +148,6 @@
 				RelativePath=".\FileListOps.cpp">
 			</File>
 			<File
-				RelativePath="..\UpdateMedia\id3info\id3info.cpp">
-			</File>
-			<File
 				RelativePath="Main.cpp">
 			</File>
 			<File
@@ -158,15 +155,6 @@
 			</File>
 			<File
 				RelativePath="..\Media_Plugin\MediaAttributes_LowLevel.cpp">
-			</File>
-			<File
-				RelativePath="..\UpdateMedia\MediaIdentifier.cpp">
-			</File>
-			<File
-				RelativePath="..\UpdateMedia\PlutoMediaAttributes.cpp">
-			</File>
-			<File
-				RelativePath="..\UpdateMedia\PlutoMediaFile.cpp">
 			</File>
 		</Filter>
 		<Filter

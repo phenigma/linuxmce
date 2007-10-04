@@ -8,7 +8,7 @@ CXX = g++
 CXXFLAGS = -Wall -fPIC -ggdb3
 CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE $(SNR_CPPFLAGS)
 LDFLAGS = -L$(ROOT)/lib
-EXTERNAL_LIBS_NAMES = pthread id3
+EXTERNAL_LIBS_NAMES = pthread
 INTERNAL_LIBS_NAMES = SerializeClass DCECommon PlutoUtils
 
 #<-mkr_B_use_mysql_wrapper_b->
@@ -43,11 +43,7 @@ sources += \
 	MediaStream.cpp \
 	BoundRemote.cpp \
 	Generic_NonPluto_Media.cpp \
-	MediaHandlerBase.cpp \
-	../UpdateMedia/PlutoMediaFile.cpp \
-	../UpdateMedia/MediaIdentifier.cpp \
-	../UpdateMedia/PlutoMediaAttributes.cpp \
-	../UpdateMedia/id3info/id3info.cpp
+	MediaHandlerBase.cpp
 
 #<-dceag-mf-b->!
 LDLIBS_NAMES = $(INTERNAL_LIBS_NAMES) $(EXTERNAL_LIBS_NAMES)

@@ -94,7 +94,6 @@ using namespace DCE;
 #include "File_Grids_Plugin/FileListGrid.h"
 #include "SerializeClass/ShapesColors.h"
 #include "../VFD_LCD/VFD_LCD_Base.h"
-#include "UpdateMedia/PlutoMediaFile.h"
 
 #include "DCE/DCEConfig.h"
 DCEConfig g_DCEConfig;
@@ -4625,24 +4624,6 @@ void Media_Plugin::CMD_Set_Media_Attribute_Text(string sValue_To_Assign,int iEK_
 		pRow_Attribute->Name_set(sValue_To_Assign);
 		pRow_Attribute->Table_Attribute_get()->Commit();
 
-		/* Don't do this now.  It takes too long
-        vector<Row_File *> vectRow_File;
-        m_pDatabase_pluto_media->File_get()->GetRows(
-            "JOIN File_Attribute ON File_Attribute.FK_File = File.PK_File "
-            "WHERE FK_Attribute = " + StringUtils::ltos(iEK_Attribute), &vectRow_File);
-
-        for(vector<Row_File *>::iterator it = vectRow_File.begin(); it != vectRow_File.end(); it++)
-        {
-            Row_File *pRow_File = *it;
-
-            PlutoMediaFile PlutoMediaFile_(m_pDatabase_pluto_media, m_pRouter->iPK_Installation_get(), 
-                pRow_File->Path_get(), pRow_File->Filename_get());
-			PlutoMediaFile_.SetSyncMode(modeDbToFile);
-			PlutoMediaFile_.RenameAttribute(pRow_Attribute->FK_AttributeType_get(), sOldValue, sValue_To_Assign);
-            PlutoMediaFile_.SetFileAttribute(pRow_File->PK_File_get()); //also updates id3tags
-        }
-		*/
-
 		for(MapMediaStream::iterator it=m_mapMediaStream.begin();it!=m_mapMediaStream.end();++it)
 		{
 			MediaInfoChanged(it->second,true);
@@ -5210,12 +5191,6 @@ void Media_Plugin::AddFileToDatabase(MediaFile *pMediaFile,int PK_MediaType)
 
 	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Media_Plugin::AddFileToDatabase %s PK_File %d Inode %d",
 		pMediaFile->m_sFilename.c_str(), pRow_File->PK_File_get(), pRow_File->INode_get() );
-
-	/* don't do this now.  It takes too long.
-	PlutoMediaFile PlutoMediaFile_(m_pDatabase_pluto_media, m_pRouter->iPK_Installation_get(), 
-		pRow_File->Path_get(), pRow_File->Filename_get());
-	PlutoMediaFile_.SetFileAttribute(pRow_File->PK_File_get());
-	*/
 }
 
 //<-dceag-c412-b->

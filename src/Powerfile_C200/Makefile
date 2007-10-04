@@ -22,7 +22,7 @@ sources = Main.cpp Powerfile_C200.cpp $(Gen_Dev_Files)
 CXXFLAGS += $(XXXFLAGS)
 CPPFLAGS +=
 LDFLAGS +=
-XTRALDLIBS = -lpluto_media -lpluto_main -lid3 -lattr -lDisk_Drive_Functions
+XTRALDLIBS = -lpluto_media -lpluto_main -lattr -lDisk_Drive_Functions
 
 Gen_Dev_Files +=
 sources += \
@@ -33,10 +33,6 @@ sources += \
 	../JobHandler/Task.cpp \
 	../Media_Plugin/MediaAttributes_LowLevel.cpp \
 	../HAL/HalTree.cpp
-#	../UpdateMedia/PlutoMediaFile.cpp \
-#	../UpdateMedia/id3info/id3info.cpp \
-#	../UpdateMedia/MediaIdentifier.cpp \
-#	../UpdateMedia/PlutoMediaAttributes.cpp	
 
 #<-dceag-mf-b->
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)

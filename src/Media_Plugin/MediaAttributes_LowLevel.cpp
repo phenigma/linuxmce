@@ -218,69 +218,21 @@ int MediaAttributes_LowLevel::GetFileIDFromFilePath( string File )
 #else
 	*/
 
-	/* Don't use pluto media file.  It reads from id3 and takes too long
-
-	PlutoMediaFile PlutoMediaFile_(m_pDatabase_pluto_media, m_nPK_Installation, FileUtils::BasePath(File),
-		FileUtils::FilenameWithoutPath(File));
-	int PK_File = PlutoMediaFile_.GetFileAttribute();
-
-    if(PK_File > 0)
-    {
-        string DatabaseFile = GetFilePathFromFileID( PK_File );
-        if( File!=DatabaseFile )
-        {
-            if( DatabaseFile.length( )==0 )
-            {
-                LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "There appears to be a foreign file in the system %d %s", PK_File, File.c_str( ) );
-                return 0;
-            }
-            else
-            {
-                // Confirm that the file doesn't exist in the old location. If it does, there are 2 with the same ID
-                FILE *file = fopen( DatabaseFile.c_str( ), "rb" );
-                if( file )
-                {
-                    LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "There are 2 files with id %d %s and: %s", PK_File, File.c_str( ), DatabaseFile.c_str( ) );
-                    return 0;
-                }
-                else
-                {
-                    // They must have moved it
-                    LoggerWrapper::GetInstance()->Write( LV_MEDIA, "File %d moved from %s to %s", PK_File, DatabaseFile.c_str( ), File.c_str( ) );
-
-                    string path = FileUtils::BasePath( File );
-                    string name = FileUtils::FilenameWithoutPath( File, true );
-
-                    string SQL;
-					SQL += "UPDATE File SET Path='" + StringUtils::SQLEscape(FileUtils::ExcludeTrailingSlash(path)) + "', Filename='" + StringUtils::SQLEscape( name ) + "' WHERE PK_File=" + StringUtils::itos(PK_File);
-                    // cout << "Query: " << SQL << endl;
-                    m_pDatabase_pluto_media->threaded_db_wrapper_query( SQL );
-                }
-            }
-        }
-        return PK_File;
-    }
-    else
-	{	// if no attributte is set then fall back to the windows functionality.
-	*/
-		string Path = FileUtils::BasePath(File);
-		if( Path.length() && Path[ Path.length()-1 ]=='/' )
-			Path = Path.substr(0,Path.length()-1);
+	string Path = FileUtils::BasePath(File);
+	if( Path.length() && Path[ Path.length()-1 ]=='/' )
+		Path = Path.substr(0,Path.length()-1);
 
 #ifdef WIN32
-		Path = StringUtils::Replace(Path, "\\", "/"); // replacing all the \ in a windows path with /
+	Path = StringUtils::Replace(Path, "\\", "/"); // replacing all the \ in a windows path with /
 #endif
 
-		string SQL = "SELECT PK_File FROM File WHERE Path='" + StringUtils::SQLEscape( Path ) +
-			"' AND Filename='" + StringUtils::SQLEscape( FileUtils::FilenameWithoutPath(File) ) + "'";
-		if( ( result.r=m_pDatabase_pluto_media->db_wrapper_query_result( SQL ) ) && ( row=db_wrapper_fetch_row( result.r ) ) )
-			return atoi( row[0] );
-		else
-			return 0;
-		/*
-	}
-	*/
-//#endif
+	string SQL = "SELECT PK_File FROM File WHERE Path='" + StringUtils::SQLEscape( Path ) +
+		"' AND Filename='" + StringUtils::SQLEscape( FileUtils::FilenameWithoutPath(File) ) + "'";
+	if( ( result.r=m_pDatabase_pluto_media->db_wrapper_query_result( SQL ) ) && ( row=db_wrapper_fetch_row( result.r ) ) )
+		return atoi( row[0] );
+	else
+		return 0;
+
 }
 
 string MediaAttributes_LowLevel::GetAnyPictureUnderDirectory( string File, int *PK_Picture, int MaxDepthToSearch )

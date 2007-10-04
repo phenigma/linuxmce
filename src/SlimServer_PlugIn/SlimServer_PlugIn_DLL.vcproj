@@ -148,9 +148,6 @@
 				RelativePath="..\Media_Plugin\Generic_NonPluto_Media.cpp">
 			</File>
 			<File
-				RelativePath="..\UpdateMedia\id3info\id3info.cpp">
-			</File>
-			<File
 				RelativePath="Main.cpp">
 			</File>
 			<File
@@ -158,9 +155,6 @@
 			</File>
 			<File
 				RelativePath="..\Media_Plugin\Media_Plugin_Grids.cpp">
-			</File>
-			<File
-				RelativePath="..\Media_Plugin\MediaListGrid.cpp">
 			</File>
 			<File
 				RelativePath="..\Gen_Devices\Media_PluginBase.cpp">
@@ -178,16 +172,10 @@
 				RelativePath="..\Media_Plugin\MediaHandlerInfo.cpp">
 			</File>
 			<File
-				RelativePath="..\UpdateMedia\MediaIdentifier.cpp">
+				RelativePath="..\Media_Plugin\MediaListGrid.cpp">
 			</File>
 			<File
 				RelativePath="..\Media_Plugin\MediaStream.cpp">
-			</File>
-			<File
-				RelativePath="..\UpdateMedia\PlutoMediaAttributes.cpp">
-			</File>
-			<File
-				RelativePath="..\UpdateMedia\PlutoMediaFile.cpp">
 			</File>
 			<File
 				RelativePath="SlimServer_PlugIn.cpp">
