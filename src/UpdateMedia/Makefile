@@ -23,11 +23,15 @@ MediaIdentifier.cpp \
 PlutoMediaAttributes.cpp \
 MediaState.cpp \
 FileStatusObserver.cpp \
+GenericFileHandler.cpp \
+ID3FileHandler.cpp \
+VDRFileHandler.cpp \
+FileHandlerFactory.cpp \
 FileUtils/file_utils.cpp \
+id3info/id3info.cpp \
 $(ROOT)/Media_Plugin/MediaAttributes_LowLevel.cpp \
 $(ROOT)/inotify/FileNotifier.cpp \
-$(ROOT)/inotify/inotify_class.cpp \
-$(ROOT)/UpdateMedia/id3info/id3info.cpp 
+$(ROOT)/inotify/inotify_class.cpp 
 
 all: $(sources:.cpp=.o)
 	$(CXX) -o UpdateMedia $+ $(LDFLAGS) $(LDLIBS)

@@ -46,15 +46,13 @@
 #include "pluto_main/Define_MediaType.h"
 
 #include "Media_Plugin/MediaAttributes_LowLevel.h"
-#include "UpdateMedia/PlutoMediaAttributes.h"
 
-#include "id3info/id3info.h"
+#include "PlutoMediaAttributes.h"
 #include "MediaIdentifier.h"
+
 #include "FileUtils/file_utils.h"
 
-#ifdef UPDATE_MEDIA
 #include "MediaState.h"
-#endif
 
 #include <time.h>
 #include <sys/types.h>
@@ -69,13 +67,11 @@ using namespace DCE;
 
 #include "pluto_media/Database_pluto_media.h"
 //-----------------------------------------------------------------------------------------------------
-#ifdef UPDATE_MEDIA
 namespace UpdateMediaVars
 {
 	extern string sUPnPMountPoint;
 	extern string sLocalUPnPServerName;
 };
-#endif
 //-----------------------------------------------------------------------------------------------------
 char *MediaSyncModeStr[] =
 {
@@ -93,7 +89,8 @@ MediaSyncMode PlutoMediaFile::m_DefaultMediaSyncMode = modeNone;
 bool PlutoMediaFile::m_bNewFilesAdded = false;
 //-----------------------------------------------------------------------------------------------------
 PlutoMediaFile::PlutoMediaFile(Database_pluto_media *pDatabase_pluto_media, int PK_Installation, 
-	string sDirectory, string sFile) : m_MediaSyncMode(modeNone), m_pPlutoMediaAttributes(NULL)
+	string sDirectory, string sFile, GenericFileHandler *pFileHandler) : 
+	m_MediaSyncMode(modeNone), m_pPlutoMediaAttributes(NULL)
 {
 	//initializations
     m_pDatabase_pluto_media = pDatabase_pluto_media;
@@ -102,9 +99,10 @@ PlutoMediaFile::PlutoMediaFile(Database_pluto_media *pDatabase_pluto_media, int 
 	m_nOurInstallationID = PK_Installation;
 	m_nPK_MediaType = 0;
 	m_bNewFileToDb = false;
+	m_spFileHandler.reset(pFileHandler);
 
 	string sFilePath = sDirectory + "/" + sFile;
-	m_bIsDir = IsDirectory(sFilePath);
+	m_bIsDir = UpdateMediaFileUtils::IsDirectory(sFilePath.c_str());
 
 	LoggerWrapper::GetInstance()->Write(LV_WARNING, "# PlutoMediaFile STARTED: dir %s file %s", 
 		m_sDirectory.c_str(), m_sFile.c_str());
@@ -116,13 +114,10 @@ PlutoMediaFile::PlutoMediaFile(Database_pluto_media *pDatabase_pluto_media, int 
 		return;
 	}
 
-	//get the path to id3 file
-	string sAttributeFile = FileWithAttributes(false);
-	string sAttributeFullFilePath = m_sDirectory + "/" + sAttributeFile;
-	LoadPlutoAttributes(sAttributeFullFilePath);
+	LoadPlutoAttributes(sFilePath);
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Processing path %s, file %s. "
-		"Found %d attributes, %d long attributes in id3 file", 
+		"Found %d attributes, %d long attributes in file", 
 		m_sDirectory.c_str(), m_sFile.c_str(), m_pPlutoMediaAttributes->m_mapAttributes.size(),
 		m_pPlutoMediaAttributes->m_mapLongAttributes.size());
 }
@@ -131,8 +126,8 @@ PlutoMediaFile::~PlutoMediaFile()
 {
 	if(m_MediaSyncMode == modeDbToFile || m_MediaSyncMode == modeBoth)
 	{
-		//Save everything in id3 file
-		SavePlutoAttributes(m_sDirectory + "/" + FileWithAttributes());
+		//Save everything in file
+		SavePlutoAttributes(m_sDirectory + "/" + m_sFile);
 	}
 
 	if(m_MediaSyncMode == modeFileToDb || m_MediaSyncMode == modeBoth)
@@ -141,7 +136,6 @@ PlutoMediaFile::~PlutoMediaFile()
 		SaveEveryThingToDb();
 	}
 
-#ifdef UPDATE_MEDIA
 	if(NULL != m_pPlutoMediaAttributes)
 	{
 		if(!m_pPlutoMediaAttributes->m_nFileID)
@@ -150,40 +144,11 @@ PlutoMediaFile::~PlutoMediaFile()
 		MediaState::Instance().FileSynchronized(m_pDatabase_pluto_media, m_sDirectory, m_sFile, 
 			m_pPlutoMediaAttributes->m_nFileID);
 	}
-#endif
 
 	delete m_pPlutoMediaAttributes;
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "# PlutoMediaFile ENDED: dir %s file %s, sync mode %s", 
 		m_sDirectory.c_str(), m_sFile.c_str(), MediaSyncModeStr[m_MediaSyncMode]);
-}
-//-----------------------------------------------------------------------------------------------------
-/*static*/ bool PlutoMediaFile::IsSupported(string sFileName)
-{
-	const string csSupportedExtensions("mp3:ogg:aac:flac");
-	string sExtension = StringUtils::ToLower(FileUtils::FindExtension(sFileName));
-
-	if(sExtension.empty())
-		return false;
-
-    return csSupportedExtensions.find(sExtension) != string::npos;
-}
-//-----------------------------------------------------------------------------------------------------
-/*static*/ bool PlutoMediaFile::IsDirectory(string sFilePath)
-{
-	bool bIsDir = false;
-
-#ifdef WIN32
-	struct __stat64 buf;
-	if(!_stat64(sFilePath.c_str(), &buf))
-		bIsDir = (0 != (buf.st_mode & _S_IFDIR)); 
-#else
-	struct stat64 buf;
-	if(!stat64(sFilePath.c_str(), &buf))
-		bIsDir = S_ISDIR(buf.st_mode);
-#endif
-
-	return bIsDir;
 }
 //-----------------------------------------------------------------------------------------------------
 string PlutoMediaFile::AdjustLongAttributeForDisplay(string sText)
@@ -221,12 +186,10 @@ int PlutoMediaFile::HandleFileNotInDatabase(int PK_MediaType)
 				pRow_File->Filename_set(m_sFile);
 				pRow_File->Table_File_get()->Commit();
 
-#ifdef UPDATE_MEDIA
 				if(!UpdateMediaVars::sUPnPMountPoint.empty() && StringUtils::StartsWith(m_sDirectory, UpdateMediaVars::sUPnPMountPoint))
 					pRow_File->Source_set("U");
 				else
 					pRow_File->Source_set("F");
-#endif
 
 				LoggerWrapper::GetInstance()->Write(LV_STATUS, "PlutoMediaFile::HandleFileNotInDatabase %s/%s N db-attr: %d Inode: %d size %d mt %d/%d, md5 %s", 
 					m_sDirectory.c_str(), m_sFile.c_str(), pRow_File->PK_File_get(), INode, (int) vectRow_File.size(), PK_MediaType, pRow_File->EK_MediaType_get(),
@@ -305,12 +268,10 @@ int PlutoMediaFile::HandleFileNotInDatabase(int PK_MediaType)
 		pRow_File->EK_MediaType_set(PK_MediaType);
 		pRow_File->IsDirectory_set(m_bIsDir);
 
-#ifdef UPDATE_MEDIA
 		if(!UpdateMediaVars::sUPnPMountPoint.empty() && StringUtils::StartsWith(m_sDirectory, UpdateMediaVars::sUPnPMountPoint))
 			pRow_File->Source_set("U");
 		else
 			pRow_File->Source_set("F");
-#endif
 
 		int nEK_Users_Private = GetOwnerForPath(m_sDirectory);
 		if(nEK_Users_Private != 0)
@@ -329,7 +290,7 @@ int PlutoMediaFile::HandleFileNotInDatabase(int PK_MediaType)
 //-----------------------------------------------------------------------------------------------------
 void PlutoMediaFile::SaveEveryThingToDb()
 {
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "# SyncDbAttributes: ready to sync db with attributes found in id3 file");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "# SyncDbAttributes: ready to sync db with attributes found in attribute file");
 
 	// Is it a media file?
 	if(!m_nPK_MediaType)
@@ -600,7 +561,7 @@ void PlutoMediaFile::SaveLongAttributesInDb(bool bAddAllToDb)
 //-----------------------------------------------------------------------------------------------------
 void PlutoMediaFile::SaveBookmarkPictures()
 {
-	//got bookmarks in id3 file, but none in the database?
+	//got bookmarks in attribute file, but none in the database?
 	if(!m_pPlutoMediaAttributes->m_listBookmarks.empty() && !NumberOfBookmarksFromDB())
 	{
 		int nCounter = 0;
@@ -667,7 +628,7 @@ void PlutoMediaFile::SaveMiscInfo()
 //-----------------------------------------------------------------------------------------------------
 void PlutoMediaFile::SaveCoverarts()
 {
-	//got coverarts in id3 file, but none in the database?
+	//got coverarts in attribute file, but none in the database?
 	if(!m_pPlutoMediaAttributes->m_mapCoverarts.empty() && !NumberOfCoverartsFromDB())
 	{
 		MapPictures::iterator it = m_pPlutoMediaAttributes->m_mapCoverarts.begin();
@@ -765,12 +726,10 @@ int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
 		pRow_File->IsDirectory_set(m_bIsDir);
 		pRow_File->EK_MediaType_set(PK_MediaType);
 
-#ifdef UPDATE_MEDIA
 		if(!UpdateMediaVars::sUPnPMountPoint.empty() && StringUtils::StartsWith(m_sDirectory, UpdateMediaVars::sUPnPMountPoint))
 			pRow_File->Source_set("U");
 		else
 			pRow_File->Source_set("F");
-#endif
 
 		if(nEK_Users_Private != 0)
 			pRow_File->EK_Users_Private_set(nEK_Users_Private);
@@ -844,8 +803,8 @@ int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
 
 	if(m_pPlutoMediaAttributes->m_mapCoverarts.empty())
 	{
-		for(list<pair<char *, size_t> >::iterator itp = m_listPicturesForID3Tags.begin();
-			itp != m_listPicturesForID3Tags.end(); ++itp)
+		for(list<pair<char *, size_t> >::iterator itp = m_listPicturesForTags.begin();
+			itp != m_listPicturesForTags.end(); ++itp)
 		{
 			char *pPictureData = itp->first;
 			size_t nPictureSize = itp->second;
@@ -884,7 +843,6 @@ int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
 //-----------------------------------------------------------------------------------------------------
 void PlutoMediaFile::AssignPlutoDevice()
 {
-#ifdef UPDATE_MEDIA
 	map<int, int> mapMountedDevices;
 	list<string> listFiles;
 	FileUtils::FindDirectories(listFiles, "/mnt/device", false, true);
@@ -904,8 +862,6 @@ void PlutoMediaFile::AssignPlutoDevice()
 
 		pRow_File->Table_File_get()->Commit();
 	}
-
-#endif //UPDATE_MEDIA
 }
 //-----------------------------------------------------------------------------------------------------
 void PlutoMediaFile::UpdateMd5Field()
@@ -1068,145 +1024,28 @@ int PlutoMediaFile::GetPicAttribute(int PK_File)
     return 0;
 }
 //-----------------------------------------------------------------------------------------------------
-string PlutoMediaFile::FileWithAttributes(bool bCreateId3File)
-{
-	//no id3 files for directories
-	if(m_bIsDir)
-	{
-		LoggerWrapper::GetInstance()->Write(LV_STATUS, "# No id3 file for folders");
-		return "";
-	}
-
-	//no id3 file if the media file doesn't exist anymore.
-	if(!FileUtils::FileExists(m_sDirectory + "/" + m_sFile))
-	{
-		LoggerWrapper::GetInstance()->Write(LV_STATUS, "# No id3 file. The media file doesn't exist anymore.");
-		return "";
-	}
-
-	string sFileWithAttributes = m_sFile;
-	if(!IsSupported(m_sFile))
-	{
-		sFileWithAttributes = m_sFile + ".id3";
-		if(FileUtils::FileExists(m_sDirectory + "/" + sFileWithAttributes))
-			return sFileWithAttributes;
-
-		if(!bCreateId3File)
-			return "";
-
-		if(
-			m_pPlutoMediaAttributes->m_mapAttributes.size() == 0 && 
-			m_pPlutoMediaAttributes->m_mapLongAttributes.size() == 0 && 
-			m_pPlutoMediaAttributes->m_mapCoverarts.size() == 0 &&
-			m_pPlutoMediaAttributes->m_listBookmarks.size() == 0 &&
-			m_pPlutoMediaAttributes->m_sStartPosition == ""
-		)
-		{
-			LoggerWrapper::GetInstance()->Write(LV_STATUS, "# Won't create id3 file (the media file doesn't have attributes)");
-			return "";
-		}
-
-		if(!FileUtils::DirExists(m_sDirectory + "/" + sFileWithAttributes))
-			FileUtils::WriteTextFile(m_sDirectory + "/" + sFileWithAttributes, ""); //touch it
-	}
-
-	return sFileWithAttributes;
-}
-//-----------------------------------------------------------------------------------------------------
 void PlutoMediaFile::SavePlutoAttributes(string sFullFileName)
 {
 	if(m_MediaSyncMode == modeFileToDb)
 	{
-		LoggerWrapper::GetInstance()->Write(LV_STATUS, "# NOT saving attributes in id3 files. Read only mode!");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "# NOT saving attributes in attribute files. Read only mode!");
 		return;
 	}
 
 	GetPicAttribute(m_pPlutoMediaAttributes->m_nFileID);
 
-	//Temporary map with attributes for common tags
-	map<int, string> mapAttributes;
-	for(MapPlutoMediaAttributes::iterator it = m_pPlutoMediaAttributes->m_mapAttributes.begin(), 
-		end = m_pPlutoMediaAttributes->m_mapAttributes.end(); it != end; ++it)
-	{
-		mapAttributes[it->first] = it->second->m_sName;
-	}
-
-	list<pair<char *, size_t> > listPictures;
-	for(MapPictures::iterator itc = m_pPlutoMediaAttributes->m_mapCoverarts.begin();
-		itc != m_pPlutoMediaAttributes->m_mapCoverarts.end(); ++itc)
-	{
-		listPictures.push_back(make_pair(itc->second, itc->first));
-	}
-
-	//Save common id3 tags
-	SetId3Info(sFullFileName, mapAttributes, listPictures);
-	listPictures.clear();
-
-	//Save user defined text
-	char *pDataCurrentPosition = NULL;
-	char *pDataStartPosition = NULL;
-	unsigned long ulSize = 0;
-
-	m_pPlutoMediaAttributes->SerializeWrite();
-	ulSize = m_pPlutoMediaAttributes->CurrentSize();
-	pDataCurrentPosition = pDataStartPosition = m_pPlutoMediaAttributes->m_pcDataBlock;
-
-	size_t Size = ulSize;
-	SetUserDefinedInformation(sFullFileName, pDataStartPosition, Size);
-	m_pPlutoMediaAttributes->FreeSerializeMemory();
-
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "# SavePlutoAttributes: saving %d attributes in the id3 file %s",
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "# SavePlutoAttributes: saving %d attributes in the attribute file %s",
 		m_pPlutoMediaAttributes->m_mapAttributes.size(), sFullFileName.c_str());
 }
 //-----------------------------------------------------------------------------------------------------
 void PlutoMediaFile::LoadPlutoAttributes(string sFullFileName)
 {
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "# LoadPlutoAttributes (from id3 file): %s", sFullFileName.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "# LoadPlutoAttributes (from attribute file): %s", sFullFileName.c_str());
 
 	m_pPlutoMediaAttributes = new PlutoMediaAttributes();
+	m_spFileHandler->LoadAttributes(m_pPlutoMediaAttributes, m_listPicturesForTags);
 
-	//deserialize data from user defined tag
-	char *pData = NULL;
-	size_t Size = 0;
-	GetUserDefinedInformation(sFullFileName, pData, Size);
-
-	if(NULL != pData)
-	{
-		m_pPlutoMediaAttributes->SerializeRead((unsigned long)Size, pData);
-		delete []pData;
-		pData = NULL;
-	}
-
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "# LoadPlutoAttributes: pluto attributes loaded (from id3 file - general object tag) %d", 
-		m_pPlutoMediaAttributes->m_mapAttributes.size());
-
-	//get common id3 attributes
-	map<int, string> mapAttributes;
-	m_listPicturesForID3Tags.clear();
-	GetId3Info(sFullFileName, mapAttributes, m_listPicturesForID3Tags);	
-
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "# LoadPlutoAttributes: id3 attributes loaded (from id3 file - common tags) %d", 
-		mapAttributes.size());
-
-	//merge attributes
-	for(map<int, string>::iterator it = mapAttributes.begin(), end = mapAttributes.end(); it != end; ++it)
-	{
-		int nType = it->first;
-		string sValue = it->second;
-
-		MapPlutoMediaAttributes::iterator itm = m_pPlutoMediaAttributes->m_mapAttributes.find(nType);
-		if(itm == m_pPlutoMediaAttributes->m_mapAttributes.end())
-			m_pPlutoMediaAttributes->m_mapAttributes.insert(
-				std::make_pair(
-					nType, 
-					new PlutoMediaAttribute(0,nType, sValue)
-				)
-			);
-		else
-			itm->second->m_sName = sValue;
-	}
-
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "# LoadPlutoAttributes: pluto attributes merged (for id3 file) %d", 
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "# LoadPlutoAttributes: pluto attributes merged (for attribute file) %d", 
 		m_pPlutoMediaAttributes->m_mapAttributes.size());
 }
 //-----------------------------------------------------------------------------------------------------
@@ -1286,7 +1125,7 @@ void PlutoMediaFile::LoadShortAttributes()
 
 			if(!bAttributeAlreadyAdded)
 			{
-				LoggerWrapper::GetInstance()->Write(LV_STATUS, "# LoadPlutoAttributes: (from db) new attributes to add in id3 file -  type %d, values %s",
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "# LoadPlutoAttributes: (from db) new attributes to add in attribute file -  type %d, values %s",
 					nFK_AttributeType, sName.c_str());
 
 				m_pPlutoMediaAttributes->m_mapAttributes.insert(
@@ -1329,7 +1168,7 @@ void PlutoMediaFile::LoadShortAttributes()
 				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Removing attribute from file %d, value %s, since it was remove from the site.",
 					pPlutoMediaAttribute_File->m_nType, pPlutoMediaAttribute_File->m_sName.c_str());
 
-				RemoveId3Tag(m_sDirectory + "/" + FileWithAttributes(), pPlutoMediaAttribute_File->m_nType, pPlutoMediaAttribute_File->m_sName);
+				m_spFileHandler->RemoveAttribute(pPlutoMediaAttribute_File->m_nType, pPlutoMediaAttribute_File->m_sName);
 				m_pPlutoMediaAttributes->m_mapAttributes.erase(it++);
 			}
 			else
@@ -1389,7 +1228,7 @@ void PlutoMediaFile::LoadLongAttributes()
 
 			if(!bAttributeAlreadyAdded)
 			{
-				LoggerWrapper::GetInstance()->Write(LV_STATUS, "# LoadPlutoAttributes: (from db) new long attributes to add in id3 file -  type %d, values %s",
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "# LoadPlutoAttributes: (from db) new long attributes to add in attribute file -  type %d, values %s",
 					nFK_AttributeType, AdjustLongAttributeForDisplay(sName).c_str());
 
 				m_pPlutoMediaAttributes->m_mapLongAttributes.insert(
@@ -1429,7 +1268,7 @@ void PlutoMediaFile::LoadLongAttributes()
 				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Removing attribute from file %d, value %s, since it was remove from the site.",
 					pPlutoMediaAttribute_File->m_nType, AdjustLongAttributeForDisplay(pPlutoMediaAttribute_File->m_sName).c_str());
 
-				RemoveId3Tag(m_sDirectory + "/" + FileWithAttributes(), pPlutoMediaAttribute_File->m_nType, pPlutoMediaAttribute_File->m_sName);
+				m_spFileHandler->RemoveAttribute(pPlutoMediaAttribute_File->m_nType, pPlutoMediaAttribute_File->m_sName);
 				m_pPlutoMediaAttributes->m_mapLongAttributes.erase(it++);
 			}
 			else
@@ -1455,7 +1294,7 @@ void PlutoMediaFile::LoadLongAttributes()
 //-----------------------------------------------------------------------------------------------------
 void PlutoMediaFile::LoadBookmarkPictures()
 {
-	//if the file was added before, but we already have bookmarks in db ignore those from id3
+	//if the file was added before, but we already have bookmarks in db ignore those from attribute file
 	if(!m_bNewFileToDb && NumberOfBookmarksFromDB())
 		m_pPlutoMediaAttributes->ClearBookmarks();
 
@@ -1525,7 +1364,7 @@ void PlutoMediaFile::LoadMiscInfo()
 //-----------------------------------------------------------------------------------------------------
 void PlutoMediaFile::LoadCoverarts()
 {
-	//if the file was added before, but we already have coverarts in db ignore those from id3
+	//if the file was added before, but we already have coverarts in db ignore those from attribute file
 	if(!m_bNewFileToDb && NumberOfCoverartsFromDB())
 		m_pPlutoMediaAttributes->ClearCoverarts();
 

@@ -30,6 +30,7 @@ namespace UpdateMediaFileUtils
 	int MountedDeviceForFile(std::string sFilePath);
 	int PlutoDeviceForFile(std::string sFilePath, const std::map<int, int>& mapMountedDevices);
 	void MapMountedDevicesToPlutoDevices(const std::list<std::string>& listFiles, std::map<int, int>& mapMountedDevices);
+	bool IsDirectory(const char *pFilePath);
 }
 
 #endif //__FILE_UTILS_H__

@@ -74,7 +74,7 @@ class MediaState
 	static MediaState m_instance;
 
 	//helpers
-	string ReadMediaFileInfo(string sFilePath);
+	string ReadMediaFileInfo(string sDirectory, string sFile);
 	MediaItemState LoadDbInfoForFile(Database_pluto_media *pDatabase_pluto_media, int nFileID);
 
 public:

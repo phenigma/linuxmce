@@ -28,6 +28,7 @@
 #include "DCE/Logger.h"
 using namespace DCE;
 
+#include "FileHandlerFactory.h"
 //-----------------------------------------------------------------------------------------------------
 MediaState MediaState::m_instance;
 //-----------------------------------------------------------------------------------------------------
@@ -128,7 +129,7 @@ MediaSyncMode MediaState::SyncModeNeeded(string sDirectory, string sFile)
 	bool bNeedToUpdateDb = false;
 	bool bNeedtoUpdateFile = false;
 
-	string sCurrentFileDate = ReadMediaFileInfo(sDirectory + "/" + sFile);
+	string sCurrentFileDate = ReadMediaFileInfo(sDirectory, sFile);
 
 	MapMediaState::iterator it = m_mapMediaState.find(make_pair(sDirectory, sFile));
 	if(it != m_mapMediaState.end())
@@ -161,11 +162,10 @@ MediaSyncMode MediaState::SyncModeNeeded(string sDirectory, string sFile)
 			bNeedtoUpdateFile = true;
 		}
 
-		//if we have a media file with external id3 file missing
-		//and it haas attributes in the database
+		auto_ptr<GenericFileHandler> spFileHandler(FileHandlerFactory::CreateFileHandler(sDirectory, sFile));
+
 		if(
-			!PlutoMediaFile::IsSupported(sFile) && 
-			!FileUtils::FileExists(sDirectory + "/" + sFile + ".id3") && 
+			!spFileHandler->FileAttributeExists() &&
 			item.m_sCurrentDbAttrDate != "" && item.m_bHasAttributes
 		)
 		{
@@ -225,7 +225,7 @@ void MediaState::FileSynchronized(Database_pluto_media *pDatabase_pluto_media, s
 
 	string sUpdateSql = "UPDATE File SET ";
 
-	string sFileTimestamp = ReadMediaFileInfo(sDirectory + "/" + sFile);
+	string sFileTimestamp = ReadMediaFileInfo(sDirectory, sFile);
 	sUpdateSql += "ModificationDate = '" + sFileTimestamp + "', ";
 	item.m_sOldFileDate = sFileTimestamp;
 
@@ -242,7 +242,7 @@ void MediaState::FileSynchronized(Database_pluto_media *pDatabase_pluto_media, s
 	m_mapMediaState[make_pair(sDirectory, sFile)] = item;
 }
 //-----------------------------------------------------------------------------------------------------
-string MediaState::ReadMediaFileInfo(string sFilePath)
+string MediaState::ReadMediaFileInfo(string sDirectory, string sFile)
 {
 #ifdef WIN32
 	struct __stat64 buf;
@@ -250,8 +250,8 @@ string MediaState::ReadMediaFileInfo(string sFilePath)
 	struct stat64 buf;
 #endif
 
-	if(FileUtils::FileExists(sFilePath + ".id3"))
-		sFilePath += ".id3";
+	auto_ptr<GenericFileHandler> spFileHandler(FileHandlerFactory::CreateFileHandler(sDirectory, sFile));
+	string sFilePath = sDirectory + "/" + spFileHandler->GetFileAttribute();
 
 #ifdef WIN32
 	if(!_stat64(sFilePath.c_str(), &buf))

@@ -131,6 +131,9 @@
 				RelativePath=".\FileUtils\file_utils.cpp">
 			</File>
 			<File
+				RelativePath=".\FileHandlerFactory.cpp">
+			</File>
+			<File
 				RelativePath="..\inotify\FileNotifier.cpp">
 			</File>
 			<File
@@ -138,6 +141,12 @@
 			</File>
 			<File
 				RelativePath="..\PlutoUtils\FileUtils.cpp">
+			</File>
+			<File
+				RelativePath=".\GenericFileHandler.cpp">
+			</File>
+			<File
+				RelativePath=".\ID3FileHandler.cpp">
 			</File>
 			<File
 				RelativePath=".\id3info\id3info.cpp">
@@ -169,6 +178,9 @@
 			<File
 				RelativePath="UpdateMedia.cpp">
 			</File>
+			<File
+				RelativePath=".\VDRInfoFileHandler.cpp">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -177,10 +189,19 @@
 				RelativePath="..\PlutoUtils\CommonIncludes.h">
 			</File>
 			<File
+				RelativePath=".\FileHandlerFactory.h">
+			</File>
+			<File
 				RelativePath=".\FileStatusObserver.h">
 			</File>
 			<File
 				RelativePath="..\PlutoUtils\FileUtils.h">
+			</File>
+			<File
+				RelativePath=".\GenericFileHandler.h">
+			</File>
+			<File
+				RelativePath=".\ID3FileHandler.h">
 			</File>
 			<File
 				RelativePath=".\PlutoMediaAttributes.h">
@@ -190,6 +211,9 @@
 			</File>
 			<File
 				RelativePath="..\PlutoUtils\StringUtils.h">
+			</File>
+			<File
+				RelativePath=".\VDRInfoFileHandler.h">
 			</File>
 		</Filter>
 		<Filter

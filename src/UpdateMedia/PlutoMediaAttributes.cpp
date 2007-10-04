@@ -306,7 +306,7 @@ bool PlutoMediaAttributes::UnknownSerialize(ItemToSerialize *pItem,bool bWriting
 						if(!pPlutoMediaBookmark->Serialize(bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition))
 						{
 							//something is wrong -- we cannot deserialize this
-							LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Cannot deserialize list with bookmarks; the id3 file seems to be corrupted! Skipping deserialization....");
+							LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Cannot deserialize list with bookmarks; the attribute file seems to be corrupted! Skipping deserialization....");
 							delete pPlutoMediaBookmark;
 							return true;
 						}

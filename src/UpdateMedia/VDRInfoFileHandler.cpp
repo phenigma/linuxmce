@@ -1,0 +1,130 @@
+#include "VDRInfoFileHandler.h"
+#include "PlutoUtils/FileUtils.h"
+#include "PlutoUtils/StringUtils.h"
+#include "pluto_media/Define_AttributeType.h"
+#include "PlutoMediaAttributes.h"
+
+#include "DCE/Logger.h"
+using namespace DCE;
+//-----------------------------------------------------------------------------------------------------
+VDRInfoFileHandler::VDRInfoFileHandler(string sDirectory, string sFile) :
+	GenericFileHandler(sDirectory, sFile)
+{
+}
+//-----------------------------------------------------------------------------------------------------
+VDRInfoFileHandler::~VDRInfoFileHandler(void)
+{
+}
+//-----------------------------------------------------------------------------------------------------
+bool VDRInfoFileHandler::LoadAttributes(PlutoMediaAttributes *pPlutoMediaAttributes, 
+	list<pair<char *, size_t> >& /*listPicturesForTags*/)
+{
+	string sData;
+	FileUtils::ReadTextFile(GetFileAttribute(), sData);
+
+	vector<string> vectLines;
+	StringUtils::Tokenize(sData, "\n", vectLines);
+
+	for(vector<string>::iterator it = vectLines.begin(), end = vectLines.end(); it != end; ++it)
+	{
+		string sLine = *it;
+		int nAttributeType = 0;
+
+		if(sLine.size() >= 2)
+		{
+			switch(sLine[0])
+			{
+				case 'C':
+					nAttributeType = ATTRIBUTETYPE_Channel_CONST;
+					break;
+
+				case 'T':
+					nAttributeType = ATTRIBUTETYPE_Title_CONST;
+					break;
+
+				case 'D':
+					nAttributeType = ATTRIBUTETYPE_Synopsis_CONST;
+					break;
+
+				case 'X':
+					nAttributeType = ATTRIBUTETYPE_Audio_Encoding_CONST;
+					break;
+
+				default:
+					LoggerWrapper::GetInstance()->Write(LV_WARNING, "VDRInfoFileHandler: don't know attribute type for '%c'", sLine[0]);
+					break;
+			}
+
+			string sValue = sLine.substr(2, sLine.length() - 3);
+			PlutoMediaAttribute *pma = new PlutoMediaAttribute(0, nAttributeType, sValue);
+
+			if(nAttributeType == ATTRIBUTETYPE_Synopsis_CONST)
+				pPlutoMediaAttributes->m_mapLongAttributes.insert(make_pair(nAttributeType, pma));
+			else
+				pPlutoMediaAttributes->m_mapAttributes.insert(make_pair(nAttributeType, pma));
+		}
+	}
+
+	return true;
+}
+//-----------------------------------------------------------------------------------------------------
+bool VDRInfoFileHandler::SaveAttributes(PlutoMediaAttributes *pPlutoMediaAttributes)
+{
+	string sBuffer;
+
+	for(MapPlutoMediaAttributes::iterator it = pPlutoMediaAttributes->m_mapAttributes.begin(); 
+		it != pPlutoMediaAttributes->m_mapAttributes.end(); ++it)
+	{
+		char cAttributeType = '?';
+
+		switch(it->first)
+		{
+			case ATTRIBUTETYPE_Channel_CONST:
+				cAttributeType = 'C';
+				break;
+
+			case ATTRIBUTETYPE_Title_CONST:
+				cAttributeType = 'T';
+				break;
+
+			case ATTRIBUTETYPE_Synopsis_CONST:
+				cAttributeType = 'D';
+				break;
+
+			case ATTRIBUTETYPE_Audio_Encoding_CONST:
+				cAttributeType = 'X';
+				break;
+
+			default:
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "VDRInfoFileHandler: don't know attribute type convention for %d", it->first);
+				break;
+		}
+
+		if(cAttributeType != '?')
+		{
+			string sType = "?";
+			sType[0] = cAttributeType;
+			sBuffer += sType + " " + it->second->m_sName + "\n";
+		}
+	}
+
+	FileUtils::WriteTextFile(GetFileAttribute(), sBuffer);
+	return true;
+}
+//-----------------------------------------------------------------------------------------------------
+bool VDRInfoFileHandler::RemoveAttribute(int nTagType, string sValue)
+{
+	//nothing to do here
+	return true;
+}
+//-----------------------------------------------------------------------------------------------------
+bool VDRInfoFileHandler::FileAttributeExists()
+{
+	return FileUtils::FileExists(GetFileAttribute());
+}
+//-----------------------------------------------------------------------------------------------------
+string VDRInfoFileHandler::GetFileAttribute()
+{
+	return m_sDirectory + "/info.vdr";
+}
+//-----------------------------------------------------------------------------------------------------

@@ -29,6 +29,8 @@ class Database_pluto_main;
 class PlutoMediaAttributes;
 class Row_File;
 //-----------------------------------------------------------------------------------------------------
+#include "GenericFileHandler.h"
+//-----------------------------------------------------------------------------------------------------
 enum MediaSyncMode
 {
 	modeNone,
@@ -50,7 +52,7 @@ private:
 	MediaSyncMode m_MediaSyncMode;
 	PlutoMediaAttributes *m_pPlutoMediaAttributes;
 
-	list<pair<char *, size_t> > m_listPicturesForID3Tags;
+	list<pair<char *, size_t> > m_listPicturesForTags;
 
     string m_sDirectory;
     string m_sFile;
@@ -63,9 +65,11 @@ private:
 	static MediaSyncMode m_DefaultMediaSyncMode;
 	static bool m_bNewFilesAdded;
 
-	//id3 operations - load:
+	auto_ptr<GenericFileHandler> m_spFileHandler;
+
+	//file with attributes operations - load:
 	void LoadPlutoAttributes(string sFullFileName);
-	//id3 operations - save:
+	//file with attributes operations - save:
 	void SavePlutoAttributes(string sFullFileName);
 
 	//db operations - load:
@@ -91,7 +95,6 @@ private:
 	//misc helpers
 	int AddFileToDatabase(int PK_MediaType);
 	void AssignPlutoDevice();
-	string FileWithAttributes(bool bCreateId3File = true);
 	int GetOwnerForPath(string sPath);
 	int GetFileIDFromDB();
 	string AdjustLongAttributeForDisplay(string sText);
@@ -103,7 +106,8 @@ private:
 
 public:
     PlutoMediaFile(Database_pluto_media *pDatabase_pluto_media, int PK_Installation,
-        string sDirectory, string sFile);
+        string sDirectory, string sFile,
+		GenericFileHandler *pFileHandler /*= new GenericFileHandler()*/);
     ~PlutoMediaFile();
 
 	//synchronization mode:
@@ -122,9 +126,6 @@ public:
 
 	int HandleFileNotInDatabase(int PK_MediaType = 0);
 	void RenameAttribute(int Attribute_Type, string sOldValue, string sNewValue);
-
-	static bool IsSupported(string sFileName);
-	static bool IsDirectory(string sFilePath);
 };
 //-----------------------------------------------------------------------------------------------------
 //

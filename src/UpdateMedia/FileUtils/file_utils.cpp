@@ -115,4 +115,22 @@ namespace UpdateMediaFileUtils
 			}
 		}
 	}
+
+	bool IsDirectory(const char *pFilePath)
+	{
+		bool bIsDir = false;
+
+	#ifdef WIN32
+		struct __stat64 buf;
+		if(!_stat64(pFilePath, &buf))
+			bIsDir = (0 != (buf.st_mode & _S_IFDIR)); 
+	#else
+		struct stat64 buf;
+		if(!stat64(pFilePath, &buf))
+			bIsDir = S_ISDIR(buf.st_mode);
+	#endif
+
+		return bIsDir;
+	}
 }
+

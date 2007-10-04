@@ -22,6 +22,8 @@ or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more detai
 #include "Logger.h"
 #include "UpdateMedia.h"
 #include "MediaState.h"
+#include "FileUtils/file_utils.h"
+#include "FileHandlerFactory.h"
 
 #include <iostream>
 #include <sstream>
@@ -46,7 +48,6 @@ or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more detai
 #include "pluto_media/Table_Picture_Attribute.h"
 #include "pluto_media/Table_File_Attribute.h"
 
-#include "id3info/id3info.h"
 #include "PlutoMediaFile.h"
 #include "pluto_main/Table_Installation.h"
 #include "pluto_main/Table_Device_DeviceData.h"
@@ -500,8 +501,10 @@ bool UpdateMedia::ScanFiles(string sDirectory)
 		if(sync_mode == modeNone)
 			continue;
 
+		GenericFileHandler *pFileHandler = FileHandlerFactory::CreateFileHandler(sDirectory, sFile);
+
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Sync mode for %s/%s: %s", sDirectory.c_str(), sFile.c_str(), MediaSyncModeStr[sync_mode]); 
-		PlutoMediaFile PlutoMediaFile_(m_pDatabase_pluto_media, m_nPK_Installation, sDirectory, sFile);
+		PlutoMediaFile PlutoMediaFile_(m_pDatabase_pluto_media, m_nPK_Installation, sDirectory, sFile, pFileHandler);
 
 		//adjust sync mode
 		if(PlutoMediaFile::GetDefaultSyncMode() == modeFileToDb && sync_mode == modeBoth)
@@ -647,7 +650,7 @@ int UpdateMedia::SetupDirectory(string sDirectory, FolderType folder_type)
 	string sDirectoryName = FileUtils::FilenameWithoutPath(sDirectory);
 	MediaSyncMode dir_sync_mode = MediaState::Instance().SyncModeNeeded(sBaseDirectory, sDirectoryName);
 
-	//no id3 for folders
+	//no attribute file for folders
 	if(dir_sync_mode == modeDbToFile)
 		dir_sync_mode = modeNone;
 
@@ -661,7 +664,7 @@ int UpdateMedia::SetupDirectory(string sDirectory, FolderType folder_type)
 
 	if(dir_sync_mode != modeNone)
 	{
-		spPlutoMediaParentFolder.reset(new PlutoMediaFile(m_pDatabase_pluto_media, m_nPK_Installation, sBaseDirectory, sDirectoryName));
+		spPlutoMediaParentFolder.reset(new PlutoMediaFile(m_pDatabase_pluto_media, m_nPK_Installation, sBaseDirectory, sDirectoryName, new GenericFileHandler(sBaseDirectory, sDirectoryName)));
 
 		//adjust sync mode
 		if(PlutoMediaFile::GetDefaultSyncMode() == modeFileToDb && dir_sync_mode == modeBoth)
@@ -715,11 +718,15 @@ int UpdateMedia::SetupDirectory(string sDirectory, FolderType folder_type)
 bool UpdateMedia::AnyReasonToSkip(string sDirectory, string sFile)
 {
 	//not a media file or a directory
-	if(!PlutoMediaFile::IsDirectory(sDirectory + "/" + sFile) && !PlutoMediaIdentifier::Identify(sDirectory + "/" + sFile))
+	if(!UpdateMediaFileUtils::IsDirectory((sDirectory + "/" + sFile).c_str()) && !PlutoMediaIdentifier::Identify(sDirectory + "/" + sFile))
 		return true;
 
 	//ignore id3 and lock files
 	if(StringUtils::ToLower(FileUtils::FindExtension(sFile)) == "id3" || StringUtils::ToLower(FileUtils::FindExtension(sFile)) == "lock")
+		return true;
+
+	//ignore vdr's index and info files
+	if(sFile == "info.vdr" || sFile == "index.vdr")
 		return true;
 
 	if(!FileUtils::FileExists(sDirectory + "/" + sFile)) //the file was just being deleted
@@ -762,4 +769,3 @@ bool UpdateMedia::AnyReasonToSkip(string sDirectory, string sFile)
 		
 	return false;
 }
-
