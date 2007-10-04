@@ -15,6 +15,7 @@ public:
 	bool RemoveAttribute(int nTagType, string sValue);
 	bool FileAttributeExists();
 	string GetFileAttribute();
+	string GetFileSourceForDB();
 
 private:
 

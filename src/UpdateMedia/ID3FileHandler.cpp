@@ -5,6 +5,12 @@
 #include "DCE/Logger.h"
 using namespace DCE;
 //-----------------------------------------------------------------------------------------------------
+namespace UpdateMediaVars
+{
+	extern string sUPnPMountPoint;
+	extern string sLocalUPnPServerName;
+};
+//-----------------------------------------------------------------------------------------------------
 ID3FileHandler::ID3FileHandler(string sDirectory, string sFile) :
 	GenericFileHandler(sDirectory, sFile)
 {
@@ -174,5 +180,13 @@ string ID3FileHandler::GetFileAttribute()
 bool ID3FileHandler::FileAttributeExists()
 {
 	return IsSupported() || FileUtils::FileExists(m_sFullFilename + ".id3");
+}
+//-----------------------------------------------------------------------------------------------------
+string ID3FileHandler::GetFileSourceForDB()
+{
+	if(!UpdateMediaVars::sUPnPMountPoint.empty() && StringUtils::StartsWith(m_sDirectory, UpdateMediaVars::sUPnPMountPoint))
+		return "U";
+	else 
+		return "F";
 }
 //-----------------------------------------------------------------------------------------------------

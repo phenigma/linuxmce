@@ -67,12 +67,6 @@ using namespace DCE;
 
 #include "pluto_media/Database_pluto_media.h"
 //-----------------------------------------------------------------------------------------------------
-namespace UpdateMediaVars
-{
-	extern string sUPnPMountPoint;
-	extern string sLocalUPnPServerName;
-};
-//-----------------------------------------------------------------------------------------------------
 char *MediaSyncModeStr[] =
 {
 	"modeNone",
@@ -185,11 +179,7 @@ int PlutoMediaFile::HandleFileNotInDatabase(int PK_MediaType)
 				pRow_File->Path_set(m_sDirectory);
 				pRow_File->Filename_set(m_sFile);
 				pRow_File->Table_File_get()->Commit();
-
-				if(!UpdateMediaVars::sUPnPMountPoint.empty() && StringUtils::StartsWith(m_sDirectory, UpdateMediaVars::sUPnPMountPoint))
-					pRow_File->Source_set("U");
-				else
-					pRow_File->Source_set("F");
+				pRow_File->Source_set(m_spFileHandler->GetFileSourceForDB());
 
 				LoggerWrapper::GetInstance()->Write(LV_STATUS, "PlutoMediaFile::HandleFileNotInDatabase %s/%s N db-attr: %d Inode: %d size %d mt %d/%d, md5 %s", 
 					m_sDirectory.c_str(), m_sFile.c_str(), pRow_File->PK_File_get(), INode, (int) vectRow_File.size(), PK_MediaType, pRow_File->EK_MediaType_get(),
@@ -267,11 +257,7 @@ int PlutoMediaFile::HandleFileNotInDatabase(int PK_MediaType)
         pRow_File->Filename_set(m_sFile);
 		pRow_File->EK_MediaType_set(PK_MediaType);
 		pRow_File->IsDirectory_set(m_bIsDir);
-
-		if(!UpdateMediaVars::sUPnPMountPoint.empty() && StringUtils::StartsWith(m_sDirectory, UpdateMediaVars::sUPnPMountPoint))
-			pRow_File->Source_set("U");
-		else
-			pRow_File->Source_set("F");
+		pRow_File->Source_set(m_spFileHandler->GetFileSourceForDB());
 
 		int nEK_Users_Private = GetOwnerForPath(m_sDirectory);
 		if(nEK_Users_Private != 0)
@@ -725,11 +711,7 @@ int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
 		pRow_File->Filename_set(FileUtils::ExcludeTrailingSlash(m_sFile));
 		pRow_File->IsDirectory_set(m_bIsDir);
 		pRow_File->EK_MediaType_set(PK_MediaType);
-
-		if(!UpdateMediaVars::sUPnPMountPoint.empty() && StringUtils::StartsWith(m_sDirectory, UpdateMediaVars::sUPnPMountPoint))
-			pRow_File->Source_set("U");
-		else
-			pRow_File->Source_set("F");
+		pRow_File->Source_set(m_spFileHandler->GetFileSourceForDB());
 
 		if(nEK_Users_Private != 0)
 			pRow_File->EK_Users_Private_set(nEK_Users_Private);

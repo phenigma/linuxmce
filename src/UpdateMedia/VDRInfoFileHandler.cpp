@@ -128,3 +128,8 @@ string VDRInfoFileHandler::GetFileAttribute()
 	return m_sDirectory + "/info.vdr";
 }
 //-----------------------------------------------------------------------------------------------------
+string VDRInfoFileHandler::GetFileSourceForDB()
+{
+	return "V";
+}
+//-----------------------------------------------------------------------------------------------------

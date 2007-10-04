@@ -36,3 +36,8 @@ string GenericFileHandler::GetFileAttribute()
 	return m_sDirectory + "/" + m_sFile;
 }
 //-----------------------------------------------------------------------------------------------------
+string GenericFileHandler::GetFileSourceForDB()
+{
+	return "F";
+}
+//-----------------------------------------------------------------------------------------------------

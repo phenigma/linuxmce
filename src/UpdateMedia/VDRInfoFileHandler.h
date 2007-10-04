@@ -15,6 +15,7 @@ public:
 	bool RemoveAttribute(int nTagType, string sValue);
 	bool FileAttributeExists();
 	string GetFileAttribute();
+	string GetFileSourceForDB();
 };
 //-----------------------------------------------------------------------------------------------------
 #endif //__VDR_INFO_FILE_HANDLER_H__

@@ -25,6 +25,7 @@ public:
 	virtual bool RemoveAttribute(int nTagType, string sValue);
 	virtual bool FileAttributeExists();
 	virtual string GetFileAttribute();
+	virtual string GetFileSourceForDB();
 };
 //-----------------------------------------------------------------------------------------------------
 #endif //__GENERIC_FILE_HANDLER_H__
