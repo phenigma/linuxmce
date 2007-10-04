@@ -25,7 +25,7 @@ MediaState.cpp \
 FileStatusObserver.cpp \
 GenericFileHandler.cpp \
 ID3FileHandler.cpp \
-VDRFileHandler.cpp \
+VDRInfoFileHandler.cpp \
 FileHandlerFactory.cpp \
 FileUtils/file_utils.cpp \
 id3info/id3info.cpp \
