@@ -273,7 +273,7 @@ function Build_Pluto_Replacements {
 		wget -c http://10.0.0.163/debian/dists/replacements/main/binary-i386/replacements-common/asterisk-perl_0.08-1_i386.deb
 		wget -c http://10.0.0.163/debian/dists/replacements/main/binary-i386/replacements-common/pluto-avwizard-sounds_1.0-1_i386.deb
 		wget -c http://10.0.0.163/debian/dists/replacements/main/binary-i386/replacements-common/Pluto/tee-pluto_1.0_i386.deb
-		wget -c http://10.0.0.163/debian/dists/replacements/main/binary-i386/replacements-common/slimdevices-slim-server_6.2.2-2_i386.deb
+#		wget -c http://10.0.0.163/debian/dists/replacements/main/binary-i386/replacements-common/slimdevices-slim-server_6.2.2-2_i386.deb
 		wget -c http://10.0.0.163/debian/dists/replacements/main/binary-i386/replacements-common/msttcorefonts_1.2.pluto.4_all.deb
 	popd 
 
