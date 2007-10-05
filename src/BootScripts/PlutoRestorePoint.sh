@@ -41,6 +41,9 @@ if [[ "$1" == "--backup" ]]; then
 	do
 		/usr/bin/mysqldump -e --quote-names --allow-keywords --add-drop-table -u root pluto_main $table  > $FULLPATH/mysql/$table-$BKPDIR.sql
 	done
+
+	mkdir -p $FULLPATH/asterisk
+	/usr/bin/mysqldump -e --quote-names --allow-keywords --add-drop-table -u root asterisk > $FULLPATH/asterisk/asterisk.sql
 	
 	# backup pluto-admin
 	mkdir -p $FULLPATH/usr/pluto/orbiter
@@ -84,6 +87,11 @@ if [[ "$1" == "--restore" ]]; then
 		do
 			/usr/bin/mysql -u root -D pluto_main < $table
 		done
+		
+		# restore asterisk settings
+		cd $BKPDIR/asterisk
+		/usr/bin/mysql -u root asterisk < asterisk.sql
+		/etc/init.d/asterisk restart
 
 		## Reinstall this packages so we'll have an updates database schema
 		apt-get -y --reinstall install pluto-system-database
