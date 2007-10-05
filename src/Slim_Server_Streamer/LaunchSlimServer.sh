@@ -1,9 +1,9 @@
 #!/bin/bash
 
 PORT="${1:-7890}"
+PARAMS="--audiodir /home/public/data/audio"
 
-SLIM_SERVER_HOME=`dirname $0`/../servers/SlimServer;
-PARAMS="--audiodir /home/public/data/audio --cliaddr 127.0.0.1 --cliport $PORT --d_protocol --d_cli --d_server";
+sed -si "s/CLI_PORT=.*/CLI_PORT=$PORT/g" /etc/default/slimserver
+sed -si "s/PARAMS=.*/PARAMS=\"$PARAMS\"/g" /etc/default/slimserver
 
-exec `which perl` $SLIM_SERVER_HOME/slimserver.pl $PARAMS;
-
+invoke-rc.d slimserver restart
