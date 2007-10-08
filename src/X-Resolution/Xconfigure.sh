@@ -29,12 +29,6 @@ DEVICEDATA_Setup_Script=189
 DEVICEDATA_Connector=68
 DEVICEDATA_TV_Standard=229
 
-TestConfig()
-{
-	X :$(($Display+2)) -ignoreABI -probeonly -config "$ConfigFile" -logverbose 9 &>/dev/null
-	return $?
-}
-
 GetResolutionFromDB()
 {
 	. /usr/pluto/bin/SQL_Ops.sh
@@ -134,7 +128,7 @@ SetResolution()
 
 	Modeline="$(GenModeline "$ResX" "$ResY" "$Refresh" "$ScanType")"
 
-	awk -v"ResX=$ResX" -v"ResY=$ResY" -v"Refresh=$Refresh" -v"Modeline=$Modeline" -v"Force=$Force" -v"nvHD=$TVStandard" -v"ConnectedMonitor=$ConnectedMonitor" -v"TVOutFormat=$TVOutFormat" -f/usr/pluto/bin/X-ChangeResolution.awk "$ConfigFile" >"$ConfigFile.$$"
+	awk -v"ResX=$ResX" -v"ResY=$ResY" -v"Refresh=$Refresh" -v"Modeline=$Modeline" -v"nvHD=$TVStandard" -v"ConnectedMonitor=$ConnectedMonitor" -v"TVOutFormat=$TVOutFormat" -f/usr/pluto/bin/X-ChangeResolution.awk "$ConfigFile" >"$ConfigFile.$$"
 	mv "$ConfigFile"{.$$,}
 }
 
@@ -231,14 +225,15 @@ ParseParameters()
 					*) echo "Unknown scan type '$2'"; exit 1 ;;
 				esac
 			;;
-			--force) Force=y ;;
-			--update-video-driver) UpdateVideoDriver=y ;;
-			--keep-resolution) KeepCurrentResolution=y ;;
-			--force-vesa) ForceVESA=y ;;
+			--force) : ;; # obsolete
+			--update-video-driver) UpdateVideoDriver=UpdateVideoDriver ;;
+			--keep-resolution) KeepCurrentResolution=KeepCurrentResolution ;;
+			--force-vesa) ForceVESA=ForceVESA ;;
 			--conffile) ConfigFile="$2"; shift ;;
-			--skiplock) SkipLock=1 ;;
+			--skiplock) SkipLock=SkipLock ;;
 			--output) Output="$2" ; shift ;; # VGA, DVI, Component, Composite, S-Video
 			--tv-standard) TVStandard="$2"; shift ;; # PAL, SECAM, NTSC, HD480p, HD720p, HD1080i, HD1080p
+			--no-test) NoTest=NoTest; shift ;;
 			*) echo "Unknown option '$1'"; exit 1 ;;
 		esac
 		shift
@@ -357,7 +352,7 @@ fi
 # Don't test if driver is vesa (assumption: always works) or current driver (assumption: already tested and works)
 # Doing this test last, to test all the changes, since the video driver (e.g. nvidia) may not work without some extra options that are set together with the resolution
 if [[ "$DisplayDriver" != "$CurrentDisplayDriver" && "$DisplayDriver" != vesa ]] && [[ -n "$Defaults" || -n "$UpdateVideoDriver" ]]; then
-	if ! TestConfig && [[ " ${OrigParams[*]} " != *" --force-vesa "* ]]; then
+	if [[ -z "$NoTest" ]] && ! TestXConfig "$Display" "$ConfigFile" && [[ -z "$ForceVESA" ]]; then
 		"$0" "${OrigParams[@]}" --force-vesa --skiplock
 		exit $?
 	fi

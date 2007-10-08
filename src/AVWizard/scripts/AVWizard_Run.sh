@@ -38,6 +38,7 @@ UI_V2_Normal_Horizontal=4
 . /usr/pluto/bin/AVWizard-Common.sh
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/Utils.sh
+. /usr/pluto/bin/X-Common.sh
 
 . /usr/pluto/bin/TeeMyOutput.sh --outfile /var/log/pluto/AVWizard.log --infile /dev/null --stdboth -- "$@"
 
@@ -48,10 +49,25 @@ CleanUp()
 	rm -f /tmp/*.xml
 }
 
-SetDefaults()
+SetupX()
 {
 	cp "$ConfFile" "$XF86Config"
-	bash -x "$BaseDir"/Xconfigure.sh --conffile "$XF86Config" --resolution '640x480@60' | tee-pluto /var/log/pluto/Xconfigure.log
+	# default test
+	bash -x "$BaseDir"/Xconfigure.sh --conffile "$XF86Config" --resolution '640x480@60' --no-test | tee-pluto /var/log/pluto/Xconfigure.log
+	if ! TestXConfig "$Display" "$XF86Config"; then
+		# vesa test
+		bash -x "$BaseDir"/Xconfigure.sh --conffile "$XF86Config" --resolution '640x480@60' --force-vesa --no-test | tee-pluto /var/log/pluto/Xconfigure.log
+		if ! TestXConfig "$Display" "$XF86Config"; then
+			# all tests failed
+			beep -l 350 -f 300 &
+			chvt 8
+			whiptail --msgbox "Failed to setup X" 0 0 --title "AVWizard" --clear </dev/tty8 &>/dev/tty8
+		fi
+	fi
+}
+
+SetDefaults()
+{
 	WizSet Video_Ratio '4_3'
 	WizSet Resolution '640x480'
 	WizSet VideoResolution '640x480'
@@ -292,6 +308,7 @@ Done=0
 while [[ "$Done" -eq 0 ]]; do
 	echo "$(date -R) $(basename "$0"): AVWizard Main loop"
 	CleanUp
+	SetupX
 	SetDefaults
 	"$BaseDir"/AVWizardWrapper.sh
 	Ret="$?"

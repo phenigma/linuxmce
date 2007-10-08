@@ -27,7 +27,7 @@ ParmIdx=0
 
 for Param in "$@"; do
 	case "$Param" in
-		-f) Force=--force ;;
+		-f) : ;; # obsolete
 		*)
 			eval ${Params[$ParamIdx]}="$Param"
 			((ParamIdx++))
@@ -49,7 +49,7 @@ ShowDialog()
 
 cp /etc/X11/xorg.conf{,.test}
 
-if ! /usr/pluto/bin/Xconfigure.sh --conffile /etc/X11/xorg.conf.test --resolution "${Width}x${Height}@${Refresh}" $Force $Type; then
+if ! /usr/pluto/bin/Xconfigure.sh --conffile /etc/X11/xorg.conf.test --resolution "${Width}x${Height}@${Refresh}" $Type; then
 	echo "X configuration script exited with error"
 	exit 10
 fi
