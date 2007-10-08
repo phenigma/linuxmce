@@ -1,19 +1,29 @@
-#include <SDL/SDL_syswm.h>
-#include <X11/extensions/XTest.h>
-#include <X11/extensions/Xrender.h>
-#include <X11/extensions/shape.h>
+#ifdef WIN32
+#include "stdafx.h"
+#include <windows.h>
+#endif
 
 #include <GL/gl.h>
 #include <GL/glu.h>
-#include <GL/glx.h>
 
-#include <fcntl.h>
-#include <sys/ipc.h>
-#include <sys/sem.h>
-#include <unistd.h>
-#include <sys/wait.h>
-#include <errno.h>
-#include <glib.h>
+#ifndef WIN32
+#include <SDL/SDL_syswm.h>
+#include <X11/extensions/XTest.h>
+#include <X11/extensions/shape.h>
+#endif
+
+#ifdef WIN32
+	#include "GL/glext.h"
+#else
+	#include <GL/glx.h>
+	#include <fcntl.h>
+	#include <sys/ipc.h>
+	#include <sys/sem.h>
+	#include <unistd.h>
+	#include <sys/wait.h>
+	#include <errno.h>
+	#include <glib.h>
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,8 +33,6 @@
 #include <fstream>
 #include <string>
 using namespace std;
-
-#include "../CompositeHelper.h"
 
 /* screen width, height, and bit depth */
 #define SCREEN_WIDTH  800
@@ -107,78 +115,6 @@ int MinPowerOf2(int Value)
 		Result*= 2;
 	return Result;	
 }
-
-Uint32 getpixel(SDL_Surface *pSDL_Surface,int x, int y)
-{
-    // all pixels outside the pSDL_Surface are black
-    if (x < 0 || x >= pSDL_Surface->w || y < 0 || y >= pSDL_Surface->h)
-        return SDL_MapRGB(pSDL_Surface->format, 0, 0, 0);
-
-    int bpp = pSDL_Surface->format->BytesPerPixel;
-    Uint8 * pixel = (Uint8 *) pSDL_Surface->pixels + y * pSDL_Surface->pitch + x * bpp;
-
-    switch(bpp)
-    {
-    case 1:
-        return * pixel;
-
-    case 2:
-        return * (Uint16 *) pixel;
-
-    case 3:
-        if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
-            return pixel[0] << 16 | pixel[1] << 8 | pixel[2];
-        else
-            return pixel[0] | pixel[1] << 8 | pixel[2] << 16;
-
-    case 4:
-        return * (Uint32 *) pixel;
-
-    default:
-        return 0;       /* shouldn't happen, but avoids warnings */
-    }
-}
-//-----------------------------------------------------------------------------------------------------
-void putpixel(SDL_Surface *pSDL_Surface,int x, int y, Uint32 pixel_color)
-{
-    // don't try to put a pixel outside the pSDL_Surface
-    if (x < 0 || x >= pSDL_Surface->w || y < 0 || y >= pSDL_Surface->h)
-        return;
-
-    int bpp = pSDL_Surface->format->BytesPerPixel;
-    Uint8 * pixel = (Uint8 *) pSDL_Surface->pixels + y * pSDL_Surface->pitch + x * bpp;
-
-    switch(bpp)
-    {
-    case 1:
-        * pixel = pixel_color;
-        break;
-
-    case 2:
-        * (Uint16 *) pixel = pixel_color;
-        break;
-
-    case 3:
-        if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
-        {
-            pixel[0] = (pixel_color >> 16) & 0xff;
-            pixel[1] = (pixel_color >> 8) & 0xff;
-            pixel[2] = pixel_color & 0xff;
-        }
-        else
-        {
-            pixel[0] = pixel_color & 0xff;
-            pixel[1] = (pixel_color >> 8) & 0xff;
-            pixel[2] = (pixel_color >> 16) & 0xff;
-        }
-        break;
-
-    case 4:
-        * (Uint32 *) pixel = pixel_color | 0xFF000000; //opaque
-        break;
-    }
-}
-
 
 /* function to load in bitmap as a GL texture */
 int LoadGLTextures( )
@@ -720,19 +656,19 @@ int main( int argc, char **argv )
 			sPlayerCommandTemplate="xine -l -g -V xv '%s'";
 			sprintf(pPlayerCommand, sPlayerCommandTemplate.c_str(), "/usr/pluto/sample.mpg");
 	
-			printf("Running player application %s\n", pPlayerCommand); 
+			printf("Running player application %s", pPlayerCommand); 
 			system(pPlayerCommand);
 		} 
 		else if(ReadTextFile("/tmp/player-name", sPlayerCommandTemplate)) 
 		{
 			sprintf(pPlayerCommand, sPlayerCommandTemplate.c_str(), "/usr/pluto/sample.mpg");
 	
-			printf("Running player application %s\n", pPlayerCommand); 
+			printf("Running player application %s", pPlayerCommand); 
 			system(pPlayerCommand);
 		}
 		else
 		{
-			printf("Error : cannot find the default player application!\n");
+			printf("Error : cannot find the default player application!");
 		}
 
 		exit(0);
@@ -744,34 +680,13 @@ int main( int argc, char **argv )
 		printf("Launching xcompmgr...\n");
 		execvp("xcompmgr", NULL);
 		exit(0);
-	} 
+	}
 
 	SDL_WM_SetCaption("UI diagnostics", "UI diagnostics");
 
 	while(true)
 	{
 		done = FALSE;
-
-#ifndef WIN32
-	if(bUseComposite)
-	{
-		Display *dpy = CompositeHelper::GetInstance().GetDisplay();
-
-		if(NULL == dpy)
-		{
-			printf("Failed to open display!\n");
-			return false;
-		}
-
-		XSynchronize(dpy, 1);
-		XVisualInfo *visinfo = CompositeHelper::GetInstance().GetVisualForComposite();
-
-		if(NULL != visinfo && CompositeHelper::GetInstance().RegisterReplacementWindowForSDL(visinfo, SCREEN_WIDTH, SCREEN_HEIGHT))
-			printf("Created replacement window for SDL!\n");
-		
-		XSynchronize(dpy, 1); 
-	}
-#endif
 
 		/* initialize SDL */
 		if ( SDL_Init( SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE ) < 0 )
@@ -791,9 +706,10 @@ int main( int argc, char **argv )
 		}
 
 		/* the flags to pass to SDL_SetVideoMode */
-		videoFlags = SDL_OPENGL;          /* Enable OpenGL in SDL */
+		videoFlags  = SDL_OPENGL;          /* Enable OpenGL in SDL */
 		videoFlags |= SDL_GL_DOUBLEBUFFER; /* Enable double buffering */
 		videoFlags |= SDL_HWPALETTE;       /* Store the palette in hardware */
+		videoFlags |= SDL_RESIZABLE;       /* Enable window resizing */
 
 		/* This checks to see if surfaces can be stored in memory */
 		if ( videoInfo->hw_available )
@@ -808,6 +724,22 @@ int main( int argc, char **argv )
 		/* Sets up OpenGL double buffering */
 		SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
 
+	#ifndef WIN32
+		if(bUseComposite)
+		{
+			//composite stuff
+			SDL_GL_SetAttribute(SDL_GL_RENDER_TYPE,   GLX_RGBA_BIT);
+			SDL_GL_SetAttribute(SDL_GL_DRAWABLE_TYPE, GLX_WINDOW_BIT);
+
+			SDL_GL_SetAttribute(SDL_GL_RED_SIZE,      8);
+			SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE,    8);
+			SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE,     8);
+			SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE,    8);
+			SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER,  0);
+			SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,    0);
+		}
+	#endif
+
 		/* get a SDL surface */
 		surface = SDL_SetVideoMode( SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BPP, videoFlags );
 
@@ -820,6 +752,7 @@ int main( int argc, char **argv )
 
 		/* make it topmost */
 		SDL_SysWMinfo info;
+
 		SDL_VERSION(&info.version);
 		if(SDL_GetWMInfo(&info))
 		{
@@ -834,11 +767,6 @@ int main( int argc, char **argv )
 
 			client_msg(info.info.x11.display, info.info.x11.wmwindow, "_NET_WM_STATE", _NET_WM_STATE_ADD, (unsigned long)prop1, 0, 0, 0);
 		}
-
-		//are we using the right visual?
-		XWindowAttributes a;
-		XGetWindowAttributes(info.info.x11.display, info.info.x11.wmwindow, &a);
-		printf("SDL's window visual: 0x%x and depth %d \n", XVisualIDFromVisual(a.visual), a.depth);
 
 		/* initialize OpenGL */
 		initGL( );

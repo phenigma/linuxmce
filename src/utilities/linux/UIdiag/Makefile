@@ -1,14 +1,14 @@
 CXX=g++
 CC=$(CXX)
 CXXFLAGS=-W -Wall -pipe -ggdb3
-CPPFLAGS=-I. -DKDE_LMCE -DDEBUG -DTHREAD_LOG -DLOG_ALL_QUERIES -I/opt/libxine1-pluto/include -I/opt/libsdl1.2-1.2.7+1.2.8cvs20041007/include -I/opt/libsdl1.2-1.2.7+1.2.8cvs20041007/include/SDL -I/usr/include/SDL -I/usr/X11R6/include -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include
-LDFLAGS=-lXtst -lGL -lGLU -lXrender -lXext -lSDL -lSDL_ttf -lSDL_image -L/opt/libxine1-pluto/lib -L/opt/libsdl1.2-1.2.7+1.2.8cvs20041007/lib -lglib-2.0
+CPPFLAGS=-I. -I/usr/include/SDL -I/usr/X11R6/include -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include
+LDFLAGS=-lXtst -lGL -lGLU -lXrender -lXext -lSDL -lSDL_ttf -lSDL_image -lglib-2.0
 
-sources = UIdiag.cpp
+sources = UIdiag.c ../CompositeHelper.cpp
 			
-all: $(sources:.cpp=.o)
+all: $(sources:.c=.o)
 	$(CXX) -o UIdiag $+ $(LDFLAGS)
 	cp UIdiag ../../../bin/
 clean:
-	rm -f UIdiag $(sources:.cpp=.o) 
+	rm -f UIdiag UIdiag.o ../CompositeHelper.o 
 	
