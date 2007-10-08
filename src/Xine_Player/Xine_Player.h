@@ -591,8 +591,10 @@ private:
 	int m_iDefaultZoomLevel;
         
 //<-mkr_b_via_b-> 
+#ifdef VIA
         bool m_bCodecIsOK;
         void checkCodec();
+#endif
 //<-mkr_b_via_e->
         
 	// socket listener for playback info notification

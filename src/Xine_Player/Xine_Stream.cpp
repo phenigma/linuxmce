@@ -2831,7 +2831,9 @@ void Xine_Stream::frameOutputCallback( void *data, int video_width, int video_he
 																						double *dest_pixel_aspect,
 																						int *win_x, int *win_y 
 //<-mkr_b_via_b->
-																						, int *dispay_no
+#ifdef VIA
+		, int *dispay_no
+#endif
 //<-mkr_b_via_e->
 																						)
 {
@@ -3381,13 +3383,15 @@ void Xine_Stream::SendMessageToOrbiter(string sMessage)
 void Xine_Stream::UpdateTitleChapterInfo()
 {
 //<-mkr_B_via_b->
-// VeXP has older version xine-lib, without this feature
-    // updating title/chapter info when menu is on screen
+#ifndef VIA
+	// VeXP has older version xine-lib, without this feature
+	// updating title/chapter info when menu is on screen
     {
         PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
         m_iTitle = xine_get_stream_info(m_pXineStream, XINE_STREAM_INFO_DVD_TITLE_NUMBER);
         m_iChapter = xine_get_stream_info(m_pXineStream, XINE_STREAM_INFO_DVD_CHAPTER_NUMBER);
     }
+#endif
 //<-mkr_B_via_e->
 }
 

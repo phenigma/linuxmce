@@ -49,7 +49,9 @@ Xine_Player::Xine_Player(int DeviceID, string ServerAddress,bool bConnectEventHa
 	m_pNotificationSocket = new XineNotification_SocketListener(string("m_pNotificationSocket"));
 	m_pNotificationSocket->m_bSendOnlySocket = true; // one second
 //<-mkr_b_via_b->
+#ifdef VIA
         m_bCodecIsOK = false;
+#endif
 //<-mkr_b_via_e->
 }
 
@@ -232,8 +234,10 @@ void Xine_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPo
 //<-dceag-c37-e->
 {
 //<-mkr_b_via_b->
+#ifdef VIA
     if (!m_bCodecIsOK)
         checkCodec();
+#endif
 //<-mkr_b_via_e->
     
 	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() called for id %d filename: %s (%s)", iStreamID, sMediaURL.c_str(),sMediaPosition.c_str());
@@ -1367,8 +1371,10 @@ void Xine_Player::CMD_Start_Streaming(int iPK_MediaType,int iStreamID,string sMe
 //<-dceag-c249-e->
 {
 //<-mkr_b_via_b->
+#ifdef VIA
     if (!m_bCodecIsOK)
         checkCodec();
+#endif
 //<-mkr_b_via_e->
 
 	if (iStreamID==0)
@@ -1679,6 +1685,7 @@ void Xine_Player::CMD_Set_Media_ID(string sID,int iStreamID,string &sCMD_Result,
 }
 
 //<-mkr_b_via_b->
+#ifdef VIA
 void Xine_Player::checkCodec()
 {
     m_bCodecIsOK = false;
@@ -1721,6 +1728,6 @@ void Xine_Player::checkCodec()
             m_bCodecIsOK = true;
     }
 }
-
+#endif
 //<-mkr_b_via_e->
 
