@@ -125,9 +125,15 @@ function Build_MakeRelease_Binary {
 	make
 	popd
 
+	pushd ${svn_dri}/trunk/src/mysql_wrapper
+	make
+	popd
+
 	mkdir -p ${mkr_dir}
+	mkdir -p /usr/pluto/bin
 	cp ${svn_dir}/trunk/src/bin/MakeRelease ${mkr_dir}
 	cp ${svn_dir}/trunk/src/bin/MakeRelease_PrepFiles ${mkr_dir}
+	cp ${svn_dir}/trunk/src/bin/mysql_wrapper /usr/pluto/bin/
 	cp ${svn_dir}/trunk/src/lib/*.so ${mkr_dir}
 }
 
