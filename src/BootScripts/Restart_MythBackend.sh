@@ -19,8 +19,8 @@ if Lock "Restart_MythBackend" "Restart_MythBackend"; then
 		# launchMythSetup holds this lock while MythTV is running
 		WaitLock "MythBackend" "MythBackend_Restart" nolog
 		Backend=$(pgrep mythbackend)
-		#MythSetup=$(pgrep mythtv-setup)
-		if [[ -z "$Backend" && -x /etc/init.d/mythtv-backend ]]; then
+		MythSetup=$(pgrep mythtv-setup)
+		if [[ -z "$MythSetup" && -z "$Backend" && -x /etc/init.d/mythtv-backend ]]; then
 			Logging "$TYPE" "$SEVERITY_CRITICAL" "MythBackend_Restart" "MythBackend not found running; restarting it"
 			echo "LOCK TABLE schemalock WRITE;" | $MysqlCommand  # Be sure we're not in the middle of a schema upgrade -- myth doesn't check this
 			invoke-rc.d mythtv-backend restart
