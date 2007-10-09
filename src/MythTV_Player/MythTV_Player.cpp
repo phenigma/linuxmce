@@ -161,6 +161,8 @@ MythTV_Player::~MythTV_Player()
 
 bool MythTV_Player::LaunchMythFrontend(bool bSelectWindow)
 {
+	LoggerWrapper::GetInstance()->Write(LV_WARNING,"MythTV_Player::LaunchMythFrontend - ready to launch!");
+
 	DeviceData_Base *pDevice_App_Server = m_pData->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_App_Server_CONST,this);
 	if( pDevice_App_Server )
 	{
@@ -461,7 +463,7 @@ string MythTV_Player::sendMythCommand(const char *Cmd)
 	}
 	
 
-	LoggerWrapper::GetInstance()->Write(LV_WARNING,"========== Before mythtv promt");
+	LoggerWrapper::GetInstance()->Write(LV_WARNING,"========== Before mythtv prompt");
 	// Wait for Myth's console prompt.
 	do
 	{
@@ -469,7 +471,7 @@ string MythTV_Player::sendMythCommand(const char *Cmd)
 		{
 /*			delete m_pMythSocket;
 			m_pMythSocket = NULL;*/
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Timeout waiting for Myth prompt.");
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Timeout waiting for Myth prompt: socket %d, buffer %c", m_pMythSocket->m_Socket, ch);
 			return "";
 		}
 	} while(ch!='#');
@@ -968,6 +970,9 @@ void MythTV_Player::CMD_Stop_Media(int iStreamID,string *sMediaPosition,string &
 	Sleep(750);
 	StopMythFrontend();
 	Sleep(1000);
+
+	delete m_pMythSocket;
+	m_pMythSocket = NULL;
 }
 
 //<-dceag-c39-b->
