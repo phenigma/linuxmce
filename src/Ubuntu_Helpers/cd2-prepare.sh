@@ -12,7 +12,8 @@ pushd /var/plutobuild/cd2-packages/cachecd1-cache
 
 
 	## Video Wizard Videos
-	cp /var/www/video-wizard-videos_*.deb ./
+	cp /var/plutobuild/replacements/video-wizard-videos_*.deb ./
+	cp /var/plutobuild/replacements/tee-pluto_*.deb ./
 
 	## Packages only i386 compatible
 	if [[ "$(uname -m)" != "x86_64" ]] ;then

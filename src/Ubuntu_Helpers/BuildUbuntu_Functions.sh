@@ -153,6 +153,12 @@ function Build_Pluto_Replacements {
 		cp -r ../video-wizard-videos_*.deb ${temp_dir}
 	popd
 	rm -rf "$vvv_temp_dir"
+
+	#Package: tee-pluto
+	pushd ${svn_dir}/trunk/misc_utils/tee-pluto
+		dpkg-buildpackage -rfakeroot -us -uc -b
+		cp ../tee-pluto_*.deb ${temp_dir}
+	popd
 	
 	#Package: libsdl-pluto
 #	apt-get -y install quilt nasm libxv-dev libarts1-dev debhelper fakeroot
@@ -274,11 +280,8 @@ function Build_Pluto_Replacements {
 	pushd $temp_dir
 		wget -c http://10.0.0.163/debian/dists/replacements/main/binary-i386/replacements-common/libflickr-api-perl_1_all.deb
 		wget -c http://10.0.0.163/debian/dists/replacements/main/binary-i386/replacements-common/libxml-parser-lite-tree-perl_1_all.deb
-#		wget -c http://10.0.0.163/debian/dists/replacements/main/binary-i386/replacements-common/pluto-sample-media_3_i386.deb
 		wget -c http://10.0.0.163/debian/dists/replacements/main/binary-i386/replacements-common/asterisk-perl_0.08-1_all.deb
 		wget -c http://10.0.0.163/debian/dists/replacements/main/binary-i386/replacements-common/pluto-avwizard-sounds_1.0-1_all.deb
-		wget -c http://10.0.0.163/debian/dists/replacements/main/binary-i386/replacements-common/Pluto/tee-pluto_1.0_i386.deb
-#		wget -c http://10.0.0.163/debian/dists/replacements/main/binary-i386/replacements-common/slimdevices-slim-server_6.2.2-2_i386.deb
 		wget -c http://10.0.0.163/debian/dists/replacements/main/binary-i386/replacements-common/msttcorefonts_1.2.pluto.4_all.deb
 	popd 
 
