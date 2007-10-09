@@ -551,8 +551,8 @@ function Create_Diskless_Archive {
 function Create_ISO {
 	# Create the iso
 	pushd $local_mirror_dir
-	        /root/Ubuntu_Helpers/get-packages-quick.sh $iso_name
-		/root/Ubuntu_Helpers/make-cache-cd.sh $iso_name
+	        /root/Ubuntu_Helpers/cd1-build.sh $iso_name
+		/root/Ubuntu_Helpers/cd2-build.sh $iso_name
 	popd
 }
 

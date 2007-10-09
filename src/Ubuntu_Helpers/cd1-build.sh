@@ -24,16 +24,11 @@ find /var/www/ -maxdepth 1 -type f -name '*.deb' -print0 | xargs -0 -i -t cp '{}
 ## Remove blacklisted packages from this cd
 while read file; do
 	rm -f "/var/plutobuild/cache-cd/deb-cache/$file"_*.deb
-done </root/Ubuntu_Helpers/RemoveFromCD.cfg
+done </root/Ubuntu_Helpers/cd1-packages-blacklist
 
 ## Add some extra packages to this cd
-ExtraPacks="libcucul0 libcaca0 libmad0 libxine1-ffmpeg xine-ui"
-for pack in $ExtraPacks ;do
-	cp /var/ubuntu/cachecd1-cache/$pack*  /var/plutobuild/cache-cd/deb-cache
-done
-
-for pack in /var/moved-from-cache/* ;do
-	cp $pack /var/plutobuild/cache-cd/deb-cache
+for pack in /var/plutobuild/cd1-packages/*.deb ;do
+	cp "$pack" /var/plutobuild/cache-cd/deb-cache
 done
 
 ## Build a Packages.gz file in the deb-cache dir of the cd
