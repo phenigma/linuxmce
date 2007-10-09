@@ -150,11 +150,10 @@ function Build_Pluto_Replacements {
 		scp -r pluto@10.0.0.150:"/home/samba/www_docs/video\ wizard/video-wizard-videos" ./
 		cd "video-wizard-videos"
 		dpkg-deb -b . ..
-#		cp -r ../video-wizard-videos_*.deb ${temp_dir}
-		cp -r ../video-wizard-videos_*.deb /var/ubuntu/cachecd1-cache
+		cp -r ../video-wizard-videos_*.deb ${temp_dir}
 	popd
 	rm -rf "$vvv_temp_dir"
-
+	
 	#Package: libsdl-pluto
 #	apt-get -y install quilt nasm libxv-dev libarts1-dev debhelper fakeroot
 #	apt-get -y install dbs libaa1-dev libslang2-dev xlibs-dev libsvga1-dev type-handling automake1.7
