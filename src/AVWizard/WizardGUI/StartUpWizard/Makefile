@@ -11,7 +11,7 @@ MYNAME = AVWizard
 
 CXXFLAGS += -g -O0
 CPPFLAGS += -I/usr/include/SDL -I/usr/include/libxml2 
-LDLIBS = -lSDL -lSDL_ttf -lSDL_image -lxml2 -lxine -lSDL_gfx -lGL -lGLU -lXrender 
+LDLIBS = -lSDL -lSDL_ttf -lSDL_image -lxml2 -lxine -lSDL_gfx -lGL -lGLU -lXrender -lresolution
 FLAGS = $(CXXFLAGS) $(CPPFLAGS)
 Gen_Dev_Files +=
 include sources.list.mk

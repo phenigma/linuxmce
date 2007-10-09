@@ -17,18 +17,14 @@
 
  */
 #include "WizardPageVideoRatio.h"
-
 #include "Wizard.h"
-
 #include "GUIWizardUtils.h"
-
 #include "ConfigureCommons.h"
-
 #include "SkinGenerator.h"
-
 #include "WizardWidgetImage.h"
 
 #include <iostream>
+#include "../../../X-Resolution/libresolution/libresolution.h"
 
 WizardPageVideoRatio::WizardPageVideoRatio(GenericBackEnd* FrontEnd, std::string Name)
 	: WizardPage(FrontEnd, Name)
@@ -136,18 +132,23 @@ void WizardPageVideoRatio::FillResolutionStandard(WizardWidgetScrollList* List, 
 		default:
 		case 0: // VGA
 		case 1: // DVI
-			List->AddItem("640x480 (4:3)", "640x480");
-			List->AddItem("480p (16:9)", "480p");
-			List->AddItem("800x600 (4:3)", "800x600");
-			List->AddItem("720p (16:9)", "720p");
-			List->AddItem("1024x768 (4:3)", "1024x768");
-			List->AddItem("1280x800 (custom)", "1280x800");
-			List->AddItem("1280x1024 (5:4)", "1280x1024");
-			List->AddItem("1080p (16:9)", "1080p");
-#if 0
-			List->AddItem("1080i (16:9)", "1080i");
-			List->AddItem("1600x1200 (4:3)", "1600x1200");
-#endif
+		{
+			ResolutionConf ResCnf("/etc/pluto/Resolutions.conf");
+			ResResolutionVector ResolutionVector;
+			ResCnf.GetResolutionList(ResolutionVector);
+
+			size_t ResolutionVectorSize = ResolutionVector.size();
+			for (size_t i = 0; i < ResolutionVectorSize; i++)
+			{
+				ResResolution & Resolution = ResolutionVector[i];
+				if (!Resolution.Visible)
+					continue;
+				string Label = Resolution.Name;
+				if (Resolution.AspectRatio != "")
+					Label += " (" + Resolution.AspectRatio + ")";
+				List->AddItem(Label, Resolution.Name);
+			}
+		}
 			break;
 		case 2: // Component
 			List->AddItem("HD480p", "480p");
