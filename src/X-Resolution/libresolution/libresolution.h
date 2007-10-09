@@ -34,6 +34,8 @@ struct ResResolution
 	bool Visible;
 };
 
+typedef vector<ResResolution> ResResolutionVector;
+
 #include <confuse.h>
 
 class ResolutionConf
@@ -41,7 +43,8 @@ class ResolutionConf
 	public:
 		ResolutionConf(string ConfigFilename);
 		~ResolutionConf();
-		void GetResolutionList();
+		void GetResolutionList(ResResolutionVector & ResolutionVector);
+		bool GetResolutionData(const string & ResolutionName, ResResolution & Data);
 
 	private:
 		static cfg_opt_t cfgWorkaround[], cfgModeline[], cfgResolution[], cfgTop[];
