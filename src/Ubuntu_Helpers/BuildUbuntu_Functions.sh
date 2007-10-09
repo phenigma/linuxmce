@@ -160,9 +160,9 @@ function Build_Pluto_Replacements {
 #	apt-get -y install dbs libaa1-dev libslang2-dev xlibs-dev libsvga1-dev type-handling automake1.7
 #	pushd ${svn_dir}/trunk/ubuntu/libsdl1.2-1.2.7+1.2.8cvs20041007/
 #		dpkg-buildpackage -us -uc -rfakeroot -b
-#		dpkg -i ../libsdl1.2debian-pluto-all_1.2.7+1.2.8cvs20041007+pluto-2_i386.deb
-#		dpkg -i ../libsdl1.2debian-pluto_1.2.7+1.2.8cvs20041007+pluto-2_i386.deb
-#		dpkg -i ../libsdl1.2-pluto-dev_1.2.7+1.2.8cvs20041007+pluto-2_i386.deb
+#		dpkg -i ../libsdl1.2debian-pluto-all_1.2.7+1.2.8cvs20041007+pluto-2_*.deb
+#		dpkg -i ../libsdl1.2debian-pluto_1.2.7+1.2.8cvs20041007+pluto-2_*.deb
+#		dpkg -i ../libsdl1.2-pluto-dev_1.2.7+1.2.8cvs20041007+pluto-2_*.deb
 #		cp ../libsdl*.deb ${temp_dir}
 #	popd
 
@@ -170,8 +170,8 @@ function Build_Pluto_Replacements {
 	apt-get -y install libcaca-dev liblircclient-dev libtheora-dev libflac-dev libmodplug-dev libgnomevfs2-dev libsmbclient-dev libspeex-dev libmad0-dev libxvmc-dev automake1.9 autoconf libtool libcdio-dev sgmltools-lite dpatch transfig libavformat-dev libpostproc-dev libavcodec-dev libraw1394-dev libdc1394-13-dev
 	pushd ${svn_dir}/trunk/ubuntu/xine-lib-1.1.3
 		dpkg-buildpackage -rfakeroot -us -uc -b
-		dpkg -i ../libxine1-pluto_1.1.3*_i386.deb
-		dpkg -i ../libxine-pluto-dev_1.1.3*_i386.deb
+		dpkg -i ../libxine1-pluto_1.1.3*_*.deb
+		dpkg -i ../libxine-pluto-dev_1.1.3*_*.deb
 		cp ../libxine*.deb ${temp_dir}
 	popd
 
