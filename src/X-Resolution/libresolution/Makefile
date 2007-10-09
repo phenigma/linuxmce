@@ -10,6 +10,7 @@ all: libresolution.so test
 
 libresolution.so: libresolution.o
 	g++ -shared $(CPPFLAGS) $(CXXFLAGS) $< -o libresolution.so $(LDFLAGS) $(LDLIBS)
+	cp libresolution.so $(ROOT)/lib
 
 test: test.o
 	g++ $(CPPFLAGS) $(CXXFLAGS) $< -o test -L. -lresolution
