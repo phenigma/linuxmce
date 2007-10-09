@@ -157,6 +157,9 @@ struct DatabaseParams
 // But waiting for another thread to do something is not safe within a 
 // VERBOSE macro, since those threads may wish to use the VERBOSE macro
 // and this will cause a deadlock.
+
+#if 0 //disable logging -- they seem to generate deadlocks very often
+
 #ifdef DEBUG
 
 #define VERBOSE(mask,args...) \
@@ -189,6 +192,13 @@ do { \
 } while (0)
 
 #endif // DEBUG
+
+#else
+
+#define VERBOSE(mask,args...) \
+do { \
+} while (0)
+#endif
 
 /// This can be appended to the VERBOSE args with either
 /// "+" (with QStrings) or "<<" (with c strings). It uses
