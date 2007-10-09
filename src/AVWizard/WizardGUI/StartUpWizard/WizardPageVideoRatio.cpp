@@ -133,7 +133,7 @@ void WizardPageVideoRatio::FillResolutionStandard(WizardWidgetScrollList* List, 
 		case 0: // VGA
 		case 1: // DVI
 		{
-			ResolutionConf ResCnf("/etc/pluto/Resolutions.conf");
+			ResolutionConf ResCnf("/usr/pluto/share/Resolutions.conf");
 			ResResolutionVector ResolutionVector;
 			ResCnf.GetResolutionList(ResolutionVector);
 
