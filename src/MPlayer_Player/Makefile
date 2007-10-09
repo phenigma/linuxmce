@@ -13,7 +13,7 @@ BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lmysqlclient_r -lpthread
 
 MYNAME = MPlayer_Player
 VERSION = 2.0.0
-MYDEVTEMPLATEID = 1913mplateID
+MYDEVTEMPLATEID = 1901mplateID
 
 Gen_Dev_Files = $(GENDEV)/MPlayer_PlayerBase.cpp
 sources = Main.cpp MPlayer_Player.cpp $(Gen_Dev_Files)

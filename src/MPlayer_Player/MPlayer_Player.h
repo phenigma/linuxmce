@@ -17,7 +17,7 @@
 #ifndef MPlayer_Player_h
 #define MPlayer_Player_h
 
-//	DCE Implemenation for #1913 MPlayer Player
+//	DCE Implemenation for #1901 MPlayer Player
 
 #include "Gen_Devices/MPlayer_PlayerBase.h"
 //<-dceag-d-e->

@@ -1,9 +1,9 @@
 <-dceag-p-b->
 Package = DCE_Destination_Package
 Dir = 
-desc = DCE Implemenation for #1913 MPlayer Player
-Maintainer = DCE_MaintainerName
-Email = DCE_MaintainerEmail
+desc = DCE Implemenation for #1901 MPlayer Player
+Maintainer = kirName
+Email = 
 Depend = DCE_Dependencies
 <-dceag-p-e->
 
