@@ -275,9 +275,9 @@ function Build_Pluto_Replacements {
 	pushd $temp_dir
 		wget -c http://10.0.0.163/debian/dists/replacements/main/binary-i386/replacements-common/libflickr-api-perl_1_all.deb
 		wget -c http://10.0.0.163/debian/dists/replacements/main/binary-i386/replacements-common/libxml-parser-lite-tree-perl_1_all.deb
-		wget -c http://10.0.0.163/debian/dists/replacements/main/binary-i386/replacements-common/pluto-sample-media_3_i386.deb
-		wget -c http://10.0.0.163/debian/dists/replacements/main/binary-i386/replacements-common/asterisk-perl_0.08-1_i386.deb
-		wget -c http://10.0.0.163/debian/dists/replacements/main/binary-i386/replacements-common/pluto-avwizard-sounds_1.0-1_i386.deb
+#		wget -c http://10.0.0.163/debian/dists/replacements/main/binary-i386/replacements-common/pluto-sample-media_3_i386.deb
+		wget -c http://10.0.0.163/debian/dists/replacements/main/binary-i386/replacements-common/asterisk-perl_0.08-1_all.deb
+		wget -c http://10.0.0.163/debian/dists/replacements/main/binary-i386/replacements-common/pluto-avwizard-sounds_1.0-1_all.deb
 		wget -c http://10.0.0.163/debian/dists/replacements/main/binary-i386/replacements-common/Pluto/tee-pluto_1.0_i386.deb
 #		wget -c http://10.0.0.163/debian/dists/replacements/main/binary-i386/replacements-common/slimdevices-slim-server_6.2.2-2_i386.deb
 		wget -c http://10.0.0.163/debian/dists/replacements/main/binary-i386/replacements-common/msttcorefonts_1.2.pluto.4_all.deb
@@ -306,7 +306,7 @@ function Build_Pluto_Stuff {
 	touch /usr/pluto/dummy-packages/Readme.PlutoConsoleUtilities.dummy
 
 	export PATH=$PATH:${svn_dir}/trunk/src/bin
-#	export PATH=/usr/lib/ccache:$PATH:${svn_dir}/trunk/src/bin
+	export PATH=/usr/lib/ccache:$PATH:${svn_dir}/trunk/src/bin
 
 	export LD_LIBRARY_PATH="$mkr_dir:${svn_dir}/trunk/src/lib"
 
@@ -410,9 +410,10 @@ function Create_Local_Repository {
 	pushd $local_mirror_dir
 		dpkg-scanpackages . /dev/null > Packages
 		cat Packages | gzip -9c > Packages.gz
+#		ln -sf . $local_mirror_dir/ubuntu
 	popd
-	ln -s . $local_mirror_dir/ubuntu
-	cp -f /root/build-files/virus_free.php /var/www
+
+#       cp -f /root/build-files/virus_free.php /var/www
 	echo "$(date) part 10 " >> /var/log/build.log
 	ls -l /var/plutobuild/svn/trunk/src/bin/ >> /var/log/build.log
 }
