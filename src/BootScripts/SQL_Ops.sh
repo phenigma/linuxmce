@@ -5,6 +5,11 @@ if [[ -n "$HEADER_SQL_Ops" ]]; then
 fi
 HEADER_SQL_Ops=included
 
+PRIVATE_SQL_PID=$$
+PRIVATE_SQL_MySQL_PID=
+
+SQL_PipeDir=/usr/pluto/SQL_pipes
+
 . /usr/pluto/bin/Config_Ops.sh
 
 CSQL_DIR="/var/run/SQL_Ops"
@@ -19,19 +24,95 @@ CSQL_ID=""
 #      echo "Field1: $FIELD1; Field2: $FIELD2"
 #  done
 
+# NOTE: This script uses file descriptors 8 and 9. Be to leave them free if you don't want trouble.
+
+# Checks if we're the owner of the MySQL connection and resets state variables if not
+PRIVATE_SQL_CheckOwner()
+{
+	if [[ "$PRIVATE_SQL_PID" != $$ ]]; then
+		# We're probably in a child process, so we can't use the parent's connection
+		# Or we're in a new process, again without a usable connection
+		PRIVATE_SQL_PID=$$
+		PRIVATE_SQL_MySQL_PID=
+	fi
+
+	mkdir -p "$SQL_PipeDir"
+	if [[ ! -p "$SQL_PipeDir/Q_$PRIVATE_SQL_PID" ]]; then
+		rm -f "$SQL_PipeDir/Q_$PRIVATE_SQL_PID"
+		mkfifo "$SQL_PipeDir/Q_$PRIVATE_SQL_PID"
+	fi
+	if [[ ! -p "$SQL_PipeDir/R_$PRIVATE_SQL_PID" ]]; then
+		rm -f "$SQL_PipeDir/R_$PRIVATE_SQL_PID"
+		mkfifo "$SQL_PipeDir/R_$PRIVATE_SQL_PID"
+	fi
+}
+
+#Starts the MySQL client process
+SQL_Connect()
+{
+	PRIVATE_SQL_CheckOwner
+	if [[ -n "$PRIVATE_SQL_MySQL_PID" ]]; then
+		# already connected
+		return 0
+	fi
+
+	local Host="$1" User="$2" Password="$3" Database="$4"
+	if [[ -z "$Host" ]]; then
+		Host="$MySqlHost"
+	fi
+	if [[ -z "$User" ]]; then
+		User="$MySqlUser"
+	fi
+	if [[ -z "$Password" ]]; then
+		Password="$MySqlPassword"
+	fi
+	if [[ -z "$Database" ]]; then
+		Database="$MySqlDBName"
+	fi
+	local Pass
+
+	Pass=
+	if [[ -n "$Password" ]]; then
+		Pass="-p$Password"
+	fi
+
+	SQL_DB="$Database"
+
+	mysql -fANn "$SQL_DB" -h "$Host" -u "$User" $Pass <"$SQL_PipeDir/Q_$PRIVATE_SQL_PID" >"$SQL_PipeDir/R_$PRIVATE_SQL_PID" &
+	PRIVATE_SQL_MySQL_PID=$!
+	exec 8>"$SQL_PipeDir/Q_$PRIVATE_SQL_PID" 9<"$SQL_PipeDir/R_$PRIVATE_SQL_PID"
+}
+
+#Stops the MySQL client process
+SQL_Disconnect()
+{
+	PRIVATE_SQL_CheckOwner
+	if [[ -z "$PRIVATE_SQL_MySQL_PID" ]]; then
+		return 0
+	fi
+
+	#kill "$PRIVATE_SQL_MySQL_PID"
+	exec 8>&- 9<&-
+	wait "$PRIVATE_SQL_MySQL_PID"
+	PRIVATE_SQL_MySQL_PID=
+}
+
 #Usage:
 #  Var=$(RunSQL "<SQL query>")
 #Returns resulting rows in $Var; you can iterate through them using 'for'
 RunSQL()
 {
-	local Q Pass
+	SQL_Connect
+	local Q Row
 	Q="$*"
-	Pass=
-	if [[ -n "$MySqlPassword" ]]; then
-		Pass="-p$MySqlPassword"
-	fi
 	if [[ -n "$Q" ]]; then
-		echo "$Q;" | mysql -A -N "$SQL_DB" -h "$MySqlHost" -u "$MySqlUser" $Pass | SQL_Translate
+		echo "$Q;"$'\n'"SELECT '--END-OF-QUERY--';" >&8
+		while read Row; do
+			if [[ "$Row" == '--END-OF-QUERY--' ]]; then
+				break
+			fi
+			echo "$Row"
+		done <&9 | SQL_Translate
 	fi
 }
 
@@ -81,13 +162,19 @@ UseDB()
 {
 	SQL_DB="$1"
 	if [[ -z "$SQL_DB" ]]; then
-		SQL_DB="pluto_main"
+		SQL_DB="$MySqlDBName"
 	fi
-}
 
-UseDB "$MySqlDBName"
+	if [[ -n "$PRIVATE_SQL_MySQL_PID" ]]; then
+		# update database connection to match change
+		RunSQL "USE $SQL_DB"
+	fi
+	return 0
+}
 
 SQL_Translate()
 {
 	tr '\n\t ' $'\x20'$'\x01'$'\x02' | sed 's/ *$//'
 }
+
+SQL_Connect "$MySqlHost" "$MySqlUser" "$MySqlPassword" "$MySqlDBName"
