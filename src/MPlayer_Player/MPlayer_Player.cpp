@@ -42,6 +42,7 @@ MPlayer_Player::MPlayer_Player(int DeviceID, string ServerAddress,bool bConnectE
 	system(sysCommand.c_str());
 	sCurrentFIFOPipeName = sFIFO;
 	
+	// TODO restart MPlayer if it died
 	// starting MPlayer
 	const string sMPlayerBinary = "/usr/local/bin/mplayer";
 	
@@ -52,7 +53,7 @@ MPlayer_Player::MPlayer_Player(int DeviceID, string ServerAddress,bool bConnectE
 	// TODO make this device_data
 	const string sAVOptions = "-lavdopts fast:threads=2";
 	
-	string sCommand = sMPlayerBinary + " -vo xv " + sMessageLevel + " " + sAVOptions +" -idle -slave -input file="+sCurrentFIFOPipeName;
+	string sCommand = sMPlayerBinary + " -fs -vo xv " + sMessageLevel + " " + sAVOptions +" -idle -slave -input file="+sCurrentFIFOPipeName;
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Invoking MPlayer as: %s", sCommand.c_str());
 	fCurrentInPipe = popen(sCommand.c_str(), "r");
 	// TODO enhance error detection
