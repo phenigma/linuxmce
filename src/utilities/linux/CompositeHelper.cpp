@@ -18,7 +18,11 @@ CompositeHelper CompositeHelper::m_Instance;
 //---------------------------------------------------------------------------------------------------------------
 CompositeHelper::CompositeHelper()
 {
-	m_display = XOpenDisplay(":0.0");
+	char * DefaultDisplay = ":0.0";
+	char * Display = getenv("DISPLAY");
+	if (!Display)
+		Display = DefaultDisplay;
+	m_display = XOpenDisplay(Display);
 }
 //---------------------------------------------------------------------------------------------------------------
 CompositeHelper::~CompositeHelper()
