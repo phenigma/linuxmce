@@ -19,8 +19,8 @@
 /**
  *	Created by CipLogic < ciprian dot m at plutohome dot com >
  */
-#ifndef WizardPageVideoRatio_H_
-#define WizardPageVideoRatio_H_
+#ifndef WizardPageVideoResolution_H_
+#define WizardPageVideoResolution_H_
 
 #include "WizardPage.h"
 
@@ -29,7 +29,7 @@
 #include <map>
 #include <string>
 
-class WizardPageVideoRatio :
+class WizardPageVideoResolution :
 	public WizardPage
 {
 	std::map<std::string, int> Buttons;
@@ -54,8 +54,8 @@ public:
 	virtual void DoPreviousFocusItem();
 	virtual void DoClickWidget(WizardWidgetBase *pWidget);
 
-	WizardPageVideoRatio(GenericBackEnd* FrontEnd, std::string Name);
-	virtual ~WizardPageVideoRatio(void);
+	WizardPageVideoResolution(GenericBackEnd* FrontEnd, std::string Name);
+	virtual ~WizardPageVideoResolution(void);
 
 };
 

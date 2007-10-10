@@ -25,7 +25,7 @@
 //---------------------------------------------------------------------------
 //classes for factory
 #include "WizardPageWelcome.h"
-#include "WizardPageVideoRatio.h"
+#include "WizardPageVideoResolution.h"
 
 #include "WizardPageUISwitcher.h"
 
@@ -141,7 +141,7 @@ WizardPage* WizardPagesFactory::CreatePredefinedWizardPage(const std::string Nam
 	if (Name == "Welcome")
 		Result = new WizardPageWelcome(FrontEnd, Name);
 	else if (Name == "VideoResolution")
-		Result = new WizardPageVideoRatio(FrontEnd, Name);
+		Result = new WizardPageVideoResolution(FrontEnd, Name);
 	else if (Name == "VideoResolutionConfirm")
 		Result = new WizardPageVideoResolutionConfirm(FrontEnd, Name);
 	else if (Name == "ChooseUI")

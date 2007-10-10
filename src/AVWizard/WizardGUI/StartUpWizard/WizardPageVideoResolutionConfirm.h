@@ -19,8 +19,8 @@
 /**
  *	Created by CipLogic < ciprian dot m at plutohome dot com >
  */
-#ifndef WizardPageVideoResolution_H_
-#define WizardPageVideoResolution_H_
+#ifndef WizardPageVideoResolutionConfirm_H_
+#define WizardPageVideoResolutionConfirm_H_
 
 #include "WizardPage.h"
 

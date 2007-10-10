@@ -16,7 +16,7 @@
  or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more details.
 
  */
-#include "WizardPageVideoRatio.h"
+#include "WizardPageVideoResolution.h"
 #include "Wizard.h"
 #include "GUIWizardUtils.h"
 #include "ConfigureCommons.h"
@@ -26,19 +26,19 @@
 #include <iostream>
 #include "../../../X-Resolution/libresolution/libresolution.h"
 
-WizardPageVideoRatio::WizardPageVideoRatio(GenericBackEnd* FrontEnd, std::string Name)
+WizardPageVideoResolution::WizardPageVideoResolution(GenericBackEnd* FrontEnd, std::string Name)
 	: WizardPage(FrontEnd, Name)
 {
 	Selected = NULL;
-	std::cout << "WizardPageVideoRatio constructor" << std::endl;
+	std::cout << "WizardPageVideoResolution constructor" << std::endl;
 }
 
-WizardPageVideoRatio::~WizardPageVideoRatio(void)
+WizardPageVideoResolution::~WizardPageVideoResolution(void)
 {
-	std::cout << "WizardPageVideoRatio destructor" << std::endl;
+	std::cout << "WizardPageVideoResolution destructor" << std::endl;
 }
 
-/*virtual*/ int WizardPageVideoRatio::DoApplySetting(SettingsDictionary* Dictionary)
+/*virtual*/ int WizardPageVideoResolution::DoApplySetting(SettingsDictionary* Dictionary)
 {
 	if(Dictionary == NULL || Selected == NULL)
 		return -1;
@@ -72,7 +72,7 @@ WizardPageVideoRatio::~WizardPageVideoRatio(void)
 	return 0;
 }
 
-/*virtual*/ void WizardPageVideoRatio::DefaultSetup(SettingsDictionary* AVWizardSettings)
+/*virtual*/ void WizardPageVideoResolution::DefaultSetup(SettingsDictionary* AVWizardSettings)
 {
 	system(SkinGenerator::Instance()->CommandResetResolution.c_str());
 	
@@ -126,7 +126,7 @@ WizardPageVideoRatio::~WizardPageVideoRatio(void)
 
 }
 
-void WizardPageVideoRatio::FillResolutionStandard(WizardWidgetScrollList* List, const int FillType) {
+void WizardPageVideoResolution::FillResolutionStandard(WizardWidgetScrollList* List, const int FillType) {
 	List->Clear();	
 	switch (FillType) {
 		default:
@@ -176,7 +176,7 @@ void WizardPageVideoRatio::FillResolutionStandard(WizardWidgetScrollList* List, 
 
 }
 
-void WizardPageVideoRatio::FillRefresh(WizardWidgetScrollList* List, const int FillType) {
+void WizardPageVideoResolution::FillRefresh(WizardWidgetScrollList* List, const int FillType) {
 	List->Clear();
 	switch(FillType) {
 		default:
@@ -197,7 +197,7 @@ void WizardPageVideoRatio::FillRefresh(WizardWidgetScrollList* List, const int F
 	}
 }
 
-void WizardPageVideoRatio::DoIncreaseSetting()
+void WizardPageVideoResolution::DoIncreaseSetting()
 {
 	Selected->SetFocus(false);
 	if ( Selected ==  dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("VideoConnectorScroll")) ) {
@@ -208,7 +208,7 @@ void WizardPageVideoRatio::DoIncreaseSetting()
 	Selected->SetFocus(true);
 }
 
-void WizardPageVideoRatio::DoDecreaseSetting()
+void WizardPageVideoResolution::DoDecreaseSetting()
 {
 	Selected->SetFocus(false);
 	if ( Selected == dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("RefreshScroll"))) {
@@ -219,7 +219,7 @@ void WizardPageVideoRatio::DoDecreaseSetting()
 	Selected->SetFocus(true);
 }
 
-/*virtual*/ void WizardPageVideoRatio::DoNextFocusItem()
+/*virtual*/ void WizardPageVideoResolution::DoNextFocusItem()
 {
 	Selected->SetItemIndex(Selected->GetItemIndex()+1);
 	
@@ -232,7 +232,7 @@ void WizardPageVideoRatio::DoDecreaseSetting()
 	}	
 }
 
-/*virtual*/ void WizardPageVideoRatio::DoPreviousFocusItem()
+/*virtual*/ void WizardPageVideoResolution::DoPreviousFocusItem()
 {
 	Selected->SetItemIndex(Selected->GetItemIndex()-1);
 	
@@ -246,7 +246,7 @@ void WizardPageVideoRatio::DoDecreaseSetting()
 }
 
 
-/*virtual*/ void WizardPageVideoRatio::DoClickWidget(WizardWidgetBase *pWidget)
+/*virtual*/ void WizardPageVideoResolution::DoClickWidget(WizardWidgetBase *pWidget)
 {
 	std::vector<WizardWidgetBase*>::iterator Item;
 	WizardWidgetScrollList* NewSelectedScrollList = NULL;
