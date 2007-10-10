@@ -288,6 +288,16 @@ bool Xine_Plugin::StartMedia( MediaStream *pMediaStream,string &sError )
 	mediaURL = StringUtils::Replace(mediaURL, "\\", "/"); // replacing all the \ in a windows path with /
 #endif
 
+	// hack: redirect MOV, EVO, M2TS files to MPlayer_Player
+	// TODO rework Media Dispatcher to make it more clear - later
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Doing MPlayer redirection check...");
+	bool bRedirectToMPlayer = /* StringUtils::EndsWith(mediaURL, ".MOV", true) || */
+			StringUtils::EndsWith(mediaURL, ".EVO", true) ||
+			StringUtils::EndsWith(mediaURL, ".M2TS", true);
+	
+	if (bRedirectToMPlayer)
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Redirecting CMD_Play_Media to MPlayer instead of Xine");
+	
 	if( pXineMediaStream->StreamingRequired() )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "sending CMD_Play_Media from %d to %d with deq pos %d", 
@@ -306,6 +316,29 @@ bool Xine_Plugin::StartMedia( MediaStream *pMediaStream,string &sError )
 	}
 	else
 	{
+		MediaDevice *pMediaDevice_MPlayer = NULL;
+		
+		if (bRedirectToMPlayer)
+		{
+			pMediaDevice_MPlayer = m_pMedia_Plugin->m_mapMediaDevice_Find(m_pRouter->FindClosestRelative(DEVICETEMPLATE_MPlayer_Player_CONST, pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device));
+			if (!pMediaDevice_MPlayer)
+			{
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Failed to find MPlayer for redirect, cancelling redirect :("); 
+				bRedirectToMPlayer = false;	
+			}
+			else
+			{
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Found MPlayer for redirect, device #%i", pMediaDevice_MPlayer->m_pDeviceData_Router->m_dwPK_Device); 
+				pMediaStream->m_pMediaDevice_Source = pMediaDevice_MPlayer;
+			}
+		}
+		
+		// changing window name
+		if (bRedirectToMPlayer)
+		{
+			pMediaStream->m_sAppName = "xv.MPlayer";
+		}
+		
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "sending CMD_Play_Media from %d to %d with deq pos %d", 
 			m_dwPK_Device, pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
 			pMediaStream->m_iDequeMediaFile_Pos);
@@ -364,7 +397,8 @@ bool Xine_Plugin::StopMedia( class MediaStream *pMediaStream )
 	}
 	int PK_Device = pXineMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device;
 	int StreamID = pXineMediaStream->m_iStreamID_get( );
-	string SavedPosition;
+	string SavedPosition;	
+	
 	DCE::CMD_Stop_Media cmd(m_dwPK_Device,                          // Send from us
 							PK_Device,  		// Send to the device that is actually playing
 							StreamID,      		// Send the stream ID that we want to actually stop
