@@ -123,12 +123,16 @@ function cleanup_filesystem {
 	else
 		echo "AVWizardOverride = 1" >> "${FILESYSTEM_ROOT}/etc/pluto.conf"
 	fi
+
 	## Set PK_Installation to 1
 	if grep -q "^PK_Installation " ${FILESYSTEM_ROOT}/etc/pluto.conf ;then
 		sed -i "s/^PK_Installation .*/PK_Installation = 1/g" "${FILESYSTEM_ROOT}/etc/pluto.conf"
 	else
 		echo "PK_Installation = 1" >> "${FILESYSTEM_ROOT}/etc/pluto.conf"
 	fi
+
+	## Remove the ssh key used for installation
+	rm -f "${FILESYSTEM_ROOT}"/root/.ssh/authorized_keys
 }
 
 function create_disk_image {
