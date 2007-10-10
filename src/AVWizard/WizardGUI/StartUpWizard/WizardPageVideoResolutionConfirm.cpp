@@ -16,7 +16,7 @@
  or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more details.
 
  */
-#include "WizardPageVideoResolution.h"
+#include "WizardPageVideoResolutionConfirm.h"
 
 #include "ConfigureCommons.h"
 #include "GUIWizardUtils.h"
@@ -27,19 +27,19 @@
 #include <iostream>
 #include "ThreadSleeper.h"
 
-WizardPageVideoResolution::WizardPageVideoResolution(GenericBackEnd* FrontEnd, std::string Name)
+WizardPageVideoResolutionConfirm::WizardPageVideoResolutionConfirm(GenericBackEnd* FrontEnd, std::string Name)
 	: WizardPage(FrontEnd, Name)
 {
 	Selected = NULL;
 }
 
-WizardPageVideoResolution::~WizardPageVideoResolution(void)
+WizardPageVideoResolutionConfirm::~WizardPageVideoResolutionConfirm(void)
 {
 	ThreadSleeper::Instance()->Quit();
 }
 
 
-/*virtual*/ int WizardPageVideoResolution::DoApplySetting(SettingsDictionary* Dictionary)
+/*virtual*/ int WizardPageVideoResolutionConfirm::DoApplySetting(SettingsDictionary* Dictionary)
 {
 	if(Dictionary == NULL)
 		return -1;
@@ -52,7 +52,7 @@ WizardPageVideoResolution::~WizardPageVideoResolution(void)
 	return 0;
 }
 
-/*virtual*/ void WizardPageVideoResolution::DefaultSetup(SettingsDictionary* AVWizardSettings)
+/*virtual*/ void WizardPageVideoResolutionConfirm::DefaultSetup(SettingsDictionary* AVWizardSettings)
 {
 	Selected = dynamic_cast<WizardWidgetButton*>
 		(Page->GetChildRecursive("BackBtn"));
@@ -97,7 +97,7 @@ WizardPageVideoResolution::~WizardPageVideoResolution(void)
 	
 }
 
-/*virtual*/ void WizardPageVideoResolution::DoIncreaseSetting()
+/*virtual*/ void WizardPageVideoResolutionConfirm::DoIncreaseSetting()
 {
 	if(Selected)
 		Selected->SetFocus(false);
@@ -111,7 +111,7 @@ WizardPageVideoResolution::~WizardPageVideoResolution(void)
 	Selected->SetFocus(true);
 }
 
-/*virtual*/ void WizardPageVideoResolution::DoDecreaseSetting()
+/*virtual*/ void WizardPageVideoResolutionConfirm::DoDecreaseSetting()
 {
 	if(Selected)
 		Selected->SetFocus(false);
@@ -125,7 +125,7 @@ WizardPageVideoResolution::~WizardPageVideoResolution(void)
 	Selected->SetFocus(true);
 }
 
-/*virtual*/ void WizardPageVideoResolution::DoClickWidget(WizardWidgetBase *pWidget)
+/*virtual*/ void WizardPageVideoResolutionConfirm::DoClickWidget(WizardWidgetBase *pWidget)
 {
 	std::vector<WizardWidgetBase*>::iterator Item;
 	WizardWidgetButton* NewSelected = NULL;

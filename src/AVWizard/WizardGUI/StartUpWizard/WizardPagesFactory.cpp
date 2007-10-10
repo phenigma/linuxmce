@@ -29,7 +29,7 @@
 
 #include "WizardPageUISwitcher.h"
 
-#include "WizardPageVideoResolution.h"
+#include "WizardPageVideoResolutionConfirm.h"
 #include "WizardPageVideoAdjustSize.h"
 #include "WizardPageAudioConnector.h"
 #include "WizardPageAudioVolume.h"
@@ -143,7 +143,7 @@ WizardPage* WizardPagesFactory::CreatePredefinedWizardPage(const std::string Nam
 	else if (Name == "VideoResolution")
 		Result = new WizardPageVideoRatio(FrontEnd, Name);
 	else if (Name == "VideoResolutionConfirm")
-		Result = new WizardPageVideoResolution(FrontEnd, Name);
+		Result = new WizardPageVideoResolutionConfirm(FrontEnd, Name);
 	else if (Name == "ChooseUI")
 		Result = new WizardPageUISwitcher(FrontEnd, Name);
 	else if (Name == "VideoAdjustSize")

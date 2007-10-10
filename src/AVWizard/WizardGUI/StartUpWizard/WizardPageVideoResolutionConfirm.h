@@ -25,7 +25,7 @@
 #include "WizardPage.h"
 
 #include "WizardWidgetButton.h"
-class WizardPageVideoResolution :
+class WizardPageVideoResolutionConfirm :
 	public WizardPage
 {
 	WizardWidgetButton* Selected;
@@ -42,8 +42,8 @@ public:
 	virtual void DoDecreaseSetting();
 	virtual void DoClickWidget(WizardWidgetBase *pWidget);
 
-	WizardPageVideoResolution(GenericBackEnd* FrontEnd, std::string Name);
-	virtual ~WizardPageVideoResolution();
+	WizardPageVideoResolutionConfirm(GenericBackEnd* FrontEnd, std::string Name);
+	virtual ~WizardPageVideoResolutionConfirm();
 };
 
 #endif

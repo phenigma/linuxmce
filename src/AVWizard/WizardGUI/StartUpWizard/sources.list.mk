@@ -36,7 +36,7 @@ WM_Event.cpp \
 XRandrParser.cpp \
 WizardPageWelcome.cpp \
 WizardPageVideoRatio.cpp \
-WizardPageVideoResolution.cpp \
+WizardPageVideoResolutionConfirm.cpp \
 WizardPageVideoAdjustSize.cpp \
 WizardPageAudioConnector.cpp \
 WizardPageAudioVolume.cpp \
