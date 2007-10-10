@@ -124,7 +124,7 @@ void GenerateWizardConfigDefaults::GenerateDefaultPages(std::string FolderToSave
 	GeneratePage_VideoResolution(FolderToSave, ImageFolder, FontFolder);
 	GeneratePage_VideoResolutionConfirm(FolderToSave, ImageFolder, FontFolder);
 
-	GeneratePage_ChooseUI(FolderToSave, ImageFolder, FontFolder);
+	GeneratePage_UISwitcher(FolderToSave, ImageFolder, FontFolder);
 	GeneratePage_VideoAdjustSize(FolderToSave, ImageFolder, FontFolder);
 	GeneratePage_AudioConnector(FolderToSave, ImageFolder, FontFolder);
 	GeneratePage_AudioVolume(FolderToSave, ImageFolder, FontFolder);
@@ -391,7 +391,7 @@ void GenerateWizardConfigDefaults::GeneratePage_VideoResolutionConfirm(
 }
 
 
-void GenerateWizardConfigDefaults::GeneratePage_ChooseUI(
+void GenerateWizardConfigDefaults::GeneratePage_UISwitcher(
 	std::string FolderToSave, 
 	std::string ImageFolder, 
 	std::string FontFolder
@@ -465,7 +465,7 @@ void GenerateWizardConfigDefaults::GeneratePage_ChooseUI(
 		true
 		));
 
-	Page->SaveToXMLFile("/tmp/ChooseUI.xml");
+	Page->SaveToXMLFile("/tmp/UISwitcher.xml");
 }
 
 void GenerateWizardConfigDefaults::GeneratePage_VideoAdjustSize(

@@ -7,6 +7,7 @@ PageSequence::PageSequence(const std::string & StartPage)
 		"Welcome",
 		"VideoResolution",
 		"VideoResolutionConfirm",
+		"UISwitcher",
 		"VideoAdjustSize",
 		"AudioConnector",
 		"AudioVolume",

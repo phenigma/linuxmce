@@ -144,7 +144,7 @@ WizardPage* WizardPagesFactory::CreatePredefinedWizardPage(const std::string Nam
 		Result = new WizardPageVideoResolution(FrontEnd, Name);
 	else if (Name == "VideoResolutionConfirm")
 		Result = new WizardPageVideoResolutionConfirm(FrontEnd, Name);
-	else if (Name == "ChooseUI")
+	else if (Name == "UISwitcher")
 		Result = new WizardPageUISwitcher(FrontEnd, Name);
 	else if (Name == "VideoAdjustSize")
 		Result = new WizardPageVideoAdjustSize(FrontEnd, Name);
