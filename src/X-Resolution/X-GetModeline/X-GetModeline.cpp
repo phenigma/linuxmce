@@ -70,10 +70,16 @@ int main(int argc, char * argv[])
 			}
 			DEBUG(cout << "    " + drivers + ": " + Workaround.X11 << endl);
 		}
+		break;
 	}
 
 	if (strModeline.size())
-		cout << "\"" << ResName << "\" " << strModeline << endl;
+	{
+		char buffer[BUFSIZ];
+		memset(buffer, 0, BUFSIZ);
+		snprintf(buffer, BUFSIZ - 1, "\"%dx%d\" %s", Resolution.Width, Resolution.Height, strModeline.c_str());
+		cout << buffer << endl;
+	}
 
 	return 0;
 }
