@@ -63,6 +63,7 @@
 #include <list>
 
 #include "WizardRemote.h"
+#include "PageSequence.h"
 
 /**
  *	Singleton class that consist all the wizard, is singleton because 
@@ -174,9 +175,9 @@ class Wizard
 	bool IsAnalogSound;
 public:
 	/**
-	 *	Index to current page in the wizard
+	 *	Page sequence in the wizard
 	 */
-	int CurrentPage;
+	PageSequence m_PageSequence;
 
 	int LeftBorder, TopBorder;
 	int WizardBorder;

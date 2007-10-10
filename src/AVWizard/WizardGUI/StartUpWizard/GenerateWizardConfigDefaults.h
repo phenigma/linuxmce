@@ -26,8 +26,6 @@
 
 #include "SettingsDictionaryTree.h"
 
-#define WIZARD_NO_PAGES (11)
-
 class GenerateWizardConfigDefaults
 {
 	/**
@@ -38,56 +36,49 @@ class GenerateWizardConfigDefaults
 	int FontHeight;
 	std::string Color; 
 	std::string Style;
-	/**
-	 *	File of XML files that stores the default dialogs
-	 */
-	std::string PageNames[11];
+
 	/**
 	 *	Generate welcome page of the wizard: Welcome.xml
 	 */
-	void GeneratePage0(std::string FolderToSave, std::string ImageFolder, std::string FontFolder);
+	void GeneratePage_Welcome(std::string FolderToSave, std::string ImageFolder, std::string FontFolder);
 	/**
 	 *	Generate first page of the wizard: VideoRatio.xml
 	 */
-	void GeneratePage1(std::string FolderToSave, std::string ImageFolder, std::string FontFolder);
+	void GeneratePage_VideoResolution(std::string FolderToSave, std::string ImageFolder, std::string FontFolder);
 	/**
 	 *	Generate page 2 of the wizard: VideoOutput.xml
 	 */
-	void GeneratePage12(std::string FolderToSave, std::string ImageFolder, std::string FontFolder);
+	void GeneratePage_VideoResolutionConfirm(std::string FolderToSave, std::string ImageFolder, std::string FontFolder);
 
 
 	/**
 	 *	Generate page 2 of the wizard: UIChooser.xml
 	 */
-	void GeneratePage2(std::string FolderToSave, std::string ImageFolder, std::string FontFolder);
-	/**
-	 *	Generate page 3 of the wizard: VideoResolution.xml
-	 */
-	void GeneratePage3(std::string FolderToSave, std::string ImageFolder, std::string FontFolder);
+	void GeneratePage_ChooseUI(std::string FolderToSave, std::string ImageFolder, std::string FontFolder);
 	/**
 	 *	Generate page 4 of the wizard: VideoAdjustSize.xml
 	 */
-	void GeneratePage4(std::string FolderToSave, std::string ImageFolder, std::string FontFolder);
+	void GeneratePage_VideoAdjustSize(std::string FolderToSave, std::string ImageFolder, std::string FontFolder);
 	/**
 	 *	Generate page 5 of the wizard: AudioConnector.xml
 	 */
-	void GeneratePage5(std::string FolderToSave, std::string ImageFolder, std::string FontFolder);
+	void GeneratePage_AudioConnector(std::string FolderToSave, std::string ImageFolder, std::string FontFolder);
 	/**
 	 *	Generate page 6 of the wizard: AudioVolume.xml
 	 */
-	void GeneratePage6(std::string FolderToSave, std::string ImageFolder, std::string FontFolder);
+	void GeneratePage_AudioVolume(std::string FolderToSave, std::string ImageFolder, std::string FontFolder);
 	/**
 	 *	Generate page 7 of the wizard: DolbyTest.xml
 	 */
-	void GeneratePage7(std::string FolderToSave, std::string ImageFolder, std::string FontFolder);
+	void GeneratePage_DolbyTest(std::string FolderToSave, std::string ImageFolder, std::string FontFolder);
 	/**
 	 *	Generate page 8 of the wizard: DTSTest.xml
 	 */
-	void GeneratePage8(std::string FolderToSave, std::string ImageFolder, std::string FontFolder);
+	void GeneratePage_DTSTest(std::string FolderToSave, std::string ImageFolder, std::string FontFolder);
 	/**
 	 *	Generate page 9 of the wizard: FinalSelections.xml
 	 */
-	void GeneratePage9(std::string FolderToSave, std::string ImageFolder, std::string FontFolder);
+	void GeneratePage_FinalSelections(std::string FolderToSave, std::string ImageFolder, std::string FontFolder);
 	/**
 	 *	Generate container with tabs and highlight the specified item
 	 *	Too generates text items

@@ -26,7 +26,6 @@
 //classes for factory
 #include "WizardPageWelcome.h"
 #include "WizardPageVideoRatio.h"
-#include "WizardPageVideoOutput.h"
 
 #include "WizardPageUISwitcher.h"
 
@@ -46,24 +45,6 @@ WizardPagesFactory::WizardPagesFactory()
 	: WizardWidgetsFactory()
 {
 	this->RuningMode = 0;
-
-	PageNames[0] = "Welcome.xml";
-	PageNames[1] = "VideoRatio.xml";
-	PageNames[2] = "VideoResolution.xml";
-
-	PageNames[3] = "UISwitch.xml";
-
-	PageNames[4] = "VideoOutput.xml";
-	PageNames[5] = "VideoAdjustSize.xml";
-	PageNames[6] = "AudioConnector.xml";
-	PageNames[7] = "AudioVolume.xml";
-	PageNames[8] = "DolbyTest.xml";
-	PageNames[9] = "DTSTest.xml";
-	PageNames[10] = "FinalSelections.xml";
-
-	std::string TmpPrefix = "/tmp/";
-	for(int i = 0; i < WIZARD_NO_PAGES; i++)
-		PageNames[i] = TmpPrefix + PageNames[i];
 }
 
 WizardPagesFactory::~WizardPagesFactory(void)
@@ -131,14 +112,10 @@ WizardPage* WizardPagesFactory::CreateWidget(SettingsDictionaryTree*
 }
 
 
-WizardPage* WizardPagesFactory::CreatePredefinedWizardPage(int IndexPage)
+WizardPage* WizardPagesFactory::CreatePredefinedWizardPage(const std::string Name)
 {
-	if (IndexPage<1 || IndexPage>WIZARD_NO_PAGES)
-		return NULL;
-
-
 	SettingsDictionaryTree* DialogSettings = new SettingsDictionaryTree();
-	if(!DialogSettings->LoadFromXMLFile(PageNames[IndexPage-1]))
+	if(!DialogSettings->LoadFromXMLFile("/tmp/" + Name + ".xml"))
 	{
 		delete DialogSettings;
 		return NULL;
@@ -146,10 +123,10 @@ WizardPage* WizardPagesFactory::CreatePredefinedWizardPage(int IndexPage)
 
 	WizardPage* Result = NULL;
 
-	SettingsDictionary* Dictionary = DialogSettings->GetDictionary();
+	SettingsDictionary *Dictionary = DialogSettings->GetDictionary();
 	std::string PageName = Dictionary->GetName();
 
-	WizardWidgetsFactory*Factory =  WizardWidgetsFactory::GetInstance();
+	WizardWidgetsFactory *Factory =  WizardWidgetsFactory::GetInstance();
 	Factory->SetSDLFrontEnd(FrontEnd);
 
 	WizardWidgetBase* Page = dynamic_cast<WizardWidgetBase*> 
@@ -161,44 +138,26 @@ WizardPage* WizardPagesFactory::CreatePredefinedWizardPage(int IndexPage)
 
 	Page->ApplyDictionary(Dictionary);
 
-
-	switch(IndexPage) {
-		case PAGE_WELCOME:
-			Result = new WizardPageWelcome(FrontEnd, PageName);
-			break;
-		case PAGE_VIDEORATIO:
-			Result = new WizardPageVideoRatio(FrontEnd, PageName);
-			break;
-		case PAGE_VIDEOOUTPUT:
-			Result = new WizardPageVideoOutput(FrontEnd, PageName);
-			break;
-		case PAGE_VIDEORESOLUTION:
-			Result = new WizardPageVideoResolution(FrontEnd, PageName);
-			break;
-
-		case PAGE_UISWITCHER:
-			Result = new WizardPageUISwitcher(FrontEnd, PageName);
-			break;
-	
-		case PAGE_VIDEOADJUSTSIZE:
-			Result = new WizardPageVideoAdjustSize(FrontEnd, PageName);
-			break;
-		case PAGE_AUDIOCONNECTOR:
-			Result = new WizardPageAudioConnector(FrontEnd, PageName);
-			break;
-		case PAGE_AUDIOVOLUME:
-			Result = new WizardPageAudioVolume(FrontEnd, PageName);
-			break;
-		case PAGE_DOLBYTEST:
-			Result = new WizardPageDolbyTest(FrontEnd, PageName);
-			break;
-		case PAGE_DTSTEST:
-			Result = new WizardPageDTSTest(FrontEnd, PageName);
-			break;
-		case PAGE_FINALSELECTIONS:
-			Result = new WizardPageFinalSelections(FrontEnd, PageName);
-			break;
-	}
+	if (Name == "Welcome")
+		Result = new WizardPageWelcome(FrontEnd, Name);
+	else if (Name == "VideoResolution")
+		Result = new WizardPageVideoRatio(FrontEnd, Name);
+	else if (Name == "VideoResolutionConfirm")
+		Result = new WizardPageVideoResolution(FrontEnd, Name);
+	else if (Name == "ChooseUI")
+		Result = new WizardPageUISwitcher(FrontEnd, Name);
+	else if (Name == "VideoAdjustSize")
+		Result = new WizardPageVideoAdjustSize(FrontEnd, Name);
+	else if (Name == "AudioConnector")
+		Result = new WizardPageAudioConnector(FrontEnd, Name);
+	else if (Name == "AudioVolume")
+		Result = new WizardPageAudioVolume(FrontEnd, Name);
+	else if (Name == "DolbyTest")
+		Result = new WizardPageDolbyTest(FrontEnd, Name);
+	else if (Name == "DTSTest")
+		Result = new WizardPageDTSTest(FrontEnd, Name);
+	else if (Name == "FinalSelections")
+		Result = new WizardPageFinalSelections(FrontEnd, Name);
 
 	Result->SetPageLayout(dynamic_cast<WizardWidgetPage*>(Page));
 

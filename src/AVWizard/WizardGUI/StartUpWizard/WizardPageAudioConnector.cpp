@@ -27,7 +27,7 @@
 #include <iostream>
 
 WizardPageAudioConnector::WizardPageAudioConnector(GenericBackEnd* FrontEnd, std::string Name)
-: WizardPage(FrontEnd, Name)
+	: WizardPage(FrontEnd, Name)
 {
 #ifdef DEBUG
 	std::cout<<"WizardPageAudioConnector::WizardPageAudioConnector"<<std::endl;
@@ -65,8 +65,6 @@ WizardPageAudioConnector::~WizardPageAudioConnector(void)
 		system(Command.c_str());
 		Dictionary->Set("NoAudioDevice", 0);
 	}
-
-	
 
 	return 0;
 }

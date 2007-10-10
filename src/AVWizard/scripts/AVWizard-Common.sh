@@ -21,17 +21,6 @@ BaseDir=/usr/pluto/bin
 Wiz="$BaseDir"/AVWizard
 AudioMixerSettingsAwk="$BaseDir"/AudioMixerSettings.awk
 
-STEP_Welcome=1
-STEP_VideoResolution=2 #AVWiz: VideoRatio
-STEP_VideoResolutionConfirm=3 #AVWiz: VideoResolution
-STEP_VideoOutput=4
-STEP_VideoAdjustSize=5
-STEP_AudioConnector=6
-STEP_AudioVolume=7
-STEP_DolbyTest=8
-STEP_DTSTest=9
-STEP_FinalSelections=10
-
 AVWizard_Port=28949 # AVWIZ
 
 Resolutions_VESA=(

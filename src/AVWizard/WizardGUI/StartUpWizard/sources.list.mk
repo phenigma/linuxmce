@@ -1,4 +1,5 @@
 sources += \
+PageSequence.cpp \
 AVWizardConfParser.cpp \
 ColorDesc.cpp \
 GenerateWizardConfigDefaults.cpp \
@@ -7,7 +8,6 @@ main.cpp \
 PageFileParser.cpp \
 RefreshRates.cpp \
 Resolution.cpp \
-ResolutionRefreshScreen.cpp \
 SaveSettingsScreen.cpp \
 ScreenManager.cpp \
 ScreenModes.cpp \
@@ -36,7 +36,6 @@ WM_Event.cpp \
 XRandrParser.cpp \
 WizardPageWelcome.cpp \
 WizardPageVideoRatio.cpp \
-WizardPageVideoOutput.cpp \
 WizardPageVideoResolution.cpp \
 WizardPageVideoAdjustSize.cpp \
 WizardPageAudioConnector.cpp \

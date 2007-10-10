@@ -45,7 +45,7 @@ WizardCommandLineParser::WizardCommandLineParser(void)
 	ArgumentTypes["-step"] = ARGUMENT_STEP;
 	ArgumentTypes["-set"] = ARGUMENT_SET;
 	ArgumentTypes["-get"] = ARGUMENT_GET;
-	this->StartStep = -1;
+	this->StartStep = "Welcome";
 }
 
 WizardCommandLineParser::~WizardCommandLineParser(void)
@@ -76,7 +76,7 @@ void WizardCommandLineParser::ParseArguments(std::vector<std::string> Arguments,
 			i+= 2;
 			break;
 		case ARGUMENT_STEP:
-			this->StartStep = Utils::StringToInt32(Arguments[i+1]);
+			this->StartStep = Arguments[i+1];
 			i++;
 			break;
 		default:

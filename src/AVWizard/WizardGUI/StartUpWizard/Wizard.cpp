@@ -48,22 +48,23 @@
 void signal_handler(int signal)
 {
 	WizardCommandLineParser *CmdLineParser = WizardCommandLineParser::GetInstance();
+	std::string CurrentPage = Wizard::GetInstance()->m_PageSequence.CurrentPage();
 	switch (signal)
 	{
 		case SIGPIPE:
 			std::cout<<"Signal SIGPIPE treated"<<std::endl;
 			break;
 		case SIGUSR1:
-			std::cout<<"Signal SIGUSR1 treated at step " << Wizard::GetInstance()->CurrentPage <<std::endl;
+			std::cout<<"Signal SIGUSR1 treated at step " << CurrentPage << std::endl;
 			Wizard::GetInstance()->SetExitWithCode(2);
-			Wizard::GetInstance()->AVWizardOptions->GetDictionary()->Set("InterruptedStep", Wizard::GetInstance()->CurrentPage);
+			Wizard::GetInstance()->AVWizardOptions->GetDictionary()->Set("InterruptedStep", CurrentPage + "/USR1");
 			
 			Wizard::GetInstance()->AVWizardOptions->SaveToXMLFile(CmdLineParser->ConfigFileDefault);
 			break;
 		case SIGUSR2:
-			std::cout<<"Signal SIGUSR2 treated at step " << Wizard::GetInstance()->CurrentPage <<std::endl;
+			std::cout<<"Signal SIGUSR2 treated at step " << CurrentPage << std::endl;
 			Wizard::GetInstance()->SetExitWithCode(2);
-			Wizard::GetInstance()->AVWizardOptions->GetDictionary()->Set("InterruptedStep", -Wizard::GetInstance()->CurrentPage);
+			Wizard::GetInstance()->AVWizardOptions->GetDictionary()->Set("InterruptedStep", CurrentPage + "/USR2");
 			
 			Wizard::GetInstance()->AVWizardOptions->SaveToXMLFile(CmdLineParser->ConfigFileDefault);
 			break;
@@ -75,6 +76,7 @@ Wizard::Wizard()
 	: 
 	Quit(false),
 	StatusChange(true),
+	m_PageSequence(""),
 	LeftBorder(ARROWS_BORDER),
 	TopBorder(ARROWS_BORDER),
 	WizardBorder(ARROWS_BORDER)
@@ -88,7 +90,6 @@ Wizard::Wizard()
 
 	this->FullScreen = false;
 	MainPage = NULL;
-	CurrentPage = 1;
 	AVWizardOptions->GetDictionary()->SetName("AVSettings");
 	AVWizardOptions->GetDictionary()->SetType("Config_file");
 
@@ -141,7 +142,7 @@ void Wizard::MainLoop()
 //	Resize(false);
 	WizardCommandLineParser *CmdLineParser = WizardCommandLineParser::GetInstance();
 
-	AVWizardOptions->GetDictionary()->Set("CurrentStep", Utils::Int32ToString(CurrentPage));
+	AVWizardOptions->GetDictionary()->Set("CurrentStep", m_PageSequence.CurrentPage());
 	AVWizardOptions->SaveToXMLFile(CmdLineParser->ConfigFileDefault);
 
 	
@@ -257,36 +258,22 @@ void Wizard::DoApplyScreen(SettingsDictionary* Settings)
 		return;
 
 
-	if(Result != 0)
-		CurrentPage -=2;
+	if (Result == 0)
+		m_PageSequence.NextPage();
+	else
+		m_PageSequence.PrevPage();
 
-	CurrentPage ++ ;
-
-	if(CurrentPage == 8)
-	{
-		if(AVWizardOptions->GetDictionary()->Exists("NoAudioDevice"))
-		{
-			std::string AudioDevice = AVWizardOptions->GetDictionary()->GetValue("NoAudioDevice");
-			bool IsAudioDevice = Utils::StringToInt32( AudioDevice) != 0;
-			if (IsAudioDevice)
-				CurrentPage+=3;
-		}
-	}
-
-
-	if (CurrentPage == 5)
-	{
-		CurrentPage+=1;
-	}
-
+/*
 	if (CurrentPage == 9)
 		if(IsAnalogSound)
 			CurrentPage += 2;
-	if(CurrentPage == WIZARD_NO_PAGES+1)
+*/
+	if(m_PageSequence.CurrentPage() == "")
 	{
 		AVWizardOptions->SaveToXMLFile(CmdLineParser->ConfigFileDefault);
 		SetExitWithCode(ExitCode);
 	}
+
 	CreateDialogs();
 	if(MainPage == NULL)
 	{
@@ -298,7 +285,6 @@ void Wizard::DoApplyScreen(SettingsDictionary* Settings)
 	{
 		MainPage->GetPageLayout()->Paint();
 		FrontEnd->Flip(LeftBorder, TopBorder, WizardBorder);
-		
 	}	
 }
 
@@ -310,27 +296,8 @@ void Wizard::DoCancelScreen()
 
 	delete MainPage;
 	MainPage = NULL;
-	if(CurrentPage == WIZARD_NO_PAGES)
-	{
-		bool IsNoAudioDevice = false;
-		if(AVWizardOptions->GetDictionary()->Exists("NoAudioDevice"))
-		{
-			std::string AudioDevice = AVWizardOptions->GetDictionary()->GetValue("NoAudioDevice");
-			IsNoAudioDevice = Utils::StringToInt32( AudioDevice) != 0;
-			if (IsNoAudioDevice)
-				CurrentPage-=3;
-		}
-		if(!IsNoAudioDevice)
-			if(IsAnalogSound)
-				CurrentPage -= 2;
-		
 
-	}
-
-	if (CurrentPage == 6) {
-		CurrentPage-=1;
-	}
-	CurrentPage -- ;
+	m_PageSequence.PrevPage();
 	CreateDialogs();
 	StatusChange = true;
 }
@@ -474,9 +441,9 @@ int Wizard::ParseCommandLineParameters(int argc, char** argv)
 		exit(0);
 	}
 
-	if(CmdLineParser->StartStep != -1)
+	if(CmdLineParser->StartStep != "")
 	{
-		CurrentPage = CmdLineParser->StartStep;
+		m_PageSequence.GoToPage(CmdLineParser->StartStep);
 	}
 
 	CmdLineParser->CleanUp();
@@ -498,14 +465,21 @@ void Wizard::CreateDialogs()
 		MainPage = NULL;
 	}
 
-	MainPage = Factory->CreatePredefinedWizardPage(CurrentPage);
+	do
+	{
+		MainPage = Factory->CreatePredefinedWizardPage(m_PageSequence.CurrentPage());
+		if (!MainPage || MainPage->IsDisplayable())
+			break;
+		else
+			m_PageSequence.RepeatLastOperation();
+	} while (true);
 
 	if(MainPage)
 	{
 		WizardCommandLineParser *CmdLineParser = WizardCommandLineParser::GetInstance();
 		if (StatusChange)
 		{
-			AVWizardOptions->GetDictionary()->Set("CurrentStep", Utils::Int32ToString(CurrentPage));
+			AVWizardOptions->GetDictionary()->Set("CurrentStep", m_PageSequence.CurrentPage());
 			AVWizardOptions->SaveToXMLFile(CmdLineParser->ConfigFileDefault);
 		}
 

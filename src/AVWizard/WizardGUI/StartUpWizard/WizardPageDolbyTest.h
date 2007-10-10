@@ -25,6 +25,7 @@
 #include "WizardPage.h"
 
 #include "WizardWidgetButton.h"
+#include "Wizard.h"
 
 #ifndef WIN32
 #include "XinePlayer.h"
@@ -50,6 +51,7 @@ public:
 	virtual void DoIncreaseSetting();
 	virtual void DoDecreaseSetting();
 	virtual void DoClickWidget(WizardWidgetBase *pWidget);
+	virtual bool IsDisplayable();
 
 	WizardPageDolbyTest(GenericBackEnd* FrontEnd, std::string Name);
 	virtual ~WizardPageDolbyTest(void);

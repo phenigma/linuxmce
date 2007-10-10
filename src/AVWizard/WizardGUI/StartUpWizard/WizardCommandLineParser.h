@@ -101,7 +101,7 @@ public:
 	 */
 	std::string ConfigFileDefault;
 
-	int StartStep;
+	std::string StartStep;
 
 	/**
 	 *	NeedQuit is true if it gets commands as Get/Set or --help

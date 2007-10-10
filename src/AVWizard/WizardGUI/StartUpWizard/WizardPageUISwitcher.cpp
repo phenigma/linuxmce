@@ -41,7 +41,7 @@
 #include "Wizard.h"
 
 WizardPageUISwitcher::WizardPageUISwitcher(GenericBackEnd* FrontEnd, std::string Name)
-: WizardPage(FrontEnd, Name)
+	: WizardPage(FrontEnd, Name)
 {
 #ifdef DEBUG
 	std::cout<<"WizardPageDTSTest::WizardPageDTSTest()"<<std::endl;

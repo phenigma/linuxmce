@@ -117,6 +117,11 @@ public:
 	virtual void DoNumberKey(int KeyCode);
 
 	/**
+	 *  Return true if page is displayable, false otherwise
+	 */
+	virtual bool IsDisplayable();
+
+	/**
 	 *	Builds the list with focusable items
 	 */
 	void FindFocusableControls();

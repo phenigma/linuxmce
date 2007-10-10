@@ -4,7 +4,7 @@
 . /usr/pluto/bin/Config_Ops.sh 2>/dev/null || exit 1  ## So the orbiter can get the environment variable for the mysql server
 
 Done=0
-NextStep=$STEP_Welcome
+NextStep="Welcome"
 export DISPLAY=:$(( $Display  + 1 ))
 while [[ "$Done" -eq 0 ]]; do
 	echo "Running Wizard from step '$NextStep'"
@@ -39,8 +39,8 @@ while [[ "$Done" -eq 0 ]]; do
 	echo "Interrupted in step '$WizStep'"
 
 	case "$WizStep" in
-		$STEP_Welcome)
-			NextStep=$STEP_Welcome
+		"Welcome/USR1")
+			NextStep="Welcome"
 			if [[ ! -f /tmp/AVWizard_Started ]]; then
 				rm -f /tmp/avwizard-resolution-defaults.txt
 				/usr/pluto/bin/AVWizard_UpdateResolution.sh reset
@@ -48,21 +48,22 @@ while [[ "$Done" -eq 0 ]]; do
 			fi
 			rm -f /tmp/AVWizard_Started
 		;;
-		$STEP_VideoResolution) NextStep=$STEP_VideoResolutionConfirm ;;
-		-$STEP_VideoResolution) NextStep=$STEP_VideoResolution ;;
-		$STEP_VideoResolutionConfirm|-$STEP_VideoResolutionConfirm)
-			NextStep=$STEP_VideoResolution
+		"VideoResolution/USR1") NextStep="VideoResolutionConfirm" ;;
+		"VideoResolution/USR2") NextStep="VideoResolution" ;;
+		"VideoResolutionConfirm"*)
+			NextStep="VideoResolution"
 			/usr/pluto/bin/AVWizard_UpdateResolution.sh reset
 		;;
 		*)
 			echo "Interrupted in step '$WizStep', but shouldn't be"
-			if [[ "$WizStep" -lt 0 ]]; then
-				((WizStep=-WizStep))
-			fi
-			((NextStep=WizStep-1))
-			if [[ "$NextStep" -lt "$STEP_Welcome" ]]; then
-				NextStep=$STEP_Welcome
-			fi
+			NextStep="Welcome" # TODO: reimplement "go to step-1"
+			#if [[ "$WizStep" -lt 0 ]]; then
+			#	((WizStep=-WizStep))
+			#fi
+			#((NextStep=WizStep-1))
+			#if [[ "$NextStep" -lt "$STEP_Welcome" ]]; then
+			#	NextStep=$STEP_Welcome
+			#fi
 		;;
 	esac
 

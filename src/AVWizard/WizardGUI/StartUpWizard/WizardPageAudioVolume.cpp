@@ -21,12 +21,13 @@
 #include "WizardWidgetButton.h"
 
 #include "GUIWizardUtils.h"
+#include "Wizard.h"
 
 #include <stdlib.h>
 #include <iostream>
 
 WizardPageAudioVolume::WizardPageAudioVolume(GenericBackEnd* FrontEnd, std::string Name)
-: WizardPage(FrontEnd, Name)
+	: WizardPage(FrontEnd, Name)
 {
 #ifdef DEBUG
 	std::cout<<"WizardPageAudioVolume::WizardPageAudioVolume"<<std::endl;
@@ -209,4 +210,15 @@ void WizardPageAudioVolume::DoDecreaseSetting()
 			}
 		}
 	}
+}
+
+/*virtual*/ bool WizardPageAudioVolume::IsDisplayable()
+{
+	SettingsDictionaryTree * AVWizardOptions = Wizard::GetInstance()->AVWizardOptions;
+	if (AVWizardOptions->GetDictionary()->Exists("NoAudioDevice"))
+	{
+		std::string NoAudioDevice = AVWizardOptions->GetDictionary()->GetValue("NoAudioDevice");
+		return Utils::StringToInt32(NoAudioDevice) == 0;
+	}
+	return true;
 }

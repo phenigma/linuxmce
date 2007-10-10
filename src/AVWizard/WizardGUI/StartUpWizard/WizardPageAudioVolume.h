@@ -46,6 +46,7 @@ public:
 	virtual void DoIncreaseSetting();
 	virtual void DoDecreaseSetting();
 	virtual void DoClickWidget(WizardWidgetBase *pWidget);
+	virtual bool IsDisplayable();
 
 	WizardPageAudioVolume(GenericBackEnd* FrontEnd, std::string Name);
 	virtual ~WizardPageAudioVolume(void);

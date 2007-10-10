@@ -25,7 +25,6 @@
 #include <SDL_rotozoom.h>
 
 #define REDUCE_PERCENT 0.9
-#define SPACING_SCREEN 6
 
 SDLFrontEnd::SDLFrontEnd()
 : GenericBackEnd()
@@ -129,7 +128,7 @@ void SDLFrontEnd::Flip(int LeftBorder, int TopBorder, int Border)
 	double ScaleX = Width / 640.0;
 	double ScaleY = Height / 480.0;
 
-	if(Wizard::GetInstance()->CurrentPage == SPACING_SCREEN)
+	if(Wizard::GetInstance()->m_PageSequence.CurrentPage() == "VideoAdjustSize")
 	{
 		ZoomControlls = REDUCE_PERCENT * ZoomBackArrows;
 		RectControlls.x = RectBackArrows.x + static_cast<int>(((1.0 - REDUCE_PERCENT) / 2) * RectBackArrows.w);

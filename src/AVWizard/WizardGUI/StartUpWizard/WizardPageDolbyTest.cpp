@@ -24,7 +24,7 @@
 #include "WizardWidgetLabel.h"
 
 WizardPageDolbyTest::WizardPageDolbyTest(GenericBackEnd* FrontEnd, std::string Name)
-: WizardPage(FrontEnd, Name)
+	: WizardPage(FrontEnd, Name)
 {
 #ifdef DEBUG
 	std::cout<<"WizardPageDolbyTest::WizardPageDolbyTest"<<std::endl;
@@ -177,4 +177,14 @@ WizardPageDolbyTest::~WizardPageDolbyTest(void)
 			}
 		}
 	}
+}
+
+/*virtual*/ bool WizardPageDolbyTest::IsDisplayable()
+{
+	Wizard * pWizard = Wizard::GetInstance();
+	SettingsDictionaryTree * AVWizardOptions = pWizard->AVWizardOptions;
+	std::string NoAudioDevice = "0";
+	if (AVWizardOptions->GetDictionary()->Exists("NoAudioDevice"))
+		NoAudioDevice = AVWizardOptions->GetDictionary()->GetValue("NoAudioDevice");
+	return Utils::StringToInt32(NoAudioDevice) == 0 && !pWizard->GetAnalogSoundMode();
 }

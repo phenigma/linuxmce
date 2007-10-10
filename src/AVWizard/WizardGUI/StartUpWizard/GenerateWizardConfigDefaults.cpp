@@ -65,7 +65,6 @@ void GenerateWizardConfigDefaults::GenerateDefaults(std::string FolderToSave)
 	}
 
 	SettingsDictionaryTree* Settings, *Options;
-	SettingsDictionaryTree* PageDescription;
 	SettingsDictionary* Dictionary;
 	Settings = new SettingsDictionaryTree();
 
@@ -73,38 +72,7 @@ void GenerateWizardConfigDefaults::GenerateDefaults(std::string FolderToSave)
 	Settings->GetDictionary()->SetType("Config_File");
 	Settings->GetDictionary()->Set("Version", "0.0.1 alpha");
 
-	PageNames[0] = "Welcome.xml";
-	PageNames[1] = "VideoRatio.xml";
-	PageNames[2] = "VideoResolution.xml";
-
-	PageNames[3] = "UISwitch.xml";
-
-	PageNames[4] = "VideoOutput.xml";
-	PageNames[5] = "VideoAdjustSize.xml";
-	PageNames[6] = "AudioConnector.xml";
-	PageNames[7] = "AudioVolume.xml";
-	PageNames[8] = "DolbyTest.xml";
-	PageNames[9] = "DTSTest.xml";
-	PageNames[10] = "FinalSelections.xml";
-
-	std::string TmpPrefix = "/tmp/";
-	for(int i = 0; i < WIZARD_NO_PAGES; i++)
-		PageNames[i] = TmpPrefix + PageNames[i];
-
 	Options = new SettingsDictionaryTree();
-
-	for(int i = 1; i<WIZARD_NO_PAGES-1; i++)
-	{
-		PageDescription = new SettingsDictionaryTree();
-		Dictionary = PageDescription->GetDictionary();
-
-		Dictionary->SetName("ScreenStep"+Utils::Int32ToString(i));
-		Dictionary->SetType("Screen");
-		Dictionary->Set("FileName", PageNames[i-1].c_str());
-		Dictionary->Set("Index", i-1);
-
-		Options->AddChild(PageDescription);
-	}
 
 	Dictionary = Options->GetDictionary();
 	Dictionary->SetName("Screens");
@@ -152,22 +120,21 @@ void GenerateWizardConfigDefaults::GenerateDefaultPages(std::string FolderToSave
 #endif
 	}
 
-	GeneratePage0(FolderToSave, ImageFolder, FontFolder);
-	GeneratePage1(FolderToSave, ImageFolder, FontFolder);
-	GeneratePage12(FolderToSave, ImageFolder, FontFolder);
+	GeneratePage_Welcome(FolderToSave, ImageFolder, FontFolder);
+	GeneratePage_VideoResolution(FolderToSave, ImageFolder, FontFolder);
+	GeneratePage_VideoResolutionConfirm(FolderToSave, ImageFolder, FontFolder);
 
-	GeneratePage2(FolderToSave, ImageFolder, FontFolder);
-	GeneratePage3(FolderToSave, ImageFolder, FontFolder);
-	GeneratePage4(FolderToSave, ImageFolder, FontFolder);
-	GeneratePage5(FolderToSave, ImageFolder, FontFolder);
-	GeneratePage6(FolderToSave, ImageFolder, FontFolder);
-	GeneratePage7(FolderToSave, ImageFolder, FontFolder);
-	GeneratePage8(FolderToSave, ImageFolder, FontFolder);
-	GeneratePage9(FolderToSave, ImageFolder, FontFolder);
+	GeneratePage_ChooseUI(FolderToSave, ImageFolder, FontFolder);
+	GeneratePage_VideoAdjustSize(FolderToSave, ImageFolder, FontFolder);
+	GeneratePage_AudioConnector(FolderToSave, ImageFolder, FontFolder);
+	GeneratePage_AudioVolume(FolderToSave, ImageFolder, FontFolder);
+	GeneratePage_DolbyTest(FolderToSave, ImageFolder, FontFolder);
+	GeneratePage_DTSTest(FolderToSave, ImageFolder, FontFolder);
+	GeneratePage_FinalSelections(FolderToSave, ImageFolder, FontFolder);
 }
 
 
-void GenerateWizardConfigDefaults::GeneratePage0(
+void GenerateWizardConfigDefaults::GeneratePage_Welcome(
 	std::string FolderToSave, 
 	std::string ImageFolder, 
 	std::string FontFolder
@@ -217,10 +184,10 @@ void GenerateWizardConfigDefaults::GeneratePage0(
 
 
 
-	Page->SaveToXMLFile(PageNames[0]);
+	Page->SaveToXMLFile("/tmp/Welcome.xml");
 }
 
-void GenerateWizardConfigDefaults::GeneratePage1(
+void GenerateWizardConfigDefaults::GeneratePage_VideoResolution(
 	std::string FolderToSave, 
 	std::string ImageFolder, 
 	std::string FontFolder
@@ -336,10 +303,10 @@ void GenerateWizardConfigDefaults::GeneratePage1(
 
 	DefaultFontColor = SkinGenerator::Instance()->DefaultFontColor;
 
-	Page->SaveToXMLFile(PageNames[1]);
+	Page->SaveToXMLFile("/tmp/VideoResolution.xml");
 }
 
-void GenerateWizardConfigDefaults::GeneratePage12(
+void GenerateWizardConfigDefaults::GeneratePage_VideoResolutionConfirm(
 	std::string FolderToSave, 
 	std::string ImageFolder, 
 	std::string FontFolder
@@ -420,11 +387,11 @@ void GenerateWizardConfigDefaults::GeneratePage12(
 		true
 	));
 
-	Page->SaveToXMLFile(PageNames[2]);
+	Page->SaveToXMLFile("/tmp/VideoResolutionConfirm.xml");
 }
 
 
-void GenerateWizardConfigDefaults::GeneratePage2(
+void GenerateWizardConfigDefaults::GeneratePage_ChooseUI(
 	std::string FolderToSave, 
 	std::string ImageFolder, 
 	std::string FontFolder
@@ -498,115 +465,10 @@ void GenerateWizardConfigDefaults::GeneratePage2(
 		true
 		));
 
-	Page->SaveToXMLFile(PageNames[3]);
+	Page->SaveToXMLFile("/tmp/ChooseUI.xml");
 }
 
-void GenerateWizardConfigDefaults::GeneratePage3(
-	std::string FolderToSave, 
-	std::string ImageFolder, 
-	std::string FontFolder
-	)
-{
-	SettingsDictionaryTree* Page;
-	SettingsDictionaryTree* Container;
-	SettingsDictionary* Dictionary;
-
-	Page = new SettingsDictionaryTree();
-	Dictionary = Page->GetDictionary();
-	SetDefaultBtnImages(Dictionary, ImageFolder);
-
-	Dictionary->SetName("ScreenStep1");
-	Dictionary->SetType("Page");
-	Dictionary->Set("Width", 640);
-	Dictionary->Set("Height", 480);
-	Dictionary->Set("Fullscreen", 1);
-	Dictionary->Set("Caption", "AV Wizard Configurator");
-
-	Dictionary->Set("Picture", ImageFolder+"button_tex.png");
-
-
-	Container = GenerateTabContainer(3, ImageFolder, FontFolder);
-	Page->AddChild(Container);
-
-	//Create text area
-	std::string StringList[5];
-	StringList[0] = "I have tried to automatically detect which video cable your TV is connected to.";
-	StringList[1] = "If I got it right press the Enter key. Otherwise sue the left and right arrow to";
-	StringList[2] = "select the correct video cable and connector.";
-	StringList[3] = "Since you have a widescreen TV, it is recomended to";
-	StringList[4] = "use component, VGA or DVI connectors.";
-
-	std::string DefaultFontColor = SkinGenerator::Instance()->DefaultFontColor;	
-	int DefaultFontSize  = Utils::StringToInt32(SkinGenerator::Instance()->DefaultFontSize);
-
-	SetFontStyle(DefaultFontSize, DefaultFontColor, "Regular");
-	for(int i = 0; i<3; i++)
-	{
-		Container->AddChild(CreateControlLabel(
-			"DescribeText"+Utils::Int32ToString(i),
-			StringList[i],
-			320,
-			200+i*15,
-			"Center"
-			));
-	}
-
-	Page->AddChild(CreateControlButton(
-			"Btn1",
-			"Composite",
-			100, 285,
-			0,
-			true
-		));
-
-	Page->AddChild(CreateControlButton(
-			"Btn2",
-			"S-Video",
-			230, 285,
-			0,
-			true
-		));
-
-	Page->AddChild(CreateControlButton(
-			"Btn3",
-			"Component",
-			355, 285,
-			0,
-			true
-		));
-
-	Page->AddChild(CreateControlButton(
-			"Btn4",
-			"VGA",
-			468, 285,
-			0,
-			true
-		));
-
-	Page->AddChild(CreateControlButton(
-			"Btn5",
-			"DVI",
-			540, 285,
-			0,
-			true
-		));
-
-
-	for(int i = 3; i<5; i++)
-	{
-		Container->AddChild(CreateControlLabel(
-				"DescribeText"+Utils::Int32ToString(i),
-				StringList[i],
-				320,
-				380+i*15-45,
-				"Center"
-			));
-	}
-
-	Page->SaveToXMLFile(PageNames[4]);
-}
-
-void GenerateWizardConfigDefaults::GeneratePage4(
+void GenerateWizardConfigDefaults::GeneratePage_VideoAdjustSize(
 	std::string FolderToSave, 
 	std::string ImageFolder, 
 	std::string FontFolder
@@ -729,10 +591,10 @@ void GenerateWizardConfigDefaults::GeneratePage4(
 				true
 		));
 
-	Page->SaveToXMLFile(PageNames[5]);
+	Page->SaveToXMLFile("/tmp/VideoAdjustSize.xml");
 }
 
-void GenerateWizardConfigDefaults::GeneratePage5(
+void GenerateWizardConfigDefaults::GeneratePage_AudioConnector(
 	std::string FolderToSave, 
 	std::string ImageFolder, 
 	std::string FontFolder
@@ -812,10 +674,10 @@ void GenerateWizardConfigDefaults::GeneratePage5(
 		true
 		));
 
-	Page->SaveToXMLFile(PageNames[6]);
+	Page->SaveToXMLFile("/tmp/AudioConnector.xml");
 }
 
-void GenerateWizardConfigDefaults::GeneratePage6(
+void GenerateWizardConfigDefaults::GeneratePage_AudioVolume(
 	std::string FolderToSave, 
 	std::string ImageFolder, 
 	std::string FontFolder
@@ -923,10 +785,10 @@ void GenerateWizardConfigDefaults::GeneratePage6(
 		"Center"
 		));
 
-	Page->SaveToXMLFile(PageNames[7]);
+	Page->SaveToXMLFile("/tmp/AudioVolume.xml");
 }
 
-void GenerateWizardConfigDefaults::GeneratePage7(
+void GenerateWizardConfigDefaults::GeneratePage_DolbyTest(
 	std::string FolderToSave, 
 	std::string ImageFolder, 
 	std::string FontFolder
@@ -1010,10 +872,10 @@ void GenerateWizardConfigDefaults::GeneratePage7(
 		true
 		));
 
-	Page->SaveToXMLFile(PageNames[8]);
+	Page->SaveToXMLFile("/tmp/DolbyTest.xml");
 }
 
-void GenerateWizardConfigDefaults::GeneratePage8(
+void GenerateWizardConfigDefaults::GeneratePage_DTSTest(
 	std::string FolderToSave, 
 	std::string ImageFolder, 
 	std::string FontFolder
@@ -1108,10 +970,10 @@ void GenerateWizardConfigDefaults::GeneratePage8(
 		true
 		));
 
-	Page->SaveToXMLFile(PageNames[9]);
+	Page->SaveToXMLFile("/tmp/DTSTest.xml");
 }
 
-void GenerateWizardConfigDefaults::GeneratePage9(
+void GenerateWizardConfigDefaults::GeneratePage_FinalSelections(
 	std::string FolderToSave, 
 	std::string ImageFolder, 
 	std::string FontFolder
@@ -1196,7 +1058,7 @@ void GenerateWizardConfigDefaults::GeneratePage9(
 		true
 		));
 
-	Page->SaveToXMLFile(PageNames[10]);
+	Page->SaveToXMLFile("/tmp/FinalSelections.xml");
 }
 
 SettingsDictionaryTree* GenerateWizardConfigDefaults::GenerateTabContainer(int NoSelectedTab, 
@@ -1296,8 +1158,7 @@ SettingsDictionaryTree* GenerateWizardConfigDefaults::GenerateTabContainer(int N
 		)
 	);
 
-
-	for(i = 0; i<WIZARD_NO_PAGES-1; i++)
+	for(i = 0; i < Wizard::GetInstance()->m_PageSequence.Size(); i++)
 	{
 		Control = new SettingsDictionaryTree();
 		Dictionary = Control->GetDictionary();
@@ -1323,10 +1184,9 @@ SettingsDictionaryTree* GenerateWizardConfigDefaults::GenerateTabContainer(int N
 	}
 
 
-
 	FontName = FontTitle;
 
-	for (i = 0; i< 9; i++)
+	for (i = 0; i < 9; i++) // XXX: possibly hardcoded
 	{
 		std::string FontColor, Caption;
 		Caption = "STEP " + Utils::Int32ToString(i+1);

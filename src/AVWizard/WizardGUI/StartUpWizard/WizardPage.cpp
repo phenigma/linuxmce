@@ -113,6 +113,11 @@ void WizardPage::SetWizard(Wizard* MainWizard)
 {
 }
 
+/*virtual*/ bool WizardPage::IsDisplayable()
+{
+	return true; // all the pages are displayable by default
+}
+
 #include <iostream>
 
 /*virtual*/ void WizardPage::DoMouseClick(int x, int y)
@@ -122,7 +127,7 @@ void WizardPage::SetWizard(Wizard* MainWizard)
 
 	Wizard *pWizard = Wizard::GetInstance();
 	int iExtraBorder = 0;
-	if (pWizard->CurrentPage == 6)
+	if (pWizard->m_PageSequence.CurrentPage() == "AdjustVideoSize")
 	{
 		// XXX: AdjustVideoSize, hardcoded extra border
 		iExtraBorder = ARROWS_BORDER;
