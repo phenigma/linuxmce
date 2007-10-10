@@ -1,0 +1,7 @@
+# KDevelop Custom Project File List
+Main.cpp
+Makefile
+XineMediaStream.cpp
+XineMediaStream.h
+Xine_Plugin.cpp
+Xine_Plugin.h
