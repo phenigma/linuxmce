@@ -283,11 +283,8 @@ SetWMCompositor()
 		fi
 		WMTweaksFile="$user/.config/xfce4/mcs_settings/wmtweaks.xml"
 		mkdir -p "$(dirname "$WMTweaksFile")"
-		if [[ -f "$WMTweaksFile" ]]; then
-			sed -i '/Xfwm\/UseCompositing/ s/value="."/value="'"$UseCompositing"'"/g' "$WMTweaksFile"
-		else
-			wmtweaks_default >"$WMTweaksFile"
-		fi
+		wmtweaks_default >"$WMTweaksFile"
+		sed -i '/Xfwm\/UseCompositing/ s/value="."/value="'"$UseCompositing"'"/g' "$WMTweaksFile"
 	done
 }
 
