@@ -50,7 +50,7 @@ WizardPageUISwitcherTest::WizardPageUISwitcherTest(GenericBackEnd* FrontEnd, std
 	xfwm_Start();
 	UIdiag_Start();
 
-	ThreadSleeper::Instance()->Init(10);
+	ThreadSleeper::Instance()->Init(15);
 	WizardWidgetLabel * Label = dynamic_cast<WizardWidgetLabel*>
 		(Page->GetChildRecursive("CounterLabel"));
 	ThreadSleeper::Instance()->SetLabel(Label);
@@ -137,6 +137,7 @@ void WizardPageUISwitcherTest::UIdiag_Start()
 		ArgMap["UI2_med"] = "mask";
 		ArgMap["UI2_hi"] = "both";
 		chdir("/usr/pluto/bin");
+		printf("Running UIdiag %s\n", ArgMap[UIVersion]);
 		char * args[] = { "./UIdiag", (char *) ArgMap[UIVersion], NULL };
 		execv(args[0], args);
 		_exit(1);
