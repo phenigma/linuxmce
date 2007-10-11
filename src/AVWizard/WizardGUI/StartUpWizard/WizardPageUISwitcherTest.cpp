@@ -35,8 +35,6 @@ WizardPageUISwitcherTest::WizardPageUISwitcherTest(GenericBackEnd* FrontEnd, std
 /*virtual*/ WizardPageUISwitcherTest::~WizardPageUISwitcherTest()
 {
 	ThreadSleeper::Instance()->Quit();
-	UIdiag_Stop();
-	xfwm_Stop();
 }
 
 /*virtual*/ void WizardPageUISwitcherTest::DefaultSetup(SettingsDictionary* AVWizardSettings)
@@ -63,6 +61,8 @@ WizardPageUISwitcherTest::WizardPageUISwitcherTest(GenericBackEnd* FrontEnd, std
 #ifdef DEBUG
 		std::cout<<"WizardPageUISwitcherTest::DoApplySetting"<<std::endl;
 #endif
+	UIdiag_Stop();
+	xfwm_Stop();
 	return 0;
 }
 
@@ -71,6 +71,8 @@ WizardPageUISwitcherTest::WizardPageUISwitcherTest(GenericBackEnd* FrontEnd, std
 #ifdef DEBUG
 		std::cout<<"WizardPageUISwitcherTest::DoCancelSetting"<<std::endl;
 #endif
+		UIdiag_Stop();
+		xfwm_Stop();
 }
 
 /*virtual*/ void WizardPageUISwitcherTest::DoClickWidget(WizardWidgetBase * pWidget)
