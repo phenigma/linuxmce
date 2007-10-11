@@ -36,6 +36,12 @@ case "$Param" in
 		fi
 		killall -USR2 AVWizard
 		bash -x "$BaseDir"/Xconfigure.sh --conffile "$XF86Config" --resolution "$DefaultResolution_Size" --output "$DefaultConnector" --tv-standard "$DefaultTVStandard" | tee-pluto /var/log/pluto/Xconfigure.log
+
+		sed -ir '/Option.*"Composite"/d' "$XF86Config"
+		WMTweaksFile="/root/.config/xfce4/mcs_settings/wmtweaks.xml"
+		cp "$WMTweaksFile"{,.orig}
+		sed -i '/Xfwm\/UseCompositing/ s/value="."/value="1"/g' "$WMTweaksFile"
+		
 		echo "$ResolutionDefaults" >/tmp/avwizard-resolution.txt
 	;;
 	set_resolution)
@@ -58,6 +64,12 @@ case "$Param" in
 		killall -USR1 AVWizard
 
 		bash -x "$BaseDir"/Xconfigure.sh --conffile "$XF86Config" --resolution "$VideoResolution_Size@$RequestedRefresh" --output "$RequestedConnector" --tv-standard "$RequestedTVStandard" | tee-pluto /var/log/pluto/Xconfigure.log
+
+		sed -ir '/Option.*"Composite"/d' "$XF86Config"
+		WMTweaksFile="/root/.config/xfce4/mcs_settings/wmtweaks.xml"
+		cp "$WMTweaksFile"{,.orig}
+		sed -i '/Xfwm\/UseCompositing/ s/value="."/value="1"/g' "$WMTweaksFile"
+		
 		WindowWidth="${VideoResolution_Size%x*}"
 		WindowHeight="${VideoResolution_Size#*x}"
 		echo "$VideoResolution_Name $RequestedRefresh $WindowWidth $WindowHeight $RequestedConnector $RequestedTVStandard" >/tmp/avwizard-resolution.txt
