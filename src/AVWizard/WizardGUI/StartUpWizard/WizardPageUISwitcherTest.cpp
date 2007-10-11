@@ -106,6 +106,7 @@ void WizardPageUISwitcherTest::xfwm_Start()
 	PID_xfwm = fork();
 	if (PID_xfwm == 0)
 	{
+		setpgrp();
 		char * args[] = { "xfwm4", NULL };
 		execvp(args[0], args);
 		_exit(1);
@@ -116,7 +117,7 @@ void WizardPageUISwitcherTest::xfwm_Stop()
 {
 	if (PID_xfwm <= 0)
 		return;
-	kill(PID_xfwm, SIGTERM);
+	kill(-PID_xfwm, SIGTERM);
 	waitpid(PID_xfwm, NULL, 0);
 	PID_xfwm = 0;
 }
@@ -128,6 +129,7 @@ void WizardPageUISwitcherTest::UIdiag_Start()
 	PID_UIdiag = fork();
 	if (PID_UIdiag == 0)
 	{
+		setpgrp();
 		SettingsDictionary * Dictionary = Wizard::GetInstance()->AVWizardOptions->GetDictionary();
 		std::string UIVersion = Dictionary->GetValue("UIVersion");
 		std::map<std::string, const char *> ArgMap;
@@ -145,7 +147,7 @@ void WizardPageUISwitcherTest::UIdiag_Stop()
 {
 	if (PID_UIdiag <= 0)
 		return;
-	kill(PID_UIdiag, SIGTERM);
+	kill(-PID_UIdiag, SIGKILL);
 	waitpid(PID_UIdiag, NULL, 0);
 	PID_UIdiag = 0;
 }
