@@ -111,6 +111,7 @@ WizardPageUISwitcher::~WizardPageUISwitcher(void)
 	Button = dynamic_cast<WizardWidgetButton*> (Page->GetChildRecursive("BtnOK"));
 	if (Button)
 		Button->SetFocus(true);
+	Selected = Button;
 }
 
 /*virtual*/ void WizardPageUISwitcher::DoDecreaseSetting()
@@ -122,6 +123,7 @@ WizardPageUISwitcher::~WizardPageUISwitcher(void)
 	Button = dynamic_cast<WizardWidgetButton*> (Page->GetChildRecursive("BtnTest"));
 	if (Button)
 		Button->SetFocus(true);
+	Selected = Button;
 }
 
 /*virtual*/ void WizardPageUISwitcher::DoNextFocusItem()
