@@ -126,8 +126,14 @@ void WizardPageUISwitcherTest::UIdiag_Start()
 	PID_UIdiag = fork();
 	if (PID_UIdiag == 0)
 	{
+		SettingsDictionary * Dictionary = Wizard::GetInstance()->AVWizardOptions->GetDictionary();
+		std::string UIVersion = Dictionary->GetValue("UIVersion");
+		std::map<std::string, const char *> ArgMap;
+		ArgMap["UI1"] = NULL;
+		ArgMap["UI2_med"] = "mask";
+		ArgMap["UI2_hi"] = "both";
 		chdir("/usr/pluto/bin");
-		char * args[] = { "./UIdiag", NULL };
+		char * args[] = { "./UIdiag", (char *) ArgMap[UIVersion], NULL };
 		execv(args[0], args);
 		_exit(1);
 	}
