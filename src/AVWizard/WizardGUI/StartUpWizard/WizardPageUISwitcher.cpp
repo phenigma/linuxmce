@@ -29,7 +29,7 @@
 //
 #include "WizardPageUISwitcher.h"
 
-#include "WizardPageDTSTest.h"
+#include "WizardPageUISwitcher.h"
 
 #include "GUIWizardUtils.h"
 
@@ -44,7 +44,7 @@ WizardPageUISwitcher::WizardPageUISwitcher(GenericBackEnd* FrontEnd, std::string
 	: WizardPage(FrontEnd, Name)
 {
 #ifdef DEBUG
-	std::cout<<"WizardPageDTSTest::WizardPageDTSTest()"<<std::endl;
+	std::cout<<"WizardPageUISwitcher::WizardPageUISwitcher()"<<std::endl;
 #endif
 	Buttons["UI Version 2"] = 1;
 	Buttons["Simple Interface"] = 2;
@@ -55,74 +55,73 @@ WizardPageUISwitcher::WizardPageUISwitcher(GenericBackEnd* FrontEnd, std::string
 WizardPageUISwitcher::~WizardPageUISwitcher(void)
 {
 #ifdef DEBUG
-	std::cout<<"WizardPageDTSTest::~WizardPageDTSTest()"<<std::endl;
+	std::cout<<"WizardPageUISwitcher::~WizardPageUISwitcher()"<<std::endl;
 #endif
 }
 
 /*virtual*/ int WizardPageUISwitcher::DoApplySetting(SettingsDictionary* Dictionary)
 {
 #ifdef DEBUG
-	std::cout<<"WizardPageDTSTest::DoApplySetting()"<<std::endl;
+	std::cout<<"WizardPageUISwitcher::DoApplySetting()"<<std::endl;
 #endif
 	WizardWidgetScrollList* List = dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("UIScroll"));
 	if(NULL == List)
 	{
 	#ifdef DEBUG
-		std::cout<<"Warning: WizardPageDTSTest::DefaultSetup()"<<std::endl;
+		std::cout<<"Warning: WizardPageUISwitcher::DoApplySetting()"<<std::endl;
 	#endif
 		return -1;
 	}
 
 	OutputValue = List->GetSelectedValue();
 	Dictionary->Set("UIVersion", OutputValue);
+
+	if (Selected->GetName() == "BtnTest")
+		Dictionary->Set("TestUI", "1");
+	else
+		Dictionary->Set("TestUI", "0");
+
 	return 0;
 }
 
 /*virtual*/ void WizardPageUISwitcher::DefaultSetup(SettingsDictionary* AVWizardSettings)
 {
 #ifdef DEBUG
-	std::cout<<"WizardPageDTSTest::DefaultSetup()"<<std::endl;
+	std::cout<<"WizardPageUISwitcher::DefaultSetup()"<<std::endl;
 #endif
 	WizardWidgetScrollList* List = dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("UIScroll"));
-	if(NULL == List)
-	{
-	#ifdef DEBUG
-		std::cout<<"Warning: WizardPageDTSTest::DefaultSetup()"<<std::endl;
-	#endif
-		return;
-	}
 //<-mkr_B_via_b->
 	List->AddItem("Static images, no overlay (lightweight)", "UI1");
 	List->AddItem("OpenGL with overlay (medium)", "UI2_med");
 //<-mkr_B_via_e->
 	List->AddItem("OpenGL with alpha blending (high-end)", "UI2_hi");
 	List->SetFocus(true);
+
+	Selected = dynamic_cast<WizardWidgetButton*> (Page->GetChildRecursive("BtnTest"));
+	if (Selected)
+		Selected->SetFocus(true);
 }
 
 /*virtual*/ void WizardPageUISwitcher::DoIncreaseSetting()
 {
-	WizardWidgetScrollList* List = dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("UIScroll"));
-	if(NULL == List)
-	{
-	#ifdef DEBUG
-		std::cout<<"Warning: WizardPageDTSTest::DefaultSetup()"<<std::endl;
-	#endif
-		return;
-	}
-	List->SetItemIndex(List->GetItemIndex()+1);
+	WizardWidgetButton *Button;
+	Button = dynamic_cast<WizardWidgetButton*> (Page->GetChildRecursive("BtnTest"));
+	if (Button)
+		Button->SetFocus(false);
+	Button = dynamic_cast<WizardWidgetButton*> (Page->GetChildRecursive("BtnOK"));
+	if (Button)
+		Button->SetFocus(true);
 }
 
 /*virtual*/ void WizardPageUISwitcher::DoDecreaseSetting()
 {
-	WizardWidgetScrollList* List = dynamic_cast<WizardWidgetScrollList*> (Page->GetChildRecursive("UIScroll"));
-	if(NULL == List)
-	{
-	#ifdef DEBUG
-		std::cout<<"Warning: WizardPageDTSTest::DefaultSetup()"<<std::endl;
-	#endif
-		return;
-	}
-	List->SetItemIndex(List->GetItemIndex()-1);
+	WizardWidgetButton *Button;
+	Button = dynamic_cast<WizardWidgetButton*> (Page->GetChildRecursive("BtnOK"));
+	if (Button)
+		Button->SetFocus(false);
+	Button = dynamic_cast<WizardWidgetButton*> (Page->GetChildRecursive("BtnTest"));
+	if (Button)
+		Button->SetFocus(true);
 }
 
 /*virtual*/ void WizardPageUISwitcher::DoNextFocusItem()
@@ -131,7 +130,7 @@ WizardPageUISwitcher::~WizardPageUISwitcher(void)
 	if(NULL == List)
 	{
 	#ifdef DEBUG
-		std::cout<<"Warning: WizardPageDTSTest::DefaultSetup()"<<std::endl;
+		std::cout<<"Warning: WizardPageUISwitcher::DoNextFocusItem()"<<std::endl;
 	#endif
 		return;
 	}
@@ -144,7 +143,7 @@ WizardPageUISwitcher::~WizardPageUISwitcher(void)
 	if(NULL == List)
 	{
 	#ifdef DEBUG
-		std::cout<<"Warning: WizardPageDTSTest::DefaultSetup()"<<std::endl;
+		std::cout<<"Warning: WizardPageUISwitcher::DoPreviousFocusItem()"<<std::endl;
 	#endif
 		return;
 	}

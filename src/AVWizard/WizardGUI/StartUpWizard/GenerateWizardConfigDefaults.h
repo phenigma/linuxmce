@@ -52,9 +52,10 @@ class GenerateWizardConfigDefaults
 
 
 	/**
-	 *	Generate page 2 of the wizard: UIChooser.xml
+	 *	Generate page 2 of the wizard: UISwitcher.xml
 	 */
 	void GeneratePage_UISwitcher(std::string FolderToSave, std::string ImageFolder, std::string FontFolder);
+	void GeneratePage_UISwitcherTest(std::string FolderToSave, std::string ImageFolder, std::string FontFolder);
 	/**
 	 *	Generate page 4 of the wizard: VideoAdjustSize.xml
 	 */

@@ -28,6 +28,7 @@
 #include "WizardPageVideoResolution.h"
 
 #include "WizardPageUISwitcher.h"
+#include "WizardPageUISwitcherTest.h"
 
 #include "WizardPageVideoResolutionConfirm.h"
 #include "WizardPageVideoAdjustSize.h"
@@ -146,6 +147,8 @@ WizardPage* WizardPagesFactory::CreatePredefinedWizardPage(const std::string Nam
 		Result = new WizardPageVideoResolutionConfirm(FrontEnd, Name);
 	else if (Name == "UISwitcher")
 		Result = new WizardPageUISwitcher(FrontEnd, Name);
+	else if (Name == "UISwitcherTest")
+		Result = new WizardPageUISwitcherTest(FrontEnd, Name);
 	else if (Name == "VideoAdjustSize")
 		Result = new WizardPageVideoAdjustSize(FrontEnd, Name);
 	else if (Name == "AudioConnector")

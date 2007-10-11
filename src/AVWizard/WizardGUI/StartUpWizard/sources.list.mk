@@ -44,6 +44,7 @@ WizardPageDolbyTest.cpp \
 WizardPageDTSTest.cpp \
 WizardPageFinalSelections.cpp \
 WizardPageUISwitcher.cpp \
+WizardPageUISwitcherTest.cpp \
 XinePlayer.cpp \
 SocketRemoteServer.cpp \
 SocketRemoteClient.cpp \

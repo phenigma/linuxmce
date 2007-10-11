@@ -125,6 +125,7 @@ void GenerateWizardConfigDefaults::GenerateDefaultPages(std::string FolderToSave
 	GeneratePage_VideoResolutionConfirm(FolderToSave, ImageFolder, FontFolder);
 
 	GeneratePage_UISwitcher(FolderToSave, ImageFolder, FontFolder);
+	GeneratePage_UISwitcherTest(FolderToSave, ImageFolder, FontFolder);
 	GeneratePage_VideoAdjustSize(FolderToSave, ImageFolder, FontFolder);
 	GeneratePage_AudioConnector(FolderToSave, ImageFolder, FontFolder);
 	GeneratePage_AudioVolume(FolderToSave, ImageFolder, FontFolder);
@@ -458,14 +459,76 @@ void GenerateWizardConfigDefaults::GeneratePage_UISwitcher(
 		465, 385
 		));
 
+	Page->AddChild(CreateControlButton("BtnTest",
+		" Test ",
+		220, 450,
+		0,
+		true
+		));
+
 	Page->AddChild(CreateControlButton("BtnOK",
 		" OK ",
-		320, 450,
+		420, 450,
 		0,
 		true
 		));
 
 	Page->SaveToXMLFile("/tmp/UISwitcher.xml");
+}
+
+void GenerateWizardConfigDefaults::GeneratePage_UISwitcherTest(std::string FolderToSave, std::string ImageFolder, std::string FontFolder)
+{
+	SettingsDictionaryTree* Page;
+	SettingsDictionaryTree* Container;
+	SettingsDictionary* Dictionary;
+
+	Page = new SettingsDictionaryTree();
+	Dictionary = Page->GetDictionary();
+	SetDefaultBtnImages(Dictionary, ImageFolder);
+
+	Dictionary->SetName("ScreenStep1");
+	Dictionary->SetType("Page");
+	Dictionary->Set("Width", 640);
+	Dictionary->Set("Height", 480);
+	Dictionary->Set("Fullscreen", 1);
+	Dictionary->Set("Caption", "AVWizard Configurator");
+
+	Container = GenerateTabContainer(2, ImageFolder, FontFolder);
+	Page->AddChild(Container);
+	SettingsDictionaryTree* BackgroundControl = CreateControlBackground("Gray", "(none)", 0, 0);
+	BackgroundControl->GetDictionary()->Set("Color", SkinGenerator::Instance()->BackgroundColor);
+	Page->AddChild(BackgroundControl);
+	
+	std::string DefaultFontColor = SkinGenerator::Instance()->DefaultFontColor;	
+	int DefaultFontSize  = Utils::StringToInt32(SkinGenerator::Instance()->DefaultFontSize);
+
+	int CounterFontSize = Utils::StringToInt32(SkinGenerator::Instance()->CounterFontSize);
+	if (CounterFontSize == 0)
+	{
+		std::cerr<<"Warning, CounterFontSize not set!"<<std::endl;
+		CounterFontSize = 55;
+	}
+
+	SetFontStyle(DefaultFontSize, DefaultFontColor, "Regular");
+
+	Page->AddChild(CreateControlLabel(
+			"Label1",
+			"Testing chosen UI option",
+			300, 240,
+			"Center"
+		));
+
+	SetFontStyle(CounterFontSize, DefaultFontColor, "Regular");
+
+	Page->AddChild(CreateControlLabel(
+			"CounterLabel",
+			" ",
+			320,
+			365,
+			"Center"
+		));
+
+	Page->SaveToXMLFile("/tmp/UISwitcherTest.xml");
 }
 
 void GenerateWizardConfigDefaults::GeneratePage_VideoAdjustSize(
