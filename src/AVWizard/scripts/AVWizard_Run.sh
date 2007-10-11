@@ -64,6 +64,10 @@ SetupX()
 			whiptail --msgbox "Failed to setup X" 0 0 --title "AVWizard" --clear </dev/tty8 &>/dev/tty8
 		fi
 	fi
+	sed -ir '/Option.*"Composite"/d' "$XF86Config"
+	WMTweaksFile="/root/.config/xfce4/mcs_settings/wmtweaks.xml"
+	cp "$WMTweaksFile"{,.orig}
+	sed -i '/Xfwm\/UseCompositing/ s/value="."/value="1"/g' "$WMTweaksFile"
 }
 
 SetDefaults()
@@ -311,6 +315,7 @@ while [[ "$Done" -eq 0 ]]; do
 	SetupX
 	SetDefaults
 	"$BaseDir"/AVWizardWrapper.sh
+	mv "$WMTweaksFile"{.orig,}
 	Ret="$?"
 	echo "$(date -R) $(basename "$0"): AVWizard Main loop ret code $Ret"
 	case "$Ret" in
