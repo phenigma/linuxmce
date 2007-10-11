@@ -130,6 +130,7 @@ libblkid1
 libbluetooth2
 libbluetooth2-dev
 libbz2-1.0
+libc6-i386
 libcaca0
 libcairo2
 libcairo2-dev
