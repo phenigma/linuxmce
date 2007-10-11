@@ -18,6 +18,8 @@ pushd /var/plutobuild/cd2-packages/cachecd1-cache
 	## Packages only i386 compatible
 	if [[ "$(uname -m)" != "x86_64" ]] ;then
 		aptitude download flashplugin-nonfree
+	else
+		aptitude download libc6-i386
 	fi
 popd
 
