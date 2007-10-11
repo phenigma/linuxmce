@@ -41,8 +41,6 @@ Log $LOG_NOTE "CALLED TO MOUNT DEVICE $StorageDevice"
 ## Try to see if we have this device in the database else exit
 Q="SELECT FK_DeviceTemplate, FK_Device_ControlledVia FROM Device WHERE PK_Device='$StorageDevice' LIMIT 1 "
 R=$(RunSQL "$Q")
-R=$(Field 1 "$Q")
-
 if [[ "$R" = "" ]] ;then
 	Log $LOG_WARN "Cannot find device $StorageDevice in the database"
 	exit 0
