@@ -4,16 +4,15 @@
 
 #Backup_Last_Build
 #Install_Build_Needed_Packages
-Create_Diskless_Archive
-Import_Pluto_Skins
-Checkout_Pluto_Svn #branches/2.0.0.44
-#Checkout_Pluto_Svn branches/Kirill/database_wrapper "src"
-Build_Pluto_Replacements
-Build_MakeRelease_Binary
-Import_Build_Database
-Create_Fake_Windows_Binaries
-Build_Pluto_Stuff #-b
-Create_Local_Repository
+#Create_Diskless_Archive
+#Import_Pluto_Skins
+#Checkout_Pluto_Svn branches/pluto64
+#Build_Pluto_Replacements
+#Build_MakeRelease_Binary
+#Import_Build_Database
+#Create_Fake_Windows_Binaries
+#Build_Pluto_Stuff -b
+#Create_Local_Repository
 Create_ISO
 #Upload_Build_Archive &
 
@@ -21,12 +20,12 @@ Create_ISO
 pushd /root/UnatendedInstall/
 	./install_in_vmware.sh
 popd
-pushd /root/R/ubuntu-lite-installer/
-	./build-cd.sh
-popd
+#pushd /root/R/ubuntu-lite-installer/
+#	./build-cd.sh
+#popd
 
-echo "Finished"
-date -R
-bash -x ~/Ubuntu_Helpers/sendiso.sh
-read
+#echo "Finished"
+#date -R
+#bash -x ~/Ubuntu_Helpers/sendiso.sh
+#read
 
