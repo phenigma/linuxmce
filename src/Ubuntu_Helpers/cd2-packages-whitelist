@@ -149,6 +149,7 @@ libclone-perl
 libcomerr2
 libcompress-zlib-perl
 libconfig-inifiles-perl
+libconfuse0
 libconvert-binhex-perl
 libcrypt-smbhash-perl
 libcrypt-ssleay-perl
