@@ -53,7 +53,7 @@ MPlayer_Player::MPlayer_Player(int DeviceID, string ServerAddress,bool bConnectE
 	// TODO make this device_data
 	const string sAVOptions = "-lavdopts fast:threads=2";
 	
-	string sCommand = sMPlayerBinary + " -fs -vo xv " + sMessageLevel + " " + sAVOptions +" -idle -slave -input file="+sCurrentFIFOPipeName;
+	string sCommand = sMPlayerBinary + " -fixed-vo -fs -vo xv " + sMessageLevel + " " + sAVOptions +" -idle -slave -input file="+sCurrentFIFOPipeName + " /home/linuxmce/black.mpeg";
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Invoking MPlayer as: %s", sCommand.c_str());
 	fCurrentInPipe = popen(sCommand.c_str(), "r");
 	// TODO enhance error detection
@@ -289,11 +289,7 @@ void MPlayer_Player::CMD_Pause(int iStreamID,string &sCMD_Result,Message *pMessa
 void MPlayer_Player::CMD_Stop(int iStreamID,bool bEject,string &sCMD_Result,Message *pMessage)
 //<-dceag-c95-e->
 {
-	if (!bMediaPaused)
-	{
-		SendFIFOCommandNoReply("pause");
-		bMediaPaused = true;
-	}
+	SendFIFOCommandNoReply("seek 100 3");
 }
 
 //<-dceag-c139-b->
@@ -392,11 +388,7 @@ void MPlayer_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMedi
 void MPlayer_Player::CMD_Stop_Media(int iStreamID,string *sMediaPosition,string &sCMD_Result,Message *pMessage)
 //<-dceag-c38-e->
 {
-	if (!bMediaPaused)
-	{
-		SendFIFOCommandNoReply("pause");
-		bMediaPaused = true;
-	}
+	SendFIFOCommandNoReply("seek 100 3");
 	
 	// TODO implement real code
 	*sMediaPosition = " POS:0";
@@ -616,15 +608,15 @@ void MPlayer_Player::CMD_Set_Aspect_Ratio(int iStreamID,string sAspect_Ratio,str
 	}
 	else if (sAspect_Ratio == "1:1")
 	{
-		sMPlayerAspect = "1:1";
+		sMPlayerAspect = "1";
 	}
 	else if (sAspect_Ratio == "4:3")
 	{
-		sMPlayerAspect = "4:3";
+		sMPlayerAspect = "1.33333";
 	}
 	else if (sAspect_Ratio == "16:9")
 	{
-		sMPlayerAspect = "16:9";
+		sMPlayerAspect = "1.77778";
 	}
 	else if (sAspect_Ratio == "2.11:1")
 	{
