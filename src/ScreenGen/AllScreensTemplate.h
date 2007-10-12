@@ -45,7 +45,7 @@ $GEN_CLASSES$
 		map<int,int> *m_p_MapDesignObj;
 
 	public:
-		int m_p_MapDesignObj_Find(int PK_Screen) { map<int,int>::iterator it = m_p_MapDesignObj->find(PK_Screen); return it==m_p_MapDesignObj->end() ? NULL : (*it).second; }
+		int m_p_MapDesignObj_Find(int PK_Screen) { map<int,int>::iterator it = m_p_MapDesignObj->find(PK_Screen); return it==m_p_MapDesignObj->end() ? 0 : (*it).second; }
 		ScreenHandlerBase(map<int,int> *p_MapDesignObj) { m_p_MapDesignObj=p_MapDesignObj; }
 		virtual ~ScreenHandlerBase() {}
 
