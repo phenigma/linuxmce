@@ -240,6 +240,14 @@ bool Telecom_Plugin::Register()
 		new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&Telecom_Plugin::UserVoiceMailGrid)),
 		DATAGRID_User_VoiceMail_CONST,PK_DeviceTemplate_get());
 
+	m_pDatagrid_Plugin->RegisterDatagridGenerator(
+		new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&Telecom_Plugin::ActiveCallsGrid))
+		,DATAGRID_Active_Channels_CONST,PK_DeviceTemplate_get());
+
+	m_pDatagrid_Plugin->RegisterDatagridGenerator(
+		new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&Telecom_Plugin::ActiveUsersOnCallGrid))
+		,DATAGRID_Active_Users_On_Channel_CONST,PK_DeviceTemplate_get());
+
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &Telecom_Plugin::CommandResult ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_PBX_CommandResult_CONST );
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &Telecom_Plugin::Ring ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_PBX_Ring_CONST );
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &Telecom_Plugin::IncomingCall ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Incoming_Call_CONST );
@@ -1511,6 +1519,106 @@ class DataGridTable *Telecom_Plugin::ActiveCallsGrid(string GridID,string Parms,
 	}
 	return pDataGrid;
 }
+
+class DataGridTable *Telecom_Plugin::ActiveUsersOnCallGrid(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage)
+{
+	PLUTO_SAFETY_LOCK(vm, m_TelecomMutex);  // Protect the call data
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "ActiveUsersOnCallGrid request received for GridID: %s",GridID.c_str());
+	DataGridTable *pDataGrid = new DataGridTable();
+
+	//not implemented
+
+	/*
+	DataGridCell *pCell;
+	int Row = 0;
+	std::list<CallData*> *calls = CallManager::getInstance()->getCallList();
+	std::list<CallData*>::iterator it = calls->begin();
+	std::list<std::string> text_list;
+	while(it != calls->end())
+	{
+		string channels = (*it)->getID();
+		list<int> ext_list;
+		string ext_txt;
+		int pos = 0, oldpos = 0, count = 0;
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Channels : %s associated with %d",channels.c_str(),(*it)->getOwnerDevID());
+		do
+		{
+			pos = channels.find(' ',oldpos);
+			string chan;
+			int ext;
+			string sext;
+			if(pos < 0)
+			{
+				chan = channels.substr(oldpos, channels.length());
+			}
+			else
+			{
+				if(pos==oldpos)
+				{
+					oldpos=pos+1;
+					continue;
+				}
+				chan = channels.substr(oldpos, pos - oldpos);
+			}
+			if(ParseChannel(chan,&ext,&sext)==0)
+			{
+				if(find(ext_list.begin(), ext_list.end(), ext) == ext_list.end())
+				{
+					ext_list.push_back(ext);
+					ext_txt+=sext+string(" ");
+				}
+			}
+			else
+			{
+				if(chan.find(CONFERENCE_PREFIX)!=0)
+				{
+					LoggerWrapper::GetInstance()->Write(LV_STATUS,"   chan [%s], callerid [%s]",chan.c_str(),(*it)->getCallerID().c_str());
+					if((*it)->getCallerID().find_first_not_of(" \"<>")>=0)
+					{
+						LoggerWrapper::GetInstance()->Write(LV_STATUS,"   chan add");
+						ext_txt+=((*it)->getCallerID())+string(" ");
+					}
+					else
+					{
+						ext_txt+= "UNKNOWN ";
+						LoggerWrapper::GetInstance()->Write(LV_STATUS,"   chan skip");
+					}
+				}
+				else
+				{
+					LoggerWrapper::GetInstance()->Write(LV_STATUS,"   this is a conference");
+				}
+			}
+			oldpos=pos+1;
+			count++;
+		}
+		while(pos>=0);
+		if(count>1)
+		{
+			if(find(text_list.begin(), text_list.end(), ext_txt) == text_list.end())
+			{
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"WILL SHOW CALLDATA %s",ext_txt.c_str());
+				pCell = new DataGridCell(ext_txt,channels);
+				pCell->m_AltColor = UniqueColors[Row%MAX_TELECOM_COLORS];
+				pDataGrid->SetData(0,Row,pCell);
+				text_list.push_back(ext_txt);
+				Row++;
+			}
+			else
+			{
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"ALREADY HAVE THIS ONE %s",ext_txt.c_str());
+			}
+		}
+		else
+		{
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"INSUFFICIENT CALLDATA %s",ext_txt.c_str());
+		}
+		it++;
+	}
+	*/
+	return pDataGrid;
+}
+
 static char* sec2str(int sec)
 {
 	static char buff[32];
