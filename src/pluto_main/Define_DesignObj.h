@@ -2498,6 +2498,13 @@
 #define DESIGNOBJ_butUserStatus_Button_CONST 5522
 #define DESIGNOBJ_butMyth_CONST 5523
 #define DESIGNOBJ_butVDR_CONST 5524
+#define DESIGNOBJ_mnuManageCalls_CONST 5525
+#define DESIGNOBJ_dgActiveCalls_CONST 5526
+#define DESIGNOBJ_dgActiveUsers_CONST 5527
+#define DESIGNOBJ_butJoin_CONST 5528
+#define DESIGNOBJ_butAddToActiveCall_CONST 5529
+#define DESIGNOBJ_butRemoveFromActiveCall_CONST 5530
+#define DESIGNOBJ_butCallInProgress_CONST 5531
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

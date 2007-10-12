@@ -97,6 +97,8 @@
 #define DATAGRID_Jukebox_Drives_CONST 96
 #define DATAGRID_Jukebox_Slots_CONST 97
 #define DATAGRID_CD_Tracks_CONST 98
+#define DATAGRID_Active_Channels_CONST 99
+#define DATAGRID_Active_Users_On_Channel_CONST 100
 
 #define DATAGRID_TABLE "DataGrid"
 #define DATAGRID_PK_DATAGRID_FIELD "PK_DataGrid"

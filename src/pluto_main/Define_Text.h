@@ -764,7 +764,7 @@
 #define TEXT_Use_OSD_CONST 1468
 #define TEXT_Web_Sites_CONST 1470
 #define TEXT_What_Type_Phone_CONST 1471
-#define TEXT_PVR_Software_CONST 1472
+#define TEXT_Floorplan_CONST 1472
 #define TEXT_See_playlist_CONST 1473
 #define TEXT_new_pnp_device_CONST 1474
 #define TEXT_No_ignore_it_CONST 1475
@@ -1239,6 +1239,10 @@
 #define TEXT_MythTV_CONST 1983
 #define TEXT_VDR_CONST 1984
 #define TEXT_Which_PVR_software_CONST 1985
+#define TEXT_PVR_Software_CONST 1986
+#define TEXT_Join_CONST 1987
+#define TEXT_Add_to_active_Call_CONST 1988
+#define TEXT_Remove_from_active_Call_CONST 1989
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
