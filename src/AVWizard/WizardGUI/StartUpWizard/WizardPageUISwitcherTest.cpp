@@ -30,11 +30,15 @@ WizardPageUISwitcherTest::WizardPageUISwitcherTest(GenericBackEnd* FrontEnd, std
 #ifdef DEBUG
 		std::cout<<"WizardPageUISwitcherTest::WizardPageUISwitcherTest"<<std::endl;
 #endif
+	//system("wmctrl -i -r $(wmctrl -l|grep AVWizard|awk '{print $1}') -t 1");
+	system("wmctrl -s 1");
 }
 
 /*virtual*/ WizardPageUISwitcherTest::~WizardPageUISwitcherTest()
 {
 	ThreadSleeper::Instance()->Quit();
+	//system("wmctrl -i -r $(wmctrl -l|grep AVWizard|awk '{print $1}') -t 0");
+	system("wmctrl -s 0");
 }
 
 /*virtual*/ void WizardPageUISwitcherTest::DefaultSetup(SettingsDictionary* AVWizardSettings)
