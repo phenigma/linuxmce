@@ -34,6 +34,8 @@ namespace DCE
 		// Private methods
 		void SendFIFOCommandNoReply(string sCommand);
 		bool bMediaPaused;
+		bool bPlayerEngineInitialized;
+		void InitializePlayerEngine(string sMedia);
 public:
 		// Public member variables
 

@@ -1,5 +1,5 @@
 # KDevelop Custom Project File List
-Main.cpp
-Makefile
 MPlayer_Player.cpp
 MPlayer_Player.h
+Main.cpp
+Makefile

@@ -35,39 +35,7 @@ MPlayer_Player::MPlayer_Player(int DeviceID, string ServerAddress,bool bConnectE
 {
 	fCurrentInPipe = NULL;
 	bMediaPaused = false;
-	
-	// creating custom FIFO control pipe for MPlayer instance
-	string sFIFO = "/tmp/mplayer.control." + StringUtils::itos(m_dwPK_Device);
-	string sysCommand = "mknod " + sFIFO + " p";
-	system(sysCommand.c_str());
-	sCurrentFIFOPipeName = sFIFO;
-	
-	// TODO restart MPlayer if it died
-	// starting MPlayer
-	const string sMPlayerBinary = "/usr/local/bin/mplayer";
-	
-	// TODO use 4th level to fetch messages from ANS_ requests
-//	const string sMessageLevel = "-msglevel all=4";
-	const string sMessageLevel = "-msglevel all=-1";
-	
-	// TODO make this device_data
-	const string sAVOptions = "-lavdopts fast:threads=2";
-	
-	string sCommand = sMPlayerBinary + " -fixed-vo -fs -vo xv " + sMessageLevel + " " + sAVOptions +" -idle -slave -input file="+sCurrentFIFOPipeName + " /home/linuxmce/black.mpeg";
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Invoking MPlayer as: %s", sCommand.c_str());
-	fCurrentInPipe = popen(sCommand.c_str(), "r");
-	// TODO enhance error detection
-	// TODO cleanup pipe, otherwise it gets filled
-	if (fCurrentInPipe)
-	{
-		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Started MPlayer slave instance");
-	}
-	else
-	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Starting MPlayer slave instance failed, exiting");
-		throw "Failed to create MPlayer slave instance";
-	}
-
+	bPlayerEngineInitialized = false;
 }
 
 //<-dceag-const2-b->
@@ -270,6 +238,14 @@ void MPlayer_Player::CMD_Skip_Back_ChannelTrack_Lower(int iStreamID,string &sCMD
 void MPlayer_Player::CMD_Pause(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c92-e->
 {
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::CMD_Pause received");
+
+	if (!bPlayerEngineInitialized)
+	{
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "MPlayer_Player::CMD_Pause aborts because Player Engine is not initialized");
+		return;
+	}
+	
 	if (!bMediaPaused)
 	{
 		SendFIFOCommandNoReply("pause");
@@ -289,6 +265,14 @@ void MPlayer_Player::CMD_Pause(int iStreamID,string &sCMD_Result,Message *pMessa
 void MPlayer_Player::CMD_Stop(int iStreamID,bool bEject,string &sCMD_Result,Message *pMessage)
 //<-dceag-c95-e->
 {
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::CMD_Stop received");
+
+	if (!bPlayerEngineInitialized)
+	{
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "MPlayer_Player::CMD_Stop aborts because Player Engine is not initialized");
+		return;
+	}
+	
 	SendFIFOCommandNoReply("seek 100 3");
 }
 
@@ -301,7 +285,15 @@ void MPlayer_Player::CMD_Stop(int iStreamID,bool bEject,string &sCMD_Result,Mess
 
 void MPlayer_Player::CMD_Play(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c139-e->
-{
+{	
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::CMD_Play received");
+
+	if (!bPlayerEngineInitialized)
+	{
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "MPlayer_Player::CMD_Play aborts because Player Engine is not initialized");
+		return;
+	}
+	
 	if (bMediaPaused)
 	{
 		SendFIFOCommandNoReply("pause");
@@ -311,6 +303,12 @@ void MPlayer_Player::CMD_Play(int iStreamID,string &sCMD_Result,Message *pMessag
 
 void MPlayer_Player::SendFIFOCommandNoReply(string sCommand)
 {
+	if (!bPlayerEngineInitialized)
+	{
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "MPlayer_Player::SendFIFOCommandNoReply aborts '%s' because Player Engine is not initialized", sCommand.c_str());
+		return;
+	}
+	
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::SendFIFOCommandNoReply passes command '%s' to mplayer", sCommand.c_str());
 	
 	string sCMD = "echo " + sCommand + " > " + sCurrentFIFOPipeName;
@@ -370,8 +368,16 @@ void MPlayer_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMedi
 {
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::CMD_Play_Media called for stream %i, MediaURL %s", iStreamID, sMediaURL.c_str());
 	
-	bMediaPaused = false;
-	SendFIFOCommandNoReply("loadfile "+sMediaURL);
+	if (!bPlayerEngineInitialized)
+	{
+		InitializePlayerEngine(sMediaURL);
+	}
+	
+	//else
+	{
+		bMediaPaused = false;
+		SendFIFOCommandNoReply("loadfile "+sMediaURL);
+	}
 		
 	//TODO implement setting media position
 }
@@ -388,6 +394,15 @@ void MPlayer_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMedi
 void MPlayer_Player::CMD_Stop_Media(int iStreamID,string *sMediaPosition,string &sCMD_Result,Message *pMessage)
 //<-dceag-c38-e->
 {
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::CMD_Stop received");
+
+	if (!bPlayerEngineInitialized)
+	{
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "MPlayer_Player::CMD_Stop aborts because Player Engine is not initialized");
+		return;
+	}
+	
+	
 	SendFIFOCommandNoReply("seek 100 3");
 	
 	// TODO implement real code
@@ -404,6 +419,14 @@ void MPlayer_Player::CMD_Stop_Media(int iStreamID,string *sMediaPosition,string 
 void MPlayer_Player::CMD_Pause_Media(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c39-e->
 {
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::CMD_Pause_Media received");
+
+	if (!bPlayerEngineInitialized)
+	{
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "MPlayer_Player::CMD_Pause_Media aborts because Player Engine is not initialized");
+		return;
+	}
+	
 	if (!bMediaPaused)
 	{
 		SendFIFOCommandNoReply("pause");
@@ -421,6 +444,14 @@ void MPlayer_Player::CMD_Pause_Media(int iStreamID,string &sCMD_Result,Message *
 void MPlayer_Player::CMD_Restart_Media(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c40-e->
 {
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::CMD_Restart_Media received");
+
+	if (!bPlayerEngineInitialized)
+	{
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "MPlayer_Player::CMD_Restart_Media aborts because Player Engine is not initialized");
+		return;
+	}
+	
 	if (bMediaPaused)
 	{
 		SendFIFOCommandNoReply("pause");
@@ -443,6 +474,13 @@ void MPlayer_Player::CMD_Change_Playback_Speed(int iStreamID,int iMediaPlaybackS
 //<-dceag-c41-e->
 {
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::CMD_Change_Playback_Speed called for stream %i, speed %i", iStreamID, iMediaPlaybackSpeed);
+	
+	if (!bPlayerEngineInitialized)
+	{
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "MPlayer_Player::CMD_Change_Playback_Speed aborts because Player Engine is not initialized");
+		return;
+	}
+	
 	
 	if (iMediaPlaybackSpeed < 0)
 	{
@@ -478,6 +516,14 @@ void MPlayer_Player::CMD_Change_Playback_Speed(int iStreamID,int iMediaPlaybackS
 void MPlayer_Player::CMD_Jump_to_Position_in_Stream(string sValue_To_Assign,int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c42-e->
 {
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::CMD_Jump_to_Position_in_Stream received");
+
+	if (!bPlayerEngineInitialized)
+	{
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "MPlayer_Player::CMD_Jump_to_Position_in_Stream aborts because Player Engine is not initialized");
+		return;
+	}
+	
 	// relative seek
 	if ( StringUtils::StartsWith(sValue_To_Assign, "+") || StringUtils::StartsWith(sValue_To_Assign, "+") )
 	{
@@ -595,15 +641,18 @@ void MPlayer_Player::CMD_Menu(string sText,int iStreamID,string &sCMD_Result,Mes
 void MPlayer_Player::CMD_Set_Aspect_Ratio(int iStreamID,string sAspect_Ratio,string &sCMD_Result,Message *pMessage)
 //<-dceag-c916-e->
 {
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::CMD_Set_Aspect_Ratio received");
+
+	if (!bPlayerEngineInitialized)
+	{
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "MPlayer_Player::CMD_Set_Aspect_Ratio aborts because Player Engine is not initialized");
+		return;
+	}
+	
 	string sMPlayerAspect;
 	
 	if (sAspect_Ratio == "auto")
 	{
-/*		
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "MPlayer_Player::CMD_Set_Aspect_Ratio is not implemented for value \"auto\"");
-		return;
-*/
-		// experimental
 		sMPlayerAspect = "";
 	}
 	else if (sAspect_Ratio == "1:1")
@@ -654,6 +703,42 @@ void MPlayer_Player::CMD_Set_Media_ID(string sID,int iStreamID,string &sCMD_Resu
 //<-dceag-c920-e->
 {
 	LoggerWrapper::GetInstance()->Write(LV_WARNING, "MPlayer_Player::CMD_Set_Media_ID is not implemented");
+}
+
+void MPlayer_Player::InitializePlayerEngine(string sMedia)
+{
+	// creating custom FIFO control pipe for MPlayer instance
+	string sFIFO = "/tmp/mplayer.control." + StringUtils::itos(m_dwPK_Device);
+	string sysCommand = "mknod " + sFIFO + " p";
+	system(sysCommand.c_str());
+	sCurrentFIFOPipeName = sFIFO;
+	
+	// TODO restart MPlayer if it died
+	// starting MPlayer
+	const string sMPlayerBinary = "/usr/local/bin/mplayer";
+	
+	// TODO use 4th level to fetch messages from ANS_ requests
+//	const string sMessageLevel = "-msglevel all=4";
+	const string sMessageLevel = "-msglevel all=-1";
+	
+	// TODO make this device_data
+	const string sAVOptions = "-lavdopts fast:threads=2";
+	
+	string sCommand = sMPlayerBinary + " -noborder -fixed-vo -fs -vo xv " + sMessageLevel + " " + sAVOptions +" -idle -slave -input file="+sCurrentFIFOPipeName + " " + "/home/linuxmce/black.mpeg";
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Invoking MPlayer as: %s", sCommand.c_str());
+	fCurrentInPipe = popen(sCommand.c_str(), "r");
+	// TODO enhance error detection
+	// TODO cleanup pipe, otherwise it gets filled
+	if (fCurrentInPipe)
+	{
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Started MPlayer slave instance");
+		bPlayerEngineInitialized = true;
+	}
+	else
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Starting MPlayer slave instance failed, exiting");
+		throw "Failed to create MPlayer slave instance";
+	}
 }
 
 //TODO periodically retrieve stream position
