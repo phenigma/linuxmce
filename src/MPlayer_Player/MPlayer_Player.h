@@ -36,6 +36,9 @@ namespace DCE
 		bool bMediaPaused;
 		bool bPlayerEngineInitialized;
 		void InitializePlayerEngine(string sMedia);
+		
+		char FIFOBuffer[BUFSIZ];
+		string sBlackMPEG;
 public:
 		// Public member variables
 

@@ -46,6 +46,7 @@ MPlayer_Player::MPlayer_Player(Command_Impl *pPrimaryDeviceCommand, DeviceData_I
 {
 	fCurrentInPipe = NULL;
 	bMediaPaused = false;
+	sBlackMPEG="/home/linuxmce/black.mpeg";
 }
 
 //<-dceag-dest-b->
@@ -273,7 +274,7 @@ void MPlayer_Player::CMD_Stop(int iStreamID,bool bEject,string &sCMD_Result,Mess
 		return;
 	}
 	
-	SendFIFOCommandNoReply("seek 100 3");
+	SendFIFOCommandNoReply("loadfile "+sBlackMPEG);
 }
 
 //<-dceag-c139-b->
@@ -380,6 +381,10 @@ void MPlayer_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMedi
 	}
 		
 	//TODO implement setting media position
+
+	string sMediaInfo, sAudioInfo, sVideoInfo;
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "MPlayer_Player::EVENT_Playback_Started(streamID=%i)", iStreamID);
+	EVENT_Playback_Started(sMediaURL,iStreamID,sMediaInfo,sAudioInfo,sVideoInfo);
 }
 
 //<-dceag-c38-b->
@@ -403,7 +408,7 @@ void MPlayer_Player::CMD_Stop_Media(int iStreamID,string *sMediaPosition,string 
 	}
 	
 	
-	SendFIFOCommandNoReply("seek 100 3");
+	SendFIFOCommandNoReply("loadfile "+sBlackMPEG);
 	
 	// TODO implement real code
 	*sMediaPosition = " POS:0";
@@ -724,7 +729,7 @@ void MPlayer_Player::InitializePlayerEngine(string sMedia)
 	// TODO make this device_data
 	const string sAVOptions = "-lavdopts fast:threads=2";
 	
-	string sCommand = sMPlayerBinary + " -noborder -fixed-vo -fs -vo xv " + sMessageLevel + " " + sAVOptions +" -idle -slave -input file="+sCurrentFIFOPipeName + " " + "/home/linuxmce/black.mpeg";
+	string sCommand = sMPlayerBinary + " -noborder -fixed-vo -fs -vo xv " + sMessageLevel + " " + sAVOptions +" -idle -slave -input file="+sCurrentFIFOPipeName + " " + sBlackMPEG;
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Invoking MPlayer as: %s", sCommand.c_str());
 	fCurrentInPipe = popen(sCommand.c_str(), "r");
 	// TODO enhance error detection
