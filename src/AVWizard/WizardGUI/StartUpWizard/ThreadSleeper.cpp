@@ -153,7 +153,7 @@ void* SleeperThreadFunc(void* Instance)
 		Wizard::GetInstance()->GenerateCustomEvent(Event);
 	}
 
-	std::cout<<"TreadQuit"<<std::endl;
+	std::cout<<"ThreadQuit"<<std::endl;
 	ThreadPtr->Quit();
 	return NULL;
 }
