@@ -313,6 +313,7 @@ while [[ "$Done" -eq 0 ]]; do
 	echo "$(date -R) $(basename "$0"): AVWizard Main loop"
 	CleanUp
 	SetupX
+	"$BaseDir"/AVWizard-XineDefaultConfig.sh
 	SetDefaults
 	"$BaseDir"/AVWizardWrapper.sh
 	mv "$WMTweaksFile"{.orig,}
