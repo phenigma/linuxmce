@@ -28,17 +28,16 @@ WizardPageUISwitcherTest::WizardPageUISwitcherTest(GenericBackEnd* FrontEnd, std
 	: WizardPage(FrontEnd, Name), PID_xfwm(0), PID_UIdiag(0)
 {
 #ifdef DEBUG
-		std::cout<<"WizardPageUISwitcherTest::WizardPageUISwitcherTest"<<std::endl;
+	std::cout<<"WizardPageUISwitcherTest::WizardPageUISwitcherTest"<<std::endl;
 #endif
-	//system("wmctrl -i -r $(wmctrl -l|grep AVWizard|awk '{print $1}') -t 1");
-	system("wmctrl -s 1");
 }
 
 /*virtual*/ WizardPageUISwitcherTest::~WizardPageUISwitcherTest()
 {
+#ifdef DEBUG
+	std::cout<<"WizardPageUISwitcherTest::~WizardPageUISwitcherTest"<<std::endl;
+#endif
 	ThreadSleeper::Instance()->Quit();
-	//system("wmctrl -i -r $(wmctrl -l|grep AVWizard|awk '{print $1}') -t 0");
-	system("wmctrl -s 0");
 }
 
 /*virtual*/ void WizardPageUISwitcherTest::DefaultSetup(SettingsDictionary* AVWizardSettings)
@@ -115,12 +114,20 @@ void WizardPageUISwitcherTest::xfwm_Start()
 		execvp(args[0], args);
 		_exit(1);
 	}
+	
+	sleep(1);
+	//system("wmctrl -i -r $(wmctrl -l|grep AVWizard|awk '{print $1}') -t 1");
+	system("/usr/bin/wmctrl -s 1");
 }
 
 void WizardPageUISwitcherTest::xfwm_Stop()
 {
 	if (PID_xfwm <= 0)
 		return;
+	
+	//system("wmctrl -i -r $(wmctrl -l|grep AVWizard|awk '{print $1}') -t 0");
+	system("/usr/bin/wmctrl -s 0");
+	
 	kill(-PID_xfwm, SIGTERM);
 	waitpid(PID_xfwm, NULL, 0);
 	PID_xfwm = 0;
