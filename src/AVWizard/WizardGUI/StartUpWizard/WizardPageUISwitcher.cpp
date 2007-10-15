@@ -97,7 +97,7 @@ WizardPageUISwitcher::~WizardPageUISwitcher(void)
 	List->AddItem("OpenGL with alpha blending (high-end)", "UI2_hi");
 	List->SetFocus(true);
 
-	Selected = dynamic_cast<WizardWidgetButton*> (Page->GetChildRecursive("BtnTest"));
+	Selected = dynamic_cast<WizardWidgetButton*> (Page->GetChildRecursive("BtnOK"));
 	if (Selected)
 		Selected->SetFocus(true);
 }
