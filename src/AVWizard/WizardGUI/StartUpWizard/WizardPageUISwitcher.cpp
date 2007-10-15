@@ -75,6 +75,7 @@ WizardPageUISwitcher::~WizardPageUISwitcher(void)
 
 	OutputValue = List->GetSelectedValue();
 	Dictionary->Set("UIVersion", OutputValue);
+	Dictionary->Set("UIVersionIndex", Utils::Int32ToString(List->GetItemIndex()));
 
 	if (Selected->GetName() == "BtnTest")
 		Dictionary->Set("TestUI", "1");
@@ -96,6 +97,9 @@ WizardPageUISwitcher::~WizardPageUISwitcher(void)
 //<-mkr_B_via_e->
 	List->AddItem("OpenGL with alpha blending (high-end)", "UI2_hi");
 	List->SetFocus(true);
+	
+	if (AVWizardSettings->Exists("UIVersionIndex"))
+		List->SetItemIndex(Utils::StringToInt32(AVWizardSettings->GetValue("UIVersionIndex")));
 
 	Selected = dynamic_cast<WizardWidgetButton*> (Page->GetChildRecursive("BtnOK"));
 	if (Selected)
