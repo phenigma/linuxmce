@@ -31,12 +31,13 @@ class ThreadSleeper
 	pthread_mutex_t LockMutex;
 	int LastTime;
 	ThreadSleeper();
+	bool m_RefreshEvent;
 public:
 	bool bQuit;
 	static ThreadSleeper* Instance();
 
 	int GetSecondRemaining();
-	void Init(int NoSeconds);
+	void Init(int NoSeconds, bool RefreshEvent = true);
 	void Quit();
 	void SecondTick();
 	void SetLabel(WizardWidgetLabel* Label);

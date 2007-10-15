@@ -47,9 +47,10 @@ ThreadSleeper::ThreadSleeper()
 	pthread_mutex_init(&LockMutex, NULL);
 }
 
-void ThreadSleeper::Init(int NoSeconds)
+void ThreadSleeper::Init(int NoSeconds, bool RefreshEvent /*=true*/)
 {
 	std::cout << "1 tid: " << tid << std::endl;
+	m_RefreshEvent = RefreshEvent;
 
 	if(tid != 0)
 	{
@@ -105,7 +106,7 @@ void ThreadSleeper::SecondTick()
 	}
 	WM_Event Event;
 	std::cout<<"Seconds: "<<Seconds<<std::endl;
-	if (Seconds > 0)
+	if (Seconds > 0 && m_RefreshEvent)
 		Event.DownKey();
 	Wizard::GetInstance()->GenerateCustomEvent(Event);
 }

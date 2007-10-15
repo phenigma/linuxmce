@@ -53,7 +53,7 @@ WizardPageUISwitcherTest::WizardPageUISwitcherTest(GenericBackEnd* FrontEnd, std
 	xfwm_Start();
 	UIdiag_Start();
 
-	ThreadSleeper::Instance()->Init(15);
+	ThreadSleeper::Instance()->Init(15, false);
 	WizardWidgetLabel * Label = dynamic_cast<WizardWidgetLabel*>
 		(Page->GetChildRecursive("CounterLabel"));
 	ThreadSleeper::Instance()->SetLabel(Label);
