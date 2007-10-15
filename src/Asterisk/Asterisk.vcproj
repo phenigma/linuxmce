@@ -132,6 +132,9 @@
 				RelativePath=".\condition.cpp">
 			</File>
 			<File
+				RelativePath=".\conferencecommand.cpp">
+			</File>
+			<File
 				RelativePath=".\hangupcommand.cpp">
 			</File>
 			<File
@@ -181,7 +184,61 @@
 				RelativePath="Asterisk.h">
 			</File>
 			<File
+				RelativePath=".\asteriskconsts.h">
+			</File>
+			<File
+				RelativePath=".\asteriskmanager.h">
+			</File>
+			<File
+				RelativePath=".\condition.h">
+			</File>
+			<File
+				RelativePath=".\conferencecommand.h">
+			</File>
+			<File
 				RelativePath="..\DCE\DCEDeviceData_Impl.h">
+			</File>
+			<File
+				RelativePath=".\hangupcommand.h">
+			</File>
+			<File
+				RelativePath=".\logincommand.h">
+			</File>
+			<File
+				RelativePath=".\mutex.h">
+			</File>
+			<File
+				RelativePath=".\originatecommand.h">
+			</File>
+			<File
+				RelativePath=".\ringdetecthandler.h">
+			</File>
+			<File
+				RelativePath=".\runtimeconfig.h">
+			</File>
+			<File
+				RelativePath=".\socket.h">
+			</File>
+			<File
+				RelativePath=".\thread.h">
+			</File>
+			<File
+				RelativePath=".\threadsafeobj.h">
+			</File>
+			<File
+				RelativePath=".\token.h">
+			</File>
+			<File
+				RelativePath=".\tokenmanager.h">
+			</File>
+			<File
+				RelativePath=".\tokenpool.h">
+			</File>
+			<File
+				RelativePath=".\transfercommand.h">
+			</File>
+			<File
+				RelativePath=".\utils.h">
 			</File>
 		</Filter>
 		<Filter
