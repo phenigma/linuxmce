@@ -32,10 +32,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE.lib"
+				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE.lib libmysql.lib"
 				OutputFile="../bin/Asterisk.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="../../libs/Libraries/pthreads-win32/lib;../lib"
+				AdditionalLibraryDirectories="&quot;../../libs/Libraries/pthreads-win32/lib&quot;;../lib;/mysql/lib/debug"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/Asterisk.pdb"
 				SubSystem="1"

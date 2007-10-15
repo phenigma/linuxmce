@@ -30,8 +30,12 @@
 #include "socket.h"
 #include "DCE/Logger.h"
 
-#include <sys/socket.h>
-#include <netinet/in.h>
+#ifdef WIN32
+
+#else
+	#include <sys/socket.h>
+	#include <netinet/in.h>
+#endif
 
 using namespace std;
 using namespace DCE;
@@ -67,9 +71,12 @@ int Socket::Connect() {
 		
 	address.sin_family = AF_INET;
 	address.sin_port = htons(ASMANAGER_PORT);
+
+#ifdef WIN32
+	address.sin_addr.s_addr = inet_addr("10.0.0.86");
+#else
 	inet_pton(AF_INET, "127.0.0.1", &address.sin_addr);
-	
-	
+#endif
 	
 	if((ret = connect(socket_fd, (struct sockaddr*)&address, sizeof(address)))) {
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "failed connecting to asterisk manager");

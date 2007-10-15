@@ -32,10 +32,13 @@ using namespace DCE;
 
 #include <stack>
 #include <map>
-#include <dirent.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
+
+#ifndef WIN32
+	#include <dirent.h>
+	#include <sys/types.h>
+	#include <sys/stat.h>
+	#include <unistd.h>
+#endif
 
 #include "asteriskmanager.h"
 
@@ -449,6 +452,8 @@ void * startVoiceMailThread(void * Arg)
     char buffer[1024];
     int seconds = 0;
 
+#ifndef WIN32
+
     while(!asterisk->GetMBQuit())
     {
         if(seconds > CHECK_PERIOD)
@@ -516,6 +521,9 @@ void * startVoiceMailThread(void * Arg)
         seconds++;
         Sleep(1000);
     }
+
+#endif
+
     return NULL;
 }
 

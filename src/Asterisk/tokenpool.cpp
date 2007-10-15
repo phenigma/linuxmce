@@ -30,12 +30,13 @@
 #include "tokenpool.h"
 #include "DCE/Logger.h"
 #include "asteriskconsts.h"
+#include "PlutoUtils/CommonIncludes.h"
 
 using namespace std;
 using namespace DCE;
 
-#define POOL_SLEEP_PERIOD		1
-#define POOL_RECONNECT_PERIOD	5
+#define POOL_SLEEP_PERIOD		1000
+#define POOL_RECONNECT_PERIOD	5000
 
 
 #define DEFAUL_LOGIN_NAME "admin"
@@ -100,7 +101,7 @@ TokenPool::_Run() {
 		if(!sock.isConnected()) {
 			if(bFirstConnect) {
 				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Waiting %d seconds before reconnect.", POOL_RECONNECT_PERIOD);
-				sleep(POOL_RECONNECT_PERIOD);
+				Sleep(POOL_RECONNECT_PERIOD);
 			} else {
 				bFirstConnect = false;
 			}
@@ -154,7 +155,7 @@ TokenPool::_Run() {
 				}
 			 } else {
 				LoggerWrapper::GetInstance()->Write(LV_STATUS, "No traffic in/to asterisk manager. Sleeping for %d seconds", POOL_SLEEP_PERIOD);
-				sleep(POOL_SLEEP_PERIOD);
+				Sleep(POOL_SLEEP_PERIOD);
 			 }
 		 }
 	}

@@ -46,8 +46,8 @@ public:
     int Lock();
     void Unlock();
 	
-    pthread_mutex_t getHandle() const {
-	return mutexid;
+    pthread_mutex_t& getHandle() {
+		return mutexid;
     }
 
 public:
