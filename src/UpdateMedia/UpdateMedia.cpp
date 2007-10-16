@@ -619,22 +619,6 @@ bool UpdateMedia::ScanSubfolders(string sDirectory, FolderType& folder_type)
 			break;
 		}
 
-		////HD?
-		//if(StringUtils::ToUpper(FileUtils::FilenameWithoutPath(sSubDir))=="HVDVD_TS")
-		//{
-		//	LoggerWrapper::GetInstance()->Write(LV_STATUS, "'%s' is a HDDVD", sDirectory.c_str());
-		//	folder_type = ftHDDVD;
-		//	break;
-		//}
-
-		////BluRay?
-		//if(StringUtils::ToUpper(FileUtils::FilenameWithoutPath(sSubDir))=="BDMV")
-		//{
-		//	LoggerWrapper::GetInstance()->Write(LV_STATUS, "'%s' is a BDMV", sDirectory.c_str());
-		//	folder_type = ftBluRay;
-		//	break;
-		//}
-
 		ReadDirectory(sSubDir);
 	}
 
