@@ -27,6 +27,9 @@ using namespace DCE;
 #include "Gen_Devices/AllCommandsRequests.h"
 //<-dceag-d-e->
 
+#define BLACK_MPEG_FILE "/usr/pluto/share/black.mpeg"
+#define MPLAYER_BINARY "/opt/pluto-mplayer/bin/mplayer"
+			 
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
 MPlayer_Player::MPlayer_Player(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
@@ -36,7 +39,7 @@ MPlayer_Player::MPlayer_Player(int DeviceID, string ServerAddress,bool bConnectE
 	m_fCurrentInPipe = NULL;
 	m_bMediaPaused = false;
 	m_bPlayerEngineInitialized = false;
-	m_sBlackMPEG="/home/linuxmce/black.mpeg";
+	m_sBlackMPEG=BLACK_MPEG_FILE;
 }
 
 //<-dceag-const2-b->
@@ -48,7 +51,7 @@ MPlayer_Player::MPlayer_Player(Command_Impl *pPrimaryDeviceCommand, DeviceData_I
 	m_fCurrentInPipe = NULL;
 	m_bMediaPaused = false;
 	m_bPlayerEngineInitialized = false;
-	m_sBlackMPEG="/home/linuxmce/black.mpeg";
+	m_sBlackMPEG=BLACK_MPEG_FILE;
 }
 
 //<-dceag-dest-b->
@@ -722,7 +725,7 @@ void MPlayer_Player::InitializePlayerEngine(string sMedia)
 	
 	// TODO restart MPlayer if it died
 	// starting MPlayer
-	const string sMPlayerBinary = "/usr/local/bin/mplayer";
+	const string sMPlayerBinary = MPLAYER_BINARY;
 	
 	// TODO use 4th level to fetch messages from ANS_ requests
 //	const string sMessageLevel = "-msglevel all=4";
