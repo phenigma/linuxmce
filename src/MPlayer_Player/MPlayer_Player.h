@@ -29,16 +29,16 @@ namespace DCE
 	{
 //<-dceag-decl-e->
 		// Private member variables
-		string sCurrentFIFOPipeName;
-		FILE *fCurrentInPipe;
+		string m_sCurrentFIFOPipeName;
+		FILE *m_fCurrentInPipe;
 		// Private methods
 		void SendFIFOCommandNoReply(string sCommand);
-		bool bMediaPaused;
-		bool bPlayerEngineInitialized;
+		bool m_bMediaPaused;
+		bool m_bPlayerEngineInitialized;
 		void InitializePlayerEngine(string sMedia);
 		
 		char FIFOBuffer[BUFSIZ];
-		string sBlackMPEG;
+		string m_sBlackMPEG;
 public:
 		// Public member variables
 
