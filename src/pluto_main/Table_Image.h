@@ -31,7 +31,7 @@
 class DECLSPECIFIER TableRow;
 class DECLSPECIFIER SerializeClass;
 
-class DECLSPECIFIER Table_Image : public TableBase 
+class DECLSPECIFIER Table_Image : public TableBase , SingleStringKeyBase
 {
 private:
 	Database_pluto_main *database;
@@ -60,8 +60,8 @@ private:
 		bool operator()(const Table_Image::Key &key1, const Table_Image::Key &key2) const;
 	};	
 
-	map<Table_Image::Key, class TableRow*, Table_Image::Key_Less> cachedRows;
-	map<Table_Image::Key, class TableRow*, Table_Image::Key_Less> deleted_cachedRows;
+	
+	
 
 public:				
 	// Normally the framework never deletes any Row_X objects, since the application will
@@ -81,7 +81,7 @@ public:
 private:	
 	
 		
-	class Row_Image* FetchRow(Table_Image::Key &key);
+	class Row_Image* FetchRow(SingleStringKey &key);
 		
 			
 };

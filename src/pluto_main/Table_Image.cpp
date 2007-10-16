@@ -52,7 +52,7 @@ bool Database_pluto_main::Commit_Image(bool bDeleteFailedModifiedRow,bool bDelet
 
 Table_Image::~Table_Image()
 {
-	map<Table_Image::Key, class TableRow*, Table_Image::Key_Less>::iterator it;
+	map<SingleStringKey, class TableRow*, SingleStringKey_Less>::iterator it;
 	for(it=cachedRows.begin();it!=cachedRows.end();++it)
 	{
 		Row_Image *pRow = (Row_Image *) (*it).second;
@@ -92,8 +92,8 @@ void Row_Image::Delete()
 		}
 		else
 		{
-			Table_Image::Key key(pRow->m_PK_Image);
-			map<Table_Image::Key, TableRow*, Table_Image::Key_Less>::iterator i = table->cachedRows.find(key);
+			SingleStringKey key(pRow->m_PK_Image);
+			map<SingleStringKey, TableRow*, SingleStringKey_Less>::iterator i = table->cachedRows.find(key);
 			if (i!=table->cachedRows.end())
 				table->cachedRows.erase(i);
 						
@@ -111,7 +111,7 @@ void Row_Image::Reload()
 	
 	if (!is_added)
 	{
-		Table_Image::Key key(pRow->m_PK_Image);
+		SingleStringKey key(pRow->m_PK_Image);
 		Row_Image *pRow = table->FetchRow(key);
 		
 		if (pRow!=NULL)
@@ -475,7 +475,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_Image_asSQL
 				
 			
 			addedRows.erase(i);
-			Table_Image::Key key(pRow->m_PK_Image);	
+			SingleStringKey key(pRow->m_PK_Image);	
 			cachedRows[key] = pRow;
 					
 			
@@ -489,14 +489,14 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_Image_asSQL
 //update modified
 	
 
-	for (map<Table_Image::Key, class TableRow*, Table_Image::Key_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
+	for (map<SingleStringKey, class TableRow*, SingleStringKey_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
 		if	(((*i).second)->is_modified_get())
 	{
 		Row_Image* pRow = (Row_Image*) (*i).second;	
-		Table_Image::Key key(pRow->m_PK_Image);
+		SingleStringKey key(pRow->m_PK_Image);
 
 		char tmp_PK_Image[201];
-db_wrapper_real_escape_string(database->m_pDB,tmp_PK_Image, key.pk_PK_Image.c_str(), (unsigned long) key.pk_PK_Image.size());
+db_wrapper_real_escape_string(database->m_pDB,tmp_PK_Image, key.pk.c_str(), (unsigned long) key.pk.size());
 
 
 string condition;
@@ -549,13 +549,13 @@ update_values_list = update_values_list + "`PK_Image`="+pRow->PK_Image_asSQL()+"
 	
 	while (!deleted_cachedRows.empty())
 	{	
-		map<Table_Image::Key, class TableRow*, Table_Image::Key_Less>::iterator i = deleted_cachedRows.begin();
+		map<SingleStringKey, class TableRow*, SingleStringKey_Less>::iterator i = deleted_cachedRows.begin();
 	
-		Table_Image::Key key = (*i).first;
+		SingleStringKey key = (*i).first;
 		Row_Image* pRow = (Row_Image*) (*i).second;	
 
 		char tmp_PK_Image[201];
-db_wrapper_real_escape_string(database->m_pDB,tmp_PK_Image, key.pk_PK_Image.c_str(), (unsigned long) key.pk_PK_Image.size());
+db_wrapper_real_escape_string(database->m_pDB,tmp_PK_Image, key.pk.c_str(), (unsigned long) key.pk.size());
 
 
 string condition;
@@ -752,9 +752,9 @@ sscanf(row[9], "%li", &(pRow->m_psc_restrict));
 
 		//checking for duplicates
 
-		Table_Image::Key key(pRow->m_PK_Image);
+		SingleStringKey key(pRow->m_PK_Image);
 		
-		map<Table_Image::Key, class TableRow*, Table_Image::Key_Less>::iterator i = cachedRows.find(key);
+		map<SingleStringKey, class TableRow*, SingleStringKey_Less>::iterator i = cachedRows.find(key);
 			
 		if (i!=cachedRows.end())
 		{
@@ -788,9 +788,9 @@ Row_Image* Table_Image::GetRow(string in_PK_Image)
 {
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_DBMutex);
 
-	Table_Image::Key row_key(in_PK_Image);
+	SingleStringKey row_key(in_PK_Image);
 
-	map<Table_Image::Key, class TableRow*, Table_Image::Key_Less>::iterator i;
+	map<SingleStringKey, class TableRow*, SingleStringKey_Less>::iterator i;
 	i = deleted_cachedRows.find(row_key);	
 		
 	//row was deleted	
@@ -812,13 +812,13 @@ Row_Image* Table_Image::GetRow(string in_PK_Image)
 
 
 
-Row_Image* Table_Image::FetchRow(Table_Image::Key &key)
+Row_Image* Table_Image::FetchRow(SingleStringKey &key)
 {
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_DBMutex);
 
 	//defines the string query for the value of key
 	char tmp_PK_Image[201];
-db_wrapper_real_escape_string(database->m_pDB,tmp_PK_Image, key.pk_PK_Image.c_str(), (unsigned long) key.pk_PK_Image.size());
+db_wrapper_real_escape_string(database->m_pDB,tmp_PK_Image, key.pk.c_str(), (unsigned long) key.pk.size());
 
 
 string condition;
