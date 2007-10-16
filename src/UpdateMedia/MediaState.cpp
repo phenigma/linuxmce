@@ -25,6 +25,7 @@
 
 #include "../PlutoUtils/StringUtils.h"
 #include "../pluto_media/Database_pluto_media.h"
+#include "FileUtils/file_utils.h"
 #include "DCE/Logger.h"
 using namespace DCE;
 
@@ -192,16 +193,23 @@ MediaSyncMode MediaState::SyncModeNeeded(string sDirectory, string sFile)
 		//check if the inode already exists
 		int INode = FileUtils::GetInode(sDirectory + "/" + sFile);
 		
-        for(MapMediaState::iterator it = m_mapMediaState.begin(); it != m_mapMediaState.end(); ++it)
+        for(MapMediaState::iterator it = m_mapMediaState.begin(), end = m_mapMediaState.end(); it != end; ++it)
 		{
             if(it->second.m_nINode == INode && (sDirectory != it->second.m_sPath || sFile != it->second.m_sFilename))
             {
+				string sDBFullFilename = it->second.m_sPath + "/" + it->second.m_sFilename;
+				string sCurrentFullFilename = sDirectory + "/" + sFile;
+
 				//double check that the file has that inode
-				int INode_DBFile = FileUtils::GetInode(it->second.m_sPath + "/" + it->second.m_sFilename);
-                if(INode_DBFile == INode && FileUtils::FileExists(it->second.m_sPath + "/" + it->second.m_sFilename))
+				int INode_DBFile = FileUtils::GetInode(sDBFullFilename);
+				int nDeviceID_DBFile = UpdateMediaFileUtils::GetDeviceID(sDBFullFilename.c_str());
+				int nDeviceID_CurrentFile = UpdateMediaFileUtils::GetDeviceID(sCurrentFullFilename.c_str());
+
+                if(INode_DBFile == INode && nDeviceID_DBFile == nDeviceID_CurrentFile && FileUtils::FileExists(sDBFullFilename))
                 {
-                        LoggerWrapper::GetInstance()->Write(LV_STATUS, "GGG modeNone for %d %s vs %s and %s vs %s", INode, sDirectory.c_str(), it->second.m_sPath.c_str(), sFile.c_str(), it->second.m_sFilename.c_str());
-                        return modeNone;
+					LoggerWrapper::GetInstance()->Write(LV_STATUS, "File already in DB: modeNone for inode %d and device id %d: %s vs %s", 
+						INode, nDeviceID_DBFile, sCurrentFullFilename.c_str(), sDBFullFilename.c_str());
+                    return modeNone;
                 }
             }
 		}

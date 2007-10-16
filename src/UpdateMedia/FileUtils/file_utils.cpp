@@ -132,5 +132,22 @@ namespace UpdateMediaFileUtils
 
 		return bIsDir;
 	}
+
+	int GetDeviceID(const char *pFilePath)
+	{
+		int nDeviceID = 0;
+
+#ifdef WIN32
+		struct __stat64 buf;
+		if(!_stat64(pFilePath, &buf))
+			nDeviceID = buf.st_dev;
+#else
+		struct stat64 buf;
+		if(!stat64(pFilePath, &buf))
+			nDeviceID = buf.st_dev;
+#endif
+
+		return nDeviceID;
+	}
 }
 
