@@ -6,9 +6,9 @@ rmdir "/pluto.makerelease" /S /Q
 echo Checking out pluto sources...
 cd "c:\Program Files\Subversion\bin"
 
-svn co http://10.0.0.170/pluto/trunk/src /pluto.makerelease/trunk/src
-svn co http://10.0.0.170/pluto/trunk/libs /pluto.makerelease/trunk/libs
-svn co http://10.0.0.170/pluto/trunk/installers/Installers /pluto.makerelease/trunk/installers/Installers
+svn co http://10.0.2.4/pluto/trunk/src /pluto.makerelease/trunk/src
+svn co http://10.0.2.4/pluto/trunk/libs /pluto.makerelease/trunk/libs
+svn co http://10.0.2.4/pluto/trunk/installers/Installers /pluto.makerelease/trunk/installers/Installers
 
 echo BUILDING PLUTO...
 cd "c:\pluto.makerelease\trunk\src"
@@ -34,23 +34,23 @@ copy Orbiter_CeNet4_x86.exe Orbiter_CeNet4_x86.dat
 echo COPYING PLUTO FILES...
 
 echo Copying EXE files...
-copy *.exe "\\10.0.0.150\builds\Windows_Output\src\bin"
+copy *.exe "\\10.0.2.4\builds\Windows_Output\src\bin"
 echo Copying DLL files...
-copy *.dll "\\10.0.0.150\builds\Windows_Output\src\bin"
+copy *.dll "\\10.0.2.4\builds\Windows_Output\src\bin"
 echo Copying DAT files...
-copy *.dat "\\10.0.0.150\builds\Windows_Output\src\bin"
+copy *.dat "\\10.0.2.4\builds\Windows_Output\src\bin"
 echo Copying SIS files...
-copy *.sis "\\10.0.0.150\builds\Windows_Output\src\bin"
+copy *.sis "\\10.0.2.4\builds\Windows_Output\src\bin"
 echo Copying CAB files...
-copy *.cab "\\10.0.0.150\builds\Windows_Output\src\bin"
+copy *.cab "\\10.0.2.4\builds\Windows_Output\src\bin"
 
 echo Copying LIB files...
 cd "c:\pluto.makerelease\trunk\src\lib"
-copy *.lib "\\10.0.0.150\builds\Windows_Output\src\lib"
+copy *.lib "\\10.0.2.4\builds\Windows_Output\src\lib"
 
 echo Copying MSI files...
 cd C:\pluto.makerelease\trunk\installers\Installers\Orbiter\Release\
-copy *.msi "\\10.0.0.150\builds\Windows_Output\src\bin"
+copy *.msi "\\10.0.2.4\builds\Windows_Output\src\bin"
 
 echo Done. (pluto)
 
@@ -88,23 +88,23 @@ cd "c:\pluto.makerelease\trunk\src\bin"
 
 
 echo Copying EXE files...
-copy *.exe "\\10.0.0.150\builds\Windows_Output_Monster\src\bin"
+copy *.exe "\\10.0.2.4\builds\Windows_Output_Monster\src\bin"
 echo Copying DLL files...
-copy *.dll "\\10.0.0.150\builds\Windows_Output_Monster\src\bin"
+copy *.dll "\\10.0.2.4\builds\Windows_Output_Monster\src\bin"
 echo Copying DAT files...
-copy *.dat "\\10.0.0.150\builds\Windows_Output_Monster\src\bin"
+copy *.dat "\\10.0.2.4\builds\Windows_Output_Monster\src\bin"
 echo Copying SIS files...
-copy *.sis "\\10.0.0.150\builds\Windows_Output_Monster\src\bin"
+copy *.sis "\\10.0.2.40\builds\Windows_Output_Monster\src\bin"
 echo Copying CAB files...
-copy *.cab "\\10.0.0.150\builds\Windows_Output_Monster\src\bin"
+copy *.cab "\\10.0.2.4\builds\Windows_Output_Monster\src\bin"
 
 echo Copying LIB files...
 cd "c:\pluto.makerelease\trunk\src\lib"
-copy *.lib "\\10.0.0.150\builds\Windows_Output_Monster\src\lib"
+copy *.lib "\\10.0.2.4\builds\Windows_Output_Monster\src\lib"
 
 echo Copying MSI files...
 cd C:\pluto.makerelease\trunk\installers\Installers\Orbiter\Release\
-copy *.msi "\\10.0.0.150\builds\Windows_Output_Monster\src\bin"
+copy *.msi "\\10.0.2.4\builds\Windows_Output_Monster\src\bin"
 
 echo Done. (monster)
 
@@ -142,23 +142,23 @@ cd "c:\pluto.makerelease\trunk\src\bin"
 
 
 echo Copying EXE files...
-copy *.exe "\\10.0.0.150\builds\Windows_Output_LinuxMCE\src\bin"
+copy *.exe "\\10.0.2.4\builds\Windows_Output_LinuxMCE\src\bin"
 echo Copying DLL files...
-copy *.dll "\\10.0.0.150\builds\Windows_Output_LinuxMCE\src\bin"
+copy *.dll "\\10.0.2.4\builds\Windows_Output_LinuxMCE\src\bin"
 echo Copying DAT files...
-copy *.dat "\\10.0.0.150\builds\Windows_Output_LinuxMCE\src\bin"
+copy *.dat "\\10.0.2.4\builds\Windows_Output_LinuxMCE\src\bin"
 echo Copying SIS files...
-copy *.sis "\\10.0.0.150\builds\Windows_Output_LinuxMCE\src\bin"
+copy *.sis "\\10.0.2.4\builds\Windows_Output_LinuxMCE\src\bin"
 echo Copying CAB files...
-copy *.cab "\\10.0.0.150\builds\Windows_Output_LinuxMCE\src\bin"
+copy *.cab "\\10.0.2.4\builds\Windows_Output_LinuxMCE\src\bin"
 
 echo Copying LIB files...
 cd "c:\pluto.makerelease\trunk\src\lib"
-copy *.lib "\\10.0.0.150\builds\Windows_Output_LinuxMCE\src\lib"
+copy *.lib "\\10.0.2.4\builds\Windows_Output_LinuxMCE\src\lib"
 
 echo Copying MSI files...
 cd C:\pluto.makerelease\trunk\installers\Installers\Orbiter\Release\
-copy *.msi "\\10.0.0.150\builds\Windows_Output_LinuxMCE\src\bin"
+copy *.msi "\\10.0.2.4\builds\Windows_Output_LinuxMCE\src\bin"
 
 echo Done. (linuxmce)
 
