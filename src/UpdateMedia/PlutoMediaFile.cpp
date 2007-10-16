@@ -730,7 +730,7 @@ int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
 	m_pPlutoMediaAttributes->m_nFileID = pRow_File->PK_File_get();
 
 	//special case : HDDVD and BluRay
-	if(FileUtils::FindExtension(m_sFile) == "evo")
+	if(FileUtils::FindExtension(m_sFile) == "m2ts")
 	{
 		string sParentFolderName = FileUtils::FilenameWithoutPath(m_sDirectory);
 		string sGrandParentFolderName = FileUtils::FilenameWithoutPath(FileUtils::BasePath(m_sDirectory));
@@ -747,10 +747,10 @@ int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
 			);
 		}
 	}
-	else if(FileUtils::FindExtension(m_sFile) == "m2ts")
+	else if(FileUtils::FindExtension(m_sFile) == "evo")
 	{
 		string sParentFolderName = FileUtils::FilenameWithoutPath(m_sDirectory);
-		if(sParentFolderName == "MVDVD_TS")
+		if(sParentFolderName == "HVDVD_TS")
 		{
 			string sGrandParentFolderName = FileUtils::FilenameWithoutPath(FileUtils::BasePath(m_sDirectory));
 
