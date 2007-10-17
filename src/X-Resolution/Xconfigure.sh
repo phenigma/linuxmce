@@ -298,6 +298,9 @@ fi
 EnsureResolutionVariables
 
 DisplayDriver=$(GetVideoDriver)
+if [[ -n "$ForceVESA" ]]; then
+	DisplayDriver=vesa
+fi
 if [[ "$DisplayDriver" == viaprop ]]; then
 	DisplayDriver=via
 fi
