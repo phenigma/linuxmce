@@ -1,18 +1,3 @@
-/*
-     Copyright (C) 2004 Pluto, Inc., a Florida Corporation
-
-     www.plutohome.com
-
-     Phone: +1 (877) 758-8648
- 
-
-     This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
-     This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-     of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-
-     See the GNU General Public License for more details.
-
-*/
 #ifndef Telecom_PluginBase_h
 #define Telecom_PluginBase_h
 #include "DeviceData_Impl.h"
@@ -117,6 +102,14 @@ public:
 			return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Telecom_Local_Number_Length_CONST).c_str());
 		else
 			return atoi(m_mapParameters[DEVICEDATA_Telecom_Local_Number_Length_CONST].c_str());
+	}
+
+	int Get_No_of_sec_to_ring_before_IVR()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_No_of_sec_to_ring_before_IVR_CONST).c_str());
+		else
+			return atoi(m_mapParameters[DEVICEDATA_No_of_sec_to_ring_before_IVR_CONST].c_str());
 	}
 
 };
@@ -226,9 +219,10 @@ public:
 	int DATA_Get_Telecom_Local_Prefix() { return GetData()->Get_Telecom_Local_Prefix(); }
 	int DATA_Get_Telecom_Prepend_Digit() { return GetData()->Get_Telecom_Prepend_Digit(); }
 	int DATA_Get_Telecom_Local_Number_Length() { return GetData()->Get_Telecom_Local_Number_Length(); }
+	int DATA_Get_No_of_sec_to_ring_before_IVR() { return GetData()->Get_No_of_sec_to_ring_before_IVR(); }
 	//Event accessors
 	//Commands - Override these to handle commands from the server
-	virtual void CMD_Simulate_Keypress(string sPK_Button,string sName,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Simulate_Keypress(string sPK_Button,int iStreamID,string sName,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_PL_Originate(int iPK_Device,string sPhoneExtension,string sPhoneCallerID,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_PL_Transfer(int iPK_Device,int iPK_Users,string sPhoneExtension,string sCallID,string sPK_Device_From,bool bIsConference,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_PL_Hangup(int iPK_Device,string &sCMD_Result,class Message *pMessage) {};
@@ -240,6 +234,7 @@ public:
 	virtual void CMD_PL_Add_VOIP_Account(string sName,string sPhoneNumber,string sPassword,string sUsers,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_PL_Join_Call(string sCallID,string sList_PK_Device,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Speak_in_house(int iPK_Device,string sPhoneNumber,string sList_PK_Device,int iPK_Device_Related,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Make_Call(int iPK_Users,string sPhoneExtension,int iPK_Device_From,int iPK_Device_To,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual ReceivedMessageResult ReceivedMessage(class Message *pMessageOriginal)
@@ -276,8 +271,9 @@ public:
 					{
 						string sCMD_Result="OK";
 						string sPK_Button=pMessage->m_mapParameters[COMMANDPARAMETER_PK_Button_CONST];
+						int iStreamID=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_StreamID_CONST].c_str());
 						string sName=pMessage->m_mapParameters[COMMANDPARAMETER_Name_CONST];
-						CMD_Simulate_Keypress(sPK_Button.c_str(),sName.c_str(),sCMD_Result,pMessage);
+						CMD_Simulate_Keypress(sPK_Button.c_str(),iStreamID,sName.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -294,7 +290,7 @@ public:
 						{
 							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Simulate_Keypress(sPK_Button.c_str(),sName.c_str(),sCMD_Result,pMessage);
+								CMD_Simulate_Keypress(sPK_Button.c_str(),iStreamID,sName.c_str(),sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
@@ -597,6 +593,35 @@ public:
 							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Speak_in_house(iPK_Device,sPhoneNumber.c_str(),sList_PK_Device.c_str(),iPK_Device_Related,sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case COMMAND_Make_Call_CONST:
+					{
+						string sCMD_Result="OK";
+						int iPK_Users=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Users_CONST].c_str());
+						string sPhoneExtension=pMessage->m_mapParameters[COMMANDPARAMETER_PhoneExtension_CONST];
+						int iPK_Device_From=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Device_From_CONST].c_str());
+						int iPK_Device_To=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Device_To_CONST].c_str());
+						CMD_Make_Call(iPK_Users,sPhoneExtension.c_str(),iPK_Device_From,iPK_Device_To,sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(itRepeat->second.c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Make_Call(iPK_Users,sPhoneExtension.c_str(),iPK_Device_From,iPK_Device_To,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
