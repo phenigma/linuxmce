@@ -54,7 +54,7 @@ binary-arch: build
 	dh_installdirs
 
 	# commands to install the package into debian/<packagename>
-	$(MAKE) prefix=$(prefix)/opt/pluto-mplayer BINDIR=$(prefix)/opt/pluto-mplayer/bin CONFDIR=$(prefix)/opt/pluto-mplayer/etc/ LIBDIR=$(prefix)/opt/pluto-mplayer/lib DATADIR=$(prefix)/opt/pluto-mplayer/share/mplayer  MANDIR=$(prefix)/usr/share/man  install
+	$(MAKE) prefix=$(prefix)/opt/pluto-mplayer BINDIR=$(prefix)/opt/pluto-mplayer/bin CONFDIR=$(prefix)/opt/pluto-mplayer/etc/ LIBDIR=$(prefix)/opt/pluto-mplayer/lib DATADIR=$(prefix)/opt/pluto-mplayer/share/mplayer  MANDIR=$(prefix)/opt/pluto-mplayer/man  install
 
 	dh_link opt/pluto-mplayer/bin/mplayer opt/pluto-mplayer/bin/gmplayer \
 		opt/pluto-mplayer/share/man/man1/mplayer.1.gz opt/pluto-mplayer/share/man/man1/gmplayer.1.gz

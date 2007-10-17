@@ -30,18 +30,6 @@ sub dealwithupgrades {
   my $mconf = new ConfHelper("mplayer", "/etc/mplayer/mplayer.conf");
   return 1 if ($mconf->hasconfarea());
   undef $mconf;
-
-  if ((get('mplayer/replace-existing-files') eq 'true') &&
-      (fget('mplayer/replace-existing-files', 'isdefault') eq 'false')) {
-    $didupgrade = 1;
-    for my $file ("/etc/mplayer/mplayer.conf"    ) {
-      debug("Moving away $file");
-      rename($file,$file . ".old");
-    }
-  } else {
-    debug("Upgrade refused, exiting");
-    exit 0;
-  }
 }
 
 sub debug {
