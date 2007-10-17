@@ -1,18 +1,3 @@
-/*
-     Copyright (C) 2004 Pluto, Inc., a Florida Corporation
-
-     www.plutohome.com
-
-     Phone: +1 (877) 758-8648
- 
-
-     This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
-     This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-     of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-
-     See the GNU General Public License for more details.
-
-*/
 #ifndef AsteriskBase_h
 #define AsteriskBase_h
 #include "DeviceData_Impl.h"
@@ -103,6 +88,32 @@ public:
 			EVENTPARAMETER_PhoneExtension_CONST, sPhoneExtension.c_str()));
 	}
 
+	virtual void Extensions_Status(string sText)
+	{
+		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 
+			EVENT_Extensions_Status_CONST,
+			1 /* number of parameter's pairs (id, value) */,
+			EVENTPARAMETER_Text_CONST, sText.c_str()));
+	}
+
+	virtual void Calls_Status(string sText)
+	{
+		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 
+			EVENT_Calls_Status_CONST,
+			1 /* number of parameter's pairs (id, value) */,
+			EVENTPARAMETER_Text_CONST, sText.c_str()));
+	}
+
+	virtual void PBX_LINK(string sPhoneExtension,string sPhoneCallID,string sPhoneCallerID)
+	{
+		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 
+			EVENT_PBX_LINK_CONST,
+			3 /* number of parameter's pairs (id, value) */,
+			EVENTPARAMETER_PhoneExtension_CONST, sPhoneExtension.c_str(),
+			EVENTPARAMETER_PhoneCallID_CONST, sPhoneCallID.c_str(),
+			EVENTPARAMETER_PhoneCallerID_CONST, sPhoneCallerID.c_str()));
+	}
+
 };
 
 
@@ -138,6 +149,14 @@ public:
 	/**
 	* @brief Device data access methods:
 	*/
+
+	bool Get_Manual_configuration()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return (m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Manual_configuration_CONST)=="1" ? true : false);
+		else
+			return (m_mapParameters[DEVICEDATA_Manual_configuration_CONST]=="1" ? true : false);
+	}
 
 };
 
@@ -243,16 +262,21 @@ public:
 	virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage) { };
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
 	//Data accessors
+	bool DATA_Get_Manual_configuration() { return GetData()->Get_Manual_configuration(); }
 	//Event accessors
 	void EVENT_PBX_CommandResult(int iCommandID,int iResult,string sMessage) { GetEvents()->PBX_CommandResult(iCommandID,iResult,sMessage.c_str()); }
 	void EVENT_PBX_Ring(string sPhoneExtension,string sPhoneCallID,string sPhoneCallerID) { GetEvents()->PBX_Ring(sPhoneExtension.c_str(),sPhoneCallID.c_str(),sPhoneCallerID.c_str()); }
 	void EVENT_Incoming_Call() { GetEvents()->Incoming_Call(); }
 	void EVENT_Voice_Mail_Changed(string sValue,int iPK_Users) { GetEvents()->Voice_Mail_Changed(sValue.c_str(),iPK_Users); }
 	void EVENT_PBX_Hangup(string sPhoneExtension) { GetEvents()->PBX_Hangup(sPhoneExtension.c_str()); }
+	void EVENT_Extensions_Status(string sText) { GetEvents()->Extensions_Status(sText.c_str()); }
+	void EVENT_Calls_Status(string sText) { GetEvents()->Calls_Status(sText.c_str()); }
+	void EVENT_PBX_LINK(string sPhoneExtension,string sPhoneCallID,string sPhoneCallerID) { GetEvents()->PBX_LINK(sPhoneExtension.c_str(),sPhoneCallID.c_str(),sPhoneCallerID.c_str()); }
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_PBX_Originate(string sPhoneNumber,string sPhoneType,string sPhoneExtension,string sPhoneCallerID,int iCommandID,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_PBX_Transfer(string sPhoneExtension,int iCommandID,string sPhoneCallID,bool bIsConference,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_PBX_Hangup(int iCommandID,string sPhoneCallID,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Send_Asterisk_Status(string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual ReceivedMessageResult ReceivedMessage(class Message *pMessageOriginal)
@@ -367,6 +391,31 @@ public:
 							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_PBX_Hangup(iCommandID,sPhoneCallID.c_str(),sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case COMMAND_Send_Asterisk_Status_CONST:
+					{
+						string sCMD_Result="OK";
+						CMD_Send_Asterisk_Status(sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(itRepeat->second.c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Send_Asterisk_Status(sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
