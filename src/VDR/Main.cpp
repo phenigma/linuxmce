@@ -28,7 +28,6 @@
 const char *g_szCompile_Date="<=compile_date=>";
 /*SVN_REVISION*/
 
-
 using namespace DCE;
 
 // You can override this block if you don't want the app to reload in the event of a problem
@@ -195,7 +194,7 @@ int main(int argc, char* argv[])
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Device: %d starting.  Connecting to: %s",PK_Device,sRouter_IP.c_str());
 
-	bool bAppError = false;
+	bool bAppError=false;
 	bool bReload=false;
 	try
 	{
@@ -210,7 +209,10 @@ int main(int argc, char* argv[])
 			if( bLocalMode )
 				pVDR->RunLocalMode();
 			else
-				pthread_join(pVDR->m_RequestHandlerThread, NULL);  // This function will return when the device is shutting down
+			{
+				if(pVDR->m_RequestHandlerThread)
+					pthread_join(pVDR->m_RequestHandlerThread, NULL);  // This function will return when the device is shutting down
+			}
 			g_pDeadlockHandler=NULL;
 			g_pSocketCrashHandler=NULL;
 		} 
@@ -245,7 +247,7 @@ int main(int argc, char* argv[])
     WSACleanup();
 #endif
 
-	if(bAppError)
+	if( bAppError )
 		return 1;
 
 	if( bReload )
