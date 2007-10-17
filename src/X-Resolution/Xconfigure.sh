@@ -233,7 +233,7 @@ ParseParameters()
 			--skiplock) SkipLock=SkipLock ;;
 			--output) Output="$2" ; shift ;; # VGA, DVI, Component, Composite, S-Video
 			--tv-standard) TVStandard="$2"; shift ;; # PAL, SECAM, NTSC, HD480p, HD720p, HD1080i, HD1080p
-			--no-test) NoTest=NoTest; shift ;;
+			--no-test) NoTest=NoTest ;;
 			*) echo "Unknown option '$1'"; exit 1 ;;
 		esac
 		shift
