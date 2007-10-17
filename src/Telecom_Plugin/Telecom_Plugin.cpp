@@ -1069,10 +1069,12 @@ Telecom_Plugin::IncomingCall( class Socket *pSocket, class Message *pMessage,
 	/** Send a DTMF code */
 		/** @param #26 PK_Button */
 			/** What key to simulate being pressed.  If 2 numbers are specified, separated by a comma, the second will be used if the Shift key is specified. */
+		/** @param #41 StreamID */
+			/** ID of stream to apply */
 		/** @param #50 Name */
 			/** The application to send the keypress to. If not specified, it goes to the DCE device. */
 
-void Telecom_Plugin::CMD_Simulate_Keypress(string sPK_Button,string sName,string &sCMD_Result,Message *pMessage)
+void Telecom_Plugin::CMD_Simulate_Keypress(string sPK_Button,int iStreamID,string sName,string &sCMD_Result,Message *pMessage)
 //<-dceag-c28-e->
 {
 	int phoneID=map_orbiter2embedphone[pMessage->m_dwPK_Device_From];
@@ -2572,5 +2574,22 @@ void Telecom_Plugin::FollowMe_EnteredRoom(int iPK_Event, int iPK_Orbiter, int iP
 }
 
 void Telecom_Plugin::FollowMe_LeftRoom(int iPK_Event, int iPK_Orbiter, int iPK_Device, int iPK_Users, int iPK_RoomOrEntArea, int iPK_RoomOrEntArea_Left)
+{
+}
+//<-dceag-c921-b->
+
+	/** @brief COMMAND: #921 - Make Call */
+	/** Create a call. */
+		/** @param #17 PK_Users */
+			/** The called user. Only one is supported now. */
+		/** @param #83 PhoneExtension */
+			/** The phone number to be called. */
+		/** @param #262 PK_Device_From */
+			/** The device which starts the call. */
+		/** @param #263 PK_Device_To */
+			/** The called device. */
+
+void Telecom_Plugin::CMD_Make_Call(int iPK_Users,string sPhoneExtension,int iPK_Device_From,int iPK_Device_To,string &sCMD_Result,Message *pMessage)
+//<-dceag-c921-e->
 {
 }

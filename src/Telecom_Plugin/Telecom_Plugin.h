@@ -139,6 +139,7 @@ public:
 	int DATA_Get_Telecom_Local_Prefix();
 	int DATA_Get_Telecom_Prepend_Digit();
 	int DATA_Get_Telecom_Local_Number_Length();
+	int DATA_Get_No_of_sec_to_ring_before_IVR();
 
 			*****EVENT***** accessors inherited from base class
 
@@ -150,11 +151,13 @@ public:
 	/** Send a DTMF code */
 		/** @param #26 PK_Button */
 			/** What key to simulate being pressed.  If 2 numbers are specified, separated by a comma, the second will be used if the Shift key is specified. */
+		/** @param #41 StreamID */
+			/** ID of stream to apply */
 		/** @param #50 Name */
 			/** The application to send the keypress to. If not specified, it goes to the DCE device. */
 
-	virtual void CMD_Simulate_Keypress(string sPK_Button,string sName) { string sCMD_Result; CMD_Simulate_Keypress(sPK_Button.c_str(),sName.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Simulate_Keypress(string sPK_Button,string sName,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Simulate_Keypress(string sPK_Button,int iStreamID,string sName) { string sCMD_Result; CMD_Simulate_Keypress(sPK_Button.c_str(),iStreamID,sName.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Simulate_Keypress(string sPK_Button,int iStreamID,string sName,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #232 - PL_Originate */
@@ -286,6 +289,21 @@ public:
 
 	virtual void CMD_Speak_in_house(int iPK_Device,string sPhoneNumber,string sList_PK_Device,int iPK_Device_Related) { string sCMD_Result; CMD_Speak_in_house(iPK_Device,sPhoneNumber.c_str(),sList_PK_Device.c_str(),iPK_Device_Related,sCMD_Result,NULL);};
 	virtual void CMD_Speak_in_house(int iPK_Device,string sPhoneNumber,string sList_PK_Device,int iPK_Device_Related,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #921 - Make Call */
+	/** Create a call. */
+		/** @param #17 PK_Users */
+			/** The called user. Only one is supported now. */
+		/** @param #83 PhoneExtension */
+			/** The phone number to be called. */
+		/** @param #262 PK_Device_From */
+			/** The device which starts the call. */
+		/** @param #263 PK_Device_To */
+			/** The called device. */
+
+	virtual void CMD_Make_Call(int iPK_Users,string sPhoneExtension,int iPK_Device_From,int iPK_Device_To) { string sCMD_Result; CMD_Make_Call(iPK_Users,sPhoneExtension.c_str(),iPK_Device_From,iPK_Device_To,sCMD_Result,NULL);};
+	virtual void CMD_Make_Call(int iPK_Users,string sPhoneExtension,int iPK_Device_From,int iPK_Device_To,string &sCMD_Result,Message *pMessage);
 
 //<-dceag-h-e->
 
