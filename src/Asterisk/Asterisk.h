@@ -62,6 +62,7 @@ public:
 
 	/*
 			*****DATA***** accessors inherited from base class
+	bool DATA_Get_Manual_configuration();
 
 			*****EVENT***** accessors inherited from base class
 	void EVENT_PBX_CommandResult(int iCommandID,int iResult,string sMessage);
@@ -69,6 +70,9 @@ public:
 	void EVENT_Incoming_Call();
 	void EVENT_Voice_Mail_Changed(string sValue,int iPK_Users);
 	void EVENT_PBX_Hangup(string sPhoneExtension);
+	void EVENT_Extensions_Status(string sText);
+	void EVENT_Calls_Status(string sText);
+	void EVENT_PBX_LINK(string sPhoneExtension,string sPhoneCallID,string sPhoneCallerID);
 
 			*****COMMANDS***** we need to implement
 	*/
@@ -116,6 +120,12 @@ public:
 	virtual void CMD_PBX_Hangup(int iCommandID,string sPhoneCallID) { string sCMD_Result; CMD_PBX_Hangup(iCommandID,sPhoneCallID.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_PBX_Hangup(int iCommandID,string sPhoneCallID,string &sCMD_Result,Message *pMessage);
 
+
+	/** @brief COMMAND: #922 - Send Asterisk Status */
+	/** Ask for current extensions and calls status. */
+
+	virtual void CMD_Send_Asterisk_Status() { string sCMD_Result; CMD_Send_Asterisk_Status(sCMD_Result,NULL);};
+	virtual void CMD_Send_Asterisk_Status(string &sCMD_Result,Message *pMessage);
 
 //<-dceag-h-e->
 	};

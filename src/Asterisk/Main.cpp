@@ -83,7 +83,7 @@ extern "C" {
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		Asterisk *pAsterisk = new Asterisk(PK_Device, "localhost",true,false,pRouter);
-		if( pAsterisk->m_bQuit_get() || !pAsterisk->GetConfig() )
+		if( pAsterisk->m_bQuit_get()|| !pAsterisk->GetConfig() )
 		{
 			delete pAsterisk;
 			return NULL;
@@ -184,7 +184,7 @@ int main(int argc, char* argv[])
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Device: %d starting.  Connecting to: %s",PK_Device,sRouter_IP.c_str());
 
-	bool bAppError = false;
+	bool bAppError=false;
 	bool bReload=false;
 	try
 	{
@@ -199,7 +199,10 @@ int main(int argc, char* argv[])
 			if( bLocalMode )
 				pAsterisk->RunLocalMode();
 			else
-				pthread_join(pAsterisk->m_RequestHandlerThread, NULL);  // This function will return when the device is shutting down
+			{
+				if(pAsterisk->m_RequestHandlerThread)
+					pthread_join(pAsterisk->m_RequestHandlerThread, NULL);  // This function will return when the device is shutting down
+			}
 			g_pDeadlockHandler=NULL;
 			g_pSocketCrashHandler=NULL;
 		} 
@@ -234,7 +237,7 @@ int main(int argc, char* argv[])
     WSACleanup();
 #endif
 
-	if(bAppError)
+	if( bAppError )
 		return 1;
 
 	if( bReload )
