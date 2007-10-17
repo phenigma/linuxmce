@@ -20,6 +20,7 @@ beforelight
 belocs-locales-bin
 bind9
 bind9-host
+binfmt-support
 binutils-static
 bitmap
 bluez-utils
@@ -70,11 +71,11 @@ ftp-upload
 fuse-utils
 g++
 gawk
+gcc
 gcc-3.3
 gcc-3.3-base
 gcc-4.1
 gcc-4.1-base
-gcc
 gconf2
 gconf2-common
 gksu
@@ -94,6 +95,7 @@ initscripts
 iproute
 iputils-ping
 ivtv-utils
+java-common
 lame
 launchpad-integration
 less
@@ -582,6 +584,8 @@ sox
 ssh
 subversion
 sudo
+sun-java6-bin
+sun-java6-jre
 svgalibg1
 syslinux
 sysv-rc
@@ -603,6 +607,7 @@ vorbis-tools
 wget
 whiptail
 whois
+wine
 wmctrl
 wodim
 x11-common

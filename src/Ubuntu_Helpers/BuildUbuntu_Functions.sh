@@ -16,9 +16,9 @@ if [[ "$iso_name" == "" ]] ;then
 fi
 
 svn_dir="${build_dir}/svn"
-svn_url="http://10.0.0.170/"
+svn_url="http://10.0.2.4/"
 
-sql_master_host="10.0.0.150"
+sql_master_host="10.0.2.4"
 sql_master_db="pluto_main"
 sql_master_db_media="pluto_media"
 sql_master_db_security="pluto_security"
@@ -147,7 +147,7 @@ function Build_Pluto_Replacements {
 	#Package: video-wizard-videos
 	local vvv_temp_dir=$(mktemp -d)
 	pushd "$vvv_temp_dir"
-		scp -r pluto@10.0.0.150:"/home/samba/www_docs/video\ wizard/video-wizard-videos" ./
+		scp -r pluto@10.0.2.4:"/home/samba/www_docs/video\ wizard/video-wizard-videos" ./
 		cd "video-wizard-videos"
 		dpkg-deb -b . ..
 		cp -r ../video-wizard-videos_*.deb ${temp_dir}
@@ -159,17 +159,12 @@ function Build_Pluto_Replacements {
 		dpkg-buildpackage -rfakeroot -us -uc -b
 		cp ../tee-pluto_*.deb ${temp_dir}
 	popd
-	
-	#Package: libsdl-pluto
-#	apt-get -y install quilt nasm libxv-dev libarts1-dev debhelper fakeroot
-#	apt-get -y install dbs libaa1-dev libslang2-dev xlibs-dev libsvga1-dev type-handling automake1.7
-#	pushd ${svn_dir}/trunk/ubuntu/libsdl1.2-1.2.7+1.2.8cvs20041007/
-#		dpkg-buildpackage -us -uc -rfakeroot -b
-#		dpkg -i ../libsdl1.2debian-pluto-all_1.2.7+1.2.8cvs20041007+pluto-2_*.deb
-#		dpkg -i ../libsdl1.2debian-pluto_1.2.7+1.2.8cvs20041007+pluto-2_*.deb
-#		dpkg -i ../libsdl1.2-pluto-dev_1.2.7+1.2.8cvs20041007+pluto-2_*.deb
-#		cp ../libsdl*.deb ${temp_dir}
-#	popd
+
+	#Package: pluto-mplayer
+	pushd ${svn_dir}/trunk/ubuntu/mplayer
+		dpkg-buildpackage -rfakeroot -us -uc -b
+		cp ../pluto-mplayer_*.deb ${temp_dir}
+	popd	
 
 	#Package: libxine
 	apt-get -y install libcaca-dev liblircclient-dev libtheora-dev libflac-dev libmodplug-dev libgnomevfs2-dev libsmbclient-dev libspeex-dev libmad0-dev libxvmc-dev automake1.9 autoconf libtool libcdio-dev sgmltools-lite dpatch transfig libavformat-dev libpostproc-dev libavcodec-dev libraw1394-dev libdc1394-13-dev
@@ -278,11 +273,11 @@ function Build_Pluto_Replacements {
 
 	#Download arch independent packages from 150
 	pushd $temp_dir
-		wget -c http://10.0.0.163/debian/dists/replacements/main/binary-i386/replacements-common/libflickr-api-perl_1_all.deb
-		wget -c http://10.0.0.163/debian/dists/replacements/main/binary-i386/replacements-common/libxml-parser-lite-tree-perl_1_all.deb
-		wget -c http://10.0.0.163/debian/dists/replacements/main/binary-i386/replacements-common/asterisk-perl_0.08-1_all.deb
-		wget -c http://10.0.0.163/debian/dists/replacements/main/binary-i386/replacements-common/pluto-avwizard-sounds_1.0-1_all.deb
-		wget -c http://10.0.0.163/debian/dists/replacements/main/binary-i386/replacements-common/msttcorefonts_1.2.pluto.4_all.deb
+		scp  pluto@10.0.2.4:/home/samba/repositories/replacements-common/libflickr-api-perl_1_all.deb ./
+		scp  pluto@10.0.2.4:/home/samba/repositories/replacements-common/libxml-parser-lite-tree-perl_1_all.deb ./
+		scp  pluto@10.0.2.4:/home/samba/repositories/replacements-common/asterisk-perl_0.08-1_all.deb ./
+		scp  pluto@10.0.2.4:/home/samba/repositories/replacements-common/pluto-avwizard-sounds_1.0-1_all.deb ./
+		scp  pluto@10.0.2.4:/home/samba/repositories/replacements-common/msttcorefonts_1.2.pluto.4_all.deb ./
 	popd 
 
 	#Put the extrapackages on the cd and repo
@@ -387,11 +382,11 @@ function Create_Fake_Windows_Binaries {
 
 
 	pushd ${svn_dir}/trunk/src/bin
-	scp pluto@10.0.0.150:'/home/builds/Windows_Output_LinuxMCE/src/bin/*' ./
+	scp pluto@10.0.2.4:'/home/builds/Windows_Output_LinuxMCE/src/bin/*' ./
 	popd
 
 	pushd ${svn_dir}/trunk/src/lib
-	scp pluto@10.0.0.150:'/home/builds/Windows_Output_LinuxMCE/src/lib/*' ./
+	scp pluto@10.0.2.4:'/home/builds/Windows_Output_LinuxMCE/src/lib/*' ./
 	popd
 	
 	echo "$(date) part 8 " >> /var/log/build.log
@@ -501,7 +496,7 @@ function Import_Pluto_Skins {
 	mkdir -p $skins_dir
 
 	pushd /
-	ssh pluto@10.0.0.150 tar -c $skins_dir | tar -x
+	ssh pluto@10.0.2.4 tar -c $skins_dir | tar -x
 	popd
 	
 	pushd /usr/pluto/orbiter/skins
@@ -516,7 +511,7 @@ function Import_Pluto_Skins {
 
 	mkdir -p "/home/samba/www_docs/sample media"
 	pushd /
-		ssh pluto@10.0.0.150 'tar -c "/home/samba/www_docs/sample media"' | tar -x 
+		ssh pluto@10.0.2.4 'tar -c "/home/samba/www_docs/sample media"' | tar -x 
 	popd
 	
 	echo "$(date) part 12 " >> /var/log/build.log
