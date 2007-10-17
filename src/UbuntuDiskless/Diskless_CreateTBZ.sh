@@ -62,6 +62,15 @@ awk '
 ' "$TEMP_DIR"/var/cache/debconf/config.dat >"$TEMP_DIR"/var/cache/debconf/config.dat.$$
 mv "$TEMP_DIR"/var/cache/debconf/config.dat{.$$,}
 
+if ! grep -q '^Name: shared/accepted-sun-dlj-v1-1' "$TEMP_DIR"/var/cache/debconf/config.dat ;then
+	echo 'Name: shared/accepted-sun-dlj-v1-1'     >> "$TEMP_DIR"/var/cache/debconf/config.dat
+	echo 'Template: shared/accepted-sun-dlj-v1-1' >> "$TEMP_DIR"/var/cache/debconf/config.dat
+	echo 'Value: true'                            >> "$TEMP_DIR"/var/cache/debconf/config.dat
+	echo 'Owners: sun-java6-bin, sun-java6-jre'   >> "$TEMP_DIR"/var/cache/debconf/config.dat
+	echo 'Flags: seen'                            >> "$TEMP_DIR"/var/cache/debconf/config.dat
+fi
+
+
 ## Set up chroot installation environment
 ## FIXME: Do we need this ?
 touch "$TEMP_DIR"/etc/chroot-install
