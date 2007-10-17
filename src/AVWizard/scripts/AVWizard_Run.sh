@@ -52,6 +52,7 @@ CleanUp()
 SetupX()
 {
 	cp "$ConfFile" "$XF86Config"
+	rmmod nvidia &>/dev/null || :
 	# default test
 	bash -x "$BaseDir"/Xconfigure.sh --conffile "$XF86Config" --resolution '640x480@60' --no-test | tee-pluto /var/log/pluto/Xconfigure.log
 	if ! TestXConfig "$Display" "$XF86Config"; then
