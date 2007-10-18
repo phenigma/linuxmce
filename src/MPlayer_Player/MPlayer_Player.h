@@ -39,6 +39,7 @@ namespace DCE
 		
 		char FIFOBuffer[BUFSIZ];
 		string m_sBlackMPEG;
+		void MoveAwayBadCodecs();
 public:
 		// Public member variables
 

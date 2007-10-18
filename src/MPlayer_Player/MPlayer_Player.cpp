@@ -40,6 +40,8 @@ MPlayer_Player::MPlayer_Player(int DeviceID, string ServerAddress,bool bConnectE
 	m_bMediaPaused = false;
 	m_bPlayerEngineInitialized = false;
 	m_sBlackMPEG=BLACK_MPEG_FILE;
+	
+	MoveAwayBadCodecs();
 }
 
 //<-dceag-const2-b->
@@ -52,6 +54,8 @@ MPlayer_Player::MPlayer_Player(Command_Impl *pPrimaryDeviceCommand, DeviceData_I
 	m_bMediaPaused = false;
 	m_bPlayerEngineInitialized = false;
 	m_sBlackMPEG=BLACK_MPEG_FILE;
+	
+	MoveAwayBadCodecs();
 }
 
 //<-dceag-dest-b->
@@ -752,3 +756,16 @@ void MPlayer_Player::InitializePlayerEngine(string sMedia)
 }
 
 //TODO periodically retrieve stream position
+
+
+void MPlayer_Player::MoveAwayBadCodecs()
+{
+	// HACK moving away VC1 DLL as it is known to create problems with mplayer
+	const string sVC1codec = "/usr/lib/codecs/wvc1dmod.dll";
+	if (FileUtils::FileExists(sVC1codec))
+	{
+		string sVC1codec_moved = sVC1codec+"-moved";
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Renaming buggy codec %s to %s", sVC1codec.c_str(), sVC1codec_moved.c_str());
+		system(("/bin/mv "+sVC1codec+" "+sVC1codec_moved).c_str());
+	}
+}
