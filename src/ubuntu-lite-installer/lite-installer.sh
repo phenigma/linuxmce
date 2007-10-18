@@ -4,11 +4,34 @@ set -e
 
 Debug=0
 FromHdd=0
+Upgrade=0
 grep -q "install_from_hdd" /proc/cmdline && FromHdd="1"
 
 TargetHdd=
 RootUUID=
 SwapUUID=
+
+NukeFS()
+{
+	local List="$*" # "/,home,var /var,lib BasePath,Exception1,Exception2,..."
+	local Item Path
+	local BasePath ExceptionList
+	local OldIFS
+	local -a Exceptions
+
+	for Item in $List; do
+		Exceptions=(-name '.')
+		BasePath="${Item%%,*}"
+		ExceptionList="${Item#*,}"
+		OldIFS="$IFS"
+		IFS=","
+		for Path in $ExceptionList; do
+			Exceptions=("${Exceptions[@]}" -or -name "$Path")
+		done
+		IFS="$OldIFS"
+		find "$BasePath" -maxdepth 1 '(' "${Exceptions[@]}" ')' -or exec rm -rf '{}' ';'
+	done
+}
 
 GetConsole()
 {
@@ -42,9 +65,36 @@ GetHddToUse()
 		echo "Error: No hard drives found"
 		exit 1
 	else
-		echo "Hard drives in the system:"
 		Done=0
+		mkdir -p /media/target
+		for Drive in $HddList; do
+				DiskDev="${Drive%%:*}"
+				if mount "$DiskDev"1 /media/target; then
+					if [[ -f /media/target/etc/pluto.conf ]]; then
+						while [[ "$AnswerOK" -eq 0 ]]; do
+							echo "Found an existing installation on drive '$DiskDev'"
+							echo "Do you want to upgrade/reinstall keeping your settings?"
+							echo -n "(Y/n)> "
+							read Choice
+							if [[ -z "$Choice" ]]; then
+								Choice=Y
+							fi
+							if [[ "$Choice" == [YyNn] ]]; then
+								AnswerOK=1
+							fi
+						done
+						if [[ "$Choice" == [Yy] ]]; then
+							Done=1
+							Upgrade=1
+							TargetHdd="$DiskDev"
+						fi
+					fi
+					umount /media/target
+				fi
+		done
+
 		while [[ "$Done" == 0 ]]; do
+		echo "Hard drives in the system:"
 			i=1
 			for Drive in $HddList; do
 				DiskDev="${Drive%%:*}"
@@ -94,35 +144,13 @@ set +e
 set -e
 }
 
-NukeFS()
-{
-	local List="$*" # "/,home,var /var,lib BasePath,Exception1,Exception2,..."
-	local Item Path
-	local BasePath ExceptionList
-	local OldIFS
-	local -a Exceptions
-
-	for Item in $List; do
-		Exceptions=(-name '.')
-		BasePath="${Item%%,*}"
-		ExceptionList="${Item#*,}"
-		OldIFS="$IFS"
-		IFS=","
-		for Path in $ExceptionList; do
-			Exceptions=("${Exceptions[@]}" -or -name "$Path")
-		done
-		IFS="$OldIFS"
-		find "$BasePath" -maxdepth 1 '(' "${Exceptions[@]}" ')' -or exec rm -rf '{}' ';'
-	done
-}
-
 FormatPartitions()
 {
 	if [[ "$Debug" == 1 ]]; then
 		return 0
 	fi
 	mkdir -p /media/target
-	if [[ "$FromHdd" == 1 ]] && mount "$TargetHdd"1 /media/target; then
+	if [[ "$FromHdd" == 1 || "$Upgrade" == 1 ]] && mount "$TargetHdd"1 /media/target; then
 		pushd /media/target &>/dev/null
 		NukeFS .,home,var ./var,lib ./var/lib,mysql
 		popd &>/dev/null
