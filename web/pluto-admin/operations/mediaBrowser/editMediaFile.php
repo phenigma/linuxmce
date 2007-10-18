@@ -247,7 +247,7 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 				$out.='<option value="'.$attributeID.'" '.(($attributeID==@$_POST['newAttributeType'])?'selected':'').'>'.$attributeName.'</option>';
 			}
 			$out.='</select></td>
-				<td><B>'.$TEXT_ATTRIBUTE_NAME_CONST.' *</B><br><input type="text" name="newAttributeName" value=""></td>
+				<td><B>'.$TEXT_ATTRIBUTE_NAME_CONST.' *</B><br><input type="text" name="newAttributeName" value="" onKeyPress="document.editMediaFile.existingAttributes.selectedIndex=-1;"></td>
 			</tr>';
 			if(isset($_POST['newAttributeType']) && $_POST['newAttributeType']!='0'){
 				$newAttributeType=(int)$_POST['newAttributeType'];
