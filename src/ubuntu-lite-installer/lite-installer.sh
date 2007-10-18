@@ -94,12 +94,42 @@ set +e
 set -e
 }
 
+NukeFS()
+{
+	local List="$*" # "/,home,var /var,lib BasePath,Exception1,Exception2,..."
+	local Item Path
+	local BasePath ExceptionList
+	local OldIFS
+	local -a Exceptions
+
+	for Item in $List; do
+		Exceptions=(-name '.')
+		BasePath="${Item%%,*}"
+		ExceptionList="${Item#*,}"
+		OldIFS="$IFS"
+		IFS=","
+		for Path in $ExceptionList; do
+			Exceptions=("${Exceptions[@]}" -or -name "$Path")
+		done
+		IFS="$OldIFS"
+		find "$BasePath" -maxdepth 1 '(' "${Exceptions[@]}" ')' -or exec rm -rf '{}' ';'
+	done
+}
+
 FormatPartitions()
 {
 	if [[ "$Debug" == 1 ]]; then
 		return 0
 	fi
-	echo y|mkfs.ext3 "$TargetHdd"1 # root filesystem
+	mkdir -p /media/target
+	if [[ "$FromHdd" == 1 ]] && mount "$TargetHdd"1 /media/target; then
+		pushd /media/target &>/dev/null
+		NukeFS .,home,var ./var,lib ./var/lib,mysql
+		popd &>/dev/null
+		umount "$TargetHdd"1
+	else
+		echo y|mkfs.ext3 "$TargetHdd"1 # root filesystem
+	fi
 	if [[ "$FromHdd" != 1 ]]; then
 		mkswap "$TargetHdd"5 # swap
 		echo y|mkfs.ext3 "$TargetHdd"6 # recovery system
