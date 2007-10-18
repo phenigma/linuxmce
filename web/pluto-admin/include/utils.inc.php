@@ -2957,28 +2957,32 @@ function processReceiver($mdID,$dbADO)
 	}
 }
 
-function getLogName($deviceID,$dtID,$dtDescription,$parentID=0,$isOrbiter=0,$isGSD=0)
+function getLogName($deviceID,$dtID,$dtDescription,$parentID=0,$isOrbiter=0,$isGSD=0,$commandLine='')
 {
-	if($isOrbiter==0){
-		if($isGSD==0){
-			$logName=$deviceID.'_'.str_replace(array(' ','\''),array('_','_'),$dtDescription);
-		
-			$patern=array("/[ :+=()<]/","/[->*?\$\.%\/]/","/#/","/__/","/^_*/","/_*$/");
-			$replacement =array("_","","","","","");
-			$logName=preg_replace($patern,$replacement,$logName);
-		
-			// override log namimg rules for DCE router and orbiters
-			$logName=($dtID==$GLOBALS['rootDCERouter'])?'DCERouter.log':$logName.'.log';
-			
-			// override log name for childs of DCE router - plugins
-			$logName=($parentID!=0)?'DCERouter.log':$logName;
-		}else{
-			$logName=$deviceID.'_Generic_Serial_Device.log';
-		}
+	if($commandLine!='' && $isGSD==0){
+		$logName=$deviceID.'_'.$commandLine.'.log';
 	}else{
-		$logName=$deviceID.'_LaunchOrbiter.sh.log';
+		if($isOrbiter==0){
+			if($isGSD==0){
+				$logName=$deviceID.'_'.str_replace(array(' ','\''),array('_','_'),$dtDescription);
+			
+				$patern=array("/[ :+=()<]/","/[->*?\$\.%\/]/","/#/","/__/","/^_*/","/_*$/");
+				$replacement =array("_","","","","","");
+				$logName=preg_replace($patern,$replacement,$logName);
+			
+				// override log namimg rules for DCE router and orbiters
+				$logName=($dtID==$GLOBALS['rootDCERouter'])?'DCERouter.log':$logName.'.log';
+				
+				// override log name for childs of DCE router - plugins
+				$logName=($parentID!=0)?'DCERouter.log':$logName;
+			}else{
+				$logName=$deviceID.'_Generic_Serial_Device.log';
+			}
+		}else{
+			$logName=$deviceID.'_LaunchOrbiter.sh.log';
+		}
 	}
-		
+	
 	$logName='/var/log/pluto/'.$logName;
 	
 	return $logName;
