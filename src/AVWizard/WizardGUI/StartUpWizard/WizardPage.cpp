@@ -127,9 +127,9 @@ void WizardPage::SetWizard(Wizard* MainWizard)
 
 	Wizard *pWizard = Wizard::GetInstance();
 	int iExtraBorder = 0;
-	if (pWizard->m_PageSequence.CurrentPage() == "AdjustVideoSize")
+	if (pWizard->m_PageSequence.CurrentPage() == "VideoAdjustSize")
 	{
-		// XXX: AdjustVideoSize, hardcoded extra border
+		// XXX: VideoAdjustSize, hardcoded extra border
 		iExtraBorder = ARROWS_BORDER;
 	}
 

@@ -174,6 +174,16 @@ WizardPageUISwitcher::~WizardPageUISwitcher(void)
 			{
 				if (NewSelectedButton->GetName() == "BtnOK")
 				{
+					DoIncreaseSetting();
+					SDL_Event Event;
+					Event.type = SDL_KEYUP;
+					Event.key.state = SDL_RELEASED;
+					Event.key.keysym.sym = SDLK_RETURN;
+					SDL_PushEvent(&Event);
+				}
+				else if (NewSelectedButton->GetName() == "BtnTest")
+				{
+					DoDecreaseSetting();
 					SDL_Event Event;
 					Event.type = SDL_KEYUP;
 					Event.key.state = SDL_RELEASED;
