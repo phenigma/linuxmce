@@ -44,6 +44,11 @@ function editEventCommands($output,$dbADO) {
 		$parmlistToDisplay=(isset($_POST['cannedEvent']) && (int)$_POST['cannedEvent']!=0)?(int)$_POST['cannedEvent']:$rowEH['FK_CannedEvents'];		
 		
 		$out.='
+		<script>
+			function windowOpen(locationA,attributes) {
+				window.open(locationA,\'\',attributes);
+			}
+		</script>		
 		<div align="center" class="err">'.@$_REQUEST['error'].'</div>
 		<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
 		<form action="index.php" method="post" name="editEventCommands">
