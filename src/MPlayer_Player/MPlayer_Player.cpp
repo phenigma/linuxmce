@@ -17,6 +17,7 @@
 #include "MPlayer_Player.h"
 #include "DCE/Logger.h"
 #include "PlutoUtils/FileUtils.h"
+#include "PlutoUtils/ProcessUtils.h"
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
 
@@ -384,6 +385,7 @@ void MPlayer_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMedi
 	}
 	
 	//else
+	
 	{
 		m_bMediaPaused = false;
 		SendFIFOCommandNoReply("loadfile "+sMediaURL);
@@ -721,6 +723,29 @@ void MPlayer_Player::CMD_Set_Media_ID(string sID,int iStreamID,string &sCMD_Resu
 
 void MPlayer_Player::InitializePlayerEngine(string sMedia)
 {
+/*
+	// identify media to see if we need custom E-AC3 hack for it
+	
+	// TODO next media in this case will also be treated as E-AC3, 
+	// need to rewrite engine control to avoid this
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "MPlayer_Player::InitializePlayerEngine identifying audio codec for %s", sMedia.c_str());
+	char * ffmpeg_args[]={"ffmpeg", "-i", NULL, NULL};
+	ffmpeg_args[2] = strdup(sMedia.c_str());
+	string sOutput, sStdErr;
+	ProcessUtils::GetCommandOutput("/opt/pluto-ffmpeg/bin/ffmpeg", ffmpeg_args, sOutput, sStdErr);
+	free(ffmpeg_args[2]);
+	
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "MPlayer_Player::InitializePlayerEngine stdout is %s", sOutput.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "MPlayer_Player::InitializePlayerEngine stderr is %s", sStdErr.c_str());
+	
+	string sExtraCMDLine = "";
+	if (sStdErr.find("E-AC3")!=string::npos)
+	{
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "MPlayer_Player::InitializePlayerEngine E-AC3 detected, adjusting command line");
+		sExtraCMDLine = " -demuxer lavf -ac ffeac3 ";
+	}
+*/
+
 	// creating custom FIFO control pipe for MPlayer instance
 	string sFIFO = "/tmp/mplayer.control." + StringUtils::itos(m_dwPK_Device);
 	string sysCommand = "mknod " + sFIFO + " p";
