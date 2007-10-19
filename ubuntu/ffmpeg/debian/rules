@@ -65,7 +65,7 @@ install: build
 	dh_installdirs
 
 	# Add here commands to install the package into debian/ffmpeg.
-	$(MAKE) DESTDIR=$(CURDIR)/debian/ffmpeg/opt/pluto-ffmpeg install
+	$(MAKE) DESTDIR=$(CURDIR)/debian/pluto-ffmpeg/ install
 
 
 # Build architecture-independent files here.

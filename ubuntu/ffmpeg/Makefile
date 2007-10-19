@@ -155,8 +155,8 @@ install-man:
 	install -m 644 $(MANPAGES) "$(DESTDIR)$(MANDIR)/man1"
 
 install-vhook: videohook
-	install -d "$(DESTDIR)$(SHLIBDIR)/vhook"
-	install -m 755 $(HOOKS) "$(DESTDIR)$(SHLIBDIR)/vhook"
+	install -d "$(SHLIBDIR)/vhook"
+	install -m 755 $(HOOKS) "$(SHLIBDIR)/vhook"
 
 install-libs:
 	$(MAKE) -C libavutil   install-libs
