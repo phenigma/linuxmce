@@ -14,6 +14,7 @@ arch   := $(shell dpkg --print-architecture)
 configure: configure-stamp
 configure-stamp:
 	dh_testdir
+	QUILT_PATCHES=debian/patches quilt push -a || test $$? = 2
 	# Add here commands to configure the package.
 	$(checkdir)
 	# If you plan to install the target .deb on a wide variety of machines,
@@ -39,6 +40,7 @@ clean:
 
 	# commands to clean up after the build process.
 	-$(MAKE) distclean
+	QUILT_PATCHES=debian/patches quilt pop -a -R || test $$? = 2
 	rm -f help_mp.h config.h config.mak
 	dh_clean
 
