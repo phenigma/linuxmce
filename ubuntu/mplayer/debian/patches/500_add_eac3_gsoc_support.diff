@@ -7958,18 +7958,20 @@ diff -ruN mplayer.orig/libavformat/wav.c mplayer.eac3/libavformat/wav.c
      put_tag(pb, "WAVE");
  
      /* format header */
-diff -ruN mplayer.orig/etc/codecs.conf mplayer.orig.config/etc/codecs.conf
+diff -ruN mplayer.orig/etc/codecs.conf mplayer.eac3/etc/codecs.conf
 --- mplayer.orig/etc/codecs.conf	2007-10-16 14:31:19.000000000 +0300
-+++ mplayer.orig.config/etc/codecs.conf	2007-10-19 15:29:49.000000000 +0300
-@@ -3215,3 +3215,11 @@
-   fourcc "MP3 "      ; used in .nsv files
-   fourcc "LAME"      ; used in mythtv .nuv files
-   driver hwmpa
-+
++++ mplayer.eac3/etc/codecs.conf	2007-10-19 16:49:24.000000000 +0300
+@@ -2747,6 +2747,13 @@
+   driver ffmpeg
+   dll "ape"
+ 
 +audiocodec ffeac3
 +    info "FFmpeg EAC3"
-+    status buggy
++    status working
 +    format 0x0
 +    driver ffmpeg
 +    dll "E-AC3"
 +
+ audiocodec pcm
+   info "Uncompressed PCM"
+   status working
