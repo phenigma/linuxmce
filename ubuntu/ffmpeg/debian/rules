@@ -26,6 +26,7 @@ DEB_BUILD_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
 
 config.status: configure
 	dh_testdir
+	QUILT_PATCHES=debian/patches quilt push -a || test $$? = 2
 	# Add here commands to configure the package.
 	./configure --prefix=/opt/pluto-ffmpeg
 
@@ -34,7 +35,6 @@ build: build-stamp
 
 build-stamp:  config.status
 	dh_testdir
-	QUILT_PATCHES=debian/patches quilt push -a || test $$? = 2
 
 	# Add here commands to compile the package.
 	$(MAKE)
