@@ -157,7 +157,7 @@ FormatPartitions()
 	mkdir -p /media/target
 	if [[ "$FromHdd" == 1 || "$Upgrade" == 1 ]] && mount "$TargetHdd"1 /media/target; then
 		pushd /media/target &>/dev/null
-		NukeFS .,home,var ./var,lib ./var/lib,mysql
+		NukeFS .,home,var,etc ./var,lib ./var/lib,mysql ./etc,pluto.conf
 		popd &>/dev/null
 		umount "$TargetHdd"1
 	else
@@ -231,6 +231,7 @@ ExtractArchive()
 {
 	echo "Extracting archive (this will take about 10 minutes)"
 	cat /media/recovery/archives/linux-mce.tar.gz* | tar -C /media/target -zx --checkpoint=10000
+	touch /media/target/etc/pluto/install_cleandb
 
 	# Update the UUIDs
 	rm /media/target/etc/blkid.tab || :
