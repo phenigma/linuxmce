@@ -137,7 +137,7 @@ void *OrbiterRenderer_OpenGLThread(void *p)
 #endif			
 
 		if(!pOrbiterRenderer->NeedToUpdateScreen())
-			Sleep(30);
+			Sleep(20);
 
 		if(!pOrbiterRenderer->Engine->NeedUpdateScreen())
 			pOrbiterRenderer->ScreenUpdated();
@@ -145,7 +145,7 @@ void *OrbiterRenderer_OpenGLThread(void *p)
 		if(!pOrbiterRenderer->OrbiterLogic()->m_bQuit_get())
 			pOrbiterRenderer->Engine->Paint();
 
-		Sleep(40);
+		Sleep(60);
 	}
 
 	delete pOrbiterRenderer->Engine;
