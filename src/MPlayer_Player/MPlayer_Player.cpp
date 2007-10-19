@@ -760,6 +760,7 @@ void MPlayer_Player::InitializePlayerEngine(string sMedia)
 
 void MPlayer_Player::MoveAwayBadCodecs()
 {
+/*
 	// HACK moving away VC1 DLL as it is known to create problems with mplayer
 	const string sVC1codec = "/usr/lib/codecs/wvc1dmod.dll";
 	if (FileUtils::FileExists(sVC1codec))
@@ -768,4 +769,5 @@ void MPlayer_Player::MoveAwayBadCodecs()
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Renaming buggy codec %s to %s", sVC1codec.c_str(), sVC1codec_moved.c_str());
 		system(("/bin/mv "+sVC1codec+" "+sVC1codec_moved).c_str());
 	}
+*/
 }
