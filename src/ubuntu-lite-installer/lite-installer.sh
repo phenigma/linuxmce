@@ -25,7 +25,7 @@ NukeFS()
 	local -a Exceptions
 
 	for Item in $List; do
-		Exceptions=(-name '.')
+		Exceptions=(-false)
 		BasePath="${Item%%,*}"
 		ExceptionList="${Item#*,}"
 		OldIFS="$IFS"
@@ -34,7 +34,7 @@ NukeFS()
 			Exceptions=("${Exceptions[@]}" -or -name "$Path")
 		done
 		IFS="$OldIFS"
-		find "$BasePath" -maxdepth 1 '(' "${Exceptions[@]}" ')' -or -exec rm -rf '{}' ';'
+		find "$BasePath" -mixdepth 1 -maxdepth 1 '(' "${Exceptions[@]}" ')' -or -exec rm -rf '{}' ';'
 	done
 }
 
