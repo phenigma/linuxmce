@@ -1,5 +1,8 @@
+#!/bin/bash
+
 XineConf=/root/.xine/config
 if [[ ! -f "$XineConf" ]]; then
+	mkdir -p $(dirname "$XineConf")
 	cat >"$XineConf" <<-END
 		#
 		# xine config file
