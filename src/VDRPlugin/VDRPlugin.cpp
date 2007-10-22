@@ -47,7 +47,9 @@ VDRPlugin::VDRPlugin(int DeviceID, string ServerAddress,bool bConnectEventHandle
 {
 	pthread_cond_init( &m_VDRCond, NULL );
 	m_VDRMutex.Init(NULL,&m_VDRCond);
-	m_sVDRIp="192.168.0.100";
+	m_sVDRIp="127.0.0.1";
+	//HARDCODING WARNING!!!
+	//"192.168.0.100";
 }
 //<-dceag-getconfig-b->
 bool VDRPlugin::GetConfig()

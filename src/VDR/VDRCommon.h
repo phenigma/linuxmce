@@ -7,9 +7,9 @@
 
 bool SendVDRCommand(string sIP, string sCommand,string &sVDRResponse)
 {
-	LoggerWrapper::GetInstance()->Write(LV_WARNING,"Going to send command %s",sCommand.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_WARNING,"Going to send command %s / ip %s",sCommand.c_str(), sIP.c_str());
 	PlainClientSocket _PlainClientSocket(sIP + ":2001");
-	if( !_PlainClientSocket.Connect() )
+	if( !_PlainClientSocket.Connect(0, "", 1, 1) )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Unable to connect to VDR client");
 		return false;

@@ -561,7 +561,7 @@ bool VDR::SendVDRCommand(string sCommand,string &sVDRResponse)
 	//LoggerWrapper::GetInstance()->Write(LV_WARNING,"Going to send command %s",sCommand.c_str());
 	//PlainClientSocket _PlainClientSocket(m_sXineIP + ":2001");
 	PlainClientSocket _PlainClientSocket("127.0.0.1:2001");
-	if( !_PlainClientSocket.Connect() )
+	if( !_PlainClientSocket.Connect(0, "", 1, 1) )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Unable to connect to VDR client");
 		return false;
