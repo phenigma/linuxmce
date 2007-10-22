@@ -50,6 +50,7 @@ GetHddToUse()
 	local HddList Done Drive i Choice DiskSize DiskDev
 	local -a Hdd
 
+	clear
 	HddList=$(fdisk -l|grep ^Disk |cut -d' ' -f2-4|sed -r 's,[:,],,g; s, ,:,g')
 	if [[ "$Debug" == 1 ]]; then
 		HddList="/dev/loop0:0:GB"
@@ -97,6 +98,7 @@ GetHddToUse()
 					umount /media/target
 				fi
 		done
+		clear
 
 		while [[ "$Done" == 0 ]]; do
 		echo "Hard drives in the system:"
