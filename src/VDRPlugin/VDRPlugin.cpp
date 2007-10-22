@@ -217,12 +217,16 @@ bool VDRPlugin::StartMedia( class MediaStream *pMediaStream,string &sError )
 		it->second = false;
 
 	PLUTO_SAFETY_LOCK(vm,m_VDRMutex);
-	VDRChannel *pVDRChannel = *(m_ListVDRChannel.begin());
-	pVDRMediaStream->m_pVDRChannel = pVDRChannel;
-	DCE::CMD_Play_Media CMD_Play_Media(m_dwPK_Device,PK_Device,pVDRMediaStream->m_iPK_MediaType,
-		pVDRMediaStream->m_iStreamID_get(), " CHAN:" + StringUtils::itos(pVDRMediaStream->m_pVDRChannel->m_dwChanNum),"");
-
-	SendCommand(CMD_Play_Media);
+	
+	if(!m_ListVDRChannel.empty())
+	{
+		VDRChannel *pVDRChannel = *(m_ListVDRChannel.begin());
+		pVDRMediaStream->m_pVDRChannel = pVDRChannel;
+		DCE::CMD_Play_Media CMD_Play_Media(m_dwPK_Device,PK_Device,pVDRMediaStream->m_iPK_MediaType,
+			pVDRMediaStream->m_iStreamID_get(), " CHAN:" + StringUtils::itos(pVDRMediaStream->m_pVDRChannel->m_dwChanNum),"");
+		SendCommand(CMD_Play_Media);
+	}	
+	
 	return MediaHandlerBase::StartMedia(pMediaStream,sError);
 }
 
