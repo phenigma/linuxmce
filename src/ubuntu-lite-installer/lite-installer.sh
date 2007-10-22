@@ -34,7 +34,7 @@ NukeFS()
 			Exceptions=("${Exceptions[@]}" -or -name "$Path")
 		done
 		IFS="$OldIFS"
-		find "$BasePath" -maxdepth 1 '(' "${Exceptions[@]}" ')' -or exec rm -rf '{}' ';'
+		find "$BasePath" -maxdepth 1 '(' "${Exceptions[@]}" ')' -or -exec rm -rf '{}' ';'
 	done
 }
 
@@ -133,7 +133,7 @@ GetHddToUse()
 
 PartitionHdd()
 {
-	if [[ "$FromHdd" == 1 ]]; then
+	if [[ "$FromHdd" == 1 || "$Upgrade" == 1 ]]; then
 		return
 	fi
 set +e
