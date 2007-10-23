@@ -4,7 +4,7 @@
      www.plutohome.com
 
      Phone: +1 (877) 758-8648
- 
+
 
      This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
      This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
@@ -12,6 +12,10 @@
 
      See the GNU General Public License for more details.
 
+*/
+
+/** @file Generic_Input_OuputBase.h
+A core piece of LinuxMCE.
 */
 #ifndef Generic_Input_OuputBase_h
 #define Generic_Input_OuputBase_h
@@ -22,8 +26,11 @@
 
 namespace DCE
 {
-//   OUR EVENT CLASS 
+//   OUR EVENT CLASS
 
+/** @class Generic_Input_Ouput_Event
+    All the events for a generic device.
+*/
 class Generic_Input_Ouput_Event : public Event_Impl
 {
 public:
@@ -40,8 +47,11 @@ public:
 };
 
 
-//   OUR DATA CLASS 
+//   OUR DATA CLASS
 
+/** @class Generic_Input_Ouput_Daqta
+    All the data for a generic device.
+*/
 class Generic_Input_Ouput_Data : public DeviceData_Impl
 {
 public:
@@ -56,8 +66,11 @@ public:
 
 
 
-//   OUR COMMAND CLASS 
+//   OUR COMMAND CLASS
 
+/** @class Generic_Input_Ouput_Command
+    All the commands for a generic device.
+*/
 class Generic_Input_Ouput_Command : public Command_Impl
 {
 public:
