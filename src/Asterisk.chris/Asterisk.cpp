@@ -255,187 +255,49 @@ void Asterisk::SomeFunction()
 			/** Extention to dial */
 		/** @param #84 PhoneCallerID */
 			/** Caller id */
-		/** @param #85 CommandID */
-			/** CommandID which will be passed back when getting results */
 
-void Asterisk::CMD_PBX_Originate(string sPhoneNumber,string sPhoneType,string sPhoneExtension,string sPhoneCallerID,int iCommandID,string &sCMD_Result,Message *pMessage)
+void Asterisk::CMD_PBX_Originate(string sPhoneNumber,string sPhoneType,string sPhoneExtension,string sPhoneCallerID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c233-e->
 {
     LoggerWrapper::GetInstance()->Write(LV_STATUS, "Command Originate called with param: "
-                                            "Extension: %s "
-                                            "PhoneNumber: %s "
-                                            "PhoneType: %s "
-                                            "PhoneCallerID: %s"
-                                            "CommandID: %d"
-                                            , sPhoneExtension.c_str(), sPhoneNumber.c_str(), sPhoneType.c_str(), sPhoneCallerID.c_str(), iCommandID);
+		"Extension: %s, PhoneNumber: %s, PhoneType: %s, PhoneCallerID: %s",
+		sPhoneExtension.c_str(), sPhoneNumber.c_str(), sPhoneType.c_str(), sPhoneCallerID.c_str());
 
-    AsteriskManager *manager = AsteriskManager::getInstance();
-    manager->Originate(sPhoneExtension,sPhoneNumber,sPhoneType, sPhoneCallerID, iCommandID);
+    AsteriskManager::getInstance()->Originate(sPhoneExtension,sPhoneNumber,sPhoneType, sPhoneCallerID);
 }//<-dceag-c235-b->
 
 	/** @brief COMMAND: #235 - PBX_Transfer */
 	/** Transfer a call to other phone */
 		/** @param #83 PhoneExtension */
 			/** Phone extension to redirect to */
-		/** @param #85 CommandID */
-			/** CommandID which will be passed back when getting results */
-		/** @param #87 PhoneCallID */
-			/** Call ID which will be transferred */
-		/** @param #196 IsConference */
-			/** Transfer to a conferrence room ? */
+		/** @param #265 Channel 1 */
+			/** Channel 1 to transfer */
+		/** @param #266 Channel 2 */
+			/** Channel 2 to transfer (can be empty) */
 
-void Asterisk::CMD_PBX_Transfer(string sPhoneExtension,int iCommandID,string sPhoneCallID,bool bIsConference,string &sCMD_Result,Message *pMessage)
+void Asterisk::CMD_PBX_Transfer(string sPhoneExtension,string sChannel_1,string sChannel_2,string &sCMD_Result,Message *pMessage)
 //<-dceag-c235-e->
 {
-    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Command %s called with param: "
-                                                "PhoneExtension: %s "
-                                                "PhoneCallID: %s "
-                                                "CommandID: %d",(bIsConference?"Conference":"Transfer"),sPhoneExtension.c_str(), sPhoneCallID.c_str(), iCommandID);
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, 
+		"Command Transfer called with param: Channel1 : %s, Channel2: %s, PhoneExtension %s ",
+        sChannel_1.c_str(), sChannel_2.c_str(), sPhoneExtension.c_str());
 
-    AsteriskManager *manager = AsteriskManager::getInstance();
-
-    if(!bIsConference)
-    {
-        int pos = (int)sPhoneCallID.find_first_not_of(' ');
-        if(pos < 0)
-        {
-            LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Transfer on empty channel ???");
-            return;
-        }
-        string stripped=sPhoneCallID.substr(pos,sPhoneCallID.length());
-		pos = (int)stripped.find(' ');
-        if(pos<0)
-        {
-            LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Transfer on unconnected channel ???");
-            return;
-		}
-		string p1=stripped.substr(0, pos);
-		string p2=stripped.substr(pos+1/*,sPhoneCallID.length()*/);
-		pos = (int)p2.rfind(' ');
-        if(pos>=0)
-        {
-        	p2 = p2.substr(pos+1);
-        }
-		
-		string devext=string("/")+dev2ext[pMessage->m_dwPK_Device_From];
-		string rest=p1;
-		string hang=p2;
-		pos=(int)p1.find(devext);
-		if(pos>=0)
-		{
-			rest=p2;
-			hang=p1;
-		}
-		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Will tranfer %s to %s and hangup %s",rest.c_str(),sPhoneExtension.c_str(),hang.c_str());
-        manager->Transfer(rest,sPhoneExtension,iCommandID);
-		//This sleep should be enough, but it may depend on system load.
-		Sleep(500);
-        CMD_PBX_Hangup(iCommandID,hang,sCMD_Result,NULL);
-    }
-    else
-    {
-		int pos = 0, oldpos = 0;
-		map<string,string> dev_channels;
-		string chan;
-		string sext;
-		string rest1;
-		string rest2;
-		do
-		{
-			pos = (int)sPhoneCallID.find(' ',oldpos);
-			if(pos < 0)
-			{
-				chan = sPhoneCallID.substr(oldpos, sPhoneCallID.length());
-			}
-			else
-			{
-				if(pos==oldpos)
-				{
-					oldpos=pos+1;
-					continue;
-				}
-				chan = sPhoneCallID.substr(oldpos, pos - oldpos);
-			}
-			if(Utils::ParseChannel(chan,&sext,NULL,NULL)==0)
-			{
-				if(dev_channels.find(sext)==dev_channels.end())
-				{
-					dev_channels[sext] = chan;
-					if(rest1 == "")
-					{
-						rest1=chan;
-					}
-					else
-					{
-						if( 5 < chan.size() && chan.substr(0,5) == string("DIAL/") )
-						{
-							// ignore DIAL channel
-							LoggerWrapper::GetInstance()->Write(LV_WARNING, "Ignore DIAL channel");
-						}
-						else if(rest2 == "")
-						{
-							rest2=chan;
-						}
-						else
-						{
-							LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Can not join more than 2 channels !!!");
-						}
-					}
-				}
-			}
-			oldpos=pos+1;
-		}
-		while(pos>=0);
-
-		if((rest1=="") || (rest2==""))
-		{
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Conference on empty/unconnected channels ???");
-			return;
-		}
-		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Will put %s and %s in conference room %s",rest1.c_str(), rest2.c_str(),sPhoneExtension.c_str());
-		manager->Conference(rest1,rest2,sPhoneExtension,iCommandID);
-		//This sleep should be enough, but it may depend on system load.
-		Sleep(300);
-		manager->Conference(rest2,"",sPhoneExtension,iCommandID);
-    }
+	AsteriskManager::getInstance()->Transfer(sChannel_1,sChannel_2,sPhoneExtension);
 }
 //<-dceag-c237-b->
 
 	/** @brief COMMAND: #237 - PBX_Hangup */
 	/** Hangs up a call */
-		/** @param #85 CommandID */
-			/** Comman ID wichi will be passed back in result */
-		/** @param #87 PhoneCallID */
-			/** Call ID to be hanged up */
+		/** @param #264 Channel */
+			/** The channel id to hang up */
 
-void Asterisk::CMD_PBX_Hangup(int iCommandID,string sPhoneCallID,string &sCMD_Result,Message *pMessage)
+void Asterisk::CMD_PBX_Hangup(string sChannel,string &sCMD_Result,Message *pMessage)
 //<-dceag-c237-e->
 {
     LoggerWrapper::GetInstance()->Write(LV_STATUS, "Command Hangup called with param: "
-                                                "PhoneCallID: %s"
-                                                  "CommandID: %d"
-                                                , sPhoneCallID.c_str(), iCommandID);
+		"sChannel: %s", sChannel.c_str());
 
-    AsteriskManager *manager = AsteriskManager::getInstance();
-    string rest = sPhoneCallID;
-    std::stack<std::string> hangup_order;
-    while (rest != "")
-    {
-        int pos = (int)rest.find(' ');
-        if(pos<0)
-        {
-            break;
-        }
-        string chan=rest.substr(0, pos);
-        hangup_order.push(chan);
-        rest = rest.substr(pos+1,rest.length());
-    }
-    hangup_order.push(rest);
-    while(!hangup_order.empty())
-    {
-        manager->Hangup(hangup_order.top(), iCommandID);
-        hangup_order.pop();
-    }
+    AsteriskManager::getInstance()->Hangup(sChannel);
 }
 //<-dceag-createinst-b->!
 //<-dceag-createinst-e->!

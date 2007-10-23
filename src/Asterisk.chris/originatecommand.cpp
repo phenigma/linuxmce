@@ -75,19 +75,10 @@ OriginateCommand::setCallerID(std::string callerid) {
 	this->callerid = callerid;
 }
 
-void 
-OriginateCommand::setCommandID(int commandid) {
-	this->commandid = commandid;
-}
-
 void
 OriginateCommand::handleStartup() {
 
-	/*register the channel as originating 
-		*so no ring event will be issued to Telecom Plugin */
-	
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Registered phone %s as originator of the call. ",
-						phonenum .c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Registered phone %s as originator of the call. ", phonenum .c_str());
 	RuntimeConfig::getInstance()->regOriginateCall(phonenum);
 	
 	m_token.setKey(TOKEN_ACTION, ACTION_ORIGINATE);
@@ -101,10 +92,12 @@ OriginateCommand::handleStartup() {
 bool 
 OriginateCommand::handleResponse(Token& token) {
 
+	//TODO: do we still need this?
+
 	if(token.getKey(TOKEN_RESPONSE) != RESPONSE_SUCCESS) {
 		/*error*/
-		AsteriskManager::getInstance()->NotifyResult(commandid, -1, destchannel);
-		return 1;
+		//AsteriskManager::getInstance()->NotifyResult(commandid, -1, destchannel);
+		return true;
 	}
 
 	return true;

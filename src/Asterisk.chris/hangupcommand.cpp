@@ -53,11 +53,6 @@ HangupCommand::setChannel(std::string channel) {
 	this->channel = channel;
 }
 
-void 
-HangupCommand::setCommandID(int commandid) {
-	this->commandid = commandid;
-}
-
 void
 HangupCommand::handleStartup() {
 	m_token.setKey(TOKEN_ACTION, ACTION_HANGUP);
@@ -66,7 +61,6 @@ HangupCommand::handleStartup() {
 
 bool 
 HangupCommand::handleResponse(Token &token) {
-	//TODO: process response
 	return true;
 }
 

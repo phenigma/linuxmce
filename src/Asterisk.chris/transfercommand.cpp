@@ -54,19 +54,20 @@ TransferCommand::setExtenNum(std::string extennum) {
 }
 
 void 
-TransferCommand::setChannel(std::string channel) {
-	this->channel = channel;
+TransferCommand::setChannel1(std::string channel) {
+	this->channel1 = channel;
 }
 
 void 
-TransferCommand::setCommandID(int commandid) {
-	this->commandid = commandid;
+TransferCommand::setChannel2(std::string channel) {
+	this->channel2 = channel;
 }
 
 void
 TransferCommand::handleStartup() {
 	m_token.setKey(TOKEN_ACTION, ACTION_REDIRECT);
-	m_token.setKey(TOKEN_CHANNEL, channel );
+	m_token.setKey(TOKEN_CHANNEL, channel1 );
+	m_token.setKey(TOKEN_EXTRACHANNEL, channel2 );
 	m_token.setKey(TOKEN_EXTEN, extennum);
 	m_token.setKey(TOKEN_CONTEXT, "trusted");
 	m_token.setKey("Priority", "1");
@@ -74,7 +75,6 @@ TransferCommand::handleStartup() {
 
 bool 
 TransferCommand::handleResponse(Token &token) {
-	//TODO: process response
 	return true;
 }
 

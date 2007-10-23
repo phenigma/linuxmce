@@ -65,25 +65,25 @@ public:
 	
 	/*originates a call*/
 	void Originate(const std::string sPhoneNumber, 
-						const std::string sOriginatorNumber,
-						const std::string sOriginatorType, 
-						const std::string sCallerID,
-						int iCommandID);
+		const std::string sOriginatorNumber,
+		const std::string sOriginatorType, 
+		const std::string sCallerID);
 	
 	/*hangs up a call*/
-	void Hangup(const std::string sChannel, 
-						int iCommandID);
+	void Hangup(const std::string sChannel);
 
 	/*transfers a call*/						
-	void Transfer(const std::string sChannel,
-	              const std::string sPhoneNumber,
-				  int iCommandID);
+	void Transfer(const std::string sChannel1, 
+		const std::string sChannel2, 
+		const std::string sPhoneNumber);
 
-	/*make it a conference  a call*/						
+	/*make it a conference  a call*/	
+	/*
 	void Conference(const std::string sChannel1,
 	                const std::string sChannel2,
 	                const std::string sPhoneNumber,
 	                int iCommandID);
+	*/
 
 	/* get status commands; the response will be events*/
 	void GetExtensionsStatus();

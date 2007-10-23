@@ -88,37 +88,31 @@ public:
 			/** Extention to dial */
 		/** @param #84 PhoneCallerID */
 			/** Caller id */
-		/** @param #85 CommandID */
-			/** CommandID which will be passed back when getting results */
 
-	virtual void CMD_PBX_Originate(string sPhoneNumber,string sPhoneType,string sPhoneExtension,string sPhoneCallerID,int iCommandID) { string sCMD_Result; CMD_PBX_Originate(sPhoneNumber.c_str(),sPhoneType.c_str(),sPhoneExtension.c_str(),sPhoneCallerID.c_str(),iCommandID,sCMD_Result,NULL);};
-	virtual void CMD_PBX_Originate(string sPhoneNumber,string sPhoneType,string sPhoneExtension,string sPhoneCallerID,int iCommandID,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_PBX_Originate(string sPhoneNumber,string sPhoneType,string sPhoneExtension,string sPhoneCallerID) { string sCMD_Result; CMD_PBX_Originate(sPhoneNumber.c_str(),sPhoneType.c_str(),sPhoneExtension.c_str(),sPhoneCallerID.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_PBX_Originate(string sPhoneNumber,string sPhoneType,string sPhoneExtension,string sPhoneCallerID,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #235 - PBX_Transfer */
 	/** Transfer a call to other phone */
 		/** @param #83 PhoneExtension */
 			/** Phone extension to redirect to */
-		/** @param #85 CommandID */
-			/** CommandID which will be passed back when getting results */
-		/** @param #87 PhoneCallID */
-			/** Call ID which will be transferred */
-		/** @param #196 IsConference */
-			/** Transfer to a conferrence room ? */
+		/** @param #265 Channel 1 */
+			/** Channel 1 to transfer */
+		/** @param #266 Channel 2 */
+			/** Channel 2 to transfer (can be empty) */
 
-	virtual void CMD_PBX_Transfer(string sPhoneExtension,int iCommandID,string sPhoneCallID,bool bIsConference) { string sCMD_Result; CMD_PBX_Transfer(sPhoneExtension.c_str(),iCommandID,sPhoneCallID.c_str(),bIsConference,sCMD_Result,NULL);};
-	virtual void CMD_PBX_Transfer(string sPhoneExtension,int iCommandID,string sPhoneCallID,bool bIsConference,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_PBX_Transfer(string sPhoneExtension,string sChannel_1,string sChannel_2) { string sCMD_Result; CMD_PBX_Transfer(sPhoneExtension.c_str(),sChannel_1.c_str(),sChannel_2.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_PBX_Transfer(string sPhoneExtension,string sChannel_1,string sChannel_2,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #237 - PBX_Hangup */
 	/** Hangs up a call */
-		/** @param #85 CommandID */
-			/** Comman ID wichi will be passed back in result */
-		/** @param #87 PhoneCallID */
-			/** Call ID to be hanged up */
+		/** @param #264 Channel */
+			/** The channel id to hang up */
 
-	virtual void CMD_PBX_Hangup(int iCommandID,string sPhoneCallID) { string sCMD_Result; CMD_PBX_Hangup(iCommandID,sPhoneCallID.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_PBX_Hangup(int iCommandID,string sPhoneCallID,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_PBX_Hangup(string sChannel) { string sCMD_Result; CMD_PBX_Hangup(sChannel.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_PBX_Hangup(string sChannel,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #922 - Send Asterisk Status */

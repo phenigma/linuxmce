@@ -47,7 +47,6 @@ public:
 
 public:
 	void setChannel(std::string channel);
-	void setCommandID(int commandid);
 
 	void handleStartup();
 	void handleTerminate();
@@ -55,8 +54,6 @@ public:
 
 private:
 	std::string channel;
-	
-	int commandid;
 
 private:
 };

@@ -39,7 +39,6 @@ sources += \
 	originatecommand.cpp \
 	hangupcommand.cpp \
 	transfercommand.cpp \
-	conferencecommand.cpp \
 	iaxextensionsstatuscommand.cpp \
 	sipextensionsstatuscommand.cpp \
 	communicationhandler.cpp \

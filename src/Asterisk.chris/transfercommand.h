@@ -46,21 +46,18 @@ public:
 	~TransferCommand();
 
 public:
+	void setChannel1(std::string channel);
+	void setChannel2(std::string channe);
 	void setExtenNum(std::string extennum);
-	void setChannel(std::string channel);
-	void setCommandID(int commandid);
-	
+
 	void handleStartup();
 	void handleTerminate();
 	bool handleResponse(Token &token);
 
 private:
+	std::string channel1;
+	std::string channel2;
 	std::string extennum;
-	std::string channel;
-	
-	int commandid;
-	
-private:
 };
 
 };

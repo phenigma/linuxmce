@@ -36,7 +36,7 @@
 #include "originatecommand.h"
 #include "hangupcommand.h"
 #include "transfercommand.h"
-#include "conferencecommand.h"
+//#include "conferencecommand.h"
 #include "callsstatuscommand.h"
 #include "sipextensionsstatuscommand.h"
 #include "iaxextensionsstatuscommand.h"
@@ -73,43 +73,41 @@ AsteriskManager::~AsteriskManager() {
 
 
 void AsteriskManager::Originate(const string sPhoneNumber, const string sOriginatorNumber,
-				const string sOriginatorType, const string sCallerID, int iCommandID) {
-	
+				const string sOriginatorType, const string sCallerID) 
+{
 	/*originate*/
 	OriginateCommand *pCommand = new OriginateCommand();
 	pCommand->setPhoneNum(sOriginatorNumber);
 	pCommand->setPhoneType(sOriginatorType);
 	pCommand->setExtenNum(sPhoneNumber);
 	pCommand->setCallerID(sCallerID);
-	pCommand->setCommandID(iCommandID);
 
 	m_pCommunicationHandler->sendCommand(pCommand);
 }
 
-void AsteriskManager::Hangup(const std::string sChannel, 
-				int iCommandID) {
-	
+void AsteriskManager::Hangup(const std::string sChannel) 
+{
 	/*hangup*/
 	HangupCommand *pCommand = new HangupCommand();
 	pCommand->setChannel(sChannel);
-	pCommand->setCommandID(iCommandID);
 
 	m_pCommunicationHandler->sendCommand(pCommand);
 }
 
-void AsteriskManager::Transfer(const std::string sChannel, const string sPhoneNumber, int iCommandID) {
-	
+void AsteriskManager::Transfer(const std::string sChannel1, const std::string sChannel2, 
+	const string sPhoneNumber)
+{
 	/*transfer*/
 	TransferCommand *pCommand = new TransferCommand();
+	pCommand->setChannel1(sChannel1);
+	pCommand->setChannel2(sChannel2);
 	pCommand->setExtenNum(sPhoneNumber);
-	pCommand->setChannel(sChannel);
-	pCommand->setCommandID(iCommandID);
 
 	m_pCommunicationHandler->sendCommand(pCommand);
 }
 
+/*
 void AsteriskManager::Conference(const std::string sChannel1, const std::string sChannel2, const string sPhoneNumber, int iCommandID) {
-	
 	ConferenceCommand* pCommand = new ConferenceCommand();
 	pCommand->setExtenNum(sPhoneNumber);
 	pCommand->setChannel1(sChannel1);
@@ -118,6 +116,7 @@ void AsteriskManager::Conference(const std::string sChannel1, const std::string 
 
 	m_pCommunicationHandler->sendCommand(pCommand);
 }
+*/
 
 void AsteriskManager::GetExtensionsStatus()
 {

@@ -50,7 +50,6 @@ public:
 	void setPhoneType(std::string phonetype);
 	void setExtenNum(std::string extennum); // extention number
 	void setCallerID(std::string sCallerID);
-	void setCommandID(int iCommandID);
 	
 	void handleStartup();
 	void handleTerminate();
@@ -61,8 +60,6 @@ private:
 	std::string phonetype;
 	std::string extennum;
 	std::string callerid;
-	
-	int commandid;
 	
 private:
 	std::string srcchannel;
