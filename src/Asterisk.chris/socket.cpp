@@ -108,7 +108,7 @@ int Socket::sendToken(const Token& token) {
 	}
 	string str = token.serialize();
 	if(!str.empty()) {
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "sending command:\n%s", str.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "sending command:\n%s", str.c_str());
 		if(send(socket_fd, str.c_str(), (int)str.length(), 0) > 0) {
 			LoggerWrapper::GetInstance()->Write(LV_STATUS, "command sent successfully.");
 			return 0;
@@ -208,7 +208,7 @@ int Socket::recvToken(Token& token) {
 	}
 
 	if(!recvreply.empty()) {
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "received message:\n%s", recvreply.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "received message:\n%s", recvreply.c_str());
 		if(!token.unserialize(recvreply)) {
 			return 0;
 		} else {
