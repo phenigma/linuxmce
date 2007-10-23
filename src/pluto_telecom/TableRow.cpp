@@ -44,6 +44,18 @@ else
 return false;	
 }
 
+SingleLong64Key::SingleLong64Key(unsigned long long in_pk)
+{
+	pk = in_pk;
+}
+bool SingleLong64Key_Less::operator()(const SingleLong64Key &key1, const SingleLong64Key &key2) const
+{
+if (key1.pk!=key2.pk)
+return key1.pk<key2.pk;
+else
+return false;	
+}
+
 DoubleLongKey::DoubleLongKey(long int in_pk1,long int in_pk2)
 {
 	pk1 = in_pk1;

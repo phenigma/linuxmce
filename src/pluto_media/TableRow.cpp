@@ -44,7 +44,7 @@ else
 return false;	
 }
 
-SingleLong64Key::SingleLong64Key(u_int64_t in_pk)
+SingleLong64Key::SingleLong64Key(unsigned long long in_pk)
 {
 	pk = in_pk;
 }

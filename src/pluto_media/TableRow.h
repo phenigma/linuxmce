@@ -47,8 +47,8 @@ struct DECLSPECIFIER SingleLongKey_Less
 
 struct DECLSPECIFIER SingleLong64Key
 {
-	u_int64_t pk;
-	SingleLong64Key(u_int64_t in);
+	unsigned long long pk;
+	SingleLong64Key(unsigned long long in);
 };
 
 struct DECLSPECIFIER SingleLong64Key_Less

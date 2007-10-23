@@ -151,7 +151,7 @@ is_null[10] = true;
 m_psc_user = 0;
 m_psc_frozen = 0;
 is_null[11] = false;
-m_psc_mod = "00000000000000";
+m_psc_mod = "0000-00-00 00:00:00";
 is_null[12] = false;
 is_null[13] = true;
 m_psc_restrict = 0;
@@ -507,8 +507,8 @@ PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 if (is_null[12])
 return "NULL";
 
-char *buf = new char[29];
-db_wrapper_real_escape_string(table->database->m_pDB, buf, m_psc_mod.c_str(), (unsigned long) min((size_t)14,m_psc_mod.size()));
+char *buf = new char[39];
+db_wrapper_real_escape_string(table->database->m_pDB, buf, m_psc_mod.c_str(), (unsigned long) min((size_t)19,m_psc_mod.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
@@ -554,6 +554,7 @@ return false;
 
 bool Table_Contact::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
+	bool bSuccessful=true;
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_DBMutex);
 
 //insert added
@@ -588,7 +589,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_Contact_asS
 					addedRows.erase(i);
 					delete pRow;
 				}
-				return false;
+				break;   // Go ahead and continue to do the updates
 			}
 		}
 	
@@ -656,7 +657,7 @@ update_values_list = update_values_list + "`PK_Contact`="+pRow->PK_Contact_asSQL
 					cachedRows.erase(i);
 					delete pRow;
 				}
-				return false;
+				break;  // Go ahead and do the deletes
 			}
 		}
 	
@@ -712,7 +713,7 @@ condition = condition + "`PK_Contact`=" + tmp_PK_Contact;
 		deleted_cachedRows.erase(key);
 	}
 	
-	return true;
+	return bSuccessful;
 }
 
 bool Table_Contact::GetRows(string where_statement,vector<class Row_Contact*> *rows)

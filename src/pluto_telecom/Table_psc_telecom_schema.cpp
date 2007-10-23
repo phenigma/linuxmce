@@ -216,6 +216,7 @@ return false;
 
 bool Table_psc_telecom_schema::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
+	bool bSuccessful=true;
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_DBMutex);
 
 //insert added
@@ -250,7 +251,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_psc_telecom
 					addedRows.erase(i);
 					delete pRow;
 				}
-				return false;
+				break;   // Go ahead and continue to do the updates
 			}
 		}
 	
@@ -318,7 +319,7 @@ update_values_list = update_values_list + "`PK_psc_telecom_schema`="+pRow->PK_ps
 					cachedRows.erase(i);
 					delete pRow;
 				}
-				return false;
+				break;  // Go ahead and do the deletes
 			}
 		}
 	
@@ -374,7 +375,7 @@ condition = condition + "`PK_psc_telecom_schema`=" + tmp_PK_psc_telecom_schema;
 		deleted_cachedRows.erase(key);
 	}
 	
-	return true;
+	return bSuccessful;
 }
 
 bool Table_psc_telecom_schema::GetRows(string where_statement,vector<class Row_psc_telecom_schema*> *rows)
