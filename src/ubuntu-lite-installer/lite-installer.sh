@@ -34,7 +34,7 @@ NukeFS()
 			Exceptions=("${Exceptions[@]}" -or -name "$Path")
 		done
 		IFS="$OldIFS"
-		find "$BasePath" -maxdepth 1 -maxdepth 1 '(' "${Exceptions[@]}" ')' -or -exec rm -rf '{}' ';'
+		find "$BasePath" -mindepth 1 -maxdepth 1 '(' "${Exceptions[@]}" ')' -or -exec rm -rf '{}' ';'
 	done
 }
 
