@@ -28,7 +28,7 @@ class VR_RequestSecureTransaction : public RA_Request
 	unsigned long m_FKID_PlutoId_Establishment,m_FKID_PlutoId_User;
 
 	// Response Variables
-	u_int64_t m_lMacAddress;
+	unsigned long long m_lMacAddress;
 	unsigned long m_iConfirmEstablishmentId;
 	PlutoDataBlock m_pdbKey;
 

@@ -73,7 +73,7 @@
 #define	_FP_PICTURE	30
 
 VR_IdentifyPhone::VR_IdentifyPhone(unsigned long EstablishmentID,
-		string sBluetooth,u_int64_t MacAddress,unsigned long CachedRecordVersion,unsigned long CachedPlutoId,
+		string sBluetooth,unsigned long long MacAddress,unsigned long CachedRecordVersion,unsigned long CachedPlutoId,
 		unsigned long IdentifiedPlutoId,string IdentiedPlutoIdPin,class Customer *pCustomer) 
 	: RA_Request()
 {

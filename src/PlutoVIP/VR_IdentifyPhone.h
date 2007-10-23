@@ -32,7 +32,7 @@ class VR_IdentifyPhone : public RA_Request
 public:
 	// Request Variables
 	string m_sBluetoothID,m_sIdentifiedPlutoIdPin;
-	u_int64_t m_iMacAddress;
+	unsigned long long m_iMacAddress;
 	unsigned long m_iCachedRecordVersion,m_iCachedPlutoId,m_iIdentifiedPlutoId;
 	unsigned long m_iEstablishmentID;
 
@@ -54,7 +54,7 @@ public:
 	VR_IdentifyPhone(
 		unsigned long EstablishmentID,
 		string sBluetooth,
-		u_int64_t MacAddress,
+		unsigned long long MacAddress,
 		unsigned long CachedRecordVersion,
 		unsigned long CachedPlutoId,
 		unsigned long IdentifiedPlutoId,

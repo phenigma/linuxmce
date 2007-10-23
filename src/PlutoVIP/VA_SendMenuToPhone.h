@@ -26,7 +26,7 @@ class VA_SendMenuToPhone : public RA_Action
 {
 public:
 	PlutoDataBlock m_pdbMenu;
-	u_int64_t m_iMacAddress;
+	unsigned long long m_iMacAddress;
 
 	VA_SendMenuToPhone(string Filename, u_int64_t MacAddress);
 	VA_SendMenuToPhone() { m_pdbMenu.m_pBlock = NULL; m_pdbMenu.m_dwSize = 0;}

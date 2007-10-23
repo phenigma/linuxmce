@@ -26,7 +26,7 @@ class VR_ManuallyMatchPhone : public RA_Request
 {
 	// Request Variables
 	string m_sBluetoothID,m_sIdentifiedPlutoIdPin;
-	u_int64_t m_iMacAddress;
+	unsigned long long m_iMacAddress;
 	unsigned long m_iIdentifiedPlutoId;
 	unsigned long m_iEstablishmentID;
 
@@ -35,7 +35,7 @@ class VR_ManuallyMatchPhone : public RA_Request
 public:
 	// The establishment will call this constructor, then ConvertRequestToBinary
 	VR_ManuallyMatchPhone(unsigned long EstablishmentID,
-		string sBluetooth,u_int64_t MacAddress,unsigned long IdentifiedPlutoId,string IdentiedPlutoIdPin);
+		string sBluetooth,unsigned long long MacAddress,unsigned long IdentifiedPlutoId,string IdentiedPlutoIdPin);
 	VR_ManuallyMatchPhone() {}
 
 	virtual unsigned long ID() { return VRS_MANUALLY_MATCH_PHONE; }

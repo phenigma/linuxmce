@@ -34,10 +34,10 @@ class VA_SendFileToPhone : public RA_Action
 public:
 	PlutoDataBlock m_pdbFile;
 	string m_sFileName;
-	u_int64_t m_iMacAddress;
+	unsigned long long m_iMacAddress;
 
 	// For an incoming menu
-	VA_SendFileToPhone(string sPathName, string sFileName,u_int64_t MacAddress);
+	VA_SendFileToPhone(string sPathName, string sFileName,unsigned long long MacAddress);
 	VA_SendFileToPhone() {}
 
 	unsigned long ID() { return ACTION_SENDFILE_TOPHONE; }

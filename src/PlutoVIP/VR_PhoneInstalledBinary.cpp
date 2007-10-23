@@ -31,7 +31,7 @@
 #include <iostream>
 #include <sstream>
 
-VR_PhoneInstalledBinary::VR_PhoneInstalledBinary(u_int64_t MacAddress,unsigned long Revision)
+VR_PhoneInstalledBinary::VR_PhoneInstalledBinary(unsigned long long MacAddress,unsigned long Revision)
 	: RA_Request()
 {
 	m_iMacAddress=MacAddress;

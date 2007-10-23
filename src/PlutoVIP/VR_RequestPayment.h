@@ -49,7 +49,7 @@ public:
 	long m_iAmount;
 	string m_sInvoiceNumber;
 	unsigned long m_FKID_PlutoId_Establishment,m_FKID_PlutoId_User;
-	u_int64_t m_iMacAddress;  // The phone that this will go to
+	unsigned long long m_iMacAddress;  // The phone that this will go to
 	string m_sDescription,m_sCashierName;
 	list<InvoiceDetail *> m_listInvoiceDetail;
 

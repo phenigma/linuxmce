@@ -39,7 +39,7 @@
 
 
 // todo - is there a cross platform (linux/symbian/windows) way to dynamically allocate a growable memory block?
-VA_SendFileToPhone::VA_SendFileToPhone(string sPathName, string sFileName,u_int64_t MacAddress) 
+VA_SendFileToPhone::VA_SendFileToPhone(string sPathName, string sFileName,unsigned long long MacAddress) 
 	: RA_Action()
 { 
 	m_sFileName=sFileName;

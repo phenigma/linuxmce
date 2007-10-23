@@ -31,7 +31,7 @@
 using namespace std;
 
 VR_ManuallyMatchPhone::VR_ManuallyMatchPhone(unsigned long EstablishmentID,
-		string sBluetooth,u_int64_t MacAddress,unsigned long IdentifiedPlutoId,string IdentiedPlutoIdPin) 
+		string sBluetooth,unsigned long long MacAddress,unsigned long IdentifiedPlutoId,string IdentiedPlutoIdPin) 
 	: RA_Request()
 {
 	// Request is of the form:
