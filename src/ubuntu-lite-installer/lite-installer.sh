@@ -357,7 +357,15 @@ TargetCleanup()
 	#chroot /media/target update-grub
 
 	if [[ -d /media/target/.upgrade-save ]]; then
-		mv /media/target/{.upgrade-save/*,}
+		pushd /media/target/.upgrade-save &>/dev/null
+		while read filepath; do
+			filepath="${filepath#+}"
+			filepath="${filepath%+}"
+			directory="../$(dirname "$filepath")"
+			mkdir -p "$directory"
+			mv "$filepath" "$directory"
+		done < <(find -not -type d -printf "+%p+\n")
+		popd &>/dev/null
 		rm -rf /media/target/.upgrade-save
 	fi
 }
