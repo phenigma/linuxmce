@@ -356,9 +356,9 @@ TargetCleanup()
 	chroot /media/target update-initramfs -u
 	#chroot /media/target update-grub
 
-	if [[ -d /media/target/.backup ]]; then
-		mv /media/target/{.backup/*,}
-		rm -rf /media/target/.backup
+	if [[ -d /media/target/.upgrade-save ]]; then
+		mv /media/target/{.upgrade-save/*,}
+		rm -rf /media/target/.upgrade-save
 	fi
 }
 
