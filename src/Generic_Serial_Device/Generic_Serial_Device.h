@@ -13,7 +13,16 @@
 */
 
 /** @file Generic_Serial_Device.h
-Core ?
+A core piece of LinuxMCE.
+
+Requires 2 other modules to be present:
+<ul>
+<li>MessageTranslation
+<li>Serial
+<li>DCE
+<li>PlutoUtils
+<li>pluto_main
+</ul>
 */
 //<-dceag-d-b->
 #ifndef Generic_Serial_Device_h
@@ -34,6 +43,25 @@ Core ?
 
 /** @namespace DCE
 The Data Commands and Events (DCE) namespace.
+
+The "Generic Serial Device" module (GSD) is designed for the thousands
+of devices that are controlled over RS232 and Ethernet.
+It allows a LinuxMCE driver to be added using a point-and-click,
+fill-in-the-blanks interface.
+Basic protocols can be implemented with no programming at all.
+
+For more complicated tasks GSD embeds the Ruby language.
+Ruby is a high-level interpreted language with flexible string handling,
+like Perl, but the syntax is simpler.
+The protocol and embedded Ruby for GSD devices is stored in the database
+and automatically synchronized with all other LinuxMCE systems as long
+as you leave checked the "Share my IR codes and GSD device" box on
+the A/V Equipment wizard.
+So there's no compiling and no code to check in.
+
+GSD devices that control a/v equipment, lighting, etc., can be done
+in as little as an hour or two, almost never more than a day for
+complex protocols.
 */
 namespace DCE
 {
@@ -75,19 +103,70 @@ public:
 
 //<-dceag-const-b->
 public:
-		// Constructors/Destructor
+		/** Constructors
+        @param DeviceID is the device ident.
+        @param ServerAddress is the IP address of the server.
+        @param bConnectEventHandler is the flag to force connection.
+        @param bLocalMode is the local flag.
+        @param pRouter ia a pointer to the router instance.
+        */
 		Generic_Serial_Device(int DeviceID, string ServerAddress,bool bConnectEventHandler=true,bool bLocalMode=false,class Router *pRouter=NULL);
+
+        /** Destructor */
 		virtual ~Generic_Serial_Device();
+
+        /** Get the config */
 		virtual bool GetConfig();
+
+        /** Register the serial device.
+        @returns false as it empty registration a present.
+        */
 		virtual bool Register();
+
+        /** ReceivedCommandForChild.
+        @param pDeviceData_Impl is a pointer to the DeviceData_Impl.
+        @param sCMD_Result is the address where the result is stored.
+        @param pMessage is a pointer to ehe message.
+
+        When you receive commands that are destined to one of your children,
+          then if that child implements DCE then there will already be a separate class
+          created for the child that will get the message.
+        If the child does not, then you will get all commands for your children
+          in ReceivedCommandForChild, where pDeviceData_Base is the child device.
+        If you handle the message, you should change the sCMD_Result to OK.
+        */
 		virtual void ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sCMD_Result,Message *pMessage);
+
+        /** ReceivedUnknownCommand.
+        @param sCMD_Result is the address where the result is stored.
+        @param pMessage is a pointer to ehe message.
+
+        When you received a valid command, but it wasn't for one of your children,
+          then ReceivedUnknownCommand gets called.
+        If you handle the message, you should change the sCMD_Result to OK.
+        */
 		virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
 //<-dceag-const-e->
+
+        /** Connect the serial device
+        */
 		virtual bool Connect(int iPK_DeviceTemplate );
+
+        // Unused
 //		virtual bool ReceivedMessage(class Message *pMessageOriginal);
+
+        /** Transmit.
+
+        Currently does nothing.
+        */
 		virtual void Transmit(const char *pData,int iSize);
 
+        /** Split off a thread and run it.
+        */
 		virtual void RunThread();
+
+        /** Parse
+        */
 		virtual void ParseDeviceHierarchy(DeviceData_Impl *pdevdata = NULL);
 
 //<-dceag-const2-b->!
