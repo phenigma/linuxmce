@@ -100,11 +100,12 @@ bool SerializeClass::Serialize( bool bWriting, char *&pcDataBlock, unsigned long
 			case SERIALIZE_DATA_TYPE_UNSIGNED_LONG:
 				Write_unsigned_long( *((unsigned long *) pItem->m_pItem) );
 				break;
-#ifndef SYMBIAN
+#if !defined(SYMBIAN) && !defined(WINCE)
 			case SERIALIZE_DATA_TYPE_INT64:
 				Write_int64( *((u_int64_t *) pItem->m_pItem) );
 				break;
 #endif
+
 			case SERIALIZE_DATA_TYPE_STRING:
 				Write_string( *((string *) pItem->m_pItem) );
 				break;
@@ -198,7 +199,9 @@ bool SerializeClass::Serialize( bool bWriting, char *&pcDataBlock, unsigned long
 					map<u_int64_t,string>::iterator it;
 					for(it=pMap->begin(); it!=pMap->end(); ++it)
 					{
+#ifndef WINCE
 						Write_int64( (*it).first );
+#endif
 						Write_string( (*it).second );
 					}
 				}

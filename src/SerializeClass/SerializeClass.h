@@ -331,7 +331,10 @@ public:
 	SerializeClass &operator+ (double &i) { MYSTL_ADDTO_LIST(m_vectItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_DOUBLE,(void *) &i)); return (*this); } /** < @brief overloading + to take an double */
 	SerializeClass &operator+ (short &i) { MYSTL_ADDTO_LIST(m_vectItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_SHORT,(void *) &i)); return (*this); } /** < @brief overloading + to take an short */
 	SerializeClass &operator+ (string &i) { MYSTL_ADDTO_LIST(m_vectItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_STRING,(void *) &i)); return (*this); } /** < @brief overloading + to take a string */
+
+#ifndef WINCE
 	SerializeClass &operator+ (unsigned long long &i) { MYSTL_ADDTO_LIST(m_vectItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_INT64,(void *) &i)); return (*this); } /** < @brief overloading + to take an u_int64_t */
+#endif
 
 #ifndef SYMBIAN
 	SerializeClass &operator+ (vector<string> &i) { m_vectItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_VECT_STRING,(void *) &i)); return (*this); } /** < @brief overloading + to take a vector of strings */
@@ -491,12 +494,14 @@ public:
 		m_pcCurrentPosition += sizeof(u_int64_t);
 	}
 
+#ifndef WINCE
 	void Write_int64(unsigned long long v) {
 		CheckWrite(sizeof(unsigned long long));
 		unsigned long long *pl = (unsigned long long *) m_pcCurrentPosition;
 		*pl = v;
 		m_pcCurrentPosition += sizeof(unsigned long long);
 	}
+#endif
 
 	void Write_unsigned_long(unsigned long v) 
 	{
