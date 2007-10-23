@@ -1676,7 +1676,7 @@ void MythTV_PlugIn::AlarmCallback(int id, void* param)
 	else if( id==CHECK_FOR_SCHEDULED_RECORDINGS )
 		UpdateUpcomingRecordings();
 	else if( id==CONFIRM_MASTER_BACKEND_OK )
-		ConfirmMasterBackendOk((int) param);
+		ConfirmMasterBackendOk((int)(long) param);
 	else if( id==SYNC_PROVIDERS_AND_CARDS )
 		CMD_Sync_Providers_and_Cards(0,0);
 }

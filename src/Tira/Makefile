@@ -21,7 +21,13 @@ sources = Main.cpp Tira.cpp $(Gen_Dev_Files)
 CXXFLAGS +=
 CPPFLAGS +=
 LDFLAGS += -L.
-XTRALDLIBS = -lMessageTranslation -lIRBase -lTiraAPI
+XTRALDLIBS = -lMessageTranslation -lIRBase
+
+ifneq (,$(findstring -DARCH64, $(CPPFLAGS)))
+        XTRALDLIBS += -lTiraAPI_64b
+else
+        XTRALDLIBS += -lTiraAPI
+endif
 
 Gen_Dev_Files +=
 sources += ../LIRC_DCE/IRReceiverBase.cpp ToCCF.cpp

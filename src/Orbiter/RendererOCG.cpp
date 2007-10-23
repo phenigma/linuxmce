@@ -26,8 +26,8 @@
 	lzo_align_t __LZO_MMODEL var [ ((size) + (sizeof(lzo_align_t) - 1)) / sizeof(lzo_align_t) ]
 static HEAP_ALLOC(wrkmem,LZO1X_1_MEM_COMPRESS);
 //----------------------------------------------------------------------------------------------------------------
-static const long ciOCGMagicStart = 0x1234;
-static const long ciOCGMagicEnd = 0x5678;
+static const int ciOCGMagicStart = 0x1234;
+static const int ciOCGMagicEnd = 0x5678;
 //----------------------------------------------------------------------------------------------------------------
 RendererOCG::RendererOCG()
 {
@@ -40,8 +40,8 @@ RendererOCG::RendererOCG(string sOCGFilename)
 	LoadOCG(sOCGFilename);
 }
 //----------------------------------------------------------------------------------------------------------------
-RendererOCG::RendererOCG(char *pPixelsData, size_t iPixelsDataSize, 
-						 char *pPixelFormatData, size_t iPixelFormatDataSize, 
+RendererOCG::RendererOCG(char *pPixelsData, int iPixelsDataSize, 
+						 char *pPixelFormatData, int iPixelFormatDataSize, 
 						 int iWidth, int iHeight)
 {
 	Initialize();
@@ -95,13 +95,13 @@ bool RendererOCG::LoadOCG(string sOCGFilename)
 	if(!pOCGData)
 		return false;
 
-	return SetOCGData(pOCGData, iOCGSize);
+	return SetOCGData(pOCGData, (int)iOCGSize);
 
 	PLUTO_SAFE_DELETE_ARRAY(pOCGData);
 }
 //----------------------------------------------------------------------------------------------------------------
-bool RendererOCG::SetSurface(char *pPixelsData, size_t iPixelsDataSize, 
-							 char *pPixelFormatData, size_t iPixelFormatDataSize, 
+bool RendererOCG::SetSurface(char *pPixelsData, int iPixelsDataSize, 
+							 char *pPixelFormatData, int iPixelFormatDataSize, 
 							 int iWidth, int iHeight)
 {
 	Cleanup();
@@ -114,10 +114,13 @@ bool RendererOCG::SetSurface(char *pPixelsData, size_t iPixelsDataSize,
 	m_iHeight = iHeight;
 
 	//compress pixels data
-	char *pCompressedData = new char[m_iPixelsDataSize + m_iPixelsDataSize / 64 + 16 + 3 + 4];
-	size_t iCompressedDataSize;
-	lzo1x_1_compress((lzo_byte *)m_pPixelsData, (lzo_uint)m_iPixelsDataSize, (lzo_byte *)pCompressedData, (lzo_uint *)(&iCompressedDataSize), wrkmem);
+	char *pCompressedData = new char[3 * m_iPixelsDataSize];
+	int iCompressedDataSize = 0;
+	long iSize = 0;
+	lzo1x_1_compress((lzo_byte *)m_pPixelsData, (lzo_uint)m_iPixelsDataSize, (lzo_byte *)pCompressedData, (lzo_uint *)(&iSize), wrkmem);
 
+	iCompressedDataSize = (int)iSize;
+	
 	//serialize data
 	m_pOCGData = new char[4 + 4 + 4 + 4 + m_iPixelFormatDataSize + 4 + iCompressedDataSize + 4 + 4];
 	m_iOCGSize = 0;
@@ -158,7 +161,7 @@ bool RendererOCG::SetSurface(char *pPixelsData, size_t iPixelsDataSize,
 	return true;
 }
 //----------------------------------------------------------------------------------------------------------------
-bool RendererOCG::SetOCGData(char *pOCGData, size_t iOCGSize)//it's user responsability to delete pOCGData!!!
+bool RendererOCG::SetOCGData(char *pOCGData, int iOCGSize)//it's user responsability to delete pOCGData!!!
 {
 	Cleanup();
 
@@ -167,23 +170,23 @@ bool RendererOCG::SetOCGData(char *pOCGData, size_t iOCGSize)//it's user respons
 	memcpy(m_pOCGData, pOCGData, iOCGSize);
 
 	//deserialize OCG data
-	size_t iOffset = 0;
+	int iOffset = 0;
 
 	//magic start
-	long iMagicStart = *(long *)(m_pOCGData + iOffset);
+	int iMagicStart = *(int *)(m_pOCGData + iOffset);
 	iOffset += sizeof(iMagicStart);
 	if(iMagicStart != ciOCGMagicStart)
 		return false;
 
 	//width
-	m_iWidth = *(long *)(m_pOCGData + iOffset);
+	m_iWidth = *(int *)(m_pOCGData + iOffset);
 	iOffset += sizeof(m_iWidth);
 	//height
-	m_iHeight = *(long *)(m_pOCGData + iOffset);
+	m_iHeight = *(int *)(m_pOCGData + iOffset);
 	iOffset += sizeof(m_iHeight);
 
 	//pixel format data size
-	m_iPixelFormatDataSize = *(long *)(m_pOCGData + iOffset);
+	m_iPixelFormatDataSize = *(int *)(m_pOCGData + iOffset);
 	iOffset += sizeof(m_iPixelFormatDataSize);
 	//pixel format data
 	m_pPixelFormatData = new char[m_iPixelFormatDataSize];
@@ -191,7 +194,7 @@ bool RendererOCG::SetOCGData(char *pOCGData, size_t iOCGSize)//it's user respons
 	iOffset += m_iPixelFormatDataSize;
 
 	//compressed data size
-	size_t iCompressedDataSize = *(long *)(m_pOCGData + iOffset);
+	int iCompressedDataSize = *(int *)(m_pOCGData + iOffset);
 	iOffset += sizeof(iCompressedDataSize);
 	//compressed data
 	char *pCompressedData = new char[iCompressedDataSize];
@@ -199,7 +202,7 @@ bool RendererOCG::SetOCGData(char *pOCGData, size_t iOCGSize)//it's user respons
 	iOffset += iCompressedDataSize;
 
 	//uncompressed data size
-	//int iUncompressedSize = *(long *)(m_pOCGData + iOffset);
+	//int iUncompressedSize = *(int *)(m_pOCGData + iOffset);
 
 
 		//WinCE issue :(
@@ -215,7 +218,7 @@ bool RendererOCG::SetOCGData(char *pOCGData, size_t iOCGSize)//it's user respons
 	iOffset += sizeof(iUncompressedSize);
 
 	//magic end
-	//long iMagicEnd = *(long *)(m_pOCGData + iOffset);
+	//int iMagicEnd = *(int *)(m_pOCGData + iOffset);
 
 		//WinCE issue :(
 		v1 = ((unsigned char *)(m_pOCGData + iOffset))[0];
@@ -234,14 +237,17 @@ bool RendererOCG::SetOCGData(char *pOCGData, size_t iOCGSize)//it's user respons
 
 
 	m_pPixelsData = new char[iUncompressedSize];
-	lzo1x_decompress((lzo_byte *)pCompressedData, (lzo_uint)iCompressedDataSize, (lzo_byte *)m_pPixelsData, (lzo_uint *)(&m_iPixelsDataSize), wrkmem);
+
+	long size = 0;
+	lzo1x_decompress((lzo_byte *)pCompressedData, (lzo_uint)iCompressedDataSize, (lzo_byte *)m_pPixelsData, (lzo_uint *)(&size), wrkmem);
+	m_iPixelsDataSize = (int)size;
 
 	PLUTO_SAFE_DELETE_ARRAY(pCompressedData);
 	return true;
 }
 //----------------------------------------------------------------------------------------------------------------
-bool RendererOCG::GetSurface(char *& pPixelsData, size_t& iPixelsDataSize, 
-							 char *& pPixelFormatData, size_t& iPixelFormatDataSize,
+bool RendererOCG::GetSurface(char *& pPixelsData, int& iPixelsDataSize, 
+							 char *& pPixelFormatData, int& iPixelFormatDataSize,
 							 int& iWidth, int& iHeight)
 {
 	iWidth = m_iWidth;
@@ -255,7 +261,7 @@ bool RendererOCG::GetSurface(char *& pPixelsData, size_t& iPixelsDataSize,
 	return true;
 }
 //----------------------------------------------------------------------------------------------------------------
-bool RendererOCG::GetOCGData(char *& pOCGData, size_t& iOCGSize)
+bool RendererOCG::GetOCGData(char *& pOCGData, int& iOCGSize)
 {
 	//TODO: not implemented
 

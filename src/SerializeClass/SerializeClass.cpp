@@ -279,10 +279,10 @@ bool SerializeClass::Serialize( bool bWriting, char *&pcDataBlock, unsigned long
 				*((short *) pItem->m_pItem)=Read_short();
 				break;
 			case SERIALIZE_DATA_TYPE_LONG:
-				*((long *) pItem->m_pItem)=Read_long();
+				*((int *) pItem->m_pItem)=Read_long();
 				break;
 			case SERIALIZE_DATA_TYPE_UNSIGNED_LONG:
-				*((unsigned long *) pItem->m_pItem)=Read_unsigned_long();
+				*((unsigned int *) pItem->m_pItem)=Read_unsigned_long();
 				break;
 #ifndef SYMBIAN
 			case SERIALIZE_DATA_TYPE_INT64:

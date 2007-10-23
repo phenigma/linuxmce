@@ -11,7 +11,7 @@ LDFLAGS = -L$(ROOT)/lib
 BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lmysqlclient_r -lpthread
 
 CC = gcc
-CFLAGS = $(CXXFLAGS) -m32 -DLINUX $(SNR_CPPFLAGS)
+CFLAGS = $(CXXFLAGS) -DLINUX $(SNR_CPPFLAGS)
 
 MYNAME = Media_Live_LCDButtons
 VERSION = 2.0.0

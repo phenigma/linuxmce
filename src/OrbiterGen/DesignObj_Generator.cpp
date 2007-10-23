@@ -1214,7 +1214,7 @@ if( pRow_DesignObj_Child->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Go_CONST || pRow
 		LoggerWrapper::GetInstance()->Write(LV_WARNING,"pass 1 DESIGNOBJ_butFBSF_Go_CONST %d %d,%d-%d,%d %d,%d-%d,%d adj %s pass %d",pObj->m_pRow_DesignObj->PK_DesignObj_get(),
 			pObj->m_rPosition.X,pObj->m_rPosition.Y,pObj->m_rPosition.Width,pObj->m_rPosition.Height,
 			pObj->m_rBackgroundPosition.X,pObj->m_rBackgroundPosition.Y,pObj->m_rBackgroundPosition.Width,pObj->m_rBackgroundPosition.Height,
-			(int) pObj->m_sAdjustments.c_str(),(int) Pass);
+			pObj->m_sAdjustments.c_str(),(int) Pass);
 	}
 			if( (pObj->m_sAdjustments.empty()==true && Pass==0) || (pObj->m_sAdjustments.empty()==false && Pass==1) )
 				pObj->Process();

@@ -1898,7 +1898,7 @@ class DataGridTable *Media_Plugin::Bookmarks( string GridID, string Parms, void 
 			else
 				sItem = pRow_Bookmark->Description_get();
 
-			DataGridCell *pDataGridCell = pDataGridCell = new DataGridCell(sItem, 
+			DataGridCell *pDataGridCell = new DataGridCell(sItem, 
                 StringUtils::itos(pRow_Bookmark->PK_Bookmark_get()));
             pDataGrid->SetData(0,s,pDataGridCell);
         }

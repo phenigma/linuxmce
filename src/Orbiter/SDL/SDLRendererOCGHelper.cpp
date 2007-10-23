@@ -51,16 +51,16 @@ inline Uint16 make16bcolor( unsigned char red, unsigned char green, unsigned cha
 	return (Uint16) (((red << 8) & RED_MASK_16) | ((green << 3) & GREEN_MASK_16) | (blue >> 3));
 }
 //----------------------------------------------------------------------------------------------------------------
-SDL_Surface* SDL_LoadOCG(char *pOCGData, size_t iOCGDataSize)
+SDL_Surface* SDL_LoadOCG(char *pOCGData, int iOCGDataSize)
 {
 	RendererOCG *pRendererOCG = new RendererOCG();
 	pRendererOCG->SetOCGData(pOCGData, iOCGDataSize);
 	SDL_Surface *pSurface = NULL;
 
 	char *pPixelsData;
-	size_t iPixelsDataSize;
+	int iPixelsDataSize;
 	char *pPixelFormatData;
-	size_t iPixelFormatDataSize;
+	int iPixelFormatDataSize;
 	int iWidth;
 	int iHeigth;
 
@@ -89,7 +89,7 @@ SDL_Surface* SDL_LoadOCG(string sFilename)
 	if(!pData)
 		return NULL;
 
-	SDL_Surface *pSurface = SDL_LoadOCG(pData, iSize);
+	SDL_Surface *pSurface = SDL_LoadOCG(pData, (int)iSize);
 
 	PLUTO_SAFE_DELETE_ARRAY(pData);
 	return pSurface;

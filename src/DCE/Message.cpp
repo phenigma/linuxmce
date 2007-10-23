@@ -354,7 +354,7 @@ Message::Message( long dwDeviceIDFrom, long dwDeviceIDTo, long dwPriority, long 
     va_start( marker, dwParameterCount );
     for( unsigned long i=0; i < dwParameterCount; i++ )
     {
-        long Key = va_arg( marker, long );
+        int Key = va_arg( marker, int );
         if ( Key >= 0 ) // if Key > 0 it is a normal string parameter, otherwise i's a data block
         {
             m_mapParameters[Key] = string( va_arg( marker, char* ) );
@@ -362,7 +362,7 @@ Message::Message( long dwDeviceIDFrom, long dwDeviceIDTo, long dwPriority, long 
         else
         {
             char *pcData = va_arg( marker, char* );
-            unsigned long dwSize = va_arg( marker, unsigned long );
+            unsigned int dwSize = va_arg( marker, unsigned int );
             m_mapData_Lengths[-Key] = dwSize;
             char *pcInData = new char[dwSize];
             memcpy( pcInData, pcData, dwSize );
@@ -387,7 +387,7 @@ Message::Message( long dwDeviceIDFrom, string dwDeviceIDTo, long dwPriority, lon
     va_start( marker, dwParameterCount );
     for( unsigned long i=0; i<dwParameterCount; i++ )
     {
-        long Key = va_arg( marker, unsigned long );
+        int Key = va_arg( marker, int );
         if ( Key >= 0 ) // if Key > 0 it is a normal string parameter, otherwise i's a data block
         {
             m_mapParameters[Key] = string( va_arg( marker, char* ));
@@ -395,7 +395,7 @@ Message::Message( long dwDeviceIDFrom, string dwDeviceIDTo, long dwPriority, lon
         else
         {
             char *pcData = va_arg( marker, char* );
-            unsigned long dwSize = va_arg( marker, unsigned long );
+            unsigned int dwSize = va_arg( marker, unsigned int );
             m_mapData_Lengths[-Key] = dwSize;
             char *pcInData = new char[dwSize];
             memcpy( pcInData, pcData, dwSize );
@@ -422,7 +422,7 @@ Message::Message( long dwDeviceIDFrom, long dwDeviceCategory, bool bIncludeChild
     va_start( marker, dwParameterCount );
     for( unsigned long i=0; i < dwParameterCount; i++ )
     {
-        long Key = va_arg( marker, unsigned long );
+        int Key = va_arg( marker, int );
         if ( Key >= 0 ) // if Key > 0 it is a normal string parameter, otherwise i's a data block
         {
             m_mapParameters[Key] = string( va_arg( marker, char* ) );
@@ -430,7 +430,7 @@ Message::Message( long dwDeviceIDFrom, long dwDeviceCategory, bool bIncludeChild
         else
         {
             char *pcData = va_arg( marker, char* );
-            unsigned long dwSize = va_arg( marker, unsigned long );
+            unsigned int dwSize = va_arg( marker, unsigned int );
             m_mapData_Lengths[-Key] = dwSize;
             char *pcInData = new char[dwSize];
             memcpy( pcInData, pcData, dwSize );
@@ -455,7 +455,7 @@ Message::Message(long dwDeviceIDFrom, long dwMasterDevice, eBroadcastLevel eBL, 
     va_start( marker, dwParameterCount );
     for( unsigned long i=0; i < dwParameterCount; i++ )
     {
-        long Key = va_arg( marker, unsigned long );
+        int Key = va_arg( marker, int );
         if ( Key >= 0 )
         {
             m_mapParameters[Key] = string( va_arg( marker, char* ) );
@@ -463,7 +463,7 @@ Message::Message(long dwDeviceIDFrom, long dwMasterDevice, eBroadcastLevel eBL, 
         else
         {
             char *pcData = va_arg( marker, char* );
-            unsigned long dwSize = va_arg( marker, unsigned long );
+            unsigned int dwSize = va_arg( marker, unsigned int );
             m_mapData_Lengths[-Key] = dwSize;
             char *pcInData = new char[dwSize];
             memcpy( pcInData, pcData, dwSize );

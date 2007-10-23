@@ -331,7 +331,7 @@ public:
 	SerializeClass &operator+ (double &i) { MYSTL_ADDTO_LIST(m_vectItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_DOUBLE,(void *) &i)); return (*this); } /** < @brief overloading + to take an double */
 	SerializeClass &operator+ (short &i) { MYSTL_ADDTO_LIST(m_vectItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_SHORT,(void *) &i)); return (*this); } /** < @brief overloading + to take an short */
 	SerializeClass &operator+ (string &i) { MYSTL_ADDTO_LIST(m_vectItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_STRING,(void *) &i)); return (*this); } /** < @brief overloading + to take a string */
-	SerializeClass &operator+ (u_int64_t &i) { MYSTL_ADDTO_LIST(m_vectItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_INT64,(void *) &i)); return (*this); } /** < @brief overloading + to take an u_int64_t */
+	SerializeClass &operator+ (unsigned long long &i) { MYSTL_ADDTO_LIST(m_vectItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_INT64,(void *) &i)); return (*this); } /** < @brief overloading + to take an u_int64_t */
 
 #ifndef SYMBIAN
 	SerializeClass &operator+ (vector<string> &i) { m_vectItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_VECT_STRING,(void *) &i)); return (*this); } /** < @brief overloading + to take a vector of strings */
@@ -491,16 +491,18 @@ public:
 		m_pcCurrentPosition += sizeof(u_int64_t);
 	}
 
-	void Write_int64( u_int64_t v) {
-		CheckWrite(sizeof( u_int64_t));
-		 u_int64_t *pl = ( u_int64_t *) m_pcCurrentPosition;
+	void Write_int64(unsigned long long v) {
+		CheckWrite(sizeof(unsigned long long));
+		unsigned long long *pl = (unsigned long long *) m_pcCurrentPosition;
 		*pl = v;
-		m_pcCurrentPosition += sizeof( u_int64_t);
+		m_pcCurrentPosition += sizeof(unsigned long long);
 	}
 
-	void Write_unsigned_long(unsigned long v) {
-		CheckWrite(sizeof(unsigned long));
-		unsigned long *pl = (unsigned long *) m_pcCurrentPosition;
+	void Write_unsigned_long(unsigned long v) 
+	{
+		//WARNING: harcoded to 4 bytes!!!
+		CheckWrite(sizeof(unsigned int));
+		unsigned int *pl = (unsigned int *) m_pcCurrentPosition;
 
 #if !defined(WINCE) && !defined(MAEMO_NOKIA770)
 		*pl = v;
@@ -511,7 +513,7 @@ public:
 		((unsigned char *)pl)[1] = (v >> 8)		& 0x000000FF;
 		((unsigned char *)pl)[0] = v			& 0x000000FF;
 #endif
-		m_pcCurrentPosition += sizeof(unsigned long);
+		m_pcCurrentPosition += sizeof(unsigned int);
 	}
 
 	void Write_unsigned_short(unsigned short v) {
@@ -539,8 +541,10 @@ public:
 #ifdef DEBUG_SERIALIZATION
 		cout << "Writing long " << v << " size: " << (int) CurrentSize() << endl;
 #endif
-		CheckWrite(sizeof(long));
-		 long *pl = (long *) m_pcCurrentPosition;
+
+		//WARNING: hardcoded to 4!!!
+		CheckWrite(sizeof(int));
+		 int *pl = (int *) m_pcCurrentPosition;
 
 #if !defined(WINCE) && !defined(MAEMO_NOKIA770)
 		*pl = v;
@@ -553,7 +557,7 @@ public:
 #endif
 
 
-		m_pcCurrentPosition += sizeof(long);
+		m_pcCurrentPosition += sizeof(int);
 	}
 
 	void Write_float(float v) {
@@ -625,16 +629,28 @@ public:
 
 	unsigned long Read_unsigned_long() {
 
-		/** @todo THIS */
-		/*
-		if( !CheckRead(sizeof(unsigned long)) )
-			return 0;
-		unsigned long *pl = (unsigned long *) m_pcCurrentPosition;
-		m_pcCurrentPosition += sizeof(unsigned long);
-		return *pl;
-		*/
+                //WARNING: hardcoded to 4 bytes
+                if( !CheckRead(sizeof(unsigned int)) )
+                        return 0;
+                unsigned int *pl = (unsigned int *) m_pcCurrentPosition;
+                m_pcCurrentPosition += sizeof(unsigned int);
 
-		return Read_long();
+                /** @todo this */
+                unsigned char v1 = ((unsigned char *)pl)[0];
+                unsigned char v2 = ((unsigned char *)pl)[1];
+                unsigned char v3 = ((unsigned char *)pl)[2];
+                unsigned char v4 = ((unsigned char *)pl)[3];
+
+                unsigned int myval2 = (v4 << 24) + (v3 << 16) + (v2 << 8) + v1;
+
+                /** @todo check comment */
+                //long myval = long(*pl);
+
+#ifdef DEBUG_SERIALIZATION
+                cout << "Reading unsigned long " << ((int) myval2) << " size: " << (int) CurrentSize() << endl;
+#endif
+                //return (long)*pl;
+                return myval2;
 	}
 
 	unsigned short Read_unsigned_short() {
@@ -661,11 +677,13 @@ public:
 		return *pl;
 	}
 
-	long Read_long() {
-		if( !CheckRead(sizeof(long)) )
+	long Read_long() 
+	{
+		//WARNING: hardcoded to 4 bytes
+		if( !CheckRead(sizeof(int)) )
 			return 0;
-		long *pl = (long *) m_pcCurrentPosition;
-		m_pcCurrentPosition += sizeof(long);
+		int *pl = (int *) m_pcCurrentPosition;
+		m_pcCurrentPosition += sizeof(int);
 
 		/** @todo this */
 		unsigned char v1 = ((unsigned char *)pl)[0];
@@ -673,13 +691,13 @@ public:
 		unsigned char v3 = ((unsigned char *)pl)[2];
 		unsigned char v4 = ((unsigned char *)pl)[3];
 
-		long myval2 = (v4 << 24) + (v3 << 16) + (v2 << 8) + v1;
+		int myval2 = (v4 << 24) + (v3 << 16) + (v2 << 8) + v1;
 
 		/** @todo check comment */
 		//long myval = long(*pl);
 
 #ifdef DEBUG_SERIALIZATION
-		cout << "Reading long " << ((long) myval2) << " size: " << (int) CurrentSize() << endl;
+		cout << "Reading long " << ((int) myval2) << " size: " << (int) CurrentSize() << endl;
 #endif
 		//return (long)*pl;
 		return myval2;

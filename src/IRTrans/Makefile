@@ -11,7 +11,7 @@ LDFLAGS = -L$(ROOT)/lib
 BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lmysqlclient_r -lpthread
 
 CC = gcc
-CFLAGS = $(CXXFLAGS) -m32 -DLINUX -ggdb3 -DIRTRANS_AS_LIB
+CFLAGS = $(CXXFLAGS) -DLINUX -ggdb3 -DIRTRANS_AS_LIB
 
 MYNAME = IRTrans
 VERSION = 2.0.0

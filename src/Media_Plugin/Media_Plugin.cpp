@@ -5653,7 +5653,7 @@ void Media_Plugin::AlarmCallback(int id, void* param)
 	PLUTO_SAFETY_LOCK(sm,m_MediaMutex);
 	if( id==MEDIA_PLAYBACK_TIMEOUT )
 	{
-		MediaStream *pMediaStream = m_mapMediaStream_Find((int) param,0);
+		MediaStream *pMediaStream = m_mapMediaStream_Find((int)(long) param,0);
 		if( pMediaStream )
 			ProcessMediaFileTimeout(pMediaStream);
 	}
@@ -5661,13 +5661,13 @@ void Media_Plugin::AlarmCallback(int id, void* param)
 		CMD_Check_For_New_Files();
 	else if( id==WAITING_FOR_JUKEBOX )
 	{
-		MediaStream *pMediaStream = m_mapMediaStream_Find((int) param,0);
+		MediaStream *pMediaStream = m_mapMediaStream_Find((int)(long) param,0);
 		if( pMediaStream )
 			WaitingForJukebox( pMediaStream);
 	}
 	else if( id==UPDATE_VIEW_DATE )
 	{
-		MediaStream *pMediaStream = m_mapMediaStream_Find((int) param,0);
+		MediaStream *pMediaStream = m_mapMediaStream_Find((int)(long) param,0);
 		if( pMediaStream )
 			UpdateViewDate(pMediaStream);
 	}

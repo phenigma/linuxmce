@@ -13,12 +13,12 @@
      See the GNU General Public License for more details.
 
 */
-#include <linux/cdrom.h>
 #include <fcntl.h>
 #include <string.h>
 #include <stdio.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
+#include <linux/cdrom.h>
 
 inline int usage()
 {

@@ -13,13 +13,14 @@
      See the GNU General Public License for more details.
 
 */
-extern "C"
-{
-    #include <linux/cdrom.h>
-}
 #include "fcntl.h"
 #include "errno.h"
 #include "sys/ioctl.h"
+
+extern "C"
+{
+	#include <linux/cdrom.h>
+}
 
 #include <iostream>
 using namespace std;

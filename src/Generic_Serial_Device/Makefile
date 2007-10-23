@@ -19,9 +19,15 @@ sources = Main.cpp Generic_Serial_Device.cpp $(Gen_Dev_Files)
 #<-dceag-mh-e->
 
 CXXFLAGS +=
-CPPFLAGS += -I$(ROOT)/MessageTranslation -I/usr/lib/ruby/1.8/i386-linux -I/usr/lib/ruby/1.8/i486-linux
+CPPFLAGS += -I$(ROOT)/MessageTranslation
 LDFLAGS +=
 XTRALDLIBS = -lruby1.8 -lSerial -lrt -lMessageTranslation
+
+ifneq (,$(findstring -DARCH64, $(CPPFLAGS)))
+        CPPFLAGS += -I/usr/lib/ruby/1.8/x86_64-linux
+else
+        CPPFLAGS += -I/usr/lib/ruby/1.8/i386-linux -I/usr/lib/ruby/1.8/i486-linux
+endif
 
 #<-mkr_B_use_mysql_wrapper_b->
 CPPFLAGS += -I/usr/include/mysql

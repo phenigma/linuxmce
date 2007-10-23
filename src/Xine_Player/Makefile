@@ -9,7 +9,14 @@ CXX = g++
 CXXFLAGS = -Wall -fPIC -ggdb3
 CPPFLAGS = $(SNR_CPPFLAGS) -I$(ROOT) -I$(ROOT)/DCE -I/usr/lib/glib-2.0/include -I/usr/include/glib-2.0 -DDEBUG -DTHREAD_LOG -DLOG_ALL_QUERIES
 LDFLAGS = $(SNR_LDFLAGS) -L$(ROOT)/lib -L$(ROOT)/Xine_Player
-BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lpthread -ljpeg -lxine -lXtst -lX11 -lglib-2.0 -lXmu -lcdda_interface -ldvdnav_xine_custom
+
+
+BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lpthread -ljpeg -lxine -lXtst -lX11 -lglib-2.0 -lXmu -lcdda_interface 
+ifneq (,$(findstring -DARCH64, $(CPPFLAGS)))
+	BASELDLIBS += -ldvdnav_xine_custom_64b
+else
+	BASELDLIBS += -ldvdnav_xine_custom
+endif
 
 MYNAME = Xine_Player
 VERSION = 2.0.0

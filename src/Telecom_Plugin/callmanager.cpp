@@ -117,10 +117,10 @@ public:
 	bool operator()(CallData* pCallData) {
 		switch(type_) {
 		case COMPARE_PENDINGCMDID:
-				return pCallData->getPendingCmdID() == (int)data_;
+				return pCallData->getPendingCmdID() == (int)(long)data_;
 			break;
 		case COMPARE_OWNERDEVID:
-				return pCallData->getOwnerDevID() == (int)data_;
+				return pCallData->getOwnerDevID() == (int)(long)data_;
 			break;
 		case COMPARE_CALLID:
 			return pCallData->getID() == *((string *) data_);

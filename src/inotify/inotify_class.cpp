@@ -13,6 +13,8 @@
      See the GNU General Public License for more details.
 
 */
+
+#include <sys/ioctl.h>
 #include "inotify_class.h"
 
 #ifndef WIN32
@@ -20,7 +22,6 @@
 #include "inotify.h"
 #include "inotify-syscalls.h"
 
-#include <sys/ioctl.h>
 #include <errno.h>
 
 inotify::inotify()

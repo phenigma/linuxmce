@@ -168,7 +168,7 @@ void WINAPI IRReceiveCallback (char *IREventStr, void *userData)
 {
 	g_pUsbUirt->OurCallback(IREventStr);
 
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "<IR Receive: Code = %s, UserData = %08x!!!\n", IREventStr, (UINT32)userData);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "<IR Receive: Code = %s, UserData = %08x!!!\n", IREventStr, (UINT32)(long)userData);
 }
 
 /*****************************************************************************/
@@ -184,7 +184,7 @@ void WINAPI IRLearnCallback (unsigned int progress, unsigned int sigQuality, uns
 	// Got something from the learn., lets reset our clock. 
 	
 	g_pUsbUirt->m_tLearningStarted = clock();
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"<Learn Progress: %d%%, Signal = %d%%, Freq = %ld, UserData = %08x!!!\n", progress, sigQuality & 0xff, carrierFreq, (UINT32)userData);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"<Learn Progress: %d%%, Signal = %d%%, Freq = %ld, UserData = %08x!!!\n", progress, sigQuality & 0xff, carrierFreq, (UINT32)(long)userData);
 }
 
 
