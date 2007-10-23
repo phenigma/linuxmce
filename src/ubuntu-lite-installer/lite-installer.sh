@@ -8,7 +8,9 @@ Upgrade=0
 grep -q "install_from_hdd" /proc/cmdline && FromHdd="1"
 
 if grep -q "noinst" /proc/cmdline; then
-	start tty1
+	clear >/dev/tty1
+	echo "Installer bypassed" >/dev/tty1
+	chvt 2
 	exit 0
 fi
 
