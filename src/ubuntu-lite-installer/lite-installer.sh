@@ -162,6 +162,8 @@ FormatPartitions()
 	if [[ "$FromHdd" == 1 || "$Upgrade" == 1 ]] && mount "$TargetHdd"1 /media/target; then
 		pushd /media/target &>/dev/null
 		NukeFS .,home,var,etc ./var,lib ./var/lib,mysql ./etc,pluto.conf
+		mkdir .upgrade-save
+		find -mindepth 1 -maxdepth 1 -not -name .upgrade-save -exec mv '{}' .upgrade-save ';'
 		popd &>/dev/null
 		umount "$TargetHdd"1
 	else
@@ -353,6 +355,11 @@ TargetCleanup()
 	done < <(/sbin/ip l) >>/media/target/etc/iftab
 	chroot /media/target update-initramfs -u
 	#chroot /media/target update-grub
+
+	if [[ -d /media/target/.backup ]]; then
+		mv /media/target/{.backup/*,}
+		rm -rf /media/target/.backup
+	fi
 }
 
 UnmountPartitions()
