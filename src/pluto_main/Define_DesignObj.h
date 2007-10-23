@@ -2498,7 +2498,7 @@
 #define DESIGNOBJ_butUserStatus_Button_CONST 5522
 #define DESIGNOBJ_butMyth_CONST 5523
 #define DESIGNOBJ_butVDR_CONST 5524
-#define DESIGNOBJ_mnuManageCalls_CONST 5525
+#define DESIGNOBJ_mnuActiveCalls_CONST 5525
 #define DESIGNOBJ_dgActiveCalls_CONST 5526
 #define DESIGNOBJ_dgActiveUsers_CONST 5527
 #define DESIGNOBJ_butJoin_CONST 5528

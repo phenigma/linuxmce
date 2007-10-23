@@ -60,6 +60,12 @@
 #define EVENTPARAMETER_DateTime_CONST 57
 #define EVENTPARAMETER_Comment_CONST 58
 #define EVENTPARAMETER_Signature_CONST 59
+#define EVENTPARAMETER_Source_Channel_CONST 60
+#define EVENTPARAMETER_Destination_Channel_CONST 61
+#define EVENTPARAMETER_Source_Caller_ID_CONST 62
+#define EVENTPARAMETER_Destination_Caller_ID_CONST 63
+#define EVENTPARAMETER_Channel_ID_CONST 64
+#define EVENTPARAMETER_Reason_CONST 65
 
 #define EVENTPARAMETER_TABLE "EventParameter"
 #define EVENTPARAMETER_PK_EVENTPARAMETER_FIELD "PK_EventParameter"

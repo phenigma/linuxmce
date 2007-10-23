@@ -95,8 +95,8 @@ class DECLSPECIFIER Row_DHCPDevice : public TableRow, public SerializeClass
 		
 		long int m_PK_DHCPDevice;
 long int m_FK_DeviceTemplate;
-u_int64_t m_Mac_Range_Low;
-u_int64_t m_Mac_Range_High;
+unsigned long long m_Mac_Range_Low;
+unsigned long long m_Mac_Range_High;
 string m_VendorModelID;
 string m_SerialNumber;
 string m_Parms;
@@ -118,8 +118,8 @@ long int m_psc_restrict;
 	public:
 		long int PK_DHCPDevice_get();
 long int FK_DeviceTemplate_get();
-u_int64_t Mac_Range_Low_get();
-u_int64_t Mac_Range_High_get();
+unsigned long long Mac_Range_Low_get();
+unsigned long long Mac_Range_High_get();
 string VendorModelID_get();
 string SerialNumber_get();
 string Parms_get();
@@ -139,8 +139,8 @@ long int psc_restrict_get();
 		
 		void PK_DHCPDevice_set(long int val);
 void FK_DeviceTemplate_set(long int val);
-void Mac_Range_Low_set(u_int64_t val);
-void Mac_Range_High_set(u_int64_t val);
+void Mac_Range_Low_set(unsigned long long val);
+void Mac_Range_High_set(unsigned long long val);
 void VendorModelID_set(string val);
 void SerialNumber_set(string val);
 void Parms_set(string val);

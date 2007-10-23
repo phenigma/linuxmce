@@ -219,7 +219,7 @@
 #define COMMAND_PBX_Originate_CONST 233
 #define COMMAND_PL_Transfer_CONST 234
 #define COMMAND_PBX_Transfer_CONST 235
-#define COMMAND_PL_Hangup_CONST 236
+#define COMMAND_PL_Cancel_CONST 236
 #define COMMAND_PBX_Hangup_CONST 237
 #define COMMAND_Continuous_Refresh_CONST 238
 #define COMMAND_Request_File_And_Checksum_CONST 239
