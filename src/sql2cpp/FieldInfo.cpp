@@ -45,11 +45,7 @@ string FieldInfo::getCType()
 		case FIELD_TYPE_INT24:
 			/** @todo can it fail? */
 		case FIELD_TYPE_LONGLONG:
-#ifdef C99_FORMAT_SPECIFIERS
-			return "long long int";
-#else
-			return "u_int64_t";
-#endif
+			return "unsigned long long";
 			break;
 					
 		case FIELD_TYPE_FLOAT:
