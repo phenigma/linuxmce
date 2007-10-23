@@ -13362,10 +13362,10 @@ PK_DeviceData .... */, sOptions.c_str(), 224 /* PK_PnpQueue */, StringUtils::lto
 		}
 	};
 
-	class SCREEN_Manage_Channels : public PreformedCommand
+	class SCREEN_Active_Calls : public PreformedCommand
 	{
 	public:
-		SCREEN_Manage_Channels(long DeviceIDFrom, long DeviceIDTo,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+		SCREEN_Active_Calls(long DeviceIDFrom, long DeviceIDTo,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
 		{
 			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
 				COMMANDPARAMETER_PK_Screen_CONST, "267" /* screen ID */
@@ -13375,10 +13375,10 @@ PK_DeviceData .... */, sOptions.c_str(), 224 /* PK_PnpQueue */, StringUtils::lto
 		}
 	};
 
-	class SCREEN_Manage_Channels_DL : public PreformedCommand
+	class SCREEN_Active_Calls_DL : public PreformedCommand
 	{
 	public:
-		SCREEN_Manage_Channels_DL(long DeviceIDFrom, string sDeviceIDTo,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+		SCREEN_Active_Calls_DL(long DeviceIDFrom, string sDeviceIDTo,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
 		{
 			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
 				COMMANDPARAMETER_PK_Screen_CONST, "267" /* screen ID */
@@ -13388,10 +13388,10 @@ PK_DeviceData .... */, sOptions.c_str(), 224 /* PK_PnpQueue */, StringUtils::lto
 		}
 	};
 
-	class SCREEN_Manage_Channels_DT : public PreformedCommand
+	class SCREEN_Active_Calls_DT : public PreformedCommand
 	{
 	public:
-		SCREEN_Manage_Channels_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+		SCREEN_Active_Calls_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
 		{
 			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
 				COMMANDPARAMETER_PK_Screen_CONST, "267" /* screen ID */
@@ -13401,10 +13401,10 @@ PK_DeviceData .... */, sOptions.c_str(), 224 /* PK_PnpQueue */, StringUtils::lto
 		}
 	};
 
-	class SCREEN_Manage_Channels_Cat : public PreformedCommand
+	class SCREEN_Active_Calls_Cat : public PreformedCommand
 	{
 	public:
-		SCREEN_Manage_Channels_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+		SCREEN_Active_Calls_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
 		{
 			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
 				COMMANDPARAMETER_PK_Screen_CONST, "267" /* screen ID */
@@ -13689,7 +13689,7 @@ PK_DeviceData .... */, sOptions.c_str(), 224 /* PK_PnpQueue */, StringUtils::lto
 		virtual void SCREEN_PNP_Generic_Options(long PK_Screen, string sOptions, int iPK_PnpQueue){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Zoom__Aspect(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Legacy_PVR_Cable_Box(long PK_Screen){ GotoScreen(PK_Screen); }
-		virtual void SCREEN_Manage_Channels(long PK_Screen){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_Active_Calls(long PK_Screen){ GotoScreen(PK_Screen); }
 
 		virtual void ReceivedGotoScreenMessage(int nPK_Screen, Message *pMessage)
 		{
@@ -15275,7 +15275,7 @@ PK_DeviceData .... */, sOptions.c_str(), 224 /* PK_PnpQueue */, StringUtils::lto
 				case 267:
 				{
 					ResetCallBacks();
-					SCREEN_Manage_Channels(nPK_Screen);
+					SCREEN_Active_Calls(nPK_Screen);
 					break;
 				}
 
