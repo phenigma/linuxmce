@@ -42,13 +42,13 @@
 Surface* PocketFrog_LoadPFG(DisplayDevice *pDisplayDevice, char *pOCGData, size_t iOCGDataSize)
 {
 	RendererOCG *pRendererOCG = new RendererOCG();
-	pRendererOCG->SetOCGData(pOCGData, iOCGDataSize);
+	pRendererOCG->SetOCGData(pOCGData, (int)iOCGDataSize);
 	Surface *pSurface = NULL;
 
 	char *pPixelsData;
-	size_t iPixelsDataSize;
+	int iPixelsDataSize;
 	char *pPixelFormatData;	
-	size_t iPixelFormatDataSize;
+	int iPixelFormatDataSize;
 	int iWidth;
 	int iHeigth;
 
