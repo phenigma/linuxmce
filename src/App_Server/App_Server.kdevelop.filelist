@@ -1,0 +1,9 @@
+# KDevelop Custom Project File List
+amix.cpp
+amix.h
+App_Server.cpp
+App_Server.h
+Main.cpp
+Makefile
+SignalHandler.cpp
+SignalHandler.h
