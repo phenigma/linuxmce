@@ -42,7 +42,7 @@ export Version=$(echo "select VersionName from Version" | mysql $sql_slave_db | 
 
 
 function Install_Build_Needed_Packages {
-	local pkgs="tcl8.4-dev libfuse-dev fuse-utils libupnp-dev libconfuse-dev subversion build-essential dh-make libmysqlclient15-dev libhttpfetcher-dev libattr1-dev libdbus-1-dev libdbus-glib-1-dev libhal-dev libdancer-xml0-dev libbluetooth2-dev libid3-3.8.3-dev libxine-dev x11proto-core-dev libx11-dev libx11-dev x11proto-core-dev x11proto-xext-dev x11proto-xf86vidmode-dev libx11-dev libjpeg62-dev libcdparanoia0-dev libsdl1.2-dev libsdl-gfx1.2-dev libxmu-headers x11proto-record-dev libhid-dev libusb-dev libsdl-image1.2-dev libsdl-ttf2.0-dev libsdl-sge-dev libxtst-dev libxrender-dev liblinphone1-dev libcddb-dev libdvdread-dev libcurl3-dev ruby1.8-dev swig libtcltk-ruby mysql-client mysql-server libmediastreamer0-dev libgtk2.0-dev libvte-dev libglade2-dev libstdc++5" 
+	local pkgs="quilt tcl8.4-dev libfuse-dev fuse-utils libupnp-dev libconfuse-dev subversion build-essential dh-make libmysqlclient15-dev libhttpfetcher-dev libattr1-dev libdbus-1-dev libdbus-glib-1-dev libhal-dev libdancer-xml0-dev libbluetooth2-dev libid3-3.8.3-dev libxine-dev x11proto-core-dev libx11-dev libx11-dev x11proto-core-dev x11proto-xext-dev x11proto-xf86vidmode-dev libx11-dev libjpeg62-dev libcdparanoia0-dev libsdl1.2-dev libsdl-gfx1.2-dev libxmu-headers x11proto-record-dev libhid-dev libusb-dev libsdl-image1.2-dev libsdl-ttf2.0-dev libsdl-sge-dev libxtst-dev libxrender-dev liblinphone1-dev libcddb-dev libdvdread-dev libcurl3-dev ruby1.8-dev swig libtcltk-ruby mysql-client mysql-server libmediastreamer0-dev libgtk2.0-dev libvte-dev libglade2-dev libstdc++5" 
 	local pkg
 	for pkg in $pkgs ;do
 		apt-get -y install $pkg
@@ -163,8 +163,14 @@ function Build_Pluto_Replacements {
 	#Package: pluto-mplayer
 	pushd ${svn_dir}/trunk/ubuntu/mplayer
 		dpkg-buildpackage -rfakeroot -us -uc -b
-		cp ../pluto-mplayer_*.deb ${temp_dir}
-	popd	
+		cp -r ../pluto-mplayer_*.deb ${temp_dir}
+	popd
+	
+	#Package: pluto-ffmpeg
+	pushd ${svn_dir}/trunk/ubuntu/ffmpeg
+		dpkg-buildpackage -rfakeroot -us -uc -b
+		cp -r ../pluto-ffmpeg_*.deb ${temp_dir}
+	popd
 
 	#Package: libxine
 	apt-get -y install libcaca-dev liblircclient-dev libtheora-dev libflac-dev libmodplug-dev libgnomevfs2-dev libsmbclient-dev libspeex-dev libmad0-dev libxvmc-dev automake1.9 autoconf libtool libcdio-dev sgmltools-lite dpatch transfig libavformat-dev libpostproc-dev libavcodec-dev libraw1394-dev libdc1394-13-dev
@@ -280,8 +286,6 @@ function Build_Pluto_Replacements {
 		scp  pluto@10.0.2.4:/home/samba/repositories/replacements-common/msttcorefonts_1.2.pluto.4_all.deb ./
 	popd 
 
-	#Put the extrapackages on the cd and repo
-	cp /var/plutobuild/extra/*.deb $temp_dir
 }
 
 function Build_Pluto_Stuff_Compile {
