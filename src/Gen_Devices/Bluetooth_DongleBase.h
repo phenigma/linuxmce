@@ -4,7 +4,7 @@
      www.plutohome.com
 
      Phone: +1 (877) 758-8648
- 
+
 
      This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
      This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
@@ -12,6 +12,9 @@
 
      See the GNU General Public License for more details.
 
+*/
+/** @file Bluetooth_DongleBase.h
+A core piece of LinuxMCE.
 */
 #ifndef Bluetooth_DongleBase_h
 #define Bluetooth_DongleBase_h
@@ -23,8 +26,16 @@
 
 namespace DCE
 {
-//   OUR EVENT CLASS 
+//   OUR EVENT CLASS
+/** @class Bluetooth_Dongle_Event
+    All the events for a bluetooth dongle.
 
+    This class has to do with the acquiring and release of an orbiter containing
+    a bluetooth radio.
+
+    Much of the code in here should probably be in the .cpp file in order to clean
+    up this header file.
+    */
 class Bluetooth_Dongle_Event : public Event_Impl
 {
 public:
@@ -50,8 +61,11 @@ public:
 };
 
 
-//   OUR DATA CLASS 
+//   OUR DATA CLASS
 
+/** @class Bluetooth_Dongle_Data
+    This class deals with a bit of data about the bluetooth equiped orbiter.
+*/
 class Bluetooth_Dongle_Data : public DeviceData_Impl
 {
 public:
@@ -63,8 +77,14 @@ public:
 
 
 
-//   OUR COMMAND CLASS 
+//   OUR COMMAND CLASS
 
+/** @class Bluetooth_Dongle_Command
+    This class deals with the commands to communicate with a bluteooth equipped orbiter.
+
+    Much of the code in here should probably be in the .cpp file in order to clean
+    up this header file.
+*/
 class Bluetooth_Dongle_Command : public Command_Impl
 {
 public:
@@ -74,12 +94,12 @@ public:
 	}
 	virtual bool GetConfig()
 	{
-		
+
 		m_pData=NULL;
 		m_pEvent = new Bluetooth_Dongle_Event(m_dwPK_Device, m_sHostName, !m_bLocalMode);
 		if( m_pEvent->m_dwPK_Device )
 			m_dwPK_Device = m_pEvent->m_dwPK_Device;
-		if( m_sIPAddress!=m_pEvent->m_pClientSocket->m_sIPAddress )	
+		if( m_sIPAddress!=m_pEvent->m_pClientSocket->m_sIPAddress )
 			m_sIPAddress=m_pEvent->m_pClientSocket->m_sIPAddress;
 		m_sMacAddress=m_pEvent->m_pClientSocket->m_sMacAddress;
 		if( m_pEvent->m_pClientSocket->m_eLastError!=cs_err_None )
@@ -107,10 +127,10 @@ public:
 						LoggerWrapper::GetInstance()->Write(LV_WARNING,"Reload request denied: %s",sResponse.c_str());
 					}
 				Sleep(10000);  // Give the router 10 seconds before we re-attempt, otherwise we'll get an error right away
-				}	
+				}
 			}
 		}
-		
+
 		if( m_bLocalMode )
 		{
 			m_pData = new Bluetooth_Dongle_Data();
