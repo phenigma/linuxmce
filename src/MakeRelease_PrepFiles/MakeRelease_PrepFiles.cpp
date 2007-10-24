@@ -169,8 +169,24 @@ bool ReplaceTags(string &str,string sFilename)
 		case 't':
 			{
 				string sTag = str.substr( tag_pos+8, end_pos-tag_pos-8 );
-				string sValue = g_dceConfig->ReadString(sTag);
-				str.replace(tag_pos,end_pos-tag_pos+2,sValue);
+
+				if(g_dceConfig->m_mapParameters_Exists(sTag))
+				{
+					string sValue = g_dceConfig->ReadString(sTag);
+					str.replace(tag_pos,end_pos-tag_pos+2,sValue);
+				}
+				else
+				{
+					string sDebugTag;
+
+					if(end_pos - tag_pos > 50 )
+						sDebugTag = str.substr(tag_pos, 50);
+					else 
+						sDebugTag = str.substr(tag_pos, end_pos-tag_pos);
+
+					LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "MakeRelease_Prep ERROR! "
+						"Cannot find tag to replace in file %s, tag %s", sFilename.c_str(), sDebugTag.c_str());
+				}
 			}
 			break;
 		default:
