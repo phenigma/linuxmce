@@ -144,6 +144,12 @@ function Build_Pluto_Replacements {
 	temp_dir="${replacements_dir}"
 	mkdir -p $temp_dir
 
+	#Package: libsdl
+	pushd "${svn_di}/trun/ubuntu/libsdl1.2-1.2.12"
+		dpkg-buildpackage -rfakeroot -us -uc -b
+		cp -r ../libsdl1.2debian-pluto*.deb ${temp_dir}
+	popd
+
 	#Package: video-wizard-videos
 	local vvv_temp_dir=$(mktemp -d)
 	pushd "$vvv_temp_dir"
@@ -307,7 +313,7 @@ function Build_Pluto_Stuff {
 	touch /usr/pluto/dummy-packages/Readme.PlutoConsoleUtilities.dummy
 
 	export PATH=$PATH:${svn_dir}/trunk/src/bin
-	export PATH=/usr/lib/ccache:$PATH:${svn_dir}/trunk/src/bin
+#export PATH=/usr/lib/ccache:$PATH:${svn_dir}/trunk/src/bin
 
 	export LD_LIBRARY_PATH="$mkr_dir:${svn_dir}/trunk/src/lib"
 
@@ -342,7 +348,7 @@ function Build_Pluto_Stuff {
 	echo "$(date) part 5 " >> /var/log/build.log
 	ls -l /var/plutobuild/svn/trunk/src/bin/ >> /var/log/build.log
 
-	$MakeRelease "${MakeReleaseExtraParams[@]}" -R "$SVNrevision" -h $sql_slave_host -u $sql_slave_user -O $out_dir -D $sql_slave_db -o 14 -r 21 -m 1 -K "543,542,462,607,432,431,427,426,430,429,336,337,589,590,515,516"  -s "${svn_dir}/trunk" -n / > >(tee -a $build_dir/Build.log)  -d
+	$MakeRelease "${MakeReleaseExtraParams[@]}" -R "$SVNrevision" -h $sql_slave_host -u $sql_slave_user -O $out_dir -D $sql_slave_db -o 14 -r 21 -m 1 -K "543,542,462,607,432,431,427,426,430,429,336,337,589,590,515,516"  -s "${svn_dir}/trunk" -n / > >(tee -a $build_dir/Build.log)  -d || exit 1
 	
 	echo "$(date) part 6 " >> /var/log/build.log
 	ls -l /var/plutobuild/svn/trunk/src/bin/ >> /var/log/build.log
