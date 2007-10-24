@@ -1053,6 +1053,8 @@ void PlutoMediaFile::SavePlutoAttributes(string sFullFileName)
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "# SavePlutoAttributes: saving %d attributes in the attribute file %s",
 		m_pPlutoMediaAttributes->m_mapAttributes.size(), sFullFileName.c_str());
+
+	m_spFileHandler->SaveAttributes(m_pPlutoMediaAttributes);
 }
 //-----------------------------------------------------------------------------------------------------
 void PlutoMediaFile::LoadPlutoAttributes(string sFullFileName)
