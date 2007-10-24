@@ -163,7 +163,7 @@ void* EngineOutputReader(void *pInstance) {
 
 	// TODO add polling here instead of sleep
 	while (pThis->m_bRunEngineOutputReader) {
-		sleep(1);
+		usleep(100000);
 		string sLine = pThis->ReadLine();
 		Log("Read line: " + sLine);
 		vector<string> vLines;
@@ -206,7 +206,7 @@ bool MPlayerEngine::ExecuteCommand(string sCommand, string sResponseName, string
 	m_mEngineAnswers[sResponseName] = sResponseName;
 	ExecuteCommand(sCommand);
 	// giving MPlayer time to reply
-	sleep(3);
+	sleep(1);
 	
 	// TODO protect access
 	if ( m_mEngineAnswers[sResponseName] == sResponseName ) {

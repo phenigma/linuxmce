@@ -27,16 +27,29 @@
 //<-dceag-decl-b->
 namespace DCE
 {
+	void *PlayerEnginePoll(void *pInstance);
+
 	class MPlayer_Player : public MPlayer_Player_Command
 	{
 //<-dceag-decl-e->
+	private:
+		friend void *PlayerEnginePoll(void *pInstance);
+		bool m_bRunPlayerEnginePoll;
+		pthread_t m_tPlayerEnginePollThread;
+		
 		// Private member variables
 		bool m_bMediaPaused;
+		bool m_bMediaOpened;
 		bool m_bPlayerEngineInitialized;
 		MPlayerEngine *m_pPlayerEngine;
 		
 		// Length of current file in mplayer-specific format (seconds as float)
-		string m_sCurrentFileLength;
+		string m_sCurrentFileName;
+		
+		float m_fCurrentFileTime;
+		float m_fCurrentFileLength;
+				
+		int m_iCurrentStreamID;
 		
 		// Private methods
 		void InitializePlayerEngine();

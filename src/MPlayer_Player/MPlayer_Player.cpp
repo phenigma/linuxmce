@@ -37,6 +37,11 @@ MPlayer_Player::MPlayer_Player(int DeviceID, string ServerAddress,bool bConnectE
 	m_bMediaPaused = false;
 	m_bPlayerEngineInitialized = false;
 	m_pPlayerEngine = NULL;
+	m_iCurrentStreamID = -1;
+	m_bRunPlayerEnginePoll = false;
+	m_bMediaOpened = false;
+	m_fCurrentFileTime = 0;
+	m_fCurrentFileLength = 0;
 }
 
 //<-dceag-const2-b->
@@ -48,12 +53,28 @@ MPlayer_Player::MPlayer_Player(Command_Impl *pPrimaryDeviceCommand, DeviceData_I
 	m_bMediaPaused = false;
 	m_bPlayerEngineInitialized = false;
 	m_pPlayerEngine = NULL;
+	m_iCurrentStreamID = -1;
+	m_bRunPlayerEnginePoll = false;
+	m_bMediaOpened = false;
+	m_fCurrentFileTime = 0;
+	m_fCurrentFileLength = 0;
 }
 
 //<-dceag-dest-b->
 MPlayer_Player::~MPlayer_Player()
 //<-dceag-dest-e->
 {
+	if (m_bMediaOpened)
+	{
+		m_bMediaOpened = false;
+	}
+	
+	if (m_bRunPlayerEnginePoll)
+	{
+		m_bRunPlayerEnginePoll = false;
+		pthread_join(m_tPlayerEnginePollThread, NULL);
+	}
+	
 	if (m_pPlayerEngine)
 	{
 		delete m_pPlayerEngine;
@@ -281,6 +302,7 @@ void MPlayer_Player::CMD_Stop(int iStreamID,bool bEject,string &sCMD_Result,Mess
 	}
 	
 	m_pPlayerEngine->StopPlayback();
+	m_bMediaOpened = false;
 }
 
 //<-dceag-c139-b->
@@ -366,11 +388,21 @@ void MPlayer_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMedi
 	{
 		InitializePlayerEngine();
 	}
+	else
+	{
+		//EVENT_Playback_Completed(m_sCurrentFileName, m_iCurrentStreamID, false);
+	}
 	
 	//TODO process ripped folders in special way
 	
+	//TODO check for playback start errors
+	
+	m_bMediaOpened = true;
 	m_bMediaPaused = false;
 	m_pPlayerEngine->StartPlayback(sMediaURL);
+	
+	m_iCurrentStreamID = iStreamID;
+	m_sCurrentFileName = sMediaURL;
 	
 	//TODO implement setting media subtitles and audio channel
 
@@ -410,16 +442,15 @@ void MPlayer_Player::CMD_Stop_Media(int iStreamID,string *sMediaPosition,string 
 		return;
 	}
 	
-	// TODO retrieve subtitles and audio track
-	float fCurrentPosition = m_pPlayerEngine->GetCurrentPosition();
-	float fTotalLength = m_pPlayerEngine->GetFileLength();
+	m_bMediaOpened = false;
 	
+	// TODO retrieve subtitles and audio track
 	const int buf_size = 256;
 	char buf[buf_size];
 
 	m_pPlayerEngine->StopPlayback();
 	
-	snprintf(buf, buf_size, " POS:%i SUBTITLE:-1 AUDIO:-1 TOTAL:%i", (int)(fCurrentPosition*1000), (int)(fTotalLength*1000));
+	snprintf(buf, buf_size, " POS:%i SUBTITLE:-1 AUDIO:-1 TOTAL:%i", (int)(m_fCurrentFileTime*1000), (int)(m_fCurrentFileLength*1000));
 	
 	*sMediaPosition = buf;
 	
@@ -747,6 +778,53 @@ void MPlayer_Player::InitializePlayerEngine()
 	m_pPlayerEngine = new MPlayerEngine();
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Started MPlayer slave instance");
 	m_bPlayerEngineInitialized = true;
+	
+	m_bRunPlayerEnginePoll = true;
+	pthread_create(&m_tPlayerEnginePollThread, NULL, &PlayerEnginePoll, this);
 }
 
 //TODO periodically retrieve stream position
+
+void *DCE::PlayerEnginePoll(void *pInstance)
+{
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "PlayerEnginePoll - started");
+	
+	MPlayer_Player* pThis = (MPlayer_Player*) pInstance;
+	
+	while (pThis->m_bRunPlayerEnginePoll)
+	{
+		Sleep(1000);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "PlayerEnginePoll - loop");
+		
+		if (pThis->m_bMediaOpened)
+		{
+			// TODO protect pThis member variables
+
+			// detecting if we should fire playback completed
+			string sFile;
+			if ( !pThis->m_pPlayerEngine->ExecuteCommand("get_file_name", "FILENAME", sFile) || sFile=="" )
+			{
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "PlayerEnginePoll - detected end of file");
+				pThis->EVENT_Playback_Completed(pThis->m_sCurrentFileName, pThis->m_iCurrentStreamID, false);
+				pThis->m_fCurrentFileTime = 0.0;
+				pThis->m_fCurrentFileLength = 0.0;	
+				pThis->m_bMediaOpened = false;	
+			}
+			else
+			{	
+				pThis->m_fCurrentFileTime = pThis->m_pPlayerEngine->GetCurrentPosition();
+				pThis->m_fCurrentFileLength = pThis->m_pPlayerEngine->GetFileLength();
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "PlayerEnginePoll - time %.1f of %.1f", pThis->m_fCurrentFileTime, pThis->m_fCurrentFileLength);
+			}
+			
+		}
+		else
+		{
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "PlayerEnginePoll - no media, skipping this turn");
+		}
+	}
+	
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "PlayerEnginePoll - exited");
+	
+	return NULL;
+}
