@@ -1,4 +1,8 @@
 # KDevelop Custom Project File List
+Log.cpp
+Log.h
+MPlayerEngine.cpp
+MPlayerEngine.h
 MPlayer_Player.cpp
 MPlayer_Player.h
 Main.cpp

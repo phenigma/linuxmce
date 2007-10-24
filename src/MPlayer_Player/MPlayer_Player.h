@@ -22,6 +22,8 @@
 #include "Gen_Devices/MPlayer_PlayerBase.h"
 //<-dceag-d-e->
 
+#include "MPlayerEngine.h"
+
 //<-dceag-decl-b->
 namespace DCE
 {
@@ -40,6 +42,7 @@ namespace DCE
 		char FIFOBuffer[BUFSIZ];
 		string m_sBlackMPEG;
 		void MoveAwayBadCodecs();
+		MPlayerEngine *m_pPlayerEngine;
 public:
 		// Public member variables
 

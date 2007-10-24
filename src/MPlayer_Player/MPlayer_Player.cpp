@@ -41,7 +41,8 @@ MPlayer_Player::MPlayer_Player(int DeviceID, string ServerAddress,bool bConnectE
 	m_bMediaPaused = false;
 	m_bPlayerEngineInitialized = false;
 	m_sBlackMPEG=BLACK_MPEG_FILE;
-	
+	m_pPlayerEngine = NULL;
+
 	MoveAwayBadCodecs();
 }
 
@@ -55,7 +56,8 @@ MPlayer_Player::MPlayer_Player(Command_Impl *pPrimaryDeviceCommand, DeviceData_I
 	m_bMediaPaused = false;
 	m_bPlayerEngineInitialized = false;
 	m_sBlackMPEG=BLACK_MPEG_FILE;
-	
+	m_pPlayerEngine = NULL;
+
 	MoveAwayBadCodecs();
 }
 
@@ -63,7 +65,11 @@ MPlayer_Player::MPlayer_Player(Command_Impl *pPrimaryDeviceCommand, DeviceData_I
 MPlayer_Player::~MPlayer_Player()
 //<-dceag-dest-e->
 {
-	
+	if (m_pPlayerEngine)
+	{
+		delete m_pPlayerEngine;
+		m_pPlayerEngine = NULL;
+	}
 }
 
 //<-dceag-getconfig-b->
@@ -320,10 +326,10 @@ void MPlayer_Player::SendFIFOCommandNoReply(string sCommand)
 		return;
 	}
 	
+	
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::SendFIFOCommandNoReply passes command '%s' to mplayer", sCommand.c_str());
 	
-	string sCMD = "echo " + sCommand + " > " + m_sCurrentFIFOPipeName;
-	system(sCMD.c_str());
+	m_pPlayerEngine->ExecuteCommand(sCommand);
 }
 //<-dceag-c28-b->
 
@@ -723,61 +729,9 @@ void MPlayer_Player::CMD_Set_Media_ID(string sID,int iStreamID,string &sCMD_Resu
 
 void MPlayer_Player::InitializePlayerEngine(string sMedia)
 {
-/*
-	// identify media to see if we need custom E-AC3 hack for it
-	
-	// TODO next media in this case will also be treated as E-AC3, 
-	// need to rewrite engine control to avoid this
-	LoggerWrapper::GetInstance()->Write(LV_WARNING, "MPlayer_Player::InitializePlayerEngine identifying audio codec for %s", sMedia.c_str());
-	char * ffmpeg_args[]={"ffmpeg", "-i", NULL, NULL};
-	ffmpeg_args[2] = strdup(sMedia.c_str());
-	string sOutput, sStdErr;
-	ProcessUtils::GetCommandOutput("/opt/pluto-ffmpeg/bin/ffmpeg", ffmpeg_args, sOutput, sStdErr);
-	free(ffmpeg_args[2]);
-	
-	LoggerWrapper::GetInstance()->Write(LV_WARNING, "MPlayer_Player::InitializePlayerEngine stdout is %s", sOutput.c_str());
-	LoggerWrapper::GetInstance()->Write(LV_WARNING, "MPlayer_Player::InitializePlayerEngine stderr is %s", sStdErr.c_str());
-	
-	string sExtraCMDLine = "";
-	if (sStdErr.find("E-AC3")!=string::npos)
-	{
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "MPlayer_Player::InitializePlayerEngine E-AC3 detected, adjusting command line");
-		sExtraCMDLine = " -demuxer lavf -ac ffeac3 ";
-	}
-*/
-
-	// creating custom FIFO control pipe for MPlayer instance
-	string sFIFO = "/tmp/mplayer.control." + StringUtils::itos(m_dwPK_Device);
-	string sysCommand = "mknod " + sFIFO + " p";
-	system(sysCommand.c_str());
-	m_sCurrentFIFOPipeName = sFIFO;
-	
-	// TODO restart MPlayer if it died
-	// starting MPlayer
-	const string sMPlayerBinary = MPLAYER_BINARY;
-	
-	// TODO use 4th level to fetch messages from ANS_ requests
-//	const string sMessageLevel = "-msglevel all=4";
-	const string sMessageLevel = "-msglevel all=-1";
-	
-	// TODO make this device_data
-	const string sAVOptions = "-lavdopts fast:threads=2";
-	
-	string sCommand = sMPlayerBinary + " -noborder -fixed-vo -fs -vo xv " + sMessageLevel + " " + sAVOptions +" -idle -slave -input file="+m_sCurrentFIFOPipeName + " " + m_sBlackMPEG;
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Invoking MPlayer as: %s", sCommand.c_str());
-	m_fCurrentInPipe = popen(sCommand.c_str(), "r");
-	// TODO enhance error detection
-	// TODO cleanup pipe, otherwise it gets filled
-	if (m_fCurrentInPipe)
-	{
-		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Started MPlayer slave instance");
-		m_bPlayerEngineInitialized = true;
-	}
-	else
-	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Starting MPlayer slave instance failed, exiting");
-		throw "Failed to create MPlayer slave instance";
-	}
+	m_pPlayerEngine = new MPlayerEngine();
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Started MPlayer slave instance");
+	m_bPlayerEngineInitialized = true;
 }
 
 //TODO periodically retrieve stream position
