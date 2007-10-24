@@ -244,6 +244,13 @@ CommunicationHandler::handlePeerStatusChanged(Token* ptoken) {
 
 	string sPeer = ptoken->getKey(TOKEN_PEER);
 	string sStatus = ptoken->getKey(TOKEN_PEER_STATUS);
+
+	vector<string> vectTokens;
+	StringUtils::Tokenize(sPeer, "/", vectTokens);
+
+	if(vectTokens.size() == 2)
+		sPeer = vectTokens[1];
+
 	AsteriskManager::getInstance()->NotifyExtensionsStatus(sPeer + ":" + sStatus);
 	return 1;
 }
@@ -273,6 +280,12 @@ CommunicationHandler::handleExtensionStatusChanged(Token* ptoken) {
 			sStatus = "Unknown(" + sRawStatus + ")";
 			break;
 	}
+
+	vector<string> vectTokens;
+	StringUtils::Tokenize(sExten, "/", vectTokens);
+
+	if(vectTokens.size() == 2)
+		sExten = vectTokens[1];
 
 	AsteriskManager::getInstance()->NotifyExtensionsStatus(sExten + ":" + sStatus);
 	return 1;

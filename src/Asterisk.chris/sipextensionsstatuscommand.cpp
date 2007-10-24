@@ -89,6 +89,12 @@ SipExtensionStatusCommand::handleResponse(Token &token){
 				string sName = vectTokens[fName];
 				string sHost = vectTokens[fHost];
 
+				vector<string> vectTokens;
+				StringUtils::Tokenize(sName, "/", vectTokens);
+
+				if(vectTokens.size() == 2)
+					sName = vectTokens[1];
+
 				sStatus += sName + ":" + (sHost == "(Unspecified)" ? "Unregistered" : "Registered") + "\n";
 			}
 		}
