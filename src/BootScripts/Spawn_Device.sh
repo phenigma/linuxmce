@@ -23,7 +23,7 @@ cmd_line="$3"
 LogFile="/var/log/pluto/${device_id}_$(basename $cmd_line).log";
 valgrind_LogFile="/var/log/pluto/valgrind_${device_id}_$(basename $cmd_line).log";
 
-export LD_LIBRARY_PATH=/opt/libxine1-pluto/lib:/opt/libsdl1.2-1.2.7+1.2.8cvs20041007/lib
+UseAlternativeLibs
 
 Log "$LogFile" "== ATTEMPT FRESH START =="
 AlreadyRunning="/usr/pluto/locks/pluto_spawned_local_devices.txt"
@@ -208,7 +208,7 @@ ReloadWatcher_Background()
 	/usr/pluto/bin/Start_LocalDevices.sh
 }
 
-export LD_LIBRARY_PATH=/opt/libxine1-pluto/lib:/opt/libsdl1.2-1.2.7+1.2.8cvs20041007/lib
+UseAlternativeLibs
 
 Log "$LogFile" "== ATTEMPT FRESH START =="
 AlreadyRunning="/usr/pluto/locks/pluto_spawned_local_devices.txt"

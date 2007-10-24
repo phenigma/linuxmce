@@ -13,6 +13,11 @@ DEVICEDATA_Use_OpenGL_effects=172
 DEVICEDATA_Use_alpha_blended_UI=169
 DEVICEDATA_PK_UI=104
 
+UseAlternativeLibs() 
+{
+	export LD_LIBRARY_PATH=/opt/libxine1-pluto/lib:/opt/libsdl1.2-1.2.7+1.2.8cvs20041007/lib
+}
+
 FindDevice_Template()
 {
 	local PK_Device_Parent="${1//\'}" FK_DeviceTemplate="${2//\'}" NoRecursion="$3" IncludeParent="$4" All="$5"
