@@ -15,7 +15,7 @@ DEVICEDATA_PK_UI=104
 
 UseAlternativeLibs() 
 {
-	export LD_LIBRARY_PATH=/opt/libxine1-pluto/lib:/opt/libsdl1.2-1.2.7+1.2.8cvs20041007/lib
+	export LD_LIBRARY_PATH=/opt/libsdl:/opt/libxine1-pluto/lib:/opt/libsdl1.2-1.2.7+1.2.8cvs20041007/lib
 }
 
 FindDevice_Template()
