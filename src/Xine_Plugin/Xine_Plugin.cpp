@@ -298,7 +298,7 @@ bool Xine_Plugin::StartMedia( MediaStream *pMediaStream,string &sError )
 	if (bRedirectToMPlayer)
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Redirecting CMD_Play_Media to MPlayer instead of Xine");
 	
-	if( pXineMediaStream->StreamingRequired() )
+	if( !bRedirectToMPlayer && pXineMediaStream->StreamingRequired() )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "sending CMD_Play_Media from %d to %d with deq pos %d", 
 			m_dwPK_Device, pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
