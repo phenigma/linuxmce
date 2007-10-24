@@ -395,6 +395,6 @@ RunSQL "UPDATE Installation SET FK_PostalCode = 0"
 #	apt-get -y dist-upgrade || ExitInstaller "Failed while upgrading the system. Installation finished but you system might be left in a unstable state."
 #fi
 
-apt-get -y -f dist-upgrade
+#apt-get -y -f dist-upgrade
 StatsMessage "Installation Finished"
 init 0
