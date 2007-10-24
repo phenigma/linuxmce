@@ -75,8 +75,9 @@ bool MPlayerEngine::StartEngine() {
 		}
 
 		Log("Starting mplayer");
-		//execle("/bin/ls", "ls", "-al", "/tmp", (char *) 0, environ);
-		execle("/opt/pluto-mplayer/bin/mplayer", "mplayer", "-slave", "-idle", "-msglevel", "all=4", (char *) 0, environ);
+		
+		execle("/opt/pluto-mplayer/bin/mplayer", "mplayer", "-slave", "-idle", "-msglevel", "all=4", "-noborder", 
+		       "-fixed-vo", "-fs", "-vo", "xv", "-lavdopts", "fast:threads=2", "/usr/pluto/share/black.mpeg", (char *) 0, environ);
 
 		Log("execle() failed");
 		exit(127);
