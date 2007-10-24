@@ -19,19 +19,25 @@ private:
 
 	friend void* EngineOutputReader(void *pInstance);
 
-	void ClosePipes();
-
 	int m_iChildPID;
 	map<string,string> m_mEngineAnswers;
+
+	bool StartEngine();
+	void StopEngine();
+
+	void ClosePipes();
+
+	string ReadLine();
 
 public:
 	MPlayerEngine();
 	~MPlayerEngine();
 
-	bool StartEngine();
-	string ReadLine();
-	void Command(string sCommand);
-	string Ask(string sCommand, string sResponse);
+	// executes command with no response
+	void ExecuteCommand(string sCommand);
+
+	// executes command with response
+	bool ExecuteCommand(string sCommand, string sResponseName, string &sResponseValue);
 };
 
 #endif

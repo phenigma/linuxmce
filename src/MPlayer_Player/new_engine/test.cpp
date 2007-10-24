@@ -6,31 +6,30 @@
 using namespace std;
 
 int main() {
-	MPlayerEngine *pEngine = new MPlayerEngine();
-	Log("Created MPlayerEngine object");
-
-	if ( pEngine->StartEngine() ) {
-		Log("Engine started successfully");
-		/*
-		for (int i=0; i<10; i++)
-		{
-			string sLine = pEngine->ReadLine();
-			std::cout << "Line " << i << ": " << sLine << endl;
-		}
-		*/
+	try {
+		MPlayerEngine *pEngine = new MPlayerEngine();
+		Log("Created MPlayerEngine object");
+		
 		sleep(5);
 		Log("Playing mp3...");
-		pEngine->Command("loadfile /home/fenikso/Music/SinnerMan.mp3");
+		pEngine->ExecuteCommand("loadfile /home/fenikso/Music/SinnerMan.mp3");
 		sleep(3);
-		string sAudioCodec = pEngine->Ask("get_audio_codec", "AUDIO_CODEC");
-		Log("Detected audio codec: "+sAudioCodec);
+		string sAudioCodec;
+		Log("Detecting audio codec...");
+		if ( pEngine->ExecuteCommand("get_audio_codec", "AUDIO_CODEC", sAudioCodec) ) {
+			Log("Detected audio codec: "+sAudioCodec);
+		}
+		else {
+			Log("Failed to detect audio codec");
+		}
+		
 		sleep(10);
+		
+		Log("Destroying engine");
+		delete pEngine;
 	}
-	else {
+	catch (...) {
 		Log("Engine failed to start");
 	}
-
-	Log("Destroying engine");
-	delete pEngine;
 }
 

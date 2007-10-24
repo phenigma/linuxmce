@@ -15,21 +15,13 @@ MPlayerEngine::MPlayerEngine() {
 	m_bInPipe[0] = m_bInPipe[1] = false;
 	m_bOutPipe[0] = m_bOutPipe[1] = false;
 	m_bRunEngineOutputReader = false;
+	
+	StartEngine();
 }
 
 MPlayerEngine::~MPlayerEngine() {
-	// TODO stop engine
-	// TODO check that engine runs
-	kill(m_iChildPID, SIGKILL);
-
-	// closing pipes first
+	StopEngine();
 	ClosePipes();
-
-	if (m_bRunEngineOutputReader)
-	{
-		m_bRunEngineOutputReader = false;
-		pthread_join(m_tEngineOutputReaderThread, NULL);
-	}
 }
 
 void MPlayerEngine::ClosePipes() {
@@ -99,6 +91,8 @@ bool MPlayerEngine::StartEngine() {
 		close(m_iOutPipe[1]);
 		m_bOutPipe[1] = false;
 		fcntl(m_bOutPipe[0], F_SETFL, O_NONBLOCK);
+		
+		m_bEngineIsRunning = true;
 
 		m_bRunEngineOutputReader = true;
 		// TODO error reporting here
@@ -106,6 +100,27 @@ bool MPlayerEngine::StartEngine() {
 	}
 
 	return true;
+}
+
+void MPlayerEngine::StopEngine() {
+	if (m_bEngineIsRunning) {
+		// quitting engine and giving it time to actually quit
+		ExecuteCommand("quit");
+		sleep(1);
+	
+		// if it is still running, let's kill it
+		kill(m_iChildPID, SIGKILL);
+		m_iChildPID = 0;
+	
+		// exiting output reader thread
+		if (m_bRunEngineOutputReader)
+		{
+			m_bRunEngineOutputReader = false;
+			pthread_join(m_tEngineOutputReaderThread, NULL);
+		}
+		
+		m_bEngineIsRunning = false;
+	}
 }
 
 string MPlayerEngine::ReadLine() {
@@ -168,7 +183,7 @@ void* EngineOutputReader(void *pInstance) {
 	return NULL;
 }
 
-void MPlayerEngine::Command(string sCommand) {
+void MPlayerEngine::ExecuteCommand(string sCommand) {
 	//TODO check that engine runs
 	char buf[1024];
 	// TODO check that command is \n-terminated
@@ -177,10 +192,24 @@ void MPlayerEngine::Command(string sCommand) {
 	cout << "Wrote " << iSize << " bytes" << endl;
 }
 
-string MPlayerEngine::Ask(string sCommand, string sResponse) {
-	Command(sCommand);
+bool MPlayerEngine::ExecuteCommand(string sCommand, string sResponseName, string &sResponseValue) {
+	//TODO check that engine runs
+	
+	sResponseName = "ANS_" + sResponseName;
+	// TODO protect access
+	m_mEngineAnswers[sResponseName] = sResponseName;
+	ExecuteCommand(sCommand);
 	// giving MPlayer time to reply
 	sleep(3);
-	return m_mEngineAnswers["ANS_"+sResponse];
+	
+	// TODO protect access
+	if ( m_mEngineAnswers[sResponseName] == sResponseName ) {
+		sResponseValue = "";
+		return false;
+	}
+	else {
+		sResponseValue = m_mEngineAnswers[sResponseName];
+		return true;
+	}
 }
 
