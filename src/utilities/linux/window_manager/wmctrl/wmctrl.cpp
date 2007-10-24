@@ -1902,7 +1902,12 @@ gchar * WmCtrl::get_property(Display *disp, Window win,
     }
 
     /* null terminate the result to make string handling easier */
-    tmp_size = sizeof(Window) * ret_nitems;
+#ifdef ARCH64
+	tmp_size = sizeof(Window) * ret_nitems;
+#else
+	tmp_size = (ret_format / 8) * ret_nitems;
+#endif
+
     ret = (char *)g_malloc(tmp_size + 1);
     memcpy(ret, ret_prop, tmp_size);
     ret[tmp_size] = '\0';
