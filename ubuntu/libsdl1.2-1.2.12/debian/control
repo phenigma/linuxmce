@@ -129,7 +129,7 @@ Description: Simple DirectMedia Layer (with directfb graphics and no sound)
  .
  This version of SDL is compiled with directfb graphics and no sound.
 
-Package: libsdl1.2-dev
+Package: libsdl1.2-pluto-dev
 Architecture: any
 Section: libdevel
 Depends: libsdl1.2debian-pluto (= ${binary:Version}), libx11-dev, libglu1-xorg-dev | libglu-dev
