@@ -788,8 +788,8 @@ void *DCE::PlayerEnginePoll(void *pInstance)
 	
 	while (pThis->m_bRunPlayerEnginePoll)
 	{
-		Sleep(1000);
-		LoggerWrapper::GetInstance()->Write(LV_STATUS, "PlayerEnginePoll - loop");
+		Sleep(500);
+//		LoggerWrapper::GetInstance()->Write(LV_STATUS, "PlayerEnginePoll - loop");
 		
 		if (pThis->m_bMediaOpened)
 		{
@@ -816,10 +816,6 @@ void *DCE::PlayerEnginePoll(void *pInstance)
 				LoggerWrapper::GetInstance()->Write(LV_STATUS, "PlayerEnginePoll - time %.1f of %.1f", pThis->m_fCurrentFileTime, pThis->m_fCurrentFileLength);
 			}
 			
-		}
-		else
-		{
-			LoggerWrapper::GetInstance()->Write(LV_STATUS, "PlayerEnginePoll - no media, skipping this turn");
 		}
 	}
 	

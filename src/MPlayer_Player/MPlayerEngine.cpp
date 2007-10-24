@@ -192,7 +192,7 @@ void* EngineOutputReader(void *pInstance) {
 						sValue = vAnswer[1];
 					}
 
-				// TODO add sync
+					// TODO add sync
 					pThis->m_mEngineAnswers[vAnswer[0]] = sValue;
 				}
 			}
@@ -207,7 +207,6 @@ void* EngineOutputReader(void *pInstance) {
 void MPlayerEngine::ExecuteCommand(string sCommand) {
 	//TODO check that engine runs
 	char buf[1024];
-	// TODO check that command is \n-terminated
 	int iLen = snprintf(buf, 1024, "%s\n", sCommand.c_str());
 	int iSize = write(m_iInPipe[1], buf, iLen);
 	cout << "Wrote " << iSize << " bytes" << endl;
@@ -221,7 +220,7 @@ bool MPlayerEngine::ExecuteCommand(string sCommand, string sResponseName, string
 	m_mEngineAnswers[sResponseName] = sResponseName;
 	ExecuteCommand(sCommand);
 	// giving MPlayer time to reply
-	sleep(1);
+	usleep(300000);
 	
 	// TODO protect access
 	if ( m_mEngineAnswers[sResponseName] == sResponseName ) {
