@@ -44,7 +44,14 @@
       <filetype>Makefile</filetype>
       <filetype>CMakeLists.txt</filetype>
     </filetypes>
-    <blacklist/>
+    <blacklist>
+      <path>new_engine</path>
+      <path>new_engine/Log.cpp</path>
+      <path>new_engine/Log.h</path>
+      <path>new_engine/MPlayerEngine.cpp</path>
+      <path>new_engine/MPlayerEngine.h</path>
+      <path>new_engine/test.cpp</path>
+    </blacklist>
     <build>
       <buildtool>make</buildtool>
       <builddir/>

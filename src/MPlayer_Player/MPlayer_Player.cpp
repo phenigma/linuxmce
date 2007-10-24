@@ -410,10 +410,20 @@ void MPlayer_Player::CMD_Stop_Media(int iStreamID,string *sMediaPosition,string 
 		return;
 	}
 	
+	// TODO retrieve subtitles and audio track
+	float fCurrentPosition = m_pPlayerEngine->GetCurrentPosition();
+	float fTotalLength = m_pPlayerEngine->GetFileLength();
+	
+	const int buf_size = 256;
+	char buf[buf_size];
+
 	m_pPlayerEngine->StopPlayback();
 	
-	// TODO implement real code
-	*sMediaPosition = " POS:0";
+	snprintf(buf, buf_size, " POS:%i SUBTITLE:-1 AUDIO:-1 TOTAL:%i", (int)(fCurrentPosition*1000), (int)(fTotalLength*1000));
+	
+	*sMediaPosition = buf;
+	
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::CMD_Stop position info: %s", buf);
 }
 
 //<-dceag-c39-b->
@@ -618,7 +628,7 @@ void MPlayer_Player::CMD_Report_Playback_Position(int iStreamID,string *sText,st
 void MPlayer_Player::CMD_Set_Media_Position(int iStreamID,string sMediaPosition,string &sCMD_Result,Message *pMessage)
 //<-dceag-c412-e->
 {
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::CMD_Set_Media_Position received");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::CMD_Set_Media_Position received: %s", sMediaPosition.c_str());
 
 	if (!m_bPlayerEngineInitialized)
 	{

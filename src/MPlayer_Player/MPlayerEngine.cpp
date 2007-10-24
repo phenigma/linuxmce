@@ -249,7 +249,7 @@ float MPlayerEngine::GetCurrentPosition() {
 float MPlayerEngine::GetFileLength() {
 	string sCommand = "get_time_length";
 	string sTimeLen;
-	if ( ExecuteCommand(sCommand, "TIME_LENGTH", sTimeLen) ) {
+	if ( ExecuteCommand(sCommand, "LENGTH", sTimeLen) ) {
 		Log("Current stream time length: " + sTimeLen);
 		return atof(sTimeLen.c_str());
 	}
