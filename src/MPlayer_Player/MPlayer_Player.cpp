@@ -797,7 +797,7 @@ void *DCE::PlayerEnginePoll(void *pInstance)
 
 			// detecting if we should fire playback completed
 			string sFile;
-			if ( !pThis->m_pPlayerEngine->ExecuteCommand("get_file_name", "FILENAME", sFile) || sFile=="" )
+			if ( (!pThis->m_pPlayerEngine->ExecuteCommand("get_file_name", "FILENAME", sFile) || sFile=="") && pThis->m_sCurrentFileName!="" )
 			{
 				LoggerWrapper::GetInstance()->Write(LV_WARNING, "PlayerEnginePoll - detected end of file");
 				pThis->EVENT_Playback_Completed(pThis->m_sCurrentFileName, pThis->m_iCurrentStreamID, false);

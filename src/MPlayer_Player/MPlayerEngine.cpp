@@ -3,6 +3,7 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <signal.h>
+#include <poll.h>
 
 #include "MPlayerEngine.h"
 #include "Log.h"
@@ -95,7 +96,7 @@ bool MPlayerEngine::StartEngine() {
 		m_bInPipe[0] = false;
 		close(m_iOutPipe[1]);
 		m_bOutPipe[1] = false;
-		fcntl(m_bOutPipe[0], F_SETFL, O_NONBLOCK);
+		fcntl(m_iOutPipe[0], F_SETFL, O_NONBLOCK);
 		
 		m_bEngineIsRunning = true;
 
@@ -129,11 +130,19 @@ void MPlayerEngine::StopEngine() {
 }
 
 string MPlayerEngine::ReadLine() {
+	string sResult;
 	char buf[1024];
-	int iSize = read(m_iOutPipe[0], buf, 1023);
-	cout << "Read " << iSize << " bytes" << endl;
-	buf[iSize] = 0;
-	return buf;
+	int iSize = 0;
+	do {
+		iSize = read(m_iOutPipe[0], buf, 1023);
+		if (iSize>0)
+		{
+			buf[iSize] = 0;
+			sResult += buf;
+		}
+	} while (iSize > 0);
+	
+	return sResult;
 }
 
 void Tokenize(const string& str,
@@ -161,25 +170,31 @@ void* EngineOutputReader(void *pInstance) {
 
 	MPlayerEngine* pThis = (MPlayerEngine*) pInstance;
 
-	// TODO add polling here instead of sleep
+	pollfd pfd[1];
+	pfd[0].fd = pThis->m_iOutPipe[0];
+	pfd[0].events = POLLIN;
+	
 	while (pThis->m_bRunEngineOutputReader) {
-		usleep(100000);
-		string sLine = pThis->ReadLine();
-		Log("Read line: " + sLine);
-		vector<string> vLines;
-		Tokenize(sLine, vLines, "\n");
-		for (vector<string>::iterator i=vLines.begin(); i!=vLines.end(); ++i) {
-			if ( strncmp(i->c_str(), "ANS_", 4) == 0 ) {
-				Log("Found answer: " + *i);
-				vector<string> vAnswer;
-				Tokenize(*i, vAnswer, "=");
-				string sValue;
-				if ( vAnswer.size()>=2 ) {
-					sValue = vAnswer[1];
-				}
+		poll(pfd, 1, 300);
+		if (pfd[0].revents & POLLIN)
+		{
+			string sLine = pThis->ReadLine();
+			Log("Read line: " + sLine);
+			vector<string> vLines;
+			Tokenize(sLine, vLines, "\n");
+			for (vector<string>::iterator i=vLines.begin(); i!=vLines.end(); ++i) {
+				if ( strncmp(i->c_str(), "ANS_", 4) == 0 ) {
+					Log("Found answer: " + *i);
+					vector<string> vAnswer;
+					Tokenize(*i, vAnswer, "=");
+					string sValue;
+					if ( vAnswer.size()>=2 ) {
+						sValue = vAnswer[1];
+					}
 
 				// TODO add sync
-				pThis->m_mEngineAnswers[vAnswer[0]] = sValue;
+					pThis->m_mEngineAnswers[vAnswer[0]] = sValue;
+				}
 			}
 		}
 	}
