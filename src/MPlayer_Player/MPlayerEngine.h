@@ -30,6 +30,8 @@ private:
 	string ReadLine();
 
 public:
+	enum SeekType {SEEK_RELATIVE_TIME=0, SEEK_ABSOLUTE_PERCENTAGE, SEEK_ABSOLUTE_TIME};
+	
 	MPlayerEngine();
 	~MPlayerEngine();
 
@@ -38,6 +40,21 @@ public:
 
 	// executes command with response
 	bool ExecuteCommand(string sCommand, string sResponseName, string &sResponseValue);
+	
+	bool StartPlayback(string sMediaFile);
+	void StopPlayback();
+	
+	float GetCurrentPosition();
+	float GetFileLength();
+	
+	string GetAudioCodec();
+	string GetVideoCodec();
+	
+	void Seek(float fValue, SeekType eType);
 };
+
+void Tokenize(const string& str,
+	      vector<string>& tokens,
+       const string& delimiters = " ");
 
 #endif

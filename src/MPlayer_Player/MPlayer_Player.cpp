@@ -27,9 +27,6 @@ using namespace DCE;
 
 #include "Gen_Devices/AllCommandsRequests.h"
 //<-dceag-d-e->
-
-#define BLACK_MPEG_FILE "/usr/pluto/share/black.mpeg"
-#define MPLAYER_BINARY "/opt/pluto-mplayer/bin/mplayer"
 			 
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
@@ -37,13 +34,9 @@ MPlayer_Player::MPlayer_Player(int DeviceID, string ServerAddress,bool bConnectE
 	: MPlayer_Player_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
 {
-	m_fCurrentInPipe = NULL;
 	m_bMediaPaused = false;
 	m_bPlayerEngineInitialized = false;
-	m_sBlackMPEG=BLACK_MPEG_FILE;
 	m_pPlayerEngine = NULL;
-
-	MoveAwayBadCodecs();
 }
 
 //<-dceag-const2-b->
@@ -52,13 +45,9 @@ MPlayer_Player::MPlayer_Player(Command_Impl *pPrimaryDeviceCommand, DeviceData_I
 	: MPlayer_Player_Command(pPrimaryDeviceCommand, pData, pEvent, pRouter)
 //<-dceag-const2-e->
 {
-	m_fCurrentInPipe = NULL;
 	m_bMediaPaused = false;
 	m_bPlayerEngineInitialized = false;
-	m_sBlackMPEG=BLACK_MPEG_FILE;
 	m_pPlayerEngine = NULL;
-
-	MoveAwayBadCodecs();
 }
 
 //<-dceag-dest-b->
@@ -265,7 +254,7 @@ void MPlayer_Player::CMD_Pause(int iStreamID,string &sCMD_Result,Message *pMessa
 	
 	if (!m_bMediaPaused)
 	{
-		SendFIFOCommandNoReply("pause");
+		m_pPlayerEngine->ExecuteCommand("pause");
 		m_bMediaPaused = true;
 	}
 }
@@ -284,13 +273,14 @@ void MPlayer_Player::CMD_Stop(int iStreamID,bool bEject,string &sCMD_Result,Mess
 {
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::CMD_Stop received");
 
+	//TODO use only ptr to engine object
 	if (!m_bPlayerEngineInitialized)
 	{
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "MPlayer_Player::CMD_Stop aborts because Player Engine is not initialized");
 		return;
 	}
 	
-	SendFIFOCommandNoReply("loadfile "+m_sBlackMPEG);
+	m_pPlayerEngine->StopPlayback();
 }
 
 //<-dceag-c139-b->
@@ -313,24 +303,11 @@ void MPlayer_Player::CMD_Play(int iStreamID,string &sCMD_Result,Message *pMessag
 	
 	if (m_bMediaPaused)
 	{
-		SendFIFOCommandNoReply("pause");
+		m_pPlayerEngine->ExecuteCommand("pause");
 		m_bMediaPaused = false;
 	}
 }
 
-void MPlayer_Player::SendFIFOCommandNoReply(string sCommand)
-{
-	if (!m_bPlayerEngineInitialized)
-	{
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "MPlayer_Player::SendFIFOCommandNoReply aborts '%s' because Player Engine is not initialized", sCommand.c_str());
-		return;
-	}
-	
-	
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::SendFIFOCommandNoReply passes command '%s' to mplayer", sCommand.c_str());
-	
-	m_pPlayerEngine->ExecuteCommand(sCommand);
-}
 //<-dceag-c28-b->
 
 	/** @brief COMMAND: #28 - Simulate Keypress */
@@ -387,19 +364,28 @@ void MPlayer_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMedi
 	
 	if (!m_bPlayerEngineInitialized)
 	{
-		InitializePlayerEngine(sMediaURL);
+		InitializePlayerEngine();
 	}
 	
-	//else
+	//TODO process ripped folders in special way
 	
-	{
-		m_bMediaPaused = false;
-		SendFIFOCommandNoReply("loadfile "+sMediaURL);
-	}
-		
-	//TODO implement setting media position
+	m_bMediaPaused = false;
+	m_pPlayerEngine->StartPlayback(sMediaURL);
+	
+	//TODO implement setting media subtitles and audio channel
+
+	Sleep(1000);
+	
+	CMD_Set_Media_Position(iStreamID, sMediaPosition);
 
 	string sMediaInfo, sAudioInfo, sVideoInfo;
+	
+	// codec information is not used
+	/*
+	sAudioInfo = m_pPlayerEngine->GetAudioCodec();
+	sVideoInfo = m_pPlayerEngine->GetVideoCodec();
+	*/
+	
 	LoggerWrapper::GetInstance()->Write(LV_WARNING, "MPlayer_Player::EVENT_Playback_Started(streamID=%i)", iStreamID);
 	EVENT_Playback_Started(sMediaURL,iStreamID,sMediaInfo,sAudioInfo,sVideoInfo);
 }
@@ -424,8 +410,7 @@ void MPlayer_Player::CMD_Stop_Media(int iStreamID,string *sMediaPosition,string 
 		return;
 	}
 	
-	
-	SendFIFOCommandNoReply("loadfile "+m_sBlackMPEG);
+	m_pPlayerEngine->StopPlayback();
 	
 	// TODO implement real code
 	*sMediaPosition = " POS:0";
@@ -451,7 +436,7 @@ void MPlayer_Player::CMD_Pause_Media(int iStreamID,string &sCMD_Result,Message *
 	
 	if (!m_bMediaPaused)
 	{
-		SendFIFOCommandNoReply("pause");
+		m_pPlayerEngine->ExecuteCommand("pause");
 		m_bMediaPaused = true;
 	}
 }
@@ -476,7 +461,7 @@ void MPlayer_Player::CMD_Restart_Media(int iStreamID,string &sCMD_Result,Message
 	
 	if (m_bMediaPaused)
 	{
-		SendFIFOCommandNoReply("pause");
+		m_pPlayerEngine->ExecuteCommand("pause");
 		m_bMediaPaused = false;
 	}
 }
@@ -519,7 +504,7 @@ void MPlayer_Player::CMD_Change_Playback_Speed(int iStreamID,int iMediaPlaybackS
 	if (iMediaPlaybackSpeed > 0)
 	{
 		string sSpeed = StringUtils::itos(iMediaPlaybackSpeed/1000) + "." + StringUtils::itos(iMediaPlaybackSpeed%1000);
-		SendFIFOCommandNoReply("speed_set " + sSpeed);
+		m_pPlayerEngine->ExecuteCommand("speed_set " + sSpeed);
 		
 		// for the case when prev speed was 0
 		CMD_Restart_Media(iStreamID);
@@ -549,11 +534,11 @@ void MPlayer_Player::CMD_Jump_to_Position_in_Stream(string sValue_To_Assign,int 
 	// relative seek
 	if ( StringUtils::StartsWith(sValue_To_Assign, "+") || StringUtils::StartsWith(sValue_To_Assign, "+") )
 	{
-		SendFIFOCommandNoReply("seek "+sValue_To_Assign);
+		m_pPlayerEngine->ExecuteCommand("seek "+sValue_To_Assign);
 	}
 	else
 	{
-		SendFIFOCommandNoReply("seek "+sValue_To_Assign+" 2");
+		m_pPlayerEngine->ExecuteCommand("seek "+sValue_To_Assign+" 2");
 	}
 }
 
@@ -633,7 +618,26 @@ void MPlayer_Player::CMD_Report_Playback_Position(int iStreamID,string *sText,st
 void MPlayer_Player::CMD_Set_Media_Position(int iStreamID,string sMediaPosition,string &sCMD_Result,Message *pMessage)
 //<-dceag-c412-e->
 {
-	// TODO implement
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::CMD_Set_Media_Position received");
+
+	if (!m_bPlayerEngineInitialized)
+	{
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "MPlayer_Player::CMD_Set_Media_Position aborts because Player Engine is not initialized");
+		return;
+	}
+	
+	vector<string> vParams;
+	Tokenize(sMediaPosition, vParams);
+	for (vector<string>::iterator i=vParams.begin(); i!=vParams.end(); ++i)
+	{
+		if (i->substr(0,4) == "POS:")
+		{
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::CMD_Set_Media_Position requested to seek %s", i->c_str());
+			int iPosition = atoi(i->substr(4).c_str());
+			float fPosition = (float) iPosition / 1000;
+			m_pPlayerEngine->Seek(fPosition, MPlayerEngine::SEEK_ABSOLUTE_TIME);
+		}
+	}
 }
 
 //<-dceag-c548-b->
@@ -694,7 +698,7 @@ void MPlayer_Player::CMD_Set_Aspect_Ratio(int iStreamID,string sAspect_Ratio,str
 		sMPlayerAspect = "2.11";
 	}
 	
-	SendFIFOCommandNoReply("switch_ratio " + sMPlayerAspect);
+	m_pPlayerEngine->ExecuteCommand("switch_ratio " + sMPlayerAspect);
 }
 
 //<-dceag-c917-b->
@@ -727,26 +731,12 @@ void MPlayer_Player::CMD_Set_Media_ID(string sID,int iStreamID,string &sCMD_Resu
 	LoggerWrapper::GetInstance()->Write(LV_WARNING, "MPlayer_Player::CMD_Set_Media_ID is not implemented");
 }
 
-void MPlayer_Player::InitializePlayerEngine(string sMedia)
+void MPlayer_Player::InitializePlayerEngine()
 {
+	//TODO wrap into try-catch block
 	m_pPlayerEngine = new MPlayerEngine();
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Started MPlayer slave instance");
 	m_bPlayerEngineInitialized = true;
 }
 
 //TODO periodically retrieve stream position
-
-
-void MPlayer_Player::MoveAwayBadCodecs()
-{
-/*
-	// HACK moving away VC1 DLL as it is known to create problems with mplayer
-	const string sVC1codec = "/usr/lib/codecs/wvc1dmod.dll";
-	if (FileUtils::FileExists(sVC1codec))
-	{
-		string sVC1codec_moved = sVC1codec+"-moved";
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Renaming buggy codec %s to %s", sVC1codec.c_str(), sVC1codec_moved.c_str());
-		system(("/bin/mv "+sVC1codec+" "+sVC1codec_moved).c_str());
-	}
-*/
-}

@@ -7,6 +7,10 @@
 #include "MPlayerEngine.h"
 #include "Log.h"
 
+#define BLACK_MPEG_FILE "/usr/pluto/share/black.mpeg"
+#define MPLAYER_BINARY "/opt/pluto-mplayer/bin/mplayer"
+#define MPLAYER_BINARY_SHORT "mplayer"
+
 using namespace std;
 
 MPlayerEngine::MPlayerEngine() {
@@ -76,8 +80,8 @@ bool MPlayerEngine::StartEngine() {
 
 		Log("Starting mplayer");
 		
-		execle("/opt/pluto-mplayer/bin/mplayer", "mplayer", "-slave", "-idle", "-msglevel", "all=4", "-noborder", 
-		       "-fixed-vo", "-fs", "-vo", "xv", "-lavdopts", "fast:threads=2", "/usr/pluto/share/black.mpeg", (char *) 0, environ);
+		execle(MPLAYER_BINARY, MPLAYER_BINARY_SHORT, "-slave", "-idle", "-msglevel", "all=4", "-noborder", 
+		       "-fixed-vo", "-fs", "-vo", "xv", "-lavdopts", "fast:threads=2", BLACK_MPEG_FILE, (char *) 0, environ);
 
 		Log("execle() failed");
 		exit(127);
@@ -134,7 +138,7 @@ string MPlayerEngine::ReadLine() {
 
 void Tokenize(const string& str,
                       vector<string>& tokens,
-                      const string& delimiters = " ")
+                      const string& delimiters/* = " "*/)
 {
     // Skip delimiters at beginning.
     string::size_type lastPos = str.find_first_not_of(delimiters, 0);
@@ -157,8 +161,9 @@ void* EngineOutputReader(void *pInstance) {
 
 	MPlayerEngine* pThis = (MPlayerEngine*) pInstance;
 
+	// TODO add polling here instead of sleep
 	while (pThis->m_bRunEngineOutputReader) {
-		sleep(2);
+		sleep(1);
 		string sLine = pThis->ReadLine();
 		Log("Read line: " + sLine);
 		vector<string> vLines;
@@ -214,3 +219,76 @@ bool MPlayerEngine::ExecuteCommand(string sCommand, string sResponseName, string
 	}
 }
 
+void MPlayerEngine::StopPlayback() {
+	string sCommand = "loadfile ";
+	sCommand += BLACK_MPEG_FILE;
+	ExecuteCommand(sCommand);
+}
+
+bool MPlayerEngine::StartPlayback(string sMediaFile) {
+	// TODO add error handling
+	string sCommand = "loadfile ";
+	sCommand += sMediaFile;
+	ExecuteCommand(sCommand);
+	return true;
+}
+
+float MPlayerEngine::GetCurrentPosition() {
+	string sCommand = "get_time_pos";
+	string sTimePos;
+	if ( ExecuteCommand(sCommand, "TIME_POSITION", sTimePos) ) {
+		Log("Current stream time position: " + sTimePos);
+		return atof(sTimePos.c_str());
+	}
+	else {
+		Log("Failed to get stream time position");
+		return 0.0;
+	}
+}
+
+float MPlayerEngine::GetFileLength() {
+	string sCommand = "get_time_length";
+	string sTimeLen;
+	if ( ExecuteCommand(sCommand, "TIME_LENGTH", sTimeLen) ) {
+		Log("Current stream time length: " + sTimeLen);
+		return atof(sTimeLen.c_str());
+	}
+	else {
+		Log("Failed to get stream time length");
+		return 0.0;
+	}
+}
+
+string MPlayerEngine::GetAudioCodec() {
+	string sCommand = "get_audio_codec";
+	string sAudioCodec;
+	if ( ExecuteCommand(sCommand, "AUDIO_CODEC", sAudioCodec) ) {
+		Log("Current stream audio codec: " + sAudioCodec);
+		return sAudioCodec;
+	}
+	else {
+		Log("Failed to get stream audio codec");
+		return "";
+	}
+}
+
+string MPlayerEngine::GetVideoCodec() {
+	string sCommand = "get_video_codec";
+	string sVideoCodec;
+	if ( ExecuteCommand(sCommand, "VIDEO_CODEC", sVideoCodec) ) {
+		Log("Current stream video codec: " + sVideoCodec);
+		return sVideoCodec;
+	}
+	else {
+		Log("Failed to get stream video codec");
+		return "";
+	}
+}
+
+void MPlayerEngine::Seek(float fValue, SeekType eType) {
+	string sCommand = "seek ";
+	char buf[32];
+	snprintf(buf, 32, "%.1f %i", fValue, eType);
+	sCommand += buf;
+	ExecuteCommand(sCommand);
+}
