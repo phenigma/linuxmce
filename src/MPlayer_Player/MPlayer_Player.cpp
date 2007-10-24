@@ -398,6 +398,8 @@ void MPlayer_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMedi
 	//TODO check for playback start errors
 	
 	m_bMediaOpened = true;
+	m_fCurrentFileLength = 0.0;
+	m_fCurrentFileTime = 0.0;
 	m_bMediaPaused = false;
 	m_pPlayerEngine->StartPlayback(sMediaURL);
 	
@@ -443,18 +445,9 @@ void MPlayer_Player::CMD_Stop_Media(int iStreamID,string *sMediaPosition,string 
 	}
 	
 	m_bMediaOpened = false;
+	*sMediaPosition = GetPlaybackPosition();
 	
-	// TODO retrieve subtitles and audio track
-	const int buf_size = 256;
-	char buf[buf_size];
-
 	m_pPlayerEngine->StopPlayback();
-	
-	snprintf(buf, buf_size, " POS:%i SUBTITLE:-1 AUDIO:-1 TOTAL:%i", (int)(m_fCurrentFileTime*1000), (int)(m_fCurrentFileLength*1000));
-	
-	*sMediaPosition = buf;
-	
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::CMD_Stop position info: %s", buf);
 }
 
 //<-dceag-c39-b->
@@ -644,7 +637,9 @@ void MPlayer_Player::CMD_Start_Streaming(int iPK_MediaType,int iStreamID,string 
 void MPlayer_Player::CMD_Report_Playback_Position(int iStreamID,string *sText,string *sMediaPosition,string &sCMD_Result,Message *pMessage)
 //<-dceag-c259-e->
 {
-	//TODO implement
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "MPlayer_Player::CMD_Report_Playback_Position received");
+	
+	*sMediaPosition = GetPlaybackPosition();
 }
 
 //<-dceag-c412-b->
@@ -813,7 +808,11 @@ void *DCE::PlayerEnginePoll(void *pInstance)
 			else
 			{	
 				pThis->m_fCurrentFileTime = pThis->m_pPlayerEngine->GetCurrentPosition();
-				pThis->m_fCurrentFileLength = pThis->m_pPlayerEngine->GetFileLength();
+				
+				// storing this only if it is unknown, to minimize delay
+				if (pThis->m_fCurrentFileLength == 0.0)
+					pThis->m_fCurrentFileLength = pThis->m_pPlayerEngine->GetFileLength();
+				
 				LoggerWrapper::GetInstance()->Write(LV_STATUS, "PlayerEnginePoll - time %.1f of %.1f", pThis->m_fCurrentFileTime, pThis->m_fCurrentFileLength);
 			}
 			
@@ -827,4 +826,17 @@ void *DCE::PlayerEnginePoll(void *pInstance)
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "PlayerEnginePoll - exited");
 	
 	return NULL;
+}
+
+string MPlayer_Player::GetPlaybackPosition()
+{
+	// TODO retrieve subtitles and audio track
+	const int buf_size = 256;
+	char buf[buf_size];
+
+	snprintf(buf, buf_size, " POS:%i SUBTITLE:-1 AUDIO:-1 TOTAL:%i", (int)(m_fCurrentFileTime*1000), (int)(m_fCurrentFileLength*1000));
+	
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::GetPlaybackPosition position info: %s", buf);
+	
+	return buf;
 }

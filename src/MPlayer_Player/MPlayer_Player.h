@@ -53,6 +53,8 @@ namespace DCE
 		
 		// Private methods
 		void InitializePlayerEngine();
+		
+		string GetPlaybackPosition();
 public:
 		// Public member variables
 
