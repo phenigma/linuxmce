@@ -15,9 +15,20 @@ if [[ -f /etc/pluto/install_cleandb ]]; then
 	Q="DELETE FROM Package_Device"
 	RunSQL "$Q"
 
-	/usr/pluto/bin/sync_pluto2amp.pl
+	/usr/pluto/bin/Diskless_Setup.sh
 	/usr/pluto/bin/DHCP_config.sh
-	killall asterisk
+
+	if [[ -d /.upgrade-diskless ]]; then
+		pushd /.upgrade-diskless &>/dev/null
+		while read MD; do
+			Dir="/usr/pluto/diskless/$MD/etc"
+			if [[ -d "$Dir" ]]; then
+				mv "$MD"/etc/pluto.conf "$Dir"
+			fi
+		done < <(find . -mindepth 1 -maxdepth 1 -type d)
+		popd &>/dev/null
+		rm -rf /.upgrade-diskless
+	fi
 
 	rm -f /etc/pluto/install_cleandb
 fi
