@@ -1028,12 +1028,12 @@ function multi_page_format($row, $art_index,$mediadbADO)
 }
 
 // return the devices in selected category and its childs
-function getDevicesArrayFromCategory($categoryID,$dbADO)
+function getDevicesArrayFromCategory($categoryID,$dbADO,$extra='')
 {
 	$categories=getDescendantsForCategory($categoryID,$dbADO);
 	
 	$label=(@$GLOBALS['DT_&_Room']==1)?'CONCAT(Device.Description,\' (\',DeviceTemplate.Description,\') \',Room.Description) AS Description':'Device.Description AS Description';
-	$devicesList=getAssocArray('Device','PK_Device',$label,$dbADO,'INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate	LEFT JOIN Room ON FK_Room=PK_Room WHERE FK_DeviceCategory IN ('.join(',',$categories).') AND Device.FK_Installation='.(int)@$_SESSION['installationID'],'ORDER BY Description ASC');
+	$devicesList=getAssocArray('Device','PK_Device',$label,$dbADO,'INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate	LEFT JOIN Room ON FK_Room=PK_Room WHERE FK_DeviceCategory IN ('.join(',',$categories).') AND Device.FK_Installation='.(int)@$_SESSION['installationID'].$extra,'ORDER BY Description ASC');
 	
 	return $devicesList;
 }

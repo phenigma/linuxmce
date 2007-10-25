@@ -13,10 +13,17 @@ function addSoftware($output,$dbADO) {
 	
 	
 	if($action=='form'){
-	$computers=getDevicesArrayFromCategory($GLOBALS['rootComputerID'],$dbADO);
+	$computers=getDevicesArrayFromCategory($GLOBALS['rootComputerID'],$dbADO,' AND FK_Device_ControlledVia IS NULL');
+
+	$getXML_cmd='/usr/pluto/bin/getxmls';
 	
 	$out.='
-		
+	<script>
+		function windowOpen(locationA,attributes) {
+			window.open(locationA,\'\',attributes);
+		}	
+	</script>
+	
 		<div align="center" class="err">'.@$_REQUEST['error'].'</div>
 		<div align="center"><B>'.@$_REQUEST['msg'].'</B></div>
 			
@@ -25,6 +32,9 @@ function addSoftware($output,$dbADO) {
 		<input type="hidden" name="action" value="form">
 		
 		<table>
+			<tr>
+				<td colspan="2"><input type="button" class="button" value="Update Software List" onClick="windowOpen(\'operations/logs/executeLog.php?script=5&cmd='.urlencode($getXML_cmd).'\',\'width=1024,height=768,scrollbars=1,resizable=1\');"></td>
+			</tr>
 			<tr>
 				<td>'.$TEXT_ADD_SOFTWARE_ON_WHICH_COMPUTER_CONST.'</td>
 				<td>'.pulldownFromArray($computers,'computer',$compSelected,'onChange="document.addSoftware.action.value=\'form\';document.addSoftware.submit();"').'</td>
