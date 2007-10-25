@@ -744,3 +744,7 @@ xwininfo
 xwud
 zlib1g
 zlib1g-dev
+libxcb-shape0 
+libxcb-shm0 
+libxcb-xv0 
+libxcb1

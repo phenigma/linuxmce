@@ -137,6 +137,28 @@ function Build_MakeRelease_Binary {
 	cp ${svn_dir}/trunk/src/lib/*.so ${mkr_dir}
 }
 
+
+function ReplacementNeedsBuild {
+	local fs_path="$1"
+	local cache_file="/var/plutobuild/replacements/.cache"
+
+	local url_id=$(svn info $fs_path | grep '^URL: ' | cut -d' ' -f2 | md5sum | cut -d' ' -f1)
+
+	local revision_new=$(svn info $fs_path | grep '^Revision: ' | cut -d' ' -f2)
+	local revision_old=$(cat "$cache_file" | grep "^${url_id}" | cut -d'|' -f2)
+	
+	if [[ "$revision_new" == "$revision_old" ]] ;then
+		return $(/bin/false)
+	fi
+
+	grep -v "$url_id" "$cache_file" > "${cache_file}.tmp"
+	echo "$url_id|$revision_new" >> "${cache_file}.tmp"
+	mv "${cache_file}.tmp" "$cache_file"
+
+	return $(/bin/true)
+}
+
+
 function Build_Pluto_Replacements {
 	echo "$(date) part 1 " >> /var/log/build.log
 	ls -l /var/plutobuild/svn/trunk/src/bin/ >> /var/log/build.log
@@ -145,11 +167,22 @@ function Build_Pluto_Replacements {
 	mkdir -p $temp_dir
 
 	#Package: libsdl
-	pushd "${svn_dir}/trunk/ubuntu/libsdl1.2-1.2.12"
+	dir_="${svn_dir}/trunk/ubuntu/libsdl1.2-1.2.12"
+	if ReplacementNeedsBuild "$dir_" ;then
+		pushd "$dir_"
 		dpkg-buildpackage -rfakeroot -us -uc -b
 		cp -r ../libsdl1.2debian-pluto*.deb ${temp_dir}
-	popd
-exit 0
+		popd
+	fi
+
+	#Package: libxine
+	dir_="${svn_dir}/trunk/ubuntu/xine-lib-1.1.7"
+	if ReplacementNeedsBuild "$dir_" ;then
+		pushd "$dir_"
+		dpkg-buildpackage -rfakeroot -us -uc -b
+		cp -r ../libxine*.deb ${temp_dir}
+		popd
+	fi
 
 	#Package: video-wizard-videos
 	local vvv_temp_dir=$(mktemp -d)
@@ -162,44 +195,50 @@ exit 0
 	rm -rf "$vvv_temp_dir"
 
 	#Package: tee-pluto
-	pushd ${svn_dir}/trunk/misc_utils/tee-pluto
+	dir_="${svn_dir}/trunk/misc_utils/tee-pluto"
+	if ReplacementNeedsBuild "$dir_" ;then
+		pushd "$dir_"
 		dpkg-buildpackage -rfakeroot -us -uc -b
 		cp ../tee-pluto_*.deb ${temp_dir}
-	popd
+		popd
+	fi
 
 	#Package: pluto-mplayer
-	pushd ${svn_dir}/trunk/ubuntu/mplayer
+	dir_="${svn_dir}/trunk/ubuntu/mplayer"
+	if ReplacementNeedsBuild "$dir_" ;then
+		pushd "$dir_"
 		dpkg-buildpackage -rfakeroot -us -uc -b
 		cp -r ../pluto-mplayer_*.deb ${temp_dir}
-	popd
+		popd
+	fi
 	
 	#Package: pluto-ffmpeg
-	pushd ${svn_dir}/trunk/ubuntu/ffmpeg
+	dir_="${svn_dir}/trunk/ubuntu/ffmpeg"
+	if ReplacementNeedsBuild "$dir_" ;then
+		pushd "$dir_"
 		dpkg-buildpackage -rfakeroot -us -uc -b
 		cp -r ../pluto-ffmpeg_*.deb ${temp_dir}
-	popd
-
-	#Package: libxine
-	apt-get -y install libcaca-dev liblircclient-dev libtheora-dev libflac-dev libmodplug-dev libgnomevfs2-dev libsmbclient-dev libspeex-dev libmad0-dev libxvmc-dev automake1.9 autoconf libtool libcdio-dev sgmltools-lite dpatch transfig libavformat-dev libpostproc-dev libavcodec-dev libraw1394-dev libdc1394-13-dev
-	pushd ${svn_dir}/trunk/ubuntu/xine-lib-1.1.3
-		dpkg-buildpackage -rfakeroot -us -uc -b
-		dpkg -i ../libxine1-pluto_1.1.3*_*.deb
-		dpkg -i ../libxine-pluto-dev_1.1.3*_*.deb
-		cp ../libxine*.deb ${temp_dir}
-	popd
+		popd
+	fi
 
 	#Package: pluto-asterisk
 	apt-get -y install linux-headers-`uname -r`
-	pushd ${svn_dir}/trunk/ubuntu/asterisk
+	dir_="${svn_dir}/trunk/ubuntu/asterisk"
+	if ReplacementNeedsBuild "$dir_" ;then
+		pushd "$dir_"
 		./make_package_ubuntu.sh `uname -r`
 		cp -r asterisk-pluto_*.deb ${temp_dir}
-	popd
+		popd
+	fi
 
 	#Package: lshwd
-	pushd ${svn_dir}/trunk/ubuntu/lshwd-2.0-rc4
+	dir_="${svn_dir}/trunk/ubuntu/lshwd-2.0-rc4"
+	if ReplacementNeedsBuild "$dir_" ;then
+		pushd "$dir_"
 		dpkg-buildpackage -rfakeroot -us -uc -b
 		cp ../lshwd_2.0*.deb ${temp_dir}
-	popd
+		popd
+	fi
 
 	#Package: lirc-modules
 	apt-get -y install linux-source-`uname -r | cut -d'-' -f1` linux-headers-`uname -r` module-assistant lirc-modules-source
@@ -232,9 +271,6 @@ exit 0
 		cp /usr/src/ivtv-modules*.deb "${temp_dir}"
 	popd
 	
-	echo "$(date) part 2 " >> /var/log/build.log
-	ls -l /var/plutobuild/svn/trunk/src/bin/ >> /var/log/build.log
-
 	pushd "${svn_dir}"/trunk/ubuntu/
 		Src="deb http://dl.ivtvdriver.org/ubuntu feisty firmware"
 		if [ ! -e /etc/apt/sources.list.pbackup ] ;then
@@ -252,37 +288,49 @@ exit 0
 	popd
 
 	#Package: lirc-pluto
-	pushd "${svn_dir}"/trunk/ubuntu/lirc-pluto-0.1
+	dir_="${svn_dir}"/trunk/ubuntu/lirc-pluto-0.1
+	if ReplacementNeedsBuild "$dir_" ;then
+		pushd "$dir_"
 		dpkg-buildpackage -rfakeroot -us -uc -b
 		cp ../lirc-pluto_*.deb "${temp_dir}"
-	popd
+		popd
+	fi
 	
-	echo "$(date) part 3 " >> /var/log/build.log
-	ls -l /var/plutobuild/svn/trunk/src/bin/ >> /var/log/build.log
-
 	#Package: mce-launcher
-	pushd "${svn_dir}"/trunk/src/mce-launcher
+	dir_="${svn_dir}"/trunk/src/mce-launcher
+	if ReplacementNeedsBuild "$dir_" ;then
+		pushd "$dir_"
 		dpkg-buildpackage -rfakeroot -us -uc -b
 		cp ../mce-launcher_*.deb "${temp_dir}"
-	popd
+		popd
+	fi
 
 	#Package: mce-installer
-	pushd "${svn_dir}"/trunk/src/mce-installer
+	dir_="${svn_dir}"/trunk/src/mce-installer
+	if ReplacementNeedsBuild "$dir_" ;then
+		pushd "$dir_"
 		dpkg-buildpackage -rfakeroot -us -uc -b
 		cp ../mce-installer_*.deb "${temp_dir}"
-	popd
+		popd
+	fi
 
 	#Package: mtx-pluto
-	pushd "${svn_dir}"/trunk/ubuntu/mtx-1.3.11
+	dir_="${svn_dir}"/trunk/ubuntu/mtx-1.3.11
+	if ReplacementNeedsBuild "$dir_" ;then
+		pushd "$dir_"
 		dpkg-buildpackage -rfakeroot -us -uc -b
 		cp ../mtx-pluto_*.deb "${temp_dir}"
-	popd
+		popd
+	fi
 
 	#Package: linux-image-dummy
-	pushd "${svn_dir}"/trunk/ubuntu/linux-image-dummy
+	dir_="${svn_dir}"/trunk/ubuntu/linux-image-dummy
+	if ReplacementNeedsBuild "$dir_" ;then
+		pushd "$dir_"
 		dpkg-deb -b . ..
 		cp ../linux-image-dummy_*.deb "${temp_dir}"		
-	popd
+		popd
+	fi
 
 	#Download arch independent packages from 150
 	pushd $temp_dir
