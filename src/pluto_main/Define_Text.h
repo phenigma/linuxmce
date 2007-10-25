@@ -1245,6 +1245,7 @@
 #define TEXT_Remove_from_active_Call_CONST 1989
 #define TEXT_Transfer_or_Conference_CONST 1990
 #define TEXT_Active_Calls_CONST 1991
+#define TEXT_Choose_user_you_like_to_call_CONST 1992
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
