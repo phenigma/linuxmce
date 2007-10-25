@@ -17,7 +17,6 @@
 #include "MPlayer_Player.h"
 #include "DCE/Logger.h"
 #include "PlutoUtils/FileUtils.h"
-#include "PlutoUtils/ProcessUtils.h"
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
 
@@ -27,6 +26,8 @@ using namespace DCE;
 
 #include "Gen_Devices/AllCommandsRequests.h"
 //<-dceag-d-e->
+
+#include "pluto_main/Define_MediaType.h"
 			 
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
@@ -382,7 +383,7 @@ void MPlayer_Player::CMD_Update_Object_Image(string sPK_DesignObj,string sType,c
 void MPlayer_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPosition,string sMediaURL,string &sCMD_Result,Message *pMessage)
 //<-dceag-c37-e->
 {
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::CMD_Play_Media called for stream %i, MediaURL %s", iStreamID, sMediaURL.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::CMD_Play_Media called for media type %i stream %i, MediaURL %s", iPK_MediaType, iStreamID, sMediaURL.c_str());
 	
 	if (!m_bPlayerEngineInitialized)
 	{
@@ -393,6 +394,56 @@ void MPlayer_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMedi
 		//EVENT_Playback_Completed(m_sCurrentFileName, m_iCurrentStreamID, false);
 	}
 	
+	string sRealMediaURL;
+	
+	switch (iPK_MediaType)
+	{
+		case MEDIATYPE_pluto_HDDVD_CONST:
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::CMD_Play_Media detected HD-DVD disk");
+			// even for custom file, the type is passed as MEDIATYPE_pluto_HDDVD_CONST
+			if ( !StringUtils::EndsWith(sMediaURL, ".EVO", true) )
+			{
+				// TODO: load full playlist
+				list<string> vFiles;
+				string sLargestFile;
+				int iLargestFilePosition = -1;
+				SmartLoadPlaylist(sMediaURL+"/HVDVD_TS", "*.evo", vFiles, sLargestFile, iLargestFilePosition);
+				sRealMediaURL = sLargestFile;
+			}
+			else
+				sRealMediaURL = sMediaURL;
+			break;
+			
+		case MEDIATYPE_pluto_BD_CONST:
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::CMD_Play_Media detected Bluray disk");
+			// even for custom file, the type is passed as MEDIATYPE_pluto_BD_CONST
+			if ( !StringUtils::EndsWith(sMediaURL, ".M2TS", true) )
+			{
+				// TODO: load full playlist
+				sRealMediaURL = sMediaURL + "/BDMV/STREAM/00001.m2ts";
+				list<string> vFiles;
+				string sLargestFile;
+				int iLargestFilePosition = -1;
+				SmartLoadPlaylist(sMediaURL+"/BDMV/STREAM", "*.m2ts", vFiles, sLargestFile, iLargestFilePosition);
+				sRealMediaURL = sLargestFile;
+			}
+			else
+				sRealMediaURL = sMediaURL;
+			break;
+			
+		case MEDIATYPE_pluto_StoredVideo_CONST:
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::CMD_Play_Media detected stored video");
+			sRealMediaURL = sMediaURL;
+			break;
+			
+		default:
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "MPlayer_Player::CMD_Play_Media unknown media, aborting");
+			EVENT_Playback_Completed(sMediaURL, iStreamID, false);
+			return;
+			break;
+	}
+	
+	
 	//TODO process ripped folders in special way
 	
 	//TODO check for playback start errors
@@ -401,7 +452,7 @@ void MPlayer_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMedi
 	m_fCurrentFileLength = 0.0;
 	m_fCurrentFileTime = 0.0;
 	m_bMediaPaused = false;
-	m_pPlayerEngine->StartPlayback(sMediaURL);
+	m_pPlayerEngine->StartPlayback(sRealMediaURL);
 	
 	m_iCurrentStreamID = iStreamID;
 	m_sCurrentFileName = sMediaURL;
@@ -436,7 +487,7 @@ void MPlayer_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMedi
 void MPlayer_Player::CMD_Stop_Media(int iStreamID,string *sMediaPosition,string &sCMD_Result,Message *pMessage)
 //<-dceag-c38-e->
 {
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::CMD_Stop received");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::CMD_Stop_Media received");
 
 	if (!m_bPlayerEngineInitialized)
 	{
@@ -446,7 +497,7 @@ void MPlayer_Player::CMD_Stop_Media(int iStreamID,string *sMediaPosition,string 
 	
 	m_bMediaOpened = false;
 	*sMediaPosition = GetPlaybackPosition();
-	
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::CMD_Stop_Media last position is %s", sMediaPosition->c_str());
 	m_pPlayerEngine->StopPlayback();
 }
 
@@ -793,6 +844,7 @@ void *DCE::PlayerEnginePoll(void *pInstance)
 		
 		if (pThis->m_bMediaOpened)
 		{
+			/*
 			// TODO protect pThis member variables
 
 			// detecting if we should fire playback completed
@@ -805,7 +857,7 @@ void *DCE::PlayerEnginePoll(void *pInstance)
 				pThis->m_fCurrentFileLength = 0.0;	
 				pThis->m_bMediaOpened = false;	
 			}
-			else
+			else*/
 			{	
 				pThis->m_fCurrentFileTime = pThis->m_pPlayerEngine->GetCurrentPosition();
 				
@@ -815,6 +867,7 @@ void *DCE::PlayerEnginePoll(void *pInstance)
 				
 				LoggerWrapper::GetInstance()->Write(LV_STATUS, "PlayerEnginePoll - time %.1f of %.1f", pThis->m_fCurrentFileTime, pThis->m_fCurrentFileLength);
 			}
+			
 			
 		}
 	}
@@ -835,4 +888,47 @@ string MPlayer_Player::GetPlaybackPosition()
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::GetPlaybackPosition position info: %s", buf);
 	
 	return buf;
+}
+
+bool MPlayer_Player::Connect(int iPK_DeviceTemplate )
+{
+	if ( ! Command_Impl::Connect(iPK_DeviceTemplate) )
+		return false;
+
+	EVENT_Playback_Completed("",0,false);  // In case media plugin thought something was playing, let it know that there's not
+	
+	return true;
+}
+
+void MPlayer_Player::SmartLoadPlaylist(string sFolder, string sExtensions, list<string>& vFiles, string &sLargestFile, int& iLargestFilePosition)
+{
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::SmartLoadPlaylist scanning folder %s", sFolder.c_str());
+	
+	list<string> vNames;
+	FileUtils::FindFiles(vNames, sFolder, sExtensions);
+	
+	if (vNames.empty())
+	{
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::SmartLoadPlaylist no files found with mask %s", sExtensions.c_str() );
+		return;
+	}
+	
+	long int iMaxSize = -1;
+	int iPosition = 0;
+	
+	for (list<string>::iterator li=vNames.begin(); li!=vNames.end(); ++li)
+	{
+		string sFullName = sFolder+"/"+ *li;
+		vFiles.push_back(sFullName);
+		long int iFileSize = FileUtils::FileSize(sFullName);
+		if ( iFileSize > iMaxSize )
+		{
+			iMaxSize = iFileSize;
+			sLargestFile = sFullName;
+			iLargestFilePosition = iPosition;
+		}
+		iPosition++;
+	}
+	
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::SmartLoadPlaylist winner is %s with size %i on position %i", sLargestFile.c_str(), iMaxSize, iLargestFilePosition );
 }

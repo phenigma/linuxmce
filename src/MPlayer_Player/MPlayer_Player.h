@@ -27,8 +27,6 @@
 //<-dceag-decl-b->
 namespace DCE
 {
-	void *PlayerEnginePoll(void *pInstance);
-
 	class MPlayer_Player : public MPlayer_Player_Command
 	{
 //<-dceag-decl-e->
@@ -53,6 +51,7 @@ namespace DCE
 		
 		// Private methods
 		void InitializePlayerEngine();
+		void SmartLoadPlaylist(string sFolder, string sExtensions, list<string>& vFiles, string &sLargestFile, int& iLargestFilePosition);
 		
 		string GetPlaybackPosition();
 public:
@@ -68,6 +67,8 @@ public:
 		virtual void ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sCMD_Result,Message *pMessage);
 		virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
 //<-dceag-const-e->
+		
+		virtual bool Connect(int iPK_DeviceTemplate );
 
 //<-dceag-const2-b->
 		// The following constructor is only used if this a class instance embedded within a DCE Device.  In that case, it won't create it's own connection to the router
@@ -83,6 +84,7 @@ public:
 
 	/*
 			*****DATA***** accessors inherited from base class
+	string DATA_Get_Name();
 
 			*****EVENT***** accessors inherited from base class
 	void EVENT_Playback_Completed(string sMRL,int iStream_ID,bool bWith_Errors);
@@ -340,6 +342,7 @@ public:
 //<-dceag-h-e->
 	};
 
+	void *PlayerEnginePoll(void *pInstance);
 //<-dceag-end-b->
 }
 #endif
