@@ -283,10 +283,6 @@ public:
 
 	virtual void SCREEN_Halt_System(long PK_Screen);
 
-	virtual void SCREEN_FileSave(long PK_Screen, int iPK_MediaType, int iEK_Disc, string sCaption, string sCommand, bool bAdvanced_options);
-	bool FileSave_ObjectSelected(CallBackData *pData);
-	bool FileSave_GridSelected(CallBackData *pData);
-
 	void SCREEN_CreateViewBookmarksTV(long PK_Screen);
 	bool CreateViewBookmarksTV_ObjectSelected(CallBackData *pData);
 
@@ -308,15 +304,20 @@ public:
 
 	virtual void SCREEN_AutoConfigure_TV(long PK_Screen, int iPK_PnpQueue);
 
+	virtual void SCREEN_AdvancedOptions(long PK_Screen);
+	bool AdvancedOptions_ObjectSelected(CallBackData *pData);
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+// 
+//    SCREEN_AdjustScreenSettings
+//
+
 	virtual void SCREEN_AdjustScreenSettings(long PK_Screen);
 	void AdjustScreenSettings_DrawArrows();
 	bool AdjustScreenSettings_KeyDown(CallBackData *pData);
 	bool AdjustScreenSettings_OnTimer(CallBackData *pData);
 	bool AdjustScreenSettings_RemoteKeyCodeIntercepted(CallBackData *pData);
 	bool AdjustScreenSettings_ObjectSelected(CallBackData *pData);
-
-	virtual void SCREEN_AdvancedOptions(long PK_Screen);
-	bool AdvancedOptions_ObjectSelected(CallBackData *pData);
 
 	PlutoPoint AdjustScreenSettings_LoadOffset();
 	void AdjustScreenSettings_SaveOffset(PlutoPoint offset);
@@ -325,6 +326,44 @@ public:
 
 	PlutoPoint m_ScreenOffset;
 	int m_nScreenSpacing;
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+// 
+//    TELECOM SCREENS
+//
+
+	void SCREEN_MakeCallPhonebook(long PK_Screen);
+	void SCREEN_MakeCallFavorites(long PK_Screen);
+	void SCREEN_MakeCallDialNumber(long PK_Screen);
+	void SCREEN_MakeCallPlutoUser(long PK_Screen);
+	void SCREEN_MakeCallIntercom(long PK_Screen);
+	void SCREEN_MakeCallDevice(long PK_Screen);
+	void SCREEN_Active_Calls(long PK_Screen);
+	void SCREEN_DevCallInProgress(long PK_Screen);
+
+	//interceptors
+	bool Telecom_ObjectSelected(CallBackData *pData);
+
+	//helpers
+	void HandleAssistedMakeCall(int iPK_Users,string sPhoneExtension,int iPK_Device_From,int iPK_Device_To);
+
+	//data
+	enum TelecomCommandStatus
+	{
+		tcsDirectDial = 0,
+		tcsTransferConference, 
+		tcsJoining
+	};
+
+	TelecomCommandStatus m_TelecomCommandStatus;
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+// 
+//    SCREEN_FileSave
+//
+	virtual void SCREEN_FileSave(long PK_Screen, int iPK_MediaType, int iEK_Disc, string sCaption, string sCommand, bool bAdvanced_options);
+	bool FileSave_ObjectSelected(CallBackData *pData);
+	bool FileSave_GridSelected(CallBackData *pData);
 
 	//helper methods
 	void SaveFile_GotoChooseFolderDesignObj();
@@ -342,6 +381,8 @@ public:
 	bool m_bUseDirectoryStructure;  // The drive we're saving to should use our public/private directory structure
 	int m_nSaveFile_PK_DeviceDrive;
 	int m_nPK_Users_SaveFile;
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
 };
 //-----------------------------------------------------------------------------------------------------
 #endif

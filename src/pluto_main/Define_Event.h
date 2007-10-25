@@ -75,7 +75,7 @@
 #define EVENT_Done_Detecting_Devices_CONST 74
 #define EVENT_Extensions_Status_CONST 75
 #define EVENT_Calls_Status_CONST 76
-#define EVENT_PBX_LINK_CONST 77
+#define EVENT_PBX_Link_CONST 77
 #define EVENT_Thermostat_Mode_Changed_CONST 78
 
 #define EVENT_TABLE "Event"

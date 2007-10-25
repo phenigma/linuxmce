@@ -62,6 +62,8 @@ ScreenHandler::ScreenHandler(Orbiter *pOrbiter, map<int,int> *p_MapDesignObj) :
 	m_bSaveFile_Advanced_options = true;
 	m_pData_LastThumbnail=NULL;
 	m_iData_Size_LastThumbnail=0;
+
+	m_TelecomCommandStatus = tcsDirectDial;
 }
 //-----------------------------------------------------------------------------------------------------
 ScreenHandler::~ScreenHandler()
@@ -3415,3 +3417,167 @@ bool ScreenHandler::AdvancedOptions_ObjectSelected(CallBackData *pData)
 	}
 	return false;
 }
+//-----------------------------------------------------------------------------------------------------
+void ScreenHandler::SCREEN_MakeCallPhonebook(long PK_Screen)
+{
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_Device_2_CONST, "");
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_Users_CONST, "");
+
+	ScreenHandlerBase::SCREEN_MakeCallPhonebook(PK_Screen);
+	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::Telecom_ObjectSelected, new ObjectInfoBackData());
+}
+//-----------------------------------------------------------------------------------------------------
+void ScreenHandler::SCREEN_MakeCallFavorites(long PK_Screen)
+{
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_Device_2_CONST, "");
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_Users_CONST, "");
+
+	ScreenHandlerBase::SCREEN_MakeCallFavorites(PK_Screen);
+	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::Telecom_ObjectSelected, new ObjectInfoBackData());
+}
+//-----------------------------------------------------------------------------------------------------
+void ScreenHandler::SCREEN_MakeCallDialNumber(long PK_Screen)
+{
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_Device_2_CONST, "");
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_Users_CONST, "");
+
+	ScreenHandlerBase::SCREEN_MakeCallDialNumber(PK_Screen);
+	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::Telecom_ObjectSelected, new ObjectInfoBackData());
+}
+//-----------------------------------------------------------------------------------------------------
+void ScreenHandler::SCREEN_MakeCallPlutoUser(long PK_Screen)
+{
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_Device_2_CONST, "");
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, "");
+
+	ScreenHandlerBase::SCREEN_MakeCallPlutoUser(PK_Screen);
+	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::Telecom_ObjectSelected, new ObjectInfoBackData());
+}
+//-----------------------------------------------------------------------------------------------------
+void ScreenHandler::SCREEN_MakeCallIntercom(long PK_Screen)
+{
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, "");
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_Users_CONST, "");
+
+	ScreenHandlerBase::SCREEN_MakeCallIntercom(PK_Screen);
+	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::Telecom_ObjectSelected, new ObjectInfoBackData());
+}
+//-----------------------------------------------------------------------------------------------------
+void ScreenHandler::SCREEN_Active_Calls(long PK_Screen)
+{
+	ScreenHandlerBase::SCREEN_Active_Calls(PK_Screen);
+	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::Telecom_ObjectSelected, new ObjectInfoBackData());
+}
+//-----------------------------------------------------------------------------------------------------
+void ScreenHandler::SCREEN_MakeCallDevice(long PK_Screen)
+{
+	ScreenHandlerBase::SCREEN_MakeCallDevice(PK_Screen);
+	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::Telecom_ObjectSelected, new ObjectInfoBackData());
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "SCREEN_MakeCallDevice: exten to call (var 17) = %s", m_pOrbiter->m_mapVariable_Find(VARIABLE_Seek_Value_CONST).c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "SCREEN_MakeCallDevice: user to call (var 39) = %s", m_pOrbiter->m_mapVariable_Find(VARIABLE_PK_Users_CONST).c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "SCREEN_MakeCallDevice: device to call (var 19) = %s", m_pOrbiter->m_mapVariable_Find(VARIABLE_PK_Device_2_CONST).c_str());
+}
+//-----------------------------------------------------------------------------------------------------
+void ScreenHandler::SCREEN_DevCallInProgress(long PK_Screen)
+{
+	ScreenHandlerBase::SCREEN_DevCallInProgress(PK_Screen);
+	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::Telecom_ObjectSelected, new ObjectInfoBackData());
+}
+//-----------------------------------------------------------------------------------------------------
+bool ScreenHandler::Telecom_ObjectSelected(CallBackData *pData)
+{
+	ObjectInfoBackData *pObjectInfoData = dynamic_cast<ObjectInfoBackData *>(pData);
+
+	bool bDontProcessIt = false;
+
+	if(NULL != pObjectInfoData)
+	{
+		int nPK_DesignObj_Parent = GetCurrentScreen_PK_DesignObj();
+		
+		if(nPK_DesignObj_Parent == DESIGNOBJ_devCallInProgress_CONST)
+		{
+			switch(pObjectInfoData->m_PK_DesignObj_SelectedObject)
+			{
+				case DESIGNOBJ_butTransferConference_CONST:
+				{
+					m_TelecomCommandStatus = tcsTransferConference;
+					GotoScreen(SCREEN_MakeCallDevice_CONST);
+					bDontProcessIt = true;
+				}
+				break;
+
+				case 5533: //todo - rename object, it has duplicated name
+				{
+					m_TelecomCommandStatus = tcsJoining;
+					m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, "");
+					GotoScreen(SCREEN_MakeCallDevice_CONST);
+					bDontProcessIt = true;
+				}
+				break;
+
+				//case DESIGNOBJ_objDropCall_CONST:
+				//{
+				//	CMD_Phone_Drop cmd_Phone_Drop();
+				//	m_pOrbiter->SendCommand(cmd_Phone_Drop);
+				//	bDontProcessIt = true;
+				//}
+				//break;
+
+				case DESIGNOBJ_objVoiceMail_CONST:
+				{
+					int iPK_Device = 0;
+					int iPK_Users = 0;
+					string sPhoneExtension = "100"; //TODO, hardcoding
+					string sChannel_1 = m_pOrbiter->m_mapVariable_Find(VARIABLE_Current_Channel_On_Call_CONST);
+					string sChannel_2;
+
+					CMD_PL_Transfer cmd_PL_Transfer(
+						m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device_TelecomPlugIn,
+						iPK_Device, iPK_Users, sPhoneExtension, sChannel_1, sChannel_2);
+					m_pOrbiter->SendCommand(cmd_PL_Transfer);
+				}
+				break;
+			}
+		}
+		
+		int a = 0;
+	}
+
+	return bDontProcessIt; // Keep processing it
+}
+//-----------------------------------------------------------------------------------------------------
+void ScreenHandler::HandleAssistedMakeCall(int iPK_Users,string sPhoneExtension,int iPK_Device_From,int iPK_Device_To)
+{
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "HandleAssistedMakeCall: "
+		"iPK_Users %d, sPhoneExtension %s, iPK_Device_From %d, iPK_Device_To %d",
+		iPK_Users, sPhoneExtension.c_str(), iPK_Device_From, iPK_Device_To);
+
+	switch(m_TelecomCommandStatus)
+	{
+		case tcsDirectDial:
+		{
+			DCE::CMD_Make_Call cmd_Make_Call(
+				m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device_TelecomPlugIn,
+				iPK_Users, sPhoneExtension, iPK_Device_From, iPK_Device_To);
+			m_pOrbiter->SendCommand(cmd_Make_Call);
+		}
+		break;
+
+		case tcsJoining:
+		{
+			string sOptions;
+			string sPhoneCallID = m_pOrbiter->m_mapVariable_Find(VARIABLE_Current_Call_CONST);
+
+			DCE::CMD_PL_Join_Call cmd_PL_Join_Call(
+				m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device_TelecomPlugIn,
+				iPK_Users, sOptions, sPhoneExtension, sPhoneCallID, iPK_Device_To);
+			m_pOrbiter->SendCommand(cmd_PL_Join_Call);
+		}
+		break;
+
+		case tcsTransferConference:
+		break;
+	}
+}
+//-----------------------------------------------------------------------------------------------------

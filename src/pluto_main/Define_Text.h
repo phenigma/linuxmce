@@ -1243,6 +1243,8 @@
 #define TEXT_Join_CONST 1987
 #define TEXT_Add_to_active_Call_CONST 1988
 #define TEXT_Remove_from_active_Call_CONST 1989
+#define TEXT_Transfer_or_Conference_CONST 1990
+#define TEXT_Active_Calls_CONST 1991
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

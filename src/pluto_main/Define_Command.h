@@ -219,7 +219,7 @@
 #define COMMAND_PBX_Originate_CONST 233
 #define COMMAND_PL_Transfer_CONST 234
 #define COMMAND_PBX_Transfer_CONST 235
-#define COMMAND_PL_Hangup_CONST 236
+#define COMMAND_PL_Cancel_CONST 236
 #define COMMAND_PBX_Hangup_CONST 237
 #define COMMAND_Continuous_Refresh_CONST 238
 #define COMMAND_Request_File_And_Checksum_CONST 239
@@ -834,6 +834,7 @@
 #define COMMAND_Set_Media_ID_CONST 920
 #define COMMAND_Make_Call_CONST 921
 #define COMMAND_Send_Asterisk_Status_CONST 922
+#define COMMAND_Assisted_Make_Call_CONST 923
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"

@@ -1306,22 +1306,26 @@ namespace DCE
 	/** Simulates that a key has been touched.  Touchable keys on screen can use this command to allow for simultaneous operation with keyboard or mouse.  Also works with the "Capture Keyboard to Variable" command. */
 		/** @param #26 PK_Button */
 			/** What key to simulate being pressed.  If 2 numbers are specified, separated by a comma, the second will be used if the Shift key is specified. */
+		/** @param #41 StreamID */
+			/** ID of stream to apply */
 		/** @param #50 Name */
 			/** The application to send the keypress to. If not specified, it goes to the DCE device. */
 
-	virtual void CMD_Simulate_Keypress(string sPK_Button,string sName) { string sCMD_Result; CMD_Simulate_Keypress(sPK_Button.c_str(),sName.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Simulate_Keypress(string sPK_Button,string sName,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Simulate_Keypress(string sPK_Button,int iStreamID,string sName) { string sCMD_Result; CMD_Simulate_Keypress(sPK_Button.c_str(),iStreamID,sName.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Simulate_Keypress(string sPK_Button,int iStreamID,string sName,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #29 - Simulate Mouse Click */
 	/** Simulates a mouse click or touch on the indicated x & y coordinates */
 		/** @param #11 Position X */
-			/**  */
+			/** position X */
 		/** @param #12 Position Y */
-			/**  */
+			/** position Y */
+		/** @param #41 StreamID */
+			/** ID of stream to apply */
 
-	virtual void CMD_Simulate_Mouse_Click(int iPosition_X,int iPosition_Y) { string sCMD_Result; CMD_Simulate_Mouse_Click(iPosition_X,iPosition_Y,sCMD_Result,NULL);};
-	virtual void CMD_Simulate_Mouse_Click(int iPosition_X,int iPosition_Y,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Simulate_Mouse_Click(int iPosition_X,int iPosition_Y,int iStreamID) { string sCMD_Result; CMD_Simulate_Mouse_Click(iPosition_X,iPosition_Y,iStreamID,sCMD_Result,NULL);};
+	virtual void CMD_Simulate_Mouse_Click(int iPosition_X,int iPosition_Y,int iStreamID,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #30 - Stop Sound */
@@ -1433,9 +1437,11 @@ namespace DCE
 
 	/** @brief COMMAND: #190 - Enter/Go */
 	/** Select the highlighted item */
+		/** @param #41 StreamID */
+			/** ID of stream to apply */
 
-	virtual void CMD_EnterGo() { string sCMD_Result; CMD_EnterGo(sCMD_Result,NULL);};
-	virtual void CMD_EnterGo(string &sCMD_Result,Message *pMessage);
+	virtual void CMD_EnterGo(int iStreamID) { string sCMD_Result; CMD_EnterGo(iStreamID,sCMD_Result,NULL);};
+	virtual void CMD_EnterGo(int iStreamID,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #192 - On */
@@ -1469,30 +1475,38 @@ namespace DCE
 
 	/** @brief COMMAND: #200 - Move Up */
 	/** Move the highlight up */
+		/** @param #41 StreamID */
+			/** ID of stream to apply */
 
-	virtual void CMD_Move_Up() { string sCMD_Result; CMD_Move_Up(sCMD_Result,NULL);};
-	virtual void CMD_Move_Up(string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Move_Up(int iStreamID) { string sCMD_Result; CMD_Move_Up(iStreamID,sCMD_Result,NULL);};
+	virtual void CMD_Move_Up(int iStreamID,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #201 - Move Down */
 	/** Move the highlight down */
+		/** @param #41 StreamID */
+			/** ID of stream to apply */
 
-	virtual void CMD_Move_Down() { string sCMD_Result; CMD_Move_Down(sCMD_Result,NULL);};
-	virtual void CMD_Move_Down(string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Move_Down(int iStreamID) { string sCMD_Result; CMD_Move_Down(iStreamID,sCMD_Result,NULL);};
+	virtual void CMD_Move_Down(int iStreamID,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #202 - Move Left */
 	/** Move the highlight left */
+		/** @param #41 StreamID */
+			/** ID of stream to apply */
 
-	virtual void CMD_Move_Left() { string sCMD_Result; CMD_Move_Left(sCMD_Result,NULL);};
-	virtual void CMD_Move_Left(string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Move_Left(int iStreamID) { string sCMD_Result; CMD_Move_Left(iStreamID,sCMD_Result,NULL);};
+	virtual void CMD_Move_Left(int iStreamID,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #203 - Move Right */
 	/** Move the highlight right */
+		/** @param #41 StreamID */
+			/** ID of stream to apply */
 
-	virtual void CMD_Move_Right() { string sCMD_Result; CMD_Move_Right(sCMD_Result,NULL);};
-	virtual void CMD_Move_Right(string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Move_Right(int iStreamID) { string sCMD_Result; CMD_Move_Right(iStreamID,sCMD_Result,NULL);};
+	virtual void CMD_Move_Right(int iStreamID,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #238 - Continuous Refresh */
@@ -1506,9 +1520,11 @@ namespace DCE
 
 	/** @brief COMMAND: #240 - Back / Prior Menu */
 	/** If at a remote control, forward to media plugin.  Otherwise go back 1 screen. */
+		/** @param #41 StreamID */
+			/** ID of stream to apply */
 
-	virtual void CMD_Back_Prior_Menu() { string sCMD_Result; CMD_Back_Prior_Menu(sCMD_Result,NULL);};
-	virtual void CMD_Back_Prior_Menu(string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Back_Prior_Menu(int iStreamID) { string sCMD_Result; CMD_Back_Prior_Menu(iStreamID,sCMD_Result,NULL);};
+	virtual void CMD_Back_Prior_Menu(int iStreamID,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #242 - Set Now Playing */
@@ -1783,9 +1799,11 @@ light, climate, media, security, telecom */
 	/** Shows the main menu */
 		/** @param #9 Text */
 			/** A string indicating which menu should appear.  The parameter is only used for smart media devices */
+		/** @param #41 StreamID */
+			/** ID of stream to apply */
 
-	virtual void CMD_Menu(string sText) { string sCMD_Result; CMD_Menu(sText.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Menu(string sText,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Menu(string sText,int iStreamID) { string sCMD_Result; CMD_Menu(sText.c_str(),iStreamID,sCMD_Result,NULL);};
+	virtual void CMD_Menu(string sText,int iStreamID,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #689 - Update Time Code */
@@ -1916,6 +1934,21 @@ light, climate, media, security, telecom */
 
 	virtual void CMD_Activate_PC_Desktop(bool bTrueFalse) { string sCMD_Result; CMD_Activate_PC_Desktop(bTrueFalse,sCMD_Result,NULL);};
 	virtual void CMD_Activate_PC_Desktop(bool bTrueFalse,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #923 - Assisted Make Call */
+	/** Send make call command back to Orbiter and let it decide if we are going to make a direct call or a transfer/conference */
+		/** @param #17 PK_Users */
+			/** The called user. Only one is supported now. */
+		/** @param #83 PhoneExtension */
+			/** The phone number to be called. */
+		/** @param #262 FK_Device_From */
+			/** The device which starts the call. */
+		/** @param #263 PK_Device_To */
+			/** The called device. */
+
+	virtual void CMD_Assisted_Make_Call(int iPK_Users,string sPhoneExtension,int iFK_Device_From,int iPK_Device_To) { string sCMD_Result; CMD_Assisted_Make_Call(iPK_Users,sPhoneExtension.c_str(),iFK_Device_From,iPK_Device_To,sCMD_Result,NULL);};
+	virtual void CMD_Assisted_Make_Call(int iPK_Users,string sPhoneExtension,int iFK_Device_From,int iPK_Device_To,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

@@ -573,8 +573,8 @@ public:
 	virtual void CMD_Set_Text(string sPK_DesignObj,string sText,int iPK_Text,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Bound_Icon(string sValue_To_Assign,string sText,string sType,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Variable(int iPK_Variable,string sValue_To_Assign,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Simulate_Keypress(string sPK_Button,string sName,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Simulate_Mouse_Click(int iPosition_X,int iPosition_Y,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Simulate_Keypress(string sPK_Button,int iStreamID,string sName,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Simulate_Mouse_Click(int iPosition_X,int iPosition_Y,int iStreamID,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Stop_Sound(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Store_Variables(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Update_Object_Image(string sPK_DesignObj,string sType,char *pData,int iData_Size,string sDisable_Aspect_Lock,string &sCMD_Result,class Message *pMessage) {};
@@ -586,16 +586,16 @@ public:
 	virtual void CMD_Reset_Highlight(string sPK_DesignObj,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Current_Location(int iLocationID,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Guide(string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_EnterGo(string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_EnterGo(int iStreamID,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Off(int iPK_Pipe,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Toggle_Power(string sOnOff,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Move_Up(string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Move_Down(string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Move_Left(string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Move_Right(string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Move_Up(int iStreamID,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Move_Down(int iStreamID,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Move_Left(int iStreamID,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Move_Right(int iStreamID,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Continuous_Refresh(string sTime,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Back_Prior_Menu(string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Back_Prior_Menu(int iStreamID,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,string sText,int iPK_MediaType,int iStreamID,int iValue,string sName,string sList_PK_Device,bool bRetransmit,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Bind_Icon(string sPK_DesignObj,string sType,bool bChild,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Result,class Message *pMessage) {};
@@ -620,7 +620,7 @@ public:
 	virtual void CMD_Forward_local_kb_to_OSD(bool bTrueFalse,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Mouse_Position_Relative(int iPosition_X,int iPosition_Y,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Simulate_Mouse_Click_At_Present_Pos(string sType,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Menu(string sText,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Menu(string sText,int iStreamID,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal,string sSpeed,string sTitle,string sSection,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Goto_Screen(string sID,int iPK_Screen,int iInterruption,bool bTurn_On,bool bQueue,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Mouse_Behavior(string sPK_DesignObj,string sOptions,bool bExclusive,string sDirection,string &sCMD_Result,class Message *pMessage) {};
@@ -631,6 +631,7 @@ public:
 	virtual void CMD_Execute_Shortcut(int iValue,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Bind_to_Wireless_Keyboard(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Activate_PC_Desktop(bool bTrueFalse,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Assisted_Make_Call(int iPK_Users,string sPhoneExtension,int iFK_Device_From,int iPK_Device_To,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual ReceivedMessageResult ReceivedMessage(class Message *pMessageOriginal)
@@ -1330,8 +1331,9 @@ public:
 					{
 						string sCMD_Result="OK";
 						string sPK_Button=pMessage->m_mapParameters[COMMANDPARAMETER_PK_Button_CONST];
+						int iStreamID=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_StreamID_CONST].c_str());
 						string sName=pMessage->m_mapParameters[COMMANDPARAMETER_Name_CONST];
-						CMD_Simulate_Keypress(sPK_Button.c_str(),sName.c_str(),sCMD_Result,pMessage);
+						CMD_Simulate_Keypress(sPK_Button.c_str(),iStreamID,sName.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -1348,7 +1350,7 @@ public:
 						{
 							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Simulate_Keypress(sPK_Button.c_str(),sName.c_str(),sCMD_Result,pMessage);
+								CMD_Simulate_Keypress(sPK_Button.c_str(),iStreamID,sName.c_str(),sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
@@ -1358,7 +1360,8 @@ public:
 						string sCMD_Result="OK";
 						int iPosition_X=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Position_X_CONST].c_str());
 						int iPosition_Y=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Position_Y_CONST].c_str());
-						CMD_Simulate_Mouse_Click(iPosition_X,iPosition_Y,sCMD_Result,pMessage);
+						int iStreamID=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_StreamID_CONST].c_str());
+						CMD_Simulate_Mouse_Click(iPosition_X,iPosition_Y,iStreamID,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -1375,7 +1378,7 @@ public:
 						{
 							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Simulate_Mouse_Click(iPosition_X,iPosition_Y,sCMD_Result,pMessage);
+								CMD_Simulate_Mouse_Click(iPosition_X,iPosition_Y,iStreamID,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
@@ -1674,7 +1677,8 @@ public:
 				case COMMAND_Send_Generic_EnterGo_CONST:
 					{
 						string sCMD_Result="OK";
-						CMD_EnterGo(sCMD_Result,pMessage);
+						int iStreamID=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_StreamID_CONST].c_str());
+						CMD_EnterGo(iStreamID,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -1691,7 +1695,7 @@ public:
 						{
 							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_EnterGo(sCMD_Result,pMessage);
+								CMD_EnterGo(iStreamID,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
@@ -1778,7 +1782,8 @@ public:
 				case COMMAND_Move_Up_CONST:
 					{
 						string sCMD_Result="OK";
-						CMD_Move_Up(sCMD_Result,pMessage);
+						int iStreamID=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_StreamID_CONST].c_str());
+						CMD_Move_Up(iStreamID,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -1795,7 +1800,7 @@ public:
 						{
 							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Move_Up(sCMD_Result,pMessage);
+								CMD_Move_Up(iStreamID,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
@@ -1803,7 +1808,8 @@ public:
 				case COMMAND_Move_Down_CONST:
 					{
 						string sCMD_Result="OK";
-						CMD_Move_Down(sCMD_Result,pMessage);
+						int iStreamID=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_StreamID_CONST].c_str());
+						CMD_Move_Down(iStreamID,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -1820,7 +1826,7 @@ public:
 						{
 							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Move_Down(sCMD_Result,pMessage);
+								CMD_Move_Down(iStreamID,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
@@ -1828,7 +1834,8 @@ public:
 				case COMMAND_Move_Left_CONST:
 					{
 						string sCMD_Result="OK";
-						CMD_Move_Left(sCMD_Result,pMessage);
+						int iStreamID=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_StreamID_CONST].c_str());
+						CMD_Move_Left(iStreamID,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -1845,7 +1852,7 @@ public:
 						{
 							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Move_Left(sCMD_Result,pMessage);
+								CMD_Move_Left(iStreamID,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
@@ -1853,7 +1860,8 @@ public:
 				case COMMAND_Move_Right_CONST:
 					{
 						string sCMD_Result="OK";
-						CMD_Move_Right(sCMD_Result,pMessage);
+						int iStreamID=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_StreamID_CONST].c_str());
+						CMD_Move_Right(iStreamID,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -1870,7 +1878,7 @@ public:
 						{
 							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Move_Right(sCMD_Result,pMessage);
+								CMD_Move_Right(iStreamID,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
@@ -1904,7 +1912,8 @@ public:
 				case COMMAND_Back_Prior_Menu_CONST:
 					{
 						string sCMD_Result="OK";
-						CMD_Back_Prior_Menu(sCMD_Result,pMessage);
+						int iStreamID=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_StreamID_CONST].c_str());
+						CMD_Back_Prior_Menu(iStreamID,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -1921,7 +1930,7 @@ public:
 						{
 							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Back_Prior_Menu(sCMD_Result,pMessage);
+								CMD_Back_Prior_Menu(iStreamID,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
@@ -2579,7 +2588,8 @@ public:
 					{
 						string sCMD_Result="OK";
 						string sText=pMessage->m_mapParameters[COMMANDPARAMETER_Text_CONST];
-						CMD_Menu(sText.c_str(),sCMD_Result,pMessage);
+						int iStreamID=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_StreamID_CONST].c_str());
+						CMD_Menu(sText.c_str(),iStreamID,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -2596,7 +2606,7 @@ public:
 						{
 							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Menu(sText.c_str(),sCMD_Result,pMessage);
+								CMD_Menu(sText.c_str(),iStreamID,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
@@ -2881,6 +2891,35 @@ public:
 							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Activate_PC_Desktop(bTrueFalse,sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case COMMAND_Assisted_Make_Call_CONST:
+					{
+						string sCMD_Result="OK";
+						int iPK_Users=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Users_CONST].c_str());
+						string sPhoneExtension=pMessage->m_mapParameters[COMMANDPARAMETER_PhoneExtension_CONST];
+						int iFK_Device_From=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_FK_Device_From_CONST].c_str());
+						int iPK_Device_To=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Device_To_CONST].c_str());
+						CMD_Assisted_Make_Call(iPK_Users,sPhoneExtension.c_str(),iFK_Device_From,iPK_Device_To,sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(itRepeat->second.c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Assisted_Make_Call(iPK_Users,sPhoneExtension.c_str(),iFK_Device_From,iPK_Device_To,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

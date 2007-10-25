@@ -250,7 +250,7 @@
 #define SCREEN_PNP_Generic_Options_CONST 264
 #define SCREEN_Zoom__Aspect_CONST 265
 #define SCREEN_Legacy_PVR_Cable_Box_CONST 266
-#define SCREEN_Manage_Channels_CONST 267
+#define SCREEN_Active_Calls_CONST 267
 
 #define SCREEN_TABLE "Screen"
 #define SCREEN_PK_SCREEN_FIELD "PK_Screen"

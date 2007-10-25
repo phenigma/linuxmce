@@ -2505,6 +2505,10 @@
 #define DESIGNOBJ_butAddToActiveCall_CONST 5529
 #define DESIGNOBJ_butRemoveFromActiveCall_CONST 5530
 #define DESIGNOBJ_butCallInProgress_CONST 5531
+#define DESIGNOBJ_butTransferConference_CONST 5532
+#define DESIGNOBJ_objActiveCalls_CONST 5534
+#define DESIGNOBJ_objActiveCallsB_CONST 5535
+#define DESIGNOBJ_butTransfer_CONST 5536
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

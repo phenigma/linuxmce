@@ -4028,15 +4028,19 @@ void Orbiter::ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList
 			map<int,  string>::iterator iap;
 			for( iap=pCommand->m_ParameterList.begin(  );iap!=pCommand->m_ParameterList.end(  );++iap )
 			{
-				string Value = SubstituteVariables((*iap).second, pObj, X, Y);
-				pThisMessage->m_mapParameters[( *iap ).first]=Value;
-				if( ( *iap ).first==COMMANDPARAMETER_Repeat_Command_CONST )
+				int nKey = iap->first;
+				string sRawValue = iap->second;
+
+				string Value = SubstituteVariables(sRawValue, pObj, X, Y);
+				pThisMessage->m_mapParameters[nKey]=Value;
+				if( nKey==COMMANDPARAMETER_Repeat_Command_CONST )
 					bAlreadySetRepeat=true;
 
 #ifdef DEBUG
-				LoggerWrapper::GetInstance()->Write( LV_STATUS, "Parm %d = %s",( *iap ).first,Value.c_str());
+				LoggerWrapper::GetInstance()->Write( LV_STATUS, "DDD Parm %d = %s, raw value %s", nKey, Value.c_str(), sRawValue.c_str());
 #endif
 			}
+
 			if( Repeat && !bAlreadySetRepeat )
 				pThisMessage->m_mapParameters[COMMANDPARAMETER_Repeat_Command_CONST]=StringUtils::itos(max(Repeat,MAX_REPEAT));
 
@@ -5781,9 +5785,9 @@ void Orbiter::CMD_Set_Bound_Icon(string sValue_To_Assign,string sText,string sTy
 void Orbiter::CMD_Set_Variable(int iPK_Variable,string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
 //<-dceag-c27-e->
 {
-#ifdef DEBUG
+//#ifdef DEBUG
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Variable: %d set to %s",iPK_Variable,sValue_To_Assign.c_str());
-#endif
+//#endif
 	
 #ifndef ARMV4I
 	PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
@@ -5802,10 +5806,12 @@ void Orbiter::CMD_Set_Variable(int iPK_Variable,string sValue_To_Assign,string &
 	/** Simulates that a key has been touched.  Touchable keys on screen can use this command to allow for simultaneous operation with keyboard or mouse.  Also works with the "Capture Keyboard to Variable" command. */
 		/** @param #26 PK_Button */
 			/** What key to simulate being pressed.  If 2 numbers are specified, separated by a comma, the second will be used if the Shift key is specified. */
+		/** @param #41 StreamID */
+			/** ID of stream to apply */
 		/** @param #50 Name */
 			/** The application to send the keypress to. If not specified, it goes to the DCE device. */
 
-void Orbiter::CMD_Simulate_Keypress(string sPK_Button,string sName,string &sCMD_Result,Message *pMessage)
+void Orbiter::CMD_Simulate_Keypress(string sPK_Button,int iStreamID,string sName,string &sCMD_Result,Message *pMessage)
 //<-dceag-c28-e->
 {
 	Orbiter::Event orbiterEvent;
@@ -5824,11 +5830,13 @@ void Orbiter::CMD_Simulate_Keypress(string sPK_Button,string sName,string &sCMD_
 	/** @brief COMMAND: #29 - Simulate Mouse Click */
 	/** Simulates a mouse click or touch on the indicated x & y coordinates */
 		/** @param #11 Position X */
-			/**  */
+			/** position X */
 		/** @param #12 Position Y */
-			/**  */
+			/** position Y */
+		/** @param #41 StreamID */
+			/** ID of stream to apply */
 
-void Orbiter::CMD_Simulate_Mouse_Click(int iPosition_X,int iPosition_Y,string &sCMD_Result,Message *pMessage)
+void Orbiter::CMD_Simulate_Mouse_Click(int iPosition_X,int iPosition_Y,int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c29-e->
 {
 	cout << "Need to implement command #29 - Simulate Mouse Click" << endl;
@@ -6234,6 +6242,12 @@ ReceivedMessageResult Orbiter::ReceivedMessage( class Message *pMessageOriginal 
 		return rmr_Processed;
 
 	NeedToRender render( this, strMessage.c_str() );  // Redraw anything that was changed by this command
+
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "DDD Parms %d=%s", COMMANDPARAMETER_PK_Users_CONST, pMessageOriginal->m_mapParameters[COMMANDPARAMETER_PK_Users_CONST].c_str());
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "DDD Parms %d=%s", COMMANDPARAMETER_PhoneExtension_CONST, pMessageOriginal->m_mapParameters[COMMANDPARAMETER_PhoneExtension_CONST].c_str());
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "DDD Parms %d=%s", COMMANDPARAMETER_PK_Device_From_CONST, pMessageOriginal->m_mapParameters[COMMANDPARAMETER_PK_Device_From_CONST].c_str());
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "DDD Parms %d=%s", COMMANDPARAMETER_PK_Device_To_CONST, pMessageOriginal->m_mapParameters[COMMANDPARAMETER_PK_Device_To_CONST].c_str());
+
 	ReceivedMessageResult Result = Orbiter_Command::ReceivedMessage( pMessageOriginal );
 	return Result;
 }
@@ -8194,8 +8208,10 @@ void Orbiter::CMD_Toggle_Power(string sOnOff,string &sCMD_Result,Message *pMessa
 
 	/** @brief COMMAND: #240 - Back / Prior Menu */
 	/** If at a remote control, forward to media plugin.  Otherwise go back 1 screen. */
+		/** @param #41 StreamID */
+			/** ID of stream to apply */
 
-void Orbiter::CMD_Back_Prior_Menu(string &sCMD_Result,Message *pMessage)
+void Orbiter::CMD_Back_Prior_Menu(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c240-e->
 {
 	if( m_pScreenHistory_Current && m_pScreenHistory_Current->GetObj()->m_bIsARemoteControl )
@@ -8227,8 +8243,10 @@ void Orbiter::CMD_Back_Clear_Entry(string &sCMD_Result,Message *pMessage)
 
 	/** @brief COMMAND: #190 - Enter/Go */
 	/** Select the highlighted item */
+		/** @param #41 StreamID */
+			/** ID of stream to apply */
 
-void Orbiter::CMD_EnterGo(string &sCMD_Result,Message *pMessage)
+void Orbiter::CMD_EnterGo(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c190-e->
 {
 	if(GotActivity(BUTTON_Enter_CONST))
@@ -8249,7 +8267,7 @@ void Orbiter::CMD_EnterGo(string &sCMD_Result,Message *pMessage)
 
 		HandleButtonEvent(BUTTON_Any_key_CONST);
 		*/
-		CMD_Simulate_Keypress(StringUtils::ltos(BUTTON_Enter_CONST), "");
+		CMD_Simulate_Keypress(StringUtils::ltos(BUTTON_Enter_CONST), 0, "");
 	}
 #ifdef DEBUG
 	else
@@ -8263,8 +8281,10 @@ void Orbiter::CMD_EnterGo(string &sCMD_Result,Message *pMessage)
 
 	/** @brief COMMAND: #200 - Move Up */
 	/** Move the highlight up */
+		/** @param #41 StreamID */
+			/** ID of stream to apply */
 
-void Orbiter::CMD_Move_Up(string &sCMD_Result,Message *pMessage)
+void Orbiter::CMD_Move_Up(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c200-e->
 {
 	if(GotActivity(BUTTON_Up_Arrow_CONST))
@@ -8273,7 +8293,7 @@ void Orbiter::CMD_Move_Up(string &sCMD_Result,Message *pMessage)
 		HighlightNextObject(DIRECTION_Up_CONST);
 		HandleButtonEvent(BUTTON_Any_key_CONST);
 		*/
-		CMD_Simulate_Keypress(StringUtils::ltos(BUTTON_Up_Arrow_CONST), "");
+		CMD_Simulate_Keypress(StringUtils::ltos(BUTTON_Up_Arrow_CONST), 0, "");
 	}
 #ifdef DEBUG
 	else
@@ -8287,8 +8307,10 @@ void Orbiter::CMD_Move_Up(string &sCMD_Result,Message *pMessage)
 
 	/** @brief COMMAND: #201 - Move Down */
 	/** Move the highlight down */
+		/** @param #41 StreamID */
+			/** ID of stream to apply */
 
-void Orbiter::CMD_Move_Down(string &sCMD_Result,Message *pMessage)
+void Orbiter::CMD_Move_Down(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c201-e->
 {
 	if(GotActivity(BUTTON_Down_Arrow_CONST))
@@ -8296,7 +8318,7 @@ void Orbiter::CMD_Move_Down(string &sCMD_Result,Message *pMessage)
 		/*
 		HighlightNextObject( DIRECTION_Down_CONST );
 		HandleButtonEvent(BUTTON_Any_key_CONST);*/
-		CMD_Simulate_Keypress(StringUtils::ltos(BUTTON_Down_Arrow_CONST), "");
+		CMD_Simulate_Keypress(StringUtils::ltos(BUTTON_Down_Arrow_CONST), 0, "");
 	}
 #ifdef DEBUG
 	else
@@ -8310,8 +8332,10 @@ void Orbiter::CMD_Move_Down(string &sCMD_Result,Message *pMessage)
 
 	/** @brief COMMAND: #202 - Move Left */
 	/** Move the highlight left */
+		/** @param #41 StreamID */
+			/** ID of stream to apply */
 
-void Orbiter::CMD_Move_Left(string &sCMD_Result,Message *pMessage)
+void Orbiter::CMD_Move_Left(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c202-e->
 {
 	if( GotActivity( BUTTON_Left_Arrow_CONST ) )
@@ -8319,7 +8343,7 @@ void Orbiter::CMD_Move_Left(string &sCMD_Result,Message *pMessage)
 		/*
 		HighlightNextObject( DIRECTION_Left_CONST );
 		HandleButtonEvent(BUTTON_Any_key_CONST);*/
-		CMD_Simulate_Keypress(StringUtils::ltos(BUTTON_Left_Arrow_CONST), "");
+		CMD_Simulate_Keypress(StringUtils::ltos(BUTTON_Left_Arrow_CONST), 0, "");
 	}
 #ifdef DEBUG
 	else
@@ -8333,8 +8357,10 @@ void Orbiter::CMD_Move_Left(string &sCMD_Result,Message *pMessage)
 
 	/** @brief COMMAND: #203 - Move Right */
 	/** Move the highlight right */
+		/** @param #41 StreamID */
+			/** ID of stream to apply */
 
-void Orbiter::CMD_Move_Right(string &sCMD_Result,Message *pMessage)
+void Orbiter::CMD_Move_Right(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c203-e->
 {
 	if( GotActivity(BUTTON_Right_Arrow_CONST) )
@@ -8342,7 +8368,7 @@ void Orbiter::CMD_Move_Right(string &sCMD_Result,Message *pMessage)
 		/*
 		HighlightNextObject( DIRECTION_Right_CONST );
 		HandleButtonEvent(BUTTON_Any_key_CONST);*/
-		CMD_Simulate_Keypress(StringUtils::ltos(BUTTON_Right_Arrow_CONST), "");
+		CMD_Simulate_Keypress(StringUtils::ltos(BUTTON_Right_Arrow_CONST), 0, "");
 	}
 #ifdef DEBUG
 	else
@@ -9781,8 +9807,10 @@ void Orbiter::StopScreenSaver()
 	/** Shows the main menu */
 		/** @param #9 Text */
 			/** A string indicating which menu should appear.  The parameter is only used for smart media devices */
+		/** @param #41 StreamID */
+			/** ID of stream to apply */
 
-void Orbiter::CMD_Menu(string sText,string &sCMD_Result,Message *pMessage)
+void Orbiter::CMD_Menu(string sText,int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c548-e->
 {
 #ifdef DEBUG
@@ -10007,3 +10035,21 @@ string Orbiter::DetectCoreIpAddress()
 
 	return "";
 } 
+//<-dceag-c923-b->
+
+	/** @brief COMMAND: #923 - Assisted Make Call */
+	/** Send make call command back to Orbiter and let it decide if we are going to make a direct call or a transfer/conference */
+		/** @param #17 PK_Users */
+			/** The called user. Only one is supported now. */
+		/** @param #83 PhoneExtension */
+			/** The phone number to be called. */
+		/** @param #262 FK_Device_From */
+			/** The device which starts the call. */
+		/** @param #263 PK_Device_To */
+			/** The called device. */
+
+void Orbiter::CMD_Assisted_Make_Call(int iPK_Users,string sPhoneExtension,int iFK_Device_From,int iPK_Device_To,string &sCMD_Result,Message *pMessage)
+//<-dceag-c923-e->
+{
+	m_pScreenHandler->HandleAssistedMakeCall(iPK_Users, sPhoneExtension, iFK_Device_From, iPK_Device_To);
+}
