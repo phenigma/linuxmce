@@ -176,9 +176,9 @@ void MouseIterator::DoIteration()
 				bResult = m_pOrbiter->Scroll_Grid("",m_sParm,DIRECTION_Up_CONST);
 			}
 			else if( m_dwParm==-1 )
-				m_pOrbiter->CMD_Move_Up();
+				m_pOrbiter->CMD_Move_Up(0);
 			else if( m_dwParm==1 )
-				m_pOrbiter->CMD_Move_Down();
+				m_pOrbiter->CMD_Move_Down(0);
 			else if( m_dwParm==2 )
 			{
 				NeedToRender render( m_pOrbiter, "iterator grid" );  // Redraw anything that was changed by this command

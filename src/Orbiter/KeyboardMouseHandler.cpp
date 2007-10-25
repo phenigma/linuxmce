@@ -87,7 +87,7 @@ bool KeyboardMouseHandler::ButtonDown(int PK_Button)
 	{
 		if( m_pObj )
 		{
-			m_pMouseBehavior->m_pOrbiter->CMD_Simulate_Keypress(StringUtils::itos(BUTTON_Enter_CONST),"");
+			m_pMouseBehavior->m_pOrbiter->CMD_Simulate_Keypress(StringUtils::itos(BUTTON_Enter_CONST),0,"");
 		}
 	}
 	return false; // Keep processing
@@ -273,56 +273,56 @@ void KeyboardMouseHandler::IterateObject()
 		case 'U':
 		{
 			m_pMouseBehavior->m_pOrbiter->CMD_Simulate_Keypress(
-				StringUtils::itos(BUTTON_Scroll_Up_CONST),"");
+				StringUtils::itos(BUTTON_Scroll_Up_CONST),0,"");
 		}
 		break;
 
 		case 'D':
 		{
 			m_pMouseBehavior->m_pOrbiter->CMD_Simulate_Keypress(
-				StringUtils::itos(BUTTON_Scroll_Down_CONST),"");
+				StringUtils::itos(BUTTON_Scroll_Down_CONST),0,"");
 		}
 		break;
 
 		case 'u':
 		{
 			m_pMouseBehavior->m_pOrbiter->CMD_Simulate_Keypress(
-				StringUtils::itos(BUTTON_Up_Arrow_CONST),"");
+				StringUtils::itos(BUTTON_Up_Arrow_CONST),0,"");
 		}
 		break;
 
 		case 'd':
 		{
 			m_pMouseBehavior->m_pOrbiter->CMD_Simulate_Keypress(
-				StringUtils::itos(BUTTON_Down_Arrow_CONST),"");
+				StringUtils::itos(BUTTON_Down_Arrow_CONST),0,"");
 		}
 		break;
 
 		case 'L':
 		{
 			m_pMouseBehavior->m_pOrbiter->CMD_Simulate_Keypress(
-				StringUtils::itos(BUTTON_Scroll_Left_CONST),"");
+				StringUtils::itos(BUTTON_Scroll_Left_CONST),0,"");
 		}
 		break;
 
 		case 'R':
 		{
 			m_pMouseBehavior->m_pOrbiter->CMD_Simulate_Keypress(
-				StringUtils::itos(BUTTON_Scroll_Right_CONST),"");
+				StringUtils::itos(BUTTON_Scroll_Right_CONST),0,"");
 		}
 		break;
 
 		case 'l':
 		{
 			m_pMouseBehavior->m_pOrbiter->CMD_Simulate_Keypress(
-				StringUtils::itos(BUTTON_Left_Arrow_CONST),"");
+				StringUtils::itos(BUTTON_Left_Arrow_CONST),0,"");
 		}
 		break;
 
 		case 'r':
 		{
 			m_pMouseBehavior->m_pOrbiter->CMD_Simulate_Keypress(
-				StringUtils::itos(BUTTON_Right_Arrow_CONST),"");
+				StringUtils::itos(BUTTON_Right_Arrow_CONST),0,"");
 		}
 		break;
 	}

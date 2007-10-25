@@ -74,7 +74,7 @@ bool HorizMenuMouseHandler::ButtonDown(int PK_Button)
 	case BUTTON_Mouse_1_CONST:
 		if( m_pMouseBehavior->m_pOrbiter->m_pObj_Highlighted )
 		{
-			m_pMouseBehavior->m_pOrbiter->CMD_Simulate_Keypress(StringUtils::ltos(BUTTON_Enter_CONST), "");
+			m_pMouseBehavior->m_pOrbiter->CMD_Simulate_Keypress(StringUtils::ltos(BUTTON_Enter_CONST), 0,"");
 			return true; // Don't process any more
 		}
 		else

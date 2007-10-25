@@ -518,7 +518,7 @@ void OrbiterLinux::CMD_Simulate_Keypress(string sPK_Button,string sName,string &
         if( XKeySym.first )
             XTestFakeKeyEvent( dpy, XKeysymToKeycode(dpy, XK_Shift_L), False, 0 );
     }
-    Orbiter::CMD_Simulate_Keypress(sPK_Button,sName,sCMD_Result,pMessage);
+    Orbiter::CMD_Simulate_Keypress(sPK_Button,0,sName,sCMD_Result,pMessage);
 }
 
 void OrbiterLinux::CMD_Set_Mouse_Position_Relative(int iPosition_X,int iPosition_Y,string &sCMD_Result,Message *pMessage)

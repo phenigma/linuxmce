@@ -107,7 +107,7 @@ bool LockedMouseHandler::ButtonDown(int PK_Button)
 			if( m_sOptions=="LS" )
 				ActivatedSubMenu();
 			else
-				m_pMouseBehavior->m_pOrbiter->CMD_Simulate_Keypress(StringUtils::ltos(BUTTON_Enter_CONST), "");
+				m_pMouseBehavior->m_pOrbiter->CMD_Simulate_Keypress(StringUtils::ltos(BUTTON_Enter_CONST),0, "");
 			return true; // Don't process any more
 		}
 	}
