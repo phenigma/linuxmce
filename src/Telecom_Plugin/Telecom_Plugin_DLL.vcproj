@@ -131,10 +131,16 @@
 				RelativePath=".\callmanager.cpp">
 			</File>
 			<File
+				RelativePath=".\CallStatus.cpp">
+			</File>
+			<File
 				RelativePath="..\Datagrid_Plugin\Datagrid_Plugin.cpp">
 			</File>
 			<File
 				RelativePath="..\Gen_Devices\Datagrid_PluginBase.cpp">
+			</File>
+			<File
+				RelativePath=".\ExtensionStatus.cpp">
 			</File>
 			<File
 				RelativePath="..\Orbiter_Plugin\FollowMe_Device.cpp">

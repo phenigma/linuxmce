@@ -64,6 +64,8 @@ string ExtensionStatus::Activity2String( ExtensionStatus::Activity act )
 			sOutActivity = "Unknown";
 			break;
 	}
+
+	return sOutActivity;
 }
 
 ExtensionStatus::Availability ExtensionStatus::String2Availability( string sAva )
