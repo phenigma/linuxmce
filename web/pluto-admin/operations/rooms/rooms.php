@@ -254,10 +254,11 @@ function rooms($output,$dbADO) {
 						$errNotice.=$_FILES['pic_'.$room]['name'].' wasn\'t uploaded, check the rights for '.$filePath;
 					}else{
 						// convert to png and/or resize if necessary
-						exec('chmod 777 -R '.$filePath);
-						$imageinfo = @getimagesize( $filePath );
+						@exec('chmod 777 -R '.$filePath);
+						$imageinfo = getimagesize( $filePath );
 						if($imageinfo[0]!=160 && $imageinfo[1]!=160){
-							$flag=resizeImage($filePath,$filePath,160,160,1);
+							resizeImage($filePath,str_replace('.jpg','.png',$filePath),160,160,1);
+							@unlink($filePath);
 						}
 					}
 				}else
