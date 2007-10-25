@@ -161,7 +161,7 @@ FormatPartitions()
 	mkdir -p /media/target
 	if [[ "$FromHdd" == 1 || "$Upgrade" == 1 ]] && mount "$TargetHdd"1 /media/target; then
 		pushd /media/target &>/dev/null
-		NukeFS .,home,var,etc,usr ./var,lib ./var/lib,mysql ./etc,pluto.conf,ssh,passwd,shadow,group ./usr,pluto ./usr/pluto,diskless
+		NukeFS .,home,var,etc,usr ./var,lib ./var/lib,mysql ./etc,pluto.conf,ssh,passwd,shadow,group ./usr,pluto ./usr/pluto,diskless,orbiter ./usr/pluto/orbiter,rooms,scenarios,users
 			
 		pushd ./usr/pluto/diskless &>/dev/null
 			while read MD; do
