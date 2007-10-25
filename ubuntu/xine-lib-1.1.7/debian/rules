@@ -7,7 +7,7 @@
 # Uncomment this to turn on verbose mode.
 # export DH_VERBOSE=1
 
-BINARY_ANY_PACKAGES=libxine1-pluto libxine1-pluto-dbg \
+BINARY_ANY_PACKAGES=libxine1-pluto \
 	libxine1-pluto-ffmpeg libxine1-pluto-gnome libxine1-pluto-console
 
 # These are used for cross-compiling and for saving the configure script
