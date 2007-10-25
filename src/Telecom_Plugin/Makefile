@@ -33,7 +33,11 @@ CPPFLAGS += -DUSE_MYSQL_WRAPPER
 #<-mkr_b_use_mysql_wrapper_e->
 
 Gen_Dev_Files += 
-sources += callmanager.cpp calldata.cpp ../Gen_Devices/Datagrid_PluginBase.cpp ../Datagrid_Plugin/Datagrid_Plugin.cpp
+sources += callmanager.cpp calldata.cpp \
+	../Gen_Devices/Datagrid_PluginBase.cpp \
+	../Datagrid_Plugin/Datagrid_Plugin.cpp \
+	ExtensionStatus.cpp \
+	CallStatus.cpp
 
 #<-dceag-mf-b->
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
