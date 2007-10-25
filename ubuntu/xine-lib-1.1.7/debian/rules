@@ -36,12 +36,11 @@ endif
 
 # set configure flags here
 CONFIGURE_FLAGS := \
-	--prefix=/usr \
+	--prefix=/opt/libxine \
 	--mandir=\$${prefix}/share/man \
 	--with-external-libmad \
 	--with-external-a52dec \
 	--with-external-libdts \
-	--with-external-ffmpeg \
 	--with-external-libmpcdec \
 	--with-libflac \
 	--disable-vidix \
@@ -78,7 +77,7 @@ install-stamp:
 	dh_clean -k
 	dh_installdirs
 	$(MAKE) install DESTDIR=$(CURDIR)/debian/tmp \
-			LIBRARY_PATH=$(CURDIR)/debian/tmp/usr/lib
+			LIBRARY_PATH=$(CURDIR)/debian/tmp/opt/libxine/lib
 	-(cd debian/tmp ; find .) | sort | uniq > $@
 
 binary-common: build install
