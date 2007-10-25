@@ -52,7 +52,10 @@ protected:
 protected:
 	virtual void handleStartup() {};
 	virtual void handleTerminate() {};
-	
+
+protected:
+	bool m_bQuit;
+
 private:
 	bool isrunning;
 	pthread_t threadid;

@@ -129,13 +129,19 @@
 				RelativePath=".\asteriskmanager.cpp">
 			</File>
 			<File
+				RelativePath=".\callsstatuscommand.cpp">
+			</File>
+			<File
+				RelativePath=".\communicationhandler.cpp">
+			</File>
+			<File
 				RelativePath=".\condition.cpp">
 			</File>
 			<File
-				RelativePath=".\conferencecommand.cpp">
+				RelativePath=".\hangupcommand.cpp">
 			</File>
 			<File
-				RelativePath=".\hangupcommand.cpp">
+				RelativePath=".\iaxextensionsstatuscommand.cpp">
 			</File>
 			<File
 				RelativePath=".\logincommand.cpp">
@@ -150,10 +156,10 @@
 				RelativePath=".\originatecommand.cpp">
 			</File>
 			<File
-				RelativePath=".\ringdetecthandler.cpp">
+				RelativePath=".\runtimeconfig.cpp">
 			</File>
 			<File
-				RelativePath=".\runtimeconfig.cpp">
+				RelativePath=".\sipextensionsstatuscommand.cpp">
 			</File>
 			<File
 				RelativePath=".\socket.cpp">
@@ -184,22 +190,31 @@
 				RelativePath="Asterisk.h">
 			</File>
 			<File
+				RelativePath=".\asteriskcommand.h">
+			</File>
+			<File
 				RelativePath=".\asteriskconsts.h">
 			</File>
 			<File
 				RelativePath=".\asteriskmanager.h">
 			</File>
 			<File
-				RelativePath=".\condition.h">
+				RelativePath=".\callsstatuscommand.h">
 			</File>
 			<File
-				RelativePath=".\conferencecommand.h">
+				RelativePath=".\communicationhandler.h">
+			</File>
+			<File
+				RelativePath=".\condition.h">
 			</File>
 			<File
 				RelativePath="..\DCE\DCEDeviceData_Impl.h">
 			</File>
 			<File
 				RelativePath=".\hangupcommand.h">
+			</File>
+			<File
+				RelativePath=".\iaxextensionsstatuscommand.h">
 			</File>
 			<File
 				RelativePath=".\logincommand.h">
@@ -211,10 +226,10 @@
 				RelativePath=".\originatecommand.h">
 			</File>
 			<File
-				RelativePath=".\ringdetecthandler.h">
+				RelativePath=".\runtimeconfig.h">
 			</File>
 			<File
-				RelativePath=".\runtimeconfig.h">
+				RelativePath=".\sipextensionsstatuscommand.h">
 			</File>
 			<File
 				RelativePath=".\socket.h">

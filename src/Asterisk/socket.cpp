@@ -57,7 +57,7 @@ Socket::~Socket()
 int Socket::Connect() {
 	int ret = 0;
 	
-	socket_fd = socket(AF_INET, SOCK_STREAM, 0);
+	socket_fd = (int)socket(AF_INET, SOCK_STREAM, 0);
 	if(socket_fd > 0) {
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "socket created.");
 	} else {
@@ -73,9 +73,9 @@ int Socket::Connect() {
 	address.sin_port = htons(ASMANAGER_PORT);
 
 #ifdef WIN32
-	address.sin_addr.s_addr = inet_addr("10.0.0.86");
+	address.sin_addr.s_addr = inet_addr("10.0.1.4");
 #else
-	inet_pton(AF_INET, "127.0.0.1", &address.sin_addr);
+	inet_pton(AF_INET, ASMANAGER_HOST, &address.sin_addr);
 #endif
 	
 	if((ret = connect(socket_fd, (struct sockaddr*)&address, sizeof(address)))) {
@@ -102,14 +102,14 @@ bool Socket::isConnected() {
 	return socket_fd != 0;
 }
 
-int Socket::sendToken(const Token* ptoken) {
+int Socket::sendToken(const Token& token) {
 	if(!socket_fd) {
 		return -1;
 	}
-	string str = ptoken->serialize();
+	string str = token.serialize();
 	if(!str.empty()) {
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "sending command:\n%s", str.c_str());
-		if(send(socket_fd, str.c_str(), str.length(), 0) > 0) {
+		if(send(socket_fd, str.c_str(), (int)str.length(), 0) > 0) {
 			LoggerWrapper::GetInstance()->Write(LV_STATUS, "command sent successfully.");
 			return 0;
 		} else {
@@ -173,7 +173,7 @@ string Socket::recvLine() {
 	
 	while(1) {
 		if(!recvtail.empty()) {
-			int lineend = recvtail.find('\x0A', 0);
+			int lineend = (int)recvtail.find('\x0A', 0);
 			if(lineend != -1) {
 				recvline.append(recvtail.substr(0, lineend + 1));
 				recvtail.erase(0, lineend + 1);
@@ -196,7 +196,7 @@ string Socket::recvLine() {
 	return recvline;
 }
 
-int Socket::recvToken(Token* ptoken) {
+int Socket::recvToken(Token& token) {
 	string recvreply, recvline;
 	while(1) {
 		recvline = recvLine();
@@ -209,7 +209,7 @@ int Socket::recvToken(Token* ptoken) {
 
 	if(!recvreply.empty()) {
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "received message:\n%s", recvreply.c_str());
-		if(!ptoken->unserialize(recvreply)) {
+		if(!token.unserialize(recvreply)) {
 			return 0;
 		} else {
 			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "failed unserializing message.");

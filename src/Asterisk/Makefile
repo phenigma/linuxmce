@@ -2,13 +2,14 @@
 GENDEV=../Gen_Devices
 
 SNR_CPPFLAGS ?= <-mkr_t_compile_defines->
+SNR_LDFLAGS ?= <-mkr_t_compile_libs->
 
 ROOT = ..
 CXX = g++
 CXXFLAGS = -Wall -fPIC -ggdb3
-CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE $(SNR_CPPFLAGS)
-LDFLAGS = -L$(ROOT)/lib
-BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lpthread
+CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql $(SNR_CPPFLAGS)
+LDFLAGS = $(SNR_LDFLAGS) -L$(ROOT)/lib
+BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lmysqlclient_r -lpthread
 
 MYNAME = Asterisk
 VERSION = 2.0.0
@@ -24,7 +25,25 @@ LDFLAGS +=
 LDLIBS +=
 
 Gen_Dev_Files +=
-sources += token.cpp thread.cpp threadsafeobj.cpp mutex.cpp condition.cpp socket.cpp asteriskmanager.cpp runtimeconfig.cpp tokenpool.cpp logincommand.cpp originatecommand.cpp hangupcommand.cpp transfercommand.cpp conferencecommand.cpp ringdetecthandler.cpp utils.cpp
+sources += \
+	token.cpp \
+	thread.cpp \
+	threadsafeobj.cpp \
+	mutex.cpp \
+	condition.cpp \
+	socket.cpp \
+	asteriskmanager.cpp \
+	runtimeconfig.cpp \
+	tokenpool.cpp \
+	logincommand.cpp \
+	originatecommand.cpp \
+	hangupcommand.cpp \
+	transfercommand.cpp \
+	iaxextensionsstatuscommand.cpp \
+	sipextensionsstatuscommand.cpp \
+	communicationhandler.cpp \
+	callsstatuscommand.cpp \
+	utils.cpp 
 
 #<-mkr_B_use_mysql_wrapper_b->
 CPPFLAGS += -I/usr/include/mysql

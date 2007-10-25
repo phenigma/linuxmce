@@ -30,7 +30,7 @@
 #ifndef ASTERISKTRANSFERSTATEMACHINE_H
 #define ASTERISKTRANSFERSTATEMACHINE_H
 
-#include "tokenmanager.h"
+#include "asteriskcommand.h"
 
 #include <string>
 
@@ -39,30 +39,25 @@ namespace ASTERISK {
 /**
 @author 
 */
-class TransferCommand : public TokenManager<TransferCommand>, public ThreadSafeObj
+class TransferCommand : public IAsteriskCommand
 {
-	friend class TokenManager<TransferCommand>;
-protected:
+public:
 	TransferCommand();
-	virtual ~TransferCommand();
+	~TransferCommand();
 
 public:
+	void setChannel1(std::string channel);
+	void setChannel2(std::string channe);
 	void setExtenNum(std::string extennum);
-	void setChannel(std::string channel);
-	void setCommandID(int commandid);
-	
-protected:
-	virtual void handleStartup();
-	virtual int handleToken(Token* ptoken);
-	virtual void handleTerminate();
+
+	void handleStartup();
+	void handleTerminate();
+	bool handleResponse(Token &token);
 
 private:
+	std::string channel1;
+	std::string channel2;
 	std::string extennum;
-	std::string channel;
-	
-	int commandid;
-	
-private:
 };
 
 };

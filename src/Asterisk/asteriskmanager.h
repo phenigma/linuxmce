@@ -31,6 +31,7 @@
 #define ASTERISKASTERISKMANAGER_H
 
 #include "tokenpool.h"
+#include "communicationhandler.h"
 #include "threadsafeobj.h"
 
 #include <string>
@@ -64,38 +65,49 @@ public:
 	
 	/*originates a call*/
 	void Originate(const std::string sPhoneNumber, 
-						const std::string sOriginatorNumber,
-						const std::string sOriginatorType, 
-						const std::string sCallerID,
-						int iCommandID);
+		const std::string sOriginatorNumber,
+		const std::string sOriginatorType, 
+		const std::string sCallerID);
 	
 	/*hangs up a call*/
-	void Hangup(const std::string sChannel, 
-						int iCommandID);
+	void Hangup(const std::string sChannel);
 
 	/*transfers a call*/						
-	void Transfer(const std::string sChannel,
-	              const std::string sPhoneNumber,
-				  int iCommandID);
+	void Transfer(const std::string sChannel1, 
+		const std::string sChannel2, 
+		const std::string sPhoneNumber);
 
-	/*make it a conference  a call*/						
+	/*make it a conference  a call*/	
+	/*
 	void Conference(const std::string sChannel1,
 	                const std::string sChannel2,
 	                const std::string sPhoneNumber,
 	                int iCommandID);
+	*/
+
+	/* get status commands; the response will be events*/
+	void GetExtensionsStatus();
+	void GetCallsStatus();
 	
 	/*events - usually called by state machines*/
-	void NotifyRing(const std::string sCallerID /*ringing phone id*/, 
-	 					const std::string sSrcExt /*src extention*/, 
-						const std::string sChannel /*used as call id*/);
+	void NotifyRing(const std::string sSourceChannel, const std::string sDestinationChannel, 
+		const std::string sSourceCallerID, const std::string sDestinationCallerID);
 	
 	void NotifyResult(int iCommandID, int iResult, 
 						const std::string Message);
 
-	void NotifyHangup(const std::string sSrcExt);
+	void NotifyHangup(const std::string sChannel, const std::string sReason);
+
+	void NotifyLink(const std::string sSourceChannel, const std::string sDestinationChannel, 
+		const std::string sSourceCallerID, const std::string sDestinationCallerID);
+
+	void NotifyExtensionsStatus(std::string sStatus);
+
+	void NotifyCallsStatus(std::string sStatus);
 	
 private:
 	DCE::Asterisk* pAsterisk;
+	ASTERISK::CommunicationHandler *m_pCommunicationHandler;
 	
 // manager instance
 private:

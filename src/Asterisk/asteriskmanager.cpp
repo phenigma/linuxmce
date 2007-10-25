@@ -36,8 +36,10 @@
 #include "originatecommand.h"
 #include "hangupcommand.h"
 #include "transfercommand.h"
-#include "conferencecommand.h"
-#include "ringdetecthandler.h"
+//#include "conferencecommand.h"
+#include "callsstatuscommand.h"
+#include "sipextensionsstatuscommand.h"
+#include "iaxextensionsstatuscommand.h"
 
 #define DEFAUL_LOGIN_NAME "admin"
 #define DEFAUL_LOGIN_SECRET "adminsecret"
@@ -56,86 +58,130 @@ AsteriskManager* AsteriskManager::sinstance = 0;
 
 
 AsteriskManager::AsteriskManager() {
+	m_pCommunicationHandler = new CommunicationHandler();
 }
 
 AsteriskManager::~AsteriskManager() {
+
+	m_pCommunicationHandler->Wait();
+
+	delete m_pCommunicationHandler;
+	m_pCommunicationHandler = NULL;
+
 	Release();
 }
 
 
 void AsteriskManager::Originate(const string sPhoneNumber, const string sOriginatorNumber,
-				const string sOriginatorType, const string sCallerID, int iCommandID) {
-	
+				const string sOriginatorType, const string sCallerID) 
+{
 	/*originate*/
-	TokenSMPtr<OriginateCommand> poriginate = OriginateCommand::getInstance();
-	poriginate->setPhoneNum(sOriginatorNumber);
-	poriginate->setPhoneType(sOriginatorType);
-	poriginate->setExtenNum(sPhoneNumber);
-	poriginate->setCallerID(sCallerID);
-	poriginate->setCommandID(iCommandID);
+	OriginateCommand *pCommand = new OriginateCommand();
+	pCommand->setPhoneNum(sOriginatorNumber);
+	pCommand->setPhoneType(sOriginatorType);
+	pCommand->setExtenNum(sPhoneNumber);
+	pCommand->setCallerID(sCallerID);
 
-	poriginate->Run(false);
+	m_pCommunicationHandler->sendCommand(pCommand);
 }
 
-void AsteriskManager::Hangup(const std::string sChannel, 
-				int iCommandID) {
-	
+void AsteriskManager::Hangup(const std::string sChannel) 
+{
 	/*hangup*/
-	TokenSMPtr<HangupCommand> phangup = HangupCommand::getInstance();
-	phangup->setChannel(sChannel);
-	phangup->setCommandID(iCommandID);
+	HangupCommand *pCommand = new HangupCommand();
+	pCommand->setChannel(sChannel);
 
-	phangup->Run(false);
+	m_pCommunicationHandler->sendCommand(pCommand);
 }
 
-void AsteriskManager::Transfer(const std::string sChannel, const string sPhoneNumber, int iCommandID) {
-	
+void AsteriskManager::Transfer(const std::string sChannel1, const std::string sChannel2, 
+	const string sPhoneNumber)
+{
 	/*transfer*/
-	TokenSMPtr<TransferCommand> ptransfer = TransferCommand::getInstance();
-	ptransfer->setExtenNum(sPhoneNumber);
-	ptransfer->setChannel(sChannel);
-	ptransfer->setCommandID(iCommandID);
+	TransferCommand *pCommand = new TransferCommand();
+	pCommand->setChannel1(sChannel1);
+	pCommand->setChannel2(sChannel2);
+	pCommand->setExtenNum(sPhoneNumber);
 
-	ptransfer->Run(false);
+	m_pCommunicationHandler->sendCommand(pCommand);
 }
 
+/*
 void AsteriskManager::Conference(const std::string sChannel1, const std::string sChannel2, const string sPhoneNumber, int iCommandID) {
-	
-	/*conference*/
-	TokenSMPtr<ConferenceCommand> ptransfer = ConferenceCommand::getInstance();
-	ptransfer->setExtenNum(sPhoneNumber);
-	ptransfer->setChannel1(sChannel1);
-	ptransfer->setChannel2(sChannel2);
-	ptransfer->setCommandID(iCommandID);
+	ConferenceCommand* pCommand = new ConferenceCommand();
+	pCommand->setExtenNum(sPhoneNumber);
+	pCommand->setChannel1(sChannel1);
+	pCommand->setChannel2(sChannel2);
+	pCommand->setCommandID(iCommandID);
 
-	ptransfer->Run(false);
+	m_pCommunicationHandler->sendCommand(pCommand);
+}
+*/
+
+void AsteriskManager::GetExtensionsStatus()
+{
+	m_pCommunicationHandler->sendCommand(new SipExtensionStatusCommand());
+	m_pCommunicationHandler->sendCommand(new IaxExtensionsStatusCommand());
 }
 
-	
-void AsteriskManager::NotifyRing(std::string sCallerID, const std::string sSrcExt, 
-												const std::string sChannel) {
-	if(!pAsterisk) {
-	    return;
-	}
-	pAsterisk->EVENT_PBX_Ring(sSrcExt, sChannel, sCallerID);
+void AsteriskManager::GetCallsStatus()
+{
+	m_pCommunicationHandler->sendCommand(new CallsStatusCommand());
 }
 
-void AsteriskManager::NotifyHangup(const std::string sSrcExt) {
-	if(!pAsterisk) {
-	    return;
-	}
-	pAsterisk->EVENT_PBX_Hangup(sSrcExt);
+void AsteriskManager::NotifyRing(const std::string sSourceChannel, const std::string sDestinationChannel, 
+								 const std::string sSourceCallerID, const std::string sDestinationCallerID) 
+{
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, 
+		"NotifyRing from channel %s, callerid %s to channel %s, callerid %s",
+		sSourceChannel.c_str(), sSourceCallerID.c_str(), sDestinationChannel.c_str(), sDestinationCallerID.c_str());
+
+	if(NULL != pAsterisk) 
+		pAsterisk->EVENT_PBX_Ring(sSourceChannel, sDestinationChannel, sSourceCallerID, sDestinationCallerID);
+}
+
+void AsteriskManager::NotifyHangup(const std::string sChannel, const std::string sReason) 
+{
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "NotifyHangup channel %s, reason %s", 
+		sChannel.c_str(), sReason.c_str());
+
+	if(NULL != pAsterisk) 
+		pAsterisk->EVENT_PBX_Hangup(sChannel, sReason);
+}
+
+void AsteriskManager::NotifyLink(const std::string sSourceChannel, const std::string sDestinationChannel, 
+								 const std::string sSourceCallerID, const std::string sDestinationCallerID)
+{
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, 
+		"NotifyLink from channel %s, callerid %s to channel %s, callerid %s",
+		sSourceChannel.c_str(), sSourceCallerID.c_str(), sDestinationChannel.c_str(), sDestinationCallerID.c_str());
+
+	if(NULL != pAsterisk) 
+		pAsterisk->EVENT_PBX_Link(sSourceChannel, sDestinationChannel, sSourceCallerID, sDestinationCallerID);
+}
+
+void AsteriskManager::NotifyExtensionsStatus(std::string sStatus)
+{
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "NotifyPeersStatus status: \n%s", sStatus.c_str());
+
+	if(NULL != pAsterisk) 
+		pAsterisk->EVENT_Extensions_Status(sStatus);
+}
+
+void AsteriskManager::NotifyCallsStatus(std::string sStatus)
+{
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "NotifyCallsStatus status: \n%s", sStatus.c_str());
+
+	if(NULL != pAsterisk) 
+		pAsterisk->EVENT_Calls_Status(sStatus);
 }
 
 void AsteriskManager::NotifyResult(int iCommandID, int iResult, 
 						const std::string Message) 
 {	
-	if(!pAsterisk) {
-	    return;
-	}
-	pAsterisk->EVENT_PBX_CommandResult(iCommandID, iResult, Message);
+	if(NULL != pAsterisk) 
+		pAsterisk->EVENT_PBX_CommandResult(iCommandID, iResult, Message);
 }
-
 
 AsteriskManager* AsteriskManager::getInstance() {
 	static AsteriskManager manager;
@@ -154,23 +200,8 @@ AsteriskManager* AsteriskManager::getInstance() {
 void AsteriskManager::Initialize(DCE::Asterisk* lpAsterisk) {
 	this->pAsterisk = lpAsterisk;
 
-	/*login*/
-	/* removed - login is handled automaticaly
-	TokenSMPtr<LoginCommand> plogin = LoginCommand::getInstance();
-	plogin->setUserName(DEFAUL_LOGIN_NAME);
-	plogin->setSecret(DEFAUL_LOGIN_SECRET);
-	if(plogin->Run()) {
-	       LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Login to asterisk manager failed");
-	       return;
-	}
-
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Login successfull.");
-	*/
-
-
     /*initialize persistent SMs*/
-	TokenSMPtr<RingDetectHandler> pring = RingDetectHandler::getInstance();
-	pring->Run(false);
+	m_pCommunicationHandler->Run(false);
 }
 
 void AsteriskManager::Release() {

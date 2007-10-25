@@ -38,6 +38,8 @@
 
 #include <list>
 
+#include "asteriskcommand.h"
+
 namespace ASTERISK { 
 
 /**
@@ -47,13 +49,13 @@ class TokenPool : public Thread {
 public:
     TokenPool();
     virtual ~TokenPool();
-	
+
+	int sendCommand(IAsteriskCommand* pCommand);
+
 protected:
     virtual void* _Run();
 	
-	int sendToken(const Token* ptoken);
-	virtual int handleToken(Token* ptoken);
-	
+	virtual int handleToken(Token* ptoken, bool& bIsResponseToken);
 	virtual int handleConnect(Socket *psock);
 	virtual void handleDisconnect();
 	virtual void handleError(int errcode);
@@ -63,10 +65,7 @@ private:
     Socket sock;
 
     Mutex sqm; /*send queue access mutex*/
-    typedef struct __sendrequest {
-		Token token;
-    } _sendrequest;
-    std::list<_sendrequest> sendqueue;
+    std::list<IAsteriskCommand *> sendqueue;
 };
 
 };

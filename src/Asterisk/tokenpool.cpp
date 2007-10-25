@@ -61,7 +61,7 @@ TokenPool::handleConnect(Socket* psock) {
     logintok.setKey("Secret", DEFAUL_LOGIN_SECRET);
 
 	Token recvtok;
-	if(!psock->sendToken(&logintok) && !psock->recvToken(&recvtok)) {
+	if(!psock->sendToken(logintok) && !psock->recvToken(recvtok)) {
 		if(recvtok.hasKey(TOKEN_RESPONSE)) {
 			if(recvtok.getKey(TOKEN_RESPONSE) == RESPONSE_SUCCESS) {
 				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Login to asterisk manager successfull.");
@@ -86,7 +86,7 @@ TokenPool::handleError(int errcode) {
 }
 
 int 
-TokenPool::handleToken(Token *ptoken) {
+TokenPool::handleToken(Token *ptoken, bool& bIsResponseToken) {
     return 0;
 }
 
@@ -95,7 +95,7 @@ TokenPool::_Run() {
 	Socket sock;
 
 	bool bFirstConnect = true;
-	int errcode;
+	int errcode = 0;
 
 	while(1) {
 		if(!sock.isConnected()) {
@@ -114,22 +114,25 @@ TokenPool::_Run() {
 		}
 		else
 		{
+			if(m_bQuit)
+				break;
+
 			/*first try process a send item*/
 			bool dosend = false;
 
 
 			/*get the req from queue*/
-			_sendrequest req;
 			sqm.Lock();
+			IAsteriskCommand *pAsteriskCommand = NULL;
 			if(sendqueue.size() > 0) {
-				req = *sendqueue.begin();
+				pAsteriskCommand = *sendqueue.begin();
 				sendqueue.pop_front();
 				dosend = true;
 			}
 			sqm.Unlock();
 
 			if(dosend) {
-				errcode = sock.sendToken(&req.token);
+				errcode = sock.sendToken(pAsteriskCommand->GetToken());
             	if(errcode != 0) {
 			    	LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Error occured while sending token. Disconnecting.");
 					break;
@@ -139,10 +142,11 @@ TokenPool::_Run() {
 
 			/*receive*/
 			 bool doreceive = sock.isReceivable();
-        	 if(doreceive) {
+        	 if(doreceive) 
+			 {
 				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Receiving token.");
 				Token token;
-            	errcode = sock.recvToken(&token);
+            	errcode = sock.recvToken(token);
 	        	if(errcode != 0) {
 		        	LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Error occured while receiving token. Disconnecting."); 
 					break;
@@ -150,13 +154,23 @@ TokenPool::_Run() {
 
 				/*process received token*/
 				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Notification of new token.");
-				if(handleToken(&token)) {
-					break;
+				bool bIsResponseToken = false;
+				if(handleToken(&token, bIsResponseToken))
+				{
+					if(bIsResponseToken && NULL != pAsteriskCommand)
+					{
+						m_bQuit = !pAsteriskCommand->handleResponse(token);
+
+						delete pAsteriskCommand;
+						pAsteriskCommand = NULL;
+					}
 				}
-			 } else {
-				LoggerWrapper::GetInstance()->Write(LV_STATUS, "No traffic in/to asterisk manager. Sleeping for %d seconds", POOL_SLEEP_PERIOD);
+			}
+			else 
+			{
+				//LoggerWrapper::GetInstance()->Write(LV_STATUS, "No traffic in/to asterisk manager. Sleeping for %d seconds", POOL_SLEEP_PERIOD);
 				Sleep(POOL_SLEEP_PERIOD);
-			 }
+			}
 		 }
 	}
 
@@ -172,15 +186,15 @@ TokenPool::_Run() {
 }
 
 int 
-TokenPool::sendToken(const Token* ptoken) {
-	sqm.Lock();
-	
-	_sendrequest req = {*ptoken};
-	sendqueue.push_back(req);
+TokenPool::sendCommand(IAsteriskCommand* pCommand) {
 
+	pCommand->handleStartup();
+
+	sqm.Lock();
+	sendqueue.push_back(pCommand);
 	sqm.Unlock();
 
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Token pushed into send queue.");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Command pushed into send queue.");
 	return 0;
 }
 

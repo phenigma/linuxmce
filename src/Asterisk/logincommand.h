@@ -30,7 +30,7 @@
 #ifndef LOGINSTATEMACHINE_H
 #define LOGINSTATEMACHINE_H
 
-#include "tokenmanager.h"
+#include "asteriskcommand.h"
 #include "condition.h"
 
 #include <string>
@@ -40,20 +40,17 @@ namespace ASTERISK {
 /**
 @author 
 */
-class LoginCommand : public TokenManager<LoginCommand>, public ThreadSafeObj {
-	friend class TokenManager<LoginCommand>;
-protected:
+class LoginCommand : public IAsteriskCommand {
+public:
 	LoginCommand();
 	~LoginCommand();
 public:
 	void setUserName(std::string username);
 	void setSecret(std::string secret);
 
-public:
-	virtual int handleToken(Token* ptoken);
-	
-	virtual void handleStartup();
-	virtual void handleTerminate();
+	void handleStartup();
+	void handleTerminate();
+	bool handleResponse(Token &token);
 
 private:
 	std::string username;

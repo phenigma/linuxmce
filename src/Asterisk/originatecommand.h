@@ -30,7 +30,7 @@
 #ifndef ASTERISKORIGINATESTATEMACHINE_H
 #define ASTERISKORIGINATESTATEMACHINE_H
 
-#include "tokenmanager.h"
+#include "asteriskcommand.h"
 
 #include <string>
 
@@ -39,32 +39,27 @@ namespace ASTERISK {
 /**
 @author 
 */
-class OriginateCommand : public TokenManager<OriginateCommand>, public ThreadSafeObj
+class OriginateCommand : public IAsteriskCommand
 {
-	friend class TokenManager<OriginateCommand>;
-protected:
+public:
 	OriginateCommand();
-	virtual ~OriginateCommand();
+	~OriginateCommand();
 
 public:
 	void setPhoneNum(std::string phonenum);
 	void setPhoneType(std::string phonetype);
 	void setExtenNum(std::string extennum); // extention number
 	void setCallerID(std::string sCallerID);
-	void setCommandID(int iCommandID);
 	
-protected:
-	virtual void handleStartup();
-	virtual int handleToken(Token* ptoken);
-	virtual void handleTerminate();
+	void handleStartup();
+	void handleTerminate();
+	bool handleResponse(Token &token);
 
 private:
 	std::string phonenum;
 	std::string phonetype;
 	std::string extennum;
 	std::string callerid;
-	
-	int commandid;
 	
 private:
 	std::string srcchannel;

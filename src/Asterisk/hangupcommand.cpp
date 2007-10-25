@@ -50,37 +50,23 @@ HangupCommand::~HangupCommand() {
 
 void 
 HangupCommand::setChannel(std::string channel) {
-	LOCKED_OP(this->channel = channel;);
-}
-
-void 
-HangupCommand::setCommandID(int commandid) {
-	LOCKED_OP(this->commandid = commandid;);
+	this->channel = channel;
 }
 
 void
 HangupCommand::handleStartup() {
-	Token transtok;
-
-	LOCKED_OP(
-	transtok.setKey(TOKEN_ACTION, ACTION_HANGUP);
-	transtok.setKey(TOKEN_CHANNEL, channel );
-	);
-
-	sendToken(&transtok);
-	
-	AddRef(); // do not destroy until job finished
+	m_token.setKey(TOKEN_ACTION, ACTION_HANGUP);
+	m_token.setKey(TOKEN_CHANNEL, channel );
 };
 
-int 
-HangupCommand::handleToken(Token* ptoken) {
-	return 1;
+bool 
+HangupCommand::handleResponse(Token &token) {
+	return true;
 }
 
 void 
 HangupCommand::handleTerminate() {
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Hangup completed.");	
-    Release();
 }
 
 };

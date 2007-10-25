@@ -46,46 +46,32 @@ LoginCommand::~LoginCommand() {
 
 void 
 LoginCommand::setUserName(std::string username) {
-	LOCKED_OP(this->username = username);
+	this->username = username;
 }
 
 void 
 LoginCommand::setSecret(std::string secret) {
-	LOCKED_OP(this->secret = secret);
+	this->secret = secret;
 }
 
 void 
 LoginCommand::handleStartup() {
-	Token logintok;
-
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Login SM created.!!!!!");
 	
-	LOCKED_OP(
-		logintok.setKey("Action", "login");
-		logintok.setKey("Username", username);
-		logintok.setKey("Secret", secret);
-	);
-	
-	sendToken(&logintok);
-
-	AddRef();
+	m_token.setKey("Action", "login");
+	m_token.setKey("Username", username);
+	m_token.setKey("Secret", secret);
 }
 
-
-int 
-LoginCommand::handleToken(Token* ptoken) {
-	int ret = 0;
-	if(ptoken->hasKey(TOKEN_RESPONSE)) {
-	    ret = 1;
-	}
-	
-	return ret;
+bool
+LoginCommand::handleResponse(Token &token) {
+	//TODO: process response
+	return true;
 }
 
 void
 LoginCommand::handleTerminate() {
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Login completed.");	
-	Release();
 }
 
 };

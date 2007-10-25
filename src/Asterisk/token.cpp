@@ -28,6 +28,7 @@
 //
 //
 #include "token.h"
+#include "asteriskconsts.h"
 
 using namespace std;
 
@@ -58,6 +59,7 @@ std::string Token::serialize() const {
 	
 	map<string, string>::const_iterator it = tokmap.begin();
 	while(it != tokmap.end()) {
+
 		ret += (*it).first;
 		ret += ": ";
 		ret += (*it).second;
@@ -82,11 +84,11 @@ int Token::unserialize(std::string str) {
 	
 	int keyend, valueend = 0;
 	while(1) {
-		keyend = str.find(": ", valueend);
+		keyend = (int)str.find(": ", valueend);
 		if(keyend != -1) {
 			keyend += 2;
 			key = str.substr(valueend, keyend - valueend -2 /*dd*/);
-			valueend = str.find("\r\n", keyend);
+			valueend = (int)str.find("\r\n", keyend);
 			if(valueend != -1) {
 				valueend += 2;
 				value = str.substr(keyend, valueend - keyend  - 2/*eol*/);
@@ -96,6 +98,7 @@ int Token::unserialize(std::string str) {
 				break;
 			}
 		} else {
+			setKey(TOKEN_DATA, str.substr(valueend));
 			break;
 		}
 	}

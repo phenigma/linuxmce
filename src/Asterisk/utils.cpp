@@ -37,7 +37,7 @@ Utils::ParseChannel(const std::string channel,
 {
 	int pos, oldpos = 0;
 	
-	pos = channel.find('/');
+	pos = (int)channel.find('/');
 	if(pos < 0) {
 		return -1;
 	}
@@ -46,21 +46,21 @@ Utils::ParseChannel(const std::string channel,
 	}
 	
 	oldpos = pos + 1;
-	pos = channel.find('@',oldpos);
+	pos = (int)channel.find('@',oldpos);
 	if(pos < 0) {
-		pos = channel.find('-',oldpos);
+		pos = (int)channel.find('-',oldpos);
 	}
 	if(pos < 0) {
-		pos = channel.find('/',oldpos);
+		pos = (int)channel.find('/',oldpos);
 	}
 	if(pos < 0) {
-		pos = channel.find('&',oldpos);
+		pos = (int)channel.find('&',oldpos);
 	}
 	if(pos < 0) {
-		pos = channel.find(',',oldpos);
+		pos = (int)channel.find(',',oldpos);
 	}
 	if(pos < 0) {
-		pos = channel.find('|',oldpos);
+		pos = (int)channel.find('|',oldpos);
 	}
 	if(pos < 0) {
 		return -1;
@@ -83,7 +83,7 @@ Utils::ParseCallerID(const std::string callerid,
 {
 	int pos, oldpos = 0;
 	
-	pos = callerid.find('<');
+	pos = (int)callerid.find('<');
 	if(pos < 0) {
 		return -1;
 	}
@@ -92,7 +92,7 @@ Utils::ParseCallerID(const std::string callerid,
 	}
 	
 	oldpos = pos;
-	pos = callerid.find('>', oldpos);
+	pos = (int)callerid.find('>', oldpos);
 	if(pos < 0) {
 		return -1;
 	}
@@ -109,24 +109,24 @@ Utils::ParseParty(const std::string party, std::string* extension, std::string *
 {
 	int pos, oldpos = 0;
 	
-	pos = party.find('/');
+	pos = (int)party.find('/');
 	if(pos < 0) {
 		return -1;
 	}
 	
 	oldpos = pos + 1;
-	pos = party.find('@',oldpos);	
+	pos = (int)party.find('@',oldpos);	
 	if(pos < 0) {
-		pos = party.find('&',oldpos);	
+		pos = (int)party.find('&',oldpos);	
 	}
 	if(pos < 0) {
-		pos = party.find(',',oldpos);	
+		pos = (int)party.find(',',oldpos);	
 	}
 	if(pos < 0) {
-		pos = party.find('|',oldpos);
+		pos = (int)party.find('|',oldpos);
 	}
 	if(pos < 0) {
-		pos = party.find('/',oldpos);
+		pos = (int)party.find('/',oldpos);
 	}
 	if(pos < 0) {
 		return -1;
@@ -137,7 +137,7 @@ Utils::ParseParty(const std::string party, std::string* extension, std::string *
 	}
 	if(rest)
 	{
-		pos = party.find('&',oldpos);
+		pos = (int)party.find('&',oldpos);
 		if(pos > 0)
 		{
 			*rest = party.substr(pos+1,party.length());

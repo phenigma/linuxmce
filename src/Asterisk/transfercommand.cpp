@@ -50,45 +50,37 @@ TransferCommand::~TransferCommand() {
 
 void 
 TransferCommand::setExtenNum(std::string extennum) {
-	LOCKED_OP(this->extennum = extennum);
+	this->extennum = extennum;
 }
 
 void 
-TransferCommand::setChannel(std::string channel) {
-	LOCKED_OP(this->channel = channel;);
+TransferCommand::setChannel1(std::string channel) {
+	this->channel1 = channel;
 }
 
 void 
-TransferCommand::setCommandID(int commandid) {
-	LOCKED_OP(this->commandid = commandid;);
+TransferCommand::setChannel2(std::string channel) {
+	this->channel2 = channel;
 }
 
 void
 TransferCommand::handleStartup() {
-	Token transtok;
-	
-	LOCKED_OP(
-	transtok.setKey(TOKEN_ACTION, ACTION_REDIRECT);
-	transtok.setKey(TOKEN_CHANNEL, channel );
-	transtok.setKey(TOKEN_EXTEN, extennum);
-	transtok.setKey(TOKEN_CONTEXT, "trusted");
-	transtok.setKey("Priority", "1");
-	);
-
-	sendToken(&transtok);
-	
-	AddRef(); // do not destroy until job finished
+	m_token.setKey(TOKEN_ACTION, ACTION_REDIRECT);
+	m_token.setKey(TOKEN_CHANNEL, channel1 );
+	m_token.setKey(TOKEN_EXTRACHANNEL, channel2 );
+	m_token.setKey(TOKEN_EXTEN, extennum);
+	m_token.setKey(TOKEN_CONTEXT, "trusted");
+	m_token.setKey("Priority", "1");
 };
 
-int 
-TransferCommand::handleToken(Token* ptoken) {
-	return 0;
+bool 
+TransferCommand::handleResponse(Token &token) {
+	return true;
 }
 
 void 
 TransferCommand::handleTerminate() {
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Transfer completed.");	
-    Release();
 }
 
 };

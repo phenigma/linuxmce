@@ -51,8 +51,8 @@ public:
 	bool isConnected();
 
 
-	int sendToken(const Token* ptoken);
-	int recvToken(Token *ptoken);
+	int sendToken(const Token& token);
+	int recvToken(Token &token);
 	bool isReceivable();
 
 private:

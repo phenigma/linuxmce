@@ -30,7 +30,7 @@
 #ifndef ASTERISKHANGUPSTATEMACHINE_H
 #define ASTERISKHANGUPSTATEMACHINE_H
 
-#include "tokenmanager.h"
+#include "asteriskcommand.h"
 
 #include <string>
 
@@ -39,26 +39,21 @@ namespace ASTERISK {
 /**
 @author 
 */
-class HangupCommand : public TokenManager<HangupCommand>, public ThreadSafeObj
+class HangupCommand : public IAsteriskCommand
 {
-	friend class TokenManager<HangupCommand>;
-protected:
+public:
 	HangupCommand();
-	virtual ~HangupCommand();
+	~HangupCommand();
 
 public:
 	void setChannel(std::string channel);
-	void setCommandID(int commandid);
-	
-protected:
-	virtual void handleStartup();
-	virtual int handleToken(Token* ptoken);
-	virtual void handleTerminate();
+
+	void handleStartup();
+	void handleTerminate();
+	bool handleResponse(Token &token);
 
 private:
 	std::string channel;
-	
-	int commandid;
 
 private:
 };

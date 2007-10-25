@@ -33,7 +33,7 @@
 namespace ASTERISK {
 
 Thread::Thread()
-	: isrunning(false)
+	: m_bQuit(false), isrunning(false)
 {
 }
 
@@ -68,6 +68,7 @@ Thread::Run(bool wait) {
 
 void 
 Thread::Wait() {
+	m_bQuit = true;
 	pthread_join(threadid, 0);
 }
 
