@@ -241,8 +241,9 @@ void MPlayerEngine::StopPlayback() {
 
 bool MPlayerEngine::StartPlayback(string sMediaFile) {
 	// TODO add error handling
+	// TODO escape " in sMediaFile
 	string sCommand = "loadfile ";
-	sCommand += sMediaFile;
+	sCommand += "\"" + sMediaFile + "\"";
 	ExecuteCommand(sCommand);
 	return true;
 }
