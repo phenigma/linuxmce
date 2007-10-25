@@ -7,8 +7,8 @@
 # Uncomment this to turn on verbose mode.
 # export DH_VERBOSE=1
 
-BINARY_ANY_PACKAGES=libxine1 libxine1-dbg \
-	libxine1-ffmpeg libxine1-gnome libxine1-console
+BINARY_ANY_PACKAGES=libxine1-pluto libxine1-pluto-dbg \
+	libxine1-pluto-ffmpeg libxine1-pluto-gnome libxine1-pluto-console
 
 # These are used for cross-compiling and for saving the configure script
 # from having to guess our platform (since we know it already)
@@ -65,7 +65,7 @@ clean:
 	dh_testdir
 	dh_testroot
 	rm -vf build-stamp configure-stamp install-stamp po/*.gmo po/stamp-po binary-*-stamp all-files-stamp
-	rm -vf debian/libxine1.install.i386 config.h
+	rm -vf debian/libxine1-pluto.install.i386 config.h
 	-$(MAKE) distclean
 	dh_clean
 	rm -vf a.out # something in the configure scripts seems to leave this over...
@@ -86,13 +86,13 @@ binary-common: build install
 	dh_testroot
 	dh_install
 	dh_installdocs
-	dh_installman
+#	dh_installman
 	dh_installchangelogs -k ChangeLog
 	dh_link
-	dh_strip --dbg-package=libxine1-dbg
+	dh_strip --dbg-package=libxine1-pluto-dbg
 	dh_compress
 	dh_fixperms
-	dh_makeshlibs -V 'libxine1 (>= 1.1.4)'
+	dh_makeshlibs -V 'libxine1-pluto (>= 1.1.4)'
 	dh_installdeb
 	dh_shlibdeps
 	dh_gencontrol
@@ -100,21 +100,21 @@ binary-common: build install
 	dh_builddeb
 
 # special rules for the -dbg package.
-binary-libxine1-dbg: build install
+binary-libxine1-pluto-dbg: build install
 	@echo working on $@
-	dh_testdir           -plibxine1-dbg
-	dh_testroot	     -plibxine1-dbg
-	dh_install 	     -plibxine1-dbg
-	dh_installchangelogs -plibxine1-dbg
-	dh_installdocs	     -plibxine1-dbg
-	dh_link              -plibxine1-dbg
-	dh_compress 	     -plibxine1-dbg
-	dh_fixperms 	     -plibxine1-dbg
-	dh_installdeb 	     -plibxine1-dbg
-	dh_shlibdeps 	     -plibxine1-dbg
-	dh_gencontrol 	     -plibxine1-dbg
-	dh_md5sums 	     -plibxine1-dbg
-	dh_builddeb 	     -plibxine1-dbg
+	dh_testdir           -plibxine1-pluto-dbg
+	dh_testroot	     -plibxine1-pluto-dbg
+	dh_install 	     -plibxine1-pluto-dbg
+	dh_installchangelogs -plibxine1-pluto-dbg
+	dh_installdocs	     -plibxine1-pluto-dbg
+	dh_link              -plibxine1-pluto-dbg
+	dh_compress 	     -plibxine1-pluto-dbg
+	dh_fixperms 	     -plibxine1-pluto-dbg
+	dh_installdeb 	     -plibxine1-pluto-dbg
+	dh_shlibdeps 	     -plibxine1-pluto-dbg
+	dh_gencontrol 	     -plibxine1-pluto-dbg
+	dh_md5sums 	     -plibxine1-pluto-dbg
+	dh_builddeb 	     -plibxine1-pluto-dbg
 
 # Build architecture independant packages using the common target
 binary-indep: build install
@@ -136,9 +136,9 @@ debian/%.install.$(DEB_HOST_ARCH): debian/%.install debian/%.install.$(DEB_HOST_
 
 # i386 is special cased! Other archs may follow
 ifeq ($(DEB_HOST_ARCH),i386)
-binary-libxine1: debian/libxine1.install debian/libxine1.install.$(DEB_HOST_ARCH)
+binary-libxine1-pluto: debian/libxine1-pluto.install debian/libxine1-pluto.install.$(DEB_HOST_ARCH)
 else
-binary-libxine1: debian/libxine1.install
+binary-libxine1-pluto: debian/libxine1-pluto.install
 endif
 
 # Any other binary targets build just one binary package at a time.
