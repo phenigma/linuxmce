@@ -268,7 +268,11 @@ void DataGridCell::ToData(unsigned long &Size, char* &Data)
 {
 	char *MessageData = NULL;
 	if (m_pMessage)
-		m_pMessage->ToData(m_MessageLength, MessageData);
+	{
+		unsigned long ulMessageLength = (unsigned long)m_MessageLength;
+		m_pMessage->ToData(ulMessageLength, MessageData);
+		m_MessageLength = (unsigned int)ulMessageLength;
+	}
 
 	m_NumAttributes=(int) m_mapAttributes.size();
 	m_AttributesLength=0;

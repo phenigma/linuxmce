@@ -46,7 +46,7 @@ This class is ???
 	class DataGridCellSerializableData
 	{
 	public:
-		unsigned long m_GraphicLength, m_MessageLength, m_TextLength, m_ValueLength, m_ImagePathLength, m_NumAttributes, m_AttributesLength;
+		unsigned int m_GraphicLength, m_MessageLength, m_TextLength, m_ValueLength, m_ImagePathLength, m_NumAttributes, m_AttributesLength;
 		int m_AltColor;
 		enum eGraphicFormat m_GraphicFormat;
 		bool m_bSelectable;
