@@ -298,7 +298,7 @@ void Media_Plugin::AttributesBrowser( MediaListGrid *pMediaListGrid,int PK_Media
 	if( PK_MediaType==MEDIATYPE_pluto_StoredAudio_CONST )
 		sSQL_Where += " WHERE EK_MediaType IN (" TOSTRING(MEDIATYPE_pluto_StoredAudio_CONST) "," TOSTRING(MEDIATYPE_pluto_CD_CONST) ")";
 	else if( PK_MediaType==MEDIATYPE_pluto_StoredVideo_CONST )
-		sSQL_Where += " WHERE EK_MediaType IN (" TOSTRING(MEDIATYPE_pluto_StoredVideo_CONST) "," TOSTRING(MEDIATYPE_pluto_DVD_CONST) ")";
+		sSQL_Where += " WHERE EK_MediaType IN (" TOSTRING(MEDIATYPE_pluto_StoredVideo_CONST) "," TOSTRING(MEDIATYPE_pluto_DVD_CONST) "," TOSTRING(MEDIATYPE_pluto_HDDVD_CONST) "," TOSTRING(MEDIATYPE_pluto_BD_CONST) ")";
 	else 
 		sSQL_Where += " WHERE EK_MediaType=" + StringUtils::itos(PK_MediaType);
 
@@ -1016,7 +1016,7 @@ class DataGridTable *Media_Plugin::MediaSearchAutoCompl( string GridID, string P
 	if( PK_MediaType==MEDIATYPE_pluto_StoredAudio_CONST )
 		SQL += " AND EK_MediaType IN (" TOSTRING(MEDIATYPE_pluto_StoredAudio_CONST) "," TOSTRING(MEDIATYPE_pluto_CD_CONST) ")";
 	else if( PK_MediaType==MEDIATYPE_pluto_StoredVideo_CONST )
-		SQL += " AND EK_MediaType IN (" TOSTRING(MEDIATYPE_pluto_StoredVideo_CONST) "," TOSTRING(MEDIATYPE_pluto_DVD_CONST) ")";
+		SQL += " AND EK_MediaType IN (" TOSTRING(MEDIATYPE_pluto_StoredVideo_CONST) "," TOSTRING(MEDIATYPE_pluto_DVD_CONST) "," TOSTRING(MEDIATYPE_pluto_HDDVD_CONST) "," TOSTRING(MEDIATYPE_pluto_BD_CONST) ")";
 	else 
 		SQL += " AND EK_MediaType=" + StringUtils::itos(PK_MediaType);
 
