@@ -1,0 +1,119 @@
+//
+// C++ Interface: CallStatus
+//
+// Description:
+//
+//
+// Author: Eugen Constantinescu <eugen.c@plutohome.com>, (C) 2007
+//
+// Copyright: See COPYING file that comes with this distribution
+//
+//
+#ifndef CALLSTATUS_H
+#define CALLSTATUS_H
+
+#include <string>
+#include <map>
+
+#include "PlutoUtils/StringUtils.h"
+
+using namespace std;
+
+/**
+The class which contains all the information about a telecom call.
+
+	@author Eugen Constantinescu <eugen.c@plutohome.com>
+*/
+namespace DCE
+{
+	class CallStatus
+	{
+		public:
+			
+			/***/
+			enum CallType { DirectCall=0, Conference };
+
+			/***/
+			enum CallsStatus
+			{
+				csChannel = 0,
+				csContext,
+				csExten,
+				csPriority,
+				csStats,
+				csApplication,
+				csData,
+				csCallerID,
+				csAccoutcode,
+				csAmaflags,
+				csDuration,
+				csBridged,
+				NUM_FIELDS
+			};
+			
+			/***/
+			static CallType String2CallType(string);
+			/***/
+			static string CallType2String(CallType);
+			
+			/***/
+			static string GetStringConferenceID(unsigned);
+			
+			/***/
+			static char * conferencePrefix;
+			
+			/***/
+			CallStatus();
+			/***/
+			~CallStatus();
+			
+			/***/
+			void SetCallType(CallType ct) { type = ct; }
+			/***/
+			CallType GetCallType() const { return type; }
+			
+			/***/
+			string GetID() const { return id; }
+			
+			/***/
+			void SetConferenceID(unsigned cid) { conferenceID = cid; }
+			/***/
+			unsigned GetConferenceID() const { return conferenceID; }
+			
+			/***/
+			void AddChannel(string channelid, string callid)
+			{
+				channels[channelid] = callid;
+			}
+			
+			/***/
+			void RemoveChannel(string channelid)
+			{
+				channels.erase(channelid);
+			}
+			
+			/***/
+			bool HasChannel(string channelid) const
+			{
+				map<string, string>::const_iterator itFound = channels.find(channelid);
+				
+				return itFound != channels.end();
+			}
+			
+			/***/
+			bool Closed()
+			{
+				return channels.empty();
+			}
+			
+		private:
+			
+			static unsigned autoId;
+			CallType type;
+			string id;
+			unsigned conferenceID;
+			map<string, string> channels;  //channelid <-> callerid
+	};
+}
+
+#endif

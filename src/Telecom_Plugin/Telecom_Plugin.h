@@ -29,6 +29,10 @@
 #include "Datagrid_Plugin/Datagrid_Plugin.h"
 #include "Orbiter_Plugin/FollowMe_Device.h"
 #include "Orbiter/Floorplan.h"
+
+#include "ExtensionStatus.h"
+#include "CallStatus.h"
+
 #include <pthread.h>
 
 class Database_pluto_main;
@@ -45,39 +49,9 @@ namespace DCE
 	pthread_t m_displayThread;
 	pthread_mutex_t mtx_err_messages;
 	pluto_pthread_mutex_t m_TelecomMutex;
-    pthread_mutexattr_t m_MutexAttr;
+	pthread_mutexattr_t m_MutexAttr;
 	std::map<int, std::pair<string, string> > m_mapVoiceMailStatus;
 	DeviceData_Router* m_pDevice_pbx;
-
-	class ConferenceData
-	{
-		string m_sMasterExt;
-		list<string> m_listSlavesExt;
-
-	public:
-
-		ConferenceData(string sMasterExt, const list<string>& slistSlavesExt) :
-		  m_sMasterExt(sMasterExt),
-		  m_listSlavesExt(slistSlavesExt)
-		{
-		}
-
-		bool IsMaster(string sExt) const { return m_sMasterExt == sExt; }
-		bool IsSlave(string sExt) const 
-		{ 
-			return std::find(m_listSlavesExt.begin(), m_listSlavesExt.end(), sExt) != 
-				m_listSlavesExt.end();
-		}
-		const list<string>& GetSlaves() const { return m_listSlavesExt; }
-		const string & GetMaster() const { return m_sMasterExt; }
-		void RemoveSlave(string sExt) 
-		{ 
-			if(IsSlave(sExt))
-				m_listSlavesExt.remove(sExt); 
-		}
-	};
-
-	list<ConferenceData> m_listConferences;
 
 	// Private methods
 public:
@@ -128,6 +102,11 @@ public:
 	// Interceptors
 	bool OrbiterRegistered(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo);
 
+	// Telecom status
+	bool CallsStatusChanged(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo);
+	bool ExtensionsStatusChanged(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo);
+
+
 //<-dceag-h-b->
 	/*
 				AUTO-GENERATED SECTION
@@ -161,7 +140,7 @@ public:
 
 
 	/** @brief COMMAND: #232 - PL_Originate */
-	/** Originate a call */
+	/** Originate a call -- * deprecated, use Make call instead * */
 		/** @param #2 PK_Device */
 			/** Device (phone) from which to place the call */
 		/** @param #83 PhoneExtension */
@@ -181,24 +160,26 @@ public:
 			/** User ID to transfer call to */
 		/** @param #83 PhoneExtension */
 			/** Local Extension to transfer call to */
-		/** @param #86 CallID */
-			/** The ID of the call */
-		/** @param #184 PK_Device_From */
-			/** The device that currently has the call.  Used to find the call to transfer unless a Call ID is specified.  If neither is specified, the device sending the message is used. */
-		/** @param #196 IsConference */
-			/** Transfer the call to a conference room? */
+		/** @param #265 Channel 1 */
+			/** Channel to transfer */
+		/** @param #266 Channel 2 */
+			/** Second channel to transfer (can be empty) */
 
-	virtual void CMD_PL_Transfer(int iPK_Device,int iPK_Users,string sPhoneExtension,string sCallID,string sPK_Device_From,bool bIsConference) { string sCMD_Result; CMD_PL_Transfer(iPK_Device,iPK_Users,sPhoneExtension.c_str(),sCallID.c_str(),sPK_Device_From.c_str(),bIsConference,sCMD_Result,NULL);};
-	virtual void CMD_PL_Transfer(int iPK_Device,int iPK_Users,string sPhoneExtension,string sCallID,string sPK_Device_From,bool bIsConference,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_PL_Transfer(int iPK_Device,int iPK_Users,string sPhoneExtension,string sChannel_1,string sChannel_2) { string sCMD_Result; CMD_PL_Transfer(iPK_Device,iPK_Users,sPhoneExtension.c_str(),sChannel_1.c_str(),sChannel_2.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_PL_Transfer(int iPK_Device,int iPK_Users,string sPhoneExtension,string sChannel_1,string sChannel_2,string &sCMD_Result,Message *pMessage);
 
 
-	/** @brief COMMAND: #236 - PL_Hangup */
+	/** @brief COMMAND: #236 - PL_Cancel */
 	/** Hangs up a call */
 		/** @param #2 PK_Device */
-			/** The device to hangup the call for (ie the phone or orbiter).  If 0, the from device is assumed.  If -1, all calls are terminated */
+			/** The device to hangup the call for (ie the phone or orbiter).  If 0, the from device is assumed.  If -1, all calls are terminated
 
-	virtual void CMD_PL_Hangup(int iPK_Device) { string sCMD_Result; CMD_PL_Hangup(iPK_Device,sCMD_Result,NULL);};
-	virtual void CMD_PL_Hangup(int iPK_Device,string &sCMD_Result,Message *pMessage);
+* deprecated, use channel id instead * */
+		/** @param #264 Channel */
+			/** The channel to cancel */
+
+	virtual void CMD_PL_Cancel(int iPK_Device,string sChannel) { string sCMD_Result; CMD_PL_Cancel(iPK_Device,sChannel.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_PL_Cancel(int iPK_Device,string sChannel,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #334 - Phone_Initiate */
@@ -227,7 +208,7 @@ public:
 
 
 	/** @brief COMMAND: #414 - PL External Originate */
-	/** Originate an external call */
+	/** Originate an external call -- * deprecated, use Make call instead * */
 		/** @param #75 PhoneNumber */
 			/** Phone to call */
 		/** @param #81 CallerID */
@@ -267,13 +248,19 @@ public:
 
 	/** @brief COMMAND: #797 - PL_Join_Call */
 	/** Will join you to an existing call */
-		/** @param #86 CallID */
-			/** Call ID to join to */
-		/** @param #103 List PK Device */
-			/** Devices which will be added to the call */
+		/** @param #17 PK_Users */
+			/** The user to add to call */
+		/** @param #39 Options */
+			/** if 'q' is present, it means quick conference, no private  chat; without  'q' means add to conference with private chat */
+		/** @param #83 PhoneExtension */
+			/** The extension to add to call */
+		/** @param #87 PhoneCallID */
+			/** Phone call ID to join to */
+		/** @param #263 PK_Device_To */
+			/** The device the add to call */
 
-	virtual void CMD_PL_Join_Call(string sCallID,string sList_PK_Device) { string sCMD_Result; CMD_PL_Join_Call(sCallID.c_str(),sList_PK_Device.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_PL_Join_Call(string sCallID,string sList_PK_Device,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_PL_Join_Call(int iPK_Users,string sOptions,string sPhoneExtension,string sPhoneCallID,int iPK_Device_To) { string sCMD_Result; CMD_PL_Join_Call(iPK_Users,sOptions.c_str(),sPhoneExtension.c_str(),sPhoneCallID.c_str(),iPK_Device_To,sCMD_Result,NULL);};
+	virtual void CMD_PL_Join_Call(int iPK_Users,string sOptions,string sPhoneExtension,string sPhoneCallID,int iPK_Device_To,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #826 - Speak in house */
@@ -312,8 +299,9 @@ private:
 					 			class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
 	 void ProcessResult(int iCommandID, int iResult, std::string sMessage);
 	 
-	 bool Ring( class Socket *pSocket, class Message *pMessage, 
-					 			class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
+	 bool Ring( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
+	 bool Link( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
+
 	 void ProcessRing(std::string sPhoneExtension, std::string sPhoneCallerID, std::string sPhoneCallID);
 	 
 	bool IncomingCall( class Socket *pSocket, class Message *pMessage, 
@@ -326,20 +314,29 @@ private:
 					 			class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );	
 													
 private:
-    DeviceData_Router* find_AsteriskDevice();
-    DeviceData_Router* find_Device(int iPK_Device);
+	DeviceData_Router* find_AsteriskDevice();
+	DeviceData_Router* find_Device(int iPK_Device);
 	int ParseChannel(const std::string channel, int* iextension, string *sextension);
 	void RemoveExtesionFromChannels(const string & sExtension);
+
+	CallStatus* FindCallStatusForChannel(string sChannelID);
+	string GetNewConferenceID() const;
+	void RemoveCallStatus(CallStatus*);
+	void CleanStatusMaps();
 
 private:
 	int iCmdCounter;
 	int generate_NewCommandID();
 	map<int,int> map_orbiter2embedphone;
 	map<int,int> map_embedphone2orbiter;
-	map<int,int> map_ext2device;
-	map<int,int> map_device2ext;
-	map<string,int> map_username2ext;
-	map<int,string> map_ext2username;
+	map<string,int> map_ext2device;
+	map<int,string> map_device2ext;
+	map<string,string> map_username2ext;
+	map<string,string> map_ext2username;
+	
+	map<string, ExtensionStatus*> map_ext2status;
+	map<string, CallStatus*> map_call2status;
+	map<unsigned, CallStatus*> map_conference2status;
 	
 	map<string,long> map_err_messages;
 	unsigned long next_conf_room;
