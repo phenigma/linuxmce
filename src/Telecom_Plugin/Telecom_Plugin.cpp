@@ -2768,12 +2768,49 @@ void Telecom_Plugin::FollowMe_LeftRoom(int iPK_Event, int iPK_Orbiter, int iPK_D
 			/** The called user. Only one is supported now. */
 		/** @param #83 PhoneExtension */
 			/** The phone number to be called. */
-		/** @param #262 PK_Device_From */
+		/** @param #262 FK_Device_From */
 			/** The device which starts the call. */
 		/** @param #263 PK_Device_To */
 			/** The called device. */
 
-void Telecom_Plugin::CMD_Make_Call(int iPK_Users,string sPhoneExtension,int iPK_Device_From,int iPK_Device_To,string &sCMD_Result,Message *pMessage)
+void Telecom_Plugin::CMD_Make_Call(int iPK_Users,string sPhoneExtension,int iFK_Device_From,int iPK_Device_To,string &sCMD_Result,Message *pMessage)
 //<-dceag-c921-e->
 {
+}
+//<-dceag-c924-b->
+
+	/** @brief COMMAND: #924 - Merge Calls */
+	/** Merge two calls */
+		/** @param #267 Phone Call ID 1 */
+			/** First call id */
+		/** @param #268 Phone Call ID 2 */
+			/** Second call id */
+
+void Telecom_Plugin::CMD_Merge_Calls(string sPhone_Call_ID_1,string sPhone_Call_ID_2,string &sCMD_Result,Message *pMessage)
+//<-dceag-c924-e->
+{
+	//TODO: implement me!
+}
+
+//<-dceag-c925-b->
+
+	/** @brief COMMAND: #925 - Assisted Transfer */
+	/** Interactive transfer, not just a blind transfer */
+		/** @param #2 PK_Device */
+			/** Device ID to transfer call to */
+		/** @param #17 PK_Users */
+			/** User ID to transfer call to */
+		/** @param #83 PhoneExtension */
+			/** Extension to transfer call to */
+		/** @param #87 PhoneCallID */
+			/** Phone call id to transfer  */
+		/** @param #265 Channel 1 */
+			/** Channel to transfer */
+		/** @param #266 Channel 2 */
+			/** Second channel to transfer (can be empty) */
+
+void Telecom_Plugin::CMD_Assisted_Transfer(int iPK_Device,int iPK_Users,string sPhoneExtension,string sPhoneCallID,string sChannel_1,string sChannel_2,string &sCMD_Result,Message *pMessage)
+//<-dceag-c925-e->
+{
+	//TODO: implement me!
 }

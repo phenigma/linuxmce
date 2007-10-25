@@ -284,13 +284,44 @@ public:
 			/** The called user. Only one is supported now. */
 		/** @param #83 PhoneExtension */
 			/** The phone number to be called. */
-		/** @param #262 PK_Device_From */
+		/** @param #262 FK_Device_From */
 			/** The device which starts the call. */
 		/** @param #263 PK_Device_To */
 			/** The called device. */
 
-	virtual void CMD_Make_Call(int iPK_Users,string sPhoneExtension,int iPK_Device_From,int iPK_Device_To) { string sCMD_Result; CMD_Make_Call(iPK_Users,sPhoneExtension.c_str(),iPK_Device_From,iPK_Device_To,sCMD_Result,NULL);};
-	virtual void CMD_Make_Call(int iPK_Users,string sPhoneExtension,int iPK_Device_From,int iPK_Device_To,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Make_Call(int iPK_Users,string sPhoneExtension,int iFK_Device_From,int iPK_Device_To) { string sCMD_Result; CMD_Make_Call(iPK_Users,sPhoneExtension.c_str(),iFK_Device_From,iPK_Device_To,sCMD_Result,NULL);};
+	virtual void CMD_Make_Call(int iPK_Users,string sPhoneExtension,int iFK_Device_From,int iPK_Device_To,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #924 - Merge Calls */
+	/** Merge two calls */
+		/** @param #267 Phone Call ID 1 */
+			/** First call id */
+		/** @param #268 Phone Call ID 2 */
+			/** Second call id */
+
+	virtual void CMD_Merge_Calls(string sPhone_Call_ID_1,string sPhone_Call_ID_2) { string sCMD_Result; CMD_Merge_Calls(sPhone_Call_ID_1.c_str(),sPhone_Call_ID_2.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Merge_Calls(string sPhone_Call_ID_1,string sPhone_Call_ID_2,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #925 - Assisted Transfer */
+	/** Interactive transfer, not just a blind transfer */
+		/** @param #2 PK_Device */
+			/** Device ID to transfer call to */
+		/** @param #17 PK_Users */
+			/** User ID to transfer call to */
+		/** @param #83 PhoneExtension */
+			/** Extension to transfer call to */
+		/** @param #87 PhoneCallID */
+			/** Phone call id to transfer  */
+		/** @param #265 Channel 1 */
+			/** Channel to transfer */
+		/** @param #266 Channel 2 */
+			/** Second channel to transfer (can be empty) */
+
+	virtual void CMD_Assisted_Transfer(int iPK_Device,int iPK_Users,string sPhoneExtension,string sPhoneCallID,string sChannel_1,string sChannel_2) { string sCMD_Result; CMD_Assisted_Transfer(iPK_Device,iPK_Users,sPhoneExtension.c_str(),sPhoneCallID.c_str(),sChannel_1.c_str(),sChannel_2.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Assisted_Transfer(int iPK_Device,int iPK_Users,string sPhoneExtension,string sPhoneCallID,string sChannel_1,string sChannel_2,string &sCMD_Result,Message *pMessage);
+
 
 //<-dceag-h-e->
 
