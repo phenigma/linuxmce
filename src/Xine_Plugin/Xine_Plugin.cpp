@@ -291,12 +291,11 @@ bool Xine_Plugin::StartMedia( MediaStream *pMediaStream,string &sError )
 	// hack: redirect MOV, EVO, M2TS files to MPlayer_Player
 	// TODO rework Media Dispatcher to make it more clear - later
 	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Doing MPlayer redirection check...");
-	bool bRedirectToMPlayer = /* StringUtils::EndsWith(mediaURL, ".MOV", true) || */
-			StringUtils::EndsWith(mediaURL, ".EVO", true) ||
-			StringUtils::EndsWith(mediaURL, ".M2TS", true);
+	bool bRedirectToMPlayer = ( pXineMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_HDDVD_CONST ) ||
+			( pXineMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_BD_CONST );
 	
 	if (bRedirectToMPlayer)
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Redirecting CMD_Play_Media to MPlayer instead of Xine");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Redirecting CMD_Play_Media to MPlayer instead of Xine: media type is %i", pXineMediaStream->m_iPK_MediaType);
 	
 	if( !bRedirectToMPlayer && pXineMediaStream->StreamingRequired() )
 	{
