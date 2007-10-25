@@ -3567,6 +3567,8 @@ void ScreenHandler::HandleAssistedMakeCall(int iPK_Users,string sPhoneExtension,
 	{
 		case tcsDirectDial:
 		{
+			// A & B => {A,B}
+
 			DCE::CMD_Make_Call cmd_Make_Call(
 				m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device_TelecomPlugIn,
 				iPK_Users, sPhoneExtension, iPK_Device_From, iPK_Device_To);
@@ -3576,6 +3578,8 @@ void ScreenHandler::HandleAssistedMakeCall(int iPK_Users,string sPhoneExtension,
 
 		case tcsJoining:
 		{
+			// {X,Y} & A => {X,Y,A}
+
 			string sOptions;
 			string sPhoneCallID = m_pOrbiter->m_mapVariable_Find(VARIABLE_Current_Call_CONST);
 
@@ -3587,20 +3591,32 @@ void ScreenHandler::HandleAssistedMakeCall(int iPK_Users,string sPhoneExtension,
 		break;
 
 		case tcsTransferConference:
-			//{A,B,C,M} & X => {A,B,C} & {M, X}
+			{
+				//{X,Y,A} & B => {X,Y} & {A,B}
 
-			string sMyChannel = m_pOrbiter->m_mapVariable_Find(VARIABLE_My_Channel_ID_CONST);
+				string sMyChannel = m_pOrbiter->m_mapVariable_Find(VARIABLE_My_Channel_ID_CONST);
+				string sMyCall = m_pOrbiter->m_mapVariable_Find(VARIABLE_My_Call_ID_CONST);
 
-			DCE::CMD_PL_Transfer cmd_PL_Transfer(
-				m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device_TelecomPlugIn,
-				iPK_Device_To, iPK_Users, sPhoneExtension, sMyChannel, "");
-			m_pOrbiter->SendCommand(cmd_PL_Transfer);
+				DCE::CMD_Assisted_Transfer cmd_Assisted_Transfer(
+					m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device_TelecomPlugIn,
+					iPK_Device_To, iPK_Users, sPhoneExtension, "", sMyChannel, "");
+				m_pOrbiter->SendCommand(cmd_Assisted_Transfer);
 
-			//TODO: dialog : "Calling, please wait..."
-			// button1: "Complete transfer now" -> CMD_PL_Cancel transfer and CMD_PL_Join X to {A,B,C}
-			// button2: "Cancel transfer/conference" -> CMD_PL_Cancel transfer and CMD_PL_Join M to {A,B,C}
-            // button3: "Conference" -> CMD_PL_Cancel transfer and CMD_PL_Join M and X to {A,B,C}
+				string sDescription = "Calling, please wait..."; //TODO: calling who?
+				string sButton1 = "Complete transfer now";
+				string sButton2 = "Cancel transfer/conference";
+				string sButton3 = "Conference";
+				string sCommand1 = ""; //CMD_PL_Cancel transfer and CMD_PL_Join A to {X,Y}
+				string sCommand2 = ""; //CMD_PL_Cancel transfer and CMD_PL_Join B to {X,Y}
+				string sCommand3 = ""; //CMD_PL_Cancel transfer and CMD_PL_Join A and B to {X,Y}
 
+				SCREEN_PopupMessage(SCREEN_PopupMessage_CONST, 
+					sDescription + "|" + sButton1 + "|" + sButton2 + "|" + sButton3,
+					sCommand1 + "|" + sCommand2 + "|" + sCommand3, "calling", "0", "0", "1");
+			}
+			break;
+
+		default:
 			break;
 	}
 }
