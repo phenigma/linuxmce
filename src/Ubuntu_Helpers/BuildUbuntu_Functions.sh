@@ -42,7 +42,7 @@ export Version=$(echo "select VersionName from Version" | mysql $sql_slave_db | 
 
 
 function Install_Build_Needed_Packages {
-	local pkgs="quilt tcl8.4-dev libfuse-dev fuse-utils libupnp-dev libconfuse-dev subversion build-essential dh-make libmysqlclient15-dev libhttpfetcher-dev libattr1-dev libdbus-1-dev libdbus-glib-1-dev libhal-dev libdancer-xml0-dev libbluetooth2-dev libid3-3.8.3-dev libxine-dev x11proto-core-dev libx11-dev libx11-dev x11proto-core-dev x11proto-xext-dev x11proto-xf86vidmode-dev libx11-dev libjpeg62-dev libcdparanoia0-dev libsdl1.2-dev libsdl-gfx1.2-dev libxmu-headers x11proto-record-dev libhid-dev libusb-dev libsdl-image1.2-dev libsdl-ttf2.0-dev libsdl-sge-dev libxtst-dev libxrender-dev liblinphone1-dev libcddb-dev libdvdread-dev libcurl3-dev ruby1.8-dev swig libtcltk-ruby mysql-client mysql-server libmediastreamer0-dev libgtk2.0-dev libvte-dev libglade2-dev libstdc++5" 
+	local pkgs="xorg-dev qt3-dev-tools libxcb-xv0-dev libxcb-shm0-dev libxcb-shape0-dev libmagick9-dev libmpcdec-dev quilt tcl8.4-dev libfuse-dev fuse-utils libupnp-dev libconfuse-dev subversion build-essential dh-make libmysqlclient15-dev libhttpfetcher-dev libattr1-dev libdbus-1-dev libdbus-glib-1-dev libhal-dev libdancer-xml0-dev libbluetooth2-dev libid3-3.8.3-dev libxine-dev x11proto-core-dev libx11-dev libx11-dev x11proto-core-dev x11proto-xext-dev x11proto-xf86vidmode-dev libx11-dev libjpeg62-dev libcdparanoia0-dev libsdl1.2-dev libsdl-gfx1.2-dev libxmu-headers x11proto-record-dev libhid-dev libusb-dev libsdl-image1.2-dev libsdl-ttf2.0-dev libsdl-sge-dev libxtst-dev libxrender-dev liblinphone1-dev libcddb-dev libdvdread-dev libcurl3-dev ruby1.8-dev swig libtcltk-ruby mysql-client mysql-server libmediastreamer0-dev libgtk2.0-dev libvte-dev libglade2-dev libstdc++5" 
 	local pkg
 	for pkg in $pkgs ;do
 		apt-get -y install $pkg
@@ -145,10 +145,11 @@ function Build_Pluto_Replacements {
 	mkdir -p $temp_dir
 
 	#Package: libsdl
-	pushd "${svn_di}/trun/ubuntu/libsdl1.2-1.2.12"
+	pushd "${svn_dir}/trunk/ubuntu/libsdl1.2-1.2.12"
 		dpkg-buildpackage -rfakeroot -us -uc -b
 		cp -r ../libsdl1.2debian-pluto*.deb ${temp_dir}
 	popd
+exit 0
 
 	#Package: video-wizard-videos
 	local vvv_temp_dir=$(mktemp -d)
