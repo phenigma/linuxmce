@@ -270,7 +270,9 @@ bool MediaStream::ContainsVideo()
 		m_iPK_MediaType==MEDIATYPE_np_DVD_CONST ||
 		m_iPK_MediaType==MEDIATYPE_np_VideoTape_CONST ||
 		m_iPK_MediaType==MEDIATYPE_np_LaserDisc_CONST ||
-		m_iPK_MediaType==MEDIATYPE_np_Game_CONST;
+		m_iPK_MediaType==MEDIATYPE_np_Game_CONST ||
+		m_iPK_MediaType==MEDIATYPE_pluto_HDDVD_CONST ||
+		m_iPK_MediaType==MEDIATYPE_pluto_BD_CONST;
 }
 
 
