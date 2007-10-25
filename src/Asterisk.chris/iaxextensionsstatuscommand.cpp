@@ -93,15 +93,18 @@ IaxExtensionsStatusCommand::handleResponse(Token &token){
 				vector<string> vectTokens;
 				StringUtils::Tokenize(sName, "/", vectTokens);
 
-				if(vectTokens.size() == 2)
-					sName = vectTokens[1];
+				if(!vectTokens.empty())
+					sName = vectTokens[0];
 
-				sStatus += sName + ":" + (sHost == "(Unspecified)" ? "Unregistered" : "Registered") + "\n";
+				sStatus += "IAX2/" + sName + ":" + (sHost == "(Unspecified)" ? "Unregistered" : "Registered") + "\n";
 			}
 		}
 	}
 
-	AsteriskManager::getInstance()->NotifyExtensionsStatus(sStatus);
+	if(!sStatus.empty())
+		AsteriskManager::getInstance()->NotifyExtensionsStatus(sStatus);
+	else
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Not sending status for IAX because we don't have any peers");
 
 	return true;
 }
