@@ -185,6 +185,8 @@ bool Telecom_Plugin::GetConfig()
 Telecom_Plugin::~Telecom_Plugin()
 //<-dceag-dest-e->
 {
+	CleanStatusMaps();
+	
 	delete m_pDatabase_pluto_main;
 	delete m_pDatabase_pluto_telecom;
 
@@ -642,18 +644,17 @@ Telecom_Plugin::ExtensionsStatusChanged(class Socket *pSocket,class Message *pMe
 		string sLine = *it;
 
 		vector<string> vectTokens;
-		StringUtils::Tokenize(sLine, "/:", vectTokens);
-
+		StringUtils::Tokenize(sLine, "/", vectTokens);
+		
+		// TODO: de verificat cu chris
 		if(vectTokens.size() == ExtensionStatus::NUM_FIELDS)
 		{
+			string sType = vectTokens[ExtensionStatus::esfType];
 			string sExten = vectTokens[ExtensionStatus::esfExtension];
 			string sCallerID = vectTokens[ExtensionStatus::esfCallerID];
 			string sState = vectTokens[ExtensionStatus::esfState];
-
-			// ??
-			if(sExten == "SIP")
-				sExten = sCallerID;
-
+			string sActivity = vectTokens[ExtensionStatus::esfActivity];
+			
 			ExtensionStatus *pExtensionStatus = NULL;
 			map<string, ExtensionStatus*>::iterator ite = map_ext2status.find(sExten);
 			if(ite != map_ext2status.end())
@@ -667,20 +668,45 @@ Telecom_Plugin::ExtensionsStatusChanged(class Socket *pSocket,class Message *pMe
 				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "ExtensionsStatusChanged : Not enough memory or NULL pointer!");
 				return false;
 			}
-
-			ExtensionStatus::Activity activity = ExtensionStatus::String2Activity(sState);
-			if(activity != ExtensionStatus::UnknownActivity)
-				pExtensionStatus->SetActivity(activity);
-			else
+			
+			if( !sActivity.empty() )
+			{
+				ExtensionStatus::Activity activity = ExtensionStatus::String2Activity(sActivity);
+				if(activity != ExtensionStatus::UnknownActivity)
+					pExtensionStatus->SetActivity(activity);
+				else
+				{
+					LoggerWrapper::GetInstance()->Write(LV_WARNING, "Received unknown activity for extension %s -> %s!", 
+											   sExten.c_str(), sActivity.c_str());
+				}
+			}
+			
+			if( !sState.empty() )
 			{
 				ExtensionStatus::Availability availability = ExtensionStatus::String2Availability(sState);
 				if(availability != ExtensionStatus::UnknownAvailability)
 					pExtensionStatus->SetAvailability(availability);
 				else
+				{
 					LoggerWrapper::GetInstance()->Write(LV_WARNING, "Received unknown status for extension %s -> %s!", 
-						sExten.c_str(), sState.c_str());
+											   sExten.c_str(), sState.c_str());
+				}
 			}
-
+			
+			if( !sType.empty() )
+			{
+				ExtensionStatus::ExtensionType type = ExtensionStatus::String2Type(sType);
+				if(type != ExtensionStatus::OTHER)
+				{
+					pExtensionStatus->SetExtensionType(type);
+				}
+				else
+				{
+					LoggerWrapper::GetInstance()->Write(LV_WARNING, "Received unknown type for extension %s -> %s!",
+											   sExten.c_str(), sType.c_str());
+				}
+			}
+			
 			map_ext2status[sExten] = pExtensionStatus;
 		}
 	}
@@ -703,24 +729,30 @@ Telecom_Plugin::Ring( class Socket *pSocket, class Message *pMessage, class Devi
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Ring event received from PBX: src channel %s, dest channel %s",
 		sSource_Channel.c_str(), sDestination_Channel.c_str());
 
-
 	PLUTO_SAFETY_LOCK(vm, m_TelecomMutex);  // Protect the call data
 	
-	// TODO: call name as debug
 	if( NULL != FindCallStatusForChannel(sSource_Channel) ||
-		   NULL != FindCallStatusForChannel(sDestination_Channel) )
+		NULL != FindCallStatusForChannel(sDestination_Channel) )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "The channels are already into a call");
 		return false;
 	}
 	
 	CallStatus *pCallStatus = new CallStatus();
+	if( pCallStatus == NULL )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Telecom_Plugin::Ring : Not enough memory!");
+	}
+	
 	pCallStatus->SetCallType(CallStatus::DirectCall);
 	pCallStatus->AddChannel(sSource_Channel, sSource_Caller_ID);
 	pCallStatus->AddChannel(sDestination_Channel, sDestination_Caller_ID);
 	
 	map_call2status[pCallStatus->GetID()] = pCallStatus;
 
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Telecom_Plugin::Ring call : %s",
+		pCallStatus->GetDebugInfo().c_str());
+	
 	// todo: false / true ?
 	return false;
 }
@@ -738,7 +770,6 @@ Telecom_Plugin::Link( class Socket *pSocket, class Message *pMessage, class Devi
 
 	PLUTO_SAFETY_LOCK(vm, m_TelecomMutex);  // Protect the call data
 
-	// TODO: call name as debug
 	CallStatus * pFoundSrc = FindCallStatusForChannel(sSource_Channel);
 	CallStatus * pFoundDest = FindCallStatusForChannel(sDestination_Channel);
 	if( pFoundSrc == pFoundDest && NULL != pFoundSrc )
@@ -750,12 +781,20 @@ Telecom_Plugin::Link( class Socket *pSocket, class Message *pMessage, class Devi
 	LoggerWrapper::GetInstance()->Write(LV_WARNING, "The channels aren't registered yet.");
 	
 	CallStatus *pCallStatus = new CallStatus();
+	if( pCallStatus == NULL )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Telecom_Plugin::Link : Not enough memory!");
+	}
+	
 	pCallStatus->SetCallType(CallStatus::DirectCall);
 	pCallStatus->AddChannel(sSource_Channel, sSource_Caller_ID);
 	pCallStatus->AddChannel(sDestination_Channel, sDestination_Caller_ID);
 	
 	map_call2status[pCallStatus->GetID()] = pCallStatus;
 
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Telecom_Plugin::Link call : %s",
+		pCallStatus->GetDebugInfo().c_str());
+	
 	return false;
 }
 
@@ -814,6 +853,15 @@ CallStatus * Telecom_Plugin::FindCallStatusForChannel(string sChannelID)
 	return NULL;
 }
 
+ExtensionStatus* Telecom_Plugin::FindExtensionStatus(string sExt)
+{
+	map<string, ExtensionStatus*>::const_iterator itFound = map_ext2status.find(sExt);
+	if( itFound != map_ext2status.end() )
+		return (*itFound).second;
+	
+	return NULL;
+}
+
 string Telecom_Plugin::GetNewConferenceID() const
 {
 	unsigned i=0;
@@ -830,12 +878,66 @@ string Telecom_Plugin::GetNewConferenceID() const
 	}*/
 }
 
-void Telecom_Plugin::RemoveCallStatus(CallStatus*)
+void Telecom_Plugin::RemoveCallStatus(CallStatus * pCallStatus)
 {
+	if( pCallStatus )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Remove call : %s", pCallStatus->GetDebugInfo().c_str());
+		if( map_call2status.end() != map_call2status.find(pCallStatus->GetID()) )
+		{
+			map_call2status.erase(pCallStatus->GetID());
+			if( pCallStatus->IsConference() )
+				map_conference2status.erase(pCallStatus->GetConferenceID());
+			
+			delete pCallStatus;
+			// useless
+			// pCallStatus = NULL;
+		}
+		else
+		{
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "No such call : %s", pCallStatus->GetDebugInfo().c_str());
+		}
+	}
+	else
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "RemoveCallStatus : Null call!");
+	}
+}
+
+void Telecom_Plugin::RemoveExtensionStatus(string sExt)
+{
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Remove extension status : %s", sExt.c_str());
+	
+	map<string, ExtensionStatus*>::iterator itFound = map_ext2status.find(sExt);
+	if( itFound != map_ext2status.end() )
+	{
+		delete (*itFound).second;
+		(*itFound).second = NULL;
+		map_ext2status.erase(itFound);
+	}
+	else
+	{
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "RemoveExtensionStatus : no such extension!");
+	}
 }
 
 void Telecom_Plugin::CleanStatusMaps()
 {
+	for(map<string, CallStatus*>::const_iterator it=map_call2status.begin();
+		it!=map_call2status.end(); ++it)
+	{
+		delete (*it).second;
+	}
+	
+	for(map<string, ExtensionStatus*>::const_iterator ite=map_ext2status.begin();
+		ite!=map_ext2status.end(); ++ite)
+	{
+		delete (*ite).second;
+	}
+	
+	map_call2status.clear();
+	map_conference2status.clear();
+	map_ext2status.clear();
 }
 
 void
@@ -955,6 +1057,62 @@ Telecom_Plugin::generate_NewCommandID() {
 
 */
 
+void Telecom_Plugin::PrivateOriginate(int iPK_Device,string sPhoneExtension,string sPhoneCallerID, Message *pMessage)
+{
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Originate command called with params: DeviceID=%d, PhoneExtension=%s!", iPK_Device, sPhoneExtension.c_str());
+	
+	if(sPhoneExtension.empty()) {
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Error validating input parameters");
+		return;
+	}
+
+	/*search device by id*/
+	DeviceData_Router *pDeviceData = find_Device(iPK_Device);
+	if(!pDeviceData) {
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "No device found with id: %d", iPK_Device);
+		return;
+	}
+	if(pDeviceData->m_dwPK_DeviceTemplate == DEVICETEMPLATE_OnScreen_Orbiter_CONST)
+	{
+		pDeviceData = find_Device(map_orbiter2embedphone[iPK_Device]);
+		if(!pDeviceData) {
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "No device found with id: %d", iPK_Device);
+			return;
+		}
+		iPK_Device = map_orbiter2embedphone[iPK_Device];
+	}
+	
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "our device is : id %d template %d",
+		pDeviceData->m_dwPK_Device,
+		pDeviceData->m_dwPK_DeviceTemplate );
+	
+	if(sPhoneCallerID == "")
+	{
+		sPhoneCallerID="linuxmce";
+	}
+	
+	/*find phonetype and phonenumber*/
+	string sSrcPhoneNumber = pDeviceData->mapParameters_Find(DEVICEDATA_PhoneNumber_CONST);
+	ExtensionStatus * pExtStatus = FindExtensionStatus(sSrcPhoneNumber);
+	if( pExtStatus == NULL )
+	{
+		// TODO warning
+		return;
+	}
+	// Asterisk knows better the extension type
+//	string sSrcPhoneType = pDeviceData->mapParameters_Find(DEVICEDATA_PhoneType_CONST);
+	string sSrcPhoneType = ExtensionStatus::Type2String( pExtStatus->GetExtensionType() );
+	
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Using source phone with parameters: PhoneType=%s, PhoneNumber=%s!",
+		sSrcPhoneType.c_str(), sSrcPhoneNumber.c_str());
+	
+	if(m_pDevice_pbx) {
+		
+		PLUTO_SAFETY_LOCK(vm, m_TelecomMutex);
+		CMD_PBX_Originate cmd_PBX_Originate(m_dwPK_Device, m_pDevice_pbx->m_dwPK_Device, sSrcPhoneNumber, sSrcPhoneType, sPhoneExtension, sPhoneCallerID);
+	    SendCommand(cmd_PBX_Originate);
+	}
+}
 
 //<-dceag-c232-b->
 
@@ -970,85 +1128,8 @@ Telecom_Plugin::generate_NewCommandID() {
 void Telecom_Plugin::CMD_PL_Originate(int iPK_Device,string sPhoneExtension,string sPhoneCallerID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c232-e->
 {
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Originate command called with params: DeviceID=%d, PhoneExtension=%s!", iPK_Device, sPhoneExtension.c_str());
-
-	if(sPhoneExtension.empty()) {
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Error validating input parameters");
-		return;
-	}
-
-    /*search device by id*/
-    DeviceData_Router *pDeviceData = find_Device(iPK_Device);
- 	if(!pDeviceData) {
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "No device found with id: %d", iPK_Device);
-		return;
-	}
-	if(pDeviceData->m_dwPK_DeviceTemplate == DEVICETEMPLATE_OnScreen_Orbiter_CONST)
-	{
-    	pDeviceData = find_Device(map_orbiter2embedphone[iPK_Device]);
- 		if(!pDeviceData) {
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "No device found with id: %d", iPK_Device);
-			return;
-		}
-		iPK_Device = map_orbiter2embedphone[iPK_Device];
-	}
-
-LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "our device is : id %d template %d", 
-					  pDeviceData->m_dwPK_Device,
-					  pDeviceData->m_dwPK_DeviceTemplate);
-
-/*	if(pDeviceData->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Orbiter_Embedded_Phone_CONST)
-	{
-		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Will originate using CMD_Phone_Initiate device#%d dial %s",iPK_Device,sPhoneExtension.c_str());
-		DCE::CMD_Phone_Initiate cmd(m_dwPK_Device,iPK_Device,sPhoneExtension);
-		SendCommand(cmd);
-		CallData *pCallData = CallManager::getInstance()->findCallByOwnerDevID(iPK_Device);
-		if(!pCallData) {
-			//create new call data
-			pCallData = new CallData();
-			pCallData->setOwnerDevID(iPK_Device);
-			CallManager::getInstance()->addCall(pCallData);
-		}
-		pCallData->setState(CallData::STATE_ORIGINATING);
-		return;
-	}
-*/
-	if(sPhoneCallerID == "")
-	{
-		sPhoneCallerID="pluto";
-	}
-
-	/*find phonetype and phonenumber*/
-	string sSrcPhoneType = pDeviceData->mapParameters_Find(DEVICEDATA_PhoneType_CONST);
-	string sSrcPhoneNumber = pDeviceData->mapParameters_Find(DEVICEDATA_PhoneNumber_CONST);
-
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Using source phone with parameters: PhoneType=%s, PhoneNumber=%s!",
-													sSrcPhoneType.c_str(), sSrcPhoneNumber.c_str());
-
-	if(m_pDevice_pbx) {
-
-		int dwPK_FromDevice = NULL != pMessage ? pMessage->m_dwPK_Device_From : iPK_Device;
-
-		PLUTO_SAFETY_LOCK(vm, m_TelecomMutex);  // Protect the call data
-		CallData *pCallData = CallManager::getInstance()->findCallByOwnerDevID(dwPK_FromDevice);
-		if(!pCallData) {
-			/*create new call data*/
-			pCallData = new CallData();
-			pCallData->setOwnerDevID(dwPK_FromDevice);
-			CallManager::getInstance()->addCall(pCallData);
-		}
-
-		pCallData->setState(CallData::STATE_ORIGINATING);
-
-		/*send originate command to PBX*/
-		pCallData->setPendingCmdID(generate_NewCommandID());
-//TODO: sPhoneType -> Extension Status
-//		CMD_PBX_Originate cmd_PBX_Originate(sSrcPhoneNumber, sSrcPhoneType, sPhoneExtension, sPhoneCallerID);
-//	    SendCommand(cmd_PBX_Originate);
-	}
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "DEPRECATED : Originate command called with params: DeviceID=%d, PhoneExtension=%s!", iPK_Device, sPhoneExtension.c_str());
 }
-
-
 
 
 //<-dceag-c234-b->
@@ -2034,8 +2115,9 @@ class DataGridTable *Telecom_Plugin::SpeedDialGrid(string GridID,string Parms,vo
 
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"WILL SHOW  %s / %d",text.c_str(),device);
 		pCell = new DataGridCell(text,"");
-		DCE::CMD_PL_Originate CMD_PL_Originate_(m_dwPK_Device,m_dwPK_Device,device, phoneExtension,"");
-		pCell->m_pMessage=CMD_PL_Originate_.m_pMessage;
+		// TODO with Chris, it should me CMD_Make_Call
+/*		DCE::CMD_PL_Originate CMD_PL_Originate_(m_dwPK_Device,m_dwPK_Device,device, phoneExtension,"");
+		pCell->m_pMessage=CMD_PL_Originate_.m_pMessage;*/
 		pDataGrid->SetData(0,Row,pCell);
 		Row++;
 	}

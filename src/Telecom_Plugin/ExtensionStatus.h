@@ -35,21 +35,33 @@ namespace DCE
 			enum Activity { Ready=0, OnThePhone, Ringing, Dialing, UnknownActivity };
 			
 			/***/
-			enum ExtensionStatusFormat { esfExtension = 0, esfCallerID, esfState, NUM_FIELDS};
+			enum ExtensionStatusFormat { esfType=0, esfExtension, esfCallerID, esfState, esfActivity, NUM_FIELDS};
+			
+			/***/
+			enum ExtensionType { SIP=0, IAX, SCCP, OTHER };
 
 			/***/
 			static string Availability2String( Availability );
 			/***/
 			static string Activity2String( Activity );
 			/***/
-			static Availability String2Availability( string );
+			static string Type2String( ExtensionType );
 			/***/
-			static Activity String2Activity( string );
+			static Availability String2Availability(const string &);
+			/***/
+			static Activity String2Activity(const string &);
+			/***/
+			static ExtensionType String2Type(const string &);
 		
 			/***/
 			ExtensionStatus();
 			/***/
 			~ExtensionStatus() {}
+			
+			/***/
+			void SetID(const string & id) { sID = id; }
+			/***/
+			string GetID() const { return sID; }
 			
 			/***/
 			void SetAvailability(Availability av) { availability = av; }
@@ -61,11 +73,20 @@ namespace DCE
 			/***/
 			Activity GetActivity() const { return activity; }
 			
+			/***/
+			void SetExtensionType( ExtensionType type ) { extType = type; }
+			/***/
+			ExtensionType GetExtensionType() const { return extType; }
+			
+			/***/
+			string GetDebugInfo() const;
+			
 		private:
 			
+			string sID;
 			Availability availability;
 			Activity activity;
-			
+			ExtensionType extType;
 	};
 }
 

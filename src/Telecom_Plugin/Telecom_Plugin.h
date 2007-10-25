@@ -349,12 +349,16 @@ private:
 	DeviceData_Router* find_Device(int iPK_Device);
 	int ParseChannel(const std::string channel, int* iextension, string *sextension);
 	void RemoveExtesionFromChannels(const string & sExtension);
-
+	
 	CallStatus* FindCallStatusForChannel(string sChannelID);
+	ExtensionStatus* FindExtensionStatus(string sExt);
 	string GetNewConferenceID() const;
 	void RemoveCallStatus(CallStatus*);
+	void RemoveExtensionStatus(string);
 	void CleanStatusMaps();
-
+	
+	void PrivateOriginate(int iPK_Device,string sPhoneExtension,string sPhoneCallerID, Message *pMessage);
+	
 private:
 	int iCmdCounter;
 	int generate_NewCommandID();

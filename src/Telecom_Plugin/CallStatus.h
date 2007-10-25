@@ -79,6 +79,8 @@ namespace DCE
 			void SetConferenceID(unsigned cid) { conferenceID = cid; }
 			/***/
 			unsigned GetConferenceID() const { return conferenceID; }
+			/***/
+			bool IsConference() const { return type == Conference; }
 			
 			/***/
 			void AddChannel(string channelid, string callid)
@@ -105,6 +107,9 @@ namespace DCE
 			{
 				return channels.empty();
 			}
+			
+			/***/
+			string GetDebugInfo() const;
 			
 		private:
 			

@@ -68,29 +68,100 @@ string ExtensionStatus::Activity2String( ExtensionStatus::Activity act )
 	return sOutActivity;
 }
 
-ExtensionStatus::Availability ExtensionStatus::String2Availability( string sAva )
+ExtensionStatus::Availability ExtensionStatus::String2Availability(const string & sAva)
 {
-	if( sAva == "" )
+	if( sAva == "Registered" )
 	{
+		return ExtensionStatus::Registered;
 	}
-	else if( "" )
+	else if( "Unregistered" )
 	{
-	}
-	else if( "" )
-	{
+		return ExtensionStatus::Unregistered;
 	}
 	
-	LoggerWrapper::GetInstance()->Write(LV_WARNING,"ExtensionStatus: ");
-	return ExtensionStatus::Unregistered;
+	LoggerWrapper::GetInstance()->Write(LV_WARNING,"ExtensionStatus::String2Availability unknown: %s", sAva.c_str());
+	return ExtensionStatus::UnknownAvailability;
 }
 
-ExtensionStatus::Activity ExtensionStatus::String2Activity( string )
+ExtensionStatus::Activity ExtensionStatus::String2Activity(const string & sAct)
 {
-	return ExtensionStatus::Ready;
+	if( sAct == "Ready" )
+	{
+		return ExtensionStatus::Ready;
+	}
+	else if( sAct == "OnThePhone" )
+	{
+		return ExtensionStatus::OnThePhone;
+	}
+	else if( sAct == "Ringing" )
+	{
+		return ExtensionStatus::Ringing;
+	}
+	else if( sAct == "Dialing" )
+	{
+		return ExtensionStatus::Dialing;
+	}
+	
+	LoggerWrapper::GetInstance()->Write(LV_WARNING,"ExtensionStatus::String2Activity unknown: %s", sAct.c_str());
+	return ExtensionStatus::UnknownActivity;
+}
+
+ExtensionStatus::ExtensionType ExtensionStatus::String2Type(const string & sType)
+{
+	if( sType == "SIP" )
+	{
+		return ExtensionStatus::SIP;
+	}
+	else if("IAX")
+	{
+		return ExtensionStatus::IAX;
+	}
+	else if("SCCP")
+	{
+		return ExtensionStatus::SCCP;
+	}
+	
+	LoggerWrapper::GetInstance()->Write(LV_WARNING,"ExtensionStatus::String2Type unknown: %s", sType.c_str());
+	return ExtensionStatus::OTHER;
+}
+
+string ExtensionStatus::Type2String( ExtensionStatus::ExtensionType type )
+{
+	string sOutType;
+	switch( type )
+	{
+		case ExtensionStatus::SCCP :
+			sOutType = "SCCP";
+			break;
+			
+		case ExtensionStatus::IAX :
+			sOutType = "IAX";
+			break;
+			
+		case ExtensionStatus::SIP :
+		default:
+			sOutType = "SIP";
+			break;
+	}
+	
+	return sOutType;
 }
 
 ExtensionStatus::ExtensionStatus()
 	: availability(ExtensionStatus::Unregistered),
-	  activity(ExtensionStatus::Ready)
+	  activity(ExtensionStatus::Ready),
+	  extType(ExtensionStatus::SIP)
 {
+}
+
+string ExtensionStatus::GetDebugInfo() const
+{
+	string sDebug = "Extension status ";
+	
+	sDebug += GetID() + " : ";
+	sDebug += Type2String( GetExtensionType() ) + " : ";
+	sDebug += Availability2String( GetAvailability() ) + " : ";
+	sDebug += Activity2String( GetActivity() );
+	
+	return sDebug;
 }
