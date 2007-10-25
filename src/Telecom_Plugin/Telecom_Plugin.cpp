@@ -762,8 +762,7 @@ Telecom_Plugin::Link( class Socket *pSocket, class Message *pMessage, class Devi
 bool
 Telecom_Plugin::IncomingCall( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo ) 
 {
-	//TODO: send message to orbiter: "do you want to accept the call? Y/n"
-	SCREEN_DevIncomingCall SCREEN_DevIncomingCall_(m_dwPK_Device,pDeviceFrom->m_dwPK_Device_ControlledVia);
+	SCREEN_DevIncomingCall SCREEN_DevIncomingCall_(m_dwPK_Device,pDeviceFrom->m_dwPK_Device_ControlledVia, "" /* TODO : add my channel id */);
 	SendCommand(SCREEN_DevIncomingCall_);
 
 	return false;

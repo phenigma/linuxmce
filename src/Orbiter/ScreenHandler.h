@@ -339,7 +339,8 @@ public:
 	void SCREEN_MakeCallIntercom(long PK_Screen);
 	void SCREEN_MakeCallDevice(long PK_Screen);
 	void SCREEN_Active_Calls(long PK_Screen);
-	void SCREEN_DevCallInProgress(long PK_Screen);
+	void SCREEN_DevCallInProgress(long PK_Screen, string sChannel);
+	void SCREEN_DevIncomingCall(long PK_Screen, string sChannel);
 
 	//interceptors
 	bool Telecom_ObjectSelected(CallBackData *pData);

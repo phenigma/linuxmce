@@ -3479,10 +3479,20 @@ void ScreenHandler::SCREEN_MakeCallDevice(long PK_Screen)
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "SCREEN_MakeCallDevice: device to call (var 19) = %s", m_pOrbiter->m_mapVariable_Find(VARIABLE_PK_Device_2_CONST).c_str());
 }
 //-----------------------------------------------------------------------------------------------------
-void ScreenHandler::SCREEN_DevCallInProgress(long PK_Screen)
+void ScreenHandler::SCREEN_DevCallInProgress(long PK_Screen, string sChannel)
 {
-	ScreenHandlerBase::SCREEN_DevCallInProgress(PK_Screen);
+	ScreenHandlerBase::SCREEN_DevCallInProgress(PK_Screen, sChannel);
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::Telecom_ObjectSelected, new ObjectInfoBackData());
+
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_My_Channel_ID_CONST, sChannel);
+}
+//-----------------------------------------------------------------------------------------------------
+void ScreenHandler::SCREEN_DevIncomingCall(long PK_Screen, string sChannel)
+{
+	ScreenHandlerBase::SCREEN_DevIncomingCall(PK_Screen, sChannel);
+	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::Telecom_ObjectSelected, new ObjectInfoBackData());
+
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_My_Channel_ID_CONST, sChannel);
 }
 //-----------------------------------------------------------------------------------------------------
 bool ScreenHandler::Telecom_ObjectSelected(CallBackData *pData)
@@ -3502,12 +3512,12 @@ bool ScreenHandler::Telecom_ObjectSelected(CallBackData *pData)
 				case DESIGNOBJ_butTransferConference_CONST:
 				{
 					m_TelecomCommandStatus = tcsTransferConference;
-					GotoScreen(SCREEN_MakeCallDevice_CONST);
+					GotoScreen(SCREEN_MakeCallDialNumber_CONST);
 					bDontProcessIt = true;
 				}
 				break;
 
-				case 5533: //todo - rename object, it has duplicated name
+				case DESIGNOBJ_butJoinCall_CONST: 
 				{
 					m_TelecomCommandStatus = tcsJoining;
 					m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, "");
@@ -3571,13 +3581,27 @@ void ScreenHandler::HandleAssistedMakeCall(int iPK_Users,string sPhoneExtension,
 
 			DCE::CMD_PL_Join_Call cmd_PL_Join_Call(
 				m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device_TelecomPlugIn,
-				iPK_Users, sOptions, sPhoneExtension, sPhoneCallID, iPK_Device_To);
+				iPK_Users, sOptions, sPhoneExtension, sPhoneCallID, iPK_Device_From);
 			m_pOrbiter->SendCommand(cmd_PL_Join_Call);
 		}
 		break;
 
 		case tcsTransferConference:
-		break;
+			//{A,B,C,M} & X => {A,B,C} & {M, X}
+
+			string sMyChannel = m_pOrbiter->m_mapVariable_Find(VARIABLE_My_Channel_ID_CONST);
+
+			DCE::CMD_PL_Transfer cmd_PL_Transfer(
+				m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device_TelecomPlugIn,
+				iPK_Device_To, iPK_Users, sPhoneExtension, sMyChannel, "");
+			m_pOrbiter->SendCommand(cmd_PL_Transfer);
+
+			//TODO: dialog : "Calling, please wait..."
+			// button1: "Complete transfer now" -> CMD_PL_Cancel transfer and CMD_PL_Join X to {A,B,C}
+			// button2: "Cancel transfer/conference" -> CMD_PL_Cancel transfer and CMD_PL_Join M to {A,B,C}
+            // button3: "Conference" -> CMD_PL_Cancel transfer and CMD_PL_Join M and X to {A,B,C}
+
+			break;
 	}
 }
 //-----------------------------------------------------------------------------------------------------
