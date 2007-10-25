@@ -14,7 +14,10 @@
 
 */
 
+#ifndef WIN32
 #include <sys/ioctl.h>
+#endif
+
 #include "inotify_class.h"
 
 #ifndef WIN32
