@@ -292,7 +292,10 @@ bool Xine_Plugin::StartMedia( MediaStream *pMediaStream,string &sError )
 	// TODO rework Media Dispatcher to make it more clear - later
 	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Doing MPlayer redirection check...");
 	bool bRedirectToMPlayer = ( pXineMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_HDDVD_CONST ) ||
-			( pXineMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_BD_CONST );
+			( pXineMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_BD_CONST ) ||
+			( (pXineMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_StoredVideo_CONST) && 
+			( StringUtils::EndsWith(mediaURL, ".EVO", true) || StringUtils::EndsWith(mediaURL, ".M2TS", true) ) 
+			);
 	
 	if (bRedirectToMPlayer)
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Redirecting CMD_Play_Media to MPlayer instead of Xine: media type is %i", pXineMediaStream->m_iPK_MediaType);
@@ -338,6 +341,41 @@ bool Xine_Plugin::StartMedia( MediaStream *pMediaStream,string &sError )
 			pMediaStream->m_sAppName = "xv.MPlayer";
 			pMediaStream->m_bContainsTitlesOrSections = false;
 			//pMediaStream->m_dequeMediaFile.push_back(new MediaFile("/tmp/test.dat"));
+			//pMediaStream->m_dequeMediaFile.clear();
+			
+			// TODO don't add them twice - second click causes them to restart
+			
+			string sFolder = sFileToPlay;
+			list<string> vItems;
+			bool bAppendFiles = true;
+			if ( pXineMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_HDDVD_CONST ) 
+			{
+				sFolder += "/HVDVD_TS";
+				FileUtils::FindFiles(vItems, sFolder, "*.evo");
+			}
+			else if ( pXineMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_BD_CONST )
+			{
+				sFolder += "/BDMV/STREAM";
+				FileUtils::FindFiles(vItems, sFolder, "*.m2ts");
+			}
+			else
+				bAppendFiles = false;
+			
+			if (bAppendFiles)
+			{
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Appending extra items to list: ");
+						
+				for (list<string>::iterator li=vItems.begin(); li!=vItems.end(); ++li)
+				{
+					LoggerWrapper::GetInstance()->Write(LV_STATUS, "Item: %s", li->c_str());
+					MediaFile *pItem = new MediaFile(sFolder+"/"+*li);
+					pMediaStream->m_dequeMediaFile.push_back(pItem);
+				}
+			}
+			else
+			{
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Not appending extra items to list");
+			}
 		}
 		
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "sending CMD_Play_Media from %d to %d with deq pos %d", 
