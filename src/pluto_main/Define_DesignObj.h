@@ -2506,6 +2506,7 @@
 #define DESIGNOBJ_butRemoveFromActiveCall_CONST 5530
 #define DESIGNOBJ_butCallInProgress_CONST 5531
 #define DESIGNOBJ_butTransferConference_CONST 5532
+#define DESIGNOBJ_butJoinCall_CONST 5533
 #define DESIGNOBJ_objActiveCalls_CONST 5534
 #define DESIGNOBJ_objActiveCallsB_CONST 5535
 #define DESIGNOBJ_butTransfer_CONST 5536
