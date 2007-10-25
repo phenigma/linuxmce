@@ -43,6 +43,22 @@ function coverArt($output,$mediadbADO) {
 		
 		$out.='
 		<script>
+		function submitenter(myfield,e)
+		{
+		var keycode;
+		if (window.event) keycode = window.event.keyCode;
+		else if (e) keycode = e.which;
+		else return true;
+		
+		if (keycode == 13)
+		   {
+		   reloadPage();
+		   return false;
+		   }
+		else
+		   return true;
+		}		
+		
 		function showType(val){
 			self.location="index.php?section=coverArt&ftype="+val+"&ipp="+parseInt(document.coverArt.items_per_page.value)+"&mediaType="+document.coverArt.mediaType.value;
 		}
@@ -70,7 +86,7 @@ function coverArt($output,$mediadbADO) {
 					<table>
 						<tr>
 							<td>'.$TEXT_ITEMS_PER_PAGE_CONST.'</td>
-							<td><input type="text" name="items_per_page" value="'.@$ipp.'" size="2"> <input type="button" class="button" name="go" value="'.$TEXT_GO_CONST.'" onClick="reloadPage();"></td>
+							<td><input type="text" name="items_per_page" value="'.@$ipp.'" size="2" onKeyPress="return submitenter(this,event)"> <input type="button" class="button" name="go" value="'.$TEXT_GO_CONST.'" onClick="reloadPage();"></td>
 						</tr>
 						<tr>
 							<td>'.$TEXT_MEDIA_TYPE_CONST.'</td>
