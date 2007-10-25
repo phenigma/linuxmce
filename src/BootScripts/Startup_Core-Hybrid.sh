@@ -15,7 +15,9 @@ if [[ -f /etc/pluto/install_cleandb ]]; then
 	Q="DELETE FROM Package_Device"
 	RunSQL "$Q"
 
+	/usr/pluto/bin/sync_pluto2amp.pl
 	/usr/pluto/bin/DHCP_config.sh
+	killall asterisk
 
 	rm -f /etc/pluto/install_cleandb
 fi
