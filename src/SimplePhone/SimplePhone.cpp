@@ -299,7 +299,7 @@ void SimplePhone::CMD_Phone_Initiate(int iPK_Device,string sPhoneExtension,strin
     SendCommand(CMD_Set_Variable_name);
     CMD_Set_Variable CMD_Set_Variable_number(m_dwPK_Device,GetData()->m_dwPK_Device_ControlledVia,VARIABLE_Caller_number_CONST,sPhoneExtension);
     SendCommand(CMD_Set_Variable_number);
-    DCE::SCREEN_DevCallInProgress SCREEN_DevCallInProgress_(m_dwPK_Device,GetData()->m_dwPK_Device_ControlledVia);
+    DCE::SCREEN_DevCallInProgress SCREEN_DevCallInProgress_(m_dwPK_Device,GetData()->m_dwPK_Device_ControlledVia, "");
     SendCommand(SCREEN_DevCallInProgress_);
 }
 
@@ -372,7 +372,7 @@ void SimplePhone::CallDroppedScreen()
 
 void SimplePhone::CallInProgressScreen()
 {
-	DCE::SCREEN_DevCallInProgress SCREEN_DevCallInProgress_(m_dwPK_Device,GetData()->m_dwPK_Device_ControlledVia);
+	DCE::SCREEN_DevCallInProgress SCREEN_DevCallInProgress_(m_dwPK_Device,GetData()->m_dwPK_Device_ControlledVia, "");
 	SendCommand(SCREEN_DevCallInProgress_);
 }
 
