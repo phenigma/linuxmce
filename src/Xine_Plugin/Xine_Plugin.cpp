@@ -336,6 +336,8 @@ bool Xine_Plugin::StartMedia( MediaStream *pMediaStream,string &sError )
 		if (bRedirectToMPlayer)
 		{
 			pMediaStream->m_sAppName = "xv.MPlayer";
+			pMediaStream->m_bContainsTitlesOrSections = false;
+			//pMediaStream->m_dequeMediaFile.push_back(new MediaFile("/tmp/test.dat"));
 		}
 		
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "sending CMD_Play_Media from %d to %d with deq pos %d", 
