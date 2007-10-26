@@ -490,16 +490,10 @@ void MPlayer_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMedi
 	m_sCurrentFileName = sMediaToPlay;
 	
 	vector<string> vFilesToPlay;
-	bool bCopy=false;
-	for (list<string>::iterator li=vFiles.begin(); li!=vFiles.end(); ++li)
-	{
-		bCopy = bCopy || (*li == sMediaToPlay);
-		if (bCopy)
-		{
-			LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::CMD_Play_Media added to player list item: %s", li->c_str());
-			vFilesToPlay.push_back(*li);
-		}
-	}
+	CopyListToVectorFromItem(vFiles, vFilesToPlay, sMediaToPlay);
+	
+	// initializing list
+	copy( vFiles.begin(), vFiles.end(), back_inserter(m_vCurrentPlaylist) );
 	
 	//TODO check for playback start errors
 	m_pPlayerEngine->StartPlaylist(vFilesToPlay);
@@ -760,15 +754,17 @@ void MPlayer_Player::CMD_Set_Media_Position(int iStreamID,string sMediaPosition,
 {
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::CMD_Set_Media_Position received: %s", sMediaPosition.c_str());
 	
-	LoggerWrapper::GetInstance()->Write(LV_WARNING, "MPlayer_Player::CMD_Set_Media_Position aborts because temporary code");
-	return;
-
 	if (!m_bPlayerEngineInitialized)
 	{
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "MPlayer_Player::CMD_Set_Media_Position aborts because Player Engine is not initialized");
 		return;
 	}
 	
+	string sNewFile = ExtractFileFromPosition(sMediaPosition, m_sCurrentFileName);
+	
+	float fPosition = 0;
+	bool bSetPosition = false;
+
 	vector<string> vParams;
 	Tokenize(sMediaPosition, vParams);
 	for (vector<string>::iterator i=vParams.begin(); i!=vParams.end(); ++i)
@@ -777,9 +773,26 @@ void MPlayer_Player::CMD_Set_Media_Position(int iStreamID,string sMediaPosition,
 		{
 			LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::CMD_Set_Media_Position requested to seek %s", i->c_str());
 			int iPosition = atoi(i->substr(4).c_str());
-			float fPosition = (float) iPosition / 1000;
-			m_pPlayerEngine->Seek(fPosition, MPlayerEngine::SEEK_ABSOLUTE_TIME);
+			fPosition = (float) iPosition / 1000;
+			bSetPosition = true;
 		}
+	}
+	
+	if (sNewFile != m_sCurrentFileName)
+	{
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::CMD_Set_Media_Position jumping to different file in set: %s", sNewFile.c_str() );
+		
+		vector<string> vFiles;
+		CopyVectorToVectorFromItem(m_vCurrentPlaylist, vFiles, sNewFile);
+		//TODO process errors if any
+		m_pPlayerEngine->StartPlaylist(vFiles);		
+		m_sCurrentFileName = sNewFile;
+	}
+	
+	if (bSetPosition)
+	{
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::CMD_Set_Media_Position seeking to new time position");
+		m_pPlayerEngine->Seek(fPosition, MPlayerEngine::SEEK_ABSOLUTE_TIME);
 	}
 }
 
@@ -1007,5 +1020,33 @@ string MPlayer_Player::ExtractFileFromPosition(string sMediaPosition, string sMe
 		string sPositionFile = FileUtils::BasePath(sMediaToPlay) + "/" + sMediaPosition.substr(sPos+5);
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::ExtractFileFromPosition - position file is %s", sPositionFile.c_str() );
 		return sPositionFile;
+	}
+}
+
+void MPlayer_Player::CopyListToVectorFromItem(const list<string> &vList, vector<string> &vVector, const string &sItem)
+{
+	bool bCopy=false;
+	for (list<string>::const_iterator li=vList.begin(); li!=vList.end(); ++li)
+	{
+		bCopy = bCopy || (*li == sItem);
+		if (bCopy)
+		{
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::CopyListToVectorFromItem added to player list item: %s", li->c_str());
+			vVector.push_back(*li);
+		}
+	}
+}
+
+void MPlayer_Player::CopyVectorToVectorFromItem(const vector<string> &vList, vector<string> &vVector, const string &sItem)
+{
+	bool bCopy=false;
+	for (vector<string>::const_iterator vi=vList.begin(); vi!=vList.end(); ++vi)
+	{
+		bCopy = bCopy || (*vi == sItem);
+		if (bCopy)
+		{
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::CopyVectorToVectorFromItem added to player vist item: %s", vi->c_str());
+			vVector.push_back(*vi);
+		}
 	}
 }

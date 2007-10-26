@@ -54,6 +54,8 @@ namespace DCE
 		void InitializePlayerEngine();
 		void SmartLoadPlaylist(string sFolder, string sExtensions, list<string>& vFiles, string &sLargestFile, int& iLargestFilePosition);
 		string ExtractFileFromPosition(string sMediaPosition, string sMediaToPlay);
+		void CopyListToVectorFromItem(const list<string> &vList, vector<string> &vVector, const string &sItem);
+		void CopyVectorToVectorFromItem(const vector<string> &vList, vector<string> &vVector, const string &sItem);
 		
 		string GetPlaybackPosition();
 public:
