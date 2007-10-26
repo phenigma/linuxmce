@@ -60,7 +60,7 @@ namespace DCE
 			static string GetStringConferenceID(unsigned);
 			
 			/***/
-			static char * conferencePrefix;
+			static const char * conferencePrefix;
 			
 			/***/
 			CallStatus();

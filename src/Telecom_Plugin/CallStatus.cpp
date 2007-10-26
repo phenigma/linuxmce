@@ -14,7 +14,7 @@
 
 using namespace DCE;
 
-char * CallStatus::conferencePrefix = "c";
+const char * CallStatus::conferencePrefix = "c";
 unsigned CallStatus::autoId = 0;
 
 CallStatus::CallType CallStatus::String2CallType(string sCalltype)

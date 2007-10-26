@@ -360,6 +360,8 @@ private:
 	/***/
 	ExtensionStatus * FindExtensionStatusByDevice(int iPK_Device, int * pEmbeddedPhone = NULL);
 	/***/
+	void GetChannelsFromExtension(const string & ext, map<string, string> & channelsExt) const;
+	/***/
 	string GetPhoneNumber(int iPK_Users,string sPhoneExtension,int iPK_Device_To);
 	
 	/** Call external number OR caller id

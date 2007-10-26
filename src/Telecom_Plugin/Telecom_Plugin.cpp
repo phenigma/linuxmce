@@ -159,8 +159,8 @@ bool Telecom_Plugin::GetConfig()
 			map_username2ext[sUserName] = sExtension;
 			map_ext2username[sExtension] = sUserName;
 			
-			char * args[] = { "/usr/pluto/bin/SendVoiceMailEvent.sh", (char *) sExtension.c_str(), NULL };
-			ProcessUtils::SpawnDaemon(args[0], args);
+			const char * args[] = { "/usr/pluto/bin/SendVoiceMailEvent.sh", sExtension.c_str(), NULL };
+			ProcessUtils::SpawnDaemon(args[0], (char**)args);
 		}
 		else
 		{
@@ -811,19 +811,29 @@ Telecom_Plugin::Link( class Socket *pSocket, class Message *pMessage, class Devi
 bool
 Telecom_Plugin::IncomingCall( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
 {
-// 	map<int,string>::const_iterator itExt = map_device2ext.find(pDeviceFrom);
-// 	if( itExt != map_device2ext.end() )
-// 	{
-// 	}
-// 		
-// 	string sCallerID;
-// 	CMD_Set_Variable CMD_Set_Variable_name(pDeviceFrom, pDeviceFrom->m_dwPK_Device_ControlledVia,VARIABLE_Caller_name_CONST,sCallerID);
-// 	SendCommand(CMD_Set_Variable_name);
-// 	CMD_Set_Variable CMD_Set_Variable_number(pDeviceFrom, pDeviceFrom->m_dwPK_Device_ControlledVia,VARIABLE_Caller_number_CONST,sCallerID);
-// 	SendCommand(CMD_Set_Variable_number);
-// 	
-// 	SCREEN_DevIncomingCall SCREEN_DevIncomingCall_(m_dwPK_Device,pDeviceFrom->m_dwPK_Device_ControlledVia, "" /* TODO : add my channel id */);
-// 	SendCommand(SCREEN_DevIncomingCall_);
+	string sCallerID;
+	string sChannelID;
+	map<int,string>::const_iterator itExt = map_device2ext.find(pDeviceFrom->m_dwPK_Device);
+	if( itExt != map_device2ext.end() )
+	{
+		map<string, string> channels;
+		GetChannelsFromExtension( (*itExt).second, channels );
+		if( channels.size() )
+		{
+			// TODO: change this in case of multi-channel support in linphone
+			map<string, string>::const_iterator itFirst = channels.begin();
+			sChannelID = (*itFirst).first;
+			sCallerID = (*itFirst).second;
+		}
+	}
+		
+	CMD_Set_Variable CMD_Set_Variable_name(pDeviceFrom->m_dwPK_Device, pDeviceFrom->m_dwPK_Device_ControlledVia,VARIABLE_Caller_name_CONST,sCallerID);
+	SendCommand(CMD_Set_Variable_name);
+	CMD_Set_Variable CMD_Set_Variable_number(pDeviceFrom->m_dwPK_Device, pDeviceFrom->m_dwPK_Device_ControlledVia,VARIABLE_Caller_number_CONST,sCallerID);
+	SendCommand(CMD_Set_Variable_number);
+	
+	SCREEN_DevIncomingCall SCREEN_DevIncomingCall_(m_dwPK_Device, pDeviceFrom->m_dwPK_Device_ControlledVia, "" /* TODO : add my channel id */);
+	SendCommand(SCREEN_DevIncomingCall_);
 
 	return false;
 }
@@ -2665,6 +2675,35 @@ ExtensionStatus * Telecom_Plugin::FindExtensionStatusByDevice(int iPK_Device, in
 	return FindExtensionStatus(sSrcPhoneNumber);
 }
 
+void Telecom_Plugin::GetChannelsFromExtension(const string & ext, map<string, string> & channelsExt) const
+{
+	CallStatus *pCallStatus = NULL;
+	
+	size_t pos1 = 0;
+	size_t pos2 = 0;
+	for(map<string, CallStatus*>::const_iterator it=map_call2status.begin(); it!=map_call2status.end(); ++it)
+	{
+		pCallStatus = (*it).second;
+		const map<string, string> & channels = pCallStatus->GetChannels();
+		for(map<string, string>::const_iterator itCh=channels.begin(); itCh!=channels.end(); ++itCh)
+		{
+			// SIP/extension-uid
+			pos1 = (*itCh).first.find("/");
+			pos2 = (*itCh).first.rfind("-");
+			if( pos1 != string::npos && pos2 != string::npos && pos1 < pos2 )
+			{
+				string sExt = (*itCh).first.substr(pos1+1, pos2-pos1-1);
+				// the extension is part of this channel
+				if( sExt == ext )
+				{
+					channelsExt[(*itCh).first] = (*itCh).second;
+				}
+			}
+		}
+	}
+	
+}
+
 string Telecom_Plugin::GetCallName(CallStatus * pCallStatus) const
 {
 	string sName = "Call ";
@@ -2685,9 +2724,10 @@ string Telecom_Plugin::GetCallName(CallStatus * pCallStatus) const
 void Telecom_Plugin::DumpActiveCalls()
 {
 	string sDebugInfo;
+	CallStatus *pCallStatus = NULL;
 	for(map<string, CallStatus*>::const_iterator it=map_call2status.begin(); it!=map_call2status.end(); ++it)
 	{
-		CallStatus *pCallStatus = it->second;
+		pCallStatus = it->second;
 		sDebugInfo += pCallStatus->GetDebugInfo() + "\n";
 	}
 
