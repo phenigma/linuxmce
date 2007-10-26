@@ -220,6 +220,16 @@ function Build_Pluto_Replacements {
 		cp -r ../pluto-ffmpeg_*.deb ${temp_dir}
 		popd
 	fi
+	
+	#Package: ushare
+	dir_="${svn_dir}/trunk/ubuntu/ushare-0.9.6"
+	if ReplacementNeedsBuild "$dir_" ;then
+		pushd "$dir_"
+		dpkg-buildpackage -rfakeroot -us -uc -b
+		cp -r ../ushare_*.deb ${temp_dir}
+		popd
+	fi
+
 
 	#Package: pluto-asterisk
 	apt-get -y install linux-headers-`uname -r`
