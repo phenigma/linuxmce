@@ -142,7 +142,7 @@ CommunicationHandler::handleNewextenEvent(Token* ptoken) {
 
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Ringing from channel %s (%s) to channel %s (%s) ",
 			channel1.c_str(), ringphoneid.c_str(), channel2.c_str(), callerid2.c_str());
-		AsteriskManager::getInstance()->NotifyRing(channel1, ringphoneid, channel2, callerid2);
+		AsteriskManager::getInstance()->NotifyRing(channel1, channel2, ringphoneid, callerid2);
 	}
 
 	return 0;
@@ -174,7 +174,7 @@ CommunicationHandler::handleLinkEvent(Token* ptoken)
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Linked channel %s (%s) to channel %s (%s) ",
         channel1.c_str(), callerid1.c_str(), channel2.c_str(), callerid2.c_str());
-	AsteriskManager::getInstance()->NotifyLink(channel1, callerid1, channel2, callerid2);
+	AsteriskManager::getInstance()->NotifyLink(channel1, channel2, callerid1, callerid2);
 
 	return 0;
 }
@@ -228,7 +228,7 @@ CommunicationHandler::handleNewChannelEvent(Token* ptoken)
 			string callerid = ptoken->getKey(TOKEN_CALLERID);
 			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Ringing from channel %s (%s) to channel %s (%s) ",
 				channel1.c_str(), callerid1.c_str(), channel2.c_str(), callerid2.c_str());
-			AsteriskManager::getInstance()->NotifyRing(channel1, callerid1, channel2, callerid2);
+			AsteriskManager::getInstance()->NotifyRing(channel1, channel2, callerid1, callerid2);
 		}
 		else 
 		{
