@@ -367,6 +367,9 @@ private:
 	  */
 	string GetCallName(CallStatus *) const;
 
+	/***/
+	void DumpActiveCalls();
+
 	
 private:
 	int iCmdCounter;

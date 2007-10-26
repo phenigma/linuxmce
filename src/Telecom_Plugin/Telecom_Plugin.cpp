@@ -728,6 +728,8 @@ Telecom_Plugin::Ring( class Socket *pSocket, class Message *pMessage, class Devi
 
 	PLUTO_SAFETY_LOCK(vm, m_TelecomMutex);  // Protect the call data
 	
+	DumpActiveCalls();
+
 	if( NULL != FindCallStatusForChannel(sSource_Channel) ||
 		NULL != FindCallStatusForChannel(sDestination_Channel) )
 	{
@@ -750,6 +752,8 @@ Telecom_Plugin::Ring( class Socket *pSocket, class Message *pMessage, class Devi
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Telecom_Plugin::Ring call : %s",
 		pCallStatus->GetDebugInfo().c_str());
 	
+	DumpActiveCalls();
+
 	// todo: false / true ?
 	return false;
 }
@@ -766,6 +770,8 @@ Telecom_Plugin::Link( class Socket *pSocket, class Message *pMessage, class Devi
 	sSource_Channel.c_str(), sDestination_Channel.c_str());
 
 	PLUTO_SAFETY_LOCK(vm, m_TelecomMutex);  // Protect the call data
+
+	DumpActiveCalls();
 
 	CallStatus * pFoundSrc = FindCallStatusForChannel(sSource_Channel);
 	CallStatus * pFoundDest = FindCallStatusForChannel(sDestination_Channel);
@@ -791,6 +797,8 @@ Telecom_Plugin::Link( class Socket *pSocket, class Message *pMessage, class Devi
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Telecom_Plugin::Link call : %s",
 		pCallStatus->GetDebugInfo().c_str());
+
+	DumpActiveCalls();
 	
 	return false;
 }
@@ -824,6 +832,8 @@ bool Telecom_Plugin::Hangup( class Socket *pSocket, class Message *pMessage, cla
 	
 	PLUTO_SAFETY_LOCK(vm, m_TelecomMutex);  // Protect the call data
 
+	DumpActiveCalls();
+
 	CallStatus *pCallStatus = FindCallStatusForChannel(sChannel_ID);
 
 	if(NULL != pCallStatus)
@@ -843,6 +853,8 @@ bool Telecom_Plugin::Hangup( class Socket *pSocket, class Message *pMessage, cla
 	{
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Got hangup for channel %s, but it's not into a call!", sChannel_ID.c_str());
 	}
+
+	DumpActiveCalls();
 
 	return false;
 }
@@ -1542,7 +1554,7 @@ class DataGridTable *Telecom_Plugin::ActiveCallsGrid(string GridID,string Parms,
 	{
 		CallStatus *pCallStatus = it->second;
 
-		string sText = pCallStatus->GetID() + (pCallStatus->IsConference() ? " (C)" : " (D)");
+		string sText = GetCallName(pCallStatus) + (pCallStatus->IsConference() ? " (C)" : " (D)");
 		string sValue = it->first;
 
 		pCell = new DataGridCell(sText, sValue);
@@ -2651,3 +2663,17 @@ string Telecom_Plugin::GetCallName(CallStatus * pCallStatus) const
 	string sName = "Call ";
 	return sName;
 }
+
+void Telecom_Plugin::DumpActiveCalls()
+{
+	string sDebugInfo;
+	for(map<string, CallStatus*>::const_iterator it=map_call2status.begin(); it!=map_call2status.end(); ++it)
+	{
+		CallStatus *pCallStatus = it->second;
+		sDebugInfo += pCallStatus->GetDebugInfo() + "\n";
+	}
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Active calls %d: \n%s", map_call2status.size(), sDebugInfo.c_str());
+}
+
+
