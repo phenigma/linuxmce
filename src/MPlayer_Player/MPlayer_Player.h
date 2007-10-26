@@ -43,6 +43,7 @@ namespace DCE
 		
 		// Length of current file in mplayer-specific format (seconds as float)
 		string m_sCurrentFileName;
+		vector<string> m_vCurrentPlaylist;
 		
 		float m_fCurrentFileTime;
 		float m_fCurrentFileLength;
@@ -52,6 +53,7 @@ namespace DCE
 		// Private methods
 		void InitializePlayerEngine();
 		void SmartLoadPlaylist(string sFolder, string sExtensions, list<string>& vFiles, string &sLargestFile, int& iLargestFilePosition);
+		string ExtractFileFromPosition(string sMediaPosition, string sMediaToPlay);
 		
 		string GetPlaybackPosition();
 public:

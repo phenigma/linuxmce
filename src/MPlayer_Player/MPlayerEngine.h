@@ -42,6 +42,7 @@ public:
 	bool ExecuteCommand(string sCommand, string sResponseName, string &sResponseValue);
 	
 	bool StartPlayback(string sMediaFile);
+	bool StartPlaylist(vector<string> &vFiles);
 	void StopPlayback();
 	
 	float GetCurrentPosition();

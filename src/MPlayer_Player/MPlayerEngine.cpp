@@ -7,6 +7,7 @@
 
 #include "MPlayerEngine.h"
 #include "Log.h"
+#include "PlutoUtils/FileUtils.h"
 
 #define BLACK_MPEG_FILE "/usr/pluto/share/black.mpeg"
 #define MPLAYER_BINARY "/opt/pluto-mplayer/bin/mplayer"
@@ -246,6 +247,22 @@ bool MPlayerEngine::StartPlayback(string sMediaFile) {
 	sCommand += "\"" + sMediaFile + "\"";
 	ExecuteCommand(sCommand);
 	return true;
+}
+
+bool MPlayerEngine::StartPlaylist(vector<string> &vFiles)
+{
+	if (!vFiles.empty())
+	{
+		const string sPlaylist = "/tmp/MPlayer_Player.playlist";
+		FileUtils::WriteVectorToFile(sPlaylist, vFiles);
+		ExecuteCommand("loadlist "+sPlaylist);
+		return true;
+	}
+	else
+	{
+		ExecuteCommand("stop");
+		return false;
+	}
 }
 
 float MPlayerEngine::GetCurrentPosition() {

@@ -394,68 +394,121 @@ void MPlayer_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMedi
 		//EVENT_Playback_Completed(m_sCurrentFileName, m_iCurrentStreamID, false);
 	}
 	
-	string sRealMediaURL;
+	m_vCurrentPlaylist.clear();
+	list<string> vFiles;
+	string sInitialFile;
+	
+	// populate full list of files in HD-DVD/BD folder
+	// if HDDVD is passed
+	// sLargestFile is set to largest file
 	
 	switch (iPK_MediaType)
 	{
 		case MEDIATYPE_pluto_HDDVD_CONST:
-			LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::CMD_Play_Media detected HD-DVD disk");
-			// even for custom file, the type is passed as MEDIATYPE_pluto_HDDVD_CONST
-			if ( !StringUtils::EndsWith(sMediaURL, ".EVO", true) )
 			{
-				// TODO: load full playlist
-				list<string> vFiles;
-				string sLargestFile;
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::CMD_Play_Media detected HD-DVD disk");
+				// even for custom file, the type is passed as MEDIATYPE_pluto_HDDVD_CONST
 				int iLargestFilePosition = -1;
-				SmartLoadPlaylist(sMediaURL+"/HVDVD_TS", "*.evo", vFiles, sLargestFile, iLargestFilePosition);
-				sRealMediaURL = sLargestFile;
+				string sFolder;				
+				
+				if ( !StringUtils::EndsWith(sMediaURL, ".EVO", true) )
+				{
+					sFolder = sMediaURL+"/HVDVD_TS";
+				}
+				else
+				{
+					sFolder = FileUtils::BasePath(sMediaURL);
+				}
+				
+				SmartLoadPlaylist(sFolder, "*.evo", vFiles, sInitialFile, iLargestFilePosition);
+				
+				if ( StringUtils::EndsWith(sMediaURL, ".EVO", true) )
+				{
+					sInitialFile = sMediaURL;
+				}
 			}
-			else
-				sRealMediaURL = sMediaURL;
 			break;
 			
 		case MEDIATYPE_pluto_BD_CONST:
-			LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::CMD_Play_Media detected Bluray disk");
-			// even for custom file, the type is passed as MEDIATYPE_pluto_BD_CONST
-			if ( !StringUtils::EndsWith(sMediaURL, ".M2TS", true) )
 			{
-				// TODO: load full playlist
-				sRealMediaURL = sMediaURL + "/BDMV/STREAM/00001.m2ts";
-				list<string> vFiles;
-				string sLargestFile;
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::CMD_Play_Media detected Bluray disk");
+				// even for custom file, the type is passed as MEDIATYPE_pluto_BD_CONST
 				int iLargestFilePosition = -1;
-				SmartLoadPlaylist(sMediaURL+"/BDMV/STREAM", "*.m2ts", vFiles, sLargestFile, iLargestFilePosition);
-				sRealMediaURL = sLargestFile;
+				string sFolder;				
+				
+				if ( !StringUtils::EndsWith(sMediaURL, ".M2TS", true) )
+				{
+					sFolder = sMediaURL+"/BDMV/STREAM";
+				}
+				else
+				{
+					sFolder = FileUtils::BasePath(sMediaURL);
+				}
+				
+				SmartLoadPlaylist(sFolder, "*.m2ts", vFiles, sInitialFile, iLargestFilePosition);
+			
+				if ( StringUtils::EndsWith(sMediaURL, ".M2TS", true) )
+				{
+					sInitialFile = sMediaURL;
+				}
 			}
-			else
-				sRealMediaURL = sMediaURL;
 			break;
 			
 		case MEDIATYPE_pluto_StoredVideo_CONST:
-			LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::CMD_Play_Media detected stored video");
-			sRealMediaURL = sMediaURL;
+			{
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::CMD_Play_Media detected stored video");
+				
+				vFiles.push_back(sMediaURL);
+				sInitialFile = sMediaURL;
+			}
 			break;
 			
 		default:
 			LoggerWrapper::GetInstance()->Write(LV_WARNING, "MPlayer_Player::CMD_Play_Media unknown media, aborting");
-			EVENT_Playback_Completed(sMediaURL, iStreamID, false);
+			EVENT_Playback_Completed(sMediaURL, iStreamID, true);
 			return;
 			break;
 	}
 	
+	// log
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::CMD_Play_Media complete playlist contains items:");
+	for (list<string>::iterator li=vFiles.begin(); li!=vFiles.end(); ++li)
+	{
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::CMD_Play_Media item: %s", li->c_str());
+	}
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::CMD_Play_Media complete playlist ends here");
 	
-	//TODO process ripped folders in special way
+	string sMediaToPlay = sInitialFile;
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::CMD_Play_Media file to play before start position analysis: %s", sMediaToPlay.c_str());
+	
+	// if the actual file to play is passed as FILE:name.ext in position information, extracting it
+	sMediaToPlay = ExtractFileFromPosition(sMediaPosition, sMediaToPlay);
+	
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::CMD_Play_Media file to play after start position analysis: %s", sMediaToPlay.c_str());
+	
+	m_iCurrentStreamID = iStreamID;
+	m_sCurrentFileName = sMediaToPlay;
+	
+	vector<string> vFilesToPlay;
+	bool bCopy=false;
+	for (list<string>::iterator li=vFiles.begin(); li!=vFiles.end(); ++li)
+	{
+		bCopy = bCopy || (*li == sMediaToPlay);
+		if (bCopy)
+		{
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::CMD_Play_Media added to player list item: %s", li->c_str());
+			vFilesToPlay.push_back(*li);
+		}
+	}
 	
 	//TODO check for playback start errors
+	m_pPlayerEngine->StartPlaylist(vFilesToPlay);
 	
 	m_bMediaOpened = true;
 	m_fCurrentFileLength = 0.0;
 	m_fCurrentFileTime = 0.0;
 	m_bMediaPaused = false;
-	m_pPlayerEngine->StartPlayback(sRealMediaURL);
 	
-	m_iCurrentStreamID = iStreamID;
-	m_sCurrentFileName = sMediaURL;
 	
 	//TODO implement setting media subtitles and audio channel
 
@@ -706,6 +759,9 @@ void MPlayer_Player::CMD_Set_Media_Position(int iStreamID,string sMediaPosition,
 //<-dceag-c412-e->
 {
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::CMD_Set_Media_Position received: %s", sMediaPosition.c_str());
+	
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "MPlayer_Player::CMD_Set_Media_Position aborts because temporary code");
+	return;
 
 	if (!m_bPlayerEngineInitialized)
 	{
@@ -880,10 +936,12 @@ void *DCE::PlayerEnginePoll(void *pInstance)
 string MPlayer_Player::GetPlaybackPosition()
 {
 	// TODO retrieve subtitles and audio track
-	const int buf_size = 256;
+	const int buf_size = 1024;
 	char buf[buf_size];
 
-	snprintf(buf, buf_size, " POS:%i SUBTITLE:-1 AUDIO:-1 TOTAL:%i", (int)(m_fCurrentFileTime*1000), (int)(m_fCurrentFileLength*1000));
+	string sShortFile = FileUtils::FilenameWithoutPath(m_sCurrentFileName);
+	
+	snprintf(buf, buf_size, " POS:%i SUBTITLE:-1 AUDIO:-1 TOTAL:%i FILE:%s", (int)(m_fCurrentFileTime*1000), (int)(m_fCurrentFileLength*1000), sShortFile.c_str());
 	
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::GetPlaybackPosition position info: %s", buf);
 	
@@ -912,6 +970,8 @@ void MPlayer_Player::SmartLoadPlaylist(string sFolder, string sExtensions, list<
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::SmartLoadPlaylist no files found with mask %s", sExtensions.c_str() );
 		return;
 	}
+	else
+		vNames.sort();
 	
 	long int iMaxSize = -1;
 	int iPosition = 0;
@@ -931,4 +991,13 @@ void MPlayer_Player::SmartLoadPlaylist(string sFolder, string sExtensions, list<
 	}
 	
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::SmartLoadPlaylist winner is %s with size %i on position %i", sLargestFile.c_str(), iMaxSize, iLargestFilePosition );
+}
+
+string MPlayer_Player::ExtractFileFromPosition(string sMediaPosition, string sMediaToPlay)
+{
+	string::size_type sPos = sMediaPosition.find("FILE:");
+	if (sPos == string::npos)
+		return sMediaToPlay;
+	else
+		return FileUtils::BasePath(sMediaToPlay) + "/" + sMediaPosition.substr(sPos+5);
 }
