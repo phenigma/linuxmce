@@ -1437,7 +1437,7 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Ready to call plugin's startmedia");
 	int iPK_Orbiter_PromptingToResume = 0;	string::size_type queue_pos;
 	if( pMediaStream->m_sStartPosition.size()==0 && 
-		(pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_StoredVideo_CONST || pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_DVD_CONST) &&  // Don't bother asking for music
+		(pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_StoredVideo_CONST || pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_DVD_CONST || pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_HDDVD_CONST || pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_BD_CONST ) &&  // Don't bother asking for music
 			(pMediaStream->m_iDequeMediaFile_Pos<0 || pMediaStream->m_iDequeMediaFile_Pos>=pMediaStream->m_dequeMediaFile.size() ||
 			pMediaStream->GetCurrentMediaFile()->m_sStartPosition.size()==0) )
 		iPK_Orbiter_PromptingToResume = CheckForAutoResume(pMediaStream);
@@ -5471,9 +5471,34 @@ int Media_Plugin::CheckForAutoResume(MediaStream *pMediaStream)
 	EntertainArea *pEntertainArea_OSD=NULL;
 	bool bIsOSD=pMediaStream->OrbiterIsOSD(iPK_Device_Orbiter,&pEntertainArea_OSD);
 
+	// HACK this should be refactored, but duplicating code for now with Xine_Plugin to make bookmarks work
+	string mediaURL = pMediaStream->GetFilenameToPlay("Empty file name");
+	bool bRedirectToMPlayer = ( pMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_HDDVD_CONST ) ||
+		( pMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_BD_CONST ) ||
+		( (pMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_StoredVideo_CONST) && 
+		  ( StringUtils::EndsWith(mediaURL, ".EVO", true) || StringUtils::EndsWith(mediaURL, ".M2TS", true) ) );
+
+	MediaDevice *pMediaDevice_MPlayer = NULL;
+	if (bRedirectToMPlayer)
+	{
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Movie is known to be HD-DVD or Bluray, trying to redirect to MPlayer it on resume");
+
+		pMediaDevice_MPlayer = m_mapMediaDevice_Find(m_pRouter->FindClosestRelative(DEVICETEMPLATE_MPlayer_Player_CONST, pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device));
+		if (!pMediaDevice_MPlayer)
+		{
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Failed to find MPlayer for redirect, cancelling redirect :("); 
+			bRedirectToMPlayer = false;	
+		}
+		else
+		{
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Found MPlayer for redirect, device #%i", pMediaDevice_MPlayer->m_pDeviceData_Router->m_dwPK_Device); 
+		}
+	}
+
+
 	SCREEN_DialogAskToResume SCREEN_DialogAskToResume(m_dwPK_Device, iPK_Device_Orbiter,
 		StringUtils::ltos(m_dwPK_Device), 
-		StringUtils::ltos(pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device),
+		StringUtils::ltos( bRedirectToMPlayer?(pMediaDevice_MPlayer->m_pDeviceData_Router->m_dwPK_Device):(pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device) ),
 		StringUtils::itos(pMediaStream->m_iStreamID_get()),
 		sPosition,
 		StringUtils::itos(pMediaStream->m_iPK_Users),
