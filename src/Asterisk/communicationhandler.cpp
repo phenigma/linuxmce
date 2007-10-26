@@ -135,7 +135,7 @@ CommunicationHandler::handleNewextenEvent(Token* ptoken) {
 			map_ringext[extension] = string("C")+extension;
 		}
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Change from %s",map_ringext[extension].c_str());
-		string channel2 = map_ringext[extension];
+		string channel2 = StringUtils::TrimSpaces(map_ringext[extension]);
 		string callerid2 = map_callerid[extension]; 
 		map_ringext[extension] += string(" ")+channel1;
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "         to %s",map_ringext[extension].c_str());
