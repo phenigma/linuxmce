@@ -3550,14 +3550,40 @@ bool ScreenHandler::Telecom_ObjectSelected(CallBackData *pData)
 				break;
 			}
 		}
-		
-		int a = 0;
+		else if(nPK_DesignObj_Parent == DESIGNOBJ_mnuActiveCalls_CONST)
+		{
+			switch(pObjectInfoData->m_PK_DesignObj_SelectedObject)
+			{
+				case DESIGNOBJ_butJoin_CONST:
+				{
+					string sMyChannel = m_pOrbiter->m_mapVariable_Find(VARIABLE_My_Channel_ID_CONST);
+
+					if(sMyChannel.empty())
+					{
+						m_TelecomCommandStatus = tcsJoining;
+						m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, "");
+						GotoScreen(SCREEN_MakeCallDevice_CONST);
+						bDontProcessIt = true;
+					}
+					else
+					{
+						string sSecondPhoneCall = m_pOrbiter->m_mapVariable_Find(VARIABLE_Current_Call_CONST);
+
+						//{X,Y,A} & {B,C} => {X,Y} & {A,B,C} 
+						m_TelecomCommandStatus = tcsTransferConference;
+						HandleAssistedMakeCall(0, "", m_pOrbiter->m_dwPK_Device, 0, sSecondPhoneCall);
+					}
+				}
+				break;
+			}
+		}
 	}
 
 	return bDontProcessIt; // Keep processing it
 }
 //-----------------------------------------------------------------------------------------------------
-void ScreenHandler::HandleAssistedMakeCall(int iPK_Users,string sPhoneExtension,int iPK_Device_From,int iPK_Device_To)
+void ScreenHandler::HandleAssistedMakeCall(int iPK_Users,string sPhoneExtension,int iPK_Device_From,
+										   int iPK_Device_To, string sSecondPhoneCall)
 {
 	LoggerWrapper::GetInstance()->Write(LV_WARNING, "HandleAssistedMakeCall: "
 		"iPK_Users %d, sPhoneExtension %s, iPK_Device_From %d, iPK_Device_To %d",
@@ -3592,24 +3618,77 @@ void ScreenHandler::HandleAssistedMakeCall(int iPK_Users,string sPhoneExtension,
 
 		case tcsTransferConference:
 			{
-				//{X,Y,A} & B => {X,Y} & {A,B}
+				//1) {X,Y,A} & B => {X,Y} & {A,B}
+				//or 
+				//2) {X,Y,A} & {B,C} => {X,Y} & {A,B,C} 
 
 				string sMyChannel = m_pOrbiter->m_mapVariable_Find(VARIABLE_My_Channel_ID_CONST);
 				string sMyCall = m_pOrbiter->m_mapVariable_Find(VARIABLE_My_Call_ID_CONST);
 
 				DCE::CMD_Assisted_Transfer cmd_Assisted_Transfer(
 					m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device_TelecomPlugIn,
-					iPK_Device_To, iPK_Users, sPhoneExtension, "", sMyChannel, "");
+					iPK_Device_To, iPK_Users, sPhoneExtension, sSecondPhoneCall, sMyChannel, "" /*2nd channel*/);
 				m_pOrbiter->SendCommand(cmd_Assisted_Transfer);
 
-				string sDescription = "Calling, please wait..."; //TODO: calling who?
-				string sButton1 = "Complete transfer now";
-				string sButton2 = "Cancel transfer/conference";
-				string sButton3 = "Conference";
-				string sCommand1 = ""; //CMD_PL_Cancel transfer and CMD_PL_Join A to {X,Y}
-				string sCommand2 = ""; //CMD_PL_Cancel transfer and CMD_PL_Join B to {X,Y}
-				string sCommand3 = ""; //CMD_PL_Cancel transfer and CMD_PL_Join A and B to {X,Y}
+				string sDescription = "Calling, please wait...";
+				
+				string sDropPrivateChatCommand = 
+					StringUtils::itos(iPK_Device_To) + " " + 
+					StringUtils::itos(m_pOrbiter->m_dwPK_Device_TelecomPlugIn) + " " + 	
+					StringUtils::itos(MESSAGETYPE_COMMAND) + " " + 
+					StringUtils::itos(COMMAND_Phone_Drop_CONST);
 
+				string sJoinFirstCommand = 
+					StringUtils::itos(m_pOrbiter->m_dwPK_Device) + " " + 
+					StringUtils::itos(m_pOrbiter->m_dwPK_Device_TelecomPlugIn) + " " + 	
+					StringUtils::itos(MESSAGETYPE_COMMAND) + " " + 
+					StringUtils::itos(COMMAND_PL_Join_Call_CONST) + " " +
+					StringUtils::itos(COMMANDPARAMETER_PhoneCallID_CONST) + " \"" + sMyCall + "\" " +
+					StringUtils::itos(COMMANDPARAMETER_PK_Device_To_CONST) + " " + StringUtils::itos(m_pOrbiter->m_dwPK_Device);
+
+				string sJoinSecondCommand = 
+					StringUtils::itos(m_pOrbiter->m_dwPK_Device) + " " + 
+					StringUtils::itos(m_pOrbiter->m_dwPK_Device_TelecomPlugIn) + " " + 	
+					StringUtils::itos(MESSAGETYPE_COMMAND) + " " + 
+					StringUtils::itos(COMMAND_PL_Join_Call_CONST) + " " +
+					StringUtils::itos(COMMANDPARAMETER_PK_Users_CONST) + " " + StringUtils::itos(iPK_Users) + " " +
+					StringUtils::itos(COMMANDPARAMETER_PhoneExtension_CONST) + " " + sPhoneExtension + " " +
+					StringUtils::itos(COMMANDPARAMETER_PhoneCallID_CONST) + " \"" + sMyCall + "\" " +
+					StringUtils::itos(COMMANDPARAMETER_PK_Device_To_CONST) + " " + StringUtils::itos(iPK_Device_To);
+
+				string sMergeCalls = 
+					StringUtils::itos(m_pOrbiter->m_dwPK_Device) + " " + 
+					StringUtils::itos(m_pOrbiter->m_dwPK_Device_TelecomPlugIn) + " " + 	
+					StringUtils::itos(MESSAGETYPE_COMMAND) + " " + 
+					StringUtils::itos(COMMAND_PL_Join_Call_CONST) + " " +
+					StringUtils::itos(COMMANDPARAMETER_Phone_Call_ID_1_CONST) + " \"" + sMyCall + "\" " +
+					StringUtils::itos(COMMANDPARAMETER_Phone_Call_ID_2_CONST) + " \"" + sSecondPhoneCall;
+
+				//Drop transfer and CMD_PL_Join A to {X,Y}:
+				//1) {X,Y,A} & B => {X,Y} & {A,B}
+				//or 
+				//2) {X,Y,A} & {B,C} => {X,Y} & {A,B,C} 
+				string sButton1 = sSecondPhoneCall.empty() ? "Complete transfer now" : "Transfer me here";
+				string sCommand1 = sDropPrivateChatCommand + ", " + sJoinSecondCommand;
+
+				//Drop transfer and CMD_PL_Join B to {X,Y}
+				//1) {X,Y,A} & B => {X,Y,A,B}
+				//or 
+				//2) {X,Y,A} & {B,C} => {X,Y,A,B,C} 
+				string sButton2 = sSecondPhoneCall.empty() ? "Conference" : "Merge calls";
+				string sCommand2 = sDropPrivateChatCommand + ", " + 
+					(sSecondPhoneCall.empty() ? 
+						(sJoinFirstCommand + ", " + sJoinSecondCommand) :
+						(sMergeCalls)
+					);
+
+				//Drop transfer and CMD_PL_Join A and B to {X,Y}
+				//1) {X,Y,A} & B => {X,Y,A} & B
+				//or 
+				//2) {X,Y,A} & {B,C} => {X,Y,A} & {B,C} 
+				string sButton3 = "Cancel transfer/conference";
+				string sCommand3 = sDropPrivateChatCommand + ", " + sJoinFirstCommand;
+ 
 				SCREEN_PopupMessage(SCREEN_PopupMessage_CONST, 
 					sDescription + "|" + sButton1 + "|" + sButton2 + "|" + sButton3,
 					sCommand1 + "|" + sCommand2 + "|" + sCommand3, "calling", "0", "0", "1");

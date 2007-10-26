@@ -346,7 +346,8 @@ public:
 	bool Telecom_ObjectSelected(CallBackData *pData);
 
 	//helpers
-	void HandleAssistedMakeCall(int iPK_Users,string sPhoneExtension,int iPK_Device_From,int iPK_Device_To);
+	void HandleAssistedMakeCall(int iPK_Users, string sPhoneExtension, int iPK_Device_From,
+		int iPK_Device_To, string sSecondPhoneCall);
 
 	//data
 	enum TelecomCommandStatus

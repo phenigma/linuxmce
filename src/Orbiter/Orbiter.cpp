@@ -10051,5 +10051,5 @@ string Orbiter::DetectCoreIpAddress()
 void Orbiter::CMD_Assisted_Make_Call(int iPK_Users,string sPhoneExtension,int iFK_Device_From,int iPK_Device_To,string &sCMD_Result,Message *pMessage)
 //<-dceag-c923-e->
 {
-	m_pScreenHandler->HandleAssistedMakeCall(iPK_Users, sPhoneExtension, iFK_Device_From, iPK_Device_To);
+	m_pScreenHandler->HandleAssistedMakeCall(iPK_Users, sPhoneExtension, iFK_Device_From, iPK_Device_To, "");
 }
