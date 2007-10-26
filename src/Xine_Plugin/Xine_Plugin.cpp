@@ -340,31 +340,32 @@ bool Xine_Plugin::StartMedia( MediaStream *pMediaStream,string &sError )
 		{
 			pMediaStream->m_sAppName = "xv.MPlayer";
 			pMediaStream->m_bContainsTitlesOrSections = false;
-			//pMediaStream->m_dequeMediaFile.push_back(new MediaFile("/tmp/test.dat"));
-			//pMediaStream->m_dequeMediaFile.clear();
 			
-			// TODO don't add them twice - second click causes them to restart
-			
-			string sFolder = sFileToPlay;
-			list<string> vItems;
-			bool bAppendFiles = true;
-			if ( pXineMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_HDDVD_CONST ) 
-			{
-				sFolder += "/HVDVD_TS";
-				FileUtils::FindFiles(vItems, sFolder, "*.evo");
-			}
-			else if ( pXineMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_BD_CONST )
-			{
-				sFolder += "/BDMV/STREAM";
-				FileUtils::FindFiles(vItems, sFolder, "*.m2ts");
-			}
-			else
-				bAppendFiles = false;
+			// if this is not a file, we should populate all files from disk folder
+			bool bAppendFiles = ! ( StringUtils::EndsWith(mediaURL, ".EVO", true) || StringUtils::EndsWith(mediaURL, ".M2TS", true) );
 			
 			if (bAppendFiles)
 			{
 				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Appending extra items to list: ");
-						
+				string sFolder = sFileToPlay;
+				string sExt = "";
+				
+				if ( pXineMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_HDDVD_CONST ) 
+				{
+					sFolder += "/HVDVD_TS";
+					sExt = "*.evo";
+				}
+				else if ( pXineMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_BD_CONST )
+				{
+					sFolder += "/BDMV/STREAM";
+					sExt = "*.m2ts";
+				}
+				
+				list<string> vItems;
+				FileUtils::FindFiles(vItems, sFolder, sExt);
+				
+				pMediaStream->m_dequeMediaFile.clear();
+				
 				for (list<string>::iterator li=vItems.begin(); li!=vItems.end(); ++li)
 				{
 					LoggerWrapper::GetInstance()->Write(LV_STATUS, "Item: %s", li->c_str());
