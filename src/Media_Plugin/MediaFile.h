@@ -204,7 +204,7 @@ public:
 			{
 				Row_Bookmark *pRow_Bookmark = m_vectRow_Bookmark[0];
 				m_sStartPosition = pRow_Bookmark->Position_get();
-				LoggerWrapper::GetInstance()->Write(LV_STATUS,"MediaFile::MediaFile File %d has start position %s",m_sStartPosition.c_str());
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"MediaFile::MediaFile File %d has start position %s", m_dwPK_File, m_sStartPosition.c_str());
 			}
 		}
 	}
