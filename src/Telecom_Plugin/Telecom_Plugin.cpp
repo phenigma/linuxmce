@@ -2668,6 +2668,17 @@ ExtensionStatus * Telecom_Plugin::FindExtensionStatusByDevice(int iPK_Device, in
 string Telecom_Plugin::GetCallName(CallStatus * pCallStatus) const
 {
 	string sName = "Call ";
+	
+	if( pCallStatus->GetChannels().size() )
+	{
+		map<string, string>::const_iterator itChannel = pCallStatus->GetChannels().begin();
+		sName += (*itChannel).second;
+	}
+	else
+	{
+		sName += "NO CHANNELS";
+	}
+		
 	return sName;
 }
 
