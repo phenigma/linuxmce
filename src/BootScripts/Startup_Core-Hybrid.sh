@@ -7,6 +7,9 @@ invoke-rc.d mysql start
 if [[ -f /etc/pluto/install_cleandb ]]; then
 	. /usr/pluto/bin/SQL_Ops.sh
 
+	chvt 8
+	whiptail --infobox "Restoring settings.\nPlease wait. This may take a while." 10 0 >/dev/tty8
+
 	# Reconfigure all devices after install
 	Q="UPDATE Device SET NeedConfigure=1, Status='**RUN_CONFIG**'"
 	RunSQL "$Q"
@@ -31,6 +34,8 @@ if [[ -f /etc/pluto/install_cleandb ]]; then
 	fi
 
 	rm -f /etc/pluto/install_cleandb
+	clear >/dev/tty8
+	chvt 1
 fi
 
 export DISPLAY=:${Display}
