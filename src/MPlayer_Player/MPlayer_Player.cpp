@@ -995,9 +995,17 @@ void MPlayer_Player::SmartLoadPlaylist(string sFolder, string sExtensions, list<
 
 string MPlayer_Player::ExtractFileFromPosition(string sMediaPosition, string sMediaToPlay)
 {
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::ExtractFileFromPosition sMediaPosition=|%s| sMediaToPlay=%s", sMediaPosition.c_str(), sMediaToPlay.c_str() );
 	string::size_type sPos = sMediaPosition.find("FILE:");
 	if (sPos == string::npos)
+	{
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::ExtractFileFromPosition - position file info not found, reverting to default fallback");
 		return sMediaToPlay;
+	}
 	else
-		return FileUtils::BasePath(sMediaToPlay) + "/" + sMediaPosition.substr(sPos+5);
+	{
+		string sPositionFile = FileUtils::BasePath(sMediaToPlay) + "/" + sMediaPosition.substr(sPos+5);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::ExtractFileFromPosition - position file is %s", sPositionFile.c_str() );
+		return sPositionFile;
+	}
 }
