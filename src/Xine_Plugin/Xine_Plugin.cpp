@@ -366,6 +366,7 @@ bool Xine_Plugin::StartMedia( MediaStream *pMediaStream,string &sError )
 				
 				list<string> vItems;
 				FileUtils::FindFiles(vItems, sFolder, sExt);
+				vItems.sort();
 				
 				pMediaStream->m_dequeMediaFile.clear();
 				
