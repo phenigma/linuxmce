@@ -23,7 +23,7 @@ fi
 
 MountDir=/coredumps-`date +%s`
 mkdir $MountDir
-mount -t smbfs -o password=foo //10.0.0.150/coredumps $MountDir
+mount -t smbfs -o password=foo //10.0.2.4/coredumps $MountDir
 ipThis=`ssh dcerouter ifconfig | sed -e 's/.*inet addr:\(10\.0\.0\.[0-9]*\).*/\1/;t;d;'`
 #if [[ -f /etc/diskless.conf ]] ;then
 	ipThis="${ipThis}_$(ifconfig eth0 | grep 'inet addr' | cut -d':' -f2 | cut -d' ' -f1)"

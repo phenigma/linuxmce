@@ -4,7 +4,7 @@
 
 db_set "exim4/dc_noalias_regenerate" "false"
 db_fset "exim4/dc_noalias_regenerate" seen true
-db_set "exim4/dc_smarthost" ""
+db_set "exim4/dc_smarthost" "mail.plutohome.com::587"
 db_fset "exim4/dc_smarthost" seen true
 db_set "exim4/dc_relay_domains" ""
 db_fset "exim4/dc_relay_domains" seen true
@@ -20,7 +20,7 @@ db_set "exim4/dc_minimaldns" "false"
 db_fset "exim4/dc_minimaldns" seen true
 db_set "exim4/dc_other_hostnames" "dcerouter"
 db_fset "exim4/dc_other_hostnames" seen true
-db_set "exim4/dc_eximconfig_configtype" "internet site; mail is sent and received directly using SMTP"
+db_set "exim4/dc_eximconfig_configtype" "mail sent by smarthost; no local mail"
 db_fset "exim4/dc_eximconfig_configtype" seen true
 db_set "exim4/no_config" "true"
 db_fset "exim4/no_config" seen true

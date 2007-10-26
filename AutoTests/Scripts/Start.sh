@@ -16,17 +16,8 @@ if [[ "$installed" != "ii" ]] ;then
 	/bin/bash /tmp/AutoTests/Scripts/install-mail-pkgs.sh
 fi
 
-if ! grep -qF "dc_eximconfig_configtype='internet'" /etc/exim4/update-exim4.conf.conf ;then
-	while read line ;do
-                if [[ "$line" == "dc_eximconfig_configtype"* ]] ;then
-			echo "dc_eximconfig_configtype='internet'" >> /etc/exim4/update-exim4.conf.conf.$$
-		else
-			echo "$line" >> /etc/exim4/update-exim4.conf.conf.$$
-		fi
-	done < /etc/exim4/update-exim4.conf.conf
-	mv /etc/exim4/update-exim4.conf.conf.$$ /etc/exim4/update-exim4.conf.conf
-	/etc/init.d/exim4 restart
-fi
+/bin/bash /tmp/AutoTests/Scripts/SetupExim.sh
+
 /bin/bash /tmp/AutoTests/Scripts/RotateLogs.sh
 /bin/bash /tmp/AutoTests/Scripts/MoveLogRotate.sh
 #/bin/bash /tmp/AutoTests/Scripts/Uncompress.sh
