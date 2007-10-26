@@ -215,7 +215,7 @@ CommunicationHandler::handleNewChannelEvent(Token* ptoken)
 			{
 				map_ringext[ringphoneid] = "";
 			}
-			string channel2 = map_ringext[ringphoneid];
+			string channel2 = StringUtils::TrimSpaces(map_ringext[ringphoneid]);
 			string callerid2;
 			string ringphoneid2;
 			if(!Utils::ParseChannel(channel2, &ringphoneid2))
