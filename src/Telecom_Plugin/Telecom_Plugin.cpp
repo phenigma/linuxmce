@@ -796,10 +796,21 @@ Telecom_Plugin::Link( class Socket *pSocket, class Message *pMessage, class Devi
 }
 
 bool
-Telecom_Plugin::IncomingCall( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo ) 
+Telecom_Plugin::IncomingCall( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
 {
-	SCREEN_DevIncomingCall SCREEN_DevIncomingCall_(m_dwPK_Device,pDeviceFrom->m_dwPK_Device_ControlledVia, "" /* TODO : add my channel id */);
-	SendCommand(SCREEN_DevIncomingCall_);
+// 	map<int,string>::const_iterator itExt = map_device2ext.find(pDeviceFrom);
+// 	if( itExt != map_device2ext.end() )
+// 	{
+// 	}
+// 		
+// 	string sCallerID;
+// 	CMD_Set_Variable CMD_Set_Variable_name(pDeviceFrom, pDeviceFrom->m_dwPK_Device_ControlledVia,VARIABLE_Caller_name_CONST,sCallerID);
+// 	SendCommand(CMD_Set_Variable_name);
+// 	CMD_Set_Variable CMD_Set_Variable_number(pDeviceFrom, pDeviceFrom->m_dwPK_Device_ControlledVia,VARIABLE_Caller_number_CONST,sCallerID);
+// 	SendCommand(CMD_Set_Variable_number);
+// 	
+// 	SCREEN_DevIncomingCall SCREEN_DevIncomingCall_(m_dwPK_Device,pDeviceFrom->m_dwPK_Device_ControlledVia, "" /* TODO : add my channel id */);
+// 	SendCommand(SCREEN_DevIncomingCall_);
 
 	return false;
 }
@@ -1054,63 +1065,6 @@ Telecom_Plugin::generate_NewCommandID() {
 
 */
 
-void Telecom_Plugin::PrivateOriginate(int iPK_Device,string sPhoneExtension,string sPhoneCallerID, Message *pMessage)
-{
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Originate command called with params: DeviceID=%d, PhoneExtension=%s!", iPK_Device, sPhoneExtension.c_str());
-	
-	if(sPhoneExtension.empty()) {
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Error validating input parameters");
-		return;
-	}
-
-	/*search device by id*/
-	DeviceData_Router *pDeviceData = find_Device(iPK_Device);
-	if(!pDeviceData) {
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "No device found with id: %d", iPK_Device);
-		return;
-	}
-	if(pDeviceData->m_dwPK_DeviceTemplate == DEVICETEMPLATE_OnScreen_Orbiter_CONST)
-	{
-		pDeviceData = find_Device(map_orbiter2embedphone[iPK_Device]);
-		if(!pDeviceData) {
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "No device found with id: %d", iPK_Device);
-			return;
-		}
-		iPK_Device = map_orbiter2embedphone[iPK_Device];
-	}
-	
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "our device is : id %d template %d",
-		pDeviceData->m_dwPK_Device,
-		pDeviceData->m_dwPK_DeviceTemplate );
-	
-	if(sPhoneCallerID == "")
-	{
-		sPhoneCallerID="linuxmce";
-	}
-	
-	/*find phonetype and phonenumber*/
-	string sSrcPhoneNumber = pDeviceData->mapParameters_Find(DEVICEDATA_PhoneNumber_CONST);
-	ExtensionStatus * pExtStatus = FindExtensionStatus(sSrcPhoneNumber);
-	if( pExtStatus == NULL )
-	{
-		// TODO warning
-		return;
-	}
-	// Asterisk knows better the extension type
-//	string sSrcPhoneType = pDeviceData->mapParameters_Find(DEVICEDATA_PhoneType_CONST);
-	string sSrcPhoneType = ExtensionStatus::Type2String( pExtStatus->GetExtensionType() );
-	
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Using source phone with parameters: PhoneType=%s, PhoneNumber=%s!",
-		sSrcPhoneType.c_str(), sSrcPhoneNumber.c_str());
-	
-	if(m_pDevice_pbx) {
-		
-		PLUTO_SAFETY_LOCK(vm, m_TelecomMutex);
-		CMD_PBX_Originate cmd_PBX_Originate(m_dwPK_Device, m_pDevice_pbx->m_dwPK_Device, sSrcPhoneNumber, sSrcPhoneType, sPhoneExtension, sPhoneCallerID);
-	    SendCommand(cmd_PBX_Originate);
-	}
-}
-
 //<-dceag-c232-b->
 
 	/** @brief COMMAND: #232 - PL_Originate */
@@ -1148,46 +1102,8 @@ void Telecom_Plugin::CMD_PL_Transfer(int iPK_Device,int iPK_Users,string sPhoneE
 //<-dceag-c234-e->
 {
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Transfer command called with params: DeviceID=%d UserID=%d Extension=%s", iPK_Device,iPK_Users,sPhoneExtension.c_str());
-	string sPhoneNumber;
-	if(iPK_Device != 0)
-	{
-		/*search device by id*/
-		DeviceData_Router *pDeviceData = find_Device(iPK_Device);
-		if(!pDeviceData) {
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "No device found with id: %d", iPK_Device);
-			return;
-	    }
-		if(pDeviceData->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Orbiter_CONST)
-		{
-	    	pDeviceData = find_Device(map_orbiter2embedphone[iPK_Device]);
- 			if(!pDeviceData) {
-				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "No device found with id: %d", iPK_Device);
-				return;
-			}
-		}
-		sPhoneNumber = pDeviceData->mapParameters_Find(DEVICEDATA_PhoneNumber_CONST);
-	}
-	if(iPK_Users != 0)
-	{
-		/*search user by id*/
-
-		class Row_Users* rowuser;
-		rowuser=m_pDatabase_pluto_main->Users_get()->GetRow(iPK_Users);
-		if(rowuser)
-		{
-			sPhoneNumber =  StringUtils::itos(rowuser->Extension_get());
-		}
-		else
-		{
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "No user found with id: %d", iPK_Users);
-			return;
-		}
-	}
-	if(sPhoneExtension != "")
-	{
-		sPhoneNumber=sPhoneExtension;
-	}
-	if(sPhoneNumber == "")
+	string sPhoneNumber = GetPhoneNumber(iPK_Users, sPhoneExtension, iPK_Device);
+	if( sPhoneNumber.empty() )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Nowhere to transfer !!!");
 		return;
@@ -1206,14 +1122,11 @@ void Telecom_Plugin::CMD_PL_Transfer(int iPK_Device,int iPK_Users,string sPhoneE
 			return;
 		}
 	
-		// TODO: do we need such a thing ?
-/*		pCallData->setState(CallData::STATE_TRANSFERING);
-		pCallData->setPendingCmdID(generate_NewCommandID());*/
-
 		/*send transfer command to PBX*/
-// TODO
-//		CMD_PBX_Transfer cmd_PBX_Transfer(sPhoneNumber, sChannel_1, call2 == NULL ? "" : sChannel_2);
-//		SendCommand(cmd_PBX_Transfer);
+		CMD_PBX_Transfer cmd_PBX_Transfer(
+			m_dwPK_Device, m_pDevice_pbx->m_dwPK_Device,
+			sPhoneNumber, sChannel_1, call2 == NULL ? "" : sChannel_2 );
+		SendCommand(cmd_PBX_Transfer);
 	}
 }
 
@@ -1351,41 +1264,7 @@ void Telecom_Plugin::GetFloorplanDeviceInfo(DeviceData_Router *pDeviceData_Route
 void Telecom_Plugin::CMD_PL_External_Originate(string sPhoneNumber,string sCallerID,string sPhoneExtension,string &sCMD_Result,Message *pMessage)
 //<-dceag-c414-e->
 {
-    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Originate external command called with params: PhoneNumber=%s, PhoneExtension=%s!", sPhoneNumber.c_str(), sPhoneExtension.c_str());
-
-    if(sPhoneExtension.empty()) {
-        LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Error validating input parameters");
-        return;
-    }
-
-    string sSrcPhoneType = "Local";
-
-    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Using source phone with parameters: PhoneChannel=%s, PhoneNumber=%s!",
-        sSrcPhoneType.c_str(), sPhoneNumber.c_str());
-
-	sPhoneNumber+="@trusted";
-
-	if(m_pDevice_pbx) {
-
-		PLUTO_SAFETY_LOCK(vm, m_TelecomMutex);  // Protect the call data
-        CallData *pCallData = CallManager::getInstance()->findCallByOwnerDevID(pMessage->m_dwPK_Device_From);
-        if(!pCallData) {
-            /*create new call data*/
-            pCallData = new CallData();
-            pCallData->setOwnerDevID(pMessage->m_dwPK_Device_From);
-            CallManager::getInstance()->addCall(pCallData);
-        }
-
-        pCallData->setState(CallData::STATE_ORIGINATING);
-
-        /*send originate command to PBX*/
-// TODO
-//        pCallData->setPendingCmdID(generate_NewCommandID());
-//        CMD_PBX_Originate cmd_PBX_Originate(m_dwPK_Device, m_pDevice_pbx->m_dwPK_Device,
-//            sPhoneNumber, sSrcPhoneType, sPhoneExtension, sCallerID, pCallData->getPendingCmdID());
-//
-//		SendCommand(cmd_PBX_Originate);
-    }
+	LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "DEPRECATED - Telecom_Plugin::CMD_PL_External_Originate !");
 }
 
 string Telecom_Plugin::GetDialNumber(Row_PhoneNumber *pRow_PhoneNumber)
@@ -1440,131 +1319,11 @@ void Telecom_Plugin::CMD_Simulate_Keypress(string sPK_Button,int iStreamID,strin
 void Telecom_Plugin::CMD_Phone_Initiate(int iPK_Device,string sPhoneExtension,string &sCMD_Result,Message *pMessage)
 //<-dceag-c334-e->
 {
-	if( !iPK_Device )
-		iPK_Device = pMessage->m_dwPK_Device_From;
-	int phoneID=map_orbiter2embedphone[iPK_Device];
+	LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "DEPRECATED - Telecom_Plugin::CMD_Phone_Initiate !");
 	
-	// check if extension field is actualy a device id => dev
-	// check if extension field is actualy a user name => usr
-	// see intercom screen (Eugen & Dan)
-	string sPhExtension;
-	if( 3 < sPhoneExtension.size() && sPhoneExtension.substr(0, 3) == "dev" )
-	{
-		int iDevice = atoi(sPhoneExtension.substr(3).c_str());
-		map<int,string>::iterator itFind = map_device2ext.find(iDevice);
-		if( itFind != map_device2ext.end() )
-		{
-			sPhExtension = (*itFind).second;
-		}
-		else
-		{
-#ifdef DEBUG
-			LoggerWrapper::GetInstance()->Write(LV_STATUS,
-				"Telecom_Plugin::CMD_Phone_Initiate no extension for device %d", iDevice);
-#endif
-			// /usr/pluto/bin/MessageSend localhost From To Command COMMAND_Goto_Screen_CONST
-			// COMMANDPARAMETER_ID_CONST "TelecomNotify"
-			// COMMANDPARAMETER_PK_Screen_CONST SCREEN_PopupMessage_CONST
-			// COMMANDPARAMETER_Text_CONST "Invalid extension"
-			// COMMANDPARAMETER_Command_Line_CONST "$Action_Yes"
-			if( iPK_Device > 0 )
-			{
-				DCE::CMD_Goto_Screen
-					cmd(m_dwPK_Device, iPK_Device, "Telecom Notify", SCREEN_PopupMessage_CONST, interuptAlways, true, false);
-				cmd.m_pMessage->m_mapParameters[COMMANDPARAMETER_Text_CONST] = "Invalid extension for this device";
-				cmd.m_pMessage->m_mapParameters[COMMANDPARAMETER_Command_Line_CONST] = "$Action_Yes";
-				SendCommand(cmd);
-			}
-			
-			sCMD_Result="Invalid extension for device";
-			return;
-		}
-	}
-	else if( 3 < sPhoneExtension.size() && sPhoneExtension.substr(0, 3) == "usr" )
-	{
-		string sUserName = sPhoneExtension.substr(3);
-		map<string,string>::iterator itFind = map_username2ext.find(sUserName);
-		if( itFind != map_username2ext.end() )
-		{
-			sPhExtension = (*itFind).second;
-		}
-		else
-		{
-#ifdef DEBUG
-			LoggerWrapper::GetInstance()->Write(LV_STATUS,
-				"Telecom_Plugin::CMD_Phone_Initiate no extension for user %s", sUserName.c_str());
-#endif
-			// /usr/pluto/bin/MessageSend localhost From To Command COMMAND_Goto_Screen_CONST
-			// COMMANDPARAMETER_ID_CONST "TelecomNotify"
-			// COMMANDPARAMETER_PK_Screen_CONST SCREEN_PopupMessage_CONST
-			// COMMANDPARAMETER_Text_CONST "Invalid extension"
-			// COMMANDPARAMETER_Command_Line_CONST "$Action_Yes"
-			if( iPK_Device > 0 )
-			{
-				DCE::CMD_Goto_Screen
-					cmd(m_dwPK_Device, iPK_Device, "Telecom Notify", SCREEN_PopupMessage_CONST, interuptAlways, true, false);
-				cmd.m_pMessage->m_mapParameters[COMMANDPARAMETER_Text_CONST] = "Invalid extension for this user";
-				cmd.m_pMessage->m_mapParameters[COMMANDPARAMETER_Command_Line_CONST] = "$Action_Yes";
-				SendCommand(cmd);
-			}
-			
-			sCMD_Result="Invalid extension for user";
-			return;
-		}
-	}
-	else
-	{
-		sPhExtension = sPhoneExtension;
-	}
-	
-	if( sPhExtension.empty() )
-	{
-		// /usr/pluto/bin/MessageSend localhost From To Command COMMAND_Goto_Screen_CONST
-		// COMMANDPARAMETER_ID_CONST "TelecomNotify"
-		// COMMANDPARAMETER_PK_Screen_CONST SCREEN_PopupMessage_CONST
-		// COMMANDPARAMETER_Text_CONST "Invalid extension"
-		// COMMANDPARAMETER_Command_Line_CONST "$Action_Yes"
-		if( iPK_Device > 0 )
-		{
-			DCE::CMD_Goto_Screen
-				cmd(m_dwPK_Device, iPK_Device, "Telecom Notify", SCREEN_PopupMessage_CONST, interuptAlways, true, false);
-			cmd.m_pMessage->m_mapParameters[COMMANDPARAMETER_Text_CONST] = "Invalid extension";
-			cmd.m_pMessage->m_mapParameters[COMMANDPARAMETER_Command_Line_CONST] = "$Action_Yes";
-			SendCommand(cmd);
-		}
-		
-		sCMD_Result="Invalid extension";
-		return;
-	}
-	
-	if(phoneID>0 || iPK_Device>0 )
-	{
-		PLUTO_SAFETY_LOCK(vm, m_TelecomMutex);  // Protect the call data
-		DCE::CMD_Phone_Initiate cmd(m_dwPK_Device,phoneID>0 ? phoneID : iPK_Device,0 /* phones don't use this */,sPhExtension);
-		SendCommand(cmd);
-		CallData *pCallData = CallManager::getInstance()->findCallByOwnerDevID(phoneID);
-		if(!pCallData) {
-			/*create new call data*/
-			pCallData = new CallData();
-			pCallData->setOwnerDevID(phoneID);
-			CallManager::getInstance()->addCall(pCallData);
-		}
-	
-	// Set the remote control that originated this
-		OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find( pMessage->m_dwPK_Device_From );
-		if( pOH_Orbiter )
-		{
-			if( pOH_Orbiter->m_dwPK_Device_CurrentRemote )
-				pCallData->m_PK_Device_Remote_set( pOH_Orbiter->m_dwPK_Device_CurrentRemote );
-			if( pOH_Orbiter->m_pOH_User )
-				pCallData->m_PK_Users_set( pOH_Orbiter->m_pOH_User->m_iPK_Users );
-		}
-
-		pCallData->setState(CallData::STATE_ORIGINATING);
-	}
-
 	sCMD_Result="OK";
 }
+
 //<-dceag-c335-b->
 
 	/** @brief COMMAND: #335 - Phone_Answer */
@@ -2713,6 +2472,7 @@ void Telecom_Plugin::FollowMe_EnteredRoom(int iPK_Event, int iPK_Orbiter, int iP
 void Telecom_Plugin::FollowMe_LeftRoom(int iPK_Event, int iPK_Orbiter, int iPK_Device, int iPK_Users, int iPK_RoomOrEntArea, int iPK_RoomOrEntArea_Left)
 {
 }
+
 //<-dceag-c921-b->
 
 	/** @brief COMMAND: #921 - Make Call */
@@ -2729,7 +2489,45 @@ void Telecom_Plugin::FollowMe_LeftRoom(int iPK_Event, int iPK_Orbiter, int iPK_D
 void Telecom_Plugin::CMD_Make_Call(int iPK_Users,string sPhoneExtension,int iFK_Device_From,int iPK_Device_To,string &sCMD_Result,Message *pMessage)
 //<-dceag-c921-e->
 {
+	string sPhoneNumber = GetPhoneNumber(iPK_Users, sPhoneExtension, iPK_Device_To);
+	if( sPhoneNumber.empty() )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Nowhere to make a call !!!");
+		return;
+	}
+	if( map_ext2status.end() == map_ext2status.find(sPhoneNumber) )
+	{
+		sPhoneNumber+="@trusted";
+	}
+	
+	int iEmbeddedPhone = 0;
+	ExtensionStatus * pExtStatus = FindExtensionStatusByDevice(iFK_Device_From, &iEmbeddedPhone);
+	if( pExtStatus == NULL )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "No device from where to call !!!");
+		return;
+	}
+	
+	PLUTO_SAFETY_LOCK(vm, m_TelecomMutex);
+	if(m_pDevice_pbx)
+	{
+		if( iEmbeddedPhone != 0 )
+		{
+			DCE::CMD_Phone_Initiate cmdInitiate(m_dwPK_Device, iEmbeddedPhone, iEmbeddedPhone, sPhoneNumber);
+			SendCommand(cmdInitiate);
+		}
+		else
+		{
+			/*send originate command to PBX*/
+			CMD_PBX_Originate cmd_PBX_Originate(m_dwPK_Device, m_pDevice_pbx->m_dwPK_Device,
+				pExtStatus->GetID(),
+				ExtensionStatus::Type2String( pExtStatus->GetExtensionType() ),
+				sPhoneNumber, pExtStatus->GetID() );
+			SendCommand(cmd_PBX_Originate);
+		}
+	}
 }
+
 //<-dceag-c924-b->
 
 	/** @brief COMMAND: #924 - Merge Calls */
@@ -2767,3 +2565,82 @@ void Telecom_Plugin::CMD_Assisted_Transfer(int iPK_Device,int iPK_Users,string s
 {
 	//TODO: implement me!
 }
+
+string Telecom_Plugin::GetPhoneNumber(int iPK_Users, string sPhoneExtension, int iPK_Device_To)
+{
+	string sPhoneNumber;
+	if(iPK_Device_To != 0)
+	{
+		/*search device by id*/
+		DeviceData_Router *pDeviceData = find_Device(iPK_Device_To);
+		if(!pDeviceData) {
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "No device found with id: %d", iPK_Device_To);
+			return "";
+		}
+		if(pDeviceData->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Orbiter_CONST)
+		{
+			pDeviceData = find_Device(map_orbiter2embedphone[iPK_Device_To]);
+			if(!pDeviceData) {
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "No device found with id: %d", iPK_Device_To);
+				return "";
+			}
+		}
+		sPhoneNumber = pDeviceData->mapParameters_Find(DEVICEDATA_PhoneNumber_CONST);
+	}
+	if(iPK_Users != 0)
+	{
+		/*search user by id*/
+		class Row_Users* rowuser;
+		rowuser=m_pDatabase_pluto_main->Users_get()->GetRow(iPK_Users);
+		if(rowuser)
+		{
+			sPhoneNumber =  StringUtils::itos(rowuser->Extension_get());
+		}
+		else
+		{
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "No user found with id: %d", iPK_Users);
+			return "";
+		}
+	}
+	if(sPhoneExtension != "")
+	{
+		sPhoneNumber = sPhoneExtension;
+	}
+	
+	return sPhoneNumber;
+}
+
+ExtensionStatus * Telecom_Plugin::FindExtensionStatusByDevice(int iPK_Device, int * pEmbeddedPhone /* = NULL*/)
+{
+	if(NULL != pEmbeddedPhone)
+		*pEmbeddedPhone = 0;
+	
+	/*search device by id*/
+	DeviceData_Router *pDeviceData = find_Device(iPK_Device);
+	if(!pDeviceData) {
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "No device found with id: %d", iPK_Device);
+		return NULL;
+	}
+	if(pDeviceData->m_dwPK_DeviceTemplate == DEVICETEMPLATE_OnScreen_Orbiter_CONST)
+	{
+		pDeviceData = find_Device(map_orbiter2embedphone[iPK_Device]);
+		if(!pDeviceData) {
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "No device found with id: %d", iPK_Device);
+			return NULL;
+		}
+		iPK_Device = map_orbiter2embedphone[iPK_Device];
+		
+		if(NULL != pEmbeddedPhone)
+			*pEmbeddedPhone = iPK_Device;
+	}
+	
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "our device is : id %d template %d",
+							   pDeviceData->m_dwPK_Device,
+		  pDeviceData->m_dwPK_DeviceTemplate );
+	
+	/*find phonetype and phonenumber*/
+	string sSrcPhoneNumber = pDeviceData->mapParameters_Find(DEVICEDATA_PhoneNumber_CONST);
+	
+	return FindExtensionStatus(sSrcPhoneNumber);
+}
+

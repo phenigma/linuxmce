@@ -357,7 +357,8 @@ private:
 	void RemoveExtensionStatus(string);
 	void CleanStatusMaps();
 	
-	void PrivateOriginate(int iPK_Device,string sPhoneExtension,string sPhoneCallerID, Message *pMessage);
+	ExtensionStatus * FindExtensionStatusByDevice(int iPK_Device, int * pEmbeddedPhone = NULL);
+	string GetPhoneNumber(int iPK_Users,string sPhoneExtension,int iPK_Device_To);
 	
 private:
 	int iCmdCounter;
