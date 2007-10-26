@@ -229,6 +229,15 @@ function Build_Pluto_Replacements {
 		cp -r ../ushare_*.deb ${temp_dir}
 		popd
 	fi
+	
+	#Package: djmount
+	dir_="${svn_dir}/trunk/ubuntu/djmount-0.71"
+	if ReplacementNeedsBuild "$dir_" ;then
+		pushd "$dir_"
+		dpkg-buildpackage -rfakeroot -us -uc -b
+		cp -r ../djmount_*.deb ${temp_dir}
+		popd
+	fi
 
 
 	#Package: pluto-asterisk
