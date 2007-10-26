@@ -21,4 +21,4 @@ all: Main.o UpdateEntArea.o UpdateEntArea_Climate.o UpdateEntArea_Lighting.o Upd
 	cp UpdateEntArea $(ROOT)/bin/
 
 clean:
-	rm -f UpdateEntArea UpdateEntArea.o
+	rm -f UpdateEntArea *.o
