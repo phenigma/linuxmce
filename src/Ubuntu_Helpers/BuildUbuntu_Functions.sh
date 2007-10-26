@@ -4,15 +4,16 @@
 
 export KDE_LMCE=""
 
+## Log every message that the builder outputs in the logfile
+exec 100>&1
+exec >/var/log/BuildUbuntu.log
+exec 2>&1
+
 flavor="ubuntu"
 
 if [[ $build_dir == "" || $local_mirror_dir == "" ]] ;then
 	build_dir="/var/plutobuild"
 	local_mirror_dir="/var/www"
-fi
-
-if [[ "$iso_name" == "" ]] ;then
-	iso_name="linuxmce-1.1"
 fi
 
 svn_dir="${build_dir}/svn"
@@ -38,7 +39,22 @@ replacements_dir="${build_dir}/replacements"
 out_dir="${build_dir}/out"
 mkr_dir="${build_dir}/MakeRelease"
 
+if [[ "$iso_name" == "" ]] ;then
+	iso_name="linuxmce-1.1"
+fi
+
 export Version=$(echo "select VersionName from Version" | mysql $sql_slave_db | tail -1);
+
+function DisplayMessage {
+	echo "`date +%H:%M:%S`  $*" >100
+}
+
+function Error {
+	echo
+	DisplayMessage "ERROR: $*"
+	tail -20 /var/log/BuildUbuntu.log
+	exit 1
+}
 
 
 function Install_Build_Needed_Packages {
@@ -49,10 +65,7 @@ function Install_Build_Needed_Packages {
 	done
 }
 
-
 function Checkout_Pluto_Svn {
-	echo "$(date) part 21 " >> /var/log/build.log
-	ls -l /var/plutobuild/svn/trunk/src/bin/ >> /var/log/build.log
 	local Branch="${1:-trunk}"
 	local BranchParts="$2" # ex: "src web"; the rest will come from trunk
 
@@ -61,13 +74,14 @@ function Checkout_Pluto_Svn {
 		BranchParts="$AllParts"
 	fi
 
+	DisplayMessage "Removing old svn checkout dir"
 	[[ -d $svn_dir ]] && mkdir -p $svn_dir
 	rm -rf ${svn_dir}/trunk
 	
 	for svn_module in ${BranchParts}; do
 		mkdir -p ${svn_dir}/trunk/$svn_module
-		#svn co -r 17898  ${svn_url}/pluto/"$Branch"/$svn_module  ${svn_dir}/trunk/$svn_module
-		svn co  ${svn_url}/pluto/"$Branch"/$svn_module  ${svn_dir}/trunk/$svn_module
+		DisplayMessage "Checking out {$svn_url}/pluto/$Branch/$svn_module"
+		svn co  ${svn_url}/pluto/"$Branch"/$svn_module  ${svn_dir}/trunk/$svn_module || Error "Failed to checkout {$svn_url}/pluto/$Branch/$svn_module"
 	done
 
 	# get unmarked parts from trunk
@@ -76,27 +90,21 @@ function Checkout_Pluto_Svn {
 			# this part was marked to be taken from the branch
 			continue
 		fi
+
 		#get part from trunk
 		mkdir -p ${svn_dir}/trunk/$svn_module
-		#svn co -r 17898 ${svn_url}/pluto/trunk/$svn_module  ${svn_dir}/trunk/$svn_module
-		svn co ${svn_url}/pluto/trunk/$svn_module  ${svn_dir}/trunk/$svn_module
+		DisplayMessage "Checking out {$svn_url}/pluto/trunk/$svn_module"
+		svn co ${svn_url}/pluto/trunk/$svn_module  ${svn_dir}/trunk/$svn_module || Error "Failed to checkout {$svn_url}/pluto/trunk/$svn_module"
 	done
 
-	cp -f /root/images-pluto-admin/*.jpg ${svn_dir}/trunk/web/pluto-admin/include/images/
-	cp -f /root/images-pluto-admin/generic_xml_error_linuxmce.png ${svn_dir}/trunk/web/pluto-admin/security_images/generic_xml_error.png
 
-	sed -i "s,\\\$wikiHost=.*\$,\$wikiHost='http://wiki.linuxmce.com/';,g" ${svn_dir}/trunk/web/plutohome-com/globalconfig/localconfig.inc.php
-
-	#/bin/sql2cpp -h localhost -u root -D pluto_main
 	pushd ${svn_dir}/trunk/src
-	svn co --username automagic --password "$(</etc/pluto/automagic.pwd)" ${svn_url}/pluto-private/"$Branch"/src/ZWave/
-	svn co --username automagic --password "$(</etc/pluto/automagic.pwd)" ${svn_url}/pluto-private/"$Branch"/src/Fiire_Scripts/
-	svn co --username automagic --password "$(</etc/pluto/automagic.pwd)" ${svn_url}/pluto-private/"$Branch"/src/RFID_Interface/
-	svn co --username automagic --password "$(</etc/pluto/automagic.pwd)" ${svn_url}/pluto-private/"$Branch"/src/EMI_AMG/
-	svn co --username automagic --password "$(</etc/pluto/automagic.pwd)" ${svn_url}/pluto-private/"$Branch"/src/lmce_launch_manager/
+	DisplayMessage "Checking out {$svn_url}/pluto-private/$Branch/"
+	svn co --username automagic --password "$(</etc/pluto/automagic.pwd)" ${svn_url}/pluto-private/"$Branch"/src/ZWave/ || Error "Failed to checkount {$svn_url}/pluto-private/$Branch/src/ZWave"
+	svn co --username automagic --password "$(</etc/pluto/automagic.pwd)" ${svn_url}/pluto-private/"$Branch"/src/Fiire_Scripts/ || Error "Failed to checkount {$svn_url}/pluto-private/$Branch/src/Fiire_Scripts"
+	svn co --username automagic --password "$(</etc/pluto/automagic.pwd)" ${svn_url}/pluto-private/"$Branch"/src/RFID_Interface/ || Error "Failed to checkount {$svn_url}/pluto-private/$Branch/src/RFID_Interface"
+	svn co --username automagic --password "$(</etc/pluto/automagic.pwd)" ${svn_url}/pluto-private/"$Branch"/src/lmce_launch_manager/ || Error "Failed to checkount {$svn_url}/pluto-private/$Branch/src/lmce_launch_manager"
 	popd
-	echo "$(date) part 22 " >> /var/log/build.log
-	ls -l /var/plutobuild/svn/trunk/src/bin/ >> /var/log/build.log
 }
 
 
@@ -159,10 +167,7 @@ function ReplacementNeedsBuild {
 }
 
 
-function Build_Pluto_Replacements {
-	echo "$(date) part 1 " >> /var/log/build.log
-	ls -l /var/plutobuild/svn/trunk/src/bin/ >> /var/log/build.log
-       
+function Build_Pluto_Replacements { 
 	temp_dir="${replacements_dir}"
 	mkdir -p $temp_dir
 
@@ -373,8 +378,6 @@ function Build_Pluto_Stuff_Debs {
 function Build_Pluto_Stuff {
 	MakeReleaseExtraParams=("$@")
 
-	echo "$(date) part 4 " >> /var/log/build.log
-	ls -l /var/plutobuild/svn/trunk/src/bin/ >> /var/log/build.log
 	
 	touch /home/README.Devel.Dependencies
 	mkdir -p /usr/pluto/dummy-packages/
@@ -412,19 +415,12 @@ function Build_Pluto_Stuff {
 #	607 	Pluto ATI Video Drivers Source
 #	543  	Pluto vloopback Kernel Module
 #	542 	Pluto vloopback Kernel Module Source
-# 	-b
-	echo "$(date) part 5 " >> /var/log/build.log
-	ls -l /var/plutobuild/svn/trunk/src/bin/ >> /var/log/build.log
 
 	$MakeRelease "${MakeReleaseExtraParams[@]}" -R "$SVNrevision" -h $sql_slave_host -u $sql_slave_user -O $out_dir -D $sql_slave_db -o 14 -r 21 -m 1 -K "543,542,462,607,432,431,427,426,430,429,336,337,589,590,515,516"  -s "${svn_dir}/trunk" -n / > >(tee -a $build_dir/Build.log)  -d || exit 1
 	
-	echo "$(date) part 6 " >> /var/log/build.log
-	ls -l /var/plutobuild/svn/trunk/src/bin/ >> /var/log/build.log
 }
 
 function Create_Fake_Windows_Binaries {
-	echo "$(date) part 7 " >> /var/log/build.log
-	ls -l /var/plutobuild/svn/trunk/src/bin/ >> /var/log/build.log
 
 	touch ${svn_dir}/trunk/src/bin/Pluto_S60.sis
 	touch ${svn_dir}/trunk/src/bin/Orbiter.CAB
@@ -467,13 +463,9 @@ function Create_Fake_Windows_Binaries {
 	scp pluto@10.0.2.4:'/home/builds/Windows_Output_LinuxMCE/src/lib/*' ./
 	popd
 	
-	echo "$(date) part 8 " >> /var/log/build.log
-	ls -l /var/plutobuild/svn/trunk/src/bin/ >> /var/log/build.log
 }
 
 function Create_Local_Repository {
-	echo "$(date) part 9 " >> /var/log/build.log
-	ls -l /var/plutobuild/svn/trunk/src/bin/ >> /var/log/build.log
 	
 	rm -f $local_mirror_dir/*.deb
 	rm -f $local_mirror_dir/Packages*
@@ -489,8 +481,6 @@ function Create_Local_Repository {
 	popd
 
 #       cp -f /root/build-files/virus_free.php /var/www
-	echo "$(date) part 10 " >> /var/log/build.log
-	ls -l /var/plutobuild/svn/trunk/src/bin/ >> /var/log/build.log
 }
 
 function Import_Build_Database {
@@ -561,8 +551,6 @@ function Import_Build_Database {
 }
 
 function Import_Pluto_Skins {
-	echo "$(date) part 11 " >> /var/log/build.log
-	ls -l /var/plutobuild/svn/trunk/src/bin/ >> /var/log/build.log
 
 	local skins_dir=/home/samba/www_docs/graphics
 
@@ -592,14 +580,10 @@ function Import_Pluto_Skins {
 		ssh pluto@10.0.2.4 'tar -c "/home/samba/www_docs/sample media"' | tar -x 
 	popd
 	
-	echo "$(date) part 12 " >> /var/log/build.log
-	ls -l /var/plutobuild/svn/trunk/src/bin/ >> /var/log/build.log
 }
 
 function Create_Diskless_Archive {
 
-	echo "$(date) part 13 " >> /var/log/build.log
-	ls -l /var/plutobuild/svn/trunk/src/bin/ >> /var/log/build.log
 
 	apt-get -y install debootstrap
 
@@ -618,8 +602,6 @@ function Create_Diskless_Archive {
 	touch /home/DisklessFS/BootWait/vmlinuz-default-2.6.16.20-pluto-2-686-smp
 	touch /home/DisklessFS/BootWait/initrd.img-default-2.6.16.20-pluto-2-686-smp
 	
-	echo "$(date) part 14 " >> /var/log/build.log
-	ls -l /var/plutobuild/svn/trunk/src/bin/ >> /var/log/build.log
 
 }
 
@@ -635,7 +617,6 @@ function Upload_Build_Archive {
 	pushd $local_mirror_dir
 		tar -zcf /var/plutobuild/linuxmce-uploads.tar.gz *.iso
 		scp -i /root/.ssh/uploads_plutohome_key /var/plutobuild/linuxmce-uploads.tar.gz uploads@plutohome.com:
-#	scp -i /root/.ssh/uploads_linuxmce_build_150_key /var/plutobuild/linuxmce-uploads.tar.gz uploads@deb.plutohome.com:
 	popd
 }
 
