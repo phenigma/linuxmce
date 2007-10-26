@@ -176,6 +176,11 @@ bool Telecom_Plugin::GetConfig()
 		return false;
 	}
 
+	
+	DCE::CMD_Send_Asterisk_Status cmd_Send_Asterisk_Status(m_dwPK_Device, m_pDevice_pbx->m_dwPK_Device);
+	cmd_Send_Asterisk_Status.m_pMessage->m_eRetry = MR_Retry;
+	SendCommand(cmd_Send_Asterisk_Status);
+
 	return true;
 }
 
