@@ -6,7 +6,7 @@
   	$PlutoHomeHost="http://plutohome.com/";
   	$MasterUsersHost="http://plutohome.com/masterusers/";
 	$PlutoSupportHost='http://plutohome.com/support/';
-	$wikiHost='http://plutohome.com/wiki/';
+	$wikiHost='http://wiki.linuxmce.org/';
 
 	// hard-coded values
 	$GLOBALS['rootOrbiterID'] = 5; 			// the PK_DeviceCategory from DeviceCategory table for the root orbiter
