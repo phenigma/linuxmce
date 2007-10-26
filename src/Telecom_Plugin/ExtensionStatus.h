@@ -35,7 +35,7 @@ namespace DCE
 			enum Activity { Ready=0, OnThePhone, Ringing, Dialing, UnknownActivity };
 			
 			/***/
-			enum ExtensionStatusFormat { esfType=0, esfExtension, esfCallerID, esfState, esfActivity, NUM_FIELDS};
+			enum ExtensionStatusFormat { esfType=0, esfExtension, esfState, NUM_FIELDS};
 			
 			/***/
 			enum ExtensionType { SIP=0, IAX, SCCP, OTHER };

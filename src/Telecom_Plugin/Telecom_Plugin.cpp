@@ -644,16 +644,13 @@ Telecom_Plugin::ExtensionsStatusChanged(class Socket *pSocket,class Message *pMe
 		string sLine = *it;
 
 		vector<string> vectTokens;
-		StringUtils::Tokenize(sLine, "/", vectTokens);
+		StringUtils::Tokenize(sLine, "/:", vectTokens);
 		
-		// TODO: de verificat cu chris
 		if(vectTokens.size() == ExtensionStatus::NUM_FIELDS)
 		{
 			string sType = vectTokens[ExtensionStatus::esfType];
 			string sExten = vectTokens[ExtensionStatus::esfExtension];
-			string sCallerID = vectTokens[ExtensionStatus::esfCallerID];
 			string sState = vectTokens[ExtensionStatus::esfState];
-			string sActivity = vectTokens[ExtensionStatus::esfActivity];
 			
 			ExtensionStatus *pExtensionStatus = NULL;
 			map<string, ExtensionStatus*>::iterator ite = map_ext2status.find(sExten);
@@ -669,29 +666,29 @@ Telecom_Plugin::ExtensionsStatusChanged(class Socket *pSocket,class Message *pMe
 				return false;
 			}
 			
-			if( !sActivity.empty() )
+			if( !sState.empty() )
 			{
-				ExtensionStatus::Activity activity = ExtensionStatus::String2Activity(sActivity);
+				//Ready, OnThePhone, Ringing or Dialing?
+				ExtensionStatus::Activity activity = ExtensionStatus::String2Activity(sState);
 				if(activity != ExtensionStatus::UnknownActivity)
+				{
 					pExtensionStatus->SetActivity(activity);
+				}
 				else
 				{
-					LoggerWrapper::GetInstance()->Write(LV_WARNING, "Received unknown activity for extension %s -> %s!", 
-											   sExten.c_str(), sActivity.c_str());
+					//if not Unregistered or Registered?
+					ExtensionStatus::Availability availability = ExtensionStatus::String2Availability(sState);
+					if(availability != ExtensionStatus::UnknownAvailability)
+						pExtensionStatus->SetAvailability(availability);
+					else
+					{
+						//unknown state
+						LoggerWrapper::GetInstance()->Write(LV_WARNING, "Received unknown status for extension %s -> %s!", 
+							sExten.c_str(), sState.c_str());
+					}
 				}
 			}
 			
-			if( !sState.empty() )
-			{
-				ExtensionStatus::Availability availability = ExtensionStatus::String2Availability(sState);
-				if(availability != ExtensionStatus::UnknownAvailability)
-					pExtensionStatus->SetAvailability(availability);
-				else
-				{
-					LoggerWrapper::GetInstance()->Write(LV_WARNING, "Received unknown status for extension %s -> %s!", 
-											   sExten.c_str(), sState.c_str());
-				}
-			}
 			
 			if( !sType.empty() )
 			{
