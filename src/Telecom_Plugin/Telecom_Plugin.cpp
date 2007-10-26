@@ -1589,9 +1589,11 @@ class DataGridTable *Telecom_Plugin::ActiveUsersOnCallGrid(string GridID,string 
 	}
 	else
 	{
-		pCell = new DataGridCell("INVALID phone call id: " + Parms, "");
-		pCell->m_AltColor = UniqueColors[Row % MAX_TELECOM_COLORS];
-		pDataGrid->SetData(0, Row, pCell);
+		if(!Parms.empty())
+		{
+			pCell = new DataGridCell("INVALID phone call id: " + Parms, "");
+			pDataGrid->SetData(0, Row, pCell);
+		}
 	}
 
 	return pDataGrid;
