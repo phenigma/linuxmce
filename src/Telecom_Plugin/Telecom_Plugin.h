@@ -357,8 +357,16 @@ private:
 	void RemoveExtensionStatus(string);
 	void CleanStatusMaps();
 	
+	/***/
 	ExtensionStatus * FindExtensionStatusByDevice(int iPK_Device, int * pEmbeddedPhone = NULL);
+	/***/
 	string GetPhoneNumber(int iPK_Users,string sPhoneExtension,int iPK_Device_To);
+	
+	/** Call external number OR caller id
+	  * Call first extension OR caller id
+	  */
+	string GetCallName(CallStatus *) const;
+
 	
 private:
 	int iCmdCounter;

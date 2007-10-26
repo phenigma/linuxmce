@@ -2635,8 +2635,8 @@ ExtensionStatus * Telecom_Plugin::FindExtensionStatusByDevice(int iPK_Device, in
 	}
 	
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "our device is : id %d template %d",
-							   pDeviceData->m_dwPK_Device,
-		  pDeviceData->m_dwPK_DeviceTemplate );
+		pDeviceData->m_dwPK_Device,
+		pDeviceData->m_dwPK_DeviceTemplate );
 	
 	/*find phonetype and phonenumber*/
 	string sSrcPhoneNumber = pDeviceData->mapParameters_Find(DEVICEDATA_PhoneNumber_CONST);
@@ -2644,3 +2644,8 @@ ExtensionStatus * Telecom_Plugin::FindExtensionStatusByDevice(int iPK_Device, in
 	return FindExtensionStatus(sSrcPhoneNumber);
 }
 
+string Telecom_Plugin::GetCallName(CallStatus * pCallStatus) const
+{
+	string sName = "Call ";
+	return sName;
+}
