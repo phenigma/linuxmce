@@ -107,6 +107,11 @@ namespace DCE
 			{
 				return channels.empty();
 			}
+
+			const map<string, string>& GetChannels() const
+			{
+				return channels;
+			}
 			
 			/***/
 			string GetDebugInfo() const;
