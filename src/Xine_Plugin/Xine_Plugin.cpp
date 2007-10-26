@@ -346,6 +346,9 @@ bool Xine_Plugin::StartMedia( MediaStream *pMediaStream,string &sError )
 			
 			if (bAppendFiles)
 			{
+				// need this for bookmarking to work
+				int iPK_File = pMediaFile->m_dwPK_File;
+				
 				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Appending extra items to list: ");
 				string sFolder = sFileToPlay;
 				string sExt = "";
@@ -368,8 +371,9 @@ bool Xine_Plugin::StartMedia( MediaStream *pMediaStream,string &sError )
 				
 				for (list<string>::iterator li=vItems.begin(); li!=vItems.end(); ++li)
 				{
-					LoggerWrapper::GetInstance()->Write(LV_STATUS, "Item: %s", li->c_str());
+					LoggerWrapper::GetInstance()->Write(LV_STATUS, "Item: %s [ripped file %i]", li->c_str(), iPK_File);
 					MediaFile *pItem = new MediaFile(sFolder+"/"+*li);
+					pItem->m_dwPK_File = iPK_File;
 					pMediaStream->m_dequeMediaFile.push_back(pItem);
 				}
 			}
