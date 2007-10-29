@@ -236,7 +236,8 @@ public:
 	virtual void CMD_Speak_in_house(int iPK_Device,string sPhoneNumber,string sList_PK_Device,int iPK_Device_Related,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Make_Call(int iPK_Users,string sPhoneExtension,int iFK_Device_From,int iPK_Device_To,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Merge_Calls(string sPhone_Call_ID_1,string sPhone_Call_ID_2,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Assisted_Transfer(int iPK_Device,int iPK_Users,string sPhoneExtension,string sPhoneCallID,string sChannel_1,string sChannel_2,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Assisted_Transfer(int iPK_Device,int iPK_Users,string sPhoneExtension,string sPhoneCallID,string sChannel,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Process_Task(string sTask,string sJob,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual ReceivedMessageResult ReceivedMessage(class Message *pMessageOriginal)
@@ -665,9 +666,8 @@ public:
 						int iPK_Users=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Users_CONST].c_str());
 						string sPhoneExtension=pMessage->m_mapParameters[COMMANDPARAMETER_PhoneExtension_CONST];
 						string sPhoneCallID=pMessage->m_mapParameters[COMMANDPARAMETER_PhoneCallID_CONST];
-						string sChannel_1=pMessage->m_mapParameters[COMMANDPARAMETER_Channel_1_CONST];
-						string sChannel_2=pMessage->m_mapParameters[COMMANDPARAMETER_Channel_2_CONST];
-						CMD_Assisted_Transfer(iPK_Device,iPK_Users,sPhoneExtension.c_str(),sPhoneCallID.c_str(),sChannel_1.c_str(),sChannel_2.c_str(),sCMD_Result,pMessage);
+						string sChannel=pMessage->m_mapParameters[COMMANDPARAMETER_Channel_CONST];
+						CMD_Assisted_Transfer(iPK_Device,iPK_Users,sPhoneExtension.c_str(),sPhoneCallID.c_str(),sChannel.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -684,7 +684,34 @@ public:
 						{
 							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Assisted_Transfer(iPK_Device,iPK_Users,sPhoneExtension.c_str(),sPhoneCallID.c_str(),sChannel_1.c_str(),sChannel_2.c_str(),sCMD_Result,pMessage);
+								CMD_Assisted_Transfer(iPK_Device,iPK_Users,sPhoneExtension.c_str(),sPhoneCallID.c_str(),sChannel.c_str(),sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case COMMAND_Process_Task_CONST:
+					{
+						string sCMD_Result="OK";
+						string sTask=pMessage->m_mapParameters[COMMANDPARAMETER_Task_CONST];
+						string sJob=pMessage->m_mapParameters[COMMANDPARAMETER_Job_CONST];
+						CMD_Process_Task(sTask.c_str(),sJob.c_str(),sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(itRepeat->second.c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Process_Task(sTask.c_str(),sJob.c_str(),sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

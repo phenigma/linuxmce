@@ -305,7 +305,8 @@ public:
 
 
 	/** @brief COMMAND: #925 - Assisted Transfer */
-	/** Interactive transfer, not just a blind transfer */
+	/** Interactive transfer, not just a blind transfer.
+The response is a task id */
 		/** @param #2 PK_Device */
 			/** Device ID to transfer call to */
 		/** @param #17 PK_Users */
@@ -314,13 +315,22 @@ public:
 			/** Extension to transfer call to */
 		/** @param #87 PhoneCallID */
 			/** Phone call id to transfer  */
-		/** @param #265 Channel 1 */
-			/** Channel to transfer */
-		/** @param #266 Channel 2 */
-			/** Second channel to transfer (can be empty) */
+		/** @param #264 Channel */
+			/** The channel of the owner of the assisted transfer */
 
-	virtual void CMD_Assisted_Transfer(int iPK_Device,int iPK_Users,string sPhoneExtension,string sPhoneCallID,string sChannel_1,string sChannel_2) { string sCMD_Result; CMD_Assisted_Transfer(iPK_Device,iPK_Users,sPhoneExtension.c_str(),sPhoneCallID.c_str(),sChannel_1.c_str(),sChannel_2.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Assisted_Transfer(int iPK_Device,int iPK_Users,string sPhoneExtension,string sPhoneCallID,string sChannel_1,string sChannel_2,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Assisted_Transfer(int iPK_Device,int iPK_Users,string sPhoneExtension,string sPhoneCallID,string sChannel) { string sCMD_Result; CMD_Assisted_Transfer(iPK_Device,iPK_Users,sPhoneExtension.c_str(),sPhoneCallID.c_str(),sChannel.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Assisted_Transfer(int iPK_Device,int iPK_Users,string sPhoneExtension,string sPhoneCallID,string sChannel,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #926 - Process Task */
+	/** Process a task with actions like "complete transfer now", "merge calls", etc. */
+		/** @param #257 Task */
+			/** The task id */
+		/** @param #258 Job */
+			/** The job type */
+
+	virtual void CMD_Process_Task(string sTask,string sJob) { string sCMD_Result; CMD_Process_Task(sTask.c_str(),sJob.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Process_Task(string sTask,string sJob,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

@@ -2510,29 +2510,6 @@ void Telecom_Plugin::CMD_Merge_Calls(string sPhone_Call_ID_1,string sPhone_Call_
 	//TODO: implement me!
 }
 
-//<-dceag-c925-b->
-
-	/** @brief COMMAND: #925 - Assisted Transfer */
-	/** Interactive transfer, not just a blind transfer */
-		/** @param #2 PK_Device */
-			/** Device ID to transfer call to */
-		/** @param #17 PK_Users */
-			/** User ID to transfer call to */
-		/** @param #83 PhoneExtension */
-			/** Extension to transfer call to */
-		/** @param #87 PhoneCallID */
-			/** Phone call id to transfer  */
-		/** @param #265 Channel 1 */
-			/** Channel to transfer */
-		/** @param #266 Channel 2 */
-			/** Second channel to transfer (can be empty) */
-
-void Telecom_Plugin::CMD_Assisted_Transfer(int iPK_Device,int iPK_Users,string sPhoneExtension,string sPhoneCallID,string sChannel_1,string sChannel_2,string &sCMD_Result,Message *pMessage)
-//<-dceag-c925-e->
-{
-	//TODO: implement me!
-}
-
 string Telecom_Plugin::GetPhoneNumber(int iPK_Users, string sPhoneExtension, int iPK_Device_To)
 {
 	string sPhoneNumber;
@@ -2675,4 +2652,76 @@ void Telecom_Plugin::DumpActiveCalls()
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Active calls %d: \n%s", map_call2status.size(), sDebugInfo.c_str());
 }
 
+//<-dceag-c925-b->
 
+	/** @brief COMMAND: #925 - Assisted Transfer */
+	/** Interactive transfer, not just a blind transfer. The response is a task id */
+		/** @param #2 PK_Device */
+			/** Device ID to transfer call to */
+		/** @param #17 PK_Users */
+			/** User ID to transfer call to */
+		/** @param #83 PhoneExtension */
+			/** Extension to transfer call to */
+		/** @param #87 PhoneCallID */
+			/** Phone call id to transfer  */
+		/** @param #264 Channel */
+			/** The channel of the owner of the assisted transfer */
+
+void Telecom_Plugin::CMD_Assisted_Transfer(int iPK_Device,int iPK_Users,string sPhoneExtension,string sPhoneCallID,string sChannel,string &sCMD_Result,Message *pMessage)
+//<-dceag-c925-e->
+{
+	//1) {X,Y,A} & B => {X,Y} & {A,B}
+	//or 
+	//2) {X,Y,A} & {B,C} => {X,Y} & {A,B,C} 
+
+	//struct Task
+	//{
+	//	ext dest,
+	//	call id dest,
+	//	my channel,
+	//	>> my call id
+	//}
+
+	//create "private chat"
+	//daca failed -> msg to orbiter si refacere stare
+}
+
+//<-dceag-c926-b->
+
+	/** @brief COMMAND: #926 - Process Task */
+	/** Process a task with actions like "complete transfer now", "merge calls", etc. */
+		/** @param #257 Task */
+			/** The task id */
+		/** @param #258 Job */
+			/** The job type */
+
+void Telecom_Plugin::CMD_Process_Task(string sTask,string sJob,string &sCMD_Result,Message *pMessage)
+//<-dceag-c926-e->
+{
+	//job "initialize" (internal)
+	//1) {X,Y,A} & B => {X,Y} & {A,B}
+	//or 
+	//2) {X,Y,A} & {B,C} => {X,Y} & {A,B,C} 
+
+	//job "transfer"
+	//1) {X,Y,A} & B => {X,Y} & {A,B} -> drop A, {X,Y,B}
+	//or 
+	//2) {X,Y,A} & {B,C} => {X,Y} & {A,B,C} 
+
+	//job "conference"
+	//1) {X,Y,A} & B => {X,Y} & {A,B} -> {X,Y,A,B}
+
+	//job "merge calls"
+	//2) {X,Y,A} & {B,C} => {X,Y,A,B,C} 
+
+	//job "cancel"
+	//1) {X,Y,A} & B => {X,Y} & {A,B} -> {X,Y,A} & B
+	//or 
+	//2) {X,Y,A} & {B,C} => {X,Y,A} & {B,C} 
+
+	//stagii:
+	//- ready
+	//- processing job ? jobtype
+	//- completed
+	//- failed (event de la asterisk)
+}
