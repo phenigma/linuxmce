@@ -162,16 +162,18 @@ FormatPartitions()
 	if [[ "$FromHdd" == 1 || "$Upgrade" == 1 ]] && mount "$TargetHdd"1 /media/target; then
 		pushd /media/target &>/dev/null
 
-		pushd ./usr/pluto/diskless &>/dev/null
-			while read MD; do
-				NukeFS "./$MD",etc "./$MD/etc",pluto.conf
-			done < <(find . -mindepth 1 -maxdepth 1 -type d)
-		popd &>/dev/null
+		if [[ -d ./usr/pluto/diskless ]]; then
+			pushd ./usr/pluto/diskless &>/dev/null
+				while read MD; do
+					NukeFS "./$MD",etc "./$MD/etc",pluto.conf
+				done < <(find . -mindepth 1 -maxdepth 1 -type d)
+			popd &>/dev/null
 
-		mkdir .upgrade-diskless
-		mv ./usr/pluto/diskless/* .upgrade-diskless/
+			mkdir .upgrade-diskless
+			mv ./usr/pluto/diskless/* .upgrade-diskless/
+		fi
 
-		NukeFS .,home,var,etc,usr ./var,lib ./var/lib,mysql ./etc,pluto.conf,ssh,passwd,shadow,group ./usr,pluto ./usr/pluto,orbiter ./usr/pluto/orbiter,rooms,scenarios,users
+		NukeFS .,home,var,etc,usr,.upgrade-diskless ./var,lib ./var/lib,mysql ./etc,pluto.conf,ssh,passwd,shadow,group ./usr,pluto ./usr/pluto,orbiter ./usr/pluto/orbiter,rooms,scenarios,users
 			
 		mkdir .upgrade-save
 		find -mindepth 1 -maxdepth 1 -not -name '.upgrade-*' -exec mv '{}' .upgrade-save/ ';'
