@@ -837,6 +837,7 @@
 #define COMMAND_Assisted_Make_Call_CONST 923
 #define COMMAND_Merge_Calls_CONST 924
 #define COMMAND_Assisted_Transfer_CONST 925
+#define COMMAND_Process_Task_CONST 926
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"
