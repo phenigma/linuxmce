@@ -3653,54 +3653,26 @@ void ScreenHandler::HandleAssistedMakeCall(int iPK_Users,string sPhoneExtension,
 				DCE::CMD_Assisted_Transfer cmd_Assisted_Transfer(
 					m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device_TelecomPlugIn,
 					iPK_Device_To, iPK_Users, sPhoneExtension, sSecondPhoneCall, sMyChannel);
-				m_pOrbiter->SendCommand(cmd_Assisted_Transfer);
+
+				string sTaskID;
+				m_pOrbiter->SendCommand(cmd_Assisted_Transfer, &sTaskID);
 
 				string sDescription = "Calling, please wait...";
 				
-				string sDropSecondFromPrivateChatCommand = 
-					StringUtils::itos(iPK_Device_To) + " " + 
-					StringUtils::itos(m_pOrbiter->m_dwPK_Device_TelecomPlugIn) + " " + 	
-					StringUtils::itos(MESSAGETYPE_COMMAND) + " " + 
-					StringUtils::itos(COMMAND_Phone_Drop_CONST);
-
-				string sDropFirstFromPrivateChatCommand = 
-					StringUtils::itos(iPK_Device_From) + " " + 
-					StringUtils::itos(m_pOrbiter->m_dwPK_Device_TelecomPlugIn) + " " + 	
-					StringUtils::itos(MESSAGETYPE_COMMAND) + " " + 
-					StringUtils::itos(COMMAND_Phone_Drop_CONST);
-
-				string sJoinFirstCommand = 
+				string sProcessTask =
 					StringUtils::itos(m_pOrbiter->m_dwPK_Device) + " " + 
 					StringUtils::itos(m_pOrbiter->m_dwPK_Device_TelecomPlugIn) + " " + 	
 					StringUtils::itos(MESSAGETYPE_COMMAND) + " " + 
-					StringUtils::itos(COMMAND_PL_Join_Call_CONST) + " " +
-					StringUtils::itos(COMMANDPARAMETER_PhoneCallID_CONST) + " \"" + sMyCall + "\" " +
-					StringUtils::itos(COMMANDPARAMETER_PK_Device_To_CONST) + " " + StringUtils::itos(m_pOrbiter->m_dwPK_Device);
-
-				string sJoinSecondCommand = 
-					StringUtils::itos(m_pOrbiter->m_dwPK_Device) + " " + 
-					StringUtils::itos(m_pOrbiter->m_dwPK_Device_TelecomPlugIn) + " " + 	
-					StringUtils::itos(MESSAGETYPE_COMMAND) + " " + 
-					StringUtils::itos(COMMAND_PL_Join_Call_CONST) + " " +
-					StringUtils::itos(COMMANDPARAMETER_PK_Users_CONST) + " " + StringUtils::itos(iPK_Users) + " " +
-					StringUtils::itos(COMMANDPARAMETER_PhoneExtension_CONST) + " " + sPhoneExtension + " " +
-					StringUtils::itos(COMMANDPARAMETER_PhoneCallID_CONST) + " \"" + sMyCall + "\" " +
-					StringUtils::itos(COMMANDPARAMETER_PK_Device_To_CONST) + " " + StringUtils::itos(iPK_Device_To);
-
-				string sMergeCalls = 
-					StringUtils::itos(m_pOrbiter->m_dwPK_Device) + " " + 
-					StringUtils::itos(m_pOrbiter->m_dwPK_Device_TelecomPlugIn) + " " + 	
-					StringUtils::itos(MESSAGETYPE_COMMAND) + " " + 
-					StringUtils::itos(COMMAND_PL_Join_Call_CONST) + " " +
-					StringUtils::itos(COMMANDPARAMETER_Phone_Call_ID_1_CONST) + " \"" + sMyCall + "\" " +
-					StringUtils::itos(COMMANDPARAMETER_Phone_Call_ID_2_CONST) + " \"" + sSecondPhoneCall;
+					StringUtils::itos(COMMAND_Process_Task_CONST) + " " +
+					StringUtils::itos(COMMANDPARAMETER_Task_CONST) + sTaskID + " " + 
+					StringUtils::itos(COMMANDPARAMETER_Job_CONST) + " ";
 
 				//Drop transfer and CMD_PL_Join A to {X,Y}:
 				//1) {X,Y,A} & B => {X,Y} & {A,B} -> drop A, {X,Y,B}
 				//or 
 				//2) {X,Y,A} & {B,C} => {X,Y} & {A,B,C} 
 				string sButton1 = sSecondPhoneCall.empty() ? "Complete transfer now" : "Transfer me here";
-				string sCommand1 = sDropFirstFromPrivateChatCommand + ", " + sJoinSecondCommand;
+				string sCommand1 = sProcessTask + "\"transfer\"";
 
 				//Drop transfer and CMD_PL_Join B to {X,Y}
 				//1) {X,Y,A} & B => {X,Y} & {A,B} -> {X,Y,A,B}
@@ -3708,15 +3680,15 @@ void ScreenHandler::HandleAssistedMakeCall(int iPK_Users,string sPhoneExtension,
 				//2) {X,Y,A} & {B,C} => {X,Y,A,B,C} 
 				string sButton2 = sSecondPhoneCall.empty() ? "Conference" : "Merge calls";
 				//TODO: transfer A si B ?
-				string sCommand2 = (sSecondPhoneCall.empty() ? 
-						(sJoinFirstCommand + ", " + sJoinSecondCommand) : sMergeCalls);
+				string sCommand2 = sProcessTask + 
+					(sSecondPhoneCall.empty() ? "\"conference\"" : "\"merge calls\"");
 				
 				//Drop transfer and CMD_PL_Join A and B to {X,Y}
 				//1) {X,Y,A} & B => {X,Y} & {A,B} -> {X,Y,A} & B
 				//or 
 				//2) {X,Y,A} & {B,C} => {X,Y,A} & {B,C} 
 				string sButton3 = "Cancel transfer/conference";
-				string sCommand3 = sDropSecondFromPrivateChatCommand + ", " + sJoinFirstCommand;
+				string sCommand3 =  sProcessTask + "\"cancel\"";
  
 				SCREEN_PopupMessage(SCREEN_PopupMessage_CONST, 
 					sDescription + "|" + sButton1 + "|" + sButton2 + "|" + sButton3,
