@@ -258,7 +258,9 @@ function rooms($output,$dbADO) {
 						$imageinfo = getimagesize( $filePath );
 						if($imageinfo[0]!=160 && $imageinfo[1]!=160){
 							resizeImage($filePath,str_replace('.jpg','.png',$filePath),160,160,1);
-							@unlink($filePath);
+							if(strpos($filePath,'.jpg')!==false){
+								@unlink($filePath);
+							}
 						}
 					}
 				}else
