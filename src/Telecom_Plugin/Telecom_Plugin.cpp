@@ -550,7 +550,15 @@ Telecom_Plugin::CallsStatusChanged(class Socket *pSocket,class Message *pMessage
 		string sLine = *it;
 
 		vector<string> vectTokens;
-		StringUtils::Tokenize(sLine, ":", vectTokens);
+		string::size_type pos = 0;
+		string str;
+
+		do 
+		{
+			str = StringUtils::Tokenize(sLine, ":", pos);
+			vectTokens.push_back(str);
+		}
+		while(pos < sLine.length());
 
 		if(vectTokens.size() == CallStatus::NUM_FIELDS)
 		{
