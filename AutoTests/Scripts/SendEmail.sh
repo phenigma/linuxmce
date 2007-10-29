@@ -8,7 +8,7 @@ echo "SendEmail.sh" >> /tmp/status.log
 cat /critical.log /Unhalded.log /DeviceDied.log /PlayedMedia.log /MediaPlugin.log /CoreDumps.log > /allLogs.log
 sed 's|[[0-9]*[;]*[0-9]*m||g' /allLogs.log > /allLogsFin.log
 
-ipThis=`ssh dcerouter ifconfig | sed -e 's/.*inet addr:\(10\.0\.0\.[0-9]*\).*/\1/;t;d;'`
+ipThis=`ssh dcerouter ifconfig | sed -e 's/.*inet addr:\(10\.0\.1\.[0-9]*\).*/\1/;t;d;'`
 ipThis="${ipThis}_$(hostname)"
 
 #if [[ -f /etc/diskless.conf ]] ;then
