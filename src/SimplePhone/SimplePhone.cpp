@@ -295,11 +295,9 @@ void SimplePhone::CMD_Phone_Initiate(int iPK_Device,string sPhoneExtension,strin
 	StopMedia();
 	LS_InitiateCall(sPhoneExtension.c_str());
     sCMD_Result="OK";
-    CMD_Set_Variable CMD_Set_Variable_name(m_dwPK_Device,GetData()->m_dwPK_Device_ControlledVia,VARIABLE_Caller_name_CONST,string(""));
-    SendCommand(CMD_Set_Variable_name);
-    CMD_Set_Variable CMD_Set_Variable_number(m_dwPK_Device,GetData()->m_dwPK_Device_ControlledVia,VARIABLE_Caller_number_CONST,sPhoneExtension);
-    SendCommand(CMD_Set_Variable_number);
-    DCE::SCREEN_DevCallInProgress SCREEN_DevCallInProgress_(m_dwPK_Device,GetData()->m_dwPK_Device_ControlledVia, "");
+
+	//TODO: Move this to telecom
+    DCE::SCREEN_DevCallInProgress SCREEN_DevCallInProgress_(m_dwPK_Device,GetData()->m_dwPK_Device_ControlledVia, sPhoneExtension);
     SendCommand(SCREEN_DevCallInProgress_);
 }
 
@@ -357,10 +355,6 @@ void SimplePhone::StopMedia()
 void SimplePhone::IncomingCallScreen(string sCallerID)
 {
 	StopMedia();
-	CMD_Set_Variable CMD_Set_Variable_name(m_dwPK_Device,GetData()->m_dwPK_Device_ControlledVia,VARIABLE_Caller_name_CONST,sCallerID);
-	SendCommand(CMD_Set_Variable_name);
-	CMD_Set_Variable CMD_Set_Variable_number(m_dwPK_Device,GetData()->m_dwPK_Device_ControlledVia,VARIABLE_Caller_number_CONST,sCallerID);
-	SendCommand(CMD_Set_Variable_number);
 	GetEvents()->SendMessage(new Message(m_dwPK_Device, DEVICETEMPLATE_VirtDev_Telecom_Plugin_CONST, PRIORITY_NORMAL, MESSAGETYPE_EVENT, EVENT_Incoming_Call_CONST,0));
 }
 

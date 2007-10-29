@@ -835,12 +835,12 @@ Telecom_Plugin::IncomingCall( class Socket *pSocket, class Message *pMessage, cl
 		}
 	}
 		
-	CMD_Set_Variable CMD_Set_Variable_name(pDeviceFrom->m_dwPK_Device, pDeviceFrom->m_dwPK_Device_ControlledVia,VARIABLE_Caller_name_CONST,sCallerID);
-	SendCommand(CMD_Set_Variable_name);
-	CMD_Set_Variable CMD_Set_Variable_number(pDeviceFrom->m_dwPK_Device, pDeviceFrom->m_dwPK_Device_ControlledVia,VARIABLE_Caller_number_CONST,sCallerID);
-	SendCommand(CMD_Set_Variable_number);
-	
-	SCREEN_DevIncomingCall SCREEN_DevIncomingCall_(m_dwPK_Device, pDeviceFrom->m_dwPK_Device_ControlledVia, "" /* TODO : add my channel id */);
+	SCREEN_DevIncomingCall SCREEN_DevIncomingCall_(m_dwPK_Device, pDeviceFrom->m_dwPK_Device_ControlledVia, 
+		sChannelID, //source channel id
+		"", //TODO : my channel id
+		sCallerID, //source caller id
+		"" //TODO: my caller id
+	);
 	SendCommand(SCREEN_DevIncomingCall_);
 
 	return false;

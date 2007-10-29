@@ -3487,12 +3487,17 @@ void ScreenHandler::SCREEN_DevCallInProgress(long PK_Screen, string sChannel)
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_My_Channel_ID_CONST, sChannel);
 }
 //-----------------------------------------------------------------------------------------------------
-void ScreenHandler::SCREEN_DevIncomingCall(long PK_Screen, string sChannel)
+void ScreenHandler::SCREEN_DevIncomingCall(long PK_Screen, string sSource_Channel, 
+	string sDestination_Channel, string sSource_Caller_ID, string sDestination_Caller_ID)
 {
-	ScreenHandlerBase::SCREEN_DevIncomingCall(PK_Screen, sChannel);
+	ScreenHandlerBase::SCREEN_DevIncomingCall(PK_Screen, sSource_Channel, sDestination_Channel,
+		sSource_Caller_ID, sDestination_Caller_ID);
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::Telecom_ObjectSelected, new ObjectInfoBackData());
 
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_My_Channel_ID_CONST, sChannel);
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_My_Channel_ID_CONST, sDestination_Channel);
+	//m_pOrbiter->CMD_Set_Variable(VARIABLE_My_Caller_ID_CONST, sDestination_Channel);
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Caller_name_CONST, sSource_Caller_ID);
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Caller_number_CONST, sSource_Channel);
 }
 //-----------------------------------------------------------------------------------------------------
 bool ScreenHandler::Telecom_ObjectSelected(CallBackData *pData)
