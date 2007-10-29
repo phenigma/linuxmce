@@ -3652,13 +3652,19 @@ void ScreenHandler::HandleAssistedMakeCall(int iPK_Users,string sPhoneExtension,
 
 				DCE::CMD_Assisted_Transfer cmd_Assisted_Transfer(
 					m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device_TelecomPlugIn,
-					iPK_Device_To, iPK_Users, sPhoneExtension, sSecondPhoneCall, sMyChannel, "" /*2nd channel*/);
+					iPK_Device_To, iPK_Users, sPhoneExtension, sSecondPhoneCall, sMyChannel);
 				m_pOrbiter->SendCommand(cmd_Assisted_Transfer);
 
 				string sDescription = "Calling, please wait...";
 				
-				string sDropPrivateChatCommand = 
+				string sDropSecondFromPrivateChatCommand = 
 					StringUtils::itos(iPK_Device_To) + " " + 
+					StringUtils::itos(m_pOrbiter->m_dwPK_Device_TelecomPlugIn) + " " + 	
+					StringUtils::itos(MESSAGETYPE_COMMAND) + " " + 
+					StringUtils::itos(COMMAND_Phone_Drop_CONST);
+
+				string sDropFirstFromPrivateChatCommand = 
+					StringUtils::itos(iPK_Device_From) + " " + 
 					StringUtils::itos(m_pOrbiter->m_dwPK_Device_TelecomPlugIn) + " " + 	
 					StringUtils::itos(MESSAGETYPE_COMMAND) + " " + 
 					StringUtils::itos(COMMAND_Phone_Drop_CONST);
@@ -3690,29 +3696,27 @@ void ScreenHandler::HandleAssistedMakeCall(int iPK_Users,string sPhoneExtension,
 					StringUtils::itos(COMMANDPARAMETER_Phone_Call_ID_2_CONST) + " \"" + sSecondPhoneCall;
 
 				//Drop transfer and CMD_PL_Join A to {X,Y}:
-				//1) {X,Y,A} & B => {X,Y} & {A,B}
+				//1) {X,Y,A} & B => {X,Y} & {A,B} -> drop A, {X,Y,B}
 				//or 
 				//2) {X,Y,A} & {B,C} => {X,Y} & {A,B,C} 
 				string sButton1 = sSecondPhoneCall.empty() ? "Complete transfer now" : "Transfer me here";
-				string sCommand1 = sDropPrivateChatCommand + ", " + sJoinSecondCommand;
+				string sCommand1 = sDropFirstFromPrivateChatCommand + ", " + sJoinSecondCommand;
 
 				//Drop transfer and CMD_PL_Join B to {X,Y}
-				//1) {X,Y,A} & B => {X,Y,A,B}
+				//1) {X,Y,A} & B => {X,Y} & {A,B} -> {X,Y,A,B}
 				//or 
 				//2) {X,Y,A} & {B,C} => {X,Y,A,B,C} 
 				string sButton2 = sSecondPhoneCall.empty() ? "Conference" : "Merge calls";
-				string sCommand2 = sDropPrivateChatCommand + ", " + 
-					(sSecondPhoneCall.empty() ? 
-						(sJoinFirstCommand + ", " + sJoinSecondCommand) :
-						(sMergeCalls)
-					);
-
+				//TODO: transfer A si B ?
+				string sCommand2 = (sSecondPhoneCall.empty() ? 
+						(sJoinFirstCommand + ", " + sJoinSecondCommand) : sMergeCalls);
+				
 				//Drop transfer and CMD_PL_Join A and B to {X,Y}
-				//1) {X,Y,A} & B => {X,Y,A} & B
+				//1) {X,Y,A} & B => {X,Y} & {A,B} -> {X,Y,A} & B
 				//or 
 				//2) {X,Y,A} & {B,C} => {X,Y,A} & {B,C} 
 				string sButton3 = "Cancel transfer/conference";
-				string sCommand3 = sDropPrivateChatCommand + ", " + sJoinFirstCommand;
+				string sCommand3 = sDropSecondFromPrivateChatCommand + ", " + sJoinFirstCommand;
  
 				SCREEN_PopupMessage(SCREEN_PopupMessage_CONST, 
 					sDescription + "|" + sButton1 + "|" + sButton2 + "|" + sButton3,
