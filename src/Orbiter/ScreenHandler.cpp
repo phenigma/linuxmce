@@ -3580,6 +3580,26 @@ bool ScreenHandler::Telecom_ObjectSelected(CallBackData *pData)
 					}
 				}
 				break;
+
+				case DESIGNOBJ_butAddToActiveCall_CONST:
+				{
+					m_TelecomCommandStatus = tcsJoining;
+					m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, "");
+					GotoScreen(SCREEN_MakeCallDialNumber_CONST);
+					bDontProcessIt = true;                  
+				}
+				break;
+
+				case DESIGNOBJ_butRemoveFromActiveCall_CONST:
+				{
+					string sSelectedChannel = m_pOrbiter->m_mapVariable_Find(VARIABLE_Current_Channel_On_Call_CONST);
+
+					DCE::CMD_PL_Cancel cmd_PL_Cancel(m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device_TelecomPlugIn,
+						0, sSelectedChannel);
+					m_pOrbiter->SendCommand(cmd_PL_Cancel);
+					bDontProcessIt = true;                  
+				}
+				break;
 			}
 		}
 	}
