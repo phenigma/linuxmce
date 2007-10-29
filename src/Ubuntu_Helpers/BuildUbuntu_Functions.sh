@@ -6,8 +6,8 @@ export KDE_LMCE=""
 
 ## Log every message that the builder outputs in the logfile
 exec 100>&1
-exec >/var/log/BuildUbuntu.log
-exec 2>&1
+#exec >/var/log/BuildUbuntu.log
+#exec 2>&1
 
 flavor="ubuntu"
 
@@ -66,6 +66,7 @@ function Install_Build_Needed_Packages {
 }
 
 function Checkout_Pluto_Svn {
+	DisplayMessage "**** STEP : SVN CHECKOUT"
 	local Branch="${1:-trunk}"
 	local BranchParts="$2" # ex: "src web"; the rest will come from trunk
 
@@ -109,32 +110,40 @@ function Checkout_Pluto_Svn {
 
 
 function Build_MakeRelease_Binary {
+	DisplayMessage "**** STEP : PREPARING BUILD SYSTEM (MakeRelase)"
+	DisplayMessage "Precompiling pluto_main"
 	pushd ${svn_dir}/trunk/src/pluto_main
-	make
+	make || Error "Failed to precompile pluto_main to use for MakeRelease"
 	popd
 
+	DisplayMessage "Precompiling PlutoUtils"
 	pushd ${svn_dir}/trunk/src/PlutoUtils
-	SNR_CPPFLAGS="" make
+	make || Error "Failed to precompile PlutoUtils"
 	popd
 
+	DisplayMessage "Precompiling SerializeClass"
 	pushd ${svn_dir}/trunk/src/SerializeClass
-	SNR_CPPFLAGS="" make
+	SNR_CPPFLAGS="" make || Error "Failed to precompile SerializeClass"
 	popd
 
+	DisplayMessage "Precompiling LibDCE"
 	pushd ${svn_dir}/trunk/src/DCE
-	SNR_CPPFLAGS="" make
+	SNR_CPPFLAGS="" make || Error "Failed to precompile LibDCE"
 	popd
 
+	DisplayMessage "Precompiling MakeRelease"
 	pushd ${svn_dir}/trunk/src/MakeRelease
-	make -f Makefile.MakeRelease
+	make -f Makefile.MakeRelease || Error "Failed to precompile MakeRelease"
 	popd
 
+	DisplayMessage "Precompiling MakeRelease_PrepFiles"
 	pushd ${svn_dir}/trunk/src/MakeRelease_PrepFiles
-	make
+	make || Error "Failed to precompile MakeRelease_PrepFiles"
 	popd
 
-	pushd ${svn_dri}/trunk/src/mysql_wrapper
-	make
+	DisplayMessage "Precompiling mysql_wrapper"
+	pushd ${svn_dir}/trunk/src/mysql_wrapper
+	make || Error "Failed to precompile mysql_wrapper"
 	popd
 
 	mkdir -p ${mkr_dir}
