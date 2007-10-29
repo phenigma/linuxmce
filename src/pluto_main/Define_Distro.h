@@ -15,6 +15,7 @@
 #define DISTRO_Windows_CE_CONST 12
 #define DISTRO_Other_Linux_CONST 13
 #define DISTRO_Ubuntu_Edgy_CONST 14
+#define DISTRO_Ubuntu_Gutsy_CONST 15
 
 #define DISTRO_TABLE "Distro"
 #define DISTRO_PK_DISTRO_FIELD "PK_Distro"
