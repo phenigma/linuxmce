@@ -1222,7 +1222,7 @@ void Telecom_Plugin::CMD_PL_Cancel(int iPK_Device,string sChannel,string &sCMD_R
 void Telecom_Plugin::HangupAllCalls()
 {
 #ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Telecom_Plugin::HangupAllCalls hanging up %u", map_call2status->size());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Telecom_Plugin::HangupAllCalls hanging up %u", map_call2status.size());
 #endif
 
 	PLUTO_SAFETY_LOCK(vm, m_TelecomMutex);
@@ -2754,6 +2754,10 @@ void Telecom_Plugin::DumpActiveCalls()
 void Telecom_Plugin::CMD_Assisted_Transfer(int iPK_Device,int iPK_Users,string sPhoneExtension,string sPhoneCallID,string sChannel,string &sCMD_Result,Message *pMessage)
 //<-dceag-c925-e->
 {
+	string sPhoneNumber = GetPhoneNumber(iPK_Users, sPhoneExtension, iPK_Device);
+	if( sPhoneNumber.empty() )
+	{
+	}
 	//1) {X,Y,A} & B => {X,Y} & {A,B}
 	//or 
 	//2) {X,Y,A} & {B,C} => {X,Y} & {A,B,C} 
