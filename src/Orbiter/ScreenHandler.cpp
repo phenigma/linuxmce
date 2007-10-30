@@ -3467,6 +3467,7 @@ void ScreenHandler::SCREEN_Active_Calls(long PK_Screen)
 {
 	ScreenHandlerBase::SCREEN_Active_Calls(PK_Screen);
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::Telecom_ObjectSelected, new ObjectInfoBackData());
+	RegisterCallBack(cbDataGridRendering, (ScreenHandlerCallBack) &ScreenHandler::Telecom_DataGridRendering, new DatagridAcquiredBackData());
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_MakeCallDevice(long PK_Screen)
@@ -3498,6 +3499,33 @@ void ScreenHandler::SCREEN_DevIncomingCall(long PK_Screen, string sSource_Channe
 	//m_pOrbiter->CMD_Set_Variable(VARIABLE_My_Caller_ID_CONST, sDestination_Channel);
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Caller_name_CONST, sSource_Caller_ID);
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Caller_number_CONST, sSource_Channel);
+}
+//-----------------------------------------------------------------------------------------------------
+bool ScreenHandler::Telecom_DataGridRendering(CallBackData *pData)
+{
+	DatagridAcquiredBackData *pDatagridAcquiredBackData = dynamic_cast<DatagridAcquiredBackData *>(pData);
+
+	if(NULL != pDatagridAcquiredBackData)
+	{
+		if(pDatagridAcquiredBackData->m_pObj->m_iPK_Datagrid==DATAGRID_Active_Channels_CONST)
+		{
+			for(MemoryDataTable::iterator it=pDatagridAcquiredBackData->m_pDataGridTable->m_MemoryDataTable.begin();it!=pDatagridAcquiredBackData->m_pDataGridTable->m_MemoryDataTable.end();++it)
+			{
+				DataGridCell *pCell = it->second;
+				m_pOrbiter->CMD_Set_Variable(VARIABLE_Current_Call_CONST, pCell->m_Value);
+
+				DesignObj_DataGrid *pObj = (DesignObj_DataGrid *)m_pOrbiter->FindObject(DESIGNOBJ_dgActiveUsers_CONST);
+				m_pOrbiter->InitializeGrid(pObj);
+				pObj->Flush();
+				m_pOrbiter->Renderer()->RenderObjectAsync(pObj);
+				NeedToRender render(m_pOrbiter, "Telecom_DataGridRendering");
+
+				return false;
+			}
+		}
+	}
+
+	return false;
 }
 //-----------------------------------------------------------------------------------------------------
 bool ScreenHandler::Telecom_ObjectSelected(CallBackData *pData)
