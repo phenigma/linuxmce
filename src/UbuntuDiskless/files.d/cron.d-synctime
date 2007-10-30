@@ -8,7 +8,7 @@ set -e
 
 ## Cron job
 File="/etc/cron.d/synctime"
-Content="*/5 * * * * root /usr/sbin/ntpdate dcerouter"
+Content="*/5 * * * * root /usr/sbin/ntpdate dcerouter &>/dev/null"
 
 mkdir -p "${Parm_RootLocation}/$(dirname $File)"
 echo -e "${Content}" > "${Parm_RootLocation}/${File}"
