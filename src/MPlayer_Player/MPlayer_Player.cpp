@@ -490,22 +490,31 @@ void MPlayer_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMedi
 	m_sCurrentFileName = sMediaToPlay;
 	
 	vector<string> vFilesToPlay;
-	CopyListToVectorFromItem(vFiles, vFilesToPlay, sMediaToPlay);
+	//CopyListToVectorFromItem(vFiles, vFilesToPlay, sMediaToPlay);
+	vFilesToPlay.push_back(sMediaToPlay);
 	
 	// initializing list
-	copy( vFiles.begin(), vFiles.end(), back_inserter(m_vCurrentPlaylist) );
+	//copy( vFiles.begin(), vFiles.end(), back_inserter(m_vCurrentPlaylist) );
+	m_vCurrentPlaylist.clear();
+	m_vCurrentPlaylist.push_back(sMediaToPlay);
 	
 	//TODO check for playback start errors
-	m_pPlayerEngine->StartPlaylist(vFilesToPlay);
-	
-	m_bMediaOpened = true;
-	m_fCurrentFileLength = 0.0;
-	m_fCurrentFileTime = 0.0;
-	m_bMediaPaused = false;
+	if (m_pPlayerEngine->StartPlaylist(vFilesToPlay) )
+	{
+		m_bMediaOpened = true;
+		m_fCurrentFileLength = 0.0;
+		m_fCurrentFileTime = 0.0;
+		m_bMediaPaused = false;
+	}
+	else
+	{
+		// fire errors
+	}
 	
 	
 	//TODO implement setting media subtitles and audio channel
 
+	// TODO should we sleep?
 	Sleep(1000);
 	
 	CMD_Set_Media_Position(iStreamID, sMediaPosition);
@@ -910,27 +919,43 @@ void *DCE::PlayerEnginePoll(void *pInstance)
 	{
 		Sleep(500);
 //		LoggerWrapper::GetInstance()->Write(LV_STATUS, "PlayerEnginePoll - loop");
+		string sPlayedFile;
 		
 		if (pThis->m_bMediaOpened)
 		{
-			/*
-			// TODO protect pThis member variables
-
-			// detecting if we should fire playback completed
-			string sFile;
-			if ( (!pThis->m_pPlayerEngine->ExecuteCommand("get_file_name", "FILENAME", sFile) || sFile=="") && pThis->m_sCurrentFileName!="" )
+			if ( pThis->m_pPlayerEngine->GetEngineState() != MPlayerEngine::PLAYBACK_STARTED )
 			{
-				LoggerWrapper::GetInstance()->Write(LV_WARNING, "PlayerEnginePoll - detected end of file");
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "PlayerEnginePoll - detected end of playlist");
+				
 				pThis->EVENT_Playback_Completed(pThis->m_sCurrentFileName, pThis->m_iCurrentStreamID, false);
+
 				pThis->m_fCurrentFileTime = 0.0;
 				pThis->m_fCurrentFileLength = 0.0;	
 				pThis->m_bMediaOpened = false;	
 			}
-			else*/
-			{	
+			else
+			{
+				string sFile = pThis->m_pPlayerEngine->GetCurrentFile();
+				if ( sFile != pThis->m_sCurrentFileName )
+				{
+					LoggerWrapper::GetInstance()->Write(LV_WARNING, "PlayerEnginePoll - detected playlist entry change");
+					pThis->m_fCurrentFileLength = 0.0;
+					string sMediaInfo, sAudioInfo, sVideoInfo;
+	
+					// codec information is not used
+					/*
+									sAudioInfo = m_pPlayerEngine->GetAudioCodec();
+									sVideoInfo = m_pPlayerEngine->GetVideoCodec();
+					*/
+	
+					LoggerWrapper::GetInstance()->Write(LV_WARNING, "MPlayer_Player::EVENT_Playback_Started(streamID=%i)", pThis->m_iCurrentStreamID);
+					pThis->EVENT_Playback_Started(sFile,pThis->m_iCurrentStreamID,sMediaInfo,sAudioInfo,sVideoInfo);
+					pThis->m_sCurrentFileName = sFile;
+				}
+					
 				pThis->m_fCurrentFileTime = pThis->m_pPlayerEngine->GetCurrentPosition();
 				
-				// storing this only if it is unknown, to minimize delay
+				// querying this only if it is unknown, to minimize delay
 				if (pThis->m_fCurrentFileLength == 0.0)
 					pThis->m_fCurrentFileLength = pThis->m_pPlayerEngine->GetFileLength();
 				
@@ -938,6 +963,19 @@ void *DCE::PlayerEnginePoll(void *pInstance)
 			}
 			
 			
+		}
+		else
+		{
+			if ( pThis->m_pPlayerEngine->GetEngineState() != MPlayerEngine::PLAYBACK_FINISHED )
+			{
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "PlayerEnginePoll - detected start of playlist");
+				pThis->m_fCurrentFileTime = 0.0;
+				pThis->m_fCurrentFileLength = 0.0;	
+				
+				pThis->m_bMediaOpened = true;
+				sPlayedFile = pThis->m_pPlayerEngine->GetCurrentFile();
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "PlayerEnginePoll - engine plays file %s", sPlayedFile.c_str() );
+			}
 		}
 	}
 	

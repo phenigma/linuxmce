@@ -4,6 +4,8 @@
 #include <string>
 #include <map>
 
+#define BLACK_MPEG_FILE "/usr/pluto/share/black.mpeg"
+
 using namespace std;
 
 void* EngineOutputReader(void *pInstance);
@@ -28,9 +30,14 @@ private:
 	void ClosePipes();
 
 	string ReadLine();
+	
+	string m_sCurrentFile;
+	void SetCurrentFile(string sName);
+	vector<string> m_vCurrentPlaylist;
 
 public:
 	enum SeekType {SEEK_RELATIVE_TIME=0, SEEK_ABSOLUTE_PERCENTAGE, SEEK_ABSOLUTE_TIME};
+	enum EngineState {PLAYBACK_STARTED=1, PLAYBACK_FINISHED};
 	
 	MPlayerEngine();
 	~MPlayerEngine();
@@ -41,7 +48,6 @@ public:
 	// executes command with response
 	bool ExecuteCommand(string sCommand, string sResponseName, string &sResponseValue);
 	
-	bool StartPlayback(string sMediaFile);
 	bool StartPlaylist(vector<string> &vFiles);
 	void StopPlayback();
 	
@@ -52,6 +58,14 @@ public:
 	string GetVideoCodec();
 	
 	void Seek(float fValue, SeekType eType);
+	EngineState GetEngineState();
+	
+	string GetCurrentFile();
+
+private:
+	bool StartPlayback(string sMediaFile);
+	EngineState m_eEngineState;
+	void SetEngineState(const EngineState &eValue);
 };
 
 void Tokenize(const string& str,

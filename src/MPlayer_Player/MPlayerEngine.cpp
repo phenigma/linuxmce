@@ -9,7 +9,6 @@
 #include "Log.h"
 #include "PlutoUtils/FileUtils.h"
 
-#define BLACK_MPEG_FILE "/usr/pluto/share/black.mpeg"
 #define MPLAYER_BINARY "/opt/pluto-mplayer/bin/mplayer"
 #define MPLAYER_BINARY_SHORT "mplayer"
 
@@ -21,7 +20,7 @@ MPlayerEngine::MPlayerEngine() {
 	m_bInPipe[0] = m_bInPipe[1] = false;
 	m_bOutPipe[0] = m_bOutPipe[1] = false;
 	m_bRunEngineOutputReader = false;
-	
+	m_eEngineState = PLAYBACK_FINISHED;
 	StartEngine();
 }
 
@@ -175,16 +174,25 @@ void* EngineOutputReader(void *pInstance) {
 	pfd[0].fd = pThis->m_iOutPipe[0];
 	pfd[0].events = POLLIN;
 	
+	string sLastFilename;
+	
 	while (pThis->m_bRunEngineOutputReader) {
 		poll(pfd, 1, 300);
 		if (pfd[0].revents & POLLIN)
 		{
 			string sLine = pThis->ReadLine();
-			Log("Read line: " + sLine);
+			//Log("Read lines: {\n" + sLine + "\n}");
 			vector<string> vLines;
 			Tokenize(sLine, vLines, "\n");
 			for (vector<string>::iterator i=vLines.begin(); i!=vLines.end(); ++i) {
-				if ( strncmp(i->c_str(), "ANS_", 4) == 0 ) {
+				Log("Analyzing line: |" + *i + "|");
+				const string sAnsPrefix = "ANS_";
+				const string sPlaybackPreInit = "Playing ";
+				const string sPlaybackStarted = "Starting playback...";
+				const string sPlaybackFinished = "Playback finished: ";
+				const string sNoStreamFound = "No stream found.";
+						
+				if ( i->compare(0, sAnsPrefix.length(), sAnsPrefix) == 0 ) {
 					Log("Found answer: " + *i);
 					vector<string> vAnswer;
 					Tokenize(*i, vAnswer, "=");
@@ -193,8 +201,32 @@ void* EngineOutputReader(void *pInstance) {
 						sValue = vAnswer[1];
 					}
 
-					// TODO add sync
+					// TODO add mutex to protect map
 					pThis->m_mEngineAnswers[vAnswer[0]] = sValue;
+				}
+				else if ( i->compare(0, sPlaybackPreInit.length(), sPlaybackPreInit) == 0 ) {
+					sLastFilename = i->substr(sPlaybackPreInit.length(), i->length() - sPlaybackPreInit.length() - 1);
+				}
+				else if ( i->compare(0, sPlaybackStarted.length(), sPlaybackStarted) == 0 ) {
+					Log("Playback started: " + sLastFilename);
+					pThis->SetCurrentFile(sLastFilename);
+					
+				}
+				else if ( (i->compare(0, sPlaybackFinished.length(), sPlaybackFinished) == 0)||(i->compare(0, sNoStreamFound.length(), sNoStreamFound) == 0) ) {
+					Log("Playback finished: " + sLastFilename);
+					vector<string>::reverse_iterator ri = pThis->m_vCurrentPlaylist.rbegin();
+					if ( ri!=pThis->m_vCurrentPlaylist.rend() )
+					{
+						if ( *ri == sLastFilename )
+						{
+							// TODO this should be a structure protected with one common mutex
+							pThis->m_vCurrentPlaylist.clear();
+							pThis->SetEngineState(MPlayerEngine::PLAYBACK_FINISHED);
+							Log("Playlist is empty now");
+						}
+						
+					}
+					pThis->SetCurrentFile("");
 				}
 			}
 		}
@@ -254,13 +286,18 @@ bool MPlayerEngine::StartPlaylist(vector<string> &vFiles)
 	if (!vFiles.empty())
 	{
 		const string sPlaylist = "/tmp/MPlayer_Player.playlist";
+		m_vCurrentPlaylist = vFiles;
 		FileUtils::WriteVectorToFile(sPlaylist, vFiles);
+		// early starting to keep watching threads happy
+		SetEngineState(PLAYBACK_STARTED);
 		ExecuteCommand("loadlist "+sPlaylist);
 		return true;
 	}
 	else
 	{
-		ExecuteCommand("stop");
+		m_vCurrentPlaylist.clear();
+		SetEngineState(PLAYBACK_FINISHED);
+		StopPlayback();
 		return false;
 	}
 }
@@ -323,4 +360,24 @@ void MPlayerEngine::Seek(float fValue, SeekType eType) {
 	snprintf(buf, 32, "%.1f %i", fValue, eType);
 	sCommand += buf;
 	ExecuteCommand(sCommand);
+}
+
+MPlayerEngine::EngineState MPlayerEngine::GetEngineState() {
+	// TODO add mutex
+	return m_eEngineState;
+}
+
+void MPlayerEngine::SetEngineState(const MPlayerEngine::EngineState &eValue) {
+	// TODO add mutex
+	m_eEngineState = eValue;
+}
+
+string MPlayerEngine::GetCurrentFile() {
+	// TODO add mutex
+	return m_sCurrentFile;
+}
+
+void MPlayerEngine::SetCurrentFile(string sName) {
+	// TODO add mutex
+	m_sCurrentFile = sName;
 }
