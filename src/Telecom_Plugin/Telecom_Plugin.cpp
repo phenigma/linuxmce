@@ -61,6 +61,8 @@ using namespace DCE;
 
 #include "DCE/DCEConfig.h"
 #include "PlutoUtils/DBHelper.h"
+#include "TelecomTask.h"
+#include "AssistedTransfer.h"
 
 #include "SerializeClass/ShapesColors.h"
 #define MAX_TELECOM_COLORS 5
@@ -95,6 +97,7 @@ Telecom_Plugin::Telecom_Plugin(int DeviceID, string ServerAddress,bool bConnectE
 	m_TelecomMutex.Init(&m_MutexAttr);
 	m_pDevice_pbx=NULL;
 	m_displayThread = (pthread_t)0;
+	TelecomTask::SetTelecom(this);
 }
 
 //<-dceag-getconfig-b->
@@ -191,6 +194,13 @@ Telecom_Plugin::~Telecom_Plugin()
 //<-dceag-dest-e->
 {
 	CleanStatusMaps();
+	
+	// clean the tasks map
+	for(map<string, TelecomTask*>::iterator it=map_id2task.begin(); it!=map_id2task.end(); ++it)
+	{
+		delete (*it).second;
+	}
+	map_id2task.clear();
 	
 	delete m_pDatabase_pluto_main;
 	delete m_pDatabase_pluto_telecom;
@@ -2757,21 +2767,19 @@ void Telecom_Plugin::CMD_Assisted_Transfer(int iPK_Device,int iPK_Users,string s
 	string sPhoneNumber = GetPhoneNumber(iPK_Users, sPhoneExtension, iPK_Device);
 	if( sPhoneNumber.empty() )
 	{
+		// error
 	}
-	//1) {X,Y,A} & B => {X,Y} & {A,B}
-	//or 
-	//2) {X,Y,A} & {B,C} => {X,Y} & {A,B,C} 
-
-	//struct Task
-	//{
-	//	ext dest,
-	//	call id dest,
-	//	my channel,
-	//	>> my call id
-	//}
-
-	//create "private chat"
-	//daca failed -> msg to orbiter si refacere stare
+	
+	// TODO: AssistedTransfer()
+	AssistedTransfer * transfer = new AssistedTransfer(sPhoneNumber, "", "", "");
+	if( transfer )
+	{
+		map_id2task[transfer->GetID()] = transfer;
+	}
+	else
+	{
+		// error
+	}
 }
 
 //<-dceag-c926-b->
@@ -2786,30 +2794,12 @@ void Telecom_Plugin::CMD_Assisted_Transfer(int iPK_Device,int iPK_Users,string s
 void Telecom_Plugin::CMD_Process_Task(string sTask,string sJob,string &sCMD_Result,Message *pMessage)
 //<-dceag-c926-e->
 {
-	//job "initialize" (internal)
-	//1) {X,Y,A} & B => {X,Y} & {A,B}
-	//or 
-	//2) {X,Y,A} & {B,C} => {X,Y} & {A,B,C} 
-
-	//job "transfer"
-	//1) {X,Y,A} & B => {X,Y} & {A,B} -> drop A, {X,Y,B}
-	//or 
-	//2) {X,Y,A} & {B,C} => {X,Y} & {A,B,C} 
-
-	//job "conference"
-	//1) {X,Y,A} & B => {X,Y} & {A,B} -> {X,Y,A,B}
-
-	//job "merge calls"
-	//2) {X,Y,A} & {B,C} => {X,Y,A,B,C} 
-
-	//job "cancel"
-	//1) {X,Y,A} & B => {X,Y} & {A,B} -> {X,Y,A} & B
-	//or 
-	//2) {X,Y,A} & {B,C} => {X,Y,A} & {B,C} 
-
-	//stagii:
-	//- ready
-	//- processing job ? jobtype
-	//- completed
-	//- failed (event de la asterisk)
+	map<string, TelecomTask*>::const_iterator itFound = map_id2task.find(sTask);
+	if( itFound == map_id2task.end() )
+	{
+		// error
+		return;
+	}
+	
+	(*itFound).second->ProcessJob(sJob);
 }

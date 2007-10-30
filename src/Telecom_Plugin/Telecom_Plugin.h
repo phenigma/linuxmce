@@ -32,6 +32,7 @@
 
 #include "ExtensionStatus.h"
 #include "CallStatus.h"
+#include "TelecomTask.h"
 
 #include <pthread.h>
 
@@ -396,11 +397,12 @@ private:
 	map<string, ExtensionStatus*> map_ext2status;
 	map<string, CallStatus*> map_call2status;
 	map<unsigned, CallStatus*> map_conference2status;
+	map<string, TelecomTask*> map_id2task;
 	
 	map<string,long> map_err_messages;
 	unsigned long next_conf_room;
 		
-};	
+};
 
 //<-dceag-end-b->
 }

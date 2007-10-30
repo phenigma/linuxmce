@@ -37,7 +37,9 @@ sources += callmanager.cpp calldata.cpp \
 	../Gen_Devices/Datagrid_PluginBase.cpp \
 	../Datagrid_Plugin/Datagrid_Plugin.cpp \
 	ExtensionStatus.cpp \
-	CallStatus.cpp
+	CallStatus.cpp \
+	TelecomTask.cpp \
+	AssistedTransfer.cpp
 
 #<-dceag-mf-b->
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
