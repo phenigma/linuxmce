@@ -370,13 +370,42 @@ bool Xine_Plugin::StartMedia( MediaStream *pMediaStream,string &sError )
 				
 				pMediaStream->m_dequeMediaFile.clear();
 				
+				string sStartPosition = pMediaFile && pMediaFile->m_sStartPosition.size() ? pMediaFile->m_sStartPosition : pXineMediaStream->m_sStartPosition;
+				string sStartFile;
+				string::size_type sPos = sStartPosition.find("FILE:");
+				if (sPos != string::npos)
+				{
+					sStartFile = sStartPosition.substr(sPos+5);					
+				}
+				else
+				{
+					long int iMaxSize = -1;
+					for (list<string>::iterator li=vItems.begin(); li!=vItems.end(); ++li)
+					{
+						string sFullName = sFolder+"/"+ *li;
+						long int iFileSize = FileUtils::FileSize(sFullName);
+						if ( iFileSize > iMaxSize )
+						{
+							iMaxSize = iFileSize;
+							sStartFile = *li;
+						}
+					}
+
+				}
+				
+				int iQueuePos = 0;
+				
 				for (list<string>::iterator li=vItems.begin(); li!=vItems.end(); ++li)
 				{
 					LoggerWrapper::GetInstance()->Write(LV_STATUS, "Item: %s [ripped file %i]", li->c_str(), iPK_File);
 					MediaFile *pItem = new MediaFile(sFolder+"/"+*li);
 					pItem->m_dwPK_File = iPK_File;
 					pMediaStream->m_dequeMediaFile.push_back(pItem);
+					if (sStartFile == *li)
+						pMediaStream->m_iDequeMediaFile_Pos = iQueuePos;
+					iQueuePos++;
 				}
+				
 			}
 			else
 			{
