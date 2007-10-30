@@ -3,11 +3,11 @@ set -x
 set -e
 
 WORK_DIR="/var/plutobuild/vmware/"
-VMWARE_DIR="${WORK_DIR}/Kubuntu7.04"
-VMWARE_DISK_IMAGE="${VMWARE_DIR}/Kubuntu7.04-flat.vmdk"
+VMWARE_DIR="${WORK_DIR}/Kubuntu"
+VMWARE_DISK_IMAGE="${VMWARE_DIR}/Kubuntu-flat.vmdk"
 VMWARE_TARGZ="${VMWARE_DIR}/linux-mce.tar.gz"
-VMWARE_WORK_MACHINE="${VMWARE_DIR}/Kubuntu7.04.vmx"
-VMWARE_IP="192.168.76.128"
+VMWARE_WORK_MACHINE="${VMWARE_DIR}/Kubuntu.vmx"
+VMWARE_IP="172.16.211.129"
 
 
 # Export display so vmware will run in X11
@@ -24,7 +24,7 @@ function create_virtual_machine {
 	decho "Creating virual machine"
 	mkdir -p "$VMWARE_DIR"
 	killall -9 vmplayer || :
-	cp -r /var/Kubuntu7.04/* "$VMWARE_DIR"
+	cp -r /var/Kubuntu/* "$VMWARE_DIR"
 	decho "Finished creating virtual machine"
 }
 
