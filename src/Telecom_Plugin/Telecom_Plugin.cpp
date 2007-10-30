@@ -2507,7 +2507,80 @@ void Telecom_Plugin::CMD_Make_Call(int iPK_Users,string sPhoneExtension,int iFK_
 void Telecom_Plugin::CMD_Merge_Calls(string sPhone_Call_ID_1,string sPhone_Call_ID_2,string &sCMD_Result,Message *pMessage)
 //<-dceag-c924-e->
 {
-	//TODO: implement me!
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "CMD_Merge_Calls : %s, %s",
+										sPhone_Call_ID_1.c_str(), sPhone_Call_ID_2.c_str() );
+	
+	map<string, CallStatus*>::const_iterator itFound_1 = map_call2status.find(sPhone_Call_ID_1);
+	map<string, CallStatus*>::const_iterator itFound_2 = map_call2status.find(sPhone_Call_ID_2);
+	if( itFound_1 != map_call2status.end() && itFound_2 != map_call2status.end() )
+	{
+		CallStatus * pCallStatus_1 = (*itFound_1).second;
+		CallStatus * pCallStatus_2 = (*itFound_2).second;
+		if( pCallStatus_1 && pCallStatus_2 )
+		{
+			// use first conference as final conference
+			if( pCallStatus_1->IsConference() )
+			{
+				const map<string, string> & channels = pCallStatus_2->GetChannels();
+				for(map<string, string>::const_iterator itCh=channels.begin(); itCh!=channels.end(); ++itCh)
+				{
+					CMD_PBX_Transfer cmd_PBX_Transfer(
+						m_dwPK_Device, m_pDevice_pbx->m_dwPK_Device,
+						CallStatus::GetStringConferenceID( pCallStatus_1->GetConferenceID() ),
+						(*itCh).first, "");
+					SendCommand(cmd_PBX_Transfer);
+				}
+			}
+			// use second conference as final conference
+			else if( pCallStatus_2->IsConference() )
+			{
+				const map<string, string> & channels = pCallStatus_1->GetChannels();
+				for(map<string, string>::const_iterator itCh=channels.begin(); itCh!=channels.end(); ++itCh)
+				{
+					CMD_PBX_Transfer cmd_PBX_Transfer(
+							m_dwPK_Device, m_pDevice_pbx->m_dwPK_Device,
+					CallStatus::GetStringConferenceID( pCallStatus_2->GetConferenceID() ),
+					(*itCh).first, "");
+					SendCommand(cmd_PBX_Transfer);
+				}
+			}
+			// make a new conference and transfer all the channels to it
+			else
+			{
+				string sNewConferenceID = GetNewConferenceID();
+				
+				const map<string, string> & channels_1 = pCallStatus_1->GetChannels();
+				for(map<string, string>::const_iterator itCh1=channels_1.begin(); itCh1!=channels_1.end(); ++itCh1)
+				{
+					CMD_PBX_Transfer cmd_PBX_Transfer(
+							m_dwPK_Device, m_pDevice_pbx->m_dwPK_Device,
+					sNewConferenceID,
+					(*itCh1).first, "");
+					SendCommand(cmd_PBX_Transfer);
+				}
+				
+				const map<string, string> & channels_2 = pCallStatus_2->GetChannels();
+				for(map<string, string>::const_iterator itCh2=channels_2.begin(); itCh2!=channels_2.end(); ++itCh2)
+				{
+					CMD_PBX_Transfer cmd_PBX_Transfer(
+						m_dwPK_Device, m_pDevice_pbx->m_dwPK_Device,
+						sNewConferenceID,
+						(*itCh2).first, "");
+					SendCommand(cmd_PBX_Transfer);
+				}
+			}
+		}
+		else
+		{
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "CMD_Merge_Calls : NULL call status!");
+			return;
+		}
+	}
+	else
+	{
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "CMD_Merge_Calls : No such calls!");
+		return;
+	}
 }
 
 string Telecom_Plugin::GetPhoneNumber(int iPK_Users, string sPhoneExtension, int iPK_Device_To)
