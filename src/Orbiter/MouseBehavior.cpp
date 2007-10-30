@@ -363,6 +363,12 @@ bool MouseBehavior::ButtonDown(int PK_Button)
 #ifdef DEBUG
 		LoggerWrapper::GetInstance()->Write(LV_FESTIVAL,"MouseBehavior::ButtonDown removing menu");
 #endif
+		if(m_pMouseHandler && m_pMouseHandler->TypeOfMouseHandler()==MouseHandler::mh_Speed && m_iPK_Button_Mouse_Last==BUTTON_Mouse_6_CONST)
+		{
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "MouseBehavior::ButtonDown : Ignore all speed changes for few seconds so the player has a chance to settle down");
+			m_tIgnoreSpeedChangesUntil = time(NULL) + 3;  // Ignore all speed changes for few seconds so the player has a chance to settle down
+		}	
+
 		Clear(true);
 		return true;
 	}

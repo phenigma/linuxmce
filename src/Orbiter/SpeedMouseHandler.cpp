@@ -80,6 +80,9 @@ SpeedMouseHandler::~SpeedMouseHandler()
 #ifdef DEBUG
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"SpeedMouseHandler::~SpeedMouseHandler setting playback speed to normal");
 #endif
+
+	m_pMouseBehavior->m_pMouseGovernor->Purge();
+
 	DCE::CMD_Change_Playback_Speed CMD_Change_Playback_Speed(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_NowPlaying,0,1000,false);
 	m_pMouseBehavior->m_pOrbiter->SendCommand(CMD_Change_Playback_Speed);
 	DCE::CMD_Bind_to_Media_Remote CMD_Bind_to_Media_Remote(m_pMouseBehavior->m_pOrbiter->m_dwPK_Device,m_pMouseBehavior->m_pOrbiter->m_dwPK_Device_MediaPlugIn,0,"","0","", StringUtils::itos( m_pMouseBehavior->m_pOrbiter->m_pLocationInfo->PK_EntertainArea ),0,0);
