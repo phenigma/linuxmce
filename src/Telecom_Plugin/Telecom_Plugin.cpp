@@ -834,12 +834,28 @@ Telecom_Plugin::IncomingCall( class Socket *pSocket, class Message *pMessage, cl
 			sCallerID = (*itFirst).second;
 		}
 	}
+	
+	string sCallerID_To;
+	string sChannelID_To;
+	map<int,string>::const_iterator itExtTo = map_device2ext.find(pDeviceTo->m_dwPK_Device);
+	if( itExtTo != map_device2ext.end() )
+	{
+		map<string, string> channels;
+		GetChannelsFromExtension( (*itExtTo).second, channels );
+		if( channels.size() )
+		{
+			// TODO: change this in case of multi-channel support in linphone
+			map<string, string>::const_iterator itFirst = channels.begin();
+			sChannelID_To = (*itFirst).first;
+			sCallerID_To = (*itFirst).second;
+		}
+	}
 		
 	SCREEN_DevIncomingCall SCREEN_DevIncomingCall_(m_dwPK_Device, pDeviceFrom->m_dwPK_Device_ControlledVia, 
-		sChannelID, //source channel id
-		"",			//TODO : my channel id
-		sCallerID,	//source caller id
-		""			//TODO: my caller id
+		sChannelID,    // From source channel id
+		sChannelID_To, // To channel id
+		sCallerID,     // From source caller id
+		sCallerID_To   // To caller id
 	);
 	SendCommand(SCREEN_DevIncomingCall_);
 
@@ -1180,56 +1196,51 @@ void Telecom_Plugin::CMD_PL_Cancel(int iPK_Device,string sChannel,string &sCMD_R
 //<-dceag-c236-e->
 {
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Hangup command called.");
-
-	PLUTO_SAFETY_LOCK(vm, m_TelecomMutex);  // Protect the call data
-	if( iPK_Device==-1 )
-		HangupAllCalls();
-	else if( iPK_Device==0 )
-		iPK_Device = pMessage->m_dwPK_Device_From;
-
-	CallData *pCallData = CallManager::getInstance()->findCallByOwnerDevID(iPK_Device);
-	if(!pCallData) {
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "No calldata found for device %d",iPK_Device);
-
-		pCallData = CallManager::getInstance()->findCallByOwnerDevID(map_orbiter2embedphone[iPK_Device]);
-		if(!pCallData) {
-			LoggerWrapper::GetInstance()->Write(LV_WARNING, "No calldata found for device %d",map_orbiter2embedphone[iPK_Device]);
-			return;
-		}
+	
+	if( iPK_Device )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Hangup : DEPRECATED PK_Device param %d.", iPK_Device);
+		return;
 	}
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Will hangup on channelid %s", pCallData->getID().c_str());
-
+// 	if( iPK_Device==-1 )
+// 		HangupAllCalls();
+// 	else if( iPK_Device==0 )
+// 		iPK_Device = pMessage->m_dwPK_Device_From;
+	
+	PLUTO_SAFETY_LOCK(vm, m_TelecomMutex);
+	
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Will hangup on channelid %s", sChannel.c_str());
+	
 	if(m_pDevice_pbx) {
 		/*send transfer command to PBX*/
-// TODO
-//		CMD_PBX_Hangup cmd_PBX_Hangup(m_dwPK_Device, m_pDevice_pbx->m_dwPK_Device,
-//								0, pCallData->getID());
-//		SendCommand(cmd_PBX_Hangup);
-//		CallManager::getInstance()->removeCall(pCallData);
+		CMD_PBX_Hangup cmd_PBX_Hangup(m_dwPK_Device, m_pDevice_pbx->m_dwPK_Device, sChannel);
+		SendCommand(cmd_PBX_Hangup);
 	}
 }
 //<-dceag-createinst-b->!
 
 void Telecom_Plugin::HangupAllCalls()
 {
-	PLUTO_SAFETY_LOCK(vm, m_TelecomMutex);  // Protect the call data
-	std::list<CallData*> *calls = CallManager::getInstance()->getCallList();
-	std::list<CallData*>::iterator it = calls->begin();
-	std::list<std::string> text_list;
 #ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Telecom_Plugin::HangupAllCalls hanging up %d -- disabled for now",calls->size());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Telecom_Plugin::HangupAllCalls hanging up %u", map_call2status->size());
 #endif
-	while(it != calls->end())
+
+	PLUTO_SAFETY_LOCK(vm, m_TelecomMutex);
+	
+	CallStatus * pCallStatus = NULL;
+	for(map<string, CallStatus*>::const_iterator it=map_call2status.begin(); it!=map_call2status.end(); ++it)
 	{
-		CallData *pCallData = *it;
-		if(m_pDevice_pbx) {
-			/*send transfer command to PBX*/
-// TODO:
-//			CMD_PBX_Hangup cmd_PBX_Hangup(m_dwPK_Device, m_pDevice_pbx->m_dwPK_Device,
-//									0, pCallData->getID());
-//			SendCommand(cmd_PBX_Hangup);
+		pCallStatus = (*it).second;
+		if( pCallStatus )
+		{
+			const map<string, string> & channels = pCallStatus->GetChannels();
+			for(map<string, string>::const_iterator itCh=channels.begin(); itCh!=channels.end(); ++itCh)
+			{
+				/*send transfer command to PBX*/
+				CMD_PBX_Hangup cmd_PBX_Hangup(m_dwPK_Device, m_pDevice_pbx->m_dwPK_Device, (*itCh).first);
+				SendCommand(cmd_PBX_Hangup);
+			}
 		}
-		it++;
 	}
 }
 
