@@ -7,6 +7,6 @@ Standards-Version: 3.7.2
 
 Package: ushare
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, libupnp0
+Depends: ${shlibs:Depends}, ${misc:Depends}, libupnp0 | libupnp2
 Description: <insert up to 60 chars description>
  <insert long description, indented with spaces>
