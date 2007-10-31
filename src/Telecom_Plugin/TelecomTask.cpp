@@ -14,12 +14,12 @@
 
 using namespace DCE;
 
-const Telecom_Plugin * TelecomTask::telecom = NULL;
+Telecom_Plugin * TelecomTask::telecom = NULL;
 unsigned TelecomTask::uID = 0;
 
 void TelecomTask::SetTelecom(const Telecom_Plugin * tp)
 {
-	telecom = tp;
+	telecom = (Telecom_Plugin *)tp;
 }
 
 TelecomTask::TelecomTask()

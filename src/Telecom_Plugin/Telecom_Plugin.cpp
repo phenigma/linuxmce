@@ -806,7 +806,7 @@ Telecom_Plugin::Link( class Socket *pSocket, class Message *pMessage, class Devi
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Link event received from PBX: src channel %s, dest channel %s",
 	sSource_Channel.c_str(), sDestination_Channel.c_str());
 
-	PLUTO_SAFETY_LOCK(vm, m_TelecomMutex);  // Protect the call data
+	PLUTO_SAFETY_LOCK(vm, m_TelecomMutex);
 
 	DumpActiveCalls();
 
@@ -877,17 +877,29 @@ Telecom_Plugin::Link( class Socket *pSocket, class Message *pMessage, class Devi
 
 	DumpActiveCalls();
 	
+	for(map<string, TelecomTask*>::const_iterator it=map_id2task.begin(); it!=map_id2task.end(); ++it)
+	{
+		TelecomTask * pTask = (*it).second;
+		if( pTask )
+		{
+			pTask->ProcessEvent(pMessage);
+		}
+		else
+		{
+			// error
+		}
+	}
+	
 	return false;
 }
 
 bool
 Telecom_Plugin::IncomingCall( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
 {
-LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "IncomingCall : deprecated!");
-return false;
-
-
-	string sCallerID;
+	LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "IncomingCall : deprecated!");
+	return false;
+	
+/*	string sCallerID;
 	string sChannelID;
 	map<int,string>::const_iterator itExt = map_device2ext.find(pDeviceFrom->m_dwPK_Device);
 	if( itExt != map_device2ext.end() )
@@ -927,7 +939,7 @@ return false;
 	);
 	SendCommand(SCREEN_DevIncomingCall_);
 
-	return false;
+	return false;*/
 }
 
 bool Telecom_Plugin::Hangup( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo ) 
@@ -975,6 +987,20 @@ bool Telecom_Plugin::Hangup( class Socket *pSocket, class Message *pMessage, cla
 	}
 
 	DumpActiveCalls();
+	
+	// notify the telecom tasks
+	for(map<string, TelecomTask*>::const_iterator it=map_id2task.begin(); it!=map_id2task.end(); ++it)
+	{
+		TelecomTask * pTask = (*it).second;
+		if( pTask )
+		{
+			pTask->ProcessEvent(pMessage);
+		}
+		else
+		{
+			// error
+		}
+	}
 
 	return false;
 }
@@ -2855,6 +2881,8 @@ int Telecom_Plugin::GetOrbiterDeviceID(string sExten, string sChannel /*= ""*/)
 void Telecom_Plugin::CMD_Assisted_Transfer(int iPK_Device,int iPK_Users,string sPhoneExtension,string sPhoneCallID,string sChannel,string &sCMD_Result,Message *pMessage)
 //<-dceag-c925-e->
 {
+	PLUTO_SAFETY_LOCK(vm, m_TelecomMutex);
+	
 	string sPhoneNumber = GetPhoneNumber(iPK_Users, sPhoneExtension, iPK_Device);
 	if( sPhoneNumber.empty() )
 	{
@@ -2885,6 +2913,8 @@ void Telecom_Plugin::CMD_Assisted_Transfer(int iPK_Device,int iPK_Users,string s
 void Telecom_Plugin::CMD_Process_Task(string sTask,string sJob,string &sCMD_Result,Message *pMessage)
 //<-dceag-c926-e->
 {
+	PLUTO_SAFETY_LOCK(vm, m_TelecomMutex);
+	
 	map<string, TelecomTask*>::const_iterator itFound = map_id2task.find(sTask);
 	if( itFound == map_id2task.end() )
 	{

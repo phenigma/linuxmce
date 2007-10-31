@@ -46,6 +46,8 @@ namespace DCE
 			/***/
 			virtual bool ProcessJob(const string &) = 0;
 			/***/
+			virtual bool ProcessEvent(class Message *) = 0;
+			/***/
 			virtual TaskType RTTI() const = 0;
 			
 			/***/
@@ -57,9 +59,9 @@ namespace DCE
 			/***/
 			const string& GetJob() const { return sJobID; }
 			
-		private:
+		protected:
 			
-			static const Telecom_Plugin * telecom;
+			static Telecom_Plugin * telecom;
 			static unsigned uID;
 			
 			string sID;

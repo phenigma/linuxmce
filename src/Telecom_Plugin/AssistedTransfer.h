@@ -36,6 +36,8 @@ namespace DCE
 			/***/
 			virtual bool ProcessJob(const string &);
 			/***/
+			virtual bool ProcessEvent(class Message *);
+			/***/
 			virtual TelecomTask::TaskType RTTI() const { return TelecomTask::Assisted_Transfer; }
 			
 		private:
