@@ -3465,6 +3465,8 @@ void ScreenHandler::SCREEN_MakeCallIntercom(long PK_Screen)
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_Active_Calls(long PK_Screen)
 {
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Current_Call_CONST, "");
+
 	ScreenHandlerBase::SCREEN_Active_Calls(PK_Screen);
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::Telecom_ObjectSelected, new ObjectInfoBackData());
 	RegisterCallBack(cbDataGridRendering, (ScreenHandlerCallBack) &ScreenHandler::Telecom_DataGridRendering, new DatagridAcquiredBackData());
@@ -3480,12 +3482,17 @@ void ScreenHandler::SCREEN_MakeCallDevice(long PK_Screen)
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "SCREEN_MakeCallDevice: device to call (var 19) = %s", m_pOrbiter->m_mapVariable_Find(VARIABLE_PK_Device_2_CONST).c_str());
 }
 //-----------------------------------------------------------------------------------------------------
-void ScreenHandler::SCREEN_DevCallInProgress(long PK_Screen, string sChannel)
+void ScreenHandler::SCREEN_DevCallInProgress(long PK_Screen, string sPhoneCallerID, string sSource_Channel, 
+	string sDestination_Channel, string sSource_Caller_ID, string sDestination_Caller_ID)
 {
-	ScreenHandlerBase::SCREEN_DevCallInProgress(PK_Screen, sChannel);
+	ScreenHandlerBase::SCREEN_DevCallInProgress(PK_Screen, sPhoneCallerID, sSource_Channel, 
+		sDestination_Channel, sSource_Caller_ID, sDestination_Caller_ID);
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::Telecom_ObjectSelected, new ObjectInfoBackData());
 
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_My_Channel_ID_CONST, sChannel);
+	if(m_pOrbiter->m_mapVariable_Find(VARIABLE_My_Channel_ID_CONST).empty())
+		m_pOrbiter->CMD_Set_Variable(VARIABLE_My_Channel_ID_CONST, sSource_Channel);
+
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_My_Call_ID_CONST, sPhoneCallerID);
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_DevIncomingCall(long PK_Screen, string sSource_Channel, 

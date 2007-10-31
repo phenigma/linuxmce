@@ -812,9 +812,14 @@ Telecom_Plugin::Link( class Socket *pSocket, class Message *pMessage, class Devi
 
 	CallStatus * pFoundSrc = FindCallStatusForChannel(sSource_Channel);
 	CallStatus * pFoundDest = FindCallStatusForChannel(sDestination_Channel);
+
+	string sCallID;
+
 	if( pFoundSrc == pFoundDest && NULL != pFoundSrc )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "The channels are linked");
+
+		sCallID = pFoundSrc->GetID();
 	}
 	else
 	{
@@ -834,36 +839,38 @@ Telecom_Plugin::Link( class Socket *pSocket, class Message *pMessage, class Devi
 
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Telecom_Plugin::Link call : %s",
 			pCallStatus->GetDebugInfo().c_str());
+
+		sCallID = pCallStatus->GetID();
 	}
 
-	//source channel -> exten -> (?) simple phone -> orbiter
+	//source channel -> exten -> simple phone -> orbiter
 	int nSrcOrbiterDeviceID = GetOrbiterDeviceID("", sSource_Channel);
-
-	//TODO: add sDestination_Channel, sSource_Caller_ID, sDestination_Caller_ID to SCREEN_DevCallInProgress
 
 	if(nSrcOrbiterDeviceID)
 	{
 		SCREEN_DevCallInProgress screen_DevIncomingCall(
 			m_dwPK_Device, nSrcOrbiterDeviceID, 
-			sSource_Channel
-//			sDestination_Channel,
-//			sSource_Caller_ID,
-//			sDestination_Caller_ID
+			sCallID,
+			sSource_Channel,
+			sDestination_Channel,
+			sSource_Caller_ID,
+			sDestination_Caller_ID
 		);
 		SendCommand(screen_DevIncomingCall);
 	}
 
-	//dest channel -> exten -> (?) simple phone -> orbiter
+	//dest channel -> exten -> simple phone -> orbiter
 	int nDestOrbiterDeviceID = GetOrbiterDeviceID("", sDestination_Channel);
 
 	if(nDestOrbiterDeviceID)
 	{
 		SCREEN_DevCallInProgress screen_DevIncomingCall(
 			m_dwPK_Device, nDestOrbiterDeviceID, 
-			sSource_Channel
-//			sDestination_Channel,
-//			sSource_Caller_ID,
-//			sDestination_Caller_ID
+			sCallID,
+			sSource_Channel,
+			sDestination_Channel,
+			sSource_Caller_ID,
+			sDestination_Caller_ID
 		);
 		SendCommand(screen_DevIncomingCall);
 	}

@@ -339,7 +339,8 @@ public:
 	void SCREEN_MakeCallIntercom(long PK_Screen);
 	void SCREEN_MakeCallDevice(long PK_Screen);
 	void SCREEN_Active_Calls(long PK_Screen);
-	void SCREEN_DevCallInProgress(long PK_Screen, string sChannel);
+	void SCREEN_DevCallInProgress(long PK_Screen, string sPhoneCallerID, string sSource_Channel, 
+		string sDestination_Channel, string sSource_Caller_ID, string sDestination_Caller_ID);
 	void SCREEN_DevIncomingCall(long PK_Screen, string sSource_Channel, 
 		string sDestination_Channel, string sSource_Caller_ID, string sDestination_Caller_ID);
 
