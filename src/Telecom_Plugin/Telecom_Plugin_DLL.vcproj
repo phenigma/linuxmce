@@ -125,6 +125,9 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm">
 			<File
+				RelativePath=".\AssistedTransfer.cpp">
+			</File>
+			<File
 				RelativePath=".\calldata.cpp">
 			</File>
 			<File
@@ -156,6 +159,9 @@
 			</File>
 			<File
 				RelativePath="..\Gen_Devices\Telecom_PluginBase.cpp">
+			</File>
+			<File
+				RelativePath=".\TelecomTask.cpp">
 			</File>
 		</Filter>
 		<Filter
