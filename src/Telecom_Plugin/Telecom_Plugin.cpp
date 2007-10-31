@@ -774,10 +774,24 @@ Telecom_Plugin::Ring( class Socket *pSocket, class Message *pMessage, class Devi
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Telecom_Plugin::Ring call : %s",
 		pCallStatus->GetDebugInfo().c_str());
+
+	//destination channel -> exten -> (?) simple phone -> orbiter
+	int nOrbiterDeviceID = GetOrbiterDeviceID(sDestination_Channel);
+
+	if(nOrbiterDeviceID)
+	{
+		SCREEN_DevIncomingCall screen_DevIncomingCall(
+			m_dwPK_Device, nOrbiterDeviceID, 
+			sSource_Channel,
+			sDestination_Channel,
+			sSource_Caller_ID,
+			sDestination_Caller_ID
+		);
+		SendCommand(screen_DevIncomingCall);
+	}
 	
 	DumpActiveCalls();
 
-	// todo: false / true ?
 	return false;
 }
 
@@ -821,6 +835,38 @@ Telecom_Plugin::Link( class Socket *pSocket, class Message *pMessage, class Devi
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Telecom_Plugin::Link call : %s",
 		pCallStatus->GetDebugInfo().c_str());
 
+	//source channel -> exten -> (?) simple phone -> orbiter
+	int nSrcOrbiterDeviceID = GetOrbiterDeviceID(sSource_Channel);
+
+	//TODO: add sDestination_Channel, sSource_Caller_ID, sDestination_Caller_ID to SCREEN_DevCallInProgress
+
+	if(nSrcOrbiterDeviceID)
+	{
+		SCREEN_DevCallInProgress screen_DevIncomingCall(
+			m_dwPK_Device, nSrcOrbiterDeviceID, 
+			sSource_Channel
+//			sDestination_Channel,
+//			sSource_Caller_ID,
+//			sDestination_Caller_ID
+		);
+		SendCommand(screen_DevIncomingCall);
+	}
+
+	//dest channel -> exten -> (?) simple phone -> orbiter
+	int nDestOrbiterDeviceID = GetOrbiterDeviceID(sDestination_Channel);
+
+	if(nDestOrbiterDeviceID)
+	{
+		SCREEN_DevCallInProgress screen_DevIncomingCall(
+			m_dwPK_Device, nDestOrbiterDeviceID, 
+			sSource_Channel
+//			sDestination_Channel,
+//			sSource_Caller_ID,
+//			sDestination_Caller_ID
+		);
+		SendCommand(screen_DevIncomingCall);
+	}
+
 	DumpActiveCalls();
 	
 	return false;
@@ -829,6 +875,10 @@ Telecom_Plugin::Link( class Socket *pSocket, class Message *pMessage, class Devi
 bool
 Telecom_Plugin::IncomingCall( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
 {
+LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "IncomingCall : deprecated!");
+return false;
+
+
 	string sCallerID;
 	string sChannelID;
 	map<int,string>::const_iterator itExt = map_device2ext.find(pDeviceFrom->m_dwPK_Device);
@@ -901,6 +951,19 @@ bool Telecom_Plugin::Hangup( class Socket *pSocket, class Message *pMessage, cla
 	else
 	{
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Got hangup for channel %s, but it's not into a call!", sChannel_ID.c_str());
+	}
+
+	//destination channel -> exten -> (?) simple phone -> orbiter
+	int nOrbiterDeviceID = GetOrbiterDeviceID(sChannel_ID);
+
+	if(nOrbiterDeviceID)
+	{
+		DCE::SCREEN_Main SCREEN_Main_(m_dwPK_Device, nOrbiterDeviceID, "");
+		SendCommand(SCREEN_Main_); 
+
+		DCE::CMD_Display_Alert cmd_Display_Alert(m_dwPK_Device, nOrbiterDeviceID, 
+			"Call dropped. Reason: " + sReason, "", "5", 0);
+		SendCommand(cmd_Display_Alert);
 	}
 
 	DumpActiveCalls();
@@ -2686,29 +2749,18 @@ void Telecom_Plugin::GetChannelsFromExtension(const string & ext, map<string, st
 {
 	CallStatus *pCallStatus = NULL;
 	
-	size_t pos1 = 0;
-	size_t pos2 = 0;
 	for(map<string, CallStatus*>::const_iterator it=map_call2status.begin(); it!=map_call2status.end(); ++it)
 	{
 		pCallStatus = (*it).second;
 		const map<string, string> & channels = pCallStatus->GetChannels();
 		for(map<string, string>::const_iterator itCh=channels.begin(); itCh!=channels.end(); ++itCh)
 		{
-			// SIP/extension-uid
-			pos1 = (*itCh).first.find("/");
-			pos2 = (*itCh).first.rfind("-");
-			if( pos1 != string::npos && pos2 != string::npos && pos1 < pos2 )
+			if( ext == ExtensionForChannel((*itCh).first) )
 			{
-				string sExt = (*itCh).first.substr(pos1+1, pos2-pos1-1);
-				// the extension is part of this channel
-				if( sExt == ext )
-				{
-					channelsExt[(*itCh).first] = (*itCh).second;
-				}
+				channelsExt[(*itCh).first] = (*itCh).second;
 			}
 		}
 	}
-	
 }
 
 string Telecom_Plugin::GetCallName(CallStatus * pCallStatus) const
@@ -2745,6 +2797,37 @@ void Telecom_Plugin::DumpActiveCalls()
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Active calls %d: \n%s", map_call2status.size(), sDebugInfo.c_str());
 }
+
+/*static*/ string Telecom_Plugin::ExtensionForChannel(string sChannel)
+{
+	size_t pos1 = 0;
+	size_t pos2 = 0;
+
+	// SIP/extension-uid
+	pos1 = sChannel.find("/");
+	pos2 = sChannel.rfind("-");
+	if( pos1 != string::npos && pos2 != string::npos && pos1 < pos2 )
+		return sChannel.substr(pos1+1, pos2-pos1-1);
+
+	return "";
+}
+
+int Telecom_Plugin::GetOrbiterDeviceID(string sExten, string sChannel /*= ""*/)
+{
+	if(!sChannel.empty())
+		sExten = ExtensionForChannel(sChannel);
+
+	map<string,int>::iterator it = map_ext2device.find(sExten);
+	
+	if(it != map_ext2device.end())
+	{
+		map<int,int>::iterator ito = map_embedphone2orbiter.find(it->second);
+		if(ito != map_embedphone2orbiter.end())
+			return ito->second;
+	}
+
+	return 0;
+}	
 
 //<-dceag-c925-b->
 
@@ -2803,3 +2886,4 @@ void Telecom_Plugin::CMD_Process_Task(string sTask,string sJob,string &sCMD_Resu
 	
 	(*itFound).second->ProcessJob(sJob);
 }
+

@@ -383,6 +383,15 @@ private:
 	/***/
 	void DumpActiveCalls();
 
+	/**  
+	  *   Get orbiter device id for and extension OR channel
+	  */
+	int GetOrbiterDeviceID(string sExten, string sChannel = "");
+
+	/*
+	 *	
+	 */
+	static string ExtensionForChannel(string sChannel);
 	
 private:
 	int iCmdCounter;
