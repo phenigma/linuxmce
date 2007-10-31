@@ -58,7 +58,7 @@ function Error {
 
 
 function Install_Build_Needed_Packages {
-	local pkgs="kdelibs4-dev qt3-qtconfig qt3-linguist qt3-dev-tools-embedded qt3-dev-tools-compat qt3-dev-tools qt3-designer qt3-assistant qt3-apps-dev libqt3-mt-dev libqt3-headers libqt3-compat-headers xorg-dev qt3-dev-tools libxcb-xv0-dev libxcb-shm0-dev libxcb-shape0-dev libmagick9-dev libmpcdec-dev quilt tcl8.4-dev libfuse-dev fuse-utils libupnp-dev libconfuse-dev subversion build-essential dh-make libmysqlclient15-dev libhttpfetcher-dev libattr1-dev libdbus-1-dev libdbus-glib-1-dev libhal-dev libdancer-xml0-dev libbluetooth2-dev libid3-3.8.3-dev libxine-dev x11proto-core-dev libx11-dev libx11-dev x11proto-core-dev x11proto-xext-dev x11proto-xf86vidmode-dev libx11-dev libjpeg62-dev libcdparanoia0-dev libsdl1.2-dev libsdl-gfx1.2-dev libxmu-headers x11proto-record-dev libhid-dev libusb-dev libsdl-image1.2-dev libsdl-ttf2.0-dev libsdl-sge-dev libxtst-dev libxrender-dev liblinphone1-dev libcddb-dev libdvdread-dev libcurl3-dev ruby1.8-dev swig libtcltk-ruby mysql-client mysql-server libmediastreamer0-dev libgtk2.0-dev libvte-dev libglade2-dev libstdc++5" 
+	local pkgs="libxcb-xv0-dev libxcb-shm0-dev libxcb-shape0-dev libaa1-dev libmagick9-dev libdirectfb-dev libpulse-dev libmpcdec-dev kdelibs4-dev qt3-qtconfig qt3-linguist qt3-dev-tools-embedded qt3-dev-tools-compat qt3-dev-tools qt3-designer qt3-assistant qt3-apps-dev libqt3-mt-dev libqt3-headers libqt3-compat-headers xorg-dev qt3-dev-tools libxcb-xv0-dev libxcb-shm0-dev libxcb-shape0-dev libmagick9-dev libmpcdec-dev quilt tcl8.4-dev libfuse-dev fuse-utils libupnp-dev libconfuse-dev subversion build-essential dh-make libmysqlclient15-dev libhttpfetcher-dev libattr1-dev libdbus-1-dev libdbus-glib-1-dev libhal-dev libdancer-xml0-dev libbluetooth2-dev libid3-3.8.3-dev libxine-dev x11proto-core-dev libx11-dev libx11-dev x11proto-core-dev x11proto-xext-dev x11proto-xf86vidmode-dev libx11-dev libjpeg62-dev libcdparanoia0-dev libsdl1.2-dev libsdl-gfx1.2-dev libxmu-headers x11proto-record-dev libhid-dev libusb-dev libsdl-image1.2-dev libsdl-ttf2.0-dev libsdl-sge-dev libxtst-dev libxrender-dev liblinphone1-dev libcddb-dev libdvdread-dev libcurl3-dev ruby1.8-dev swig libtcltk-ruby mysql-client mysql-server libmediastreamer0-dev libgtk2.0-dev libvte-dev libglade2-dev libstdc++5" 
 	local pkg
 	for pkg in $pkgs ;do
 		apt-get -y install $pkg
@@ -393,7 +393,7 @@ function Build_Pluto_Stuff {
 	touch /usr/pluto/dummy-packages/Readme.PlutoConsoleUtilities.dummy
 
 	export PATH=$PATH:${svn_dir}/trunk/src/bin
-#export PATH=/usr/lib/ccache:$PATH:${svn_dir}/trunk/src/bin
+	export PATH=/usr/lib/ccache:$PATH:${svn_dir}/trunk/src/bin
 
 	export LD_LIBRARY_PATH="$mkr_dir:${svn_dir}/trunk/src/lib"
 
@@ -404,7 +404,7 @@ function Build_Pluto_Stuff {
 	$MakeRelease_PrepFiles -p ${svn_dir}/trunk -e "*.cpp,*.h,Makefile*,*.php,*.sh,*.pl,*.awk" -c ${build_dir}/${flavor}.conf
 
 	LinphoneVersion="$(dpkg -s 'liblinphone1' | grep '^Version: ' | cut -d' ' -f2)"
-	if [[ "$LinphoneVersion" == "1.5."* ]]; then
+	if [[ "$LinphoneVersion" == "1."[57]"."* ]]; then
 		# Linphone 1.5.1 in Ubuntu Feisty makes SimplePhone to need this
 		export LINPHONE_CONST=const
 	fi
@@ -425,7 +425,7 @@ function Build_Pluto_Stuff {
 #	543  	Pluto vloopback Kernel Module
 #	542 	Pluto vloopback Kernel Module Source
 
-	$MakeRelease "${MakeReleaseExtraParams[@]}" -R "$SVNrevision" -h $sql_slave_host -u $sql_slave_user -O $out_dir -D $sql_slave_db -o 14 -r 21 -m 1 -K "543,542,462,607,432,431,427,426,430,429,336,337,589,590,515,516"  -s "${svn_dir}/trunk" -n / > >(tee -a $build_dir/Build.log)  -d || exit 1
+	$MakeRelease "${MakeReleaseExtraParams[@]}" -R "$SVNrevision" -h $sql_slave_host -u $sql_slave_user -O $out_dir -D $sql_slave_db -o 15 -r 21 -m 1 -K "543,542,462,607,432,431,427,426,430,429,336,337,589,590,515,516"  -s "${svn_dir}/trunk" -n / > >(tee -a $build_dir/Build.log)  -d || exit 1
 	
 }
 
