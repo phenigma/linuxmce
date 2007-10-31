@@ -776,7 +776,7 @@ Telecom_Plugin::Ring( class Socket *pSocket, class Message *pMessage, class Devi
 		pCallStatus->GetDebugInfo().c_str());
 
 	//destination channel -> exten -> (?) simple phone -> orbiter
-	int nOrbiterDeviceID = GetOrbiterDeviceID(sDestination_Channel);
+	int nOrbiterDeviceID = GetOrbiterDeviceID("", sDestination_Channel);
 
 	if(nOrbiterDeviceID)
 	{
@@ -815,28 +815,29 @@ Telecom_Plugin::Link( class Socket *pSocket, class Message *pMessage, class Devi
 	if( pFoundSrc == pFoundDest && NULL != pFoundSrc )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "The channels are linked");
-		return false;
 	}
-	
-	LoggerWrapper::GetInstance()->Write(LV_WARNING, "The channels aren't registered yet.");
-	
-	CallStatus *pCallStatus = new CallStatus();
-	if( pCallStatus == NULL )
+	else
 	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Telecom_Plugin::Link : Not enough memory!");
-	}
-	
-	pCallStatus->SetCallType(CallStatus::DirectCall);
-	pCallStatus->AddChannel(sSource_Channel, sSource_Caller_ID);
-	pCallStatus->AddChannel(sDestination_Channel, sDestination_Caller_ID);
-	
-	map_call2status[pCallStatus->GetID()] = pCallStatus;
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "The channels aren't registered yet.");
 
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Telecom_Plugin::Link call : %s",
-		pCallStatus->GetDebugInfo().c_str());
+		CallStatus *pCallStatus = new CallStatus();
+		if( pCallStatus == NULL )
+		{
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Telecom_Plugin::Link : Not enough memory!");
+		}
+
+		pCallStatus->SetCallType(CallStatus::DirectCall);
+		pCallStatus->AddChannel(sSource_Channel, sSource_Caller_ID);
+		pCallStatus->AddChannel(sDestination_Channel, sDestination_Caller_ID);
+
+		map_call2status[pCallStatus->GetID()] = pCallStatus;
+
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Telecom_Plugin::Link call : %s",
+			pCallStatus->GetDebugInfo().c_str());
+	}
 
 	//source channel -> exten -> (?) simple phone -> orbiter
-	int nSrcOrbiterDeviceID = GetOrbiterDeviceID(sSource_Channel);
+	int nSrcOrbiterDeviceID = GetOrbiterDeviceID("", sSource_Channel);
 
 	//TODO: add sDestination_Channel, sSource_Caller_ID, sDestination_Caller_ID to SCREEN_DevCallInProgress
 
@@ -853,7 +854,7 @@ Telecom_Plugin::Link( class Socket *pSocket, class Message *pMessage, class Devi
 	}
 
 	//dest channel -> exten -> (?) simple phone -> orbiter
-	int nDestOrbiterDeviceID = GetOrbiterDeviceID(sDestination_Channel);
+	int nDestOrbiterDeviceID = GetOrbiterDeviceID("", sDestination_Channel);
 
 	if(nDestOrbiterDeviceID)
 	{
@@ -954,7 +955,7 @@ bool Telecom_Plugin::Hangup( class Socket *pSocket, class Message *pMessage, cla
 	}
 
 	//destination channel -> exten -> (?) simple phone -> orbiter
-	int nOrbiterDeviceID = GetOrbiterDeviceID(sChannel_ID);
+	int nOrbiterDeviceID = GetOrbiterDeviceID("", sChannel_ID);
 
 	if(nOrbiterDeviceID)
 	{
