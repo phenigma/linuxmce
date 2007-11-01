@@ -182,7 +182,51 @@ CommunicationHandler::handleLinkEvent(Token* ptoken)
 int 
 CommunicationHandler::handleNewStateEvent(Token* ptoken)
 {
-	//TODO: do we need this ?
+	if(ptoken->getKey(TOKEN_STATE) == STATE_RING)
+	{
+		string channel1 = ptoken->getKey(TOKEN_CHANNEL);
+		string callerid1 = ptoken->getKey(TOKEN_CALLERID);        
+
+		string ringphoneid;
+		if(!Utils::ParseChannel(channel1, &ringphoneid)) 
+		{
+			map_callerid[ringphoneid] = callerid1;
+			map_ringext[ringphoneid] += string(" ")+channel1;
+		}
+	}
+	else if(ptoken->getKey(TOKEN_STATE) == STATE_RINGING)
+	{
+		string channel1 = ptoken->getKey(TOKEN_CHANNEL);
+		string callerid1 = ptoken->getKey(TOKEN_CALLERID);
+
+		string ringphoneid;
+		if(!Utils::ParseChannel(channel1, &ringphoneid)) 
+		{
+			map_callerid[ringphoneid] = callerid1;
+			if(map_ringext.find(ringphoneid) == map_ringext.end())
+			{
+				map_ringext[ringphoneid] = "";
+			}
+			string channel2 = StringUtils::TrimSpaces(map_ringext[ringphoneid]);
+			string callerid2;
+			string ringphoneid2;
+			if(!Utils::ParseChannel(channel2, &ringphoneid2))
+			{
+				callerid2 = map_callerid[ringphoneid2];
+			}
+
+			map_ringext[ringphoneid] += string(" ")+channel1;
+
+			string callerid = ptoken->getKey(TOKEN_CALLERID);
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Ringing from channel %s (%s) to channel %s (%s) ",
+				channel1.c_str(), callerid1.c_str(), channel2.c_str(), callerid2.c_str());
+			AsteriskManager::getInstance()->NotifyRing(channel2, channel1, callerid2, callerid1);
+		}
+		else 
+		{
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Error parsing channel:%s", channel1.c_str());
+		}
+	}
 
 	return 0;
 }
