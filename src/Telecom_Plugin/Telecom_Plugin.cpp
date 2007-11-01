@@ -2580,10 +2580,6 @@ void Telecom_Plugin::CMD_Make_Call(int iPK_Users,string sPhoneExtension,int iFK_
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Nowhere to make a call !!!");
 		return;
 	}
-	if( map_ext2status.end() == map_ext2status.find(sPhoneNumber) )
-	{
-		sPhoneNumber+="@trusted";
-	}
 	
 	int iEmbeddedPhone = 0;
 	ExtensionStatus * pExtStatus = FindExtensionStatusByDevice(iFK_Device_From, &iEmbeddedPhone);
