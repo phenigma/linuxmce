@@ -16,10 +16,13 @@ function coverArt($output,$mediadbADO) {
 	$searchIndex=$mediaTypes[$mediaType];
 	
 	$ipp=10;
+	$ipp=(isset($_SESSION['coverart_per_page']) && (int)$_SESSION['coverart_per_page']>0)?(int)$_SESSION['coverart_per_page']:$ipp;
 	$ipp=(isset($_REQUEST['ipp']))?(int)$_REQUEST['ipp']:$ipp;
 	if($ipp<=0 || $ipp>10000){
 		@$_REQUEST['error'].=$TEXT_RECORDS_PER_PAGE_EXCEEDED_CONST;
 		$ipp=10;
+	}else{
+		$_SESSION['coverart_per_page']=$ipp;
 	}
 	
 	if(automaticGrabStatus()){
@@ -170,11 +173,12 @@ function outputItemsToScan($type,$mediaType,$mediadbADO){
 		
 	// if parameter is not specified, show files without cover arts
 	$type=($type=='')?'filesNoCover':$type;
-	$ipp=((int)@$_REQUEST['ipp']<=1 || (int)@$_REQUEST['ipp']>10000)?10:(int)@$_REQUEST['ipp'];
+	$ipp=(isset($_SESSION['coverart_per_page']) && (int)$_SESSION['coverart_per_page']>0)?(int)$_SESSION['coverart_per_page']:10;
+	$ipp=((int)@$_REQUEST['ipp']<=1 || (int)@$_REQUEST['ipp']>10000)?$ipp:(int)@$_REQUEST['ipp'];
 
 	switch ($type){
 		case 'allFiles':
-			$extra=($mediaType==3)?' OR EK_MediaType=5':'';
+			$extra=($mediaType==3)?' OR EK_MediaType=5 OR EK_MediaType=27 OR EK_MediaType=28':'';
 			$pathSqlFilter=(@$_REQUEST['filterPath']!='')?' AND Path LIKE \'%'.$_REQUEST['filterPath'].'%\'':'';
 			$fileSqlFilter=(@$_REQUEST['filterFile']!='')?' AND Filename LIKE \'%'.$_REQUEST['filterFile'].'%\'':'';
 	
@@ -195,7 +199,7 @@ function outputItemsToScan($type,$mediaType,$mediadbADO){
 			
 			*/
 			// todo: remove limit
-			$extra=($mediaType==3)?' OR EK_MediaType=5':'';
+			$extra=($mediaType==3)?' OR EK_MediaType=5 OR EK_MediaType=27 OR EK_MediaType=28':'';
 			$pathSqlFilter=(@$_REQUEST['filterPath']!='')?' AND Path LIKE \'%'.$_REQUEST['filterPath'].'%\'':'';
 			$fileSqlFilter=(@$_REQUEST['filterFile']!='')?' AND Filename LIKE \'%'.$_REQUEST['filterFile'].'%\'':'';
 			$dataArray=getAssocArray('File','PK_File','CONCAT(Path,\'/\',Filename) AS Label',$mediadbADO,'LEFT JOIN Picture_File ON  Picture_File.FK_File=PK_File LEFT JOIN CoverArtScan ON CoverArtScan.FK_File=PK_File WHERE (EK_MediaType='.$mediaType.' '.$extra.') AND (Scanned IS NULL OR Scanned=0) AND Missing=0 '.$pathSqlFilter.$fileSqlFilter.' GROUP BY PK_File HAVING count(FK_Picture)=0 ORDER BY PK_File DESC');
@@ -204,7 +208,7 @@ function outputItemsToScan($type,$mediaType,$mediadbADO){
 			$title=$TEXT_SHOW_FILES_NO_COVERART_CONST;
 		break;
 		case 'allDiscs':
-			$dataArray=getAssocArray('Disc','PK_Disc','ID AS Label',$mediadbADO,'LEFT JOIN CoverArtScan ON CoverArtScan.FK_Disc=PK_Disc WHERE (EK_MediaType ='.$mediaType.' OR EK_MediaType=5) AND (Scanned IS NULL OR Scanned=0)');
+			$dataArray=getAssocArray('Disc','PK_Disc','ID AS Label',$mediadbADO,'LEFT JOIN CoverArtScan ON CoverArtScan.FK_Disc=PK_Disc WHERE (EK_MediaType ='.$mediaType.' OR EK_MediaType=5 OR EK_MediaType=27 OR EK_MediaType=28) AND (Scanned IS NULL OR Scanned=0)');
 			$itemName='discID';
 			$title=$TEXT_SHOW_ALL_DISCS_CONST;
 		break;
@@ -262,7 +266,20 @@ function multi_page_items($dataArray,$searchIndex,$ipp,$type,$itemName,$mediaTyp
 	
 	$links='';
 	for($i=1;$i<=$noPages;$i++){
-		$links.=($i==$page)?$i.'&nbsp; ':'<a href="index.php?section=coverArt&ftype='.$type.'&ipp='.$ipp.'&page='.$i.'&mediaType='.$mediaType.'&filterPath='.cleanString(@$_REQUEST['filterPath']).'&filterFile='.cleanString(@$_REQUEST['filterFile']).'">'.$i.'</a>&nbsp; ';
+		if($noPages<=6){
+			$links.=($i==$page)?$i.'&nbsp; ':'<a href="index.php?section=coverArt&ftype='.$type.'&ipp='.$ipp.'&page='.$i.'&mediaType='.$mediaType.'&filterPath='.cleanString(@$_REQUEST['filterPath']).'&filterFile='.cleanString(@$_REQUEST['filterFile']).'">'.$i.'</a>&nbsp; ';
+		}else{
+			if($i>$page-3 && $i<$page+3){
+				$links.=($i==$page)?$i.'&nbsp; ':'<a href="index.php?section=coverArt&ftype='.$type.'&ipp='.$ipp.'&page='.$i.'&mediaType='.$mediaType.'&filterPath='.cleanString(@$_REQUEST['filterPath']).'&filterFile='.cleanString(@$_REQUEST['filterFile']).'">'.$i.'</a>&nbsp; ';
+			}
+		}
+	}
+	if($noPages>6 && $page>3){
+		$links='<a href="index.php?section=coverArt&ftype='.$type.'&ipp='.$ipp.'&page=1&mediaType='.$mediaType.'&filterPath='.cleanString(@$_REQUEST['filterPath']).'&filterFile='.cleanString(@$_REQUEST['filterFile']).'">&lt;&lt;</a> '.$links;
+	}
+	
+	if($noPages>6 && $page<$noPages){
+		$links=$links.' <a href="index.php?section=coverArt&ftype='.$type.'&ipp='.$ipp.'&page='.$noPages.'&mediaType='.$mediaType.'&filterPath='.cleanString(@$_REQUEST['filterPath']).'&filterFile='.cleanString(@$_REQUEST['filterFile']).'">&gt;&gt;</a>';
 	}
 	
 	// set path and filename filters
