@@ -1745,7 +1745,7 @@ class DataGridTable *Telecom_Plugin::ActiveUsersOnCallGrid(string GridID,string 
 	{
 		if(!Parms.empty())
 		{
-			pCell = new DataGridCell("INVALID phone call id: " + Parms, "");
+			pCell = new DataGridCell("(no users for call id: " + Parms + ")", "");
 			pCell->m_AltColor = PlutoColor(0,128,0).m_Value;
 			pDataGrid->SetData(0, Row, pCell);
 		}

@@ -3485,27 +3485,27 @@ void ScreenHandler::SCREEN_MakeCallDevice(long PK_Screen)
 void ScreenHandler::SCREEN_DevCallInProgress(long PK_Screen, string sPhoneCallerID, string sSource_Channel, 
 	string sDestination_Channel, string sSource_Caller_ID, string sDestination_Caller_ID)
 {
+	//if(m_pOrbiter->m_mapVariable_Find(VARIABLE_My_Channel_ID_CONST).empty())
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_My_Channel_ID_CONST, sSource_Channel);
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_My_Call_ID_CONST, sPhoneCallerID);
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Current_Call_CONST, sPhoneCallerID);
+
 	ScreenHandlerBase::SCREEN_DevCallInProgress(PK_Screen, sPhoneCallerID, sSource_Channel, 
 		sDestination_Channel, sSource_Caller_ID, sDestination_Caller_ID);
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::Telecom_ObjectSelected, new ObjectInfoBackData());
-
-	if(m_pOrbiter->m_mapVariable_Find(VARIABLE_My_Channel_ID_CONST).empty())
-		m_pOrbiter->CMD_Set_Variable(VARIABLE_My_Channel_ID_CONST, sSource_Channel);
-
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_My_Call_ID_CONST, sPhoneCallerID);
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_DevIncomingCall(long PK_Screen, string sSource_Channel, 
 	string sDestination_Channel, string sSource_Caller_ID, string sDestination_Caller_ID)
 {
-	ScreenHandlerBase::SCREEN_DevIncomingCall(PK_Screen, sSource_Channel, sDestination_Channel,
-		sSource_Caller_ID, sDestination_Caller_ID);
-	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::Telecom_ObjectSelected, new ObjectInfoBackData());
-
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_My_Channel_ID_CONST, sDestination_Channel);
 	//m_pOrbiter->CMD_Set_Variable(VARIABLE_My_Caller_ID_CONST, sDestination_Channel);
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Caller_name_CONST, sSource_Caller_ID);
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Caller_number_CONST, sSource_Channel);
+
+	ScreenHandlerBase::SCREEN_DevIncomingCall(PK_Screen, sSource_Channel, sDestination_Channel,
+		sSource_Caller_ID, sDestination_Caller_ID);
+	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::Telecom_ObjectSelected, new ObjectInfoBackData());
 }
 //-----------------------------------------------------------------------------------------------------
 bool ScreenHandler::Telecom_DataGridRendering(CallBackData *pData)
