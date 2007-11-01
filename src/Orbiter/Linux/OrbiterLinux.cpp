@@ -622,7 +622,7 @@ bool OrbiterLinux::MaskApplied()
 
 void OrbiterLinux::ResetAppliedMask()
 {
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Reseting mask");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Reseting mask - xshape");
 
 	XRectangle rect = {0, 0, m_iImageWidth, m_iImageHeight};
 	
@@ -674,11 +674,6 @@ void OrbiterLinux::ApplyMask(PlutoRectangle rectTotal, PlutoPoint point, MaskTyp
 			0, 0,
 			rects,
 			1, ShapeSubtract, Unsorted);		
-
-		if(mask_type == mtNormalMask)
-		{
-			m_bMaskApplied = true;
-		}
 	}
 	else if(mask_type == mtNormalMask)
 	{
@@ -747,6 +742,8 @@ void OrbiterLinux::ApplyMask(PlutoRectangle rectTotal, PlutoPoint point, MaskTyp
 
 		m_bMaskApplied = true;
 	}
+
+	m_pX11->Sync();
 
 #if defined(VIA_OVERLAY) && defined(ORBITER_OPENGL)
 	//for VIA, if we are in dvd menu, we won't restart the alpha mask

@@ -116,8 +116,7 @@ bool OrbiterRenderer_Linux::HandleShowPopup(PlutoPopup* Popup, PlutoPoint Positi
 		
 		ApplyMasks();
 	}
-
-	if (pOrbiterLinux != NULL && pOrbiterLinux->IsYieldInput() && Popup->m_sName == "popup_alert")
+	else if (pOrbiterLinux != NULL && pOrbiterLinux->IsYieldInput() && Popup->m_sName == "popup_alert")
 	{
 		PlutoRectangle rectTotal(0, 0, Popup->m_pObj->m_rPosition.Width, Popup->m_pObj->m_rPosition.Height);
 		pOrbiterLinux->ApplyMask(rectTotal, Popup->m_Position, mtShowPopupMask);
@@ -151,8 +150,7 @@ bool OrbiterRenderer_Linux::HandleHidePopup(PlutoPopup* Popup)
 		
 		ApplyMasks();
 	}
-
-	if (pOrbiterLinux != NULL && pOrbiterLinux->IsYieldInput() && Popup->m_sName == "popup_alert")
+	else if (pOrbiterLinux != NULL && pOrbiterLinux->IsYieldInput() && Popup->m_sName == "popup_alert")
 	{
 		PlutoRectangle rectTotal(0, 0, Popup->m_pObj->m_rPosition.Width, Popup->m_pObj->m_rPosition.Height);
 		pOrbiterLinux->ApplyMask(rectTotal, Popup->m_Position, mtHidePopupMask);
