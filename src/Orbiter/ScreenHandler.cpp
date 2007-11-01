@@ -3465,8 +3465,6 @@ void ScreenHandler::SCREEN_MakeCallIntercom(long PK_Screen)
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_Active_Calls(long PK_Screen)
 {
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_Current_Call_CONST, "");
-
 	ScreenHandlerBase::SCREEN_Active_Calls(PK_Screen);
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::Telecom_ObjectSelected, new ObjectInfoBackData());
 	RegisterCallBack(cbDataGridRendering, (ScreenHandlerCallBack) &ScreenHandler::Telecom_DataGridRendering, new DatagridAcquiredBackData());
@@ -3673,6 +3671,8 @@ void ScreenHandler::HandleAssistedMakeCall(int iPK_Users,string sPhoneExtension,
 				m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device_TelecomPlugIn,
 				iPK_Users, sOptions, sPhoneExtension, sPhoneCallID, iPK_Device_From);
 			m_pOrbiter->SendCommand(cmd_PL_Join_Call);
+
+			SCREEN_Active_Calls(SCREEN_Active_Calls_CONST);
 		}
 		break;
 
