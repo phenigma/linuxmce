@@ -400,6 +400,69 @@ void PlutoHalD::myDeviceAdded(LibHalContext * ctx, const char * udi)
 				}
 			}
 		}
+		else if( 0 == strcmp(category, "storage") && strlen(category) == strlen("storage") )
+		{
+			char ** capabilities = libhal_device_get_property_strlist (ctx, udi, "info.capabilities", NULL);
+			
+			capabilities = libhal_device_get_property_strlist (ctx, udi, "info.capabilities", NULL);
+			bool bCDROM = false;
+			if(capabilities != NULL)
+			{
+				for(int i = 0; capabilities[i] != NULL; i++)
+				{
+					if(0 == strcmp (capabilities[i], "storage.cdrom"))
+					{
+						bCDROM = true;
+						break;
+					}
+				}
+				libhal_free_string_array(capabilities);
+			}
+			
+			if( bCDROM )
+			{
+					// search for prod_id and vendor_id
+				int device_product_id = 0;
+				int device_vendor_id = 0;
+				int subsys_device_product_id = 0;
+				int subsys_device_vendor_id = 0;
+					// or PCI_COMM_METHOD ?
+				int iBusType = UNKNOWN_COMM_METHOD;
+				string sysfsPath;
+					
+				getProductVendorId(
+						ctx, udi,
+				&device_product_id, &device_vendor_id,
+				&subsys_device_product_id, &subsys_device_vendor_id,
+				&iBusType, sysfsPath );
+				char buffer[64];
+				snprintf(buffer, sizeof(buffer), "%08x%08x",
+						 (unsigned int) ((device_vendor_id & 0xffff) << 16) | (device_product_id & 0xffff),
+						 (unsigned int) ((subsys_device_vendor_id & 0xffff) << 16) | (subsys_device_product_id & 0xffff));
+				
+				LoggerWrapper::GetInstance()->Write(LV_DEBUG, "+++++++ CDROM category = %s || UID = %s", category, udi);
+					
+				string deviceData;
+				gchar *blockdevice = libhal_device_get_property_string(ctx, udi, "block.device", NULL);
+				if( blockdevice != NULL )
+				{
+					if( !deviceData.empty() )
+					{
+						deviceData += "|";
+					}
+					deviceData += StringUtils::itos( DEVICEDATA_Drive_CONST );
+					deviceData += "|";
+					deviceData += blockdevice;
+				}
+				g_free(blockdevice);
+				blockdevice = NULL;
+				
+				halDevice->EVENT_Device_Detected
+						("", "", "", 0, buffer, iBusType, 0, udi, deviceData.c_str(), "cdrom", halDevice->m_sSignature_get());
+					
+				LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Finished firing event for %s", buffer);
+			}
+		}
 		// general category
 		else
 		{
@@ -810,6 +873,69 @@ void PlutoHalD::initialize(LibHalContext * ctx)
 							fstype = NULL;
 						}
 					}
+				}
+			}
+			else if( 0 == strcmp(category, "storage") && strlen(category) == strlen("storage") )
+			{
+				char ** capabilities = libhal_device_get_property_strlist (ctx, udi, "info.capabilities", NULL);
+			
+				capabilities = libhal_device_get_property_strlist (ctx, udi, "info.capabilities", NULL);
+				bool bCDROM = false;
+				if(capabilities != NULL)
+				{
+					for(int i = 0; capabilities[i] != NULL; i++)
+					{
+						if(0 == strcmp (capabilities[i], "storage.cdrom"))
+						{
+							bCDROM = true;
+							break;
+						}
+					}
+					libhal_free_string_array(capabilities);
+				}
+			
+				if( bCDROM )
+				{
+					// search for prod_id and vendor_id
+					int device_product_id = 0;
+					int device_vendor_id = 0;
+					int subsys_device_product_id = 0;
+					int subsys_device_vendor_id = 0;
+					// or PCI_COMM_METHOD ?
+					int iBusType = UNKNOWN_COMM_METHOD;
+					string sysfsPath;
+					
+					getProductVendorId(
+						ctx, udi,
+						&device_product_id, &device_vendor_id,
+						&subsys_device_product_id, &subsys_device_vendor_id,
+						&iBusType, sysfsPath );
+					char buffer[64];
+					snprintf(buffer, sizeof(buffer), "%08x%08x",
+						(unsigned int) ((device_vendor_id & 0xffff) << 16) | (device_product_id & 0xffff),
+						(unsigned int) ((subsys_device_vendor_id & 0xffff) << 16) | (subsys_device_product_id & 0xffff));
+				
+					LoggerWrapper::GetInstance()->Write(LV_DEBUG, "+++++++ CDROM category = %s || UID = %s", category, udi);
+					
+					string deviceData;
+					gchar *blockdevice = libhal_device_get_property_string(ctx, udi, "block.device", NULL);
+					if( blockdevice != NULL )
+					{
+						if( !deviceData.empty() )
+						{
+							deviceData += "|";
+						}
+						deviceData += StringUtils::itos( DEVICEDATA_Drive_CONST );
+						deviceData += "|";
+						deviceData += blockdevice;
+					}
+					g_free(blockdevice);
+					blockdevice = NULL;
+				
+					halDevice->EVENT_Device_Detected
+						("", "", "", 0, buffer, iBusType, 0, udi, deviceData.c_str(), "cdrom", halDevice->m_sSignature_get());
+					
+					LoggerWrapper::GetInstance()->Write(LV_DEBUG, "Finished firing event for %s", buffer);
 				}
 			}
 			// general category
