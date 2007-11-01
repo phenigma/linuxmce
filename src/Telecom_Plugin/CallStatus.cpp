@@ -14,8 +14,8 @@
 
 using namespace DCE;
 
-const char * CallStatus::conferencePrefix = "C000";
-unsigned CallStatus::autoId = 0;
+const char * CallStatus::conferencePrefix = "000";
+unsigned CallStatus::autoId = 1;
 
 CallStatus::CallType CallStatus::String2CallType(string sCalltype)
 {
@@ -47,7 +47,7 @@ string CallStatus::GetStringConferenceID(unsigned uID)
 {
 	char buffer[16];
 	
-	snprintf(buffer, sizeof(buffer), "%s%02d", conferencePrefix, uID);
+	snprintf(buffer, sizeof(buffer), "%s%01d", conferencePrefix, uID);
 	
 	return string(buffer);
 }
