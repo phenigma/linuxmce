@@ -1,0 +1,39 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## sqlite3-support.dpatch by Diego Iastrubni <diego.iastrubni@xorcom.com>
+##
+## DP: SQLite 3 support. Fixes upstream http://freepbx.org/trac/ticket/1793
+
+@DPATCH@
+diff -urNad freepbx-module-callback~/install.php freepbx-module-callback/install.php
+--- freepbx-module-callback~/install.php	2006-05-31 13:16:44.000000000 +0300
++++ freepbx-module-callback/install.php	2007-02-18 14:01:36.000000000 +0200
+@@ -1,6 +1,24 @@
+ <?php
+ 
+ global $db;
++global $amp_conf;
++
++$autoincrement = (($amp_conf["AMPDBENGINE"] == "sqlite") || ($amp_conf["AMPDBENGINE"] == "sqlite3")) ? "AUTOINCREMENT":"AUTO_INCREMENT";
++
++$sql = "CREATE TABLE IF NOT EXISTS callback (
++	callback_id INTEGER NOT NULL PRIMARY KEY $autoincrement,
++	description VARCHAR( 50 ) ,
++	callbacknum VARCHAR( 100 ) ,
++	destination VARCHAR( 50 ) ,
++	sleep INTEGER,
++	deptname VARCHAR( 50 )
++);";
++
++$check = $db->query($sql);
++if (DB::IsError($check)) {
++	die( "Can not create `callback` table: " . $check->getMessage() .  "\n");
++}
++
+ 
+ // Version 1.1 upgrade - add sleep time.
+ $sql = "SELECT sleep FROM callback";
+diff -urNad freepbx-module-callback~/install.sql freepbx-module-callback/install.sql
+--- freepbx-module-callback~/install.sql	2006-05-31 13:16:44.000000000 +0300
++++ freepbx-module-callback/install.sql	1970-01-01 02:00:00.000000000 +0200
+@@ -1 +0,0 @@
+-CREATE TABLE IF NOT EXISTS callback ( callback_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY , description VARCHAR( 50 ) , callbacknum VARCHAR( 100 ) , destination VARCHAR( 50 ) , sleep INT, deptname VARCHAR( 50 ));

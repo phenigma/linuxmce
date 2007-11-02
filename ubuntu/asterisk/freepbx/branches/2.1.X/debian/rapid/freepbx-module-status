@@ -1,0 +1,351 @@
+#!/usr/bin/php -q
+
+<?php
+
+#   Written by Diego Iastrubni <diego.iastrubni@xorcom.com>
+#              (many parts borroed from different freePBX pages)
+#   Copyright (C) 2006, Xorcom
+#  
+#   All rights reserved.
+#  
+#   This program is free software; you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation; either version 2 of the License, or
+#   (at your option) any later version.
+#  
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#  
+#   You should have received a copy of the GNU General Public License
+#   along with this program; if not, write to the Free Software
+#   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+# a small script for managing installed modules
+# from the shell.
+# can basiacally do everything that the WEB GUI can do,
+# besides downloading new updates - it only works on local 
+# modules. updates will be done using apt-get.
+
+define("AMP_CONF"    , "/etc/amportal.conf");
+define("FREEPBX_PATH", "/usr/share/freepbx/");
+
+$dryrun  = false;
+$debug   = false;
+$verbose = false;
+
+function out( $s)
+{
+	global $verbose;
+	
+	if ($verbose)
+		print( $s );
+}
+
+function outn( $s)
+{
+	global $verbose;
+	
+	if ($verbose)
+		print( "$s\n" );
+}
+
+function debug( $s)
+{
+	global $debug;
+	
+	if ($debug)
+		print( "DEBUG: $s\n" );
+}
+
+function exec_cmd( $cmd )
+{
+	debug(" executing $cmd ");
+	system( $cmd, $ret_val );
+	return $ret_val;
+}
+
+function showHelp()
+{
+	print( "Module install/uninstall needs a parameter 
+	install, enable, uninstall, disable, status, st
+	You can also use the --debug (-d) and --verbose (-v) switches to get more information.
+\n");
+}
+
+// -------------------------------------------------
+// working with modules, taken from page.modules.php
+// -------------------------------------------------
+function disableModule($modname) 
+{
+	global $db;
+	$sql = "UPDATE modules SET enabled = 0 WHERE modulename = '{$modname}'";
+	$results = $db->query($sql);
+	if(DB::IsError($results)) {
+		die($results->getMessage());
+	}
+}
+
+function uninstallModule($modname) {
+	global $db;
+	$sql = "DELETE FROM modules WHERE modulename = '{$modname}'";
+	$results = $db->query($sql);
+	if(DB::IsError($results)) {
+		die($results->getMessage());
+	}
+}
+
+function enableModule($modname) {
+	global $db;
+	$sql = "UPDATE modules SET enabled = 1 WHERE modulename = '{$modname}'";
+	$results = $db->query($sql);
+	if(DB::IsError($results)) {
+		die($results->getMessage());
+	}
+}
+
+function installModule($modname,$modversion) 
+{
+	global $db;
+	global $amp_conf;
+	
+	switch ($amp_conf["AMPDBENGINE"])
+	{
+		case "sqlite":
+			// to support sqlite2, we are not using autoincrement. we need to find the 
+			// max ID available, and then insert it
+			$sql = "SELECT max(id) FROM modules;";
+			$results = $db->getRow($sql);
+			$new_id = $results[0];
+			$new_id ++;
+			$sql = "INSERT INTO modules (id,modulename, version,enabled) values ('{$new_id}','{$modname}','{$modversion}','0' );";
+			break;
+		
+		default:
+			$sql = "INSERT INTO modules (modulename, version) values ('{$modname}','{$modversion}');";
+		break;
+	}
+
+	$results = $db->query($sql);
+	if(DB::IsError($results)) {
+		die($results->getMessage());
+	}
+}
+
+// -----------------------------------------------
+// internal functions
+// -----------------------------------------------
+
+// show_modules_status( $online_modules, $local_modules );
+function show_modules_status( $local_modules )
+{
+	debug( "found ". count($local_modules) . " modules" );
+	
+	printf("I - installed, U - uninstalled, E - enabled, D - disabled, P - need install \n\n");
+	foreach( $local_modules as $module )
+	{
+		switch( $module["status"] )
+		{
+			case 0: // uninstalled
+				$status = "U";
+				break;
+			case 1: // disabled
+				$status = "D";
+				break;
+			case 2: // enabled
+				$status = "E";
+				break;
+			case 3: // need update
+				$status = "P";
+				break;
+			default:
+				$status = "X";
+		}
+		
+		$displayName = $module["displayName"];
+		$rawname     = $module["rawname"];
+		printf( " $status - $rawname : $displayName\n" );
+	}
+}
+
+function disable_module( $module )
+{
+	switch ($module["status"])
+	{
+		case 0:
+			outn("Module not installed, ignoring");
+			break;
+		case 1:
+			outn("Module already disabled, ignoring");
+			break;
+		case 2:
+			outn("Disabling module " . $module['rawname'] );
+			disableModule( $module["rawname"] );
+	}
+
+}
+
+function uninstall_module( $module )
+{
+	disable_module( $module );
+	
+	if (runModuleSQL($module['rawname'],'uninstall'))
+	{
+		outn("Uninstalling module: " . $module['rawname'] );
+		uninstallModule($module['rawname']);
+	}
+	else
+		printf( "Module uninstall script failed to run\n" );
+}
+
+function enable_module( $module )
+{
+	switch ($module["status"])
+	{
+		case 0:
+			install_module( $module  );
+		case 1:
+			outn("Enabling module: " . $module['rawname'] );
+			enableModule( $module['rawname'] );
+			break;
+		case 2:
+			outn("Module already enabled, ignoring");
+			break;
+		case 3:
+			outn("Upgrading module...");
+
+			// the install.php can set this to false if the upgrade fails.
+			$success = true;
+			if(is_file("modules/$module_name/install.php"))
+				include "modules/$module_name/install.php";
+
+			if ($success)
+			{
+				$sql_str = 'UPDATE modules SET version = "' . $module['version'] . '" WHERE modulename = "'.$module['rawname'].'"';
+				debug( "Runing SQL " . $sql_str);
+				sql( $sql_str );
+			}
+			else
+				printf("*** Error in install.php command, module is not upgraded.\n");
+			break;
+	}
+}
+
+function install_module( $module )
+{
+	$module_version = $module['version'];
+	outn("Installing module: " . $module['rawname'] );
+	
+	if (runModuleSQL($module['rawname'],'install')) 
+		installModule( $module['rawname'], $module_version );
+	else
+		printf( "Module install script failed to run\n" );
+	
+}
+
+// -------------------------------------------------
+// main
+// -------------------------------------------------
+
+if (! @ include('DB.php')) {
+	echo ("FAILED: PEAR must be installed (requires DB.php). Include path: ".ini_get("include_path"));
+}
+
+if (! @ include("Console/Getopt.php")) {
+	echo ( "FAILED: PEAR must be installed (requires Console/Getopt.php). Include path: ".ini_get("include_path"));
+}
+// exit;
+
+require_once( FREEPBX_PATH . "functions.inc.php");
+$amp_conf = parse_amportal_conf( AMP_CONF );
+
+require_once( FREEPBX_PATH . "common/db_connect.php"); //PEAR must be installed
+
+
+$shortopts = "hdv";
+$longopts = array( "help","debug","verbose","status",  );
+
+$args = Console_Getopt::getopt(Console_Getopt::readPHPArgv(), $shortopts, $longopts);
+if (is_object($args)) {
+        // assume it's PEAR_ERROR
+        out($args->message);
+        exit(255);
+}
+
+foreach ($args[0] as $arg) {
+        switch ($arg[0]) {
+		case "--help": case "h": case "?":
+			showHelp();
+			exit(10);
+			break;
+		case "--dry-run":
+			out("Dry-run only, nothing will be changed");
+			$dryrun = true;
+			break;
+		case "--debug": case "d":
+			$debug = true;
+			debug("Debug mode enabled");
+			break;
+		case "--verbose": case "v":
+			$verbose = true;
+			debug("Verbose mode enabled");
+			break;
+        }
+}
+
+$local_modules  = find_allmodules();
+$module_name    = $args[1][1];
+$module         = $local_modules[$module_name];
+
+
+// freepbx modules will include the unsintall scripts
+// using relative paths. why not modifiying the include dir...?
+chdir ( $amp_conf["AMPWEBROOT"] . "/admin/" );
+
+switch ($args[1][0])
+{
+	case "st":
+	case "status":
+		outn("Getting modules information");
+		show_modules_status( $local_modules );
+		exit();
+		break;
+
+	case "disable":
+		if (!$module)
+			printf("Module $module_name not found, ignoring\n");
+		else
+			disable_module( $module );
+		break;
+		
+	case "remove":
+	case "uninstall":
+		if (!$module)
+			printf("Module $module_name not found, ignoring\n");
+		else
+			uninstall_module( $module );
+		break;
+
+	case "enable":
+		if (!$module)
+			printf("Module $module_name not found, ignoring\n");
+		else
+			enable_module( $module );
+		break;
+		
+	case "install":
+		if (!$module)
+			printf("Module $module_name not found, ignoring\n");
+		else
+			install_module( $module );
+		break;
+
+	default:
+		showHelp();
+		exit();
+}
+
+needreload();
+
+?>

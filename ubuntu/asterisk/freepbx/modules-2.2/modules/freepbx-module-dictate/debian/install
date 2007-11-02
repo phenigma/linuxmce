@@ -1,0 +1,5 @@
+*.php           usr/share/freepbx/modules/dictate/
+*.sql           usr/share/freepbx/modules/dictate/
+*.sqlite        usr/share/freepbx/modules/dictate/
+*.html          usr/share/freepbx/modules/dictate/
+*.xml           usr/share/freepbx/modules/dictate/

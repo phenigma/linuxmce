@@ -1,0 +1,6 @@
+*.php           usr/share/freepbx/admin/modules/@@RAWNAME@@/
+*.sql           usr/share/freepbx/admin/modules/@@RAWNAME@@/
+*.sqlite        usr/share/freepbx/admin/modules/@@RAWNAME@@/
+*.html          usr/share/freepbx/admin/modules/@@RAWNAME@@/
+*.xml           usr/share/freepbx/admin/modules/@@RAWNAME@@/
+

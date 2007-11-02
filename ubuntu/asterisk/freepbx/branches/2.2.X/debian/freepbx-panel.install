@@ -1,0 +1,8 @@
+amp_conf/htdocs_panel/op_astdb.cfg		etc/op-panel/freepbx/
+amp_conf/htdocs_panel/op_buttons.cfg		etc/op-panel/freepbx/
+amp_conf/htdocs_panel/op_server.cfg		etc/op-panel/freepbx/
+amp_conf/htdocs_panel/op_style.cfg		etc/op-panel/freepbx/
+						
+amp_conf/htdocs/admin/panel.php			usr/share/freepbx/
+amp_conf/htdocs_panel/index.php			usr/share/op-panel/flash/
+amp_conf/htdocs_panel/index_amp.php		usr/share/op-panel/flash/

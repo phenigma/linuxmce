@@ -1,0 +1,100 @@
+freepbx-module-zapauto (2.2-0.6.4-1) unstable; urgency=low
+
+  * Restart of asterisk + zaptel is done only once
+  * Scripts are been run as "www-data" and not "asterisk"
+  * Script will change colors:
+     - blue means running
+     - green means ended ok
+     - red means ended with a problem
+  * Updated freePBX configuration to reflect new version (forgotten in last update)
+
+ -- Diego Iastrubni <diego.iastrubni@xorcom.com>  Wed, 18 Apr 2007 16:08:01 +0300
+
+freepbx-module-zapauto (2.2-0.6.3-1) unstable; urgency=low
+
+  * Code supports freePBX 2.1 and 2.2
+
+ -- Diego Iastrubni <diego.iastrubni@xorcom.com>  Sun, 15 Apr 2007 15:34:09 +0300
+
+freepbx-module-zapauto (2.2-0.6.2-1) unstable; urgency=low
+
+  * New release
+  * Better, smarter configuration bootstrap
+  * Astribank BRI detection has been added
+
+ -- Diego Iastrubni <diego.iastrubni@xorcom.com>  Sun, 1 Apr 2007 17:45:00 +0200
+
+freepbx-module-zapauto (2.2-0.6.1-1) unstable; urgency=low
+
+  * New release
+  * Less vebose configuration
+  * Default of the echo canceller is now "yes" instead of "8"
+
+ -- Diego Iastrubni <diego.iastrubni@xorcom.com>  Tue, 20 Feb 2007 17:28:32 +0200
+
+freepbx-module-zapauto (2.2-0.6.0-1) unstable; urgency=low
+
+  * New version
+  * Targetting version 2.2.X of freePBX
+
+ -- Diego Iastrubni <diego.iastrubni@xorcom.com>  Wed,  7 Feb 2007 17:01:46 +0200
+
+freepbx-module-zapauto (2.1-0.5.7-2) unstable; urgency=low
+
+  * Don't fail detect_zap if beep is not installed. 
+
+ -- Tzafrir Cohen <tzafrir.cohen@xorcom.com>  Tue, 19 Dec 2006 20:50:56 +0200
+
+freepbx-module-zapauto (2.1-0.5.7-1) unstable; urgency=low
+
+  * Update the documentation: this module supports freePBX 2.1.X only
+  
+ -- Diego Iastrubni <diego.iastrubni@xorcom.com>  Sun,  10 Dec 2006 12:00:00 +0200
+
+freepbx-module-zapauto (2.1-0.5.6-1) unstable; urgency=low
+
+  * New version
+  * Code cleanups
+  
+ -- Diego Iastrubni <diego.iastrubni@xorcom.com>  Sun,  22 Nov 2006 12:00:00 +0200
+
+freepbx-module-zapauto (2.1-0.5.4-1) unstable; urgency=low
+
+  * added php5-cgi as an optional dependency (instead of php4-cgi). Now php5 
+    and php4 are supported.
+  
+ -- Diego Iastrubni <diego.iastrubni@xorcom.com>  Sun,  29 Oct 2006 18:00:00 +0200
+
+freepbx-module-zapauto (2.1-0.5.4-1) unstable; urgency=low
+
+  * New release
+  * /etc/zaptel and /etc/asterisk/zapata*.conf are a+r after detection
+  * 2 beeps will be issued when a new HW has been properly discovered
+  * Recommends "beep" for the audio announce of new HW
+
+ -- Diego Iastrubni <diego.iastrubni@xorcom.com>  Sun,  8 Oct 2006 12:22:14 +0200
+
+freepbx-module-zapauto (2.1-0.5.2-5) unstable; urgency=low
+
+  * Fix module location
+  * /etc/zaptel.conf is made a+r
+
+ -- Diego Iastrubni <diego.iastrubni@xorcom.com>  Wed,  4 Oct 2006 18:43:00 +0200
+
+freepbx-module-zapauto (2.1-0.5.2-3) unstable; urgency=low
+ 
+   * Added proper dependencies
+ 
+ -- Diego Iastrubni <diego.iastrubni@xorcom.com>  Mon, 11 Sep 2006 16:52:48 +0300    
+ 
+freepbx-module-zapauto (2.1-0.5.2-2) unstable; urgency=low
+  * Auto detection shuold work now
+  * ASTDB fixed outsourced to another script, autodetection time speedups
+  * All configuration creation scripts are been run now as "asterisk" user
+  * zap2amp is now more verbose about SQL errors
+  * Page code has been refactored, and should be more readable
+ -- Diego Iastrubni <diego.iastrubni@xorcom.com>  Sun, 09 Jul 2006 14:00:00 +0300 
+
+freepbx-module-zapauto (2.1-0.5.1-1) unstable; urgency=low
+  * First release.
+ -- Diego Iastrubni <diego.iastrubni@xorcom.com>  Mon, 03 Jul 2006 13:56:45 +0300

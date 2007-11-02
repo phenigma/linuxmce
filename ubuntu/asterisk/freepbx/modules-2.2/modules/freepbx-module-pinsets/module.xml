@@ -1,0 +1,19 @@
+<module>
+	<rawname>pinsets</rawname>
+	<name>PIN Sets</name>
+	<version>1.1</version>
+	<type>setup</type>
+	<category>Internal Options &amp; Configuration</category>
+	<description>Allow creation of lists of PINs (numbers for passwords) that can be used by other modules (eg, trunks).</description>
+	<changelog>
+		*1.1* Add naftali5's fix for pinsets being lost when routes are moved.
+		*1.0.12* Add he_IL translation
+		*1.0.11* Stop potential error where a random pinset is appearing when creating a new trunk
+	</changelog>
+	<menuitems>
+		<pinsets>PIN Sets</pinsets>
+	</menuitems>
+	<info>http://aussievoip.com.au/wiki/freePBX-PinSets</info>
+	<location>release/2.2/pinsets-1.0.12.tgz</location>
+	<md5sum>3d6b404b18ece21998731979686ba91a</md5sum>
+</module>

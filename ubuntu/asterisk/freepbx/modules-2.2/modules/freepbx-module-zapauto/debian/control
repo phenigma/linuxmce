@@ -1,0 +1,15 @@
+Source: freepbx-module-zapauto
+Section: comm
+Priority: optional
+Maintainer: Diego Iastrubni <diego.iastrubni@xorcom.com>
+Uploaders: Tzafrir Cohen <tzafrir.cohen@xorcom.com>
+Build-Depends: debhelper (>= 4.0.0), dpatch
+Depends: freepbx-common (>=2.2.0)
+Recommends: beep
+Standards-Version: 3.7.2
+
+Package: freepbx-module-zapauto
+Architecture: all
+Depends: freepbx-common, sudo, php5-cli | php4-cli 
+Description: FreePBX module: Zaptel AutoConfiguration
+ This is a freepbx-module for autoconfiguration of Zaptel hardware

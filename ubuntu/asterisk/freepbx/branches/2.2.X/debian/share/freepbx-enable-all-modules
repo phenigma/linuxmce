@@ -1,0 +1,14 @@
+#! /bin/sh
+
+#
+# small script which enables all the available 
+# freepbx-modules
+#
+# Diego Iastrubni <diego.iastrubni@xorcom.com> - 2007
+# GPL
+
+DIR=`dirname $0`
+ENABLE_SCRIPT=/usr/share/asterisk/bin/module_admin
+
+$ENABLE_SCRIPT enable core
+COLUMNS=180 dpkg -l | grep freepbx-module- | awk '{ print $2; }' | sed 's/^freepbx-module-//' | xargs -l $ENABLE_SCRIPT install 

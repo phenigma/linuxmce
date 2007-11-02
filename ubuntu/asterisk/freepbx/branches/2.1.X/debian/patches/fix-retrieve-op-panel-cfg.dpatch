@@ -1,0 +1,41 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## fix-retrieve-op-panel-cfg.dpatch by Diego Iastrubni <diego.iastrubni@xorcom.com>
+##
+## DP: By default freePBX's script saves into the webroot. 
+## DP: it should save the config into /etc/op-panel/freepbx
+
+@DPATCH@
+diff -urNad freepbx-2.1.1/amp_conf/bin/retrieve_op_conf_from_mysql.pl /tmp/dpep.IKHN0O/freepbx-2.1.1/amp_conf/bin/retrieve_op_conf_from_mysql.pl
+--- freepbx-2.1.1/amp_conf/bin/retrieve_op_conf_from_mysql.pl	2006-04-25 19:44:45.000000000 +0300
++++ /tmp/dpep.IKHN0O/freepbx-2.1.1/amp_conf/bin/retrieve_op_conf_from_mysql.pl	2006-08-16 16:54:32.000000000 +0300
+@@ -31,7 +31,7 @@
+ 
+ 
+ $zapataconf="/etc/asterisk/zapata.conf";
+-$zapataautoconf="/etc/asterisk/zapata-auto.conf";
++$zapataautoconf="/etc/asterisk/zapata-channels.conf";
+ 
+ if (-e $zapataconf) {
+ 	@zaplines = parse_zapata($zapataconf);
+@@ -108,7 +108,7 @@
+ $ampconf = parse_amportal_conf( "/etc/amportal.conf" );
+ 
+ # WARNING: this file will be substituted by the output of this program
+-$op_conf = $ampconf->{"AMPWEBROOT"}."/panel/op_buttons_additional.cfg";
++$op_conf = "/etc/op-panel/freepbx/op_buttons_additional.cfg";
+ # username to connect to the database
+ $username = $ampconf->{"AMPDBUSER"};
+ # password to connect to the database
+diff -urNad freepbx-2.1.1/amp_conf/htdocs_panel/op_buttons.cfg /tmp/dpep.IKHN0O/freepbx-2.1.1/amp_conf/htdocs_panel/op_buttons.cfg
+--- freepbx-2.1.1/amp_conf/htdocs_panel/op_buttons.cfg	2005-03-16 00:10:19.000000000 +0200
++++ /tmp/dpep.IKHN0O/freepbx-2.1.1/amp_conf/htdocs_panel/op_buttons.cfg	2006-08-16 16:54:56.000000000 +0300
+@@ -1,7 +1,7 @@
+-include => op_buttons_additional.cfg
++include => freepbx/op_buttons_additional.cfg
+ 
+ ; use this for your customizations to FOP
+-include => op_buttons_custom.cfg
++include => freepbx/op_buttons_custom.cfg
+ 
+ [rectangle]
+ x=492

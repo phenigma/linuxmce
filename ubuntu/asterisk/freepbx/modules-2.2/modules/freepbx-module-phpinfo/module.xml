@@ -1,0 +1,13 @@
+<module>
+	<rawname>phpinfo</rawname>
+	<name>PHP Info</name>
+	<version>1.0</version>
+	<type>tool</type>
+	<category>Basic</category>
+	<menuitems>
+		<phpinfo>PHP Info</phpinfo>
+	</menuitems>
+	<location>release/phpinfo-1.0.tgz</location>
+	<info>http://aussievoip.com.au/wiki/freePBX-phpinfo</info>
+	<md5sum>4d779d78f8a2770dbb733eff7c9896c1</md5sum>
+</module>

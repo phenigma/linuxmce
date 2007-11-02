@@ -1,0 +1,5 @@
+*.php           usr/share/freepbx/modules/timeconditions/
+*.sql           usr/share/freepbx/modules/timeconditions/
+*.sqlite        usr/share/freepbx/modules/timeconditions/
+*.html          usr/share/freepbx/modules/timeconditions/
+*.xml           usr/share/freepbx/modules/timeconditions/

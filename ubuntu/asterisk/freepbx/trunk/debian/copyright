@@ -1,0 +1,12 @@
+This is freePBX package, maintained by Xorcom, <support@xorcom.com>
+
+This Debian version should be fully functional, and contains some extra utilities,
+which can be run from the command line. Those utilities are found on /usr/share/freepbx-common/
+
+freePBX is distributed under the terms of GPL. 
+For more information about freePBX please visit: 
+    http://freepbx.org/
+   
+On Debian GNU/Linux systems, the complete text of the GNU General
+Public License may be found in `/usr/share/common-licenses/GPL'.
+

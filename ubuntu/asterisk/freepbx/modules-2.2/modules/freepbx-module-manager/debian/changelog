@@ -1,0 +1,12 @@
+freepbx-module-manager (2.2-1.2-2) unstable; urgency=low
+
+  *  SQLite3 support. See upstream
+    http://www.freepbx.org/trac/ticket/1776
+
+ -- Diego Iastrubni <diego.iastrubni@xorcom.com>  Wed, 14 Feb 2007 15:35:51 +0200
+
+freepbx-module-manager (2.2-1.2-1) unstable; urgency=low
+
+  * First release.
+  
+ -- Diego Iastrubni <diego.iastrubni@xorcom.com>  Wed, 14 Feb 2007 10:32:40 +0200

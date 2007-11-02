@@ -1,0 +1,47 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## alternative-css.dpatch by Diego Iastrubni <diego.iastrubni@xorcom.com>
+##
+## DP: Add support for an alternative stylesheet by modifying amportal.conf
+## DP: This patch also adds support for key names to contain _ in the key names.
+
+@DPATCH@
+diff -urNad freepbx-2.1.3.dfsg/amp_conf/htdocs/admin/functions.inc.php /tmp/dpep.mMP7Vx/freepbx-2.1.3.dfsg/amp_conf/htdocs/admin/functions.inc.php
+--- freepbx-2.1.3.dfsg/amp_conf/htdocs/admin/functions.inc.php	2006-09-18 17:38:42.000000000 +0300
++++ /tmp/dpep.mMP7Vx/freepbx-2.1.3.dfsg/amp_conf/htdocs/admin/functions.inc.php	2006-10-05 12:21:32.000000000 +0200
+@@ -22,7 +22,7 @@
+ 	
+ 	if (is_array($file)) {
+ 		foreach ($file as $line) {
+-			if (preg_match("/^\s*([a-zA-Z0-9]+)=([a-zA-Z0-9 .&-@=_<>\"\']+)\s*$/",$line,$matches)) {
++			if (preg_match("/^\s*([a-zA-Z0-9_]+)=([a-zA-Z0-9 .&-@=_<>\"\']+)\s*$/",$line,$matches)) {
+ 				$conf[ $matches[1] ] = $matches[2];
+ 			}
+ 		}
+diff -urNad freepbx-2.1.3.dfsg/amp_conf/htdocs/admin/header.php /tmp/dpep.mMP7Vx/freepbx-2.1.3.dfsg/amp_conf/htdocs/admin/header.php
+--- freepbx-2.1.3.dfsg/amp_conf/htdocs/admin/header.php	2006-05-05 20:41:30.000000000 +0300
++++ /tmp/dpep.mMP7Vx/freepbx-2.1.3.dfsg/amp_conf/htdocs/admin/header.php	2006-10-05 12:21:18.000000000 +0200
+@@ -31,8 +31,23 @@
+ <head>
+     <title><?php  echo _($title) ?></title>
+     <meta http-equiv="Content-Type" content="text/html">
+-    <link href="common/mainstyle.css" rel="stylesheet" type="text/css"> 
+     <?php 
++	// nice hack:
++	// check if in the amp configuration the user has set that
++	// he wants to use an alternative style-sheet.
++	// on Xorcom's TS1, it's used when the system is in rescue mode.
++
++	$style_sheet = "common/mainstyle.css";
++	if (isset($amp_conf["ALTERNATIVE_CSS"]))
++	{
++		if (($amp_conf["ALTERNATIVE_CSS"] == "1") ||
++		   ($amp_conf["ALTERNATIVE_CSS"] == "yes") ||
++		   ($amp_conf["ALTERNATIVE_CSS"] == "true"))
++			$style_sheet = "common/mainstyle-alternative.css";
++	}
++
++	echo "<link href=\"$style_sheet\" rel=\"stylesheet\" type=\"text/css\">";
++
+ 	if (isset($display) && is_file("modules/{$display}/{$display}.css")) {
+ 	         echo "	<link href=\"modules/{$display}/{$display}.css\" rel=\"stylesheet\" type=\"text/css\">\n";
+ 	}

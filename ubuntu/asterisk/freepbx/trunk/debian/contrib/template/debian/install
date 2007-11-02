@@ -1,0 +1,14 @@
+etc/*		etc/asterisk/
+bin/*		usr/share/asterisk/bin/
+agi-bin/*	usr/share/asterisk/agi-bin/
+sounds/*	usr/share/asterisk/sounds/
+htdocs/*	usr/share/freepbx/
+images/*        usr/share/freepbx/images/
+
+*.php           usr/share/freepbx/modules/@@RAWNAME@@/
+*.sql           usr/share/freepbx/modules/@@RAWNAME@@/
+*.sqlite        usr/share/freepbx/modules/@@RAWNAME@@/
+*.html          usr/share/freepbx/modules/@@RAWNAME@@/
+*.xml           usr/share/freepbx/modules/@@RAWNAME@@/
+*.css           usr/share/freepbx/modules/@@RAWNAME@@/
+*.jar           usr/share/freepbx/modules/@@RAWNAME@@/

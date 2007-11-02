@@ -1,0 +1,5 @@
+*.php           usr/share/freepbx/modules/inventorydb/
+*.sql           usr/share/freepbx/modules/inventorydb/
+*.sqlite        usr/share/freepbx/modules/inventorydb/
+*.html          usr/share/freepbx/modules/inventorydb/
+*.xml           usr/share/freepbx/modules/inventorydb/

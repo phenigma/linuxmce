@@ -1,0 +1,41 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## fix-toplinks.dpatch by  <diego@boole>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: No description.
+
+@DPATCH@
+diff -urNad freepbx-2.1.3.dfsg/amp_conf/htdocs/admin/header.php /tmp/dpep.QH14HN/freepbx-2.1.3.dfsg/amp_conf/htdocs/admin/header.php
+--- freepbx-2.1.3.dfsg/amp_conf/htdocs/admin/header.php	2006-05-05 20:41:30.000000000 +0300
++++ /tmp/dpep.QH14HN/freepbx-2.1.3.dfsg/amp_conf/htdocs/admin/header.php	2006-11-28 14:52:28.000000000 +0200
+@@ -102,15 +102,15 @@
+ 	</a>
+ <?php } ?>
+ 
+-<?php if (is_file("../panel/index_amp.php")){ ?>
++<?php if (is_file("panel/index_amp.php")){ ?>
+ 	<a id="<?php echo ($currentFile=='panel.php' ? 'current':'') ?>" href="panel.php?">
+ 		&#8226;
+ 		<li><?php echo _("Panel") ?></li>
+ 	</a>
+ <?php } ?>
+ 
+-<?php if (is_file("../recordings/index.php")){ ?>
+-	<a href="../recordings/index.php" target="_blank">
++<?php if (is_file("recordings/index.php")){ ?>
++	<a href="recordings/index.php" target="_blank">
+ 		&#8226;
+ 		<li><?php echo _("Recordings") ?></li>
+ 	</a>
+diff -urNad freepbx-2.1.3.dfsg/amp_conf/htdocs/admin/panel.php /tmp/dpep.QH14HN/freepbx-2.1.3.dfsg/amp_conf/htdocs/admin/panel.php
+--- freepbx-2.1.3.dfsg/amp_conf/htdocs/admin/panel.php	2006-04-11 00:06:12.000000000 +0300
++++ /tmp/dpep.QH14HN/freepbx-2.1.3.dfsg/amp_conf/htdocs/admin/panel.php	2006-11-28 14:54:38.000000000 +0200
+@@ -22,7 +22,7 @@
+ include 'header_auth.php';
+ ?>
+ </div>
+-<iframe width="97%" height="600" frameborder="0" align="top" src="../panel/index_amp.php?context=<?php echo $_SESSION["AMP_user"]->_deptname?>"></iframe>
++<iframe width="97%" height="600" frameborder="0" align="top" src="panel/index_amp.php?context=<?php echo $_SESSION["AMP_user"]->_deptname?>"></iframe>
+ 
+ </body>
+ </html>

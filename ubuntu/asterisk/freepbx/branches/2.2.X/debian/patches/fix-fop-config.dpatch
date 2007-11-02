@@ -1,0 +1,46 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## fix-fop-config.dpatch by Diego Iastrubni <diego.iastrubni@xorcom.com>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: The default configuration of op-panel is just useless. Lets fix it 
+## DP: before it gets into the package:
+## DP:   - if no web_hostname is set, it will be automatically detected
+## DP:   - flash_dir should be the place on the HD. it looks for variables.txt in that dir
+## DP:     TODO: should be modified to "/var/lib/op-panel/"
+## DP:   - use a sane default password for the UI
+## DP:   - use a default passwords for the manager
+
+
+@DPATCH@
+diff -urNad upstream~/amp_conf/htdocs_panel/op_server.cfg upstream/amp_conf/htdocs_panel/op_server.cfg
+--- upstream~/amp_conf/htdocs_panel/op_server.cfg	2006-09-16 11:19:23.000000000 +0300
++++ upstream/amp_conf/htdocs_panel/op_server.cfg	2007-09-11 12:00:55.000000000 +0300
+@@ -11,8 +11,8 @@
+ manager_host=127.0.0.1      
+ 
+ ; user and secret for connecting to * manager
+-manager_user=UNUSED
+-manager_secret=UNUSED
++manager_user=user
++manager_secret=password
+ 
+ ; The optional event_mask for filtering manager events.
+ ; Asterisk will send only the events you request
+@@ -39,14 +39,14 @@
+ ; the flash movie resides (just the hostname, without directories)
+ ; This value might be omited. In that case the flash movie will
+ ; try to connect to the same host as the web page.
+-web_hostname=UNUSED
++;web_hostname=
+ 
+ ; location of the .swf file in your disk (must reside somewhere 
+ ; inside your web root)
+-flash_dir=UNUSED
++flash_dir=/usr/share/op-panel/flash/
+ 
+ ; secret code for performing hangups and transfers
+-security_code=UNUSED
++security_code=password
+ 
+ ; Frequency in second to poll for sip and iax status
+ poll_interval=120

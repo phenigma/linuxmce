@@ -1,0 +1,25 @@
+debian/astetc/manager.d/freepbx.conf			etc/asterisk/manager.d/
+amp_conf/bin/*						usr/share/asterisk/bin/
+
+amp_conf/htdocs/admin/*.php				usr/share/freepbx/
+amp_conf/htdocs/admin/i18n/*				usr/share/freepbx/i18n/
+amp_conf/htdocs/admin/common/*.css			usr/share/freepbx/common/
+debian/share/mainstyle-alternative.css			usr/share/freepbx/common/
+amp_conf/htdocs/admin/common/*.php			usr/share/freepbx/common/
+amp_conf/htdocs/admin/modules/core			usr/share/freepbx/modules/
+amp_conf/htdocs/admin/images/*.png			usr/share/freepbx/images/
+amp_conf/htdocs/admin/images/*.gif			usr/share/freepbx/images/
+debian/share/xorcom-rapid.png				usr/share/freepbx/images/
+debian/share/xorcom.png					usr/share/freepbx/images/
+
+install_amp						usr/share/freepbx-common/
+debian/share/freepbx-post-reload			usr/share/freepbx-common/
+debian/share/update-freepbx				usr/sbin/
+debian/share/freepbx-enable-all-modules			usr/share/freepbx-common/
+debian/share/post-reload/*				usr/share/freepbx-common/post-reload/
+
+SQL/*.sql						usr/share/freepbx-common/sql/
+upgrades/*						usr/share/freepbx-common/upgrades/
+
+debian/apache2						etc/
+debian/apache						etc/

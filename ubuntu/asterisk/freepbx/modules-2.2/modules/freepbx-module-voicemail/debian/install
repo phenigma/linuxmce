@@ -1,0 +1,5 @@
+*.php           usr/share/freepbx/modules/voicemail/
+*.sql           usr/share/freepbx/modules/voicemail/
+*.sqlite        usr/share/freepbx/modules/voicemail/
+*.html          usr/share/freepbx/modules/voicemail/
+*.xml           usr/share/freepbx/modules/voicemail/

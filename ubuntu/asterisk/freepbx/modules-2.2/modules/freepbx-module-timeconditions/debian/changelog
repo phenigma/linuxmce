@@ -1,0 +1,11 @@
+freepbx-module-timeconditions (2.2-2.4.1-2) unstable; urgency=low
+
+  * added sqlite3 support, closes upstream #1774
+
+ -- Diego Iastrubni <diego.iastrubni@xorcom.com>  Wed, 14 Feb 2007 14:07:52 +0200
+
+freepbx-module-timeconditions (2.2-2.4.1-1) unstable; urgency=low
+
+  * First release.
+  
+ -- Diego Iastrubni <diego.iastrubni@xorcom.com>  Wed, 14 Feb 2007 10:32:25 +0200

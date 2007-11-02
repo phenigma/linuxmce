@@ -1,0 +1,30 @@
+freepbx-module-ivr (2.2-2.5.13.1-0) unstable; urgency=low
+
+  * New upstream release
+  * Fixed the SQLite3 support script to work with current version
+
+ -- Diego Iastrubni <diego.iastrubni@xorcom.com>  Sun, 29 Apr 2007 17:40:28 +0300
+
+freepbx-module-ivr (2.2-2.5.13-1) unstable; urgency=low
+
+  * New upstream release
+
+ -- Diego Iastrubni <diego.iastrubni@xorcom.com>  Mon,  2 Apr 2007 10:57:49 +0300
+
+freepbx-module-ivr (2.2-2.5.11-1) unstable; urgency=low
+
+  * New upstream release
+
+ -- Diego Iastrubni <diego.iastrubni@xorcom.com>  Sun, 11 Mar 2007 17:26:40 +0200
+
+freepbx-module-ivr (2.2-2.5.10-2) unstable; urgency=low
+
+  * SQLite3 support. Fixes upstream http://freepbx.org/trac/ticket/1776
+
+ -- Diego Iastrubni <diego.iastrubni@xorcom.com>  Sun, 18 Feb 2007 12:08:01 +0200
+
+freepbx-module-ivr (2.2-2.5.10-1) unstable; urgency=low
+
+  * First release.
+  
+ -- Diego Iastrubni <diego.iastrubni@xorcom.com>  Wed, 14 Feb 2007 10:33:22 +0200

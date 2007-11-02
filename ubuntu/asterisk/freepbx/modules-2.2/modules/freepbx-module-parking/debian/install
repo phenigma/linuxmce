@@ -1,0 +1,5 @@
+*.php           usr/share/freepbx/modules/parking/
+*.sql           usr/share/freepbx/modules/parking/
+*.sqlite        usr/share/freepbx/modules/parking/
+*.html          usr/share/freepbx/modules/parking/
+*.xml           usr/share/freepbx/modules/parking/

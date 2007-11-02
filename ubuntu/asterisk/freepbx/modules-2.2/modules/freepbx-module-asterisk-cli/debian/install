@@ -1,0 +1,5 @@
+*.php           usr/share/freepbx/modules/asterisk-cli/
+*.sql           usr/share/freepbx/modules/asterisk-cli/
+*.sqlite        usr/share/freepbx/modules/asterisk-cli/
+*.html          usr/share/freepbx/modules/asterisk-cli/
+*.xml           usr/share/freepbx/modules/asterisk-cli/

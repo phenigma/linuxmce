@@ -1,0 +1,100 @@
+#!/usr/bin/php -q
+<?php
+
+//   Written by Diego Iastrubni <diego.iastrubni@xorcom.com>
+//   Copyright (C) 2006, Xorcom
+//
+//   All rights reserved.
+//
+//   This program is free software; you can redistribute it and/or modify
+//   it under the terms of the GNU General Public License as published by
+//   the Free Software Foundation; either version 2 of the License, or
+//   (at your option) any later version.
+//
+//   This program is distributed in the hope that it will be useful,
+//   but WITHOUT ANY WARRANTY; without even the implied warranty of
+//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//   GNU General Public License for more details.
+//
+//   You should have received a copy of the GNU General Public License
+//   along with this program; if not, write to the Free Software
+//   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+
+// this script is used for fixing the asterisk-databse,
+// and putting the needed values by freepbx/dialparties.agi.
+// 
+// it should be run after genzaptelconf, and after zap2amp.
+// 
+// the functionality of this script was done previously in zap2amp
+// but it was moved out, in favour of using the functions defined 
+// by freepbx itself
+//
+// the assumption is that asterisk is running, and there is a user defined 
+// in amportal.conf
+
+
+function fix_ast_db_parse_amportal_conf($filename) {
+        // defaults, if not specified in the file
+        $defaults = array(
+                'AMPDBENGINE' => 'mysql',
+                'AMPDBNAME' => 'asterisk',
+                'AMPENGINE' => 'asterisk',
+                'USECATEGORIES' => true,
+                );
+        // boolean values, will be converted to true/false
+        // "yes", "true", 1 (case-insensitive) will be treated as true, everything else is false
+        $booleans = array('USECATEGORIES');
+
+        $file = file($filename);
+        if (is_array($file)) {
+                foreach ($file as $line) {
+                        if (preg_match("/^\s*([a-zA-Z0-9_]+)=([a-zA-Z0-9 .&-@=_<>\"\']+)\s*$/",$line,$matches)) {
+                                $conf[ $matches[1] ] = $matches[2];
+                        }
+                }
+        } else {
+                die("<h1>Missing or unreadable config file ($filename)...cannot continue</h1>");
+        }
+
+        // set defaults
+        foreach ($defaults as $key=>$val) {
+                if (!isset($conf[$key]) || $conf[$key] == '') {
+                        $conf[$key] = $val;
+                }
+        }
+
+        // evaluate boolean values
+        foreach ($booleans as $key) {
+                $conf[$key] = isset($conf[$key]) && ($conf[$key] === true || strtolower($conf[$key]) == 'true' || $conf[$key] === 1 || $conf[$key] == '1' || strtolower($conf[$key]) == "yes" );
+        }
+
+/*
+        if (($amp_conf["AMPDBENGINE"] == "sqlite") && (!isset($amp_conf["AMPDBENGINE"])))
+                $amp_conf["AMPDBFILE"] = "/var/lib/freepbx/freepbx.sqlite";
+*/
+
+        return $conf;
+}
+
+
+$amp_conf = fix_ast_db_parse_amportal_conf("/etc/amportal.conf");
+
+ini_set( "include_path", $amp_conf["AMPWEBROOT"] . "/admin/:" . ini_get("include_path") );
+
+require_once( 'common/php-asmanager.php' );
+require_once( 'functions.inc.php' );
+require_once( $amp_conf["AMPWEBROOT"] . '/admin/modules/core/functions.inc.php' );
+
+$astman         = new AGI_AsteriskManager();
+if (! $res = $astman->connect("127.0.0.1", $amp_conf["AMPMGRUSER"] , $amp_conf["AMPMGRPASS"])) {
+	unset( $astman );
+	$astman = null;
+}
+
+require_once( 'common/db_connect.php' );
+
+core_users2astdb();
+core_devices2astdb();
+
+?>

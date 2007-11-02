@@ -1,0 +1,5 @@
+*.php           usr/share/freepbx/modules/phpagiconf/
+*.sql           usr/share/freepbx/modules/phpagiconf/
+*.sqlite        usr/share/freepbx/modules/phpagiconf/
+*.html          usr/share/freepbx/modules/phpagiconf/
+*.xml           usr/share/freepbx/modules/phpagiconf/

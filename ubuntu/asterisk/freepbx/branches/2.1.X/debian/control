@@ -1,0 +1,175 @@
+Source: freepbx
+Section: comm
+Priority: optional
+Maintainer: Debian VoIP Team <pkg-voip-maintainers@lists.alioth.debian.org>
+Uploaders: Tzafrir Cohen <tzafrir.cohen@xorcom.com>, Diego Iastrubni <diego.iastrubni@xorcom.com>
+Build-Depends: debhelper (>= 4.0.0)
+Build-Depends-Indep: sharutils, sox, dpatch
+#Standards-Version: 3.6.1
+Standards-Version: 3.7.2
+
+Package: freepbx
+Architecture: all
+Depends: freepbx-admin, freepbx-vmail, freepbx-agi, freepbx-panel, asterisk-sounds-moh-freepbx
+Description: web-based management interface for the Asterisk PBX
+ FreePBX (formally AMP) is a web-based GUI for the Asterisk PBX. 
+ It provides the ability to:
+  * create/modify SIP/IAX extensions & voicemail boxes
+  * modify handling of incoming calls based on time-of-day
+  * create interactive IVR menus
+  * create sophisticated call groups
+  * upload custom MOH
+  * change company directory behavior
+  * set directions for detected incoming faxes
+  * view call detail reporting with asterisk-stat (www.areski.net)
+  * view extension and trunk status with Flash Operator Panel (www.asternic.org)
+  * read voicemail via the browser with ARI
+ This is a virtual package which will install all the freepbx parts
+  
+ 
+Package: freepbx-apache-mysql
+Architecture: all
+Depends: apache, libapache-mod-php4, mysql-server|virtual-mysql-server, php4-mysql
+Description: FreePBX - apache+mysql support package
+ Dummy package to install all packages needed for installing FreePBX 
+ with mysql and apache1.
+ Please install this package before installing freepbx-admin
+
+Package: freepbx-apache2-mysql
+Architecture: all
+Depends: apache2, libapache2-mod-php4, mysql-server|virtual-mysql-server, php4-mysql
+Description: FreePBX - apache2+mysql support package
+ Dummy package to install all packages needed for installing FreePBX with 
+ mysql and apache2.
+ Please install this package before installing freepbx-admin.
+
+Package: freepbx-apache2-mysql-php5
+Architecture: all
+Depends: apache2, libapache2-mod-php5, mysql-server|virtual-mysql-server, php5-mysql
+Description: FreePBX - apache2+mysql5 support package
+ Dummy package to install all packages needed for installing FreePBX with 
+ mysql5 and apache2.
+ Please install this package before installing freepbx-admin.
+
+Package: freepbx-mathopd-mysql
+Architecture: all
+Depends: mathopd, php4-cgi, mysql-server|virtual-mysql-server, php4-mysql
+Description: FreePBX - mathopd+mysql support package
+ Dummy package to install all packages needed for installing FreePBX with 
+ mysql and mathopd, using php-cgi.
+ Please install this package before installing freepbx-admin.
+ 
+Package: freepbx-mathopd-sqlite
+Architecture: all
+Depends: mathopd, php4-cgi, sqlite, php4-sqlite
+Description: FreePBX - mathopd+sqlite support package
+ Dummy package to install all packages needed for installing FreePBX with 
+ mathopd and sqlite.
+ Please install this package before installing freepbx-admin.
+
+ 
+   
+Package: asterisk-config-freepbx
+Architecture: all
+Depends: freepbx-agi, asterisk-sounds-main, asterisk-sounds-extra, freepbx-sounds-extra|amportal-sounds-extra|amportal-sounds-extra-links, sox, libapache2-mod-php5|libapache2-mod-php4|php5-cgi|php4-cgi
+Provides: asterisk-config-custom
+Replaces: asterisk-config, asterisk-config-amportal
+Conflicts: asterisk-config-amportal, amportal-agi
+Description: FreePBX - config files for the Asterisk PBX
+ FreePBX (formally AMP) is a web-based GUI for the Asterisk PBX. 
+ This package contains config files to replace Asterisk config files.
+ Be warned! when installing this package you "may" loose your dialplan 
+ configuration!
+
+Package: asterisk-sounds-moh-freepbx
+Architecture: all
+Suggests: asterisk
+Provides: asterisk-sounds-moh-custom
+Replaces: asterisk-sounds-moh-amportal
+Description: music-on-hold files for the Asterisk PBX
+ music-on-hold sound files for the Asterisk PBX.  
+ These sound files were licensed undes a somewhat restrictive licesne
+ from FreePlayMusic: http://freeplaymusic.com/ : you can only use them
+ as Music-On-Hold files of an Asterisk PBX.
+ This package conatains 16bit 8khz wav files and not mp3.
+ 
+Package: freepbx-sounds-extra
+Architecture: all
+Conflicts: amportal-sounds-extra-links
+Suggests: asterisk-sounds-main
+Replaces: amportal-sounds-extra, amportal-sounds-extra-links
+Description: extra sounds for FreePBX
+ These are some sound files needed for the directory and application AGIs.
+
+Package: freepbx-agi
+Architecture: all
+Depends: php5-cli|php4-cli, asterisk (>= 1.2)
+Replaces: amportal-agi
+Conflicts: amportal-agi
+Description: agi support for FreePBX
+ FreePBX (formally AMP) is a web-based GUI for the Asterisk PBX. 
+ This package contains some AGI scripts needed by FreePBX dialplan.
+
+Package: freepbx-modules
+Architecture: all
+Depends: freepbx-admin, freepbx-module-asterisk-cli, freepbx-module-callback, freepbx-module-callforward, freepbx-module-callwaiting, freepbx-module-conferences, freepbx-module-disa, freepbx-module-donotdisturb, freepbx-module-featurecodeadmin, freepbx-module-findmefollow, freepbx-module-gabcast, freepbx-module-infoservices, freepbx-module-ivr, freepbx-module-logfiles, freepbx-module-manager, freepbx-module-miscdests, freepbx-module-paging, freepbx-module-phpinfo, freepbx-module-pinsets, freepbx-module-queues, freepbx-module-recordings, freepbx-module-ringgroups, freepbx-module-timeconditions, freepbx-module-voicemail
+Description: FreePBX modules
+ This is a meta package which installs all the free modules supplied by
+ FreePBX. This package does not provide any file, by it just installs
+ a bunch of modules.
+ .
+ Some of the modules are not required by this package, because of license 
+ issues. If you are looking for the non  free modules, the meta package 
+ is called freepbx-modules-nonfree.
+
+Package: freepbx-modules-nonfree
+Architecture: all
+Depends: freepbx-module-irc, freepbx-module-javassh
+Description: FreePBX modules - non free
+ This is a meta package which installs all the modules supplied by
+ FreePBX. This package does not provide any file, by it just installs
+ a bunch of modules.
+
+Package: freepbx-admin
+Architecture: all
+Replaces: amportal-common, freepbx-module-core
+Conflicts: amportal-common, freepbx-module-core
+Depends: adduser, asterisk-config-freepbx, asterisk(>= 1.2), apache|apache2|mathopd, libapache-mod-php4|libapache2-mod-php4|libapache2-mod-php5|php5-cgi|php4-cgi, mysql-server|virtual-mysql-server|sqlite, php5-mysql|php4-mysql|php4-sqlite, php5-cli|php4-cli, php5-pear|php4-pear|php-pear, mime-construct, libdbi-perl
+Description: FreePBX administration panel
+ FreePBX (formally AMP) is a web-based GUI for Asterisk. 
+ This package contains the common files needed for freepbx, as well as 
+ the administration parts for Asterisk.
+ By default the panel you get is pretty empty. You probably want to install 
+ some freepbx-modules or only the modules you want.
+
+#Package: freepbx-cdr
+#Architecture: all
+#Depends: freepbx-admin, asterisk-mysql
+#Description: CDR for asterisk - FreePBX integration
+# FreePBX (formally AMP) is a web-based GUI for the Asterisk PBX. 
+# This package contains the CDR pages for AMP.
+# When installing this package, don't forget to /etc/php4/apache/php.ini
+# to enable mysql using "extension=mysql.so"
+
+Package: freepbx-vmail
+Architecture: all
+Depends: freepbx-admin, ari
+Replaces: amportal-vmail
+Conflicts: amportal-vmail
+Description: Voicemail support for Asterisk - FreePBX integration
+ FreePBX (formally knownw as AMP) is a web-based GUI for Asterisk. 
+ This package contains the voicemail support for FreePBX. The package will
+ give you a web interface to Comedian mail and ARI from LittleJhonConsulting.
+ 
+Package: freepbx-panel
+Architecture: all
+Replaces: amportal-panel
+Conflicts: amportal-panel
+Depends: freepbx-admin, perl-base (>=5.6), op-panel
+Description: Asterisk Flash operator panel - FreePBX integration
+ FreePBX (formally AMP) is a web-based GUI for the Asterisk PBX.
+ This package contains the Flash operator panel. The Flash Operator panel is a 
+ switchboard application for the Asterisk PBX system. It displays information 
+ about your Asterisk PBX activity in real time via a standard web browser with 
+ Flash plugin. The display and button layout is configurable, you can have more 
+ than a 100 buttons on the screen at once.

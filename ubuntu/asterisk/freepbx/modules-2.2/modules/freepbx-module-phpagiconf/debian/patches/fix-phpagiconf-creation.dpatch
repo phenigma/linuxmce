@@ -1,0 +1,19 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## fix-phpagiconf-creation.dpatch by Diego Iastrubni <diego.iastrubni@xorcom.com>
+##
+## DP: Create tmp files on the same dir, as moving them across filesystems might
+## DP: not work. Closes upstream: http://www.freepbx.org/trac/ticket/1910
+
+@DPATCH@
+diff -urNad freepbx-module-phpagiconf~/functions.inc.php freepbx-module-phpagiconf/functions.inc.php
+--- freepbx-module-phpagiconf~/functions.inc.php	2007-04-02 11:21:33.000000000 +0300
++++ freepbx-module-phpagiconf/functions.inc.php	2007-04-23 13:27:15.000000000 +0300
+@@ -3,7 +3,7 @@
+ function phpagiconf_gen_conf() {
+ 	global $active_modules;
+ 
+-	$file = "/tmp/phpagi_".rand().".conf";
++	$file = "/etc/asterisk/phpagi_".rand().".conf";
+ 	$data = phpagiconf_get();
+ 	$content = "[phpagi]\n";
+ 	$content .= "debug=".($data['debug']?'true':'false')."\n";

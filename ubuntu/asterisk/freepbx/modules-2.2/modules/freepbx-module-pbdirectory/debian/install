@@ -1,0 +1,5 @@
+*.php           usr/share/freepbx/modules/pbdirectory/
+*.sql           usr/share/freepbx/modules/pbdirectory/
+*.sqlite        usr/share/freepbx/modules/pbdirectory/
+*.html          usr/share/freepbx/modules/pbdirectory/
+*.xml           usr/share/freepbx/modules/pbdirectory/

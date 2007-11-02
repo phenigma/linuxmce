@@ -1,0 +1,153 @@
+#! /bin/sh
+# postinst script for freepbx-common
+#
+# see: dh_installdeb(1)
+
+set -e
+
+# summary of how this script can be called:
+#        * <postinst> `configure' <most-recently-configured-version>
+#        * <old-postinst> `abort-upgrade' <new version>
+#        * <conflictor's-postinst> `abort-remove' `in-favour' <package>
+#          <new-version>
+#        * <deconfigured's-postinst> `abort-deconfigure' `in-favour'
+#          <failed-install-package> <version> `removing'
+#          <conflicting-package> <version>
+# for details, see http://www.debian.org/doc/debian-policy/ or
+# the debian-policy package
+#
+
+check_file()
+{
+	filename=$1
+	if [ -e $filename ]; then
+		if grep -q '^[\t ]*extension[\t ]*=[\t ]*mysql\.so' $filename; then 
+			return;
+		fi
+		echo -n "Fixing $filename for mysql support"
+		sed -i -e  's/^;\([ \t]*extension[ \t]*=[ \t]*mysql\.so\)/\1/' $filename
+		echo "."
+	fi
+}
+
+
+case "$1" in
+	configure)
+		# we check only php4, as php5 on etch has other (smarter) tricks
+		# on php4+etch, if this trick is enabled, do not check for this 
+		# at all. 
+		if [ ! -f /etc/php4/conf.d/mysql.ini ]; then
+			check_file "/etc/php4/cgi/php.ini"
+			check_file "/etc/php4/cli/php.ini"
+			check_file "/etc/php4/apache/php.ini"
+			check_file "/etc/php4/apache2/php.ini"
+		fi
+
+#		echo -n "Fixing webroot permissions"
+#		chown -R www-data.www-data /usr/share/freepbx/admin/modules
+#		chmod -R g+rw              /usr/share/freepbx/admin/modules
+
+		# fix log permissions, if not available - create them
+		touch /var/log/asterisk/
+		for i in retrieve opbounce; do j=/var/log/asterisk/freepbx-$i.log; touch $j; chown asterisk.asterisk $j; chmod g+rw $j; done
+
+		# is this an upgrade? or clean install?
+		if [ -e  /etc/amportal.conf ]; then
+			# if you upgarde freepbx from amp you might get a wrong AMPWEBROOT. 
+			# The webroot is part to this package then we fix it by force		
+			# Same for asterisk bin directory
+			echo -n "Fixing /etc/amportal.conf"
+			sed -r -i "s|AMPWEBROOT=[a-zA-Z0-9/]*|AMPWEBROOT=/usr/share/freepbx|" /etc/amportal.conf
+			sed -r -i "s|AMPBIN=[a-zA-Z0-9/]*|AMPBIN=/usr/share/asterisk/bin|" /etc/amportal.conf
+			echo "."
+			
+			# UPGRADE
+			/usr/share/freepbx-common/install_amp --no-files
+
+			# do the updates needed
+			if /usr/share/freepbx-common/install_amp --no-files ; then
+			# if it works, enable the core module
+			        /usr/share/freepbx-common/freepbx-module-status enable core		    
+			else
+				# this may fail for so many reasons... let the user do it itself 
+				# after the package has been installed
+				 echo \
+"Upgrade failed, continuing anyway. Fix your system and execute:
+	/usr/share/freepbx-common/install_amp --no-files
+	
+You may want also to enable the code module using this command 
+(this can be done from the GUI as well):
+	/usr/share/freepbx-common/freepbx-module-status enable core	
+"
+			fi
+		else
+			# NEW INSTALL
+			cp /usr/share/freepbx-common/amportal.conf /etc/amportal.conf
+		
+			sed -r -i "s|AMPWEBROOT=[a-zA-Z0-9/]*|AMPWEBROOT=/usr/share/freepbx|" /etc/amportal.conf
+			sed -r -i "s|AMPBIN=[a-zA-Z0-9/]*|AMPBIN=/usr/share/asterisk/bin|" /etc/amportal.conf
+			
+			# generate the sql tables
+			MYSQLADMIN=`which mysqladmin` || true
+			if [ -x "$MYSQLADMIN" ]; then
+				echo "Installing FreePBX using a local MySQL server"
+				/usr/share/freepbx-common/freepbx-install-mysql.sh
+			        /usr/share/freepbx-common/freepbx-module-status enable core		    
+			else
+				SQLITE=`which sqlite` || true
+				if [ -x "$SQLITE" ]; then
+					echo "Installing FreePBX using a local SQLite"
+					echo "####### SQLite support added by freepbx-admin.postint"	>> /etc/amportal.conf
+					echo "####### remove lines bellow to use MySQL"			>> /etc/amportal.conf
+					echo "AMPDBENGINE=sqlite"					>> /etc/amportal.conf
+					echo "AMPDBFILE=/var/lib/asterisk/freepbx.sqlite"		>> /etc/amportal.conf
+					/usr/share/freepbx-common/freepbx-install-sqlite.sh
+	        			/usr/share/freepbx-common/freepbx-module-status enable core		    
+				else
+					echo "No suitable SQL server found on this machine."
+					echo "Please edit manually /etc/amportal.conf"
+					
+					exit 1
+				fi
+			fi
+		fi
+		
+		# apply new configuration
+		/usr/share/freepbx-common/apply_conf.sh		
+		
+    	        # on fresh installs, we need to modify the www-data user
+		# this might be already done by other packages, or a previous version
+	        # of this package. 
+		# this is ok for the process to fail
+    		if groups www-data | grep -q -w -v asterisk ; then
+	                echo -n "Changing permissions of the web server"
+    		    	    adduser www-data asterisk
+            		echo "."
+
+			# TODO - there must be a generic way of doying this stuff
+    		        echo "Restarting the httpd server to take usage of the new ownership"
+        	        if test -x /etc/init.d/apache ; then /etc/init.d/apache  restart || true; fi
+	                if test -x /etc/init.d/apache2; then /etc/init.d/apache2 restart || true; fi
+    	    	        if test -x /etc/init.d/mathopd; then /etc/init.d/mathopd restart || true; fi
+		else
+			# on upgrages, reloading apache(s) is enough
+        	        if test -x /etc/init.d/apache ; then /etc/init.d/apache  reload || true; fi
+	                if test -x /etc/init.d/apache2; then /etc/init.d/apache2 reload || true; fi
+	        fi
+	;;
+	
+	abort-upgrade|abort-remove|abort-deconfigure)
+	;;
+	
+	*)
+		echo "postinst called with unknown argument \`$1'" >&2
+		exit 1
+	;;
+esac
+
+# dh_installdeb will replace this with shell code automatically
+# generated by other debhelper scripts.
+
+#DEBHELPER#
+
+exit 0

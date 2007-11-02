@@ -1,0 +1,14 @@
+Source: freepbx-module-@@RAWNAME@@
+Section: comm
+Priority: optional
+Maintainer: Diego Iastrubni <diego.iastrubni@xorcom.com>
+Uploaders: Tzafrir Cohen <tzafrir.cohen@xorcom.com>
+Build-Depends: debhelper (>= 4.0.0), dpatch
+Standards-Version: 3.7.2
+
+Package: freepbx-module-@@RAWNAME@@
+Architecture: all
+Depends:  freepbx-common
+Description: FreePBX module: @@NAME@@
+ This is a freepbx-module, see information on 
+ @@INFO@@

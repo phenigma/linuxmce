@@ -1,0 +1,18 @@
+amp_conf/htdocs/admin/cdr/*.php					usr/share/freepbx/cdr/
+amp_conf/htdocs/admin/cdr/*.js					usr/share/freepbx/cdr/
+amp_conf/htdocs/admin/cdr/css/*.css				usr/share/freepbx/cdr/css/
+amp_conf/htdocs/admin/cdr/css/images/*.png			usr/share/freepbx/cdr/css/images/
+amp_conf/htdocs/admin/cdr/images/*.png				usr/share/freepbx/cdr/images/
+amp_conf/htdocs/admin/cdr/images/*.gif				usr/share/freepbx/cdr/images/
+amp_conf/htdocs/admin/cdr/jpgraph_lib/*.php			usr/share/freepbx/cdr/jpgraph_lib/
+amp_conf/htdocs/admin/cdr/jpgraph_lib/*.inc			usr/share/freepbx/cdr/jpgraph_lib/
+amp_conf/htdocs/admin/cdr/lib/*.php				usr/share/freepbx/cdr/lib/
+amp_conf/htdocs/admin/cdr/lib/DB-modules/*.php			usr/share/freepbx/cdr/lib/DB-modules/
+amp_conf/htdocs/admin/cdr/lib/font/*.php			usr/share/freepbx/cdr/font/
+amp_conf/htdocs/admin/cdr/lib/font/makefont/*.map      		usr/share/freepbx/cdr/font/makefont/
+amp_conf/htdocs/admin/cdr/lib/font/makefont/makefont.php	usr/share/freepbx/cdr/font/makefont/
+amp_conf/htdocs/admin/reports.php				usr/share/freepbx/
+
+amp_conf/htdocs/admin/cdr/CHANGELOG.txt      usr/share/doc/freepbx-cdr
+amp_conf/htdocs/admin/cdr/counter.txt        usr/share/doc/freepbx-cdr
+amp_conf/htdocs/admin/cdr/info.txt           usr/share/doc/freepbx-cdr

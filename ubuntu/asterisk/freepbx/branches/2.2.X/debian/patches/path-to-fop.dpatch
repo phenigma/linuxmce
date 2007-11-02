@@ -1,0 +1,19 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## path-to-fop.dpatch by Chris Halls <halls@debian.org>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: No description.
+
+@DPATCH@
+diff -urNad freepbx-2.2.0~dfsg~/amp_conf/htdocs/admin/panel.php freepbx-2.2.0~dfsg/amp_conf/htdocs/admin/panel.php
+--- freepbx-2.2.0~dfsg~/amp_conf/htdocs/admin/panel.php	2006-10-29 17:50:45.000000000 +0000
++++ freepbx-2.2.0~dfsg/amp_conf/htdocs/admin/panel.php	2007-02-23 22:57:17.000000000 +0000
+@@ -24,7 +24,7 @@
+ include 'header_auth.php';
+ ?>
+ </div>
+-<iframe width="97%" height="600" frameborder="0" align="top" src="../panel/index_amp.php?context=<?php echo $_SESSION["AMP_user"]->_deptname?>"></iframe>
++<iframe width="97%" height="600" frameborder="0" align="top" src="../op-panel-flash/index_amp.php?context=<?php echo $_SESSION["AMP_user"]->_deptname?>"></iframe>
+ 
+ </body>
+ </html>

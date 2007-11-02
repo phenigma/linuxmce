@@ -1,0 +1,13 @@
+<module>
+	<rawname>logfiles</rawname>
+	<name>Asterisk Logfiles</name>
+	<version>1.0.1</version>
+	<type>tool</type>
+	<category>Maintenance</category>
+	<menuitems>
+		<logfiles>Asterisk Logfiles</logfiles>
+	</menuitems>
+	<location>release/logfiles-1.0.1.tgz</location>
+	<info>http://aussievoip.com.au/wiki/freePBX-LogFiles</info>
+	<md5sum>67f2388f242071742e22247ed0ac0898</md5sum>
+</module>

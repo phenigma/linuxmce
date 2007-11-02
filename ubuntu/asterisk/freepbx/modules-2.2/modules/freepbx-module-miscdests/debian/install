@@ -1,0 +1,5 @@
+*.php           usr/share/freepbx/modules/miscdests/
+*.sql           usr/share/freepbx/modules/miscdests/
+*.sqlite        usr/share/freepbx/modules/miscdests/
+*.html          usr/share/freepbx/modules/miscdests/
+*.xml           usr/share/freepbx/modules/miscdests/

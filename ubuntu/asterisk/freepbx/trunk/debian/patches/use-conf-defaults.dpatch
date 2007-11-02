@@ -1,0 +1,316 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## use-conf-defaults.dpatch by Chris Halls <halls@debian.org>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Needed to ensure that correct defaults are used when configuration
+## DP: entries are missing from amportal.conf. Defaults are copied from
+## DP: amp_conf/htdocs/admin/functions.inc.php
+## DP: Commited upstream at revision 3775. To be removed when packaging 2.2.3 or 2.3
+## DP: Contains a fix for upstream bug: http://freepbx.org/trac/ticket/1921
+
+@DPATCH@
+diff -urNad upstream~/amp_conf/bin/archive_recordings upstream/amp_conf/bin/archive_recordings
+--- upstream~/amp_conf/bin/archive_recordings	2007-05-03 19:31:38.000000000 +0300
++++ upstream/amp_conf/bin/archive_recordings	2007-07-31 12:00:50.000000000 +0300
+@@ -39,12 +39,47 @@
+ }
+ 
+ function parse_amportal_conf($filename) {
++	// defaults, if not specified in the file
++	$defaults = array(
++		'AMPDBENGINE' => 'mysql',
++		'AMPDBNAME' => 'asterisk',
++		'AMPENGINE' => 'asterisk',
++		'USECATEGORIES' => true,
++		'ASTETCDIR' => '/etc/asterisk',
++		'ASTMANAGERPORT' => '5038',
++		);
++	// boolean values, will be converted to true/false
++	// "yes", "true", 1 (case-insensitive) will be treated as true, everything else is false
++	$booleans = array('USECATEGORIES');
++
+ 	$file = file($filename);
+-	foreach ($file as $line) {
+-		if (preg_match("/^\s*([a-zA-Z0-9]+)\s*=\s*(.*)\s*([;#].*)?/",$line,$matches)) { 
+-			$conf[ $matches[1] ] = $matches[2];
++	if (is_array($file)) {
++		foreach ($file as $line) {
++			if (preg_match("/^\s*([a-zA-Z0-9_]+)=([a-zA-Z0-9 .&-@=_<>\"\']+)\s*$/",$line,$matches)) {
++				$conf[ $matches[1] ] = $matches[2];
++			}
+ 		}
++	} else {
++		die("Missing or unreadable config file ($filename)...cannot continue");
+ 	}
++	
++	// set defaults
++	foreach ($defaults as $key=>$val) {
++		if (!isset($conf[$key]) || $conf[$key] == '') {
++			$conf[$key] = $val;
++		}
++	}
++
++	// evaluate boolean values
++	foreach ($booleans as $key) {
++		$conf[$key] = isset($conf[$key]) && ($conf[$key] === true || strtolower($conf[$key]) == 'true' || $conf[$key] === 1 || $conf[$key] == '1' || strtolower($conf[$key]) == 'yes');
++	}
++
++/*			
++	if (($amp_conf["AMPDBENGINE"] == "sqlite") && (!isset($amp_conf["AMPDBENGINE"])))
++		$amp_conf["AMPDBFILE"] = "/var/lib/freepbx/freepbx.sqlite";
++*/
++	
+ 	return $conf;
+ }
+ 
+@@ -395,7 +430,6 @@
+ $db_pass = $amp_conf["AMPDBPASS"];
+ $db_host = 'localhost';
+ $db_name = 'asteriskcdrdb';
+-$db_engine = 'mysql';
+ 
+ $datasource = $db_engine.'://'.$db_user.':'.$db_pass.'@'.$db_host.'/'.$db_name;
+ 
+diff -urNad upstream~/amp_conf/bin/callback upstream/amp_conf/bin/callback
+--- upstream~/amp_conf/bin/callback	2007-05-03 19:31:38.000000000 +0300
++++ upstream/amp_conf/bin/callback	2007-07-31 12:00:50.000000000 +0300
+@@ -111,12 +111,47 @@
+ 
+ 
+ function parse_amportal_conf($filename) {
++	// defaults, if not specified in the file
++	$defaults = array(
++		'AMPDBENGINE' => 'mysql',
++		'AMPDBNAME' => 'asterisk',
++		'AMPENGINE' => 'asterisk',
++		'USECATEGORIES' => true,
++		'ASTETCDIR' => '/etc/asterisk',
++		'ASTMANAGERPORT' => '5038',
++		);
++	// boolean values, will be converted to true/false
++	// "yes", "true", 1 (case-insensitive) will be treated as true, everything else is false
++	$booleans = array('USECATEGORIES');
++
+ 	$file = file($filename);
+-	foreach ($file as $line) {
+-		if (preg_match("/^\s*([a-zA-Z0-9]+)\s*=\s*(.*)\s*([;#].*)?/",$line,$matches)) { 
+-			$conf[ $matches[1] ] = $matches[2];
++	if (is_array($file)) {
++		foreach ($file as $line) {
++			if (preg_match("/^\s*([a-zA-Z0-9_]+)=([a-zA-Z0-9 .&-@=_<>\"\']+)\s*$/",$line,$matches)) {
++				$conf[ $matches[1] ] = $matches[2];
++			}
+ 		}
++	} else {
++		die("Missing or unreadable config file ($filename)...cannot continue");
++	}
++	
++	// set defaults
++	foreach ($defaults as $key=>$val) {
++		if (!isset($conf[$key]) || $conf[$key] == '') {
++			$conf[$key] = $val;
++		}
++	}
++
++	// evaluate boolean values
++	foreach ($booleans as $key) {
++		$conf[$key] = isset($conf[$key]) && ($conf[$key] === true || strtolower($conf[$key]) == 'true' || $conf[$key] === 1 || $conf[$key] == '1' || strtolower($conf[$key]) == 'yes');
+ 	}
++
++/*			
++	if (($amp_conf["AMPDBENGINE"] == "sqlite") && (!isset($amp_conf["AMPDBENGINE"])))
++		$amp_conf["AMPDBFILE"] = "/var/lib/freepbx/freepbx.sqlite";
++*/
++	
+ 	return $conf;
+ }
+ 
+diff -urNad upstream~/amp_conf/bin/module_admin upstream/amp_conf/bin/module_admin
+--- upstream~/amp_conf/bin/module_admin	2007-05-03 19:31:38.000000000 +0300
++++ upstream/amp_conf/bin/module_admin	2007-07-31 12:00:50.000000000 +0300
+@@ -42,12 +42,47 @@
+ 
+ 
+ function install_parse_amportal_conf($filename) {
++	// defaults, if not specified in the file
++	$defaults = array(
++		'AMPDBENGINE' => 'mysql',
++		'AMPDBNAME' => 'asterisk',
++		'AMPENGINE' => 'asterisk',
++		'USECATEGORIES' => true,
++		'ASTETCDIR' => '/etc/asterisk',
++		'ASTMANAGERPORT' => '5038',
++		);
++	// boolean values, will be converted to true/false
++	// "yes", "true", 1 (case-insensitive) will be treated as true, everything else is false
++	$booleans = array('USECATEGORIES');
++
+ 	$file = file($filename);
+-	foreach ($file as $line) {
+-		if (preg_match("/^\s*([a-zA-Z0-9]+)\s*=\s*(.*)\s*([;#].*)?/",$line,$matches)) { 
+-			$conf[ $matches[1] ] = $matches[2];
++	if (is_array($file)) {
++		foreach ($file as $line) {
++			if (preg_match("/^\s*([a-zA-Z0-9_]+)=([a-zA-Z0-9 .&-@=_<>\"\']+)\s*$/",$line,$matches)) {
++				$conf[ $matches[1] ] = $matches[2];
++			}
+ 		}
++	} else {
++		die("Missing or unreadable config file ($filename)...cannot continue");
++	}
++	
++	// set defaults
++	foreach ($defaults as $key=>$val) {
++		if (!isset($conf[$key]) || $conf[$key] == '') {
++			$conf[$key] = $val;
++		}
++	}
++
++	// evaluate boolean values
++	foreach ($booleans as $key) {
++		$conf[$key] = isset($conf[$key]) && ($conf[$key] === true || strtolower($conf[$key]) == 'true' || $conf[$key] === 1 || $conf[$key] == '1' || strtolower($conf[$key]) == 'yes');
+ 	}
++
++/*			
++	if (($amp_conf["AMPDBENGINE"] == "sqlite") && (!isset($amp_conf["AMPDBENGINE"])))
++		$amp_conf["AMPDBFILE"] = "/var/lib/freepbx/freepbx.sqlite";
++*/
++	
+ 	return $conf;
+ }
+ 
+diff -urNad upstream~/amp_conf/bin/retrieve_conf upstream/amp_conf/bin/retrieve_conf
+--- upstream~/amp_conf/bin/retrieve_conf	2007-05-14 16:21:31.000000000 +0300
++++ upstream/amp_conf/bin/retrieve_conf	2007-07-31 12:00:50.000000000 +0300
+@@ -40,30 +40,47 @@
+ 
+ 
+ function parse_amportal_conf2($filename) {
++	// defaults, if not specified in the file
++	$defaults = array(
++		'AMPDBENGINE' => 'mysql',
++		'AMPDBNAME' => 'asterisk',
++		'AMPENGINE' => 'asterisk',
++		'USECATEGORIES' => true,
++		'ASTETCDIR' => '/etc/asterisk',
++		'ASTMANAGERPORT' => '5038',
++		);
++	// boolean values, will be converted to true/false
++	// "yes", "true", 1 (case-insensitive) will be treated as true, everything else is false
++	$booleans = array('USECATEGORIES');
++
+ 	$file = file($filename);
+-	foreach ($file as $line) {
+-		if (preg_match("/^\s*([\w]+)\s*=\s*\"?([\w\/\:\.\*\%-]*)\"?\s*([;#].*)?/",$line,$matches)) {
+-			$conf[ $matches[1] ] = $matches[2];
++	if (is_array($file)) {
++		foreach ($file as $line) {
++			if (preg_match("/^\s*([a-zA-Z0-9_]+)=([a-zA-Z0-9 .&-@=_<>\"\']+)\s*$/",$line,$matches)) {
++				$conf[ $matches[1] ] = $matches[2];
++			}
+ 		}
+-	}
+-
+-	// use same defaults as function.inc.php
+-	if ( !isset($conf["AMPDBENGINE"]) || ($conf["AMPDBENGINE"] == "")) {
+-		$conf["AMPDBENGINE"] = "mysql";
+-	}
+-	
+-	if ( !isset($conf["AMPDBNAME"]) || ($conf["AMPDBNAME"] == "")) {
+-		$conf["AMPDBNAME"] = "asterisk";
++	} else {
++		die("Missing or unreadable config file ($filename)...cannot continue");
+ 	}
+ 	
+-	if ( !isset($conf["AMPENGINE"]) || ($conf["AMPENGINE"] == "")) {
+-		$conf["AMPENGINE"] = "asterisk";
++	// set defaults
++	foreach ($defaults as $key=>$val) {
++		if (!isset($conf[$key]) || $conf[$key] == '') {
++			$conf[$key] = $val;
++		}
+ 	}
+ 
+-	if ( !isset($conf["ASTMANAGERPORT"]) || ($conf["ASTMANAGERPORT"] == "")) {
+-		$conf["ASTMANAGERPORT"] = "5038";
++	// evaluate boolean values
++	foreach ($booleans as $key) {
++		$conf[$key] = isset($conf[$key]) && ($conf[$key] === true || strtolower($conf[$key]) == 'true' || $conf[$key] === 1 || $conf[$key] == '1' || strtolower($conf[$key]) == 'yes');
+ 	}
+ 
++/*			
++	if (($amp_conf["AMPDBENGINE"] == "sqlite") && (!isset($amp_conf["AMPDBENGINE"])))
++		$amp_conf["AMPDBFILE"] = "/var/lib/freepbx/freepbx.sqlite";
++*/
++	
+ 	return $conf;
+ }
+ 
+diff -urNad upstream~/install_amp upstream/install_amp
+--- upstream~/install_amp	2007-06-09 04:55:31.000000000 +0300
++++ upstream/install_amp	2007-07-31 12:01:53.000000000 +0300
+@@ -103,24 +103,41 @@
+ }
+ 
+ function install_parse_amportal_conf($filename) {
++	// defaults, if not specified in the file
++	$defaults = array(
++		'AMPDBENGINE' => 'mysql',
++		'AMPDBNAME' => 'asterisk',
++		'AMPENGINE' => 'asterisk',
++		'USECATEGORIES' => true,
++		'ASTETCDIR' => '/etc/asterisk',
++		'ASTMANAGERPORT' => '5038',
++//		'AMPDBFILE' => "/var/lib/freepbx/freepbx.sqlite" <- only for sqlite3 engines
++		);
++	// boolean values, will be converted to true/false
++	// "yes", "true", 1 (case-insensitive) will be treated as true, everything else is false
++	$booleans = array('USECATEGORIES');
++
+ 	$file = file($filename);
+-	foreach ($file as $line) {
+-		if (preg_match("/^\s*([a-zA-Z0-9]+)\s*=\s*(.*)\s*([;#].*)?/",$line,$matches)) { 
+-			$conf[ $matches[1] ] = $matches[2];
++	if (is_array($file)) {
++		foreach ($file as $line) {
++			if (preg_match("/^\s*([a-zA-Z0-9_]+)=([a-zA-Z0-9 .&-@=_<>\"\']+)\s*$/",$line,$matches)) {
++				$conf[ $matches[1] ] = $matches[2];
++			}
+ 		}
+-	}
+-
+-	// use same defaults as function.inc.php
+-	if ( !isset($conf["AMPDBENGINE"]) || ($conf["AMPDBENGINE"] == "")) {
+-		$conf["AMPDBENGINE"] = "mysql";
++	} else {
++		die("Missing or unreadable config file ($filename)...cannot continue");
+ 	}
+ 	
+-	if ( !isset($conf["AMPDBNAME"]) || ($conf["AMPDBNAME"] == "")) {
+-		$conf["AMPDBNAME"] = "asterisk";
++	// set defaults
++	foreach ($defaults as $key=>$val) {
++		if (!isset($conf[$key]) || $conf[$key] == '') {
++			$conf[$key] = $val;
++		}
+ 	}
+-	
+-	if ( !isset($conf["AMPENGINE"]) || ($conf["AMPENGINE"] == "")) {
+-		$conf["AMPENGINE"] = "asterisk";
++
++	// evaluate boolean values
++	foreach ($booleans as $key) {
++		$conf[$key] = isset($conf[$key]) && ($conf[$key] === true || strtolower($conf[$key]) == 'true' || $conf[$key] === 1 || $conf[$key] == '1' || strtolower($conf[$key]) == 'yes');
+ 	}
+ 
+ 	return $conf;
+@@ -162,7 +179,8 @@
+ 	$file = file($filename);
+ 	// parse through the file
+ 	foreach (array_keys($file) as $key) {
+-		if (preg_match("/^\s*([a-zA-Z0-9]+)\s*=\s*(.*)\s*([;#].*)?/",$file[$key],$matches)) {
++//		if (preg_match("/^\s*([a-zA-Z0-9_]+)\s*=\s*(.*)\s*([;#].*)?/",$file[$key],$matches)) {
++		if (preg_match("/^\s*([a-zA-Z0-9_]+)\s*=\s*([a-zA-Z0-9 .&-@=_<>\"\']+)\s*$/",$line,$matches)) {
+ 			// this is an option=value line
+ 			if (isset($conf[ $matches[1] ])) {
+ 				// rewrite the line, if we have this in $conf

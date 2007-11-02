@@ -1,0 +1,5 @@
+freepbx-module-asterisk-cli (2.2-1.0-1) unstable; urgency=low
+
+  * First release.
+  
+ -- Diego Iastrubni <diego.iastrubni@xorcom.com>  Wed, 14 Feb 2007 10:32:29 +0200

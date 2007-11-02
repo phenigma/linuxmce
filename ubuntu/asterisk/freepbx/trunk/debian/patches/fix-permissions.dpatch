@@ -1,0 +1,29 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## fix-permissions.dpatch by Diego Iastrubni <diego.iastrubni@xorcom.com>
+##
+## DP: We run the werberser as "group" asterisk, and this makes
+## DP: some conflicts with the default permissions. 
+
+@DPATCH@
+diff -urNad upstream~/amp_conf/bin/retrieve_conf upstream/amp_conf/bin/retrieve_conf
+--- upstream~/amp_conf/bin/retrieve_conf	2007-01-04 02:48:29.000000000 +0200
++++ upstream/amp_conf/bin/retrieve_conf	2007-05-14 15:51:54.000000000 +0300
+@@ -428,7 +428,17 @@
+ //script to write queues conf file from mysql
+ $script = $amp_conf['AMPBIN'].'/retrieve_queues_conf_from_mysql.pl';
+ exec($script);
+-	
++
++// fix permissions
++exec( "chgrp asterisk /etc/asterisk/voicemail.conf" );
++exec( "chmod 660      /etc/asterisk/voicemail.conf" ); 	
++
++exec( "chgrp asterisk /etc/asterisk/indications.conf" ); 	
++exec( "chmod 660      /etc/asterisk/indications.conf" ); 	
++
++exec( 'for i in  /etc/asterisk/*additional.conf; do  if [ -f $i ]; then  chgrp asterisk $i; chmod 660 $i; fi; done ' );
++exec( 'for i in  /etc/op-panel/freepbx/*additional.conf; do  if [ -f $i ]; then  chgrp asterisk $i; chmod 660 $i; fi; done ');
++
+ // **** Set reload flag for AMP admin
+ needreload();
+ out("Please Reload Asterisk by visiting http://".$amp_conf["AMPWEBADDRESS"]."/admin");

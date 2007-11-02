@@ -1,0 +1,3 @@
+debian/mysql/amportal.conf	usr/share/freepbx-common/
+debian/mysql/install-sql	usr/share/freepbx-common/
+debian/mysql/remove-sql		usr/share/freepbx-common/

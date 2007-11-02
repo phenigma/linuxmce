@@ -1,0 +1,520 @@
+#!/usr/bin/php
+<?php
+
+#   Written by Diego Iastrubni <diego.iastrubni@xorcom.com>
+#         and many parts "borrowed" from freePBX 2.1.1.
+#   Copyright (C) 2006, Xorcom, The freePBX community 
+#
+#   All rights reserved.
+#
+#   This program is free software; you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation; either version 2 of the License, or
+#   (at your option) any later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with this program; if not, write to the Free Software
+#   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+
+#
+# fpx-modules: 
+# in order to build the fpbx modules into debian packages, the best way i found
+# is to download them locally and generate a debian package for each one of them
+# from a template found on this dire.
+#
+#
+# this tool is capable of quering frepbx repositories and check for new updates 
+# (new versions of existing modules, missing modules on the local repository)
+# and update them if needed.
+# 
+# the script is also capable of rebuilding the whole tree and updating specific 
+# packages when needed, and has a syntax similar to "apt-get". 
+#
+
+
+
+#######################################################################################
+# if you are using this script, you should probably modify these settings
+#######################################################################################
+
+# the debian maintainer which is used to build the packages
+$debian_maintainer = "Diego Iastrubni <diego.iastrubni@xorcom.com>";
+
+# if this script it working inside an svn repository, set it to "true"
+# if not, set it to "false"
+$working_in_svn = 0;
+
+
+#######################################################################################
+# script default, generally no need to modify those
+#######################################################################################
+
+define("AMP_CONF", "/etc/amportal.conf");
+define("PHP_ASMANAGER", "/var/lib/asterisk/bin/php-asmanager.php");
+define("MONITOR_DIR", "/var/spool/asterisk/monitor");
+define("MYDIR", dirname(__FILE__));
+
+$freepbx_version_target = "2.3";
+$module_name_template = "freepbx-module-$freepbx_version_target-";
+$module_name_template = "freepbx-module-";
+
+$xml_server	= "http://mirror.freepbx.org/";
+$modules_server	= "http://mirror.freepbx.org/modules/";
+
+$xml_server    = "http://turing/~diegolocal/freepbx-updates/";
+$modules_server        = "http://turing/~diegolocal/freepbx-updates/";
+
+
+$dryrun  = false;
+$debug   = false;
+$verbose = false;
+
+function showHelp()
+{
+	print( "Module updater needs a parameter:
+	- st, status: show the status of the modules
+	- up, update: download the updates into the local repository
+	- clean: remove all the local modules
+	- build: build all the local modules
+	
+You can also use the --debug (-d) and --verbose (-v) switches to get more information.
+For more details, look at the code.
+\n");
+}
+
+function out( $s)
+{
+	global $verbose;
+	
+	if ($verbose)
+		print( $s );
+}
+
+function outn( $s)
+{
+	global $verbose;
+	
+	if ($verbose)
+		print( "$s\n" );
+}
+
+function fatal($text) {
+        echo "[FATAL] ".$text."\n";
+        exit(1);
+}
+
+function debug( $s)
+{
+	global $debug;
+	
+	if ($debug)
+		print( "DEBUG: $s\n" );
+}
+
+function exec_cmd( $cmd )
+{
+	debug(" executing $cmd ");
+	system( $cmd, $ret_val );
+	return $ret_val;
+}
+
+function getversion()
+{
+	global $freepbx_version_target;
+	return $freepbx_version_target;
+}
+
+// borrowed from freepbx
+class xml2Array {
+	
+	var $arrOutput = array();
+	var $resParser;
+	var $strXmlData;
+	
+	function parse($strInputXML) {
+	
+			$this->resParser = xml_parser_create ();
+			xml_set_object($this->resParser,$this);
+			xml_set_element_handler($this->resParser, "tagOpen", "tagClosed");
+			
+			xml_set_character_data_handler($this->resParser, "tagData");
+		
+			$this->strXmlData = xml_parse($this->resParser,$strInputXML );
+			if(!$this->strXmlData) {
+				die(sprintf("XML error: %s at line %d",
+			xml_error_string(xml_get_error_code($this->resParser)),
+			xml_get_current_line_number($this->resParser)));
+			}
+							
+			xml_parser_free($this->resParser);
+			
+			return $this->arrOutput;
+	}
+	function tagOpen($parser, $name, $attrs) {
+		$tag=array("name"=>$name,"attrs"=>$attrs); 
+		array_push($this->arrOutput,$tag);
+	}
+	
+	function tagData($parser, $tagData) {
+		if(trim($tagData)) {
+			if(isset($this->arrOutput[count($this->arrOutput)-1]['tagData'])) {
+				$this->arrOutput[count($this->arrOutput)-1]['tagData'] .= $tagData;
+			} 
+			else {
+				$this->arrOutput[count($this->arrOutput)-1]['tagData'] = $tagData;
+			}
+		}
+	}
+	
+	function tagClosed($parser, $name) {
+		$this->arrOutput[count($this->arrOutput)-2]['children'][] = $this->arrOutput[count($this->arrOutput)-1];
+		array_pop($this->arrOutput);
+	}
+}
+
+// borrowed from freepbx
+class xml2ModuleArray extends xml2Array {
+	function parseModulesXML($strInputXML) {
+		$arrOutput = $this->parse($strInputXML);
+		// if you are confused about what's happening below, uncomment this why we do it
+		// echo "<pre>"; print_r($arrOutput); echo "</pre>";
+		
+		// ignore the regular xml garbage ([0]['children']) & loop through each module
+		if(!is_array($arrOutput[0]['children'])) return false;
+		foreach($arrOutput[0]['children'] as $module) {
+			if(!is_array($module['children'])) return false;
+			// loop through each modules's tags
+			foreach($module['children'] as $modTags) {
+					if(isset($modTags['children']) && is_array($modTags['children'])) {
+						$$modTags['name'] = $modTags['children'];
+						// loop if there are children (menuitems and requirements)
+						foreach($modTags['children'] as $subTag) {
+							$subTags[strtolower($subTag['name'])] = $subTag['tagData'];
+						}
+						$$modTags['name'] = $subTags;
+						unset($subTags);
+					} else {
+						// create a variable for each tag we find
+						$$modTags['name'] = $modTags['tagData'];
+					}
+
+			}
+			// now build our return array
+			$arrModules[$RAWNAME]['rawname'] = $RAWNAME;    // This has to be set
+			$arrModules[$RAWNAME]['displayName'] = $NAME;    // This has to be set
+			$arrModules[$RAWNAME]['version'] = $VERSION;     // This has to be set
+			$arrModules[$RAWNAME]['type'] = isset($TYPE)?$TYPE:'setup';
+			$arrModules[$RAWNAME]['category'] = isset($CATEGORY)?$CATEGORY:'Unknown';
+			$arrModules[$RAWNAME]['info'] = isset($INFO)?$INFO:'http://www.freepbx.org/wiki/'.$RAWNAME;
+			$arrModules[$RAWNAME]['location'] = isset($LOCATION)?$LOCATION:'local';
+			$arrModules[$RAWNAME]['items'] = isset($MENUITEMS)?$MENUITEMS:null;
+			$arrModules[$RAWNAME]['requirements'] = isset($REQUIREMENTS)?$REQUIREMENTS:null;
+			$arrModules[$RAWNAME]['md5sum'] = isset($MD5SUM)?$MD5SUM:null;
+			//print_r($arrModules);
+			//unset our variables
+			unset($NAME);
+			unset($VERSION);
+			unset($TYPE);
+			unset($CATEGORY);
+			unset($AUTHOR);
+			unset($EMAIL);
+			unset($LOCATION);
+			unset($MENUITEMS);
+			unset($REQUIREMENTS);
+			unset($MD5SUM);
+		}
+		//echo "<pre>"; print_r($arrModules); echo "</pre>";
+
+		return $arrModules;
+	}
+}
+
+// borrowed from freepbx
+function get_online_modules() 
+{
+	global $xml_server;
+
+	$version = getversion();
+	$url = $xml_server . "/modules-$version.xml";
+	debug( "Downloding $url" );
+	$data = file_get_contents($url);
+	
+	$parser = new xml2ModuleArray($data);
+	$xmlarray = $parser->parseModulesXML($data);
+	
+	return $xmlarray;
+}
+
+function get_local_modules() 
+{
+	$version = getversion();
+	$fn = "modules-".$version.".xml";
+	if (is_file($fn)) {
+		$data = file_get_contents($fn);
+	}
+	
+	$parser = new xml2ModuleArray($data);
+	$xmlarray = $parser->parseModulesXML($data);
+	return $xmlarray;
+}
+
+function show_modules_status( $online_modules, $local_modules )
+{
+	print( "U - needs update, M - missing \n\n");
+	foreach( $online_modules as $on_module )
+	{
+		$status = "?";
+		$extra  = "";
+		unset( $l_module );
+		$l_module = $local_modules[ $on_module["rawname"] ];
+		
+		if (! $l_module) {
+			$status = "M";
+		}
+		else{
+			// now check versions
+			if (version_compare( $on_module["version"], $l_module["version"] )  == 1 ) {
+				$status = "U";
+				$extra =  " (" . $l_module["version"] . ")";
+			}
+			else
+				$status = " ";
+			
+		}
+		
+		print(  " $status - " . $on_module["displayName"] . ": " . 
+			$on_module["version"] . $extra . "\n" 
+		);
+	}
+}
+
+// some parts borrowed...
+function download_modules( $online_modules, $local_modules )
+{
+	global $xml_server;
+	global $modules_server;
+	global $module_name_template;
+
+	foreach( $online_modules as $on_module )
+	{
+		$status = "?";
+		$extra  = "";
+		unset( $l_module );
+		$l_module = $local_modules[ $on_module["rawname"] ];
+		
+		debug( $on_module["rawname"] . " - local: [" . $l_module["version"] . "] online: [". $on_module["version"] . "]" );
+		if ( ($l_module) && (version_compare( $on_module["version"], $l_module["version"] )  != 1 ) ) {
+			debug( "No update needed" );
+			continue;
+		}
+				
+		$file = basename($on_module['location']);
+		$filename = "_cache/".$file;
+		
+		if (!is_dir("_cache"))	{
+			mkdir("_cache");
+		}
+		
+		if (file_exists($filename)) {
+			unlink($filename);
+		}
+
+		$url = "$modules_server/" . $on_module['location'];
+		print( "Upgrading module \"" . $on_module["displayName"] . "\"\n" );
+		debug( "Downloading from $url" );
+		debug( $on_module["rawname"] );
+		
+		$name    = $on_module["displayName"];
+		$rawname = $on_module["rawname"];
+		$version = $on_module["version"];
+		$date    = chop( `date -R` );
+		$info    = $on_module["info"];
+		
+		// download the module
+		$fp = @fopen($filename,"w");
+		$filedata = file_get_contents($url);
+		fwrite($fp,$filedata);
+		fclose($fp);
+		
+		// unpack it, and generate the template for the debian package
+		// in rare cases, you should also modify the initial debian layout a little bit
+		// in about 95% it works out of the box
+		exec_cmd("tar zxf {$filename}");
+
+		// module directories MUST be $module_name_template$rawname
+		// otherwise lintian shouts
+		exec_cmd( "mkdir -p $module_name_template$rawname/" );
+		exec_cmd( "cp -a $rawname/* $module_name_template$rawname/" );
+		exec_cmd( "rm -fr $rawname/" );
+
+		if (!$l_module)	{
+			outn("Installing new module, and using sane defaults");
+			
+			if ($working_in_svn)
+				exec_cmd("svn export template/ $module_name_template$rawname/ --force --quiet");
+			else {
+	 			exec_cmd("cp -a "  . MYDIR . "/template/ $module_name_template$rawname");
+ 				exec_cmd("mv $module_name_template$rawname/template/* $module_name_template$rawname");
+ 				exec_cmd("rm -fr $module_name_template$rawname/template/");
+			}
+		}
+		else {
+// 			putenv("DEBEMAIL=$debian_maintainer");
+// 			putenv("DEBFULLNAME=$debian_maintainer");
+			exec_cmd( "cd $module_name_template$rawname/; dch -v \"-$version-1\" \"New upstream release\"" );
+			outn("Please update the changelog as needed, new entry created.");
+		}
+		exec_cmd( "find $module_name_template$rawname/debian/* -type f | xargs sed -r -i 's/@@RAWNAME@@/$rawname/g' " );
+		exec_cmd( "find $module_name_template$rawname/debian/* -type f | xargs sed -r -i 's/@@MODULENAME@@/$module_name_template/g' " );
+		exec_cmd( "find $module_name_template$rawname/debian/* -type f | xargs sed -r -i 's/@@VERSION@@/$version/g' " );
+		exec_cmd( "find $module_name_template$rawname/debian/* -type f | xargs sed -r -i 's/@@NAME@@/$name/g' " );
+		exec_cmd( "find $module_name_template$rawname/debian/* -type f | xargs sed -r -i 's|@@DATE@@|$date|g' " );
+		exec_cmd( "find $module_name_template$rawname/debian/* -type f | xargs sed -r -i 's|@@INFO@@|$date|g' " );
+	}
+	
+	// now we have the most updated modules, download the module list as well
+	$version  = getversion();
+	$url      = "$xml_server/modules-".$version.".xml";	
+	$filename = "modules-".$version.".xml";
+	
+	debug( "Downloding $url" );
+	$fp = @fopen($filename,"w");
+	$filedata = file_get_contents($url);
+	fwrite($fp,$filedata);
+	fclose($fp);
+}
+
+function build_modules( $local_modules )
+{
+	global $verbose, $debug;
+	global $module_name_template;
+	
+	foreach( $local_modules as $module )
+	{	
+		
+		$new_dir = "$module_name_template" . $module["rawname"];
+		debug( "cd $new_dir" );
+		if ( file_exists($new_dir) && chdir($new_dir) )
+		{		
+			print( "Building " . $module["displayName"] . "..." );
+			if (($debug) || ($verbose)){
+				print("\n");
+			}
+
+			if (!$working_in_svn)
+				$build_command = "debuild -uc -us -rfakeroot";
+			else
+				$build_command = "svn-buildpackage -rfakeroot -us -uc --svn-ignore-new";
+
+			if (exec_cmd( "echo y | $build_command &> build.log" ) == 0){
+				print( " ok.\n" );
+			}
+			else{
+				print( "., ERROR, see the build log at the module directory.\n" );
+			}
+		
+			debug( "cd ../" );
+			chdir( "../" );
+		}
+		else {
+			print( "Ignoring non existing module - " . $module["displayName"] . "\n" );
+		}
+	}
+	
+	if ($verbose)
+		system( "ls *.deb");
+}
+
+#######################################################################################
+# main
+#######################################################################################
+
+if (! @ include('DB.php')) {
+	out("FAILED");
+	fatal("PEAR must be installed (requires DB.php). Include path: ".ini_get("include_path"));
+}
+
+if (! @ include("Console/Getopt.php")) {
+	out("FAILED");
+	fatal("PEAR must be installed (requires Console/Getopt.php). Include path: ".ini_get("include_path"));
+}
+
+// $shortopts = "h?u:p:";
+$shortopts = "hdv";
+$longopts = array( "help","debug" );
+
+$args = Console_Getopt::getopt(Console_Getopt::readPHPArgv(), $shortopts, $longopts);
+if (is_object($args)) {
+	// assume it's PEAR_ERROR
+	out($args->message);
+	exit(255);
+}
+
+foreach ($args[0] as $arg) {
+	switch ($arg[0]) {
+		case "--help": case "h": case "?":
+			showHelp();
+			exit(10);
+			break;
+		case "--dry-run": 
+			out("Dry-run only, nothing will be changed");
+			$dryrun = true;
+			break;
+		case "--debug": case "d":
+			$debug = true;
+			debug("Debug mode enabled");
+			break;
+			
+		case "--verbose": case "v":
+			$verbose = true;
+			debug("Verbose mode enabled");
+			break;
+	}
+}
+
+$local_modules  = get_local_modules();
+
+switch ($args[1][0])
+{
+	case "st":
+	case "status":
+		outn("Getting online modules information");
+		$online_modules = get_online_modules();
+		show_modules_status( $online_modules, $local_modules );
+		break;
+	
+	case "up":
+	case "update":
+	case "upgrade":
+		outn("Getting online modules information");
+		$online_modules = get_online_modules();
+		download_modules( $online_modules, $local_modules );
+		break;
+		
+	case "clean":
+	case "clear":
+		exec_cmd( "rm -fr _cache" );
+		exec_cmd( "rm -fr modules" );
+		exec_cmd( "rm -f modules*.xml" );
+		break;
+
+	case "build":
+		build_modules( $local_modules );
+		break;
+
+	case "revert":
+		// undocumented function, reverts the current tree 
+		exec_cmd( "svn revert --recursive ." );
+		break;
+		
+	default:
+		showHelp();
+}
+
+?>

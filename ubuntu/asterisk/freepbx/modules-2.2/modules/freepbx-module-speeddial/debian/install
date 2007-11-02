@@ -1,0 +1,5 @@
+*.php           usr/share/freepbx/modules/speeddial/
+*.sql           usr/share/freepbx/modules/speeddial/
+*.sqlite        usr/share/freepbx/modules/speeddial/
+*.html          usr/share/freepbx/modules/speeddial/
+*.xml           usr/share/freepbx/modules/speeddial/

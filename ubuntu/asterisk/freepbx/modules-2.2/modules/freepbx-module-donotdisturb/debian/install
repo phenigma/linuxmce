@@ -1,0 +1,5 @@
+*.php           usr/share/freepbx/modules/donotdisturb/
+*.sql           usr/share/freepbx/modules/donotdisturb/
+*.sqlite        usr/share/freepbx/modules/donotdisturb/
+*.html          usr/share/freepbx/modules/donotdisturb/
+*.xml           usr/share/freepbx/modules/donotdisturb/

@@ -1,0 +1,45 @@
+#!/bin/sh
+
+#   Written by Diego Iastrubni <diego.iastrubni@xorcom.com>
+#   Copyright (C) 2005,2006 Xorcom
+#  
+#   All rights reserved.
+#  
+#   This program is free software; you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation; either version 2 of the License, or
+#   (at your option) any later version.
+#  
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#  
+#   You should have received a copy of the GNU General Public License
+#   along with this program; if not, write to the Free Software
+#   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+# a script to be executed upon a press on the need reload 
+# bar of amportal. It will try and find user a list of 
+# scripts to execute under /usr/share/amportal-common/post-reload
+# 
+# Those script must be named S??-*, where ?? is a 2digit number.
+# This gives you the option to start some scripts after the other.
+# 
+# Please note that the scripts will be run at the same context of apache. 
+# As this script will usually be executed by php. If you need to do some administative
+# operations, please setup sudo or somthing similar to do that.
+
+
+POST_DIR=`dirname $0`/post-reload
+
+for f in $POST_DIR/S??-*
+do
+	[ -f "$i" ] && continue
+
+	if [ -x $f ]; then
+		echo "* Executing $f"
+		. $f
+	fi
+done
+

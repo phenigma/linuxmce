@@ -1,0 +1,5 @@
+*.php           usr/share/freepbx/modules/manager/
+*.sql           usr/share/freepbx/modules/manager/
+*.sqlite        usr/share/freepbx/modules/manager/
+*.html          usr/share/freepbx/modules/manager/
+*.xml           usr/share/freepbx/modules/manager/

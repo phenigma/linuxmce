@@ -1,0 +1,5 @@
+*.php           usr/share/freepbx/modules/phonebook/
+*.sql           usr/share/freepbx/modules/phonebook/
+*.sqlite        usr/share/freepbx/modules/phonebook/
+*.html          usr/share/freepbx/modules/phonebook/
+*.xml           usr/share/freepbx/modules/phonebook/

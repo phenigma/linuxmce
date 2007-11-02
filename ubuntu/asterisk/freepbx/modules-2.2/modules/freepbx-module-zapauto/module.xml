@@ -1,0 +1,13 @@
+<module>
+	<rawname>zapauto</rawname>
+	<name>Zaptel configuration</name>
+	<version>0.6.4</version>
+	<type>setup</type>
+	<category>System Admin</category>
+	<menuitems>
+		<zapauto>Zaptel configuration</zapauto>
+	</menuitems>
+	<location>release/zapauto-0.6.4.tgz</location>
+	<info>http://xorcom.com</info>
+	<md5sum>XXXXXXXXXXXXXXX</md5sum>
+</module>

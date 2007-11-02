@@ -1,0 +1,118 @@
+FreePBX/AMP for Debian
+----------------------
+
+This package contains freepbx. The package is splited into several
+sub-packages, but if you just want to have fun, apt-get install freepbx,
+it will pull out all the others. 
+
+If you just want the dialing plans FreePBX provides, you can 
+
+	apt-get install  asterisk-config-freepbx freepbx-common
+
+
+If you want install freepbx with the sqlite3 backend:
+
+	apt-get install freepbx-sqlite3 asterisk-config-freepbx freepbx-common 
+
+
+Pakcages removed from the freepbx-modules meta package:
+ * music: this module is completely borked. need major work in order to get into debian
+ * java-ssh: not exactly free
+ * backup: just does not work
+  
+
+Notes for users
+---------------
+After the first install, you will have to link /usr/share/freepbx into your
+web root. (or change the web root of apache into that dir). The package supports
+apache2, apache, and any web server that provides httpd-cgi. Tested servers are:
+mathopd, lighttpd.
+
+
+Note for packagers
+------------------
+The vitual package "freepbx-database" is currently provided by 2 different packages:
+freepbx-mysql, freepbx-sqlite3. If you want to make another SQL backend (assuming it's
+supported by the source), the package must provide:
+
+/usr/share/freepbx-common/install-db
+	a script for installing the default DB to be used by freepbx
+
+/usr/share/freepbx-common/remove-db
+	a script for remove the DB created by install-db
+
+/usr/share/freepbx-common/amportal.conf
+	a default configuration for freepbx, which uses this DB
+
+The pavcage should provide "freepbx-database", and if possible should replace
+freepbx-mysql and freepbx-sqlite3.
+
+
+
+Package: freepbx
+-----------------
+This is a meta package which will install all other packages.
+
+
+Package: asterisk-config-freepbx
+---------------------------------
+This package conatins the config files for asterisk used by freepbx. This basicaly 
+contains the dialplan. You can install it without a web server.
+
+Note about music on hold:
+We do not support MP3. Installing mpg123 on debian will effectivly mpg321 which
+cannot handle the playing of mp3 files. Another nice thing, is that decoding mp3 takes cpu time,
+and generally we want that cpu slice for transcoding. This means that using wav is the smart thing 
+to do. 
+
+
+Package: asterisk-sounds-moh-freepbx
+-------------------------------------
+These are the default sounds provided by FreePBX for music on hold. 
+
+
+Package: freepbx-agi
+---------------------
+This package conatins the agi needed to dial using freepbx dialing plan and 
+other files needed by the freepbx dialing plan.
+
+
+Package: freepbx-common
+------------------------
+The main freepbx package. Contains the core module, and is the smaller package
+which can be installed which gives a working set of configuration. It depends
+on a SQL backend (currently freepbx-mysql or freepbx-sqlite3). 
+
+When the user presses a red bar at the top of the screen, a post reload script
+is executed. By default FreePBX will execute all the scripts found in
+    /usr/share/freepbx-common/post-reload/
+The scripts are ordered in a very similar way to the SYS V init system.
+
+In short, to execute your own script, you can  save it into 
+/usr/share/freepbx-common/post-reload/S10myscript (for example).
+
+If you do not want to see the output of those commands on the client side (HTML), you may
+add the key POST_RELOAD_DEBUG=0 (if you set it to "1" you will see the output of those
+commands on the client side)
+
+
+Package: freepbx-mysql
+----------------------
+MySQL support for freePBX. If you install this package, freePBX will store it's configuration
+in a local MySQL server. If you want to store the configuration in a remote MySQL server,
+this is suported as well.
+
+
+Package: freepbx-sqlite3
+------------------------
+SQLite3 support for freePBX. If you install this package, freePBX will store it's configuration
+in a local SQLite3 file (usually localted in /var/lib/asterisk/freepbx.db).
+
+
+Package: freepbx-panel   
+-----------------------
+Flash operator panel. For more information about FOP please visit:
+http://www.asternic.org/
+
+
+ -- Diego  Iastrubni <diego.iastrubni@xorcom.com>, Sun, 11 Mar 2007 18:30 +0200

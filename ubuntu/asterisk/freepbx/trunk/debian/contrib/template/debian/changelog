@@ -1,0 +1,5 @@
+@@MODULENAME@@@@RAWNAME@@ (1:@@VERSION@@-1) unstable; urgency=low
+
+  * First release for the 2.3 branch.
+  
+ -- Diego Iastrubni <diego.iastrubni@xorcom.com>  @@DATE@@

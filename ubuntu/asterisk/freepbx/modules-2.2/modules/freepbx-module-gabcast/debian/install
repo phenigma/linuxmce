@@ -1,0 +1,5 @@
+*.php           usr/share/freepbx/modules/gabcast/
+*.sql           usr/share/freepbx/modules/gabcast/
+*.sqlite        usr/share/freepbx/modules/gabcast/
+*.html          usr/share/freepbx/modules/gabcast/
+*.xml           usr/share/freepbx/modules/gabcast/

@@ -1,0 +1,12 @@
+freepbx-module-ringgroups (2.2-2.2.13-2) unstable; urgency=low
+
+  * Add SQLite3 support. Fixes upstream
+    http://freepbx.org/trac/ticket/1795
+
+ -- Diego Iastrubni <diego.iastrubni@xorcom.com>  Sun, 18 Feb 2007 17:08:56 +0200
+
+freepbx-module-ringgroups (2.2-2.2.13-1) unstable; urgency=low
+
+  * First release.
+  
+ -- Diego Iastrubni <diego.iastrubni@xorcom.com>  Wed, 14 Feb 2007 10:31:39 +0200

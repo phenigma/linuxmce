@@ -1,0 +1,5 @@
+*.php           usr/share/freepbx/modules/callback/
+*.sql           usr/share/freepbx/modules/callback/
+*.sqlite        usr/share/freepbx/modules/callback/
+*.html          usr/share/freepbx/modules/callback/
+*.xml           usr/share/freepbx/modules/callback/

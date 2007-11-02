@@ -1,0 +1,18 @@
+<module>
+	<rawname>pbdirectory</rawname>
+	<name>Phonebook Directory</name>
+	<version>0.3</version>
+	<type>tool</type>
+	<category>CID &amp; Number Management</category>
+	<location>release/2.2/pbdirectory-2.2.tgz</location>
+	<info>http://aussievoip.com.au/wiki/freePBX-Features</info>
+	<description>Provides a dial-by-name directory for phonebook entries</description>
+	<requirements>
+		<version>2.2</version>
+		<module>phonebook</module>
+		<module>speeddial</module>
+	</requirements>
+	<md5sum>bc2a70884c09377ef212dd6e02c32cb7</md5sum>
+	<changelog>
+	</changelog>
+</module>

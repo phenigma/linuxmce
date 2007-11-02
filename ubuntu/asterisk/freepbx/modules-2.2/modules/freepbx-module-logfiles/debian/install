@@ -1,0 +1,5 @@
+*.php           usr/share/freepbx/modules/logfiles/
+*.sql           usr/share/freepbx/modules/logfiles/
+*.sqlite        usr/share/freepbx/modules/logfiles/
+*.html          usr/share/freepbx/modules/logfiles/
+*.xml           usr/share/freepbx/modules/logfiles/

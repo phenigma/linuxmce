@@ -1,0 +1,832 @@
+<xml><module>
+	<rawname>miscapps</rawname>
+	<name>Misc Applications</name>
+	<version>0.2</version>
+	<type>setup</type>
+	<category>Internal Options &amp; Configuration</category>
+	<description>
+		Adds the ability to create feature codes that can go to any freePBX destination (such as an IVR or queue)
+	</description>
+	<changelog>
+		*0.2* Fix bug with adding new apps
+	</changelog>
+	<menuitems>
+		<miscapps>Misc Applications</miscapps>
+	</menuitems>
+	<location>release/2.2/miscapps-0.2.tgz</location>
+	<info>http://aussievoip.com.au/wiki/freePBX-MiscApplications</info>
+	<md5sum>da5484024e5e3d31002f0989a46eae5c</md5sum>
+</module>
+<module>
+	<rawname>infoservices</rawname>
+	<name>Info Services</name>
+	<version>1.3.3</version>
+	<type>setup</type>
+	<category>Provides a Feature Code</category>
+	<description>Provides a number of applications accessable by feature codes: company directory, call trace (last call information), echo test, speaking clock, and speak current extension number.</description>
+	<changelog>
+		1.3.3: Fixed SpeakExtension - replaced depricated ${CALLERID} variable
+		1.3.2: Fixed SpeakExtension - add macro-user-callerid
+		1.3.1: Improved accuracy of speaking clock
+	</changelog>
+	<location>release/2.2/infoservices-1.3.3.tgz</location>
+	<info>http://aussievoip.com.au/wiki/freePBX-Features</info>
+	<md5sum>d485ea27a601ce3ec4dd764229873194</md5sum>
+</module>
+<module>
+	<rawname>featurecodeadmin</rawname>
+	<name>Feature Code Admin</name>
+	<version>1.0.4</version>
+	<type>setup</type>
+	<category>Basic</category>
+	<menuitems>
+		<featurecodeadmin>Feature Codes</featurecodeadmin>
+	</menuitems>
+	<changelog>
+		*1.0.4* Add support for duplicate feature codes
+		*1.0.3* Add he_IL translation
+		*1.0.2* Fix minor font/display issues
+	</changelog>
+	<location>release/2.2/featurecodeadmin-1.0.4.tgz</location>
+	<info>http://aussievoip.com.au/wiki/freePBX-FeatureCodeAdmin</info>
+	<md5sum>2ab47d6adcb43a7a2f5a6719ed97541a</md5sum>
+</module>
+<module>
+	<rawname>voicemail</rawname>
+	<name>Voicemail</name>
+	<version>1.6.2</version>
+	<changelog>
+		*1.6.2* Remove hardcoded paths to voicemail.conf
+		*1.6.1* Bump version to fix existing extensions with disabled voicemail #1697
+		*1.6* Re-Fix 1.5.2, bump version for 2.2rc2 release.
+		*1.5.3* Fix for vm Javascript sanity checks only working in DevAndUser mode.
+		*1.5.2* Fix vm not appearing in DeviceAndUser mode
+		*1.5.1* Fix for MWI not working
+		*1.5* Fix issue with vm options not being saved on creation of extension
+		*1.4.2* Change category to Basic
+		*1.4.1* Fixed radio button defaults to 'no' from false so they work
+		*1.4* First release for 2.2. Fix inability to create voicemail box
+	</changelog>
+	<description>This module allows you to configure Voicemail for a user or extension</description>
+	<type>setup</type>
+	<category>Basic</category>
+	<location>release/2.2/voicemail-1.6.2.tgz</location>
+	<info>http://aussievoip.com.au/wiki/freePBX-Features</info>
+	<md5sum>3d82ce1ce1cd38a0b65dc11b5eb65d3a</md5sum>
+</module>
+<module>
+	<rawname>callwaiting</rawname>
+	<name>Call Waiting</name>
+	<version>1.1.1</version>
+	<changelog>
+	*1.1.1* Fixed typo Provdes to Provides*
+	*1.1* First release for 2.2
+	</changelog>
+	<type>setup</type>
+	<category>Provides a Feature Code</category>
+	<description>Provides an option to turn on/off call waiting</description>
+	<location>release/2.2/callwaiting-1.1.1.tgz</location>
+	<info>http://aussievoip.com.au/wiki/freePBX-Features</info>
+	<md5sum>364a316b45afb3bd26a63d0baa1720ce</md5sum>
+</module>
+<module>
+	<rawname>dictate</rawname>
+	<name>Dictation</name>
+	<version>1.1.1</version>
+	<type>setup</type>
+	<category>Provides a Feature Code</category>
+	<changelog>
+		*1.1.1* Fix for Dictation not appearing on User page when in Device and User mode.
+		*1.1* Fix changes not sticking when creating an extension, replace Rob-sounds with Allison-sounds.
+		*1.0.1* Replaced 'invalid extension' with 'feature not available on this line' when disabled
+		*1.0.0* Original Release
+	</changelog>
+	<description>This uses the app_dictate module of Asterisk to let users record dictate into their phones. When complete, the dictations can be emailed to an email address specified in the extension page.</description>
+	<location>release/2.2/dictate-1.1.1.tgz</location>
+	<info>http://aussievoip.com.au/wiki/freePBX-Dictation</info>
+	<md5sum>1f5c3ba0182098ccf2cfc8127ece3545</md5sum>
+</module>
+<module>
+	<rawname>speeddial</rawname>
+	<name>Speed dial functions</name>
+	<version>1.0.2</version>
+	<type>module</type>
+	<category>CID &amp; Number Management</category>
+	<depends>
+		<module>phonebook</module>
+	</depends>
+	<location>release/2.2/speeddial-1.0.2.tgz</location>
+	<info>http://aussievoip.com.au/wiki/freePBX-Features</info>
+	<md5sum>5a11d1460ac6587e636308a1e8c83974</md5sum>
+</module>
+<module>
+	<rawname>findmefollow</rawname>
+	<name>Follow Me</name>
+	<version>2.4.9.1</version>
+	<changelog>
+		*2.4.9.1* Fixed ALERT_INFO bug, if previously set it should not set - it was clearing it
+		*2.4.9* Add he_IL translation
+		*2.4.8* never allow extension to include itself as nnn# and create infinite loop
+		*2.4.7* Changed to not set alertinfo value if already set from before hitting followme
+		*2.4.6* Added BLKVM DB tree to fix inability to transfer a received call to another user, and make NODEST stuff work overall
+		*2.4.5* Modified NODEST stuff to improve some cases where it was still failing, and improve '#' transfer scenarios
+		*2.4.4* Add NODEST so that destination (often vm) is not taken if called from queue or ringgroup
+		*2.4.3* Sanity check for prefing that if not set or there, it won't ring the extension forever (should not happen)
+		*2.4.2* Modified flyover help - since moh works with confirmation now
+		*2.4.1* Added sound files for default confirmation messages
+		2.4: First release for FreePBX 2.2 - Fixed compatibility issue with new UI
+		2.3.1: removed checkastman
+		2.3: First release for 2.2, fixed minor display issues
+		2.2.5: fixed so extension number is put into empty lists
+		2.2.4: moved require_once() in functions.php, was breaking other stuff
+		2.2.3: full path in require_once to keep retrieve_conf from dieing
+		2.2.2: bug fix = should be ==
+		2.2.1: Use astdb for some settings
+		2.2.0: Add Pre-Ring
+		2.1.5: Fix bug #1142
+		2.1.4: Code cleanup
+	</changelog>
+	<type>setup</type>
+	<category>Inbound Call Control</category>
+	<description>
+		Much like a ring group, but works on individual extensions. When someone calls the extension, it can be setup to ring for a number of seconds before trying to ring other extensions and/or external numbers, or to ring all at once, or in other various 'hunt' configurations. Most commonly used to ring someone's cell phone if they don't answer their extension.
+	</description>
+	<menuitems>
+		<findmefollow>Follow Me</findmefollow>
+	</menuitems>
+	<location>release/2.2/findmefollow-2.4.9.1.tgz</location>
+	<info>http://aussievoip.com.au/wiki/freePBX-FollowMe</info>
+	<md5sum>1126375f1297576ecb61e23720410ea2</md5sum>
+</module>
+<module>
+	<rawname>manager</rawname>
+	<name>Asterisk API</name>
+	<version>1.2</version>
+	<type>tool</type>
+	<category>System Administration</category>
+	<menuitems>
+		<manager>Asterisk API</manager>
+	</menuitems>
+	<changelog>
+	*1.2* Fix UI issues, and 'Array' message.
+	*1.1* First 2.2 release. Added he_IL support, fixed some warnings.
+	</changelog>
+	<location>release/2.2/manager-1.2.tgz</location>
+	<info>http://aussievoip.com.au/wiki/freePBX-ManagerAPI</info>
+	<md5sum>b0197805e6b63146c0b005da69637341</md5sum>
+</module>
+<module>
+	<rawname>logfiles</rawname>
+	<name>Asterisk Logfiles</name>
+	<version>1.0.1</version>
+	<type>tool</type>
+	<category>Support</category>
+	<menuitems>
+		<logfiles>Asterisk Logfiles</logfiles>
+	</menuitems>
+	<location>release//2.2/logfiles-1.0.1.tgz</location>
+	<info>http://aussievoip.com.au/wiki/freePBX-LogFiles</info>
+	<md5sum>92063ba5483e2f53acc7e32a2ff4cf94</md5sum>
+</module>
+<module>
+	<rawname>announcement</rawname>
+	<name>Announcements</name>
+	<version>0.8.2</version>
+	<changelog>
+		*0.8.2* skip the answer/wait(1) if channel is already answered
+		*0.8.1* changed response timeout from 10 to 3 seconds (when used at all)
+		*0.8.0* need to add an i extension, even with m option in bacground, it fails if skip is not enabled
+		*0.7.0* more fixes to deal with sqlite and fix mysql5 (includes renaming of repeat to repeat_msg)
+		*0.6.1* Modified the install.sql to work on sqlite3
+		*0.6* added an option to choose a single digit that can be used to have the msg repeated
+		*0.5* chaned to jump to ivr's return context
+		*0.4* Added Don't Answer option to not answer the channel (and playback early media if supported)
+		*0.3* Added support to return to calling IVR
+		*0.2* First Module Intro
+	</changelog>
+	<type>setup</type>
+	<category>Inbound Call Control</category>
+	<description>
+		Plays back one of the system recordings (optionally allowing the user to skip it) and then goes to another destination.
+	</description>
+	<menuitems>
+		<announcement>Announcements</announcement>
+	</menuitems>
+	<location>release/2.2/announcement-0.8.2.tgz</location>
+	<info>http://aussievoip.com.au/wiki/freePBX-Announcement</info>
+	<md5sum>f3eca44e6c9d1eb33110c84cd7d4b07d</md5sum>
+</module>
+<module>
+	<rawname>ringgroups</rawname>
+	<name>Ring Groups</name>
+	<version>2.2.13</version>
+	<type>setup</type>
+	<category>Inbound Call Control</category>
+	<description>
+		Creates a group of extensions that all ring together. Extensions can be rung all at once, or in various 'hunt' configurations. Additionally, external numbers are supported, and there is a call confirmation option where the callee has to confirm if they actually want to take the call before the caller is transferred.
+	</description>
+	<changelog>
+		*2.2.13* Add he_IL translation
+		*2.2.12* never allow group to include itself as nnn# and create infinite loop
+		*2.2.11* changed _ALERT_INFO to __ALERT_INFO ('_' -> '__') so it is infinitely inheritted into the dialplan
+		*2.2.10* Added BLKVM DB tree to fix inability to transfer a received call to another user, and make NODEST stuff work overall
+		*2.2.9* Modified NODEST stuff to improve some cases where it was still failing, and improve '#' transfer scenarios
+		*2.2.8* Allow ringall-prim as well as ringall for strategies with confirmation (#1408)
+		*2.2.7* Add tool tip for Group Description (#1459)
+		*2.2.6* Add NODEST so that destination (often vm) is not taken if called from queue or ringgroup and such is honored for childeren
+		*2.2.5* Modified flyover help - since moh works with confirmation now
+		*2.2.4* Added sound files for default confirmation messages
+		*2.2.3* Clarification on help message if you want to ring follow-me and other non-extension numbers
+		*2.2.2* Forgot to add default starting RG number as 600
+		*2.2.1* Cleanup of the UI, remove workaround of formatting bugs with previous UI
+		*2.2* First release for FreePBX 2.2 - Fixed compatibility issue with new UI</changelog>
+	<menuitems>
+		<ringgroups>Ring Groups</ringgroups>
+	</menuitems>
+	<location>release/2.2/ringgroups-2.2.13.tgz</location>
+	<info>http://aussievoip.com.au/wiki/freePBX-RingGroups</info>
+	<md5sum>237a46a51715e147f6581cee9ff0181f</md5sum>
+</module>
+<module>
+	<rawname>phpinfo</rawname>
+	<name>PHP Info</name>
+	<version>1.0</version>
+	<type>tool</type>
+	<category>System Administration</category>
+	<menuitems>
+		<phpinfo>PHP Info</phpinfo>
+	</menuitems>
+	<location>release//2.2/phpinfo-1.0.tgz</location>
+	<info>http://aussievoip.com.au/wiki/freePBX-phpinfo</info>
+	<md5sum>1b71e570164168090fe3f04464a549c4</md5sum>
+</module>
+<module>
+	<rawname>donotdisturb</rawname>
+	<name>Do-Not-Disturb (DND)</name>
+	<version>1.0.1</version>
+	<type>setup</type>
+	<category>Provides a Feature Code</category>
+	<location>release//2.2/donotdisturb-1.0.1.tgz</location>
+	<info>http://aussievoip.com.au/wiki/freePBX-Features</info>
+	<md5sum>5c1128b0a2c38b0d8aaff289fa5cb1d4</md5sum>
+</module>
+<module>
+	<rawname>ivr</rawname>
+	<name>IVR</name>
+	<version>2.5.13.1</version>
+	<type>setup</type>
+	<category>Inbound Call Control</category>
+	<description>
+		Creates Digital Receptionist (aka Auto-Attendant, aka Interactive Voice Response) menus. These can be used to send callers to different locations (eg, "Press 1 for sales") and/or allow direct-dialing of extension numbers. 
+	</description>
+	<changelog>
+		*2.5.13.1* make sure t ext getting put in (for some reason it wasn't always, this shoudl fix it)
+		*2.5.13* #1871 't' extension not being created by default fixed
+		*2.5.12* skip the answer/wait(1) if channel is already answered
+		*2.5.11* Allow option for IVR to loop back to itself without corrupting the return-to-ivr to the parent
+		*2.5.10* Fix bug where pressing enter in a field would delete the IVR
+		*2.5.9* some tweaks because of strange inheritance behavior, so need to reset IVR variables upon returns for some looping conditions
+		*2.5.8* insert a return extension so that annoucements and ivrs returning don't trample back over the top
+		*2.5.7* extended schema and added ability to have ivr options to return to calling parent ivrs if appropriate, otherwise specified destination
+		*2.5.6* Added: Set(IVR_CONTEXT=${CONTEXT}) to facilitate simple returns to calling context (e.g. from an announcement or custom app)
+		*2.5.5* Fix bug #1651 and apply patch #1664, allow voicemail as destination if ivr is entered from a queue breakout option
+		*2.5.4* Fix bug #1417
+		*2.5.3* Add he_IL translation
+		*2.5.2* Updated for freepbx 2.2.0rc2
+		*2.5.1* Changed name to IVR (from Digital Receptionist)
+		*2.5* First release for FreePBX 2.2 - Fixed compatibility issue with new UI
+	</changelog>
+	<menuitems>
+		<ivr>IVR</ivr>
+	</menuitems>
+	<location>release/2.2/ivr-2.5.13.1.tgz</location>
+	<info>http://aussievoip.com.au/wiki/freePBX-IVR</info>
+	<md5sum>f98bc8dece6b5144becd86b313047b00</md5sum>
+</module>
+<module>
+	<rawname>phpagiconf</rawname>
+	<name>PHPAGI Config</name>
+	<version>1.1</version>
+	<type>tool</type>
+	<category>Config</category>
+	<menuitems>
+		<phpagiconf>PHPAGI Config</phpagiconf>
+	</menuitems>
+	<depends>
+		<module>manager ge1.0.4</module>
+	</depends> 
+	<changelog>*1.1* Removed old dependancy checking code, first 2.2 release</changelog>
+	<location>release/2.2/phpagiconf-1.1.tgz</location>
+	<md5sum>1dd626321578d58698ed033e7e3a688f</md5sum>
+	<info>http://freepbx.org/wiki/phpagiconf</info>
+</module>
+<module>
+	<rawname>callforward</rawname>
+	<name>Call Forward</name>
+	<version>1.1</version>
+	<changelog>*1.1* First release for 2.2
+	</changelog>
+	<type>setup</type>
+	<category>Provides a Feature Code</category>
+	<location>release/2.2/callforward-1.1.tgz</location>
+	<info>http://aussievoip.com.au/wiki/freePBX-Features</info>
+	<md5sum>de8184265af71ab71d6a14d56080cde7</md5sum>
+</module>
+<module>
+	<rawname>irc</rawname>
+	<name>Online Support</name>
+	<version>1.1.1</version>
+	<type>tool</type>
+	<category>Support</category>
+	<description>This module lets you connect to the IRC network where developers and other users chat. You can chat to the developers live, if you have problems</description>
+	<changelog>
+		*1.1.1* Add he_IL translation
+		*1.1* First release for 2.2, changed the window so it pops-out of the normal web page
+	</changelog>
+	<menuitems>
+		<irc>Online Support</irc>
+	</menuitems>
+	<location>release/2.2/irc-1.1.1.tgz</location>
+	<info>http://aussievoip.com.au/wiki/freePBX-IRC</info>
+	<md5sum>64143ea353cc26da431319df0019890d</md5sum>
+</module>
+<module>
+	<rawname>miscdests</rawname>
+	<name>Misc Destinations</name>
+	<version>1.3.4</version>
+	<type>setup</type>
+	<category>Inbound Call Control</category>
+	<description>Allows creating destinations that dial any local number (extensions, feature codes, outside phone numbers) that can be used by other modules (eg, IVR, time conditions) as a call destination.</description>
+	<changelog>
+		*1.3.4* destination changed from Dial(Local/nnn@from-internal) to Goto(from-internal,nnn,1), no reason a new channel should be created
+		*1.3.3* Minor formatting changes
+		*1.3.2* Add he_IL translation
+		*1.3.1* Updated help text
+		*1.3* First release for FreePBX 2.2 - Fixed GUI issues
+	</changelog>
+	<menuitems>
+		<miscdests>Misc Destinations</miscdests>
+	</menuitems>
+	<location>release/2.2/miscdests-1.3.4.tgz</location>
+	<info>http://aussievoip.com.au/wiki/freePBX-MiscDests</info>
+	<md5sum>ada9ecba2c327cdf46ff3089c3af5549</md5sum>
+</module>
+<module>
+	<rawname>pbdirectory</rawname>
+	<name>Phonebook Directory</name>
+	<version>0.3</version>
+	<type>tool</type>
+	<category>CID &amp; Number Management</category>
+	<location>release/2.2/pbdirectory-0.3.tgz</location>
+	<info>http://aussievoip.com.au/wiki/freePBX-Features</info>
+	<description>Provides a dial-by-name directory for phonebook entries</description>
+	<requirements>
+		<version>2.2</version>
+		<module>phonebook</module>
+		<module>speeddial</module>
+	</requirements>
+	<md5sum>6fdf53feade9b816c86197628e3a2d65</md5sum>
+	<changelog>
+	</changelog>
+</module>
+<module>
+	<rawname>recordings</rawname>
+	<name>Recordings</name>
+	<version>3.3.2</version>
+	<type>setup</type>
+	<category>Internal Options &amp; Configuration</category>
+	<description>Creates and manages system recordings, used by many other modules (eg, IVR).</description>
+	<changelog>
+	*3.3.2* Fix mp3 upload bug (#1764)
+	*3.3.1* Fix error where *77/*79 wasn't working.
+	*3.3* Stop assuming that files being uploaded are .wav's, also highlight the correct format for files to be uploaded in.
+	*3.2.4* Add he_IL translation
+	*3.2.3* Fix for possible wrong recording being selected
+	*3.2.2* Fix for PHP5 not picking up ast recording path
+	*3.2.1* Resolved issue with wrong recording being selected when there's more than one encoding of file (eg, foo.wav and foo.gsm)
+	*3.2* First release for FreePBX 2.2 - Fixed compatibility issue with new UI</changelog>
+	<menuitems>
+		<recordings>System Recordings</recordings>
+	</menuitems>
+	<location>release/2.2/recordings-3.3.2.tgz</location>
+	<info>http://aussievoip.com.au/wiki/freePBX-SysRec</info>
+	<md5sum>4222eb80428830512cd445ca9974d77f</md5sum>
+</module>
+<module>
+	<rawname>javassh</rawname>
+	<name>Java SSH</name>
+	<version>1.0.1</version>
+	<type>tool</type>
+	<category>System Administration</category>
+	<description>Provides a Java applet to access the system shell using SSH</description>
+	<menuitems>
+		<javassh>Java SSH</javassh>
+	</menuitems>
+	<location>release//2.2/javassh-1.0.1.tgz</location>
+	<info>http://aussievoip.com.au/wiki/freePBX-JavaSSH</info>
+	<md5sum>812e11f48bc260aedce20ceb54d18169</md5sum>
+</module>
+<module>
+	<rawname>cidlookup</rawname>
+	<name>Caller ID Lookup</name>
+	<version>1.1.1</version>
+	<description>Allows Caller ID Lookup of incoming calls against different sources (MySQL, HTTP, ENUM, Phonebook Module)</description>
+	<type>setup</type>
+	<category>CID &amp; Number Management</category>
+	<menuitems>
+		<cidlookup>Caller Name Lookup Sources</cidlookup>
+	</menuitems>
+	<depends>
+		<engine>asterisk 1.2</engine>
+	</depends>
+	<location>release/2.2/cidlookup-1.1.1.tgz</location>
+	<md5sum>0f1d11eae4c12f04db9ea3bd32dc7aa5</md5sum>
+	<info>http://freepbx.org/wiki/CallerIDLookup</info>
+	<changelog>
+		*1.1.1* Add he_IL translation
+		*1.1* First release for FreePBX 2.2 - Fixed compatibility issue with new UI
+		*1.0.4* Updated module.xml format
+		*1.0.3* Fixes from #999
+		*1.0.1* Added possibility to cache in astDB
+			Added lookup from cache before querying external source
+		*1.0.0* First release
+	</changelog>
+</module>
+<module>
+	<rawname>gabcast</rawname>
+	<name>Gabcast</name>
+	<version>1.2.3</version>
+	<type>tool</type>
+	<category>Third Party Addon</category>
+	<menuitems>
+		<gabcast>Gabcast</gabcast>
+	</menuitems>
+	<changelog>
+		*1.2.3* Add he_IL translation
+		*1.2.2* Fix issue where you were unable to add a channel 
+	</changelog>
+	<location>release/2.2/gabcast-1.2.3.tgz</location>
+	<info>http://aussievoip.com.au/wiki/freePBX-gabcast</info>
+	<md5sum>c78065ece959a05276d3ecda7a4503ca</md5sum>
+</module>
+<module>
+	<rawname>backup</rawname>
+	<name>Backup &amp; Restore</name>
+	<version>2.1.1</version>
+	<type>tool</type>
+	<category>System Administration</category>
+	<menuitems>
+		<backup>Backup &amp; Restore</backup>
+	</menuitems>
+	<depends>
+		<module>core</module>
+	</depends>
+	<changelog>
+	*2.1.1* Remove core_users2astdb and core_devices2astdb, it isn't needed and corrupts resotred ampuser info
+	*2.1* Actually, really, restore ASTDB now. Finally. Also add redirect_standard to avoid problems with TRBoE.
+	*2.0.4* Add he_IL translation
+	*2.0.3* don't have BLKVM and FM astdb trees, which shouldn't be left around anyhow
+	*2.0.2* fixed restore ALL to get it to actually work
+	*2.0.1* supplied defaults and fixed bug is weekdays schedule_functions.php - #1279
+	*2.0* Now backs up and restores astdb, which was causing problems with phone configurations.
+	*1.2* Potential fix for restore issues, clean up some warnings
+	</changelog>
+	<location>release/2.2/backup-2.1.1.tgz</location>
+	<info>http://aussievoip.com.au/wiki/freePBX-BackupRestore</info>
+	<md5sum>c0ab5c34ee81480275e356501a181eb3</md5sum>
+</module>
+<module>
+	<rawname>paging</rawname>
+	<name>Paging and Intercom</name>
+	<version>1.6.3</version>
+	<type>setup</type>
+	<category>Internal Options &amp; Configuration</category>
+	<changelog>
+		*1.6.3* Add he_IL translation
+		*1.6.2* Fix callerid bug
+		*1.6.1* Fix install bug
+		*1.6* Busy devices are no longer paged, flag added to allow overriding this behaviour.
+	 	*1.5.2* Pages now start with a "beep" sound. Fixed help text.
+		*1.5.1* Fixed bug with saving paging group
+		*1.5* First release for FreePBX 2.2 - Fixed compatibility issue with new UI
+	</changelog>
+	<description>Allows creation of paging groups to make announcements using the speaker built into most SIP phones. 
+	
+	Also creates an Intercom feature code that can be used as a prefix to talk directly to one person, as well as optional feature codes to block/allow intercom calls.</description>
+	<menuitems>
+		<paging>Paging and Intercom</paging>
+	</menuitems>
+	<location>release/2.2/paging-1.6.3.tgz</location>
+	<info>http://aussievoip.com.au/wiki/freePBX-Paging</info>
+	<md5sum>f462391eebadee451e07ab28e3f87677</md5sum>
+</module>
+<module>
+	<rawname>timeconditions</rawname>
+	<name>Time Conditions</name>
+	<version>2.4.1</version>
+	<type>setup</type>
+	<category>Inbound Call Control</category>
+	<description>
+		Creates a condition where calls will to one of two destinations (eg, an extension, IVR, ring group..) based on the time and/or date. This can be used for example to ring a receptionist during the day, or go directly to an IVR at night.
+	</description>
+	<changelog>
+		*2.4.1* Add he_IL translation
+		*2.4* Upgrading module version to assist with trixbox upgrades, that have 2.3.1 already, so this needs to be higher. No other changes.	
+		*2.3* First release for FreePBX 2.2 - Fixed compatibility issue with new UI
+	</changelog>
+	<menuitems>
+		<timeconditions>Time Conditions</timeconditions>
+	</menuitems>
+	<location>release/2.2/timeconditions-2.4.1.tgz</location>
+	<info>http://aussievoip.com.au/wiki/freePBX-TimeCond</info>
+	<md5sum>fbeb09433490d0fac61d5b91954f1e6a</md5sum>
+</module>
+<module>
+	<rawname>callback</rawname>
+	<name>Callback</name>
+	<version>1.3.1</version>
+	<type>setup</type>
+	<category>Remote Access</category>
+	<menuitems>
+		<callback>Callback</callback>
+	</menuitems>
+	<changelog>
+	*1.3.1* Add he_IL translation
+	*1.3* Fixed UI errors for new 2.2 look.
+	*1.2* First 2.2 release
+	</changelog>
+	<info>http://aussievoip.com.au/wiki/freePBX-Callback</info>
+	<location>release/2.2/callback-1.3.1.tgz</location>
+	<md5sum>8352483b25456e54fd01201b731c44e7</md5sum>
+</module>
+<module>
+	<rawname>customerdb</rawname>
+	<name>Customer DB</name>
+	<version>1.2.3</version>
+	<type>tool</type>
+	<category>Third Party Addon</category>
+	<menuitems>
+		<customerdb>Customer DB</customerdb>
+	</menuitems>
+	<changelog>
+		*1.2.3* Add he_IL translation
+	</changelog>
+	<location>release/2.2/customerdb-1.2.3.tgz</location>
+	<md5sum>cf1fec9f1f20b688c6938d2595836710</md5sum>
+	<info>http://freepbx.org/wiki/CustomerDB</info>
+</module>
+
+<module>
+	<rawname>inventorydb</rawname>
+	<name>Inventory</name>
+	<version>1.0.3</version>
+	<type>tool</type>
+	<category>Third Party Addon</category>
+	<menuitems>
+		<inventorydb>Inventory</inventorydb>
+	</menuitems>
+	<changelog>
+		*1.0.3* Add he_IL translation
+	</changelog>
+	<location>release/2.2/inventorydb-1.0.3.tgz</location>
+	<md5sum>a575ae7e9ee4c2c52b46c91ea834b875</md5sum>
+	<info>http://freepbx.org/wiki/inventorydb</info>
+</module>
+
+<module>
+	<rawname>zoip</rawname>
+	<name>Zork</name>
+	<version>0.2.0</version>
+	<description>Zoip is a new way of playing Zork - It uses Text-to-Speech and Speech Recognition to play the classic infocom game, Zork. It appears as a destination. If you wish to play this without needing to go through an IVR, the easy way is to create a Ring Group with an invalid extension in it, and a destination of Zoip. </description>
+	<attention>
+		This is a 7 Megabyte download. It may not be able to download via this interface properly. In addition, Sphinx2 and Festival are required. 
+	
+		Please see http://aussievoip.com.au/wiki/freePBX-ZoIP before installing this module.
+	</attention>
+	<type>module</type>
+	<category>Games</category>
+	<description></description>
+	<location>release/2.2/zoip-0.2.0.tgz</location>
+	<info>http://aussievoip.com.au/wiki/freePBX-ZoIP</info>
+	<md5sum>a0318ecc7376f33c54abf9c3efd96958</md5sum>
+</module>
+<module>
+	<rawname>blacklist</rawname>
+	<name>Blacklist</name>
+	<version>1.1.1</version>
+	<type>setup</type>
+	<category>CID &amp; Number Management</category>
+	<menuitems>
+		<blacklist>Blacklist</blacklist>
+	</menuitems>
+	<changelog>
+	*1.1.1* Add he_IL translation
+	*1.1* First 2.2 release. Fix minor warnings.
+	</changelog>
+	<location>release/2.2/blacklist-1.1.1.tgz</location>
+	<info>http://freepbx.org/wiki/AsteriskBlacklist</info>
+	<md5sum>cfe46100e687174564fb8fd3c3437c6d</md5sum>
+</module>
+<module>
+	<rawname>disa</rawname>
+	<name>DISA</name>
+	<version>2.2.1</version>
+	<type>setup</type>
+	<category>Remote Access</category>
+	<menuitems>
+		<disa>DISA</disa>
+	</menuitems>
+	<description>DISA Allows you 'Direct Inward System Access'. This gives you the ability to have an option on an IVR that gives you a dial tone, and you're able to dial out from the freePBX machine as if you were connected to a standard extension. It appears as a Destination.</description>
+	<changelog>
+	*2.2.1* Add he_IL translation
+	*2.2* First release for FreePBX 2.2 - Fixed compatibility issue with new UI
+	</changelog>
+	<location>release/2.2/disa-2.2.1.tgz</location>
+	<info>http://aussievoip.com.au/wiki/freePBX-DISA</info>
+	<md5sum>82981330404c9787acb4e194df9212ee</md5sum>
+</module>
+<module>
+	<rawname>phonebook</rawname>
+	<name>Phonebook</name>
+	<version>1.1.5</version>
+	<description>Provides a phonebook for freePBX, it can be used as base for Caller ID Lookup and Speed Dial</description>
+	<type>tool</type>
+	<category>CID &amp; Number Management</category>
+	<menuitems>
+		<phonebook>Asterisk Phonebook</phonebook>
+	</menuitems>
+	<location>release/2.2/phonebook-1.1.5.tgz</location>
+	<md5sum>b78ffc82cf878b039a609e3b4a16455b</md5sum>
+	<info>http://freepbx.org/wiki/AsteriskPhonebook</info>
+	<changelog>
+		*1.1.5* Fixed a Warning when phonebook was empty
+		*1.1.4* Automatically generate Speed Dial Code if not supplied by user
+			Sort Phonebook alphabetically
+			Reuse Asterisk Manager connection
+		*1.1.3* Fixed copyright information for fgetcsvfromline()
+			Updated module.xml format
+		*1.1.2* freePBX 2.1.2 Released
+		*1.1.1* Apply #1105 - Fix up module naming conventions
+		*1.1.0* Added Speed dial field for phonebook entries (used by speeddial module)
+			Changed phonebook_list() return value
+			Numbers can no more contain '+' sign because of speeddial
+		*1.0.4* Added 'Export to CSV' function
+			Fixed some documentation errors
+		*1.0.3* Added 'Import from CSV' function
+			Added js confirmation to Delete link
+			Added possibility to empty phonebook
+		*1.0.2* Fixed bug in inserting names with spaces
+		        Fixed a little bug in editing the a number associated with a name
+			Suppressed warnings when the phonebook was empty
+		*1.0.1* First Release
+	</changelog>
+</module>
+<module>
+	<rawname>conferences</rawname>
+	<name>Conferences</name>
+	<version>1.2</version>
+	<type>setup</type>
+	<category>Internal Options &amp; Configuration</category>
+	<description>Allow creation of conference rooms (meet-me) where multiple people can talk together.</description>
+	<changelog>
+		*1.2* Fixed raising asterisk error on empty dialstatus #1708
+		*1.1.2* Add he_IL translation
+		*1.1.1* Updated for 2.2.0RC1
+		*1.1* First release for FreePBX 2.2 - Fixed compatibility issue with new UI
+	</changelog>
+	<menuitems>
+		<conferences>Conferences</conferences>
+	</menuitems>
+	<location>release/2.2/conferences-1.2.tgz</location>
+	<info>http://aussievoip.com.au/wiki/freePBX-Conf</info>
+	<md5sum>fd9a9926fd7f27ef8ae9cadf036f4afe</md5sum>
+</module>
+<module>
+	<rawname>pinsets</rawname>
+	<name>PIN Sets</name>
+	<version>1.1</version>
+	<type>setup</type>
+	<category>Internal Options &amp; Configuration</category>
+	<description>Allow creation of lists of PINs (numbers for passwords) that can be used by other modules (eg, trunks).</description>
+	<changelog>
+		*1.1* Add naftali5's fix for pinsets being lost when routes are moved.
+		*1.0.12* Add he_IL translation
+		*1.0.11* Stop potential error where a random pinset is appearing when creating a new trunk
+	</changelog>
+	<menuitems>
+		<pinsets>PIN Sets</pinsets>
+	</menuitems>
+	<info>http://aussievoip.com.au/wiki/freePBX-PinSets</info>
+	<location>release/2.2/pinsets-1.1.tgz</location>
+	<md5sum>66e94db6058003d7b7f1d6dcdbbaaf2b</md5sum>
+</module>
+<module>
+	<rawname>asterisk-cli</rawname>
+	<name>Asterisk CLI</name>
+	<version>1.0</version>
+	<type>tool</type>
+	<category>System Administration</category>
+	<menuitems>
+		<cli>Asterisk CLI</cli>
+	</menuitems>
+	<depends>
+		<engine>asterisk</engine>
+	</depends>
+	<location>release/2.2/asterisk-cli-1.0.tgz</location>
+	<info>http://aussievoip.com.au/wiki/freePBX-CLI</info>
+	<md5sum>af3c22f41599762122e075ac734b1612</md5sum>
+	<changelog>
+*1.0* Fixed security issue, first release in 2.2
+*0.001* Original Release
+	</changelog>
+</module>
+<module>
+	<rawname>queues</rawname>
+	<name>Queues</name>
+	<version>2.2.8.1</version>
+	<type>setup</type>
+	<category>Inbound Call Control</category>
+	<description>
+		Creates a queue where calls are placed on hold and answered on a first-in, first-out basis. Many options are available, including ring strategy for agents, caller announcements, max wait times, etc. 
+	</description>
+	<changelog>
+		*2.2.8.1* Updated tootip to warn about agents.conf (unsupported and know issues) and warn about penalties (broken in asterisk)
+		*2.2.8* Fixed typo in 2.2.7
+		*2.2.7* Fixed eventmemberstatus #1635
+		*2.2.6* Add he_IL translation
+		*2.2.5* Added BLKVM DB tree to fix inability to transfer a received call to another user, and make NODEST stuff work overall
+		*2.2.4* Change _NODEST to __NODEST for some scenarios that require infinite inheritance
+		*2.2.3* Updated for freepbx 2.2.0rc2
+		*2.2.2* Disallow Queue 0 (#1487)
+		*2.2.1* Add NODEST to tell children NOT to go to destinations (like voicemail or other) - helps with followme in a queue
+		*2.2* First release for FreePBX 2.2 - Fixed compatibility issue with new UI</changelog>
+	<menuitems>
+		<queues>Queues</queues>
+	</menuitems>
+	<location>release/2.2/queues-2.2.8.1.tgz</location>
+	<info>http://aussievoip.com.au/wiki/freePBX-Queues</info>
+	<md5sum>9d2ec51733cfc95184912dfc3f45b795</md5sum>
+</module>
+<module>
+	<rawname>printextensions</rawname>
+	<name>Print Extensions</name>
+	<version>1.3.1</version>
+	<type>tool</type>
+	<category>Third Party Addon</category>
+	<description>Creates a printable list of names and extension numbers</description>
+	<menuitems>
+		<printextensions>Print Extensions</printextensions>
+	</menuitems>
+	<changelog>
+		*1.3.1* Add he_IL translation
+	</changelog>
+	<location>release/2.2/printextensions-1.3.1.tgz</location>
+	<info>http://aussievoip.com.au/wiki/freePBX-PrintExtensions</info>
+	<md5sum>4e0734e0a3402bc3641ad2ccb8ac2294</md5sum>
+</module>
+<module>
+	<rawname>music</rawname>
+	<name>Music on Hold</name>
+	<version>1.5</version>
+	<type>setup</type>
+	<category>Internal Options &amp; Configuration</category>
+	<description>Uploading and management of sound files (wav, mp3) to be used for on-hold music.</description>
+	<changelog>
+	*1.5* Fixed upload bug, #1646 could not upload files
+	*1.4.2* List wav files
+	*1.4.1* Add redirect_standard() call to avoid #1616
+	*1.4* Fix an issue of a new install not having a working MOH until they visit the page.
+	*1.3.2* Add he_IL translation
+	*1.3.1* Changed name to Music on Hold (from On Hold Music) 
+	*1.3* Bumped version to assist upgraders from the 2.1 tree. No other changes.
+	*1.2* First release for FreePBX 2.2 - Fixed compatibility issue with new UI
+	</changelog>
+	<menuitems>
+		<music>Music on Hold</music>
+	</menuitems>
+	<location>release/2.2/music-1.5.tgz</location>
+	<info>http://aussievoip.com.au/wiki/freePBX-OHM</info>
+	<md5sum>9783dba30f352aad98b11c0d996a4a79</md5sum>
+</module>
+<module>
+	<rawname>parking</rawname>
+	<name>Parking Lot</name>
+	<version>2.1.1</version>
+	<type>setup</type>
+	<category>Internal Options &amp; Configuration</category>
+	<description>Manages parking lot extensions and other options.
+	
+	Parking is a way of putting calls "on hold", and then picking them up from any extension.</description>
+	<menuitems>
+		<parking>Parking Lot</parking>
+	</menuitems>
+	<changelog>
+		*2.1.1* fix pseudo hardcoded path issue (hardcoded form missing global)
+		*2.1* Remove settings on uninstall bug #1597
+		*2.0.2* Add he_IL translation
+	</changelog>
+	<location>release/2.2/parking-2.1.1.tgz</location>
+	<info>http://aussievoip.com.au/wiki/freePBX-ParkingLot</info>
+	<md5sum>aa572fa3c7dd5e7ec67a23bb8d1df29d</md5sum>
+</module>
+</xml>

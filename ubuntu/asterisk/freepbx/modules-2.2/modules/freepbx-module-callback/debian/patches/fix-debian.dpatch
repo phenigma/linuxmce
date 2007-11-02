@@ -1,0 +1,20 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## fix-debian.dpatch by Diego Iastrubni <diego.iastrubni@xorcom.com>
+##
+## DP: Fix paths to harcoded defaults in Debian.
+
+@DPATCH@
+diff -urNad freepbx-module-callback~/functions.inc.php freepbx-module-callback/functions.inc.php
+--- freepbx-module-callback~/functions.inc.php	2007-04-02 11:21:34.000000000 +0300
++++ freepbx-module-callback/functions.inc.php	2007-05-17 16:27:31.000000000 +0300
+@@ -43,7 +43,9 @@
+ 					$ext->add('callback', $item['callback_id'], '', new ext_setvar("SLEEP",$sleep));
+ 					
+ 					// kick off the callback script - run in background (&) so we can hangup
+-					$ext->add('callback', $item['callback_id'], '', new ext_system((empty($asterisk_conf['astvarlib']) ? '/var/lib/asterisk' : $asterisk_conf['astvarlib']).'/bin/callback ${CALL} ${DESTINATION} ${SLEEP} &'));
++#					Original freePBX code, on debian it's on another directory				
++#					$ext->add('callback', $item['callback_id'], '', new ext_system((empty($asterisk_conf['astvarlib']) ? '/var/lib/asterisk' : $asterisk_conf['astvarlib']).'/bin/callback ${CALL} ${DESTINATION} ${SLEEP} &'));
++					$ext->add('callback', $item['callback_id'], '', new ext_system( '/usr/share/asterisk/bin/callback ${CALL} ${DESTINATION} ${SLEEP} &'));
+ 					
+ 					//hangup
+ 					$ext->add('callback', $item['callback_id'], '', new ext_hangup(''));

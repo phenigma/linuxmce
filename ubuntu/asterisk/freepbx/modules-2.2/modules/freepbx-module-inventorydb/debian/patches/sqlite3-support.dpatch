@@ -1,0 +1,93 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## sqlite3-support.dpatch by Diego Iastrubni <diego.iastrubni@xorcom.com>
+##
+## DP: SQLite3 support. Fixes upstream http://www.freepbx.org/trac/ticket/1777
+
+@DPATCH@
+diff -urNad freepbx-module-inventorydb~/functions.inc.php freepbx-module-inventorydb/functions.inc.php
+--- freepbx-module-inventorydb~/functions.inc.php	2006-09-17 07:35:27.000000000 +0300
++++ freepbx-module-inventorydb/functions.inc.php	2007-04-26 14:33:15.000000000 +0300
+@@ -19,8 +19,8 @@
+ function inventorydb_add($empnum, $empname, $building, $floor, $room, $section, $cubicle, $desk, $exten, $phusername, $phpassword, $mac, $serial, $device, $distdate, $ip, $pbxbox, $extrainfo){
+ 	$sql  = "INSERT INTO inventorydb(empnum, empname, building, floor, room, section,";
+ 	$sql .= "cubicle, desk, exten, phusername, phpassword, mac, serial, device,";
+-	$sql .= "distdate, ip, pbxbox, extrainfo)"; 
+-		
++	$sql .= "distdate, ip, pbxbox, extrainfo) "; 
++	
+ 	$sql .= "VALUES ('$empnum', '$empname', '$building', '$floor', '$room', '$section',";
+ 	$sql .= "'$cubicle', '$desk', '$exten', '$phusername', '$phpassword', '$mac', '$serial',";
+ 	$sql .= "'$device', '$distdate', '$ip', '$pbxbox', '$extrainfo')";
+@@ -28,7 +28,7 @@
+ }
+ 
+ function inventorydb_del($extdisplay){
+-	$sql="DELETE FROM inventorydb where id=$extdisplay";
++	$sql="DELETE FROM inventorydb WHERE id=$extdisplay";
+ 	sql($sql);
+ }
+ 
+diff -urNad freepbx-module-inventorydb~/install.php freepbx-module-inventorydb/install.php
+--- freepbx-module-inventorydb~/install.php	1970-01-01 02:00:00.000000000 +0200
++++ freepbx-module-inventorydb/install.php	2007-04-26 14:32:43.000000000 +0300
+@@ -0,0 +1,35 @@
++<?php
++
++global $db;
++global $amp_conf;
++
++$autoincrement = (($amp_conf["AMPDBENGINE"] == "sqlite") || ($amp_conf["AMPDBENGINE"] == "sqlite3")) ? "AUTOINCREMENT":"AUTO_INCREMENT";
++
++$sql = "CREATE TABLE IF NOT EXISTS inventorydb (
++        id INTEGER NOT NULL PRIMARY KEY $autoincrement,
++	empnum varchar(10) null,
++	empname varchar(20) NOT NULL,
++	building varchar(150) NULL,
++	floor varchar(10) NULL,
++	room varchar(10) NULL,
++	section varchar(6) NULL,
++	cubicle varchar(6) NULL,
++	desk varchar(6) NULL,
++	exten  varchar(8) NULL,
++	phusername varchar(10) NULL, 
++	phpassword varchar(10) NULL,
++	mac varchar(18) NULL,
++	serial varchar(20) NULL, 
++	device varchar(20) NULL, 
++	distdate varchar(10) NULL, 
++	ip varchar(14) NULL, 
++	pbxbox varchar(20) NULL,
++	extrainfo varchar(256) NULL
++);";
++
++$check = $db->query($sql);
++if(DB::IsError($check)) {
++        die("Can not create `inventorydb` table\n");
++}
++
++?>
+diff -urNad freepbx-module-inventorydb~/install.sql freepbx-module-inventorydb/install.sql
+--- freepbx-module-inventorydb~/install.sql	2006-06-04 02:58:45.000000000 +0300
++++ freepbx-module-inventorydb/install.sql	1970-01-01 02:00:00.000000000 +0200
+@@ -1,21 +0,0 @@
+-CREATE TABLE IF NOT EXISTS inventorydb (
+- id int UNIQUE AUTO_INCREMENT,
+- empnum varchar(10) null,
+- empname varchar(20) not null,
+- building varchar(150) null,
+- floor varchar(10) null,
+- room varchar(10) null,
+- section varchar(6) null,
+- cubicle varchar(6) null,
+- desk varchar(6) null,
+- exten  varchar(8) null,
+- phusername varchar(10) null, 
+- phpassword varchar(10) null,
+- mac varchar(18) null,
+- serial varchar(20) null, 
+- device varchar(20) null, 
+- distdate varchar(10) null, 
+- ip varchar(14) null, 
+- pbxbox varchar(20) null,
+- extrainfo varchar(256) null
+- );

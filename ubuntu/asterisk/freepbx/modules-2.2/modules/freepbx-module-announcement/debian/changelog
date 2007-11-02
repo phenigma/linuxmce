@@ -1,0 +1,23 @@
+freepbx-module-announcement (2.2-0.8.2-1) unstable; urgency=low
+
+  * New upstream release
+
+ -- Diego Iastrubni <diego.iastrubni@xorcom.com>  Mon,  2 Apr 2007 10:57:48 +0300
+
+freepbx-module-announcement (2.2-0.8.0-1) unstable; urgency=low
+
+  * New upstream release
+
+ -- Diego Iastrubni <diego.iastrubni@xorcom.com>  Sun, 11 Mar 2007 17:26:38 +0200
+
+freepbx-module-announcement (2.2-0.7.0-2) unstable; urgency=low
+
+  * Added missing install.php and uninstall.php
+
+ -- Diego Iastrubni <diego.iastrubni@xorcom.com>  Sun, 25 Feb 2007 14:42:42 +0200
+
+freepbx-module-announcement (2.2-0.7.0-1) unstable; urgency=low
+
+  * First release.
+  
+ -- Diego Iastrubni <diego.iastrubni@xorcom.com>  Wed, 14 Feb 2007 10:32:23 +0200

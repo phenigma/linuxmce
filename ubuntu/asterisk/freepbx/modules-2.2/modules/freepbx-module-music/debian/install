@@ -1,0 +1,5 @@
+*.php           usr/share/freepbx/modules/music/
+*.sql           usr/share/freepbx/modules/music/
+*.sqlite        usr/share/freepbx/modules/music/
+*.html          usr/share/freepbx/modules/music/
+*.xml           usr/share/freepbx/modules/music/

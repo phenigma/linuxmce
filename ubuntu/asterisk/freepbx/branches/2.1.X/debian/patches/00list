@@ -1,0 +1,17 @@
+# fix various things which freepbx just does wrong
+ast-config-dirs
+clean-install-amp
+disable-online-updates
+fix-retrieve-op-panel-cfg
+fix-fop-config.dpatch
+fix-version-2.1.3
+fix-open-or-die
+fix-recordings
+fix-toplinks
+fix-index-php
+fix-wierd-email
+
+# backports from the trunk, nice features, fixes... why not having them as well...?
+check-ast-runnning
+alternative-css
+log-retrieve

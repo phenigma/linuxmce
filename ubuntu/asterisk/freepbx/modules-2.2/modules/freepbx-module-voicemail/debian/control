@@ -1,0 +1,14 @@
+Source: freepbx-module-voicemail
+Section: comm
+Priority: optional
+Maintainer: Diego Iastrubni <diego.iastrubni@xorcom.com>
+Uploaders: Tzafrir Cohen <tzafrir.cohen@xorcom.com>
+Build-Depends: debhelper (>= 4.0.0), dpatch
+Standards-Version: 3.7.2
+
+Package: freepbx-module-voicemail
+Architecture: all
+Depends:  freepbx-common
+Description: FreePBX module: Voicemail
+ This is a freepbx-module, see information on 
+ Wed, 14 Feb 2007 10:33:16 +0200

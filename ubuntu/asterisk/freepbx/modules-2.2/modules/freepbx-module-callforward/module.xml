@@ -1,0 +1,12 @@
+<module>
+	<rawname>callforward</rawname>
+	<name>Call Forward</name>
+	<version>1.1</version>
+	<changelog>*1.1* First release for 2.2
+	</changelog>
+	<type>setup</type>
+	<category>Provides a Feature Code</category>
+	<location>release//2.2/callforward-1.0.2.tgz</location>
+	<info>http://aussievoip.com.au/wiki/freePBX-Features</info>
+	<md5sum>504e013e078300db4b0029964eccb1e0</md5sum>
+</module>

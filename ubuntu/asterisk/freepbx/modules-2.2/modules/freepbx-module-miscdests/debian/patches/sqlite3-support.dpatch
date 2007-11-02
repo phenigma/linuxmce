@@ -1,0 +1,41 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## sqlite3-support.dpatch by Diego Iastrubni<diego.iastrubni@xorcom.com>
+##
+## DP: SQLite3 support. See http://www.freepbx.org/trac/ticket/1773
+
+@DPATCH@
+diff -urNad freepbx-module-miscdests~/install.php freepbx-module-miscdests/install.php
+--- freepbx-module-miscdests~/install.php	1970-01-01 02:00:00.000000000 +0200
++++ freepbx-module-miscdests/install.php	2007-02-14 12:54:10.000000000 +0200
+@@ -0,0 +1,19 @@
++<?php
++
++global $db;
++global $amp_conf;
++
++$autoincrement = (($amp_conf["AMPDBENGINE"] == "sqlite") || ($amp_conf["AMPDBENGINE"] == "sqlite3")) ? "AUTOINCREMENT":"AUTO_INCREMENT";
++
++$sql = "CREATE TABLE IF NOT EXISTS miscdests (
++	id INTEGER NOT NULL PRIMARY KEY $autoincrement,
++	description VARCHAR( 100 ) NOT NULL ,
++	destdial VARCHAR( 100 ) NOT NULL
++)";
++
++$check = $db->query($sql);
++if(DB::IsError($check)) {
++	die("Can not create miscdests table\n");
++}
++
++?>
+diff -urNad freepbx-module-miscdests~/install.sql freepbx-module-miscdests/install.sql
+--- freepbx-module-miscdests~/install.sql	2006-05-31 13:16:44.000000000 +0300
++++ freepbx-module-miscdests/install.sql	1970-01-01 02:00:00.000000000 +0200
+@@ -1 +0,0 @@
+-CREATE TABLE IF NOT EXISTS `miscdests` ( `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY , `description` VARCHAR( 100 ) NOT NULL , `destdial` VARCHAR( 100 ) NOT NULL ) TYPE = MYISAM ;
+diff -urNad freepbx-module-miscdests~/uninstall.sql freepbx-module-miscdests/uninstall.sql
+--- freepbx-module-miscdests~/uninstall.sql	2006-05-31 13:16:44.000000000 +0300
++++ freepbx-module-miscdests/uninstall.sql	2007-02-14 12:54:15.000000000 +0200
+@@ -1 +1 @@
+-DROP TABLE IF NOT EXISTS `miscdests`;
+\ No newline at end of file
++DROP TABLE IF EXISTS miscdests;

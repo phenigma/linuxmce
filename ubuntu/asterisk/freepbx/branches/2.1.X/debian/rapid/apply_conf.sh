@@ -1,0 +1,97 @@
+#!/bin/sh
+
+# this file is a fork of the original AMP script
+# the original script is GPL, as AMP itself.
+#
+
+# changes:
+#  30-4-2006:  When writein the email information, try to find an address "by force"
+#   8-3-2006:  This script not modifies /etc/asterisk/manager.d/freepbx.conf instead of gloabal config file
+#              - Diego Iastrubni <diego.iastrubni@xorcom.com>
+#  1-12-2005:  dialparties.agi is no longer patched
+#              patch the hostname for the DB in cdr_mysql.conf
+#              removed the patching of retrieve_*.pl
+#              - Diego Iastrubni <diego.iastrubni@xorcom.com>
+#  22-11-2005: copyrights...
+#              I see that along the way I added again the modification of the perl scripts...
+#              - Diego Iastrubni <diego.iastrubni@xorcom.com>
+#  27-9-2005:  fixed path for op-panel (again, was on web-root, now on /etc)
+#              sanity checks (maybe op-panel is not installed at all?)
+#              - Diego Iastrubni <diego.iastrubni@xorcom.com>
+#   5-9-2005:  more verbose printings
+#              removed the modification of the perl scripts, as they read the config them selves
+#              - Diego Iastrubni <diego.iastrubni@xorcom.com>
+
+if [ "$1" == "-h" ] ; then
+	echo "Usage: "
+	echo "   $0 [config]"
+	echo
+	echo "If config file is not specified, default is /etc/amportal.conf"
+	echo
+	exit
+fi
+
+if [ -n "$1" ] ; then
+	AMPCONFIG=$1
+else
+	AMPCONFIG=/etc/amportal.conf
+fi
+
+if [ ! -e $AMPCONFIG ] ; then
+	echo "Cannot find $AMPCONFIG"
+	exit
+fi
+
+# include config file
+echo " - Reading $AMPCONFIG"
+source $AMPCONFIG
+
+
+echo " - Updating configuration..."
+
+echo -n " - Updating /etc/asterisk/cdr_mysql.conf"
+sed -r -i "s/user=[a-zA-Z0-9]*/user=$AMPDBUSER/" /etc/asterisk/cdr_mysql.conf
+sed -r -i "s/password=[a-zA-Z0-9]*/password=$AMPDBPASS/" /etc/asterisk/cdr_mysql.conf
+sed -r -i "s/hostname=[a-zA-Z0-9]*/hostname=$AMPDBHOST/" /etc/asterisk/cdr_mysql.conf
+echo "."
+
+echo -n " - Updating /etc/asterisk/manager.d/freepbx.conf"
+sed -r -i "s|\[[a-zA-Z0-9]+\]|[$AMPMGRUSER]|"					/etc/asterisk/manager.d/freepbx.conf
+sed -r -i "s|[ \t]*\secret[ \t]*=[ \t]*[a-zA-Z0-9_]*|secret = $AMPMGRPASS|"	/etc/asterisk/manager.d/freepbx.conf
+
+echo "."
+
+# if no address supplied in amportal.conf, get it from eth0. We must have a valid IP
+# for sending emails no?
+if [ "x$AMPWEBADDRESS" == "x" ]; then
+    WEBADDRESS=`/sbin/ifconfig eth0 | grep 'inet addr:' | sed 's/addr://' | awk '{ print $2 }'`
+else
+    WEBADDRESS=$AMPWEBADDRESS
+fi
+echo " - Updating /etc/asterisk/vm_email.inc (may require manual check)..."
+sed -i -e "s|http://[\\w\\d]*/|http://$WEBADDRESS/|g" /etc/asterisk/vm_email.inc
+
+
+
+# ignore FOP configuration for now
+if [ -e /etc/op-panel/op_server.cfg_ ] ; then
+	echo -n " - Updating op-panel"
+	sed -r -i "s/manager_user=[a-zA-Z0-9]*/manager_user=$AMPMGRUSER/"           /etc/op-panel/op_server.cfg
+	sed -r -i "s/manager_secret=[a-zA-Z0-9]*/manager_secret=$AMPMGRPASS/"       /etc/op-panel/op_server.cfg
+	sed -r -i "s/web_hostname=[a-zA-Z0-9_\-\.]*/web_hostname=$AMPWEBADDRESS/"   /etc/op-panel/op_server.cfg
+	sed -r -i "s/security_code=[a-zA-Z0-9]*/security_code=$FOPPASSWORD/"        /etc/op-panel/op_server.cfg
+	sed -r -i "s!flash_dir=[a-zA-Z0-9_\-\.\/\\]*!flash_dir=$AMPWEBROOT\/panel!" /etc/op-panel/op_server.cfg
+	sed -r -i "s!web_hostname=[a-zA-Z0-9\.]*!web_hostname=$AMPWEBADDRESS!"      /etc/op-panel/op_server.cfg
+	sed -r -i "s!web_hostname=[a-zA-Z0-9\.]*!web_hostname=$AMPWEBADDRESS!"      /etc/op-panel/op_server.cfg
+	echo "."
+	
+	# we might find situations in which there is no file operator panel installed
+	if [ -x /etc/init.d/amportal-panel ] ; then
+        	/etc/init.d/amportal-panel reload
+	fi
+else
+	echo " - Ignoring op-panel configuration"
+fi
+/etc/init.d/asterisk reload
+
+echo "Done"

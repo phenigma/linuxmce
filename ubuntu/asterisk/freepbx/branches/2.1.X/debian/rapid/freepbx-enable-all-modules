@@ -1,0 +1,13 @@
+#! /bin/sh
+
+#
+# small script which enables all the available 
+# freepbx-modules
+#
+# Diego Iastrubni <diego.iastrubni@xorcom.com> - 2006
+# GPL
+
+DIR=`dirname $0`
+
+$DIR/freepbx-module-status enable core
+COLUMNS=180 dpkg -l | grep freepbx-module- | awk '{ print $2; }' | sed 's/^freepbx-module-//' | xargs -l $DIR/freepbx-module-status enable
