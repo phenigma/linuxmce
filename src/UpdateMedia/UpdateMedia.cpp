@@ -240,11 +240,17 @@ int UpdateMedia::ReadDirectory(string sDirectory)
 {
 	if( sDirectory.size()==0 || StringUtils::StartsWith(sDirectory,"/home/public/data/samples") )
 		return 0;
+
 	// Strip any trailing /
-	if( sDirectory[ sDirectory.size()-1 ] == '/' )
-		sDirectory = sDirectory.substr(0,sDirectory.size()-1);
+	sDirectory = FileUtils::ExcludeTrailingSlash(sDirectory);
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "UpdateMedia::ReadDirectory %s", sDirectory.c_str());
+
+	if(IsLockedFolder(sDirectory))
+	{
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Skipped locked folder: %s", sDirectory.c_str());
+		return 0;
+	}
 
 	if(!ScanFiles(sDirectory))
 		return 0;
@@ -768,4 +774,9 @@ bool UpdateMedia::AnyReasonToSkip(string sDirectory, string sFile)
 	}
 		
 	return false;
+}
+
+bool UpdateMedia::IsLockedFolder(string sDirectory)
+{
+	return FileUtils::FileExists(sDirectory + ".folderlock");
 }
