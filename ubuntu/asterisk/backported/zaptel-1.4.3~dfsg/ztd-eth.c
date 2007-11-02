@@ -94,7 +94,11 @@ static int ztdeth_rcv(struct sk_buff *skb, struct net_device *dev, struct packet
 {
 	struct zt_span *span;
 	struct ztdeth_header *zh;
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,22)
+	zh = (struct ztdeth_header *)skb->network_header;
+#else
 	zh = (struct ztdeth_header *)skb->nh.raw;
+#endif
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,9)
 	span = ztdeth_getspan(eth_hdr(skb)->h_source, zh->subaddr);
 #else
@@ -173,7 +177,11 @@ static int ztdeth_transmit(void *pvt, unsigned char *msg, int msglen)
 
 			/* Setup protocol and such */
 			skb->protocol = __constant_htons(ETH_P_ZTDETH);
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,22)
+			skb->network_header = skb->data;
+#else
 			skb->nh.raw = skb->data;
+#endif
 			skb->dev = dev;
 			if (dev->hard_header)
 				dev->hard_header(skb, dev, ETH_P_ZTDETH, addr, dev->dev_addr, skb->len);
