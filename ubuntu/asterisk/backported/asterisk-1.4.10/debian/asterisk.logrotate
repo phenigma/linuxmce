@@ -1,0 +1,9 @@
+/var/log/asterisk/cdr-custom/Master.csv /var/log/asterisk/debug /var/log/asterisk/event_log /var/log/asterisk/messages {
+        weekly
+        missingok
+        rotate 4
+        sharedscripts
+        postrotate
+                /usr/sbin/invoke-rc.d asterisk logger-reload
+        endscript
+}

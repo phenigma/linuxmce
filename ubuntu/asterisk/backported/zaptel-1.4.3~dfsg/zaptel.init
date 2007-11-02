@@ -1,0 +1,271 @@
+#!/bin/sh
+#
+# zaptel        This shell script takes care of loading and unloading \
+#               Zapata Telephony interfaces
+# chkconfig: 2345 9 92
+# description: The zapata telephony drivers allow you to use your linux \
+# computer to accept incoming data and voice interfaces
+#
+# config: /etc/sysconfig/zaptel
+
+initdir=/etc/init.d
+
+ZTCFG=/sbin/ztcfg
+
+#
+# Determine which kind of configuration we're using
+#
+system=redhat  # assume redhat
+if [ -f /etc/debian_version ]; then
+    system=debian
+fi
+
+# Source function library.
+if [ $system = redhat ]; then
+    . $initdir/functions || exit 0
+fi
+
+# Source zaptel configuration.
+if [ $system = debian ]; then
+    [ -f /etc/default/zaptel ] && . /etc/default/zaptel
+	LOCKFILE=/var/lock/zaptel
+elif [ $system = redhat ]; then
+    [ -f /etc/sysconfig/zaptel ] && . /etc/sysconfig/zaptel
+	LOCKFILE=/var/lock/subsys/zaptel
+fi
+
+if [ -z "${MODULES}" ]; then 
+	# Populate defaults if not present
+	MODULES="tor2 wct4xxp wct1xxp wcte11xp wcfxo wctdm wctdm24xxp" 
+fi
+
+# recursively unload a module and its dependencies, if possible.
+# where's modprobe -r when you need it?
+# inputs: module to unload.
+# returns: the result from 
+unload_module() {
+	module="$1"
+	line=`lsmod 2>/dev/null | grep "^$1 "`
+	if [ "$line" = '' ]; then return; fi # module was not loaded
+
+	set -- $line
+	# $1: the original module, $2: size, $3: refcount, $4: deps list
+	mods=`echo $4 | tr , ' '`
+	for mod in $mods; do
+		# run in a subshell, so it won't step over our vars:
+		(unload_module $mod) 
+		# TODO: the following is probably the error handling we want:
+		# if [ $? != 0 ]; then return 1; fi
+	done
+	rmmod $module
+}
+
+# Wait for Astribank to initialize registers:
+wait_for_xpp() {
+	if [ -d /proc/xpp ]
+	then
+		# reading from waitfor_xpds only returns when the device
+		# has finished initilizing its regiters and is available.
+		cat /proc/xpp/XBUS-*/waitfor_xpds 2>/dev/null >/dev/null  || true
+	fi
+}
+
+# Register to zaptel Astribank spans that were not autoomatically registered
+# (useful when you have more than one Astribank)
+zap_reg_xpp() {
+	if [ ! -d /proc/xpp ]; then return; fi
+	
+	# Get a list of connected Astribank devices, sorted by the name of 
+	# the USB connector. That order is rather arbitrary, but will not 
+	# change without changes to the cabling.
+	xbusses=`sort -k 2 /proc/xpp/xbuses | awk -F: '/STATUS=connected/ {print $1}'`
+
+	# get a list of XPDs that were not yet registered as zaptel spans.
+	# this will be the case if you set the parameter zap_autoreg=0 to
+	# the module xpp
+	# Append /dev/null to provide a valid file name in case of an empty pattern.
+	xbusses_pattern=`echo $xbusses| sed -e 's|XBUS-[0-9]*|/proc/xpp/&/XPD-*/zt_registration|g'`' /dev/null'
+	xpds_to_register=`grep -l 0 $xbusses_pattern 2>/dev/null` || true
+	for file in $xpds_to_register; do
+		echo 1 >$file
+	done
+}
+
+# If the system has an Astribank, select the right one as the sync source.
+# TODO: replace the sryptic awk code with 'xpp_sync auto' once it is in.
+fix_asterisbank_sync() {
+	# do nothing if module not present
+	if [ ! -d /proc/xpp ]; then return; fi
+	
+	#if ! grep -q '^HOST' /proc/xpp/sync 2>/dev/null; then return; fi
+
+	case "$XPP_SYNC" in
+	n*|N*) return;;
+	host|HOST) sync_value="HOST";;
+	[0-9]*)sync_value="$XPP_SYNC";;
+	*) 
+		# find the number of the first bus, and sync from it:
+		fxo_pat=`awk -F: '/STATUS=connected/{print $1}' /proc/xpp/xbuses | sed -e 's|.*|/proc/xpp/&/*/fxo_info|'`
+		# find the first FXO unit, and set it as the sync master
+		bus=`ls -1 $fxo_pat 2> /dev/null | head -n1 | cut -d- -f2 | cut -d/ -f1` 
+		
+		if [ "$bus" = '' ]; then
+			# no device with FXO found. Just get the first one
+			bus=`awk -F: '/STATUS=connected/{print $1}' /proc/xpp/xbuses | head -n 1 | cut -d- -f2`
+		fi
+
+		# do nothing if there is no bus:
+		case "$bus" in [0-9]*):;; *) return;; esac
+		sync_value="SYNC=$bus"
+		;;
+	esac
+	# the built-in echo of bash fails to print a proper error on failure
+	if ! /bin/echo "$sync_value" >/proc/xpp/sync
+	then 
+		echo >&2 "Updating XPP sync source failed (tried \"$sync_value\", XPP_SYNC='$XPP_SYNC')"
+	fi
+}
+
+# Check that telephony is up.
+[ "${TELEPHONY}" = "yes" ] || exit 0
+
+[ -f $ZTCFG ] || exit 0
+
+[ -f /etc/zaptel.conf ] || exit 0
+
+if [ "${DEBUG}" = "yes" ]; then
+	ARGS="debug=1"
+fi
+
+RETVAL=0
+
+# See how we were called.
+case "$1" in
+  start)
+	# Load drivers
+	rmmod wcusb >& /dev/null
+	rmmod wcfxsusb >& /dev/null
+	rmmod audio >& /dev/null
+	if [ $system = debian ]; then
+	    echo -n "Loading zaptel framework: " 
+	    modprobe zaptel ${ARGS} >& /dev/null && echo -n "done"
+	    echo "."
+	elif [ $system = redhat ]; then
+	    action "Loading zaptel framework: " modprobe zaptel ${ARGS}
+	fi
+	echo -n "Waiting for zap to come online..."
+	TMOUT=10 # max secs to wait
+	while [ ! -d /dev/zap ] ; do
+ 		sleep 1
+		TMOUT=`expr $TMOUT - 1`
+		if [ $TMOUT -eq 0 ] ; then
+			echo "Error: missing /dev/zap!"
+			exit 1
+		fi
+	done
+	echo "OK"
+	echo -n "Loading zaptel hardware modules:"
+	for x in $MODULES; do 
+		eval localARGS="\$${x}_ARGS"
+		if modprobe ${x} ${ARGS} ${localARGS} >& /dev/null; then
+			echo -n " $x"
+			echo "."
+		fi
+	done
+	sleep 3 # TODO: remove it
+	
+	wait_for_xpp
+	zap_reg_xpp
+	fix_asterisbank_sync # can actually be run after ztcfg
+	
+	if [ ! -e /proc/zaptel/1 ]; then
+		echo "No functioning zap hardware found in /proc/zaptel, loading ztdummy"
+		modprobe ztdummy >& /dev/null
+	fi
+	if [ $system = debian ]; then
+	    echo -n "Running ztcfg: " 
+	    $ZTCFG >& /dev/null && echo -n "done"
+	    echo "."
+	elif [ $system = redhat ]; then
+	    action "Running ztcfg: " $ZTCFG
+	fi
+	RETVAL=$?
+
+	[ $RETVAL -eq 0 ] && touch $LOCKFILE
+	
+	# check for HPEC licenses
+	for f in /var/lib/digium/licenses/HPEC*.lic; do
+		if [ -f ${f} ]; then
+			haveHPEC = 1
+		fi
+	done
+
+	# HPEC license found
+	if [ -n "${haveHPEC}" ]; then
+		# zaphpec_enable not installed in /usr/sbin
+		if [ ! -f /usr/sbin/zaphpec_enable ]; then
+			echo -n "Running zaphpec_enable: Failed"
+			echo -n "."
+			echo "  The zaphpec_enable binary is not installed in /usr/sbin."
+		else
+			# zaphpec_enable not set executable
+			if [ ! -x /usr/sbin/zaphpec_enable ]; then
+				echo -n "Running zaphpec_enable: Failed"
+				echo -n "."
+				echo "  /usr/sbin/zaphpec_enable is not set as executable."
+			else
+				# zaphpec_enable properly installed
+				if [ $system = debian ]; then
+					echo -n "Running zaphpec_enable: "
+					/usr/sbin/zaphpec_enable >& /dev/null
+				elif [ $system = redhat ]; then
+					action "Running zaphpec_enable: " /usr/sbin/zaphpec_enable
+				fi
+				if [ $? = 0 ]; then
+					echo -n "done"
+					echo "."
+				else
+					echo -n "Failed"
+					echo -n "."
+					echo "  This can be caused if you had already run zaphpec_enable, or if your HPEC license is no longer valid."
+				fi
+			fi
+		fi
+	fi
+	;;
+  stop)
+	# Unload drivers
+	$ZTCFG -s
+	echo -n "Unloading zaptel hardware drivers:"
+  	unload_module zaptel
+	RETVAL=$?
+	echo "."
+
+	[ $RETVAL -eq 0 ] && rm -f $LOCKFILE
+	;;
+  unload)
+	# We don't have zaptel helper, so let's not replicate too much code:
+	# allow others to use the unload command.
+	unload_module zaptel
+	;;
+  restart)
+	$0 stop
+	$0 start
+	;;
+  reload)
+	if [ $system = debian ]; then
+	    echo -n "Reloading ztcfg: "
+	    $ZTCFG >& /dev/null && echo -n "done"
+	    echo "."
+	elif [ $system = redhat ]; then
+	    action "Reloading ztcfg: " $ZTCFG
+	fi
+	RETVAL=$?
+	;;
+  *)
+	echo "Usage: zaptel {start|stop|restart|reload}"
+	exit 1
+esac
+
+exit $RETVAL
+

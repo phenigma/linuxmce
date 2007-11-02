@@ -1,0 +1,11 @@
+loadzone=nl
+defaultzone=nl
+
+alaw=1,3
+
+span=1,1,3,ccs,ami
+span=2,2,3,ccs,ami
+
+bchan=1,3
+dchan=2,4
+

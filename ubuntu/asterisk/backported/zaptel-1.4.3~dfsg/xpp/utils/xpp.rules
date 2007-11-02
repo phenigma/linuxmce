@@ -1,0 +1,8 @@
+BUS!="usb", ACTION!="add", GOTO="xpp_usb_add_end"
+
+# Load firmware into the Xorcom Astribank device:
+SYSFS{idVendor}=="e4e4", SYSFS{idProduct}=="11[345][01]", \
+	RUN+="/usr/share/zaptel/xpp_fxloader udev $sysfs{idVendor}/$sysfs{idProduct}/$sysfs{bcdDevice}"
+
+LABEL="xpp_usb_add_end"
+

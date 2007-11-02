@@ -1,0 +1,79 @@
+Tue May  1 2007 Oron Peled <oron@actcom.co.il> - xpp.r3898
+  * Tested with zaptel-1.2.17.1
+  * Add D-Channel TX, RX and BAD frames count in /proc/xpp/XBUS-*/XPD-*/bri_info
+  * Adjust output of xpp_sync script. Pad for 8 port BRI.
+  * Added a debugging module parport_debug (not compiled by default).
+  * Added an optional patch to zaptel:
+      - compiles only if ZAPTEL_SYNC_TICK is defined
+      - Allow interested driver to register for "sync" notification.
+      - Does not affect drivers that do not use this feature.
+  * Added external synchronization feature:
+      - Only if ZAPTEL_SYNC_TICK feature is compiled in
+      - Than XPP may be synchronized by another card (e.g: an Astribank
+        with FXS can be synchronized by a Digium PRI card).
+      - May be enabled/disabled in runtime via the 'sync_tick_active' module
+        parameter to the xpp.ko module.
+  * Fixed a potential bug in D-Channel hexdump printing.
+  * New visual indications in BRI leds:
+      - Constant ON RED/GREEN: Shows the port type -- NT/TE.
+      - Very fast "double blink": Layer1 work, no D-Channel yet. 
+      - Steady blinking (1/2 sec): D-Channel trafic detected. 
+  * xpp_fxloader moved to /usr/share/zaptel .
+  * adj_clock removed: never really used.
+
+Thu, 19 Apr 2007 Tzafrir Cohen <tzafrir.cohen@xorcom.com> - xpp.r3814
+  * No need for extra patch beyond bristuff for Astribank BRI.
+  * Protocol no. 2.6: syncing improvements.
+  * Default poll intervals changed: 500 in BRI and FXO.
+  * Allow changing FXS polls interval at run time.
+  * BRI initalization fixed on SUSE (path to logger).
+  * When using the SUSE zaptel rpm package, set modules_var=ZAPTEL_MODULES in
+    /etc/sysconfig/zaptel .
+  * zt_registration not verbose by default.
+  * xpp_sync warns if FXO is sync slave.
+  * Extra PCM metrics data in /proc/xpp/XBUS-NN/summary .
+  * Extra USB metrics data in /proc/xpp/XBUS-NN/usb_info .
+
+Wed, 11 Apr 2007 Tzafrir Cohen <tzafrir.cohen@xorcom.com> - xpp.r3768
+  * Removed "go away" notice and solved sync of a restarted device.
+  * Resetting firmware: rmmod xpp_usb; /etc/hotplug/usb/xpp_fxloader reset
+  * Perl modules use strict.
+  * genzaptelconf -F will not generate zapata configuration for NT spans.
+  * genzaptelconf uses perl utilities to start.
+  * Initial support for 2nd XHFC (BRI) chip.
+
+Sun,  1 Apr 2007 Tzafrir Cohen <tzafrir.cohen@xorcom.com> - xpp.r3712
+  * New protocol version (2.5).
+  * Luckily firmware unloading now works.
+  * Solves "multiple ticks" bug. No need for pcm_tasklets workaround.
+  * genzaptelconf -z will generate zapscan.conf for the asterisk-gui.
+  * Fixed hardware detection for the BRI.
+
+Wed, 14 Mar 2007 Tzafrir Cohen <tzafrir.cohen@xorcom.com> - xpp.r3608
+  * Initial verssion of firmware unloading.
+  * PCM bugfixes.
+  * Defaults of kernel parameters are now part of parameter description.
+  * Removed zaptel sync code for now.
+  * genzaptelconf will detect vzaphfc.
+  * genzaptelconf defaults to ptmp for BRI.
+  * Documentation updates.
+
+Mon, 26 Feb 2007 Tzafrir Cohen <tzafrir.cohen@xorcom.com> - xpp.r3517
+  * genzaptelconf now uses ls for FXS lines by default .
+  * World-readable kernel parameters.
+
+Thu, 22 Feb 2007 Tzafrir Cohen <tzafrir.cohen@xorcom.com> - xpp.r3440
+  * /proc/xpp/sync: 'm 0' is, while depracated, can still be used.
+  * New firmware with PCM improvements.
+  * Improvements to the xpp helper scripts.
+  * Bug fixes.
+  * zaptel/perl is now installed by xpp/utils/Makefile.
+
+Wed, 14 Feb 2007 Tzafrir Cohen <tzafrir.cohen@xorcom.com> - xpp.r3365
+  * Kewlstart support on the FXS ports (already existed on the FXO ports).
+  * The format of /proc/xpp/sync has changed (still self-documented).
+  * Better notification of FXS lines that were off-hook on registration time.
+  * Parallel polling of Astribanks (faster startup when there are multiple
+    devices)
+  * zconf: scripts and perl modules to automate the work with Zaptel and the
+    Astribank. Current scripts: zt_registration, xpp_sync.

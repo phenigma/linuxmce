@@ -1,0 +1,8 @@
+- onchip dtmf
+- E channel support for full debug
+
+
+t3 (5ms max)
+
+t4 (500ms) layer 1 down/up
+

@@ -1,0 +1,20 @@
+# Uncomment the appropriate alias line, and change 'torisa' to the
+# driver for your card
+
+# DevFS
+#alias /dev/zap torisa
+
+# Non-DevFS
+#alias char-major-196 torisa
+
+options torisa base=0xd0000
+
+post-install wcfxs	ztcfg
+post-install wcfxsusb	ztcfg
+post-install torisa	ztcfg
+post-install tor2	ztcfg
+post-install wcfxo	ztcfg
+post-install wct1xxp	ztcfg
+post-install zaphfc	ztcfg
+post-install zaphfc-florz	ztcfg
+post-install qozap	ztcfg

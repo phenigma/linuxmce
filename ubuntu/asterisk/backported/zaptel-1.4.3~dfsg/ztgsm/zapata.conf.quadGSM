@@ -1,0 +1,36 @@
+[channels]
+txgain = -10.0
+rxgain = 0.0
+
+signalling = gsm
+context = from-gsm
+
+;group=1
+
+; phone number for SIM card in slot A
+;exten=016012345671
+; PIN for SIM card in slot A
+;pin=1234
+
+;channel => 1
+
+; phone number for SIM card in slot B
+;exten=016012345672
+; PIN for SIM card in slot B
+;pin=1234
+
+;channel => 3
+
+; phone number for SIM card in slot C
+;exten=016012345673
+; PIN for SIM card in slot C
+;pin=1234
+
+;channel => 5
+
+; phone number for SIM card in slot D
+;exten=016012345674
+; PIN for SIM card in slot D
+;pin=1234
+
+;channel => 7

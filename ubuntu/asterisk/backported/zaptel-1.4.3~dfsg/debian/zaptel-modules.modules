@@ -1,0 +1,11 @@
+options torisa base=0xd0000
+alias char-major-196 torisa
+post-install wcfxs /sbin/ztcfg
+post-install wcfxsusb /sbin/ztcfg
+post-install torisa /sbin/ztcfg
+post-install tor2 /sbin/ztcfg
+post-install wcfxo /sbin/ztcfg
+post-install wct1xxp /sbin/ztcfg
+post-install qozap /sbin/ztcfg
+post-install zaphfc /sbin/ztcfg
+post-install zaphfc-florz /sbin/ztcfg

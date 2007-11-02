@@ -1,0 +1,574 @@
+This file documents the Zaptel drivers for the Xorcom Astribank8 Channel Bank.
+The drivers reside in a separate subdirectory, xpp/ .
+
+
+Building and Installation:
+"""""""""""""""""""""""""
+Building and installation is basically like the normal procedure of 
+installing Zaptel with some additions.
+
+Building drivers:
+""""""""""""""""
+Unlike earlier versions, the Astribank driver (xpp) will now build 
+automatically. To build the drivers follow the usual Zaptel
+documentation. E.g: run:
+
+  make
+
+in the top-level directory.
+
+Next you will need to build the user-space tools needed for loading the
+firmware and initialization files for the Astribank:
+
+  make -C xpp/utils
+  
+In order to build the user space utilities, you will need the libusb-dev
+package on Debian (and derivatives like ubuntu) or libusb-devel on RedHat
+(and derivatives like Centox/Trixbox).
+  
+
+INSTALLATION:
+""""""""""""
+
+apart from the standard 'make install' in the zaptel directory, 
+run:
+
+  make -C xpp/utils install
+
+Though this should be done automatically on zaptel >= 1.4.1 .
+
+Also consider editing xpp/utils/Makefile and removing the commant before
+the line that begins with PERLLIBDIR. This will install some perl modules 
+and utilities that will help you with the usage of the Astribank.
+
+Alternatively, do the following manually:
+
+All firmware files should be copied to a new directory:
+  /usr/share/zaptel/
+
+The xpp_fxloader and xpp_fxloader.usermap should be copied to:
+ /etc/hotplug/usb/
+
+Run:
+
+  /usr/share/zaptel/xpp_fxloader load
+
+to load firmware.
+
+LEDs Indication:
+"""""""""""""""
+The Astribank has 4 global indication leds and one or two per-port leds.
+In the Astribank 16 and in the Astribank BRI (USB product IDs 113x and 
+114x, respectively) the indication leds will normally be in the side.
+
+In the 1U models (USB product IDs 115x) the indication leds will normally
+be the first (leftmost) red leds of the device. Don't mistake them for 
+per-port leds.
+
+The first led is the "Power" led. It is lit if the unit gets power.
+The second led is the "Active" led, which is lit when there is there at 
+least one "active" (in a call / off-hook, though the meaning of this is 
+different in BRI).
+The last led is called "Hardware OK", but is actually only lit if the 
+hardware is not OK.
+
+The third led is the "Sync" led. If it blinks, the device is in sync 
+with the driver on the computer. If the device is the synchronization 
+source for all the Astribank devices it will blink a quick single blink.
+If the device gets synchronization from the driver, it will blink in a 
+more steady blink.
+
+"Double blink" indicates that the unit has an FXO module, and still is
+getting synchronization from the computer, and does not provide 
+synchronization.
+
+The per-port green led on analog (both FXS and FXO) indicate that the
+port is off-hook.
+
+On the BRI, the green led blinks when the port is TE and has layer-1
+connectivity to the other party, and the orange led blinks when the unit
+is in NT mode and has layer-1 connectivity to the other party.
+
+
+DEVICE STARTUP:
+""""""""""""""
+
+Terminology:
+"""""""""""
+Some technical terms that are used throughout the document and in the
+driver / zaptel . Only used in the technical parts.
+
+span:
+Zaptel breaks the channels it knows bout to logical units called
+"spans". A port in a E1/T1/ISDN card is usually a span. So is a complete
+analog card. You can see the list of spans as the list of files under
+/proc/zaptel or the list in zttool.
+
+XBUS:
+A funny way to call an Astribank device.
+
+XPD:
+This is basically a logical unit of the Astribank. It will be registered to
+Zaptel as a single span. This will basically be 8 analog channels.
+
+
+Loading Firmware:
+""""""""""""""""
+Normally this is done using the script /usr/share/zaptel/xpp_fxloader .
+If it works fine, you don't need to bother reading this section. 
+Once the firmware is loaded the USB ID of the Astribank changes to e4e4
+11x2, and the driver can pick it up. You'll also see the top led lit.
+
+First and foremost: the simplest and most useful tool to debug problems
+here is lsusb. The output of lsusb should show exactly if the device is
+connected and if its firmware is loaded. 
+
+The firmware files are named *.hex. The are in the Intel hex format 
+(read: plain text, but not readable) that is copied at install time from 
+xpp/utils to /usr/share/zaptel .
+
+The Astribank needs a firmware loaded into it. Without the firmware, 
+the device will appear in lsusb with vendor ID e4e4 and product ID 1130.
+The firmware is loaded in two stages. In the first stage we load the
+"USB" firmware using the program fxload. After the first stage the USB
+ID is e4e4 1131. In the second stage we load the "FPGA" firmware.
+
+The first is done using the the program fxload. To load it manually, use
+the command:
+
+  fxload -t fx2 -D /proc/bus/usb/MMM/NNN -I /usr/share/zaptel/USB_1130.hex
+
+fxload is standard program that is typically part of the package 'fxload' 
+or 'hotplug-utils' . /proc/bus/usb is the mount point of the USB
+file-system (usbfs). MMM is the first number (bus number) and NNN is the
+second number (device number) you see for the device in lsusb, with full
+3 digits. If the load is successful, the device disconnects and
+reconnects with USB product ID 1131 (and a new device number).
+
+The second-stage loader is done using the program fpga_load, which is
+built in the directory xpp/utils and installed to /usr/sbin/fpga_load .
+Its syntax is based on fxload. To load with it manually, use:
+  
+  fpga_load -D /proc/bus/usb/MMM/NNN -I /usr/share/zaptel/FPGA_FXS.hex
+
+Note that as the device has reconnected, it now has a new device
+number. So you need to re-check the value of NNN with lsusb. Typically
+this will be the old value + 1.
+
+
+Firmware Loading with Hotplug:
+"""""""""""""""""""""""""""""
+The Hotplug framework was popular for hotplugging and usually also 
+autoloading drivers. If it is used on your system, you'll see 
+/etc/hotplug with many files under it. Hotplug will automatically load
+most relevant USB and PCI kernel modules by the relevant USB and PCI
+IDs. Again: if the framework is in place and the proper configuration
+files are in place, the firmware should be loaded automatically.
+
+In order to get hotplug to autoload the firmware into the Astribank, 
+the configuration file xpp_fxloader.usermap and the script xpp_fxloader 
+should be copied into /etc/hotplug/usb/ . This is done by 'make -C
+xpp/utils install' .
+
+xpp_fxloader.usermap includes a map of USB IDs and the command to run 
+when they are encountered. It instructs hotplug to run the script 
+xpp_fxloader from that directory. This is done by 'make -C
+xpp/utils install' .
+
+When xpp_fxloader is run without any parameters it assumes that it was
+run by the hotplug scripts. It will then check if the even is an "add"
+event (and not a "remove" event), and if so, install the required
+firmware file. It will be called twice, as after the load of the USB
+firmware the device will reenumerate itself and thus "unplug" and
+"replug" to load the FPGA firmware.
+
+
+Firmware Loading with UDEV:
+""""""""""""""""""""""""""
+The UDEV framework has replaced Hotplug in most recent systems. If you
+have a recent 2.6 system with no Hotplug and files under /etc/udev,
+chances are you ude udev. udev does quite a few nice things.
+Again: if the framework is in place and the proper configuration
+files are in place, the firmware should be loaded automatically.
+
+In order to get hotplug to autoload the firmware into the Astribank, 
+the configuration file xpp.rules should be copied into /etc/udev/rules.d 
+and the script xpp_fxloader should be copied into /etc/hotplug/usb/ . 
+This is done by 'make -C xpp/utils install' .
+
+xpp.rules instructs udevd to run xpp_fxloader with the option udev and
+the USB ID when an Astribank is plugged and needs loading firmware.
+When xpp_fxloader is run with the option udev it assumes that it was
+run by udevd scripts. It will then install the required firmware file. 
+It will be called twice, as after the load of the USB firmware the
+device will reenumerate itself and thus "unplug" and "replug" to load 
+the FPGA firmware.
+
+
+Firmware Resetting (Experimental):
+"""""""""""""""""""""""""""""""""
+Newer versions of the USB firmware can now be reset using 'fpga_load -r'.
+This will only work when the device is not used by the driver, so you may 
+need to 'rmmod xpp_usb' in order to reset the firmware.
+
+Also try:  
+
+  rmmod xpp_usb; /usr/share/zaptel/xpp_fxloader reset
+  # if asterisk was running: you may need to stop/restart it now. 
+  # if there are some "disconnected" spans in /proc/xpp/xbuses
+  # wait a while, until you see the 1152 IDs again, and then:
+  /etc/init.d/zaptel start
+  # and start/restrart asterisk.
+
+
+Loading The Modules:
+"""""""""""""""""""
+Here is what should happen:
+In short: you should plug it or have it plugged at boot time, and all
+the modules should load. You will see xpp_usb , xpd_fxs and possibly
+xpd_fxo in the modules list (the output of lsmod).
+
+After the module xpp is loaded, you'll also be able to see the directory
+/proc/xpp . For any Astribank discovered there you will see a directory
+/prc/xpp/XBUS-n (where n is a number: typically 0). Once a unit have
+been discovered you'll see subdirectories: /proc/xpp/XBUS-n/XPD-m (where
+m may be another number: 0, 1 ,etc).
+
+Now to the ugly details:
+
+The driver of the Astribank is composed of several modules: xpp is the
+basic one, that contains the functionality to connect to Zaptel and other
+common functions. xpd_fxs is the module for controlling FXS spans.
+xpd_fxo is the module for controlling FXO spans. xpd_usb is the module
+that holds the functionality needed to connect to the USB bus.
+
+All modules depend on xpp, and modprobing them will install xpp as well.
+However the xpd_* modules are only installed on-demand: no need to
+install xpd_fxo if you only have FXS Astribank.
+
+You either plug in the Astribank , or start the hotplug/udev system 
+while an Astribank is connected, after the firmware is loaded. The 
+Vendor-ID/Product-ID of the device is e4e4/1132 . The handler for that
+combination is listed as the kernel module xpp_usb . Thus the system
+runs 'modprobe xpp_usb' if that module is not already loaded.
+
+The module xpp_usb depends on the modules zaptel and xpp . Both of which 
+are loaded before xpp_usb is loaded. As usual, parameters and rules form
+/etc/modprobe.conf and/or /etc/modprobe.d/* will apply to the module, as
+modprobe is used.
+
+The modules to handle the specific span types (xpd_fxs, xpd_fxo) may or
+may not have been loaded yet at this stage (when the command 'modprobe
+xpp_usb' returns).
+
+At this point the xpp driver asks the box what logical units it has.
+According to the answers it gets, it will figure what xpd_* modules it will
+need, and modprobe for them. At some earlier version of the driver this has
+required some special modprobe.conf setup, but this is no longer
+the case.
+
+
+Device Initializations Scripts:
+""""""""""""""""""""""""""""""
+The chips in the device need to be initialized. This involves sending a
+bunch of values to certain registers in those chips. We decided that
+hardwiring those values in the driver itself would not be a good idea.
+
+before registering a XPD as a span in Zaptel, we run an initialization
+script: /usr/share/zaptel/init_card_N_MM (N is 3 for an FXS span and 4 
+for an FXO span, MM is a version number, and currently stands at 24). 
+If this fails (e.g: because the script is not there, or is not 
+executable), you will get an error message in the logs that the
+invocation has failed. The XPD will then be removed (you won't see that
+a directory for that XPD under the relevant /proc/xpp/XBUS-* directory)
+and not be registered with Zaptel.
+
+Registering With Zaptel:
+"""""""""""""""""""""""
+Now we finally got to the "lights party" part: the lights in a unit
+(XPD) get lit before it registers with Zaptel and are turned off after
+that.
+
+You may choose not to register the XPDs to Zaptel automatically, to
+allow finer control of the process. This is done using the module
+parameter zap_autoreg. Set in the modprobe configuration file (e.g:
+/etc/modprobe.conf ) the line:
+
+  options xpp zap_autoreg=0
+
+to disable automatic registration at startup. You will then need to
+register the spans manually. 
+
+For your convenience the command zt_registration 
+
+
+SAMPLE CONFIGURATIONS:
+""""""""""""""""""""""
+
+/etc/zaptel.conf:
+
+  Astribank 8:
+
+    fxoks=1-14
+
+  Astribank 16: 8FXS/8FXO
+
+    fxoks=1-14
+    fxsks=15-22
+
+  Astribank 4 BRI
+    # Assumed ports settings:
+    # Ports 1,3: TE
+    # Ports 2,4: NT
+    span=1,1,1,ccs,ami
+    span=2,0,1,ccs,ami
+    span=3,2,1,ccs,ami
+    span=4,0,1,ccs,ami
+    bchan=1-2
+    dchan=3
+    bchan=4-5
+    dchan=6
+    bchan=7-8
+    dchan=9
+    bchan=10-11
+    dchan=12
+  
+
+/etc/asterisk/zapata.conf
+
+  Astribank 8:
+   
+    [channels]
+    signalling=fxo_ks
+    ; The real analog ports:
+    context=from-internal
+    ; echocancel=yes
+    ; echocancelwhenbriged=yes
+    ; echotraining=9
+    channel => 1-8
+
+    ; output ports:
+    context=astbank-outputs
+    channel => 9-10
+    ; input ports:
+    immediate=yes
+    context=astbank-inputs
+    channel => 11-14
+    immediate=no
+  
+  Astribank 16: 8FXS/8FXO
+   
+    [channels]
+    signalling=fxo_ks
+    ; The real analog ports:
+    context=from-internal
+    ; echocancel=yes
+    ; echocancelwhenbriged=yes
+    ; echotraining=9
+    channel => 1-8
+
+    ; output ports:
+    context=astbank-outputs
+    channel => 9-10
+    ; input ports:
+    immediate=yes
+    context=astbank-inputs
+    channel => 11-14
+    immediate=no
+
+    ; FXO ports
+    signalling=fxs_ks
+    context=from-pstn
+    callerid=asreceived
+    channel => 15-22
+
+  Astribank 4 BRI:
+    
+    ; Assumed ports settings:
+    ; Ports 1,3: TE
+    ; Ports 2,4: NT
+    [channels]
+    switchtype = euroisdn
+    callerid = asreceived
+    
+    ; TE ports:
+    signalling = bri_cpe_ptmp
+    ;signalling = bri_cpe
+    context = from-pstn
+    group = 1,11
+    channel => 1,2
+    
+    group = 1,13
+    channel => 7,8
+    
+    ; NT ports:
+    signalling = bri_cpe_ptmp
+    ;signalling = bri_cpe
+    context = from-pstn
+    group = 2,12
+    channel => 1,2
+    
+    group = 2,14
+    channel => 7,8
+    
+
+
+See also the output of genzaptelconf for examples of mailbox and 
+callerid, and for channel numbers that will match your specific settings.
+For that reason I only give the above two sample configurations.
+
+When loaded, you should get one span, of 8 extensions, 2 output ports and 
+4 input ports:
+
+  root@rapid:~# cat /proc/zaptel/2 
+  Span 1: XBUS-0/XPD-0 "Xorcom XPD #0/0: FXS"
+
+           1 XPP_FXS/0-0 FXOKS (In use) 
+           2 XPP_FXS/0-1 FXOKS (In use) 
+           3 XPP_FXS/0-2 FXOKS (In use) 
+           4 XPP_FXS/0-3 FXOKS (In use) 
+           5 XPP_FXS/0-4 FXOKS (In use) 
+           6 XPP_FXS/0-5 FXOKS (In use) 
+           7 XPP_FXS/0-6 FXOKS (In use) 
+           8 XPP_FXS/0-7 FXOKS (In use) 
+           9 XPP_OUT/0-8 FXOKS (In use) 
+          10 XPP_OUT/0-9 FXOKS (In use) 
+          11 XPP_IN/0-10 FXOKS (In use) 
+          12 XPP_IN/0-11 FXOKS (In use) 
+          13 XPP_IN/0-12 FXOKS (In use) 
+          14 XPP_IN/0-13 FXOKS (In use) 
+
+Sample dialplan (extensions.conf) for all the above:
+
+[phones-zap] 
+; 401 will dial to channel 1, 420, to zaptel channel 20, etc. 
+exten => _4XX,1,Dial(ZAP/${EXTEN:1}) 
+ 
+[trunk]
+; A number that begins with 9: dial it through a trunk
+; (we put FXO channels and TE channels in group 0).
+; The leading 9 is stripped.
+exten => _9.,1,Dial(Zap/g0/${EXTEN:1})
+; dialing a number that begins with 81 will dial it through
+; span 1, etc. The two leading digits are stripped.
+; (Each digital span is also added to group 10+span number ).
+exten => _8X.,1,Dial(Zap/g1${EXTEN:1:1}/${EXTEN:2})
+
+[from-internal] 
+;  The context of FXS ports: analog phones.  
+; They are allowed to dial to all other phones 
+include => phones-zap 
+; They are also allowed to call through the trunk: 
+include => trunk
+ 
+[from-pstn] 
+; Calls from the PSTN enter here. Redirect calls to an IVR 
+; or a default extension in the s context here. In this case we  
+; redirect calls to Zaptel channel 1: 
+exten => s,1,Dial(Zap/1) 
+ 
+[astbank-inputs] 
+exten => s,1,Set(ZAP_CHAN=Cut(${CHANNEL},-,1)) 
+exten => s,n,Set(ZAP_CHAN=Cut(${ZAP_CHAN},/,2)) 
+; 11 is the number of the first input port. At least in the sample 
+; configuration below. 
+exten => s,n,Set(INPUT_NUM=Math(${ZAP_CHAN}-11)) 
+; The sample below just logs the signal.  
+exten => s,n,NoOp(Got signal from input port number ${INPUT_NUM}) 
+; Alternatively: 
+;exten => s,n,System(run something) 
+ 
+; No. We did not forget the context astbank-outputs. Output 
+; ports only get calls from the PBX. Thus they don't need a context 
+; of their own. 
+
+
+/proc Interface
+"""""""""""""""
+The Astribank drivers provide their own /proc interface under /proc/xpp .
+(Note that the details of this interface are still potentially subject to 
+changes)
+
+/proc/xpp/xbuses lists the connected devices (an xbus is such a device), 
+one per line. A device is normally "connected". "missing" means that it
+was disconnected, but Asterisk still holds channels from it open. You can
+also see in the xbuses file to which physical connection the Astribank
+is connected.
+
+/proc/xpp/sync is a read/write file . It prints the current
+synchronization source. printing to it can change the synchronization
+source. Host-synchronization is currently the default but for better
+sound quality you should synchronize from the Astribank.
+
+/proc/xpp/XBUS-nn gives information about device number nn (starting from
+00). under it, /proc/XBUS-nn/XPD-mm gives information regarding span number
+m in that device.
+
+/proc/xpp/XBUS-nn/XPD-mm/zt_registration is a read-write file for
+manually registering/unregistering the span with Zaptel. A span will 
+register automatically when generated, though. Span unregistration may
+fail if some channels from the span are used (e.g: by Asterisk).
+Registration is by writing 1 and unregistration is by writing 0 to the
+file.
+
+  watch -n1 cat /proc/xpp/XBUS-00/XPD-00/summary
+
+This shows which ports are off-hook, which are ringing, etc. It also 
+shows the current audio sample in both direction, which is useful to 
+see if there is something going at all.
+
+(There are a bunch of other status files under /proc/xpp/ )
+
+
+Zaptel Init Configuration File
+""""""""""""""""""""""""""""""
+The zaptel init.d script, genzaptelconf and the XPD init scripts source 
+the file /etc/init.d/zaptel (on Debian) or /etc/sysconfig/zaptel (on 
+RedHats). A number of useful values for there:
+
+############################### 
+# Lines beginning with '#' are considered comments and ignored.
+
+# A two-letter country code. genzaptelconf uses it to better guess 
+# the configuration it generates. E.g: the signalling of E1 spans, and 
+# a few other country-specific settings.
+lc_country=us
+
+# See genzaptelconf(8) and the script itself for a longer list of 
+# variables.
+
+# Equivalent to the parameter opermode to the module wctdm: country-specific
+# settings to the FXO lines. For a complete list of possible values, see
+# /usr/share/zaptel/init_fxo_mode .
+#opermode=FCC
+#opermode=FRANCE
+
+# If you feel like flooding your logs with debug output of the calibration 
+# process:
+#DEBUG_CALIBRATION=1
+###############################
+
+Useful Module Parameters:
+""""""""""""""""""""""""
+zap_autoreg: (xpp)
+Register spans automatically (1) or not (0). Default: 1. 
+Unsetting this could be useful if you have several Astribanks and you 
+want to set their registration order manually using zt_registration in 
+the /proc interface.
+
+initdir: (xpp)
+This is the directory containing the initialization scripts.
+The default is /usr/share/zaptel .
+Setting this value could be useful if that location is inconvenient for you.
+
+print_dbg: (all modules)
+It will make the driver print tons of debugging messages. Can be sometime 
+even handy, but overly-verbose in the case of xpp_usb. Can be safely 
+set/unset at run-time using /sys/modules .
+
+
+
+BTW: XPP here does not stand for X Printing Panel, XML Pull Parser, 
+X-Windows Phase Plane or XML Professional Publisher. It is simply the 
+Xorcom Peripheral Protocol, which connects a computer to a XPD (Xorcom 
+Peripheral Device).

@@ -1,0 +1,45 @@
+== General Info ==
+
+This is a Zaptel driver for HFC-S PCI A based ISDN BRI cards (Cologne
+Chipdesign).
+
+== Driver Build ==
+
+You need the kernel source (2.6) and the Zaptel driver sources
+to build the module.
+
+== Module Parameters ==
+
+  nt_modes:
+  comma seperated list 
+
+  sniff_zaptel_d_channel:
+  Make frames transmitted from Zaptel appear as received by the board
+  Set this to 1 if you want to debug D channel signaling with Etherreal
+
+  force_l1_up:
+  Keep ISDN bus activated. Usually set by PtP TE interfaces.
+
+  nt_modes:
+  Comma-separated list of card IDs to configure in NT mode (array of int)
+
+== Information in the proc file system ==
+
+  You will find valuable data about the current state of your ISDN
+  interface in /proc/drivers/vzaphfc/<cardnum>. The following files
+  are present for each card:
+
+  info:
+  Information about the bus activation, transmit errors (CRC), and 
+  overall transfer statistics
+
+  bufs:
+  Except from the data that is currently transmitted
+
+  fifo:
+  sizes and counter values from the FIFOs, mainly for debugging
+  purposes
+
+
+Latest Change: 6 Jun 2006 Jens Wilke <jw_vzaphfc@headissue.com>
+

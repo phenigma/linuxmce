@@ -1,0 +1,115 @@
+#! /usr/bin/perl -w
+#
+# Written by Oron Peled <oron@actcom.co.il>
+# Copyright (C) 2007, Xorcom
+# This program is free software; you can redistribute and/or
+# modify it under the same terms as Perl itself.
+#
+# $Id: xpp_blink 2477 2007-04-29 22:12:49Z tzafrir $
+#
+use strict;
+BEGIN { my $dir = $0; $dir =~ s:/[^/]+$::; unshift(@INC, "$dir", "$dir/zconf"); }
+
+use Zaptel;
+use Zaptel::Span;
+use Zaptel::Xpp;
+use Zaptel::Xpp::Xbus;
+
+sub usage {
+	die "Usage: $0 {on|off|bzzt} {span <number> | xpd <bus num> [<xpd num>]}\n";
+}
+
+my $state = shift;
+my $selector = shift;
+usage unless defined($state) and $state =~ /^(on|off|bzzt)$/;
+usage unless defined($selector) and $selector =~ /^(span|xpd)$/i;
+
+my $xpd;
+my @xpds;
+my @channels;
+
+if($selector =~ /^span$/i) {
+	my $number = shift;
+	usage unless defined($number) and $number =~ /^\d+/;
+	my $span = Zaptel::Span::by_number($number);
+	die "Unkown Span $number\n" unless $span;
+	$xpd = Zaptel::Xpp::xpd_of_span($span);
+	die "Span $number is not an XPD\n" unless defined $xpd;
+	my $xpdname = $xpd->fqn;
+	my $connector = $xpd->xbus->connector;
+	die "$xpdname is not connected\n" unless defined $connector;
+	push(@xpds, $xpd);
+	my @chans = $span->chans();
+	@channels = join(' ', map { $_->num } @chans);
+	printf "Using %s (connected via $connector): channels @channels\n", $xpd->fqn;
+} elsif($selector =~ /^xpd$/i) {
+	my $busnum = shift;
+	my $xpdnum = shift;
+	usage unless defined($busnum) and $busnum =~ /^\d+/;
+	my $xbus = Zaptel::Xpp::Xbus::by_number($busnum);
+	die "Unkown XBUS number $busnum\n" unless defined $xbus;
+	if(defined $xpdnum) {
+		usage unless $xpdnum =~ /^\d+/;
+		$xpd = $xbus->get_xpd_by_number($xpdnum);
+		die "Unkown XPD number $xpdnum on XBUS number $busnum\n" unless defined $xpd;
+		push(@xpds, $xpd);
+	} else {
+		@xpds = $xbus->xpds;
+		die "XBUS number $busnum has no XPDS!\n" unless @xpds;
+	}
+}
+
+if($state eq 'on') {
+	$_->blink(1) foreach (@xpds);
+} elsif($state eq 'off') {
+	$_->blink(0) foreach (@xpds);
+} elsif($state eq 'bzzt') {
+	$_->blink(1) foreach (@xpds);
+	sleep 1;
+	$_->blink(0) foreach (@xpds);
+}
+
+__END__
+
+=head1 NAME
+
+xpp_blink - Blink the leds of a specified XPD
+
+=head1 SYNOPSIS
+
+xpp_blink {on|off|bzzt} {span <number> | xpd <bus num> [<xpd num>]}\n";
+
+=head1 DESCRIPTION
+
+Blink all the leds of an XPD.
+
+=head2 Blink mode:
+
+=over 16
+
+=item on	Turn on constant blink
+
+=item off	Turn off blink
+
+=item bzzt	Blink briefly for 1 second.
+
+=back
+
+=head2 Selector:
+
+=over 16
+
+=item span	Select by span number. This only work for XPD registered to zaptel.
+
+=item xpd	Select by xbus + xpd numbers. If only xbus number is given, all the
+		XPDs of the selected xbus are blinked.
+
+=back
+
+=head1 EXAMPLES
+
+  $ xpp_blink bzzt span 2
+
+  $ xpp_blink xpd 0 1
+
+  $ xpp_blink xpd 0

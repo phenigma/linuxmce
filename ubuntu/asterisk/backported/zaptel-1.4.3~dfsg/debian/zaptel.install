@@ -1,0 +1,7 @@
+sbin/*
+usr/sbin/*
+usr/share/perl5/Zaptel*
+usr/share/zaptel/*
+usr/share/man/man8/*
+etc/hotplug/usb/*
+etc/udev/rules.d/*

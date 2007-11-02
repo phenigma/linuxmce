@@ -1,0 +1,1172 @@
+2007-06-08  Russell Bryant <russell@digium.com>
+
+	* Zaptel 1.4.3 released.
+	
+2007-06-08 15:58 +0000 [r2601]  Russell Bryant <russell@digium.com>
+
+	* wct4xxp/base.c, /: Merged revisions 2599 via svnmerge from
+	  https://origsvn.digium.com/svn/zaptel/branches/1.2 ........ r2599
+	  | russell | 2007-06-08 10:57:18 -0500 (Fri, 08 Jun 2007) | 1 line
+	  Make sure the name is right ........
+
+2007-06-08 15:37 +0000 [r2591-2597]  Tzafrir Cohen <tzafrir.cohen@xorcom.com>
+
+	* Makefile: Make the checkstack target basically work for kernel
+	  2.6.
+
+	* xpp/card_fxo.c, xpp/utils/xpp_fxloader: Some XPP bugfixes: * Fix
+	  FXO power denial detection (changeset:4054) * Incorrect data type
+	  could cause FXO module to go off-hook (changeset:4048) *
+	  xpp_fxloader: fix the error message when you want to disable *
+	  automatic firmware loading... (changeset:4060) Merged from
+	  branches/1.2 r2589
+
+2007-06-07 17:02 +0000 [r2584]  Russell Bryant <russell@digium.com>
+
+	* /: Blocked revisions 2583 via svnmerge ........ r2583 | russell |
+	  2007-06-07 12:01:04 -0500 (Thu, 07 Jun 2007) | 4 lines The -quit
+	  option to find is not supported on the version of find installed
+	  on Centos 4. Lame! Just remove it, as it isn't really necessary.
+	  (issue #9800, noahisaac) ........
+
+2007-06-06 13:47 +0000 [r2574]  Matthew Fredrickson <creslin@digium.com>
+
+	* wct4xxp/base.c: Add 220/420 support
+
+2007-06-01 17:06 +0000 [r2551]  Matthew Fredrickson <creslin@digium.com>
+
+	* wct4xxp/vpm450m.c, /: Merged revisions 2550 via svnmerge from
+	  https://origsvn.digium.com/svn/zaptel/branches/1.2 ........ r2550
+	  | mattf | 2007-06-01 11:56:09 -0500 (Fri, 01 Jun 2007) | 2 lines
+	  Fix for stack overflow on FC6 and VPM450M. ........
+
+2007-05-18 15:50 +0000 [r2540]  Matthew Fredrickson <creslin@digium.com>
+
+	* /, zaptel-base.c: Merged revisions 2539 via svnmerge from
+	  https://origsvn.digium.com/svn/zaptel/branches/1.2 ........ r2539
+	  | mattf | 2007-05-18 10:48:55 -0500 (Fri, 18 May 2007) | 2 lines
+	  Remove silly got signal message ........
+
+2007-05-17 21:47 +0000 [r2536]  Tzafrir Cohen <tzafrir.cohen@xorcom.com>
+
+	* xpp/xpp_zap.c, xpp/firmwares/FPGA_1151.hex,
+	  xpp/utils/zconf/Zaptel/Hardware (added),
+	  xpp/firmwares/FPGA_FXS.hex, xpp/xpd.h,
+	  xpp/utils/zconf/Zaptel/Chans.pm, xpp/card_bri.c, xpp/ChangeLog,
+	  xpp/xbus-core.c, xpp/init_card_6_26, xpp/utils/zconf/Zaptel.pm,
+	  xpp/utils/zconf/Zaptel/Xpp/Xpd.pm, xpp/utils/lszaptel,
+	  xpp/utils/xpp.rules, xpp/utils/zapconf (added),
+	  xpp/utils/zconf/Zaptel/Hardware/PCI.pm, xpp/utils/xpp_sync,
+	  xpp/.version, xpp/firmwares/FPGA_1141.hex, xpp/README.Astribank,
+	  xpp/card_global.c, xpp/utils/zaptel_hardware (added),
+	  xpp/Makefile, xpp/utils/Makefile, xpp/parport_debug.c (added),
+	  xpp/utils/zconf/Zaptel/Hardware/USB.pm,
+	  xpp/utils/zconf/Zaptel/Xpp/Xbus.pm, xpp/parport_debug.h (added),
+	  xpp/utils/zconf/Zaptel/Hardware.pm (added),
+	  xpp/utils/zt_registration, xpp/init_card_7_26,
+	  xpp/utils/zconf/Zaptel/Span.pm, xpp/utils/genzaptelconf,
+	  xpp/utils/zconf/Zaptel/Xpp.pm, xpp/xpp_usb.c: XPP revision 3965:
+	  * Tested with zaptel-1.2.17.1 * Add D-Channel TX, RX and BAD
+	  frames count in /proc/xpp/XBUS-*/XPD-*/bri_info * Adjust output
+	  of xpp_sync script. Pad for 8 port BRI. * Added a debugging
+	  module parport_debug (not compiled by default). * Added an
+	  optional patch to zaptel: - compiles only if ZAPTEL_SYNC_TICK is
+	  defined - Allow interested driver to register for "sync"
+	  notification. - Does not affect drivers that do not use this
+	  feature. * Added external synchronization feature: - Only if
+	  ZAPTEL_SYNC_TICK feature is compiled in - Than XPP may be
+	  synchronized by another card (e.g: an Astribank with FXS can be
+	  synchronized by a Digium PRI card). - May be enabled/disabled in
+	  runtime via the 'sync_tick_active' module parameter to the xpp.ko
+	  module. * Fixed a potential bug in D-Channel hexdump printing. *
+	  New visual indications in BRI leds: - Constant ON RED/GREEN:
+	  Shows the port type -- NT/TE. - Very fast "double blink": Layer1
+	  work, no D-Channel yet. - Steady blinking (1/2 sec): D-Channel
+	  trafic detected. * xpp_fxloader moved to /usr/share/zaptel . *
+	  adj_clock removed: never really used. * Now we have
+	  Zaptel::Hardware and a sample zaptel_hardware script (not
+	  (installed by default). * We also have a sample perl zapconf (not
+	  installed by default) which aims at replacing genzaptelconf (sans
+	  the modules detection).
+
+2007-05-17 20:35 +0000 [r2532]  Matthew Fredrickson <creslin@digium.com>
+
+	* wct4xxp/vpm450m.c: Reduce stack usage of VPM450M. Fix for FC6
+	  module load problems
+
+2007-05-17 18:46 +0000 [r2527]  Jason Parker <jparker@digium.com>
+
+	* Makefile: Fix problem with chan_misdn not being built in
+	  Asterisk, due to missing suppserv. Update to new tarballs from
+	  misdn.org and allow versioning in Makefile. Issue 9064.
+
+2007-05-17 16:49 +0000 [r2524]  Joshua Colp <jcolp@digium.com>
+
+	* fxotune.c: Allow the fxotune config file to be specified instead
+	  of hardcoded. (issue #8444 reported by pupeno, patch by tzafrir)
+
+2007-05-17 14:27 +0000 [r2522]  Tzafrir Cohen <tzafrir.cohen@xorcom.com>
+
+	* xpp/Makefile: The debugfs code seems to have some bad sideeffects
+	  when badly used. So don't enable it by default. (From chabgeset
+	  2520)
+
+2007-05-04 22:37 +0000 [r2495]  Tzafrir Cohen <tzafrir.cohen@xorcom.com>
+
+	* zaptel.init: zaptel.init: use automative modules unloading (as in
+	  trunk and 1.2).
+
+2007-05-01 16:22 +0000 [r2483]  Russell Bryant <russell@digium.com>
+
+	* /, zonedata.c: Merged revisions 2482 via svnmerge from
+	  https://origsvn.digium.com/svn/zaptel/branches/1.2 ........ r2482
+	  | russell | 2007-05-01 11:20:50 -0500 (Tue, 01 May 2007) | 3
+	  lines Add zonedata information for the Philippines. (issue #9525,
+	  reported and patched by loloski) ........
+
+2007-04-30 23:07 +0000 [r2480]  Kevin P. Fleming <kpfleming@digium.com>
+
+	* zaptel.init: eliminate bogus warning message during script
+	  startup with no HPEC licenses
+
+2007-04-29 22:12 +0000 [r2477]  Tzafrir Cohen <tzafrir.cohen@xorcom.com>
+
+	* xpp/xpp_zap.c, xpp/utils/hexfile.c, xpp/firmwares/FPGA_1151.hex,
+	  xpp/xpp_zap.h, xpp/utils/hexfile.h, xpp/xproto.c,
+	  xpp/firmwares/FPGA_FXS.hex, xpp/firmwares/USB_1130.hex,
+	  xpp/xproto.h, xpp/firmwares/USB_1150.hex, xpp/xpd.h,
+	  xpp/calibrate_slics, xpp/init_card_4_24 (removed),
+	  xpp/utils/zconf/Zaptel/Chans.pm, xpp/init_card_6_24 (removed),
+	  xpp/utils/xpp_blink (added), xpp/init_card_4_26 (added),
+	  xpp/card_bri.c, xpp/ChangeLog (added), xpp/xbus-core.c,
+	  xpp/init_card_6_26 (added), xpp/utils/zconf/Zaptel.pm,
+	  xpp/utils/adj_clock.c (removed),
+	  xpp/utils/zconf/Zaptel/Xpp/Xpd.pm, xpp/utils/xpp_fxloader,
+	  xpp/utils/fpga_load.c, xpp/utils/lszaptel, xpp/utils/xpp_sync,
+	  xpp/.version, xpp/firmwares/FPGA_1141.hex,
+	  xpp/utils/genzaptelconf.8, xpp/card_fxo.c, xpp/README.Astribank,
+	  xpp/card_fxs.c, xpp/card_global.c, xpp/utils/Makefile,
+	  xpp/utils/adj_clock.8 (removed), xpp/card_global.h,
+	  xpp/firmwares/USB_1140.hex, xpp/utils/zconf/Zaptel/Xpp/Xbus.pm,
+	  xpp/utils/fpga_load.8, xpp/init_card_3_24 (removed),
+	  xpp/init_card_3_26 (added), xpp/utils/zt_registration,
+	  xpp/init_card_7_24 (removed), xpp/init_card_7_26 (added),
+	  xpp/utils/zconf/Zaptel/Span.pm, xpp/utils/genzaptelconf,
+	  xpp/utils/zconf/Zaptel/Xpp.pm, xpp/xpp_usb.c: xpp rev. 3814: *
+	  Protocol no. 2.6: syncing improvements. * Support for 8-port
+	  Astribank BRI. * Firmware unloading now works: rmmod xpp_usb;
+	  /etc/hotplug/usb/xpp_fxloader reset * Defaults of kernel
+	  parameters are now part of parameter description. *
+	  World-readable kernel parameters. * No need for extra patch
+	  beyond bristuff for Astribank BRI. * Default poll intervals
+	  changed: 500 in BRI and FXO. * Allow changing FXS polls interval
+	  at run time. * BRI initalization fixed on SUSE (path to logger).
+	  * When using the SUSE zaptel rpm package, set
+	  modules_var=ZAPTEL_MODULES in /etc/sysconfig/zaptel . *
+	  zt_registration not verbose by default. * xpp_sync warns if FXO
+	  is sync slave. * Fixed genzaptelconf -z (zapscan output
+	  emulation). * PCM fixes. * Solves "multiple ticks" bug. No need
+	  for pcm_tasklets workaround.
+
+2007-04-28 21:29 +0000 [r2465-2470]  Matthew Fredrickson <creslin@digium.com>
+
+	* wct4xxp/base.c, /: Merged revisions 2469 via svnmerge from
+	  https://origsvn.digium.com/svn/zaptel/branches/1.2 ........ r2469
+	  | mattf | 2007-04-28 16:07:35 -0500 (Sat, 28 Apr 2007) | 1 line
+	  Fix for potential deadlock in wct4xxp driver ........
+
+	* wcte11xp.c, /: Merged revisions 2464 via svnmerge from
+	  https://origsvn.digium.com/svn/zaptel/branches/1.2 ........ r2464
+	  | mattf | 2007-04-28 14:04:50 -0500 (Sat, 28 Apr 2007) | 2 lines
+	  Fix for potential deadlock in drivers ........
+
+2007-04-27 19:06 +0000 [r2460]  Jason Parker <jparker@digium.com>
+
+	* /, ztmonitor.c: Merged revisions 2459 via svnmerge from
+	  https://origsvn.digium.com/svn/zaptel/branches/1.2 ........ r2459
+	  | qwell | 2007-04-27 14:05:25 -0500 (Fri, 27 Apr 2007) | 2 lines
+	  Correct and remove (one of each) broken syntax examples. ........
+
+2007-04-25 16:32 +0000 [r2452]  Matthew Fredrickson <creslin@digium.com>
+
+	* wct1xxp.c, /: Merged revisions 2451 via svnmerge from
+	  https://origsvn.digium.com/svn/zaptel/branches/1.2 ........ r2451
+	  | mattf | 2007-04-25 11:26:18 -0500 (Wed, 25 Apr 2007) | 1 line
+	  Start fixing potential deadlock between device driver and zaptel
+	  ........
+
+2007-04-25  Russell Bryant <russell@digium.com>
+
+	* Zaptel 1.4.2.1 released.
+	
+2007-04-25 15:36 +0000 [r2444]  Jason Parker <jparker@digium.com>
+
+	* /, zaptel-base.c: Merged revisions 2443 via svnmerge from
+	  https://origsvn.digium.com/svn/zaptel/branches/1.2 ........ r2443
+	  | qwell | 2007-04-25 10:35:34 -0500 (Wed, 25 Apr 2007) | 2 lines
+	  Don't try to reference a variable on a channel that may not
+	  exist. ........
+
+2007-04-24  Russell Bryant <russell@digium.com>
+
+	* Zaptel 1.4.2 released.
+	
+2007-04-24 18:34 +0000 [r2433-2435]  Jason Parker <jparker@digium.com>
+
+	* /: Blocked revisions 2434 via svnmerge ........ r2434 | qwell |
+	  2007-04-24 13:33:29 -0500 (Tue, 24 Apr 2007) | 1 line Backport
+	  pre-echocan debugging for ztmonitor ........
+
+	* zaptel.h, zconfig.h, ztmonitor.c, jpah.h (added), zaptel-base.c:
+	  Merge in pre-echocan debugging for ztmonitor.
+
+2007-04-13 23:14 +0000 [r2423]  Jason Parker <jparker@digium.com>
+
+	* /, zaptel-base.c: Merged revisions 2422 via svnmerge from
+	  https://origsvn.digium.com/svn/zaptel/branches/1.2 ........ r2422
+	  | qwell | 2007-04-13 18:12:23 -0500 (Fri, 13 Apr 2007) | 14 lines
+	  Fix several places where we treat confmode as a bitmask. It is a
+	  bitmask...sort of.. I'll explain.. confmode is used for 2
+	  different things. It defines both the "mode" and the "flags" of
+	  the conference. The "mode" part is in 0x00FF and is NOT bitwise.
+	  The "flag" part is in 0xFF00 and *IS* bitwise. Confused yet?
+	  Good. So, when we want to check the "mode" of the conference, we
+	  need to check only within 0xFF. There were several places where
+	  this was not happening - but due to luck, it worked (...sort of).
+	  That's what this patch fixes. ........
+
+2007-04-11 19:03 +0000 [r2406]  Matt Frederickson <creslin@digium.com>
+
+	* /, zaptel-base.c: Merged revisions 2405 via svnmerge from
+	  https://origsvn.digium.com/svn/zaptel/branches/1.2 ........ r2405
+	  | mattf | 2007-04-11 14:01:21 -0500 (Wed, 11 Apr 2007) | 4 lines
+	  Fix buglet in memory corruption fix. ........
+
+2007-04-07 16:47 +0000 [r2397]  Matt Frederickson <creslin@digium.com>
+
+	* zaptel-base.c: Fix for #9208. Memory corruption within zaptel
+	  data.
+
+2007-03-30 21:03 +0000 [r2359]  Matt Frederickson <creslin@digium.com>
+
+	* zaptel-base.c: Fix potential spinlock recursion issue.
+
+2007-03-30 18:57 +0000 [r2354]  Jason Parker <jparker@digium.com>
+
+	* /, zaptel-base.c: Merged revisions 2353 via svnmerge from
+	  https://origsvn.digium.com/svn/zaptel/branches/1.2 ........ r2353
+	  | qwell | 2007-03-30 13:56:46 -0500 (Fri, 30 Mar 2007) | 4 lines
+	  Fix an issue where an echo can was freed incorrectly in certain
+	  circumstances. Issue 9292, fix suggested by ddv2005. ........
+
+2007-03-29 16:36 +0000 [r2348-2351]  Russell Bryant <russell@digium.com>
+
+	* README.hpec, /, zaptel.init: Merged revisions 2350 via svnmerge
+	  from https://origsvn.digium.com/svn/zaptel/branches/1.2 ........
+	  r2350 | russell | 2007-03-29 11:35:37 -0500 (Thu, 29 Mar 2007) |
+	  4 lines Trim the HPEC readme that is included in zaptel to only
+	  include basic information as the one on the FTP site will always
+	  be the one that contains the full up to date information. Also,
+	  tweak some grammar in the additions to the init script. ........
+
+	* README.hpec (added), /, zaptel.init: Merged revisions 2347 via
+	  svnmerge from https://origsvn.digium.com/svn/zaptel/branches/1.2
+	  ........ r2347 | russell | 2007-03-29 11:05:32 -0500 (Thu, 29 Mar
+	  2007) | 3 lines Add a README for HPEC, and add support for HPEC
+	  in the init script. (issue #9413, chozian) ........
+
+2007-03-27 18:49 +0000 [r2343]  Russell Bryant <russell@digium.com>
+
+	* /, zaptel.init: Merged revisions 2342 via svnmerge from
+	  https://origsvn.digium.com/svn/zaptel/branches/1.2 ........ r2342
+	  | russell | 2007-03-27 13:48:23 -0500 (Tue, 27 Mar 2007) | 5
+	  lines When debug is enabled, ensure that "debug=1" gets passed to
+	  the zaptel module, and not just the hardware modules. Also, run
+	  "ztcfg -s" at the beginning of the "stop" action of the script.
+	  (issue #7409, PCadach and tzafrir) ........
+
+2007-03-23 02:11 +0000 [r2336]  Kevin P. Fleming <kpfleming@digium.com>
+
+	* Makefile: fix builds for 2.4 kernels
+
+2007-03-22  Kevin P. Fleming  <kpfleming@digium.com>
+
+	* Zaptel 1.4.1 released.
+	
+2007-03-23 02:11 +0000 [r2333-2336]  Kevin P. Fleming <kpfleming@digium.com>
+
+	* Makefile: fix builds for 2.4 kernels
+
+	* mec.h, kb1ec.h, mec2.h, mec3.h, sec-2.h, sec.h,
+	  hpec/hpec_zaptel.h, mg2ec.h, zaptel.h, zaptel-base.c: bring in
+	  the rest of the support needed for HPEC
+
+2007-03-19 16:30 +0000 [r2323]  Joshua Colp <jcolp@digium.com>
+
+	* /, README.Linux26: Merged revisions 2322 via svnmerge from
+	  https://origsvn.digium.com/svn/zaptel/branches/1.2 ........ r2322
+	  | file | 2007-03-19 12:28:58 -0400 (Mon, 19 Mar 2007) | 2 lines
+	  Update documentation to match current Makefile. linux26 is no
+	  longer a valid target. (issue #9296 reported by valley) ........
+
+2007-03-14 16:08 +0000 [r2308]  Matt Frederickson <creslin@digium.com>
+
+	* wct4xxp/base.c, /: Merged revisions 2307 via svnmerge from
+	  https://origsvn.digium.com/svn/zaptel/branches/1.2 ........ r2307
+	  | mattf | 2007-03-14 10:03:18 -0600 (Wed, 14 Mar 2007) | 2 lines
+	  Fix bug in J1 mode configuration. ........
+
+2007-03-09 20:04 +0000 [r2302]  Matt Frederickson <creslin@digium.com>
+
+	* wct4xxp/vpm450m.c, /: Merged revisions 2301 via svnmerge from
+	  https://origsvn.digium.com/svn/zaptel/branches/1.2 ........ r2301
+	  | mattf | 2007-03-09 13:59:43 -0600 (Fri, 09 Mar 2007) | 2 lines
+	  Make sure we don't allocate as GFP_KERNEL in atomic context
+	  ........
+
+2007-03-08 15:58 +0000 [r2297]  Joshua Colp <jcolp@digium.com>
+
+	* /, hpec/hpec_zaptel.h: Merged revisions 2296 via svnmerge from
+	  https://origsvn.digium.com/svn/zaptel/branches/1.2 ........ r2296
+	  | file | 2007-03-08 10:56:05 -0500 (Thu, 08 Mar 2007) | 2 lines
+	  vprintk is only available on 2.6.9+ (issue #9232 reported by
+	  baconbuttie) ........
+
+2007-03-08 00:48 +0000 [r2294]  Russell Bryant <russell@digium.com>
+
+	* zaptel.h: Add a constant for ZT_EVENT_REMOVED to allow a driver
+	  to hint to userspace that a channel has been removed. (issue
+	  #7256, tzafrir)
+
+2007-03-07 19:36 +0000 [r2292]  Tzafrir Cohen <tzafrir.cohen@xorcom.com>
+
+	* Makefile: Don't die when there is no udev rules dir (on an
+	  installtion with INSTALL_PREFIX explicitly set). r2290 | tzafrir
+	  | 2007-03-07 21:14:30 +0200 (Wed, 07 Mar 2007) | 3 lines
+
+2007-03-05 17:02 +0000 [r2288]  Tzafrir Cohen <tzafrir.cohen@xorcom.com>
+
+	* /, xpp/xpd.h: Found a proper "marker" for the gfp_t typedef. Now
+	  every 2.6.9 is supported. r2286 | tzafrir | 2007-03-05 18:14:11
+	  +0200 (Mon, 05 Mar 2007) | 2 lines
+
+2007-03-05 05:42 +0000 [r2283]  Kevin P. Fleming <kpfleming@digium.com>
+
+	* build_tools/make_firmware_object, wcte12xp.c, /: Merged revisions
+	  2280-2282 via svnmerge from
+	  https://origsvn.digium.com/svn/zaptel/branches/1.2 ........ r2280
+	  | kpfleming | 2007-03-04 23:34:43 -0600 (Sun, 04 Mar 2007) | 2
+	  lines ensure that we run objdump in the most generic language
+	  possible to avoid complications on non-English systems (issue
+	  #9196) ........ r2281 | kpfleming | 2007-03-04 23:40:37 -0600
+	  (Sun, 04 Mar 2007) | 2 lines remove stray character that my
+	  editor decided to add ........ r2282 | kpfleming | 2007-03-04
+	  23:41:30 -0600 (Sun, 04 Mar 2007) | 2 lines this driver does not
+	  use workqueues, so does not need this header (issue #9196)
+	  ........
+
+2007-03-02 22:20 +0000 [r2267-2273]  Tzafrir Cohen <tzafrir.cohen@xorcom.com>
+
+	* zaptel.init: Support proper loading of the Astribank (xpp) with
+	  proper initialization.
+
+	* Makefile: Don't "fail" a modprobe of ztdummy just because
+	  zaptel.conf is bad.
+
+	* /, xpp/Makefile: Clarify a cyptic build message. r2266 | tzafrir
+	  | 2007-03-02 22:40:06 +0200 (Fri, 02 Mar 2007) | 2 lines
+
+2007-03-01 19:50 +0000 [r2244-2259]  Tzafrir Cohen <tzafrir.cohen@xorcom.com>
+
+	* xpp/xbus-core.c, /: r2257 | tzafrir | 2007-03-01 21:29:12 +0200
+	  (Thu, 01 Mar 2007) | 2 lines SLAB_KERNEL is an obsolete alias of
+	  GFP_KERNEL. Fix build on Vanilla 2.6.20 .
+
+	* /, xpp/utils/Makefile: r2252 | tzafrir | 2007-02-28 22:57:52
+	  +0200 (Wed, 28 Feb 2007) | 3 lines Make the xpp/utils/Makefile in
+	  1.2 closer to the one in 1.4 (and actually work, this tine).
+
+	* /: Forgot to update properties
+
+	* xpp/xpp_zap.c, xpp/utils/hexfile.c, xpp/firmwares/FPGA_1151.hex,
+	  xpp/xpp_zap.h, xpp/utils/hexfile.h, xpp/xproto.c,
+	  xpp/utils/zconf/Zaptel, xpp/firmwares/FPGA_FXS.hex, xpp/xproto.h,
+	  xpp/xpd.h, xpp/firmwares/USB_1150.hex,
+	  xpp/utils/zconf/Zaptel/Chans.pm, xpp/utils/zconf/Zaptel/Xpp,
+	  xpp/card_bri.c (added), xpp/xbus-core.c,
+	  xpp/utils/zconf/Zaptel.pm, xpp/utils/test_parse.c,
+	  xpp/utils/zconf/Zaptel/Xpp/Xpd.pm, xpp/card_bri.h (added),
+	  xpp/utils/xpp_fxloader, xpp/utils/fpga_load.c, xpp/xbus-core.h,
+	  xpp/utils/lszaptel (added), xpp/utils/xpp_sync (added),
+	  xpp/.version (added), xpp/firmwares/FPGA_1141.hex,
+	  xpp/card_fxo.c, xpp/card_fxs.c, xpp/card_global.c, xpp/Makefile,
+	  xpp/utils/Makefile, xpp/utils/zconf (added),
+	  xpp/firmwares/USB_1140.hex, xpp/utils/zconf/Zaptel/Xpp/Xbus.pm,
+	  xpp/utils/zt_registration (added),
+	  xpp/utils/zconf/Zaptel/Span.pm, xpp/utils/genzaptelconf,
+	  xpp/utils/zconf/Zaptel/Xpp.pm, xpp/xpp_usb.c: xpp rev. 3495:
+	  ------------------------------------------------------------------------
+	  r2243 | tzafrir | 2007-02-28 02:05:59 +0200 (Wed, 28 Feb 2007) |
+	  4 lines * xpp rev. 3495: fix a race in the FXO driver of recent
+	  weeks. * Add the Astribank BRI driver (though still needs
+	  bristuffed zaptel to build and thus will not build by default)
+	  ------------------------------------------------------------------------
+	  r2239 | tzafrir | 2007-02-27 08:14:18 +0200 (Tue, 27 Feb 2007) |
+	  18 lines Xorcom rev. 3491: * Version of xpp modules is set from
+	  xpp/.version, rather than "unknown". * Astribank devices are now
+	  initialized in parallel: faster startup when there are multiple
+	  Astribanks. * Re-added support for the old format of
+	  /proc/xpp/sync write: (echo N 0 > /proc/xpp/sync ) . The new
+	  format (SYNC=NN) is preffered. * Firmware update to fix a PCM
+	  issue. * Fixed a build issue with kernel 2.6.8 . * Fixed missing
+	  initialization in Zaptel::Xpp::Xbus . * genzaptelconf will now
+	  set FXS ports as LS by default. To set them as KS, use
+	  fxs_default_start=ks in /etc/default/zaptel /
+	  /etc/sysconfig/zaptel (Also a workaround for #7755 ). *
+	  Groundwork for sync from zaptel master span: if zaptel is built
+	  with ZAPTEL_SYNC_TIC (see zaptel/team/tzafrir/sync ), xpp will
+	  report its drift from the zaptel sync master. * USB firmware
+	  update: had bad lines checksums (and fxload did not report). *
+	  fpga_load can now better report bad hex file checksum ;-) .
+	  ------------------------------------------------------------------------
+	  r2223 | tzafrir | 2007-02-24 03:05:05 +0200 (Sat, 24 Feb 2007) |
+	  3 lines Add the Zaptel and Zaptel::Xpp perl modules, and some
+	  simple utilities that use them. disabled by default for now.
+	  ------------------------------------------------------------------------
+	  r2222 | tzafrir | 2007-02-24 02:55:05 +0200 (Sat, 24 Feb 2007) |
+	  2 lines Make the xpp/utils/Makefile in 1.2 closer to the one in
+	  1.4 .
+
+2007-02-26 18:20 +0000 [r2230-2233]  Joshua Colp <jcolp@digium.com>
+
+	* Makefile, /: Merged revisions 2232 via svnmerge from
+	  https://origsvn.digium.com/svn/zaptel/branches/1.2 ........ r2232
+	  | file | 2007-02-26 13:18:13 -0500 (Mon, 26 Feb 2007) | 2 lines
+	  Just in case... set hotplug firmware loading option to no if on a
+	  2.4 kernel. (issue #9140 reported by velter) ........
+
+	* Makefile: Move menuselect build options inclusion to before it is
+	  initially used otherwise the needed variables may not be present
+	  at time of use. (issue #9145 reported by jmls)
+
+2007-02-26 10:13 +0000 [r2229]  Tzafrir Cohen <tzafrir.cohen@xorcom.com>
+
+	* doc/fxotune.8: The fxotune man page was misleading. Dumping some
+	  content into it. Still needs work.
+
+2007-02-24 00:13 +0000 [r2215-2220]  Kevin P. Fleming <kpfleming@digium.com>
+
+	* datamods/Makefile, wct4xxp/Kbuild (removed), Makefile, wcte12xp.c
+	  (added), wct4xxp/Makefile, zaptel.xml, hpec (added), zaptel.c
+	  (removed), zttranscode.c, wctc4xxp (added), Makefile.kernel26
+	  (added), wct4xxp/Makefile.kernel26 (added), zaptel.h,
+	  firmware/firmware.xml, zaptel-base.c (added): partial update to
+	  support all the stuff that went into Zaptel 1.2 recently... this
+	  definitely still broken for 2.4 kernels, and maybe for 2.6 as
+	  well :-) includes: Makefile split and reorganize TE120P driver
+	  TC400B driver HPEC support (not yet complete)
+
+2007-02-21 17:27 +0000 [r2200-2209]  Matt Frederickson <creslin@digium.com>
+
+	* wct4xxp/base.c, /: Merged revisions 2208 via svnmerge from
+	  https://origsvn.digium.com/svn/zaptel/branches/1.2 ........ r2208
+	  | mattf | 2007-02-21 11:26:05 -0600 (Wed, 21 Feb 2007) | 2 lines
+	  Make sure we do the IRQ fix in the gen1 interrupt handler as
+	  well. ........
+
+	* wct4xxp/vpm450m.c, /: Merged revisions 2199 via svnmerge from
+	  https://origsvn.digium.com/svn/zaptel/branches/1.2 ........ r2199
+	  | mattf | 2007-02-21 09:57:20 -0600 (Wed, 21 Feb 2007) | 2 lines
+	  Make sure we do the check for memory allocation failure. ........
+
+	* wct4xxp/vpm450m.c, /: Merged revisions 2198 via svnmerge from
+	  https://origsvn.digium.com/svn/zaptel/branches/1.2 ........ r2198
+	  | mattf | 2007-02-21 09:49:50 -0600 (Wed, 21 Feb 2007) | 2 lines
+	  Reduce our stack usage when using the vpm450m ........
+
+2007-02-21 14:00 +0000 [r2195]  Kevin P. Fleming <kpfleming@digium.com>
+
+	* build_tools/make_svn_branch_name, /: Merged revisions 2194 via
+	  svnmerge from https://origsvn.digium.com/svn/zaptel/branches/1.2
+	  ........ r2194 | kpfleming | 2007-02-21 08:00:20 -0600 (Wed, 21
+	  Feb 2007) | 2 lines use new tag version numbering script ........
+
+2007-02-20 20:17 +0000 [r2180]  Russell Bryant <russell@digium.com>
+
+	* Makefile: Fix the check that ran the install for xpp/utils. Also,
+	  add a target to build them, and clean the directory in the clean
+	  target. (issue #8894, tzafrir)
+
+2007-02-17 17:15 +0000 [r2170]  Tzafrir Cohen <tzafrir.cohen@xorcom.com>
+
+	* xpp/utils/Makefile: xpp/utils: Use autoconf's test for libusb.
+
+2007-02-16 22:18 +0000 [r2167]  Matt Frederickson <creslin@digium.com>
+
+	* /, wctdm24xxp.c: Merged revisions 2166 via svnmerge from
+	  https://origsvn.digium.com/svn/zaptel/branches/1.2 ........ r2166
+	  | mattf | 2007-02-16 16:14:48 -0600 (Fri, 16 Feb 2007) | 2 lines
+	  Fix detection of second single port modules so it actually works
+	  now. ........
+
+2007-02-12 23:42 +0000 [r2158-2160]  Joshua Colp <jcolp@digium.com>
+
+	* firmware/Makefile, Makefile: Add hotplug-uninstall target to main
+	  Makefile and make the firmware Makefile keep a record of the
+	  installed firmware in the hotplug directory. This means that as
+	  long as you have the latest version of firmware installed your
+	  checkout will never install it again, and all new checkouts will
+	  not either. This might also help those building packages for
+	  distros.
+
+2007-02-11 15:48 +0000 [r2151]  Tzafrir Cohen <tzafrir.cohen@xorcom.com>
+
+	* xpp/xbus-core.c: struct inode and debugfs: break some Fedoras
+	  rather than all others. (from changeset 2150)
+
+2007-02-10 20:43 +0000 [r2147]  Joshua Colp <jcolp@digium.com>
+
+	* firmware/Makefile: Only attempt to install firmware to the
+	  hotplug directories if any was selected.
+
+2007-02-10 00:22 +0000 [r2142-2146]  Kevin P. Fleming <kpfleming@digium.com>
+
+	* zaptel.xml: add some inter-module dependencies and add wctc4xxp
+	  to menuselect list
+
+	* zaptel.xml: clean up module naming there is no need to enable the
+	  user to skip building zaptel or ztdynamic (probably zttranscode
+	  too... menuselect needs an upgrade)
+
+2007-02-09 18:39 +0000 [r2136-2140]  Joshua Colp <jcolp@digium.com>
+
+	* firmware/Makefile: It's probably a good idea to make the tarballs
+	  a requirement to make the object files.
+
+	* firmware/Makefile, wct4xxp/base.c, Makefile: Drop the need for
+	  header files by using non-versioned binary files.
+
+2007-02-09 15:06 +0000 [r2123-2135]  Tzafrir Cohen <tzafrir.cohen@xorcom.com>
+
+	* Makefile: Fix 'make clean' on kernel 2.4: datamods is only made
+	  on 2.6.
+
+	* Makefile: Build xpp/ for kernel >= 2.6.8, not >=2.6.9.
+
+	* xpp/xpp_zap.c: Now 'chans' is used after all.
+
+	* xpp/xpp_zap.c, xpp/firmwares/FPGA_1151.hex, xpp/xpp_zap.h,
+	  xpp/xproto.c, xpp/firmwares/FPGA_FXS.hex, xpp/xproto.h,
+	  xpp/xpd.h, xpp/init_card_4_23 (removed), xpp/init_card_4_24
+	  (added), xpp/init_card_6_24 (added), xpp/xbus-core.c,
+	  xpp/utils/adj_clock.c, xpp/utils/xpp_fxloader, xpp/xbus-core.h,
+	  xpp/utils/fpga_load.c, xpp/xdefs.h, xpp, xpp/utils/xpp.rules
+	  (added), xpp/firmwares/FPGA_1141.hex (added), xpp/card_fxo.c,
+	  xpp/card_global.c, xpp/card_fxs.c, xpp/README.Astribank,
+	  xpp/utils/zaptel-helper (added), xpp/zaptel-helper (removed),
+	  xpp/utils/Makefile, xpp/Makefile, xpp/utils/adj_clock.8,
+	  xpp/firmwares/USB_1140.hex (added), xpp/zap_debug.c,
+	  xpp/utils/fpga_load.8, xpp/init_card_3_23 (removed),
+	  xpp/init_card_3_24 (added), xpp/zap_debug.h, xpp/init_card_7_24
+	  (added), xpp/xpp_log.h (added), xpp/utils/genzaptelconf,
+	  xpp/xpp_usb.c: Branch 1.4 is back in sync (currently: xorcom rev.
+	  3332): * Performance improvements for multi-XPD (span) devices. *
+	  Astribank BRI driver (in next commit). * Changes under /proc: -
+	  XBUS and XPD numbers have two digits. - Every script wildcard
+	  should be replaced from XBUS-? to XBUS-[0-9]* - Added
+	  /proc/xpp/XBUS-*/XPD-*/blink: echo 1 to start and 0 to stop. *
+	  Several countries (South Africa, UAE, anybody else) require a
+	  shorter ring delay. Adjust FXO reg 0x17 (23)'s bits 0:2 to 011. *
+	  Use tasklets to move most of the interrupt PCM copying out of the
+	  interrupt. * Debugfs-based code to dump data to userspace (used
+	  to debug BRI D channel). * Pretend every 2.6.9 actually has later
+	  RHEL's typedefs. * fpga_load supports /dev/bus/usb . * Fixed
+	  physical order sorting in genzaptelconf. * Reverse polarity and
+	  power denial detection. * A short led flash at registration time.
+	  * Add a real version of the xpp modules to them (independent of
+	  the Zaptel version). * Update our line status even when not
+	  registered. * Fixed a false SIG_CHANGED when inserting or
+	  removing cable to FXO. * Fixed compilation fixes for 2.6.20 (Bug
+	  #8982) * A cleaner fix for the bool changes of 2.6.19 . *
+	  Automatically detect echo_can_state_t at debug time. *
+	  Automaitcally set XPP_DEBUGFS (depending on debugfs) at compile
+	  time. * Bug-fixes to zaptel-helper. Moved to xpp/utils . * Xbus
+	  protocol version: 2.4 (Zaptel 1.2.12/1.4.0 had 2.3). XPS Init
+	  scripts renamed accordingly.
+
+2007-02-07 21:25 +0000 [r2111-2120]  Kevin P. Fleming <kpfleming@digium.com>
+
+	* wct4xxp/base.c, /: Merged revisions 2119 via svnmerge from
+	  https://origsvn.digium.com/svn/zaptel/branches/1.2 ........ r2119
+	  | kpfleming | 2007-02-07 15:22:44 -0600 (Wed, 07 Feb 2007) | 2
+	  lines don't allow wct4xxp workqueue support to be built against
+	  kernel 2.6.20... it's not going to work ........
+
+	* Makefile, xpp/xbus-core.c, /: Merged revisions 2110 via svnmerge
+	  from https://origsvn.digium.com/svn/zaptel/branches/1.2 ........
+	  r2110 | kpfleming | 2007-02-07 14:29:22 -0600 (Wed, 07 Feb 2007)
+	  | 3 lines build XPP on the kernels that Xorcom says are OK to
+	  build on update workqueue usage to conform to kernel 2.6.20 API
+	  ........
+
+2007-02-07 20:01 +0000 [r2107]  Joshua Colp <jcolp@digium.com>
+
+	* wct4xxp/vpm450m.c, build_tools/make_tree (added), firmware
+	  (added), wct4xxp/base.c, Makefile, configure,
+	  wct4xxp/OCT6114-64D.ima (removed), firmware/firmware.xml,
+	  makeopts.in, firmware/Makefile, wct4xxp/Kbuild, zaptel.xml
+	  (added), wct4xxp/Makefile, menuselect-tree (removed),
+	  wct4xxp/OCT6114-128D.ima (removed), configure.ac: Merge in
+	  zaptel-firmware branch. This basically downloads the firmware
+	  from the FTP site and builds the appropriate headers based on the
+	  current version. Drivers just know they need a certain firmware
+	  and get fed the current version. If this prevents your zaptel
+	  from building do a make distclean and start fresh or make sure
+	  the firmware is checked in make menuselect.
+
+2007-02-07 19:55 +0000 [r2105]  Kevin P. Fleming <kpfleming@digium.com>
+
+	* /, zttranscode.c: Merged revisions 2103 via svnmerge from
+	  https://origsvn.digium.com/svn/zaptel/branches/1.2 ........ r2103
+	  | kpfleming | 2007-02-07 13:52:29 -0600 (Wed, 07 Feb 2007) | 2
+	  lines include headers we need... new kernel releases won't do it
+	  for us ........
+
+2007-02-07 16:51 +0000 [r2099]  Russell Bryant <russell@digium.com>
+
+	* ztcfg.c: In case the ZT_GETVERSION ioctl fails, ensure that the
+	  buffers are initialized to "Unknown" so that we don't try to
+	  print uninitialized string buffers. (issue #8992, Oron Peled,
+	  tzafrir)
+
+2007-02-05 21:55 +0000 [r2087]  Kevin P. Fleming <kpfleming@digium.com>
+
+	* Makefile, /: Merged revisions 2086 via svnmerge from
+	  https://origsvn.digium.com/svn/zaptel/branches/1.2 ........ r2086
+	  | kpfleming | 2007-02-05 15:54:40 -0600 (Mon, 05 Feb 2007) | 2
+	  lines fix version-numbering logic ........
+
+2007-01-31 20:19 +0000 [r2065-2066]  Tzafrir Cohen <tzafrir.cohen@xorcom.com>
+
+	* xpp/zaptel-helper (added): r2064: tzafrir | 2007-01-31 21:48:39
+	  +0200 zaptel-helper deserves wider exposure. Note: it is not
+	  getting installed. However it will probably help preven the
+	  braking of Astribank drivers loading for those who do care.
+
+	* xpp/utils/genzaptelconf: Merging 1.2 changes of genzaptelconf: *
+	  -l (list) now works reliebly. * Cleared some leftover writes to
+	  standard output. * Fixed xpp spans sort order.
+
+2007-01-31 14:12 +0000 [r2039-2044]  Kevin P. Fleming <kpfleming@digium.com>
+
+	* pciradio.c, zttool.c, wct4xxp/base.c, ztcfg-dude.c, Makefile,
+	  zaptel.c, torisatool.c, torisa.c, tonezone.c, ztdynamic.c,
+	  wcfxsusb.c, ztmonitor.c, makefw.c, build_tools/genmodconf,
+	  ztcfg.c, wct1xxp.c, wctdm.c, ztd-eth.c, /, wcusb.c, wctdm24xxp.c,
+	  wcfxo.c, tor2.c: Merged revisions 2043 via svnmerge from
+	  https://origsvn.digium.com/svn/zaptel/branches/1.2 ........ r2043
+	  | kpfleming | 2007-01-31 08:06:34 -0600 (Wed, 31 Jan 2007) | 4
+	  lines fix up author email addresses use the kernel's built-in
+	  support for module aliases instead of manually doing it in
+	  modprobe.conf or equivalent add wctdm8xxp alias for wctdm24xxp
+	  ........
+
+	* wct4xxp/base.c, /: Merged revisions 2038 via svnmerge from
+	  https://origsvn.digium.com/svn/zaptel/branches/1.2 ........ r2038
+	  | kpfleming | 2007-01-30 19:33:25 -0600 (Tue, 30 Jan 2007) | 2
+	  lines final fix for non-hotplug firmware loading ........
+
+2007-01-30 18:11 +0000 [r2019]  Russell Bryant <russell@digium.com>
+
+	* /: Blocked revisions 2018 via svnmerge ........ r2018 | russell |
+	  2007-01-30 12:11:11 -0600 (Tue, 30 Jan 2007) | 5 lines - Make the
+	  build of xpp occur with 2.6.8 or above, instead of 2.6.10 -
+	  remove the installation of the userspace tools - remove the
+	  architecture check (issue #8894, tzafrir) ........
+
+2007-01-29 19:21 +0000 [r1998]  Kevin P. Fleming <kpfleming@digium.com>
+
+	* wct4xxp/base.c, /: Merged revisions 1996 via svnmerge from
+	  https://origsvn.digium.com/svn/zaptel/branches/1.2 ........ r1996
+	  | kpfleming | 2007-01-29 13:20:32 -0600 (Mon, 29 Jan 2007) | 2
+	  lines _really_ fix the non-hotplug firmware case ........
+
+2007-01-27 16:16 +0000 [r1988]  Kevin P. Fleming <kpfleming@digium.com>
+
+	* wct4xxp/base.c, /: Merged revisions 1987 via svnmerge from
+	  https://origsvn.digium.com/svn/zaptel/branches/1.2 ........ r1987
+	  | kpfleming | 2007-01-27 10:14:54 -0600 (Sat, 27 Jan 2007) | 2
+	  lines properly reference the size symbol produced by objcopy
+	  ........
+
+2007-01-26 15:27 +0000 [r1969-1982]  Matt Frederickson <creslin@digium.com>
+
+	* wctdm24xxp.c: Add additional product support.
+
+2007-01-24 13:11 +0000 [r1954]  Kevin P. Fleming <kpfleming@digium.com>
+
+	* /, wcfxo.c: Merged revisions 1953 via svnmerge from
+	  https://origsvn.digium.com/svn/zaptel/branches/1.2 ........ r1953
+	  | kpfleming | 2007-01-24 07:01:36 -0600 (Wed, 24 Jan 2007) | 2
+	  lines might as well fix this driver too :-) ........
+
+2007-01-24 00:38 +0000 [r1944]  Russell Bryant <russell@digium.com>
+
+	* Makefile, /: Merged revisions 1943 via svnmerge from
+	  https://origsvn.digium.com/svn/zaptel/branches/1.2 ........ r1943
+	  | russell | 2007-01-23 18:35:48 -0600 (Tue, 23 Jan 2007) | 3
+	  lines If the xpp pieces get built, install the userspace
+	  utilities as well. (issue #8894) ........
+
+2007-01-23 21:49 +0000 [r1937]  Matt Frederickson <creslin@digium.com>
+
+	* wcte11xp.c, wct1xxp.c, wctdm.c, /, wctdm24xxp.c: Merged revisions
+	  1936 via svnmerge from
+	  https://origsvn.digium.com/svn/zaptel/branches/1.2 ........ r1936
+	  | mattf | 2007-01-23 15:28:14 -0600 (Tue, 23 Jan 2007) | 3 lines
+	  Make sure we don't clear the interrupt before we might have
+	  received it in shared interrupt line scenarios. ........
+
+2007-01-23 15:39 +0000 [r1921-1924]  Kevin P. Fleming <kpfleming@digium.com>
+
+	* /, ztd-eth.c: Merged revisions 1923 via svnmerge from
+	  https://origsvn.digium.com/svn/zaptel/branches/1.2 ........ r1923
+	  | kpfleming | 2007-01-23 09:39:12 -0600 (Tue, 23 Jan 2007) | 2
+	  lines use the proper function prototype for 2.6 kernels ........
+
+	* xpp/xpp_zap.c, pciradio.c, wctdm.c, /, zaptel.c, torisa.c,
+	  wctdm24xxp.c: Merged revisions 1920 via svnmerge from
+	  https://origsvn.digium.com/svn/zaptel/branches/1.2 ........ r1920
+	  | kpfleming | 2007-01-23 09:25:42 -0600 (Tue, 23 Jan 2007) | 2
+	  lines clean up various compiler warnings ........
+
+2007-01-23 01:58 +0000 [r1913]  Joshua Colp <jcolp@digium.com>
+
+	* /, zonedata.c: Merged revisions 1912 via svnmerge from
+	  https://origsvn.digium.com/svn/zaptel/branches/1.2 ........ r1912
+	  | file | 2007-01-22 20:57:00 -0500 (Mon, 22 Jan 2007) | 2 lines
+	  Fix Congestion tone for Australia. (issue #8891 reported by JT)
+	  ........
+
+2007-01-22 22:43 +0000 [r1892-1899]  Kevin P. Fleming <kpfleming@digium.com>
+
+	* wct4xxp/base.c, /: Merged revisions 1898 via svnmerge from
+	  https://origsvn.digium.com/svn/zaptel/branches/1.2 ........ r1898
+	  | kpfleming | 2007-01-22 16:43:06 -0600 (Mon, 22 Jan 2007) | 3
+	  lines use better definition for linked-in firmware data ensure
+	  that hotplug-loaded firmware is released when we are finished
+	  with it ........
+
+	* wct4xxp/base.c, /: Merged revisions 1891 via svnmerge from
+	  https://origsvn.digium.com/svn/zaptel/branches/1.2 ........ r1891
+	  | kpfleming | 2007-01-22 15:12:35 -0600 (Mon, 22 Jan 2007) | 2
+	  lines make the non-hotplug firmware case actually compile again
+	  ........
+
+2007-01-22 21:04 +0000 [r1889]  Jason Parker <jparker@digium.com>
+
+	* Makefile: Fix typo in Makefile Issue 8885, patch by James
+
+2007-01-22 20:59 +0000 [r1878-1887]  Kevin P. Fleming <kpfleming@digium.com>
+
+	* wct4xxp/base.c, /: Merged revisions 1886 via svnmerge from
+	  https://origsvn.digium.com/svn/zaptel/branches/1.2 ........ r1886
+	  | kpfleming | 2007-01-22 14:58:30 -0600 (Mon, 22 Jan 2007) | 2
+	  lines might be good if i committed the working version of this
+	  code... ........
+
+	* wct4xxp/vpm450m.c, wct4xxp/base.c, wct4xxp/vpm450m.h, /: Merged
+	  revisions 1877 via svnmerge from
+	  https://origsvn.digium.com/svn/zaptel/branches/1.2 ........ r1877
+	  | kpfleming | 2007-01-22 12:58:34 -0600 (Mon, 22 Jan 2007) | 2
+	  lines update to PR47 Octasic API kit, and use new GetCapacityPins
+	  API call to only attempt downloading the correct firmware for the
+	  modules we find ........
+
+2007-01-18 23:50 +0000 [r1855]  Matt Frederickson <creslin@digium.com>
+
+	* wct4xxp/base.c: Backporting revs 1812 and 1854 into 1.4.
+
+2007-01-16 23:45 +0000 [r1836]  Jason Parker <jparker@digium.com>
+
+	* /, fxsdump.c (removed): Merged revisions 1835 via svnmerge from
+	  https://origsvn.digium.com/svn/zaptel/branches/1.2 ........ r1835
+	  | qwell | 2007-01-16 17:44:28 -0600 (Tue, 16 Jan 2007) | 6 lines
+	  Remove file that was never (literally) able to compile - dates
+	  all the way back to zaptel 0.8.0 If we can figure out where this
+	  coeffs.h comes from, I suppose it would be easy to add this back
+	  in the future. Issue 8493 ........
+
+2007-01-16 04:38 +0000 [r1820-1828]  Kevin P. Fleming <kpfleming@digium.com>
+
+	* wct4xxp/vpm450m.c, build_tools/make_firmware_object, /: Merged
+	  revisions 1826-1827 via svnmerge from
+	  https://origsvn.digium.com/svn/zaptel/branches/1.2 ........ r1826
+	  | kpfleming | 2007-01-15 22:30:00 -0600 (Mon, 15 Jan 2007) | 3
+	  lines make the 'firmware object' files load the firmware blobs as
+	  read-only data simplify the code that uses the firmware objects a
+	  bit ........ r1827 | kpfleming | 2007-01-15 22:37:06 -0600 (Mon,
+	  15 Jan 2007) | 2 lines use latest Octasic API tag ........
+
+	* wct4xxp/vpm450m.c, wct4xxp/Kbuild, wct4xxp/base.c, Makefile,
+	  build_tools/make_firmware_object (added), wct4xxp/Makefile,
+	  wct4xxp/vpm450m.h, /, wct4xxp, wct4xxp/fw2h.c (removed): Merged
+	  revisions 1818 via svnmerge from
+	  https://origsvn.digium.com/svn/zaptel/branches/1.2 ........ r1818
+	  | kpfleming | 2007-01-15 19:28:54 -0600 (Mon, 15 Jan 2007) | 3
+	  lines eliminate the fw2h tool, and instead use objcopy to
+	  directly make object files from the firmware binary files pass
+	  HOTPLUG_FIRMWARE down to the module build so that we can avoid
+	  various compiler warnings ........
+
+2006-12-30 19:11 +0000 [r1774]  Joshua Colp <jcolp@digium.com>
+
+	* Makefile, /: Merged revisions 1773 via svnmerge from
+	  https://origsvn.digium.com/svn/zaptel/branches/1.2 ........ r1773
+	  | file | 2006-12-30 14:09:50 -0500 (Sat, 30 Dec 2006) | 2 lines
+	  Specify full path to restorecon instead of assuming it will be
+	  available from what is in $PATH. (issue #8671 reported by djflux)
+	  ........
+
+2006-12-27 22:49 +0000 [r1767]  Kevin P. Fleming <kpfleming@digium.com>
+
+	* xpp/xpp_zap.c, xpp/card_fxo.c, /, xpp/card_fxs.c, xpp/xpp_usb.c:
+	  Merged revisions 1766 via svnmerge from
+	  https://origsvn.digium.com/svn/zaptel/branches/1.2 ........ r1766
+	  | kpfleming | 2006-12-27 16:47:19 -0600 (Wed, 27 Dec 2006) | 2
+	  lines remove pointless duplication of ZAPTEL_VERSION that causes
+	  these modules to be rebuilt every time a commit is made to any
+	  part of Zaptel ........
+
+2006-12-23  Kevin P. Fleming  <kpfleming@digium.com>
+
+	* Zaptel 1.4.0 released.
+	
+2006-12-18 14:01 +0000 [r1726-1729]  Tzafrir Cohen <tzafrir.cohen@xorcom.com>
+
+	* xpp/xdefs.h, xpp: r1724@boole: tzafrir | 2006-12-18 15:55:59
+	  +0200 Code is 2.6-specific anyway, no need for an explicit test.
+
+	* xpp, xpp/xpp_usb.c: r1723@boole: tzafrir | 2006-12-18 15:54:04
+	  +0200 Use the internal version (without locking) of
+	  usb_reset_device. Intended for kernel 2.6.9 and earlier. Finally
+	  full support of 2.6.8 and 2.6.9. r2937: diego | 2006-12-17
+	  14:20:36 +0200 r2940: tzafrir | 2006-12-17 16:32:51 +0200
+
+	* xpp/xpp_zap.c, xpp: r1722@boole: tzafrir | 2006-12-18 15:50:36
+	  +0200 xpp_zap.c: Better error hanlding during module init. orig
+	  r2948: oron | 2006-12-17 18:54:00 +0200
+
+	* xpp, xpp/xpd.h: r1721@boole: tzafrir | 2006-12-18 15:46:42 +0200
+	  Assume every 2.6.9 kernel is a later RHEL4 kernel, which
+	  backported the gfp_t typedef. Either way we break some systems).
+	  r2938: diego | 2006-12-17 14:22:16 +0200
+
+2006-12-15 13:50 +0000 [r1716-1719]  Tzafrir Cohen <tzafrir.cohen@xorcom.com>
+
+	* xpp/xpp_zap.c, xpp/card_fxo.c, xpp/README.Astribank,
+	  xpp/utils/xpp_fxloader, xpp/utils/genzaptelconf, xpp: Sync to xpp
+	  RELEASE-1.2.0 2933. r2847@boole: diego | 2006-12-03 10:33:00
+	  +0200 added documentation which explains which packages are
+	  needed to build the drivers on different distributions.
+	  r2862@boole: tzafrir | 2006-12-05 08:43:50 +0200
+	  README.Astribank: A typo in the sample config (changeset:2861).
+	  r2891@boole: tzafrir | 2006-12-08 01:11:45 +0200 Re-accept
+	  changeset:2832 after all. r2892@boole: tzafrir | 2006-12-08
+	  02:46:07 +0200 Merge genzaptelconf changeset:2866 from trunk: *
+	  Zapata comment on unidentified channel goes to $zapata_file *
+	  Correct pattern for Sangoma A200 card's channels. r2893@boole:
+	  tzafrir | 2006-12-08 03:11:37 +0200 genzaptelconf: * Add options
+	  xpp_fxo_rxgain: add a custom rxgain for every XPP FXO channel. *
+	  Do print the original line for every channel. r2909@boole:
+	  tzafrir | 2006-12-10 20:03:59 +0200 Add some sleeps in older
+	  kernels in the firmware loading script. r2932@boole: tzafrir |
+	  2006-12-14 17:30:12 +0200 Make the warning about a call to
+	  off-hook FXO debug. At least if we cannot suppress it at module
+	  load time. r2933@boole: tzafrir | 2006-12-14 17:32:00 +0200 Don't
+	  redefine 'bool' on newer kerenls to fix building with kernel
+	  2.6.19. Taken from Digium tree. (from changeset:2930)
+
+	* xpp/firmwares/FPGA_1151.hex, xpp/firmwares/FPGA_FXS.hex, xpp:
+	  r1715@boole: tzafrir | 2006-12-15 14:35:26 +0200 Firmwares to fix
+	  caller ID detection timing issue.
+
+2006-12-12  Kevin P. Fleming  <kpfleming@digium.com>
+
+	* Zaptel 1.4.0-beta3 released.
+	
+2006-12-11 19:07 +0000 [r1698-1701]  Kevin P. Fleming <kpfleming@digium.com>
+
+	* /, xpp/xdefs.h: Merged revisions 1700 via svnmerge from
+	  https://origsvn.digium.com/svn/zaptel/branches/1.2 ........ r1700
+	  | kpfleming | 2006-12-11 13:05:43 -0600 (Mon, 11 Dec 2006) | 2
+	  lines kernel 2.6.19 now has a type called 'bool', although it's
+	  not completely implemented so there will still be some warnings
+	  when building xpp against 2.6.19 kernel headers ........
+
+	* pciradio.c, wct4xxp/base.c, wcte11xp.c, wct1xxp.c, wctdm.c, /,
+	  torisa.c, wcusb.c, wctdm24xxp.c, zaptel.h, tor2.c, wcfxo.c:
+	  Merged revisions 1697 via svnmerge from
+	  https://origsvn.digium.com/svn/zaptel/branches/1.2 ........ r1697
+	  | kpfleming | 2006-12-11 12:27:15 -0600 (Mon, 11 Dec 2006) | 2
+	  lines kernel 2.6.19 API changes compatibility ........
+
+2006-12-06 23:25 +0000 [r1687]  Joshua Colp <jcolp@digium.com>
+
+	* Makefile, ztcfg-dude.c, /: Merged revisions 1686 via svnmerge
+	  from https://origsvn.digium.com/svn/zaptel/branches/1.2 ........
+	  r1686 | file | 2006-12-06 18:22:11 -0500 (Wed, 06 Dec 2006) | 2
+	  lines Link ztcfg-dude against stdc++ so we get needed functions.
+	  (issue #8494 reported by Romik) ........
+
+2006-12-01 00:13 +0000 [r1673-1678]  Tzafrir Cohen <tzafrir.cohen@xorcom.com>
+
+	* xpp/card_fxo.c, xpp: r1671@boole: tzafrir | 2006-12-01 01:30:24
+	  +0200 r2806@boole: oron | 2006-11-27 16:54:06 +0200 Fixed panic
+	  in ticket:147 merged code from changeset:2802 changeset:2804
+
+	* xpp/card_fxo.c, xpp: r1670@boole: tzafrir | 2006-12-01 01:29:57
+	  +0200 r2794@boole: oron | 2006-11-26 14:24:15 +0200 Remove all
+	  SOFT_RING code (unused for a long time).
+
+	* xpp/xpp_zap.c, xpp, xpp/xpd.h: r1668@boole: tzafrir | 2006-11-30
+	  23:48:25 +0200 r2832@boole: tzafrir | 2006-11-29 11:06:06 +0200
+	  Add parameter xpp_ec to the module xpp (xpp_zap.c). Defaults to
+	  1. If 0, module will use Zaptel echo canceller even with
+	  XPP_EC_CHUNK. Parameter is read-only for now: cannot be set
+	  through /sys/modules. (Merge of changeset:2830)
+
+	* xpp/utils/genzaptelconf, xpp: r1667@boole: tzafrir | 2006-11-30
+	  23:46:46 +0200 r2831@boole: tzafrir | 2006-11-29 11:05:08 +0200
+	  genzaptelconf: A list of countries for which to use busydetect.
+	  (backport of changeset:2829)
+
+	* xpp/init_card_3_23, xpp/init_card_4_23, xpp/calibrate_slics,
+	  xpp/card_fxo.c, xpp/xbus-core.c, xpp/card_global.c,
+	  xpp/card_fxs.c, xpp/README.Astribank, xpp/utils/Makefile,
+	  xpp/Makefile, xpp/utils/genzaptelconf, xpp: r1666@boole: tzafrir
+	  | 2006-11-30 23:46:11 +0200 r2817@boole: oron | 2006-11-28
+	  13:39:47 +0200 Maintenance branch for asterisk-1.2.x
+
+2006-11-30 00:24 +0000 [r1664]  Jason Parker <jparker@digium.com>
+
+	* build_tools/genmodconf, /: Merged revisions 1663 via svnmerge
+	  from https://origsvn.digium.com/svn/zaptel/branches/1.2 ........
+	  r1663 | qwell | 2006-11-29 18:23:33 -0600 (Wed, 29 Nov 2006) | 2
+	  lines Fix issue that was discovered by using dash as /bin/sh
+	  instead of bash. ........
+
+2006-11-29 22:27 +0000 [r1661]  Kevin P. Fleming <kpfleming@digium.com>
+
+	* /, zconfig.h: Merged revisions 1660 via svnmerge from
+	  https://origsvn.digium.com/svn/zaptel/branches/1.2 ........ r1660
+	  | kpfleming | 2006-11-29 16:24:07 -0600 (Wed, 29 Nov 2006) | 2
+	  lines clarify the BOOST_RINGER compile-time option ........
+
+2006-11-29 17:31 +0000 [r1656-1658]  Matt Frederickson <creslin@digium.com>
+
+	* ztcfg.c: Fix for #7860. Make sure we don't allow channel 16 to be
+	  clear if it's in E1/CAS mode.
+
+	* zttool.c: Fix for (#8300)
+
+2006-11-26 08:12 +0000 [r1642]  Russell Bryant <russell@digium.com>
+
+	* wcte11xp.c, /: Merged revisions 1641 via svnmerge from
+	  https://origsvn.digium.com/svn/zaptel/branches/1.2 ........ r1641
+	  | russell | 2006-11-26 03:10:22 -0500 (Sun, 26 Nov 2006) | 3
+	  lines Remove a misplaced semicolon which caused some debug output
+	  to be printed regardless of the debug setting. (issue #8414,
+	  gknispel_proformatique) ........
+
+2006-11-22 23:30 +0000 [r1637]  Matt Frederickson <creslin@digium.com>
+
+	* zaptel.c: Update for #8403
+
+2006-11-21 15:19 +0000 [r1623]  Tzafrir Cohen <tzafrir.cohen@xorcom.com>
+
+	* xpp/utils/Makefile: Typo: SBINDIR -> BINDIR .
+
+2006-11-17 17:47 +0000 [r1614-1615]  Jason Parker <jparker@digium.com>
+
+	* Makefile: Fix an issue (8071) where wct4xxp wasn't being put into
+	  /etc/modprobe.d/zaptel (or similar). There should be no reason
+	  that adding wct4xxp to the MODULES variable at this point in the
+	  Makefile, would cause any harm. Somebody please correct me if I'm
+	  wrong... (Fix is slightly different from 1.2)
+
+	* /: Blocked revisions 1613 via svnmerge ........ r1613 | qwell |
+	  2006-11-17 11:43:12 -0600 (Fri, 17 Nov 2006) | 5 lines Fix an
+	  issue (8071) where wct4xxp wasn't being put into
+	  /etc/modprobe.d/zaptel (or similar). There should be no reason
+	  that adding wct4xxp to the MODULES variable at this point in the
+	  Makefile, would cause any harm. Somebody please correct me if I'm
+	  wrong... ........
+
+2006-11-17 04:12 +0000 [r1611]  BJ Weschke <bweschke@btwtech.com>
+
+	* /, zaptel.c: Merged revisions 1610 via svnmerge from
+	  https://origsvn.digium.com/svn/zaptel/branches/1.2 ........ r1610
+	  | bweschke | 2006-11-16 23:06:05 -0500 (Thu, 16 Nov 2006) | 4
+	  lines mattf - I'm not sure if this is where you wanted the
+	  definitions placed. If not, please fix, but this gets the
+	  compiles working again for now. ........
+
+2006-11-17 00:52 +0000 [r1606-1609]  Matt Frederickson <creslin@digium.com>
+
+	* zaptel.c: Fix for 7991.
+
+	* zaptel.c: Fix for 7769
+
+2006-11-11 14:34 +0000 [r1590]  Tzafrir Cohen <tzafrir.cohen@xorcom.com>
+
+	* xpp/init_card_3_23, xpp/init_card_4_23: init_card[34]_23: merge
+	  from 2654,2655. * Redirect stderr to /dev/null. Without any
+	  redirection, it may fail with exitval=4 . Probably, fd 2 is
+	  closed and the shell (or sed which is used in the scripts) tries
+	  to write to it (or do some other I/O related syscall) which
+	  fails. * make XPP_BASE handling identical in the two scripts.
+
+2006-11-09 15:58 +0000 [r1576]  Russell Bryant <russell@digium.com>
+
+	* Makefile: fix an expression in the install target (issue #8321,
+	  tzafrir)
+
+2006-11-08 23:06 +0000 [r1574]  Kevin P. Fleming <kpfleming@digium.com>
+
+	* wct4xxp/vpm450m.c, wct4xxp/base.c, wcte11xp.c, wct4xxp/vpm450m.h,
+	  /: Merged revisions 1573 via svnmerge from
+	  https://origsvn.digium.com/svn/zaptel/branches/1.2 ........ r1573
+	  | kpfleming | 2006-11-08 17:04:33 -0600 (Wed, 08 Nov 2006) | 3
+	  lines clean up recent VPMOCT changes add support for Infineon
+	  FALC rev 2.2 ........
+
+2006-11-08 16:01 +0000 [r1571]  Tzafrir Cohen <tzafrir.cohen@xorcom.com>
+
+	* xpp/utils/print_modes.c: Fixed a typo in the "wctdm
+	  reimplementation".
+
+2006-11-08 03:44 +0000 [r1566-1568]  Kevin P. Fleming <kpfleming@digium.com>
+
+	* wct4xxp, configure, configure.ac, makeopts.in: update configure
+	  script to add searching for libusb update svn:ignore for new
+	  firmware header file names
+
+2006-11-06 22:48 +0000 [r1565]  Matt Frederickson <creslin@digium.com>
+
+	* wct4xxp/vpm450m.c, wct4xxp/Kbuild, wct4xxp/base.c,
+	  wct4xxp/Makefile, wct4xxp/vpm450m.h, wct4xxp/OCT6114-64D.ima
+	  (added): Add support into 1.4 branch for new VPMOCT64 as well
+
+2006-11-06 19:07 +0000 [r1557-1558]  Tzafrir Cohen <tzafrir.cohen@xorcom.com>
+
+	* xpp/init_card_3_23, xpp/init_card_4_23: Fixes for card init
+	  scripts from rev 2633: * Don't log card init scripts to
+	  /tmp/results . * Document how to trace, though. * init_card_4_23:
+	  don't re-open the slics file.
+
+	* xpp/xpp_zap.c, xpp/utils/print_modes.c,
+	  xpp/utils/xpp_fxloader.usermap, xpp/firmwares/FPGA_1151.hex
+	  (added), xpp/xpp_zap.h, xpp/slic.c (removed), xpp/xproto.c,
+	  xpp/firmwares/FPGA_FXS.hex (added), xpp/firmwares/USB_1130.hex
+	  (added), xpp/utils/USB_1130.hex (removed), xpp/utils/FPGA_FXS.hex
+	  (removed), xpp/slic.h (removed), xpp/init_data_3_20.cmd
+	  (removed), xpp/xpd.h, xpp/xproto.h, xpp/firmwares/USB_1150.hex
+	  (added), xpp/init_card_4_23 (added), xpp/calibrate_slics,
+	  xpp/xbus-core.c, xpp/init_data_4_19.cmd (removed),
+	  xpp/utils/adj_clock.c (added), xpp/utils/xpp_fxloader,
+	  xpp/xbus-core.h, xpp/xdefs.h, xpp, xpp/utils,
+	  xpp/utils/genzaptelconf.8, xpp/card_fxo.c, xpp/card_global.c,
+	  xpp/card_fxs.c, xpp/README.Astribank, xpp/card_fxo.h,
+	  xpp/utils/Makefile, xpp/Makefile, xpp/utils/adj_clock.8 (added),
+	  xpp/card_fxs.h, xpp/card_global.h, xpp/init_data_4_20.cmd
+	  (removed), xpp/init_card_3_23 (added), xpp/initialize_registers
+	  (removed), xpp/init_data_3_19.cmd (removed),
+	  xpp/firmwares/LICENSE.firmware (added), xpp/firmwares/README
+	  (added), xpp/utils/USB_8613.hex (removed), xpp/LICENSE.firmware
+	  (removed), xpp/utils/genzaptelconf, xpp/firmwares (added),
+	  xpp/xpp_usb.c: Merging xpp driver release 1.2 (rev. 2569),
+	  originally team/tzafrir/xpp_1.2 * Should build well. Almost
+	  final. * genzaptelconf: Also work when zap_autoreg=0 *
+	  README.Astribank updated for rev. 1.2. * xpp/utils/Makefile: Use
+	  $< with cc -c * Get xpp/utils configuration from autoconf
+	  (without changesin top dir)
+
+2006-11-01 19:04 +0000 [r1547]  Russell Bryant <russell@digium.com>
+
+	* Makefile, wct4xxp/Makefile, configure, configure.ac,
+	  xpp/utils/Makefile, makeopts.in: instead of setting HOSTCC and CC
+	  directly in the Makefile, use the information provided by the
+	  configure script (issue #8055, tzafrir)
+
+2006-10-31 06:26 +0000 [r1543]  Russell Bryant <russell@digium.com>
+
+	* Makefile, /: Merged revisions 1542 via svnmerge from
+	  https://origsvn.digium.com/svn/zaptel/branches/1.2 ........ r1542
+	  | russell | 2006-10-31 01:25:16 -0500 (Tue, 31 Oct 2006) | 3
+	  lines fix the installation of wct4xxp for 2.4 kernels (issue
+	  #7964, fixed by gkloepfer, but the committed fix is slightly
+	  modified) ........
+
+2006-10-26 00:03 +0000 [r1536]  Kevin P. Fleming <kpfleming@digium.com>
+
+	* wctdm.c, /, wctdm24xxp.c: Merged revisions 1534-1535 via svnmerge
+	  from https://origsvn.digium.com/svn/zaptel/branches/1.2 ........
+	  r1534 | kpfleming | 2006-10-25 18:54:41 -0500 (Wed, 25 Oct 2006)
+	  | 2 lines do ProSLIC 3215 check properly ........ r1535 |
+	  kpfleming | 2006-10-25 19:00:31 -0500 (Wed, 25 Oct 2006) | 2
+	  lines do ProSLIC 3215 check properly in this driver too ........
+
+2006-10-24 01:33 +0000 [r1528-1530]  Russell Bryant <russell@digium.com>
+
+	* pciradio_vhdl.tar.gz (removed), raddiag.tar.gz (removed): Both of
+	  these files are corrupted and can not be decompressed, so they
+	  need to be re-added. (issue #8134)
+
+	* /, doc/ztmonitor.8, doc/zttool.8, doc/ztcfg.8: Merged revisions
+	  1527 via svnmerge from
+	  https://origsvn.digium.com/svn/zaptel/branches/1.2 ........ r1527
+	  | russell | 2006-10-23 21:08:27 -0400 (Mon, 23 Oct 2006) | 3
+	  lines convert some characters of ISO8859-1 encoding to be UTF-8
+	  (issue #8200, jcollie) ........
+
+2006-10-20 01:26 +0000 [r1520]  Joshua Colp <jcolp@digium.com>
+
+	* /, torisa.c, zaptel.h, zconfig.h: Merged revisions 1519 via
+	  svnmerge from https://origsvn.digium.com/svn/zaptel/branches/1.2
+	  ........ r1519 | file | 2006-10-19 21:23:26 -0400 (Thu, 19 Oct
+	  2006) | 2 lines Later distros have now taken to removing this
+	  file as it has been deprecated for awhile now... so on kernels
+	  2.6.18 or higher we can safely not include it. (props to jsmith)
+	  ........
+
+2006-10-18 02:15 +0000 [r1518]  Russell Bryant <russell@digium.com>
+
+	* /: Blocked revisions 1517 via svnmerge ........ r1517 | russell |
+	  2006-10-17 22:14:43 -0400 (Tue, 17 Oct 2006) | 3 lines remove
+	  ROOT_PREFIX, and move INSTALL_PREFIX to before the first time it
+	  is used (issue #7913, darren1713) ........
+
+2006-10-17  Kevin P. Fleming  <kpfleming@digium.com>
+
+	* Zaptel 1.4.0-beta2 released.
+	
+2006-10-17 16:40 +0000 [r1507]  Russell Bryant <russell@digium.com>
+
+	* wct4xxp/base.c: Set the readbuf size to be the same size of the
+	  variable, readsize. This buffer was 31 bytes, while the readsize
+	  could be 32 bytes, causing a read into invalid memory. (issue
+	  #8155, araasch)
+
+2006-10-11 17:25 +0000 [r1500]  Joshua Colp <jcolp@digium.com>
+
+	* Makefile: Copy to both directories, not just the first one.
+
+2006-10-02 23:50 +0000 [r1490]  Matt O'Gorman <mogorman@digium.com>
+
+	* wctdm.c, wctdm24xxp.c: add support for setting gain registers on
+	  the fxo and fxs modules.
+
+2006-09-20  Kevin P. Fleming  <kpfleming@digium.com>
+
+	* Zaptel 1.4.0-beta1 released.

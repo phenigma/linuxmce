@@ -1,0 +1,15 @@
+Source: asterisk-pluto
+Section: unknown
+Priority: optional
+Maintainer: Office Server Operator <root@activate.plutohome.com>
+Build-Depends: debhelper (>= 4.0.0)
+Standards-Version: 3.6.1
+
+Package: asterisk-pluto
+Architecture: any
+Depends: asterisk (>= 1.4.10), asterisk-perl, tcpdump, traceroute
+Replaces: amp, libspandsp0
+Conflicts: amp, libspandsp0
+Provides: amp, libspandsp0
+Description: Custom packaged asterisk
+ Contains asterisk, some addons, zaptel and AMP

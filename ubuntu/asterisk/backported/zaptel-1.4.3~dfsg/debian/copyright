@@ -1,0 +1,65 @@
+This package was debianized by Matt Zimmerman <mdz@debian.org> on
+Mon, 17 Jun 2002 10:31:21 -0400.
+
+It was downloaded from http://www.asterisk.org/
+
+Upstream source has been modified to comply with the Debian Free 
+Software Guildlines (DFSG), by the removal of the firmware files:
+
+    wct4xxp/OCT6114-128D.ima
+
+xpp/LICENSE.firmware permits redistribution but does not mention
+modification, which is a requirement of Debian Policy 2.1 ("Derived works").
+
+
+Upstream Authors: Jim Dixon / Zapate Telephony, Linux Support Services, Inc.
+
+Copyright (from zaptel.c):
+
+ * Copyright (C) 2001 Jim Dixon / Zapata Telephony.
+ * Copyright (C) 2001 Linux Support Services, Inc.
+ *
+ * All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+
+On Debian systems, a copy of the GNU General Public License may be found in
+/usr/share/common-licenses/GPL.
+
+Other Portions:
+
+ * Copyright (C) 2001-2005, Digium, Inc.
+ * Copyright (C) 2002 Steve Underwood
+sethdlc.c: * Copyright (C) 2000 Krzysztof Halasa <khc@pm.waw.pl>
+ztd-loc.c: * Copyright (C) 2004, Axialys Interactive
+ztdummy.c: * Copyright (C) 2002, Hermes Softlab
+
+bristuff driver:
+ * Copyright (C) 2002, 2003, 2004, Junghanns.NET GmbH
+
+vzaphfc is derived from bristuff and since enhanced by:
+ * Copyright (C) 2004-2006, Daniele "Vihai" Orlandi <daniele@orlandi.com>
+ * Copyright (C) 2006, headissue GmbH; Jens Wilke <jw_vzaphfc@headissue.com>
+
+Files in the xpp/ subdirectory:
+
+* Written by Oron Peled <oron@actcom.co.il>
+* Copyright (C) 2004-2006, Xorcom
+
+opvxa1200.c:
+* OpenVox A1200P FXS/FXO Interface Driver for Zapata Telephony interface
+*
+* Modify from wctdm.c by MiaoLin<miaolin@openvox.com.cn>
+
+opvxa1200.c is available for download from 
+http://www.openvox.com.cn/members_downloads.php
+(requires no login. Does require javascript)
+

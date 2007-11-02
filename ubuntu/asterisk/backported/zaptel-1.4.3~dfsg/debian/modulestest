@@ -1,0 +1,103 @@
+#!/bin/sh
+
+# debian/modulestest: a postbuild script to build zaptel modules
+# example usage:
+#  
+#  svn-buildpackage -rfakeroot --svn-postbuild='debian/modulestest -a' --svn-ignore-new --svn-lintian -uc -us
+
+# At least one of the following two must be set to a sensible value:
+# If both are empty, the script does nothing useful)
+#
+# kernel versions: Comma-separated. Use those if you have their
+# kernel-headers/linux-headers packages installed
+#
+
+# Full pathes to trees:
+# Use this to provide a full path to a custom kernel tree:
+#KERNEL_SOURCES=$HOME/Proj/Debs/Kernel/SwSusp/linux-2.6.15-rc5
+KERNEL_HEADERS=
+KERNEL_SOURCES=
+# run module-asustant with environment params that will generate
+# .changes files even without signing
+MODASS="env SIGNCHANGES=1 DEBSIGNCOMMAND=not_an_executable m-a"
+
+# workaround for silly bash parsing issue in our build scripts:
+if [ "$#" -lt 1 ]; then
+  set -- $MODULESTEST_ARGS
+fi
+
+while getopts ah:s:txX arg
+do
+  case "$arg" in
+    a) # All of the kernel-headers packages installed:
+        KERNEL_HEADERS=`COLUMNS=160 dpkg -l 'kernel-headers-2.[46].*-*-*' | awk '/^.i/{print $2}' | sed -e 's/^kernel-headers-//'| xargs| tr ' ' ,`
+      ;;
+    h) KERNEL_HEADERS=$OPTARG;;
+    s) KERNEL_SOURCES=$OPTARG;;
+    t) # TODO: make this test per-distro or something 
+      KERNEL_HEADERS=2.4.27-2-386,2.6.8-2-686-smp
+      ;;
+    x)
+      # used internally in xorcom. Don't like it: file a bug report to remove
+      # it (Tzafrir)
+      for conf in 386 686 686-smp k7 k7-smp
+      do
+        for ver in 2.4.27-2 2.4.27-3 2.6.8-2 2.6.8-3
+        do
+          KERNEL_HEADERS=$KERNEL_HEADERS,$ver-$conf
+        done
+      done
+      for conf in 386 686 k7 rapidbox2
+      do
+        for ver in 2.6.12-1
+        do
+          KERNEL_HEADERS=$KERNEL_HEADERS,$ver-$conf
+        done
+      done
+      # remove the leading ',':
+      KERNEL_HEADERS=${KERNEL_HEADERS#,}
+      ;;
+    X)
+      for conf in 386 686 k7 rapidbox2
+      do
+        for ver in 2.6.12-1
+        do
+          KERNEL_HEADERS=$KERNEL_HEADERS,$ver-$conf
+        done
+      done
+      # remove the leading ',':
+      KERNEL_HEADERS=${KERNEL_HEADERS#,}
+      ;;
+  esac
+done
+shift $(( $OPTIND-1 ))
+
+echo "Building for: Headers: $KERNEL_HEADERS, Sources: $KERNEL_SOURCES"
+
+if [ "$KERNEL_HEADERS" != '' ]; then hdrs_sw="-l $KERNEL_HEADERS"; fi
+if [ "$KERNEL_SOURCES" != '' ]; then srcs_sw="-k $KERNEL_SOURCES"; fi
+
+# must be absolute for m-a ta accept TARBALL:
+# Also note that $PWD is ugly and is abot to be deleted.
+if [ -x /usr/bin/realpath ]
+then TOP_DIR=`realpath $PWD/../`
+else TOP_DIR=$PWD/../
+fi
+MODS_DIR=$TOP_DIR/modules
+TAR_BALL=$MODS_DIR/usr/src/zaptel.tar.bz2
+DEB=$TOP_DIR/$PACKAGE-source_${TAG_VERSION}_all.deb
+LOG_FILE=$TOP_DIR/$PACKAGE-modules-build-$TAG_VERSION.log
+
+rm -f $LOG_FILE
+dpkg -x $DEB $MODS_DIR
+
+rm -f $TOP_DIR/
+if [ "$hdrs_sw" != '' ]; then
+  TARBALL=$TAR_BALL $MODASS -u $TOP_DIR -t -i -f $hdrs_sw build $PACKAGE >>$LOG_FILE
+fi
+if [ "$srcs_sw" != '' ]; then
+  TARBALL=$TAR_BALL $MODASS -u $TOP_DIR -t -i -f $srcs_sw build $PACKAGE >>$LOG_FILE
+fi
+
+ls -l $TOP_DIR/$PACKAGE-modules-*_$TAG_VERSION+*.deb
+

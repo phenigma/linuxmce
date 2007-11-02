@@ -1,0 +1,22 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## zaptel_perl.dpatch by Tzafrir Cohen <tzafrir.cohen@xorcom.com>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Enable installing the Zaptel perl modules. They are still disabled in
+## DP: upstream to reduce surprise. Also point to the right directory under
+## DP: which to install perl modules (vendorlib vs. sitelib).
+
+@DPATCH@
+diff -urNad zaptel-1.4.3~dfsg~/xpp/utils/Makefile zaptel-1.4.3~dfsg/xpp/utils/Makefile
+--- zaptel-1.4.3~dfsg~/xpp/utils/Makefile	2007-02-28 22:57:52.000000000 +0200
++++ zaptel-1.4.3~dfsg/xpp/utils/Makefile	2007-03-10 01:03:26.000000000 +0200
+@@ -24,8 +24,7 @@
+ MANDIR		= $(mandir)/man8
+ HOTPLUG_USB_DIR	= /etc/hotplug/usb
+ UDEV_RULES_DIR	= /etc/udev/rules.d
+-# Perl disabled by default, until we see it is safe:
+-#PERLLIBDIR	= $(shell eval `perl -V:sitelib`; echo "$$sitelib")
++PERLLIBDIR	= $(shell eval `perl -V:vendorlib`; echo "$$vendorlib")
+ PERL_DIRS	:= Zaptel Zaptel/Hardware Zaptel/Xpp
+ PERL_MODS_PAT	:= *.pm $(PERL_DIRS:%=%/*.pm)
+ PERL_MODS	:= $(shell cd zconf; echo $(PERL_MODS_PAT))

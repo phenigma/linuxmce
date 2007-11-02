@@ -1,0 +1,13 @@
+#!/bin/bash
+#
+# Hook for automatic backports at buildserver.net
+#
+# Target dist: Debian Sarge
+
+# Remove libnewt-dev 
+sed -i -e 's#^\(Build-Depends:.*\)libnewt-dev[^\ ]* \(.*\)$#\1\2#' debian/control
+
+# Downgrade debhelper to 4.0.4 compat level as in zaptel 1:1.0.7-5 (DH_COMPAT=4 is set in rules anyway?!)
+sed -i -e  's#^\(Build-Depends:.*\)debhelper[^,$]*[\ ,$]\+\(.*\)$#\1debhelper (>= 4.0.4), \2#' debian/control
+
+exit 0

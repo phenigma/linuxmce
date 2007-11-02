@@ -1,0 +1,801 @@
+zaptel (1:1.4.3~dfsg-2ubuntu1~feisty1) feisty; urgency=low
+
+  * Backported to Feisty
+
+ -- Radu Cristescu <radu.c@plutohome.com>  Fri, 02 Nov 2007 04:12:05 -0700
+
+zaptel (1:1.4.3~dfsg-2ubuntu1) gutsy; urgency=low
+
+  * Added support for 2.6.22. (LP: #151220)
+
+ -- Chuck Short <zulcss@ubuntu.com>  Wed, 10 Oct 2007 12:46:29 -0400
+
+zaptel (1:1.4.3~dfsg-2) unstable; urgency=low
+
+  [ Tzafrir Cohen ]
+  * Fixed and re-added zaptel_perl. 
+  * And added zaptel_hardware (zaptel hardware lister), just for fun. 
+
+ -- Tzafrir Cohen <tzafrir.cohen@xorcom.com>  Sat, 09 Jun 2007 03:36:17 +0300
+
+zaptel (1:1.4.3~dfsg-1) unstable; urgency=low
+
+  * New upstream release
+    -  A fix for the potential for a rare deadlock between zaptel and the
+    wct4xxp, wcte11xp, and wct1xxp drivers
+    - Fixes for the VPM450M module on FC6 to correct a potential stack
+    overflow scenario at load time.
+    - Many updates to the Astribank driver
+  * disable debian/patches/zaptel_perl as it doesnt apply cleanly
+
+ -- Mark Purcell <msp@debian.org>  Sat, 09 Jun 2007 00:01:55 +0100
+
+zaptel (1:1.4.2.1~dfsg-2) unstable; urgency=low
+
+  * Include debian/compat in zaptel-sources
+    - missing debian/compat file in archive (Closes: #422153)
+
+ -- Mark Purcell <msp@debian.org>  Sat, 02 Jun 2007 10:22:04 +0100
+
+zaptel (1:1.4.2.1~dfsg-1) unstable; urgency=low
+
+  * New upstream release
+    - Added the ability to monitor pre-echo cancellation audio with ztmonitor
+    - Fixed some places where there was the potential for memory corruption
+    on SMP systems
+    - FTBFS with 2.6.19-1 (Closes: #405562)
+  * zaptel 1.4 provides wcfxs->wctdm alias
+    - No mention of wcfxs -> wctdm module rename (Closes: #419161)
+    - Missing modutils/modprobe rules for wctdm (Closes: #419162)
+  * provide debian/compat fixes lintian: debian-rules-sets-DH_COMPAT
+  * Cleanup debian/patches/
+
+ -- Mark Purcell <msp@debian.org>  Thu, 26 Apr 2007 09:07:48 +1000
+
+zaptel (1:1.4.1~dfsg-3) unstable; urgency=low
+
+  [ TzafrirCohen ]
+  * Better shape for ztdiag.dpatch. Don't forget to free.
+
+ -- Mark Purcell <msp@debian.org>  Wed, 04 Apr 2007 22:51:24 +0100
+
+zaptel (1:1.4.1~dfsg-2) experimental; urgency=low
+
+  * $(MAKE) install-libs needed to install libs to libtonezone
+
+ -- Mark Purcell <msp@debian.org>  Sat, 24 Mar 2007 14:17:22 +0000
+
+zaptel (1:1.4.1~dfsg-1) experimental; urgency=low
+
+  [ Tzafrir Cohen ]
+  * New upstream release.
+  * Fix installation of tonezone.h .
+  * merges from trunk:
+  * Update standards version to 3.7.2 .
+  * ztdiag.dpatch: fix the ioctl ZT_CHANDIAG and eable it.
+  * Should fix modules building: restore generated files that were
+    removed by a clean (Closes: #415280).
+  * Update debian/watch for ~ versions
+  * zaptel_perl.dpatch: Do install perl modules and scripts.
+  * zaptel_perl.dpatch: a few other fixes (until next upstream release).
+  * Add Makefile.kernel26 and wctc4xxp/ to source tarball.
+  * Don't install /etc/zaptel.conf by default (Closes: #383081) .
+  * List the tonezones supported by ztcfg and libtonezone in tonezones.txt
+    (Closes: #379108).
+  * Remove man pages from debian/, as they are included in upstream.
+
+ -- Tzafrir Cohen <tzafrir.cohen@xorcom.com>  Sat, 24 Mar 2007 10:03:54 +0200
+
+zaptel (1:1.4.0~dfsg-1) experimental; urgency=low
+
+  * Upgrading to 1.4.
+  * Watch for 1.4.x tarballs, rather than 1.2.x tarballs.
+  * Disable most patches:
+  - ukcid fails to apply.
+  - bristuff fails to apply.
+  - No point in patching the Makefile.
+  * Saving my attempts to apply bristuff.
+  * .h files moved to /usr/include/zaptel
+
+ -- Tzafrir Cohen <tzafrir.cohen@xorcom.com>  Mon,  1 Jan 2007 21:31:18 +0200
+
+zaptel (1:1.2.12~dfsg-2) UNRELEASED; urgency=low
+
+  * NOT RELEASED YET
+  * Remove -O4 from all Makefiles (Closes: #391840)
+  * Remove gcc hardcoded as HOSTCC
+
+ -- Kilian Krause <kilian@debian.org>  Thu, 28 Dec 2006 13:12:16 +0100
+
+zaptel (1:1.2.12~dfsg-1) unstable; urgency=low
+
+  * New upstream release. (Closes: #403326)
+
+ -- Kilian Krause <kilian@debian.org>  Wed, 27 Dec 2006 23:23:40 +0100
+
+zaptel (1:1.2.11.dfsg-1) unstable; urgency=low
+
+  [ Tzafrir Cohen ]
+  * Reverting my changes from 1:1.2.9.1.dfsg-2. Moved to the experimental
+    branch.
+
+  [ Kilian Krause ]
+  * Remove bogus zaptel-modules from being Recommends (Closes: #387961)
+  * Update vzaphfc as proposed by Jens Wilke
+
+  [ Mark Purcell ]
+  * New Upstream Release
+    - Fixes: Fails to build with pristine upstream kernel, very recent version
+    (Closes: #400705)
+    - Fixes: Please package version 1.2.11 (Closes: #399634)
+    - Fixes: vzaphfc: error: 'CHECKSUM_HW' undeclared (Closes: #386498)
+  * Cleanup debian/patches/wct4xxp-dfsg.dpatch
+  * debian/rules call dh_installmodules from binary_modules:
+    - Fixes:  I had to do depmod -a manually after doing m-a a-i zaptel (Closes:
+    #332787)
+  * Update debian/patches/Makefile_uname.dpatch to force -O2
+    - Fixes:  Cannot initiate a call to BRI (Closes: #386052)
+  * Remove Depends: zaptel from debian/control.modules.in
+    - please don't depend on zaptel (Closes: #391826)
+
+ -- Mark Purcell <msp@debian.org>  Sat,  2 Dec 2006 14:33:30 +0000
+
+zaptel (1:1.2.10.dfsg-2) unstable; urgency=low
+
+  * bristuff-0.3.0-PRE-1v
+  * Remove redundant GPL LICENCE text
+
+ -- Mark Purcell <msp@debian.org>  Tue, 24 Oct 2006 22:41:01 +0100
+
+zaptel (1:1.2.10.dfsg-1) unstable; urgency=low
+
+  * New upstream release
+
+ -- Mark Purcell <msp@debian.org>  Sun, 22 Oct 2006 20:27:19 +0100
+
+zaptel (1:1.2.9.1.dfsg-2) unstable; urgency=low
+
+  [ Tzafrir Cohen ]
+  * zaptel 1.4 compatibility changes:
+  - place zaptel.h and tonezone.h in /usr/include/zaptel (through symlinks)
+  - zaptelh_14.dpatch: declare some zaptel 1.4 interfaces (not implemented
+    anywhere, though).
+
+  [ Mark Purcell ]
+  * debian/rules patch from Robert Millan
+    - the package doesn't compile  (Closes: #390903)
+  * add debian/patches/dbug391840.dpatch
+    - ztcfg segfaults because of -O4 (Closes: #391840)
+  * add debian/patches/wct4xxp-dfsg.dpatch
+    - wct4xxp and other modules are not built anymore on zaptel-
+    1.2.8.dfsg-1 (Closes: #388756)
+
+ -- Mark Purcell <msp@debian.org>  Tue, 10 Oct 2006 09:36:58 +1000
+
+zaptel (1:1.2.9.1.dfsg-1) unstable; urgency=low
+
+  * New Upstream Release
+  * firmware removed from wct4xxp/OCT6114-128D.ima
+  * Lintian cleanup; spelling-error-in-copyright
+
+ -- Mark Purcell <msp@debian.org>  Sat, 23 Sep 2006 13:58:15 +0100
+
+zaptel (1:1.2.8.dfsg-1) unstable; urgency=low
+
+  * New Upstream Release
+
+ -- Mark Purcell <msp@debian.org>  Wed, 23 Aug 2006 07:30:22 +0100
+
+zaptel (1:1.2.7.dfsg-4) unstable; urgency=low
+
+  * Install zaptel.conf.sample as a confile under /etc
+  * Add Recommends: zaptel-modules
+  * Improve error handling and conf file checking in init.d. (Closes:
+    Bug#382604)
+
+ -- Mark Purcell <msp@debian.org>  Thu, 17 Aug 2006 08:34:43 +0100
+
+zaptel (1:1.2.7.dfsg-3) unstable; urgency=low
+
+  [ Kilian Krause ]
+  * Simplified vzaphfc patch.
+
+  [ Mark Purcell ]
+  * Build-Depends: debhelper (>= 5.0.37) and dh_installmodules makes
+    zaptel-source.postinst & zaptel-modules.post{inst,rm} obsolete
+    Fixes: postinst/postrm depmod -- update templates to use dh_installmodules
+    instead (Closes: #381754)
+  * postinst failure (Closes: #361312)
+  * zaptel-modules from testing don't compile on Sarge (Closes: #376719)
+  * pciradio.c:1810: error: syntax error before string constant (Closes:
+    #368145)
+  * Can't recompile zaptel modules on Sarge (Closes: #375581)
+  * zaptel-modules from testing don't compile on Sarge (Closes: #376719)
+
+ -- Mark Purcell <msp@debian.org>  Thu, 10 Aug 2006 23:39:58 +0100
+
+zaptel (1:1.2.7.dfsg-2) unstable; urgency=low
+
+  * Fix get-orig-source target to make dfsg repacking work
+  * Fix zaptel-source to build without firmware again. Required dropping
+    wct4xxp module. Added vzaphfc to linux-2.6 modules. (Closes: #381123)
+
+ -- Kilian Krause <kilian@debian.org>  Thu,  3 Aug 2006 11:48:14 +0000
+
+zaptel (1:1.2.7.dfsg-1) unstable; urgency=high
+
+  * Urgency high as this is blocking a security fix for asterisk
+  * Remove non-modifiable firmware to make DFSG compliant. Does
+    anyone need this firmware? (Closes: #379458)
+
+ -- Mark Purcell <msp@debian.org>  Tue,  1 Aug 2006 15:27:09 +0100
+
+zaptel (1:1.2.7-2) unstable; urgency=low
+
+  * Copying Makefile as before to the source package,
+    Copying some extra files now needed for building (Closes: #378864)
+
+ -- Mark Purcell <msp@debian.org>  Tue,  1 Aug 2006 06:29:39 +0100
+
+zaptel (1:1.2.7-1) unstable; urgency=low
+
+  * New upstream release
+
+  [ Kilian Krause ]
+  * Add vzaphfc driver (enhanced zaphfc) by Jens Wilke.
+
+  [ Tzafrir Cohen ]
+  * Separating ZapBRI modules to directories, rather than patches
+  * Example configs moved from zaptel-source to zaptel
+  * Removing some unneeded dirs from zaptel-source
+  * debian/patches/Makefile_kbuild: a small part of the original one.
+    Fixes building on Sarge
+  * genzaptelconf is now in zaptel
+  * xpp/utils/Makefile has a decent install target
+  * debian/rules: Use CURDIR
+  * debian/modulestest: Building modules for -3 kernels
+  * fix x bit of files in /usr/share/zaptel
+  * removed genzaptelconf from debian/
+  * Added support for the OpenVox A1200P card (http://www.openvox.com.cn/)
+  * debian/control: require libusb-dev for building xpp firmware loader.
+  * debian/control: Recommend package xpp-firmware (should be added to
+    non-free)
+  * bristuff_local_zaptelh.dpatch: Build bristuff modules with correct
+    zaptel.conf (in Sarge)
+  * Makefile_uname.dpatch: Updated. Note: watch for PWD issues.
+  * Makefile_bristuff.dpatch: updated to reflect Makefile change.
+
+ -- Mark Purcell <msp@debian.org>  Mon, 17 Jul 2006 21:48:21 +0100
+
+zaptel (1:1.2.6-2) unstable; urgency=high
+
+  * Urgency high as this is blocking a security fix for asterisk [CVE-2006-2898]
+
+  * Add debian/libtonezone-dev.links
+    - Realy fix: missing libtonezone.so.1 symlink (Closes: #372887)
+
+ -- Mark Purcell <msp@debian.org>  Wed, 14 Jun 2006 13:40:31 +1000
+
+zaptel (1:1.2.6-1) unstable; urgency=high
+
+  [ Mark Purcell ]
+  * Urgency high as this is blocking a security fix for asterisk [CVE-2006-2898]
+
+  * New upstream release.
+    - can't find zaptel.h during build (Closes: #330137)
+    - errors in fxotune.c (Closes: #370213)
+    - Cannot make zaptel-source: SUBDIR not found (Closes: #368561)
+
+  [ Kilian Krause ]
+  * Weed out old unused patches. Add comments which patches have been included
+    upstream for next release.
+
+  [ Lionel Elie Mamane ]
+  * Load ztdummy when needed, not when not needed.
+
+  [ Tzafrir Cohen ]
+  * bristuff: 0.3.0-PRE1p
+  * We have another ZapBRI module: ztgsm
+  * Experimental support in genzaptelconf for ztgsm (from sample files)
+  * genzaptelconf: 0.5.1 (does not require restart of asterisk)
+  * zaptel.init: 'unload' operation. Better support for Astribank
+  * moduletest script fixes
+  * bristuff added ztpty
+  * genzaptelconf: wait for xpp (astribank) module to register after loadin it
+  * minor xpp driver fixes (already in 1.2 branch)
+
+  [ Julien BLACHE ]
+  * debian/libtonezone1.links:
+    + Create the libtonezone.so.1 symlink (closes: #372887).
+
+ -- Mark Purcell <msp@debian.org>  Wed, 14 Jun 2006 10:59:52 +1000
+
+zaptel (1:1.2.5-1) unstable; urgency=low
+
+  [ Tzafrir Cohen ]
+  * New upstream version
+  * Only build xpp for i386, as it currently crashes on other arches.
+  * Fix compilation of xpp for 2.6.14
+
+  [ Kilian Krause ]
+  * Fix gendigits to write to stdout.
+
+ -- Kilian Krause <kilian@debian.org>  Thu, 30 Mar 2006 23:52:38 +0300
+
+zaptel (1:1.2.4-1) unstable; urgency=low
+
+  * New upstrream release (Closes: #353094)
+  * removing xpp.dpatch: merged in upstream
+  * removing dot_version: bug fixed upstream
+  * Makefile_kbuild.dpatch: modified, as it was not properly merged in
+    upstream
+  * Makefile_bristuff.dpatch: really build zaptel modules again
+  * Makefile_xpp: fixed. 
+  * debian/modulestest: a script for postbuild of zaptel modules from a svn
+    build
+  * zaptel-source: removing unnecessary dependency on dpatch
+
+ -- Tzafrir Cohen <tzafrir.cohen@xorcom.com>  Thu, 23 Feb 2006 09:40:47 +0200
+
+zaptel (1:1.2.3-2) unstable; urgency=low
+
+  * bristuff 0.3.0-PRE1k. Also, renamed the dpatch to simply "bristuff"
+  * updated version in dot_version.dpatch. 
+  * Include build_tools and .version in copied files
+  * newer versions of genzaptelconf and xpp.dpatch
+
+ -- Tzafrir Cohen <tzafrir.cohen@xorcom.com>  Mon,  6 Feb 2006 15:30:06 +0200
+
+zaptel (1:1.2.3-1) unstable; urgency=low
+
+  * new upstrream release
+  * ukcid.dpatch: for UK Caller ID support (Zaptel part, closes: #302380)
+  * newer versions of genzaptelconf and xpp.dpatch
+  * Makefile_pscmd.dpatch disabled due to a small upstream change. Revive it?
+  * dot_version.dpatch: the tarball is missing the .version file. Remove
+    it when it provides one
+
+ -- Tzafrir Cohen <tzafrir.cohen@xorcom.com>  Mon,  6 Feb 2006 14:02:04 +0200
+
+zaptel (1:1.2.1-3) unstable; urgency=low
+
+  * Fix compilation with binary-only mode.
+  * bristuff 0.3.0-PRE-1f
+  * make lintian override apply
+
+ -- Tzafrir Cohen <tzafrir.cohen@xorcom.com>  Sat,  7 Jan 2006 20:39:33 +0200
+
+zaptel (1:1.2.1-2) unstable; urgency=low
+
+  * Added bristuff 0.3.0-PRE1d patch. bristuff re-enabled. 
+    (Closes: #340627, #344432)
+  * Documentation fixes (Closes: #316801)
+  * Makefile_targets.dpatch is ba its small self
+  * readded bristuff examples. with cwain this time
+  * zaptel.init: a slightly different test for a zaptel timing source
+  * Depend on procps due to using ps in postinst (Closes: #342699)
+
+ -- Tzafrir Cohen <tzafrir.cohen@xorcom.com>  Fri, 30 Dec 2005 19:12:54 +0200
+
+zaptel (1:1.2.1-1) unstable; urgency=low
+
+  * New upstream release
+  * Disable bristuff for new upstream
+
+ -- Mark Purcell <msp@debian.org>  Wed,  7 Dec 2005 21:28:23 +0000
+
+zaptel (1:1.2.0-2) unstable; urgency=low
+
+  [ Kilian Krause ]
+  * Added bristuff 0.3.0-PRE1 for Asterisk 1.2.0 support.
+
+  [Tzafrir Cohen]
+  * fix Makefile_deps_kern.dpatch
+  * remove .rej from Makefile.uname.dpatch
+  * do install genzaptelconf man page
+  * update genzaptelconf and its man page
+  * echocan_env.dpatch: allow changing the echo canceller at zaptel-modules
+    build time
+  * Makefile_kbuild.dpatch: use kbuild for 2.6 modules build. used for:
+  * Makefile_xpp.dpatch: (not applied by default)
+    a small patch to enable the build of:
+  * xpp.dpatch: drivers for Xorcom Asteribank
+
+  [ Mark Purcell ]
+  * Build and package libtonezone.so
+
+ -- Mark Purcell <msp@debian.org>  Wed, 30 Nov 2005 16:28:51 +0000
+
+zaptel (1:1.2.0-1) unstable; urgency=low
+
+  * New upstream release
+  * Remove Makefile_deps_kern.dpatch as it doesnt apply upstream
+
+ -- Mark Purcell <msp@debian.org>  Thu, 17 Nov 2005 17:50:00 +0000
+
+zaptel (1:1.2.0-rc2-1) experimental; urgency=low
+
+  * New upstream release
+
+ -- Mark Purcell <msp@debian.org>  Sun, 13 Nov 2005 18:24:17 +0000
+
+zaptel (1:1.2.0-rc1-1) experimental; urgency=low
+
+  * New upstream release
+  * Update Makefile_uname.dpatch
+  * FTBFS: missing or incorrect directory modexamples/ (Closes: #329084)
+  * debian/rules export DH_COMPAT=4
+
+ -- Mark Purcell <msp@debian.org>  Wed,  9 Nov 2005 21:37:47 +0000
+
+zaptel (1:1.2.0-beta2-3) experimental; urgency=low
+
+  * Not Released Yet
+  * Copyright audit to debian/copyright
+
+ -- Mark Purcell <msp@debian.org>  Mon,  7 Nov 2005 19:19:27 +0000
+
+zaptel (1:1.0.9.2-1) unstable; urgency=low
+
+  * New Upstream Release
+
+ -- Mark Purcell <msp@debian.org>  Tue,  8 Nov 2005 20:47:48 +0000
+
+zaptel (1:1.2.0-beta2-2) experimental; urgency=low
+
+  * Suggestions from Tzafrir Cohen
+    - Makefile_man.dpatch can be removed: fixed by upstream
+    - fxotune.tmpfile.dpatch can be removed: fixed by upstream
+    - a small manual fix to Makefile_targets.dpatch: s/ manpages$//
+    - debian/rules: dh_installman: 's/debian/doc/' a number of times
+      (don't use doc/*.8 as there is no reason to install the pathetic
+      torisatool.8 man page)
+
+ -- Mark Purcell <msp@debian.org>  Tue,  1 Nov 2005 21:26:36 +0000
+
+zaptel (1:1.2.0-beta2-1) experimental; urgency=low
+
+  * New upstream release
+  * Update Makefile_targets.dpatch
+  * Update Makefile_man
+  * Update fxotune_tmpfile.dpatch
+
+ -- Mark Purcell <msp@debian.org>  Tue,  1 Nov 2005 20:51:02 +0000
+
+zaptel (1:1.2.0-0beta1-1) experimental; urgency=low
+
+  * New upstream release
+  * Disable bristuff for experimental upload
+  * Apply patch from Tzafrir Cohen for 1.2.0 build
+
+ -- Mark Purcell <msp@debian.org>  Sun, 18 Sep 2005 12:48:59 +0100
+
+zaptel (1:1.0.9.1-4) unstable; urgency=low
+
+  (NOT YET RELEASED - needs still some tweaking with florz' patches)
+  * debian/patches/ztcfg_init.dpatch: Make ztcfg not kill the channels when
+    executed twice.
+  * debian/patches/zaphfc_0.2.0-RC8n_florz-8.dpatch: Add florz' improved
+    zaphfc implementation as zaphfc-florz. This should reduce system IO load
+    among other improvements. Taken from http://zaphfc.florz.dyndns.org/
+
+ -- Kilian Krause <kilian@debian.org>  Sat, 27 Aug 2005 21:32:50 +0200
+
+zaptel (1:1.0.9.1-3) unstable; urgency=low
+
+  * debian/control: fixed overrides disparity with zaptel-source belonging to
+    devel rather than comm.
+
+ -- Kilian Krause <kilian@debian.org>  Sat, 27 Aug 2005 14:35:48 +0200
+
+zaptel (1:1.0.9.1-2) unstable; urgency=low
+
+  * Closes: #302836: zaptel-source: zaphfc module missing after
+    compiling modules. 
+  * Closes: #323753: zaptel-source: cannot compile zaphfc in unstable
+    with gcc-4.0.1. 
+
+ -- Santiago Ruano Rincon <santiago@unicauca.edu.co>  Fri, 19 Aug 2005 00:40:56 -0500
+
+zaptel (1:1.0.9.1-1) unstable; urgency=low
+
+  * New upstream release
+  * Update debian/watch
+  * Please package version 1.0.9.1 (Closes: #320600)
+  * FXO hardware stops working after 25 days (Closes: #321239)
+
+ -- Mark Purcell <msp@debian.org>  Mon,  8 Aug 2005 18:34:10 +0100
+
+zaptel (1:1.0.9-5) unstable; urgency=low
+
+  * Import bristuff-0.2.0-RC8l.dpatch
+
+ -- Santiago Ruano Rincon <santiago@unicauca.edu.co>  Sat, 30 Jul 2005 11:26:42 -0500
+
+zaptel (1:1.0.9-4) unstable; urgency=low
+
+  Santiago Ruano Rincon:
+  * Man pages are builded from sgml's using docbook-utils
+    Deleted the *.8 files
+  * Closes: #317297: Applied a patch to improve the ztdummy
+    accuracy on kernel 2.6
+
+  Mark Purcell:
+  * Reinstate debian/zaptel.install
+    - Closes: #318575: this package does not install ztcfg, ztmonitor,
+    ztspeed, zttest, zttool.
+
+ -- Mark Purcell <msp@debian.org>  Sun, 17 Jul 2005 07:11:27 +1000
+
+zaptel (1:1.0.9-3) unstable; urgency=low
+
+  * Import bristuff-0.2.0-RC8j.dpatch
+  * Closes: #315251: zaptel should be in group comm
+  * Note that the cloned report is still active against ftp.debian.org
+  * Closes: #316800: zaptel package 1.0.9 ships headers
+
+ -- Mark Purcell <msp@debian.org>  Thu, 14 Jul 2005 12:19:10 +0100
+
+zaptel (1:1.0.9-2) unstable; urgency=low
+
+  * Import bristuff-0.2.0-RC8h.dpatch
+  * Enable rtia.dpatch 
+
+ -- Mark Purcell <msp@debian.org>  Mon,  4 Jul 2005 02:35:37 +0100
+
+zaptel (1:1.0.9-1) unstable; urgency=low
+
+  * New upstream release
+  * Disable bristuff to allow 1.0.9 upload
+  * Disable rtia to allow 1.0.9 upload 
+
+ -- Mark Purcell <msp@debian.org>  Sun,  3 Jul 2005 15:51:32 +0100
+
+zaptel (1:1.0.7-5) unstable; urgency=low
+
+  * ACK NMUs. Thanks for helping with this. (Closes: #305731, #310150)
+  * Actually doesn't fail if dpatch is not installed when building modules.
+  * zaptel-modules.postinst: New. Run depmod -a on modules install
+  * zaptel: should build-dep on debhelper (>= 4.0.4). (Closes: #310788)
+  * zaptel: should build-dep on dpatch >= 2.0.9 (Closes: #314549)
+  * zaptel: bashism in postinst (Closes: #314552)
+  * zaptel-source: compilation error in zaphfc.c (Closes: #305193)
+  * zaptel-source Build-Depends on dpatch, should Depend on
+    it though. (Closes: #309258)
+  * zaptel-source: Fails to enable RTAI support (Closes: #304648)
+
+ -- Kilian Krause <kk@verfaction.de>  Sun, 19 Jun 2005 15:38:25 +0200
+
+zaptel (1:1.0.7-4.1) unstable; urgency=high
+
+  * Non-maintainer upload.
+  * High-urgency upload for sarge-targetted RC bugfix
+  * Make sure directories are created mode 755 instead of mode 644, as
+    this otherwise causes problems for building (apparently on xfs
+    filesystems).  Closes: #310150.
+  * Tweak debian/patches/Makefile.dpatch fix from the previous NMU so
+    that it isn't unnecessarily fragile: -fsigned-char is *always*
+    either a no-op or required, so lose the architecture checking and
+    enable it unconditionally.  Closes: #305731.
+
+ -- Steve Langasek <vorlon@debian.org>  Sun, 22 May 2005 02:48:44 -0700
+
+zaptel (1:1.0.7-4) unstable; urgency=high
+
+  * NMU as VOIP team taking so long. Fix compiler flags so that ztcfg
+    works. (Closes: #305731)
+
+ -- Matthew Grant <grantma@anathoth.gen.nz>  Fri, 22 Apr 2005 07:35:28 +1200
+
+zaptel (1:1.0.7-3) unstable; urgency=medium
+
+  * Closes: #302903: libtonezone1 package is empty
+  * Closes: #302833: binary files missing, e.g. /sbin/ztcfg
+  * Move debian/*.files -> debian/*.install
+  * Closes: #302847: zaptel command ztcfg freezes on Debian PowerPC
+    causing boot failure.
+
+ -- Mark Purcell <msp@debian.org>  Sun,  3 Apr 2005 19:44:25 +0100
+
+zaptel (1:1.0.7-2) unstable; urgency=medium
+
+  * Debian VoIP Team upload.
+  * Jose Carlos:
+    + Working support for module-assistant included in zaptel-source.
+      Thanks to Eduard Bloch for his help (Closes: #301665)
+    + debian/control.modules.in:
+       - make generated modules package depend on zaptel binary package.
+       - updated description to refer to module-assistant.
+    + debian/control:
+       - build-depend on bzip2.
+       - zaptel-source depends on module-assistant tool and bzip2.
+       - updated and improved descriptions.
+    + debian/rules:
+       - remaked with the new m-a stuff.
+       - don't need dpatch installed for building the modules (Closes: #301666)
+    + debian/postinst: doesn't output garbage (Closes: #296958)
+    + debian/postrm: don't remove creeated devices. Only box admin can do
+      that, per Policy 10.6
+    + Removed zaphfc and qozap examples from zaptel-source. Only ship them
+      in zaptel binary package.
+    + README.Debian: file added. Talk about how compile modules and
+      use them with udev (Closes: #163857)
+    + Don't install zaptel.h file in zaptel-modules packages. (Closes: #297306)
+
+  * Kilian Krause:
+    + Increased urgency for fixing RC-bug and this is the last deb to
+      allow the whole Debian VoIP suit proceed to testing. 
+
+ -- Jose Carlos Garcia Sogo <jsogo@debian.org>  Sat,  2 Apr 2005 01:14:23 +0200
+
+zaptel (1:1.0.7-1) unstable; urgency=low
+
+  * New upstream version.
+
+ -- Kilian Krause <kk@verfaction.de>  Sat, 19 Mar 2005 23:28:07 +0100
+
+zaptel (1:1.0.6-1) unstable; urgency=low
+
+  * New upstream version. (zaptel 1.0.6, bristuff RC7k)
+  * added zaphfc and qozap modules.
+
+ -- Kilian Krause <kk@verfaction.de>  Sat,  5 Mar 2005 20:05:35 +0100
+
+zaptel (1:1.0.4-3) unstable; urgency=low
+
+  * Debian VoIP team upload.
+  * debian/rules, debian/zaptel-source.files: fixed zaptel.h includes problem
+  * debian/patches/Makefile.dpatch: imported from old package (now dpatch
+    instead directly in the diff). Fixed building on hosts with differring
+    userland and kernel arch. Now also including symlink for SONAME.
+  * debian/patches/bristuff.dpatch: imported bristuff patch to include zaphfc.
+    (Closes: #294183)
+  * debian/zaptel.postinst: Fixed permissions issue problem.
+  * debian/zaptel.modprobe.d: Added zaphfc RC7f.
+
+ -- Kilian Krause <kk@verfaction.de>  Thu, 24 Feb 2005 01:42:36 +0100
+
+zaptel (1:1.0.4-2) experimental; urgency=low
+  
+  * Better "use" of uname -r in Makefile for zaptel-source
+
+ -- Santiago Ruano Rincon <santiago@unicauca.edu.co>  Mon, 21 Feb 2005 00:27:14 -0500
+
+zaptel (1:1.0.4-1) experimental; urgency=low
+
+  * New upstream release (zaptel-1.0.4)
+  * Included zttest and ztspeed binaries
+  * Added Depends on debhelper and Recomends zaptel for zaptel-source
+  * Added /etc/modprobe.d/zaptel and corrected the path for the binaries,
+    /sbin instead of /usr/sbin
+
+ -- Santiago Ruano Rincon <santiago@unicauca.edu.co>  Wed, 26 Jan 2005 23:05:20 -0500
+
+zaptel (1:1.0.2-2) unstable; urgency=low
+                                                                                                           
+  * libtonezone out of zaptel-source 
+  * /dev/zap/  are now created by zaptel.postinst and deleted by
+    zaptel.postrm. Now, the zap devices match with the upstream version
+    (Closes: #274384).
+  * Added lintian overrides for mknod-in-maintainer-script warnings
+  * docbook-to-man out of the Build-Depends
+
+ -- Santiago Ruano Rincon <santiago@unicauca.edu.co>  Wed, 24 Nov 2004 22:05:52 -0500
+
+zaptel (1:1.0.2-1) unstable; urgency=low
+                                                                                                           
+  * New upstream release (zaptel-1.0.2)
+                                                                                                           
+ -- Santiago Ruano Rincon <santiago@unicauca.edu.co>  Sat, 30 Oct 2004 00:51:54 -0500
+
+zaptel (1:1.0.0-2) unstable; urgency=low
+ 
+  * New maintainer (Closes: #251938).
+  * Man pages created for ztcfg, ztmonitor and zttool
+  (Closes: #274632, #274633, #274634).
+  * Mark Purcell made the package for version 1.0
+  (Closes: #273255, #251929).
+  * zaptel-modules can be build from zaptel-source with
+  make-kpkg (Closes: #274085).
+  * Now it compiles for 2.6 Kernels (Closes: #251930).
+  
+ -- Santiago Ruano Rincon <santiago@unicauca.edu.co>  Sun, 26 Sep 2004 02:05:44 -0500
+
+zaptel (1:1.0.0-1) unstable; urgency=low
+
+  * NMU (See Bug#251938)
+  * New upstream release
+
+ -- Mark Purcell <msp@debian.org>  Fri, 24 Sep 2004 22:46:55 +1000
+
+zaptel (1:0.8.1+1.0-RC2-1) unstable; urgency=low
+
+  * New upstream release
+
+ -- Mark Purcell <msp@debian.org>  Thu,  9 Sep 2004 19:17:28 +1000
+
+zaptel (1:0.8.1+1.0-RC1-1) unstable; urgency=low
+
+  * New upstream release
+  * Add a debian/watch file 
+
+ -- Mark Purcell <msp@debian.org>  Wed, 21 Jul 2004 17:51:22 +1000
+
+zaptel (1:0.8.1-1) unstable; urgency=low
+
+  * New upstream release
+
+ -- Matt Zimmerman <mdz@debian.org>  Wed, 11 Feb 2004 15:29:20 -0800
+
+zaptel (1:0.8.0-2) unstable; urgency=low
+
+  * Create usr/include ahead of time so that tonezone.h is installed
+    correctly (Closes: #227795)
+
+ -- Matt Zimmerman <mdz@debian.org>  Wed, 14 Jan 2004 17:24:26 -0800
+
+zaptel (1:0.8.0-1) unstable; urgency=low
+
+  * New upstream release
+
+ -- Matt Zimmerman <mdz@debian.org>  Tue, 13 Jan 2004 14:44:56 -0800
+
+zaptel (1:0.6.0-2) unstable; urgency=low
+
+  * Rebuild with new libnewt
+
+ -- Matt Zimmerman <mdz@debian.org>  Mon, 30 Jun 2003 22:51:18 -0400
+
+zaptel (1:0.6.0-1) unstable; urgency=low
+
+  * New upstream release, needed for new asterisk (Closes: #189661)
+
+ -- Matt Zimmerman <mdz@debian.org>  Sat, 19 Apr 2003 23:56:59 -0400
+
+zaptel (1:0.4.0-2) unstable; urgency=low
+
+  * Break out into {build,install,binary}-indep targets
+    (Closes: #184528)
+  * libtonezone-dev Section: libdevel
+  * Escape $ properly in instructions in postinst
+
+ -- Matt Zimmerman <mdz@debian.org>  Wed, 12 Mar 2003 19:16:10 -0500
+
+zaptel (1:0.4.0-1) unstable; urgency=low
+
+  * New upstream release
+
+ -- Matt Zimmerman <mdz@debian.org>  Sun, 16 Feb 2003 15:12:02 -0500
+
+zaptel (0.cvs.20021029-1) unstable; urgency=low
+
+  * New upstream CVS
+  * Use MARK2 echo canceller
+
+ -- Matt Zimmerman <mdz@debian.org>  Tue, 29 Oct 2002 10:37:53 -0500
+
+zaptel (0.cvs.20020729-1) unstable; urgency=low
+
+  * New upstream CVS
+  * Include ztmonitor binary
+
+ -- Matt Zimmerman <mdz@debian.org>  Mon, 29 Jul 2002 12:36:58 -0400
+
+zaptel (0.cvs.20020708-1) unstable; urgency=low
+
+  * New upstream CVS
+
+ -- Matt Zimmerman <mdz@debian.org>  Mon,  8 Jul 2002 15:32:20 -0400
+
+zaptel (0.cvs.20020624-2) unstable; urgency=low
+
+  * Include Makefile in the -source package (oops, Closes: #152014)
+
+ -- Matt Zimmerman <mdz@debian.org>  Fri,  5 Jul 2002 11:00:08 -0400
+
+zaptel (0.cvs.20020624-1) unstable; urgency=low
+
+  * Initial Release (Closes: #150874)
+
+ -- Matt Zimmerman <mdz@debian.org>  Mon, 17 Jun 2002 10:31:21 -0400
+

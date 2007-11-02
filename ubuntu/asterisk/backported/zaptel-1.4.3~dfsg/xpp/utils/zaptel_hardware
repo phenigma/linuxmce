@@ -1,0 +1,91 @@
+#! /usr/bin/perl -w
+#
+# Written by Oron Peled <oron@actcom.co.il>
+# Copyright (C) 2007, Xorcom
+# This program is free software; you can redistribute and/or
+# modify it under the same terms as Perl itself.
+#
+# $Id: zaptel_hardware 2536 2007-05-17 21:47:40Z tzafrir $
+#
+use strict;
+BEGIN { my $dir = $0; $dir =~ s:/[^/]+$::; unshift(@INC, "$dir", "$dir/zconf"); }
+
+use Zaptel;
+use Zaptel::Span;
+use Zaptel::Xpp;
+use Zaptel::Xpp::Xbus;
+use Zaptel::Hardware;
+
+sub usage {
+	die "Usage: $0\n";
+}
+
+@ARGV == 0 or usage;
+
+my @hardware = Zaptel::Hardware->devices;
+my @spans = Zaptel::spans;
+
+sub show_xbus($) {
+	my $xbus = shift or die;
+	my @xpds = $xbus->xpds;
+	my $connector = ($xbus->status eq 'CONNECTED') ? $xbus->connector : "MISSING";
+	$connector = "(" . $connector . ")";
+	printf "%-20s\n", $connector;
+	foreach my $xpd (sort { $a->num <=> $b->num } @xpds) {
+		my $reg = $xpd->zt_registration;
+		my $span;
+		my $spanstr;
+		if($reg && @spans) {
+			($span) = grep { $_->name eq $xpd->fqn } @spans;
+			$spanstr = ($span) ? ("Span " . $span->num) : "";
+		} else {
+			$spanstr = "Unregistered";
+		}
+		my $master = '';
+		$master = "XPP-SYNC" if $xpd->is_sync_master;
+		$master .= " ZAPTEL-SYNC" if defined($span) && $span->is_zaptel_sync_master;
+		printf "\t%-10s: %-8s %s %s\n", $xpd->fqn, $xpd->type, $spanstr, $master;
+	}
+}
+
+my %seen;
+my $format = "%-20s\t%4s:%4s %-12s ";
+
+foreach my $dev (@hardware) {
+	my $xbus = $dev->xbus;
+	my $driver = $dev->driver || "";
+	$driver = "[$driver]";
+	printf $format, $dev->hardware_name, $dev->vendor, $dev->product, $driver;
+	if(!$xbus) {
+		printf "\n";
+		next;
+	}
+	$seen{$xbus->name} = 1;
+	show_xbus($xbus);
+}
+
+my $notified_lost = 0;
+foreach my $xbus (Zaptel::Xpp::xbuses('SORT_CONNECTOR')) {
+	if(!$seen{$xbus->name}) {
+		print "----------- XPP Spans with disconnected hardware -----------\n"
+			unless $notified_lost++;
+		printf $format, $xbus->name, '', '', "NO HARDWARE";
+		show_xbus($xbus);
+	}
+}
+
+
+__END__
+
+=head1 NAME
+
+zaptel_hardware - Shows Zaptel hardware devices.
+
+=head1 SYNOPSIS
+
+zaptel_hardware
+
+=head1 DESCRIPTION
+
+Show all zaptel hardware devices, both used and unused.
+

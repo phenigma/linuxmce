@@ -1,0 +1,15 @@
+EXTRA_CFLAGS := -I$(src)
+
+zaptel-objs := zaptel-base.o
+
+ifeq ($(HPEC_PRESENT),yes)
+ifeq ($(ARCH),i386)
+zaptel-objs += hpec/hpec_x86_32.o
+endif
+
+ifeq ($(ARCH),x86_64)
+zaptel-objs += hpec/hpec_x86_64.o
+endif
+
+EXTRA_CFLAGS += -DECHO_CAN_HPEC -I$(src)/hpec
+endif

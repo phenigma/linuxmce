@@ -1,0 +1,15 @@
+obj-m += wctc4xxp.o
+
+EXTRA_CFLAGS := -I$(src)/.. -Wno-undef
+
+wctc4xxp-objs := base.o 
+
+ifneq ($(HOTPLUG_FIRMWARE),yes)
+wctc4xxp-objs += firmware_tc400m.o
+endif
+
+$(obj)/base.o: $(src)/../zaptel.h
+
+$(obj)/firmware_tc400m.o: $(src)/tc400m-firmware.bin $(obj)/base.o
+	@echo Making firmware object file for $(notdir $<)
+	@cd $(src) && ../build_tools/make_firmware_object $(notdir $<) $@ $(obj)/base.o

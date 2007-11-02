@@ -1,0 +1,14 @@
+loadzone=nl
+defaultzone=nl
+span=1,1,3,ccs,hdb3,crc4
+span=2,2,3,ccs,hdb3,crc4
+
+alaw=1-62
+
+bchan=1-15
+dchan=16
+bchan=17-31
+
+bchan=32-46
+dchan=47
+bchan=48-62

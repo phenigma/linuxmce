@@ -1,0 +1,232 @@
+libpri (1.4.0-2~feisty1) unstable; urgency=low
+
+  * Backported to Feisty
+
+ -- Radu C <radu.c@plutohome.com>  Fri, 02 Nov 2007 04:13:38 -0700
+
+libpri (1.4.0-2) unstable; urgency=low
+
+  * unstable release
+
+ -- Mark Purcell <msp@debian.org>  Sun, 18 Mar 2007 21:41:16 +0000
+
+libpri (1.4.0-1) experimental; urgency=low
+
+  [ Tzafrir Cohen ]
+  * A new package for branch 1.4.
+  * Bristuff disabled.
+  * Standard version updated to 3.7.2. No change required.
+
+  [ Mark Purcell ]
+  * Update debian/watch for 1.4 series
+
+ -- Mark Purcell <msp@debian.org>  Sun, 18 Mar 2007 21:36:25 +0000
+
+libpri (1.2.4-1) unstable; urgency=low
+
+  * New upstream release.
+  * bristuff-0.3.0-PRE-1v
+
+ -- Mark Purcell <msp@debian.org>  Tue, 24 Oct 2006 22:21:29 +0100
+
+libpri (1.2.3-1) unstable; urgency=low
+
+  * New upstream release.
+
+  [ Tzafrir Cohen ]
+  * Patches have been applied upstream
+  * Makefile.dpatch: Remove unused fix from patches
+  * bristuff 0.3.0-PRE1p
+
+  [ Mark Purcell ]
+  * Cleanup bristuff.dpatch for Upstream 1.2.3. 
+
+ -- Mark Purcell <msp@debian.org>  Wed, 14 Jun 2006 12:11:36 +1000
+
+libpri (1.2.2-3) unstable; urgency=low
+
+  * Use CURDIR rather than PWD to make sure we can build with sudo.
+
+ -- Kilian Krause <kilian@debian.org>  Sun, 16 Apr 2006 22:55:59 +0000
+
+libpri (1.2.2-2) unstable; urgency=low
+
+  * bristuff 0.3.0-PRE-1k
+  * some changes to the libname patch (don't change links in the build dir)
+  * we no longer need to symlink manually (right?)
+
+ -- Tzafrir Cohen <tzafrir.cohen@xorcom.com>  Wed, 08 Feb 2006 00:39:46 +0200
+
+libpri (1.2.2-1) unstable; urgency=low
+
+  [ Tzafrir Cohen ]
+  * bristuff 0.3.0-PRE-1f
+
+  [ Kilian Krause ]
+  * New upstream release.
+  * New ABI since 1.2.1 without chaning SONAME. Adjusting at least the package
+    name accordingly nevertheless. (Closes: #341109)
+  * Add GNU/kFreeBSD patch to run ldconfig (Closes: #338388)
+
+ -- Kilian Krause <kilian@debian.org>  Sun,  5 Feb 2006 11:42:46 +0100
+
+libpri (1.2.1-2) unstable; urgency=low
+
+  * bristuff 0.3.0-PRE-1d
+  * bristuff is built by default, but as a separate library:
+    libpri-bristuffed.so.1 , /usr/include/bristuffed/pri.h . Thus the default
+    libpri is unmodified.
+
+ -- Tzafrir Cohen <tzafrir.cohen@xorcom.com>  Sat, 31 Dec 2005 15:28:25 +0200
+
+libpri (1.2.1-1) unstable; urgency=low
+
+  * New upstream release
+  * Disable bristuff for new upstream
+
+ -- Mark Purcell <msp@debian.org>  Wed,  7 Dec 2005 21:25:46 +0000
+
+libpri (1.2.0-release-2) unstable; urgency=low
+
+  * bristuff 0.3.0-PRE-1 
+
+ -- Tzafrir Cohen <tzafrir.cohen@xorcom.com>  Wed, 23 Nov 2005 02:26:50 +0200
+
+libpri (1.2.0-release-1) unstable; urgency=low
+
+  * New upstream release
+
+ -- Mark Purcell <msp@debian.org>  Thu, 17 Nov 2005 17:44:28 +0000
+
+libpri (1.2.0-rc2-1) experimental; urgency=low
+
+  * New upstream release
+
+ -- Mark Purcell <msp@debian.org>  Sun, 13 Nov 2005 18:21:12 +0000
+
+libpri (1.2.0-rc1-1) unstable; urgency=low
+
+  * New upstream release
+  * Copyright audit to debian/copyright
+
+ -- Mark Purcell <msp@debian.org>  Wed,  9 Nov 2005 20:01:55 +0000
+
+libpri (1.2.0-beta2-1) experimental; urgency=low
+
+  * New upstream release
+  * Update Makefile.patch
+
+ -- Mark Purcell <msp@debian.org>  Tue,  1 Nov 2005 21:46:25 +0000
+
+libpri (1.2.0-0beta1-1) experimental; urgency=low
+
+  * New upstream release
+  * Disable bristuff for experimental upload
+  * lintian cleanup debian/copyright
+
+ -- Mark Purcell <msp@debian.org>  Tue, 30 Aug 2005 20:36:41 +0100
+
+libpri (1.0.9-4) unstable; urgency=low
+
+  * Import bristuff-0.2.0-RC8l.dpatch
+
+ -- Santiago Ruano Rincon <santiago@unicauca.edu.co>  Sat, 30 Jul 2005 11:30:30 -0500
+
+libpri (1.0.9-3) unstable; urgency=low
+
+  * Import bristuff_2.0.0-RC8j
+
+ -- Mark Purcell <msp@debian.org>  Thu, 14 Jul 2005 12:35:29 +0100
+
+libpri (1.0.9-2) unstable; urgency=low
+
+  * With bristuff_2.0.0-RC8h enabled
+
+ -- Mark Purcell <msp@debian.org>  Sat,  2 Jul 2005 09:32:21 +0100
+
+libpri (1.0.9-1) unstable; urgency=low
+
+  * New upstream release
+  * Temp disable BRI stuff to enable 1.0.9 upload
+
+ -- Mark Purcell <msp@debian.org>  Sat,  2 Jul 2005 09:03:34 +0100
+
+libpri (1.0.7-2) UNRELEASED; urgency=low
+
+  * NOT RELEASED YET
+
+ -- Mark Purcell <msp@debian.org>  Fri, 25 Mar 2005 10:39:35 +0000
+
+libpri (1.0.7-1) unstable; urgency=low
+
+  * New upstream release
+  * debian/watch to svn-upgrade
+
+ -- Mark Purcell <msp@debian.org>  Fri, 25 Mar 2005 10:36:08 +0000
+
+libpri (1.0.6-1) unstable; urgency=low
+
+  * New upstream version. (libpri 1.0.6, bristuff RC7k)
+  * Upgraded Standards-Version to 3.6.1 after converting changelog to UTF8.
+
+ -- Kilian Krause <kk@verfaction.de>  Sat,  5 Mar 2005 13:33:10 +0100
+
+libpri (1.0.4-2) unstable; urgency=low
+
+  * Debian VoIP import.
+  * debian/patches/Makefile.dpatch, debian/patches/q931.dpatch: imported from
+    old diff.
+  * debian/patches/bristuff.dpatch: Added bristuff RC7f from junghanns.net
+    (needs disabled q931.dpatch for now) (Closes: #294184)
+
+ -- Kilian Krause <kk@verfaction.de>  Thu, 24 Feb 2005 01:25:11 +0100
+
+libpri (1.0.4-1) unstable; urgency=low
+
+  * New upstream release (Closes: Bug#288447)
+  * Apply amd64 patch from Andreas Jochens (Closes: Bug#287442)
+
+ -- Mark Purcell <msp@debian.org>  Sun,  6 Feb 2005 11:09:04 +0000
+
+libpri (1.0.2-1) unstable; urgency=low
+
+  * New upstream release
+
+ -- Mark Purcell <msp@debian.org>  Sat,  6 Nov 2004 12:17:41 +1100
+
+libpri (1.0.1-1) unstable; urgency=low
+
+  * New upstream release
+
+ -- Mark Purcell <msp@debian.org>  Thu,  7 Oct 2004 13:03:22 +1000
+
+libpri (1.0.0-1) unstable; urgency=low
+
+  * New upstream release
+
+ -- Mark Purcell <msp@debian.org>  Fri, 24 Sep 2004 22:28:02 +1000
+
+libpri (0.6.0+1.0RC1-1) unstable; urgency=low
+
+  * New upstream release (Closes: Bug#254501)
+
+ -- Mark Purcell <msp@debian.org>  Tue, 20 Jul 2004 19:14:24 +1000
+
+libpri (0.6.0-1) unstable; urgency=low
+
+  * New upstream release
+
+ -- Mark Purcell <msp@debian.org>  Thu, 22 Apr 2004 23:59:18 +1000
+
+libpri (0.5.2-1) unstable; urgency=low
+
+  * New Upstream Release (Closes: Bug#200188)
+
+ -- Mark Purcell <msp@debian.org>  Thu,  5 Feb 2004 16:01:49 +1100
+
+libpri (0.3.2-1) unstable; urgency=low
+
+  * Initial Release.
+
+ -- Mark Purcell <msp@debian.org>  Wed,  2 Jul 2003 20:23:13 +1000
+

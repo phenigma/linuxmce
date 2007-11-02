@@ -1,0 +1,86 @@
+#! /usr/bin/perl -w
+#
+# Written by Oron Peled <oron@actcom.co.il>
+# Copyright (C) 2007, Xorcom
+# This program is free software; you can redistribute and/or
+# modify it under the same terms as Perl itself.
+#
+# $Id: zt_registration 2536 2007-05-17 21:47:40Z tzafrir $
+#
+use strict;
+BEGIN { my $dir = $0; $dir =~ s:/[^/]+$::; unshift(@INC, "$dir", "$dir/zconf"); }
+
+use Zaptel;
+use Zaptel::Span;
+use Zaptel::Xpp;
+use Zaptel::Xpp::Xbus;
+
+sub usage {
+	die "Usage: $0 [on|off|1|0]\n";
+}
+
+@ARGV == 0 or @ARGV == 1 or usage;
+my $on = shift;
+my $verbose = 0;
+my $should_output = 1;
+
+if(defined($on)) {	# Translate to booleans
+	$on = uc($on);
+	$on =~ /^(ON|OFF|1|0)$/ or usage;
+	$on = ($on eq 'ON') ? 1 : 0;
+	$should_output = 0 unless $verbose;
+}
+
+sub state2str($) {
+	return (shift)?"on":"off";
+}
+
+sub myprintf {
+	printf @_ if $should_output;
+}
+
+my @spans = Zaptel::spans;
+
+foreach my $xbus (Zaptel::Xpp::xbuses('SORT_CONNECTOR')) {
+	myprintf "%-10s\t\t%s\n", $xbus->name, $xbus->connector;
+	next unless $xbus->status eq 'CONNECTED';
+	foreach my $xpd ($xbus->xpds()) {
+		my $prev = $xpd->zt_registration($on);
+		myprintf "\t%-10s: ", $xpd->fqn;
+		if(!defined($on)) {			# Query only
+			my ($span) = grep { $_->name eq $xpd->fqn } @spans;
+			my $spanstr = ($span) ? ("Span " . $span->num) : "";
+			myprintf "%s %s\n", state2str($prev), $spanstr ;
+			next;
+		}
+		if(!defined($prev)) {			# Failure
+			printf "Failed %s\n", $!;
+			next;
+		}
+		myprintf "%3s ==> %3s\n", state2str($prev), state2str($on);
+	}
+}
+
+__END__
+
+=head1 NAME
+
+zt_registration - Handle registration of Xorcom XPD modules in zaptel.
+
+=head1 SYNOPSIS
+
+zt_registration [on|off]
+
+=head1 DESCRIPTION
+
+Without parameters, show all connected XPD's sorted by physical connector order.
+Each one is show to be unregistered (off), or registered to a specific zaptel span
+(the span number is shown).
+
+All registerations/deregisterations are sorted by physical connector string.
+
+=head2 Parameters
+
+off -- deregisters all XPD's from zaptel.
+
+on -- registers all XPD's to zaptel.

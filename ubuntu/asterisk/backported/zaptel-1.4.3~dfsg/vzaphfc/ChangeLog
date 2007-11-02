@@ -1,0 +1,4 @@
+1.42 - 2006jun06 - Jens Wilke <jw_vzaphfc@headissue.com>
+- fixed fifo timing issue
+- added statistics for fifo underruns (RXU&TXU)
+- maintanance now done by jw

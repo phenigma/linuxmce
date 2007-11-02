@@ -1,0 +1,15 @@
+[channels]
+txgain = -10.0
+rxgain = 0.0
+
+signalling = gsm
+context = from-gsm
+
+;group=1
+
+; phone number for SIM card in slot A
+;exten=016012345671
+; PIN for SIM card in slot A
+;pin=1234
+
+;channel => 1

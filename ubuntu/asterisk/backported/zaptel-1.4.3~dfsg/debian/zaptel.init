@@ -1,0 +1,178 @@
+#! /bin/sh
+
+### BEGIN INIT INFO
+# Provides:          zaptel
+# Required-Start:    
+# Required-Stop:     
+# Should-Start:      $local_fs hotplug module-init-tools
+# Should-Stop:       $local_fs
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Configures zaptel kernel modules.
+# Description:       Configures zaptel kernel modules. Waits until
+#                    they are fully loaded or loads ztdummy (if modules
+#                    are availble).
+### END INIT INFO
+
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+DAEMON=/sbin/ztcfg
+ZAPCONF_FILE=/etc/zaptel.conf
+NAME=zaptel
+DESC="Zaptel telephony kernel driver"
+FXOTUNE=/usr/sbin/fxotune
+
+# Include am defaults if available
+if [ -f /etc/default/zaptel ] ; then
+	. /etc/default/zaptel
+fi
+
+if [ ! -x $DAEMON ] ; then
+	echo >&2 $NAME ":" $DAEMON "fails test for exists and executable" ;
+	exit 0
+fi
+
+if [ ! -f $ZAPCONF_FILE ] ; then
+	echo >&2 $NAME ":" $ZAPCONF_FILE "fails test for exists and readable";
+	exit 0
+fi
+
+# defined in /etc/default/zaptel
+# ZAPTEL_MODS is a list of modules to be loaded at startup
+
+set -e
+
+zap_reg_xpp() {
+	if [ ! -d /proc/xpp ]; then return; fi
+	
+	# Get a list of connected Astribank devices, sorted by the name of 
+	# the USB connector. That order is rather arbitrary, but will not 
+	# change without changes to the cabling.
+	xbusses=`sort -k 2 /proc/xpp/xbuses | awk -F: '/STATUS=connected/ {print $1}'`
+
+	# get a list of XPDs that were not yet registered as zaptel spans.
+	# this will be the case if you set the parameter zap_autoreg=0 to
+	# the module xpp
+	# Append /dev/null to provide a valid file name in case of an empty pattern.
+	xbusses_pattern=`echo $xbusses| sed -e 's|XBUS-[0-9]*|/proc/xpp/&/XPD-*/zt_registration|g'`' /dev/null'
+	xpds_to_register=`grep -l 0 $xbusses_pattern 2>/dev/null` || true
+	for file in $xpds_to_register; do
+		echo 1 >$file
+	done
+}
+
+fix_asterisbank_sync() {
+	# do nothing if module not present
+	if [ ! -d /proc/xpp ]; then return; fi
+	
+	#if ! grep -q '^HOST' /proc/xpp/sync 2>/dev/null; then return; fi
+
+	case "$XPP_SYNC" in
+	n*|N*) return;;
+	host|HOST) sync_value="HOST";;
+	[0-9]*)sync_value="$XPP_SYNC";;
+	*) 
+	  # find the number of the first bus, and sync from it:
+	  fxo_pat=`awk -F: '/STATUS=connected/{print $1}' /proc/xpp/xbuses | sed -e 's|.*|/proc/xpp/&/*/fxo_info|'`
+	  # find the first FXO unit, and set it as the sync master
+	  bus=`ls -1 $fxo_pat 2> /dev/null | head -n1 | cut -d- -f2 | cut -d/ -f1` 
+
+	  # do nothing if there is no bus:
+	  case "$bus" in [0-9]*):;; *) return;; esac
+	  sync_value="$bus 0"
+	  ;;
+	esac
+	# the built-in echo of bash fails to print a proper error on failure
+	if ! /bin/echo "$sync_value" >/proc/xpp/sync
+	then 
+	  echo >&2 "Updating XPP sync source failed (used XPP_SYNC='$XPP_SYNC')"
+	fi
+}
+
+# recursively unload a module and its dependencies, if possible.
+# where's modprobe -r when you need it?
+# inputs: module to unload.
+unload_module() {
+	set +e
+	module="$1"
+	line=`lsmod 2>/dev/null | grep "^$module "`
+	if [ "$line" = '' ]; then return; fi # module was not loaded
+
+	set -- $line
+	# $1: the original module, $2: size, $3: refcount, $4: deps list
+	mods=`echo $4 | tr , ' '`
+	# xpd_fxs actually sort of depends on xpp:
+	case "$module" in xpd_*) mods="xpp_usb $mods";; esac
+	for mod in $mods; do
+		# run in a subshell, so it won't step over our vars:
+		(unload_module $mod) 
+	done
+	rmmod $module || true
+	set -e
+}
+
+# sleep a while until the xpp modules fully register
+wait_for_xpp() {
+	if [ -d /proc/xpp ] && \
+	   [ "`cat /sys/module/xpp/parameters/zap_autoreg`" = 'Y' ]
+	then
+		# wait for the XPDs to register:
+		# TODO: improve error reporting and produce a messagee here
+		cat /proc/xpp/XBUS-*/waitfor_xpds 2>/dev/null >/dev/null  || true
+	fi
+}
+
+# this checks that:
+# A. /dev/zap/pseudo exists (if devfs/udev is in use, it implies zaptel loaded)
+# B. Readable to the user running this script. No poblem if run by root.
+# C. There is an active zaptel timing source. Either a zaptel hardware
+#    device or ztdummy.
+test_zaptel_timing() {
+	head -c 0 /dev/zap/pseudo 2>/dev/null
+}
+
+case "$1" in
+	start|reload)
+		echo -n "$DESC: "
+		#for module in $ZAPTEL_MODS
+		#do
+		#	modprobe $module
+		#done
+		wait_for_xpp
+		zap_reg_xpp
+		fix_asterisbank_sync
+		
+		# If there is no zaptel timing source, load
+		# ztdummy. Other modules should have been loaded by
+		# now.
+		if ! test_zaptel_timing
+		then modprobe ztdummy || true # will fail if there is no module package
+		fi
+                if [ -r /etc/fxotune.conf ] && [ -x $FXOTUNE ]; then
+                  $FXOTUNE -s
+                fi
+
+		# configure existing modules:
+		$DAEMON $DAEMON_OPTS || echo -n $DAEMON "failed. Check" $ZAPCONF_FILE
+		echo "$NAME."
+		;;
+	stop)
+		: # do nothing
+		;;
+	unload)
+		unload_module zaptel
+		;;
+	status)
+		check_zaptel_timing
+		;;
+	force-reload|restart) 
+		# there's no 'stop'
+		$0 start
+		;;
+  *)
+		N=/etc/init.d/$NAME
+		echo "Usage: $N {start|stop|restart|force-reload|status|unload}" >&2
+	exit 1
+	;;
+esac
+
+exit 0

@@ -1,0 +1,172 @@
+#! /bin/sh
+#
+# Written by Oron Peled <oron@actcom.co.il>
+# Copyright (C) 2006, Xorcom
+#
+# All rights reserved.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# See the file LICENSE in the top level of this tarball.
+#
+
+#
+# $Id: init_card_4_26 2477 2007-04-29 22:12:49Z tzafrir $
+#
+# Data format:
+#	- A comment start with ';' or '#' until the end of line
+#	- Blank lines are ignored
+#	- Fields are whitespace separated (spaces or tabs)
+#
+# The fields are (in command line order):
+#	1. DAA select in decimal (range 0-7).
+#	   31 is a special value which means ALL DAAs (only some registers
+#	   accept settings for ALL DAAs).
+#	2. Command word:
+#		- RD	Read Direct register.
+#		- WD	Write Direct register.
+#	3. Register number in hexadecimal.
+#	4. Data byte in hexadecimal. (for WD command).
+#
+
+# ----------------------------------==== 8-channel FXO unit initialization ===-----------------------------------------
+
+set -e
+
+opermode='FCC'
+
+me=`basename $0`
+INIT_DIR=`dirname $0`
+XPP_BASE=/proc/xpp
+export XPP_BASE
+LOGGER="logger -s -t $me"
+
+ZAPTEL_BOOT_DEBIAN=${ZAPTEL_BOOT_DEBIAN:-/etc/default/zaptel}
+ZAPTEL_BOOT_FEDORA=${ZAPTEL_BOOT_FEDORA:-/etc/sysconfig/zaptel}
+
+# read default configuration from /etc/default/zaptel
+if [ -r $ZAPTEL_BOOT_DEBIAN ]; then . $ZAPTEL_BOOT_DEBIAN; fi
+if [ -r $ZAPTEL_BOOT_FEDORA ]; then . $ZAPTEL_BOOT_FEDORA; fi
+
+if [ "$DEBUG_CALIBRATION"=1 ]; then
+	LOGGER=":"
+fi
+
+# Always redirect stderr somewhere, otherwise the shell script will die
+# when it tries to do I/O related stuff on closed file descriptor.
+# Our default is to throw it down the bit-bucket.
+exec 2> /dev/console
+## If you wish to trace this script:
+#exec 2> /tmp/xpp_init_$XPD_NAME
+## Altenativly, if you have multiple XBUS'es:
+#exec 2> /tmp/xpp_init_$XBUS_NAME_$XPD_NAME
+#set -x
+
+# redirect script output to the "slics" (registers command) file:
+exec 1> "$XPP_BASE/$XPD_BUS/$XPD_NAME/slics"
+
+$LOGGER -p kern.info "$XPD_BUS/$XPD_NAME: Initializing '$0'"
+
+set_daa_country_params() {
+	# based on fxo_modes from wctdm.c . TODO: more decent calculation?
+	reg16=00; reg26=00; reg30=00; reg31=A3; ring_osc=; ring_x=;
+	mode="$1"
+	# TODO: a saner fall-back in case of an unknown mode
+	if [ "$mode" = '' ]; then mode='FCC'; fi
+	if [ -r $INIT_DIR/init_fxo_modes ]; then
+	. $INIT_DIR/init_fxo_modes
+	fi
+	# Our register numbers are HEXADECIMAL!
+	echo "
+31 WD 10 $reg16
+31 WD 1A $reg26
+31 WD 1E $reg30
+31 WD 1F $reg31
+"
+	# for the FXS:
+	#if [ "$ring_osc" != '' ]; then
+	#	/bin/echo "31 WI __ $ring_osc"
+	#fi
+	#if [ "$ring_x" != '' ]; then
+	#	/bin/echo "31 WI __ $ring_x"
+	#fi
+}
+
+# Several countries (South Africa, UAE, anybody else)
+# require a shorter delay:
+case "$opermode" in
+SOUTHAFRICA|UAE) echo 31 WD 17 2B;;
+esac
+
+# Remove empty lines and commets. Not strictly necessary
+# but works around some limitations of the proc interface:
+echo "
+
+
+31	WD	21	28
+31	WD	18	99
+31	WD	06	00
+
+# ----------- DAA PCM start offset ----------
+
+0	WD	22	00
+0	WD	23	00
+0	WD	24	00
+0	WD	25	00
+
+1	WD	22	08
+1	WD	23	00
+1	WD	24	08
+1	WD	25	00
+
+2	WD	22	10
+2	WD	23	00
+2	WD	24	10
+2	WD	25	00
+
+3	WD	22	18
+3	WD	23	00
+3	WD	24	18
+3	WD	25	00
+
+4	WD	22	20
+4	WD	23	00
+4	WD	24	20
+4	WD	25	00
+
+5	WD	22	28
+5	WD	23	00
+5	WD	24	28
+5	WD	25	00
+
+6	WD	22	30
+6	WD	23	00
+6	WD	24	30
+6	WD	25	00
+
+7	WD	22	38
+7	WD	23	00
+7	WD	24	38
+7	WD	25	00
+
+# ----------- DAA ONHOOK --------------------
+31	WD	05	00
+
+# Set tip to ring voltage to 3.5 volts while off-hook
+# instead of default of 3.1
+31	WD	1A	C0
+" | sed -e 's/[;#].*$//' -e '/^[ 	]*$/d'
+
+# Turning off red LEDs
+# Warning: do not send WD 31 20 A0 !
+for i in `seq 0 7`; do 
+	echo "$i WD 20 A0"; 
+done;
+
+set_daa_country_params "$opermode"
+
+$LOGGER -p kern.info "$XPD_BUS/$XPD_NAME: Ending '$0'"
+exit 0

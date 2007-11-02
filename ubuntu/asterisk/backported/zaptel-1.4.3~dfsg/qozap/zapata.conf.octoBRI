@@ -1,0 +1,67 @@
+;
+; Zapata telephony interface
+;
+; Configuration file
+
+[channels]
+;
+; Default language
+;
+;language=en
+;
+; Default context
+;
+;
+switchtype = euroisdn
+
+; p2mp TE mode (for connecting ISDN lines in point-to-multipoint mode)
+signalling = bri_cpe_ptmp
+; p2p TE mode (for connecting ISDN lines in point-to-point mode)
+;signalling = bri_cpe
+; p2mp NT mode (for connecting ISDN phones in point-to-multipoint mode)
+;signalling = bri_net_ptmp
+; p2p NT mode (for connecting an ISDN pbx in point-to-point mode)
+;signalling = bri_net
+
+pridialplan = local
+prilocaldialplan = dynamic
+nationalprefix = 0
+internationalprefix = 00
+
+priindication = passthrough
+
+echocancel = yes
+
+context=demo
+group = 1
+; S/T port 1
+channel => 1-2
+
+group = 2
+; S/T port 2
+channel => 4-5
+
+group = 3
+; S/T port 3
+channel => 7-8
+
+group = 4
+; S/T port 4
+channel => 10-11
+
+group = 5
+; S/T port 5
+channel => 13-14
+
+group = 6
+; S/T port 6
+channel => 16-17
+
+group = 7
+; S/T port 7
+channel => 19-20
+
+group = 8
+; S/T port 8
+channel => 22-23
+

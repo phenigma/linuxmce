@@ -1,0 +1,39 @@
+asterisk (1:1.4.10.1~dfsg-1) unstable; urgency=low
+
+  * Since this version, bristuff support has been reinstated.
+    However, in contrary with the 1.2 packages (found in etch among others),
+    there is no split between asterisk-classic and asterisk-bristuff. 
+
+ -- Faidon Liambotis <paravoid@debian.org>  Mon, 20 Aug 2007 07:39:26 +0300
+
+asterisk (1:1.4.2~dfsg-5) unstable; urgency=low
+
+  * With the release of asterisk 1.4.x to unstable the asterisk-classic &
+    asterisk-bristuff packages have been depreciated. We
+    are awaiting bristuff compatible with asterisk 1.4 
+  * If you require bristuff, it is recommended you stick
+    with the packages in etch.
+ 
+  * Note also there are significant configuration differences between
+    asterisk 1.2.x & 1.4.x, please refer to the file 
+    /usr/share/doc/asterisk/UPGRADE.txt.gz for details
+
+ -- Mark Purcell <msp@debian.org>  Sat, 14 Apr 2007 16:44:18 +0100
+
+asterisk (1:1.2.10.dfsg-1) unstable; urgency=low
+
+  * The iLBC codec library code has been removed from the Debian asterisk
+    package as it does not conform with the DFSG.
+
+ -- Mark Purcell <msp@debian.org>  Mon, 17 Jul 2006 21:15:50 +0100
+
+asterisk (1:1.0.7.dfsg.1-1) unstable; urgency=low
+
+  * The Debian version of the upstream asterisk source has had the fpm Music on Hold
+    removed as this music has only been licenced for use within asterisk which is
+    incompatible with the Debian Free Software Guildlines 
+    <http://www.debian.org/social_contract#guidelines>. Please drop your alternative
+    Music on Hold into the directory /usr/share/asterisk/mohmp3/
+
+ -- Mark Purcell <msp@debian.org>  Sun, 20 Mar 2005 10:30:44 +0000
+

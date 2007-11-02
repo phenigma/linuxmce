@@ -1,0 +1,174 @@
+#! /usr/bin/perl -w
+#
+# Written by Oron Peled <oron@actcom.co.il>
+# Copyright (C) 2007, Xorcom
+# This program is free software; you can redistribute and/or
+# modify it under the same terms as Perl itself.
+#
+# $Id: xpp_sync 2536 2007-05-17 21:47:40Z tzafrir $
+#
+use strict;
+BEGIN { my $dir = $0; $dir =~ s:/[^/]+$::; unshift(@INC, "$dir", "$dir/zconf"); }
+
+use Zaptel::Xpp;
+use Zaptel::Xpp::Xbus;
+
+my $sync;
+my $autoselect;
+
+if(@ARGV == 1) {
+	$sync = shift;
+	$autoselect = 1 if $sync =~ /^auto$/i;
+}
+
+
+sub get_sorted_xpds() {
+	my @good_xpds;
+
+	foreach my $xbus (Zaptel::Xpp::xbuses('SORT_CONNECTOR')) {
+		next unless $xbus->status eq 'CONNECTED';
+		foreach my $xpd ($xbus->xpds()) {
+			my $isreg = $xpd->zt_registration();
+			if(!defined($isreg)) {			# Failure
+				printf STDERR "%s: Failed %s\n", $xpd->fqn, $!;
+				next;
+			}
+			next unless $isreg;			# Skip unregistered XPDs
+			push(@good_xpds, $xpd);
+		}
+	}
+
+	my @bri_xpds = grep { $_->type =~ /BRI/; } @good_xpds;
+	my @fxo_xpds = grep { $_->type eq 'FXO'; } @good_xpds;
+	my @fxs_xpds = grep { $_->type eq 'FXS'; } @good_xpds;
+	return (@bri_xpds, @fxo_xpds, @fxs_xpds);
+}
+
+sub do_select(@) {
+	my $found;
+
+	foreach my $xpd (@_) {
+		my $xbus = $xpd->xbus;
+		my $busnum = $xbus->name;
+		die "Uknown bus name" unless $busnum;
+		$busnum =~ s/XBUS-//;
+		die "bad bus name" unless $busnum =~ /^\d+$/;
+		#printf "Setting sync: %-10s (%s)\n", $xpd->fqn, $xpd->type;
+		if(Zaptel::Xpp::sync($busnum)) {
+			#print "SET $busnum\n";
+			$found = 1;
+			last;
+		} else {
+			print STDERR "Failed to set $busnum: $!\n";
+		}
+	}
+	if(!$found) {
+		print STDERR "Fall back to HOST sync\n";
+		die "Failed to set HOST sync\n" unless Zaptel::Xpp::sync('HOST');
+	}
+}
+
+sub do_set($) {
+	my $sync = shift;
+	die "Failed to set sync to '$sync'" unless Zaptel::Xpp::sync($sync);
+}
+
+sub unique_xbus(@) {
+	my %seen;
+
+	grep { !$seen{$_->xbus}++; } @_;
+}
+
+my $curr_sync = Zaptel::Xpp::sync;
+my @sync_xpds = unique_xbus(get_sorted_xpds());
+
+sub show_sync() {
+	foreach my $xpd (@sync_xpds) {
+		my $xbus = $xpd->xbus;
+		my @xpds = $xbus->xpds;
+		my @types = map { $_->type } @xpds;
+		my $mark = ($curr_sync =~ /\d+/ and $xbus->num == $curr_sync)?"+":"";
+		printf "\t%1s %s [ ", $mark, $xbus->name;
+		foreach my $x (sort { $a->num <=> $b->num } @xpds) {
+			printf "%-3s ", $x->type;
+		}
+		print "]";
+		my $padding = ' ' x (4 * (8 - @xpds));
+		printf "%s  (%s)\n", $padding, $xbus->connector;
+	}
+}
+
+sub check_fxo_host_sync() {
+	my @host_synced_xpds = grep { $_->xbus->num() ne $curr_sync } @sync_xpds;
+	my @host_synced_fxos = grep($_->type eq 'FXO', @host_synced_xpds);
+	if(@host_synced_fxos) {
+		my @bad_xbus = map { $_->xbus } unique_xbus(@host_synced_fxos);
+		our $lines = join("\n\t", map { $_->name } @bad_xbus);
+		print STDERR <<"END";
+=========================================
+WARNING: FXO with HOST SYNC cause bad PCM
+	 Affected Astribanks are:
+-----------------------------------------
+	$lines
+=========================================
+END
+	}
+}
+
+if($sync) {
+	if($autoselect) {
+		do_select(@sync_xpds);
+	} else {
+		$sync = uc($sync);
+		do_set($sync);
+	}
+	$curr_sync = Zaptel::Xpp::sync;
+	#print "New sync: ", Zaptel::Xpp::sync, "\n";
+} else {
+	print "Current sync: ", $curr_sync, "\n";
+	print "Best Available Syncers:\n";
+	show_sync;
+	check_fxo_host_sync;
+}
+
+__END__
+
+=head1 NAME
+
+xpp_sync - Handle sync selection of Xorcom XPD's.
+
+=head1 SYNOPSIS
+
+xpp_sync [auto|host|nn]
+
+=head1 DESCRIPTION
+
+Without parameters, the current syncer. Either HOST or the XBUS number.
+Then a list of the 3 best XPD's for syncing.
+
+=head2 Parameters
+
+=over
+
+=item auto
+
+Automatically selects the best XPD for syncing (with HOST fallback).
+
+=item host
+
+Set HOST synchronization (XPP timers).
+
+=item nn
+
+Set XBUS number nn as sync source.
+
+=back
+
+=head2 Example output:
+
+	Current sync: 03
+	Best Available Syncers:
+		  XBUS-00: FXS FXO              (USB-0000:00:10.4-4)
+		+ XBUS-03: FXS FXS FXS FXS      (USB-0000:00:10.4-1)
+		  XBUS-02: FXS FXS FXS FXS      (USB-0000:00:10.4-2)
+		  XBUS-01: FXS FXS FXS FXS      (USB-0000:00:10.4-3)

@@ -1,0 +1,54 @@
+Building kernel modules
+-----------------------
+
+First, install zaptel-source package if you have not yet done so.
+
+You can build and install the modules package (as root) with the 
+following command:
+# module-assistant a-i zaptel
+
+It may be handy (for e.g., testing purposes) to build the module packages
+for all of the kernel-header packages installed on your system. Something 
+in the lines of:
+
+  m-a -u . -t -i -f -k "`echo usr/src/kernel-headers-*`" build zaptel
+
+You can also use the environment variable TARBALL to build the modules 
+with a custom zaptel.tar.bz2 tarball with some local modifications.
+
+Using udev
+----------
+
+If you are using udev, zaptel devices will be created when kernel modules 
+are loaded by using modprobe, or devices are detected by hotplug at boot time.
+
+If you cannot access the zap/ctl device, check which user asterisk is 
+running as and add these permissions to your permissions file
+(ie /etc/udev/permissions.d/50-udev.permissions):
+# zaptel devices -- asterisk is expected to be part of 'dialout' group
+zap/*:root:dialout:660
+
+Note, however, that sarting from Sarge, the defualt udev settings should 
+include those lines.
+
+
+Bristuff
+--------
+This version has the bristuff (0.3.0-PRE1d) of the bristuff patch and 
+kernel modules. The bristuffed modules require a bristuffed Asterisk
+to work.
+(TODO: what about standard Digium cards? can they work with a non-bristuffed 
+chn_zap?)
+
+fxotune
+-------
+fxotune is a utulity provided by Digium for fine-tuning parameters of the 
+FXO modules of their TDM cards.
+
+This package includes the fxotune binary. It will also load configuration
+from /etc/fxotune.conf if fxotune was used to tune the FXO modules. Note
+that fxotune onlt works with the newer wctdm driver of zaptel 1.2 and will
+not work ith X100P and clones.
+
+-- Debian VoIP Team <pkg-voip-maintainers@lists.alioth.debian.org>
+-- 30 December 2005

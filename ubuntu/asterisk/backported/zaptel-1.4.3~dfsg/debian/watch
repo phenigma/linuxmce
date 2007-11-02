@@ -1,0 +1,8 @@
+# format version number, currently 2; this line is compulsory!
+version=3
+
+# Full-site-with-pattern  [Version  [Action]]
+#opts=pasv ftp://ftp.asterisk.org/pub/telephony/zaptel/ zaptel-(.*)\.tar\.gz \
+#	debian  svn-upgrade
+opts=dversionmangle=s/\~dfsg// \
+	http://ftp.digium.com/pub/zaptel/ zaptel-(1.4.*)\.tar\.gz debian svn-upgrade

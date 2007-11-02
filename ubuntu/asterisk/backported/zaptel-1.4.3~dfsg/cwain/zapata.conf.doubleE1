@@ -1,0 +1,35 @@
+;
+; Zapata telephony interface
+;
+; Configuration file
+
+[channels]
+;
+; Default language
+;
+;language=en
+;
+; Default context
+;
+;
+switchtype = euroisdn
+
+signalling = pri_cpe
+
+pridialplan = local
+prilocaldialplan = dynamic
+nationalprefix = 0
+internationalprefix = 00
+
+priindication = passthrough
+
+echocancel = yes
+
+context=demo
+
+group = 1
+channel => 1-15,17-31
+
+group = 2
+channel => 32-46,48-62
+

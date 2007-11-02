@@ -1,0 +1,109 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## ztdiag.dpatch by Tzafrir Cohen <tzafrir.cohen@xorcom.com>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: ZT_CHANDIAG (used in ztdiag) is disabled by default, as it allocates
+## DP: a large struct on the stack. This patch allocates it in the heap,
+## DP: and also enables it by default.
+## DP: Upstream bug: http://bugs.digium.com/view.php?id=9364 . Already 
+## DP: applied to zaptel trunk.
+
+@DPATCH@
+diff -urNad zaptel-1.4.1~dfsg~/zaptel-base.c zaptel-1.4.1~dfsg/zaptel-base.c
+--- zaptel-1.4.1~dfsg~/zaptel-base.c	2007-03-24 10:20:58.000000000 +0200
++++ zaptel-1.4.1~dfsg/zaptel-base.c	2007-03-24 10:46:38.000000000 +0200
+@@ -2934,10 +2934,6 @@
+ 	struct zt_chan *chan;
+ 	unsigned long flags;
+ 	unsigned char *txgain, *rxgain;
+-#ifdef ALLOW_CHAN_DIAG
+-	/* This structure is huge and will bork a 4k stack */
+-	struct zt_chan mychan;
+-#endif	
+ 	int i,j;
+ 	int return_master = 0;
+ 
+@@ -3147,7 +3145,6 @@
+ 		if (copy_to_user((struct zt_spaninfo *) data,&stack.span,sizeof(stack.span)))
+ 			return -EFAULT;
+ 		break;
+-#ifdef ALLOW_CHAN_DIAG
+ 	case ZT_CHANDIAG:
+ 		get_user(j, (int *)data); /* get channel number from user */
+ 		/* make sure its a valid channel number */
+@@ -3155,49 +3152,54 @@
+ 			return -EINVAL;
+ 		/* if channel not mapped, not there */
+ 		if (!chans[j]) return -EINVAL;
+-		/* lock irq state */
++                chan = kmalloc(sizeof(struct zt_chan), GFP_KERNEL);
++                if (!chan)
++			return -ENOMEM;
++
++		/* lock channel */
+ 		spin_lock_irqsave(&chans[j]->lock, flags);
+ 		/* make static copy of channel */
+-		memcpy(&mychan,chans[j],sizeof(struct zt_chan));
+-		/* let irq's go */
++		memcpy(chan,chans[j],sizeof(struct zt_chan));
++		/* release it. */
+ 		spin_unlock_irqrestore(&chans[j]->lock, flags);
++
+ 		printk("Dump of Zaptel Channel %d (%s,%d,%d):\n\n",j,
+-			mychan.name,mychan.channo,mychan.chanpos);
++			chan->name,chan->channo,chan->chanpos);
+ 		printk("flags: %x hex, writechunk: %08lx, readchunk: %08lx\n",
+-			mychan.flags, (long) mychan.writechunk, (long) mychan.readchunk);
++			chan->flags, (long) chan->writechunk, (long) chan->readchunk);
+ 		printk("rxgain: %08lx, txgain: %08lx, gainalloc: %d\n",
+-			(long) mychan.rxgain, (long)mychan.txgain, mychan.gainalloc);
++			(long) chan->rxgain, (long)chan->txgain, chan->gainalloc);
+ 		printk("span: %08lx, sig: %x hex, sigcap: %x hex\n",
+-			(long)mychan.span, mychan.sig, mychan.sigcap);
++			(long)chan->span, chan->sig, chan->sigcap);
+ 		printk("inreadbuf: %d, outreadbuf: %d, inwritebuf: %d, outwritebuf: %d\n",
+-			mychan.inreadbuf, mychan.outreadbuf, mychan.inwritebuf, mychan.outwritebuf);
++			chan->inreadbuf, chan->outreadbuf, chan->inwritebuf, chan->outwritebuf);
+ 		printk("blocksize: %d, numbufs: %d, txbufpolicy: %d, txbufpolicy: %d\n",
+-			mychan.blocksize, mychan.numbufs, mychan.txbufpolicy, mychan.rxbufpolicy);
++			chan->blocksize, chan->numbufs, chan->txbufpolicy, chan->rxbufpolicy);
+ 		printk("txdisable: %d, rxdisable: %d, iomask: %d\n",
+-			mychan.txdisable, mychan.rxdisable, mychan.iomask);
++			chan->txdisable, chan->rxdisable, chan->iomask);
+ 		printk("curzone: %08lx, tonezone: %d, curtone: %08lx, tonep: %d\n",
+-			(long) mychan.curzone, mychan.tonezone, (long) mychan.curtone, mychan.tonep);
++			(long) chan->curzone, chan->tonezone, (long) chan->curtone, chan->tonep);
+ 		printk("digitmode: %d, txdialbuf: %s, dialing: %d, aftdialtimer: %d, cadpos. %d\n",
+-			mychan.digitmode, mychan.txdialbuf, mychan.dialing,
+-				mychan.afterdialingtimer, mychan.cadencepos);
++			chan->digitmode, chan->txdialbuf, chan->dialing,
++				chan->afterdialingtimer, chan->cadencepos);
+ 		printk("confna: %d, confn: %d, confmode: %d, confmute: %d\n",
+-			mychan.confna, mychan._confn, mychan.confmode, mychan.confmute);
++			chan->confna, chan->_confn, chan->confmode, chan->confmute);
+ 		printk("ec: %08lx, echocancel: %d, deflaw: %d, xlaw: %08lx\n",
+-			(long) mychan.ec, mychan.echocancel, mychan.deflaw, (long) mychan.xlaw);
++			(long) chan->ec, chan->echocancel, chan->deflaw, (long) chan->xlaw);
+ 		printk("echostate: %02x, echotimer: %d, echolastupdate: %d\n",
+-			(int) mychan.echostate, mychan.echotimer, mychan.echolastupdate);
++			(int) chan->echostate, chan->echotimer, chan->echolastupdate);
+ 		printk("itimer: %d, otimer: %d, ringdebtimer: %d\n\n",
+-			mychan.itimer,mychan.otimer,mychan.ringdebtimer);
++			chan->itimer,chan->otimer,chan->ringdebtimer);
+ #if 0
+-		if (mychan.ec) {
++		if (chan->ec) {
+ 			int x;
+ 			/* Dump the echo canceller parameters */
+-			for (x=0;x<mychan.ec->taps;x++) {
+-				printk("tap %d: %d\n", x, mychan.ec->fir_taps[x]);
++			for (x=0;x<chan->ec->taps;x++) {
++				printk("tap %d: %d\n", x, chan->ec->fir_taps[x]);
+ 			}
+ 		}
++		kfree(chan)
+ #endif
+-#endif /* ALLOW_CHAN_DIAG */
+ 		break;
+ 	default:
+ 		return -ENOTTY;

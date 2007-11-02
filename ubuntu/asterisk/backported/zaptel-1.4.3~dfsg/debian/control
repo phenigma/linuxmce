@@ -1,0 +1,51 @@
+Source: zaptel
+Section: comm
+Priority: optional
+Maintainer: Debian VoIP Team <pkg-voip-maintainers@lists.alioth.debian.org>
+Uploaders: Kilian Krause <kilian@debian.org>, Jose Carlos Garcia Sogo <jsogo@debian.org>, Mark Purcell <msp@debian.org>, Santiago Garcia Mantinan <manty@debian.org>, Santiago Ruano Rincón <santiago@debian.org>, Tzafrir Cohen <tzafrir.cohen@xorcom.com>
+Build-Depends: debhelper (>= 5.0.37), libnewt-dev, dpatch (>= 2.0.9), bzip2, libusb-dev
+Standards-Version: 3.7.2
+XS-Vcs-Svn: svn://svn.debian.org/pkg-voip/
+XS-Vcs-Browser: http://svn.debian.org/wsvn/pkg-voip/
+
+Package: zaptel
+Section: comm
+Architecture: any
+# Xorcom packages depend on xpp-firmware. Debian zaptel will probably 
+# just recommend it.
+Depends: ${shlibs:Depends}, procps, fxload
+Description: zapata telephony utilities
+ Userspace utilities for configuring the Zapata telephony kernel driver, 
+ which supports various telephony hardware, such as Wildcard series of
+ interface cards (X100P, T400P, E400P, S100P, S100U).
+ .
+ Includes ztcfg and zttool utils.
+
+Package: libtonezone1
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}
+Description: tonezone library (runtime)
+ A library for generating tones used for telephone signalling.
+
+Package: libtonezone-dev
+Section: libdevel
+Architecture: any
+Depends: libtonezone1 (= ${Source-Version})
+Description: tonezone library (development)
+ A library for generating tones used for telephone signalling.
+ .
+ This package contains the development files.
+
+Package: zaptel-source
+Section: devel
+Architecture: all
+Depends: debhelper (>> 4.0), module-assistant (>= 0.8.1), bzip2
+Recommends: zaptel
+Suggests: rtai-source
+Description: Zapata telephony interface (source code for kernel driver)
+ This package contains the source code for zaptel kernel module providing
+ device drivers for various telephony hardware, including the Wildcard 
+ series of interface cards (X100P, T400P, E400P, S100P, S100U).
+ .
+ It is normally used to build kernel modules package: m-a a-i zaptel

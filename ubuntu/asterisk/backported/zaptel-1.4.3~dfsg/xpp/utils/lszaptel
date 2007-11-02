@@ -1,0 +1,56 @@
+#! /usr/bin/perl -w
+#
+# Written by Oron Peled <oron@actcom.co.il>
+# Copyright (C) 2007, Xorcom
+# This program is free software; you can redistribute and/or
+# modify it under the same terms as Perl itself.
+#
+# $Id: lszaptel 2536 2007-05-17 21:47:40Z tzafrir $
+#
+use strict;
+BEGIN { my $dir = $0; $dir =~ s:/[^/]+$::; unshift(@INC, "$dir", "$dir/zconf"); }
+
+use Zaptel;
+use Zaptel::Span;
+
+foreach my $span (Zaptel::spans()) {
+	printf "### Span %2d: %s %s\n", $span->num, $span->name, $span->description;
+	foreach my $chan ($span->chans()) {
+		my %type_map = (
+			OUT	=> 'Output',
+			IN	=> 'Input'
+			);
+		my ($type) = map { $type_map{$_} or $_ } $chan->type;
+		printf "%3d %-10s %-10s %s\n", $chan->num, $type, $chan->signalling, $chan->info;
+	}
+}
+
+__END__
+
+=head1 NAME
+
+lszaptel - List all zaptel channels with their types and spans.
+
+=head1 SYNOPSIS
+
+lszaptel
+
+=head1 DESCRIPTION
+
+Example output:
+
+	### Span  1: XBUS-03/XPD-00 "Xorcom XPD #3/0: FXS"
+	  1 FXS
+	  2 FXS
+	  3 FXS
+	  4 FXS
+	  5 FXS
+	  6 FXS
+	  7 FXS
+	  8 FXS
+	  9 Output
+	 10 Output
+	 11 Input
+	 12 Input
+	 13 Input
+	 14 Input

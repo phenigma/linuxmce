@@ -1,0 +1,6 @@
+* Set the list of utilities to build. Probably through some menuselect var.
+* Rename sethdlc-new to sethdlc.
+* Missing man page for fxstest .
+* Missing man page for ztdiag .
+* Add ds1x1f.c to the list of modules (note: it breaks kernel 2.4 building).
+* Apply the conglomerate_fixes patch from trunk.

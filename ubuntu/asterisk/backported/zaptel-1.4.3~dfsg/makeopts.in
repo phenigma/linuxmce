@@ -1,0 +1,39 @@
+CC=@CC@
+HOSTCC=@HOSTCC@
+
+INSTALL=@INSTALL@
+GREP=@GREP@
+SHELL=@SHELL@
+LN=@LN@
+
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+
+bindir = @bindir@
+datarootdir = @datarootdir@
+datadir = @datadir@
+includedir = @includedir@
+infodir = @infodir@
+libdir = @libdir@
+libexecdir = @libexecdir@
+localstatedir = @localstatedir@
+mandir = @mandir@
+sbindir = @sbindir@
+sharedstatedir = @sharedstatedir@
+sysconfdir = @sysconfdir@
+
+DOWNLOAD=@DOWNLOAD@
+
+NEWT_LIB=@NEWT_LIB@
+NEWT_INCLUDE=@NEWT_INCLUDE@
+
+CURSES_LIB=@CURSES_LIB@
+CURSES_INCLUDE=@CURSES_INCLUDE@
+
+NCURSES_LIB=@NCURSES_LIB@
+NCURSES_INCLUDE=@NCURSES_INCLUDE@
+
+PBX_LIBUSB=@PBX_LIBUSB@
+USB_LIB=@NCURSES_LIB@
+USB_INCLUDE=@USB_INCLUDE@
+

@@ -1,0 +1,31 @@
+#!/bin/sh
+
+ver=`udevinfo -V | cut -f3 -d" "`
+
+if [ -z "${ver}" ]; then
+   echo Cannot determine the version of udev installed this system... exiting.
+   exit 1
+fi
+
+# udev versions prior to 055 use a single '=' for matching key values
+# udev versions 055 and later support '==' for that purpose, and versions
+# beyond 092 will probably make it mandatory
+#
+# very old versions of udev required naming rules and permissions rules to be
+# in separate files, but it's not clear at what version number that changed
+
+if [ ${ver} -gt 54 ]; then
+    match="=="
+else
+    match="="
+fi
+
+cat <<EOF
+# zaptel devices with ownership/permissions for running as non-root
+KERNEL${match}"zapctl", NAME="zap/ctl", OWNER="asterisk", GROUP="asterisk", MODE="0660"
+KERNEL${match}"zaptranscode", NAME="zap/transcode", OWNER="asterisk", GROUP="asterisk", MODE="0660"
+KERNEL${match}"zaptimer", NAME="zap/timer", OWNER="asterisk", GROUP="asterisk", MODE="0660"
+KERNEL${match}"zapchannel", NAME="zap/channel", OWNER="asterisk", GROUP="asterisk", MODE="0660"
+KERNEL${match}"zappseudo", NAME="zap/pseudo", OWNER="asterisk", GROUP="asterisk", MODE="0660"
+KERNEL${match}"zap[0-9]*", NAME="zap/%n", OWNER="asterisk", GROUP="asterisk", MODE="0660"
+EOF

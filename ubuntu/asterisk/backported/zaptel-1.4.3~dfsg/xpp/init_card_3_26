@@ -1,0 +1,185 @@
+#! /bin/sh
+#
+# Written by Oron Peled <oron@actcom.co.il>
+# Copyright (C) 2006, Xorcom
+#
+# All rights reserved.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# See the file LICENSE in the top level of this tarball.
+#
+
+#
+# $Id: init_card_3_26 2477 2007-04-29 22:12:49Z tzafrir $
+#
+# Data format:
+#	- A comment start with ';' or '#' until the end of line
+#	- Blank lines are ignored
+#	- Fields are whitespace separated (spaces or tabs)
+#
+# The fields are (in command line order):
+#	1. SLIC select in decimal (range 0-7).
+#	   31 is a special value which means ALL SLICS (only some registers
+#	   accept settings for ALL SLICS).
+#	2. Command word:
+#		- RD	Read Direct register.
+#		- RI	Read Indirect register.
+#		- WD	Write Direct register.
+#		- WI	Write Indirect register.
+#	3. Register number in hexadecimal.
+#	4. Low data byte in hexadecimal. (for WD and WI commands).
+#	5. High data byte in hexadecimal. (for WI command only).
+#
+#
+
+# ----------------------------------==== 8-channel FXS unit initialization ===-----------------------------------------
+
+set -e
+
+me=`basename $0`
+INIT_DIR=`dirname $0`
+XPP_BASE=/proc/xpp
+export XPP_BASE
+LOGGER="logger -s -t $me"
+
+ZAPTEL_BOOT_DEBIAN=${ZAPTEL_BOOT_DEBIAN:-/etc/default/zaptel}
+ZAPTEL_BOOT_FEDORA=${ZAPTEL_BOOT_FEDORA:-/etc/sysconfig/zaptel}
+
+# read default configuration from /etc/default/zaptel
+if [ -r $ZAPTEL_BOOT_DEBIAN ]; then . $ZAPTEL_BOOT_DEBIAN; fi
+if [ -r $ZAPTEL_BOOT_FEDORA ]; then . $ZAPTEL_BOOT_FEDORA; fi
+
+if [ "$DEBUG_CALIBRATION"=1 ]; then
+	LOGGER=":"
+fi
+
+# Always redirect stderr somewhere, otherwise the shell script will die
+# when it tries to do I/O related stuff on closed file descriptor.
+# Our default is to throw it down the bit-bucket.
+exec 2> /dev/console
+## If you wish to trace this script:
+#exec 2> /tmp/xpp_init_$XPD_NAME
+## Altenativly, if you have multiple XBUS'es:
+#exec 2> /tmp/xpp_init_$XBUS_NAME_$XPD_NAME
+#set -x
+
+# redirect script output to the "slics" (registers command) file:
+exec 1> "$XPP_BASE/$XPD_BUS/$XPD_NAME/slics"
+
+$LOGGER -p kern.info "$XPD_BUS/$XPD_NAME: Calibrating '$0'"
+
+"$INIT_DIR/calibrate_slics"
+
+$LOGGER -p kern.info "$XPD_BUS/$XPD_NAME: Continue '$0'"
+
+echo "
+# Change SLICs states to "Open state"s  (Off,all transfers tristated to avoid data collision), Voltage sense
+31	WD	40	00
+
+# Flush out energy accumulators
+31	WI	58	00 00
+31	WI	59	00 00
+31	WI	5A	00 00
+31	WI	5B	00 00
+31	WI	5C	00 00
+31	WI	5D	00 00
+31	WI	5E	00 00
+31	WI	5F	00 00
+31	WI	61	00 00
+31	WI	58	00 00
+31	WI	C1	00 00
+31	WI	C2	00 00
+31	WI	C3	00 00
+31	WI	C4	00 00
+31	WI	C5	00 00
+31	WI	C6	00 00
+31	WI	C7	00 00
+31	WI	C8	00 00
+31	WI	C9	00 00
+31	WI	CA	00 00
+31	WI	CB	00 00
+31	WI	CC	00 00
+31	WI	CD	00 00
+31	WI	CE	00 00
+31	WI	CF	00 00
+31	WI	D0	00 00
+31	WI	D1	00 00
+31	WI	D2	00 00
+31	WI	D3	00 00
+
+# Setting of SLICs offsets
+# New card initialization
+0	WD	02	00
+0	WD	04	00
+1	WD	02	08
+1	WD	04	08
+2	WD	02	10
+2	WD	04	10
+3	WD	02	18
+3	WD	04	18
+4	WD	02	20
+4	WD	04	20
+5	WD	02	28
+5	WD	04	28
+6	WD	02	30
+6	WD	04	30
+7	WD	02	38
+7	WD	04	38
+31	WD	03	00
+31	WD	05	00
+
+# Audio path. (also initialize 0A and 0B here if necessary)
+31	WD	08 00
+31	WD	09 00
+
+31	WD	17 00
+
+# Automatic/Manual Control: defaults - Cancel Power Alarm
+31	WD	43 1E
+
+# Loop Closure Debounce Interval
+31	WD	45 0A
+
+# Ring Detect Debounce Interval
+31	WD	46 0B
+
+# Battery Feed Control: Battery low (DCSW low)
+31	WD	42 00
+
+# Loop Current Limit
+31	WD	47 00
+
+31	WD	6C	01
+
+31	WI	23	00 80
+31	WI	24	20 03
+31	WI	25	8C 08
+31	WI	26	00 01
+31	WI	27	10 00
+
+
+# ------------------------------------- Initialization of direct registers --------------------------------------------
+
+# Mode(8-bit,u-Law,1 PCLK ) setting, Loopbacks and Interrupts clear
+
+31	WD	01	29
+#31	WD	0E	00  
+
+#31	WD	15 00
+#31	WD	16 03
+
+# Clear pending interrupts
+31	WD	12 FF
+31	WD	13 FF
+31	WD	14 FF 
+
+#31	WD	4A 34
+#31	WD	4B 10
+" | sed -e 's/[;#].*$//' -e '/^[ 	]*$/d' 
+
+$LOGGER -p kern.info "$XPD_BUS/$XPD_NAME: Ending '$0'"
+exit 0
