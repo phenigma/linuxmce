@@ -12,7 +12,7 @@ public:
 	bool LoadAttributes(PlutoMediaAttributes *pPlutoMediaAttributes, 
 		list<pair<char *, size_t> >& listPicturesForTags);
 	bool SaveAttributes(PlutoMediaAttributes *pPlutoMediaAttributes);
-	bool RemoveAttribute(int nTagType, string sValue);
+	bool RemoveAttribute(int nTagType, string sValue, PlutoMediaAttributes *pPlutoMediaAttributes);
 	bool FileAttributeExists();
 	string GetFileAttribute();
 	string GetFileSourceForDB();

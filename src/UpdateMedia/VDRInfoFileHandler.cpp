@@ -19,6 +19,9 @@ VDRInfoFileHandler::~VDRInfoFileHandler(void)
 bool VDRInfoFileHandler::LoadAttributes(PlutoMediaAttributes *pPlutoMediaAttributes, 
 	list<pair<char *, size_t> >& /*listPicturesForTags*/)
 {
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "# VDRInfoFileHandler::LoadAttributes: loading %d attributes in the attribute file %s",
+		pPlutoMediaAttributes->m_mapAttributes.size(), GetFileAttribute().c_str());
+
 	string sData;
 	FileUtils::ReadTextFile(GetFileAttribute(), sData);
 
@@ -72,6 +75,9 @@ bool VDRInfoFileHandler::SaveAttributes(PlutoMediaAttributes *pPlutoMediaAttribu
 {
 	string sBuffer;
 
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "# VDRInfoFileHandler::SaveAttributes: saving %d attributes in the attribute file %s",
+		pPlutoMediaAttributes->m_mapAttributes.size(), GetFileAttribute().c_str());
+
 	for(MapPlutoMediaAttributes::iterator it = pPlutoMediaAttributes->m_mapAttributes.begin(); 
 		it != pPlutoMediaAttributes->m_mapAttributes.end(); ++it)
 	{
@@ -112,7 +118,7 @@ bool VDRInfoFileHandler::SaveAttributes(PlutoMediaAttributes *pPlutoMediaAttribu
 	return true;
 }
 //-----------------------------------------------------------------------------------------------------
-bool VDRInfoFileHandler::RemoveAttribute(int nTagType, string sValue)
+bool VDRInfoFileHandler::RemoveAttribute(int nTagType, string sValue, PlutoMediaAttributes *pPlutoMediaAttributes)
 {
 	//nothing to do here
 	return true;

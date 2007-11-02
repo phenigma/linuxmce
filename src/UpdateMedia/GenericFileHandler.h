@@ -22,7 +22,7 @@ public:
 
 	virtual bool LoadAttributes(PlutoMediaAttributes *pPlutoMediaAttributes, list<pair<char *, size_t> >& listPicturesForTags);
 	virtual bool SaveAttributes(PlutoMediaAttributes *pPlutoMediaAttributes);
-	virtual bool RemoveAttribute(int nTagType, string sValue);
+	virtual bool RemoveAttribute(int nTagType, string sValue, PlutoMediaAttributes *pPlutoMediaAttributes);
 	virtual bool FileAttributeExists();
 	virtual string GetFileAttribute();
 	virtual string GetFileSourceForDB();

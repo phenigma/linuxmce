@@ -25,6 +25,9 @@ bool ID3FileHandler::LoadAttributes(PlutoMediaAttributes *pPlutoMediaAttributes,
 {
 	string sFileWithAttributes = m_sDirectory + "/" + FileWithAttributes(pPlutoMediaAttributes, false);
 
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "# ID3FileHandler::LoadAttributes: loading %d attributes in the attribute file %s",
+		pPlutoMediaAttributes->m_mapAttributes.size(), sFileWithAttributes.c_str());
+
 	//deserialize data from user defined tag
 	char *pData = NULL;
 	size_t Size = 0;
@@ -73,6 +76,9 @@ bool ID3FileHandler::SaveAttributes(PlutoMediaAttributes *pPlutoMediaAttributes)
 {
 	string sFileWithAttributes = m_sDirectory + "/" + FileWithAttributes(pPlutoMediaAttributes, true);
 
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "# ID3FileHandler::SaveAttributes: saving %d attributes in the attribute file %s",
+		pPlutoMediaAttributes->m_mapAttributes.size(), sFileWithAttributes.c_str());
+
 	//Temporary map with attributes for common tags
 	map<int, string> mapAttributes;
 	for(MapPlutoMediaAttributes::iterator it = pPlutoMediaAttributes->m_mapAttributes.begin(), 
@@ -108,9 +114,14 @@ bool ID3FileHandler::SaveAttributes(PlutoMediaAttributes *pPlutoMediaAttributes)
 	return true;
 }
 //-----------------------------------------------------------------------------------------------------
-bool ID3FileHandler::RemoveAttribute(int nTagType, string sValue)
+bool ID3FileHandler::RemoveAttribute(int nTagType, string sValue, PlutoMediaAttributes *pPlutoMediaAttributes)
 {
-	RemoveId3Tag(m_sFullFilename, nTagType, sValue);
+	string sFileWithAttributes = m_sDirectory + "/" + FileWithAttributes(pPlutoMediaAttributes, true);
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "# ID3FileHandler::RemoveAttribute: removing %s type %d attribute from the attribute file %s",
+		sValue.c_str(), nTagType, sFileWithAttributes.c_str());
+
+	RemoveId3Tag(sFileWithAttributes, nTagType, sValue);
 	return true;
 }
 //-----------------------------------------------------------------------------------------------------

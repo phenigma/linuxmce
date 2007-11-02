@@ -21,7 +21,7 @@ bool GenericFileHandler::SaveAttributes(PlutoMediaAttributes *pPlutoMediaAttribu
 	return true;
 }
 //-----------------------------------------------------------------------------------------------------
-bool GenericFileHandler::RemoveAttribute(int nTagType, string sValue)
+bool GenericFileHandler::RemoveAttribute(int nTagType, string sValue, PlutoMediaAttributes *pPlutoMediaAttributes)
 {
 	return true;
 }

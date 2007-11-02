@@ -1016,21 +1016,13 @@ void PlutoMediaFile::SavePlutoAttributes(string sFullFileName)
 
 	GetPicAttribute(m_pPlutoMediaAttributes->m_nFileID);
 
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "# SavePlutoAttributes: saving %d attributes in the attribute file %s",
-		m_pPlutoMediaAttributes->m_mapAttributes.size(), sFullFileName.c_str());
-
 	m_spFileHandler->SaveAttributes(m_pPlutoMediaAttributes);
 }
 //-----------------------------------------------------------------------------------------------------
 void PlutoMediaFile::LoadPlutoAttributes(string sFullFileName)
 {
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "# LoadPlutoAttributes (from attribute file): %s", sFullFileName.c_str());
-
 	m_pPlutoMediaAttributes = new PlutoMediaAttributes();
 	m_spFileHandler->LoadAttributes(m_pPlutoMediaAttributes, m_listPicturesForTags);
-
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "# LoadPlutoAttributes: pluto attributes merged (for attribute file) %d", 
-		m_pPlutoMediaAttributes->m_mapAttributes.size());
 }
 //-----------------------------------------------------------------------------------------------------
 void PlutoMediaFile::LoadEverythingFromDb()
@@ -1149,10 +1141,7 @@ void PlutoMediaFile::LoadShortAttributes()
 
 			if(!bAttributeFoundInDB)
 			{
-				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Removing attribute from file %d, value %s, since it was remove from the site.",
-					pPlutoMediaAttribute_File->m_nType, pPlutoMediaAttribute_File->m_sName.c_str());
-
-				m_spFileHandler->RemoveAttribute(pPlutoMediaAttribute_File->m_nType, pPlutoMediaAttribute_File->m_sName);
+				m_spFileHandler->RemoveAttribute(pPlutoMediaAttribute_File->m_nType, pPlutoMediaAttribute_File->m_sName, m_pPlutoMediaAttributes);
 				m_pPlutoMediaAttributes->m_mapAttributes.erase(it++);
 			}
 			else
@@ -1252,7 +1241,7 @@ void PlutoMediaFile::LoadLongAttributes()
 				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Removing attribute from file %d, value %s, since it was remove from the site.",
 					pPlutoMediaAttribute_File->m_nType, AdjustLongAttributeForDisplay(pPlutoMediaAttribute_File->m_sName).c_str());
 
-				m_spFileHandler->RemoveAttribute(pPlutoMediaAttribute_File->m_nType, pPlutoMediaAttribute_File->m_sName);
+				m_spFileHandler->RemoveAttribute(pPlutoMediaAttribute_File->m_nType, pPlutoMediaAttribute_File->m_sName, m_pPlutoMediaAttributes);
 				m_pPlutoMediaAttributes->m_mapLongAttributes.erase(it++);
 			}
 			else
