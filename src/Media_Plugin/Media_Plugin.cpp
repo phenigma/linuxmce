@@ -777,62 +777,13 @@ bool Media_Plugin::MediaInserted( class Socket *pSocket, class Message *pMessage
 
 	    EntertainArea *pEntertainArea = pMediaDevice->m_mapEntertainArea.begin( )->second;
 
-	    //TODO refactor into single piece of code
-	    {
-		int iPK_Device_Orbiter = pEntertainArea->m_pOH_Orbiter_OSD->m_pDeviceData_Router->m_dwPK_Device;
-		LoggerWrapper::GetInstance()->Write( LV_STATUS, "DEBUG: asking user at Orbiter %d", iPK_Device_Orbiter);
-	
-		string sDescription = "HD-DVD/Bluray disk is inserted, do you want to rip it?";
-		string sRipDescription = "The default name to save this media under is shown below.  You may change it.  Then, touch 'Save Public' to make this media public, or, confirm that you are the current user and touch 'Save Private'.  Use / for subdirectories, like: dir/filename";
-		string sButton1 = "Yes";
-	
-		string sCommand1 = StringUtils::itos(m_dwPK_Device) + " " + 
-			StringUtils::itos(iPK_Device_Orbiter) + " " +
-			StringUtils::itos(MESSAGETYPE_COMMAND) + " " +
-			StringUtils::itos(COMMAND_Goto_Screen_CONST) + " " +
-			StringUtils::itos(COMMANDPARAMETER_PK_MediaType_CONST) 
-			+ " " + "0" + " " +
-			StringUtils::itos(COMMANDPARAMETER_EK_Disc_CONST) + " " 
-			+ "0" + " " +
-			StringUtils::itos(COMMANDPARAMETER_PK_Screen_CONST) + " " 
-			+ "19" + " " +
-			StringUtils::itos(COMMANDPARAMETER_Caption_CONST) + " " 
-			+ "\"" + sRipDescription + "\"" + " " +
-			StringUtils::itos(COMMANDPARAMETER_Command_CONST) + " " 
-			+ 
-			"\""
-			+ StringUtils::itos(iPK_Device_Orbiter) + " " + StringUtils::itos(m_dwPK_Device) + " 1 337 "
-			"17 <%=#34%><%=EEU%><%=#34%> "
-			"13 <%=#34%><%=EE17%><%=#34%> "
-			"233 <%=#34%><%=EE45%><%=#34%> "
-			"234 <%=#34%><%=EE9%><%=#34%> "
-			"131 0 "
-			"2 " + "<%=#34%>" + StringUtils::itos(pDeviceFrom->m_dwPK_Device) + "<%=#34%>"
-			"\"" + " " +
-			StringUtils::itos(COMMANDPARAMETER_Advanced_options_CONST) 
-			+ " " + "1" + " " +
-			StringUtils::itos(COMMANDPARAMETER_Interruption_CONST) 
-			+ " " + "0" + " " +
-			StringUtils::itos(COMMANDPARAMETER_Turn_On_CONST) + " " 
-			+ "0" + " " +
-			StringUtils::itos(COMMANDPARAMETER_Queue_CONST) + " " 
-			+ "0" + " ";
-	
-		string sButton2 = "No";
-		string sCommand2 = "";
-	
-	
-		DCE::SCREEN_PopupMessage cmd(m_dwPK_Device, iPK_Device_Orbiter, 
-				sDescription + "|" + sButton1 + "|" + sButton2,
-				sCommand1 + "|" + sCommand2, "hdbd-ripping", "0", "0", "1"); 
-	
-		SendCommand(cmd);
-	    }
-	    
 	    // this block is a duplicate, with only difference it iterates over the remote Orbiter
-	    for (map<int,class BoundRemote *>::iterator it=pEntertainArea->m_mapBoundRemote.begin(); it!=pEntertainArea->m_mapBoundRemote.end(); ++it)
+	    for (map<int,OH_Orbiter *>::iterator it=m_pOrbiter_Plugin->m_mapOH_Orbiter.begin(); it!=m_pOrbiter_Plugin->m_mapOH_Orbiter.end(); ++it)
 	    {
-		int iPK_Device_Orbiter = it->second->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device;
+		if (  (!pEntertainArea->m_pRoom) || (it->second->m_dwPK_Room != pEntertainArea->m_pRoom->m_dwPK_Room) )
+			continue;
+		
+		int iPK_Device_Orbiter = it->second->m_pDeviceData_Router->m_dwPK_Device;
 		LoggerWrapper::GetInstance()->Write( LV_STATUS, "DEBUG: asking user at Orbiter %d", iPK_Device_Orbiter);
 	
 		string sDescription = "HD-DVD/Bluray disk is inserted, do you want to rip it?";
