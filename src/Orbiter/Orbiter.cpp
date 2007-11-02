@@ -3464,11 +3464,6 @@ bool Orbiter::RegionUp( int x,  int y )
 }
 bool Orbiter::RegionDown( int x,  int y )
 {
-//---------------------------------------------------------------------------------------------------
-//Uncomment this to test draw arrow!
-//m_pOrbiterRenderer->DrawArrow(PlutoPoint(300, 200), PlutoPoint(x, y), PlutoSize(20,16), PlutoColor::Blue(), "", "test-arrow");
-//---------------------------------------------------------------------------------------------------
-
 #ifdef ENABLE_MOUSE_BEHAVIOR
 	if(UsesUIVersion2())
 	{
@@ -4157,6 +4152,17 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 		int PK_Variable=0;
 		string Variable = Input.substr( pos,  foundend-pos );
 
+		if(Variable.size() >= 2 && Variable[0]=='#')
+		{
+			//<%=#xxxx%>, where xxxx is a ASCII for a char in decimal
+			//e.g.: for quote : <%=#34%>
+
+			char sBuf[2];
+			sBuf[0] = (char)atoi(Variable.substr(1).c_str());
+			sBuf[1] = '\0';
+
+			Output += sBuf;
+		}
 		if(  Variable=="M"  )
 			Output += m_sMainMenu;
 		else if(  Variable=="!"  )
