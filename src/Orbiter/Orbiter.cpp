@@ -4157,11 +4157,7 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 			//<%=#xxxx%>, where xxxx is a ASCII for a char in decimal
 			//e.g.: for quote : <%=#34%>
 
-			char sBuf[2];
-			sBuf[0] = (char)atoi(Variable.substr(1).c_str());
-			sBuf[1] = '\0';
-
-			Output += sBuf;
+			Output += (char)atoi(Variable.substr(1).c_str());
 		}
 		if(  Variable=="M"  )
 			Output += m_sMainMenu;
