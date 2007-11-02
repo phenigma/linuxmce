@@ -23,7 +23,8 @@ DATADIR		= $(datadir)/zaptel
 MANDIR		= $(mandir)/man8
 HOTPLUG_USB_DIR	= /etc/hotplug/usb
 UDEV_RULES_DIR	= /etc/udev/rules.d
-PERLLIBDIR	= $(shell eval `perl -V:vendorlib`; echo "$$vendorlib")
+# Perl disabled by default, until we see it is safe:
+#PERLLIBDIR	= $(shell eval `perl -V:sitelib`; echo "$$sitelib")
 PERL_DIRS	:= Zaptel Zaptel/Hardware Zaptel/Xpp
 PERL_MODS_PAT	:= *.pm $(PERL_DIRS:%=%/*.pm)
 PERL_MODS	:= $(shell cd zconf; echo $(PERL_MODS_PAT))

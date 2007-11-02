@@ -2952,6 +2952,10 @@ static int zt_common_ioctl(struct inode *node, struct file *file, unsigned int c
 	struct zt_chan *chan;
 	unsigned long flags;
 	unsigned char *txgain, *rxgain;
+#ifdef ALLOW_CHAN_DIAG
+	/* This structure is huge and will bork a 4k stack */
+	struct zt_chan mychan;
+#endif	
 	int i,j;
 	int return_master = 0;
 
@@ -3161,6 +3165,7 @@ static int zt_common_ioctl(struct inode *node, struct file *file, unsigned int c
 		if (copy_to_user((struct zt_spaninfo *) data,&stack.span,sizeof(stack.span)))
 			return -EFAULT;
 		break;
+#ifdef ALLOW_CHAN_DIAG
 	case ZT_CHANDIAG:
 		get_user(j, (int *)data); /* get channel number from user */
 		/* make sure its a valid channel number */
@@ -3168,54 +3173,49 @@ static int zt_common_ioctl(struct inode *node, struct file *file, unsigned int c
 			return -EINVAL;
 		/* if channel not mapped, not there */
 		if (!chans[j]) return -EINVAL;
-                chan = kmalloc(sizeof(struct zt_chan), GFP_KERNEL);
-                if (!chan)
-			return -ENOMEM;
-
-		/* lock channel */
+		/* lock irq state */
 		spin_lock_irqsave(&chans[j]->lock, flags);
 		/* make static copy of channel */
-		memcpy(chan,chans[j],sizeof(struct zt_chan));
-		/* release it. */
+		memcpy(&mychan,chans[j],sizeof(struct zt_chan));
+		/* let irq's go */
 		spin_unlock_irqrestore(&chans[j]->lock, flags);
-
 		printk("Dump of Zaptel Channel %d (%s,%d,%d):\n\n",j,
-			chan->name,chan->channo,chan->chanpos);
+			mychan.name,mychan.channo,mychan.chanpos);
 		printk("flags: %x hex, writechunk: %08lx, readchunk: %08lx\n",
-			chan->flags, (long) chan->writechunk, (long) chan->readchunk);
+			mychan.flags, (long) mychan.writechunk, (long) mychan.readchunk);
 		printk("rxgain: %08lx, txgain: %08lx, gainalloc: %d\n",
-			(long) chan->rxgain, (long)chan->txgain, chan->gainalloc);
+			(long) mychan.rxgain, (long)mychan.txgain, mychan.gainalloc);
 		printk("span: %08lx, sig: %x hex, sigcap: %x hex\n",
-			(long)chan->span, chan->sig, chan->sigcap);
+			(long)mychan.span, mychan.sig, mychan.sigcap);
 		printk("inreadbuf: %d, outreadbuf: %d, inwritebuf: %d, outwritebuf: %d\n",
-			chan->inreadbuf, chan->outreadbuf, chan->inwritebuf, chan->outwritebuf);
+			mychan.inreadbuf, mychan.outreadbuf, mychan.inwritebuf, mychan.outwritebuf);
 		printk("blocksize: %d, numbufs: %d, txbufpolicy: %d, txbufpolicy: %d\n",
-			chan->blocksize, chan->numbufs, chan->txbufpolicy, chan->rxbufpolicy);
+			mychan.blocksize, mychan.numbufs, mychan.txbufpolicy, mychan.rxbufpolicy);
 		printk("txdisable: %d, rxdisable: %d, iomask: %d\n",
-			chan->txdisable, chan->rxdisable, chan->iomask);
+			mychan.txdisable, mychan.rxdisable, mychan.iomask);
 		printk("curzone: %08lx, tonezone: %d, curtone: %08lx, tonep: %d\n",
-			(long) chan->curzone, chan->tonezone, (long) chan->curtone, chan->tonep);
+			(long) mychan.curzone, mychan.tonezone, (long) mychan.curtone, mychan.tonep);
 		printk("digitmode: %d, txdialbuf: %s, dialing: %d, aftdialtimer: %d, cadpos. %d\n",
-			chan->digitmode, chan->txdialbuf, chan->dialing,
-				chan->afterdialingtimer, chan->cadencepos);
+			mychan.digitmode, mychan.txdialbuf, mychan.dialing,
+				mychan.afterdialingtimer, mychan.cadencepos);
 		printk("confna: %d, confn: %d, confmode: %d, confmute: %d\n",
-			chan->confna, chan->_confn, chan->confmode, chan->confmute);
+			mychan.confna, mychan._confn, mychan.confmode, mychan.confmute);
 		printk("ec: %08lx, echocancel: %d, deflaw: %d, xlaw: %08lx\n",
-			(long) chan->ec, chan->echocancel, chan->deflaw, (long) chan->xlaw);
+			(long) mychan.ec, mychan.echocancel, mychan.deflaw, (long) mychan.xlaw);
 		printk("echostate: %02x, echotimer: %d, echolastupdate: %d\n",
-			(int) chan->echostate, chan->echotimer, chan->echolastupdate);
+			(int) mychan.echostate, mychan.echotimer, mychan.echolastupdate);
 		printk("itimer: %d, otimer: %d, ringdebtimer: %d\n\n",
-			chan->itimer,chan->otimer,chan->ringdebtimer);
+			mychan.itimer,mychan.otimer,mychan.ringdebtimer);
 #if 0
-		if (chan->ec) {
+		if (mychan.ec) {
 			int x;
 			/* Dump the echo canceller parameters */
-			for (x=0;x<chan->ec->taps;x++) {
-				printk("tap %d: %d\n", x, chan->ec->fir_taps[x]);
+			for (x=0;x<mychan.ec->taps;x++) {
+				printk("tap %d: %d\n", x, mychan.ec->fir_taps[x]);
 			}
 		}
-		kfree(chan)
 #endif
+#endif /* ALLOW_CHAN_DIAG */
 		break;
 	default:
 		return -ENOTTY;
