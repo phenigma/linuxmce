@@ -95,6 +95,8 @@ using namespace DCE;
 #include "SerializeClass/ShapesColors.h"
 #include "../VFD_LCD/VFD_LCD_Base.h"
 
+#include "Media_Plugin/BoundRemote.h"
+
 #include "DCE/DCEConfig.h"
 DCEConfig g_DCEConfig;
 
@@ -752,6 +754,8 @@ bool Media_Plugin::MediaInserted( class Socket *pSocket, class Message *pMessage
 	// We will embed into the MRL \t(disk drive)\t so that in the plugin the system can know if we're playing a drive other than our local one
 	string MRL = pMessage->m_mapParameters[EVENTPARAMETER_MRL_CONST] + "\t(" + StringUtils::itos(pMessage->m_dwPK_Device_From) + ")\t";
 
+    LoggerWrapper::GetInstance()->Write( LV_STATUS, "Got a media inserted at drive %d, of type %d ", pDeviceFrom->m_dwPK_Device, PK_MediaType );
+
     // First figure out what entertainment area this corresponds to. We are expecting that whatever media player is running on this pc will have
     // added the disc drive to it's entertainment area when it registered
     MediaDevice *pMediaDevice = m_mapMediaDevice_Find( pDeviceFrom->m_dwPK_Device );
@@ -765,6 +769,121 @@ bool Media_Plugin::MediaInserted( class Socket *pSocket, class Message *pMessage
     {
         LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Got a media inserted event from a drive that doesn't exist in an entertainment area" );
         return false; // Let someone else handle it
+    }
+
+    if ( PK_MediaType == MEDIATYPE_pluto_HDDVD_CONST || PK_MediaType == MEDIATYPE_pluto_BD_CONST )
+    {
+	    LoggerWrapper::GetInstance()->Write( LV_STATUS, "Detected HD-DVD/Bluray disk inserted at drive %d, asking user if he wants to rip it", pDeviceFrom->m_dwPK_Device );
+
+	    EntertainArea *pEntertainArea = pMediaDevice->m_mapEntertainArea.begin( )->second;
+
+	    //TODO refactor into single piece of code
+	    {
+		int iPK_Device_Orbiter = pEntertainArea->m_pOH_Orbiter_OSD->m_pDeviceData_Router->m_dwPK_Device;
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "DEBUG: asking user at Orbiter %d", iPK_Device_Orbiter);
+	
+		string sDescription = "HD-DVD/Bluray disk is inserted, do you want to rip it?";
+		string sRipDescription = "The default name to save this media under is shown below.  You may change it.  Then, touch 'Save Public' to make this media public, or, confirm that you are the current user and touch 'Save Private'.  Use / for subdirectories, like: dir/filename";
+		string sButton1 = "Yes";
+	
+		string sCommand1 = StringUtils::itos(m_dwPK_Device) + " " + 
+			StringUtils::itos(iPK_Device_Orbiter) + " " +
+			StringUtils::itos(MESSAGETYPE_COMMAND) + " " +
+			StringUtils::itos(COMMAND_Goto_Screen_CONST) + " " +
+			StringUtils::itos(COMMANDPARAMETER_PK_MediaType_CONST) 
+			+ " " + "0" + " " +
+			StringUtils::itos(COMMANDPARAMETER_EK_Disc_CONST) + " " 
+			+ "0" + " " +
+			StringUtils::itos(COMMANDPARAMETER_PK_Screen_CONST) + " " 
+			+ "19" + " " +
+			StringUtils::itos(COMMANDPARAMETER_Caption_CONST) + " " 
+			+ "\"" + sRipDescription + "\"" + " " +
+			StringUtils::itos(COMMANDPARAMETER_Command_CONST) + " " 
+			+ 
+			"\""
+			+ StringUtils::itos(iPK_Device_Orbiter) + " " + StringUtils::itos(m_dwPK_Device) + " 1 337 "
+			"17 <%=#34%><%=EEU%><%=#34%> "
+			"13 <%=#34%><%=EE17%><%=#34%> "
+			"233 <%=#34%><%=EE45%><%=#34%> "
+			"234 <%=#34%><%=EE9%><%=#34%> "
+			"131 0 "
+			"2 " + "<%=#34%>" + StringUtils::itos(pDeviceFrom->m_dwPK_Device) + "<%=#34%>"
+			"\"" + " " +
+			StringUtils::itos(COMMANDPARAMETER_Advanced_options_CONST) 
+			+ " " + "1" + " " +
+			StringUtils::itos(COMMANDPARAMETER_Interruption_CONST) 
+			+ " " + "0" + " " +
+			StringUtils::itos(COMMANDPARAMETER_Turn_On_CONST) + " " 
+			+ "0" + " " +
+			StringUtils::itos(COMMANDPARAMETER_Queue_CONST) + " " 
+			+ "0" + " ";
+	
+		string sButton2 = "No";
+		string sCommand2 = "";
+	
+	
+		DCE::SCREEN_PopupMessage cmd(m_dwPK_Device, iPK_Device_Orbiter, 
+				sDescription + "|" + sButton1 + "|" + sButton2,
+				sCommand1 + "|" + sCommand2, "hdbd-ripping", "0", "0", "1"); 
+	
+		SendCommand(cmd);
+	    }
+	    
+	    // this block is a duplicate, with only difference it iterates over the remote Orbiter
+	    for (map<int,class BoundRemote *>::iterator it=pEntertainArea->m_mapBoundRemote.begin(); it!=pEntertainArea->m_mapBoundRemote.end(); ++it)
+	    {
+		int iPK_Device_Orbiter = it->second->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device;
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "DEBUG: asking user at Orbiter %d", iPK_Device_Orbiter);
+	
+		string sDescription = "HD-DVD/Bluray disk is inserted, do you want to rip it?";
+		string sRipDescription = "The default name to save this media under is shown below.  You may change it.  Then, touch 'Save Public' to make this media public, or, confirm that you are the current user and touch 'Save Private'.  Use / for subdirectories, like: dir/filename";
+		string sButton1 = "Yes";
+	
+		string sCommand1 = StringUtils::itos(m_dwPK_Device) + " " + 
+			StringUtils::itos(iPK_Device_Orbiter) + " " +
+			StringUtils::itos(MESSAGETYPE_COMMAND) + " " +
+			StringUtils::itos(COMMAND_Goto_Screen_CONST) + " " +
+			StringUtils::itos(COMMANDPARAMETER_PK_MediaType_CONST) 
+			+ " " + "0" + " " +
+			StringUtils::itos(COMMANDPARAMETER_EK_Disc_CONST) + " " 
+			+ "0" + " " +
+			StringUtils::itos(COMMANDPARAMETER_PK_Screen_CONST) + " " 
+			+ "19" + " " +
+			StringUtils::itos(COMMANDPARAMETER_Caption_CONST) + " " 
+			+ "\"" + sRipDescription + "\"" + " " +
+			StringUtils::itos(COMMANDPARAMETER_Command_CONST) + " " 
+			+ 
+			"\""
+			+ StringUtils::itos(iPK_Device_Orbiter) + " " + StringUtils::itos(m_dwPK_Device) + " 1 337 "
+			"17 <%=#34%><%=EEU%><%=#34%> "
+			"13 <%=#34%><%=EE17%><%=#34%> "
+			"233 <%=#34%><%=EE45%><%=#34%> "
+			"234 <%=#34%><%=EE9%><%=#34%> "
+			"131 0 "
+			"2 " + "<%=#34%>" + StringUtils::itos(pDeviceFrom->m_dwPK_Device) + "<%=#34%>"
+			"\"" + " " +
+			StringUtils::itos(COMMANDPARAMETER_Advanced_options_CONST) 
+			+ " " + "1" + " " +
+			StringUtils::itos(COMMANDPARAMETER_Interruption_CONST) 
+			+ " " + "0" + " " +
+			StringUtils::itos(COMMANDPARAMETER_Turn_On_CONST) + " " 
+			+ "0" + " " +
+			StringUtils::itos(COMMANDPARAMETER_Queue_CONST) + " " 
+			+ "0" + " ";
+	
+		string sButton2 = "No";
+		string sCommand2 = "";
+	
+	
+		DCE::SCREEN_PopupMessage cmd(m_dwPK_Device, iPK_Device_Orbiter, 
+				sDescription + "|" + sButton1 + "|" + sButton2,
+				sCommand1 + "|" + sCommand2, "hdbd-ripping", "0", "0", "1"); 
+	
+		SendCommand(cmd);
+	    }
+
+
+	    return true;
     }
 
     // If there are more than one entertainment areas for this drive there's nothing we can do since we can't know the
