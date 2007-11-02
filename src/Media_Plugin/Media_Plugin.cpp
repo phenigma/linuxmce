@@ -806,12 +806,12 @@ bool Media_Plugin::MediaInserted( class Socket *pSocket, class Message *pMessage
 			+ 
 			"\""
 			+ StringUtils::itos(iPK_Device_Orbiter) + " " + StringUtils::itos(m_dwPK_Device) + " 1 337 "
-			"17 <%=#34%><%=EEU%><%=#34%> "
-			"13 <%=#34%><%=EE17%><%=#34%> "
-			"233 <%=#34%><%=EE45%><%=#34%> "
-			"234 <%=#34%><%=EE9%><%=#34%> "
+			"17 <%=EE#34%><%=EEU%><%=EE#34%> "
+			"13 <%=EE#34%><%=EE17%><%=EE#34%> "
+			"233 <%=EE#34%><%=EE45%><%=EE#34%> "
+			"234 <%=EE#34%><%=EE9%><%=EE#34%> "
 			"131 0 "
-			"2 " + "<%=#34%>" + StringUtils::itos(pDeviceFrom->m_dwPK_Device) + "<%=#34%>"
+			"2 " + "<%=EE#34%>" + StringUtils::itos(pDeviceFrom->m_dwPK_Device) + "<%=EE#34%>"
 			"\"" + " " +
 			StringUtils::itos(COMMANDPARAMETER_Advanced_options_CONST) 
 			+ " " + "1" + " " +
