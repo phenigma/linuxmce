@@ -2,4 +2,5 @@
 501_disable_wmvvc1dmo.diff
 502_hack_force_lavf_for_evo.diff
 503_mplayer_verbose_completion.diff
+504_mplayer_fix_per_file_config.diff
 
