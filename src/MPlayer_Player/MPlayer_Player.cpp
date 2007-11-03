@@ -499,6 +499,7 @@ void MPlayer_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMedi
 	m_vCurrentPlaylist.push_back(sMediaToPlay);
 	
 	//TODO check for playback start errors
+	CreateVideoConfigFiles(vFilesToPlay);
 	if (m_pPlayerEngine->StartPlaylist(vFilesToPlay) )
 	{
 		m_bMediaOpened = true;
@@ -794,6 +795,7 @@ void MPlayer_Player::CMD_Set_Media_Position(int iStreamID,string sMediaPosition,
 		vector<string> vFiles;
 		CopyVectorToVectorFromItem(m_vCurrentPlaylist, vFiles, sNewFile);
 		//TODO process errors if any
+		CreateVideoConfigFiles(vFiles);
 		m_pPlayerEngine->StartPlaylist(vFiles);		
 		m_sCurrentFileName = sNewFile;
 	}
@@ -1085,6 +1087,23 @@ void MPlayer_Player::CopyVectorToVectorFromItem(const vector<string> &vList, vec
 		{
 			LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::CopyVectorToVectorFromItem added to player vist item: %s", vi->c_str());
 			vVector.push_back(*vi);
+		}
+	}
+}
+
+void MPlayer_Player::CreateVideoConfigFiles(const vector<string> &vFiles)
+{
+	vector<string> vOptions;
+	vOptions.push_back("demuxer=lavf");
+	vOptions.push_back("lavdopts=fast=yes:threads=2");
+	
+	for (vector<string>::const_iterator vi=vFiles.begin(); vi!=vFiles.end(); ++vi)
+	{
+		if (StringUtils::EndsWith(*vi, ".EVO", true))
+		{
+			string sConfigName = "/root/.mplayer/" + FileUtils::FilenameWithoutPath(*vi) + ".conf";
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::CreateVideoConfigFiles writing options to: %s", vi->c_str());
+			FileUtils::WriteVectorToFile(sConfigName, vOptions);
 		}
 	}
 }

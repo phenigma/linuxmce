@@ -56,6 +56,7 @@ namespace DCE
 		string ExtractFileFromPosition(string sMediaPosition, string sMediaToPlay);
 		void CopyListToVectorFromItem(const list<string> &vList, vector<string> &vVector, const string &sItem);
 		void CopyVectorToVectorFromItem(const vector<string> &vList, vector<string> &vVector, const string &sItem);
+		void CreateVideoConfigFiles(const vector<string> &vFiles);
 		
 		string GetPlaybackPosition();
 public:
