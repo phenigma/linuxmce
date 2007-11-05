@@ -756,21 +756,23 @@ Telecom_Plugin::Ring( class Socket *pSocket, class Message *pMessage, class Devi
 	CallStatus * pFoundSrc = FindCallStatusForChannel(sSource_Channel);
 	CallStatus * pFoundDest = FindCallStatusForChannel(sDestination_Channel);
 
-	if( NULL != pFoundSrc )
+	if(CallStatus::IsConferenceCallID(sDestination_Channel))
 	{
-		if(CallStatus::IsConferenceCallID(sDestination_Channel))
-		{
-			string sOldSrcCallID = pFoundSrc->GetID();
-			string sConferenceName = sDestination_Channel;
-			unsigned int unConferenceID = CallStatus::ExtractConferenceCallID(sConferenceName);
+		string sOldSrcCallID = "(none)";
+		string sConferenceName = sDestination_Channel;
+		unsigned int unConferenceID = CallStatus::ExtractConferenceCallID(sConferenceName);
 
-			CallStatus *pCallStatus = FindConferenceByConferenceID(unConferenceID);
-			if(NULL == pCallStatus)
-			{
-				pCallStatus = new CallStatus();
-				pCallStatus->SetConferenceID(unConferenceID);
-				pCallStatus->SetCallType(CallStatus::Conference);
-			}
+		CallStatus *pCallStatus = FindConferenceByConferenceID(unConferenceID);
+		if(NULL == pCallStatus)
+		{
+			pCallStatus = new CallStatus();
+			pCallStatus->SetConferenceID(unConferenceID);
+			pCallStatus->SetCallType(CallStatus::Conference);
+		}
+
+		if( NULL != pFoundSrc )
+		{
+			sOldSrcCallID = pFoundSrc->GetID();
 
 			//remove it from old call
 			pFoundSrc->RemoveChannel(sSource_Channel);
@@ -780,44 +782,37 @@ Telecom_Plugin::Ring( class Socket *pSocket, class Message *pMessage, class Devi
 				delete pFoundSrc;
 				pFoundSrc = NULL;
 			}
-
-			//add it to conference
-			pCallStatus->AddChannel(sSource_Channel, sSource_Caller_ID);
-			map_call2status[pCallStatus->GetID()] = pCallStatus;
-
-			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Moved channel %s (%s) from call %s to conference call %s", 
-				sSource_Channel.c_str(), sSource_Caller_ID.c_str(), sOldSrcCallID.c_str(), sConferenceName.c_str());
-
-			DumpActiveCalls();
-			return false;
 		}
-		else
-		{
-			LoggerWrapper::GetInstance()->Write(LV_WARNING, "The src channel %s is already into a call", sSource_Channel.c_str());
-			return false;
-		}
+
+		//add it to conference
+		pCallStatus->AddChannel(sSource_Channel, sSource_Caller_ID);
+		map_call2status[pCallStatus->GetID()] = pCallStatus;
+
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Moved channel %s (%s) from call %s to conference call %s", 
+			sSource_Channel.c_str(), sSource_Caller_ID.c_str(), sOldSrcCallID.c_str(), sConferenceName.c_str());
 	}
-
-	if( NULL != pFoundDest )
+	else if( NULL != pFoundDest )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "The dest channel %s is already into a call", sDestination_Channel.c_str());
 		return false;
 	}
-	
-	CallStatus *pCallStatus = new CallStatus();
-	if( pCallStatus == NULL )
+	else
 	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Telecom_Plugin::Ring : Not enough memory!");
-	}
-	
-	pCallStatus->SetCallType(CallStatus::DirectCall);
-	pCallStatus->AddChannel(sSource_Channel, sSource_Caller_ID);
-	pCallStatus->AddChannel(sDestination_Channel, sDestination_Caller_ID);
-	
-	map_call2status[pCallStatus->GetID()] = pCallStatus;
+		CallStatus *pCallStatus = new CallStatus();
+		if( pCallStatus == NULL )
+		{
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Telecom_Plugin::Ring : Not enough memory!");
+		}
+		
+		pCallStatus->SetCallType(CallStatus::DirectCall);
+		pCallStatus->AddChannel(sSource_Channel, sSource_Caller_ID);
+		pCallStatus->AddChannel(sDestination_Channel, sDestination_Caller_ID);
+		
+		map_call2status[pCallStatus->GetID()] = pCallStatus;
 
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Telecom_Plugin::Ring call : %s",
-		pCallStatus->GetDebugInfo().c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Telecom_Plugin::Ring call : %s",
+			pCallStatus->GetDebugInfo().c_str());
+	}
 
 	//destination channel -> exten -> (?) simple phone -> orbiter
 	int nOrbiterDeviceID = GetOrbiterDeviceID("", sDestination_Channel);
