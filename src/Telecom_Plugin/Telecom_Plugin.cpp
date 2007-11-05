@@ -2195,10 +2195,7 @@ void Telecom_Plugin::CMD_PL_Join_Call(int iPK_Users,string sOptions,string sPhon
 		sConferenceID = CallStatus::GetStringConferenceID( pCallStatus->GetConferenceID() );
 	}
 
-	if(!sPhoneExtension.empty())
-		iPK_Device_To = 0;
-
-	InternalMakeCall(iPK_Device_To, sPhoneNumber, sConferenceID); //exten->conference
+	InternalMakeCall(0, sPhoneNumber, sConferenceID); //exten->conference
 }
 
 bool Telecom_Plugin::VoiceMailChanged(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo)
@@ -2884,9 +2881,11 @@ void Telecom_Plugin::InternalMakeCall(int iFK_Device_From, string sFromExten, st
 		iFK_Device_From, sFromExten.c_str(), sPhoneNumberToCall.c_str());
 
 	int iEmbeddedPhone = 0;
+	ExtensionStatus * pExtStatus = NULL;
 	ExtensionStatus::ExtensionType aExtenType = ExtensionStatus::OTHER;
 
-	ExtensionStatus * pExtStatus = NULL;
+	if(iFK_Device_From == 0)
+		iFK_Device_From = GetOrbiterDeviceID(sFromExten);
 
 	if(iFK_Device_From != 0)
 		pExtStatus = FindExtensionStatusByDevice(iFK_Device_From, &iEmbeddedPhone);
