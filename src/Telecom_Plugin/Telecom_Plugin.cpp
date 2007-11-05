@@ -565,7 +565,7 @@ Telecom_Plugin::CallsStatusChanged(class Socket *pSocket,class Message *pMessage
 
 		do 
 		{
-			str = StringUtils::Tokenize(sLine, ":", pos);
+			str = StringUtils::Tokenize(sLine, "!", pos);
 			vectTokens.push_back(str);
 		}
 		while(pos < sLine.length());
