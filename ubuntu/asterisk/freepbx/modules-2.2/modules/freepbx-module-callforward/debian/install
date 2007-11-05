@@ -1,5 +1,0 @@
-*.php           usr/share/freepbx/modules/callforward/
-*.sql           usr/share/freepbx/modules/callforward/
-*.sqlite        usr/share/freepbx/modules/callforward/
-*.html          usr/share/freepbx/modules/callforward/
-*.xml           usr/share/freepbx/modules/callforward/

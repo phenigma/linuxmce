@@ -1,3 +1,0 @@
-debian/sqlite3/amportal.conf		usr/share/freepbx-common/
-debian/sqlite3/install-sql		usr/share/freepbx-common/
-debian/sqlite3/remove-sql		usr/share/freepbx-common/

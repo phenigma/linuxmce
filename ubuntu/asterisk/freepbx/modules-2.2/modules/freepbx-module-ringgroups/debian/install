@@ -1,5 +1,0 @@
-*.php           usr/share/freepbx/modules/ringgroups/
-*.sql           usr/share/freepbx/modules/ringgroups/
-*.sqlite        usr/share/freepbx/modules/ringgroups/
-*.html          usr/share/freepbx/modules/ringgroups/
-*.xml           usr/share/freepbx/modules/ringgroups/

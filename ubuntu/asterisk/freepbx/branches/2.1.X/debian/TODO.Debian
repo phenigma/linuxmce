@@ -1,5 +1,0 @@
-* more testing 
-* finish the support for sqlite (migrate to sqlite3...?)
-* test other http servers, mathopd is supported, but new httpd servers are welcomed
-* find a more generic way of dialing with httpd servers and sql servers
-* find a way to remove the www-data from the group asterisk  (ari is the problem right now)

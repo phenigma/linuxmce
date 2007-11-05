@@ -1,5 +1,0 @@
- * find a more generic way of dialing with httpd servers
- * find a way to remove the www-data from the group asterisk  (ari is the problem right now)
- * freepbx-database currently needs to provide amportal.conf, maybe give the packages a way to modify
-   the installed amportal.conf?
- * rename /etc/amportal.conf to /etc/freepbx.conf

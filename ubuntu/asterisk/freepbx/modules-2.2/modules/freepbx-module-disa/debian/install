@@ -1,5 +1,0 @@
-*.php           usr/share/freepbx/modules/disa/
-*.sql           usr/share/freepbx/modules/disa/
-*.sqlite        usr/share/freepbx/modules/disa/
-*.html          usr/share/freepbx/modules/disa/
-*.xml           usr/share/freepbx/modules/disa/

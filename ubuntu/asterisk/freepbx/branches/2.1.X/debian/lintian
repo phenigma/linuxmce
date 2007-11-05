@@ -1,6 +1,0 @@
-# when lintain stops sucking ass, i will remove this
-freepbx-admin: php-script-but-no-php-cli-dep
-freepbx-agi: php-script-but-no-php-cli-dep
-
-# i know this is an evil hack... ignore it
-freepbx-admin: lengthy-symlink 

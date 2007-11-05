@@ -1,6 +1,0 @@
-*.php           usr/share/freepbx/modules/zapauto/
-*.sql           usr/share/freepbx/modules/zapauto/
-*.sqlite        usr/share/freepbx/modules/zapauto/
-*.html          usr/share/freepbx/modules/zapauto/
-*.xml           usr/share/freepbx/modules/zapauto/
-share/*		usr/share/freepbx-common/
