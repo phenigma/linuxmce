@@ -688,7 +688,7 @@ Telecom_Plugin::ExtensionsStatusChanged(class Socket *pSocket,class Message *pMe
 				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "ExtensionsStatusChanged : Not enough memory or NULL pointer!");
 				return false;
 			}
-			
+
 			pExtensionStatus->SetID(sExten);
 
 			if( !sState.empty() )
@@ -2195,7 +2195,7 @@ void Telecom_Plugin::CMD_PL_Join_Call(int iPK_Users,string sOptions,string sPhon
 		sConferenceID = CallStatus::GetStringConferenceID( pCallStatus->GetConferenceID() );
 	}
 
-	InternalMakeCall(0, sPhoneNumber, sConferenceID); //exten->conference
+	InternalMakeCall(iPK_Device_To, sPhoneNumber, sConferenceID); //exten->conference
 }
 
 bool Telecom_Plugin::VoiceMailChanged(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo)
@@ -2885,7 +2885,7 @@ void Telecom_Plugin::InternalMakeCall(int iFK_Device_From, string sFromExten, st
 
 	ExtensionStatus * pExtStatus = NULL;
 
-	if(sFromExten.empty())
+	if(iFK_Device_From != 0)
 		pExtStatus = FindExtensionStatusByDevice(iFK_Device_From, &iEmbeddedPhone);
 	else
 		pExtStatus = FindExtensionStatus(sFromExten);
