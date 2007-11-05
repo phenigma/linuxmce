@@ -2195,6 +2195,9 @@ void Telecom_Plugin::CMD_PL_Join_Call(int iPK_Users,string sOptions,string sPhon
 		sConferenceID = CallStatus::GetStringConferenceID( pCallStatus->GetConferenceID() );
 	}
 
+	if(!sPhoneExtension.empty())
+		iPK_Device_To = 0;
+
 	InternalMakeCall(iPK_Device_To, sPhoneNumber, sConferenceID); //exten->conference
 }
 
