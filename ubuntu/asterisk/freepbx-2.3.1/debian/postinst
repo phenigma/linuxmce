@@ -1,0 +1,28 @@
+#!/bin/bash
+
+if [[ "$1" == configure ]]; then
+	. /usr/pluto/bin/SQL_Ops.sh
+
+	asterisk -V >/etc/asterisk/version
+	RunSQL "CREATE DATABASE IF NOT EXISTS asterisk"
+	RunSQL "CREATE DATABASE IF NOT EXISTS asteriskcdrdb"
+	RunSQL "GRANT ALL PRIVILEGES ON asterisk.* TO asteriskuser@localhost IDENTIFIED BY 'amp109'"
+	RunSQL "GRANT ALL PRIVILEGES ON asteriskcdrdb.* TO asteriskuser@localhost IDENTIFIED BY 'amp109'"
+	if [[ -z "$MySqlPassword" ]]; then
+		PassParm="-p$MySqlPassword"
+	fi
+	mysql -h "$MySqlHost" -u "$MySqlUser" $PassParm asteriskcdrdb </usr/share/freepbx/SQL/cdr_mysql_table.sql
+	mysql -h "$MySqlHost" -u "$MySqlUser" $PassParm asterisk </usr/share/freepbx/SQL/newinstall.sql
+
+	/var/lib/freepbx/apply_conf.sh
+	asterisk -rx 'reload manager'
+
+	PrevVer="$2"
+	/var/lib/freepbx/upgrade_all.php "$PrevVer"
+
+	UseDB asterisk
+	Version=$(RunSQL "SELECT value FROM admin WHERE variable = 'version'")
+	echo "$(Field 1 "$Version")" >/var/www/admin/version.txt
+
+	su - asterisk -c /var/lib/asterisk/bin/bounce_op.sh
+fi

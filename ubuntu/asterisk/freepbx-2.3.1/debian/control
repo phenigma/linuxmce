@@ -1,0 +1,13 @@
+Source: freepbx
+Section: unknown
+Priority: optional
+Maintainer: Radu Cristescu <radu.c@plutohome.com>
+Build-Depends: debhelper (>= 4.0.0)
+Standards-Version: 3.6.1
+
+Package: freepbx
+Architecture: any
+Provides: asterisk-config-custom
+Replaces: asterisk-config
+Description: FreePBX
+ FreePBX
