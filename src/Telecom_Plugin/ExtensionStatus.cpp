@@ -143,6 +143,7 @@ string ExtensionStatus::Type2String( ExtensionStatus::ExtensionType type )
 			break;
 
 		default:
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Unknown extension type! Using 'Local' as type");
 			sOutType = "Local";
 			break;
 	}

@@ -399,7 +399,7 @@ private:
 	/*
 	 *	Make a call
 	 */
-	void InternalMakeCall(int iFK_Device_From, string sFromExten, string sCallerID, string sPhoneNumberToCall);
+	void InternalMakeCall(int iFK_Device_From, string sFromExten, string sPhoneNumberToCall);
 	
 private:
 	int iCmdCounter;

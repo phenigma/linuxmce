@@ -2158,7 +2158,6 @@ void Telecom_Plugin::CMD_PL_Join_Call(int iPK_Users,string sOptions,string sPhon
 	}
 	
 	string sConferenceID;
-	string sConferenceCallerID;
 
 	if( !pCallStatus->IsConference() )
 	{
@@ -2186,15 +2185,13 @@ void Telecom_Plugin::CMD_PL_Join_Call(int iPK_Users,string sOptions,string sPhon
 		SendCommand(cmd_PBX_Transfer);
 
 		sConferenceID = sNewConferenceID;
-		sConferenceCallerID = "Conference";
 	}
 	else
 	{
 		sConferenceID = CallStatus::GetStringConferenceID( pCallStatus->GetConferenceID() );
-		sConferenceCallerID = GetCallName(pCallStatus);
 	}
 
-	InternalMakeCall(0, sConferenceID, sConferenceCallerID, sPhoneNumber);
+	InternalMakeCall(0, sPhoneNumber, sConferenceID); //exten->conference
 }
 
 bool Telecom_Plugin::VoiceMailChanged(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo)
@@ -2617,7 +2614,7 @@ void Telecom_Plugin::CMD_Make_Call(int iPK_Users,string sPhoneExtension,int iFK_
 		return;
 	}
 	
-	InternalMakeCall(iFK_Device_From, "", "", sPhoneNumber);
+	InternalMakeCall(iFK_Device_From, "", sPhoneNumber);
 }
 
 //<-dceag-c924-b->
@@ -2872,7 +2869,7 @@ void Telecom_Plugin::DumpActiveCalls()
 	return "";
 }
 
-void Telecom_Plugin::InternalMakeCall(int iFK_Device_From, string sFromExten, string sCallerID, string sPhoneNumberToCall)
+void Telecom_Plugin::InternalMakeCall(int iFK_Device_From, string sFromExten, string sPhoneNumberToCall)
 {
 	PLUTO_SAFETY_LOCK(vm, m_TelecomMutex);
 
@@ -2893,8 +2890,7 @@ void Telecom_Plugin::InternalMakeCall(int iFK_Device_From, string sFromExten, st
 	}
 
 	//TODO: get caller if from db ?
-	if(sCallerID.empty())
-		sCallerID = sFromExten;
+	string sCallerID = sFromExten;
 
 	if(m_pDevice_pbx)
 	{
