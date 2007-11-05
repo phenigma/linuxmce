@@ -3468,6 +3468,9 @@ void ScreenHandler::SCREEN_Active_Calls(long PK_Screen)
 	ScreenHandlerBase::SCREEN_Active_Calls(PK_Screen);
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::Telecom_ObjectSelected, new ObjectInfoBackData());
 	RegisterCallBack(cbDataGridRendering, (ScreenHandlerCallBack) &ScreenHandler::Telecom_DataGridRendering, new DatagridAcquiredBackData());
+	RegisterCallBack(cbOnTimer,	(ScreenHandlerCallBack) &ScreenHandler::Telecom_OnTimer, new CallBackData());
+
+	m_pOrbiter->StartScreenHandlerTimer(3);
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_MakeCallDevice(long PK_Screen)
@@ -3564,14 +3567,6 @@ bool ScreenHandler::Telecom_ObjectSelected(CallBackData *pData)
 				}
 				break;
 
-				//case DESIGNOBJ_objDropCall_CONST:
-				//{
-				//	CMD_Phone_Drop cmd_Phone_Drop();
-				//	m_pOrbiter->SendCommand(cmd_Phone_Drop);
-				//	bDontProcessIt = true;
-				//}
-				//break;
-
 				case DESIGNOBJ_objVoiceMail_CONST:
 				{
 					int iPK_Device = 0;
@@ -3638,6 +3633,17 @@ bool ScreenHandler::Telecom_ObjectSelected(CallBackData *pData)
 	}
 
 	return bDontProcessIt; // Keep processing it
+}
+//-----------------------------------------------------------------------------------------------------
+bool ScreenHandler::Telecom_OnTimer(CallBackData *pData)
+{
+	DesignObj_DataGrid *pObj = (DesignObj_DataGrid *)m_pOrbiter->FindObject(DESIGNOBJ_dgActiveUsers_CONST);
+	m_pOrbiter->InitializeGrid(pObj);
+	pObj->Flush();
+	m_pOrbiter->Renderer()->RenderObjectAsync(pObj);
+	NeedToRender render(m_pOrbiter, "Telecom_OnTimer");
+
+	return true; //keep refreshing
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::HandleAssistedMakeCall(int iPK_Users,string sPhoneExtension,int iPK_Device_From,

@@ -347,6 +347,7 @@ public:
 	//interceptors
 	bool Telecom_ObjectSelected(CallBackData *pData);
 	bool Telecom_DataGridRendering(CallBackData *pData);
+	bool Telecom_OnTimer(CallBackData *pData);
 
 	//helpers
 	void HandleAssistedMakeCall(int iPK_Users, string sPhoneExtension, int iPK_Device_From,
