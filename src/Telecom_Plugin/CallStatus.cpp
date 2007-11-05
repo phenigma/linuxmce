@@ -83,3 +83,13 @@ string CallStatus::GetDebugInfo() const
 	
 	return sDebug;
 }
+
+/*static*/ bool CallStatus::IsConferenceCallID(string sCallID)
+{
+	return GetStringConferenceID(ExtractConferenceCallID(sCallID)) == sCallID;
+}
+
+/*static*/ unsigned int CallStatus::ExtractConferenceCallID(string sCallID)
+{
+	return atoi(sCallID.c_str());
+}

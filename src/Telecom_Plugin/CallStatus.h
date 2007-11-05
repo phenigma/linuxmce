@@ -60,6 +60,12 @@ namespace DCE
 			static string GetStringConferenceID(unsigned);
 			
 			/***/
+			static bool IsConferenceCallID(string callid);
+
+			/***/
+			static unsigned int ExtractConferenceCallID(string callid);
+
+			/***/
 			static const char * conferencePrefix;
 			
 			/***/
@@ -81,11 +87,11 @@ namespace DCE
 			unsigned GetConferenceID() const { return conferenceID; }
 			/***/
 			bool IsConference() const { return type == Conference; }
-			
+
 			/***/
-			void AddChannel(string channelid, string callid)
+			void AddChannel(string channelid, string callerid)
 			{
-				channels[channelid] = callid;
+				channels[channelid] = callerid;
 			}
 			
 			/***/

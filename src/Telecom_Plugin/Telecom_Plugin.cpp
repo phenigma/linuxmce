@@ -753,10 +753,53 @@ Telecom_Plugin::Ring( class Socket *pSocket, class Message *pMessage, class Devi
 	
 	DumpActiveCalls();
 
-	if( NULL != FindCallStatusForChannel(sSource_Channel) ||
-		NULL != FindCallStatusForChannel(sDestination_Channel) )
+	CallStatus * pFoundSrc = FindCallStatusForChannel(sSource_Channel);
+	CallStatus * pFoundDest = FindCallStatusForChannel(sDestination_Channel);
+
+	if( NULL != pFoundSrc )
 	{
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "The channels are already into a call");
+		if(CallStatus::IsConferenceCallID(sDestination_Channel))
+		{
+			string sOldSrcCallID = pFoundSrc->GetID();
+			string sConferenceID = sDestination_Channel;
+
+			CallStatus *pCallStatus = NULL;
+			map<string, CallStatus*>::iterator it_callstatus = map_call2status.find(sConferenceID);
+			if(it_callstatus == map_call2status.end())
+			{
+				pCallStatus = new CallStatus();
+				pCallStatus->SetConferenceID(CallStatus::ExtractConferenceCallID(sConferenceID));
+				pCallStatus->SetCallType(CallStatus::Conference);
+			}
+			else
+			{
+				pCallStatus = it_callstatus->second;
+			}
+
+			pCallStatus->AddChannel(sSource_Channel, sSource_Caller_ID);
+			pFoundSrc->RemoveChannel(sSource_Channel);
+
+			if(pFoundSrc->Closed())
+			{
+				map_call2status.erase(pFoundSrc->GetID());
+				delete pFoundSrc;
+				pFoundSrc = NULL;
+			}
+
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Moved channel %s (%s) from call %s to conference call %s", 
+				sSource_Channel.c_str(), sSource_Caller_ID.c_str(), sOldSrcCallID.c_str(), sConferenceID.c_str());
+			return false;
+		}
+		else
+		{
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "The src channel %s is already into a call", sSource_Channel.c_str());
+			return false;
+		}
+	}
+
+	if( NULL != pFoundDest )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "The dest channel %s is already into a call", sDestination_Channel.c_str());
 		return false;
 	}
 	
