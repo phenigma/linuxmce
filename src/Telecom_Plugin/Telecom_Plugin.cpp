@@ -2124,6 +2124,8 @@ void Telecom_Plugin::doDisplayMessages()
 void Telecom_Plugin::CMD_PL_Join_Call(int iPK_Users,string sOptions,string sPhoneExtension,string sPhoneCallID,int iPK_Device_To,string &sCMD_Result,Message *pMessage)
 //<-dceag-c797-e->
 {
+	PLUTO_SAFETY_LOCK(vm, m_TelecomMutex);
+
 	string sPhoneNumber = GetPhoneNumber(iPK_Users, sPhoneExtension, iPK_Device_To);
 	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Command PL_Join_Call (call=%s, number=%s)",
 		sPhoneCallID.c_str(),
@@ -2155,16 +2157,10 @@ void Telecom_Plugin::CMD_PL_Join_Call(int iPK_Users,string sOptions,string sPhon
 		return;
 	}
 	
-	if( pCallStatus->IsConference() )
-	{
-		CMD_PBX_Originate cmd_PBX_Originate(m_dwPK_Device, m_pDevice_pbx->m_dwPK_Device,
-			sPhoneNumber,// + "@trusted",
-			"SIP", //TODO: phone type
-			CallStatus::GetStringConferenceID( pCallStatus->GetConferenceID() ),
-			GetCallName(pCallStatus) );
-		SendCommand(cmd_PBX_Originate);
-	}
-	else
+	string sConferenceID;
+	string sConferenceCallerID;
+
+	if( !pCallStatus->IsConference() )
 	{
 		string sChannel_1;
 		string sChannel_2;
@@ -2188,14 +2184,17 @@ void Telecom_Plugin::CMD_PL_Join_Call(int iPK_Users,string sOptions,string sPhon
 			m_dwPK_Device, m_pDevice_pbx->m_dwPK_Device,
 			sNewConferenceID, sChannel_1, sChannel_2 );
 		SendCommand(cmd_PBX_Transfer);
-		
-		CMD_PBX_Originate cmd_PBX_Originate( m_dwPK_Device, m_pDevice_pbx->m_dwPK_Device,
-			sPhoneNumber, // + "@trusted",
-			"SIP", //TODO: phone tpye
-			sNewConferenceID,
-			"Conference" );
-		SendCommand(cmd_PBX_Originate);
+
+		sConferenceID = sNewConferenceID;
+		sConferenceCallerID = "Conference";
 	}
+	else
+	{
+		sConferenceID = CallStatus::GetStringConferenceID( pCallStatus->GetConferenceID() );
+		sConferenceCallerID = GetCallName(pCallStatus);
+	}
+
+	InternalMakeCall(0, sConferenceID, sConferenceCallerID, sPhoneNumber);
 }
 
 bool Telecom_Plugin::VoiceMailChanged(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo)
@@ -2609,6 +2608,8 @@ void Telecom_Plugin::FollowMe_LeftRoom(int iPK_Event, int iPK_Orbiter, int iPK_D
 void Telecom_Plugin::CMD_Make_Call(int iPK_Users,string sPhoneExtension,int iFK_Device_From,int iPK_Device_To,string &sCMD_Result,Message *pMessage)
 //<-dceag-c921-e->
 {
+	PLUTO_SAFETY_LOCK(vm, m_TelecomMutex);
+
 	string sPhoneNumber = GetPhoneNumber(iPK_Users, sPhoneExtension, iPK_Device_To);
 	if( sPhoneNumber.empty() )
 	{
@@ -2616,32 +2617,7 @@ void Telecom_Plugin::CMD_Make_Call(int iPK_Users,string sPhoneExtension,int iFK_
 		return;
 	}
 	
-	int iEmbeddedPhone = 0;
-	ExtensionStatus * pExtStatus = FindExtensionStatusByDevice(iFK_Device_From, &iEmbeddedPhone);
-	if( pExtStatus == NULL )
-	{
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "No device from where to call !!!");
-		return;
-	}
-	
-	PLUTO_SAFETY_LOCK(vm, m_TelecomMutex);
-	if(m_pDevice_pbx)
-	{
-		if( iEmbeddedPhone != 0 )
-		{
-			DCE::CMD_Phone_Initiate cmdInitiate(m_dwPK_Device, iEmbeddedPhone, iEmbeddedPhone, sPhoneNumber);
-			SendCommand(cmdInitiate);
-		}
-		else
-		{
-			/*send originate command to PBX*/
-			CMD_PBX_Originate cmd_PBX_Originate(m_dwPK_Device, m_pDevice_pbx->m_dwPK_Device,
-				pExtStatus->GetID(),
-				ExtensionStatus::Type2String( pExtStatus->GetExtensionType() ),
-				sPhoneNumber, pExtStatus->GetID() );
-			SendCommand(cmd_PBX_Originate);
-		}
-	}
+	InternalMakeCall(iFK_Device_From, "", "", sPhoneNumber);
 }
 
 //<-dceag-c924-b->
@@ -2894,6 +2870,49 @@ void Telecom_Plugin::DumpActiveCalls()
 		return sChannel.substr(pos1+1, pos2-pos1-1);
 
 	return "";
+}
+
+void Telecom_Plugin::InternalMakeCall(int iFK_Device_From, string sFromExten, string sCallerID, string sPhoneNumberToCall)
+{
+	PLUTO_SAFETY_LOCK(vm, m_TelecomMutex);
+
+	int iEmbeddedPhone = 0;
+	ExtensionStatus::ExtensionType aExtenType = ExtensionStatus::OTHER;
+
+	ExtensionStatus * pExtStatus = NULL;
+
+	if(sFromExten.empty())
+		pExtStatus = FindExtensionStatusByDevice(iFK_Device_From, &iEmbeddedPhone);
+	else
+		pExtStatus = FindExtensionStatus(sFromExten);
+
+	if(NULL != pExtStatus) 
+	{
+		sFromExten = pExtStatus->GetID();
+		aExtenType = pExtStatus->GetExtensionType();
+	}
+
+	//TODO: get caller if from db ?
+	if(sCallerID.empty())
+		sCallerID = sFromExten;
+
+	if(m_pDevice_pbx)
+	{
+		if( iEmbeddedPhone != 0 )
+		{
+			DCE::CMD_Phone_Initiate cmdInitiate(m_dwPK_Device, iEmbeddedPhone, iEmbeddedPhone, sPhoneNumberToCall);
+			SendCommand(cmdInitiate);
+		}
+		else
+		{
+			/*send originate command to PBX*/
+			CMD_PBX_Originate cmd_PBX_Originate(m_dwPK_Device, m_pDevice_pbx->m_dwPK_Device,
+				sFromExten,
+				ExtensionStatus::Type2String(aExtenType),
+				sPhoneNumberToCall, sCallerID);
+			SendCommand(cmd_PBX_Originate);
+		}
+	}
 }
 
 int Telecom_Plugin::GetOrbiterDeviceID(string sExten, string sChannel /*= ""*/)

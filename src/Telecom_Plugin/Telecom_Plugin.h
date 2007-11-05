@@ -395,6 +395,11 @@ private:
 	 *	
 	 */
 	static string ExtensionForChannel(string sChannel);
+
+	/*
+	 *	Make a call
+	 */
+	void InternalMakeCall(int iFK_Device_From, string sFromExten, string sCallerID, string sPhoneNumberToCall);
 	
 private:
 	int iCmdCounter;

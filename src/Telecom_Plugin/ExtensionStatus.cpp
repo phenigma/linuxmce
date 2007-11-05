@@ -139,8 +139,11 @@ string ExtensionStatus::Type2String( ExtensionStatus::ExtensionType type )
 			break;
 			
 		case ExtensionStatus::SIP :
-		default:
 			sOutType = "SIP";
+			break;
+
+		default:
+			sOutType = "Local";
 			break;
 	}
 	
