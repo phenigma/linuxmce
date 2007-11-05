@@ -2892,10 +2892,10 @@ void Telecom_Plugin::InternalMakeCall(int iFK_Device_From, string sFromExten, st
 		aExtenType = pExtStatus->GetExtensionType();
 
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "InternalMakeCall found exten status exten %s, type %s",
-			sFromExten.c_str(), ExtensionStatus::Type2String(aExtenType));
+			sFromExten.c_str(), ExtensionStatus::Type2String(aExtenType).c_str());
 	}
 
-	//TODO: get caller if from db ?
+	//TODO: get caller id from db ?
 	string sCallerID = sFromExten;
 
 	if(m_pDevice_pbx)
