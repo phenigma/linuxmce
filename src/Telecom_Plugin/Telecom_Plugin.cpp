@@ -689,6 +689,8 @@ Telecom_Plugin::ExtensionsStatusChanged(class Socket *pSocket,class Message *pMe
 				return false;
 			}
 			
+			pExtensionStatus->SetID(sExten);
+
 			if( !sState.empty() )
 			{
 				//Ready, OnThePhone, Ringing or Dialing?
@@ -726,7 +728,9 @@ Telecom_Plugin::ExtensionsStatusChanged(class Socket *pSocket,class Message *pMe
 											   sExten.c_str(), sType.c_str());
 				}
 			}
-			
+		
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Exten status: adding %s with type %s and state %s",
+				sExten.c_str(), sType.c_str(), sState.c_str());	
 			map_ext2status[sExten] = pExtensionStatus;
 		}
 	}
