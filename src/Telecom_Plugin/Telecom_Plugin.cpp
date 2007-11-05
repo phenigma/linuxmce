@@ -2123,8 +2123,8 @@ void Telecom_Plugin::CMD_PL_Join_Call(int iPK_Users,string sOptions,string sPhon
 	if( pCallStatus->IsConference() )
 	{
 		CMD_PBX_Originate cmd_PBX_Originate(m_dwPK_Device, m_pDevice_pbx->m_dwPK_Device,
-			sPhoneNumber + "@trusted",
-			"Local",
+			sPhoneNumber,// + "@trusted",
+			"SIP", //TODO: phone type
 			CallStatus::GetStringConferenceID( pCallStatus->GetConferenceID() ),
 			GetCallName(pCallStatus) );
 		SendCommand(cmd_PBX_Originate);
@@ -2155,8 +2155,8 @@ void Telecom_Plugin::CMD_PL_Join_Call(int iPK_Users,string sOptions,string sPhon
 		SendCommand(cmd_PBX_Transfer);
 		
 		CMD_PBX_Originate cmd_PBX_Originate( m_dwPK_Device, m_pDevice_pbx->m_dwPK_Device,
-			sPhoneNumber + "@trusted",
-			"Local",
+			sPhoneNumber, // + "@trusted",
+			"SIP", //TODO: phone tpye
 			sNewConferenceID,
 			"Conference" );
 		SendCommand(cmd_PBX_Originate);
