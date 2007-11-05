@@ -2735,24 +2735,42 @@ void Telecom_Plugin::CMD_Merge_Calls(string sPhone_Call_ID_1,string sPhone_Call_
 string Telecom_Plugin::GetPhoneNumber(int iPK_Users, string sPhoneExtension, int iPK_Device_To)
 {
 	string sPhoneNumber;
+
 	if(iPK_Device_To != 0)
 	{
-		/*search device by id*/
 		DeviceData_Router *pDeviceData = find_Device(iPK_Device_To);
-		if(!pDeviceData) {
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "No device found with id: %d", iPK_Device_To);
-			return "";
-		}
-		if(pDeviceData->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Orbiter_CONST)
+		if(NULL != pDeviceData) 
 		{
-			pDeviceData = find_Device(map_orbiter2embedphone[iPK_Device_To]);
-			if(!pDeviceData) {
-				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "No device found with id: %d", iPK_Device_To);
-				return "";
+			if(
+				pDeviceData->m_dwPK_DeviceCategory == DEVICECATEGORY_Standard_Orbiter_CONST ||
+				pDeviceData->m_dwPK_DeviceCategory == DEVICECATEGORY_Mobile_Orbiter_CONST
+			)
+			{
+				pDeviceData = find_Device(map_orbiter2embedphone[iPK_Device_To]);
+				if(NULL != pDeviceData) 
+				{
+					sPhoneNumber = pDeviceData->mapParameters_Find(DEVICEDATA_PhoneNumber_CONST);
+				}
+				else
+				{
+					LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "No device found with id: %d", iPK_Device_To);
+				}
+			}
+			else if(pDeviceData->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Orbiter_Embedded_Phone_CONST)
+			{
+				sPhoneNumber = pDeviceData->mapParameters_Find(DEVICEDATA_PhoneNumber_CONST);
+			}
+			else
+			{
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Not an orbiter or embedded phone device id: %d", iPK_Device_To);
 			}
 		}
-		sPhoneNumber = pDeviceData->mapParameters_Find(DEVICEDATA_PhoneNumber_CONST);
+		else
+		{
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "No device found with id: %d", iPK_Device_To);
+		}
 	}
+
 	if(iPK_Users != 0)
 	{
 		/*search user by id*/
@@ -2768,6 +2786,7 @@ string Telecom_Plugin::GetPhoneNumber(int iPK_Users, string sPhoneExtension, int
 			return "";
 		}
 	}
+
 	if(sPhoneExtension != "")
 	{
 		sPhoneNumber = sPhoneExtension;
