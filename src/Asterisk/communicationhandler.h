@@ -50,7 +50,11 @@ protected:
 	int handleToken(Token* ptoken, bool& bIsResponseToken);
 	
 private:
+
+	//extension for the one called <-> the channel of the one who makes to call
 	std::map<std::string,std::string> map_ringext;
+
+	//channel <-> callerid
 	std::map<std::string,std::string> map_callerid;
 
 	int handleNewextenEvent(Token* ptoken);

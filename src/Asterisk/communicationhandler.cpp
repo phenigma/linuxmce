@@ -78,79 +78,96 @@ CommunicationHandler::handleToken(Token* ptoken, bool& bIsResponseToken) {
 	return 0;
 }
 
-int 
-CommunicationHandler::handleNewextenEvent(Token* ptoken) {
-
+int CommunicationHandler::handleNewextenEvent(Token* ptoken) 
+{
 	if(ptoken->getKey(TOKEN_APPLICATION) == APPLICATION_DIAL)
 	{
-		string party = ptoken->getKey(TOKEN_APPDATA);
-		while (party != "")
+		//sample:
+		//Event: Newexten
+		//Privilege: call,all
+		//Channel: SIP/202-0821b2e0
+		//Context: from-internal
+		//Extension: 200
+		//Priority: 1
+		//Application: Dial
+		//AppData: SIP/200
+		//Uniqueid: 1194011868.13
+
+		string sSrcChannel = ptoken->getKey(TOKEN_CHANNEL);
+		string sDestExtension = ptoken->getKey(TOKEN_EXTENSION);
+		string sSrcExtension;
+
+		if(!Utils::ParseChannel(sSrcChannel, &sSrcExtension)) 
 		{
-			string rest=party;
-			string extension;
-			if(!Utils::ParseParty(party, &extension,&rest)) {
-				if(!extension.empty())
-				{
-					string channel = ptoken->getKey(TOKEN_CHANNEL);
-					map_ringext[extension] += string(" ")+channel;
-					LoggerWrapper::GetInstance()->Write(LV_STATUS, "Will connect channel %s to extension %s", channel.c_str(),extension.c_str());
-				}
-				else
-				{
-					string channel = ptoken->getKey(TOKEN_CHANNEL);
-					string ringphoneid;
-					if(!Utils::ParseChannel(channel, &ringphoneid))
-					{
-						if(map_ringext.find(ringphoneid) != map_ringext.end())
-						{
-							int pos = (int)party.rfind('/');
-							if(pos>=0)
-							{
-								string number = party.substr(pos+1,party.length());
-								map_ringext[ringphoneid] += string(MARK_DIALING)+number+string("/ ");
-								LoggerWrapper::GetInstance()->Write(LV_STATUS, "Will mark channel %s as dialing to %s", channel.c_str(),number.c_str());								
-							}
-						}
-					}
-				}
-			} else {
-				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Error parsing party:%s", party.c_str());
-				return 0;
+			if(sDestExtension != sSrcExtension)
+			{
+				//e.g. 202 -> 202
+				map_ringext[sDestExtension] = sSrcChannel;
+
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Ringing for %s to %s", 
+					sSrcChannel.c_str(), sDestExtension.c_str());
 			}
-			party = rest;
+			else
+			{
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Ignoring event because exten is %s is channel is %s", 
+					sDestExtension.c_str(), sSrcChannel.c_str());
+			}
+		}
+		else
+		{
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Failed to parse channel %s", sSrcChannel.c_str());
 		}
 	}
 	else if(ptoken->getKey(TOKEN_APPLICATION) == APPLICATION_CONF)
 	{
-		string channel1 = ptoken->getKey(TOKEN_CHANNEL);
-		string extension = ptoken->getKey(TOKEN_EXTENSION);
-		string ringphoneid;
-		if(Utils::ParseChannel(channel1, &ringphoneid)) {
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Could not extract phone id from channels");
-			return 0;
-		}
-		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Conference event in room %s with channel %s", extension.c_str(),channel1.c_str());		
-		if(map_ringext.find(extension) == map_ringext.end())
-		{
-			map_ringext[extension] = string("C")+extension;
-		}
-		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Change from %s",map_ringext[extension].c_str());
-		string channel2 = StringUtils::TrimSpaces(map_ringext[extension]);
-		string callerid2 = map_callerid[extension]; 
-		map_ringext[extension] += string(" ")+channel1;
-		LoggerWrapper::GetInstance()->Write(LV_STATUS, "         to %s",map_ringext[extension].c_str());
+		//e.g.
+		//Event: Newexten
+		//Privilege: call,all
+		//Channel: Local/201@trusted-860c,1
+		//Context: trusted
+		//Extension: 0000
+		//Priority: 1
+		//Application: Conference
+		//AppData: 0000/S/1
+		//Uniqueid: 1194014441.37
 
-		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Ringing from channel %s (%s) to channel %s (%s) ",
-			channel1.c_str(), ringphoneid.c_str(), channel2.c_str(), callerid2.c_str());
-		AsteriskManager::getInstance()->NotifyRing(channel2, channel1, callerid2, ringphoneid);
+		string sSrcChannel = ptoken->getKey(TOKEN_CHANNEL);
+		string sDestExtension = ptoken->getKey(TOKEN_EXTENSION);
+		string sSrcExtension;
+
+		if(!Utils::ParseChannel(sSrcChannel, &sSrcExtension)) 
+		{
+			//e.g. 201 -> room 0000
+			map_ringext[sDestExtension] = sSrcChannel;
+
+			string sSrcCallerID = map_callerid[sSrcChannel];
+
+			string sDestChannel = sDestExtension; //TODO: is this correct ?
+			string sDestCallerID = "Conference " + sDestExtension;
+
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Ringing from channel %s (%s) to channel %s (%s) ",
+				sSrcChannel.c_str(), sSrcCallerID.c_str(), sDestExtension.c_str(), sDestCallerID.c_str());
+			AsteriskManager::getInstance()->NotifyRing(sSrcChannel, sDestChannel, sSrcCallerID, sDestCallerID);
+		}
+		else
+		{
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Failed to parse channel %s", sSrcChannel.c_str());
+		}
 	}
 
 	return 0;
 }
 
-int 
-CommunicationHandler::handleHangupEvent(Token* ptoken) 
+int CommunicationHandler::handleHangupEvent(Token* ptoken) 
 {
+	//e.g.
+	//Event: Hangup
+	//Privilege: call,all
+	//Channel: SIP/200-0821dcc8
+	//Uniqueid: 1194013971.30
+	//Cause: 21
+	//Cause-txt: Call Rejected
+
 	string channel = ptoken->getKey(TOKEN_CHANNEL);
 	string reason = ptoken->getKey(TOKEN_REASON);
 
@@ -164,8 +181,7 @@ CommunicationHandler::handleHangupEvent(Token* ptoken)
 	return 0;
 }
 
-int 
-CommunicationHandler::handleLinkEvent(Token* ptoken) 
+int CommunicationHandler::handleLinkEvent(Token* ptoken) 
 {
 	string channel1 = ptoken->getKey(TOKEN_CHANNEL1);
 	string channel2 = ptoken->getKey(TOKEN_CHANNEL2);
@@ -173,119 +189,101 @@ CommunicationHandler::handleLinkEvent(Token* ptoken)
 	string callerid2 = ptoken->getKey(TOKEN_CALLERID2);
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Linked channel %s (%s) to channel %s (%s) ",
-        channel1.c_str(), callerid1.c_str(), channel2.c_str(), callerid2.c_str());
+		channel1.c_str(), callerid1.c_str(), channel2.c_str(), callerid2.c_str());
 	AsteriskManager::getInstance()->NotifyLink(channel1, channel2, callerid1, callerid2);
 
 	return 0;
 }
 
-int 
-CommunicationHandler::handleNewStateEvent(Token* ptoken)
+int CommunicationHandler::handleNewStateEvent(Token* ptoken)
 {
 	if(ptoken->getKey(TOKEN_STATE) == STATE_RING)
 	{
-		string channel1 = ptoken->getKey(TOKEN_CHANNEL);
-		string callerid1 = ptoken->getKey(TOKEN_CALLERID);        
+		//e.g.
+		//Event: Newstate
+		//Privilege: call,all
+		//Channel: SIP/202-0821b2e0
+		//State: Ring
+		//CallerID: 202
+		//CallerIDName: 202
+		//Uniqueid: 1194011868.13
 
-		string ringphoneid;
-		if(!Utils::ParseChannel(channel1, &ringphoneid)) 
-		{
-			map_callerid[ringphoneid] = callerid1;
-			map_ringext[ringphoneid] += string(" ")+channel1;
-		}
+		string sSrcChannel = ptoken->getKey(TOKEN_CHANNEL);  
+		string sSrcCallerID = ptoken->getKey(TOKEN_CALLERID);        
+		map_callerid[sSrcChannel] = sSrcCallerID;
+
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Caller id for channel %s is '%s'", 
+			sSrcChannel.c_str(), sSrcCallerID.c_str());
 	}
 	else if(ptoken->getKey(TOKEN_STATE) == STATE_RINGING)
 	{
-		string channel1 = ptoken->getKey(TOKEN_CHANNEL);
-		string callerid1 = ptoken->getKey(TOKEN_CALLERID);
+		//e.g.
+		//Event: Newstate
+		//Privilege: call,all
+		//Channel: SIP/200-0821dcc8
+		//State: Ringing
+		//CallerID: 200
+		//CallerIDName: <unknown>
+		//Uniqueid: 1194012670.18
 
-		string ringphoneid;
-		if(!Utils::ParseChannel(channel1, &ringphoneid)) 
+		string sDestChannel = ptoken->getKey(TOKEN_CHANNEL);  
+		string sDestCallerID = ptoken->getKey(TOKEN_CALLERID);        
+		string sDestExten;
+
+		if(!Utils::ParseChannel(sDestChannel, &sDestExten)) 
 		{
-			map_callerid[ringphoneid] = callerid1;
-			if(map_ringext.find(ringphoneid) == map_ringext.end())
+			std::map<std::string,std::string>::iterator it = map_ringext.find(sDestExten);
+			if(it != map_ringext.end())
 			{
-				map_ringext[ringphoneid] = "";
+				string sSrcChannel = it->second;
+				string sSrcCallerID = map_callerid[sSrcChannel];
+
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Ringing from channel %s (%s) to channel %s (%s) ",
+					sSrcChannel.c_str(), sSrcCallerID.c_str(), sDestChannel.c_str(), sDestCallerID.c_str());
+
+				AsteriskManager::getInstance()->NotifyRing(sSrcChannel, sDestChannel, sSrcCallerID, sDestCallerID);
 			}
-			string channel2 = StringUtils::TrimSpaces(map_ringext[ringphoneid]);
-			string callerid2;
-			string ringphoneid2;
-			if(!Utils::ParseChannel(channel2, &ringphoneid2))
+			else
 			{
-				callerid2 = map_callerid[ringphoneid2];
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Got ringing, but don't know from who. "
+					"Ignoring, it might be a conferences. My channel %s", sDestChannel.c_str());
 			}
-
-			map_ringext[ringphoneid] += string(" ")+channel1;
-
-			string callerid = ptoken->getKey(TOKEN_CALLERID);
-			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Ringing from channel %s (%s) to channel %s (%s) ",
-				channel1.c_str(), callerid1.c_str(), channel2.c_str(), callerid2.c_str());
-			AsteriskManager::getInstance()->NotifyRing(channel2, channel1, callerid2, callerid1);
 		}
-		else 
+		else
 		{
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Error parsing channel:%s", channel1.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Failed to parse channel %s", sDestChannel.c_str());
 		}
 	}
 
 	return 0;
 }
 
-int 
-CommunicationHandler::handleNewChannelEvent(Token* ptoken)
+int CommunicationHandler::handleNewChannelEvent(Token* ptoken)
 {
 	if(ptoken->getKey(TOKEN_STATE) == STATE_RING)
 	{
-		string channel1 = ptoken->getKey(TOKEN_CHANNEL);
-		string callerid1 = ptoken->getKey(TOKEN_CALLERID);        
+		//e.g.
+		//Event: Newchannel
+		//Privilege: call,all
+		//Channel: Local/201@trusted-860c,2
+		//State: Ring
+		//CallerIDNum: <unknown>
+		//CallerIDName: <unknown>
+		//Uniqueid: 1194014441.38
 
-		string ringphoneid;
-		if(!Utils::ParseChannel(channel1, &ringphoneid)) 
-		{
-			map_callerid[ringphoneid] = callerid1;
-			map_ringext[ringphoneid] += string(" ")+channel1;
-		}
-	}
-	else 	if(ptoken->getKey(TOKEN_STATE) == STATE_RINGING)
-	{
-		string channel1 = ptoken->getKey(TOKEN_CHANNEL);
-		string callerid1 = ptoken->getKey(TOKEN_CALLERID);
+		string sSrcChannel = ptoken->getKey(TOKEN_CHANNEL);  
+		string sSrcCallerID = ptoken->getKey(TOKEN_CALLERID);  
+		map_callerid[sSrcChannel] = sSrcCallerID;
 
-		string ringphoneid;
-		if(!Utils::ParseChannel(channel1, &ringphoneid)) 
-		{
-			map_callerid[ringphoneid] = callerid1;
-			if(map_ringext.find(ringphoneid) == map_ringext.end())
-			{
-				map_ringext[ringphoneid] = "";
-			}
-			string channel2 = StringUtils::TrimSpaces(map_ringext[ringphoneid]);
-			string callerid2;
-			string ringphoneid2;
-			if(!Utils::ParseChannel(channel2, &ringphoneid2))
-			{
-				callerid2 = map_callerid[ringphoneid2];
-			}
-
-			map_ringext[ringphoneid] += string(" ")+channel1;
-
-			string callerid = ptoken->getKey(TOKEN_CALLERID);
-			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Ringing from channel %s (%s) to channel %s (%s) ",
-				channel1.c_str(), callerid1.c_str(), channel2.c_str(), callerid2.c_str());
-			AsteriskManager::getInstance()->NotifyRing(channel2, channel1, callerid2, callerid1);
-		}
-		else 
-		{
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Error parsing channel:%s", channel1.c_str());
-		}
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Caller id for channel %s is '%s'", 
+			sSrcChannel.c_str(), sSrcCallerID.c_str());
 	}
 
 	return 0;
 }
 
-int 
-CommunicationHandler::handlePeerStatusChanged(Token* ptoken) {
-
+int CommunicationHandler::handlePeerStatusChanged(Token* ptoken) 
+{
 	string sPeer = ptoken->getKey(TOKEN_PEER);
 	string sStatus = ptoken->getKey(TOKEN_PEER_STATUS);
 
@@ -293,9 +291,8 @@ CommunicationHandler::handlePeerStatusChanged(Token* ptoken) {
 	return 1;
 }
 
-int 
-CommunicationHandler::handleExtensionStatusChanged(Token* ptoken) {
-
+int CommunicationHandler::handleExtensionStatusChanged(Token* ptoken) 
+{
 	string sExten = ptoken->getKey(TOKEN_EXTEN);
 	string sRawStatus = ptoken->getKey(TOKEN_STATUS);
 	string sStatus;
