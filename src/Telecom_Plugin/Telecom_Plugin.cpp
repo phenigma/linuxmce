@@ -761,19 +761,15 @@ Telecom_Plugin::Ring( class Socket *pSocket, class Message *pMessage, class Devi
 		if(CallStatus::IsConferenceCallID(sDestination_Channel))
 		{
 			string sOldSrcCallID = pFoundSrc->GetID();
-			string sConferenceID = sDestination_Channel;
+			string sConferenceName = sDestination_Channel;
+			unsigned int unConferenceID = CallStatus::ExtractConferenceCallID(sConferenceName);
 
-			CallStatus *pCallStatus = NULL;
-			map<string, CallStatus*>::iterator it_callstatus = map_call2status.find(sConferenceID);
-			if(it_callstatus == map_call2status.end())
+			CallStatus *pCallStatus = FindConferenceByConferenceID(unConferenceID);
+			if(NULL == pCallStatus)
 			{
 				pCallStatus = new CallStatus();
-				pCallStatus->SetConferenceID(CallStatus::ExtractConferenceCallID(sConferenceID));
+				pCallStatus->SetConferenceID(unConferenceID);
 				pCallStatus->SetCallType(CallStatus::Conference);
-			}
-			else
-			{
-				pCallStatus = it_callstatus->second;
 			}
 
 			//remove it from old call
@@ -790,7 +786,7 @@ Telecom_Plugin::Ring( class Socket *pSocket, class Message *pMessage, class Devi
 			map_call2status[pCallStatus->GetID()] = pCallStatus;
 
 			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Moved channel %s (%s) from call %s to conference call %s", 
-				sSource_Channel.c_str(), sSource_Caller_ID.c_str(), sOldSrcCallID.c_str(), sConferenceID.c_str());
+				sSource_Channel.c_str(), sSource_Caller_ID.c_str(), sOldSrcCallID.c_str(), sConferenceName.c_str());
 
 			DumpActiveCalls();
 			return false;
@@ -2902,6 +2898,20 @@ int Telecom_Plugin::GetOrbiterDeviceID(string sExten, string sChannel /*= ""*/)
 
 	return 0;
 }	
+
+CallStatus *Telecom_Plugin::FindConferenceByConferenceID(unsigned int unConferenceID)
+{
+	for(map<string, CallStatus*>::iterator it = map_call2status.begin(); it != map_call2status.end(); ++it)
+	{
+		CallStatus *pCallStatus = it->second;
+
+		if(pCallStatus->IsConference() && pCallStatus->GetConferenceID() == unConferenceID)
+			return pCallStatus;
+	}
+
+	return NULL;
+}
+
 
 //<-dceag-c925-b->
 

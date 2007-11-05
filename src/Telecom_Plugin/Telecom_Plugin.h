@@ -388,6 +388,9 @@ private:
 	  */
 	int GetOrbiterDeviceID(string sExten, string sChannel = "");
 
+	/***/
+	CallStatus *FindConferenceByConferenceID(unsigned int unConferenceID);
+
 	/*
 	 *	
 	 */
