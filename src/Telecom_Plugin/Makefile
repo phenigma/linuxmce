@@ -29,7 +29,7 @@ LDFLAGS += -lmysqlclient_r
 #<-mkr_B_use_mysql_wrapper_e->
 
 #<-mkr_b_use_mysql_wrapper_b->
-#CPPFLAGS += -DUSE_MYSQL_WRAPPER
+CPPFLAGS += -DUSE_MYSQL_WRAPPER
 #<-mkr_b_use_mysql_wrapper_e->
 
 Gen_Dev_Files += 

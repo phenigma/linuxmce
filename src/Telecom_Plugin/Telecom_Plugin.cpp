@@ -2885,7 +2885,12 @@ void Telecom_Plugin::InternalMakeCall(int iFK_Device_From, string sFromExten, st
 	ExtensionStatus::ExtensionType aExtenType = ExtensionStatus::OTHER;
 
 	if(iFK_Device_From == 0)
+	{
 		iFK_Device_From = GetOrbiterDeviceID(sFromExten);
+
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "InternalMakeCall the extension %s is assigned to device %d", 
+				sFromExten.c_str(), iFK_Device_From);
+	}
 
 	if(iFK_Device_From != 0)
 		pExtStatus = FindExtensionStatusByDevice(iFK_Device_From, &iEmbeddedPhone);
