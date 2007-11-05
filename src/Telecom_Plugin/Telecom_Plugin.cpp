@@ -776,9 +776,8 @@ Telecom_Plugin::Ring( class Socket *pSocket, class Message *pMessage, class Devi
 				pCallStatus = it_callstatus->second;
 			}
 
-			pCallStatus->AddChannel(sSource_Channel, sSource_Caller_ID);
+			//remove it from old call
 			pFoundSrc->RemoveChannel(sSource_Channel);
-
 			if(pFoundSrc->Closed())
 			{
 				map_call2status.erase(pFoundSrc->GetID());
@@ -786,8 +785,14 @@ Telecom_Plugin::Ring( class Socket *pSocket, class Message *pMessage, class Devi
 				pFoundSrc = NULL;
 			}
 
+			//add it to conference
+			pCallStatus->AddChannel(sSource_Channel, sSource_Caller_ID);
+			map_call2status[pCallStatus->GetID()] = pCallStatus;
+
 			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Moved channel %s (%s) from call %s to conference call %s", 
 				sSource_Channel.c_str(), sSource_Caller_ID.c_str(), sOldSrcCallID.c_str(), sConferenceID.c_str());
+
+			DumpActiveCalls();
 			return false;
 		}
 		else
@@ -1073,7 +1078,7 @@ ExtensionStatus* Telecom_Plugin::FindExtensionStatus(string sExt)
 
 string Telecom_Plugin::GetNewConferenceID() const
 {
-	unsigned i=0;
+	unsigned int i = 1;
 	for(; i<map_conference2status.size(); i++)
 	{
 		if( map_conference2status.end() == map_conference2status.find(i) )
@@ -1081,10 +1086,6 @@ string Telecom_Plugin::GetNewConferenceID() const
 	}
 	
 	return CallStatus::GetStringConferenceID(i);
-/*	for(map<string, CallStatus*>::const_iterator it=map_conference2status.begin();
-		   it!=map_conference2status.end(); ++it)
-	{
-	}*/
 }
 
 void Telecom_Plugin::RemoveCallStatus(CallStatus * pCallStatus)

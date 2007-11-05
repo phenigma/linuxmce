@@ -56,6 +56,7 @@ CallStatus::CallStatus()
 	: type(CallStatus::DirectCall)
 {
     id = StringUtils::itos(autoId++);
+	conferenceID = 0;
 }
 
 CallStatus::~CallStatus()
