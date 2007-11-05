@@ -2873,6 +2873,9 @@ void Telecom_Plugin::InternalMakeCall(int iFK_Device_From, string sFromExten, st
 {
 	PLUTO_SAFETY_LOCK(vm, m_TelecomMutex);
 
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "InternalMakeCall (dev %d, exten %s) -> %s",
+		iFK_Device_From, sFromExten.c_str(), sPhoneNumberToCall.c_str());
+
 	int iEmbeddedPhone = 0;
 	ExtensionStatus::ExtensionType aExtenType = ExtensionStatus::OTHER;
 
@@ -2887,6 +2890,9 @@ void Telecom_Plugin::InternalMakeCall(int iFK_Device_From, string sFromExten, st
 	{
 		sFromExten = pExtStatus->GetID();
 		aExtenType = pExtStatus->GetExtensionType();
+
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "InternalMakeCall found exten status exten %s, type %s",
+			sFromExten.c_str(), ExtensionStatus::Type2String(aExtenType));
 	}
 
 	//TODO: get caller if from db ?

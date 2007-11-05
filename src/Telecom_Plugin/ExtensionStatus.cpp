@@ -79,7 +79,6 @@ ExtensionStatus::Availability ExtensionStatus::String2Availability(const string 
 		return ExtensionStatus::Unregistered;
 	}
 	
-	LoggerWrapper::GetInstance()->Write(LV_WARNING,"ExtensionStatus::String2Availability unknown: %s", sAva.c_str());
 	return ExtensionStatus::UnknownAvailability;
 }
 
@@ -102,7 +101,6 @@ ExtensionStatus::Activity ExtensionStatus::String2Activity(const string & sAct)
 		return ExtensionStatus::Dialing;
 	}
 	
-	LoggerWrapper::GetInstance()->Write(LV_WARNING,"ExtensionStatus::String2Activity unknown: %s", sAct.c_str());
 	return ExtensionStatus::UnknownActivity;
 }
 
