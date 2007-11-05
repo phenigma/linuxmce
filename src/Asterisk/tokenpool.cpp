@@ -140,6 +140,8 @@ TokenPool::_Run() {
 				}
 			}	
 
+			Sleep(100);
+
 			/*receive*/
 			 bool doreceive = sock.isReceivable();
         	 if(doreceive) 
