@@ -759,8 +759,6 @@ Telecom_Plugin::Ring( class Socket *pSocket, class Message *pMessage, class Devi
 
 	CallStatus * pFoundSrc = FindCallStatusForChannel(sSource_Channel);
 	CallStatus * pFoundDest = FindCallStatusForChannel(sDestination_Channel);
-
-	bool bMoved = false;
 	CallStatus *pCallStatus = NULL;
 
 	if(CallStatus::IsConferenceCallID(sDestination_Channel))
@@ -789,8 +787,6 @@ Telecom_Plugin::Ring( class Socket *pSocket, class Message *pMessage, class Devi
 				delete pFoundSrc;
 				pFoundSrc = NULL;
 			}
-
-			bMoved = true;
 		}
 
 		//add it to conference
@@ -823,40 +819,19 @@ Telecom_Plugin::Ring( class Socket *pSocket, class Message *pMessage, class Devi
 			pCallStatus->GetDebugInfo().c_str());
 	}
 
-	if(NULL == pCallStatus)
-	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Failed to create a call status for ring event!");
-		return false;
-	}
-
 	//destination channel -> exten -> (?) simple phone -> orbiter
 	int nOrbiterDeviceID = GetOrbiterDeviceID("", sDestination_Channel);
 
 	if(nOrbiterDeviceID)
 	{
-		if(!bMoved)
-		{
-			SCREEN_DevIncomingCall screen_DevIncomingCall(
-				m_dwPK_Device, nOrbiterDeviceID, 
-				sSource_Channel,
-				sDestination_Channel,
-				sSource_Caller_ID,
-				sDestination_Caller_ID
-			);
-			SendCommand(screen_DevIncomingCall);
-		}
-		else
-		{
-			SCREEN_DevCallInProgress screen_DevCallInProgress(
-				m_dwPK_Device, nOrbiterDeviceID, 
-				pCallStatus->GetID(),
-				sSource_Channel,
-				sDestination_Channel,
-				sSource_Caller_ID,
-				sDestination_Caller_ID
-			);
-			SendCommand(screen_DevCallInProgress);
-		}
+		SCREEN_DevIncomingCall screen_DevIncomingCall(
+			m_dwPK_Device, nOrbiterDeviceID, 
+			sSource_Channel,
+			sDestination_Channel,
+			sSource_Caller_ID,
+			sDestination_Caller_ID
+		);
+		SendCommand(screen_DevIncomingCall);
 	}
 	
 	DumpActiveCalls();
