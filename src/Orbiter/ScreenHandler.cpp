@@ -3494,6 +3494,9 @@ void ScreenHandler::SCREEN_DevCallInProgress(long PK_Screen, string sPhoneCaller
 	ScreenHandlerBase::SCREEN_DevCallInProgress(PK_Screen, sPhoneCallerID, sSource_Channel, 
 		sDestination_Channel, sSource_Caller_ID, sDestination_Caller_ID);
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::Telecom_ObjectSelected, new ObjectInfoBackData());
+	RegisterCallBack(cbOnTimer,	(ScreenHandlerCallBack) &ScreenHandler::Telecom_OnTimer, new CallBackData());
+
+	m_pOrbiter->StartScreenHandlerTimer(2000);
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_DevIncomingCall(long PK_Screen, string sSource_Channel, 
