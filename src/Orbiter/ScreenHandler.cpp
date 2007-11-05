@@ -3672,12 +3672,7 @@ void ScreenHandler::HandleAssistedMakeCall(int iPK_Users,string sPhoneExtension,
 				iPK_Users, sOptions, sPhoneExtension, sPhoneCallID, iPK_Device_From);
 			m_pOrbiter->SendCommand(cmd_PL_Join_Call);
 
-			if(GetCurrentScreen_PK_DesignObj() == DESIGNOBJ_mnuActiveCalls_CONST)
-				SCREEN_DevCallInProgress(SCREEN_DevCallInProgress_CONST, 
-					m_pOrbiter->m_mapVariable_Find(VARIABLE_My_Call_ID_CONST),
-					"", "", "", "");
-			else
-				SCREEN_Active_Calls(SCREEN_Active_Calls_CONST);
+			SCREEN_Active_Calls(SCREEN_Active_Calls_CONST);
 		}
 		break;
 
