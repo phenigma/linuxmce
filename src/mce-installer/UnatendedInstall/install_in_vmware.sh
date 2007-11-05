@@ -7,13 +7,15 @@ VMWARE_DIR="${WORK_DIR}/Kubuntu"
 VMWARE_DISK_IMAGE="${VMWARE_DIR}/Kubuntu-flat.vmdk"
 VMWARE_TARGZ="${VMWARE_DIR}/linux-mce.tar.gz"
 VMWARE_WORK_MACHINE="${VMWARE_DIR}/Kubuntu.vmx"
-VMWARE_IP="172.16.211.129"
+VMWARE_IP="192.168.124.128"
 
 
 # Export display so vmware will run in X11
 
 export DISPLAY=:1
 screen -d -m -S X11-Display1 X -ac :1
+sleep 2
+DISPLAY=:1 kwin &
 
 
 function decho {
@@ -24,6 +26,7 @@ function create_virtual_machine {
 	decho "Creating virual machine"
 	mkdir -p "$VMWARE_DIR"
 	killall -9 vmplayer || :
+	killall -9 vmware-vmx || :
 	cp -r /var/Kubuntu/* "$VMWARE_DIR"
 	decho "Finished creating virtual machine"
 }
@@ -75,7 +78,7 @@ function create_debcache_on_virtual_machine {
 	## Build Packages.gz
 	decho "Building Pacakges.gz on virtual machine"
 	scp /usr/bin/dpkg-scanpackages root@"$VMWARE_IP":/usr/pluto/deb-cache
-	ssh root@"$VMWARE_IP" "cd /usr/pluto/deb-cache && ./dpkg-scanpackages . /dev/null > Packages && gzip -c Packages > Packages.gz && rm dpkg-scanpackages"
+	ssh root@"$VMWARE_IP" "apt-get -y install dpkg-dev; cd /usr/pluto/deb-cache && ./dpkg-scanpackages . /dev/null > Packages && gzip -c Packages > Packages.gz && rm dpkg-scanpackages"
 	decho "Finish building Packages.gz on virtual machine"
 
 
@@ -182,9 +185,9 @@ function create_disk_image {
 
 }
 
-create_virtual_machine
-start_virtual_machine
-create_debcache_on_virtual_machine
-copy_installer_on_virtual_machine
-run_installer_on_virtual_machine
+#create_virtual_machine
+#start_virtual_machine
+#create_debcache_on_virtual_machine
+#copy_installer_on_virtual_machine
+#run_installer_on_virtual_machine
 create_disk_image

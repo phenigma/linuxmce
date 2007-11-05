@@ -104,7 +104,7 @@ OfflineMode = false
 #<-mkr_b_videowizard_b->
 UseVideoWizard = 1
 #<-mkr_b_videowizard_e->
-LogLevels = 1,5,7,8
+#LogLevels = 1,5,7,8
 #ImmediatelyFlushLog = 1
 AutostartCore=$AutostartCore
 AutostartMedia=$AutostartMedia
@@ -324,7 +324,7 @@ Setup_XOrg
 /usr/pluto/bin/DHCP_config.sh
 
 #StatsMessage "Building a disk image for your Diskless Media Directors"
-/usr/pluto/bin/Diskless_CreateTBZ.sh
+#/usr/pluto/bin/Diskless_CreateTBZ.sh
 
 mkdir -p /usr/pluto/deb-cache
 
