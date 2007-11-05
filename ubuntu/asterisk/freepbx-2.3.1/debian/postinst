@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 
 if [[ "$1" == configure ]]; then
 	. /usr/pluto/bin/SQL_Ops.sh
@@ -25,4 +25,19 @@ if [[ "$1" == configure ]]; then
 	echo "$(Field 1 "$Version")" >/var/www/admin/version.txt
 
 	su - asterisk -c /var/lib/asterisk/bin/bounce_op.sh
+
+	pushd /var/www/admin/modules
+	for Module in *; do
+		if [[ "$Module" == [._]* || ! -d "$Module" ]]; then
+			continue
+		fi
+		if [[ "$Module" == framework ]]; then
+			/var/lib/asterisk/bin/module_admin --no-warnings -f enable "$Module"
+		else
+			/var/lib/asterisk/bin/module_admin --no-warnings -f install "$Module"
+		fi
+	done
+	popd
+	
+	RunSQL "UPDATE admin SET value = 'true' WHERE variable = 'need_reload'"
 fi
