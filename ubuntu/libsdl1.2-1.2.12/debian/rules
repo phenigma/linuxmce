@@ -142,7 +142,7 @@ binary-arch: build install
 	  rm -rf man3;
 	dh_installchangelogs
 	dh_install --sourcedir=debian/tmp
-	sed -i -e "s/^dependency_libs=.*/dependency_libs=''/" debian/libsdl1.2-pluto-dev/opt/libsdl/lib/libSDL.la
+#	sed -i -e "s/^dependency_libs=.*/dependency_libs=''/" debian/libsdl1.2-pluto-dev/opt/libsdl/lib/libSDL.la
 	for dir in $(FLAVOURS) udeb; do \
 	    dh_install --sourcedir=builddir/$$dir/ -plibsdl1.2debian-pluto-$$dir build/.libs/*.so.* /opt/libsdl/lib/; \
 	done
