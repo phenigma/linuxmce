@@ -8,7 +8,7 @@ if [[ "$1" == configure ]]; then
 	RunSQL "CREATE DATABASE IF NOT EXISTS asteriskcdrdb"
 	RunSQL "GRANT ALL PRIVILEGES ON asterisk.* TO asteriskuser@localhost IDENTIFIED BY 'amp109'"
 	RunSQL "GRANT ALL PRIVILEGES ON asteriskcdrdb.* TO asteriskuser@localhost IDENTIFIED BY 'amp109'"
-	if [[ -z "$MySqlPassword" ]]; then
+	if [[ -n "$MySqlPassword" ]]; then
 		PassParm="-p$MySqlPassword"
 	fi
 	mysql -h "$MySqlHost" -u "$MySqlUser" $PassParm asteriskcdrdb </usr/share/freepbx/SQL/cdr_mysql_table.sql
