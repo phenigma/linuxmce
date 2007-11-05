@@ -1910,10 +1910,11 @@ string Makefile = "none:\n"
 		+ "," + StringUtils::itos(REPOSITORYSOURCE_Debian_CONST) + "," + StringUtils::itos(REPOSITORYSOURCE_MythTV_CONST) + ")",
 		&vect_pRow_Package_Source_Dependencies);
 	} else {
-		pRow_Package_Source->Table_Package_Source_get()->GetRows("JOIN Package_Package ON Package_Package.FK_Package_DependsOn=Package_Source.FK_Package AND Package_Package.FK_Package=" + 
-		StringUtils::itos(pRow_Package_Source->FK_Package_get()) + " WHERE FK_RepositorySource IN (" + StringUtils::itos(pRow_Package_Source->FK_RepositorySource_get())
-		+ "," + StringUtils::itos(REPOSITORYSOURCE_Ubuntu_CONST) + "," + StringUtils::itos(REPOSITORYSOURCE_MythTV_CONST) + ")",
-		&vect_pRow_Package_Source_Dependencies);
+		pRow_Package_Source->Table_Package_Source_get()->GetRows(
+				"JOIN Package_Package ON Package_Package.FK_Package_DependsOn=Package_Source.FK_Package AND Package_Package.FK_Package=" + StringUtils::itos(pRow_Package_Source->FK_Package_get()) +
+				" JOIN Package_Source_Compat ON Package_Source_Compat.FK_Package_Source = Package_Source.PK_Package_Source AND Package_Source_Compat.FK_Distro = " + StringUtils::itos(g_iPK_Distro) +
+				" WHERE FK_RepositorySource IN (" + StringUtils::itos(pRow_Package_Source->FK_RepositorySource_get()) + "," + StringUtils::itos(REPOSITORYSOURCE_Ubuntu_CONST) + "," + StringUtils::itos(REPOSITORYSOURCE_MythTV_CONST) + ")",
+				&vect_pRow_Package_Source_Dependencies);
 	}
 
 	string sDepends,sPreDepends;
