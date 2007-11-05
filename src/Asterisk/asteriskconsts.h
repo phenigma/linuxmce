@@ -45,6 +45,8 @@
 #define TOKEN_PEER_STATUS	"PeerStatus"
 #define TOKEN_STATUS		"Status"
 #define TOKEN_REASON		"Cause-txt"
+#define TOKEN_FOLLOWS		"Follows"
+#define TOKEN_PRIVILEGE		"Privilege"
 
 /* events */
 #define EVENT_NEWCHANNEL 	"Newchannel"

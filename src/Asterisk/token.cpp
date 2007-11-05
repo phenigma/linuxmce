@@ -81,11 +81,14 @@ int Token::unserialize(std::string str) {
 	removeAll();
 	
 	string key, value;
-	
+	bool bResponseFollows = false;
+	bool bPriviledgeCommand = false;
 	int keyend, valueend = 0;
-	while(1) {
+	while(1) 
+	{
 		keyend = (int)str.find(": ", valueend);
-		if(keyend != -1) {
+		if(keyend != -1 && !(bResponseFollows && bPriviledgeCommand) )
+		{
 			keyend += 2;
 			key = str.substr(valueend, keyend - valueend -2 /*dd*/);
 			valueend = (int)str.find("\r\n", keyend);
@@ -94,10 +97,19 @@ int Token::unserialize(std::string str) {
 				value = str.substr(keyend, valueend - keyend  - 2/*eol*/);
 
 				setKey(key, value);
-			} else {
+
+				if(key == TOKEN_RESPONSE && value == TOKEN_FOLLOWS)
+					bResponseFollows = true;
+				else if(key == TOKEN_PRIVILEGE && value == TOKEN_COMMAND)
+					bPriviledgeCommand = true;
+			} 
+			else 
+			{
 				break;
 			}
-		} else {
+		} 
+		else 
+		{
 			setKey(TOKEN_DATA, str.substr(valueend));
 			break;
 		}
