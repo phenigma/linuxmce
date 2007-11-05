@@ -148,6 +148,8 @@ int CommunicationHandler::handleNewextenEvent(Token* ptoken)
 			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Ringing from channel %s (%s) to channel %s (%s) ",
 				sSrcChannel.c_str(), sSrcCallerID.c_str(), sDestExtension.c_str(), sDestCallerID.c_str());
 			AsteriskManager::getInstance()->NotifyRing(sSrcChannel, sDestChannel, sSrcCallerID, sDestCallerID);
+			AsteriskManager::getInstance()->NotifyLink(sSrcChannel, sDestChannel, sSrcCallerID, sDestCallerID);
+
 		}
 		else
 		{

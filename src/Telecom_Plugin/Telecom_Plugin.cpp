@@ -855,36 +855,17 @@ Telecom_Plugin::Link( class Socket *pSocket, class Message *pMessage, class Devi
 	DumpActiveCalls();
 
 	CallStatus * pFoundSrc = FindCallStatusForChannel(sSource_Channel);
-	CallStatus * pFoundDest = FindCallStatusForChannel(sDestination_Channel);
-
 	string sCallID;
 
-	if( pFoundSrc == pFoundDest && NULL != pFoundSrc )
+	if(NULL != pFoundSrc)
 	{
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "The channels are linked");
-
 		sCallID = pFoundSrc->GetID();
 	}
 	else
 	{
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "The channels aren't registered yet.");
-
-		CallStatus *pCallStatus = new CallStatus();
-		if( pCallStatus == NULL )
-		{
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Telecom_Plugin::Link : Not enough memory!");
-		}
-
-		pCallStatus->SetCallType(CallStatus::DirectCall);
-		pCallStatus->AddChannel(sSource_Channel, sSource_Caller_ID);
-		pCallStatus->AddChannel(sDestination_Channel, sDestination_Caller_ID);
-
-		map_call2status[pCallStatus->GetID()] = pCallStatus;
-
-		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Telecom_Plugin::Link call : %s",
-			pCallStatus->GetDebugInfo().c_str());
-
-		sCallID = pCallStatus->GetID();
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "The channels aren't registered yet!");
+		return false;
 	}
 
 	//source channel -> exten -> simple phone -> orbiter
@@ -918,8 +899,6 @@ Telecom_Plugin::Link( class Socket *pSocket, class Message *pMessage, class Devi
 		);
 		SendCommand(screen_DevCallInProgress);
 	}
-
-	DumpActiveCalls();
 	
 	for(map<string, TelecomTask*>::const_iterator it=map_id2task.begin(); it!=map_id2task.end(); ++it)
 	{
