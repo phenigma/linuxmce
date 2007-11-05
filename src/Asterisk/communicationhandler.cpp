@@ -227,9 +227,12 @@ int CommunicationHandler::handleNewStateEvent(Token* ptoken)
 		//Uniqueid: 1194012670.18
 
 		string sDestChannel = ptoken->getKey(TOKEN_CHANNEL);  
-		string sDestCallerID = ptoken->getKey(TOKEN_CALLERID);        
-		string sDestExten;
+		string sDestCallerID = ptoken->getKey(TOKEN_CALLERID);     
 
+		//remember caller id
+		map_callerid[sDestChannel] = sDestCallerID;
+
+		string sDestExten;
 		if(!Utils::ParseChannel(sDestChannel, &sDestExten)) 
 		{
 			std::map<std::string,std::string>::iterator it = map_ringext.find(sDestExten);
