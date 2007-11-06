@@ -337,6 +337,7 @@ if [[ "$1" == start ]]; then
 fi
 ' > /etc/init.d/kdm
 chmod +x /etc/init.d/kdm
+mv /etc/rc2.d/*kdm /etc/rc2.d/S99kdm
 	
 #elif [[ "$c_startupType" == "2" ]] ;then
 #	echo "
