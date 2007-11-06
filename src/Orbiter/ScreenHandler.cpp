@@ -3471,6 +3471,10 @@ void ScreenHandler::SCREEN_Active_Calls(long PK_Screen)
 	RegisterCallBack(cbOnTimer,	(ScreenHandlerCallBack) &ScreenHandler::Telecom_OnTimer, new CallBackData());
 
 	m_pOrbiter->StartScreenHandlerTimer(2000);
+
+	bool bInACall = !m_pOrbiter->m_mapVariable_Find(VARIABLE_My_Channel_ID_CONST).empty();
+	m_pOrbiter->CMD_Show_Object(DESIGNOBJ_mnuActiveCalls_CONST + ".0.0." + StringUtils::itos(DESIGNOBJ_butJoin_CONST),
+		0, "", "", bInACall ? "1" : "0");
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_MakeCallDevice(long PK_Screen)
@@ -3520,18 +3524,30 @@ bool ScreenHandler::Telecom_DataGridRendering(CallBackData *pData)
 	{
 		if(pDatagridAcquiredBackData->m_pObj->m_iPK_Datagrid==DATAGRID_Active_Channels_CONST)
 		{
+			list<string> listCalls;
+
 			for(MemoryDataTable::iterator it=pDatagridAcquiredBackData->m_pDataGridTable->m_MemoryDataTable.begin();it!=pDatagridAcquiredBackData->m_pDataGridTable->m_MemoryDataTable.end();++it)
 			{
 				DataGridCell *pCell = it->second;
-				m_pOrbiter->CMD_Set_Variable(VARIABLE_Current_Call_CONST, pCell->m_Value);
+				listCalls.push_back(pCell->m_Value);
+			}
+
+			string sCurrentCall = m_pOrbiter->m_mapVariable_Find(VARIABLE_Current_Call_CONST);
+			list<string>::iterator it_found = std::find(listCalls.begin(), listCalls.end(), sCurrentCall);
+
+			if(it_found == listCalls.end() || listCalls.empty())
+			{
+				string sValue;
+				if(!listCalls.empty())
+					sValue = *listCalls.begin();
+
+				m_pOrbiter->CMD_Set_Variable(VARIABLE_Current_Call_CONST, sValue);
 
 				DesignObj_DataGrid *pObj = (DesignObj_DataGrid *)m_pOrbiter->FindObject(DESIGNOBJ_dgActiveUsers_CONST);
 				m_pOrbiter->InitializeGrid(pObj);
 				pObj->Flush();
 				m_pOrbiter->Renderer()->RenderObjectAsync(pObj);
 				NeedToRender render(m_pOrbiter, "Telecom_DataGridRendering");
-
-				return false;
 			}
 		}
 	}
@@ -3640,14 +3656,26 @@ bool ScreenHandler::Telecom_ObjectSelected(CallBackData *pData)
 //-----------------------------------------------------------------------------------------------------
 bool ScreenHandler::Telecom_OnTimer(CallBackData *pData)
 {
-	DesignObj_DataGrid *pObj = (DesignObj_DataGrid *)m_pOrbiter->FindObject(DESIGNOBJ_dgActiveUsers_CONST);
-	if(NULL != pObj)
+	DesignObj_DataGrid *pObj_Calls = (DesignObj_DataGrid *)m_pOrbiter->FindObject(DESIGNOBJ_dgActiveCalls_CONST);
+	DesignObj_DataGrid *pObj_Channels = (DesignObj_DataGrid *)m_pOrbiter->FindObject(DESIGNOBJ_dgActiveUsers_CONST);
+	if(NULL != pObj_Calls)
 	{
-		m_pOrbiter->InitializeGrid(pObj);
-		pObj->Flush();
-		m_pOrbiter->Renderer()->RenderObjectAsync(pObj);
+		m_pOrbiter->InitializeGrid(pObj_Calls);
+		pObj_Calls->Flush();
+		m_pOrbiter->Renderer()->RenderObjectAsync(pObj_Calls);
+	}
+
+	if(NULL != pObj_Channels)
+	{
+		m_pOrbiter->InitializeGrid(pObj_Channels);
+		pObj_Channels->Flush();
+		m_pOrbiter->Renderer()->RenderObjectAsync(pObj_Channels);
+	}
+
+	if(NULL != pObj_Calls || NULL != pObj_Channels)
+	{
 		NeedToRender render(m_pOrbiter, "Telecom_OnTimer");
-		return true;//keep refreshing
+		return true;
 	}
 
 	return false;
