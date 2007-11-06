@@ -3520,9 +3520,12 @@ void ScreenHandler::SCREEN_Call_Dropped(long PK_Screen, string sReason)
 
 	if(
 		GetCurrentScreen_PK_DesignObj() == DESIGNOBJ_devCallInProgress_CONST || 
-		GetCurrentScreen_PK_DesignObj() == DESIGNOBJ_devIncomingCall_CONST
+		GetCurrentScreen_PK_DesignObj() == DESIGNOBJ_devIncomingCall_CONST   ||
+		GetCurrentScreen_PK_DesignObj() == DESIGNOBJ_mnuPopupMessage_CONST 
 	)
+	{
 		SCREEN_Main(SCREEN_Main_CONST, "");
+	}
 
 	m_pOrbiter->CMD_Display_Alert("Call dropped. Reason: " + sReason, "", "5", 0);
 }
@@ -3772,6 +3775,17 @@ void ScreenHandler::HandleAssistedMakeCall(int iPK_Users,string sPhoneExtension,
 				m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device_TelecomPlugIn,
 				iPK_Users, sPhoneExtension, iPK_Device_From, iPK_Device_To);
 			m_pOrbiter->SendCommand(cmd_Make_Call);
+
+			string sDescription = "Calling, please wait...";
+			string sButton1 = "Cancel call";
+			string sCommand1 = 
+				StringUtils::itos(iPK_Device_From) + " " + 
+				StringUtils::itos(m_pOrbiter->m_dwPK_Device_TelecomPlugIn) + " " + 	
+				StringUtils::itos(MESSAGETYPE_COMMAND) + " " + 
+				StringUtils::itos(COMMAND_Phone_Drop_CONST);
+
+			SCREEN_PopupMessage(SCREEN_PopupMessage_CONST, 
+				sDescription + "|" + sButton1, sCommand1, "calling", "0", "0", "1");
 		}
 		break;
 
@@ -3788,6 +3802,17 @@ void ScreenHandler::HandleAssistedMakeCall(int iPK_Users,string sPhoneExtension,
 			m_pOrbiter->SendCommand(cmd_PL_Join_Call);
 
 			SCREEN_Active_Calls(SCREEN_Active_Calls_CONST);
+
+			string sDescription = "Calling, please wait...";
+			string sButton1 = "Cancel call";
+			string sCommand1 = 
+				StringUtils::itos(iPK_Device_From) + " " + 
+				StringUtils::itos(m_pOrbiter->m_dwPK_Device_TelecomPlugIn) + " " + 	
+				StringUtils::itos(MESSAGETYPE_COMMAND) + " " + 
+				StringUtils::itos(COMMAND_Phone_Drop_CONST);
+
+			SCREEN_PopupMessage(SCREEN_PopupMessage_CONST, 
+				sDescription + "|" + sButton1, sCommand1, "calling", "0", "0", "1");
 		}
 		break;
 
