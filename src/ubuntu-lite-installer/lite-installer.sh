@@ -352,6 +352,7 @@ TargetCleanup()
 	echo "# This file assigns persistent names to network interfaces.
 # See iftab(5) for syntax.
 " >/media/target/etc/iftab
+	rm -f /media/target/etc/udev/rules.d/70-persistent-net.rules
 
 	while read line; do
 		if ((NR < 2)); then
