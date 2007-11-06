@@ -3524,7 +3524,7 @@ void ScreenHandler::SCREEN_Call_Dropped(long PK_Screen, string sReason)
 	)
 		SCREEN_Main(SCREEN_Main_CONST, "");
 
-	m_pOrbiter->CMD_Display_Alert("Call dropped. Reason: " sReason, "", "5", 0);
+	m_pOrbiter->CMD_Display_Alert("Call dropped. Reason: " + sReason, "", "5", 0);
 }
 //-----------------------------------------------------------------------------------------------------
 bool ScreenHandler::Telecom_DataGridRendering(CallBackData *pData)
