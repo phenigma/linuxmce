@@ -1,6 +1,25 @@
 #!/usr/bin/php -q
 <?php
 define("BASEDIR", "/var/lib/freepbx");
+
+// **** Make sure we have PEAR's DB.php, and include it
+
+outn("Checking for PEAR DB..");
+if (! @ include('DB.php')) {
+	out("FAILED");
+	fatal("PEAR must be installed (requires DB.php). Include path: ".ini_get("include_path"));
+}
+out("OK");
+
+// **** Make sure we have PEAR's GetOpts.php, and include it
+
+outn("Checking for PEAR Console::Getopt..");
+if (! @ include("Console/Getopt.php")) {
+	out("FAILED");
+	fatal("PEAR must be installed (requires Console/Getopt.php). Include path: ".ini_get("include_path"));
+}
+out("OK");
+
 require_once (BASEDIR . "/libfreepbx.install.php");
 
 define("UPGRADE_DIR", BASEDIR . "/upgrades");
