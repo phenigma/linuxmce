@@ -3508,7 +3508,6 @@ void ScreenHandler::SCREEN_DevIncomingCall(long PK_Screen, string sSource_Channe
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Caller_number_CONST, sSource_Channel);
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, "");
 	
-
 	ScreenHandlerBase::SCREEN_DevIncomingCall(PK_Screen, sSource_Channel, sDestination_Channel,
 		sSource_Caller_ID, sDestination_Caller_ID);
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::Telecom_ObjectSelected, new ObjectInfoBackData());
@@ -3519,7 +3518,10 @@ void ScreenHandler::SCREEN_Call_Dropped(long PK_Screen, string sReason)
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_My_Channel_ID_CONST, "");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_My_Call_ID_CONST, "");
 
-	if(GetCurrentScreen_PK_DesignObj() == DESIGNOBJ_devCallInProgress_CONST)
+	if(
+		GetCurrentScreen_PK_DesignObj() == DESIGNOBJ_devCallInProgress_CONST || 
+		GetCurrentScreen_PK_DesignObj() == DESIGNOBJ_devIncomingCall_CONST
+	)
 		SCREEN_Main(SCREEN_Main_CONST, "");
 
 	m_pOrbiter->CMD_Display_Alert(sReason, "", "5", 0);
