@@ -43,7 +43,7 @@ $DECLARED_HOST=$ARGV[3] if(defined($ARGV[3]));
 $DECLARED_PREFIX=$ARGV[4] if(defined($ARGV[4]));
 
 ### ADD TRUNK
-$TRUNK_VARS{'display'}="6";
+$TRUNK_VARS{'display'}="trunks";
 $TRUNK_VARS{'extdisplay'}="";
 $TRUNK_VARS{'action'}="addtrunk";
 $TRUNK_VARS{'tech'}="sip";
@@ -103,7 +103,7 @@ while(<PAGE>)
     }
 }
 close(PAGE);
-$OUT_VARS{'display'}="8";
+$OUT_VARS{'display'}="routing";
 $OUT_VARS{'extdisplay'}="";
 $OUT_VARS{'action'}="addroute";
 $OUT_VARS{'routename'}="inphonex";
@@ -120,7 +120,7 @@ foreach my $var (keys %OUT_VARS)
 `rm -f /tmp/curl.log ; curl -d '$OUT_DATA' '$OUT_URL' > /dev/null`;
 
 ### ADD INCOMING ROUTING
-$IN_VARS{'display'}="7";
+$IN_VARS{'display'}="did";
 $IN_VARS{'extdisplay'}="";
 $IN_VARS{'action'}="addIncoming";
 $IN_VARS{'extension'}="";
