@@ -2746,10 +2746,12 @@ ExtensionStatus * Telecom_Plugin::FindExtensionStatusByDevice(int iPK_Device, in
 	
 	/*search device by id*/
 	DeviceData_Router *pDeviceData = find_Device(iPK_Device);
-	if(!pDeviceData) {
+	if(!pDeviceData) 
+	{
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "No device found with id: %d", iPK_Device);
 		return NULL;
 	}
+
 	if(pDeviceData->m_dwPK_DeviceTemplate == DEVICETEMPLATE_OnScreen_Orbiter_CONST)
 	{
 		pDeviceData = find_Device(map_orbiter2embedphone[iPK_Device]);
@@ -2762,7 +2764,12 @@ ExtensionStatus * Telecom_Plugin::FindExtensionStatusByDevice(int iPK_Device, in
 		if(NULL != pEmbeddedPhone)
 			*pEmbeddedPhone = iPK_Device;
 	}
-	
+	else if(pDeviceData->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Orbiter_Embedded_Phone_CONST)
+	{
+		if(NULL != pEmbeddedPhone)
+			*pEmbeddedPhone = iPK_Device;
+	}
+
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "our device is : id %d template %d",
 		pDeviceData->m_dwPK_Device,
 		pDeviceData->m_dwPK_DeviceTemplate );
