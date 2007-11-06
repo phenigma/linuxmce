@@ -1518,11 +1518,29 @@ void Telecom_Plugin::CMD_Phone_Answer(string &sCMD_Result,Message *pMessage)
 void Telecom_Plugin::CMD_Phone_Drop(string &sCMD_Result,Message *pMessage)
 //<-dceag-c336-e->
 {
-	int phoneID=map_orbiter2embedphone[pMessage->m_dwPK_Device_From];
-	if(phoneID>0)
+	int nDeviceID = 0;
+
+	DeviceData_Router *pDeviceData = find_Device(pMessage->m_dwPK_Device_From);
+	if(!pDeviceData) 
 	{
-		DCE::CMD_Phone_Drop cmd(m_dwPK_Device,phoneID);
-		SendCommand(cmd);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "No device found with id: %d", pMessage->m_dwPK_Device_From);
+		return;
+	}
+
+	if(pDeviceData->m_dwPK_DeviceTemplate == DEVICETEMPLATE_OnScreen_Orbiter_CONST)
+	{
+		nDeviceID = map_orbiter2embedphone[pMessage->m_dwPK_Device_From];
+	}
+	else if(pDeviceData->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Orbiter_Embedded_Phone_CONST)
+	{
+		nDeviceID = pMessage->m_dwPK_Device_From;
+	}
+
+	if(nDeviceID > 0)
+	{
+		DCE::CMD_Phone_Drop cmd_Phone_Drop(m_dwPK_Device, nDeviceID);
+		SendCommand(cmd_Phone_Drop);
+/*
 		PLUTO_SAFETY_LOCK(vm, m_TelecomMutex);  // Protect the call data
 		CallData *pCallData = CallManager::getInstance()->findCallByOwnerDevID(phoneID);
 		if(pCallData) {
@@ -1532,6 +1550,7 @@ void Telecom_Plugin::CMD_Phone_Drop(string &sCMD_Result,Message *pMessage)
 		{
 			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Dropping a call for which have no data");
 		}
+*/
 	}
 	sCMD_Result="OK";
 }
