@@ -94,9 +94,7 @@ $DB_PL_HANDLE->disconnect();
 $DB_AS_HANDLE->disconnect();
 
 #run AMP's scripts to generate asterisk's config
-`/var/www/admin/retrieve_iax_conf_from_mysql.pl`;
-`/var/www/admin/retrieve_sip_conf_from_mysql.pl`;
-`/var/www/admin/retrieve_zap_conf_from_mysql.pl`;
+`/var/www/admin/retrieve_conf`;
 
 #reload asterisk
 `/usr/sbin/asterisk -r -x reload`;
