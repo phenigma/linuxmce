@@ -1,5 +1,5 @@
 <?php  /* $Id */
-require_once("/var/lib/asterisk/bin/php-asmanager.php");
+require_once("/var/www/admin/common/php-asmanager.php");
 
 outn("Creating devices table..");
 

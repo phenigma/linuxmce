@@ -4,14 +4,15 @@ if [[ "$1" == configure ]]; then
 	. /usr/pluto/bin/SQL_Ops.sh
 
 	asterisk -V >/etc/asterisk/version
-	RunSQL "CREATE DATABASE IF NOT EXISTS asterisk"
-	RunSQL "CREATE DATABASE IF NOT EXISTS asteriskcdrdb"
-	RunSQL "GRANT ALL PRIVILEGES ON asterisk.* TO asteriskuser@localhost IDENTIFIED BY 'amp109'"
-	RunSQL "GRANT ALL PRIVILEGES ON asteriskcdrdb.* TO asteriskuser@localhost IDENTIFIED BY 'amp109'"
 	if [[ -n "$MySqlPassword" ]]; then
 		PassParm="-p$MySqlPassword"
 	fi
 	if [[ -z "$(RunSQL "SHOW DATABASES LIKE 'asterisk'")" ]]; then
+		RunSQL "CREATE DATABASE IF NOT EXISTS asterisk"
+		RunSQL "CREATE DATABASE IF NOT EXISTS asteriskcdrdb"
+		RunSQL "GRANT ALL PRIVILEGES ON asterisk.* TO asteriskuser@localhost IDENTIFIED BY 'amp109'"
+		RunSQL "GRANT ALL PRIVILEGES ON asteriskcdrdb.* TO asteriskuser@localhost IDENTIFIED BY 'amp109'"
+
 		mysql -h "$MySqlHost" -u "$MySqlUser" $PassParm asteriskcdrdb </usr/share/freepbx/SQL/cdr_mysql_table.sql
 		mysql -h "$MySqlHost" -u "$MySqlUser" $PassParm asterisk </usr/share/freepbx/SQL/newinstall.sql
 	fi
