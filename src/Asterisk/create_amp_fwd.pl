@@ -10,15 +10,15 @@ my $DECLARED_NUMBER;
 my $DECLARED_HOST = "iax2.fwdnet.net";
 my $DECLARED_PREFIX = "393";
 
-my $TRUNK_URL = 'http://localhost/pluto-admin/amp/admin/config.php?display=6&tech=IAX2';
+my $TRUNK_URL = 'http://localhost/admin/config.php?display=trunks&tech=IAX2';
 my %TRUNK_VARS = ();
 my $TRUNK_DATA = "";
 
-my $OUT_URL = 'http://localhost/pluto-admin/amp/admin/config.php?display=8';
+my $OUT_URL = 'http://localhost/admin/config.php?display=routing';
 my %OUT_VARS = ();
 my $OUT_DATA = "";
 
-my $IN_URL = 'http://localhost/pluto-admin/amp/admin/config.php?display=7';
+my $IN_URL = 'http://localhost/admin/config.php?display=did';
 my %IN_VARS = ();
 my $IN_DATA = "";
 
@@ -119,7 +119,7 @@ foreach my $var (keys %IN_VARS)
 `curl -d '$IN_DATA' '$IN_URL' > /dev/null`;
 
 #run AMP's scripts to generate asterisk's config
-`curl 'http://localhost/pluto-admin/amp/admin/config.php?display=6&clk_reload=true' > /dev/null`;
+`curl 'http://localhost/admin/config.php?display=trunks&clk_reload=true' > /dev/null`;
 #create telecom defaults
 `/usr/pluto/bin/create_telecom_defaults.pl`;
 #reload asterisk
