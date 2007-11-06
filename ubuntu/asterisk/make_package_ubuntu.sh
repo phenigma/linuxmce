@@ -39,7 +39,6 @@ Build_IaxyProv()
 	make all
 	cp iaxyprov "$PKGFOLDER/usr/sbin/"
 	cp iaxydebug "$PKGFOLDER/usr/sbin/"
-	cp iaxy.conf.sample "$PKGFOLDER/etc/asterisk/"
 	strip "$PKGFOLDER/usr/sbin/iaxyprov"
 	strip "$PKGFOLDER/usr/sbin/iaxydebug"
 }
@@ -53,9 +52,6 @@ TheRest()
 
 	cp -R ${ADDFOLDER}/pluto-sounds/*  ${PKGFOLDER}/var/lib/asterisk/sounds/pluto/
 
-	cp -R ${ADDFOLDER}/ext_pluto.conf ${PKGFOLDER}/etc/asterisk/extensions_custom.conf
-	cp -R ${ADDFOLDER}/sccp_pluto.conf ${PKGFOLDER}/etc/asterisk/sccp.conf
-
 	#copy AGI scripts
 	cp -R ${ADDFOLDER}/pluto-sos.agi ${PKGFOLDER}/var/lib/asterisk/agi-bin/
 	cp -R ${ADDFOLDER}/pluto-sos-gen.pl ${PKGFOLDER}/usr/pluto/bin/
@@ -63,20 +59,6 @@ TheRest()
 	cp -R ${ADDFOLDER}/pluto-sos-speak.pl ${PKGFOLDER}/usr/pluto/bin/
 	cp -R ${ADDFOLDER}/pluto-gethousemode.agi ${PKGFOLDER}/var/lib/asterisk/agi-bin/
 	cp -R ${ADDFOLDER}/pluto-getusermode.agi ${PKGFOLDER}/var/lib/asterisk/agi-bin/
-
-	cat >> ${PKGFOLDER}/etc/asterisk/extensions.conf <<- EOF
-
-	; ###########################################################################
-	; PLUTOs "trusted" context
-	; ###########################################################################
-
-	[trusted]
-	include => from-internal
-
-	EOF
-
-	sed -r -i "s/#include extensions_custom.conf/#include extensions_custom.conf\n#include extensions_pluto_dial.conf/" ${PKGFOLDER}/etc/asterisk/extensions.conf
-	sed -r -i "s/include => from-internal-custom/include => from-internal-custom\ninclude => from-pluto-custom/" ${PKGFOLDER}/etc/asterisk/extensions.conf
 
 	cd ${PKGFOLDER}/../
 
