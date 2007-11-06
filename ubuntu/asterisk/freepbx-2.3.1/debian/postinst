@@ -21,13 +21,13 @@ if [[ "$1" == configure ]]; then
 	asterisk -rx 'reload manager'
 
 	PrevVer="$2"
-	/var/lib/freepbx/upgrade_all.php "$PrevVer"
+	#/var/lib/freepbx/upgrade_all.php "$PrevVer"
 
 	UseDB asterisk
 	Version=$(RunSQL "SELECT value FROM admin WHERE variable = 'version'")
 	echo "$(Field 1 "$Version")" >/var/www/admin/version.txt
 
-	su - asterisk -c /var/lib/asterisk/bin/bounce_op.sh
+	#su - asterisk -c /var/lib/asterisk/bin/bounce_op.sh
 
 	pushd /var/www/admin/modules
 	for Module in *; do
