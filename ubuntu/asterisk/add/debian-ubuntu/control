@@ -7,6 +7,6 @@ Standards-Version: 3.6.1
 
 Package: asterisk-pluto
 Architecture: any
-Depends: asterisk (>= 1:1.4.10), asterisk-perl, tcpdump, traceroute, freepbx
+Depends: asterisk (>= 1:1.4.10~dfsg), asterisk-perl, tcpdump, traceroute, freepbx
 Description: Pluto addons for Asterisk
  Pluto addons for Asterisk
