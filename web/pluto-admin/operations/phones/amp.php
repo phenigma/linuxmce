@@ -12,7 +12,7 @@ function amp($output,$dbADO) {
 
 
 	if($action=='form'){
-		$out.=setLeftMenu($dbADO).'<iframe src="amp/admin/" style="width:98%;height:600px;"></iframe>';
+		$out.=setLeftMenu($dbADO).'<iframe src="/admin/" style="width:98%;height:600px;"></iframe>';
 	}
 
 	$output->setMenuTitle($TEXT_ADVANCED_CONST.' |');
