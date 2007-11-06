@@ -3471,10 +3471,6 @@ void ScreenHandler::SCREEN_Active_Calls(long PK_Screen)
 	RegisterCallBack(cbOnTimer,	(ScreenHandlerCallBack) &ScreenHandler::Telecom_OnTimer, new CallBackData());
 
 	m_pOrbiter->StartScreenHandlerTimer(2000);
-
-	bool bInACall = !m_pOrbiter->m_mapVariable_Find(VARIABLE_My_Channel_ID_CONST).empty();
-	m_pOrbiter->CMD_Show_Object(DESIGNOBJ_mnuActiveCalls_CONST + ".0.0." + StringUtils::itos(DESIGNOBJ_butJoin_CONST),
-		0, "", "", bInACall ? "1" : "0");
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_MakeCallDevice(long PK_Screen)
@@ -3499,6 +3495,7 @@ void ScreenHandler::SCREEN_DevCallInProgress(long PK_Screen, string sPhoneCaller
 		sDestination_Channel, sSource_Caller_ID, sDestination_Caller_ID);
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::Telecom_ObjectSelected, new ObjectInfoBackData());
 	RegisterCallBack(cbOnTimer,	(ScreenHandlerCallBack) &ScreenHandler::Telecom_OnTimer, new CallBackData());
+	RegisterCallBack(cbCapturedKeyboardBufferChanged, (ScreenHandlerCallBack) &ScreenHandler::Telecom_CapturedKeyboardBufferChanged, new ObjectInfoBackData());
 
 	m_pOrbiter->StartScreenHandlerTimer(2000);
 }
@@ -3510,6 +3507,8 @@ void ScreenHandler::SCREEN_DevIncomingCall(long PK_Screen, string sSource_Channe
 	//m_pOrbiter->CMD_Set_Variable(VARIABLE_My_Caller_ID_CONST, sDestination_Channel);
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Caller_name_CONST, sSource_Caller_ID);
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Caller_number_CONST, sSource_Channel);
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, "");
+	
 
 	ScreenHandlerBase::SCREEN_DevIncomingCall(PK_Screen, sSource_Channel, sDestination_Channel,
 		sSource_Caller_ID, sDestination_Caller_ID);
@@ -3613,8 +3612,19 @@ bool ScreenHandler::Telecom_ObjectSelected(CallBackData *pData)
 					if(sMyChannel.empty())
 					{
 						m_TelecomCommandStatus = tcsJoining;
-						m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, "");
-						GotoScreen(SCREEN_MakeCallDevice_CONST);
+
+						if(m_pOrbiter->m_bIsOSD)
+						{
+							string sSecondPhoneCall = m_pOrbiter->m_mapVariable_Find(VARIABLE_Current_Call_CONST);
+							HandleAssistedMakeCall(0, "", m_pOrbiter->m_dwPK_Device, 0, sSecondPhoneCall);
+						}
+						else
+						{
+							//if not OSD, find a device to dial from
+							m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, "");
+							GotoScreen(SCREEN_MakeCallDevice_CONST);
+						}
+
 						bDontProcessIt = true;
 					}
 					else
@@ -3676,6 +3686,31 @@ bool ScreenHandler::Telecom_OnTimer(CallBackData *pData)
 	{
 		NeedToRender render(m_pOrbiter, "Telecom_OnTimer");
 		return true;
+	}
+
+	return false;
+}
+//-----------------------------------------------------------------------------------------------------
+bool ScreenHandler::Telecom_CapturedKeyboardBufferChanged(CallBackData *pData)
+{
+	switch(GetCurrentScreen_PK_DesignObj())
+	{
+		case DESIGNOBJ_devCallInProgress_CONST:
+		{
+			string sBuffer = m_pOrbiter->m_mapVariable_Find(VARIABLE_Seek_Value_CONST);
+	
+			if(!sBuffer.empty())
+			{
+				string sButton = sBuffer.substr(sBuffer.length() - 1);
+				CMD_Simulate_Keypress cmd_Simulate_Keypress(
+					m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device_TelecomPlugIn,
+					sButton, 0, "");
+				m_pOrbiter->SendCommand(cmd_Simulate_Keypress);
+			}
+
+			m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, "");
+		}
+		break;
 	}
 
 	return false;

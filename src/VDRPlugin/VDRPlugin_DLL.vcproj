@@ -147,9 +147,6 @@
 				RelativePath="..\Media_Plugin\Generic_NonPluto_Media.cpp">
 			</File>
 			<File
-				RelativePath="..\UpdateMedia\id3info\id3info.cpp">
-			</File>
-			<File
 				RelativePath="Main.cpp">
 			</File>
 			<File
@@ -174,19 +171,10 @@
 				RelativePath="..\Media_Plugin\MediaHandlerInfo.cpp">
 			</File>
 			<File
-				RelativePath="..\UpdateMedia\MediaIdentifier.cpp">
-			</File>
-			<File
 				RelativePath="..\Media_Plugin\MediaListGrid.cpp">
 			</File>
 			<File
 				RelativePath="..\Media_Plugin\MediaStream.cpp">
-			</File>
-			<File
-				RelativePath="..\UpdateMedia\PlutoMediaAttributes.cpp">
-			</File>
-			<File
-				RelativePath="..\UpdateMedia\PlutoMediaFile.cpp">
 			</File>
 			<File
 				RelativePath=".\VDRMediaStream.cpp">
