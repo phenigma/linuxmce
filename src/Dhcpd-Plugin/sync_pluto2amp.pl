@@ -94,9 +94,9 @@ $DB_PL_HANDLE->disconnect();
 $DB_AS_HANDLE->disconnect();
 
 #run AMP's scripts to generate asterisk's config
-`/var/www/pluto-admin/amp/admin/retrieve_iax_conf_from_mysql.pl`;
-`/var/www/pluto-admin/amp/admin/retrieve_sip_conf_from_mysql.pl`;
-`/var/www/pluto-admin/amp/admin/retrieve_zap_conf_from_mysql.pl`;
+`/var/www/admin/retrieve_iax_conf_from_mysql.pl`;
+`/var/www/admin/retrieve_sip_conf_from_mysql.pl`;
+`/var/www/admin/retrieve_zap_conf_from_mysql.pl`;
 
 #reload asterisk
 `/usr/sbin/asterisk -r -x reload`;
@@ -223,7 +223,7 @@ sub remove_from_asterisk_db()
     if($DB_ROW = $DB_STATEMENT->fetchrow_hashref())
     {
         my $old_ext = $DB_ROW->{'user'};
-        `curl 'http://localhost/pluto-admin/amp/admin/config.php?display=extensions&extdisplay=$old_ext&action=del' &> /dev/null`;
+        `curl 'http://localhost/admin/config.php?display=extensions&extdisplay=$old_ext&action=del' &> /dev/null`;
     }
     $DB_STATEMENT->finish();    
 }
@@ -265,7 +265,7 @@ sub add_to_asterisk_db()
         $str =~ s/([^A-Za-z0-9])/sprintf("%%%02X", ord($1))/seg;
         $EXT_DATA .=$var."=".$str."&";
     }
-    `curl -d '$EXT_DATA' 'http://localhost/pluto-admin/amp/admin/config.php?display=extensions' &> /dev/null`;
+    `curl -d '$EXT_DATA' 'http://localhost/admin/config.php?display=extensions' &> /dev/null`;
 }
 
 sub add_embed_phones()
