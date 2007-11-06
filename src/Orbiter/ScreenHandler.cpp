@@ -3514,6 +3514,17 @@ void ScreenHandler::SCREEN_DevIncomingCall(long PK_Screen, string sSource_Channe
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::Telecom_ObjectSelected, new ObjectInfoBackData());
 }
 //-----------------------------------------------------------------------------------------------------
+void ScreenHandler::SCREEN_Call_Dropped(long PK_Screen, string sReason)
+{
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_My_Channel_ID_CONST, "");
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_My_Call_ID_CONST, "");
+
+	if(GetCurrentScreen_PK_DesignObj() == DESIGNOBJ_devCallInProgress_CONST)
+		SCREEN_Main(SCREEN_Main_CONST, "");
+
+	m_pOrbiter->CMD_Display_Alert(sReason, "", "5", 0);
+}
+//-----------------------------------------------------------------------------------------------------
 bool ScreenHandler::Telecom_DataGridRendering(CallBackData *pData)
 {
 	DatagridAcquiredBackData *pDatagridAcquiredBackData = dynamic_cast<DatagridAcquiredBackData *>(pData);

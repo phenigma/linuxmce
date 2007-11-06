@@ -1001,12 +1001,8 @@ bool Telecom_Plugin::Hangup( class Socket *pSocket, class Message *pMessage, cla
 
 	if(nOrbiterDeviceID)
 	{
-		DCE::SCREEN_Main SCREEN_Main_(m_dwPK_Device, nOrbiterDeviceID, "");
-		SendCommand(SCREEN_Main_); 
-
-		DCE::CMD_Display_Alert cmd_Display_Alert(m_dwPK_Device, nOrbiterDeviceID, 
-			"Call dropped. Reason: " + sReason, "", "5", 0);
-		SendCommand(cmd_Display_Alert);
+		DCE::SCREEN_Call_Dropped screen_SCREEN_Call_Dropped(m_dwPK_Device, nOrbiterDeviceID, sReason);
+		SendCommand(screen_SCREEN_Call_Dropped); 
 	}
 
 	DumpActiveCalls();
