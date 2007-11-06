@@ -55,6 +55,42 @@ bool AssistedTransfer::ProcessEvent(class Message * pMessage)
 		string sSource_Caller_ID = pMessage->m_mapParameters[EVENTPARAMETER_Source_Caller_ID_CONST];
 		string sDestination_Caller_ID = pMessage->m_mapParameters[EVENTPARAMETER_Destination_Caller_ID_CONST];
 		
+		switch( step )
+		{
+			case AssistedTransfer::Init_MyCall2Conference :
+				if( sSource_Channel == sMyChannelID )
+				{
+					CallStatus * pCallStatus = telecom->FindCallStatusForChannel( sMyChannelID );
+					if( pCallStatus )
+					{
+						sMyCallID = pCallStatus->GetID();
+					}
+					else
+					{
+						// error
+					}
+				}
+				break;
+				
+			case AssistedTransfer::Init_MyChannel2DestCall :
+				if( sSource_Channel == sMyChannelID )
+				{
+					CallStatus * pCallStatus = telecom->FindCallStatusForChannel( sMyChannelID );
+					if( pCallStatus )
+					{
+						sCallID_Dest = pCallStatus->GetID();
+					}
+					else
+					{
+						// error
+					}
+				}
+				break;
+			
+			default:
+				break;
+		}
+		
 		return true;
 	}
 	else if( pMessage->m_MessageID == EVENT_PBX_Hangup_CONST )
