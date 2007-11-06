@@ -54,7 +54,6 @@ TheRest()
 	cp -R ${ADDFOLDER}/pluto-sounds/*  ${PKGFOLDER}/var/lib/asterisk/sounds/pluto/
 
 	cp -R ${ADDFOLDER}/ext_pluto.conf ${PKGFOLDER}/etc/asterisk/extensions_custom.conf
-	cp -R ${ADDFOLDER}/extensions.conf ${PKGFOLDER}/etc/asterisk/extensions.conf
 	cp -R ${ADDFOLDER}/sccp_pluto.conf ${PKGFOLDER}/etc/asterisk/sccp.conf
 
 	#copy AGI scripts
