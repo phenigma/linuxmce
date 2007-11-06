@@ -350,6 +350,15 @@ public:
 	bool Telecom_OnTimer(CallBackData *pData);
 	bool Telecom_CapturedKeyboardBufferChanged(CallBackData *pData);
 
+	//events
+	bool ActiveCalls_Join();
+	bool ActiveCalls_AddToActiveCall();
+	bool ActiveCalls_RemoveFromActiveCall();
+	bool ActiveCalls_CallInProgress();
+
+	bool CallInProgress_TransferConference();
+	bool CallInProgress_VoiceMail();
+
 	//helpers
 	void HandleAssistedMakeCall(int iPK_Users, string sPhoneExtension, int iPK_Device_From,
 		int iPK_Device_To, string sSecondPhoneCall);

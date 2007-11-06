@@ -3486,7 +3486,6 @@ void ScreenHandler::SCREEN_MakeCallDevice(long PK_Screen)
 void ScreenHandler::SCREEN_DevCallInProgress(long PK_Screen, string sPhoneCallerID, string sSource_Channel, 
 	string sDestination_Channel, string sSource_Caller_ID, string sDestination_Caller_ID)
 {
-	//if(m_pOrbiter->m_mapVariable_Find(VARIABLE_My_Channel_ID_CONST).empty())
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_My_Channel_ID_CONST, sSource_Channel);
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_My_Call_ID_CONST, sPhoneCallerID);
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Current_Call_CONST, sPhoneCallerID);
@@ -3569,35 +3568,11 @@ bool ScreenHandler::Telecom_ObjectSelected(CallBackData *pData)
 			switch(pObjectInfoData->m_PK_DesignObj_SelectedObject)
 			{
 				case DESIGNOBJ_butTransferConference_CONST:
-				{
-					m_TelecomCommandStatus = tcsTransferConference;
-					GotoScreen(SCREEN_MakeCallDialNumber_CONST);
-					bDontProcessIt = true;
-				}
-				break;
-
-				case DESIGNOBJ_butJoinCall_CONST: 
-				{
-					m_TelecomCommandStatus = tcsJoining;
-					m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, "");
-					GotoScreen(SCREEN_MakeCallDevice_CONST);
-					bDontProcessIt = true;
-				}
+				bDontProcessIt = CallInProgress_TransferConference();
 				break;
 
 				case DESIGNOBJ_objVoiceMail_CONST:
-				{
-					int iPK_Device = 0;
-					int iPK_Users = 0;
-					string sPhoneExtension = "100"; //TODO, hardcoding
-					string sChannel_1 = m_pOrbiter->m_mapVariable_Find(VARIABLE_Current_Channel_On_Call_CONST);
-					string sChannel_2;
-
-					CMD_PL_Transfer cmd_PL_Transfer(
-						m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device_TelecomPlugIn,
-						iPK_Device, iPK_Users, sPhoneExtension, sChannel_1, sChannel_2);
-					m_pOrbiter->SendCommand(cmd_PL_Transfer);
-				}
+				bDontProcessIt = CallInProgress_VoiceMail();
 				break;
 			}
 		}
@@ -3606,56 +3581,19 @@ bool ScreenHandler::Telecom_ObjectSelected(CallBackData *pData)
 			switch(pObjectInfoData->m_PK_DesignObj_SelectedObject)
 			{
 				case DESIGNOBJ_butJoin_CONST:
-				{
-					string sMyChannel = m_pOrbiter->m_mapVariable_Find(VARIABLE_My_Channel_ID_CONST);
-
-					if(sMyChannel.empty())
-					{
-						m_TelecomCommandStatus = tcsJoining;
-
-						if(m_pOrbiter->m_bIsOSD)
-						{
-							string sSecondPhoneCall = m_pOrbiter->m_mapVariable_Find(VARIABLE_Current_Call_CONST);
-							HandleAssistedMakeCall(0, "", m_pOrbiter->m_dwPK_Device, 0, sSecondPhoneCall);
-						}
-						else
-						{
-							//if not OSD, find a device to dial from
-							m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, "");
-							GotoScreen(SCREEN_MakeCallDevice_CONST);
-						}
-
-						bDontProcessIt = true;
-					}
-					else
-					{
-						string sSecondPhoneCall = m_pOrbiter->m_mapVariable_Find(VARIABLE_Current_Call_CONST);
-
-						//{X,Y,A} & {B,C} => {X,Y} & {A,B,C} 
-						m_TelecomCommandStatus = tcsTransferConference;
-						HandleAssistedMakeCall(0, "", m_pOrbiter->m_dwPK_Device, 0, sSecondPhoneCall);
-					}
-				}
+				bDontProcessIt = ActiveCalls_Join();
 				break;
 
 				case DESIGNOBJ_butAddToActiveCall_CONST:
-				{
-					m_TelecomCommandStatus = tcsJoining;
-					m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, "");
-					GotoScreen(SCREEN_MakeCallDialNumber_CONST);
-					bDontProcessIt = true;                  
-				}
+				bDontProcessIt = ActiveCalls_AddToActiveCall();
 				break;
 
 				case DESIGNOBJ_butRemoveFromActiveCall_CONST:
-				{
-					string sSelectedChannel = m_pOrbiter->m_mapVariable_Find(VARIABLE_Current_Channel_On_Call_CONST);
+				bDontProcessIt = ActiveCalls_RemoveFromActiveCall();
+				break;
 
-					DCE::CMD_PL_Cancel cmd_PL_Cancel(m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device_TelecomPlugIn,
-						0, sSelectedChannel);
-					m_pOrbiter->SendCommand(cmd_PL_Cancel);
-					bDontProcessIt = true;                  
-				}
+				case DESIGNOBJ_butCallInProgress_CONST:
+				bDontProcessIt = ActiveCalls_CallInProgress();
 				break;
 			}
 		}
@@ -3714,6 +3652,94 @@ bool ScreenHandler::Telecom_CapturedKeyboardBufferChanged(CallBackData *pData)
 	}
 
 	return false;
+}
+//-----------------------------------------------------------------------------------------------------
+bool ScreenHandler::ActiveCalls_Join()
+{
+	string sMyChannel = m_pOrbiter->m_mapVariable_Find(VARIABLE_My_Channel_ID_CONST);
+
+	if(sMyChannel.empty())
+	{
+		m_TelecomCommandStatus = tcsJoining;
+
+		if(m_pOrbiter->m_bIsOSD)
+		{
+			string sSecondPhoneCall = m_pOrbiter->m_mapVariable_Find(VARIABLE_Current_Call_CONST);
+			HandleAssistedMakeCall(0, "", m_pOrbiter->m_dwPK_Device, 0, sSecondPhoneCall);
+		}
+		else
+		{
+			//if not OSD, find a device to dial from
+			m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, "");
+			GotoScreen(SCREEN_MakeCallDevice_CONST);
+		}
+	}
+	else
+	{
+		string sSecondPhoneCall = m_pOrbiter->m_mapVariable_Find(VARIABLE_Current_Call_CONST);
+
+		//{X,Y,A} & {B,C} => {X,Y} & {A,B,C} 
+		m_TelecomCommandStatus = tcsTransferConference;
+		HandleAssistedMakeCall(0, "", m_pOrbiter->m_dwPK_Device, 0, sSecondPhoneCall);
+	}
+
+	return true;
+}
+//-----------------------------------------------------------------------------------------------------
+bool ScreenHandler::ActiveCalls_AddToActiveCall()
+{
+	m_TelecomCommandStatus = tcsJoining;
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, "");
+	GotoScreen(SCREEN_MakeCallDialNumber_CONST);
+	
+	return true;
+}
+//-----------------------------------------------------------------------------------------------------
+bool ScreenHandler::ActiveCalls_RemoveFromActiveCall()
+{
+	string sSelectedChannel = m_pOrbiter->m_mapVariable_Find(VARIABLE_Current_Channel_On_Call_CONST);
+
+	DCE::CMD_PL_Cancel cmd_PL_Cancel(m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device_TelecomPlugIn,
+		0, sSelectedChannel);
+	m_pOrbiter->SendCommand(cmd_PL_Cancel);
+	
+	return true;
+}
+//-----------------------------------------------------------------------------------------------------
+bool ScreenHandler::ActiveCalls_CallInProgress()
+{
+	string sCurrentCall = m_pOrbiter->m_mapVariable_Find(VARIABLE_My_Call_ID_CONST);
+
+	if(sCurrentCall.empty())
+		sCurrentCall = m_pOrbiter->m_mapVariable_Find(VARIABLE_Current_Call_CONST);
+
+	SCREEN_DevCallInProgress(SCREEN_DevCallInProgress_CONST, sCurrentCall, "", "", "", "");
+
+	return true;
+}
+//-----------------------------------------------------------------------------------------------------
+bool ScreenHandler::CallInProgress_TransferConference()
+{
+	m_TelecomCommandStatus = tcsTransferConference;
+	GotoScreen(SCREEN_MakeCallDialNumber_CONST);
+	
+	return true;
+}
+//-----------------------------------------------------------------------------------------------------
+bool ScreenHandler::CallInProgress_VoiceMail()
+{
+	int iPK_Device = 0;
+	int iPK_Users = 0;
+	string sPhoneExtension = "100"; //TODO, hardcoding
+	string sChannel_1 = m_pOrbiter->m_mapVariable_Find(VARIABLE_Current_Channel_On_Call_CONST);
+	string sChannel_2;
+
+	CMD_PL_Transfer cmd_PL_Transfer(
+		m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device_TelecomPlugIn,
+		iPK_Device, iPK_Users, sPhoneExtension, sChannel_1, sChannel_2);
+	m_pOrbiter->SendCommand(cmd_PL_Transfer);
+
+	return true;
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::HandleAssistedMakeCall(int iPK_Users,string sPhoneExtension,int iPK_Device_From,
