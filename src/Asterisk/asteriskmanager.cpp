@@ -61,16 +61,22 @@ AsteriskManager::AsteriskManager() {
 	m_pCommunicationHandler = new CommunicationHandler();
 }
 
-AsteriskManager::~AsteriskManager() {
-
-	m_pCommunicationHandler->Wait();
-
-	delete m_pCommunicationHandler;
-	m_pCommunicationHandler = NULL;
-
+AsteriskManager::~AsteriskManager() 
+{
+	Close();
 	Release();
 }
 
+void AsteriskManager::Close()
+{
+	if(NULL != m_pCommunicationHandler)
+	{
+		m_pCommunicationHandler->Wait();
+
+		delete m_pCommunicationHandler;
+		m_pCommunicationHandler = NULL;
+	}
+}
 
 void AsteriskManager::Originate(const string sPhoneNumber, const string sOriginatorNumber,
 				const string sOriginatorType, const string sCallerID) 
@@ -105,18 +111,6 @@ void AsteriskManager::Transfer(const std::string sChannel1, const std::string sC
 
 	m_pCommunicationHandler->sendCommand(pCommand);
 }
-
-/*
-void AsteriskManager::Conference(const std::string sChannel1, const std::string sChannel2, const string sPhoneNumber, int iCommandID) {
-	ConferenceCommand* pCommand = new ConferenceCommand();
-	pCommand->setExtenNum(sPhoneNumber);
-	pCommand->setChannel1(sChannel1);
-	pCommand->setChannel2(sChannel2);
-	pCommand->setCommandID(iCommandID);
-
-	m_pCommunicationHandler->sendCommand(pCommand);
-}
-*/
 
 void AsteriskManager::GetExtensionsStatus()
 {
@@ -183,7 +177,8 @@ void AsteriskManager::NotifyResult(int iCommandID, int iResult,
 		pAsterisk->EVENT_PBX_CommandResult(iCommandID, iResult, Message);
 }
 
-AsteriskManager* AsteriskManager::getInstance() {
+AsteriskManager* AsteriskManager::getInstance() 
+{
 	static AsteriskManager manager;
 	
 	LOCK_OBJ(manager);

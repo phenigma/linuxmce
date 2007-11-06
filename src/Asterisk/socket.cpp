@@ -73,7 +73,7 @@ int Socket::Connect() {
 	address.sin_port = htons(ASMANAGER_PORT);
 
 #ifdef WIN32
-	address.sin_addr.s_addr = inet_addr("10.0.2.1");
+	address.sin_addr.s_addr = inet_addr("10.0.2.2");
 #else
 	inet_pton(AF_INET, ASMANAGER_HOST, &address.sin_addr);
 #endif

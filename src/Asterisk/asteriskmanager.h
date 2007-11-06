@@ -58,7 +58,6 @@ private:
 
 public:
 	static AsteriskManager* getInstance();
-	
 
 public:
 	/*commands*/
@@ -76,14 +75,6 @@ public:
 	void Transfer(const std::string sChannel1, 
 		const std::string sChannel2, 
 		const std::string sPhoneNumber);
-
-	/*make it a conference  a call*/	
-	/*
-	void Conference(const std::string sChannel1,
-	                const std::string sChannel2,
-	                const std::string sPhoneNumber,
-	                int iCommandID);
-	*/
 
 	/* get status commands; the response will be events*/
 	void GetExtensionsStatus();
@@ -104,6 +95,8 @@ public:
 	void NotifyExtensionsStatus(std::string sStatus);
 
 	void NotifyCallsStatus(std::string sStatus);
+
+	void Close();
 	
 private:
 	DCE::Asterisk* pAsterisk;

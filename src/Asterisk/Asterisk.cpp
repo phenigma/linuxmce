@@ -74,7 +74,7 @@ bool Asterisk::GetConfig()
 Asterisk::~Asterisk()
 //<-dceag-dest-e->
 {
-
+	AsteriskManager::getInstance()->Close();
 }
 
 //<-dceag-reg-b->

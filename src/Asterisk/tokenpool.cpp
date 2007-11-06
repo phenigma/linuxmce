@@ -99,7 +99,7 @@ TokenPool::_Run() {
 
 	while(1) {
 		if(!sock.isConnected()) {
-			if(bFirstConnect) {
+			if(!bFirstConnect) {
 				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Waiting %d seconds before reconnect.", POOL_RECONNECT_PERIOD);
 				Sleep(POOL_RECONNECT_PERIOD);
 			} else {
