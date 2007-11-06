@@ -8,8 +8,8 @@ if [[ "$1" == configure ]]; then
 		PassParm="-p$MySqlPassword"
 	fi
 	if [[ -z "$(RunSQL "SHOW DATABASES LIKE 'asterisk'")" ]]; then
-		RunSQL "CREATE DATABASE IF NOT EXISTS asterisk"
-		RunSQL "CREATE DATABASE IF NOT EXISTS asteriskcdrdb"
+		RunSQL "CREATE DATABASE asterisk"
+		RunSQL "CREATE DATABASE asteriskcdrdb"
 		RunSQL "GRANT ALL PRIVILEGES ON asterisk.* TO asteriskuser@localhost IDENTIFIED BY 'amp109'"
 		RunSQL "GRANT ALL PRIVILEGES ON asteriskcdrdb.* TO asteriskuser@localhost IDENTIFIED BY 'amp109'"
 
@@ -17,30 +17,15 @@ if [[ "$1" == configure ]]; then
 		mysql -h "$MySqlHost" -u "$MySqlUser" $PassParm asterisk </usr/share/freepbx/SQL/newinstall.sql
 	fi
 
-	/var/lib/freepbx/apply_conf.sh
-	asterisk -rx 'reload manager'
+	cp /var/www/admin/modules/core/etc/* /etc/asterisk/
 
-	PrevVer="$2"
-	#/var/lib/freepbx/upgrade_all.php "$PrevVer"
-
-	UseDB asterisk
-	Version=$(RunSQL "SELECT value FROM admin WHERE variable = 'version'")
-	echo "$(Field 1 "$Version")" >/var/www/admin/version.txt
-
-	#su - asterisk -c /var/lib/asterisk/bin/bounce_op.sh
-
-	pushd /var/www/admin/modules
-	for Module in *; do
-		if [[ "$Module" == [._]* || ! -d "$Module" ]]; then
-			continue
-		fi
-		if [[ "$Module" == framework ]]; then
-			/var/lib/asterisk/bin/module_admin --no-warnings -f enable "$Module"
-		else
-			/var/lib/asterisk/bin/module_admin --no-warnings -f install "$Module"
-		fi
-	done
-	popd
+	adduser www-data asterisk
+	chown -R asterisk.asterisk /etc/asterisk
+	chgrp -R ug+rw /etc/asterisk
+	invoke-rc.d apache2 restart
 	
-	RunSQL "UPDATE admin SET value = 'true' WHERE variable = 'need_reload'"
+	for Module in core conferences dashboard featurecodeadmin infoservices ivr music queues recordings ringgroups timeconditions voicemail; do
+		echo "Installing module '$Module'"
+		/var/lib/asterisk/bin/module_admin --no-warnings -f install "$Module"
+	done
 fi
