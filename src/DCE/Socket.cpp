@@ -781,7 +781,7 @@ bool Socket::ReceiveData( int iSize, char *pcData, int nTimeout/* = -1*/ )
 			if(iRet == 0)
 			{
 				//register the time out
-				LoggerWrapper::GetInstance()->Write(LV_WARNING, "ReceivedData: select timed out!"); 
+				//LoggerWrapper::GetInstance()->Write(LV_WARNING, "ReceivedData: select timed out!"); 
 				m_bReceiveData_TimedOut = true;
 				m_nReceiveData_BytesLeft = iBytesLeft;
 			}
