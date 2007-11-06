@@ -11,8 +11,10 @@ if [[ "$1" == configure ]]; then
 	if [[ -n "$MySqlPassword" ]]; then
 		PassParm="-p$MySqlPassword"
 	fi
-	mysql -h "$MySqlHost" -u "$MySqlUser" $PassParm asteriskcdrdb </usr/share/freepbx/SQL/cdr_mysql_table.sql
-	mysql -h "$MySqlHost" -u "$MySqlUser" $PassParm asterisk </usr/share/freepbx/SQL/newinstall.sql
+	if [[ -z "$(RunSQL "SHOW DATABASES LIKE 'asterisk'")" ]]; then
+		mysql -h "$MySqlHost" -u "$MySqlUser" $PassParm asteriskcdrdb </usr/share/freepbx/SQL/cdr_mysql_table.sql
+		mysql -h "$MySqlHost" -u "$MySqlUser" $PassParm asterisk </usr/share/freepbx/SQL/newinstall.sql
+	fi
 
 	/var/lib/freepbx/apply_conf.sh
 	asterisk -rx 'reload manager'
