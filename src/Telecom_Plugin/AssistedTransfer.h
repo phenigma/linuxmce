@@ -25,6 +25,15 @@ namespace DCE
 	{
 		public:
 			
+			enum StepType
+			{
+				Step_Zero=0,
+				Init_MyCall2Conference, Init_DestCall2Conference, Init_MyChannel2DestCall, Init_MyChannel2DestConf,
+				Transfer_MyChannel,
+				MergeCalls, JoinDestination,
+				Cancel_MyChannel
+			};
+			
 			/***/
 			AssistedTransfer(	const string & ext,
 								const string & callid,
@@ -42,10 +51,14 @@ namespace DCE
 			
 		private:
 			
+			bool PrivateProcessJob(const string &);
+			
 			string sExtDest;
 			string sCallID_Dest;
 			string sMyChannelID;
 			string sMyCallID;
+			string sNextJob;
+			StepType step;
 	};
 };
 #endif

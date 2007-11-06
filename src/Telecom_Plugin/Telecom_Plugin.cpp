@@ -921,48 +921,6 @@ Telecom_Plugin::IncomingCall( class Socket *pSocket, class Message *pMessage, cl
 {
 	LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "IncomingCall : deprecated!");
 	return false;
-	
-/*	string sCallerID;
-	string sChannelID;
-	map<int,string>::const_iterator itExt = map_device2ext.find(pDeviceFrom->m_dwPK_Device);
-	if( itExt != map_device2ext.end() )
-	{
-		map<string, string> channels;
-		GetChannelsFromExtension( (*itExt).second, channels );
-		if( channels.size() )
-		{
-			// TODO: change this in case of multi-channel support in linphone
-			map<string, string>::const_iterator itFirst = channels.begin();
-			sChannelID = (*itFirst).first;
-			sCallerID = (*itFirst).second;
-		}
-	}
-	
-	string sCallerID_To;
-	string sChannelID_To;
-	map<int,string>::const_iterator itExtTo = map_device2ext.find(pDeviceTo->m_dwPK_Device);
-	if( itExtTo != map_device2ext.end() )
-	{
-		map<string, string> channels;
-		GetChannelsFromExtension( (*itExtTo).second, channels );
-		if( channels.size() )
-		{
-			// TODO: change this in case of multi-channel support in linphone
-			map<string, string>::const_iterator itFirst = channels.begin();
-			sChannelID_To = (*itFirst).first;
-			sCallerID_To = (*itFirst).second;
-		}
-	}
-		
-	SCREEN_DevIncomingCall SCREEN_DevIncomingCall_(m_dwPK_Device, pDeviceFrom->m_dwPK_Device_ControlledVia, 
-		sChannelID,    // From source channel id
-		sChannelID_To, // To channel id
-		sCallerID,     // From source caller id
-		sCallerID_To   // To caller id
-	);
-	SendCommand(SCREEN_DevIncomingCall_);
-
-	return false;*/
 }
 
 bool Telecom_Plugin::Hangup( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo ) 
@@ -1038,6 +996,38 @@ CallStatus * Telecom_Plugin::FindCallStatusForChannel(string sChannelID)
 	return NULL;
 }
 
+CallStatus * Telecom_Plugin::FindCallStatusForID(string sCallID)
+{
+	map<string, CallStatus*>::const_iterator itFound = map_call2status.find(sCallID);
+	if( itFound != map_call2status.end() )
+		return (*itFound).second;
+	
+	return NULL;
+}
+
+string Telecom_Plugin::DirectCall2Conference(CallStatus * pCallStatus)
+{
+	if( !pCallStatus->IsConference() )
+	{
+		const map<string, string> & channels = pCallStatus->GetChannels();
+		if( 2 == channels.size() )
+		{
+			map<string, string>::const_iterator itFirst = channels.begin();
+			map<string, string>::const_iterator itSecond = (++channels.begin());
+			string sNewConfID = GetNewConferenceID();
+			CMD_PL_Transfer(0, 0, sNewConfID, (*itFirst).first, (*itSecond).first);
+			
+			return sNewConfID;
+		}
+		else
+		{
+			// error
+		}
+	}
+	
+	return "";
+}
+
 ExtensionStatus* Telecom_Plugin::FindExtensionStatus(string sExt)
 {
 	map<string, ExtensionStatus*>::const_iterator itFound = map_ext2status.find(sExt);
@@ -1047,10 +1037,12 @@ ExtensionStatus* Telecom_Plugin::FindExtensionStatus(string sExt)
 	return NULL;
 }
 
+// TODO: do it to be safe for succesive calls
 string Telecom_Plugin::GetNewConferenceID() const
 {
 	unsigned int i = 1;
-	for(; i<map_conference2status.size(); i++)
+	unsigned int confMax = map_conference2status.size() + 1;
+	for(; i<confMax; i++)
 	{
 		if( map_conference2status.end() == map_conference2status.find(i) )
 			break;
@@ -1720,7 +1712,7 @@ class DataGridTable *Telecom_Plugin::ActiveCallsGrid(string GridID,string Parms,
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Row %d: cell text %s, value %s",
 			Row, sText.c_str(), sValue.c_str());
 
-		Row++;        
+		Row++;
 	}
 
 	return pDataGrid;
@@ -2995,3 +2987,16 @@ void Telecom_Plugin::CMD_Process_Task(string sTask,string sJob,string &sCMD_Resu
 	(*itFound).second->ProcessJob(sJob);
 }
 
+string Telecom_Plugin::FindChannelForExt(CallStatus * pCallStatus, string ext)
+{
+	const map<string, string> & channels = pCallStatus->GetChannels();
+	for( map<string, string>::const_iterator it=channels.begin(); it!=channels.end(); ++it)
+	{
+		if( ext == ExtensionForChannel((*it).first) )
+		{
+			return (*it).first;
+		}
+	}
+	
+	return "";
+}

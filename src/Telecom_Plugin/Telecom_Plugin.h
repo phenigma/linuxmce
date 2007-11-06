@@ -59,6 +59,16 @@ public:
 	// Public member variables
 	// Public methods
 	void doDisplayMessages();
+	
+	// Telecom API for tasks
+	/***/
+	CallStatus* FindCallStatusForChannel(string sChannelID);
+	/***/
+	CallStatus* FindCallStatusForID(string sCallID);
+	/***/
+	string FindChannelForExt(CallStatus *, string ext);
+	/***/
+	string DirectCall2Conference(CallStatus*);
 
 //<-dceag-const-b->
 public:
@@ -361,7 +371,6 @@ private:
 	int ParseChannel(const std::string channel, int* iextension, string *sextension);
 	void RemoveExtesionFromChannels(const string & sExtension);
 	
-	CallStatus* FindCallStatusForChannel(string sChannelID);
 	ExtensionStatus* FindExtensionStatus(string sExt);
 	string GetNewConferenceID() const;
 	void RemoveCallStatus(CallStatus*);

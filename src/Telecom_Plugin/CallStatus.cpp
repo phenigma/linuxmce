@@ -53,10 +53,10 @@ string CallStatus::GetStringConferenceID(unsigned uID)
 }
 
 CallStatus::CallStatus()
-	: type(CallStatus::DirectCall)
+	: type(CallStatus::DirectCall),
+	  conferenceID(0)
 {
-    id = StringUtils::itos(autoId++);
-	conferenceID = 0;
+	id = StringUtils::itos(autoId++);
 }
 
 CallStatus::~CallStatus()

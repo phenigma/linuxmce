@@ -24,7 +24,8 @@ void TelecomTask::SetTelecom(const Telecom_Plugin * tp)
 
 TelecomTask::TelecomTask()
 	: state( TelecomTask::Ready ),
-	  sJobID("start")
+	  sJobID("start"),
+	  jobState(TelecomTask::Stop)
 {
 	sID = StringUtils::itos(uID++);
 }

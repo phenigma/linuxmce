@@ -58,6 +58,10 @@ namespace DCE
 			TaskState GetState() const { return state; }
 			/***/
 			const string& GetJob() const { return sJobID; }
+			/***/
+			void SetJobState(JobState js) { jobState = js; }
+			/***/
+			JobState GetJobState() const { return jobState; }
 			
 		protected:
 			
@@ -67,6 +71,7 @@ namespace DCE
 			string sID;
 			TaskState state;
 			string sJobID;
+			JobState jobState;
 	};
 };
 #endif
