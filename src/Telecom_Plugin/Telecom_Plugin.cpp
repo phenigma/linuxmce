@@ -868,13 +868,6 @@ Telecom_Plugin::Link( class Socket *pSocket, class Message *pMessage, class Devi
 		return false;
 	}
 
-	if(pFoundSrc->IsConference() && pFoundSrc->GetChannels().size() <= 2)
-	{
-		//the orbiter was into a direct call and we've transformed it to a conference
-		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Won't send orbiter to call in progress screen. It's already aware of it");
-		return false;
-	}
-
 	//source channel -> exten -> simple phone -> orbiter
 	int nSrcOrbiterDeviceID = GetOrbiterDeviceID("", sSource_Channel);
 
