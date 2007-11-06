@@ -13,15 +13,15 @@ if [[ "$1" == configure ]]; then
 		RunSQL "GRANT ALL PRIVILEGES ON asterisk.* TO asteriskuser@localhost IDENTIFIED BY 'amp109'"
 		RunSQL "GRANT ALL PRIVILEGES ON asteriskcdrdb.* TO asteriskuser@localhost IDENTIFIED BY 'amp109'"
 
-		mysql -h "$MySqlHost" -u "$MySqlUser" $PassParm asteriskcdrdb </usr/share/freepbx/SQL/cdr_mysql_table.sql
-		mysql -h "$MySqlHost" -u "$MySqlUser" $PassParm asterisk </usr/share/freepbx/SQL/newinstall.sql
+		mysql -h "$MySqlHost" -u "$MySqlUser" $PassParm asteriskcdrdb </var/lib/freepbx/SQL/cdr_mysql_table.sql
+		mysql -h "$MySqlHost" -u "$MySqlUser" $PassParm asterisk </var/lib/freepbx/SQL/newinstall.sql
 	fi
 
 	cp /var/www/admin/modules/core/etc/* /etc/asterisk/
 
 	adduser www-data asterisk
 	chown -R asterisk.asterisk /etc/asterisk
-	chgrp -R ug+rw /etc/asterisk
+	chmod -R ug+rw /etc/asterisk
 	invoke-rc.d apache2 restart
 	
 	for Module in core conferences dashboard featurecodeadmin infoservices ivr music queues recordings ringgroups timeconditions voicemail; do
