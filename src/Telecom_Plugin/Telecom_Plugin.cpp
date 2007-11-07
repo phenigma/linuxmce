@@ -381,7 +381,7 @@ class DataGridTable *Telecom_Plugin::PhoneBookAutoCompl(string GridID,string Par
 			sPK = StringUtils::itos(pRow_Contact->PK_Contact_get());
 
 		pCell = new DataGridCell(sDescription,StringUtils::itos(pRow_Contact->PK_Contact_get()) );
-		pDataGrid->SetData(0, FirstBatch, pCell);
+		pDataGrid->SetData(0, (int)FirstBatch, pCell);
 	}
 
 	sWhere = (sPK.size() ? "PK_Contact NOT IN("+sPK+") AND " : "") +
@@ -404,7 +404,7 @@ class DataGridTable *Telecom_Plugin::PhoneBookAutoCompl(string GridID,string Par
 			sDescription += pRow_Contact->Company_get() + "\n";
 
 		pCell = new DataGridCell(sDescription, StringUtils::itos(pRow_Contact->PK_Contact_get()));
-		pDataGrid->SetData(0, FirstBatch + s, pCell);
+		pDataGrid->SetData(0, (int)(FirstBatch + s), pCell);
 	}
 
 	return pDataGrid;
@@ -1040,15 +1040,15 @@ ExtensionStatus* Telecom_Plugin::FindExtensionStatus(string sExt)
 // TODO: do it to be safe for succesive calls
 string Telecom_Plugin::GetNewConferenceID() const
 {
-	unsigned int i = 1;
-	unsigned int confMax = map_conference2status.size() + 1;
+	size_t i = 1;
+	size_t confMax = map_conference2status.size() + 1;
 	for(; i<confMax; i++)
 	{
 		if( map_conference2status.end() == map_conference2status.find(i) )
 			break;
 	}
 	
-	return CallStatus::GetStringConferenceID(i);
+	return CallStatus::GetStringConferenceID((unsigned int)i);
 }
 
 void Telecom_Plugin::RemoveCallStatus(CallStatus * pCallStatus)
@@ -1369,7 +1369,7 @@ void Telecom_Plugin::GetFloorplanDeviceInfo(DeviceData_Router *pDeviceData_Route
 	while(it != calls->end())
 	{
 		string channels = (*it)->getID();
-		int pos = 0, oldpos = 0;
+		size_t pos = 0, oldpos = 0;
 		do
 		{
 			pos = channels.find(' ',oldpos);
@@ -1757,6 +1757,9 @@ class DataGridTable *Telecom_Plugin::ActiveUsersOnCallGrid(string GridID,string 
 			string sText = itc->second;
 			string sValue = itc->first;
 
+			if(sText.empty())
+				sText = ExtensionForChannel(sValue);
+
 			pCell = new DataGridCell(sText, sValue);
 			pCell->m_AltColor = PlutoColor(0,128,0).m_Value;
 			pDataGrid->SetData(0, Row, pCell);
@@ -1930,7 +1933,7 @@ class DataGridTable *Telecom_Plugin::SpeedDialGrid(string GridID,string Parms,vo
 
 int Telecom_Plugin::ParseChannel(const std::string channel, int* iextension, string *sextension)
 {
-	int pos, oldpos = 0;
+	size_t pos, oldpos = 0;
 
 	pos = channel.find('/');
 	if(pos < 0) {
@@ -1977,7 +1980,7 @@ void Telecom_Plugin::RemoveExtesionFromChannels(const string & sExtension)
 		string channels = pCallData->getID();
 		if( string::npos != channels.find(sExtension) )
 		{
-			int pos = 0, oldpos = 0;
+			size_t pos = 0, oldpos = 0;
 			do
 			{
 				pos = channels.find(' ',oldpos);
@@ -2032,7 +2035,7 @@ bool Telecom_Plugin::VoIP_Problem(class Socket *pSocket,class Message *pMessage,
 	}
 	else
 	{
-		map_err_messages[sText]=now;
+		map_err_messages[sText]=(long)now;
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Will add to queue");	
 	}
 	pthread_mutex_unlock(&mtx_err_messages);
