@@ -1782,7 +1782,7 @@ class DataGridTable *Telecom_Plugin::ActiveUsersOnCallGrid(string GridID,string 
 class DataGridTable *Telecom_Plugin::ExternalChannels(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage)
 {
 	PLUTO_SAFETY_LOCK(vm, m_TelecomMutex);  // Protect the call data
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "ExternalChannels request received for GridID: %s");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "ExternalChannels request received!");
 	DataGridTable *pDataGrid = new DataGridTable();
 	DataGridCell *pCell = NULL;
 	int Row = 0;
