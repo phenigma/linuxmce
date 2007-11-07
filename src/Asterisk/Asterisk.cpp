@@ -68,6 +68,8 @@ bool Asterisk::GetConfig()
 	string sServerIP = DATA_Get_Server_IP();
 	AsteriskManager::getInstance()->Set_Server_IP(sServerIP.empty() ? "127.0.0.1" : sServerIP);
 
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Server IP: %s", AsteriskManager::getInstance()->Get_Server_IP().c_str());
+
 	return true;
 }
 
