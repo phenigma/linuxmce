@@ -99,6 +99,7 @@
 #define DATAGRID_CD_Tracks_CONST 98
 #define DATAGRID_Active_Channels_CONST 99
 #define DATAGRID_Active_Users_On_Channel_CONST 100
+#define DATAGRID_External_Channels_CONST 101
 
 #define DATAGRID_TABLE "DataGrid"
 #define DATAGRID_PK_DATAGRID_FIELD "PK_DataGrid"
