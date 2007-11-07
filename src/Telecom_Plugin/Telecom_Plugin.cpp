@@ -1361,53 +1361,51 @@ void Telecom_Plugin::HangupAllCalls()
 void Telecom_Plugin::GetFloorplanDeviceInfo(DeviceData_Router *pDeviceData_Router,EntertainArea *pEntertainArea,int iFloorplanObjectType,int &iPK_FloorplanObjectType_Color,int &Color,string &sDescription,string &OSD,int &PK_DesignObj_Toolbar)
 {
 	PLUTO_SAFETY_LOCK(vm, m_TelecomMutex);  // Protect the call data
-	int devid=pDeviceData_Router->m_dwPK_Device;
-	std::list<CallData*> *calls = CallManager::getInstance()->getCallList();
-	std::list<CallData*>::iterator it = calls->begin();
-	std::list<string> uniq_chan;
-	int count = 0;
-	while(it != calls->end())
+
+	int nDeviceID = pDeviceData_Router->m_dwPK_Device;
+	string sExt = map_device2ext[nDeviceID];
+
+	//by default, if not into a call but the device is registered to asterisk, the color is black
+	//if it's not registered, the color will be gray
+	ExtensionStatus *pExtensionStatus = FindExtensionStatusByDevice(nDeviceID);
+	if(NULL != pExtensionStatus && ExtensionStatus::Registered == pExtensionStatus->GetAvailability())
 	{
-		string channels = (*it)->getID();
-		size_t pos = 0, oldpos = 0;
-		do
-		{
-			pos = channels.find(' ',oldpos);
-			string chan;
-			int ext;
-			string sext;
-			if(pos < 0)
-			{
-				chan = channels.substr(oldpos, channels.length());
-			}
-			else
-			{
-				if(pos==oldpos)
-				{
-					oldpos=pos+1;
-					continue;
-				}
-				chan = channels.substr(oldpos, pos - oldpos);
-			}
-			if(ParseChannel(chan,&ext,&sext)==0)
-			{
-				if(map_ext2device[sext]==devid)
-				{
-					Color = UniqueColors[count%MAX_TELECOM_COLORS];
-					return;
-				}
-			}
-			oldpos=pos+1;
-		}
-		while(pos>=0);
-		it++;
-		if(find(uniq_chan.begin(), uniq_chan.end(), channels) == uniq_chan.end())
-		{
-			uniq_chan.push_back(channels);
-			count++;
-		}
+		Color = PlutoColor::Black().m_Value;
+		sDescription = "Unregistered";
 	}
-	Color = PlutoColor::Black().m_Value;
+	else
+	{
+		Color = PlutoColor::Gray().m_Value;
+		sDescription = "Registered";
+	}
+
+	if(NULL != pExtensionStatus)
+		sDescription = ExtensionStatus::Activity2String(pExtensionStatus->GetActivity());
+	
+	//into a call ?
+	int nIndex = 0;
+	for(map<string, CallStatus *>::const_iterator it = map_call2status.begin(); it != map_call2status.end(); ++it)
+	{
+		CallStatus *pCallStatus = it->second;
+
+		string sChannel = FindChannelForExt(pCallStatus, sExt);
+
+		if(!sChannel.empty())
+		{
+			//change its color
+			Color = UniqueColors[nIndex % MAX_TELECOM_COLORS];
+
+			//and the description
+			if(NULL != pExtensionStatus)
+				sDescription = ExtensionStatus::Availability2String(pExtensionStatus->GetAvailability());
+
+			break;
+		}
+		
+		nIndex++;
+	}
+	
+	OSD = "TODO: OSD?";
 }
 
 //<-dceag-c414-b->
