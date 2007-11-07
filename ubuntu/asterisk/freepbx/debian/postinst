@@ -23,9 +23,15 @@ if [[ "$1" == configure ]]; then
 	chown -R asterisk.asterisk /etc/asterisk
 	chmod -R ug+rw /etc/asterisk
 	invoke-rc.d apache2 restart
+
+	mkdir -p /var/log/asterisk
+	chown -R asterisk.asterisk /var/log/asterisk
+	invoke-rc.d asterisk restart
 	
 	for Module in core conferences dashboard featurecodeadmin infoservices ivr music queues recordings ringgroups timeconditions voicemail; do
 		echo "Installing module '$Module'"
 		/var/lib/asterisk/bin/module_admin --no-warnings -f install "$Module"
 	done
+
+	/usr/pluto/bin/sync_pluto2amp.pl || :
 fi
