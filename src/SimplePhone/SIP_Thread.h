@@ -36,4 +36,20 @@ void LS_AcceptCall();
 /* C Object, public members - forward declaration */
 extern bool LS_bQuit;
 
+/* Configuration class */
+class SimplePhoneConf
+{
+public:
+	static SimplePhoneConf& Instance() { return m_Instance; }
+
+	void Set_Server_IP(string sServerIP) { m_sServerIP = sServerIP; }
+	string Get_Server_IP()               { return m_sServerIP;      }
+
+private:
+	SimplePhoneConf() {}
+
+	static SimplePhoneConf m_Instance;
+	string m_sServerIP;
+};
+
 #endif /* SIP_THREAD_H */

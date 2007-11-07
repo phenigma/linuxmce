@@ -76,6 +76,11 @@ bool SimplePhone::GetConfig()
 
     // Put your code here to initialize the data in this class
     // The configuration parameters DATA_ are now populated
+    
+	string sServerIP = DATA_Get_Server_IP();
+	SimplePhoneConf::Instance().Set_Server_IP(sServerIP.empty() ? "dcerouter" : sServerIP);
+
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Server IP: %s", SimplePhoneConf::Instance().Get_Server_IP().c_str());
 
 	/* Get MD Audio Settings */
 	string sAudioSettings = Get_MD_AudioSettings();
@@ -295,10 +300,6 @@ void SimplePhone::CMD_Phone_Initiate(int iPK_Device,string sPhoneExtension,strin
 	StopMedia();
 	LS_InitiateCall(sPhoneExtension.c_str());
     sCMD_Result="OK";
-
-//	TODO: Move this to telecom (EVENT_Ring)
-//    DCE::SCREEN_DevCallInProgress SCREEN_DevCallInProgress_(m_dwPK_Device,GetData()->m_dwPK_Device_ControlledVia, sPhoneExtension);
-//    SendCommand(SCREEN_DevCallInProgress_);
 }
 
 //<-dceag-c335-b->
@@ -346,8 +347,6 @@ void SimplePhone::CMD_Phone_Drop(string &sCMD_Result,Message *pMessage)
 
 void SimplePhone::StopMedia()
 {
-//	LoggerWrapper::GetInstance()->Write(LV_STATUS, "SimplePhone::StopMedia()");
-//	DCE::CMD_MH_Stop_Media CMD_MH_Stop_Media_(GetData()->m_dwPK_Device_ControlledVia,DEVICETEMPLATE_VirtDev_Media_Plugin_CONST,0,0,0,"",false);
 //	SendCommand(CMD_MH_Stop_Media_);
 //	Sleep(1000);
 }
@@ -360,16 +359,10 @@ void SimplePhone::IncomingCallScreen(string sCallerID)
 
 void SimplePhone::CallDroppedScreen()
 {
-//    TODO: move to telecom plugin (EVENT_Hangup)
-//    DCE::SCREEN_Main SCREEN_Main_(m_dwPK_Device,GetData()->m_dwPK_Device_ControlledVia,"");
-//    SendCommand(SCREEN_Main_);
 }
 
 void SimplePhone::CallInProgressScreen()
 {
-//	TODO: move to telecom plugin (EVENT_Link)
-//	DCE::SCREEN_DevCallInProgress SCREEN_DevCallInProgress_(m_dwPK_Device,GetData()->m_dwPK_Device_ControlledVia, "");
-//	SendCommand(SCREEN_DevCallInProgress_);
 }
 
 void SimplePhone::CreateChildren()

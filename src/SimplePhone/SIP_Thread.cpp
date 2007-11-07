@@ -14,6 +14,9 @@
 #include "DCE/Logger.h"
 #include "DCE/DCEConfig.h"
 using namespace DCE;
+
+SimplePhoneConf SimplePhoneConf::m_Instance;
+
 static inline void func_enter(const char * func)
 {
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "%s - called", func);
@@ -117,7 +120,7 @@ static void LS_InitProxy()
 	func_enter("LS_InitProxy");
 	DCEConfig dceconf;
 	
-	string sProxy = /* dceconf.m_sDBHost.c_str() */ "dcerouter";
+	string sProxy = SimplePhoneConf::Instance().Get_Server_IP();
 	string sExtension = LS_pSimplePhone->GetExtension();
 	string sIdentity = "sip:" + sExtension + "@" + sProxy;
 	sProxy = "sip:" + sProxy;
