@@ -164,7 +164,7 @@ void ExtensionManager::Resize(int Width, int Height)
 		XVisualInfo *visinfo = CompositeHelper::GetInstance().GetVisualForComposite();
 
 		if(NULL != visinfo && CompositeHelper::GetInstance().RegisterReplacementWindowForSDL(visinfo, Width, Height))
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Replacement SDL window created!");
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Replacement SDL window created!");
 		
 		XSynchronize(dpy, 1);
 	}
