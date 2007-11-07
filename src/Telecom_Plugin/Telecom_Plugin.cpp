@@ -2970,14 +2970,24 @@ void Telecom_Plugin::CMD_Assisted_Transfer(int iPK_Device,int iPK_Users,string s
 	string sPhoneNumber = GetPhoneNumber(iPK_Users, sPhoneExtension, iPK_Device);
 	if( sPhoneNumber.empty() )
 	{
-		// error
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Don't know where to transfer the call!");
+		sCMD_Result = "ERROR";
+		return;
 	}
-	
-	// TODO: AssistedTransfer()
-	AssistedTransfer * transfer = new AssistedTransfer(sPhoneNumber, "", "", "");
+
+	CallStatus *pCallStatus = FindCallStatusForChannel(sChannel);
+	if(NULL == pCallStatus)
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Not a valid channel %s!", sChannel.c_str());
+		sCMD_Result = "ERROR";
+		return;
+	}
+
+	AssistedTransfer * transfer = new AssistedTransfer(sPhoneNumber, sPhoneCallID, sChannel, pCallStatus->GetID());
 	if( transfer )
 	{
 		map_id2task[transfer->GetID()] = transfer;
+		transfer->ProcessJob("initialize");
 	}
 	else
 	{

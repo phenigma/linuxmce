@@ -48,7 +48,7 @@ bool AssistedTransfer::ProcessJob(const string & job)
 bool AssistedTransfer::ProcessEvent(class Message * pMessage)
 {
 //	SetState(TelecomTask::Completed);
-	if( pMessage->m_MessageID == EVENT_PBX_Link_CONST )
+	if( pMessage->m_dwID == EVENT_PBX_Link_CONST )
 	{
 		string sSource_Channel = pMessage->m_mapParameters[EVENTPARAMETER_Source_Channel_CONST];
 		string sDestination_Channel = pMessage->m_mapParameters[EVENTPARAMETER_Destination_Channel_CONST];
@@ -141,12 +141,12 @@ bool AssistedTransfer::PrivateProcessJob(const string & job)
 	
 	SetState(TelecomTask::Processing);
 	
-	CallStatus * pCallStatus = NULL;
+	CallStatus * pDestCallStatus = NULL;
 	CallStatus * pMyCallStatus = NULL;
 	if( !sCallID_Dest.empty() )
 	{
-		CallStatus * pCallStatus = telecom->FindCallStatusForID( sCallID_Dest );
-		if( pCallStatus == NULL )
+		pDestCallStatus = telecom->FindCallStatusForID( sCallID_Dest );
+		if( pDestCallStatus == NULL )
 		{
 			// error
 			return false;
@@ -154,8 +154,8 @@ bool AssistedTransfer::PrivateProcessJob(const string & job)
 	}
 	if( !sMyCallID.empty() )
 	{
-		CallStatus * pCallStatus = telecom->FindCallStatusForID( sMyCallID );
-		if( pCallStatus == NULL )
+		pMyCallStatus = telecom->FindCallStatusForID( sMyCallID );
+		if( pMyCallStatus == NULL )
 		{
 			// error
 			return false;
@@ -178,7 +178,7 @@ bool AssistedTransfer::PrivateProcessJob(const string & job)
 		if( !pMyCallStatus->IsConference() )
 		{
 			// TODO: the new ID will be saved into sMyCallID
-			string sNewConfID = telecom->DirectCall2Conference(pCallStatus);
+			string sNewConfID = telecom->DirectCall2Conference(pMyCallStatus);
 			if( sNewConfID.empty() )
 			{
 				// error
@@ -193,20 +193,20 @@ bool AssistedTransfer::PrivateProcessJob(const string & job)
 			telecom->CMD_PL_Transfer(0, 0, sExtDest, sMyChannelID, "");
 			step = AssistedTransfer::Init_MyChannel2DestCall;
 		}
-		else if( pCallStatus != NULL )
+		else if( pDestCallStatus != NULL )
 		{
-			if( pCallStatus->IsConference() )
+			if( pDestCallStatus->IsConference() )
 			{
 				// transfer my channel to the {B,C} conference
 				telecom->CMD_PL_Transfer
-					(0, 0, CallStatus::GetStringConferenceID(pCallStatus->GetConferenceID()), sMyChannelID, "");
+					(0, 0, CallStatus::GetStringConferenceID(pDestCallStatus->GetConferenceID()), sMyChannelID, "");
 				step = AssistedTransfer::Init_MyChannel2DestConf;
 			}
 			else
 			{
 				// transform the direct call {B,C} into the conference {B,C}
 				// TODO: the new ID will be saved into sCallID_Dest
-				string sNewConfID = telecom->DirectCall2Conference(pCallStatus);
+				string sNewConfID = telecom->DirectCall2Conference(pDestCallStatus);
 				if( !sNewConfID.empty() )
 				{
 					step = AssistedTransfer::Init_DestCall2Conference;
@@ -231,7 +231,8 @@ bool AssistedTransfer::PrivateProcessJob(const string & job)
 	//2) {X,Y,A} & {B,C} => {X,Y} & {A,B,C} ->  drop A, {X,Y,B,C}
 	else if( job == "transfer" )
 	{
-		if( pCallStatus->IsConference() )
+		//TODO: check pDestCallStatus ?
+		if( pDestCallStatus->IsConference() )
 		{
 			telecom->CMD_Merge_Calls(sMyCallID ,sCallID_Dest);
 			step = AssistedTransfer::MergeCalls;
@@ -240,7 +241,7 @@ bool AssistedTransfer::PrivateProcessJob(const string & job)
 		}
 		else
 		{
-			string sChannel = telecom->FindChannelForExt(pCallStatus, sExtDest);
+			string sChannel = telecom->FindChannelForExt(pDestCallStatus, sExtDest);
 			if( !sChannel.empty() )
 			{
 				telecom->CMD_PL_Transfer
