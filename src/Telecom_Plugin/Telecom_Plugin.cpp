@@ -1803,7 +1803,7 @@ class DataGridTable *Telecom_Plugin::ExternalChannels(string GridID,string Parms
 				string sValue = sChannel;
 
 				if(sText.empty())
-					sText = ExtensionForChannel(sValue);
+					sText = sExten;
 
 				pCell = new DataGridCell(sText, sValue);
 				pCell->m_AltColor = UniqueColors[nIndex % MAX_TELECOM_COLORS];
