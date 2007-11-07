@@ -610,7 +610,7 @@ function Create_Diskless_Archive {
 	apt-get -y install debootstrap
 
 	local temp_dir=$(mktemp -d)
-	debootstrap feisty $temp_dir http://ro.archive.ubuntu.com/ubuntu/
+	debootstrap gutsy $temp_dir http://ro.archive.ubuntu.com/ubuntu/
 
 	mkdir -p /home/DisklessFS
 	pushd $temp_dir
@@ -624,7 +624,6 @@ function Create_Diskless_Archive {
 	touch /home/DisklessFS/BootWait/vmlinuz-default-2.6.16.20-pluto-2-686-smp
 	touch /home/DisklessFS/BootWait/initrd.img-default-2.6.16.20-pluto-2-686-smp
 	
-
 }
 
 function Create_ISO {
