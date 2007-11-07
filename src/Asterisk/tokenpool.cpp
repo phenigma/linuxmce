@@ -97,26 +97,32 @@ TokenPool::_Run() {
 	bool bFirstConnect = true;
 	int errcode = 0;
 
-	while(1) {
-		if(!sock.isConnected()) {
-			if(!bFirstConnect) {
+	while(!m_bQuit) 
+	{
+		if(!sock.isConnected()) 
+		{
+			if(!bFirstConnect) 
+			{
 				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Waiting %d seconds before reconnect.", POOL_RECONNECT_PERIOD);
 				Sleep(POOL_RECONNECT_PERIOD);
-			} else {
+			} 
+			else 
+			{
 				bFirstConnect = false;
 			}
-			/*connect to asterisk manager*/
-			if(!sock.Connect() && !handleConnect(&sock)) {
 			
-			} else {
+			/*connect to asterisk manager*/
+			if(!sock.Connect() && !handleConnect(&sock)) 
+			{
+			
+			} 
+			else 
+			{
 				continue;
 			}
 		}
 		else
 		{
-			if(m_bQuit)
-				break;
-
 			/*first try process a send item*/
 			bool dosend = false;
 
