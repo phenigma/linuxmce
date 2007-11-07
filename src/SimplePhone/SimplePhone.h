@@ -75,9 +75,10 @@ public:
 	string DATA_Get_PhoneType();
 	string DATA_Get_PhoneNumber();
 	bool DATA_Get_Speak_in_the_House();
+	string DATA_Get_Server_IP();
 
 			*****EVENT***** accessors inherited from base class
-	void EVENT_Incoming_Call();
+	void EVENT_Incoming_Call(string sPhoneCallerID);
 
 			*****COMMANDS***** we need to implement
 	*/
@@ -87,11 +88,13 @@ public:
 	/** Send a DTMF code */
 		/** @param #26 PK_Button */
 			/** What key to simulate being pressed.  If 2 numbers are specified, separated by a comma, the second will be used if the Shift key is specified. */
+		/** @param #41 StreamID */
+			/** ID of stream to apply */
 		/** @param #50 Name */
 			/** The application to send the keypress to. If not specified, it goes to the DCE device. */
 
-	virtual void CMD_Simulate_Keypress(string sPK_Button,string sName) { string sCMD_Result; CMD_Simulate_Keypress(sPK_Button.c_str(),sName.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Simulate_Keypress(string sPK_Button,string sName,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Simulate_Keypress(string sPK_Button,int iStreamID,string sName) { string sCMD_Result; CMD_Simulate_Keypress(sPK_Button.c_str(),iStreamID,sName.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Simulate_Keypress(string sPK_Button,int iStreamID,string sName,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #334 - Phone_Initiate */
@@ -117,6 +120,7 @@ public:
 
 	virtual void CMD_Phone_Drop() { string sCMD_Result; CMD_Phone_Drop(sCMD_Result,NULL);};
 	virtual void CMD_Phone_Drop(string &sCMD_Result,Message *pMessage);
+
 
 //<-dceag-h-e->
     };

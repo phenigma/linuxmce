@@ -1,18 +1,3 @@
-/*
-     Copyright (C) 2004 Pluto, Inc., a Florida Corporation
-
-     www.plutohome.com
-
-     Phone: +1 (877) 758-8648
- 
-
-     This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
-     This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-     of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-
-     See the GNU General Public License for more details.
-
-*/
 #ifndef SimplePhoneBase_h
 #define SimplePhoneBase_h
 #include "DeviceData_Impl.h"
@@ -59,11 +44,12 @@ public:
 	* @brief Events methods for our device
 	*/
 
-	virtual void Incoming_Call()
+	virtual void Incoming_Call(string sPhoneCallerID)
 	{
 		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 
 			EVENT_Incoming_Call_CONST,
-			0 /* number of parameter's pairs (id, value) */));
+			1 /* number of parameter's pairs (id, value) */,
+			EVENTPARAMETER_PhoneCallerID_CONST, sPhoneCallerID.c_str()));
 	}
 
 };
@@ -132,6 +118,14 @@ public:
 			return (m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Speak_in_the_House_CONST)=="1" ? true : false);
 		else
 			return (m_mapParameters[DEVICEDATA_Speak_in_the_House_CONST]=="1" ? true : false);
+	}
+
+	string Get_Server_IP()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Server_IP_CONST);
+		else
+			return m_mapParameters[DEVICEDATA_Server_IP_CONST];
 	}
 
 };
@@ -242,10 +236,11 @@ public:
 	string DATA_Get_PhoneType() { return GetData()->Get_PhoneType(); }
 	string DATA_Get_PhoneNumber() { return GetData()->Get_PhoneNumber(); }
 	bool DATA_Get_Speak_in_the_House() { return GetData()->Get_Speak_in_the_House(); }
+	string DATA_Get_Server_IP() { return GetData()->Get_Server_IP(); }
 	//Event accessors
-	void EVENT_Incoming_Call() { GetEvents()->Incoming_Call(); }
+	void EVENT_Incoming_Call(string sPhoneCallerID) { GetEvents()->Incoming_Call(sPhoneCallerID.c_str()); }
 	//Commands - Override these to handle commands from the server
-	virtual void CMD_Simulate_Keypress(string sPK_Button,string sName,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Simulate_Keypress(string sPK_Button,int iStreamID,string sName,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Phone_Initiate(int iPK_Device,string sPhoneExtension,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Phone_Answer(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Phone_Drop(string &sCMD_Result,class Message *pMessage) {};
@@ -285,8 +280,9 @@ public:
 					{
 						string sCMD_Result="OK";
 						string sPK_Button=pMessage->m_mapParameters[COMMANDPARAMETER_PK_Button_CONST];
+						int iStreamID=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_StreamID_CONST].c_str());
 						string sName=pMessage->m_mapParameters[COMMANDPARAMETER_Name_CONST];
-						CMD_Simulate_Keypress(sPK_Button.c_str(),sName.c_str(),sCMD_Result,pMessage);
+						CMD_Simulate_Keypress(sPK_Button.c_str(),iStreamID,sName.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -303,7 +299,7 @@ public:
 						{
 							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Simulate_Keypress(sPK_Button.c_str(),sName.c_str(),sCMD_Result,pMessage);
+								CMD_Simulate_Keypress(sPK_Button.c_str(),iStreamID,sName.c_str(),sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
