@@ -98,6 +98,20 @@ bool AssistedTransfer::ProcessEvent(class Message * pMessage)
 		string sChannel_ID = pMessage->m_mapParameters[EVENTPARAMETER_Channel_ID_CONST];
 		string sReason = pMessage->m_mapParameters[EVENTPARAMETER_Reason_CONST];
 		
+		switch( step )
+		{
+			case AssistedTransfer::Init_MyChannel2DestCall :
+			case AssistedTransfer::Init_MyCall2Conference :
+				if( sChannel_ID == sMyChannelID )
+				{
+					ProcessJob("cancel");
+				}
+				break;
+				
+			default:
+				break;
+		}
+		
 		return true;
 	}
 	
