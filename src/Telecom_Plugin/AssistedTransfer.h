@@ -58,6 +58,8 @@ namespace DCE
 			string sMyChannelID;
 			string sMyCallID;
 			string sNextJob;
+			string sChannel1_Dest;
+			string sChannel2_Dest;
 			StepType step;
 	};
 };

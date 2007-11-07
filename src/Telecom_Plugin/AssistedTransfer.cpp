@@ -37,8 +37,6 @@ bool AssistedTransfer::ProcessJob(const string & job)
 	
 	if( !bRun )
 	{
-		SetState(TelecomTask::Failed);
-		SetJobState(TelecomTask::Done);
 		PrivateProcessJob("cancel");
 	}
 	
@@ -47,7 +45,6 @@ bool AssistedTransfer::ProcessJob(const string & job)
 
 bool AssistedTransfer::ProcessEvent(class Message * pMessage)
 {
-//	SetState(TelecomTask::Completed);
 	if( pMessage->m_dwID == EVENT_PBX_Link_CONST )
 	{
 		string sSource_Channel = pMessage->m_mapParameters[EVENTPARAMETER_Source_Channel_CONST];
@@ -64,10 +61,30 @@ bool AssistedTransfer::ProcessEvent(class Message * pMessage)
 					if( pCallStatus )
 					{
 						sMyCallID = pCallStatus->GetID();
+						ProcessJob("initialize");
 					}
 					else
 					{
 						// error
+						SetState(TelecomTask::Failed);
+					}
+				}
+				break;
+				
+			case AssistedTransfer::Init_DestCall2Conference :
+				if( sSource_Channel == sChannel1_Dest || sSource_Channel == sChannel2_Dest )
+				{
+					CallStatus * pCallStatus1 = telecom->FindCallStatusForChannel( sChannel1_Dest );
+					CallStatus * pCallStatus2 = telecom->FindCallStatusForChannel( sChannel2_Dest );
+					if( pCallStatus1 != NULL && pCallStatus1 == pCallStatus2 )
+					{
+						sCallID_Dest = pCallStatus1->GetID();
+						ProcessJob("initialize");
+					}
+					else
+					{
+						// error
+						SetState(TelecomTask::Failed);
 					}
 				}
 				break;
@@ -75,19 +92,71 @@ bool AssistedTransfer::ProcessEvent(class Message * pMessage)
 			case AssistedTransfer::Init_MyChannel2DestCall :
 				if( sSource_Channel == sMyChannelID )
 				{
+					// todo: do more checking, be paranoic
 					CallStatus * pCallStatus = telecom->FindCallStatusForChannel( sMyChannelID );
 					if( pCallStatus )
 					{
 						sCallID_Dest = pCallStatus->GetID();
+						SetJobState( TelecomTask::Done );
+						if( !sNextJob.empty() )
+						{
+							ProcessJob(sNextJob);
+						}
 					}
 					else
 					{
 						// error
+						SetState(TelecomTask::Failed);
+					}
+				}
+				break;
+			
+			case AssistedTransfer::Init_MyChannel2DestConf :
+				if( sSource_Channel == sMyChannelID )
+				{
+					// todo: do more checking, be paranoic
+					CallStatus * pCallStatus = telecom->FindCallStatusForChannel( sMyChannelID );
+					if( pCallStatus && sCallID_Dest == pCallStatus->GetID() )
+					{
+						SetJobState( TelecomTask::Done );
+						if( !sNextJob.empty() )
+						{
+							ProcessJob(sNextJob);
+						}
+					}
+					else
+					{
+						// error
+						SetState(TelecomTask::Failed);
+					}
+				}
+				break;
+				
+			case AssistedTransfer::Transfer_MyChannel :
+				SetJobState(TelecomTask::Done);
+				SetState(TelecomTask::Completed);
+				break;
+				
+			case AssistedTransfer::JoinDestination :
+			case AssistedTransfer::MergeCalls :
+				if( sSource_Channel == sMyChannelID )
+				{
+					CallStatus * pCallStatus = telecom->FindCallStatusForChannel( sMyChannelID );
+					if( pCallStatus )
+					{
+						SetJobState(TelecomTask::Done);
+						SetState(TelecomTask::Completed);
+					}
+					else
+					{
+						// error
+						SetState(TelecomTask::Failed);
 					}
 				}
 				break;
 			
 			default:
+				// todo, debug info ?
 				break;
 		}
 		
@@ -104,6 +173,7 @@ bool AssistedTransfer::ProcessEvent(class Message * pMessage)
 			case AssistedTransfer::Init_MyCall2Conference :
 				if( sChannel_ID == sMyChannelID )
 				{
+					SetJobState(TelecomTask::Done);
 					ProcessJob("cancel");
 				}
 				break;
@@ -122,23 +192,30 @@ bool AssistedTransfer::PrivateProcessJob(const string & job)
 {
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "AssistedTransfer : job %s", job.c_str());
 	
-	if( TelecomTask::Completed == GetState() )
+	if( job == "cancel" )
 	{
-		LoggerWrapper::GetInstance()->Write(LV_STATUS, "AssistedTransfer : job completed");
-		return false;
-	}
-	
-	if( TelecomTask::Running == GetJobState() )
-	{
-		// try later
-		sNextJob = job;
-		return true;
+		SetState(TelecomTask::Failed);
 	}
 	else
 	{
-		sNextJob = "";
-	}
+		if( TelecomTask::Completed == GetState() || TelecomTask::Failed == GetState() )
+		{
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "AssistedTransfer : job completed/failed !");
+			return false;
+		}
 	
+		if( TelecomTask::Running == GetJobState() && job != sJobID )
+		{
+			// try later
+			sNextJob = job;
+			return true;
+		}
+		else
+		{
+			sNextJob = "";
+		}
+	
+	}
 	SetState(TelecomTask::Processing);
 	
 	CallStatus * pDestCallStatus = NULL;
@@ -173,56 +250,84 @@ bool AssistedTransfer::PrivateProcessJob(const string & job)
 	//2) {X,Y,A} & {B,C} => {X,Y} & {A,B,C} 
 	if( job == "initialize" )
 	{
-		// be sure your current call is conference
-		// you don't want the other channel to be hang up
-		if( !pMyCallStatus->IsConference() )
+		if( step == AssistedTransfer::Step_Zero )
 		{
-			// TODO: the new ID will be saved into sMyCallID
-			string sNewConfID = telecom->DirectCall2Conference(pMyCallStatus);
-			if( sNewConfID.empty() )
+			// be sure your current call is conference
+			// you don't want the other channel to be hang up
+			if( !pMyCallStatus->IsConference() )
 			{
-				// error
-				return false;
+				// TODO: the new ID will be saved into sMyCallID
+				string sNewConfID = telecom->DirectCall2Conference(pMyCallStatus);
+				if( sNewConfID.empty() )
+				{
+					// error
+					return false;
+				}
+				
+				step = AssistedTransfer::Init_MyCall2Conference;
+				return true;
 			}
+			
 			step = AssistedTransfer::Init_MyCall2Conference;
 		}
 		
-		if( !sExtDest.empty() )
+		if( step == AssistedTransfer::Init_MyCall2Conference )
 		{
-			// TODO: the new ID will be saved into sCallID_Dest
-			telecom->CMD_PL_Transfer(0, 0, sExtDest, sMyChannelID, "");
-			step = AssistedTransfer::Init_MyChannel2DestCall;
-		}
-		else if( pDestCallStatus != NULL )
-		{
-			if( pDestCallStatus->IsConference() )
+			if( !sExtDest.empty() )
 			{
-				// transfer my channel to the {B,C} conference
-				telecom->CMD_PL_Transfer
-					(0, 0, CallStatus::GetStringConferenceID(pDestCallStatus->GetConferenceID()), sMyChannelID, "");
-				step = AssistedTransfer::Init_MyChannel2DestConf;
-			}
-			else
-			{
-				// transform the direct call {B,C} into the conference {B,C}
 				// TODO: the new ID will be saved into sCallID_Dest
-				string sNewConfID = telecom->DirectCall2Conference(pDestCallStatus);
-				if( !sNewConfID.empty() )
+				telecom->CMD_PL_Transfer(0, 0, sExtDest, sMyChannelID, "");
+				step = AssistedTransfer::Init_MyChannel2DestCall;
+			}
+			else if( pDestCallStatus != NULL )
+			{
+				if( pDestCallStatus->IsConference() )
 				{
-					step = AssistedTransfer::Init_DestCall2Conference;
-					// transfer my channel to the new conference
-					telecom->CMD_PL_Transfer(0, 0, sNewConfID, sMyChannelID, "");
+					// transfer my channel to the {B,C} conference
+					telecom->CMD_PL_Transfer
+						(0, 0, CallStatus::GetStringConferenceID(pDestCallStatus->GetConferenceID()), sMyChannelID, "");
 					step = AssistedTransfer::Init_MyChannel2DestConf;
 				}
 				else
 				{
-					// error
+					const map<string, string> & channels = pDestCallStatus->GetChannels();
+					if( 2 == channels.size() )
+					{
+						sChannel1_Dest = (*channels.begin()).first;
+						sChannel2_Dest = (*(++channels.begin())).first;
+						
+						// transform the direct call {B,C} into the conference {B,C}
+						// TODO: the new ID will be saved into sCallID_Dest
+						string sNewConfID = telecom->DirectCall2Conference(pDestCallStatus);
+						if( !sNewConfID.empty() )
+						{
+							step = AssistedTransfer::Init_DestCall2Conference;
+						}
+						else
+						{
+							// error
+							return false;
+						}
+					}
+					else
+					{
+						// error
+					}
 				}
 			}
+			return true;
+		}
+		
+		if( step == AssistedTransfer::Init_DestCall2Conference )
+		{
+			// transfer my channel to the new conference
+			telecom->CMD_PL_Transfer(0, 0, sCallID_Dest, sMyChannelID, "");
+			step = AssistedTransfer::Init_MyChannel2DestConf;
 		}
 		else
 		{
 			// error
+			return false;
 		}
 	}
 	//job "transfer"
