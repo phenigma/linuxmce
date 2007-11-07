@@ -58,7 +58,7 @@ function Error {
 
 
 function Install_Build_Needed_Packages {
-	local pkgs="dmsetup mkisofs libxcb-xv0-dev libxcb-shm0-dev libxcb-shape0-dev libaa1-dev libmagick9-dev libdirectfb-dev libpulse-dev libmpcdec-dev kdelibs4-dev qt3-qtconfig qt3-linguist qt3-dev-tools-embedded qt3-dev-tools-compat qt3-dev-tools qt3-designer qt3-assistant qt3-apps-dev libqt3-mt-dev libqt3-headers libqt3-compat-headers xorg-dev qt3-dev-tools libxcb-xv0-dev libxcb-shm0-dev libxcb-shape0-dev libmagick9-dev libmpcdec-dev quilt tcl8.4-dev libfuse-dev fuse-utils libupnp-dev libconfuse-dev subversion build-essential dh-make libmysqlclient15-dev libhttpfetcher-dev libattr1-dev libdbus-1-dev libdbus-glib-1-dev libhal-dev libdancer-xml0-dev libbluetooth2-dev libid3-3.8.3-dev libxine-dev x11proto-core-dev libx11-dev libx11-dev x11proto-core-dev x11proto-xext-dev x11proto-xf86vidmode-dev libx11-dev libjpeg62-dev libcdparanoia0-dev libsdl1.2-dev libsdl-gfx1.2-dev libxmu-headers x11proto-record-dev libhid-dev libusb-dev libsdl-image1.2-dev libsdl-ttf2.0-dev libsdl-sge-dev libxtst-dev libxrender-dev liblinphone1-dev libcddb-dev libdvdread-dev libcurl3-dev ruby1.8-dev swig libtcltk-ruby mysql-client mysql-server libmediastreamer0-dev libgtk2.0-dev libvte-dev libglade2-dev libstdc++5" 
+	local pkgs="nasm x-dev libsvga1-dev dmsetup mkisofs libxcb-xv0-dev libxcb-shm0-dev libxcb-shape0-dev libaa1-dev libmagick9-dev libdirectfb-dev libpulse-dev libmpcdec-dev kdelibs4-dev qt3-qtconfig qt3-linguist qt3-dev-tools-embedded qt3-dev-tools-compat qt3-dev-tools qt3-designer qt3-assistant qt3-apps-dev libqt3-mt-dev libqt3-headers libqt3-compat-headers xorg-dev qt3-dev-tools libxcb-xv0-dev libxcb-shm0-dev libxcb-shape0-dev libmagick9-dev libmpcdec-dev quilt tcl8.4-dev libfuse-dev fuse-utils libupnp-dev libconfuse-dev subversion build-essential dh-make libmysqlclient15-dev libhttpfetcher-dev libattr1-dev libdbus-1-dev libdbus-glib-1-dev libhal-dev libdancer-xml0-dev libbluetooth2-dev libid3-3.8.3-dev libxine-dev x11proto-core-dev libx11-dev libx11-dev x11proto-core-dev x11proto-xext-dev x11proto-xf86vidmode-dev libx11-dev libjpeg62-dev libcdparanoia0-dev libsdl1.2-dev libsdl-gfx1.2-dev libxmu-headers x11proto-record-dev libhid-dev libusb-dev libsdl-image1.2-dev libsdl-ttf2.0-dev libsdl-sge-dev libxtst-dev libxrender-dev liblinphone1-dev libcddb-dev libdvdread-dev libcurl3-dev ruby1.8-dev swig libtcltk-ruby mysql-client mysql-server libmediastreamer0-dev libgtk2.0-dev libvte-dev libglade2-dev libstdc++5" 
 	local pkg
 	for pkg in $pkgs ;do
 		apt-get -y install $pkg
@@ -253,6 +253,14 @@ function Build_Pluto_Replacements {
 		popd
 	fi
 
+	#Package: freepbx
+	dir_="${svn_dir}/trunk/ubuntu/asterisk/freepbx"
+	if ReplacementNeedsBuild "$dir_" ;then
+		pushd "$dir_"
+		dpkg-buildpackage -rfakeroot -us -uc -b
+		cp -r ../freepbx_*.deb ${temp_dir}
+		popd
+	fi
 
 	#Package: pluto-asterisk
 	apt-get -y install linux-headers-`uname -r`
@@ -296,6 +304,11 @@ function Build_Pluto_Replacements {
                 m-a -ft a-b lirc-modules
                 cp /usr/src/lirc-modules*.deb "${temp_dir}"
 	popd
+	
+	#Package: zaptel-modules
+	apt-get -y install zaptel-source
+	m-a -ft a-b zaptel
+	cp /usr/src/zaptel-modules*.deb "${temp_dir}"
 
 	#Package: ivtv-modules
 	apt-get -y install ivtv-source
@@ -371,7 +384,7 @@ function Build_Pluto_Replacements {
 		scp  pluto@10.0.2.4:/home/samba/repositories/replacements-common/libxml-parser-lite-tree-perl_1_all.deb ./
 		scp  pluto@10.0.2.4:/home/samba/repositories/replacements-common/asterisk-perl_0.08-1_all.deb ./
 		scp  pluto@10.0.2.4:/home/samba/repositories/replacements-common/pluto-avwizard-sounds_1.0-1_all.deb ./
-		scp  pluto@10.0.2.4:/home/samba/repositories/replacements-common/msttcorefonts_1.2.pluto.4_all.deb ./
+		scp  pluto@10.0.2.4:/home/samba/repositories/replacements-common/msttcorefonts_2.2pluto1_all.deb ./
 	popd 
 
 }
