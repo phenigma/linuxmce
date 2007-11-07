@@ -51,7 +51,7 @@ CallsStatusCommand::~CallsStatusCommand() {
 void
 CallsStatusCommand::handleStartup() {
 	m_token.setKey(TOKEN_ACTION, ACTION_COMMAND);
-	m_token.setKey(TOKEN_COMMAND, "show channels concise");
+	m_token.setKey(TOKEN_COMMAND, "core show channels concise");
 };
 
 bool 

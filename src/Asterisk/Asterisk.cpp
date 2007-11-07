@@ -65,6 +65,9 @@ bool Asterisk::GetConfig()
 		return false;
 //<-dceag-getconfig-e->
 
+	string sServerIP = DATA_Get_Server_IP();
+	AsteriskManager::getInstance()->Set_Server_IP(sServerIP.empty() ? "127.0.0.1" : sServerIP);
+
 	return true;
 }
 

@@ -29,6 +29,7 @@
 //
 #include "socket.h"
 #include "DCE/Logger.h"
+#include "asteriskmanager.h"
 
 #ifdef WIN32
 
@@ -42,13 +43,12 @@ using namespace DCE;
 
 
 #define ASMANAGER_PORT	5038
-#define ASMANAGER_HOST	"127.0.0.1"
 
 namespace ASTERISK {
 
-Socket::Socket() : socket_fd(0) {
+Socket::Socket() : socket_fd(0)
+{
 }
-
 
 Socket::~Socket()
 {
@@ -72,10 +72,12 @@ int Socket::Connect() {
 	address.sin_family = AF_INET;
 	address.sin_port = htons(ASMANAGER_PORT);
 
+	string sIP = AsteriskManager::getInstance()->Get_Server_IP();
+
 #ifdef WIN32
-	address.sin_addr.s_addr = inet_addr("10.0.2.2");
+	address.sin_addr.s_addr = inet_addr(sIP.c_str());
 #else
-	inet_pton(AF_INET, ASMANAGER_HOST, &address.sin_addr);
+	inet_pton(AF_INET, sIP.c_str(), &address.sin_addr);
 #endif
 	
 	if((ret = connect(socket_fd, (struct sockaddr*)&address, sizeof(address)))) {

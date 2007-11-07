@@ -63,11 +63,12 @@ public:
 	/*
 			*****DATA***** accessors inherited from base class
 	bool DATA_Get_Manual_configuration();
+	string DATA_Get_Server_IP();
 
 			*****EVENT***** accessors inherited from base class
 	void EVENT_PBX_CommandResult(int iCommandID,int iResult,string sMessage);
 	void EVENT_PBX_Ring(string sSource_Channel,string sDestination_Channel,string sSource_Caller_ID,string sDestination_Caller_ID);
-	void EVENT_Incoming_Call();
+	void EVENT_Incoming_Call(string sPhoneCallerID);
 	void EVENT_Voice_Mail_Changed(string sValue,int iPK_Users);
 	void EVENT_PBX_Hangup(string sChannel_ID,string sReason);
 	void EVENT_Extensions_Status(string sText);

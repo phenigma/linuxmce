@@ -65,11 +65,12 @@ public:
 			EVENTPARAMETER_Destination_Caller_ID_CONST, sDestination_Caller_ID.c_str()));
 	}
 
-	virtual void Incoming_Call()
+	virtual void Incoming_Call(string sPhoneCallerID)
 	{
 		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 
 			EVENT_Incoming_Call_CONST,
-			0 /* number of parameter's pairs (id, value) */));
+			1 /* number of parameter's pairs (id, value) */,
+			EVENTPARAMETER_PhoneCallerID_CONST, sPhoneCallerID.c_str()));
 	}
 
 	virtual void Voice_Mail_Changed(string sValue,int iPK_Users)
@@ -159,6 +160,14 @@ public:
 			return (m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Manual_configuration_CONST)=="1" ? true : false);
 		else
 			return (m_mapParameters[DEVICEDATA_Manual_configuration_CONST]=="1" ? true : false);
+	}
+
+	string Get_Server_IP()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Server_IP_CONST);
+		else
+			return m_mapParameters[DEVICEDATA_Server_IP_CONST];
 	}
 
 };
@@ -266,10 +275,11 @@ public:
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
 	//Data accessors
 	bool DATA_Get_Manual_configuration() { return GetData()->Get_Manual_configuration(); }
+	string DATA_Get_Server_IP() { return GetData()->Get_Server_IP(); }
 	//Event accessors
 	void EVENT_PBX_CommandResult(int iCommandID,int iResult,string sMessage) { GetEvents()->PBX_CommandResult(iCommandID,iResult,sMessage.c_str()); }
 	void EVENT_PBX_Ring(string sSource_Channel,string sDestination_Channel,string sSource_Caller_ID,string sDestination_Caller_ID) { GetEvents()->PBX_Ring(sSource_Channel.c_str(),sDestination_Channel.c_str(),sSource_Caller_ID.c_str(),sDestination_Caller_ID.c_str()); }
-	void EVENT_Incoming_Call() { GetEvents()->Incoming_Call(); }
+	void EVENT_Incoming_Call(string sPhoneCallerID) { GetEvents()->Incoming_Call(sPhoneCallerID.c_str()); }
 	void EVENT_Voice_Mail_Changed(string sValue,int iPK_Users) { GetEvents()->Voice_Mail_Changed(sValue.c_str(),iPK_Users); }
 	void EVENT_PBX_Hangup(string sChannel_ID,string sReason) { GetEvents()->PBX_Hangup(sChannel_ID.c_str(),sReason.c_str()); }
 	void EVENT_Extensions_Status(string sText) { GetEvents()->Extensions_Status(sText.c_str()); }

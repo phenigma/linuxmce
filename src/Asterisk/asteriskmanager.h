@@ -97,11 +97,15 @@ public:
 	void NotifyCallsStatus(std::string sStatus);
 
 	void Close();
+
+	void Set_Server_IP(std::string sIP) { m_sServerIP = sIP;  }
+	std::string Get_Server_IP()         { return m_sServerIP; }
 	
 private:
 	DCE::Asterisk* pAsterisk;
 	ASTERISK::CommunicationHandler *m_pCommunicationHandler;
-	
+	std::string m_sServerIP;
+
 // manager instance
 private:
 	static AsteriskManager* sinstance;
