@@ -250,6 +250,7 @@ ExtractArchive()
 {
 	echo "Extracting archive (this will take about 10 minutes)"
 	cat /media/recovery/archives/linux-mce.tar.gz* | tar -C /media/target -zx --checkpoint=10000
+	mkdir -p /media/target/etc/pluto
 	touch /media/target/etc/pluto/install_cleandb
 
 	# Update the UUIDs
