@@ -18,14 +18,13 @@ if [[ "$1" == configure ]]; then
 	fi
 
 	cp /var/www/admin/modules/core/etc/* /etc/asterisk/
+	mkdir -p /var/log/asterisk
 
 	adduser www-data asterisk
-	chown -R asterisk.asterisk /etc/asterisk
+
+	chown -R asterisk.asterisk /var/log/asterisk /usr/share/asterisk/agi-bin/ /etc/asterisk
 	chmod -R ug+rw /etc/asterisk
 	invoke-rc.d apache2 restart
-
-	mkdir -p /var/log/asterisk
-	chown -R asterisk.asterisk /var/log/asterisk
 	invoke-rc.d asterisk restart
 	
 	for Module in core conferences dashboard featurecodeadmin infoservices ivr music queues recordings ringgroups timeconditions voicemail; do
