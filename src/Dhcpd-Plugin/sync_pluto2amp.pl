@@ -94,7 +94,7 @@ $DB_PL_HANDLE->disconnect();
 $DB_AS_HANDLE->disconnect();
 
 #run AMP's scripts to generate asterisk's config
-`/var/www/admin/retrieve_conf`;
+`/var/lib/asterisk/bin/retrieve_conf`;
 
 #reload asterisk
 `/usr/sbin/asterisk -r -x reload`;
