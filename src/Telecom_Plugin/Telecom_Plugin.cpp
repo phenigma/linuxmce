@@ -1747,30 +1747,34 @@ class DataGridTable *Telecom_Plugin::ActiveUsersOnCallGrid(string GridID,string 
 	DataGridTable *pDataGrid = new DataGridTable();
 	DataGridCell *pCell = NULL;
 	int Row = 0;
-
 	int nIndex = 0;
-	map<string, CallStatus *>::const_iterator it = map_call2status.find(Parms);
-	if(it != map_call2status.end())
+
+	for(map<string, CallStatus *>::const_iterator it = map_call2status.begin(); it != map_call2status.end(); ++it)
 	{
 		CallStatus *pCallStatus = it->second;
 
-		const map<string, string>& channels = pCallStatus->GetChannels();
-		for(map<string, string>::const_iterator itc = channels.begin(); itc != channels.end(); ++itc)
+		if(it->first == Parms)
 		{
-			string sText = itc->second;
-			string sValue = itc->first;
+			const map<string, string>& channels = pCallStatus->GetChannels();
+			for(map<string, string>::const_iterator itc = channels.begin(); itc != channels.end(); ++itc)
+			{
+				string sText = itc->second;
+				string sValue = itc->first;
 
-			if(sText.empty())
-				sText = ExtensionForChannel(sValue);
+				if(sText.empty())
+					sText = ExtensionForChannel(sValue);
 
-			pCell = new DataGridCell(sText, sValue);
-			pCell->m_AltColor = UniqueColors[nIndex % MAX_TELECOM_COLORS];
-			pDataGrid->SetData(0, Row, pCell);
+				pCell = new DataGridCell(sText, sValue);
+				pCell->m_AltColor = UniqueColors[nIndex % MAX_TELECOM_COLORS];
+				pDataGrid->SetData(0, Row, pCell);
 
-			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Row %d: cell text %s, value %s",
-				Row, sText.c_str(), sValue.c_str());
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Row %d: cell text %s, value %s",
+					Row, sText.c_str(), sValue.c_str());
 
-			Row++;    
+				Row++;    
+			}
+
+			break;
 		}
 
 		++nIndex;
