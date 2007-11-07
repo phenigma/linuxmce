@@ -267,6 +267,10 @@ bool Telecom_Plugin::Register()
 		new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&Telecom_Plugin::ActiveUsersOnCallGrid))
 		,DATAGRID_Active_Users_On_Channel_CONST,PK_DeviceTemplate_get());
 
+	m_pDatagrid_Plugin->RegisterDatagridGenerator(
+		new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&Telecom_Plugin::ExternalChannels))
+		,DATAGRID_External_Channels_CONST,PK_DeviceTemplate_get());
+
 	//RegisterMsgInterceptor( ( MessageInterceptorFn )( &Telecom_Plugin::CommandResult ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_PBX_CommandResult_CONST );
 
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &Telecom_Plugin::OrbiterRegistered) ,0,0,0,0,MESSAGETYPE_COMMAND,COMMAND_Orbiter_Registered_CONST);
@@ -1744,6 +1748,7 @@ class DataGridTable *Telecom_Plugin::ActiveUsersOnCallGrid(string GridID,string 
 	DataGridCell *pCell = NULL;
 	int Row = 0;
 
+	int nIndex = 0;
 	map<string, CallStatus *>::const_iterator it = map_call2status.find(Parms);
 	if(it != map_call2status.end())
 	{
@@ -1759,7 +1764,7 @@ class DataGridTable *Telecom_Plugin::ActiveUsersOnCallGrid(string GridID,string 
 				sText = ExtensionForChannel(sValue);
 
 			pCell = new DataGridCell(sText, sValue);
-			pCell->m_AltColor = PlutoColor(0,128,0).m_Value;
+			pCell->m_AltColor = UniqueColors[nIndex % MAX_TELECOM_COLORS];
 			pDataGrid->SetData(0, Row, pCell);
 
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Row %d: cell text %s, value %s",
@@ -1767,6 +1772,51 @@ class DataGridTable *Telecom_Plugin::ActiveUsersOnCallGrid(string GridID,string 
 
 			Row++;    
 		}
+
+		++nIndex;
+	}
+
+	return pDataGrid;
+}
+
+class DataGridTable *Telecom_Plugin::ExternalChannels(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage)
+{
+	PLUTO_SAFETY_LOCK(vm, m_TelecomMutex);  // Protect the call data
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "ExternalChannels request received for GridID: %s");
+	DataGridTable *pDataGrid = new DataGridTable();
+	DataGridCell *pCell = NULL;
+	int Row = 0;
+
+	int nIndex = 0;
+	for(map<string, CallStatus *>::const_iterator it = map_call2status.begin(); it != map_call2status.end(); ++it)
+	{
+		CallStatus *pCallStatus = it->second;
+
+		const map<string, string>& channels = pCallStatus->GetChannels();
+		for(map<string, string>::const_iterator itc = channels.begin(); itc != channels.end(); ++itc)
+		{
+			string sChannel = itc->first;
+			string sExten = ExtensionForChannel(sChannel);
+			if(0 != map_ext2device[sExten])
+			{
+				string sText = itc->second;
+				string sValue = sChannel;
+
+				if(sText.empty())
+					sText = ExtensionForChannel(sValue);
+
+				pCell = new DataGridCell(sText, sValue);
+				pCell->m_AltColor = UniqueColors[nIndex % MAX_TELECOM_COLORS];
+				pDataGrid->SetData(0, Row, pCell);
+
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Row %d: cell text %s, value %s",
+					Row, sText.c_str(), sValue.c_str());
+
+				Row++;    
+			}
+		}
+
+		++nIndex;
 	}
 
 	return pDataGrid;
