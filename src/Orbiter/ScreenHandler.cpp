@@ -3899,7 +3899,7 @@ void ScreenHandler::HandleAssistedMakeCall(int iPK_Users,string sPhoneExtension,
 			//1) {X,Y,A} & B => {X,Y} & {A,B} -> {X,Y,A,B}
 			//or 
 			//2) {X,Y,A} & {B,C} => {X,Y,A,B,C} 
-			string sButton2 = sSecondPhoneCall.empty() ? "<%=#34%>Conference<%=#34%>" : "<%=#34%>Merge calls<%=#34%>";
+			string sButton2 = sSecondPhoneCall.empty() ? "Conference" : "Merge calls";
 			//TODO: transfer A si B ?
 			string sCommand2 = sProcessTask + 
 				(sSecondPhoneCall.empty() ? "<%=#34%>conference<%=#34%>" : "<%=#34%>merge calls<%=#34%>");

@@ -2681,78 +2681,104 @@ void Telecom_Plugin::CMD_Merge_Calls(string sPhone_Call_ID_1,string sPhone_Call_
 {
 	LoggerWrapper::GetInstance()->Write(LV_WARNING, "CMD_Merge_Calls : %s, %s",
 										sPhone_Call_ID_1.c_str(), sPhone_Call_ID_2.c_str() );
-	
+
+	DumpActiveCalls();
+
 	map<string, CallStatus*>::const_iterator itFound_1 = map_call2status.find(sPhone_Call_ID_1);
 	map<string, CallStatus*>::const_iterator itFound_2 = map_call2status.find(sPhone_Call_ID_2);
 	if( itFound_1 != map_call2status.end() && itFound_2 != map_call2status.end() )
 	{
 		CallStatus * pCallStatus_1 = (*itFound_1).second;
 		CallStatus * pCallStatus_2 = (*itFound_2).second;
-		if( pCallStatus_1 && pCallStatus_2 )
+
+		if( NULL != pCallStatus_1 && NULL != pCallStatus_2 )
 		{
-			// use first conference as final conference
-			if( pCallStatus_1->IsConference() )
+			string sConferenceID;
+			CallStatus *pSecondCall = NULL;
+
+			if(pCallStatus_1->IsConference())
 			{
-				const map<string, string> & channels = pCallStatus_2->GetChannels();
+				sConferenceID = pCallStatus_1->GetConferenceID();
+				pSecondCall = pCallStatus_2;
+			}
+			else if(pCallStatus_2->IsConference()) 
+			{
+				sConferenceID = pCallStatus_2->GetConferenceID();
+				pSecondCall = pCallStatus_1;
+			}
+			else
+			{
+				sConferenceID = GetNewConferenceID();
+				pSecondCall = pCallStatus_2;
+
+				const map<string, string> & channels = pCallStatus_1->GetChannels();
+				if(channels.size() == 2)
+				{
+					string sChannel1 = channels.begin()->first;
+					string sChannel2 = (++channels.begin())->first;
+
+					CMD_PBX_Transfer cmd_PBX_Transfer(
+						m_dwPK_Device, m_pDevice_pbx->m_dwPK_Device,
+						sConferenceID,
+						sChannel1, sChannel2);
+					SendCommand(cmd_PBX_Transfer);
+				}
+				else
+				{
+					LoggerWrapper::GetInstance()->Write(LV_CRITICAL, 
+						"Got a direct call, but it doesn't have 2 channels %s", 
+						pCallStatus_1->GetID().c_str());
+
+					DumpActiveCalls();
+					return;
+				}
+			}
+
+			const map<string, string> & channels = pSecondCall->GetChannels();
+
+			if( pSecondCall->IsConference() )
+			{
 				for(map<string, string>::const_iterator itCh=channels.begin(); itCh!=channels.end(); ++itCh)
 				{
 					CMD_PBX_Transfer cmd_PBX_Transfer(
 						m_dwPK_Device, m_pDevice_pbx->m_dwPK_Device,
-						CallStatus::GetStringConferenceID( pCallStatus_1->GetConferenceID() ),
+						sConferenceID,
 						(*itCh).first, "");
 					SendCommand(cmd_PBX_Transfer);
 				}
 			}
-			// use second conference as final conference
-			else if( pCallStatus_2->IsConference() )
-			{
-				const map<string, string> & channels = pCallStatus_1->GetChannels();
-				for(map<string, string>::const_iterator itCh=channels.begin(); itCh!=channels.end(); ++itCh)
-				{
-					CMD_PBX_Transfer cmd_PBX_Transfer(
-							m_dwPK_Device, m_pDevice_pbx->m_dwPK_Device,
-					CallStatus::GetStringConferenceID( pCallStatus_2->GetConferenceID() ),
-					(*itCh).first, "");
-					SendCommand(cmd_PBX_Transfer);
-				}
-			}
-			// make a new conference and transfer all the channels to it
 			else
 			{
-				string sNewConferenceID = GetNewConferenceID();
-				
-				const map<string, string> & channels_1 = pCallStatus_1->GetChannels();
-				for(map<string, string>::const_iterator itCh1=channels_1.begin(); itCh1!=channels_1.end(); ++itCh1)
+				if(channels.size() == 2)
 				{
-					CMD_PBX_Transfer cmd_PBX_Transfer(
-							m_dwPK_Device, m_pDevice_pbx->m_dwPK_Device,
-					sNewConferenceID,
-					(*itCh1).first, "");
-					SendCommand(cmd_PBX_Transfer);
-				}
-				
-				const map<string, string> & channels_2 = pCallStatus_2->GetChannels();
-				for(map<string, string>::const_iterator itCh2=channels_2.begin(); itCh2!=channels_2.end(); ++itCh2)
-				{
+					string sChannel1 = channels.begin()->first;
+					string sChannel2 = (++channels.begin())->first;
+
 					CMD_PBX_Transfer cmd_PBX_Transfer(
 						m_dwPK_Device, m_pDevice_pbx->m_dwPK_Device,
-						sNewConferenceID,
-						(*itCh2).first, "");
+						sConferenceID,
+						sChannel1, sChannel2);
 					SendCommand(cmd_PBX_Transfer);
+				}
+				else
+				{
+					LoggerWrapper::GetInstance()->Write(LV_CRITICAL, 
+						"Got a direct call, but it doesn't have 2 channels %s", 
+						pSecondCall->GetID().c_str());
 				}
 			}
 		}
 		else
 		{
 			LoggerWrapper::GetInstance()->Write(LV_WARNING, "CMD_Merge_Calls : NULL call status!");
-			return;
 		}
 	}
 	else
 	{
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "CMD_Merge_Calls : No such calls!");
-		return;
 	}
+
+	DumpActiveCalls();
 }
 
 string Telecom_Plugin::GetPhoneNumber(int iPK_Users, string sPhoneExtension, int iPK_Device_To)
