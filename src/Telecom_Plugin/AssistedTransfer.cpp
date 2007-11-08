@@ -11,6 +11,7 @@
 //
 #include "AssistedTransfer.h"
 #include "Telecom_Plugin.h"
+#include "DCE/Logger.h"
 
 using namespace DCE;
 
@@ -64,9 +65,9 @@ bool AssistedTransfer::ProcessEvent(class Message * pMessage)
 						sMyCallID = pCallStatus1->GetID();
 						ProcessJob("initialize");
 					}
-					else
+					else if(NULL == pCallStatus1 || NULL == pCallStatus2)
 					{
-						// error
+						LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "One of the channels is not into a call anymore!");
 						SetState(TelecomTask::Failed);
 					}
 				}
@@ -82,9 +83,9 @@ bool AssistedTransfer::ProcessEvent(class Message * pMessage)
 						sCallID_Dest = pCallStatus1->GetID();
 						ProcessJob("initialize");
 					}
-					else
+					else if(NULL == pCallStatus1 || NULL == pCallStatus2)
 					{
-						// error
+						LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "One of the channels is not into a call anymore!");
 						SetState(TelecomTask::Failed);
 					}
 				}
@@ -106,7 +107,7 @@ bool AssistedTransfer::ProcessEvent(class Message * pMessage)
 					}
 					else
 					{
-						// error
+						LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Error: %d", __LINE__);
 						SetState(TelecomTask::Failed);
 					}
 				}
@@ -127,7 +128,7 @@ bool AssistedTransfer::ProcessEvent(class Message * pMessage)
 					}
 					else
 					{
-						// error
+						LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Error: %d", __LINE__);
 						SetState(TelecomTask::Failed);
 					}
 				}
@@ -150,7 +151,7 @@ bool AssistedTransfer::ProcessEvent(class Message * pMessage)
 					}
 					else
 					{
-						// error
+						LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Error: %d", __LINE__);
 						SetState(TelecomTask::Failed);
 					}
 				}
@@ -226,7 +227,7 @@ bool AssistedTransfer::PrivateProcessJob(const string & job)
 		pDestCallStatus = telecom->FindCallStatusForID( sCallID_Dest );
 		if( pDestCallStatus == NULL )
 		{
-			// error
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Error: %d", __LINE__);
 			return false;
 		}
 	}
@@ -235,13 +236,13 @@ bool AssistedTransfer::PrivateProcessJob(const string & job)
 		pMyCallStatus = telecom->FindCallStatusForID( sMyCallID );
 		if( pMyCallStatus == NULL )
 		{
-			// error
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Error: %d", __LINE__);
 			return false;
 		}
 	}
 	else
 	{
-		// error
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Error: %d", __LINE__);
 		return false;
 	}
 	
@@ -260,7 +261,7 @@ bool AssistedTransfer::PrivateProcessJob(const string & job)
 				const map<string, string> & channels = pMyCallStatus->GetChannels();
 				if( 2 != channels.size() )
 				{
-					// error
+					LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Error: %d", __LINE__);
 					return false;
 				}
 				
@@ -278,7 +279,7 @@ bool AssistedTransfer::PrivateProcessJob(const string & job)
 				string sNewConfID = telecom->DirectCall2Conference(pMyCallStatus);
 				if( sNewConfID.empty() )
 				{
-					// error
+					LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Error: %d", __LINE__);
 					return false;
 				}
 				
@@ -323,13 +324,13 @@ bool AssistedTransfer::PrivateProcessJob(const string & job)
 						}
 						else
 						{
-							// error
+							LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Error: %d", __LINE__);
 							return false;
 						}
 					}
 					else
 					{
-						// error
+						LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Error: %d", __LINE__);
 					}
 				}
 			}
@@ -344,7 +345,7 @@ bool AssistedTransfer::PrivateProcessJob(const string & job)
 		}
 		else
 		{
-			// error
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Error: %d", __LINE__);
 			return false;
 		}
 	}
@@ -373,7 +374,7 @@ bool AssistedTransfer::PrivateProcessJob(const string & job)
 			}
 			else
 			{
-				// error
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Error: %d", __LINE__);
 				return false;
 			}
 		}
