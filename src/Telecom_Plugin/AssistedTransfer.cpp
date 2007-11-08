@@ -61,7 +61,7 @@ bool AssistedTransfer::ProcessEvent(class Message * pMessage)
 					CallStatus * pCallStatus2 = telecom->FindCallStatusForChannel( sMyChannel2_ID );
 					if( pCallStatus1 != NULL && pCallStatus1 == pCallStatus2 )
 					{
-						sMyCallID = pCallStatus->GetID();
+						sMyCallID = pCallStatus1->GetID();
 						ProcessJob("initialize");
 					}
 					else
