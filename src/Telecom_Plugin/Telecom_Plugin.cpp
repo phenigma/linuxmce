@@ -636,6 +636,8 @@ Telecom_Plugin::CallsStatusChanged(class Socket *pSocket,class Message *pMessage
 			
 			// register the conference to the map
 			map_conference2status[pCallStatus->GetConferenceID()] = pCallStatus;
+			// remove the conference id from pending conferences map
+			map_newconference.erase(pCallStatus->GetConferenceID());
 		}
 		else
 		{
@@ -1056,32 +1058,21 @@ ExtensionStatus* Telecom_Plugin::FindExtensionStatus(string sExt)
 	return NULL;
 }
 
-// TODO: do it to be safe for succesive calls
-string Telecom_Plugin::GetNewConferenceID() const
+string Telecom_Plugin::GetNewConferenceID()
 {
-	//TODO: use locked conferences map
-
-	static size_t i = 1;
-
-
-	/*
-
-	//TODO TODO 
-
-	size_t confMax = map_conference2status.size() + 1;
-	for(; i<=confMax; i++)
+	unsigned i = 1;
+	unsigned confMax = map_conference2status.size() + map_newconference.size() + 1;
+	for(; i<confMax; i++)
 	{
-		if( map_conference2status.end() == map_conference2status.find(i) )
+		if( map_conference2status.end() == map_conference2status.find(i) &&
+			map_newconference.end() == map_newconference.find(i) )
 		{
-			return CallStatus::GetStringConferenceID((unsigned int)i);
 			break;
 		}
 	}
-*/	
-
-	return CallStatus::GetStringConferenceID((unsigned int)i++);
-
-	//error
+	
+	map_newconference[i] = "";
+	return CallStatus::GetStringConferenceID(i);
 }
 
 void Telecom_Plugin::RemoveCallStatus(CallStatus * pCallStatus)

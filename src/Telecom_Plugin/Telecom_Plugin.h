@@ -373,7 +373,7 @@ private:
 	void RemoveExtesionFromChannels(const string & sExtension);
 	
 	ExtensionStatus* FindExtensionStatus(string sExt);
-	string GetNewConferenceID() const;
+	string GetNewConferenceID();
 	void RemoveCallStatus(CallStatus*);
 	void RemoveExtensionStatus(string);
 	void CleanStatusMaps();
@@ -424,6 +424,7 @@ private:
 	map<string, ExtensionStatus*> map_ext2status;
 	map<string, CallStatus*> map_call2status;
 	map<unsigned, CallStatus*> map_conference2status;
+	map<unsigned, string> map_newconference;
 	map<string, TelecomTask*> map_id2task;
 	
 	map<string,long> map_err_messages;
