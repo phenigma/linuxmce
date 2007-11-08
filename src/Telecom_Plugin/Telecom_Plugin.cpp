@@ -2772,7 +2772,15 @@ string Telecom_Plugin::GetPhoneNumber(int iPK_Users, string sPhoneExtension, int
 			}
 			else
 			{
-				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Not an orbiter or embedded phone device id: %d", iPK_Device_To);
+				map<int,string>::iterator it = map_device2ext.find(iPK_Device_To);
+				if(it != map_device2ext.end() && !it->second.empty())
+				{
+					sPhoneNumber = it->second;
+				}
+				else
+				{
+					LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Not phone device with id: %d", iPK_Device_To);
+				}
 			}
 		}
 		else
