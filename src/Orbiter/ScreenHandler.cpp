@@ -3806,7 +3806,7 @@ void ScreenHandler::HandleAssistedMakeCall(int iPK_Users,string sPhoneExtension,
 
 			DCE::CMD_PL_Join_Call cmd_PL_Join_Call(
 				m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device_TelecomPlugIn,
-				iPK_Users, sOptions, sPhoneExtension, sPhoneCallID, iPK_Device_From);
+				iPK_Users, sPhoneExtension, sPhoneCallID, iPK_Device_From);
 			m_pOrbiter->SendCommand(cmd_PL_Join_Call);
 
 			SCREEN_Active_Calls(SCREEN_Active_Calls_CONST);
@@ -3857,12 +3857,26 @@ void ScreenHandler::HandleAssistedMakeCall(int iPK_Users,string sPhoneExtension,
 			string sMyChannel = m_pOrbiter->m_mapVariable_Find(VARIABLE_My_Channel_ID_CONST);
 			string sMyCall = m_pOrbiter->m_mapVariable_Find(VARIABLE_My_Call_ID_CONST);
 
+			string sTaskID;
+			string sResponse;
 			DCE::CMD_Assisted_Transfer cmd_Assisted_Transfer(
 				m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device_TelecomPlugIn,
-				iPK_Device_To, iPK_Users, sPhoneExtension, sSecondPhoneCall, sMyChannel);
+				iPK_Device_To, iPK_Users, sPhoneExtension, sSecondPhoneCall, sMyChannel, &sTaskID);
+			m_pOrbiter->SendCommand(cmd_Assisted_Transfer, &sResponse);
 
-			string sTaskID;
-			m_pOrbiter->SendCommand(cmd_Assisted_Transfer, &sTaskID);
+			if(sResponse != "OK")
+			{
+				SCREEN_PopupMessage(
+					SCREEN_PopupMessage_CONST,  //screen id
+					"Failed to transfer!|OK", //text
+					"", //command line
+					"error", //description
+					"0", //prompt for reset
+					"0", //without timeout
+					"1"  //cannot go back
+				);
+                break;
+			}
 
 			string sDescription = "Calling, please wait...";
 			
@@ -3871,7 +3885,7 @@ void ScreenHandler::HandleAssistedMakeCall(int iPK_Users,string sPhoneExtension,
 				StringUtils::itos(m_pOrbiter->m_dwPK_Device_TelecomPlugIn) + " " + 	
 				StringUtils::itos(MESSAGETYPE_COMMAND) + " " + 
 				StringUtils::itos(COMMAND_Process_Task_CONST) + " " +
-				StringUtils::itos(COMMANDPARAMETER_Task_CONST) + sTaskID + " " + 
+				StringUtils::itos(COMMANDPARAMETER_Task_CONST) + " " + sTaskID + " " + 
 				StringUtils::itos(COMMANDPARAMETER_Job_CONST) + " ";
 
 			//Drop transfer and CMD_PL_Join A to {X,Y}:

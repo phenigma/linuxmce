@@ -2164,8 +2164,6 @@ void Telecom_Plugin::doDisplayMessages()
 	/** Will join you to an existing call */
 		/** @param #17 PK_Users */
 			/** The user to add to call */
-		/** @param #39 Options */
-			/** if 'q' is present, it means quick conference, no private  chat; without  'q' means add to conference with private chat */
 		/** @param #83 PhoneExtension */
 			/** The extension to add to call */
 		/** @param #87 PhoneCallID */
@@ -2173,7 +2171,7 @@ void Telecom_Plugin::doDisplayMessages()
 		/** @param #263 PK_Device_To */
 			/** The device the add to call */
 
-void Telecom_Plugin::CMD_PL_Join_Call(int iPK_Users,string sOptions,string sPhoneExtension,string sPhoneCallID,int iPK_Device_To,string &sCMD_Result,Message *pMessage)
+void Telecom_Plugin::CMD_PL_Join_Call(int iPK_Users,string sPhoneExtension,string sPhoneCallID,int iPK_Device_To,string &sCMD_Result,Message *pMessage)
 //<-dceag-c797-e->
 {
 	PLUTO_SAFETY_LOCK(vm, m_TelecomMutex);
@@ -3025,7 +3023,8 @@ CallStatus *Telecom_Plugin::FindConferenceByConferenceID(unsigned int unConferen
 //<-dceag-c925-b->
 
 	/** @brief COMMAND: #925 - Assisted Transfer */
-	/** Interactive transfer, not just a blind transfer. The response is a task id */
+	/** Interactive transfer, not just a blind transfer.
+The response is a task id */
 		/** @param #2 PK_Device */
 			/** Device ID to transfer call to */
 		/** @param #17 PK_Users */
@@ -3034,13 +3033,18 @@ CallStatus *Telecom_Plugin::FindConferenceByConferenceID(unsigned int unConferen
 			/** Extension to transfer call to */
 		/** @param #87 PhoneCallID */
 			/** Phone call id to transfer  */
+		/** @param #257 Task */
+			/** Task ID */
 		/** @param #264 Channel */
 			/** The channel of the owner of the assisted transfer */
 
-void Telecom_Plugin::CMD_Assisted_Transfer(int iPK_Device,int iPK_Users,string sPhoneExtension,string sPhoneCallID,string sChannel,string &sCMD_Result,Message *pMessage)
+void Telecom_Plugin::CMD_Assisted_Transfer(int iPK_Device,int iPK_Users,string sPhoneExtension,string sPhoneCallID,string sChannel,string *sTask,string &sCMD_Result,Message *pMessage)
 //<-dceag-c925-e->
 {
 	PLUTO_SAFETY_LOCK(vm, m_TelecomMutex);
+
+	if(NULL != sTask)
+		*sTask = "";
 	
 	string sPhoneNumber = GetPhoneNumber(iPK_Users, sPhoneExtension, iPK_Device);
 	if( sPhoneNumber.empty() )
@@ -3063,10 +3067,14 @@ void Telecom_Plugin::CMD_Assisted_Transfer(int iPK_Device,int iPK_Users,string s
 	{
 		map_id2task[transfer->GetID()] = transfer;
 		transfer->ProcessJob("initialize");
+
+		if(NULL != sTask)
+			*sTask = transfer->GetID();
 	}
 	else
 	{
-		// error
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Not enough memory!");
+		sCMD_Result = "ERROR";
 	}
 }
 

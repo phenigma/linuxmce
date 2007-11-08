@@ -20950,44 +20950,40 @@ namespace DCE
 	};
 	class CMD_PL_Join_Call : public PreformedCommand {
 	public:
-		CMD_PL_Join_Call(long DeviceIDFrom, long DeviceIDTo,int iPK_Users,string sOptions,string sPhoneExtension,string sPhoneCallID,int iPK_Device_To) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
+		CMD_PL_Join_Call(long DeviceIDFrom, long DeviceIDTo,int iPK_Users,string sPhoneExtension,string sPhoneCallID,int iPK_Device_To) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
 			COMMAND_PL_Join_Call_CONST,
-			5 /* number of parameters */,
+			4 /* number of parameters */,
 			COMMANDPARAMETER_PK_Users_CONST, StringUtils::itos(iPK_Users).c_str(),
-			COMMANDPARAMETER_Options_CONST, sOptions.c_str(),
 			COMMANDPARAMETER_PhoneExtension_CONST, sPhoneExtension.c_str(),
 			COMMANDPARAMETER_PhoneCallID_CONST, sPhoneCallID.c_str(),
 			COMMANDPARAMETER_PK_Device_To_CONST, StringUtils::itos(iPK_Device_To).c_str()); }
 	};
 	class CMD_PL_Join_Call_DL : public PreformedCommand {
 	public:
-		CMD_PL_Join_Call_DL(long DeviceIDFrom, string DeviceIDTo,int iPK_Users,string sOptions,string sPhoneExtension,string sPhoneCallID,int iPK_Device_To) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+		CMD_PL_Join_Call_DL(long DeviceIDFrom, string DeviceIDTo,int iPK_Users,string sPhoneExtension,string sPhoneCallID,int iPK_Device_To) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
 			COMMAND_PL_Join_Call_CONST,
-			5 /* number of parameters */,
+			4 /* number of parameters */,
 			COMMANDPARAMETER_PK_Users_CONST, StringUtils::itos(iPK_Users).c_str(),
-			COMMANDPARAMETER_Options_CONST, sOptions.c_str(),
 			COMMANDPARAMETER_PhoneExtension_CONST, sPhoneExtension.c_str(),
 			COMMANDPARAMETER_PhoneCallID_CONST, sPhoneCallID.c_str(),
 			COMMANDPARAMETER_PK_Device_To_CONST, StringUtils::itos(iPK_Device_To).c_str()); }
 	};
 	class CMD_PL_Join_Call_DT : public PreformedCommand {
 	public:
-		CMD_PL_Join_Call_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iPK_Users,string sOptions,string sPhoneExtension,string sPhoneCallID,int iPK_Device_To) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+		CMD_PL_Join_Call_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iPK_Users,string sPhoneExtension,string sPhoneCallID,int iPK_Device_To) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
 			COMMAND_PL_Join_Call_CONST,
-			5 /* number of parameters */,
+			4 /* number of parameters */,
 			COMMANDPARAMETER_PK_Users_CONST, StringUtils::itos(iPK_Users).c_str(),
-			COMMANDPARAMETER_Options_CONST, sOptions.c_str(),
 			COMMANDPARAMETER_PhoneExtension_CONST, sPhoneExtension.c_str(),
 			COMMANDPARAMETER_PhoneCallID_CONST, sPhoneCallID.c_str(),
 			COMMANDPARAMETER_PK_Device_To_CONST, StringUtils::itos(iPK_Device_To).c_str()); }
 	};
 	class CMD_PL_Join_Call_Cat : public PreformedCommand {
 	public:
-		CMD_PL_Join_Call_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iPK_Users,string sOptions,string sPhoneExtension,string sPhoneCallID,int iPK_Device_To) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+		CMD_PL_Join_Call_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iPK_Users,string sPhoneExtension,string sPhoneCallID,int iPK_Device_To) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
 			COMMAND_PL_Join_Call_CONST,
-			5 /* number of parameters */,
+			4 /* number of parameters */,
 			COMMANDPARAMETER_PK_Users_CONST, StringUtils::itos(iPK_Users).c_str(),
-			COMMANDPARAMETER_Options_CONST, sOptions.c_str(),
 			COMMANDPARAMETER_PhoneExtension_CONST, sPhoneExtension.c_str(),
 			COMMANDPARAMETER_PhoneCallID_CONST, sPhoneCallID.c_str(),
 			COMMANDPARAMETER_PK_Device_To_CONST, StringUtils::itos(iPK_Device_To).c_str()); }
@@ -25088,31 +25084,65 @@ namespace DCE
 			COMMANDPARAMETER_Phone_Call_ID_1_CONST, sPhone_Call_ID_1.c_str(),
 			COMMANDPARAMETER_Phone_Call_ID_2_CONST, sPhone_Call_ID_2.c_str()); }
 	};
+	class RESP_Assisted_Transfer : public PreformedCommandResponse {
+		string *m_sTask;
+	public:
+		RESP_Assisted_Transfer(string *sTask) { 
+		m_sTask=sTask; }
+		void ParseResponse(Message *pMessage) {
+			*m_sTask=pMessage->m_mapParameters[COMMANDPARAMETER_Task_CONST]; };
+	};
 	class CMD_Assisted_Transfer : public PreformedCommand {
 	public:
-		CMD_Assisted_Transfer(long DeviceIDFrom, long DeviceIDTo,int iPK_Device,int iPK_Users,string sPhoneExtension,string sPhoneCallID,string sChannel) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
+		CMD_Assisted_Transfer(long DeviceIDFrom, long DeviceIDTo,int iPK_Device,int iPK_Users,string sPhoneExtension,string sPhoneCallID,string sChannel,string *sTask) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
 			COMMAND_Assisted_Transfer_CONST,
-			5 /* number of parameters */,
+			6 /* number of parameters */,
 			COMMANDPARAMETER_PK_Device_CONST, StringUtils::itos(iPK_Device).c_str(),
 			COMMANDPARAMETER_PK_Users_CONST, StringUtils::itos(iPK_Users).c_str(),
 			COMMANDPARAMETER_PhoneExtension_CONST, sPhoneExtension.c_str(),
 			COMMANDPARAMETER_PhoneCallID_CONST, sPhoneCallID.c_str(),
-			COMMANDPARAMETER_Channel_CONST, sChannel.c_str()); }
+			COMMANDPARAMETER_Channel_CONST, sChannel.c_str(),
+			COMMANDPARAMETER_Task_CONST, (*sTask).c_str());		m_pcResponse = new RESP_Assisted_Transfer(sTask); }
 	};
 	class CMD_Assisted_Transfer_DL : public PreformedCommand {
 	public:
-		CMD_Assisted_Transfer_DL(long DeviceIDFrom, string DeviceIDTo,int iPK_Device,int iPK_Users,string sPhoneExtension,string sPhoneCallID,string sChannel) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+		CMD_Assisted_Transfer_DL(long DeviceIDFrom, string DeviceIDTo,int iPK_Device,int iPK_Users,string sPhoneExtension,string sPhoneCallID,string sChannel,string *sTask) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
 			COMMAND_Assisted_Transfer_CONST,
-			5 /* number of parameters */,
+			6 /* number of parameters */,
 			COMMANDPARAMETER_PK_Device_CONST, StringUtils::itos(iPK_Device).c_str(),
 			COMMANDPARAMETER_PK_Users_CONST, StringUtils::itos(iPK_Users).c_str(),
 			COMMANDPARAMETER_PhoneExtension_CONST, sPhoneExtension.c_str(),
 			COMMANDPARAMETER_PhoneCallID_CONST, sPhoneCallID.c_str(),
-			COMMANDPARAMETER_Channel_CONST, sChannel.c_str()); }
+			COMMANDPARAMETER_Channel_CONST, sChannel.c_str(),
+			COMMANDPARAMETER_Task_CONST, (*sTask).c_str());		m_pcResponse = new RESP_Assisted_Transfer(sTask); }
 	};
 	class CMD_Assisted_Transfer_DT : public PreformedCommand {
 	public:
-		CMD_Assisted_Transfer_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iPK_Device,int iPK_Users,string sPhoneExtension,string sPhoneCallID,string sChannel) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+		CMD_Assisted_Transfer_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iPK_Device,int iPK_Users,string sPhoneExtension,string sPhoneCallID,string sChannel,string *sTask) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Assisted_Transfer_CONST,
+			6 /* number of parameters */,
+			COMMANDPARAMETER_PK_Device_CONST, StringUtils::itos(iPK_Device).c_str(),
+			COMMANDPARAMETER_PK_Users_CONST, StringUtils::itos(iPK_Users).c_str(),
+			COMMANDPARAMETER_PhoneExtension_CONST, sPhoneExtension.c_str(),
+			COMMANDPARAMETER_PhoneCallID_CONST, sPhoneCallID.c_str(),
+			COMMANDPARAMETER_Channel_CONST, sChannel.c_str(),
+			COMMANDPARAMETER_Task_CONST, (*sTask).c_str());		m_pcResponse = new RESP_Assisted_Transfer(sTask); }
+	};
+	class CMD_Assisted_Transfer_Cat : public PreformedCommand {
+	public:
+		CMD_Assisted_Transfer_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iPK_Device,int iPK_Users,string sPhoneExtension,string sPhoneCallID,string sChannel,string *sTask) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Assisted_Transfer_CONST,
+			6 /* number of parameters */,
+			COMMANDPARAMETER_PK_Device_CONST, StringUtils::itos(iPK_Device).c_str(),
+			COMMANDPARAMETER_PK_Users_CONST, StringUtils::itos(iPK_Users).c_str(),
+			COMMANDPARAMETER_PhoneExtension_CONST, sPhoneExtension.c_str(),
+			COMMANDPARAMETER_PhoneCallID_CONST, sPhoneCallID.c_str(),
+			COMMANDPARAMETER_Channel_CONST, sChannel.c_str(),
+			COMMANDPARAMETER_Task_CONST, (*sTask).c_str());		m_pcResponse = new RESP_Assisted_Transfer(sTask); }
+	};
+	class CMD_NOREP_Assisted_Transfer : public PreformedCommand {
+	public:
+		CMD_NOREP_Assisted_Transfer(long DeviceIDFrom, long DeviceIDTo,int iPK_Device,int iPK_Users,string sPhoneExtension,string sPhoneCallID,string sChannel) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
 			COMMAND_Assisted_Transfer_CONST,
 			5 /* number of parameters */,
 			COMMANDPARAMETER_PK_Device_CONST, StringUtils::itos(iPK_Device).c_str(),
@@ -25121,9 +25151,31 @@ namespace DCE
 			COMMANDPARAMETER_PhoneCallID_CONST, sPhoneCallID.c_str(),
 			COMMANDPARAMETER_Channel_CONST, sChannel.c_str()); }
 	};
-	class CMD_Assisted_Transfer_Cat : public PreformedCommand {
+	class CMD_NOREP_Assisted_Transfer_DL : public PreformedCommand {
 	public:
-		CMD_Assisted_Transfer_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iPK_Device,int iPK_Users,string sPhoneExtension,string sPhoneCallID,string sChannel) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+		CMD_NOREP_Assisted_Transfer_DL(long DeviceIDFrom, string DeviceIDTo,int iPK_Device,int iPK_Users,string sPhoneExtension,string sPhoneCallID,string sChannel) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Assisted_Transfer_CONST,
+			5 /* number of parameters */,
+			COMMANDPARAMETER_PK_Device_CONST, StringUtils::itos(iPK_Device).c_str(),
+			COMMANDPARAMETER_PK_Users_CONST, StringUtils::itos(iPK_Users).c_str(),
+			COMMANDPARAMETER_PhoneExtension_CONST, sPhoneExtension.c_str(),
+			COMMANDPARAMETER_PhoneCallID_CONST, sPhoneCallID.c_str(),
+			COMMANDPARAMETER_Channel_CONST, sChannel.c_str()); }
+	};
+	class CMD_NOREP_Assisted_Transfer_DT : public PreformedCommand {
+	public:
+		CMD_NOREP_Assisted_Transfer_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iPK_Device,int iPK_Users,string sPhoneExtension,string sPhoneCallID,string sChannel) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Assisted_Transfer_CONST,
+			5 /* number of parameters */,
+			COMMANDPARAMETER_PK_Device_CONST, StringUtils::itos(iPK_Device).c_str(),
+			COMMANDPARAMETER_PK_Users_CONST, StringUtils::itos(iPK_Users).c_str(),
+			COMMANDPARAMETER_PhoneExtension_CONST, sPhoneExtension.c_str(),
+			COMMANDPARAMETER_PhoneCallID_CONST, sPhoneCallID.c_str(),
+			COMMANDPARAMETER_Channel_CONST, sChannel.c_str()); }
+	};
+	class CMD_NOREP_Assisted_Transfer_Cat : public PreformedCommand {
+	public:
+		CMD_NOREP_Assisted_Transfer_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iPK_Device,int iPK_Users,string sPhoneExtension,string sPhoneCallID,string sChannel) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
 			COMMAND_Assisted_Transfer_CONST,
 			5 /* number of parameters */,
 			COMMANDPARAMETER_PK_Device_CONST, StringUtils::itos(iPK_Device).c_str(),

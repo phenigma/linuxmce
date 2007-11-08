@@ -262,8 +262,6 @@ public:
 	/** Will join you to an existing call */
 		/** @param #17 PK_Users */
 			/** The user to add to call */
-		/** @param #39 Options */
-			/** if 'q' is present, it means quick conference, no private  chat; without  'q' means add to conference with private chat */
 		/** @param #83 PhoneExtension */
 			/** The extension to add to call */
 		/** @param #87 PhoneCallID */
@@ -271,8 +269,8 @@ public:
 		/** @param #263 PK_Device_To */
 			/** The device the add to call */
 
-	virtual void CMD_PL_Join_Call(int iPK_Users,string sOptions,string sPhoneExtension,string sPhoneCallID,int iPK_Device_To) { string sCMD_Result; CMD_PL_Join_Call(iPK_Users,sOptions.c_str(),sPhoneExtension.c_str(),sPhoneCallID.c_str(),iPK_Device_To,sCMD_Result,NULL);};
-	virtual void CMD_PL_Join_Call(int iPK_Users,string sOptions,string sPhoneExtension,string sPhoneCallID,int iPK_Device_To,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_PL_Join_Call(int iPK_Users,string sPhoneExtension,string sPhoneCallID,int iPK_Device_To) { string sCMD_Result; CMD_PL_Join_Call(iPK_Users,sPhoneExtension.c_str(),sPhoneCallID.c_str(),iPK_Device_To,sCMD_Result,NULL);};
+	virtual void CMD_PL_Join_Call(int iPK_Users,string sPhoneExtension,string sPhoneCallID,int iPK_Device_To,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #826 - Speak in house */
@@ -327,11 +325,13 @@ The response is a task id */
 			/** Extension to transfer call to */
 		/** @param #87 PhoneCallID */
 			/** Phone call id to transfer  */
+		/** @param #257 Task */
+			/** Task ID */
 		/** @param #264 Channel */
 			/** The channel of the owner of the assisted transfer */
 
-	virtual void CMD_Assisted_Transfer(int iPK_Device,int iPK_Users,string sPhoneExtension,string sPhoneCallID,string sChannel) { string sCMD_Result; CMD_Assisted_Transfer(iPK_Device,iPK_Users,sPhoneExtension.c_str(),sPhoneCallID.c_str(),sChannel.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Assisted_Transfer(int iPK_Device,int iPK_Users,string sPhoneExtension,string sPhoneCallID,string sChannel,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Assisted_Transfer(int iPK_Device,int iPK_Users,string sPhoneExtension,string sPhoneCallID,string sChannel,string *sTask) { string sCMD_Result; CMD_Assisted_Transfer(iPK_Device,iPK_Users,sPhoneExtension.c_str(),sPhoneCallID.c_str(),sChannel.c_str(),sTask,sCMD_Result,NULL);};
+	virtual void CMD_Assisted_Transfer(int iPK_Device,int iPK_Users,string sPhoneExtension,string sPhoneCallID,string sChannel,string *sTask,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #926 - Process Task */
