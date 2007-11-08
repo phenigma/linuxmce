@@ -819,6 +819,21 @@ Telecom_Plugin::Ring( class Socket *pSocket, class Message *pMessage, class Devi
 		
 		map_call2status[pCallStatus->GetID()] = pCallStatus;
 
+		if( NULL != pFoundSrc )
+		{
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Telecom_Plugin::Ring removed src channel %s from call %s",
+				sSource_Channel.c_str(), pFoundSrc->GetID().c_str());
+
+			//remove it from old call
+			pFoundSrc->RemoveChannel(sSource_Channel);
+			if(pFoundSrc->Closed())
+			{
+				map_call2status.erase(pFoundSrc->GetID());
+				delete pFoundSrc;
+				pFoundSrc = NULL;
+			}
+		}
+
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Telecom_Plugin::Ring call : %s",
 			pCallStatus->GetDebugInfo().c_str());
 	}
