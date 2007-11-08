@@ -898,11 +898,9 @@ Telecom_Plugin::Link( class Socket *pSocket, class Message *pMessage, class Devi
 	{
 		SCREEN_DevCallInProgress screen_DevCallInProgress(
 			m_dwPK_Device, nSrcOrbiterDeviceID, 
-			sCallID,
-			sSource_Channel,
-			sDestination_Channel,
 			sSource_Caller_ID,
-			sDestination_Caller_ID
+			sCallID,
+			sSource_Channel
 		);
 		SendCommand(screen_DevCallInProgress);
 	}
@@ -914,11 +912,9 @@ Telecom_Plugin::Link( class Socket *pSocket, class Message *pMessage, class Devi
 	{
 		SCREEN_DevCallInProgress screen_DevCallInProgress(
 			m_dwPK_Device, nDestOrbiterDeviceID, 
+			sDestination_Caller_ID,
 			sCallID,
-			sSource_Channel,
-			sDestination_Channel,
-			sSource_Caller_ID,
-			sDestination_Caller_ID
+			sDestination_Channel
 		);
 		SendCommand(screen_DevCallInProgress);
 	}

@@ -3479,17 +3479,22 @@ void ScreenHandler::SCREEN_MakeCallDevice(long PK_Screen)
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::Telecom_ObjectSelected, new ObjectInfoBackData());
 }
 //-----------------------------------------------------------------------------------------------------
-void ScreenHandler::SCREEN_DevCallInProgress(long PK_Screen, string sPhoneCallerID, string sSource_Channel, 
-	string sDestination_Channel, string sSource_Caller_ID, string sDestination_Caller_ID)
+void ScreenHandler::SCREEN_DevCallInProgress(long PK_Screen, string sPhoneCallerID, string sPhoneCallID, 
+	string sChannel)
 {
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_My_Channel_ID_CONST, sSource_Channel);
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_My_Call_ID_CONST, sPhoneCallerID);
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_My_Caller_ID_CONST, sSource_Caller_ID);
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_My_Caller_ID_CONST, sPhoneCallerID);
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_My_Call_ID_CONST, sPhoneCallID);
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_My_Channel_ID_CONST, sChannel);
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Current_Call_CONST, sPhoneCallID);
 
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_Current_Call_CONST, sPhoneCallerID);
+	//TODO: make it a screen
+	if(GetCurrentScreen_PK_DesignObj() == DESIGNOBJ_mnuPopupMessage_CONST)
+	{
+		//don't go to call in progress
+		return;
+	}
 
-	ScreenHandlerBase::SCREEN_DevCallInProgress(PK_Screen, sPhoneCallerID, sSource_Channel, 
-		sDestination_Channel, sSource_Caller_ID, sDestination_Caller_ID);
+	ScreenHandlerBase::SCREEN_DevCallInProgress(PK_Screen, sPhoneCallerID, sPhoneCallID, sChannel);
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::Telecom_ObjectSelected, new ObjectInfoBackData());
 	RegisterCallBack(cbOnTimer,	(ScreenHandlerCallBack) &ScreenHandler::Telecom_OnTimer, new CallBackData());
 	RegisterCallBack(cbCapturedKeyboardBufferChanged, (ScreenHandlerCallBack) &ScreenHandler::Telecom_CapturedKeyboardBufferChanged, new ObjectInfoBackData());
@@ -3518,6 +3523,8 @@ void ScreenHandler::SCREEN_Call_Dropped(long PK_Screen, string sReason)
 {
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_My_Channel_ID_CONST, "");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_My_Call_ID_CONST, "");
+
+	//TODO: create a screen to be used instead of popup message
 
 	if(
 		GetCurrentScreen_PK_DesignObj() == DESIGNOBJ_devCallInProgress_CONST || 
@@ -3730,7 +3737,7 @@ bool ScreenHandler::ActiveCalls_CallInProgress()
 	if(sCurrentCall.empty())
 		sCurrentCall = m_pOrbiter->m_mapVariable_Find(VARIABLE_Current_Call_CONST);
 
-	SCREEN_DevCallInProgress(SCREEN_DevCallInProgress_CONST, sCurrentCall, "", "", "", "");
+	SCREEN_DevCallInProgress(SCREEN_DevCallInProgress_CONST, sCurrentCall, "", "");
 
 	return true;
 }

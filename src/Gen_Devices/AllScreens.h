@@ -6278,14 +6278,14 @@ namespace DCE
 	{
 	public:
 		SCREEN_DevCallInProgress(long DeviceIDFrom, long DeviceIDTo,
-			string sPhoneCallerID, string sSource_Channel, string sDestination_Channel, string sSource_Caller_ID, string sDestination_Caller_ID,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+			string sPhoneCallerID, string sPhoneCallID, string sChannel,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
 		{
-			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 9, 
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 7, 
 				COMMANDPARAMETER_PK_Screen_CONST, "120" /* screen ID */
 				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
 				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
 				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */,
-				84 /* Phone Call ID */, sPhoneCallerID.c_str(), 269 /* Source channel */, sSource_Channel.c_str(), 270 /* Destination channel */, sDestination_Channel.c_str(), 271 /* Source Caller ID */, sSource_Caller_ID.c_str(), 272 /* Destionation Caller ID */, sDestination_Caller_ID.c_str());
+				84 /* My Caller ID */, sPhoneCallerID.c_str(), 87 /* My Call ID */, sPhoneCallID.c_str(), 264 /* My Channel ID */, sChannel.c_str());
 		}
 	};
 
@@ -6293,14 +6293,14 @@ namespace DCE
 	{
 	public:
 		SCREEN_DevCallInProgress_DL(long DeviceIDFrom, string sDeviceIDTo,
-			string sPhoneCallerID, string sSource_Channel, string sDestination_Channel, string sSource_Caller_ID, string sDestination_Caller_ID,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+			string sPhoneCallerID, string sPhoneCallID, string sChannel,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
 		{
-			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 9, 
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 7, 
 				COMMANDPARAMETER_PK_Screen_CONST, "120" /* screen ID */
 				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
 				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
 				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */,
-				84 /* Phone Call ID */, sPhoneCallerID.c_str(), 269 /* Source channel */, sSource_Channel.c_str(), 270 /* Destination channel */, sDestination_Channel.c_str(), 271 /* Source Caller ID */, sSource_Caller_ID.c_str(), 272 /* Destionation Caller ID */, sDestination_Caller_ID.c_str());
+				84 /* My Caller ID */, sPhoneCallerID.c_str(), 87 /* My Call ID */, sPhoneCallID.c_str(), 264 /* My Channel ID */, sChannel.c_str());
 		}
 	};
 
@@ -6308,14 +6308,14 @@ namespace DCE
 	{
 	public:
 		SCREEN_DevCallInProgress_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,
-			string sPhoneCallerID, string sSource_Channel, string sDestination_Channel, string sSource_Caller_ID, string sDestination_Caller_ID,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+			string sPhoneCallerID, string sPhoneCallID, string sChannel,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
 		{
-			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 9, 
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 7, 
 				COMMANDPARAMETER_PK_Screen_CONST, "120" /* screen ID */
 				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
 				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
 				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */,
-				84 /* Phone Call ID */, sPhoneCallerID.c_str(), 269 /* Source channel */, sSource_Channel.c_str(), 270 /* Destination channel */, sDestination_Channel.c_str(), 271 /* Source Caller ID */, sSource_Caller_ID.c_str(), 272 /* Destionation Caller ID */, sDestination_Caller_ID.c_str());
+				84 /* My Caller ID */, sPhoneCallerID.c_str(), 87 /* My Call ID */, sPhoneCallID.c_str(), 264 /* My Channel ID */, sChannel.c_str());
 		}
 	};
 
@@ -6323,14 +6323,14 @@ namespace DCE
 	{
 	public:
 		SCREEN_DevCallInProgress_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,
-			string sPhoneCallerID, string sSource_Channel, string sDestination_Channel, string sSource_Caller_ID, string sDestination_Caller_ID,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+			string sPhoneCallerID, string sPhoneCallID, string sChannel,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
 		{
-			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 9, 
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 7, 
 				COMMANDPARAMETER_PK_Screen_CONST, "120" /* screen ID */
 				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
 				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
 				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */,
-				84 /* Phone Call ID */, sPhoneCallerID.c_str(), 269 /* Source channel */, sSource_Channel.c_str(), 270 /* Destination channel */, sDestination_Channel.c_str(), 271 /* Source Caller ID */, sSource_Caller_ID.c_str(), 272 /* Destionation Caller ID */, sDestination_Caller_ID.c_str());
+				84 /* My Caller ID */, sPhoneCallerID.c_str(), 87 /* My Call ID */, sPhoneCallID.c_str(), 264 /* My Channel ID */, sChannel.c_str());
 		}
 	};
 
@@ -13633,7 +13633,7 @@ PK_DeviceData .... */, sOptions.c_str(), 224 /* PK_PnpQueue */, StringUtils::lto
 		virtual void SCREEN_VdrRemote(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_CdRemote(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_PowerFile(long PK_Screen){ GotoScreen(PK_Screen); }
-		virtual void SCREEN_DevCallInProgress(long PK_Screen, string sPhoneCallerID, string sSource_Channel, string sDestination_Channel, string sSource_Caller_ID, string sDestination_Caller_ID){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_DevCallInProgress(long PK_Screen, string sPhoneCallerID, string sPhoneCallID, string sChannel){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_DevIncomingCall(long PK_Screen, string sSource_Channel, string sDestination_Channel, string sSource_Caller_ID, string sDestination_Caller_ID){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_DevMoveCallsInProgress(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_MapSecurity(long PK_Screen){ GotoScreen(PK_Screen); }
@@ -14522,11 +14522,9 @@ PK_DeviceData .... */, sOptions.c_str(), 224 /* PK_PnpQueue */, StringUtils::lto
 				{
 					ResetCallBacks();
 					string sPhoneCallerID = pMessage->m_mapParameters[84];
-					string sSource_Channel = pMessage->m_mapParameters[269];
-					string sDestination_Channel = pMessage->m_mapParameters[270];
-					string sSource_Caller_ID = pMessage->m_mapParameters[271];
-					string sDestination_Caller_ID = pMessage->m_mapParameters[272];
-					SCREEN_DevCallInProgress(nPK_Screen, sPhoneCallerID, sSource_Channel, sDestination_Channel, sSource_Caller_ID, sDestination_Caller_ID);
+					string sPhoneCallID = pMessage->m_mapParameters[87];
+					string sChannel = pMessage->m_mapParameters[264];
+					SCREEN_DevCallInProgress(nPK_Screen, sPhoneCallerID, sPhoneCallID, sChannel);
 					break;
 				}
 				case 121:
