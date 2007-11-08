@@ -3484,6 +3484,8 @@ void ScreenHandler::SCREEN_DevCallInProgress(long PK_Screen, string sPhoneCaller
 {
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_My_Channel_ID_CONST, sSource_Channel);
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_My_Call_ID_CONST, sPhoneCallerID);
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_My_Caller_ID_CONST, sSource_Caller_ID);
+
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Current_Call_CONST, sPhoneCallerID);
 
 	ScreenHandlerBase::SCREEN_DevCallInProgress(PK_Screen, sPhoneCallerID, sSource_Channel, 
@@ -3498,10 +3500,10 @@ void ScreenHandler::SCREEN_DevCallInProgress(long PK_Screen, string sPhoneCaller
 void ScreenHandler::SCREEN_DevIncomingCall(long PK_Screen, string sSource_Channel, 
 	string sDestination_Channel, string sSource_Caller_ID, string sDestination_Caller_ID)
 {
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_Source_Channel_ID_CONST, sSource_Caller_ID);
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Source_Channel_ID_CONST, sSource_Channel);
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Source_Caller_ID_CONST, sSource_Caller_ID);
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_My_Channel_ID_CONST, sDestination_Channel);
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_My_Caller_ID_CONST, sDestination_Channel);
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_My_Caller_ID_CONST, sDestination_Caller_ID);
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, "");
 	
 	ScreenHandlerBase::SCREEN_DevIncomingCall(PK_Screen, sSource_Channel, sDestination_Channel,
