@@ -1061,15 +1061,27 @@ string Telecom_Plugin::GetNewConferenceID() const
 {
 	//TODO: use locked conferences map
 
-	size_t i = 1;
+	static size_t i = 1;
+
+
+	/*
+
+	//TODO TODO 
+
 	size_t confMax = map_conference2status.size() + 1;
 	for(; i<=confMax; i++)
 	{
 		if( map_conference2status.end() == map_conference2status.find(i) )
+		{
+			return CallStatus::GetStringConferenceID((unsigned int)i);
 			break;
+		}
 	}
-	
-	return CallStatus::GetStringConferenceID((unsigned int)i);
+*/	
+
+	return CallStatus::GetStringConferenceID((unsigned int)i++);
+
+	//error
 }
 
 void Telecom_Plugin::RemoveCallStatus(CallStatus * pCallStatus)
