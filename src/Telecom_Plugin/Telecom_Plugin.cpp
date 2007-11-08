@@ -586,7 +586,7 @@ Telecom_Plugin::CallsStatusChanged(class Socket *pSocket,class Message *pMessage
 			string sBridged = vectTokens[CallStatus::csBridged];
 
 			//todo: make it device data
-			if(sApplication == "MeetMe")
+			if(sApplication == "MeetMe" || sApplication == "Conference")
 			{
 				mapChannels.insert(make_pair(sExten, make_pair(sChannel, sCallerID)));
 				mapCalls[sExten] = true;
