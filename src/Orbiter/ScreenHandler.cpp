@@ -3818,11 +3818,24 @@ void ScreenHandler::HandleAssistedMakeCall(int iPK_Users,string sPhoneExtension,
 		case tcsBlindTransfer:
 		{
 			string sSourceChannel = m_pOrbiter->m_mapVariable_Find(VARIABLE_Source_Channel_ID_CONST);
+			string sSourceCallerID = m_pOrbiter->m_mapVariable_Find(VARIABLE_Source_Caller_ID_CONST);
 
 			DCE::CMD_PL_Transfer cmd_PL_Transfer(
 				m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device_TelecomPlugIn,
 				iPK_Device_To, iPK_Users, sPhoneExtension, sSourceChannel, "");
 			m_pOrbiter->SendCommand(cmd_PL_Transfer);
+
+			string sDescription = "Transfering call from " + sSourceCallerID + ", please wait...";
+
+			string sButton1 = "Cancel";
+			string sCommand1 = 
+				StringUtils::itos(iPK_Device_From) + " " + 
+				StringUtils::itos(m_pOrbiter->m_dwPK_Device_TelecomPlugIn) + " " + 	
+				StringUtils::itos(MESSAGETYPE_COMMAND) + " " + StringUtils::itos(COMMAND_PL_Cancel_CONST) + " " +
+				StringUtils::itos(COMMANDPARAMETER_Channel_CONST) + sSourceChannel; 
+
+			SCREEN_PopupMessage(SCREEN_PopupMessage_CONST, 
+				sDescription + "|" + sButton1, sCommand1, "transfering", "0", "0", "1");
 		}
 		break;
 
