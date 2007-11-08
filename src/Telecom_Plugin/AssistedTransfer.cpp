@@ -339,9 +339,20 @@ bool AssistedTransfer::PrivateProcessJob(const string & job)
 		
 		if( step == AssistedTransfer::Init_DestCall2Conference )
 		{
-			// transfer my channel to the new conference
-			telecom->CMD_PL_Transfer(0, 0, sCallID_Dest, sMyChannelID, "");
-			step = AssistedTransfer::Init_MyChannel2DestConf;
+			if(NULL != pDestCallStatus)
+			{
+				// transfer my channel to the new conference
+				telecom->CMD_PL_Transfer(0, 0, 
+					CallStatus::GetStringConferenceID(pDestCallStatus->GetConferenceID()), 
+					sMyChannelID, "");
+
+				step = AssistedTransfer::Init_MyChannel2DestConf;
+			}
+			else
+			{
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Error: %d", __LINE__);
+				return false;
+			}
 		}
 		else
 		{
