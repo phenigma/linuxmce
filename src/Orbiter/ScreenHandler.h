@@ -369,7 +369,8 @@ public:
 	{
 		tcsDirectDial = 0,
 		tcsTransferConference, 
-		tcsJoining
+		tcsJoin,
+		tcsBlindTransfer
 	};
 
 	TelecomCommandStatus m_TelecomCommandStatus;

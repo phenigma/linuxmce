@@ -3477,10 +3477,6 @@ void ScreenHandler::SCREEN_MakeCallDevice(long PK_Screen)
 {
 	ScreenHandlerBase::SCREEN_MakeCallDevice(PK_Screen);
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::Telecom_ObjectSelected, new ObjectInfoBackData());
-
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "SCREEN_MakeCallDevice: exten to call (var 17) = %s", m_pOrbiter->m_mapVariable_Find(VARIABLE_Seek_Value_CONST).c_str());
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "SCREEN_MakeCallDevice: user to call (var 39) = %s", m_pOrbiter->m_mapVariable_Find(VARIABLE_PK_Users_CONST).c_str());
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "SCREEN_MakeCallDevice: device to call (var 19) = %s", m_pOrbiter->m_mapVariable_Find(VARIABLE_PK_Device_2_CONST).c_str());
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_DevCallInProgress(long PK_Screen, string sPhoneCallerID, string sSource_Channel, 
@@ -3502,15 +3498,18 @@ void ScreenHandler::SCREEN_DevCallInProgress(long PK_Screen, string sPhoneCaller
 void ScreenHandler::SCREEN_DevIncomingCall(long PK_Screen, string sSource_Channel, 
 	string sDestination_Channel, string sSource_Caller_ID, string sDestination_Caller_ID)
 {
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Source_Channel_ID_CONST, sSource_Caller_ID);
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Source_Caller_ID_CONST, sSource_Caller_ID);
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_My_Channel_ID_CONST, sDestination_Channel);
-	//m_pOrbiter->CMD_Set_Variable(VARIABLE_My_Caller_ID_CONST, sDestination_Channel);
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_Caller_name_CONST, sSource_Caller_ID);
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_Caller_number_CONST, sSource_Channel);
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_My_Caller_ID_CONST, sDestination_Channel);
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, "");
 	
 	ScreenHandlerBase::SCREEN_DevIncomingCall(PK_Screen, sSource_Channel, sDestination_Channel,
 		sSource_Caller_ID, sDestination_Caller_ID);
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::Telecom_ObjectSelected, new ObjectInfoBackData());
+
+	//we can only do a blind transfer from here
+	m_TelecomCommandStatus = tcsBlindTransfer;
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_Call_Dropped(long PK_Screen, string sReason)
@@ -3676,7 +3675,7 @@ bool ScreenHandler::ActiveCalls_Join()
 
 	if(sMyChannel.empty())
 	{
-		m_TelecomCommandStatus = tcsJoining;
+		m_TelecomCommandStatus = tcsJoin;
 
 		if(m_pOrbiter->m_bIsOSD)
 		{
@@ -3704,7 +3703,7 @@ bool ScreenHandler::ActiveCalls_Join()
 //-----------------------------------------------------------------------------------------------------
 bool ScreenHandler::ActiveCalls_AddToActiveCall()
 {
-	m_TelecomCommandStatus = tcsJoining;
+	m_TelecomCommandStatus = tcsJoin;
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, "");
 	GotoScreen(SCREEN_MakeCallDialNumber_CONST);
 	
@@ -3789,7 +3788,7 @@ void ScreenHandler::HandleAssistedMakeCall(int iPK_Users,string sPhoneExtension,
 		}
 		break;
 
-		case tcsJoining:
+		case tcsJoin:
 		{
 			// {X,Y} & A => {X,Y,A}
 
@@ -3816,63 +3815,77 @@ void ScreenHandler::HandleAssistedMakeCall(int iPK_Users,string sPhoneExtension,
 		}
 		break;
 
+		case tcsBlindTransfer:
+		{
+			string sSourceChannel = m_pOrbiter->m_mapVariable_Find(VARIABLE_Source_Channel_ID_CONST);
+
+			DCE::CMD_PL_Transfer cmd_PL_Transfer(
+				m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device_TelecomPlugIn,
+				iPK_Device_To, iPK_Users, sPhoneExtension, sSourceChannel, "");
+			m_pOrbiter->SendCommand(cmd_PL_Transfer);
+		}
+		break;
+
 		case tcsTransferConference:
-			{
-				//1) {X,Y,A} & B => {X,Y} & {A,B}
-				//or 
-				//2) {X,Y,A} & {B,C} => {X,Y} & {A,B,C} 
+		{
+			//1) {X,Y,A} & B => {X,Y} & {A,B}
+			//or 
+			//2) {X,Y,A} & {B,C} => {X,Y} & {A,B,C} 
 
-				string sMyChannel = m_pOrbiter->m_mapVariable_Find(VARIABLE_My_Channel_ID_CONST);
-				string sMyCall = m_pOrbiter->m_mapVariable_Find(VARIABLE_My_Call_ID_CONST);
+			string sMyChannel = m_pOrbiter->m_mapVariable_Find(VARIABLE_My_Channel_ID_CONST);
+			string sMyCall = m_pOrbiter->m_mapVariable_Find(VARIABLE_My_Call_ID_CONST);
 
-				DCE::CMD_Assisted_Transfer cmd_Assisted_Transfer(
-					m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device_TelecomPlugIn,
-					iPK_Device_To, iPK_Users, sPhoneExtension, sSecondPhoneCall, sMyChannel);
+			DCE::CMD_Assisted_Transfer cmd_Assisted_Transfer(
+				m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device_TelecomPlugIn,
+				iPK_Device_To, iPK_Users, sPhoneExtension, sSecondPhoneCall, sMyChannel);
 
-				string sTaskID;
-				m_pOrbiter->SendCommand(cmd_Assisted_Transfer, &sTaskID);
+			string sTaskID;
+			m_pOrbiter->SendCommand(cmd_Assisted_Transfer, &sTaskID);
 
-				string sDescription = "Calling, please wait...";
-				
-				string sProcessTask =
-					StringUtils::itos(m_pOrbiter->m_dwPK_Device) + " " + 
-					StringUtils::itos(m_pOrbiter->m_dwPK_Device_TelecomPlugIn) + " " + 	
-					StringUtils::itos(MESSAGETYPE_COMMAND) + " " + 
-					StringUtils::itos(COMMAND_Process_Task_CONST) + " " +
-					StringUtils::itos(COMMANDPARAMETER_Task_CONST) + sTaskID + " " + 
-					StringUtils::itos(COMMANDPARAMETER_Job_CONST) + " ";
+			string sDescription = "Calling, please wait...";
+			
+			string sProcessTask =
+				StringUtils::itos(m_pOrbiter->m_dwPK_Device) + " " + 
+				StringUtils::itos(m_pOrbiter->m_dwPK_Device_TelecomPlugIn) + " " + 	
+				StringUtils::itos(MESSAGETYPE_COMMAND) + " " + 
+				StringUtils::itos(COMMAND_Process_Task_CONST) + " " +
+				StringUtils::itos(COMMANDPARAMETER_Task_CONST) + sTaskID + " " + 
+				StringUtils::itos(COMMANDPARAMETER_Job_CONST) + " ";
 
-				//Drop transfer and CMD_PL_Join A to {X,Y}:
-				//1) {X,Y,A} & B => {X,Y} & {A,B} -> drop A, {X,Y,B}
-				//or 
-				//2) {X,Y,A} & {B,C} => {X,Y} & {A,B,C} 
-				string sButton1 = sSecondPhoneCall.empty() ? "Complete transfer now" : "Transfer me here";
-				string sCommand1 = sProcessTask + "\"transfer\"";
+			//Drop transfer and CMD_PL_Join A to {X,Y}:
+			//1) {X,Y,A} & B => {X,Y} & {A,B} -> drop A, {X,Y,B}
+			//or 
+			//2) {X,Y,A} & {B,C} => {X,Y} & {A,B,C} 
+			string sButton1 = sSecondPhoneCall.empty() ? "Complete transfer now" : "Transfer me here";
+			string sCommand1 = sProcessTask + "\"transfer\"";
 
-				//Drop transfer and CMD_PL_Join B to {X,Y}
-				//1) {X,Y,A} & B => {X,Y} & {A,B} -> {X,Y,A,B}
-				//or 
-				//2) {X,Y,A} & {B,C} => {X,Y,A,B,C} 
-				string sButton2 = sSecondPhoneCall.empty() ? "Conference" : "Merge calls";
-				//TODO: transfer A si B ?
-				string sCommand2 = sProcessTask + 
-					(sSecondPhoneCall.empty() ? "\"conference\"" : "\"merge calls\"");
-				
-				//Drop transfer and CMD_PL_Join A and B to {X,Y}
-				//1) {X,Y,A} & B => {X,Y} & {A,B} -> {X,Y,A} & B
-				//or 
-				//2) {X,Y,A} & {B,C} => {X,Y,A} & {B,C} 
-				string sButton3 = "Cancel transfer/conference";
-				string sCommand3 =  sProcessTask + "\"cancel\"";
- 
-				SCREEN_PopupMessage(SCREEN_PopupMessage_CONST, 
-					sDescription + "|" + sButton1 + "|" + sButton2 + "|" + sButton3,
-					sCommand1 + "|" + sCommand2 + "|" + sCommand3, "calling", "0", "0", "1");
-			}
-			break;
+			//Drop transfer and CMD_PL_Join B to {X,Y}
+			//1) {X,Y,A} & B => {X,Y} & {A,B} -> {X,Y,A,B}
+			//or 
+			//2) {X,Y,A} & {B,C} => {X,Y,A,B,C} 
+			string sButton2 = sSecondPhoneCall.empty() ? "Conference" : "Merge calls";
+			//TODO: transfer A si B ?
+			string sCommand2 = sProcessTask + 
+				(sSecondPhoneCall.empty() ? "\"conference\"" : "\"merge calls\"");
+			
+			//Drop transfer and CMD_PL_Join A and B to {X,Y}
+			//1) {X,Y,A} & B => {X,Y} & {A,B} -> {X,Y,A} & B
+			//or 
+			//2) {X,Y,A} & {B,C} => {X,Y,A} & {B,C} 
+			string sButton3 = "Cancel transfer/conference";
+			string sCommand3 =  sProcessTask + "\"cancel\"";
+
+			SCREEN_PopupMessage(SCREEN_PopupMessage_CONST, 
+				sDescription + "|" + sButton1 + "|" + sButton2 + "|" + sButton3,
+				sCommand1 + "|" + sCommand2 + "|" + sCommand3, "calling", "0", "0", "1");
+		}
+		break;
 
 		default:
 			break;
 	}
+
+	//reset the status
+	m_TelecomCommandStatus = tcsDirectDial;
 }
 //-----------------------------------------------------------------------------------------------------
