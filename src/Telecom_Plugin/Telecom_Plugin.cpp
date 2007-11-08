@@ -135,6 +135,9 @@ bool Telecom_Plugin::GetConfig()
 	{
 		map_ext2device[vectDeviceData[s]->IK_DeviceData_get()] = vectDeviceData[s]->FK_Device_get();
 		map_device2ext[vectDeviceData[s]->FK_Device_get()] = vectDeviceData[s]->IK_DeviceData_get();
+
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Phone device %d with extension %s",
+			vectDeviceData[s]->FK_Device_get(), vectDeviceData[s]->IK_DeviceData_get().c_str());
 	}
 	UniqueColors[0] = PlutoColor(128,0,0).m_Value;
 	UniqueColors[1] = PlutoColor(0,128,0).m_Value;
@@ -582,7 +585,8 @@ Telecom_Plugin::CallsStatusChanged(class Socket *pSocket,class Message *pMessage
 			string sApplication = vectTokens[CallStatus::csApplication];
 			string sBridged = vectTokens[CallStatus::csBridged];
 
-			if(sApplication == "Conference")
+			//todo: make it device data
+			if(sApplication == "MeetMe")
 			{
 				mapChannels.insert(make_pair(sExten, make_pair(sChannel, sCallerID)));
 				mapCalls[sExten] = true;
