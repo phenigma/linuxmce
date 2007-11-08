@@ -56,6 +56,7 @@ namespace DCE
 			string sExtDest;
 			string sCallID_Dest;
 			string sMyChannelID;
+			string sMyChannel2_ID;
 			string sMyCallID;
 			string sNextJob;
 			string sChannel1_Dest;

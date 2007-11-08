@@ -55,10 +55,11 @@ bool AssistedTransfer::ProcessEvent(class Message * pMessage)
 		switch( step )
 		{
 			case AssistedTransfer::Init_MyCall2Conference :
-				if( sSource_Channel == sMyChannelID )
+				if( sSource_Channel == sMyChannelID || sSource_Channel == sMyChannel2_ID )
 				{
-					CallStatus * pCallStatus = telecom->FindCallStatusForChannel( sMyChannelID );
-					if( pCallStatus )
+					CallStatus * pCallStatus1 = telecom->FindCallStatusForChannel( sMyChannelID );
+					CallStatus * pCallStatus2 = telecom->FindCallStatusForChannel( sMyChannel2_ID );
+					if( pCallStatus1 != NULL && pCallStatus1 == pCallStatus2 )
 					{
 						sMyCallID = pCallStatus->GetID();
 						ProcessJob("initialize");
@@ -256,7 +257,24 @@ bool AssistedTransfer::PrivateProcessJob(const string & job)
 			// you don't want the other channel to be hang up
 			if( !pMyCallStatus->IsConference() )
 			{
-				// TODO: the new ID will be saved into sMyCallID
+				const map<string, string> & channels = pMyCallStatus->GetChannels();
+				if( 2 != channels.size() )
+				{
+					// error
+					return false;
+				}
+				
+				// find the second channel from my call
+				for(map<string, string>::const_iterator it=channels.begin(); it!=channels.end(); ++it)
+				{
+					if( sMyChannelID != (*it).first )
+					{
+						sMyChannel2_ID = (*it).first;
+						break;
+					}
+				}
+				
+				// the new ID will be saved into sMyCallID
 				string sNewConfID = telecom->DirectCall2Conference(pMyCallStatus);
 				if( sNewConfID.empty() )
 				{
@@ -275,7 +293,7 @@ bool AssistedTransfer::PrivateProcessJob(const string & job)
 		{
 			if( !sExtDest.empty() )
 			{
-				// TODO: the new ID will be saved into sCallID_Dest
+				// the new ID will be saved into sCallID_Dest
 				telecom->CMD_PL_Transfer(0, 0, sExtDest, sMyChannelID, "");
 				step = AssistedTransfer::Init_MyChannel2DestCall;
 			}
@@ -380,11 +398,15 @@ bool AssistedTransfer::PrivateProcessJob(const string & job)
 	//2) {X,Y,A} & {B,C} => {X,Y,A} & {B,C} 
 	else if( job == "cancel" )
 	{
-		switch( step )
+		CallStatus * pMyChannel_CallStatus = telecom->FindCallStatusForChannel( sMyChannelID );
+		// the channel is still available, let's try to do the previous configuration
+		if( pMyChannel_CallStatus != NULL )
 		{
-			case AssistedTransfer::Transfer_MyChannel :
-			default:
-				break;
+			// check if MY channel was transfered to another call
+			if( pMyChannel_CallStatus != pMyCallStatus )
+			{
+				telecom->CMD_PL_Transfer(0, 0, sMyCallID, sMyChannelID, "");
+			}
 		}
 	}
 	else
