@@ -64,6 +64,9 @@
 #define VARIABLE_My_Call_ID_CONST 61
 #define VARIABLE_My_Channel_ID_CONST 62
 #define VARIABLE_External_channels_CONST 63
+#define VARIABLE_Source_Channel_ID_CONST 64
+#define VARIABLE_Source_Caller_ID_CONST 65
+#define VARIABLE_My_Caller_ID_CONST 66
 
 #define VARIABLE_TABLE "Variable"
 #define VARIABLE_PK_VARIABLE_FIELD "PK_Variable"
