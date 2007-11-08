@@ -400,14 +400,28 @@ bool AssistedTransfer::PrivateProcessJob(const string & job)
 	else if( job == "cancel" )
 	{
 		CallStatus * pMyChannel_CallStatus = telecom->FindCallStatusForChannel( sMyChannelID );
+		CallStatus * pMyOld_CallStatus = telecom->FindCallStatusForID(sMyCallID);
+
 		// the channel is still available, let's try to do the previous configuration
-		if( pMyChannel_CallStatus != NULL )
+		if( pMyChannel_CallStatus != NULL && NULL != pMyOld_CallStatus)
 		{
 			// check if MY channel was transfered to another call
 			if( pMyChannel_CallStatus != pMyCallStatus )
 			{
-				telecom->CMD_PL_Transfer(0, 0, sMyCallID, sMyChannelID, "");
+				telecom->CMD_PL_Transfer(0, 0, 
+					CallStatus::GetStringConferenceID(pMyOld_CallStatus->GetConferenceID()), 
+					sMyChannelID, "");
 			}
+			else
+			{
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Error: %d", __LINE__);
+				return false;
+			}
+		}
+		else
+		{
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Error: %d", __LINE__);
+			return false;
 		}
 	}
 	else
