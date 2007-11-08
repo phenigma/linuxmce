@@ -3072,14 +3072,6 @@ void Telecom_Plugin::CMD_Assisted_Transfer(int iPK_Device,int iPK_Users,string s
 	if(NULL != sTask)
 		*sTask = "";
 	
-	string sPhoneNumber = GetPhoneNumber(iPK_Users, sPhoneExtension, iPK_Device);
-	if( sPhoneNumber.empty() )
-	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Don't know where to transfer the call!");
-		sCMD_Result = "ERROR";
-		return;
-	}
-
 	CallStatus *pCallStatus = FindCallStatusForChannel(sChannel);
 	if(NULL == pCallStatus)
 	{
@@ -3088,6 +3080,7 @@ void Telecom_Plugin::CMD_Assisted_Transfer(int iPK_Device,int iPK_Users,string s
 		return;
 	}
 
+	string sPhoneNumber = GetPhoneNumber(iPK_Users, sPhoneExtension, iPK_Device);
 	AssistedTransfer * transfer = new AssistedTransfer(sPhoneNumber, sPhoneCallID, sChannel, pCallStatus->GetID());
 	if( transfer )
 	{
