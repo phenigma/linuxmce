@@ -3879,27 +3879,33 @@ void ScreenHandler::HandleAssistedMakeCall(int iPK_Users,string sPhoneExtension,
 			//or 
 			//2) {X,Y,A} & {B,C} => {X,Y} & {A,B,C} 
 			string sButton1 = sSecondPhoneCall.empty() ? "Complete transfer now" : "Transfer me here";
-			string sCommand1 = sProcessTask + "\"transfer\"";
+			string sCommand1 = sProcessTask + "<%=#34%>transfer<%=#34%>";
 
 			//Drop transfer and CMD_PL_Join B to {X,Y}
 			//1) {X,Y,A} & B => {X,Y} & {A,B} -> {X,Y,A,B}
 			//or 
 			//2) {X,Y,A} & {B,C} => {X,Y,A,B,C} 
-			string sButton2 = sSecondPhoneCall.empty() ? "Conference" : "Merge calls";
+			string sButton2 = sSecondPhoneCall.empty() ? "<%=#34%>Conference<%=#34%>" : "<%=#34%>Merge calls<%=#34%>";
 			//TODO: transfer A si B ?
 			string sCommand2 = sProcessTask + 
-				(sSecondPhoneCall.empty() ? "\"conference\"" : "\"merge calls\"");
+				(sSecondPhoneCall.empty() ? "<%=#34%>conference<%=#34%>" : "<%=#34%>merge calls<%=#34%>");
 			
 			//Drop transfer and CMD_PL_Join A and B to {X,Y}
 			//1) {X,Y,A} & B => {X,Y} & {A,B} -> {X,Y,A} & B
 			//or 
 			//2) {X,Y,A} & {B,C} => {X,Y,A} & {B,C} 
 			string sButton3 = "Cancel transfer/conference";
-			string sCommand3 =  sProcessTask + "\"cancel\"";
+			string sCommand3 =  sProcessTask + "<%=#34%>cancel<%=#34%>";
 
-			SCREEN_PopupMessage(SCREEN_PopupMessage_CONST, 
-				sDescription + "|" + sButton1 + "|" + sButton2 + "|" + sButton3,
-				sCommand1 + "|" + sCommand2 + "|" + sCommand3, "calling", "0", "0", "1");
+			SCREEN_PopupMessage(
+				SCREEN_PopupMessage_CONST,  //screen id
+				sDescription + "|" + sButton1 + "|" + sButton2 + "|" + sButton3, //text
+				sCommand1 + "|" + sCommand2 + "|" + sCommand3, //command line
+				"calling", //description
+				"0", //prompt for reset
+				"0", //without timeout
+				"1"  //cannot go back
+			);
 		}
 		break;
 
