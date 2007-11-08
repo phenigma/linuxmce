@@ -2698,12 +2698,12 @@ void Telecom_Plugin::CMD_Merge_Calls(string sPhone_Call_ID_1,string sPhone_Call_
 
 			if(pCallStatus_1->IsConference())
 			{
-				sConferenceID = pCallStatus_1->GetConferenceID();
+				sConferenceID = CallStatus::GetStringConferenceID(pCallStatus_1->GetConferenceID());
 				pSecondCall = pCallStatus_2;
 			}
 			else if(pCallStatus_2->IsConference()) 
 			{
-				sConferenceID = pCallStatus_2->GetConferenceID();
+				sConferenceID = CallStatus::GetStringConferenceID(pCallStatus_2->GetConferenceID());
 				pSecondCall = pCallStatus_1;
 			}
 			else
