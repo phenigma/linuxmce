@@ -67,6 +67,7 @@
 /* applications */
 #define APPLICATION_DIAL	"Dial"
 #define APPLICATION_CONF	"Conference"
+#define APPLICATION_MEETME  "MeetMe"
 
 /*actions*/
 #define ACTION_ORIGINATE	"Originate"

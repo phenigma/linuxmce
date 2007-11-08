@@ -118,7 +118,7 @@ int CommunicationHandler::handleNewextenEvent(Token* ptoken)
 			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Failed to parse channel %s", sSrcChannel.c_str());
 		}
 	}
-	else if(ptoken->getKey(TOKEN_APPLICATION) == APPLICATION_CONF)
+	else if(ptoken->getKey(TOKEN_APPLICATION) == APPLICATION_CONF || ptoken->getKey(TOKEN_APPLICATION) == APPLICATION_MEETME)
 	{
 		//e.g.
 		//Event: Newexten
