@@ -1059,9 +1059,11 @@ ExtensionStatus* Telecom_Plugin::FindExtensionStatus(string sExt)
 // TODO: do it to be safe for succesive calls
 string Telecom_Plugin::GetNewConferenceID() const
 {
+	//TODO: use locked conferences map
+
 	size_t i = 1;
 	size_t confMax = map_conference2status.size() + 1;
-	for(; i<confMax; i++)
+	for(; i<=confMax; i++)
 	{
 		if( map_conference2status.end() == map_conference2status.find(i) )
 			break;
