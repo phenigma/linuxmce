@@ -170,7 +170,7 @@ while($DB_ROW = $DB_STATEMENT->fetchrow_hashref())
 }}
 
 $EXT_BUFFER .= "\n;Conference rooms\n";
-$EXT_BUFFER .= "exten => _000.,1,Conference(\${EXTEN}/S/1)\n";
+$EXT_BUFFER .= "exten => _000.,1,Meetme(\${EXTEN}/S/1)\n";
 $EXT_BUFFER .= "exten => _000.,2,Hangup\n";
 
 $EXT_BUFFER .= "\n\n[voice-menu-pluto-custom]\n\n";
