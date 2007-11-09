@@ -1807,6 +1807,9 @@ class DataGridTable *Telecom_Plugin::ExternalChannels(string GridID,string Parms
 {
 	PLUTO_SAFETY_LOCK(vm, m_TelecomMutex);  // Protect the call data
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "ExternalChannels request received!");
+
+	DumpActiveCalls();
+
 	DataGridTable *pDataGrid = new DataGridTable();
 	DataGridCell *pCell = NULL;
 	int Row = 0;
@@ -1821,7 +1824,10 @@ class DataGridTable *Telecom_Plugin::ExternalChannels(string GridID,string Parms
 		{
 			string sChannel = itc->first;
 			string sExten = ExtensionForChannel(sChannel);
-			if(0 != map_ext2device[sExten])
+
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Extension %s for channel %s", sExten.c_str(), sChannel.c_str());
+
+			if(0 == map_ext2device[sExten])
 			{
 				string sText = itc->second;
 				string sValue = sChannel;
