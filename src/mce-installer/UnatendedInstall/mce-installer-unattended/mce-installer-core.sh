@@ -1,5 +1,10 @@
 #!/bin/bash
 
+ntpdate ntp.ubuntu.com
+echo > /var/log/messages
+echo > /var/log/syslog
+dhclient eth0
+
 . ./mce-installer-common.sh
 
 trap 'RemoveOfflineSource' EXIT
@@ -127,6 +132,11 @@ function Install_DCERouter {
 }
 
 function Create_And_Config_Devices {
+
+	/etc/init.d/mysql stop
+	killall -9 mysqld_safe
+	/etc/init.d/mysql start
+	sleep 30
 
 	. /usr/pluto/bin/SQL_Ops.sh
 
