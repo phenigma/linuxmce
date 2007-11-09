@@ -21,11 +21,11 @@ esac
 exit 0
 
 @DPATCH@
-diff -ruN xine-lib-1.1.2/include/xine.h.in xine-lib-1.1.2-new/include/xine.h.in
---- xine-lib-1.1.2/include/xine.h.in	2006-09-01 00:15:32.000000000 +0300
-+++ xine-lib-1.1.2-new/include/xine.h.in	2006-09-01 01:05:33.000000000 +0300
-@@ -251,6 +251,31 @@
- int  xine_play (xine_stream_t *stream, int start_pos, int start_time);
+diff -ruN xine-lib-1.1.7-orig/include/xine.h.in xine-lib-1.1.7/include/xine.h.in
+--- xine-lib-1.1.7-orig/include/xine.h.in	2007-10-24 17:12:32.000000000 +0300
++++ xine-lib-1.1.7/include/xine.h.in	2007-11-09 17:19:27.000000000 +0200
+@@ -255,6 +255,31 @@
+ int  xine_play (xine_stream_t *stream, int start_pos, int start_time) XINE_PROTECTED;
  
  /*
 + * seeks a stream to a given position
@@ -56,7 +56,7 @@ diff -ruN xine-lib-1.1.2/include/xine.h.in xine-lib-1.1.2-new/include/xine.h.in
   * set xine to a trick mode for fast forward, backwards playback,
   * low latency seeking. Please note that this works only with some
   * input plugins. mode constants see below.
-@@ -907,6 +932,15 @@
+@@ -912,6 +937,15 @@
  #define XINE_STREAM_INFO_DVD_ANGLE_NUMBER   34
  #define XINE_STREAM_INFO_DVD_ANGLE_COUNT    35
  
@@ -72,10 +72,10 @@ diff -ruN xine-lib-1.1.2/include/xine.h.in xine-lib-1.1.2-new/include/xine.h.in
  /* possible values for XINE_STREAM_INFO_VIDEO_AFD */
  #define XINE_VIDEO_AFD_NOT_PRESENT         -1
  #define XINE_VIDEO_AFD_RESERVED_0          0
-diff -ruN xine-lib-1.1.2/src/libmpeg2/decode.c xine-lib-1.1.2-new/src/libmpeg2/decode.c
---- xine-lib-1.1.2/src/libmpeg2/decode.c	2006-09-01 00:12:22.000000000 +0300
-+++ xine-lib-1.1.2-new/src/libmpeg2/decode.c	2006-09-01 01:05:33.000000000 +0300
-@@ -151,6 +151,8 @@
+diff -ruN xine-lib-1.1.7-orig/src/libmpeg2/decode.c xine-lib-1.1.7/src/libmpeg2/decode.c
+--- xine-lib-1.1.7-orig/src/libmpeg2/decode.c	2007-10-24 17:12:32.000000000 +0300
++++ xine-lib-1.1.7/src/libmpeg2/decode.c	2007-11-09 17:19:27.000000000 +0200
+@@ -155,6 +155,8 @@
    frame->duration = (int) ceil (duration);
    _x_stream_info_set(mpeg2dec->stream, XINE_STREAM_INFO_FRAME_DURATION, frame->duration);
    /*printf("mpeg2dec: rff=%u\n",frame->repeat_first_field);*/
@@ -84,10 +84,10 @@ diff -ruN xine-lib-1.1.2/src/libmpeg2/decode.c xine-lib-1.1.2-new/src/libmpeg2/d
  } 
  
  static double get_aspect_ratio(mpeg2dec_t *mpeg2dec)
-diff -ruN xine-lib-1.1.2/src/xine-engine/video_out.c xine-lib-1.1.2-new/src/xine-engine/video_out.c
---- xine-lib-1.1.2/src/xine-engine/video_out.c	2006-09-01 00:13:00.000000000 +0300
-+++ xine-lib-1.1.2-new/src/xine-engine/video_out.c	2006-09-01 01:08:35.000000000 +0300
-@@ -497,6 +497,45 @@
+diff -ruN xine-lib-1.1.7-orig/src/xine-engine/video_out.c xine-lib-1.1.7/src/xine-engine/video_out.c
+--- xine-lib-1.1.7-orig/src/xine-engine/video_out.c	2007-10-24 17:12:32.000000000 +0300
++++ xine-lib-1.1.7/src/xine-engine/video_out.c	2007-11-09 17:19:27.000000000 +0200
+@@ -501,6 +501,45 @@
        return 0;
      }
    }
@@ -133,7 +133,7 @@ diff -ruN xine-lib-1.1.2/src/xine-engine/video_out.c xine-lib-1.1.2-new/src/xine
  
  
    if (!img->bad_frame) {
-@@ -549,6 +588,11 @@
+@@ -553,6 +592,11 @@
        stream = xine_list_get_value(this->streams, ite);
        if (stream == XINE_ANON_STREAM) continue;
        pthread_mutex_lock (&stream->first_frame_lock);
@@ -145,7 +145,7 @@ diff -ruN xine-lib-1.1.2/src/xine-engine/video_out.c xine-lib-1.1.2-new/src/xine
        if (stream->first_frame_flag == 2) {
          if (this->grab_only) {
            stream->first_frame_flag = 0;
-@@ -645,6 +689,7 @@
+@@ -649,6 +693,7 @@
      this->num_frames_skipped   = 0;
    }
    
@@ -153,9 +153,9 @@ diff -ruN xine-lib-1.1.2/src/xine-engine/video_out.c xine-lib-1.1.2-new/src/xine
    return frames_to_skip;
  }
  
-diff -ruN xine-lib-1.1.2/src/xine-engine/xine.c xine-lib-1.1.2-new/src/xine-engine/xine.c
---- xine-lib-1.1.2/src/xine-engine/xine.c	2006-09-01 00:13:00.000000000 +0300
-+++ xine-lib-1.1.2-new/src/xine-engine/xine.c	2006-09-01 01:16:45.000000000 +0300
+diff -ruN xine-lib-1.1.7-orig/src/xine-engine/xine.c xine-lib-1.1.7/src/xine-engine/xine.c
+--- xine-lib-1.1.7-orig/src/xine-engine/xine.c	2007-10-24 17:12:32.000000000 +0300
++++ xine-lib-1.1.7/src/xine-engine/xine.c	2007-11-09 17:19:27.000000000 +0200
 @@ -56,6 +56,7 @@
  #define XINE_ENABLE_EXPERIMENTAL_FEATURES
  #define XINE_ENGINE_INTERNAL
@@ -164,7 +164,7 @@ diff -ruN xine-lib-1.1.2/src/xine-engine/xine.c xine-lib-1.1.2-new/src/xine-engi
  
  #include "xine_internal.h"
  #include "plugin_catalog.h"
-@@ -1236,6 +1237,322 @@
+@@ -1318,6 +1319,322 @@
    return ret;
  }
  
@@ -487,11 +487,10 @@ diff -ruN xine-lib-1.1.2/src/xine-engine/xine.c xine-lib-1.1.2-new/src/xine-engi
  int xine_eject (xine_stream_t *stream) {
    
    int status;
-diff -ruN xine-lib-1.1.2/src/xine-engine/xine_internal.h xine-lib-1.1.2-new/src/xine-engine/xine_internal.h
---- xine-lib-1.1.2/src/xine-engine/xine_internal.h	2006-09-01 00:13:00.000000000 +0300
-+++ xine-lib-1.1.2-new/src/xine-engine/xine_internal.h	2006-09-01 01:05:33.000000000 +0300
-@@ -342,7 +342,13 @@
-                                                * layers as they cannot call xine_stop. */
+diff -ruN xine-lib-1.1.7-orig/src/xine-engine/xine_internal.h xine-lib-1.1.7/src/xine-engine/xine_internal.h
+--- xine-lib-1.1.7-orig/src/xine-engine/xine_internal.h	2007-10-24 17:12:32.000000000 +0300
++++ xine-lib-1.1.7/src/xine-engine/xine_internal.h	2007-11-09 17:19:27.000000000 +0200
+@@ -354,6 +354,12 @@
    int                        early_finish_event; /* do not wait fifos get empty before sending event */
    int                        gapless_switch;     /* next stream switch will be gapless */
    int                        delay_finish_event; /* delay event in 1/10 sec units. 0=>no delay, -1=>forever */
