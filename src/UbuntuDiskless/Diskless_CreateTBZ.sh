@@ -141,6 +141,11 @@ LC_ALL=C chroot "$TEMP_DIR" apt-get -f -y install locales
 ## FIXME: get this list from the database 
 DEVICE_LIST="28 62 1795 5 35 11 1825 26 1808"
 
+## Prevent discover from running as it blocks the system
+chroot "$TEMP_DIR" apt-get -y install discover1
+cp "$TEMP_DIR"/sbin/discover "$TEMP_DIR"/sbin/discover.disabled
+echo > "$TEMP_DIR"/sbin/discover
+
 ## Begin installing the packages needed for the pluto devices
 echo "do_initrd = Yes" > $TEMP_DIR/etc/kernel-img.conf
 chroot "$TEMP_DIR" invoke-rc.d exim4 force-stop
@@ -172,6 +177,9 @@ for device in $DEVICE_LIST; do
 		/bin/bash
 	fi
 done
+
+## Put back discover
+mv "$TEMP_DIR"/sbin/discover.disabled "$TEMP_DIR"/sbin/discover
 
 ## If libdvdcss2 is installed on the hybrid/core
 if [[ -d /usr/share/doc/libdvdcss2 ]] ;then
