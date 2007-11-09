@@ -3487,7 +3487,7 @@ void ScreenHandler::SCREEN_DevCallInProgress(long PK_Screen, string sPhoneCaller
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_My_Channel_ID_CONST, sChannel);
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Current_Call_CONST, sPhoneCallID);
 
-	if(GetCurrentScreen_PK_DesignObj() == SCREEN_Assisted_Transfer_In_Progress_CONST)
+	if(m_pOrbiter->m_pScreenHistory_Current->PK_Screen() == SCREEN_Assisted_Transfer_In_Progress_CONST)
 	{
 		//don't go to call in progress
 		return;
