@@ -22,7 +22,7 @@
 // Description: 
 //
 //
-// Author:  <igor@dexx>, (C) 2004
+// Authors:  <igor@dexx>, Cristian Miron, (C) 2007
 //
 // Copyright: See COPYING file that comes with this distribution
 //
@@ -129,7 +129,7 @@ Utils::ParseParty(const std::string party, std::string* extension, std::string *
 		pos = (int)party.find('/',oldpos);
 	}
 	if(pos < 0) {
-		pos = party.length();
+		pos = (int)party.length();
 	}
 	
 	if(extension) {

@@ -22,7 +22,7 @@
 // Description: 
 //
 //
-// Author:  <igor@dexx>, (C) 2004
+// Authors:  <igor@dexx>, Cristian Miron, (C) 2007
 //
 // Copyright: See COPYING file that comes with this distribution
 //

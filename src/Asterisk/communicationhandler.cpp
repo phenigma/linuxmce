@@ -17,12 +17,12 @@
 
  */
 //
-// C++ Implementation: ringdetectstatemachine
+// C++ Implementation: communicationhandler
 //
 // Description: 
 //
 //
-// Author:  <igor@dexx>, (C) 2004
+// Author: Cristian Miron, (C) 2007
 //
 // Copyright: See COPYING file that comes with this distribution
 //
@@ -36,24 +36,26 @@
 #include "runtimeconfig.h"
 #include "utils.h"
 
-#define MARK_DIALING " DIAL/"
-
 using namespace std;
 using namespace DCE;
+
+#define ZOMBIE_CHANNEL_TOKEN "<ZOMBIE>"
+#define PSEUDO_CHANNEL_TOKEN "Zap/pseudo"
 
 namespace ASTERISK {
 
 CommunicationHandler::CommunicationHandler()
 {
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Ring Detect SM created.");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "CommunicationHandler created.");
 };
 
-CommunicationHandler::~CommunicationHandler() {
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Ring Detect SM destroyed.");
+CommunicationHandler::~CommunicationHandler() 
+{
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "CommunicationHandler destroyed.");
 };
 
-int 
-CommunicationHandler::handleToken(Token* ptoken, bool& bIsResponseToken) {
+int CommunicationHandler::handleToken(Token* ptoken, bool& bIsResponseToken) 
+{
 
 	bIsResponseToken = false;
 	if(ptoken->hasKey(TOKEN_RESPONSE)) {
@@ -173,11 +175,21 @@ int CommunicationHandler::handleHangupEvent(Token* ptoken)
 	string channel = ptoken->getKey(TOKEN_CHANNEL);
 	string reason = ptoken->getKey(TOKEN_REASON);
 
+	//Ignore channels like this:
+	//AsyncGoto/SIP/202-08206080<ZOMBIE>
+	//Zap/pseudo-47590674
+
+	if(string::npos != channel.find(ZOMBIE_CHANNEL_TOKEN) || string::npos != channel.find(PSEUDO_CHANNEL_TOKEN))
+	{
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Ignoring hangup for channel %s", channel.c_str());
+		return 0;
+	}
+
 	string ringphoneid;
 	if(!Utils::ParseChannel(channel, &ringphoneid))
 		map_ringext.erase(ringphoneid);
 
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Hangup: %s, %d, %d, %d", channel.c_str(), reason.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Hangup: %s, %s", channel.c_str(), reason.c_str());
 	AsteriskManager::getInstance()->NotifyHangup(channel, reason);
 
 	return 0;
