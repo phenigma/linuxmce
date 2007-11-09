@@ -252,6 +252,7 @@
 #define SCREEN_Legacy_PVR_Cable_Box_CONST 266
 #define SCREEN_Active_Calls_CONST 267
 #define SCREEN_Call_Dropped_CONST 268
+#define SCREEN_Assisted_Transfer_In_Progress_CONST 269
 
 #define SCREEN_TABLE "Screen"
 #define SCREEN_PK_SCREEN_FIELD "PK_Screen"

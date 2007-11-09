@@ -13490,6 +13490,66 @@ PK_DeviceData .... */, sOptions.c_str(), 224 /* PK_PnpQueue */, StringUtils::lto
 		}
 	};
 
+	class SCREEN_Assisted_Transfer_In_Progress : public PreformedCommand
+	{
+	public:
+		SCREEN_Assisted_Transfer_In_Progress(long DeviceIDFrom, long DeviceIDTo,
+			bool bTrueFalse, string sTask,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 6, 
+				COMMANDPARAMETER_PK_Screen_CONST, "269" /* screen ID */
+				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
+				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
+				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */,
+				119 /* True if assisted transfered another call. False if assisted transfer to an extension */, StringUtils::ltos(bTrueFalse).c_str(), 257 /* The task id for assisted transfer */, sTask.c_str());
+		}
+	};
+
+	class SCREEN_Assisted_Transfer_In_Progress_DL : public PreformedCommand
+	{
+	public:
+		SCREEN_Assisted_Transfer_In_Progress_DL(long DeviceIDFrom, string sDeviceIDTo,
+			bool bTrueFalse, string sTask,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+		{
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 6, 
+				COMMANDPARAMETER_PK_Screen_CONST, "269" /* screen ID */
+				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
+				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
+				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */,
+				119 /* True if assisted transfered another call. False if assisted transfer to an extension */, StringUtils::ltos(bTrueFalse).c_str(), 257 /* The task id for assisted transfer */, sTask.c_str());
+		}
+	};
+
+	class SCREEN_Assisted_Transfer_In_Progress_DT : public PreformedCommand
+	{
+	public:
+		SCREEN_Assisted_Transfer_In_Progress_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,
+			bool bTrueFalse, string sTask,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+		{
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 6, 
+				COMMANDPARAMETER_PK_Screen_CONST, "269" /* screen ID */
+				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
+				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
+				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */,
+				119 /* True if assisted transfered another call. False if assisted transfer to an extension */, StringUtils::ltos(bTrueFalse).c_str(), 257 /* The task id for assisted transfer */, sTask.c_str());
+		}
+	};
+
+	class SCREEN_Assisted_Transfer_In_Progress_Cat : public PreformedCommand
+	{
+	public:
+		SCREEN_Assisted_Transfer_In_Progress_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,
+			bool bTrueFalse, string sTask,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 6, 
+				COMMANDPARAMETER_PK_Screen_CONST, "269" /* screen ID */
+				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
+				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
+				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */,
+				119 /* True if assisted transfered another call. False if assisted transfer to an extension */, StringUtils::ltos(bTrueFalse).c_str(), 257 /* The task id for assisted transfer */, sTask.c_str());
+		}
+	};
+
 
 	class ScreenHandlerBase
 	{
@@ -13767,6 +13827,7 @@ PK_DeviceData .... */, sOptions.c_str(), 224 /* PK_PnpQueue */, StringUtils::lto
 		virtual void SCREEN_Legacy_PVR_Cable_Box(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Active_Calls(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Call_Dropped(long PK_Screen, string sReason){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_Assisted_Transfer_In_Progress(long PK_Screen, bool bTrueFalse, string sTask){ GotoScreen(PK_Screen); }
 
 		virtual void ReceivedGotoScreenMessage(int nPK_Screen, Message *pMessage)
 		{
@@ -15367,6 +15428,14 @@ PK_DeviceData .... */, sOptions.c_str(), 224 /* PK_PnpQueue */, StringUtils::lto
 					ResetCallBacks();
 					string sReason = pMessage->m_mapParameters[273];
 					SCREEN_Call_Dropped(nPK_Screen, sReason);
+					break;
+				}
+				case 269:
+				{
+					ResetCallBacks();
+					bool bTrueFalse = pMessage->m_mapParameters[119] == "1";
+					string sTask = pMessage->m_mapParameters[257];
+					SCREEN_Assisted_Transfer_In_Progress(nPK_Screen, bTrueFalse, sTask);
 					break;
 				}
 

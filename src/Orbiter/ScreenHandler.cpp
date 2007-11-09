@@ -3487,8 +3487,7 @@ void ScreenHandler::SCREEN_DevCallInProgress(long PK_Screen, string sPhoneCaller
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_My_Channel_ID_CONST, sChannel);
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Current_Call_CONST, sPhoneCallID);
 
-	//TODO: make it a screen
-	if(GetCurrentScreen_PK_DesignObj() == DESIGNOBJ_mnuPopupMessage_CONST)
+	if(GetCurrentScreen_PK_DesignObj() == SCREEN_Assisted_Transfer_In_Progress_CONST)
 	{
 		//don't go to call in progress
 		return;
@@ -3524,8 +3523,6 @@ void ScreenHandler::SCREEN_Call_Dropped(long PK_Screen, string sReason)
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_My_Channel_ID_CONST, "");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_My_Call_ID_CONST, "");
 
-	//TODO: create a screen to be used instead of popup message
-
 	if(
 		GetCurrentScreen_PK_DesignObj() == DESIGNOBJ_devCallInProgress_CONST || 
 		GetCurrentScreen_PK_DesignObj() == DESIGNOBJ_devIncomingCall_CONST   ||
@@ -3536,6 +3533,47 @@ void ScreenHandler::SCREEN_Call_Dropped(long PK_Screen, string sReason)
 	}
 
 	m_pOrbiter->CMD_Display_Alert("Call dropped. Reason: " + sReason, "", "5", 0);
+}
+//-----------------------------------------------------------------------------------------------------
+void ScreenHandler::SCREEN_Assisted_Transfer_In_Progress(long PK_Screen, bool bTrueFalse, string sTask)
+{
+	bool bTransferToCall = bTrueFalse;
+
+	string sDescription = "Transfering, please wait...";
+	
+	string sProcessTask =
+		StringUtils::itos(m_pOrbiter->m_dwPK_Device) + " " + 
+		StringUtils::itos(m_pOrbiter->m_dwPK_Device_TelecomPlugIn) + " " + 	
+		StringUtils::itos(MESSAGETYPE_COMMAND) + " " + 
+		StringUtils::itos(COMMAND_Process_Task_CONST) + " " +
+		StringUtils::itos(COMMANDPARAMETER_Task_CONST) + " " + sTask + " " + 
+		StringUtils::itos(COMMANDPARAMETER_Job_CONST) + " ";
+
+	//Drop transfer and CMD_PL_Join A to {X,Y}:
+	//1) {X,Y,A} & B => {X,Y} & {A,B} -> drop A, {X,Y,B}
+	//or 
+	//2) {X,Y,A} & {B,C} => {X,Y} & {A,B,C} 
+	string sButton1 = bTransferToCall ? "Transfer me here" : "Complete transfer now";
+	string sCommand1 = sProcessTask + "<%=#34%>transfer<%=#34%>";
+
+	//Drop transfer and CMD_PL_Join B to {X,Y}
+	//1) {X,Y,A} & B => {X,Y} & {A,B} -> {X,Y,A,B}
+	//or 
+	//2) {X,Y,A} & {B,C} => {X,Y,A,B,C} 
+	string sButton2 = bTransferToCall ? "Merge calls" : "Conference";
+	//TODO: transfer A si B ?
+	string sCommand2 = sProcessTask + 
+		(bTransferToCall ? "<%=#34%>merge calls<%=#34%>" : "<%=#34%>conference<%=#34%>");
+	
+	//Drop transfer and CMD_PL_Join A and B to {X,Y}
+	//1) {X,Y,A} & B => {X,Y} & {A,B} -> {X,Y,A} & B
+	//or 
+	//2) {X,Y,A} & {B,C} => {X,Y,A} & {B,C} 
+	string sButton3 = "Cancel transfer/conference";
+	string sCommand3 =  sProcessTask + "<%=#34%>cancel<%=#34%>";
+
+	DisplayMessageOnOrbiter(PK_Screen, sDescription, false, "0", true,
+		sButton1, sCommand1, sButton2, sCommand2, sButton3, sCommand3, "", "");
 }
 //-----------------------------------------------------------------------------------------------------
 bool ScreenHandler::Telecom_DataGridRendering(CallBackData *pData)
@@ -3878,48 +3916,7 @@ void ScreenHandler::HandleAssistedMakeCall(int iPK_Users,string sPhoneExtension,
                 break;
 			}
 
-			string sDescription = "Calling, please wait...";
-			
-			string sProcessTask =
-				StringUtils::itos(m_pOrbiter->m_dwPK_Device) + " " + 
-				StringUtils::itos(m_pOrbiter->m_dwPK_Device_TelecomPlugIn) + " " + 	
-				StringUtils::itos(MESSAGETYPE_COMMAND) + " " + 
-				StringUtils::itos(COMMAND_Process_Task_CONST) + " " +
-				StringUtils::itos(COMMANDPARAMETER_Task_CONST) + " " + sTaskID + " " + 
-				StringUtils::itos(COMMANDPARAMETER_Job_CONST) + " ";
-
-			//Drop transfer and CMD_PL_Join A to {X,Y}:
-			//1) {X,Y,A} & B => {X,Y} & {A,B} -> drop A, {X,Y,B}
-			//or 
-			//2) {X,Y,A} & {B,C} => {X,Y} & {A,B,C} 
-			string sButton1 = sSecondPhoneCall.empty() ? "Complete transfer now" : "Transfer me here";
-			string sCommand1 = sProcessTask + "<%=#34%>transfer<%=#34%>";
-
-			//Drop transfer and CMD_PL_Join B to {X,Y}
-			//1) {X,Y,A} & B => {X,Y} & {A,B} -> {X,Y,A,B}
-			//or 
-			//2) {X,Y,A} & {B,C} => {X,Y,A,B,C} 
-			string sButton2 = sSecondPhoneCall.empty() ? "Conference" : "Merge calls";
-			//TODO: transfer A si B ?
-			string sCommand2 = sProcessTask + 
-				(sSecondPhoneCall.empty() ? "<%=#34%>conference<%=#34%>" : "<%=#34%>merge calls<%=#34%>");
-			
-			//Drop transfer and CMD_PL_Join A and B to {X,Y}
-			//1) {X,Y,A} & B => {X,Y} & {A,B} -> {X,Y,A} & B
-			//or 
-			//2) {X,Y,A} & {B,C} => {X,Y,A} & {B,C} 
-			string sButton3 = "Cancel transfer/conference";
-			string sCommand3 =  sProcessTask + "<%=#34%>cancel<%=#34%>";
-
-			SCREEN_PopupMessage(
-				SCREEN_PopupMessage_CONST,  //screen id
-				sDescription + "|" + sButton1 + "|" + sButton2 + "|" + sButton3, //text
-				sCommand1 + "|" + sCommand2 + "|" + sCommand3, //command line
-				"calling", //description
-				"0", //prompt for reset
-				"0", //without timeout
-				"1"  //cannot go back
-			);
+			SCREEN_Assisted_Transfer_In_Progress(SCREEN_Assisted_Transfer_In_Progress_CONST, !sSecondPhoneCall.empty(), sTaskID);
 		}
 		break;
 
