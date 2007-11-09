@@ -142,6 +142,7 @@ LC_ALL=C chroot "$TEMP_DIR" apt-get -f -y install locales
 DEVICE_LIST="28 62 1795 5 35 11 1825 26 1808"
 
 ## Prevent discover from running as it blocks the system
+chroot "$TEMP_DIR" apt-get -y install cups-pdf
 chroot "$TEMP_DIR" apt-get -y install discover1
 cp "$TEMP_DIR"/sbin/discover "$TEMP_DIR"/sbin/discover.disabled
 echo > "$TEMP_DIR"/sbin/discover
