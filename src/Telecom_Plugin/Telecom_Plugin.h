@@ -370,7 +370,6 @@ private:
 	DeviceData_Router* find_AsteriskDevice();
 	DeviceData_Router* find_Device(int iPK_Device);
 	int ParseChannel(const std::string channel, int* iextension, string *sextension);
-	void RemoveExtesionFromChannels(const string & sExtension);
 	
 	ExtensionStatus* FindExtensionStatus(string sExt);
 	string GetNewConferenceID();

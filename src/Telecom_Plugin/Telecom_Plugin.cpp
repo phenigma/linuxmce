@@ -55,7 +55,6 @@ using namespace DCE;
 #include "pluto_telecom/Table_Contact.h"
 #include "pluto_telecom/Table_PhoneNumber.h"
 #include "pluto_telecom/Table_PhoneType.h"
-#include "callmanager.h"
 #include "Orbiter_Plugin/Orbiter_Plugin.h"
 #include "PlutoUtils/ProcessUtils.h"
 
@@ -472,65 +471,6 @@ class DataGridTable *Telecom_Plugin::PhoneBookListOfNos(string GridID,string Par
 	return pDataGrid;
 }
 
-/*
-bool
-Telecom_Plugin::CommandResult( class Socket *pSocket, class Message *pMessage,
-		                                class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo ) {
-
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Command Result received from PBX.");
-	int iCommandID = atoi(pMessage->m_mapParameters[EVENTPARAMETER_CommandID_CONST].c_str());
-	int iResult = atoi(pMessage->m_mapParameters[EVENTPARAMETER_Result_CONST].c_str());
-	string sMessage = pMessage->m_mapParameters[EVENTPARAMETER_Message_CONST];
-
-	ProcessResult(iCommandID, iResult, sMessage);
-	return false;
-}
-
-void
-Telecom_Plugin::ProcessResult(int iCommandID, int iResult, std::string sMessage) {
-	CallManager *pCallManager = CallManager::getInstance();
-	PLUTO_SAFETY_LOCK(vm, m_TelecomMutex);  // Protect the call data
-	CallData *pCallData	= pCallManager->findCallByPendingCmdID(iCommandID);
-	if(!pCallData) {
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Obsolete command reply received.");
-		return;
-	}
-
-	DeviceData_Router* pDeviceData = find_Device(pCallData->getOwnerDevID());
-	if(!pDeviceData) {
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Device %d is no more Available. Destroying call.", pCallData->getOwnerDevID());
-		pCallManager->removeCall(pCallData);
-		return;
-	}
-
-	switch(pCallData->getState()) {
-		case CallData::STATE_ORIGINATING:
-			if(!iResult) {
-				pCallData->setState(CallData::STATE_OPENED);
-				pCallData->setID(sMessage);
-
-				//switch orbiter screen
-				if(pDeviceData->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Orbiter_CONST) {
-					CMD_Goto_DesignObj cmd_CMD_Goto_DesignObj(m_dwPK_Device, pDeviceData->m_dwPK_Device,
-										m_dwPK_Device, "1281", pCallData->getID(), "", false, false);
-					SendCommand(cmd_CMD_Goto_DesignObj);
-				}
-			} else {
-				//switch orbiter screen
-				pCallManager->removeCall(pCallData);
-
-			}
-			break;
-		case CallData::STATE_TRANSFERING:
-			if(!iResult) {
-			} else {
-			}
-			pCallData->setState(CallData::STATE_OPENED);
-			break;
-	}
-}
-*/
-
 bool
 Telecom_Plugin::CallsStatusChanged(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo)
 {
@@ -584,32 +524,36 @@ Telecom_Plugin::CallsStatusChanged(class Socket *pSocket,class Message *pMessage
 			string sCallerID = vectTokens[CallStatus::csCallerID];
 			string sApplication = vectTokens[CallStatus::csApplication];
 			string sBridged = vectTokens[CallStatus::csBridged];
-
-			//todo: make it device data
-			if(sApplication == "MeetMe" || sApplication == "Conference")
+			
+			// Zap/pseudo-204881222
+			if( "Zap/pseudo-" != sChannel.substr(0, 11) )
 			{
-				mapChannels.insert(make_pair(sExten, make_pair(sChannel, sCallerID)));
-				mapCalls[sExten] = true;
-			}
-			else
-			{
-				if( string::npos == sBridged.find("None") )
+				//todo: make it device data
+				if(sApplication == "MeetMe" || sApplication == "Conference")
 				{
-					MAP_CHANNELS::iterator it = mapChannels.find(sBridged);
-					if(it != mapChannels.end())
+					mapChannels.insert(make_pair(sExten, make_pair(sChannel, sCallerID)));
+					mapCalls[sExten] = true;
+				}
+				else
+				{
+					if( string::npos == sBridged.find("None") )
 					{
-						mapChannels.insert(make_pair(it->first, make_pair(sChannel, sCallerID)));
+						MAP_CHANNELS::iterator it = mapChannels.find(sBridged);
+						if(it != mapChannels.end())
+						{
+							mapChannels.insert(make_pair(it->first, make_pair(sChannel, sCallerID)));
+						}
+						else
+						{
+							mapChannels.insert(make_pair(sChannel, make_pair(sChannel, sCallerID)));
+							mapCalls[sChannel] = false;
+						}
 					}
 					else
 					{
 						mapChannels.insert(make_pair(sChannel, make_pair(sChannel, sCallerID)));
 						mapCalls[sChannel] = false;
 					}
-				}
-				else
-				{
-					mapChannels.insert(make_pair(sChannel, make_pair(sChannel, sCallerID)));
-					mapCalls[sChannel] = false;
 				}
 			}
 		}
@@ -931,7 +875,7 @@ Telecom_Plugin::Link( class Socket *pSocket, class Message *pMessage, class Devi
 		}
 		else
 		{
-			// error
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "TelecomTask NULL");
 		}
 	}
 	
@@ -991,13 +935,13 @@ bool Telecom_Plugin::Hangup( class Socket *pSocket, class Message *pMessage, cla
 	for(map<string, TelecomTask*>::const_iterator it=map_id2task.begin(); it!=map_id2task.end(); ++it)
 	{
 		TelecomTask * pTask = (*it).second;
-		if( pTask )
+		if( pTask != NULL )
 		{
 			pTask->ProcessEvent(pMessage);
 		}
 		else
 		{
-			// error
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "TelecomTask NULL");
 		}
 	}
 
@@ -1043,7 +987,8 @@ string Telecom_Plugin::DirectCall2Conference(CallStatus * pCallStatus)
 		}
 		else
 		{
-			// error
+			LoggerWrapper::GetInstance()->Write
+				(LV_CRITICAL, "Bad DirectCall: %s", pCallStatus->GetDebugInfo().c_str());
 		}
 	}
 	
@@ -1142,71 +1087,6 @@ void
 Telecom_Plugin::ProcessRing(std::string sPhoneExtension, std::string sPhoneCallerID, std::string sPhoneCallID)
 {
 	//*** DISABLED ***
-	//int phoneID = map_ext2device[sPhoneExtension];
-/*
-	if(phoneID>0)
-	{
-		CallData *pCallData = CallManager::getInstance()->findCallByOwnerDevID(phoneID);
-		if(!pCallData) {
-			//create new call data
-			pCallData = new CallData();
-			pCallData->setOwnerDevID(phoneID);
-			pCallData->setID(sPhoneCallID);
-			pCallData->setCallerID(sPhoneCallerID);
-			CallManager::getInstance()->addCall(pCallData);
-
-			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Creating calldata for ringing device %d (ext %s, id %s)",phoneID,sPhoneExtension.c_str(),sPhoneCallID.c_str());
-			pCallData->setState(CallData::STATE_NOTDEFINED);
-		}
-		else
-		{
-			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Will modify calldata for device %d in state %d with channelid %s",phoneID,pCallData->getState(),sPhoneCallID.c_str());
-			pCallData->setID(sPhoneCallID);
-			pCallData->setState(CallData::STATE_NOTDEFINED);
-		}
-	}
-	int iext, pos, oldpos=0;				
-	string onechan, sext;
-	do
-	{
-		pos = sPhoneCallID.find(' ',oldpos);
-		if(pos <0)
-		{
-			onechan = sPhoneCallID.substr(oldpos, sPhoneCallID.length());
-		}
-		else
-		{
-			onechan= sPhoneCallID.substr(oldpos, pos - oldpos);
-		}
-		if(!ParseChannel(onechan,&iext,&sext))
-		{
-			phoneID=map_ext2device[sext];
-			if(phoneID>0)
-			{
-				CallData *pCallData = CallManager::getInstance()->findCallByOwnerDevID(phoneID);
-				if(!pCallData) {
-					//create new call data
-					pCallData = new CallData();
-					pCallData->setOwnerDevID(phoneID);
-					pCallData->setID(sPhoneCallID);
-					pCallData->setCallerID(sPhoneCallerID);
-					CallManager::getInstance()->addCall(pCallData);
-
-					LoggerWrapper::GetInstance()->Write(LV_STATUS, "Creating calldata for ringing device %d (ext %s, id %s)",phoneID,sext.c_str(),sPhoneCallID.c_str());
-					pCallData->setState(CallData::STATE_NOTDEFINED);
-				}
-				else
-				{
-					LoggerWrapper::GetInstance()->Write(LV_WARNING, "Will modify calldata for device %d in state %d with channelid %s",phoneID,pCallData->getState(),sPhoneCallID.c_str());
-					pCallData->setID(sPhoneCallID);
-					pCallData->setState(CallData::STATE_NOTDEFINED);
-				}
-			}
-		}
-		oldpos = pos+1;
-	}
-	while(pos>=0);
-*/
 }
 
 
@@ -1515,24 +1395,30 @@ void Telecom_Plugin::CMD_Phone_Initiate(int iPK_Device,string sPhoneExtension,st
 void Telecom_Plugin::CMD_Phone_Answer(string &sCMD_Result,Message *pMessage)
 //<-dceag-c335-e->
 {
-	int phoneID=map_orbiter2embedphone[pMessage->m_dwPK_Device_From];
-	if(phoneID>0)
+	if( pMessage == NULL )
 	{
-		DCE::CMD_Phone_Answer cmd(m_dwPK_Device,phoneID);
-		SendCommand(cmd);
-		PLUTO_SAFETY_LOCK(vm, m_TelecomMutex);  // Protect the call data
-		CallData *pCallData = CallManager::getInstance()->findCallByOwnerDevID(phoneID);
-		if(!pCallData) {
-			/*create new call data*/
-			pCallData = new CallData();
-			pCallData->setOwnerDevID(phoneID);
-			CallManager::getInstance()->addCall(pCallData);
-			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Answering a call for which have no data");
-		}
-		pCallData->setState(CallData::STATE_OPENED);
+		sCMD_Result="ERROR : NULL message";
+		return;
 	}
+	
+	map<int,int>::iterator itFound = map_orbiter2embedphone.find(pMessage->m_dwPK_Device_From);
+	if( map_orbiter2embedphone.end() !=  itFound )
+	{
+		int phoneID = (*itFound).second;
+		if( phoneID > 0 )
+		{
+			DCE::CMD_Phone_Answer cmd(m_dwPK_Device, phoneID);
+			SendCommand(cmd);
+		}
+	}
+	else
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "CMD_Phone_Answer: No simplephone device found with id: %d", pMessage->m_dwPK_Device_From);
+	}
+
 	sCMD_Result="OK";
 }
+
 //<-dceag-c336-b->
 
 	/** @brief COMMAND: #336 - Phone_Drop */
@@ -1541,6 +1427,12 @@ void Telecom_Plugin::CMD_Phone_Answer(string &sCMD_Result,Message *pMessage)
 void Telecom_Plugin::CMD_Phone_Drop(string &sCMD_Result,Message *pMessage)
 //<-dceag-c336-e->
 {
+	if( pMessage == NULL )
+	{
+		sCMD_Result="ERROR : NULL message";
+		return;
+	}
+	
 	int nDeviceID = 0;
 
 	DeviceData_Router *pDeviceData = find_Device(pMessage->m_dwPK_Device_From);
@@ -1563,18 +1455,8 @@ void Telecom_Plugin::CMD_Phone_Drop(string &sCMD_Result,Message *pMessage)
 	{
 		DCE::CMD_Phone_Drop cmd_Phone_Drop(m_dwPK_Device, nDeviceID);
 		SendCommand(cmd_Phone_Drop);
-/*
-		PLUTO_SAFETY_LOCK(vm, m_TelecomMutex);  // Protect the call data
-		CallData *pCallData = CallManager::getInstance()->findCallByOwnerDevID(phoneID);
-		if(pCallData) {
-			CallManager::getInstance()->removeCall(pCallData);
-		}
-		else
-		{
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Dropping a call for which have no data");
-		}
-*/
 	}
+	
 	sCMD_Result="OK";
 }
 //<-dceag-c744-b->
@@ -2050,57 +1932,6 @@ int Telecom_Plugin::ParseChannel(const std::string channel, int* iextension, str
 	return 0;
 }
 
-void Telecom_Plugin::RemoveExtesionFromChannels(const string & sExtension)
-{
-	CallData* pCallData = NULL;
-	std::list<CallData*> *calls = CallManager::getInstance()->getCallList();
-	for(ListCallData_Manager::iterator it = calls->begin(); it != calls->end(); it++) {
-		pCallData = (*it);
-		string channels = pCallData->getID();
-		if( string::npos != channels.find(sExtension) )
-		{
-			size_t pos = 0, oldpos = 0;
-			do
-			{
-				pos = channels.find(' ',oldpos);
-				string chan;
-				int ext = 0;
-				string sext;
-				if(pos < 0)
-				{
-					chan = channels.substr(oldpos);
-				}
-				else
-				{
-					if(pos == oldpos)
-					{
-						oldpos=pos+1;
-						continue;
-					}
-					chan = channels.substr(oldpos, pos - oldpos);
-				}
-				if(0 == ParseChannel(chan,&ext,&sext) && sext == sExtension)
-				{
-					// remove the chanel and the space before it
-					if( oldpos >= 1 )
-						oldpos--;
-					if( pos < 0 )
-						channels.erase(oldpos);
-					else
-						channels.erase(oldpos, pos - oldpos);
-					
-					pCallData->setID(channels);
-//					LoggerWrapper::GetInstance()->Write(LV_WARNING, "****** CallManager::Remove: %s", channels.c_str());
-					
-					break;
-				}
-				oldpos=pos+1;
-			}
-			while(pos>=0);
-		}
-	}
-}
-
 bool Telecom_Plugin::VoIP_Problem(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo)
 {
 	int iLevel = atoi(pMessage->m_mapParameters[EVENTPARAMETER_Value_CONST].c_str());
@@ -2571,6 +2402,7 @@ bool Telecom_Plugin::TelecomFollowMe( class Socket *pSocket, class Message *pMes
 
 void Telecom_Plugin::FollowMe_EnteredRoom(int iPK_Event, int iPK_Orbiter, int iPK_Device, int iPK_Users, int iPK_RoomOrEntArea, int iPK_RoomOrEntArea_Left)
 {
+#if 0
 	// See if we have any pending media for this user
 	CallData *pCallData_User = NULL,*pCallData_Remote = NULL,*pCallData_Room = NULL;  // Matching the device (ie remote control) has first priority.  Otherwise find the user, or whatever was in the prior room
 
@@ -2639,6 +2471,7 @@ void Telecom_Plugin::FollowMe_EnteredRoom(int iPK_Event, int iPK_Orbiter, int iP
 		LoggerWrapper::GetInstance()->Write(LV_WARNING,"Telecom_Plugin::FollowMe_EnteredRoom no phones in room %d",iPK_RoomOrEntArea);
 		return;
 	}
+#endif
 
 // TODO:
 //	if( pDevice_SoftPhone )
