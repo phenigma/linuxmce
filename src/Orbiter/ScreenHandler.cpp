@@ -3512,6 +3512,12 @@ void ScreenHandler::SCREEN_DevIncomingCall(long PK_Screen, string sPhoneNumber, 
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_My_Caller_ID_CONST, sDestination_Caller_ID);
 
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, "");
+
+	if(m_pOrbiter->m_pScreenHistory_Current->PK_Screen() == SCREEN_Assisted_Transfer_In_Progress_CONST)
+	{
+		//don't go to call in progress
+		return;
+	}
 	
 	ScreenHandlerBase::SCREEN_DevIncomingCall(PK_Screen, sPhoneNumber, sSource_Channel, sDestination_Channel,
 		sSource_Caller_ID, sDestination_Caller_ID);
