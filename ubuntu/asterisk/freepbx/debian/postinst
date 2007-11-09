@@ -33,4 +33,8 @@ if [[ "$1" == configure ]]; then
 	done
 
 	/usr/pluto/bin/sync_pluto2amp.pl || :
+	
+	# just to be sure
+	## the installed modules add files to some of these directories and the ownership needs to be set for them too
+	chown -R asterisk.asterisk {/usr/share,/var/{log,lib,spool},/etc}/asterisk
 fi
