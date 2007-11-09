@@ -184,6 +184,7 @@ fi
 
 chroot $TEMP_DIR apt-get -y install kubuntu-desktop
 mv "$TEMP_DIR"/etc/init.d/kdm{,.save}
+mv "$TEMP_DIR"/etc/rc2.d/*kdm "$TEMP_DIR"/etc/rc2.d/S99kdm
 
 ## Install dummy linux-image package on diskless image
 chroot $TEMP_DIR apt-get -y install linux-image-dummy
