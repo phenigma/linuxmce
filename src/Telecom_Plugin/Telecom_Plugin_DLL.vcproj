@@ -128,12 +128,6 @@
 				RelativePath=".\AssistedTransfer.cpp">
 			</File>
 			<File
-				RelativePath=".\calldata.cpp">
-			</File>
-			<File
-				RelativePath=".\callmanager.cpp">
-			</File>
-			<File
 				RelativePath=".\CallStatus.cpp">
 			</File>
 			<File
