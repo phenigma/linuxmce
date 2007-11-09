@@ -851,6 +851,7 @@ Telecom_Plugin::Ring( class Socket *pSocket, class Message *pMessage, class Devi
 	{
 		SCREEN_DevIncomingCall screen_DevIncomingCall(
 			m_dwPK_Device, nOrbiterDeviceID, 
+			ExtensionForChannel(sSource_Channel),
 			sSource_Channel,
 			sDestination_Channel,
 			sSource_Caller_ID,
