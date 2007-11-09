@@ -38,6 +38,8 @@ if [[ -f /etc/pluto/install_cleandb ]]; then
 	chvt 1
 fi
 
+modprobe ztdummy
+
 export DISPLAY=:${Display}
 XPID=$(</var/run/plutoX$Display.pid)
 if [[ -z "$XPID" || ! -d /proc/"$XPID" ]] ;then
