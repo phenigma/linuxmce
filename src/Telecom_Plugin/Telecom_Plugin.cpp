@@ -1060,8 +1060,8 @@ ExtensionStatus* Telecom_Plugin::FindExtensionStatus(string sExt)
 
 string Telecom_Plugin::GetNewConferenceID()
 {
-	unsigned i = 1;
-	unsigned confMax = map_conference2status.size() + map_newconference.size() + 1;
+	size_t i = 1;
+	size_t confMax = map_conference2status.size() + map_newconference.size() + 1;
 	for(; i<confMax; i++)
 	{
 		if( map_conference2status.end() == map_conference2status.find(i) &&
@@ -1072,7 +1072,7 @@ string Telecom_Plugin::GetNewConferenceID()
 	}
 	
 	map_newconference[i] = "";
-	return CallStatus::GetStringConferenceID(i);
+	return CallStatus::GetStringConferenceID(static_cast<unsigned int>(i));
 }
 
 void Telecom_Plugin::RemoveCallStatus(CallStatus * pCallStatus)
@@ -1743,7 +1743,7 @@ class DataGridTable *Telecom_Plugin::ActiveCallsGrid(string GridID,string Parms,
 	{
 		CallStatus *pCallStatus = it->second;
 
-		string sText = GetCallName(pCallStatus) + (pCallStatus->IsConference() ? " (C)" : " (D)");
+		string sText = GetCallName(pCallStatus) + " " + StringUtils::ltos(pCallStatus->GetChannels().size());
 		string sValue = it->first;
 
 		pCell = new DataGridCell(sText, sValue);
