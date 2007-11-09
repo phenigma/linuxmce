@@ -1743,7 +1743,7 @@ class DataGridTable *Telecom_Plugin::ActiveCallsGrid(string GridID,string Parms,
 	{
 		CallStatus *pCallStatus = it->second;
 
-		string sText = GetCallName(pCallStatus) + " " + StringUtils::ltos(pCallStatus->GetChannels().size());
+		string sText = GetCallName(pCallStatus) + " (" + StringUtils::ltos(static_cast<long>(pCallStatus->GetChannels().size())) + ")";
 		string sValue = it->first;
 
 		pCell = new DataGridCell(sText, sValue);
