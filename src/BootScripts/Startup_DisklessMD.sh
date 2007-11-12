@@ -61,8 +61,11 @@ rm -f /mnt/optical/*.checksum
 rm -f /etc/rc{0,6}.d/S*{umountnfs.sh,portmap,networking}
 invoke-rc.d nis start
 
-#rm -f /etc/modprobe.d/lrm-video 
-
+## workaround for gutsy bug #139155
+if [[ ! -f /var/cache/hald/fdi-cache ]] ;then
+	/usr/lib/hal/hald-generate-fdi-cache
+	invoke-rc.d hal restart
+fi
 
 if [[ -f /usr/pluto/bin/Config_Ops.sh ]]; then
 	 . /usr/pluto/bin/Config_Ops.sh
@@ -99,7 +102,6 @@ StartService "Creating Firewire 2 Video4Linux Pipes" "/usr/pluto/bin/Firewire2Vi
 # TODO: remove this when correct locking will be implemented
 rm -f /usr/pluto/locks/pluto_spawned_local_devices.txt
 
-#StartService "Starting Local Devices" "/usr/pluto/bin/Start_LocalDevices.sh"
 StartService "Configuring Pluto Storage Devices" "/usr/pluto/bin/StorageDevices_Setup.sh" "&"
 #StartDaemon "Report machine is on" "/usr/pluto/bin/Report_MachineOn.sh" "ReportingOn"
 StartService "Status Radar" "/usr/pluto/bin/StorageDevices_StatusRadar.sh"
