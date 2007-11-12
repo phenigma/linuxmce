@@ -886,7 +886,6 @@ bool Orbiter_Plugin::ReloadAborted(class Socket *pSocket,class Message *pMessage
 		Message+= " as per " + pDeviceData_Router->m_sDescription;
 	Message += ".  Please try again in a few minutes.\n" + pMessage->m_mapParameters[EVENTPARAMETER_Text_CONST];
 
-	//DisplayMessageOnOrbiter(PK_Orbiter,Message);
 	SCREEN_DialogGenericError SCREEN_DialogGenericError(m_dwPK_Device, PK_Orbiter, Message, "0", "0", "0");
 	SendCommand(SCREEN_DialogGenericError);
 
@@ -2428,9 +2427,6 @@ void Orbiter_Plugin::CMD_Display_Message(string sText,string sType,string sName,
 //<-dceag-c406-e->
 {
 	//TODO: remove me
-
-	int iTime = sTime.size() ? atoi(sTime.c_str()) : 0;
-	DisplayMessageOnOrbiter(sList_PK_Device,sText,false,iTime,true);
 }
 
 //<-dceag-c686-b->
@@ -2448,20 +2444,6 @@ void Orbiter_Plugin::CMD_Display_Dialog_Box_On_Orbiter(string sText,string sOpti
 //<-dceag-c686-e->
 {
 	//TODO: removed me
-
-    //allows to user to use MessageSend tool, with ' instead of "
-    sOptions = StringUtils::Replace(sOptions, "'", "\""); 
-
-    vector<string> vectOptions;
-    StringUtils::Tokenize(sOptions, "|", vectOptions);
-
-    //fill the rest of parameters with weren't specified
-    while(vectOptions.size() < 8)
-        vectOptions.push_back("");
-
-    DisplayMessageOnOrbiter(sList_PK_Device, sText, false, 0, true,
-        vectOptions[0], vectOptions[1], vectOptions[2], vectOptions[3], 
-        vectOptions[4], vectOptions[5], vectOptions[6], vectOptions[7]);
 }
 
 //<-dceag-c693-b->
@@ -2912,15 +2894,6 @@ bool Orbiter_Plugin::PresenceDetected( class Socket *pSocket, class Message *pMe
 bool Orbiter_Plugin::PresenceLost( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
 {
 	return false;
-}
-
-string Orbiter_Plugin::PK_Device_Orbiters_In_Room_get(int PK_Room, bool bOnlyAllowingPopups)
-{
-	string sPK_Device="";
-	for(map<int,OH_Orbiter *>::iterator it=m_mapOH_Orbiter.begin();it!=m_mapOH_Orbiter.end();++it)
-		if( it->second->m_tRegistered && it->second->m_dwPK_Room==PK_Room && (!bOnlyAllowingPopups || it->second->m_bSendPopups) )
-			sPK_Device += StringUtils::itos(it->first) + ",";
-	return sPK_Device;
 }
 
 //<-dceag-c828-b->

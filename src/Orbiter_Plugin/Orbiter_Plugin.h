@@ -182,6 +182,15 @@ public:
         return it==m_mapAllowedConnections.end() ? NULL : (*it).second;
     }
 
+	string Orbiter_Plugin::PK_Device_Orbiters_In_Room_get(int PK_Room, bool bOnlyAllowingPopups=true)
+	{
+		string sPK_Device="";
+		for(map<int,OH_Orbiter *>::iterator it=m_mapOH_Orbiter.begin();it!=m_mapOH_Orbiter.end();++it)
+			if( it->second->m_tRegistered && it->second->m_dwPK_Room==PK_Room && (!bOnlyAllowingPopups || it->second->m_bSendPopups) )
+				sPK_Device += StringUtils::itos(it->first) + ",";
+		return sPK_Device;
+	}
+
     bool ConnectionAllowed(int iDevice, string sMacAddress);
 
 	// Our interceptors
@@ -210,33 +219,6 @@ public:
 
 	bool CheckForNewWizardDevices(DeviceData_Router *pDevice_MD);
 
-	void DisplayMessageOnOrbiter(int dwPK_Device,string sMessage,bool bPromptToResetRouter=false,int iTimeout=0,bool bCantGoBack=false,
-		string sOption1="",string sMessage1="",string sOption2="",string sMessage2="",string sOption3="",string sMessage3="",string sOption4="", string sMessage4="" )
-	{
-		//TODO: remove me!
-		DisplayMessageOnOrbiter(StringUtils::itos(dwPK_Device),sMessage,bPromptToResetRouter,iTimeout,bCantGoBack,
-			sOption1,sMessage1,sOption2,sMessage2,sOption3,sMessage3,sOption4,sMessage4);
-	}
-
-	void DisplayMessageOnOrbiter(string sPK_Device,string sMessage,bool bPromptToResetRouter=false,int iTimeout=0,bool bCantGoBack=false,
-		string sOption1="",string sMessage1="",string sOption2="",string sMessage2="",string sOption3="",string sMessage3="",string sOption4="", string sMessage4="" )
-	{
-		if ( sMessage == "" )
-			return;
-
-		if( sPK_Device.size()==0 )
-			sPK_Device = m_sPK_Device_AllOrbiters_AllowingPopups;
-
-		SCREEN_PopupMessage_DL SCREEN_PopupMessage_DL(m_dwPK_Device, sPK_Device,
-			sMessage + "|" + sMessage1 + "|" + sMessage2 + "|" + sMessage3 + "|" + sMessage4, // Main message
-			sOption1 + "|" + sOption2 + "|" + sOption3 + "|" + sOption4, // Command Line
-			"generic message", // Description
-			bPromptToResetRouter ? "1" : "0", // sPromptToResetRouter
-			StringUtils::itos(iTimeout), // sTimeout
-			bCantGoBack ? "1" : "0"); // sCannotGoBack
-		SendCommand(SCREEN_PopupMessage_DL);
-	}
-
 	void FireFollowMe(string sMask,int iPK_Orbiter,int iPK_Users,int iPK_RoomOrEntArea,int iPK_RoomOrEntArea_Left);
 	void SetBoundIcons(int iPK_Users,bool bOnOff,string sType);
 	bool IsRegenerating(int iPK_Device);  // Is this orbiter's skin being generated?
@@ -246,7 +228,6 @@ public:
 
 	string m_sPK_Device_AllOrbiters_get() { return m_sPK_Device_AllOrbiters; }
 	string m_sPK_Device_AllOrbiters_AllowingPopups_get() { return m_sPK_Device_AllOrbiters_AllowingPopups; }
-	string PK_Device_Orbiters_In_Room_get(int PK_Room, bool bOnlyAllowingPopups=true);
 
 	//<-dceag-h-b->
 	/*

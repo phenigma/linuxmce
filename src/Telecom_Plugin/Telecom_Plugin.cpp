@@ -798,15 +798,21 @@ Telecom_Plugin::Ring( class Socket *pSocket, class Message *pMessage, class Devi
 
 	if(nOrbiterDeviceID)
 	{
-		SCREEN_DevIncomingCall screen_DevIncomingCall(
-			m_dwPK_Device, nOrbiterDeviceID, 
-			ExtensionForChannel(sSource_Channel),
-			sSource_Channel,
-			sDestination_Channel,
-			sSource_Caller_ID,
-			sDestination_Caller_ID
-		);
-		SendCommand(screen_DevIncomingCall);
+		OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(nOrbiterDeviceID);
+		if(NULL != pOH_Orbiter)
+		{
+			string sOrbiters = m_pOrbiter_Plugin->PK_Device_Orbiters_In_Room_get(pOH_Orbiter->m_dwPK_Room, false);
+
+			SCREEN_DevIncomingCall_DL screen_DevIncomingCall_DL(
+				m_dwPK_Device, sOrbiters, 
+				ExtensionForChannel(sSource_Channel),
+				sSource_Channel,
+				sDestination_Channel,
+				sSource_Caller_ID,
+				sDestination_Caller_ID
+			);
+			SendCommand(screen_DevIncomingCall_DL);
+		}
 	}
 	
 	DumpActiveCalls();
@@ -848,13 +854,19 @@ Telecom_Plugin::Link( class Socket *pSocket, class Message *pMessage, class Devi
 
 	if(nSrcOrbiterDeviceID)
 	{
-		SCREEN_DevCallInProgress screen_DevCallInProgress(
-			m_dwPK_Device, nSrcOrbiterDeviceID, 
-			sSource_Caller_ID,
-			sCallID,
-			sSource_Channel
-		);
-		SendCommand(screen_DevCallInProgress);
+		OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(nSrcOrbiterDeviceID);
+		if(NULL != pOH_Orbiter)
+		{
+			string sOrbiters = m_pOrbiter_Plugin->PK_Device_Orbiters_In_Room_get(pOH_Orbiter->m_dwPK_Room, false);
+
+			SCREEN_DevCallInProgress_DL screen_DevCallInProgress_DL(
+				m_dwPK_Device, sOrbiters, 
+				sSource_Caller_ID,
+				sCallID,
+				sSource_Channel
+			);
+			SendCommand(screen_DevCallInProgress_DL);
+		}
 	}
 
 	//dest channel -> exten -> simple phone -> orbiter
@@ -862,13 +874,19 @@ Telecom_Plugin::Link( class Socket *pSocket, class Message *pMessage, class Devi
 
 	if(nDestOrbiterDeviceID)
 	{
-		SCREEN_DevCallInProgress screen_DevCallInProgress(
-			m_dwPK_Device, nDestOrbiterDeviceID, 
-			sDestination_Caller_ID,
-			sCallID,
-			sDestination_Channel
-		);
-		SendCommand(screen_DevCallInProgress);
+		OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(nDestOrbiterDeviceID);
+		if(NULL != pOH_Orbiter)
+		{
+			string sDestOrbiters = m_pOrbiter_Plugin->PK_Device_Orbiters_In_Room_get(pOH_Orbiter->m_dwPK_Room, false);
+	
+			SCREEN_DevCallInProgress_DL screen_DevCallInProgress_DL(
+				m_dwPK_Device, sDestOrbiters, 
+				sDestination_Caller_ID,
+				sCallID,
+				sDestination_Channel
+			);
+			SendCommand(screen_DevCallInProgress_DL);
+		}
 	}
 	
 	for(map<string, TelecomTask*>::const_iterator it=map_id2task.begin(); it!=map_id2task.end(); ++it)
