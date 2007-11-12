@@ -4,7 +4,7 @@ function editDeviceParams($output,$dbADO) {
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/editDeviceParams.lang.php');
 	
-	global $PlutoSupportHost;
+	global $PlutoSupportHost,$wikiHost;
 /* @var $dbADO ADOConnection */
 /* @var $rs ADORecordSet */
 
@@ -176,7 +176,7 @@ $manualyConfigureArray=array(
 	</script>
 		
 	<fieldset>
-	<legend>'.$TEXT_DEVICE_INFO_CONST.' #'.$deviceID.' <!--<a href="'.$PlutoSupportHost.'index.php?section=document&docID='.@$helpDocument.'"><img src="include/images/help_rounded.gif" align="middle" border="0"></a>--></legend>
+	<legend>'.$TEXT_DEVICE_INFO_CONST.' #'.$deviceID.'</legend>
 	<table border="0">
 		<tr>
 			<td>'.$TEXT_DESCRIPTION_CONST.' *</td>
@@ -185,7 +185,7 @@ $manualyConfigureArray=array(
 	<tr>
 		<td>'.$TEXT_DEVICE_TEMPLATE_CONST.'</td>
 		<td width="230" bgcolor="#B9B9B9"><B>'.$mdlDescription.' #'.$DeviceTemplate.'</B></td>
-		<td><input value="'.$TEXT_VIEW_CONST.'" type="button" class="button" name="controlGoToMDL" onClick="windowOpen(\'index.php?section=editMasterDevice&model='.$DeviceTemplate.'&from=editDeviceParams\',\'width=1024,height=768,toolbars=true,scrollbars=1,resizable=1\');"> <input value="'.$TEXT_HELP_CONST.'" type="button" class="button" name="help" onClick="window.open(\'/wiki/index.php/Documentation_by_Device_Templates#'.$wikiLink.'\');">'.$manufHomeLink.' '.$internalLink.'</td>
+		<td><input value="'.$TEXT_VIEW_CONST.'" type="button" class="button" name="controlGoToMDL" onClick="windowOpen(\'index.php?section=editMasterDevice&model='.$DeviceTemplate.'&from=editDeviceParams\',\'width=1024,height=768,toolbars=true,scrollbars=1,resizable=1\');"> <input value="'.$TEXT_HELP_CONST.'" type="button" class="button" name="help" onClick="window.open(\''.$wikiHost.'/index.php/'.$wikiLink.'\');">'.$manufHomeLink.' '.$internalLink.'</td>
 	</tr>
 	<tr>
 		<td>'.$TEXT_DEVICE_TEMPLATE_COMMENTS_CONST.'</td>

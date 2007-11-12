@@ -4,7 +4,7 @@ function devices($output,$dbADO) {
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/devices.lang.php');
 
-	global $dbPlutoMainDatabase;
+	global $dbPlutoMainDatabase,$wikiHost;
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
 	//$dbADO->debug=true;
@@ -19,7 +19,7 @@ function devices($output,$dbADO) {
 	switch($type){
 		case 'interfaces':
 			$deviceCategory=$GLOBALS['rootInterfaces'];
-			$output->setHelpSrc('/wiki/index.php/Interfaces');
+			$output->setHelpSrc($wikiHost.'/index.php/Interfaces');
 		break;
 		case 'avEquipment':
 			$deviceCategory=$GLOBALS['rootAVEquipment'];
@@ -28,23 +28,23 @@ function devices($output,$dbADO) {
 		case 'lights':
 			$deviceCategory=$GLOBALS['rootLights'];
 			$specificFloorplanType=$GLOBALS['LightingFoorplanType'];
-			$output->setHelpSrc('/wiki/index.php/Lights');
+			$output->setHelpSrc($wikiHost.'/index.php/Lights');
 		break;
 		case 'climate':
 			$deviceCategory=$GLOBALS['rootClimate'];
 			$specificFloorplanType=$GLOBALS['ClimateFoorplanType'];
-			$output->setHelpSrc('/wiki/index.php/Climate');
+			$output->setHelpSrc($wikiHost.'/index.php/Climate');
 		break;
 		case 'security':
 			$deviceCategory=$GLOBALS['rootSecurity'];
 			$extraCategoryArray[]=$GLOBALS['rootGenericIO'];
 			$specificFloorplanType=$GLOBALS['SecurityFoorplanType'];
-			$output->setHelpSrc('/wiki/index.php/Security');
+			$output->setHelpSrc($wikiHost.'/index.php/Security');
 		break;
 		case 'surveillance_cameras':
 			$deviceCategory=$GLOBALS['rootCameras'];
 			$specificFloorplanType=$GLOBALS['SecurityFoorplanType'];
-			$output->setHelpSrc('/wiki/index.php/Surveillance_Cameras');
+			$output->setHelpSrc($wikiHost.'/index.php/Surveillance_Cameras');
 			$lightsArray=getDevicesArrayFromCategory($GLOBALS['rootLights'],$dbADO);
 			$sensorsArray=getDevicesArrayFromCategory($GLOBALS['rootSecurity'],$dbADO);
 			
@@ -199,7 +199,7 @@ function devices($output,$dbADO) {
 						<td align="right" valign="top">'.formatDeviceData($rowD['PK_Device'],$deviceDataArray[$rowD['PK_Device']],$dbADO,$rowD['IsIPBased'],@$specificFloorplanType,1,'textarea').'</td>
 						<td align="center" valign="center" class="alternate_back">
 							'.lights_test_buttons($type,$rowD['PK_Device'],$dbADO).'
-							<input value="'.$TEXT_HELP_CONST.'" type="button" class="button_fixed" name="help" onClick="self.location=\'/wiki/index.php/Documentation_by_Device_Templates#'.wikiLink($rowD['TemplateName']).'\'"><br>
+							<input value="'.$TEXT_HELP_CONST.'" type="button" class="button_fixed" name="help" onClick="self.location=\''.$wikiHost.'/index.php/'.wikiLink($rowD['TemplateName']).'\'"><br>
 							<input type="button" class="button_fixed" name="edit_'.$rowD['PK_Device'].'" value="'.$TEXT_ADVANCED_CONST.'"  onClick="self.location=\'index.php?section=editDeviceParams&deviceID='.$rowD['PK_Device'].'\';"><br>
 							<input type="submit" class="button_fixed" name="delete_'.$rowD['PK_Device'].'" value="'.$TEXT_DELETE_CONST.'"  onClick="if(!confirm(\'Are you sure you want to delete this device?\'))return false;">
 						</td>
