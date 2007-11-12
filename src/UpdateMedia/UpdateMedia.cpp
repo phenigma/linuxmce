@@ -602,7 +602,7 @@ bool UpdateMedia::ScanSubfolders(string sDirectory, FolderType& folder_type)
 			continue;
 		}
 		
-		if ( StringUtils::StartsWith(sSubDir, UpdateMediaVars::sUPnPMountPoint+"/MythTV AV Media Server") )
+		if ( StringUtils::StartsWith(sSubDir, UpdateMediaVars::sUPnPMountPoint+"/") && (sSubDir.find("MythTV AV Media Server")!=string::npos) )
 		{
 			LoggerWrapper::GetInstance()->Write(LV_WARNING, "The directory %s is MythTV UPnP dir. We'll skip it!", sSubDir.c_str());
 			continue;
