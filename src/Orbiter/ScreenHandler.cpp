@@ -3922,10 +3922,13 @@ void ScreenHandler::HandleAssistedMakeCall(int iPK_Users,string sPhoneExtension,
 					"0", //without timeout
 					"1"  //cannot go back
 				);
-                break;
+				break;
 			}
 
-			SCREEN_Assisted_Transfer_In_Progress(SCREEN_Assisted_Transfer_In_Progress_CONST, !sSecondPhoneCall.empty(), sTaskID);
+			DCE::SCREEN_Assisted_Transfer_In_Progress screen_Assisted_Transfer_In_Progress(
+					m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device,
+					!sSecondPhoneCall.empty(), sTaskID);
+			m_pOrbiter->SendCommand(screen_Assisted_Transfer_In_Progress);
 		}
 		break;
 
