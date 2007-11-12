@@ -3784,7 +3784,10 @@ bool ScreenHandler::ActiveCalls_CallInProgress()
 	if(sCurrentCall.empty())
 		sCurrentCall = m_pOrbiter->m_mapVariable_Find(VARIABLE_Current_Call_CONST);
 
-	SCREEN_DevCallInProgress(SCREEN_DevCallInProgress_CONST, sCurrentCall, "", "");
+	string sPhoneCallerID = m_pOrbiter->m_mapVariable_Find(VARIABLE_My_Caller_ID_CONST);
+	string sChannel = m_pOrbiter->m_mapVariable_Find(VARIABLE_My_Channel_ID_CONST);
+	
+	SCREEN_DevCallInProgress(SCREEN_DevCallInProgress_CONST, sPhoneCallerID, sCurrentCall, sChannel);
 
 	return true;
 }
