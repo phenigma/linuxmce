@@ -76,7 +76,6 @@ int UniqueColors[MAX_TELECOM_COLORS];
 #include <string.h>
 #endif
 
-#define CONFERENCE_PREFIX "C000"
 #define CONFERENCE_MAX_NO 50
 
 #define SPEAKINTHEHOUSE_INVALID_EXT "555"
@@ -1023,6 +1022,12 @@ string Telecom_Plugin::GetNewConferenceID()
 		}
 	}
 	
+	if( i > CONFERENCE_MAX_NO )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Maximum conferences number : %u !", CONFERENCE_MAX_NO);
+		return "";
+	}
+	
 	map_newconference[i] = "";
 	return CallStatus::GetStringConferenceID(static_cast<unsigned int>(i));
 }
@@ -1182,7 +1187,7 @@ void Telecom_Plugin::CMD_PL_Transfer(int iPK_Device,int iPK_Users,string sPhoneE
 	if( sPhoneNumber.empty() )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Nowhere to transfer !!!");
-		sCMD_Result = "ERROR";
+		sCMD_Result = "ERROR : Nowhere to transfer!";
 		return;
 	}
 
@@ -1196,7 +1201,7 @@ void Telecom_Plugin::CMD_PL_Transfer(int iPK_Device,int iPK_Users,string sPhoneE
 		if( call1 == NULL )
 		{
 			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Telecom_Plugin::CMD_PL_Transfer: No call found for channel %s", sChannel_1.c_str());
-			sCMD_Result = "ERROR";
+			sCMD_Result = "ERROR : Call not available!";
 			return;
 		}
 	
