@@ -67,7 +67,7 @@ if($DB_ROW = $DB_STATEMENT->fetchrow_hashref())
     $the_priority = 1;
 }
 $DB_STATEMENT->finish();
-print "EXEC SetVar PRIORITYCALLER=".$the_priority."\n";
+print "EXEC Set PRIORITYCALLER=".$the_priority."\n";
 $line=<STDIN>;
 &checkresult($line);
 
@@ -87,7 +87,7 @@ if($the_usermode == 0)
     $the_usermode = 1;
 }
 $DB_STATEMENT->finish();
-print "EXEC SetVar USERMODE=".$the_usermode."\n";
+print "EXEC Set USERMODE=".$the_usermode."\n";
 $line=<STDIN>;
 &checkresult($line);
 

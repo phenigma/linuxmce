@@ -47,7 +47,7 @@ if($the_housemode == 0)
 }
 $DB_STATEMENT->finish();
 
-print "EXEC SetVar HOUSEMODE=$the_housemode\n";
+print "EXEC Set HOUSEMODE=$the_housemode\n";
 $line=<STDIN>;
 &checkresult($line);
 
