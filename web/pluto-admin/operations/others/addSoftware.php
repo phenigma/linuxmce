@@ -33,7 +33,7 @@ function addSoftware($output,$dbADO) {
 		
 		<table>
 			<tr>
-				<td colspan="2"><input type="button" class="button" value="Update Software List" onClick="windowOpen(\'operations/logs/executeLog.php?script=5&cmd='.urlencode($getXML_cmd).'\',\'width=1024,height=768,scrollbars=1,resizable=1\');"></td>
+				<td colspan="2"><input type="button" class="button" value="Update Software List" onClick="windowOpen(\'operations/logs/executeLog.php?script=4&cmd='.urlencode($getXML_cmd).'\',\'width=1024,height=768,scrollbars=1,resizable=1\');"></td>
 			</tr>
 			<tr>
 				<td>'.$TEXT_ADD_SOFTWARE_ON_WHICH_COMPUTER_CONST.'</td>
