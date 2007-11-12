@@ -76,51 +76,57 @@ int CommunicationHandler::handleToken(Token* ptoken, bool& bIsResponseToken)
 		return handlePeerStatusChanged(ptoken);
 	else if(ptoken->getKey(TOKEN_EVENT) == EVENT_EXTEN_STATUS)
 		return handleExtensionStatusChanged(ptoken);
+	else if(ptoken->getKey(TOKEN_EVENT) == EVENT_DIAL)
+		return handleDial(ptoken);
+
+	return 0;
+}
+
+int CommunicationHandler::handleDial(Token* ptoken)
+{
+	//Event: Dial
+	//Privilege: call,all
+	//Source: SIP/203-b6712e68
+	//Destination: SIP/200-08206080
+	//CallerID: 203
+	//CallerIDName: 203
+	//SrcUniqueID: 1194865540.278
+	//DestUniqueID: 1194865540.279
+
+	string sSrcChannel = ptoken->getKey(TOKEN_SOURCE);
+	string sDestChannel = ptoken->getKey(TOKEN_DESTINATION);
+	string sSrcCallerID = ptoken->getKey(TOKEN_CALLERID);
+
+	string sSrcExtension;
+	string sDestExtension;
+
+	if(!Utils::ParseChannel(sSrcChannel, &sSrcExtension) && !Utils::ParseChannel(sDestChannel, &sDestExtension)) 
+	{
+		if(sDestExtension != sSrcExtension)
+		{
+			//e.g. 202 -> 202
+			map_ringext[sDestExtension] = sSrcChannel;
+
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Ringing for %s to %s", 
+				sSrcChannel.c_str(), sDestExtension.c_str());
+		}
+		else
+		{
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Ignoring event because exten is %s is channel is %s", 
+				sDestExtension.c_str(), sSrcChannel.c_str());
+		}
+	}
+	else
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Failed to parse channel %s", sSrcChannel.c_str());
+	}
 
 	return 0;
 }
 
 int CommunicationHandler::handleNewextenEvent(Token* ptoken) 
 {
-	if(ptoken->getKey(TOKEN_APPLICATION) == APPLICATION_DIAL)
-	{
-		//sample:
-		//Event: Newexten
-		//Privilege: call,all
-		//Channel: SIP/202-0821b2e0
-		//Context: from-internal
-		//Extension: 200
-		//Priority: 1
-		//Application: Dial
-		//AppData: SIP/200
-		//Uniqueid: 1194011868.13
-
-		string sSrcChannel = ptoken->getKey(TOKEN_CHANNEL);
-		string sDestExtension = ptoken->getKey(TOKEN_EXTENSION);
-		string sSrcExtension;
-
-		if(!Utils::ParseChannel(sSrcChannel, &sSrcExtension)) 
-		{
-			if(sDestExtension != sSrcExtension)
-			{
-				//e.g. 202 -> 202
-				map_ringext[sDestExtension] = sSrcChannel;
-
-				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Ringing for %s to %s", 
-					sSrcChannel.c_str(), sDestExtension.c_str());
-			}
-			else
-			{
-				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Ignoring event because exten is %s is channel is %s", 
-					sDestExtension.c_str(), sSrcChannel.c_str());
-			}
-		}
-		else
-		{
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Failed to parse channel %s", sSrcChannel.c_str());
-		}
-	}
-	else if(ptoken->getKey(TOKEN_APPLICATION) == APPLICATION_CONF || ptoken->getKey(TOKEN_APPLICATION) == APPLICATION_MEETME)
+	if(ptoken->getKey(TOKEN_APPLICATION) == APPLICATION_CONF || ptoken->getKey(TOKEN_APPLICATION) == APPLICATION_MEETME)
 	{
 		//e.g.
 		//Event: Newexten

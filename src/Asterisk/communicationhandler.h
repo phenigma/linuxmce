@@ -64,6 +64,7 @@ private:
 	int handleNewChannelEvent(Token* ptoken);
 	int handlePeerStatusChanged(Token* ptoken);
 	int handleExtensionStatusChanged(Token* ptoken);
+	int handleDial(Token* ptoken);
 };
 
 }; 

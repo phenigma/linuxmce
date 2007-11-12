@@ -47,6 +47,8 @@
 #define TOKEN_REASON		"Cause-txt"
 #define TOKEN_FOLLOWS		"Follows"
 #define TOKEN_PRIVILEGE		"Privilege"
+#define TOKEN_SOURCE		"Source"
+#define TOKEN_DESTINATION  "Destination"
 
 /* events */
 #define EVENT_NEWCHANNEL 	"Newchannel"
@@ -56,6 +58,7 @@
 #define EVENT_NEWSTATE		"Newstate"
 #define EVENT_PEER_STATUS	"PeerStatus"
 #define EVENT_EXTEN_STATUS  "ExtensionStatus"
+#define EVENT_DIAL			"Dial"
 
 /* states */
 #define STATE_RING 			"Ring"
