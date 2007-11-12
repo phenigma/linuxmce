@@ -53,7 +53,7 @@ GetHddToUse()
 	local -a Hdd
 
 	clear
-	HddList=$(fdisk -l|grep ^Disk |cut -d' ' -f2-4|sed -r 's,[:,],,g; s, ,:,g')
+	HddList=$(fdisk -l|grep '^Disk /dev' |cut -d' ' -f2-4|sed -r 's,[:,],,g; s, ,:,g')
 	if [[ "$Debug" == 1 ]]; then
 		HddList="/dev/loop0:0:GB"
 	fi
@@ -276,6 +276,7 @@ ExtractArchive()
 NetworkSetup()
 {
 	# detect cards
+	/etc/init.d/networking restart &>/dev/null
 	NCards=$(ip addr | grep -cF 'link/ether')
 	if [[ "$NCards" -eq 1 ]]; then
 		ExtIf="eth0"
