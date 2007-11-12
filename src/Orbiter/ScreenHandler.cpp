@@ -3839,10 +3839,25 @@ void ScreenHandler::HandleAssistedMakeCall(int iPK_Users,string sPhoneExtension,
 		{
 			// A & B => {A,B}
 
+			string sResponse;
 			DCE::CMD_Make_Call cmd_Make_Call(
 				m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device_TelecomPlugIn,
 				iPK_Users, sPhoneExtension, iPK_Device_From, iPK_Device_To);
-			m_pOrbiter->SendCommand(cmd_Make_Call);
+			m_pOrbiter->SendCommand(cmd_Make_Call, &sResponse);
+
+			if(sResponse != "OK")
+			{
+				SCREEN_PopupMessage(
+					SCREEN_PopupMessage_CONST,  //screen id
+					"Failed to make call!|OK", //text
+					"", //command line
+					"error", //description
+					"0", //prompt for reset
+					"0", //without timeout
+					"1"  //cannot go back
+					);
+				break;
+			}
 
 			string sDescription = "Calling, please wait...";
 			string sButton1 = "Cancel call";
@@ -3864,10 +3879,25 @@ void ScreenHandler::HandleAssistedMakeCall(int iPK_Users,string sPhoneExtension,
 			string sOptions;
 			string sPhoneCallID = m_pOrbiter->m_mapVariable_Find(VARIABLE_Current_Call_CONST);
 
+			string sResponse;
 			DCE::CMD_PL_Join_Call cmd_PL_Join_Call(
 				m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device_TelecomPlugIn,
 				iPK_Users, sPhoneExtension, sPhoneCallID, iPK_Device_From);
-			m_pOrbiter->SendCommand(cmd_PL_Join_Call);
+			m_pOrbiter->SendCommand(cmd_PL_Join_Call, &sResponse);
+
+			if(sResponse != "OK")
+			{
+				SCREEN_PopupMessage(
+					SCREEN_PopupMessage_CONST,  //screen id
+					"Failed to join!|OK", //text
+					"", //command line
+					"error", //description
+					"0", //prompt for reset
+					"0", //without timeout
+					"1"  //cannot go back
+					);
+				break;
+			}
 
 			SCREEN_Active_Calls(SCREEN_Active_Calls_CONST);
 
@@ -3889,10 +3919,25 @@ void ScreenHandler::HandleAssistedMakeCall(int iPK_Users,string sPhoneExtension,
 			string sSourceChannel = m_pOrbiter->m_mapVariable_Find(VARIABLE_Source_Channel_ID_CONST);
 			string sSourceCallerID = m_pOrbiter->m_mapVariable_Find(VARIABLE_Source_Caller_ID_CONST);
 
+			string sResponse;
 			DCE::CMD_PL_Transfer cmd_PL_Transfer(
 				m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device_TelecomPlugIn,
 				iPK_Device_To, iPK_Users, sPhoneExtension, sSourceChannel, "");
-			m_pOrbiter->SendCommand(cmd_PL_Transfer);
+			m_pOrbiter->SendCommand(cmd_PL_Transfer, &sResponse);
+
+			if(sResponse != "OK")
+			{
+				SCREEN_PopupMessage(
+					SCREEN_PopupMessage_CONST,  //screen id
+					"Failed to transfer!|OK", //text
+					"", //command line
+					"error", //description
+					"0", //prompt for reset
+					"0", //without timeout
+					"1"  //cannot go back
+					);
+				break;
+			}
 
 			string sDescription = "Transfering call from " + sSourceCallerID + ", please wait...";
 
