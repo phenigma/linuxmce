@@ -77,6 +77,12 @@ int UniqueColors[MAX_TELECOM_COLORS];
 #endif
 
 #define CONFERENCE_PREFIX "C000"
+#define CONFERENCE_MAX_NO 50
+
+#define SPEAKINTHEHOUSE_INVALID_EXT "555"
+#define SPEAKINTHEHOUSE_CONFERENCE_IVR "997"
+#define SPEAKINTHEHOUSE_CONFERENCE_ALL "998"
+
 void * startDisplayThread(void * Arg);
 
 //<-dceag-const-b->
@@ -1176,6 +1182,7 @@ void Telecom_Plugin::CMD_PL_Transfer(int iPK_Device,int iPK_Users,string sPhoneE
 	if( sPhoneNumber.empty() )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Nowhere to transfer !!!");
+		sCMD_Result = "ERROR";
 		return;
 	}
 
@@ -1188,7 +1195,8 @@ void Telecom_Plugin::CMD_PL_Transfer(int iPK_Device,int iPK_Users,string sPhoneE
 	{
 		if( call1 == NULL )
 		{
-			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Telecom_Plugin::CMD_PL_Transfer No call found for channel %s", sChannel_1.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Telecom_Plugin::CMD_PL_Transfer: No call found for channel %s", sChannel_1.c_str());
+			sCMD_Result = "ERROR";
 			return;
 		}
 	
@@ -1235,6 +1243,7 @@ void Telecom_Plugin::CMD_PL_Cancel(int iPK_Device,string sChannel,string &sCMD_R
 		CMD_PBX_Hangup cmd_PBX_Hangup(m_dwPK_Device, m_pDevice_pbx->m_dwPK_Device, sChannel);
 		SendCommand(cmd_PBX_Hangup);
 	}
+	sCMD_Result="OK :";
 }
 //<-dceag-createinst-b->!
 
@@ -1255,7 +1264,6 @@ void Telecom_Plugin::HangupAllCalls()
 			const map<string, string> & channels = pCallStatus->GetChannels();
 			for(map<string, string>::const_iterator itCh=channels.begin(); itCh!=channels.end(); ++itCh)
 			{
-				/*send transfer command to PBX*/
 				CMD_PBX_Hangup cmd_PBX_Hangup(m_dwPK_Device, m_pDevice_pbx->m_dwPK_Device, (*itCh).first);
 				SendCommand(cmd_PBX_Hangup);
 			}
@@ -1414,6 +1422,7 @@ void Telecom_Plugin::CMD_Phone_Answer(string &sCMD_Result,Message *pMessage)
 	else
 	{
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "CMD_Phone_Answer: No simplephone device found with id: %d", pMessage->m_dwPK_Device_From);
+		sCMD_Result="ERROR :";
 	}
 
 	sCMD_Result="OK";
@@ -1439,6 +1448,7 @@ void Telecom_Plugin::CMD_Phone_Drop(string &sCMD_Result,Message *pMessage)
 	if(!pDeviceData) 
 	{
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "No device found with id: %d", pMessage->m_dwPK_Device_From);
+		sCMD_Result="ERROR :";
 		return;
 	}
 
@@ -1455,6 +1465,10 @@ void Telecom_Plugin::CMD_Phone_Drop(string &sCMD_Result,Message *pMessage)
 	{
 		DCE::CMD_Phone_Drop cmd_Phone_Drop(m_dwPK_Device, nDeviceID);
 		SendCommand(cmd_Phone_Drop);
+	}
+	else
+	{
+//		sCMD_Result="ERROR :";
 	}
 	
 	sCMD_Result="OK";
@@ -2027,12 +2041,14 @@ void Telecom_Plugin::CMD_PL_Join_Call(int iPK_Users,string sPhoneExtension,strin
 	if( sPhoneNumber.empty() )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Nowhere to make a call !!!");
+		sCMD_Result = "ERROR";
 		return;
 	}
 	
 	if( sPhoneCallID.empty() )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Invalid call ID !");
+		sCMD_Result = "ERROR";
 		return;
 	}
 	
@@ -2040,6 +2056,7 @@ void Telecom_Plugin::CMD_PL_Join_Call(int iPK_Users,string sPhoneExtension,strin
 	if(it == map_call2status.end())
 	{
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Invalid call ID !");
+		sCMD_Result = "ERROR";
 		return;
 	}
 	
@@ -2047,6 +2064,7 @@ void Telecom_Plugin::CMD_PL_Join_Call(int iPK_Users,string sPhoneExtension,strin
 	if( pCallStatus == NULL )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "NULL call status !");
+		sCMD_Result = "ERROR";
 		return;
 	}
 	
@@ -2084,7 +2102,10 @@ void Telecom_Plugin::CMD_PL_Join_Call(int iPK_Users,string sPhoneExtension,strin
 		sConferenceID = CallStatus::GetStringConferenceID( pCallStatus->GetConferenceID() );
 	}
 
-	InternalMakeCall(0, sPhoneNumber, sConferenceID); //exten->conference
+	if( !InternalMakeCall(0, sPhoneNumber, sConferenceID) )
+	{
+		sCMD_Result = "ERROR";
+	}
 }
 
 bool Telecom_Plugin::VoiceMailChanged(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo)
@@ -2283,13 +2304,14 @@ void Telecom_Plugin::CMD_Speak_in_house(int iPK_Device,string sPhoneNumber,strin
 		}
 	}
 
-	//is this an embedded phone?
+	// is this an embedded phone?
 	if(!bEmbeddedPhone)
 	{
-		//not an orbiter embedded phone - we'll use external originate
-		DCE::CMD_PL_External_Originate CMD_PL_External_Originate(m_dwPK_Device,m_dwPK_Device,
-			sPhoneNumber,"555","998");  // 555 = bogus call id, 998 = all speaker phones in house conf room
-		SendCommand(CMD_PL_External_Originate);
+		// 555 = bogus call id, 998 = all speaker phones in house conf room
+		if( !InternalMakeCall(0, SPEAKINTHEHOUSE_INVALID_EXT, SPEAKINTHEHOUSE_CONFERENCE_ALL) )
+		{
+			sCMD_Result = string("ERROR : couldn't make a call from") + SPEAKINTHEHOUSE_INVALID_EXT + "to" + SPEAKINTHEHOUSE_CONFERENCE_ALL;
+		}
 		return;
 	}
 
@@ -2335,7 +2357,7 @@ void Telecom_Plugin::CMD_Speak_in_house(int iPK_Device,string sPhoneNumber,strin
 					{
 						// all of us will call 997
 						LoggerWrapper::GetInstance()->Write(LV_STATUS,"Doing a speak in house with %d", *it);
-						DCE::CMD_Phone_Initiate cmd(m_dwPK_Device, *it, 0, "997");
+						DCE::CMD_Phone_Initiate cmd(m_dwPK_Device, *it, 0, SPEAKINTHEHOUSE_CONFERENCE_IVR);
 						SendCommand(cmd);
 					}
 					
@@ -2378,7 +2400,7 @@ void Telecom_Plugin::CMD_Speak_in_house(int iPK_Device,string sPhoneNumber,strin
 			{
 				// all of us will call 997
 				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Doing a speak in house with %d", *it);
-				DCE::CMD_Phone_Initiate cmd(m_dwPK_Device, *it, 0, "997");
+				DCE::CMD_Phone_Initiate cmd(m_dwPK_Device, *it, 0, SPEAKINTHEHOUSE_CONFERENCE_IVR);
 				SendCommand(cmd);
 			}
 		}
@@ -2402,76 +2424,76 @@ bool Telecom_Plugin::TelecomFollowMe( class Socket *pSocket, class Message *pMes
 
 void Telecom_Plugin::FollowMe_EnteredRoom(int iPK_Event, int iPK_Orbiter, int iPK_Device, int iPK_Users, int iPK_RoomOrEntArea, int iPK_RoomOrEntArea_Left)
 {
-#if 0
-	// See if we have any pending media for this user
-	CallData *pCallData_User = NULL,*pCallData_Remote = NULL,*pCallData_Room = NULL;  // Matching the device (ie remote control) has first priority.  Otherwise find the user, or whatever was in the prior room
-
-	std::list<CallData*> *calls = CallManager::getInstance()->getCallList();
-
-#ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Telecom_Plugin::FollowMe_EnteredRoom orbiter %d device %d user %d room %d calls %d",
-		iPK_Orbiter, iPK_Device, iPK_Users, iPK_RoomOrEntArea, (int) calls->size());
-#endif
-
-	for(std::list<CallData*>::iterator it = calls->begin();it != calls->end();++it)
-	{
-		CallData *pCallData = *it;
-		if( iPK_Device && iPK_Device==pCallData->m_PK_Device_Remote_get() )
-			pCallData_Remote = pCallData;
-
-		if( iPK_Users && iPK_Users==pCallData->m_PK_Users_get() )
-			pCallData_User = pCallData;
-
-		if( iPK_RoomOrEntArea_Left )
-		{
-			DeviceData_Router *pDevice = m_pRouter->m_mapDeviceData_Router_Find(pCallData->getOwnerDevID());
-			if( pDevice && (int)pDevice->m_dwPK_Room==iPK_RoomOrEntArea_Left )
-				pCallData_Room = pCallData;
-		}
-	}
-
-	// The call that matches this remote takes priority over the one for the user and then for the room
-	CallData *pCallData = pCallData_Remote ? pCallData_Remote : (pCallData_User ? pCallData_User : pCallData_Room);
-	if( !pCallData )
-	{
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Telecom_Plugin::FollowMe_EnteredRoom no call to transfer.  size %d",(int) calls->size());
-		return;
-	}
-
-	// We know the call.  Transfer it to a phone in iPK_RoomOrEntArea
-	DeviceData_Router *pDevice_HardPhone=NULL,*pDevice_SoftPhone=NULL;  // See if we have a hard or soft phone in that room
-	ListDeviceData_Router *pListDeviceData_Router = m_pRouter->m_mapDeviceByCategory_Find(DEVICECATEGORY_Hard_Phones_CONST);
-	if( pListDeviceData_Router != NULL )
-	{
-		for(ListDeviceData_Router::iterator it=pListDeviceData_Router->begin();it!=pListDeviceData_Router->end();++it)
-		{
-			if( (int)(*it)->m_dwPK_Room==iPK_RoomOrEntArea )
-			{
-				pDevice_HardPhone = *it;
-				break;
-			}
-		}
-	}
-	
-	pListDeviceData_Router = m_pRouter->m_mapDeviceByCategory_Find(DEVICECATEGORY_Soft_Phones_CONST);
-	if( pListDeviceData_Router != NULL )
-	{
-		for(ListDeviceData_Router::iterator it=pListDeviceData_Router->begin();it!=pListDeviceData_Router->end();++it)
-		{
-			if( (int)(*it)->m_dwPK_Room==iPK_RoomOrEntArea )
-			{
-				pDevice_SoftPhone = *it;
-				break;
-			}
-		}
-	}
-	
-	if( pDevice_HardPhone==NULL && pDevice_SoftPhone==NULL )
-	{
-		LoggerWrapper::GetInstance()->Write(LV_WARNING,"Telecom_Plugin::FollowMe_EnteredRoom no phones in room %d",iPK_RoomOrEntArea);
-		return;
-	}
-#endif
+// 	// See if we have any pending media for this user
+// 	CallData *pCallData_User = NULL,*pCallData_Remote = NULL,*pCallData_Room = NULL;
+// 	// Matching the device (ie remote control) has first priority. 
+// 	// Otherwise find the user, or whatever was in the prior room
+// 
+// 	std::list<CallData*> *calls = CallManager::getInstance()->getCallList();
+// 
+// #ifdef DEBUG
+// 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Telecom_Plugin::FollowMe_EnteredRoom orbiter %d device %d user %d room %d calls %d",
+// 		iPK_Orbiter, iPK_Device, iPK_Users, iPK_RoomOrEntArea, (int) calls->size());
+// #endif
+// 
+// 	for(std::list<CallData*>::iterator it = calls->begin();it != calls->end();++it)
+// 	{
+// 		CallData *pCallData = *it;
+// 		if( iPK_Device && iPK_Device==pCallData->m_PK_Device_Remote_get() )
+// 			pCallData_Remote = pCallData;
+// 
+// 		if( iPK_Users && iPK_Users==pCallData->m_PK_Users_get() )
+// 			pCallData_User = pCallData;
+// 
+// 		if( iPK_RoomOrEntArea_Left )
+// 		{
+// 			DeviceData_Router *pDevice = m_pRouter->m_mapDeviceData_Router_Find(pCallData->getOwnerDevID());
+// 			if( pDevice && (int)pDevice->m_dwPK_Room==iPK_RoomOrEntArea_Left )
+// 				pCallData_Room = pCallData;
+// 		}
+// 	}
+// 
+// 	// The call that matches this remote takes priority over the one for the user and then for the room
+// 	CallData *pCallData = pCallData_Remote ? pCallData_Remote : (pCallData_User ? pCallData_User : pCallData_Room);
+// 	if( !pCallData )
+// 	{
+// 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Telecom_Plugin::FollowMe_EnteredRoom no call to transfer.  size %d",(int) calls->size());
+// 		return;
+// 	}
+// 
+// 	// We know the call.  Transfer it to a phone in iPK_RoomOrEntArea
+// 	DeviceData_Router *pDevice_HardPhone=NULL,*pDevice_SoftPhone=NULL;  // See if we have a hard or soft phone in that room
+// 	ListDeviceData_Router *pListDeviceData_Router = m_pRouter->m_mapDeviceByCategory_Find(DEVICECATEGORY_Hard_Phones_CONST);
+// 	if( pListDeviceData_Router != NULL )
+// 	{
+// 		for(ListDeviceData_Router::iterator it=pListDeviceData_Router->begin();it!=pListDeviceData_Router->end();++it)
+// 		{
+// 			if( (int)(*it)->m_dwPK_Room==iPK_RoomOrEntArea )
+// 			{
+// 				pDevice_HardPhone = *it;
+// 				break;
+// 			}
+// 		}
+// 	}
+// 	
+// 	pListDeviceData_Router = m_pRouter->m_mapDeviceByCategory_Find(DEVICECATEGORY_Soft_Phones_CONST);
+// 	if( pListDeviceData_Router != NULL )
+// 	{
+// 		for(ListDeviceData_Router::iterator it=pListDeviceData_Router->begin();it!=pListDeviceData_Router->end();++it)
+// 		{
+// 			if( (int)(*it)->m_dwPK_Room==iPK_RoomOrEntArea )
+// 			{
+// 				pDevice_SoftPhone = *it;
+// 				break;
+// 			}
+// 		}
+// 	}
+// 	
+// 	if( pDevice_HardPhone==NULL && pDevice_SoftPhone==NULL )
+// 	{
+// 		LoggerWrapper::GetInstance()->Write(LV_WARNING,"Telecom_Plugin::FollowMe_EnteredRoom no phones in room %d",iPK_RoomOrEntArea);
+// 		return;
+// 	}
 
 // TODO:
 //	if( pDevice_SoftPhone )
@@ -2506,10 +2528,15 @@ void Telecom_Plugin::CMD_Make_Call(int iPK_Users,string sPhoneExtension,int iFK_
 	if( sPhoneNumber.empty() )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Nowhere to make a call !!!");
+		sCMD_Result = "ERROR";
 		return;
 	}
 	
-	InternalMakeCall(iFK_Device_From, "", sPhoneNumber);
+	if( !InternalMakeCall(iFK_Device_From, "", sPhoneNumber) )
+	{
+		sCMD_Result = "ERROR";
+		return;
+	}
 }
 
 //<-dceag-c924-b->
@@ -2805,7 +2832,7 @@ void Telecom_Plugin::DumpActiveCalls()
 	return "";
 }
 
-void Telecom_Plugin::InternalMakeCall(int iFK_Device_From, string sFromExten, string sPhoneNumberToCall)
+bool Telecom_Plugin::InternalMakeCall(int iFK_Device_From, string sFromExten, string sPhoneNumberToCall)
 {
 	PLUTO_SAFETY_LOCK(vm, m_TelecomMutex);
 
@@ -2858,6 +2885,12 @@ void Telecom_Plugin::InternalMakeCall(int iFK_Device_From, string sFromExten, st
 			SendCommand(cmd_PBX_Originate);
 		}
 	}
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "No PBX device!");
+		return false;
+	}
+	
+	return true;
 }
 
 int Telecom_Plugin::GetOrbiterDeviceID(string sExten, string sChannel /*= ""*/)
@@ -2954,16 +2987,25 @@ void Telecom_Plugin::CMD_Assisted_Transfer(int iPK_Device,int iPK_Users,string s
 void Telecom_Plugin::CMD_Process_Task(string sTask,string sJob,string &sCMD_Result,Message *pMessage)
 //<-dceag-c926-e->
 {
+	LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "CMD_Process_Task: %s", sTask.c_str());
+	
 	PLUTO_SAFETY_LOCK(vm, m_TelecomMutex);
 	
 	map<string, TelecomTask*>::const_iterator itFound = map_id2task.find(sTask);
 	if( itFound == map_id2task.end() )
 	{
-		// error
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "No such task: %s", sTask.c_str());
+		sCMD_Result = "ERROR";
 		return;
 	}
 	
-	(*itFound).second->ProcessJob(sJob);
+	if( (*itFound).second->ProcessJob(sJob) )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Error task: %s , job: %s",
+			sTask.c_str(), sJob.c_str());
+		sCMD_Result = "ERROR";
+		return;
+	}
 }
 
 string Telecom_Plugin::FindChannelForExt(CallStatus * pCallStatus, string ext)
