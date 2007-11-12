@@ -3471,6 +3471,9 @@ void ScreenHandler::SCREEN_Active_Calls(long PK_Screen)
 	RegisterCallBack(cbOnTimer,	(ScreenHandlerCallBack) &ScreenHandler::Telecom_OnTimer, new CallBackData());
 
 	m_pOrbiter->StartScreenHandlerTimer(2000);
+
+	m_pOrbiter->CMD_Show_Object(TOSTRING(DESIGNOBJ_mnuActiveCalls_CONST) ".0.0." TOSTRING(DESIGNOBJ_butCallInProgress_CONST), 0, "", "", 
+		m_pOrbiter->m_mapVariable_Find(VARIABLE_My_Call_ID_CONST).empty() ? "0" : "1");
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_MakeCallDevice(long PK_Screen)
@@ -3482,10 +3485,17 @@ void ScreenHandler::SCREEN_MakeCallDevice(long PK_Screen)
 void ScreenHandler::SCREEN_DevCallInProgress(long PK_Screen, string sPhoneCallerID, string sPhoneCallID, 
 	string sChannel)
 {
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_My_Caller_ID_CONST, sPhoneCallerID);
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_My_Call_ID_CONST, sPhoneCallID);
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_My_Channel_ID_CONST, sChannel);
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_Current_Call_CONST, sPhoneCallID);
+	if(!sPhoneCallerID.empty())
+		m_pOrbiter->CMD_Set_Variable(VARIABLE_My_Caller_ID_CONST, sPhoneCallerID);
+
+	if(!sPhoneCallID.empty())
+	{
+		m_pOrbiter->CMD_Set_Variable(VARIABLE_My_Call_ID_CONST, sPhoneCallID);
+		m_pOrbiter->CMD_Set_Variable(VARIABLE_Current_Call_CONST, sPhoneCallID);
+	}
+
+	if(!sChannel.empty())
+		m_pOrbiter->CMD_Set_Variable(VARIABLE_My_Channel_ID_CONST, sChannel);
 
 	if(m_pOrbiter->m_pScreenHistory_Current->PK_Screen() == SCREEN_Assisted_Transfer_In_Progress_CONST)
 	{
