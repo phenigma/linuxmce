@@ -189,7 +189,7 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 			</tr>			
 			
 			<tr>
-				<td colspan="2" align="center"><input type="submit" class="button" name="update" value="'.$TEXT_UPDATE_CONST.'"> <input type="reset" class="button" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'">
+				<td colspan="2"><input type="submit" class="button" name="update" value="'.$TEXT_UPDATE_CONST.'"> <input type="reset" class="button" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'">
 				<input type="hidden" name="oldPath" value="'.$rowFile['Path'].'">
 				<input type="hidden" name="oldFilename" value="'.$rowFile['Filename'].'">
 				</td>
