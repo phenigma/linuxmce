@@ -75,7 +75,7 @@ while($DB_ROW = $DB_STATEMENT->fetchrow_hashref())
     }
     if($DB_ROW->{'Routing'} =~ /^voicemail,(\d+)$/)
     {
-        $action = "Macro(vm,".$USERS{$1}.")";
+        $action = "Macro(vm,".$USERS{$1}.",DIRECTDIAL)";
     }
     if($DB_ROW->{'Routing'} =~ /^prompt/)
     {
@@ -144,11 +144,11 @@ while($DB_ROW = $DB_STATEMENT->fetchrow_hashref())
     {
 		if(defined $USERS{$1})
 		{
-       		$action = "Macro(vm,".$USERS{$1}.")";
+       		$action = "Macro(vm,".$USERS{$1}.",DIRECTDIAL)";
 		}
 		else
 		{
-			$action = "Macro(vm,".$user.")";
+			$action = "Macro(vm,".$user.",DIRECTDIAL)";
 		}
     }
     if($tmp ne $user."-".$pri."-".$um)
@@ -162,7 +162,7 @@ while($DB_ROW = $DB_STATEMENT->fetchrow_hashref())
     $EXT_BUFFER .= "exten => $user-um$um-pri$pri-try$try-NOANSWER,1,Goto($user-um$um-pri$pri-try".($try+1).",1)\n";
     $EXT_BUFFER .= "exten => $user-um$um-pri$pri-try$try-CONGESTION,1,Goto($user-um$um-pri$pri-try".($try+1).",1)\n";
     $EXT_BUFFER .= "exten => $user-um$um-pri$pri-try$try-CHANUNAVAIL,1,Goto($user-um$um-pri$pri-try".($try+1).",1)\n";
-    $EXT_BUFFER .= "exten => $user-um$um-pri$pri-try".($try+1).",1,Macro(vm,$user)\n";
+    $EXT_BUFFER .= "exten => $user-um$um-pri$pri-try".($try+1).",1,Macro(vm,$user,DIRECTDIAL)\n";
     $EXT_BUFFER .= "exten => $user-um$um-pri$pri-try".($try+1).",2,Hangup\n";
     $tmp = $user."-".$pri."-".$um;
 #    $EXT_BUFFER .= "exten => $user-um$um-try$try,1,Hangup\n";
