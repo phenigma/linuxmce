@@ -157,7 +157,8 @@ TokenPool::_Run() {
             	errcode = sock.recvToken(token);
 	        	if(errcode != 0) {
 		        	LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Error occured while receiving token. Disconnecting."); 
-					break;
+					sock.Disconnect();
+					continue;
 		    	}
 
 				/*process received token*/
