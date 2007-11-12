@@ -3347,9 +3347,9 @@ bool Xine_Stream::setZoomLevel(string sZL)
 			iNewLevel = atoi(sZL.c_str());
 	}
 	
-	if (iNewLevel<=0 && iNewLevel>XINE_VO_ZOOM_MAX)
+	if (iNewLevel<=0 || iNewLevel>XINE_VO_ZOOM_MAX)
 	{
-		LoggerWrapper::GetInstance()->Write( LV_WARNING, "Bad zoom level: %s", sZL.c_str());
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "Bad zoom level change request %s : leads to wrong zoom level %i", sZL.c_str(), iNewLevel);
 		return false;
 	}
 	else
