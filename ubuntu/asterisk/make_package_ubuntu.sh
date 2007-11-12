@@ -11,7 +11,7 @@ PrepareForWork()
 	rm -rf "$PKGFOLDER" "$SRCFOLDER"
 
 	rm -rf asterisk-pluto*
-	mkdir -p "$PKGFOLDER"{/etc/asterisk,/usr/lib/asterisk/modules,/usr/sbin,/../debian,/var/lib/asterisk{/sounds/pluto,/agi-bin},/usr/pluto/bin}
+	mkdir -p "$PKGFOLDER"{/etc/asterisk,/usr/lib/asterisk/modules,/usr/sbin,/../debian,/usr/share/asterisk{/sounds/pluto,/agi-bin},/usr/pluto/bin}
 	mkdir -p "$SRCFOLDER"
 
 	#########
@@ -50,15 +50,15 @@ TheRest()
 	cp ${ADDFOLDER}/debian-ubuntu/* ${PKGFOLDER}/../debian
 	cp ${ADDFOLDER}/Makefile ${PKGFOLDER}/../
 
-	cp -R ${ADDFOLDER}/pluto-sounds/*  ${PKGFOLDER}/var/lib/asterisk/sounds/pluto/
+	cp -R ${ADDFOLDER}/pluto-sounds/*  ${PKGFOLDER}/usr/share/asterisk/sounds/pluto/
 
 	#copy AGI scripts
-	cp -R ${ADDFOLDER}/pluto-sos.agi ${PKGFOLDER}/var/lib/asterisk/agi-bin/
+	cp -R ${ADDFOLDER}/pluto-sos.agi ${PKGFOLDER}/usr/share/asterisk/agi-bin/
 	cp -R ${ADDFOLDER}/pluto-sos-gen.pl ${PKGFOLDER}/usr/pluto/bin/
 	cp -R ${ADDFOLDER}/pluto-sos-neighbor.pl ${PKGFOLDER}/usr/pluto/bin/
 	cp -R ${ADDFOLDER}/pluto-sos-speak.pl ${PKGFOLDER}/usr/pluto/bin/
-	cp -R ${ADDFOLDER}/pluto-gethousemode.agi ${PKGFOLDER}/var/lib/asterisk/agi-bin/
-	cp -R ${ADDFOLDER}/pluto-getusermode.agi ${PKGFOLDER}/var/lib/asterisk/agi-bin/
+	cp -R ${ADDFOLDER}/pluto-gethousemode.agi ${PKGFOLDER}/usr/share/asterisk/agi-bin/
+	cp -R ${ADDFOLDER}/pluto-getusermode.agi ${PKGFOLDER}/usr/share/asterisk/agi-bin/
 
 	cd ${PKGFOLDER}/../
 
