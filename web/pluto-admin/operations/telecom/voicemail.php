@@ -24,7 +24,7 @@ function voicemail($output,$dbADO) {
 	if(isset($error)){
 		$out.='<span class="err">'.$TEXT_NO_ACCESS_TO_GENERAL_MAILBOX_CONST.'</span>';
 	}else{
-		$out.=setLeftMenu($dbADO).'<iframe src="amp/recordings/index.php?s=voicemail" style="width:98%;height:600px;"></iframe>';
+		$out.=setLeftMenu($dbADO).'<iframe src="/recordings/index.php?s=voicemail" style="width:98%;height:600px;"></iframe>';
 	}
 
 	$output->setMenuTitle($TEXT_TELECOM_CONST.' |');

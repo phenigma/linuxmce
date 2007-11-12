@@ -421,7 +421,7 @@ function getPLDetails($id,$type,$astADO){
 
 function deletePhoneLine($id,$line_name,$phone_nr){
 	/*
-	$url='http://'.$_SERVER['SERVER_ADDR'].'/pluto-admin/amp/admin/config.php';
+	$url='http://'.$_SERVER['SERVER_ADDR'].'/admin/config.php';
 	$params='display=6&extdisplay=OUT_'.$id.'&action=deltrunk';
 			
 	$answer=queryExternalServer($url.'?'.$params);
