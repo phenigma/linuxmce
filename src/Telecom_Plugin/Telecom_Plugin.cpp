@@ -1427,7 +1427,7 @@ void Telecom_Plugin::CMD_Phone_Answer(string &sCMD_Result,Message *pMessage)
 	else
 	{
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "CMD_Phone_Answer: No simplephone device found with id: %d", pMessage->m_dwPK_Device_From);
-		sCMD_Result="ERROR :";
+		sCMD_Result="ERROR : No such simplephone!";
 	}
 
 	sCMD_Result="OK";
@@ -1453,7 +1453,7 @@ void Telecom_Plugin::CMD_Phone_Drop(string &sCMD_Result,Message *pMessage)
 	if(!pDeviceData) 
 	{
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "No device found with id: %d", pMessage->m_dwPK_Device_From);
-		sCMD_Result="ERROR :";
+		sCMD_Result="ERROR : No such phone";
 		return;
 	}
 
@@ -2046,14 +2046,14 @@ void Telecom_Plugin::CMD_PL_Join_Call(int iPK_Users,string sPhoneExtension,strin
 	if( sPhoneNumber.empty() )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Nowhere to make a call !!!");
-		sCMD_Result = "ERROR";
+		sCMD_Result = "ERROR : Nowhere to make a call!";
 		return;
 	}
 	
 	if( sPhoneCallID.empty() )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Invalid call ID !");
-		sCMD_Result = "ERROR";
+		sCMD_Result = "ERROR : Invalid call ID!";
 		return;
 	}
 	
@@ -2061,7 +2061,7 @@ void Telecom_Plugin::CMD_PL_Join_Call(int iPK_Users,string sPhoneExtension,strin
 	if(it == map_call2status.end())
 	{
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Invalid call ID !");
-		sCMD_Result = "ERROR";
+		sCMD_Result = "ERROR : Invalid call ID!";
 		return;
 	}
 	
@@ -2069,7 +2069,7 @@ void Telecom_Plugin::CMD_PL_Join_Call(int iPK_Users,string sPhoneExtension,strin
 	if( pCallStatus == NULL )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "NULL call status !");
-		sCMD_Result = "ERROR";
+		sCMD_Result = "ERROR : No such call available!";
 		return;
 	}
 	
@@ -2109,7 +2109,7 @@ void Telecom_Plugin::CMD_PL_Join_Call(int iPK_Users,string sPhoneExtension,strin
 
 	if( !InternalMakeCall(0, sPhoneNumber, sConferenceID) )
 	{
-		sCMD_Result = "ERROR";
+		sCMD_Result = "ERROR : couldn't make a call from " + sPhoneNumber + " to " + sConferenceID;
 	}
 }
 
@@ -2533,13 +2533,13 @@ void Telecom_Plugin::CMD_Make_Call(int iPK_Users,string sPhoneExtension,int iFK_
 	if( sPhoneNumber.empty() )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Nowhere to make a call !!!");
-		sCMD_Result = "ERROR";
+		sCMD_Result = "ERROR : Nowhere to make a call !";
 		return;
 	}
 	
 	if( !InternalMakeCall(iFK_Device_From, "", sPhoneNumber) )
 	{
-		sCMD_Result = "ERROR";
+		sCMD_Result = "ERROR : Coudn't make a call from device " + StringUtils::itos(iFK_Device_From) + " to " + sPhoneNumber;
 		return;
 	}
 }
@@ -2959,7 +2959,7 @@ void Telecom_Plugin::CMD_Assisted_Transfer(int iPK_Device,int iPK_Users,string s
 	if(NULL == pCallStatus)
 	{
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Not a valid channel %s!", sChannel.c_str());
-		sCMD_Result = "ERROR";
+		sCMD_Result = "ERROR : Not a valid channel " + sChannel;
 		return;
 	}
 
@@ -3000,7 +3000,7 @@ void Telecom_Plugin::CMD_Process_Task(string sTask,string sJob,string &sCMD_Resu
 	if( itFound == map_id2task.end() )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "No such task: %s", sTask.c_str());
-		sCMD_Result = "ERROR";
+		sCMD_Result = "ERROR : No such task " + sTask;
 		return;
 	}
 	
@@ -3008,7 +3008,7 @@ void Telecom_Plugin::CMD_Process_Task(string sTask,string sJob,string &sCMD_Resu
 	{
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Error task: %s , job: %s",
 			sTask.c_str(), sJob.c_str());
-		sCMD_Result = "ERROR";
+		sCMD_Result = "ERROR : Couldn't process task " + sTask + " with job " + sJob;
 		return;
 	}
 }
