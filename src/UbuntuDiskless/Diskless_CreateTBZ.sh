@@ -141,9 +141,16 @@ LC_ALL=C chroot "$TEMP_DIR" apt-get -f -y install locales
 ## FIXME: get this list from the database 
 DEVICE_LIST="28 62 1795 5 35 11 1825 26 1808"
 
+## Prevent lpadmin from running as it blocks the system
+LC_ALL=C chroot "$TEMP_DIR" apt-get -y install cupsys-client
+cp "$TEMP_DIR"/usr/sbin/lpadmin{,.disabled}
+echo > "$TEMP_DIR"/usr/sbin/lpadmin 
+LC_ALL=C chroot "$TEMP_DIR" apt-get -y install cups-pdf
+mv "$TEMP_DIR"/usr/sbin/lpadmin{.disabled,}
+
+
 ## Prevent discover from running as it blocks the system
-chroot "$TEMP_DIR" apt-get -y install cups-pdf
-chroot "$TEMP_DIR" apt-get -y install discover1
+LC_ALL=C chroot "$TEMP_DIR" apt-get -y install discover1
 cp "$TEMP_DIR"/sbin/discover "$TEMP_DIR"/sbin/discover.disabled
 echo > "$TEMP_DIR"/sbin/discover
 
@@ -170,7 +177,7 @@ for device in $DEVICE_LIST; do
 	done
 
 	echo "#### Installing $pkg_name"
-	chroot $TEMP_DIR apt-get -y install $pkg_name
+	LC_ALL=C chroot $TEMP_DIR apt-get -y install $pkg_name
 	if [[ "$?" == "0" ]] ;then
 		echo "#### Package $pkg_name installed ok!"
 	else
