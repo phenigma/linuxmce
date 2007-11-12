@@ -92,7 +92,7 @@ foreach my $var (keys %TRUNK_VARS)
 
 
 ### ADD OUTGOING ROUTING
-`curl '$OUT_URL&extdisplay=001-9_outside&action=delroute' > /tmp/curl.log`;
+`curl -L '$OUT_URL&extdisplay=001-9_outside&action=delroute' > /tmp/curl.log`;
 open(PAGE,"/tmp/curl.log") or die "Bad thing happend";
 my $OUT_ROUTE = "";
 while(<PAGE>)
