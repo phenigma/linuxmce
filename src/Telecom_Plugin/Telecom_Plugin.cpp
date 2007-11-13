@@ -23,6 +23,8 @@
 #include "PlutoUtils/Other.h"
 
 #include <iostream>
+#include <vector>
+
 using namespace std;
 using namespace DCE;
 
@@ -498,15 +500,14 @@ Telecom_Plugin::CallsStatusChanged(class Socket *pSocket,class Message *pMessage
 
 	typedef multimap<string, pair<string, string> > MAP_CHANNELS;
 	typedef map<string, bool> MAP_CALLS;
-
+	
 	MAP_CHANNELS mapChannels; //call id (conference number or 1st channel) <-> (channel, callerid)
 	MAP_CALLS mapCalls; //call id <-> is conference ?
-
+	
 	PLUTO_SAFETY_LOCK(vm, m_TelecomMutex);  // Protect the call data
-
+	
 	vector<string> vectLines;
 	StringUtils::Tokenize(sStatus, "\n", vectLines);
-
 	for(vector<string>::const_iterator it = vectLines.begin(), end = vectLines.end(); it != end; ++it)
 	{
 		string sLine = *it;
@@ -2791,7 +2792,7 @@ void Telecom_Plugin::GetChannelsFromExtension(const string & ext, map<string, st
 		const map<string, string> & channels = pCallStatus->GetChannels();
 		for(map<string, string>::const_iterator itCh=channels.begin(); itCh!=channels.end(); ++itCh)
 		{
-			if( ext == ExtensionForChannel((*itCh).first) )
+			if( ext == ((*itCh).first) )
 			{
 				channelsExt[(*itCh).first] = (*itCh).second;
 			}
@@ -3083,6 +3084,21 @@ void Telecom_Plugin::CMD_Process_Task(string sTask,string sJob,string &sCMD_Resu
 	}
 }
 
+string Telecom_Plugin::FindChannelForExt(string ext)
+{
+	string sChannelFound;
+	for(map<string, CallStatus*>::const_iterator it=map_call2status.begin(); it!=map_call2status.end(); ++it)
+	{
+		sChannelFound = FindChannelForExt((*it).second, ext);
+		if( !sChannelFound.empty() )
+		{
+			return sChannelFound;
+		}
+	}
+	
+	return "";
+}
+
 string Telecom_Plugin::FindChannelForExt(CallStatus * pCallStatus, string ext)
 {
 	const map<string, string> & channels = pCallStatus->GetChannels();
@@ -3108,11 +3124,96 @@ string Telecom_Plugin::FindChannelForExt(CallStatus * pCallStatus, string ext)
 void Telecom_Plugin::CMD_Add_Extensions_To_Call(string sPhoneCallID,string sExtensions,string &sCMD_Result,Message *pMessage)
 //<-dceag-c927-e->
 {
-	//TODO: implement me
 	//NOTE: these all extensions should be present in this call and ONLY these ones
 	// 1) if one of the extensions is in the call, leave it
 	// 2) if one of the extensions is not in the call, add it
 	// 3) if in the call there is an extension which is not in the list with extension, drop it
+	
+	if( m_pDevice_pbx == NULL )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "CMD_Add_Extensions_To_Call : No Asterisk device");
+		sCMD_Result = "ERROR : No Asterisk device";
+		return;
+	}
+	
+	PLUTO_SAFETY_LOCK(vm, m_TelecomMutex);
+	
+	CallStatus * pCallStatus = FindCallStatusForID(sPhoneCallID);
+	if( pCallStatus == NULL )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "No such call ID: %s", sPhoneCallID.c_str());
+		sCMD_Result = "ERROR : No such call " + sPhoneCallID;
+		return;
+	}
+	
+	string sConferenceID = sPhoneCallID;
+	if( !pCallStatus->IsConference() )
+	{
+		sConferenceID = DirectCall2Conference(pCallStatus);
+	}
+	
+	vector<string> vectExtensions;
+	StringUtils::Tokenize(sExtensions, ",", vectExtensions);
+	if( 0 == vectExtensions.size() )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "CMD_Add_Extensions_To_Call : no extensions");
+		sCMD_Result = "ERROR : No extensions to call!";
+		return;
+	}
+	
+	const map<string, string> & channels = pCallStatus->GetChannels();
+	
+	// find all the channels which has to be dropped and all the channels which are kept
+	string sChannelExt;
+	for(map<string, string>::const_iterator itCh=channels.begin(); itCh!=channels.end(); ++itCh)
+	{
+		sChannelExt = ExtensionForChannel((*itCh).first);
+		if( !sChannelExt.empty() )
+		{
+			vector<string>::iterator itFound = vectExtensions.begin();
+			for(; itFound!=vectExtensions.end(); ++itFound)
+			{
+				if( (*itFound) == sChannelExt )
+				{
+					break;
+				}
+			}
+			
+			if( itFound != vectExtensions.end() )
+			{
+				// the extension is already into the call, ignore it
+				vectExtensions.erase(itFound);
+			}
+			else
+			{
+				// the channel has to be dropped
+				CMD_PBX_Hangup cmd_PBX_Hangup(m_dwPK_Device, m_pDevice_pbx->m_dwPK_Device, (*itCh).first);
+				SendCommand(cmd_PBX_Hangup);
+			}
+		}
+	}
+	
+	// add all the remaining extensions to the call
+	string sChannelID;
+	for(vector<string>::iterator itExt=vectExtensions.begin(); itExt!=vectExtensions.end(); ++itExt)
+	{
+		sChannelID = FindChannelForExt(*itExt);
+		if( sChannelID.empty() )
+		{
+			if( !InternalMakeCall(0, (*itExt), sConferenceID) )
+			{
+				// what to do ?
+			}
+		}
+		else
+		{
+			CMD_PBX_Transfer cmd_PBX_Transfer(
+				m_dwPK_Device, m_pDevice_pbx->m_dwPK_Device,
+				sConferenceID, sChannelID, "" );
+			SendCommand(cmd_PBX_Transfer);
+		}
+	}
+	
 }
 //<-dceag-c928-b->
 

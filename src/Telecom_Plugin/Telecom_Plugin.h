@@ -79,6 +79,8 @@ public:
 	/***/
 	string FindChannelForExt(CallStatus *, string ext);
 	/***/
+	string FindChannelForExt(string ext);
+	/***/
 	string DirectCall2Conference(CallStatus*);
 
 //<-dceag-const-b->
