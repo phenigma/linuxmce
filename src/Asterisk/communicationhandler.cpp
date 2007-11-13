@@ -95,7 +95,9 @@ int CommunicationHandler::handleDial(Token* ptoken)
 
 	string sSrcChannel = ptoken->getKey(TOKEN_SOURCE);
 	string sDestChannel = ptoken->getKey(TOKEN_DESTINATION);
+
 	string sSrcCallerID = ptoken->getKey(TOKEN_CALLERID);
+	string sDestCallerID = map_callerid[sDestChannel];
 
 	string sSrcExtension;
 	string sDestExtension;
@@ -107,8 +109,10 @@ int CommunicationHandler::handleDial(Token* ptoken)
 			//e.g. 202 -> 202
 			map_ringext[sDestExtension] = sSrcChannel;
 
-			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Ringing for %s to %s", 
-				sSrcChannel.c_str(), sDestExtension.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Ringing from channel %s (%s) to channel %s (%s) ",
+				sSrcChannel.c_str(), sSrcCallerID.c_str(), sDestChannel.c_str(), sDestCallerID.c_str());
+
+			AsteriskManager::getInstance()->NotifyRing(sSrcChannel, sDestChannel, sSrcCallerID, sDestCallerID);
 		}
 		else
 		{
@@ -234,48 +238,6 @@ int CommunicationHandler::handleNewStateEvent(Token* ptoken)
 
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Caller id for channel %s is '%s'", 
 			sSrcChannel.c_str(), sSrcCallerID.c_str());
-	}
-	else if(ptoken->getKey(TOKEN_STATE) == STATE_RINGING)
-	{
-		//e.g.
-		//Event: Newstate
-		//Privilege: call,all
-		//Channel: SIP/200-0821dcc8
-		//State: Ringing
-		//CallerID: 200
-		//CallerIDName: <unknown>
-		//Uniqueid: 1194012670.18
-
-		string sDestChannel = ptoken->getKey(TOKEN_CHANNEL);  
-		string sDestCallerID = ptoken->getKey(TOKEN_CALLERID);     
-
-		//remember caller id
-		map_callerid[sDestChannel] = sDestCallerID;
-
-		string sDestExten;
-		if(!Utils::ParseChannel(sDestChannel, &sDestExten)) 
-		{
-			std::map<std::string,std::string>::iterator it = map_ringext.find(sDestExten);
-			if(it != map_ringext.end())
-			{
-				string sSrcChannel = it->second;
-				string sSrcCallerID = map_callerid[sSrcChannel];
-
-				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Ringing from channel %s (%s) to channel %s (%s) ",
-					sSrcChannel.c_str(), sSrcCallerID.c_str(), sDestChannel.c_str(), sDestCallerID.c_str());
-
-				AsteriskManager::getInstance()->NotifyRing(sSrcChannel, sDestChannel, sSrcCallerID, sDestCallerID);
-			}
-			else
-			{
-				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Got ringing, but don't know from who. "
-					"Ignoring, it might be a conferences. My channel %s", sDestChannel.c_str());
-			}
-		}
-		else
-		{
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Failed to parse channel %s", sDestChannel.c_str());
-		}
 	}
 
 	return 0;
