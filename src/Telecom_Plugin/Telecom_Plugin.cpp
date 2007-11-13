@@ -1689,7 +1689,7 @@ class DataGridTable *Telecom_Plugin::ActiveUsersOnCallGrid(string GridID,string 
 
 				if(NULL != pData && 0 != nSize)
 				{
-					pCell = new DataGridCell(sText, sValue);
+					pCell = new DataGridCell("", sValue);
 					pCell->m_AltColor = UniqueColors[nIndex % MAX_TELECOM_COLORS];
 					pCell->m_pGraphicData = pData;
 					pCell->m_GraphicLength = nSize;
@@ -3126,13 +3126,19 @@ void Telecom_Plugin::CMD_Add_Extensions_To_Call(string sPhoneCallID,string sExte
 void Telecom_Plugin::CMD_Get_Associated_Picture_For_Channel(string sChannel,char **pData,int *iData_Size,string &sCMD_Result,Message *pMessage)
 //<-dceag-c928-e->
 {
-	if(NULL != *pData && NULL != iData_Size)
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "CMD_Get_Associated_Picture_For_Channel: got to load picture for channel %s", sChannel.c_str());
+
+	if(NULL != pData && NULL != iData_Size)
 	{
-		//todo: find the right picture
-		string sPath = "/home/unknown.jpg";
+		//default path for unknown user
+		string sPath = "/usr/pluto/orbiter/skins/Basic/Users/UnknownUser.jpg";
+
+		//TODO: find associated user
 
 		size_t ulSize = 0;
 		*pData = FileUtils::ReadFileIntoBuffer(sPath, ulSize);
 		*iData_Size = static_cast<int>(ulSize);
+
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "CMD_Get_Associated_Picture_For_Channel: loaded picture size %d", *iData_Size);
 	}
 }
