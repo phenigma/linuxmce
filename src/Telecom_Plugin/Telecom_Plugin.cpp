@@ -3128,7 +3128,10 @@ void Telecom_Plugin::CMD_Add_Extensions_To_Call(string sPhoneCallID,string sExte
 	// 1) if one of the extensions is in the call, leave it
 	// 2) if one of the extensions is not in the call, add it
 	// 3) if in the call there is an extension which is not in the list with extension, drop it
-	
+
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "CMD_Add_Extensions_To_Call: got to add extensions %s to call %s", 
+			sExtensions.c_str(), sPhoneCallID.c_str());
+
 	if( m_pDevice_pbx == NULL )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "CMD_Add_Extensions_To_Call : No Asterisk device");
@@ -3146,10 +3149,12 @@ void Telecom_Plugin::CMD_Add_Extensions_To_Call(string sPhoneCallID,string sExte
 		return;
 	}
 	
-	string sConferenceID = sPhoneCallID;
+	string sConferenceID = CallStatus::GetStringConferenceID(pCallStatus->GetConferenceID());
 	if( !pCallStatus->IsConference() )
 	{
 		sConferenceID = DirectCall2Conference(pCallStatus);
+
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "CMD_Add_Extensions_To_Call : conference id extension %s", sConferenceID.c_str());
 	}
 	
 	vector<string> vectExtensions;
@@ -3161,6 +3166,8 @@ void Telecom_Plugin::CMD_Add_Extensions_To_Call(string sPhoneCallID,string sExte
 		sCMD_Result = "ERROR : No extensions to call!";
 		return;
 	}
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "CMD_Add_Extensions_To_Call: number of extensions %d", vectExtensions.size());
 	
 	const map<string, string> & channels = pCallStatus->GetChannels();
 	
@@ -3182,11 +3189,14 @@ void Telecom_Plugin::CMD_Add_Extensions_To_Call(string sPhoneCallID,string sExte
 			
 			if( itFound != vectExtensions.end() )
 			{
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "CMD_Add_Extensions_To_Call: extension %s already in call. Ignoring...", sChannelExt.c_str());
+
 				// the extension is already into the call, ignore it
 				vectExtensions.erase(itFound);
 			}
 			else
 			{
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "CMD_Add_Extensions_To_Call: must drop extension %s", itCh->first.c_str());
 				droppedChannels.push_back((*itCh).first);
 			}
 		}
@@ -3199,6 +3209,7 @@ void Telecom_Plugin::CMD_Add_Extensions_To_Call(string sPhoneCallID,string sExte
 		sChannelID = FindChannelForExt(*itExt);
 		if( sChannelID.empty() )
 		{
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "CMD_Add_Extensions_To_Call: adding extension %s to call", itExt->c_str());
 			if( !InternalMakeCall(0, (*itExt), sConferenceID) )
 			{
 				// what to do ?
@@ -3206,6 +3217,8 @@ void Telecom_Plugin::CMD_Add_Extensions_To_Call(string sPhoneCallID,string sExte
 		}
 		else
 		{
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "CMD_Add_Extensions_To_Call: moving extension %s to call", itExt->c_str());
+
 			CMD_PBX_Transfer cmd_PBX_Transfer(
 				m_dwPK_Device, m_pDevice_pbx->m_dwPK_Device,
 				sConferenceID, sChannelID, "" );
