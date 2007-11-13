@@ -1439,6 +1439,31 @@ void Telecom_Plugin::CMD_Phone_Answer(string &sCMD_Result,Message *pMessage)
 	}
 	
 	map<int,int>::iterator itFound = map_orbiter2embedphone.find(pMessage->m_dwPK_Device_From);
+
+	//found the embedded phone ?
+	if( map_orbiter2embedphone.end() ==  itFound )
+	{
+		//maybe the message is from a remote orbiter
+		OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(pMessage->m_dwPK_Device_From);
+		if(NULL != pOH_Orbiter)
+		{
+			//the list with orbiters from that room
+			string sOrbiters = m_pOrbiter_Plugin->PK_Device_Orbiters_In_Room_get(pOH_Orbiter->m_dwPK_Room, false);
+			
+			vector<string> vectOrbiters;
+			StringUtils::Tokenize(sOrbiters, ",", vectOrbiters);
+
+			//which one of them has a simple phone as child? get the first one
+			for(vector<string>::iterator it = vectOrbiters.begin(); it != vectOrbiters.end(); ++it)
+			{
+				itFound = map_orbiter2embedphone.find(atoi(it->c_str()));
+				if( map_orbiter2embedphone.end() !=  itFound )
+					break;
+			}
+		}
+	}
+
+	//test again : found the embedded phone ?
 	if( map_orbiter2embedphone.end() !=  itFound )
 	{
 		int phoneID = (*itFound).second;
