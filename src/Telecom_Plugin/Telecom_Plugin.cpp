@@ -3100,3 +3100,17 @@ void Telecom_Plugin::CMD_Add_Extensions_To_Call(string sPhoneCallID,string sExte
 	// 2) if one of the extensions is not in the call, add it
 	// 3) if in the call there is an extension which is not in the list with extension, drop it
 }
+//<-dceag-c928-b->
+
+	/** @brief COMMAND: #928 - Get Associated Picture For Channel */
+	/** Get the associated picture for channel */
+		/** @param #19 Data */
+			/** The picture associated */
+		/** @param #264 Channel */
+			/** The channel id */
+
+void Telecom_Plugin::CMD_Get_Associated_Picture_For_Channel(string sChannel,char **pData,int *iData_Size,string &sCMD_Result,Message *pMessage)
+//<-dceag-c928-e->
+{
+	//TODO: implement me!
+}

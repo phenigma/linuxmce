@@ -25248,5 +25248,73 @@ namespace DCE
 			COMMANDPARAMETER_PhoneCallID_CONST, sPhoneCallID.c_str(),
 			COMMANDPARAMETER_Extensions_CONST, sExtensions.c_str()); }
 	};
+	class RESP_Get_Associated_Picture_For_Channel : public PreformedCommandResponse {
+		char **m_pData;int *m_iData_Size;
+	public:
+		RESP_Get_Associated_Picture_For_Channel(char **pData,int *iData_Size) { 
+		m_pData=pData; m_iData_Size=iData_Size; }
+		void ParseResponse(Message *pMessage) {
+			*m_pData=pMessage->m_mapData_Parameters[COMMANDPARAMETER_Data_CONST]; pMessage->m_mapData_Parameters.erase(COMMANDPARAMETER_Data_CONST); *m_iData_Size=pMessage->m_mapData_Lengths[COMMANDPARAMETER_Data_CONST]; };
+	};
+	class CMD_Get_Associated_Picture_For_Channel : public PreformedCommand {
+	public:
+		CMD_Get_Associated_Picture_For_Channel(long DeviceIDFrom, long DeviceIDTo,string sChannel,char **pData,int *iData_Size) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
+			COMMAND_Get_Associated_Picture_For_Channel_CONST,
+			2 /* number of parameters */,
+			COMMANDPARAMETER_Channel_CONST, sChannel.c_str(),
+			- COMMANDPARAMETER_Data_CONST, *pData,*iData_Size);		m_pcResponse = new RESP_Get_Associated_Picture_For_Channel(pData,iData_Size); }
+	};
+	class CMD_Get_Associated_Picture_For_Channel_DL : public PreformedCommand {
+	public:
+		CMD_Get_Associated_Picture_For_Channel_DL(long DeviceIDFrom, string DeviceIDTo,string sChannel,char **pData,int *iData_Size) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Get_Associated_Picture_For_Channel_CONST,
+			2 /* number of parameters */,
+			COMMANDPARAMETER_Channel_CONST, sChannel.c_str(),
+			- COMMANDPARAMETER_Data_CONST, *pData,*iData_Size);		m_pcResponse = new RESP_Get_Associated_Picture_For_Channel(pData,iData_Size); }
+	};
+	class CMD_Get_Associated_Picture_For_Channel_DT : public PreformedCommand {
+	public:
+		CMD_Get_Associated_Picture_For_Channel_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sChannel,char **pData,int *iData_Size) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Get_Associated_Picture_For_Channel_CONST,
+			2 /* number of parameters */,
+			COMMANDPARAMETER_Channel_CONST, sChannel.c_str(),
+			- COMMANDPARAMETER_Data_CONST, *pData,*iData_Size);		m_pcResponse = new RESP_Get_Associated_Picture_For_Channel(pData,iData_Size); }
+	};
+	class CMD_Get_Associated_Picture_For_Channel_Cat : public PreformedCommand {
+	public:
+		CMD_Get_Associated_Picture_For_Channel_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sChannel,char **pData,int *iData_Size) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Get_Associated_Picture_For_Channel_CONST,
+			2 /* number of parameters */,
+			COMMANDPARAMETER_Channel_CONST, sChannel.c_str(),
+			- COMMANDPARAMETER_Data_CONST, *pData,*iData_Size);		m_pcResponse = new RESP_Get_Associated_Picture_For_Channel(pData,iData_Size); }
+	};
+	class CMD_NOREP_Get_Associated_Picture_For_Channel : public PreformedCommand {
+	public:
+		CMD_NOREP_Get_Associated_Picture_For_Channel(long DeviceIDFrom, long DeviceIDTo,string sChannel) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Get_Associated_Picture_For_Channel_CONST,
+			1 /* number of parameters */,
+			COMMANDPARAMETER_Channel_CONST, sChannel.c_str()); }
+	};
+	class CMD_NOREP_Get_Associated_Picture_For_Channel_DL : public PreformedCommand {
+	public:
+		CMD_NOREP_Get_Associated_Picture_For_Channel_DL(long DeviceIDFrom, string DeviceIDTo,string sChannel) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Get_Associated_Picture_For_Channel_CONST,
+			1 /* number of parameters */,
+			COMMANDPARAMETER_Channel_CONST, sChannel.c_str()); }
+	};
+	class CMD_NOREP_Get_Associated_Picture_For_Channel_DT : public PreformedCommand {
+	public:
+		CMD_NOREP_Get_Associated_Picture_For_Channel_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sChannel) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Get_Associated_Picture_For_Channel_CONST,
+			1 /* number of parameters */,
+			COMMANDPARAMETER_Channel_CONST, sChannel.c_str()); }
+	};
+	class CMD_NOREP_Get_Associated_Picture_For_Channel_Cat : public PreformedCommand {
+	public:
+		CMD_NOREP_Get_Associated_Picture_For_Channel_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sChannel) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Get_Associated_Picture_For_Channel_CONST,
+			1 /* number of parameters */,
+			COMMANDPARAMETER_Channel_CONST, sChannel.c_str()); }
+	};
 }
 #endif

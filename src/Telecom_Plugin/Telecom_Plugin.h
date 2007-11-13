@@ -367,6 +367,17 @@ The response is a task id */
 	virtual void CMD_Add_Extensions_To_Call(string sPhoneCallID,string sExtensions,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #928 - Get Associated Picture For Channel */
+	/** Get the associated picture for channel */
+		/** @param #19 Data */
+			/** The picture associated */
+		/** @param #264 Channel */
+			/** The channel id */
+
+	virtual void CMD_Get_Associated_Picture_For_Channel(string sChannel,char **pData,int *iData_Size) { string sCMD_Result; CMD_Get_Associated_Picture_For_Channel(sChannel.c_str(),pData,iData_Size,sCMD_Result,NULL);};
+	virtual void CMD_Get_Associated_Picture_For_Channel(string sChannel,char **pData,int *iData_Size,string &sCMD_Result,Message *pMessage);
+
+
 //<-dceag-h-e->
 
 private:
