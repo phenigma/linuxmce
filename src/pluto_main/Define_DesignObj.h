@@ -734,7 +734,7 @@
 #define DESIGNOBJ_mnuFirstTime_CONST 3221
 #define DESIGNOBJ_butGoToMainMenu_CONST 3222
 #define DESIGNOBJ_grpSeekFileList_CONST 3223
-#define DESIGNOBJ_grpPhoneSearchKeyboardlarge_CONST 3225
+#define DESIGNOBJ_grpPhoneSearchKeyboard_CONST 3225
 #define DESIGNOBJ_mnuFileList_PlayLists_CONST 3226
 #define DESIGNOBJ_dgFileList_Playlists_CONST 3227
 #define DESIGNOBJ_butLoadPlaylist_CONST 3228
@@ -1502,7 +1502,7 @@
 #define DESIGNOBJ__CONST 4263
 #define DESIGNOBJ_Num_CONST 4264
 #define DESIGNOBJ_mnuMythTvRemote_CONST 4265
-#define DESIGNOBJ_grpPhoneSearchKeyboardlargep_CONST 4266
+#define DESIGNOBJ_grpPhoneSearchKeyboard_PDA_CONST 4266
 #define DESIGNOBJ_butKillApp_CONST 4267
 #define DESIGNOBJ_grpMediaMapControls_PDA_CONST 4268
 #define DESIGNOBJ_grpSeekFileLIst_Playlists_PDA_CONST 4269
@@ -1912,7 +1912,6 @@
 #define DESIGNOBJ_dgVisibleSensors_CONST 4784
 #define DESIGNOBJ_butSetVisibleSensors_CONST 4785
 #define DESIGNOBJ_dgAllCalls_CONST 4787
-#define DESIGNOBJ_grpPhoneSearchKeyboard_CONST 4790
 #define DESIGNOBJ_mnuSearchMediaAttributes_CONST 4805
 #define DESIGNOBJ_butDeletePlaylist_CONST 4818
 #define DESIGNOBJ_butTransferCallMore_CONST 4819
