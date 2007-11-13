@@ -798,6 +798,12 @@ Telecom_Plugin::Ring( class Socket *pSocket, class Message *pMessage, class Devi
 
 	if(nOrbiterDeviceID)
 	{
+		// stop the media
+		DCE::CMD_MH_Stop_Media CMD_MH_Stop_Media_
+			(nOrbiterDeviceID, DEVICETEMPLATE_VirtDev_Media_Plugin_CONST,0,0,0,"",false);
+		SendCommand(CMD_MH_Stop_Media_);
+		Sleep(1000);
+		
 		OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(nOrbiterDeviceID);
 		if(NULL != pOH_Orbiter)
 		{
@@ -2895,6 +2901,19 @@ bool Telecom_Plugin::InternalMakeCall(int iFK_Device_From, string sFromExten, st
 	{
 		if( iEmbeddedPhone != 0 )
 		{
+			// iFK_Device_From has to be the Orbiter device
+			iFK_Device_From = map_embedphone2orbiter[iEmbeddedPhone];
+			if( iFK_Device_From == 0 )
+			{
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "No orbiter for simplephone %d !", iEmbeddedPhone);
+			}
+			
+			// stop the media
+			DCE::CMD_MH_Stop_Media CMD_MH_Stop_Media_
+				(iFK_Device_From, DEVICETEMPLATE_VirtDev_Media_Plugin_CONST,0,0,0,"",false);
+			SendCommand(CMD_MH_Stop_Media_);
+			Sleep(1000);
+			
 			DCE::CMD_Phone_Initiate cmdInitiate(m_dwPK_Device, iEmbeddedPhone, iEmbeddedPhone, sPhoneNumberToCall);
 			SendCommand(cmdInitiate);
 		}
