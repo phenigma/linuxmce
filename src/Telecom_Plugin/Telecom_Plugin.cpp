@@ -803,7 +803,7 @@ Telecom_Plugin::Ring( class Socket *pSocket, class Message *pMessage, class Devi
 		DCE::CMD_MH_Stop_Media CMD_MH_Stop_Media_
 			(nOrbiterDeviceID, DEVICETEMPLATE_VirtDev_Media_Plugin_CONST,0,0,0,"",false);
 		SendCommand(CMD_MH_Stop_Media_);
-		Sleep(1000);
+		//Sleep(1000);
 		
 		OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(nOrbiterDeviceID);
 		if(NULL != pOH_Orbiter)
@@ -2900,7 +2900,7 @@ bool Telecom_Plugin::InternalMakeCall(int iFK_Device_From, string sFromExten, st
 			DCE::CMD_MH_Stop_Media CMD_MH_Stop_Media_
 				(iFK_Device_From, DEVICETEMPLATE_VirtDev_Media_Plugin_CONST,0,0,0,"",false);
 			SendCommand(CMD_MH_Stop_Media_);
-			Sleep(1000);
+			//Sleep(1000);
 			
 			DCE::CMD_Phone_Initiate cmdInitiate(m_dwPK_Device, iEmbeddedPhone, iEmbeddedPhone, sPhoneNumberToCall);
 			SendCommand(cmdInitiate);
@@ -3153,6 +3153,7 @@ void Telecom_Plugin::CMD_Add_Extensions_To_Call(string sPhoneCallID,string sExte
 	}
 	
 	vector<string> vectExtensions;
+	vector<string> droppedChannels;
 	StringUtils::Tokenize(sExtensions, ",", vectExtensions);
 	if( 0 == vectExtensions.size() )
 	{
@@ -3186,9 +3187,7 @@ void Telecom_Plugin::CMD_Add_Extensions_To_Call(string sPhoneCallID,string sExte
 			}
 			else
 			{
-				// the channel has to be dropped
-				CMD_PBX_Hangup cmd_PBX_Hangup(m_dwPK_Device, m_pDevice_pbx->m_dwPK_Device, (*itCh).first);
-				SendCommand(cmd_PBX_Hangup);
+				droppedChannels.push_back((*itCh).first);
 			}
 		}
 	}
@@ -3214,7 +3213,14 @@ void Telecom_Plugin::CMD_Add_Extensions_To_Call(string sPhoneCallID,string sExte
 		}
 	}
 	
+	// the channels have to be dropped
+	for(vector<string>::const_iterator itDrop=droppedChannels.begin(); itDrop!=droppedChannels.end(); ++itDrop)
+	{
+		CMD_PBX_Hangup cmd_PBX_Hangup(m_dwPK_Device, m_pDevice_pbx->m_dwPK_Device, (*itDrop));
+		SendCommand(cmd_PBX_Hangup);
+	}
 }
+
 //<-dceag-c928-b->
 
 	/** @brief COMMAND: #928 - Get Associated Picture For Channel */
