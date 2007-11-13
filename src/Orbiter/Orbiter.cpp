@@ -4447,7 +4447,8 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 		else if(  Variable=="STE" ) //selected telecom extensions
 		{
 			Output = m_mapVariable_Find(VARIABLE_External_channels_CONST);
-
+			Output = StringUtils::Replace(Output, "|", ",");
+			
 			for(map<int,DeviceData_Base *>::iterator it=m_mapDevice_Selected.begin();it!=m_mapDevice_Selected.end();++it)
 			{
 				DeviceData_Base *pDeviceData_Base = it->second;
@@ -4456,12 +4457,15 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 					string sExtension;
 					CMD_Get_Device_Data cmd_Get_Device_Data(
 						m_dwPK_Device, m_dwPK_Device_GeneralInfoPlugIn,
-						pDeviceData_Base->m_dwPK_Device, DEVICEDATA_PhoneNumber_CONST, false,
+						pDeviceData_Base->m_dwPK_Device, DEVICEDATA_PhoneNumber_CONST, true,
 						&sExtension
 					);
 					SendCommand(cmd_Get_Device_Data);
 
-					Output += sExtension + ",";
+					if(!Output.empty())
+						Output += ",";
+
+					Output += sExtension;
 				}
 			}
 		}
