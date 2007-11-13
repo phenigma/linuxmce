@@ -954,8 +954,14 @@ bool Telecom_Plugin::Hangup( class Socket *pSocket, class Message *pMessage, cla
 
 	if(nOrbiterDeviceID)
 	{
-		DCE::SCREEN_Call_Dropped screen_SCREEN_Call_Dropped(m_dwPK_Device, nOrbiterDeviceID, sReason);
-		SendCommand(screen_SCREEN_Call_Dropped); 
+		OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(nOrbiterDeviceID);
+		if(NULL != pOH_Orbiter)
+		{
+			string sOrbiters = m_pOrbiter_Plugin->PK_Device_Orbiters_In_Room_get(pOH_Orbiter->m_dwPK_Room, false);
+
+			DCE::SCREEN_Call_Dropped_DL screen_SCREEN_Call_Dropped_DL(m_dwPK_Device, sOrbiters, sReason);
+			SendCommand(screen_SCREEN_Call_Dropped_DL); 
+		}
 	}
 
 	DumpActiveCalls();
@@ -1432,50 +1438,15 @@ void Telecom_Plugin::CMD_Phone_Initiate(int iPK_Device,string sPhoneExtension,st
 void Telecom_Plugin::CMD_Phone_Answer(string &sCMD_Result,Message *pMessage)
 //<-dceag-c335-e->
 {
-	if( pMessage == NULL )
+	int nEmbeddedPhoneID = 0;
+	if(GetEmbeddedPhoneAssociated(pMessage->m_dwPK_Device_From, nEmbeddedPhoneID))
 	{
-		sCMD_Result="ERROR : NULL message";
-		return;
-	}
-	
-	map<int,int>::iterator itFound = map_orbiter2embedphone.find(pMessage->m_dwPK_Device_From);
-
-	//found the embedded phone ?
-	if( map_orbiter2embedphone.end() ==  itFound )
-	{
-		//maybe the message is from a remote orbiter
-		OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(pMessage->m_dwPK_Device_From);
-		if(NULL != pOH_Orbiter)
-		{
-			//the list with orbiters from that room
-			string sOrbiters = m_pOrbiter_Plugin->PK_Device_Orbiters_In_Room_get(pOH_Orbiter->m_dwPK_Room, false);
-			
-			vector<string> vectOrbiters;
-			StringUtils::Tokenize(sOrbiters, ",", vectOrbiters);
-
-			//which one of them has a simple phone as child? get the first one
-			for(vector<string>::iterator it = vectOrbiters.begin(); it != vectOrbiters.end(); ++it)
-			{
-				itFound = map_orbiter2embedphone.find(atoi(it->c_str()));
-				if( map_orbiter2embedphone.end() !=  itFound )
-					break;
-			}
-		}
-	}
-
-	//test again : found the embedded phone ?
-	if( map_orbiter2embedphone.end() !=  itFound )
-	{
-		int phoneID = (*itFound).second;
-		if( phoneID > 0 )
-		{
-			DCE::CMD_Phone_Answer cmd(m_dwPK_Device, phoneID);
-			SendCommand(cmd);
-		}
+		DCE::CMD_Phone_Answer cmd(m_dwPK_Device, nEmbeddedPhoneID);
+		SendCommand(cmd);
 	}
 	else
 	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "CMD_Phone_Answer: No simplephone device found with id: %d", pMessage->m_dwPK_Device_From);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "CMD_Phone_Answer: No embedded phone associated with device %d found", pMessage->m_dwPK_Device_From);
 		sCMD_Result="ERROR : No such simplephone!";
 	}
 
@@ -1490,39 +1461,16 @@ void Telecom_Plugin::CMD_Phone_Answer(string &sCMD_Result,Message *pMessage)
 void Telecom_Plugin::CMD_Phone_Drop(string &sCMD_Result,Message *pMessage)
 //<-dceag-c336-e->
 {
-	if( pMessage == NULL )
+	int nEmbeddedPhoneID = 0;
+	if(GetEmbeddedPhoneAssociated(pMessage->m_dwPK_Device_From, nEmbeddedPhoneID))
 	{
-		sCMD_Result="ERROR : NULL message";
-		return;
-	}
-	
-	int nDeviceID = 0;
-
-	DeviceData_Router *pDeviceData = find_Device(pMessage->m_dwPK_Device_From);
-	if(!pDeviceData) 
-	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "No device found with id: %d", pMessage->m_dwPK_Device_From);
-		sCMD_Result="ERROR : No such phone";
-		return;
-	}
-
-	if(pDeviceData->m_dwPK_DeviceTemplate == DEVICETEMPLATE_OnScreen_Orbiter_CONST)
-	{
-		nDeviceID = map_orbiter2embedphone[pMessage->m_dwPK_Device_From];
-	}
-	else if(pDeviceData->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Orbiter_Embedded_Phone_CONST)
-	{
-		nDeviceID = pMessage->m_dwPK_Device_From;
-	}
-
-	if(nDeviceID > 0)
-	{
-		DCE::CMD_Phone_Drop cmd_Phone_Drop(m_dwPK_Device, nDeviceID);
+		DCE::CMD_Phone_Drop cmd_Phone_Drop(m_dwPK_Device, nEmbeddedPhoneID);
 		SendCommand(cmd_Phone_Drop);
 	}
 	else
 	{
-//		sCMD_Result="ERROR :";
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "CMD_Phone_Answer: No embedded phone associated with device %d found", pMessage->m_dwPK_Device_From);
+		sCMD_Result="ERROR : No such simplephone!";
 	}
 	
 	sCMD_Result="OK";
@@ -2959,6 +2907,51 @@ bool Telecom_Plugin::InternalMakeCall(int iFK_Device_From, string sFromExten, st
 	}
 	
 	return true;
+}
+
+bool Telecom_Plugin::GetEmbeddedPhoneAssociated(int nDeviceID, int& nEmbeddedPhoneID)
+{
+	nEmbeddedPhoneID = 0;
+
+	//already an embedded device?
+	if(map_embedphone2orbiter.find(nDeviceID) != map_embedphone2orbiter.end())
+	{
+		nEmbeddedPhoneID = nDeviceID;
+		return true;
+	}
+
+    //maybe it's the osd orbiter?
+	map<int,int>::iterator itFound = map_orbiter2embedphone.find(nDeviceID);
+	if(map_orbiter2embedphone.end() !=  itFound)   
+	{
+		nEmbeddedPhoneID = itFound->second;
+		return true;
+	}
+
+	//maybe it's a remote orbiter
+	OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(nDeviceID);
+	if(NULL != pOH_Orbiter)
+	{
+		//the list with orbiters from that room
+		string sOrbiters = m_pOrbiter_Plugin->PK_Device_Orbiters_In_Room_get(pOH_Orbiter->m_dwPK_Room, false);
+
+		vector<string> vectOrbiters;
+		StringUtils::Tokenize(sOrbiters, ",", vectOrbiters);
+
+		//which one of them has a simple phone as child? get the first one
+		for(vector<string>::iterator it = vectOrbiters.begin(); it != vectOrbiters.end(); ++it)
+		{
+			itFound = map_orbiter2embedphone.find(atoi(it->c_str()));
+			if(map_orbiter2embedphone.end() != itFound)
+			{
+				nEmbeddedPhoneID = itFound->second;
+				return true;
+			}
+		}
+	}
+
+	//got nothing
+	return false;
 }
 
 int Telecom_Plugin::GetOrbiterDeviceID(string sExten, string sChannel /*= ""*/)

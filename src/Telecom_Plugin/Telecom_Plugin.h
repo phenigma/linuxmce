@@ -420,6 +420,11 @@ private:
 	 *	Make a call
 	 */
 	bool InternalMakeCall(int iFK_Device_From, string sFromExten, string sPhoneNumberToCall);
+
+	/*
+	 *	Get the embedded phone from the same room with device
+	 */
+	bool GetEmbeddedPhoneAssociated(int nDeviceID, int& nEmbeddedPhoneID);
 	
 private:
 	int iCmdCounter;

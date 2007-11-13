@@ -3842,7 +3842,6 @@ void ScreenHandler::HandleAssistedMakeCall(int iPK_Users,string sPhoneExtension,
 		{
 			// A & B => {A,B}
 
-			string sResponse;
 			DCE::CMD_Make_Call cmd_Make_Call(
 				m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device_TelecomPlugIn,
 				iPK_Users, sPhoneExtension, iPK_Device_From, iPK_Device_To);
@@ -3875,7 +3874,6 @@ void ScreenHandler::HandleAssistedMakeCall(int iPK_Users,string sPhoneExtension,
 			string sOptions;
 			string sPhoneCallID = m_pOrbiter->m_mapVariable_Find(VARIABLE_Current_Call_CONST);
 
-			string sResponse;
 			DCE::CMD_PL_Join_Call cmd_PL_Join_Call(
 				m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device_TelecomPlugIn,
 				iPK_Users, sPhoneExtension, sPhoneCallID, iPK_Device_From);
@@ -3908,7 +3906,6 @@ void ScreenHandler::HandleAssistedMakeCall(int iPK_Users,string sPhoneExtension,
 			string sSourceChannel = m_pOrbiter->m_mapVariable_Find(VARIABLE_Source_Channel_ID_CONST);
 			string sSourceCallerID = m_pOrbiter->m_mapVariable_Find(VARIABLE_Source_Caller_ID_CONST);
 
-			string sResponse;
 			DCE::CMD_PL_Transfer cmd_PL_Transfer(
 				m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device_TelecomPlugIn,
 				iPK_Device_To, iPK_Users, sPhoneExtension, sSourceChannel, "");
@@ -3945,7 +3942,6 @@ void ScreenHandler::HandleAssistedMakeCall(int iPK_Users,string sPhoneExtension,
 			string sMyCall = m_pOrbiter->m_mapVariable_Find(VARIABLE_My_Call_ID_CONST);
 
 			string sTaskID;
-			string sResponse;
 			DCE::CMD_Assisted_Transfer cmd_Assisted_Transfer(
 				m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device_TelecomPlugIn,
 				iPK_Device_To, iPK_Users, sPhoneExtension, sSecondPhoneCall, sMyChannel, &sTaskID);
@@ -3977,7 +3973,7 @@ void ScreenHandler::HandleAssistedMakeCall(int iPK_Users,string sPhoneExtension,
 	{
 		SCREEN_PopupMessage(
 			SCREEN_PopupMessage_CONST,  //screen id
-			sMessage + "\n" + sResponse + "|OK", //text
+			sMessage + ". " + sResponse + "|OK", //text
 			"", //command line
 			"error", //description
 			"0", //prompt for reset
