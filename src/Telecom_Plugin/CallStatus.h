@@ -120,6 +120,39 @@ namespace DCE
 			}
 			
 			/***/
+			void SetDeviceRemote(int iDev)
+			{
+				iDeviceRemote = iDev;
+			}
+			/***/
+			int GetDeviceRemote() const
+			{
+				return iDeviceRemote;
+			}
+			
+			/***/
+			void SetDeviceOwner(int iDev)
+			{
+				iDeviceOwner = iDev;
+			}
+			/***/
+			int GetDeviceOwner() const
+			{
+				return iDeviceOwner;
+			}
+			
+			/***/
+			void SetUser(int iUser)
+			{
+				iPK_Users = iUser;
+			}
+			/***/
+			int GetUser() const
+			{
+				return iPK_Users;
+			}
+			
+			/***/
 			string GetDebugInfo() const;
 			
 		private:
@@ -129,6 +162,10 @@ namespace DCE
 			string id;
 			unsigned conferenceID;
 			map<string, string> channels;  //channelid <-> callerid
+			
+			int iDeviceRemote;
+			int iDeviceOwner;
+			int iPK_Users;
 	};
 }
 

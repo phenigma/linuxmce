@@ -40,6 +40,17 @@ class Database_pluto_main;
 class Database_pluto_telecom;
 class Row_PhoneNumber;
 
+namespace DCE
+{
+	class PendingCall
+	{
+		string sExtension;
+		int iDeviceRemote;
+		int iDeviceOwner;
+		int iPK_Users;
+	};
+}
+
 //<-dceag-decl-b->!
 namespace DCE
 {
