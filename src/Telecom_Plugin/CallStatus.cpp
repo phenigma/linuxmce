@@ -90,8 +90,7 @@ string CallStatus::GetDebugInfo() const
 
 /*static*/ bool CallStatus::IsConferenceCallID(string sCallID)
 {
-	//can be 0001@local
-	return sCallID.find(GetStringConferenceID(ExtractConferenceCallID(sCallID))) == 0;
+	return GetStringConferenceID(ExtractConferenceCallID(sCallID)) == sCallID;
 }
 
 /*static*/ unsigned int CallStatus::ExtractConferenceCallID(string sCallID)

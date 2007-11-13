@@ -2119,9 +2119,9 @@ void Telecom_Plugin::CMD_PL_Join_Call(int iPK_Users,string sPhoneExtension,strin
 		sConferenceID = CallStatus::GetStringConferenceID( pCallStatus->GetConferenceID() );
 	}
 
-	if( !InternalMakeCall(0, sConferenceID, sPhoneNumber) )
+	if( !InternalMakeCall(0, sPhoneNumber, sConferenceID ) )
 	{
-		sCMD_Result = "ERROR : couldn't make a call from " + sConferenceID + " to " + sPhoneNumber;
+		sCMD_Result = "ERROR : couldn't make a call from " + sPhoneNumber + " to " + sConferenceID;
 	}
 }
 
