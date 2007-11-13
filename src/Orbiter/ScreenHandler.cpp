@@ -3833,6 +3833,9 @@ void ScreenHandler::HandleAssistedMakeCall(int iPK_Users,string sPhoneExtension,
 		"iPK_Users %d, sPhoneExtension %s, iPK_Device_From %d, iPK_Device_To %d",
 		iPK_Users, sPhoneExtension.c_str(), iPK_Device_From, iPK_Device_To);
 
+	string sResponse;
+	string sMessage;
+
 	switch(m_TelecomCommandStatus)
 	{
 		case tcsDirectDial:
@@ -3847,28 +3850,21 @@ void ScreenHandler::HandleAssistedMakeCall(int iPK_Users,string sPhoneExtension,
 
 			if(sResponse != "OK")
 			{
-				SCREEN_PopupMessage(
-					SCREEN_PopupMessage_CONST,  //screen id
-					"Failed to make call!|OK", //text
-					"", //command line
-					"error", //description
-					"0", //prompt for reset
-					"0", //without timeout
-					"1"  //cannot go back
-					);
-				break;
+				sMessage = "Failed to make call!";
 			}
+			else
+			{
+				string sDescription = "Calling, please wait...";
+				string sButton1 = "Cancel call";
+				string sCommand1 = 
+					StringUtils::itos(iPK_Device_From) + " " + 
+					StringUtils::itos(m_pOrbiter->m_dwPK_Device_TelecomPlugIn) + " " + 	
+					StringUtils::itos(MESSAGETYPE_COMMAND) + " " + 
+					StringUtils::itos(COMMAND_Phone_Drop_CONST);
 
-			string sDescription = "Calling, please wait...";
-			string sButton1 = "Cancel call";
-			string sCommand1 = 
-				StringUtils::itos(iPK_Device_From) + " " + 
-				StringUtils::itos(m_pOrbiter->m_dwPK_Device_TelecomPlugIn) + " " + 	
-				StringUtils::itos(MESSAGETYPE_COMMAND) + " " + 
-				StringUtils::itos(COMMAND_Phone_Drop_CONST);
-
-			SCREEN_PopupMessage(SCREEN_PopupMessage_CONST, 
-				sDescription + "|" + sButton1, sCommand1, "calling", "0", "0", "1");
+				SCREEN_PopupMessage(SCREEN_PopupMessage_CONST, 
+					sDescription + "|" + sButton1, sCommand1, "calling", "0", "0", "1");
+			}
 		}
 		break;
 
@@ -3887,30 +3883,23 @@ void ScreenHandler::HandleAssistedMakeCall(int iPK_Users,string sPhoneExtension,
 
 			if(sResponse != "OK")
 			{
-				SCREEN_PopupMessage(
-					SCREEN_PopupMessage_CONST,  //screen id
-					"Failed to join!|OK", //text
-					"", //command line
-					"error", //description
-					"0", //prompt for reset
-					"0", //without timeout
-					"1"  //cannot go back
-					);
-				break;
+				sMessage = "Failed to join!";
 			}
+			else
+			{
+				SCREEN_Active_Calls(SCREEN_Active_Calls_CONST);
 
-			SCREEN_Active_Calls(SCREEN_Active_Calls_CONST);
+				string sDescription = "Calling, please wait...";
+				string sButton1 = "Cancel call";
+				string sCommand1 = 
+					StringUtils::itos(iPK_Device_From) + " " + 
+					StringUtils::itos(m_pOrbiter->m_dwPK_Device_TelecomPlugIn) + " " + 	
+					StringUtils::itos(MESSAGETYPE_COMMAND) + " " + 
+					StringUtils::itos(COMMAND_Phone_Drop_CONST);
 
-			string sDescription = "Calling, please wait...";
-			string sButton1 = "Cancel call";
-			string sCommand1 = 
-				StringUtils::itos(iPK_Device_From) + " " + 
-				StringUtils::itos(m_pOrbiter->m_dwPK_Device_TelecomPlugIn) + " " + 	
-				StringUtils::itos(MESSAGETYPE_COMMAND) + " " + 
-				StringUtils::itos(COMMAND_Phone_Drop_CONST);
-
-			SCREEN_PopupMessage(SCREEN_PopupMessage_CONST, 
-				sDescription + "|" + sButton1, sCommand1, "calling", "0", "0", "1");
+				SCREEN_PopupMessage(SCREEN_PopupMessage_CONST, 
+					sDescription + "|" + sButton1, sCommand1, "calling", "0", "0", "1");
+			}
 		}
 		break;
 
@@ -3927,29 +3916,22 @@ void ScreenHandler::HandleAssistedMakeCall(int iPK_Users,string sPhoneExtension,
 
 			if(sResponse != "OK")
 			{
-				SCREEN_PopupMessage(
-					SCREEN_PopupMessage_CONST,  //screen id
-					"Failed to transfer!|OK", //text
-					"", //command line
-					"error", //description
-					"0", //prompt for reset
-					"0", //without timeout
-					"1"  //cannot go back
-					);
-				break;
+				sMessage = "Failed to transfer!";
 			}
+			else
+			{
+				string sDescription = "Transfering call from " + sSourceCallerID + ", please wait...";
 
-			string sDescription = "Transfering call from " + sSourceCallerID + ", please wait...";
+				string sButton1 = "Cancel";
+				string sCommand1 = 
+					StringUtils::itos(iPK_Device_From) + " " + 
+					StringUtils::itos(m_pOrbiter->m_dwPK_Device_TelecomPlugIn) + " " + 	
+					StringUtils::itos(MESSAGETYPE_COMMAND) + " " + StringUtils::itos(COMMAND_PL_Cancel_CONST) + " " +
+					StringUtils::itos(COMMANDPARAMETER_Channel_CONST) + sSourceChannel; 
 
-			string sButton1 = "Cancel";
-			string sCommand1 = 
-				StringUtils::itos(iPK_Device_From) + " " + 
-				StringUtils::itos(m_pOrbiter->m_dwPK_Device_TelecomPlugIn) + " " + 	
-				StringUtils::itos(MESSAGETYPE_COMMAND) + " " + StringUtils::itos(COMMAND_PL_Cancel_CONST) + " " +
-				StringUtils::itos(COMMANDPARAMETER_Channel_CONST) + sSourceChannel; 
-
-			SCREEN_PopupMessage(SCREEN_PopupMessage_CONST, 
-				sDescription + "|" + sButton1, sCommand1, "transfering", "0", "0", "1");
+				SCREEN_PopupMessage(SCREEN_PopupMessage_CONST, 
+					sDescription + "|" + sButton1, sCommand1, "transfering", "0", "0", "1");
+			}
 		}
 		break;
 
@@ -3971,27 +3953,37 @@ void ScreenHandler::HandleAssistedMakeCall(int iPK_Users,string sPhoneExtension,
 
 			if(sResponse != "OK")
 			{
-				SCREEN_PopupMessage(
-					SCREEN_PopupMessage_CONST,  //screen id
-					"Failed to transfer!|OK", //text
-					"", //command line
-					"error", //description
-					"0", //prompt for reset
-					"0", //without timeout
-					"1"  //cannot go back
-				);
-				break;
+				sMessage = "Failed to transfer!";
 			}
-
-			DCE::SCREEN_Assisted_Transfer_In_Progress screen_Assisted_Transfer_In_Progress(
+			else
+			{
+				DCE::SCREEN_Assisted_Transfer_In_Progress screen_Assisted_Transfer_In_Progress(
 					m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device,
 					!sSecondPhoneCall.empty(), sTaskID);
-			m_pOrbiter->SendCommand(screen_Assisted_Transfer_In_Progress);
+				m_pOrbiter->SendCommand(screen_Assisted_Transfer_In_Progress);
+			}
 		}
 		break;
 
 		default:
+			{
+				sMessage = "Unknown telecom action: " +  StringUtils::ltos(m_TelecomCommandStatus) + "!";
+				sResponse = "ERROR";
+			}
 			break;
+	}
+
+	if(sResponse != "OK")
+	{
+		SCREEN_PopupMessage(
+			SCREEN_PopupMessage_CONST,  //screen id
+			sMessage + "\n" + sResponse + "|OK", //text
+			"", //command line
+			"error", //description
+			"0", //prompt for reset
+			"0", //without timeout
+			"1"  //cannot go back
+		);
 	}
 
 	//reset the status

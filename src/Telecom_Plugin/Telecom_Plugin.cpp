@@ -3063,3 +3063,17 @@ string Telecom_Plugin::FindChannelForExt(CallStatus * pCallStatus, string ext)
 	
 	return "";
 }
+//<-dceag-c927-b->
+
+	/** @brief COMMAND: #927 - Add Extensions To Call */
+	/** Add comma delimited list with extensions to call */
+		/** @param #87 PhoneCallID */
+			/** The phone call id */
+		/** @param #274 Extensions */
+			/** Comma delimited list with extensions */
+
+void Telecom_Plugin::CMD_Add_Extensions_To_Call(string sPhoneCallID,string sExtensions,string &sCMD_Result,Message *pMessage)
+//<-dceag-c927-e->
+{
+	//TODO: implement me
+}

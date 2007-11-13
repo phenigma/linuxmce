@@ -25216,5 +25216,37 @@ namespace DCE
 			COMMANDPARAMETER_Task_CONST, sTask.c_str(),
 			COMMANDPARAMETER_Job_CONST, sJob.c_str()); }
 	};
+	class CMD_Add_Extensions_To_Call : public PreformedCommand {
+	public:
+		CMD_Add_Extensions_To_Call(long DeviceIDFrom, long DeviceIDTo,string sPhoneCallID,string sExtensions) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
+			COMMAND_Add_Extensions_To_Call_CONST,
+			2 /* number of parameters */,
+			COMMANDPARAMETER_PhoneCallID_CONST, sPhoneCallID.c_str(),
+			COMMANDPARAMETER_Extensions_CONST, sExtensions.c_str()); }
+	};
+	class CMD_Add_Extensions_To_Call_DL : public PreformedCommand {
+	public:
+		CMD_Add_Extensions_To_Call_DL(long DeviceIDFrom, string DeviceIDTo,string sPhoneCallID,string sExtensions) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Add_Extensions_To_Call_CONST,
+			2 /* number of parameters */,
+			COMMANDPARAMETER_PhoneCallID_CONST, sPhoneCallID.c_str(),
+			COMMANDPARAMETER_Extensions_CONST, sExtensions.c_str()); }
+	};
+	class CMD_Add_Extensions_To_Call_DT : public PreformedCommand {
+	public:
+		CMD_Add_Extensions_To_Call_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sPhoneCallID,string sExtensions) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Add_Extensions_To_Call_CONST,
+			2 /* number of parameters */,
+			COMMANDPARAMETER_PhoneCallID_CONST, sPhoneCallID.c_str(),
+			COMMANDPARAMETER_Extensions_CONST, sExtensions.c_str()); }
+	};
+	class CMD_Add_Extensions_To_Call_Cat : public PreformedCommand {
+	public:
+		CMD_Add_Extensions_To_Call_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sPhoneCallID,string sExtensions) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Add_Extensions_To_Call_CONST,
+			2 /* number of parameters */,
+			COMMANDPARAMETER_PhoneCallID_CONST, sPhoneCallID.c_str(),
+			COMMANDPARAMETER_Extensions_CONST, sExtensions.c_str()); }
+	};
 }
 #endif

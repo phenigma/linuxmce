@@ -345,6 +345,17 @@ The response is a task id */
 	virtual void CMD_Process_Task(string sTask,string sJob,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #927 - Add Extensions To Call */
+	/** Add comma delimited list with extensions to call */
+		/** @param #87 PhoneCallID */
+			/** The phone call id */
+		/** @param #274 Extensions */
+			/** Comma delimited list with extensions */
+
+	virtual void CMD_Add_Extensions_To_Call(string sPhoneCallID,string sExtensions) { string sCMD_Result; CMD_Add_Extensions_To_Call(sPhoneCallID.c_str(),sExtensions.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Add_Extensions_To_Call(string sPhoneCallID,string sExtensions,string &sCMD_Result,Message *pMessage);
+
+
 //<-dceag-h-e->
 
 private:
