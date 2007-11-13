@@ -1683,9 +1683,23 @@ class DataGridTable *Telecom_Plugin::ActiveUsersOnCallGrid(string GridID,string 
 				if(sText.empty())
 					sText = ExtensionForChannel(sValue);
 
+				char *pData = NULL;
+				int nSize = 0;
+				CMD_Get_Associated_Picture_For_Channel(sValue, &pData, &nSize);
+
+				if(NULL != pData && 0 != nSize)
+				{
+					pCell = new DataGridCell(sText, sValue);
+					pCell->m_AltColor = UniqueColors[nIndex % MAX_TELECOM_COLORS];
+					pCell->m_pGraphicData = pData;
+					pCell->m_GraphicLength = nSize;
+					pDataGrid->SetData(0, Row, pCell);
+				}
+
 				pCell = new DataGridCell(sText, sValue);
+				pCell->m_Colspan = 5;
 				pCell->m_AltColor = UniqueColors[nIndex % MAX_TELECOM_COLORS];
-				pDataGrid->SetData(0, Row, pCell);
+				pDataGrid->SetData(1, Row, pCell);
 
 				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Row %d: cell text %s, value %s",
 					Row, sText.c_str(), sValue.c_str());
@@ -3112,5 +3126,13 @@ void Telecom_Plugin::CMD_Add_Extensions_To_Call(string sPhoneCallID,string sExte
 void Telecom_Plugin::CMD_Get_Associated_Picture_For_Channel(string sChannel,char **pData,int *iData_Size,string &sCMD_Result,Message *pMessage)
 //<-dceag-c928-e->
 {
-	//TODO: implement me!
+	if(NULL != *pData && NULL != iData_Size)
+	{
+		//todo: find the right picture
+		string sPath = "/home/unknown.jpg";
+
+		size_t ulSize = 0;
+		*pData = FileUtils::ReadFileIntoBuffer(sPath, ulSize);
+		*iData_Size = static_cast<int>(ulSize);
+	}
 }
