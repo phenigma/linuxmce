@@ -2927,6 +2927,7 @@ bool Telecom_Plugin::InternalMakeCall(int iFK_Device_From, string sFromExten, st
 			SendCommand(cmd_PBX_Originate);
 		}
 	}
+	else
 	{
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "No PBX device!");
 		return false;
