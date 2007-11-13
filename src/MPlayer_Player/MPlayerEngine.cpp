@@ -8,6 +8,7 @@
 #include "MPlayerEngine.h"
 #include "Log.h"
 #include "PlutoUtils/FileUtils.h"
+#include "PlutoUtils/StringUtils.h"
 
 #define MPLAYER_BINARY "/opt/pluto-mplayer/bin/mplayer"
 #define MPLAYER_BINARY_SHORT "mplayer"
@@ -82,7 +83,7 @@ bool MPlayerEngine::StartEngine() {
 		Log("Starting mplayer");
 		
 		execle(MPLAYER_BINARY, MPLAYER_BINARY_SHORT, "-slave", "-idle", "-msglevel", "all=4", "-noborder", 
-		       "-fixed-vo", "-fs", "-vo", "xv", "-lavdopts", "fast:threads=2", BLACK_MPEG_FILE, (char *) 0, environ);
+		       "-fixed-vo", "-fs", "-vo", "xv", "-vf", "screenshot", "-lavdopts", "fast:threads=2", BLACK_MPEG_FILE, (char *) 0, environ);
 
 		Log("execle() failed");
 		exit(127);
@@ -191,6 +192,7 @@ void* EngineOutputReader(void *pInstance) {
 				const string sPlaybackStarted = "Starting playback...";
 				const string sPlaybackFinished = "Playback finished: ";
 				const string sNoStreamFound = "No stream found.";
+				const string sScreenshot = "*** screenshot '";
 						
 				if ( i->compare(0, sAnsPrefix.length(), sAnsPrefix) == 0 ) {
 					Log("Found answer: " + *i);
@@ -227,6 +229,13 @@ void* EngineOutputReader(void *pInstance) {
 						
 					}
 					pThis->SetCurrentFile("");
+				}
+				// if screenshot found
+				else if ( (i->compare(0, sScreenshot.length(), sScreenshot) == 0) )
+				{
+					string sScreenshotName = i->substr(sScreenshot.length(), i->find_last_of("'") - sScreenshot.length());
+					Log("Detected new screenshot file: " + sScreenshotName);
+					pThis->SetCurrentScreenshot(sScreenshotName);
 				}
 			}
 		}
@@ -380,4 +389,90 @@ string MPlayerEngine::GetCurrentFile() {
 void MPlayerEngine::SetCurrentFile(string sName) {
 	// TODO add mutex
 	m_sCurrentFile = sName;
+}
+
+void MPlayerEngine::GetScreenshot(int iWidth, int iHeight, char *&pData, int &iDataSize, string &sFormat, string &sCMD_Result)
+{
+	Log("MPlayerEngine::GetScreenshot - called");
+	
+	if (GetEngineState()!=PLAYBACK_STARTED)
+	{
+		Log("MPlayerEngine::GetScreenshot - player is not in playback state, aborting call");
+		return;
+	}
+	
+	char *currDir = get_current_dir_name();
+	string sCurrDir = currDir;
+	free(currDir);
+	
+	string sFile = sCurrDir+"/shot0001.png";
+	
+	// cleaning old file if present
+	if (FileUtils::FileExists(sFile))
+		FileUtils::DelFile(sFile);
+		
+	SetCurrentScreenshot("");
+	ExecuteCommand("screenshot 0");
+	
+	//waiting for screenshot
+	int iCounter=30;
+	while (GetCurrentScreenshot()=="" && iCounter>0)
+	{
+		Sleep(100);
+		iCounter--;
+	}
+	
+	if (GetCurrentScreenshot()=="")
+	{
+		Log("MPlayerEngine::GetScreenshot - timeout waiting for screenshot maker, aborting");
+		return;
+	}
+	
+	sFile = sCurrDir+"/" + GetCurrentScreenshot();
+	
+	iCounter=30;
+	while (!FileUtils::FileExists(sFile) && iCounter>0)
+	{
+		Sleep(100);
+		iCounter--;
+	}
+	
+	if (!FileUtils::FileExists(sFile))
+	{
+		Log("MPlayerEngine::GetScreenshot - timeout waiting for screenshot writer, aborting");
+		return;
+	}
+	
+	// HACK: let it finally write
+	Sleep(1000);
+	
+	string sTargetFile = "/tmp/file_mp.jpg";
+	string sCommand = "/usr/bin/convert -geometry " + StringUtils::itos(iWidth)+"x"+StringUtils::itos(iHeight) + " " + sFile + " " + sTargetFile;
+	Log("Converting "+sFile+" => " + sTargetFile + " with command \""+sCommand+"\"");
+	system(sCommand.c_str());
+	if ( FileUtils::FileExists(sTargetFile) )
+	{
+		Log("Converting succeeded, reading target file");
+		size_t iSize=0;
+		pData = FileUtils::ReadFileIntoBuffer(sTargetFile, iSize);
+		iDataSize = iSize;
+		sFormat = "JPG";
+	}
+	else
+	{
+		Log("Converting failed, no target file found?");
+
+	}
+}
+
+void MPlayerEngine::SetCurrentScreenshot(string sName)
+{
+	//TODO add mutex
+	m_sCurrentScreenshot = sName;
+}
+
+string MPlayerEngine::GetCurrentScreenshot()
+{
+	//TODO add mutex
+	return m_sCurrentScreenshot;
 }

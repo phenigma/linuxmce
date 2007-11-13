@@ -112,6 +112,19 @@ public:
 	virtual void CMD_Simulate_Keypress(string sPK_Button,int iStreamID,string sName,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #29 - Simulate Mouse Click */
+	/** Simlate a mouse click at a certain position on the screen */
+		/** @param #11 Position X */
+			/** position X */
+		/** @param #12 Position Y */
+			/** position Y */
+		/** @param #41 StreamID */
+			/** ID of stream to apply */
+
+	virtual void CMD_Simulate_Mouse_Click(int iPosition_X,int iPosition_Y,int iStreamID) { string sCMD_Result; CMD_Simulate_Mouse_Click(iPosition_X,iPosition_Y,iStreamID,sCMD_Result,NULL);};
+	virtual void CMD_Simulate_Mouse_Click(int iPosition_X,int iPosition_Y,int iStreamID,string &sCMD_Result,Message *pMessage);
+
+
 	/** @brief COMMAND: #32 - Update Object Image */
 	/** Display an image on the media player */
 		/** @param #3 PK_DesignObj */
@@ -224,6 +237,58 @@ public:
 	virtual void CMD_Jump_Position_In_Playlist(string sValue_To_Assign,int iStreamID,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #81 - Navigate Next */
+	/** Nagivate to the next possible navigable area. (The actual outcome depends on the specifc device) */
+		/** @param #41 StreamID */
+			/** The stream on which to do the navigation. */
+
+	virtual void CMD_Navigate_Next(int iStreamID) { string sCMD_Result; CMD_Navigate_Next(iStreamID,sCMD_Result,NULL);};
+	virtual void CMD_Navigate_Next(int iStreamID,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #82 - Navigate Prev */
+	/** Nagivate the previous possible navigable area. (The actual outcome depends on the specific device). */
+		/** @param #41 StreamID */
+			/** The stream on which to do the navigation. */
+
+	virtual void CMD_Navigate_Prev(int iStreamID) { string sCMD_Result; CMD_Navigate_Prev(iStreamID,sCMD_Result,NULL);};
+	virtual void CMD_Navigate_Prev(int iStreamID,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #84 - Get Video Frame */
+	/** Get's the current video frame from the media player. */
+		/** @param #19 Data */
+			/** The video frame */
+		/** @param #20 Format */
+			/** Format of the frame */
+		/** @param #23 Disable Aspect Lock */
+			/** Disable Aspect Ratio */
+		/** @param #41 StreamID */
+			/** The ID of the stream */
+		/** @param #60 Width */
+			/** Frame width */
+		/** @param #61 Height */
+			/** Frame height */
+
+	virtual void CMD_Get_Video_Frame(string sDisable_Aspect_Lock,int iStreamID,int iWidth,int iHeight,char **pData,int *iData_Size,string *sFormat) { string sCMD_Result; CMD_Get_Video_Frame(sDisable_Aspect_Lock.c_str(),iStreamID,iWidth,iHeight,pData,iData_Size,sFormat,sCMD_Result,NULL);};
+	virtual void CMD_Get_Video_Frame(string sDisable_Aspect_Lock,int iStreamID,int iWidth,int iHeight,char **pData,int *iData_Size,string *sFormat,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #87 - Goto Media Menu */
+	/** Goto to the current media Root Menu. */
+		/** @param #41 StreamID */
+			/** The stream ID */
+		/** @param #64 MenuType */
+			/** The type of menu that the user want to jump to.
+(For DVD handlers usually this applies)
+0 - Root menu 
+1 - Title menu
+2 - Media menu */
+
+	virtual void CMD_Goto_Media_Menu(int iStreamID,int iMenuType) { string sCMD_Result; CMD_Goto_Media_Menu(iStreamID,iMenuType,sCMD_Result,NULL);};
+	virtual void CMD_Goto_Media_Menu(int iStreamID,int iMenuType,string &sCMD_Result,Message *pMessage);
+
+
 	/** @brief COMMAND: #92 - Pause */
 	/** Pause the media */
 		/** @param #41 StreamID */
@@ -258,6 +323,51 @@ public:
 
 	virtual void CMD_Play(int iStreamID) { string sCMD_Result; CMD_Play(iStreamID,sCMD_Result,NULL);};
 	virtual void CMD_Play(int iStreamID,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #190 - Enter/Go */
+	/** Select the currently highlighted menu item */
+		/** @param #41 StreamID */
+			/** ID of stream to apply */
+
+	virtual void CMD_EnterGo(int iStreamID) { string sCMD_Result; CMD_EnterGo(iStreamID,sCMD_Result,NULL);};
+	virtual void CMD_EnterGo(int iStreamID,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #200 - Move Up */
+	/** Move the highlighter */
+		/** @param #41 StreamID */
+			/** ID of stream to apply */
+
+	virtual void CMD_Move_Up(int iStreamID) { string sCMD_Result; CMD_Move_Up(iStreamID,sCMD_Result,NULL);};
+	virtual void CMD_Move_Up(int iStreamID,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #201 - Move Down */
+	/** Move the highlighter */
+		/** @param #41 StreamID */
+			/** ID of stream to apply */
+
+	virtual void CMD_Move_Down(int iStreamID) { string sCMD_Result; CMD_Move_Down(iStreamID,sCMD_Result,NULL);};
+	virtual void CMD_Move_Down(int iStreamID,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #202 - Move Left */
+	/** Move the highlighter */
+		/** @param #41 StreamID */
+			/** ID of stream to apply */
+
+	virtual void CMD_Move_Left(int iStreamID) { string sCMD_Result; CMD_Move_Left(iStreamID,sCMD_Result,NULL);};
+	virtual void CMD_Move_Left(int iStreamID,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #203 - Move Right */
+	/** Move the highlighter */
+		/** @param #41 StreamID */
+			/** ID of stream to apply */
+
+	virtual void CMD_Move_Right(int iStreamID) { string sCMD_Result; CMD_Move_Right(iStreamID,sCMD_Result,NULL);};
+	virtual void CMD_Move_Right(int iStreamID,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #249 - Start Streaming */

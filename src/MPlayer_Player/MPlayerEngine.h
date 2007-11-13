@@ -32,7 +32,12 @@ private:
 	string ReadLine();
 	
 	string m_sCurrentFile;
+	string m_sCurrentScreenshot;
 	void SetCurrentFile(string sName);
+	
+	void SetCurrentScreenshot(string sName);
+	string GetCurrentScreenshot();
+	
 	vector<string> m_vCurrentPlaylist;
 
 public:
@@ -61,6 +66,7 @@ public:
 	EngineState GetEngineState();
 	
 	string GetCurrentFile();
+	void GetScreenshot(int iWidth, int iHeight, char *&pData, int &iDataSize, string &sFormat, string &sCMD_Result);
 
 private:
 	bool StartPlayback(string sMediaFile);

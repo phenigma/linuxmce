@@ -1107,3 +1107,165 @@ void MPlayer_Player::CreateVideoConfigFiles(const vector<string> &vFiles)
 		}
 	}
 }
+//<-dceag-c29-b->
+
+	/** @brief COMMAND: #29 - Simulate Mouse Click */
+	/** Simlate a mouse click at a certain position on the screen */
+		/** @param #11 Position X */
+			/** position X */
+		/** @param #12 Position Y */
+			/** position Y */
+		/** @param #41 StreamID */
+			/** ID of stream to apply */
+
+void MPlayer_Player::CMD_Simulate_Mouse_Click(int iPosition_X,int iPosition_Y,int iStreamID,string &sCMD_Result,Message *pMessage)
+//<-dceag-c29-e->
+{
+}
+
+//<-dceag-c81-b->
+
+	/** @brief COMMAND: #81 - Navigate Next */
+	/** Nagivate to the next possible navigable area. (The actual outcome depends on the specifc device) */
+		/** @param #41 StreamID */
+			/** The stream on which to do the navigation. */
+
+void MPlayer_Player::CMD_Navigate_Next(int iStreamID,string &sCMD_Result,Message *pMessage)
+//<-dceag-c81-e->
+{
+}
+
+//<-dceag-c82-b->
+
+	/** @brief COMMAND: #82 - Navigate Prev */
+	/** Nagivate the previous possible navigable area. (The actual outcome depends on the specific device). */
+		/** @param #41 StreamID */
+			/** The stream on which to do the navigation. */
+
+void MPlayer_Player::CMD_Navigate_Prev(int iStreamID,string &sCMD_Result,Message *pMessage)
+//<-dceag-c82-e->
+{
+}
+
+//<-dceag-c84-b->
+
+	/** @brief COMMAND: #84 - Get Video Frame */
+	/** Get's the current video frame from the media player. */
+		/** @param #19 Data */
+			/** The video frame */
+		/** @param #20 Format */
+			/** Format of the frame */
+		/** @param #23 Disable Aspect Lock */
+			/** Disable Aspect Ratio */
+		/** @param #41 StreamID */
+			/** The ID of the stream */
+		/** @param #60 Width */
+			/** Frame width */
+		/** @param #61 Height */
+			/** Frame height */
+
+void MPlayer_Player::CMD_Get_Video_Frame(string sDisable_Aspect_Lock,int iStreamID,int iWidth,int iHeight,char **pData,int *iData_Size,string *sFormat,string &sCMD_Result,Message *pMessage)
+//<-dceag-c84-e->
+{
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::CMD_Get_Video_Frame received");
+
+	if (!m_bPlayerEngineInitialized)
+	{
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "MPlayer_Player::CMD_Get_Video_Frame aborts because Player Engine is not initialized");
+		return;
+	}
+	
+	if (pData && iData_Size && sFormat)
+	{
+		m_pPlayerEngine->GetScreenshot(1024, 768, *pData, *iData_Size, *sFormat, sCMD_Result);
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "MPlayer_Player::CMD_Get_Video_Frame read %i bytes of data", *iData_Size);
+	}
+	else
+	{
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "MPlayer_Player::CMD_Get_Video_Frame - null parameters passed, aborting");
+	}
+}
+
+//<-dceag-c87-b->
+
+	/** @brief COMMAND: #87 - Goto Media Menu */
+	/** Goto to the current media Root Menu. */
+		/** @param #41 StreamID */
+			/** The stream ID */
+		/** @param #64 MenuType */
+			/** The type of menu that the user want to jump to.
+(For DVD handlers usually this applies)
+0 - Root menu 
+1 - Title menu
+2 - Media menu */
+
+void MPlayer_Player::CMD_Goto_Media_Menu(int iStreamID,int iMenuType,string &sCMD_Result,Message *pMessage)
+//<-dceag-c87-e->
+{
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "MPlayer_Player::CMD_Goto_Media_Menu is not implemented");
+}
+
+//<-dceag-c190-b->
+
+	/** @brief COMMAND: #190 - Enter/Go */
+	/** Select the currently highlighted menu item */
+		/** @param #41 StreamID */
+			/** ID of stream to apply */
+
+void MPlayer_Player::CMD_EnterGo(int iStreamID,string &sCMD_Result,Message *pMessage)
+//<-dceag-c190-e->
+{
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "MPlayer_Player::CMD_EnterGo is not implemented");
+}
+
+//<-dceag-c200-b->
+
+	/** @brief COMMAND: #200 - Move Up */
+	/** Move the highlighter */
+		/** @param #41 StreamID */
+			/** ID of stream to apply */
+
+void MPlayer_Player::CMD_Move_Up(int iStreamID,string &sCMD_Result,Message *pMessage)
+//<-dceag-c200-e->
+{
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "MPlayer_Player::CMD_Move_Up is not implemented");
+}
+
+//<-dceag-c201-b->
+
+	/** @brief COMMAND: #201 - Move Down */
+	/** Move the highlighter */
+		/** @param #41 StreamID */
+			/** ID of stream to apply */
+
+void MPlayer_Player::CMD_Move_Down(int iStreamID,string &sCMD_Result,Message *pMessage)
+//<-dceag-c201-e->
+{
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "MPlayer_Player::CMD_Move_Down is not implemented");
+}
+
+//<-dceag-c202-b->
+
+	/** @brief COMMAND: #202 - Move Left */
+	/** Move the highlighter */
+		/** @param #41 StreamID */
+			/** ID of stream to apply */
+
+void MPlayer_Player::CMD_Move_Left(int iStreamID,string &sCMD_Result,Message *pMessage)
+//<-dceag-c202-e->
+{
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "MPlayer_Player::CMD_Move_Left is not implemented");
+}
+
+//<-dceag-c203-b->
+
+	/** @brief COMMAND: #203 - Move Right */
+	/** Move the highlighter */
+		/** @param #41 StreamID */
+			/** ID of stream to apply */
+
+void MPlayer_Player::CMD_Move_Right(int iStreamID,string &sCMD_Result,Message *pMessage)
+//<-dceag-c203-e->
+{
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "MPlayer_Player::CMD_Move_Right is not implemented");
+}
