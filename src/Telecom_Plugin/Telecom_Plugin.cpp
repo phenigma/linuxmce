@@ -3076,4 +3076,8 @@ void Telecom_Plugin::CMD_Add_Extensions_To_Call(string sPhoneCallID,string sExte
 //<-dceag-c927-e->
 {
 	//TODO: implement me
+	//NOTE: these all extensions should be present in this call and ONLY these ones
+	// 1) if one of the extensions is in the call, leave it
+	// 2) if one of the extensions is not in the call, add it
+	// 3) if in the call there is an extension which is not in the list with extension, drop it
 }
