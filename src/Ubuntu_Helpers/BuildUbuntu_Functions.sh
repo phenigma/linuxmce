@@ -307,7 +307,7 @@ function Build_Pluto_Replacements {
 	
 	#Package: zaptel-modules
 	apt-get -y install zaptel-source
-	m-a -ft a-b zaptel
+	m-a -ft -l 2.6.22-14-generic a-b zaptel-modules
 	cp /usr/src/zaptel-modules*.deb "${temp_dir}"
 
 	#Package: ivtv-modules
@@ -611,6 +611,8 @@ function Create_Diskless_Archive {
 
 	local temp_dir=$(mktemp -d)
 	debootstrap gutsy $temp_dir http://ro.archive.ubuntu.com/ubuntu/
+
+	rm -f $temp_dir/var/cache/apt/archives/*.deb
 
 	mkdir -p /home/DisklessFS
 	pushd $temp_dir

@@ -5,10 +5,10 @@ mkdir -p /var/plutobuild/cd2-packages
 mkdir -p /var/plutobuild/cd2-packages/cachecd1-cache
 
 pushd /var/plutobuild/cd2-packages/cachecd1-cache
-	aptitude download `cat /root/Ubuntu_Helpers/cd2-packages-whitelist`
+	aptitude download `cat /root/Ubuntu_Helpers/cd2-packages-whitelist.gutsy` || exit 1
 
 	## Kernels
-	aptitude download linux-image-2.6.20-15-generic
+	aptitude download linux-image-`uname -r`
 
 
 	## Video Wizard Videos
