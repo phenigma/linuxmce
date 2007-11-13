@@ -182,7 +182,7 @@ public:
         return it==m_mapAllowedConnections.end() ? NULL : (*it).second;
     }
 
-	string Orbiter_Plugin::PK_Device_Orbiters_In_Room_get(int PK_Room, bool bOnlyAllowingPopups=true)
+	string PK_Device_Orbiters_In_Room_get(int PK_Room, bool bOnlyAllowingPopups=true)
 	{
 		string sPK_Device="";
 		for(map<int,OH_Orbiter *>::iterator it=m_mapOH_Orbiter.begin();it!=m_mapOH_Orbiter.end();++it)
