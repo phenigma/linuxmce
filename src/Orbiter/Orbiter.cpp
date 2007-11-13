@@ -4444,6 +4444,27 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 		else if(  Variable=="SD" )
 			for(map<int,DeviceData_Base *>::iterator it=m_mapDevice_Selected.begin();it!=m_mapDevice_Selected.end();++it)
 				Output += StringUtils::itos((*it).first) + ",";
+		else if(  Variable=="STE" ) //selected telecom extensions
+		{
+			Output = m_mapVariable_Find(VARIABLE_External_channels_CONST);
+
+			for(map<int,DeviceData_Base *>::iterator it=m_mapDevice_Selected.begin();it!=m_mapDevice_Selected.end();++it)
+			{
+				DeviceData_Base *pDeviceData_Base = it->second;
+				if(NULL != pDeviceData_Base)
+				{
+					string sExtension;
+					CMD_Get_Device_Data cmd_Get_Device_Data(
+						m_dwPK_Device, m_dwPK_Device_GeneralInfoPlugIn,
+						pDeviceData_Base->m_dwPK_Device, DEVICEDATA_PhoneNumber_CONST, false,
+						&sExtension
+					);
+					SendCommand(cmd_Get_Device_Data);
+
+					Output += sExtension + ",";
+				}
+			}
+		}
 		else if(  Variable=="SDD" )
 			for(map<int,DeviceData_Base *>::iterator it=m_mapDevice_Selected.begin();it!=m_mapDevice_Selected.end();++it)
 			{
@@ -4453,15 +4474,6 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 				}
 				else
 				{
-//int i1=it->first;
-//for(map<int,class FloorplanObject *>::iterator it2=m_mapFloorplanObject_Selected.begin();it2!=m_mapFloorplanObject_Selected.end();++it2)
-//{
-//	int i=it2->first;
-//	class FloorplanObject *pFloorplanObject = it2->second;
-//	string s="";
-//}
-
-
 					//this is a media floorplan object; it doesn't have a device associated
 					FloorplanObject *pfObj = m_mapFloorplanObject_Selected[it->first];
 					string sStatus = pfObj->Status == "offline" ? " (" + pfObj->Status + ")" : "";

@@ -1756,7 +1756,7 @@ class DataGridTable *Telecom_Plugin::ExternalChannels(string GridID,string Parms
 			if(0 == map_ext2device[sExten])
 			{
 				string sText = itc->second;
-				string sValue = sChannel;
+				string sValue = sExten;
 
 				if(sText.empty())
 					sText = sExten;
