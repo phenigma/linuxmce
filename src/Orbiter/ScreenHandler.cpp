@@ -3749,10 +3749,13 @@ bool ScreenHandler::Telecom_CustomRender(CallBackData *pData)
 		DesignObj_Orbiter *pObj = pRenderScreenCallBackData->m_pObj;
 		PlutoRectangle rectTotal = pObj->m_rPosition;
 
-		if(pObj->m_iBaseObjectID == 5538 || pObj->m_iBaseObjectID == 5539)
+		if(
+			pObj->m_iBaseObjectID == DESIGNOBJ_objIncomingCallUser_CONST || 
+			pObj->m_iBaseObjectID == DESIGNOBJ_objOutgoingCallUser_CONST
+		)
 		{
 			string sChannel = 
-				pObj->m_iBaseObjectID == 5538 ? 
+				pObj->m_iBaseObjectID == DESIGNOBJ_objOutgoingCallUser_CONST ? 
 				m_pOrbiter->m_mapVariable_Find(VARIABLE_My_Channel_ID_CONST) :
 				m_pOrbiter->m_mapVariable_Find(VARIABLE_Source_Channel_ID_CONST);
 
