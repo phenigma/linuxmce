@@ -110,6 +110,14 @@ public:
 			return m_mapParameters[DEVICEDATA_Name_CONST];
 	}
 
+	int Get_Port()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Port_CONST).c_str());
+		else
+			return atoi(m_mapParameters[DEVICEDATA_Port_CONST].c_str());
+	}
+
 };
 
 
@@ -215,6 +223,7 @@ public:
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
 	//Data accessors
 	string DATA_Get_Name() { return GetData()->Get_Name(); }
+	int DATA_Get_Port() { return GetData()->Get_Port(); }
 	//Event accessors
 	void EVENT_Playback_Completed(string sMRL,int iStream_ID,bool bWith_Errors) { GetEvents()->Playback_Completed(sMRL.c_str(),iStream_ID,bWith_Errors); }
 	void EVENT_Playback_Started(string sMRL,int iStream_ID,string sSectionDescription,string sAudio,string sVideo) { GetEvents()->Playback_Started(sMRL.c_str(),iStream_ID,sSectionDescription.c_str(),sAudio.c_str(),sVideo.c_str()); }
