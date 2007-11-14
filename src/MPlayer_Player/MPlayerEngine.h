@@ -6,12 +6,18 @@
 
 #define BLACK_MPEG_FILE "/usr/pluto/share/black.mpeg"
 
+#include "PlutoUtils/MultiThreadIncludes.h"
+
 using namespace std;
 
 void* EngineOutputReader(void *pInstance);
 
 class MPlayerEngine {
 private:
+	pluto_pthread_mutex_t m_engineStateMutex;
+	pluto_pthread_mutex_t m_engineReadPipeMutex;
+	pluto_pthread_mutex_t m_engineWritePipeMutex;
+	
 	bool m_bEngineIsRunning;
 	bool m_bRunEngineOutputReader;
 	pthread_t m_tEngineOutputReaderThread;
@@ -39,6 +45,12 @@ private:
 	string GetCurrentScreenshot();
 	
 	vector<string> m_vCurrentPlaylist;
+	
+	void SetEngineAnswers(string key, string value);
+	string GetEngineAnswers(string key);
+	
+	string GetLastFile();
+	void ClearPlaylist();
 
 public:
 	enum SeekType {SEEK_RELATIVE_TIME=0, SEEK_ABSOLUTE_PERCENTAGE, SEEK_ABSOLUTE_TIME};

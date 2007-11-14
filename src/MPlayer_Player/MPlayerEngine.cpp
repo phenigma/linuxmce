@@ -15,7 +15,26 @@
 
 using namespace std;
 
-MPlayerEngine::MPlayerEngine() {
+MPlayerEngine::MPlayerEngine() : m_engineStateMutex("mplayer-engine-state-mutex"),
+	m_engineReadPipeMutex("mplayer-engine-read-pipe-mutex"),
+	m_engineWritePipeMutex("mplayer-engine-write-pipe-mutex")
+{
+	// initializing mutexes
+	pthread_mutexattr_t mutexAttr1;
+	pthread_mutexattr_init( &mutexAttr1 );
+	pthread_mutexattr_settype( &mutexAttr1,  PTHREAD_MUTEX_RECURSIVE_NP );
+	m_engineStateMutex.Init( &mutexAttr1 );
+	
+	pthread_mutexattr_t mutexAttr2;
+	pthread_mutexattr_init( &mutexAttr2 );
+	pthread_mutexattr_settype( &mutexAttr2,  PTHREAD_MUTEX_RECURSIVE_NP );
+	m_engineReadPipeMutex.Init( &mutexAttr2 );
+	
+	pthread_mutexattr_t mutexAttr3;
+	pthread_mutexattr_init( &mutexAttr3 );
+	pthread_mutexattr_settype( &mutexAttr3,  PTHREAD_MUTEX_RECURSIVE_NP );
+	m_engineWritePipeMutex.Init( &mutexAttr3 );
+	
 	m_iChildPID = 0;
 	m_bEngineIsRunning = false;
 	m_bInPipe[0] = m_bInPipe[1] = false;
@@ -131,6 +150,7 @@ void MPlayerEngine::StopEngine() {
 }
 
 string MPlayerEngine::ReadLine() {
+	PLUTO_SAFETY_LOCK(readPipeLock, m_engineReadPipeMutex);
 	string sResult;
 	char buf[1024];
 	int iSize = 0;
@@ -203,8 +223,7 @@ void* EngineOutputReader(void *pInstance) {
 						sValue = vAnswer[1];
 					}
 
-					// TODO add mutex to protect map
-					pThis->m_mEngineAnswers[vAnswer[0]] = sValue;
+					pThis->SetEngineAnswers(vAnswer[0], sValue);
 				}
 				else if ( i->compare(0, sPlaybackPreInit.length(), sPlaybackPreInit) == 0 ) {
 					sLastFilename = i->substr(sPlaybackPreInit.length(), i->length() - sPlaybackPreInit.length() - 1);
@@ -216,13 +235,14 @@ void* EngineOutputReader(void *pInstance) {
 				}
 				else if ( (i->compare(0, sPlaybackFinished.length(), sPlaybackFinished) == 0)||(i->compare(0, sNoStreamFound.length(), sNoStreamFound) == 0) ) {
 					Log("Playback finished: " + sLastFilename);
-					vector<string>::reverse_iterator ri = pThis->m_vCurrentPlaylist.rbegin();
-					if ( ri!=pThis->m_vCurrentPlaylist.rend() )
+					string sPlaylistLastFile = pThis->GetLastFile();
+					
+					
+					if ( sPlaylistLastFile!="" )
 					{
-						if ( *ri == sLastFilename )
+						if ( sPlaylistLastFile == sLastFilename )
 						{
-							// TODO this should be a structure protected with one common mutex
-							pThis->m_vCurrentPlaylist.clear();
+							pThis->ClearPlaylist();
 							pThis->SetEngineState(MPlayerEngine::PLAYBACK_FINISHED);
 							Log("Playlist is empty now");
 						}
@@ -247,7 +267,8 @@ void* EngineOutputReader(void *pInstance) {
 }
 
 void MPlayerEngine::ExecuteCommand(string sCommand) {
-	//TODO check that engine runs
+	PLUTO_SAFETY_LOCK(writePipeLock, m_engineWritePipeMutex);
+
 	char buf[1024];
 	int iLen = snprintf(buf, 1024, "%s\n", sCommand.c_str());
 	int iSize = write(m_iInPipe[1], buf, iLen);
@@ -255,22 +276,21 @@ void MPlayerEngine::ExecuteCommand(string sCommand) {
 }
 
 bool MPlayerEngine::ExecuteCommand(string sCommand, string sResponseName, string &sResponseValue) {
-	//TODO check that engine runs
-	
 	sResponseName = "ANS_" + sResponseName;
-	// TODO protect access
-	m_mEngineAnswers[sResponseName] = sResponseName;
+	
+	SetEngineAnswers(sResponseName, sResponseName);
 	ExecuteCommand(sCommand);
 	// giving MPlayer time to reply
 	usleep(300000);
 	
-	// TODO protect access
-	if ( m_mEngineAnswers[sResponseName] == sResponseName ) {
+	string sAnswer = GetEngineAnswers(sResponseName);
+	
+	if ( sAnswer == sResponseName ) {
 		sResponseValue = "";
 		return false;
 	}
 	else {
-		sResponseValue = m_mEngineAnswers[sResponseName];
+		sResponseValue = sAnswer;
 		return true;
 	}
 }
@@ -292,6 +312,8 @@ bool MPlayerEngine::StartPlayback(string sMediaFile) {
 
 bool MPlayerEngine::StartPlaylist(vector<string> &vFiles)
 {
+	PLUTO_SAFETY_LOCK(stateLock, m_engineStateMutex);
+	
 	if (!vFiles.empty())
 	{
 		const string sPlaylist = "/tmp/MPlayer_Player.playlist";
@@ -372,22 +394,22 @@ void MPlayerEngine::Seek(float fValue, SeekType eType) {
 }
 
 MPlayerEngine::EngineState MPlayerEngine::GetEngineState() {
-	// TODO add mutex
+	PLUTO_SAFETY_LOCK(stateLock, m_engineStateMutex);
 	return m_eEngineState;
 }
 
 void MPlayerEngine::SetEngineState(const MPlayerEngine::EngineState &eValue) {
-	// TODO add mutex
+	PLUTO_SAFETY_LOCK(stateLock, m_engineStateMutex);
 	m_eEngineState = eValue;
 }
 
 string MPlayerEngine::GetCurrentFile() {
-	// TODO add mutex
+	PLUTO_SAFETY_LOCK(stateLock, m_engineStateMutex);
 	return m_sCurrentFile;
 }
 
 void MPlayerEngine::SetCurrentFile(string sName) {
-	// TODO add mutex
+	PLUTO_SAFETY_LOCK(stateLock, m_engineStateMutex);
 	m_sCurrentFile = sName;
 }
 
@@ -467,12 +489,40 @@ void MPlayerEngine::GetScreenshot(int iWidth, int iHeight, char *&pData, int &iD
 
 void MPlayerEngine::SetCurrentScreenshot(string sName)
 {
-	//TODO add mutex
+	PLUTO_SAFETY_LOCK(stateLock, m_engineStateMutex);
 	m_sCurrentScreenshot = sName;
 }
 
 string MPlayerEngine::GetCurrentScreenshot()
 {
-	//TODO add mutex
+	PLUTO_SAFETY_LOCK(stateLock, m_engineStateMutex);
 	return m_sCurrentScreenshot;
+}
+
+void MPlayerEngine::SetEngineAnswers(string key, string value)
+{
+	PLUTO_SAFETY_LOCK(stateLock, m_engineStateMutex);
+	m_mEngineAnswers[key] = value;
+}
+
+string MPlayerEngine::GetEngineAnswers(string key)
+{
+	PLUTO_SAFETY_LOCK(stateLock, m_engineStateMutex);
+	return m_mEngineAnswers[key];
+}
+
+string MPlayerEngine::GetLastFile()
+{
+	PLUTO_SAFETY_LOCK(stateLock, m_engineStateMutex);
+	vector<string>::reverse_iterator ri = m_vCurrentPlaylist.rbegin();
+	if (ri == m_vCurrentPlaylist.rend())
+		return "";
+	else
+		return *ri;
+}
+
+void MPlayerEngine::ClearPlaylist()
+{
+	PLUTO_SAFETY_LOCK(stateLock, m_engineStateMutex);
+	m_vCurrentPlaylist.clear();
 }
