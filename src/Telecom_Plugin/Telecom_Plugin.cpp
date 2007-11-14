@@ -3255,13 +3255,11 @@ void Telecom_Plugin::CMD_Get_Associated_Picture_For_Channel(string sChannel,char
 
 		string sExten = ExtensionForChannel(sChannel);
 	
-		int nDefaultEmbeddedDeviceID = 0;
-		int nEmbeddedDeviceID = FindValueInMap<string, int>(map_ext2device, sExten, nDefaultEmbeddedDeviceID); 
+		int nEmbeddedDeviceID = FindValueInMap<string, int>(map_ext2device, sExten, 0); 
 
 		if(0 != nEmbeddedDeviceID)
 		{
-			int nDefaultOrbiterDeviceID = 0;
-			int nOrbiterDeviceID = FindValueInMap<int, int>(map_embedphone2orbiter, nEmbeddedDeviceID, nDefaultOrbiterDeviceID); 
+			int nOrbiterDeviceID = FindValueInMap<int, int>(map_embedphone2orbiter, nEmbeddedDeviceID, 0); 
 
 			//get user for orbiter id
 			OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(nOrbiterDeviceID);
