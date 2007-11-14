@@ -43,4 +43,4 @@ close(PAGE);
 
 `curl 'http://localhost/admin/config.php?display=trunks&extdisplay=OUT_$LINE_NR&action=deltrunk' &>/dev/null`;
 
-`curl 'http://localhost/admin/config.php?display=routing&clk_reload=true' &>/dev/null`;
+`curl 'http://localhost/admin/config.php?handler=reload' &>/dev/null`;

@@ -119,7 +119,7 @@ foreach my $var (keys %IN_VARS)
 `curl -d '$IN_DATA' '$IN_URL' > /dev/null`;
 
 #run AMP's scripts to generate asterisk's config
-`curl 'http://localhost/admin/config.php?display=trunks&clk_reload=true' > /dev/null`;
+`curl 'http://localhost/admin/config.php?handler=reload' > /dev/null`;
 #create telecom defaults
 `/usr/pluto/bin/create_telecom_defaults.pl`;
 #reload asterisk
