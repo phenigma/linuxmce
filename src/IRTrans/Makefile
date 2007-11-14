@@ -30,6 +30,13 @@ Gen_Dev_Files +=
 sources += ../LIRC_DCE/IRReceiverBase.cpp ../VFD_LCD/VFD_LCD_Base.cpp ../VFD_LCD/CoreMenuStructure.cpp ../VFD_LCD/MenuNode.cpp
 Csources += fileio.c linuxserio.c lowlevel.c server.c errormessage.c flashrom.c webserver.c xap.c
 
+ifneq (,$(findstring -DARCH64, $(CPPFLAGS)))
+	ccf-o = ccf-amd64.o
+else
+	ccf-o = ccf-i386.o
+endif
+
+
 #<-dceag-mf-b->!
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
 
@@ -42,13 +49,13 @@ bin: IRTrans
 
 so: IRTrans.so
 
-IRTrans.so: $(sources:.cpp=.o) $(Csources:.c=.o) ccf.o
+IRTrans.so: $(sources:.cpp=.o) $(Csources:.c=.o) $(ccf-o)
 	$(CXX) -shared -o $(MYNAME).so $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
 	chmod +x post_make.sh
 	./post_make.sh $@
 		
-IRTrans: $(sources:.cpp=.o) $(Csources:.c=.o) ccf.o
+IRTrans: $(sources:.cpp=.o) $(Csources:.c=.o) $(ccf-o)
 	$(CXX) -o $(MYNAME) $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
 	./post_make.sh $@
