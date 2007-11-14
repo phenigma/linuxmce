@@ -41,7 +41,6 @@ static LinphoneProxyConfig * LS_pLinphoneProxyConfig = NULL;
 static LinphoneAuthInfo * LS_pLinphoneAuthInfo = NULL;
 static SimplePhone * LS_pSimplePhone;
 pluto_pthread_mutex_t LS_linphone_mutex("linphone_simplephone"); // this mutex protects the access to the linphone library
-static bool LS_bActiveCall = false;
 static string LS_Auth_Username;
 static string LS_Auth_Realm;
 static int LS_Auth_Received = 0;
@@ -181,7 +180,7 @@ void * LS_Thread(void * arg)
 /** Returns true of a call is in progress, false otherwise */
 bool LS_ActiveCall()
 {
-	return LS_bActiveCall;
+	return LS_LinphoneCore.call;
 }
 /** Send a DTMF tone though and active call */
 void LS_SentDTMF(char cDTMF)
@@ -194,7 +193,6 @@ void LS_InitiateCall(string sNumber)
 {
 	PLUTO_SAFETY_LOCK(sl, LS_linphone_mutex);
 	linphone_core_invite(&LS_LinphoneCore, sNumber.c_str());
-	LS_bActiveCall = true;
 }
 /** Drop the active call */
 void LS_DropCall()
@@ -207,7 +205,6 @@ void LS_DropCall_nolock()
 {
 	func_enter("LS_DropCall");
 	linphone_core_terminate_call(&LS_LinphoneCore, NULL);
-	LS_bActiveCall = false;
 	string tmp;
 	LS_pSimplePhone->CallDroppedScreen();
 	func_exit("LS_DropCall");
@@ -228,7 +225,6 @@ void LS_AcceptCall()
 void LS_AcceptCall_nolock()
 {
 	linphone_core_accept_call(&LS_LinphoneCore, NULL);
-	LS_bActiveCall = true;
 }
 /* Linphone callbacks - implementation */
 /* Note: the lock is already taken in LS_ProcessEvents; these functions are called from linphone_core_iterate */
