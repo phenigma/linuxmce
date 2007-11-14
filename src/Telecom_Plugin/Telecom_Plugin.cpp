@@ -3254,6 +3254,7 @@ void Telecom_Plugin::CMD_Get_Associated_Picture_For_Channel(string sChannel,char
 		string sPath = "/usr/pluto/orbiter/skins/Basic/Users/UnknownUser.jpg";
 
 		string sExten = ExtensionForChannel(sChannel);
+	
 		int nDefaultEmbeddedDeviceID = 0;
 		int nEmbeddedDeviceID = FindValueInMap<string, int>(map_ext2device, sExten, nDefaultEmbeddedDeviceID); 
 
@@ -3282,3 +3283,4 @@ void Telecom_Plugin::CMD_Get_Associated_Picture_For_Channel(string sChannel,char
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "CMD_Get_Associated_Picture_For_Channel: loaded picture size %d", *iData_Size);
 	}
 }
+
