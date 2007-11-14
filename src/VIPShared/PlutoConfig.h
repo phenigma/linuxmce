@@ -118,7 +118,7 @@ public:
 	string m_sDatabaseInfo; // Depends on the database being used
 	long m_iServerPort,m_iEmulatorPort; // The port for communication with the server
 
-	string PlutoConfig::GetSetting(const char *Token,char *Buffer,char *Default);
+	string GetSetting(const char *Token,char *Buffer,char *Default);
 
 	class BDCommandProcessor *m_pBDCommandProcessor;
 	bool m_bSendKeyStrokes;
