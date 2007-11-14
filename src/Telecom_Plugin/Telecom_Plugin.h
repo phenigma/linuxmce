@@ -450,18 +450,6 @@ private:
 	 */
 	bool GetEmbeddedPhoneAssociated(int nDeviceID, int& nEmbeddedPhoneID);
 
-	template<class KEY, class VALUE> static const VALUE FindValueInMap(const map<KEY, VALUE>& myMap, const KEY& key, const VALUE default_value)
-	{
-		typename map<KEY, VALUE>::const_iterator it = myMap.find(key); 
-		return it != myMap.end() ? it->second : default_value;
-	}
-
-	template<class KEY, class OBJECT> static const OBJECT& FindValueInMapRef(const map<KEY, OBJECT>& myMap, const KEY& key, const OBJECT& default_value)
-	{
-		typename map<KEY, OBJECT>::const_iterator it = myMap.find(key); 
-		return it != myMap.end() ? it->second : default_value;
-	}
-
 private:
 	int iCmdCounter;
 	int generate_NewCommandID();

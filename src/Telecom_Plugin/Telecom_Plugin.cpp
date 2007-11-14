@@ -21,6 +21,7 @@
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
+#include "PlutoUtils/PlutoHelpers.h"
 
 #include <iostream>
 #include <vector>
