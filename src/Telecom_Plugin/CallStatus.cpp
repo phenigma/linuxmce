@@ -55,9 +55,8 @@ string CallStatus::GetStringConferenceID(unsigned uID)
 CallStatus::CallStatus()
 	: type(CallStatus::DirectCall),
 	  conferenceID(0),
-	  iDeviceRemote(0),
-	  iDeviceOwner(0),
-	  iPK_Users(0)
+	  iDeviceOrbiter(0),
+	  iDeviceOwner(0)
 {
 	id = StringUtils::itos(autoId++);
 }

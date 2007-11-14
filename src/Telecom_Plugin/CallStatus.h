@@ -120,14 +120,14 @@ namespace DCE
 			}
 			
 			/***/
-			void SetDeviceRemote(int iDev)
+			void SetDeviceOrbiter(int iDev)
 			{
-				iDeviceRemote = iDev;
+				iDeviceOrbiter = iDev;
 			}
 			/***/
-			int GetDeviceRemote() const
+			int GetDeviceOrbiter() const
 			{
-				return iDeviceRemote;
+				return iDeviceOrbiter;
 			}
 			
 			/***/
@@ -142,17 +142,6 @@ namespace DCE
 			}
 			
 			/***/
-			void SetUser(int iUser)
-			{
-				iPK_Users = iUser;
-			}
-			/***/
-			int GetUser() const
-			{
-				return iPK_Users;
-			}
-			
-			/***/
 			string GetDebugInfo() const;
 			
 		private:
@@ -163,9 +152,8 @@ namespace DCE
 			unsigned conferenceID;
 			map<string, string> channels;  //channelid <-> callerid
 			
-			int iDeviceRemote;
+			int iDeviceOrbiter;
 			int iDeviceOwner;
-			int iPK_Users;
 	};
 }
 

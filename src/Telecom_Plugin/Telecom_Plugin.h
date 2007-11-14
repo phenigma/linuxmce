@@ -44,10 +44,9 @@ namespace DCE
 {
 	class PendingCall
 	{
-		string sExtension;
-		int iDeviceRemote;
-		int iDeviceOwner;
-		int iPK_Users;
+		public:
+			int iDeviceOrbiter;
+			int iDeviceOwner;
 	};
 }
 
@@ -443,7 +442,7 @@ private:
 	/*
 	 *	Make a call
 	 */
-	bool InternalMakeCall(int iFK_Device_From, string sFromExten, string sPhoneNumberToCall);
+	bool InternalMakeCall(int iFK_Device_From, string sFromExten, string sPhoneNumberToCall, Message *pMessage);
 
 	/*
 	 *	Get the embedded phone from the same room with device
@@ -465,6 +464,7 @@ private:
 	map<unsigned, CallStatus*> map_conference2status;
 	map<unsigned, string> map_newconference;
 	map<string, TelecomTask*> map_id2task;
+	map<string, PendingCall*> map_ext2pending;
 	
 	map<string,long> map_err_messages;
 	unsigned long next_conf_room;
