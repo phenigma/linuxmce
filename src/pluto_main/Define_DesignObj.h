@@ -2510,6 +2510,8 @@
 #define DESIGNOBJ_objActiveCallsB_CONST 5535
 #define DESIGNOBJ_butTransfer_CONST 5536
 #define DESIGNOBJ_dgExternalChannels_CONST 5537
+#define DESIGNOBJ_objIncomingCallUser_CONST 5538
+#define DESIGNOBJ_objOutgoingCallUser_CONST 5539
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
