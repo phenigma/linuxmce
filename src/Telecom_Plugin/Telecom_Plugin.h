@@ -455,13 +455,13 @@ private:
 		typename map<KEY, VALUE>::const_iterator it = myMap.find(key); 
 		return it != myMap.end() ? it->second : default_value;
 	}
-
+/*
 	template<class KEY, class OBJECT> static const VALUE& FindValueInMapRef(const map<KEY, VALUE>& myMap, const KEY& key, const VALUE& default_value)
 	{
 		typename map<KEY, VALUE>::const_iterator it = myMap.find(key); 
 		return it != myMap.end() ? it->second : default_value;
 	}
-
+*/
 private:
 	int iCmdCounter;
 	int generate_NewCommandID();
