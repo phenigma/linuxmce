@@ -27,7 +27,9 @@ using namespace DCE;
 #include "Gen_Devices/AllCommandsRequests.h"
 //<-dceag-d-e->
 
+#include <cmath>
 #include "pluto_main/Define_MediaType.h"
+#include "XineMediaInfo.h"
 			 
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
@@ -43,6 +45,9 @@ MPlayer_Player::MPlayer_Player(int DeviceID, string ServerAddress,bool bConnectE
 	m_bMediaOpened = false;
 	m_fCurrentFileTime = 0;
 	m_fCurrentFileLength = 0;
+	
+	m_pNotificationSocket = new TimecodeNotification_SocketListener(string("m_pTimecodeNotificationSocket"));
+	m_pNotificationSocket->m_bSendOnlySocket = true; // one second
 }
 
 //<-dceag-const2-b->
@@ -80,6 +85,12 @@ MPlayer_Player::~MPlayer_Player()
 	{
 		delete m_pPlayerEngine;
 		m_pPlayerEngine = NULL;
+	}
+	
+	if (m_pNotificationSocket)
+	{
+		delete m_pNotificationSocket;
+		m_pNotificationSocket = NULL;
 	}
 }
 
@@ -295,7 +306,6 @@ void MPlayer_Player::CMD_Stop(int iStreamID,bool bEject,string &sCMD_Result,Mess
 {
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::CMD_Stop received");
 
-	//TODO use only ptr to engine object
 	if (!m_bPlayerEngineInitialized)
 	{
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "MPlayer_Player::CMD_Stop aborts because Player Engine is not initialized");
@@ -384,6 +394,8 @@ void MPlayer_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMedi
 //<-dceag-c37-e->
 {
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::CMD_Play_Media called for media type %i stream %i, MediaURL %s", iPK_MediaType, iStreamID, sMediaURL.c_str());
+	
+	m_iCurrentPlaybackSpeed = 0;
 	
 	if (!m_bPlayerEngineInitialized)
 	{
@@ -506,6 +518,7 @@ void MPlayer_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMedi
 		m_fCurrentFileLength = 0.0;
 		m_fCurrentFileTime = 0.0;
 		m_bMediaPaused = false;
+		m_iCurrentPlaybackSpeed = 1000;
 	}
 	else
 	{
@@ -552,6 +565,7 @@ void MPlayer_Player::CMD_Stop_Media(int iStreamID,string *sMediaPosition,string 
 		return;
 	}
 	
+	m_iCurrentPlaybackSpeed = 0;
 	m_bMediaOpened = false;
 	*sMediaPosition = GetPlaybackPosition();
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::CMD_Stop_Media last position is %s", sMediaPosition->c_str());
@@ -580,6 +594,7 @@ void MPlayer_Player::CMD_Pause_Media(int iStreamID,string &sCMD_Result,Message *
 	{
 		m_pPlayerEngine->ExecuteCommand("pause");
 		m_bMediaPaused = true;
+		m_iCurrentPlaybackSpeed = 0;
 	}
 }
 
@@ -605,6 +620,7 @@ void MPlayer_Player::CMD_Restart_Media(int iStreamID,string &sCMD_Result,Message
 	{
 		m_pPlayerEngine->ExecuteCommand("pause");
 		m_bMediaPaused = false;
+		m_iCurrentPlaybackSpeed = 1000;
 	}
 }
 
@@ -645,6 +661,7 @@ void MPlayer_Player::CMD_Change_Playback_Speed(int iStreamID,int iMediaPlaybackS
 	
 	if (iMediaPlaybackSpeed > 0)
 	{
+		m_iCurrentPlaybackSpeed = iMediaPlaybackSpeed;
 		string sSpeed = StringUtils::itos(iMediaPlaybackSpeed/1000) + "." + StringUtils::itos(iMediaPlaybackSpeed%1000);
 		m_pPlayerEngine->ExecuteCommand("speed_set " + sSpeed);
 		
@@ -979,6 +996,28 @@ void *DCE::PlayerEnginePoll(void *pInstance)
 				LoggerWrapper::GetInstance()->Write(LV_WARNING, "PlayerEnginePoll - engine plays file %s", sPlayedFile.c_str() );
 			}
 		}
+		
+		// sending timecode
+		if (pThis->m_pPlayerEngine->GetEngineState() == MPlayerEngine::PLAYBACK_STARTED)
+		{
+			XineMediaInfo mediaInfo;
+			mediaInfo.m_iSpeed = pThis->m_iCurrentPlaybackSpeed;
+			mediaInfo.m_iStreamID = pThis->m_iCurrentStreamID;
+			mediaInfo.m_iTitle = 0;
+			mediaInfo.m_iChapter = 0;
+			mediaInfo.m_sFileName = pThis->m_sCurrentFileName;
+			mediaInfo.m_iPositionInMilliseconds = (int)(pThis->m_fCurrentFileTime*1000.0);
+			mediaInfo.m_iTotalLengthInMilliseconds = (int)(pThis->m_fCurrentFileLength*1000.0);
+			
+			//TODO fix if necessary
+			mediaInfo.m_sMediaType = "N";
+			mediaInfo.m_iMediaID = -1;
+			
+			string sIPTimeCodeInfo = mediaInfo.ToString();
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"reporting timecode stream %d speed %d %s", mediaInfo.m_iStreamID, mediaInfo.m_iSpeed, sIPTimeCodeInfo.c_str() );
+			
+			pThis->m_pNotificationSocket->SendStringToAll( sIPTimeCodeInfo );
+		}
 	}
 	
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "PlayerEnginePoll - exited");
@@ -1006,6 +1045,16 @@ bool MPlayer_Player::Connect(int iPK_DeviceTemplate )
 	if ( ! Command_Impl::Connect(iPK_DeviceTemplate) )
 		return false;
 
+	DeviceData_Base *pDevice = m_pData->GetTopMostDevice();
+	m_sIPofMD = pDevice->m_sIPAddress;
+
+	int iPort = DATA_Get_Port();
+	if (iPort==0)
+		iPort = 12010;
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Configured port for time/speed notification is: %i, IP is %s", iPort, m_sIPofMD.c_str());
+
+	m_pNotificationSocket->StartListening (iPort);	
+	
 	EVENT_Playback_Completed("",0,false);  // In case media plugin thought something was playing, let it know that there's not
 	
 	return true;

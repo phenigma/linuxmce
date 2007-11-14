@@ -24,6 +24,9 @@
 
 #include "MPlayerEngine.h"
 
+#include "DCE/SocketListener.h"
+#include "DCE/ServerSocket.h"
+
 //<-dceag-decl-b->
 namespace DCE
 {
@@ -31,6 +34,9 @@ namespace DCE
 	{
 //<-dceag-decl-e->
 	private:
+		// stuff for timecode sending
+		string m_sIPofMD;
+		
 		friend void *PlayerEnginePoll(void *pInstance);
 		bool m_bRunPlayerEnginePoll;
 		pthread_t m_tPlayerEnginePollThread;
@@ -45,6 +51,7 @@ namespace DCE
 		string m_sCurrentFileName;
 		vector<string> m_vCurrentPlaylist;
 		
+		int m_iCurrentPlaybackSpeed;
 		float m_fCurrentFileTime;
 		float m_fCurrentFileLength;
 				
@@ -90,6 +97,7 @@ public:
 	/*
 			*****DATA***** accessors inherited from base class
 	string DATA_Get_Name();
+	int DATA_Get_Port();
 
 			*****EVENT***** accessors inherited from base class
 	void EVENT_Playback_Completed(string sMRL,int iStream_ID,bool bWith_Errors);
@@ -455,6 +463,41 @@ public:
 	virtual void CMD_Set_Media_ID(string sID,int iStreamID,string &sCMD_Result,Message *pMessage);
 
 //<-dceag-h-e->
+	
+	// socket listener for playback info notification
+	
+        class TimecodeNotification_SocketListener : public SocketListener
+        {
+        public:
+                TimecodeNotification_SocketListener(string sName):SocketListener(sName){};
+
+                virtual void ReceivedMessage( Socket *pSocket, Message* pMessage ){};
+                virtual bool ReceivedString( Socket *pSocket, string sLine, int nTimeout = - 1 )
+                {
+                        std::cout << "Socket got: " << sLine << std::endl;
+                        return true;
+                };
+
+                void SendStringToAll(string sString)
+                {
+                        PLUTO_SAFETY_LOCK( lm, m_ListenerMutex );
+                        for(std::vector<ServerSocket *>::iterator i=m_vectorServerSocket.begin(); i!=m_vectorServerSocket.end(); i++)
+                        {
+                                if ((*i)->SendString(sString))
+                                {
+                                        LoggerWrapper::GetInstance()->Write(LV_STATUS,"Sending time code %s to %s",sString.c_str(),(*i)->m_sHostName.c_str());
+                                }
+                                else
+                                {
+                                        std::cout << "Not sent timecode to " << (*i)->m_sHostName<<  std::endl;
+                                }
+                        }
+                }
+        };
+	
+
+	TimecodeNotification_SocketListener *m_pNotificationSocket;
+	
 	};
 
 	void *PlayerEnginePoll(void *pInstance);
