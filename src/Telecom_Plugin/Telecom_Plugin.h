@@ -449,7 +449,13 @@ private:
 	 *	Get the embedded phone from the same room with device
 	 */
 	bool GetEmbeddedPhoneAssociated(int nDeviceID, int& nEmbeddedPhoneID);
-	
+
+	template<class KEY, class VALUE> const VALUE& FindValueInMap(map<KEY, VALUE> myMap, KEY key, VALUE default_value) const
+	{
+		map<KEY, VALUE>::const_iterator it = myMap.find(key); 
+		return it != myMap.end() ? it->second : default_value;
+	}
+
 private:
 	int iCmdCounter;
 	int generate_NewCommandID();

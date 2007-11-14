@@ -3253,7 +3253,25 @@ void Telecom_Plugin::CMD_Get_Associated_Picture_For_Channel(string sChannel,char
 		//default path for unknown user
 		string sPath = "/usr/pluto/orbiter/skins/Basic/Users/UnknownUser.jpg";
 
-		//TODO: find associated user
+		string sExten = ExtensionForChannel(sChannel);
+		int nEmbeddedDeviceID = FindValueInMap<string, int>(map_ext2device, sExten, 0); 
+
+		if(0 != nEmbeddedDeviceID)
+		{
+			int nOrbiterDeviceID = FindValueInMap<int, int>(map_embedphone2orbiter, nEmbeddedDeviceID, 0); 
+
+			//get user for orbiter id
+			OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(nOrbiterDeviceID);
+
+			if(NULL != pOH_Orbiter)
+			{
+				string sUserPicturePath = 
+					"/usr/pluto/orbiter/users/" + StringUtils::ltos(pOH_Orbiter->m_pOH_User->m_iPK_Users) + ".png";
+
+				if(FileUtils::FileExists(sUserPicturePath))
+					sPath = sUserPicturePath;
+			}
+		}
 
 		size_t ulSize = 0;
 		*pData = FileUtils::ReadFileIntoBuffer(sPath, ulSize);
