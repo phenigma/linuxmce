@@ -2475,7 +2475,7 @@ void Telecom_Plugin::FollowMe_EnteredRoom(int iPK_Event, int iPK_Orbiter, int iP
 
 #ifdef DEBUG
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Telecom_Plugin::FollowMe_EnteredRoom orbiter %d device %d user %d room %d calls %d",
-		iPK_Orbiter, iPK_Device, iPK_Users, iPK_RoomOrEntArea, (int) calls->size());
+		iPK_Orbiter, iPK_Device, iPK_Users, iPK_RoomOrEntArea, (int) map_call2status.size());
 #endif
 
 	CallStatus * pCallStatus = NULL;
