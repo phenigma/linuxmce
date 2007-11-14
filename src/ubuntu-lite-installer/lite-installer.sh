@@ -372,7 +372,7 @@ TargetCleanup()
 
 	chroot /media/target update-initramfs -u
 
-	ifconfig -a | grep ^eth | awk '{print "SUBSYSTEM==\"net\", DRIVERS==\"?*\", ATTRS{address}==\"" $5 "\", NAME=\" " $1 "\""}' > /media/target/etc/udev/rules.d/70-persistent-net.rules || :
+	ifconfig -a | grep ^eth | awk '{print "SUBSYSTEM==\"net\", DRIVERS==\"?*\", ATTRS{address}==\"" tolower($5) "\", NAME=\"" $1 "\""}' > /media/target/etc/udev/rules.d/70-persistent-net.rules || :
 	#chroot /media/target update-grub
 
 	if [[ -d /media/target/.upgrade-save ]]; then
