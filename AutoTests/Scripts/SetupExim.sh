@@ -41,4 +41,6 @@ dc_hide_mailname='true'
 dc_mailname_in_oh='true'
 dc_localdelivery='mail_spool'" >/etc/exim4/update-exim4.conf.conf
 
+echo "plutohome.com" >/etc/mailname
+
 dpkg-reconfigure -pcritical exim4-config
