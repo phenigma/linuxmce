@@ -24,6 +24,6 @@ else
 	PK_Users=$(RunSQL "$Q")
 fi
 
-FileCountNew=$(find $VoiceMailDir -name '*.gsm' -maxdepth 1 | wc -l)
-FileCountOld=$(find $VoiceMailDir -name '*.gsm' -maxdepth 1 | wc -l)
+FileCountNew=$(find "$VoiceMailDir" -maxdepth 1 -name '*.gsm' | wc -l)
+FileCountOld=$(find "$VoiceMailDir"/Old -maxdepth 1 -name '*.gsm' 2>/dev/null | wc -l)
 /usr/pluto/bin/MessageSend $DCERouter $PK_Device -1001 2 $EVENT_Voice_Mail_Changed $EVENTPARAMETER_PK_Users $PK_Users $EVENTPARAMETER_Value "$FileCountNew $FileCountOld"
