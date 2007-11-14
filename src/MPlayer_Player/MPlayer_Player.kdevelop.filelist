@@ -7,3 +7,5 @@ MPlayer_Player.cpp
 MPlayer_Player.h
 Main.cpp
 Makefile
+XineMediaInfo.cpp
+XineMediaInfo.h

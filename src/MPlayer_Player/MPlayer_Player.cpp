@@ -312,8 +312,8 @@ void MPlayer_Player::CMD_Stop(int iStreamID,bool bEject,string &sCMD_Result,Mess
 		return;
 	}
 	
+	//m_bMediaOpened = false;
 	m_pPlayerEngine->StopPlayback();
-	m_bMediaOpened = false;
 }
 
 //<-dceag-c139-b->
@@ -566,7 +566,7 @@ void MPlayer_Player::CMD_Stop_Media(int iStreamID,string *sMediaPosition,string 
 	}
 	
 	m_iCurrentPlaybackSpeed = 0;
-	m_bMediaOpened = false;
+	//m_bMediaOpened = false;
 	*sMediaPosition = GetPlaybackPosition();
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::CMD_Stop_Media last position is %s", sMediaPosition->c_str());
 	m_pPlayerEngine->StopPlayback();

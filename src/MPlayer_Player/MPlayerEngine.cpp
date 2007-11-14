@@ -187,7 +187,7 @@ void Tokenize(const string& str,
 }
 
 void* EngineOutputReader(void *pInstance) {
-	Log("EngineOutputReader - started");
+	Log("[EngineOutputReader] EngineOutputReader - started");
 
 	MPlayerEngine* pThis = (MPlayerEngine*) pInstance;
 
@@ -206,7 +206,7 @@ void* EngineOutputReader(void *pInstance) {
 			vector<string> vLines;
 			Tokenize(sLine, vLines, "\n");
 			for (vector<string>::iterator i=vLines.begin(); i!=vLines.end(); ++i) {
-				Log("Analyzing line: |" + *i + "|");
+				Log("[EngineOutputReader] Analyzing line: |" + *i + "|");
 				const string sAnsPrefix = "ANS_";
 				const string sPlaybackPreInit = "Playing ";
 				const string sPlaybackStarted = "Starting playback...";
@@ -215,7 +215,7 @@ void* EngineOutputReader(void *pInstance) {
 				const string sScreenshot = "*** screenshot '";
 						
 				if ( i->compare(0, sAnsPrefix.length(), sAnsPrefix) == 0 ) {
-					Log("Found answer: " + *i);
+					Log("[EngineOutputReader] Found answer: " + *i);
 					vector<string> vAnswer;
 					Tokenize(*i, vAnswer, "=");
 					string sValue;
@@ -229,12 +229,12 @@ void* EngineOutputReader(void *pInstance) {
 					sLastFilename = i->substr(sPlaybackPreInit.length(), i->length() - sPlaybackPreInit.length() - 1);
 				}
 				else if ( i->compare(0, sPlaybackStarted.length(), sPlaybackStarted) == 0 ) {
-					Log("Playback started: " + sLastFilename);
+					Log("[EngineOutputReader] Playback started: " + sLastFilename);
 					pThis->SetCurrentFile(sLastFilename);
 					
 				}
 				else if ( (i->compare(0, sPlaybackFinished.length(), sPlaybackFinished) == 0)||(i->compare(0, sNoStreamFound.length(), sNoStreamFound) == 0) ) {
-					Log("Playback finished: " + sLastFilename);
+					Log("[EngineOutputReader] Playback finished: " + sLastFilename);
 					string sPlaylistLastFile = pThis->GetLastFile();
 					
 					
@@ -244,7 +244,7 @@ void* EngineOutputReader(void *pInstance) {
 						{
 							pThis->ClearPlaylist();
 							pThis->SetEngineState(MPlayerEngine::PLAYBACK_FINISHED);
-							Log("Playlist is empty now");
+							Log("[EngineOutputReader] Playlist is empty now");
 						}
 						
 					}
@@ -254,14 +254,14 @@ void* EngineOutputReader(void *pInstance) {
 				else if ( (i->compare(0, sScreenshot.length(), sScreenshot) == 0) )
 				{
 					string sScreenshotName = i->substr(sScreenshot.length(), i->find_last_of("'") - sScreenshot.length());
-					Log("Detected new screenshot file: " + sScreenshotName);
+					Log("[EngineOutputReader] Detected new screenshot file: " + sScreenshotName);
 					pThis->SetCurrentScreenshot(sScreenshotName);
 				}
 			}
 		}
 	}
 
-	Log("EngineOutputReader - stopped");
+	Log("[EngineOutputReader] EngineOutputReader - stopped");
 
 	return NULL;
 }
