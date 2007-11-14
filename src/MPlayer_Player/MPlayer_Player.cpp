@@ -536,10 +536,9 @@ void MPlayer_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMedi
 	string sMediaInfo, sAudioInfo, sVideoInfo;
 	
 	// codec information is not used
-	/*
+	
 	sAudioInfo = m_pPlayerEngine->GetAudioCodec();
 	sVideoInfo = m_pPlayerEngine->GetVideoCodec();
-	*/
 	
 	LoggerWrapper::GetInstance()->Write(LV_WARNING, "MPlayer_Player::EVENT_Playback_Started(streamID=%i)", iStreamID);
 	EVENT_Playback_Started(sMediaURL,iStreamID,sMediaInfo,sAudioInfo,sVideoInfo);
@@ -961,13 +960,12 @@ void *DCE::PlayerEnginePoll(void *pInstance)
 					pThis->m_fCurrentFileLength = 0.0;
 					string sMediaInfo, sAudioInfo, sVideoInfo;
 	
-					// codec information is not used
-					/*
-									sAudioInfo = m_pPlayerEngine->GetAudioCodec();
-									sVideoInfo = m_pPlayerEngine->GetVideoCodec();
-					*/
+					sAudioInfo = pThis->m_pPlayerEngine->GetAudioCodec();
+					sVideoInfo = pThis->m_pPlayerEngine->GetVideoCodec();
 	
-					LoggerWrapper::GetInstance()->Write(LV_WARNING, "MPlayer_Player::EVENT_Playback_Started(streamID=%i)", pThis->m_iCurrentStreamID);
+					LoggerWrapper::GetInstance()->Write(LV_WARNING, "MPlayer_Player::EVENT_Playback_Started(streamID=%i)", 
+							pThis->m_iCurrentStreamID);
+					
 					pThis->EVENT_Playback_Started(sFile,pThis->m_iCurrentStreamID,sMediaInfo,sAudioInfo,sVideoInfo);
 					pThis->m_sCurrentFileName = sFile;
 				}
