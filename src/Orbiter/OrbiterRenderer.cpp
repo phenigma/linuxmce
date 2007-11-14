@@ -1445,7 +1445,7 @@ LoggerWrapper::GetInstance()->Write(LV_EVENT,"OrbiterRenderer::BackgroundImageLo
 }
 
 /*virtual*/ void OrbiterRenderer::UpdateObjectImage(string sPK_DesignObj, string sType, 
-char *pData, int iData_Size, string sDisable_Aspect_Lock)
+char *pData, int iData_Size, string sDisable_Aspect_Lock, bool bRefreshObject/* = true*/)
 {
 	PLUTO_SAFETY_LOCK( cm, OrbiterLogic()->m_ScreenMutex );
 
@@ -1496,12 +1496,10 @@ char *pData, int iData_Size, string sDisable_Aspect_Lock)
 	pPlutoGraphic->LoadGraphic(pData, iData_Size, OrbiterLogic()->m_iRotation);  // These weren't pre-rotated
 	pObj->m_vectGraphic.push_back(pPlutoGraphic);
 	pObj->m_pvectCurrentGraphic = &(pObj->m_vectGraphic);
+	pObj->m_bDisableAspectLock = sDisable_Aspect_Lock == "1" ? true : false;
 
-	if (  sDisable_Aspect_Lock.length(  )  )
-		pObj->m_bDisableAspectLock = ( sDisable_Aspect_Lock=="1" ) ? true : false;
-
-	RenderObjectAsync(pObj);
-	
+	if(bRefreshObject)
+		RenderObjectAsync(pObj);
 }
 
 void OrbiterRenderer::HandleRefreshCommand(string sDataGrid_ID)

@@ -140,7 +140,7 @@ namespace DCE
 		virtual void HandleRefreshCommand(string sDataGrid_ID);
 		
 		virtual void UpdateObjectImage(string sPK_DesignObj, string sType, char *pData, int iData_Size, 
-			string sDisable_Aspect_Lock);
+			string sDisable_Aspect_Lock, bool bRefreshObject = true);
 			
 		/**
 		* @brief initialize other classes, after the video mode was changed

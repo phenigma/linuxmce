@@ -351,6 +351,7 @@ public:
 	bool Telecom_DataGridRendering(CallBackData *pData);
 	bool Telecom_OnTimer(CallBackData *pData);
 	bool Telecom_CapturedKeyboardBufferChanged(CallBackData *pData);
+	bool Telecom_CustomRender(CallBackData *pData);
 
 	//events
 	bool ActiveCalls_Join();

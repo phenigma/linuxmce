@@ -28,6 +28,7 @@
 #include "Gen_Devices/AllCommandsRequests.h"
 #include "DCE/Message.h"
 #include "DCE/DCEConfig.h"
+#include "ObjectRenderer.h"
 #include "pluto_main/Define_Variable.h"
 #include "pluto_main/Define_Screen.h"
 #include "pluto_main/Define_DataGrid.h"
@@ -3507,6 +3508,7 @@ void ScreenHandler::SCREEN_DevCallInProgress(long PK_Screen, string sPhoneCaller
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::Telecom_ObjectSelected, new ObjectInfoBackData());
 	RegisterCallBack(cbOnTimer,	(ScreenHandlerCallBack) &ScreenHandler::Telecom_OnTimer, new CallBackData());
 	RegisterCallBack(cbCapturedKeyboardBufferChanged, (ScreenHandlerCallBack) &ScreenHandler::Telecom_CapturedKeyboardBufferChanged, new ObjectInfoBackData());
+	RegisterCallBack(cbOnCustomRender, (ScreenHandlerCallBack) &ScreenHandler::Telecom_CustomRender, new RenderScreenCallBackData());
 
 	m_pOrbiter->StartScreenHandlerTimer(2000);
 }
@@ -3531,7 +3533,9 @@ void ScreenHandler::SCREEN_DevIncomingCall(long PK_Screen, string sPhoneNumber, 
 	
 	ScreenHandlerBase::SCREEN_DevIncomingCall(PK_Screen, sPhoneNumber, sSource_Channel, sDestination_Channel,
 		sSource_Caller_ID, sDestination_Caller_ID);
+
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::Telecom_ObjectSelected, new ObjectInfoBackData());
+	RegisterCallBack(cbOnCustomRender, (ScreenHandlerCallBack) &ScreenHandler::Telecom_CustomRender, new RenderScreenCallBackData());
 
 	//we can only do a blind transfer from here
 	m_TelecomCommandStatus = tcsBlindTransfer;
@@ -3552,6 +3556,7 @@ void ScreenHandler::SCREEN_Call_Dropped(long PK_Screen, string sReason)
 	}
 
 	m_pOrbiter->CMD_Display_Alert("Call dropped. Reason: " + sReason, "", "5", 0);
+	m_pOrbiter->CMD_Refresh("*");
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_Assisted_Transfer_In_Progress(long PK_Screen, bool bTrueFalse, string sTask)
@@ -3733,6 +3738,40 @@ bool ScreenHandler::Telecom_CapturedKeyboardBufferChanged(CallBackData *pData)
 	}
 
 	return false;
+}
+//-----------------------------------------------------------------------------------------------------
+bool ScreenHandler::Telecom_CustomRender(CallBackData *pData)
+{
+	RenderScreenCallBackData *pRenderScreenCallBackData = dynamic_cast<RenderScreenCallBackData *>(pData);
+	
+	if(NULL != pRenderScreenCallBackData)
+	{
+		DesignObj_Orbiter *pObj = pRenderScreenCallBackData->m_pObj;
+		PlutoRectangle rectTotal = pObj->m_rPosition;
+
+		if(pObj->m_iBaseObjectID == 5538 || pObj->m_iBaseObjectID == 5539)
+		{
+			string sChannel = 
+				pObj->m_iBaseObjectID == 5538 ? 
+				m_pOrbiter->m_mapVariable_Find(VARIABLE_My_Channel_ID_CONST) :
+				m_pOrbiter->m_mapVariable_Find(VARIABLE_Source_Channel_ID_CONST);
+
+			char *pData = NULL;
+			int nSize = 0;
+			CMD_Get_Associated_Picture_For_Channel cmd_Get_Associated_Picture_For_Channel(
+				m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device_TelecomPlugIn,
+				sChannel, &pData, &nSize);
+			m_pOrbiter->SendCommand(cmd_Get_Associated_Picture_For_Channel);
+
+			if(NULL != pData && 0 != nSize)
+			{
+				m_pOrbiter->Renderer()->UpdateObjectImage(pObj->m_ObjectID, "jpg", pData, nSize, "1", false);
+				pObj->Renderer()->RenderGraphic(pObj->m_rPosition, pObj->m_bDisableAspectLock);
+			}
+		}
+	}
+
+	return true;
 }
 //-----------------------------------------------------------------------------------------------------
 bool ScreenHandler::ActiveCalls_Join()
