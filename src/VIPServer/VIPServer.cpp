@@ -106,13 +106,6 @@ int main(int argc, char *argv[])
 
 	try
 	{
-		g_pPlutoLogger = new DCE::FileLogger(stdout);
-		if(g_pPlutoLogger == NULL)
-		{
-			cerr << "Problem creating logger.  Check params." << endl;
-			exit(1);
-		}
-
 #ifdef WIN32
 		long err;
 		WSADATA wsaData;
