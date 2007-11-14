@@ -3252,7 +3252,7 @@ void Telecom_Plugin::CMD_Get_Associated_Picture_For_Channel(string sChannel,char
 	if(NULL != pData && NULL != iData_Size)
 	{
 		//default path for unknown user
-		string sPath = "/usr/pluto/orbiter/skins/Basic/Users/UnknownUser.jpg";
+		string sPath = "/usr/pluto/orbiter/skins/Basic/Users/UnknownUser.png";
 
 		string sExten = ExtensionForChannel(sChannel);
 	

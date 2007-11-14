@@ -3768,7 +3768,7 @@ bool ScreenHandler::Telecom_CustomRender(CallBackData *pData)
 
 			if(NULL != pData && 0 != nSize)
 			{
-				m_pOrbiter->Renderer()->UpdateObjectImage(pObj->m_ObjectID, "jpg", pData, nSize, "1", false);
+				m_pOrbiter->Renderer()->UpdateObjectImage(pObj->m_ObjectID, "png", pData, nSize, "1", false);
 				pObj->Renderer()->RenderGraphic(pObj->m_rPosition, pObj->m_bDisableAspectLock);
 			}
 		}
