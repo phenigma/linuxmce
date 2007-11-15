@@ -95,7 +95,7 @@ function run_installer_on_virtual_machine {
 	decho "Starting installer on virtual machine"
 	ssh root@"$VMWARE_IP" "cd /usr/pluto/install && screen -d -m -S 'Install' ./mce-installer.sh"
 	
-	while [[ "$(pidof vmplayer)" != "" ]] ;do
+	while [[ "$(pidof vmware-vmx)" != "" ]] ;do
 		sleep 5
 	done
 	decho "Finished installing in virtual machine"
@@ -185,9 +185,9 @@ function create_disk_image {
 
 }
 
-#create_virtual_machine
-#start_virtual_machine
-#create_debcache_on_virtual_machine
-#copy_installer_on_virtual_machine
-#run_installer_on_virtual_machine
+create_virtual_machine
+start_virtual_machine
+create_debcache_on_virtual_machine
+copy_installer_on_virtual_machine
+run_installer_on_virtual_machine
 create_disk_image
