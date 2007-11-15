@@ -54,8 +54,8 @@ static void LS_InitVTable();
 static void LS_InitProxy();
 static void LS_SetupAuth();
 static void LS_SignalHandler(int ExitStatus);
-static void LS_AcceptCall_nolock();
-static void LS_DropCall_nolock();
+static bool LS_AcceptCall_nolock();
+static bool LS_DropCall_nolock();
 static void LS_ProcessEvents();
 /* C Object, private methods - implementation */
 /** Register with Asterisk */
@@ -195,18 +195,18 @@ void LS_InitiateCall(string sNumber)
 	linphone_core_invite(&LS_LinphoneCore, sNumber.c_str());
 }
 /** Drop the active call */
-void LS_DropCall()
+bool LS_DropCall()
 {
 	PLUTO_SAFETY_LOCK(sl, LS_linphone_mutex);
-	LS_DropCall_nolock();
+	return LS_DropCall_nolock();
 }
 /** Drop the active call - version without mutex */
-void LS_DropCall_nolock()
+bool LS_DropCall_nolock()
 {
 	func_enter("LS_DropCall");
-	linphone_core_terminate_call(&LS_LinphoneCore, NULL);
-	string tmp;
+	bool retval = linphone_core_terminate_call(&LS_LinphoneCore, NULL) != -1;
 	func_exit("LS_DropCall");
+	return retval;
 }
 /** Process linphone events */
 void LS_ProcessEvents()
@@ -215,15 +215,16 @@ void LS_ProcessEvents()
 	linphone_core_iterate(&LS_LinphoneCore);
 }
 /** Accept the incoming call */
-void LS_AcceptCall()
+bool LS_AcceptCall()
 {
 	PLUTO_SAFETY_LOCK(sl, LS_linphone_mutex);
-	LS_AcceptCall_nolock();
+	return LS_AcceptCall_nolock();
 }
 /** Accept the incoming call - version without mutex */
-void LS_AcceptCall_nolock()
+bool LS_AcceptCall_nolock()
 {
-	linphone_core_accept_call(&LS_LinphoneCore, NULL);
+	bool retval = linphone_core_accept_call(&LS_LinphoneCore, NULL) != -1;
+	return retval;
 }
 /* Linphone callbacks - implementation */
 /* Note: the lock is already taken in LS_ProcessEvents; these functions are called from linphone_core_iterate */

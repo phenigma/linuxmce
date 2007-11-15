@@ -30,8 +30,8 @@ void * LS_Thread(void * arg);
 bool LS_ActiveCall();
 void LS_SentDTMF(char cDTMF);
 void LS_InitiateCall(string sNumber);
-void LS_DropCall();
-void LS_AcceptCall();
+bool LS_DropCall();
+bool LS_AcceptCall();
 
 /* C Object, public members - forward declaration */
 extern bool LS_bQuit;

@@ -309,15 +309,10 @@ void SimplePhone::CMD_Phone_Initiate(int iPK_Device,string sPhoneExtension,strin
 void SimplePhone::CMD_Phone_Answer(string &sCMD_Result,Message *pMessage)
 //<-dceag-c335-e->
 {
-    if(!LS_ActiveCall())
-    {
-	LS_AcceptCall();
+    if(LS_AcceptCall())
         sCMD_Result="OK";
-    }
     else
-    {
         sCMD_Result="ERROR";
-    }
 }
 
 //<-dceag-c336-b->
@@ -328,15 +323,10 @@ void SimplePhone::CMD_Phone_Answer(string &sCMD_Result,Message *pMessage)
 void SimplePhone::CMD_Phone_Drop(string &sCMD_Result,Message *pMessage)
 //<-dceag-c336-e->
 {
-    if(LS_ActiveCall())
-    {
-        LS_DropCall();
+    if (LS_DropCall())
         sCMD_Result="OK";
-    }
     else
-    {
         sCMD_Result="ERROR";
-    }
 }
 
 void SimplePhone::CreateChildren()
