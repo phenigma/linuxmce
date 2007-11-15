@@ -3699,8 +3699,7 @@ bool ScreenHandler::Telecom_OnTimer(CallBackData *pData)
 		pObj_Calls->Flush();
 		m_pOrbiter->Renderer()->RenderObjectAsync(pObj_Calls);
 	}
-
-	if(NULL != pObj_Channels)
+	else if(NULL != pObj_Channels)
 	{
 		m_pOrbiter->InitializeGrid(pObj_Channels);
 		pObj_Channels->Flush();
