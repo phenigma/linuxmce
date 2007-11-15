@@ -41,11 +41,7 @@ public:
         // Public member variables
         // Public methods
         virtual void CreateChildren();
-        void IncomingCallScreen(string sCallerID);
-        void CallInProgressScreen();
-		void CallDroppedScreen();
-		void StopMedia();
-		string GetExtension();
+	string GetExtension();
 //<-dceag-const-b->
 public:
 		// Constructors/Destructor

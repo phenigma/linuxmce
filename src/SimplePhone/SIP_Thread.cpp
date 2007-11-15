@@ -206,7 +206,6 @@ void LS_DropCall_nolock()
 	func_enter("LS_DropCall");
 	linphone_core_terminate_call(&LS_LinphoneCore, NULL);
 	string tmp;
-	LS_pSimplePhone->CallDroppedScreen();
 	func_exit("LS_DropCall");
 }
 /** Process linphone events */
@@ -234,13 +233,7 @@ static void call_received(LinphoneCore *linphoneCore, const char *from)
 	if (strstr(from, "\"plutosecurity\"") == from)
 	{
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "SimplePhone: It's a 'speak in the house' call");
-		LS_pSimplePhone->StopMedia();
-		LS_pSimplePhone->CallInProgressScreen();
 		LS_AcceptCall_nolock();
-	}
-	else
-	{
-		LS_pSimplePhone->IncomingCallScreen(from);
 	}
 }
 static void bye_received(LinphoneCore *linphoneCore, const char *from)

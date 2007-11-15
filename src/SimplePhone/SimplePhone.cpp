@@ -297,8 +297,7 @@ void SimplePhone::CMD_Phone_Initiate(int iPK_Device,string sPhoneExtension,strin
         return;
     }
     LoggerWrapper::GetInstance()->Write(LV_STATUS, "Try to call %s", sPhoneExtension.c_str());
-	StopMedia();
-	LS_InitiateCall(sPhoneExtension.c_str());
+    LS_InitiateCall(sPhoneExtension.c_str());
     sCMD_Result="OK";
 }
 
@@ -310,13 +309,9 @@ void SimplePhone::CMD_Phone_Initiate(int iPK_Device,string sPhoneExtension,strin
 void SimplePhone::CMD_Phone_Answer(string &sCMD_Result,Message *pMessage)
 //<-dceag-c335-e->
 {
-	CallInProgressScreen();
-	Sleep(1000);
-
     if(!LS_ActiveCall())
     {
-        Sleep(1000);
-		LS_AcceptCall();
+	LS_AcceptCall();
         sCMD_Result="OK";
     }
     else
@@ -335,7 +330,6 @@ void SimplePhone::CMD_Phone_Drop(string &sCMD_Result,Message *pMessage)
 {
     if(LS_ActiveCall())
     {
-        Sleep(1000);
         LS_DropCall();
         sCMD_Result="OK";
     }
@@ -343,26 +337,6 @@ void SimplePhone::CMD_Phone_Drop(string &sCMD_Result,Message *pMessage)
     {
         sCMD_Result="ERROR";
     }
-}
-
-void SimplePhone::StopMedia()
-{
-//	SendCommand(CMD_MH_Stop_Media_);
-//	Sleep(1000);
-}
-
-void SimplePhone::IncomingCallScreen(string sCallerID)
-{
-//	StopMedia();
-//	GetEvents()->SendMessage(new Message(m_dwPK_Device, DEVICETEMPLATE_VirtDev_Telecom_Plugin_CONST, PRIORITY_NORMAL, MESSAGETYPE_EVENT, EVENT_Incoming_Call_CONST,0));
-}
-
-void SimplePhone::CallDroppedScreen()
-{
-}
-
-void SimplePhone::CallInProgressScreen()
-{
 }
 
 void SimplePhone::CreateChildren()
