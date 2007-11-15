@@ -3423,6 +3423,8 @@ void ScreenHandler::SCREEN_MakeCallPhonebook(long PK_Screen)
 {
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_Device_2_CONST, "");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_Users_CONST, "");
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, "");
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Datagrid_Input_CONST, "");
 
 	ScreenHandlerBase::SCREEN_MakeCallPhonebook(PK_Screen);
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::Telecom_ObjectSelected, new ObjectInfoBackData());
@@ -3491,7 +3493,10 @@ void ScreenHandler::SCREEN_MakeCallDevice(long PK_Screen)
 		string sPK_Users = m_pOrbiter->m_mapVariable_Find(VARIABLE_PK_Users_CONST);
 		string sPhoneExtension = m_pOrbiter->m_mapVariable_Find(VARIABLE_Seek_Value_CONST);
 		string sPK_DeviceTo = m_pOrbiter->m_mapVariable_Find(VARIABLE_PK_Device_2_CONST);
-		string sSecondPhoneCall = m_pOrbiter->m_mapVariable_Find(VARIABLE_Current_Call_CONST);
+
+		string sSecondPhoneCall;
+		if(sPK_Users.empty() && sPhoneExtension.empty() && sPK_DeviceTo.empty())
+			sSecondPhoneCall = m_pOrbiter->m_mapVariable_Find(VARIABLE_Current_Call_CONST);
 
 		HandleAssistedMakeCall(atoi(sPK_Users.c_str()), sPhoneExtension, 
 			m_pOrbiter->m_dwPK_Device, atoi(sPK_DeviceTo.c_str()), sSecondPhoneCall);
