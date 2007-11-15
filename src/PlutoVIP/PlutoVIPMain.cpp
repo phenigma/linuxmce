@@ -862,7 +862,7 @@ void CheckAppVersion(CString szFileName)
 	registry.CloseKey();
 
 	CString dummyVersion;
-	dummyVersion.Format(_T("%d.%d.%d.%d"), szVersion, szMajor, szMinor, szBuild);
+	dummyVersion.Format(_T("%s.%s.%s.%s"), szVersion, szMajor, szMinor, szBuild);
 
 	if (VersionFull.Compare(dummyVersion)==0)
 	{
