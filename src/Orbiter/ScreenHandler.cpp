@@ -3555,8 +3555,9 @@ void ScreenHandler::SCREEN_Call_Dropped(long PK_Screen, string sReason)
 		SCREEN_Main(SCREEN_Main_CONST, "");
 	}
 
-	m_pOrbiter->CMD_Display_Alert("Call dropped. Reason: " + sReason, "", "5", 0);
+	m_TelecomCommandStatus = tcsDirectDial;
 	m_pOrbiter->CMD_Refresh("*");
+	m_pOrbiter->CMD_Display_Alert("Call dropped. Reason: " + sReason, "", "5", 0);
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_Assisted_Transfer_In_Progress(long PK_Screen, bool bTrueFalse, string sTask)
