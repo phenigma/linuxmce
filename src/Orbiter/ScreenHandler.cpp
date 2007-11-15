@@ -3475,6 +3475,15 @@ void ScreenHandler::SCREEN_Active_Calls(long PK_Screen)
 
 	m_pOrbiter->CMD_Show_Object(TOSTRING(DESIGNOBJ_mnuActiveCalls_CONST) ".0.0." TOSTRING(DESIGNOBJ_butCallInProgress_CONST), 0, "", "", 
 		m_pOrbiter->m_mapVariable_Find(VARIABLE_My_Call_ID_CONST).empty() ? "0" : "1");
+
+	bool bActiveCallsPresent = !m_pOrbiter->m_mapVariable_Find(VARIABLE_Current_Call_CONST).empty();
+
+	m_pOrbiter->CMD_Show_Object(TOSTRING(DESIGNOBJ_mnuActiveCalls_CONST) ".0.0." TOSTRING(DESIGNOBJ_butJoin_CONST), 0, "", "", 
+		bActiveCallsPresent ? "1" : "0");
+	m_pOrbiter->CMD_Show_Object(TOSTRING(DESIGNOBJ_mnuActiveCalls_CONST) ".0.0." TOSTRING(DESIGNOBJ_butAddToActiveCall_CONST), 0, "", "", 
+		bActiveCallsPresent ? "1" : "0");
+	m_pOrbiter->CMD_Show_Object(TOSTRING(DESIGNOBJ_mnuActiveCalls_CONST) ".0.0." TOSTRING(DESIGNOBJ_butRemoveFromActiveCall_CONST), 0, "", "", 
+		bActiveCallsPresent ? "1" : "0");
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_MakeCallDevice(long PK_Screen)
@@ -3549,7 +3558,8 @@ void ScreenHandler::SCREEN_Call_Dropped(long PK_Screen, string sReason)
 	if(
 		GetCurrentScreen_PK_DesignObj() == DESIGNOBJ_devCallInProgress_CONST || 
 		GetCurrentScreen_PK_DesignObj() == DESIGNOBJ_devIncomingCall_CONST   ||
-		GetCurrentScreen_PK_DesignObj() == DESIGNOBJ_mnuPopupMessage_CONST 
+		GetCurrentScreen_PK_DesignObj() == DESIGNOBJ_mnuPopupMessage_CONST   ||
+		GetCurrentScreen_PK_DesignObj() == DESIGNOBJ_mnuActiveCalls_CONST 
 	)
 	{
 		SCREEN_Main(SCREEN_Main_CONST, "");
