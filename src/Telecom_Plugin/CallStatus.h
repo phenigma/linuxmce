@@ -111,7 +111,7 @@ namespace DCE
 			/***/
 			bool Closed()
 			{
-				return channels.empty() || (channels.size() == 1 && CallStatus::DirectCall == type);
+				return channels.empty();
 			}
 
 			const map<string, string>& GetChannels() const
