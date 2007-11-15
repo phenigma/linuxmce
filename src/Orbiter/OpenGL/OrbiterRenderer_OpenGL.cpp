@@ -955,8 +955,11 @@ DesignObj_Orbiter *pObj, PlutoPoint *ptPopup/* = NULL*/)
 			pOpenGLGraphic->ResetAlphaMask(pObj->m_rPosition.Width, pObj->m_rPosition.Height);
 #endif
 
-		RenderObjectAsync(pObj);
-		RedrawObjects();
+		if(bRefreshObject)
+		{
+			RenderObjectAsync(pObj);
+			RedrawObjects();
+		}
 	}
 }
 
