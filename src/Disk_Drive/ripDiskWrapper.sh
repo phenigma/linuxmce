@@ -133,7 +133,8 @@ case $diskType in
 			
 			ogg)
 				FinalExt="ogg"
-				OutputFile='>(oggenc -Q --artist "$DARTIST" --album "$DALBUM" --date "$CDYEAR" --genre "$CDGENRE" --tracknum "$TrackNumber" -o "$Dir/$FileName.'"$FinalExt"'.in-progress" -)' # encoder
+				Quality="-q $(echo "$ripFormatString" | cut -d';' -f2)"
+				OutputFile='>(oggenc -Q --artist "$DARTIST" --album "$DALBUM" --date "$CDYEAR" --genre "$CDGENRE" --tracknum "$TrackNumber" '"$Quality"' -o "$Dir/$FileName.'"$FinalExt"'.in-progress" -)' # encoder
 			;;
 			
 			flac)
@@ -144,7 +145,11 @@ case $diskType in
 			
 			mp3)
 				FinalExt="mp3"
-				OutputFile='>(lame -h --tt "$FileName" --ta "$DARTIST" --tl "$DALBUM" --tn "$TrackNumber" --ty "$CDYEAR" --tg "$CDGENRE" - "$Dir/$FileName.'"$FinalExt"'.in-progress")' # encoder
+				BitRate="-b $(echo "$ripFormatString" | cut -d';' -f2)"
+				if [[ "$(echo "$ripFormatString" | cut -d';' -f3)" == "vbr" ]]; then
+					BitRate="--vbr-new $BitRate"
+				fi
+				OutputFile='>(lame -h --tt "$FileName" --ta "$DARTIST" --tl "$DALBUM" --tn "$TrackNumber" --ty "$CDYEAR" --tg "$CDGENRE" '"$BitRate"' - "$Dir/$FileName.'"$FinalExt"'.in-progress")' # encoder
 			;;
 			
 			*)
