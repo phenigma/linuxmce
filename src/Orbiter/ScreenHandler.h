@@ -365,6 +365,7 @@ public:
 	//helpers
 	void HandleAssistedMakeCall(int iPK_Users, string sPhoneExtension, int iPK_Device_From,
 		int iPK_Device_To, string sSecondPhoneCall);
+	void RefreshActiveCallsButtons();
 
 	//data
 	enum TelecomCommandStatus

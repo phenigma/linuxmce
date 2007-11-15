@@ -3476,14 +3476,7 @@ void ScreenHandler::SCREEN_Active_Calls(long PK_Screen)
 	m_pOrbiter->CMD_Show_Object(TOSTRING(DESIGNOBJ_mnuActiveCalls_CONST) ".0.0." TOSTRING(DESIGNOBJ_butCallInProgress_CONST), 0, "", "", 
 		m_pOrbiter->m_mapVariable_Find(VARIABLE_My_Call_ID_CONST).empty() ? "0" : "1");
 
-	bool bActiveCallsPresent = !m_pOrbiter->m_mapVariable_Find(VARIABLE_Current_Call_CONST).empty();
-
-	m_pOrbiter->CMD_Show_Object(TOSTRING(DESIGNOBJ_mnuActiveCalls_CONST) ".0.0." TOSTRING(DESIGNOBJ_butJoin_CONST), 0, "", "", 
-		bActiveCallsPresent ? "1" : "0");
-	m_pOrbiter->CMD_Show_Object(TOSTRING(DESIGNOBJ_mnuActiveCalls_CONST) ".0.0." TOSTRING(DESIGNOBJ_butAddToActiveCall_CONST), 0, "", "", 
-		bActiveCallsPresent ? "1" : "0");
-	m_pOrbiter->CMD_Show_Object(TOSTRING(DESIGNOBJ_mnuActiveCalls_CONST) ".0.0." TOSTRING(DESIGNOBJ_butRemoveFromActiveCall_CONST), 0, "", "", 
-		bActiveCallsPresent ? "1" : "0");
+	RefreshActiveCallsButtons();
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_MakeCallDevice(long PK_Screen)
@@ -3660,6 +3653,7 @@ bool ScreenHandler::Telecom_DataGridRendering(CallBackData *pData)
 		}
 	}
 
+	RefreshActiveCallsButtons();
 	return false;
 }
 //-----------------------------------------------------------------------------------------------------
@@ -3736,6 +3730,7 @@ bool ScreenHandler::Telecom_OnTimer(CallBackData *pData)
 		return true;
 	}
 
+	RefreshActiveCallsButtons();
 	return false;
 }
 //-----------------------------------------------------------------------------------------------------
@@ -4052,3 +4047,15 @@ void ScreenHandler::HandleAssistedMakeCall(int iPK_Users,string sPhoneExtension,
 	m_TelecomCommandStatus = tcsDirectDial;
 }
 //-----------------------------------------------------------------------------------------------------
+void ScreenHandler::RefreshActiveCallsButtons()
+{
+	bool bActiveCallsPresent = !m_pOrbiter->m_mapVariable_Find(VARIABLE_Current_Call_CONST).empty();
+	m_pOrbiter->CMD_Show_Object(TOSTRING(DESIGNOBJ_mnuActiveCalls_CONST) ".0.0." TOSTRING(DESIGNOBJ_butJoin_CONST), 0, "", "", 
+		bActiveCallsPresent ? "1" : "0");
+	m_pOrbiter->CMD_Show_Object(TOSTRING(DESIGNOBJ_mnuActiveCalls_CONST) ".0.0." TOSTRING(DESIGNOBJ_butAddToActiveCall_CONST), 0, "", "", 
+		bActiveCallsPresent ? "1" : "0");
+	m_pOrbiter->CMD_Show_Object(TOSTRING(DESIGNOBJ_mnuActiveCalls_CONST) ".0.0." TOSTRING(DESIGNOBJ_butRemoveFromActiveCall_CONST), 0, "", "", 
+		bActiveCallsPresent ? "1" : "0");
+}
+//-----------------------------------------------------------------------------------------------------
+
