@@ -429,6 +429,20 @@ bool AssistedTransfer::PrivateProcessJob(const string & job)
 				return false;
 			}
 		}
+		// the old call is available but my channel was dropped
+		// let's make a new channel to the old call
+		else if( NULL != pMyOld_CallStatus )
+		{
+			string sMyExt = telecom->ExtensionForChannel(sMyChannelID);
+			if( !sMyExt.empty() )
+			{
+				telecom->CMD_PL_Join_Call(0, sMyExt, sMyCallID, 0);
+			}
+			else
+			{
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Error: %d", __LINE__);
+			}
+		}
 		else
 		{
 			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Error: %d", __LINE__);

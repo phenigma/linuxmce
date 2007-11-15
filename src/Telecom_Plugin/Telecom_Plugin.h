@@ -70,6 +70,11 @@ public:
 	// Public methods
 	void doDisplayMessages();
 	
+	/*
+	*	
+	*/
+	static string ExtensionForChannel(string sChannel);
+	
 	// Telecom API for tasks
 	/***/
 	CallStatus* FindCallStatusForChannel(string sChannelID);
@@ -399,17 +404,24 @@ private:
 					 			class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );	
 	bool VoiceMailChanged( class Socket *pSocket, class Message *pMessage,
 					 			class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );	
-													
+		
 private:
 	DeviceData_Router* find_AsteriskDevice();
 	DeviceData_Router* find_Device(int iPK_Device);
 	int ParseChannel(const std::string channel, int* iextension, string *sextension);
 	
+	/***/
 	ExtensionStatus* FindExtensionStatus(string sExt);
+	/***/
 	string GetNewConferenceID();
+	/***/
 	void RemoveCallStatus(CallStatus*);
+	/***/
 	void RemoveExtensionStatus(string);
+	/***/
 	void CleanStatusMaps();
+	/***/
+	string DebugPendingCalls() const;
 	
 	/***/
 	ExtensionStatus * FindExtensionStatusByDevice(int iPK_Device, int * pEmbeddedPhone = NULL);
@@ -433,11 +445,6 @@ private:
 
 	/***/
 	CallStatus *FindConferenceByConferenceID(unsigned int unConferenceID);
-
-	/*
-	 *	
-	 */
-	static string ExtensionForChannel(string sChannel);
 
 	/*
 	 *	Make a call

@@ -3376,3 +3376,19 @@ void Telecom_Plugin::CMD_Get_Associated_Picture_For_Channel(string sChannel,char
 	}
 }
 
+string Telecom_Plugin::DebugPendingCalls() const
+{
+	string sDebug;
+	
+	sDebug = "DebugPendingCalls size: " + StringUtils::itos( map_ext2pending.size() ) + "\n";
+	
+	for(map<string, PendingCall*>::const_iterator it=map_ext2pending.begin(); it!=map_ext2pending.end(); ++it)
+	{
+		PendingCall * pPendingCall = (*it).second;
+		sDebug += "Ext: " + (*it).first + " Owner: ";
+		sDebug += StringUtils::itos( pPendingCall->iDeviceOwner ) + " Orbiter: ";
+		sDebug += StringUtils::itos( pPendingCall->iDeviceOrbiter ) + "\n";
+	}
+	
+	return sDebug;
+}
