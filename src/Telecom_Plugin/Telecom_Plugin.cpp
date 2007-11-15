@@ -3358,7 +3358,7 @@ void Telecom_Plugin::CMD_Get_Associated_Picture_For_Channel(string sChannel,char
 			//get user for orbiter id
 			OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(nOrbiterDeviceID);
 
-			if(NULL != pOH_Orbiter)
+			if(NULL != pOH_Orbiter && NULL != pOH_Orbiter->m_pOH_User) 
 			{
 				string sUserPicturePath = 
 					"/usr/pluto/orbiter/users/" + StringUtils::ltos(pOH_Orbiter->m_pOH_User->m_iPK_Users) + ".png";
