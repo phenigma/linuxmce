@@ -475,7 +475,8 @@ function getSIPState(){
 				$parsed[]=$value;
 			}
 		}
-		$state[str_replace('@s','',@$parsed[1])]=(!isset($parsed[4]))?@$parsed[3]:$parsed[3].' '.$parsed[4];
+		$dataArray=array_slice($parsed,4);
+		$state[substr(@$parsed[1],0,strpos($parsed[1],'@'))]=(!isset($parsed[4]))?@$parsed[3]:$parsed[3].' '.join(' ',$dataArray);
 	}
 
 
@@ -505,7 +506,8 @@ function getIAXState(){
 				$parsed[]=$value;
 			}
 		}
-		$state[str_replace('@s','',@$parsed[1])]=(!isset($parsed[4]))?@$parsed[3]:$parsed[3].' '.$parsed[4];
+		$dataArray=array_slice($parsed,4);
+		$state[substr(@$parsed[1],0,strpos($parsed[1],'@'))]=(!isset($parsed[4]))?@$parsed[3]:$parsed[3].' '.join(' ',$dataArray);
 	}
 
 	return $state;
