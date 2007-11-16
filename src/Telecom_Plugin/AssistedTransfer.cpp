@@ -107,7 +107,9 @@ bool AssistedTransfer::ProcessEvent(class Message * pMessage)
 					}
 					else
 					{
-						LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Error: %d", __LINE__);
+						LoggerWrapper::GetInstance()->Write
+							(LV_CRITICAL, "Error: Init_MyChannel2DestCall: there isn't a call for my channel %s",
+							 sMyChannelID.c_str());
 						SetState(TelecomTask::Failed);
 					}
 				}
@@ -128,7 +130,18 @@ bool AssistedTransfer::ProcessEvent(class Message * pMessage)
 					}
 					else
 					{
-						LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Error: %d", __LINE__);
+						if( !pCallStatus )
+						{
+							LoggerWrapper::GetInstance()->Write
+								(LV_CRITICAL, "Error: Init_MyChannel2DestConf : there isn't a call for my channel %s",
+								 sMyChannelID.c_str());
+						}
+						else
+						{
+							LoggerWrapper::GetInstance()->Write
+								(LV_CRITICAL, "Error: Init_MyChannel2DestConf : my call %s != dest call %s",
+								pCallStatus->GetID().c_str(), sCallID_Dest.c_str());
+						}
 						SetState(TelecomTask::Failed);
 					}
 				}
@@ -151,7 +164,8 @@ bool AssistedTransfer::ProcessEvent(class Message * pMessage)
 					}
 					else
 					{
-						LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Error: %d", __LINE__);
+						LoggerWrapper::GetInstance()->Write
+							(LV_CRITICAL, "Error: MergeCalls: there isn't a call for my channel %s", sMyChannelID.c_str());
 						SetState(TelecomTask::Failed);
 					}
 				}
@@ -197,6 +211,7 @@ bool AssistedTransfer::PrivateProcessJob(const string & job)
 	if( job == "cancel" )
 	{
 		SetState(TelecomTask::Failed);
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "AssistedTransfer : cancel job debug: %s", GetDebug().c_str());
 	}
 	else
 	{
@@ -227,7 +242,9 @@ bool AssistedTransfer::PrivateProcessJob(const string & job)
 		pDestCallStatus = telecom->FindCallStatusForID( sCallID_Dest );
 		if( pDestCallStatus == NULL )
 		{
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Error: %d", __LINE__);
+			LoggerWrapper::GetInstance()->Write
+				(LV_CRITICAL, "Error: PrivateProcessJob: No destination call with ID %s",
+				sCallID_Dest.c_str());
 			return false;
 		}
 	}
@@ -236,13 +253,15 @@ bool AssistedTransfer::PrivateProcessJob(const string & job)
 		pMyCallStatus = telecom->FindCallStatusForID( sMyCallID );
 		if( pMyCallStatus == NULL )
 		{
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Error: %d", __LINE__);
+			LoggerWrapper::GetInstance()->Write
+				(LV_CRITICAL, "Error: PrivateProcessJob: No my call with ID %s",
+				sMyCallID.c_str());
 			return false;
 		}
 	}
 	else
 	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Error: %d", __LINE__);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Error: PrivateProcessJob: My call ID is empty!");
 		return false;
 	}
 	
@@ -261,7 +280,9 @@ bool AssistedTransfer::PrivateProcessJob(const string & job)
 				const map<string, string> & channels = pMyCallStatus->GetChannels();
 				if( 2 != channels.size() )
 				{
-					LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Error: %d", __LINE__);
+					LoggerWrapper::GetInstance()->Write
+						(LV_CRITICAL, "Error: initialize: my call isn't conference but it has %u channels!",
+						 channels.size());
 					return false;
 				}
 				
@@ -279,7 +300,7 @@ bool AssistedTransfer::PrivateProcessJob(const string & job)
 				string sNewConfID = telecom->DirectCall2Conference(pMyCallStatus);
 				if( sNewConfID.empty() )
 				{
-					LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Error: %d", __LINE__);
+					LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Error: initialize: coudn't change my call in conference!");
 					return false;
 				}
 				
@@ -316,7 +337,6 @@ bool AssistedTransfer::PrivateProcessJob(const string & job)
 						sChannel2_Dest = (*(++channels.begin())).first;
 						
 						// transform the direct call {B,C} into the conference {B,C}
-						// TODO: the new ID will be saved into sCallID_Dest
 						string sNewConfID = telecom->DirectCall2Conference(pDestCallStatus);
 						if( !sNewConfID.empty() )
 						{
@@ -324,13 +344,15 @@ bool AssistedTransfer::PrivateProcessJob(const string & job)
 						}
 						else
 						{
-							LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Error: %d", __LINE__);
+							LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Error: initialize: coudn't change dest call in conference!");
 							return false;
 						}
 					}
 					else
 					{
-						LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Error: %d", __LINE__);
+						LoggerWrapper::GetInstance()->Write
+							(LV_CRITICAL, "Error: initialize: dest call isn't conference but it has %u channels!",
+							channels.size());
 					}
 				}
 			}
@@ -350,13 +372,13 @@ bool AssistedTransfer::PrivateProcessJob(const string & job)
 			}
 			else
 			{
-				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Error: %d", __LINE__);
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Error: Init_DestCall2Conference: no destination call!");
 				return false;
 			}
 		}
 		else
 		{
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Error: %d", __LINE__);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Error: Init_DestCall2Conference: wrong step %d !", step);
 			return false;
 		}
 	}
@@ -366,7 +388,12 @@ bool AssistedTransfer::PrivateProcessJob(const string & job)
 	//2) {X,Y,A} & {B,C} => {X,Y} & {A,B,C} ->  drop A, {X,Y,B,C}
 	else if( job == "transfer" )
 	{
-		//TODO: check pDestCallStatus ?
+		if( pDestCallStatus == NULL )
+		{
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Error: transfer: no dest call!");
+			return false;
+		}
+		
 		if( pDestCallStatus->IsConference() )
 		{
 			telecom->CMD_Merge_Calls(sMyCallID ,sCallID_Dest);
@@ -385,7 +412,9 @@ bool AssistedTransfer::PrivateProcessJob(const string & job)
 			}
 			else
 			{
-				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Error: %d", __LINE__);
+				LoggerWrapper::GetInstance()->Write
+					(LV_CRITICAL, "Error: No channel for ext %s in dest call %s",
+					sExtDest.c_str(), pDestCallStatus->GetID().c_str());
 				return false;
 			}
 		}
@@ -425,7 +454,9 @@ bool AssistedTransfer::PrivateProcessJob(const string & job)
 			}
 			else
 			{
-				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Error: %d", __LINE__);
+				LoggerWrapper::GetInstance()->Write
+					(LV_CRITICAL, "Error: cancel: my current call is the same as the old one: %s",
+					pMyOld_CallStatus->GetID().c_str());
 				return false;
 			}
 		}
@@ -440,22 +471,46 @@ bool AssistedTransfer::PrivateProcessJob(const string & job)
 			}
 			else
 			{
-				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Error: %d", __LINE__);
+				LoggerWrapper::GetInstance()->Write
+					(LV_CRITICAL, "Error: cancel: couldn't get the ext from channel %s",
+					sMyChannelID.c_str());
 			}
 		}
 		else
 		{
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Error: %d", __LINE__);
+			LoggerWrapper::GetInstance()->Write
+				(LV_CRITICAL, "Error: cancel: neither my current call or my old call are available now! %s",
+				GetDebug().c_str());
 			return false;
 		}
 	}
 	else
 	{
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "AssistedTransfer : No such job %s", job.c_str());
+		LoggerWrapper::GetInstance()->Write
+			(LV_WARNING, "AssistedTransfer : No such job %s %s",
+			job.c_str(),
+			GetDebug().c_str());
 		return false;
 	}
 	
 	sJobID = job;
 	
 	return true;
+}
+
+string AssistedTransfer::GetDebug() const
+{
+	string sDebug = "\nAssistedTransfer::GetDebug:\n";
+	
+	sDebug += "Destination Ext : " + sExtDest + "\n";
+	sDebug += "Destination Call ID : " + sCallID_Dest + "\n";
+	sDebug += "My Channel ID : " + sMyChannelID + "\n";
+	sDebug += "My Channel2 ID : " + sMyChannel2_ID + "\n";
+	sDebug += "My call ID : " + sMyCallID + "\n";
+	sDebug += "Next Job : " + sNextJob + "\n";
+	sDebug += "Dest Channel1 ID : " + sChannel1_Dest + "\n";
+	sDebug += "Dest Channel2 ID : " + sChannel2_Dest + "\n";
+	sDebug += "Step ID : " + StringUtils::itos(step) + "\n";
+	
+	return sDebug;
 }

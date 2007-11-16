@@ -49,6 +49,8 @@ namespace DCE
 			/***/
 			virtual TelecomTask::TaskType RTTI() const { return TelecomTask::Assisted_Transfer; }
 			
+			string GetDebug() const;
+			
 		private:
 			
 			bool PrivateProcessJob(const string &);
