@@ -327,13 +327,11 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 
 		if(NULL != pOpenGLGraphic)
 		{
-			pOpenGLGraphic->Clear();
-
 			ObjectRenderer_OpenGL* pRenderer = dynamic_cast <ObjectRenderer_OpenGL*>(pObj_Floorplan->Renderer());
 
 			if(NULL != pRenderer)
-                pRenderer->LoadPicture(pOpenGLGraphic);
-		}
+                pRenderer->LoadPicture(pOpenGLGraphic, true);
+    	}
 	}
 }
 //-----------------------------------------------------------------------------------------------------

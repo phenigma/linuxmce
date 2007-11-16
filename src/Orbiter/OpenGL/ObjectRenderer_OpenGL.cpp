@@ -104,25 +104,27 @@ ObjectRenderer_OpenGL::ObjectRenderer_OpenGL(DesignObj_Orbiter *pOwner) : Object
 }
 
 
-void ObjectRenderer_OpenGL::LoadPicture(PlutoGraphic* pPlutoGraphic)
+void ObjectRenderer_OpenGL::LoadPicture(PlutoGraphic* pPlutoGraphic, bool bIgnoreTexture/* = false*/)
 {
+	bool bNeedsLoading = pPlutoGraphic->IsEmpty() || bIgnoreTexture;
+
 	string sFileName = "";
 	if(
-		pPlutoGraphic->IsEmpty() && NULL != GetCacheImageManager() && pPlutoGraphic->m_Filename.length() &&
+		bNeedsLoading && NULL != GetCacheImageManager() && pPlutoGraphic->m_Filename.length() &&
 		GetCacheImageManager()->IsImageInCache(pPlutoGraphic->m_Filename, m_pObj_Owner->m_Priority)
 		)
 	{
 		//if we have the file in cache
 		sFileName = GetCacheImageManager()->GetCacheImageFileName(pPlutoGraphic->m_Filename);
 	}
-	else if(pPlutoGraphic->IsEmpty() && GetLocalDirectory().length() > 0 && pPlutoGraphic->m_Filename.length() )
+	else if(bNeedsLoading && GetLocalDirectory().length() > 0 && pPlutoGraphic->m_Filename.length() )
 	{
 		//the file is in our localdrive
 		sFileName = GetLocalDirectory() + pPlutoGraphic->m_Filename;
 	}
 
 	//if we don't have the file in cache or on our localdrive
-	if(pPlutoGraphic->IsEmpty() && sFileName.empty() && !pPlutoGraphic->m_Filename.empty())
+	if(bNeedsLoading && sFileName.empty() && !pPlutoGraphic->m_Filename.empty())
 	{
 		// Request our config info
 		char *pGraphicFile=NULL;
@@ -161,7 +163,7 @@ void ObjectRenderer_OpenGL::LoadPicture(PlutoGraphic* pPlutoGraphic)
 		pGraphicFile = NULL;
 	}
 
-	if(pPlutoGraphic->IsEmpty() && !sFileName.empty() && sFileName.find(DYNAMIC_OBJ_NAME) == string::npos)
+	if(bNeedsLoading && !sFileName.empty() && sFileName.find(DYNAMIC_OBJ_NAME) == string::npos)
 	{
 		if(!FileUtils::FileExists(sFileName))
 		{
