@@ -401,6 +401,14 @@ public:
 			return atoi(m_mapParameters[DEVICEDATA_Border_Size_CONST].c_str());
 	}
 
+	string Get_Alert_Filter_Level()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Alert_Filter_Level_CONST);
+		else
+			return m_mapParameters[DEVICEDATA_Alert_Filter_Level_CONST];
+	}
+
 };
 
 
@@ -546,6 +554,7 @@ public:
 	bool DATA_Get_Expert_Mode() { return GetData()->Get_Expert_Mode(); }
 	bool DATA_Get_Enable_Memory_Management() { return GetData()->Get_Enable_Memory_Management(); }
 	int DATA_Get_Border_Size() { return GetData()->Get_Border_Size(); }
+	string DATA_Get_Alert_Filter_Level() { return GetData()->Get_Alert_Filter_Level(); }
 	//Event accessors
 	void EVENT_Touch_or_click(int iX_Position,int iY_Position) { GetEvents()->Touch_or_click(iX_Position,iY_Position); }
 	//Commands - Override these to handle commands from the server

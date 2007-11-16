@@ -9393,6 +9393,16 @@ void Orbiter::CMD_Set_Mouse_Sensitivity(int iValue,string &sCMD_Result,Message *
 void Orbiter::CMD_Display_Alert(string sText,string sTokens,string sTimeout,int iInterruption,string &sCMD_Result,Message *pMessage)
 //<-dceag-c809-e->
 {
+	string sAlertFilter = DATA_Get_Alert_Filter_Level();
+
+	if(sAlertFilter == "none" || (sAlertFilter == "important" && iInterruption != interuptAlways))
+	{
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::CMD_Display_Alert skipping: "
+			"%s level of interruption %d because alert filter is '%s'",
+			sText.c_str(), iInterruption, sAlertFilter.c_str());
+		return;
+	}
+
 	if( m_pScreenHistory_Current && m_mapScreen_Interrupt[m_pScreenHistory_Current->PK_Screen()]==0 && !OkayToInterrupt(iInterruption) )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::CMD_Display_Alert skipping: %s", sText.c_str());
