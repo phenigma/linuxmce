@@ -108,11 +108,11 @@ void UpdateEntArea::AddDefaultTelecomScenarios(Row_Room *pRow_Room)
 		pCommandGroup->AddCommand(DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Goto_Screen_CONST,1,1,
 			COMMANDPARAMETER_PK_Screen_CONST,StringUtils::itos(SCREEN_MakeCallIntercom_CONST).c_str());
 
-/*	pCommandGroup = commandGroupArray.FindCommandGroupByTemplate(TEMPLATE_Telecom_Scenarios_CONST,"Active Calls",ICON_Phone_CONST,4,0);
+	pCommandGroup = commandGroupArray.FindCommandGroupByTemplate(TEMPLATE_Telecom_Scenarios_CONST,"Active Calls",ICON_Phone_CONST,5,0);
 	if( pCommandGroup )
 		pCommandGroup->AddCommand(DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Goto_Screen_CONST,1,1,
 		COMMANDPARAMETER_PK_Screen_CONST,StringUtils::itos(SCREEN_Active_Calls_CONST).c_str());
-*/
+
 	vector<Row_Users *> vectRow_Users;
 	m_pDatabase_pluto_main->Users_get()->GetRows("1=1",&vectRow_Users);
 	for(size_t s=0;s<vectRow_Users.size();++s)
