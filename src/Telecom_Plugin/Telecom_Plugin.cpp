@@ -1375,7 +1375,7 @@ void Telecom_Plugin::GetFloorplanDeviceInfo(DeviceData_Router *pDeviceData_Route
 		nIndex++;
 	}
 	
-	OSD = "TODO: OSD?";
+	OSD = sDescription;
 }
 
 //<-dceag-c414-b->
@@ -1935,9 +1935,8 @@ class DataGridTable *Telecom_Plugin::SpeedDialGrid(string GridID,string Parms,vo
 
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"WILL SHOW  %s / %d",text.c_str(),device);
 		pCell = new DataGridCell(text,"");
-		// TODO with Chris, it should me CMD_Make_Call
-/*		DCE::CMD_PL_Originate CMD_PL_Originate_(m_dwPK_Device,m_dwPK_Device,device, phoneExtension,"");
-		pCell->m_pMessage=CMD_PL_Originate_.m_pMessage;*/
+		DCE::CMD_Make_Call CMD_Make_Call_(m_dwPK_Device, m_dwPK_Device, 0, phoneExtension, device, 0);
+		pCell->m_pMessage=CMD_Make_Call_.m_pMessage;
 		pDataGrid->SetData(0,Row,pCell);
 		Row++;
 	}
