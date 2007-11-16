@@ -298,7 +298,6 @@ SetupViaXine()
 		SET IK_DeviceData='cle266x11'
 		WHERE FK_DeviceData=168 AND FK_Device=$XineDev
 	"
-	/usr/pluto/bin/MessageSend $DCERouter 0 -1000 7 1 # reload router so Xine can get the new database setting; fingers crossed and prey router can reload
 #<-mkr_b_via_e->
 }
 
