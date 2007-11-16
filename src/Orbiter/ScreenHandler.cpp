@@ -2436,6 +2436,19 @@ void ScreenHandler::SaveFile_SendCommand(int PK_Users)
 /*virtual*/ void ScreenHandler::SCREEN_Floorplan(long PK_Screen, string sPK_DesignObj)
 {
 	m_pOrbiter->GotoDesignObj(sPK_DesignObj);
+
+	DesignObj_Orbiter *pObj = m_pOrbiter->FindObject(sPK_DesignObj);
+	if(NULL != pObj)
+	{
+		if(pObj->m_iBaseObjectID == DESIGNOBJ_mapTelecom_CONST)
+		{
+			bool bCallInProgress = !m_pOrbiter->m_mapVariable_Find(VARIABLE_My_Call_ID_CONST).empty();
+			m_pOrbiter->CMD_Show_Object(TOSTRING(DESIGNOBJ_mapTelecom_CONST) ".0.0." TOSTRING(DESIGNOBJ_butCallInProgress_CONST), 0, "", "", 
+				bCallInProgress ? "1" : "0");
+
+			RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::Telecom_ObjectSelected, new ObjectInfoBackData());
+		}
+	}
 }
 
 /*virtual*/ void ScreenHandler::SCREEN_Halt_System(long PK_Screen)
@@ -3599,7 +3612,7 @@ void ScreenHandler::SCREEN_Assisted_Transfer_In_Progress(long PK_Screen, bool bT
 	//1) {X,Y,A} & B => {X,Y} & {A,B} -> drop A, {X,Y,B}
 	//or 
 	//2) {X,Y,A} & {B,C} => {X,Y} & {A,B,C} 
-	string sButton1 = bTransferToCall ? "Transfer me here" : "Complete transfer now";
+	string sButton1 = "Complete transfer now";
 	string sCommand1 = sProcessTask + "<%=#34%>transfer<%=#34%>";
 
 	//Drop transfer and CMD_PL_Join B to {X,Y}
@@ -3704,6 +3717,15 @@ bool ScreenHandler::Telecom_ObjectSelected(CallBackData *pData)
 				case DESIGNOBJ_butCallInProgress_CONST:
 				bDontProcessIt = ActiveCalls_CallInProgress();
 				break;
+			}
+		}
+		else if(nPK_DesignObj_Parent == DESIGNOBJ_mapTelecom_CONST)
+		{
+			switch(pObjectInfoData->m_PK_DesignObj_SelectedObject)
+			{
+				case DESIGNOBJ_butCallInProgress_CONST:
+					bDontProcessIt = ActiveCalls_CallInProgress();
+					break;
 			}
 		}
 	}
