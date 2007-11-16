@@ -1648,7 +1648,7 @@ void Xine_Player::CMD_Set_Zoom(int iStreamID,string sZoom_Level,string &sCMD_Res
 
 void Xine_Player::SendMessageToOrbiter(string sMessage)
 {
-    DCE::CMD_Display_Alert cmd(m_dwPK_Device, m_pData->m_dwPK_Device_ControlledVia, sMessage, "xine_player_message", "10", 0);
+    DCE::CMD_Display_Alert cmd(m_dwPK_Device, m_pData->m_dwPK_Device_ControlledVia, sMessage, "xine_player_message", "10", interuptAlways);
     SendCommandNoResponse(cmd);
     LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Xine_Player::SendMessageToOrbiter sent message: %s", sMessage.c_str() ); 
 }
