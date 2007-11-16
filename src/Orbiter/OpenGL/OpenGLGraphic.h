@@ -133,7 +133,7 @@ public:
 	void Prepare();
 	void Convert();
 
-	OpenGLGraphic* ReplaceColorInRectangle(PlutoRectangle Area, 
+	void ReplaceColorInRectangle(PlutoRectangle Area, 
 		PlutoColor ColorToReplace, 
 		PlutoColor ReplacementColor);
 

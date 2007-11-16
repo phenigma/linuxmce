@@ -164,6 +164,8 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 	Mutex.Init(NULL, &Condition);
 	m_spPendingGLEffects.reset(new PendingGLEffects());
 
+	m_pObj_Floorplan_Current = NULL;
+	m_pGraphic_Floorplan_Current = NULL;
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ OrbiterRenderer_OpenGL::~OrbiterRenderer_OpenGL()
@@ -309,49 +311,61 @@ OrbiterRenderer_OpenGL::OrbiterRenderer_OpenGL(Orbiter *pOrbiter) :
 	Engine->RemoveMeshFrameFromDesktopForID(ObjectID);
 }
 //-----------------------------------------------------------------------------------------------------
+/*virtual*/ void OrbiterRenderer_OpenGL::PrepareFloorplan(DesignObj_Orbiter *pObj_Floorplan)
+{
+	Engine->UnHighlight();
+	Engine->InvalidateFramesStartingWith(FLOORPLAN_OBJ_NAME);
+	Engine->InvalidateFramesStartingWith(HOLLOW_OBJ_NAME);
+
+	if(NULL != pObj_Floorplan && !pObj_Floorplan->m_vectGraphic.empty())
+	{
+		PlutoGraphic *pPlutoGraphic = pObj_Floorplan->m_vectGraphic[0];
+		OpenGLGraphic *pOpenGLGraphic = dynamic_cast<OpenGLGraphic *>(pPlutoGraphic);
+
+		m_pObj_Floorplan_Current = pObj_Floorplan;
+		m_pGraphic_Floorplan_Current = pOpenGLGraphic;
+
+		if(NULL != pOpenGLGraphic)
+		{
+			pOpenGLGraphic->Clear();
+
+			ObjectRenderer_OpenGL* pRenderer = dynamic_cast <ObjectRenderer_OpenGL*>(pObj_Floorplan->Renderer());
+
+			if(NULL != pRenderer)
+                pRenderer->LoadPicture(pOpenGLGraphic);
+		}
+	}
+}
+//-----------------------------------------------------------------------------------------------------
+/*virtual*/ void OrbiterRenderer_OpenGL::UpdateFloorplan(DesignObj_Orbiter *pObj_Floorplan) 
+{
+	if(NULL != m_pObj_Floorplan_Current && NULL != m_pGraphic_Floorplan_Current)
+	{
+		m_pObj_Floorplan_Current->Renderer()->RenderGraphic(
+			m_pObj_Floorplan_Current->m_rPosition,
+			m_pObj_Floorplan_Current->m_bDisableAspectLock,
+			m_pObj_Floorplan_Current->m_pPopupPoint
+		);
+	}
+
+	m_pGraphic_Floorplan_Current = NULL;
+	m_pObj_Floorplan_Current = NULL;
+}	
+//-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::ReplaceColorInRectangle(int x, int y, int width, int height, 
 	PlutoColor ColorToReplace, PlutoColor ReplacementColor, DesignObj_Orbiter *pObj/*=NULL*/)
 {
-	if(NULL == pObj)
+	if(NULL == m_pObj_Floorplan_Current || NULL == m_pGraphic_Floorplan_Current)
 		return;
 
-	DesignObj_Orbiter *pObj_WithGraphic = pObj;
-	while( pObj_WithGraphic && pObj_WithGraphic->m_vectGraphic.size()==0 )
-		pObj_WithGraphic = (DesignObj_Orbiter *) pObj_WithGraphic->m_pParentObject;
+	PlutoRectangle Area(
+		x - m_pObj_Floorplan_Current->m_rPosition.X - m_pObj_Floorplan_Current->m_pPopupPoint.X, 
+		y - m_pObj_Floorplan_Current->m_rPosition.Y - m_pObj_Floorplan_Current->m_pPopupPoint.Y, 
+		width, 
+		height
+	);
 
-#ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"ReplaceColorInRectangle size: %d %d %d %d", x, y, width, height);
-#endif
-
-	if( pObj_WithGraphic==NULL )
-	{
-		LoggerWrapper::GetInstance()->Write(LV_WARNING,"ReplaceColorInRectangle object %s has no graphics",pObj->m_ObjectID.c_str());
-		return;
-	}
-
-	PlutoGraphic *pPlutoGraphic = pObj_WithGraphic->m_vectGraphic[0];
-	OpenGLGraphic *pOpenGLGraphic = dynamic_cast<OpenGLGraphic *>(pPlutoGraphic);
-
-	if(NULL != pOpenGLGraphic)
-	{
-		TextureManager::Instance()->InvalidateItem(pObj_WithGraphic->GenerateObjectHash(pObj_WithGraphic->m_pPopupPoint));
-		PlutoRectangle Area(
-			x - pObj_WithGraphic->m_rPosition.X - pObj_WithGraphic->m_pPopupPoint.X, 
-			y - pObj_WithGraphic->m_rPosition.Y - pObj_WithGraphic->m_pPopupPoint.Y, 
-			width, height);
-		pOpenGLGraphic->Clear();
-
-		ObjectRenderer_OpenGL* Renderer = dynamic_cast <ObjectRenderer_OpenGL*>(pObj->Renderer());
-		Renderer->LoadPicture(pPlutoGraphic);	
-		TextureManager::Instance()->PrepareConvert((OpenGLGraphic*) pPlutoGraphic);
-		OpenGLGraphic*ReplacementGraphic =  pOpenGLGraphic->ReplaceColorInRectangle(Area, ColorToReplace, ReplacementColor);
-
-		Area.X = x;
-		Area.Y = y;
-
-		RenderGraphic(ReplacementGraphic, Area, false, pObj_WithGraphic->m_pPopupPoint, 255,  
-			"", FLOORPLAN_OBJ_NAME " - " + pObj->m_ObjectID);
-	}
+	m_pGraphic_Floorplan_Current->ReplaceColorInRectangle(Area, ColorToReplace, ReplacementColor);
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_OpenGL::RenderText(string &sTextToDisplay, DesignObjText *Text,
@@ -1070,13 +1084,6 @@ void OrbiterRenderer_OpenGL::DrawArrow(PlutoPoint p1, PlutoPoint p2, PlutoSize s
 	Frame->MarkAsVolatile();
 
 	Engine->AddMeshFrameToDesktop(ParentObjectID, Frame);	
-}
-
-void OrbiterRenderer_OpenGL::ClearFloorplan()
-{
-	Engine->UnHighlight();
-	Engine->InvalidateFramesStartingWith(FLOORPLAN_OBJ_NAME);
-	Engine->InvalidateFramesStartingWith(HOLLOW_OBJ_NAME);
 }
 
 void OrbiterRenderer_OpenGL::ResetDatagrids(DesignObj_Orbiter *pObj)

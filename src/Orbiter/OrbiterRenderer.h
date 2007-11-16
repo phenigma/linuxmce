@@ -307,9 +307,10 @@ public:
 	virtual void DestroyGraphic(string sObjectID) {}
 
 	/*
-	*  Remove all floorplan objects from current screen
+	*  Floorplan specific actions
 	*/
-	virtual void ClearFloorplan() {}
+	virtual void PrepareFloorplan(DesignObj_Orbiter *pObj_Floorplan) {}
+	virtual void UpdateFloorplan(DesignObj_Orbiter *pObj_Floorplan) {}
 };
 
 #endif //__ORBITER_RENDERER_H__

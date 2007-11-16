@@ -6380,7 +6380,7 @@ void Orbiter::RenderFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter, DesignObj_O
 
 	if( fpObjVector )
 	{
-		m_pOrbiterRenderer->ClearFloorplan();
+		m_pOrbiterRenderer->PrepareFloorplan(pDesignObj_Orbiter);
 
 		string::size_type pos = 0;
 		FloorplanObjectVector::iterator it;
@@ -6429,6 +6429,8 @@ void Orbiter::RenderFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter, DesignObj_O
 				//FloodFill(fpObj->pObj->m_rectBackground.X + fpObj->FillX,fpObj->pObj->m_rectBackground.Y + fpObj->FillY, RGB(0,0,0), Color);
 			}
 		}
+
+		m_pOrbiterRenderer->UpdateFloorplan(pDesignObj_Orbiter);
 	}
 }
 

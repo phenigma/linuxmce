@@ -57,6 +57,9 @@ namespace DCE
 
 		DesignObj_Orbiter *m_pLastHighlightedObject;
 
+		DesignObj_Orbiter *m_pObj_Floorplan_Current;
+		OpenGLGraphic *m_pGraphic_Floorplan_Current;
+
 	public:
 
 		OrbiterRenderer_OpenGL(Orbiter *pOrbiter);
@@ -162,16 +165,15 @@ namespace DCE
 
 		virtual void ResetDatagrids(DesignObj_Orbiter *pObj);
 
-		/*
-		*  Remove all floorplan objects from current screen
-		*/
-		virtual void ClearFloorplan();
-
 		OpenGL3DEngine* Engine;	
 		pthread_cond_t Condition;
 		pluto_pthread_mutex_t Mutex; 
 
-		
+		/*
+		*  Floorplan specific actions
+		*/
+		virtual void PrepareFloorplan(DesignObj_Orbiter *pObj_Floorplan); 
+		virtual void UpdateFloorplan(DesignObj_Orbiter *pObj_Floorplan);		
 	};
 }
 

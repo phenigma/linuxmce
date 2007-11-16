@@ -466,17 +466,12 @@ bool OpenGLGraphic::GetInMemoryBitmap(char*& pRawBitmapData, size_t& ulSize)
 	return false;
 }
 
-OpenGLGraphic* OpenGLGraphic::ReplaceColorInRectangle(PlutoRectangle Area, PlutoColor ColorToReplace, PlutoColor ReplacementColor)
+void OpenGLGraphic::ReplaceColorInRectangle(PlutoRectangle Area, PlutoColor ColorToReplace, PlutoColor ReplacementColor)
 {
 	PLUTO_SAFETY_LOCK(oglMutex, m_OpenGlMutex);
 
-	if(!LocalSurface)
-		return NULL;
-
-	//PLUTO_SAFETY_LOCK(SceneMutex, LockMutex);
-	
-	SDL_PixelFormat * PF = LocalSurface->format;
-	Uint32 PlutoPixelDest, PlutoPixelSrc, Pixel;
+	if(NULL == LocalSurface)
+		return;
 
 #ifdef DEBUG
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "ReplaceColor: %u %u %u : %u %u %u",
@@ -484,49 +479,31 @@ OpenGLGraphic* OpenGLGraphic::ReplaceColorInRectangle(PlutoRectangle Area, Pluto
 		ReplacementColor.R(), ReplacementColor.G(), ReplacementColor.B());
 #endif
 
-	//int x = Area.Left();
-	//int y = Area.Top();
 	int width = Area.Width;
 	int height = Area.Height;
 
-
-	OpenGLGraphic* Result = new OpenGLGraphic(Area.Width, Area.Height);
-	Result->m_Filename = "replace color in rectangle";
-	SDL_SetAlpha(Result->LocalSurface, 0, 0);
-
-	SDL_Rect SDLArea;
-	SDLArea.x = Area.X;
-	SDLArea.y = Area.Y;
-	SDLArea.w = Area.Width;
-	SDLArea.h = Area.Height;
-
-	SDL_BlitSurface(LocalSurface, &SDLArea, Result->LocalSurface, NULL);
-
-	PlutoPixelSrc = (ColorToReplace.R() << PF->Rshift) | (ColorToReplace.G() << PF->Gshift) | (ColorToReplace.B() << PF->Bshift) | (ColorToReplace.A() << PF->Ashift);
+	Uint32 Pixel = 0;
+	SDL_PixelFormat * PF = LocalSurface->format;
+	Uint32 PlutoPixelSrc = (ColorToReplace.R() << PF->Rshift) | (ColorToReplace.G() << PF->Gshift) | (ColorToReplace.B() << PF->Bshift) | (ColorToReplace.A() << PF->Ashift);
+	Uint32 PlutoPixelDest = ReplacementColor.R() << PF->Rshift | ReplacementColor.G() << PF->Gshift | ReplacementColor.B() << PF->Bshift;
 	unsigned char *Source = (unsigned char *) &PlutoPixelSrc;
-	PlutoPixelDest = ReplacementColor.R() << PF->Rshift | ReplacementColor.G() << PF->Gshift | ReplacementColor.B() << PF->Bshift;//  TODO -- this should work | ReplacementColor.A() << PF->Ashift;
 
 	Source[3] = 0;
-	for (int j = 0; j < height; j++)
+	for (int j = Area.Y; j < Area.Y + height; j++)
 	{
-		for (int i = 0; i < width; i++)
+		for (int i = Area.X; i < Area.X + width; i++)
 		{
-			// we may need locking on the surface
-			Pixel = getpixel(Result->LocalSurface,i, j);
+			Pixel = getpixel(LocalSurface,i, j);
 			unsigned char *pPixel = (unsigned char *) &Pixel;
 			const int max_diff = 3;
-			if ( abs(Source[0]-pPixel[0])<max_diff && abs(Source[1]-pPixel[1])<max_diff && abs(Source[2]-pPixel[2])<max_diff && abs(Source[3]-pPixel[3])<max_diff )
+			if ( abs(Source[0]-pPixel[0])<max_diff && abs(Source[1]-pPixel[1])<max_diff && abs(Source[2]-pPixel[2])<max_diff /*&& abs(Source[3]-pPixel[3])<max_diff*/ )
 			{
 				pPixel[3]= 255;
-				putpixel(Result->LocalSurface,i, j, PlutoPixelDest);
+				putpixel(LocalSurface,i, j, PlutoPixelDest);
 			}
 
 		}
 	}
-
-	oglMutex.Release();
-	TextureManager::Instance()->PrepareConvert(Result);
-	return Result;
 }
 
 const unsigned char *OpenGLGraphic::GetAlphaMask() const

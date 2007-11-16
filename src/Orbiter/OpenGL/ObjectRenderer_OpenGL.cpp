@@ -208,3 +208,11 @@ void ObjectRenderer_OpenGL::HideObject()
 	if(NULL != pOrbiterRenderer)
 		pOrbiterRenderer->RemoveGraphic(m_pObj_Owner->GenerateObjectHash(m_pObj_Owner->m_pPopupPoint, false));
 }
+
+bool ObjectRenderer_OpenGL::PreRenderActions(DesignObj_Orbiter *pObj_Screen, PlutoPoint point /*= PlutoPoint(0, 0)*/)
+{
+	if(m_pObj_Owner->m_ObjectType == DESIGNOBJTYPE_Floorplan_CONST)
+		return true;
+
+	return ObjectRenderer::PreRenderActions(pObj_Screen, point);
+}
