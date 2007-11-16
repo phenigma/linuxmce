@@ -1989,18 +1989,6 @@ void OrbiterGenerator::SearchForGotos(DesignObj_Data *pDesignObj_Data,DesignObjC
 				else
 					sDesignObj = (*itParm).second;
 				Row_DesignObj *p_m_pRow_DesignObj = m_spDatabase_pluto_main->DesignObj_get()->GetRow(atoi(sDesignObj.c_str()));
-if( sDesignObj=="4870" )
-{
-string x = First2Dots(sDesignObj);
-	map<string,listDesignObj_Generator *>::iterator itgs;
-FILE *file = fopen("\\temp\\fo.txt","wb");
-	for(itgs=m_htGeneratedScreens.begin();itgs!=m_htGeneratedScreens.end();++itgs)
-{
-	listDesignObj_Generator *o = (*itgs).second;
-fprintf(file,"%s\n",itgs->first.c_str());
-}
-fclose(file);
-}
 
 				StringUtils::Replace(&sDesignObj,"<%=L:0%>","0");
 
