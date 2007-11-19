@@ -288,76 +288,68 @@ void Climate_Plugin::PreprocessClimateMessage(DeviceData_Router *pDevice,Message
 			}
 		}
 	}
-	else if( pMessage->m_dwMessage_Type==MESSAGETYPE_EVENT && pMessage->m_dwID==EVENT_Temperature_Changed_CONST )
+	else if( pMessage->m_dwMessage_Type == MESSAGETYPE_EVENT )
 	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Climate_Plugin: EVENT_Temperature_Changed_CONST !");
-		// Replace the current temp
-		string sLevel = pMessage->m_mapParameters[EVENTPARAMETER_Value_CONST];
-		SetStateValue(pDevice, sOn, sMode, sFan, sSetPoint, sLevel);
-	}
-	else if( pMessage->m_dwMessage_Type==MESSAGETYPE_EVENT && pMessage->m_dwID==EVENT_Thermostat_Set_Point_Chan_CONST )
-	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Climate_Plugin: EVENT_Thermostat_Set_Point_Chan_CONST !");
-		// Replace the current temp
-		string sLevel = pMessage->m_mapParameters[EVENTPARAMETER_Value_CONST];
-		char type = sLevel.c_str()[0];
-		switch ( type )
+		if( pMessage->m_dwID == EVENT_Temperature_Changed_CONST )
 		{
-			default:
-				SetStateValue(pDevice, sOn, sMode, sFan, sLevel, sTemp);
-				break;
-				
-			case 't':
-				sLevel = sLevel.substr(2);
-				SetStateValue(pDevice, sOn, sMode, sFan, sLevel, sTemp);
-				break;
-				
-			case 'm':
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Climate_Plugin: EVENT_Temperature_Changed_CONST !");
+			// Replace the current temp
+			string sLevel = pMessage->m_mapParameters[EVENTPARAMETER_Value_CONST];
+			SetStateValue(pDevice, sOn, sMode, sFan, sSetPoint, sLevel);
+		}
+		else if( pMessage->m_dwID == EVENT_Thermostat_Set_Point_Chan_CONST )
+		{
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Climate_Plugin: EVENT_Thermostat_Set_Point_Chan_CONST !");
+			// Replace the current temp
+			string sLevel = pMessage->m_mapParameters[EVENTPARAMETER_Value_CONST];
+			SetStateValue(pDevice, sOn, sMode, sFan, sLevel, sTemp);
+		}
+		else if( pMessage->m_dwID == EVENT_Fan_Mode_Changed_CONST )
+		{
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Climate_Plugin: EVENT_Thermostat_Set_Point_Chan_CONST !");
+			// Replace the current temp
+			string sLevel = pMessage->m_mapParameters[EVENTPARAMETER_Value_CONST];
+			int iMode = atoi(sLevel.c_str());
+			switch(iMode)
 			{
-				sLevel = sLevel.substr(2);
-				int iMode = atoi(sLevel.c_str());
-				switch(iMode)
-				{
-					default:
-					case 10:
-						SetStateValue(pDevice, sOn, "AUTO", sFan, sSetPoint, sTemp);
-						break;
+				default:
+				case 0:
+				case 1:
+					SetStateValue(pDevice, sOn, sMode, "AUTO", sSetPoint, sTemp);
+					break;
 					
-					case 1:
-						SetStateValue(pDevice, sOn, "HEAT", sFan, sSetPoint, sTemp);
-						break;
-					
-					case 2:
-						SetStateValue(pDevice, sOn, "COOL", sFan, sSetPoint, sTemp);
-						break;
-					
-					case 6:
-						SetStateValue(pDevice, sOn, "FAN_ONLY", sFan, sSetPoint, sTemp);
-						break;
-				}
+				case 2:
+				case 3:
+					SetStateValue(pDevice, sOn, sMode, "HIGH", sSetPoint, sTemp);
+					break;
 			}
-				break;
+		}
+		else if( pMessage->m_dwID == EVENT_Thermostat_Mode_Changed_CONST )
+		{
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Climate_Plugin: EVENT_Thermostat_Set_Point_Chan_CONST !");
+			// Replace the current temp
+			string sLevel = pMessage->m_mapParameters[EVENTPARAMETER_Value_CONST];
+				
+			int iMode = atoi(sLevel.c_str());
+			switch(iMode)
+			{
+				default:
+				case 10:
+					SetStateValue(pDevice, sOn, "AUTO", sFan, sSetPoint, sTemp);
+					break;
 			
-			case 'f':
-			{
-				sLevel = sLevel.substr(2);
-				int iMode = atoi(sLevel.c_str());
-				switch(iMode)
-				{
-					default:
-					case 0:
-					case 1:
-						SetStateValue(pDevice, sOn, sMode, "AUTO", sSetPoint, sTemp);
-						break;
-					
-					case 2:
-					case 3:
-						SetStateValue(pDevice, sOn, sMode, "HIGH", sSetPoint, sTemp);
-						break;
-				}
+				case 1:
+					SetStateValue(pDevice, sOn, "HEAT", sFan, sSetPoint, sTemp);
+					break;
+			
+				case 2:
+					SetStateValue(pDevice, sOn, "COOL", sFan, sSetPoint, sTemp);
+					break;
+			
+				case 6:
+					SetStateValue(pDevice, sOn, "FAN_ONLY", sFan, sSetPoint, sTemp);
+					break;
 			}
-				break;
-				
 		}
 	}
 }
