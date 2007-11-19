@@ -32,6 +32,7 @@ killall WatchGyroRemote  # In case it was running it will be grabbing the hid de
 
 export DISPLAY=:$Display
 
+/usr/bin/xset -dpms s off
 N_Desktops=$(wmctrl -d | wc -l) # zero based
 
 Logging $TYPE $SEVERITY_NORMAL "LaunchOrbiter" "Number of desktops found: $N_Desktops ; desktops activated? $DesktopActivated"
