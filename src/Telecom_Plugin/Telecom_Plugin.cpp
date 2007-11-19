@@ -2238,7 +2238,13 @@ class DataGridTable *Telecom_Plugin::UserVoiceMailGrid(string GridID,string Parm
 			file_path.replace(file_path.length()-4,4,".wav");
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"WILL SHOW %s / %s",text.c_str(),file_path.c_str());
 
-			string url="http://dcerouter/pluto-admin/amp/recordings/misc/audio.php?recording="+file_path;
+			string URL_Parm;
+			{
+				string StdErr;
+				const char * const args[] = { "/usr/pluto/bin/Voicemail_URL_Parm.php", file_path.c_str(), NULL };
+				ProcessUtils::GetCommandOutput(args[0], args, URL_Parm, StdErr);
+			}
+			string url="http://dcerouter/recordings/misc/audio.php?recording="+URL_Parm;
 			DCE::CMD_MH_Play_Media CMD_MH_Play_Media_(m_dwPK_Device, DEVICETEMPLATE_VirtDev_Media_Plugin_CONST, pMessage->m_dwPK_Device_From, url, MEDIATYPE_pluto_StoredAudio_CONST,0,"",1,0);
 			
 			pCell = new DataGridCell(text,"");			
@@ -2261,7 +2267,14 @@ class DataGridTable *Telecom_Plugin::UserVoiceMailGrid(string GridID,string Parm
 			string file_path=user_path+(dir_ent->d_name);
 			file_path.replace(file_path.length()-4,4,".wav");
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"WILL SHOW %s / %s",text.c_str(),file_path.c_str());
-			string url="http://dcerouter/pluto-admin/amp/recordings/misc/audio.php?recording="+file_path;
+
+			string URL_Parm;
+			{
+				string StdErr;
+				const char * const args[] = { "/usr/pluto/bin/Voicemail_URL_Parm.php", file_path.c_str(), NULL };
+				ProcessUtils::GetCommandOutput(args[0], args, URL_Parm, StdErr);
+			}
+			string url="http://dcerouter/recordings/misc/audio.php?recording="+URL_Parm;
 			DCE::CMD_MH_Play_Media CMD_MH_Play_Media_(m_dwPK_Device, DEVICETEMPLATE_VirtDev_Media_Plugin_CONST, pMessage->m_dwPK_Device_From, url, MEDIATYPE_pluto_StoredAudio_CONST,0,"",1,0);
 			
 			pCell = new DataGridCell(text,"");			
