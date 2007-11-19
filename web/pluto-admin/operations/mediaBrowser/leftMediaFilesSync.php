@@ -9,7 +9,7 @@ function leftMediaFilesSync($output,$mediadbADO,$dbADO) {
 	$startPath=(isset($_REQUEST['startPath']))?urldecode($_REQUEST['startPath']):'/home/public/data';
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
 	$out='';	
-
+	$switchDirURL=(substr($startPath,0,5)!='/home')?'<a href="javascript:syncPath(\'/home/public/data\')">Switch to /home/public/data</a>':'<a href="javascript:syncPath(\'/mnt/upnp\')">Switch to /mnt/upnp</a>';
 	
 	if($action=='form'){
 		$out='
@@ -64,6 +64,9 @@ function leftMediaFilesSync($output,$mediadbADO,$dbADO) {
 			<tr>
 				<td colspan="2" class="left_menu">'.$linksTree.'</td>
 			</tr>
+			<tr>
+				<td colspan="2" class="left_menu">'.$switchDirURL.'</td>
+			</tr>			
 			<tr>
 				<td colspan="2" class="left_menu"><hr></td>
 			</tr>			
