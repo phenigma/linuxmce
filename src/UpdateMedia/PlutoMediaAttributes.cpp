@@ -160,11 +160,11 @@ void PlutoMediaAttributes::ClearCoverarts()
 	//coverarts
 	for(MapPictures::iterator itp = m_mapCoverarts.begin(), endp = m_mapCoverarts.end(); itp != endp; ++itp)
 		delete [] itp->second;
-	for(MapPictures::iterator itp = m_mapCoverartsThumbs.begin(), endp = m_mapCoverartsThumbs.end(); itp != endp; ++itp)
+	for(MapPictures::iterator itp = m_mapCoverartsThumbs_Dummy.begin(), endp = m_mapCoverartsThumbs_Dummy.end(); itp != endp; ++itp)
 		delete [] itp->second;
 
 	m_mapCoverarts.clear();
-	m_mapCoverartsThumbs.clear();
+	m_mapCoverartsThumbs_Dummy.clear();
 }
 //-----------------------------------------------------------------------------------------------------
 string PlutoMediaAttributes::SerializeClassClassName() 
@@ -187,7 +187,11 @@ void PlutoMediaAttributes::SetupSerialization(int /*iSC_Version*/)
 
 	//coverarts
 	(*this) + m_mapCoverarts;
-	(*this) + m_mapCoverartsThumbs;
+
+	//we don't need thumb anymore to be serialize
+	m_mapCoverartsThumbs_Dummy.clear();
+	(*this) + m_mapCoverartsThumbs_Dummy;
+	m_mapCoverartsThumbs_Dummy.clear();
 	
 	//bookmarks
 	(*this) + m_listBookmarks;
@@ -327,10 +331,8 @@ void PlutoMediaAttributes::GenerateMd5SumsForCoverarts(list<string>& listMD5Sums
 {
 	MapPictures::iterator it = m_mapCoverarts.begin();
 	MapPictures::iterator end = m_mapCoverarts.end();
-	MapPictures::iterator it_thumb = m_mapCoverartsThumbs.begin();
-	MapPictures::iterator end_thumb = m_mapCoverartsThumbs.end();
 
-	for( ; it != end && it_thumb != end_thumb; )
+	for( ; it != end; )
 	{
 		string sMd5Sums = FileUtils::FileChecksum(it->second, it->first);
 
@@ -341,16 +343,12 @@ void PlutoMediaAttributes::GenerateMd5SumsForCoverarts(list<string>& listMD5Sums
 
 			delete [] it->second;
 			m_mapCoverarts.erase(it++);
-
-			delete [] it_thumb->second;
-			m_mapCoverarts.erase(it_thumb++);
 		}
 		else
 		{
 			listMD5SumsCoverarts.push_back(sMd5Sums);
 
 			++it;
-			++it_thumb;
 		}
 	}
 }
@@ -359,16 +357,13 @@ void PlutoMediaAttributes::DumpCoverarts()
 {
 	MapPictures::iterator it = m_mapCoverarts.begin();
 	MapPictures::iterator end = m_mapCoverarts.end();
-	MapPictures::iterator it_thumb = m_mapCoverartsThumbs.begin();
-	MapPictures::iterator end_thumb = m_mapCoverartsThumbs.end();
 
-	for( ; it != end && it_thumb != end_thumb; ++it, ++it_thumb)
+	for( ; it != end ; ++it)
 	{
 		string sMd5Sums = FileUtils::FileChecksum(it->second, it->first);
-		string sMd5SumsThumbs = FileUtils::FileChecksum(it_thumb->second, it_thumb->first);
 
-		LoggerWrapper::GetInstance()->Write(LV_STATUS, "DumpCoverarts: picture size %d md5sum %s - thumb size %d md5sum %s",
-			it->first, sMd5Sums.c_str(), it_thumb->first, sMd5SumsThumbs.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "DumpCoverarts: picture size %d md5sum %s",
+			it->first, sMd5Sums.c_str());
 	}
 }
 //-----------------------------------------------------------------------------------------------------

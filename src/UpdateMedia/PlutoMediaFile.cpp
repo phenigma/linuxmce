@@ -625,10 +625,8 @@ void PlutoMediaFile::SaveCoverarts()
 
 	MapPictures::iterator it = m_pPlutoMediaAttributes->m_mapCoverarts.begin();
 	MapPictures::iterator end = m_pPlutoMediaAttributes->m_mapCoverarts.end();
-	MapPictures::iterator it_thumb = m_pPlutoMediaAttributes->m_mapCoverartsThumbs.begin();
-	MapPictures::iterator end_thumb = m_pPlutoMediaAttributes->m_mapCoverartsThumbs.end();
 
-	for( ; it != end && it_thumb != end_thumb; ++it, ++it_thumb)
+	for( ; it != end ; ++it)
 	{
 		string sMd5Sum = FileUtils::FileChecksum(it->second, it->first);
 
@@ -647,7 +645,7 @@ void PlutoMediaFile::SaveCoverarts()
 			pRow_Picture_File->Table_Picture_File_get()->Commit();
 
 			SavePicture(make_pair(it->first, it->second), pRow_Picture->PK_Picture_get());
-			SavePicture(make_pair(it_thumb->first, it_thumb->second), pRow_Picture->PK_Picture_get(), true);
+			SavePicture(make_pair(it->first, it->second), pRow_Picture->PK_Picture_get(), true);
 		}
 		else
 		{
@@ -1024,42 +1022,7 @@ void PlutoMediaFile::MergePictures()
 			LoggerWrapper::GetInstance()->Write(LV_STATUS, "LoadPlutoAttributes: loading picture with size %d from PIC tag - md5sum %s",
 				nPictureSize, sMd5Sum.c_str());
 
-			string sTempPictureName = "picture-" + sMd5Sum + ".jpg";
-			string sTempPictureNameThumb = "picture-" + sMd5Sum + "_tn.jpg";
-
-			if(FileUtils::WriteBufferIntoFile(sTempPictureName, pPictureData, nPictureSize))
-			{
-				string Cmd = "convert -scale 256x256 -antialias " + sTempPictureName + " " + sTempPictureNameThumb;
-				int result;
-				if((result = system(Cmd.c_str())) != 0)
-				{
-					LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Thumbnail picture %s returned %d", Cmd.c_str(), result);
-				}
-				else
-				{
-					size_t nPictureThumbSize = 0;
-					char *PictureThumbData = FileUtils::ReadFileIntoBuffer(sTempPictureNameThumb, nPictureThumbSize);
-
-					if(NULL != PictureThumbData && nPictureThumbSize > 0)
-					{
-						LoggerWrapper::GetInstance()->Write(LV_STATUS, "Thumbnail picture created with %s and returned %d", Cmd.c_str(), result);
-
-						m_pPlutoMediaAttributes->m_mapCoverarts.insert(make_pair(static_cast<unsigned long>(nPictureSize), pPictureData));
-						m_pPlutoMediaAttributes->m_mapCoverartsThumbs.insert(make_pair(static_cast<unsigned long>(nPictureThumbSize), PictureThumbData));
-
-						//FileUtils::DelFile(sTempPictureName);
-						//FileUtils::DelFile(sTempPictureNameThumb);
-					}
-					else
-					{
-						LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Cannot read image from disk: %s", sTempPictureNameThumb.c_str());
-					}				
-				}
-			}
-			else
-			{
-				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Cannot save image to disk: %s", sTempPictureName.c_str());
-			}
+			m_pPlutoMediaAttributes->m_mapCoverarts.insert(make_pair(static_cast<unsigned long>(nPictureSize), pPictureData));
 		}
 	}
 
@@ -1422,7 +1385,6 @@ void PlutoMediaFile::LoadCoverarts()
 					"size %d, md5sum %s", nFK_Picture, pairPicture.first, sMd5Sum.c_str());
 
 				m_pPlutoMediaAttributes->m_mapCoverarts.insert(pairPicture);
-				m_pPlutoMediaAttributes->m_mapCoverartsThumbs.insert(LoadPicture(nFK_Picture, true));
 			}
 		}
 	}
@@ -1443,7 +1405,53 @@ pair<unsigned long, char *> PlutoMediaFile::LoadPicture(int nPictureId, bool bTh
 void PlutoMediaFile::SavePicture(pair<unsigned long, char *> pairPicture, int nPictureId, bool bThumb/* = false*/)
 {
 	string sPictureFile = "/home/mediapics/" + StringUtils::ltos(nPictureId) + (bThumb ? "_tn" : "") + ".jpg";
-	FileUtils::WriteBufferIntoFile(sPictureFile, pairPicture.second, pairPicture.first);
+
+	if(bThumb)
+	{
+		string sMd5Sum = FileUtils::FileChecksum(pairPicture.second, pairPicture.first);
+
+		//(re)gen thumb
+		string sTempPictureName = "picture-" + sMd5Sum + ".jpg";
+		string sTempPictureNameThumb = "picture-" + sMd5Sum + "_tn.jpg";
+
+		if(FileUtils::WriteBufferIntoFile(sTempPictureName, pairPicture.second, pairPicture.first))
+		{
+			string Cmd = "convert -scale 256x256 -antialias " + sTempPictureName + " " + sTempPictureNameThumb;
+			int result;
+			if((result = system(Cmd.c_str())) != 0)
+			{
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Thumbnail picture %s returned %d", Cmd.c_str(), result);
+			}
+			else
+			{
+				size_t nPictureThumbSize = 0;
+				char *pPictureThumbData = FileUtils::ReadFileIntoBuffer(sTempPictureNameThumb, nPictureThumbSize);
+
+				if(NULL != pPictureThumbData && nPictureThumbSize > 0)
+				{
+					LoggerWrapper::GetInstance()->Write(LV_STATUS, "Thumbnail picture created with %s and returned %d", Cmd.c_str(), result);
+					FileUtils::WriteBufferIntoFile(sPictureFile, pPictureThumbData, nPictureThumbSize);
+
+					FileUtils::DelFile(sTempPictureName);
+					FileUtils::DelFile(sTempPictureNameThumb);
+
+					delete [] pPictureThumbData;
+				}
+				else
+				{
+					LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Cannot read image from disk: %s", sTempPictureNameThumb.c_str());
+				}				
+			}
+		}
+		else
+		{
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Cannot save image to disk: %s", sTempPictureName.c_str());
+		}
+	}
+	else
+	{
+		FileUtils::WriteBufferIntoFile(sPictureFile, pairPicture.second, pairPicture.first);
+	}
 }
 //-----------------------------------------------------------------------------------------------------
 void PlutoMediaFile::RenameAttribute(int Attribute_Type, string sOldValue, string sNewValue)
