@@ -238,8 +238,7 @@ bool PlutoMediaAttributes::UnknownSerialize(ItemToSerialize *pItem,bool bWriting
 
 			case SERIALIZE_DATA_TYPE_MULTIMAP_PICTURES:
 				{
-					MapPictures *pMap = (MapPictures *) pItem->m_pItem;
-
+					//MapPictures *pMap = (MapPictures *) pItem->m_pItem;
 					//Write_unsigned_long((unsigned long) pMap->size());
 					//for(MapPictures::iterator it = pMap->begin(); it!=pMap->end(); ++it)
 					//{
@@ -250,6 +249,8 @@ bool PlutoMediaAttributes::UnknownSerialize(ItemToSerialize *pItem,bool bWriting
 					//disable coverart serialization in our tags
 					//we'll write them into PIC tags
 					Write_unsigned_long(0);
+
+					LoggerWrapper::GetInstance()->Write(LV_STATUS, "Serialize write coverarts: forced to 0 pictures");
 
 					return true;  // We handled it
 				}
