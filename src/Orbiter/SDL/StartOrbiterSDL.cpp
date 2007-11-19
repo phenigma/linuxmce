@@ -42,28 +42,14 @@
 
 bool Init_System()
 {
-    // Disable DPMS and screen saver
-    system("/usr/bin/X11/xset -display :0 -dpms s off");
-
-//#ifdef USE_XRECORD
-	//disable repeated keys
+	//disable repeated keys while orbiter is active
 	system("/usr/bin/X11/xset r off");
-//#endif
 
     // as soon as possible
     if ( XInitThreads() == 0 )
     {
         cerr << "Unable to initialize multithreaded X11 code (XInitThreads failed)";
         return false;
-    }
-
-    // TODO: properly check for X11 & WM
-    // start X11
-    if (0)
-    {
-        string sCmd = "/usr/pluto/bin/Start_X.sh";//; /usr/pluto/bin/Start_WM.sh";
-        LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "X is not running! Starting X and the window manager: %s", sCmd.c_str());
-        system(sCmd.c_str());
     }
 
     return true;
