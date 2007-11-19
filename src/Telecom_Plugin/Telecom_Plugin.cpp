@@ -85,6 +85,13 @@ int UniqueColors[MAX_TELECOM_COLORS];
 #define SPEAKINTHEHOUSE_CONFERENCE_IVR "997"
 #define SPEAKINTHEHOUSE_CONFERENCE_ALL "998"
 
+#define VOICEMAIL_EVENT "/usr/pluto/bin/SendVoiceMailEvent.sh"
+#define VOICEMAIL_URL_PARAM "/usr/pluto/bin/Voicemail_URL_Parm.php"
+#define VOICEMAIL_URL "http://dcerouter/recordings/misc/audio.php?recording="
+
+/* this makes the plugin asterisk dependend */
+#define VOICEMAIL_LOCATION "/var/spool/asterisk/voicemail/default/"
+
 void * startDisplayThread(void * Arg);
 
 //<-dceag-const-b->
@@ -172,7 +179,7 @@ bool Telecom_Plugin::GetConfig()
 			map_username2ext[sUserName] = sExtension;
 			map_ext2username[sExtension] = sUserName;
 			
-			const char * args[] = { "/usr/pluto/bin/SendVoiceMailEvent.sh", sExtension.c_str(), NULL };
+			const char * args[] = { VOICEMAIL_EVENT, sExtension.c_str(), NULL };
 			ProcessUtils::SpawnDaemon(args[0], (char**)args);
 		}
 		else
@@ -356,8 +363,9 @@ class DataGridTable *Telecom_Plugin::TelecomScenariosGrid(string GridID,string P
 
 class DataGridTable *Telecom_Plugin::PhoneBookAutoCompl(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage)
 {
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Phone Book Autocomplete request received for GridID: %s with Params: %s.",
-																					GridID.c_str(), Parms.c_str());
+	LoggerWrapper::GetInstance()->Write
+		(LV_STATUS, "Phone Book Autocomplete request received for GridID: %s with Params: %s.",
+		GridID.c_str(), Parms.c_str());
 
 	DataGridTable *pDataGrid = new DataGridTable();
 	DataGridCell *pCell;
@@ -426,8 +434,9 @@ class DataGridTable *Telecom_Plugin::PhoneBookAutoCompl(string GridID,string Par
 
 class DataGridTable *Telecom_Plugin::PhoneBookListOfNos(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage)
 {
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Phone Book List of NOS request received for GridID: %s with Params: %s.",
-																					GridID.c_str(), Parms.c_str());
+	LoggerWrapper::GetInstance()->Write
+		(LV_STATUS, "Phone Book List of NOS request received for GridID: %s with Params: %s.",
+		GridID.c_str(), Parms.c_str());
 
 	DataGridTable *pDataGrid = new DataGridTable();
 	DataGridCell *pCell;
@@ -572,7 +581,6 @@ Telecom_Plugin::CallsStatusChanged(class Socket *pSocket,class Message *pMessage
 		
 		if( pCallStatus == NULL )
 		{
-			// critical
 			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "CallsStatusChanged : Not enough memory!");
 			return false;
 		}
@@ -645,7 +653,6 @@ Telecom_Plugin::ExtensionsStatusChanged(class Socket *pSocket,class Message *pMe
 			
 			if( pExtensionStatus == NULL )
 			{
-				// critical
 				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "ExtensionsStatusChanged : Not enough memory or NULL pointer!");
 				return false;
 			}
@@ -1435,6 +1442,7 @@ void Telecom_Plugin::CMD_Simulate_Keypress(string sPK_Button,int iStreamID,strin
 	}
 	sCMD_Result="OK";
 }
+
 //<-dceag-c334-b->
 
 	/** @brief COMMAND: #334 - Phone_Initiate */
@@ -2192,8 +2200,6 @@ bool Telecom_Plugin::VoiceMailChanged(class Socket *pSocket,class Message *pMess
 	return false;	
 }
 
-/* this makes the plugin asterisk dependend */
-#define VOICEMAIL_LOCATION "/var/spool/asterisk/voicemail/default/"
 class DataGridTable *Telecom_Plugin::UserVoiceMailGrid(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage)
 {
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "UserVoiceMailGrid request received for GridID: %s with Params: %s",GridID.c_str(),Parms.c_str());
@@ -2241,13 +2247,13 @@ class DataGridTable *Telecom_Plugin::UserVoiceMailGrid(string GridID,string Parm
 			string URL_Parm;
 			{
 				string StdErr;
-				const char * const args[] = { "/usr/pluto/bin/Voicemail_URL_Parm.php", file_path.c_str(), NULL };
+				const char * const args[] = { VOICEMAIL_URL_PARAM, file_path.c_str(), NULL };
 				ProcessUtils::GetCommandOutput(args[0], args, URL_Parm, StdErr);
 			}
-			string url="http://dcerouter/recordings/misc/audio.php?recording="+URL_Parm;
+			string url= VOICEMAIL_URL + URL_Parm;
 			DCE::CMD_MH_Play_Media CMD_MH_Play_Media_(m_dwPK_Device, DEVICETEMPLATE_VirtDev_Media_Plugin_CONST, pMessage->m_dwPK_Device_From, url, MEDIATYPE_pluto_StoredAudio_CONST,0,"",1,0);
 			
-			pCell = new DataGridCell(text,"");			
+			pCell = new DataGridCell(text,"");
 			pCell->m_pMessage=CMD_MH_Play_Media_.m_pMessage;
 			pDataGrid->SetData(0,Row,pCell);
 			Row++;
@@ -2271,13 +2277,13 @@ class DataGridTable *Telecom_Plugin::UserVoiceMailGrid(string GridID,string Parm
 			string URL_Parm;
 			{
 				string StdErr;
-				const char * const args[] = { "/usr/pluto/bin/Voicemail_URL_Parm.php", file_path.c_str(), NULL };
+				const char * const args[] = { VOICEMAIL_URL_PARAM, file_path.c_str(), NULL };
 				ProcessUtils::GetCommandOutput(args[0], args, URL_Parm, StdErr);
 			}
-			string url="http://dcerouter/recordings/misc/audio.php?recording="+URL_Parm;
+			string url = VOICEMAIL_URL + URL_Parm;
 			DCE::CMD_MH_Play_Media CMD_MH_Play_Media_(m_dwPK_Device, DEVICETEMPLATE_VirtDev_Media_Plugin_CONST, pMessage->m_dwPK_Device_From, url, MEDIATYPE_pluto_StoredAudio_CONST,0,"",1,0);
 			
-			pCell = new DataGridCell(text,"");			
+			pCell = new DataGridCell(text,"");
 			pCell->m_pMessage=CMD_MH_Play_Media_.m_pMessage;
 			pDataGrid->SetData(0,Row,pCell);
 			Row++;
@@ -2522,7 +2528,8 @@ void Telecom_Plugin::FollowMe_EnteredRoom(int iPK_Event, int iPK_Orbiter, int iP
 		}
 		else
 		{
-			// critical
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Telecom_Plugin::FollowMe_EnteredRoom : NULL call status!");
+			return;
 		}
 	}
 	
