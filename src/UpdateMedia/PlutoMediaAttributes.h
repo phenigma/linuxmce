@@ -93,7 +93,7 @@ public:
 	MapPlutoMediaAttributes m_mapAttributes;
 	MapPlutoMediaAttributes m_mapLongAttributes;
 	MapPictures m_mapCoverarts;
-	MapPictures m_mapCoverartsThumbs_Dummy; //TO BE REMOVED in the future
+	MapPictures m_mapCoverartsThumbs; 
 	ListBookmarks m_listBookmarks;
 	int m_nFileFormat;
 	int m_nMediaSubType;

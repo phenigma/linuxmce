@@ -160,11 +160,11 @@ void PlutoMediaAttributes::ClearCoverarts()
 	//coverarts
 	for(MapPictures::iterator itp = m_mapCoverarts.begin(), endp = m_mapCoverarts.end(); itp != endp; ++itp)
 		delete [] itp->second;
-	for(MapPictures::iterator itp = m_mapCoverartsThumbs_Dummy.begin(), endp = m_mapCoverartsThumbs_Dummy.end(); itp != endp; ++itp)
+	for(MapPictures::iterator itp = m_mapCoverartsThumbs.begin(), endp = m_mapCoverartsThumbs.end(); itp != endp; ++itp)
 		delete [] itp->second;
 
 	m_mapCoverarts.clear();
-	m_mapCoverartsThumbs_Dummy.clear();
+	m_mapCoverartsThumbs.clear();
 }
 //-----------------------------------------------------------------------------------------------------
 string PlutoMediaAttributes::SerializeClassClassName() 
@@ -187,11 +187,7 @@ void PlutoMediaAttributes::SetupSerialization(int /*iSC_Version*/)
 
 	//coverarts
 	(*this) + m_mapCoverarts;
-
-	//we don't need thumb anymore to be serialize
-	m_mapCoverartsThumbs_Dummy.clear();
-	(*this) + m_mapCoverartsThumbs_Dummy;
-	m_mapCoverartsThumbs_Dummy.clear();
+	(*this) + m_mapCoverartsThumbs;
 	
 	//bookmarks
 	(*this) + m_listBookmarks;
@@ -243,12 +239,18 @@ bool PlutoMediaAttributes::UnknownSerialize(ItemToSerialize *pItem,bool bWriting
 			case SERIALIZE_DATA_TYPE_MULTIMAP_PICTURES:
 				{
 					MapPictures *pMap = (MapPictures *) pItem->m_pItem;
-					Write_unsigned_long((unsigned long) pMap->size());
-					for(MapPictures::iterator it = pMap->begin(); it!=pMap->end(); ++it)
-					{
-						Write_unsigned_long(it->first);
-						Write_block(it->second, it->first);
-					}
+
+					//Write_unsigned_long((unsigned long) pMap->size());
+					//for(MapPictures::iterator it = pMap->begin(); it!=pMap->end(); ++it)
+					//{
+					//	Write_unsigned_long(it->first);
+					//	Write_block(it->second, it->first);
+					//}
+
+					//disable coverart serialization in our tags
+					//we'll write them into PIC tags
+					Write_unsigned_long(0);
+
 					return true;  // We handled it
 				}
 				break;
