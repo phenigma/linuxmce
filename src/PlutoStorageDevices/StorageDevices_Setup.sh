@@ -50,7 +50,7 @@ fi
 ## Start UPNP media files client
 mkdir -p /mnt/upnp
 if ! mountpoint /mnt/upnp ;then
-	djmount /mnt/upnp
+	djmount -o allow_other,default_permissions /mnt/upnp
 fi
 
 ## Call this script on the other machines too
