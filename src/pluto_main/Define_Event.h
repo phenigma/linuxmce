@@ -77,6 +77,7 @@
 #define EVENT_Calls_Status_CONST 76
 #define EVENT_PBX_Link_CONST 77
 #define EVENT_Thermostat_Mode_Changed_CONST 78
+#define EVENT_Fan_Mode_Changed_CONST 79
 
 #define EVENT_TABLE "Event"
 #define EVENT_PK_EVENT_FIELD "PK_Event"
