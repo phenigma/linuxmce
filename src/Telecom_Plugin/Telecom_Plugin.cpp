@@ -1592,36 +1592,7 @@ void Telecom_Plugin::CMD_PL_Add_VOIP_Account(string sName,string sPhoneNumber,st
 		return;
 	}
 	
-	string cmdline = "";
-
-	if(sName == "broadvoice")
-	{
-		cmdline += "/usr/pluto/bin/create_amp_broadvoice.pl";
-	}
-	if(sName == "freeworlddialup")
-	{
-		cmdline += "/usr/pluto/bin/create_amp_fwd.pl";
-	}
-	if(sName == "inphonex")
-	{
-		cmdline += "/usr/pluto/bin/create_amp_inphonex.pl";
-	}
-	if(sName == "efon")
-	{
-		cmdline += "/usr/pluto/bin/create_amp_efon.pl";
-	}
-	if(sName == "teliax")
-	{
-		cmdline += "/usr/pluto/bin/create_amp_teliax.pl";
-	}
-	if(sName == "nufone")
-	{
-		cmdline += "/usr/pluto/bin/create_amp_nufone.pl";
-	}
-	if(sName == "voiceeclipse")
-	{
-		cmdline += "/usr/pluto/bin/create_amp_voiceeclipse.pl";
-	}
+	string cmdline = "/usr/pluto/bin/create_amp_phoneline.sh " + sName;
 
 	cmdline+= string(" ")+sUsers+(" ")+sPassword+string(" ")+sPhoneNumber;
 	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Will call %s",cmdline.c_str());
