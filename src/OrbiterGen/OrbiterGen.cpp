@@ -1545,12 +1545,17 @@ loop_to_keep_looking_for_objs_to_include:
 	for(itno=alNewDesignObjsToGenerate.begin();itno!=alNewDesignObjsToGenerate.end();++itno)
 	{
 		Row_DesignObj *pRow_DesignObj = *itno;
-		vector<Row_DesignObj *> vectros;
-		pRow_DesignObj->DesignObj_FK_DesignObj_IncludeIfOtherIncluded_getrows(&vectros);
-		for(size_t s=0;s<vectros.size();++s)
+
+		if(NULL != pRow_DesignObj)
 		{
-			Row_DesignObj *m_pRow_DesignObjDependancy = vectros[s];
-			alNewDesignObjsToGenerate2.push_back(m_pRow_DesignObjDependancy);
+			vector<Row_DesignObj *> vectros;
+			pRow_DesignObj->DesignObj_FK_DesignObj_IncludeIfOtherIncluded_getrows(&vectros);
+
+			for(size_t s=0;s<vectros.size();++s)
+			{
+				Row_DesignObj *m_pRow_DesignObjDependancy = vectros[s];
+				alNewDesignObjsToGenerate2.push_back(m_pRow_DesignObjDependancy);
+			}
 		}
 	}
 
