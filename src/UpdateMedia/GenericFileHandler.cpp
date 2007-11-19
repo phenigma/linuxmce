@@ -10,18 +10,18 @@ GenericFileHandler::~GenericFileHandler(void)
 {
 }
 //-----------------------------------------------------------------------------------------------------
-bool GenericFileHandler::LoadAttributes(PlutoMediaAttributes *pPlutoMediaAttributes,
-										list<pair<char *, size_t> >& listPicturesForTags)
+bool GenericFileHandler::LoadAttributes(PlutoMediaAttributes * /*pPlutoMediaAttributes*/,
+										list<pair<char *, size_t> >& /*listPicturesForTags*/)
 {
 	return true;
 }
 //-----------------------------------------------------------------------------------------------------
-bool GenericFileHandler::SaveAttributes(PlutoMediaAttributes *pPlutoMediaAttributes)
+bool GenericFileHandler::SaveAttributes(PlutoMediaAttributes * /*pPlutoMediaAttributes*/)
 {
 	return true;
 }
 //-----------------------------------------------------------------------------------------------------
-bool GenericFileHandler::RemoveAttribute(int nTagType, string sValue, PlutoMediaAttributes *pPlutoMediaAttributes)
+bool GenericFileHandler::RemoveAttribute(int /*nTagType*/, string /*sValue*/, PlutoMediaAttributes * /*pPlutoMediaAttributes*/)
 {
 	return true;
 }

@@ -282,9 +282,9 @@ void GetInformation(const ID3_Tag &myTag, map<int,string>& mapAttributes,
         if (fld)
         {
 			size_t nBinSize = fld->BinSize();
-			pPictureData = new char[fld->BinSize()];
-			memcpy(pPictureData, fld->GetRawBinary(), fld->BinSize());
-			listPictures.push_back(make_pair(pPictureData, fld->BinSize()));
+			pPictureData = new char[nBinSize];
+			memcpy(pPictureData, fld->GetRawBinary(), nBinSize);
+			listPictures.push_back(make_pair(pPictureData, nBinSize));
 		}
 
         cout << "(" << sDesc << ")[" << sFormat << ", "

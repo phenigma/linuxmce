@@ -108,7 +108,7 @@ PlutoMediaFile::PlutoMediaFile(Database_pluto_media *pDatabase_pluto_media, int 
 		return;
 	}
 
-	LoadPlutoAttributes(sFilePath);
+	LoadPlutoAttributes();
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Processing path %s, file %s. "
 		"Found %d attributes, %d long attributes in file", 
@@ -121,7 +121,7 @@ PlutoMediaFile::~PlutoMediaFile()
 	if(m_MediaSyncMode == modeDbToFile || m_MediaSyncMode == modeBoth)
 	{
 		//Save everything in file
-		SavePlutoAttributes(m_sDirectory + "/" + m_sFile);
+		SavePlutoAttributes();
 	}
 
 	if(m_MediaSyncMode == modeFileToDb || m_MediaSyncMode == modeBoth)
@@ -614,18 +614,28 @@ void PlutoMediaFile::SaveMiscInfo()
 //-----------------------------------------------------------------------------------------------------
 void PlutoMediaFile::SaveCoverarts()
 {
-	//got coverarts in attribute file, but none in the database?
-	if(!m_pPlutoMediaAttributes->m_mapCoverarts.empty() && !NumberOfCoverartsFromDB())
-	{
-		MapPictures::iterator it = m_pPlutoMediaAttributes->m_mapCoverarts.begin();
-		MapPictures::iterator end = m_pPlutoMediaAttributes->m_mapCoverarts.end();
-		MapPictures::iterator it_thumb = m_pPlutoMediaAttributes->m_mapCoverartsThumbs.begin();
-		MapPictures::iterator end_thumb = m_pPlutoMediaAttributes->m_mapCoverartsThumbs.end();
+	//dump coverarts
+	m_pPlutoMediaAttributes->DumpCoverarts();
 
-		int nCounter = 0;
-		for( ; it != end && it_thumb != end_thumb; ++it, ++it_thumb)
+	list<string> listMd5Sums;
+	GenerateMd5SumsCoverartsFromDb(listMd5Sums);
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "SaveCoverarts: got %d coverarts in db. "
+		"Merging with %d from file", listMd5Sums.size(), m_pPlutoMediaAttributes->m_mapCoverarts.size());
+
+	MapPictures::iterator it = m_pPlutoMediaAttributes->m_mapCoverarts.begin();
+	MapPictures::iterator end = m_pPlutoMediaAttributes->m_mapCoverarts.end();
+	MapPictures::iterator it_thumb = m_pPlutoMediaAttributes->m_mapCoverartsThumbs.begin();
+	MapPictures::iterator end_thumb = m_pPlutoMediaAttributes->m_mapCoverartsThumbs.end();
+
+	for( ; it != end && it_thumb != end_thumb; ++it, ++it_thumb)
+	{
+		string sMd5Sum = FileUtils::FileChecksum(it->second, it->first);
+
+		if(listMd5Sums.end() == std::find(listMd5Sums.begin(), listMd5Sums.end(), sMd5Sum))
 		{
-			LoggerWrapper::GetInstance()->Write(LV_STATUS, "SaveCoverarts : saving coverart...");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "SaveCoverarts: adding picture with size %d, md5sum %s to db",
+				it->first, sMd5Sum.c_str());
 
 			Row_Picture *pRow_Picture = m_pDatabase_pluto_media->Picture_get()->AddRow();
 			pRow_Picture->Extension_set("jpg");
@@ -636,14 +646,13 @@ void PlutoMediaFile::SaveCoverarts()
 			pRow_Picture_File->FK_Picture_set(pRow_Picture->PK_Picture_get());
 			pRow_Picture_File->Table_Picture_File_get()->Commit();
 
-            SavePicture(make_pair(it->first, it->second), pRow_Picture->PK_Picture_get());
+			SavePicture(make_pair(it->first, it->second), pRow_Picture->PK_Picture_get());
 			SavePicture(make_pair(it_thumb->first, it_thumb->second), pRow_Picture->PK_Picture_get(), true);
-
-			if(++nCounter > MAX_PICTURES)
-			{
-				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "SaveCoverarts : too many coverarts...");
-				break;
-			}
+		}
+		else
+		{
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "SaveCoverarts: not adding picture with size %d, md5sum %s"
+				" since is already in db", it->first, sMd5Sum.c_str());
 		}
 	}
 }
@@ -781,43 +790,6 @@ int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
 		string sCmd = "convert \"" + Output + "\" -scale 256x256 -antialias \"jpeg:" + Output + ".tnj\"";
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Creating thumbnail %s",sCmd.c_str());
 		system(sCmd.c_str());
-	}
-
-	if(m_pPlutoMediaAttributes->m_mapCoverarts.empty())
-	{
-		for(list<pair<char *, size_t> >::iterator itp = m_listPicturesForTags.begin();
-			itp != m_listPicturesForTags.end(); ++itp)
-		{
-			char *pPictureData = itp->first;
-			size_t nPictureSize = itp->second;
-
-			if(FileUtils::WriteBufferIntoFile("UpdateMedia_lastimage.jpg", pPictureData, nPictureSize))
-			{
-				string Cmd = "convert -scale 256x256 -antialias UpdateMedia_lastimage.jpg UpdateMedia_lastimage_tn.jpg";
-				int result;
-				if((result = system(Cmd.c_str())) != 0)
-					LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Thumbnail picture %s returned %d", Cmd.c_str(), result);
-				else
-				{
-					size_t nPictureThumbSize = 0;
-					char *PictureThumbData = FileUtils::ReadFileIntoBuffer("UpdateMedia_lastimage_tn.jpg", nPictureThumbSize);
-
-					if(NULL != PictureThumbData && nPictureThumbSize > 0)
-					{
-						m_pPlutoMediaAttributes->m_mapCoverarts.insert(make_pair(static_cast<unsigned long>(nPictureSize), pPictureData));
-						m_pPlutoMediaAttributes->m_mapCoverartsThumbs.insert(make_pair(static_cast<unsigned long>(nPictureThumbSize), PictureThumbData));
-					}
-					else
-					{
-						LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Cannot read image from disk: UpdateMedia_lastimage_tn.jpg");
-					}				
-				}
-			}
-			else
-			{
-				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Cannot save image to disk: UpdateMedia_lastimage.jpg");
-			}
-		}
 	}
 
     return pRow_File->PK_File_get();
@@ -1006,23 +978,93 @@ int PlutoMediaFile::GetPicAttribute(int PK_File)
     return 0;
 }
 //-----------------------------------------------------------------------------------------------------
-void PlutoMediaFile::SavePlutoAttributes(string sFullFileName)
+void PlutoMediaFile::SavePlutoAttributes()
 {
 	if(m_MediaSyncMode == modeFileToDb)
 	{
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "# NOT saving attributes in attribute files. Read only mode!");
-		return;
 	}
-
-	GetPicAttribute(m_pPlutoMediaAttributes->m_nFileID);
-
-	m_spFileHandler->SaveAttributes(m_pPlutoMediaAttributes);
+	else
+	{
+		GetPicAttribute(m_pPlutoMediaAttributes->m_nFileID);
+		m_spFileHandler->SaveAttributes(m_pPlutoMediaAttributes);
+	}
 }
 //-----------------------------------------------------------------------------------------------------
-void PlutoMediaFile::LoadPlutoAttributes(string sFullFileName)
+void PlutoMediaFile::LoadPlutoAttributes()
 {
 	m_pPlutoMediaAttributes = new PlutoMediaAttributes();
 	m_spFileHandler->LoadAttributes(m_pPlutoMediaAttributes, m_listPicturesForTags);
+
+	//merge the pictures from external tags with those from our tags
+	MergePictures();
+}
+//-----------------------------------------------------------------------------------------------------
+void PlutoMediaFile::MergePictures()
+{
+	//dump coverarts
+	m_pPlutoMediaAttributes->DumpCoverarts();
+
+	//get the list with md5sums for coverarts and also remove the duplicates
+	list<string> listMD5SumsCoverarts;
+	m_pPlutoMediaAttributes->GenerateMd5SumsForCoverarts(listMD5SumsCoverarts, true);
+
+	for(list<pair<char *, size_t> >::iterator itp = m_listPicturesForTags.begin(); itp != m_listPicturesForTags.end(); ++itp)
+	{
+		char *pPictureData = itp->first;
+		size_t nPictureSize = itp->second;
+		string sMd5Sum = FileUtils::FileChecksum(pPictureData, nPictureSize);
+
+		if(listMD5SumsCoverarts.end() != std::find(listMD5SumsCoverarts.begin(), listMD5SumsCoverarts.end(), sMd5Sum))
+		{
+			delete [] pPictureData;
+		}
+		else
+		{
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "LoadPlutoAttributes: loading picture with size %d from PIC tag - md5sum %s",
+				nPictureSize, sMd5Sum.c_str());
+
+			string sTempPictureName = "picture-" + sMd5Sum + ".jpg";
+			string sTempPictureNameThumb = "picture-" + sMd5Sum + "_tn.jpg";
+
+			if(FileUtils::WriteBufferIntoFile(sTempPictureName, pPictureData, nPictureSize))
+			{
+				string Cmd = "convert -scale 256x256 -antialias " + sTempPictureName + " " + sTempPictureNameThumb;
+				int result;
+				if((result = system(Cmd.c_str())) != 0)
+				{
+					LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Thumbnail picture %s returned %d", Cmd.c_str(), result);
+				}
+				else
+				{
+					size_t nPictureThumbSize = 0;
+					char *PictureThumbData = FileUtils::ReadFileIntoBuffer(sTempPictureNameThumb, nPictureThumbSize);
+
+					if(NULL != PictureThumbData && nPictureThumbSize > 0)
+					{
+						LoggerWrapper::GetInstance()->Write(LV_STATUS, "Thumbnail picture created with %s and returned %d", Cmd.c_str(), result);
+
+						m_pPlutoMediaAttributes->m_mapCoverarts.insert(make_pair(static_cast<unsigned long>(nPictureSize), pPictureData));
+						m_pPlutoMediaAttributes->m_mapCoverartsThumbs.insert(make_pair(static_cast<unsigned long>(nPictureThumbSize), PictureThumbData));
+
+						//FileUtils::DelFile(sTempPictureName);
+						//FileUtils::DelFile(sTempPictureNameThumb);
+					}
+					else
+					{
+						LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Cannot read image from disk: %s", sTempPictureNameThumb.c_str());
+					}				
+				}
+			}
+			else
+			{
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Cannot save image to disk: %s", sTempPictureName.c_str());
+			}
+		}
+	}
+
+	//dump coverarts
+	m_pPlutoMediaAttributes->DumpCoverarts();
 }
 //-----------------------------------------------------------------------------------------------------
 void PlutoMediaFile::LoadEverythingFromDb()
@@ -1337,9 +1379,15 @@ void PlutoMediaFile::LoadMiscInfo()
 //-----------------------------------------------------------------------------------------------------
 void PlutoMediaFile::LoadCoverarts()
 {
-	//if the file was added before, but we already have coverarts in db ignore those from attribute file
-	if(!m_bNewFileToDb && NumberOfCoverartsFromDB())
-		m_pPlutoMediaAttributes->ClearCoverarts();
+	//dump coverarts
+	m_pPlutoMediaAttributes->DumpCoverarts();
+
+	//get the list with md5sums for coverarts and also remove the duplicates
+	list<string> listMD5SumsCoverarts;
+	m_pPlutoMediaAttributes->GenerateMd5SumsForCoverarts(listMD5SumsCoverarts, true);
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "LoadCoverarts: loaded %d unique pictures from file",
+		listMD5SumsCoverarts.size());
 
 	PlutoSqlResult result;
 	DB_ROW row;
@@ -1349,22 +1397,38 @@ void PlutoMediaFile::LoadCoverarts()
 
 	if((result.r = m_pDatabase_pluto_media->db_wrapper_query_result(SQL)))
 	{
-		int nCounter = 0;
 		while((row = db_wrapper_fetch_row(result.r)) && NULL != row[0])
 		{
 			int nFK_Picture = atoi(row[0]);
 
-			LoggerWrapper::GetInstance()->Write(LV_STATUS, "LoadCoverarts: Adding coverarts, picture id %d...", nFK_Picture);
-			m_pPlutoMediaAttributes->m_mapCoverarts.insert(LoadPicture(nFK_Picture));
-			m_pPlutoMediaAttributes->m_mapCoverartsThumbs.insert(LoadPicture(nFK_Picture, true));
+			pair<unsigned long, char *> pairPicture = LoadPicture(nFK_Picture);
+			string sMd5Sum = FileUtils::FileChecksum(pairPicture.second, pairPicture.first);
 
-			if(++nCounter > MAX_PICTURES)
+			//picture already in file attributes?
+			if(listMD5SumsCoverarts.end() != std::find(listMD5SumsCoverarts.begin(), listMD5SumsCoverarts.end(), sMd5Sum))
 			{
-				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "LoadCoverarts : too many coverarts...");
-				break;
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "LoadCoverarts: no loading picture with size %d from database, "
+					"because we already have it in file - md5sum %s", 
+					pairPicture.first, sMd5Sum.c_str());
+
+				delete [] pairPicture.second;
+			}
+			else
+			{
+				//we don't have it, add it to list
+				listMD5SumsCoverarts.push_back(sMd5Sum);
+
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "LoadCoverarts: Adding coverart, picture id %d, "
+					"size %d, md5sum %s", nFK_Picture, pairPicture.first, sMd5Sum.c_str());
+
+				m_pPlutoMediaAttributes->m_mapCoverarts.insert(pairPicture);
+				m_pPlutoMediaAttributes->m_mapCoverartsThumbs.insert(LoadPicture(nFK_Picture, true));
 			}
 		}
 	}
+
+	//dump coverarts
+	m_pPlutoMediaAttributes->DumpCoverarts();
 }
 //-----------------------------------------------------------------------------------------------------
 pair<unsigned long, char *> PlutoMediaFile::LoadPicture(int nPictureId, bool bThumb/* = false*/)
@@ -1415,21 +1479,6 @@ int PlutoMediaFile::GetOwnerForPath(string sPath)
 	return nEK_Users_Private;
 }
 //-----------------------------------------------------------------------------------------------------
-int PlutoMediaFile::NumberOfCoverartsFromDB()
-{
-	PlutoSqlResult result_count;
-	DB_ROW row_count;
-	string SQLCount = 
-		"SELECT Count(*) FROM Picture_File "
-		"WHERE FK_File = " + StringUtils::ltos(m_pPlutoMediaAttributes->m_nFileID);
-
-	int nNumberOfCoverartsFromDB = 0;
-    if((result_count.r = m_pDatabase_pluto_media->db_wrapper_query_result(SQLCount)) && (row_count = db_wrapper_fetch_row(result_count.r)) && NULL != row_count[0])
-		nNumberOfCoverartsFromDB = atoi(row_count[0]);
-
-	return nNumberOfCoverartsFromDB;
-}
-//-----------------------------------------------------------------------------------------------------
 int PlutoMediaFile::NumberOfBookmarksFromDB()
 {
 	PlutoSqlResult result_count;
@@ -1446,7 +1495,27 @@ int PlutoMediaFile::NumberOfBookmarksFromDB()
 	return nNumberOfBookmarksFromDB;
 }
 //-----------------------------------------------------------------------------------------------------
+void PlutoMediaFile::GenerateMd5SumsCoverartsFromDb(list<string>& listMd5Sums)
+{
+	vector<Row_Picture_File *> vectPictures;
+	m_pDatabase_pluto_media->Picture_File_get()->GetRows(
+		"FK_File = " + StringUtils::ltos(m_pPlutoMediaAttributes->m_nFileID), 
+		&vectPictures);
 
+	for(vector<Row_Picture_File *>::iterator it = vectPictures.begin(); it != vectPictures.end(); ++it)
+	{
+		Row_Picture_File *pRow_Picture_File = *it;
+
+		string sPictureFile = "/home/mediapics/" + StringUtils::ltos(pRow_Picture_File->FK_Picture_get()) + ".jpg";
+		
+		if(FileUtils::FileExists(sPictureFile))
+		{
+			string sMd5Sum = FileUtils::FileChecksum(sPictureFile);
+			listMd5Sums.push_back(sMd5Sum);
+		}
+	}
+}
+//-----------------------------------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------------------------------
 //

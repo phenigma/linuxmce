@@ -118,7 +118,7 @@ bool VDRInfoFileHandler::SaveAttributes(PlutoMediaAttributes *pPlutoMediaAttribu
 	return true;
 }
 //-----------------------------------------------------------------------------------------------------
-bool VDRInfoFileHandler::RemoveAttribute(int nTagType, string sValue, PlutoMediaAttributes *pPlutoMediaAttributes)
+bool VDRInfoFileHandler::RemoveAttribute(int /*nTagType*/, string /*sValue*/, PlutoMediaAttributes * /*pPlutoMediaAttributes*/)
 {
 	//nothing to do here
 	return true;

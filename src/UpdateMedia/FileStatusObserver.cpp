@@ -61,7 +61,7 @@ void FileStatusObserver::Observe(string sFilename)
 	}
 }
 //------------------------------------------------------------------------------------------
-void FileStatusObserver::AlarmCallback(int id, void* param)
+void FileStatusObserver::AlarmCallback(int id, void* /*param*/)
 {
 	if(id == CHECK_OBSERVED_FILES_STATUS)
 	{

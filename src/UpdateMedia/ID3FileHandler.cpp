@@ -45,7 +45,6 @@ bool ID3FileHandler::LoadAttributes(PlutoMediaAttributes *pPlutoMediaAttributes,
 
 	//get common id3 attributes
 	map<int, string> mapAttributes;
-	listPicturesForTags.clear();
 	GetId3Info(sFileWithAttributes, mapAttributes, listPicturesForTags);	
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "# LoadPlutoAttributes: id3 attributes loaded (from id3 file - common tags) %d", 

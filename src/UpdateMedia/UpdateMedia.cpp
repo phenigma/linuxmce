@@ -430,7 +430,7 @@ void UpdateMedia::SyncDbWithDirectory(string sDirectory)
 					string sFilename = row[sfFilename];
 					bool bDbFileMissing = atoi(row[sfMissing]) != 0;
 					bool bDeviceOnline = NULL != row[sfOnline] ? atoi(row[sfOnline]) != 0 : true;
-					int nDeviceID = NULL != row[sfDeviceID] ? atoi(row[sfDeviceID]) : 0;
+					//int nDeviceID = NULL != row[sfDeviceID] ? atoi(row[sfDeviceID]) : 0;
 
 					string sFilePath = sPath + "/" + sFilename;
 

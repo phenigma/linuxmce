@@ -114,6 +114,10 @@ public:
 
 	bool UnknownSerialize(ItemToSerialize *pItem,bool bWriting,char *&pDataBlock,
 		unsigned long &iAllocatedSize,char *&pCurrentPosition);
+
+	void GenerateMd5SumsForCoverarts(list<string>& listMD5SumsCoverarts,
+		bool bRemoveDuplicates = false);
+	void DumpCoverarts();
 };
 //-----------------------------------------------------------------------------------------------------
 #endif

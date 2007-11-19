@@ -68,9 +68,9 @@ private:
 	auto_ptr<GenericFileHandler> m_spFileHandler;
 
 	//file with attributes operations - load:
-	void LoadPlutoAttributes(string sFullFileName);
+	void LoadPlutoAttributes();
 	//file with attributes operations - save:
-	void SavePlutoAttributes(string sFullFileName);
+	void SavePlutoAttributes();
 
 	//db operations - load:
 	void LoadStartPosition();
@@ -89,8 +89,8 @@ private:
 	void SaveMiscInfo();
 	void SaveEveryThingToDb();
 
-	int NumberOfCoverartsFromDB();
 	int NumberOfBookmarksFromDB();
+	void GenerateMd5SumsCoverartsFromDb(list<string>& listMd5Sums);
 
 	//misc helpers
 	int AddFileToDatabase(int PK_MediaType);
@@ -103,6 +103,7 @@ private:
 	//pictures
 	pair<unsigned long, char *> LoadPicture(int nPictureId, bool bThumb = false);
 	void SavePicture(pair<unsigned long, char *> pairPicture, int nPictureId, bool bThumb = false);
+	void MergePictures();
 
 public:
     PlutoMediaFile(Database_pluto_media *pDatabase_pluto_media, int PK_Installation,

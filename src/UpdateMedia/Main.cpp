@@ -112,8 +112,6 @@ void *UpdateMediaThread(void *)
 
 	PlutoMediaIdentifier::Activate(g_pDatabase_pluto_main);
 
-	time_t tStart = time(NULL);
-
 	vector<string> vsUPnPDevices;
 	
 	while(true)

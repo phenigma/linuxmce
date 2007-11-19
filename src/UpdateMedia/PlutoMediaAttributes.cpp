@@ -323,4 +323,52 @@ bool PlutoMediaAttributes::UnknownSerialize(ItemToSerialize *pItem,bool bWriting
 	return true;
 }
 //-----------------------------------------------------------------------------------------------------
+void PlutoMediaAttributes::GenerateMd5SumsForCoverarts(list<string>& listMD5SumsCoverarts, bool bRemoveDuplicates/* = false*/)
+{
+	MapPictures::iterator it = m_mapCoverarts.begin();
+	MapPictures::iterator end = m_mapCoverarts.end();
+	MapPictures::iterator it_thumb = m_mapCoverartsThumbs.begin();
+	MapPictures::iterator end_thumb = m_mapCoverartsThumbs.end();
 
+	for( ; it != end && it_thumb != end_thumb; )
+	{
+		string sMd5Sums = FileUtils::FileChecksum(it->second, it->first);
+
+		if(bRemoveDuplicates && std::find(listMD5SumsCoverarts.begin(), listMD5SumsCoverarts.end(), sMd5Sums) != listMD5SumsCoverarts.end())
+		{
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "GenerateMd5SumsForCoverarts: picture size %d md5sum %s duplicated. Removing...",
+					it->first, sMd5Sums.c_str());
+
+			delete [] it->second;
+			m_mapCoverarts.erase(it++);
+
+			delete [] it_thumb->second;
+			m_mapCoverarts.erase(it_thumb++);
+		}
+		else
+		{
+			listMD5SumsCoverarts.push_back(sMd5Sums);
+
+			++it;
+			++it_thumb;
+		}
+	}
+}
+//-----------------------------------------------------------------------------------------------------
+void PlutoMediaAttributes::DumpCoverarts()
+{
+	MapPictures::iterator it = m_mapCoverarts.begin();
+	MapPictures::iterator end = m_mapCoverarts.end();
+	MapPictures::iterator it_thumb = m_mapCoverartsThumbs.begin();
+	MapPictures::iterator end_thumb = m_mapCoverartsThumbs.end();
+
+	for( ; it != end && it_thumb != end_thumb; ++it, ++it_thumb)
+	{
+		string sMd5Sums = FileUtils::FileChecksum(it->second, it->first);
+		string sMd5SumsThumbs = FileUtils::FileChecksum(it_thumb->second, it_thumb->first);
+
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "DumpCoverarts: picture size %d md5sum %s - thumb size %d md5sum %s",
+			it->first, sMd5Sums.c_str(), it_thumb->first, sMd5SumsThumbs.c_str());
+	}
+}
+//-----------------------------------------------------------------------------------------------------
