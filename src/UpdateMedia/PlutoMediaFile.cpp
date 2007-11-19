@@ -614,9 +614,6 @@ void PlutoMediaFile::SaveMiscInfo()
 //-----------------------------------------------------------------------------------------------------
 void PlutoMediaFile::SaveCoverarts()
 {
-	//dump coverarts
-	m_pPlutoMediaAttributes->DumpCoverarts();
-
 	list<string> listMd5Sums;
 	GenerateMd5SumsCoverartsFromDb(listMd5Sums);
 
@@ -1000,9 +997,6 @@ void PlutoMediaFile::LoadPlutoAttributes()
 //-----------------------------------------------------------------------------------------------------
 void PlutoMediaFile::MergePictures()
 {
-	//dump coverarts
-	m_pPlutoMediaAttributes->DumpCoverarts();
-
 	//get the list with md5sums for coverarts and also remove the duplicates
 	list<string> listMD5SumsCoverarts;
 	m_pPlutoMediaAttributes->GenerateMd5SumsForCoverarts(listMD5SumsCoverarts, true);
@@ -1025,9 +1019,6 @@ void PlutoMediaFile::MergePictures()
 			m_pPlutoMediaAttributes->m_mapCoverarts.insert(make_pair(static_cast<unsigned long>(nPictureSize), pPictureData));
 		}
 	}
-
-	//dump coverarts
-	m_pPlutoMediaAttributes->DumpCoverarts();
 }
 //-----------------------------------------------------------------------------------------------------
 void PlutoMediaFile::LoadEverythingFromDb()
@@ -1342,9 +1333,6 @@ void PlutoMediaFile::LoadMiscInfo()
 //-----------------------------------------------------------------------------------------------------
 void PlutoMediaFile::LoadCoverarts()
 {
-	//dump coverarts
-	m_pPlutoMediaAttributes->DumpCoverarts();
-
 	//get the list with md5sums for coverarts and also remove the duplicates
 	list<string> listMD5SumsCoverarts;
 	m_pPlutoMediaAttributes->GenerateMd5SumsForCoverarts(listMD5SumsCoverarts, true);
@@ -1388,9 +1376,6 @@ void PlutoMediaFile::LoadCoverarts()
 			}
 		}
 	}
-
-	//dump coverarts
-	m_pPlutoMediaAttributes->DumpCoverarts();
 }
 //-----------------------------------------------------------------------------------------------------
 pair<unsigned long, char *> PlutoMediaFile::LoadPicture(int nPictureId, bool bThumb/* = false*/)
