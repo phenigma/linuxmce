@@ -53,10 +53,10 @@ $TRUNK_VARS{'dialrules'}=$LOCAL_PREFIX1;
 $TRUNK_VARS{'autopop'}="";
 $TRUNK_VARS{'dialoutprefix'}="";
 $TRUNK_VARS{'channelid'}="sipgate";
-$TRUNK_VARS{'peerdetails'} ="allow=alow\n";
+$TRUNK_VARS{'peerdetails'} ="allow=alaw&alaw&ulaw&g729&gsm&slinear\n";
 $TRUNK_VARS{'peerdetails'}.="auth=md5\n";
-$TRUNK_VARS{'peerdetails'}.="context=from-internal\n";
-$TRUNK_VARS{'peerdetails'}.="disallow=all\n";
+$TRUNK_VARS{'peerdetails'}.="context=from-trunk\n";
+#$TRUNK_VARS{'peerdetails'}.="disallow=all\n";
 $TRUNK_VARS{'peerdetails'}.="host=$DECLARED_HOST\n";
 $TRUNK_VARS{'peerdetails'}.="username=$DECLARED_USERNAME\n";
 $TRUNK_VARS{'peerdetails'}.="callerid=$DECLARED_USERNAME\n";
@@ -74,10 +74,10 @@ $TRUNK_VARS{'peerdetails'}.="insecure=very\n";
 
 $TRUNK_VARS{'usercontext'}=$DECLARED_NUMBER;
 $TRUNK_VARS{'userconfig'}=
-$TRUNK_VARS{'userconfig'} ="allow=alow\n";
+$TRUNK_VARS{'userconfig'} ="allow=alaw&alaw&ulaw&g729&gsm&slinear\n";
 $TRUNK_VARS{'userconfig'}.="auth=md5\n";
-$TRUNK_VARS{'userconfig'}.="context=from-internal\n";
-$TRUNK_VARS{'userconfig'}.="disallow=all\n";
+$TRUNK_VARS{'userconfig'}.="context=from-trunk\n";
+#$TRUNK_VARS{'userconfig'}.="disallow=all\n";
 $TRUNK_VARS{'userconfig'}.="host=$DECLARED_HOST\n";
 $TRUNK_VARS{'userconfig'}.="username=$DECLARED_USERNAME\n";
 $TRUNK_VARS{'userconfig'}.="callerid=$DECLARED_USERNAME\n";
