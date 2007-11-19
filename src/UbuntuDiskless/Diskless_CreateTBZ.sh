@@ -139,7 +139,7 @@ LC_ALL=C chroot "$TEMP_DIR" apt-get -f -y install locales
 ## Create a list of devices that will run on the md so we will know
 ## what software to preinstall there
 ## FIXME: get this list from the database 
-DEVICE_LIST="28 62 1795 5 35 11 1825 26 1808"
+DEVICE_LIST="28 62 1759 5 35 11 1825 26 1808 1901"
 
 ## Prevent lpadmin from running as it blocks the system
 LC_ALL=C chroot "$TEMP_DIR" apt-get -y install cupsys-client
