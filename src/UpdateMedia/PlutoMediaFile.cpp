@@ -997,6 +997,9 @@ void PlutoMediaFile::LoadPlutoAttributes()
 //-----------------------------------------------------------------------------------------------------
 void PlutoMediaFile::MergePictures()
 {
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MergePictures: merging %d pictures from our tag with %d pictures from PIC tags",
+		m_pPlutoMediaAttributes->m_mapCoverarts.size(), m_listPicturesForTags.size());
+
 	//get the list with md5sums for coverarts and also remove the duplicates
 	list<string> listMD5SumsCoverarts;
 	m_pPlutoMediaAttributes->GenerateMd5SumsForCoverarts(listMD5SumsCoverarts, true);
@@ -1358,7 +1361,7 @@ void PlutoMediaFile::LoadCoverarts()
 			//picture already in file attributes?
 			if(listMD5SumsCoverarts.end() != std::find(listMD5SumsCoverarts.begin(), listMD5SumsCoverarts.end(), sMd5Sum))
 			{
-				LoggerWrapper::GetInstance()->Write(LV_STATUS, "LoadCoverarts: no loading picture with size %d from database, "
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "LoadCoverarts: not loading picture with size %d from database, "
 					"because we already have it in file - md5sum %s", 
 					pairPicture.first, sMd5Sum.c_str());
 
