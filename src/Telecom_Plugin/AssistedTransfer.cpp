@@ -68,6 +68,7 @@ bool AssistedTransfer::ProcessEvent(class Message * pMessage)
 					else if(NULL == pCallStatus1 || NULL == pCallStatus2)
 					{
 						LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "One of the channels is not into a call anymore!");
+						SetJobState(TelecomTask::Done);
 						SetState(TelecomTask::Failed);
 					}
 				}
@@ -86,6 +87,7 @@ bool AssistedTransfer::ProcessEvent(class Message * pMessage)
 					else if(NULL == pCallStatus1 || NULL == pCallStatus2)
 					{
 						LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "One of the channels is not into a call anymore!");
+						SetJobState(TelecomTask::Done);
 						SetState(TelecomTask::Failed);
 					}
 				}
@@ -110,6 +112,7 @@ bool AssistedTransfer::ProcessEvent(class Message * pMessage)
 						LoggerWrapper::GetInstance()->Write
 							(LV_CRITICAL, "Error: Init_MyChannel2DestCall: there isn't a call for my channel %s",
 							 sMyChannelID.c_str());
+						SetJobState(TelecomTask::Done);
 						SetState(TelecomTask::Failed);
 					}
 				}
@@ -142,6 +145,7 @@ bool AssistedTransfer::ProcessEvent(class Message * pMessage)
 								(LV_CRITICAL, "Error: Init_MyChannel2DestConf : my call %s != dest call %s",
 								pCallStatus->GetID().c_str(), sCallID_Dest.c_str());
 						}
+						SetJobState(TelecomTask::Done);
 						SetState(TelecomTask::Failed);
 					}
 				}
@@ -166,6 +170,7 @@ bool AssistedTransfer::ProcessEvent(class Message * pMessage)
 					{
 						LoggerWrapper::GetInstance()->Write
 							(LV_CRITICAL, "Error: MergeCalls: there isn't a call for my channel %s", sMyChannelID.c_str());
+						SetJobState(TelecomTask::Done);
 						SetState(TelecomTask::Failed);
 					}
 				}
@@ -222,10 +227,11 @@ bool AssistedTransfer::PrivateProcessJob(const string & job)
 			return false;
 		}
 	
-		if( TelecomTask::Running == GetJobState() && job != sJobID )
+		if( TelecomTask::Running == GetJobState() && job != sJobID && !sJobID.empty() )
 		{
 			// try later
 			sNextJob = job;
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "AssistedTransfer : next job = %s", sNextJob.c_str());
 			return true;
 		}
 	
@@ -262,6 +268,9 @@ bool AssistedTransfer::PrivateProcessJob(const string & job)
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Error: PrivateProcessJob: My call ID is empty!");
 		return false;
 	}
+	
+	sJobID = job;
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "AssistedTransfer : trying to do job %s", sJobID.c_str());
 	
 	//job "initialize" (internal)
 	//1) {X,Y,A} & B => {X,Y} & {A,B}
@@ -490,8 +499,6 @@ bool AssistedTransfer::PrivateProcessJob(const string & job)
 			GetDebug().c_str());
 		return false;
 	}
-	
-	sJobID = job;
 	
 	return true;
 }
