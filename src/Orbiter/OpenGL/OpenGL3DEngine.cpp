@@ -72,7 +72,8 @@ OpenGL3DEngine::OpenGL3DEngine() :
 	m_bWorldChanged(true),
 	m_bQuit(false),
 	Compose(NULL),
-	m_bDatagridRendering(false)
+	m_bDatagridRendering(false),
+	m_bUseMask(false)
 {
 	if(TTF_Init()==-1) {
 		printf("Error on TTF_Init: %s\n", TTF_GetError());
@@ -394,8 +395,19 @@ inline void OpenGL3DEngine::DumpScene()
 	PlutoRectangle rect(rectHighlightArea);
 	
 	const int nSize = GL.Width / 200;
-	PlutoRectangle rectOriginal(rect.X - nSize + 1, rect.Y - nSize + 1, 
-		rect.Width + 2 * nSize - 2, rect.Height + 2 * nSize - 2);
+
+	PlutoRectangle rectOriginal;
+
+	if(m_bUseMask)
+	{
+		rectOriginal = rect;
+	}
+	else
+	{
+		PlutoRectangle rectSpecific(rect.X - nSize + 1, rect.Y - nSize + 1, 
+			rect.Width + 2 * nSize - 2, rect.Height + 2 * nSize - 2);
+		rectOriginal = rectSpecific;
+	}
 
 	rect = rectOriginal;
 	rect.Width = nSize;

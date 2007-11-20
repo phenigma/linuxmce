@@ -94,6 +94,7 @@ public:
 
 	GLEffect2D::LayersCompose* Compose;
 	bool m_bDatagridRendering;
+	bool m_bUseMask;
 
 	ExtensionManager GL;
 	/**

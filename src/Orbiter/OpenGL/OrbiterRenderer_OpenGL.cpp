@@ -123,6 +123,7 @@ void *OrbiterRenderer_OpenGLThread(void *p)
 	pOrbiterRenderer->WindowCreated();
 
 	pOrbiterRenderer->Engine->Setup();
+	pOrbiterRenderer->Engine->m_bUseMask = pOrbiterRenderer->OrbiterLogic()->m_bUseMask;
 
 	//wake up every one. the window is created and ready to be used
 	pthread_cond_broadcast(&(pOrbiterRenderer->Condition));
