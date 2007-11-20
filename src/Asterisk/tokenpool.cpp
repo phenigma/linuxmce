@@ -35,7 +35,7 @@
 using namespace std;
 using namespace DCE;
 
-#define POOL_SLEEP_PERIOD		1000
+#define POOL_SLEEP_PERIOD		200
 #define POOL_RECONNECT_PERIOD	5000
 
 
@@ -146,7 +146,7 @@ TokenPool::_Run() {
 				}
 			}	
 
-			Sleep(100);
+			Sleep(10);
 
 			/*receive*/
 			 bool doreceive = sock.isReceivable();
