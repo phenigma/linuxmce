@@ -3485,6 +3485,7 @@ void ScreenHandler::SCREEN_Active_Calls(long PK_Screen)
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::Telecom_ObjectSelected, new ObjectInfoBackData());
 	RegisterCallBack(cbDataGridRendering, (ScreenHandlerCallBack) &ScreenHandler::Telecom_DataGridRendering, new DatagridAcquiredBackData());
 	RegisterCallBack(cbOnTimer,	(ScreenHandlerCallBack) &ScreenHandler::Telecom_OnTimer, new CallBackData());
+	RegisterCallBack(cbDataGridSelected, (ScreenHandlerCallBack) &ScreenHandler::Telecom_DatagridSelected, new DatagridCellBackData());
 
 	m_pOrbiter->StartScreenHandlerTimer(2000);
 
@@ -3673,6 +3674,27 @@ bool ScreenHandler::Telecom_DataGridRendering(CallBackData *pData)
 
 	RefreshActiveCallsButtons();
 	return false;
+}
+//-----------------------------------------------------------------------------------------------------
+bool ScreenHandler::Telecom_DatagridSelected(CallBackData *pData)
+{
+	DatagridCellBackData *pCellInfoData = dynamic_cast<DatagridCellBackData *>(pData);
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::MediaBrowser_DatagridSelected sel value %s text %s row %d col %d cell value %s",
+		pCellInfoData->m_sValue.c_str(),pCellInfoData->m_sText.c_str(),
+		pCellInfoData->m_Row,pCellInfoData->m_Column,
+		pCellInfoData->m_pDataGridCell && pCellInfoData->m_pDataGridCell->m_Value ? pCellInfoData->m_pDataGridCell->m_Value : "*NONE*");
+
+#endif
+
+	if(NULL != pCellInfoData && NULL != pCellInfoData->m_pDesignObj_DataGrid &&
+		pCellInfoData->m_pDesignObj_DataGrid->m_iBaseObjectID == DESIGNOBJ_dgActiveCalls_CONST)
+	{
+		m_pOrbiter->CMD_Set_Variable(VARIABLE_Current_Call_CONST, pCellInfoData->m_sValue);
+		RefreshActiveCallsButtons();
+	}
+
+	return true;
 }
 //-----------------------------------------------------------------------------------------------------
 bool ScreenHandler::Telecom_ObjectSelected(CallBackData *pData)
@@ -4076,9 +4098,12 @@ void ScreenHandler::HandleAssistedMakeCall(int iPK_Users,string sPhoneExtension,
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::RefreshActiveCallsButtons()
 {
-	bool bActiveCallsPresent = !m_pOrbiter->m_mapVariable_Find(VARIABLE_Current_Call_CONST).empty();
+	string sCurrentCall = m_pOrbiter->m_mapVariable_Find(VARIABLE_Current_Call_CONST);
+	string sMyCall = m_pOrbiter->m_mapVariable_Find(VARIABLE_My_Call_ID_CONST);
+
+	bool bActiveCallsPresent = !sCurrentCall.empty();
 	m_pOrbiter->CMD_Show_Object(TOSTRING(DESIGNOBJ_mnuActiveCalls_CONST) ".0.0." TOSTRING(DESIGNOBJ_butJoin_CONST), 0, "", "", 
-		bActiveCallsPresent ? "1" : "0");
+		(sCurrentCall != sMyCall && bActiveCallsPresent) ? "1" : "0");
 	m_pOrbiter->CMD_Show_Object(TOSTRING(DESIGNOBJ_mnuActiveCalls_CONST) ".0.0." TOSTRING(DESIGNOBJ_butAddToActiveCall_CONST), 0, "", "", 
 		bActiveCallsPresent ? "1" : "0");
 	m_pOrbiter->CMD_Show_Object(TOSTRING(DESIGNOBJ_mnuActiveCalls_CONST) ".0.0." TOSTRING(DESIGNOBJ_butRemoveFromActiveCall_CONST), 0, "", "", 
