@@ -62,6 +62,7 @@ RunSQL "$Q"
 echo "Writing network configuration with one in database"
 
 invoke-rc.d networking stop
+invoke-rc.d dhcp3-server stop
 
 if ! BlacklistConfFiles '/etc/network/interfaces' ;then
 	if [ ! -e /etc/network/interfaces.backup ] ;then
@@ -121,7 +122,10 @@ if ! BlacklistConfFiles '/etc/default/dhcp3-server' ;then
 	fi
 fi
 
+/usr/pluto/bin/DHCP_config.sh
+
 invoke-rc.d networking start
+invoke-rc.d dhcp3-server start
 
 if ! BlacklistConfFiles '/etc/bind/named.conf.forwarders' && ! BlacklistConfFiles '/etc/bind/named.conf.options';then
 if [ ! -e /etc/bind/named.conf.forwarders.pbackup ] && [ -e /etc/bind/named.conf.forwarders ] ;then
