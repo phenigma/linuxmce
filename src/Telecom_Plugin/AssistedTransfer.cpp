@@ -211,6 +211,7 @@ bool AssistedTransfer::PrivateProcessJob(const string & job)
 	if( job == "cancel" )
 	{
 		SetState(TelecomTask::Failed);
+		SetJobState(TelecomTask::Done);
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "AssistedTransfer : cancel job debug: %s", GetDebug().c_str());
 	}
 	else
@@ -227,13 +228,10 @@ bool AssistedTransfer::PrivateProcessJob(const string & job)
 			sNextJob = job;
 			return true;
 		}
-		else
-		{
-			sNextJob = "";
-		}
 	
+		SetState(TelecomTask::Processing);
+		SetJobState(TelecomTask::Running);
 	}
-	SetState(TelecomTask::Processing);
 	
 	CallStatus * pDestCallStatus = NULL;
 	CallStatus * pMyCallStatus = NULL;
