@@ -101,8 +101,8 @@ void BD_CP_ShowImage::ParseCommand(unsigned long size,const char *data)
 	m_pImage = Read_block(m_ImageSize);
     m_KeysListSize = Read_long();
     m_pRepeatedKeysList = Read_block(m_KeysListSize);
-    m_bSignalStrengthScreen = Read_unsigned_char();
-    m_bImageQualityScreen = Read_unsigned_char();
+    m_bSignalStrengthScreen = !!Read_unsigned_char();
+    m_bImageQualityScreen = !!Read_unsigned_char();
     m_nImageQuality = Read_long();
 }
 

@@ -43,7 +43,7 @@ void BD_PC_VMCTerminated::ConvertCommandToBinary()
 		Write_unsigned_long(pVariable->m_iVariableID);
 		Write_string(pVariable->m_sCurrentValue);
 		Write_unsigned_char((unsigned char) pVariable->m_bEncryptBeforeSending);
-		Write_unsigned_short(pVariable->m_iFormat);
+		Write_unsigned_short((unsigned short)pVariable->m_iFormat);
 	}
 }
 

@@ -97,8 +97,8 @@ void BD_CP_ShowList::ParseCommand(unsigned long size,const char *data)
 	m_y = Read_long();
 	m_Width = Read_long();
 	m_Height = Read_long();
-	m_bSendSelectedOnMove = Read_long();
-	m_bTurnOn = Read_long();
+	m_bSendSelectedOnMove = !!Read_long();
+	m_bTurnOn = !!Read_long();
 	m_SelectedIndex = Read_long();
 	unsigned long ListSize = Read_long();
 

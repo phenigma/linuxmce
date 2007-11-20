@@ -126,21 +126,10 @@ char *BDCommandProcessor_Windows_Bluetooth::ReceiveData(int size)
 	// Wait until we get that many characters in our buffer
 	while( (int) m_iSizeReceiveBuffer<size )
 	{
-/*
-		// We might want to make this a timed wait and return NULL after a given period.
-		// For some reason there appears to be a problem with timed_conditions, and they always
-		// return immediately.  This will release the mutex.
-// hack
-rb.Release();
-Sleep(100);
-rb.Relock();
-//		pthread_cond_wait(&m_PollingCond,&m_PollingMutex.mutex);
-	}
-*/
 		PLUTO_SAFETY_LOCK(pm,m_PollingMutex);
 
 		timespec abstime;
-		abstime.tv_sec = time(NULL) + RECV_TIMEDOUT;
+		abstime.tv_sec = static_cast<long>(time(NULL)) + RECV_TIMEDOUT;
 		abstime.tv_nsec = 0;
 		if(ETIMEDOUT == pm.TimedCondWait(abstime))
 		{

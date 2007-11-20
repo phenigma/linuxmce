@@ -61,7 +61,7 @@ void BD_PC_GetMenuImages::ConvertCommandToBinary()
 {
 	BDCommand::ConvertCommandToBinary();
 	Write_unsigned_char( m_nItemsType );
-	Write_long( m_vItems.size() );
+	Write_long( (long)m_vItems.size() );
 	for (vector<MenuItemInfo>::iterator iter=m_vItems.begin(); iter!=m_vItems.end(); ++iter ) {
 		(*iter).write( m_nItemsType, *this );
 	}

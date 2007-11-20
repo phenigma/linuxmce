@@ -53,7 +53,7 @@ enum LinkStatus
     LS_PEER_TIMEOUT
 };
 
-class CBtServiceSelection : public CBtIf 
+class STD_DLL_EXPORT CBtServiceSelection : public CBtIf 
 {
 public:
 	LinkStatus					Select( const CSdpDiscoveryRec** chosenRecord );

@@ -31,9 +31,6 @@
   *
   */
 
-
-
-//#include "VIPShared/VIPIncludes.h"
 #include "PlutoUtils/MyStl.h"
 #include "DCE/Logger.h"
 
@@ -43,19 +40,6 @@
 #include "BD/BD_WhatDoYouHave.h"
 
 #include "VIPShared/PlutoPhoneCommands.h"
-
-/*
-#define _LOG_(log) 
-#ifdef APPSERVER
-	//const char *Role="PC:";
-	#define Role "PC:"
-#else
-	//const char *Role="Phone:";
-	#define Role "Phone"
-#endif
-*/
-
-//#define LD(x,y,z,cmd) {FILE *x=fopen("C:\\dialog.txt","a");  fprintf(x,"%s: %d %s (%s)\n",Role,(int) y,z,cmd); fclose(x);}
 
 using namespace DCE;
 
@@ -80,18 +64,14 @@ bool BDCommandProcessor::SendCommand( bool &bImmediateCallback )
 {
 	bImmediateCallback = false;
 	
-	/** @todo check comment */
-	// _LOG_("RECEIVE_ACK_STAGE_HEADER");
 	// This also sends the Command, and starts receiving the acknowledge
 	PLUTO_SAFETY_LOCK( cm, m_CommandMutex );
 	if( MYSTL_SIZEOF_LIST( m_listCommands ) == 0 )
 	{
 #ifdef VIPPHONE
 		m_pCommand_Sent = new BD_WhatDoYouHave();
-		//_LOG_( "BD_WhatDoYouHave" );
 #else
 		m_pCommand_Sent = new BD_HaveNothing();
-		//_LOG_( "BD_HaveNothing" );
 #endif
 	}
 	else
@@ -129,8 +109,6 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"Sending %s command", m_pCommand_S
 
 	m_pCommand_Sent->FreeSerializeMemory();
 
-	//LD( f1, m_pCommand_Sent->ID(), "Sent Command", m_pCommand_Sent->Description() );
-	
 	// If we sent a "What do you have", we're going to get a command in return - not a normal acknowledge
 	if( NULL != m_pcReceiveAckHeader ) // we didn't send a WhatDoYouHave
 	{
@@ -144,7 +122,6 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"Sending %s command", m_pCommand_S
 		m_pcReceiveAckHeader = ReceiveData(4);
 
 	/** @todo check comment */
-	//_LOG_("RECEIVE_ACK_STAGE_HEADER");
 	if( !m_pcReceiveAckHeader ) // got nothing
 	{
 		delete m_pCommand_Sent;
@@ -155,11 +132,11 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"Sending %s command", m_pCommand_S
 
 	// got something
 	
-	long *pdwSize;
+	int *pdwSize;
 	if( m_pCommand_Sent->ID() == BD_PC_WHAT_DO_YOU_HAVE )
-		pdwSize = (long *)(m_pcReceiveAckHeader + 4); // header starts from +4
+		pdwSize = (int *)(m_pcReceiveAckHeader + sizeof(int)); // header starts from +4
 	else
-		pdwSize = (long *)(m_pcReceiveAckHeader); // normal header
+		pdwSize = (int *)(m_pcReceiveAckHeader); // normal header
 
 	delete m_pcReceiveAckData;
 	m_pcReceiveAckData = NULL;
@@ -183,8 +160,8 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"Sending %s command", m_pCommand_S
 
 	if( m_pCommand_Sent->ID() == BD_PC_WHAT_DO_YOU_HAVE ) // the ack will be a command that's parsed directly
 	{
-		long *pdwType = (long *)m_pcReceiveAckHeader;
-		long *pdwSize = (long *)(m_pcReceiveAckHeader + 4);
+		int *pdwType = (int *)m_pcReceiveAckHeader;
+		int *pdwSize = (int *)(m_pcReceiveAckHeader + sizeof(int));
 		if(!ReceiveCommand( *pdwType, *pdwSize, m_pcReceiveAckData ))
 		{
 			delete m_pCommand_Sent;
@@ -197,7 +174,7 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"Sending %s command", m_pCommand_S
 	}
 	else
 	{
-		long *pdwSize = (long *)(m_pcReceiveAckHeader);
+		int *pdwSize = (int *)(m_pcReceiveAckHeader);
 		m_pCommand_Sent->ParseAck( *pdwSize, m_pcReceiveAckData );
 	}
 	delete m_pCommand_Sent;
@@ -243,10 +220,6 @@ LoggerWrapper::GetInstance()->Write(LV_WARNING,"# Received %s command #", pComma
 
 		pCommand->FreeSerializeMemory();
 
-		//LD( f1, pCommand->ID(), pCommand->ID() == BD_PC_WHAT_DO_YOU_HAVE ? "Sent command" : "OK", pCommand->Description() );
-		//_LOG_( ( pCommand->ID() == BD_PC_WHAT_DO_YOU_HAVE ? "Sent command" : "OK" ) );
-		//_LOG_( pCommand->Description() );
-		
 		if( NULL != pCommand )
 		{
 			delete pCommand;
@@ -258,25 +231,19 @@ LoggerWrapper::GetInstance()->Write(LV_WARNING,"# Received %s command #", pComma
 	else
 	{
 		/** @todo check comment */
-		//_LOG_("RECEIVE_CMD_STAGE_HEADER");
 		if( NULL != m_pcReceiveCmdHeader )
 		{
-			//printf( "delete receive cmd: %p\n", m_pcReceiveCmdData );
-
 			delete m_pcReceiveCmdHeader;
 			m_pcReceiveCmdHeader = NULL;
 		}
 
 		m_pcReceiveCmdHeader = ReceiveData( 8 );
 
-		//printf( "create receive cmd from receive data: %p\n", m_pcReceiveCmdData );
-
 		/** @todo check comment */
-		//_LOG_("RECEIVE_CMD_STAGE_DATA");
 		if( !m_pcReceiveCmdHeader ) // no data received
 			return false;
 
-		long *dwSize = (long *)(m_pcReceiveCmdHeader + 4);
+		int *dwSize = (int *)(m_pcReceiveCmdHeader + sizeof(int));
 
 		if( *dwSize )
 		{
@@ -292,9 +259,8 @@ LoggerWrapper::GetInstance()->Write(LV_WARNING,"# Received %s command #", pComma
 		}
 		
 		/** @todo check comment */
-		//_LOG_("RECEIVE_CMD_STAGE_DATA");
-		long *dwType = (long *) m_pcReceiveCmdHeader;
-		dwSize = (long *)(m_pcReceiveCmdHeader + 4);
+		int *dwType = (int *) m_pcReceiveCmdHeader;
+		dwSize = (int *)(m_pcReceiveCmdHeader + sizeof(int));
 		BDCommand *pCommand = BuildCommandFromData( *dwType );
 
 		if(!pCommand)
@@ -302,8 +268,6 @@ LoggerWrapper::GetInstance()->Write(LV_WARNING,"# Received %s command #", pComma
 			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"# Command %d not implemented! #", *dwType);
 			return false;
 		}
-
-//		LoggerWrapper::GetInstance()->Write(LV_WARNING,"# Received %s command #", pCommand->Description());
 
 		if( pCommand->ID() == BD_PC_WHAT_DO_YOU_HAVE ) // received a WhatDoYouHave
 		{
@@ -331,13 +295,8 @@ LoggerWrapper::GetInstance()->Write(LV_WARNING,"# Received %s command #", pComma
 			}
 
 			pCommand->FreeSerializeMemory();
-			//LD( f1, pCommand->ID(), pCommand->ID()==BD_PC_WHAT_DO_YOU_HAVE ? "Sent command" : "OK", pCommand->Description() );
 		}
 
-		/** @todo check comments */
-		//_LOG_("RECEIVE_CMD_STAGE_SENDING_CMD");
-		// Feed back the send command until it has finished
-		//SendCommand(); 
 		return true;
 	}
 	return false; // never get here
@@ -345,14 +304,17 @@ LoggerWrapper::GetInstance()->Write(LV_WARNING,"# Received %s command #", pComma
 
 bool BDCommandProcessor::SendLong(long l)
 {
-	return SendData( 4,(const char *)&l );
+	//serialize it as int (we are talking with a 32bit cellphone ;) )
+	int value = static_cast<int>(l);
+	return SendData(sizeof(int), (const char *)&value );
 }
 
 long BDCommandProcessor::ReceiveLong()
 {
-	const char *pcData = ReceiveData(4);
-	long *l = (long *)pcData;
-	return *l;
+	//deserialize it as int (we are talking with a 32bit cellphone ;) )
+	const char *pcData = ReceiveData(sizeof(int));
+	int *l = (int *)pcData;
+	return static_cast<long>(*l);
 }
 
 void BDCommandProcessor::AddCommand( class BDCommand *pCommand )

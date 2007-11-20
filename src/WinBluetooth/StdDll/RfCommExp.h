@@ -31,7 +31,7 @@
 #include "../inc/BtIfClasses.h"
 #include "BtServiceSelection.h"
 
-class CRfCommExp : public CRfCommIf, public CRfCommPort
+class STD_DLL_EXPORT CRfCommExp : public CRfCommIf, public CRfCommPort
 {
 public:
 	CRfCommExp();

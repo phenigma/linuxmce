@@ -171,7 +171,7 @@ void MenuData::Read( SerializeClass& sc )
 {
 	unsigned long ulRooms = sc.Read_long();
 			
-	for ( int iRooms=0; iRooms<ulRooms; ++iRooms ){
+	for ( size_t iRooms=0; iRooms<ulRooms; ++iRooms ){
 		MD_Room room;
 		room.Read( sc );
 		AddRoom( room );

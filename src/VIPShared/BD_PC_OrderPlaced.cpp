@@ -66,7 +66,7 @@ void BD_PC_OrderPlaced::ParseCommand(unsigned long size,const char *data)
 	BDCommand::ParseCommand(size,data);
 	m_iMenuCollectionID = Read_unsigned_long();
 	unsigned long NumberOfBasketItems = Read_unsigned_long();
-	for(/*size_t*/int iB=0;iB<NumberOfBasketItems;++iB)
+	for(size_t iB=0;iB<NumberOfBasketItems;++iB)
 	{
 		BasketItem *bi = new BasketItem();
 		Read_string(bi->m_sID);
