@@ -9658,9 +9658,9 @@ void Orbiter::UpdateTimeCodeLoop()
 				}
 			}
 
-			//TODO: use the device data port instead of using hardcoded values!
-			string sConnectInfo = sIPAddress + 
-				(pDevice->m_dwPK_DeviceTemplate==DEVICETEMPLATE_Xine_Player_CONST ? ":12000" : ":12010");
+			string sPort = m_pEvent->GetDeviceDataFromDatabase(pDevice->m_dwPK_Device, DEVICEDATA_Port_CONST);
+
+			string sConnectInfo = sIPAddress + ":" + sPort;
 			string sName = "ask-xine-socket";
 			m_pAskXine_Socket = new AskXine_Socket(sConnectInfo, sName);
 			m_pAskXine_Socket->m_dwPK_Device = pDevice->m_dwPK_Device;
