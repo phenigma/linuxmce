@@ -9636,7 +9636,13 @@ void Orbiter::UpdateTimeCodeLoop()
 			m_pAskXine_Socket=NULL;
 		}
 		DeviceData_Base *pDevice = m_dwPK_Device_NowPlaying ? m_pData->m_AllDevices.m_mapDeviceData_Base_Find(m_dwPK_Device_NowPlaying) : NULL;
-		if( pDevice && pDevice->m_dwPK_DeviceTemplate==DEVICETEMPLATE_Xine_Player_CONST )
+		if( 
+			NULL != pDevice && 
+			(
+				pDevice->m_dwPK_DeviceTemplate==DEVICETEMPLATE_Xine_Player_CONST ||
+				pDevice->m_dwPK_DeviceTemplate==DEVICETEMPLATE_MPlayer_Player_CONST
+			)
+		)
 		{
 			string sIPAddress = pDevice->m_sIPAddress;
 			if( sIPAddress.empty() )
@@ -9652,7 +9658,8 @@ void Orbiter::UpdateTimeCodeLoop()
 				}
 			}
 
-			string sConnectInfo = sIPAddress + ":12000";
+			string sConnectInfo = sIPAddress + 
+				(pDevice->m_dwPK_DeviceTemplate==DEVICETEMPLATE_Xine_Player_CONST ? ":12000" : ":12001");
 			string sName = "ask-xine-socket";
 			m_pAskXine_Socket = new AskXine_Socket(sConnectInfo, sName);
 			m_pAskXine_Socket->m_dwPK_Device = pDevice->m_dwPK_Device;
