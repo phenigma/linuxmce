@@ -315,7 +315,7 @@ function networkSettings($output,$dbADO) {
 			}
 		}
 
-		$commands = array('Network_Setup.sh', 'DHCP_config.sh', 'Network_Firewall.sh');
+		$commands = array('Network_Setup.sh', 'Network_Firewall.sh');
 		for ($i = 0; $i < count($commands); $i++)
 		{
 			$cmd = "sudo -u root /usr/pluto/bin/{$commands[$i]}";
