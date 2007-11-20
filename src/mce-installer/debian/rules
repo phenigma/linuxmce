@@ -64,7 +64,6 @@ install: build
 	./build-mce-installer.sh
 	cp mce-installer.sh $(CURDIR)/debian/mce-installer/usr/share/mce-installer
 	cp $(CURDIR)/debian/mce-installer.desktop $(CURDIR)/debian/mce-installer/usr/share/mce-installer/mce-installer.desktop
-	cp /root/ExtraFiles/UIdiag/sample.mpg $(CURDIR)/debian/mce-installer/usr/pluto/sample.mpg || :
 
 
 

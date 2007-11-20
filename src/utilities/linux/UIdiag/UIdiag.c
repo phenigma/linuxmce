@@ -718,14 +718,14 @@ int main( int argc, char **argv )
 		if (access("/usr/bin/xine", F_OK) == 0) 
 		{	
 			sPlayerCommandTemplate="xine -l -g -V xv '%s'";
-			sprintf(pPlayerCommand, sPlayerCommandTemplate.c_str(), "/usr/pluto/sample.mpg");
+			sprintf(pPlayerCommand, sPlayerCommandTemplate.c_str(), "/home/public/data/samples/UIdiag_sample.mpg");
 	
 			printf("Running player application %s\n", pPlayerCommand); 
 			system(pPlayerCommand);
 		} 
 		else if(ReadTextFile("/tmp/player-name", sPlayerCommandTemplate)) 
 		{
-			sprintf(pPlayerCommand, sPlayerCommandTemplate.c_str(), "/usr/pluto/sample.mpg");
+			sprintf(pPlayerCommand, sPlayerCommandTemplate.c_str(), "/home/public/data/samples/UIdiag_sample.mpg");
 	
 			printf("Running player application %s\n", pPlayerCommand); 
 			system(pPlayerCommand);
