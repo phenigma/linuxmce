@@ -123,7 +123,9 @@ void *OrbiterRenderer_OpenGLThread(void *p)
 	pOrbiterRenderer->WindowCreated();
 
 	pOrbiterRenderer->Engine->Setup();
-	pOrbiterRenderer->Engine->m_bUseMask = pOrbiterRenderer->OrbiterLogic()->m_bUseMask;
+
+	pOrbiterRenderer->Engine->m_bUseMask = !pOrbiterRenderer->OrbiterLogic()->m_bUseComposite;
+        LoggerWrapper::GetInstance()->Write(LV_WARNING, "Using masked UI? %s", pOrbiterRenderer->Engine->m_bUseMask ? "YES" : "NO");
 
 	//wake up every one. the window is created and ready to be used
 	pthread_cond_broadcast(&(pOrbiterRenderer->Condition));
