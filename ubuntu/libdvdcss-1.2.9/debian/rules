@@ -11,4 +11,4 @@ include /usr/share/cdbs/1/class/autotools.mk
 install/libdvdcss2-dev::
 	mkdir -pv $(DOC_DIR)
 	cp -r $(DEB_SRCDIR)/doc/html $(DOC_DIR)/
-	cp $(DEB_SRCDIR)/doc/latex/refman.ps $(DOC_DIR)/libdvdcss.ps
+#	cp $(DEB_SRCDIR)/doc/latex/refman.ps $(DOC_DIR)/libdvdcss.ps
