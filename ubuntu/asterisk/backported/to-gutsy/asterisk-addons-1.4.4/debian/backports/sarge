@@ -1,0 +1,9 @@
+#!/bin/bash
+#
+# Hook for automatic backports at buildserver.net
+#
+# Target dist: Debian Sarge
+
+sed -i -e 's#^\(Build-Depends:.*\)libmysqlclient[^\ ]* \(.*\)$#\1libmysqlclient12-dev, \2#' debian/control
+
+exit 0

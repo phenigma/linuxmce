@@ -1,0 +1,120 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## include_asterisk.dpatch by Tzafrir Cohen <tzafrir.cohen@xorcom.com>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Our asterisk-dev package puts asterisk.h in the asterisk/ include
+## DP: dir. It seems that the files here expect to find it directly under
+## DP: /usr/include . (and no: trying -I/usr/include/asterisk fails ).
+
+@DPATCH@
+diff -urNad asterisk-addons-1.4.2~/app_addon_sql_mysql.c asterisk-addons-1.4.2/app_addon_sql_mysql.c
+--- asterisk-addons-1.4.2~/app_addon_sql_mysql.c	2006-11-28 18:40:27.000000000 +0200
++++ asterisk-addons-1.4.2/app_addon_sql_mysql.c	2007-08-07 11:11:59.000000000 +0300
+@@ -12,7 +12,7 @@
+  * the GNU General Public License
+  */
+ 
+-#include <asterisk.h>
++#include <asterisk/asterisk.h>
+ 
+ #include <stdlib.h>
+ #include <unistd.h>
+diff -urNad asterisk-addons-1.4.2~/app_saycountpl.c asterisk-addons-1.4.2/app_saycountpl.c
+--- asterisk-addons-1.4.2~/app_saycountpl.c	2006-09-01 08:03:34.000000000 +0300
++++ asterisk-addons-1.4.2/app_saycountpl.c	2007-08-07 11:11:59.000000000 +0300
+@@ -7,7 +7,7 @@
+  *
+  */
+ 
+-#include <asterisk.h>
++#include <asterisk/asterisk.h>
+ #include <stdio.h>
+ #include <asterisk/file.h>
+ #include <asterisk/logger.h>
+diff -urNad asterisk-addons-1.4.2~/asterisk-ooh323c/src/chan_h323.h asterisk-addons-1.4.2/asterisk-ooh323c/src/chan_h323.h
+--- asterisk-addons-1.4.2~/asterisk-ooh323c/src/chan_h323.h	2007-01-30 18:58:31.000000000 +0200
++++ asterisk-addons-1.4.2/asterisk-ooh323c/src/chan_h323.h	2007-08-07 11:11:59.000000000 +0300
+@@ -16,7 +16,7 @@
+ #ifndef _OO_CHAN_H323_H_
+ #define _OO_CHAN_H323_H_
+ 
+-#include <asterisk.h>
++#include <asterisk/asterisk.h>
+ #undef PACKAGE_NAME
+ #undef PACKAGE_TARNAME
+ #undef PACKAGE_VERSION
+diff -urNad asterisk-addons-1.4.2~/cdr_addon_mysql.c asterisk-addons-1.4.2/cdr_addon_mysql.c
+--- asterisk-addons-1.4.2~/cdr_addon_mysql.c	2007-06-19 01:40:40.000000000 +0300
++++ asterisk-addons-1.4.2/cdr_addon_mysql.c	2007-08-07 11:11:59.000000000 +0300
+@@ -19,7 +19,7 @@
+  *
+  */
+ 
+-#include <asterisk.h>
++#include <asterisk/asterisk.h>
+ 
+ #include <sys/types.h>
+ #include <asterisk/config.h>
+diff -urNad asterisk-addons-1.4.2~/configure asterisk-addons-1.4.2/configure
+--- asterisk-addons-1.4.2~/configure	2007-05-14 19:22:44.000000000 +0300
++++ asterisk-addons-1.4.2/configure	2007-08-07 11:12:07.000000000 +0300
+@@ -6324,7 +6324,7 @@
+ echo $ECHO_N "checking for asterisk.h... $ECHO_C" >&6; }
+    saved_cppflags="${CPPFLAGS}"
+    if test "x${ASTERISK_DIR}" != "x"; then
+-      CPPFLAGS="${CPPFLAGS} -I${ASTERISK_DIR}/include"
++      CPPFLAGS="${CPPFLAGS} -I${ASTERISK_DIR}/include/asterisk"
+    fi
+    cat >conftest.$ac_ext <<_ACEOF
+ 
+@@ -6333,7 +6333,7 @@
+ cat confdefs.h >>conftest.$ac_ext
+ cat >>conftest.$ac_ext <<_ACEOF
+ /* end confdefs.h.  */
+-#include <asterisk.h>
++#include <asterisk/asterisk.h>
+ int
+ main ()
+ {
+diff -urNad asterisk-addons-1.4.2~/configure.ac asterisk-addons-1.4.2/configure.ac
+--- asterisk-addons-1.4.2~/configure.ac	2007-05-14 19:22:44.000000000 +0300
++++ asterisk-addons-1.4.2/configure.ac	2007-08-07 11:12:15.000000000 +0300
+@@ -214,12 +214,12 @@
+    AC_MSG_CHECKING(for asterisk.h)
+    saved_cppflags="${CPPFLAGS}"
+    if test "x${ASTERISK_DIR}" != "x"; then
+-      CPPFLAGS="${CPPFLAGS} -I${ASTERISK_DIR}/include"
++      CPPFLAGS="${CPPFLAGS} -I${ASTERISK_DIR}/include/asterisk"
+    fi
+    AC_COMPILE_IFELSE(
+ 	[
+ 	AC_LANG_PROGRAM(
+-	[#include <asterisk.h>],
++	[#include <asterisk/asterisk.h>],
+ 	[])
+ 	],
+ 	[	AC_MSG_RESULT(yes) 
+diff -urNad asterisk-addons-1.4.2~/format_mp3/format_mp3.c asterisk-addons-1.4.2/format_mp3/format_mp3.c
+--- asterisk-addons-1.4.2~/format_mp3/format_mp3.c	2006-09-01 08:03:34.000000000 +0300
++++ asterisk-addons-1.4.2/format_mp3/format_mp3.c	2007-08-07 11:11:59.000000000 +0300
+@@ -15,7 +15,7 @@
+  * the GNU General Public License
+  */
+ 
+-#include <asterisk.h>
++#include <asterisk/asterisk.h>
+ 
+ #include "mpg123.h" 
+ #include "mpglib.h" 
+diff -urNad asterisk-addons-1.4.2~/res_config_mysql.c asterisk-addons-1.4.2/res_config_mysql.c
+--- asterisk-addons-1.4.2~/res_config_mysql.c	2007-04-09 23:44:51.000000000 +0300
++++ asterisk-addons-1.4.2/res_config_mysql.c	2007-08-07 11:11:59.000000000 +0300
+@@ -38,7 +38,7 @@
+  *                       Code beautification (doc/CODING-GUIDELINES)
+  */
+ 
+-#include <asterisk.h>
++#include <asterisk/asterisk.h>
+ 
+ #include <asterisk/channel.h>
+ #include <asterisk/logger.h>

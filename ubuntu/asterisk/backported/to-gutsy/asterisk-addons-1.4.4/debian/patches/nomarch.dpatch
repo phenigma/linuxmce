@@ -1,0 +1,32 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## nomarch.dpatch by Kilian Krause <kilian@debian.org>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: No description.
+
+@DPATCH@
+diff -urNad asterisk-addons-1.4.0~/format_mp3/Makefile asterisk-addons-1.4.0/format_mp3/Makefile
+--- asterisk-addons-1.4.0~/format_mp3/Makefile	2006-08-11 17:09:50.000000000 +0200
++++ asterisk-addons-1.4.0/format_mp3/Makefile	2007-08-02 21:21:34.000000000 +0200
+@@ -8,12 +8,6 @@
+ 
+ ifeq (${OSARCH},Linux)
+ PROC=$(shell uname -m)
+-ifeq ($(PROC),x86_64)
+-# You must have GCC 3.4 to use k8, otherwise use athlon
+-PROC=k8
+-#PROC=athlon
+-#OPTIONS+=-m64
+-endif
+ ifeq ($(PROC),sparc64)
+ #The problem with sparc is the best stuff is in newer versions of gcc (post 3.0) only.
+ #This works for even old (2.96) versions of gcc and provides a small boost either way.
+@@ -55,7 +49,7 @@
+ endif
+ 
+ #Tell gcc to optimize the asterisk's code
+-OPTIMIZE+=-O6
++OPTIMIZE+=-O2
+ 
+ CFLAGS+=$(OPTIMIZE)
+ CFLAGS+= $(OPTIONS)
