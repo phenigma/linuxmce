@@ -2611,6 +2611,12 @@ void Telecom_Plugin::CMD_Make_Call(int iPK_Users,string sPhoneExtension,int iFK_
 		return;
 	}
 	
+	// If iFK_Device_From, then let's use the device_from from the message.
+	if( !iFK_Device_From )
+	{
+		iFK_Device_From = pMessage->m_dwPK_Device_From;
+	}
+	
 	if( !InternalMakeCall(iFK_Device_From, "", sPhoneNumber, pMessage) )
 	{
 		sCMD_Result = "ERROR : Coudn't make a call from device " + StringUtils::itos(iFK_Device_From) + " to " + sPhoneNumber;
