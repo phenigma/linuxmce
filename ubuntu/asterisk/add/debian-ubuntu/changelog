@@ -1,3 +1,9 @@
+asterisk-pluto (1.4.10-2) unstable; urgency=low
+
+  * Added dependency on asterisk-mysql
+
+ -- Radu Cristescu <radu.c@plutohome.com>  Wed, 21 Nov 2007 14:53:24 +0200
+
 asterisk-pluto (1.4.10-1) unstable; urgency=low
 
   * Removed asterisk from within package. Added dependency on separate
