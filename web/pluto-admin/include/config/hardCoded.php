@@ -125,7 +125,7 @@
 	$GLOBALS['commandSetVar']=27;					// Set Variable
 	$GLOBALS['commandGotoScreen']=5;				// Go to screen
 	$GLOBALS['commandMHPlayMedia']=43;				// MH Play Media
-	$GLOBALS['commandPL_Originate']=232;			// PL_Originate
+	$GLOBALS['commandPL_Originate']=232;			// PL_Originate		// deprecated
 	$GLOBALS['outputSelectCommand']=244;			// Output select
 	$GLOBALS['tuner_1']=166;						// Tuner 1
 	$GLOBALS['tuner_2']=175;						// Tuner 2
@@ -136,6 +136,7 @@
 	$GLOBALS['WB_Command']=327;						// WB
 	$GLOBALS['DelayCommand']=257;					// delay
 	$GLOBALS['GoToScreen']=741;						// Go to screen
+	$GLOBALS['command_MakeCall']=921;			// Make Call
 	
 	// PK_CommandParameters from table CommandParameters
 	
@@ -155,6 +156,7 @@
 	$GLOBALS['commandParamAbsoluteLevel']=76;		// Absolute Level
 	$GLOBALS['commandPhoneExtension']=83;			// PhoneExtension
 	$GLOBALS['delayTime']=102;						// Delay time
+	$GLOBALS['commandParamPK_DeviceTo']=263;		// PK_DeviceTo
 	
 	$GLOBALS['commandParameterObjectScreen']=16;	// Object(Screen)
 	

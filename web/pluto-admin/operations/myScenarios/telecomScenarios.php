@@ -132,7 +132,7 @@ function telecomScenarios($output,$dbADO) {
 						INNER JOIN CommandGroup_Command ON FK_CommandGroup_Command=PK_CommandGroup_Command
 						INNER JOIN CommandGroup ON CommandGroup_Command.FK_CommandGroup=PK_CommandGroup
 					WHERE PK_CommandGroup=? AND FK_CommandParameter=?';
-				$resSelDevice=$dbADO->Execute($querySelDevice,array($rowSpeedDial['PK_CommandGroup'],$GLOBALS['commandParamPK_Device']));
+				$resSelDevice=$dbADO->Execute($querySelDevice,array($rowSpeedDial['PK_CommandGroup'],$GLOBALS['commandParamPK_DeviceTo']));
 				$rowSelDevice=$resSelDevice->FetchRow();
 				$out.='
 				<tr bgColor="#F0F3F8">
@@ -267,7 +267,7 @@ function telecomScenarios($output,$dbADO) {
 				
 				
 				$queryInsertCommandGroup_Command = "INSERT INTO CommandGroup_Command (FK_CommandGroup,FK_Command,FK_Device) VALUES(?,?,?)";								
-				$dbADO->Execute($queryInsertCommandGroup_Command,array($cgID,$GLOBALS['commandPL_Originate'],$telecomPluginID));			
+				$dbADO->Execute($queryInsertCommandGroup_Command,array($cgID,$GLOBALS['command_MakeCall'],$telecomPluginID));			
 				$CG_C_insertID=$dbADO->Insert_ID();
 									
 				$insertCommandParam='INSERT INTO CommandGroup_Command_CommandParameter (FK_CommandGroup_Command,FK_CommandParameter,IK_CommandParameter) VALUES (?,?,?)';
@@ -275,9 +275,9 @@ function telecomScenarios($output,$dbADO) {
 
 				$values=array();
 				$values[$GLOBALS['commandPhoneExtension']]=$number;
-				$values[$GLOBALS['commandParamPK_Device']]=$phone;
+				$values[$GLOBALS['commandParamPK_DeviceTo']]=$phone;
 					
-				addScenarioCommandParameters($CG_C_insertID,$GLOBALS['commandPL_Originate'],$dbADO,$values);						
+				addScenarioCommandParameters($CG_C_insertID,$GLOBALS['command_MakeCall'],$dbADO,$values);						
 				
 				setOrbitersNeedConfigure($installationID,$dbADO);	
 				header("Location: index.php?section=telecomScenarios&msg=$TEXT_SPEED_DIAL_ADDED_CONST");
@@ -314,9 +314,9 @@ function telecomScenarios($output,$dbADO) {
 						INNER JOIN CommandGroup ON CommandGroup_Command.FK_CommandGroup=PK_CommandGroup
 						INNER JOIN CommandGroup_Room ON CommandGroup_Room.FK_CommandGroup=PK_CommandGroup
 					WHERE PK_CommandGroup=? AND FK_CommandParameter=?';
-				$resSelDevice=$dbADO->Execute($querySelDevice,array($speedDial,$GLOBALS['commandParamPK_Device']));
+				$resSelDevice=$dbADO->Execute($querySelDevice,array($speedDial,$GLOBALS['commandParamPK_DeviceTo']));
 				$rowSelDevice=$resSelDevice->FetchRow();
-				$dbADO->Execute($updateCGP,array($phone,$rowSelDevice['FK_CommandGroup_Command'],$GLOBALS['commandParamPK_Device']));
+				$dbADO->Execute($updateCGP,array($phone,$rowSelDevice['FK_CommandGroup_Command'],$GLOBALS['commandParamPK_DeviceTo']));
 			}
 		}
 		
