@@ -1829,12 +1829,12 @@ class DataGridTable *Telecom_Plugin::SpeedDialGrid(string GridID,string Parms,vo
 {
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "SpeedDial request received for GridID: %s with Params: %s",GridID.c_str(),Parms.c_str());
 	DataGridTable *pDataGrid = new DataGridTable();
-	DataGridCell *pCell;
+	DataGridCell *pCell = NULL;
 	int Row = 0;
 	string::size_type pos=0;
-	string something7 = StringUtils::Tokenize(Parms,",",pos);
-	string room = StringUtils::Tokenize(Parms,",",pos);
-	if( room.size()==0 )
+	string something7 = StringUtils::Tokenize(Parms, ",", pos);
+	string room = StringUtils::Tokenize(Parms, ",", pos);
+	if( 0 == room.size() )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "SpeedDial request has no room");
 		return pDataGrid;
@@ -1860,63 +1860,75 @@ class DataGridTable *Telecom_Plugin::SpeedDialGrid(string GridID,string Parms,vo
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "SQL FAILED");
 		return pDataGrid;
 	}
-	char desc[256];
-	while((row = db_wrapper_fetch_row(result_set.r)))
-	{
-		int device=0;
-		if(atoi(row[1])==COMMANDPARAMETER_PK_Device_CONST)
-		{
-			device = (NULL != row[2] ? atoi(row[2]) : 0);
-			strncpy(desc,row[0],sizeof(desc)-1);
-		}
-		else
-		{
-			LoggerWrapper::GetInstance()->Write(LV_WARNING,"This should not happend (1st row not PK_Device)");
-			break;
-		}
-		if((row = db_wrapper_fetch_row(result_set.r))==NULL)
-		{
-			LoggerWrapper::GetInstance()->Write(LV_WARNING,"This should not happend (no 2nd row for '%s')",desc);
-			break;
-		}
-		if(atoi(row[1])!=COMMANDPARAMETER_PhoneExtension_CONST)
-		{
-			LoggerWrapper::GetInstance()->Write(LV_WARNING,"This should not happend (2nd row not PhoneExtension)");
-			break;
-		}
-		if(strcmp(row[0],desc))
-		{
-			LoggerWrapper::GetInstance()->Write(LV_WARNING,"This should not happend ('%s' != '%s')",desc,row[0]);
-			break;
-		}
-		string phoneExtension = row[2];
-		string text = string(row[0])+string(" (")+string(row[2])+string(")");
-		
-		// TODO: what to do with caller id ??
-		// callerid
-		if((row = db_wrapper_fetch_row(result_set.r))==NULL)
-		{
-			LoggerWrapper::GetInstance()->Write(LV_WARNING,"This should not happend (no 3nd row for '%s')",desc);
-			break;
-		}
-		if(atoi(row[1])!=COMMANDPARAMETER_PhoneCallerID_CONST)
-		{
-			LoggerWrapper::GetInstance()->Write(LV_WARNING,"This should not happend (3nd row not PhoneCallerId)");
-			break;
-		}
-		if(strcmp(row[0],desc))
-		{
-			LoggerWrapper::GetInstance()->Write(LV_WARNING,"This should not happend ('%s' != '%s')",desc,row[0]);
-			break;
-		}
-
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"WILL SHOW  %s / %d",text.c_str(),device);
-		pCell = new DataGridCell(text,"");
-		DCE::CMD_Make_Call CMD_Make_Call_(m_dwPK_Device, m_dwPK_Device, 0, phoneExtension, device, 0);
-		pCell->m_pMessage=CMD_Make_Call_.m_pMessage;
-		pDataGrid->SetData(0,Row,pCell);
-		Row++;
-	}
+    
+    
+/*  +-------------+---------------------+---------------------+
+    | Description | FK_CommandParameter | IK_CommandParameter |
+    +-------------+---------------------+---------------------+
+    | vvv         |                  17 | NULL                |
+    | vvv         |                  83 | 222                 |
+    | vvv         |                 262 | NULL                |
+    | vvv         |                 263 | 38                  |
+    +-------------+---------------------+---------------------+ */
+            
+    string desc, descNew;
+    map<int, string> mapParams;
+    bool bEnd = false;
+    while( (row = db_wrapper_fetch_row(result_set.r)) || !bEnd )
+    {
+        if( row == NULL )
+        {
+            bEnd = true;
+            descNew = "";
+        }
+        else
+        {
+            if( row[0] == NULL )
+            {
+                // skip it if there isn't a description
+                LoggerWrapper::GetInstance()->Write(LV_WARNING, "SpeedDialGrid: NO description!");
+                continue;
+            }
+            else
+            {
+                // 256 bytes are enough
+                descNew = string(row[0], 0, 256);
+            }
+        }
+        
+        if( !desc.empty() && descNew != desc )
+        {
+            int iPK_Users = atoi( mapParams[COMMANDPARAMETER_PK_Users_CONST].c_str() );
+            string sExt = mapParams[COMMANDPARAMETER_PhoneExtension_CONST];
+            int iFK_Device_From = atoi( mapParams[COMMANDPARAMETER_FK_Device_From_CONST].c_str() );
+            int iPK_Device_To = atoi( mapParams[COMMANDPARAMETER_PK_Device_To_CONST].c_str() );
+            
+            string text = desc + " (" + sExt + ")";
+            LoggerWrapper::GetInstance()->Write(LV_STATUS, "WILL SHOW  %s / %d", text.c_str(), iFK_Device_From);
+            
+            pCell = new DataGridCell(text, "");
+            DCE::CMD_Make_Call 
+                CMD_Make_Call_(m_dwPK_Device, m_dwPK_Device, iPK_Users, sExt, iFK_Device_From, iPK_Device_To);
+            pCell->m_pMessage = CMD_Make_Call_.m_pMessage;
+            pDataGrid->SetData(0, Row, pCell);
+            Row++;
+            
+            mapParams.clear();
+        }
+        
+        if( row != NULL )
+        {
+            if( row[2] != NULL && row[1] != NULL )
+                mapParams[ atoi(row[1]) ] = row[2];
+        }
+        else
+        {
+            break;
+        }
+        
+        desc = descNew;
+    }
+    
 	return pDataGrid;
 }
 
