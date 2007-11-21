@@ -75,7 +75,7 @@ function setTemplateFileType($type) {
 	$this->templateType = $type;
 	switch($type){
 		case 'homeWithFrames':
-			if(@$_REQUEST['section']=='mediaFilesSyncFrameset' || @$_REQUEST['section']=='mediaBrowserFrameset'){
+			if(@$_REQUEST['section']=='mediaFilesSyncFrameset' || @$_REQUEST['section']=='mediaBrowserFrameset' || @$_REQUEST['section']=='screenSaverFrameset'){
 				$_SESSION['lastLeftFrameSrc']='';
 				$_SESSION['lastRightFrameSrc']='';
 			}
@@ -88,7 +88,7 @@ function setTemplateFileType($type) {
 			}
 		break;
 		case 'small':
-			if(@$_REQUEST['section']=='leftMenu' || @$_REQUEST['section']=='wizard' || @$_REQUEST['section']=='leftMediaBrowser'){
+			if(@$_REQUEST['section']=='leftMenu' || @$_REQUEST['section']=='wizard' || @$_REQUEST['section']=='leftMediaBrowser' || @$_REQUEST['section']=='leftScreenSaver'){
 				@$_SESSION['lastLeftFrameSrc']='index.php?'.$_SERVER['QUERY_STRING'];
 			}
 		break;

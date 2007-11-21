@@ -58,6 +58,7 @@ function phoneLines($output,$astADO,$dbADO) {
 		$provider=$keywords[$phoneData['Data']];
 	}
 
+
 	$pulldownOptions='';
 	foreach (array_keys($providerData) AS $option){
 		$pulldownOptions.='<option value="'.$option.'" '.((@$provider==$option)?'selected':'').'>'.$option.'</option>';
@@ -321,7 +322,7 @@ function phoneLinesTable($astADO){
 	while($row=$res->FetchRow()){
 		$incomingData=array_values(getAssocArray('incoming','destination','extension',$astADO,'WHERE destination=\'from-pluto-custom,10'.substr($row['id'],-1).',1\''));
 		$phoneNumber=@$incomingData[0];
-		
+
 		$GLOBALS['count']++;
 		$color=($GLOBALS['count']%2==0)?'#F0F3F8':'#FFFFFF';
 		$out.='
@@ -475,8 +476,11 @@ function getSIPState(){
 				$parsed[]=$value;
 			}
 		}
+
 		$dataArray=array_slice($parsed,4);
-		$state[substr(@$parsed[1],0,strpos($parsed[1],'@'))]=(!isset($parsed[4]))?@$parsed[3]:$parsed[3].' '.join(' ',$dataArray);
+		$ampersand=strpos($parsed[1],'@');
+		$nr=($ampersand===false)?@$parsed[1]:substr(@$parsed[1],0,$ampersand);
+		$state[$nr]=(!isset($parsed[4]))?@$parsed[3]:$parsed[3].' '.join(' ',$dataArray);
 	}
 
 
@@ -507,7 +511,9 @@ function getIAXState(){
 			}
 		}
 		$dataArray=array_slice($parsed,4);
-		$state[substr(@$parsed[1],0,strpos($parsed[1],'@'))]=(!isset($parsed[4]))?@$parsed[3]:$parsed[3].' '.join(' ',$dataArray);
+		$ampersand=strpos($parsed[1],'@');
+		$nr=($ampersand===false)?@$parsed[1]:substr(@$parsed[1],0,$ampersand);
+		$state[$nr]=(!isset($parsed[4]))?@$parsed[3]:$parsed[3].' '.join(' ',$dataArray);
 	}
 
 	return $state;

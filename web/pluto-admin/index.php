@@ -1587,6 +1587,32 @@ switch ($section) {
 	    include_once('operations/others/updateErrors.php');
 	    updateErrors($output,$dbADO);	    
 	break;	
+	case 'screenSaver':
+	    include_once('operations/mediaBrowser/screenSaver.php');
+		screenSaver($output,$mediadbADO,$dbADO);	    
+	break;
+	case 'screenSaverFrameset';
+		$output = new Template($dbADO);	
+		$output->setTemplateFileType('homeWithFrames');
+		$output->setLeftFrameSrc('index.php?section=leftScreenSaver');
+		$output->setRightFrameSrc('index.php?section=mainScreenSaver');
+		$output->setBody('');		
+		$output->setScriptCalendar('null');
+		$output->setTitle(APPLICATION_NAME);			
+  		$output->output();  		
+	break;
+	case 'leftScreenSaver':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('small');
+	    include_once('operations/mediaBrowser/leftScreenSaver.php');
+	    leftScreenSaver($output,$mediadbADO,$dbADO);	    
+	break;
+	case 'mainScreenSaver':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/mediaBrowser/mainScreenSaver.php');
+	    mainScreenSaver($output,$mediadbADO,$dbADO);	    
+	break;
 	
 	
 	
