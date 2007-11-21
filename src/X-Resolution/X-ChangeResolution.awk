@@ -5,7 +5,6 @@ BEGIN {
 		exit;
 	}
 	Monitor = 0;
-	Display = 0;
 	Screen = 0;
 	Device = 0;
 	IGNORECASE = 1;
@@ -20,13 +19,14 @@ Monitor == 1 && /EndSection/ {
 	print "\tVertRefresh\t" Refresh-1 "-" Refresh+1;
 	Monitor = 0;
 }
-/SubSection..*"Display"/ { Display = 1; }
-Display == 1 && /Modes[^"]/ { next; }
-Display == 1 && /Virtual/ { next; }
-/EndSubSection/ && Display == 1 {
+/SubSection..*"Display"/,/EndSubSection/ { next; }
+/DefaultDepth/ {
+	print;
+	print "\tSubSection \"Display\"";
 	print "\t\tModes\t\t\"" ResX "x" ResY "\"";
 	print "\t\tVirtual\t\t" ResX " " ResY;
-	Display = 0;
+	print "\tEndSubSection";
+	next;
 }
 /Section..*"Screen"/ { Screen = 1; }
 Screen == 1 && /Option.*"TVStandard"/ { next }
