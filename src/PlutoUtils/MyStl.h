@@ -36,7 +36,13 @@
 #define MYSTL_CREATE_LONG_MAP(CollectionName,ValueObjectType) map<long, class ValueObjectType *> CollectionName
 #define MYSTL_ADD_TO_LONG_MAP(CollectionName,ValueObject,Key) CollectionName[Key] = ValueObject
 #define MYSTL_LONGMAP_SIZE(CollectionName) CollectionName.size()
-#define MYSTL_ITERATE_LONG_MAP(CollectionName,ValueObjectType,ValueObject,IteratorName) 	ValueObjectType *ValueObject; map<long,class ValueObjectType *>::iterator IteratorName;	for(IteratorName=CollectionName.begin(),ValueObject=(IteratorName!=CollectionName.end() ? (*IteratorName).second : NULL);			IteratorName!=CollectionName.end();++IteratorName,ValueObject=(IteratorName!=CollectionName.end() ? (*IteratorName).second : NULL))
+#define MYSTL_ITERATE_LONG_MAP(CollectionName,ValueObjectType,ValueObject,IteratorName) 	\
+	ValueObjectType *ValueObject; \
+	map<long,class ValueObjectType *>::iterator IteratorName; \
+	for(IteratorName=CollectionName.begin(),ValueObject=((IteratorName!=CollectionName.end()) ? (*IteratorName).second : NULL); \
+		IteratorName!=CollectionName.end(); \
+		++IteratorName,ValueObject=((IteratorName!=CollectionName.end()) ? (*IteratorName).second : NULL))
+
 #define MYSTL_SIZEOF_LONG_MAP(CollectionName) CollectionName.size()
 #define MYSTL_GET_SECOND_LONG_MAP(IteratorName) (*IteratorName).second
 #define MYSTL_GET_AT_LONG_MAP(CollectionName,ValueObjectType,ValueObject,Position) \

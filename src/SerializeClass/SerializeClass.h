@@ -332,7 +332,7 @@ public:
 	SerializeClass &operator+ (short &i) { MYSTL_ADDTO_LIST(m_vectItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_SHORT,(void *) &i)); return (*this); } /** < @brief overloading + to take an short */
 	SerializeClass &operator+ (string &i) { MYSTL_ADDTO_LIST(m_vectItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_STRING,(void *) &i)); return (*this); } /** < @brief overloading + to take a string */
 
-#ifndef WINCE
+#if !defined(WINCE) && !defined(SYMBIAN)
 	SerializeClass &operator+ (unsigned long long &i) { MYSTL_ADDTO_LIST(m_vectItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_INT64,(void *) &i)); return (*this); } /** < @brief overloading + to take an u_int64_t */
 #endif
 
@@ -409,7 +409,7 @@ public:
 		HBufC8 *base_str = HBufC8::NewL(CurrentSize());
 		TPtr8 pStr = base_str->Des();
 
-		for (int i = 0; i < CurrentSize(); i++)
+		for (unsigned long i = 0; i < CurrentSize(); i++)
 			pStr.Append(TChar(Buff[i]));
 
 		if ( KErrNone !=  file.Write(pStr, CurrentSize()) )
@@ -494,8 +494,9 @@ public:
 		m_pcCurrentPosition += sizeof(u_int64_t);
 	}
 
-#ifndef WINCE
-	void Write_int64(unsigned long long v) {
+#if !defined(WINCE) && !defined(SYMBIAN)
+	void Write_int64(unsigned long long v) 
+	{
 		CheckWrite(sizeof(unsigned long long));
 		unsigned long long *pl = (unsigned long long *) m_pcCurrentPosition;
 		*pl = v;

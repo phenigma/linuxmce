@@ -105,7 +105,7 @@ void BD_CP_ShowList::ParseCommand(unsigned long size,const char *data)
 #ifdef VIPPHONE
 
 #ifdef SYMBIAN
-	for(int i = 0; i < ListSize; i++)
+	for(unsigned long i = 0; i < ListSize; i++)
 	{
 		string *s = new string;
 		Read_string(*s);
