@@ -1,0 +1,344 @@
+Insteon communications library
+
+Hmm, maybe change the name of library to libicl?
+
+Overview
+	This is a library of functions that provide a communication infrastructure
+	to the Insteon PLC. It is based on the following architecture:
+
+	+-----------------------------------+
+	| Insteon message API               |
+	+-----------------------------------+
+	+-----------------------------------+ +---------------+
+	| Device function API               | | Device access |
+	+-----------------------------------+ |     API       |
+                                          +---------------+
+	+-----------------------------------------------------+
+	| Device interface API                                |
+	+-----------------------------------------------------+
+	+-----------+ +-----------+ +-----------+ +-----------+
+	| Serial    | | Kernel DD | | libusb    | | libhid    |
+	| Interface | | Interface | | Interface | | Interface |
+	+-----------+ +-----------+ +-----------+ +-----------+
+
+	The Insteon message, device function, and device access API's are
+	exposed to user applications.  The device interface API is a private
+	API that abstracts the various interface methods.
+
+
+Insteon Message API
+	This API provides functions that are used to send Insteon messages to
+	remote devices.
+
+	int insteon_send_msg (
+		ilib_t *iplc,
+		unsigned char i_cmd,
+		unsigned char i_cmd2,
+		unsigned char *to);
+
+		Send a standard length direct message to a remote device.  The message
+		is composed of the two command bytes and 'to' is the address of the
+		remote device.
+
+	int insteon_send_group_msg (
+		ilib_t *iplc,
+		unsigned char i_cmd,
+		unsigned char i_cmd2,
+		unsigned char *to);
+
+		Send a standard length group message to remote devices.  The message
+		is composed of the two command bytes and 'to' is the group number.
+		Currrently specified as a device id with the last byte being the
+		group number.
+		
+	int insteon_send_extended_msg (
+		ilib_t *iplc,
+		unsigned char i_cmd,
+		unsigned char i_cmd2,
+		unsigned char *to,
+		unsigned char *user_data);
+
+		Send an extended length direct message to a remote device.  The message
+		is composed of the two command bytes, the user_data. 'to' is the
+		address of the remote device.
+	
+	int insteon_send_ping (
+		ilib_t *iplc,
+		unsigned char *to,
+		unsigned char *resp,
+		int cnt);
+
+		Use the Insteon PING command to query a remote device. The remote
+		device ID is specified by 'to'. 'resp' is a buffer large enough to
+		hold the response (minimum of 10 bytes). The device type, revision,
+		and device attributes 
+
+		  resp[2] - resp[4] = Device id
+		  resp[5] & resp[6] = Device type
+		  resp[7]           = Major and minor revision number 
+		  resp[9]           = Device attributes
+
+	int write_insteon_msg (
+		ilib_t *iplc,
+		unsigned char i_cmd,
+		unsigned char i_cmd2,
+		unsigned char *to);
+
+		Write a standard length Insteon message to the transmit buffer but
+		don't send it.
+
+	int insteon_detect_device (
+		ilib_t *iplc,
+		unsigned char *resp);
+
+		Send out a group enrollment message and wait for reply(s). A remote
+		device with the set button pressed should respond with the "SET
+		button pressed slave" message. The response will include the
+		device's id, type, and firmware revision.  This data will be copied
+		into the resp buffer. The number of bytes written to the resp
+		buffer will be returned.
+
+		  resp[2] - resp[4] = Device id
+		  resp[5] & resp[6] = Device type
+		  resp[7]           = Major and minor revision number 
+		  resp[9]           = Device attributes
+
+	char *command (unsigned char cmd);
+		
+		This takes an Insteon command byte and returns the command
+		name as text.
+
+	char *flags (unsigned char flag);
+
+		This takes an Insteon message flag value and returns a text
+		representation of the bits set.
+
+	char *device_type_name (unsigned char hi, unsigned char low);
+
+		This takes an Insteon device type 16 bit value (split into
+		two 8 bit values) and returns the device type name. See 
+		insteon_send_ping() and insteon_detect_device() for ways to
+		get the device type.
+
+	int insteon_read_bytes (
+		ilib_t *iplc,
+		unsigned char *device_id,
+		unsigned short address,
+		int length,
+		unsigned char *buffer);
+
+		Reads length number of bytes into buffer from a remote Insteon
+		devices specified by the device_id from address location in it's
+		memory map.
+
+	int insteon_read_byte (
+		ilib_t *iplc,
+		unsigned char *device_id,
+		unsigned short address);
+
+		Read a single byte from the remote Insteon devices specified by
+		device_id from address and return it.
+
+	int insteon_write_byte (
+		ilib_t *iplc,
+		unsigned char *device_id,
+		unsigned short address
+		unsigned char data);
+
+		Writes data to a remote Insteon device specified by device_id
+		at the address specified.
+
+
+X10 Message API
+	This API provides functions that are used to send X10 commands over
+	the powerline.
+
+	void send_x10(ilib_t *iplc, unsigned char addr, unsigned char cmd);
+
+		Send an X10 command over the power line.  It actually sends both
+		the address and then the command. For example: A1 AON
+
+
+IBIOS API
+	This API provides an interface to the PLC's IBIOS firmware. The Insteon
+	Message API functions make use of this layer. These functions are
+	somewhat dangerous to use without proper PLC documentation.
+
+	int ibios_get_version(ilib_t *iplc, unsigned char *fw,
+		unsigned char *id);
+
+		Query the PLC for it's device ID and firmware version. The
+		id character array passed in must be at least 3 bytes long.
+
+	int ibios_read_memory(ilib_t *iplc, unsigned short start_add,
+		unsigned short length, unsigned char *data);
+
+		Read a block of memory from the PLC's flat memory map. The
+		data read is returned in the data character array. It must
+		be large enough to hold all 'lenght' bytes of data.
+
+	int ibios_write_memory(ilib_t *iplc, unsigned short start_add,
+		unsigned short length, unsigned char *data);
+
+		Write a block of data to the PLC's memory starting at the specified
+		address. Careless use of this can probably lockup or corrupt
+		the coreapp in the PLC.
+
+	int ibios_mask(ilib_t *iplc, unsigned char or_mask,
+		unsigned char and_mask);
+
+		This sets the bit values of a specific event mask byte in the
+		PLC. It's primary use is to flip the transmit bit, telling the
+		PLC that there is a command ready to be sent over the powerline.
+
+	int ibios_event(ilib_t *iplc, unsigned char event, unsigned char timer);
+
+		Fire an IBIOS event on the PLC.  Probably should document what
+		the events are.
+
+	int ibios_reset(ilib_t *iplc);
+
+		Force a power-on reset of the PLC.
+
+	int ibios_salad_status(ilib_t *iplc);
+		
+		Check the status of the coreapp in the PLC. This will return
+		0xff to indicate that the PLC is busy. Any other return means
+		it is not busy.
+
+	int ibios_erase_timers(ilib_t *iplc);
+		
+		Erase all the timer events stored in the PLC.
+
+	int ibios_reset_timers(ilib_t *iplc);
+
+		Erase all the timer events and reset the address table pointers.
+
+	int ibios_timer_refresh(ilib_t *iplc);
+
+		Re-calcuate the next timer trigger time.  This should be called
+		after setting the clock, adding/deleting a timer, or changing
+		the suntable.
+
+	int ibios_randomize(ilib_t *iplc);
+
+		Randomize the value used for pseudo random timer events.
+
+
+Utility Functions
+	The following functions are exported from the library as they may
+	be useful to application programmers.
+
+	char *command(unsigned char cmd);
+		Takes a single Insteon command byte and returns a meaningfull
+		name.
+
+	char *flags(unsigned char flag);
+		Takes an Insteon message flag byte and returns a meaningfull
+		representation.
+
+	char *device_type_name(unsigned char hi, unsigned char low);
+		Takes the device type bytes and returns the device type name.
+
+	int alpha_to_i(char *str);
+		Converts a string in either hex or decimal to an integer.
+
+	unsigned char *str_id_to_hex(char *device_id);
+		Converts a string representation of a device ID to the
+		hex representation.  For example 10.1.16 > 0x100116
+
+	unsigned char atoh(char h);
+		Converts a single hex character to it's numeric value.
+
+	int ahtoi(char *h);
+		Converts a hex string to integer.
+
+	int getline(FILE *fp, char *s, int lim);
+		Read a line of text from the file handle. The line is terminated
+		by a newline.  DOS cariage returns are stripped. lim is the size
+		of the buffer passed in to prevent buffer overruns.
+
+	int command_to_num(char *cmd);
+		Takes an Insteon command string and converts it to the Insteon
+		command byte value.  Opposite of command() funnction above.
+
+	void print_commands();
+		Prints out the list of commands that can be passed to command_to_num().
+
+
+Device Access API
+	This API provides the functions needed to initialize the library and
+	open/close communications with the Insteon PLC.
+
+	ilib_t *ilib_open(int method, char *dev);
+
+	Initialize the library and open a communication channel with the
+	Insteon PLC. This currently supports 5 communication methods:
+
+	  USE_SERIAL  - This uses a serial port device to access a serial
+	                PLC.  The 'dev' argument must be specified and is
+					the tty device that the PLC is connected to.
+					NOTE: This is currently untested.
+	  USE_HIDDEV  - This uses the hid device directly. When a USB PLC
+	                is plugged in, the kernel hid module should claim
+					the device and create a hiddevX device node for it.
+					This method communicates directly with that device.
+
+	The following three methods are still in the source code but should
+	be considered deprecated. LIBUSB and LIBHID never worked very well.
+
+	  USE_IPLC    - This uses the iplc kernel device driver. When this is
+	                specified, 'dev' must also be specified and is the
+					path to the device file. Usally "/dev/usb/iplc0".
+	  USE_LIBUSB  - This uses the libusb library to access a USB PLC.
+	                In this case the 'dev' argument is unused and should
+					be NULL. You will need to have the libusb libraries
+					installed.
+	  USE_LIBHID  - This uses the libhid library to access a USB PLC.
+	                In this case the 'dev' argument is unused and should
+					be NULL. You will need to have the libhid libraries
+					installed.
+
+	If the call is successful and communciations are established with the
+	PLC, this function will return a opaque handle that must be used for
+	all other library calls.  If the open fails, NULL will be returned.
+
+
+	void ilib_close(ilib_t *iplc);
+
+	This closes the connection to the PLC.
+	
+
+Device Function API
+	This API provides functions to communicate directly with the PLC.
+
+	int is_plc(ilib_t *iplc, unsigned char *id);
+		returns true if the id specified is the PLC's id, otherwise false.
+
+	int is_plc_ready(ilib_t *iplc);
+		returns true if the PLC is ready to accept commands, false otherwise.
+
+	int iplc_get_entry(ilib_t *iplc, unsigned char *id, int entry,
+	        unsigned char *buf);
+		Reads a 
+
+	void iplc_add_id(ilib_t *iplc, unsigned char *id, unsigned char group,
+	        unsigned char class);
+		Adds an entry to the PLC link table database.
+
+	int iplc_count_links(ilib_t *iplc);
+		Scans the PLC's link database and returns the number of valid links
+		in it.
+	
+	void iplc_clear_entry(ilib_t *iplc, unsigned char *id);
+		Clears all link table entries for the device id specified.  This
+		would be used if you were removing a device from service.
+
+	void iplc_clear_links(ilib_t *iplc);
+		Clears the entire PLC link table database. 
+
+	void iplc_get_date(ilib_t *iplc, unsigned char *date);
+		Reads the current date/time bytes from the PLC's memory and returns
+		them in the supplied character array.  The array must be at least
+		9 bytes long.
+

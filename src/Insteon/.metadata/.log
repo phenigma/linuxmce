@@ -1,0 +1,17 @@
+!SESSION 2007-08-11 11:15:50.086 -----------------------------------------------
+eclipse.buildId=M20070212-1330
+java.fullversion=GNU libgcj 4.1.2 (Ubuntu 4.1.2-0ubuntu5)
+BootLoader constants: OS=linux, ARCH=x86, WS=gtk, NL=en_US
+Command-line arguments:  -os linux -ws gtk -arch x86
+
+!ENTRY org.eclipse.osgi 2 1 2007-08-11 11:15:50.940
+!MESSAGE NLS missing message: initializer_error in: org.eclipse.core.internal.runtime.messages
+
+!ENTRY org.eclipse.osgi 2 1 2007-08-11 11:15:50.940
+!MESSAGE NLS missing message: fileInitializer_fileNotFound in: org.eclipse.core.internal.runtime.messages
+
+!ENTRY org.eclipse.osgi 2 1 2007-08-11 11:15:50.940
+!MESSAGE NLS missing message: fileInitializer_IOError in: org.eclipse.core.internal.runtime.messages
+
+!ENTRY org.eclipse.osgi 2 1 2007-08-11 11:15:50.940
+!MESSAGE NLS missing message: fileInitializer_missingFileName in: org.eclipse.core.internal.runtime.messages
