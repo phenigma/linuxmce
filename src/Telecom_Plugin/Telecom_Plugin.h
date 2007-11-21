@@ -384,6 +384,19 @@ The response is a task id */
 	virtual void CMD_Get_Associated_Picture_For_Channel(string sChannel,char **pData,int *iData_Size,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #929 - Add To Speed Dial */
+	/** Add to favorites */
+		/** @param #2 PK_Device */
+			/** The device id */
+		/** @param #81 CallerID */
+			/** The called id */
+		/** @param #83 PhoneExtension */
+			/** Phone extension */
+
+	virtual void CMD_Add_To_Speed_Dial(int iPK_Device,string sCallerID,string sPhoneExtension) { string sCMD_Result; CMD_Add_To_Speed_Dial(iPK_Device,sCallerID.c_str(),sPhoneExtension.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Add_To_Speed_Dial(int iPK_Device,string sCallerID,string sPhoneExtension,string &sCMD_Result,Message *pMessage);
+
+
 //<-dceag-h-e->
 
 private:

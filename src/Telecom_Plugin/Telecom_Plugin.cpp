@@ -21,11 +21,8 @@
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
-#include "PlutoUtils/PlutoHelpers.h"
 
 #include <iostream>
-#include <vector>
-
 using namespace std;
 using namespace DCE;
 
@@ -60,6 +57,7 @@ using namespace DCE;
 #include "pluto_telecom/Table_PhoneType.h"
 #include "Orbiter_Plugin/Orbiter_Plugin.h"
 #include "PlutoUtils/ProcessUtils.h"
+#include "PlutoUtils/PlutoHelpers.h"
 
 #include "DCE/DCEConfig.h"
 #include "PlutoUtils/DBHelper.h"
@@ -3376,7 +3374,7 @@ string Telecom_Plugin::DebugPendingCalls() const
 {
 	string sDebug;
 	
-	sDebug = "DebugPendingCalls size: " + StringUtils::itos( map_ext2pending.size() ) + "\n";
+	sDebug = "DebugPendingCalls size: " + StringUtils::itos( (int)map_ext2pending.size() ) + "\n";
 	
 	for(map<string, PendingCall*>::const_iterator it=map_ext2pending.begin(); it!=map_ext2pending.end(); ++it)
 	{
@@ -3387,4 +3385,20 @@ string Telecom_Plugin::DebugPendingCalls() const
 	}
 	
 	return sDebug;
+}
+//<-dceag-c929-b->
+
+	/** @brief COMMAND: #929 - Add To Speed Dial */
+	/** Add to favorites */
+		/** @param #2 PK_Device */
+			/** The device id */
+		/** @param #81 CallerID */
+			/** The called id */
+		/** @param #83 PhoneExtension */
+			/** Phone extension */
+
+void Telecom_Plugin::CMD_Add_To_Speed_Dial(int iPK_Device,string sCallerID,string sPhoneExtension,string &sCMD_Result,Message *pMessage)
+//<-dceag-c929-e->
+{
+	//TODO: implement me! (Ask Vali :P)
 }

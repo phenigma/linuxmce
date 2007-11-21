@@ -25316,5 +25316,41 @@ namespace DCE
 			1 /* number of parameters */,
 			COMMANDPARAMETER_Channel_CONST, sChannel.c_str()); }
 	};
+	class CMD_Add_To_Speed_Dial : public PreformedCommand {
+	public:
+		CMD_Add_To_Speed_Dial(long DeviceIDFrom, long DeviceIDTo,int iPK_Device,string sCallerID,string sPhoneExtension) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
+			COMMAND_Add_To_Speed_Dial_CONST,
+			3 /* number of parameters */,
+			COMMANDPARAMETER_PK_Device_CONST, StringUtils::itos(iPK_Device).c_str(),
+			COMMANDPARAMETER_CallerID_CONST, sCallerID.c_str(),
+			COMMANDPARAMETER_PhoneExtension_CONST, sPhoneExtension.c_str()); }
+	};
+	class CMD_Add_To_Speed_Dial_DL : public PreformedCommand {
+	public:
+		CMD_Add_To_Speed_Dial_DL(long DeviceIDFrom, string DeviceIDTo,int iPK_Device,string sCallerID,string sPhoneExtension) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Add_To_Speed_Dial_CONST,
+			3 /* number of parameters */,
+			COMMANDPARAMETER_PK_Device_CONST, StringUtils::itos(iPK_Device).c_str(),
+			COMMANDPARAMETER_CallerID_CONST, sCallerID.c_str(),
+			COMMANDPARAMETER_PhoneExtension_CONST, sPhoneExtension.c_str()); }
+	};
+	class CMD_Add_To_Speed_Dial_DT : public PreformedCommand {
+	public:
+		CMD_Add_To_Speed_Dial_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iPK_Device,string sCallerID,string sPhoneExtension) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Add_To_Speed_Dial_CONST,
+			3 /* number of parameters */,
+			COMMANDPARAMETER_PK_Device_CONST, StringUtils::itos(iPK_Device).c_str(),
+			COMMANDPARAMETER_CallerID_CONST, sCallerID.c_str(),
+			COMMANDPARAMETER_PhoneExtension_CONST, sPhoneExtension.c_str()); }
+	};
+	class CMD_Add_To_Speed_Dial_Cat : public PreformedCommand {
+	public:
+		CMD_Add_To_Speed_Dial_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iPK_Device,string sCallerID,string sPhoneExtension) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Add_To_Speed_Dial_CONST,
+			3 /* number of parameters */,
+			COMMANDPARAMETER_PK_Device_CONST, StringUtils::itos(iPK_Device).c_str(),
+			COMMANDPARAMETER_CallerID_CONST, sCallerID.c_str(),
+			COMMANDPARAMETER_PhoneExtension_CONST, sPhoneExtension.c_str()); }
+	};
 }
 #endif
