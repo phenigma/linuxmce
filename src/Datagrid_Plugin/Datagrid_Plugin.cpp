@@ -233,7 +233,6 @@ void Datagrid_Plugin::CMD_Request_Datagrid_Contents(string sID,string sDataGrid_
 					LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot seek because there's an empty cell");
 					break;
 				}
-				string::size_type posStart=0,posEnd=0;
 				string CellText = bValue ? StringUtils::ToUpper(pCell->m_Value ? pCell->m_Value : "") : StringUtils::ToUpper(pCell->m_Text ? pCell->m_Text : "");
 				if( CellText.length()==0 )
 				{
@@ -338,7 +337,6 @@ void Datagrid_Plugin::CMD_Populate_Datagrid(string sID,string sDataGrid_ID,int i
 {
 	*bIsSuccessful=false; // assume we're not succesful
 	PLUTO_SAFETY_LOCK( s, m_DataGridMutex );
-	string::size_type pos=0;
 
 #ifdef DEBUG
 	clock_t cStart=clock(); // move this to within #debug
