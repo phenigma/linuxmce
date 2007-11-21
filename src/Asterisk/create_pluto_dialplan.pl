@@ -7,7 +7,7 @@ use DBI;
 `/usr/pluto/bin/create_telecom_defaults.pl`;
 
 my $EXT_FILE = "/etc/asterisk/extensions_pluto_dial.conf";
-my $EXT_BUFFER = "[ext-local-custom]\ninclude =>from-pluto-custom\n\n[from-pluto-custom]\n";
+my $EXT_BUFFER = "[ext-local-custom]\ninclude => from-pluto-custom\n\n[custom-linuxmce]\ninclude => from-pluto-custom\n\n[from-pluto-custom]\n";
 
 my %USERS = ();
 my %USERS_MB = ();
