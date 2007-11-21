@@ -1567,29 +1567,37 @@ class DataGridTable *General_Info_Plugin::AddSoftware( string GridID, string Par
 	}
 
 	vector<class Row_Device_DeviceData*> vpRows;
-	if ( !m_pDatabase_pluto_main->Device_DeviceData_get()->GetRows(" FK_Device="+StringUtils::itos(pDevice->m_dwPK_Device) + " AND FK_DeviceData=" + StringUtils::itos(DEVICEDATA_PK_Distro_CONST), 
+	if ( !m_pDatabase_pluto_main->Device_DeviceData_get()->GetRows(" FK_Device="+StringUtils::itos(pDevice->m_dwPK_Device) + " AND FK_DeviceData=" + StringUtils::itos(DEVICEDATA_Model_CONST), 
 	      &vpRows) || vpRows.empty() )
 	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"General_Info_Plugin::AddSoftware No Distro set for device %d", pDevice->m_dwPK_Device);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"General_Info_Plugin::AddSoftware No Model is set for device %d", pDevice->m_dwPK_Device);
 		return NULL;
 	}
 
-	int PK_Distro = atoi( vpRows[0]->IK_DeviceData_get().c_str() );
+	string sModel = vpRows[0]->IK_DeviceData_get().c_str();
+
+	if ( StringUtils::StartsWith(sModel, "LMCE_CORE_") )
+	{
+	    sModel = StringUtils::Replace(sModel, "LMCE_CORE_", "");
+	}
+	else if ( StringUtils::StartsWith(sModel, "LMCE_MD_") )
+	{
+	    sModel = StringUtils::Replace(sModel, "LMCE_MD_", "");
+	}
+	else
+	{
+	    LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"General_Info_Plugin::AddSoftware unknown Model is set for device %d: %s", 
+		    pDevice->m_dwPK_Device, sModel.c_str());
+	    return NULL;
+	}
+
 
 	DataGridTable *pDataGrid = new DataGridTable();
 
 	string sPlutoVersion = dceConfig.m_mapParameters_Find("PlutoVersion");
 	
-	Row_Distro *pRow_Distro = m_pDatabase_pluto_main->Distro_get()->GetRow(PK_Distro);
-
-	if( !pRow_Distro )
-	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"General_Info_Plugin::AddSoftware No Distro %d",PK_Distro);
-		return pDataGrid;
-	}
-
 #ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_WARNING,"General_Info_Plugin::AddSoftware Starting install list for device %d with distro %d Version %s", pDevice->m_dwPK_Device, PK_Distro,sPlutoVersion.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_WARNING,"General_Info_Plugin::AddSoftware Starting install list for device %d with model %s Version %s", pDevice->m_dwPK_Device, sModel.c_str(),sPlutoVersion.c_str());
 #endif
 
 	DataGridCell *pCell;
@@ -1601,7 +1609,7 @@ class DataGridTable *General_Info_Plugin::AddSoftware( string GridID, string Par
 		"SELECT PK_Software,PackageName,Title,IconStr,Category,Rating,Description,Status FROM Software_Source "
 		"JOIN Software ON Software_Source.FK_Software=PK_Software "
 		"LEFT JOIN Software_Device ON Software_Device.FK_Software=PK_Software AND FK_Device=" + StringUtils::itos(pDevice->m_dwPK_Device) + " "
-		"WHERE Distro='" + pRow_Distro->Description_get() + "' AND Required_Version_Min<='" + sPlutoVersion + "' AND Required_Version_Max>='" + sPlutoVersion + "' "
+		"WHERE Distro='" + sModel + "' AND Required_Version_Min<='" + sPlutoVersion + "' AND Required_Version_Max>='" + sPlutoVersion + "' "
 		"ORDER BY PackageName,Version DESC";
 
 	int PK_Software_Last = 0;
