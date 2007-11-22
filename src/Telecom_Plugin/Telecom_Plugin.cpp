@@ -806,9 +806,18 @@ Telecom_Plugin::Ring( class Socket *pSocket, class Message *pMessage, class Devi
 	if(nOrbiterDeviceID)
 	{
 		// stop the media
-		DCE::CMD_MH_Stop_Media_DT CMD_MH_Stop_Media_DT_
-			(nOrbiterDeviceID, DEVICETEMPLATE_VirtDev_Media_Plugin_CONST, BL_SameHouse, nOrbiterDeviceID, 0, 0, "", false);
-		SendCommand(CMD_MH_Stop_Media_DT_);
+		Command_Impl * pMediaPlugin = m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_Media_Plugin_CONST);
+		if( pMediaPlugin != NULL )
+		{
+			DCE::CMD_MH_Stop_Media CMD_MH_Stop_Media_
+				(nOrbiterDeviceID, pMediaPlugin->m_dwPK_Device, nOrbiterDeviceID, 0, 0, "", false);
+			SendCommand(CMD_MH_Stop_Media_);
+		}
+		else
+		{
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Telecom_Plugin : No media plugin!");
+		}
+		
 		//Sleep(1000);
 		
 		OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(nOrbiterDeviceID);
@@ -2997,9 +3006,18 @@ bool Telecom_Plugin::InternalMakeCall(int iFK_Device_From, string sFromExten, st
 			map_ext2pending[sFromExten] = pPendingCall;
 			
 			// stop the media
-			DCE::CMD_MH_Stop_Media_DT CMD_MH_Stop_Media_DT_
-				(iFK_Device_From, DEVICETEMPLATE_VirtDev_Media_Plugin_CONST, BL_SameHouse, iFK_Device_From, 0, 0, "", false);
-			SendCommand(CMD_MH_Stop_Media_DT_);
+			Command_Impl * pMediaPlugin = m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_Media_Plugin_CONST);
+			if( pMediaPlugin != NULL )
+			{
+				DCE::CMD_MH_Stop_Media CMD_MH_Stop_Media_
+					(iFK_Device_From, pMediaPlugin->m_dwPK_Device, iFK_Device_From, 0, 0, "", false);
+				SendCommand(CMD_MH_Stop_Media_);
+			}
+			else
+			{
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Telecom_Plugin : No media plugin!");
+			}
+			
 			//Sleep(1000);
 			
 			DCE::CMD_Phone_Initiate cmdInitiate(m_dwPK_Device, iEmbeddedPhone, iEmbeddedPhone, sPhoneNumberToCall);
