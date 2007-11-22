@@ -137,11 +137,16 @@ GetHddToUse()
 
 PartitionHdd()
 {
-	if [[ "$FromHdd" == 1 || "$Upgrade" == 1 ]]; then
+	if [[ "$FromHdd" == 1 ]]; then
 		return
 	fi
-set +e
+
 	swapoff -a
+	if [[ "$Upgrade" == 1 ]]; then
+		return
+	fi
+
+set +e
 	parted -s "$TargetHdd" -- mklabel msdos
 	parted -s "$TargetHdd" -- mkpart primary ext2 0 -12GB # root filesystem
 	parted -s "$TargetHdd" -- mkpart extended -12GB -1s
