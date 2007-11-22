@@ -83,14 +83,26 @@ unless($row = $statement->fetchrow_hashref())
     exit(1);
 }
 
-@data = split(/[,]/,$row->{IK_DeviceData});
+unless($row->{IK_DeviceData} ne "") {
+	print STDERR "NO EXTENSTIONS FOR SECURITY PLUGIN\n";
+	exit(1);
+}
 
-for(my $i=0;defined($data[$i]);$i+=2)
+$sql = "select FK_Device from Device_DeviceData where FK_DeviceData=31 AND IK_DeviceData IN (".$row->{IK_DeviceData}.")";
+print "$sql \n";
+$statement = $db_handle->prepare($sql) or die "Couldn't prepare query '$sql': $DBI::errstr\n";
+$statement->execute() or die "Couldn't execute query '$sql': $DBI::errstr\n";
+@data=();
+while($row = $statement->fetchrow_hashref())
 {
-	my $j=int(($i+2)/2);
-	print STDERR "[".$data[$i]."]=".$data[$i+1]."\n";
-	my $phone=$data[$i+1];
-	`/usr/pluto/bin/MessageSend localhost -targetType device $secpluginid $telpluginid 1 414 75 $phone 81 "pluto" 83 "997`;
+	push(@data,$row->{FK_Device});
+}
+
+for(my $i=0;defined($data[$i]);$i++)
+{
+	print '/usr/pluto/bin/MessageSend localhost -targetType device '.$secpluginid.' '.$telpluginid.' 1 414 75 -'.$data[$i].'- 81 "pluto" 83 "997 '."\n";
+	# 921 - Make Call   262 - FK_Device_From   83 - PhoneExtension
+	`/usr/pluto/bin/MessageSend localhost -targetType device $secpluginid $telpluginid 1 921 262 $data[$i] 83 997`;
 }
 
 $statement->finish();
