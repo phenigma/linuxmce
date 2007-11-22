@@ -65,7 +65,7 @@ eval "CommandParm_$COMMAND_ParamPK_DeviceTo='$Phone'"
 
 for Parm in $CommandParms; do
 	FK_CommandParameter=$(Field 1 "$Parm")
-	ParmVar="CommandParm_$FK_CommandGroup"
+	ParmVar="CommandParm_$FK_CommandParameter"
 	ParmValue="${!ParmVar}"
 	if [[ "$ParmValue" != NULL ]]; then
 		ParmValue="'$ParmValue'"
