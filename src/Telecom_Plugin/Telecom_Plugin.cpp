@@ -727,7 +727,9 @@ Telecom_Plugin::Ring( class Socket *pSocket, class Message *pMessage, class Devi
 	CallStatus * pFoundDest = FindCallStatusForChannel(sDestination_Channel);
 	CallStatus *pCallStatus = NULL;
 
-	if(CallStatus::IsConferenceCallID(sDestination_Channel))
+	if( CallStatus::IsConferenceCallID(sDestination_Channel) ||
+		sDestination_Channel == SPEAKINTHEHOUSE_CONFERENCE_IVR ||
+	  	sDestination_Channel == SPEAKINTHEHOUSE_CONFERENCE_ALL )
 	{
 		string sOldSrcCallID = "(none)";
 		string sConferenceName = sDestination_Channel;
