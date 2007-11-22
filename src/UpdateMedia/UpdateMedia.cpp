@@ -532,6 +532,8 @@ bool UpdateMedia::ScanFiles(string sDirectory)
 
 				continue; // Nothing to do
 			}
+
+			PlutoMediaFile_.SetFileAttribute(PK_File);
 		}	
 		else
 		{
