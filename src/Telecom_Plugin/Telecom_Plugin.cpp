@@ -1879,64 +1879,69 @@ class DataGridTable *Telecom_Plugin::SpeedDialGrid(string GridID,string Parms,vo
     | vvv         |                 262 | NULL                |
     | vvv         |                 263 | 38                  |
     +-------------+---------------------+---------------------+ */
-            
-    string desc, descNew;
-    map<int, string> mapParams;
-    bool bEnd = false;
-    while( (row = db_wrapper_fetch_row(result_set.r)) || !bEnd )
-    {
-        if( row == NULL )
-        {
-            bEnd = true;
-            descNew = "";
-        }
-        else
-        {
-            if( row[0] == NULL )
-            {
-                // skip it if there isn't a description
-                LoggerWrapper::GetInstance()->Write(LV_WARNING, "SpeedDialGrid: NO description!");
-                continue;
-            }
-            else
-            {
-                // 256 bytes are enough
-                descNew = string(row[0], 0, 256);
-            }
-        }
-        
-        if( !desc.empty() && descNew != desc )
-        {
-            int iPK_Users = atoi( mapParams[COMMANDPARAMETER_PK_Users_CONST].c_str() );
-            string sExt = mapParams[COMMANDPARAMETER_PhoneExtension_CONST];
-            int iFK_Device_From = atoi( mapParams[COMMANDPARAMETER_FK_Device_From_CONST].c_str() );
-            int iPK_Device_To = atoi( mapParams[COMMANDPARAMETER_PK_Device_To_CONST].c_str() );
-            
-            string text = desc + " (" + sExt + ")";
-            LoggerWrapper::GetInstance()->Write(LV_STATUS, "WILL SHOW  %s / %d", text.c_str(), iFK_Device_From);
-            
-            pCell = new DataGridCell(text, "");
-            DCE::CMD_Make_Call 
-                CMD_Make_Call_(m_dwPK_Device, m_dwPK_Device, iPK_Users, sExt, iFK_Device_From, iPK_Device_To);
-            pCell->m_pMessage = CMD_Make_Call_.m_pMessage;
-            pDataGrid->SetData(0, Row, pCell);
-            Row++;
-            
-            mapParams.clear();
-        }
-        
-        if( row != NULL )
-        {
-            if( row[2] != NULL && row[1] != NULL )
-                mapParams[ atoi(row[1]) ] = row[2];
-        }
-        else
-        {
-            break;
-        }
-        
-        desc = descNew;
-    }
+	
+	string desc, descNew;
+	map<int, string> mapParams;
+	bool bEnd = false;
+	while( (row = db_wrapper_fetch_row(result_set.r)) || !bEnd )
+	{
+		if( row == NULL )
+		{
+			bEnd = true;
+			descNew = "";
+		}
+		else
+		{
+			if( row[0] == NULL )
+			{
+				// skip it if there isn't a description
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "SpeedDialGrid: NO description!");
+				continue;
+			}
+			else
+			{
+				// 256 bytes are enough
+				descNew = string(row[0], 0, 256);
+			}
+		}
+		
+		if( !desc.empty() && descNew != desc )
+		{
+			int iPK_Users = atoi( mapParams[COMMANDPARAMETER_PK_Users_CONST].c_str() );
+			string sExt = mapParams[COMMANDPARAMETER_PhoneExtension_CONST];
+			int iFK_Device_From = atoi( mapParams[COMMANDPARAMETER_FK_Device_From_CONST].c_str() );
+			int iPK_Device_To = atoi( mapParams[COMMANDPARAMETER_PK_Device_To_CONST].c_str() );
+			
+			if( !iFK_Device_From && pMessage != NULL )
+			{
+				iFK_Device_From = pMessage->m_dwPK_Device_From;
+			}
+			
+			string text = desc + " (" + sExt + ")";
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "WILL SHOW  %s / %d", text.c_str(), iFK_Device_From);
+			
+			pCell = new DataGridCell(text, "");
+			DCE::CMD_Make_Call 
+				CMD_Make_Call_(m_dwPK_Device, m_dwPK_Device, iPK_Users, sExt, iFK_Device_From, iPK_Device_To);
+			pCell->m_pMessage = CMD_Make_Call_.m_pMessage;
+			pDataGrid->SetData(0, Row, pCell);
+			Row++;
+			
+			mapParams.clear();
+		}
+		
+		if( row != NULL )
+		{
+			if( row[2] != NULL && row[1] != NULL )
+				mapParams[ atoi(row[1]) ] = row[2];
+		}
+		else
+		{
+			break;
+		}
+		
+		desc = descNew;
+	}
     
 	return pDataGrid;
 }
