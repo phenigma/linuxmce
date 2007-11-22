@@ -2953,9 +2953,10 @@ void Router::AlarmCallback(int id, void* param)
 int Router::GetDeviceID( int iPK_DeviceTemplate, string sMacAddress, string sIPAddress )
 {
 #ifdef DEBUG
-LoggerWrapper::GetInstance()->Write(LV_STATUS,"Looking for device with temp: %d ip %s mac",iPK_DeviceTemplate,sIPAddress.c_str(),sMacAddress.c_str());
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"Looking for device with temp: %d ip %s mac %s",iPK_DeviceTemplate,sIPAddress.c_str(),sMacAddress.c_str());
 #endif
-	if( sIPAddress.length()==0 && sMacAddress.length()==0 ) // We gotta have something to go on
+
+	if( sIPAddress.empty() && sMacAddress.empty() ) // We gotta have something to go on
 		return 0;
 
 	int PK_Device_MacOnly=0,PK_Device_IPOnly=0;
