@@ -88,20 +88,21 @@ unless(length($selected_devices)>0)
 }
 
 
-$sql = "select IK_DeviceData from Device_DeviceData where (FK_Device in ($selected_devices)) and (FK_DeviceData='31');";
+$sql = "select FK_Device, IK_DeviceData from Device_DeviceData where (FK_Device in ($selected_devices)) and (FK_DeviceData='31');";
 $statement = $db_handle->prepare($sql) or die "Couldn't prepare query '$sql': $DBI::errstr\n";
 $statement->execute() or die "Couldn't execute query '$sql': $DBI::errstr\n";
 @data=();
 while($row = $statement->fetchrow_hashref())
 {
-	push(@data,$row->{IK_DeviceData});
+	push(@data,$row->{FK_Device});
 }
 
 for(my $i=0;defined($data[$i]);$i++)
 {
 	my $phone=$data[$i];
-	print STDERR "Will call ".$phone."\n";
-	`/usr/pluto/bin/MessageSend localhost -targetType device $secpluginid $telpluginid 1 414 75 $phone 81 plutosecurity 83 997`;
+	print STDERR "Will call device ".$phone."\n";
+	# 921 - Make Call   262 - FK_Device_From   83 - PhoneExtension
+	`/usr/pluto/bin/MessageSend localhost -targetType device $secpluginid $telpluginid 1 921 262 $phone 83 997`;
 }
 
 $statement->finish();
