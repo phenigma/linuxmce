@@ -86,10 +86,15 @@ bool ID3FileHandler::SaveAttributes(PlutoMediaAttributes *pPlutoMediaAttributes)
 		mapAttributes[it->first] = it->second->m_sName;
 	}
 
+
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "# ID3FileHandler::SaveAttributes: saving %d pictures into APIC tags to %s",
+		pPlutoMediaAttributes->m_mapCoverarts.size(), sFileWithAttributes.c_str());
+
 	list<pair<char *, size_t> > listPictures;
 	for(MapPictures::iterator itc = pPlutoMediaAttributes->m_mapCoverarts.begin();
 		itc != pPlutoMediaAttributes->m_mapCoverarts.end(); ++itc)
 	{
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "# ID3FileHandler::SaveAttributes: saving into APIC picture size %d", itc->first);
 		listPictures.push_back(make_pair(itc->second, itc->first));
 	}
 
