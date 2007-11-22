@@ -807,7 +807,7 @@ Telecom_Plugin::Ring( class Socket *pSocket, class Message *pMessage, class Devi
 	{
 		// stop the media
 		DCE::CMD_MH_Stop_Media CMD_MH_Stop_Media_
-			(nOrbiterDeviceID, DEVICETEMPLATE_VirtDev_Media_Plugin_CONST,0,0,0,"",false);
+			(nOrbiterDeviceID, DEVICETEMPLATE_VirtDev_Media_Plugin_CONST, nOrbiterDeviceID, 0, 0, "", false);
 		SendCommand(CMD_MH_Stop_Media_);
 		//Sleep(1000);
 		
@@ -2998,7 +2998,7 @@ bool Telecom_Plugin::InternalMakeCall(int iFK_Device_From, string sFromExten, st
 			
 			// stop the media
 			DCE::CMD_MH_Stop_Media CMD_MH_Stop_Media_
-				(iFK_Device_From, DEVICETEMPLATE_VirtDev_Media_Plugin_CONST,0,0,0,"",false);
+				(iFK_Device_From, DEVICETEMPLATE_VirtDev_Media_Plugin_CONST, iFK_Device_From, 0, 0, "", false);
 			SendCommand(CMD_MH_Stop_Media_);
 			//Sleep(1000);
 			
