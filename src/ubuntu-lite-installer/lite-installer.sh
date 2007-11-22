@@ -81,7 +81,7 @@ GetHddToUse()
 					if [[ -f /media/target/etc/pluto.conf ]]; then
 						while [[ "$AnswerOK" -eq 0 ]]; do
 							echo "Found an existing installation on drive '$DiskDev'"
-							echo "Do you want to upgrade/reinstall keeping your settings?"
+							echo "Do you want to keep your settings?"
 							echo -n "(Y/n)> "
 							read Choice
 							if [[ -z "$Choice" ]]; then
