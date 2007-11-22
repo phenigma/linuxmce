@@ -47,7 +47,7 @@ function Detect {
 		## If is swap partition
 		if file -s /dev/$part | grep -q " Linux/i386 swap file"  ;then
                         if ! grep -q "^/dev/$part" /proc/swaps ;then
-				echo "Enableing swap partition /dev/$part"      
+				echo "Enabling swap partition /dev/$part"
 				/sbin/swapon /dev/$part
 			fi
 
