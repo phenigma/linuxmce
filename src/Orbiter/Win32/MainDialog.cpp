@@ -1458,7 +1458,9 @@ void SaveUI_To_ConfigurationData()
 //-----------------------------------------------------------------------------------------------------
 void SyncConfigurationData()
 {
-	Simulator::GetInstance()->m_sDeviceID = StringUtils::ltos(CmdLineParams.PK_Device);
+	if(CmdLineParams.PK_Device != 0)
+		Simulator::GetInstance()->m_sDeviceID = StringUtils::ltos(CmdLineParams.PK_Device);
+
 	Simulator::GetInstance()->m_sRouterIP = CmdLineParams.sRouter_IP;
 	Simulator::GetInstance()->m_bTryToDetermineAutomatically = false;
 	Simulator::GetInstance()->m_bFullScreen = CmdLineParams.bFullScreen;

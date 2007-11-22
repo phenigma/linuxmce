@@ -586,6 +586,9 @@ bool Orbiter::GetConfig()
 {
 	WriteStatusOutput("GetConfig");
 
+	if(m_dwPK_Device == 0)
+		m_dwPK_Device = atoi(Simulator::GetInstance()->m_sDeviceID.c_str());
+
 	int PK_Device=m_dwPK_Device;
 	bool bResult=Orbiter_Command::GetConfig();
 	if( PK_Device!=m_dwPK_Device && m_dwPK_Device )  // We have another device id or host ip address
@@ -729,7 +732,10 @@ bool Orbiter::GetConfig()
 	}
 
 	if( !m_Virtual_Device_Translator.GetConfig(m_pData) )
+	{
+		RouterNeedsReload();
 		return false;
+	}
 	IRReceiverBase::GetConfig(m_pData);
 	m_pScreenHandler = CreateScreenHandler();
 	m_pOrbiterRenderer->Configure();
