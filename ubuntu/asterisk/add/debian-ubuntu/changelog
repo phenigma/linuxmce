@@ -1,3 +1,9 @@
+asterisk-pluto (1.4.10-3) unstable; urgency=low
+
+  * Moved sound files back /var/lib/asterisk/sounds/pluto
+
+ -- Radu Cristescu <radu.c@plutohome.com>  Thu, 22 Nov 2007 19:10:57 +0200
+
 asterisk-pluto (1.4.10-2) unstable; urgency=low
 
   * Added dependency on asterisk-mysql
