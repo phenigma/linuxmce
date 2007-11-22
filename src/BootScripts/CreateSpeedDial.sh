@@ -12,7 +12,6 @@ fi
 
 . /usr/pluto/bin/SQL_Ops.sh
 . /usr/pluto/bin/Config_Ops.sh
-. /usr/pluto/bin/Utils.sh
 
 ARRAYID_CommunicationScenarios=4
 TEMPLATE_TelecomScenarios=17
@@ -21,11 +20,16 @@ COMMAND_PhoneExtension=83
 COMMAND_ParamPK_DeviceTo=263
 DEVICETEMPLATE_Telecom_Plugin=34
 
-TelecomPluginID=$(FindDevice_Template "$PK_Device" "$DEVICETEMPLATE_Telecom_Plugin")
+Q="
+	SELECT PK_Device
+	FROM Device
+	WHERE FK_DeviceTemplate='$DEVICETEMPLATE_Telecom_Plugin'
+"
+TelecomPluginID=$(RunSQL "$Q")
 
 Q="
 	INSERT INTO CommandGroup (FK_Array, FK_Installation, Description,FK_Template,Hint)
-	VALUES ($ARRAYID_CommunicationScenarios, $FK_Installation, '$Description', $TEMPLATE_TelecomScenarios, '$RoomName');
+	VALUES ($ARRAYID_CommunicationScenarios, $PK_Installation, '$Description', $TEMPLATE_TelecomScenarios, '$RoomName');
 	SELECT LAST_INSERT_ID()
 "
 CommandGroupID=$(RunSQL "$Q")
@@ -63,9 +67,12 @@ for Parm in $CommandParms; do
 	FK_CommandParameter=$(Field 1 "$Parm")
 	ParmVar="CommandParm_$FK_CommandGroup"
 	ParmValue="${!ParmVar}"
+	if [[ "$ParmValue" != NULL ]]; then
+		ParmValue="'$ParmValue'"
+	fi
 	Q="
 		INSERT IGNORE INTO CommandGroup_Command_CommandParameter (FK_CommandGroup_Command, FK_CommandParameter, IK_CommandParameter)
-		VALUES ('$CommandGroup_CommandID', '$FK_CommandParameter', '$ParmValue')
+		VALUES ('$CommandGroup_CommandID', '$FK_CommandParameter', $ParmValue)
 	"
 	RunSQL "$Q"
 done
