@@ -4204,10 +4204,10 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 			Output += StringUtils::itos( m_pLocationInfo->PK_EntertainArea );
 		else if(  Variable=="MD" )
 		{
-			if( m_pLocationInfo && m_pLocationInfo->m_dwPK_Device_MediaDirector!=-1 )
-				Output += StringUtils::itos( m_pLocationInfo->m_dwPK_Device_MediaDirector );
-			else if( m_bIsOSD )
+			if( m_bIsOSD )
 				Output += StringUtils::itos( m_pData->m_dwPK_Device_ControlledVia );
+			else if( m_pLocationInfo && m_pLocationInfo->m_dwPK_Device_MediaDirector!=-1 )
+				Output += StringUtils::itos( m_pLocationInfo->m_dwPK_Device_MediaDirector );
 		}
 		else if(  Variable=="OS" )
 			Output += m_sOperatingSystem;
