@@ -286,8 +286,9 @@ NetworkSetup()
 		ExtIf="eth0"
 		IntIf="eth0:0"
 	else
-		chmod o+x /lib/dhcp3-client/call-dhclient-script
 		chown root.dhcp /lib/dhcp3-client/call-dhclient-script
+		chmod 4754 /lib/dhcp3-client/call-dhclient-script
+
 		/etc/init.d/networking restart &>/dev/null
 		#echo "DEBUG: Press CTRL+D after finish debuging to continue..."; bash
 
