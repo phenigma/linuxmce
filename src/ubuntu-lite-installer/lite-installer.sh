@@ -79,16 +79,15 @@ GetHddToUse()
 				DiskDev="${Drive%%:*}"
 				if mount "$DiskDev"1 /media/target; then
 					if [[ -f /media/target/etc/pluto.conf ]]; then
-						while [[ "$AnswerOK" -eq 0 ]]; do
-							echo "Found an existing installation on drive '$DiskDev'"
-							echo "Do you want to keep your settings?"
-							echo -n "(Y/n)> "
-							read Choice
-							if [[ -z "$Choice" ]]; then
-								Choice=Y
-							fi
-							if [[ "$Choice" == [YyNn] ]]; then
-								AnswerOK=1
+						echo "* Found an existing installation on drive '$DiskDev'"
+						Choice=
+						until [[ "$Choice" == [YyNn] ]]; do
+							read -p "Do you want to keep your settings? (y/n): " Choice
+							if [[ "$Choice" != [YyNn] ]]; then
+								echo
+								echo "***********************************************"
+								echo "* Please answer 'y' for 'yes' or 'n' for 'no' *"
+								echo "***********************************************"
 							fi
 						done
 						if [[ "$Choice" == [Yy] ]]; then
