@@ -68,14 +68,16 @@ case $Action in
 	
 	
 	install-actual)
-		_PK_Distro="$PK_Distro"
-		if [[ "$_PK_Distro" == "" ]] ;then
-			_PK_Distro="1"
+		_PK_Device="$PK_Device"
+		if [[ "$_PK_Device" == "" ]] ;then
+			_PK_Device="1"
 		fi
 		
-		Q="SELECT Description FROM Distro WHERE PK_Distro=$_PK_Distro"
+		# selecting Distro as Model for this device, cutting the LMCE_CORE_ and LMCE_MD_ prefix
+		Q="SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device=$_PK_Device AND FK_DeviceData=233"
 		Row="$(RunSQL "$Q")"
 		Distro=$(Field 1 "$Row")
+		Distro=`echo $Distro | sed 's/LMCE_CORE_//' | sed 's/LMCE_MD_//'`
 
 		MyLog "Using Distro $Distro"
 		PackageName="$(FindPackageName "$PackageID")"
