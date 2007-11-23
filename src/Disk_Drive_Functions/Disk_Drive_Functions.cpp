@@ -700,7 +700,7 @@ void Disk_Drive_Functions::FixupRippingInfo(Disk_Drive_Functions *pDisk_Drive_Fu
 			{
 				string sTrack = StringUtils::Tokenize(sTracks,"|",pos);
 				int iTrack = atoi(sTrack.c_str());
-				sNewTracks += StringUtils::itos(iTrack+1) + ",";
+				sNewTracks += StringUtils::itos(iTrack) + ",";
 
 				string sName = mapTracks[iTrack];
 				if( sName.empty() )
