@@ -3437,5 +3437,35 @@ string Telecom_Plugin::DebugPendingCalls() const
 void Telecom_Plugin::CMD_Add_To_Speed_Dial(int iPK_Device,string sCallerID,string sPhoneExtension,string &sCMD_Result,Message *pMessage)
 //<-dceag-c929-e->
 {
-	//TODO: implement me! (Ask Vali :P)
+	OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(pMessage->m_dwPK_Device_From);
+	if( pOH_Orbiter == NULL )
+	{
+		sCMD_Result = "ERROR: CMD_Add_To_Speed_Dial: It expects a message from an Orbiter";
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "CMD_Add_To_Speed_Dial: It expects a message from an Orbiter");
+		return;
+	}
+	
+	Room * pRoom = m_pRouter->m_mapRoom_Find( pOH_Orbiter->m_dwPK_Room );
+	if( pRoom == NULL )
+	{
+		sCMD_Result = "ERROR: CMD_Add_To_Speed_Dial: No room!";
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "CMD_Add_To_Speed_Dial: No room");
+		return;
+	}
+	
+/*	Description="$1"
+	Number="$2"
+	Phone="$3"
+	RoomID="$4"
+	RoomName="$5"*/
+	
+	string sCmdLine = "/usr/pluto/bin/CreateSpeedDial.sh ";
+	sCmdLine += "\"" + sCallerID + "\" ";
+	sCmdLine += "\"" + sPhoneExtension + "\" ";
+	sCmdLine += "\"" + StringUtils::itos(iPK_Device) + "\" ";
+	sCmdLine += "\"" + StringUtils::itos(pOH_Orbiter->m_dwPK_Room) + "\" ";
+	sCmdLine += "\"" + pRoom->m_sDescription + "\"";
+	system(sCmdLine.c_str());
+	
+	sCMD_Result = "OK";
 }
