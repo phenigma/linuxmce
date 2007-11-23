@@ -478,8 +478,12 @@ void Router::RegisterAllPlugins()
 
 			PlugInNumber++;
 
-			DeviceData_Router *pDevice = new DeviceData_Router(m_dwPK_Device_Largest + PlugInNumber,PK_DeviceTemplate,m_dwPK_Installation,m_dwPK_Device);
-			m_mapDeviceData_Router[m_dwPK_Device_Largest + PlugInNumber]=pDevice;
+			iPK_Device = m_dwPK_Device_Largest + PlugInNumber + 1000000;   // Use artificially high numbers > 1 million so there's no confusion with other devices including new ones we will create
+
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Router::RegisterAllPlugins Dynamically loading plugin %s as device %d", sFile.c_str(), iPK_Device);
+
+			DeviceData_Router *pDevice = new DeviceData_Router(iPK_Device,PK_DeviceTemplate,m_dwPK_Installation,m_dwPK_Device);
+			m_mapDeviceData_Router[iPK_Device]=pDevice;
 			ListDeviceData_Router *pListDeviceData_Router = m_mapDeviceByTemplate_Find(PK_DeviceTemplate);
 			if( !pListDeviceData_Router )
 			{
@@ -488,7 +492,6 @@ void Router::RegisterAllPlugins()
 			}
 			pListDeviceData_Router->push_back(pDevice);
 
-			iPK_Device = m_dwPK_Device_Largest + PlugInNumber;
 			RAP_RegisterAsPlugin = PlugIn_Load(iPK_Device, PK_DeviceTemplate, sFile);
 			sLogFile = StringUtils::itos(iPK_Device) + "_" + sFile + "_" + StringUtils::itos(PK_DeviceTemplate) + ".log";
 
