@@ -279,13 +279,18 @@ ExtractArchive()
 
 NetworkSetup()
 {
+	clear
 	# detect cards
-	/etc/init.d/networking restart &>/dev/null
 	NCards=$(ip addr | grep -cF 'link/ether')
 	if [[ "$NCards" -eq 1 ]]; then
 		ExtIf="eth0"
 		IntIf="eth0:0"
 	else
+		chmod o+x /lib/dhcp3-client/call-dhclient-script
+		chown root.dhcp /lib/dhcp3-client/call-dhclient-script
+		/etc/init.d/networking restart &>/dev/null
+		#echo "DEBUG: Press CTRL+D after finish debuging to continue..."; bash
+
 		if host -W 1 www.google.com && ping -qc1 -I eth0 www.google.com &>/dev/null; then
 			ExtIf="eth0"
 			IntIf="eth1"
@@ -294,6 +299,7 @@ NetworkSetup()
 			IntIf="eth0"
 		fi
 	fi
+	
 
 	echo "
 auto lo
