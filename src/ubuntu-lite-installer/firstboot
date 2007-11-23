@@ -26,3 +26,8 @@ apt-get -y -f install video-wizard-videos
 if lshwd | grep -qi 'VGA .* (nv)'; then
         apt-get -y -f install pluto-nvidia-video-drivers
 fi
+
+## Setup ALSA mixers
+amixer sset Capture 73%
+#amixer sset 'Mic Boost (+20dB)' unmute
+alsactl store
