@@ -163,6 +163,12 @@ int main(int argc, char *argv[])
 					}
 				}
 				
+				if (StringUtils::EndsWith(sUrl, "/", true))
+				{
+				    Log(LV_STATUS, "URL looks like domain name, trying to fetch packages.xml from it too");
+				    vectXMLs.push_back(sUrl+"packages.xml");
+				}
+				
 				for(vector<string>::iterator itx = vectXMLs.begin(); itx != vectXMLs.end(); ++itx)
 				{
 					string sXmlUrl = *itx;
@@ -172,12 +178,13 @@ int main(int argc, char *argv[])
 						continue;
 					}
 
-					Log(LV_STATUS,  "XML to download : " + sXmlUrl );
+					Log(LV_STATUS,  "XML to download : [" + sXmlUrl + "]");
 
 					sXmlUrl = StringUtils::Replace(sXmlUrl, "\"", "\\\"");
 					bool res = FetchURL(sXmlUrl, "/tmp/out.xml", UserAgent);
 					if(res)
 					{
+						Log(LV_STATUS, "XML downloaded OK, size is " + StringUtils::itos(FileUtils::FileSize("/tmp/out.xml")) + ", processing it");						
 						ProcessXML("/tmp/out.xml", virusFree);
 						processedXML.push_back(sXmlUrl);
 					}
