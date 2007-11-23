@@ -63,7 +63,7 @@ Disk_Drive_Functions::Disk_Drive_Functions(int dwPK_Device,Command_Impl * pComma
     pthread_mutexattr_init( &m_ThreadAttribute );
     pthread_mutexattr_settype( &m_ThreadAttribute, PTHREAD_MUTEX_RECURSIVE_NP );
 	m_DiskMutex.Init(&m_ThreadAttribute);
-	m_pDevice_MediaIdentifier = m_pCommand_Impl->m_pData->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_Media_Identifiers_CONST,m_pCommand_Impl);
+	m_pDevice_MediaIdentifier = m_pCommand_Impl->m_pData->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_Media_Identifiers_CONST,m_pCommand_Impl,3);
 	if( !m_pDevice_MediaIdentifier )
 	{
 		m_pDevice_MediaIdentifier = m_pCommand_Impl->m_pData->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_Media_Identifiers_CONST);  // Try again ignoring registration.  Maybe it will register later
