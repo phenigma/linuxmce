@@ -2061,9 +2061,15 @@ bool ScreenHandler::AddSoftware_ObjectSelected(CallBackData *pData)
 LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Fix this, the id is always the first one, then remove the variables below %s",sID.c_str());
 		 PK_Software=m_PK_Software;
 		sInstallation_Status=m_sInstallationStatus;
+
+		int PK_Device = 
+			m_pOrbiter->m_bIsOSD ? m_pOrbiter->m_pData->m_dwPK_Device_ControlledVia :
+			NULL != m_pOrbiter->m_pLocationInfo ? 
+				m_pOrbiter->m_pLocationInfo->m_dwPK_Device_MediaDirector : 0;
+
 			// Valid Installation status are: [I]nstalled, [i]nstalling, [R]emoved, [r]emoving
 			DCE::CMD_Add_Software CMD_Add_Software(m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device_GeneralInfoPlugIn, 
-				m_pOrbiter->m_pLocationInfo->m_dwPK_Device_MediaDirector, sInstallation_Status!="I" ,PK_Software);
+				PK_Device, sInstallation_Status!="I" ,PK_Software);
 			string sResponse;
 			m_pOrbiter->SendCommand(CMD_Add_Software,&sResponse); // Send with delivery confirmation so the command updates the installation status before the grid refreshes
 
