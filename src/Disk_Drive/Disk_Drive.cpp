@@ -275,15 +275,19 @@ void Disk_Drive::CMD_Eject_Disk(int iSlot_Number,string &sCMD_Result,Message *pM
 	}
 	if( m_pDisk_Drive_Functions->m_bTrayOpen )
 	{
+		string sCmd = "eject -t " + m_pDisk_Drive_Functions->m_sDrive;
 		m_pDisk_Drive_Functions->m_bTrayOpen=false;
 		m_pDisk_Drive_Functions->DisplayMessageOnOrbVFD("Closing tray...");
-		system( ("eject -t " + m_pDisk_Drive_Functions->m_sDrive).c_str() );
+		system( sCmd.c_str() );
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive::CMD_Eject_Disk %s",sCmd.c_str() );
 	}
 	else
 	{
+		string sCmd = "eject " + m_pDisk_Drive_Functions->m_sDrive;
 		m_pDisk_Drive_Functions->m_bTrayOpen=true;
 		m_pDisk_Drive_Functions->DisplayMessageOnOrbVFD("Opening tray...");
-	    system( ("eject " + m_pDisk_Drive_Functions->m_sDrive).c_str() );
+		system( sCmd.c_str() );
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive::CMD_Eject_Disk %s",sCmd.c_str() );
 	}
 
 	m_pDisk_Drive_Functions->m_mediaInserted = false;  // Be sure we re-identify any media in there
