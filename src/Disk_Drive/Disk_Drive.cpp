@@ -293,6 +293,9 @@ void Disk_Drive::CMD_Eject_Disk(int iSlot_Number,string &sCMD_Result,Message *pM
 	m_pDisk_Drive_Functions->m_mediaInserted = false;  // Be sure we re-identify any media in there
 	m_pDisk_Drive_Functions->m_mediaDiskStatus = DISCTYPE_NONE;
 	tLastEject = time(NULL); // Put this after the system call so we know when it's been less than 2 seconds since a successful one
+
+LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Disk_Drive::CMD_Eject_Disk  tLastEject %d (%d) tray open: %d",
+	(int) tLastEject, (int) time(NULL), (int) m_pDisk_Drive_Functions->m_bTrayOpen);
 }
 
 //<-dceag-c49-b->
