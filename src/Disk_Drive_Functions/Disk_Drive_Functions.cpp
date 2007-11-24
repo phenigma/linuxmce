@@ -387,7 +387,7 @@ int Disk_Drive_Functions::cdrom_checkdrive(const char * filename, int * flag, bo
 	status = ioctl(fd, CDROM_DRIVE_STATUS, CDSL_CURRENT);
 	//     LoggerWrapper::GetInstance()->Write(LV_STATUS, "Current disk status %d", status);
 
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Disk_Drive_Functions::cdrom_checkdrive status %d inserted %d flag: %d duration %d/%d",status,(int) m_mediaInserted,*flag,(int) tTemp,(int) time(NULL));
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Disk_Drive_Functions::cdrom_checkdrive status %d inserted %d flag: %d duration %d/%d open %d",status,(int) m_mediaInserted,*flag,(int) tTemp,(int) time(NULL),(int) m_bTrayOpen);
 
 	switch (status)
 	{
