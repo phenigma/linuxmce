@@ -3538,7 +3538,10 @@ void ScreenHandler::SCREEN_DevCallInProgress(long PK_Screen, string sPhoneCaller
 	if(!sChannel.empty())
 		m_pOrbiter->CMD_Set_Variable(VARIABLE_My_Channel_ID_CONST, sChannel);
 
-	if(m_pOrbiter->m_pScreenHistory_Current->PK_Screen() == SCREEN_Assisted_Transfer_In_Progress_CONST)
+	if(
+		m_pOrbiter->m_pScreenHistory_Current->PK_Screen() == SCREEN_Assisted_Transfer_In_Progress_CONST ||
+		m_pOrbiter->m_pScreenHistory_Current->PK_Screen() == SCREEN_MakingLinPhoneBroadcast_CONST
+	)
 	{
 		//don't go to call in progress
 		return;
