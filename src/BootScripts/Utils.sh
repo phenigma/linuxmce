@@ -221,14 +221,7 @@ GetVideoDriver()
 	VideoDriver=viaprop
 #<-mkr_b_via_e->
 #<-mkr_B_via_b->
-	local PCI_ID=$(lshwd -id | grep ' VGA ' | head -1 | cut -d' ' -f2)
-	if [[ "$PCI_ID" == "10de:"* ]]; then
-		# workaround for new nvidia cards that lshwd doesn't know about
-		VideoDriver=nv
-	else
-		VideoDriver=$(lshwd | grep ' VGA ' | head -1 | sed 's/^.*(\([^()]*\)).*$/\1/')
-	fi
-
+	VideoDriver=$(lshwd | grep ' VGA ' | head -1 | sed 's/^.*(\([^()]*\)).*$/\1/')
 	case "$VideoDriver" in
 		nv) PackageIsInstalled nvidia-glx && VideoDriver="nvidia" ;;
 		radeon|ati) PackageIsInstalled fglrx-driver && VideoDriver="fglrx" ;;
