@@ -3709,7 +3709,7 @@ bool ScreenHandler::Telecom_DatagridSelected(CallBackData *pData)
 		RefreshActiveCallsButtons();
 	}
 
-	return true;
+	return false; //don't stop here
 }
 //-----------------------------------------------------------------------------------------------------
 bool ScreenHandler::Telecom_ObjectSelected(CallBackData *pData)
