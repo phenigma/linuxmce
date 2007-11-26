@@ -38,6 +38,11 @@ if [[ -f /etc/pluto/install_cleandb ]]; then
 	chvt 1
 fi
 
+## Setup ALSA mixers
+amixer sset Capture 90%
+#amixer sset 'Mic Boost (+20dB)' unmute
+alsactl store
+
 modprobe ztdummy
 
 export DISPLAY=:${Display}

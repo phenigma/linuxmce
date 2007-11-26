@@ -78,6 +78,11 @@ if [[ -f /usr/pluto/bin/SQL_Ops.sh ]] ;then
 fi
 
 
+## Setup ALSA mixers
+amixer sset Capture 90%
+#amixer sset 'Mic Boost (+20dB)' unmute
+alsactl store
+
 export DISPLAY=":${Display}"
 
 StartService "Loading Kernel Modules" "/usr/pluto/bin/LoadModules.sh"
