@@ -1,3 +1,11 @@
+lshwd (2.0-rc4-1pluto13) unstable; urgency=low
+
+  * Return driver "nv" for all VGA class devices which report manufacturer
+    nVidia (0x10de), to avoid updating the PCI ID list each time a new board
+    comes out.
+
+ -- Radu Cristescu <radu.c@plutohome.com>  Mon, 26 Nov 2007 03:13:49 -0800
+
 lshwd (2.0-rc4-1pluto12) unstable; urgency=low
 
   * Added nVidia GeForce 7050 PV motherboard integrated video card to the
