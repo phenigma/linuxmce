@@ -109,12 +109,14 @@ int UserUtils::AddUser(string sUsername,Command_Impl *pCommand_Impl)
 			(row = db_wrapper_fetch_row(result_set.r))==NULL || atoi(row[0])==0 )
 				break;  // This username is unique
 	}
-	sSQL = "INSERT INTO Users(UserName,Password,PINCode) VALUES('" + StringUtils::SQLEscape(sUsername) + "',md5('" + StringUtils::SQLEscape(sUsername) + "'),md5('1234'));";
+	sSQL = "INSERT INTO Users(UserName,Password,PINCode,HasMailbox,AccessGeneralMailbox) "
+		"VALUES('" + StringUtils::SQLEscape(sUsername) + "',md5('" + StringUtils::SQLEscape(sUsername) + "'),md5('1234')" +
+		(bExistingUsers ? ",0,0)" : ",1,1)");
 
 	int PK_Users = m_pDBHelper->threaded_db_wrapper_query_withID(sSQL);
-	sSQL = "INSERT INTO Installation_Users(FK_Installation,FK_Users,userCanModifyInstallation,userCanChangeHouseMode,HasMailbox,AccessGeneralMailbox) "
+	sSQL = "INSERT INTO Installation_Users(FK_Installation,FK_Users,userCanModifyInstallation,userCanChangeHouseMode) "
 		"VALUES(" + StringUtils::itos(m_PK_Installation) + "," + StringUtils::itos(PK_Users) + 
-		(bExistingUsers ? ",0,0,0,0)" : ",1,1,1,1)");
+		(bExistingUsers ? ",0,0)" : ",1,1)");
 
 	m_pDBHelper->threaded_db_wrapper_query(sSQL);
 
