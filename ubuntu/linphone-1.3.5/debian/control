@@ -69,7 +69,7 @@ Description: linphone web phone's library (supporting the SIP protocol)
 Package: liblinphone1-lmce-dev
 Section: libdevel
 Architecture: any
-Depends: liblinphone1-lmce (=${Source-Version}), libc6-dev | libc-dev, libortp4-dev, libosip2-dev (>= 2.2.0), libjack0.100.0-dev, libspeex-dev, libsamplerate0-dev, libasound2-dev
+Depends: liblinphone1-lmce (=${Source-Version}), libc6-dev | libc-dev, libortp4-lmce-dev, libosip2-dev (>= 2.2.0), libjack0.100.0-dev, libspeex-dev, libsamplerate0-dev, libasound2-dev
 Conflicts: liblinphone0-lmce-dev
 Description: linphone web phone's library (supporting the SIP protocol)
  Linphone is a web phone: it lets you phone to your friends anywhere in the
@@ -84,7 +84,7 @@ Description: linphone web phone's library (supporting the SIP protocol)
  This package contains the files needed to use the linphone's library in your
  programs.
 
-Package: libortp4
+Package: libortp4-lmce
 Section: libs
 Architecture: any
 Depends: ${shlibs:Depends}
@@ -99,11 +99,11 @@ Description: Real-time Transport Protocol stack
    - supports mutiplexing IO;
    - supports part of RFC2833 for telephone events over RTP.
 
-Package: libortp4-dev
+Package: libortp4-lmce-dev
 Section: libdevel
 Architecture: any
-Depends: libortp4 (=${Source-Version}), libglib2.0-dev, libc6-dev | libc-dev
-Conflicts: libortp0-dev, libortp2-dev
+Depends: libortp4-lmce (=${Source-Version}), libglib2.0-dev, libc6-dev | libc-dev
+Conflicts: libortp0-lmce-dev, libortp2-lmce-dev
 Description: Real-time Transport Protocol stack
  This library implements the RFC1889 (RTP) with a easy to use API with high
  and low level access.
