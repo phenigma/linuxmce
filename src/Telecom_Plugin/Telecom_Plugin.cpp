@@ -3295,13 +3295,6 @@ void Telecom_Plugin::CMD_Add_Extensions_To_Call(string sPhoneCallID,string sExte
 	vector<string> vectExtensions;
 	vector<string> droppedChannels;
 	StringUtils::Tokenize(sExtensions, ",", vectExtensions);
-	if( 0 == vectExtensions.size() )
-	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "CMD_Add_Extensions_To_Call : no extensions");
-		sCMD_Result = "ERROR : No extensions to call!";
-		return;
-	}
-
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "CMD_Add_Extensions_To_Call: number of extensions %d", vectExtensions.size());
 	
 	const map<string, string> & channels = pCallStatus->GetChannels();
