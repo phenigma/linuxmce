@@ -2778,70 +2778,50 @@ string Telecom_Plugin::GetPhoneNumber(int iPK_Users, string sPhoneExtension, int
 {
 	string sPhoneNumber;
 
-	if(iPK_Device_To != 0)
+	if(sPhoneExtension != "")
 	{
-		DeviceData_Router *pDeviceData = find_Device(iPK_Device_To);
-		if(NULL != pDeviceData) 
+		sPhoneNumber = sPhoneExtension;
+	}
+	else
+	{
+		if(iPK_Device_To != 0)
 		{
-			if(
-				pDeviceData->m_dwPK_DeviceCategory == DEVICECATEGORY_Standard_Orbiter_CONST ||
-				pDeviceData->m_dwPK_DeviceCategory == DEVICECATEGORY_Mobile_Orbiter_CONST
-			)
+			int nEmbeddedPhoneID = 0;
+			if(GetEmbeddedPhoneAssociated(iPK_Device_To, nEmbeddedPhoneID))
 			{
-				pDeviceData = find_Device(map_orbiter2embedphone[iPK_Device_To]);
-				if(NULL != pDeviceData) 
+				DeviceData_Router *pDeviceData = find_Device(nEmbeddedPhoneID);
+				if(NULL != pDeviceData)
 				{
 					sPhoneNumber = pDeviceData->mapParameters_Find(DEVICEDATA_PhoneNumber_CONST);
 				}
 				else
 				{
-					LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "No device found with id: %d", iPK_Device_To);
+					LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Got embedded phone %d, but it's not present as a device in router", nEmbeddedPhoneID);
 				}
-			}
-			else if(pDeviceData->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Orbiter_Embedded_Phone_CONST)
-			{
-				sPhoneNumber = pDeviceData->mapParameters_Find(DEVICEDATA_PhoneNumber_CONST);
 			}
 			else
 			{
-				map<int,string>::iterator it = map_device2ext.find(iPK_Device_To);
-				if(it != map_device2ext.end() && !it->second.empty())
-				{
-					sPhoneNumber = it->second;
-				}
-				else
-				{
-					LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Not phone device with id: %d", iPK_Device_To);
-				}
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "No embedded phone associated with device %d", iPK_Device_To);
 			}
 		}
-		else
+
+		if(iPK_Users != 0)
 		{
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "No device found with id: %d", iPK_Device_To);
+			/*search user by id*/
+			class Row_Users* rowuser;
+			rowuser=m_pDatabase_pluto_main->Users_get()->GetRow(iPK_Users);
+			if(rowuser)
+			{
+				sPhoneNumber =  StringUtils::itos(rowuser->Extension_get());
+			}
+			else
+			{
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "No user found with id: %d", iPK_Users);
+				return "";
+			}
 		}
 	}
 
-	if(iPK_Users != 0)
-	{
-		/*search user by id*/
-		class Row_Users* rowuser;
-		rowuser=m_pDatabase_pluto_main->Users_get()->GetRow(iPK_Users);
-		if(rowuser)
-		{
-			sPhoneNumber =  StringUtils::itos(rowuser->Extension_get());
-		}
-		else
-		{
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "No user found with id: %d", iPK_Users);
-			return "";
-		}
-	}
-
-	if(sPhoneExtension != "")
-	{
-		sPhoneNumber = sPhoneExtension;
-	}
-	
 	return sPhoneNumber;
 }
 
