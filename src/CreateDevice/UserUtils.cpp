@@ -161,6 +161,10 @@ int UserUtils::AddUser(string sUsername,Command_Impl *pCommand_Impl)
 	sSQL = "INSERT INTO `UserRouting` (`EK_Users`, `EK_UserMode`, `SendStatusFirst`, `IsPriorityCaller`, `StepOrder`, `Routing`) VALUES (" + sPK_Users + ",3,1,1,1,'ring,');";
 	mySqlHelper_telecom.threaded_db_wrapper_query(sSQL);
 
+	string sCmd = "/usr/pluto/bin/SetupUsers.sh";
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Executing %s", sCmd.c_str());
+	system(sCmd.c_str());
+
 	return PK_Users;
 }
 
