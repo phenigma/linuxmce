@@ -3596,11 +3596,15 @@ void ScreenHandler::SCREEN_Call_Dropped(long PK_Screen, string sReason)
 		GetCurrentScreen_PK_DesignObj() == DESIGNOBJ_mnuActiveCalls_CONST 
 	)
 	{
-		SCREEN_Main(SCREEN_Main_CONST, "");
+		DCE::SCREEN_Main screen_Main(m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device, "");
+		m_pOrbiter->SendCommand(screen_Main);
+	}
+	else
+	{
+		m_pOrbiter->CMD_Refresh("*");
 	}
 
 	m_TelecomCommandStatus = tcsDirectDial;
-	m_pOrbiter->CMD_Refresh("*");
 	m_pOrbiter->CMD_Display_Alert("Call dropped. Reason: " + sReason, "", "5", interuptAlways);
 }
 //-----------------------------------------------------------------------------------------------------
