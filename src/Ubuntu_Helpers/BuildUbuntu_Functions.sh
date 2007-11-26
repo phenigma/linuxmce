@@ -416,7 +416,7 @@ function Build_Pluto_Stuff {
 	MakeRelease_PrepFiles="${mkr_dir}/MakeRelease_PrepFiles"
 	$MakeRelease_PrepFiles -p ${svn_dir}/trunk -e "*.cpp,*.h,Makefile*,*.php,*.sh,*.pl,*.awk" -c ${build_dir}/${flavor}.conf
 
-	LinphoneVersion="$(dpkg -s 'liblinphone1' | grep '^Version: ' | cut -d' ' -f2)"
+	LinphoneVersion="$(dpkg -s 'liblinphone1-lmce' | grep '^Version: ' | cut -d' ' -f2)"
 	if [[ "$LinphoneVersion" == "1."[57]"."* ]]; then
 		# Linphone 1.5.1 in Ubuntu Feisty makes SimplePhone to need this
 		export LINPHONE_CONST=const
