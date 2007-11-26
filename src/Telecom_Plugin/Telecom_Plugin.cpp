@@ -2410,13 +2410,18 @@ void Telecom_Plugin::CMD_Speak_in_house(int iPK_Device,string sPhoneNumber,strin
 
 				if( listDevices.size() != 0 )  // We have a valid one
 				{
+					listDevices.remove(dwDevice_Caller);
 					listDevices.push_front(dwDevice_Caller); 
 					for(list<int>::iterator it = listDevices.begin(); it != listDevices.end(); ++it)
 					{
-						// all of us will call 997
-						LoggerWrapper::GetInstance()->Write(LV_STATUS,"Doing a speak in house with %d", *it);
-						DCE::CMD_Phone_Initiate cmd(m_dwPK_Device, *it, 0, SPEAKINTHEHOUSE_CONFERENCE_IVR);
-						SendCommand(cmd);
+						//is this an embedded phone?
+						if(FindValueInMap(map_embedphone2orbiter, *it, 0))
+						{
+							// all of us will call 997
+							LoggerWrapper::GetInstance()->Write(LV_STATUS,"Doing a speak in house with %d", *it);
+							DCE::CMD_Phone_Initiate cmd(m_dwPK_Device, *it, 0, SPEAKINTHEHOUSE_CONFERENCE_IVR);
+							SendCommand(cmd);
+						}
 					}
 					
 					return;
@@ -2453,13 +2458,18 @@ void Telecom_Plugin::CMD_Speak_in_house(int iPK_Device,string sPhoneNumber,strin
 				}
 			}
 			
+			listDevices.remove(dwDevice_Caller);
 			listDevices.push_front(dwDevice_Caller); 
 			for(list<int>::iterator it = listDevices.begin(); it != listDevices.end(); ++it)
 			{
-				// all of us will call 997
-				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Doing a speak in house with %d", *it);
-				DCE::CMD_Phone_Initiate cmd(m_dwPK_Device, *it, 0, SPEAKINTHEHOUSE_CONFERENCE_IVR);
-				SendCommand(cmd);
+				//is this an embedded phone?
+				if(FindValueInMap(map_embedphone2orbiter, *it, 0))
+				{
+					// all of us will call 997
+					LoggerWrapper::GetInstance()->Write(LV_STATUS,"Doing a speak in house with %d", *it);
+					DCE::CMD_Phone_Initiate cmd(m_dwPK_Device, *it, 0, SPEAKINTHEHOUSE_CONFERENCE_IVR);
+					SendCommand(cmd);
+				}
 			}
 		}
 		else
@@ -3380,11 +3390,11 @@ void Telecom_Plugin::CMD_Get_Associated_Picture_For_Channel(string sChannel,char
 
 		string sExten = ExtensionForChannel(sChannel);
 	
-		int nEmbeddedDeviceID = FindValueInMap<string, int>(map_ext2device, sExten, 0); 
+		int nEmbeddedDeviceID = FindValueInMap(map_ext2device, sExten, 0); 
 
 		if(0 != nEmbeddedDeviceID)
 		{
-			int nOrbiterDeviceID = FindValueInMap<int, int>(map_embedphone2orbiter, nEmbeddedDeviceID, 0); 
+			int nOrbiterDeviceID = FindValueInMap(map_embedphone2orbiter, nEmbeddedDeviceID, 0); 
 
 			//get user for orbiter id
 			OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(nOrbiterDeviceID);
