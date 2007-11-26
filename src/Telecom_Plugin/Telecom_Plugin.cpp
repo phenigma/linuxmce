@@ -2787,22 +2787,10 @@ string Telecom_Plugin::GetPhoneNumber(int iPK_Users, string sPhoneExtension, int
 		if(iPK_Device_To != 0)
 		{
 			int nEmbeddedPhoneID = 0;
-			if(GetEmbeddedPhoneAssociated(iPK_Device_To, nEmbeddedPhoneID))
-			{
-				DeviceData_Router *pDeviceData = find_Device(nEmbeddedPhoneID);
-				if(NULL != pDeviceData)
-				{
-					sPhoneNumber = pDeviceData->mapParameters_Find(DEVICEDATA_PhoneNumber_CONST);
-				}
-				else
-				{
-					LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Got embedded phone %d, but it's not present as a device in router", nEmbeddedPhoneID);
-				}
-			}
-			else
-			{
-				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "No embedded phone associated with device %d", iPK_Device_To);
-			}
+			ExtensionStatus *pExtension = FindExtensionStatusByDevice(iPK_Device_To, &nEmbeddedPhoneID);
+
+			if(NULL != pExtension)
+				sPhoneNumber = pExtension->GetID();
 		}
 
 		if(iPK_Users != 0)
@@ -2829,8 +2817,7 @@ ExtensionStatus * Telecom_Plugin::FindExtensionStatusByDevice(int iPK_Device, in
 {
 	if(NULL != pEmbeddedPhone)
 		*pEmbeddedPhone = 0;
-	
-	/*search device by id*/
+
 	DeviceData_Router *pDeviceData = find_Device(iPK_Device);
 	if(!pDeviceData) 
 	{
@@ -2838,31 +2825,40 @@ ExtensionStatus * Telecom_Plugin::FindExtensionStatusByDevice(int iPK_Device, in
 		return NULL;
 	}
 
-	if(pDeviceData->m_dwPK_DeviceTemplate == DEVICETEMPLATE_OnScreen_Orbiter_CONST)
+	//hardphone or embedded?
+	string sSrcPhoneNumber = pDeviceData->mapParameters_Find(DEVICEDATA_PhoneNumber_CONST);
+
+	//orbiter associated with an embedded?
+	if(sSrcPhoneNumber.empty())
 	{
-		pDeviceData = find_Device(map_orbiter2embedphone[iPK_Device]);
-		if(!pDeviceData) {
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "No device found with id: %d", iPK_Device);
-			return NULL;
+		int nEmbeddedPhoneID = 0;
+		if(GetEmbeddedPhoneAssociated(iPK_Device, nEmbeddedPhoneID))
+		{
+			DeviceData_Router *pDeviceData = find_Device(nEmbeddedPhoneID);
+			if(NULL != pDeviceData)
+			{
+				sSrcPhoneNumber = pDeviceData->mapParameters_Find(DEVICEDATA_PhoneNumber_CONST);
+
+				if(NULL != pEmbeddedPhone)
+					*pEmbeddedPhone = nEmbeddedPhoneID;
+			}
+			else
+			{
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Got embedded phone %d, but it's not present as a device in router", nEmbeddedPhoneID);
+			}
 		}
-		iPK_Device = map_orbiter2embedphone[iPK_Device];
-		
-		if(NULL != pEmbeddedPhone)
-			*pEmbeddedPhone = iPK_Device;
+		else
+		{
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "No embedded phone associated with device %d", iPK_Device);
+		}
 	}
-	else if(pDeviceData->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Orbiter_Embedded_Phone_CONST)
+	else
 	{
-		if(NULL != pEmbeddedPhone)
-			*pEmbeddedPhone = iPK_Device;
+		if(pDeviceData->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Orbiter_Embedded_Phone_CONST)
+			if(NULL != pEmbeddedPhone)
+				*pEmbeddedPhone = iPK_Device;
 	}
 
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "our device is : id %d template %d",
-		pDeviceData->m_dwPK_Device,
-		pDeviceData->m_dwPK_DeviceTemplate );
-	
-	/*find phonetype and phonenumber*/
-	string sSrcPhoneNumber = pDeviceData->mapParameters_Find(DEVICEDATA_PhoneNumber_CONST);
-	
 	return FindExtensionStatus(sSrcPhoneNumber);
 }
 
