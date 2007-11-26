@@ -3590,10 +3590,12 @@ void ScreenHandler::SCREEN_Call_Dropped(long PK_Screen, string sReason)
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_My_Call_ID_CONST, "");
 
 	if(
-		GetCurrentScreen_PK_DesignObj() == DESIGNOBJ_devCallInProgress_CONST || 
-		GetCurrentScreen_PK_DesignObj() == DESIGNOBJ_devIncomingCall_CONST   ||
-		GetCurrentScreen_PK_DesignObj() == DESIGNOBJ_mnuPopupMessage_CONST   ||
-		GetCurrentScreen_PK_DesignObj() == DESIGNOBJ_mnuActiveCalls_CONST 
+		GetCurrentScreen_PK_DesignObj() == DESIGNOBJ_devCallInProgress_CONST			|| 
+		GetCurrentScreen_PK_DesignObj() == DESIGNOBJ_devIncomingCall_CONST				||
+		GetCurrentScreen_PK_DesignObj() == DESIGNOBJ_mnuPopupMessage_CONST				||
+		GetCurrentScreen_PK_DesignObj() == DESIGNOBJ_mnuActiveCalls_CONST				|| 
+		GetCurrentScreen_PK_DesignObj() == DESIGNOBJ_mnuMakingLinPhoneBroadcast_CONST		||
+		GetCurrentScreen_PK_DesignObj() == DESIGNOBJ_mnuMenu2_CONST
 	)
 	{
 		DCE::SCREEN_Main screen_Main(m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device, "");
