@@ -1140,14 +1140,34 @@ void MPlayer_Player::CopyVectorToVectorFromItem(const vector<string> &vList, vec
 
 void MPlayer_Player::CreateVideoConfigFiles(const vector<string> &vFiles)
 {
-	vector<string> vOptions;
-	vOptions.push_back("demuxer=lavf");
-	vOptions.push_back("lavdopts=fast=yes:threads=2");
-	
 	for (vector<string>::const_iterator vi=vFiles.begin(); vi!=vFiles.end(); ++vi)
 	{
+		// EVO files requires forced demuxer to be set to lavf 
+		// to speedup startup, plus trying to use multiple threads
+		// if they are present/supported. Also, doing the aggressive 
+		// caching to work better over network share
 		if (StringUtils::EndsWith(*vi, ".EVO", true))
 		{
+			vector<string> vOptions;
+			vOptions.push_back("demuxer=lavf");
+			vOptions.push_back("lavdopts=fast=yes:threads=2");
+			vOptions.push_back("cache=65536");
+			vOptions.push_back("cache-min=20");
+	
+			string sConfigName = "/root/.mplayer/" + FileUtils::FilenameWithoutPath(*vi) + ".conf";
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::CreateVideoConfigFiles writing options to: %s", vi->c_str());
+			FileUtils::WriteVectorToFile(sConfigName, vOptions);
+		}
+		
+		
+		// M2TS uses internal mplayer demuxer, so we just doing the 
+		// aggressive caching to work better over network share
+		if (StringUtils::EndsWith(*vi, ".M2TS", true))
+		{
+			vector<string> vOptions;
+			vOptions.push_back("cache=65536");
+			vOptions.push_back("cache-min=20");
+	
 			string sConfigName = "/root/.mplayer/" + FileUtils::FilenameWithoutPath(*vi) + ".conf";
 			LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::CreateVideoConfigFiles writing options to: %s", vi->c_str());
 			FileUtils::WriteVectorToFile(sConfigName, vOptions);
