@@ -112,9 +112,9 @@ int UserUtils::AddUser(string sUsername,Command_Impl *pCommand_Impl)
 	sSQL = "INSERT INTO Users(UserName,Password,PINCode) VALUES('" + StringUtils::SQLEscape(sUsername) + "',md5('" + StringUtils::SQLEscape(sUsername) + "'),md5('1234'));";
 
 	int PK_Users = m_pDBHelper->threaded_db_wrapper_query_withID(sSQL);
-	sSQL = "INSERT INTO Installation_Users(FK_Installation,FK_Users,userCanModifyInstallation,userCanChangeHouseMode) "
+	sSQL = "INSERT INTO Installation_Users(FK_Installation,FK_Users,userCanModifyInstallation,userCanChangeHouseMode,HasMailbox,AccessGeneralMailbox) "
 		"VALUES(" + StringUtils::itos(m_PK_Installation) + "," + StringUtils::itos(PK_Users) + 
-		(bExistingUsers ? ",0,0)" : ",1,1)");
+		(bExistingUsers ? ",0,0,0,0)" : ",1,1,1,1)");
 
 	m_pDBHelper->threaded_db_wrapper_query(sSQL);
 
