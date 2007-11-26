@@ -46,7 +46,7 @@ URL := http://simon.morlat.free.fr/download/stable/source/linphone-$(UPVERSION).
 configure-stamp: configure
 	dh_testdir
 	./autogen.sh
-	CFLAGS="$(CFLAGS)" ./configure $(confflags) --prefix=/usr --mandir=\$${prefix}/share/man --infodir=\$${prefix}/share/info --disable-static --sysconfdir=/etc --with-osip=/usr --with-speex=/usr --enable-ipv6
+	CFLAGS="$(CFLAGS)" ./configure $(confflags) --prefix=/opt/linphone-1.3.5 --mandir=\$${prefix}/share/man --infodir=\$${prefix}/share/info --disable-static --sysconfdir=/etc --with-osip=/usr --with-speex=/usr --enable-ipv6
 	#--enable-video
 	touch configure-stamp
 
@@ -93,20 +93,20 @@ install:
 	dh_clean -k -s
 	dh_installdirs
 
-	$(MAKE) install PIXDESTDIR=$(CURDIR)/debian/tmp prefix=$(CURDIR)/debian/tmp/usr sysconfdir=$(CURDIR)/debian/tmp/etc
-	mkdir -p debian/tmp/usr/share/doc/linphone-nox/html
-	cp debian/tmp/usr/share/gnome/help/linphone/C/* debian/tmp/usr/share/doc/linphone-nox/html
-	mkdir -p debian/tmp/usr/share/doc/linphone
-	cd debian/tmp/usr/share/doc/linphone; ln -s ../linphone-nox/html
-	mkdir -p debian/tmp/usr/share/doc/libortp2-dev/html
-	cp debian/tmp/usr/share/gtk-doc/html/ortp/* debian/tmp/usr/share/doc/libortp2-dev/html
+	$(MAKE) install PIXDESTDIR=$(CURDIR)/debian/tmp prefix=$(CURDIR)/debian/tmp/opt/linphone-1.3.5 sysconfdir=$(CURDIR)/debian/tmp/opt/etc
+	mkdir -p debian/tmp/opt/linphone-1.3.5/share/doc/linphone-nox/html
+	cp debian/tmp/opt/linphone-1.3.5/share/gnome/help/linphone/C/* debian/tmp/opt/linphone-1.3.5/share/doc/linphone-nox/html
+	mkdir -p debian/tmp/opt/linphone-1.3.5/share/doc/linphone
+	cd debian/tmp/opt/linphone-1.3.5/share/doc/linphone; ln -s ../linphone-nox/html
+	mkdir -p debian/tmp/opt/linphone-1.3.5/share/doc/libortp2-dev/html
+	cp debian/tmp/opt/linphone-1.3.5/share/gtk-doc/html/ortp/* debian/tmp/opt/linphone-1.3.5/share/doc/libortp2-dev/html
 
 	# The icon did not have the right size (32x32)
-	cp -f debian/linphone2.xpm debian/tmp/usr/share/pixmaps/linphone/linphone2.xpm
+	cp -f debian/linphone2.xpm debian/tmp/opt/linphone-1.3.5/share/pixmaps/linphone/linphone2.xpm
 
-	rm -rf debian/tmp/usr/lib/libeXosip* debian/tmp/usr/include/eXosip debian/tmp/usr/bin/sip_reg debian/tmp/usr/bin/eXosip*
-	rm -rf debian/tmp/usr/share/gtk-doc/html/ortp debian/tmp/usr/share/gtk-doc/html/mediastreamer
-	rm -f debian/tmp/usr/share/linphonec/linphonec
+	rm -rf debian/tmp/opt/linphone-1.3.5/lib/libeXosip* debian/tmp/opt/linphone-1.3.5/include/eXosip debian/tmp/opt/linphone-1.3.5/bin/sip_reg debian/tmp/opt/linphone-1.3.5/bin/eXosip*
+	rm -rf debian/tmp/opt/linphone-1.3.5/share/gtk-doc/html/ortp debian/tmp/opt/linphone-1.3.5/share/gtk-doc/html/mediastreamer
+	rm -f debian/tmp/opt/linphone-1.3.5/share/linphonec/linphonec
 
 	#mkdir -p debian/libortp2/DEBIAN
 	#install -m644 debian/libortp2.shlibs debian/libortp2/DEBIAN/shlibs
@@ -129,7 +129,7 @@ binary-arch: build install
 	dh_fixperms
 	dh_makeshlibs #-Xlibortp
 	dh_installdeb
-	dh_shlibdeps -l debian/tmp/usr/lib -L liblinphone1 -L libortp2
+	dh_shlibdeps -l debian/tmp/opt/linphone-1.3.5/lib -L liblinphone1-lmce -L libortp2
 	dh_gencontrol
 	dh_md5sums
 	dh_builddeb

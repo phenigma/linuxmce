@@ -1,4 +1,4 @@
-Source: linphone
+Source: linphone-lmce
 Section: sound
 Priority: optional
 Maintainer: Debian VoIP Team <pkg-voip-maintainers@lists.alioth.debian.org>
@@ -6,9 +6,9 @@ Uploaders: Samuel Mimram <smimram@debian.org>
 Build-Depends: debhelper (>= 4.0.0), autoconf, automake1.9, autotools-dev, libtool, pkg-config, libglib2.0-dev, libosip2-dev (>= 2.2.0), libasound2-dev, libjack0.100.0-dev, libspeex-dev (>= 1.1.12), libsamplerate0-dev, libxml-parser-perl, gtk-doc-tools, docbook-utils, libgnomeui-dev, libgnome2-dev, gnome-applets, libpanel-applet2-dev, dpatch, libavcodec-dev, libvorbis-dev, libreadline5-dev, libsdl1.2-dev
 Standards-Version: 3.7.2
 
-Package: linphone
+Package: linphone-lmce
 Architecture: any
-Depends: ${shlibs:Depends}, linphone-nox (=${Source-Version})
+Depends: ${shlibs:Depends}, linphone-lmce-nox (=${Source-Version})
 Suggests: yelp
 Description: web phone
  Linphone is a web phone: it lets you phone to your friends anywhere in the
@@ -20,9 +20,9 @@ Description: web phone
    - it includes a large variety of codecs with different quality / bandwidths;
    - it uses the well-known and standardised SIP protocol.
 
-Package: linphone-nox
+Package: linphone-lmce-nox
 Architecture: any
-Depends: ${shlibs:Depends}, linphone-common (=${Source-Version})
+Depends: ${shlibs:Depends}, linphone-lmce-common (=${Source-Version})
 Description: web phone
  Linphone is a web phone: it lets you phone to your friends anywhere in the
  whole world, freely, simply by using the internet. It is compatible with the
@@ -35,9 +35,9 @@ Description: web phone
  .
  This package contains the console version of linphone.
 
-Package: linphone-common
+Package: linphone-lmce-common
 Architecture: all
-Replaces: linphone-nox (<= 0.12.2-2)
+Replaces: linphone-lmce-nox (<= 0.12.2-2)
 Description: web phone
  Linphone is a web phone: it lets you phone to your friends anywhere in the
  whole world, freely, simply by using the internet. It is compatible with the
@@ -50,7 +50,7 @@ Description: web phone
  .
  This package contains the resource files of linphone (the rings).
 
-Package: liblinphone1
+Package: liblinphone1-lmce
 Section: libs
 Architecture: any
 Depends: ${shlibs:Depends}
@@ -66,11 +66,11 @@ Description: linphone web phone's library (supporting the SIP protocol)
  .
  This package contains only the shared runtime libraries.
 
-Package: liblinphone1-dev
+Package: liblinphone1-lmce-dev
 Section: libdevel
 Architecture: any
-Depends: liblinphone1 (=${Source-Version}), libc6-dev | libc-dev, libortp4-dev, libosip2-dev (>= 2.2.0), libjack0.100.0-dev, libspeex-dev, libsamplerate0-dev, libasound2-dev
-Conflicts: liblinphone0-dev
+Depends: liblinphone1-lmce (=${Source-Version}), libc6-dev | libc-dev, libortp4-dev, libosip2-dev (>= 2.2.0), libjack0.100.0-dev, libspeex-dev, libsamplerate0-dev, libasound2-dev
+Conflicts: liblinphone0-lmce-dev
 Description: linphone web phone's library (supporting the SIP protocol)
  Linphone is a web phone: it lets you phone to your friends anywhere in the
  whole world, freely, simply by using the internet. It is compatible with the

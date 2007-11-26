@@ -1,3 +1,9 @@
+linphone-lmce (1.3.5-1build1) unstable; urgency=low
+
+  * Forward ported linphone from Edgy to use its alsadev option.
+
+ -- Radu Cristescu <radu.c@plutohome.com>  Mon, 26 Nov 2007 16:27:15 +0200
+
 linphone (1.3.5-1build1) edgy; urgency=low
 
   * Recompiled for new libavcodec-dev
