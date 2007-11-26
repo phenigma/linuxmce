@@ -409,6 +409,7 @@ function Build_Pluto_Stuff {
 #	export PATH=/usr/lib/ccache:$PATH:${svn_dir}/trunk/src/bin
 
 	export LD_LIBRARY_PATH="$mkr_dir:${svn_dir}/trunk/src/lib"
+	export PKG_CONFIG_PATH=/opt/linphone-1.3.5/lib/pkgconfig
 
 	SVNrevision=$(svn info "${svn_dir}"/trunk/src |grep ^Revision | cut -d" " -f2)
 
