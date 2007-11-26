@@ -98,7 +98,9 @@ case $Action in
 		Row="$(RunSQL "$Q")"
 		SourcesCount="$(Field 1 "$Row")"
 		MyLog "Found $SourcesCount sources for package $PackageName"
-		
+	
+		Err="Download of valid source for package failed"
+
 		for i in `seq 1 $SourcesCount`; do
 			SourcesShift=$(( i - 1 ))
 			Q="SELECT Downloadurl,Sum_md5,Sum_sha,PK_Software_Source,Version+0 AS Software_Version FROM Software_Source WHERE Distro='$Distro' AND FK_Software=$PackageID AND Virus_Free=1 ORDER BY Software_Version DESC LIMIT $SourcesShift,1"
@@ -141,9 +143,8 @@ case $Action in
 					Err=""
 					break
 				else
-					MyLog "Installation failed, checksums test failed: MD5=$MD5Package (should be $MD5Sum), SHA1=$SHA1Package (should be $SHA1Sum)"
-					Err="package is corrupted"
-					break
+					MyLog "Checksums test failed for this package: MD5=$MD5Package (should be $MD5Sum), SHA1=$SHA1Package (should be $SHA1Sum)"
+					MyLog "Trying next source.."
 				fi
 			else
 				MyLog "Download failed (direct link)"
