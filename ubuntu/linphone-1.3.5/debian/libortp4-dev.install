@@ -1,5 +1,5 @@
-usr/include/ortp/*.h
-usr/lib/libortp.la
-usr/lib/libortp.so
-usr/lib/pkgconfig/ortp.pc
-usr/share/doc/libortp2-dev/html
+opt/linphone-1.3.5/include/ortp/*.h
+opt/linphone-1.3.5/lib/libortp.la
+opt/linphone-1.3.5/lib/libortp.so
+opt/linphone-1.3.5/lib/pkgconfig/ortp.pc
+opt/linphone-1.3.5/share/doc/libortp2-dev/html
