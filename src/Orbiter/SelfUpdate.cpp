@@ -324,6 +324,10 @@ bool OrbiterSelfUpdate::Run()
         }
 	}
 
+	//last update failed, the user wants to try again
+	string sCommFile = m_pOrbiter->DATA_Get_Communication_file();
+	FileUtils::DelFile(sCommFile);
+
 #ifdef DEBUG
 	LoggerWrapper::GetInstance()->Write( LV_STATUS,  "Last update didn't fail or the user decided to try to update again." );
 #endif
