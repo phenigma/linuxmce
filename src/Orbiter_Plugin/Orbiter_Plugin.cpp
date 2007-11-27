@@ -464,11 +464,14 @@ bool Orbiter_Plugin::ReportPendingTasks(PendingTaskList *pPendingTaskList)
 	for(list<int>::iterator it=m_listRegenCommands.begin();it!=m_listRegenCommands.end();++it)
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter_Plugin::PendingTasks m_listRegenCommands %d",*it);
 
+	char cPercent = 0;
+	int nSecondsLeft = 0;
+
 	if( pPendingTaskList )
 	{
 		for(list<int>::iterator it=m_listRegenCommands.begin();it!=m_listRegenCommands.end();++it)
 		{
-			string sProgress = "Regen Orbiter " + StringUtils::itos(*it);
+			string sDescription = "Regen Orbiter " + StringUtils::itos(*it);
 			OH_Orbiter *pOH_Orbiter = m_mapOH_Orbiter_Find(*it);
 
 			int Minutes = pOH_Orbiter ? (int)(time(NULL) - pOH_Orbiter->m_tRegenTime) / 60 : 0;
@@ -483,29 +486,44 @@ bool Orbiter_Plugin::ReportPendingTasks(PendingTaskList *pPendingTaskList)
 				Row_Room *pRow_Room = pRow_Device ? pRow_Device->FK_Room_getrow() : NULL;
 				string sRoom = pRow_Room ? pRow_Room->Description_get() : "";
 
-				sProgress += 
+				sDescription += 
 					" (" + (pRow_Device ? pRow_Device->Description_get() : "") + 
-					(sRoom != "" ? " / " + sRoom : "") + ") " + 
-					StringUtils::itos(Minutes) + " min " + StringUtils::itos(Seconds) + " sec";
+					(sRoom != "" ? " / " + sRoom : "") + ")";
 
+				nSecondsLeft = Minutes * 60 + Seconds;
 
                 if(pRow_Orbiter->RegenPercent_get() == 100)
                 {
                     //OrbiterGen didn't start to regen this orbiter
                     //if OrbiterGen finished with this Orbiter, we shouldn't see it as a pending task anymore
-                    sProgress += "\nScheduled";
+                    sDescription += " - Scheduled";
                 }
                 else
                 {
-                    sProgress += "\n" + pRow_Orbiter->RegenStatus_get() + " " + 
-                        StringUtils::itos(pRow_Orbiter->RegenPercent_get()) + "%";
+                    sDescription += " - " + pRow_Orbiter->RegenStatus_get();
+					cPercent = (char)(pRow_Orbiter->RegenPercent_get() % 100);
                 }
 			}
 
-			pPendingTaskList->m_listPendingTask.push_back(new PendingTask(*it,
-				m_dwPK_Device,m_dwPK_Device,
-				"orbitergen",sProgress,
-				-1,0,false));
+			pPendingTaskList->m_listPendingTask.push_back(
+				new PendingTask(
+					*it,				//dwID
+					m_dwPK_Device,		//dwPK_Device_Processing
+					m_dwPK_Device,		//dwPK_Device_Abort
+					"orbitergen",		//sType
+					sDescription,		//sDescription
+					cPercent,			//cPercentComplete
+					nSecondsLeft,		//dwSecondsLeft
+					false				//bCanAbort
+				)
+			);
+
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Orbiter_Plugin::ReportPendingTasks "
+				"id %d, device processing %d, device abort %d, "
+				"type %s, description '%s', percent %c, seconds left %d, can abort %d",
+				*it, m_dwPK_Device, m_dwPK_Device,
+				"orbitergen", sDescription.c_str(), cPercent, nSecondsLeft, false
+			);
 		}
 	}
 
