@@ -157,8 +157,9 @@
 	$GLOBALS['commandPhoneExtension']=83;			// PhoneExtension
 	$GLOBALS['delayTime']=102;						// Delay time
 	$GLOBALS['commandParamPK_DeviceTo']=263;		// PK_DeviceTo
-	
+	$GLOBALS['commandParamPK_Screen']=159;			// PK_Screen
 	$GLOBALS['commandParameterObjectScreen']=16;	// Object(Screen)
+	$GLOBALS['commandParameterListDevice']=103;		// List PK Device (string)
 	
 	// PK_DeviceData from table DeviceData
 	$GLOBALS['Path']=2;							// the Path

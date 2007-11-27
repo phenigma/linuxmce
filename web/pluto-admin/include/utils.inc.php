@@ -1033,6 +1033,8 @@ function getDevicesArrayFromCategory($categoryID,$dbADO,$extra='')
 	$categories=getDescendantsForCategory($categoryID,$dbADO);
 	
 	$label=(@$GLOBALS['DT_&_Room']==1)?'CONCAT(Device.Description,\' (\',DeviceTemplate.Description,\') \',Room.Description) AS Description':'Device.Description AS Description';
+	$label=(@$GLOBALS['Room_Name']==1)?'CONCAT(Device.Description,\' (\',Room.Description,\')\') AS Description':$label;
+
 	$devicesList=getAssocArray('Device','PK_Device',$label,$dbADO,'INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate	LEFT JOIN Room ON FK_Room=PK_Room WHERE FK_DeviceCategory IN ('.join(',',$categories).') AND Device.FK_Installation='.(int)@$_SESSION['installationID'].$extra,'ORDER BY Description ASC');
 	
 	return $devicesList;
@@ -5891,8 +5893,12 @@ function is_dir64($file){
  * @param array $values
  * @desc create the parameters for the command specified as parameter, from Command_CommandParameter
 */
-function addScenarioCommandParameters($cgcID,$commandID,$dbADO,$values=array()){
+function addScenarioCommandParameters($cgcID,$commandID,$dbADO,$values=array(),$screen=0){
 	$cmdParams=array_keys(getAssocArray('Command_CommandParameter','FK_CommandParameter','Description',$dbADO,'WHERE FK_Command='.$commandID));
+	if($screen!=0){
+		$extraParams=array_keys(getAssocArray('Screen_CommandParameter','FK_CommandParameter','Description',$dbADO,'WHERE FK_Screen='.$screen));
+		$cmdParams=array_merge($cmdParams,$extraParams);
+	}
 	$insertCG_C_CP='
 		INSERT IGNORE INTO CommandGroup_Command_CommandParameter 
 			(FK_CommandGroup_Command,FK_CommandParameter,IK_CommandParameter)

@@ -199,29 +199,10 @@ if($action=='form') {
 			INNER JOIN CommandGroup_Command_CommandParameter ON FK_CommandGroup_Command=PK_CommandGroup_Command 
 		WHERE FK_CommandParameter=? AND PK_CommandGroup=?';
 
-	$resCameraCG_C=$dbADO->Execute($selectCameraCG_C,array($GLOBALS['commandParameterVariableNumber'],$cgID));
-	$CG_CArray=array();
+	$resCameraCG_C=$dbADO->Execute($selectCameraCG_C,array($GLOBALS['commandParameterListDevice'],$cgID));
 	while($rowCameraCG_C=$resCameraCG_C->FetchRow()){
-		$CG_CArray[$rowCameraCG_C['IK_CommandParameter']]=$rowCameraCG_C['FK_CommandGroup_Command'];
+		$oldCameras=explode(',',$rowCameraCG_C['IK_CommandParameter']);
 	}
-	if($resCameraCG_C->RecordCount()>0){
-		$selectCameraID='
-			SELECT CommandGroup.PK_CommandGroup, FK_Array,FK_Installation, CommandGroup.Description, IK_CommandParameter, FK_CommandGroup_Command
-			FROM CommandGroup 
-				INNER JOIN CommandGroup_Command ON FK_CommandGroup=PK_CommandGroup 
-				INNER JOIN CommandGroup_Command_CommandParameter ON FK_CommandGroup_Command=PK_CommandGroup_Command 
-			WHERE PK_CommandGroup=? AND FK_CommandGroup_Command IN ('.join(',',$CG_CArray).') AND FK_CommandParameter=?';
-		$resCameraID=$dbADO->Execute($selectCameraID,array($cgID,$GLOBALS['commandParameterValueToAsign']));
-		$oldCameraIDs=array();
-		while($rowCameraID=$resCameraID->FetchRow()){
-			$oldCameraIDs[$rowCameraID['FK_CommandGroup_Command']]=$rowCameraID['IK_CommandParameter'];
-		}
-		$oldIDs=array();
-		foreach($CG_CArray AS $cameraFlag=>$cameraCG_C){
-			$oldIDs[$cameraFlag]=$oldCameraIDs[$cameraCG_C];
-		}
-	}else
-		$oldIDs=array();
 
 	$out.='	<form action="index.php" method="POST" name="securityScenarios">
 		<input type="hidden" name="section" value="securityScenarios">
@@ -243,19 +224,19 @@ if($action=='form') {
 			<tr>
 				<td colspan="2"><b>'.$TEXT_SELECT_CAMERAS_FOR_QUAD_VIEW_CONST.':</b></td>
 			</tr>';
-			foreach($GLOBALS['camerasVariableNumbersArray'] as $pos=>$cameraNO){
+			for($cameraNO=1;$cameraNO<5;$cameraNO++){
 				$out.='
 				<input type="hidden" name="oldCamera_'.$cameraNO.'" value="'.@$oldIDs[$cameraNO].'">
 				<input type="hidden" name="oldCameraCG_C_'.$cameraNO.'" value="'.@$CG_CArray[$cameraNO].'">
 				<tr>
-					<td><B>'.$TEXT_CAMERA_CONST.' '.($pos+1).': </B></td>
+					<td><B>'.$TEXT_CAMERA_CONST.' '.$cameraNO.': </B></td>
 					<td><select name="camera_'.$cameraNO.'">
 						<option value="0"></option>';
 					$xinePlayers=getAssocArray('Device','PK_Device','Description',$dbADO,'WHERE FK_Installation='.$installationID.' AND FK_DeviceTemplate='.$GLOBALS['XinePlayer']);
 					$cameraDevices=$cameraDevices+$xinePlayers;
 					asort($cameraDevices);
 					foreach($cameraDevices as $cameraID=>$cameraDescription){
-						$out.='<option value="'.$cameraID.'" '.(($cameraID==@$oldIDs[$cameraNO])?'selected':'').'>'.$cameraDescription.'</option>';
+						$out.='<option value="'.$cameraID.'" '.(($cameraID==@$oldCameras[$cameraNO-1])?'selected':'').'>'.$cameraDescription.'</option>';
 					}
 				
 				$out.='						
@@ -332,26 +313,19 @@ if($action=='form') {
 			VALUES
 				(?,?,?)';
 		
-		
+		$dbADO->Execute($insertCG_C,array($cgID,$GLOBALS['GoToScreen'],0,10,$GLOBALS['localOrbiter']));
+		$cg_cID=$dbADO->Insert_ID();
+		addScenarioCommandParameters($cg_cID,$GLOBALS['GoToScreen'],$dbADO,array($GLOBALS['commandParamPK_Screen']=>17));	
+
+		$cameraDevices=array();
 		for($i=1;$i<5;$i++){
 			$camera=(int)$_POST['camera_'.$i];
-			
-			$dbADO->Execute($insertCG_C,array($cgID,$GLOBALS['commandSetVar'],0,(17+$i),$GLOBALS['localOrbiter']));
-			$cg_cID=$dbADO->Insert_ID();
-			
-			$values=array();
-			$values[$GLOBALS['commandParameterVariableNumber']]=$GLOBALS['camerasVariableNumbersArray'][$i-1];
-			$values[$GLOBALS['commandParameterValueToAsign']]=$camera;
-			
-			addScenarioCommandParameters($cg_cID,$GLOBALS['commandSetVar'],$dbADO,$values);	
+			if($camera>0){
+				$cameraDevices[]=$camera;
+			}
 		}
+		addScenarioCommandParameters($cg_cID,$GLOBALS['GoToScreen'],$dbADO,array($GLOBALS['commandParameterListDevice']=>join(',',$cameraDevices)),17);	
 		
-		$dbADO->Execute($insertCG_C,array($cgID,$GLOBALS['commandGotoScreen'],0,30,$GLOBALS['localOrbiter']));
-		$cg_cID=$dbADO->Insert_ID();
-		
-		$values=array();
-		$values[$GLOBALS['commandParamPK_DesignObj']]=$GLOBALS['mnuSecurityCamerasDesignObj'];
-		addScenarioCommandParameters($cg_cID,$GLOBALS['commandGotoScreen'],$dbADO,$values);	
 		$msg=$TEXT_SECURITY_SCENARIO_ADDED_CONST;
 	}
 
@@ -371,69 +345,42 @@ if($action=='form') {
 		$dbADO->Execute($updateCommandGroup,array($description,$hint,$cgID));
 		setOrbitersNeedConfigure($installationID,$dbADO);
 		
-		$insertCG_C='
-			INSERT INTO CommandGroup_Command 
-				(FK_CommandGroup,FK_Command,TurnOff,OrderNum,FK_Device)
-			VALUES
-				(?,?,?,?,?)';
-		$insertCG_C_CP='
-			INSERT INTO CommandGroup_Command_CommandParameter 
-				(FK_CommandGroup_Command,FK_CommandParameter,IK_CommandParameter)
-			VALUES
-				(?,?,?)';
-
-		foreach($GLOBALS['camerasVariableNumbersArray'] as $cameraNO){			
-			$oldCamera=(int)$_POST['oldCamera_'.$cameraNO];
-			$oldCameraCG_C=(int)$_POST['oldCameraCG_C_'.$cameraNO];
-			$camera=(int)$_POST['camera_'.$cameraNO];
-
-			if($oldCamera==0){
-				if($camera!=0){
-					$deleteCG_C='DELETE FROM CommandGroup_Command WHERE PK_CommandGroup_Command=?';
-					$dbADO->Execute($deleteCG_C,$oldCameraCG_C);
-					
-					$deleteParameters='
-						DELETE CommandGroup_Command_CommandParameter
-						FROM CommandGroup_Command_CommandParameter
-						JOIN CommandGroup_Command on FK_CommandGroup_Command=PK_CommandGroup_Command
-						WHERE FK_CommandGroup=? AND FK_CommandParameter=? AND IK_CommandParameter=?';
-					$dbADO->Execute($deleteParameters,array($oldCameraCG_C,$GLOBALS['commandParameterVariableNumber'],$cameraNO));
-					$dbADO->Execute($deleteParameters,array($oldCameraCG_C,$GLOBALS['commandParameterValueToAsign'],$oldCamera));
-					
-					$dbADO->Execute($insertCG_C,array($cgID,$GLOBALS['commandSetVar'],0,$cameraNO,$GLOBALS['localOrbiter']));
-					$cg_cID=$dbADO->Insert_ID();
-				
-					$values=array();
-					$values[$GLOBALS['commandParameterVariableNumber']]=$camera;
-					$values[$GLOBALS['commandParameterVariableNumber']]=$cameraNO;
-			
-					addScenarioCommandParameters($cg_cID,$GLOBALS['commandSetVar'],$dbADO,$values);						
-		
-				}
-			}elseif($camera==0 || $camera!=$oldCamera){
-				$deleteCG_C='DELETE FROM CommandGroup_Command WHERE PK_CommandGroup_Command=?';
-				$dbADO->Execute($deleteCG_C,$oldCameraCG_C);
-				
-				$deleteParameters='
-					DELETE CommandGroup_Command_CommandParameter
-					FROM CommandGroup_Command_CommandParameter
-					JOIN CommandGroup_Command on FK_CommandGroup_Command=PK_CommandGroup_Command
-					WHERE FK_CommandGroup=? AND FK_CommandParameter=? AND IK_CommandParameter=?';
-				$dbADO->Execute($deleteParameters,array($oldCameraCG_C,$GLOBALS['commandParameterVariableNumber'],$cameraNO));
-				$dbADO->Execute($deleteParameters,array($oldCameraCG_C,$GLOBALS['commandParameterValueToAsign'],$oldCamera));
-				if($camera!=$oldCamera){
-					$dbADO->Execute($insertCG_C,array($cgID,$GLOBALS['commandSetVar'],0,$cameraNO,$GLOBALS['localOrbiter']));
-					$cg_cID=$dbADO->Insert_ID();
-				
-					$values=array();
-					$values[$GLOBALS['commandParameterVariableNumber']]=$cameraNO;
-					$values[$GLOBALS['commandParameterValueToAsign']]=$camera;
-			
-					addScenarioCommandParameters($cg_cID,$GLOBALS['commandSetVar'],$dbADO,$values);						
-					
-				}
+		$cameraDevices=array();
+		for($i=1;$i<5;$i++){
+			$camera=(int)$_POST['camera_'.$i];
+			if($camera>0){
+				$cameraDevices[]=$camera;
 			}
 		}
+		
+		$selectCameraCG_C='
+		SELECT FK_CommandGroup_Command,FK_CommandParameter
+		FROM CommandGroup 
+			INNER JOIN CommandGroup_Command ON FK_CommandGroup=PK_CommandGroup 
+			INNER JOIN CommandGroup_Command_CommandParameter ON FK_CommandGroup_Command=PK_CommandGroup_Command 
+		WHERE FK_CommandParameter=? AND PK_CommandGroup=?';
+		$resCameraCG_C=$dbADO->Execute($selectCameraCG_C,array($GLOBALS['commandParameterListDevice'],$cgID));
+		if($resCameraCG_C->RecordCount()>0){
+			$rowCameraCG_C=$resCameraCG_C->FetchRow();
+			$dbADO->Execute('UPDATE CommandGroup_Command_CommandParameter SET IK_CommandParameter=? WHERE FK_CommandGroup_Command=? AND FK_CommandParameter=?',array(join(',',$cameraDevices),$rowCameraCG_C['FK_CommandGroup_Command'],$rowCameraCG_C['FK_CommandParameter']));
+		}else{
+			$insertCG_C='
+				INSERT INTO CommandGroup_Command 
+					(FK_CommandGroup,FK_Command,TurnOff,OrderNum,FK_Device)
+				VALUES
+					(?,?,?,?,?)';
+			$insertCG_C_CP='
+				INSERT INTO CommandGroup_Command_CommandParameter 
+					(FK_CommandGroup_Command,FK_CommandParameter,IK_CommandParameter)
+				VALUES
+					(?,?,?)';
+			
+			$dbADO->Execute($insertCG_C,array($cgID,$GLOBALS['GoToScreen'],0,10,$GLOBALS['localOrbiter']));
+			$cg_cID=$dbADO->Insert_ID();
+			addScenarioCommandParameters($cg_cID,$GLOBALS['GoToScreen'],$dbADO,array($GLOBALS['commandParamPK_Screen']=>17));	
+			addScenarioCommandParameters($cg_cID,$GLOBALS['GoToScreen'],$dbADO,array($GLOBALS['commandParameterListDevice']=>join(',',$cameraDevices)),17);	
+		}
+
 		$msg=$TEXT_SECURITY_SCENARIO_UPDATED_CONST;
 		setOrbitersNeedConfigure($installationID,$dbADO);
 		header("Location: index.php?section=securityScenarios&msg=$msg");
