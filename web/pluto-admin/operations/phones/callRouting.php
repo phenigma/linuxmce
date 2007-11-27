@@ -302,7 +302,9 @@ function step_options($selected,$user,$dbADO,$suffix='',$oldValues=''){
 		$styleHidden=($selected==$currentStep)?'':'style="display:none"';
 		switch ($currentStep){
 			case 'ring':
+				$GLOBALS['Room_Name']=1;
 				$phones=getDevicesArrayFromCategory($GLOBALS['rootPhones'],$dbADO);
+				$GLOBALS['Room_Name']=0;
 				$oldValuesArray=explode(',',$oldValues);
 				$div_ring='';
 				foreach ($phones AS $phoneID=>$phoneName){
