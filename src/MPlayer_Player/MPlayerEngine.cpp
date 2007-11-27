@@ -40,7 +40,9 @@ MPlayerEngine::MPlayerEngine() : m_engineStateMutex("mplayer-engine-state-mutex"
 	m_bInPipe[0] = m_bInPipe[1] = false;
 	m_bOutPipe[0] = m_bOutPipe[1] = false;
 	m_bRunEngineOutputReader = false;
-	m_eEngineState = PLAYBACK_FINISHED;
+	
+	m_eEngineState = PLAYBACK_STARTED;
+	m_vCurrentPlaylist.push_back(BLACK_MPEG_FILE);
 	StartEngine();
 }
 

@@ -921,6 +921,20 @@ void MPlayer_Player::InitializePlayerEngine()
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Started MPlayer slave instance");
 	m_bPlayerEngineInitialized = true;
 	
+	int iCounter=100;
+	
+	// giving engine time to finish playing black file
+	while (m_pPlayerEngine->GetEngineState()!=MPlayerEngine::PLAYBACK_FINISHED && iCounter!=0)
+	{
+		Sleep(100);
+		iCounter--;
+	}
+	
+	if (m_pPlayerEngine->GetEngineState()==MPlayerEngine::PLAYBACK_FINISHED)
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer engine initialized and ready to go");
+	else
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "MPlayer engine didn't set up within 10 seconds, something is wrong");
+	
 	m_bRunPlayerEnginePoll = true;
 	pthread_create(&m_tPlayerEnginePollThread, NULL, &PlayerEnginePoll, this);
 }
