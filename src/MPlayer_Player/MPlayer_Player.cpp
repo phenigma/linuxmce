@@ -1181,6 +1181,9 @@ void MPlayer_Player::CreateVideoConfigFiles(const vector<string> &vFiles)
 			vector<string> vOptions;
 			vOptions.push_back("cache=65536");
 			vOptions.push_back("cache-min=20");
+			
+			// bluray is 24 fps
+			vOptions.push_back("fps=24");
 	
 			string sConfigName = "/root/.mplayer/" + FileUtils::FilenameWithoutPath(*vi) + ".conf";
 			LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::CreateVideoConfigFiles writing options to: %s", vi->c_str());
