@@ -90,7 +90,10 @@ bool ResolutionConf::GetResolutionData(const string & ResolutionName, ResResolut
 	GetResolutionList(ResolutionVector);
 	for (size_t i = 0; i < ResolutionVector.size(); i++)
 	{
-		if (ResolutionVector[i].Name == ResolutionName)
+		char buffer[1024];
+		snprintf(buffer, 1024, "%dx%d", ResolutionVector[i].Width, ResolutionVector[i].Height);
+		string ResolutionAltName = buffer;
+		if (ResolutionVector[i].Name == ResolutionName || ResolutionAltName == ResolutionName)
 		{
 			Data = ResolutionVector[i];
 			return true;
