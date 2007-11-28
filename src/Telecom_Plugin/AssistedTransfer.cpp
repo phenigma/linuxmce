@@ -36,9 +36,11 @@ bool AssistedTransfer::ProcessJob(const string & job)
 {
 	bool bRun = PrivateProcessJob(job);
 	
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "After PrivateProcessJob: %s", GetDebug().c_str());
 	if( !bRun )
 	{
 		PrivateProcessJob("cancel");
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "After Cancel: %s", GetDebug().c_str());
 	}
 	
 	return bRun;
@@ -531,6 +533,11 @@ string AssistedTransfer::GetDebug() const
 	sDebug += "Dest Channel1 ID : " + sChannel1_Dest + "\n";
 	sDebug += "Dest Channel2 ID : " + sChannel2_Dest + "\n";
 	sDebug += "Step ID : " + StringUtils::itos(step) + "\n";
+	
+	sDebug += "UID : " + sID + "\n";
+	sDebug += "JobState : " + StringUtils::itos(state) + "\n";
+	sDebug += "JobID : " + sJobID + "\n";
+	sDebug += "JobState : " + StringUtils::itos(jobState) + "\n";
 	
 	return sDebug;
 }
