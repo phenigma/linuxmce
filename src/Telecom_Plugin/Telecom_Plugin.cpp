@@ -506,6 +506,10 @@ Telecom_Plugin::CallsStatusChanged(class Socket *pSocket,class Message *pMessage
 	//SIP/203-8361:trusted:0002:1:Up:Conference:0002/S/1:203::3:760:(None)
 	//-> callid "conference 0002" has extensions (200, c190), (201, 8104), (203, 8361), state conference
 
+//	SIP/202-081bfc50!trusted!0001!1!Up!MeetMe!0001|q!203!!3!721!(None)
+//	Zap/pseudo-1022674177!default!s!1!Rsrvd!(None)!!!!3!721!(None)
+//	SIP/203-08168288!trusted!0001!1!Up!MeetMe!0001|q!203!!3!736!(None)	
+	
 	typedef multimap<string, pair<string, string> > MAP_CHANNELS;
 	typedef map<string, bool> MAP_CALLS;
 	

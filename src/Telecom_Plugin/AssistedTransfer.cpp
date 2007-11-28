@@ -53,6 +53,15 @@ bool AssistedTransfer::ProcessEvent(class Message * pMessage)
 		string sSource_Caller_ID = pMessage->m_mapParameters[EVENTPARAMETER_Source_Caller_ID_CONST];
 		string sDestination_Caller_ID = pMessage->m_mapParameters[EVENTPARAMETER_Destination_Caller_ID_CONST];
 		
+		LoggerWrapper::GetInstance()->Write
+			(LV_STATUS, "AssistedTransfer::ProcessEvent Link \nSC=%s\nDC=%s\nSI=%s\nDI=%s\n%s",
+			sSource_Channel.c_str(),
+			sDestination_Channel.c_str(),
+			sSource_Caller_ID.c_str(),
+			sDestination_Caller_ID.c_str(),
+			GetDebug().c_str());
+		
+		
 		switch( step )
 		{
 			case AssistedTransfer::Init_MyCall2Conference :
@@ -188,6 +197,12 @@ bool AssistedTransfer::ProcessEvent(class Message * pMessage)
 		string sChannel_ID = pMessage->m_mapParameters[EVENTPARAMETER_Channel_ID_CONST];
 		string sReason = pMessage->m_mapParameters[EVENTPARAMETER_Reason_CONST];
 		
+		LoggerWrapper::GetInstance()->Write
+			(LV_STATUS, "AssistedTransfer::ProcessEvent Hang \nCh=%s\nEr=%s\n%s",
+			sChannel_ID.c_str(),
+			sReason.c_str(),
+			GetDebug().c_str());
+		
 		switch( step )
 		{
 			case AssistedTransfer::Init_MyChannel2DestCall :
@@ -211,7 +226,7 @@ bool AssistedTransfer::ProcessEvent(class Message * pMessage)
 
 bool AssistedTransfer::PrivateProcessJob(const string & job)
 {
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "AssistedTransfer : job %s", job.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "AssistedTransfer::PrivateProcessJob : job %s\n%s", job.c_str(), GetDebug().c_str());
 	
 	if( job == "cancel" )
 	{
