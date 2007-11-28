@@ -3776,15 +3776,31 @@ bool ScreenHandler::Telecom_OnTimer(CallBackData *pData)
 	DesignObj_DataGrid *pObj_Channels = (DesignObj_DataGrid *)m_pOrbiter->FindObject(DESIGNOBJ_dgActiveUsers_CONST);
 	if(NULL != pObj_Calls)
 	{
+		//old highlightings
+		int nHighlightRow = pObj_Calls->m_iHighlightedRow;
+		int nHighlightCol = pObj_Calls->m_iHighlightedColumn;
+
 		m_pOrbiter->InitializeGrid(pObj_Calls);
 		pObj_Calls->Flush();
+
+		pObj_Calls->m_iHighlightedRow = nHighlightRow;
+		pObj_Calls->m_iHighlightedColumn = nHighlightCol;
+
 		m_pOrbiter->Renderer()->RenderObjectAsync(pObj_Calls);
 	}
 	
 	if(NULL != pObj_Channels)
 	{
+		//old highlightings
+		int nHighlightRow = pObj_Channels->m_iHighlightedRow;
+		int nHighlightCol = pObj_Channels->m_iHighlightedColumn;
+
 		m_pOrbiter->InitializeGrid(pObj_Channels);
 		pObj_Channels->Flush();
+
+		pObj_Channels->m_iHighlightedRow = nHighlightRow;
+		pObj_Channels->m_iHighlightedColumn = nHighlightCol;
+
 		m_pOrbiter->Renderer()->RenderObjectAsync(pObj_Channels);
 	}
 
