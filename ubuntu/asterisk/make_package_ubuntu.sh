@@ -59,6 +59,7 @@ TheRest()
 	cp -R ${ADDFOLDER}/pluto-sos-speak.pl ${PKGFOLDER}/usr/pluto/bin/
 	cp -R ${ADDFOLDER}/pluto-gethousemode.agi ${PKGFOLDER}/usr/share/asterisk/agi-bin/
 	cp -R ${ADDFOLDER}/pluto-getusermode.agi ${PKGFOLDER}/usr/share/asterisk/agi-bin/
+	cp -R ${ADDFOLDER}/pluto-callersforme.agi ${PKGFOLDER}/usr/share/asterisk/agi-bin/
 
 	cd ${PKGFOLDER}/../
 
