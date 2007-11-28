@@ -1279,6 +1279,15 @@ bool X11wrapper::Mouse_Constrain(int nPosX, int nPosY, unsigned int nWidth, unsi
     _LOG_NFO("pos==(%d, %d, %d, %d), window_grab==%d", nPosX, nPosY, nWidth, nHeight, window_grab);
 #endif
 
+        // check values
+        // Size (not including the border) must be nonzero (or a Value error results)
+        // Note: The Xlib manual doesn't mention this restriction ?
+        if ( (nWidth <= 0) || (nHeight <= 0) )
+	{
+		_LOG_WRN("Won't apply contrain: bad arguments, size must be greater than 0");
+		return false;
+	}
+
     // hide window case
     if ( (nWidth == 0) && (nHeight == 0) )
     {
@@ -1290,11 +1299,6 @@ bool X11wrapper::Mouse_Constrain(int nPosX, int nPosY, unsigned int nWidth, unsi
     X11_Locker x11_locker(GetDisplay());
     do
     {
-        // check values
-        // Size (not including the border) must be nonzero (or a Value error results)
-        // Note: The Xlib manual doesn't mention this restriction ?
-        if ( (nWidth <= 0) || (nHeight <= 0) )
-            _LOG_XERROR_BREAK("bad arguments, size must be greater than 0");
         if (window != 0)
         {
             _LOG_NFO("closing previous window==%d", window);
