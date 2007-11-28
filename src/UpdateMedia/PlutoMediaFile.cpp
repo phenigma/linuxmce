@@ -550,6 +550,9 @@ void PlutoMediaFile::SaveBookmarkPictures()
 	//got bookmarks in attribute file, but none in the database?
 	if(!m_pPlutoMediaAttributes->m_listBookmarks.empty() && !NumberOfBookmarksFromDB())
 	{
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "SaveBookmarkPictures: no bookmarks to db. Adding those from file %d",
+			m_pPlutoMediaAttributes->m_listBookmarks.size());
+
 		int nCounter = 0;
 		for(ListBookmarks::iterator it = m_pPlutoMediaAttributes->m_listBookmarks.begin(), 
 			end = m_pPlutoMediaAttributes->m_listBookmarks.end(); it != end; ++it)
@@ -1266,9 +1269,15 @@ void PlutoMediaFile::LoadLongAttributes()
 //-----------------------------------------------------------------------------------------------------
 void PlutoMediaFile::LoadBookmarkPictures()
 {
+	int nNumBookmarksFromDB = NumberOfBookmarksFromDB();
+
 	//if the file was added before, but we already have bookmarks in db ignore those from attribute file
-	if(!m_bNewFileToDb && NumberOfBookmarksFromDB())
+	if(!m_bNewFileToDb && nNumBookmarksFromDB)
+	{
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "LoadBookmarkPictures: clear bookmarks from file."
+			"We'll use those from db: %d", nNumBookmarksFromDB);
 		m_pPlutoMediaAttributes->ClearBookmarks();
+	}
 
 	PlutoSqlResult result;
 	DB_ROW row;
