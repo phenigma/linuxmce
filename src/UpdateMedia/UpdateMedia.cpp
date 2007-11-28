@@ -753,6 +753,16 @@ bool UpdateMedia::AnyReasonToSkip(string sDirectory, string sFile)
 		return true;
 	}
 
+	//is the lock file for folders (it ends with lock token) ?
+	static const string csLockToken = ".folderlock";
+	size_t pos = sFile.rfind(csLockToken);
+	if(pos != string::npos && sFile.length() - pos == csLockToken.length())
+	{
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "The file %s/%s is the lock file for a folder!",
+			sDirectory.c_str(), sFile.c_str());
+		return true;
+	}
+
 	string sLockFile = sDirectory + "/" + sFile + ".lock";
 	if(FileUtils::FileExists(sLockFile))
 	{
@@ -789,8 +799,13 @@ bool UpdateMedia::AnyReasonToSkip(string sDirectory, string sFile)
 
 bool UpdateMedia::IsLockedFolder(string sDirectory)
 {
+	static const string csLockToken = ".folderlock";
+
+	//top folder?
 	if(sDirectory == "/" || sDirectory.empty())
 		return false;
 
-	return FileUtils::FileExists(sDirectory + ".folderlock") && IsLockedFolder(FileUtils::BasePath(sDirectory));
+	//a lock folder exist for me or one of my parents ?
+	return FileUtils::FileExists(sDirectory + csLockToken) ||
+		IsLockedFolder(FileUtils::BasePath(sDirectory));
 }
