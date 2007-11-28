@@ -47,6 +47,7 @@ class UpdateMedia
 
 	bool AnyReasonToSkip(string sDirectory, string sFile);
 	bool IsLockedFolder(string sDirectory);
+	bool HasSpecialFolderParent(string sDirectory);
 
 public:
 	Database_pluto_media *m_pDatabase_pluto_media ;

@@ -252,6 +252,12 @@ int UpdateMedia::ReadDirectory(string sDirectory)
 		return 0;
 	}
 
+	if(HasSpecialFolderParent(sDirectory))
+	{
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Skipped directory - is a subfolder for a special folder: %s", sDirectory.c_str());
+		return 0;
+	}
+
 	if(!ScanFiles(sDirectory))
 		return 0;
 
@@ -808,4 +814,23 @@ bool UpdateMedia::IsLockedFolder(string sDirectory)
 	//a lock folder exist for me or one of my parents ?
 	return FileUtils::FileExists(sDirectory + csLockToken) ||
 		IsLockedFolder(FileUtils::BasePath(sDirectory));
+}
+
+bool UpdateMedia::HasSpecialFolderParent(string sDirectory)
+{
+	//top folder?
+	if(sDirectory == "/" || sDirectory.empty())
+		return false;
+
+	//subfolder for special folder?
+	string sFolderName = StringUtils::ToUpper(FileUtils::FilenameWithoutPath(sDirectory));
+
+	if(
+		sFolderName == "VIDEO_TS" || sFolderName == "AUDIO_TS" ||
+		sFolderName == "HVDVD_TS" || sFolderName == "BDMV"
+	)
+		return true;
+
+	//what about my parent ?
+	return HasSpecialFolderParent(FileUtils::BasePath(sDirectory));
 }
