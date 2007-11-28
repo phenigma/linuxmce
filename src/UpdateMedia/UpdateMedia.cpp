@@ -592,30 +592,11 @@ bool UpdateMedia::ScanSubfolders(string sDirectory, FolderType& folder_type)
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "UpdateMedia::ScanSubfolders dir %s: subdirs found: %d", 
 			sDirectory.c_str(), listSubDirectories.size());	
 
+	//is this a special folder?
 	for(list<string>::iterator it=listSubDirectories.begin();it!=listSubDirectories.end();++it)
 	{
 		string sSubDir = *it;
 
-		// UPnP changes: skipping .metadata .debug and _search subfolders
-		// also skipping folders starting from "MythTV AV Media Server"
-		if ( StringUtils::StartsWith(sSubDir, UpdateMediaVars::sUPnPMountPoint+"/") && ( StringUtils::EndsWith(sSubDir,"/.debug") || StringUtils::EndsWith(sSubDir,"/.metadata") || StringUtils::EndsWith(sSubDir,"/_search") ) )
-		{
-			LoggerWrapper::GetInstance()->Write(LV_WARNING, "The directory %s is UPnP service dir. We'll skip it!", sSubDir.c_str());
-			continue;
-		}
-		
-		if ( StringUtils::StartsWith(sSubDir, UpdateMediaVars::sUPnPMountPoint+"/") && (sSubDir.find("MythTV AV Media Server")!=string::npos) )
-		{
-			LoggerWrapper::GetInstance()->Write(LV_WARNING, "The directory %s is MythTV UPnP dir. We'll skip it!", sSubDir.c_str());
-			continue;
-		}
-		
-		if ( !UpdateMediaVars::sLocalUPnPServerName.empty() && (sSubDir == (UpdateMediaVars::sUPnPMountPoint+"/" + UpdateMediaVars::sLocalUPnPServerName)) )
-		{
-			LoggerWrapper::GetInstance()->Write(LV_WARNING, "The directory %s is LinuxMCE UPnP dir. We'll skip it!", sSubDir.c_str());
-			continue;
-		}
-		
 		//is sDirectory a ripped dvd ?
 		if( 
 			StringUtils::ToUpper(FileUtils::FilenameWithoutPath(sSubDir))=="VIDEO_TS" || 
@@ -642,7 +623,35 @@ bool UpdateMedia::ScanSubfolders(string sDirectory, FolderType& folder_type)
 			folder_type = ftBluRay;
 			break;
 		}
+	}
 
+	if(folder_type != ftNormal)
+		return true;
+
+	for(list<string>::iterator it=listSubDirectories.begin();it!=listSubDirectories.end();++it)
+	{
+		string sSubDir = *it;
+
+		// UPnP changes: skipping .metadata .debug and _search subfolders
+		// also skipping folders starting from "MythTV AV Media Server"
+		if ( StringUtils::StartsWith(sSubDir, UpdateMediaVars::sUPnPMountPoint+"/") && ( StringUtils::EndsWith(sSubDir,"/.debug") || StringUtils::EndsWith(sSubDir,"/.metadata") || StringUtils::EndsWith(sSubDir,"/_search") ) )
+		{
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "The directory %s is UPnP service dir. We'll skip it!", sSubDir.c_str());
+			continue;
+		}
+		
+		if ( StringUtils::StartsWith(sSubDir, UpdateMediaVars::sUPnPMountPoint+"/") && (sSubDir.find("MythTV AV Media Server")!=string::npos) )
+		{
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "The directory %s is MythTV UPnP dir. We'll skip it!", sSubDir.c_str());
+			continue;
+		}
+		
+		if ( !UpdateMediaVars::sLocalUPnPServerName.empty() && (sSubDir == (UpdateMediaVars::sUPnPMountPoint+"/" + UpdateMediaVars::sLocalUPnPServerName)) )
+		{
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "The directory %s is LinuxMCE UPnP dir. We'll skip it!", sSubDir.c_str());
+			continue;
+		}
+		
 		ReadDirectory(sSubDir);
 	}
 
@@ -780,5 +789,8 @@ bool UpdateMedia::AnyReasonToSkip(string sDirectory, string sFile)
 
 bool UpdateMedia::IsLockedFolder(string sDirectory)
 {
-	return FileUtils::FileExists(sDirectory + ".folderlock");
+	if(sDirectory == "/" || sDirectory.empty())
+		return false;
+
+	return FileUtils::FileExists(sDirectory + ".folderlock") && IsLockedFolder(FileUtils::BasePath(sDirectory));
 }
