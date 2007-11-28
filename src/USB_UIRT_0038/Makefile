@@ -10,6 +10,12 @@ CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql $(SNR_CPPFLAGS)
 LDFLAGS = -L$(ROOT)/lib
 BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lmysqlclient_r -lpthread
 
+ifneq (,$(findstring -DARCH64, $(CPPFLAGS)))
+        UUIRTDRV_SO = uuirtdrv-amd64.so
+else
+        UUIRTDRV_SO = uuirtdrv-i386.so
+endif
+
 MYNAME = USB_UIRT_0038
 VERSION = 2.0.0
 MYDEVTEMPLATEID = 1783mplateID
@@ -47,6 +53,7 @@ USB_UIRT_0038.so: $(sources:.cpp=.o)
 USB_UIRT_0038: $(sources:.cpp=.o)
 	$(CXX) -o $(MYNAME) $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
+	cp $(UUIRTDRV_SO) uuirtdrv.so
 	./post_make.sh $@
 
 clean: clean-recursive
