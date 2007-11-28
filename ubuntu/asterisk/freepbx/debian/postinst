@@ -7,16 +7,21 @@ if [[ "$1" == configure ]]; then
 	if [[ -n "$MySqlPassword" ]]; then
 		PassParm="-p$MySqlPassword"
 	fi
-	if [[ -z "$(RunSQL "SHOW DATABASES LIKE 'asterisk'")" ]]; then
-		RunSQL "CREATE DATABASE asterisk"
-		RunSQL "CREATE DATABASE asteriskcdrdb"
+	if [[ -z "$(RunSQL "SHOW DATABASES LIKE 'asterisk'")" ]] || [[ -z "$(RunSQL "USE asterisk; DESC notifications")" ]]; then
+		RunSQL "DROP DATABASE asterisk; CREATE DATABASE asterisk"
+		RunSQL "DROP DATABASE asteriskcdrdb; CREATE DATABASE asteriskcdrdb"
+
+		RunSQL "GRANT ALL PRIVILEGES ON asterisk.* TO asteriskuser@localhost IDENTIFIED BY 'amp109'"
+		RunSQL "GRANT ALL PRIVILEGES ON asteriskcdrdb.* TO asteriskuser@localhost IDENTIFIED BY 'amp109'"
+
+		mysql -h "$MySqlHost" -u "$MySqlUser" $PassParm asteriskcdrdb </var/lib/freepbx/SQL/cdr_mysql_table.sql
+		mysql -h "$MySqlHost" -u "$MySqlUser" $PassParm asterisk </var/lib/freepbx/SQL/newinstall.sql
 	fi
 
-	RunSQL "GRANT ALL PRIVILEGES ON asterisk.* TO asteriskuser@localhost IDENTIFIED BY 'amp109'"
-	RunSQL "GRANT ALL PRIVILEGES ON asteriskcdrdb.* TO asteriskuser@localhost IDENTIFIED BY 'amp109'"
-
-	mysql -h "$MySqlHost" -u "$MySqlUser" $PassParm asteriskcdrdb </var/lib/freepbx/SQL/cdr_mysql_table.sql
-	mysql -h "$MySqlHost" -u "$MySqlUser" $PassParm asterisk </var/lib/freepbx/SQL/newinstall.sql
+	if [[ -f /etc/init.d/asterisk.dpkg-new ]] ;then
+		rm /etc/init.d/asterisk
+		mv /etc/init.d/asterisk.dpkg-new /etc/init.d/asterisk
+	fi
 
 	cp /var/www/admin/modules/core/etc/* /etc/asterisk/
 	mkdir -p /var/{log,spool}/asterisk
