@@ -238,20 +238,9 @@ bool PlutoMediaAttributes::UnknownSerialize(ItemToSerialize *pItem,bool bWriting
 
 			case SERIALIZE_DATA_TYPE_MULTIMAP_PICTURES:
 				{
-					//MapPictures *pMap = (MapPictures *) pItem->m_pItem;
-					//Write_unsigned_long((unsigned long) pMap->size());
-					//for(MapPictures::iterator it = pMap->begin(); it!=pMap->end(); ++it)
-					//{
-					//	Write_unsigned_long(it->first);
-					//	Write_block(it->second, it->first);
-					//}
-
 					//disable coverart serialization in our tags
 					//we'll write them into PIC tags
 					Write_unsigned_long(0);
-
-					LoggerWrapper::GetInstance()->Write(LV_STATUS, "Serialize write coverarts: forced to 0 pictures");
-
 					return true;  // We handled it
 				}
 				break;
@@ -259,6 +248,8 @@ bool PlutoMediaAttributes::UnknownSerialize(ItemToSerialize *pItem,bool bWriting
 			case SERIALIZE_DATA_TYPE_LIST_BOOKMARKS:
 				{
 					ListBookmarks *pList = (ListBookmarks *) pItem->m_pItem;
+
+					LoggerWrapper::GetInstance()->Write(LV_STATUS, "Serialize write bookmarks: %d", pList->size());
 					Write_unsigned_long((unsigned long) pList->size());
 					for(ListBookmarks::iterator it = pList->begin(); it!=pList->end(); ++it)
 					{
@@ -307,6 +298,8 @@ bool PlutoMediaAttributes::UnknownSerialize(ItemToSerialize *pItem,bool bWriting
 				{
 					ListBookmarks *pList = (ListBookmarks *) pItem->m_pItem;
 					unsigned long count = Read_unsigned_long();
+					LoggerWrapper::GetInstance()->Write(LV_STATUS, "Serialize read bookmarks: %d", count);
+
 					for(unsigned long i = 0; i<count; ++i)
 					{
 						PlutoMediaBookmark *pPlutoMediaBookmark = new PlutoMediaBookmark();
