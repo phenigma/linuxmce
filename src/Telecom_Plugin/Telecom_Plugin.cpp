@@ -935,7 +935,12 @@ Telecom_Plugin::Link( class Socket *pSocket, class Message *pMessage, class Devi
 		TelecomTask * pTask = (*it).second;
 		if( pTask )
 		{
-			pTask->ProcessEvent(pMessage);
+			if( TelecomTask::Processing == pTask->GetState() )
+				pTask->ProcessEvent(pMessage);
+			else if( TelecomTask::Ready != pTask->GetState() )
+			{
+				// todo
+			}
 		}
 		else
 		{
@@ -1007,7 +1012,12 @@ bool Telecom_Plugin::Hangup( class Socket *pSocket, class Message *pMessage, cla
 		TelecomTask * pTask = (*it).second;
 		if( pTask != NULL )
 		{
-			pTask->ProcessEvent(pMessage);
+			if( TelecomTask::Processing == pTask->GetState() )
+				pTask->ProcessEvent(pMessage);
+			else if( TelecomTask::Ready != pTask->GetState() )
+			{
+				// todo
+			}
 		}
 		else
 		{

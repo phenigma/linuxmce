@@ -535,7 +535,7 @@ string AssistedTransfer::GetDebug() const
 	sDebug += "Step ID : " + StringUtils::itos(step) + "\n";
 	
 	sDebug += "UID : " + sID + "\n";
-	sDebug += "JobState : " + StringUtils::itos(state) + "\n";
+	sDebug += "TaskState : " + StringUtils::itos(state) + "\n";
 	sDebug += "JobID : " + sJobID + "\n";
 	sDebug += "JobState : " + StringUtils::itos(jobState) + "\n";
 	
