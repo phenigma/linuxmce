@@ -2933,12 +2933,23 @@ void Telecom_Plugin::DumpActiveCalls()
 {
 	size_t pos1 = 0;
 	size_t pos2 = 0;
+	size_t pos3 = 0;
 
-	// SIP/extension-uid
+	// SIP/extension[@context]-uid
 	pos1 = sChannel.find("/");
 	pos2 = sChannel.rfind("-");
+	pos3 = sChannel.rfind("@");
 	if( pos1 != string::npos && pos2 != string::npos && pos1 < pos2 )
-		return sChannel.substr(pos1+1, pos2-pos1-1);
+	{
+		if( pos3 != string::npos && pos1 < pos3 && pos3 < pos2 )
+		{
+			return sChannel.substr(pos1+1, pos3-pos1-1);
+		}
+		else
+		{
+			return sChannel.substr(pos1+1, pos2-pos1-1);
+		}
+	}
 
 	return "";
 }
