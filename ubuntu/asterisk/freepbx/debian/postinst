@@ -10,12 +10,13 @@ if [[ "$1" == configure ]]; then
 	if [[ -z "$(RunSQL "SHOW DATABASES LIKE 'asterisk'")" ]]; then
 		RunSQL "CREATE DATABASE asterisk"
 		RunSQL "CREATE DATABASE asteriskcdrdb"
-		RunSQL "GRANT ALL PRIVILEGES ON asterisk.* TO asteriskuser@localhost IDENTIFIED BY 'amp109'"
-		RunSQL "GRANT ALL PRIVILEGES ON asteriskcdrdb.* TO asteriskuser@localhost IDENTIFIED BY 'amp109'"
-
-		mysql -h "$MySqlHost" -u "$MySqlUser" $PassParm asteriskcdrdb </var/lib/freepbx/SQL/cdr_mysql_table.sql
-		mysql -h "$MySqlHost" -u "$MySqlUser" $PassParm asterisk </var/lib/freepbx/SQL/newinstall.sql
 	fi
+
+	RunSQL "GRANT ALL PRIVILEGES ON asterisk.* TO asteriskuser@localhost IDENTIFIED BY 'amp109'"
+	RunSQL "GRANT ALL PRIVILEGES ON asteriskcdrdb.* TO asteriskuser@localhost IDENTIFIED BY 'amp109'"
+
+	mysql -h "$MySqlHost" -u "$MySqlUser" $PassParm asteriskcdrdb </var/lib/freepbx/SQL/cdr_mysql_table.sql
+	mysql -h "$MySqlHost" -u "$MySqlUser" $PassParm asterisk </var/lib/freepbx/SQL/newinstall.sql
 
 	cp /var/www/admin/modules/core/etc/* /etc/asterisk/
 	mkdir -p /var/{log,spool}/asterisk
