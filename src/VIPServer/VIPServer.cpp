@@ -60,7 +60,6 @@ int main(int argc, char *argv[])
 	bool bError=false; // An error parsing the command line
 	int iPort=3460;
 
-	char c;
 	/*
 	for(int optnum=1;optnum<argc;++optnum)
 	{

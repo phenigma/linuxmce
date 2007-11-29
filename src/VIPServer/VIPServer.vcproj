@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="/mysql/Include;../DCE;..;../Libraries/pthreads-win32/include"
+				AdditionalIncludeDirectories="/mysql/Include;../DCE;..;&quot;../../libs/Libraries/pthreads-win32/include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;VIPSERVER;USE_MYSQL;MULTI_THREADED"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -36,7 +36,7 @@
 				AdditionalDependencies="libmysql.lib pthreadVC.lib wsock32.lib libmySQL.lib DCE.lib"
 				OutputFile="../bin/VIPServer.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="/mysql/lib/Debug;../lib;../Libraries/pthreads-win32/lib"
+				AdditionalLibraryDirectories="/mysql/lib/Debug;../lib;&quot;../../libs/Libraries/pthreads-win32/lib&quot;"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/VIPServer.pdb"
 				SubSystem="1"

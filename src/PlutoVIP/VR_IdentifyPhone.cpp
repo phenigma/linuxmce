@@ -157,7 +157,7 @@ bool VR_IdentifyPhone::ProcessRequest(RA_Processor *pRA_Processor)
 		(MacAddressRow = mysql_fetch_row(rsMacAddress.r)) 
 	)
 	{
-		sRevision= MacAddressRow[sf_Revision];
+		sRevision= NULL != MacAddressRow[sf_Revision] ? MacAddressRow[sf_Revision] : "";
 
 		/** See if: This phone does take a binary, and NoBinary is not set, and there is revision */
 		if( MacAddressRow[sf_FKID_BinaryVersion] && (!MacAddressRow[sf_NoBinary] || MacAddressRow[sf_NoBinary][0]=='0') && MacAddressRow[sf_Revision] )

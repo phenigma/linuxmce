@@ -25,7 +25,7 @@
 #include "Picture.h"
 #include "ImageDefs.h"
 
-#ifdef BT_SOCKET
+#ifdef BT_SOCKET_X
 #include "BD/BDCommandProcessor_Windows_Socket.h"
 #else
 #include "BD/BDCommandProcessor_Windows_Bluetooth.h"
@@ -39,7 +39,7 @@ BDCommandProcessor *Customer::GetCommandProcessor()
 	if( !m_pPhoneDevice )
 		throw "Customer with no phone device";
 
-#ifdef BT_SOCKET
+#ifdef BT_SOCKET_X
 	EstablishmentSocket *pSocket = new EstablishmentSocket(1,"localhost:3461","foo");
 	if( !pSocket->Connect() )
 	{

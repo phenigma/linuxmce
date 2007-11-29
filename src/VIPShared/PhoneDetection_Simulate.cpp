@@ -28,7 +28,7 @@ bool PhoneDetection_Simulate::ScanningLoop()
 {
 	// I just read that sleep causes all the threads to sleep???  But I don't see a pthread_sleep to make
 	// just this one sleep
-	Sleep(500);
+ 	Sleep(500);
 #ifdef WIN32
 	FILE *file = fopen("C:\\Phones.txt","r");
 #else
@@ -90,6 +90,6 @@ bool PhoneDetection_Simulate::ScanningLoop()
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Inquiry completed (simulation)");
 
-	Sleep(1000);  // Don't this run wild
+	Sleep(10000);  // Don't this run wild
 	return !m_bAbortScanLoop;
 }

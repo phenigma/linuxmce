@@ -28,6 +28,8 @@
 #include "RA/RA_Processor.h"
 #include <iostream>
 
+DCEMySqlConfig *g_pDCEMySqlConfig = new DCEMySqlConfig();
+
 void *BeginClientThread(void *param)
 {	
 	RAServerSocket *pCS = (RAServerSocket *)param;
@@ -74,7 +76,7 @@ bool RAServerSocket::IsInitedOK()
 
 void RAServerSocket::Run()
 {
-	RA_Processor *pRA_Processor = RA_Processor::CreateRA_Processor(this,NULL);
+	RA_Processor *pRA_Processor = RA_Processor::CreateRA_Processor(this,g_pDCEMySqlConfig);
 	if( !pRA_Processor )
 	{
 		SendString("FAILURE");
