@@ -11,7 +11,7 @@ PrepareForWork()
 	rm -rf "$PKGFOLDER" "$SRCFOLDER"
 
 	rm -rf asterisk-pluto*
-	mkdir -p "$PKGFOLDER"{/etc/asterisk,/usr{/lib/asterisk/modules,/sbin,/pluto/bin,/share/asterisk/agi-bin},/../debian,/var/lib/asterisk/sounds/pluto}
+	mkdir -p "$PKGFOLDER"{/etc/asterisk,/usr{/lib/asterisk/modules,/sbin,/pluto/bin,/share/asterisk/{agi-bin,sounds}},/../debian,/var/lib/asterisk/sounds/pluto}
 	mkdir -p "$SRCFOLDER"
 
 	#########
@@ -51,6 +51,7 @@ TheRest()
 	cp ${ADDFOLDER}/Makefile ${PKGFOLDER}/../
 
 	cp -R ${ADDFOLDER}/pluto-sounds/*  ${PKGFOLDER}/var/lib/asterisk/sounds/pluto/
+	ln -nsf /var/lib/asterisk/sounds/pluto ${PKGFOLDER}/usr/share/asterisk/
 
 	#copy AGI scripts
 	cp -R ${ADDFOLDER}/pluto-sos.agi ${PKGFOLDER}/usr/share/asterisk/agi-bin/
