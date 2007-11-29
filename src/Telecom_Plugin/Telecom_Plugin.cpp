@@ -1176,6 +1176,27 @@ void Telecom_Plugin::CleanStatusMaps()
 	map_ext2pending.clear();
 }
 
+void Telecom_Plugin::CleanTasks()
+{
+	TelecomTask * pTask = NULL;
+	map<string, TelecomTask*>::iterator it = map_id2task.begin();
+	while( it != map_id2task.end() )
+	{
+		pTask = (*it).second;
+		if( pTask == NULL ||
+			TelecomTask::Completed == pTask->GetState() ||
+			TelecomTask::Failed == pTask->GetState() )
+		{
+			delete pTask;
+			map_id2task.erase(it++);
+		}
+		else
+		{
+			++it;
+		}
+	}
+}
+
 void
 Telecom_Plugin::ProcessRing(std::string sPhoneExtension, std::string sPhoneCallerID, std::string sPhoneCallID)
 {
@@ -3169,7 +3190,10 @@ void Telecom_Plugin::CMD_Assisted_Transfer(int iPK_Device,int iPK_Users,string s
 		sCMD_Result = "ERROR : Not a valid channel " + sChannel;
 		return;
 	}
-
+	
+	// let's clean up the tasks map first
+	CleanTasks();
+	
 	string sPhoneNumber = GetPhoneNumber(iPK_Users, sPhoneExtension, iPK_Device);
 	AssistedTransfer * transfer = new AssistedTransfer(sPhoneNumber, sPhoneCallID, sChannel, pCallStatus->GetID());
 	if( transfer )
@@ -3427,6 +3451,7 @@ string Telecom_Plugin::DebugPendingCalls() const
 	
 	return sDebug;
 }
+
 //<-dceag-c929-b->
 
 	/** @brief COMMAND: #929 - Add To Speed Dial */

@@ -434,6 +434,8 @@ private:
 	/***/
 	void CleanStatusMaps();
 	/***/
+	void CleanTasks();
+	/***/
 	string DebugPendingCalls() const;
 	
 	/***/
