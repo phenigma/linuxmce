@@ -18,5 +18,9 @@ cp ${Moon_RootLocation}/DEBIAN/control{.in,}
 sed -i "s/{Kernel_Version}/${Moon_KernelVersion}/g" ${Moon_RootLocation}/DEBIAN/control
 sed -i "s/{Kernel_Arch}/${Moon_KernelArch}/g"       ${Moon_RootLocation}/DEBIAN/control
 
-cd ${Moon_RootLocation}
-dpkg-deb -b . .. 
+cp -a ${Moon_RootLocation} pkgrootdir
+find pkgrootdir -type d -name .svn -exec rm -rf '{}' -prune
+cd pkgrootdir
+dpkg-deb -b . ..
+cd ..
+rm -rf pkgrootdir
