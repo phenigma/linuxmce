@@ -1,8 +1,8 @@
 Package: linux-image-dummy
-Version: 2.66
+Version: diskless-{Kernel_Version}
 Section: unknown
 Priority: optional
-Architecture: all
+Architecture: {Kernel_Arch}
 Installed-Size: 5796
 Provides: linux-image, linux-image-2.6, linux-image-2.6.20-15-generic, linux-image-2.6.20-15-386, linux-image-2.6.20-15-amd64, linux-image-2.6.22-14-generic, linux-image-2.6.22-14-386, linux-image-2.6.22-14-amd64
 Maintainer: LinuxMCE Team <webpaul1@gmail.com>
