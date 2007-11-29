@@ -1,5 +1,5 @@
-Package: linux-image-dummy
-Version: diskless-{Kernel_Version}
+Package: linux-image-diskless
+Version: {Kernel_Version}-lmce1
 Section: unknown
 Priority: optional
 Architecture: {Kernel_Arch}
