@@ -2075,9 +2075,6 @@ string Telecom_Plugin::GetSimpleExtension(const string & sInputExt)
 	if( pos == string::npos ) {
 		pos = sInputExt.find('|');
 	}
-	if( pos == string::npos ) {
-		return "";
-	}
 	
 	return sInputExt.substr(0, pos);
 }
