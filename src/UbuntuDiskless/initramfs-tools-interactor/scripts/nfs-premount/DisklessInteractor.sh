@@ -9,8 +9,8 @@ MyMAC=`ifconfig  | grep "HWaddr "  | sed -r 's/^.* HWaddr ([a-zA-Z0-9:]*)/\1/g'`
 Gateway=`ip route | grep "default via" | cut -d " " -f3`
 
 Architecture="686"
-if grep -q "^processor.: x" /proc/cpuinfo ;then
-	Architecture="686-smp"
+if grep -q "^flags.* lm" /proc/cpuinfo ;then
+	Architecture="x86_64"
 fi
 
 echo "IP: $MyIP; MAC: $MyMAC; Gateway: $Gateway; Architecture: $Architecture; DT: $DT"
