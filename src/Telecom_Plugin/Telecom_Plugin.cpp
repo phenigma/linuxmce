@@ -2316,7 +2316,14 @@ class DataGridTable *Telecom_Plugin::UserVoiceMailGrid(string GridID,string Parm
 	DIR * dir=opendir(user_path.c_str());
 	struct dirent *dir_ent = NULL;
 	
-	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Getting new voicemails from %s", user_path.c_str());
+    Command_Impl * pMediaPlugin = m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_Media_Plugin_CONST);
+    if( pMediaPlugin == NULL )
+    {
+        LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Telecom_Plugin : No media plugin!");
+        return pDataGrid;
+    }
+    
+    LoggerWrapper::GetInstance()->Write(LV_WARNING, "Getting new voicemails from %s", user_path.c_str());
 	while(NULL != dir && (dir_ent = readdir(dir)))
 	{
 	    struct stat statbuf;
@@ -2339,7 +2346,8 @@ class DataGridTable *Telecom_Plugin::UserVoiceMailGrid(string GridID,string Parm
 				ProcessUtils::GetCommandOutput(args[0], args, URL_Parm, StdErr);
 			}
 			string url= VOICEMAIL_URL + URL_Parm;
-			DCE::CMD_MH_Play_Media CMD_MH_Play_Media_(m_dwPK_Device, DEVICETEMPLATE_VirtDev_Media_Plugin_CONST, pMessage->m_dwPK_Device_From, url, MEDIATYPE_pluto_StoredAudio_CONST,0,"",1,0);
+			DCE::CMD_MH_Play_Media CMD_MH_Play_Media_
+                (m_dwPK_Device, pMediaPlugin->m_dwPK_Device, pMessage->m_dwPK_Device_From, url, MEDIATYPE_pluto_StoredAudio_CONST,0,"",1,0);
 			
 			pCell = new DataGridCell(text,"");
 			pCell->m_pMessage=CMD_MH_Play_Media_.m_pMessage;
@@ -2369,7 +2377,8 @@ class DataGridTable *Telecom_Plugin::UserVoiceMailGrid(string GridID,string Parm
 				ProcessUtils::GetCommandOutput(args[0], args, URL_Parm, StdErr);
 			}
 			string url = VOICEMAIL_URL + URL_Parm;
-			DCE::CMD_MH_Play_Media CMD_MH_Play_Media_(m_dwPK_Device, DEVICETEMPLATE_VirtDev_Media_Plugin_CONST, pMessage->m_dwPK_Device_From, url, MEDIATYPE_pluto_StoredAudio_CONST,0,"",1,0);
+			DCE::CMD_MH_Play_Media CMD_MH_Play_Media_
+                (m_dwPK_Device, pMediaPlugin->m_dwPK_Device, pMessage->m_dwPK_Device_From, url, MEDIATYPE_pluto_StoredAudio_CONST,0,"",1,0);
 			
 			pCell = new DataGridCell(text,"");
 			pCell->m_pMessage=CMD_MH_Play_Media_.m_pMessage;
