@@ -44,7 +44,7 @@ void MediaState::LoadDbInfo(Database_pluto_media *pDatabase_pluto_media, string 
 		string sFolder = *it;
 
 		if(it != vectFolders.begin())
-			sWhere += " AND ";
+			sWhere += " OR ";
 
 		sWhere += 
 			"Path LIKE '" + StringUtils::SQLEscape(FileUtils::ExcludeTrailingSlash(sFolder), true) + "%' "
