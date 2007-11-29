@@ -192,9 +192,15 @@ MediaSyncMode MediaState::SyncModeNeeded(string sDirectory, string sFile)
 			bNeedToUpdateDb = true;
 		}
 
+		string sCurrentFullFilename = sDirectory + "/" + sFile;
+
 		if(
-			item.m_sCurrentDbAttrCount != item.m_sOldDbAttrCount || 
-			StringUtils::SQLDateTime(item.m_sCurrentDbAttrDate) != StringUtils::SQLDateTime(item.m_sOldDbAttrDate)
+			(
+				item.m_sCurrentDbAttrCount != item.m_sOldDbAttrCount || 
+				StringUtils::SQLDateTime(item.m_sCurrentDbAttrDate) != StringUtils::SQLDateTime(item.m_sOldDbAttrDate)
+			)
+			&&
+			!UpdateMediaFileUtils::IsDirectory(sCurrentFullFilename.c_str())
 		)
 		{
 			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Need to update file for %s/%s: "
@@ -211,6 +217,8 @@ MediaSyncMode MediaState::SyncModeNeeded(string sDirectory, string sFile)
 		if(
 			!spFileHandler->FileAttributeExists() &&
 			item.m_sCurrentDbAttrDate != "" && item.m_bHasAttributes
+			&&
+			!UpdateMediaFileUtils::IsDirectory(sCurrentFullFilename.c_str())
 		)
 		{
 			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Need to update file for %s/%s: "
@@ -281,7 +289,7 @@ void MediaState::FileSynchronized(Database_pluto_media *pDatabase_pluto_media, s
 	item.m_sOldFileDate = sFileTimestamp;
 
 	sUpdateSql += "AttrCount = " + StringUtils::ltos(item.m_sCurrentDbAttrCount) + ", ";
-	sUpdateSql += "AttrDate = NOW() ";
+	sUpdateSql += "AttrDate = '" + item.m_sCurrentDbAttrDate + "' ";
 	item.m_sOldDbAttrCount = item.m_sCurrentDbAttrCount;
 	item.m_sOldDbAttrDate = item.m_sCurrentDbAttrDate;
 
