@@ -489,6 +489,10 @@ function getSIPState(){
 
 function getIAXState(){
 	// IAX get state command	
+	/*
+Host                  dnsmgr  Username    Perceived             Refresh  State
+207.174.202.3:4569    N       plutosf     82.77.255.193:4569         60  Registered
+*/
 	$cmd='sudo -u root /usr/sbin/asterisk -rx "iax2 show registry"';
 	$response=exec_batch_command($cmd,1);
 	
@@ -510,12 +514,13 @@ function getIAXState(){
 				$parsed[]=$value;
 			}
 		}
-		$dataArray=array_slice($parsed,4);
-		$ampersand=strpos($parsed[1],'@');
-		$nr=($ampersand===false)?@$parsed[1]:substr(@$parsed[1],0,$ampersand);
-		$state[$nr]=(!isset($parsed[4]))?@$parsed[3]:$parsed[3].' '.join(' ',$dataArray);
-	}
 
+		$dataArray=array_slice($parsed,6);
+		$ampersand=strpos($parsed[2],'@');
+		$nr=($ampersand===false)?@$parsed[2]:substr(@$parsed[2],0,$ampersand);
+		$state[$nr]=(!isset($parsed[6]))?@$parsed[5]:$parsed[5].' '.join(' ',$dataArray);
+	}
+print_array($state);
 	return $state;
 }
 
