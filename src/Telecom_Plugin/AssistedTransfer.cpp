@@ -194,7 +194,7 @@ bool AssistedTransfer::ProcessEvent(class Message * pMessage)
 		
 		return true;
 	}
-	else if( pMessage->m_MessageID == EVENT_PBX_Hangup_CONST )
+	else if( pMessage->m_dwID == EVENT_PBX_Hangup_CONST )
 	{
 		string sChannel_ID = pMessage->m_mapParameters[EVENTPARAMETER_Channel_ID_CONST];
 		string sReason = pMessage->m_mapParameters[EVENTPARAMETER_Reason_CONST];
