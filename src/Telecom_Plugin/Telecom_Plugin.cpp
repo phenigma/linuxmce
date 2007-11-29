@@ -538,7 +538,7 @@ Telecom_Plugin::CallsStatusChanged(class Socket *pSocket,class Message *pMessage
 		if(vectTokens.size() == CallStatus::NUM_FIELDS)
 		{
 			string sChannel = vectTokens[CallStatus::csChannel];
-			string sExten = vectTokens[CallStatus::csExten];
+			string sExten = GetSimpleExtension( vectTokens[CallStatus::csExten] );
 			string sCallerID = vectTokens[CallStatus::csCallerID];
 			string sApplication = vectTokens[CallStatus::csApplication];
 			string sBridged = vectTokens[CallStatus::csBridged];
@@ -643,7 +643,7 @@ Telecom_Plugin::ExtensionsStatusChanged(class Socket *pSocket,class Message *pMe
 		if(vectTokens.size() == ExtensionStatus::NUM_FIELDS)
 		{
 			string sType = vectTokens[ExtensionStatus::esfType];
-			string sExten = vectTokens[ExtensionStatus::esfExtension];
+			string sExten = GetSimpleExtension( vectTokens[ExtensionStatus::esfExtension] );
 			string sState = vectTokens[ExtensionStatus::esfState];
 			
 			ExtensionStatus *pExtensionStatus = NULL;
@@ -830,10 +830,16 @@ Telecom_Plugin::Ring( class Socket *pSocket, class Message *pMessage, class Devi
 		if(NULL != pOH_Orbiter)
 		{
 			string sOrbiters = m_pOrbiter_Plugin->PK_Device_Orbiters_In_Room_get(pOH_Orbiter->m_dwPK_Room, false);
-
+			string sExtSrc;
+			if( !ParseChannel(sSource_Channel, &sExtSrc) || sExtSrc.empty() )
+			{
+				LoggerWrapper::GetInstance()->
+					Write(LV_WARNING, "Telecom_Plugin::Ring : no extension from channel %s", sSource_Channel.c_str());
+			}
+			
 			SCREEN_DevIncomingCall_DL screen_DevIncomingCall_DL(
-				m_dwPK_Device, sOrbiters, 
-				ExtensionForChannel(sSource_Channel),
+				m_dwPK_Device, sOrbiters,
+				sExtSrc,
 				sSource_Channel,
 				sDestination_Channel,
 				sSource_Caller_ID,
@@ -885,7 +891,14 @@ Telecom_Plugin::Link( class Socket *pSocket, class Message *pMessage, class Devi
 		OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(nSrcOrbiterDeviceID);
 		if(NULL != pOH_Orbiter)
 		{
-			map<string, PendingCall*>::iterator itFound = map_ext2pending.find( ExtensionForChannel(sSource_Channel) );
+			string sExtSrc;
+			if( !ParseChannel(sSource_Channel, &sExtSrc) || sExtSrc.empty() )
+			{
+				LoggerWrapper::GetInstance()->
+					Write(LV_WARNING, "Telecom_Plugin::Link : no extension from channel %s", sSource_Channel.c_str());
+			}
+			
+			map<string, PendingCall*>::iterator itFound = map_ext2pending.find(sExtSrc);
 			if( itFound != map_ext2pending.end() )
 			{
 				PendingCall * pPendingCall = (*itFound).second;
@@ -1726,7 +1739,13 @@ class DataGridTable *Telecom_Plugin::ActiveUsersOnCallGrid(string GridID,string 
 				string sValue = itc->first;
 
 				if(sText.empty())
-					sText = ExtensionForChannel(sValue);
+				{
+					if( !ParseChannel(sValue, &sText) || sText.empty() )
+					{
+						LoggerWrapper::GetInstance()->
+							Write(LV_WARNING, "ActiveUsersOnCallGrid : no extension from channel %s", sValue.c_str());
+					}
+				}
 
 				char *pData = NULL;
 				int nSize = 0;
@@ -1781,10 +1800,15 @@ class DataGridTable *Telecom_Plugin::ExternalChannels(string GridID,string Parms
 		for(map<string, string>::const_iterator itc = channels.begin(); itc != channels.end(); ++itc)
 		{
 			string sChannel = itc->first;
-			string sExten = ExtensionForChannel(sChannel);
-
+			string sExten;
+			if( !ParseChannel(sChannel, &sExten) || sExten.empty() )
+			{
+				LoggerWrapper::GetInstance()->
+						Write(LV_WARNING, "TP::ExternalChannels : no extension from channel %s", sChannel.c_str());
+			}
+			
 			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Extension %s for channel %s", sExten.c_str(), sChannel.c_str());
-
+			
 			if(0 == map_ext2device[sExten])
 			{
 				string sText = itc->second;
@@ -1800,7 +1824,7 @@ class DataGridTable *Telecom_Plugin::ExternalChannels(string GridID,string Parms
 				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Row %d: cell text %s, value %s",
 					Row, sText.c_str(), sValue.c_str());
 
-				Row++;    
+				Row++;
 			}
 		}
 
@@ -1841,7 +1865,6 @@ class DataGridTable *Telecom_Plugin::RecentCallsGrid(string GridID,string Parms,
 	}
 	while((row = db_wrapper_fetch_row(result_set.r)))
 	{
-		int ext;
 		string sext=row[0];
 		string sext2=row[1];
 		if((sext2.find_first_not_of("0123456789")==sext2.npos) && (sext2.find("000")!=0))
@@ -1849,7 +1872,7 @@ class DataGridTable *Telecom_Plugin::RecentCallsGrid(string GridID,string Parms,
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"   sext1='%s'",sext.c_str());
 			if(sext == "")
 			{
-				ParseChannel(row[4],&ext,&sext);
+				ParseChannel(row[4], &sext);
 				LoggerWrapper::GetInstance()->Write(LV_STATUS,"   sext2='%s'",sext.c_str());
 				if(sext == "")
 				{
@@ -1983,44 +2006,80 @@ class DataGridTable *Telecom_Plugin::SpeedDialGrid(string GridID,string Parms,vo
 	return pDataGrid;
 }
 
-int Telecom_Plugin::ParseChannel(const std::string channel, int* iextension, string *sextension)
+bool Telecom_Plugin::ParseChannel( const std::string channel,
+									std::string* psphone,
+									std::string* psphonetype,
+									std::string* psid )
 {
-	size_t pos, oldpos = 0;
-
-	pos = channel.find('/');
-	if(pos < 0) {
-		return -1;
+	int pos, oldpos = 0;
+	if(psphone)
+	{
+		*psphone = "";
 	}
-
+	
+	pos = (int)channel.find('/');
+	if(pos < 0) {
+		return false;
+	}
+	if(psphonetype) {
+		*psphonetype = channel.substr(0, pos);
+	}
+	
 	oldpos = pos + 1;
-	pos = channel.find('@',oldpos);
+	pos = (int)channel.find('@',oldpos);
 	if(pos < 0) {
-		pos = channel.find('-',oldpos);
+		pos = (int)channel.find('-',oldpos);
 	}
 	if(pos < 0) {
-		pos = channel.find('/',oldpos);
+		pos = (int)channel.find('/',oldpos);
 	}
 	if(pos < 0) {
-		pos = channel.find('&',oldpos);
+		pos = (int)channel.find('&',oldpos);
 	}
 	if(pos < 0) {
-		pos = channel.find(',',oldpos);
+		pos = (int)channel.find(',',oldpos);
 	}
 	if(pos < 0) {
-		pos = channel.find('|',oldpos);
+		pos = (int)channel.find('|',oldpos);
 	}
 	if(pos < 0) {
-		return -1;
+		return false;
 	}
+	
+	if(psphone) {
+		*psphone = channel.substr(oldpos, pos - oldpos);
+	}
+	
+	if(psid) {
+		*psid = channel.substr(pos, channel.length() - pos);
+	}
+	
+	return true;
+}
 
-	if(iextension && sextension) {
-		*sextension = channel.substr(oldpos, pos - oldpos);
-		if(sscanf(sextension->c_str(),"%d",iextension)!=1)
-		{
-			return -1;
-		}
+string Telecom_Plugin::GetSimpleExtension(const string & sInputExt)
+{
+	size_t pos = sInputExt.find('@');
+	if(pos < 0) {
+		pos = sInputExt.find('-');
 	}
-	return 0;
+	if(pos < 0) {
+		pos = sInputExt.find('/');
+	}
+	if(pos < 0) {
+		pos = sInputExt.find('&');
+	}
+	if(pos < 0) {
+		pos = sInputExt.find(',');
+	}
+	if(pos < 0) {
+		pos = sInputExt.find('|');
+	}
+	if(pos < 0) {
+		return "";
+	}
+	
+	return sInputExt.substr(0, pos);
 }
 
 bool Telecom_Plugin::VoIP_Problem(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo)
@@ -2950,31 +3009,6 @@ void Telecom_Plugin::DumpActiveCalls()
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Active calls %d: \n%s", map_call2status.size(), sDebugInfo.c_str());
 }
 
-/*static*/ string Telecom_Plugin::ExtensionForChannel(string sChannel)
-{
-	size_t pos1 = 0;
-	size_t pos2 = 0;
-	size_t pos3 = 0;
-
-	// SIP/extension[@context]-uid
-	pos1 = sChannel.find("/");
-	pos2 = sChannel.rfind("-");
-	pos3 = sChannel.rfind("@");
-	if( pos1 != string::npos && pos2 != string::npos && pos1 < pos2 )
-	{
-		if( pos3 != string::npos && pos1 < pos3 && pos3 < pos2 )
-		{
-			return sChannel.substr(pos1+1, pos3-pos1-1);
-		}
-		else
-		{
-			return sChannel.substr(pos1+1, pos2-pos1-1);
-		}
-	}
-
-	return "";
-}
-
 bool Telecom_Plugin::InternalMakeCall(int iFK_Device_From, string sFromExten, string sPhoneNumberToCall, Message *pMessage)
 {
 	PLUTO_SAFETY_LOCK(vm, m_TelecomMutex);
@@ -3129,7 +3163,13 @@ bool Telecom_Plugin::GetEmbeddedPhoneAssociated(int nDeviceID, int& nEmbeddedPho
 int Telecom_Plugin::GetOrbiterDeviceID(string sExten, string sChannel /*= ""*/)
 {
 	if(!sChannel.empty())
-		sExten = ExtensionForChannel(sChannel);
+	{
+		if( !ParseChannel(sChannel, &sExten) || sExten.empty() )
+		{
+			LoggerWrapper::GetInstance()->
+				Write(LV_WARNING, "TP::GetOrbiterDeviceID : no extension from channel %s", sChannel.c_str());
+		}
+	}
 
 	map<string,int>::iterator it = map_ext2device.find(sExten);
 	
@@ -3261,10 +3301,14 @@ string Telecom_Plugin::FindChannelForExt(string ext)
 
 string Telecom_Plugin::FindChannelForExt(CallStatus * pCallStatus, string ext)
 {
+	string sExt;
+	
 	const map<string, string> & channels = pCallStatus->GetChannels();
 	for( map<string, string>::const_iterator it=channels.begin(); it!=channels.end(); ++it)
 	{
-		if( ext == ExtensionForChannel((*it).first) )
+		ParseChannel((*it).first, &sExt);
+		
+		if( ext == sExt )
 		{
 			return (*it).first;
 		}
@@ -3328,7 +3372,8 @@ void Telecom_Plugin::CMD_Add_Extensions_To_Call(string sPhoneCallID,string sExte
 	string sChannelExt;
 	for(map<string, string>::const_iterator itCh=channels.begin(); itCh!=channels.end(); ++itCh)
 	{
-		sChannelExt = ExtensionForChannel((*itCh).first);
+		ParseChannel((*itCh).first, &sChannelExt);
+		
 		if( !sChannelExt.empty() )
 		{
 			vector<string>::iterator itFound = vectExtensions.begin();
@@ -3406,7 +3451,12 @@ void Telecom_Plugin::CMD_Get_Associated_Picture_For_Channel(string sChannel,char
 		//default path for unknown user
 		string sPath = "/usr/pluto/orbiter/skins/Basic/Users/UnknownUser.png";
 
-		string sExten = ExtensionForChannel(sChannel);
+		string sExten;
+		if( ParseChannel(sChannel, &sExten) || sExten.empty() )
+		{
+			LoggerWrapper::GetInstance()->
+				Write(LV_WARNING, "CMD_Get_Associated_Picture_For_Channel : no extension from channel %s", sChannel.c_str());
+		}
 	
 		int nEmbeddedDeviceID = FindValueInMap(map_ext2device, sExten, 0); 
 

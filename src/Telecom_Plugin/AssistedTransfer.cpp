@@ -488,8 +488,8 @@ bool AssistedTransfer::PrivateProcessJob(const string & job)
 		// let's make a new channel to the old call
 		else if( NULL != pMyOld_CallStatus )
 		{
-			string sMyExt = telecom->ExtensionForChannel(sMyChannelID);
-			if( !sMyExt.empty() )
+			string sMyExt;
+			if( telecom->ParseChannel(sMyChannelID, &sMyExt) && !sMyExt.empty() )
 			{
 				telecom->CMD_PL_Join_Call(0, sMyExt, sMyCallID, 0);
 			}

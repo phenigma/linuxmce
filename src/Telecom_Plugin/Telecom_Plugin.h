@@ -70,10 +70,16 @@ public:
 	// Public methods
 	void doDisplayMessages();
 	
-	/*
-	*	
-	*/
-	static string ExtensionForChannel(string sChannel);
+	/**
+	  * Parser for channel information.
+	  */
+	static bool ParseChannel(   const std::string channel,
+								std::string* psphone,
+								std::string* psphonetype = 0,
+								std::string* psid = 0 );
+	
+	/** Just the extension, no context or other extra information.*/
+	static string GetSimpleExtension(const string&);
 	
 	// Telecom API for tasks
 	/***/
@@ -421,7 +427,6 @@ private:
 private:
 	DeviceData_Router* find_AsteriskDevice();
 	DeviceData_Router* find_Device(int iPK_Device);
-	int ParseChannel(const std::string channel, int* iextension, string *sextension);
 	
 	/***/
 	ExtensionStatus* FindExtensionStatus(string sExt);
