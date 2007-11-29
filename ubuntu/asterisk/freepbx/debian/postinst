@@ -8,8 +8,8 @@ if [[ "$1" == configure ]]; then
 		PassParm="-p$MySqlPassword"
 	fi
 	if [[ -z "$(RunSQL "SHOW DATABASES LIKE 'asterisk'")" ]] || [[ -z "$(RunSQL "USE asterisk; DESC notifications")" ]]; then
-		RunSQL "DROP DATABASE asterisk; CREATE DATABASE asterisk"
-		RunSQL "DROP DATABASE asteriskcdrdb; CREATE DATABASE asteriskcdrdb"
+		RunSQL "DROP DATABASE IF EXISTS asterisk; CREATE DATABASE asterisk"
+		RunSQL "DROP DATABASE IF EXISTS asteriskcdrdb; CREATE DATABASE asteriskcdrdb"
 
 		RunSQL "GRANT ALL PRIVILEGES ON asterisk.* TO asteriskuser@localhost IDENTIFIED BY 'amp109'"
 		RunSQL "GRANT ALL PRIVILEGES ON asteriskcdrdb.* TO asteriskuser@localhost IDENTIFIED BY 'amp109'"
