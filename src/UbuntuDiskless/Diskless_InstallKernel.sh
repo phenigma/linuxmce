@@ -2,6 +2,7 @@
 
 . /usr/pluto/bin/pluto.func
 . /usr/pluto/bin/Utils.sh
+. /usr/pluto/bin/SQL_Ops.sh
 
 set -e
 
@@ -23,18 +24,14 @@ fi
 #Moon_KernelVersion=$(basename $(ls /boot/vmlinuz-* | head -1) | cut -d"-" -f2-99)
 Moon_KernelVersion=$(uname -r)
 
-## Move kernel from core to md
-cp /boot/vmlinuz-${Moon_KernelVersion} ${Moon_RootLocation}/boot/
-cp /boot/System.map-${Moon_KernelVersion} ${Moon_RootLocation}/boot/
-cp -r /lib/modules/${Moon_KernelVersion} ${Moon_RootLocation}/lib/modules
-
-## Next line will act as a diversion remove for hd-dvd-ripping bla bla
-mv -f ${Moon_RootLocation}/lib/modules/${Moon_KernelVersion}/kernel/fs/udf/udf.ko{.old,}
-
-
-## Changes initramfs options to boot using nfs and create initramfs
-sed -i 's/^.*BOOT=.*/BOOT=nfs/g' ${Moon_RootLocation}/etc/initramfs-tools/initramfs.conf
-mkinitramfs -d ${Moon_RootLocation}/etc/initramfs-tools/ -o ${Moon_RootLocation}/boot/initrd.img-${Moon_KernelVersion}
+## Install architecture specific kernel
+Moon_Architecture=$(RunSQL "SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device='$Moon_DeviceID' AND FK_DeviceData='$DEVICEDATA_Architecture'")
+if [[ -z "$Moon_Architecture" ]]; then
+	Moon_Architecture=i386
+fi
+cp /usr/pluto/deb-cache/linux-image-diskless_*_"$Moon_Architecture".deb "$Moon_RootLocation"
+chroot "$Moon_RootLocation" dpkg -i linux-image-diskless_*_"$Moon_Architecture".deb
+rm -f "$Moon_RootLocation"/linux-image-diskless_*_"$Moon_Architecture".deb
 
 ## Create symlinks to existing kernels
 rm -f ${Moon_RootLocation}/boot/initrd.img
