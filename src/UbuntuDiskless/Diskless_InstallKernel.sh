@@ -28,6 +28,9 @@ cp /boot/vmlinuz-${Moon_KernelVersion} ${Moon_RootLocation}/boot/
 cp /boot/System.map-${Moon_KernelVersion} ${Moon_RootLocation}/boot/
 cp -r /lib/modules/${Moon_KernelVersion} ${Moon_RootLocation}/lib/modules
 
+## Next line will act as a diversion remove for hd-dvd-ripping bla bla
+mv -f ${Moon_RootLocation}/lib/modules/${Moon_KernelVersion}/kernel/fs/udf/udf.ko{.old,}
+
 
 ## Changes initramfs options to boot using nfs and create initramfs
 sed -i 's/^.*BOOT=.*/BOOT=nfs/g' ${Moon_RootLocation}/etc/initramfs-tools/initramfs.conf
