@@ -2011,14 +2011,14 @@ bool Telecom_Plugin::ParseChannel( const std::string channel,
 									std::string* psphonetype,
 									std::string* psid )
 {
-	int pos, oldpos = 0;
+	size_t pos, oldpos = 0;
 	if(psphone)
 	{
 		*psphone = "";
 	}
 	
-	pos = (int)channel.find('/');
-	if(pos < 0) {
+	pos = channel.find('/');
+	if( pos == string::npos ) {
 		return false;
 	}
 	if(psphonetype) {
@@ -2026,23 +2026,23 @@ bool Telecom_Plugin::ParseChannel( const std::string channel,
 	}
 	
 	oldpos = pos + 1;
-	pos = (int)channel.find('@',oldpos);
-	if(pos < 0) {
-		pos = (int)channel.find('-',oldpos);
+	pos = channel.find('@',oldpos);
+	if( pos == string::npos ) {
+		pos = channel.find('-',oldpos);
 	}
-	if(pos < 0) {
-		pos = (int)channel.find('/',oldpos);
+	if( pos == string::npos ) {
+		pos = channel.find('/',oldpos);
 	}
-	if(pos < 0) {
-		pos = (int)channel.find('&',oldpos);
+	if( pos == string::npos ) {
+		pos = channel.find('&',oldpos);
 	}
-	if(pos < 0) {
-		pos = (int)channel.find(',',oldpos);
+	if( pos == string::npos ) {
+		pos = channel.find(',',oldpos);
 	}
-	if(pos < 0) {
-		pos = (int)channel.find('|',oldpos);
+	if( pos == string::npos ) {
+		pos = channel.find('|',oldpos);
 	}
-	if(pos < 0) {
+	if( pos == string::npos ) {
 		return false;
 	}
 	
@@ -2060,22 +2060,22 @@ bool Telecom_Plugin::ParseChannel( const std::string channel,
 string Telecom_Plugin::GetSimpleExtension(const string & sInputExt)
 {
 	size_t pos = sInputExt.find('@');
-	if(pos < 0) {
+	if( pos == string::npos ) {
 		pos = sInputExt.find('-');
 	}
-	if(pos < 0) {
+	if( pos == string::npos ) {
 		pos = sInputExt.find('/');
 	}
-	if(pos < 0) {
+	if( pos == string::npos ) {
 		pos = sInputExt.find('&');
 	}
-	if(pos < 0) {
+	if( pos == string::npos ) {
 		pos = sInputExt.find(',');
 	}
-	if(pos < 0) {
+	if( pos == string::npos ) {
 		pos = sInputExt.find('|');
 	}
-	if(pos < 0) {
+	if( pos == string::npos ) {
 		return "";
 	}
 	
