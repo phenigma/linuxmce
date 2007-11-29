@@ -384,8 +384,8 @@ function Build_Pluto_Replacements {
 	dir_="${svn_dir}"/trunk/ubuntu/linux-image-dummy
 	if ReplacementNeedsBuild "$dir_" ;then
 		pushd "$dir_"
-		dpkg-deb -b . ..
-		cp ../linux-image-dummy_*.deb "${temp_dir}"		
+		./makepackage.sh	
+		cp linux-image-diskless_*.deb "${temp_dir}"		
 		popd
 	fi
 
