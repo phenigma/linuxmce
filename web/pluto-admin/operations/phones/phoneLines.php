@@ -520,7 +520,7 @@ Host                  dnsmgr  Username    Perceived             Refresh  State
 		$nr=($ampersand===false)?@$parsed[2]:substr(@$parsed[2],0,$ampersand);
 		$state[$nr]=(!isset($parsed[6]))?@$parsed[5]:$parsed[5].' '.join(' ',$dataArray);
 	}
-print_array($state);
+
 	return $state;
 }
 
