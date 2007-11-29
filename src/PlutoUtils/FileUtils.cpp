@@ -273,6 +273,21 @@ long FileUtils::FileSize(string sFile)
 #endif
 }
 
+long long FileUtils::FileSize64(string sFile)
+{
+#ifdef WIN32
+    return 0;
+#else
+    struct stat sb;
+    if ( stat(sFile.c_str(), &sb) == -1 )
+	return 0;
+    else
+    {
+	return sb.st_size;
+    }
+#endif
+}
+
 string FileUtils::FindExtension( string sFileName )
 {
     // This function is a bit primitive because

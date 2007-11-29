@@ -52,6 +52,7 @@ namespace FileUtils
     bool WriteVectorToFile( string sFileName, vector<string> &vectString ); /**< writes a file where the vector of strings are the lines */
     bool FileExists( string sFileName ); /**< checks if the specified file exists */
     long FileSize(string sFileName); /**< returns the file size or zero if error */
+    long long FileSize64(string sFileName); /**< returns the file size or zero if error, works for files larger than 2Gb */
     string FindExtension ( string sFileName ); /**< returns the extension of the file name specified */
     void MakeDir(string sDirectory); /**< makes a directory, including all necessary parent directories, like mkdir -p in Linux */
     bool DirExists(string sDirectory); /**< Returns true if the directory exists */

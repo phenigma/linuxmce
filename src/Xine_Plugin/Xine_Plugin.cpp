@@ -400,6 +400,8 @@ bool Xine_Plugin::StartMedia( MediaStream *pMediaStream,string &sError )
 					LoggerWrapper::GetInstance()->Write(LV_STATUS, "Item: %s [ripped file %i]", li->c_str(), iPK_File);
 					MediaFile *pItem = new MediaFile(sFolder+"/"+*li);
 					pItem->m_dwPK_File = iPK_File;
+					long long iFileSize = FileUtils::FileSize64(sFolder+"/"+*li) / 1024 / 1024;					
+					pItem->m_sDescription = *li + ", " +StringUtils::itos(iFileSize) + "Mb";
 					pMediaStream->m_dequeMediaFile.push_back(pItem);
 					if (sStartFile == *li)
 						pMediaStream->m_iDequeMediaFile_Pos = iQueuePos;
