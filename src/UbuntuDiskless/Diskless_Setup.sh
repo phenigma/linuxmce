@@ -267,7 +267,7 @@ for Row in $R; do
 
 	Moon_Architecture=$(RunSQL "SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device='$Moon_DeviceID' AND FK_DeviceData='$DEVICEDATA_Architecture'")
 	if [[ "$Moon_Architecture" == "" ]] ;then
-		Moon_Architecture="686"
+		Moon_Architecture=i386
 	fi
 
 	Moon_RootLocation="/usr/pluto/diskless/$Moon_DeviceID"

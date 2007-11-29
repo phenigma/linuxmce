@@ -2,6 +2,7 @@
 
 . /usr/pluto/bin/pluto.func
 . /usr/pluto/bin/Utils.sh
+. /usr/pluto/bin/SQL_Ops.sh
 
 set -e
 
@@ -19,7 +20,11 @@ if [[ "$Moon_DeviceID" == "" ]] ;then
 fi
 
 Moon_RootLocation="/usr/pluto/diskless/${Moon_DeviceID}"
-Moon_RootArchive="/usr/pluto/install/PlutoMD.tar.bz2"
+Moon_Architecture=$(RunSQL "SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device='$Moon_DeviceID' AND FK_DeviceData='$DEVICEDATA_Architecture'")
+if [[ -z "$Moon_Architecture" ]]; then
+	Moon_Architecture=i386
+fi
+Moon_RootArchive="/usr/pluto/install/PlutoMD-$Moon_Architecture.tar.bz2"
 
 function unpack_filesystem {
 	local DisklessImages=$(GetDeviceData "$Moon_DeviceID" "$DEVICEDATA_DisklessImages")
@@ -69,7 +74,6 @@ function is_image_upgradable {
 if [[ ! -f $Moon_RootArchive ]] ;then
 	/usr/pluto/bin/Diskless_CreateTBZ.sh
 	unpack_filesystem
-
 else
 	unpack_filesystem
 	

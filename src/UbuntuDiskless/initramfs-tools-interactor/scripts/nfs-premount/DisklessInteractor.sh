@@ -8,7 +8,7 @@ MyIP=`ifconfig  | grep "inet addr" | sed -r 's/^.* inet addr:([0-9.]*).*/\1/g'`
 MyMAC=`ifconfig  | grep "HWaddr "  | sed -r 's/^.* HWaddr ([a-zA-Z0-9:]*)/\1/g'`
 Gateway=`ip route | grep "default via" | cut -d " " -f3`
 
-Architecture="686"
+Architecture="i386"
 if grep -q "^flags.* lm" /proc/cpuinfo ;then
 	Architecture="x86_64"
 fi
