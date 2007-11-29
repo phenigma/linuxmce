@@ -245,7 +245,9 @@ void Xine_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPo
 	if(!m_bRouterReloading)
 	{
 		//stopping PSS to get more video memory
-		DeviceData_Base *pDevice_pss = m_pData->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_Screen_Savers_CONST,this);
+		//trying this for 2 seconds to avoid huge delays in case PSS is stuck
+		const int iQueryTimeout=2;
+		DeviceData_Base *pDevice_pss = m_pData->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_Screen_Savers_CONST,this,iQueryTimeout);
 		if (pDevice_pss)
 		{
 			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() stopping PSS");
@@ -253,7 +255,7 @@ void Xine_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPo
 			SendCommandNoResponse(cmd);
 		}
 		else
-			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() stopping PSS failed - no PSS found");
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() stopping PSS failed - no PSS found or it is stuck");
 	}
 	
 	if (iStreamID==0)
