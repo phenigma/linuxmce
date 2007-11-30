@@ -219,10 +219,10 @@ $share="select * from ShareWithEstablishment where FK_MasterUsers='".$_SESSION['
 					<th align="right">Current Picture</th>
 					<td>';
            
-            $file='client/images/'.$_SESSION['username'].'.jpg';
+            $file='client/images/'.$_SESSION['userID'].'.jpg';
              
             if(file_exists($file)){
-						$out.='<img src="client/images/'.$_SESSION['username'].'.jpg" border="0" width="150" height="150" /><br />';
+						$out.='<img src="client/images/'.$_SESSION['userID'].'.jpg" border="0" width="150" height="150" /><br />';
                   
 						$out.='<input type="submit" value="Delete"  name="delete_picture" id="delete_picture" onclick="if(confirm(\'Are you sure you want to delete this your picture?\')){this.form.action.value=\'delete_picture\';this.form.submit();}" />';
             }
