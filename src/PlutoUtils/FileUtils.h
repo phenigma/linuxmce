@@ -52,7 +52,6 @@ namespace FileUtils
     bool WriteVectorToFile( string sFileName, vector<string> &vectString ); /**< writes a file where the vector of strings are the lines */
     bool FileExists( string sFileName ); /**< checks if the specified file exists */
     long FileSize(string sFileName); /**< returns the file size or zero if error */
-    long long FileSize64(string sFileName); /**< returns the file size or zero if error, works for files larger than 2Gb */
     string FindExtension ( string sFileName ); /**< returns the extension of the file name specified */
     void MakeDir(string sDirectory); /**< makes a directory, including all necessary parent directories, like mkdir -p in Linux */
     bool DirExists(string sDirectory); /**< Returns true if the directory exists */
@@ -99,6 +98,7 @@ namespace FileUtils
 	string GetMidFileChecksum( string sFileName, int Bytes=1024 ); /**< returns the checksum of the Bytes in the middle of the file for a quick check if a file has changed */
 	string GetLastModifiedDateStr(string sFile); /**< returns last modified date for a file as a string */
 	time_t GetLastModifiedDate(string sFile); /**< returns last modified date for a file as time_t */
+	long long FileSize64(string sFileName); /**< returns the file size or zero if error, works for files larger than 2Gb */
 #endif
 
 #endif //#ifndef SYMBIAN
