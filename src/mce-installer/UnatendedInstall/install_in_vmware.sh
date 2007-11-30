@@ -74,7 +74,7 @@ function create_debcache_on_virtual_machine {
 	## Build Packages.gz
 	decho "Building Pacakges.gz on virtual machine"
 	scp /usr/bin/dpkg-scanpackages root@"$VMWARE_IP":/usr/pluto/deb-cache
-	ssh root@"$VMWARE_IP" "apt-get -y install dpkg-dev; cd /usr/pluto/deb-cache && ./dpkg-scanpackages . /dev/null > Packages && gzip -c Packages > Packages.gz && rm dpkg-scanpackages"
+	ssh root@"$VMWARE_IP" "apt-get -y install dpkg-dev; cd /usr/pluto/deb-cache && ./dpkg-scanpackages -m . /dev/null > Packages && gzip -c Packages > Packages.gz && rm dpkg-scanpackages"
 	decho "Finish building Packages.gz on virtual machine"
 
 
