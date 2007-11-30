@@ -1,11 +1,14 @@
 #!/bin/bash
+. /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/SQL_Ops.sh
 
 ## Misc variables
-DISTRIB='edgy'
+DEVICEDATA_Architecture=112
+Architecture=$(RunSQL "SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device='$PK_Device' AND FK_DeviceData='$DEVICEDATA_Architecture'")
+
 DBST_SCRIPT='/usr/pluto/bin/Diskless_DebootstrapPluto.sh'
 ARH_DIR='/usr/pluto/install'
-DisklessFS="PlutoMD.tar.bz2"
+DisklessFS="PlutoMD-${Architecture}.tar.bz2"
 
 Installer_Files=(BonusCdMenu.sh BonusCdAutoInst.sh Common.sh AptSources.sh ConfirmDependencies_Debian.sh Initial_Config.sh Initial_Config_Core.sh Initial_Config_MD.sh Initial_Config_Finish.sh Initial_DHCP_Config.sh Initial_Network_Config.sh pkgsel post-debootstrap.sh preseed.cfg PreseedStage2.sh)
 
