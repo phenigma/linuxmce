@@ -167,7 +167,9 @@ bool VR_IdentifyPhone::ProcessRequest(RA_Processor *pRA_Processor)
 		}
 		cout << "Found Mac " << m_iMacAddress << " associated with user: " << MacAddressRow[sf_FK_MasterUsers] << "\n";
 		m_iPlutoId = atoi(MacAddressRow[sf_FK_MasterUsers]);
-		PKID_C_PhoneStatus = atoi(MacAddressRow[sf_FKID_C_PhoneStatus]);
+
+		if(NULL != MacAddressRow[sf_FKID_C_PhoneStatus])
+			PKID_C_PhoneStatus = atoi(MacAddressRow[sf_FKID_C_PhoneStatus]);
 
 		cout << "Request from " << m_iEstablishmentID << " mac: " << m_iMacAddress << 
 			" PlutoID: " << m_iPlutoId << " Status: " << PKID_C_PhoneStatus << endl; 

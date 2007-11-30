@@ -464,13 +464,13 @@ bool Orbiter_Plugin::ReportPendingTasks(PendingTaskList *pPendingTaskList)
 	for(list<int>::iterator it=m_listRegenCommands.begin();it!=m_listRegenCommands.end();++it)
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter_Plugin::PendingTasks m_listRegenCommands %d",*it);
 
-	char cPercent = 0;
-	int nSecondsLeft = 0;
-
 	if( pPendingTaskList )
 	{
 		for(list<int>::iterator it=m_listRegenCommands.begin();it!=m_listRegenCommands.end();++it)
 		{
+			char cPercent = 0;
+			int nSecondsLeft = 0;
+
 			string sDescription = "Regen Orbiter " + StringUtils::itos(*it);
 			OH_Orbiter *pOH_Orbiter = m_mapOH_Orbiter_Find(*it);
 
