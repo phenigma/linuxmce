@@ -43,8 +43,6 @@ if [[ "$iso_name" == "" ]] ;then
 	iso_name="linuxmce-1.1"
 fi
 
-export Version=$(echo "select VersionName from Version" | mysql $sql_slave_db | tail -1);
-
 function DisplayMessage {
 	echo "`date +%H:%M:%S`  $*" >&100
 }
@@ -62,7 +60,7 @@ function SyncDisklessImage {
 	local BuilderIP="$1"
 	local DisklessImageName="$2"
 	local DisklessImageVersion=""
-	local LocalVersion=$(echo "select VersionName from Version" | mysql $sql_slave_db | tail -1);
+	local LocalVersion="$(echo "select VersionName from Version" | mysql -A -N pluto_main_build  | head -1)"
 
 	local done='false'
 	mkdir -p /var/www/DisklessImages
@@ -75,6 +73,7 @@ function SyncDisklessImage {
 			wget -c "http://${BuilderIP}/DisklessImages/${DisklessImageName}" 
 			done='true'
 		else
+			rm "${DisklessImageName}.version"
 			wget -c "http://${BuilderIP}/DisklessImages/${DisklessImageName}.version"
 			done='false'
 			sleep 10
@@ -603,8 +602,6 @@ function Import_Build_Database {
 	echo 'DELETE FROM `Package_Version`; DELETE FROM `Schema`;' | mysql -h $sql_slave_host -u $sql_slave_user $sql_slave_db_mainsqlcvs
 
 	rm -rf $temp_file $temp_file_main $temp_file_myth $temp_file_media $temp_file_security $temp_file_telecom $temp_sqlcvsdir
-
-	export Version=$(echo "select VersionName from Version" | mysql $sql_slave_db | tail -1);
 }
 
 function Import_Pluto_Skins {
