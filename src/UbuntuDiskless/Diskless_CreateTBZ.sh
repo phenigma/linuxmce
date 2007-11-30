@@ -224,6 +224,7 @@ chroot "$TEMP_DIR" apt-get clean
 mkdir -p "$ARH_DIR"
 pushd "$TEMP_DIR" >/dev/null
 tar -cjvf "$ARH_DIR/$DisklessFS" *
+echo "$PlutoVersion" > "$ARH_DIR/$DisklessFS.version"
 popd >/dev/null
 
 rm -rf $TEMP_DIR
