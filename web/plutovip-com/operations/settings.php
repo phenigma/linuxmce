@@ -390,14 +390,13 @@ else
        mysql_query($sql) or die("Can not update Users table".mysql_error());
        
        $macAddress=$_POST['macAddress'];
-       $intMacAddress=convert_mac_to_int($macAddress);
-       $oldMacAddress=get_mac_address($_SESSION['userID']);
-       if($intMacAddress!=$oldMacAddress){
+       $oldMacAddress=get_mac_address($_SESSION['userID'],0);
+       if($macAddress!=$oldMacAddress){
        		if($oldMacAddress==0){
-       			$sql="INSERT INTO MacAddress (PKID_MacAddress,FK_MasterUsers) VALUES ('$intMacAddress','".$_SESSION['userID']."')";
+       			$sql="INSERT INTO MacAddress (PKID_MacAddress,FK_MasterUsers) VALUES (0x".str_replace(':','',$macAddress)."+0,'".$_SESSION['userID']."')";
        			mysql_query($sql) or die("Can not add MAC address to MasterUsers table".mysql_error());       			
        		}else{
-       			$sql="UPDATE MacAddress SET PKID_MacAddress='$intMacAddress' WHERE FK_MasterUsers='".$_SESSION['userID']."'";
+       			$sql="UPDATE MacAddress SET PKID_MacAddress=0x".str_replace(':','',$macAddress)."+0 WHERE FK_MasterUsers='".$_SESSION['userID']."'";
        			mysql_query($sql) or die("Can not update MasterUsers table".mysql_error());
        		}
        }
@@ -623,7 +622,7 @@ if(isset($_POST['action']) && $_POST['action']=="delete_picture")
     $file='client/images/'.$_SESSION['username'].'.jpg';
     if(file_exists($file)) unlink($file);
     $id_user=$_SESSION['username'];
-    $file_realname = trim($HTTP_POST_FILES['pictureu']['$id_user']); 
+    $file_realname = $_SESSION['userID'].'.jpg'; 
     $uploaddir="client/images/";
     $uploaddir.=$id_user.".jpg";
     move_uploaded_file($_FILES['pictureu']['tmp_name'], $uploaddir.$file_realname); 

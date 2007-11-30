@@ -397,18 +397,17 @@ function settings_b($output){
    	}
    
        $macAddress=$_POST['macAddress'];
-       $intMacAddress=convert_mac_to_int($macAddress);
-       $oldMacAddress=get_mac_address($_SESSION['userID']);
-       if($intMacAddress!=$oldMacAddress){
+       $oldMacAddress=get_mac_address($_SESSION['userID'],0);
+       if($macAddress!=$oldMacAddress){
        		if($oldMacAddress==0){
-       			$sql="INSERT INTO MacAddress (PKID_MacAddress,FK_MasterUsers) VALUES ('$intMacAddress','".$_SESSION['userID']."')";
+       			$sql="INSERT INTO MacAddress (PKID_MacAddress,FK_MasterUsers) VALUES (0x".str_replace(':','',$macAddress)."+0,'".$_SESSION['userID']."')";
        			mysql_query($sql) or die("Can not add MAC address to MasterUsers table".mysql_error());       			
        		}else{
-       			$sql="UPDATE MacAddress SET PKID_MacAddress='$intMacAddress' WHERE FK_MasterUsers='".$_SESSION['userID']."'";
+       			$sql="UPDATE MacAddress SET PKID_MacAddress=0x".str_replace(':','',$macAddress)."+0 WHERE FK_MasterUsers='".$_SESSION['userID']."'";
        			mysql_query($sql) or die("Can not update MasterUsers table".mysql_error());
        		}
-       }   	
-
+       }
+       
     // insert new phone number
     if($_POST['PhoneNumber_NEW_FKID_PhoneNumberCategory']!=''){
     	$sql="insert into PhoneNumber (FK_MasterUsers,FKID_PhoneNumberCategory,AreaCode,Number,Extension) values('".(int)$_SESSION['userID']."','".(int)$_POST['PhoneNumber_NEW_FKID_PhoneNumberCategory']."','".(int)$_POST['PhoneNumber_NEW_AreaCode']."','".(int)$_POST['PhoneNumber_NEW_Number']."','".(int)$_POST['PhoneNumber_NEW_Extension']."')";

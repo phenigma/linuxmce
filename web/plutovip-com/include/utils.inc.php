@@ -259,7 +259,7 @@ function get_mac_address($userID,$asInt=1){
   
 }
 
-function convert_mac_to_int($macAddress,$separator='-'){
+function convert_mac_to_int($macAddress,$separator=':'){
 	/*
 	u_int64_t iMacAddress=0;
 	for(int i=0;i<6;++i)
@@ -277,11 +277,10 @@ function convert_mac_to_int($macAddress,$separator='-'){
 	for($i=0;$i<6;$i++){
 		$mac+=hexdec($parts[$i])*pow(256,5-$i);
 	}
-	
 	return $mac;
 }
 
-function convert_int_to_mac($macAddress,$separator='-'){
+function convert_int_to_mac($macAddress,$separator=':'){
 	$partsArray=array();
 	for($i=5;$i>=0;$i--){
 		$digit=floor($macAddress/pow(256,$i));
