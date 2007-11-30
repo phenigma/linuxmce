@@ -3579,7 +3579,9 @@ string Telecom_Plugin::GetCallerName(string sChannel, string sCallerID)
 		//do we have an entry in phone book?
 		//NOTE : if it's a device, the entry from phone book will override the caller name which uses the device name
 		vector<Row_PhoneNumber *> vectRows;
-		m_pDatabase_pluto_telecom->PhoneNumber_get()->GetRows("Extension = " + sExten, &vectRows);
+		m_pDatabase_pluto_telecom->PhoneNumber_get()->GetRows(
+			"Extension = '" + sExten + "' OR PhoneNumber = '" + sExten + "' OR DialAs = '" + sExten + "'", 
+			&vectRows);
 
 		if(!vectRows.empty())
 		{
