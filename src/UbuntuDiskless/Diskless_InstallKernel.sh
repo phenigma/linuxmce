@@ -7,7 +7,6 @@
 set -e
 
 DEVICEDATA_DisklessImages=258
-DEVICEDATA_Architecture=112
 
 if [[ "$#" -ne 1 ]]; then
 	echo "Syntax: $0 <Device>"
@@ -24,17 +23,6 @@ fi
 ## Determine what kernel are we going to use
 #Moon_KernelVersion=$(basename $(ls /boot/vmlinuz-* | head -1) | cut -d"-" -f2-99)
 Moon_KernelVersion=$(uname -r)
-
-## Install architecture specific kernel
-Moon_Architecture=$(RunSQL "SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device='$Moon_DeviceID' AND FK_DeviceData='$DEVICEDATA_Architecture'")
-if [[ -z "$Moon_Architecture" ]]; then
-	Moon_Architecture=i386
-fi
-cp /usr/pluto/deb-cache/linux-image-diskless_*_"$Moon_Architecture".deb "$Moon_RootLocation"
-pushd "$Moon_RootLocation" >/dev/null
-chroot . dpkg -i linux-image-diskless_*_"$Moon_Architecture".deb
-popd >/dev/null
-rm -f "$Moon_RootLocation"/linux-image-diskless_*_"$Moon_Architecture".deb
 
 ## Create symlinks to existing kernels
 rm -f ${Moon_RootLocation}/boot/initrd.img

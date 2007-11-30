@@ -136,6 +136,9 @@ echo "en_US.UTF-8 UTF-8" >"$TEMP_DIR"/etc/locale.gen
 LC_ALL=C chroot "$TEMP_DIR" apt-get -f -y install locales
 #chroot "$TEMP_DIR" locale-gen
 
+echo "Installing kernel"
+LC_ALL=C chroot "$TEMP_DIR" apt-get -f -y install linux-image-diskless
+
 ## Create a list of devices that will run on the md so we will know
 ## what software to preinstall there
 ## FIXME: get this list from the database 
