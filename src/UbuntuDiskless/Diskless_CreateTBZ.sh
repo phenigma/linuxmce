@@ -140,7 +140,7 @@ LC_ALL=C chroot "$TEMP_DIR" apt-get -f -y install locales
 #chroot "$TEMP_DIR" locale-gen
 
 echo "Installing kernel"
-LC_ALL=C chroot "$TEMP_DIR" apt-get -f -y install linux-image-diskless
+LC_ALL=C chroot "$TEMP_DIR" apt-get -f -y install linux-image-diskless linux-restricted-modules-2.6.22-14-generic
 
 ## Create a list of devices that will run on the md so we will know
 ## what software to preinstall there
