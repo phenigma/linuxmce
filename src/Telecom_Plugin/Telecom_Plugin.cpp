@@ -2347,7 +2347,7 @@ class DataGridTable *Telecom_Plugin::UserVoiceMailGrid(string GridID,string Parm
 			}
 			string url= VOICEMAIL_URL + URL_Parm;
 			DCE::CMD_MH_Play_Media CMD_MH_Play_Media_
-                (m_dwPK_Device, pMediaPlugin->m_dwPK_Device, pMessage->m_dwPK_Device_From, url, MEDIATYPE_pluto_StoredAudio_CONST,0,"",1,0);
+				(pMessage->m_dwPK_Device_From, pMediaPlugin->m_dwPK_Device, pMessage->m_dwPK_Device_From, url, MEDIATYPE_pluto_StoredAudio_CONST,0,"",0,0);
 			
 			pCell = new DataGridCell(text,"");
 			pCell->m_pMessage=CMD_MH_Play_Media_.m_pMessage;
@@ -2378,7 +2378,7 @@ class DataGridTable *Telecom_Plugin::UserVoiceMailGrid(string GridID,string Parm
 			}
 			string url = VOICEMAIL_URL + URL_Parm;
 			DCE::CMD_MH_Play_Media CMD_MH_Play_Media_
-                (m_dwPK_Device, pMediaPlugin->m_dwPK_Device, pMessage->m_dwPK_Device_From, url, MEDIATYPE_pluto_StoredAudio_CONST,0,"",1,0);
+				(pMessage->m_dwPK_Device_From, pMediaPlugin->m_dwPK_Device, pMessage->m_dwPK_Device_From, url, MEDIATYPE_pluto_StoredAudio_CONST,0,"",0,0);
 			
 			pCell = new DataGridCell(text,"");
 			pCell->m_pMessage=CMD_MH_Play_Media_.m_pMessage;
