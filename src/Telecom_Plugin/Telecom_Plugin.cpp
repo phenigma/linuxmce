@@ -3572,7 +3572,10 @@ string Telecom_Plugin::GetCallerName(string sChannel, string sCallerID)
 				else
 					sRoomName = "Unknown";
 
-				sCallerName = pDevice->m_sDescription + " (" + sRoomName + ")";
+				if(pDevice->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Orbiter_Embedded_Phone_CONST)
+					sCallerName = sRoomName;
+				else
+                    sCallerName = pDevice->m_sDescription + " (" + sRoomName + ")";
 			}
 		}
 
