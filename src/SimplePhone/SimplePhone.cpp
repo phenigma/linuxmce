@@ -355,14 +355,19 @@ void SimplePhone::CMD_Simulate_Keypress(string sPK_Button,int iStreamID,string s
 {
 	(void) sName; // prevent warning of unused variable
 
-    char ch;
+    unsigned char ch = 0;
 
     LoggerWrapper::GetInstance()->Write(LV_STATUS, "Received '%s'",sPK_Button.c_str());
     sCMD_Result="ERROR";
     if(LS_ActiveCall())
     {
-		ch = atoi(sPK_Button.c_str());
-        if((ch>='0' && ch<='9') || (ch=='*') || (ch == '#'))
+		if( !sPK_Button.empty() )
+		{
+			// only read the first character
+			ch = sPK_Button[0];
+		}
+		
+        if( isdigit(ch) || (ch == '*') || (ch == '#'))
         {
             LoggerWrapper::GetInstance()->Write(LV_STATUS, "Will send '%d'(%c) as DTMF",ch,ch);
             LS_SentDTMF(ch);
