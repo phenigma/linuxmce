@@ -46,7 +46,7 @@ fi
 export Version=$(echo "select VersionName from Version" | mysql $sql_slave_db | tail -1);
 
 function DisplayMessage {
-	echo "`date +%H:%M:%S`  $*" >100
+	echo "`date +%H:%M:%S`  $*" >&100
 }
 
 function Error {
