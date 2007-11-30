@@ -7,6 +7,7 @@ function settings_b($output){
 		$resShareWithVipPN=mysql_fetch_object($queryShareWithVipPN);
 		$PhoneNumberFKID_C_Field = $resShareWithVipPN->PKID_C_Field;
 	}
+	$macAddress=get_mac_address($_SESSION['userID'],0);
 
   $out='';
   $out.='
@@ -243,7 +244,10 @@ function settings_b($output){
 					</tr> ';       
             }
 				$out.='
-
+			<tr>
+				<th align="right"> MAC address</td>
+				<td><input type="text" name="macAddress" value="'.$macAddress.'" /></td>
+			</tr>
 	        <tr>
        			<td colspan="2" align="center"><input type="submit" name="update" value="update" /></td>
        		</tr>
@@ -392,6 +396,18 @@ function settings_b($output){
     	mysql_query($sql) or die("Can not update PhoneNumber ".mysql_error());
    	}
    
+       $macAddress=$_POST['macAddress'];
+       $intMacAddress=convert_mac_to_int($macAddress);
+       $oldMacAddress=get_mac_address($_SESSION['userID']);
+       if($intMacAddress!=$oldMacAddress){
+       		if($oldMacAddress==0){
+       			$sql="INSERT INTO MacAddress (PKID_MacAddress,FK_MasterUsers) VALUES ('$intMacAddress','".$_SESSION['userID']."')";
+       			mysql_query($sql) or die("Can not add MAC address to MasterUsers table".mysql_error());       			
+       		}else{
+       			$sql="UPDATE MacAddress SET PKID_MacAddress='$intMacAddress' WHERE FK_MasterUsers='".$_SESSION['userID']."'";
+       			mysql_query($sql) or die("Can not update MasterUsers table".mysql_error());
+       		}
+       }   	
 
     // insert new phone number
     if($_POST['PhoneNumber_NEW_FKID_PhoneNumberCategory']!=''){

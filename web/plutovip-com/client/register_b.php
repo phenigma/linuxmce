@@ -131,6 +131,20 @@ function register_b($output)
 				$_SESSION['categ']=$FirstAccount;
 				$_SESSION['Email']=$Email;
 				$_SESSION['Password']=$password;
+				
+				if($typeUser=='Users')
+					$prefix="PV";
+				else
+					$prefix="PE";
+				$pin=calculatePIN();		
+				$plutoId=(calculatePlutoID($MasterUsersID));
+				
+      			$insertMasterUsers=mysql_query("
+      				INSERT INTO MasterUsers 
+						(PK_MasterUsers,PlutoId,Pin,FirstAccount,Username,Email,SignupDate, FK_MasterUsers_Referrer) 
+					VALUES	($MasterUsersID,'$plutoId','$pin','$FirstAccount','{$_POST['username']}','$Email',NOW(),'$referrer')") 
+      			OR die ('Could not insert into MasterUsers Database'.mysql_error()); 
+						
   			}
   			header("Location: index.php?section=settings_b");
   		}

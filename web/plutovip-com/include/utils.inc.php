@@ -246,4 +246,50 @@ function dbQuery($query,$error='MySQL error')
 	return $res;
 }
 
+function get_mac_address($userID,$asInt=1){
+  $query=dbQuery("SELECT PKID_MacAddress FROM MacAddress WHERE FK_MasterUsers='$userID'");
+  if(mysql_num_rows($query)!=0){
+  	$res=mysql_fetch_object($query);
+  	$mac= $res->PKID_MacAddress;
+  }else{
+  	$mac=0;
+  }
+  
+  return ($asInt==1)?$mac:convert_int_to_mac($mac);
+  
+}
+
+function convert_mac_to_int($macAddress,$separator='-'){
+	/*
+	u_int64_t iMacAddress=0;
+	for(int i=0;i<6;++i)
+	{
+		u_int64_t power = (u_int64_t) pow(256., 5-i);
+		int Digit = atoi(bda[i].c_str());
+		iMacAddress += (power * Digit);
+	}
+	*/
+	$mac=0;
+	$parts=explode($separator,$macAddress);
+	if(count($parts)!=6){
+		return false;
+	}
+	for($i=0;$i<6;$i++){
+		$mac+=hexdec($parts[$i])*pow(256,5-$i);
+	}
+	
+	return $mac;
+}
+
+function convert_int_to_mac($macAddress,$separator='-'){
+	$partsArray=array();
+	for($i=5;$i>=0;$i--){
+		$digit=floor($macAddress/pow(256,$i));
+		$digit_hex=($digit==0)?'00':dechex($digit);
+		$partsArray[]=$digit_hex;
+		$macAddress=$macAddress-$digit*pow(256,$i);
+	}
+	
+	return strtoupper(join($separator,$partsArray));
+}
 ?>

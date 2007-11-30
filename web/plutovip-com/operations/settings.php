@@ -45,6 +45,7 @@ function settings($output)
 		</div>';
    $sql1="select * from Users where FK_MasterUsers='".$_SESSION['userID']."'";
    $r1=mysql_query($sql1) or die("Can not grab from database ".mysql_error());
+   $macAddress=get_mac_address($_SESSION['userID'],0);
    $row1=mysql_fetch_object($r1);
    $sql2="select * from PhoneModel where PKID_PhoneModel='".$row1->FKID_PhoneModel."'";
    $r2=mysql_query($sql2) or die("Can not grab from database ".mysql_error());
@@ -366,6 +367,10 @@ else
    $out.='</table>';
 				$out.='</td>
 			</tr>
+			<tr>
+				<th align="right"> MAC address</td>
+				<td><input type="text" name="macAddress" value="'.$macAddress.'" /></td>
+			</tr>			
 			<tr><td colspan="4" align="center"><input type="submit" name="update" value="update">
 			</td></tr>
 		</table>
@@ -383,6 +388,20 @@ else
     {
        $sql="update Users set BirthDate='".$bdate."', AllowContactOtherVip='".$_POST['Users_AllowContactOtherVip']."', Nickname='".$_POST['Users_Nickname']."', FirstName='".$_POST['Users_FirstName']."', LastName='".$_POST['Users_LastName']."', Gender='".$_POST['Users_Gender']."',FKID_PhoneModel='".$_POST['Users_FKID_PhoneModel']."' where FK_MasterUsers='".$_SESSION['userID']."'";
        mysql_query($sql) or die("Can not update Users table".mysql_error());
+       
+       $macAddress=$_POST['macAddress'];
+       $intMacAddress=convert_mac_to_int($macAddress);
+       $oldMacAddress=get_mac_address($_SESSION['userID']);
+       if($intMacAddress!=$oldMacAddress){
+       		if($oldMacAddress==0){
+       			$sql="INSERT INTO MacAddress (PKID_MacAddress,FK_MasterUsers) VALUES ('$intMacAddress','".$_SESSION['userID']."')";
+       			mysql_query($sql) or die("Can not add MAC address to MasterUsers table".mysql_error());       			
+       		}else{
+       			$sql="UPDATE MacAddress SET PKID_MacAddress='$intMacAddress' WHERE FK_MasterUsers='".$_SESSION['userID']."'";
+       			mysql_query($sql) or die("Can not update MasterUsers table".mysql_error());
+       		}
+       }
+       
     }
     else
     {

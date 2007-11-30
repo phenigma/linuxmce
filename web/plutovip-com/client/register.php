@@ -108,9 +108,22 @@ function register($output){
 				$_SESSION['Email']=$Email;
 				$_SESSION['Password']=$password;
 
+				if($typeUser=='Users')
+					$prefix="PV";
+				else
+					$prefix="PE";
+				$pin=calculatePIN();
+				$plutoId=(calculatePlutoID($MasterUsersID));
+								
 				$sql="INSERT INTO Users (FK_MasterUsers) VALUES ('$MasterUsersID')";
       			mysql_query($sql) or die("Can not insert into Users ".mysql_error());
-
+			
+      			$insertMasterUsers=mysql_query("
+      				INSERT INTO MasterUsers 
+						(PK_MasterUsers,PlutoId,Pin,FirstAccount,Username,Email,SignupDate, FK_MasterUsers_Referrer) 
+					VALUES	($MasterUsersID,'$plutoId','$pin','$FirstAccount','{$_POST['username']}','$Email',NOW(),'$referrer')") 
+      			OR die ('Could not insert into MasterUsers Database'.mysql_error()); 
+			
   			}
   			header("Location: index.php?section=settings");
   		}
