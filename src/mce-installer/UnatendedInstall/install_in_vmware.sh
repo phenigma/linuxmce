@@ -165,6 +165,11 @@ function create_disk_image {
 
 	cleanup_filesystem "${VMWARE_MOUNT_DIR}"
 
+	## START NEW -----------------
+	mkdir -p /var/www/DisklessImages
+	mv "${VMWARE_MOUNT_DIR}"/usr/pluto/install/PlutoMD-*.tar.bz2 /var/www/DisklessImages
+	## STOP NEW ------------------
+
 	tar -C "${VMWARE_MOUNT_DIR}" --exclude=dev --exclude=proc -zc . | split --numeric-suffixes --bytes=2000m - "${VMWARE_TARGZ}_"
 
 	umount "${VMWARE_MOUNT_DIR}"
