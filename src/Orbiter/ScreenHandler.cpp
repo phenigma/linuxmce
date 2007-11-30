@@ -1433,20 +1433,6 @@ void ScreenHandler::SCREEN_DialogCannotBookmark(long PK_Screen, string sErrors)
 		"%> " + sErrors);
 }
 //-----------------------------------------------------------------------------------------------------
-void ScreenHandler::SCREEN_CreateViewBookmarks(long PK_Screen)
-{
-	// If this is an on screen display, when the user selects a bookmark we should return to the remote control
-	if( m_pOrbiter->m_bIsOSD && m_pOrbiter->m_iLocation_Initial==m_pOrbiter->m_pLocationInfo->iLocation )
-		RegisterCallBack(cbDataGridSelected, (ScreenHandlerCallBack) &ScreenHandler::Bookmark_GridSelected, new DatagridCellBackData());
-	ScreenHandlerBase::SCREEN_CreateViewBookmarks(PK_Screen);
-}
-//-----------------------------------------------------------------------------------------------------
-bool ScreenHandler::Bookmark_GridSelected(CallBackData *pData)
-{
-	m_pOrbiter->CMD_Go_back("","");
-	return true; // We did a goto screen
-}
-//-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_DialogAskToResume(long PK_Screen, string sPK_Device_From, string sPK_Device_MediaSource, 
 					string sStreamID_String, string sPosition, string sUsers, string sPK_MediaType_String, int iPK_Screen_GoTo)
 {

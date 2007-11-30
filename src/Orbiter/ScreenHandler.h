@@ -257,10 +257,6 @@ public:
 	virtual void SCREEN_Get_Username_Password_For_Devices(long PK_Screen, bool bAlready_processed, string sDescription, int iPK_PnpQueue);
 
 	virtual void SCREEN_Download_are_ready_to_install(long PK_Screen, int iPK_Device, string sPK_Device_AppServer);
-
-	virtual void SCREEN_CreateViewBookmarks(long PK_Screen);
-	bool Bookmark_GridSelected(CallBackData *pData);
-
 	virtual void SCREEN_PNP_Generic_Options(long PK_Screen, string sOptions, int iPK_PnpQueue);
 	bool PNP_Generic_Options_DatagridSelected(CallBackData *pData);
 
