@@ -15,10 +15,16 @@ Build_Pluto_Stuff
 Create_Local_Repository
 Create_ISO
 
-## Build preinstalled dvd
+## Create Diskless and Hybrid Image in VmWare
 pushd /root/UnatendedInstall/
 	./install_in_vmware.sh
 popd
+
+## Get diskless images for all the architectures
+SyncDisklessImage "10.0.2.1" "PlutoMD-i386.tar.bz2"
+SyncDisklessImage "10.0.2.2" "PlutoMD-amd64.tar.bz2"
+
+## Generate DVD
 pushd /root/R/ubuntu-lite-installer/
 	./build-cd.sh
 popd

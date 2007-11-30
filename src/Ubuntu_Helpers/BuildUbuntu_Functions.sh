@@ -57,6 +57,32 @@ function Error {
 }
 
 
+function SyncDisklessImage {
+
+	local BuilderIP="$1"
+	local DisklessImageName="$2"
+	local DisklessImageVersion=""
+	local LocalVersion=$(echo "select VersionName from Version" | mysql $sql_slave_db | tail -1);
+
+	local done='false'
+	mkdir -p /var/www/DisklessImages
+	pushd /var/www/DisklessImages
+	while [[ "$done" != 'true' ]] ;do
+		echo "Downloading $DisklessImageName from $BuilderIP $(date -R)"
+		DisklessImageVersion=$(cat "/var/www/DisklessImages/${DisklessImageName}.version")
+		
+		if [[ "$DisklessImageVersion" == "$LocalVersion" ]] ;then
+			wget -c "http://${BuilderIP}/DisklessImages/${DisklessImageName}" 
+			done='true'
+		else
+			wget -c "http://${BuilderIP}/DisklessImages/${DisklessImageName}.version"
+			done='false'
+			sleep 10
+		fi	
+	done
+	popd
+}
+
 function Install_Build_Needed_Packages {
 	#TODO:Get list outside the file as it started growing to big
 	local pkgs="asterisk-dev squashfs-tools libavcodec-dev libavformat-dev libpostproc-dev libcaca-dev libmodplug-dev libtheora-dev libgnomevfs2-dev libflac-dev libsmbclient-dev libmad0-dev libcdio-dev transfig sgmltools-lite automake nasm x-dev libsvga1-dev dmsetup mkisofs libxcb-xv0-dev libxcb-shm0-dev libxcb-shape0-dev libaa1-dev libmagick9-dev libdirectfb-dev libpulse-dev libmpcdec-dev kdelibs4-dev qt3-qtconfig qt3-linguist qt3-dev-tools-embedded qt3-dev-tools-compat qt3-dev-tools qt3-designer qt3-assistant qt3-apps-dev libqt3-mt-dev libqt3-headers libqt3-compat-headers xorg-dev qt3-dev-tools libxcb-xv0-dev libxcb-shm0-dev libxcb-shape0-dev libmagick9-dev libmpcdec-dev quilt tcl8.4-dev libfuse-dev fuse-utils libupnp-dev libconfuse-dev subversion build-essential dh-make libmysqlclient15-dev libhttpfetcher-dev libattr1-dev libdbus-1-dev libdbus-glib-1-dev libhal-dev libdancer-xml0-dev libbluetooth2-dev libid3-3.8.3-dev libxine-dev x11proto-core-dev libx11-dev libx11-dev x11proto-core-dev x11proto-xext-dev x11proto-xf86vidmode-dev libx11-dev libjpeg62-dev libcdparanoia0-dev libsdl1.2-dev libsdl-gfx1.2-dev libxmu-headers x11proto-record-dev libhid-dev libusb-dev libsdl-image1.2-dev libsdl-ttf2.0-dev libsdl-sge-dev libxtst-dev libxrender-dev liblinphone1-dev libcddb-dev libdvdread-dev libcurl3-dev ruby1.8-dev swig libtcltk-ruby mysql-client mysql-server libmediastreamer0-dev libgtk2.0-dev libvte-dev libglade2-dev libstdc++5 liblircclient-dev fakeroot" 
@@ -574,10 +600,7 @@ function Import_Build_Database {
 	cat $temp_file_security | mysql -h $sql_slave_host -u $sql_slave_user $sql_slave_db_security
 	cat $temp_file_telecom | mysql -h $sql_slave_host -u $sql_slave_user $sql_slave_db_telecom
 
-	mysql -h $sql_slave_host -u $sql_slave_user $sql_slave_db_mainsqlcvs < /root/Ubuntu_Helpers/Version.dump
-	mysql -h $sql_slave_host -u $sql_slave_user $sql_slave_db < /root/Ubuntu_Helpers/Version.dump
 	echo 'DELETE FROM `Package_Version`; DELETE FROM `Schema`;' | mysql -h $sql_slave_host -u $sql_slave_user $sql_slave_db_mainsqlcvs
-	echo 'update Package_Directory SET FK_Distro = NULL WHERE PK_Package_Directory = 675' | mysql -h $sql_slave_host -u $sql_slave_user $sql_slave_db
 
 	rm -rf $temp_file $temp_file_main $temp_file_myth $temp_file_media $temp_file_security $temp_file_telecom $temp_sqlcvsdir
 
