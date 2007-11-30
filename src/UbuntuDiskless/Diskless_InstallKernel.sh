@@ -7,6 +7,7 @@
 set -e
 
 DEVICEDATA_DisklessImages=258
+DEVICEDATA_Architecture=112
 
 if [[ "$#" -ne 1 ]]; then
 	echo "Syntax: $0 <Device>"
@@ -30,7 +31,9 @@ if [[ -z "$Moon_Architecture" ]]; then
 	Moon_Architecture=i386
 fi
 cp /usr/pluto/deb-cache/linux-image-diskless_*_"$Moon_Architecture".deb "$Moon_RootLocation"
-chroot "$Moon_RootLocation" dpkg -i linux-image-diskless_*_"$Moon_Architecture".deb
+pushd "$Moon_RootLocation" >/dev/null
+chroot . dpkg -i linux-image-diskless_*_"$Moon_Architecture".deb
+popd >/dev/null
 rm -f "$Moon_RootLocation"/linux-image-diskless_*_"$Moon_Architecture".deb
 
 ## Create symlinks to existing kernels

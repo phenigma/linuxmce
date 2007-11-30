@@ -7,6 +7,7 @@
 set -e
 
 DEVICEDATA_DisklessImages=258
+DEVICEDATA_Architecture=112
 
 if [[ "$#" -ne 1 ]]; then
 	echo "Syntax: $0 <Device>"
