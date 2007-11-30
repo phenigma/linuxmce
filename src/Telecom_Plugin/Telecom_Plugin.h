@@ -476,6 +476,12 @@ private:
 	 */
 	bool GetEmbeddedPhoneAssociated(int nDeviceID, int& nEmbeddedPhoneID);
 
+	/*
+	 *	Associates a caller name for a channel
+	 */
+
+	string GetCallerName(string sChannel, string sCallerID);
+
 private:
 	int iCmdCounter;
 	int generate_NewCommandID();

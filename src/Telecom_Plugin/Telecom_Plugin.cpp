@@ -842,8 +842,8 @@ Telecom_Plugin::Ring( class Socket *pSocket, class Message *pMessage, class Devi
 				sExtSrc,
 				sSource_Channel,
 				sDestination_Channel,
-				sSource_Caller_ID,
-				sDestination_Caller_ID
+				GetCallerName(sSource_Channel, sSource_Caller_ID),
+				GetCallerName(sDestination_Channel, sDestination_Caller_ID)
 			);
 			SendCommand(screen_DevIncomingCall_DL);
 		}
@@ -915,7 +915,7 @@ Telecom_Plugin::Link( class Socket *pSocket, class Message *pMessage, class Devi
 			
 			SCREEN_DevCallInProgress_DL screen_DevCallInProgress_DL(
 				m_dwPK_Device, sOrbiters, 
-				sSource_Caller_ID,
+				GetCallerName(sSource_Channel, sSource_Caller_ID),
 				sCallID,
 				sSource_Channel
 			);
@@ -935,7 +935,7 @@ Telecom_Plugin::Link( class Socket *pSocket, class Message *pMessage, class Devi
 	
 			SCREEN_DevCallInProgress_DL screen_DevCallInProgress_DL(
 				m_dwPK_Device, sDestOrbiters, 
-				sDestination_Caller_ID,
+				GetCallerName(sDestination_Channel, sDestination_Caller_ID),
 				sCallID,
 				sDestination_Channel
 			);
@@ -1735,17 +1735,8 @@ class DataGridTable *Telecom_Plugin::ActiveUsersOnCallGrid(string GridID,string 
 			const map<string, string>& channels = pCallStatus->GetChannels();
 			for(map<string, string>::const_iterator itc = channels.begin(); itc != channels.end(); ++itc)
 			{
-				string sText = itc->second;
 				string sValue = itc->first;
-
-				if(sText.empty())
-				{
-					if( !ParseChannel(sValue, &sText) || sText.empty() )
-					{
-						LoggerWrapper::GetInstance()->
-							Write(LV_WARNING, "ActiveUsersOnCallGrid : no extension from channel %s", sValue.c_str());
-					}
-				}
+				string sText = GetCallerName(sValue, itc->second);
 
 				char *pData = NULL;
 				int nSize = 0;
@@ -3450,8 +3441,6 @@ void Telecom_Plugin::CMD_Add_Extensions_To_Call(string sPhoneCallID,string sExte
 void Telecom_Plugin::CMD_Get_Associated_Picture_For_Channel(string sChannel,char **pData,int *iData_Size,string &sCMD_Result,Message *pMessage)
 //<-dceag-c928-e->
 {
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "CMD_Get_Associated_Picture_For_Channel: got to load picture for channel %s", sChannel.c_str());
-
 	if(NULL != pData && NULL != iData_Size)
 	{
 		//default path for unknown user
@@ -3486,8 +3475,6 @@ void Telecom_Plugin::CMD_Get_Associated_Picture_For_Channel(string sChannel,char
 		size_t ulSize = 0;
 		*pData = FileUtils::ReadFileIntoBuffer(sPath, ulSize);
 		*iData_Size = static_cast<int>(ulSize);
-
-		LoggerWrapper::GetInstance()->Write(LV_STATUS, "CMD_Get_Associated_Picture_For_Channel: loaded picture size %d", *iData_Size);
 	}
 }
 
@@ -3553,4 +3540,78 @@ void Telecom_Plugin::CMD_Add_To_Speed_Dial(int iPK_Device,string sCallerID,strin
 	system(sCmdLine.c_str());
 	
 	sCMD_Result = "OK";
+}
+
+string Telecom_Plugin::GetCallerName(string sChannel, string sCallerID)
+{
+	string sCallerName;
+	string sExten;
+
+	//get the extension
+	if(!ParseChannel(sChannel, &sExten))
+	{
+		//failed to extract extension
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "GetCallerName : Failed to extension from channel %s", sChannel.c_str());
+	}
+	else
+	{
+		//got an extension, find the device associated
+		int nDeviceID = FindValueInMap(map_ext2device, sExten, 0);
+
+		//is this a device?
+		if(nDeviceID)
+		{
+			DeviceData_Router *pDevice = m_pRouter->m_mapDeviceData_Router_Find(nDeviceID);
+
+			//the device is registered?
+			if(NULL != pDevice)
+			{
+				Room *pRoom = m_pRouter->m_mapRoom_Find(pDevice->m_dwPK_Room);
+
+				string sRoomName;
+
+				if(NULL != pRoom)
+					sRoomName = pRoom->m_sDescription;
+				else
+					sRoomName = "Unknown";
+
+				sCallerName = pDevice->m_sDescription + " (" + sRoomName + ")";
+			}
+		}
+
+		//do we have an entry in phone book?
+		//NOTE : if it's a device, the entry from phone book will override the caller name which uses the device name
+		vector<Row_PhoneNumber *> vectRows;
+		m_pDatabase_pluto_telecom->PhoneNumber_get()->GetRows("Extension = " + sExten, &vectRows);
+
+		if(!vectRows.empty())
+		{
+			Row_PhoneNumber *pRow_PhoneNumber = *(vectRows.begin());
+			Row_Contact *pRow_Contact = pRow_PhoneNumber->FK_Contact_getrow();
+			if(NULL != pRow_Contact)
+			{
+				sCallerName = pRow_Contact->Name_get();
+			}
+		}
+	}
+
+	//not a device and not in phone book?
+	if(sCallerName.empty())
+	{
+		if(sCallerID.empty())
+		{
+			//the caller id is empty -> use the channel as caller name
+			sCallerName = sChannel; 
+		}
+		else
+		{
+			//use the caller id
+			sCallerName = sCallerID;
+		}
+	}
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "GetCallerName: found caller name '%s' for channels %s",
+		sCallerName.c_str(), sChannel.c_str());
+
+	return sCallerName;
 }
