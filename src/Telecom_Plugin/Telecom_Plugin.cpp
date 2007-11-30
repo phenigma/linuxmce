@@ -3447,11 +3447,8 @@ void Telecom_Plugin::CMD_Get_Associated_Picture_For_Channel(string sChannel,char
 		string sPath = "/usr/pluto/orbiter/skins/Basic/Users/UnknownUser.png";
 
 		string sExten;
-		if( ParseChannel(sChannel, &sExten) || sExten.empty() )
-		{
-			LoggerWrapper::GetInstance()->
-				Write(LV_WARNING, "CMD_Get_Associated_Picture_For_Channel : no extension from channel %s", sChannel.c_str());
-		}
+		if(!ParseChannel(sChannel, &sExten) || sExten.empty() )
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "CMD_Get_Associated_Picture_For_Channel : no extension from channel %s", sChannel.c_str());
 	
 		int nEmbeddedDeviceID = FindValueInMap(map_ext2device, sExten, 0); 
 
@@ -3586,12 +3583,20 @@ string Telecom_Plugin::GetCallerName(string sChannel, string sCallerID)
 
 		if(!vectRows.empty())
 		{
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "GetCallerName: found %d records in PhoneNumber for channel %s, extension %s",
+				vectRows.size(), sChannel.c_str(), sExten.c_str());
+
 			Row_PhoneNumber *pRow_PhoneNumber = *(vectRows.begin());
 			Row_Contact *pRow_Contact = pRow_PhoneNumber->FK_Contact_getrow();
 			if(NULL != pRow_Contact)
 			{
 				sCallerName = pRow_Contact->Name_get();
 			}
+		}
+		else
+		{
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "GetCallerName: NO records found in PhoneNumber for channel %s, extension %s",
+				sChannel.c_str(), sExten.c_str());
 		}
 	}
 
@@ -3610,8 +3615,8 @@ string Telecom_Plugin::GetCallerName(string sChannel, string sCallerID)
 		}
 	}
 
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "GetCallerName: found caller name '%s' for channels %s",
-		sCallerName.c_str(), sChannel.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "GetCallerName: found caller name '%s' for channel %s, extension %s",
+		sCallerName.c_str(), sChannel.c_str(), sExten.c_str());
 
 	return sCallerName;
 }
