@@ -134,7 +134,7 @@ function cleanup_filesystem {
 	rm -f "${FILESYSTEM_ROOT}"/root/.ssh/authorized_keys
 }
 
-function create_disk_image {
+function create_disk_image_from_flat {
 	local PART_FILE="/dev/mapper/qemu_p"
 	local LoopDev="$(losetup -f)"
 	
@@ -165,11 +165,8 @@ function create_disk_image {
 
 	cleanup_filesystem "${VMWARE_MOUNT_DIR}"
 
-	## START NEW -----------------
 	mkdir -p /var/www/DisklessImages
 	mv "${VMWARE_MOUNT_DIR}"/usr/pluto/install/PlutoMD-*.tar.bz2 /var/www/DisklessImages
-	## STOP NEW ------------------
-
 	tar -C "${VMWARE_MOUNT_DIR}" --exclude=dev --exclude=proc -zc . | split --numeric-suffixes --bytes=2000m - "${VMWARE_TARGZ}_"
 
 	umount "${VMWARE_MOUNT_DIR}"
@@ -182,8 +179,28 @@ function create_disk_image {
 		dmsetup remove "$(basename "$Dev")"
 	done
 	losetup -d "$LoopDev"
+}
+
+function create_disk_image_from_vmdk {
+	rm -f "${VMWARE_TARGZ}_"*
+
+	/usr/bin/vmware-loop -q /var/plutobuild/vmware/Kubuntu/Kubuntu.vmdk 1 /dev/nb0 &
+	sleep 1
+
+	VMWARE_MOUNT_DIR="${WORK_DIR}/mount"
+	mkdir -p "${VMWARE_MOUNT_DIR}"
+	mount /dev/nbd0 "${VMWARE_MOUNT_DIR}"
+	cleanup_filesystem "${VMWARE_MOUNT_DIR}"
 
 
+	mkdir -p /var/www/DisklessImages
+	mv "${VMWARE_MOUNT_DIR}"/usr/pluto/install/PlutoMD-*.tar.bz2 /var/www/DisklessImages
+	tar -C "${VMWARE_MOUNT_DIR}" --exclude=dev --exclude=proc -zc . | split --numeric-suffixes --bytes=2000m - "${VMWARE_TARGZ}_"
+
+	umount "${VMWARE_MOUNT_DIR}"
+	decho "Finish creating the tar.gz of / partition"
+	
+	killall vmware-loop
 }
 
 create_virtual_machine
@@ -191,4 +208,5 @@ start_virtual_machine
 create_debcache_on_virtual_machine
 copy_installer_on_virtual_machine
 run_installer_on_virtual_machine
-create_disk_image
+create_disk_image_from_flat
+
