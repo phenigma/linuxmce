@@ -18,6 +18,7 @@ cp ${Moon_RootLocation}/DEBIAN/control{.in,}
 sed -i "s/{Kernel_Version}/${Moon_KernelVersion}/g" ${Moon_RootLocation}/DEBIAN/control
 sed -i "s/{Kernel_Arch}/${Moon_KernelArch}/g"       ${Moon_RootLocation}/DEBIAN/control
 
+rm -rf pkgrootdir
 cp -a ${Moon_RootLocation} pkgrootdir
 find pkgrootdir -type d -name .svn -exec rm -rf '{}' ';' -prune
 cd pkgrootdir
