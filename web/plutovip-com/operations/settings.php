@@ -619,12 +619,11 @@ if(isset($_POST['action']) && $_POST['action']=="delete_picture")
 
  if(isset($_POST['action']) && $_POST['action']=="insert_picture")
   {
-    $file='client/images/'.$_SESSION['username'].'.jpg';
+    $file='client/images/'.$_SESSION['userID'].'.jpg';
     if(file_exists($file)) unlink($file);
-    $id_user=$_SESSION['username'];
+    $id_user=$_SESSION['userID'];
     $file_realname = $_SESSION['userID'].'.jpg'; 
     $uploaddir="client/images/";
-    $uploaddir.=$id_user.".jpg";
     move_uploaded_file($_FILES['pictureu']['tmp_name'], $uploaddir.$file_realname); 
     $out='<meta http-equiv="refresh" content="0.000001;url="index.php?section=settings">';
     //header("Location: index.php?section=settings");
