@@ -70,6 +70,11 @@ CreateLiveCD()
 	ln "$InstallerArchive"_* "$LiveCDDir/lmce-image/"
 	cp "$FirstRunScript" "$RemoteAssistanceKey" "$LiveCDDir/lmce-image/"
 	chmod 600 "$LiveCDDir/lmce-image/$RemoteAssistanceKey"
+
+	mkdir -p "$LiveCDDir/diskless-images/"
+	ln -s /var/www/DisklessImages/PlutoMD-i386.tar.bz2  "$LiveCDDir/diskless-images/"
+	ln -s /var/www/DisklessImages/PlutoMD-amd64.tar.bz2 "$LiveCDDir/diskless-images/"
+
 	(cd "$LiveCDDir" && find . -type f -not -path ./md5sum.txt -print0 | xargs -0 md5sum | tee md5sum.txt)
 
 	mkdir -p "$LiveCDDir/via-archives/"

@@ -236,6 +236,12 @@ CopyDVD()
 		mkdir -p /media/recovery/archives/via-archives
 		cp -a /cdrom/via-archives/. /media/recovery/archives/via-archives/
 	fi
+	
+	#Copy Diskless images
+	if [[ -d /cdrom/diskless-images ]]; then
+		mkdir -p /media/recovery/archives/diskless-images
+		cp -a /cdrom/diskless-images/. /media/recovery/archives/lmce-images/
+	fi
 
 	local interfaces="
 auto lo
@@ -274,6 +280,12 @@ ExtractArchive()
 	if [[ -d /media/recovery/archives/via-archives ]]; then
 		mkdir -p /media/target/usr/pluto/install/via/
 		cp -a /media/recovery/archives/via-archives/. /media/target/usr/pluto/install/via/
+	fi
+	
+	#Copy Diskless images
+	if [[ -d /media/recovery/archives/diskless-images ]]; then
+		mkdir -p /media/target/usr/pluto/install
+		cp -a /media/recovery/archives/diskless-images/. /media/target/usr/pluto/install/
 	fi
 }
 
