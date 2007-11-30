@@ -166,7 +166,7 @@ function create_disk_image_from_flat {
 	cleanup_filesystem "${VMWARE_MOUNT_DIR}"
 
 	mkdir -p /var/www/DisklessImages
-	mv "${VMWARE_MOUNT_DIR}"/usr/pluto/install/PlutoMD-*.tar.bz2 /var/www/DisklessImages
+	mv "${VMWARE_MOUNT_DIR}"/usr/pluto/install/PlutoMD-i386.tar.bz2* /var/www/DisklessImages
 	tar -C "${VMWARE_MOUNT_DIR}" --exclude=dev --exclude=proc -zc . | split --numeric-suffixes --bytes=2000m - "${VMWARE_TARGZ}_"
 
 	umount "${VMWARE_MOUNT_DIR}"
@@ -194,7 +194,7 @@ function create_disk_image_from_vmdk {
 
 
 	mkdir -p /var/www/DisklessImages
-	mv "${VMWARE_MOUNT_DIR}"/usr/pluto/install/PlutoMD-*.tar.bz2 /var/www/DisklessImages
+	mv "${VMWARE_MOUNT_DIR}"/usr/pluto/install/PlutoMD-amd64.tar.bz2* /var/www/DisklessImages
 	tar -C "${VMWARE_MOUNT_DIR}" --exclude=dev --exclude=proc -zc . | split --numeric-suffixes --bytes=2000m - "${VMWARE_TARGZ}_"
 
 	umount "${VMWARE_MOUNT_DIR}"
