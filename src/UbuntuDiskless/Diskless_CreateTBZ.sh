@@ -4,7 +4,7 @@
 
 ## Misc variables
 DEVICEDATA_Architecture=112
-Architecture=$(RunSQL "SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device='$PK_Device' AND FK_DeviceData='$DEVICEDATA_Architecture'")
+Architecture=$(apt-config dump | grep 'APT::Architecture' | sed 's/.*"\(.*\)".*/\1/g')
 
 DBST_SCRIPT='/usr/pluto/bin/Diskless_DebootstrapPluto.sh'
 ARH_DIR='/usr/pluto/install'
