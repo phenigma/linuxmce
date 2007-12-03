@@ -3,7 +3,7 @@
 set -e
 set -x
 
-## Preseed some backages to avoid the need of interactive debconf
+## Preseed some packages to avoid the need of interactive debconf
 ./upgrade-preseed.sh
 
 ## Put aside some files
@@ -17,6 +17,10 @@ deb http://archive.ubuntu.com/ubuntu/ gutsy main restricted universe multiverse
 deb http://archive.ubuntu.com/ubuntu/ gutsy-security main restricted universe multiverse
 deb http://archive.ubuntu.com/ubuntu/ gutsy-updates  main restricted universe multiverse
 " > /etc/apt/sources.list
+
+## Move deb-cache-new to deb-cache
+mv /usr/pluto/deb-cache{,-old}
+mv /usr/pluto/deb-cache{-new,}
 
 ## Do the actual upgrade
 apt-get update
