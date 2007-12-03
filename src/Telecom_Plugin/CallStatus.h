@@ -31,7 +31,7 @@ namespace DCE
 		public:
 			
 			/***/
-			enum CallType { DirectCall=0, Conference };
+			enum CallType { DirectCall=0, MultipleCall, Conference };
 
 			/***/
 			enum CallsStatus
@@ -92,6 +92,10 @@ namespace DCE
 			void AddChannel(string channelid, string callerid)
 			{
 				channels[channelid] = callerid;
+				if( !IsConference() && 2 < channels.size() )
+				{
+					SetCallType( CallStatus::MultipleCall );
+				}
 			}
 			
 			/***/

@@ -727,8 +727,8 @@ Telecom_Plugin::Ring( class Socket *pSocket, class Message *pMessage, class Devi
 	
 	DumpActiveCalls();
 
-	CallStatus * pFoundSrc = FindCallStatusForChannel(sSource_Channel);
-	CallStatus * pFoundDest = FindCallStatusForChannel(sDestination_Channel);
+//	CallStatus * pFoundSrc = FindCallStatusForChannel(sSource_Channel);
+//	CallStatus * pFoundDest = FindCallStatusForChannel(sDestination_Channel);
 	CallStatus *pCallStatus = NULL;
 
 	if( CallStatus::IsConferenceCallID(sDestination_Channel) ||
@@ -747,19 +747,19 @@ Telecom_Plugin::Ring( class Socket *pSocket, class Message *pMessage, class Devi
 			pCallStatus->SetCallType(CallStatus::Conference);
 		}
 
-		if( NULL != pFoundSrc )
-		{
-			sOldSrcCallID = pFoundSrc->GetID();
-
-			//remove it from old call
-			pFoundSrc->RemoveChannel(sSource_Channel);
-			if(pFoundSrc->Closed())
-			{
-				map_call2status.erase(pFoundSrc->GetID());
-				delete pFoundSrc;
-				pFoundSrc = NULL;
-			}
-		}
+// 		if( NULL != pFoundSrc )
+// 		{
+// 			sOldSrcCallID = pFoundSrc->GetID();
+// 
+// 			//remove it from old call
+// 			pFoundSrc->RemoveChannel(sSource_Channel);
+// 			if(pFoundSrc->Closed())
+// 			{
+// 				map_call2status.erase(pFoundSrc->GetID());
+// 				delete pFoundSrc;
+// 				pFoundSrc = NULL;
+// 			}
+// 		}
 
 		//add it to conference
 		pCallStatus->AddChannel(sSource_Channel, sSource_Caller_ID);
@@ -768,11 +768,11 @@ Telecom_Plugin::Ring( class Socket *pSocket, class Message *pMessage, class Devi
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Moved channel %s (%s) from call %s to conference call %s", 
 			sSource_Channel.c_str(), sSource_Caller_ID.c_str(), sOldSrcCallID.c_str(), sConferenceName.c_str());
 	}
-	else if( NULL != pFoundDest )
+/*	else if( NULL != pFoundDest )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "The dest channel %s is already into a call", sDestination_Channel.c_str());
 		return false;
-	}
+	}*/
 	else
 	{
 		pCallStatus = new CallStatus();
@@ -787,20 +787,20 @@ Telecom_Plugin::Ring( class Socket *pSocket, class Message *pMessage, class Devi
 		
 		map_call2status[pCallStatus->GetID()] = pCallStatus;
 
-		if( NULL != pFoundSrc )
-		{
-			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Telecom_Plugin::Ring removed src channel %s from call %s",
-				sSource_Channel.c_str(), pFoundSrc->GetID().c_str());
-
-			//remove it from old call
-			pFoundSrc->RemoveChannel(sSource_Channel);
-			if(pFoundSrc->Closed())
-			{
-				map_call2status.erase(pFoundSrc->GetID());
-				delete pFoundSrc;
-				pFoundSrc = NULL;
-			}
-		}
+// 		if( NULL != pFoundSrc )
+// 		{
+// 			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Telecom_Plugin::Ring removed src channel %s from call %s",
+// 				sSource_Channel.c_str(), pFoundSrc->GetID().c_str());
+// 
+// 			//remove it from old call
+// 			pFoundSrc->RemoveChannel(sSource_Channel);
+// 			if(pFoundSrc->Closed())
+// 			{
+// 				map_call2status.erase(pFoundSrc->GetID());
+// 				delete pFoundSrc;
+// 				pFoundSrc = NULL;
+// 			}
+// 		}
 
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Telecom_Plugin::Ring call : %s",
 			pCallStatus->GetDebugInfo().c_str());
@@ -868,8 +868,19 @@ Telecom_Plugin::Link( class Socket *pSocket, class Message *pMessage, class Devi
 	PLUTO_SAFETY_LOCK(vm, m_TelecomMutex);
 
 	DumpActiveCalls();
-
-	CallStatus * pFoundSrc = FindCallStatusForChannel(sSource_Channel);
+	
+	string sSrcExtension;
+	ParseChannel(sSource_Channel, &sSrcExtension);
+	string sDestExtension;
+	ParseChannel(sDestination_Channel, &sDestExtension);
+	if( !sSrcExtension.empty() && sSrcExtension == sDestExtension )
+	{
+		ReplaceChannels(sSource_Channel, sDestination_Channel, sDestination_Caller_ID);
+		return false;
+	}
+	
+	// only one call will have those channels after that
+	CallStatus * pFoundSrc = LinkChannels(sSource_Channel, sDestination_Channel);
 	string sCallID;
 
 	if(NULL != pFoundSrc)
@@ -982,25 +993,29 @@ bool Telecom_Plugin::Hangup( class Socket *pSocket, class Message *pMessage, cla
 
 	DumpActiveCalls();
 
-	CallStatus *pCallStatus = FindCallStatusForChannel(sChannel_ID);
-
-	if(NULL != pCallStatus)
-	{
-		pCallStatus->RemoveChannel(sChannel_ID);
-
-		if(pCallStatus->Closed())
-		{
-			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Hangup the call %s", pCallStatus->GetID().c_str());
-			
-			map_call2status.erase(pCallStatus->GetID());
-			delete pCallStatus;
-			pCallStatus = NULL;
-		}
-	}
-	else
-	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Got hangup for channel %s, but it's not into a call!", sChannel_ID.c_str());
-	}
+	RemoveChannel(sChannel_ID);
+	
+// 	CallStatus *pCallStatus = FindCallStatusForChannel(sChannel_ID);
+// 
+// 	if(NULL != pCallStatus)
+// 	{
+// 		pCallStatus->RemoveChannel(sChannel_ID);
+// 
+// 		if(pCallStatus->Closed())
+// 		{
+// 			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Hangup the call %s", pCallStatus->GetID().c_str());
+// 			
+// 			map_call2status.erase(pCallStatus->GetID());
+//			if( pCallStatus->IsConference() )
+//				map_conference2status.erase(pCallStatus->GetConferenceID());
+// 			delete pCallStatus;
+// 			pCallStatus = NULL;
+// 		}
+// 	}
+// 	else
+// 	{
+// 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Got hangup for channel %s, but it's not into a call!", sChannel_ID.c_str());
+// 	}
 
 	//destination channel -> exten -> (?) simple phone -> orbiter
 	int nOrbiterDeviceID = GetOrbiterDeviceID("", sChannel_ID);
@@ -1039,6 +1054,20 @@ bool Telecom_Plugin::Hangup( class Socket *pSocket, class Message *pMessage, cla
 	}
 
 	return false;
+}
+
+bool Telecom_Plugin::FindCallStatusForChannel(string sChannelID, map<string, CallStatus*> & calls4channel)
+{
+	for(map<string, CallStatus*>::const_iterator it=map_call2status.begin();
+		   it!=map_call2status.end(); ++it)
+	{
+		if( (*it).second->HasChannel(sChannelID) )
+		{
+			calls4channel[(*it).first] = (*it).second;
+		}
+	}
+	
+	return 0 == calls4channel.size() ? false : true;
 }
 
 CallStatus * Telecom_Plugin::FindCallStatusForChannel(string sChannelID)
@@ -1118,6 +1147,197 @@ string Telecom_Plugin::GetNewConferenceID()
 	
 	map_newconference[i] = "";
 	return CallStatus::GetStringConferenceID(static_cast<unsigned int>(i));
+}
+
+CallStatus * Telecom_Plugin::LinkChannels(const string & sSrcChannel, const string & sDestChannel)
+{
+	CallStatus * pCallStatus = NULL;
+	CallStatus * pCurrentStatus = NULL;
+	bool bRemoved = false;
+	
+	map<string, CallStatus*>::iterator it=map_call2status.begin();
+	while( it!=map_call2status.end() )
+	{
+		pCurrentStatus = (*it).second;
+		if( pCurrentStatus != NULL )
+		{
+			const map<string, string> & channels = pCurrentStatus->GetChannels();
+			map<string, string>::const_iterator itFoundSrc = channels.find(sSrcChannel);
+			map<string, string>::const_iterator itFoundDest = channels.find(sDestChannel);
+			map<string, string>::const_iterator itEnd = channels.end();
+			if( itFoundSrc != itEnd && pCurrentStatus->IsConference() &&
+				sDestChannel == CallStatus::GetStringConferenceID( pCurrentStatus->GetConferenceID() ) )
+			{
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "---------- Found Conference LinkChannels");
+				// that's our linked call
+				pCallStatus = pCurrentStatus;
+			}
+			else if( itFoundSrc != itEnd && itFoundDest != itEnd )
+			{
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "---------- Found Call LinkChannels");
+				// that's our linked call
+				pCallStatus = pCurrentStatus;
+			}
+			else if( itFoundSrc != itEnd )
+			{
+				pCurrentStatus->RemoveChannel(sSrcChannel);
+				if( pCurrentStatus->Closed() )
+				{
+					bRemoved = true;
+					map_call2status.erase(it++);
+					if( pCurrentStatus->IsConference() )
+						map_conference2status.erase(pCurrentStatus->GetConferenceID());
+				
+					delete pCurrentStatus;
+					pCurrentStatus = NULL;
+				}
+			}
+			else if( itFoundDest != itEnd )
+			{
+				pCurrentStatus->RemoveChannel(sDestChannel);
+				if( pCurrentStatus->Closed() )
+				{
+					bRemoved = true;
+					map_call2status.erase(it++);
+					if( pCurrentStatus->IsConference() )
+						map_conference2status.erase(pCurrentStatus->GetConferenceID());
+				
+					delete pCurrentStatus;
+					pCurrentStatus = NULL;
+				}
+			}
+			else
+			{
+				// nothing to do, that's not related to our channels
+			}
+		}
+		else
+		{
+			// critical
+		}
+		
+		if( !bRemoved )
+		{
+			++it;
+		}
+		else
+		{
+			bRemoved = false;
+		}
+	}
+	
+	LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "======== After LinkChannels");
+	DumpActiveCalls();
+	
+	return pCallStatus;
+}
+
+void Telecom_Plugin::ReplaceChannels(const string & sSrcChannel, const string & sDestChannel, const string & sCallerID)
+{
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Replace Channels: %s || %s",
+		sSrcChannel.c_str(), sDestChannel.c_str());
+	
+	// remove the part after the ","
+	string sChannel;
+	size_t nPos = sSrcChannel.rfind(",");
+	if( nPos != string::npos && nPos > 0 )
+	{
+		sChannel = sSrcChannel.substr(0, nPos - 1);
+	}
+	else
+	{
+		sChannel = sSrcChannel;
+	}
+	
+	CallStatus * pCallStatus = NULL;
+	for(map<string, CallStatus*>::iterator it=map_call2status.begin();
+		it!=map_call2status.end(); ++it)
+	{
+		pCallStatus = (*it).second;
+		if( pCallStatus != NULL )
+		{
+			const map<string, string> & channels = pCallStatus->GetChannels();
+			// !! don't use: map<string, string>::const_iterator itFound = channels.find(sSrcChannel);
+			map<string, string>::const_iterator itFound=channels.begin();
+			for(; itFound!=channels.end(); ++itFound)
+			{
+				// remove the part after the ","
+				string sFoundChannel;
+				nPos = (*itFound).first.rfind(",");
+				if(nPos != string::npos && nPos > 0)
+				{
+					sFoundChannel = (*itFound).first.substr(0, nPos);
+				}
+				else
+				{
+					sFoundChannel = (*itFound).first;
+				}
+				
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Replace Channels: %s || %s",
+					sChannel.c_str(), sFoundChannel.c_str());
+				
+				if( sChannel ==  sFoundChannel )
+				{
+					LoggerWrapper::GetInstance()->Write(LV_WARNING, "Replace Channels: found");
+					break;
+				}
+			}
+			
+			if( itFound != channels.end() )
+			{
+				pCallStatus->RemoveChannel(sSrcChannel);
+				pCallStatus->AddChannel(sDestChannel, sCallerID);
+			}
+		}
+	}
+}
+
+void Telecom_Plugin::RemoveChannel(const string & sChannel)
+{
+	CallStatus * pCallStatus = NULL;
+	
+	map<string, CallStatus*>::iterator it=map_call2status.begin();
+	while( it!=map_call2status.end() )
+	{
+		const map<string, string> & channels = (*it).second->GetChannels();
+		map<string, string>::const_iterator itFound = channels.find(sChannel);
+		if( itFound != channels.end() )
+		{
+			pCallStatus = (*it).second;
+			pCallStatus->RemoveChannel(sChannel);
+			
+			// if it is a simple call and there is only one channel left
+			// which is part of another call too
+			// then let's close the call
+			if( !pCallStatus->IsConference() && !pCallStatus->Closed() )
+			{
+				itFound = channels.begin();
+				map<string, CallStatus*> otherCalls;
+				FindCallStatusForChannel((*itFound).first, otherCalls);
+				if( 1 < otherCalls.size() )
+				{
+					pCallStatus->RemoveChannel((*itFound).first);
+				}
+			}
+			
+			if( pCallStatus->Closed() )
+			{
+				map_call2status.erase(it++);
+				if( pCallStatus->IsConference() )
+					map_conference2status.erase(pCallStatus->GetConferenceID());
+				
+				delete pCallStatus;
+			}
+			else
+			{
+				++it;
+			}
+		}
+		else
+		{
+			++it;
+		}
+	}
 }
 
 void Telecom_Plugin::RemoveCallStatus(CallStatus * pCallStatus)
@@ -1759,7 +1979,7 @@ class DataGridTable *Telecom_Plugin::ActiveUsersOnCallGrid(string GridID,string 
 				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Row %d: cell text %s, value %s",
 					Row, sText.c_str(), sValue.c_str());
 
-				Row++;    
+				Row++;
 			}
 
 			break;

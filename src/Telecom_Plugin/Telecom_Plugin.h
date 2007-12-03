@@ -83,6 +83,8 @@ public:
 	
 	// Telecom API for tasks
 	/***/
+	bool FindCallStatusForChannel(string sChannelID, map<string, CallStatus*> & calls4channel);
+	/***/
 	CallStatus* FindCallStatusForChannel(string sChannelID);
 	/***/
 	CallStatus* FindCallStatusForID(string sCallID);
@@ -411,6 +413,7 @@ private:
 	 void ProcessResult(int iCommandID, int iResult, std::string sMessage);
 	 
 	 bool Ring( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
+	 
 	 bool Link( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
 
 	 void ProcessRing(std::string sPhoneExtension, std::string sPhoneCallerID, std::string sPhoneCallID);
@@ -432,6 +435,12 @@ private:
 	ExtensionStatus* FindExtensionStatus(string sExt);
 	/***/
 	string GetNewConferenceID();
+	/***/
+	CallStatus * LinkChannels(const string&, const string&);
+	/***/
+	void RemoveChannel(const string&);
+	/***/
+	void ReplaceChannels(const string&, const string&, const string&);
 	/***/
 	void RemoveCallStatus(CallStatus*);
 	/***/
