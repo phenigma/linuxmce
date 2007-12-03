@@ -1,0 +1,11 @@
+Source: gutsy-upgrade-scripts
+Section: unknown
+Priority: optional
+Maintainer: Paul Webber <paul.webber@linuxmce.com>
+Standards-Version: 3.7.2
+
+Package: gutsy-upgrade-scripts
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: <insert up to 60 chars description>
+ <insert long description, indented with spaces>

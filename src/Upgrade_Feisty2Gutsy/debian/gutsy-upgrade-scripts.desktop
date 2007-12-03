@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Encoding=UTF-8
+Name=Upgrade to LinuxMCE 0710
+Comment=Prepare the system for upgrading to next version of LinuxMCE
+Exec=/bin/bash
+StartupNotify=true
+Terminal=false
+Type=Application
+Categories=GNOME;Application;Audio;Music;Player;AudioVideo;X-Ximian-Main;X-Novell-Main;X-Red-Hat-Base
+

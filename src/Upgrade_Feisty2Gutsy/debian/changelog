@@ -1,0 +1,6 @@
+gutsy-upgrade-scripts (0.1.0-1) unstable; urgency=low
+
+  * Initial release (Closes: #nnnn)  <nnnn is the bug number of your ITP>
+
+ -- Paul Webber <paul.webber@linuxmce.com>  Mon, 03 Dec 2007 14:55:00 +0200
+
