@@ -6849,13 +6849,15 @@ void Orbiter::CMD_Bind_Icon(string sPK_DesignObj,string sType,bool bChild,string
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"CMD_Bind_Icon added %s %s %d (size %d)",sPK_DesignObj.c_str(),sType.c_str(),(int) bChild,(int) m_mapObj_Bound.size());
 
-	if( bChild )
+	if( bChild && !pObj->m_ChildObjects.empty())
 	{
 		for( DesignObj_DataList::iterator it=pObj->m_ChildObjects.begin(  ); it != pObj->m_ChildObjects.end(  ); ++it )
 			pDesignObj_DataList->push_back( (DesignObj_Orbiter *) *it);
 	}
 	else
+	{
 		pDesignObj_DataList->push_back(pObj);
+	}
 }
 
 /*virtual*/ void Orbiter::SimulateMouseClick(int x, int y)
