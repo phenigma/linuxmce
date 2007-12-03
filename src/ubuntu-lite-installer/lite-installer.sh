@@ -240,7 +240,7 @@ CopyDVD()
 	#Copy Diskless images
 	if [[ -d /cdrom/diskless-images ]]; then
 		mkdir -p /media/recovery/archives/diskless-images
-		cp -a /cdrom/diskless-images/. /media/recovery/archives/lmce-images/
+		cp -a /cdrom/diskless-images/. /media/recovery/archives/diskless-images/
 	fi
 
 	local interfaces="
