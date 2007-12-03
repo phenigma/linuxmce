@@ -24,6 +24,7 @@ else
 	cp "${CD_Dir}"/cachecd1-cache/*.deb /usr/pluto/deb-cache || exit 3
 
 	cp ./dpkg-scanpackages /usr/pluto/deb-cache || :
+	cp ./controllib.pl /usr/pluto/deb-cache || :
 	pushd /usr/pluto/deb-cache
 		./dpkg-scanpackages ./ /dev/null > Packages
 		gzip -c Packages > Packages.gz

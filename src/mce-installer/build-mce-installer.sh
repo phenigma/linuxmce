@@ -7,6 +7,7 @@ cp /opt/libsdl1.2-1.2.7+1.2.8cvs20041007/lib/libSDL* ./
 cp /usr/lib/libSDL_ttf* ./
 cp /usr/lib/libSDL_image* ./
 cp /usr/bin/dpkg-scanpackages ./
+cp /usr/lib/dpkg/controllib.pl ./
 cp `which xcompmgr` ./
 
 pushd ../../utilities/linux/UIdiag/
@@ -18,7 +19,7 @@ cp ../../utilities/linux/UIdiag/*.png ./
 aptitude download dpkg-dev
 aptitude download dpkg-repack
 
-tar -czf mce-installer.tar.gz *.list mce-installer mce-installer-*.sh mce-installer.glade mce-installer-core.sh mce-installer-preseed.sh mce-installer-diskedmd.sh wget-wrapper.sh pluto.png mce-installer-getnetdata.sh libvte.so* libglade*so* libSDL* mirrors dpkg-scanpackages UIdiag *.png xcompmgr *.deb
+tar -czf mce-installer.tar.gz *.list mce-installer mce-installer-*.sh mce-installer.glade mce-installer-core.sh mce-installer-preseed.sh mce-installer-diskedmd.sh wget-wrapper.sh pluto.png mce-installer-getnetdata.sh libvte.so* libglade*so* libSDL* mirrors dpkg-scanpackages controllib.pl UIdiag *.png xcompmgr *.deb
 cat ../mce-installer-header.sh mce-installer.tar.gz > ../mce-installer.sh
 rm libvte.so*
 rm libglade*so*

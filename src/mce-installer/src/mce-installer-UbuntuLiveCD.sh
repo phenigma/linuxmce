@@ -37,6 +37,7 @@ else
 	popd >/dev/null
 
 	cp ./dpkg-scanpackages /usr/pluto/deb-cache || :
+	cp ./controllib.pl /usr/pluto/deb-cache || :
 	pushd /usr/pluto/deb-cache
 		./dpkg-scanpackages ./ /dev/null > Packages
 		gzip -c Packages > Packages.gz
