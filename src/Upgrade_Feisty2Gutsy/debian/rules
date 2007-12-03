@@ -12,8 +12,6 @@
 
 # These are used for cross-compiling and for saving the configure script
 # from having to guess our platform (since we know it already)
-DEB_HOST_GNU_TYPE   ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
-DEB_BUILD_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
 
 
 CFLAGS = -Wall -g
@@ -23,6 +21,9 @@ ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
 else
 	CFLAGS += -O2
 endif
+
+configure:
+	# NULL
 
 config.status: configure
 	dh_testdir
@@ -34,9 +35,6 @@ build: build-stamp
 build-stamp:  config.status
 	dh_testdir
 
-	# Add here commands to compile the package.
-	$(MAKE)
-	#docbook-to-man debian/gutsy-upgrade-scripts.sgml > gutsy-upgrade-scripts.1
 
 	touch $@
 
@@ -57,7 +55,7 @@ install: build
 	dh_installdirs
 
 	# Add here commands to install the package into debian/gutsy-upgrade-scripts.
-	$(MAKE) install DESTDIR=$(CURDIR)/debian/gutsy-upgrade-scripts
+	mkdir -p $(CURDIR)/debian/gutsy-upgrade-scripts/usr/share/{gutsy-upgrade-scripts/scripts,applications}
 	cp $(CURDIR)/upgrade-*.sh $(CURDIR)/debian/gutsy-upgrade-scripts/usr/share/gutsy-upgrade-scripts/scripts/
 	cp $(CURDIR)/debian/gutsy-upgrade-scripts.desktop $(CURDIR)/debian/gutsy-upgrade-scripts/usr/share/applications/
 
@@ -71,9 +69,9 @@ binary-indep: build install
 binary-arch: build install
 	dh_testdir
 	dh_testroot
-	dh_installchangelogs ChangeLog
-	dh_installdocs
-	dh_installexamples
+#	dh_installchangelogs ChangeLog
+#	dh_installdocs
+#	dh_installexamples
 #	dh_install
 #	dh_installmenu
 #	dh_installdebconf	
