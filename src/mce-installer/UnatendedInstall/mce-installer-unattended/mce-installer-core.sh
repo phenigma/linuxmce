@@ -19,10 +19,10 @@ echo "--- end mce wizard data ---"
 
 function FakeUpdates {
 	mkdir -p /home/update
-	for i in `seq 1 4` ;do
-		mkdir -p "/home/updates/$i"
-		touch "/home/updates/$i/update.xml"
-	done
+#	for i in `seq 1 4` ;do
+#		mkdir -p "/home/updates/$i"
+#		touch "/home/updates/$i/update.xml"
+#	done
 }
 
 function ExitInstaller {
