@@ -92,9 +92,9 @@ SetDefaults()
 	WizSet DTSTest '0'
 	WizSet XineConfigFile "$XineConf"
 	cp /etc/pluto/xine.conf "$XineConf"
-	WizSet SoundTestFile '/usr/pluto/sound/avwizard_volume_test.mp3'
-	WizSet DTSTestFile '/usr/pluto/sound/avwizard_dts_test.wav'
-	WizSet DolbyTestFile '/usr/pluto/sound/avwizard_ac3_test.ac3'
+	WizSet SoundTestFile '/home/public/data/avwizard-sounds/avwizard_volume_test.mp3'
+	WizSet DTSTestFile '/home/public/data/avwizard-sounds/avwizard_dts_test.wav'
+	WizSet DolbyTestFile '/home/public/data/avwizard-sounds/avwizard_ac3_test.ac3'
 	WizSet DefaultFontName '/usr/share/fonts/truetype/msttcorefonts/Arial.ttf'
 	WizSet RemoteAVWizardServerPort "$AVWizard_Port"
 	WizSet RemoteCmd "$RemoteCmd"
