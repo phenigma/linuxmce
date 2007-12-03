@@ -75,7 +75,7 @@ bool PhoneDetection_Simulate::ScanningLoop()
 				for(int i=0;i<6;++i)
 				{
 					u_int64_t power = (u_int64_t) pow(256., 5-i);
-					int Digit = atoi(bda[i].c_str());
+					int Digit = StringUtils::HexByte2Num(const_cast<char *>(bda[i].c_str()));
 					iMacAddress += (power * Digit);
 				}
 
