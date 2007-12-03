@@ -78,6 +78,8 @@ public:
 								std::string* psphonetype = 0,
 								std::string* psid = 0 );
 	
+	static string GetMainChannel(const string channel);
+	
 	/** Just the extension, no context or other extra information.*/
 	static string GetSimpleExtension(const string&);
 	

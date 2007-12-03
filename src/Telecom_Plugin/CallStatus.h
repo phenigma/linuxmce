@@ -124,6 +124,31 @@ namespace DCE
 			}
 			
 			/***/
+			void AddLinkedChannel(string channelid, string callerid)
+			{
+				linkedChannels[channelid] = callerid;
+			}
+			
+			/***/
+			void RemoveLinkedChannel(string channelid)
+			{
+				linkedChannels.erase(channelid);
+			}
+			
+			/***/
+			bool HasLinkedChannel(string channelid) const
+			{
+				map<string, string>::const_iterator itFound = linkedChannels.find(channelid);
+				
+				return itFound != linkedChannels.end();
+			}
+			
+			const map<string, string>& GetLinkedChannels() const
+			{
+				return linkedChannels;
+			}
+			
+			/***/
 			void SetDeviceOrbiter(int iDev)
 			{
 				iDeviceOrbiter = iDev;
@@ -155,6 +180,9 @@ namespace DCE
 			string id;
 			unsigned conferenceID;
 			map<string, string> channels;  //channelid <-> callerid
+            
+            // see dialplan, temporary channels from trusted context
+            map<string, string> linkedChannels;
 			
 			int iDeviceOrbiter;
 			int iDeviceOwner;

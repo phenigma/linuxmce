@@ -1155,8 +1155,8 @@ CallStatus * Telecom_Plugin::LinkChannels(const string & sSrcChannel, const stri
 	CallStatus * pCurrentStatus = NULL;
 	bool bRemoved = false;
 	
-	map<string, CallStatus*>::iterator it=map_call2status.begin();
-	while( it!=map_call2status.end() )
+	map<string, CallStatus*>::iterator it = map_call2status.begin();
+	while( it != map_call2status.end() )
 	{
 		pCurrentStatus = (*it).second;
 		if( pCurrentStatus != NULL )
@@ -1164,6 +1164,8 @@ CallStatus * Telecom_Plugin::LinkChannels(const string & sSrcChannel, const stri
 			const map<string, string> & channels = pCurrentStatus->GetChannels();
 			map<string, string>::const_iterator itFoundSrc = channels.find(sSrcChannel);
 			map<string, string>::const_iterator itFoundDest = channels.find(sDestChannel);
+			string sSrcMainChannel = Telecom_Plugin::GetMainChannel(sSrcChannel);
+			string sDestMainChannel = Telecom_Plugin::GetMainChannel(sDestChannel);
 			map<string, string>::const_iterator itEnd = channels.end();
 			if( itFoundSrc != itEnd && pCurrentStatus->IsConference() &&
 				sDestChannel == CallStatus::GetStringConferenceID( pCurrentStatus->GetConferenceID() ) )
@@ -1172,7 +1174,8 @@ CallStatus * Telecom_Plugin::LinkChannels(const string & sSrcChannel, const stri
 				// that's our linked call
 				pCallStatus = pCurrentStatus;
 			}
-			else if( itFoundSrc != itEnd && itFoundDest != itEnd )
+			else if( (itFoundSrc != itEnd || pCurrentStatus->HasLinkedChannel(sSrcMainChannel)) &&
+					 (itFoundDest != itEnd || pCurrentStatus->HasLinkedChannel(sDestMainChannel)) )
 			{
 				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "---------- Found Call LinkChannels");
 				// that's our linked call
@@ -1226,7 +1229,7 @@ CallStatus * Telecom_Plugin::LinkChannels(const string & sSrcChannel, const stri
 		}
 	}
 	
-	LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "======== After LinkChannels");
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "======== After LinkChannels");
 	DumpActiveCalls();
 	
 	return pCallStatus;
@@ -1238,16 +1241,7 @@ void Telecom_Plugin::ReplaceChannels(const string & sSrcChannel, const string & 
 		sSrcChannel.c_str(), sDestChannel.c_str());
 	
 	// remove the part after the ","
-	string sChannel;
-	size_t nPos = sSrcChannel.rfind(",");
-	if( nPos != string::npos && nPos > 0 )
-	{
-		sChannel = sSrcChannel.substr(0, nPos - 1);
-	}
-	else
-	{
-		sChannel = sSrcChannel;
-	}
+	string sChannel = Telecom_Plugin::GetMainChannel(sSrcChannel);
 	
 	CallStatus * pCallStatus = NULL;
 	for(map<string, CallStatus*>::iterator it=map_call2status.begin();
@@ -1262,16 +1256,7 @@ void Telecom_Plugin::ReplaceChannels(const string & sSrcChannel, const string & 
 			for(; itFound!=channels.end(); ++itFound)
 			{
 				// remove the part after the ","
-				string sFoundChannel;
-				nPos = (*itFound).first.rfind(",");
-				if(nPos != string::npos && nPos > 0)
-				{
-					sFoundChannel = (*itFound).first.substr(0, nPos);
-				}
-				else
-				{
-					sFoundChannel = (*itFound).first;
-				}
+				string sFoundChannel = Telecom_Plugin::GetMainChannel( (*itFound).first );
 				
 				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Replace Channels: %s || %s",
 					sChannel.c_str(), sFoundChannel.c_str());
@@ -1285,7 +1270,9 @@ void Telecom_Plugin::ReplaceChannels(const string & sSrcChannel, const string & 
 			
 			if( itFound != channels.end() )
 			{
-				pCallStatus->RemoveChannel(sSrcChannel);
+				// remove it from channels map, but placed it into the linked channels map
+				pCallStatus->AddLinkedChannel(Telecom_Plugin::GetMainChannel( (*itFound).first ), (*itFound).second);
+				pCallStatus->RemoveChannel( (*itFound).first );
 				pCallStatus->AddChannel(sDestChannel, sCallerID);
 			}
 		}
@@ -2215,6 +2202,22 @@ class DataGridTable *Telecom_Plugin::SpeedDialGrid(string GridID,string Parms,vo
 	}
     
 	return pDataGrid;
+}
+
+string Telecom_Plugin::GetMainChannel(const string sSrcChannel)
+{
+	string sChannel;
+	size_t nPos = sSrcChannel.rfind(",");
+	if( nPos != string::npos && nPos > 0 )
+	{
+		sChannel = sSrcChannel.substr(0, nPos);
+	}
+	else
+	{
+		sChannel = sSrcChannel;
+	}
+	
+	return sChannel;
 }
 
 bool Telecom_Plugin::ParseChannel( const std::string channel,
