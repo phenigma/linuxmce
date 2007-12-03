@@ -331,23 +331,9 @@ if [[ "$1" == start ]]; then
 	/usr/pluto/bin/Startup_Core-Hybrid.sh
 fi
 ' > /etc/init.d/kdm
-chmod +x /etc/init.d/kdm
-mv /etc/rc2.d/*kdm /etc/rc2.d/S99kdm
-	
-#elif [[ "$c_startupType" == "2" ]] ;then
-#	echo "
-#start on runlevel 2
-#
-#stop on shutdown
-#stop on runlevel 3
-#stop on runlevel 4
-#stop on runlevel 5
-#
-#script
-#/usr/share/mce-launcher/scripts/mce-launcher-core.sh
-#end script
-#" > /etc/event.d/pluto
+	chmod +x /etc/init.d/kdm
 fi
+mv /etc/rc2.d/*kdm /etc/rc2.d/S99kdm
 
 echo "
 start on runlevel 2
