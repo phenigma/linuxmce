@@ -132,6 +132,18 @@ function cleanup_filesystem {
 
 	## Remove the ssh key used for installation
 	rm -f "${FILESYSTEM_ROOT}"/root/.ssh/authorized_keys
+
+	local -a PkgNonGrata
+	PkgNonGrata=(
+		asterisk-pluto mce-diskless-tools pluto-asterisk pluto-avwizard-sounds pluto-dhcpd-plugin pluto-mythtv-plugin
+		pluto-orbiterinstaller pluto-skins-basic pluto-slimserver-plugin pluto-std-plugins pluto-vdr-plugin pluto-xine-plugin
+		pluto-xml-data-plugin video-wizard-videos
+	)
+	local Pkg
+	for Pkg in "${PkgNonGrata[@]}"; do
+		rm -f "${FILESYSTEM_ROOT}"/usr/pluto/deb-cache/"$Pkg"_*.deb
+	done
+	(cd "${FILESYSTEM_ROOT}"/usr/pluto/deb-cache && dpkg-scanpackages -m . /dev/null | tee Packages | gzip -c > Packages.gz)
 }
 
 function create_disk_image_from_flat {
