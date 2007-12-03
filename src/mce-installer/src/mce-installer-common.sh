@@ -13,9 +13,9 @@ function Replace_Mirror {
 
 	local newlines="
 deb file:/usr/pluto/deb-cache/ ./
-deb $mirror feisty main restricted universe multiverse
-deb $mirror feisty-security main restricted universe multiverse
-deb $mirror feisty-updates  main restricted universe multiverse
+deb $mirror gutsy main restricted universe multiverse
+deb $mirror gutsy-security main restricted universe multiverse
+deb $mirror gutsy-updates  main restricted universe multiverse
 "
 
 	while read line ;do
@@ -51,9 +51,9 @@ function Setup_Apt_Conffiles {
 	local Sources="# Pluto sources - start
 # Choosed mirror - start
 deb file:/usr/pluto/deb-cache/ ./
-deb $c_installMirror feisty main restricted multiverse universe
-deb $c_installMirror feisty-security main restricted multiverse universe
-deb $c_installMirror feisty-updates main restricted multiverse universe
+deb $c_installMirror gutsy main restricted multiverse universe
+deb $c_installMirror gutsy-security main restricted multiverse universe
+deb $c_installMirror gutsy-updates main restricted multiverse universe
 deb http://linuxmce.com/ubuntu ./
 # Choosed mirror - end
 #deb http://10.0.0.82/ ./

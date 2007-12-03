@@ -89,14 +89,14 @@ PK_Device = 1
 Activation_Code = 1111
 PK_Installation = 1
 PK_Users = 1
-PK_Distro = 14
+PK_Distro = 15
 Display = 0
 SharedDesktop = 1
 OfflineMode = false
 #<-mkr_b_videowizard_b->
 UseVideoWizard = 1
 #<-mkr_b_videowizard_e->
-LogLevels = 1,5,7,8
+#LogLevels = 1,5,7,8
 #ImmediatelyFlushLog = 1
 AutostartCore=$AutostartCore
 AutostartMedia=$AutostartMedia
@@ -120,15 +120,20 @@ function Install_DCERouter {
 
 function Create_And_Config_Devices {
 
+	/etc/init.d/mysql stop
+	killall -9 mysqld_safe
+	/etc/init.d/mysql start
+	sleep 30
+
 	. /usr/pluto/bin/SQL_Ops.sh
 
 	DEVICE_TEMPLATE_Core=7
 	DEVICE_TEMPLATE_MediaDirector=28
 
 	## Update the 'LastUpdate' Device Data on the templates
-	RunSQL "UPDATE DeviceTemplate_DeviceData SET IK_DeviceData=1 WHERE FK_DeviceTemplate = 7    AND FK_DeviceData=234"
-        RunSQL "UPDATE DeviceTemplate_DeviceData SET IK_DeviceData=2 WHERE FK_DeviceTemplate = 28   AND FK_DeviceData=234"
-        RunSQL "UPDATE DeviceTemplate_DeviceData SET IK_DeviceData=3 WHERE FK_DeviceTemplate = 1893 AND FK_DeviceData=234"
+#	RunSQL "UPDATE DeviceTemplate_DeviceData SET IK_DeviceData=1 WHERE FK_DeviceTemplate = 7 AND FK_DeviceData=234"
+#	RunSQL "UPDATE DeviceTemplate_DeviceData SET IK_DeviceData=2 WHERE FK_DeviceTemplate = 28 AND FK_DeviceData=234"
+#	RunSQL "UPDATE DeviceTemplate_DeviceData SET IK_DeviceData=3 WHERE FK_DeviceTemplate = 1893 AND FK_DeviceData=234"
 
 	## Update some info in the database
 	Q="INSERT INTO Installation(Description, ActivationCode) VALUES('Pluto', '1111')"
@@ -312,11 +317,9 @@ Setup_XOrg
 /usr/pluto/bin/SetupUsers.sh
 /usr/pluto/bin/Timezone_Detect.sh
 /usr/pluto/bin/Network_Setup.sh
-/usr/pluto/bin/DHCP_config.sh
 
-StatsMessage "Building a disk image for your Diskless Media Directors"
+#StatsMessage "Building a disk image for your Diskless Media Directors"
 /usr/pluto/bin/Diskless_CreateTBZ.sh
-
 
 mkdir -p /usr/pluto/deb-cache
 
@@ -329,6 +332,8 @@ if [[ "$1" == start ]]; then
 fi
 ' > /etc/init.d/kdm
 chmod +x /etc/init.d/kdm
+mv /etc/rc2.d/*kdm /etc/rc2.d/S99kdm
+	
 #elif [[ "$c_startupType" == "2" ]] ;then
 #	echo "
 #start on runlevel 2
@@ -364,8 +369,22 @@ for dir in /home/* ;do
 	fi
 done
 
+#Remove everything from the Installation table
+RunSQL "UPDATE Installation SET PK_Installation = 1"
+RunSQL "UPDATE Installation SET Description = 'LinuxMCE DVD Build $(date +%d-%m-%y)'"
+RunSQL "UPDATE Installation SET Name = NULL" 
+RunSQL "UPDATE Installation SET Address = NULL" 
+RunSQL "UPDATE Installation SET City = NULL" 
+RunSQL "UPDATE Installation SET State = NULL" 
+RunSQL "UPDATE Installation SET Zip = NULL" 
+RunSQL "UPDATE Installation SET FK_Country = 0" 
+RunSQL "UPDATE Installation SET FK_City = 0" 
+RunSQL "UPDATE Installation SET FK_PostalCode = 0" 
+
+
 #if [[ "$c_ubuntuExtraCDFrom" == "3" ]] ;then
 #	apt-get -y dist-upgrade || ExitInstaller "Failed while upgrading the system. Installation finished but you system might be left in a unstable state."
 #fi
 
+apt-get -y -f dist-upgrade
 StatsMessage "Installation Finished"
