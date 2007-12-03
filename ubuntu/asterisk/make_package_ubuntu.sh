@@ -51,7 +51,7 @@ TheRest()
 	cp ${ADDFOLDER}/Makefile ${PKGFOLDER}/../
 
 	cp -R ${ADDFOLDER}/pluto-sounds/*  ${PKGFOLDER}/var/lib/asterisk/sounds/pluto/
-	ln -nsf /var/lib/asterisk/sounds/pluto ${PKGFOLDER}/usr/share/asterisk/
+	ln -nsf /var/lib/asterisk/sounds/pluto ${PKGFOLDER}/usr/share/asterisk/sounds/
 
 	#copy AGI scripts
 	cp -R ${ADDFOLDER}/pluto-sos.agi ${PKGFOLDER}/usr/share/asterisk/agi-bin/
