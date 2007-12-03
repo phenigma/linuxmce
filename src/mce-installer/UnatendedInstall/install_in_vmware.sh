@@ -184,7 +184,7 @@ function create_disk_image_from_flat {
 function create_disk_image_from_vmdk {
 	rm -f "${VMWARE_TARGZ}_"*
 
-	/usr/bin/vmware-loop -q /var/plutobuild/vmware/Kubuntu/Kubuntu.vmdk 1 /dev/nb0 &
+	/usr/bin/vmware-loop -q /var/plutobuild/vmware/Kubuntu/Kubuntu.vmdk 1 /dev/nbd0 &
 	sleep 1
 
 	VMWARE_MOUNT_DIR="${WORK_DIR}/mount"
@@ -199,7 +199,8 @@ function create_disk_image_from_vmdk {
 
 	umount "${VMWARE_MOUNT_DIR}"
 	decho "Finish creating the tar.gz of / partition"
-	
+
+	sync 	
 	killall vmware-loop
 }
 
