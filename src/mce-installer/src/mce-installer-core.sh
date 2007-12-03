@@ -94,7 +94,7 @@ Display = 0
 SharedDesktop = 1
 OfflineMode = false
 #<-mkr_b_videowizard_b->
-UseVideoWizard = 1
+UseVideoWizard = 0
 #<-mkr_b_videowizard_e->
 #LogLevels = 1,5,7,8
 #ImmediatelyFlushLog = 1
