@@ -137,7 +137,7 @@ function cleanup_filesystem {
 	PkgNonGrata=(
 		asterisk-pluto mce-diskless-tools pluto-asterisk pluto-avwizard-sounds pluto-dhcpd-plugin pluto-mythtv-plugin
 		pluto-orbiterinstaller pluto-skins-basic pluto-slimserver-plugin pluto-std-plugins pluto-vdr-plugin pluto-xine-plugin
-		pluto-xml-data-plugin video-wizard-videos pluto-dcerouter
+		pluto-xml-data-plugin video-wizard-videos pluto-avwizard pluto-dcerouter
 	)
 	local Pkg
 	for Pkg in "${PkgNonGrata[@]}"; do
