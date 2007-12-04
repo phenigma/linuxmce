@@ -91,10 +91,19 @@ namespace DCE
 			/***/
 			void AddChannel(string channelid, string callerid)
 			{
-				channels[channelid] = callerid;
-				if( !IsConference() && 2 < channels.size() )
+				size_t nPos = channelid.rfind(",");
+				// if it's a linked temporary channel
+				if( nPos != string::npos && nPos > 0 )
 				{
-					SetCallType( CallStatus::MultipleCall );
+					linkedChannels[ channelid.substr(0, nPos) ] = callerid;
+				}
+				else
+				{
+					channels[channelid] = callerid;
+					if( !IsConference() && 2 < channels.size() )
+					{
+						SetCallType( CallStatus::MultipleCall );
+					}
 				}
 			}
 			

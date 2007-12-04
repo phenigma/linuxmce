@@ -1155,6 +1155,7 @@ CallStatus * Telecom_Plugin::LinkChannels(const string & sSrcChannel, const stri
 	CallStatus * pCurrentStatus = NULL;
 	bool bRemoved = false;
 	
+	map<string, string> mapMoveChannels;
 	map<string, CallStatus*>::iterator it = map_call2status.begin();
 	while( it != map_call2status.end() )
 	{
@@ -1167,7 +1168,8 @@ CallStatus * Telecom_Plugin::LinkChannels(const string & sSrcChannel, const stri
 			string sSrcMainChannel = Telecom_Plugin::GetMainChannel(sSrcChannel);
 			string sDestMainChannel = Telecom_Plugin::GetMainChannel(sDestChannel);
 			map<string, string>::const_iterator itEnd = channels.end();
-			if( itFoundSrc != itEnd && pCurrentStatus->IsConference() &&
+			if( (itFoundSrc != itEnd || pCurrentStatus->HasLinkedChannel(sSrcMainChannel)) &&
+				pCurrentStatus->IsConference() &&
 				sDestChannel == CallStatus::GetStringConferenceID( pCurrentStatus->GetConferenceID() ) )
 			{
 				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "---------- Found Conference LinkChannels");
@@ -1209,6 +1211,25 @@ CallStatus * Telecom_Plugin::LinkChannels(const string & sSrcChannel, const stri
 					pCurrentStatus = NULL;
 				}
 			}
+			else if( pCurrentStatus->HasLinkedChannel(sSrcMainChannel) ||
+					 pCurrentStatus->HasLinkedChannel(sDestMainChannel) )
+			{
+				if( !pCurrentStatus->IsConference() )
+				{
+					LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "---------- Move Call %s LinkChannels",
+						pCurrentStatus->GetID().c_str());
+					for(itFoundSrc=channels.begin(); itFoundSrc!=channels.end(); ++itFoundSrc)
+					{
+						mapMoveChannels[(*itFoundSrc).first] = (*itFoundSrc).second;
+					}
+					
+					// remove it
+					bRemoved = true;
+					map_call2status.erase(it++);
+					delete pCurrentStatus;
+					pCurrentStatus = NULL;
+				}
+			}
 			else
 			{
 				// nothing to do, that's not related to our channels
@@ -1226,6 +1247,14 @@ CallStatus * Telecom_Plugin::LinkChannels(const string & sSrcChannel, const stri
 		else
 		{
 			bRemoved = false;
+		}
+	}
+	
+	if( pCallStatus )
+	{
+		for(map<string, string>::const_iterator it=mapMoveChannels.begin(); it!=mapMoveChannels.end(); ++it)
+		{
+			pCallStatus->AddChannel((*it).first, (*it).second);
 		}
 	}
 	
@@ -1250,29 +1279,8 @@ void Telecom_Plugin::ReplaceChannels(const string & sSrcChannel, const string & 
 		pCallStatus = (*it).second;
 		if( pCallStatus != NULL )
 		{
-			const map<string, string> & channels = pCallStatus->GetChannels();
-			// !! don't use: map<string, string>::const_iterator itFound = channels.find(sSrcChannel);
-			map<string, string>::const_iterator itFound=channels.begin();
-			for(; itFound!=channels.end(); ++itFound)
+			if( pCallStatus->HasLinkedChannel(sChannel) )
 			{
-				// remove the part after the ","
-				string sFoundChannel = Telecom_Plugin::GetMainChannel( (*itFound).first );
-				
-				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Replace Channels: %s || %s",
-					sChannel.c_str(), sFoundChannel.c_str());
-				
-				if( sChannel ==  sFoundChannel )
-				{
-					LoggerWrapper::GetInstance()->Write(LV_WARNING, "Replace Channels: found");
-					break;
-				}
-			}
-			
-			if( itFound != channels.end() )
-			{
-				// remove it from channels map, but placed it into the linked channels map
-				pCallStatus->AddLinkedChannel(Telecom_Plugin::GetMainChannel( (*itFound).first ), (*itFound).second);
-				pCallStatus->RemoveChannel( (*itFound).first );
 				pCallStatus->AddChannel(sDestChannel, sCallerID);
 			}
 		}
@@ -1287,8 +1295,11 @@ void Telecom_Plugin::RemoveChannel(const string & sChannel)
 	while( it!=map_call2status.end() )
 	{
 		const map<string, string> & channels = (*it).second->GetChannels();
+		const map<string, string> & linkedChannels = (*it).second->GetLinkedChannels();
 		map<string, string>::const_iterator itFound = channels.find(sChannel);
-		if( itFound != channels.end() )
+		map<string, string>::const_iterator itLinkedFound =
+				linkedChannels.find( Telecom_Plugin::GetMainChannel( sChannel ) );
+		if( itFound != channels.end() || itLinkedFound != linkedChannels.end() )
 		{
 			pCallStatus = (*it).second;
 			pCallStatus->RemoveChannel(sChannel);
