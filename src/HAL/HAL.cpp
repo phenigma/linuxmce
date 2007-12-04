@@ -84,7 +84,7 @@ HAL::HAL(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLoca
 	d = new HalPrivate(this);
 	if( d == NULL )
 	{
-		// error
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "HAL(): Not enough memory!");
 	}
 }
 
@@ -97,7 +97,7 @@ HAL::HAL(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl
 	d = new HalPrivate(this);
 	if( d == NULL )
 	{
-		// error
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "HAL(): Not enough memory!");
 	}
 }
 
@@ -118,7 +118,7 @@ HAL::~HAL()
 		
 		if( 0 != pthread_join( d->hald_thread, NULL ) )
 		{
-			// error
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "pthread_join hald failed");
 		}
 		
 		d->running = false;
@@ -128,9 +128,15 @@ HAL::~HAL()
 	{
 		SerialD::shutDown();
 		
+		if( 0 != pthread_kill( d->serial_thread, SIGTERM) )
+		{
+			//try KILL
+			pthread_kill( d->serial_thread, SIGKILL);
+		}
+		
 		if( 0 != pthread_join( d->serial_thread, NULL ) )
 		{
-			// error
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "pthread_join seriald failed");
 		}
 		
 		d->serial_running = false;
