@@ -11,6 +11,7 @@
 #define SKIN_Marbella_CONST 9
 #define SKIN_Mobile_Phone_Monster_CONST 10
 #define SKIN_Small_UI_Monster_CONST 11
+#define SKIN_NuForce_CONST 12
 
 #define SKIN_TABLE "Skin"
 #define SKIN_PK_SKIN_FIELD "PK_Skin"

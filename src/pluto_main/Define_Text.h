@@ -1247,6 +1247,8 @@
 #define TEXT_Active_Calls_CONST 1991
 #define TEXT_Choose_user_you_like_to_call_CONST 1992
 #define TEXT_External_Channels_CONST 1993
+#define TEXT_Play_from_this_position_CONST 1994
+#define TEXT_Manage_Drives_CONST 1995
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

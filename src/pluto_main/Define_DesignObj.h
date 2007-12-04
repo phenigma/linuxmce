@@ -1981,7 +1981,7 @@
 #define DESIGNOBJ_dgTVRecorded_CONST 4900
 #define DESIGNOBJ_popMythOptions_CONST 4902
 #define DESIGNOBJ_grpMediaOptions_CONST 4910
-#define DESIGNOBJ_icoAlpha_CONST 4911
+#define DESIGNOBJ_icoVertAlpha_CONST 4911
 #define DESIGNOBJ_TVWhatDelays_CONST 4913
 #define DESIGNOBJ_TVHowToTune_CONST 4914
 #define DESIGNOBJ_TVConfirmOnOffDiscrete_CONST 4915
@@ -2512,6 +2512,19 @@
 #define DESIGNOBJ_dgExternalChannels_CONST 5537
 #define DESIGNOBJ_objIncomingCallUser_CONST 5538
 #define DESIGNOBJ_objOutgoingCallUser_CONST 5539
+#define DESIGNOBJ_VDR_FS_CONST 5540
+#define DESIGNOBJ_VDR_OSD_FS_CONST 5541
+#define DESIGNOBJ_VDR_Recordings_FS_CONST 5542
+#define DESIGNOBJ_butStartPlayingBookmark_CONST 5543
+#define DESIGNOBJ_mnuMenuAudioServer_CONST 5544
+#define DESIGNOBJ_butSortByAlbum_CONST 5546
+#define DESIGNOBJ_butSortByPerformer_CONST 5547
+#define DESIGNOBJ_butSortByComposer_CONST 5548
+#define DESIGNOBJ_butSearch_CONST 5549
+#define DESIGNOBJ_icoHorizAlpha_CONST 5550
+#define DESIGNOBJ_butViewPlaylists_CONST 5553
+#define DESIGNOBJ_butManageDrives_CONST 5554
+#define DESIGNOBJ_mnuPlaylists_CONST 5556
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
