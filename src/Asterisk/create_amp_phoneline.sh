@@ -28,3 +28,4 @@ case "$Type" in
 esac
 
 "$AmpScript" "$@"
+/usr/pluto/bin/create_pluto_dialplan.pl

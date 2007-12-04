@@ -138,12 +138,6 @@ foreach my $var (keys %IN_VARS)
 `curl 'http://localhost/admin/config.php?handler=reload' > /dev/null`;
 #create telecom defaults
 `/usr/pluto/bin/create_telecom_defaults.pl`;
-
-#####################
-#create dial plan
-`/usr/pluto/bin/create_pluto_dialplan.pl`;
-#####################
-
 #reload asterisk
 `asterisk -r -x reload`;
 
