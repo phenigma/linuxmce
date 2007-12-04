@@ -46,6 +46,8 @@
 #include "pluto_media/Define_AttributeType.h"
 #include "pluto_media/Define_FileFormat.h"
 
+#include "OrbiterFileBrowser.h"
+
 using namespace DCE;
 
 //-----------------------------------------------------------------------------------------------------
@@ -404,7 +406,7 @@ bool ScreenHandler::MediaBrowser_ObjectSelected(CallBackData *pData)
 
 	PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_ScreenMutex);
 
-	if( pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_icoAlpha_CONST && mediaFileBrowserOptions.m_pObj_ListGrid && mediaFileBrowserOptions.m_pObj_PicGrid )
+	if( pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_icoVertAlpha_CONST && mediaFileBrowserOptions.m_pObj_ListGrid && mediaFileBrowserOptions.m_pObj_PicGrid )
 	{
 		// Find the position where 0=the top, 1=A, 26=7
 		int Letter = (pObjectInfoData->m_Y-pObjectInfoData->m_pObj->m_rPosition.Y) * 27 / pObjectInfoData->m_pObj->m_rPosition.Height;
@@ -1571,9 +1573,43 @@ void ScreenHandler::SCREEN_DialogSendFileToPhoneFailed(long PK_Screen, string sM
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_Main(long PK_Screen, string sLocation)
 {
-	m_pOrbiter->CMD_Goto_DesignObj(0, m_pOrbiter->m_sMainMenu,
-		/*StringUtils::ltos(m_p_MapDesignObj_Find(PK_Screen)) + "." + sLocation + ".0", */
-		sLocation, "", false, false );
+	DesignObj_Orbiter *pObjMainMenu = m_pOrbiter->FindObject(m_pOrbiter->m_sMainMenu);
+
+	if(NULL != pObjMainMenu && pObjMainMenu->m_iBaseObjectID == DESIGNOBJ_mnuMenuAudioServer_CONST)
+	{
+		int iPK_MediaType = MEDIATYPE_pluto_StoredAudio_CONST;
+
+		OrbiterFileBrowser_Entry *pOrbiterFileBrowser_Entry =
+			m_pOrbiter->m_pOrbiterFileBrowser_Collection->m_mapOrbiterFileBrowser[iPK_MediaType];
+
+		if( !pOrbiterFileBrowser_Entry )
+		{
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"No way to show file list for %d",iPK_MediaType);
+			return;
+		}
+
+		mediaFileBrowserOptions.ClearAll(iPK_MediaType,pOrbiterFileBrowser_Entry->m_PK_Screen,m_pOrbiter->m_mapPK_MediaType_PK_Attribute_Sort[iPK_MediaType]);
+		m_pOrbiter->CMD_Set_Variable(VARIABLE_Filename_CONST, pOrbiterFileBrowser_Entry->m_sFilename);
+		m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_MediaType_CONST, StringUtils::itos(iPK_MediaType));
+
+		SetMediaSortFilterSelectedObjects();
+		RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::MediaBrowser_ObjectSelected,	new ObjectInfoBackData());
+		RegisterCallBack(cbOnRenderScreen, (ScreenHandlerCallBack) &ScreenHandler::MediaBrowser_Render, new RenderScreenCallBackData());
+		RegisterCallBack(cbDataGridSelected, (ScreenHandlerCallBack) &ScreenHandler::MediaBrowser_DatagridSelected, new DatagridCellBackData());
+		RegisterCallBack(cbDataGridRendering, (ScreenHandlerCallBack) &ScreenHandler::FileList_GridRendering,	new DatagridAcquiredBackData());
+		RegisterCallBack(cbOnKeyDown, (ScreenHandlerCallBack) &ScreenHandler::FileList_KeyDown, new KeyCallBackData());
+		RegisterCallBack(cbMessageIntercepted, (ScreenHandlerCallBack) &ScreenHandler::MediaBrowsre_Intercepted, new MsgInterceptorCellBackData());
+
+		DesignObj_Orbiter *pObj = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_popFBSF_More_CONST) "." + StringUtils::itos(mediaFileBrowserOptions.m_PK_MediaType) + ".0." TOSTRING(DESIGNOBJ_butFBSF_More_ViewedOnly_CONST) );
+		if( pObj )
+			pObj->m_GraphicToDisplay_set("fmv1",GRAPHIC_NORMAL,false,true);
+
+		pObj = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_popFBSF_More_CONST) "." + StringUtils::itos(mediaFileBrowserOptions.m_PK_MediaType) + ".0." TOSTRING(DESIGNOBJ_butFBSF_More_UnviewedOnly_CONST) );
+		if( pObj )
+			pObj->m_GraphicToDisplay_set("fmv2",GRAPHIC_NORMAL,false,true);
+	}
+
+	m_pOrbiter->CMD_Goto_DesignObj(0, m_pOrbiter->m_sMainMenu, sLocation, "", false, false );
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_Lights(long PK_Screen, string sLocation)

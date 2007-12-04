@@ -148,6 +148,7 @@ void *OrbiterRenderer_OpenGLThread(void *p)
 		if(!pOrbiterRenderer->OrbiterLogic()->m_bQuit_get())
 			pOrbiterRenderer->Engine->Paint();
 
+		pOrbiterRenderer->OnIdle();
 		Sleep(60);
 	}
 

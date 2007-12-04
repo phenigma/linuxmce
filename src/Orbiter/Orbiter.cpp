@@ -70,6 +70,10 @@ using namespace DCE;
 #include "OpenGL/VIA/ViaOverlay.h"
 #endif
 
+#if defined(USE_UIWINDOW) && defined(ORBITER_OPENGL)
+#include "Win32/UIWindowManager.h"
+#endif
+
 #include "OrbiterRenderer.h"
 #include "OrbiterRendererFactory.h"
 
@@ -2133,6 +2137,23 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 			if( !m_dwPK_Users )
 				m_dwPK_Users = m_dwPK_Users_Default;
 
+			char *pData=NULL; int iSize=0;
+			DCE::CMD_Orbiter_Registered CMD_Orbiter_Registered( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, "1",
+				m_dwPK_Users,StringUtils::itos(m_pLocationInfo->PK_EntertainArea),m_pLocationInfo->PK_Room, &pData, &iSize);
+			DCE::CMD_Set_Current_User CMD_Set_Current_User( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, m_dwPK_Users );
+			CMD_Orbiter_Registered.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Current_User.m_pMessage);
+			if( !SendCommand( CMD_Orbiter_Registered ) )
+			{
+				LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Cannot register with router" );
+				m_pOrbiterRenderer->PromptUser("Orbiter cannot register with the router. Please try again later.");
+
+				exit(1);
+				return;
+			}
+			m_pOrbiterFileBrowser_Collection = new OrbiterFileBrowser_Collection;
+			m_pOrbiterFileBrowser_Collection->SerializeRead(iSize,pData);
+			delete[] pData;
+
 			DesignObj_OrbiterMap::iterator iHao=m_ScreenMap.begin(  );
 			if ( iHao==m_ScreenMap.end(  ) )
 			{
@@ -2177,23 +2198,6 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 #ifdef DEBUG
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"monitor m_bDisplayOn initially set to %d",(int) m_bDisplayOn);
 #endif
-
-			char *pData=NULL; int iSize=0;
-			DCE::CMD_Orbiter_Registered CMD_Orbiter_Registered( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, "1",
-				m_dwPK_Users,StringUtils::itos(m_pLocationInfo->PK_EntertainArea),m_pLocationInfo->PK_Room, &pData, &iSize);
-			DCE::CMD_Set_Current_User CMD_Set_Current_User( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, m_dwPK_Users );
-			CMD_Orbiter_Registered.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Current_User.m_pMessage);
-			if( !SendCommand( CMD_Orbiter_Registered ) )
-			{
-				LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Cannot register with router" );
-				m_pOrbiterRenderer->PromptUser("Orbiter cannot register with the router. Please try again later.");
-
-				exit(1);
-				return;
-			}
-			m_pOrbiterFileBrowser_Collection = new OrbiterFileBrowser_Collection;
-			m_pOrbiterFileBrowser_Collection->SerializeRead(iSize,pData);
-			delete[] pData;
 
 			// Create another map to go from remote id to device id
 			for(map<string, pair<int,int> >::iterator it=m_pOrbiterFileBrowser_Collection->m_mapRemoteControls.begin();
@@ -2853,16 +2857,20 @@ bool Orbiter::ProcessEvent( Orbiter::Event &event )
 		}
 	}
 
-#if defined(VIA_OVERLAY) && defined(ORBITER_OPENGL)
 	if(event.type == Orbiter::Event::BUTTON_DOWN)
 	{
-		if(event.data.button.m_iPK_Button == BUTTON_F10_CONST)
+		if(event.data.button.m_iPK_Button == BUTTON_F9_CONST)
 		{
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Dumping mask to /home/mask-dump.png and .raw");
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Dumping mask to /home/mask-dump.png");
+#if defined(VIA_OVERLAY) && defined(ORBITER_OPENGL)
 			ViaOverlay::Instance().DumpMask();
+#endif
+
+#if defined(USE_UIWINDOW) && defined(ORBITER_OPENGL)
+			UIWindowManager::UIWindow()->DumpMask(m_iImageWidth, m_iImageHeight);
+#endif
 		}
 	}
-#endif
 
 	if ( event.type == Orbiter::Event::MOUSE_MOVE )
 	{

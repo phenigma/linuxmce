@@ -20,7 +20,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..;../../;../Win32;../../DCE;&quot;../../../libs/Libraries/pthreads-win32/include&quot;;.;&quot;../../../libs/CrossPlatform/SDL_image-1.2.3&quot;;&quot;../../../libs/CrossPlatform/SDL-1.2.7/include&quot;;../../../../../../libs/CrossPlatform/lpng127;../../../../PlutoUtils;../SDL;../../OrbiterGen;../../../libs/CrossPlatform/zlib;&quot;../../../libs/CrossPlatform/SDL_ttf-2.0.6&quot;;\mysql\include"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;ORBITER;ORBITER_OPENGL;ENABLE_MOUSE_BEHAVIOR;TEST_OSD"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;ORBITER;ORBITER_OPENGL;ENABLE_MOUSE_BEHAVIOR;TEST_OSD;USE_UIWINDOW"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -463,6 +463,16 @@
 					RelativePath="..\WizardLogic.cpp">
 				</File>
 			</Filter>
+			<Filter
+				Name="UIWindows"
+				Filter="">
+				<File
+					RelativePath="..\Win32\UIWindowManager.cpp">
+				</File>
+				<File
+					RelativePath="..\Win32\UIWindowMasked.cpp">
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -517,6 +527,21 @@
 			</File>
 			<File
 				RelativePath=".\PopupDescription.h">
+			</File>
+			<File
+				RelativePath="..\Win32\UIWindowAlphaBlended.h">
+			</File>
+			<File
+				RelativePath="..\Win32\UIWindowBase.h">
+			</File>
+			<File
+				RelativePath="..\Win32\UIWindowManager.h">
+			</File>
+			<File
+				RelativePath="..\Win32\UIWindowMasked.h">
+			</File>
+			<File
+				RelativePath="..\Win32\UIWindowNormal.h">
 			</File>
 			<Filter
 				Name="Win32"

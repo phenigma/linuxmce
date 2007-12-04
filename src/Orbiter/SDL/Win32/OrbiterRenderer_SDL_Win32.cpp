@@ -41,6 +41,8 @@
 #include "../Win32/PopupMessage.h"
 #include "../Win32/ProgressDialog.h"
 //-----------------------------------------------------------------------------------------------------
+#include "../Win32/UIWindowManager.h"
+//-----------------------------------------------------------------------------------------------------
 LRESULT CALLBACK SDLWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	Orbiter *pOrbiter = Orbiter::Instance();
@@ -146,6 +148,7 @@ OrbiterRenderer_SDL_Win32::OrbiterRenderer_SDL_Win32(Orbiter *pOrbiter) :
 #endif
 	, m_pfOldSDLWindowProc(NULL)
 {
+	m_psUIWindow.reset(UIWindowManager::CreateUIWindow(uwtNormal));
 }
 //-----------------------------------------------------------------------------------------------------
 OrbiterRenderer_SDL_Win32::~OrbiterRenderer_SDL_Win32()
@@ -264,5 +267,71 @@ void OrbiterRenderer_SDL_Win32::SetupWindow()
 		}
 	}
 #endif
+}
+//-----------------------------------------------------------------------------------------------------
+/*virtual*/ void OrbiterRenderer_SDL_Win32::RenderScreen(bool bRenderGraphicsOnly)
+{
+	PLUTO_SAFETY_LOCK(cm, OrbiterLogic()->m_ScreenMutex);
+
+	m_psUIWindow->ClearFilters();
+	OrbiterRenderer_OpenGL::RenderScreen(bRenderGraphicsOnly);
+}
+//-----------------------------------------------------------------------------------------------------
+/*virtual*/ bool OrbiterRenderer_SDL_Win32::HandleHidePopup(PlutoPopup* pPopup)
+{
+	PlutoRectangle rect(pPopup->m_Position.X, pPopup->m_Position.Y, 
+		pPopup->m_pObj->m_rPosition.Width, pPopup->m_pObj->m_rPosition.Height);
+
+	m_psUIWindow->RemoveFilter(rect);
+
+	return OrbiterRenderer_OpenGL::HandleHidePopup(pPopup);
+}
+//-----------------------------------------------------------------------------------------------------
+/*virtual*/ bool OrbiterRenderer_SDL_Win32::HandleShowPopup(PlutoPopup* pPopup, PlutoPoint Position, int EffectID)
+{
+	PLUTO_SAFETY_LOCK(cm, OrbiterLogic()->m_ScreenMutex);
+
+	PlutoRectangle rect(pPopup->m_Position.X, pPopup->m_Position.Y, 
+		pPopup->m_pObj->m_rPosition.Width, pPopup->m_pObj->m_rPosition.Height);
+
+	m_psUIWindow->AddFilter(rect);
+
+	return OrbiterRenderer_OpenGL::HandleShowPopup(pPopup, Position, EffectID);
+}
+//-----------------------------------------------------------------------------------------------------
+void OrbiterRenderer_SDL_Win32::ObjectRendered(DesignObj_Orbiter *pObj, PlutoPoint point)
+{
+	PLUTO_SAFETY_LOCK(cm, OrbiterLogic()->m_ScreenMutex);
+
+	if(point.X != 0 || point.Y != 0)
+	{
+		//don't handle the objects from popups
+		return;
+	}
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "VIA ObjectRendered: %s", pObj->m_ObjectID.c_str());
+
+	PlutoGraphic *pPlutoGraphic = NULL;
+	pPlutoGraphic = 
+		pObj->m_pvectCurrentGraphic != NULL && pObj->m_pvectCurrentGraphic->size() > 0 ?
+			(pObj->m_pvectCurrentGraphic->operator [](0)) : 
+			pObj->m_vectGraphic.size() > 0 ? 
+				pObj->m_vectGraphic[0] :
+				NULL;
+
+	if(NULL != pPlutoGraphic)
+	{
+		OpenGLGraphic* pOpenGLGraphic = dynamic_cast<OpenGLGraphic*> (pPlutoGraphic);
+		if(NULL != pOpenGLGraphic)
+			m_psUIWindow->AddFilter(pObj->m_rPosition, pOpenGLGraphic->GetAlphaMask());
+	}
+}
+//-----------------------------------------------------------------------------------------------------
+void OrbiterRenderer_SDL_Win32::OnIdle()
+{
+	if(NULL != m_hSDLWindow)
+		m_psUIWindow->ApplyFilters(m_hSDLWindow);
+
+	OrbiterRenderer_OpenGL::OnIdle();
 }
 //-----------------------------------------------------------------------------------------------------

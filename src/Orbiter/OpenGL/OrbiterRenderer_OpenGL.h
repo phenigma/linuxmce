@@ -115,7 +115,7 @@ namespace DCE
 		virtual void ObjectOffScreen(DesignObj_Orbiter *pObj);
 
 		void WakeupFromCondWait();
-		void OnIdle();
+		virtual void OnIdle();
 
 		/**
 		* @brief A graphic is no longer on screen. Maybe remove it from cache

@@ -220,6 +220,9 @@ public:
 	PlutoRectangle(PlutoPoint origin,PlutoPoint corner) { X=origin.X; Y=origin.Y; Width=corner.X-origin.X; Height=corner.Y-origin.Y; }
 	PlutoRectangle(const PlutoRectangle &Rect) : SerializeClass() { X = Rect.X; Y=Rect.Y; Width=Rect.Width; Height=Rect.Height; }
 
+	bool operator== (const PlutoRectangle &Rect) { return X == Rect.X && Y == Rect.Y && Width == Rect.Width && Height == Rect.Height;}
+	bool operator!= (const PlutoRectangle &Rect) { return !(operator==(Rect)); }
+
 	int Top() { return Y; }
 	int Bottom() { return Y + Height - 1; }
 	int Left() { return X; }

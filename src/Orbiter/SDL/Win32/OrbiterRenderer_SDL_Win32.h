@@ -40,6 +40,8 @@
 #include "../OrbiterRenderer_SDL.h"
 #endif
 
+class UIWindowBase;
+
 namespace DCE
 {
 	class Orbiter;
@@ -55,6 +57,8 @@ namespace DCE
 		friend class OrbiterRendererFactory;
 		OrbiterRenderer_SDL_Win32(Orbiter *pOrbiter);
 
+		auto_ptr<UIWindowBase> m_psUIWindow;
+
 	public:
 
 		~OrbiterRenderer_SDL_Win32();
@@ -67,8 +71,17 @@ namespace DCE
 		WNDPROC m_pfOldSDLWindowProc;
 		HWND m_hSDLWindow;
 
-		virtual void SetupWindow();
-		virtual void Configure();
+		void SetupWindow();
+		void Configure();
+
+		void RenderScreen(bool bRenderGraphicsOnly);
+		bool HandleHidePopup(PlutoPopup* Popup);
+		bool HandleShowPopup(PlutoPopup* pPopup, PlutoPoint Position, int EffectID);
+		void ObjectRendered(DesignObj_Orbiter *pObj, PlutoPoint point);
+
+		void ApplyRegions();
+		void OnIdle();
+
 	};
 }
 #endif //__ORBITER_RENDERER_SDL_WIN32_H__

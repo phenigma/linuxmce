@@ -163,7 +163,7 @@ void OpenGLGraphic::Prepare()
 	if(LocalSurface == NULL)
 		return;
 
-#ifdef VIA_OVERLAY
+#if defined(VIA_OVERLAY) || defined(USE_UIWINDOW)
 	GenerateAlphaMask();
 #endif
 
