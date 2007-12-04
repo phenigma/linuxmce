@@ -46,6 +46,9 @@ class UIWindowMasked : public UIWindowBase
 
 	void ApplyOpaqueRegion(HRGN hRgnMaster, const PlutoRectangle& rect);
 	void ApplyOpaqueMask(SDL_Surface *pSurface, const PlutoRectangle& rect);
+	void ApplyDiscretFilter(HRGN hRgnMaster, SDL_Surface *pSurface, const PlutoRectangle& rect);
+
+	void ApplyDiscretFilters(HRGN hRgnNew, SDL_Surface *pSurface);
 
 public:
 
