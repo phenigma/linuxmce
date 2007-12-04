@@ -101,6 +101,10 @@ APT::Get::force-yes "yes";
 Package: *
 Pin: origin
 Pin-Priority: 9999
+
+Package: *
+Pin: release v=7.10,o=Ubuntu,a=gutsy,l=Ubuntu
+Pin-Priority: 9998
 '
 	echo -n "$pluto_apt_preferences" >/etc/apt/preferences
 
