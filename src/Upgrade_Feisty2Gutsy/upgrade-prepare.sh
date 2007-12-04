@@ -7,6 +7,8 @@ COLOUR_WHITE="\033[1;37m"
 COLOUR_RED="\033[1;31m"
 COLOUR_NONE="\033[0m"
 
+export PROMPT_COMMAND="echo -ne 'LinuxMCE 0704 to 0710 Upgrade'"
+
 function Error {
 	local Message="$*"
 
