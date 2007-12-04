@@ -33,6 +33,18 @@
 #include "VDRMediaStream.h"
 class Row_Bookmark;
 
+	struct VDRRecording
+	{
+		union
+		{
+			u_int64_t int64;
+			struct
+			{
+				int channel_id;
+				time_t StartTime;
+			} time;
+		} data;
+	};
 
 //<-dceag-decl-b->!
 namespace DCE

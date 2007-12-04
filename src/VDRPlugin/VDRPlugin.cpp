@@ -48,8 +48,6 @@ VDRPlugin::VDRPlugin(int DeviceID, string ServerAddress,bool bConnectEventHandle
 	pthread_cond_init( &m_VDRCond, NULL );
 	m_VDRMutex.Init(NULL,&m_VDRCond);
 	m_sVDRIp="127.0.0.1";
-	//HARDCODING WARNING!!!
-	//"192.168.0.100";
 }
 //<-dceag-getconfig-b->
 bool VDRPlugin::GetConfig()
@@ -391,14 +389,18 @@ void VDRPlugin::CMD_Schedule_Recording(string sType,string sOptions,string sProg
 	if( sType=="O" )
 	{
 		char sDate[20];
-		sprintf(sDate,"%d-%d-%d", tmStart.tm_year+100, tmStart.tm_mon+1, tmStart.tm_mday);
+		//fixed the formatting of date
+		//start stop time, wrong parameters for VDR  
+		//todo adding prerecording time of 5 mins and post of 15 mins burgiman 2007-11-07
+		sprintf(sDate,"%d-%02d-%02d", tmStart.tm_year+1900, tmStart.tm_mon+1, tmStart.tm_mday);
 
 		string sVDRResponse;
-		bool bResult = SendVDRCommand(m_sVDRIp,"NEWT 1:" + StringUtils::itos(pVDRChannel->m_dwChanNum) + 
-			":" + StringUtils::itos(tmStart.tm_mon) + ":" + 
+				bool bResult = SendVDRCommand(m_sVDRIp,"NEWT 1:" + StringUtils::itos(pVDRChannel->m_dwChanNum) + 
+			":"  + 
 			sDate + ":" + 
-			StringUtils::itos(tmStop.tm_hour) + (tmStop.tm_min<10 ? "0" : "") + StringUtils::itos(tmStop.tm_min) + ":" + 
-			"99:50:" + pVDRProgramInstance->GetTitle() + ":",sVDRResponse);
+			(tmStart.tm_hour<10 ? "0" : "")+StringUtils::itos(tmStart.tm_hour) + (tmStart.tm_min<10 ? "0" : "") + StringUtils::itos(tmStart.tm_min) + ":" + 
+			(tmStop.tm_hour<10 ? "0" : "")+StringUtils::itos(tmStop.tm_hour) + (tmStop.tm_min<10 ? "0" : "") + StringUtils::itos(tmStop.tm_min) + ":" + 
+			"50:99:" + pVDRProgramInstance->GetTitle() + ":",sVDRResponse);
 
 		int iTimer = atoi(sVDRResponse.c_str());
 		if( !bResult || iTimer<1 )
@@ -458,6 +460,9 @@ class DataGridTable *VDRPlugin::CurrentShows(string GridID, string Parms, void *
 
 	PLUTO_SAFETY_LOCK(mm, m_pMedia_Plugin->m_MediaMutex);
     LoggerWrapper::GetInstance()->Write(LV_STATUS, "VDRV_PlugIn::CurrentShows A datagrid for all the shows was requested %s params %s", GridID.c_str(), Parms.c_str());
+  
+  VDRRecording vdrRecording;
+	vdrRecording.data.time.channel_id = atoi(sChanId.c_str());
 
 	VDRProgramInstance *pVDRProgramInstance = pVDRChannel->GetCurrentProgramInstance(tNow);
 	while(pVDRProgramInstance)
@@ -470,8 +475,8 @@ class DataGridTable *VDRPlugin::CurrentShows(string GridID, string Parms, void *
 		pCell->m_mapAttributes["endtime"]=StringUtils::itos(pVDRProgramInstance->m_tStopTime);
 
 /*
-		mythRecording.data.time.StartTime = tStart;
-		if( (it_mapScheduledRecordings=m_mapScheduledRecordings.find(mythRecording.data.int64))!=m_mapScheduledRecordings.end() )
+		vdrRecording.data.time.StartTime = tStart;
+		if( (it_mapScheduledRecordings=m_mapScheduledRecordings.find(vdrRecording.data.int64))!=m_mapScheduledRecordings.end() )
 		{
 			szRecording[0] = it_mapScheduledRecordings->second.first;
 			pCell->m_mapAttributes["recording"] = szRecording;
@@ -1400,6 +1405,8 @@ void VDRPlugin::UpdateTimers()
 			string::size_type pos_colon=0;
 			string s1 = StringUtils::Tokenize(sLine,":",pos_colon);
 			string s2 = StringUtils::Tokenize(sLine,":",pos_colon);
+				
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "VDRTV_PlugIn::TIMERS %s params %s", s1.c_str(), s2.c_str());
 		}
 	}
 }
