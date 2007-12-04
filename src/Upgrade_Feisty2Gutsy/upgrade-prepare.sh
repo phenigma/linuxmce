@@ -105,6 +105,7 @@ if [[ "$InstallFrom" == "$FROM_DVD" ]] ;then
 	cat "$TEMP_DIR/linux-mce.tar.gz_0"* | tar zxv --checkpoint --strip 4 -C /usr/pluto/deb-cache-new './usr/pluto/deb-cache' || Error "There was a problem while reading the DVD"
 
 	# Get out of here
+	touch /var/gutsy-upgrade-scripts/upgrade-ready
 	Message "*  You need to reboot your computer to start the upgrade process"
 	read
 	exit 0

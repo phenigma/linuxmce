@@ -3,6 +3,12 @@
 set -e
 set -x
 
+if [[ ! -f /var/gutsy-upgrade-scripts/upgrade-ready ]] ;then
+	exit 0
+fi
+
+cd /usr/share/gutsy-upgrade-scripts/
+
 ## Preseed some packages to avoid the need of interactive debconf
 ./upgrade-preseed.sh
 
@@ -36,3 +42,12 @@ update-grub
 RunSQL "UPDATE Device_DeviceData SET IK_DeviceData = 'LMCE_CORE_u0710_i386' WHERE IK_DeviceData = 'LMCE_CORE_1_1'"
 RunSQL "UPDATE Device_DeviceData SET IK_DeviceData = 'LMCE_MD_u0710_i386'   WHERE IK_DeviceData = 'LMCE_MD_1_1'"
 RunSQL "UPDATE Device_DeviceData SET IK_DeviceData = '0' WHERE FK_DeviceData = '234'"
+
+## Remove old 0704 updates
+rm -rf /home/updates/*
+
+## Don't run again
+rm -f /usr/share/gutsy-upgrade-scripts/upgrade-ready
+
+## Don't run download script again
+rm -f /etc/cron.d/gutsy-upgrade-scripts
