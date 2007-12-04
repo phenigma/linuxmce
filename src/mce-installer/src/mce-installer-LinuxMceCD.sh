@@ -11,8 +11,6 @@ else
 
 	if [[ "$c_linuxmceCdFrom" == "$FROM_ISO" ]] ;then
 		mount -o loop "$c_linuxmceCdIsoPath" "$CD_Dir" || exit 1
-		lp=$(losetup -f)
-	        losetup -d "$lp" || :
 	else
 		mount /dev/cdrom "$CD_Dir" || exit 4
 	fi
@@ -29,8 +27,6 @@ else
 	popd
 
 	umount -f $CD_Dir || :
-	lp=$(losetup -f)
-        losetup -d "$lp" || :
 	rm -rf $CD_Dir
 
 	trap "" EXIT
