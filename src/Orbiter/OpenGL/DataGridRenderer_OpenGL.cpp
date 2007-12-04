@@ -44,6 +44,10 @@ or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more detai
 	#include "VIA/ViaOverlay.h"
 #endif
 
+#ifdef USE_UIWINDOW
+	#include "../Win32/UIWindowManager.h"
+#endif
+
 DataGridRenderer_OpenGL::DataGridRenderer_OpenGL(DesignObj_Orbiter *pOwner)
 : DataGridRenderer(pOwner), m_pRenderFrame(NULL)
 {
@@ -84,6 +88,10 @@ void DataGridRenderer_OpenGL::Reset()
 #ifdef VIA_OVERLAY
 	ViaOverlay::Instance().FillRectangleInAlphaMask(m_pObj_Owner->m_rPosition.X, m_pObj_Owner->m_rPosition.Y, 
 		m_pObj_Owner->m_rPosition.Width, m_pObj_Owner->m_rPosition.Height, 255 - m_pObj_Owner->Renderer()->GetAlphaLevel());	
+#endif
+
+#ifdef USE_UIWINDOW
+	UIWindowManager::UIWindow()->AddFilter(m_pObj_Owner->m_rPosition);
 #endif
 
 	//save the datagrid's mesh frame tree before rendering

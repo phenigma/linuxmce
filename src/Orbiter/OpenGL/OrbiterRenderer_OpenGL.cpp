@@ -72,6 +72,10 @@
 #ifdef VIA_OVERLAY
 	#include "VIA/ViaOverlay.h"
 #endif
+
+#ifdef USE_UIWINDOW
+	#include "../Win32/UIWindowManager.h"
+#endif
 //-----------------------------------------------------------------------------------------------------
 #include <SDL_ttf.h>
 //-----------------------------------------------------------------------------------------------------
@@ -520,15 +524,20 @@ g_PlutoProfiler->Start("ObjectRenderer_OpenGL::RenderGraphic2");
 		point.X, point.Y, rectTotal.Width, rectTotal.Height);
 #endif
 
-#ifdef VIA_OVERLAY
 	//make datagrid's thumbs opaque
 	if(Frame->Name().find(DATAGRID_THUMB_NAME) == 0)
 	{
+#ifdef VIA_OVERLAY
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "VIA Rendering a datagrid thumb : %d %d %d %d", 
 			point.X + rectTotal.X, point.Y + rectTotal.Y, rectTotal.Width, rectTotal.Height);
 		ViaOverlay::Instance().FillRectangleInAlphaMask(point.X + rectTotal.X, point.Y + rectTotal.Y, rectTotal.Width, rectTotal.Height, 0x00, true);
-	}
 #endif
+
+#ifdef USE_UIWINDOW
+		PlutoRectangle rectFilter(point.X + rectTotal.X, point.Y + rectTotal.Y, rectTotal.Width, rectTotal.Height);
+		UIWindowManager::UIWindow()->AddFilter(rectFilter);
+#endif
+	}
 
 	Graphic->AddRef(); //add a reference to this object
 

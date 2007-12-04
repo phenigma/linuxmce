@@ -72,7 +72,7 @@ void UIWindowMasked::ApplyDiscretFilters(HRGN hRgnNew, SDL_Surface *pSurface)
 	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Region: Create empty region!");
 
 	int nTitleHeigth = ::GetSystemMetrics(SM_CYSIZE);
-	int nBorderDim = ::GetSystemMetrics(SM_CXBORDER);
+	int nBorderDim = 2 * ::GetSystemMetrics(SM_CXBORDER);
 
 	for(list<PlutoRectangle>::iterator it = m_listRectangularRegions.begin(); it != m_listRectangularRegions.end(); ++it)
 	{
