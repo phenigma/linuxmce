@@ -1,9 +1,9 @@
 #!/bin/bash
 
-#if [[ "$1" != "background" ]] ;then
-#	creen -d -m -S Upgrade_Download "$0" background
-#	exit 0
-#fi
+if [[ "$1" != "background" ]] ;then
+	screen -d -m -S Upgrade_Download "$0" background
+	exit 0
+fi
 
 mkdir -p /var/gutsy-upgrade-scripts/ 
 
