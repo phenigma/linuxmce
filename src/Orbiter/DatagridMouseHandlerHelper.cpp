@@ -27,8 +27,10 @@
 #include "Gen_Devices/AllCommandsRequests.h"
 #include "pluto_main/Define_Button.h"
 #include "pluto_main/Define_DesignObj.h"
+#include "pluto_main/Define_Screen.h"
 #include "OrbiterRenderer.h"
 #include "DataGrid.h"
+#include "ScreenHistory.h"
 
 #ifdef ORBITER_OPENGL
 #include "OpenGL/OrbiterRenderer_OpenGL.h"
@@ -247,7 +249,13 @@ LoggerWrapper::GetInstance()->Write(LV_ACTION, "**stop**");
 #else
 	m_pMouseBehavior->SetMousePosition(m_iLastX, m_eCapturingOffscreenMovement == cosm_DOWN ? m_Bottom-1 : m_Top+1);
 #endif
-	m_pMouseBehavior->ConstrainMouse();
+
+	ScreenHistory *pCurrentScreen = m_pMouseBehavior->m_pOrbiter->m_pScreenHistory_Current;
+
+	//don't release mouse if we are on media tracks screen
+	if(NULL != pCurrentScreen && pCurrentScreen->PK_Screen() != SCREEN_Media_Tracks_CONST)
+		m_pMouseBehavior->ConstrainMouse();
+
 	m_pMouseBehavior->ShowMouse(true);
 	m_eCapturingOffscreenMovement=cosm_NO;
 
@@ -308,7 +316,10 @@ LoggerWrapper::GetInstance()->Write(LV_ACTION, "DatagridMouseHandlerHelper::Move
 		}
 
 		PlutoRectangle r(m_iLeft,m_Top,m_iRight-m_iLeft,m_Bottom-m_Top);
-		m_pMouseBehavior->ConstrainMouse(r);
+
+		if(r.Width != 0 && r.Height != 0)
+			m_pMouseBehavior->ConstrainMouse(r);
+
 		return true;
 	}
 	return false;
