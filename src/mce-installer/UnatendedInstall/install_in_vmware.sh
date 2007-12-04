@@ -133,15 +133,20 @@ function cleanup_filesystem {
 	## Remove the ssh key used for installation
 	rm -f "${FILESYSTEM_ROOT}"/root/.ssh/authorized_keys
 
-	local -a PkgNonGrata
-	PkgNonGrata=(
+	COLUMNS=1024 chroot "${FILESYSTEM_ROOT}" dpkg -l | awk '/^ii/ {print $2}' >"$FILESYSTEM_ROOT/tmp/pkglist-hybrid.txt"
+
+	local PkgNonGrata_Fixed
+	PkgNonGrata_Fixed="
 		asterisk-pluto mce-diskless-tools pluto-asterisk pluto-avwizard-sounds pluto-dhcpd-plugin pluto-mythtv-plugin
 		pluto-orbiterinstaller pluto-skins-basic pluto-slimserver-plugin pluto-std-plugins pluto-vdr-plugin pluto-xine-plugin
 		pluto-xml-data-plugin video-wizard-videos pluto-avwizard pluto-dcerouter pluto-sample-media mysql-server-5.0
 		openoffice.org-core wine pluto-orbiter python-kde3
-	)
+	"
+	PkgNonGrata_Determined=$(Determine_PkgNonGrata "$FILESYSTEM_ROOT"/tmp/pkglist-{diskless,hybrid}.txt)
+	rm -f "$FILESYSTEM_ROOT"/tmp/pkglist-{diskless,hybrid}.txt
+
 	local Pkg
-	for Pkg in "${PkgNonGrata[@]}"; do
+	for Pkg in $PkgNonGrata_Fixed $PkgNonGrata_Determined; do
 		rm -f "${FILESYSTEM_ROOT}"/usr/pluto/deb-cache/"$Pkg"_*.deb
 	done
 	(cd "${FILESYSTEM_ROOT}"/usr/pluto/deb-cache && dpkg-scanpackages -m . /dev/null | tee Packages | gzip -c > Packages.gz)
@@ -195,10 +200,11 @@ function create_disk_image_from_flat {
 }
 
 function create_disk_image_from_vmdk {
+	sleep 30
 	rm -f "${VMWARE_TARGZ}_"*
 
 	/usr/bin/vmware-loop -q /var/plutobuild/vmware/Kubuntu/Kubuntu.vmdk 1 /dev/nbd0 &
-	sleep 1
+	sleep 5
 
 	VMWARE_MOUNT_DIR="${WORK_DIR}/mount"
 	mkdir -p "${VMWARE_MOUNT_DIR}"
@@ -215,6 +221,39 @@ function create_disk_image_from_vmdk {
 
 	sync 	
 	killall vmware-loop
+}
+
+function Determine_PkgNonGrata()
+{
+	## Description:
+	# This function determines the intersection of two string lists,
+	# more specifically, two lists of package names, as the funtion can't
+	# handle any kind of strings as it uses a particularity in package names:
+	# the fact that they have letters, numbers, dashes and no other character,
+	# like underscores. Since variables can't have dashes in their names,
+	# underscores are used instead. The end result is something similar to
+	# an associative array.
+
+	local Count="$#"
+	local Pkg
+	local i
+
+	for ((i = 1; i <= "$#"; i++)); do
+		while read Pkg; do
+			(("PkgNG_${Pkg//-/_}"++)) # Perl fanboys, Bash can run even uglier code!
+		done <"${!i}"
+	done
+
+	local -a PkgList
+	local PkgNG PkgName
+	for PkgNG in ${!PkgNG_*}; do
+		if (("${!PkgNG}" >= Count)); then
+			PkgName="${PkgNG#PkgNG_}"
+			PkgName="${PkgName//_/-}"
+			PkgList=("${PkgList[@]}" "$PkgName")
+		fi
+	done
+	echo "${PkgList[@]}"
 }
 
 create_virtual_machine
