@@ -220,7 +220,7 @@ rm -f "$TEMP_DIR"/etc/X11/xorg.conf || :
 #invoke-rc.d nfs-common restart
 
 chroot "$TEMP_DIR" apt-get clean
-COLUMNS=1024 chroot "$TEMP_DIR" dpkg -l | awk '/^ii/ {print $2}' >/tmp/diskless-tbz.pkglist.txt # used for deb-cache cleanup in the builder
+COLUMNS=1024 chroot "$TEMP_DIR" dpkg -l | awk '/^ii/ {print $2}' >/tmp/pkglist-diskless.txt # used for deb-cache cleanup in the builder
 
 mkdir -p "$ARH_DIR"
 pushd "$TEMP_DIR" >/dev/null
