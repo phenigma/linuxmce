@@ -10,6 +10,7 @@ Package: linphone-lmce
 Architecture: any
 Depends: ${shlibs:Depends}, linphone-lmce-nox (=${Source-Version})
 Suggests: yelp
+Provides: linphone
 Description: web phone
  Linphone is a web phone: it lets you phone to your friends anywhere in the
  whole world, freely, simply by using the internet. It is compatible with the
@@ -23,6 +24,7 @@ Description: web phone
 Package: linphone-lmce-nox
 Architecture: any
 Depends: ${shlibs:Depends}, linphone-lmce-common (=${Source-Version})
+Provides: linphone-nox
 Description: web phone
  Linphone is a web phone: it lets you phone to your friends anywhere in the
  whole world, freely, simply by using the internet. It is compatible with the
@@ -54,6 +56,7 @@ Package: liblinphone1-lmce
 Section: libs
 Architecture: any
 Depends: ${shlibs:Depends}
+Provides: liblinphone1
 Description: linphone web phone's library (supporting the SIP protocol)
  Linphone is a web phone: it lets you phone to your friends anywhere in the
  whole world, freely, simply by using the internet. It is compatible with the
@@ -71,6 +74,7 @@ Section: libdevel
 Architecture: any
 Depends: liblinphone1-lmce (=${Source-Version}), libc6-dev | libc-dev, libortp4-lmce-dev, libosip2-dev (>= 2.2.0), libjack0.100.0-dev, libspeex-dev, libsamplerate0-dev, libasound2-dev
 Conflicts: liblinphone0-lmce-dev
+Provides: liblinphone1-dev
 Description: linphone web phone's library (supporting the SIP protocol)
  Linphone is a web phone: it lets you phone to your friends anywhere in the
  whole world, freely, simply by using the internet. It is compatible with the
