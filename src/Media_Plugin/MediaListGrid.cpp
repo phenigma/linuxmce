@@ -73,6 +73,11 @@ void MediaListGrid::ToData(string GridID,int &Size, char* &Data, int *ColStart, 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MediaListGrid::row %d graphic data: %p rowstart: %d rowCount: %d totalrows: %d",
 	row,(pCell ? pCell->m_pGraphicData : NULL),*RowStart,RowCount,m_TotalRows);
 #endif
+			if( m_pMediaListGrid_Master->m_pFileBrowserInfoPtr == NULL )
+			{
+				LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "MediaListGrid::ToData m_pFileBrowserInfoPtr is NULL");
+				return;
+			}
 			FileBrowserInfo *pFileBrowserInfo = m_pMediaListGrid_Master->m_pFileBrowserInfoPtr[OriginalRow];
 #ifdef DEBUG
 			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Pic for %s is: %d",pFileBrowserInfo->m_sMRL.c_str( ), pFileBrowserInfo->m_PK_Picture);
