@@ -2,13 +2,9 @@
 
 . /root/Ubuntu_Helpers/BuildUbuntu_Functions.sh
 
-#Create_Diskless_Archive
 Import_Pluto_Skins
-Checkout_Pluto_Svn
-Build_Pluto_Replacements
 Build_MakeRelease_Binary
 Import_Build_Database
-Create_Fake_Windows_Binaries
 Build_Pluto_Stuff
 Create_Local_Repository
 Create_ISO
