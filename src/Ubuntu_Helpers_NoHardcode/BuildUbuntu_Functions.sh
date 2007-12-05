@@ -67,8 +67,7 @@ function Build_Pluto_Stuff {
 	
 }
 
-function Create_Local_Repository {
-	
+function Create_Local_Repository {	
 	rm -f $local_mirror_dir/*.deb
 	rm -f $local_mirror_dir/Packages*
 
@@ -145,7 +144,6 @@ function Import_Build_Database {
 }
 
 function Import_Pluto_Skins {
-
 	local skins_dir=/home/samba/www_docs/graphics
 
 	mkdir -p /usr/pluto/orbiter/
@@ -160,9 +158,7 @@ function Import_Pluto_Skins {
 	popd
 	
 	pushd /usr/pluto/orbiter/skins
-#		rm -f Basic
 		cp -r LinuxMCE/* Basic/
-#		ln -s LinuxMCE Basic
 	popd
 
 	pushd ${build_dir}
