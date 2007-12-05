@@ -143,31 +143,3 @@ function Import_Build_Database {
 	rm -rf $temp_file $temp_file_main $temp_file_myth $temp_file_media $temp_file_security $temp_file_telecom $temp_sqlcvsdir
 }
 
-function Import_Pluto_Skins {
-	local skins_dir=/home/samba/www_docs/graphics
-
-	mkdir -p /usr/pluto/orbiter/
-	rm -f /usr/pluto/orbiter/skins
-	ln -s $skins_dir /usr/pluto/orbiter/skins
-
-	rm -rf $skins_dir
-	mkdir -p $skins_dir
-
-	pushd /
-	ssh pluto@10.0.2.4 tar -c $skins_dir | tar -x
-	popd
-	
-	pushd /usr/pluto/orbiter/skins
-		cp -r LinuxMCE/* Basic/
-	popd
-
-	pushd ${build_dir}
-		ln -s /home/samba
-	popd
-
-	mkdir -p "/home/samba/www_docs/sample media"
-	pushd /
-		ssh pluto@10.0.2.4 'tar -c "/home/samba/www_docs/sample media"' | tar -x 
-	popd
-	
-}
