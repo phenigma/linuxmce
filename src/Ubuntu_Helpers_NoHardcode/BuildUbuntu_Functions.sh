@@ -21,34 +21,6 @@ function Error {
 	exit 1
 }
 
-
-function SyncDisklessImage {
-
-	local BuilderIP="$1"
-	local DisklessImageName="$2"
-	local DisklessImageVersion=""
-	local LocalVersion="$(echo "select VersionName from Version" | mysql -A -N pluto_main_build  | head -1)"
-
-	local done='false'
-	mkdir -p /var/www/DisklessImages
-	pushd /var/www/DisklessImages
-	while [[ "$done" != 'true' ]] ;do
-		echo "Downloading $DisklessImageName from $BuilderIP $(date -R)"
-		DisklessImageVersion=$(cat "/var/www/DisklessImages/${DisklessImageName}.version")
-		
-		if [[ "$DisklessImageVersion" == "$LocalVersion" ]] ;then
-			wget -c "http://${BuilderIP}/DisklessImages/${DisklessImageName}" 
-			done='true'
-		else
-			rm "${DisklessImageName}.version"
-			wget -c "http://${BuilderIP}/DisklessImages/${DisklessImageName}.version"
-			done='false'
-			sleep 10
-		fi	
-	done
-	popd
-}
-
 function Checkout_Pluto_Svn {
 	DisplayMessage "**** STEP : SVN CHECKOUT"
 	local Branch="${1:-trunk}"
