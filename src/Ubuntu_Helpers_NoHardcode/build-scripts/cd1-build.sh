@@ -17,10 +17,10 @@ else
 fi
 
 # Remove old iso
-rm -f /var/www/$iso_name-packages.iso
+rm -f "${local_mirror_dir}/${iso_name}-packages.iso"
 
-# Copy the debs that where created in /var/www on this cd
-find /var/www/ -maxdepth 1 -type f -name '*.deb' -print0 | xargs -0 -i -t cp '{}' "${build_dir}/cache-cd/deb-cache"
+# Copy the debs that where created in local_mirror_dir on this cd
+find "$local_mirror_dir" -maxdepth 1 -type f -name '*.deb' -print0 | xargs -0 -i -t cp '{}' "${build_dir}/cache-cd/deb-cache"
 
 
 # Remove blacklisted packages from this cd
@@ -35,9 +35,9 @@ done
 
 # Generate the iso
 pushd "${build_dir}"
-	cp /var/www/mce-installer*.deb ./cache-cd/
+	cp "${local_mirror_dir}"/mce-installer*.deb ./cache-cd/
 	mkisofs -f -joliet-long -r -o "${iso_name}-packages.iso" ./cache-cd
-	mv "${iso_name}-packages.iso" /var/www
+	mv "${iso_name}-packages.iso" "$local_mirror_dir"
 popd
 
 ## Clean the temporary dir

@@ -79,10 +79,7 @@ function Create_Local_Repository {
 	pushd $local_mirror_dir
 		dpkg-scanpackages . /dev/null > Packages
 		cat Packages | gzip -9c > Packages.gz
-#		ln -sf . $local_mirror_dir/ubuntu
 	popd
-
-#       cp -f /root/build-files/virus_free.php /var/www
 }
 
 function Import_Build_Database {
@@ -177,13 +174,4 @@ function Import_Pluto_Skins {
 		ssh pluto@10.0.2.4 'tar -c "/home/samba/www_docs/sample media"' | tar -x 
 	popd
 	
-}
-
-
-function Create_ISO {
-	# Create the iso
-	pushd $local_mirror_dir
-	        /root/Ubuntu_Helpers/cd1-build.sh "linuxmce-1.1"
-		/root/Ubuntu_Helpers/cd2-build.sh "linuxmce-1.1"
-	popd
 }
