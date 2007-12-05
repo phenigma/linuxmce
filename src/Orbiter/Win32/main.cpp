@@ -250,32 +250,25 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 			LoggerWrapper::SetInstance(new ServerLogger(CmdLineParams.PK_Device, 0, CmdLineParams.sRouter_IP.c_str()));
 		else
 		{
-			try
-			{
-				if( sLogger=="null" )
-					LoggerWrapper::SetType(LT_LOGGER_NULL);
-				else 
-					if( sLogger == "orbiter" )
-						LoggerWrapper::SetInstance(new WinOrbiterLogger(g_hWndList));
-					else
-                    {
+			if( sLogger=="null" )
+				LoggerWrapper::SetType(LT_LOGGER_NULL);
+			else 
+				if( sLogger == "orbiter" )
+					LoggerWrapper::SetInstance(new WinOrbiterLogger(g_hWndList));
+				else
+                {
 #ifndef DEBUG    
-                        #ifdef WINCE
-                            wchar_t LoggerFileNameW[256];
-                            mbstowcs(LoggerFileNameW, sLogger.c_str(), 256);
-                            ::DeleteFile(LoggerFileNameW);
-                        #else
-                            //::DeleteFile(sLogger.c_str());
-                        #endif		
+                    #ifdef WINCE
+                        wchar_t LoggerFileNameW[256];
+                        mbstowcs(LoggerFileNameW, sLogger.c_str(), 256);
+                        ::DeleteFile(LoggerFileNameW);
+                    #else
+                        //::DeleteFile(sLogger.c_str());
+                    #endif		
 #endif
-						LoggerWrapper::SetType(LT_LOGGER_FILE,sLogger);
-                    }
-			}
-			catch(...)
-			{
-				printf("Unable to create logger\n");
-				return -1;
-			}
+					LoggerWrapper::SetType(LT_LOGGER_FILE,sLogger);
+                }
+
 		}
 
 		//It's safe now to use the logger

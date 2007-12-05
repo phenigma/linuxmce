@@ -148,7 +148,9 @@ OrbiterRenderer_SDL_Win32::OrbiterRenderer_SDL_Win32(Orbiter *pOrbiter) :
 #endif
 	, m_pfOldSDLWindowProc(NULL)
 {
-	m_psUIWindow.reset(UIWindowManager::CreateUIWindow(uwtNormal));
+#ifdef USE_UIWINDOW
+	m_psUIWindow.reset(UIWindowManager::CreateUIWindow(uwtMasked));
+#endif
 }
 //-----------------------------------------------------------------------------------------------------
 OrbiterRenderer_SDL_Win32::~OrbiterRenderer_SDL_Win32()
@@ -271,32 +273,39 @@ void OrbiterRenderer_SDL_Win32::SetupWindow()
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterRenderer_SDL_Win32::RenderScreen(bool bRenderGraphicsOnly)
 {
+#ifdef USE_UIWINDOW
 	PLUTO_SAFETY_LOCK(cm, OrbiterLogic()->m_ScreenMutex);
 
 	m_psUIWindow->ClearFilters();
-	OrbiterRenderer_OpenGL::RenderScreen(bRenderGraphicsOnly);
+#endif
+
+	ORBITER_RENDERER_BASE::RenderScreen(bRenderGraphicsOnly);
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ bool OrbiterRenderer_SDL_Win32::HandleHidePopup(PlutoPopup* pPopup)
 {
+#ifdef USE_UIWINDOW
 	PlutoRectangle rect(pPopup->m_Position.X, pPopup->m_Position.Y, 
 		pPopup->m_pObj->m_rPosition.Width, pPopup->m_pObj->m_rPosition.Height);
 
 	m_psUIWindow->RemoveFilter(rect);
+#endif
 
-	return OrbiterRenderer_OpenGL::HandleHidePopup(pPopup);
+	return ORBITER_RENDERER_BASE::HandleHidePopup(pPopup);
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ bool OrbiterRenderer_SDL_Win32::HandleShowPopup(PlutoPopup* pPopup, PlutoPoint Position, int EffectID)
 {
 	PLUTO_SAFETY_LOCK(cm, OrbiterLogic()->m_ScreenMutex);
 
+#ifdef USE_UIWINDOW
 	PlutoRectangle rect(pPopup->m_Position.X, pPopup->m_Position.Y, 
 		pPopup->m_pObj->m_rPosition.Width, pPopup->m_pObj->m_rPosition.Height);
 
 	m_psUIWindow->AddFilter(rect);
+#endif
 
-	return OrbiterRenderer_OpenGL::HandleShowPopup(pPopup, Position, EffectID);
+	return ORBITER_RENDERER_BASE::HandleShowPopup(pPopup, Position, EffectID);
 }
 //-----------------------------------------------------------------------------------------------------
 void OrbiterRenderer_SDL_Win32::ObjectRendered(DesignObj_Orbiter *pObj, PlutoPoint point)
@@ -319,19 +328,23 @@ void OrbiterRenderer_SDL_Win32::ObjectRendered(DesignObj_Orbiter *pObj, PlutoPoi
 				pObj->m_vectGraphic[0] :
 				NULL;
 
+#ifdef USE_UIWINDOW
 	if(NULL != pPlutoGraphic)
 	{
 		OpenGLGraphic* pOpenGLGraphic = dynamic_cast<OpenGLGraphic*> (pPlutoGraphic);
 		if(NULL != pOpenGLGraphic)
 			m_psUIWindow->AddFilter(pObj->m_rPosition, pOpenGLGraphic->GetAlphaMask());
 	}
+#endif
 }
 //-----------------------------------------------------------------------------------------------------
 void OrbiterRenderer_SDL_Win32::OnIdle()
 {
+#ifdef USE_UIWINDOW
 	if(NULL != m_hSDLWindow)
 		m_psUIWindow->ApplyFilters(m_hSDLWindow);
+#endif
 
-	OrbiterRenderer_OpenGL::OnIdle();
+	ORBITER_RENDERER_BASE::OnIdle();
 }
 //-----------------------------------------------------------------------------------------------------

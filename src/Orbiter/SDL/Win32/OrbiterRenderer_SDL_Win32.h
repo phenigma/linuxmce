@@ -42,16 +42,17 @@
 
 class UIWindowBase;
 
+#ifdef ORBITER_OPENGL
+	#define ORBITER_RENDERER_BASE OrbiterRenderer_OpenGL
+#else
+	#define ORBITER_RENDERER_BASE OrbiterRenderer_SDL
+#endif
+
 namespace DCE
 {
 	class Orbiter;
 
-	class OrbiterRenderer_SDL_Win32 : public 
-#ifdef ORBITER_OPENGL
-		OrbiterRenderer_OpenGL
-#else
-		OrbiterRenderer_SDL
-#endif
+	class OrbiterRenderer_SDL_Win32 : public ORBITER_RENDERER_BASE
 	{
 	private:
 		friend class OrbiterRendererFactory;

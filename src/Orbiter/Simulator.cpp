@@ -449,11 +449,7 @@ void Simulator::StopRandomEventGenerator()
 
     if( m_mapParameters_Exists(sToken) )
     {
-        try
-        {
-            iValue = atoi(m_mapParameters_Find(sToken).c_str());
-        }
-        catch(...) {}
+        iValue = atoi(m_mapParameters_Find(sToken).c_str());
     }
 
     return iValue;

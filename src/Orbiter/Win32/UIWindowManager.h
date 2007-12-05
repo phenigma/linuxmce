@@ -44,10 +44,12 @@ enum UIWindowType
 class UIWindowManager
 {
 	static UIWindowBase *m_pUIWindowBase;
+	static UIWindowType m_UIWindowType;
 
 public:
 
 	static UIWindowBase *CreateUIWindow(UIWindowType type);
 	static UIWindowBase *UIWindow();
+	static UIWindowType Type();
 };
 //-----------------------------------------------------------------------------------------------------

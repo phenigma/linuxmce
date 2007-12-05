@@ -29,6 +29,10 @@
 #include "../pluto_main/Define_HorizAlignment.h" 
 #include "../pluto_main/Define_Button.h"
 
+#ifdef USE_UIWINDOW
+	#include "../Win32/UIWindowManager.h"
+#endif
+
 #include "math.h"
 
 #define M_PI   3.14159265358979323846
@@ -255,11 +259,16 @@ void OrbiterRenderer::ClipRectangle(PlutoRectangle &rect)
 #endif
 	PLUTO_SAFETY_LOCK( cm, OrbiterLogic()->m_ScreenMutex );
 
-	if (OrbiterLogic()->m_pBackgroundImage)
+	if (NULL != OrbiterLogic()->m_pBackgroundImage)
 	{
-		string sObjectID = "background-image-test";
-		RenderGraphic(OrbiterLogic()->m_pBackgroundImage, PlutoRectangle(0, 0, OrbiterLogic()->m_iImageWidth, OrbiterLogic()->m_iImageHeight), false, 
-			PlutoPoint(), 255, "", sObjectID, sObjectID);
+#ifdef USE_UIWINDOW
+		if(UIWindowManager::Type() == uwtNormal)
+#endif
+		{
+			string sObjectID = "background-image-test";
+			RenderGraphic(OrbiterLogic()->m_pBackgroundImage, PlutoRectangle(0, 0, OrbiterLogic()->m_iImageWidth, OrbiterLogic()->m_iImageHeight), false, 
+				PlutoPoint(), 255, "", sObjectID, sObjectID);
+		}
 	}
 
 	/*
