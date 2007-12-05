@@ -2,8 +2,6 @@
 
 . /root/Ubuntu_Helpers/BuildUbuntu_Functions.sh
 
-#Backup_Last_Build
-#Install_Build_Needed_Packages
 #Create_Diskless_Archive
 Import_Pluto_Skins
 Checkout_Pluto_Svn
