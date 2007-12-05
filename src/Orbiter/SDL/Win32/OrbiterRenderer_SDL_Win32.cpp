@@ -149,7 +149,7 @@ OrbiterRenderer_SDL_Win32::OrbiterRenderer_SDL_Win32(Orbiter *pOrbiter) :
 	, m_pfOldSDLWindowProc(NULL)
 {
 #ifdef USE_UIWINDOW
-	m_psUIWindow.reset(UIWindowManager::CreateUIWindow(uwtMasked));
+	m_psUIWindow.reset(UIWindowManager::CreateUIWindow(uwtNormal));
 #endif
 }
 //-----------------------------------------------------------------------------------------------------
