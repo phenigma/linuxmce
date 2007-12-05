@@ -1579,6 +1579,9 @@ void ScreenHandler::SCREEN_Main(long PK_Screen, string sLocation)
 	{
 		int iPK_MediaType = atoi(m_pOrbiter->m_mapVariable_Find(VARIABLE_PK_MediaType_CONST).c_str());
 
+		if(iPK_MediaType == 0)
+			iPK_MediaType = MEDIATYPE_pluto_StoredAudio_CONST;
+
 		OrbiterFileBrowser_Entry *pOrbiterFileBrowser_Entry =
 			m_pOrbiter->m_pOrbiterFileBrowser_Collection->m_mapOrbiterFileBrowser[iPK_MediaType];
 

@@ -4996,7 +4996,16 @@ void Orbiter::CMD_Go_back(string sPK_DesignObj_CurrentScreen,string sForce,strin
 			CMD_Goto_Screen("",m_PK_Screen_ActiveApp_OSD);
 		}
 		else
-			StartScreenSaver(true); 
+		{
+			if(m_sSkin == "NuForce") //TODO: change to audio station
+			{
+				CMD_Goto_Screen("",SCREEN_Main_CONST);	
+			}
+			else
+			{
+				StartScreenSaver(true); 
+			}
+		}
 		return;
 	}
 
@@ -5330,9 +5339,9 @@ void Orbiter::CMD_Show_Object(string sPK_DesignObj,int iPK_Variable,string sComp
 			m_pOrbiterRenderer->UnHighlightObject();
 
 		pObj->m_bHidden = !bShow;
-#ifdef DEBUG
-		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Object: %s visible: %d", pObj->m_ObjectID.c_str(), (int) !pObj->m_bHidden );
-#endif
+//#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "EEE Object: %s visible: %d", pObj->m_ObjectID.c_str(), (int) !pObj->m_bHidden );
+//#endif
 		m_pOrbiterRenderer->RenderObjectAsync(pObj);// Redraw even if the object was already in this state,  because maybe we're hiding this and something that
 		if( pObj->m_bHidden && pObj->m_pParentObject )
 			m_pOrbiterRenderer->RenderObjectAsync((DesignObj_Orbiter *) pObj->m_pParentObject);
