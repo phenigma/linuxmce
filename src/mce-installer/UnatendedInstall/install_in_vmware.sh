@@ -226,34 +226,29 @@ function create_disk_image_from_vmdk {
 function Determine_PkgNonGrata()
 {
 	## Description:
-	# This function determines the intersection of two string lists
-	# The end result is something similar to an associative array.
+	# This function determines the intersection of two or more string lists
 
-	local Count="$#"
-	local Pkg
-	local i
-
-	if ((Count <= 1)); then
+	if (("$#" < 2)); then
 		return
 	fi
 	
-	for ((i = 1; i <= Count; i++)); do
-		while read Pkg; do
-			(("PkgNG_Count_${Pkg//[-.]/_}"++)) # Perl fanboys, Bash can run even uglier code!
-			eval "PkgNG_Name_${Pkg//[-.]/_}=\"$Pkg\""
-		done <"${!i}"
-	done
+	local i
+	local LeftFile="$1" RightFile ResultFile
+	sort -u "$LeftFile" >"$LeftFile.sort"
+	LeftFile="$LeftFile.sort"
 
-	local -a PkgList
-	local PkgNG_Count PkgNG_Name PkgName
-	for PkgNG_Count in ${!PkgNG_Count_*}; do
-		if (("${!PkgNG_Count}" >= Count)); then
-			PkgVar="${PkgNG_Count#PkgNG_Count_}"
-			eval "PkgName=\"\$PkgNG_Name_${PkgVar}\""
-			PkgList=("${PkgList[@]}" "$PkgName")
-		fi
+	for ((i = 2; i <= "$#"; i++)); do
+		RightFile="${!i}"
+		sort -u "$RightFile" >"$RightFile.sort"
+		RightFile="$RightFile.sort"
+
+		ResultFile="/tmp/result-$i"
+		diff -U -1 "$LeftFile" "$RightFile" | tail -n +4 | grep -v '^[+-]' >"$ResultFile"
+
+		rm -f "$LeftFile" "$RightFile"
+		LeftFile="$ResultFile"
 	done
-	echo "${PkgList[@]}"
+	cat "$ResultFile"
 }
 
 create_virtual_machine
