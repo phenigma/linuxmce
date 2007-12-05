@@ -226,30 +226,30 @@ function create_disk_image_from_vmdk {
 function Determine_PkgNonGrata()
 {
 	## Description:
-	# This function determines the intersection of two string lists,
-	# more specifically, two lists of package names, as the funtion can't
-	# handle any kind of strings as it uses a particularity in package names:
-	# the fact that they have letters, numbers, dashes and no other character,
-	# like underscores. Since variables can't have dashes in their names,
-	# underscores are used instead. The end result is something similar to
-	# an associative array.
+	# This function determines the intersection of two string lists
+	# The end result is something similar to an associative array.
 
 	local Count="$#"
 	local Pkg
 	local i
 
-	for ((i = 1; i <= "$#"; i++)); do
+	if ((Count < 1)); then
+		return
+	fi
+	
+	for ((i = 1; i <= Count; i++)); do
 		while read Pkg; do
-			(("PkgNG_${Pkg//-/_}"++)) # Perl fanboys, Bash can run even uglier code!
+			(("PkgNG_Count_${Pkg//[-.]/_}"++)) # Perl fanboys, Bash can run even uglier code!
+			eval "PkgNG_Name_${Pkg//[-.]/_}=\"$Pkg\""
 		done <"${!i}"
 	done
 
 	local -a PkgList
-	local PkgNG PkgName
-	for PkgNG in ${!PkgNG_*}; do
-		if (("${!PkgNG}" >= Count)); then
-			PkgName="${PkgNG#PkgNG_}"
-			PkgName="${PkgName//_/-}"
+	local PkgNG_Count PkgNG_Name PkgName
+	for PkgNG_Count in ${!PkgNG_Count_*}; do
+		if (("${!PkgNG_Count}" >= Count)); then
+			PkgVar="${PkgNG#PkgNG_Count_}"
+			eval "PkgName=\"\$PkgNG_Name_${PkgVar}\""
 			PkgList=("${PkgList[@]}" "$PkgName")
 		fi
 	done
