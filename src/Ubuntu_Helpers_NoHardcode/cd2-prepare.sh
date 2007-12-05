@@ -1,19 +1,19 @@
 #!/bin/bash
 
-rm -rf /var/plutobuild/cd2-packages
-mkdir -p /var/plutobuild/cd2-packages
-mkdir -p /var/plutobuild/cd2-packages/cachecd1-cache
+. /etc/lmce-build/builder.conf
 
-pushd /var/plutobuild/cd2-packages/cachecd1-cache
+rm -rf "${build_dir}/cd2-packages"
+mkdir -p "${build_dir}/cd2-packages/cachecd1-cache"
+
+pushd "${build_dir}/cd2-packages/cachecd1-cache"
 	aptitude download `cat /root/Ubuntu_Helpers/cd2-packages-whitelist.gutsy` || exit 1
 
 	## Kernels
 	aptitude download linux-image-`uname -r`
 
-
 	## Video Wizard Videos
-	cp /var/plutobuild/replacements/video-wizard-videos_*.deb ./
-	cp /var/plutobuild/replacements/tee-pluto_*.deb ./
+	cp "${replacements_dir}"/video-wizard-videos_*.deb ./
+	cp "${replacements_dir}"/tee-pluto_*.deb ./
 
 	## Packages only i386 compatible
 	if [[ "$(uname -m)" != "x86_64" ]] ;then

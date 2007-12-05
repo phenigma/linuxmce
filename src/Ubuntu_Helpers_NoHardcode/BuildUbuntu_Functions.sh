@@ -1,6 +1,7 @@
 #!/bin/bash -x
 
 . /usr/pluto/bin/Utils.sh
+. /etc/lmce-build/builder.conf
 
 export KDE_LMCE=""
 
@@ -8,40 +9,6 @@ export KDE_LMCE=""
 exec 100>&1
 #exec >/var/log/BuildUbuntu.log
 #exec 2>&1
-
-flavor="ubuntu"
-
-if [[ $build_dir == "" || $local_mirror_dir == "" ]] ;then
-	build_dir="/var/plutobuild"
-	local_mirror_dir="/var/www"
-fi
-
-svn_dir="${build_dir}/svn"
-svn_url="http://10.0.2.4/"
-
-sql_master_host="10.0.2.4"
-sql_master_db="pluto_main"
-sql_master_db_media="pluto_media"
-sql_master_db_security="pluto_security"
-sql_master_db_telecom="pluto_telecom"
-sql_master_user="root"
-
-sql_slave_host="127.0.0.1"
-sql_slave_db="pluto_main_build"
-sql_slave_db_mainsqlcvs="main_sqlcvs_$flavor"
-sql_slave_db_mythsqlcvs="myth_sqlcvs_$flavor"
-sql_slave_db_media="pluto_media"
-sql_slave_db_security="pluto_security"
-sql_slave_db_telecom="pluto_telecom"
-sql_slave_user="root"
-
-replacements_dir="${build_dir}/replacements"
-out_dir="${build_dir}/out"
-mkr_dir="${build_dir}/MakeRelease"
-
-if [[ "$iso_name" == "" ]] ;then
-	iso_name="linuxmce-1.1"
-fi
 
 function DisplayMessage {
 	echo "`date +%H:%M:%S`  $*" >&100
@@ -183,7 +150,7 @@ function Build_MakeRelease_Binary {
 
 function ReplacementNeedsBuild {
 	local fs_path="$1"
-	local cache_file="/var/plutobuild/replacements/.cache"
+	local cache_file="${build_dir}/replacements/.cache"
 
 	local url_id=$(svn info $fs_path | grep '^URL: ' | cut -d' ' -f2 | md5sum | cut -d' ' -f1)
 
@@ -363,7 +330,17 @@ function Build_Pluto_Replacements {
 			apt-get update
 		fi
 
-		/root/Ubuntu_Helpers/RepackIvtvFirmware.sh
+		rm -f ivtv-firmware_*.deb
+		aptitude download ivtv-firmware
+		mkdir ivtv-firmware
+		cd ivtv-firmware
+		dpkg -x ../ivtv-firmware_*.deb .
+		dpkg -e ../ivtv-firmware_*.deb
+		rm -f DEBIAN/preinst
+		rm -f ../ivtv-firmware_*.deb
+		dpkg-deb -b . ..
+		cd ..
+		rm -rf ivtv-firmware
 
 		cp ivtv-firmware_*.deb "${temp_dir}"
 		rm ivtv-firmware_*.deb
@@ -663,34 +640,7 @@ function Create_Diskless_Archive {
 function Create_ISO {
 	# Create the iso
 	pushd $local_mirror_dir
-	        /root/Ubuntu_Helpers/cd1-build.sh $iso_name
-		/root/Ubuntu_Helpers/cd2-build.sh $iso_name
+	        /root/Ubuntu_Helpers/cd1-build.sh "linuxmce-1.1"
+		/root/Ubuntu_Helpers/cd2-build.sh "linuxmce-1.1"
 	popd
-}
-
-function Upload_Build_Archive {
-	pushd $local_mirror_dir
-		tar -zcf /var/plutobuild/linuxmce-uploads.tar.gz *.iso
-		scp -i /root/.ssh/uploads_plutohome_key /var/plutobuild/linuxmce-uploads.tar.gz uploads@plutohome.com:
-	popd
-}
-
-function Backup_Last_Build {
-	local PACKAGES_ISO_NAME="${iso_name}-packages.iso"
-	local CACHE_ISO_NAME="${iso_name}-cache.iso"
-	local BUILD_BACKUP_DIR="/var/www/BuildBackups"
-
-
-	if [[ ! -f "/var/www/${PACKAGES_ISO_NAME}" ]] ;then
-		echo "WARNING: Missing '$PACKAGES_ISO_NAME', skiping backup procedure"
-		return
-	fi
-
-	local lastPackagesIso_Date=$(stat -c %y /var/www/${PACKAGES_ISO_NAME} | cut -d' ' -f1)
-	local lastPackagesIso_Time=$(stat -c %y /var/www/${CACHE_ISO_NAME} | cut -d' ' -f2 | cut -d':' -f1,2)
-
-	mkdir -p "${BUILD_BACKUP_DIR}/${lastPackagesIso_Date}"
-	cp "/var/www/${PACKAGES_ISO_NAME}" "${BUILD_BACKUP_DIR}/${lastPackagesIso_Date}/${lastPackagesIso_Date}_${lastPackagesIso_Time}_${PACKAGES_ISO_NAME}"
-	cp "/var/www/${CACHE_ISO_NAME}" "${BUILD_BACKUP_DIR}/${lastPackagesIso_Date}/${lastPackagesIso_Date}_${lastPackagesIso_Time}_${CACHE_ISO_NAME}"
-	cp "/var/www/kubuntu-linuxmce.iso" "${BUILD_BACKUP_DIR}/${lastPackagesIso_Date}/${lastPackagesIso_Date}_${lastPackagesIso_Time}_kubuntu-linuxmce.iso"
 }
