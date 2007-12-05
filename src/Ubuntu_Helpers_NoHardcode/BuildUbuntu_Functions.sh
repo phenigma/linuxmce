@@ -21,50 +21,6 @@ function Error {
 	exit 1
 }
 
-function Checkout_Pluto_Svn {
-	DisplayMessage "**** STEP : SVN CHECKOUT"
-	local Branch="${1:-trunk}"
-	local BranchParts="$2" # ex: "src web"; the rest will come from trunk
-
-	local AllParts="src ubuntu web misc_utils installers config-pkgs"
-	if [[ -z "$BranchParts" ]]; then
-		BranchParts="$AllParts"
-	fi
-
-	DisplayMessage "Removing old svn checkout dir"
-	[[ -d $svn_dir ]] && mkdir -p $svn_dir
-	rm -rf ${svn_dir}/trunk
-	
-	for svn_module in ${BranchParts}; do
-		mkdir -p ${svn_dir}/trunk/$svn_module
-		DisplayMessage "Checking out {$svn_url}/pluto/$Branch/$svn_module"
-		svn co  ${svn_url}/pluto/"$Branch"/$svn_module  ${svn_dir}/trunk/$svn_module || Error "Failed to checkout {$svn_url}/pluto/$Branch/$svn_module"
-	done
-
-	# get unmarked parts from trunk
-	for svn_module in ${AllParts}; do
-		if [[ " $BranchParts " == *" $svn_module "* ]]; then
-			# this part was marked to be taken from the branch
-			continue
-		fi
-
-		#get part from trunk
-		mkdir -p ${svn_dir}/trunk/$svn_module
-		DisplayMessage "Checking out {$svn_url}/pluto/trunk/$svn_module"
-		svn co ${svn_url}/pluto/trunk/$svn_module  ${svn_dir}/trunk/$svn_module || Error "Failed to checkout {$svn_url}/pluto/trunk/$svn_module"
-	done
-
-
-	pushd ${svn_dir}/trunk/src
-	DisplayMessage "Checking out {$svn_url}/pluto-private/$Branch/"
-	svn co --username automagic --password "$(</etc/pluto/automagic.pwd)" ${svn_url}/pluto-private/"$Branch"/src/ZWave/ || Error "Failed to checkount {$svn_url}/pluto-private/$Branch/src/ZWave"
-	svn co --username automagic --password "$(</etc/pluto/automagic.pwd)" ${svn_url}/pluto-private/"$Branch"/src/Fiire_Scripts/ || Error "Failed to checkount {$svn_url}/pluto-private/$Branch/src/Fiire_Scripts"
-	svn co --username automagic --password "$(</etc/pluto/automagic.pwd)" ${svn_url}/pluto-private/"$Branch"/src/RFID_Interface/ || Error "Failed to checkount {$svn_url}/pluto-private/$Branch/src/RFID_Interface"
-	svn co --username automagic --password "$(</etc/pluto/automagic.pwd)" ${svn_url}/pluto-private/"$Branch"/src/lmce_launch_manager/ || Error "Failed to checkount {$svn_url}/pluto-private/$Branch/src/lmce_launch_manager"
-	popd
-}
-
-
 function Build_MakeRelease_Binary {
 	DisplayMessage "**** STEP : PREPARING BUILD SYSTEM (MakeRelase)"
 	DisplayMessage "Precompiling pluto_main"
@@ -153,51 +109,6 @@ function Build_Pluto_Stuff {
 #	542 	Pluto vloopback Kernel Module Source
 
 	$MakeRelease "${MakeReleaseExtraParams[@]}" -R "$SVNrevision" -h $sql_slave_host -u $sql_slave_user -O $out_dir -D $sql_slave_db -o 15 -r 21 -m 1 -K "543,542,462,607,432,431,427,426,430,429,336,337,589,590,515,516"  -s "${svn_dir}/trunk" -n / > >(tee -a $build_dir/Build.log)  -d || exit 1
-	
-}
-
-function Create_Fake_Windows_Binaries {
-
-	touch ${svn_dir}/trunk/src/bin/Pluto_S60.sis
-	touch ${svn_dir}/trunk/src/bin/Orbiter.CAB
-	touch ${svn_dir}/trunk/src/bin/Orbiter_Treo.CAB
-
-	touch ${svn_dir}/trunk/src/bin/UpdateBinary.exe
-	touch ${svn_dir}/trunk/src/bin/UpdateBinaryCE.exe 
-	touch ${svn_dir}/trunk/src/bin/UpdateBinaryCE_x86.exe
-	touch ${svn_dir}/trunk/src/bin/{Orbiter_Win32.dat,Orbiter_CeNet4_XScale.dat}
-	touch "${svn_dir}/trunk/src/bin/Symbian Series 60 mobile.vmc"
-	touch "${svn_dir}/trunk/src/bin/Windows Mobile Smartphone.vmc"
-	touch ${svn_dir}/trunk/src/bin/Orbiter_CeNet4_x86.dat
-
-	touch ${svn_dir}/trunk/src/bin/OrbiterInstaller.msi
-	touch ${svn_dir}/trunk/src/bin/OrbiterCE_SDL.CAB
-	touch ${svn_dir}/trunk/src/bin/Orbiter_CeNet4_XScale.CAB
-	touch ${svn_dir}/trunk/src/bin/Orbiter_CeNet4_x86.CAB
-	touch ${svn_dir}/trunk/src/bin/ImportContacts.zip
-
-	touch ${svn_dir}/trunk/src/bin/Orbiter.exe
-	touch ${svn_dir}/trunk/src/bin/Orbiter_CeNet4_XScale.exe
-	touch ${svn_dir}/trunk/src/bin/OrbiterSmartphone.exe
-	touch ${svn_dir}/trunk/src/bin/OrbiterCE_SDL.exe
-	touch ${svn_dir}/trunk/src/bin/Orbiter_CeNet4_x86.exe
-
-	touch ${svn_dir}/trunk/src/bin/AYGSHELL.DLL
-	touch ${svn_dir}/trunk/src/bin/PthreadsCE.dll
-	touch ${svn_dir}/trunk/src/bin/Orbiter.MD5
-	touch ${svn_dir}/trunk/src/bin/logo.gif
-
-	touch ${svn_dir}/trunk/src/bin/PlutoBaSInstaller.msi
-	touch ${svn_dir}/trunk/src/bin/PlutoRebootSetup.msi
-
-
-	pushd ${svn_dir}/trunk/src/bin
-	scp pluto@10.0.2.4:'/home/builds/Windows_Output_LinuxMCE/src/bin/*' ./
-	popd
-
-	pushd ${svn_dir}/trunk/src/lib
-	scp pluto@10.0.2.4:'/home/builds/Windows_Output_LinuxMCE/src/lib/*' ./
-	popd
 	
 }
 

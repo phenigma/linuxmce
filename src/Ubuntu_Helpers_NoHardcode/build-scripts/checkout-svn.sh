@@ -1,0 +1,52 @@
+#!/bin/bash
+. /etc/lmce-build/builder.conf
+
+#TODO :
+# Modify to use proper svn 
+# Use the automagic password from builder.conf 
+
+function Checkout_Svn {
+	DisplayMessage "**** STEP : SVN CHECKOUT"
+	local Branch="${1:-trunk}"
+	local BranchParts="$2" # ex: "src web"; the rest will come from trunk
+
+	local AllParts="src ubuntu web misc_utils installers config-pkgs"
+	if [[ -z "$BranchParts" ]]; then
+		BranchParts="$AllParts"
+	fi
+
+	DisplayMessage "Removing old svn checkout dir"
+	[[ -d "$svn_dir" ]] && mkdir -p "$svn_dir"
+	rm -rf "${svn_dir}/trunk"
+	
+	for svn_module in ${BranchParts}; do
+		mkdir -p "${svn_dir}/trunk/$svn_module"
+		DisplayMessage "Checking out ${svn_url}/pluto/$Branch/$svn_module"
+		svn co "${svn_url}/pluto/${Branch}/${svn_module}"  "${svn_dir}/trunk/$svn_module" || Error "Failed to checkout {$svn_url}/pluto/$Branch/$svn_module"
+	done
+
+	# get unmarked parts from trunk
+	for svn_module in ${AllParts}; do
+		if [[ " $BranchParts " == *" $svn_module "* ]]; then
+			# this part was marked to be taken from the branch
+			continue
+		fi
+
+		#get part from trunk
+		mkdir -p ${svn_dir}/trunk/$svn_module
+		DisplayMessage "Checking out {$svn_url}/pluto/trunk/$svn_module"
+		svn co ${svn_url}/pluto/trunk/$svn_module  ${svn_dir}/trunk/$svn_module || Error "Failed to checkout {$svn_url}/pluto/trunk/$svn_module"
+	done
+
+
+	pushd ${svn_dir}/trunk/src
+	DisplayMessage "Checking out {$svn_url}/pluto-private/$Branch/"
+	svn co --username automagic --password "$(</etc/pluto/automagic.pwd)" ${svn_url}/pluto-private/"$Branch"/src/ZWave/ || Error "Failed to checkount {$svn_url}/pluto-private/$Branch/src/ZWave"
+	svn co --username automagic --password "$(</etc/pluto/automagic.pwd)" ${svn_url}/pluto-private/"$Branch"/src/Fiire_Scripts/ || Error "Failed to checkount {$svn_url}/pluto-private/$Branch/src/Fiire_Scripts"
+	svn co --username automagic --password "$(</etc/pluto/automagic.pwd)" ${svn_url}/pluto-private/"$Branch"/src/RFID_Interface/ || Error "Failed to checkount {$svn_url}/pluto-private/$Branch/src/RFID_Interface"
+	svn co --username automagic --password "$(</etc/pluto/automagic.pwd)" ${svn_url}/pluto-private/"$Branch"/src/lmce_launch_manager/ || Error "Failed to checkount {$svn_url}/pluto-private/$Branch/src/lmce_launch_manager"
+	popd
+}
+
+Checkout_Svn
+
