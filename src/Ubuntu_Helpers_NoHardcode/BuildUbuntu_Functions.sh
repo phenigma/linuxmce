@@ -257,7 +257,6 @@ function Build_Pluto_Replacements {
 	fi
 
 	#Package: pluto-asterisk
-	apt-get -y install linux-headers-`uname -r`
 	dir_="${svn_dir}/trunk/ubuntu/asterisk"
 	if ReplacementNeedsBuild "$dir_" ;then
 		pushd "$dir_"
@@ -276,10 +275,8 @@ function Build_Pluto_Replacements {
 	fi
 
 	#Package: lirc-modules
-	apt-get -y install linux-source-`uname -r | cut -d'-' -f1` linux-headers-`uname -r` module-assistant lirc-modules-source
 	pushd .
                 cd "${svn_dir}"/trunk/src/Ubuntu_Helpers
-                ./Preseed_lirc-modules-source.sh
                 rm -f /etc/lirc/lirc-modules-source.conf
                 dpkg-reconfigure -fnoninteractive lirc-modules-source
 
@@ -300,12 +297,10 @@ function Build_Pluto_Replacements {
 	popd
 	
 	#Package: zaptel-modules
-	apt-get -y install zaptel-source
-	m-a -ft -l 2.6.22-14-generic a-b zaptel
+	m-a -ft -l `unamr -r` a-b zaptel
 	cp /usr/src/zaptel-modules*.deb "${temp_dir}"
 
 	#Package: ivtv-modules
-	apt-get -y install ivtv-source
 	pushd .
 		m-a -ft a-b ivtv
 		cp /usr/src/ivtv-modules*.deb "${temp_dir}"
@@ -605,9 +600,6 @@ function Import_Pluto_Skins {
 }
 
 function Create_Diskless_Archive {
-
-
-	apt-get -y install debootstrap
 
 	local temp_dir=$(mktemp -d)
 	debootstrap gutsy $temp_dir http://ro.archive.ubuntu.com/ubuntu/
