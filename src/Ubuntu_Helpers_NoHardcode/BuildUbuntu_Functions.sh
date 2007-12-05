@@ -313,25 +313,6 @@ function Import_Pluto_Skins {
 	
 }
 
-function Create_Diskless_Archive {
-	local temp_dir=$(mktemp -d)
-	debootstrap gutsy $temp_dir http://ro.archive.ubuntu.com/ubuntu/
-
-	rm -f $temp_dir/var/cache/apt/archives/*.deb
-
-	mkdir -p /home/DisklessFS
-	pushd $temp_dir
-		tar -jcf /home/DisklessFS/PlutoMD_Debootstraped.tar.bz2 *
-	popd
-	rm -rf $temp_dir
-	
-	touch /home/DisklessFS/ramdisk.tar.bz2
-	touch /home/DisklessFS/PlutoMD.tar.bz2
-	mkdir -p  /home/DisklessFS/BootWait
-	touch /home/DisklessFS/BootWait/vmlinuz-default-2.6.16.20-pluto-2-686-smp
-	touch /home/DisklessFS/BootWait/initrd.img-default-2.6.16.20-pluto-2-686-smp
-	
-}
 
 function Create_ISO {
 	# Create the iso
