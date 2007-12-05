@@ -169,6 +169,7 @@ libcupsys2-dev
 libcurl3
 libcurl3-gnutls
 libcurl4-openssl-dev
+libdancer-xml0
 libdate-manip-perl
 libdatrie0
 libdb4.3
@@ -306,6 +307,7 @@ libltdl3
 liblua50
 liblualib50
 liblwres30
+liblzo1
 liblzo-dev
 libmad0
 libmagic1
@@ -607,6 +609,7 @@ svgalibg1
 syslinux
 sysv-rc
 tcpd
+tee-pluto
 tk8.4
 traceroute
 transcode
@@ -618,6 +621,7 @@ unixodbc
 update-inetd
 usbutils
 vdr
+video-wizard-videos
 viewres
 vim
 vim-common

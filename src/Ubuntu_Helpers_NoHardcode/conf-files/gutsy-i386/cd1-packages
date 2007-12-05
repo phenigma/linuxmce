@@ -11,7 +11,7 @@ g++-4.1
 kdelibs4c2a
 kdelibs-data
 libapache2-mod-php5
-libavcodec0d
+libavcodec1d
 libc6
 libc6-dev
 libcaca0
@@ -26,7 +26,6 @@ libmyth-0.20
 libncurses5-dev
 libqt3-mt
 libruby1.8
-libssl0.9.7
 libssl0.9.8
 libssl-dev
 libtcltk-ruby1.8
@@ -64,4 +63,5 @@ xfonts-base
 xfwm4
 xine-ui
 xserver-xorg-core
-enity
+zenity
+
