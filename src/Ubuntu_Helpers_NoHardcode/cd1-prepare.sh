@@ -4,7 +4,7 @@
 rm -rf "${build_dir}/cd1-packages"
 mkdir -p "${build_dir}/cd1-packages"
 
-pushd ${build_dir}/cd1-packages
-	aptitude download `cat /root/Ubuntu_Helpers/cd1-packages-whitelist.gutsy`
+pushd "${build_dir}/cd1-packages"
+	aptitude download `cat /etc/lmce-build/cd1-packages`
 popd
 

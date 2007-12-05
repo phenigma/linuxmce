@@ -26,7 +26,7 @@ find /var/www/ -maxdepth 1 -type f -name '*.deb' -print0 | xargs -0 -i -t cp '{}
 # Remove blacklisted packages from this cd
 while read file; do
 	rm -f "${build_dir}/cache-cd/deb-cache/$file"_*.deb
-done </root/Ubuntu_Helpers/cd1-packages-blacklist
+done </etc/lmce-build/cd1-packages-blacklist
 
 # Add some extra packages to this cd
 for pack in "${build_dir}/cd1-packages/"*.deb ;do
@@ -34,7 +34,7 @@ for pack in "${build_dir}/cd1-packages/"*.deb ;do
 done
 
 # Generate the iso
-pushd ${build_dir}
+pushd "${build_dir}"
 	cp /var/www/mce-installer*.deb ./cache-cd/
 	mkisofs -f -joliet-long -r -o "${iso_name}-packages.iso" ./cache-cd
 	mv "${iso_name}-packages.iso" /var/www
