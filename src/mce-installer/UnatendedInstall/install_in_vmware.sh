@@ -248,7 +248,7 @@ function Determine_PkgNonGrata()
 	local PkgNG_Count PkgNG_Name PkgName
 	for PkgNG_Count in ${!PkgNG_Count_*}; do
 		if (("${!PkgNG_Count}" >= Count)); then
-			PkgVar="${PkgNG#PkgNG_Count_}"
+			PkgVar="${PkgNG_Count#PkgNG_Count_}"
 			eval "PkgName=\"\$PkgNG_Name_${PkgVar}\""
 			PkgList=("${PkgList[@]}" "$PkgName")
 		fi
