@@ -90,6 +90,7 @@ function copy_installer_on_virtual_machine {
 function run_installer_on_virtual_machine {
 	decho "Starting installer on virtual machine"
 	ssh root@"$VMWARE_IP" "cd /usr/pluto/install && screen -d -m -S 'Install' ./mce-installer.sh"
+
 	
 	while [[ "$(pidof vmware-vmx)" != "" ]] ;do
 		sleep 5

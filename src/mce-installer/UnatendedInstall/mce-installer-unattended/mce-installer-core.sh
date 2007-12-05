@@ -125,6 +125,7 @@ function Install_DCERouter {
 	invoke-rc.d mysql start # Because of this : https://bugs.launchpad.net/bugs/107224
 
 	apt-get -y -f install pluto-sample-media
+	apt-get -y -f install video-wizard-videos
 	apt-get -y -f install pluto-mysql-wrapper
 
 	StatsMessage "Installing LinuxMCE Base Software"

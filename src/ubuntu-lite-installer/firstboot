@@ -19,9 +19,6 @@ if [[ ! -f /etc/pluto/install_cleandb ]]; then # on upgrade, the old keys are al
 	dpkg-reconfigure -pcritical openssh-server
 fi
 
-## Install video-wizard-video
-apt-get -y -f install video-wizard-videos
-
 ## Install nvidia-glx if needed
 if lshwd | grep -qi 'VGA .* (nv)'; then
         apt-get -y -f install pluto-nvidia-video-drivers
