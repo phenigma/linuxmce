@@ -1576,43 +1576,46 @@ void ScreenHandler::SCREEN_Main(long PK_Screen, string sLocation)
 	DesignObj_Orbiter *pObjMainMenu = m_pOrbiter->FindObject(m_pOrbiter->m_sMainMenu);
 
 	if(NULL != pObjMainMenu && pObjMainMenu->m_iBaseObjectID == DESIGNOBJ_mnuMenuAudioServer_CONST)
-	{
-		int iPK_MediaType = atoi(m_pOrbiter->m_mapVariable_Find(VARIABLE_PK_MediaType_CONST).c_str());
-
-		if(iPK_MediaType == 0)
-			iPK_MediaType = MEDIATYPE_pluto_StoredAudio_CONST;
-
-		OrbiterFileBrowser_Entry *pOrbiterFileBrowser_Entry =
-			m_pOrbiter->m_pOrbiterFileBrowser_Collection->m_mapOrbiterFileBrowser[iPK_MediaType];
-
-		if( !pOrbiterFileBrowser_Entry )
-		{
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"No way to show file list for %d",iPK_MediaType);
-		}
-		else
-		{
-			mediaFileBrowserOptions.ClearAll(iPK_MediaType,pOrbiterFileBrowser_Entry->m_PK_Screen,m_pOrbiter->m_mapPK_MediaType_PK_Attribute_Sort[iPK_MediaType]);
-			m_pOrbiter->CMD_Set_Variable(VARIABLE_Filename_CONST, pOrbiterFileBrowser_Entry->m_sFilename);
-
-			SetMediaSortFilterSelectedObjects();
-			RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::MediaBrowser_ObjectSelected,	new ObjectInfoBackData());
-			RegisterCallBack(cbOnRenderScreen, (ScreenHandlerCallBack) &ScreenHandler::MediaBrowser_Render, new RenderScreenCallBackData());
-			RegisterCallBack(cbDataGridSelected, (ScreenHandlerCallBack) &ScreenHandler::MediaBrowser_DatagridSelected, new DatagridCellBackData());
-			RegisterCallBack(cbDataGridRendering, (ScreenHandlerCallBack) &ScreenHandler::FileList_GridRendering,	new DatagridAcquiredBackData());
-			RegisterCallBack(cbOnKeyDown, (ScreenHandlerCallBack) &ScreenHandler::FileList_KeyDown, new KeyCallBackData());
-			RegisterCallBack(cbMessageIntercepted, (ScreenHandlerCallBack) &ScreenHandler::MediaBrowsre_Intercepted, new MsgInterceptorCellBackData());
-
-			DesignObj_Orbiter *pObj = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_popFBSF_More_CONST) "." + StringUtils::itos(mediaFileBrowserOptions.m_PK_MediaType) + ".0." TOSTRING(DESIGNOBJ_butFBSF_More_ViewedOnly_CONST) );
-			if( pObj )
-				pObj->m_GraphicToDisplay_set("fmv1",GRAPHIC_NORMAL,false,true);
-
-			pObj = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_popFBSF_More_CONST) "." + StringUtils::itos(mediaFileBrowserOptions.m_PK_MediaType) + ".0." TOSTRING(DESIGNOBJ_butFBSF_More_UnviewedOnly_CONST) );
-			if( pObj )
-				pObj->m_GraphicToDisplay_set("fmv2",GRAPHIC_NORMAL,false,true);
-		}
-	}
+		SetupAudioServer();
 
 	m_pOrbiter->CMD_Goto_DesignObj(0, m_pOrbiter->m_sMainMenu, sLocation, "", false, false );
+}
+//-----------------------------------------------------------------------------------------------------
+void ScreenHandler::SetupAudioServer()
+{
+	int iPK_MediaType = atoi(m_pOrbiter->m_mapVariable_Find(VARIABLE_PK_MediaType_CONST).c_str());
+
+	if(iPK_MediaType == 0)
+		iPK_MediaType = MEDIATYPE_pluto_StoredAudio_CONST;
+
+	OrbiterFileBrowser_Entry *pOrbiterFileBrowser_Entry =
+		m_pOrbiter->m_pOrbiterFileBrowser_Collection->m_mapOrbiterFileBrowser[iPK_MediaType];
+
+	if( !pOrbiterFileBrowser_Entry )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"No way to show file list for %d",iPK_MediaType);
+	}
+	else
+	{
+		mediaFileBrowserOptions.ClearAll(iPK_MediaType,pOrbiterFileBrowser_Entry->m_PK_Screen,m_pOrbiter->m_mapPK_MediaType_PK_Attribute_Sort[iPK_MediaType]);
+		m_pOrbiter->CMD_Set_Variable(VARIABLE_Filename_CONST, pOrbiterFileBrowser_Entry->m_sFilename);
+
+		SetMediaSortFilterSelectedObjects();
+		RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::MediaBrowser_ObjectSelected,	new ObjectInfoBackData());
+		RegisterCallBack(cbOnRenderScreen, (ScreenHandlerCallBack) &ScreenHandler::MediaBrowser_Render, new RenderScreenCallBackData());
+		RegisterCallBack(cbDataGridSelected, (ScreenHandlerCallBack) &ScreenHandler::MediaBrowser_DatagridSelected, new DatagridCellBackData());
+		RegisterCallBack(cbDataGridRendering, (ScreenHandlerCallBack) &ScreenHandler::FileList_GridRendering,	new DatagridAcquiredBackData());
+		RegisterCallBack(cbOnKeyDown, (ScreenHandlerCallBack) &ScreenHandler::FileList_KeyDown, new KeyCallBackData());
+		RegisterCallBack(cbMessageIntercepted, (ScreenHandlerCallBack) &ScreenHandler::MediaBrowsre_Intercepted, new MsgInterceptorCellBackData());
+
+		DesignObj_Orbiter *pObj = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_popFBSF_More_CONST) "." + StringUtils::itos(mediaFileBrowserOptions.m_PK_MediaType) + ".0." TOSTRING(DESIGNOBJ_butFBSF_More_ViewedOnly_CONST) );
+		if( pObj )
+			pObj->m_GraphicToDisplay_set("fmv1",GRAPHIC_NORMAL,false,true);
+
+		pObj = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_popFBSF_More_CONST) "." + StringUtils::itos(mediaFileBrowserOptions.m_PK_MediaType) + ".0." TOSTRING(DESIGNOBJ_butFBSF_More_UnviewedOnly_CONST) );
+		if( pObj )
+			pObj->m_GraphicToDisplay_set("fmv2",GRAPHIC_NORMAL,false,true);
+	}
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_Lights(long PK_Screen, string sLocation)
