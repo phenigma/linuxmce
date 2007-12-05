@@ -233,7 +233,7 @@ function Determine_PkgNonGrata()
 	local Pkg
 	local i
 
-	if ((Count < 1)); then
+	if ((Count <= 1)); then
 		return
 	fi
 	
