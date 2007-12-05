@@ -1,5 +1,4 @@
 #!/bin/bash
-
 checkout-svn.sh
 
 import-win32-bins.sh

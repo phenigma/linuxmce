@@ -67,20 +67,6 @@ function Build_Pluto_Stuff {
 	
 }
 
-function Create_Local_Repository {	
-	rm -f $local_mirror_dir/*.deb
-	rm -f $local_mirror_dir/Packages*
-
-	mkdir -p $local_mirror_dir
-
-	cp ${out_dir}/tmp/*.deb $local_mirror_dir
-	cp ${replacements_dir}/*.deb $local_mirror_dir
-	pushd $local_mirror_dir
-		dpkg-scanpackages . /dev/null > Packages
-		cat Packages | gzip -9c > Packages.gz
-	popd
-}
-
 function Import_Build_Database {
 	local temp_sqlcvsdir=$(mktemp -d)
 	local temp_file=$(mktemp)
