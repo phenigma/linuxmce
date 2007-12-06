@@ -25,6 +25,9 @@ case "$Type" in
 	"voiceeclipse")
 		AmpScript="/usr/pluto/bin/create_amp_voiceeclipse.pl"
 	;;
+	"sipgate")
+		AmpScript="/usr/pluto/bin/create_amp_sipgate.pl"
+	;;
 esac
 
 "$AmpScript" "$@"
