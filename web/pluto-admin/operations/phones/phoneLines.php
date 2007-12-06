@@ -13,35 +13,35 @@ function phoneLines($output,$astADO,$dbADO) {
 	$installationID = (int)@$_SESSION['installationID'];
 	$providerData=array();
 	$providerData['freeworddialup (free only)']['url']='http://www.freeworlddialup.com/';
-	$providerData['freeworddialup (free only)']['script']='create_amp_fwd.pl';
+	$providerData['freeworddialup (free only)']['script_parm']='freeworlddialup';
 	$providerData['freeworddialup (free only)']['keyword']='freeworddialup';
 	
 	$providerData['sipgate (try for free, pay as you go)']['url']='http://www.sipgate.co.uk/';
-	$providerData['sipgate (try for free, pay as you go)']['script']='create_amp_sipgate.pl';
+	$providerData['sipgate (try for free, pay as you go)']['script_parm']='sipgate';
 	$providerData['sipgate (try for free, pay as you go)']['keyword']='sipgate';
 	
 	$providerData['inphonex (try for free, pay as you go)']['url']='http://www.inphonex.com/';
-	$providerData['inphonex (try for free, pay as you go)']['script']='create_amp_inphonex.pl';
+	$providerData['inphonex (try for free, pay as you go)']['script_parm']='inphonex';
 	$providerData['inphonex (try for free, pay as you go)']['keyword']='inphonex';
 	
 	$providerData['e-fon (Switzerland)']['url']='http://www.e-fon.ch/';
-	$providerData['e-fon (Switzerland)']['script']='create_amp_efon.pl';
+	$providerData['e-fon (Switzerland)']['script_parm']='efon';
 	$providerData['e-fon (Switzerland)']['keyword']='efon';
 
 	$providerData['broadvoice (US number, free incoming)']['url']='http://www.broadvoice.com/';
-	$providerData['broadvoice (US number, free incoming)']['script']='create_amp_broadvoice.pl';
+	$providerData['broadvoice (US number, free incoming)']['script_parm']='broadvoice';
 	$providerData['broadvoice (US number, free incoming)']['keyword']='broadvoice';
 
 	$providerData['teliax (US number, pay incoming)']['url']='http://www.teliax.com/';
-	$providerData['teliax (US number, pay incoming)']['script']='create_amp_teliax.pl';
+	$providerData['teliax (US number, pay incoming)']['script_parm']='teliax';
 	$providerData['teliax (US number, pay incoming)']['keyword']='teliax-out';
 
 	$providerData['NuFone']['url']='http://www.nufone.net/';
-	$providerData['NuFone']['script']='create_amp_nufone.pl';
+	$providerData['NuFone']['script_parm']='nufone';
 	$providerData['NuFone']['keyword']='nufone-out';
 
 	$providerData['VoiceEclipse']['url']='http://www.voiceeclipse.com/';
-	$providerData['VoiceEclipse']['script']='create_amp_voiceeclipse.pl';
+	$providerData['VoiceEclipse']['script_parm']='voiceeclipse';
 	$providerData['VoiceEclipse']['keyword']='voiceeclipse';
 	
 	$keywords=array();
@@ -66,7 +66,7 @@ function phoneLines($output,$astADO,$dbADO) {
 		
 	if(isset($provider)){
 		$providerUrl=@$providerData[@$_REQUEST['provider']]['url'];
-		$providerScript=@$providerData[@$_REQUEST['provider']]['script'];
+		$providerScript='create_amp_phoneline.sh '.@$providerData[@$_REQUEST['provider']]['script_parm'];
 		$userBox='
 		<input type="hidden" name="editedID" value="'.@$editedID.'">
 		<input type="hidden" name="edited_type" value="'.@$_REQUEST['type'].'">
@@ -185,9 +185,9 @@ function phoneLines($output,$astADO,$dbADO) {
 
 			$cmd='sudo -u root /usr/pluto/bin/'.$providerScript.' '.$username.' '.$password.' '.$phone.' '.$host;
 
-			system($cmd,$cmdStatus);
+			$ret=exec_batch_command($cmd);
 			
-			if($cmdStatus!=0){
+			if($ret===false){
 				$suffix='&err='.$TEXT_ADD_PHONE_LINE_ERROR_CONST;
 			}else{
 				$suffix='&msg='.$TEXT_ADD_PHONE_LINE_CMD_SENT_CONST;
@@ -478,7 +478,7 @@ function getSIPState(){
 		}
 
 		$dataArray=array_slice($parsed,4);
-		$ampersand=strpos($parsed[1],'@');
+		$ampersand=strpos(@$parsed[1],'@');
 		$nr=($ampersand===false)?@$parsed[1]:substr(@$parsed[1],0,$ampersand);
 		$state[$nr]=(!isset($parsed[4]))?@$parsed[3]:$parsed[3].' '.join(' ',$dataArray);
 	}
@@ -516,7 +516,7 @@ Host                  dnsmgr  Username    Perceived             Refresh  State
 		}
 
 		$dataArray=array_slice($parsed,6);
-		$ampersand=strpos($parsed[2],'@');
+		$ampersand=strpos(@$parsed[2],'@');
 		$nr=($ampersand===false)?@$parsed[2]:substr(@$parsed[2],0,$ampersand);
 		$state[$nr]=(!isset($parsed[6]))?@$parsed[5]:$parsed[5].' '.join(' ',$dataArray);
 	}
