@@ -1,9 +1,9 @@
 #!/bin/bash
 /usr/pluto/bin/Debug_LogKernelModules.sh "$0" || :
 
-if [[ "$1" != "upgrade" ]] ;then
-	/usr/pluto/bin/Diskless_BuildDefaultImage.sh || echo "WARNING: Diskless_BuildDefaultImage.sh returned an error!"
-fi
+#if [[ "$1" != "upgrade" ]] ;then
+#	/usr/pluto/bin/Diskless_BuildDefaultImage.sh || echo "WARNING: Diskless_BuildDefaultImage.sh returned an error!"
+#fi
 
 # summary of how this script can be called:
 #        * <postinst> `configure' <most-recently-configured-version>
