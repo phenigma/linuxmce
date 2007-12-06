@@ -10,12 +10,12 @@ function editPlaylist($output,$mediadbADO,$dbADO) {
 	$action = (isset($_REQUEST['action']) && $_REQUEST['action']!='')?cleanString($_REQUEST['action']):'form';
 	$playlistID=(int)$_REQUEST['plID'];
 	
-	$playlistInfo=getAssocArray('Playlist','FK_Picture','Name',$mediadbADO,'WHERE PK_Playlist=',$playlistID);
-	$nameArr=array_values($playlistInfo);
-	$picArr=array_keys($playlistInfo);
+	$playlistInfo=getFieldsAsArray('Playlist','EK_User, Name,FK_Picture',$mediadbADO,'WHERE PK_Playlist='.$playlistID);
+	$pname=$playlistInfo['Name'][0];
+	$picID=$playlistInfo['FK_Picture'][0];
+	$playlistUserID=$playlistInfo['EK_User'][0];
+	$userID=$_SESSION['userID'];	
 
-	$pname=$nameArr[0];
-	$picID=(int)$picArr[0];
 	
 	$selMediaType=(isset($_REQUEST['mediaType']))?(int)$_REQUEST['mediaType']:0;	
 	$selSubType=(isset($_REQUEST['subtype']))?(int)$_REQUEST['subtype']:0;
@@ -114,7 +114,7 @@ function editPlaylist($output,$mediadbADO,$dbADO) {
 			WHERE FK_Playlist=?
 			ORDER BY 'Order' ASC";
 		$added=getAssocArray('PlaylistEntry','PK_PlaylistEntry','File.Filename',$mediadbADO,'LEFT JOIN File ON PlaylistEntry.FK_File=PK_File WHERE FK_Playlist='.$playlistID.' ORDER BY PlaylistEntry.`Order` ASC');
-
+		$privateChecked=($playlistUserID!=0)?'checked':'';
 		$out.='
 		<script>
 			function windowOpen(locationA,attributes) {
@@ -144,7 +144,10 @@ function editPlaylist($output,$mediadbADO,$dbADO) {
 					<td><B>'.$TEXT_NEW_FILE_CONST.'</B></td>
 					<td><input type="file" name="ppic" value=""></td>
 				</tr>
-				
+				<tr>
+					<td><b>Private</b></td>
+					<td><input type="checkbox" name="private" value="1" '.$privateChecked.'></td>
+				</tr>
 				<tr>
 					<td align="center" colspan="2"><input type="submit" class="button" name="update" value="'.$TEXT_UPDATE_CONST.'"></td>
 				</tr>				
@@ -267,7 +270,9 @@ function editPlaylist($output,$mediadbADO,$dbADO) {
 	}else{
 	// process area
 		$pname=cleanString($_POST['pname']);
-		$mediadbADO->Execute('UPDATE Playlist SET Name=? WHERE PK_Playlist=?',array($pname,$playlistID));
+		$private=(int)@$_POST['private'];
+		$userID=($private==1)?$userID:0;
+		$mediadbADO->Execute('UPDATE Playlist SET Name=?, EK_User=? WHERE PK_Playlist=?',array($pname,$userID,$playlistID));
 
 		if($_FILES['ppic']['name']!==''){
 			$newPic=uploadPicture($_FILES['ppic'],$mediadbADO);
