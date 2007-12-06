@@ -64,14 +64,14 @@ void MediaListGrid::ToData(string GridID,int &Size, char* &Data, int *ColStart, 
 			if( OriginalRow>=m_pMediaListGrid_Master->m_TotalRows )
 				break;
 
-			DataGridCell *pCell = GetData(col,row);
-			if( pCell )
+			DataGridCell *pDefaultCell = GetData(col,row);
+			if( pDefaultCell )
 				continue; // We already did this cell once.  user must have scrolled away and is coming back
 
-			pCell = m_pMediaListGrid_Master->GetData(0,OriginalRow);
+			pDefaultCell = m_pMediaListGrid_Master->GetData(0,OriginalRow);
 #ifdef DEBUG
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MediaListGrid::row %d graphic data: %p rowstart: %d rowCount: %d totalrows: %d",
-	row,(pCell ? pCell->m_pGraphicData : NULL),*RowStart,RowCount,m_TotalRows);
+	row,(pDefaultCell ? pDefaultCell->m_pGraphicData : NULL),*RowStart,RowCount,m_TotalRows);
 #endif
 			if( m_pMediaListGrid_Master->m_pFileBrowserInfoPtr == NULL )
 			{
@@ -83,12 +83,14 @@ void MediaListGrid::ToData(string GridID,int &Size, char* &Data, int *ColStart, 
 			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Pic for %s is: %d",pFileBrowserInfo->m_sMRL.c_str( ), pFileBrowserInfo->m_PK_Picture);
 #endif
 
+#ifdef AUDIO_STATION
+			DataGridCell *pCell = new DataGridCell(pDefaultCell->GetText(),pDefaultCell->GetValue());
+#else
+			DataGridCell *pCell = new DataGridCell("", "");
+#endif
+
 			char *pIconBuffer = NULL;
 			string PictureFile_Full;
-			
-#ifdef AUDIO_STATION
-			pCell = new DataGridCell(pCell->GetText(),pCell->GetValue());
-#endif
 
 			if( m_iPK_MediaType==MEDIATYPE_pluto_Pictures_CONST )
 				pCell->SetImagePath((pFileBrowserInfo->m_sMRL + ".tnj").c_str());
