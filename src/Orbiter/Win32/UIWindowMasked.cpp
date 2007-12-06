@@ -3,8 +3,7 @@
 #include "DCE/Logger.h"
 using namespace DCE;
 //-----------------------------------------------------------------------------------------------------
-#define OPAQUE_MASK			0xFF
-#define TRANSPARENT_MASK	0x00
+#define TRANSPARENT_THRESHOLD 252
 //-----------------------------------------------------------------------------------------------------
 UIWindowMasked::UIWindowMasked() : m_hRgnCurrent(NULL), m_bFiltersChanged(false)
 {
@@ -23,11 +22,11 @@ void UIWindowMasked::AddFilter(const PlutoRectangle& rect, const unsigned char *
 {
 	if(NULL == pFilter)
 	{
-		m_listRectangularRegions.push_back(rect);
+		m_listOpaqueRectangle.push_back(rect);
 	}
 	else
 	{
-		m_listNonuniformRegions.push_back(make_pair(pFilter, rect));
+		m_listSemitransparentRectangles.push_back(make_pair(pFilter, rect));
 	}
 
 	m_bFiltersChanged = true;
@@ -35,15 +34,15 @@ void UIWindowMasked::AddFilter(const PlutoRectangle& rect, const unsigned char *
 //-----------------------------------------------------------------------------------------------------
 void UIWindowMasked::RemoveFilter(const PlutoRectangle& rect)
 {
-	m_listRectangularRegions.remove(rect);
+	m_listOpaqueRectangle.remove(rect);
 
 	m_bFiltersChanged = true;
 }
 //-----------------------------------------------------------------------------------------------------
 void UIWindowMasked::ClearFilters() 
 {
-	m_listRectangularRegions.clear();
-	m_listNonuniformRegions.clear();
+	m_listOpaqueRectangle.clear();
+	m_listSemitransparentRectangles.clear();
 }
 //-----------------------------------------------------------------------------------------------------
 void UIWindowMasked::ApplyFilters(HWND hWnd)
@@ -60,9 +59,6 @@ void UIWindowMasked::ApplyFilters(HWND hWnd)
 			DeleteObject(m_hRgnCurrent);
 
 		m_hRgnCurrent = hRgnNew;
-
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Region: Applied filters!");
-
 		m_bFiltersChanged = false;
 	}
 }
@@ -74,20 +70,23 @@ void UIWindowMasked::ApplyDiscretFilters(HRGN hRgnNew, SDL_Surface *pSurface)
 	int nTitleHeigth = ::GetSystemMetrics(SM_CYSIZE);
 	int nBorderDim = 2 * ::GetSystemMetrics(SM_CXBORDER);
 
-	for(list<PlutoRectangle>::iterator it = m_listRectangularRegions.begin(); it != m_listRectangularRegions.end(); ++it)
+	int nRegionCounter = 0;
+
+	for(list<PlutoRectangle>::iterator it = m_listOpaqueRectangle.begin(); it != m_listOpaqueRectangle.end(); ++it)
 	{
 		PlutoRectangle rect = *it;
 
 		PlutoRectangle rectOpaque(rect.X + nBorderDim, rect.Y + nBorderDim + nTitleHeigth, 
 			rect.Width, rect.Height);
 
-		ApplyOpaqueRegion(hRgnNew, rectOpaque);
+		ApplyDiscretFilter(hRgnNew, pSurface, rectOpaque);
+		++nRegionCounter;
 
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Region: Applied region %d,%d,%d,%d!", rect.X, rect.Y, rect.Width, rect.Height);
 	}
 
-	for(list<pair<const unsigned char *, PlutoRectangle> >::iterator itn = m_listNonuniformRegions.begin();
-		itn != m_listNonuniformRegions.end(); ++itn)
+	for(list<pair<const unsigned char *, PlutoRectangle> >::iterator itn = m_listSemitransparentRectangles.begin();
+		itn != m_listSemitransparentRectangles.end(); ++itn)
 	{
 		PlutoRectangle rect = itn->second;
 		const unsigned char *pFilter = itn->first;
@@ -100,23 +99,31 @@ void UIWindowMasked::ApplyDiscretFilters(HRGN hRgnNew, SDL_Surface *pSurface)
 			do
 			{
 				//skip over transparent pixels at start of lines.
-				while (iX < rect.Width && *(pFilter + iY * rect.Width + iX) != TRANSPARENT_MASK)
+				while (iX < rect.Width && *(pFilter + iY * rect.Width + iX) >= TRANSPARENT_THRESHOLD)
 					iX++;
 
 				//remember this pixel
 				int iLeftX = iX;
+
 				//now find first non transparent pixel
-				while (iX < rect.Width && *(pFilter + iY * rect.Width + iX) == TRANSPARENT_MASK)
+				while (iX < rect.Width && *(pFilter + iY * rect.Width + iX) < TRANSPARENT_THRESHOLD)
 					++iX;
 
-				if(iX <= rect.Width)
+				PlutoRectangle rectOpaque(iLeftX, iY, iX - iLeftX, 1);
+
+				if(rectOpaque.X < rect.Width && rectOpaque.Width <= rect.Width)
 				{
-					PlutoRectangle rectOpaque(iLeftX, iY, iX - iLeftX, 1);
+					if(NULL != hRgnNew)
+					{
+						rectOpaque.X += rect.X + nBorderDim;
+						rectOpaque.Y += rect.Y + nBorderDim + nTitleHeigth;
+					}
 
-					rectOpaque.X += rect.X + nBorderDim;
-					rectOpaque.Y += rect.Y + nBorderDim + nTitleHeigth;
-
-					ApplyOpaqueRegion(hRgnNew, rectOpaque);
+					if(rectOpaque.X < rect.Width && rectOpaque.Width <= rect.Width)
+					{
+						ApplyDiscretFilter(hRgnNew, pSurface, rectOpaque);
+						++nRegionCounter;
+					}
 				}
 			} 
 			while(iX < rect.Width);
@@ -124,8 +131,14 @@ void UIWindowMasked::ApplyDiscretFilters(HRGN hRgnNew, SDL_Surface *pSurface)
 			iX = 0;
 		}
 
-		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Region: Applied nonuniform region %d,%d,%d,%d!", rect.X, rect.Y, rect.Width, rect.Height);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Region: Applied semi-transparent rectangle %d,%d,%d,%d!", rect.X, rect.Y, rect.Width, rect.Height);
 	}
+
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Region: Applied filters: "
+		"[opaque rectangles %d] and "
+		"[semi-transparent rectangles %d] - "
+		"[total regions %d]",
+		m_listOpaqueRectangle.size(), m_listSemitransparentRectangles.size(), nRegionCounter);
 }
 //-----------------------------------------------------------------------------------------------------
 void UIWindowMasked::ApplyOpaqueRegion(HRGN hRgnMaster, const PlutoRectangle& rect)
@@ -166,4 +179,3 @@ void UIWindowMasked::DumpMask(int nWidth, int nHeight)
 	SDL_FreeSurface(pSurface); 	
 }
 //-----------------------------------------------------------------------------------------------------
-

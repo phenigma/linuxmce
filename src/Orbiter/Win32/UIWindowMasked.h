@@ -40,8 +40,8 @@ or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more detai
 class UIWindowMasked : public UIWindowBase
 {
 	HRGN m_hRgnCurrent;
-	list<PlutoRectangle> m_listRectangularRegions;
-	list<pair<const unsigned char *, PlutoRectangle> > m_listNonuniformRegions;
+	list<PlutoRectangle> m_listOpaqueRectangle;
+	list<pair<const unsigned char *, PlutoRectangle> > m_listSemitransparentRectangles;
 	bool m_bFiltersChanged;
 
 	void ApplyOpaqueRegion(HRGN hRgnMaster, const PlutoRectangle& rect);
