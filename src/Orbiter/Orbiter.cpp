@@ -4997,7 +4997,7 @@ void Orbiter::CMD_Go_back(string sPK_DesignObj_CurrentScreen,string sForce,strin
 		}
 		else
 		{
-			if(m_sSkin == "NuForce") //TODO: change to audio station
+			if(m_sSkin == AUDIO_STATION_SKIN) //TODO: change to audio station
 			{
 				CMD_Goto_Screen("",SCREEN_Main_CONST);	
 			}
@@ -5065,6 +5065,12 @@ void Orbiter::CMD_Go_back(string sPK_DesignObj_CurrentScreen,string sForce,strin
 			m_pOrbiterRenderer->ObjectOffScreen(pOldScreenHistory->GetObj());
 		}
 		m_pScreenHistory_Current->m_bPutObjectsOffScreen = true;
+
+		if(m_sSkin == AUDIO_STATION_SKIN && m_pScreenHistory_Current->PK_Screen() == SCREEN_Main_CONST) //TODO: change to audio station
+		{
+			GotoMainMenu();
+			return;
+		}
 
 		string sCMD_Result;
 		if( m_mapPK_Screen_GoBackToScreen.find(m_pScreenHistory_Current->PK_Screen())!=m_mapPK_Screen_GoBackToScreen.end() )
@@ -8061,6 +8067,10 @@ void Orbiter::ParseGrid(DesignObj_DataGrid *pObj_Datagrid)
 	pObj_Datagrid->m_MaxCol = atoi( pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_Num_of_Columns_CONST ).c_str(  ) );
 	pObj_Datagrid->m_sSeek = pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_Seek_Value_CONST );
 	pObj_Datagrid->m_iSeekColumn = atoi( pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_Seek_Column_CONST ).c_str(  ) );
+
+	if(m_sSkin == AUDIO_STATION_SKIN && pObj_Datagrid->m_iBaseObjectID == DESIGNOBJ_dgFileList2_Pics_CONST)
+		pObj_Datagrid->m_MaxCol = 4;
+
 	if ( pObj_Datagrid->m_MaxCol == 0 )
 	{
 		if(  pObj_Datagrid->m_FixedColumnWidth==0  )

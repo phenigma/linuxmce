@@ -62,6 +62,7 @@ class DataGridRenderer;
 	class PlutoHIDInterface;
 #endif
 
+#define AUDIO_STATION_SKIN "NuForce"
 
 namespace DCE
 {

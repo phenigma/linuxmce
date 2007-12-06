@@ -331,7 +331,10 @@ DataGridRenderer::DataGridRenderer(DesignObj_Orbiter *pOwner): ObjectRenderer(pO
 		PLUTO_SAFETY_LOCK(M,m_pObj_Owner_DataGrid->m_pOrbiter->m_VariableMutex);
 
 		const char *pPath = pCell->GetImagePath();
-		if (pPath && !pCell->m_pGraphicData && !pCell->m_pGraphic && !m_pObj_Owner->m_pOrbiter->m_bLoadDatagridImagesInBackground)
+		if (
+			pPath && !pCell->m_pGraphicData && !pCell->m_pGraphic && 
+			(m_pObj_Owner->m_pOrbiter->m_sSkin == AUDIO_STATION_SKIN || !m_pObj_Owner->m_pOrbiter->m_bLoadDatagridImagesInBackground)
+		)
 		{
 			size_t s=0;
 			pCell->m_pGraphicData = m_pObj_Owner_DataGrid->m_pOrbiter->ReadFileIntoBuffer(pPath,s);
@@ -385,6 +388,9 @@ DataGridRenderer::DataGridRenderer(DesignObj_Orbiter *pOwner): ObjectRenderer(pO
 		Text.m_iPK_VertAlignment = pTextStyle->m_iPK_VertAlignment;
 
 		string sText = m_pObj_Owner_DataGrid->m_pOrbiter->SubstituteVariables(pCell->GetText(), m_pObj_Owner_DataGrid, 0, 0);
+
+		if(m_pObj_Owner->m_pOrbiter->m_sSkin == AUDIO_STATION_SKIN && NULL != pCell->m_pGraphicData)
+			sText = "";
 
 		if(!sText.empty())
 		{

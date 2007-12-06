@@ -680,14 +680,24 @@ bool ScreenHandler::MediaBrowser_DatagridSelected(CallBackData *pData)
 					int Row = pCellInfoData->m_Row * mediaFileBrowserOptions.m_pObj_PicGrid->m_MaxCol + pCellInfoData->m_Column;
 					pCell_List = pDataGridTable->GetData( 0, Row );
 				}
+				else if(NULL != mediaFileBrowserOptions.m_pObj_PicGrid)
+				{
+					DataGridTable *pDataGridTable = mediaFileBrowserOptions.m_pObj_PicGrid->DataGridTable_Get();
+					if( pDataGridTable )
+					{
+						int Row = pCellInfoData->m_Row * mediaFileBrowserOptions.m_pObj_PicGrid->m_MaxCol + pCellInfoData->m_Column;
+						pCell_List = pDataGridTable->GetData( 0, Row );
+					}
+				}
 			}
 		}
 
 #ifdef DEBUG
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::MediaBrowser_ObjectSelected sel grid pic %p list %p pich %d,%d  listh %d,%d",
-			pCell_Pic,pCell_List,mediaFileBrowserOptions.m_pObj_PicGrid ? mediaFileBrowserOptions.m_pObj_PicGrid->m_iHighlightedColumn : -999,
-			mediaFileBrowserOptions.m_pObj_PicGrid ? mediaFileBrowserOptions.m_pObj_PicGrid->m_iHighlightedRow : -999,
-			0,mediaFileBrowserOptions.m_pObj_ListGrid->m_iHighlightedRow);
+		if(NULL != mediaFileBrowserOptions.m_pObj_ListGrid)
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::MediaBrowser_ObjectSelected sel grid pic %p list %p pich %d,%d  listh %d,%d",
+				pCell_Pic,pCell_List,mediaFileBrowserOptions.m_pObj_PicGrid ? mediaFileBrowserOptions.m_pObj_PicGrid->m_iHighlightedColumn : -999,
+				mediaFileBrowserOptions.m_pObj_PicGrid ? mediaFileBrowserOptions.m_pObj_PicGrid->m_iHighlightedRow : -999,
+				0,mediaFileBrowserOptions.m_pObj_ListGrid->m_iHighlightedRow);
 #endif
 
 		if( !pCell_List )
@@ -1573,12 +1583,11 @@ void ScreenHandler::SCREEN_DialogSendFileToPhoneFailed(long PK_Screen, string sM
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_Main(long PK_Screen, string sLocation)
 {
-	DesignObj_Orbiter *pObjMainMenu = m_pOrbiter->FindObject(m_pOrbiter->m_sMainMenu);
+	m_pOrbiter->CMD_Goto_DesignObj(0, m_pOrbiter->m_sMainMenu, sLocation, "", false, false );
 
+	DesignObj_Orbiter *pObjMainMenu = m_pOrbiter->FindObject(m_pOrbiter->m_sMainMenu);
 	if(NULL != pObjMainMenu && pObjMainMenu->m_iBaseObjectID == DESIGNOBJ_mnuMenuAudioServer_CONST)
 		SetupAudioServer();
-
-	m_pOrbiter->CMD_Goto_DesignObj(0, m_pOrbiter->m_sMainMenu, sLocation, "", false, false );
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SetupAudioServer()
@@ -1590,6 +1599,8 @@ void ScreenHandler::SetupAudioServer()
 
 	OrbiterFileBrowser_Entry *pOrbiterFileBrowser_Entry =
 		m_pOrbiter->m_pOrbiterFileBrowser_Collection->m_mapOrbiterFileBrowser[iPK_MediaType];
+
+	pOrbiterFileBrowser_Entry->m_PK_Screen = SCREEN_Main_CONST;
 
 	if( !pOrbiterFileBrowser_Entry )
 	{
