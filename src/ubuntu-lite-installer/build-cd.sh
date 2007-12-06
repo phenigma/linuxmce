@@ -5,6 +5,7 @@ LiveCDDir="$WorkDir/livecd"
 SquashFSDir="$WorkDir/squashfs"
 LiveCDtgz="$WorkDir/ubuntu-livecd.tgz"
 SquashFStgz="$WorkDir/ubuntu-squashfs-base.tgz"
+DefaultTFTPtgz="$WorkDir/default-tftpboot-files.tbz"
 
 ## TODO: change paths to SVN checkout directory
 InstallerScript="lite-installer.sh"
@@ -74,6 +75,7 @@ CreateLiveCD()
 	mkdir -p "$LiveCDDir/diskless-images/"
 	cp /var/www/DisklessImages/PlutoMD-i386.tar.bz2  "$LiveCDDir/diskless-images/"
 	cp /var/www/DisklessImages/PlutoMD-amd64.tar.bz2 "$LiveCDDir/diskless-images/"
+	cp "$DefaultTFTPtgz" "$LiveCDDir/diskless-images/"
 
 	(cd "$LiveCDDir" && find . -type f -not -path ./md5sum.txt -print0 | xargs -0 md5sum | tee md5sum.txt)
 
