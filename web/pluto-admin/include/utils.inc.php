@@ -864,7 +864,9 @@ function grabDirectory ($path, $depth) {
 function grabFiles($path,$fileParm='-type f',$startingWith='') {
 	$filesArray=array();
 	// required to read files larger than 2G
-	$PathParm=($startingWith!='')?'"'.$path.'/'.$startingWith.'"*':'"'.$path.'/"';
+	$escapedPath=str_replace(array('\\','"','$'),array('\\\\','\"','\$'),$path);
+	
+	$PathParm=($startingWith!='')?'"'.$escapedPath.'/'.$startingWith.'"*':'"'.$escapedPath.'/"';
 	$cmd='sudo -u root find '.$PathParm.' '.$fileParm.' -maxdepth 1 -not -name \'*.id3\'';
 	//echo $cmd;
 	exec($cmd,$retArray);
@@ -5878,7 +5880,7 @@ function setAcceleration($orbiterMDChild,$value,$dbADO){
  * execute command line stat --format="%F" <director/fisier>
 */
 function is_dir64($file){
-	$type=exec_batch_command("stat --format=\"%F\" -L \"".str_replace(array('"','$','\\'),array('\"','\$','\\\\'),$file)."\"",1);
+	$type=exec_batch_command("stat --format=\"%F\" -L \"".str_replace(array('\\','"','$'),array('\\\\','\"','\$'),$file)."\"",1);
 	if($type=='directory'){
 		return true;
 	}

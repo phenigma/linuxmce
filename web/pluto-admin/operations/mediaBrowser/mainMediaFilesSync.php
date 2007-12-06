@@ -77,7 +77,7 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 			<form action="index.php" method="POST" name="mainMediaFilesSync">
 			<input type="hidden" name="section" value="mainMediaFilesSync">
 			<input type="hidden" name="action" value="update">
-			<input type="hidden" name="path" value="'.$path.'">
+			<input type="hidden" name="path" value="'.htmlentities($path).'">
 			';
 			
 			if(isset($_REQUEST['filename']) && $_REQUEST['filename']!='')
@@ -261,12 +261,11 @@ function physicalFilesList($path,$allPhysicalFiles,$mediadbADO){
 	$ppage=((int)@$_REQUEST['ppage']>0)?(int)$_REQUEST['ppage']:1;
 	$noPages=ceil(count($allPhysicalFiles)/$_SESSION['media_files_per_page']);
 	$physicalFiles=array_slice($allPhysicalFiles,$_SESSION['media_files_per_page']*($ppage-1),$_SESSION['media_files_per_page']);
-
 	$queryDBFiles='
 		SELECT DISTINCT File.*,count(FK_Picture) AS picsNo
 		FROM File 
 		LEFT JOIN Picture_File ON FK_File=PK_File
-		WHERE (Path="'.$path.'" OR Path="'.$path.'/'.'") AND Filename IN ("'.join('","',array_map('addslashes',$physicalFiles)).'")
+		WHERE (Path="'.addslashes($path).'" OR Path="'.addslashes($path).'/'.'") AND Filename IN ("'.join('","',array_map('addslashes',$physicalFiles)).'")
 		GROUP BY PK_File';
 
 	$rs=$mediadbADO->_Execute($queryDBFiles);
@@ -355,7 +354,7 @@ function dbonlyFilesList($path,$physicalFiles,$mediadbADO){
 		SELECT DISTINCT File.*,count(FK_Picture) AS picsNo
 		FROM File 
 		LEFT JOIN Picture_File ON FK_File=PK_File
-		WHERE (Path="'.$path.'" OR Path="'.$path.'/'.'") AND Filename NOT IN ("'.join('","',array_map('addslashes',$physicalFiles)).'") AND Missing=1
+		WHERE (Path="'.addslashes($path).'" OR Path="'.addslashes($path).'/'.'") AND Filename NOT IN ("'.join('","',array_map('addslashes',$physicalFiles)).'") AND Missing=1
 		GROUP BY PK_File';
 	$rs=$mediadbADO->_Execute($queryDBFiles);
 	$dbFiles=array();
