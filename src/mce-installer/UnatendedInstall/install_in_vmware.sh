@@ -96,8 +96,6 @@ function run_installer_on_virtual_machine {
 		sleep 5
 	done
 	decho "Finished installing in virtual machine"
-
-
 }
 
 function cleanup_filesystem {
@@ -141,7 +139,7 @@ function cleanup_filesystem {
 		asterisk-pluto mce-diskless-tools pluto-asterisk pluto-avwizard-sounds pluto-dhcpd-plugin pluto-mythtv-plugin
 		pluto-orbiterinstaller pluto-skins-basic pluto-slimserver-plugin pluto-std-plugins pluto-vdr-plugin pluto-xine-plugin
 		pluto-xml-data-plugin video-wizard-videos pluto-avwizard pluto-dcerouter pluto-sample-media mysql-server-5.0
-		openoffice.org-core wine pluto-orbiter python-kde3
+		openoffice.org-core wine pluto-orbiter python-kde3 pluto-default-tftpboot
 	"
 	PkgNonGrata_Determined=$(Determine_PkgNonGrata "$FILESYSTEM_ROOT"/tmp/pkglist-{diskless,hybrid}.txt)
 	rm -f "$FILESYSTEM_ROOT"/tmp/pkglist-{diskless,hybrid}.txt
