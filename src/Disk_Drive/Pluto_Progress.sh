@@ -12,7 +12,7 @@ last_progress=0
 while read progress text; do
 	progress=${progress%%.*} # int(progress)
 	if [[ "$progress" != "$last_progress" ]]; then
-		/usr/pluto/bin/MessageSend "$DCERouter" "$diskDriveDeviceID" "$diskDriveDeviceID" 1 871 258 "$jobID" 257 "$taskID" 199 "p" 256 "$progress" 13 "$5" >/dev/null
+		/usr/pluto/bin/MessageSend "$DCERouter" "$diskDriveDeviceID" "$diskDriveDeviceID" 1 871 258 "$jobID" 257 "$taskID" 199 "p" 256 "$progress" 13 "$fileName" >/dev/null
 		last_progress="$progress"
 	fi
 	#echo "$progress"
