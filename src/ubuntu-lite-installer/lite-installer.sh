@@ -186,7 +186,7 @@ FormatPartitions()
 	else
 		echo y|mkfs.ext3 "$TargetHdd"1 # root filesystem
 	fi
-	if [[ "$FromHdd" != 1 ]]; then
+	if [[ "$FromHdd" != 1 && "$Upgrade" != 1]]; then
 		mkswap "$TargetHdd"5 # swap
 		echo y|mkfs.ext3 "$TargetHdd"6 # recovery system
 	fi
@@ -200,16 +200,19 @@ MountPartitions()
 {
 	mkdir -p /media/target /media/recovery
 	mount "$TargetHdd"1 /media/target
-	if [[ "$FromHdd" != 1 ]]; then
-		mount "$TargetHdd"6 /media/recovery
-	else
-		mount -o bind / /media/recovery
+
+	if [[ "$Upgrade" != "1" ]] ;then
+		if [[ "$FromHdd" != 1 ]]; then
+			mount "$TargetHdd"6 /media/recovery
+		else
+			mount -o bind / /media/recovery
+		fi
 	fi
 }
 
 CopyDVD()
 {
-	if [[ "$FromHdd" == "1" ]] ;then
+	if [[ "$FromHdd" == "1" || "$Upgrade" == "1" ]] ;then
 		return
 	fi
 	echo "Copying DVD to hard drive"
@@ -219,11 +222,8 @@ CopyDVD()
 	umount "$DVDdir"
 
 	#Copy archives
-	mkdir -p /media/recovery/archives/
-	cp -a /cdrom/lmce-image/. /media/recovery/archives/
-
-	#Copy the first run script
-	cp /cdrom/lmce-image/firstboot /media/recovery/archives/
+	mkdir -p /media/recovery/archives/lmce-image/
+	cp -a /cdrom/lmce-image/. /media/recovery/archives/lmce-image/
 
 	#Copy demo videos, if any
 	if [[ -d /cdrom/lmce-videos ]]; then
@@ -258,8 +258,13 @@ iface eth1 inet dhcp
 
 ExtractArchive()
 {
+	archives_path="/media/recovery/archives"
+	if [[ "$Upgrade" == "1" ]] ;then
+		archives_path="/cdrom"
+	fi
+
 	echo "Extracting archive (this will take about 10 minutes)"
-	cat /media/recovery/archives/linux-mce.tar.gz* | tar -C /media/target -zx --checkpoint=10000
+	cat "$archives_path"/lmce-image/linux-mce.tar.gz* | tar -C /media/target -zx --checkpoint=10000
 	mkdir -p /media/target/etc/pluto
 	touch /media/target/etc/pluto/install_cleandb
 
@@ -268,24 +273,24 @@ ExtractArchive()
 	blkid -w /media/target/etc/blkid.tab
 
 	#Copy the fist run script
-	cp /media/recovery/archives/firstboot /media/target/etc/rc2.d/S90firstboot
+	cp "$archives_path"/lmce-image/firstboot /media/target/etc/rc2.d/S90firstboot
 
 	#Copy demo videos, if any
-	if [[ -d /media/recovery/archives/lmce-videos ]]; then
+	if [[ -d "$archives_path"/lmce-videos ]]; then
 		mkdir -p /media/target/home/public/data/videos/
-		cp -a /media/recovery/archives/lmce-videos/. /media/target/home/public/data/videos/
+		cp -a "$archives_path"/lmce-videos/. /media/target/home/public/data/videos/
 	fi
 
 	#Copy VIA archives
-	if [[ -d /media/recovery/archives/via-archives ]]; then
+	if [[ -d "$archives_path/via-archives" ]]; then
 		mkdir -p /media/target/usr/pluto/install/via/
-		cp -a /media/recovery/archives/via-archives/. /media/target/usr/pluto/install/via/
+		cp -a "$archives_path"/via-archives/. /media/target/usr/pluto/install/via/
 	fi
 	
 	#Copy Diskless images
-	if [[ -d /media/recovery/archives/diskless-images ]]; then
+	if [[ -d "$archives_path"/diskless-images ]]; then
 		mkdir -p /media/target/usr/pluto/install
-		cp -a /media/recovery/archives/diskless-images/. /media/target/usr/pluto/install/
+		cp -a "$archives_path"/diskless-images/. /media/target/usr/pluto/install/
 	fi
 }
 
@@ -416,7 +421,9 @@ UnmountPartitions()
 {
 set +e
 	umount /media/target
-	umount /media/recovery
+	if [[ "$Upgrade" != "1" ]] ;then
+		umount /media/recovery
+	fi
 set -e
 }
 
