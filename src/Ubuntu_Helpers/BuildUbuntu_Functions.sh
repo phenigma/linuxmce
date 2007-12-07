@@ -55,31 +55,23 @@ function Error {
 }
 
 
-function SyncDisklessImage {
+function WaitDisklessImage {
 
-	local BuilderIP="$1"
-	local DisklessImageName="$2"
-	local DisklessImageVersion=""
-	local LocalVersion="$(echo "select VersionName from Version" | mysql -A -N pluto_main_build  | head -1)"
-
+	local arch="$1"
 	local done='false'
-	mkdir -p /var/www/DisklessImages
-	pushd /var/www/DisklessImages
+
+	local RemoteVersion=""
+	local ExpectedVersion="$(echo "select VersionName from Version" | mysql -A -N pluto_main_build  | head -1)"
+
 	while [[ "$done" != 'true' ]] ;do
-		echo "Downloading $DisklessImageName from $BuilderIP $(date -R)"
-		DisklessImageVersion=$(cat "/var/www/DisklessImages/${DisklessImageName}.version")
+		RemoteVersion=$(cat "/var/plutobuild/DisklessSync/${arch}/version")
 		
-		if [[ "$DisklessImageVersion" == "$LocalVersion" ]] ;then
-			wget -c "http://${BuilderIP}/DisklessImages/${DisklessImageName}" 
+		if [[ "$RemoteVersion" == "$ExpectedVersion" ]] ;then
 			done='true'
 		else
-			rm "${DisklessImageName}.version"
-			wget -c "http://${BuilderIP}/DisklessImages/${DisklessImageName}.version"
-			done='false'
-			sleep 10
+			sleep 30
 		fi	
 	done
-	popd
 }
 
 function Install_Build_Needed_Packages {
