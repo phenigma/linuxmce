@@ -20,8 +20,10 @@ pushd /root/UnatendedInstall/
 	./install_in_vmware.sh
 popd
 
-
-echo "select VersionName from Version" | mysql -A -N pluto_main_build  | head -1 > /var/plutobuild/DisklessSync/i386/version
+## Copy local deb-cache for diskless
+build_arch="amd64"
+CopyCrossoverDebcache "${build_arch}"
+echo "select VersionName from Version" | mysql -A -N pluto_main_build  | head -1 > "/var/plutobuild/DisklessSync/${build_arch}/version"
 
 ## Wait diskless images for all the architectures
 WaitDisklessImage "i386"
