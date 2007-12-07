@@ -178,10 +178,10 @@ class UpdatesXML
 			m_sXmlFile = sXmlFile;
 		}
 		
-/*		vector<UpdateNode*>& Updates()
+		vector<UpdateNode*>& Updates()
 		{
 			return m_updates;
-		}*/
+		}
 		
 		void Updates(vector<UpdateNode*>&, const string&) const;
 		
