@@ -44,8 +44,17 @@ class UpdateNode
 			updateId = id;
 		}
 		
+		bool IsRelease(const string & sRelease) const
+		{
+			return release == sRelease;
+		}
+		void SetRelease(const string & sRelease)
+		{
+			release = sRelease;
+		}
+		
 		bool IsModel(const string & model) const;
-		void SetModels(string&);
+		void SetModels(const string&);
 		
 		UpdatePriority Priority() const
 		{
@@ -120,6 +129,7 @@ class UpdateNode
 		ModelMap models;
 		UpdatePriority priority;
 		string description;
+		string release;
 		StringMap attributesMap;
 		map<string, UpdateProperty*> properties;
 		vector<UpdateProperty*> files;
@@ -135,6 +145,7 @@ class UpdatesXML
 		static char * tagId;
 		static char * tagPriority;
 		static char * tagDescription;
+		static char * tagRelease;
 		static char * tagModels;
 		static char * tagFiles;
 		static char * tagOptions;
@@ -167,10 +178,12 @@ class UpdatesXML
 			m_sXmlFile = sXmlFile;
 		}
 		
-		vector<UpdateNode*>& Updates()
+/*		vector<UpdateNode*>& Updates()
 		{
 			return m_updates;
-		}
+		}*/
+		
+		void Updates(vector<UpdateNode*>&, const string&) const;
 		
 		void Clean();
 		

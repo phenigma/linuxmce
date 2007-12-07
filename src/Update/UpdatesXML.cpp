@@ -10,6 +10,7 @@ char * UpdatesXML::tagId = "id";
 char * UpdatesXML::tagPriority = "priority";
 char * UpdatesXML::tagDescription = "description";
 char * UpdatesXML::tagModels = "model";
+char * UpdatesXML::tagRelease = "release";
 char * UpdatesXML::tagFiles = "file";
 char * UpdatesXML::tagOptions = "option";
 char * UpdatesXML::tagRequires = "require";
@@ -52,8 +53,9 @@ bool UpdateNode::IsModel(const string & model) const
 	return false;
 }
 
-void UpdateNode::SetModels(string& text)
+void UpdateNode::SetModels(const string & sText)
 {
+	string text = sText;
 	vector<string> modelList;
 	StringUtils::Tokenize(text, ",", modelList);
 	for(vector<string>::const_iterator it=modelList.begin(); it!=modelList.end(); ++it)
@@ -95,6 +97,26 @@ void UpdatesXML::Clean()
 		delete (*it);
 	}
 	m_updates.clear();
+}
+
+void UpdatesXML::Updates(vector<UpdateNode*> & releaseUpdates, const string & sRelease) const
+{
+	UpdateNode * pNode;
+	for(vector<UpdateNode*>::const_iterator it=m_updates.begin(); it!=m_updates.end(); ++it)
+	{
+		pNode = (*it);
+		if( pNode != NULL )
+		{
+			if( pNode->IsRelease(sRelease) )
+			{
+				releaseUpdates.push_back(pNode);
+			}
+		}
+		else
+		{
+			// error
+		}
+	}
 }
 
 void UpdatesXML::ParseUpdate(xmlNode *pNode)
@@ -172,6 +194,10 @@ void UpdatesXML::ParseUpdate(xmlNode *pNode)
 						else if(sNodeName == UpdatesXML::tagModels)
 						{
 							pUpdateNode->SetModels(pProperty->value);
+						}
+						else if(sNodeName == UpdatesXML::tagRelease)
+						{
+							pUpdateNode->SetRelease(pProperty->value);
 						}
 					}
 				}

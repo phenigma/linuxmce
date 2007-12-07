@@ -21,6 +21,7 @@
 UpdatesManager::UpdatesManager(const char * xmlPath, const char * updPath, int iInput, int iOutput)
 	: updatesPath(updPath),
 	  xmlUpdatesFile(xmlPath),
+	  release("0704"),
 	  inputFd(iInput),
 	  outputFd(iOutput),
 	  coreDevice(0),
@@ -140,6 +141,31 @@ bool UpdatesManager::Init(bool bDownload)
 		break;
 	}
 	
+	// find the release information
+	// we use the device data 262 Release(string) from core
+	// even if the same information appears for MD too
+	sql_buff = "SELECT IK_DeviceData FROM Device_DeviceData where FK_DeviceData=";
+	sql_buff += StringUtils::itos( DEVICEDATA_Release_CONST );
+	sql_buff += " AND FK_Device=";
+	sql_buff += StringUtils::itos(coreDevice);
+	if( (result_set.r=dbHelper.db_wrapper_query_result(sql_buff.c_str())) == NULL )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "UpdatesManager::Init : SQL FAILED : %s",sql_buff.c_str());
+		return false;
+	}
+	while((row = db_wrapper_fetch_row(result_set.r)))
+	{
+		if( NULL != row[0] )
+		{
+			release = row[0];
+		}
+		// only one Core
+		break;
+	}
+	
+	// let's use only the updates for this release
+	xml.Updates(updates, release);
+		
 	if( download )
 	{
 		FillModel2Update();
@@ -158,7 +184,6 @@ bool UpdatesManager::Init(bool bDownload)
 		if( fullDownload )
 		{
 			// check each update
-			vector<UpdateNode*> &updates = xml.Updates();
 			for(vector<UpdateNode*>::iterator it=updates.begin(); it!=updates.end(); ++it)
 			{
 				downloadUpdates.push_back( (*it)->UpdateId() );
@@ -171,7 +196,6 @@ bool UpdatesManager::Init(bool bDownload)
 				 itModel!=model2update.end(); ++itModel)
 			{
 				// check each update
-				vector<UpdateNode*> &updates = xml.Updates();
 				for(vector<UpdateNode*>::iterator it=updates.begin(); it!=updates.end(); ++it)
 				{
 					UpdateNode* pUpdate = (*it);
@@ -278,7 +302,7 @@ bool UpdatesManager::Run()
 				
 					if( !xml.Failed() )
 					{
-						UpdateNode * pUpdate = xml.Updates().front();
+						UpdateNode * pUpdate = updates.front();
 						if( lastUpdate < pUpdate->UpdateId() && 
 							pUpdate->IsModel(model) )
 						{
@@ -384,7 +408,7 @@ bool UpdatesManager::GetUpdatesDescription(const char * fileName)
 		
 			if( !xml.Failed() )
 			{
-				UpdateNode * pUpdate = xml.Updates().front();
+				UpdateNode * pUpdate = updates.front();
 				LoggerWrapper::GetInstance()->Write(LV_DEBUG, "UpdatesDescription Check = %u", pUpdate->UpdateId());
 				
 				// check each model
@@ -457,7 +481,7 @@ bool UpdatesManager::CheckUpdate(unsigned uId)
 {
 	// find the update
 	UpdateNode * pUpdate = NULL;
-	for(vector<UpdateNode*>::const_iterator it=xml.Updates().begin(); it!=xml.Updates().end(); ++it)
+	for(vector<UpdateNode*>::const_iterator it=updates.begin(); it!=updates.end(); ++it)
 	{
 		if( uId == (*it)->UpdateId() )
 		{
@@ -500,7 +524,7 @@ bool UpdatesManager::DownloadUpdate(unsigned uId)
 {
 	// find the update
 	UpdateNode * pUpdate = NULL;
-	for(vector<UpdateNode*>::const_iterator it=xml.Updates().begin(); it!=xml.Updates().end(); ++it)
+	for(vector<UpdateNode*>::const_iterator it=updates.begin(); it!=updates.end(); ++it)
 	{
 		if( uId == (*it)->UpdateId() )
 		{
@@ -551,7 +575,7 @@ bool UpdatesManager::ValidateUpdate(unsigned uId)
 {
 	// find the update
 	UpdateNode * pUpdate = NULL;
-	for(vector<UpdateNode*>::const_iterator it=xml.Updates().begin(); it!=xml.Updates().end(); ++it)
+	for(vector<UpdateNode*>::const_iterator it=updates.begin(); it!=updates.end(); ++it)
 	{
 		if( uId == (*it)->UpdateId() )
 		{
@@ -603,7 +627,7 @@ bool UpdatesManager::RemoveUpdate(unsigned uId)
 {
 	// find the update
 	UpdateNode * pUpdate = NULL;
-	for(vector<UpdateNode*>::const_iterator it=xml.Updates().begin(); it!=xml.Updates().end(); ++it)
+	for(vector<UpdateNode*>::const_iterator it=updates.begin(); it!=updates.end(); ++it)
 	{
 		if( uId == (*it)->UpdateId() )
 		{
@@ -641,7 +665,7 @@ bool UpdatesManager::ProcessUpdate(unsigned uId)
 {
 	// find the update
 	UpdateNode * pUpdate = NULL;
-	for(vector<UpdateNode*>::const_iterator it=xml.Updates().begin(); it!=xml.Updates().end(); ++it)
+	for(vector<UpdateNode*>::const_iterator it=updates.begin(); it!=updates.end(); ++it)
 	{
 		if( uId == (*it)->UpdateId() )
 		{
@@ -695,7 +719,7 @@ bool UpdatesManager::ProcessOptionUpdate(unsigned uId, const char * type)
 {
 	// find the update
 	UpdateNode * pUpdate = NULL;
-	for(vector<UpdateNode*>::const_iterator it=xml.Updates().begin(); it!=xml.Updates().end(); ++it)
+	for(vector<UpdateNode*>::const_iterator it=updates.begin(); it!=updates.end(); ++it)
 	{
 		if( uId == (*it)->UpdateId() )
 		{

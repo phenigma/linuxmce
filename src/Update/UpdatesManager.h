@@ -80,6 +80,8 @@ class UpdatesManager
 		
 		string xmlUpdatesFile;
 		
+		string release;
+		
 		int inputFd;
 		
 		int outputFd;
@@ -106,8 +108,9 @@ class UpdatesManager
 		
 		map<string, unsigned> model2update;
 		
+		vector<UpdateNode*> updates;
+		
 		vector<unsigned> downloadUpdates;
-
 };
 
 #endif
