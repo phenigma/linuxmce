@@ -33,6 +33,9 @@
 #include "pluto_main/Define_CommandParameter.h"
 #include "PlutoUtils/DBHelper.h"
 
+// after 2 seconds, we don't use the USELESS flag
+#define USELESS_TIMEOUT  2
+
 #include <cmath>
 using namespace std;
 
@@ -76,6 +79,17 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 		IR_PowerDelay=map_PowerDelay[devtemplid];
 	}
 	
+	// check if we can apply the useless flag
+	// if there was enough time passed from the last message, then let's process the message
+	// even if it looks useless
+	bool bUselessTimeout = true;
+	time_t LastTime = map_LastTime[devid];
+	map_LastTime[devid] = time(NULL);
+	if( /*0 != LastTime &&*/ map_LastTime[devid] - LastTime < USELESS_TIMEOUT )
+	{
+		bUselessTimeout = false;
+	}
+	
 	if (input_commands_.empty())
 	{
 		DCEConfig dceconf;
@@ -87,7 +101,7 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 		{
 			LoggerWrapper::GetInstance()->Write(LV_WARNING, "SQL FAILED : %s",sql_buff);
 			return false;
-		}	
+		}
 		while((row = db_wrapper_fetch_row(result_set.r)))
 		{
 			input_commands_[atoi(row[0])] = atoi(row[0]);
@@ -173,7 +187,10 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 				((!laststatus_power_[devid] && (pmsg->m_dwID == COMMAND_Generic_Off_CONST)) ||
 				 ( laststatus_power_[devid] && (pmsg->m_dwID == COMMAND_Generic_On_CONST))) )
 			{
-				inrepl.setUseless(true);
+				if( !bUselessTimeout )
+				{
+					inrepl.setUseless(true);
+				}
 			}
 			else
 			{
@@ -205,8 +222,11 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 			// check if the command is useless
 			if( !retransmit && laststatus_input_[devid] == cmd )
 			{
-				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Input select is useless");
-				inrepl.setUseless(true);
+				if( !bUselessTimeout )
+				{
+					LoggerWrapper::GetInstance()->Write(LV_STATUS, "Input select is useless");
+					inrepl.setUseless(true);
+				}
 			}
 			else
 			{
@@ -296,8 +316,11 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 		// check if the command is useless
 		if( !retransmit && laststatus_input_[devid] == pmsg->m_dwID )
 		{
-			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Input select is useless");
-			inrepl.setUseless(true);
+			if( !bUselessTimeout )
+			{
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Input select is useless");
+				inrepl.setUseless(true);
+			}
 		}
 		else
 		{

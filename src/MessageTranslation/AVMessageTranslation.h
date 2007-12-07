@@ -29,6 +29,8 @@
 
 #include "DefaultMessageTranslation.h"
 
+#include <time.h>
+
 namespace DCE {
 
 class AVMessageTranslator : public DefaultMessageTranslator {
@@ -43,12 +45,14 @@ public:
 	map<int, int> laststatus_input_;
 	map<int, int> input_commands_;
 	map<int, vector<int> *> device_input_command_order_;
+	
 private:
-	std::map<int,int> map_ModeDelay;
-	std::map<int,int> map_TogglePower;
-	std::map<int,int> map_ToggleInput;
-	std::map<int, int> map_DigitDelay;
-	std::map<int, string> map_NumericEntry;
+	map<int,int> map_ModeDelay;
+	map<int,int> map_TogglePower;
+	map<int,int> map_ToggleInput;
+	map<int, int> map_DigitDelay;
+	map<int, string> map_NumericEntry;
+	map<int, time_t> map_LastTime;
 };
 
 class AVMessageDispatcher : public DefaultMessageDispatcher {
