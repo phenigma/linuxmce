@@ -192,6 +192,9 @@ for device in $DEVICE_LIST; do
 	fi
 done
 
+## Packages that are marked as dependencies only in the database
+LC_ALL=C chroot $TEMP_DIR apt-get -y install mozilla-mplayer
+
 ## Put back discover
 mv "$TEMP_DIR"/sbin/discover.disabled "$TEMP_DIR"/sbin/discover
 
