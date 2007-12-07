@@ -360,11 +360,29 @@ DataGridRenderer::DataGridRenderer(DesignObj_Orbiter *pOwner): ObjectRenderer(pO
 
 		if (pCell->m_pGraphic)
 		{
+			PlutoRectangle rect(x,  y,  w,  h);
+
+			if(m_pObj_Owner->m_pOrbiter->m_sSkin == AUDIO_STATION_SKIN)
+			{
+				//center graphic
+
+				double zoom = min(rect.Width / double(pCell->m_pGraphic->m_nWidth),
+					rect.Height / double(pCell->m_pGraphic->m_nHeight));
+
+				int new_width = static_cast<int>(pCell->m_pGraphic->m_nWidth * zoom);
+				int new_height = static_cast<int>(pCell->m_pGraphic->m_nHeight * zoom);
+
+				rect.X += (rect.Width - new_width) / 2;
+				rect.Y += (rect.Height - new_height) / 2;
+				rect.Width = new_width;
+				rect.Height = new_height;
+			}
+
 			string sCellObjectID, sCellObjectHash;
 			sCellObjectID = sCellObjectHash = DATAGRID_THUMB_NAME " - " + StringUtils::ltos(x) + "-" + StringUtils::ltos(y) + 
 				(NULL == pCell->m_ImagePath ? "" : string("-pic ") + pCell->m_ImagePath);
 			m_pObj_Owner_DataGrid->m_pOrbiter->Renderer()->RenderGraphic(pCell->m_pGraphic, 
-				PlutoRectangle(x,  y,  w,  h), 
+				rect, 
 				m_pObj_Owner_DataGrid->m_bDisableAspectLock, 
 				point,
 				255, 
