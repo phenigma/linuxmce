@@ -612,6 +612,41 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::MediaBrowser_Objec
 		}
 	}
 
+	if(m_pOrbiter->m_sSkin == AUDIO_STATION_SKIN)
+	{
+		bool bChangedSortFilter = false;
+
+		if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butSortByAlbum_CONST)
+		{
+			mediaFileBrowserOptions.m_PK_AttributeType_Sort = ATTRIBUTETYPE_Album_CONST;
+			bChangedSortFilter = true;
+		}
+		else if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butSortByPerformer_CONST)
+		{
+			mediaFileBrowserOptions.m_PK_AttributeType_Sort = ATTRIBUTETYPE_Performer_CONST;
+			bChangedSortFilter = true;
+		}
+		else if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butSortByComposer_CONST)
+		{
+			mediaFileBrowserOptions.m_PK_AttributeType_Sort = ATTRIBUTETYPE_ComposerWriter_CONST;
+			bChangedSortFilter = true;
+		}
+		else if(pObjectInfoData->m_PK_DesignObj_SelectedObject == 5564)
+		{
+			mediaFileBrowserOptions.m_PK_AttributeType_Sort = ATTRIBUTETYPE_Genre_CONST;
+			bChangedSortFilter = true;
+		}
+
+		if(bChangedSortFilter)
+		{
+			mediaFileBrowserOptions.ReacquireGrids();
+			SetMediaSortFilterSelectedObjects();
+			m_pOrbiter->Renderer()->RenderObjectAsync(pObjectInfoData->m_pObj);  // We will be changing the selected state
+			m_pOrbiter->CMD_Refresh("*");
+			return true;  // We don't want the framework to mark the object as selected
+		}
+	}
+
 	return false;
 }
 //-----------------------------------------------------------------------------------------------------
@@ -680,14 +715,9 @@ bool ScreenHandler::MediaBrowser_DatagridSelected(CallBackData *pData)
 					int Row = pCellInfoData->m_Row * mediaFileBrowserOptions.m_pObj_PicGrid->m_MaxCol + pCellInfoData->m_Column;
 					pCell_List = pDataGridTable->GetData( 0, Row );
 				}
-				else if(NULL != mediaFileBrowserOptions.m_pObj_PicGrid)
+				else if(m_pOrbiter->m_sSkin == AUDIO_STATION_SKIN)
 				{
-					DataGridTable *pDataGridTable = mediaFileBrowserOptions.m_pObj_PicGrid->DataGridTable_Get();
-					if( pDataGridTable )
-					{
-						int Row = pCellInfoData->m_Row * mediaFileBrowserOptions.m_pObj_PicGrid->m_MaxCol + pCellInfoData->m_Column;
-						pCell_List = pDataGridTable->GetData( 0, Row );
-					}
+					pCell_List = pCell_Pic;
 				}
 			}
 		}

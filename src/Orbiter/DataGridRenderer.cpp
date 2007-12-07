@@ -26,6 +26,8 @@
 #include "pluto_main/Define_DataGrid.h"
 #include "pluto_main/Define_Variable.h"
 #include "pluto_main/Define_FloorplanType.h"
+#include "pluto_main/Define_HorizAlignment.h"
+#include "pluto_main/Define_VertAlignment.h"
 
 using namespace DCE;
 
@@ -404,6 +406,12 @@ DataGridRenderer::DataGridRenderer(DesignObj_Orbiter *pOwner): ObjectRenderer(pO
 
 		Text.m_iPK_HorizAlignment = pTextStyle->m_iPK_HorizAlignment;
 		Text.m_iPK_VertAlignment = pTextStyle->m_iPK_VertAlignment;
+
+		if(m_pObj_Owner->m_pOrbiter->m_sSkin == AUDIO_STATION_SKIN)
+		{
+			Text.m_iPK_HorizAlignment = HORIZALIGNMENT_Center_CONST;
+			Text.m_iPK_VertAlignment = VERTALIGNMENT_Middle_CONST;
+		}
 
 		string sText = m_pObj_Owner_DataGrid->m_pOrbiter->SubstituteVariables(pCell->GetText(), m_pObj_Owner_DataGrid, 0, 0);
 
