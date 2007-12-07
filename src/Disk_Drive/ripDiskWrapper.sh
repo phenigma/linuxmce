@@ -67,11 +67,11 @@ trackList="$9"
 ripFormat=${ripFormatString%%;*}
 
 #Freedb information
-URL="http://freedb.freedb.org/~cddb/cddb.cgi"
-ProtoVersion=5
-User=pluto
-Host=$(hostname)
-Tab="$(echo -e "\t")"
+FreeDB_URL="http://freedb.freedb.org/~cddb/cddb.cgi"
+FreeDB_ProtoVersion=5
+FreeDB_User=pluto
+FreeDB_Host=$(hostname)
+Tab=$'\t'
 TrackNumber=0
 # end Freedb information
 
@@ -96,9 +96,9 @@ case $diskType in
 		command='/usr/pluto/bin/disc_unlock "$sourceDevice"; nice -n 15 /usr/pluto/bin/disk_copy "$sourceDevice" "$targetFileName.dvd.in-progress" > '"$ProgressOutput"
 	;;
 	0|1|6|7|8)
-
+		export HTTPGETOPTS="--connect-timeout=5 --tries=1 -q -O -"
 		DiscID="$(/usr/bin/cd-discid "$sourceDevice")"		
-		if ! Query="$(/usr/bin/cddb-tool query "$URL" "$ProtoVersion" "$User" "$Host" "$DiscID")"; then
+		if ! Query="$(/usr/bin/cddb-tool query "$FreeDB_URL" "$FreeDB_ProtoVersion" "$FreeDB_User" "$FreeDB_Host" "$DiscID")"; then
 			Err=$Err_Query
 			echo "Error in query"
 		else
@@ -118,11 +118,12 @@ case $diskType in
 			esac
 		fi
 
-		/usr/bin/cddb-tool read "$URL" "$ProtoVersion" "$User" "$Host" "$QueryID" > /tmp/cddbread.$$
+		/usr/bin/cddb-tool read "$FreeDB_URL" "$FreeDB_ProtoVersion" "$FreeDB_User" "$FreeDB_Host" "$QueryID" > /tmp/cddbread.$$
 		Read="$(/usr/bin/cddb-tool parse /tmp/cddbread.$$)"
 		eval "$Read"
 		rm -f /tmp/cddbread.$$
 		Tag="$DiscID$Tab$DARTIST$Tab$DALBUM$Tab$CDGENRE$Tab$CDYEAR"
+		unset HTTPGETOPTS
 		
 		Dir="$targetFileName"
 		case "$ripFormat" in
