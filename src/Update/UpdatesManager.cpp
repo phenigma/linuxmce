@@ -163,6 +163,8 @@ bool UpdatesManager::Init(bool bDownload)
 		break;
 	}
 	
+	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "UpdatesManager::Init release : %s", release.c_str());
+	
 	// let's use only the updates for this release
 	xml.Updates(updates, release);
 		
