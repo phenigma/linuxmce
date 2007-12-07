@@ -15,7 +15,7 @@ ASH_LogFile="/var/log/pluto/AddSoftwareHelper.log"
 MyLog()
 {
 	Now=`date`
-	Log $ASH_LogFile "$Now    $1"
+	Log $ASH_LogFile "$Now	[$$]	$1"
 	echo $1
 }
 
