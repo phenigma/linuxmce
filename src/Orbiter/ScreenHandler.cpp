@@ -639,6 +639,8 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::MediaBrowser_Objec
 
 		if(bChangedSortFilter)
 		{
+			mediaFileBrowserOptions.m_listPK_Attribute_Description.clear();
+			mediaFileBrowserOptions.m_listPK_AttributeType_Sort_Prior.clear();
 			mediaFileBrowserOptions.ReacquireGrids();
 			SetMediaSortFilterSelectedObjects();
 			m_pOrbiter->Renderer()->RenderObjectAsync(pObjectInfoData->m_pObj);  // We will be changing the selected state
