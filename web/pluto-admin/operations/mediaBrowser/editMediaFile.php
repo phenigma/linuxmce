@@ -105,7 +105,7 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 			</tr>		
 			<tr bgColor="#EEEEEE">
 				<td><B>'.$TEXT_FILE_CONST.':</B></td>
-				<td><input type="text" name="filename" value="'.htmlentities($rowFile['Filename']).'" size="55"></td>
+				<td><input type="text" name="filename" value="'.htmlentities($rowFile['Filename'],ENT_COMPAT,'UTF-8').'" size="55"></td>
 			</tr>
 			<tr>
 				<td>&nbsp;</td>
@@ -113,7 +113,7 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 			</tr>
 			<tr bgcolor="#EBEFF9">
 				<td><B>'.$TEXT_LOCATION_CONST.':</B></td>
-				<td><input type="text" name="Path" value="'.htmlentities(stripslashes($rowFile['Path'])).'" size="55">'.((file_exists($rowFile['Path'].'/'.$rowFile['Filename'])?'<img src=include/images/sync.gif align=middle border=0>':'<img src=include/images/db.gif align=middle border=0>')).'</td>
+				<td><input type="text" name="Path" value="'.htmlentities(stripslashes($rowFile['Path']),ENT_COMPAT,'UTF-8').'" size="55">'.((file_exists($rowFile['Path'].'/'.$rowFile['Filename'])?'<img src=include/images/sync.gif align=middle border=0>':'<img src=include/images/db.gif align=middle border=0>')).'</td>
 			</tr>
 			<tr bgcolor="#EEEEEE">
 				<td><B>'.$TEXT_TYPE_CONST.':</B></td>

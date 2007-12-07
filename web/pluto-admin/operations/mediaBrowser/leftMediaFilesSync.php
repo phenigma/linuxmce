@@ -23,7 +23,7 @@ function leftMediaFilesSync($output,$mediadbADO,$dbADO) {
 		<form action="index.php" method="POST" name="leftMediaFilesSync">
 		<input type="hidden" name="section" value="leftMediaFilesSync">
 		<input type="hidden" name="action" value="search">
-		<input type="hidden" name="startPath" value="'.urlencode($startPath).'">
+		<input type="hidden" name="startPath" value="'.htmlentities($startPath).'">
 		
 	<table border="0" cellpading="2" cellspacing="0" width="100%">
 			<tr>
@@ -51,13 +51,13 @@ function leftMediaFilesSync($output,$mediadbADO,$dbADO) {
 		foreach ($pathsArray AS $directory){
 			if($directory!=''){
 				$pathTo.='/'.$directory;
-				$linksTree.=$indent.(($pathTo==$startPath)?'<B>[ <a href="javascript:syncPath(\''.urlencode($pathTo).'\')"><B> '.stripslashes($directory).'</B></a> ]</B><br>':'<a href="javascript:syncPath(\''.urlencode($pathTo).'\')"><B>&gt; '.stripslashes($directory).'</B></a><br>');
+				$linksTree.=$indent.(($pathTo==$startPath)?'<B>[ <a href="javascript:syncPath(\''.htmlentities($pathTo).'\')"><B> '.stripslashes($directory).'</B></a> ]</B><br>':'<a href="javascript:syncPath(\''.htmlentities($pathTo).'\')"><B>&gt; '.stripslashes($directory).'</B></a><br>');
 				$indent.='&nbsp;&nbsp;&nbsp;&nbsp;';
 			}
 		}
 		
 		foreach ($childsArray AS $childPath=>$childName){
-			$linksTree.=$indent.'<a href="javascript:syncPath(\''.urlencode(addslashes($childPath)).'\')">&gt; '.stripslashes($childName).'</a><br>';
+			$linksTree.=$indent.'<a href="javascript:syncPath(\''.htmlentities(addslashes($childPath)).'\')">&gt; '.stripslashes($childName).'</a><br>';
 		}
 
 		$out.='
@@ -96,7 +96,7 @@ function leftMediaFilesSync($output,$mediadbADO,$dbADO) {
 		}
 		
 		
-		header('Location: index.php?section=leftMediaFilesSync&startPath='.urlencode($_REQUEST['startPath']));
+		header('Location: index.php?section=leftMediaFilesSync&startPath='.htmlentities($_REQUEST['startPath']));
 		exit();
 	}	
 
