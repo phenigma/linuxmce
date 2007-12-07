@@ -243,6 +243,11 @@ CopyDVD()
 		cp -a /cdrom/diskless-images/. /media/recovery/archives/diskless-images/
 	fi
 
+	if [[ -d /cdrom/deb-cache ]] ;then
+		mkdir -p /media/recovery/archives/deb-cache
+		cp -a /crom/deb-cache/. /media/recovery/archives/deb-cache/
+	fi
+
 	local interfaces="
 auto lo
 iface lo inet loopback
@@ -291,6 +296,12 @@ ExtractArchive()
 	if [[ -d "$archives_path"/diskless-images ]]; then
 		mkdir -p /media/target/usr/pluto/install
 		cp -a "$archives_path"/diskless-images/. /media/target/usr/pluto/install/
+	fi
+
+	#Copy deb-cache
+	if [[ -d "$archives_path"/deb-cache ]] ;then
+		mkdir -p /media/target/usr/pluto/deb-cache
+		cp -a "$archives_path"/deb-cache/. /media/target/usr/pluto/deb-cache/
 	fi
 }
 
