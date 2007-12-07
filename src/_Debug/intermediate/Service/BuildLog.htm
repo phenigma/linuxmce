@@ -1,0 +1,86 @@
+<html>
+<head>
+<META HTTP-EQUIV="Content-Type" content="text/html; charset=Windows-1252">
+</head>
+<body>
+<pre>
+<table width=100% bgcolor=#CFCFE5><tr> <td> <font face=arial size=+3>
+Build Log
+</font></table><table width=* cellspacing=0 cellpadding=0><tr><td width=0 bgcolor=#EDEDF5>&nbsp;</td><td width=0 bgcolor=#FFFFFF>&nbsp;</td><td width=*><pre>
+<h3>------- Build started: Project: Service, Configuration: Debug|Win32 -------
+</h3>
+</pre></table><table width=100% bgcolor=#DFDFE5><tr><td><font face=arial size=+2>
+Command Lines
+</font></table><table width=* cellspacing=0 cellpadding=0><tr><td width=0 bgcolor=#EDEDF5>&nbsp;</td><td width=0 bgcolor=#FFFFFF>&nbsp;</td><td width=*><pre>Creating temporary file "c:\Documents and Settings\Ciprian\My Documents\Visual Studio Projects\200612190102_demo\_Debug\intermediate\Service\RSP00000C.rsp" with contents
+[
+/env win32  /tlb "..\_Debug\intermediate\Service/Service.tlb" /h "netfw_h.h"
+".\netfw.idl"
+]
+Creating command line "midl.exe @"c:\Documents and Settings\Ciprian\My Documents\Visual Studio Projects\200612190102_demo\_Debug\intermediate\Service\RSP00000C.rsp" /nologo"
+Creating temporary file "c:\Documents and Settings\Ciprian\My Documents\Visual Studio Projects\200612190102_demo\_Debug\intermediate\Service\RSP00000D.rsp" with contents
+[
+/env win32  /tlb "..\_Debug\intermediate\Service/Service.tlb" /h "icftypes_h.h"
+".\icftypes.idl"
+]
+Creating command line "midl.exe @"c:\Documents and Settings\Ciprian\My Documents\Visual Studio Projects\200612190102_demo\_Debug\intermediate\Service\RSP00000D.rsp" /nologo"
+Creating temporary file "c:\Documents and Settings\Ciprian\My Documents\Visual Studio Projects\200612190102_demo\_Debug\intermediate\Service\RSP00000E.rsp" with contents
+[
+/Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /Gm /EHsc /RTC1 /MDd /Yu"stdafx.h" /Fp"..\_Debug\intermediate\Service/iTunesBroadcaster_dbg.pch" /Fo"..\_Debug\intermediate\Service/" /Fd"..\_Debug\intermediate\Service/service.pdb" /W4 /c /Wp64 /ZI /TP
+".\Service.cpp"
+]
+Creating command line "cl.exe @"c:\Documents and Settings\Ciprian\My Documents\Visual Studio Projects\200612190102_demo\_Debug\intermediate\Service\RSP00000E.rsp" /nologo"
+Creating temporary file "c:\Documents and Settings\Ciprian\My Documents\Visual Studio Projects\200612190102_demo\_Debug\intermediate\Service\RSP00000F.rsp" with contents
+[
+/Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /Gm /EHsc /RTC1 /MDd /Yc"stdafx.h" /Fp"..\_Debug\intermediate\Service/iTunesBroadcaster_dbg.pch" /Fo"..\_Debug\intermediate\Service/" /Fd"..\_Debug\intermediate\Service/service.pdb" /W4 /c /Wp64 /ZI /TP
+".\stdafx.cpp"
+]
+Creating command line "cl.exe @"c:\Documents and Settings\Ciprian\My Documents\Visual Studio Projects\200612190102_demo\_Debug\intermediate\Service\RSP00000F.rsp" /nologo"
+Creating temporary file "c:\Documents and Settings\Ciprian\My Documents\Visual Studio Projects\200612190102_demo\_Debug\intermediate\Service\RSP000010.rsp" with contents
+[
+/OUT:"..\_Debug\bin/iTunesBroadcaster_dbg.exe" /INCREMENTAL /NOLOGO /DEBUG /PDB:"..\_Debug\bin/Service.pdb" /SUBSYSTEM:WINDOWS /MACHINE:X86 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib "\Documents and Settings\Ciprian\My Documents\Visual Studio Projects\200612190102_demo\_Debug\bin\pitmcb_dbg.lib" "\Documents and Settings\Ciprian\My Documents\Visual Studio Projects\200612190102_demo\_Debug\bin\watcher_dbg.lib"
+"\Documents and Settings\Ciprian\My Documents\Visual Studio Projects\200612190102_demo\_Debug\intermediate\Service\Service.obj"
+"\Documents and Settings\Ciprian\My Documents\Visual Studio Projects\200612190102_demo\_Debug\intermediate\Service\stdafx.obj"
+]
+Creating command line "link.exe @"c:\Documents and Settings\Ciprian\My Documents\Visual Studio Projects\200612190102_demo\_Debug\intermediate\Service\RSP000010.rsp""
+</pre></table><table width=100% bgcolor=#DFDFE5><tr><td><font face=arial size=+2>
+Output Window
+</font></table><table width=* cellspacing=0 cellpadding=0><tr><td width=0 bgcolor=#EDEDF5>&nbsp;</td><td width=0 bgcolor=#FFFFFF>&nbsp;</td><td width=*><pre>Creating Type Library...
+Processing .\netfw.idl
+netfw.idl
+Processing .\icftypes.idl
+icftypes.idl
+Processing C:\Program Files\Microsoft Visual Studio .NET 2003\Vc7\PlatformSDK\include\wtypes.idl
+wtypes.idl
+Processing C:\Program Files\Microsoft Visual Studio .NET 2003\Vc7\PlatformSDK\include\basetsd.h
+basetsd.h
+Processing C:\Program Files\Microsoft Visual Studio .NET 2003\Vc7\PlatformSDK\include\guiddef.h
+guiddef.h
+Processing C:\Program Files\Microsoft Visual Studio .NET 2003\Vc7\PlatformSDK\include\oaidl.idl
+oaidl.idl
+Processing C:\Program Files\Microsoft Visual Studio .NET 2003\Vc7\PlatformSDK\include\objidl.idl
+objidl.idl
+Processing C:\Program Files\Microsoft Visual Studio .NET 2003\Vc7\PlatformSDK\include\unknwn.idl
+unknwn.idl
+Processing C:\Program Files\Microsoft Visual Studio .NET 2003\Vc7\PlatformSDK\include\oaidl.acf
+oaidl.acf
+Creating Type Library...
+Processing .\icftypes.idl
+icftypes.idl
+Processing C:\Program Files\Microsoft Visual Studio .NET 2003\Vc7\PlatformSDK\include\wtypes.idl
+wtypes.idl
+Processing C:\Program Files\Microsoft Visual Studio .NET 2003\Vc7\PlatformSDK\include\basetsd.h
+basetsd.h
+Processing C:\Program Files\Microsoft Visual Studio .NET 2003\Vc7\PlatformSDK\include\guiddef.h
+guiddef.h
+Compiling...
+stdafx.cpp
+Compiling...
+Service.cpp
+Linking...
+LINK : fatal error LNK1104: cannot open file '\Documents and Settings\Ciprian\My Documents\Visual Studio Projects\200612190102_demo\_Debug\bin\pitmcb_dbg.lib'
+</pre></table><table width=100% bgcolor=#DFDFE5><tr><td><font face=arial size=+2>
+Results
+</font></table><table width=* cellspacing=0 cellpadding=0><tr><td width=0 bgcolor=#EDEDF5>&nbsp;</td><td width=0 bgcolor=#FFFFFF>&nbsp;</td><td width=*><pre>
+Build log was saved at "file://c:\Documents and Settings\Ciprian\My Documents\Visual Studio Projects\200612190102_demo\_Debug\intermediate\Service\BuildLog.htm"
+Service - 1 error(s), 0 warning(s)</pre></table><table   width=100% height=20 bgcolor=#CFCFE5><tr><td><font face=arial size=+2>
+</font></table></body></html>
