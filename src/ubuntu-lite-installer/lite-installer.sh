@@ -186,7 +186,7 @@ FormatPartitions()
 	else
 		echo y|mkfs.ext3 "$TargetHdd"1 # root filesystem
 	fi
-	if [[ "$FromHdd" != 1 && "$Upgrade" != 1]]; then
+	if [[ "$FromHdd" != 1 && "$Upgrade" != 1 ]]; then
 		mkswap "$TargetHdd"5 # swap
 		echo y|mkfs.ext3 "$TargetHdd"6 # recovery system
 	fi
