@@ -67,6 +67,11 @@
 #define VARIABLE_Source_Channel_ID_CONST 64
 #define VARIABLE_Source_Caller_ID_CONST 65
 #define VARIABLE_My_Caller_ID_CONST 66
+#define VARIABLE_Network_Status_CONST 67
+#define VARIABLE_IP_Address_CONST 68
+#define VARIABLE_Net_Mask_CONST 69
+#define VARIABLE_Gateway_CONST 70
+#define VARIABLE_DNS_CONST 71
 
 #define VARIABLE_TABLE "Variable"
 #define VARIABLE_PK_VARIABLE_FIELD "PK_Variable"

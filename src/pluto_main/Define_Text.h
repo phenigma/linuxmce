@@ -1249,6 +1249,20 @@
 #define TEXT_External_Channels_CONST 1993
 #define TEXT_Play_from_this_position_CONST 1994
 #define TEXT_Manage_Drives_CONST 1995
+#define TEXT_Network_Settings_CONST 1996
+#define TEXT_Enable_DHCP_CONST 1997
+#define TEXT_Disable_DHCP_CONST 1998
+#define TEXT_Network_Status_CONST 1999
+#define TEXT_IP_Address_CONST 2000
+#define TEXT_Net_Mask_CONST 2001
+#define TEXT_Gateway_CONST 2002
+#define TEXT_DNS_CONST 2003
+#define TEXT_Manual_network_settings_CONST 2004
+#define TEXT_enter_eth_settings_CONST 2005
+#define TEXT_Sort_by_composer_CONST 2006
+#define TEXT_Sort_by_genre_CONST 2007
+#define TEXT_Sort_by_album_CONST 2008
+#define TEXT_Sort_by_performer_CONST 2009
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

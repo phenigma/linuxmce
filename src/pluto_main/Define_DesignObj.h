@@ -2525,6 +2525,14 @@
 #define DESIGNOBJ_butViewPlaylists_CONST 5553
 #define DESIGNOBJ_butManageDrives_CONST 5554
 #define DESIGNOBJ_mnuPlaylists_CONST 5556
+#define DESIGNOBJ_butMainMenu_CONST 5557
+#define DESIGNOBJ_mnuStaticIPSettings_CONST 5558
+#define DESIGNOBJ_butNetworkSettings_CONST 5559
+#define DESIGNOBJ_mnuNetworkSettings_CONST 5560
+#define DESIGNOBJ_butEnableDHCP_CONST 5561
+#define DESIGNOBJ_butDisableDHCP_CONST 5562
+#define DESIGNOBJ_butIPAddress_CONST 5563
+#define DESIGNOBJ_butSortByGenre_CONST 5564
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

@@ -214,6 +214,7 @@
 #define DEVICEDATA_Update_errors_CONST 259
 #define DEVICEDATA_Server_IP_CONST 260
 #define DEVICEDATA_Alert_Filter_Level_CONST 261
+#define DEVICEDATA_Release_CONST 262
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"

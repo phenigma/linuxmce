@@ -253,6 +253,8 @@
 #define SCREEN_Active_Calls_CONST 267
 #define SCREEN_Call_Dropped_CONST 268
 #define SCREEN_Assisted_Transfer_In_Progress_CONST 269
+#define SCREEN_Static_IP_settings_CONST 270
+#define SCREEN_Network_Settings_CONST 271
 
 #define SCREEN_TABLE "Screen"
 #define SCREEN_PK_SCREEN_FIELD "PK_Screen"
