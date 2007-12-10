@@ -1,6 +1,7 @@
 #!/bin/bash
 
 . /etc/lmce-build/builder.conf
+. /usr/local/lmce-build/common/logging.sh 
 
 #TODO:
 # Kill kirill cause i need to copy mysql_wrapper in /usr/pluto/bin
@@ -48,7 +49,7 @@ function Build_MakeRelease {
 	mkdir -p /usr/pluto/bin
 	cp "${svn_dir}/trunk/src/bin/MakeRelease" "${mkr_dir}"
 	cp "${svn_dir}/trunk/src/bin/MakeRelease_PrepFiles" "${mkr_dir}"
-	cp "${svn_dir}/trunk/src/bin/mysql_wrapper" /usr/pluto/bin/
+	cp "${svn_dir}/trunk/src/bin/mysql_wrapper" "${mkr_dir}"
 	cp "${svn_dir}/trunk/src/lib/*.so" "${mkr_dir}"
 }
 
