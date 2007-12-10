@@ -1,7 +1,6 @@
 #!/bin/bash
 
-#TODO: Move stuff from /home/DisklessFS to some other standar place, like /var/lmce-build/something. 
-# This will also require a change in the database.
+. /etc/lmce-build/builder.conf
 
 function Create_Diskless_Debootstrap_Archive {
 	# Create a temp dir to store a diskless debootstrap image into

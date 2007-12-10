@@ -1,9 +1,6 @@
 #!/bin/bash
 . /etc/lmce-build/builder.conf
-
-#TODO :
-# Modify to use proper svn 
-# Use the automagic password from builder.conf 
+. /usr/local/lmce-build/common/logging.sh
 
 function Checkout_Svn {
 	DisplayMessage "**** STEP : SVN CHECKOUT"
