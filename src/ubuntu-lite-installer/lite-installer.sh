@@ -245,7 +245,7 @@ CopyDVD()
 
 	if [[ -d /cdrom/deb-cache ]] ;then
 		mkdir -p /media/recovery/archives/deb-cache
-		cp -a /crom/deb-cache/. /media/recovery/archives/deb-cache/
+		cp -a /cdrom/deb-cache/. /media/recovery/archives/deb-cache/
 	fi
 
 	local interfaces="
