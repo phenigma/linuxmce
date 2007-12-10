@@ -1,7 +1,10 @@
 #!/bin/bash
 
-trap 'rm -f /etc/rc2.d/S90firstboot' EXIT
+pushd /usr/pluto/deb-cache
+	dpkg-scanpackages -m . /dev/null | tee Packages | gzip -c > Packages.gz
+popd
 
+trap 'rm -f /etc/rc2.d/S90firstboot' EXIT
 
 ## Reconfigure netowkring
 export NPflagReconfNetwork=yes
