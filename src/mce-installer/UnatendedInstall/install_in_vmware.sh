@@ -152,6 +152,8 @@ function cleanup_filesystem {
 }
 
 function create_disk_image_from_flat {
+	rm -f "${VMWARE_TARGZ}_"*
+
 	local PART_FILE="/dev/mapper/qemu_p"
 	local LoopDev="$(losetup -f)"
 	
