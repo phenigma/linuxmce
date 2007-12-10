@@ -181,7 +181,7 @@ MediaSyncMode MediaState::SyncModeNeeded(string sDirectory, string sFile)
 		MediaItemState item = it->second;
 
 		//is this our file or not source defined?
-		if((item.m_cSource != 'F' && item.m_cSource != 'P') || item.m_cSource == 0)
+		if(item.m_cSource != 'F' && item.m_cSource != 'P' && item.m_cSource != 0)
 			return modeNone;
 
 		if(StringUtils::SQLDateTime(item.m_sOldFileDate) != StringUtils::SQLDateTime(sCurrentFileDate))
