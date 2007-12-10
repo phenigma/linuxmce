@@ -194,6 +194,7 @@ done
 
 ## Packages that are marked as dependencies only in the database
 LC_ALL=C chroot $TEMP_DIR apt-get -y install mozilla-mplayer
+LC_ALL=C chroot $TEMP_DIR apt-get -y install id-my-disc
 
 ## Put back discover
 mv "$TEMP_DIR"/sbin/discover.disabled "$TEMP_DIR"/sbin/discover

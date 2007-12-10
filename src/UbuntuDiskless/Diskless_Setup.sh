@@ -13,6 +13,7 @@ DEVICEDATA_Extra_Parameters_Override=140
 DEVICEDATA_Architecture=112
 DEVICEDATA_DisklessBoot=9
 DEVICEDATA_DisklessImages=258
+DEVICEDATA_Model=233
 
 function setup_tftp_boot 
 {
@@ -269,6 +270,11 @@ for Row in $R; do
 	if [[ "$Moon_Architecture" == "" ]] ;then
 		Moon_Architecture=i386
 	fi
+
+	Moon_Model=$(RunSQL "SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device='$Moon_DeviceID' AND FK_DeviceData='$DEVICEDATA_Model'")
+	Moon_Model="${Moon_Model%_*}_${Moon_Architecture}"
+	RunSQL "UPDATE Device_DeviceData SET IK_DeviceData='$Moon_Model' WHERE FK_Device='$Moon_DeviceID' AND FK_DeviceData='$DEVICEDATA_Model'"
+
 
 	Moon_RootLocation="/usr/pluto/diskless/$Moon_DeviceID"
 	Moon_BootConfFile="/tftpboot/pxelinux.cfg/01-$(echo ${Moon_MAC//:/-} | tr 'A-Z' 'a-z')"
