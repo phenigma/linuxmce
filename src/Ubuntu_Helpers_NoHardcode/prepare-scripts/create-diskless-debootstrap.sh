@@ -14,9 +14,9 @@ function Create_Diskless_Debootstrap_Archive {
 	rm -f $temp_dir/var/cache/apt/archives/*.deb
 
 	# Pack the diskless image in the right dir
-	mkdir -p /home/DisklessFS
+	mkdir -p "$diskless_dir"
 	pushd "$temp_dir"
-		tar -jcf /home/DisklessFS/PlutoMD_Debootstraped.tar.bz2 *
+		tar -jcf "$diskless_dir/PlutoMD_Debootstraped.tar.bz2" *
 	popd
 	
 	# Remove the temp dir
