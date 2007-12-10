@@ -12,13 +12,13 @@ libaa1-dev
 libattr1-dev
 libavcodec-dev
 libavformat-dev
-libbluetooth2-dev
+libbluetooth-dev
 libcaca-dev
-libcddb-dev
+libcddb2-dev
 libcdio-dev
 libcdparanoia0-dev
 libconfuse-dev
-libcurl3-dev
+libcurl4-openssl-dev
 libdancer-xml0-dev
 libdbus-1-dev
 libdbus-glib-1-dev
@@ -31,7 +31,6 @@ libgnomevfs2-dev
 libgtk2.0-dev
 libhal-dev
 libhid-dev
-libhttpfetcher-dev
 libid3-3.8.3-dev
 libjpeg62-dev
 liblinphone1-dev
@@ -69,7 +68,7 @@ libxmu-headers
 libxrender-dev
 libxtst-dev
 linux-headers-2.6.22-14-generic
-linux-source-2.6.22-14-generic
+linux-source-2.6.22
 lirc-modules-source
 mkisofs
 module-assistant
