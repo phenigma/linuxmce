@@ -1271,8 +1271,8 @@ void PlutoMediaFile::LoadBookmarkPictures()
 {
 	int nNumBookmarksFromDB = NumberOfBookmarksFromDB();
 
-	//if the file was added before, but we already have bookmarks in db ignore those from attribute file
-	if(!m_bNewFileToDb && nNumBookmarksFromDB)
+	//keep them in sync. clean bookmarks from file and use those from db if it's not a new file
+	if(!m_bNewFileToDb)
 	{
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "LoadBookmarkPictures: clear bookmarks from file."
 			"We'll use those from db: %d", nNumBookmarksFromDB);
