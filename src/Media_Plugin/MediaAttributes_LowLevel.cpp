@@ -1209,6 +1209,7 @@ Row_File *MediaAttributes_LowLevel::AddDirectoryToDatabase(int PK_MediaType,stri
 	pRow_File->Path_set(FileUtils::ExcludeTrailingSlash(FileUtils::BasePath(sDirectory)));
 	pRow_File->Filename_set( FileUtils::FilenameWithoutPath(sDirectory) );
 	pRow_File->IsDirectory_set(1);
+	pRow_File->Source_set("F");
 	pRow_File->INode_set( FileUtils::GetInode( pRow_File->Path_get() + "/" + pRow_File->Filename_get() ) );
 	m_pDatabase_pluto_media->File_get()->Commit();
 
@@ -1290,6 +1291,7 @@ int MediaAttributes_LowLevel::AddRippedDiscToDatabase(int PK_Disc,int PK_MediaTy
 			pRow_File->DateAdded_set(StringUtils::SQLDateTime(time(NULL)));
 			pRow_File->Path_set(FileUtils::ExcludeTrailingSlash(sDestination));
 			pRow_File->Filename_set( sRippedFile );
+			pRow_File->Source_set("F");
 			pRow_File->INode_set( FileUtils::GetInode( pRow_File->Path_get() + "/" + pRow_File->Filename_get() ) );
 			m_pDatabase_pluto_media->File_get()->Commit();
 
@@ -1377,6 +1379,7 @@ int MediaAttributes_LowLevel::AddRippedDiscToDatabase(int PK_Disc,int PK_MediaTy
 		pRow_File->EK_MediaType_set(PK_MediaType);
 		pRow_File->Path_set(FileUtils::ExcludeTrailingSlash(sDestination));
 		pRow_File->Filename_set( FileUtils::FilenameWithoutPath(sRippedFile) );
+		pRow_File->Source_set("F");
 		pRow_File->INode_set( FileUtils::GetInode( pRow_File->Path_get() + "/" + pRow_File->Filename_get() ) );
 		m_pDatabase_pluto_media->File_get()->Commit();
 		PK_File = pRow_File->PK_File_get();
