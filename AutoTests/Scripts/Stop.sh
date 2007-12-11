@@ -4,7 +4,8 @@ if [[ "$1" != "demonized" ]] ;then
 	screen -S ReportErrors -d -m /bin/bash $0 demonized
 	exit 0
 fi
-		
+
+set -x
 kill $(cat /var/loop.pid)
 
 # let's give time to others to get this script and try to execute it

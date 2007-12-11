@@ -11,6 +11,7 @@ fi
 echo "incepem" > /var/starting.log
 installed=$(dpkg -l mailutils | cut -d' ' -f1 | tail -1)
 if [[ "$installed" != "ii" ]] ;then 
+	aptitude -y update
 	chmod +x /tmp/AutoTests/Scripts/debconf-exim4.sh
 	/tmp/AutoTests/Scripts/debconf-exim4.sh
 	/bin/bash /tmp/AutoTests/Scripts/install-mail-pkgs.sh

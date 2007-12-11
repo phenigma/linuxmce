@@ -1,6 +1,6 @@
 #!/bin/bash
 
-IPS="10.0.1.1 10.0.1.2"
+IPS="${1:-"10.0.1.1 10.0.1.2"}"
 
 if [[ -e /var/www/AutoTests/newhb ]] ;then
 	rm -rf /var/www/AutoTests/newhb
