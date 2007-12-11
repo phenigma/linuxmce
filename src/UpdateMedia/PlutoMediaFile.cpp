@@ -1352,6 +1352,12 @@ void PlutoMediaFile::LoadCoverarts()
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "LoadCoverarts: loaded %d unique pictures from file",
 		listMD5SumsCoverarts.size());
 
+	if(m_MediaSyncMode == modeDbToFile)
+	{
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "LoadCoverarts: only the db has changed, so we'll purge coverarts from file and use only those from db");
+		m_pPlutoMediaAttributes->ClearCoverarts();
+	}
+
 	PlutoSqlResult result;
 	DB_ROW row;
 	string SQL = 
