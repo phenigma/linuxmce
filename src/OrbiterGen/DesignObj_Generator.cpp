@@ -1954,7 +1954,7 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
 					string sRoom;
 					if( pRow_Room )
 						sRoom = pRow_Room->Description_get();
-                    alArray->push_back(new ArrayValue(StringUtils::itos(drDevice->PK_Device_get()),drDevice->Description_get() + "(" + sRoom + ")",NULL,0,0,0,VARIABLE_PK_Device_CONST,pRow_DesignObjVariation_DesignObj_Skin_Language->CanBeHidden_get()==1,pRow_DesignObjVariation_DesignObj_Skin_Language->HideByDefault_get()==1,false));
+                    alArray->push_back(new ArrayValue(StringUtils::itos(drDevice->PK_Device_get()),drDevice->Description_get() + " (" + sRoom + ")",NULL,0,0,0,VARIABLE_PK_Device_CONST,pRow_DesignObjVariation_DesignObj_Skin_Language->CanBeHidden_get()==1,pRow_DesignObjVariation_DesignObj_Skin_Language->HideByDefault_get()==1,false));
                 }
             }
             break;
