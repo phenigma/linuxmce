@@ -38,10 +38,10 @@ function Checkout_Svn {
 
 	pushd ${svn_dir}/trunk/src
 	DisplayMessage "Checking out {$svn_url}/pluto-private/$Branch/"
-	svn co --username "$svn_user" --password "$svn_pass" ${svn_url}/pluto-private/"$Branch"/src/ZWave/ || Error "Failed to checkount {$svn_url}/pluto-private/$Branch/src/ZWave"
-	svn co --username "$svn_user" --password "$svn_pass" ${svn_url}/pluto-private/"$Branch"/src/Fiire_Scripts/ || Error "Failed to checkount {$svn_url}/pluto-private/$Branch/src/Fiire_Scripts"
-	svn co --username "$svn_user" --password "$svn_pass" ${svn_url}/pluto-private/"$Branch"/src/RFID_Interface/ || Error "Failed to checkount {$svn_url}/pluto-private/$Branch/src/RFID_Interface"
-	svn co --username "$svn_user" --password "$svn_pass" ${svn_url}/pluto-private/"$Branch"/src/lmce_launch_manager/ || Error "Failed to checkount {$svn_url}/pluto-private/$Branch/src/lmce_launch_manager"
+	svn co --username "$svn_user" --password "$svn_pass" ${svn_url}/pluto-private/"$Branch"/src/ZWave/ || Error "Failed to checkount ${svn_url}/pluto-private/$Branch/src/ZWave"
+	svn co --username "$svn_user" --password "$svn_pass" ${svn_url}/pluto-private/"$Branch"/src/Fiire_Scripts/ || Error "Failed to checkount ${svn_url}/pluto-private/$Branch/src/Fiire_Scripts"
+	svn co --username "$svn_user" --password "$svn_pass" ${svn_url}/pluto-private/"$Branch"/src/RFID_Interface/ || Error "Failed to checkount ${svn_url}/pluto-private/$Branch/src/RFID_Interface"
+	svn co --username "$svn_user" --password "$svn_pass" ${svn_url}/pluto-private/"$Branch"/src/lmce_launch_manager/ || Error "Failed to checkount ${svn_url}/pluto-private/$Branch/src/lmce_launch_manager"
 	popd
 }
 

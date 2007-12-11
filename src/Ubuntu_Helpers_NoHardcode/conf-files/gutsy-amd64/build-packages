@@ -1,11 +1,15 @@
 asterisk-dev
 automake
+automake1.9
 build-essential
 debootstrap
 dh-make
 dmsetup
+docbook-utils
 fakeroot
 fuse-utils
+gnome-applets
+gtk-doc-tools
 ivtv-source
 kdelibs4-dev
 libaa1-dev
@@ -27,6 +31,8 @@ libdvdread-dev
 libflac-dev
 libfuse-dev
 libglade2-dev
+libgnome2-dev
+libgnomeui-dev
 libgnomevfs2-dev
 libgtk2.0-dev
 libhal-dev
@@ -41,11 +47,13 @@ libmediastreamer0-dev
 libmodplug-dev
 libmpcdec-dev
 libmysqlclient15-dev
+libpanel-applet2-dev
 libpostproc-dev
 libpulse-dev
 libqt3-compat-headers
 libqt3-headers
 libqt3-mt-dev
+libreadline5-dev
 libsdl1.2-dev
 libsdl-gfx1.2-dev
 libsdl-image1.2-dev
@@ -56,6 +64,7 @@ libstdc++5
 libsvga1-dev
 libtcltk-ruby
 libtheora-dev
+libtool
 libupnp-dev
 libusb-dev
 libvte-dev

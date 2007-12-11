@@ -1,9 +1,10 @@
-#!/bin/bash -x
+#!/bin/bash -e
 
 . /etc/lmce-build/builder.conf
 
 function Changed_Since_Last_Build {
 	local fs_path="$1"
+	echo "Checking $fs_path"
 	local cache_file="${replacements_dir}/.cache"
 	local url_id=$(svn info "$fs_path" | grep '^URL: ' | cut -d' ' -f2 | md5sum | cut -d' ' -f1)
 	local revision_new=$(svn info $fs_path | grep '^Revision: ' | cut -d' ' -f2)
@@ -40,16 +41,6 @@ function Build_Replacements {
 		cp -r ../libxine*.deb ${replacements_dir}
 		popd
 	fi
-
-	#Package: video-wizard-videos
-	local vvv_replacements_dir=$(mktemp -d)
-	pushd "$vvv_replacements_dir"
-		scp -r pluto@10.0.2.4:"/home/samba/www_docs/video\ wizard/video-wizard-videos" ./
-		cd "video-wizard-videos"
-		dpkg-deb -b . ..
-		cp -r ../video-wizard-videos_*.deb ${replacements_dir}
-	popd
-	rm -rf "$vvv_replacements_dir"
 
 	#Package: tee-pluto
 	dir_="${svn_dir}/trunk/misc_utils/tee-pluto"
@@ -139,24 +130,18 @@ function Build_Replacements {
                 rm -f /etc/lirc/lirc-modules-source.conf
                 dpkg-reconfigure -fnoninteractive lirc-modules-source
 
-		pushd /usr/src
-			tar jxvf linux-source-`uname -r | cut -d '-' -f1`.tar.bz2
-		popd
-
                 mkdir -p /usr/src/modules/lirc/drivers/media/video/bt8xx/
                 cp -a /usr/src/linux-source-`uname -r | cut -d '-' -f1`/drivers/media/video/bt8xx/* /lib/modules/`uname -r`/build/drivers/media/video
                 cp -a /usr/src/linux-source-`uname -r | cut -d '-' -f1`/drivers/media/video/* /lib/modules/`uname -r`/build/drivers/media/video
 
                 cd /usr/src/linux-source-`uname -r | cut -d '-' -f1`/drivers/media/video
                 cp -a btcx-risc.h /usr/src/modules/lirc/drivers/media/video
-                cd /usr/src/modules/lirc/drivers
-                ln -s ../../../linux-source-2.6.17/drivers/video/ ./  || :
                 m-a -ft a-b lirc-modules
                 cp /usr/src/lirc-modules*.deb "${replacements_dir}"
 	popd
 	
 	#Package: zaptel-modules
-	m-a -ft -l `unamr -r` a-b zaptel
+	m-a -ft -l `uname -r` a-b zaptel
 	cp /usr/src/zaptel-modules*.deb "${replacements_dir}"
 
 	#Package: ivtv-modules
@@ -235,17 +220,6 @@ function Build_Replacements {
 		cp linux-image-diskless_*.deb "${replacements_dir}"		
 		popd
 	fi
-
-#TODO: Figure how we'll do this on that server
-#	#Download arch independent packages from 150
-#	pushd "$replacements_dir"
-#		scp  pluto@10.0.2.4:/home/samba/repositories/replacements-common/libflickr-api-perl_1_all.deb ./
-#		scp  pluto@10.0.2.4:/home/samba/repositories/replacements-common/libxml-parser-lite-tree-perl_1_all.deb ./
-#		scp  pluto@10.0.2.4:/home/samba/repositories/replacements-common/asterisk-perl_0.08-1_all.deb ./
-#		scp  pluto@10.0.2.4:/home/samba/repositories/replacements-common/pluto-avwizard-sounds_1.0-1_all.deb ./
-#		scp  pluto@10.0.2.4:/home/samba/repositories/replacements-common/msttcorefonts_2.2pluto1_all.deb ./
-#	popd 
-
 }
 
 

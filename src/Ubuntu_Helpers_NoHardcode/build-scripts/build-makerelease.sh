@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -ex
 
 . /etc/lmce-build/builder.conf
 . /usr/local/lmce-build/common/logging.sh 
