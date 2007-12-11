@@ -718,11 +718,12 @@ bool ScreenHandler::MediaBrowser_DatagridSelected(CallBackData *pData)
 					int Row = pCellInfoData->m_Row * mediaFileBrowserOptions.m_pObj_PicGrid->m_MaxCol + pCellInfoData->m_Column;
 					pCell_List = pDataGridTable->GetData( 0, Row );
 				}
-				else if(m_pOrbiter->m_sSkin == AUDIO_STATION_SKIN)
-				{
-					pCell_List = pCell_Pic;
-				}
 			}
+		}
+
+		if(m_pOrbiter->m_sSkin == AUDIO_STATION_SKIN)
+		{
+			pCell_List = pCell_Pic;
 		}
 
 #ifdef DEBUG
@@ -931,6 +932,7 @@ void ScreenHandler::SelectedAttributeCell(DataGridCell *pCell)
 
 	}
 
+	AudioServer_PopulateDatagrid();
 	mediaFileBrowserOptions.ReacquireGrids();
 	MediaBrowser_Render(NULL);
 	m_pOrbiter->CMD_Refresh("*");
