@@ -641,6 +641,7 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::MediaBrowser_Objec
 		{
 			mediaFileBrowserOptions.m_listPK_Attribute_Description.clear();
 			mediaFileBrowserOptions.m_listPK_AttributeType_Sort_Prior.clear();
+			AudioServer_PopulateDatagrid();
 			mediaFileBrowserOptions.ReacquireGrids();
 			SetMediaSortFilterSelectedObjects();
 			m_pOrbiter->Renderer()->RenderObjectAsync(pObjectInfoData->m_pObj);  // We will be changing the selected state
@@ -1658,6 +1659,33 @@ void ScreenHandler::SetupAudioServer()
 		pObj = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_popFBSF_More_CONST) "." + StringUtils::itos(mediaFileBrowserOptions.m_PK_MediaType) + ".0." TOSTRING(DESIGNOBJ_butFBSF_More_UnviewedOnly_CONST) );
 		if( pObj )
 			pObj->m_GraphicToDisplay_set("fmv2",GRAPHIC_NORMAL,false,true);
+
+		AudioServer_PopulateDatagrid();
+	}
+}
+//-----------------------------------------------------------------------------------------------------
+void ScreenHandler::AudioServer_PopulateDatagrid()
+{
+	DesignObj_DataGrid *pObj = (DesignObj_DataGrid *)m_pOrbiter->FindObject(TOSTRING(DESIGNOBJ_mnuMenuAudioServer_CONST) ".0.0." TOSTRING(DESIGNOBJ_dgFileList2_Pics_CONST));
+
+	if(m_pOrbiter->m_sSkin == AUDIO_STATION_SKIN && NULL != pObj)
+	{
+		bool bResponse;
+		int iPK_Variable=0;
+		string sValue_To_Assign;
+		string sParams = m_pOrbiter->SubstituteVariables("<%=FBO%>", pObj, 0, 0 );
+
+		int PK_DeviceTemplate = pObj->m_iPK_DeviceTemplate;
+		DCE::CMD_Populate_Datagrid CMD_Populate_Datagrid(
+			m_pOrbiter->m_dwPK_Device,  m_pOrbiter->m_dwPK_Device_DatagridPlugIn,  
+			StringUtils::itos(m_pOrbiter->m_dwIDataGridRequestCounter), 
+			pObj->m_sGridID,
+			DATAGRID_Media_Browser_CONST, sParams, PK_DeviceTemplate, 
+			&iPK_Variable, &sValue_To_Assign, &bResponse, 
+			&pObj->m_iPopulatedWidth, &pObj->m_iPopulatedHeight);
+
+		if(!m_pOrbiter->SendCommand( CMD_Populate_Datagrid) || !bResponse) // wait for a response
+			LoggerWrapper::GetInstance()->Write( LV_WARNING, "Populate datagrid: %d failed", pObj->m_iPK_Datagrid);
 	}
 }
 //-----------------------------------------------------------------------------------------------------
