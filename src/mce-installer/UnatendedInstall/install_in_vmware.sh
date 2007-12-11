@@ -251,6 +251,8 @@ function Determine_PkgNonGrata()
 	cat "$ResultFile"
 }
 
+#export NuForce=NuForce #uncomment to enable NuForce code
+
 create_virtual_machine
 start_virtual_machine
 create_debcache_on_virtual_machine
