@@ -83,11 +83,7 @@ void MediaListGrid::ToData(string GridID,int &Size, char* &Data, int *ColStart, 
 			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Pic for %s is: %d",pFileBrowserInfo->m_sMRL.c_str( ), pFileBrowserInfo->m_PK_Picture);
 #endif
 
-#ifdef AUDIO_STATION
 			DataGridCell *pCell = new DataGridCell(pDefaultCell->GetText(),pDefaultCell->GetValue());
-#else
-			DataGridCell *pCell = new DataGridCell("", "");
-#endif
 
 			char *pIconBuffer = NULL;
 			string PictureFile_Full;
