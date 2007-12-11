@@ -16,6 +16,7 @@ pushd ../../utilities/linux/UIdiag/
 popd
 cp ../../utilities/linux/UIdiag/UIdiag ./
 cp ../../utilities/linux/UIdiag/*.png ./
+aptitude download patch
 aptitude download dpkg-dev
 aptitude download dpkg-repack
 
