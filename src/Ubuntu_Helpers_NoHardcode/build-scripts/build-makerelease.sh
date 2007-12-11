@@ -1,11 +1,16 @@
-#!/bin/bash -ex
+#!/bin/bash
 
 . /etc/lmce-build/builder.conf
 . /usr/local/lmce-build/common/logging.sh 
 
+# Catch all errors
+trap 'Error "Undefined error in $0"' EXIT
+
 #TODO:
-# Kill kirill cause i need to copy mysql_wrapper in /usr/pluto/bin
 # Implement a system that compiles the bins only when they're changed (similar to replacements)
+
+set -x 
+set -e
 
 function Build_MakeRelease {
 	DisplayMessage "**** STEP : PREPARING BUILD SYSTEM (MakeRelase)"
@@ -45,12 +50,22 @@ function Build_MakeRelease {
 	make || Error "Failed to precompile mysql_wrapper"
 	popd
 
+	DisplayMessage "Copy MakeRelease files to ${mkr_dir}"
 	mkdir -p "${mkr_dir}"
 	mkdir -p /usr/pluto/bin
+
 	cp "${svn_dir}/trunk/src/bin/MakeRelease" "${mkr_dir}"
 	cp "${svn_dir}/trunk/src/bin/MakeRelease_PrepFiles" "${mkr_dir}"
 	cp "${svn_dir}/trunk/src/bin/mysql_wrapper" "${mkr_dir}"
-	cp "${svn_dir}/trunk/src/lib/*.so" "${mkr_dir}"
+	cp "${svn_dir}/trunk/src/lib/"*.so "${mkr_dir}"
+
+	#TODO: Kill kirill cause i need to copy mysql_wrapper in /usr/pluto/bin
+	mkdir -p /usr/pluto/bin
+	cp "${svn_dir}/trunk/src/bin/mysql_wrapper" /usr/pluto/bin
+
 }
 
 Build_MakeRelease
+
+# Relase catch all errors
+trap - EXIT

@@ -11,9 +11,13 @@ function DisplayMessage {
 }
 
 function Error {
+	set +x
 	echo
 	DisplayMessage "ERROR: $*"
-	tail -20 "$log_file"
+	echo			>&100
+	echo 			>&100
+	tail -20 "$log_file"	>&100
+	echo 			>&100
 
 	exit 1
 }
