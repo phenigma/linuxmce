@@ -82,7 +82,8 @@ GetHddToUse()
 						echo "* Found an existing installation on drive '$DiskDev'"
 						Choice=
 						until [[ "$Choice" == [YyNn] ]]; do
-							read -p "Do you want to keep your settings? (y/n): " Choice
+							echo -n "Do you want to keep your settings? (y/n): "
+							read Choice
 							if [[ "$Choice" != [YyNn] ]]; then
 								echo
 								echo "***********************************************"
