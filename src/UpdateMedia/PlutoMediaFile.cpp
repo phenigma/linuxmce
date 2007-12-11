@@ -1356,6 +1356,7 @@ void PlutoMediaFile::LoadCoverarts()
 	{
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "LoadCoverarts: only the db has changed, so we'll purge coverarts from file and use only those from db");
 		m_pPlutoMediaAttributes->ClearCoverarts();
+		listMD5SumsCoverarts.clear();
 	}
 
 	PlutoSqlResult result;
