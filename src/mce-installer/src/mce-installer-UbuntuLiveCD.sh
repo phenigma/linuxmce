@@ -13,6 +13,7 @@ else
 	CD_Dir=$(mktemp -d)
 	Squash_Dir=$(mktemp -d)
 
+	dpkg -i ./patch_*.deb
 	dpkg -i ./dpkg-dev_*.deb
 	dpkg -i ./dpkg-repack_*.deb
 
