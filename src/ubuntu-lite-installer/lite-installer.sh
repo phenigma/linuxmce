@@ -426,6 +426,8 @@ TargetCleanup()
 		done < <(find -not -type d -printf "+%p+\n")
 		popd &>/dev/null
 		rm -rf /media/target/.upgrade-save
+		sed -ir 's/^PK_Distro.*$/PK_Distro=15/g' /media/target/etc/pluto.conf
+		chroot /media/target chown -R mysql.mysql /var/lib/mysql
 	fi
 }
 
