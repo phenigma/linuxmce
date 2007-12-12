@@ -4242,4 +4242,84 @@ void ScreenHandler::RefreshActiveCallsButtons()
 		bActiveCallsPresent ? "1" : "0");
 }
 //-----------------------------------------------------------------------------------------------------
+void ScreenHandler::SCREEN_Static_IP_settings(long PK_Screen)
+{
+	ScreenHandlerBase::SCREEN_Static_IP_settings(PK_Screen);
+}
+//-----------------------------------------------------------------------------------------------------
+void ScreenHandler::SCREEN_Network_Settings(long PK_Screen)
+{
+	ScreenHandlerBase::SCREEN_Network_Settings(PK_Screen);
 
+	RegisterCallBack(cbOnTimer,	(ScreenHandlerCallBack) &ScreenHandler::SCREEN_Network_Settings_OnTimer, new CallBackData());
+	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::SCREEN_Network_Settings_ObjectSelected, new ObjectInfoBackData());
+
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Network_Status_CONST, "");
+	m_pOrbiter->CMD_Set_Text(TOSTRING(DESIGNOBJ_mnuNetworkSettings_CONST) ".0.0", "Reading network settings. One moment...",TEXT_STATUS_CONST);
+	m_pOrbiter->StartScreenHandlerTimer(500);
+}
+//-----------------------------------------------------------------------------------------------------
+bool ScreenHandler::SCREEN_Network_Settings_OnTimer(CallBackData *pData)
+{
+	string sNetworkSettings;
+
+	DeviceData_Base *pDevice_Core = m_pOrbiter->m_pData->m_AllDevices.m_mapDeviceData_Base_FindFirstOfCategory(DEVICECATEGORY_Core_CONST);
+	if( pDevice_Core )
+	{
+		DeviceData_Base *pDevice_AppServer = 
+			pDevice_Core->FindFirstRelatedDeviceOfCategory( DEVICECATEGORY_App_Server_CONST );
+		if( pDevice_AppServer )
+		{
+			string sNetworkSettingsTxtFile = "/tmp/network_settings_" + StringUtils::ltos(static_cast<long>(time(NULL)));
+
+			DCE::CMD_Spawn_Application CMD_Spawn_Application(
+				m_pOrbiter->m_dwPK_Device,
+				pDevice_AppServer->m_dwPK_Device,
+				"/usr/pluto/bin/Network_DisplaySettings.sh",
+				"network settings",
+				"--out-file\t" + sNetworkSettingsTxtFile + "\t--all",
+				"","",false,false,false,true);
+			m_pOrbiter->SendCommand(CMD_Spawn_Application);
+
+			Sleep(2000);
+
+			char *pBuffer=NULL;
+			int size=0;
+			DCE::CMD_Request_File CMD_Request_File(
+				m_pOrbiter->m_dwPK_Device,
+				m_pOrbiter->m_dwPK_Device_GeneralInfoPlugIn,
+				sNetworkSettingsTxtFile,
+				&pBuffer,&size);
+			m_pOrbiter->SendCommand(CMD_Request_File);
+
+			if(NULL != pBuffer)
+			{
+				sNetworkSettings = string(pBuffer).substr(0, size);
+			}
+		}
+	}
+
+	if(sNetworkSettings.empty())
+		sNetworkSettings = "Failed to read network settings, please try again later!";
+
+	NeedToRender render(m_pOrbiter, "SCREEN_Network_Settings_OnTimer");
+	m_pOrbiter->CMD_Set_Text(TOSTRING(DESIGNOBJ_mnuNetworkSettings_CONST) ".0.0", "",TEXT_STATUS_CONST);
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Network_Status_CONST, sNetworkSettings);
+	//m_pOrbiter->CMD_Set_Text(TOSTRING(DESIGNOBJ_mnuNetworkSettings_CONST) ".0.0", sNetworkSettings,TEXT_Network_Status_CONST);
+
+	return false;
+}
+//-----------------------------------------------------------------------------------------------------
+bool ScreenHandler::SCREEN_Network_Settings_ObjectSelected(CallBackData *pData)
+{
+/*
+	ObjectInfoBackData *pObjectInfoData = (ObjectInfoBackData *)pData;
+	if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_butResponse1_CONST || pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_butResponse2_CONST || 
+		pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_butResponse3_CONST || pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_butResponse4_CONST )
+	{
+		m_tLastDeviceAdded = time(NULL);
+	}
+*/
+	return false; // Keep processing it
+}
+//-----------------------------------------------------------------------------------------------------

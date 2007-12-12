@@ -403,6 +403,15 @@ public:
 	int m_nPK_Users_SaveFile;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
+// 
+//    SCREEN_Network_Setup
+//
+	void SCREEN_Static_IP_settings(long PK_Screen);
+
+	void SCREEN_Network_Settings(long PK_Screen);
+	bool SCREEN_Network_Settings_ObjectSelected(CallBackData *pData);
+	bool SCREEN_Network_Settings_OnTimer(CallBackData *pData);
+
 };
 //-----------------------------------------------------------------------------------------------------
 #endif
