@@ -93,9 +93,7 @@ PK_Distro = 15
 Display = 0
 SharedDesktop = 1
 OfflineMode = false
-#<-mkr_b_videowizard_b->
-UseVideoWizard = 0
-#<-mkr_b_videowizard_e->
+UseVideoWizard = 1
 #LogLevels = 1,5,7,8
 #ImmediatelyFlushLog = 1
 AutostartCore=$AutostartCore
