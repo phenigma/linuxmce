@@ -58,43 +58,43 @@ function import_databases () {
 
 	
 	# pluto_main_build & pluto_main
-	echo "DROP DATABASE IF EXITST pluto_main_build;"| mysql -h localhost -u root "pluto_main_build"
-	echo "CREATE DATABASE pluto_main_build;"	| mysql -h localhost -u root "pluto_main_build"
+	echo "DROP DATABASE IF EXISTS pluto_main_build;"| mysql -h localhost -u root
+	echo "CREATE DATABASE pluto_main_build;"	| mysql -h localhost -u root
 	cat "$dbdump_pluto_main"			| mysql -h localhost -u root "pluto_main_build"
-	echo "DROP DATABASE pluto_main;"		| mysql -h localhost -u root "pluto_main"
-	echo "CREATE DATABASE pluto_main;"		| mysql -h localhost -u root "pluto_main"
+	echo "DROP DATABASE IF EXISTS pluto_main;"	| mysql -h localhost -u root
+	echo "CREATE DATABASE pluto_main;"		| mysql -h localhost -u root
 	cat "$dbdump_pluto_main"			| mysql -h localhost -u root "pluto_main"
 	rm -f "$dbdump_pluto_main"
 
 	# main_sqlcvs_ubuntu
-	echo "DROP DATABASE IF EXISTS main_sqlcvs_${flavor};"	| mysql -h localhost -u root "main_sqlcvs_${flavor}"
-	echo "CREATE DATABASE main_sqlcvs_${flavor};"	| mysql -h localhost -u root "main_sqlcvs_${flavor}"
+	echo "DROP DATABASE IF EXISTS main_sqlcvs_${flavor};"	| mysql -h localhost -u root
+	echo "CREATE DATABASE main_sqlcvs_${flavor};"	| mysql -h localhost -u root
 	cat "$dbdump_main_sqlcvs"			| mysql -h localhost -u root "main_sqlcvs_${flavor}"
 	echo 'DELETE FROM `Package_Version`;'		| mysql -h localhost -u root "main_sqlcvs_${flavor}"
 	echo 'DELETE FROM `Schema`;'			| mysql -h localhost -u root "main_sqlcvs_${flavor}"
 	rm -f "$dbdump_main_sqlcvs"
 
 	# myth_sqlcvs_ubuntu
-	echo "DROP DATABASE IF EXITST myth_sqlcvs_${flavor};"	| mysql -h localhost -u root "myth_sqlcvs_${flavor}" 
-	echo "CREATE DATABASE myth_sqlcvs_${flavor};"	| mysql -h localhost -u root "myth_sqlcvs_${flavor}"
+	echo "DROP DATABASE IF EXISTS myth_sqlcvs_${flavor};"	| mysql -h localhost -u root
+	echo "CREATE DATABASE myth_sqlcvs_${flavor};"	| mysql -h localhost -u root
 	cat "$dbdump_myth_sqlcvs"			| mysql -h localhost -u root "myth_sqlcvs_${flavor}"
 	rm -f "$dbdump_myth_sqlcvs"
 
 	# pluto_media
-	echo "DROP DATABASE IF EXITST pluto_media;"		| mysql -h localhost -u root "pluto_media"
-	echo "CREATE DATABASE pluto_media;"		| mysql -h localhost -u root "pluto_media"
+	echo "DROP DATABASE IF EXISTS pluto_media;"	| mysql -h localhost -u root
+	echo "CREATE DATABASE pluto_media;"		| mysql -h localhost -u root
 	cat "$dbdump_pluto_media"			| mysql -h localhost -u root "pluto_media"
 	rm -f "$dbdump_pluto_media"
 
 	# pluto_security
-	echo "DROP DATABASE IF EXITST pluto_security;"		| mysql -h localhost -u root "pluto_security"
-	echo "CREATE DATABASE pluto_security;"		| mysql -h localhost -u root "pluto_security"
+	echo "DROP DATABASE IF EXISTS pluto_security;"	| mysql -h localhost -u root
+	echo "CREATE DATABASE pluto_security;"		| mysql -h localhost -u root 
 	cat "$dbdump_pluto_security" 			| mysql -h localhost -u root "pluto_security"
 	rm -f "$dbdump_pluto_security"
 	
 	# pluto_telecom
-	echo "DROP DATABASE IF EXISTS pluto_telecom;"		| mysql -h localhost -u root "pluto_telecom"
-	echo "CREATE DATABASE pluto_telecom;"		| mysql -h localhost -u root "pluto_telecom"
+	echo "DROP DATABASE IF EXISTS pluto_telecom;"	| mysql -h localhost -u root
+	echo "CREATE DATABASE pluto_telecom;"		| mysql -h localhost -u root
 	cat "$dbdump_pluto_telecom"			| mysql -h localhost -u root "pluto_telecom"
 	rm -f "$dbdump_pluto_telecom"
 }
