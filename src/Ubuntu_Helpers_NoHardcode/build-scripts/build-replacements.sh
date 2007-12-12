@@ -1,10 +1,14 @@
 #!/bin/bash -e
 
 . /etc/lmce-build/builder.conf
+. /usr/local/lmce-build/common/logging.sh
+
+set -e
+set -x
 
 function Changed_Since_Last_Build {
 	local fs_path="$1"
-	echo "Checking $fs_path"
+	DisplayMessage "Checking for changes '$fs_path'"
 	local cache_file="${replacements_dir}/.cache"
 	local url_id=$(svn info "$fs_path" | grep '^URL: ' | cut -d' ' -f2 | md5sum | cut -d' ' -f1)
 	local revision_new=$(svn info $fs_path | grep '^Revision: ' | cut -d' ' -f2)
@@ -27,6 +31,7 @@ function Build_Replacements {
 	#Package: libsdl
 	dir_="${svn_dir}/trunk/ubuntu/libsdl1.2-1.2.12"
 	if Changed_Since_Last_Build "$dir_" ;then
+		DisplayMessage "Building libsdl1.2debian-pluto"
 		pushd "$dir_"
 		dpkg-buildpackage -rfakeroot -us -uc -b
 		cp -r ../libsdl1.2debian-pluto*.deb "${replacements_dir}"
@@ -36,6 +41,7 @@ function Build_Replacements {
 	#Package: libxine
 	dir_="${svn_dir}/trunk/ubuntu/xine-lib-1.1.7"
 	if Changed_Since_Last_Build "$dir_" ;then
+		DisplayMessage "Building xine-lib"
 		pushd "$dir_"
 		dpkg-buildpackage -rfakeroot -us -uc -b
 		cp -r ../libxine*.deb ${replacements_dir}
@@ -45,6 +51,7 @@ function Build_Replacements {
 	#Package: tee-pluto
 	dir_="${svn_dir}/trunk/misc_utils/tee-pluto"
 	if Changed_Since_Last_Build "$dir_" ;then
+		DisplayMessage "Building tee-pluto"
 		pushd "$dir_"
 		dpkg-buildpackage -rfakeroot -us -uc -b
 		cp ../tee-pluto_*.deb ${replacements_dir}
@@ -54,6 +61,7 @@ function Build_Replacements {
 	#Package: liblinphone
 	dir_="${svn_dir}/trunk/ubuntu/linphone-1.3.5"
 	if Changed_Since_Last_Build "$dir_" ;then
+		DisplayMessage "Building linphone-1.3.5"
 		pushd "$dir_"
 		dpkg-buildpackage -rfakeroot -us -uc -b
 		cp ../liblinphone1-lmce_*.deb ${replacements_dir}
@@ -64,6 +72,7 @@ function Build_Replacements {
 	#Package: pluto-mplayer
 	dir_="${svn_dir}/trunk/ubuntu/mplayer"
 	if Changed_Since_Last_Build "$dir_" ;then
+		DisplayMessage "Building pluto-mplayer"
 		pushd "$dir_"
 		dpkg-buildpackage -rfakeroot -us -uc -b
 		cp -r ../pluto-mplayer_*.deb ${replacements_dir}
@@ -73,6 +82,7 @@ function Build_Replacements {
 	#Package: pluto-ffmpeg
 	dir_="${svn_dir}/trunk/ubuntu/ffmpeg"
 	if Changed_Since_Last_Build "$dir_" ;then
+		DisplayMessage "Building pluto-ffmpeg"
 		pushd "$dir_"
 		dpkg-buildpackage -rfakeroot -us -uc -b
 		cp -r ../pluto-ffmpeg_*.deb ${replacements_dir}
@@ -82,6 +92,7 @@ function Build_Replacements {
 	#Package: ushare
 	dir_="${svn_dir}/trunk/ubuntu/ushare-0.9.6"
 	if Changed_Since_Last_Build "$dir_" ;then
+		DisplayMessage "Building ushare-0.9.6"
 		pushd "$dir_"
 		dpkg-buildpackage -rfakeroot -us -uc -b
 		cp -r ../ushare_*.deb ${replacements_dir}
@@ -91,6 +102,7 @@ function Build_Replacements {
 	#Package: djmount
 	dir_="${svn_dir}/trunk/ubuntu/djmount-0.71"
 	if Changed_Since_Last_Build "$dir_" ;then
+		DisplayMessage "Building djmount-0.71"
 		pushd "$dir_"
 		dpkg-buildpackage -rfakeroot -us -uc -b
 		cp -r ../djmount_*.deb ${replacements_dir}
@@ -100,6 +112,7 @@ function Build_Replacements {
 	#Package: freepbx
 	dir_="${svn_dir}/trunk/ubuntu/asterisk/freepbx"
 	if Changed_Since_Last_Build "$dir_" ;then
+		DisplayMessage "Building freepbx"
 		pushd "$dir_"
 		dpkg-buildpackage -rfakeroot -us -uc -b
 		cp -r ../freepbx_*.deb ${replacements_dir}
@@ -109,6 +122,7 @@ function Build_Replacements {
 	#Package: pluto-asterisk
 	dir_="${svn_dir}/trunk/ubuntu/asterisk"
 	if Changed_Since_Last_Build "$dir_" ;then
+		DisplayMessage "Building pluto-asterisk"
 		pushd "$dir_"
 		./make_package_ubuntu.sh `uname -r`
 		cp -r asterisk-pluto_*.deb ${replacements_dir}
@@ -118,6 +132,7 @@ function Build_Replacements {
 	#Package: lshwd
 	dir_="${svn_dir}/trunk/ubuntu/lshwd-2.0-rc4"
 	if Changed_Since_Last_Build "$dir_" ;then
+		DisplayMessage "Building lshwd-2.0-rc4"
 		pushd "$dir_"
 		dpkg-buildpackage -rfakeroot -us -uc -b
 		cp ../lshwd_2.0*.deb ${replacements_dir}
@@ -126,6 +141,7 @@ function Build_Replacements {
 
 	#Package: lirc-modules
 	pushd .
+		DisplayMessage "Building lirc-modules"
                 cd "${svn_dir}"/trunk/src/Ubuntu_Helpers
                 rm -f /etc/lirc/lirc-modules-source.conf
                 dpkg-reconfigure -fnoninteractive lirc-modules-source
@@ -141,16 +157,19 @@ function Build_Replacements {
 	popd
 	
 	#Package: zaptel-modules
+	DisplayMessage "Building zaptel-modules"
 	m-a -ft -l `uname -r` a-b zaptel
 	cp /usr/src/zaptel-modules*.deb "${replacements_dir}"
 
 	#Package: ivtv-modules
 	pushd .
+		DisplayMessage "Building ivtv-modules"
 		m-a -ft a-b ivtv
 		cp /usr/src/ivtv-modules*.deb "${replacements_dir}"
 	popd
 	
 	pushd "${svn_dir}"/trunk/ubuntu/
+		DisplayMessage "Building ivtv-firmware"
 		Src="deb http://dl.ivtvdriver.org/ubuntu feisty firmware"
 		if [ ! -e /etc/apt/sources.list.pbackup ] ;then
 			cp /etc/apt/sources.list /etc/apt/sources.list.pbackup
@@ -179,6 +198,7 @@ function Build_Replacements {
 	#Package: lirc-pluto
 	dir_="${svn_dir}"/trunk/ubuntu/lirc-pluto-0.1
 	if Changed_Since_Last_Build "$dir_" ;then
+		DisplayMessage "Building lirc-pluto"
 		pushd "$dir_"
 		dpkg-buildpackage -rfakeroot -us -uc -b
 		cp ../lirc-pluto_*.deb "${replacements_dir}"
@@ -188,6 +208,7 @@ function Build_Replacements {
 	#Package: mce-launcher
 	dir_="${svn_dir}"/trunk/src/mce-launcher
 	if Changed_Since_Last_Build "$dir_" ;then
+		DisplayMessage "Building mce-launcher"
 		pushd "$dir_"
 		dpkg-buildpackage -rfakeroot -us -uc -b
 		cp ../mce-launcher_*.deb "${replacements_dir}"
@@ -197,6 +218,7 @@ function Build_Replacements {
 	#Package: mce-installer
 	dir_="${svn_dir}"/trunk/src/mce-installer
 	if Changed_Since_Last_Build "$dir_" ;then
+		DisplayMessage "Building mce-installer"
 		pushd "$dir_"
 		dpkg-buildpackage -rfakeroot -us -uc -b
 		cp ../mce-installer_*.deb "${replacements_dir}"
@@ -206,6 +228,7 @@ function Build_Replacements {
 	#Package: mtx-pluto
 	dir_="${svn_dir}"/trunk/ubuntu/mtx-1.3.11
 	if Changed_Since_Last_Build "$dir_" ;then
+		DisplayMessage "Building mtx-pluto"
 		pushd "$dir_"
 		dpkg-buildpackage -rfakeroot -us -uc -b
 		cp ../mtx-pluto_*.deb "${replacements_dir}"
@@ -215,6 +238,7 @@ function Build_Replacements {
 	#Package: linux-image-diskless
 	dir_="${svn_dir}"/trunk/ubuntu/linux-image-dummy
 	if Changed_Since_Last_Build "$dir_" ;then
+		DisplayMessage "Building linux-image-diskless"
 		pushd "$dir_"
 		./makepackage.sh	
 		cp linux-image-diskless_*.deb "${replacements_dir}"		
@@ -222,5 +246,9 @@ function Build_Replacements {
 	fi
 }
 
+DisplayMessage "*** STEP: Building replacement debs"
+trap 'Error "Undefined error in $0"' EXIT
 
 Build_Replacements
+
+trap - EXIT
