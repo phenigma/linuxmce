@@ -28,6 +28,7 @@ function build_main_debs() {
 	mkdir -p "${out_dir}" || Error "Cannot create MakeRelease debs output directory"
 
 	# Prepare some params values for MakeRelease
+	DisplayMessage "Compiling and building packages"
 	SVNrevision=$(svn info "${svn_dir}"/trunk/src |grep ^Revision | cut -d" " -f2)
 	ExcludePkgList="543,542,462,607,432,431,427,426,430,429,336,337,589,590,515,516"
 
