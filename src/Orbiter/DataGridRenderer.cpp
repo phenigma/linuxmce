@@ -417,7 +417,7 @@ DataGridRenderer::DataGridRenderer(DesignObj_Orbiter *pOwner): ObjectRenderer(pO
 		string sText = m_pObj_Owner_DataGrid->m_pOrbiter->SubstituteVariables(pCell->GetText(), m_pObj_Owner_DataGrid, 0, 0);
 
 		//don't display any text on a cell if it has already a pictures to display
-		if(NULL != pCell->m_pGraphicData)
+		if(NULL != pCell->m_pGraphicData || NULL != pPath)
 			sText = "";
 
 		if(!sText.empty())
