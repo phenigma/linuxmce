@@ -71,7 +71,10 @@ AVWizardReplacement()
 	UI_SetOptions "$OrbiterDev" 0 0 "$UI_Normal_Horizontal"
 
 	/usr/pluto/bin/Xconfigure.sh --force-vesa --defaults
+
 	echo "#!/bin/bash" >/usr/pluto/bin/AVWizard_Run.sh
+	echo "#!/bin/bash" >/usr/pluto/bin/Xconfigure.sh
+
 	ConfSet AVWizardDone 1
 	ConfSet UseVideoWizard 0
 }
