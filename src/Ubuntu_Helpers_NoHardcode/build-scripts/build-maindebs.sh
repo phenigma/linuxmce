@@ -10,13 +10,24 @@ function build_main_debs() {
 	export PATH=$PATH:${svn_dir}/trunk/src/bin
 	export LD_LIBRARY_PATH="$mkr_dir:${svn_dir}/trunk/src/lib"
 
-	# Hackozaurus to build SimplePhone
+	#FIXME Hackozaurus to build SimplePhone
 	export PKG_CONFIG_PATH=/opt/linphone-1.3.5/lib/pkgconfig
 	LinphoneVersion="$(dpkg -s 'liblinphone1-lmce' | grep '^Version: ' | cut -d' ' -f2)"
 	if [[ "$LinphoneVersion" == "1."[57]"."* ]]; then
 		# Linphone 1.5.1 in Ubuntu Feisty makes SimplePhone to need this
 		export LINPHONE_CONST=const
 	fi
+
+	#FIXME Hackozaurus for pluto-dummy-console-tools
+	mkdir -p /usr/pluto/dummy-packages/
+	/usr/pluto/dummy-packages//Readme.PlutoConsoleUtilities.dummy
+
+	#FIXME Hackozaurus for pluto-devel-dependencies
+	touch /home/README.Devel.Dependencies
+
+	#FIXME Hackozaurus fro ubuntu-diskless-tools
+	mkdir -o /home/DisklessFS/
+	cp "${diskless_dir}/PlutoMD_Debootstraped.tar.bz2" /home/DisklessFS
 
 	# Perform Search&Replace on the sources
 	DisplayMessage "Performing search'n'replace on the sources"
@@ -30,7 +41,7 @@ function build_main_debs() {
 	# Prepare some params values for MakeRelease
 	DisplayMessage "Compiling and building packages"
 	SVNrevision=$(svn info "${svn_dir}"/trunk/src |grep ^Revision | cut -d" " -f2)
-	ExcludePkgList="543,542,462,607,432,431,427,426,430,429,336,337,589,590,515,516"
+	ExcludePkgList="543,542,462,607,432,431,427,426,430,429,336,337,589,590,515,516,266,540"
 
 	# Compile the packages
 	"${mkr_dir}/MakeRelease" -R "$SVNrevision" -h 'localhost' -u 'root' -O "$out_dir" -D 'pluto_main_build' -o 15 -r 21 -m 1 -K "$ExcludePkgList" -s "${svn_dir}/trunk" -n / -d || Error "MakeRelease failed"
