@@ -1,19 +1,13 @@
 #!/bin/bash
-
-. /etc/lmce-build/builder.conf
-. /usr/local/lmce-build/common/logging.sh 
-
-# Catch all errors
-trap 'Error "Undefined error in $0"' EXIT
-
 #TODO:
 # Implement a system that compiles the bins only when they're changed (similar to replacements)
+. /etc/lmce-build/builder.conf
+. /usr/local/lmce-build/common/logging.sh 
 
 set -x 
 set -e
 
 function Build_MakeRelease {
-	DisplayMessage "**** STEP : PREPARING BUILD SYSTEM (MakeRelase)"
 
 	DisplayMessage "Precompiling pluto_main"
 	pushd "${svn_dir}/trunk/src/pluto_main"
@@ -65,7 +59,9 @@ function Build_MakeRelease {
 
 }
 
+DisplayMessage "**** STEP : PREPARING BUILD SYSTEM (MakeRelase)"
+trap 'Error "Undefined error in $0"' EXIT
+
 Build_MakeRelease
 
-# Relase catch all errors
 trap - EXIT

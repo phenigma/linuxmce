@@ -12,6 +12,7 @@ function DisplayMessage {
 
 function Error {
 	set +x
+	trap - EXIT
 	echo
 	DisplayMessage "ERROR: $*"
 	echo			>&100

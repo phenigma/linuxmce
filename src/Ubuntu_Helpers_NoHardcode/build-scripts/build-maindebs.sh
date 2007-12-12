@@ -1,6 +1,7 @@
 #!/bin/bash
 
 . /etc/lmce-build/builder.conf
+. /usr/local/lmce-build/common/logging.sh
 
 set -e
 set -x
@@ -8,22 +9,36 @@ set -x
 function build_main_debs() {
 	export PATH=$PATH:${svn_dir}/trunk/src/bin
 	export LD_LIBRARY_PATH="$mkr_dir:${svn_dir}/trunk/src/lib"
-	export PKG_CONFIG_PATH=/opt/linphone-1.3.5/lib/pkgconfig
 
+	# Hackozaurus to build SimplePhone
+	export PKG_CONFIG_PATH=/opt/linphone-1.3.5/lib/pkgconfig
 	LinphoneVersion="$(dpkg -s 'liblinphone1-lmce' | grep '^Version: ' | cut -d' ' -f2)"
 	if [[ "$LinphoneVersion" == "1."[57]"."* ]]; then
 		# Linphone 1.5.1 in Ubuntu Feisty makes SimplePhone to need this
 		export LINPHONE_CONST=const
 	fi
+
+	# Perform Search&Replace on the sources
+	DisplayMessage "Performing search'n'replace on the sources"
+	"${mkr_dir}/MakeRelease_PrepFiles" -p "${svn_dir}/trunk" -e "*.cpp,*.h,Makefile*,*.php,*.sh,*.pl,*.awk" -c "/etc/lmce-build/${flavor}.conf" || Error "MakeRelease_PrepFiles failed"
+
+	# Clear the debs output directory
+	DisplayMessage "Cleaning MakeRelease debs output directory"
+	rm -rf "${out_dir}" || Error "Cannot clean MakeRelease debs output directory"
+	mkdir -p "${out_dir}" || Error "Cannot create MakeRelease debs output directory"
+
+	# Prepare some params values for MakeRelease
 	SVNrevision=$(svn info "${svn_dir}"/trunk/src |grep ^Revision | cut -d" " -f2)
-	MakeRelease="${mkr_dir}/MakeRelease"
-	MakeRelease_PrepFiles="${mkr_dir}/MakeRelease_PrepFiles"
+	ExcludePkgList="543,542,462,607,432,431,427,426,430,429,336,337,589,590,515,516"
 
-	rm -rf "${out_dir}"
-	mkdir -p "${out_dir}"
-
-	$MakeRelease_PrepFiles -p "${svn_dir}/trunk" -e "*.cpp,*.h,Makefile*,*.php,*.sh,*.pl,*.awk" -c "/etc/lmce-build/${flavor}.conf"
-	$MakeRelease "${MakeReleaseExtraParams[@]}" -R "$SVNrevision" -h localhost -u root -O "$out_dir" -D 'pluto_main_build' -o 15 -r 21 -m 1 -K "543,542,462,607,432,431,427,426,430,429,336,337,589,590,515,516" -s "${svn_dir}/trunk" -n / -d
+	# Compile the packages
+	"${mkr_dir}/MakeRelease" -R "$SVNrevision" -h 'localhost' -u 'root' -O "$out_dir" -D 'pluto_main_build' -o 15 -r 21 -m 1 -K "$ExcludePkgList" -s "${svn_dir}/trunk" -n / -d || Error "MakeRelease failed"
 }
 
+
+DisplayMessage "*** STEP: Running MakeRelease"
+trap 'Error "Undefined error in $0"' EXIT
+
 build_main_debs
+
+trap - EXIT
