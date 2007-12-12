@@ -416,7 +416,8 @@ DataGridRenderer::DataGridRenderer(DesignObj_Orbiter *pOwner): ObjectRenderer(pO
 
 		string sText = m_pObj_Owner_DataGrid->m_pOrbiter->SubstituteVariables(pCell->GetText(), m_pObj_Owner_DataGrid, 0, 0);
 
-		if(m_pObj_Owner->m_pOrbiter->m_sSkin == AUDIO_STATION_SKIN && NULL != pCell->m_pGraphicData)
+		//don't display any text on a cell if it has already a pictures to display
+		if(NULL != pCell->m_pGraphicData)
 			sText = "";
 
 		if(!sText.empty())
