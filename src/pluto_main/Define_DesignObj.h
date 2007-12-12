@@ -332,7 +332,7 @@
 #define DESIGNOBJ_dgSubtitleTracks_CONST 2050
 #define DESIGNOBJ_mnuFileList_Music_Movies_Video_CONST 2071
 #define DESIGNOBJ_objCloseBrowser_CONST 2112
-#define DESIGNOBJ_mnuPVR_CONST 2121
+#define DESIGNOBJ_mnuPVRRemote_CONST 2121
 #define DESIGNOBJ_arrEntGroupList_CONST 2128
 #define DESIGNOBJ_butMediaEntGroups_CONST 2129
 #define DESIGNOBJ_butLiveTV_CONST 2134
@@ -1920,6 +1920,7 @@
 #define DESIGNOBJ_butTransferSIPDevices_CONST 4822
 #define DESIGNOBJ_butMinimizeApp_CONST 4824
 #define DESIGNOBJ_objNowPlayingShort_CONST 4825
+#define DESIGNOBJ_mnuPVR_CONST 4826
 #define DESIGNOBJ_mnuDemoMedia_CONST 4829
 #define DESIGNOBJ_arrLightsMain_Vertical_CONST 4830
 #define DESIGNOBJ_dgFileList_Playlists_AutoPlay_CONST 4831
@@ -2530,9 +2531,20 @@
 #define DESIGNOBJ_butNetworkSettings_CONST 5559
 #define DESIGNOBJ_mnuNetworkSettings_CONST 5560
 #define DESIGNOBJ_butEnableDHCP_CONST 5561
-#define DESIGNOBJ_butDisableDHCP_CONST 5562
-#define DESIGNOBJ_butIPAddress_CONST 5563
+#define DESIGNOBJ_butStaticIP_CONST 5562
+#define DESIGNOBJ_butChangeIPAddress_CONST 5563
 #define DESIGNOBJ_butSortByGenre_CONST 5564
+#define DESIGNOBJ_butScrollUp_MediaBrowser_CONST 5565
+#define DESIGNOBJ_butScrollDown_MediaBrowser_CONST 5566
+#define DESIGNOBJ_butPlayAlbum_CONST 5567
+#define DESIGNOBJ_mnuVdrOSD_CONST 5568
+#define DESIGNOBJ_mnuVdrRecordings_CONST 5569
+#define DESIGNOBJ_VDR_FS_Options_CONST 5570
+#define DESIGNOBJ_VDR_Recordings_FS_Options_CONST 5571
+#define DESIGNOBJ_butChangeNetMask_CONST 5572
+#define DESIGNOBJ_butChangeGateway_CONST 5573
+#define DESIGNOBJ_butChangeDNS_CONST 5574
+#define DESIGNOBJ_butApplyNetworkSettings_CONST 5575
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

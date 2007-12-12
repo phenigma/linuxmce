@@ -48,8 +48,8 @@
 #define SCREEN_MakingCall_CONST 45
 #define SCREEN_MakingLinPhoneBroadcast_CONST 46
 #define SCREEN_FileList_Music_Movies_Video_CONST 47
-#define SCREEN_PVR_CONST 48
-#define SCREEN_DVDRemote_CONST 49
+#define SCREEN_PVR_Remote_CONST 48
+#define SCREEN_DVD_Remote_CONST 49
 #define SCREEN_DVDMenu_CONST 50
 #define SCREEN_MapMedia_CONST 51
 #define SCREEN_AdvancedMediaOptions_CONST 52
@@ -77,7 +77,7 @@
 #define SCREEN_ScreenSaver_CONST 74
 #define SCREEN_Pick_Room_For_Device_CONST 75
 #define SCREEN_Power_CONST 76
-#define SCREEN_GenericDvdRemote_CONST 77
+#define SCREEN_Generic_DVD_Remote_CONST 77
 #define SCREEN_ViewPlaylist_CONST 78
 #define SCREEN_FileList_withPictures_Mobil_CONST 79
 #define SCREEN_GenericDvdMenu_CONST 80
@@ -115,7 +115,7 @@
 #define SCREEN_Subtitles_CONST 114
 #define SCREEN_Angles_CONST 115
 #define SCREEN_NewPnpDevice_CONST 116
-#define SCREEN_VdrRemote_CONST 117
+#define SCREEN_VDR_Remote_CONST 117
 #define SCREEN_CdRemote_CONST 118
 #define SCREEN_PowerFile_CONST 119
 #define SCREEN_DevCallInProgress_CONST 120
@@ -126,7 +126,7 @@
 #define SCREEN_MapClimate_CONST 125
 #define SCREEN_MapTelecom_CONST 126
 #define SCREEN_NavMode_CONST 127
-#define SCREEN_PvrFullScreen_CONST 128
+#define SCREEN_PVR_Full_Screen_CONST 128
 #define SCREEN_Epg_CONST 129
 #define SCREEN_Help01_CONST 130
 #define SCREEN_Help02_CONST 131
@@ -135,7 +135,7 @@
 #define SCREEN_SetupMythTv02_CONST 134
 #define SCREEN_SetupMythTv03_CONST 135
 #define SCREEN_SetupMythTv04_CONST 136
-#define SCREEN_PvrFullScreenOpt_CONST 137
+#define SCREEN_PVR_Full_Screen_Options_CONST 137
 #define SCREEN_DVDFullScreen_CONST 138
 #define SCREEN_DVDFullScreenOpt_CONST 139
 #define SCREEN_VideosFullScreen_CONST 140
@@ -202,14 +202,14 @@
 #define SCREEN_Need_Reload_Router_CONST 204
 #define SCREEN_Need_Regen_Orbiter_CONST 205
 #define SCREEN_Sensors_Viewed_By_Camera_CONST 206
-#define SCREEN_mnuPVROSD_CONST 207
-#define SCREEN_mnuPVRRecording_CONST 208
+#define SCREEN_PVR_OSD_CONST 207
+#define SCREEN_PVR_Recordings_CONST 208
 #define SCREEN_Demo_Media_CONST 209
 #define SCREEN_Download_are_ready_to_install_CONST 210
 #define SCREEN_mnuAmbiance_CONST 212
 #define SCREEN_TVConfirmInputsToggle_CONST 216
-#define SCREEN_mnuPVR_OSD_Full_Screen_CONST 218
-#define SCREEN_mnuPVRRecording_Full_Screen_CONST 219
+#define SCREEN_PVR_OSD_Full_Screen_CONST 218
+#define SCREEN_PVR_Recordings_Full_Screen_CONST 219
 #define SCREEN_CurrentlyActiveRemote_CONST 220
 #define SCREEN_mnuLights_CONST 222
 #define SCREEN_mnuPlaybackControl_CONST 223
@@ -255,6 +255,14 @@
 #define SCREEN_Assisted_Transfer_In_Progress_CONST 269
 #define SCREEN_Static_IP_settings_CONST 270
 #define SCREEN_Network_Settings_CONST 271
+#define SCREEN_PVR_Recordings_Full_Screen_Options_CONST 272
+#define SCREEN_VDR_Recordings_Full_Screen_Options_CONST 273
+#define SCREEN_VDR_OSD_CONST 274
+#define SCREEN_VDR_Recordings_Full_Screen_CONST 275
+#define SCREEN_VDR_OSD_Full_Screen_CONST 276
+#define SCREEN_VDR_Full_Screen_Options_CONST 277
+#define SCREEN_VDR_Full_Screen_CONST 278
+#define SCREEN_VDR_Recordings_CONST 279
 
 #define SCREEN_TABLE "Screen"
 #define SCREEN_PK_SCREEN_FIELD "PK_Screen"

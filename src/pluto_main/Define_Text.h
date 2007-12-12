@@ -1263,6 +1263,9 @@
 #define TEXT_Sort_by_genre_CONST 2007
 #define TEXT_Sort_by_album_CONST 2008
 #define TEXT_Sort_by_performer_CONST 2009
+#define TEXT_Play_Album_CONST 2010
+#define TEXT_Static_IP_CONST 2011
+#define TEXT_Apply_Network_Settings_CONST 2012
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
