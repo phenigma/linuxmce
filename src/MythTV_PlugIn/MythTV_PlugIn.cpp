@@ -893,18 +893,18 @@ void MythTV_PlugIn::CMD_Set_Active_Menu(string sText,string &sCMD_Result,Message
 	int PK_Screen_Remote,PK_Screen_OSD;
 	if( sText=="live" )
 	{
-		PK_Screen_Remote=SCREEN_PVR_CONST;
-		PK_Screen_OSD=SCREEN_PvrFullScreen_CONST;
+		PK_Screen_Remote=SCREEN_PVR_Remote_CONST;
+		PK_Screen_OSD=SCREEN_PVR_Full_Screen_CONST;
 	}
 	else if( sText=="nonlive" )
 	{
-		PK_Screen_Remote=SCREEN_mnuPVRRecording_CONST;
-		PK_Screen_OSD=SCREEN_mnuPVRRecording_Full_Screen_CONST;
+		PK_Screen_Remote=SCREEN_PVR_Recordings_CONST;
+		PK_Screen_OSD=SCREEN_PVR_Recordings_Full_Screen_CONST;
 	}
 	else
 	{
-		PK_Screen_Remote=SCREEN_mnuPVROSD_CONST;
-		PK_Screen_OSD=SCREEN_mnuPVR_OSD_Full_Screen_CONST;
+		PK_Screen_Remote=SCREEN_PVR_OSD_CONST;
+		PK_Screen_OSD=SCREEN_PVR_OSD_Full_Screen_CONST;
 	}
 
 	/** We're going to send a message to all the orbiters that are bound to remotes in any of the entertainment areas */
