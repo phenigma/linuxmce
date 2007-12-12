@@ -1676,12 +1676,13 @@ void ScreenHandler::AudioServer_PopulateDatagrid()
 		int iPK_Variable=0;
 		string sValue_To_Assign;
 		string sParams = m_pOrbiter->SubstituteVariables("<%=FBO%>", pObj, 0, 0 );
+		string sGridID = m_pOrbiter->SubstituteVariables("MediaFile_<%=!%>", pObj, 0, 0 );
 
 		int PK_DeviceTemplate = pObj->m_iPK_DeviceTemplate;
 		DCE::CMD_Populate_Datagrid CMD_Populate_Datagrid(
 			m_pOrbiter->m_dwPK_Device,  m_pOrbiter->m_dwPK_Device_DatagridPlugIn,  
 			StringUtils::itos(m_pOrbiter->m_dwIDataGridRequestCounter), 
-			pObj->m_sGridID,
+			sGridID,
 			DATAGRID_Media_Browser_CONST, sParams, PK_DeviceTemplate, 
 			&iPK_Variable, &sValue_To_Assign, &bResponse, 
 			&pObj->m_iPopulatedWidth, &pObj->m_iPopulatedHeight);
