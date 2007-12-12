@@ -1,18 +1,27 @@
 #!/bin/bash
 
 . /etc/lmce-build/builder.conf
+. /usr/local/lmce-build/common/logging.sh
 
-# Decide what name to use for the iso
-iso_name="$1"
-if [[ "$iso_name" == "" ]] ;then
-	iso_name="linuxmce-1.1"
-fi
+set -e
+set -x
 
-# Remove old iso
-rm -f "${local_mirror_dir}/${iso_name}-cache.iso"
+DisplayMessage "*** STEP: Creating LINUXMCE CD 2"
+trap 'Error "Undefined error in $0"' EXIT
+
+iso_name="LinuxMCE-CD2.iso"
+
+# Copy some extra debs to the CD
+DisplayMessage "Copy some extra debs to CD2"
+rm -f "${build_dir}/cd2-packages/cachecd1-cache"/video-wizard-videos_*.deb
+cp "${extras_dir}"/video-wizard-videos_*.deb "${build_dir}/cd2-packages/cachecd1-cache"
+rm -f "${build_dir}/cd2-packages/cachecd1-cache"/tee-pluto_*.deb
+cp "${replacements_dir}"/tee-pluto_*.deb "${build_dir}/cd2-packages/cachecd1-cache"
 
 # Build our new iso
+DisplayMessage "Building the ISO"
 pushd "${build_dir}"
-	mkisofs -f -J -r -o "${iso_name}-cache.iso" ./cd2-packages
-	mv "${iso_name}-cache.iso" "${local_mirror_dir}"
+	mkisofs -f -J -r -o "${local_mirror_dir}/${iso_name}-cache.iso" ./cd2-packages
 popd
+
+trap - EXIT
