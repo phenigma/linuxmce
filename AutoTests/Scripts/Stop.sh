@@ -21,4 +21,4 @@ sleep 60
 /bin/bash /tmp/AutoTests/Scripts/DeviceDied.sh
 /bin/bash /tmp/AutoTests/Scripts/SendEmail.sh
 /bin/bash /tmp/AutoTests/Scripts/PutBackLogRotate.sh
-/bin/bash /tmp/AutoTests/Scripts/BackupCoredumps.sh
+#/bin/bash /tmp/AutoTests/Scripts/BackupCoredumps.sh
