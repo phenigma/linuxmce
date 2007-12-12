@@ -30,6 +30,7 @@ AVWizardReplacement()
 {
 	DEVICEDATA_ScreenWidth=100
 	DEVICEDATA_ScreenHeight=101
+	DEVICEDATA_PK_Skin=24
 	DEVICEDATA_PK_Size=25
 	DEVICEDATA_Video_settings=89
 	DEVICEDATA_Connector=68
@@ -48,7 +49,8 @@ AVWizardReplacement()
 	OrbiterHeight=600
 	Video_settings="800 600/60"
 	Video_Connector="VGA"
-	PK_Size=1 #800x600
+	PK_Skin=12 # NuForce
+	PK_Size=1 # 800x600
 	NewAudioSetting="S"
 
 	Queries=(
@@ -56,6 +58,7 @@ AVWizardReplacement()
 		"UPDATE Device_DeviceData SET IK_DeviceData='$OrbiterHeight' WHERE FK_Device='$OrbiterDev' AND FK_DeviceData='$DEVICEDATA_ScreenHeight'"
 		"UPDATE Device_DeviceData SET IK_DeviceData='$Video_settings' WHERE FK_Device='$ComputerDev' AND FK_DeviceData='$DEVICEDATA_Video_settings'"
 		"UPDATE Device_DeviceData SET IK_DeviceData='$Video_Connector' WHERE FK_Device='$ComputerDev' AND FK_DeviceData='$DEVICEDATA_Connector'"
+		"UPDATE Device_DeviceData SET IK_DeviceData='$PK_Skin' WHERE FK_Device='$OrbiterDev' AND FK_DeviceData='$DEVICEDATA_PK_Skin'"
 		"UPDATE Device_DeviceData SET IK_DeviceData='$PK_Size' WHERE FK_Device='$OrbiterDev' AND FK_DeviceData='$DEVICEDATA_PK_Size'"
 		"UPDATE Orbiter SET Regen=1 WHERE PK_Orbiter='$OrbiterDev'"
 		"REPLACE INTO Device_DeviceData(FK_Device, FK_DeviceData, IK_DeviceData) VALUES('$ComputerDev', '$DEVICEDATA_Audio_Settings', '$NewAudioSetting')"
