@@ -1,44 +1,47 @@
 #!/bin/bash
 
 . /etc/lmce-build/builder.conf
+. /usr/local/lmce-build/common/logging.sh
 
-# Decide on the name that the iso will have
-iso_name="$1"
-if [[ "$iso_name" == "" ]] ;then
-	iso_name="linuxmce-1.1"
-fi
+set -e
+set -x
+
+DisplayMessage "*** STEP: Creating LINUXMCE CD 1"
+trap 'Error "Undefined error in $0"' EXIT
+
+iso_name="LinuxMCE-CD1.iso"
 
 # Prepare the directory in whith the cd will be built
-if [ ! -e ${build_dir}/cache-cd/deb-cache ] ;then
-	mkdir -p ${build_dir}/cache-cd/deb-cache
-else
-	rm -f ${build_dir}/cache-cd/deb-cache/*
-	rm -f ${build_dir}/cache-cd/mce-installer*.deb
-fi
-
-# Remove old iso
-rm -f "${local_mirror_dir}/${iso_name}-packages.iso"
+DisplayMessage "Preparing temp directory to create the iso"
+temp_dir=$(mktemp -d)
+mkdir -p ${temp_dir}/deb-cache
 
 # Copy the debs that where created in local_mirror_dir on this cd
-find "$local_mirror_dir" -maxdepth 1 -type f -name '*.deb' -print0 | xargs -0 -i -t cp '{}' "${build_dir}/cache-cd/deb-cache"
-
+DisplayMessage "Copy packages from the local repository"
+find "$local_mirror_dir" -maxdepth 1 -type f -name '*.deb' -print0 | xargs -0 -i -t cp '{}' "${temp_dir}/deb-cache"
 
 # Remove blacklisted packages from this cd
+DisplayMessage "Remove package thare are on the repository but should not be on CD"
 while read file; do
-	rm -f "${build_dir}/cache-cd/deb-cache/$file"_*.deb
+	rm -f "${temp_dir}/deb-cache/$file"_*.deb
 done </etc/lmce-build/cd1-packages-blacklist
 
 # Add some extra packages to this cd
+DisplayMessage "Add extra packages that are not in repository but should be on CD"
 for pack in "${build_dir}/cd1-packages/"*.deb ;do
-	cp "$pack" "${build_dir}/cache-cd/deb-cache"
+	cp "$pack" "${temp_dir}/deb-cache"
 done
 
-# Generate the iso
-pushd "${build_dir}"
-	cp "${local_mirror_dir}"/mce-installer*.deb ./cache-cd/
-	mkisofs -f -joliet-long -r -o "${iso_name}-packages.iso" ./cache-cd
-	mv "${iso_name}-packages.iso" "$local_mirror_dir"
-popd
+# copy installer in the root of the disc
+DisplayMessage "Copying installer to the root of the CD"
+cp "${local_mirror_dir}"/mce-installer*.deb "${temp_dir}"
 
+# Generate the iso
+DisplayMessage "Generating the ISO"
+mkisofs -f -joliet-long -r -o "${local_mirror_dir}/${iso_name}" "${temp_dir}"
+
+DisplayMessage "Removing temporary dir"
 ## Clean the temporary dir
-rm -rf "${build_dir}/cache-cd"
+rm -rf "${temp_dir}"
+
+trap - EXIT
