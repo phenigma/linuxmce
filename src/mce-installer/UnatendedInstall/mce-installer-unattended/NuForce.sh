@@ -15,7 +15,7 @@ Packages()
 		asterisk-perl libct3 libiksemel3 libpri1.2 libradiusclient-ng2 libsqlite0 libtonezone0 php-db php-pear
 		pluto-proxy-orbiter pluto-voicemail-monitor zaptel-modules-2.6.22-14-generic
 		mythtv-backend mythtv-common mythtv-database mythtv-frontend mythtv-transcode-utils mythweb
-		pluto-mythtv-player pluto-mythtv-plugin
+		pluto-mythtv-player pluto-mythtv-plugin libmyth-0.20
 	)
 
 	InstallPkgs=(
