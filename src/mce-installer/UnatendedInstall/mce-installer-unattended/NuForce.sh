@@ -70,6 +70,7 @@ AVWizardReplacement()
 	/usr/pluto/bin/Xconfigure.sh --force-vesa --defaults
 	echo "#!/bin/bash" >/usr/pluto/bin/AVWizard_Run.sh
 	ConfSet AVWizardDone 1
+	ConfSet UseVideoWizard 0
 }
 
 AddEgalaxToXorgConf()
