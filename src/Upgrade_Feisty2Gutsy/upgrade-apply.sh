@@ -7,7 +7,7 @@ if [[ ! -f /var/gutsy-upgrade-scripts/upgrade-ready ]] ;then
 	exit 0
 fi
 
-cd /usr/share/gutsy-upgrade-scripts/
+#cd /usr/share/gutsy-upgrade-scripts/
 
 ## Preseed some packages to avoid the need of interactive debconf
 ./upgrade-preseed.sh
@@ -19,14 +19,18 @@ mv /etc/init.d/kdm{,.backup-upgrade} || :
 ## Modify sources.list for the upgade
 echo "
 deb file:/usr/pluto/deb-cache/ ./
-deb http://archive.ubuntu.com/ubuntu/ gutsy main restricted universe multiverse
+#deb http://archive.ubuntu.com/ubuntu/ gutsy main restricted universe multiverse
 " > /etc/apt/sources.list
 
-## Regen Packages.gz
-pushd /usr/pluto/deb-cache-new
-	dpkg-scanpackages -m . /dev/null > Packages
-       	gzip -c Packages > Packages.gz
-popd
+echo "
+Package: *
+Pin: origin
+Pin-Priority: 9999
+
+Package: *
+Pin: release v=7.10,o=Ubuntu,a=gutsy,l=Ubuntu
+Pin-Priority: 9998
+" > /etc/apt/preferences
 
 ## Move deb-cache-new to deb-cache
 mv /usr/pluto/deb-cache{,-old}
@@ -53,6 +57,13 @@ RunSQL "UPDATE Device_DeviceData SET IK_DeviceData = '0' WHERE FK_DeviceData = '
 
 ## Remove old 0704 updates
 rm -rf /home/updates/*
+
+## Regen Packages.gz
+pushd /usr/pluto/deb-cache-new
+	dpkg-scanpackages -m . /dev/null > Packages
+       	gzip -c Packages > Packages.gz
+popd
+
 
 ## Don't run again
 rm -f /usr/share/gutsy-upgrade-scripts/upgrade-ready
