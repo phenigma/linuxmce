@@ -26,3 +26,31 @@ fi
 if lshwd | grep -qi 'VGA .* (nv)'; then
         apt-get -y -f install pluto-nvidia-video-drivers
 fi
+
+PostInstPkg=(
+	pluto-local-database pluto-media-database pluto-security-database pluto-system-database
+	pluto-telecom-database freepbx
+)
+
+for Pkg in "${PostInstPkg[@]}"; do
+	/var/lib/dpkg/info/"$Pkg".postinst configure
+done
+
+. /usr/pluto/bin/SQL_Ops.sh
+
+Queries=(
+	"UPDATE Device_DeviceData
+		SET IK_DeviceData=15
+		WHERE PK_Device IN (
+				SELECT PK_Device FROM Device WHERE FK_DeviceTemplate IN (7, 28)
+			)
+			AND FK_DeviceData=7
+	"
+	"UPDATE Device_DeviceData SET IK_DeviceData='LMCE_CORE_u0710_i386' WHERE IK_DeviceData='LMCE_CORE_1_1'"
+	"UPDATE Device_DeviceData SET IK_DeviceData='LMCE_MD_u0710_i386'   WHERE IK_DeviceData='LMCE_MD_1_1'"
+	"UPDATE Device_DeviceData SET IK_DeviceData='0' WHERE FK_DeviceData='234'"
+)
+
+for Q in "${Queries[@]}"; do
+	RunSQL "$Q"
+done
