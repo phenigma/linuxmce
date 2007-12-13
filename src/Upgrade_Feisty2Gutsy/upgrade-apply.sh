@@ -20,9 +20,13 @@ mv /etc/init.d/kdm{,.backup-upgrade} || :
 echo "
 deb file:/usr/pluto/deb-cache/ ./
 deb http://archive.ubuntu.com/ubuntu/ gutsy main restricted universe multiverse
-deb http://archive.ubuntu.com/ubuntu/ gutsy-security main restricted universe multiverse
-deb http://archive.ubuntu.com/ubuntu/ gutsy-updates  main restricted universe multiverse
 " > /etc/apt/sources.list
+
+## Regen Packages.gz
+pushd /usr/pluto/deb-cache-new
+	dpkg-scanpackages -m . /dev/null > Packages
+       	gzip -c Packages > Packages.gz
+popd
 
 ## Move deb-cache-new to deb-cache
 mv /usr/pluto/deb-cache{,-old}
@@ -31,6 +35,10 @@ mv /usr/pluto/deb-cache{-new,}
 ## Do the actual upgrade
 apt-get update
 apt-get -f -y --force-yes dist-upgrade
+
+## Fix PK_Distro in pluto.conf
+. /usr/pluto/bin/Config_Ops.sh
+ConfSet "PK_Distro" "15"
 
 ## Fix grub's menu.lst
 root_drive=$(mount | grep 'on / ' | cut -d' ' -f1)

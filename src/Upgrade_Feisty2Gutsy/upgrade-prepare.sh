@@ -104,6 +104,12 @@ if [[ "$InstallFrom" == "$FROM_DVD" ]] ;then
 	cat "$TEMP_DIR/lmce-image/linux-mce.tar.gz_0"* | tar zxv --checkpoint --strip 4 -C /usr/pluto/deb-cache-new './usr/pluto/deb-cache' || Error "There was a problem while reading the DVD"
 
 	# Copy diskless images
+	cp "$TEMP_DIR/diskless-images"/PlutoMD-*.tar.bz /usr/pluto/install
+
+	# Copy crossover deb-cache
+	cp "$TEMP_DIR/deb-cache"/*.deb /usr/pluto/deb-cache-new/
+
+	# Copy diskless images
 	cp "$TEMP_DIR/diskless-images/PlutoMD*.tar.bz2" /usr/pluto/install || Error "Cannot copy Diskless Images from the DVD"
 
 	# Get out of here
