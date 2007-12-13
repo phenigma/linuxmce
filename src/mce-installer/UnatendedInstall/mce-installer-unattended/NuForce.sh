@@ -11,6 +11,25 @@ fi
 . /usr/pluto/bin/Utils.sh
 . /usr/pluto/bin/Config_Ops.sh
 
+DEVICECATEGORY_Media_Director=8
+
+DEVICETEMPLATE_Media_Plugin=2
+DEVICETEMPLATE_OnScreen_Orbiter=62
+
+DEVICEDATA_ScreenWidth=100
+DEVICEDATA_ScreenHeight=101
+DEVICEDATA_PK_Skin=24
+DEVICEDATA_PK_Size=25
+DEVICEDATA_Video_settings=89
+DEVICEDATA_Connector=68
+DEVICEDATA_TV_Standard=229
+DEVICEDATA_Audio_Settings=88
+DEVICEDATA_Type=47
+
+ComputerDev=$(FindDevice_Category "$PK_Device" "$DEVICECATEGORY_Media_Director" '' 'include-parent')
+OrbiterDev=$(FindDevice_Template "$PK_Device" "$DEVICETEMPLATE_OnScreen_Orbiter")
+MediaPluginDev=$(FindDevice_Template "$PK_Device" "$DEVICETEMPLATE_Media_Plugin")
+
 Packages()
 {
 	RemovePkgs=(
@@ -36,22 +55,7 @@ Packages()
 
 AVWizardReplacement()
 {
-	DEVICEDATA_ScreenWidth=100
-	DEVICEDATA_ScreenHeight=101
-	DEVICEDATA_PK_Skin=24
-	DEVICEDATA_PK_Size=25
-	DEVICEDATA_Video_settings=89
-	DEVICEDATA_Connector=68
-	DEVICEDATA_TV_Standard=229
-	DEVICEDATA_Audio_Settings=88
-
-	DEVICETEMPLATE_OnScreen_Orbiter=62
-	DEVICECATEGORY_Media_Director=8
-
 	UI_Normal_Horizontal=1
-
-	ComputerDev=$(FindDevice_Category "$PK_Device" "$DEVICECATEGORY_Media_Director" '' 'include-parent')
-	OrbiterDev=$(FindDevice_Template "$PK_Device" "$DEVICETEMPLATE_OnScreen_Orbiter")
 
 	OrbiterWidth=800
 	OrbiterHeight=600
@@ -119,10 +123,6 @@ EndSection
 
 DatabaseDefaults()
 {
-	DEVICETEMPLATE_Media_Plugin=2
-	DEVICEDATA_Type=47
-
-	MediaPluginDev=$(FindDevice_Template "$PK_Device" "$DEVICETEMPLATE_Media_Plugin")
 	Queries=(
 		"UPDATE Device_DeviceData SET IK_DeviceData='flac' WHERE FK_Device='$MediaPluginDev' AND FK_DeviceData='$DEVICEDATA_Type'"
 		"INSERT INTO Room(FK_Installation, FK_RoomType, Description) VALUES('$PK_Installation', 1, 'NuForce')"
@@ -135,6 +135,19 @@ DatabaseDefaults()
 	done
 
 	/usr/pluto/bin/Timezone_Detect.sh
+
+	Q="
+		INSERT INTO QuickStartTemplate (Description, \`Binary\`, Arguments, Icon, WindowClass)
+		VALUES ('TouchKit', '/usr/bin/TouchKit', '', '', 'TouchKit.TouchKit');
+		SELECT LAST_INSERT_ID()
+	"
+	QST=$(RunSQL "$Q")
+	SortOrder=$(RunSQL "SELECT MAX(SortOrder)+1 FROM Device_QuickStart")
+	Q="
+		INSERT INTO Device_QuickStart (FK_Device, Description, SortOrder,FK_QuickStartTemplate)
+		VALUES ('$ComputerDev', 'TouchKit', '$SortOrder', '$QST');
+	"
+	RunSQL "$Q"
 }
 
 Packages
