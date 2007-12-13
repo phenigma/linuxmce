@@ -125,6 +125,7 @@ DatabaseDefaults()
 		"UPDATE Device_DeviceData SET IK_DeviceData='flac' WHERE FK_Device='$MediaPluginDev' AND FK_DeviceData='$DEVICEDATA_Type'"
 		"INSERT INTO Room(FK_Installation, FK_RoomType, Description) VALUES('$PK_Installation', 1, 'NuForce')"
 		"UPDATE Device SET FK_Room=1 WHERE PK_Device=1"
+		"UPDATE Device_DeviceData SET IK_DeviceData='' WHERE FK_DeviceData=28"
 	)
 
 	for Q in "${Queries[@]}"; do
