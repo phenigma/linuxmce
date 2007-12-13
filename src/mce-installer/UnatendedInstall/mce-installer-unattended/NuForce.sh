@@ -103,6 +103,8 @@ EndSection
 
 	ServerLayout=NoServerLayout
 	while read line; do
+		line="${line#+}"
+		line="${line%+}"
 		if [[ "$line" == *'Section "ServerLayout"'* ]]; then
 			ServerLayout=ServerLayout
 		fi
@@ -111,7 +113,7 @@ EndSection
 			echo $'\tInputDevice "EETI" "SendCoreEvents"'
 		fi
 		echo "$line"
-	done </etc/X11/xorg.conf >/etc/X11/xorg.conf.$$
+	done < <(cat /etc/X11/xorg.conf | sed -r 's,^|$,+,g') >/etc/X11/xorg.conf.$$
 	mv /etc/X11/xorg.conf{.$$,}
 }
 
