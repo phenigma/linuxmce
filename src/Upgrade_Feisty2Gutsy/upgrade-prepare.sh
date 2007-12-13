@@ -92,27 +92,26 @@ if [[ "$InstallFrom" == "$FROM_DVD" ]] ;then
 	Message "* Mounting LinuxMCE DVD"
 	sleep 0.5
 	TEMP_DIR="$(mktemp -d)"
-	mount /dev/cdrom "$TEMP_DIR" || Error "Cannot mount LinuxMCE 0710 DVD"
+	mount -o ro /dev/cdrom "$TEMP_DIR" || Error "Cannot mount LinuxMCE 0710 DVD"
+	trap "umount -f '$TEMP_DIR'" EXIT
 	sleep 1
 
 	# Prepare to copy deb-cache
-	Message "* Copying package from DVD"
+	Message "* Copying updates from DVD (might take some time)"
 	mkdir -p /usr/pluto/deb-cache-new/ || Error "Cannot create target directory on disk"
-	test -f "$TEMP_DIR/lmce-image/linux-mce.tar.gz_01"  || Error "Cannout find LinuxMCE 0710 image on the DVD"
-
+	test -f "$TEMP_DIR/lmce-image/linux-mce.tar.gz_00"  || Error "Cannout find LinuxMCE 0710 image on the DVD"
+	
 	# Copy deb-cache
-	cat "$TEMP_DIR/lmce-image/linux-mce.tar.gz_0"* | tar zxv --checkpoint --strip 4 -C /usr/pluto/deb-cache-new './usr/pluto/deb-cache' || Error "There was a problem while reading the DVD"
-
-	# Copy diskless images
-	cp "$TEMP_DIR/diskless-images"/PlutoMD-*.tar.bz /usr/pluto/install
+	cat "$TEMP_DIR/lmce-image/linux-mce.tar.gz_0"* | tar zx --strip 4 -C /usr/pluto/deb-cache-new './usr/pluto/deb-cache' || Error "There was a problem while reading the DVD"
 
 	# Copy crossover deb-cache
 	cp "$TEMP_DIR/deb-cache"/*.deb /usr/pluto/deb-cache-new/
 
 	# Copy diskless images
-	cp "$TEMP_DIR/diskless-images/PlutoMD*.tar.bz2" /usr/pluto/install || Error "Cannot copy Diskless Images from the DVD"
+	cp "$TEMP_DIR/diskless-images/"PlutoMD*.tar.bz2 /usr/pluto/install || Error "Cannot copy Diskless Images from the DVD"
 
 	# Get out of here
+	mkdir -p /var/gutsy-upgrade-scripts
 	touch /var/gutsy-upgrade-scripts/upgrade-ready
 	Message "*  You need to reboot your computer to start the upgrade process"
 	read
