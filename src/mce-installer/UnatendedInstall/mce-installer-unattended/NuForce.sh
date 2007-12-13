@@ -22,8 +22,13 @@ Packages()
 		id-my-disc egalax pluto-slim-server-streamer
 	)
 
-	apt-get -y -f --purge remove "${RemovePkgs[@]}"
-	apt-get -y -f install "${InstallPkgs[@]}"
+	for Pkg in "${RemovePkgs[@]}"; do
+		apt-get -y -f --purge remove "$Pkg"
+	done
+
+	for Pkg in "${InstallPkgs[@]}"; do
+		apt-get -y -f install "$Pkg"
+	done
 }
 
 AVWizardReplacement()
