@@ -412,6 +412,8 @@ public:
 	bool SCREEN_Network_Settings_ObjectSelected(CallBackData *pData);
 	bool SCREEN_Network_Settings_OnTimer(CallBackData *pData);
 
+	//data
+	map<string,string> m_mapNetworkSettings;
 };
 //-----------------------------------------------------------------------------------------------------
 #endif

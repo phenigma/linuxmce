@@ -4300,27 +4300,74 @@ bool ScreenHandler::SCREEN_Network_Settings_OnTimer(CallBackData *pData)
 		}
 	}
 
-	if(sNetworkSettings.empty())
-		sNetworkSettings = "Failed to read network settings, please try again later!";
+	m_mapNetworkSettings.clear();
+
+	if(!sNetworkSettings.empty())
+	{
+		vector<string> vectLines;
+		StringUtils::Tokenize(sNetworkSettings, "\n", vectLines);
+
+		for(vector<string>::iterator it = vectLines.begin(); it != vectLines.end(); ++it)
+		{
+			string sLine = *it;
+
+			vector<string> vectKeyValue;
+			StringUtils::Tokenize(sLine, "=", vectKeyValue);
+            
+			if(vectKeyValue.size() == 2)
+				m_mapNetworkSettings[vectKeyValue[0]] = vectKeyValue[1];
+		}
+	}
 
 	NeedToRender render(m_pOrbiter, "SCREEN_Network_Settings_OnTimer");
 	m_pOrbiter->CMD_Set_Text(TOSTRING(DESIGNOBJ_mnuNetworkSettings_CONST) ".0.0", "",TEXT_STATUS_CONST);
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_Network_Status_CONST, sNetworkSettings);
-	//m_pOrbiter->CMD_Set_Text(TOSTRING(DESIGNOBJ_mnuNetworkSettings_CONST) ".0.0", sNetworkSettings,TEXT_Network_Status_CONST);
+	
+	if(!m_mapNetworkSettings.empty())
+	{
+		bool bUseDHCP = m_mapNetworkSettings["EXTERNAL_DHCP"] == "1";
+
+		string sStaticIP = m_mapNetworkSettings["EXTERNAL_IP"];
+		string sNetmask = m_mapNetworkSettings["EXTERNAL_NETMASK"];
+		string sGateway = m_mapNetworkSettings["GATEWAY"];
+		string sDNS1 = m_mapNetworkSettings["DNS1"];
+		string sDNS2 = m_mapNetworkSettings["DNS2"];
+
+		sNetworkSettings  = "DHCP Enabled: " + string(bUseDHCP ? "Yes" : "No") + "\n\n";
+		sNetworkSettings += "IP: " + sStaticIP + "\n";
+		sNetworkSettings += "Netmask: " + sNetmask + "\n";
+		sNetworkSettings += "Gateway: " + sGateway + "\n";
+		sNetworkSettings += "DNS1: " + sDNS1 + "\n";
+		sNetworkSettings += "DNS2: " + sDNS2;
+
+		m_pOrbiter->CMD_Set_Variable(VARIABLE_Network_Status_CONST, sNetworkSettings);
+	}
+	else
+	{
+		m_pOrbiter->CMD_Set_Variable(VARIABLE_Network_Status_CONST, "Failed to read network settings, please try again later!");
+	}
 
 	return false;
 }
 //-----------------------------------------------------------------------------------------------------
 bool ScreenHandler::SCREEN_Network_Settings_ObjectSelected(CallBackData *pData)
 {
-/*
 	ObjectInfoBackData *pObjectInfoData = (ObjectInfoBackData *)pData;
-	if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_butResponse1_CONST || pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_butResponse2_CONST || 
-		pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_butResponse3_CONST || pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_butResponse4_CONST )
+
+	if(pObjectInfoData->m_pObj->m_iBaseObjectID == DESIGNOBJ_butEnableDHCP_CONST)
 	{
-		m_tLastDeviceAdded = time(NULL);
+		//TODO: run Radu's script here to enable dhcp
+		
+		NeedToRender render(m_pOrbiter, "SCREEN_Network_Settings_ObjectSelected");
+		m_pOrbiter->CMD_Set_Text(TOSTRING(DESIGNOBJ_mnuNetworkSettings_CONST) ".0.0", "",TEXT_STATUS_CONST);
+		m_pOrbiter->CMD_Set_Variable(VARIABLE_Network_Status_CONST, "Enabling DHCP");
+		m_pOrbiter->StartScreenHandlerTimer(5000);
 	}
-*/
+	else if(pObjectInfoData->m_pObj->m_iBaseObjectID == DESIGNOBJ_butStaticIP_CONST)
+	{
+		DCE::SCREEN_Static_IP_settings screen_Static_IP_settings(m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device);
+		m_pOrbiter->SendCommand(screen_Static_IP_settings);
+	}
+
 	return false; // Keep processing it
 }
 //-----------------------------------------------------------------------------------------------------
