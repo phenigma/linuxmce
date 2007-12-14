@@ -122,8 +122,7 @@ WizardPageVideoResolution::~WizardPageVideoResolution(void)
 		List->SetItemIndex(RefreshValue);
 	}
 	else
-		List->SetItemIndex(0);
-
+		List->SetItemIndex(1);
 }
 
 void WizardPageVideoResolution::FillResolutionStandard(WizardWidgetScrollList* List, const int FillType) {
@@ -177,6 +176,8 @@ void WizardPageVideoResolution::FillResolutionStandard(WizardWidgetScrollList* L
 }
 
 void WizardPageVideoResolution::FillRefresh(WizardWidgetScrollList* List, const int FillType) {
+	//SettingsDictionary* AVWizardSettings = Wizard::GetInstance()->AVWizardOptions->GetDictionary();
+
 	List->Clear();
 	switch(FillType) {
 		default:
@@ -189,6 +190,7 @@ void WizardPageVideoResolution::FillRefresh(WizardWidgetScrollList* List, const 
 			List->AddItem("75 Hz", "75");
 			List->AddItem("80 Hz", "80");
 			List->AddItem("85 Hz", "85");
+			List->SetItemIndex(1);
 			break;
 		case 2: // Component
 		case 3: // Composite
