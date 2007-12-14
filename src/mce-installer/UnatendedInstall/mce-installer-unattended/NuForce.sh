@@ -84,7 +84,7 @@ AVWizardReplacement()
 
 	/usr/pluto/bin/Xconfigure.sh --force-vesa --defaults
 
-	echo "#!/bin/bash" >/usr/pluto/bin/AVWizard_Run.sh
+	echo -e "#!/bin/bash\ncp /etc/X11/xorg.conf{.nuforce,}" >/usr/pluto/bin/AVWizard_Run.sh
 	echo "#!/bin/bash" >/usr/pluto/bin/Xconfigure.sh
 
 	ConfSet AVWizardDone 1
@@ -117,8 +117,7 @@ EndSection
 			echo $'\tInputDevice "EETI" "SendCoreEvents"'
 		fi
 		echo "$line"
-	done < <(cat /etc/X11/xorg.conf | sed -r 's,^|$,+,g') >/etc/X11/xorg.conf.$$
-	mv /etc/X11/xorg.conf{.$$,}
+	done < <(cat /etc/X11/xorg.conf | sed -r 's,^|$,+,g') >/etc/X11/xorg.conf.nuforce
 }
 
 DatabaseDefaults()

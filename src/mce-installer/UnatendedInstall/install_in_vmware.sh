@@ -105,9 +105,7 @@ function cleanup_filesystem {
 	fi
 
 	## Remove xorg.conf cause it was build under vmware
-	if [[ -z "$NuForce" ]]; then
-		rm -f "${FILESYSTEM_ROOT}"/etc/X11/xorg.conf
-	fi
+	rm -f "${FILESYSTEM_ROOT}"/etc/X11/xorg.conf
 
 	## Remove iftab
 	rm -f "${FILESYSTEM_ROOT}"/etc/iftab
