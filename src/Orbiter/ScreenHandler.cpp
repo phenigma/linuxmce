@@ -4332,7 +4332,7 @@ bool ScreenHandler::SCREEN_Network_Settings_OnTimer(CallBackData *pData)
 		string sDNS1 = m_mapNetworkSettings["DNS1"];
 		string sDNS2 = m_mapNetworkSettings["DNS2"];
 
-		sNetworkSettings  = "DHCP Enabled: " + string(bUseDHCP ? "Yes" : "No") + "\n\n";
+		sNetworkSettings  = "Using DHCP: " + string(bUseDHCP ? "Yes" : "No") + "\n\n";
 		sNetworkSettings += "IP: " + sStaticIP + "\n";
 		sNetworkSettings += "Netmask: " + sNetmask + "\n";
 		sNetworkSettings += "Gateway: " + sGateway + "\n";
