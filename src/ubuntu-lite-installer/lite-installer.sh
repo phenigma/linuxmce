@@ -272,7 +272,10 @@ ExtractArchive()
 	echo "Extracting archive (this will take about 10 minutes)"
 	cat "$archives_path"/lmce-image/linux-mce.tar.gz* | tar -C /media/target -zx --checkpoint=10000
 	mkdir -p /media/target/etc/pluto
-	touch /media/target/etc/pluto/install_cleandb
+
+	if [[ "$Upgrade" == 1 ]]; then
+		touch /media/target/etc/pluto/install_cleandb
+	fi
 
 	# Update the UUIDs
 	rm /media/target/etc/blkid.tab || :
