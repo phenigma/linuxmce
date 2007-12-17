@@ -4247,7 +4247,18 @@ void ScreenHandler::SCREEN_Static_IP_settings(long PK_Screen)
 {
 	ScreenHandlerBase::SCREEN_Static_IP_settings(PK_Screen);
 
+	RegisterCallBack(cbOnTimer,	(ScreenHandlerCallBack) &ScreenHandler::SCREEN_Network_Settings_OnTimer, new CallBackData());
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::SCREEN_Network_Settings_ObjectSelected, new ObjectInfoBackData());
+
+	string sStaticIP = m_mapNetworkSettings["EXTERNAL_IP"];
+	string sNetmask = m_mapNetworkSettings["EXTERNAL_NETMASK"];
+	string sGateway = m_mapNetworkSettings["GATEWAY"];
+	string sDNS1 = m_mapNetworkSettings["DNS1"];
+
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_IP_Address_CONST, sStaticIP);
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Net_Mask_CONST, sNetmask);
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Gateway_CONST, sGateway);
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_DNS_CONST, sDNS1);
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_Network_Settings(long PK_Screen)
@@ -4382,8 +4393,39 @@ bool ScreenHandler::SCREEN_Network_Settings_ObjectSelected(CallBackData *pData)
 	{
 		DCE::SCREEN_Static_IP_settings screen_Static_IP_settings(m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device);
 		m_pOrbiter->SendCommand(screen_Static_IP_settings);
-
 		///usr/pluto/bin/Network_Config.sh --ext-static "10.0.1.3" "255.255.252.0" "10.0.0.1" "10.0.0.1" ""
+	}
+	else if(pObjectInfoData->m_pObj->m_iBaseObjectID == DESIGNOBJ_butApplyNetworkSettings_CONST)
+	{
+		string sStaticIP = m_pOrbiter->m_mapVariable_Find(VARIABLE_IP_Address_CONST);
+		string sNetmask = m_pOrbiter->m_mapVariable_Find(VARIABLE_Net_Mask_CONST);
+		string sGateway = m_pOrbiter->m_mapVariable_Find(VARIABLE_Gateway_CONST);
+		string sDNS1 = m_pOrbiter->m_mapVariable_Find(VARIABLE_DNS_CONST);
+		string sDNS2 = m_pOrbiter->m_mapVariable_Find(VARIABLE_DNS_CONST);
+
+		DeviceData_Base *pDevice_Core = m_pOrbiter->m_pData->m_AllDevices.m_mapDeviceData_Base_FindFirstOfCategory(DEVICECATEGORY_Core_CONST);
+		if( pDevice_Core )
+		{
+			DeviceData_Base *pDevice_AppServer = pDevice_Core->FindFirstRelatedDeviceOfCategory( DEVICECATEGORY_App_Server_CONST );
+			if( pDevice_AppServer )
+			{
+				DCE::CMD_Spawn_Application CMD_Spawn_Application(
+					m_pOrbiter->m_dwPK_Device,
+					pDevice_AppServer->m_dwPK_Device,
+					"/usr/pluto/bin/Network_Config.sh",
+					"network config",
+					"--ext-static\t" + sStaticIP + "\t" + sNetmask + "\t" + sGateway + "\t" + sDNS1 + "\t" + sDNS2 + "",
+					"","",false,false,false,true);
+				m_pOrbiter->SendCommand(CMD_Spawn_Application);
+			}
+		}
+
+		m_pOrbiter->CMD_Go_back("", "");
+
+		NeedToRender render(m_pOrbiter, "SCREEN_Network_Settings_ObjectSelected");
+		m_pOrbiter->CMD_Set_Text(TOSTRING(DESIGNOBJ_mnuNetworkSettings_CONST) ".0.0", "",TEXT_STATUS_CONST);
+		m_pOrbiter->CMD_Set_Variable(VARIABLE_Network_Status_CONST, "Reading network settings. One moment...");
+		m_pOrbiter->StartScreenHandlerTimer(5000);		        
 	}
 
 	return false; // Keep processing it
