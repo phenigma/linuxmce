@@ -252,10 +252,11 @@ function Determine_PkgNonGrata()
 	cat "$ResultFile"
 }
 
-#create_virtual_machine
-#start_virtual_machine
-#create_debcache_on_virtual_machine
+create_virtual_machine
+start_virtual_machine
+create_debcache_on_virtual_machine
 copy_installer_on_virtual_machine
 run_installer_on_virtual_machine
+create_disk_image_from_vmdk
 #create_disk_image_from_flat
 
