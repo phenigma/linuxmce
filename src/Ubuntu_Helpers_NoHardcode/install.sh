@@ -11,6 +11,21 @@ echo "Installing Default Configs For $Distro-$Arch"
 rm -f "/etc/lmce-build"
 ln -s "$(pwd)/conf-files/${Distro}-${Arch}/" "/etc/lmce-build"
 
+echo "Creating symlink in /usr/local/lmce-build"
+rm -f "/usr/local/lmce-build"
+ln -s "$(pwd)" "/usr/local/lmce-build"
+
+echo "Configure APT preferences"
+echo '
+Package: *
+Pin: origin
+Pin-Priority: 9999
+
+Package: *
+Pin: release v=7.10,o=Ubuntu,a=gutsy,l=Ubuntu
+Pin-Priority: 9998
+' > /etc/apt/preferences
+
 # Generate ssh key for builder if !exist
 if [[ ! -f /etc/lmce-build/builder.key ]] ;then
 	echo "Generating SSH Key for this host : /etc/lmce-build/builder.key"

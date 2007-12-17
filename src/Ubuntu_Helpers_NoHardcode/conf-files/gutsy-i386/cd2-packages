@@ -640,7 +640,6 @@ svgalibg1
 syslinux
 sysv-rc
 tcpd
-tee-pluto
 tk8.4
 traceroute
 transcode
@@ -652,7 +651,6 @@ unixodbc
 update-inetd
 usbutils
 vdr
-video-wizard-videos
 viewres
 vim
 vim-common
