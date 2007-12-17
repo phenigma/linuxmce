@@ -713,6 +713,8 @@ void Disk_Drive_Functions::FixupRippingInfo(Disk_Drive_Functions *pDisk_Drive_Fu
 	}
 	else if( PK_MediaType==MEDIATYPE_pluto_DVD_CONST )
 		StringUtils::Replace(&sDirectory,"___audio___or___video___","videos");
+	else if( PK_MediaType==MEDIATYPE_pluto_HDDVD_CONST || PK_MediaType==MEDIATYPE_pluto_BD_CONST )
+	    StringUtils::Replace(&sDirectory,"___audio___or___video___","videos");
 
 	bool bUsingUnknownDiscName=false;
 	// Validate the name and be sure it's unique
@@ -727,8 +729,16 @@ void Disk_Drive_Functions::FixupRippingInfo(Disk_Drive_Functions *pDisk_Drive_Fu
 		}
 		if( sFilename.size()==0 )
 		{
-			sFilename = PK_MediaType==MEDIATYPE_pluto_DVD_CONST ? "Unknown DVD" : "Unknown CD";
-			bUsingUnknownDiscName=true;
+		    // default
+		    sFilename = "Unknown CD";
+		    bUsingUnknownDiscName=true;
+
+		    if (PK_MediaType==MEDIATYPE_pluto_DVD_CONST)
+			sFilename = "Unknown DVD";
+		    else if (PK_MediaType==MEDIATYPE_pluto_HDDVD_CONST)
+			sFilename = "Unknown HD-DVD";
+		    else if (PK_MediaType==MEDIATYPE_pluto_BD_CONST)
+			sFilename = "Unknown Blu-ray Disc";
 		}
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive_Functions::FixupRippingInfo fixed directory %s / %s / %s", sDirectory.c_str(), sFilename.c_str(), sDirectory2.c_str());
 	}
@@ -738,14 +748,14 @@ void Disk_Drive_Functions::FixupRippingInfo(Disk_Drive_Functions *pDisk_Drive_Fu
 
 	sFilename = sDirectory + sFilename;
 
-	if( bUsingUnknownDiscName && ( (PK_MediaType==MEDIATYPE_pluto_CD_CONST && FileUtils::DirExists(sFilename)) || (PK_MediaType==MEDIATYPE_pluto_DVD_CONST && FileUtils::FileExists(sFilename + ".dvd")) ) )  // Be sure the directory name is unique if we're using the default
+	if( bUsingUnknownDiscName && ( ((PK_MediaType==MEDIATYPE_pluto_CD_CONST||PK_MediaType==MEDIATYPE_pluto_HDDVD_CONST||PK_MediaType==MEDIATYPE_pluto_BD_CONST) && FileUtils::DirExists(sFilename)) || (PK_MediaType==MEDIATYPE_pluto_DVD_CONST && FileUtils::FileExists(sFilename + ".dvd")) ) )  // Be sure the directory name is unique if we're using the default
 	{
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive_Functions::FixupRippingInfo file/dir exists PK_MediaType %d sFilename %s sTracks %s iEK_Disc %d sDirectory %s",
 			PK_MediaType,sFilename.c_str(),sTracks.c_str(),iEK_Disc,sDirectory.c_str());
 
 		int Counter=1;
 		string sNewName = sFilename + "_" + StringUtils::itos(Counter++);
-		while( (PK_MediaType==MEDIATYPE_pluto_CD_CONST && FileUtils::DirExists(sNewName)) || (PK_MediaType==MEDIATYPE_pluto_DVD_CONST && FileUtils::FileExists(sNewName + ".dvd")) )
+		while( ((PK_MediaType==MEDIATYPE_pluto_CD_CONST||PK_MediaType==MEDIATYPE_pluto_HDDVD_CONST||PK_MediaType==MEDIATYPE_pluto_BD_CONST) && FileUtils::DirExists(sNewName)) || (PK_MediaType==MEDIATYPE_pluto_DVD_CONST && FileUtils::FileExists(sNewName + ".dvd")) )
 		{
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive_Functions::FixupRippingInfo file/dir exists PK_MediaType %d sFilename %s sTracks %s iEK_Disc %d sDirectory %s",
 				PK_MediaType,sNewName.c_str(),sTracks.c_str(),iEK_Disc,sDirectory.c_str());
