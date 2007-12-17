@@ -1,1 +1,1 @@
-0 0 * * */7		root		test -f /etc/diskless.conf || /usr/pluto/bin/getxmls
+0 0 * * */7		root		test -f /etc/diskless.conf || /usr/pluto/bin/getxmls &>/dev/null
