@@ -88,16 +88,7 @@ all: chan_sccp.so
 
 install: chan_sccp.so
 	@echo "Now Installing chan_sccp.so"
-	@install -m 755 chan_sccp.so $(AST_MODULES_DIR);
-	@if ! [ -f $(INSTALL_PREFIX)/etc/asterisk/sccp.conf ]; then \
-		echo "Installing config file $(INSTALL_PREFIX)/etc/asterisk/sccp.conf"; \
-		mkdir -p $(INSTALL_PREFIX)/etc/asterisk; \
-		cp conf/sccp.conf $(INSTALL_PREFIX)/etc/asterisk/; \
-	fi
-	@echo "Chan_sccp is now installed"
-	@echo "Remember to disable chan_skinny by adding the following"
-	@echo "line to /etc/asterisk/modules.conf:"
-	@echo "noload => chan_skinny.so"
+	@install -m 755 chan_sccp.so $(DESTDIR)/$(AST_MODULES_DIR);
 
 clean:
 	rm -rf config.h chan_sccp.so .tmp
