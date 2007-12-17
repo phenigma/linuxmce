@@ -2530,7 +2530,7 @@
 #define DESIGNOBJ_mnuStaticIPSettings_CONST 5558
 #define DESIGNOBJ_butNetworkSettings_CONST 5559
 #define DESIGNOBJ_mnuNetworkSettings_CONST 5560
-#define DESIGNOBJ_butEnableDHCP_CONST 5561
+#define DESIGNOBJ_butUseDHCP_CONST 5561
 #define DESIGNOBJ_butStaticIP_CONST 5562
 #define DESIGNOBJ_butChangeIPAddress_CONST 5563
 #define DESIGNOBJ_butSortByGenre_CONST 5564
@@ -2545,6 +2545,7 @@
 #define DESIGNOBJ_butChangeGateway_CONST 5573
 #define DESIGNOBJ_butChangeDNS_CONST 5574
 #define DESIGNOBJ_butApplyNetworkSettings_CONST 5575
+#define DESIGNOBJ_popVDROptions_CONST 5576
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
