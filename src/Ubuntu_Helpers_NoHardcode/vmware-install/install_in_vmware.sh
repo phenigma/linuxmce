@@ -5,19 +5,19 @@
 set -x
 set -e
 
-WORK_DIR="{$build_dir}/vmware/"
+WORK_DIR="${build_dir}/vmware/"
 VMWARE_DIR="${WORK_DIR}/Kubuntu"
 VMWARE_DISK_IMAGE="${VMWARE_DIR}/Kubuntu.vmdk"
 VMWARE_TARGZ="${VMWARE_DIR}/linux-mce.tar.gz"
 VMWARE_WORK_MACHINE="${VMWARE_DIR}/Kubuntu.vmx"
-VMWARE_IP=""
+VMWARE_IP="172.16.116.128"
 
 
 # Export display so vmware will run in X11
 export DISPLAY=:1
 screen -d -m -S X11-Display1 X -ac :1
 sleep 2
-DISPLAY=:1 kwin &
+DISPLAY=:1 blackbox &
 
 
 function decho {
@@ -39,7 +39,7 @@ function start_virtual_machine {
 	vmplayer "$VMWARE_WORK_MACHINE" &
 
 	decho "Waiting for ssh connnection to virtual machine"
-	while ! ssh root@"$VMWARE_IP" 'echo' ;do
+	while ! ssh -i /etc/lmce-build/builder.key root@"$VMWARE_IP" 'echo' ;do
 		sleep 1
 	done
 
@@ -52,44 +52,44 @@ function create_debcache_on_virtual_machine {
 
 	## Create deb-cache dir on vmware
 	decho "Creating deb-cache directory on vmware"
-	ssh root@"$VMWARE_IP" "mkdir -p /usr/pluto/deb-cache"
+	ssh -i /etc/lmce-build/builder.key root@"$VMWARE_IP" "mkdir -p /usr/pluto/deb-cache"
 
 	## Cache CD1
 	decho "Start Chaching CD1"
 	mount -o loop "${local_mirror_dir}/LinuxMCE-CD1.iso" "$ISO_DIR"
-	scp "$ISO_DIR"/deb-cache/*.deb root@"$VMWARE_IP":/usr/pluto/deb-cache
+	scp -i /etc/lmce-build/builder.key "$ISO_DIR"/deb-cache/*.deb root@"$VMWARE_IP":/usr/pluto/deb-cache
 	umount "$ISO_DIR"
 	decho "Finish Caching CD1"
 
 	## CACHE CD2
 	decho "Start Caching CD2"
 	mount -o loop "${local_mirror_dir}/LinuxMCE-CD2.iso" "$ISO_DIR"
-	scp "$ISO_DIR"/cachecd1-cache/*.deb root@"$VMWARE_IP":/usr/pluto/deb-cache
+	scp -i /etc/lmce-build/builder.key "$ISO_DIR"/cachecd1-cache/*.deb root@"$VMWARE_IP":/usr/pluto/deb-cache
 	umount "$ISO_DIR"
 	decho "Finish Caching CD2"
 
 	## CACHE Kubuntu CD
 	decho "Caching Kubuntu CD"
-	scp ${build_dir}/kubuntu-cd/*.deb root@"$VMWARE_IP":/usr/pluto/deb-cache
+	scp -i /etc/lmce-build/builder.key ${build_dir}/kubuntu-cd/*.deb root@"$VMWARE_IP":/usr/pluto/deb-cache
 	decho "Finished Caching Kubuntu CD"
 	
 	## Build Packages.gz
 	decho "Building Pacakges.gz on virtual machine"
-	scp /usr/bin/dpkg-scanpackages root@"$VMWARE_IP":/usr/pluto/deb-cache
-	ssh root@"$VMWARE_IP" "apt-get -y install dpkg-dev; cd /usr/pluto/deb-cache && ./dpkg-scanpackages -m . /dev/null > Packages && gzip -c Packages > Packages.gz && rm dpkg-scanpackages"
+	scp -i /etc/lmce-build/builder.key /usr/bin/dpkg-scanpackages root@"$VMWARE_IP":/usr/pluto/deb-cache
+	ssh -i /etc/lmce-build/builder.key root@"$VMWARE_IP" "apt-get -y install dpkg-dev; cd /usr/pluto/deb-cache && ./dpkg-scanpackages -m . /dev/null > Packages && gzip -c Packages > Packages.gz && rm dpkg-scanpackages"
 	decho "Finish building Packages.gz on virtual machine"
 }
 
 function copy_installer_on_virtual_machine {
 	decho "Copying installer on virutal machine"
-	ssh root@"$VMWARE_IP" "mkdir -p /usr/pluto/install"
-	scp ./mce-installer-unattended/* root@"$VMWARE_IP":/usr/pluto/install
+	ssh -i /etc/lmce-build/builder.key root@"$VMWARE_IP" "mkdir -p /usr/pluto/install"
+	scp -i /etc/lmce-build/builder.key ./mce-installer-unattended/* root@"$VMWARE_IP":/usr/pluto/install
 	decho "Finished copying installer on virtual machine"
 }
 
 function run_installer_on_virtual_machine {
 	decho "Starting installer on virtual machine"
-	ssh root@"$VMWARE_IP" "cd /usr/pluto/install && screen -d -m -S 'Install' ./mce-installer.sh"
+	ssh -i /etc/lmce-build/builder.key root@"$VMWARE_IP" "cd /usr/pluto/install && screen -d -m -S 'Install' ./mce-installer.sh"
 	
 	while [[ "$(pidof vmware-vmx)" != "" ]] ;do
 		sleep 5
@@ -252,10 +252,10 @@ function Determine_PkgNonGrata()
 	cat "$ResultFile"
 }
 
-create_virtual_machine
-start_virtual_machine
-create_debcache_on_virtual_machine
+#create_virtual_machine
+#start_virtual_machine
+#create_debcache_on_virtual_machine
 copy_installer_on_virtual_machine
 run_installer_on_virtual_machine
-create_disk_image_from_flat
+#create_disk_image_from_flat
 

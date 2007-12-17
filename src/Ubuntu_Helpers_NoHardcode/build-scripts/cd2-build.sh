@@ -21,7 +21,7 @@ cp "${replacements_dir}"/tee-pluto_*.deb "${build_dir}/cd2-packages/cachecd1-cac
 # Build our new iso
 DisplayMessage "Building the ISO"
 pushd "${build_dir}"
-	mkisofs -f -J -r -o "${local_mirror_dir}/${iso_name}-cache.iso" ./cd2-packages
+	mkisofs -f -J -r -o "${local_mirror_dir}/${iso_name}" ./cd2-packages
 popd
 
 trap - EXIT
