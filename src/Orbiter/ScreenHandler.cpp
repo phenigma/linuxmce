@@ -4246,6 +4246,8 @@ void ScreenHandler::RefreshActiveCallsButtons()
 void ScreenHandler::SCREEN_Static_IP_settings(long PK_Screen)
 {
 	ScreenHandlerBase::SCREEN_Static_IP_settings(PK_Screen);
+
+	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::SCREEN_Network_Settings_ObjectSelected, new ObjectInfoBackData());
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_Network_Settings(long PK_Screen)
@@ -4352,7 +4354,7 @@ bool ScreenHandler::SCREEN_Network_Settings_ObjectSelected(CallBackData *pData)
 {
 	ObjectInfoBackData *pObjectInfoData = (ObjectInfoBackData *)pData;
 
-	if(pObjectInfoData->m_pObj->m_iBaseObjectID == DESIGNOBJ_butEnableDHCP_CONST)
+	if(pObjectInfoData->m_pObj->m_iBaseObjectID == DESIGNOBJ_butUseDHCP_CONST)
 	{
 		DeviceData_Base *pDevice_Core = m_pOrbiter->m_pData->m_AllDevices.m_mapDeviceData_Base_FindFirstOfCategory(DEVICECATEGORY_Core_CONST);
 		if( pDevice_Core )
