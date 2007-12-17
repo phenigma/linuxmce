@@ -2236,17 +2236,20 @@ void MythTV_PlugIn::SetPaths()
 
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::SetPaths row %s/%s device %d directory %s", row[1], row[0] ? row[0] : "x", PK_Device, sDirectory.c_str());
 
-			string sCmd = "mkdir -p \"" + sDirectory + "\"";
-			LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::Register %s",sCmd.c_str());
-			system(sCmd.c_str());
+			const string CmdList[] =
+			{
+				"mkdir -p \"" + sDirectory + "\"",
+				"chmod 2775 \"" + sDirectory +"\"",
+				"chown root.public \"" + sDirectory +"\"",
+				"adduser mythtv public", // add mythtv to the public group
+				""
+			};
 
-			sCmd = "chmod 2775 \"" + sDirectory +"\"";
-			LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_Plugin::Register %s",sCmd.c_str());
-			system(sCmd.c_str());
-
-			sCmd = "chown root.public \"" + sDirectory +"\"";
-			LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_Plugin::Register %s",sCmd.c_str());
-			system(sCmd.c_str());
+			for (int i = 0; CmdList[i] != ""; i++)
+			{
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::Register %s", CmdList[i].c_str());
+				system(CmdList[i].c_str());
+			}
 
 			UpdateMythSetting("LiveBufferDir",sDirectory,row[1]);
 			UpdateMythSetting("RecordFilePrefix",sDirectory,row[1]);
