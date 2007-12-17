@@ -5208,12 +5208,12 @@ function pickDeviceTemplate($categoryID, $manufacturerID,$returnValue,$defaultAl
 		<input type="hidden" name="from" value="'.@$_REQUEST['from'].'">
 		<input type="hidden" name="parmToKeep" value="'.@$_REQUEST['parmToKeep'].'">
 	
-	<table align="center" border="0" cellpadding="2" cellspacing="0" width="550">';
+	<table align="center" border="0" cellpadding="2" cellspacing="0" width="600">';
 	if($returnValue==1){
 		$out.='
 		<tr>
 			<td><B>'.$TEXT_PARENT_DEVICE_CONST.'</B></td>
-			<td>'.$parentDeviceText.'</td>
+			<td colspan="2">'.$parentDeviceText.'</td>
 			<td>&nbsp;</td>
 		</tr>';
 	}
@@ -5221,16 +5221,18 @@ function pickDeviceTemplate($categoryID, $manufacturerID,$returnValue,$defaultAl
 		<tr class="alternate_back">
 			<td><B>'.$TEXT_MANUFACTURER_CONST.'</B></td>
 			<td>'.pulldownFromArray($manufacturersArray,'manufacturerID',$manufacturerID,'class="input_big" onchange="setManufacturer();"').'</td>
+			<td width="35"><b><span id="manufacturerSelected" class="confirm"></span></b></td>
 			<td><input type="button" class="button_fixed" value="'.$TEXT_ADD_MANUFACTURER_CONST.'" onclick="add_manufacturer_popup();"></td>
 		</tr>
 		<tr class="alternate_back">
 			<td valign="top"><B>'.$TEXT_DEVICE_CATEGORY_CONST.'</B></td>
 			<td valign="top">'.$deviceCategoryFormElement.'</td>
+			<td><b><span id="categorySelected" class="confirm"></span></b></td>
 			<td valign="top"><input type="button" class="button_fixed" value="'.$TEXT_ADD_DEVICE_CATEGORY_CONST.'" onclick="add_category_popup();"></td>
 		</tr>	
 		<tr class="alternate_back">
 			<td>&nbsp;</td>
-			<td>
+			<td colspan="2">
 				<input type="radio" name="deviceCategoryPicker" value="0" '.(($deviceCategoryPicker==0)?'checked':'').' onclick="changeCategoryPicker();"> '.$TEXT_DEVICE_CATEGORY_PULLDOWN_ALPHA_CONST.'<br>
 				<input type="radio" name="deviceCategoryPicker" value="1" '.(($deviceCategoryPicker==1)?'checked':'').' onclick="changeCategoryPicker();"> '.$TEXT_DEVICE_CATEGORY_PULLDOWN_HIERARCHICAL_CONST.'<br>
 				<input type="radio" name="deviceCategoryPicker" value="2" '.(($deviceCategoryPicker==2)?'checked':'').' onclick="changeCategoryPicker();"> '.$TEXT_DEVICE_CATEGORY_TREEVIEW_CONST.'<br>
@@ -5238,60 +5240,52 @@ function pickDeviceTemplate($categoryID, $manufacturerID,$returnValue,$defaultAl
 			<td>&nbsp;</td>
 		</tr>	
 		<tr class="alternate_back">
-			<td colspan="3" align="center">
+			<td colspan="4" align="center">
 				<input type="checkbox" name="autofilter" value="1" '.(((int)@$_REQUEST['autofilter']==1)?'checked':'').' onClick="document.deviceTemplatePicker.submit();">'.$TEXT_AUTOFILTER_CONST.' *
 			</td>
 		</tr>	
 		<tr class="alternate_back">
-			<td colspan="3" align="center">
+			<td colspan="4" align="center">
 				<input type="submit" name="do_filter" class="button_fixed" value="'.$TEXT_APPLY_FILTER_CONST.'">
 			</td>
 		</tr>	
 		<tr>
-			<td colspan="3" align="center">&nbsp;</td>
+			<td colspan="4" align="center">&nbsp;</td>
 		</tr>		
 		<tr class="alternate_back">
 			<td><B>'.$TEXT_DEVICE_TEMPLATE_CONST.@$dtstar.'</B></td>
 			<td>'.$deviceTemplatesPulldown.'</td>
+			<td><b><span id="templateSelected" class="confirm"></span></b></td>
 			<td><input type="button" class="button_fixed" value="'.$TEXT_PICK_MODEL_CONST.'" onclick="pickDeviceTemplate();"></td>
 		</tr>
 		<tr>
-			<td colspan="3" align="center">&nbsp;</td>
+			<td colspan="4" align="center">&nbsp;</td>
 		</tr>		
 		<tr class="alternate_back">
-			<td colspan="3" align="center">
+			<td colspan="4" align="center">
 				'.$TEXT_NEW_DEVICE_TEMPLATE_NOTICE_CONST.' **<br>
 				<input type="button" class="button_fixed" value="'.$TEXT_ADD_DEVICE_TEMPLATE_CONST.'" onclick="add_device_template_popup();">
 			</td>
 		</tr>		
 		<tr>
-			<td colspan="3" align="center">
+			<td colspan="4" align="center">
 				<span class="err" id="error_box"></span>&nbsp;
 			</td>
 		</tr>		
 		<tr>
-			<td colspan="3">
+			<td colspan="4">
 			<table width="100%">
 				<tr class="alternate_back">
-					<td align="center"><B>'.$TEXT_MANUFACTURER_CONST.'</B></td>
-					<td align="center"><B>'.$TEXT_DEVICE_CATEGORY_CONST.'</B></td>
-					<td align="center"><B>'.$TEXT_DEVICE_TEMPLATE_CONST.'</B></td>
+					<td align="center"><B>'.$TEXT_TEMPLATE_SEARCH_INFO_CONST.'</B></td>
 				</tr>
 				<tr class="alternate_back">
-					<td align="center"><input type="text" name="manufSelected" value="'.$manufacturerID.'" onKeyUp="document.deviceTemplatePicker.dtID.value=0;setDeviceTemplatePulldown(0);setManufacturerPulldown(this.value);"></td>
-					<td align="center"><input type="text" name="dcSelected" value="'.$categoryID.'" onKeyUp="document.deviceTemplatePicker.dtID.value=0;setDeviceTemplatePulldown(0);setCategoryPulldown(this.value);"></td>
-					<td align="center"><input type="text" name="dtID" value="'.$dtID.'" onKeyUp="setDeviceTemplatePulldown();"></td>
+					<td align="center"><input type="text" name="dtID" value="'.$dtID.'" onChange="setDeviceTemplatePulldown();" onKeyPress="return processEnter(this,event);"> <input type="button" class="button" name="searchBtn" value="'.$TEXT_SEARCH_TEMPLATES_CONST.'"></td>
 				</tr>
 			</table>
 			</td>
 		</tr>	
 		<tr>
-			<td colspan="3" align="center">
-				<input type="reset" class="button_fixed" name="closeBtn" value="'.$TEXT_CLOSE_CONST.'" onClick="self.close();">
-			</td>
-		</tr>	
-		<tr>
-			<td colspan="3" align="left">
+			<td colspan="4" align="left">
 				<em>* '.$TEXT_AUTOFILTER_INFO_CONST.'<br>
 					** '.$TEXT_DC_MANUFACTURER_NEEDED_CONST.'
 					'.@$dtNote.'
@@ -5299,11 +5293,16 @@ function pickDeviceTemplate($categoryID, $manufacturerID,$returnValue,$defaultAl
 			</td>
 		</tr>	
 		<tr>
-			<td colspan="3">&nbsp;</td>
+			<td colspan="4">&nbsp;</td>
 		</tr>	
 		<tr>
-			<td colspan="3"><B>'.$TEXT_NOTES_CONST.'</B><br>'.$TEXT_PICKER_INFO_CONST.'</td>
+			<td colspan="4"><B>'.$TEXT_NOTES_CONST.'</B><br>'.$TEXT_PICKER_INFO_CONST.'</td>
 		</tr>	
+		<tr>
+			<td colspan="4" align="center">
+				<input type="reset" class="button_fixed" name="closeBtn" value="'.$TEXT_CLOSE_CONST.'" onClick="self.close();">
+			</td>
+		</tr>		
 	</table>
 	</form>
 	';
@@ -5475,7 +5474,8 @@ function dtPickerJS($returnValue){
 					val=document.deviceTemplatePicker.categoryID[i].value;
 			}
 		}
-		document.deviceTemplatePicker.dcSelected.value=val;	
+		//document.deviceTemplatePicker.dcSelected.value=val;	
+		document.getElementById("categorySelected").innerHTML=val;
 		
 		if(document.deviceTemplatePicker.autofilter.checked){
 			document.deviceTemplatePicker.submit();
@@ -5489,7 +5489,8 @@ function dtPickerJS($returnValue){
 				val=document.deviceTemplatePicker.manufacturerID[i].value;
 		}
 
-		document.deviceTemplatePicker.manufSelected.value=val;
+		//document.deviceTemplatePicker.manufSelected.value=val;
+		document.getElementById("manufacturerSelected").innerHTML=val;
 		
 		if(document.deviceTemplatePicker.autofilter.checked){
 			document.deviceTemplatePicker.submit();
@@ -5503,7 +5504,8 @@ function dtPickerJS($returnValue){
 				val=document.deviceTemplatePicker.template[i].value;
 		}
 
-		document.deviceTemplatePicker.dtID.value=val;
+		//document.deviceTemplatePicker.dtID.value=val;
+		document.getElementById("templateSelected").innerHTML=val;
 	}	
 	
 	function changeCategoryPicker(){
@@ -5534,7 +5536,6 @@ function dtPickerJS($returnValue){
 	}
 	
 	function setManufacturerPulldown(val){
-		val=(val==0)?parseInt(document.deviceTemplatePicker.manufSelected.value):val;
 		
 		if(val!=0 && val!=document.deviceTemplatePicker.manufacturerID.value){		
 			pos=0;
@@ -5544,18 +5545,20 @@ function dtPickerJS($returnValue){
 			}
 		
 			if(pos!=0){
-				setErrorMessage("");
 				document.deviceTemplatePicker.manufacturerID[pos].selected=true;
+				document.getElementById("manufacturerSelected").innerHTML=val;
 			}else{
+				document.getElementById("manufacturerSelected").innerHTML="";
 				document.deviceTemplatePicker.manufacturerID[0].selected=true;
-				setErrorMessage("'.$TEXT_MANUFACTURER_DOES_NOT_EXIST_CONST.'");
 			}
+		}else{
+			document.deviceTemplatePicker.manufacturerID[0].selected=true;
+			document.getElementById("manufacturerSelected").innerHTML="";
 		}
 	}
 	
 	function setCategoryPulldown(val){
 	
-		val=(val==0)?parseInt(document.deviceTemplatePicker.dcSelected.value):val;
 		val=(isNaN(val))?-1:val;
 	
 		// if it\'s treeview, use its function to set menu item
@@ -5570,12 +5573,15 @@ function dtPickerJS($returnValue){
 				}
 			
 				if(pos!=0){
-					setErrorMessage("");
 					document.deviceTemplatePicker.categoryID[pos].selected=true;
+					document.getElementById("categorySelected").innerHTML=val;
 				}else{
 					document.deviceTemplatePicker.categoryID[0].selected=true;
-					setErrorMessage("'.$TEXT_DEVICE_CATEGORY_DOES_NOT_EXIST_CONST.'");
+					document.getElementById("categorySelected").innerHTML="";
 				}
+			}else{
+					document.deviceTemplatePicker.categoryID[0].selected=true;
+					document.getElementById("categorySelected").innerHTML="";
 			}
 		}
 	}	
@@ -5594,14 +5600,17 @@ function dtPickerJS($returnValue){
 				document.deviceTemplatePicker.template[pos].selected=true;
 				setManufacturerPulldown(manufacturersArray[val]);
 				setCategoryPulldown(deviceCategoriesArray[val]);
+				document.getElementById("templateSelected").innerHTML=val;
 			}else{
 				document.deviceTemplatePicker.template[0].selected=true;
+				document.getElementById("templateSelected").innerHTML="";
 				setErrorMessage("'.$TEXT_DEVICE_TEMPLATE_DOES_NOT_EXIST_OR_INVALID_CONTROLED_VIA_CONST.'");
 				setManufacturerPulldown(0);
 				setCategoryPulldown(0);
 			}
 		}else{
 			document.deviceTemplatePicker.template[0].selected=true;
+			document.getElementById("templateSelected").innerHTML="";
 		}
 	}	
 
@@ -5634,6 +5643,22 @@ function dtPickerJS($returnValue){
 		categ=parseInt(document.deviceTemplatePicker.dcSelected.value);
 		windowOpen("index.php?section=addCategory&parentID="+categ,"width=640,height=480,toolbars=true,scrollbars=1,resizable=1");
 	}
+	
+	function processEnter(myfield,e)
+	{
+		var keycode;
+		if (window.event) keycode = window.event.keyCode;
+		else if (e) keycode = e.which;
+		else return true;
+
+		if (keycode == 13)
+		{
+			setDeviceTemplatePulldown();
+			return false;
+		}
+		else
+		return true;
+	}	
 	</script>
 	';
 	
