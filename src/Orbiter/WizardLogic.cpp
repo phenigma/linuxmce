@@ -1149,4 +1149,27 @@ void WizardLogic::SetPVRSoftware(char PVRSoftware)
 			m_pOrbiter->SendCommand(CMD_Create_Device);
 		}
 	}
+
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	//TEMPORARY CODE - WARNING!!!
+	//HACK TO USE VDR vs MYTHTV
+
+	if(PVRSoftware == 'V')
+	{
+		//to associate LiveTV with VDR:
+		sSQL = "UPDATE MediaType_DesignObj SET FK_Screen=117, FK_Screen_OSD=278, "
+			"FK_DesignObj_Popup=5576 WHERE psc_id=3";
+	}
+	else
+	{
+		//to associate LiveTV with Myth:
+		sSQL = "UPDATE MediaType_DesignObj SET FK_Screen=48, FK_Screen_OSD=128, "
+			"FK_DesignObj_Popup=4898 WHERE psc_id=3 ";
+	}
+	
+	threaded_db_wrapper_query(sSQL);
+
+	// end of hack
+	////////////////////////////////////////////////////////////////////////////////////////////////////
 }
