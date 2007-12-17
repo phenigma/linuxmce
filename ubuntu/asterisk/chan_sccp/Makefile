@@ -88,6 +88,7 @@ all: chan_sccp.so
 
 install: chan_sccp.so
 	@echo "Now Installing chan_sccp.so"
+	@mkdir -p $(DESTDIR)/$(AST_MODULES_DIR)
 	@install -m 755 chan_sccp.so $(DESTDIR)/$(AST_MODULES_DIR);
 
 clean:
@@ -102,7 +103,7 @@ MEEP=chan_sccp.o
 MOO=chan_sccp.c	
 
 .config:
-	sh ./create_config.sh "$(ASTERISK_HEADER_DIR)"
+	echo -en "\n\n\n" | sh ./create_config.sh "$(ASTERISK_HEADER_DIR)"
 	
 .tmp/chan_sccp.o:		chan_sccp.c
 .tmp/sccp_actions.o:	sccp_actions.c
