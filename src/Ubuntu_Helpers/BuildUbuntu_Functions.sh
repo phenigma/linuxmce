@@ -303,6 +303,15 @@ function Build_Pluto_Replacements {
 		popd
 	fi
 
+	#Package: chan-sccp
+	dir_="${snv_dir}/trunk/ubuntu/asterisk/chan_sccp"
+	if ReplacementNeedsBuild "$dir_"; then
+		pushd "$dir_"
+		dpkg-buildpackage -rfakeroot -us -uc -b
+		cp -r ../chan-sccp_*.deb ${temp_dir}
+		popd
+	fi
+
 	#Package: pluto-asterisk
 	apt-get -y install linux-headers-`uname -r`
 	dir_="${svn_dir}/trunk/ubuntu/asterisk"
