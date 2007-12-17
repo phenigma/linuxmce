@@ -38,6 +38,7 @@ mv /usr/pluto/deb-cache{-new,}
 
 ## Do the actual upgrade
 apt-get update
+apt-get -f -y --force-yes install mysql-server-5.0
 apt-get -f -y --force-yes dist-upgrade
 
 ## Fix PK_Distro in pluto.conf
