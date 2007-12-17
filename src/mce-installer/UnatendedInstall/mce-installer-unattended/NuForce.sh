@@ -86,6 +86,7 @@ AVWizardReplacement()
 
 	echo -e "#!/bin/bash\ncp /etc/X11/xorg.conf{.nuforce,}" >/usr/pluto/bin/AVWizard_Run.sh
 	echo "#!/bin/bash" >/usr/pluto/bin/Xconfigure.sh
+	echo "#!/bin/bash" >/usr/pluto/bin/X-CheckSettings.sh
 
 	ConfSet AVWizardDone 0
 	ConfSet UseVideoWizard 0
