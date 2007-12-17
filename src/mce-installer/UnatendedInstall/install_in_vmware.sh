@@ -136,8 +136,8 @@ function cleanup_filesystem {
 
 	local PkgNonGrata_Fixed
 	PkgNonGrata_Fixed="
-		asterisk-pluto mce-diskless-tools pluto-asterisk pluto-avwizard-sounds pluto-dhcpd-plugin pluto-mythtv-plugin
-		pluto-orbiterinstaller pluto-skins-basic pluto-slimserver-plugin pluto-std-plugins pluto-vdr-plugin pluto-xine-plugin
+		asterisk-pluto mce-diskless-tools pluto-asterisk pluto-avwizard-sounds pluto-dhcpd-plugin 
+		pluto-orbiterinstaller pluto-skins-basic pluto-std-plugins pluto-xine-plugin
 		pluto-xml-data-plugin video-wizard-videos pluto-avwizard pluto-dcerouter pluto-sample-media mysql-server-5.0
 		openoffice.org-core wine pluto-orbiter python-kde3 pluto-default-tftpboot
 	"
