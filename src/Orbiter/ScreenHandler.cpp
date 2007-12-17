@@ -4267,8 +4267,7 @@ bool ScreenHandler::SCREEN_Network_Settings_OnTimer(CallBackData *pData)
 	DeviceData_Base *pDevice_Core = m_pOrbiter->m_pData->m_AllDevices.m_mapDeviceData_Base_FindFirstOfCategory(DEVICECATEGORY_Core_CONST);
 	if( pDevice_Core )
 	{
-		DeviceData_Base *pDevice_AppServer = 
-			pDevice_Core->FindFirstRelatedDeviceOfCategory( DEVICECATEGORY_App_Server_CONST );
+		DeviceData_Base *pDevice_AppServer = pDevice_Core->FindFirstRelatedDeviceOfCategory( DEVICECATEGORY_App_Server_CONST );
 		if( pDevice_AppServer )
 		{
 			string sNetworkSettingsTxtFile = "/tmp/network_settings_" + StringUtils::ltos(static_cast<long>(time(NULL)));
@@ -4355,17 +4354,34 @@ bool ScreenHandler::SCREEN_Network_Settings_ObjectSelected(CallBackData *pData)
 
 	if(pObjectInfoData->m_pObj->m_iBaseObjectID == DESIGNOBJ_butEnableDHCP_CONST)
 	{
-		//TODO: run Radu's script here to enable dhcp
+		DeviceData_Base *pDevice_Core = m_pOrbiter->m_pData->m_AllDevices.m_mapDeviceData_Base_FindFirstOfCategory(DEVICECATEGORY_Core_CONST);
+		if( pDevice_Core )
+		{
+			DeviceData_Base *pDevice_AppServer = pDevice_Core->FindFirstRelatedDeviceOfCategory( DEVICECATEGORY_App_Server_CONST );
+			if( pDevice_AppServer )
+			{
+				DCE::CMD_Spawn_Application CMD_Spawn_Application(
+					m_pOrbiter->m_dwPK_Device,
+					pDevice_AppServer->m_dwPK_Device,
+					"/usr/pluto/bin/Network_Config.sh",
+					"network config",
+					"--ext-dhcp",
+					"","",false,false,false,true);
+				m_pOrbiter->SendCommand(CMD_Spawn_Application);
+			}
+		}
 		
 		NeedToRender render(m_pOrbiter, "SCREEN_Network_Settings_ObjectSelected");
 		m_pOrbiter->CMD_Set_Text(TOSTRING(DESIGNOBJ_mnuNetworkSettings_CONST) ".0.0", "",TEXT_STATUS_CONST);
-		m_pOrbiter->CMD_Set_Variable(VARIABLE_Network_Status_CONST, "Enabling DHCP");
-		m_pOrbiter->StartScreenHandlerTimer(5000);
+		m_pOrbiter->CMD_Set_Variable(VARIABLE_Network_Status_CONST, "Using DHCP, please wait...");
+		m_pOrbiter->StartScreenHandlerTimer(10000);
 	}
 	else if(pObjectInfoData->m_pObj->m_iBaseObjectID == DESIGNOBJ_butStaticIP_CONST)
 	{
 		DCE::SCREEN_Static_IP_settings screen_Static_IP_settings(m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device);
 		m_pOrbiter->SendCommand(screen_Static_IP_settings);
+
+		///usr/pluto/bin/Network_Config.sh --ext-static "10.0.1.3" "255.255.252.0" "10.0.0.1" "10.0.0.1" ""
 	}
 
 	return false; // Keep processing it
