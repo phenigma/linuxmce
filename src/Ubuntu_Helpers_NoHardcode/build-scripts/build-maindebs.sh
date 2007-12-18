@@ -20,7 +20,7 @@ function build_main_debs() {
 
 	#FIXME Hackozaurus for pluto-dummy-console-tools
 	mkdir -p /usr/pluto/dummy-packages/
-	/usr/pluto/dummy-packages//Readme.PlutoConsoleUtilities.dummy
+	touch /usr/pluto/dummy-packages/Readme.PlutoConsoleUtilities.dummy
 
 	#FIXME Hackozaurus for pluto-devel-dependencies
 	touch /home/README.Devel.Dependencies
