@@ -26,7 +26,7 @@ function build_main_debs() {
 	touch /home/README.Devel.Dependencies
 
 	#FIXME Hackozaurus fro ubuntu-diskless-tools
-	mkdir -o /home/DisklessFS/
+	mkdir -p /home/DisklessFS/
 	cp "${diskless_dir}/PlutoMD_Debootstraped.tar.bz2" /home/DisklessFS
 
 	# Perform Search&Replace on the sources
