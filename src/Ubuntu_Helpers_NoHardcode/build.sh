@@ -10,7 +10,7 @@ build_scripts_dir="/usr/local/lmce-build/build-scripts"
 
 "${build_scripts_dir}/build-maindebs.sh"
 
-"${build_scripts_dir}create-repo.sha"
+"${build_scripts_dir}create-repo.sh"
 
 "${build_scripts_dir}cd1-build.sh"
 "${build_scripts_dir}cd2-build.sh"
