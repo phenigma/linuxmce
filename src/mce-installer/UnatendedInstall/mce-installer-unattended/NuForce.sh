@@ -137,6 +137,7 @@ DatabaseDefaults()
 		"UPDATE Device SET FK_Room=1 WHERE PK_Device=1"
 		"UPDATE Device_DeviceData SET IK_DeviceData='' WHERE FK_DeviceData=28"
 		"UPDATE Device SET Disabled=1 WHERE FK_DeviceTemplate IN ($DEVICETEMPLATE_Asterisk, $DEVICETEMPLATE_MythTV_Player)"
+		"INSERT INTO Users(UserName) VALUES('nuforce')"
 	)
 
 	for Q in "${Queries[@]}"; do
@@ -144,6 +145,7 @@ DatabaseDefaults()
 	done
 
 	/usr/pluto/bin/Timezone_Detect.sh
+	/usr/pluto/bin/SetPasswords.sh 1 nuforce
 
 	Q="
 		INSERT INTO QuickStartTemplate (Description, \`Binary\`, Arguments, Icon, WindowClass)
