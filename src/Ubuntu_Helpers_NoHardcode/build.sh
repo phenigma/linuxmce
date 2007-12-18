@@ -5,8 +5,8 @@ build_scripts_dir="/usr/local/lmce-build/build-scripts"
 "${build_scripts_dir}/import-win32bins.sh"
 
 "${build_scripts_dir}/build-replacements.sh"
-"${build_scripts_dir}/import-databases.sh"
 "${build_scripts_dir}/build-makerelease.sh"
+"${build_scripts_dir}/import-databases.sh"
 
 "${build_scripts_dir}/build-maindebs.sh"
 
