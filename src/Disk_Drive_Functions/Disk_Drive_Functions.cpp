@@ -652,11 +652,11 @@ bool Disk_Drive_Functions::FixupRippingInfo(Disk_Drive_Functions *pDisk_Drive_Fu
 			PK_MediaType=MEDIATYPE_pluto_DVD_CONST;
 		else if( pRow_DiscLocation->Type_get()=="c" )
 			PK_MediaType=MEDIATYPE_pluto_CD_CONST;
-/*		else if ( pRow_DiscLocation->Type_get()=="H" )
+		else if ( pRow_DiscLocation->Type_get()=="H" )
 		    	PK_MediaType=MEDIATYPE_pluto_HDDVD_CONST;
 		else if ( pRow_DiscLocation->Type_get()=="R" )
 		    	PK_MediaType=MEDIATYPE_pluto_BD_CONST;
-*/
+
 		else
 		{
 			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Disk_Drive_Functions::FixupRippingInfo disclocation for drive %d has invalid type %s", 
