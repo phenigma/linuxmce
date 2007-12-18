@@ -132,12 +132,12 @@ bool RA_Processor::SendRequests(DCE::Socket *pSocket)
 
     // Building the request header
     char acRequestHeader[13] = REQHEADER;
-    unsigned short *usi = (unsigned short *)(acRequestHeader + 4);
-    *usi = (unsigned short) m_dwSoftwareVersion;
-    unsigned long *ui = (unsigned long *)(acRequestHeader + 6);
+    uint16_t *usi = (uint16_t *)(acRequestHeader + 4);
+    *usi = (uint16_t) m_dwSoftwareVersion;
+    uint32_t *ui = (uint32_t *)(acRequestHeader + 6);
     *ui = m_dwEstablishmentID;
-    usi = (unsigned short *) (acRequestHeader + 10);
-    *usi = (unsigned short) m_listRequests.size();
+    usi = (uint16_t *) (acRequestHeader + 10);
+    *usi = (uint16_t) m_listRequests.size();
 
     // Sending the header data
     pSocket->SendData( 12, acRequestHeader );
@@ -150,11 +150,11 @@ bool RA_Processor::SendRequests(DCE::Socket *pSocket)
 
         // Building the request header
         char acRequestHeader[13] = HEADER;
-        ui = (unsigned long *)(acRequestHeader);
+        ui = (uint32_t *)(acRequestHeader);
         *ui = pRequest->RequestSize();
-        ui = (unsigned long *)(acRequestHeader+4);
+        ui = (uint32_t *)(acRequestHeader+4);
         *ui = pRequest->RequestChecksum();
-        ui = (unsigned long *)(acRequestHeader+8);
+        ui = (uint32_t *)(acRequestHeader+8);
         *ui = pRequest->ID();
 
         // Sending the header data
@@ -178,10 +178,10 @@ bool RA_Processor::SendRequests(DCE::Socket *pSocket)
         }
 
         // Parsing the response header
-        unsigned long *pdwSanityCheck = (unsigned long *)acResponseHeader;
-        unsigned short *piVersion = (unsigned short *)(acResponseHeader + 4);
-        unsigned long *pdwSize = (unsigned long *)(acResponseHeader + 6);
-        unsigned short *piCheckSum = (unsigned short *)(acResponseHeader + 10);
+        uint32_t *pdwSanityCheck = (uint32_t *)acResponseHeader;
+        uint16_t *piVersion = (uint16_t *)(acResponseHeader + 4);
+        uint32_t *pdwSize = (uint32_t *)(acResponseHeader + 6);
+        uint16_t *piCheckSum = (uint16_t *)(acResponseHeader + 10);
 
         if( *pdwSanityCheck != PVPR )  // PVPR
         {
@@ -211,7 +211,7 @@ bool RA_Processor::SendRequests(DCE::Socket *pSocket)
             return false;
         }
 
-        unsigned short *iNumActions = (unsigned short *) caNumActions;
+        uint16_t *iNumActions = (uint16_t *) caNumActions;
         for( long lActionCount=0; lActionCount < *iNumActions; ++lActionCount )
         {
             char acActionHeader[13] = HEADER;
@@ -223,9 +223,9 @@ bool RA_Processor::SendRequests(DCE::Socket *pSocket)
                 return false;
             }
 
-            unsigned long *plActionSize = (unsigned long *)acActionHeader;
-            unsigned long *plActionChecksum = (unsigned long *)(acActionHeader + 4);
-            unsigned long *plActionID = (unsigned long *)(acActionHeader + 8);
+            uint32_t *plActionSize = (uint32_t *)acActionHeader;
+            uint32_t *plActionChecksum = (uint32_t *)(acActionHeader + 4);
+            uint32_t *plActionID = (uint32_t *)(acActionHeader + 8);
 
             char *pcActionData = new char[*plActionSize];
             if( !pSocket->ReceiveData( *plActionSize, pcActionData ) )
@@ -272,22 +272,22 @@ bool RA_Processor::ReceiveRequests(DCE::Socket *pSocket)
     // where N is a 2 byte, 16 integer indicating the number of requests coming in (normally 01)
     // where XX is a 2 byte, 16 bit integer representating the type of request
     // ZZZZ is the 32-bit size of the request, CCCC is the 32-bit checksum of the request
-    unsigned long *pdwSanityCheck = (unsigned long *)acRequestHeader;
-    unsigned short *piNumberOfRequests = (unsigned short *)(acRequestHeader + 10);
+    uint32_t *pdwSanityCheck = (uint32_t *)acRequestHeader;
+    uint16_t *piNumberOfRequests = (uint16_t *)(acRequestHeader + 10);
 
     if( *pdwSanityCheck != PVIP )  // PVIP
         return false;
 
     cout << "Data valid " << (*piNumberOfRequests) << " new requests\n";
 
-    for( unsigned short iCount=0; iCount < *piNumberOfRequests; ++iCount)
+    for( uint16_t iCount=0; iCount < *piNumberOfRequests; ++iCount)
     {
         char acRequestItem[13] = HEADER;
         if ( !pSocket->ReceiveData( 12, acRequestItem ) )  // Not a valid message
             return false;
 
-        unsigned long *pdwSize = (unsigned long *)(acRequestItem);
-        unsigned long *RequestID = (unsigned long *)(acRequestItem+8);
+        uint32_t *pdwSize = (uint32_t *)(acRequestItem);
+        uint32_t *RequestID = (uint32_t *)(acRequestItem+8);
 
         if( *pdwSize > TENMEGA )  // Can't be more than 10MB
             return false;
@@ -324,18 +324,18 @@ bool RA_Processor::ReceiveRequests(DCE::Socket *pSocket)
 
         char acResponse[15] = RESPONSE;
         char *pcPtr = (acResponse + 4);
-        pcPtr += sizeof(unsigned short);
+        pcPtr += sizeof(uint16_t);
 
-        pdwSize = (unsigned long *) pcPtr;
+        pdwSize = (uint32_t *) pcPtr;
         *pdwSize = pRA_Request->ResponseSize();
-        pcPtr += sizeof(unsigned short);
+        pcPtr += sizeof(uint16_t);
 
         /** \todo calc checksum */
 
         // Sendin response data
         pSocket->SendData(14,acResponse);
         pSocket->SendData(*pdwSize,(const char *)pRA_Request->Response());
-        unsigned short iNumActions = (unsigned short)pRA_Request->m_listActions.size();
+        uint16_t iNumActions = (uint16_t)pRA_Request->m_listActions.size();
         pSocket->SendData(2,(const char *) &iNumActions);
 
         cout << "Returning " << iNumActions << " actions\n";
@@ -344,11 +344,11 @@ bool RA_Processor::ReceiveRequests(DCE::Socket *pSocket)
         {
             pAction->ConvertActionToBinary();
             char acResponse[13] = HEADER;
-            unsigned long *dwUi = (unsigned long *) (acResponse);
+            uint32_t *dwUi = (uint32_t *) (acResponse);
             *dwUi = pAction->ActionSize();
-            dwUi = (unsigned long *) (acResponse+4);
+            dwUi = (uint32_t *) (acResponse+4);
             *dwUi = pAction->ActionChecksum();
-            dwUi = (unsigned long *) (acResponse+8);
+            dwUi = (uint32_t *) (acResponse+8);
             *dwUi = pAction->ID();
             pSocket->SendData(12,acResponse);
             pSocket->SendData(pAction->ActionSize(),(const char *)pAction->Action());

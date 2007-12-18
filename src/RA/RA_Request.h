@@ -56,12 +56,12 @@ private:
 	bool m_bSerializingRequest; /** < Keep track of whether we're serializing the request or the response */
 
 public:
-	unsigned long m_dwResponseSize; /** < response dwSize */
-	unsigned long m_dwResponseChecksum; /** < checksum */
+	uint32_t m_dwResponseSize; /** < response dwSize */
+	uint32_t m_dwResponseChecksum; /** < checksum */
 	char *m_pcResponse; /** < actual pcData for the response */
 
-	unsigned long m_dwRequestSize; /** < request dwSize */
-	unsigned long m_dwRequestChecksum; /** < request checksum */
+	uint32_t m_dwRequestSize; /** < request dwSize */
+	uint32_t m_dwRequestChecksum; /** < request checksum */
 	char *m_pcRequest; /** < actual request pcData */
 
 	char m_cProcessOutcome; /** < outcome of the process */
@@ -95,7 +95,7 @@ public:
 	 * @param dwSize size of data to build request from
 	 * @param pcData pointer to the actual data
 	 */
-	void CreateRequest(unsigned long dwSize,const char *pcData);
+	void CreateRequest(uint32_t dwSize,const char *pcData);
 
 	/**
 	 * virtual destructor
@@ -103,10 +103,10 @@ public:
 	virtual ~RA_Request();
 
 	// Accessors
-	long ResponseSize() { return m_dwResponseSize; } /** < returns the private member */
-	long ResponseChecksum() { return m_dwResponseChecksum; } /** < returns the private member */
-	long RequestSize() { return m_dwRequestSize; } /** < returns the private member */
-	long RequestChecksum() { return m_dwRequestChecksum; } /** < returns the private member */
+	uint32_t ResponseSize() { return m_dwResponseSize; } /** < returns the private member */
+	uint32_t ResponseChecksum() { return m_dwResponseChecksum; } /** < returns the private member */
+	uint32_t RequestSize() { return m_dwRequestSize; } /** < returns the private member */
+	uint32_t RequestChecksum() { return m_dwRequestChecksum; } /** < returns the private member */
 	const char *Response() { return m_pcResponse; } /** < returns the private member */
 	const char *Request() { return m_pcRequest; } /** < returns the private member */
 
@@ -116,7 +116,7 @@ public:
 	 * @param dwSize data size
 	 * @param pcResponse pointer to the actual data
 	 */
-	void StoreResponse(long dwSize, const char *pcResponse) { m_dwResponseSize=dwSize; m_pcResponse= (char *)pcResponse; }
+	void StoreResponse(uint32_t dwSize, const char *pcResponse) { m_dwResponseSize=dwSize; m_pcResponse= (char *)pcResponse; }
 
 	/**
     * @brief for Symbian compatibility; see Symbian.txt for detailes
@@ -126,7 +126,7 @@ public:
 	MYSTL_CREATE_LIST( m_listActions, RA_Action );
 
 	// *** PURE VIRTUAL FUNCTIONS
-	virtual unsigned long ID()=0; /** < should return the ID of the request */
+	virtual uint32_t ID()=0; /** < should return the ID of the request */
 	virtual bool ProcessRequest(class RA_Processor *pRA_Processor)=0; /* < process the request */
 
 	/**
@@ -142,7 +142,7 @@ public:
 	// *** FUNCTION THAT NEED TO BE OVERRIDDEN
 	virtual void ConvertRequestToBinary(); /** < converts request to binary */
 	virtual void ConvertResponseToBinary(); /** <  converts response to binary */
-	virtual bool ParseResponse( unsigned long dwSize, const char *pcData ); /** < pharses the response */
+	virtual bool ParseResponse( uint32_t dwSize, const char *pcData ); /** < pharses the response */
 };
 
 #endif

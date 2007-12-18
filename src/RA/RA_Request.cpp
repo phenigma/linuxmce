@@ -61,7 +61,7 @@ void RA_Request::ResetValues()
 	m_dwRequestChecksum = m_dwRequestSize = 0;
 }
 
-void RA_Request::CreateRequest(unsigned long dwSize, const char *pcData)
+void RA_Request::CreateRequest(uint32_t dwSize, const char *pcData)
 {
 	m_bSerializingRequest=true;
 	ResetValues();
@@ -74,7 +74,7 @@ void RA_Request::ConvertRequestToBinary()
 {
 	m_bSerializingRequest=true;
 	SerializeWrite();
-	m_dwRequestSize = (unsigned long)(m_pcCurrentPosition - m_pcDataBlock);
+	m_dwRequestSize = (uint32_t)(m_pcCurrentPosition - m_pcDataBlock);
 	m_pcRequest = m_pcDataBlock;
 }
 
@@ -83,15 +83,15 @@ void RA_Request::ConvertResponseToBinary()
 	m_bSerializingRequest=false;
 	SerializeWrite();
 
-	m_dwResponseSize = (unsigned long) (m_pcCurrentPosition - m_pcDataBlock);
+	m_dwResponseSize = (uint32_t) (m_pcCurrentPosition - m_pcDataBlock);
 	m_pcResponse = m_pcDataBlock;
 }
 
-bool RA_Request::ParseResponse(unsigned long dwSize, const char *pcData)
+bool RA_Request::ParseResponse(uint32_t dwSize, const char *pcData)
 {
 	m_bSerializingRequest=false;
 	SerializeRead(dwSize, (char *)pcData);
-	m_dwResponseSize = (unsigned long) (m_pcCurrentPosition-m_pcDataBlock);
+	m_dwResponseSize = (uint32_t) (m_pcCurrentPosition-m_pcDataBlock);
 	return true;
 }
 

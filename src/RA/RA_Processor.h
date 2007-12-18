@@ -46,8 +46,8 @@ public:
 
 private:
 
-    unsigned long m_dwEstablishmentID; /** < ID of the establishment */
-    unsigned long m_dwSoftwareVersion; /** < software version */
+    uint32_t m_dwEstablishmentID; /** < ID of the establishment */
+    uint32_t m_dwSoftwareVersion; /** < software version */
     int m_iMaxConnectionAttempts; /** < maximal connection attempts */
 
 public:
@@ -58,7 +58,7 @@ public:
      * @param EstablishmentID ID of the establishment
      * @param SoftwareVersion version
      */
-    RA_Processor( unsigned long dwEstablishmentID, unsigned long dwSoftwareVersion, class RA_Config *pRA_Config = NULL, int iMaxConnectionAttempts=-1 )
+    RA_Processor( uint32_t dwEstablishmentID, uint32_t dwSoftwareVersion, class RA_Config *pRA_Config = NULL, int iMaxConnectionAttempts=-1 )
     {
         m_dwEstablishmentID = dwEstablishmentID; 
 		m_dwSoftwareVersion = dwSoftwareVersion;
@@ -130,7 +130,7 @@ public:
      * @param pcData the data to build the request from
 	 * @param dwRequestID the request's ID
 	 */
-	static RA_Request *BuildRequestFromData( long dwSize, const char *pcData, unsigned long dwRequestID );
+	static RA_Request *BuildRequestFromData( uint32_t dwSize, const char *pcData, uint32_t dwRequestID );
 
 	/**
 	 * @brief Builds an application from data.  The application that uses this must provide the implementatation for this method.
@@ -139,7 +139,7 @@ public:
      * @param pcData the data to build the action from
 	 * @param dwActionID the action's ID
 	 */
-	static RA_Action *BuildActionFromData( long dwSize, const char *pcData, unsigned long dwActionID );
+	static RA_Action *BuildActionFromData( uint32_t dwSize, const char *pcData, uint32_t dwActionID );
 
 	/**
 	 * @brief Returns a pointer to the request processor.  The implementation can just return a pointer to an instance of this class unless it needs special data, like session tracking

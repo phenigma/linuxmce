@@ -46,7 +46,7 @@ RA_Action::RA_Action()
 }
 
 
-void RA_Action::CreateAction(unsigned long dwSize, const char *pcData)
+void RA_Action::CreateAction(uint32_t dwSize, const char *pcData)
 {
 	SerializeRead(dwSize,(char *) pcData);
 }
@@ -54,6 +54,6 @@ void RA_Action::CreateAction(unsigned long dwSize, const char *pcData)
 void RA_Action::ConvertActionToBinary()
 {
 	SerializeWrite();
-    m_dwActionSize = (unsigned long) ( m_pcCurrentPosition - m_pcDataBlock );
+    m_dwActionSize = (uint32_t) ( m_pcCurrentPosition - m_pcDataBlock );
     m_pcAction = m_pcDataBlock;
 }

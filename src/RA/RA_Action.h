@@ -34,8 +34,8 @@ class RA_Action : public SerializeClass
 {
 protected:
 
-    unsigned long m_dwActionSize; /** <the size of the action */
-    unsigned long m_dwActionChecksum; /** <the checksum of the action */
+    uint32_t m_dwActionSize; /** <the size of the action */
+    uint32_t m_dwActionChecksum; /** <the checksum of the action */
     char *m_pcAction; /** <the action data */
 
 public:
@@ -58,7 +58,7 @@ public:
      * @param dwSize the size of the binary data
      * @param pcData the data
      */
-    void CreateAction( unsigned long dwSize,const char *pcData); // Received a binary action, call ProcessAction
+    void CreateAction( uint32_t dwSize,const char *pcData); // Received a binary action, call ProcessAction
 
 	/**
      * @brief virtual convertor to binary
@@ -73,12 +73,12 @@ public:
     /**
      * @return private member
      */
-    long ActionSize() { return m_dwActionSize; }
+    uint32_t ActionSize() { return m_dwActionSize; }
 
     /**
      * @return private member
      */
-    long ActionChecksum() { return m_dwActionChecksum; }
+    uint32_t ActionChecksum() { return m_dwActionChecksum; }
 
     /**
      * @return constant private member
@@ -88,7 +88,7 @@ public:
     /**
      * @brief pure virtual method... should return the ID of the action in inheriting classes
      */
-    virtual unsigned long ID()=0;
+    virtual uint32_t ID()=0;
 };
 
 #endif
