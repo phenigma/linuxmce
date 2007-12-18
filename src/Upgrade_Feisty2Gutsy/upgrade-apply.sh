@@ -23,16 +23,8 @@ function Error {
         exit 1
 }
 
-DisplayMessage "*** STEP: Running MakeRelease"
 trap 'Error "Got a error in file $0"' EXIT
-
 set -x
-
-if [[ ! -f /var/gutsy-upgrade-scripts/upgrade-ready ]] ;then
-	trap - EXIT
-	DisplayMessage "Updates didn't finished downloading, continue booting ..."
-	exit 0
-fi
 
 cd /usr/share/gutsy-upgrade-scripts/scripts
 
@@ -114,8 +106,4 @@ DisplayMessage "Upgrade Finished"
 rm -f /etc/cron.d/gutsy-upgrade-scripts
 
 trap - EXIT
-
-DisplayMessage "Press <ENTER> to continue ..."
-read
-
 

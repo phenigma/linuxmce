@@ -3,15 +3,17 @@
 case "$1" in
 	start)
 		# Stop Usplash
-		/etc/init.d/usplash start
-		chvt 8
-		sleep 3
+		if [[ -f  /var/gutsy-upgrade-scripts/upgrade-ready ]] ;then
+			/etc/init.d/usplash start
+			chvt 8
+			sleep 3
 
-		echo "Trying to update the system ..."
-		/usr/share/gutsy-upgrade-scripts/scripts/upgrade-apply.sh
-
-		echo "Press <ENTER> to continue ....."
-		read 
+			echo "Trying to update the system ..."
+			/usr/share/gutsy-upgrade-scripts/scripts/upgrade-apply.sh
+	
+			echo "Press <ENTER> to continue ....."
+			read 
+		fi
 		#
 		;;
 	*)
