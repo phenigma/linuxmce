@@ -1179,6 +1179,7 @@ void MPlayer_Player::CreateVideoConfigFiles(const vector<string> &vFiles)
 		if (StringUtils::EndsWith(*vi, ".M2TS", true))
 		{
 			vector<string> vOptions;
+			vOptions.push_back("lavdopts=fast=yes:threads=2");
 			vOptions.push_back("cache=65536");
 			vOptions.push_back("cache-min=20");
 			
