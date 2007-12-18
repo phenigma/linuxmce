@@ -86,7 +86,13 @@ AVWizardReplacement()
 
 	/usr/pluto/bin/Xconfigure.sh --force-vesa --defaults
 
-	echo -e "#!/bin/bash\ncp /etc/X11/xorg.conf{.nuforce,}" >/usr/pluto/bin/AVWizard_Run.sh
+AVWizardRun="#!/bin/bash
+cp /etc/X11/xorg.conf{.nuforce,}
+amixer sset IEC958 unmute
+alsactl store
+"
+
+	echo -n "$AVWizardRun" >/usr/pluto/bin/AVWizard_Run.sh
 	echo "#!/bin/bash" >/usr/pluto/bin/Xconfigure.sh
 	echo "#!/bin/bash" >/usr/pluto/bin/X-CheckSettings.sh
 
