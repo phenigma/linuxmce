@@ -87,9 +87,14 @@ AVWizardReplacement()
 	/usr/pluto/bin/Xconfigure.sh --force-vesa --defaults
 
 AVWizardRun="#!/bin/bash
+. /usr/pluto/bin/Config_Ops.sh
+
 cp /etc/X11/xorg.conf{.nuforce,}
 amixer sset IEC958 unmute
 alsactl store
+
+xinit /usr/bin/TouchKit -- :0 -ac
+ConfSet AVWizardDone 1
 "
 
 	echo -n "$AVWizardRun" >/usr/pluto/bin/AVWizard_Run.sh
