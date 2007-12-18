@@ -75,7 +75,7 @@ public:
 	/**
 	 * @brief  Returns the id of the request
 	 */
-	virtual unsigned long ID( ) { return R_COMMIT_ROW; }
+	virtual uint32_t ID( ) { return R_COMMIT_ROW; }
 
 	/**
 	 * @brief Sets up the serialization request

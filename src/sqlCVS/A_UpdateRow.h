@@ -55,7 +55,7 @@ public:
 	 * @brief returns the id of the updated row
 	 */
 
-	virtual unsigned long ID() { return A_UPDATE_ROW; }
+	virtual uint32_t ID() { return A_UPDATE_ROW; }
 	
 	/**
 	 * @brief sets up the serialization

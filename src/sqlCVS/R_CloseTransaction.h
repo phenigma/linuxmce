@@ -42,7 +42,7 @@ public:
 	/**
 	 * @brief  Returns the id of the request
 	 */
-	virtual unsigned long ID( ) { return R_CLOSE_TRANSACTION; }
+	virtual uint32_t ID( ) { return R_CLOSE_TRANSACTION; }
 
 	/**
 	 * @brief This will return true if the request is processed properly

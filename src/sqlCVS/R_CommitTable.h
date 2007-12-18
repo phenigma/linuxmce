@@ -58,7 +58,7 @@ public:
 	 * @brief Returns the id of the table @todo ask
 	 */
 	
-	virtual unsigned long ID( ) { return R_COMMIT_TABLE; }
+	virtual uint32_t ID( ) { return R_COMMIT_TABLE; }
 
 	/**
 	 * @brief Sets up the serialization request

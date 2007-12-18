@@ -65,7 +65,7 @@ public:
 	 * @brief returns the id of the updated table @todo ask
 	 */
 	 
-	virtual unsigned long ID( ) { return R_UPDATE_TABLE; }
+	virtual uint32_t ID( ) { return R_UPDATE_TABLE; }
 
 	/**
 	 * @brief Sets up the serialization request

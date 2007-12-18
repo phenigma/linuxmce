@@ -57,7 +57,7 @@ public:
 	 * @brief Returns the id of @todo ask
 	 */
 
-	virtual unsigned long ID( ) { return R_GET_ALL_PSC_ID; }
+	virtual uint32_t ID( ) { return R_GET_ALL_PSC_ID; }
 
 	/**
 	 * @brief Sets up the serialization request

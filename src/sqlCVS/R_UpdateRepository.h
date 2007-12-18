@@ -57,7 +57,7 @@ public:
 	 * @brief  Returns the id of the updated repository
 	 */
 	 
-	virtual unsigned long ID( ) { return R_UPDATE_REPOSITORY; }
+	virtual uint32_t ID( ) { return R_UPDATE_REPOSITORY; }
 
 	/**
 	 * @brief Sets up the serialization request

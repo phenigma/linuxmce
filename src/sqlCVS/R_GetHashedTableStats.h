@@ -60,7 +60,7 @@ public:
 	 * @brief Returns the id of @todo ask
 	 */
 
-	virtual unsigned long ID( ) { return R_GET_HASHED_TABLE_STATS; }
+	virtual uint32_t ID( ) { return R_GET_HASHED_TABLE_STATS; }
 
 	/**
 	 * @brief Sets up the serialization request

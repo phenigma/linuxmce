@@ -42,7 +42,7 @@
 #include "sqlCVSprocessor.h"
 #include "RA/RAServerSocket.h"
 
-RA_Request *RA_Processor::BuildRequestFromData( long dwSize, const char *pcData, unsigned long dwRequestID )
+RA_Request *RA_Processor::BuildRequestFromData(uint32_t dwSize, const char *pcData, uint32_t dwRequestID )
 {
 	RA_Request *pRequest=NULL;
 	switch( dwRequestID )
@@ -96,7 +96,7 @@ RA_Request *RA_Processor::BuildRequestFromData( long dwSize, const char *pcData,
 	return pRequest;
 }
 
-RA_Action *RA_Processor::BuildActionFromData( long dwSize, const char *pcData, unsigned long dwActionID )
+RA_Action *RA_Processor::BuildActionFromData( uint32_t dwSize, const char *pcData, uint32_t dwActionID )
 {
 	RA_Action *pRA_Action=NULL;
 	switch( dwActionID )

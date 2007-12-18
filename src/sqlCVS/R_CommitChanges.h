@@ -53,7 +53,7 @@ public:
 	/**
 	 * @brief Returns the id of the request @todo ask
 	 */
-	virtual unsigned long ID( ) { return R_COMMIT_CHANGES; }
+	virtual uint32_t ID( ) { return R_COMMIT_CHANGES; }
 
 	/**
 	 * @brief Sets up the serialization request
