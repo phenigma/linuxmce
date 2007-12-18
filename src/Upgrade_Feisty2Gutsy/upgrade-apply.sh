@@ -35,10 +35,6 @@ DisplayMessage "Preseeding packages"
 ## Regen Packages.gz
 DisplayMessage "Setting up deb-cache"
 apt-get -f -y --force-yes install dpkg-dev
-pushd /usr/pluto/deb-cache-new
-	dpkg-scanpackages -m . /dev/null > Packages
-       	gzip -c Packages > Packages.gz
-popd
 
 ## Move deb-cache-new to deb-cache
 if [[ ! -d /usr/pluto/deb-cache-old ]] ;then
@@ -48,6 +44,11 @@ fi
 if [[ -d /usr/pluto/deb-cache-new ]] ;then
 	mv /usr/pluto/deb-cache{-new,}
 fi
+
+pushd /usr/pluto/deb-cache
+	dpkg-scanpackages -m . /dev/null > Packages
+       	gzip -c Packages > Packages.gz
+popd
 
 ## Put aside some files
 mv /etc/apt/sources.list{,.backup-upgrade} || :
