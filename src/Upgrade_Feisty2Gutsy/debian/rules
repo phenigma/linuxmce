@@ -55,7 +55,8 @@ install: build
 	dh_installdirs
 
 	# Add here commands to install the package into debian/gutsy-upgrade-scripts.
-	mkdir -p $(CURDIR)/debian/gutsy-upgrade-scripts/usr/share/{gutsy-upgrade-scripts/scripts,applications}
+	mkdir -p $(CURDIR)/debian/gutsy-upgrade-scripts/usr/share/gutsy-upgrade-scripts/scripts
+	mkdir -p $(CURDIR)/debian/gutsy-upgrade-scripts/usr/share/applications
 	mkdir -p $(CURDIR)/debian/gutsy-upgrade-scripts/var/gutsy-upgrade-scripts
 	cp $(CURDIR)/upgrade-*.sh $(CURDIR)/debian/gutsy-upgrade-scripts/usr/share/gutsy-upgrade-scripts/scripts/
 	cp $(CURDIR)/debian/gutsy-upgrade-scripts.desktop $(CURDIR)/debian/gutsy-upgrade-scripts/usr/share/applications/
@@ -81,7 +82,7 @@ binary-arch: build install
 #	dh_installpam
 #	dh_installmime
 #	dh_python
-#	dh_installinit
+	dh_installinit --no-start --update-rcd-params="start 99 S ."
 #	dh_installcron
 #	dh_installinfo
 	dh_installman

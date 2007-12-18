@@ -3,3 +3,5 @@ set -e
 
 rm -f /etc/cron.d/gutsy-upgrade-scripts
 rm -rf /var/gutsy-upgrade-scripts/
+
+#DEBHELPER#
