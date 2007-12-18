@@ -113,6 +113,7 @@ bool RipJob::ReadyToRun()
 	    	// if fixup failed, we should also fail
 		if (!m_pDisk_Drive_Functions->FixupRippingInfo(m_pDisk_Drive_Functions,m_iPK_MediaType,m_sFileName,m_sTracks,m_iEK_Disc,m_sDirectory))
 		{
+		    LoggerWrapper::GetInstance()->Write(LV_STATUS, "RipJob::RipJob::ReadyToRun fixup failed, aborting this job");
 		    m_eJobStatus = job_Error;
 		    return false;
 		}
