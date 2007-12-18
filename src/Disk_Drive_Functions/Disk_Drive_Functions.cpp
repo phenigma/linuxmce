@@ -629,7 +629,7 @@ bool Disk_Drive_Functions::mountDVD(string fileName, string & strMediaUrl)
 	return false;
 }
 
-void Disk_Drive_Functions::FixupRippingInfo(Disk_Drive_Functions *pDisk_Drive_Functions,int &PK_MediaType,string &sFilename,string &sTracks,int iEK_Disc,string &sDirectory)
+bool Disk_Drive_Functions::FixupRippingInfo(Disk_Drive_Functions *pDisk_Drive_Functions,int &PK_MediaType,string &sFilename,string &sTracks,int iEK_Disc,string &sDirectory)
 {
 	Row_Disc *pRow_Disc = m_pDatabase_pluto_media->Disc_get()->GetRow(iEK_Disc);
 
@@ -645,18 +645,23 @@ void Disk_Drive_Functions::FixupRippingInfo(Disk_Drive_Functions *pDisk_Drive_Fu
 		if( vectRow_DiscLocation.size()!=1 )
 		{
 			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Disk_Drive_Functions::FixupRippingInfo canot find disclocation for drive %d", pDisk_Drive_Functions->m_dwPK_Device_get());
-			return;
+			return false;
 		}
 		Row_DiscLocation *pRow_DiscLocation = vectRow_DiscLocation[0];
 		if( pRow_DiscLocation->Type_get()=="d" )
 			PK_MediaType=MEDIATYPE_pluto_DVD_CONST;
 		else if( pRow_DiscLocation->Type_get()=="c" )
 			PK_MediaType=MEDIATYPE_pluto_CD_CONST;
+/*		else if ( pRow_DiscLocation->Type_get()=="H" )
+		    	PK_MediaType=MEDIATYPE_pluto_HDDVD_CONST;
+		else if ( pRow_DiscLocation->Type_get()=="R" )
+		    	PK_MediaType=MEDIATYPE_pluto_BD_CONST;
+*/
 		else
 		{
 			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Disk_Drive_Functions::FixupRippingInfo disclocation for drive %d has invalid type %s", 
 				pDisk_Drive_Functions->m_dwPK_Device_get(), pRow_DiscLocation->Type_get().c_str());
-			return;
+			return false;
 		}
 	}
 
@@ -767,6 +772,8 @@ void Disk_Drive_Functions::FixupRippingInfo(Disk_Drive_Functions *pDisk_Drive_Fu
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive_Functions::FixupRippingInfo done PK_MediaType %d sFilename %s (%d) sTracks %s iEK_Disc %d sDirectory %s",
 		PK_MediaType,sFilename.c_str(),(int) bUsingUnknownDiscName,sTracks.c_str(),iEK_Disc,sDirectory.c_str());
+
+	return true;
 }
 
 string Disk_Drive_Functions::getTracks(string mrl)

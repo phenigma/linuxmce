@@ -123,7 +123,7 @@ public:
 		int cdrom_lock(int lock);
 		int cdrom_checkdrive(const char * filename, int * flag, bool bFireEvent,bool Recheck=false);
 		bool mountDVD(string fileName, string & strMediaUrl);
-		void FixupRippingInfo(Disk_Drive_Functions *pDisk_Drive_Functions,int &PK_MediaType,string &sFilename,string &sTracks,int iEK_Disc,string &sDirectory);
+		bool FixupRippingInfo(Disk_Drive_Functions *pDisk_Drive_Functions,int &PK_MediaType,string &sFilename,string &sTracks,int iEK_Disc,string &sDirectory);
 		string getTracks(string mrl); // We use cddb for nothing other than determining how many tracks there are
 		void DisplayMessageOnOrbVFD(string sMessage);
 		void StartNbdServer();

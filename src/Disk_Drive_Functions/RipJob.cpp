@@ -110,7 +110,13 @@ bool RipJob::ReadyToRun()
 {
 	if( m_pDisk_Drive_Functions )  // We're ready to go if we have a drive to do the ripping
 	{
-		m_pDisk_Drive_Functions->FixupRippingInfo(m_pDisk_Drive_Functions,m_iPK_MediaType,m_sFileName,m_sTracks,m_iEK_Disc,m_sDirectory);
+	    	// if fixup failed, we should also fail
+		if (!m_pDisk_Drive_Functions->FixupRippingInfo(m_pDisk_Drive_Functions,m_iPK_MediaType,m_sFileName,m_sTracks,m_iEK_Disc,m_sDirectory))
+		{
+		    m_eJobStatus = job_Error;
+		    return false;
+		}
+
 		AddRippingTasks();
 		return true;
 	}
