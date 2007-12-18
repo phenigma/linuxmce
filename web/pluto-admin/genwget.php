@@ -27,7 +27,7 @@ $range=(isset($_REQUEST['range']))?(int)@$_REQUEST['range']:100;
 $dataArray=getAssocArray('File','PK_File','CONCAT(EK_MediaType,\'|\',Filename)',$mediadbADO,'LEFT JOIN Picture_File ON  Picture_File.FK_File=PK_File LEFT JOIN CoverArtScan ON CoverArtScan.FK_File=PK_File WHERE EK_MediaType IN (3,4,5) AND (Scanned IS NULL OR Scanned=0) GROUP BY PK_File HAVING count(FK_Picture)=0 ORDER BY PK_File DESC LIMIT '.$from.','.$range);
 
 $filters=array();
-$rs=$mediadbADO->Execute('SELECT * FROM File_Attribute INNER JOIN AttributeType ON FK_AttributeType=PK_AttributeType INNER JOIN Attribute ON FK_Attribute=PK_Attribute WHERE FK_AttributeType IN (2,3) AND FK_File IN ('.join(',',array_keys($dataArray)).')');
+$rs=$mediadbADO->Execute('SELECT * FROM File_Attribute INNER JOIN Attribute ON FK_Attribute=PK_Attribute INNER JOIN AttributeType ON FK_AttributeType=PK_AttributeType WHERE FK_AttributeType IN (2,3) AND FK_File IN ('.join(',',array_keys($dataArray)).')');
 while($row=$rs->FetchRow()){
 	$filters[$row['FK_File']][$row['FK_AttributeType']]=$row['Name'];
 }
