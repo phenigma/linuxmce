@@ -64,6 +64,9 @@ RunSQL "UPDATE Device_DeviceData SET IK_DeviceData = 'LMCE_CORE_u0710_i386' WHER
 RunSQL "UPDATE Device_DeviceData SET IK_DeviceData = 'LMCE_MD_u0710_i386'   WHERE IK_DeviceData = 'LMCE_MD_1_1'"
 RunSQL "UPDATE Device_DeviceData SET IK_DeviceData = '0' WHERE FK_DeviceData = '234'"
 
+# Put kdm startup script back
+mv /etc/init.d/kdm{.backup-upgrade,} || :
+
 ## Remove old 0704 updates
 rm -rf /home/updates/*
 
