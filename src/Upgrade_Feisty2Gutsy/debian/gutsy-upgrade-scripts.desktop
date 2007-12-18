@@ -8,5 +8,5 @@ Icon=down.png
 StartupNotify=true
 Terminal=true
 Type=Application
-Categories=GNOME;Application;Accessories
+Categories=GNOME;Application;Accessories;System;Settings
 
