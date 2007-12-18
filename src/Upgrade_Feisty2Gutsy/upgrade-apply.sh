@@ -7,7 +7,7 @@ if [[ ! -f /var/gutsy-upgrade-scripts/upgrade-ready ]] ;then
 	exit 0
 fi
 
-#cd /usr/share/gutsy-upgrade-scripts/
+cd /usr/share/gutsy-upgrade-scripts/
 
 ## Preseed some packages to avoid the need of interactive debconf
 ./upgrade-preseed.sh
