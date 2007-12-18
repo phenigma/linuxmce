@@ -28,6 +28,8 @@ if [[ $UID != "0" ]] ;then
 	chmod +x ./mce-installer
 	./mce-installer-user
 else
+	mkdir -p /home/public/data/samples || :
+	cp ./sample.mpg /home/public/data/samples/ || :
 	./mce-installer
 fi
 

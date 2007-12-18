@@ -20,6 +20,8 @@ function ExitInstaller {
 	exit 1
 }
 
+rm -f /home/public/data/samples/sample.mpg
+
 FROM_CD=1
 FROM_ISO=2
 
