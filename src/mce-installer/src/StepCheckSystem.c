@@ -13,12 +13,12 @@
 void on_StepCheckSystem_forward_clicked(GtkWidget *widget, gpointer data) {
 //	g_queue_push_head(history, (gpointer)STEPCHECKSYSTEM);
 //	displayStep3();
-	if (setting_coreIP != NULL) {
-		displayStep1C();
-	} else {
+//	if (setting_coreIP != NULL) {
+//		displayStep1C();
+//	} else {
 		//displayStep1D();
 		displayStepNotification();
-	}
+//	}
 }
 
 
