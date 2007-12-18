@@ -105,5 +105,6 @@ rm -f /usr/share/gutsy-upgrade-scripts/upgrade-ready
 DisplayMessage "Upgrade Finished"
 rm -f /etc/cron.d/gutsy-upgrade-scripts
 
+apt-get -f -y --force-yes --purge gutsy-upgrade-scripts
 trap - EXIT
 
