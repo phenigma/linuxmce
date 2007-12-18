@@ -2241,7 +2241,6 @@ void MythTV_PlugIn::SetPaths()
 				"mkdir -p \"" + sDirectory + "\"",
 				"chmod 2775 \"" + sDirectory +"\"",
 				"chown root.public \"" + sDirectory +"\"",
-				"adduser mythtv public", // add mythtv to the public group
 				""
 			};
 
