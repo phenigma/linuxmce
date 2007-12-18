@@ -65,29 +65,9 @@ namespace UpdateMediaFileUtils
 #endif
 	}
 
-	int MountedDeviceForFile(string sFilePath)
-	{
-#ifdef WIN32
-		struct __stat64 buf;
-#else
-		struct stat64 buf;
-#endif
-
-#ifdef WIN32
-		if(!_stat64(sFilePath.c_str(), &buf))
-#else
-		if(!stat64(sFilePath.c_str(), &buf))
-#endif
-			return buf.st_dev;
-
-		cout << "ERROR: " << errno << " - desc: " << strerror(errno) << endl;
-
-		return 0;
-	}
-
 	int PlutoDeviceForFile(string sFilePath, const map<int, int>& mapMountedDevices)
 	{
-		map<int, int>::const_iterator it = mapMountedDevices.find(MountedDeviceForFile(sFilePath));
+		map<int, int>::const_iterator it = mapMountedDevices.find(GetDeviceID(sFilePath.c_str()));
 		if(it != mapMountedDevices.end())
 			return it->second;
 
@@ -101,7 +81,7 @@ namespace UpdateMediaFileUtils
 		{
 			string sFilePath = *it;
 
-			int nMountedDevice = MountedDeviceForFile(sFilePath);
+			int nMountedDevice = GetDeviceID(sFilePath.c_str());
 			if(nMountedDevice != 0 && sFilePath.find(csMntDevicePath) == 0)
 			{
                 string sDeviceId = sFilePath.substr(csMntDevicePath.length() + 1);
@@ -149,5 +129,27 @@ namespace UpdateMediaFileUtils
 
 		return nDeviceID;
 	}
+
+	
+	time_t ModificationDateForFile(string sFilePath)
+	{
+#ifdef WIN32
+		struct __stat64 buf;
+#else
+		struct stat64 buf;
+#endif
+
+#ifdef WIN32
+		if(!_stat64(sFilePath.c_str(), &buf))
+#else
+		if(!stat64(sFilePath.c_str(), &buf))
+#endif
+			return static_cast<time_t>(buf.st_mtime);
+
+		cout << "ERROR: " << errno << " - desc: " << strerror(errno) << endl;
+
+		return 0;
+	}
+
 }
 

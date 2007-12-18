@@ -93,7 +93,7 @@ void FileStatusObserver::AlarmCallback(int id, void* /*param*/)
 
 		//start alarm again only if needed
 		if(!m_listFileToObserve.empty())
-			m_pAlarmManager->AddRelativeAlarm(3, this, CHECK_OBSERVED_FILES_STATUS, NULL);
+			m_pAlarmManager->AddRelativeAlarm(60, this, CHECK_OBSERVED_FILES_STATUS, NULL);
 	}
 }
 
@@ -133,6 +133,9 @@ bool FileStatusObserver::IsFileOpen(string sFilename)
               incorporating  hostname  and  pid), use link(2) to make a link to the lockfile. If link() returns 0, the lock is successful.  Otherwise, use
               stat(2) on the unique file to check if its link count has increased to 2, in which case the lock is also successful.
 	*/
+
+	if(time(NULL) - ModificationDateForFile(sFilename.c_str()) > 120)
+		return false;
 
 	string sCommandLine = "fuser -a \"" + sFilename + "\" ";
 	string sOutput;
