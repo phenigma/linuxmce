@@ -14,7 +14,7 @@ function Error {
         set +x
         trap - EXIT
         echo
-        DisplayDisplayMessage "ERROR: $*"
+        DisplayMessage "ERROR: $*"
         echo                    		>&100
         echo     		              	>&100
         tail -20 /var/log/upgrade-apply.log	>&100
@@ -41,8 +41,13 @@ pushd /usr/pluto/deb-cache-new
 popd
 
 ## Move deb-cache-new to deb-cache
-mv /usr/pluto/deb-cache{,-old}
-mv /usr/pluto/deb-cache{-new,}
+if [[ ! -d /usr/pluto/deb-cache-old ]] ;then
+	mv /usr/pluto/deb-cache{,-old} 
+fi
+
+if [[ -d /usr/pluto/deb-cache-new ]] ;then
+	mv /usr/pluto/deb-cache{-new,}
+fi
 
 ## Put aside some files
 mv /etc/apt/sources.list{,.backup-upgrade} || :
