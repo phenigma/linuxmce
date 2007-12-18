@@ -15,6 +15,7 @@ DEVICECATEGORY_Media_Director=8
 
 DEVICETEMPLATE_Media_Plugin=2
 DEVICETEMPLATE_OnScreen_Orbiter=62
+DEVICETEMPLATE_Asterisk=45
 
 DEVICEDATA_ScreenWidth=100
 DEVICEDATA_ScreenHeight=101
@@ -128,6 +129,7 @@ DatabaseDefaults()
 		"INSERT INTO Room(FK_Installation, FK_RoomType, Description) VALUES('$PK_Installation', 1, 'NuForce')"
 		"UPDATE Device SET FK_Room=1 WHERE PK_Device=1"
 		"UPDATE Device_DeviceData SET IK_DeviceData='' WHERE FK_DeviceData=28"
+		"UPDATE Device SET Disabled=1 WHERE FK_DeviceTemplate='$DEVICETEMPLATE_Asterisk'"
 	)
 
 	for Q in "${Queries[@]}"; do
