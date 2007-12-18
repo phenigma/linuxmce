@@ -131,7 +131,7 @@ namespace UpdateMediaFileUtils
 	}
 
 	
-	time_t ModificationDateForFile(string sFilePath)
+	time_t ModificationDateForFile(const char *pFilePath)
 	{
 #ifdef WIN32
 		struct __stat64 buf;
@@ -140,9 +140,9 @@ namespace UpdateMediaFileUtils
 #endif
 
 #ifdef WIN32
-		if(!_stat64(sFilePath.c_str(), &buf))
+		if(!_stat64(pFilePath, &buf))
 #else
-		if(!stat64(sFilePath.c_str(), &buf))
+		if(!stat64(pFilePath, &buf))
 #endif
 			return static_cast<time_t>(buf.st_mtime);
 

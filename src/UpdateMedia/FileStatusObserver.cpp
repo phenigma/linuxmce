@@ -1,6 +1,7 @@
 #include "FileStatusObserver.h"
 #include "inotify/FileNotifier.h"
 #include "PlutoUtils/ProcessUtils.h"
+#include "FileUtils/file_utils.h"
 //------------------------------------------------------------------------------------------
 #define CHECK_OBSERVED_FILES_STATUS 1
 #define OBSERVER_SCANNING_INTERVAL  3 //seconds
@@ -134,7 +135,7 @@ bool FileStatusObserver::IsFileOpen(string sFilename)
               stat(2) on the unique file to check if its link count has increased to 2, in which case the lock is also successful.
 	*/
 
-	if(time(NULL) - ModificationDateForFile(sFilename.c_str()) > 120)
+	if(time(NULL) - UpdateMediaFileUtils::ModificationDateForFile(sFilename.c_str()) > 120)
 		return false;
 
 	string sCommandLine = "fuser -a \"" + sFilename + "\" ";
@@ -156,3 +157,4 @@ bool FileStatusObserver::IsFileOpen(string sFilename)
 #endif
 }
 //------------------------------------------------------------------------------------------
+
