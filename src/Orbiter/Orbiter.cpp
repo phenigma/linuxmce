@@ -5833,9 +5833,9 @@ void Orbiter::CMD_Set_Bound_Icon(string sValue_To_Assign,string sText,string sTy
 void Orbiter::CMD_Set_Variable(int iPK_Variable,string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
 //<-dceag-c27-e->
 {
-//#ifdef DEBUG
+#ifdef DEBUG
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Variable: %d set to %s",iPK_Variable,sValue_To_Assign.c_str());
-//#endif
+#endif
 	
 #ifndef ARMV4I
 	PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
@@ -6290,11 +6290,6 @@ ReceivedMessageResult Orbiter::ReceivedMessage( class Message *pMessageOriginal 
 		return rmr_Processed;
 
 	NeedToRender render( this, strMessage.c_str() );  // Redraw anything that was changed by this command
-
-	LoggerWrapper::GetInstance()->Write( LV_STATUS, "DDD Parms %d=%s", COMMANDPARAMETER_PK_Users_CONST, pMessageOriginal->m_mapParameters[COMMANDPARAMETER_PK_Users_CONST].c_str());
-	LoggerWrapper::GetInstance()->Write( LV_STATUS, "DDD Parms %d=%s", COMMANDPARAMETER_PhoneExtension_CONST, pMessageOriginal->m_mapParameters[COMMANDPARAMETER_PhoneExtension_CONST].c_str());
-	LoggerWrapper::GetInstance()->Write( LV_STATUS, "DDD Parms %d=%s", COMMANDPARAMETER_PK_Device_From_CONST, pMessageOriginal->m_mapParameters[COMMANDPARAMETER_PK_Device_From_CONST].c_str());
-	LoggerWrapper::GetInstance()->Write( LV_STATUS, "DDD Parms %d=%s", COMMANDPARAMETER_PK_Device_To_CONST, pMessageOriginal->m_mapParameters[COMMANDPARAMETER_PK_Device_To_CONST].c_str());
 
 	ReceivedMessageResult Result = Orbiter_Command::ReceivedMessage( pMessageOriginal );
 	return Result;
