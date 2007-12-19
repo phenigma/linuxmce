@@ -119,6 +119,16 @@ function Build_Replacements {
 		popd
 	fi
 
+        #Package: chan-sccp
+        dir_="${snv_dir}/trunk/ubuntu/asterisk/chan_sccp"
+        if ReplacementNeedsBuild "$dir_"; then
+		DisplayMessage "Build chan-sccp"
+                pushd "$dir_"
+                dpkg-buildpackage -rfakeroot -us -uc -b
+                cp -r ../chan-sccp_*.deb ${temp_dir}
+                popd
+        fi
+
 	#Package: pluto-asterisk
 	dir_="${svn_dir}/trunk/ubuntu/asterisk"
 	if Changed_Since_Last_Build "$dir_" ;then
