@@ -6,9 +6,9 @@ rmdir "/pluto.makerelease" /S /Q
 echo Checking out pluto sources...
 cd "c:\Program Files\Subversion\bin"
 
-svn co http://10.0.2.4/pluto/trunk/src /pluto.makerelease/trunk/src
-svn co http://10.0.2.4/pluto/trunk/libs /pluto.makerelease/trunk/libs
-svn co http://10.0.2.4/pluto/trunk/installers/Installers /pluto.makerelease/trunk/installers/Installers
+svn co http://svn.linuxmce.com/pluto/trunk/src /pluto.makerelease/trunk/src
+svn co http://svn.linuxmce.com/pluto/trunk/libs /pluto.makerelease/trunk/libs
+svn co http://svn.linuxmce.com/pluto/trunk/installers/Installers /pluto.makerelease/trunk/installers/Installers
 
 echo BUILDING PLUTO...
 cd "c:\pluto.makerelease\trunk\src"
