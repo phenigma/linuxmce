@@ -26,9 +26,14 @@ function decho {
 
 function create_virtual_machine {
 	decho "Creating virual machine"
-	mkdir -p "$VMWARE_DIR"
 	killall -9 vmplayer || :
 	killall -9 vmware-vmx || :
+	
+	if [[ "$VMWARE_DIR" != "" ]] ;then
+		rm -rf "$VMWARE_DIR"/*
+	fi
+	mkdir -p "$VMWARE_DIR"
+
 	cp -r /var/Kubuntu/* "$VMWARE_DIR"
 	decho "Finished creating virtual machine"
 }
