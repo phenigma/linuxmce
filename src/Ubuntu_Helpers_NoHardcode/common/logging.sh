@@ -3,7 +3,7 @@
 . /etc/lmce-build/builder.conf
 
 exec 100>&1
-exec >"$log_file"
+exec >>"$log_file"
 exec 2>&1
 
 function DisplayMessage {
@@ -13,6 +13,7 @@ function DisplayMessage {
 function Error {
 	set +x
 	trap - EXIT
+
 	echo
 	DisplayMessage "ERROR: $*"
 	echo			>&100

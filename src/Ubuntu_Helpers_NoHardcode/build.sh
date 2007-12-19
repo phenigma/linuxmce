@@ -1,4 +1,11 @@
 #!/bin/bash -e
+
+. /etc/lmce-build/builder.conf
+
+if [[ -f "$log_file" ]] ;then
+	mv "$log_file" "$log_file.$(date ++%d%m%y-%s)"
+fi
+
 build_scripts_dir="/usr/local/lmce-build/build-scripts"
 
 "${build_scripts_dir}/checkout-svn.sh"
