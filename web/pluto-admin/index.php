@@ -1613,7 +1613,12 @@ switch ($section) {
 	    include_once('operations/mediaBrowser/mainScreenSaver.php');
 	    mainScreenSaver($output,$mediadbADO,$dbADO);	    
 	break;
-	
+	case 'vdr':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/others/vdr.php');
+	    vdr($output,$dbADO);	    
+	break;		
 	
 	
 	case 'index';

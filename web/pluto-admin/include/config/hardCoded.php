@@ -80,7 +80,7 @@
 	$GLOBALS['Raid5']=1849;						// Raid 5
 	$GLOBALS['Raid1']=1851;						// Raid 1
 	$GLOBALS['Raid0']=1854;						// Raid 0
-	
+	$GLOBALS['VDR_Plugin']=1704;				// VDR plugin
 	
 	// PK_Template from table Template
 	
@@ -232,6 +232,7 @@
 	$GLOBALS['DD_updateErrors']=259;			// Update errors 
 	$GLOBALS['DD_model']=233;					// model
 	$GLOBALS['DD_LastUpdate']=234;				// Last Update
+	$GLOBALS['DD_provider']=265;				// Provider
 	
 	// PK_FloorplanType from table FloorplanType 
 
@@ -332,4 +333,7 @@
 	'opengl'=>'opengl',
 	'sdl'=>'sdl',
 	'xshm'=>'xshm');
+	
+	$GLOBALS['vdr_from_path']='/var/www/pluto-admin/vdr from/';
+	$GLOBALS['vdr_to_path']='/var/www/pluto-admin/vdr to/';
 ?>

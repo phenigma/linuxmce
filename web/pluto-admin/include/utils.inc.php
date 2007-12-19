@@ -2916,6 +2916,28 @@ function getFieldsAsArray($tableName,$fields,$dbADO,$filter='',$orderBy='')
 	return $result;	
 }
 
+function getFields($tableName,$fields,$dbADO,$filter='',$orderBy='')
+{
+	$res=$dbADO->execute("SELECT $fields FROM $tableName $filter $orderBy");
+	$fields=str_replace('DISTINCT ','',$fields);
+	$fieldsArray=explode(',',$fields);
+
+	$result=array();
+	$pos=0;
+	while($row=$res->Fetchrow()){
+		foreach ($fieldsArray AS $field){
+			$cleanField=(strpos($field,'.')!==false)?substr($field,strpos($field,'.')+1):$field;
+			$cleanField=(strpos($cleanField,' AS ')!==false)?substr($cleanField,strpos($cleanField,' AS ')+4):$cleanField;
+			$cleanField=trim(str_replace('`','',$cleanField));
+
+			$result[$pos][$cleanField]=$row[$cleanField];
+		}
+		$pos++;
+	}
+	return $result;	
+}
+
+
 function displayReceivers($mdID,$categArray,$dbADO)
 {
 	// include language files
