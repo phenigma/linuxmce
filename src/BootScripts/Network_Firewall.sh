@@ -63,7 +63,7 @@ ForwardPort()
 			iptables -t nat -A PREROUTING -p "$Protocol" -s "$FilterIP" -d "$ExtIP" --dport "$SrcPort" -j REDIRECT --to-ports "$DestPort"
 		;;
 		*)
-			iptables -t nat -A PREROUTING -p "$Protocol" -s "$FilterIP" -d "$ExtIP" --dport "$SrcPort" -j DNAT --to-destination "$DestIP:$DestPort"
+			iptables -t nat -A PREROUTING -p "$Protocol" -s "$FilterIP" -i "$ExtIf" --dport "$SrcPort" -j DNAT --to-destination "$DestIP:$DestPort"
 		;;
 	esac
 }
