@@ -26,9 +26,9 @@ fi
 wget --directory-prefix=/var/gutsy-upgrade-scripts/ --continue --tries=5 --timeout=5  --output-file=/var/gutsy-upgrade-scripts/download.log \
 	"$URL_UPGRADE/upgrade.tar.gz" || exit 1
 
-pushd /var/gutsy-upgrade-script/
+pushd /var/gutsy-upgrade-scripts/
 	tar zxf upgrade.tar.gz
-	mv deb-cache-new/*.deb  /usr/pluto/		|| exit 1
+	mv deb-cache-new/	/usr/pluto/		|| exit 1
 	mv diskless-images/*    /usr/pluto/install/	|| exit 1
 	rm -f upgrade.tar.gz
 popd
@@ -60,6 +60,3 @@ for Orbiter in $OrbiterList; do
 done
 /usr/pluto/bin/MessageSend localhost 0 $OrbiterIDList 1 741 10 "UpgradeFinished" 159 53 183 0 9 "Finished downloading 0710 Update. You need to reboot you Hybrid/Core to install the updates."
 
-
-
-touch /var/gutsy-upgrade-scripts/upgrade-ready
