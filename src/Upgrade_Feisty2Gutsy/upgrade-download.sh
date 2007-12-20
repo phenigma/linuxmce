@@ -1,5 +1,7 @@
 #!/bin/bash
 
+URL_UPGRADE="http://10.0.2.1/"
+
 if [[ "$1" != "background" ]] ;then
 	screen -d -m -S Upgrade_Download "$0" background
 	exit 0
@@ -22,7 +24,16 @@ fi
 
 #TODO: Implement download / unpack
 wget --directory-prefix=/var/gutsy-upgrade-scripts/ --continue --tries=5 --timeout=5  --output-file=/var/gutsy-upgrade-scripts/download.log \
-	ftp://ftp.iasi.roedu.net/mirrors/ubuntulinux.org/releases/7.10/ubuntu-7.10-alternate-amd64.iso || exit 1
+	"$URL_UPGRADE/upgrade.tar.gz" || exit 1
+
+pushd /var/gutsy-upgrade-script/
+	tar zxf upgrade.tar.gz
+	mv deb-cache-new/*.deb  /usr/pluto/		|| exit 1
+	mv diskless-images/*    /usr/pluto/install/	|| exit 1
+	rm -f upgrade.tar.gz
+popd
+
+touch /var/gutsy-upgrade-scripts/upgrade-ready
 
 ## Generate a list containig all orbiter ids ($OrbiterIDList)
 . /usr/pluto/bin/SQL_Ops.sh
