@@ -99,6 +99,19 @@ RunSQL "UPDATE Device_DeviceData SET IK_DeviceData = 'LMCE_MD_u0710_i386'   WHER
 RunSQL "UPDATE Device_DeviceData SET IK_DeviceData = 'i386' WHERE FK_DeviceData = '112'"
 RunSQL "UPDATE Device_DeviceData SET IK_DeviceData = '0' WHERE FK_DeviceData = '234'"
 
+# Remove diskless dirs
+for diskless_dir in /usr/pluto/diskless/* ;do
+	if [[ -f "$diskless_dir/etc/pluto.conf" ]];then
+		rm -rf "$diskless_dir"
+	fi
+done
+
+# Set diskless need configure on '1' for Generic PC as MD #28
+RunSQL "UPDATE Device SET NeedConfigure = 1 WHERE FK_DeviceTemplate = '28'"
+
+# Rerun DisklessSetup
+/usr/pluto/bin/Diskless_Setup.sh
+
 # Put kdm startup script back
 mv /etc/init.d/kdm{.backup-upgrade,} || :
 
