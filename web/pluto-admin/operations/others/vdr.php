@@ -31,7 +31,7 @@ function vdr($output,$dbADO) {
 		
 		$service=(isset($_REQUEST['service']))?(int)@$_REQUEST['service']:$service;
 		$area=(isset($_REQUEST['area']))?cleanString($_REQUEST['area']):'--all--';
-			
+					
 		$services=getAssocArray('pluto_vdr.ProviderType','PK_ProviderType','Description',$dbADO);
 				
 		if(isset($_REQUEST['service'])){
@@ -60,7 +60,7 @@ function vdr($output,$dbADO) {
 			<table>
 				<tr>
 					<td><b>'.$TEXT_CHOOSE_TV_SERVICE_CONST.'</b></td>
-					<td>'.pulldownFromArray($services,'service',$service,'onChange="document.vdr.action.value=\'form\';document.vdr.submit();"').'
+					<td>'.pulldownFromArray($services,'service',$service,'onChange="document.vdr.action.value=\'form\';document.vdr.area.value=\'--all--\';document.vdr.submit();"').'
 						<input type="checkbox" name="fta_flag" value="1" '.(($fta_flag==1)?'checked':'').' title="'.htmlentities($TEXT_FTA_CONST).'" onClick="document.vdr.action.value=\'form\';document.vdr.submit();"> FTA  
 						<input type="checkbox" name="radio_flag" value="1" '.(($radio_flag==1)?'checked':'').' title="'.htmlentities($TEXT_RADIO_CONST).'" onClick="document.vdr.action.value=\'form\';document.vdr.submit();"> Radio 
 						<input type="checkbox" name="ca_flag" value="1" '.(($ca_flag==1)?'checked':'').' title="'.htmlentities($TEXT_CA_CONST).'" onClick="document.vdr.action.value=\'form\';document.vdr.submit();"> CA
@@ -69,7 +69,7 @@ function vdr($output,$dbADO) {
 				';
 			if($service!=0){
 				$where="WHERE FK_ProviderType=$service AND FTA=$fta_flag AND Radio=$radio_flag AND CA=$ca_flag";
-				$areas=getAssocArray('pluto_vdr.Provider','DISTINCT Area AS Area','Area',$dbADO,$where,'ORDER BY Area ASC');
+				$areas=array('--all--'=>'All')+getAssocArray('pluto_vdr.Provider','DISTINCT Area AS Area','Area',$dbADO,$where,'ORDER BY Area ASC');
 				
 				$where.=($area!='--all--')?' AND area=\''.$area.'\'':'';
 				$providers=getFields('pluto_vdr.Provider','PK_Provider,Description,filename,Area',$dbADO,$where);
@@ -78,7 +78,7 @@ function vdr($output,$dbADO) {
 					$out.='
 					<tr>
 						<td><b>'.$TEXT_AREA_CONST.'</b></td>
-						<td>'.pulldownFromArray($areas,'area',$area,'onChange="document.vdr.action.value=\'form\';document.vdr.submit();"').'</td>
+						<td>'.pulldownFromArray($areas,'area',$area,'onChange="document.vdr.action.value=\'form\';document.vdr.submit();"','key','').'</td>
 					</tr>
 					<tr>
 						<td colspan="2">
