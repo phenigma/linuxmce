@@ -96,6 +96,7 @@ update-grub
 RunSQL "UPDATE Device_DeviceData SET IK_DeviceData = '15' WHERE PK_Device IN (SELECT PK_Device FROM Device WHERE FK_DeviceTemplate IN (7, 28)) AND FK_DeviceData='7'"
 RunSQL "UPDATE Device_DeviceData SET IK_DeviceData = 'LMCE_CORE_u0710_i386' WHERE IK_DeviceData = 'LMCE_CORE_1_1'"
 RunSQL "UPDATE Device_DeviceData SET IK_DeviceData = 'LMCE_MD_u0710_i386'   WHERE IK_DeviceData = 'LMCE_MD_1_1'"
+RunSQL "UPDATE Device_DeviceData SET IK_DeviceData = 'i386' WHERE FK_DeviceData = '112'"
 RunSQL "UPDATE Device_DeviceData SET IK_DeviceData = '0' WHERE FK_DeviceData = '234'"
 
 # Put kdm startup script back
