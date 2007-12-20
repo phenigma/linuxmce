@@ -37,7 +37,7 @@ public:
 	VR_RequestSecureTransaction(unsigned long FKID_PlutoId_Establishment,unsigned long FKID_PlutoId_User);
 	VR_RequestSecureTransaction() {};
 
-	virtual unsigned long ID() { return VRP_REQUEST_SEC_TRANS; }
+	virtual uint32_t ID() { return VRP_REQUEST_SEC_TRANS; }
 	
 	virtual void SetupSerialization_Request()
 	{

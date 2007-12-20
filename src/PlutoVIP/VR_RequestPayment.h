@@ -64,7 +64,7 @@ public:
 		unsigned long FKID_PlutoId_User);
 	VR_RequestPayment() {}
 
-	virtual unsigned long ID() { return VRS_REQUEST_PAYMENT; }
+	virtual uint32_t ID() { return VRS_REQUEST_PAYMENT; }
 
 	virtual void SetupSerialization_Request()
 	{

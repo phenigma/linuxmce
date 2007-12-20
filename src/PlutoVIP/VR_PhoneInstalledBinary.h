@@ -35,7 +35,7 @@ public:
 	VR_PhoneInstalledBinary(unsigned long long MacAddress,unsigned long Revision);
 	VR_PhoneInstalledBinary() {}
 
-	virtual unsigned long ID() { return VRS_PHONE_INSTALLED_BIN; }
+	virtual uint32_t ID() { return VRS_PHONE_INSTALLED_BIN; }
 	
 	virtual void SetupSerialization_Request()
 	{

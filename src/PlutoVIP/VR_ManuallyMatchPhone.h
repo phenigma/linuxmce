@@ -38,7 +38,7 @@ public:
 		string sBluetooth,unsigned long long MacAddress,unsigned long IdentifiedPlutoId,string IdentiedPlutoIdPin);
 	VR_ManuallyMatchPhone() {}
 
-	virtual unsigned long ID() { return VRS_MANUALLY_MATCH_PHONE; }
+	virtual uint32_t ID() { return VRS_MANUALLY_MATCH_PHONE; }
 
 	virtual void SetupSerialization_Request()
 	{

@@ -40,7 +40,7 @@ public:
 	VA_SendFileToPhone(string sPathName, string sFileName,unsigned long long MacAddress);
 	VA_SendFileToPhone() {}
 
-	unsigned long ID() { return ACTION_SENDFILE_TOPHONE; }
+	virtual uint32_t ID() { return ACTION_SENDFILE_TOPHONE; }
 	virtual void SetupSerialization(int iSC_Version)
 	{
 		RA_Action::SetupSerialization(iSC_Version);

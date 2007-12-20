@@ -35,7 +35,7 @@ public:
 	VR_PhoneRespondedToRequest(unsigned long RequestID,unsigned long RequestSize,const char *RequestData,unsigned long ResponseSize,const char *ResponseData);
 	VR_PhoneRespondedToRequest() {}
 
-	virtual unsigned long ID() { return VRS_PHONE_RESPONDED; }
+	virtual uint32_t ID() { return VRS_PHONE_RESPONDED; }
 
 	virtual void SetupSerialization_Request()
 	{

@@ -65,7 +65,7 @@ public:
 
 	virtual void LogVisit(class RA_Processor *pRA_Processor);
 
-	virtual unsigned long ID() { return VRS_IDENFITY_PHONE; }
+	virtual uint32_t ID() { return VRS_IDENFITY_PHONE; }
 
 	virtual void SetupSerialization_Request()
 	{

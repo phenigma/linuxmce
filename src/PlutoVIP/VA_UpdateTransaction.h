@@ -31,7 +31,7 @@ public:
 	VA_UpdateTransaction(unsigned long TransNumber,unsigned long Status,string Message);
 	VA_UpdateTransaction() {}
 
-	unsigned long ID() { return ACTION_UPDATETRANSACTION; }
+	virtual uint32_t ID() { return ACTION_UPDATETRANSACTION; }
 	virtual void SetupSerialization(int iSC_Version)
 	{
 		RA_Action::SetupSerialization(iSC_Version);
