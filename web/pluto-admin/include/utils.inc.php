@@ -5539,7 +5539,7 @@ function dtPickerJS($returnValue){
 	}
 	
 	function pickDeviceTemplate(){
-		dt=document.deviceTemplatePicker.dtID.value;
+		dt=document.deviceTemplatePicker.template.value;
 		if(dt>0){
 			if('.$returnValue.'==1){
 				opener.location="index.php?section='.$_SESSION['from'].'&deviceTemplate="+dt+"&action=add&add=1&'.@$_REQUEST['parmToKeep'].'";
