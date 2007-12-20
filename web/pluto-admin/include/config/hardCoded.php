@@ -334,6 +334,5 @@
 	'sdl'=>'sdl',
 	'xshm'=>'xshm');
 	
-	$GLOBALS['vdr_from_path']='/var/www/pluto-admin/vdr from/';
-	$GLOBALS['vdr_to_path']='/var/www/pluto-admin/vdr to/';
+	$GLOBALS['vdr_from_path']='/usr/pluto/templates/vdr/';
 ?>
