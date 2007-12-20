@@ -29,14 +29,16 @@ function import_databases () {
 		mv main_sqlcvs.dump $dbdump_main_sqlcvs
 		mv myth_sqlcvs.dump $dbdump_myth_sqlcvs 
 	popd
-	
+
+	## Import pluto_main, pluto_media, pluto_security, pluto_telecom
+	mysqldump -u "$sqlcvs_user" -h "$sqlcvs_host" pluto_media    > "$dbdump_pluto_media"
+	mysqldump -u "$sqlcvs_user" -h "$sqlcvs_host" pluto_security > "$dbdump_pluto_security"
+	mysqldump -u "$sqlcvs_user" -h "$sqlcvs_host" pluto_telecom  > "$dbdump_pluto_telecom"
+
 	## Import other databases from 150
 	ssh -i /etc/lmce-build/builder.key pluto@82.77.255.209 "
 		set -x;
 		mysqldump -u root pluto_main     > /tmp/pluto_main.dump;
-		mysqldump -u root pluto_media    > /tmp/pluto_media.dump;
-		mysqldump -u root pluto_security > /tmp/pluto_security.dump;
-		mysqldump -u root pluto_telecom  > /tmp/pluto_telecom.dump;
 		cd /tmp;
 		tar zcvf /tmp/sqldumps.tar.gz *.dump
 	"
@@ -44,9 +46,6 @@ function import_databases () {
 	pushd "$temp_sqlcvsdir"
 		tar zxvf sqldumps.tar.gz
 		mv pluto_main.dump $dbdump_pluto_main
-		mv pluto_media.dump $dbdump_pluto_media
-		mv pluto_security.dump $dbdump_pluto_security
-		mv pluto_telecom.dump $dbdump_pluto_telecom
 	popd
 	rm -rf "$temp_sqlcvsdir"
   #TODO END: Replace this when new secure way of getting the databases it available
