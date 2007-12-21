@@ -7,13 +7,13 @@ while : ;do
 	# Start Build
 	/usr/local/lmce-build/build.sh
 
-	# Remove old Dir
-#	for dir in /home/ftp/AutoBuilds/build-*-${arch} ;do
-#		echo $dir
-#	done
+	# Remove old Dir and keep last 5 build (hint: tail +5)
+	for remove_dir in $(for dir in $(ls -r -d -X /home/ftp/AutoBuilds/build-*-i386); do echo $dir ;done | tail +5) ;do
+		rm -rf "$remove_dir"
+	done
 
-
-	build_ftp_dir="/home/ftp/AutoBuilds/build-$(date +%s)-${arch}"
+	# Create Backup Dir
+	build_ftp_dir="/home/ftp/AutoBuilds/build-$(date +%y_%m_%d_%s)-${arch}"
 	mkdir -p "${build_ftp_dir}"
 
 	# Backup the ISO
