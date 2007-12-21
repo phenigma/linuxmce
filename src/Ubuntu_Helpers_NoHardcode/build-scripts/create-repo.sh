@@ -12,8 +12,8 @@ function MoveDebs2Repo {
 
 	# Remove any existing debs and Packages files
 	DisplayMessage "Removing old debs from repository"
-	rm -f "$local_mirror_dir/*.deb"
-	rm -f "$local_mirror_dir/Packages*"
+	rm -f "$local_mirror_dir"/*.deb
+	rm -f "$local_mirror_dir"/Packages*
 
 	# Copy the debs built by make-replease
 	DisplayMessage "Copying make-realase debs to repository"
