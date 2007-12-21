@@ -168,7 +168,7 @@ function create_disk_image_from_flat {
 	
 	# Map partitions to loop device
 	decho "Map virtual machine partitions to loop device"
-	local Pattern="${VMWARE_DISK_IMAGE}p?([[:digit:]]+)[*[:space:]]+([[:digit:]]+)[[:space:]]+([[:digit:]]+)[[:space:]]+([[:digit:]]+)[[:space:]]+([[:xdigit:]]+)[[:space:]].*"
+	local Pattern="${VMWARE_DISK_IMAGE}p?([[:digit:]]+)[*[:space:]]+([[:digit:]]+)[[:space:]]+([[:digit:]]+)[[:space:]]+([[:digit:]]+)[[:space:]+]+([[:xdigit:]]+)[[:space:]].*"
 	local Partition Start End Blocks Type Rest
 	dmsetup remove_all || :
 	losetup "$LoopDev" "${VMWARE_DISK_IMAGE}"
@@ -183,7 +183,7 @@ function create_disk_image_from_flat {
 		dmsetup create "qemu_p${Partition}" "${PART_FILE}${Partition}.cf"
 		rm -f "${PART_FILE}${Partition}.cf"
 	done  < <(fdisk -lu "${VMWARE_DISK_IMAGE}" | sed -nre "s,${Pattern},\1 \2 \3 \4 \5,p")
-
+	
 
 	# Mount the / partition and create tar.gz
 	decho "Creating tar.gz from virtual / partition"
