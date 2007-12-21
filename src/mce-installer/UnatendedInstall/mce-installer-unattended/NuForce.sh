@@ -145,6 +145,7 @@ DatabaseDefaults()
 		"UPDATE Device SET Disabled=1 WHERE FK_DeviceTemplate IN
 			($DEVICETEMPLATE_Asterisk, $DEVICETEMPLATE_MythTV_Player, $DEVICETEMPLATE_Orbiter_Embedded_Phone)"
 		"INSERT INTO Users(UserName) VALUES('nuforce')"
+		"INSERT INTO Installation_Users(FK_Installation, FK_Users) VALUES(1, 1)"
 	)
 
 	for Q in "${Queries[@]}"; do
