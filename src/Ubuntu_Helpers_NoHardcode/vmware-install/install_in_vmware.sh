@@ -8,9 +8,14 @@ set -e
 WORK_DIR="${build_dir}/vmware/"
 VMWARE_DIR="${WORK_DIR}/Kubuntu"
 VMWARE_DISK_IMAGE="${VMWARE_DIR}/Kubuntu.vmdk"
+
+if [[ -f "${VMWARE_DIR}/Kubuntu-flat.vmdk" ]] ;then
+	VMWARE_DISK_IMAGE="${VMWARE_DIR}/Kubuntu-flat.vmdk"
+fi
+
 VMWARE_TARGZ="${VMWARE_DIR}/linux-mce.tar.gz"
 VMWARE_WORK_MACHINE="${VMWARE_DIR}/Kubuntu.vmx"
-VMWARE_IP="172.16.116.128"
+VMWARE_IP="vmware"
 
 
 # Export display so vmware will run in X11
@@ -262,6 +267,10 @@ start_virtual_machine
 create_debcache_on_virtual_machine
 copy_installer_on_virtual_machine
 run_installer_on_virtual_machine
-create_disk_image_from_vmdk
-#create_disk_image_from_flat
+
+if [[ -f "${VMWARE_DIR}/Kubuntu-flat.vmdk" ]] ;then
+	create_disk_image_from_flat
+else
+	create_disk_image_from_vmdk
+fi
 
