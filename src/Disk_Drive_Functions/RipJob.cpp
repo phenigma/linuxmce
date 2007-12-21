@@ -150,7 +150,14 @@ void RipJob::JobDone()
 
 void RipJob::AddRippingTasks()
 {
-	AddTask(new RipTask(this,"Rip",m_bReportResult,0));
+	vector<string> vectTracks;
+	StringUtils::Tokenize(m_sTracks, "|", vectTracks);
+
+	for(vector<string>::iterator it = vectTracks.begin(), end = vectTracks.end(); it != end; ++it)
+	{
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Adding ripping task for track %s", it->c_str());
+		AddTask(new RipTask(this,"Rip",m_bReportResult,*it));
+	}
 }
 
 bool RipJob::ReportPendingTasks(PendingTaskList *pPendingTaskList)

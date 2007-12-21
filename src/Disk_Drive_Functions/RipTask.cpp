@@ -33,10 +33,10 @@
 
 using namespace nsJobHandler;
 
-RipTask::RipTask(RipJob *pRipJob,string sName,bool bReportResult,int iTrack)
+RipTask::RipTask(RipJob *pRipJob,string sName,bool bReportResult,string sTrack)
 	: Task(pRipJob,sName)
 {
-	m_iTrack=iTrack;
+	m_sTrack=sTrack;
 	m_iTime=0;
 	m_bSpawnedRip=false;
 	m_pRipJob=pRipJob; // A duplicate of m_pJob, but we don't need to keep recasting
@@ -115,7 +115,7 @@ int RipTask::Run()
 		+ ((RipJob *) m_pJob)->m_sFileName + "\t" + m_pRipJob->m_pDisk_Drive_Functions->m_sDrive + "\t" 
 		+ StringUtils::itos(m_pRipJob->m_pDisk_Drive_Functions->m_mediaDiskStatus) + "\t" 
 		+ StringUtils::itos(m_pRipJob->m_iPK_Users) + "\t" 
-		+ m_pRipJob->m_sFormat + "\t" + m_pRipJob->m_sTracks;
+		+ m_pRipJob->m_sFormat + "\t" + m_sTrack;
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Launching ripping job2 with name \"%s\" for disk with type \"%d\" parms %s", 
 		m_sName.c_str(), m_pRipJob->m_pDisk_Drive_Functions->m_mediaDiskStatus, strParameters.c_str());

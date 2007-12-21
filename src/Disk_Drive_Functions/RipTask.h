@@ -28,7 +28,8 @@ namespace nsJobHandler
 {
 	class RipTask : public Task
 	{
-		int m_iTrack,m_iTime;
+		int m_iTime;
+		string m_sTrack;
 		bool m_bSpawnedRip;
 		string m_sText,m_sSpawnName;
 		class RipJob *m_pRipJob;
@@ -36,7 +37,7 @@ namespace nsJobHandler
 		bool m_bReportResult;
 
 	public:
-		RipTask(class RipJob *pRipJob,string sName,bool bReportResult,int iTrack);
+		RipTask(class RipJob *pRipJob,string sName,bool bReportResult,string sTrack);
 		virtual ~RipTask() {}
 		virtual string GetType() { return "RipTask"; }
 
