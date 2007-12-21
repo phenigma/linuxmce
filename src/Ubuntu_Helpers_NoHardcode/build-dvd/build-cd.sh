@@ -57,7 +57,7 @@ end script
 CreateLiveCD()
 {
 	mkdir -p "$LiveCDDir/lmce-image/"
-	ln "$InstallerArchive"_* "$LiveCDDir/lmce-image/"
+	cp "$InstallerArchive"_* "$LiveCDDir/lmce-image/"
 	cp "$FirstRunScript" "$LiveCDDir/lmce-image/"
 
 	mkdir -p "$LiveCDDir/diskless-images/"
