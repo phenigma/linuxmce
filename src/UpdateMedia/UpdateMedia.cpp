@@ -652,7 +652,7 @@ bool UpdateMedia::ScanSubfolders(string sDirectory, FolderType& folder_type)
 			continue;
 		}
 		
-		if ( !UpdateMediaVars::sLocalUPnPServerName.empty() && (sSubDir == (UpdateMediaVars::sUPnPMountPoint+"/" + UpdateMediaVars::sLocalUPnPServerName)) )
+		if ( !UpdateMediaVars::sLocalUPnPServerName.empty() && StringUtils::StartsWith(sSubDir, UpdateMediaVars::sUPnPMountPoint+"/" + UpdateMediaVars::sLocalUPnPServerName))
 		{
 			LoggerWrapper::GetInstance()->Write(LV_WARNING, "The directory %s is LinuxMCE UPnP dir. We'll skip it!", sSubDir.c_str());
 			continue;
