@@ -8,7 +8,7 @@ while : ;do
 	/usr/local/lmce-build/build.sh
 
 	# Remove old Dir and keep last 5 build (hint: tail +5)
-	for remove_dir in $(for dir in $(ls -r -d -X /home/ftp/AutoBuilds/build-*-i386); do echo $dir ;done | tail +5) ;do
+	for remove_dir in $(for dir in $(ls -r -d -X /home/ftp/AutoBuilds/build-*-${arch}); do echo $dir ;done | tail +5) ;do
 		rm -rf "$remove_dir"
 	done
 
