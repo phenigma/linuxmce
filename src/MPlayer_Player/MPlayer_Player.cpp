@@ -939,8 +939,6 @@ void MPlayer_Player::InitializePlayerEngine()
 	pthread_create(&m_tPlayerEnginePollThread, NULL, &PlayerEnginePoll, this);
 }
 
-//TODO periodically retrieve stream position
-
 void *DCE::PlayerEnginePoll(void *pInstance)
 {
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "PlayerEnginePoll - started");
@@ -970,7 +968,9 @@ void *DCE::PlayerEnginePoll(void *pInstance)
 				string sFile = pThis->m_pPlayerEngine->GetCurrentFile();
 				if ( sFile != pThis->m_sCurrentFileName )
 				{
-					LoggerWrapper::GetInstance()->Write(LV_WARNING, "PlayerEnginePoll - detected playlist entry change");
+					LoggerWrapper::GetInstance()->Write(LV_WARNING, "PlayerEnginePoll - detected playlist entry change: %s -> %s",
+						pThis->m_sCurrentFileName.c_str(), sFile.c_str());
+
 					pThis->m_fCurrentFileLength = 0.0;
 					string sMediaInfo, sAudioInfo, sVideoInfo;
 	

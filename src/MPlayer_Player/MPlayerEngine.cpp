@@ -217,18 +217,26 @@ void* EngineOutputReader(void *pInstance) {
 				const string sScreenshot = "*** screenshot '";
 						
 				if ( i->compare(0, sAnsPrefix.length(), sAnsPrefix) == 0 ) {
-					Log("[EngineOutputReader] Found answer: " + *i);
-					vector<string> vAnswer;
-					Tokenize(*i, vAnswer, "=");
-					string sValue;
-					if ( vAnswer.size()>=2 ) {
-						sValue = vAnswer[1];
+					if (sLastFilename == BLACK_MPEG_FILE)
+					{
+						Log("[EngineOutputReader] Found answer: " + *i + ", but ignoring it as it is related to empty mpeg file");
 					}
-
-					pThis->SetEngineAnswers(vAnswer[0], sValue);
+					else
+					{
+						Log("[EngineOutputReader] Found answer: " + *i);
+						vector<string> vAnswer;
+						Tokenize(*i, vAnswer, "=");
+						string sValue;
+						if ( vAnswer.size()>=2 ) {
+							sValue = vAnswer[1];
+						}
+	
+						pThis->SetEngineAnswers(vAnswer[0], sValue);
+					}
 				}
 				else if ( i->compare(0, sPlaybackPreInit.length(), sPlaybackPreInit) == 0 ) {
 					sLastFilename = i->substr(sPlaybackPreInit.length(), i->length() - sPlaybackPreInit.length() - 1);
+					Log("[EngineOutputReader] Playback preinit for file: " + sLastFilename);
 				}
 				else if ( i->compare(0, sPlaybackStarted.length(), sPlaybackStarted) == 0 ) {
 					Log("[EngineOutputReader] Playback started: " + sLastFilename);
@@ -321,7 +329,15 @@ bool MPlayerEngine::StartPlaylist(vector<string> &vFiles)
 		const string sPlaylist = "/tmp/MPlayer_Player.playlist";
 		m_vCurrentPlaylist = vFiles;
 		FileUtils::WriteVectorToFile(sPlaylist, vFiles);
+		
 		// early starting to keep watching threads happy
+		
+		// HACK current file should be already set, otherwise watchers
+		// can detected false playback list transition
+		// TODO redesign this logic to make the MPlayerEngine
+		// 'current_status' a true representative of mplayer status
+		// i.e. full slaves
+		SetCurrentFile(vFiles[0]);
 		SetEngineState(PLAYBACK_STARTED);
 		ExecuteCommand("loadlist "+sPlaylist);
 		return true;
