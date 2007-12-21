@@ -9,10 +9,7 @@ case "$1" in
 			sleep 3
 
 			echo "Trying to update the system ..."
-			/usr/share/gutsy-upgrade-scripts/scripts/upgrade-apply.sh
-	
-			echo "Press <ENTER> to continue ....."
-			read 
+			/usr/share/gutsy-upgrade-scripts/scripts/upgrade-apply.sh	
 		fi
 		#
 		;;

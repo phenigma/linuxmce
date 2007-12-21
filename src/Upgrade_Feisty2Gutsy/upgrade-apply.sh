@@ -128,3 +128,8 @@ rm -f /etc/cron.d/gutsy-upgrade-scripts
 apt-get -f -y --force-yes --purge remove gutsy-upgrade-scripts
 trap - EXIT
 
+DisplayMessage "Press <ENTER> to continue ....."
+read
+mount -o remount,ro /
+sync
+reboot -f 
