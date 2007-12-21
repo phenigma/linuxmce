@@ -1964,6 +1964,11 @@ void Xine_Stream::XineStreamEventListener( void *streamObject, const xine_event_
 					message = "XINE_MSG_AUDIO_OUT_UNAVAILABLE: ";
 					if(data->explanation)
 						message = message + ((char *) data + data->parameters) ;
+                                        
+                                        // notifying orbiter
+					string sOrbiterMsg = "Audio output is busy or not available";
+					pXineStream->SendMessageToOrbiter(sOrbiterMsg);
+                                        
 					break;
 				}
 				case XINE_MSG_CONNECTION_REFUSED:
