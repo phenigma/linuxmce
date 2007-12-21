@@ -149,7 +149,6 @@ fi
 ## Check Pluto Storage device for free space
 
 Q="SELECT PK_Device, Description  FROM Device WHERE FK_DeviceTemplate IN ($TPL_GENERIC_INTERNAL_DRIVE, $TPL_GENERIC_NFS_SHARE, $TPL_GENERIC_SAMBA_SHARE, $TPL_RAID_0, $TPL_RAID_1, $TPL_RAID_5)"
-echo $Q
 StorageDevices=$(RunSQL "$Q")
 
 for Device in $StorageDevices; do
