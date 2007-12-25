@@ -193,7 +193,7 @@ function outputItemsToScan($type,$mediaType,$mediadbADO){
 			FROM File
 			LEFT JOIN Picture_File ON Picture_File.FK_File=PK_File
 			LEFT JOIN CoverArtScan ON CoverArtScan.FK_File=PK_File
-			WHERE EK_MediaType IN (3,4,5) AND (Scanned IS NULL OR Scanned=0)
+			WHERE EK_MediaType IN (3,4,5) AND (Scanned IS NULL OR Scanned=0) AND Missing=0 AND IsDirectory=0 
 			GROUP BY PK_File
 			HAVING count(FK_Picture)=0 
 			
@@ -202,7 +202,7 @@ function outputItemsToScan($type,$mediaType,$mediadbADO){
 			$extra=($mediaType==3)?' OR EK_MediaType=5 OR EK_MediaType=27 OR EK_MediaType=28':'';
 			$pathSqlFilter=(@$_REQUEST['filterPath']!='')?' AND Path LIKE \'%'.$_REQUEST['filterPath'].'%\'':'';
 			$fileSqlFilter=(@$_REQUEST['filterFile']!='')?' AND Filename LIKE \'%'.$_REQUEST['filterFile'].'%\'':'';
-			$dataArray=getAssocArray('File','PK_File','CONCAT(Path,\'/\',Filename) AS Label',$mediadbADO,'LEFT JOIN Picture_File ON  Picture_File.FK_File=PK_File LEFT JOIN CoverArtScan ON CoverArtScan.FK_File=PK_File WHERE (EK_MediaType='.$mediaType.' '.$extra.') AND (Scanned IS NULL OR Scanned=0) AND Missing=0 '.$pathSqlFilter.$fileSqlFilter.' GROUP BY PK_File HAVING count(FK_Picture)=0 ORDER BY PK_File DESC');
+			$dataArray=getAssocArray('File','PK_File','CONCAT(Path,\'/\',Filename) AS Label',$mediadbADO,'LEFT JOIN Picture_File ON  Picture_File.FK_File=PK_File LEFT JOIN CoverArtScan ON CoverArtScan.FK_File=PK_File WHERE (EK_MediaType='.$mediaType.' '.$extra.') AND (Scanned IS NULL OR Scanned=0) AND Missing=0 AND IsDirectory=0 '.$pathSqlFilter.$fileSqlFilter.' GROUP BY PK_File HAVING count(FK_Picture)=0 ORDER BY PK_File DESC');
 
 			$itemName='fileID';
 			$title=$TEXT_SHOW_FILES_NO_COVERART_CONST;
