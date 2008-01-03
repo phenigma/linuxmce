@@ -154,7 +154,6 @@ string PlutoMediaFile::AdjustLongAttributeForDisplay(string sText)
 int PlutoMediaFile::HandleFileNotInDatabase(int PK_MediaType)
 {
 	m_nPK_MediaType = PK_MediaType;
-	m_spFileHandler->MediaType(m_nPK_MediaType);
 
 	int PK_File=0;
 	// See if the same INode is already in the database
@@ -217,7 +216,6 @@ int PlutoMediaFile::HandleFileNotInDatabase(int PK_MediaType)
 	{
         PK_MediaType = PlutoMediaIdentifier::Identify(m_sDirectory + "/" + m_sFile);
 		m_nPK_MediaType = PK_MediaType;
-		m_spFileHandler->MediaType(m_nPK_MediaType);
 	}
 
 	if(PK_MediaType == 0)
@@ -298,10 +296,7 @@ void PlutoMediaFile::SaveEveryThingToDb()
 
 	// Is it a media file?
 	if(!m_nPK_MediaType)
-	{
 		m_nPK_MediaType = PlutoMediaIdentifier::Identify(m_sDirectory + "/" + m_sFile);
-		m_spFileHandler->MediaType(m_nPK_MediaType);
-	}
 	
 	//not a media file
 	if(!m_nPK_MediaType)
@@ -679,8 +674,6 @@ void PlutoMediaFile::SaveCoverarts()
 int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
 {
 	m_nPK_MediaType = PK_MediaType;
-	m_spFileHandler->MediaType(m_nPK_MediaType);
-
 	Row_File *pRow_File = NULL;
 
 	//We'll have to be sure first that we won't create duplicates; check first is there are any

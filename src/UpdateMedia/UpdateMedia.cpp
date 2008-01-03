@@ -687,7 +687,8 @@ int UpdateMedia::SetupDirectory(string sDirectory, FolderType folder_type)
 
 	if(dir_sync_mode != modeNone)
 	{
-		spPlutoMediaParentFolder.reset(new PlutoMediaFile(m_pDatabase_pluto_media, m_nPK_Installation, sBaseDirectory, sDirectoryName, new GenericFileHandler(sBaseDirectory, sDirectoryName)));
+		GenericFileHandler *pFileHandler = FileHandlerFactory::CreateFileHandler(sBaseDirectory, sDirectoryName);
+		spPlutoMediaParentFolder.reset(new PlutoMediaFile(m_pDatabase_pluto_media, m_nPK_Installation, sBaseDirectory, sDirectoryName, pFileHandler));
 
 		//adjust sync mode
 		if(PlutoMediaFile::GetDefaultSyncMode() == modeFileToDb && dir_sync_mode == modeBoth)

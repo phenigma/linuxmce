@@ -14,7 +14,6 @@ protected:
 	string m_sDirectory;
 	string m_sFile;
 	string m_sFullFilename;
-	int m_nMediaType;
 
 public:
 
@@ -27,8 +26,6 @@ public:
 	virtual bool FileAttributeExists();
 	virtual string GetFileAttribute();
 	virtual string GetFileSourceForDB();
-
-	void MediaType(int nMediaType) { m_nMediaType = nMediaType; }
 };
 //-----------------------------------------------------------------------------------------------------
 #endif //__GENERIC_FILE_HANDLER_H__
