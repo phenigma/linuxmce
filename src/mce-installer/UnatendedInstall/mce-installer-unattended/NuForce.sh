@@ -146,6 +146,7 @@ DatabaseDefaults()
 			($DEVICETEMPLATE_Asterisk, $DEVICETEMPLATE_MythTV_Player, $DEVICETEMPLATE_Orbiter_Embedded_Phone)"
 		"INSERT INTO Users(UserName) VALUES('nuforce')"
 		"INSERT INTO Installation_Users(FK_Installation, FK_Users) VALUES(1, 1)"
+		"DELETE FROM Device_QuickStart WHERE Description like '%MythTV%'"
 	)
 
 	for Q in "${Queries[@]}"; do
@@ -156,8 +157,8 @@ DatabaseDefaults()
 	/usr/pluto/bin/SetPasswords.sh 1 nuforce
 
 	Q="
-		INSERT INTO QuickStartTemplate (Description, \`Binary\`, Arguments, Icon, WindowClass)
-		VALUES ('TouchKit', '/usr/bin/TouchKit', '', '', 'TouchKit.TouchKit');
+		INSERT INTO QuickStartTemplate(Description, \`Binary\`, Arguments, Icon, WindowClass)
+			VALUES('TouchKit', '/usr/bin/TouchKit', '', '', 'TouchKit.TouchKit');
 		SELECT LAST_INSERT_ID()
 	"
 	QST=$(RunSQL "$Q")
