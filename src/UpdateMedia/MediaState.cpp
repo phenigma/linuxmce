@@ -199,8 +199,8 @@ MediaSyncMode MediaState::SyncModeNeeded(string sDirectory, string sFile)
 				item.m_sCurrentDbAttrCount != item.m_sOldDbAttrCount || 
 				StringUtils::SQLDateTime(item.m_sCurrentDbAttrDate) != StringUtils::SQLDateTime(item.m_sOldDbAttrDate)
 			)
-			&&
-			!UpdateMediaFileUtils::IsDirectory(sCurrentFullFilename.c_str())
+			//&&
+			//!UpdateMediaFileUtils::IsDirectory(sCurrentFullFilename.c_str())
 		)
 		{
 			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Need to update file for %s/%s: "
@@ -217,8 +217,8 @@ MediaSyncMode MediaState::SyncModeNeeded(string sDirectory, string sFile)
 		if(
 			!spFileHandler->FileAttributeExists() &&
 			item.m_sCurrentDbAttrDate != "" && item.m_bHasAttributes
-			&&
-			!UpdateMediaFileUtils::IsDirectory(sCurrentFullFilename.c_str())
+			//&&
+			//!UpdateMediaFileUtils::IsDirectory(sCurrentFullFilename.c_str())
 		)
 		{
 			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Need to update file for %s/%s: "

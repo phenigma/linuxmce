@@ -673,10 +673,6 @@ int UpdateMedia::SetupDirectory(string sDirectory, FolderType folder_type)
 	string sDirectoryName = FileUtils::FilenameWithoutPath(sDirectory);
 	MediaSyncMode dir_sync_mode = MediaState::Instance().SyncModeNeeded(sBaseDirectory, sDirectoryName);
 
-	//no attribute file for folders
-	if(dir_sync_mode == modeDbToFile)
-		dir_sync_mode = modeNone;
-
 	if(m_bAsDaemon)
 		Sleep(10);
 
@@ -717,14 +713,18 @@ int UpdateMedia::SetupDirectory(string sDirectory, FolderType folder_type)
 			int nMediaType = folder_type ==  ftDVD ? MEDIATYPE_pluto_DVD_CONST :
 					folder_type ==  ftHDDVD ? MEDIATYPE_pluto_HDDVD_CONST : MEDIATYPE_pluto_BD_CONST;
 
-			// Add this directory like it were a file
-			int PK_File = spPlutoMediaParentFolder->HandleFileNotInDatabase(nMediaType);
-			LoggerWrapper::GetInstance()->Write(LV_STATUS,"UpdateMedia::ReadDirectory media type %d PlutoMediaFile_.HandleFileNotInDatabase %d",nMediaType, PK_File);
-			Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->GetRow(PK_File);
-			pRow_File->IsDirectory_set(false);
-			m_pDatabase_pluto_media->File_get()->Commit();
 
-			spPlutoMediaParentFolder->SetFileAttribute(PK_File);
+			// Add this directory like it were a file
+			if(!MediaState::Instance().AlreadyInDatabase(FileUtils::BasePath(sDirectory), FileUtils::FilenameWithoutPath(sDirectory)))
+			{
+				int PK_File = spPlutoMediaParentFolder->HandleFileNotInDatabase(nMediaType);
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"UpdateMedia::ReadDirectory media type %d PlutoMediaFile_.HandleFileNotInDatabase %d",nMediaType, PK_File);
+				Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->GetRow(PK_File);
+				pRow_File->IsDirectory_set(false);
+				m_pDatabase_pluto_media->File_get()->Commit();
+
+				spPlutoMediaParentFolder->SetFileAttribute(PK_File);
+			}
 		}
 
 		// Whatever was the first picture we found will be the one for this directory
