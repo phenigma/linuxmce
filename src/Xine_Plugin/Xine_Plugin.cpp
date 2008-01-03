@@ -261,8 +261,7 @@ bool Xine_Plugin::StartMedia( MediaStream *pMediaStream,string &sError )
 		}
 	}
 
-	if ( FileUtils::FindExtension(mediaURL)=="dvd" ||
-		(mediaURL.size()>5 && mediaURL.substr(0,5)=="/dev/" && pXineMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_DVD_CONST) )
+	if ( pXineMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_DVD_CONST )
 			mediaURL = "dvd://" + mediaURL;
 	else if( mediaURL.size()>5 && mediaURL.substr(0,5)=="/dev/" && pXineMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_CD_CONST )
 	{
