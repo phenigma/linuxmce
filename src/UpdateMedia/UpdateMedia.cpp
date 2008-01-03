@@ -713,7 +713,7 @@ int UpdateMedia::SetupDirectory(string sDirectory, FolderType folder_type)
 		}
 		else
 		{
-			int nMediaType = folder_type ==  ftDVD ? MEDIATYPE_pluto_StoredVideo_CONST :
+			int nMediaType = folder_type ==  ftDVD ? MEDIATYPE_pluto_DVD_CONST :
 					folder_type ==  ftHDDVD ? MEDIATYPE_pluto_HDDVD_CONST : MEDIATYPE_pluto_BD_CONST;
 
 			// Add this directory like it were a file
