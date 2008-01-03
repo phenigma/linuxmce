@@ -102,6 +102,8 @@ ConfSet AVWizardDone 1
 	echo "#!/bin/bash" >/usr/pluto/bin/Xconfigure.sh
 	echo "#!/bin/bash" >/usr/pluto/bin/X-CheckSettings.sh
 
+	chmod +x /usr/pluto/bin/{AVWizard_Run,Xconfigure,X-CheckSettings}.sh
+
 	ConfSet AVWizardDone 0
 	ConfSet UseVideoWizard 0
 }
