@@ -149,6 +149,7 @@ DatabaseDefaults()
 		"INSERT INTO Users(UserName) VALUES('nuforce')"
 		"INSERT INTO Installation_Users(FK_Installation, FK_Users) VALUES(1, 1)"
 		"DELETE FROM Device_QuickStart WHERE Description like '%MythTV%'"
+		"UPDATE Device SET IPAddress='192.168.78.1' WHERE IPAddress='192.168.80.1'"
 	)
 
 	for Q in "${Queries[@]}"; do
