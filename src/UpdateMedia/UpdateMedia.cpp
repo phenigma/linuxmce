@@ -725,6 +725,10 @@ int UpdateMedia::SetupDirectory(string sDirectory, FolderType folder_type)
 
 				spPlutoMediaParentFolder->SetFileAttribute(PK_File);
 			}
+			else
+			{
+				spPlutoMediaParentFolder->SetFileAttribute(MediaState::Instance().FileId(FileUtils::BasePath(sDirectory), FileUtils::FilenameWithoutPath(sDirectory)));
+			}		
 		}
 
 		// Whatever was the first picture we found will be the one for this directory
