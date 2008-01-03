@@ -381,18 +381,29 @@ DataGridRenderer::DataGridRenderer(DesignObj_Orbiter *pOwner): ObjectRenderer(pO
 				rect.Height = new_height;
 			}
 
-			string sCellObjectID, sCellObjectHash;
-			sCellObjectID = sCellObjectHash = DATAGRID_THUMB_NAME " - " + StringUtils::ltos(x) + "-" + StringUtils::ltos(y) + 
-				(NULL == pCell->m_ImagePath ? "" : string("-pic ") + pCell->m_ImagePath);
-			m_pObj_Owner_DataGrid->m_pOrbiter->Renderer()->RenderGraphic(pCell->m_pGraphic, 
-				rect, 
-				m_pObj_Owner_DataGrid->m_bDisableAspectLock, 
-				point,
-				255, 
-				"datagrid " + m_pObj_Owner_DataGrid->GenerateObjectHash(m_pObj_Owner_DataGrid->m_pPopupPoint, false), //ParentID
-				sCellObjectID, //Object ID
-				sCellObjectHash  //Object hash
-			);
+			if(m_pObj_Owner->m_pOrbiter->m_sSkin == AUDIO_STATION_SKIN && string(pCell->GetValue()).find("!A") != 0)
+			{
+				//don't display coverart for nuforce's non-albums
+				delete pCell->m_pGraphicData;
+				pCell->m_pGraphicData = NULL;
+				pCell->m_ImagePath = NULL;
+				pPath = NULL;
+			}
+			else
+			{
+				string sCellObjectID, sCellObjectHash;
+				sCellObjectID = sCellObjectHash = DATAGRID_THUMB_NAME " - " + StringUtils::ltos(x) + "-" + StringUtils::ltos(y) + 
+					(NULL == pCell->m_ImagePath ? "" : string("-pic ") + pCell->m_ImagePath);
+				m_pObj_Owner_DataGrid->m_pOrbiter->Renderer()->RenderGraphic(pCell->m_pGraphic, 
+					rect, 
+					m_pObj_Owner_DataGrid->m_bDisableAspectLock, 
+					point,
+					255, 
+					"datagrid " + m_pObj_Owner_DataGrid->GenerateObjectHash(m_pObj_Owner_DataGrid->m_pPopupPoint, false), //ParentID
+					sCellObjectID, //Object ID
+					sCellObjectHash  //Object hash
+				);
+			}
 		}
 
 #ifdef DEBUG
