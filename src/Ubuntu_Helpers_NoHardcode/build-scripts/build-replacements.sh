@@ -66,6 +66,7 @@ function Build_Replacements {
 		dpkg-buildpackage -rfakeroot -us -uc -b
 		cp ../liblinphone1-lmce_*.deb ${replacements_dir}
 		cp ../libortp4-lmce_*.deb ${replacements_dir}
+		cp ../linphone*_*.deb ${replacements_dir}
 		popd
 	fi
 
