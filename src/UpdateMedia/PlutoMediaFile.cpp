@@ -275,14 +275,6 @@ int PlutoMediaFile::HandleFileNotInDatabase(int PK_MediaType)
 
         pRow_File->Table_File_get()->Commit();
 
-		//cleanup
-		string sPK_File = StringUtils::ltos(pRow_File->PK_File_get());
-		m_pDatabase_pluto_media->threaded_db_wrapper_query("DELETE FROM File_Attribute WHERE FK_File = " + sPK_File);
-		m_pDatabase_pluto_media->threaded_db_wrapper_query("DELETE FROM LongAttribute WHERE FK_File = " + sPK_File);
-		m_pDatabase_pluto_media->threaded_db_wrapper_query("DELETE FROM Picture_File WHERE FK_File = " + sPK_File);
-		m_pDatabase_pluto_media->threaded_db_wrapper_query("DELETE FROM PlaylistEntry WHERE FK_File = " + sPK_File);
-		m_pDatabase_pluto_media->threaded_db_wrapper_query("DELETE FROM Bookmark WHERE FK_File = " + sPK_File);
-
 		m_pPlutoMediaAttributes->m_nFileID = PK_File;
 		AssignPlutoDevice();
     }
