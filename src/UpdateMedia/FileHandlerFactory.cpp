@@ -54,7 +54,6 @@ FileHandlerFactory::~FileHandlerFactory(void)
 //-----------------------------------------------------------------------------------------------------
 /*static*/ bool FileHandlerFactory::IsValidId3File(string sDirectory, string sFile)
 {
-	string sFullFilename = sDirectory + "/" + sFile;
-	return !UpdateMediaFileUtils::IsDirectory(sFullFilename.c_str());
+	return !IsValidVDRFile(sDirectory, sFile);
 }
 //-----------------------------------------------------------------------------------------------------
