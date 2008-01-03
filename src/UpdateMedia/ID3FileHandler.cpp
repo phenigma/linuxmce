@@ -3,6 +3,7 @@
 #include "PlutoMediaAttributes.h"
 #include "FileUtils/file_utils.h"
 #include "DCE/Logger.h"
+#include "pluto_main/Table_MediaType.h"
 using namespace DCE;
 //-----------------------------------------------------------------------------------------------------
 namespace UpdateMediaVars
@@ -132,11 +133,29 @@ bool ID3FileHandler::RemoveAttribute(int nTagType, string sValue, PlutoMediaAttr
 string ID3FileHandler::FileWithAttributes(PlutoMediaAttributes *pPlutoMediaAttributes, 
 										  bool bCreateId3File)
 {
-	//no id3 files for directories
+	//no id3 files for most of the directories
 	if(UpdateMediaFileUtils::IsDirectory(m_sFullFilename.c_str()))
 	{
-		LoggerWrapper::GetInstance()->Write(LV_STATUS, "# No id3 file for folders");
-		return "";
+		string sFileWithAttributesForDir;
+
+		//however, if the media type is one of these, we'll create the id3 file
+		if(
+            m_nMediaType == MEDIATYPE_pluto_DVD_CONST	||
+			m_nMediaType == MEDIATYPE_pluto_HDDVD_CONST ||
+			m_nMediaType == MEDIATYPE_pluto_BD_CONST
+		)
+		{
+			sFileWithAttributesForDir = m_sFile + "/" + m_sFile + ".id3";
+
+			if(!FileUtils::DirExists(m_sDirectory + "/" + sFileWithAttributesForDir))
+				FileUtils::WriteTextFile(m_sDirectory + "/" + sFileWithAttributesForDir, ""); //touch it
+		}
+		else
+		{
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "# No id3 file for this folder");
+		}
+
+		return sFileWithAttributesForDir;
 	}
 
 	//no id3 file if the media file doesn't exist anymore.
