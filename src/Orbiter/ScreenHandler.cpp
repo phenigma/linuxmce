@@ -1698,6 +1698,9 @@ void ScreenHandler::AudioServer_PopulateDatagrid()
 
 		if(!m_pOrbiter->SendCommand( CMD_Populate_Datagrid) || !bResponse) // wait for a response
 			LoggerWrapper::GetInstance()->Write( LV_WARNING, "Populate datagrid: %d failed", pObj->m_iPK_Datagrid);
+
+		m_pOrbiter->CMD_Show_Object(TOSTRING(DESIGNOBJ_mnuMenuAudioServer_CONST) ".0.0." TOSTRING(DESIGNOBJ_butFileBrowserBack_CONST), 0, "", "", 
+			mediaFileBrowserOptions.m_listPK_Attribute_Description.empty() ? "0" : "1"); 
 	}
 }
 //-----------------------------------------------------------------------------------------------------
