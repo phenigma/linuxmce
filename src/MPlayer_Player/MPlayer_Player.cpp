@@ -1165,8 +1165,8 @@ void MPlayer_Player::CreateVideoConfigFiles(const vector<string> &vFiles)
 			vector<string> vOptions;
 			vOptions.push_back("demuxer=lavf");
 			vOptions.push_back("lavdopts=fast=yes:threads=2");
-			vOptions.push_back("cache=65536");
-			vOptions.push_back("cache-min=20");
+			vOptions.push_back("cache=131072");
+			vOptions.push_back("cache-min=50");
 	
 			string sConfigName = "/root/.mplayer/" + FileUtils::FilenameWithoutPath(*vi) + ".conf";
 			LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::CreateVideoConfigFiles writing options to: %s", vi->c_str());
@@ -1180,8 +1180,8 @@ void MPlayer_Player::CreateVideoConfigFiles(const vector<string> &vFiles)
 		{
 			vector<string> vOptions;
 			vOptions.push_back("lavdopts=fast=yes:threads=2");
-			vOptions.push_back("cache=65536");
-			vOptions.push_back("cache-min=20");
+			vOptions.push_back("cache=131072");
+			vOptions.push_back("cache-min=50");
 			
 			// bluray is 24 fps
 			vOptions.push_back("fps=24");
