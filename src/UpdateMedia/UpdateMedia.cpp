@@ -676,6 +676,12 @@ int UpdateMedia::SetupDirectory(string sDirectory, FolderType folder_type)
 	if(m_bAsDaemon)
 		Sleep(10);
 
+	if(folder_type != ftNormal)
+	{
+		//always sync dvd folders
+		dir_sync_mode = modeBoth;
+	}
+
 	if(dir_sync_mode == modeNone)
 		return 0;
 
