@@ -154,10 +154,10 @@ void MPlayerEngine::StopEngine() {
 string MPlayerEngine::ReadLine() {
 	PLUTO_SAFETY_LOCK(readPipeLock, m_engineReadPipeMutex);
 	string sResult;
-	char buf[1024];
+	char buf[10240];
 	int iSize = 0;
 	do {
-		iSize = read(m_iOutPipe[0], buf, 1023);
+		iSize = read(m_iOutPipe[0], buf, 10239);
 		if (iSize>0)
 		{
 			buf[iSize] = 0;
@@ -200,7 +200,7 @@ void* EngineOutputReader(void *pInstance) {
 	string sLastFilename;
 	
 	while (pThis->m_bRunEngineOutputReader) {
-		poll(pfd, 1, 300);
+		poll(pfd, 1, 100);
 		if (pfd[0].revents & POLLIN)
 		{
 			string sLine = pThis->ReadLine();
