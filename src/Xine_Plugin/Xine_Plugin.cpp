@@ -261,7 +261,7 @@ bool Xine_Plugin::StartMedia( MediaStream *pMediaStream,string &sError )
 		}
 	}
 
-	if ( pXineMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_DVD_CONST )
+	if ( pXineMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_DVD_CONST || FileUtils::FindExtension(mediaURL)=="dvd" || FileUtils::FindExtension(mediaURL)=="iso" )
 			mediaURL = "dvd://" + mediaURL;
 	else if( mediaURL.size()>5 && mediaURL.substr(0,5)=="/dev/" && pXineMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_CD_CONST )
 	{
