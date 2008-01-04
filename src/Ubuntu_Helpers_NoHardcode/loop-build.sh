@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 . /etc/lmce-build/builder.conf
 
 while : ;do
@@ -19,6 +19,12 @@ while : ;do
 	# Backup the ISO
 	mkdir -p "${build_ftp_dir}/ISO"
 	cp /var/www/*.iso "${build_ftp_dir}/ISO/"
+
+	# Cleanup the Build Dir of Private Sources
+	rm -rf /var/lmce-build/svn/trunk/src/ZWave
+	rm -rf /var/lmce-build/svn/trunk/src/Fiire_Scripts
+	rm -rf /var/lmce-build/svn/trunk/src/RFID_Interface
+	rm -rf /var/lmce-build/svn/trunk/src/lmce_launch_manager	
 
 	# Backup the Build Dir
 	mkdir -p "${build_ftp_dir}/BUILD"
