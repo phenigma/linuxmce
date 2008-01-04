@@ -711,8 +711,7 @@ int UpdateMedia::SetupDirectory(string sDirectory, FolderType folder_type)
 		else
 		{
 			int nMediaType = folder_type ==  ftDVD ? MEDIATYPE_pluto_DVD_CONST :
-					folder_type ==  ftHDDVD ? MEDIATYPE_pluto_HDDVD_CONST : MEDIATYPE_pluto_BD_CONST;
-
+					folder_type == ftHDDVD ? MEDIATYPE_pluto_HDDVD_CONST : MEDIATYPE_pluto_BD_CONST;
 
 			// Add this directory like it were a file
 			if(!MediaState::Instance().AlreadyInDatabase(FileUtils::BasePath(sDirectory), FileUtils::FilenameWithoutPath(sDirectory)))
@@ -727,8 +726,10 @@ int UpdateMedia::SetupDirectory(string sDirectory, FolderType folder_type)
 			}
 			else
 			{
-				spPlutoMediaParentFolder->SetFileAttribute(MediaState::Instance().FileId(FileUtils::BasePath(sDirectory), FileUtils::FilenameWithoutPath(sDirectory)));
-			}		
+				int PK_File = MediaState::Instance().FileId(FileUtils::BasePath(sDirectory), FileUtils::FilenameWithoutPath(sDirectory));
+				spPlutoMediaParentFolder->SetFileAttribute(PK_File);
+				spPlutoMediaParentFolder->SetMediaType(PK_File, nMediaType);
+			}
 		}
 
 		// Whatever was the first picture we found will be the one for this directory

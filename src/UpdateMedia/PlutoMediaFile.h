@@ -125,6 +125,8 @@ public:
     void SetPicAttribute(int PK_Picture, string sPictureUrl);
     int GetPicAttribute(int PK_File);
 
+	void SetMediaType(int PK_File, int PK_MediaType);
+
 	int HandleFileNotInDatabase(int PK_MediaType = 0);
 	void RenameAttribute(int Attribute_Type, string sOldValue, string sNewValue);
 };

@@ -801,6 +801,21 @@ int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
     return pRow_File->PK_File_get();
 }
 //-----------------------------------------------------------------------------------------------------
+void PlutoMediaFile::SetMediaType(int PK_File, int PK_MediaType)
+{
+	if(0 != PK_File && m_nPK_MediaType != PK_MediaType)
+	{
+		m_nPK_MediaType = PK_MediaType;
+
+		Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->GetRow(PK_File);
+		pRow_File->EK_MediaType_set(PK_MediaType);
+		m_pDatabase_pluto_media->File_get()->Commit();
+
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "File %d has now media type %d",
+			PK_File, PK_MediaType);
+	}
+}
+//-----------------------------------------------------------------------------------------------------
 void PlutoMediaFile::AssignPlutoDevice()
 {
 	map<int, int> mapMountedDevices;
