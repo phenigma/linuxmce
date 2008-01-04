@@ -558,6 +558,7 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::MediaBrowser_Objec
 			mediaFileBrowserOptions.ClearAll(mediaFileBrowserOptions.m_PK_MediaType,m_pOrbiter->m_pScreenHistory_Current->PK_Screen(),
 				m_pOrbiter->m_mapPK_MediaType_PK_Attribute_Sort[mediaFileBrowserOptions.m_PK_MediaType]);
 
+		AudioServer_PopulateDatagrid();
 		mediaFileBrowserOptions.ReacquireGrids();
 		MediaBrowser_Render(NULL);
 		m_pOrbiter->CMD_Refresh("*");
