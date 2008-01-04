@@ -278,10 +278,12 @@ void RipTask::ReportFailure()
 		"0", // sTimeout
 		"1"); // sCannotGoBack
 	m_pRipJob->m_pDisk_Drive_Functions->m_pCommand_Impl->SendCommand(SCREEN_PopupMessage);
+	m_pRipJob->m_nTracksFailedToRip++;
 }
 
 void RipTask::ReportSuccess()
 {
+	/*
 	SCREEN_PopupMessage SCREEN_PopupMessage(m_pRipJob->m_pDisk_Drive_Functions->m_pCommand_Impl->m_dwPK_Device, 
 		m_pRipJob->m_iPK_Orbiter,
 		"Ripping complete: " + ((RipJob *) m_pJob)->m_sFileName, // Main message
@@ -291,6 +293,7 @@ void RipTask::ReportSuccess()
 		"0", // sTimeout
 		"1"); // sCannotGoBack
 	m_pRipJob->m_pDisk_Drive_Functions->m_pCommand_Impl->SendCommand(SCREEN_PopupMessage);
+	*/
 }
 
 

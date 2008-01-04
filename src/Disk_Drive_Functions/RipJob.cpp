@@ -27,6 +27,7 @@
 #include "FixupRippingInfoTask.h"
 #include "pluto_media/Table_DiscLocation.h"
 #include "IdentifyTask.h"
+#include "Gen_Devices/AllScreens.h"
 
 using namespace nsJobHandler;
 using namespace DCE;
@@ -53,6 +54,7 @@ RipJob::RipJob(Database_pluto_media *pDatabase_pluto_media,
 	m_sFileName=sFileName;
 	m_sDirectory=sDirectory;
 	m_sTracks=sTracks;
+	m_nTracksFailedToRip = 0;
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "RipJob::RipJob %d drive %d slot %d %s / %s", m_iID, m_pDisk_Drive_Functions ? m_pDisk_Drive_Functions->m_dwPK_Device_get() : 0,
 		m_pSlot ? m_pSlot->m_SlotNumber : 0, m_sDirectory.c_str(), m_sFileName.c_str());
@@ -104,6 +106,16 @@ RipJob::~RipJob()
 		m_pRow_DiscLocation->RipJob_setNull(true);
 		m_pRow_DiscLocation->Table_DiscLocation_get()->Commit();
 	}
+
+	SCREEN_PopupMessage SCREEN_PopupMessage(m_pCommand_Impl->m_dwPK_Device, 
+		m_iPK_Orbiter,
+		"Ripping completed: " + m_sFileName + (m_nTracksFailedToRip > 0 ? ". Failed to rip " + StringUtils::ltos(m_nTracksFailedToRip) + " tracks." : ""), // Main message
+		"", // Command Line
+		"ripping_complete", // Description
+		"0", // sPromptToResetRouter
+		"0", // sTimeout
+		"1"); // sCannotGoBack
+	m_pCommand_Impl->SendCommand(SCREEN_PopupMessage);
 }
 
 bool RipJob::ReadyToRun()
