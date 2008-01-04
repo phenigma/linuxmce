@@ -28,7 +28,7 @@ while : ;do
 
 	# Backup the Build Dir
 	mkdir -p "${build_ftp_dir}/BUILD"
-	cp -r /var/lmce-build/svn/trunk/* "${build_ftp_dir}/BUILD"
+	cp -r /var/lmce-build/svn/trunk/src/* "${build_ftp_dir}/BUILD"
 	
 	# Backup the log
 	mkdir -p "${build_ftp_dir}/LOGS"
