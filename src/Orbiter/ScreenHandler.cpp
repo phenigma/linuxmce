@@ -1671,6 +1671,9 @@ void ScreenHandler::SetupAudioServer()
 		if( pObj )
 			pObj->m_GraphicToDisplay_set("fmv2",GRAPHIC_NORMAL,false,true);
 
+		m_pOrbiter->CMD_Show_Object(TOSTRING(DESIGNOBJ_mnuMenuAudioServer_CONST) ".0.0." TOSTRING(DESIGNOBJ_butGotoRemote_CONST), 0, "", "", 
+			m_pOrbiter->m_sNowPlaying.empty() ? "0" : "1"); 
+
 		AudioServer_PopulateDatagrid();
 	}
 }
