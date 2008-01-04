@@ -146,8 +146,9 @@ DatabaseDefaults()
 		"UPDATE Device_DeviceData SET IK_DeviceData='' WHERE FK_DeviceData=28"
 		"UPDATE Device SET Disabled=1 WHERE FK_DeviceTemplate IN
 			($DEVICETEMPLATE_Asterisk, $DEVICETEMPLATE_MythTV_Player, $DEVICETEMPLATE_Orbiter_Embedded_Phone)"
-		"INSERT INTO Users(UserName) VALUES('nuforce')"
-		"INSERT INTO Installation_Users(FK_Installation, FK_Users) VALUES(1, 1)"
+		"INSERT INTO Users(UserName,PINCode) VALUES('nuforce','1234')"
+		"INSERT INTO Installation_Users(FK_Installation, FK_Users, userCanModifyInstallation, userCanChangeHouseMode)
+			VALUES(1, 1, 1, 1)"
 		"DELETE FROM Device_QuickStart WHERE Description like '%MythTV%'"
 		"UPDATE Device SET IPAddress='192.168.78.1' WHERE IPAddress='192.168.80.1'"
 	)
