@@ -153,10 +153,18 @@ void RipJob::AddRippingTasks()
 	vector<string> vectTracks;
 	StringUtils::Tokenize(m_sTracks, "|", vectTracks);
 
-	for(vector<string>::iterator it = vectTracks.begin(), end = vectTracks.end(); it != end; ++it)
+	if (vectTracks.empty())
 	{
-		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Adding ripping task for track %s", it->c_str());
-		AddTask(new RipTask(this,"Rip",m_bReportResult,*it));
+	    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Adding ripping task for the whole disk");
+	    AddTask(new RipTask(this,"Rip",m_bReportResult, ""));
+	}
+	else
+	{
+		for(vector<string>::iterator it = vectTracks.begin(), end = vectTracks.end(); it != end; ++it)
+		{
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Adding ripping task for track %s", it->c_str());
+			AddTask(new RipTask(this,"Rip",m_bReportResult,*it));
+		}
 	}
 }
 
