@@ -41,6 +41,7 @@ Packages()
 		pluto-proxy-orbiter pluto-voicemail-monitor zaptel-modules-2.6.22-14-generic
 		mythtv-backend mythtv-common mythtv-database mythtv-frontend mythtv-transcode-utils mythweb
 		pluto-mythtv-player pluto-mythtv-plugin libmyth-0.20 video-wizard-videos
+		chan-sccp libtonezone1 traceroute
 	)
 
 	InstallPkgs=(

@@ -1,9 +1,9 @@
 #!/bin/bash
 
-ntpdate ntp.ubuntu.com
 echo > /var/log/messages
 echo > /var/log/syslog
 dhclient eth0
+ntpdate ntp.ubuntu.com
 
 . ./mce-installer-common.sh
 
