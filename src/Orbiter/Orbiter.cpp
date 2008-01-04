@@ -6699,6 +6699,13 @@ void Orbiter::CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,s
 		
 		pthread_create(&m_TimeCodeID, NULL, UpdateTimeCodeThread, (void*)this);
 	}
+
+	if(m_sSkin == AUDIO_STATION_SKIN)
+	{
+		NeedToRender render(this, "Now playing - audio station");  
+		CMD_Show_Object(TOSTRING(DESIGNOBJ_mnuMenuAudioServer_CONST) ".0.0." TOSTRING(DESIGNOBJ_butGotoRemote_CONST), 0, "", "", 
+			m_sNowPlaying.empty() ? "0" : "1"); 
+	}
 }
 
 bool Orbiter::TestCurrentScreen(string &sPK_DesignObj_CurrentScreen)

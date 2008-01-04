@@ -1652,6 +1652,7 @@ void ScreenHandler::SetupAudioServer()
 	else
 	{
 		mediaFileBrowserOptions.ClearAll(iPK_MediaType,pOrbiterFileBrowser_Entry->m_PK_Screen,m_pOrbiter->m_mapPK_MediaType_PK_Attribute_Sort[iPK_MediaType]);
+		mediaFileBrowserOptions.m_PK_AttributeType_Sort = ATTRIBUTETYPE_Album_CONST;
 		m_pOrbiter->CMD_Set_Variable(VARIABLE_Filename_CONST, pOrbiterFileBrowser_Entry->m_sFilename);
 
 		SetMediaSortFilterSelectedObjects();
