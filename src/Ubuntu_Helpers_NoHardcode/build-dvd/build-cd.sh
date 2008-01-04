@@ -81,6 +81,9 @@ CreateLiveCD()
 		-J \
 		-l \
 		"$LiveCDDir"
+
+	rm -f "/var/www/LinuxMCE-DVD-${arch}.iso"
+	ln "$LiveCDISO" "/var/www/LinuxMCE-DVD-${arch}.iso"
 }
 
 CleanupWorkDir()
