@@ -620,6 +620,9 @@ readline-common
 render-dev
 ruby1.8
 ruby1.8-dev
+scim
+scim-gtk2-immodule
+scim-modules-socket
 screen
 scrollkeeper
 sed
@@ -661,6 +664,7 @@ whois
 wine
 wmctrl
 wodim
+wvdial
 x11-common
 x11perf
 x11proto-core-dev
@@ -688,6 +692,7 @@ xconsole
 xcursorgen
 xcursor-themes
 x-dev
+xdg-utils
 xdialog
 xditview
 xdpyinfo
@@ -730,6 +735,7 @@ xprop
 xrandr
 xrdb
 xrefresh
+xresprobe
 xrgb
 xserver-xorg
 xserver-xorg-input-all
@@ -784,6 +790,7 @@ xstdcmap
 xterm
 xtrans-dev
 xtrap
+x-ttcidfont-conf
 xutils
 xutils-dev
 xvidtune
@@ -792,5 +799,6 @@ xwd
 x-window-system-core
 xwininfo
 xwud
+zip
 zlib1g
 zlib1g-dev
