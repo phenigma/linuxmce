@@ -101,14 +101,10 @@ PlutoMediaFile::PlutoMediaFile(Database_pluto_media *pDatabase_pluto_media, int 
 	LoggerWrapper::GetInstance()->Write(LV_WARNING, "# PlutoMediaFile STARTED: dir %s file %s", 
 		m_sDirectory.c_str(), m_sFile.c_str());
 
-	if(m_bIsDir)
-	{
-		if(NULL == m_pPlutoMediaAttributes)
-			m_pPlutoMediaAttributes = new PlutoMediaAttributes();
-		return;
-	}
-
 	LoadPlutoAttributes();
+
+	if(NULL == m_pPlutoMediaAttributes)
+		m_pPlutoMediaAttributes = new PlutoMediaAttributes();
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Processing path %s, file %s. "
 		"Found %d attributes, %d long attributes in file", 
