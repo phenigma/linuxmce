@@ -228,7 +228,7 @@ int RipJob::PercentComplete()
 	int ScaledPercent = pTask_Current->PercentComplete() * RangeThisTask / 100;  // What percentage this task is done, scaled to the range
 	// if there are 3 tasks, the range is 33%.  if a task is 50% done, it represents 16.5% of the total (ScaledPercent)
 
-	return (ScaledPercent*(iTaskNum-1)) /* for the tasks we've done so far */ + ScaledPercent /* plus the current task */;
+	return (RangeThisTask * (iTaskNum-1)) /* for the tasks we've done so far */ + ScaledPercent /* plus the current task */;
 }
 
 int RipJob::SecondsRemaining()
