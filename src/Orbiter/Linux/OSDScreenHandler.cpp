@@ -306,10 +306,18 @@ bool OSDScreenHandler::UsersWizard_OnTimer(CallBackData *pData)
 		m_pWizardLogic->AddUser(m_sPendingUserToAdd);		
 		m_sPendingUserToAdd = "";
 
-		m_pOrbiter->CMD_Refresh("*");
-
 		NeedToRender render(m_pOrbiter, "alert_user_creation_2");
-		m_pOrbiter->CMD_Display_Alert("User created!", "user_creation", "3", interuptAlways);
+		m_pOrbiter->CMD_Display_Alert("User created!", "user_creation", "2", interuptAlways);
+
+		if(m_nPK_UsersWizard_NextScreen)
+		{
+			m_pOrbiter->CMD_Goto_Screen("",m_nPK_UsersWizard_NextScreen);
+			m_nPK_UsersWizard_NextScreen = 0;
+		}
+		else
+		{
+			m_pOrbiter->CMD_Refresh("*");
+		}
 	}
     
 	return false;
@@ -327,20 +335,17 @@ bool OSDScreenHandler::HandleAddUser(bool bErrorIfEmpty)
 	{
 		m_pOrbiter->CMD_Set_Text(StringUtils::ltos(GetCurrentScreen_PK_DesignObj()), "", TEXT_USR_ENTRY_CONST);
 
-		if(bErrorIfEmpty)
-		{
-			NeedToRender render(m_pOrbiter, "alert_user_creation_1");
-			m_pOrbiter->CMD_Display_Alert("Adding user '" + sUsername + "', please wait...", "user_creation", "20", interuptAlways);
+		NeedToRender render(m_pOrbiter, "alert_user_creation_1");
+		m_pOrbiter->CMD_Display_Alert("Adding user '" + sUsername + "', please wait...", "user_creation", "20", interuptAlways);
 
-			//add the user async
-			m_sPendingUserToAdd = sUsername;
-			m_pOrbiter->StartScreenHandlerTimer(0);
-		}
+		if(bErrorIfEmpty)
+			m_nPK_UsersWizard_NextScreen = 0;
 		else
-		{
-			//add it synchrously
-			m_pWizardLogic->AddUser(sUsername);
-		}
+			m_nPK_UsersWizard_NextScreen = SCREEN_CountryWizard_CONST;
+
+		//add the user async
+		m_sPendingUserToAdd = sUsername;
+		m_pOrbiter->StartScreenHandlerTimer(0);
 	}
 	else if( bErrorIfEmpty )
 	{
@@ -393,6 +398,7 @@ bool OSDScreenHandler::UsersWizard_ObjectSelected(CallBackData *pData)
 				case DESIGNOBJ_butLocation_CONST:
 				{
 					HandleAddUser(false);
+					return true;// we'll go to next screen once will finish adding the user
 				}
 				break;
 

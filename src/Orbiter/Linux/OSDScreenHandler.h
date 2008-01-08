@@ -68,6 +68,7 @@ public:
 	virtual bool HandleAddUser(bool bErrorIfEmpty=true);
 	virtual bool UsersWizard_OnTimer(CallBackData *pData);
 	string m_sPendingUserToAdd;
+	int m_nPK_UsersWizard_NextScreen;
 
 	//2. Location Wizard
 	virtual void SCREEN_CountryWizard(long PK_Screen);
