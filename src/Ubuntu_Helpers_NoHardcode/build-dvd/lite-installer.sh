@@ -149,6 +149,7 @@ PartitionHdd()
 set +e
 	parted -s "$TargetHdd" -- mklabel msdos
 	parted -s "$TargetHdd" -- mkpart primary ext2 0 -12GB # root filesystem
+	parted -s "$TargetHdd" -- set 1 boot on
 	parted -s "$TargetHdd" -- mkpart extended -12GB -1s
 	parted -s "$TargetHdd" -- mkpart logical linux-swap -12GB -10GB # swap
 	parted -s "$TargetHdd" -- mkpart logical ext2 -10GB -1s # recovery system
