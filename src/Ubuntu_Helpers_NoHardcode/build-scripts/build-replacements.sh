@@ -215,6 +215,16 @@ function Build_Replacements {
 		cp ../lirc-pluto_*.deb "${replacements_dir}"
 		popd
 	fi
+
+	#Package: lirc
+	dir_="${svn_dir}"/trunk/ubuntu/lirc-0.8.2+lmce
+	if ReplacementNeedsBuild "$dir_" ;then
+		pushd "$dir_"
+		dpkg-buildpackage -rfakeroot -us -uc -b
+		cp ../lirc_*.deb "${temp_dir}"
+		popd
+	fi
+
 	
 	#Package: mce-launcher
 	dir_="${svn_dir}"/trunk/src/mce-launcher
