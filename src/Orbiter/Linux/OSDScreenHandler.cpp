@@ -296,30 +296,51 @@ void OSDScreenHandler::SCREEN_UsersWizard(long PK_Screen)
 
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &OSDScreenHandler::UsersWizard_ObjectSelected, new ObjectInfoBackData());
 	RegisterCallBack(cbDataGridSelected, (ScreenHandlerCallBack) &OSDScreenHandler::UsersWizard_DatagridSelected, new DatagridCellBackData());
+	RegisterCallBack(cbOnTimer,	(ScreenHandlerCallBack) &OSDScreenHandler::UsersWizard_OnTimer, new CallBackData());
+}
+//-----------------------------------------------------------------------------------------------------
+bool OSDScreenHandler::UsersWizard_OnTimer(CallBackData *pData)
+{
+	if(!m_sPendingUserToAdd.empty())
+	{
+		m_pWizardLogic->AddUser(m_sPendingUserToAdd);		
+		m_sPendingUserToAdd = "";
+
+		m_pOrbiter->CMD_Refresh("*");
+
+		NeedToRender render(m_pOrbiter, "alert_user_creation_2");
+		m_pOrbiter->CMD_Display_Alert("User created!", "user_creation", "3", interuptAlways);
+	}
+    
+	return false;
 }
 //-----------------------------------------------------------------------------------------------------
 bool OSDScreenHandler::HandleAddUser(bool bErrorIfEmpty)
 {
 	PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_VariableMutex);
 	string sUsername = m_pOrbiter->m_mapVariable_Find(VARIABLE_Seek_Value_CONST);
+	vm.Release();
+
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, "");
 
 	if(sUsername != "")
 	{
 		m_pOrbiter->CMD_Set_Text(StringUtils::ltos(GetCurrentScreen_PK_DesignObj()), "", TEXT_USR_ENTRY_CONST);
 
+		if(bErrorIfEmpty)
 		{
 			NeedToRender render(m_pOrbiter, "alert_user_creation_1");
 			m_pOrbiter->CMD_Display_Alert("Adding user '" + sUsername + "', please wait...", "user_creation", "20", interuptAlways);
+
+			//add the user async
+			m_sPendingUserToAdd = sUsername;
+			m_pOrbiter->StartScreenHandlerTimer(0);
 		}
-
-		m_pWizardLogic->AddUser(sUsername);
-
+		else
 		{
-			NeedToRender render(m_pOrbiter, "alert_user_creation_2");
-			m_pOrbiter->CMD_Display_Alert("User created!", "user_creation", "3", interuptAlways);
+			//add it synchrously
+			m_pWizardLogic->AddUser(sUsername);
 		}
-
 	}
 	else if( bErrorIfEmpty )
 	{
@@ -366,8 +387,6 @@ bool OSDScreenHandler::UsersWizard_ObjectSelected(CallBackData *pData)
 				{
 					if(HandleAddUser())
 						return true; //error message
-
-					m_pOrbiter->CMD_Refresh("*");
 				}
 				break;
 

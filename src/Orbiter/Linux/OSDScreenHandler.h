@@ -66,6 +66,8 @@ public:
 	virtual bool UsersWizard_ObjectSelected(CallBackData *pData);
 	virtual bool UsersWizard_DatagridSelected(CallBackData *pData);
 	virtual bool HandleAddUser(bool bErrorIfEmpty=true);
+	virtual bool UsersWizard_OnTimer(CallBackData *pData);
+	string m_sPendingUserToAdd;
 
 	//2. Location Wizard
 	virtual void SCREEN_CountryWizard(long PK_Screen);
