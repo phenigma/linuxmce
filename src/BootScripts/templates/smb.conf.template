@@ -1,6 +1,6 @@
 
 ## @FileType: Pluto Sectioned Config File ##
-## @Version: 1 ##
+## @Version: 2 ##
 ## @KeepSections: ##
 ## @RemoveSections: ##
 
@@ -37,6 +37,8 @@
 	comment = shared home files
 	browsable = yes
 	writable = yes
+## BEGIN : Home Hosts Allow
+### END : Home Hosts Allow
 	path = /home
 	public = no
 	guest ok = no

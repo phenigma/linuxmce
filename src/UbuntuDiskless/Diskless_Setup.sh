@@ -314,6 +314,22 @@ setup_hosts_file
 /usr/pluto/bin/Diskless_ExportsNFS.sh
 /usr/pluto/bin/sync_pluto2amp.pl
 
+## Add host to the list of hosts allowed to access /home samba share
+R=$(RunSQL "SELECT IPaddress FROM Device JOIN DeviceTemplate ON FK_DeviceTemplate = PK_DeviceTemplate WHERE FK_DeviceCategory = 8")
+MoonIPs=""
+for Row in $R; do
+	IPaddress=$(Field 1 "$Row")
+	if [[ "$IPaddress" == "" ]] ;then
+		continue;
+	fi
+
+	MoonIPs="${MoonIPs} $IPaddress"
+done
+
+if [[ $(CheckSectionExists "/etc/samba/smb.conf" "Home Hosts Allow") == "true" ]] ;then
+	PopulateSection "/etc/samba/smb.conf" "Home Hosts Allow" "hosts allow = $MoonIPs"
+fi
+
 ## Do the update fix for current debian computers
 for dir in /usr/pluto/diskless/* ;do
 	if [[ -f "$dir/debian/etc/init.d/fastboot/rcS" ]] ;then
