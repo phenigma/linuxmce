@@ -107,9 +107,20 @@ RipJob::~RipJob()
 		m_pRow_DiscLocation->Table_DiscLocation_get()->Commit();
 	}
 
+	string sMessage;
+	if(m_nTracksFailedToRip == m_listTask.size())
+		sMessage = "Ripping failed";
+	else	
+		sMessage = "Ripping completed";
+
+	sMessage += ": " + m_sFileName;
+
+	if(m_listTask.size() > 1)
+		sMessage += m_nTracksFailedToRip > 0 ? (". Failed to rip " + StringUtils::ltos(m_nTracksFailedToRip) + " tracks.") : "";
+
 	SCREEN_PopupMessage SCREEN_PopupMessage(m_pCommand_Impl->m_dwPK_Device, 
 		m_iPK_Orbiter,
-		"Ripping completed: " + m_sFileName + (m_nTracksFailedToRip > 0 ? ". Failed to rip " + StringUtils::ltos(m_nTracksFailedToRip) + " tracks." : ""), // Main message
+		sMessage, // Main message
 		"", // Command Line
 		"ripping_complete", // Description
 		"0", // sPromptToResetRouter
