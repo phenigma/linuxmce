@@ -307,7 +307,19 @@ bool OSDScreenHandler::HandleAddUser(bool bErrorIfEmpty)
 	if(sUsername != "")
 	{
 		m_pOrbiter->CMD_Set_Text(StringUtils::ltos(GetCurrentScreen_PK_DesignObj()), "", TEXT_USR_ENTRY_CONST);
+
+		{
+			NeedToRender render(m_pOrbiter, "alert_user_creation_1");
+			m_pOrbiter->CMD_Display_Alert("Adding user '" + sUsername + "', please wait...", "user_creation", "20", interuptAlways);
+		}
+
 		m_pWizardLogic->AddUser(sUsername);
+
+		{
+			NeedToRender render(m_pOrbiter, "alert_user_creation_2");
+			m_pOrbiter->CMD_Display_Alert("User created!", "user_creation", "3", interuptAlways);
+		}
+
 	}
 	else if( bErrorIfEmpty )
 	{
