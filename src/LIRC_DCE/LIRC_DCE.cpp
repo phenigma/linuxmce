@@ -18,6 +18,7 @@
 #include "DCE/Logger.h"
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
+#include "PlutoUtils/ProcessUtils.h"
 #include "PlutoUtils/Other.h"
 
 #include <iostream>
@@ -358,6 +359,16 @@ void LIRC_DCE::CMD_Set_Screen_Type(int iValue,string &sCMD_Result,Message *pMess
 void LIRC_DCE::CMD_Send_Code(string sText,string &sCMD_Result,Message *pMessage)
 //<-dceag-c191-e->
 {
+	string sTextWoSpaces;
+	size_t sTextSize = sText.size();
+	for (size_t i = 0; i < sTextSize; ++i)
+	{
+		if (sText[i] != ' ')
+			sTextWoSpaces += sText[i];
+	}
+	char * args[] = {"/usr/bin/irsend", "SEND_PRONTO", (char*) sTextWoSpaces.c_str(), "", NULL};
+	ProcessUtils::SpawnDaemon(args[0], args, false);
+	sCMD_Result = "OK";
 }
 
 //<-dceag-c245-b->
