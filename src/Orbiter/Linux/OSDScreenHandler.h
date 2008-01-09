@@ -61,14 +61,22 @@ public:
 	virtual bool VideoWizard_OnTimer(CallBackData *pData);
 	virtual bool VideoWizard_OnScreen(CallBackData *pData);
 
+	enum AddUserNextAction
+	{
+		naNone,
+		naNextScreen,
+		naDisplayUserInfo
+	};
+
 	//1. Users Wizard
 	virtual void SCREEN_UsersWizard(long PK_Screen);
 	virtual bool UsersWizard_ObjectSelected(CallBackData *pData);
 	virtual bool UsersWizard_DatagridSelected(CallBackData *pData);
-	virtual bool HandleAddUser(bool bErrorIfEmpty=true);
+	virtual bool HandleAddUser(AddUserNextAction action);
 	virtual bool UsersWizard_OnTimer(CallBackData *pData);
 	string m_sPendingUserToAdd;
-	int m_nPK_UsersWizard_NextScreen;
+	AddUserNextAction m_AddUserNextAction;
+	
 
 	//2. Location Wizard
 	virtual void SCREEN_CountryWizard(long PK_Screen);

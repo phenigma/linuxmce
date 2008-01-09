@@ -304,31 +304,45 @@ bool OSDScreenHandler::UsersWizard_OnTimer(CallBackData *pData)
 	if(!m_sPendingUserToAdd.empty())
 	{
 		m_pWizardLogic->AddUser(m_sPendingUserToAdd);		
-		m_sPendingUserToAdd = "";
 
 		NeedToRender render(m_pOrbiter, "alert_user_creation_2");
 		m_pOrbiter->CMD_Display_Alert("User created!", "user_creation", "2", interuptAlways);
 
-		if(m_nPK_UsersWizard_NextScreen)
+		switch(m_AddUserNextAction)
 		{
-			m_pOrbiter->CMD_Goto_Screen("",m_nPK_UsersWizard_NextScreen);
-			m_nPK_UsersWizard_NextScreen = 0;
+			case naNone:
+				m_pOrbiter->CMD_Refresh("*");
+				break;
+
+			case naNextScreen:
+				m_pOrbiter->CMD_Goto_Screen("",SCREEN_CountryWizard_CONST);
+				break;
+
+			case naDisplayUserInfo:
+				{
+					string sText=m_pOrbiter->m_mapTextString[TEXT_user_name_for_admin_CONST] + "|" + m_pOrbiter->m_mapTextString[TEXT_Ok_CONST];
+					StringUtils::Replace(&sText,"<%=USER%>",m_sPendingUserToAdd);
+					string sMessage="0 -300 1 " TOSTRING(COMMAND_Goto_DesignObj_CONST) " " TOSTRING(COMMANDPARAMETER_PK_DesignObj_CONST) " " TOSTRING(DESIGNOBJ_FamilyMembers_CONST);
+					DCE::SCREEN_House_Setup_Popup_Message SCREEN_House_Setup_Popup_Message(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,
+						sText,sMessage,"1");
+					m_pOrbiter->ReceivedMessage(SCREEN_House_Setup_Popup_Message.m_pMessage);
+				}
+				break;
 		}
-		else
-		{
-			m_pOrbiter->CMD_Refresh("*");
-		}
+
+		m_sPendingUserToAdd = "";
 	}
     
 	return false;
 }
 //-----------------------------------------------------------------------------------------------------
-bool OSDScreenHandler::HandleAddUser(bool bErrorIfEmpty)
+bool OSDScreenHandler::HandleAddUser(AddUserNextAction action)
 {
 	PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_VariableMutex);
 	string sUsername = m_pOrbiter->m_mapVariable_Find(VARIABLE_Seek_Value_CONST);
 	vm.Release();
 
+	m_AddUserNextAction = action;
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, "");
 
 	if(sUsername != "")
@@ -338,16 +352,12 @@ bool OSDScreenHandler::HandleAddUser(bool bErrorIfEmpty)
 		NeedToRender render(m_pOrbiter, "alert_user_creation_1");
 		m_pOrbiter->CMD_Display_Alert("Adding user '" + sUsername + "', please wait...", "user_creation", "20", interuptAlways);
 
-		if(bErrorIfEmpty)
-			m_nPK_UsersWizard_NextScreen = 0;
-		else
-			m_nPK_UsersWizard_NextScreen = SCREEN_CountryWizard_CONST;
-
 		//add the user async
 		m_sPendingUserToAdd = sUsername;
 		m_pOrbiter->StartScreenHandlerTimer(0);
+		return true;
 	}
-	else if( bErrorIfEmpty )
+	else if(action != naNextScreen)
 	{
 		m_pOrbiter->CMD_Set_Text(StringUtils::ltos(GetCurrentScreen_PK_DesignObj()),
                                  "ERROR: Please enter your name", TEXT_USR_ENTRY_CONST);
@@ -372,18 +382,8 @@ bool OSDScreenHandler::UsersWizard_ObjectSelected(CallBackData *pData)
 			if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butFamilyMembers_CONST)
 			{
 				string sUsername = m_pOrbiter->m_mapVariable_Find(VARIABLE_Seek_Value_CONST);
-				if(HandleAddUser())
-					return true;
-				else
-				{
-					string sText=m_pOrbiter->m_mapTextString[TEXT_user_name_for_admin_CONST] + "|" + m_pOrbiter->m_mapTextString[TEXT_Ok_CONST];
-					StringUtils::Replace(&sText,"<%=USER%>",sUsername);
-					string sMessage="0 -300 1 " TOSTRING(COMMAND_Goto_DesignObj_CONST) " " TOSTRING(COMMANDPARAMETER_PK_DesignObj_CONST) " " TOSTRING(DESIGNOBJ_FamilyMembers_CONST);
-					DCE::SCREEN_House_Setup_Popup_Message SCREEN_House_Setup_Popup_Message(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,
-						sText,sMessage,"1");
-					m_pOrbiter->ReceivedMessage(SCREEN_House_Setup_Popup_Message.m_pMessage);
-					return true;
-				}
+				HandleAddUser(naDisplayUserInfo);
+				return true;
 			}
 		}
 		break;
@@ -394,14 +394,14 @@ bool OSDScreenHandler::UsersWizard_ObjectSelected(CallBackData *pData)
 			{
 				case DESIGNOBJ_butAdduser_CONST:
 				{
-					if(HandleAddUser())
+					if(HandleAddUser(naNone))
 						return true; //error message
 				}
 				break;
 
 				case DESIGNOBJ_butLocation_CONST:
 				{
-					HandleAddUser(false);
+					HandleAddUser(naNextScreen);
 					return true;// we'll go to next screen once will finish adding the user
 				}
 				break;
