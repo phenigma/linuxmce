@@ -15,10 +15,10 @@ function deviceTemplates($output,$dbADO) {
 	$_SESSION['from']='deviceTemplates';
 
 	$_SESSION['categoryID']=(isset($_SESSION['categoryID']))?$_SESSION['categoryID']:NULL;
-	$_SESSION['categoryID']=(isset($_REQUEST['dcSelected']))?cleanInteger($_REQUEST['dcSelected']):$_SESSION['categoryID'];
+	$_SESSION['categoryID']=(isset($_REQUEST['categoryID']))?cleanInteger($_REQUEST['categoryID']):$_SESSION['categoryID'];
 	$_SESSION['categoryID']=($_SESSION['categoryID']==0)?NULL:$_SESSION['categoryID'];
 	
-	$mID=(!isset($_REQUEST['manufSelected']))?1:(int)$_REQUEST['manufSelected'];
+	$mID=(!isset($_REQUEST['manufacturerID']))?1:(int)$_REQUEST['manufacturerID'];
 	
 	$out.=pickDeviceTemplate($_SESSION['categoryID'],$mID,0,1,'deviceTemplates',$dbADO,1);
 	

@@ -4143,7 +4143,7 @@ function extractCodesTree($infraredGroupID,$dtID,$dbADO,$restriction=''){
 			unset ($powerCommands[$row['FK_Command']]);
 		}
 	}
-	
+
 	return $codesArray;
 }
 
@@ -5638,8 +5638,8 @@ function dtPickerJS($returnValue){
 
 	function add_device_template_popup(){
 		setErrorMessage("");
-		manuf=parseInt(document.deviceTemplatePicker.manufSelected.value);
-		categ=parseInt(document.deviceTemplatePicker.dcSelected.value);
+		manuf=parseInt(document.deviceTemplatePicker.manufacturerID.value);
+		categ=parseInt(document.deviceTemplatePicker.categoryID.value);
 		if(!isNaN(manuf) && !isNaN(categ) && manuf>0 && categ>0){
 			url="index.php?section=addModel&mID="+manuf+"&dcID="+categ+"&step=1&from='.urlencode(@$_SESSION['from']).'";
 			try{
@@ -5662,7 +5662,7 @@ function dtPickerJS($returnValue){
 	}
 	
 	function add_category_popup(){
-		categ=parseInt(document.deviceTemplatePicker.dcSelected.value);
+		categ=parseInt(document.deviceTemplatePicker.categoryID.value);
 		windowOpen("index.php?section=addCategory&parentID="+categ,"width=640,height=480,toolbars=true,scrollbars=1,resizable=1");
 	}
 	
