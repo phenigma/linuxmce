@@ -1170,16 +1170,21 @@ CallStatus * Telecom_Plugin::LinkChannels(const string & sSrcChannel, const stri
 			map<string, string>::const_iterator itEnd = channels.end();
 			if( (itFoundSrc != itEnd || pCurrentStatus->HasLinkedChannel(sSrcMainChannel)) &&
 				pCurrentStatus->IsConference() &&
-				sDestChannel == CallStatus::GetStringConferenceID( pCurrentStatus->GetConferenceID() ) )
+				(
+					sDestChannel == CallStatus::GetStringConferenceID( pCurrentStatus->GetConferenceID() ) ||
+					sDestChannel == SPEAKINTHEHOUSE_CONFERENCE_IVR ||
+					sDestChannel == SPEAKINTHEHOUSE_CONFERENCE_ALL
+				)
+			)
 			{
-				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "---------- Found Conference LinkChannels");
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "---------- Found Conference LinkChannels");
 				// that's our linked call
 				pCallStatus = pCurrentStatus;
 			}
 			else if( (itFoundSrc != itEnd || pCurrentStatus->HasLinkedChannel(sSrcMainChannel)) &&
 					 (itFoundDest != itEnd || pCurrentStatus->HasLinkedChannel(sDestMainChannel)) )
 			{
-				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "---------- Found Call LinkChannels");
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "---------- Found Call LinkChannels");
 				// that's our linked call
 				pCallStatus = pCurrentStatus;
 			}
@@ -1216,7 +1221,7 @@ CallStatus * Telecom_Plugin::LinkChannels(const string & sSrcChannel, const stri
 			{
 				if( !pCurrentStatus->IsConference() )
 				{
-					LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "---------- Move Call %s LinkChannels",
+					LoggerWrapper::GetInstance()->Write(LV_STATUS, "---------- Move Call %s LinkChannels",
 						pCurrentStatus->GetID().c_str());
 					for(itFoundSrc=channels.begin(); itFoundSrc!=channels.end(); ++itFoundSrc)
 					{
