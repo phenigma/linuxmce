@@ -31,7 +31,7 @@ function packagesList($output,$dbADO) {
 		<tr>
 			<td><input type="radio" name="packageOrder" value="0" onChange="document.packagesList.submit();" '.(($packageOrder==0)?'checked':'').'></td>
 			<td><B>'.$TEXT_GROUP_BY_MANUFACTURER_CONST.'</B></td>
-			<td><input type="checkbox" name="showDependancy" value="1" onChange="document.packagesList.submit();" '.(($showDependancy==1)?'checked':'').'> <B>'.$TEXT_SHOW_DEPENDANCY_CONST.'</B></td>
+			<td><input type="checkbox" name="showDependancy" value="1" onChange="document.packagesList.submit();" '.(($showDependancy==1)?'checked':'').'> <B>'.$TEXT_SHOW_DEPENDENCIES_CONST.'</B></td>
 		</tr>
 		<tr>
 			<td><input type="radio" name="packageOrder" value="1" onChange="document.packagesList.submit();" '.(($packageOrder==1)?'checked':'').'></td>
