@@ -66,6 +66,7 @@ CreateLiveCD()
 
 	mkdir -p "$LiveCDDir/deb-cache/"
 	cp ${build_dir}/DisklessSync/i386/deb-cache/* "$LiveCDDir/deb-cache/"
+	cp ${build_dir}/DisklessSync/amd64/deb-cache/* "$LiveCDDir/deb-cache/"
 
 	(cd "$LiveCDDir" && find . -type f -not -path ./md5sum.txt -print0 | xargs -0 md5sum | tee md5sum.txt)
 
