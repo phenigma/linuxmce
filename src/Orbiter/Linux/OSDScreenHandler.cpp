@@ -353,6 +353,10 @@ bool OSDScreenHandler::HandleAddUser(bool bErrorIfEmpty)
                                  "ERROR: Please enter your name", TEXT_USR_ENTRY_CONST);
 		return true;
 	}
+	else
+	{
+		m_pOrbiter->CMD_Goto_Screen("", SCREEN_CountryWizard_CONST);
+	}
 
 	return false;
 }
