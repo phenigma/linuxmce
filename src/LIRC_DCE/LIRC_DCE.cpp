@@ -366,6 +366,8 @@ void LIRC_DCE::CMD_Send_Code(string sText,string &sCMD_Result,Message *pMessage)
 		if (sText[i] != ' ')
 			sTextWoSpaces += sText[i];
 	}
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Sending code: %s", sText.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Without spaces: %s", sTextWoSpaces.c_str());
 	char * args[] = {"/usr/bin/irsend", "SEND_PRONTO", (char*) sTextWoSpaces.c_str(), "", NULL};
 	ProcessUtils::SpawnDaemon(args[0], args, false);
 	sCMD_Result = "OK";
