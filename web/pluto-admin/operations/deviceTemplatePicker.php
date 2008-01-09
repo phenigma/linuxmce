@@ -12,7 +12,7 @@ function deviceTemplatePicker($output,$dbADO) {
 	$_SESSION['from']=(isset($_REQUEST['from']))?cleanString(@$_REQUEST['from']):@$_SESSION['from'];
 
 	$_SESSION['categoryID']=(isset($_SESSION['categoryID']))?$_SESSION['categoryID']:NULL;
-	$_SESSION['categoryID']=(isset($_REQUEST['dcSelected']))?cleanInteger($_REQUEST['dcSelected']):$_SESSION['categoryID'];
+	$_SESSION['categoryID']=(isset($_REQUEST['categoryID']))?cleanInteger($_REQUEST['categoryID']):$_SESSION['categoryID'];
 	$_SESSION['categoryID']=(isset($_REQUEST['categoryID']))?cleanInteger($_REQUEST['categoryID']):$_SESSION['categoryID'];
 	$_SESSION['categoryID']=($_SESSION['categoryID']==0)?NULL:$_SESSION['categoryID'];
 	$allowAddDT=((int)@$_REQUEST['allowAdd']==1)?1:0;
@@ -30,7 +30,7 @@ function deviceTemplatePicker($output,$dbADO) {
 		</table>';
 
 	// new
-	$out.=pickDeviceTemplate($_SESSION['categoryID'],(int)@$_REQUEST['manufSelected'],1,1,'deviceTemplatePicker',$dbADO,0);
+	$out.=pickDeviceTemplate($_SESSION['categoryID'],(int)@$_REQUEST['manufacturerID'],1,1,'deviceTemplatePicker',$dbADO,0);
 	//$out.=pickDeviceTemplate($_SESSION['categoryID'],1,0,$allowAddDT,1,1,'deviceTemplatePicker','',$dbADO,0);
 	
 	
