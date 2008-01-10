@@ -7,16 +7,24 @@ if [[ "$1" == configure ]]; then
 	if [[ -n "$MySqlPassword" ]]; then
 		PassParm="-p$MySqlPassword"
 	fi
-	if [[ -z "$(RunSQL "SHOW DATABASES LIKE 'asterisk'")" ]] || [[ -z "$(RunSQL "USE asterisk; DESC notifications")" ]]; then
-		RunSQL "DROP DATABASE IF EXISTS asterisk; CREATE DATABASE asterisk"
-		RunSQL "DROP DATABASE IF EXISTS asteriskcdrdb; CREATE DATABASE asteriskcdrdb"
 
-		RunSQL "GRANT ALL PRIVILEGES ON asterisk.* TO asteriskuser@localhost IDENTIFIED BY 'amp109'"
-		RunSQL "GRANT ALL PRIVILEGES ON asteriskcdrdb.* TO asteriskuser@localhost IDENTIFIED BY 'amp109'"
+	# create and populate asteriskcdrdb database if it does not exist
+	RunSQL "CREATE DATABASE IF NOT EXISTS asteriskcdrdb"
+	mysql -f -h "$MySqlHost" -u "$MySqlUser" $PassParm asteriskcdrdb </var/lib/freepbx/SQL/cdr_mysql_table.sql
 
-		mysql -h "$MySqlHost" -u "$MySqlUser" $PassParm asteriskcdrdb </var/lib/freepbx/SQL/cdr_mysql_table.sql
-		mysql -h "$MySqlHost" -u "$MySqlUser" $PassParm asterisk </var/lib/freepbx/SQL/newinstall.sql
+	# create asterisk database if it does not exist
+	RunSQL "CREATE DATABASE IF NOT EXISTS asterisk"
+
+	# create/update asterisk database schema
+	if [[ -z "$(RunSQL "USE asterisk; DESC notifications")" ]]; then
+		mysql -f -h "$MySqlHost" -u "$MySqlUser" $PassParm asterisk </var/lib/freepbx/SQL/newinstall.sql
+	else
+		mysql -f -h "$MySqlHost" -u "$MySqlUser" $PassParm asterisk </var/lib/freepbx/SQL/upgradedb.sql
 	fi
+	
+	# ensure access privileges on the asterisk and asteriskcdrdb databases
+	RunSQL "GRANT ALL PRIVILEGES ON asterisk.* TO asteriskuser@localhost IDENTIFIED BY 'amp109'"
+	RunSQL "GRANT ALL PRIVILEGES ON asteriskcdrdb.* TO asteriskuser@localhost IDENTIFIED BY 'amp109'"
 
 	if [[ -f /etc/init.d/asterisk.dpkg-new ]] ;then
 		rm /etc/init.d/asterisk
