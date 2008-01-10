@@ -114,9 +114,9 @@ RunSQL "UPDATE Device SET NeedConfigure = 1 WHERE FK_DeviceTemplate = '28'"
 for diskless_dir in /usr/pluto/diskless/* ;do
 	if [[ -f "$diskless_dir/etc/pluto.conf" ]];then
 		rm -rf "$diskless_dir/boot/vmlinuz"
-		rm -rf "$diskless_dir/boot/initrd"
+		rm -rf "$diskless_dir/boot/initrd.img"
 		ln -s "$diskless_dir/boot/vmlinuz-2.6.22-14-generic" "$diskless_dir/boot/vmlinuz"
-		ln -s "$diskless_dir/boot/initrd.img-2.6.22-14-generic" "$diskless_dir/boot/initrd"
+		ln -s "$diskless_dir/boot/initrd.img-2.6.22-14-generic" "$diskless_dir/boot/initrd.img"
 	fi
 done
 
