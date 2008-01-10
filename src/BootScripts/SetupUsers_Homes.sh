@@ -213,8 +213,16 @@ if [[ -r /usr/pluto/var/sambaCredentials.secret ]] ;then
 	smbuser=$(cat /usr/pluto/var/sambaCredentials.secret | grep '^user' | cut -d '=' -f2)
 	smbuserid=$(id -u $smbuser)
 
+	if [[ $(grep "^$smbuser:" /etc/samba/smbpasswd) == "" ]] ;then
+		NeedToRestart="true"
+	fi
+
 	if ! BlacklistConfFiles '/etc/samba/smbpasswd' ;then
 		echo "$smbuser:$LinuxUserID:$smbpass:[U          ]:LCT-00000001:,,," >> /etc/samba/smbpasswd 
+	fi
+
+	if [[ "$NeedToRestart" == "true" &&  "$(pidof smbd)" != "" ]] ;then
+		invoke-rc.d samba restart
 	fi
 fi
 
