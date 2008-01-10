@@ -32,25 +32,28 @@ PostInstPkg=(
 	pluto-telecom-database freepbx
 )
 
-for Pkg in "${PostInstPkg[@]}"; do
-	/var/lib/dpkg/info/"$Pkg".postinst configure
-done
+if [[ -f /etc/pluto/install_cleandb ]]; then
+	for Pkg in "${PostInstPkg[@]}"; do
+		/var/lib/dpkg/info/"$Pkg".postinst configure
+	done
 
-. /usr/pluto/bin/SQL_Ops.sh
+	. /usr/pluto/bin/SQL_Ops.sh
 
-Queries=(
-	"UPDATE Device_DeviceData
-		SET IK_DeviceData=15
-		WHERE PK_Device IN (
-				SELECT PK_Device FROM Device WHERE FK_DeviceTemplate IN (7, 28)
-			)
-			AND FK_DeviceData=7
-	"
-	"UPDATE Device_DeviceData SET IK_DeviceData='LMCE_CORE_u0710_i386' WHERE IK_DeviceData='LMCE_CORE_1_1'"
-	"UPDATE Device_DeviceData SET IK_DeviceData='LMCE_MD_u0710_i386'   WHERE IK_DeviceData='LMCE_MD_1_1'"
-	"UPDATE Device_DeviceData SET IK_DeviceData='0' WHERE FK_DeviceData='234'"
-)
+	Queries=(
+		"UPDATE Device_DeviceData
+			SET IK_DeviceData=15
+			WHERE PK_Device IN (
+					SELECT PK_Device FROM Device WHERE FK_DeviceTemplate IN (7, 28)
+				)
+				AND FK_DeviceData=7
+		"
+		"UPDATE Device_DeviceData SET IK_DeviceData='LMCE_CORE_u0710_i386' WHERE IK_DeviceData='LMCE_CORE_1_1'"
+		"UPDATE Device_DeviceData SET IK_DeviceData='LMCE_MD_u0710_i386'   WHERE IK_DeviceData='LMCE_MD_1_1'"
+		"UPDATE Device_DeviceData SET IK_DeviceData='0' WHERE FK_DeviceData='234'"
+		"UPDATE Device_DeviceData SET IK_DeviceData='i386' WHERE FK_DeviceData='112' AND IK_DeviceData='686'"
+	)
 
-for Q in "${Queries[@]}"; do
-	RunSQL "$Q"
-done
+	for Q in "${Queries[@]}"; do
+		RunSQL "$Q"
+	done
+fi
