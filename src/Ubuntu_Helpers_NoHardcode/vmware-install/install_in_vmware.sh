@@ -153,10 +153,12 @@ function cleanup_filesystem {
 	PkgNonGrata_Determined=$(Determine_PkgNonGrata "$FILESYSTEM_ROOT"/tmp/pkglist-{diskless,hybrid}.txt)
 	rm -f "$FILESYSTEM_ROOT"/tmp/pkglist-{diskless,hybrid}.txt
 
-	local Pkg
-	for Pkg in $PkgNonGrata_Fixed $PkgNonGrata_Determined; do
-		rm -f "${FILESYSTEM_ROOT}"/usr/pluto/deb-cache/"$Pkg"_*.deb
-	done
+	if [[ "$RemovePkgNonGrata" != "no" ]] ;then
+		local Pkg
+		for Pkg in $PkgNonGrata_Fixed $PkgNonGrata_Determined; do
+			rm -f "${FILESYSTEM_ROOT}"/usr/pluto/deb-cache/"$Pkg"_*.deb
+		done
+	fi
 	(cd "${FILESYSTEM_ROOT}"/usr/pluto/deb-cache && dpkg-scanpackages -m . /dev/null | tee Packages | gzip -c > Packages.gz)
 }
 
@@ -262,6 +264,10 @@ function Determine_PkgNonGrata()
 	cat "$ResultFile"
 }
 
+RemovePkgNonGrata='yes'
+if [[ "$1" == "big" ]] ;then
+	RemovePkgNonGrata='no'	
+fi
 create_virtual_machine
 start_virtual_machine
 create_debcache_on_virtual_machine

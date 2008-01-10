@@ -10,7 +10,14 @@ InstallerScript="lite-installer.sh"
 RcSScript="install-lmce"
 FirstRunScript="firstboot"
 
-LiveCDISO="$WorkDir/kubuntu-linuxmce.iso"
+if [[ "$1" == "big" ]] ;then
+	LiveCDISO="$WorkDir/kubuntu-linuxmce-big.iso"
+	LiveCDISO_Link="/var/www/LinuxMCE-DVD-DL-${arch}.iso"
+else
+	LiveCDISO="$WorkDir/kubuntu-linuxmce.iso"
+	LiveCDISO_Link="/var/www/LinuxMCE-DVD-${arch}.iso"
+fi
+
 InstallerArchive="${build_dir}/vmware/Kubuntu/linux-mce.tar.gz"
 
 LiveCDDir="$WorkDir/livecd"
@@ -83,8 +90,8 @@ CreateLiveCD()
 		-l \
 		"$LiveCDDir"
 
-	rm -f "/var/www/LinuxMCE-DVD-${arch}.iso"
-	ln "$LiveCDISO" "/var/www/LinuxMCE-DVD-${arch}.iso"
+	rm -f "$LiveCDISO_Link"
+	ln "$LiveCDISO" "$LiveCDISO_Link"
 }
 
 CleanupWorkDir()
