@@ -22,6 +22,7 @@ function import_databases () {
 	mysqldump -u "$sqlcvs_user" -h "$sqlcvs_host" pluto_telecom  > "$dbdump_pluto_telecom"
 
   #TODO START: Replace this when new secure way of getting the databases it available
+	local temp_sqlcvsdir=$(mktemp -d)
 	## Import other databases from 150
 	ssh -i /etc/lmce-build/builder.key pluto@82.77.255.209 "
 		set -x;
