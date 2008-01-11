@@ -99,6 +99,17 @@ RunSQL "UPDATE Device_DeviceData SET IK_DeviceData = 'LMCE_MD_u0710_i386'   WHER
 RunSQL "UPDATE Device_DeviceData SET IK_DeviceData = 'i386' WHERE FK_DeviceData = '112'"
 RunSQL "UPDATE Device_DeviceData SET IK_DeviceData = '0' WHERE FK_DeviceData = '234'"
 
+DT_DiskDrive=11
+DiskDrives=$(RunSQL "SELECT PK_Device FROM Device WHERE FK_DeviceTemplate='$DT_DiskDrive'")
+for DiskDrive in $DiskDrives ;do
+	DiskDrive_DeviceID=$(Field 1 "$DiskDrive")
+	for table in 'CommandGroup_Command' 'Device_Command' 'Device_CommandGroup' 'Device_DeviceData' 'Device_DeviceGroup' 'Device_Device_Related' 'Device_EntertainArea' 'Device_HouseMode' 'Device_Orbiter' 'Device_StartupScript' 'Device_Users' ;do
+		RunSQL "DELETE FROM \`$table\` WHERE FK_DeviceID = '$DiskDrive_DeviceID' LIMIT 1"
+	done
+
+	RunSQL "DELETE FROM Device WHERE PK_Device = '$DiskDrive_DeviceID' LIMIT 1"
+done
+
 # Remove diskless dirs and backup pluto.conf
 for diskless_dir in /usr/pluto/diskless/* ;do
 	if [[ -f "$diskless_dir/etc/pluto.conf" ]];then
