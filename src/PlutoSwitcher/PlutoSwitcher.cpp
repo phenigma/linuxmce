@@ -66,9 +66,6 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 		return -2;
 	}
 
-	//TEST
-	sCoreIP = "10.0.1.1";
-
 	string sMessage = "Found the CORE on ip " + sCoreIP + ". Do you want to reboot as MD?";
 
 	if(
