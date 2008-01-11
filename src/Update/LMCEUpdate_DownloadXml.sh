@@ -54,6 +54,7 @@ Debug "Calling LMCEUpdate to parse the xml file"
 ## TODO: Call eugen's application to process the xml and get an status
 if  ! /usr/pluto/bin/LMCEUpdate ;then
 	Debug "LMCEUpdate Failed to parse the xml file or to download updates"
+	exit 1
 fi
 
 ## TODO: Notify user that he can update it's system
