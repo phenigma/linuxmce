@@ -91,7 +91,7 @@ CreateLiveCD()
 		"$LiveCDDir"
 
 	rm -f "$LiveCDISO_Link"
-	ln "$LiveCDISO" "$LiveCDISO_Link"
+	mv "$LiveCDISO" "$LiveCDISO_Link"
 }
 
 CleanupWorkDir()
