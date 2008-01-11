@@ -13,28 +13,15 @@ function import_databases () {
 	local dbdump_pluto_security=$(mktemp)
 	local dbdump_pluto_telecom=$(mktemp)
 
-  #TODO START: Replace this when new secure way of getting the databases it available
-	## Import sqlcvs repositories from plutohome.com
-	local temp_sqlcvsdir=$(mktemp -d)
-	ssh -i /etc/lmce-build/builder.key uploads@plutohome.com "
-                set -x;
-                rm -f /tmp/main_sqlcvs.dump /tmp/myth_sqlcvs /home/uploads/sqlcvs_dumps.tar.gz;
-                mysqldump --quote-names --allow-keywords --add-drop-table -u root -pmoscow70bogata main_sqlcvs > /tmp/main_sqlcvs.dump;
-                mysqldump --quote-names --allow-keywords --add-drop-table -u root -pmoscow70bogata myth_sqlcvs > /tmp/myth_sqlcvs.dump;
-                cd /tmp;
-                tar zcvf /home/uploads/sqlcvs_dumps.tar.gz main_sqlcvs.dump myth_sqlcvs.dump"
-        scp -i /etc/lmce-build/builder.key uploads@plutohome.com:/home/uploads/sqlcvs_dumps.tar.gz "$temp_sqlcvsdir"
-	pushd "$temp_sqlcvsdir"
-	        tar zxvf sqlcvs_dumps.tar.gz
-		mv main_sqlcvs.dump $dbdump_main_sqlcvs
-		mv myth_sqlcvs.dump $dbdump_myth_sqlcvs 
-	popd
 
 	## Import pluto_main, pluto_media, pluto_security, pluto_telecom
+	mysqldump -u "$sqlcvs_user" -h "$sqlcvs_host" main_sqlcvs    > "$dbdump_main_sqlcvs"
+	mysqldump -u "$sqlcvs_user" -h "$sqlcvs_host" myth_sqlcvs    > "$dbdump_myth_sqlcvs"
 	mysqldump -u "$sqlcvs_user" -h "$sqlcvs_host" pluto_media    > "$dbdump_pluto_media"
 	mysqldump -u "$sqlcvs_user" -h "$sqlcvs_host" pluto_security > "$dbdump_pluto_security"
 	mysqldump -u "$sqlcvs_user" -h "$sqlcvs_host" pluto_telecom  > "$dbdump_pluto_telecom"
 
+  #TODO START: Replace this when new secure way of getting the databases it available
 	## Import other databases from 150
 	ssh -i /etc/lmce-build/builder.key pluto@82.77.255.209 "
 		set -x;
