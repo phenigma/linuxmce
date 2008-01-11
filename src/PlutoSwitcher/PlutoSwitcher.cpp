@@ -163,6 +163,33 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 //-------------------------------------------------------------------------------------------------------
 string DetectCoreIpAddress() 
 {
+	IP_ADAPTER_INFO AdapterInfo[16];       // Allocate information
+	// for up to 16 NICs
+	DWORD dwBufLen = sizeof(AdapterInfo);  // Save memory size of buffer
+
+	DWORD dwStatus = GetAdaptersInfo(      // Call GetAdapterInfo
+		AdapterInfo,                 // [out] buffer to receive data
+		&dwBufLen);                  // [in] size of receive data buffer
+
+	PIP_ADAPTER_INFO pAdapterInfo = AdapterInfo; // Contains pointer to
+
+	if(NULL != pAdapterInfo)
+	{
+		char *pIP = pAdapterInfo->IpAddressList.IpAddress.String;
+
+		if(NULL != pIP)
+		{
+			string sMyIP(pIP);
+
+			size_t pos = sMyIP.rfind('.');
+			if(pos != string::npos)
+			{
+				string sCoreIP = sMyIP.substr(0, pos + 1) + "1";
+				return sCoreIP;
+			}
+		}
+	}
+	
 	//create datagram socket
 	SOCKET s = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 
