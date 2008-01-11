@@ -99,9 +99,12 @@ RunSQL "UPDATE Device_DeviceData SET IK_DeviceData = 'LMCE_MD_u0710_i386'   WHER
 RunSQL "UPDATE Device_DeviceData SET IK_DeviceData = 'i386' WHERE FK_DeviceData = '112'"
 RunSQL "UPDATE Device_DeviceData SET IK_DeviceData = '0' WHERE FK_DeviceData = '234'"
 
-# Remove diskless dirs
+# Remove diskless dirs and backup pluto.conf
 for diskless_dir in /usr/pluto/diskless/* ;do
 	if [[ -f "$diskless_dir/etc/pluto.conf" ]];then
+		mkdir -p "/tmp/$diskless_dir"
+		cp "$diskless_dir/etc/pluto.conf" "/tmp/$diskless_dir"
+
 		rm -rf "$diskless_dir"
 	fi
 done
@@ -111,12 +114,16 @@ RunSQL "UPDATE Device SET NeedConfigure = 1 WHERE FK_DeviceTemplate = '28'"
 
 # Rerun DisklessSetup
 /usr/pluto/bin/Diskless_Setup.sh
+
+# Fix kernel image symlinks and restore pluto.conf
 for diskless_dir in /usr/pluto/diskless/* ;do
 	if [[ -f "$diskless_dir/etc/pluto.conf" ]];then
 		rm -rf "$diskless_dir/boot/vmlinuz"
 		rm -rf "$diskless_dir/boot/initrd.img"
 		ln -s "$diskless_dir/boot/vmlinuz-2.6.22-14-generic" "$diskless_dir/boot/vmlinuz"
 		ln -s "$diskless_dir/boot/initrd.img-2.6.22-14-generic" "$diskless_dir/boot/initrd.img"
+
+		cp "/tmp/$diskless_dir/pluto.conf" "$diskless_dir/etc/pluto.conf"
 	fi
 done
 
