@@ -1,0 +1,21 @@
+Microsoft Visual Studio Solution File, Format Version 8.00
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "PlutoSwitcher", "PlutoSwitcher.vdproj", "{58044F30-0469-4B93-9310-3E0BE0012B31}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfiguration) = preSolution
+		Debug = Debug
+		Release = Release
+	EndGlobalSection
+	GlobalSection(ProjectConfiguration) = postSolution
+		{58044F30-0469-4B93-9310-3E0BE0012B31}.Debug.ActiveCfg = Debug
+		{58044F30-0469-4B93-9310-3E0BE0012B31}.Debug.Build.0 = Debug
+		{58044F30-0469-4B93-9310-3E0BE0012B31}.Release.ActiveCfg = Release
+		{58044F30-0469-4B93-9310-3E0BE0012B31}.Release.Build.0 = Release
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal
