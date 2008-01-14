@@ -7,7 +7,7 @@ MythPkg=(
 
 VDRPkg=(
 	lmcevdr libxine-xvdr vdr vdr-dev vdr-plugin-control vdr-plugin-xineliboutput
-	libxineliboutput-sxfe xineliboutput-sxfe
+	libxineliboutput-sxfe xineliboutput-sxfe pluto-vdr pluto-vdr-plugin
 )
 
 RemovePkg()
