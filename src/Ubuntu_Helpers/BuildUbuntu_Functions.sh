@@ -19,12 +19,12 @@ fi
 svn_dir="${build_dir}/svn"
 svn_url="http://svn.linuxmce.com/"
 
-sql_master_host="10.0.2.4"
+sql_master_host="sqlcvs.plutohome.com"
 sql_master_db="pluto_main"
 sql_master_db_media="pluto_media"
 sql_master_db_security="pluto_security"
 sql_master_db_telecom="pluto_telecom"
-sql_master_user="root"
+sql_master_user="builder"
 
 sql_slave_host="127.0.0.1"
 sql_slave_db="pluto_main_build"
@@ -574,25 +574,13 @@ function Import_Build_Database {
 	local temp_file_security=$(mktemp)
 	local temp_file_telecom=$(mktemp)
 
-	## Import sqlcvs repositories from plutohome.com
-	ssh -i /root/.ssh/uploads_plutohome_key uploads@plutohome.com "
-                set -x;
-                rm -f /tmp/main_sqlcvs.dump /tmp/myth_sqlcvs /home/uploads/sqlcvs_dumps.tar.gz;
-                mysqldump --quote-names --allow-keywords --add-drop-table -u root -pmoscow70bogata main_sqlcvs > /tmp/main_sqlcvs.dump;
-                mysqldump --quote-names --allow-keywords --add-drop-table -u root -pmoscow70bogata myth_sqlcvs > /tmp/myth_sqlcvs.dump;
-                cd /tmp;
-                tar zcvf /home/uploads/sqlcvs_dumps.tar.gz main_sqlcvs.dump myth_sqlcvs.dump"
-        scp -i /root/.ssh/uploads_plutohome_key uploads@plutohome.com:/home/uploads/sqlcvs_dumps.tar.gz $temp_sqlcvsdir
-        pushd $temp_sqlcvsdir
-	        tar zxvf sqlcvs_dumps.tar.gz
-		mv main_sqlcvs.dump $temp_file_main
-		mv myth_sqlcvs.dump $temp_file_myth 
-	popd
-	## Import other databases from 150
-	mysqldump -h $sql_master_host -u $sql_master_user $sql_master_db > $temp_file        
-	mysqldump -h $sql_master_host -u $sql_master_user $sql_master_db_media > $temp_file_media
-	mysqldump -h $sql_master_host -u $sql_master_user $sql_master_db_security > $temp_file_security
-	mysqldump -h $sql_master_host -u $sql_master_user $sql_master_db_telecom > $temp_file_telecom
+	## Import other databases
+	mysqldump --compress -h $sql_master_host -u $sql_master_user 'main_sqlcvs' > $temp_file_main
+	mysqldump --compress -h $sql_master_host -u $sql_master_user 'myth_sqlcvs' > $temp_file_myth
+	mysqldump --compress -h '10.0.2.4' -u 'root' 'pluto_main' > $temp_file        
+	mysqldump --compress -h $sql_master_host -u $sql_master_user $sql_master_db_media > $temp_file_media
+	mysqldump --compress -h $sql_master_host -u $sql_master_user $sql_master_db_security > $temp_file_security
+	mysqldump --compress -h $sql_master_host -u $sql_master_user $sql_master_db_telecom > $temp_file_telecom
 
 	export LD_LIBRARY_PATH="$mkr_dir:${svn_dir}/trunk/src/lib"
 	MakeRelease_PrepFiles="${mkr_dir}/MakeRelease_PrepFiles"
