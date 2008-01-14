@@ -259,16 +259,17 @@ CREATE TABLE IF NOT EXISTS `cronmanager` (
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 ALTER TABLE incoming ADD channel VARCHAR( 20 ) DEFAULT "";
+ALTER TABLE incoming ADD mohclass VARCHAR ( 80 ) DEFAULT "default";
+ALTER TABLE incoming ADD description VARCHAR ( 80 ) NULL;
+ALTER TABLE incoming ADD alertinfo VARCHAR( 255 ) NULL;
+ALTER TABLE incoming ADD ringing VARCHAR ( 20 ) NULL;
+ALTER TABLE incoming ADD grppre VARCHAR ( 80 ) NULL;
 ALTER TABLE users ADD directdid VARCHAR( 50 ) NULL;
 ALTER TABLE users ADD didalert VARCHAR( 50 ) NULL;
 ALTER TABLE users ADD mohclass VARCHAR ( 80 ) DEFAULT "default";
-ALTER TABLE incoming ADD mohclass VARCHAR ( 80 ) DEFAULT "default";
 ALTER TABLE users ADD faxexten VARCHAR ( 20 ) NULL;
 ALTER TABLE users ADD faxemail VARCHAR ( 50 ) NULL;
 ALTER TABLE users ADD answer TINYINT ( 1 ) NULL;
 ALTER TABLE users ADD wait INT ( 2 ) NULL;
 ALTER TABLE users ADD privacyman TINYINT ( 1 ) NULL;
-ALTER TABLE incoming ADD description VARCHAR ( 80 ) NULL;
-ALTER TABLE incoming ADD alertinfo VARCHAR( 255 ) NULL;
-ALTER TABLE incoming ADD ringing VARCHAR ( 20 ) NULL;
-ALTER TABLE incoming ADD grppre VARCHAR ( 80 ) NULL;
+ALTER TABLE users ADD sipname VARCHAR ( 50 ) NULL;
