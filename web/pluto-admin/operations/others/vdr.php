@@ -119,6 +119,9 @@ function vdr($output,$dbADO) {
 					<td></td>
 				</tr>			
 				<tr>
+					<td colspan="2">'.$TEXT_UPLOAD_FILE_INFO_CONST.'</td>
+				</tr>			
+				<tr>
 					<td><b>'.$TEXT_UPLOAD_CUSTOM_FILE_CONST.'</b></td>
 					<td><input type="file" name="cfg_file" value=""> <input type="submit" class="button" name="upload" value="'.$TEXT_UPLOAD_CONST.'"></td>
 				</tr>			
