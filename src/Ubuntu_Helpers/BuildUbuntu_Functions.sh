@@ -17,7 +17,7 @@ if [[ $build_dir == "" || $local_mirror_dir == "" ]] ;then
 fi
 
 svn_dir="${build_dir}/svn"
-svn_url="http://10.0.2.4/"
+svn_url="http://svn.linuxmce.com/"
 
 sql_master_host="10.0.2.4"
 sql_master_db="pluto_main"
@@ -77,7 +77,7 @@ function WaitDisklessImage {
 function CopyCrossoverDebcache {
 
 	local arch="$1"
-	local sync_pkgs="pluto-bluetooth-dongle pluto-cm11a pluto-eib pluto-gc100 pluto-generic-serial-device pluto-hdhomerun pluto-irbase pluto-irtrans-wrapper pluto-libbd pluto-lirc-wrapper pluto-messagetrans pluto-motion-wrapper pluto-msiml-disp-butt pluto-nvidia-video-drivers pluto-powerfile-c200 pluto-proxy-orbiter pluto-text-to-speech pluto-tira-wrapper pluto-usb-uirt-0038 pluto-vdr pluto-vipshared pluto-wavetrend-reader pluto-zwave-lighting mtx-pluto nvidia-glx lirc-pluto lirc-modules-2.6.22-14-generic id-my-disc"
+	local sync_pkgs="pluto-bluetooth-dongle pluto-cm11a pluto-eib pluto-gc100 pluto-generic-serial-device pluto-hdhomerun pluto-irbase pluto-irtrans-wrapper pluto-libbd pluto-lirc-wrapper pluto-messagetrans pluto-motion-wrapper pluto-msiml-disp-butt pluto-nvidia-video-drivers pluto-powerfile-c200 pluto-proxy-orbiter pluto-text-to-speech pluto-tira-wrapper pluto-usb-uirt-0038 pluto-vdr pluto-vipshared pluto-wavetrend-reader pluto-zwave-lighting mtx-pluto nvidia-glx lirc-pluto lirc-modules-2.6.22-14-generic id-my-disc linux-restricted-modules-2.6.22-14-generic"
 
 
 	local pkg
@@ -392,6 +392,15 @@ function Build_Pluto_Replacements {
 		popd
 	fi
 	
+	#Package: lirc
+	dir_="${svn_dir}"/trunk/ubuntu/lirc-0.8.2+lmce
+	if ReplacementNeedsBuild "$dir_" ;then
+		pushd "$dir_"
+		dpkg-buildpackage -rfakeroot -us -uc -b
+		cp ../lirc_*.deb "${temp_dir}"
+		popd
+	fi
+	
 	#Package: mce-launcher
 	dir_="${svn_dir}"/trunk/src/mce-launcher
 	if ReplacementNeedsBuild "$dir_" ;then
@@ -433,7 +442,7 @@ function Build_Pluto_Replacements {
 		scp  pluto@10.0.2.4:/home/samba/repositories/replacements-common/libflickr-api-perl_1_all.deb ./
 		scp  pluto@10.0.2.4:/home/samba/repositories/replacements-common/libxml-parser-lite-tree-perl_1_all.deb ./
 		scp  pluto@10.0.2.4:/home/samba/repositories/replacements-common/asterisk-perl_0.08-1_all.deb ./
-		scp  pluto@10.0.2.4:/home/samba/repositories/replacements-common/pluto-avwizard-sounds_1.0-1_all.deb ./
+#		scp  pluto@10.0.2.4:/home/samba/repositories/replacements-common/pluto-avwizard-sounds_1.0-1_all.deb ./
 		scp  pluto@10.0.2.4:/home/samba/repositories/replacements-common/msttcorefonts_2.2pluto1_all.deb ./
 	popd 
 
