@@ -141,6 +141,9 @@ done
 # Put kdm startup script back
 mv /etc/init.d/kdm{.backup-upgrade,} || :
 
+# Get asterisk to start at boot
+update-rc.d asterisk defaults 21 >/dev/null
+
 ## Remove old 0704 updates
 rm -rf /home/updates/*
 
