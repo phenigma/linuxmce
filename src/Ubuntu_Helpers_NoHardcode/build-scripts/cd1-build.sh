@@ -18,7 +18,7 @@ mkdir -p ${temp_dir}/deb-cache
 
 # Copy the debs that where created in local_mirror_dir on this cd
 DisplayMessage "Copy packages from the local repository"
-find "$local_mirror_dir" -maxdepth 1 -type f -name '*.deb' -print0 | xargs -0 -i -t cp '{}' "${temp_dir}/deb-cache"
+find "$local_mirror_dir" -follow -maxdepth 1 -type f -name '*.deb' -print0 | xargs -0 -i -t cp '{}' "${temp_dir}/deb-cache"
 
 # Remove blacklisted packages from this cd
 DisplayMessage "Remove package thare are on the repository but should not be on CD"
