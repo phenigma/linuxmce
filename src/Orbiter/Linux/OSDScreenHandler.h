@@ -150,8 +150,9 @@ public:
 	bool SpeedControlDelete(CallBackData *pData);
 	bool SpeedControlCustomRender(CallBackData *pData);
 
-	// Floorplan
+	// pvr
 	virtual void SCREEN_PVR_Remote(long PK_Screen);
+	virtual void SCREEN_PVR_Software(long PK_Screen);
 	bool PVRSoftware_ObjectSelected(CallBackData *pData);
 
 	// House Setup Done

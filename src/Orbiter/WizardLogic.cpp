@@ -1150,7 +1150,8 @@ void WizardLogic::SetPVRSoftware(char PVRSoftware)
 		}
 	}
 
-	string sParms = PVRSoftware=='V' ? "vdr" : "mythtv";
+	//what to remove ?
+	string sParms = PVRSoftware!='V' ? "vdr" : "mythtv";
 
 	if(NULL != pDevice_Core)
 	{
@@ -1160,7 +1161,6 @@ void WizardLogic::SetPVRSoftware(char PVRSoftware)
 		{
 			DCE::CMD_Spawn_Application CMD_Spawn_Application(m_pOrbiter->m_dwPK_Device,pDevice_AppServer->m_dwPK_Device,
 				"/usr/pluto/bin/remove_pvr_packages.sh","remove_pvr_packages",sParms,"","",false,false,false,true);
-			CMD_Spawn_Application.m_pMessage->m_eRetry=MR_Persist;
 			m_pOrbiter->SendCommand(CMD_Spawn_Application);
 		}
 	}
