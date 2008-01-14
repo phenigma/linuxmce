@@ -168,7 +168,7 @@ namespace sqlCVS
 				p_vectRestrictions=&m_vectRestrictions;
 
 			if( p_vectRestrictions->size()==0 )
-				return "(" + sTableName + ".psc_restrict IS NULL OR " + sTableName + ".psc_restrict=0)";
+				return "(`" + sTableName + "`.psc_restrict IS NULL OR `" + sTableName + "`.psc_restrict=0)";
 
 			string sResult;
 			bool bIncludeNoRestriction=false;
@@ -181,12 +181,12 @@ namespace sqlCVS
 			}
 
 			if( sResult.size() )
-				sResult = "(" + sTableName + ".psc_restrict in (" + sResult + ")";
+				sResult = "(`" + sTableName + "`.psc_restrict in (" + sResult + ")";
 
 			if( bIncludeNoRestriction && sResult.size() )
-				sResult += " OR " + sTableName + ".psc_restrict IS NULL OR " + sTableName + ".psc_restrict=0)";
+				sResult += " OR `" + sTableName + "`.psc_restrict IS NULL OR `" + sTableName + "`.psc_restrict=0)";
 			else if( bIncludeNoRestriction )
-				sResult += "(" + sTableName + ".psc_restrict IS NULL OR " + sTableName + ".psc_restrict=0)";
+				sResult += "(`" + sTableName + "`.psc_restrict IS NULL OR `" + sTableName + "`.psc_restrict=0)";
 			else
 				sResult += ")";
 
