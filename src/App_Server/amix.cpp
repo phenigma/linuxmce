@@ -162,11 +162,8 @@ void MasterMix::CloseMixerHandle()
 void MasterMix::GetMasterMixerElem()
 {
 	if (! m_bUsable)
-	{
-		m_MixerHandle = NULL;
 		return;
-	}
-
+	
 	/*
 	snd_mixer_t *handle;
 	*/
@@ -175,6 +172,7 @@ void MasterMix::GetMasterMixerElem()
 	snd_mixer_selem_id_alloca(&sid);
 
 	// find our mixer (Master/Front)
+	m_MixerElem = NULL;
 	for (elem = snd_mixer_first_elem(m_MixerHandle); elem; elem = snd_mixer_elem_next(elem))
 	{
 		snd_mixer_selem_get_id(elem, sid);
@@ -184,5 +182,11 @@ void MasterMix::GetMasterMixerElem()
 			m_MixerElem = elem;
 			break;
 		}
+	}
+	
+	if (m_MixerElem == NULL)
+	{
+		error("No suitable volume mixer found");
+		CloseMixerHandle();
 	}
 }
