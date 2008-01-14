@@ -11,38 +11,7 @@ function phoneLines($output,$astADO,$dbADO) {
 	$out='';
 	$action = (isset($_REQUEST['action']) && $_REQUEST['action']!='')?cleanString($_REQUEST['action']):'form';
 	$installationID = (int)@$_SESSION['installationID'];
-	$providerData=array();
-	$providerData['freeworddialup (free only)']['url']='http://www.freeworlddialup.com/';
-	$providerData['freeworddialup (free only)']['script_parm']='freeworlddialup';
-	$providerData['freeworddialup (free only)']['keyword']='freeworddialup';
-	
-	$providerData['sipgate (try for free, pay as you go)']['url']='http://www.sipgate.co.uk/';
-	$providerData['sipgate (try for free, pay as you go)']['script_parm']='sipgate';
-	$providerData['sipgate (try for free, pay as you go)']['keyword']='sipgate';
-	
-	$providerData['inphonex (try for free, pay as you go)']['url']='http://www.inphonex.com/';
-	$providerData['inphonex (try for free, pay as you go)']['script_parm']='inphonex';
-	$providerData['inphonex (try for free, pay as you go)']['keyword']='inphonex';
-	
-	$providerData['e-fon (Switzerland)']['url']='http://www.e-fon.ch/';
-	$providerData['e-fon (Switzerland)']['script_parm']='efon';
-	$providerData['e-fon (Switzerland)']['keyword']='efon';
-
-	$providerData['broadvoice (US number, free incoming)']['url']='http://www.broadvoice.com/';
-	$providerData['broadvoice (US number, free incoming)']['script_parm']='broadvoice';
-	$providerData['broadvoice (US number, free incoming)']['keyword']='broadvoice';
-
-	$providerData['teliax (US number, pay incoming)']['url']='http://www.teliax.com/';
-	$providerData['teliax (US number, pay incoming)']['script_parm']='teliax';
-	$providerData['teliax (US number, pay incoming)']['keyword']='teliax-out';
-
-	$providerData['NuFone']['url']='http://www.nufone.net/';
-	$providerData['NuFone']['script_parm']='nufone';
-	$providerData['NuFone']['keyword']='nufone-out';
-
-	$providerData['VoiceEclipse']['url']='http://www.voiceeclipse.com/';
-	$providerData['VoiceEclipse']['script_parm']='voiceeclipse';
-	$providerData['VoiceEclipse']['keyword']='voiceeclipse';
+	$providerData=get_available_providers();
 	
 	$keywords=array();
 	foreach ($providerData AS $prID=>$providerArray){
@@ -66,7 +35,7 @@ function phoneLines($output,$astADO,$dbADO) {
 		
 	if(isset($provider)){
 		$providerUrl=@$providerData[@$_REQUEST['provider']]['url'];
-		$providerScript='create_amp_phoneline.sh '.@$providerData[@$_REQUEST['provider']]['script_parm'];
+		$providerScript='create_amp_phoneline.sh '.@$providerData[@$_REQUEST['provider']]['keyword'];
 		$userBox='
 		<input type="hidden" name="editedID" value="'.@$editedID.'">
 		<input type="hidden" name="edited_type" value="'.@$_REQUEST['type'].'">
@@ -268,7 +237,7 @@ function phoneLinesTable($astADO){
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/phoneLines.lang.php');
 	
 	$phoneState=getPhonesState();
-	
+
 	$GLOBALS['count']=0;
 	$res=$astADO->Execute("
 		SELECT sip.id,sip.data,sips.data AS sdata, sipp.data AS pdata,siph.data AS hdata 
@@ -290,7 +259,7 @@ function phoneLinesTable($astADO){
 			<td align="center"><B>'.$TEXT_ACTION_CONST.'</B></td>
 		</tr>	';
 	while($row=$res->FetchRow()){
-		$incomingData=array_values(getAssocArray('incoming','destination','extension',$astADO,'WHERE destination=\'from-pluto-custom,10'.substr($row['id'],-1).',1\''));
+		$incomingData=array_values(getAssocArray('incoming','destination','extension',$astADO,'WHERE destination=\'custom-linuxmce,10'.substr($row['id'],-1).',1\''));
 		$phoneNumber=@$incomingData[0];
 	
 		$GLOBALS['count']++;
@@ -320,7 +289,7 @@ function phoneLinesTable($astADO){
 		INNER JOIN iax iaxh ON (iaxh.id=iax.id) AND (iaxh.keyword='host')
 		WHERE (iax.keyword='account') AND ((iax.data='fwd') OR (iax.data='teliax-out') OR (iax.data='efon') OR (iax.data='nufone-out') OR (iax.data='freeworddialup'))");
 	while($row=$res->FetchRow()){
-		$incomingData=array_values(getAssocArray('incoming','destination','extension',$astADO,'WHERE destination=\'from-pluto-custom,10'.substr($row['id'],-1).',1\''));
+		$incomingData=array_values(getAssocArray('incoming','destination','extension',$astADO,'WHERE destination=\'custom-linuxmce,10'.substr($row['id'],-1).',1\''));
 		$phoneNumber=@$incomingData[0];
 
 		$GLOBALS['count']++;
@@ -413,7 +382,7 @@ function getPLDetails($id,$type,$astADO){
 	$data['Data']=$row['data'];
 	$data['Host']=$row['hdata'];
 	
-	$incomingID='from-pluto-custom,10'.substr($id,-1).',1';
+	$incomingID='custom-linuxmce,10'.substr($id,-1).',1';
 	$incomingData=array_values(getAssocArray('incoming','destination','extension',$astADO,'WHERE destination=\''.$incomingID.'\''));
 	$data['PhoneNumber']=@$incomingData[0];
 	
@@ -581,4 +550,57 @@ function activate_manualconfig_form(){
 	return $out;
 }
 
+function get_available_providers(){
+	/*
+	$providerData['freeworddialup (free only)']['url']='http://www.freeworlddialup.com/';
+	$providerData['freeworddialup (free only)']['script_parm']='freeworlddialup';
+	$providerData['freeworddialup (free only)']['keyword']='freeworddialup';
+	
+	$providerData['sipgate (try for free, pay as you go)']['url']='http://www.sipgate.co.uk/';
+	$providerData['sipgate (try for free, pay as you go)']['script_parm']='sipgate';
+	$providerData['sipgate (try for free, pay as you go)']['keyword']='sipgate';
+	
+	$providerData['inphonex (try for free, pay as you go)']['url']='http://www.inphonex.com/';
+	$providerData['inphonex (try for free, pay as you go)']['script_parm']='inphonex';
+	$providerData['inphonex (try for free, pay as you go)']['keyword']='inphonex';
+	
+	$providerData['e-fon (Switzerland)']['url']='http://www.e-fon.ch/';
+	$providerData['e-fon (Switzerland)']['script_parm']='efon';
+	$providerData['e-fon (Switzerland)']['keyword']='efon';
+
+	$providerData['broadvoice (US number, free incoming)']['url']='http://www.broadvoice.com/';
+	$providerData['broadvoice (US number, free incoming)']['script_parm']='broadvoice';
+	$providerData['broadvoice (US number, free incoming)']['keyword']='broadvoice';
+
+	$providerData['teliax (US number, pay incoming)']['url']='http://www.teliax.com/';
+	$providerData['teliax (US number, pay incoming)']['script_parm']='teliax';
+	$providerData['teliax (US number, pay incoming)']['keyword']='teliax-out';
+
+	$providerData['NuFone']['url']='http://www.nufone.net/';
+	$providerData['NuFone']['script_parm']='nufone';
+	$providerData['NuFone']['keyword']='nufone-out';
+
+	$providerData['VoiceEclipse']['url']='http://www.voiceeclipse.com/';
+	$providerData['VoiceEclipse']['script_parm']='voiceeclipse';
+	$providerData['VoiceEclipse']['keyword']='voiceeclipse';
+
+	*/
+	
+	// file format: [provider name]\t[url]\t[keyword]
+	$providerData=array();
+	$confFile=file('/etc/asterisk/provider_list.txt');
+	
+	if(count($confFile)==0){
+		return $providerData;
+	}
+	
+	foreach ($confFile AS $line){
+		$parts=explode("\t",$line);
+		
+		$providerData[$parts[0]]['url']=trim($parts[1]);
+		$providerData[$parts[0]]['keyword']=trim($parts[2]);
+	}
+	
+	return $providerData;
+}
 ?>
