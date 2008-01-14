@@ -21,6 +21,11 @@ RemovePkg()
 
 Selection="$1"
 
+. /usr/pluto/bin/LockUtils.sh
+
+trap 'Unlock "CDC" "remove_pvr_packages"' EXIT
+WaitLock "CDC" "remove_pvr_packages" # don't run in paralel with CDC
+
 case "$Selection" in
 	mythtv)
 		RemovePkg "${MythPkg[@]}"
