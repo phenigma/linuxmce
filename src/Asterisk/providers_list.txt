@@ -1,0 +1,8 @@
+freeworddialup (free only)	http://www.freeworlddialup.com	freeworddialup
+sipgate (try for free, pay as you go)	http://www.sipgate.co.uk/	sipgate
+inphonex (try for free, pay as you go)	http://www.inphonex.com	inphonex
+e-fon (Switzerland)	http://www.e-fon.ch/	efon
+broadvoice (US number, free incoming)	http://www.broadvoice.com	broadvoice
+teliax (US number, pay incoming)	http://www.teliax.com/	teliax-out
+NuFone	http://www.nufone.net	nufone-out
+VoiceEclipse	http://www.voiceeclipse.com/	voiceeclipse
