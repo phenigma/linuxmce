@@ -269,3 +269,6 @@ ALTER TABLE users ADD answer TINYINT ( 1 ) NULL;
 ALTER TABLE users ADD wait INT ( 2 ) NULL;
 ALTER TABLE users ADD privacyman TINYINT ( 1 ) NULL;
 ALTER TABLE incoming ADD description VARCHAR ( 80 ) NULL;
+ALTER TABLE incoming ADD alertinfo VARCHAR( 255 ) NULL;
+ALTER TABLE incoming ADD ringing VARCHAR ( 20 ) NULL;
+ALTER TABLE incoming ADD grppre VARCHAR ( 80 ) NULL;
