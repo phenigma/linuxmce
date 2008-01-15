@@ -68,4 +68,8 @@ if [[ -f /etc/pluto/install_cleandb ]]; then
 
 		RunSQL "DELETE FROM Device WHERE PK_Device = '$DiskDrive_DeviceID' LIMIT 1"
 	done
+
+	Q="SELECT PK_Device FROM Devices"
+	Devices=$(RunSQL "$Q")
+	/usr/pluto/bin/sync_pluto2amp.pl $Devices
 fi
