@@ -61,7 +61,7 @@ foreach my $I (sort keys %DEVICES)
     &read_pluto_device_data();
     if($STATUS == -1)
     {
-        &writelog("Will delete device #$DEVICE_ID\n");
+        &writelog("Will delete device #$DEVICE_ID from FreePBX\n");
         &remove_from_asterisk_db();
     }
     else
