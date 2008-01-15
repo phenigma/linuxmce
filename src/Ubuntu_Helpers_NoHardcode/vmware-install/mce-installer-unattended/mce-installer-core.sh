@@ -3,6 +3,7 @@
 echo > /var/log/messages
 echo > /var/log/syslog
 dhclient eth0
+sleep 10
 ntpdate ntp.ubuntu.com
 
 . ./mce-installer-common.sh
@@ -16,6 +17,7 @@ exec &> >(tee $InstallerLogFile)
 echo "--- start mce wizard data ---" 
 cat /tmp/mce_wizard_data.sh 
 echo "--- end mce wizard data ---"
+echo "Date : $(date -R)"
 
 function FakeUpdates {
 	mkdir -p /home/update
