@@ -1705,6 +1705,10 @@ const char *Xine_Stream::TranslateLanguage( const char *abbreviation )
 		return "Deutsch";
 	else if ( strcmp( pAbbreviation, "fr" ) == 0 )
 		return "Francais";
+	else if ( strcmp( pAbbreviation, "ru" ) == 0 )
+		return "Russian";
+	else if ( strcmp( pAbbreviation, "ro" ) == 0 )
+		return "Romanian";
 
 	return pAbbreviation;
 }
