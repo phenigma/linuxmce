@@ -16,7 +16,7 @@ if [[ "$1" == configure ]]; then
 	RunSQL "CREATE DATABASE IF NOT EXISTS asterisk"
 
 	# create/update asterisk database schema
-	if [[ -z "$(RunSQL "USE asterisk; DESC notifications")" ]]; then
+	if [[ -z "$(RunSQL "USE asterisk; SHOW TABLES")" ]]; then
 		mysql -f -h "$MySqlHost" -u "$MySqlUser" $PassParm asterisk </var/lib/freepbx/SQL/newinstall.sql
 	else
 		mysql -f -h "$MySqlHost" -u "$MySqlUser" $PassParm asterisk </var/lib/freepbx/SQL/upgradedb.sql
