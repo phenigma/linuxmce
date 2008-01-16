@@ -1,6 +1,6 @@
 #!/bin/bash
 
-URL_UPGRADE="http://10.0.2.1/"
+URL_UPGRADE="ftp://upgrade.linuxmce.com/Upgrade/"
 
 if [[ "$1" != "background" ]] ;then
 	screen -d -m -S Upgrade_Download "$0" background
@@ -24,13 +24,13 @@ fi
 
 #TODO: Implement download / unpack
 wget --directory-prefix=/var/gutsy-upgrade-scripts/ --continue --tries=5 --timeout=5  --output-file=/var/gutsy-upgrade-scripts/download.log \
-	"$URL_UPGRADE/upgrade.tar.gz" || exit 1
+	"$URL_UPGRADE/upgrade-0704-to-0710.tar.gz" || exit 1
 
 pushd /var/gutsy-upgrade-scripts/
-	tar zxf upgrade.tar.gz
+	tar zxf upgrade-0704-to-0710.tar.gz
 	mv deb-cache-new/	/usr/pluto/		|| exit 1
 	mv diskless-images/*    /usr/pluto/install/	|| exit 1
-	rm -f upgrade.tar.gz
+	rm -f upgrade-0704-to-0710.tar.gz
 popd
 
 touch /var/gutsy-upgrade-scripts/upgrade-ready
