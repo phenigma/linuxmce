@@ -7,4 +7,6 @@ teliax (US number, pay incoming)	http://www.teliax.com/	teliax
 NuFone	http://www.nufone.net	nufone
 VoiceEclipse	http://www.voiceeclipse.com/	voiceeclipse
 Gradwell	http://www.gradwell.com/	sipgradwell
+Xs4all	http://www.xs4all.nl/	xs4all
+Viatalk (US Central)	http://www.viatalk.com/	viatalk_us-central
 
