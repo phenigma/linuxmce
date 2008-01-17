@@ -595,11 +595,14 @@ function get_available_providers(){
 	}
 	
 	foreach ($confFile AS $line){
-		$parts=explode("\t",$line);
-		
-		$providerData[$parts[0]]['url']=trim($parts[1]);
-		$providerData[$parts[0]]['keyword']=trim($parts[2]);
+		if(trim($line)!=''){
+			$parts=explode("\t",$line);
+			
+			$providerData[$parts[0]]['url']=trim($parts[1]);
+			$providerData[$parts[0]]['keyword']=trim($parts[2]);
+		}
 	}
+	asort($providerData);
 	
 	return $providerData;
 }
