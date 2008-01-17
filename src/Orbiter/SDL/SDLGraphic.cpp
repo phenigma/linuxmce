@@ -88,16 +88,8 @@ void SDLGraphic::Initialize()
 bool SDLGraphic::LoadGraphic(char *pData, size_t iSize,int iRotation)
 {
 	if(m_GraphicFormat == GR_OCG)
-	{
-		string sErrorMessage = 
-			"Cannot load OCG files in Orbiter SDL. "
-			"Please uncheck 'Use OCG' device data for this device (" + 
-				StringUtils::ltos(m_pOrbiterRenderer->OrbiterLogic()->m_dwPK_Device) + ").";
-
-        LoggerWrapper::GetInstance()->Write(LV_CRITICAL, sErrorMessage.c_str());
-		m_pOrbiterRenderer->PromptUser(sErrorMessage.c_str(), 100);
-        exit(1);
-		return false;
+	{	
+		m_pSDL_Surface = SDL_LoadOCG(pData, iSize);
 	}
 	else
 	{

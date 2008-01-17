@@ -36,6 +36,7 @@
 #include "PlutoUtils/PlutoDefs.h"
 #include "PlutoUtils/FileUtils.h"
 #include "../SDL_Helpers/SDL_Defs.h"
+#include "../SDL_Helpers/SDL_pixel.h"
 #include "../SerializeClass/ShapesColors.h"
 #include "../DCE/Logger.h"
 using namespace DCE;
@@ -66,15 +67,17 @@ SDL_Surface* SDL_LoadOCG(char *pOCGData, int iOCGDataSize)
 
 	if(pRendererOCG->GetSurface(pPixelsData, iPixelsDataSize, pPixelFormatData, iPixelFormatDataSize, iWidth, iHeigth))
 	{
-		pSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, iWidth, iHeigth, 32, rmask, gmask, bmask, amask);
+		pSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, iWidth, iHeigth, 16, 31 << 0,  31 << 5, 31 << 10, 0);
 
-		delete (char *)pSurface->pixels;
-		pSurface->pixels = new char[iPixelsDataSize];
-		memcpy((char *)pSurface->pixels, pPixelsData, iPixelsDataSize);
-
-		delete (SDL_PixelFormat *)pSurface->format;
-		pSurface->format = (SDL_PixelFormat *)(new char[iPixelFormatDataSize]);
-		memcpy((char *)pSurface->format, pPixelFormatData, iPixelFormatDataSize);
+		Uint16 Pixel = 0;
+		for (int j = 0; j < iHeigth; j++)
+		{
+			for (int i = 0; i < iWidth; i++)
+			{
+				Pixel = ((Uint16 *)pPixelsData)[i + j * iWidth];
+				putpixel(pSurface, i, j, Pixel);
+			}
+		}
 	}
 
 	PLUTO_SAFE_DELETE(pRendererOCG);
