@@ -160,6 +160,8 @@ namespace DCE
                         void UpdateTitleChapterInfo();
 
 		private:
+			vector<string> m_SubtitlesExtensions;
+			
 			int m_iSpecialSeekSpeed;
 			int m_iSpecialOneTimeSeek;
 			int m_iTrickPlaySpeed;

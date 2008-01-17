@@ -199,6 +199,15 @@ Xine_Stream::Xine_Stream(Xine_Stream_Factory* pFactory, xine_t *pXineLibrary, in
 	
 	m_pDynamic_Pointer = NULL;
 	
+	// possible extensions of subtitles
+	m_SubtitlesExtensions.push_back("asc");
+	m_SubtitlesExtensions.push_back("txt");
+	m_SubtitlesExtensions.push_back("sub");
+	m_SubtitlesExtensions.push_back("srt");
+	m_SubtitlesExtensions.push_back("smi");
+	m_SubtitlesExtensions.push_back("ssa");
+
+	
 	if (!bBroadcastOnly)
 	{
 		m_sWindowTitle = "pluto-xine-playback-window";
@@ -581,9 +590,24 @@ bool Xine_Stream::OpenMedia(string fileName, string &sMediaInfo, string sMediaPo
 	
 	if (!mediaOpened)
 	{
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Opening media without chapters/title position: %s ", fileName.c_str() );
+		// detecting external subtitles file if present
+		// TODO support multiple external subtitles files 
+		// TODO allow manage subtitles via UI, and store last used subtitles
+		string sSubtitlesSuffix;
+		
+		for (vector<string>::iterator it=m_SubtitlesExtensions.begin(); it!=m_SubtitlesExtensions.end(); ++it)
+		{
+			if (FileUtils::FileExists(fileName + "." + *it))
+			{
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Found subtitles file: %s ", (fileName + "." + *it).c_str() );
+				sSubtitlesSuffix = "#subtitle:" + fileName + "." + *it;
+				break;
+			}
+		}
+		
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Opening media without chapters/title position: %s ", fileName.c_str() );		
 		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
-		mediaOpened = xine_open( m_pXineStream, fileName.c_str() );
+		mediaOpened = xine_open( m_pXineStream, (fileName+sSubtitlesSuffix).c_str() );
 		if (!mediaOpened)
 			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Opening media FAILED");
 	}
