@@ -25,7 +25,7 @@ function build_main_debs() {
 	#FIXME Hackozaurus for pluto-devel-dependencies
 	touch /home/README.Devel.Dependencies
 
-	#FIXME Hackozaurus fro ubuntu-diskless-tools
+	#FIXME Hackozaurus for ubuntu-diskless-tools
 	mkdir -p /home/DisklessFS/
 	cp "${diskless_dir}/PlutoMD_Debootstraped.tar.bz2" /home/DisklessFS
 
