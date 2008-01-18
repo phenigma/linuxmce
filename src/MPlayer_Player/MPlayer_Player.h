@@ -96,10 +96,14 @@ public:
 
 	/*
 			*****DATA***** accessors inherited from base class
+	string DATA_Get_Subtitles();
+	string DATA_Get_Audio_Tracks();
+	string DATA_Get_Angles();
 	string DATA_Get_Name();
 	int DATA_Get_Port();
 
 			*****EVENT***** accessors inherited from base class
+	void EVENT_Playback_Info_Changed(string sMediaDescription,string sSectionDescription,string sSynposisDescription);
 	void EVENT_Playback_Completed(string sMRL,int iStream_ID,bool bWith_Errors);
 	void EVENT_Playback_Started(string sMRL,int iStream_ID,string sSectionDescription,string sAudio,string sVideo);
 
