@@ -2183,20 +2183,20 @@ class DataGridTable *Telecom_Plugin::SpeedDialGrid(string GridID,string Parms,vo
 		{
 			int iPK_Users = atoi( mapParams[COMMANDPARAMETER_PK_Users_CONST].c_str() );
 			string sExt = mapParams[COMMANDPARAMETER_PhoneExtension_CONST];
-			int iFK_Device_From = atoi( mapParams[COMMANDPARAMETER_FK_Device_From_CONST].c_str() );
+			int iPK_Device_From = atoi( mapParams[COMMANDPARAMETER_PK_Device_From_CONST].c_str() );
 			int iPK_Device_To = atoi( mapParams[COMMANDPARAMETER_PK_Device_To_CONST].c_str() );
 			
-			if( !iFK_Device_From && pMessage != NULL )
+			if( !iPK_Device_From && pMessage != NULL )
 			{
-				iFK_Device_From = pMessage->m_dwPK_Device_From;
+				iPK_Device_From = pMessage->m_dwPK_Device_From;
 			}
 			
 			string text = desc + " (" + sExt + ")";
-			LoggerWrapper::GetInstance()->Write(LV_STATUS, "WILL SHOW  %s / %d", text.c_str(), iFK_Device_From);
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "WILL SHOW  %s / %d", text.c_str(), iPK_Device_From);
 			
 			pCell = new DataGridCell(text, "");
 			DCE::CMD_Make_Call 
-				CMD_Make_Call_(m_dwPK_Device, m_dwPK_Device, iPK_Users, sExt, iFK_Device_From, iPK_Device_To);
+				CMD_Make_Call_(m_dwPK_Device, m_dwPK_Device, iPK_Users, sExt, iPK_Device_From, iPK_Device_To);
 			pCell->m_pMessage = CMD_Make_Call_.m_pMessage;
 			pDataGrid->SetData(0, Row, pCell);
 			Row++;
@@ -2961,12 +2961,12 @@ void Telecom_Plugin::FollowMe_LeftRoom(int iPK_Event, int iPK_Orbiter, int iPK_D
 			/** The called user. Only one is supported now. */
 		/** @param #83 PhoneExtension */
 			/** The phone number to be called. */
-		/** @param #262 FK_Device_From */
+		/** @param #262 PK_Device_From */
 			/** The device which starts the call. */
 		/** @param #263 PK_Device_To */
 			/** The called device. */
 
-void Telecom_Plugin::CMD_Make_Call(int iPK_Users,string sPhoneExtension,int iFK_Device_From,int iPK_Device_To,string &sCMD_Result,Message *pMessage)
+void Telecom_Plugin::CMD_Make_Call(int iPK_Users,string sPhoneExtension,int iPK_Device_From,int iPK_Device_To,string &sCMD_Result,Message *pMessage)
 //<-dceag-c921-e->
 {
 	PLUTO_SAFETY_LOCK(vm, m_TelecomMutex);
@@ -2979,15 +2979,15 @@ void Telecom_Plugin::CMD_Make_Call(int iPK_Users,string sPhoneExtension,int iFK_
 		return;
 	}
 	
-	// If iFK_Device_From, then let's use the device_from from the message.
-	if( !iFK_Device_From )
+	// If iPK_Device_From, then let's use the device_from from the message.
+	if( !iPK_Device_From )
 	{
-		iFK_Device_From = pMessage->m_dwPK_Device_From;
+		iPK_Device_From = pMessage->m_dwPK_Device_From;
 	}
 	
-	if( !InternalMakeCall(iFK_Device_From, "", sPhoneNumber, pMessage) )
+	if( !InternalMakeCall(iPK_Device_From, "", sPhoneNumber, pMessage) )
 	{
-		sCMD_Result = "ERROR : Coudn't make a call from device " + StringUtils::itos(iFK_Device_From) + " to " + sPhoneNumber;
+		sCMD_Result = "ERROR : Coudn't make a call from device " + StringUtils::itos(iPK_Device_From) + " to " + sPhoneNumber;
 		return;
 	}
 }
@@ -3447,7 +3447,7 @@ The response is a task id */
 		/** @param #83 PhoneExtension */
 			/** Extension to transfer call to */
 		/** @param #87 PhoneCallID */
-			/** Phone call id to transfer  */
+			/** Phone call id to transfer */
 		/** @param #257 Task */
 			/** Task ID */
 		/** @param #264 Channel */
