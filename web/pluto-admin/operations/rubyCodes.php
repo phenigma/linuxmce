@@ -164,18 +164,12 @@ function rubyCodes($output,$dbADO,$mediaADO) {
 		
 	} else {
 		$time_start = getmicrotime();
-		//$dbADO->debug=true;
+		$dbADO->debug=true;
 		$existingCommands=array_keys(getAssocArray('InfraredGroup_Command','FK_Command','PK_InfraredGroup_Command',$dbADO,'WHERE FK_InfraredGroup='.$infraredGroupID));
 		
 		$newIRGroup=((int)@$_POST['irGroup']>0)?(int)$_POST['irGroup']:NULL;
 		$oldIRGroup=(int)$_POST['oldIRGroup'];
-		if($newIRGroup!=$oldIRGroup){
 
-			$dbADO->Execute('UPDATE DeviceTemplate SET FK_InfraredGroup=? WHERE PK_DeviceTemplate=?',array($newIRGroup,$dtID));
-
-			header("Location: index.php?section=rubyCodes&from=$from&dtID=$dtID&deviceID=$deviceID&infraredGroupID=$newIRGroup&msg=$TEXT_IR_GROUP_CHANGED_FOR_SELECTED_DEVICE_TEMPLATE_CONST&label=".$GLOBALS['label']);
-			exit();
-		}
 		
 		if(isset($_POST['irgroup_command']) && (int)$_POST['irgroup_command']>0){
 			$irg_c=(int)$_POST['irgroup_command'];
@@ -193,6 +187,14 @@ function rubyCodes($output,$dbADO,$mediaADO) {
 		}
 		
 		if(isset($_POST['update']) && isset($_SESSION['userID'])){
+			if($newIRGroup!=$oldIRGroup){
+	
+				$dbADO->Execute('UPDATE DeviceTemplate SET FK_InfraredGroup=? WHERE PK_DeviceTemplate=?',array($newIRGroup,$dtID));
+	
+				header("Location: index.php?section=rubyCodes&from=$from&dtID=$dtID&deviceID=$deviceID&infraredGroupID=$newIRGroup&msg=$TEXT_IR_GROUP_CHANGED_FOR_SELECTED_DEVICE_TEMPLATE_CONST&label=".$GLOBALS['label']);
+				exit();
+			}			
+			
 			$displayedCommands=explode(',',$_POST['displayedCommands']);
 			$infraredGroupID=($infraredGroupID==0)?NULL:$infraredGroupID;
 
