@@ -38,7 +38,7 @@ function Build_Package {
 	mkdir -p $out_dir
 
 	#-b
-	$MakeRelease -h $sql_slave_host -u $sql_slave_user -O $out_dir -D $sql_slave_db -a -o 14 -r 21 -m 1 -k "$Package_ID" -s "${svn_dir}/trunk" -n /
+	$MakeRelease -h $sql_slave_host -u $sql_slave_user -O $out_dir -D $sql_slave_db -a -o 15 -r 21 -m 1 -k "$Package_ID" -s "${svn_dir}/trunk" -n /
 }
 
 

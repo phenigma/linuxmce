@@ -38,6 +38,7 @@ sql_slave_user="root"
 replacements_dir="${build_dir}/replacements"
 out_dir="${build_dir}/out"
 mkr_dir="${build_dir}/MakeRelease"
+priv_debs_dir="$build_dir/private_debs"
 
 if [[ "$iso_name" == "" ]] ;then
 	iso_name="linuxmce-1.1"
@@ -498,8 +499,7 @@ function Build_Pluto_Stuff {
 #	543  	Pluto vloopback Kernel Module
 #	542 	Pluto vloopback Kernel Module Source
 
-	$MakeRelease "${MakeReleaseExtraParams[@]}" -R "$SVNrevision" -h $sql_slave_host -u $sql_slave_user -O $out_dir -D $sql_slave_db -o 15 -r 21 -m 1 -K "543,542,462,607,432,431,427,426,430,429,336,337,589,590,515,516"  -s "${svn_dir}/trunk" -n / > >(tee -a $build_dir/Build.log)  -d || exit 1
-	
+	$MakeRelease "${MakeReleaseExtraParams[@]}" -R "$SVNrevision" -h $sql_slave_host -u $sql_slave_user -O $out_dir -D $sql_slave_db -o 15 -r 21 -m 1,1108 -K "543,542,462,607,432,431,427,426,430,429,336,337,589,590,515,516"  -s "${svn_dir}/trunk" -n / > >(tee -a $build_dir/Build.log)  -d || exit 1
 }
 
 function Create_Fake_Windows_Binaries {
@@ -563,6 +563,27 @@ function Create_Local_Repository {
 	popd
 
 #       cp -f /root/build-files/virus_free.php /var/www
+}
+
+function Copy_Closed_Source_Debs {
+	# copy closed source debs
+	local ID=$(date +%Y%m%d%H%M%S)
+	local priv_debs=(fiire-drivers pluto-wavetrend-reader pluto-zwave-lighting)
+	local pkg
+
+	rm -rf "$priv_debs_dir"
+	mkdir -p "$priv_debs_dir"
+	for pkg in "${priv_debs[@]}"; do
+		cp "$out_dir"/tmp/"$pkg"_*.deb "$priv_debs_dir/"
+	done
+
+	local Dir="/var/www/priv_debs"
+	local Latest="$Dir/latest"
+
+	mkdir -p "$Dir"
+	tar -C "$priv_debs_dir" -cvf "$Dir"/"$ID".tar .
+	rm -f "$Latest"
+	echo "$ID" >"$Latest"
 }
 
 function Import_Build_Database {
