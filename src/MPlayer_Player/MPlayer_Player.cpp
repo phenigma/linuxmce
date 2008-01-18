@@ -1371,11 +1371,11 @@ void MPlayer_Player::UpdateTracksInfo()
 	vector<string> sOutput;
 	FileUtils::ReadFileIntoVector(sInfoFile, sOutput);
 	
-	int iTracksCount=1;	// default
+	int iTracksCount=0;	// default
 	
 	if (sOutput.empty())
 	{
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "MPlayer_Player::UpdateTracksInfo - no audio tracks found, defaulting to 1");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "MPlayer_Player::UpdateTracksInfo - no audio tracks found");
 	}
 	else
 	{
@@ -1383,10 +1383,19 @@ void MPlayer_Player::UpdateTracksInfo()
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "MPlayer_Player::UpdateTracksInfo - found %i audio tracks", iTracksCount);
 	}
 	
-	string sAudioTracks;
+	if (iTracksCount<=1)
+	{
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "MPlayer_Player::UpdateTracksInfo - there are no multiple audio tracks, skipping");
+		return;
+	}
+	
+	string sAudioTracks = "0\n";
+	
 	for (int i=0; i<iTracksCount; i++)
 		sAudioTracks += "Track-" + StringUtils::itos(i+1) + "\n";
 	
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "MPlayer_Player::UpdateTracksInfo - sending info about audio tracks: %s", sAudioTracks.c_str());
+
 	DATA_Set_Audio_Tracks(sAudioTracks);
 }
 //<-dceag-c140-b->
