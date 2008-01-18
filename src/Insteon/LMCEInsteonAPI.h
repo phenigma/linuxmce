@@ -1,17 +1,12 @@
-//Insteon API.  This file handles the communications interface to the low-level PLC driver
+//
+// C++ Interface: InsteonSerialAPI
+//
+// Description: Insteon Serial API to handle Insteon communications along with PlutoInsteonAPI
+//
+//
+// Author:	Peter Kalogiannis, (C) 2007
+// Copyright: See COPYING file that comes with this distribution
 
-/*
-     Copyright (C) 2007 Peter Kalogiannis
-
-     www.linuxmce.com
-
-     This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
-     This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-     of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-
-     See the GNU General Public License for more details.
-
-*/
 
 
 #ifndef PLUTOINSTEONAPI_H_
@@ -107,8 +102,8 @@ class LMCEInsteonAPI {
 				/**insert a node
 		 * @param node the node to be inserted
 		 * @return true if succesfull*/
-		virtual void insertNode(unsigned char* node, unsigned char group);
-		
+/*		virtual bool insertNode(InsteonNode* node);
+*/		
 		/**removes the node with the specifid ID
 		 * @param id the node id to be removed
 		 * @return true if succesfull*/
@@ -126,10 +121,6 @@ class LMCEInsteonAPI {
 		 * @return true if successfull*/
 //		virtual bool processData(const char * buffer, size_t length);
 		
-		/**remove database links from PLC controller
-		 * @return true if successfull*/
-		 virtual bool RemoveLinks();
-	
 	
 		/**sends data
 		 * @param buffer the data to be sent
@@ -152,10 +143,9 @@ class LMCEInsteonAPI {
 		int SendGroupOn(unsigned char group);
 		int SendGroupOff(unsigned char group);
 		int SetLevelandRamp(unsigned char* target, unsigned char level, unsigned char ramp);
-		void GetDevID();
 	private:	
 		unsigned char plc_devid[3];
-		unsigned char firmware_id;
+		
 		LMCEInsteonAPI();
 		static LMCEInsteonAPI * ref;
 		

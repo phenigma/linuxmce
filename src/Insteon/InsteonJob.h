@@ -1,16 +1,3 @@
-/*
-     Copyright (C) 2007 Peter Kalogiannis
-
-     www.linuxmce.com
-     This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
-     This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-     of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-
-     See the GNU General Public License for more details.
-
-*/
-
-
 #ifndef INSTEONJOB_H_
 #define INSTEONJOB_H_
 
@@ -30,7 +17,7 @@ class InsteonJob
 		enum JobState { IDLE=0, RUNNING, STOPPED };
 		
 		enum INSTEON_JOB { NOTHING=0, GET_VERSION, GET_ID, GET_INIT_DATA, INITIALIZE, RECEIVE, RESET, ADD_NODE, REMOVE_NODE,
-							SET_SWITCH_LEVEL, GET_SWITCH_BINARY, LIGHT_LEVEL, SET_VALVE, SEND_DATA
+							SET_SWITCH_LEVEL, GET_SWITCH_BINARY, LIGHT_LEVEL, SEND_DATA
 		};
 		
 		InsteonJob(LMCEInsteonAPI*);
@@ -86,4 +73,3 @@ class InsteonJob
 };
 		
 #endif /*INSTEONJOB_H_*/
-

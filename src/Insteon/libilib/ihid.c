@@ -1,8 +1,8 @@
 /*
- * $RCSfile: ihid.c,v $  $Revision: 1.5 $  $Name:  $
- * $Id: ihid.c,v 1.5 2007/09/09 18:09:45 bpaauwe Exp $
+ * $RCSfile: ihid.c,v $  $Revision: 1.4 $  $Name:  $
+ * $Id: ihid.c,v 1.4 2007/04/21 04:25:57 bpaauwe Exp $
  * $Author: bpaauwe $
- * $Date: 2007/09/09 18:09:45 $
+ * $Date: 2007/04/21 04:25:57 $
  * ----------------------------------------------------------------------------
  *
  *  Copyright (c) Bob Paauwe (2007)
@@ -49,7 +49,7 @@ int ihid_write(iusb_t *iplc, unsigned char *pkt, int len);
 int ihid_write_echo(iusb_t *iplc, unsigned char *pkt, int rt);
 int ihid_cts(iusb_t *iplc, int cts);
 
-static int ihid_read_usb (int fd, unsigned char *pkt, int *count);
+static int ihid_read_usb_pkt (int fd, unsigned char *pkt, int len);
 
 /*
  * ihid_init
@@ -157,7 +157,7 @@ int ihid_read(iusb_t *iplc)
 	if (iplc->ring_head == iplc->ring_tail) {  /* ring buffer empty */
 		do {
 			memset(packet_buf, 0, 8);
-			ihid_read_usb(*fd, packet_buf, &cnt);
+			cnt = ihid_read_usb_pkt(*fd, packet_buf, 8);
 			for (i = 0; i < cnt; i++) {
 				iplc->ring_buffer[iplc->ring_tail++] = packet_buf[i];
 				if (iplc->ring_tail == RING_SIZE) {
@@ -187,16 +187,15 @@ int ihid_read(iusb_t *iplc)
  *
  * Parameters:
  *   iusb_t interface handle
- *   once    If >0 then only loop once.
+ *   cts    If >0 then only loop once.
  *
  * We could end up locking up in this function.
  */
-int ihid_cts(iusb_t *iplc, int once)
+int ihid_cts(iusb_t *iplc, int cts)
 {
 	unsigned char usbp[8];
 	int i;
-	int cnt;
-	int cts = 0;
+	int ret;
 	int timeout = 0;
 	int *fd;
 
@@ -204,26 +203,16 @@ int ihid_cts(iusb_t *iplc, int once)
 
 	do {
 		memset(usbp, 0, 8);
-		cnt = 0;
-		cts = ihid_read_usb(*fd, usbp, &cnt);
-
-		/* If count is > 0, then there is data in this packet */
-		if (cnt) {
-			for (i = 0; i < cnt; i++) {
-				iplc->ring_buffer[iplc->ring_tail++] = usbp[i];
-				if (iplc->ring_tail == RING_SIZE) {
-					iplc->ring_tail = 0;
-				}
+		ret = ihid_read_usb_pkt(*fd, usbp, 8);
+		for (i = 0; i < ret; i++) {
+			iplc->ring_buffer[iplc->ring_tail++] = usbp[i];
+			if (iplc->ring_tail == RING_SIZE) {
+				iplc->ring_tail = 0;
 			}
 		}
-
-		if (once) {
-			return 0;
-		} else {
-			timeout++;
-			usleep(hid_cts_sleep);
-		}
-	} while ((timeout < 5500) && (!cts));
+		timeout++;
+		usleep(hid_cts_sleep);
+	} while ((!(ret)) && (timeout < 5500) && !cts);
 
 	if (timeout >= 5500) {
 		fprintf(stderr, "Timeout in ihid_cts (%d)\n", cts);
@@ -261,7 +250,6 @@ int ihid_write_echo(iusb_t *iplc, unsigned char *pkt, int len)
 	while (to) {
 		if (rb_avail(iplc, rs, len) < 2) {
 			ihid_cts(iplc, 1);
-			usleep(60);
 			to--;
 		} else {
 			print_ring(iplc);
@@ -323,14 +311,18 @@ int ihid_write(iusb_t *iplc, unsigned char *pkt, int len)
 	return len;
 }
 
-
-static int ihid_read_usb (int fd, unsigned char *pkt, int *count)
+/*
+ * ihid_read_usb_pkt
+ *
+ * Read an 8 byte packet from the USB HID device.
+ *
+ */
+static int ihid_read_usb_pkt (int fd, unsigned char *pkt, int len)
 {
 	struct hiddev_event event;
+	int count = 0;
 	int cts = 0;
-	int len = 0;
 
-	*count = 0;
 	while (read(fd, &event, sizeof(struct hiddev_event)) > 0) {
 		event.hid &= 0xff;
 		/* Check for CTS */
@@ -340,22 +332,15 @@ static int ihid_read_usb (int fd, unsigned char *pkt, int *count)
 		}
 
 		if (event.hid == 1) { /* data is number of bytes in packet */
-			*count = event.value;
+			count = event.value;
 		} else if (event.hid == 8) { /* last byte in packet */
 			*pkt = event.value;
-			len++;
-			return cts;
+			return count;
 		} else {
 			*pkt = event.value;
 			pkt++;
-			len++;
-		}
-
-		if (len > 8) {
-			printf("In ihid_read_usb: packet length exceeded!\n");
-			return cts;
 		}
 	}
 
-	return cts;
+	return count;
 }

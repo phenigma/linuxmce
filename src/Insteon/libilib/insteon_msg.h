@@ -36,7 +36,6 @@ typedef struct _msb_cache_t {
 	unsigned char msb;
 } msb_cache_t;
 
-
 int insteon_set_remote_link(ilib_t *iplc, unsigned char *target_id, 
 		unsigned char *plc_id, unsigned char group, unsigned char on_level, 
 		unsigned char ramp);
@@ -146,6 +145,5 @@ int salad_send_message_group(ilib_t *iplc, unsigned char i_cmd,
 
 #define ALDB_L_VALID		0x80	/*Mask for All Link Database (Linear) Record Valid Bit */
 #define ALDB_L_HIGH_WATER	0x02	/*Mask for All Link Database (Linear) High Water Mark Bit */
-
 
 #endif
