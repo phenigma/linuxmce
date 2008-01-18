@@ -2909,9 +2909,9 @@ public:
 						string sCMD_Result="OK";
 						int iPK_Users=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Users_CONST].c_str());
 						string sPhoneExtension=pMessage->m_mapParameters[COMMANDPARAMETER_PhoneExtension_CONST];
-						int iFK_Device_From=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_FK_Device_From_CONST].c_str());
+						int iPK_Device_From=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Device_From_CONST].c_str());
 						int iPK_Device_To=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Device_To_CONST].c_str());
-						CMD_Assisted_Make_Call(iPK_Users,sPhoneExtension.c_str(),iFK_Device_From,iPK_Device_To,sCMD_Result,pMessage);
+						CMD_Assisted_Make_Call(iPK_Users,sPhoneExtension.c_str(),iPK_Device_From,iPK_Device_To,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -2928,7 +2928,7 @@ public:
 						{
 							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Assisted_Make_Call(iPK_Users,sPhoneExtension.c_str(),iFK_Device_From,iPK_Device_To,sCMD_Result,pMessage);
+								CMD_Assisted_Make_Call(iPK_Users,sPhoneExtension.c_str(),iPK_Device_From,iPK_Device_To,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
