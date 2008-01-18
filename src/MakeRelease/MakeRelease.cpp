@@ -1595,7 +1595,7 @@ string Makefile = "none:\n"
 			sPkgVerBase = iLastDot == string::npos ? "" : sPkgVersion.substr(0, iLastDot);
 		}
 		int iPkgManufacturer = pRow_Package_Source_Dependency->FK_Package_getrow()->FK_Manufacturer_get();
-		if (iPkgManufacturer == 1 || iPkgVerBaseNext == 1108) /* HARDCODED: 1 = Pluto, 1108 = Pluto Closed Source */
+		if (iPkgManufacturer == 1 || iPkgManufacturer == 1108) /* HARDCODED: 1 = Pluto, 1108 = Pluto Closed Source */
 		{
 			if( pRow_Package_Package->PreDependency_get()==1 )
 				sPreDepends += ", " + sPkgName;
@@ -1945,7 +1945,7 @@ string Makefile = "none:\n"
 			sPkgVerBase = iLastDot == string::npos ? "" : sPkgVersion.substr(0, iLastDot);
 		}
 		int iPkgManufacturer = pRow_Package_Source_Dependency->FK_Package_getrow()->FK_Manufacturer_get();
-		if (iPkgManufacturer == 1 || iPkgVerBaseNext == 1108) /* HARDCODED: 1 = Pluto, 1108 = Pluto Closed Source */
+		if (iPkgManufacturer == 1 || iPkgManufacturer == 1108) /* HARDCODED: 1 = Pluto, 1108 = Pluto Closed Source */
 		{
 			if( pRow_Package_Package->PreDependency_get()==1 )
 				sPreDepends += ", " + sPkgName;
