@@ -97,8 +97,11 @@ public:
 	/*
 			*****DATA***** accessors inherited from base class
 	string DATA_Get_Subtitles();
+	void DATA_Set_Subtitles(string Value);
 	string DATA_Get_Audio_Tracks();
+	void DATA_Set_Audio_Tracks(string Value);
 	string DATA_Get_Angles();
+	void DATA_Set_Angles(string Value);
 	string DATA_Get_Name();
 	int DATA_Get_Port();
 
