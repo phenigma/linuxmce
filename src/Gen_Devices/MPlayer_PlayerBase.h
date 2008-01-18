@@ -120,6 +120,10 @@ public:
 			return m_mapParameters[DEVICEDATA_Subtitles_CONST];
 	}
 
+	void Set_Subtitles(string Value)
+	{
+		SetParm(DEVICEDATA_Subtitles_CONST,Value.c_str());
+	}
 	string Get_Audio_Tracks()
 	{
 		if( m_bRunningWithoutDeviceData )
@@ -128,6 +132,10 @@ public:
 			return m_mapParameters[DEVICEDATA_Audio_Tracks_CONST];
 	}
 
+	void Set_Audio_Tracks(string Value)
+	{
+		SetParm(DEVICEDATA_Audio_Tracks_CONST,Value.c_str());
+	}
 	string Get_Angles()
 	{
 		if( m_bRunningWithoutDeviceData )
@@ -136,6 +144,10 @@ public:
 			return m_mapParameters[DEVICEDATA_Angles_CONST];
 	}
 
+	void Set_Angles(string Value)
+	{
+		SetParm(DEVICEDATA_Angles_CONST,Value.c_str());
+	}
 	string Get_Name()
 	{
 		if( m_bRunningWithoutDeviceData )
@@ -257,8 +269,11 @@ public:
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
 	//Data accessors
 	string DATA_Get_Subtitles() { return GetData()->Get_Subtitles(); }
+	void DATA_Set_Subtitles(string Value,bool bUpdateDatabase=false) { GetData()->Set_Subtitles(Value); if( bUpdateDatabase ) SetDeviceDataInDB(m_dwPK_Device,92,Value); }
 	string DATA_Get_Audio_Tracks() { return GetData()->Get_Audio_Tracks(); }
+	void DATA_Set_Audio_Tracks(string Value,bool bUpdateDatabase=false) { GetData()->Set_Audio_Tracks(Value); if( bUpdateDatabase ) SetDeviceDataInDB(m_dwPK_Device,93,Value); }
 	string DATA_Get_Angles() { return GetData()->Get_Angles(); }
+	void DATA_Set_Angles(string Value,bool bUpdateDatabase=false) { GetData()->Set_Angles(Value); if( bUpdateDatabase ) SetDeviceDataInDB(m_dwPK_Device,94,Value); }
 	string DATA_Get_Name() { return GetData()->Get_Name(); }
 	int DATA_Get_Port() { return GetData()->Get_Port(); }
 	//Event accessors
