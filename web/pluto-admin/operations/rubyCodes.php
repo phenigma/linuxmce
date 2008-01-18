@@ -164,7 +164,7 @@ function rubyCodes($output,$dbADO,$mediaADO) {
 		
 	} else {
 		$time_start = getmicrotime();
-		$dbADO->debug=true;
+		//$dbADO->debug=true;
 		$existingCommands=array_keys(getAssocArray('InfraredGroup_Command','FK_Command','PK_InfraredGroup_Command',$dbADO,'WHERE FK_InfraredGroup='.$infraredGroupID));
 		
 		$newIRGroup=((int)@$_POST['irGroup']>0)?(int)$_POST['irGroup']:NULL;
