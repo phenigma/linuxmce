@@ -65,6 +65,8 @@ namespace DCE
 		void CopyVectorToVectorFromItem(const vector<string> &vList, vector<string> &vVector, const string &sItem);
 		void CreateVideoConfigFiles(const vector<string> &vFiles);
 		
+		void UpdateTracksInfo();
+		
 		string GetPlaybackPosition();
 public:
 		// Public member variables

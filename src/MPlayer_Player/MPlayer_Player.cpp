@@ -524,10 +524,7 @@ void MPlayer_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMedi
 	{
 		// fire errors
 	}
-	
-	
-	//TODO implement setting media subtitles and audio channel
-
+		
 	// TODO should we sleep?
 	Sleep(1000);
 	
@@ -542,6 +539,9 @@ void MPlayer_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMedi
 	
 	LoggerWrapper::GetInstance()->Write(LV_WARNING, "MPlayer_Player::EVENT_Playback_Started(streamID=%i)", iStreamID);
 	EVENT_Playback_Started(sMediaURL,iStreamID,sMediaInfo,sAudioInfo,sVideoInfo);
+	
+	//TODO implement setting media subtitles info
+	UpdateTracksInfo();
 }
 
 //<-dceag-c38-b->
@@ -982,6 +982,8 @@ void *DCE::PlayerEnginePoll(void *pInstance)
 					
 					pThis->EVENT_Playback_Started(sFile,pThis->m_iCurrentStreamID,sMediaInfo,sAudioInfo,sVideoInfo);
 					pThis->m_sCurrentFileName = sFile;
+					
+					pThis->UpdateTracksInfo();
 				}
 					
 				pThis->m_fCurrentFileTime = pThis->m_pPlayerEngine->GetCurrentPosition();
@@ -1353,4 +1355,37 @@ void MPlayer_Player::CMD_Move_Right(int iStreamID,string &sCMD_Result,Message *p
 //<-dceag-c203-e->
 {
 	LoggerWrapper::GetInstance()->Write(LV_WARNING, "MPlayer_Player::CMD_Move_Right is not implemented");
+}
+
+void MPlayer_Player::UpdateTracksInfo()
+{
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "MPlayer_Player::UpdateTracksInfo - detecting count of tracks");
+	
+	string sInfoFile = "/tmp/MPlayer_" + StringUtils::itos(m_dwPK_Device)+".ffmpeg.info";
+	string sCMD = "/opt/pluto-ffmpeg/bin/ffmpeg -i " + m_sCurrentFileName + " 2>&1 | grep \"Stream.*Audio\" > " + sInfoFile;
+	
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "MPlayer_Player::UpdateTracksInfo - detect command: %s", sCMD.c_str());
+	int iRetCode = system(sCMD.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "MPlayer_Player::UpdateTracksInfo - detect command returned code: %i", iRetCode);
+	
+	vector<string> sOutput;
+	FileUtils::ReadFileIntoVector(sInfoFile, sOutput);
+	
+	int iTracksCount=1;	// default
+	
+	if (sOutput.empty())
+	{
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "MPlayer_Player::UpdateTracksInfo - no audio tracks found, defaulting to 1");
+	}
+	else
+	{
+		iTracksCount = sOutput.size();
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "MPlayer_Player::UpdateTracksInfo - found %i audio tracks", iTracksCount);
+	}
+	
+	string sAudioTracks;
+	for (int i=0; i<iTracksCount; i++)
+		sAudioTracks += "Track-" + StringUtils::itos(i+1) + "\n";
+	
+	DATA_Set_Audio_Tracks(sAudioTracks);
 }
