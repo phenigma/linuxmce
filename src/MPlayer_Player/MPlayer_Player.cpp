@@ -1400,6 +1400,21 @@ void MPlayer_Player::UpdateTracksInfo()
 
 void MPlayer_Player::CMD_Audio_Track(string sValue_To_Assign,int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c140-e->
+{
+	if (!m_bPlayerEngineInitialized)
+	{
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "MPlayer_Player::CMD_Audio_Track aborts because Player Engine is not initialized");
+		return;
+	}
+	
+	int iAudioTrack = atoi(sValue_To_Assign.c_str());
+	
+	// mplayer tracks start from
+	iAudioTrack += 1;
+	
+	m_pPlayerEngine->ExecuteCommand("switch_audio " + StringUtils::itos(iAudioTrack));
+}
+
 //<-dceag-c141-b->
 
 	/** @brief COMMAND: #141 - Subtitle */
@@ -1411,6 +1426,10 @@ void MPlayer_Player::CMD_Audio_Track(string sValue_To_Assign,int iStreamID,strin
 
 void MPlayer_Player::CMD_Subtitle(string sValue_To_Assign,int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c141-e->
+{
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "MPlayer_Player::CMD_Subtitle is not implemented");
+}
+
 //<-dceag-c142-b->
 
 	/** @brief COMMAND: #142 - Angle */
@@ -1422,3 +1441,6 @@ void MPlayer_Player::CMD_Subtitle(string sValue_To_Assign,int iStreamID,string &
 
 void MPlayer_Player::CMD_Angle(string sValue_To_Assign,int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c142-e->
+{
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "MPlayer_Player::CMD_Angle is not implemented");
+}
