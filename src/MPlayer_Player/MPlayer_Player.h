@@ -46,6 +46,7 @@ namespace DCE
 		bool m_bMediaOpened;
 		bool m_bPlayerEngineInitialized;
 		MPlayerEngine *m_pPlayerEngine;
+		int m_iCurrentAudioTrack;
 		
 		// Length of current file in mplayer-specific format (seconds as float)
 		string m_sCurrentFileName;

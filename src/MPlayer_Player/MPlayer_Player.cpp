@@ -46,6 +46,8 @@ MPlayer_Player::MPlayer_Player(int DeviceID, string ServerAddress,bool bConnectE
 	m_fCurrentFileTime = 0;
 	m_fCurrentFileLength = 0;
 	
+	m_iCurrentAudioTrack = 0;
+	
 	m_pNotificationSocket = new TimecodeNotification_SocketListener(string("m_pTimecodeNotificationSocket"));
 	m_pNotificationSocket->m_bSendOnlySocket = true; // one second
 }
@@ -524,12 +526,12 @@ void MPlayer_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMedi
 	{
 		// fire errors
 	}
-		
+	
 	// TODO should we sleep?
-	Sleep(1000);
+	Sleep(1500);
 	
 	CMD_Set_Media_Position(iStreamID, sMediaPosition);
-
+	
 	string sMediaInfo, sAudioInfo, sVideoInfo;
 	
 	// codec information is not used
@@ -541,7 +543,6 @@ void MPlayer_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMedi
 	EVENT_Playback_Started(sMediaURL,iStreamID,sMediaInfo,sAudioInfo,sVideoInfo);
 	
 	//TODO implement setting media subtitles info
-	UpdateTracksInfo();
 }
 
 //<-dceag-c38-b->
@@ -821,6 +822,28 @@ void MPlayer_Player::CMD_Set_Media_Position(int iStreamID,string sMediaPosition,
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::CMD_Set_Media_Position seeking to new time position");
 		m_pPlayerEngine->Seek(fPosition, MPlayerEngine::SEEK_ABSOLUTE_TIME);
 	}
+	
+	// switching audio track if info present
+	int iAudioTrack = 0;
+	string::size_type sPos = sMediaPosition.find("AUDIO:");
+	if (sPos != string::npos)
+	{
+		iAudioTrack = atoi(sMediaPosition.substr(sPos+6).c_str());
+		if (iAudioTrack == -1)
+			iAudioTrack = 0;
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "MPlayer_Player::CMD_Play_Media - audio track #%i will be used", iAudioTrack);
+	}
+	else
+	{
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "MPlayer_Player::CMD_Play_Media - audio track info not found");
+	}
+	
+	// 0th track is started by default
+	if (m_iCurrentAudioTrack!=iAudioTrack)
+	{
+		m_iCurrentAudioTrack = iAudioTrack;
+		CMD_Audio_Track(StringUtils::itos(m_iCurrentAudioTrack), 0);
+	}
 }
 
 //<-dceag-c548-b->
@@ -983,6 +1006,7 @@ void *DCE::PlayerEnginePoll(void *pInstance)
 					pThis->EVENT_Playback_Started(sFile,pThis->m_iCurrentStreamID,sMediaInfo,sAudioInfo,sVideoInfo);
 					pThis->m_sCurrentFileName = sFile;
 					
+					pThis->m_iCurrentAudioTrack = 0;
 					pThis->UpdateTracksInfo();
 				}
 					
@@ -1047,7 +1071,7 @@ string MPlayer_Player::GetPlaybackPosition()
 
 	string sShortFile = FileUtils::FilenameWithoutPath(m_sCurrentFileName);
 	
-	snprintf(buf, buf_size, " POS:%i SUBTITLE:-1 AUDIO:-1 TOTAL:%i FILE:%s", (int)(m_fCurrentFileTime*1000), (int)(m_fCurrentFileLength*1000), sShortFile.c_str());
+	snprintf(buf, buf_size, " POS:%i SUBTITLE:-1 AUDIO:%i TOTAL:%i FILE:%s", (int)(m_fCurrentFileTime*1000), m_iCurrentAudioTrack, (int)(m_fCurrentFileLength*1000), sShortFile.c_str());
 	
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::GetPlaybackPosition position info: %s", buf);
 	
@@ -1389,7 +1413,7 @@ void MPlayer_Player::UpdateTracksInfo()
 		return;
 	}
 	
-	string sAudioTracks = "0\n";
+	string sAudioTracks = StringUtils::itos(m_iCurrentAudioTrack)+"\n";
 	
 	for (int i=0; i<iTracksCount; i++)
 		sAudioTracks += "Track-" + StringUtils::itos(i+1) + "\n";
@@ -1417,11 +1441,14 @@ void MPlayer_Player::CMD_Audio_Track(string sValue_To_Assign,int iStreamID,strin
 	}
 	
 	int iAudioTrack = atoi(sValue_To_Assign.c_str());
+	m_iCurrentAudioTrack = iAudioTrack;
 	
 	// mplayer tracks start from
 	iAudioTrack += 1;
 	
 	m_pPlayerEngine->ExecuteCommand("switch_audio " + StringUtils::itos(iAudioTrack));
+	
+	UpdateTracksInfo();
 }
 
 //<-dceag-c141-b->
