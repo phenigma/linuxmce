@@ -2693,6 +2693,11 @@ void Telecom_Plugin::CMD_Speak_in_house(int iPK_Device,string sPhoneNumber,strin
 		{
 			sPhoneNumber = GetPhoneNumber(0, "", pMessage->m_dwPK_Device_From);
 			bEmbeddedPhone = true;
+
+			int nMasterDevice = FindValueInMap(map_ext2device, sPhoneNumber, 0); 
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Doing a speak in house from a non-osd orbiter with %d", nMasterDevice);
+			DCE::CMD_Phone_Initiate cmd(m_dwPK_Device, nMasterDevice, 0, SPEAKINTHEHOUSE_CONFERENCE_IVR);
+			SendCommand(cmd);
 		}
 
 		if( sPhoneNumber.empty() )
