@@ -2687,6 +2687,11 @@ void Telecom_Plugin::CMD_Speak_in_house(int iPK_Device,string sPhoneNumber,strin
 			}
 		}
 
+
+		//what if we are a non-osd orbiter? get the phone number of the md from that room
+		if(sPhoneNumber.empty())
+			sPhoneNumber = GetPhoneNumber(0, "", pMessage->m_dwPK_Device_From);
+
 		if( sPhoneNumber.empty() )
 		{
 			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Telecom_Plugin::CMD_Speak_in_house -- can't find a phone number");
