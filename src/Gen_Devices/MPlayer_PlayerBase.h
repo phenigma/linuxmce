@@ -44,6 +44,16 @@ public:
 	* @brief Events methods for our device
 	*/
 
+	virtual void Playback_Info_Changed(string sMediaDescription,string sSectionDescription,string sSynposisDescription)
+	{
+		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 
+			EVENT_Playback_Info_Changed_CONST,
+			3 /* number of parameter's pairs (id, value) */,
+			EVENTPARAMETER_MediaDescription_CONST, sMediaDescription.c_str(),
+			EVENTPARAMETER_SectionDescription_CONST, sSectionDescription.c_str(),
+			EVENTPARAMETER_SynposisDescription_CONST, sSynposisDescription.c_str()));
+	}
+
 	virtual void Playback_Completed(string sMRL,int iStream_ID,bool bWith_Errors)
 	{
 		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 
@@ -101,6 +111,30 @@ public:
 	/**
 	* @brief Device data access methods:
 	*/
+
+	string Get_Subtitles()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Subtitles_CONST);
+		else
+			return m_mapParameters[DEVICEDATA_Subtitles_CONST];
+	}
+
+	string Get_Audio_Tracks()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Audio_Tracks_CONST);
+		else
+			return m_mapParameters[DEVICEDATA_Audio_Tracks_CONST];
+	}
+
+	string Get_Angles()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Angles_CONST);
+		else
+			return m_mapParameters[DEVICEDATA_Angles_CONST];
+	}
 
 	string Get_Name()
 	{
@@ -222,9 +256,13 @@ public:
 	virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage) { };
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
 	//Data accessors
+	string DATA_Get_Subtitles() { return GetData()->Get_Subtitles(); }
+	string DATA_Get_Audio_Tracks() { return GetData()->Get_Audio_Tracks(); }
+	string DATA_Get_Angles() { return GetData()->Get_Angles(); }
 	string DATA_Get_Name() { return GetData()->Get_Name(); }
 	int DATA_Get_Port() { return GetData()->Get_Port(); }
 	//Event accessors
+	void EVENT_Playback_Info_Changed(string sMediaDescription,string sSectionDescription,string sSynposisDescription) { GetEvents()->Playback_Info_Changed(sMediaDescription.c_str(),sSectionDescription.c_str(),sSynposisDescription.c_str()); }
 	void EVENT_Playback_Completed(string sMRL,int iStream_ID,bool bWith_Errors) { GetEvents()->Playback_Completed(sMRL.c_str(),iStream_ID,bWith_Errors); }
 	void EVENT_Playback_Started(string sMRL,int iStream_ID,string sSectionDescription,string sAudio,string sVideo) { GetEvents()->Playback_Started(sMRL.c_str(),iStream_ID,sSectionDescription.c_str(),sAudio.c_str(),sVideo.c_str()); }
 	//Commands - Override these to handle commands from the server
