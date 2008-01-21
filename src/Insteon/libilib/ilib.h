@@ -37,10 +37,6 @@
 
 #include <stdio.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 typedef void ilib_t;
 
 /* Currently defined interface dependent methods */
@@ -203,8 +199,5 @@ extern int ahtoi(char *h);
 extern int command_to_num(char *cmd);
 extern void print_commands();
 
-#ifdef  __cplusplus
-}
-#endif
 
 #endif

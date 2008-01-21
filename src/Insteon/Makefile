@@ -12,7 +12,7 @@ LDFLAGS = $(SNR_LDFLAGS) -L$(ROOT)/lib
 BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lmysqlclient_r -lpthread
 
 MYNAME = Insteon
-VERSION = 2.0.0
+VERSION = 1.0.0
 MYDEVTEMPLATEID = 1899mplateID
 
 Gen_Dev_Files = $(GENDEV)/InsteonBase.cpp
@@ -26,7 +26,8 @@ XTRALDLIBS = libilib/libilib.a -lusb
 
 Gen_Dev_Files +=
 sources +=\
-	LMCEInsteonAPI.cpp InsteonJob.cpp InsteonJobSendData.cpp InsteonJobSwitchChangeLevel.cpp
+	LMCEInsteonAPI.cpp InsteonJob.cpp InsteonJobSendData.cpp InsteonJobSwitchChangeLevel.cpp InsteonJobReset.cpp\
+	InsteonJobAddNode.cpp InsteonJobEZRainValveControl.cpp
 	
 	
 

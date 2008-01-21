@@ -20,8 +20,9 @@
 //	DCE Implemenation for #1899 Insteon
 
 #include "Gen_Devices/InsteonBase.h"
-#include "LMCEInsteonAPI.h"
 //<-dceag-d-e->
+
+#include "LMCEInsteonAPI.h"
 
 //<-dceag-decl-b->
 namespace DCE
@@ -114,15 +115,6 @@ public:
 	virtual void CMD_Report_Child_Devices(string &sCMD_Result,Message *pMessage);
 
 
-	/** @brief COMMAND: #757 - Download Configuration */
-	/** Download new configuration data for this device */
-		/** @param #9 Text */
-			/** Any information the device may want to do the download */
-
-	virtual void CMD_Download_Configuration(string sText) { string sCMD_Result; CMD_Download_Configuration(sText.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Download_Configuration(string sText,string &sCMD_Result,Message *pMessage);
-
-
 	/** @brief COMMAND: #760 - Send Command To Child */
 	/** After reporting new child devices, there may be children we want to test, but we haven't done a quick reload router and can't send them messages directly.  This way we can send 'live' messages to children */
 		/** @param #10 ID */
@@ -154,6 +146,17 @@ NOEMON or CANBUS */
 
 	virtual void CMD_StatusReport(string sArguments) { string sCMD_Result; CMD_StatusReport(sArguments.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_StatusReport(string sArguments,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #920 - Add Insteon Device to Group */
+	/** Create a group and add the specified devices to the group number (stored in PLC adapter) */
+		/** @param #249 Group ID */
+			/** The Insteon Group to which to add the node */
+		/** @param #250 Nodes List */
+			/** The list of associated Z-Wave nodes (comma separated) */
+
+	virtual void CMD_Add_Insteon_Device_to_Group(int iGroup_ID,string sNodes_List) { string sCMD_Result; CMD_Add_Insteon_Device_to_Group(iGroup_ID,sNodes_List.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Add_Insteon_Device_to_Group(int iGroup_ID,string sNodes_List,string &sCMD_Result,Message *pMessage);
 
 //<-dceag-h-e->
 	};

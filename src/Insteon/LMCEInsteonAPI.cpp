@@ -1,5 +1,19 @@
-#include "LMCEInsteonAPI.h"
+//Insteon API.  This file handles the communications interface to the low-level PLC driver
 
+/*
+     Copyright (C) 2007 Peter Kalogiannis
+
+     www.linuxmce.com
+
+     This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
+     This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+     of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+     See the GNU General Public License for more details.
+
+*/
+
+#include "LMCEInsteonAPI.h"
 #include "main.h"
 
 
@@ -32,12 +46,6 @@ extern "C" {
 using namespace std;
 using namespace DCE;
 
-
-unsigned char lampid[3] ={0x04,0x89,0xbc};
-//unsigned char lampid[3] ={0x04,0x91,0x8a};
-unsigned char test_group = 0x2;
-unsigned char testlevel= 0x7F;
-unsigned char testramp = 0x1F;
 
 
 LMCEInsteonAPI * LMCEInsteonAPI::ref = NULL;
@@ -126,17 +134,23 @@ void LMCEInsteonAPI::setInitialized(bool ready)
 	d->initialized = ready;
 }
 
+
+void LMCEInsteonAPI::GetDevID()
+{
+	//First create local arrays for the function call to stuff with ID bytes
+	unsigned char device_fw;
+	
+	if (NULL != plc_handle)
+	{
+		ibios_get_version(plc_handle, &device_fw,(unsigned char*)plc_devid);
+	}
+}
+
 bool LMCEInsteonAPI::sendData(unsigned char *buffer, size_t length)
 {
-	usleep(WRITE_DELAY);
+	//usleep(WRITE_DELAY);
 	insteon_send_msg (plc_handle, buffer[0], buffer[1], &buffer[2]);
 
-
-/*	if( !d->connection->send(buffer, length) )
-	{
-		return true;
-	}
-*/
 	// TODO: error
 	
 	return false;
@@ -145,235 +159,8 @@ bool LMCEInsteonAPI::sendData(unsigned char *buffer, size_t length)
 
 bool LMCEInsteonAPI::listenAsynchronous()
 {
-/*	d->listenType = PlutoZWSerialAPI::ASYNCHRONOUS;
-
-	if( PlutoZWSerialAPI::RUNNING == d->state )
-	{
-		// important, if there isn't any 'ack' set in the last time (try few times)
-		// then we have to keep on, so we set 'ack'
-		int iTry = 0;
-		// important, this is asynchronous BUT secvential (the tasks will run one after each other)
-		bool secvential = true;
-		
-		d->state = PlutoZWSerialAPI::WAITTING;
-		while( d->connection->isConnected() )
-		{
-			int commandRet = d->connection->hasCommand();
-			if( commandRet == 1 )
-			{
-				d->commandLength = sizeof(d->command);
-				memset(d->command, 0, d->commandLength);
-				if( 0 == d->connection->receiveCommand(d->command, &d->commandLength) && d->commandLength > 0 )
-				{
-					// If it's APPLICATION_COMMAND, try to process it
-					bool bHandler = d->command[1] != FUNC_ID_APPLICATION_COMMAND_HANDLER || !d->applicationHandler();
-					
-					PLUTO_SAFETY_LOCK(am, d->asynchMutex);
-					d->state = PlutoZWSerialAPI::RUNNING;
-					ZWaveJob * job = NULL;
-					
-					if( bHandler )
-					{
-						for(JobsDequeIterator it=d->jobsQueue.begin(); it!=d->jobsQueue.end(); ++it)
-						{
-							job = (*it);
-							if( job != NULL && ZWaveJob::RUNNING == job->state() )
-							{
-								d->unknown = false;
-								if( job->processData(d->command, d->commandLength) && !d->unknown )
-								{
-									if( ZWaveJob::STOPPED == job->state() )
-									{
-										// the current job is finished, let's run the next one
-										secvential = true;
-										
-										delete job;
-										job = NULL;
-										d->jobsQueue.erase(it);
-#ifdef PLUTO_DEBUG
-										LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "## Current Job Finished --- Left = %u", d->jobsQueue.size());
-#endif
-									}
-									// if the answer is for this job, than that's all to process
-									break;
-								}
-							}
-						}
-					}
-					
-					d->state = PlutoZWSerialAPI::WAITTING;
-				}
-				else
-				{
-					// print the error
-					LoggerWrapper::GetInstance()->Write(LV_WARNING, "ZWave Command Error");
-				
-					stop();
-					return false;
-				}
-			}
-			else
-			{
-				iTry++;
-			}
-			
-			// check the timeout, idle and closed jobs
-			if( d->connection->ack )
-			{
-				iTry = 0;
-				PLUTO_SAFETY_LOCK(am, d->asynchMutex);
-				time_t currentTime = time(NULL);
-				ZWaveJob * job = NULL;
-				JobsDequeIterator it=d->jobsQueue.begin();
-				while( it!=d->jobsQueue.end() )
-				{
-					job = (*it);
-					
-					if( job != NULL )
-					{
-						if( ZWaveJob::RUNNING == job->state() )
-						{
-							if( currentTime - job->startTime() > job->runningTimeout() )
-							{
-								job->setState( ZWaveJob::STOPPED );
-							}
-							else if( job->hasReceivingTimeout() && 
-									 currentTime - job->answerTime() > job->receivingTimeout() )
-							{
-								// queue timeout reached
-								if( currentTime - job->startTime() > job->queueTimeout() )
-								{
-									job->setState( ZWaveJob::STOPPED );
-								}
-								else
-								{
-#ifdef PLUTO_DEBUG
-									LoggerWrapper::GetInstance()->Write(LV_WARNING, "### Go to timeout queue");
-#endif
-									// move the job to timeout queue
-									d->jobsTimeoutQueue.push_back(job);
-									it = d->jobsQueue.erase(it);
-									job = NULL;
-									
-									// the current job is finished, let's run the next one
-									secvential = true;
-									
-									continue;
-								}
-							}
-						}
-						// if IDLE , just run it
-						else if( ZWaveJob::IDLE == job->state() )
-						{
-							if( secvential )
-							{
-								d->connection->clearSerialBuffer();
-								secvential = false;
-#ifdef PLUTO_DEBUG
-								LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "### Run Current Job ");
-#endif
-								if( !job->run() )
-								{
-#ifdef PLUTO_DEBUG
-								LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "### Run Current Job - not possible");
-#endif
-									// the current job is finished, let's run the next one
-									secvential = true;
-									
-									delete job;
-									job = NULL;
-									it = d->jobsQueue.erase(it);
-									
-									continue;
-								}
-								
-								break;
-							}
-						}
-					}
-					
-					// remove the closed jobs
-					if( job == NULL || ZWaveJob::STOPPED == job->state() )
-					{
-						LoggerWrapper::GetInstance()->Write(LV_WARNING, "-------------------------- Job Timeout _________");
-						
-						// the current job is finished, let's run the next one
-						secvential = true;
-						
-						delete job;
-						job = NULL;
-						it = d->jobsQueue.erase(it);
-						
-						d->connection->clearSerialBuffer();
-						
-						// ask Eugen before uncommenting the next lines
-/*						stop();
-						clearJobs();*/
-/*						break;
-					}
-					else
-					{
-						++it;
-					}
-				}
-				
-				// if the main queue is empty, let's run the next job from the timeout queue
-				if( 0 == d->jobsQueue.size() )
-				{
-					if( 0 != d->jobsTimeoutQueue.size() && secvential )
-					{
-						secvential = false;
-						d->connection->clearSerialBuffer();
-						job = d->jobsTimeoutQueue.front();
-						d->jobsTimeoutQueue.pop_front();
-						
-						// if it will timeout, then let's just remove it
-						if( currentTime - job->startTime() + 4 > job->runningTimeout() )
-						{
-#ifdef PLUTO_DEBUG
-							LoggerWrapper::GetInstance()->Write(LV_WARNING, "### skip the next job from timeout queue");
-#endif
-							delete job;
-							job = NULL;
-							secvential = true;
-						}
-						else
-						{
-#ifdef PLUTO_DEBUG
-							LoggerWrapper::GetInstance()->Write(LV_WARNING, "### execute the next job from timeout queue");
-#endif
-							d->jobsQueue.push_back(job);
-							job->timeoutHandler();
-						}
-					}
-				}
-			}
-			else
-			{
-				if( iTry > 3 )
-				{
-					// let's set it since we didn't get any ack in the last time
-					d->connection->ack = true;
-				}
-			}
-#ifdef _WIN32
-			Sleep(READ_DELAY);
-#else
-			usleep(READ_DELAY);
-#endif
-		}
-	}
-	else
-	{
-#ifdef _WIN32
-		Sleep(WAIT_DELAY);
-#else
-		usleep(WAIT_DELAY);
-#endif
-	}
-	
-	return true;
-*/
+	//TODO
+	return false;
 }
 LMCEInsteonAPI::Private::~Private()
 {
@@ -402,15 +189,8 @@ LMCEInsteonAPI::Private::~Private()
 		job = NULL;
 	}
 	
-	ZWaveNode * node = NULL;
-	for(NodesMapIterator itNode=nodes.begin(); itNode!=nodes.end(); ++itNode)
-	{
-		node = (*itNode).second;
-		delete node;
-		node = NULL;
-	}
-*/
 	insm.Release();
+*/
 }
 
 bool LMCEInsteonAPI::Private::applicationHandler()
@@ -454,6 +234,7 @@ void LMCEInsteonAPI::setLMCE(DCE::Insteon *insteon)
 bool LMCEInsteonAPI::insertJob(InsteonJob* job)
 {
 	d->jobsQueue.push_back(job);
+	return true;
 }
 
 
@@ -467,16 +248,13 @@ bool LMCEInsteonAPI::start()
 		LoggerWrapper::GetInstance()->Write(LV_DEBUG, "++++++++++++ Insteon is connected");
 #endif
 		
-//				if( LMCEInsteonAPI::SYNCHRONOUS == d->listenType )
-//				{
-			// clean up the timeout queue
-			InsteonJob * job = NULL;
-/*				for(JobsDequeIterator it1=d->jobsTimeoutQueue.begin(); it1!=d->jobsTimeoutQueue.end(); ++it1)
-				{
-					job = (*it1);
-					delete job;
-					job = NULL;
-				}
+		// clean up the timeout queue
+/*			for(JobsDequeIterator it1=d->jobsTimeoutQueue.begin(); it1!=d->jobsTimeoutQueue.end(); ++it1)
+			{
+				job = (*it1);
+				delete job;
+				job = NULL;
+			}
 */				
 			if( d->jobsQueue.size() )
 			{
@@ -490,7 +268,7 @@ bool LMCEInsteonAPI::start()
 			}
 		}
 	
-	LoggerWrapper::GetInstance()->Write(LV_WARNING, "LMCEInsteonAPI::start : connection problems");
+	//LoggerWrapper::GetInstance()->Write(LV_WARNING, "LMCEInsteonAPI::start : connection problems");
 	
 	// it wasn't possible to start it, then just reset it
 //	stop();
@@ -509,12 +287,30 @@ LMCEInsteonAPI* LMCEInsteonAPI::instance()
 }
  
 bool LMCEInsteonAPI::GetPLCHandle()
-{	if ((plc_handle = ilib_open(USE_IPLC, "/dev/usb/iplc0")) != NULL) 
+{
+	if ((plc_handle = ilib_open(USE_HIDDEV, "/dev/hiddev0")) != NULL)
 	{
 		d->initialized = true;
 		return true;
 	}
 	return false;
+}
+
+bool LMCEInsteonAPI::RemoveLinks()
+{
+	if (NULL != plc_handle)
+	{
+		iplc_clear_links(plc_handle);
+	}
+}
+
+void  LMCEInsteonAPI::insertNode(unsigned char* nodeID, unsigned char group)
+{
+	if (NULL != plc_handle)
+	{
+		iplc_add_id(plc_handle, nodeID, group, 0x01);
+		LinkRemoteDevice(nodeID, group, 0xFF, 0x1F);
+	}
 }
 
 
@@ -548,8 +344,8 @@ int LMCEInsteonAPI::SetLevelandRamp(unsigned char* target, unsigned char level, 
 	{
 		retval = insteon_send_msg (plc_handle, 0x2E, cmd2, target);
 	}
-	cout << "Turned on light at "<< hex <<(int)target[0]<<"."<<(int)target[1]<<"."<<(int)target[2]<<endl;
-	cout << "command returned "<<hex<<retval<<endl;
+//	cout << "Turned on light at "<< hex <<(int)target[0]<<"."<<(int)target[1]<<"."<<(int)target[2]<<endl;
+//	cout << "command returned "<<hex<<retval<<endl;
 	return retval; 
 }
 
@@ -560,8 +356,8 @@ int LMCEInsteonAPI::SetFullOff(unsigned char* target)
 	{
 		retval = insteon_send_msg (plc_handle, 0x13, 0x00, target);
 	}
-	cout << "Turned off light at "<< hex <<(int)target[0]<<"."<<(int)target[1]<<"."<<(int)target[2]<<endl;
-	cout << "command returned "<<hex<<retval<<endl;
+//	cout << "Turned off light at "<< hex <<(int)target[0]<<"."<<(int)target[1]<<"."<<(int)target[2]<<endl;
+//	cout << "command returned "<<hex<<retval<<endl;
 	return retval;
 }
 
@@ -625,6 +421,7 @@ LMCEInsteonAPI::LMCEInsteonAPI()
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Not enough memory to allocate LMCEInsteonAPI::Private");
 	}
 	GetPLCHandle();
+	GetDevID();
 }
 
 

@@ -701,6 +701,8 @@ int insteon_read_bytes(ilib_t *iplc, unsigned char *id, unsigned short addr,
 	return 0;
 }
 
+
+
 /*
  * 
  *	insteon_set_remnote_link 
@@ -812,12 +814,3 @@ int insteon_delete_remote_link(ilib_t *iplc, unsigned char *target_id, unsigned 
 	while((record[0] & ALDB_L_HIGH_WATER) != 0);
 	return 1;
 }
-
-
-			
-				
-					
-					
-					
-										
-	

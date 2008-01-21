@@ -1,8 +1,8 @@
 /*
- * $RCSfile: ibios.c,v $  $Revision: 1.3 $  $Name:  $
- * $Id: ibios.c,v 1.3 2007/04/03 00:12:11 bpaauwe Exp $
+ * $RCSfile: ibios.c,v $  $Revision: 1.4 $  $Name:  $
+ * $Id: ibios.c,v 1.4 2007/09/09 18:07:48 bpaauwe Exp $
  * $Author: bpaauwe $
- * $Date: 2007/04/03 00:12:11 $
+ * $Date: 2007/09/09 18:07:48 $
  * ----------------------------------------------------------------------------
  *
  *  Copyright (c) Bob Paauwe (2006)
@@ -401,7 +401,8 @@ int ibios_get_version(iusb_t *iplc, unsigned char *fw,
 	len = plc_read_response(iplc, buf, sizeof(buf), 0x48);
 	if (len > 5) {
 		*fw = buf[6];
-		sprintf((char *)id, "%02x.%02x.%02x", buf[1], buf[2], buf[3]);
+		//sprintf((char *)id, "%02x.%02x.%02x", buf[1], buf[2], buf[3]);
+		memcpy(id,&buf[1],3);
 		memcpy(iplc->plc_id, &buf[1], 3);
 		return 0;
 	}
@@ -457,6 +458,7 @@ int ibios_write_memory(iusb_t *iplc, unsigned short addr,
 	unsigned short csum;
 	int len;
 	int tout = 0;
+	int timeout = 4;
 
 	tmp = malloc (length + 8);
 	memset (tmp, 0, (length + 8));
@@ -483,15 +485,16 @@ int ibios_write_memory(iusb_t *iplc, unsigned short addr,
 
 	len = plc_read_response(iplc, buf, sizeof(buf), 0x40);
 
-	/*
-	 * FIXME:
-	 * This should timeout after some number of tries but doesn't.
-	 */
 	while ((len > 0) && (buf[len - 1] == 0x15)) { /* NAK, resend? */
 		printf("Write failed (got NAK), retry\n");
+
 		sleep(4); /* wait 2 seconds before trying again */
 		send_cmd(iplc, 0x40, tmp, (int)(length + 6));
 		len = plc_read_response(iplc, buf, sizeof(buf), 0x40);
+		if (!timeout--) {
+			printf("Too many NAK's, aborting\n");
+			break;
+		}
 	}
 
 #if 0

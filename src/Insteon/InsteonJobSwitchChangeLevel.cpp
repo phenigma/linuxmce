@@ -1,3 +1,15 @@
+/*
+     Copyright (C) 2007 Peter Kalogiannis
+
+     www.linuxmce.com
+     This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
+     This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+     of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+     See the GNU General Public License for more details.
+
+*/
+
 #include <stdio.h>
 #include "InsteonJobSwitchChangeLevel.h"
 #include "LMCEInsteonAPI.h"
@@ -68,7 +80,7 @@ bool InsteonJobSwitchChangeLevel::run()
 	size_t len = 9;
 	unsigned char data[9];
 	
-	data[0] = 0x12;
+	data[0] = 0x11;
 	data[1] = d->level;
 	data[2] = d->nodeID[0];
 	data[3] = d->nodeID[1];

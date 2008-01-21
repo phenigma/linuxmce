@@ -1,8 +1,8 @@
 /*
- * $RCSfile: idrv.c,v $  $Revision: 1.3 $  $Name:  $
- * $Id: idrv.c,v 1.3 2006/12/16 00:18:31 bpaauwe Exp $
+ * $RCSfile: idrv.c,v $  $Revision: 1.4 $  $Name:  $
+ * $Id: idrv.c,v 1.4 2007/09/09 18:08:33 bpaauwe Exp $
  * $Author: bpaauwe $
- * $Date: 2006/12/16 00:18:31 $
+ * $Date: 2007/09/09 18:08:33 $
  * ----------------------------------------------------------------------------
  *
  *  Copyright (c) Bob Paauwe (2006)
@@ -227,30 +227,33 @@ int send_cmd(iusb_t *iplc,
 				}
 				ret = usb_send_pkt(iplc, packet, rt);
 			}
+#else
+			if (cmd == 0x40) {
+				packet[0] = 0x02;
+				packet[1] = data[dptr++];
+				packet[2] = data[dptr++];
+				/*
+				printf("Command is 40 (upload) checksum = 0x%02x 0x%02x\n",
+						packet[1], packet[2]);
+				*/
+				ret = (iplc->send)(iplc, packet, 2);
+				usleep(6000);
+				(iplc->cts)(iplc, 0);
+			}
 #endif
 		}
 	}
 
-	/* send 2 byte chunks */
-	while (dptr <= (len - 2)) {
+	/* Send 1 byte at a time */
+	while (dptr < len) {
 		memset(packet, 0x00, 8);
-		packet[0] = 0x02;
+		packet[0] = 0x01;
 		packet[1] = data[dptr++];
-		packet[2] = data[dptr++];
-		ret = (iplc->send)(iplc, packet, 8);
-		usleep(50000);
+		ret = (iplc->send)(iplc, packet, 1);
+		usleep(6000);
 		(iplc->cts)(iplc, 0);
 	}
 
-	/* Send last byte */
-	if (dptr < len) {
-		memset(packet, 0x00, 8);
-		packet[0] = 1;
-		packet[1] = data[dptr++];
-		ret = (iplc->send)(iplc, packet, 8);
-		usleep(25000);
-		(iplc->cts)(iplc, 0);
-	}
 	free(packet);
 	return 0;
 }

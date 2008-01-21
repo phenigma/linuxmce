@@ -20,23 +20,17 @@
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
 
-#include "PlutoUtils/DBHelper.h"
-#include "PlutoUtils/LinuxSerialUSB.h"
-#include "PlutoUtils/StringUtils.h"
-#include "pluto_main/Define_DeviceData.h"
-#include "pluto_main/Define_Command.h"
-#include "pluto_main/Define_CommandParameter.h"
-#include "pluto_main/Define_Event.h"
-#include "pluto_main/Define_EventParameter.h"
-
-#include "InsteonJobSwitchChangeLevel.h"
-
 #include <iostream>
 using namespace std;
 using namespace DCE;
 
-#define POOL_DELAY     200000
 #include "Gen_Devices/AllCommandsRequests.h"
+//<-dceag-d-e->
+#include "InsteonJobSwitchChangeLevel.h"
+#include "InsteonJobReset.h"
+#include "InsteonJobEZRainValveControl.h"
+
+#define POOL_DELAY     200000
 bool Insteon::m_AsynchStarted = false;
 /*bool ZWave::m_PoolStarted = false;
 bool ZWave::m_ZWaveChanged = false;
@@ -45,11 +39,9 @@ bool ZWave::m_ReportChildrenStarted = false;
 */
 
 pthread_t Insteon::m_AsynchThread = (pthread_t)NULL;
-/*pthread_t ZWave::m_PoolThread = (pthread_t)NULL;
-pthread_t ZWave::m_ReceiveThread = (pthread_t)NULL;
+/*pthread_t Insteon::m_PoolThread = (pthread_t)NULL;
+pthread_t Insteon::m_ReceiveThread = (pthread_t)NULL;
 */
-
-//<-dceag-d-e->
 
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
@@ -72,13 +64,11 @@ Insteon::Insteon(int DeviceID, string ServerAddress,bool bConnectEventHandler,bo
 	m_InsteonAPI->setLMCE(this);
 	
 }
-
+/*
 //<-dceag-const2-b->
 // The constructor when the class is created as an embedded instance within another stand-alone device
-/*
- * Insteon::Insteon(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter)
+Insteon::Insteon(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter)
 	: Insteon_Command(pPrimaryDeviceCommand, pData, pEvent, pRouter)
-
 //<-dceag-const2-e->
 {
 }
@@ -115,12 +105,11 @@ bool Insteon::Register()
 /*  Since several parents can share the same child class, and each has it's own implementation, the base class in Gen_Devices
 	cannot include the actual implementation.  Instead there's an extern function declared, and the actual new exists here.  You 
 	can safely remove this block (put a ! after the dceag-createinst-b block) if this device is not embedded within other devices. */
-//<-dceag-createinst-b->
+//<-dceag-createinst-b->!
 /*Insteon_Command *Create_Insteon(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter)
 {
 	return new Insteon(pPrimaryDeviceCommand, pData, pEvent, pRouter);
-}
-*/
+}*/
 //<-dceag-createinst-e->
 
 /*
@@ -155,7 +144,7 @@ void Insteon::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &
 		}
 		if( pMessage->m_dwID == COMMAND_Generic_Off_CONST )
 		{
-		//	LoggerWrapper::GetInstance()->Write(LV_INSTEON, "Sending ON - %s", NodeID);
+		//	LoggerWrapper::GetInstance()->Write(LV_INSTEON, "Sending OFF - %s", NodeID);
 			InsteonJobSwitchChangeLevel * light = new InsteonJobSwitchChangeLevel(m_InsteonAPI, 0, (char*)NodeID);
 			if( light != NULL )
 			{
@@ -176,7 +165,26 @@ void Insteon::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &
 				m_InsteonAPI->start();
 			}
 		}
-		
+		else if( pMessage->m_dwID == COMMAND_TurnOnSprinklerValve_CONST)
+		{
+			unsigned char ValveNum = (unsigned char)atoi(pDeviceData_Impl->m_mapParameters_Find(DEVICEDATA_Valve_Number_int_CONST).c_str());
+			InsteonJobEZRainValveControl* valve_control = new InsteonJobEZRainValveControl(m_InsteonAPI, ValveNum, 0x1, (char*)NodeID);
+			if( valve_control != NULL )
+			{
+				m_InsteonAPI->insertJob(valve_control );
+				m_InsteonAPI->start();
+			}
+		}
+		else if( pMessage->m_dwID == COMMAND_TurnOffSprinklerValve_CONST)
+		{
+			unsigned char ValveNum = (unsigned char)atoi(pDeviceData_Impl->m_mapParameters_Find(DEVICEDATA_Valve_Number_int_CONST).c_str());
+			InsteonJobEZRainValveControl* valve_control = new InsteonJobEZRainValveControl(m_InsteonAPI,ValveNum, 0, (char*)NodeID);
+			if( valve_control != NULL )
+			{
+				m_InsteonAPI->insertJob(valve_control );
+				m_InsteonAPI->start();
+			}
+		}			
 	}
 }
 
@@ -191,7 +199,6 @@ void Insteon::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage)
 {
 	sCMD_Result = "UNKNOWN COMMAND";
 }
-
 
 bool Insteon::ConfirmConnection()
 {
@@ -232,7 +239,7 @@ void *DoAsynch(void *p)
 	}
 	else
 	{
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "DoAsynch : no ZWave object");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "DoAsynch : no Insteon object");
 	}
 	
 	return NULL;
@@ -243,11 +250,7 @@ void Insteon::AsynchInsteon()
 	while(m_AsynchStarted)
 	{
 		m_InsteonAPI->listenAsynchronous();
-#ifdef _WIN32
-		Sleep(POOL_DELAY); 
-#else
 		usleep(POOL_DELAY); 
-#endif
 	}
 }
 
@@ -273,8 +276,8 @@ void Insteon::asynchThread(bool start)
 	{
 		if( m_AsynchStarted )
 		{
-//			m_ZWaveAPI->stop();
-//			m_ZWaveAPI->clearJobs();
+//			m_InsteonAPI->stop();
+//			m_InsteonAPI->clearJobs();
 			m_AsynchStarted = false;
 			pthread_join(m_AsynchThread, NULL);
 		}
@@ -397,13 +400,6 @@ void Insteon::CMD_Report_Child_Devices(string &sCMD_Result,Message *pMessage)
 		/** @param #9 Text */
 			/** Any information the device may want to do the download */
 
-void Insteon::CMD_Download_Configuration(string sText,string &sCMD_Result,Message *pMessage)
-//<-dceag-c757-e->
-{
-	cout << "Need to implement command #757 - Download Configuration" << endl;
-	cout << "Parm #9 - Text=" << sText << endl;
-}
-
 //<-dceag-c760-b->
 
 	/** @brief COMMAND: #760 - Send Command To Child */
@@ -419,10 +415,38 @@ PK_CommandParameter|Value|... */
 void Insteon::CMD_Send_Command_To_Child(string sID,int iPK_Command,string sParameters,string &sCMD_Result,Message *pMessage)
 //<-dceag-c760-e->
 {
-	cout << "Need to implement command #760 - Send Command To Child" << endl;
-	cout << "Parm #10 - ID=" << sID << endl;
-	cout << "Parm #154 - PK_Command=" << iPK_Command << endl;
-	cout << "Parm #202 - Parameters=" << sParameters << endl;
+	const char* NodeID = sID.c_str();
+	sCMD_Result = "OK";
+	if( iPK_Command == COMMAND_Generic_On_CONST )
+	{
+		//LoggerWrapper::GetInstance()->Write(LV_INSTEON,"Sending ON - %s", sID.c_str());
+		InsteonJobSwitchChangeLevel * light = new InsteonJobSwitchChangeLevel(m_InsteonAPI, 0xFF, (char*)NodeID);
+		if( light != NULL )
+		{
+			//light->setRunningTimeout( ZW_SHORT_TIMEOUT );
+			m_InsteonAPI->insertJob( light );
+			m_InsteonAPI->start();
+		}
+	}
+	
+	else if( iPK_Command == COMMAND_Generic_Off_CONST )
+	{
+		//LoggerWrapper::GetInstance()->Write(LV_INSTEON,"Sending OFF - %s", sID.c_str());
+		InsteonJobSwitchChangeLevel * light = new InsteonJobSwitchChangeLevel(m_InsteonAPI, 0x00, (char*)NodeID);
+		if( light != NULL )
+		{
+			//light->setRunningTimeout( ZW_SHORT_TIMEOUT );
+			m_InsteonAPI->insertJob( light );
+			m_InsteonAPI->start();
+		}
+	}
+	
+	else 
+	{
+	cout << "Unhandled Command in \"Send Command to Child\" command for node: " << NodeID << endl;	
+	}
+
+
 }
 
 //<-dceag-c776-b->
@@ -436,8 +460,9 @@ NOEMON or CANBUS */
 void Insteon::CMD_Reset(string sArguments,string &sCMD_Result,Message *pMessage)
 //<-dceag-c776-e->
 {
-	cout << "Need to implement command #776 - Reset" << endl;
-	cout << "Parm #51 - Arguments=" << sArguments << endl;
+	InsteonJobReset* reset_job = new InsteonJobReset(m_InsteonAPI);
+	m_InsteonAPI->insertJob( reset_job );
+	m_InsteonAPI->start();
 }
 
 //<-dceag-c788-b->
@@ -454,4 +479,19 @@ void Insteon::CMD_StatusReport(string sArguments,string &sCMD_Result,Message *pM
 	cout << "Parm #51 - Arguments=" << sArguments << endl;
 }
 
+
+//<-dceag-c920-b->
+
+	/** @brief COMMAND: #920 - Add Insteon Device to Group */
+	/** Create a group and add the specified devices to the group number (stored in PLC adapter) */
+		/** @param #249 Group ID */
+			/** The Insteon Group to which to add the node */
+		/** @param #250 Nodes List */
+			/** The list of associated Z-Wave nodes (comma separated) */
+
+void Insteon::CMD_Add_Insteon_Device_to_Group(int iGroup_ID,string sNodes_List,string &sCMD_Result,Message *pMessage)
+//<-dceag-c920-e->
+{
+	
+}
 
