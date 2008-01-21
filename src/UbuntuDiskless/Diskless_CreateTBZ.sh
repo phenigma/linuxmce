@@ -212,6 +212,8 @@ chroot $TEMP_DIR apt-get -y install kubuntu-desktop
 mv "$TEMP_DIR"/etc/init.d/kdm{,.save}
 mv "$TEMP_DIR"/etc/rc2.d/*kdm "$TEMP_DIR"/etc/rc2.d/S99kdm
 
+chroot $TEMP_DIR apt-get -y install xserver-xorg-video-all
+
 umount $TEMP_DIR/usr/pluto/deb-cache
 umount $TEMP_DIR/sys
 umount $TEMP_DIR/proc
