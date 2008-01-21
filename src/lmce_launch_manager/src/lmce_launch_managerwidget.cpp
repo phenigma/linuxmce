@@ -325,9 +325,19 @@ void lmce_launch_managerWidget::initialize_Connections()
 	
 	m_qsDeviceID = pConfig->m_mapParameters_Find("PK_Device");
 	
+	// detecting core
+	m_qsCoreDeviceID = queryDB("SELECT PK_Device FROM Device WHERE FK_DeviceTemplate=7");
+	if (m_qsCoreDeviceID=="")
+	{
+		m_qsCoreDeviceID = "1";
+		writeLog("Hmm... core device ID is empty, setting it to 1", false, LV_WARNING);
+	}
+	else
+		writeLog("Detected core as device #" + m_qsCoreDeviceID, false, LV_WARNING);
+	
 	QString mdID;
 	
-	if (m_qsDeviceID == "1")
+	if (m_qsDeviceID == m_qsCoreDeviceID)
 	{
 		m_bCoreHere = true;
 		mdID = queryDB("SELECT PK_Device FROM Device LEFT JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE FK_Device_ControlledVia=" + m_qsDeviceID + " AND FK_DeviceCategory IN (8)");
@@ -1803,7 +1813,7 @@ void lmce_launch_managerWidget::startCoreDevices(bool checkForAlreadyRunning)
 	if ( pPlutoDatabase ) {
 		// fetching list of non-MD devices under Core
 		QStringList devices;
-		devices.append("1");
+		devices.append(m_qsCoreDeviceID);
 		
 		// filtering out the MD/Hybrid PC
 		QString extraCondition = "";
@@ -2926,7 +2936,10 @@ bool lmce_launch_managerWidget::confirmOrbiterSkinIsReady()
 	// if we already have a record in the list for this Orbiter
 	QString orbiterRecordID = queryDB("SELECT PK_Orbiter FROM Orbiter WHERE PK_Orbiter=" + m_qsOrbiterID);
 	
-	if (orbiterRecordID=="")
+	// if Orbiter needs a regen (flag set by AVWizard)
+	QString orbiterRegenFlag = queryDB("SELECT Regen FROM Orbiter WHERE PK_Orbiter=" + m_qsOrbiterID);
+	
+	if (orbiterRecordID=="" || orbiterRegenFlag=="1")
 	{
 		if ( !triggerOrbiterRegen() )
 		{
@@ -2935,7 +2948,11 @@ bool lmce_launch_managerWidget::confirmOrbiterSkinIsReady()
 		}
 		else
 		{
-			writeLog("First time generating skin for current Orbiter #"+m_qsOrbiterID, true);
+			if (orbiterRecordID=="")
+				writeLog("First time generating skin for current Orbiter #"+m_qsOrbiterID, true);
+			else
+				writeLog("Regenerating skin for current Orbiter #"+m_qsOrbiterID, true);
+			
 			QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 			sleep(3);
 		}

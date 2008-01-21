@@ -83,6 +83,8 @@ private:
 	QString m_qsOrbiterID;
 	QString m_qsOrbiterPluginID;
 	QString m_qsMediaID;
+	
+	QString m_qsCoreDeviceID;
 
 	QString m_qsMySQLPort;
 	QString m_qsDCERouterPort;
