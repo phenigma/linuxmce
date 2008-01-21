@@ -14,6 +14,9 @@ function mainScreenSaver($output,$mediadbADO,$dbADO) {
 	$screenSaverAttribute=getScreenSaverAttribute($mediadbADO);
 	
 	if($action=='form'){
+		$flickerEnabled=flickrStatus();
+		$flicker_enable_disable_text=($flickerEnabled==1)?$TEXT_DISABLE_FLICKR_CONST:$TEXT_ENABLE_FLICKR_CONST;
+		
 		if($path!=''){
 			$physicalFiles=grabFiles($path,'');
 			
@@ -55,6 +58,7 @@ function mainScreenSaver($output,$mediadbADO,$dbADO) {
 			';
 			
 			$out.='
+				<input type="checkbox" name="flikr" value="1" '.(($flickerEnabled==1)?'checked':'').' onClick="document.mainScreenSaver.submit();"> '.$flicker_enable_disable_text.'
 				<table cellpading="0" cellspacing="0">
 					<tr>
 						<td>'.getScreensaverFiles($path,$screenSaverAttribute,$mediadbADO,$page,$records_per_page).'</td>
@@ -69,15 +73,21 @@ function mainScreenSaver($output,$mediadbADO,$dbADO) {
 	';
 
 	}else{
-		$displayedFiles=cleanString($_POST['displayedFiles']);
-		$mediadbADO->Execute('DELETE FROM File_Attribute WHERE FK_Attribute=? AND FK_File IN ('.$displayedFiles.')',array($screenSaverAttribute));
-		$displayedFilesArray=explode(',',$displayedFiles);
-		foreach ($displayedFilesArray AS $fileID){
-			if((int)@$_POST['file_'.$fileID]==1){
-				$mediadbADO->Execute('INSERT IGNORE INTO File_Attribute (FK_Attribute,FK_File) VALUES (?,?)',array($screenSaverAttribute,$fileID));
+		$flickr=(int)@$_REQUEST['flikr'];
+		$parm=($flickr==1)?'-enable':'-disable';
+		flickrStatus($parm);
+		
+		$displayedFiles=cleanString(@$_POST['displayedFiles']);
+		if($displayedFiles!=''){
+			$mediadbADO->Execute('DELETE FROM File_Attribute INNER JOIN FKAttribute ON FK_Attribute=PK_Attribute WHERE FK_AttributeType=30 AND FK_File IN ('.$displayedFiles.')',array($screenSaverAttribute));
+			$displayedFilesArray=explode(',',$displayedFiles);
+			foreach ($displayedFilesArray AS $fileID){
+				if((int)@$_POST['file_'.$fileID]==1){
+					$mediadbADO->Execute('INSERT IGNORE INTO File_Attribute (FK_Attribute,FK_File) VALUES (?,?)',array($screenSaverAttribute,$fileID));
+				}
 			}
 		}
-		
+				
 		header('Location: index.php?section=mainScreenSaver&path='.urlencode($path).'&msg='.cleanString($TEXT_SCREENSAVER_UPDATED_CONST));
 		exit();
 		
@@ -162,13 +172,24 @@ function getScreensaverFiles($path,$screenSaverAttribute,$mediadbADO,$page,$reco
 }
 
 function getScreenSaverAttribute($mediadbADO){
-	$res=$mediadbADO->Execute('SELECT PK_Attribute FROM Attribute WHERE FK_AttributeType=30');
+	$res=$mediadbADO->Execute('SELECT PK_Attribute,Name FROM Attribute WHERE FK_AttributeType=30');
 	if($res->RecordCount()==0){
-		$mediadbADO->Execute('INSERT INTO Attribute (FK_AttributeType,Name) SELECT PK_AttributeType,Description FROM AttributeType WHERE PK_AttributeType=30');
+		$mediadbADO->Execute('INSERT INTO Attribute (FK_AttributeType,Name) SELECT PK_AttributeType,\'*\' FROM AttributeType WHERE PK_AttributeType=30');
 		return $mediadbADO->Insert_id();
 	}
-	$row=$res->FetchRow();
+	$attribute=0;
+	while($row=$res->FetchRow()){
+		if($attribute==0 || $row['Name']=='*'){
+			$attribute=$row['PK_Attribute'];
+		}
+	}
 	
-	return $row['PK_Attribute'];
+	return $attribute;
+}
+
+function flickrStatus($param='-status'){
+	$cmd='sudo -u root /usr/pluto/bin/flickr_status.sh '.$param;
+	
+	return trim(exec_batch_command($cmd,1));
 }
 ?>
