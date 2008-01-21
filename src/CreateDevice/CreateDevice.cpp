@@ -341,6 +341,7 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"CreateDevice::DoIt Found %d rows 
 			}
 		}
 
+#if 0 // the PVR software will be selected from the Video Wizard
 		// See what PVR software this uses
 		SQL = "SELECT IK_DeviceData FROM Device_DeviceData JOIN Device ON FK_Device=PK_Device WHERE FK_DeviceData=" TOSTRING(DEVICEDATA_TV_Standard_CONST) 
 			" AND FK_DeviceTemplate=" TOSTRING(DEVICETEMPLATE_Generic_PC_as_Core_CONST) " AND FK_Installation=" + StringUtils::itos(m_iPK_Installation);
@@ -354,6 +355,7 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"CreateDevice::DoIt Found %d rows 
 			DoIt(0,DEVICETEMPLATE_VDR_CONST,"","","",0,"",PK_Device);
 		else
 			DoIt(0,DEVICETEMPLATE_MythTV_Player_CONST,"","","",0,"",PK_Device);
+#endif
 	}
 
 	// If we weren't given a controlled via, try to find an appropriate one
