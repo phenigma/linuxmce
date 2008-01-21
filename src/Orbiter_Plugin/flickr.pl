@@ -15,6 +15,17 @@ use POSIX ":sys_wait_h";
 #use strict;
 use vars qw($dest $xs $r @buff $child_count $minW $minH @fileList @AoH);
 
+if (-f '/etc/pluto/flickr-enabled')
+{
+	open CONF, '/etc/pluto/flickr-enabled';
+	$enabled = <CONF>;
+	close CONF;
+
+	chomp($enabled);
+	die ("Flickr is disabled") if ($enabled eq "0");
+}
+print "Starting flickr\n";
+
 $child_count = 5;
 
 $SIG{CHLD} = \&sig_child;
