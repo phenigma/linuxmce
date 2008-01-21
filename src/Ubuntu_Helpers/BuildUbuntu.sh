@@ -12,6 +12,7 @@ Build_MakeRelease_Binary
 Import_Build_Database
 Create_Fake_Windows_Binaries
 Build_Pluto_Stuff
+Copy_Closed_Source_Debs
 Create_Local_Repository
 Create_ISO
 
