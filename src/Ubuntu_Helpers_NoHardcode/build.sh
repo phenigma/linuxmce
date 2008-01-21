@@ -16,6 +16,7 @@ build_scripts_dir="/usr/local/lmce-build/build-scripts"
 "${build_scripts_dir}/import-databases.sh"
 
 "${build_scripts_dir}/build-maindebs.sh"
+"${build_scripts_dir}/get-closed-source-debs.sh"
 
 "${build_scripts_dir}/create-repo.sh"
 
