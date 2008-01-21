@@ -133,7 +133,7 @@ for Port in $R; do
 	SrcIP=$(Field 6 "$Port")
 
 	if [[ "$SrcPortEnd" -eq 0 ]]; then
-		ForwardPort "$Protocol" "$ExtIP" "$SrcPort" "$DestIP" "$DestPort"
+		ForwardPort "$Protocol" "$ExtIP" "$SrcPort" "$DestIP" "$DestPort" "$SrcIP"
 	else
 		DPort="$DestPort"
 		for ((SPort=SrcPort; SPort<=SrcPortEnd; SPort++)); do
