@@ -19,6 +19,7 @@ while : ;do
 	# Backup the ISO
 	mkdir -p "${build_ftp_dir}/ISO"
 	cp /var/www/*.iso "${build_ftp_dir}/ISO/"
+	rm -f /var/www/*.iso
 
 	# Cleanup the Build Dir of Private Sources
 	rm -rf /var/lmce-build/svn/trunk/src/ZWave
@@ -29,10 +30,12 @@ while : ;do
 	# Backup the Build Dir
 	mkdir -p "${build_ftp_dir}/BUILD"
 	cp -r /var/lmce-build/svn/trunk/src/* "${build_ftp_dir}/BUILD"
+	rm -rf /var/lmce-build/svn/*
 
 	# Backup the Debs
 	mkdir -p "${build_ftp_dir}/DEBS"
 	cp -r /var/www/*.deb "${build_ftp_dir}/DEBS"
+	rm -f /var/www/*.deb
 	
 	# Backup the log
 	mkdir -p "${build_ftp_dir}/LOGS"
