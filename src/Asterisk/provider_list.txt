@@ -4,7 +4,7 @@ inphonex (try for free, pay as you go)	http://www.inphonex.com	inphonex
 e-fon (Switzerland)	http://www.e-fon.ch/	efon
 broadvoice (US number, free incoming)	http://www.broadvoice.com	broadvoice
 teliax (US number, pay incoming)	http://www.teliax.com/	teliax
-NuFone	http://www.nufone.net	nufone
+NuFone	http://www.nufone.net	nufone-out
 VoiceEclipse	http://www.voiceeclipse.com/	voiceeclipse
 Gradwell	http://www.gradwell.com/	sipgradwell
 Xs4all	http://www.xs4all.nl/	xs4all
