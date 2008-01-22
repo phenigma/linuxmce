@@ -9,3 +9,5 @@
 
 #update-rc.d -f haltMDs start 01 0 6 . || /bin/true
 update-rc.d -f haltMDs stop 01 0 6 . || /bin/true
+
+/usr/pluto/bin/Diskless_BuildDefaultImage.sh || :
