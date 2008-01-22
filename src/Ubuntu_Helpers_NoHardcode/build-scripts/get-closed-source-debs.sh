@@ -11,6 +11,7 @@ trap 'Error "Undefined error in $0"' EXIT
 
 DisplayMessage "Getting latest ID"
 LatestID=$(2>/dev/null wget -O - "$closed_source_debs_url/latest")
+mkdir -p "$out_dir"/tmp
 pushd "$out_dir"/tmp
 	DisplayMessage "Downloading latest archive"
 	wget -O "$LatestID".tar "$closed_source_debs_url/$LatestID.tar"
