@@ -1,5 +1,13 @@
 #!/bin/bash -x
+
 . /etc/lmce-build/builder.conf
+. /usr/local/lmce-build/common/logging.sh
+
+set -e
+set -x
+
+DisplayMessage "*** STEP: Creating Install DVD [ $1 ]"
+trap 'Error "Undefined error in $0"' EXIT
 
 WorkDir="${build_dir}/lite-installer"
 LiveCDtgz="$WorkDir/ubuntu-livecd.tgz"
@@ -12,10 +20,10 @@ FirstRunScript="firstboot"
 
 if [[ "$1" == "big" ]] ;then
 	LiveCDISO="$WorkDir/kubuntu-linuxmce-big.iso"
-	LiveCDISO_Link="/var/www/LinuxMCE-DVD-DL-${arch}.iso"
+	LiveCDISO_Link="${local_mirror_dir}/LinuxMCE-DVD-DL-${arch}.iso"
 else
 	LiveCDISO="$WorkDir/kubuntu-linuxmce.iso"
-	LiveCDISO_Link="/var/www/LinuxMCE-DVD-${arch}.iso"
+	LiveCDISO_Link="${local_mirror_dir}/LinuxMCE-DVD-${arch}.iso"
 fi
 
 InstallerArchive="${build_dir}/vmware/Kubuntu/linux-mce.tar.gz"
@@ -99,7 +107,16 @@ CleanupWorkDir()
 	rm -rf "$LiveCDDir" "$SquashFSDir"
 }
 
+DisplayMessage "Preparing dvd filesystem"
 PrepareWorkDir
+
+DisplayMessage "Creating SquashFS"
 CreateSquashFS
+
+DisplayMessage "Generating the ISO"
 CreateLiveCD
+
+DisplayMessage "Removing temporary files used to create the dvd filesystem"
 CleanupWorkDir
+
+trap - EXIT
