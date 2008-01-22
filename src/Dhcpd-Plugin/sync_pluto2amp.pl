@@ -37,7 +37,7 @@ open(OUT, ">/etc/asterisk/sccp.conf.$$");
 
 for my $line (@data) {
         if($line=~/bindaddr/) {
-                $line =~ s/bindaddr = (\d.+).(\d.+).(\d.+).(\d.+)\s{2,}(.+)/bindaddr = $serv_IP $5/g;
+                $line =~ s/bindaddr = .*(; .+)$/bindaddr = $serv_IP $1/g;
                 print OUT $line;
         } else {
                 print OUT $line;
