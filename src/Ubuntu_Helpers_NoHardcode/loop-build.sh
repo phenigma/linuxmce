@@ -5,7 +5,8 @@ while : ;do
 	echo "$(date -R) Started" >> /var/log/loop-build.log	
 
 	# Start Build
-	/usr/local/lmce-build/build.sh
+	BuildFinished="true"
+	/usr/local/lmce-build/build.sh || BuildFinished="false"
 
 	# Remove old Dir and keep last 5 build (hint: tail +5)
 	for remove_dir in $(for dir in $(ls -r -d -X /home/ftp/AutoBuilds/build-*-${arch}); do echo $dir ;done | tail +5) ;do
@@ -42,4 +43,20 @@ while : ;do
 	cp /var/log/lmce-build.log "${build_ftp_dir}/LOGS"
 	
 	echo "$(date -R) Done" >> /var/log/loop-build.log
+
+	# Send mail informing that the build had finished
+	if [[ "$BuildFinished" == "true" ]] ;then
+		mail_txt_file=$(mktemp)
+		echo                                                     >$mail_txt_file
+		echo "Arch   : ${arch}"                                 >>$mail_txt_file
+		echo "Flavor : ${flavor}"                               >>$mail_txt_file
+		echo "Date   : $(date -R)"                              >>$mail_txt_file
+		echo                                                    >>$mail_txt_file
+		echo "Build Completed"					>>$mail_txt_file
+		echo                                                    >>$mail_txt_file
+		echo " http://builder32.linuxmce.com/AutoBuilds/$(basename $build_ftp_dir)" >>$mail_txt_file
+		echo
+		cat $mail_txt_file | mail -s "$mail_subject_prefix Build Completed" "${mail_to}"
+		rm -rf $mail_txt_file
+	fi
 done 
