@@ -1,2 +1,0 @@
-<?
-header('LOCATION: /index.php');
