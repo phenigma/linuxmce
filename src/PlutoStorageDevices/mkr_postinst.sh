@@ -8,7 +8,7 @@
 mkdir -p /mnt/device
 
 ## Add a cron entry that scans for Internal Storage Devices
-cronEntry="*/10 * * * * root /usr/pluto/bin/StorageDevices_Radar.sh &>/dev/null"
+cronEntry="*/10 * * * * root bash -c '/usr/pluto/bin/StorageDevices_Radar.sh &>/dev/null'"
 if [[ ! -e /etc/cron.d/StorageDevicesRadar ]] ;then
 	echo "$cronEntry" >>/etc/cron.d/StorageDevicesRadar
 	invoke-rc.d cron reload
