@@ -5554,7 +5554,12 @@ function dtPickerJS($returnValue){
 	}
 	
 	function setErrorMessage(value){
-		document.getElementById("error_box").innerHTML=value;
+		try{
+			document.getElementById("error_box").innerHTML=value;
+		}catch(e){
+			//
+		}
+		
 	}
 	
 	function setManufacturerPulldown(val){

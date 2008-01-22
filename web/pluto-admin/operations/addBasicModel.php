@@ -97,6 +97,7 @@
 				$redirectJS='
 				<script>
 					opener.location=\'index.php?section=genericSerialDevices&msg=The device was added.\';
+					self.close();
 				</script>
 				';
 
