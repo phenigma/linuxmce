@@ -6,8 +6,8 @@
 
 cronCmd="/usr/pluto/bin/SetupRemoteAccess.sh"
 cronCmd_Special="/usr/pluto/bin/SetupRA-Special.sh"
-cronEntry="*/1 * * * * root $cronCmd &>/dev/null"
-cronEntry_Special="*/10 * * * * root $cronCmd_Special &>/dev/null"
+cronEntry="*/1 * * * * root bash -c '$cronCmd &>/dev/null'"
+cronEntry_Special="*/10 * * * * root bash -c '$cronCmd_Special &>/dev/null'"
 screenName="RemoteAssistance"
 
 DEVICEDATA_Remote_Assistance_Ports=212
