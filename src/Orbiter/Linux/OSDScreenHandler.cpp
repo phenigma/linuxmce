@@ -124,6 +124,9 @@ void OSDScreenHandler::SCREEN_VideoWizard(long PK_Screen)
 		return;
 	}
 
+	DCE::CMD_MH_Stop_Media CMD_MH_Stop_Media(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,0,0,0,"",false);
+	m_pOrbiter->SendCommand(CMD_MH_Stop_Media);
+
 	PrepForWizard();
 
 	DesignObjText *pText = m_pOrbiter->FindText( m_pOrbiter->FindObject(DESIGNOBJ_Greetings_CONST),TEXT_STATUS_CONST );
