@@ -774,7 +774,7 @@ int MediaAttributes_LowLevel::Parse_Misc_Media_ID(int PK_MediaType,listMediaAttr
 				if( PK_AttributeType==ATTRIBUTETYPE_Performer_CONST )
 					mapPerformer[ make_pair<int,int> (Track,Section) ] = pRow_Attribute->PK_Attribute_get();
 
-				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::Parse_Misc_Media_ID added attribute %p %d %s",
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"MediaAttributes_LowLevel::Parse_Misc_Media_ID added attribute %p %d %s",
 					pRow_Attribute, (pRow_Attribute ? pRow_Attribute->PK_Attribute_get() : 0), sName.c_str());
 
 				listMediaAttribute_.push_back( new MediaAttribute(
@@ -792,7 +792,7 @@ int MediaAttributes_LowLevel::Parse_Misc_Media_ID(int PK_MediaType,listMediaAttr
 				LoggerWrapper::GetInstance()->Write(LV_WARNING,"MediaAttributes_LowLevel::Parse_Misc_Media_ID attribute ATTRIBUTETYPE_Album_CONST is empty");
 				return PK_Disc;
 			}
-			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::Parse_Misc_Media_ID added attribute %p %d %s",
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"MediaAttributes_LowLevel::Parse_Misc_Media_ID added attribute %p %d %s",
 				pRow_Attribute, (pRow_Attribute ? pRow_Attribute->PK_Attribute_get() : 0), it->second.c_str());
 
 			listMediaAttribute_.push_back( new MediaAttribute(
@@ -1404,7 +1404,7 @@ void MediaAttributes_LowLevel::AddDiscAttributesToFile(int PK_File,int PK_Disc,i
 	Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->GetRow( PK_File );
 	if( !pRow_Disc || !pRow_File )
 	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Media_Plugin::AddDiscAttributesToFile called with missing file %d disc %d",PK_File,PK_Disc);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MediaAttributes_LowLevel::AddDiscAttributesToFile called with missing file %d disc %d",PK_File,PK_Disc);
 		return;
 	}
 
@@ -1425,7 +1425,7 @@ void MediaAttributes_LowLevel::AddDiscAttributesToFile(int PK_File,int PK_Disc,i
 			m_pDatabase_pluto_media->Picture_File_get()->Commit();
 		}
 
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::AddDiscAttributesToFile called with file %d disc %d PIC %d",
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"MediaAttributes_LowLevel::AddDiscAttributesToFile called with file %d disc %d PIC %d",
 			PK_File,PK_Disc,pRow_Picture_File->FK_Picture_get());
 	}
 
@@ -1437,7 +1437,13 @@ void MediaAttributes_LowLevel::AddDiscAttributesToFile(int PK_File,int PK_Disc,i
 		pRow_Disc->FK_File_set(pRow_File->PK_File_get());  // The discs has been ripped to this file
 		m_pDatabase_pluto_media->Disc_get()->Commit();
 	}
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MediaAttributes_LowLevel::AddDiscAttributesToFile where condition %s", sWhere.c_str());
+
 	m_pDatabase_pluto_media->Disc_Attribute_get()->GetRows(sWhere,&vectRow_Disc_Attribute);
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MediaAttributes_LowLevel::AddDiscAttributesToFile Disc_Attribute_get num of rows %d", vectRow_Disc_Attribute.size());
+
 	for(size_t s=0;s<vectRow_Disc_Attribute.size();++s)
 	{
 		// Check if it's already there in case this disc was already added
@@ -1453,6 +1459,9 @@ void MediaAttributes_LowLevel::AddDiscAttributesToFile(int PK_File,int PK_Disc,i
 			pRow_File_Attribute->Section_set( vectRow_Disc_Attribute[s]->Section_get() );
 			m_pDatabase_pluto_media->File_Attribute_get()->Commit();
 		}
+
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"MediaAttributes_LowLevel::AddDiscAttributesToFile Copying attribute from disc to file %d : %d", 
+			vectRow_Disc_Attribute[s]->FK_Attribute_get(), NULL == pRow_File_Attribute);
 	}
 }
 
