@@ -21,5 +21,21 @@ function Error {
 	tail -20 "$log_file"	>&100
 	echo 			>&100
 
+	# Mail the users
+	mail_txt_file=$(mktemp)
+	echo 							 >$mail_txt_file
+	echo "Arch   : ${arch}"					>>$mail_txt_file
+	echo "Flavor : ${flavor}"				>>$mail_txt_file
+	echo "Date   : $(date -R)"				>>$mail_txt_file
+	echo 							>>$mail_txt_file
+	echo "Here are the last 150 lines of the log file:"	>>$mail_txt_file
+	echo							>>$mail_txt_file
+	tail -150 "$log_file"					>>$mail_txt_file
+	echo							>>$mail_txt_file
+
+	cat $mail_txt_file | mail -s "$mail_subject_prefix Build Failure" "${mail_to}"
+
+	rm -rf $mail_txt_file
+
 	exit 1
 }
