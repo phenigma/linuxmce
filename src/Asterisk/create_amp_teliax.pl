@@ -52,7 +52,7 @@ $TRUNK_VARS{'maxchans'}="";
 $TRUNK_VARS{'dialrules'}=$LOCAL_PREFIX1;
 $TRUNK_VARS{'autopop'}="";
 $TRUNK_VARS{'dialoutprefix'}="";
-$TRUNK_VARS{'channelid'}="teliax-out";
+$TRUNK_VARS{'channelid'}="teliax";
 $TRUNK_VARS{'peerdetails'} ="allow=gsm\n";
 $TRUNK_VARS{'peerdetails'}.="auth=md5\n";
 $TRUNK_VARS{'peerdetails'}.="context=from-internal\n";
@@ -84,7 +84,7 @@ my $OUT_ROUTE = "";
 while(<PAGE>)
 {
     chomp;
-    if($_ =~ /[<]option value[=]\"([^\"]+)\"[>]IAX2\/teliax-out[<]\/option[>]/)
+    if($_ =~ /[<]option value[=]\"([^\"]+)\"[>]IAX2\/teliax[<]\/option[>]/)
     {
         $OUT_ROUTE=$1;
     }

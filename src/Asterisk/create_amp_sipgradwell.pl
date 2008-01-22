@@ -53,7 +53,7 @@ $TRUNK_VARS{'maxchans'}="";
 $TRUNK_VARS{'dialrules'}=$LOCAL_PREFIX1; 
 $TRUNK_VARS{'autopop'}="";
 $TRUNK_VARS{'dialoutprefix'}="";
-$TRUNK_VARS{'channelid'}="Gradwell-sip";
+$TRUNK_VARS{'channelid'}="sipgradwell";
 #$TRUNK_VARS{'peerdetails'} ="allow=alaw&alaw&ulaw&g729&gsm&slinear\n"; 
 #$TRUNK_VARS{'peerdetails'}.="auth=md5\n";
 $TRUNK_VARS{'peerdetails'}.="authuser=$DECLARED_USERNAME\n";
@@ -111,7 +111,7 @@ my $OUT_ROUTE = "";
 while(<PAGE>)
 {
    chomp;
-   if($_ =~ /[<]option value[=]\"([^\"]+)\"[>]SIP\/sipgate[<]\/option[>]/) 
+   if($_ =~ /[<]option value[=]\"([^\"]+)\"[>]SIP\/sipgradwell[<]\/option[>]/) 
    {
        $OUT_ROUTE=$1;
    }

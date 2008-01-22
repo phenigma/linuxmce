@@ -54,7 +54,7 @@ $TRUNK_VARS{'maxchans'}="";
 $TRUNK_VARS{'dialrules'}=$LOCAL_PREFIX1;
 $TRUNK_VARS{'autopop'}="";
 $TRUNK_VARS{'dialoutprefix'}="";
-$TRUNK_VARS{'channelid'}="sipgate";
+$TRUNK_VARS{'channelid'}="sipgate_de";
 $TRUNK_VARS{'peerdetails'} ="allow=alaw&alaw&ulaw&g729&gsm&slinear\n";
 $TRUNK_VARS{'peerdetails'}.="auth=md5\n";
 $TRUNK_VARS{'peerdetails'}.="context=from-trunk\n";
@@ -112,7 +112,7 @@ my $OUT_ROUTE = "";
 while(<PAGE>)
 {
     chomp;
-    if($_ =~ /[<]option value[=]\"([^\"]+)\"[>]SIP\/sipgate[<]\/option[>]/)  ### Will need to be changed!
+    if($_ =~ /[<]option value[=]\"([^\"]+)\"[>]SIP\/sipgate_de[<]\/option[>]/)  ### Will need to be changed!
     {
         $OUT_ROUTE=$1;
     }
@@ -121,7 +121,7 @@ close(PAGE);
 $OUT_VARS{'display'}="routing";  ### May need to be changed!
 $OUT_VARS{'extdisplay'}="";  ### May need to be changed!
 $OUT_VARS{'action'}="addroute"; ### May need to be changed!
-$OUT_VARS{'routename'}="sipgate"; ### Will need to be changed!
+$OUT_VARS{'routename'}="sipgate_de"; ### Will need to be changed!
 $OUT_VARS{'routepass'}=""; ### May need to be changed!
 $OUT_VARS{'dialpattern'}=$LOCAL_PREFIX2; ### May need to be changed!
 $OUT_VARS{'trunkpriority[0]'}=$OUT_ROUTE; ### May need to be changed!

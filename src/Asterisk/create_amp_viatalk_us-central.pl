@@ -52,7 +52,7 @@ $TRUNK_VARS{'maxchans'}="";
 $TRUNK_VARS{'dialrules'}=$LOCAL_PREFIX1;
 $TRUNK_VARS{'autopop'}="";
 $TRUNK_VARS{'dialoutprefix'}="";
-$TRUNK_VARS{'channelid'}="viatalk";
+$TRUNK_VARS{'channelid'}="viatalk_us-central";
 $TRUNK_VARS{'peerdetails'} ="allow=alaw&alaw&ulaw\n";
 $TRUNK_VARS{'peerdetails'}.="context=from-trunk\n";
 #$TRUNK_VARS{'peerdetails'}.="disallow=all\n";
@@ -109,7 +109,7 @@ my $OUT_ROUTE = "";
 while(<PAGE>)
 {
     chomp;
-    if($_ =~ /[<]option value[=]\"([^\"]+)\"[>]SIP\/viatalk[<]\/option[>]/)
+    if($_ =~ /[<]option value[=]\"([^\"]+)\"[>]SIP\/viatalk_us-central[<]\/option[>]/)
     {
         $OUT_ROUTE=$1;
     }
