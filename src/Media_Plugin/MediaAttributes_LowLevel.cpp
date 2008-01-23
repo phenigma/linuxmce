@@ -1471,9 +1471,10 @@ void MediaAttributes_LowLevel::AddDiscAttributesToFile(int PK_File,int PK_Disc,i
 				vectRow_Disc_Attribute[s]->FK_Attribute_get(), PK_File, 
 				vectRow_Disc_Attribute[s]->Track_get(),vectRow_Disc_Attribute[s]->Section_get());
 		}
-
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"MediaAttributes_LowLevel::AddDiscAttributesToFile NOT copying attribute %d from disc to file, already exists", 
-			vectRow_Disc_Attribute[s]->FK_Attribute_get());
+		else
+		{
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"MediaAttributes_LowLevel::AddDiscAttributesToFile NOT copying attribute %d from disc to file, already exists", vectRow_Disc_Attribute[s]->FK_Attribute_get());
+		}
 	}
 }
 
