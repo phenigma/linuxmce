@@ -436,6 +436,10 @@ return false;
 
 bool Table_File_Attribute::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
+    	LoggerWrapper::GetInstance()->Write(LV_WARNING,"Table_File_Attribute::Commit Invoked");
+	LoggerWrapper::GetInstance()->Write(LV_WARNING,"Table_File_Attribute::Commit Statistics [added: %i, modified: n/a, deleted: %i]",
+		addedRows.size(), deleted_cachedRows.size());
+
 	bool bSuccessful=true;
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_DBMutex);
 
