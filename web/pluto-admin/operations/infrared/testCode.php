@@ -6,7 +6,6 @@ function testCode($output,$publicADO)
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/testCode.lang.php');
 
 	/* @var $dbADO ADOConnection */
-	global $PlutoHomeHost;
 	$userID=(int)@$_SESSION['userID'];
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
 	$sender=$_REQUEST['sender'];

@@ -7,7 +7,7 @@ function displayCode($output,$publicADO)
 
 	
 	/* @var $dbADO ADOConnection */
-	global $PlutoHomeHost;
+	global $LinuxMCEHost;
 	$userID=(int)@$_SESSION['userID'];
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
 	

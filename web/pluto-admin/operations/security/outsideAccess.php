@@ -289,8 +289,8 @@ function removeFromFile($variable,$accessFile)
 
 
 function getRemotePorts($installationID){
-	global $PlutoHomeHost;
-	$cmd='wget \''.$PlutoHomeHost.'get_ra_ports.php?installationID='.$installationID.'\' --header=\'User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.0.4) Gecko/20060508 Firefox/1.5.0.4\' -O -';
+	global $LinuxMCEHost;
+	$cmd='wget \''.$LinuxMCEHost.'get_ra_ports.php?installationID='.$installationID.'\' --header=\'User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.0.4) Gecko/20060508 Firefox/1.5.0.4\' -O -';
 	$out=exec_batch_command($cmd,1);	
 	
 	// output like Ports=SSH=10003&Web=10004&SSHnomon=10005#
@@ -301,8 +301,8 @@ function getRemotePorts($installationID){
 }
 
 function freeRemotePorts($installationID){
-	global $PlutoHomeHost;
-	$cmd='wget \''.$PlutoHomeHost.'get_ra_ports.php?installationID='.$installationID.'&action=del\' --header=\'User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.0.4) Gecko/20060508 Firefox/1.5.0.4\' -O -';
+	global $LinuxMCEHost;
+	$cmd='wget \''.$LinuxMCEHost.'get_ra_ports.php?installationID='.$installationID.'&action=del\' --header=\'User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.0.4) Gecko/20060508 Firefox/1.5.0.4\' -O -';
 	$out=exec_batch_command($cmd,1);	
 	
 	return ($out=='Success')?true:false;

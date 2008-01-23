@@ -365,22 +365,21 @@ function getCities($selectedRegion,$dbADO){
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/installationSettings.lang.php');
 	
 	// TODO: remove comment to use global variable instead of hard-coded devel one
-	//global $PlutoHomeHost;
-	$PlutoHomeHost='http://10.0.0.175/plutohome-com/';
-	
+	global $LinuxMCEHost;
+		
 	/* @var $dbADO ADOConnection */
 	$res=$dbADO->Execute('SHOW TABLES LIKE "City"');
 	if($res->RecordCount()!=0){
 		$existing=getAssocArray('City','PK_City','City',$dbADO,'WHERE FK_Region='.$selectedRegion,'ORDER BY City ASC');
 		if(count($existing)==0){
-			$isImported=import_remote_sql($PlutoHomeHost.'/GetCity.php?PK_Region='.$selectedRegion,$dbADO);
+			$isImported=import_remote_sql($LinuxMCEHost.'/GetCity.php?PK_Region='.$selectedRegion,$dbADO);
 			return getAssocArray('City','PK_City','City',$dbADO,'WHERE FK_Region='.$selectedRegion,'ORDER BY City ASC');
 		}
 		return $existing;
 	}else{
-		$isCreated=import_remote_sql($PlutoHomeHost.'/GetCity.php?Create=1',$dbADO);
+		$isCreated=import_remote_sql($LinuxMCEHost.'/GetCity.php?Create=1',$dbADO);
 		if($isCreated==0){
-			$isImported=import_remote_sql($PlutoHomeHost.'/GetCity.php?PK_Region='.$selectedRegion,$dbADO);
+			$isImported=import_remote_sql($LinuxMCEHost.'/GetCity.php?PK_Region='.$selectedRegion,$dbADO);
 			return getAssocArray('City','PK_City','City',$dbADO,'WHERE FK_Region='.$selectedRegion);
 		}else{
 			error_redirect($TEXT_ERROR_IMPORT_FAILED_CONST,'index.php?section=installationSettings');

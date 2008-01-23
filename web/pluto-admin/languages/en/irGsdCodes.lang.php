@@ -37,4 +37,6 @@ $TEXT_ERROR_IRGROUP_NOT_SAVED_CONST='WARNING: Command Group not saved. Click UPD
 $TEXT_CREATE_GROUP_CONST='Create new group';
 $TEXT_CODES_GROUP_ADDED_CONST='Codes group added.';
 $TEXT_ERROR_NO_GROUP_CONST='There are no groups/codesets for this manufacturer and device category. Please add a group before adding codes.';
+$TEXT_MISSING_COMM_METHOD_CONST='Missing comm method';
+$TEXT_ADD_COMM_METHOD_CONST='Add comm method';
 ?>

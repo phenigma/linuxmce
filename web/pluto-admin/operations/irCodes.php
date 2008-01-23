@@ -91,7 +91,8 @@ function irCodes($output,$dbADO,$mediaADO) {
 				FK_InfraredGroup,
 				DeviceTemplate_AV.*,
 				DeviceTemplate_AV.FK_DeviceTemplate AS AVTemplate,
-				Device.FK_Device_ControlledVia AS Parent
+				Device.FK_Device_ControlledVia AS Parent,
+				DeviceTemplate.FK_CommMethod AS FK_CommMethod
 			FROM Device
 			INNER JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate
 			INNER JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory
@@ -110,7 +111,8 @@ function irCodes($output,$dbADO,$mediaADO) {
 				FK_DeviceCategory,
 				FK_InfraredGroup,
 				DeviceTemplate_AV.*,
-				DeviceTemplate_AV.FK_DeviceTemplate AS AVTemplate
+				DeviceTemplate_AV.FK_DeviceTemplate AS AVTemplate,
+				DeviceTemplate.FK_CommMethod AS FK_CommMethod
 			FROM DeviceTemplate 
 			INNER JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory
 			INNER JOIN Manufacturer ON FK_Manufacturer=PK_Manufacturer
@@ -166,29 +168,39 @@ function irCodes($output,$dbADO,$mediaADO) {
 			<tr>
 				<td valign="top" colspan="2">'.$TEXT_DSP_MODES_CONST.' <B>'.(($rowDTData['ToggleDSP']==0)?$TEXT_DISCRETE_CONST:$TEXT_TOGGLE_CONST).'</B>: <B>'.join(', ',$dspmodeCommandsArray).'</B> <a href="index.php?section=addModel&step=6&dtID='.$dtID.'&deviceID='.$deviceID.'&return=1">['.$TEXT_CHANGE_EXPLAIN_CONST.']</a><td>
 			</tr>';
-		if(isset($deviceID)){
+		if(is_null($rowDTData['FK_CommMethod'])){
+			// device template need to have a comm method
 			$out.='
-			<tr>
-				<td valign="top">'.$TEXT_THIS_DEVICE_IS_CONTROLLED_VIA_CONST.': </td>
-				<td valign="top">'.controlledViaPullDown('controlledVia',$deviceID,$dtID,$deviceCategoryID,$deviceParent,$dbADO).'<td>
+				<tr>
+					<td valign="top" width="250" class="err" colspan="2">'.$TEXT_MISSING_COMM_METHOD_CONST.' 
+					<a href="javascript:windowOpen(\'index.php?section=editMasterDevice&model='.$dtID.'&from=irCodes\',\'width=1024,height=768,toolbars=true,scrollbars=1,resizable=1\');">'.$TEXT_ADD_COMM_METHOD_CONST.'</a></td>
+			</tr>
+			';
+				
+		}else{
+			if(isset($deviceID)){
+				$out.='
+				<tr>
+					<td valign="top">'.$TEXT_THIS_DEVICE_IS_CONTROLLED_VIA_CONST.': </td>
+					<td valign="top">'.controlledViaPullDown('controlledVia',$deviceID,$dtID,$deviceCategoryID,$deviceParent,$dbADO).'<td>
+				</tr>';
+			}
+				$irGroups=getAssocArray('InfraredGroup','PK_InfraredGroup','Description',$dbADO,'WHERE FK_Manufacturer='.$manufacturerID.' AND FK_DeviceCategory='.$deviceCategoryID,'ORDER BY Description ASC');
+				$error_not_saved=(count($irGroups)>0 && ($infraredGroupID==0 || is_null($infraredGroupID)))?'<span class="err">'.$TEXT_ERROR_IRGROUP_NOT_SAVED_CONST.'</span>':'';
+				
+				$out.='
+				<tr>
+					<td>'.$TEXT_USES_GROUP_CODESET_CONST.' </td>
+					<td>'.pulldownFromArray($irGroups,'irGroup',$infraredGroupID,'onChange="document.irCodes.submit();"','key','').' <input type="button" class="button" name="step7" value="Help me choose" onclick="self.location=\'index.php?section=addModel&step=7&dtID='.$dtID.'&deviceID='.$deviceID.'\'"> '.$error_not_saved.'</td>
 			</tr>';
-		}
-			$irGroups=getAssocArray('InfraredGroup','PK_InfraredGroup','Description',$dbADO,'WHERE FK_Manufacturer='.$manufacturerID.' AND FK_DeviceCategory='.$deviceCategoryID,'ORDER BY Description ASC');
-			$error_not_saved=(count($irGroups)>0 && ($infraredGroupID==0 || is_null($infraredGroupID)))?'<span class="err">'.$TEXT_ERROR_IRGROUP_NOT_SAVED_CONST.'</span>':'';
-			
+				
 			$out.='
-			<tr>
-				<td>'.$TEXT_USES_GROUP_CODESET_CONST.' </td>
-				<td>'.pulldownFromArray($irGroups,'irGroup',$infraredGroupID,'onChange="document.irCodes.submit();"','key','').' <input type="button" class="button" name="step7" value="Help me choose" onclick="self.location=\'index.php?section=addModel&step=7&dtID='.$dtID.'&deviceID='.$deviceID.'\'"> '.$error_not_saved.'</td>
-		</tr>';
-			
-		$out.='
-			<tr>
-				<td valign="top" width="250">'.$TEXT_IMPLEMENT_COMMAND_GROUPS_CONST.' </td>
-				<td>'.DeviceCommandGroupTable($dtID,$deviceCategoryID,$dbADO).'</td>
-		</tr>
-		';
-		
+				<tr>
+					<td valign="top" width="250">'.$TEXT_IMPLEMENT_COMMAND_GROUPS_CONST.' </td>
+					<td>'.DeviceCommandGroupTable($dtID,$deviceCategoryID,$dbADO).'</td>
+			</tr>
+			';
+		}		
 		$out.='		
 			<tr>
 				<td colspan="3" align="center">

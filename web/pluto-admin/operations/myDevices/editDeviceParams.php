@@ -4,7 +4,7 @@ function editDeviceParams($output,$dbADO) {
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/editDeviceParams.lang.php');
 	
-	global $PlutoSupportHost,$wikiHost;
+	global $wikiHost;
 /* @var $dbADO ADOConnection */
 /* @var $rs ADORecordSet */
 

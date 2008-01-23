@@ -233,6 +233,9 @@
 	$GLOBALS['DD_model']=233;					// model
 	$GLOBALS['DD_LastUpdate']=234;				// Last Update
 	$GLOBALS['DD_provider']=265;				// Provider
+	$GLOBALS['rootDevelopment']=8;				// the PK_DeviceData for description Development from table DeviceData
+	$GLOBALS['rootDisklessBoot']=9;				// the PK_DeviceData for Diskless Boot from table DeviceData
+
 	
 	// PK_FloorplanType from table FloorplanType 
 
@@ -326,6 +329,9 @@
 	// criticals device templates; user will be notified not to delete them
 	$GLOBALS['CriticalDeviceTemplates']=array(1,2,6,7,8,9,10,12,27,28,31,32,33,34,36,39);
 
+  	$GLOBALS['HTTPorFTP']=array(2,5,6);  	// the PK_RepositoryType for HTTP FTP and both from table RepositoryType
+	$GLOBALS['CVSorSVN']=array(2,5,6);  	// the PK_RepositoryType for CVS or SVN  from table RepositoryType
+	
 	$GLOBALS['hardware_acceleration']=array(
 	'cle266x11'=>'cle266x11',
 	'xv'=>'xv',

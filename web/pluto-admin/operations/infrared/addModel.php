@@ -6,7 +6,6 @@ function addModel($output,$dbADO,$mediadbADO)
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/addModel.lang.php');
 
 	/* @var $dbADO ADOConnection */
-	global $PlutoHomeHost,$PlutoSupportHost;
 	
 	$deviceID=(int)@$_REQUEST['deviceID'];
 	$userID=(int)@$_SESSION['userID'];
