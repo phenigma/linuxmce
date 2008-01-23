@@ -1768,6 +1768,13 @@ string Makefile = "none:\n"
 				{
 					fprintf(g, "%s", ("# " + sSource + "\n").c_str());
 					FILE * g2 = fopen(sSource.c_str(), "r");
+
+					if(NULL == g2)
+					{
+						cout << "Aborting! Can't open file: " << sSource << endl;
+						exit(1);
+					}
+
 					while (fgets(buffer, 1024, g2))
 					{
 						fprintf(g, "%s", buffer);
