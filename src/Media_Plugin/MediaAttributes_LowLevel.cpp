@@ -1450,6 +1450,13 @@ void MediaAttributes_LowLevel::AddDiscAttributesToFile(int PK_File,int PK_Disc,i
 		Row_File_Attribute *pRow_File_Attribute = m_pDatabase_pluto_media->File_Attribute_get()->GetRow(
 			PK_File,vectRow_Disc_Attribute[s]->FK_Attribute_get(),
 			vectRow_Disc_Attribute[s]->Track_get(),vectRow_Disc_Attribute[s]->Section_get() );
+
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"MediaAttributes_LowLevel::AddDiscAttributesToFile Searching for following record in File_Attribute: "
+			"attribute %d, file %d, track %d, section %d -- found %p", 
+			vectRow_Disc_Attribute[s]->FK_Attribute_get(), PK_File, 
+			vectRow_Disc_Attribute[s]->Track_get(),vectRow_Disc_Attribute[s]->Section_get(), 
+			pRow_File_Attribute);
+
 		if( !pRow_File_Attribute )
 		{
 			pRow_File_Attribute = m_pDatabase_pluto_media->File_Attribute_get()->AddRow();
@@ -1458,10 +1465,15 @@ void MediaAttributes_LowLevel::AddDiscAttributesToFile(int PK_File,int PK_Disc,i
 			pRow_File_Attribute->Track_set( vectRow_Disc_Attribute[s]->Track_get() );
 			pRow_File_Attribute->Section_set( vectRow_Disc_Attribute[s]->Section_get() );
 			m_pDatabase_pluto_media->File_Attribute_get()->Commit();
+
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"MediaAttributes_LowLevel::AddDiscAttributesToFile adding the following record in File_Attribute: "
+				"attribute %d, file %d, track %d, section %d", 
+				vectRow_Disc_Attribute[s]->FK_Attribute_get(), PK_File, 
+				vectRow_Disc_Attribute[s]->Track_get(),vectRow_Disc_Attribute[s]->Section_get());
 		}
 
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"MediaAttributes_LowLevel::AddDiscAttributesToFile Copying attribute from disc to file %d : %d", 
-			vectRow_Disc_Attribute[s]->FK_Attribute_get(), NULL == pRow_File_Attribute);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"MediaAttributes_LowLevel::AddDiscAttributesToFile NOT copying attribute %d from disc to file, already exists", 
+			vectRow_Disc_Attribute[s]->FK_Attribute_get());
 	}
 }
 
