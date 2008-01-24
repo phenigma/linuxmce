@@ -304,9 +304,8 @@ bool UpdatesManager::Run()
 				
 					if( !xml.Failed() )
 					{
-						UpdateNode * pUpdate = updates.front();
-						if( lastUpdate < pUpdate->UpdateId() && 
-							pUpdate->IsModel(model) )
+						UpdateNode *pUpdate = updates.empty() ? NULL : updates.front();
+						if( NULL != pUpdate && lastUpdate < pUpdate->UpdateId() && pUpdate->IsModel(model) )
 						{
 							// check if the core is updated
 							if( coreDevice != dceconf.m_iPK_Device_Computer )
@@ -410,8 +409,10 @@ bool UpdatesManager::GetUpdatesDescription(const char * fileName)
 		
 			if( !xml.Failed() )
 			{
-				UpdateNode * pUpdate = updates.front();
-				LoggerWrapper::GetInstance()->Write(LV_DEBUG, "UpdatesDescription Check = %u", pUpdate->UpdateId());
+				UpdateNode *pUpdate = updates.empty() ? NULL : updates.front();
+
+				if(NULL != pUpdate)
+					LoggerWrapper::GetInstance()->Write(LV_DEBUG, "UpdatesDescription Check = %u", pUpdate->UpdateId());
 				
 				// check each model
 				for(map<string, unsigned>::iterator itModel=model2update.begin();
@@ -422,8 +423,7 @@ bool UpdatesManager::GetUpdatesDescription(const char * fileName)
 					LoggerWrapper::GetInstance()->Write(LV_DEBUG, "UpdatesDescription Model = %s | LastUpdate = %u",
 						(*itModel).first.c_str(), lastUpdate);
 					
-					if( lastUpdate < pUpdate->UpdateId() && 
-						pUpdate->IsModel(model) )
+					if( NULL != pUpdate && lastUpdate < pUpdate->UpdateId() && pUpdate->IsModel(model) )
 					{
 						updatesDescription += StringUtils::itos(pUpdate->UpdateId()) + " : " + pUpdate->Description() + "\n";
 						break;
