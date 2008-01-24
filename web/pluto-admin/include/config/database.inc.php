@@ -1,5 +1,4 @@
 <?PHP
-
  include('include/adodb/adodb-errorhandler.inc.php');
  require('include/adodb/adodb.inc.php');
  include('include/adodb/tohtml.inc.php');
@@ -11,14 +10,21 @@
   //define('ADODB_ERROR_LOG_TYPE',3);
   //define('ADODB_ERROR_LOG_DEST','C:/mysql_errors.log');
 
-  $dsn = $dbPlutoAdminType.'://'.urlencode($dbPlutoAdminUser).':'.urlencode($dbPlutoAdminPass).'@'.$dbPlutoAdminServer.'/'.urlencode($dbPlutoAdminDatabase); 
-  $dbADO = &ADONewConnection($dsn);
+//  $dsn = $dbPlutoAdminType.'://'.urlencode($dbPlutoAdminUser).':'.urlencode($dbPlutoAdminPass).'@'.$dbPlutoAdminServer.'/'.urlencode($dbPlutoAdminDatabase); 
+//  $dbADO = &ADONewConnection($dsn);
+  $dbADO = &ADONewConnection('mysql');
+  $dbADO->NConnect($dbPlutoAdminServer,urlencode($dbPlutoAdminUser),urlencode($dbPlutoAdminPass),urlencode($dbPlutoAdminDatabase)); 
+  
+//  $mediaDSN = $dbPlutoMediaType.'://'.urlencode($dbPlutoMediaUser).':'.urlencode($dbPlutoMediaPass).'@'.$dbPlutoMediaServer.'/'.urlencode($dbPlutoMediaDatabase); 
+//  $mediadbADO = &ADONewConnection($mediaDSN);
+  $mediadbADO = &ADONewConnection($dbPlutoMediaType);
+  $mediadbADO->NConnect($dbPlutoMediaServer,urlencode($dbPlutoMediaUser),urlencode($dbPlutoMediaPass),urlencode($dbPlutoMediaDatabase)); 
 
-  $mediaDSN = $dbPlutoMediaType.'://'.urlencode($dbPlutoMediaUser).':'.urlencode($dbPlutoMediaPass).'@'.$dbPlutoMediaServer.'/'.urlencode($dbPlutoMediaDatabase); 
-  $mediadbADO = &ADONewConnection($mediaDSN);
-
-  $securityDSN = $dbPlutoSecurityType.'://'.urlencode($dbPlutoSecurityUser).':'.urlencode($dbPlutoSecurityPass).'@'.$dbPlutoSecurityServer.'/'.urlencode($dbPlutoSecurityDatabase); 
-  $securityADO = &ADONewConnection($securityDSN);
+  
+//  $securityDSN = $dbPlutoSecurityType.'://'.urlencode($dbPlutoSecurityUser).':'.urlencode($dbPlutoSecurityPass).'@'.$dbPlutoSecurityServer.'/'.urlencode($dbPlutoSecurityDatabase); 
+//  $securityADO = &ADONewConnection($securityDSN);
+  $securityADO = &ADONewConnection($dbPlutoSecurityType);
+  $securityADO->NConnect($dbPlutoSecurityServer,urlencode($dbPlutoSecurityUser),urlencode($dbPlutoSecurityPass),urlencode($dbPlutoSecurityDatabase)); 
 
   //for sqlite
   //$db = &ADONewConnection('sqlite');
@@ -33,7 +39,7 @@
  
   $dbADO->SetFetchMode(ADODB_FETCH_ASSOC);
   $ADODB_FORCE_TYPE=3;
-  
+
   //$dbADO->LogSQL(true);
 
   //-you must not modify anything bellow this line

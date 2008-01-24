@@ -5,7 +5,7 @@
   	$_SESSION['skin']=0;
   	
   	error_reporting(E_ALL ^ E_NOTICE);
-  	$GLOBALS['globalConfigPath']='/var/www/pluto-admin/globalconfig/';
+  	$GLOBALS['globalConfigPath']='/var/www/pluto-admin/include/config/';
   	$GLOBALS['floorplansPath']='/var/www/pluto-admin/floorplans';
   	$GLOBALS['usersPicsPath']='/var/www/pluto-admin/users/';
   	$GLOBALS['roomsPicsPath']='/var/www/pluto-admin/rooms/';

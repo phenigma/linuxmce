@@ -3,21 +3,22 @@
  	$wikiHost='http://wiki.linuxmce.org/';
  
 	// pluto_main
-	$dbPlutoMainUser = 'root';
-	$dbPlutoMainPass = '';
-	$dbPlutoMainDatabase = 'pluto_main_devel';
-	$dbPlutoMainServer = 'localhost';
-	$dbPlutoMainType = 'mysql';
+	$dbPlutoAdminType = 'mysql';
+	$dbPlutoAdminUser = 'root';
+	$dbPlutoAdminPass = '';
+	$dbPlutoAdminDatabase = 'pluto_main';
+	$dbPlutoAdminServer = 'localhost';
+	
 	
 	// pluto media
-	$dbPlutoMediaType = "MySQL";
-	$dbPlutoMediaUser = "plutovip";
-	$dbPlutoMediaPass = "bogata41";
+	$dbPlutoMediaType = "mysql";
+	$dbPlutoMediaUser = "root";
+	$dbPlutoMediaPass = "";
 	$dbPlutoMediaServer = "localhost";
 	$dbPlutoMediaDatabase = "pluto_media";	
 	
 	// pluto security
-	$dbPlutoSecurityType = "MySQL";
+	$dbPlutoSecurityType = "mysql";
 	$dbPlutoSecurityUser = "plutosecurity";
 	$dbPlutoSecurityPass = "";
 	$dbPlutoSecurityServer = "localhost";
