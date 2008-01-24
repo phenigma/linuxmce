@@ -1135,6 +1135,10 @@ void WizardLogic::SetPVRSoftware(char PVRSoftware)
 		}
 	}
 
+	sSQL = "DELETE Package_Device.* FROM Package_Device JOIN DeviceTemplate ON DeviceTemplate.FK_Package = Package_Device.FK_Package "
+		"WHERE PK_DeviceTemplate IN (" + StringUtils::itos(PK_DeviceTemplate_RemovePlugin) + "," + StringUtils::itos(PK_DeviceTemplate_RemovePlayer) + ")";
+	threaded_db_wrapper_query(sSQL);
+
 	int PK_Device;
 	DCE::CMD_Create_Device CMD_Create_Device(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_GeneralInfoPlugIn,PK_DeviceTemplate_AddPlugin,"",0,"","",0,0,"",0,0,&PK_Device);
 	m_pOrbiter->SendCommand(CMD_Create_Device);
