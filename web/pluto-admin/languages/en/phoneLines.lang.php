@@ -23,4 +23,5 @@ $TEXT_MANUAL_CONFIGURATION_ACTIVATED_CONST='Manual configuration activated.';
 $TEXT_AUTOMATIC_CONFIGURATION_ACTIVATED_CONST='Automatic configuration activated.';
 $TEXT_AUTOMATIC_OVERRIDE_CONFIGURATION_ACTIVATED_CONST='Automatic configuration activated, all addvanced settings removed.';
 $TEXT_MANUAL_CONFIG_NOTE_CONST='Manual configuration activated. To configure AMP, click ';
+$TEXT_ASTERISK_DB_NOT_FOUND_CONST='Asterisk database not found.';
 ?>

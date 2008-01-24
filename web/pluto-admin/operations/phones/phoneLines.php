@@ -6,6 +6,13 @@ function phoneLines($output,$astADO,$dbADO) {
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/phoneLines.lang.php');
 	
+	// check if database pluto_vdr exist
+	$databases=$dbADO->MetaDatabases();
+	if(!in_array('asterisk',$databases)){
+		error_redirect($TEXT_ASTERISK_DB_NOT_FOUND_CONST,'index.php?section=phoneLines');
+	}
+		
+	
 	/* @var $astADO ADOConnection */
 	/* @var $rs ADORecordSet */
 	$out='';
@@ -588,9 +595,10 @@ function get_available_providers(){
 	
 	// file format: [provider name]\t[url]\t[keyword]
 	$providerData=array();
-	$confFile=file('/etc/asterisk/provider_list.txt');
+	$confFile=@file('/etc/asterisk/provider_list.txt');
 	
-	if(count($confFile)==0){
+	
+	if($confFile=='' || count($confFile)==0){
 		return $providerData;
 	}
 	
