@@ -10,10 +10,10 @@
   //define('ADODB_ERROR_LOG_TYPE',3);
   //define('ADODB_ERROR_LOG_DEST','C:/mysql_errors.log');
 
-//  $dsn = $dbPlutoAdminType.'://'.urlencode($dbPlutoAdminUser).':'.urlencode($dbPlutoAdminPass).'@'.$dbPlutoAdminServer.'/'.urlencode($dbPlutoAdminDatabase); 
+//  $dsn = $dbPlutoMainType.'://'.urlencode($dbPlutoMainUser).':'.urlencode($dbPlutoMainPass).'@'.$dbPlutoMainServer.'/'.urlencode($dbPlutoMainDatabase); 
 //  $dbADO = &ADONewConnection($dsn);
   $dbADO = &ADONewConnection('mysql');
-  $dbADO->NConnect($dbPlutoAdminServer,urlencode($dbPlutoAdminUser),urlencode($dbPlutoAdminPass),urlencode($dbPlutoAdminDatabase)); 
+  $dbADO->NConnect($dbPlutoMainServer,urlencode($dbPlutoMainUser),urlencode($dbPlutoMainPass),urlencode($dbPlutoMainDatabase)); 
   
 //  $mediaDSN = $dbPlutoMediaType.'://'.urlencode($dbPlutoMediaUser).':'.urlencode($dbPlutoMediaPass).'@'.$dbPlutoMediaServer.'/'.urlencode($dbPlutoMediaDatabase); 
 //  $mediadbADO = &ADONewConnection($mediaDSN);

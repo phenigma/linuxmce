@@ -3,11 +3,11 @@
  	$wikiHost='http://wiki.linuxmce.org/';
  
 	// pluto_main
-	$dbPlutoAdminType = 'mysql';
-	$dbPlutoAdminUser = 'root';
-	$dbPlutoAdminPass = '';
-	$dbPlutoAdminDatabase = 'pluto_main';
-	$dbPlutoAdminServer = 'localhost';
+	$dbPlutoMainType = 'mysql';
+	$dbPlutoMainUser = 'root';
+	$dbPlutoMainPass = '';
+	$dbPlutoMainDatabase = 'pluto_main';
+	$dbPlutoMainServer = 'localhost';
 	
 	
 	// pluto media
