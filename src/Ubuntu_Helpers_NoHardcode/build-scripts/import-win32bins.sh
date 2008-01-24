@@ -40,13 +40,11 @@ function import_win32bins() {
 	touch ${svn_dir}/trunk/src/bin/PlutoRebootSetup.msi
 
 	pushd ${svn_dir}/trunk/src/bin
-	scp -i /etc/lmce-build/builder.key pluto@82.77.255.209:'/home/builds/Windows_Output_LinuxMCE/src/bin/*' ./
-	#scp pluto@10.0.2.4:'/home/builds/Windows_Output_LinuxMCE/src/bin/*' ./
+	wget --no-passive-ftp 'ftp://builderwin32.linuxmce.com/Windows_Output_LinuxMCE/src/bin/*'
 	popd
 
 	pushd ${svn_dir}/trunk/src/lib
-	scp -i /etc/lmce-build/builder.key pluto@82.77.255.209:'/home/builds/Windows_Output_LinuxMCE/src/lib/*' ./
-	#scp pluto@10.0.2.4:'/home/builds/Windows_Output_LinuxMCE/src/lib/*' ./
+	wget --no-passive-ftp 'ftp://builderwin32.linuxmce.com/Windows_Output_LinuxMCE/src/lib/*'
 	popd
 }
 
