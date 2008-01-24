@@ -145,6 +145,9 @@ mv /etc/init.d/kdm{.backup-upgrade,} || :
 # Get asterisk to start at boot
 update-rc.d asterisk defaults 21 >/dev/null
 
+# Fix missing sync_pluto2amp
+/usr/pluto/bin/sync_pluto2amp.pl
+
 ## Remove old 0704 updates
 rm -rf /home/updates/*
 
