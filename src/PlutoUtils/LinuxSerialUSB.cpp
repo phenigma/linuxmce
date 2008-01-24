@@ -39,7 +39,8 @@ string TranslateSerialUSB(string sInput,string sIPAddress)
 	if( sIPAddress.empty()==false )
 		sCmd = "ssh " + sIPAddress + " ";
 
-	sCmd += "ls -l /sys/bus/usb-serial/devices/ | grep '" + sPciId + ".*-" + sUsbId + ":.*' >" + tmpFile;
+	sCmd += "find /sys/devices -name '*tty*' | grep '/tty:' | grep usb | grep '" + sPciId + ".*-" + sUsbId + ":.*' | sed 's/tty://g' >" + tmpFile; 
+
 	system(sCmd.c_str());
 
 	vector<string> vectStr;
