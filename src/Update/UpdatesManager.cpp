@@ -304,7 +304,7 @@ bool UpdatesManager::Run()
 				
 					if( !xml.Failed() )
 					{
-						UpdateNode * pUpdate = xml.Updates().front();
+						UpdateNode * pUpdate = updates.front();
 						if( lastUpdate < pUpdate->UpdateId() && 
 							pUpdate->IsModel(model) )
 						{
