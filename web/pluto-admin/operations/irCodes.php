@@ -173,7 +173,7 @@ function irCodes($output,$dbADO,$mediaADO) {
 			$out.='
 				<tr>
 					<td valign="top" width="250" class="err" colspan="2">'.$TEXT_MISSING_COMM_METHOD_CONST.' 
-					<a href="javascript:windowOpen(\'index.php?section=editMasterDevice&model='.$dtID.'&from=irCodes\',\'width=1024,height=768,toolbars=true,scrollbars=1,resizable=1\');">'.$TEXT_ADD_COMM_METHOD_CONST.'</a></td>
+					<a href="javascript:windowOpen(\'index.php?section=commMethod&dtID='.$dtID.'&from=irCodes\',\'width=400,height=300,toolbars=true,scrollbars=1,resizable=1\');">'.$TEXT_ADD_COMM_METHOD_CONST.'</a></td>
 			</tr>
 			';
 				

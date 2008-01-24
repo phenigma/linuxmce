@@ -1619,7 +1619,12 @@ switch ($section) {
 	    include_once('operations/others/vdr.php');
 	    vdr($output,$dbADO);	    
 	break;		
-	
+	case 'commMethod':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('small');
+	    include_once('operations/deviceTemplate/commMethod.php');
+	    commMethod($output,$dbADO);	    
+	break;		
 	
 	case 'index';
 		@$_SESSION['lastLeftFrameSrc']='';
