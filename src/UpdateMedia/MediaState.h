@@ -85,8 +85,6 @@ public:
 	MediaSyncMode SyncModeNeeded(string sDirectory, string sFile);
 
 	void FileSynchronized(Database_pluto_media *pDatabase_pluto_media, string sDirectory, string sFile, int nFileID);
-
-	bool AlreadyInDatabase(string sDirectory, string sFile);
 	int FileId(string sDirectory, string sFile);
 };
 //-----------------------------------------------------------------------------------------------------

@@ -527,7 +527,7 @@ bool UpdateMedia::ScanFiles(string sDirectory)
 
 		// Is it in the database?
 		int PK_File=0;
-		if(!MediaState::Instance().AlreadyInDatabase(sDirectory, sFile))
+		if(!AlreadyInDatabase(sDirectory, sFile))
 		{
 			PK_File = PlutoMediaFile_.HandleFileNotInDatabase();
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"UpdateMedia::ReadDirectory PlutoMediaFile_.HandleFileNotInDatabase %d",PK_File);
@@ -704,7 +704,7 @@ int UpdateMedia::SetupDirectory(string sDirectory, FolderType folder_type)
 	{
 		if(folder_type == ftNormal)
 		{
-			if(!MediaState::Instance().AlreadyInDatabase(FileUtils::BasePath(sDirectory), FileUtils::FilenameWithoutPath(sDirectory)))
+			if(!AlreadyInDatabase(FileUtils::BasePath(sDirectory), FileUtils::FilenameWithoutPath(sDirectory)))
 			{
 				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Adding parent folder to db: %s PlutoMediaParentFolder.HandleFileNotInDatabase", sDirectory.c_str());
 				spPlutoMediaParentFolder->HandleFileNotInDatabase(0);
@@ -720,7 +720,7 @@ int UpdateMedia::SetupDirectory(string sDirectory, FolderType folder_type)
 					folder_type == ftHDDVD ? MEDIATYPE_pluto_HDDVD_CONST : MEDIATYPE_pluto_BD_CONST;
 
 			// Add this directory like it were a file
-			if(!MediaState::Instance().AlreadyInDatabase(FileUtils::BasePath(sDirectory), FileUtils::FilenameWithoutPath(sDirectory)))
+			if(!AlreadyInDatabase(FileUtils::BasePath(sDirectory), FileUtils::FilenameWithoutPath(sDirectory)))
 			{
 				int PK_File = spPlutoMediaParentFolder->HandleFileNotInDatabase(nMediaType);
 				LoggerWrapper::GetInstance()->Write(LV_STATUS,"UpdateMedia::ReadDirectory media type %d PlutoMediaFile_.HandleFileNotInDatabase %d",nMediaType, PK_File);
@@ -845,4 +845,13 @@ bool UpdateMedia::HasSpecialFolderParent(string sDirectory)
 
 	//what about my parent ?
 	return HasSpecialFolderParent(FileUtils::BasePath(sDirectory));
+}
+
+bool UpdateMedia::AlreadyInDatabase(string sDirectory, string sFile)
+{
+	vector<Row_File *> vectRow_File;
+	m_pDatabase_pluto_media->File_get()->GetRows("Path='" + StringUtils::SQLEscape(sDirectory) + 
+		"' AND Filename='" + StringUtils::SQLEscape(sFile) + "'", &vectRow_File);
+
+	return !vectRow_File.empty();
 }

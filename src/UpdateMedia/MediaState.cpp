@@ -437,12 +437,6 @@ MediaItemState MediaState::LoadDbInfoForFile(Database_pluto_media *pDatabase_plu
 	return MediaItemState();
 }
 //-----------------------------------------------------------------------------------------------------
-bool MediaState::AlreadyInDatabase(string sDirectory, string sFile)
-{
-	MapMediaState::iterator it = m_mapMediaState.find(make_pair(sDirectory, sFile));
-	return it != m_mapMediaState.end();
-}
-//-----------------------------------------------------------------------------------------------------
 int MediaState::FileId(string sDirectory, string sFile)
 {
 	MapMediaState::iterator it = m_mapMediaState.find(make_pair(sDirectory, sFile));
