@@ -715,17 +715,25 @@ int main( int argc, char **argv )
 		string sPlayerCommandTemplate;
 		char pPlayerCommand[1024];
 
+		string sSampleFile = "/home/public/data/samples/UIdiag_sample.mpg";
+
+		struct stat buf;
+		if(stat("sample.mpg", &buf) == 0)
+			sSampleFile = "sample.mpg";
+
+		printf("Using '%s' sample media file", sSampleFile.c_str());
+
 		if (access("/usr/bin/xine", F_OK) == 0) 
 		{	
 			sPlayerCommandTemplate="xine -l -g -V xv '%s'";
-			sprintf(pPlayerCommand, sPlayerCommandTemplate.c_str(), "/home/public/data/samples/UIdiag_sample.mpg");
+			sprintf(pPlayerCommand, sPlayerCommandTemplate.c_str(), sSampleFile.c_str());
 	
 			printf("Running player application %s\n", pPlayerCommand); 
 			system(pPlayerCommand);
 		} 
 		else if(ReadTextFile("/tmp/player-name", sPlayerCommandTemplate)) 
 		{
-			sprintf(pPlayerCommand, sPlayerCommandTemplate.c_str(), "/home/public/data/samples/UIdiag_sample.mpg");
+			sprintf(pPlayerCommand, sPlayerCommandTemplate.c_str(), sSampleFile.c_str());
 	
 			printf("Running player application %s\n", pPlayerCommand); 
 			system(pPlayerCommand);
