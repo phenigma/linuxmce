@@ -280,3 +280,6 @@ sub add_embed_phones()
     }
     $DB_STATEMENT->finish();    
 }
+
+# fix some permisions
+`chown asterisk.asterisk /usr/share/asterisk/agi-bin/*`;
