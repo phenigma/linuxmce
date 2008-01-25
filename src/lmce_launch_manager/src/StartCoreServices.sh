@@ -10,7 +10,7 @@ bash -x /usr/pluto/bin/Start_OrbiterGen.sh >> /var/log/pluto/StartCoreServices.l
 
 /usr/pluto/bin/UpdateMediaDaemonControl.sh -enable
 
-Q="SELECT PK_Device FROM Devices"
+Q="SELECT PK_Device FROM Device"
 Devices=$(RunSQL "$Q")
 /usr/pluto/bin/sync_pluto2amp.pl $Devices
 
