@@ -7,7 +7,7 @@ set -e
 File="/etc/mythtv/mysql.txt"
 
 if [[ -f "$File" ]] ;then
-	kdir -p "${Parm_RootLocation}/$(dirname $File)"
-	p "${File}" "${Parm_RootLocation}/${File}"
-	ed -i "s/^DBHostName.*/DBHostName=dcerouter/g" "${Parm_RootLocation}/${File}"
+	mkdir -p "${Parm_RootLocation}/$(dirname $File)"
+	cp "${File}" "${Parm_RootLocation}/${File}"
+	sed -i "s/^DBHostName.*/DBHostName=dcerouter/g" "${Parm_RootLocation}/${File}"
 fi
