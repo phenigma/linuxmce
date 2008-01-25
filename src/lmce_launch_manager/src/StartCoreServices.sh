@@ -1,5 +1,7 @@
 #!/bin/bash
 
+. /usr/pluto/bin/SQL_Ops.sh
+
 echo "$(date -R) Starting Core Services - config device changes" >> /var/log/pluto/StartCoreServices.log 2>&1
 bash -x /usr/pluto/bin/Config_Device_Changes.sh >> /var/log/pluto/StartCoreServices.log 2>&1
 
@@ -7,6 +9,10 @@ echo "$(date -R) Starting Core Services - start orbitergen " >> /var/log/pluto/S
 bash -x /usr/pluto/bin/Start_OrbiterGen.sh >> /var/log/pluto/StartCoreServices.log 2>&1
 
 /usr/pluto/bin/UpdateMediaDaemonControl.sh -enable
+
+Q="SELECT PK_Device FROM Devices"
+Devices=$(RunSQL "$Q")
+/usr/pluto/bin/sync_pluto2amp.pl $Devices
 
 echo "$(date -R) Starting Core Services - start dcerouter " >> /var/log/pluto/StartCoreServices.log 2>&1
 bash -x /usr/pluto/bin/Start_DCERouter.sh >> /var/log/pluto/StartCoreServices.log 2>&1
