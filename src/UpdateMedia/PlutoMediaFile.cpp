@@ -126,6 +126,9 @@ PlutoMediaFile::~PlutoMediaFile()
 		SaveEveryThingToDb();
 	}
 
+	AssignPlutoDevice(NULL);
+	AssignPlutoUser(NULL);
+
 	if(NULL != m_pPlutoMediaAttributes)
 	{
 		if(!m_pPlutoMediaAttributes->m_nFileID)
@@ -262,17 +265,11 @@ int PlutoMediaFile::HandleFileNotInDatabase(int PK_MediaType)
 		pRow_File->EK_MediaType_set(PK_MediaType);
 		pRow_File->IsDirectory_set(m_bIsDir);
 		pRow_File->Source_set(m_spFileHandler->GetFileSourceForDB());
-
-		int nEK_Users_Private = GetOwnerForPath(m_sDirectory);
-		if(nEK_Users_Private != 0)
-			pRow_File->EK_Users_Private_set(nEK_Users_Private);
-		else
-			pRow_File->EK_Users_Private_setNull(true);
-
-        pRow_File->Table_File_get()->Commit();
+		AssignPlutoUser(pRow_File);
+		AssignPlutoDevice(pRow_File);
+		pRow_File->Table_File_get()->Commit();
 
 		m_pPlutoMediaAttributes->m_nFileID = PK_File;
-		AssignPlutoDevice();
     }
 
 	return PK_File;
@@ -296,7 +293,6 @@ void PlutoMediaFile::SaveEveryThingToDb()
 	SaveCoverarts();
 	SaveBookmarkPictures();
 	SaveMiscInfo();
-	AssignPlutoDevice();
 
 	UpdateMd5Field();
 }
@@ -684,12 +680,7 @@ int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
 		pRow_File = vectRow_File[0];
 		pRow_File->Missing_set(0);
 		pRow_File->EK_MediaType_set(PK_MediaType);
-
-		if(nEK_Users_Private != 0)
-			pRow_File->EK_Users_Private_set(nEK_Users_Private);
-		else
-			pRow_File->EK_Users_Private_setNull(true);
-
+		AssignPlutoUser(pRow_File);
 		pRow_File->Table_File_get()->Commit();
 
 		//This will get a vector with desired File_Attribute's rows
@@ -723,12 +714,7 @@ int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
 		pRow_File->IsDirectory_set(m_bIsDir);
 		pRow_File->EK_MediaType_set(PK_MediaType);
 		pRow_File->Source_set(m_spFileHandler->GetFileSourceForDB());
-
-		if(nEK_Users_Private != 0)
-			pRow_File->EK_Users_Private_set(nEK_Users_Private);
-		else
-			pRow_File->EK_Users_Private_setNull(true);
-
+		AssignPlutoUser(pRow_File);
 		pRow_File->INode_set( FileUtils::GetInode( pRow_File->Path_get() + "/" + pRow_File->Filename_get() ) );
 		pRow_File->Table_File_get()->Commit();
 
@@ -812,18 +798,19 @@ void PlutoMediaFile::SetMediaType(int PK_File, int PK_MediaType)
 	}
 }
 //-----------------------------------------------------------------------------------------------------
-void PlutoMediaFile::AssignPlutoDevice()
+void PlutoMediaFile::AssignPlutoDevice(Row_File *pRow_File)
 {
-	map<int, int> mapMountedDevices;
-	list<string> listFiles;
-	FileUtils::FindDirectories(listFiles, "/mnt/device", false, true);
-	MapMountedDevicesToPlutoDevices(listFiles, mapMountedDevices);
+	if(NULL == pRow_File)
+		pRow_File = m_pDatabase_pluto_media->File_get()->GetRow(m_pPlutoMediaAttributes->m_nFileID);
 
-	int nEK_Device = PlutoDeviceForFile(m_sDirectory + "/" + m_sFile, mapMountedDevices);
-
-	Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->GetRow(m_pPlutoMediaAttributes->m_nFileID);
 	if(NULL != pRow_File)
 	{
+		map<int, int> mapMountedDevices;
+		list<string> listFiles;
+		FileUtils::FindDirectories(listFiles, "/mnt/device", false, true);
+		MapMountedDevicesToPlutoDevices(listFiles, mapMountedDevices);
+		int nEK_Device = PlutoDeviceForFile(m_sDirectory + "/" + m_sFile, mapMountedDevices);
+
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "File %s/%s on pluto device %d", m_sDirectory.c_str(), m_sFile.c_str(), nEK_Device);
 
 		if(nEK_Device != 0)
@@ -832,6 +819,24 @@ void PlutoMediaFile::AssignPlutoDevice()
 			pRow_File->EK_Device_setNull(true);
 
 		pRow_File->Table_File_get()->Commit();
+	}
+}
+//-----------------------------------------------------------------------------------------------------
+void PlutoMediaFile::AssignPlutoUser(Row_File *pRow_File)
+{
+	if(NULL == pRow_File)
+		pRow_File = m_pDatabase_pluto_media->File_get()->GetRow(m_pPlutoMediaAttributes->m_nFileID);
+
+	if(NULL != pRow_File)
+	{
+		int nEK_Users_Private = GetOwnerForPath(m_sDirectory);
+
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "File %s/%s assigned to user %d", m_sDirectory.c_str(), m_sFile.c_str(), nEK_Users_Private);
+
+		if(nEK_Users_Private != 0)
+			pRow_File->EK_Users_Private_set(nEK_Users_Private);
+		else
+			pRow_File->EK_Users_Private_setNull(true);
 	}
 }
 //-----------------------------------------------------------------------------------------------------

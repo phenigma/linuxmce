@@ -94,7 +94,8 @@ private:
 
 	//misc helpers
 	int AddFileToDatabase(int PK_MediaType);
-	void AssignPlutoDevice();
+	void AssignPlutoDevice(Row_File *pRow_File);
+	void AssignPlutoUser(Row_File *pRow_File);
 	int GetOwnerForPath(string sPath);
 	int GetFileIDFromDB();
 	string AdjustLongAttributeForDisplay(string sText);
