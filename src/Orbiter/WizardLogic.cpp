@@ -1160,9 +1160,9 @@ void WizardLogic::SetPVRSoftware(char PVRSoftware)
 
 	//remove undeeded packages from all machines
 	DCE::CMD_Spawn_Application_DT cmd_Spawn_Application_DT(
-		m_pOrbiter->m_dwPK_Device, DEVICECATEGORY_App_Server_CONST, BL_SameHouse,
+		m_pOrbiter->m_dwPK_Device, DEVICETEMPLATE_App_Server_CONST, BL_SameHouse,
 		"/usr/pluto/bin/remove_pvr_packages.sh","remove_pvr_packages",sParms,"","",false,false,false,true);
-	cmd_Spawn_Application_DT.m_pMessage->m_eRetry = MR_Persist;
+	cmd_Spawn_Application_DT.m_pMessage->m_eRetry = MR_Retry;
 	m_pOrbiter->SendCommand(cmd_Spawn_Application_DT);
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
