@@ -160,6 +160,7 @@ rm -f /etc/cron.d/gutsy-upgrade-scripts
 
 apt-get -f -y --force-yes --purge remove gutsy-upgrade-scripts
 trap - EXIT
+set +e
 
 DisplayMessage "Press <ENTER> to continue ....."
 read
