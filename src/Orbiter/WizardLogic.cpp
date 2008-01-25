@@ -1135,10 +1135,6 @@ void WizardLogic::SetPVRSoftware(char PVRSoftware)
 		}
 	}
 
-	sSQL = "DELETE Package_Device.* FROM Package_Device JOIN DeviceTemplate ON DeviceTemplate.FK_Package = Package_Device.FK_Package "
-		"WHERE PK_DeviceTemplate IN (" + StringUtils::itos(PK_DeviceTemplate_RemovePlugin) + "," + StringUtils::itos(PK_DeviceTemplate_RemovePlayer) + ")";
-	threaded_db_wrapper_query(sSQL);
-
 	int PK_Device;
 	DCE::CMD_Create_Device CMD_Create_Device(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_GeneralInfoPlugIn,PK_DeviceTemplate_AddPlugin,"",0,"","",0,0,"",0,0,&PK_Device);
 	m_pOrbiter->SendCommand(CMD_Create_Device);
@@ -1154,20 +1150,20 @@ void WizardLogic::SetPVRSoftware(char PVRSoftware)
 		}
 	}
 
+	//make sure the packages to be remove can be reinstalled later; mark them as uninstalled
+	sSQL = "DELETE Package_Device.* FROM Package_Device JOIN DeviceTemplate ON DeviceTemplate.FK_Package = Package_Device.FK_Package "
+		"WHERE PK_DeviceTemplate IN (" + StringUtils::itos(PK_DeviceTemplate_RemovePlugin) + "," + StringUtils::itos(PK_DeviceTemplate_RemovePlayer) + ")";
+	threaded_db_wrapper_query(sSQL);
+
 	//what to remove ?
 	string sParms = PVRSoftware!='V' ? "vdr" : "mythtv";
 
-	if(NULL != pDevice_Core)
-	{
-		DeviceData_Base *pDevice_AppServer = 
-			pDevice_Core->FindFirstRelatedDeviceOfCategory( DEVICECATEGORY_App_Server_CONST );
-		if(NULL != pDevice_AppServer)
-		{
-			DCE::CMD_Spawn_Application CMD_Spawn_Application(m_pOrbiter->m_dwPK_Device,pDevice_AppServer->m_dwPK_Device,
-				"/usr/pluto/bin/remove_pvr_packages.sh","remove_pvr_packages",sParms,"","",false,false,false,true);
-			m_pOrbiter->SendCommand(CMD_Spawn_Application);
-		}
-	}
+	//remove undeeded packages from all machines
+	DCE::CMD_Spawn_Application_DT cmd_Spawn_Application_DT(
+		m_pOrbiter->m_dwPK_Device, DEVICECATEGORY_App_Server_CONST, BL_SameHouse,
+		"/usr/pluto/bin/remove_pvr_packages.sh","remove_pvr_packages",sParms,"","",false,false,false,true);
+	cmd_Spawn_Application_DT.m_pMessage->m_eRetry = MR_Persist;
+	m_pOrbiter->SendCommand(cmd_Spawn_Application_DT);
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	//TEMPORARY CODE - WARNING!!!
