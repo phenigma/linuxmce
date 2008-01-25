@@ -10,10 +10,24 @@ fi
 nvidia_glx_installed="false"
 linux_restricted_modules_generic_installed="false"
 
+if [[ "$(uname -m)" == "i686" ]] ;then
+	nvidia_glx_version="1.0.9639+2.6.22.4-14.9+lmce3"
+	linux_restricted_modules_generic_version="2.6.22.4-14.9+lmce3"
+	arch="i386"
+else
+	nvidia_glx_version="1.0.9639+2.6.22.4-14.10+lmce3"
+	linux_restricted_modules_generic_version="2.6.22.4-14.10+lmce3"
+	arch="amd64"
+fi
+
+
+
 mount /dev/cdrom /media/cdrom || :
 
 if [[ "$(aptitude show nvidia-glx | grep State | cut -d ' ' -f2)" == "installed" ]] ;then
-	nvidia_glx_installed="true"
+	if [[ "$(aptitude show nvidia-glx | grep Version | cut -d' ' -f2)" == "$nvidia_glx_version" ]] ;then
+		nvidia_glx_installed="true"
+	fi
 fi
 
 if [[ "$nvidia_glx_installed" == "false" ]] ;then
@@ -22,33 +36,27 @@ fi
 
 if [[ "$nvidia_glx_installed" == "false" ]] ;then
 	pushd /tmp
-		if [[ "$(uname -m)" == "i686" ]] ;then
-			wget http://deb.linuxmce.org/install/nvidia-glx_1.0.9639+2.6.22.4-14.9+lmce3_i386.deb
-			dpkg -i nvidia-glx_1.0.9639+2.6.22.4-14.9+lmce3_i386.deb && nvidia_glx_installed="true"
-		else
-			wget http://deb.linuxmce.org/install/nvidia-glx_1.0.9639+2.6.22.4-14.10+lmce3_amd64.deb
-			dpkg -i nvidia-glx_1.0.9639+2.6.22.4-14.10+lmce3_amd64.deb && nvidia_glx_installed="true"
-		fi
+	wget http://deb.linuxmce.org/install/nvidia-glx_${nvidia_glx_version}_${arch}.deb
+	dpkg -i nvidia-glx_${nvidia_glx_version}_${arch}.deb && nvidia_glx_installed="true"
 	popd
 fi
 
-if [[ "$(aptitude show linux-restricted-modules-generic | grep State | cut -d ' ' -f2)" == "installed" ]] ;then
-	linux_restricted_modules_generic_installed="true"
-fi
-
-if [[ "$linux_restricted_modules_generic_installed" == "false" ]] ;then
-	if [[ "$(uname -m)" == "i686" ]] ;then
-		wget http://deb.linuxmce.org/install/linux-restricted-modules-2.6.22-14-generic_2.6.22.4-14.9+lmce3_i386.deb
-		dpkg -i linux-restricted-modules-2.6.22-14-generic_2.6.22.4-14.9+lmce3_i386.deb && linux_restricted_modules_generic_installed="true"
-	else
-		wget http://deb.linuxmce.org/install/linux-restricted-modules-2.6.22-14-generic_2.6.22.4-14.10+lmce3_amd64.deb
-		dpkg -i linux-restricted-modules-2.6.22-14-generic_2.6.22.4-14.10+lmce3_amd64.deb && linux_restricted_modules_generic_installed="true"
+if [[ "$(aptitude show linux-restricted-modules-2.6.22-14-generic | grep State | cut -d ' ' -f2)" == "installed" ]] ;then
+	if [[ "$(aptitude show linux-restricted-modules-2.6.22-14-generic | grep Version | cut -d' ' -f2)" == "$linux_restricted_modules_generic_version" ]] ;then
+		linux_restricted_modules_generic_installed="true"
 	fi
 fi
 
-#if [[ "$linux_restricted_modules_generic_installed" == "false" ]] ;then
-#	dpkg -i 
-#fi
+if [[ "$linux_restricted_modules_generic_installed" == "false" ]] ;then
+	dpkg -i /media/cdrom/deb-cache/linux-restricted-modules*.deb && linux_restricted_modules_generic_installed == "true"
+fi
+
+if [[ "$linux_restricted_modules_generic_installed" == "false" ]] ;then
+	pushd /tmp
+	wget "http://deb.linuxmce.org/install/linux-restricted-modules-2.6.22-14-generic_${linux_restricted_modules_generic_version}_${arch}.deb"
+	dpkg -i "linux-restricted-modules-2.6.22-14-generic_${linux_restricted_modules_generic_version}_${arch}.deb" && linux_restricted_modules_generic_installed="true"
+	popd
+fi
 
 if [[ "$linux_restricted_modules_generic_installed" == "false" || "$nvidia_glx_installed" == "false" ]] ;then
 	echo "ERROR: Some of the pacakges could not be installed"
