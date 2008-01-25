@@ -65,7 +65,7 @@ function sqlcvs_diff($output,$dbADO) {
 		<input type="hidden" name="section" value="sqlcvs_diff">
 		<input type="hidden" name="action" value="choose">	
 		
-	<table width="400" cellpadding="3" cellspacing="0">
+	<table width="500" cellpadding="3" cellspacing="0">
 		<tr>
 			<td colspan="3"><B>'.$TEXT_SQLCVS_HOST_CONST.':</B></td>
 			<td><input type="text" name="host" value="'.((isset($_REQUEST['host']))?$_REQUEST['host']:'sqlcvs.plutohome.com').'"></td>
@@ -75,16 +75,19 @@ function sqlcvs_diff($output,$dbADO) {
 			<td><input type="text" name="port" value="'.(($database==$dbPlutoMainDatabase)?'3999':'4000').'"></td>
 		</tr>		
 		<tr>
-			<td colspan="3"><B>'.$TEXT_USERNAME_CONST.':</B></td>
-			<td><input type="text" name="username" value="'.@$_REQUEST['username'].'"></td>
+			<td colspan="3"><B>'.$TEXT_USERNAME_CONST.'*:</B></td>
+			<td><input type="text" name="username" value="'.((isset($_REQUEST['username']))?@$_REQUEST['username']:'annonymous').'"></td>
 		</tr>
 		<tr>
-			<td colspan="3"><B>'.$TEXT_PASSWORD_CONST.':</B></td>
-			<td><input type="text" name="password" value="'.@$_REQUEST['password'].'"></td>
+			<td colspan="3"><B>'.$TEXT_PASSWORD_CONST.'*:</B></td>
+			<td><input type="text" name="password" value="'.((isset($_REQUEST['password']))?@$_REQUEST['password']:'annonymous').'"></td>
 		</tr>
 		<tr>
 			<td colspan="3"><B>'.$TEXT_DATABASE_CONST.':</B></td>
 			<td>'.pulldownFromArray($databasesArray,'database',$database,'onchange="document.sqlcvs_diff.action.value=\'form\';document.sqlcvs_diff.submit();"','key','').'</td>
+		</tr>	
+		<tr>
+			<td colspan="4">* '.$TEXT_COMMIT_INFO_CONST.'	</td>
 		</tr>		
 		<tr>
 			<td colspan="3">&nbsp;</td>
@@ -134,6 +137,7 @@ function sqlcvs_diff($output,$dbADO) {
 		$port=(int)$_POST['port'];
 		$username=stripslashes($_POST['username']);
 		$password=stripslashes($_POST['password']);
+		$password=($password=='')?'nopass':$password;
 		$rParmArray=array();
 		$tParmArray=array();
 		
@@ -210,6 +214,9 @@ function sqlcvs_diff($output,$dbADO) {
 		<tr>
 			<td colspan="3"><B>'.$TEXT_DATABASE_CONST.':</B></td>
 			<td>'.pulldownFromArray($databasesArray,'database',$database,'onchange="document.sqlcvs_diff.action.value=\'form\';document.sqlcvs_diff.submit();"','key','').'</td>
+		</tr>		
+		<tr>
+			<td colspan="4">'.$TEXT_COMMIT_INFO_CONST.'	</td>
 		</tr>		
 		<tr>
 			<td>&nbsp;</td>

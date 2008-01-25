@@ -16,4 +16,5 @@ $TEXT_TRY_AGAIN_CONST='Try again';
 $TEXT_PARAMETERS_ERROR_CONST='Parameters error';
 $TEXT_ERROR_DETAILS_CONST='Error details';
 $TEXT_DATABASE_CONST='Database';
+$TEXT_COMMIT_INFO_CONST='Note: If you have sqlCVS credentials use them to commit you changes as authorised, otherwise your commits will be submitted for review and only after this will be accepted into main database.';
 ?>
