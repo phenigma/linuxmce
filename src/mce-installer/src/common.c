@@ -11,15 +11,13 @@
 
 static void remove_gtk_widget(GtkWidget *widget, gpointer data) {
 	GtkWidget *container = (GtkWidget *) data;
-	
-	if (GTK_IS_CONTAINER(widget)) {
-		gtk_container_foreach(GTK_CONTAINER(widget), remove_gtk_widget, widget);
-	} 
-	
+
+	//delete only top level widgets, their children will be deleted automatically.
 	gtk_container_remove(GTK_CONTAINER(container), widget);	
 }
 
 void cleanupContainer (GtkWidget *container) {
+
 	if (GTK_IS_CONTAINER(container)) {
 		gtk_container_foreach(GTK_CONTAINER(container), remove_gtk_widget, container);
 	}	
