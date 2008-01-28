@@ -937,6 +937,12 @@ int k=2;
                         m_VariableMap[VARIABLE_Array_ID_CONST] = pRow_FloorplanObjectType->Description_get();
                         m_VariableMap[VARIABLE_Array_Desc_CONST] = Description;
 
+						if(NULL == pRow_Device_DeviceData_FPInfo)
+						{
+							LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Error: Floorplan object missing info");
+							continue;
+						}
+
 						if( X>m_sOriginalSize.Width || Y>m_sOriginalSize.Height )
 						{
 							pRow_Device_DeviceData_FPInfo->IK_DeviceData_set("");
