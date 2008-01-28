@@ -64,10 +64,9 @@ function raidDrives($output,$dbADO) {
 
 	if($RAIDStatus!=0){
 		// send sommand to update raid status
-		// /usr/pluto/bin/monitoring_RAID.sh "WEB_ADMIN_REFRESH" /dev/mdXXX
+		// /usr/pluto/bin/refresh_status_RAID.sh <DEVICE_ID>
 		
-		$blockDevice=getDeviceData($deviceID,$GLOBALS['BlockDevice'],$dbADO);
-		$cmd='sudo -u root /usr/pluto/bin/monitoring_RAID.sh "WEB_ADMIN_REFRESH" "'.$blockDevice.'"';
+		$cmd='sudo -u root /usr/pluto/bin/refresh_status_RAID.sh  "'.$deviceID.'"';
 		$ret=exec_batch_command($cmd,1);
 	}
 		
