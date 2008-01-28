@@ -40,11 +40,11 @@ function import_win32bins() {
 	touch ${svn_dir}/trunk/src/bin/PlutoRebootSetup.msi
 
 	pushd ${svn_dir}/trunk/src/bin
-	wget --no-passive-ftp 'ftp://builderwin32.linuxmce.com/Windows_Output_LinuxMCE/src/bin/*'
+	cp /home/ftp/WinBinaries/Windows_Output_LinuxMCE/src/bin/* ./
 	popd
 
 	pushd ${svn_dir}/trunk/src/lib
-	wget --no-passive-ftp 'ftp://builderwin32.linuxmce.com/Windows_Output_LinuxMCE/src/lib/*'
+	cp /home/ftp/WinBinaries/Windows_Output_LinuxMCE/src/lib/* ./
 	popd
 }
 
