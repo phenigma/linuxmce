@@ -4867,7 +4867,7 @@ void Orbiter::GetVideoFrame( void *data )
 			DCE::CMD_Get_Video_Frame CMD_Get_Video_Frame( m_dwPK_Device, PK_Device, "0",  0 /* stream */, pObj->m_rPosition.Width, pObj->m_rPosition.Height, &pBuffer, &Size, &sFormat );
 			if(  SendCommand( CMD_Get_Video_Frame ) && pBuffer  )
 			{
-				CMD_Update_Object_Image( pObj->m_ObjectID,  sFormat ,  pBuffer,  Size, "1" );
+				CMD_Update_Object_Image( pObj->m_ObjectID,  sFormat ,  pBuffer,  Size, "0" );
 				delete [] pBuffer; //we don't need it anymore
 			}
 		}
