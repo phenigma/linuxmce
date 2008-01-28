@@ -126,6 +126,8 @@ void on_back_clicked(GObject object, gpointer data) {
 			case STEPUBUNTULIVECD:
 				displayStepUbuntuExtraCD();
 				break;
+			case STEPLINUXMCECD:
+				displayStepLinuxMceCD();
 			default:
 				printf("Unknown screen in history [%d]", prevScreen);
 		}
