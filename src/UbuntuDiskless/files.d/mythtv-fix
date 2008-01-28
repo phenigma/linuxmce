@@ -6,28 +6,6 @@ set -e
 
 . /usr/pluto/bin/SQL_Ops.sh
 
-function addRootUser
-{
-	is_in_group="false"
-	for group in `id -nG root` ;do
-		if [[ "$group" == "mythtv" ]] ;then
-			is_in_group="true"
-		fi
-	done
-
-	if [[ "$is_in_group" == "false" ]] ;then
-		group_line=$(grep "^mythtv:" ${Parm_RootLocation}/etc/group)
-		if [[ "$(echo $group_line | cut -d':' -f4)" == "" ]] ;then
-			group_line="${group_line}root"
-		else
-		    group_line="${group_line},root"
-		fi
-        echo $group_line > ${Parm_RootLocation}/etc/group.$$	
-        grep -v "^mythtv:" ${Parm_RootLocation}/etc/group >> ${Parm_RootLocation}/etc/group.$$
-        mv ${Parm_RootLocation}/etc/group.$$ ${Parm_RootLocation}/etc/group
-	fi																																	
-}
-
 function IsDeviceInQuickStart {
 	local device=$1
 	local Devs=$2
@@ -40,16 +18,6 @@ function IsDeviceInQuickStart {
 
 	return 1
 }
-
-## Set root user to mythtv group
-if [[ -f ${Parm_RootLocation}/etc/group ]] ;then 
-	if grep -q 'mythtv' ${Parm_RootLocation}/etc/group ;then
-		addRootUser
-	else
-		groupadd mythtv || :
-		addRootUser
-	fi
-fi
 
 Q="SELECT PK_Device FROM Device WHERE FK_DeviceTemplate=28"
 Devices=$(RunSQL "$Q")
