@@ -239,12 +239,24 @@ function phoneLines($output,$astADO,$dbADO) {
 }
 
 function phoneLinesTable($astADO){
+	$astADO->debug=true;
 	// include language files
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/phoneLines.lang.php');
 	
 	$phoneState=getPhonesState();
+	$providersKeywords=get_providers_by_type('SIP');
 
+	$where='';
+	if(count($providersKeywords)>0){
+		$whereArray=array();
+		foreach ($providersKeywords as $key){
+			$whereArray[]="sip.data='$key'";
+		}
+		$where=' AND ('.join(' OR ',$whereArray).')';
+	}
+	
+	
 	$GLOBALS['count']=0;
 	$res=$astADO->Execute("
 		SELECT sip.id,sip.data,sips.data AS sdata, sipp.data AS pdata,siph.data AS hdata 
@@ -252,7 +264,7 @@ function phoneLinesTable($astADO){
 		INNER JOIN sip sips ON (sips.id=sip.id) AND (sips.keyword='secret')
 		INNER JOIN sip sipp ON (sipp.id=sip.id) AND (sipp.keyword='username')
 		INNER JOIN sip siph ON (siph.id=sip.id) AND (siph.keyword='host')
-		WHERE (sip.keyword='account') AND ((sip.data='broadvoice') OR (sip.data='sipgate') OR (sip.data='inphonex') OR (sip.data='voiceeclipse'))");
+		WHERE (sip.keyword='account') $where");
 	$out='
 	<table align="center" cellpadding="3" cellspacing="0">
 		<tr class="tablehead">
@@ -288,13 +300,23 @@ function phoneLinesTable($astADO){
 		</tr>';
 	}
 
+	$providersKeywords=get_providers_by_type('IAX');
+	$where='';
+	if(count($providersKeywords)>0){
+		$whereArray=array();
+		foreach ($providersKeywords as $key){
+			$whereArray[]="iax.data='$key'";
+		}
+		$where=' AND ('.join(' OR ',$whereArray).')';
+	}
+	
 	$res=$astADO->Execute("
 		SELECT iax.id,iax.data,iaxs.data AS sdata, iaxp.data AS pdata,iaxh.data AS hdata 
 		FROM iax 
 		INNER JOIN iax iaxs ON (iaxs.id=iax.id) AND (iaxs.keyword='secret')
 		INNER JOIN iax iaxp ON (iaxp.id=iax.id) AND (iaxp.keyword='username')
 		INNER JOIN iax iaxh ON (iaxh.id=iax.id) AND (iaxh.keyword='host')
-		WHERE (iax.keyword='account') AND ((iax.data='fwd') OR (iax.data='teliax-out') OR (iax.data='efon') OR (iax.data='nufone-out') OR (iax.data='freeworddialup'))");
+		WHERE (iax.keyword='account') $where");
 	while($row=$res->FetchRow()){
 		$incomingData=array_values(getAssocArray('incoming','destination','extension',$astADO,'WHERE destination=\'custom-linuxmce,10'.substr($row['id'],-1).',1\''));
 		$phoneNumber=@$incomingData[0];
@@ -593,7 +615,7 @@ function get_available_providers(){
 
 	*/
 	
-	// file format: [provider name]\t[url]\t[keyword]
+	// file format: [provider name]\t[url]\t[keyword]\t[SIP|IAX]
 	$providerData=array();
 	$confFile=@file('/etc/asterisk/provider_list.txt');
 	
@@ -614,4 +636,27 @@ function get_available_providers(){
 	
 	return $providerData;
 }
+
+function get_providers_by_type($type){
+	
+	// file format: [provider name]\t[url]\t[keyword]\t[SIP|IAX]
+	$providerData=array();
+	$confFile=@file('/etc/asterisk/provider_list.txt');
+	
+	
+	if($confFile=='' || count($confFile)==0){
+		return $providerData;
+	}
+	
+	foreach ($confFile AS $line){
+		if(trim($line)!=''){
+			$parts=explode("\t",$line);
+			
+			$providerData[trim($parts[3])][]=trim($parts[2]);
+		}
+	}
+
+	return $providerData[$type];
+}
+
 ?>
