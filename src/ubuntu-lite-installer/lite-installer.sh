@@ -424,9 +424,18 @@ TargetCleanup()
 		while read filepath; do
 			filepath="${filepath#+}"
 			filepath="${filepath%+}"
-			directory="../$(dirname "$filepath")"
+
+			directory=$(dirname "$filepath")
+			dir_owner=$(stat -c '%u:%g' "$directory")
+			dir_rights=$(stat -c '%a' "$directory")
+			directory="../$directory"
+
 			mkdir -p "$directory"
 			mv "$filepath" "$directory"
+
+			# preserve directory access rights and ownership; files don't need this since they're moved, not created
+			chmod "$dir_rights" "$directory"
+			chown "$dir_owner" "$directory"
 		done < <(find -not -type d -printf "+%p+\n")
 		popd &>/dev/null
 		rm -rf /media/target/.upgrade-save
