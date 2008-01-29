@@ -35,16 +35,16 @@ function rubyCodes($output,$dbADO,$mediaADO) {
 		$isImported=GetIRCodesForDevice(NULL,$dbADO,$dtID);
 	}
 	
-	if(!isset($_REQUEST['infraredGroupID'])){
+	if(!isset($_REQUEST['irGroup'])){
 		$resDefaultIG=$dbADO->Execute('SELECT FK_InfraredGroup FROM DeviceTemplate WHERE PK_DeviceTemplate=?',$dtID);
 		if($resDefaultIG->RecordCount()>0){
 			$rowDefaultIG=$resDefaultIG->FetchRow();
-			$infraredGroupID=$rowDefaultIG['FK_InfraredGroup'];
+			$irGroup=$rowDefaultIG['FK_InfraredGroup'];
 		}else{
-			$infraredGroupID=0;
+			$irGroup=0;
 		}
 	}else
-		$infraredGroupID=(int)$_REQUEST['infraredGroupID'];
+		$irGroup=(int)$_REQUEST['irGroup'];
 	$GLOBALS['displayedIRGC']=array();
 	$GLOBALS['displayedCommands']=array();
 
@@ -93,7 +93,7 @@ function rubyCodes($output,$dbADO,$mediaADO) {
 			<input type="hidden" name="action" value="update">
 			<input type="hidden" name="dtID" value="'.$dtID.'">
 			<input type="hidden" name="deviceID" value="'.$deviceID.'">
-			<input type="hidden" name="infraredGroupID" value="'.$infraredGroupID.'">
+			<input type="hidden" name="infraredGroupID" value="'.$irGroup.'">
 			<input type="hidden" name="irgroup_command" value="">
 			<input type="hidden" name="label" value="'.$label.'">';
 
@@ -106,7 +106,7 @@ function rubyCodes($output,$dbADO,$mediaADO) {
 		$powerCommands=array($GLOBALS['genericONCommand']=>'ON',$GLOBALS['genericOFFCommand']=>'OFF');
 		
 		$out.='
-		<input type="hidden" name="oldIRGroup" value="'.@$infraredGroupID.'">
+		<input type="hidden" name="oldIRGroup" value="'.@$irGroup.'">
 		
 		<h3>'.$TEXT_EDIT_GSD_CODES_CONST.'</h3>
 		<table border="0" width="100%" class="normaltext">
@@ -118,12 +118,12 @@ function rubyCodes($output,$dbADO,$mediaADO) {
 			</tr>
 		';
 			$irGroups=getAssocArray('InfraredGroup','PK_InfraredGroup','Description',$dbADO,'WHERE FK_Manufacturer='.$manufacturerID.' AND FK_DeviceCategory='.$deviceCategoryID,'ORDER BY Description ASC');
-			$error_not_saved=(count($irGroups)>0 && ($infraredGroupID==0 || is_null($infraredGroupID)))?'<span class="err">'.$TEXT_ERROR_IRGROUP_NOT_SAVED_CONST.'</span>':'';
+			$error_not_saved=(count($irGroups)>0 && ($irGroup==0 || is_null($irGroup)))?'<span class="err">'.$TEXT_ERROR_IRGROUP_NOT_SAVED_CONST.'</span>':'';
 			$error_no_group=(count($irGroups)==0)?'<span class="err">'.$TEXT_ERROR_NO_GROUP_CONST.'</span>':'';
 			
 			$out.='
 			<tr>
-				<td colspan="2">'.$TEXT_USES_GROUP_CODESET_CONST.' '.pulldownFromArray($irGroups,'irGroup',$infraredGroupID,'onChange="document.rubyCodes.submit();"','key','').' '.$error_not_saved.'
+				<td colspan="2">'.$TEXT_USES_GROUP_CODESET_CONST.' '.pulldownFromArray($irGroups,'irGroup',$irGroup,'onChange="document.rubyCodes.submit();"','key','').' '.$error_not_saved.'
 			</td>
 			</tr>
 			<tr>
@@ -140,14 +140,14 @@ function rubyCodes($output,$dbADO,$mediaADO) {
 		
 		$out.='		
 			<tr>
-				<td colspan="3" align="center"><input type="button" class="button" name="button" value="'.$TEXT_ADD_REMOVE_COMMANDS_CONST.'" onClick="windowOpen(\'index.php?section=infraredCommands&infraredGroup='.$infraredGroupID.'&deviceID='.$deviceID.'&dtID='.$dtID.'&rootNode=1&norestrict=1\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"> <input type="submit" class="button" name="update" value="Update" '.((!isset($_SESSION['userID']))?'disabled':'').'> <input type="button" class="button" name="close" value="'.$TEXT_CLOSE_CONST.'" onClick="self.close();"></td>
+				<td colspan="3" align="center"><input type="button" class="button" name="button" value="'.$TEXT_ADD_REMOVE_COMMANDS_CONST.'" onClick="windowOpen(\'index.php?section=infraredCommands&infraredGroup='.$irGroup.'&deviceID='.$deviceID.'&dtID='.$dtID.'&rootNode=1&norestrict=1\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"> <input type="submit" class="button" name="update" value="Update" '.((!isset($_SESSION['userID']))?'disabled':'').'> <input type="button" class="button" name="close" value="'.$TEXT_CLOSE_CONST.'" onClick="self.close();"></td>
 			</tr>';
 		
 		// extract data from InfraredGroup_Command an put it in multi-dimmensional array
-		$codesArray=extractCodesTree($infraredGroupID,$dtID,$dbADO);
+		$codesArray=extractCodesTree($irGroup,$dtID,$dbADO);
 		
 		// display the html rows 
-		$out.=getCodesTableRows('rubyCodes',$infraredGroupID,$dtID,$deviceID,$codesArray,$togglePower,$toggleInput,$toggleDSP);
+		$out.=getCodesTableRows('rubyCodes',$irGroup,$dtID,$deviceID,$codesArray,$togglePower,$toggleInput,$toggleDSP);
 
 		$out.='
 			<tr>
@@ -165,7 +165,7 @@ function rubyCodes($output,$dbADO,$mediaADO) {
 	} else {
 		$time_start = getmicrotime();
 		//$dbADO->debug=true;
-		$existingCommands=array_keys(getAssocArray('InfraredGroup_Command','FK_Command','PK_InfraredGroup_Command',$dbADO,'WHERE FK_InfraredGroup='.$infraredGroupID));
+		$existingCommands=array_keys(getAssocArray('InfraredGroup_Command','FK_Command','PK_InfraredGroup_Command',$dbADO,'WHERE FK_InfraredGroup='.$irGroup));
 		
 		$newIRGroup=((int)@$_POST['irGroup']>0)?(int)$_POST['irGroup']:NULL;
 		$oldIRGroup=(int)$_POST['oldIRGroup'];
@@ -176,12 +176,12 @@ function rubyCodes($output,$dbADO,$mediaADO) {
 			if($action!='delete'){
 				$dbADO->Execute('INSERT INTO InfraredGroup_Command (FK_InfraredGroup,FK_Command,IRData) SELECT FK_InfraredGroup,FK_Command,IRData FROM InfraredGroup_Command WHERE PK_InfraredGroup_Command=?',$irg_c);
 
-				header("Location: index.php?section=rubyCodes&from=$from&dtID=$dtID&deviceID=$deviceID&infraredGroupID=$infraredGroupID&msg=$TEXT_RUBY_CODE_ADDED_CONST&label=".$GLOBALS['label']);
+				header("Location: index.php?section=rubyCodes&from=$from&dtID=$dtID&deviceID=$deviceID&irGroup=$irGroup&msg=$TEXT_RUBY_CODE_ADDED_CONST&label=".$GLOBALS['label']);
 				exit();
 			}else{
 				$dbADO->Execute('UPDATE InfraredGroup_Command SET IRData=? WHERE PK_InfraredGroup_Command=?',array('',$irg_c));
 				
-				header("Location: index.php?section=rubyCodes&from=$from&dtID=$dtID&deviceID=$deviceID&infraredGroupID=$infraredGroupID&msg=$TEXT_CUSTOM_CODE_DELETED_CONST&label=".$GLOBALS['label']);
+				header("Location: index.php?section=rubyCodes&from=$from&dtID=$dtID&deviceID=$deviceID&irGroup=$irGroup&msg=$TEXT_CUSTOM_CODE_DELETED_CONST&label=".$GLOBALS['label']);
 				exit();
 			}
 		}
@@ -191,12 +191,12 @@ function rubyCodes($output,$dbADO,$mediaADO) {
 	
 				$dbADO->Execute('UPDATE DeviceTemplate SET FK_InfraredGroup=? WHERE PK_DeviceTemplate=?',array($newIRGroup,$dtID));
 	
-				header("Location: index.php?section=rubyCodes&from=$from&dtID=$dtID&deviceID=$deviceID&infraredGroupID=$newIRGroup&msg=$TEXT_IR_GROUP_CHANGED_FOR_SELECTED_DEVICE_TEMPLATE_CONST&label=".$GLOBALS['label']);
+				header("Location: index.php?section=rubyCodes&from=$from&dtID=$dtID&deviceID=$deviceID&irGroup=$newIRGroup&msg=$TEXT_IR_GROUP_CHANGED_FOR_SELECTED_DEVICE_TEMPLATE_CONST&label=".$GLOBALS['label']);
 				exit();
 			}			
 			
 			$displayedCommands=explode(',',$_POST['displayedCommands']);
-			$infraredGroupID=($infraredGroupID==0)?NULL:$infraredGroupID;
+			$irGroup=($irGroup==0)?NULL:$irGroup;
 
 			if(isset($_POST['deviceCG'])){
 				$deviceCGArray=explode(',',$_POST['deviceCG']);
@@ -209,7 +209,7 @@ function rubyCodes($output,$dbADO,$mediaADO) {
 						
 						foreach ($commands AS $commandID){
 							if(!in_array($commandID,$displayedCommands)){			
-								$dbADO->Execute('INSERT INTO InfraredGroup_Command (FK_InfraredGroup,FK_Command,IRData) VALUES (?,?,?)',array($infraredGroupID,$commandID,''));
+								$dbADO->Execute('INSERT INTO InfraredGroup_Command (FK_InfraredGroup,FK_Command,IRData) VALUES (?,?,?)',array($irGroup,$commandID,''));
 							}
 						}
 						if(!in_array($deviceCG,$oldCheckedDCG))
@@ -219,7 +219,7 @@ function rubyCodes($output,$dbADO,$mediaADO) {
 						// delete from IRG_C
 						$commands=explode(',',$_POST['commands_'.$deviceCG]);
 						if(count($commands)>0){
-							$dbADO->Execute('UPDATE InfraredGroup_Command SET IRData=? WHERE FK_Command in ('.join(',',$commands).') AND FK_InfraredGroup=?',array('',$infraredGroupID));
+							$dbADO->Execute('UPDATE InfraredGroup_Command SET IRData=? WHERE FK_Command in ('.join(',',$commands).') AND FK_InfraredGroup=?',array('',$irGroup));
 	
 						}
 						$dbADO->Execute('DELETE FROM DeviceTemplate_DeviceCommandGroup WHERE FK_DeviceTemplate=? AND FK_DeviceCommandGroup=?',array($dtID,$deviceCG));
@@ -240,21 +240,21 @@ function rubyCodes($output,$dbADO,$mediaADO) {
 			$time_end= getmicrotime();
 			//print '<p class="normaltext">Page generated in '.round(($time_end-$time_start),3).' s.';
 			
-			header("Location: index.php?section=rubyCodes&from=$from&deviceID=$deviceID&dtID=$dtID&infraredGroupID=$infraredGroupID&msg=$TEXT_RUBY_CODES_UPDATED_CONST&label=".$GLOBALS['label']);
+			header("Location: index.php?section=rubyCodes&from=$from&deviceID=$deviceID&dtID=$dtID&irGroup=$irGroup&msg=$TEXT_RUBY_CODES_UPDATED_CONST&label=".$GLOBALS['label']);
 			exit();
 		}
 
 		if(isset($_POST['add_group']) && $_POST['new_group_description']!=''){
 			$description=cleanString($_POST['new_group_description']);
 			$res=$dbADO->Execute('INSERT INTO InfraredGroup (FK_DeviceCategory,FK_Manufacturer,Description) VALUES (?,?,?)',array($deviceCategoryID,$manufacturerID,$description));
-			$infraredGroupID=$dbADO->Insert_ID();
-			$dbADO->Execute('UPDATE DeviceTemplate SET FK_InfraredGroup=? WHERE PK_DeviceTemplate=?',array($infraredGroupID,$dtID));
+			$irGroup=$dbADO->Insert_ID();
+			$dbADO->Execute('UPDATE DeviceTemplate SET FK_InfraredGroup=? WHERE PK_DeviceTemplate=?',array($irGroup,$dtID));
 			
-			header("Location: index.php?section=rubyCodes&from=$from&deviceID=$deviceID&dtID=$dtID&infraredGroupID=$infraredGroupID&msg=$TEXT_CODES_GROUP_ADDED_CONST");
+			header("Location: index.php?section=rubyCodes&from=$from&deviceID=$deviceID&dtID=$dtID&irGroup=$irGroup&msg=$TEXT_CODES_GROUP_ADDED_CONST");
 			exit();
 		}
 		
-		header("Location: index.php?section=rubyCodes&from=$from&dtID=$dtID&deviceID=$deviceID&infraredGroupID=$infraredGroupID&lastAction=".@$lastAction);
+		header("Location: index.php?section=rubyCodes&from=$from&dtID=$dtID&deviceID=$deviceID&irGroup=$irGroup&lastAction=".@$lastAction);
 	}
 	$time_end = getmicrotime();
 	//$out.='<br><p class="normaltext">Page generated in '.round(($time_end-$time_start),3).' s.';
