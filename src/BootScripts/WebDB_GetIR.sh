@@ -7,7 +7,7 @@ DeviceTemplate="${2:-0}"
 Restricted="${3:-0}"
 
 #PlutohomeHost="http://10.0.0.175/plutohome-com/"
-PlutohomeHost="http://plutohome.com/"
+PlutohomeHost="http://linuxmce.org/"
 
 if [[ -z "$DeviceID" && "$DeviceTemplate" -eq 0 ]]; then
 	echo "ERROR. Either the DeviceID or the DeviceTemplate pamaters has to be specified"
