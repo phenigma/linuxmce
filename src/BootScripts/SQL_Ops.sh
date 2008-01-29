@@ -55,7 +55,7 @@ RunCSQL()
 
 PurgeCSQL() {
 	CSQL_ID="$1"
-	rm -rf "$CSQL_DIR/$CSQL_ID/*"
+	rm -rf "$CSQL_DIR/$CSQL_ID/"*
 }
 
 InitCSQL() {
