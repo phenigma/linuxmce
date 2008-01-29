@@ -12,3 +12,6 @@ rm -f /etc/init.d/StorageDevices_SambaRadar.sh
 ## Remove the init script that does the status (online/offline) scanning
 rm -f /etc/rc2.d/StorageDevices_StatusRadar.sh
 rm -f /etc/init.d/StorageDevices_StatusRadar.sh
+
+## Remove umount diversion
+dpkg-divert --remove /bin/umount

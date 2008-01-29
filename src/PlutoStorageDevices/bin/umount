@@ -1,0 +1,10 @@
+#!/bin/bash
+
+. /usr/pluto/bin/LockUtils.sh
+
+echo				   >> /var/log/pluto/umount-wrapper.log
+echo "$$ CALLED TO 'umount $@'"    >> /var/log/pluto/umount-wrapper.log
+WaitLock "umount" "umount-wrapper" >> /var/log/pluto/umount-wrapper.log
+
+umount $@
+
