@@ -79,7 +79,7 @@ function mainScreenSaver($output,$mediadbADO,$dbADO) {
 		
 		$displayedFiles=cleanString(@$_POST['displayedFiles']);
 		if($displayedFiles!=''){
-			$mediadbADO->Execute('DELETE FROM File_Attribute INNER JOIN FKAttribute ON FK_Attribute=PK_Attribute WHERE FK_AttributeType=30 AND FK_File IN ('.$displayedFiles.')',array($screenSaverAttribute));
+			$mediadbADO->Execute('DELETE File_Attribute.* FROM File_Attribute INNER JOIN Attribute ON FK_Attribute=PK_Attribute WHERE FK_AttributeType=30 AND FK_File IN ('.$displayedFiles.')');
 			$displayedFilesArray=explode(',',$displayedFiles);
 			foreach ($displayedFilesArray AS $fileID){
 				if((int)@$_POST['file_'.$fileID]==1){
