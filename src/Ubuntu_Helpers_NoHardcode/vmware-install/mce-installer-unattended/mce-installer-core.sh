@@ -124,7 +124,12 @@ function Install_DCERouter {
 	StatsMessage "Installing MySQL Server"
 	apt-get update
 	apt-get -y -f install mysql-server || ExitInstaller "Failed to install mysql server"
-	invoke-rc.d mysql start # Because of this : https://bugs.launchpad.net/bugs/107224
+	invoke-rc.d mysql start || {
+		invoke-rc.d mysql stop
+		killall mysqld_safe
+		killall mysqld
+		invoke-rc.d mysql start
+	}
 
 	apt-get -y -f install pluto-sample-media
 	apt-get -y -f install video-wizard-videos
