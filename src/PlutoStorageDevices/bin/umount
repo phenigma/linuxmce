@@ -7,6 +7,9 @@ echo "$$ CALLED TO 'umount $@'"    >> /var/log/pluto/umount-wrapper.log
 WaitLock "umount" "umount-wrapper" >> /var/log/pluto/umount-wrapper.log
 
 /bin/umount.wraped $@ &
+umount_pid=$!
 
-sleep 5
-
+start_date=$(date +%s)
+while [[ $(( start_date + 5 )) -ge $(date +%s) ]] && [[ -f /proc/$umount_pid ]]  ;do
+	sleep 0.2
+done
