@@ -53,6 +53,11 @@ $list .= "/var/lib/asterisk/sounds/pluto/pluto-default-voicemenu4.gsm ";
 
 sub generate_voice()
 {
+	&generate_voice_flite(@_);
+}
+
+sub generate_voice_att()
+{
     my $SERVER = 'http://192.20.225.55';
     my $URL_FORM = '/tts/cgi-bin/nph-talk';
     my $URL_SOUND = "";
@@ -86,6 +91,19 @@ sub generate_voice()
     close(PAGE);
     `curl '$SERVER$URL_SOUND' > /tmp/curl.wav`;
     `/usr/bin/sox /tmp/curl.wav -r 8000 -c 1 $FILE resample -ql`;
+}
+
+sub generate_voice_flite()
+{
+	my $TEXT = shift;
+	my $FILE = shift;
+
+	open F,"|flite -o /tmp/flite.wav";
+	print F "$TEXT\n";
+	close F;
+
+	`/usr/bin/sox /tmp/flite.wav -r 8000 -c 1 $FILE resample -ql`;
+	unlink "/tmp/flite.wav";
 }
 
 #`/usr/pluto/bin/create_telecom_defaults.pl`;
