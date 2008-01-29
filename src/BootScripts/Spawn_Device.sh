@@ -70,6 +70,7 @@ elif [[ -x "$cmd_line" ]]; then
 else
 	Logging "$TYPE" "$SEVERITY_CRITICAL" "$0 $module" "Can't execute $cmd_line"
 	Logging "$TYPE" "$SEVERITY_CRITICAL" "$0 $module" "Can't execute $cmd_line" "$LogFile"
+	sed -i "/^$device_id$/ d" "$AlreadyRunning"
 	exit 1
 fi
 
@@ -255,6 +256,7 @@ elif [[ -x "$cmd_line" ]]; then
 else
 	Logging "$TYPE" "$SEVERITY_CRITICAL" "$0 $module" "Can't execute $cmd_line"
 	Logging "$TYPE" "$SEVERITY_CRITICAL" "$0 $module" "Can't execute $cmd_line" "$LogFile"
+	sed -i "/^$device_id$/ d" "$AlreadyRunning"
 	exit 1
 fi
 
