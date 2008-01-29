@@ -6,7 +6,7 @@ echo				   >> /var/log/pluto/umount-wrapper.log
 echo "$$ CALLED TO 'umount $@'"    >> /var/log/pluto/umount-wrapper.log
 WaitLock "umount" "umount-wrapper" >> /var/log/pluto/umount-wrapper.log
 
-/bin/umount.wrapped $@ &
+/bin/umount.wraped $@ &
 
 sleep 5
 
