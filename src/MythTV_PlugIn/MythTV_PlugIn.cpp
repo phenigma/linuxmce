@@ -1716,13 +1716,13 @@ bool MythTV_PlugIn::TuneToChannel( class Socket *pSocket, class Message *pMessag
 		MediaStream *pMediaStream = m_pMedia_Plugin->m_mapMediaStream_Find(atoi(pMessage->m_mapParameters[COMMANDPARAMETER_StreamID_CONST].c_str()),0);
 //<-mkr_b_aj_b->
 		/*
-//<-mkr_b_aj_b->
+//<-mkr_b_aj_e->
 		if( pMediaStream && pMediaStream->GetType()==MEDIASTREAM_TYPE_MYTHTV )
 			return false;  // it's for a myth player, no processing needed
 
 //<-mkr_b_aj_b->
 		*/
-//<-mkr_b_aj_b->
+//<-mkr_b_aj_e->
 		string sProgramID = pMessage->m_mapParameters[COMMANDPARAMETER_ProgramID_CONST];
 		if( sProgramID.size()>1 && sProgramID[0]=='i' )
 		{
