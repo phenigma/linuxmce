@@ -338,7 +338,7 @@ while : ;do
                         fi
 
                         ## Test if the share is still mountable with the username/password that we have
-                        smbclient -A /usr/pluto/var/sambaCredentials.secret "//$IDrive_IP/Storage$IDrive_ID\$" -c 'ls' 1>/dev/null 2>/dev/null
+                        smbclient -A /usr/pluto/var/sambaCredentials.secret "//$IDrive_IP/Storage$IDrive_ID\$" -c 'pwd' 1>/dev/null 2>/dev/null
                         isShareMountable=$?
 
                         if [[ "$isShareMountable" != "0" ]] ;then
