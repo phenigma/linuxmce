@@ -68,7 +68,7 @@ function sqlcvs_diff($output,$dbADO) {
 	<table width="500" cellpadding="3" cellspacing="0">
 		<tr>
 			<td colspan="3"><B>'.$TEXT_SQLCVS_HOST_CONST.':</B></td>
-			<td><input type="text" name="host" value="'.((isset($_REQUEST['host']))?$_REQUEST['host']:'sqlcvs.plutohome.com').'"></td>
+			<td><input type="text" name="host" value="'.((isset($_REQUEST['host']))?$_REQUEST['host']:'sqlcvs.linuxmce.org').'"></td>
 		</tr>
 		<tr>
 			<td colspan="3"><B>'.$TEXT_PORT_CONST.':</B></td>
@@ -76,11 +76,11 @@ function sqlcvs_diff($output,$dbADO) {
 		</tr>		
 		<tr>
 			<td colspan="3"><B>'.$TEXT_USERNAME_CONST.'*:</B></td>
-			<td><input type="text" name="username" value="'.((isset($_REQUEST['username']))?@$_REQUEST['username']:'annonymous').'"></td>
+			<td><input type="text" name="username" value="'.((isset($_REQUEST['username']))?@$_REQUEST['username']:'anonymous').'"></td>
 		</tr>
 		<tr>
 			<td colspan="3"><B>'.$TEXT_PASSWORD_CONST.'*:</B></td>
-			<td><input type="text" name="password" value="'.((isset($_REQUEST['password']))?@$_REQUEST['password']:'annonymous').'"></td>
+			<td><input type="text" name="password" value="'.((isset($_REQUEST['password']))?@$_REQUEST['password']:'anonymous').'"></td>
 		</tr>
 		<tr>
 			<td colspan="3"><B>'.$TEXT_DATABASE_CONST.':</B></td>
@@ -340,11 +340,11 @@ function sqlcvs_diff($output,$dbADO) {
 			}
 		}
 		exec_batch_command('sudo -u root chmod 777 /tmp/tmp_sqlcvs_file');
-		writeFile('/tmp/tmp_sqlcvs_file',join("\n",$maskArray)).' '.join("\n",$maskArray);
 		
 		$sqlcvsAction=(isset($_POST['revert']))?'revert':'checkin';
 		
 		$cmd='sudo -u root /usr/pluto/bin/sqlCVS -R '.$port.' -H '.$host.' -h localhost -a -n '.$parmList.' -d "'.$username.'" -U "'.$username.'~'.$password.'" -D '.$database.' -e -m /tmp/'.$rand_tmp_file.' '.$sqlcvsAction;
+		writeFile($GLOBALS['WebExecLogFile'],date('d-m-Y H:i:s')."\t".$cmd."\n",'a+');
 		//unlink($rand_tmp_file);
 
 		

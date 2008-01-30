@@ -61,7 +61,7 @@ function sqlcvs_checkin($output,$dbADO) {
 	<table width="400" cellpadding="3" cellspacing="0">
 		<tr>
 			<td colspan="3"><B>'.$TEXT_SQLCVS_HOST_CONST.':</B></td>
-			<td><input type="text" name="host" value="'.((isset($_REQUEST['host']))?$_REQUEST['host']:'sqlcvs.plutohome.com').'"></td>
+			<td><input type="text" name="host" value="'.((isset($_REQUEST['host']))?$_REQUEST['host']:'sqlcvs.linuxmce.org').'"></td>
 		</tr>
 		<tr>
 			<td colspan="3"><B>'.$TEXT_PORT_CONST.':</B></td>
