@@ -31,7 +31,7 @@ if [[ "$(aptitude show nvidia-glx | grep State | cut -d ' ' -f2)" == "installed"
 fi
 
 if [[ "$nvidia_glx_installed" == "false" ]] ;then
-	dpkg -i /media/cdrom/deb-cache/nvidia-glx_*.deb && nvidia_glx_installed="true"
+	dpkg -i /media/cdrom/deb-cache/nvidia-glx_${nvidia_glx_version}_*.deb && nvidia_glx_installed="true"
 fi
 
 if [[ "$nvidia_glx_installed" == "false" ]] ;then
@@ -48,7 +48,7 @@ if [[ "$(aptitude show linux-restricted-modules-2.6.22-14-generic | grep State |
 fi
 
 if [[ "$linux_restricted_modules_generic_installed" == "false" ]] ;then
-	dpkg -i /media/cdrom/deb-cache/linux-restricted-modules*.deb && linux_restricted_modules_generic_installed == "true"
+	dpkg -i /media/cdrom/deb-cache/linux-restricted-modules_${linux_restricted_modules_generic_version}_*.deb && linux_restricted_modules_generic_installed == "true"
 fi
 
 if [[ "$linux_restricted_modules_generic_installed" == "false" ]] ;then
