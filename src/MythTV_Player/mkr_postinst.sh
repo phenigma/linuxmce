@@ -7,6 +7,15 @@
 ln -s /usr/lib/libXmu.so.6.2.0 /usr/lib/libXmu.so | :
 # END  : Hack to get mythtv working
 
+# If this is not the hybrid, copy the mysql.txt file from hybrid
+if [[ "$PK_Device" != "1" ]] ;then
+	scp root@dcerouter:/etc/mythtv/mysql.txt /etc/mythtv/
+	sed -i "s/^DBHostName.*/DBHostName=dcerouter/g" /etc/mythtv/mysql.txt
+fi
+
+# make the proper ownership's because the backend can't read it otherwise
+chown mythtv /etc/mythtv/mysql.txt
+
 ## Get a valid mysql connection string to mythconvert
 eval `cat /etc/mythtv/mysql.txt | grep -v "^#" | grep -v "^$"`;
 mysql_command="mysql -s -B -u $DBUserName -h $DBHostName -p$DBPassword $DBName";
@@ -49,9 +58,6 @@ function addRootUser
         mv /etc/group.$$ /etc/group
 	fi																																	
 }
-
-# make the proper ownership's because the backend can't read it otherwise
-chown mythtv /etc/mythtv/mysql.txt
 
 ## Force the backend to make the database structure
 echo "LOCK TABLE schemalock WRITE;" | $mysql_command  || :
