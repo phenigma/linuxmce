@@ -124,6 +124,10 @@ namespace DCE
 		map<int, int> m_mapMythInputsToDevices;
 		EPGGrid *m_pEPGGrid;
 
+//<-mkr_b_aj_b->
+	MediaDevice *m_pMediaDevice_Xine;
+//<-mkr_b_aj_e->
+
 		int m_iRetriesStartingMyth;
 
 		ListMythChannel m_ListMythChannel; // The channels in the right order for display

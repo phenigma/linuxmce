@@ -4446,3 +4446,42 @@ bool ScreenHandler::SCREEN_Network_Settings_ObjectSelected(CallBackData *pData)
 	return false; // Keep processing it
 }
 //-----------------------------------------------------------------------------------------------------
+//<-mkr_b_aj_b->
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+// 
+//    aJ project temporary prototype screens
+//
+void ScreenHandler::SCREEN_aJAd(long PK_Screen, string sFilename, string sURL)
+{
+	if( sFilename.empty() )
+	{
+		DCE::CMD_Goto_DesignObj CMD_Goto_DesignObj(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,0,"<%=NP_R%>","","",false,false);
+		m_pOrbiter->QueueMessageToRouter(CMD_Goto_DesignObj.m_pMessage);
+	}
+	else
+	{
+		size_t size;
+		char *pGraphicData = m_pOrbiter->ReadFileIntoBuffer("/home/aj/" + sFilename,size);
+		m_pOrbiter->CMD_Update_Object_Image("5579.0.0.5580","jpg",
+			pGraphicData,
+			(int) size,"0");
+		m_pOrbiter->CMD_Set_Variable(VARIABLE_URL_from_phone_CONST, sURL);
+		RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::Aj_ObjectSelected,	new ObjectInfoBackData());
+		ScreenHandlerBase::SCREEN_aJAd(PK_Screen, sFilename, sURL);
+	}
+}
+
+bool ScreenHandler::Aj_ObjectSelected(CallBackData *pData)
+{
+	ObjectInfoBackData *pObjectInfoData = (ObjectInfoBackData *)pData;
+	if( pObjectInfoData->m_pObj->m_iBaseObjectID==5580 )
+	{
+		string sURL = m_pOrbiter->m_mapVariable_Find(VARIABLE_URL_from_phone_CONST);
+		DatagridCellBackData data;
+		data.m_sText = "aJ Advertisement";
+		data.m_sValue = "Firefox-bin\t0\t0\taJ Ad\t/usr/pluto/bin/Mozilla.sh\t1\t" + sURL;
+		Computing_DatagridSelected(&data); // Treat this like the user clicked a link
+	}
+	return false;
+}
+//<-mkr_b_aj_e->

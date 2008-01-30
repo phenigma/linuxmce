@@ -14070,6 +14070,66 @@ PK_DeviceData .... */, sOptions.c_str(), 224 /* PK_PnpQueue */, StringUtils::lto
 		}
 	};
 
+	class SCREEN_aJAd : public PreformedCommand
+	{
+	public:
+		SCREEN_aJAd(long DeviceIDFrom, long DeviceIDTo,
+			string sFilename, string sURL,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 6, 
+				COMMANDPARAMETER_PK_Screen_CONST, "280" /* screen ID */
+				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
+				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
+				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */,
+				13 /* Image file */, sFilename.c_str(), 193 /* Web page */, sURL.c_str());
+		}
+	};
+
+	class SCREEN_aJAd_DL : public PreformedCommand
+	{
+	public:
+		SCREEN_aJAd_DL(long DeviceIDFrom, string sDeviceIDTo,
+			string sFilename, string sURL,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+		{
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 6, 
+				COMMANDPARAMETER_PK_Screen_CONST, "280" /* screen ID */
+				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
+				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
+				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */,
+				13 /* Image file */, sFilename.c_str(), 193 /* Web page */, sURL.c_str());
+		}
+	};
+
+	class SCREEN_aJAd_DT : public PreformedCommand
+	{
+	public:
+		SCREEN_aJAd_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,
+			string sFilename, string sURL,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+		{
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 6, 
+				COMMANDPARAMETER_PK_Screen_CONST, "280" /* screen ID */
+				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
+				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
+				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */,
+				13 /* Image file */, sFilename.c_str(), 193 /* Web page */, sURL.c_str());
+		}
+	};
+
+	class SCREEN_aJAd_Cat : public PreformedCommand
+	{
+	public:
+		SCREEN_aJAd_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,
+			string sFilename, string sURL,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 6, 
+				COMMANDPARAMETER_PK_Screen_CONST, "280" /* screen ID */
+				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
+				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
+				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */,
+				13 /* Image file */, sFilename.c_str(), 193 /* Web page */, sURL.c_str());
+		}
+	};
+
 
 	class ScreenHandlerBase
 	{
@@ -14358,6 +14418,7 @@ PK_DeviceData .... */, sOptions.c_str(), 224 /* PK_PnpQueue */, StringUtils::lto
 		virtual void SCREEN_VDR_Full_Screen_Options(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_VDR_Full_Screen(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_VDR_Recordings(long PK_Screen){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_aJAd(long PK_Screen, string sFilename, string sURL){ GotoScreen(PK_Screen); }
 
 		virtual void ReceivedGotoScreenMessage(int nPK_Screen, Message *pMessage)
 		{
@@ -16029,6 +16090,14 @@ PK_DeviceData .... */, sOptions.c_str(), 224 /* PK_PnpQueue */, StringUtils::lto
 					SCREEN_VDR_Recordings(nPK_Screen);
 					break;
 				}
+				case 280:
+				{
+					ResetCallBacks();
+					string sFilename = pMessage->m_mapParameters[13];
+					string sURL = pMessage->m_mapParameters[193];
+					SCREEN_aJAd(nPK_Screen, sFilename, sURL);
+					break;
+				}
 
 			default:
 				BadGotoScreen(nPK_Screen);
@@ -16039,3 +16108,4 @@ PK_DeviceData .... */, sOptions.c_str(), 224 /* PK_PnpQueue */, StringUtils::lto
 }
 
 #endif
+//<-mkr_b_aj_e->

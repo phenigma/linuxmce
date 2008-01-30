@@ -57,6 +57,15 @@ static bool ChannelComparer(MythChannel *x, MythChannel *y)
 	return x->m_dwChanNum<y->m_dwChanNum;
 }
 
+
+//<-mkr_b_aj_b->
+	// Temporary for the aJ demo project where we turn a channel number into a filename
+	string ajTranslateMRL(int Channel)
+	{
+		return "/home/ch" + StringUtils::itos(Channel) + ".mpg";
+	}
+//<-mkr_b_aj_e->
+
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
 MythTV_PlugIn::MythTV_PlugIn(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
@@ -130,7 +139,8 @@ bool MythTV_PlugIn::Register()
 //<-dceag-reg-e->
 {
 	m_iPriority=DATA_Get_Priority();
-    /** Get a pointer to the media plugin */
+
+	/** Get a pointer to the media plugin */
 	m_pDatagrid_Plugin=( Datagrid_Plugin * ) m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_Datagrid_Plugin_CONST);
 	m_pMedia_Plugin=( Media_Plugin * ) m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_Media_Plugin_CONST);
 	m_pGeneral_Info_Plugin=( General_Info_Plugin * ) m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_General_Info_Plugin_CONST);
@@ -140,7 +150,12 @@ bool MythTV_PlugIn::Register()
 		return false;
 	}
 
-    m_pMedia_Plugin->RegisterMediaPlugin(this, this, DEVICETEMPLATE_MythTV_Player_CONST, true);
+//<-mkr_b_aj_b->
+	DeviceData_Base *pDevice_Xine = m_pData->FindFirstRelatedDeviceOfTemplate(DEVICETEMPLATE_Xine_Player_CONST);
+	m_pMediaDevice_Xine = m_pMedia_Plugin->m_mapMediaDevice_Find(pDevice_Xine->m_dwPK_Device);
+//<-mkr_b_aj_e->
+
+	m_pMedia_Plugin->RegisterMediaPlugin(this, this, DEVICETEMPLATE_MythTV_Player_CONST, true);
 
 	// Use the player, not the plugin, as the template for datagrids so that <%=NPDT%> in orbiter works
     m_pDatagrid_Plugin->RegisterDatagridGenerator( new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&MythTV_PlugIn::CurrentShows))
@@ -294,7 +309,13 @@ bool MythTV_PlugIn::StartMedia(class MediaStream *pMediaStream,string &sError)
 		}
 	}
 
-	DCE::CMD_Play_Media cmd(m_dwPK_Device, pMythTvMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,pMythTvMediaStream->m_iPK_MediaType,pMythTvMediaStream->m_iStreamID_get( ),pMediaStream->m_sStartPosition,"");
+	string sMRL;
+//<-mkr_b_aj_b->
+	pMythTvMediaStream->m_pMediaDevice_Source = m_pMediaDevice_Xine;
+	sMRL = ajTranslateMRL(1);
+//<-mkr_b_aj_e->
+
+	DCE::CMD_Play_Media cmd(m_dwPK_Device, pMythTvMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,pMythTvMediaStream->m_iPK_MediaType,pMythTvMediaStream->m_iStreamID_get( ),pMediaStream->m_sStartPosition,sMRL);
 	SendCommand(cmd);
 
 	m_pAlarmManager->CancelAlarmByType(CONFIRM_MASTER_BACKEND_OK);  // Do this immediately 
@@ -1693,9 +1714,15 @@ bool MythTV_PlugIn::TuneToChannel( class Socket *pSocket, class Message *pMessag
 		pMessage->m_mapParameters.find(COMMANDPARAMETER_ProgramID_CONST)!=pMessage->m_mapParameters.end() )
 	{
 		MediaStream *pMediaStream = m_pMedia_Plugin->m_mapMediaStream_Find(atoi(pMessage->m_mapParameters[COMMANDPARAMETER_StreamID_CONST].c_str()),0);
+//<-mkr_b_aj_b->
+		/*
+//<-mkr_b_aj_b->
 		if( pMediaStream && pMediaStream->GetType()==MEDIASTREAM_TYPE_MYTHTV )
 			return false;  // it's for a myth player, no processing needed
 
+//<-mkr_b_aj_b->
+		*/
+//<-mkr_b_aj_b->
 		string sProgramID = pMessage->m_mapParameters[COMMANDPARAMETER_ProgramID_CONST];
 		if( sProgramID.size()>1 && sProgramID[0]=='i' )
 		{
@@ -1704,7 +1731,14 @@ bool MythTV_PlugIn::TuneToChannel( class Socket *pSocket, class Message *pMessag
 			PlutoSqlResult result_set_check;
 			DB_ROW row;
 			if( (result_set_check.r=m_pDBHelper_Myth->db_wrapper_query_result(sSQL))!=NULL && (row=db_wrapper_fetch_row(result_set_check.r))!=NULL && row && row[0] )
+			{
 				pMessage->m_mapParameters[COMMANDPARAMETER_ProgramID_CONST] = row[0];
+//<-mkr_b_aj_b->
+				string sMRL = ajTranslateMRL(atoi(row[0]));
+				DCE::CMD_Play_Media cmd(m_dwPK_Device, pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,pMediaStream->m_iPK_MediaType,pMediaStream->m_iStreamID_get( ),pMediaStream->m_sStartPosition,sMRL);
+				SendCommand(cmd);
+//<-mkr_b_aj_e->
+			}
 		}
 	}
 	return false;
