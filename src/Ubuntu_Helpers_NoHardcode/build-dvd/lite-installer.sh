@@ -117,6 +117,10 @@ GetHddToUse()
 				((i++))
 			done
 			((i--))
+			echo "WARNING :"
+			echo " This will delete everything on all partitions of your hard drive"
+			echo " the data is not recoverable"
+			echo 
 			echo -n "Choose which drive to install the system on: "
 			read Choice
 			if [[ "$Choice" == *[^0-9]* || "$Choice" -lt 1 || "$Choice" -gt "$i" ]]; then
