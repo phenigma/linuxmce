@@ -135,8 +135,6 @@ rm -f "/usr/pluto/install/compile.sh" # old version mistake precaution
 ln -sf "/usr/pluto/sources/buildall.sh" "/usr/pluto/install/compile.sh"
 chmod +x "/usr/pluto/sources/buildall.sh"
 
-modprobe nbd
-
 if [[ "$StartLocalDevice" == "y" ]]; then
         echo "$(date -R) Starting local devices $DCERouter $PK_Device"
         /usr/pluto/bin/MessageSend "$DCERouter" 0 "$PK_Device" 7 12

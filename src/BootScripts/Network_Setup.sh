@@ -152,20 +152,6 @@ Replace != 0 { Replace-- }
 mv /etc/bind/named.conf.options.$$ /etc/bind/named.conf.options
 fi
 
-if ! BlacklistConfFiles '/etc/bind/named.conf.local' ;then
-	if [ ! -e /etc/bind/named.conf.local.pbackup ] ;then
-		cp /etc/bind/named.conf.local /etc/bind/named.conf.local.pbackup
-	fi
-
-	if ! grep -qF 'zone "activate.plutohome.com"' /etc/bind/named.conf.local; then
-		cat /usr/pluto/templates/named.zone.pluto.activate.local.conf.tmpl >>/etc/bind/named.conf.local
-	fi
-fi
-cat /usr/pluto/templates/named.zone.pluto.activate.data.tmpl >"/etc/bind/named.zone.pluto.activate"
-
-CORE_INTERNAL_ADDRESS="$IntIP"
-ReplaceVars /etc/bind/named.zone.pluto.activate
-
 rndc reload
 
 AskPort80="
