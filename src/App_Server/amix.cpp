@@ -73,7 +73,7 @@ long MasterMix::GetVolume()
 
 int MasterMix::GetVolumePercent()
 {
-	return GetVolume() * 100 / m_VolMax;
+	return m_VolMax != 0 ? (GetVolume() * 100 / m_VolMax) : m_VolMax;
 }
 
 int MasterMix::IsOn()
