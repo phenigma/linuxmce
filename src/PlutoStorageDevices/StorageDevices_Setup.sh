@@ -4,6 +4,7 @@
 . /usr/pluto/bin/Section_Ops.sh
 . /usr/pluto/bin/Utils.sh
 AutoMaster_StorageDevices="/mnt/device /etc/auto.PlutoStorageDevices --timeout=30"
+PopulateSection "/etc/auto.master" "PlutoStorageDevices" "$AutoMaster_StorageDevices"
 mkdir -p /mnt/device
 
 
