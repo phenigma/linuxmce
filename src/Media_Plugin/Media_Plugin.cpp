@@ -1279,7 +1279,7 @@ MediaStream *Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, int 
 	bool bContainsTitlesOrSections=false;
 	if( pMediaHandlerInfo->m_PK_MediaType==MEDIATYPE_pluto_DVD_CONST ||
 		(dequeMediaFile->size() &&
-			((*dequeMediaFile)[0]->m_sExtension=="DVD" || StringUtils::StartsWith((*dequeMediaFile)[0]->m_sPath,"DVD:",true))	) )
+			((*dequeMediaFile)[0]->m_sExtension=="DVD" || (*dequeMediaFile)[0]->m_sExtension=="ISO" || StringUtils::StartsWith((*dequeMediaFile)[0]->m_sPath,"DVD:",true))	) )
 				bContainsTitlesOrSections=true;
 #ifdef DEBUG
 LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::StartMedia type %d size %d extension %s path %s cont %d",
