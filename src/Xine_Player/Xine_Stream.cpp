@@ -687,6 +687,8 @@ bool Xine_Stream::OpenMedia(string fileName, string &sMediaInfo, string sMediaPo
 			PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 			xine_set_param( m_pXineStream, XINE_PARAM_SPEED, XINE_SPEED_PAUSE );
 		}
+
+		UpdateTitleChapterInfo();
 	}
 	else
 	{
