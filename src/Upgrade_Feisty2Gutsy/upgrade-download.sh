@@ -23,7 +23,7 @@ else
 fi
 
 #TODO: Implement download / unpack
-wget --directory-prefix=/var/gutsy-upgrade-scripts/ --continue --tries=5 --timeout=5  --output-file=/var/gutsy-upgrade-scripts/download.log \
+wget --directory-prefix=/var/gutsy-upgrade-scripts/ --continue --tries=10 --timeout=60 --output-file=/var/gutsy-upgrade-scripts/download.log \
 	"$URL_UPGRADE/upgrade-0704-to-0710.tar.gz" || exit 1
 
 pushd /var/gutsy-upgrade-scripts/
