@@ -23,6 +23,7 @@ export PATH=$PATH:$WRKDIR
 if [[ $UID != "0" ]] ;then
 	mv ./mce-installer ./mce-installer-user
 	echo "#!/bin/bash
+	      export PATH=$PATH:$WRKDIR
               LD_LIBRARY_PATH=$WRKDIR ./mce-installer-user
 	      " > ./mce-installer
 	chmod +x ./mce-installer
