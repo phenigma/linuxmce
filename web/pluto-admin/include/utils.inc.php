@@ -870,6 +870,7 @@ function grabFiles($path,$fileParm='-type f',$startingWith='') {
 	$cmd='sudo -u root find '.$PathParm.' '.$fileParm.' -maxdepth 1 -not -name \'*.id3\'';
 	//echo $cmd;
 	exec($cmd,$retArray);
+	//print_array($retArray);
 	foreach ($retArray AS $file){
 		if($file!=$path && is_dir64($path)!==false){
 			$cleanFile=str_replace($path.'/','',$file);

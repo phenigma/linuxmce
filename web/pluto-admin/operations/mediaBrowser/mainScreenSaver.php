@@ -145,8 +145,8 @@ function getScreensaverFiles($path,$screenSaverAttribute,$mediadbADO,$page,$reco
 		$displayedFiles[]=$row['PK_File'];
 		$pos++;
 		$class=($pos%2==0)?'alternate_back':'';
-		$picUrl='include/image.php?imagepath='.$row['Path'].'/'.$row['Filename'];
-		$filePic=(!file_exists($row['Path'].'/'.$row['Filename'].'.tnj'))?'&nbsp;':'<a href="'.$picUrl.'" target="_blank"><img src="include/image.php?imagepath='.$row['Path'].'/'.$row['Filename'].'.tnj" border="0"></a>';
+		$picUrl='include/image.php?imagepath='.urlencode($row['Path'].'/'.$row['Filename']);
+		$filePic=(!file_exists($row['Path'].'/'.$row['Filename'].'.tnj'))?'&nbsp;':'<a href="'.$picUrl.'" target="_blank"><img src="include/image.php?imagepath='.urlencode($row['Path'].'/'.$row['Filename']).'.tnj" border="0"></a>';
 		$out.='
 			<tr class="'.$class.'">
 				<td><input type="checkbox" name="file_'.$row['PK_File'].'" value="1" '.((is_null($row['FK_Attribute']))?'':'checked').'></td>
