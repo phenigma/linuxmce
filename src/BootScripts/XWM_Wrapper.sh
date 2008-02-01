@@ -12,4 +12,9 @@ fi
 
 Xdisplay="${DISPLAY#:}"
 echo $$ >/var/run/plutoX"$Xdisplay".pid
+
+if [[ -f /etc/pluto/X-PostStart.sh ]]; then
+	/etc/pluto/X-PostStart.sh
+fi
+
 exec "$@"

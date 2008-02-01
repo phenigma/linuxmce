@@ -225,6 +225,7 @@ GetVideoDriver()
 	case "$VideoDriver" in
 		nv) PackageIsInstalled nvidia-glx && VideoDriver="nvidia" ;;
 		radeon|ati) PackageIsInstalled fglrx-driver && VideoDriver="fglrx" ;;
+		i810) VideoDriver="intel" ;;
 		"") VideoDriver="vesa" ;; # just-in-case default
 	esac
 #<-mkr_B_via_e->

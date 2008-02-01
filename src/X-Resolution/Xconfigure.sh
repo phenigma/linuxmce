@@ -288,6 +288,8 @@ SetWMCompositor()
 	done
 }
 
+rm -f /etc/pluto/X-PostStart.sh
+
 ScriptCustomization
 CheckComponents
 ParseParameters "$@"
@@ -303,6 +305,9 @@ if [[ -n "$ForceVESA" ]]; then
 fi
 if [[ "$DisplayDriver" == viaprop ]]; then
 	DisplayDriver=via
+fi
+if [[ "$DisplayDriver" == intel ]]; then
+	. /usr/pluto/bin/X-IntelSpecificFunctions.sh
 fi
 
 Logging "$TYPE" "$SEVERITY_STATUS" "Xconfigure" "Display Driver: $DisplayDriver" >&2
