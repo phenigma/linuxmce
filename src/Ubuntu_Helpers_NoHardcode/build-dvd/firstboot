@@ -49,7 +49,7 @@ if [[ -f /etc/pluto/install_cleandb ]]; then
 				)
 				AND FK_DeviceData=7
 		"
-		"UPDATE Device_DeviceData SET IK_DeviceData='LMCE_CORE_u0710_i386' WHERE IK_DeviceData='LMCE_CORE_1_1'"
+		"UPDATE Device_DeviceData SET IK_DeviceData='LMCE_CORE_u0710_$arch' WHERE IK_DeviceData='LMCE_CORE_1_1'"
 		"UPDATE Device_DeviceData SET IK_DeviceData='LMCE_MD_u0710_i386'   WHERE IK_DeviceData='LMCE_MD_1_1'"
 		"UPDATE Device_DeviceData SET IK_DeviceData='0' WHERE FK_DeviceData='234'"
 		"UPDATE Device_DeviceData SET IK_DeviceData='$arch' WHERE FK_DeviceData='112' AND IK_DeviceData='686'"
