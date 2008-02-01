@@ -20,7 +20,7 @@ while : ;do
 	# Backup the ISO
 	mkdir -p "${build_ftp_dir}/ISO"
 	cp /var/www/*.iso "${build_ftp_dir}/ISO/"
-	rm -f /var/www/*.iso
+#	rm -f /var/www/*.iso
 
 	# Cleanup the Build Dir of Private Sources
 	rm -rf /var/lmce-build/svn/trunk/src/ZWave
