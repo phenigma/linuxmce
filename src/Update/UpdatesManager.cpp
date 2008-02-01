@@ -182,6 +182,9 @@ bool UpdatesManager::Init(bool bDownload)
 			return false;
 		}
 	
+		updates.clear();
+		xml.Updates(updates, release);
+
 		// check what updates has to be downloaded
 		if( fullDownload )
 		{
@@ -304,6 +307,7 @@ bool UpdatesManager::Run()
 				
 					if( !xml.Failed() )
 					{
+						updates.clear();
 						xml.Updates(updates, release);
 
 						UpdateNode *pUpdate = updates.empty() ? NULL : updates.front();
@@ -411,6 +415,9 @@ bool UpdatesManager::GetUpdatesDescription(const char * fileName)
 		
 			if( !xml.Failed() )
 			{
+				updates.clear();
+				xml.Updates(updates, release);
+
 				UpdateNode *pUpdate = updates.empty() ? NULL : updates.front();
 
 				if(NULL != pUpdate)
