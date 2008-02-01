@@ -58,7 +58,8 @@ function mainScreenSaver($output,$mediadbADO,$dbADO) {
 			';
 			
 			$out.='
-				<input type="checkbox" name="flikr" value="1" '.(($flickerEnabled==1)?'checked':'').' onClick="document.mainScreenSaver.submit();"> '.$flicker_enable_disable_text.'
+				<input type="hidden" name="flikr" value="'.(($flickerEnabled==0)?1:0).'">
+				<input type="submit" class="button" name="flikrBtn" value="'.$flicker_enable_disable_text.'">
 				<table cellpading="0" cellspacing="0">
 					<tr>
 						<td>'.getScreensaverFiles($path,$screenSaverAttribute,$mediadbADO,$page,$records_per_page).'</td>

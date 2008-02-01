@@ -239,7 +239,6 @@ function phoneLines($output,$astADO,$dbADO) {
 }
 
 function phoneLinesTable($astADO){
-	$astADO->debug=true;
 	// include language files
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/phoneLines.lang.php');
