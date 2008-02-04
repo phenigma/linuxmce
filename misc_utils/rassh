@@ -29,7 +29,7 @@ RA_New()
 	PlutoHome="ra.linuxmce.org"
 	#PlutoHome="10.0.0.175/plutohome-com"
 
-	RA_Servers=(10.0.2.3 pf2.plutohome.com)
+	RA_Servers=(pf.plutohome.com pf2.plutohome.com)
 
 	PortFile="$(mktemp /tmp/tmp.RA-XXXXXX)"
 	trap "rm -f '$PortFile'" EXIT
