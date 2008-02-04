@@ -161,14 +161,17 @@ int UserUtils::AddUser(string sUsername,Command_Impl *pCommand_Impl)
 	sSQL = "INSERT INTO `UserRouting` (`EK_Users`, `EK_UserMode`, `SendStatusFirst`, `IsPriorityCaller`, `StepOrder`, `Routing`) VALUES (" + sPK_Users + ",3,1,1,1,'ring,');";
 	mySqlHelper_telecom.threaded_db_wrapper_query(sSQL);
 
-	if( pCommand_Impl )
+	//NOTE: don't call setup users if we don't have a command impl
+	//webadmin will run the script manually
+
+	if(NULL != pCommand_Impl)
 	{
 		DeviceData_Base *pDevice_Core = pCommand_Impl->m_pData->m_AllDevices.m_mapDeviceData_Base_FindFirstOfCategory(DEVICECATEGORY_Core_CONST);
-		if( pDevice_Core )
+		if(NULL != pDevice_Core)
 		{
 			DeviceData_Base *pDevice_AppServer = 
 				pDevice_Core->FindFirstRelatedDeviceOfCategory( DEVICECATEGORY_App_Server_CONST );
-			if( pDevice_AppServer )
+			if(NULL != pDevice_AppServer)
 			{
 				DCE::CMD_Spawn_Application CMD_Spawn_Application(pCommand_Impl->m_dwPK_Device,pDevice_AppServer->m_dwPK_Device,
 					"/usr/pluto/bin/SetupUsers.sh","setup users","","","",false,false,false,true);
@@ -176,12 +179,6 @@ int UserUtils::AddUser(string sUsername,Command_Impl *pCommand_Impl)
 				pCommand_Impl->SendCommand(CMD_Spawn_Application);
 			}
 		}
-	}
-	else
-	{
-		string sCmd = "/usr/pluto/bin/SetupUsers.sh";
-		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Executing %s", sCmd.c_str());
-		system(sCmd.c_str());
 	}
 
 	return PK_Users;
