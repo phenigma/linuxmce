@@ -11,7 +11,12 @@ function rippingStatus($output,$dbADO,$mediadbADO) {
 	
 	$out='';
 	$action = (isset($_REQUEST['action']) && $_REQUEST['action']!='')?cleanString($_REQUEST['action']):'form';
-	
+	$statusMapping=array(
+		'p' => "in progress",
+		'e' => "error",
+		's' => "success",
+		'' => 'unknown status'
+	);
 
 	if($action=='form'){
 		
@@ -24,6 +29,7 @@ function rippingStatus($output,$dbADO,$mediadbADO) {
 			<input type="hidden" name="section" value="rippingStatus">
 			<input type="hidden" name="action" value="update">
 	';
+
 	$res=$mediadbADO->Execute('
 		SELECT RipStatus.*,Device.Description,File.Filename, File.Path,File.PK_File 
 		FROM '.$dbPlutoMediaDatabase.'.RipStatus 
@@ -61,7 +67,7 @@ function rippingStatus($output,$dbADO,$mediadbADO) {
 			<td align="center">'.$row['Type'].'</td>
 			<td align="center">'.$row['RipJob'].'</td>
 			<td align="center">'.$row['DateTime'].'</td>
-			<td align="center">'.$row['Status'].'</td>
+			<td align="center">'.$statusMapping[$row['Status']].'</td>
 			<td align="center">'.$row['Message'].'</td>
 		</tr>';
 	}
