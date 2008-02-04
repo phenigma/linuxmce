@@ -203,6 +203,8 @@ function createUser($output,$dbADO) {
             $LinuxPass = crypt($userPassword, $LinuxSalt);
             
             $cmd='sudo -u root /usr/pluto/bin/CreateDevice  -D '.$dbPlutoMainDatabase.' -U "'.$username.'"';
+            writeFile($GLOBALS['WebExecLogFile'],date('d-m-Y H:i:s')."\t".$cmd."\n",'a+');
+            
             // this will actually create an user !!!
             $insertID=exec($cmd,$retMessage);
             
@@ -231,8 +233,9 @@ function createUser($output,$dbADO) {
 				$_SESSION['createUser']=array();
 				$query=$dbADO->Execute($insertUserToInstallation,array($userCanModifyInstallation,$installationID,$insertID));
 
-				$commandToSend='sudo -u root /usr/pluto/bin/SetupUsers.sh';
-				exec($commandToSend);
+				// removed SetupUsers since it is executed from CreateDevice with -U
+				//$commandToSend='sudo -u root /usr/pluto/bin/SetupUsers.sh';
+				//exec($commandToSend);
             			
 				$out="
 				<script>
