@@ -167,6 +167,7 @@ void RipTask::UpdateProgress(string sStatus,int iPercent,int iTime,string sText,
 	{
 		m_pRow_RipStatus->Status_set(sStatus);
 		m_pRow_RipStatus->Message_set(sText);
+		m_pRipJob->m_pDatabase_pluto_media->RipStatus_get()->Commit();
 	}
 
 	m_sText=sText;
