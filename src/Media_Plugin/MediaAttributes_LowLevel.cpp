@@ -1203,6 +1203,8 @@ Row_File *MediaAttributes_LowLevel::AddDirectoryToDatabase(int PK_MediaType,stri
 	if( vectRow_File.size()>0 )
 		return vectRow_File[0];
 
+	int nEK_Users_Private = GetOwnerForPath(FileUtils::ExcludeTrailingSlash(FileUtils::BasePath(sDirectory)));
+
 	Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->AddRow();
 	pRow_File->DateAdded_set(StringUtils::SQLDateTime(time(NULL)));
 	pRow_File->EK_MediaType_set(PK_MediaType);
@@ -1211,6 +1213,12 @@ Row_File *MediaAttributes_LowLevel::AddDirectoryToDatabase(int PK_MediaType,stri
 	pRow_File->IsDirectory_set(1);
 	pRow_File->Source_set("F");
 	pRow_File->INode_set( FileUtils::GetInode( pRow_File->Path_get() + "/" + pRow_File->Filename_get() ) );
+
+	if(nEK_Users_Private != 0)
+		pRow_File->EK_Users_Private_set(nEK_Users_Private);
+	else
+		pRow_File->EK_Users_Private_setNull(true);
+
 	m_pDatabase_pluto_media->File_get()->Commit();
 
 	LoggerWrapper::GetInstance()->Write( LV_STATUS, "MediaAttributes_LowLevel::AddDirectoryToDatabase %s PK_File %d Inode %d",
@@ -1278,6 +1286,8 @@ int MediaAttributes_LowLevel::AddRippedDiscToDatabase(int PK_Disc,int PK_MediaTy
 				"' AND Filename='" + StringUtils::SQLEscape(FileUtils::FilenameWithoutPath(sRippedFile)) + "'",
 				&vectRow_File);
 
+			int nEK_Users_Private = GetOwnerForPath(FileUtils::ExcludeTrailingSlash(sDestination));
+
 			Row_File *pRow_File = NULL;
 			if(vectRow_File.size() > 0)
 				pRow_File = vectRow_File[0];
@@ -1293,6 +1303,12 @@ int MediaAttributes_LowLevel::AddRippedDiscToDatabase(int PK_Disc,int PK_MediaTy
 			pRow_File->Filename_set( sRippedFile );
 			pRow_File->Source_set("F");
 			pRow_File->INode_set( FileUtils::GetInode( pRow_File->Path_get() + "/" + pRow_File->Filename_get() ) );
+
+			if(nEK_Users_Private != 0)
+				pRow_File->EK_Users_Private_set(nEK_Users_Private);
+			else
+				pRow_File->EK_Users_Private_setNull(true);
+
 			m_pDatabase_pluto_media->File_get()->Commit();
 
 			LoggerWrapper::GetInstance()->Write( LV_STATUS, "MediaAttributes_LowLevel::AddRippedDiscToDatabase %s PK_File %d Inode %d",
@@ -1375,12 +1391,20 @@ int MediaAttributes_LowLevel::AddRippedDiscToDatabase(int PK_Disc,int PK_MediaTy
 		else
 			pRow_File = m_pDatabase_pluto_media->File_get()->AddRow();
 
+		int nEK_Users_Private = GetOwnerForPath(FileUtils::ExcludeTrailingSlash(sDestination));
+
 		pRow_File->DateAdded_set(StringUtils::SQLDateTime(time(NULL)));
 		pRow_File->EK_MediaType_set(PK_MediaType);
 		pRow_File->Path_set(FileUtils::ExcludeTrailingSlash(sDestination));
 		pRow_File->Filename_set( FileUtils::FilenameWithoutPath(sRippedFile) );
 		pRow_File->Source_set("F");
 		pRow_File->INode_set( FileUtils::GetInode( pRow_File->Path_get() + "/" + pRow_File->Filename_get() ) );
+
+		if(nEK_Users_Private != 0)
+			pRow_File->EK_Users_Private_set(nEK_Users_Private);
+		else
+			pRow_File->EK_Users_Private_setNull(true);
+
 		m_pDatabase_pluto_media->File_get()->Commit();
 		PK_File = pRow_File->PK_File_get();
 
@@ -1664,3 +1688,19 @@ void MediaAttributes_LowLevel::GetDefaultRippingName(Row_Disc *pRow_Disc,string 
 	}
 }
 
+int MediaAttributes_LowLevel::GetOwnerForPath(string sPath)
+{
+	// like this: /home/user_xxx/data
+
+	int nEK_Users_Private = 0;
+	const string csHomeUserPath = "/home/user_";
+
+	if(sPath.find(csHomeUserPath) == 0)
+	{
+		string sRemainingPath = sPath.substr(csHomeUserPath.length());
+		string sUserId = sRemainingPath.substr(0, sRemainingPath.find("/"));
+		nEK_Users_Private = atoi(sUserId.c_str());
+	}
+
+	return nEK_Users_Private;
+}

@@ -5250,12 +5250,20 @@ void Media_Plugin::AddFileToDatabase(MediaFile *pMediaFile,int PK_MediaType)
 	if(vectRow_File.size()) //the file already exists
 		return;
 
+	int nEK_Users_Private = MediaAttributes_LowLevel::GetOwnerForPath(FileUtils::ExcludeTrailingSlash(pMediaFile->m_sPath));
+
 	Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->AddRow();
 	pRow_File->DateAdded_set(StringUtils::SQLDateTime(time(NULL)));
 	pRow_File->Path_set(FileUtils::ExcludeTrailingSlash(pMediaFile->m_sPath));
 	pRow_File->Filename_set(pMediaFile->m_sFilename);
 	pRow_File->EK_MediaType_set(PK_MediaType);
 	pRow_File->INode_set( FileUtils::GetInode( pMediaFile->m_sPath + "/" + pMediaFile->m_sFilename ) );
+
+	if(nEK_Users_Private != 0)
+		pRow_File->EK_Users_Private_set(nEK_Users_Private);
+	else
+		pRow_File->EK_Users_Private_setNull(true);
+
 	pRow_File->Table_File_get()->Commit();
 	pMediaFile->m_dwPK_File = pRow_File->PK_File_get();
 
@@ -6073,6 +6081,8 @@ void Media_Plugin::CMD_Get_ID_from_Filename(string sFilename,int *iEK_File,strin
 	if( sExtension.empty()==false )
 		m_pDatabase_pluto_main->MediaType_get()->GetRows("Extensions like '%" + sExtension + "%'",&vectRow_MediaType);
 
+	int nEK_Users_Private = MediaAttributes_LowLevel::GetOwnerForPath(sPath);
+
 	int PK_MediaType = vectRow_MediaType.size() ? vectRow_MediaType[0]->PK_MediaType_get() : 0;
 	Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->AddRow();
 	pRow_File->EK_MediaType_set(PK_MediaType);
@@ -6080,6 +6090,12 @@ void Media_Plugin::CMD_Get_ID_from_Filename(string sFilename,int *iEK_File,strin
 	pRow_File->Filename_set(sFile);
 	pRow_File->IsDirectory_set(bIsDirectory);
 	pRow_File->INode_set( FileUtils::GetInode( sPath + "/" + sFile ) );
+
+	if(nEK_Users_Private != 0)
+		pRow_File->EK_Users_Private_set(nEK_Users_Private);
+	else
+		pRow_File->EK_Users_Private_setNull(true);
+
 	m_pDatabase_pluto_media->File_get()->Commit();
 	*iEK_File = pRow_File->PK_File_get();
 

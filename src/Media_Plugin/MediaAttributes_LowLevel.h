@@ -198,6 +198,8 @@ public:
 			delete *it;
 		listMediaAttribute_.clear();
 	}
+
+	static int GetOwnerForPath(string sPath);
 };
 
 #endif
