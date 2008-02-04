@@ -15,7 +15,7 @@ function createUser($output,$dbADO) {
 	
 	if ($action=='form') {
 		$lastExtensionArr=array_values(getAssocArray('Users','PK_Users','Extension',$dbADO,'','ORDER BY Extension DESC LIMIT 0,1'));
-		$_SESSION['createUser']['userExtension']=(isset($lastExtensionArr[0]))?($lastExtensionArr[0]+1):'301';
+		$_SESSION['createUser']['userExtension']=(isset($lastExtensionArr[0]))?'30'.((int)substr($lastExtensionArr[0],2)+1):'301';
 		
 		$out.='
 		<script>
@@ -234,8 +234,8 @@ function createUser($output,$dbADO) {
 				$query=$dbADO->Execute($insertUserToInstallation,array($userCanModifyInstallation,$installationID,$insertID));
 
 				// removed SetupUsers since it is executed from CreateDevice with -U
-				//$commandToSend='sudo -u root /usr/pluto/bin/SetupUsers.sh';
-				//exec($commandToSend);
+				$commandToSend='sudo -u root /usr/pluto/bin/SetupUsers.sh';
+				exec_batch_command($commandToSend);
             			
 				$out="
 				<script>
