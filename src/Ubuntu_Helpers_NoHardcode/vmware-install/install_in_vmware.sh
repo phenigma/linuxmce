@@ -197,6 +197,7 @@ function create_disk_image_from_flat {
 
 	mkdir -p "${build_dir}/DisklessSync/${arch}"
 	mv "${VMWARE_MOUNT_DIR}"/usr/pluto/install/PlutoMD-${arch}.tar.bz2 "${build_dir}/DisklessSync/${arch}/"
+	cp "${VMWARE_MOUNT_DIR}"/var/log/mce-installer-*.log "/var/log/"
 
 	tar -C "${VMWARE_MOUNT_DIR}" --exclude=dev --exclude=proc -zc . | split --numeric-suffixes --bytes=2000m - "${VMWARE_TARGZ}_"
 
