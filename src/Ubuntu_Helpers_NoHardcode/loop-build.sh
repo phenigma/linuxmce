@@ -45,18 +45,27 @@ while : ;do
 	
 	echo "$(date -R) Done" >> /var/log/loop-build.log
 
-	# Send mail informing that the build had finished
 	if [[ "$BuildFinished" == "true" ]] ;then
+		# Store the last known good svn revision
+		svn_prev_revision=$(cat "$build_dir/svn_last_good")
+		svn_build_revision=$(svn info "$svn_dir/trunk/src" | grep Revision | sed 's/Revision: //g')
+		echo "$svn_build_revision" > "$build_dir/svn_last_good"
+
+		# Send mail informing that the build had finished
 		mail_txt_file=$(mktemp)
 		echo                                                     >$mail_txt_file
-		echo "Arch   : ${arch}"                                 >>$mail_txt_file
-		echo "Flavor : ${flavor}"                               >>$mail_txt_file
-		echo "Date   : $(date -R)"                              >>$mail_txt_file
-		echo                                                    >>$mail_txt_file
-		echo "Build Completed"					>>$mail_txt_file
-		echo                                                    >>$mail_txt_file
-		echo " http://builder32.linuxmce.com/AutoBuilds/$(basename $build_ftp_dir)" >>$mail_txt_file
-		echo
+		echo "Arch     : ${arch}"                               >>$mail_txt_file
+		echo "Flavor   : ${flavor}"                             >>$mail_txt_file
+		echo "Revision : ${svn_build_revision}"			>>$mail_txt_file
+		echo "Date     : $(date -R)"                            >>$mail_txt_file
+		echo "URL      : ftp://builder32.linuxmce.com/AutoBuilds/$(basename $build_ftp_dir)" >>$mail_txt_file
+		echo							>>$mail_txt_file
+		echo							>>$mail_txt_file
+		if [[ "$svn_prev_revision" != "" ]] ;then
+			echo " * Changes since the last build : *"		>>$mail_txt_file	
+			echo							>>$mail_txt_file
+			svn log --xml -v -r$svn_build_revision:$svn_prev_revision http://svn.linuxmce.com/pluto/trunk/ | xsltproc /etc/svn2cl/svn2cl.xsl - >>$mail_txt_file
+		fi
 		cat $mail_txt_file | mail -s "$mail_subject_prefix Build Completed" "${mail_to}"
 		rm -rf $mail_txt_file
 	fi
