@@ -1507,7 +1507,7 @@ string Makefile = "none:\n"
 	}
 	fprintf(f, "%s", Makefile.c_str(), Makefile.length());
 	fclose(f);
-	system("echo | dh_make -c gpl -s -n");
+	system("echo | DEBFULLNAME='LinuxMCE Developers' dh_make -c gpl -s -n -e 'developers@linuxmce.org'");
 #endif
 
 	list<FileInfo *>::iterator iFileInfo;
@@ -1740,7 +1740,7 @@ string Makefile = "none:\n"
 	}
 	fprintf(f, "%s", Makefile.c_str(), Makefile.length());
 	fclose(f);
-	system("echo | dh_make -c gpl -s -n");
+	system("echo | DEBFULLNAME='LinuxMCE Developers' dh_make -c gpl -s -n -e 'developers@linuxmce.org'");
 //	mkdir("DEBIAN", 0666);
 #endif
 
