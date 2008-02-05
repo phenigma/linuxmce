@@ -48,8 +48,14 @@ function start_virtual_machine {
 	killall vmplayer || :
 	vmplayer "$VMWARE_WORK_MACHINE" &
 
+	local wait_time=$(( 60 * 30 )) # time in second to wait for vmware to start
+	local start_time=$(date +%s)
+
 	DisplayMessage "Waiting for ssh connnection to virtual machine"
 	while ! ssh -i /etc/lmce-build/builder.key root@"$VMWARE_IP" 'echo' ;do
+		if [[ $(( start_time + wait_time )) -lt $(date +%s) ]]
+			Error "VmVare failed to start in less then $wait_time seconds."
+		fi
 		sleep 1
 	done
 
@@ -100,9 +106,14 @@ function copy_installer_on_virtual_machine {
 function run_installer_on_virtual_machine {
 	DisplayMessage "Starting installer on virtual machine"
 	ssh -i /etc/lmce-build/builder.key root@"$VMWARE_IP" "cd /usr/pluto/install && screen -d -m -S 'Install' ./mce-installer.sh"
-	
+
+	local wait_time=$(( 60 * 60 * 4 ))
+	local start_time=$( date +%s )	
 	while [[ "$(pidof vmware-vmx)" != "" ]] ;do
 		sleep 5
+		if [[ $(( start_time + wait_time )) -lt $( date +%s ) ]] ;then
+			Error "VmWare failed to finish installing in less than $wait_time seconds."
+		fi
 	done
 	DisplayMessage "Finished installing in virtual machine"
 }
