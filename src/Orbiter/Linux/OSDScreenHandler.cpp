@@ -2298,7 +2298,6 @@ bool OSDScreenHandler::VOIP_Provider_ObjectSelected(CallBackData *pData)
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OSDScreenHandler::SCREEN_PVR_Remote(long PK_Screen)
 {
-	PrepForWizard();
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_DesignObj_CurrentSecti_CONST, TOSTRING(DESIGNOBJ_butPVRSoftware_CONST));
 	ScreenHandlerBase::SCREEN_PVR_Remote(PK_Screen);
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &OSDScreenHandler::PVRSoftware_ObjectSelected, new ObjectInfoBackData());

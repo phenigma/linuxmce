@@ -4453,19 +4453,23 @@ bool ScreenHandler::SCREEN_Network_Settings_ObjectSelected(CallBackData *pData)
 //
 void ScreenHandler::SCREEN_aJAd(long PK_Screen, string sFilename, string sURL)
 {
-	if( sFilename.empty() )
+	if( sFilename.empty() || sFilename=="none" )
 	{
 		DCE::CMD_Goto_DesignObj CMD_Goto_DesignObj(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,0,"<%=NP_R%>","","",false,false);
 		m_pOrbiter->QueueMessageToRouter(CMD_Goto_DesignObj.m_pMessage);
 	}
 	else
 	{
+		string::size_type pos=0;
+		string sPictureFile = StringUtils::Tokenize(sFilename,"|",pos);
+		string sVideoFile = StringUtils::Tokenize(sFilename,"|",pos);
 		size_t size;
-		char *pGraphicData = m_pOrbiter->ReadFileIntoBuffer("/home/aj/" + sFilename,size);
+		char *pGraphicData = m_pOrbiter->ReadFileIntoBuffer(sPictureFile,size);
 		m_pOrbiter->CMD_Update_Object_Image("5579.0.0.5580","jpg",
 			pGraphicData,
 			(int) size,"0");
 		m_pOrbiter->CMD_Set_Variable(VARIABLE_URL_from_phone_CONST, sURL);
+		m_pOrbiter->CMD_Set_Variable(VARIABLE_Filename_CONST, sVideoFile);
 		RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::Aj_ObjectSelected,	new ObjectInfoBackData());
 		ScreenHandlerBase::SCREEN_aJAd(PK_Screen, sFilename, sURL);
 	}
@@ -4477,10 +4481,25 @@ bool ScreenHandler::Aj_ObjectSelected(CallBackData *pData)
 	if( pObjectInfoData->m_pObj->m_iBaseObjectID==5580 )
 	{
 		string sURL = m_pOrbiter->m_mapVariable_Find(VARIABLE_URL_from_phone_CONST);
-		DatagridCellBackData data;
-		data.m_sText = "aJ Advertisement";
-		data.m_sValue = "Firefox-bin\t0\t0\taJ Ad\t/usr/pluto/bin/Mozilla.sh\t1\t" + sURL;
-		Computing_DatagridSelected(&data); // Treat this like the user clicked a link
+
+		//starting the new orbiter
+		PROCESS_INFORMATION pi;
+		::ZeroMemory(&pi, sizeof(PROCESS_INFORMATION));
+
+		STARTUPINFO si;
+		::ZeroMemory(&si, sizeof(STARTUPINFO));
+		si.cb = sizeof(STARTUPINFO);
+		si.lpReserved = 0;
+
+		string sCompleteCmdLine = "explorer \"" + sURL + "\"";
+		::CreateProcess(NULL, const_cast<char *>(sCompleteCmdLine.c_str()), NULL, NULL, NULL, 0, NULL, NULL, &si, &pi);
+	}
+	else if( pObjectInfoData->m_pObj->m_iBaseObjectID==5581 )
+	{
+		string sFile = m_pOrbiter->m_mapVariable_Find(VARIABLE_Filename_CONST);
+		DCE::CMD_MH_Play_Media CMD_MH_Play_Media(m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device_MediaPlugIn,
+			0,sFile,0,0,StringUtils::itos( m_pOrbiter->m_pLocationInfo->PK_EntertainArea ),false,0);
+		m_pOrbiter->SendCommand(CMD_MH_Play_Media);
 	}
 	return false;
 }

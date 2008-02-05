@@ -473,10 +473,6 @@ bool PnpQueue::Process_Detect_Stage_Confirm_Possible_DT(PnpQueueEntry *pPnpQueue
 #endif
 	if( vectRow_DHCPDevice.size()>0 )
 	{
-#ifdef DEBUG
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Confirm_Possible_DT queue %d could be %d devices 1st is PK_DHCPDevice %d",
-			pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),(int) vectRow_DHCPDevice.size(),vectRow_DHCPDevice[0]->PK_DHCPDevice_get());
-#endif
 		for(vector<Row_DHCPDevice *>::iterator it=vectRow_DHCPDevice.begin();it!=vectRow_DHCPDevice.end();++it)
 		{
 			Row_DHCPDevice *pRow_DHCPDevice = *it;
@@ -487,6 +483,10 @@ bool PnpQueue::Process_Detect_Stage_Confirm_Possible_DT(PnpQueueEntry *pPnpQueue
 
 			pPnpQueueEntry->m_mapPK_DHCPDevice_possible[pRow_DHCPDevice->PK_DHCPDevice_get()]=pRow_DHCPDevice;  // This is a possibility
 		}
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Confirm_Possible_DT queue %d could be %d devices 1st is PK_DHCPDevice %d, actually matched %d",
+			pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),(int) vectRow_DHCPDevice.size(),vectRow_DHCPDevice[0]->PK_DHCPDevice_get(),pPnpQueueEntry->m_mapPK_DHCPDevice_possible.size());
+#endif
 	}
 	
 	// Special case.  If we're sure this is a Serial Port, such as a USB->RS232 dongle, change the comm method to rs232, strip out vendor/model/etc., and start over
