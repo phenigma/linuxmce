@@ -613,13 +613,13 @@ CommandGroup *UpdateEntArea::CreateSecurityAlertCommandGroup(CommandGroupArray &
 		else if( PK_Event==EVENT_Fire_Alarm_CONST )
 			sFile="/home/public/data/samples/security/fire.mp3";
 
-		if( sFile.size()==0 )
-			pCommandGroup->AddCommand(m_dwPK_Device_MediaPlugIn,COMMAND_MH_Stop_Media_CONST,iOrder++,1,
-				COMMANDPARAMETER_PK_EntertainArea_CONST,StringUtils::itos(it->first).c_str());
-		else
-			pCommandGroup->AddCommand(m_dwPK_Device_MediaPlugIn,COMMAND_MH_Play_Media_CONST,iOrder++,2,
-				COMMANDPARAMETER_PK_EntertainArea_CONST,StringUtils::itos(it->first).c_str(),
-				COMMANDPARAMETER_Filename_CONST,sFile.c_str());
+		//always stop the media before playing an alert
+		pCommandGroup->AddCommand(m_dwPK_Device_MediaPlugIn,COMMAND_MH_Stop_Media_CONST,iOrder++,1,
+			COMMANDPARAMETER_PK_EntertainArea_CONST,StringUtils::itos(it->first).c_str());
+
+		pCommandGroup->AddCommand(m_dwPK_Device_MediaPlugIn,COMMAND_MH_Play_Media_CONST,iOrder++,2,
+			COMMANDPARAMETER_PK_EntertainArea_CONST,StringUtils::itos(it->first).c_str(),
+			COMMANDPARAMETER_Filename_CONST,sFile.c_str());
 	}
 
 	// Turn on all lights if this is not just resetting the alarm
