@@ -313,7 +313,8 @@ bool MythTV_PlugIn::StartMedia(class MediaStream *pMediaStream,string &sError)
 //<-mkr_b_aj_b->
 	pMythTvMediaStream->m_pMediaDevice_Source = m_pMediaDevice_Xine;
 	pMythTvMediaStream->m_sAppName = "pluto-xine-playback-window.pluto-xine-playback-window";
-	sMRL = ajTranslateMRL(1);
+	m_iChannel=1;
+	sMRL = ajTranslateMRL(m_iChannel);
 //<-mkr_b_aj_e->
 
 	DCE::CMD_Play_Media cmd(m_dwPK_Device, pMythTvMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,pMythTvMediaStream->m_iPK_MediaType,pMythTvMediaStream->m_iStreamID_get( ),pMediaStream->m_sStartPosition,sMRL);
@@ -770,6 +771,14 @@ void MythTV_PlugIn::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string
 
 	 if( !pMediaStream )
          return;  
+
+	 //<-mkr_b_aj_b->
+	m_iChannel += sValue_To_Assign=="-1" ? -1 : 1;
+	string sMRL = ajTranslateMRL(m_iChannel);
+	DCE::CMD_Play_Media cmd(m_dwPK_Device, pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,pMediaStream->m_iPK_MediaType,pMediaStream->m_iStreamID_get( ),pMediaStream->m_sStartPosition,sMRL);
+	SendCommand(cmd);
+	return;
+	//<-mkr_b_aj_e->
 
 	int m_dwTargetDevice = pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device;
 

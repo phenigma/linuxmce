@@ -125,7 +125,9 @@ namespace DCE
 		EPGGrid *m_pEPGGrid;
 
 //<-mkr_b_aj_b->
-	MediaDevice *m_pMediaDevice_Xine;
+		MediaDevice *m_pMediaDevice_Xine;
+		int m_iChannel;
+		
 //<-mkr_b_aj_e->
 
 		int m_iRetriesStartingMyth;
