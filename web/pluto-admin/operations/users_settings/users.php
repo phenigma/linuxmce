@@ -239,7 +239,7 @@ function users($output,$dbADO) {
 				$dbADO->Execute('DELETE FROM Users WHERE PK_Users=?',$toDel);
 				
 				$commandToSend='sudo -u root /usr/pluto/bin/SetupUsers.sh';
-				exec($commandToSend);
+				exec_batch_command($commandToSend);
 
 				header("Location: index.php?section=users&msg=$TEXT_USER_DELETED_CONST");
 				exit();
@@ -307,7 +307,7 @@ function users($output,$dbADO) {
 
 			}
 			$commandToSend='sudo -u root /usr/pluto/bin/SetupUsers.sh';
-			exec($commandToSend);
+			exec_batch_command($commandToSend);
 
 			if (strstr($locationGoTo,"#")) {
 				header("Location: index.php?section=users&msg=$TEXT_USERS_PAGE_SAVED_CONST".$locationGoTo);
