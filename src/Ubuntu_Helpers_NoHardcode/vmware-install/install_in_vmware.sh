@@ -53,7 +53,7 @@ function start_virtual_machine {
 
 	DisplayMessage "Waiting for ssh connnection to virtual machine"
 	while ! ssh -i /etc/lmce-build/builder.key root@"$VMWARE_IP" 'echo' ;do
-		if [[ $(( start_time + wait_time )) -lt $(date +%s) ]]
+		if [[ $(( start_time + wait_time )) -lt $(date +%s) ]] ;then
 			Error "VmVare failed to start in less then $wait_time seconds."
 		fi
 		sleep 1
