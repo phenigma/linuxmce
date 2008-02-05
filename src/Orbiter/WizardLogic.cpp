@@ -1187,3 +1187,18 @@ void WizardLogic::SetPVRSoftware(char PVRSoftware)
 	// end of hack
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 }
+
+bool WizardLogic::AnyPVRSoftwareInstalled()
+{
+	string sSQL = "SELECT PK_Device FROM Device WHERE FK_DeviceTemplate IN (" + 
+		StringUtils::itos(DEVICETEMPLATE_MythTV_PlugIn_CONST) + "," + StringUtils::itos(DEVICETEMPLATE_VDRPlugin_CONST) + ")";
+
+	PlutoSqlResult result_set;
+	if((result_set.r = db_wrapper_query_result(sSQL)) )
+	{
+		//got any pvr plugin ?
+		return NULL != db_wrapper_fetch_row(result_set.r);
+	}
+
+	return true;
+}

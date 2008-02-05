@@ -128,6 +128,7 @@ public:
 	void FindPnpDevices(string sPK_DeviceCategory);
 
 	void SetPVRSoftware(char PVRSoftware);
+	bool AnyPVRSoftwareInstalled();
 
 	/*
 		ALARM PANEL

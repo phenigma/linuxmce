@@ -2336,6 +2336,14 @@ bool OSDScreenHandler::PVRSoftware_ObjectSelected(CallBackData *pData)
 		return;
 	}
 
+	// if vdr or myth are not installed
+	if(!m_pWizardLogic->AnyPVRSoftwareInstalled())
+	{
+		// install mythtv by default
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "No PVR Software is installed. We'll install mythtv by default");
+		m_pWizardLogic->SetPVRSoftware('M');
+	}
+
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_DesignObj_CurrentSecti_CONST, TOSTRING(DESIGNOBJ_butDoneHouseSetup_CONST)); 
 	ScreenHandlerBase::SCREEN_Final_House_Setup(PK_Screen);
 }
