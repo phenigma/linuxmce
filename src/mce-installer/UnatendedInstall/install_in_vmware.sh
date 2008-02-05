@@ -91,6 +91,10 @@ function run_installer_on_virtual_machine {
 	decho "Starting installer on virtual machine"
 	ssh root@"$VMWARE_IP" "export NuForce=$NuForce; cd /usr/pluto/install && screen -d -m -S 'Install' ./mce-installer.sh"
 
+	if [[ -n "$NuForce" ]]; then
+		scp /home/chris/src/Media_Plugin/Media_Plugin.so root@"$VMWARE_IP":/usr/pluto/bin/
+		ssh root@"$VMWARE_IP" 'init 0'
+	fi
 	
 	while [[ "$(pidof vmware-vmx)" != "" ]] ;do
 		sleep 5

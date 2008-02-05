@@ -409,7 +409,9 @@ RunSQL "UPDATE Installation SET FK_PostalCode = 0"
 
 apt-get -y -f dist-upgrade
 
-./NuForce.sh
+if ./NuForce.sh; then
+	exit
+fi
 
 StatsMessage "Installation Finished"
 init 0

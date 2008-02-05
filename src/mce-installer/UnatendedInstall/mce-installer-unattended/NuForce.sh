@@ -4,7 +4,7 @@ set -x
 exec &>/tmp/NuForce.log
 
 if [[ -z "$NuForce" ]]; then
-	exit
+	exit 1
 fi
 
 . /usr/pluto/bin/SQL_Ops.sh
@@ -179,3 +179,4 @@ Packages
 AVWizardReplacement
 AddEgalaxToXorgConf
 DatabaseDefaults
+exit 0
