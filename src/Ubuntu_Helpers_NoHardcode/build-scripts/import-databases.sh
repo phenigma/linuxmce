@@ -7,7 +7,6 @@ set -e
 set -x
 
 function import_databases () {
-	local dbdump_pluto_main=$(mktemp)
 	local dbdump_main_sqlcvs=$(mktemp)
 	local dbdump_myth_sqlcvs=$(mktemp)
 	local dbdump_pluto_media=$(mktemp)
@@ -27,40 +26,21 @@ function import_databases () {
 	DisplayMessage "Getting a sqldump of pluto_telecom"
 	mysqldump -u "$sqlcvs_user" -h "$sqlcvs_host" pluto_telecom  > "$dbdump_pluto_telecom"
 
-  #TODO START: Replace this when new secure way of getting the databases it available
-	DisplayMessage "Getting a sqldump of pluto_main"
-	local temp_sqlcvsdir=$(mktemp -d)
-	## Import other databases from 150
-	ssh -i /etc/lmce-build/builder.key pluto@82.77.255.209 "
-		set -x;
-		mysqldump -u root pluto_main     > /tmp/pluto_main.dump;
-		cd /tmp;
-		tar zcvf /tmp/sqldumps.tar.gz *.dump
-	"
-	scp -i /etc/lmce-build/builder.key pluto@82.77.255.209:/tmp/sqldumps.tar.gz "$temp_sqlcvsdir"
-	pushd "$temp_sqlcvsdir"
-		tar zxvf sqldumps.tar.gz
-		mv pluto_main.dump $dbdump_pluto_main
-	popd
-	rm -rf "$temp_sqlcvsdir"
-  #TODO END: Replace this when new secure way of getting the databases it available
-
 	# Run search and replace over the db dumps
 	DisplayMessage "Running Search'n'Replace on the sqldumps (MakeRelase_PrepFiles)"
 	export LD_LIBRARY_PATH="$mkr_dir:${svn_dir}/trunk/src/lib"
 	MakeRelease_PrepFiles="${mkr_dir}/MakeRelease_PrepFiles"
-	$MakeRelease_PrepFiles -p $(dirname $dbdump_pluto_main) -e "$(basename $dbdump_pluto_main),$(basename $dbdump_main_sqlcvs),$(basename $dbdump_myth_sqlcvs),$(basename $dbdump_pluto_media),$(basename $dbdump_pluto_security),$(basename $dbdump_pluto_telecom)" -c /etc/lmce-build/${flavor}.conf
+	$MakeRelease_PrepFiles -p $(dirname $dbdump_main_sqlcvs) -e "$(basename $dbdump_main_sqlcvs),$(basename $dbdump_myth_sqlcvs),$(basename $dbdump_pluto_media),$(basename $dbdump_pluto_security),$(basename $dbdump_pluto_telecom)" -c /etc/lmce-build/${flavor}.conf
 
 	
 	# pluto_main_build & pluto_main
 	DisplayMessage "Importing pluto_main database"
 	echo "DROP DATABASE IF EXISTS pluto_main_build;"| mysql -h localhost -u root
 	echo "CREATE DATABASE pluto_main_build;"	| mysql -h localhost -u root
-	cat "$dbdump_pluto_main"			| mysql -h localhost -u root "pluto_main_build"
+	cat "$dbdump_main_sqlcvs"			| mysql -h localhost -u root "pluto_main_build"
 	echo "DROP DATABASE IF EXISTS pluto_main;"	| mysql -h localhost -u root
 	echo "CREATE DATABASE pluto_main;"		| mysql -h localhost -u root
-	cat "$dbdump_pluto_main"			| mysql -h localhost -u root "pluto_main"
-	rm -f "$dbdump_pluto_main"
+	cat "$dbdump_main_sqlcvs"			| mysql -h localhost -u root "pluto_main"
 
 	# main_sqlcvs_ubuntu
 	DisplayMessage "Importing main_sqlcvs database"
