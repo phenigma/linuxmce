@@ -29,6 +29,7 @@ while : ;do
 	rm -rf /var/lmce-build/svn/trunk/src/lmce_launch_manager	
 
 	# Backup the Build Dir
+	svn_build_revision=$(svn info "$svn_dir/trunk/src" | grep Revision | sed 's/Revision: //g')
 	mkdir -p "${build_ftp_dir}/BUILD"
 	cp -r /var/lmce-build/svn/trunk/src/* "${build_ftp_dir}/BUILD"
 	rm -rf /var/lmce-build/svn/*
@@ -48,7 +49,6 @@ while : ;do
 	if [[ "$BuildFinished" == "true" ]] ;then
 		# Store the last known good svn revision
 		svn_prev_revision=$(cat "$build_dir/svn_last_good")
-		svn_build_revision=$(svn info "$svn_dir/trunk/src" | grep Revision | sed 's/Revision: //g')
 		echo "$svn_build_revision" > "$build_dir/svn_last_good"
 
 		# Send mail informing that the build had finished
