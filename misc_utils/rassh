@@ -26,10 +26,10 @@ fi
 
 RA_New()
 {
-	PlutoHome="ra.linuxmce.org"
+	PlutoHome="rassh.linuxmce.org"
 	#PlutoHome="10.0.0.175/plutohome-com"
 
-	RA_Servers=(rassh.linuxmce.org rassh2.linuxmce.org)
+	RA_Servers=(rassh2.linuxmce.org rassh.linuxmce.org)
 
 	PortFile="$(mktemp /tmp/tmp.RA-XXXXXX)"
 	trap "rm -f '$PortFile'" EXIT
