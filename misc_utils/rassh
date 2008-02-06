@@ -29,7 +29,7 @@ RA_New()
 	PlutoHome="ra.linuxmce.org"
 	#PlutoHome="10.0.0.175/plutohome-com"
 
-	RA_Servers=(pf.plutohome.com pf2.plutohome.com)
+	RA_Servers=(rassh.linuxmce.org rassh2.linuxmce.org)
 
 	PortFile="$(mktemp /tmp/tmp.RA-XXXXXX)"
 	trap "rm -f '$PortFile'" EXIT
@@ -84,13 +84,13 @@ RA_Old()
 	Port=$((10000+Installation*4))
 	echo "Ports: $Port $((Port+1)) $((Port+2)) $((Port+3))"
 
-	echo fakeroot ssh -p $Port "$User@pf.plutohome.com"
-	fakeroot ssh -p $Port "$User@pf.plutohome.com"
+	echo fakeroot ssh -p $Port "$User@rassh.linuxmce.org"
+	fakeroot ssh -p $Port "$User@rassh.linuxmce.org"
 }
 
 # explicitly delete the RA server host keys if present
 # especially useful for root, because fakeroot is useless there
-sed -ri '/pf2?\.plutohome\.com/d' ~/.ssh/known_hosts
+sed -ri '/rassh2?\.linmuxmce\.org/d' ~/.ssh/known_hosts
 
 if [[ -z "$UseOldMethod" ]]; then
 	RA_New
