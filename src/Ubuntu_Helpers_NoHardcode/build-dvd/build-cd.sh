@@ -21,6 +21,7 @@ FirstRunScript="firstboot"
 if [[ "$1" == "big" ]] ;then
 	LiveCDISO="$WorkDir/kubuntu-linuxmce-big.iso"
 	LiveCDISO_Link="${local_mirror_dir}/LinuxMCE-DVD-DL-${arch}.iso"
+	DoubleLayer="true"
 else
 	LiveCDISO="$WorkDir/kubuntu-linuxmce.iso"
 	LiveCDISO_Link="${local_mirror_dir}/LinuxMCE-DVD-${arch}.iso"
@@ -82,6 +83,11 @@ CreateLiveCD()
 	mkdir -p "$LiveCDDir/deb-cache/"
 	cp ${build_dir}/DisklessSync/i386/deb-cache/* "$LiveCDDir/deb-cache/"
 	cp ${build_dir}/DisklessSync/amd64/deb-cache/* "$LiveCDDir/deb-cache/"
+
+	if [[ "$DoubleLayer" == "true" ]] ;then
+		mkdir -p "$LiveCDDir/lmce-videos"
+		cp "${build_dir}/lmce-videos"/* "$LiveCDDir/lmce-videos/" || :
+	fi
 
 	(cd "$LiveCDDir" && find . -type f -not -path ./md5sum.txt -print0 | xargs -0 md5sum | tee md5sum.txt)
 
