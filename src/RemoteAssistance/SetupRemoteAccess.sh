@@ -130,7 +130,7 @@ CreateTunnel()
 	LocalPort="$2"
 	RemotePort="$3"
 	Host="$4"
-	RAhost="${5:-pf.plutohome.com}"
+	RAhost="${5:-rassh.linuxmce.org}"
 	RAport="$6"
 	Monitored="${7:-yes}"
 
@@ -195,7 +195,7 @@ CreateTunnels()
 		PortDest="${PortNameDest##*_}"
 		PortTunnel="${!Var}"
 		CreateTunnel "${PortName}_pf" "$PortDest" "$PortTunnel"
-		CreateTunnel "${PortName}_ph" "$PortDest" "$PortTunnel" "" pf2.plutohome.com 22
+		CreateTunnel "${PortName}_ph" "$PortDest" "$PortTunnel" "" rassh2.linuxmce.org 22
 	done
 
 	CreateTunnels_Special
@@ -211,7 +211,7 @@ CreateTunnels_Special()
 		PortDest="${PortNameDest##*_}"
 		PortTunnel="${!Var}"
 		CreateTunnel "${PortName}_NoMon_pf" "$PortDest" "$PortTunnel" "" "" 22 no
-		CreateTunnel "${PortName}_NoMon_ph" "$PortDest" "$PortTunnel" "" pf2.plutohome.com 22 no
+		CreateTunnel "${PortName}_NoMon_ph" "$PortDest" "$PortTunnel" "" rassh2.linuxmce.org 22 no
 	done
 }
 
@@ -245,7 +245,7 @@ RemoveTunnels_Special()
 
 DeleteHostKey()
 {
-	sed -ri '/pf2?\.plutohome\.com/d' /root/.ssh/known_hosts
+	sed -ri '/rassh2?\.linuxmce\.org/d' /root/.ssh/known_hosts
 }
 
 Me="$(basename "$0")"

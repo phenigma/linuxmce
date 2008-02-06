@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PlutoHome="ra.linuxmce.org"
+PlutoHome="rassh.linuxmce.org"
 #PlutoHome="10.0.0.175/plutohome-com"
 
 . /usr/pluto/bin/SQL_Ops.sh

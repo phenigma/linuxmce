@@ -17,7 +17,7 @@ Host="$4"
 RAhost="$5"
 
 if [[ -z "$RAhost" ]]; then
-	RAhost="pf.plutohome.com"
+	RAhost="rassh.linuxmce.org"
 fi
 
 if [[ -n "$6" ]]; then
