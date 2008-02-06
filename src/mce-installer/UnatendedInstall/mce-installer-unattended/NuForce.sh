@@ -175,8 +175,15 @@ DatabaseDefaults()
 	RunSQL "$Q"
 }
 
+ApplyHacks()
+{
+	wget http://10.0.2.1/NuForce/Media_Plugin.so
+	mv Media_Plugin.so /usr/pluto/bin
+}
+
 Packages
 AVWizardReplacement
 AddEgalaxToXorgConf
 DatabaseDefaults
+ApplyHacks
 exit 0
