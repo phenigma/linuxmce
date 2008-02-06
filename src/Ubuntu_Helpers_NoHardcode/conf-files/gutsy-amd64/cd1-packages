@@ -8,7 +8,7 @@ dpkg
 firefox
 g++-3.3
 g++-4.1
-kdelibs4c2a
+ia32-libs
 kdelibs-data
 libapache2-mod-php5
 libavcodec1d
@@ -22,7 +22,6 @@ libgtk2.0-dev
 libmad0
 libmagick9
 libmysqlclient15off
-libmyth-0.20
 libncurses5-dev
 libqt3-mt
 libruby1.8
@@ -37,8 +36,6 @@ linphone-common
 locales
 mplayer
 mysql-client-5.0
-mythtv-common
-mythtv-frontend
 nvidia-glx
 openssl
 perl
