@@ -111,6 +111,15 @@ DCEConfig g_DCEConfig;
 
 int UniqueColors[MAX_MEDIA_COLORS];
 
+
+static bool AudioMediaFileComparer(MediaFile *a, MediaFile *b)
+{
+	if(a->m_iTrack == b->m_iTrack)
+		return strcmp(a->m_sDescription.c_str(), b->m_sDescription.c_str()) < 0;
+
+	return a->m_iTrack < b->m_iTrack;
+}
+
 // For sorting by priority
 static bool MediaHandlerComparer(MediaHandlerInfo *x, MediaHandlerInfo *y)
 {
@@ -2965,6 +2974,29 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sFilename,int iPK_Med
 			return;
 		}
 	}
+
+	//LoggerWrapper::GetInstance()->Write(LV_WARNING, "Unsorted list:");
+
+	//for(deque<MediaFile *>::iterator it = dequeMediaFile.begin(); it != dequeMediaFile.end(); ++it)
+	//{
+	//	MediaFile *pMediaFile = *it;
+	//	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Media file track %d, name %s",
+	//		pMediaFile->m_iTrack, pMediaFile->m_sFilename.c_str());
+	//}
+
+	//sort them by track, title
+	std::sort(dequeMediaFile.begin(), dequeMediaFile.end(), AudioMediaFileComparer);
+
+	//LoggerWrapper::GetInstance()->Write(LV_WARNING, "Sorted list:");
+
+	//for(deque<MediaFile *>::iterator it = dequeMediaFile.begin(); it != dequeMediaFile.end(); ++it)
+	//{
+	//	MediaFile *pMediaFile = *it;
+	//	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Media file track %d, name %s",
+	//		pMediaFile->m_iTrack, pMediaFile->m_sFilename.c_str());
+	//}
+
+
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::CMD_MH_Play_Media playing MediaType: %d Provider %d Orbiter %d Device %d Template %d",
 		iPK_MediaType,iPK_MediaProvider,iPK_Device_Orbiter,iPK_Device,iPK_DeviceTemplate);
 	StartMedia(iPK_MediaType,iPK_MediaProvider,iPK_Device_Orbiter,vectEntertainArea,iPK_Device,iPK_DeviceTemplate,&dequeMediaFile,bResume,iRepeat,"");  // We'll let the plug-in figure out the source, and we'll use the default remote

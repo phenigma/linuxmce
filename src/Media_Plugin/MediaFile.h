@@ -24,6 +24,8 @@
 #include "MediaAttributes_LowLevel.h"
 #include "pluto_media/Table_Bookmark.h"
 #include "pluto_media/Table_File.h"
+#include "pluto_media/Table_File_Attribute.h"
+#include "pluto_media/Define_AttributeType.h"
 
 class MediaFile
 {
@@ -39,6 +41,8 @@ public:
 		m_sExtension=StringUtils::ToUpper(FileUtils::FindExtension(sFullyQualifiedFile));
 		CheckForStartPosition(pMediaAttributes_LowLevel);
 		m_bWaitingForJukebox=false;
+		GetTrack(pMediaAttributes_LowLevel);
+		GetTitle(pMediaAttributes_LowLevel);
 	}
 
 	MediaFile(int PK_Disk,int PK_Device_Disk_Drive,int Slot)	{
@@ -87,6 +91,8 @@ public:
 		m_sExtension=StringUtils::ToUpper(FileUtils::FindExtension(sFullyQualifiedFile));
 		CheckForStartPosition(pMediaAttributes_LowLevel);
 		m_bWaitingForJukebox=false;
+		GetTrack(pMediaAttributes_LowLevel);
+		GetTitle(pMediaAttributes_LowLevel);
 	}
 
 	MediaFile(MediaFile *pMediaFile_Copy) {
@@ -207,6 +213,46 @@ public:
 				LoggerWrapper::GetInstance()->Write(LV_STATUS,"MediaFile::MediaFile File %d has start position %s", m_dwPK_File, m_sStartPosition.c_str());
 			}
 		}
+	}
+
+	void GetTrack(MediaAttributes_LowLevel *pMediaAttributes_LowLevel)
+	{
+		if( m_dwPK_File )
+		{
+			vector<Row_Attribute *> vectRow_Attribute;
+			pMediaAttributes_LowLevel->m_pDatabase_pluto_media->Attribute_get()->GetRows(
+				"JOIN File_Attribute ON FK_Attribute = PK_Attribute "
+				"WHERE FK_File = " + StringUtils::ltos(m_dwPK_File) + " AND "
+				"FK_AttributeType = " + StringUtils::ltos(ATTRIBUTETYPE_Track_CONST),
+				&vectRow_Attribute
+			);
+
+			if(!vectRow_Attribute.empty())
+			{
+				Row_Attribute *pRow_Attribute = vectRow_Attribute[0];
+				m_iTrack = atoi(pRow_Attribute->Name_get().c_str());
+			}
+		}
+	}
+
+	void GetTitle(MediaAttributes_LowLevel *pMediaAttributes_LowLevel)
+	{
+		if( m_dwPK_File )
+		{
+			vector<Row_Attribute *> vectRow_Attribute;
+			pMediaAttributes_LowLevel->m_pDatabase_pluto_media->Attribute_get()->GetRows(
+				"JOIN File_Attribute ON FK_Attribute = PK_Attribute "
+				"WHERE FK_File = " + StringUtils::ltos(m_dwPK_File) + " AND "
+				"FK_AttributeType = " + StringUtils::ltos(ATTRIBUTETYPE_Title_CONST),
+				&vectRow_Attribute
+			);
+
+			if(!vectRow_Attribute.empty())
+			{
+				Row_Attribute *pRow_Attribute = vectRow_Attribute[0];
+				m_sDescription = pRow_Attribute->Name_get().c_str();
+			}
+		}	
 	}
 };
 
