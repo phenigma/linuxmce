@@ -36,13 +36,14 @@ public:
 		m_Slot=0;
 		m_dwDuration=0;
 		m_tTimeout=0;
-		m_iTrack=0;
 		m_dwPK_MediaType=m_dwPK_CommandGroup_Start=m_dwPK_CommandGroup_Stop=0;
 		m_sExtension=StringUtils::ToUpper(FileUtils::FindExtension(sFullyQualifiedFile));
 		CheckForStartPosition(pMediaAttributes_LowLevel);
 		m_bWaitingForJukebox=false;
-		GetTrack(pMediaAttributes_LowLevel);
-		GetTitle(pMediaAttributes_LowLevel);
+
+		m_iTrack = atoi(GetAttributeValue(pMediaAttributes_LowLevel,ATTRIBUTETYPE_Track_CONST).c_str());
+		m_sTitle = GetAttributeValue(pMediaAttributes_LowLevel, ATTRIBUTETYPE_Title_CONST);
+		m_sAlbum = GetAttributeValue(pMediaAttributes_LowLevel, ATTRIBUTETYPE_Album_CONST);
 	}
 
 	MediaFile(int PK_Disk,int PK_Device_Disk_Drive,int Slot)	{
@@ -86,13 +87,14 @@ public:
 		m_dwPK_Bookmark=0;
 		m_dwDuration=0;
 		m_tTimeout=0;
-		m_iTrack=0;
 		m_dwPK_MediaType=m_dwPK_CommandGroup_Start=m_dwPK_CommandGroup_Stop=0;
 		m_sExtension=StringUtils::ToUpper(FileUtils::FindExtension(sFullyQualifiedFile));
 		CheckForStartPosition(pMediaAttributes_LowLevel);
 		m_bWaitingForJukebox=false;
-		GetTrack(pMediaAttributes_LowLevel);
-		GetTitle(pMediaAttributes_LowLevel);
+
+		m_iTrack = atoi(GetAttributeValue(pMediaAttributes_LowLevel,ATTRIBUTETYPE_Track_CONST).c_str());
+		m_sTitle = GetAttributeValue(pMediaAttributes_LowLevel, ATTRIBUTETYPE_Title_CONST);
+		m_sAlbum = GetAttributeValue(pMediaAttributes_LowLevel, ATTRIBUTETYPE_Album_CONST);
 	}
 
 	MediaFile(MediaFile *pMediaFile_Copy) {
@@ -113,6 +115,8 @@ public:
 		m_tTimeout=pMediaFile_Copy->m_tTimeout;
 		m_iTrack=pMediaFile_Copy->m_iTrack;
 		m_bWaitingForJukebox=pMediaFile_Copy->m_bWaitingForJukebox;
+		m_sTitle=pMediaFile_Copy->m_sTitle;
+		m_sAlbum=pMediaFile_Copy->m_sAlbum;
 	}
 
 
@@ -167,7 +171,7 @@ public:
 		m_dwPK_CommandGroup_Start,m_dwPK_CommandGroup_Stop; // If specified in Playlist_Entry, these will be executed when the file starts and stops
 	time_t m_tTimeout;
 	int m_iTrack; // If this is a cd, the track to play
-	string m_sPath,m_sFilename,m_sDescription,m_sExtension;
+	string m_sPath,m_sFilename,m_sDescription,m_sExtension,m_sTitle,m_sAlbum;
 	string m_sStartPosition; /** Where to start the media the first time.  As soon as the media has begun MediaPlugin will reset this */
 
 	string FullyQualifiedFile() {
@@ -215,7 +219,7 @@ public:
 		}
 	}
 
-	void GetTrack(MediaAttributes_LowLevel *pMediaAttributes_LowLevel)
+	string GetAttributeValue(MediaAttributes_LowLevel *pMediaAttributes_LowLevel, int nAttributeType)
 	{
 		if( m_dwPK_File )
 		{
@@ -223,36 +227,18 @@ public:
 			pMediaAttributes_LowLevel->m_pDatabase_pluto_media->Attribute_get()->GetRows(
 				"JOIN File_Attribute ON FK_Attribute = PK_Attribute "
 				"WHERE FK_File = " + StringUtils::ltos(m_dwPK_File) + " AND "
-				"FK_AttributeType = " + StringUtils::ltos(ATTRIBUTETYPE_Track_CONST),
+				"FK_AttributeType = " + StringUtils::ltos(nAttributeType),
 				&vectRow_Attribute
 			);
 
 			if(!vectRow_Attribute.empty())
 			{
 				Row_Attribute *pRow_Attribute = vectRow_Attribute[0];
-				m_iTrack = atoi(pRow_Attribute->Name_get().c_str());
+				return pRow_Attribute->Name_get();
 			}
 		}
-	}
 
-	void GetTitle(MediaAttributes_LowLevel *pMediaAttributes_LowLevel)
-	{
-		if( m_dwPK_File )
-		{
-			vector<Row_Attribute *> vectRow_Attribute;
-			pMediaAttributes_LowLevel->m_pDatabase_pluto_media->Attribute_get()->GetRows(
-				"JOIN File_Attribute ON FK_Attribute = PK_Attribute "
-				"WHERE FK_File = " + StringUtils::ltos(m_dwPK_File) + " AND "
-				"FK_AttributeType = " + StringUtils::ltos(ATTRIBUTETYPE_Title_CONST),
-				&vectRow_Attribute
-			);
-
-			if(!vectRow_Attribute.empty())
-			{
-				Row_Attribute *pRow_Attribute = vectRow_Attribute[0];
-				m_sDescription = pRow_Attribute->Name_get().c_str();
-			}
-		}	
+		return "";
 	}
 };
 

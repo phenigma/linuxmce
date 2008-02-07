@@ -114,10 +114,13 @@ int UniqueColors[MAX_MEDIA_COLORS];
 
 static bool AudioMediaFileComparer(MediaFile *a, MediaFile *b)
 {
-	if(a->m_iTrack == b->m_iTrack)
-		return strcmp(a->m_sDescription.c_str(), b->m_sDescription.c_str()) < 0;
+	if(a->m_sAlbum != b->m_sAlbum)
+		return strcmp(a->m_sAlbum.c_str(), b->m_sAlbum.c_str()) < 0;
 
-	return a->m_iTrack < b->m_iTrack;
+	if(a->m_iTrack != b->m_iTrack)
+		return a->m_iTrack < b->m_iTrack;
+
+	return strcmp(a->m_sTitle.c_str(), b->m_sTitle.c_str()) < 0;
 }
 
 // For sorting by priority
