@@ -112,7 +112,9 @@ function run_installer_on_virtual_machine {
 	while [[ "$(pidof vmware-vmx)" != "" ]] ;do
 		sleep 5
 		if [[ $(( start_time + wait_time )) -lt $( date +%s ) ]] ;then
-			Error "VmWare failed to finish installing in less than $wait_time seconds."
+			#Error "VmWare failed to finish installing in less than $wait_time seconds."
+			echo "Please connect to the builder as vmware didn't finish installing for over $wait_time seconds" | mail -s "$mail_subject_prefix Vmware install takes to long to finish" razvan.g@plutohome.com
+			read
 		fi
 	done
 	DisplayMessage "Finished installing in virtual machine"
