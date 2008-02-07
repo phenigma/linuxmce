@@ -22,6 +22,9 @@ endif
 
 # predefine as empty
 DEB_BUILD_CONFIG_OPTIONS :=
+
+include /usr/share/dpatch/dpatch.make
+
 CFLAGS += -g
 
 # add if we don't want optimisations
@@ -55,13 +58,13 @@ configure-stamp:
 	./configure $(CONFIGURE_FLAGS)
 	touch configure-stamp
 
-build: configure-stamp build-stamp
+build: patch configure-stamp build-stamp
 build-stamp:
 	dh_testdir
 	$(MAKE)
 	touch build-stamp
 
-clean:
+clean: unpatch
 	dh_testdir
 	dh_testroot
 	rm -vf build-stamp configure-stamp install-stamp po/*.gmo po/stamp-po binary-*-stamp all-files-stamp
