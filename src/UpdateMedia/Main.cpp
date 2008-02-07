@@ -106,9 +106,81 @@ void SyncAttributes()
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Attributes sync succeeded! Records affected %d", nAffectedRecords); 
 }
 
+void RemoveDuplicatedAttributes()
+{
+	string sSqlDuplicatedAttributes = 
+		"SELECT Name, FK_AttributeType, PK_Attribute FROM Attribute\n"
+		"GROUP BY Name, FK_AttributeType\n"
+		"HAVING Count(PK_Attribute) > 1";
+
+	enum DuplicatedAttributesFields
+	{
+		dafName,
+		dafAttributerType,
+		dafAttribute
+	};
+
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Removing duplicated attributes..."); 
+
+	PlutoSqlResult result;
+	DB_ROW row;
+	if((result.r = g_pDatabase_pluto_media->db_wrapper_query_result(sSqlDuplicatedAttributes)))
+	{
+		while((row = db_wrapper_fetch_row(result.r)))
+		{
+			if(NULL != row[dafName] && NULL != row[dafAttributerType] && NULL != row[dafAttribute])
+			{
+				char *AffectedTables[] =
+				{
+					"File_Attribute", 
+					"Attribute_Settings", 
+					"CoverArtScan", 
+					"Disc_Attribute", 
+					"Download_Attribute", 
+					"LongAttribute", 
+					"Picture_Attribute", 
+					"SearchToken_Attribute"
+				};
+
+				for(int i = 0; i < sizeof(AffectedTables) / sizeof(char *); ++i)
+				{
+					string sSqlMoveRowsFromDuplicates = 
+						"UPDATE Attribute JOIN File_Attribute ON FK_Attribute = PK_Attribute\n"
+						"SET FK_Attribute = " + string(row[dafAttribute]) + "\n"
+						"WHERE FK_AttributeType = " + string(row[dafAttributerType]) + "\n"
+						"AND Name = '" + StringUtils::SQLEscape(row[dafName]) + "'\n"
+						"AND PK_Attribute <> " + row[dafAttribute];
+					g_pDatabase_pluto_media->threaded_db_wrapper_query(sSqlMoveRowsFromDuplicates);
+				}
+
+				string sSqlDeleteDuplicates = 
+					"DELETE FROM Attribute\n"
+					"WHERE FK_AttributeType = " + string(row[dafAttributerType]) + "\n"
+					"AND Name = '" + StringUtils::SQLEscape(row[dafName]) + "'\n"
+					"AND PK_Attribute <> " + row[dafAttribute];
+
+                int nAffectedRecords = g_pDatabase_pluto_media->threaded_db_wrapper_query(sSqlDeleteDuplicates);
+				if(nAffectedRecords == -1)
+				{
+					LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Failed to remove duplicated attributes! Query: %s",
+						sSqlDeleteDuplicates.c_str());
+				}
+				else
+				{
+					LoggerWrapper::GetInstance()->Write(LV_WARNING, "Removed %d duplicated attributes for '%s'", 
+						nAffectedRecords, row[dafName]); 
+				}
+			}
+		}
+	}
+
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Finished removing duplicated attributes!"); 
+}
+
 void *UpdateMediaThread(void *)
 {
 	SyncAttributes();
+	RemoveDuplicatedAttributes();
 
 	PlutoMediaIdentifier::Activate(g_pDatabase_pluto_main);
 
@@ -187,6 +259,8 @@ void *UpdateMediaThread(void *)
 				pEvent->SendMessage(pMessage);
 				delete pEvent;
 				pEvent = NULL;
+
+				RemoveDuplicatedAttributes();
 
 				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Command \"Check for new files\" sent!");
 			}
