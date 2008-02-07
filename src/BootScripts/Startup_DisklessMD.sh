@@ -96,7 +96,7 @@ if [[ -f /usr/pluto/bin/SQL_Ops.sh  && -f /usr/pluto/bin/Config_Ops.sh ]] ;then
 	ConfSet PK_Users "$R"
 fi
 
-
+StartService "Enable Wake on LAN" "/usr/pluto/bin/enable_wol.sh"
 StartService "Setting SSH Keys" "/usr/pluto/bin/SSH_Keys.sh" "&"
 StartService "Configure Device Changes" "/usr/pluto/bin/Config_Device_Changes.sh"
 StartService "Setting Coredump Location" "/usr/pluto/bin/corefile.sh"
