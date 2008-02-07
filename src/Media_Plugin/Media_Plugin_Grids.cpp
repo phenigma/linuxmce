@@ -119,6 +119,13 @@ class DataGridTable *Media_Plugin::MediaBrowser( string GridID, string Parms, vo
 	if( sPK_Sources.size()==0 )
 		sPK_Sources = TOSTRING(MEDIASOURCE_File_CONST) "," TOSTRING(MEDIASOURCE_Jukebox_CONST) "," TOSTRING(MEDIASOURCE_Local_Disc_CONST);
 
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "MediaBrowser parms: mediatype %d, submediatype %s, "
+		"fileformat %s, attribute_genres %s, sources %s, users_private %s, attributetype_sort %d, "
+		"users %d, last_viewed %d, pk_attribute %d", 
+		PK_MediaType, sPK_MediaSubType.c_str(), sPK_FileFormat.c_str(), sPK_Attribute_Genres.c_str(),
+		sPK_Sources.c_str(), sPK_Users_Private.c_str(), PK_AttributeType_Sort, PK_Users,
+		iLastViewed, PK_Attribute);
+
 #ifdef SIM_JUKEBOX
 	// These are set in a sub-function
 	g_bInclFiles=g_bInclDiscs=g_bInclDownload=true;
@@ -295,12 +302,16 @@ void Media_Plugin::AttributesBrowser( MediaListGrid *pMediaListGrid,int PK_Media
 				"LEFT JOIN Attribute AS Attribute_Genre ON DA_Genre.FK_Attribute=Attribute_Genre.PK_Attribute AND Attribute_Genre.FK_AttributeType=" TOSTRING(ATTRIBUTETYPE_Genre_CONST) " ";
 	}
 
+	string sSQL_Where_MediaType;
+
 	if( PK_MediaType==MEDIATYPE_pluto_StoredAudio_CONST )
-		sSQL_Where += " WHERE EK_MediaType IN (" TOSTRING(MEDIATYPE_pluto_StoredAudio_CONST) "," TOSTRING(MEDIATYPE_pluto_CD_CONST) ")";
+		sSQL_Where_MediaType = " EK_MediaType IN (" TOSTRING(MEDIATYPE_pluto_StoredAudio_CONST) "," TOSTRING(MEDIATYPE_pluto_CD_CONST) ")";
 	else if( PK_MediaType==MEDIATYPE_pluto_StoredVideo_CONST )
-		sSQL_Where += " WHERE EK_MediaType IN (" TOSTRING(MEDIATYPE_pluto_StoredVideo_CONST) "," TOSTRING(MEDIATYPE_pluto_DVD_CONST) "," TOSTRING(MEDIATYPE_pluto_HDDVD_CONST) "," TOSTRING(MEDIATYPE_pluto_BD_CONST) ")";
+		sSQL_Where_MediaType = " EK_MediaType IN (" TOSTRING(MEDIATYPE_pluto_StoredVideo_CONST) "," TOSTRING(MEDIATYPE_pluto_DVD_CONST) "," TOSTRING(MEDIATYPE_pluto_HDDVD_CONST) "," TOSTRING(MEDIATYPE_pluto_BD_CONST) ")";
 	else 
-		sSQL_Where += " WHERE EK_MediaType=" + StringUtils::itos(PK_MediaType);
+		sSQL_Where_MediaType = " EK_MediaType=" + StringUtils::itos(PK_MediaType);
+
+	sSQL_Where += "WHERE" + sSQL_Where_MediaType;
 
 	if( sPK_Attribute_Genres.size() )
 		sSQL_Where += " AND Attribute_Genre.PK_Attribute IN (" + sPK_Attribute_Genres + ")";
@@ -323,12 +334,24 @@ void Media_Plugin::AttributesBrowser( MediaListGrid *pMediaListGrid,int PK_Media
 		sSQL_Where += " AND (EK_Users_Private IN (" + sPK_Users_Private + ") " + (bIncludePublicUser ? "OR EK_Users_Private IS NULL)" : ")");
 	}
 
-	if( PK_Attribute )
+	if( PK_Attribute > 0 )
 	{
 		sSQL_File += "LEFT JOIN File_Attribute AS FDA_Attr ON FDA_Attr.FK_File=PK_File ";
 		sSQL_Disc += "LEFT JOIN Disc_Attribute AS FDA_Attr ON FDA_Attr.FK_Disc=PK_Disc ";
 		sSQL_Where += " AND FDA_Attr.FK_Attribute=" + StringUtils::itos(PK_Attribute);
 	}
+	//else if( PK_Attribute < 0 )
+	//{
+	//	sSQL_Where += " AND PK_File NOT IN ( \n"
+	//		"SELECT PK_File \n"
+	//		"FROM File \n"
+	//		"LEFT JOIN File_Attribute ON FK_File = PK_File \n"
+	//		"LEFT JOIN Attribute ON FK_Attribute = PK_Attribute \n"
+	//		"WHERE " + sSQL_Where_MediaType + " AND EK_Users_Private IS NULL \n"
+	//		"AND `Ignore`=0 AND Missing=0  AND IsDirectory=0 AND FK_AttributeType = " + 
+	//		StringUtils::ltos(PK_AttributeType_Sort) + " \n"
+	//		") \n";
+	//}
 
 	if( time(NULL)-m_tLastScanOfOnlineDevices>300 )
 		CMD_Refresh_List_of_Online_Devices();  // If it's been more than 5 minutes since we scanned for the list of devices
@@ -339,6 +362,9 @@ void Media_Plugin::AttributesBrowser( MediaListGrid *pMediaListGrid,int PK_Media
 
 	if( iLastViewed!=2 )
 		sSQL_Where += string(" AND DateLastViewed IS ") + (iLastViewed==1 ? "NOT" : "") + " NULL ";
+
+//	//hack for nuforce
+//	sPath = "";
 
 	string sPK_File,sPK_Disc;
     PlutoSqlResult resultf,resultd;
@@ -368,7 +394,7 @@ void Media_Plugin::AttributesBrowser( MediaListGrid *pMediaListGrid,int PK_Media
 			PopulateFileBrowserInfoForFile(pMediaListGrid,PK_AttributeType_Sort,bSubDirectory,sPK_Sources /* this how we get back to where we are now */,sPK_File,mapFile_To_Pic);
 		}
 		else
-			PopulateFileBrowserInfoForAttribute(pMediaListGrid,PK_AttributeType_Sort,sPK_File,"File");
+			PopulateFileBrowserInfoForAttribute(pMediaListGrid,PK_AttributeType_Sort,PK_Attribute,sPK_File,"File");
 	}
 
 	if( bDiscs && sPK_Disc.size() )
@@ -379,7 +405,7 @@ void Media_Plugin::AttributesBrowser( MediaListGrid *pMediaListGrid,int PK_Media
 			PopulateFileBrowserInfoForDisc(pMediaListGrid,PK_AttributeType_Sort,sPK_Disc,mapDisc_To_Pic);
 		}
 		else
-			PopulateFileBrowserInfoForAttribute(pMediaListGrid,PK_AttributeType_Sort,sPK_Disc,"Disc");
+			PopulateFileBrowserInfoForAttribute(pMediaListGrid,PK_AttributeType_Sort,PK_Attribute,sPK_Disc,"Disc");
 	}
 	if( bBookmarks )
 	{
@@ -398,8 +424,7 @@ void Media_Plugin::FetchPictures(string sWhichTable,string &sPK_File_Or_Disc,map
     DB_ROW row;
 	string sPK_AlreadyGot;
 
-FileUtils::WriteBufferIntoFile("/temp.sql",sSQL.c_str(),sSQL.size());
-	if( result.r=m_pDatabase_pluto_media->db_wrapper_query_result( sSQL ) )
+	if( (result.r=m_pDatabase_pluto_media->db_wrapper_query_result( sSQL )) )
         while( ( row=db_wrapper_fetch_row( result.r ) ) )
 		{
 			sPK_AlreadyGot += row[0] + string(",");
@@ -418,8 +443,7 @@ FileUtils::WriteBufferIntoFile("/temp.sql",sSQL.c_str(),sSQL.size());
 		sSQL += " AND FK_" + sWhichTable + " NOT IN (" + sPK_AlreadyGot + ")";
 	}
     PlutoSqlResult result2;
-FileUtils::WriteBufferIntoFile("/temp.sql",sSQL.c_str(),sSQL.size());
-	if( result2.r=m_pDatabase_pluto_media->db_wrapper_query_result( sSQL ) )
+	if( (result2.r=m_pDatabase_pluto_media->db_wrapper_query_result( sSQL )) )
         while( ( row=db_wrapper_fetch_row( result2.r ) ) )
 		{
 			sPK_AlreadyGot += row[0] + string(",");
@@ -439,7 +463,7 @@ void Media_Plugin::PopulateFileBrowserInfoForPlayList(MediaListGrid *pMediaListG
 
     PlutoSqlResult result;
     DB_ROW row;
-    int RowCount=0;
+    //int RowCount=0;
 
 	FileBrowserInfo *pFileBrowserInfo;
     if( (result.r=m_pDatabase_pluto_media->db_wrapper_query_result(SQL)) )
@@ -461,7 +485,7 @@ void Media_Plugin::PopulateFileBrowserInfoForDisc(MediaListGrid *pMediaListGrid,
 	map<int,int>::iterator it;
 	FileBrowserInfo *pFileBrowserInfo;
 	// 0 =PK_Disc, 1=Name, 2=FileFormat
-    if( result.r=m_pDatabase_pluto_media->db_wrapper_query_result( sSQL_Sort ) )
+    if( (result.r=m_pDatabase_pluto_media->db_wrapper_query_result( sSQL_Sort )) )
         while( ( row=db_wrapper_fetch_row( result.r ) ) )
 		{
 			pFileBrowserInfo = new FileBrowserInfo(row[1],string("!r") + row[0] + (row[3] && atoi(row[3]) ? string(".") + row[3] : ""),atoi(row[0]),row[2] ? atoi(row[2]) : 0,'D',false,false);
@@ -471,8 +495,12 @@ void Media_Plugin::PopulateFileBrowserInfoForDisc(MediaListGrid *pMediaListGrid,
 		}
 }
 
-void Media_Plugin::PopulateFileBrowserInfoForFile(MediaListGrid *pMediaListGrid,int PK_AttributeType_Sort, bool bSubDirectory, string &sPath, string &sPK_File,map<int,int> &mapFile_To_Pic)
+void Media_Plugin::PopulateFileBrowserInfoForFile(MediaListGrid *pMediaListGrid,int PK_AttributeType_Sort, 
+	bool bSubDirectory, string &sPath, string &sPK_File,map<int,int> &mapFile_To_Pic)
 {
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "PopulateFileBrowserInfoForFile : attrtype_sort %d, "
+		" subdir %d", PK_AttributeType_Sort, bSubDirectory);
+
 	string sSQL_Sort;
 	if( PK_AttributeType_Sort==0 )
 		sSQL_Sort = "SELECT PK_File,Path,Filename,IsDirectory,FK_FileFormat,Filename FROM File WHERE PK_File in (" + sPK_File + ")";
@@ -486,7 +514,7 @@ void Media_Plugin::PopulateFileBrowserInfoForFile(MediaListGrid *pMediaListGrid,
 	FileBrowserInfo *pFileBrowserInfo;
 	int iLastPK_File=0;  // if the there are 2 attributes of the same twice the file may appear more than once
 	// 0 =PK_File, 1=Path, 2=Name, 3=IsDirectory, 4=File Format
-    if( result.r=m_pDatabase_pluto_media->db_wrapper_query_result( sSQL_Sort ) )
+    if( (result.r=m_pDatabase_pluto_media->db_wrapper_query_result( sSQL_Sort )) )
         while( ( row=db_wrapper_fetch_row( result.r ) ) )
 		{
 			int PK_File = atoi(row[0]);
@@ -519,7 +547,7 @@ void Media_Plugin::PopulateFileBrowserInfoForFile(MediaListGrid *pMediaListGrid,
 		}
 }
 
-void Media_Plugin::PopulateFileBrowserInfoForAttribute(MediaListGrid *pMediaListGrid,int PK_AttributeType_Sort, string &sPK_File_Or_Disc,string sTable)
+void Media_Plugin::PopulateFileBrowserInfoForAttribute(MediaListGrid *pMediaListGrid,int PK_AttributeType_Sort, int PK_Attribute, string &sPK_File_Or_Disc,string sTable)
 {
 	string sSQL_Sort = "SELECT PK_Attribute,Name,min(FK_Picture) AS FK_Picture FROM " + sTable + " JOIN " + 
 		sTable + "_Attribute ON FK_" + sTable + "=PK_" + sTable + " JOIN Attribute ON " + 
@@ -528,12 +556,10 @@ void Media_Plugin::PopulateFileBrowserInfoForAttribute(MediaListGrid *pMediaList
 		(sTable=="File" ? "IsDirectory=0 AND " : "") +
 		"PK_" + sTable + " in (" + sPK_File_Or_Disc + ") GROUP BY PK_Attribute,Name";
 
-FileUtils::WriteBufferIntoFile("/temp.sql",sSQL_Sort.c_str(),sSQL_Sort.size());
-
     PlutoSqlResult result;
     DB_ROW row;
 	map<int,int>::iterator it;
-    if( result.r=m_pDatabase_pluto_media->db_wrapper_query_result( sSQL_Sort ) )
+    if( (result.r=m_pDatabase_pluto_media->db_wrapper_query_result( sSQL_Sort )) )
 	{
 		// If we're looking for albums and there are none, just show the songs
 		if( result.r->row_count==0 && PK_AttributeType_Sort==ATTRIBUTETYPE_Album_CONST )
@@ -552,6 +578,14 @@ FileUtils::WriteBufferIntoFile("/temp.sql",sSQL_Sort.c_str(),sSQL_Sort.size());
 			pMediaListGrid->m_listFileBrowserInfo.push_back(pFileBrowserInfo);
 		}
 	}
+
+	//Sort by attribute type: also include the file which don't have attributes of this type
+	//into Unknown attribute name.
+	//if(0 == PK_Attribute)
+	//{
+	//	FileBrowserInfo *pFileBrowserInfo = new FileBrowserInfo("Unknown", string("!A0") + StringUtils::ltos(-PK_Attribute), -PK_Attribute);
+	//	pMediaListGrid->m_listFileBrowserInfo.push_back(pFileBrowserInfo);
+	//}
 }
 
 void Media_Plugin::PopulateFileBrowserInfoForBookmark(MediaListGrid *pMediaListGrid,string &sPK_File,string &sPK_Disc)
@@ -567,12 +601,11 @@ void Media_Plugin::PopulateFileBrowserInfoForBookmark(MediaListGrid *pMediaListG
 			"WHERE (FK_AttributeType IS NULL OR FK_AttributeType =" TOSTRING(ATTRIBUTETYPE_Title_CONST) ") AND IsAutoResume=0 "
 			"AND Bookmark.FK_File IN (" + sPK_File + ") "
 			"ORDER BY PK_Bookmark";
-FileUtils::WriteBufferIntoFile("/temp.sql",sSQL.c_str(),sSQL.size());
 
 		PlutoSqlResult result;
 		DB_ROW row;
-		int PK_Bookmark_Last=0; // Don't add the same bookmark twice
-		if( result.r=m_pDatabase_pluto_media->db_wrapper_query_result( sSQL ) )
+		//int PK_Bookmark_Last=0; // Don't add the same bookmark twice
+		if( (result.r=m_pDatabase_pluto_media->db_wrapper_query_result( sSQL )) )
 			while( ( row=db_wrapper_fetch_row( result.r ) ) )
 			{
 				string sDescription;
@@ -623,7 +656,7 @@ LoggerWrapper::GetInstance()->Write(LV_WARNING,"Starting File list");
 	else
 		sPaths = "/home/public/data/videos";  // Todo, fill this in for private as well
 
-	int iRow=0;
+//	int iRow=0;
 	if( sPK_Sources.length() )
 	{
 		string sPrevious = posLastPath<3 ? "!D" : sPK_Sources.substr(0,posLastPath-1);
@@ -800,7 +833,7 @@ class DataGridTable *Media_Plugin::CurrentMediaSections( string GridID, string P
 	string s2 = StringUtils::Tokenize( Parms, ",", pos );	// What were these for?
 	string s3 = StringUtils::Tokenize( Parms, ",", pos );	// What were these for?
 	string s4 = StringUtils::Tokenize( Parms, ",", pos );	// What were these for?
-	int PK_User = atoi(StringUtils::Tokenize( Parms, ",", pos ).c_str());
+	/*int PK_User = */atoi(StringUtils::Tokenize( Parms, ",", pos ).c_str());
 
 	*iPK_Variable=VARIABLE_Track_or_Playlist_Positio_CONST;
 	*sValue_To_Assign="";
@@ -861,7 +894,7 @@ class DataGridTable *Media_Plugin::CurrentMediaSections( string GridID, string P
 				string sCell = StringUtils::itos(sSection+1) + " " + m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetAttributeName(PK_Attribute_Title);
 				string sValue = " TITLE:" + StringUtils::itos(sTitle+1) + " CHAPTER:" + StringUtils::itos(sSection+1);
 				pDataGrid->SetData(0, currentPos++,new DataGridCell(sCell,sValue));
-				if( sTitle==pMediaStream->m_iDequeMediaTitle_Pos && sSection==pMediaStream->m_iDequeMediaSection_Pos )
+				if( (int)sTitle==pMediaStream->m_iDequeMediaTitle_Pos && (int)sSection==pMediaStream->m_iDequeMediaSection_Pos )
 					*sValue_To_Assign=sValue;
 				mapSections[ make_pair<int,int> (sSection,sTitle) ] = true;
 			}
@@ -946,15 +979,28 @@ class DataGridTable *Media_Plugin::CDTracks( string GridID, string Parms, void *
 			return pDataGrid;
 		}
 		pMediaStream = pEntertainArea->m_pMediaStream;
+
 		if( pMediaFile->m_dwPK_Disk )
+		{
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Media_Plugin::CDTracks - media file has disc id %d", pMediaFile->m_dwPK_Disk);
+
 			sSQL = "select Track,Name FROM Attribute JOIN Disc_Attribute ON FK_Attribute=PK_Attribute WHERE FK_AttributeType=" TOSTRING(ATTRIBUTETYPE_Title_CONST) 
 				" AND FK_Disc=" + StringUtils::itos(pMediaFile->m_dwPK_Disk);
+		}
 		else
+		{
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Media_Plugin::CDTracks - media stream has disc id %d", pEntertainArea->m_pMediaStream->m_dwPK_Disc);
+
 			sSQL = "select Track,Name FROM Attribute JOIN Disc_Attribute ON FK_Attribute=PK_Attribute WHERE FK_AttributeType=" TOSTRING(ATTRIBUTETYPE_Title_CONST) 
 				" AND FK_Disc=" + StringUtils::itos(pEntertainArea->m_pMediaStream->m_dwPK_Disc);
+		}
 	}
 	else
+	{
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Media_Plugin::CDTracks - using disc id from parms %s", Parms.c_str());
+
 		sSQL = "select Track,Name FROM Attribute JOIN Disc_Attribute ON FK_Attribute=PK_Attribute WHERE FK_AttributeType=" TOSTRING(ATTRIBUTETYPE_Title_CONST) " AND FK_Disc=" + Parms;
+	}
 
 	PlutoSqlResult result;
     DB_ROW row;
@@ -1671,7 +1717,7 @@ class DataGridTable *Media_Plugin::ActiveMediaStreams( string GridID, string Par
 
 class DataGridTable *Media_Plugin::AvailablePlaylists( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
 {
-    int nWidth = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Width_CONST].c_str());
+    //int nWidth = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Width_CONST].c_str());
     int nHeight = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Height_CONST].c_str());
 	
     LoggerWrapper::GetInstance()->Write(LV_STATUS, "Media_Plugin::AvailablePlaylists Called to populate: %s", Parms.c_str());
@@ -2260,3 +2306,4 @@ bool Media_Plugin::CanThumbnail(int PK_AttributeType)
 		return false;
 	}
 }
+

@@ -534,7 +534,7 @@ public:
 	void FetchPictures(string sWhichTable,string &sPK_File_Or_Disc,map<int,int> &mapFile_To_Pic,int PK_AttributeType_Sort);
 	void PopulateFileBrowserInfoForFile(MediaListGrid *pMediaListGrid,int PK_AttributeType_Sort, bool bSubDirectory, string &sPath, string &sPK_File,map<int,int> &mapFile_To_Pic);
 	void PopulateFileBrowserInfoForDisc(MediaListGrid *pMediaListGrid,int PK_AttributeType_Sort,string &sPK_Disk,map<int,int> &mapDisk_To_Pic);
-	void PopulateFileBrowserInfoForAttribute(MediaListGrid *pMediaListGrid,int PK_AttributeType_Sort, string &sPK_File_Or_Disc,string sTable);
+	void PopulateFileBrowserInfoForAttribute(MediaListGrid *pMediaListGrid,int PK_AttributeType_Sort, int PK_Attribute,string &sPK_File_Or_Disc,string sTable);
 	void PopulateFileBrowserInfoForPlayList(MediaListGrid *pMediaListGrid,string sPK_Users_Private);
 	void PopulateFileBrowserInfoForBookmark(MediaListGrid *pMediaListGrid,string &sPK_File,string &sPK_Disc);
 	void PopulateWithDatabaseInfoOnPath(map<string,DatabaseInfoOnPath *> &mapDatabaseInfoOnPath,string &sSearchPath); // helper for FileBrowser
@@ -617,7 +617,7 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::SetNowPlaying use a
 		int PK_Device_Source=0,iDequeMediaFile=0;
 		if( pMediaStream )
 		{
-			bool bIsOSD=pMediaStream->OrbiterIsOSD(dwPK_Device,&pEntertainArea_OSD);
+			//bool bIsOSD=pMediaStream->OrbiterIsOSD(dwPK_Device,&pEntertainArea_OSD);
 			int PK_Screen = pMediaStream->GetRemoteControlScreen(dwPK_Device);
 			PK_Device_Source = pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device;
 			if( pMediaStream->m_iTrackOrSectionOrChannel==-1 )
