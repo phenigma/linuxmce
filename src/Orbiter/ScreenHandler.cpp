@@ -4482,6 +4482,7 @@ bool ScreenHandler::Aj_ObjectSelected(CallBackData *pData)
 	{
 		string sURL = m_pOrbiter->m_mapVariable_Find(VARIABLE_URL_from_phone_CONST);
 
+#if defined(WIN32) && !defined(WINCE)
 		//starting the new orbiter
 		PROCESS_INFORMATION pi;
 		::ZeroMemory(&pi, sizeof(PROCESS_INFORMATION));
@@ -4493,6 +4494,7 @@ bool ScreenHandler::Aj_ObjectSelected(CallBackData *pData)
 
 		string sCompleteCmdLine = "explorer \"" + sURL + "\"";
 		::CreateProcess(NULL, const_cast<char *>(sCompleteCmdLine.c_str()), NULL, NULL, NULL, 0, NULL, NULL, &si, &pi);
+#endif 
 	}
 	else if( pObjectInfoData->m_pObj->m_iBaseObjectID==5581 )
 	{

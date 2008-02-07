@@ -318,7 +318,7 @@ void OrbiterRenderer_SDL_Win32::ObjectRendered(DesignObj_Orbiter *pObj, PlutoPoi
 		return;
 	}
 
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "VIA ObjectRendered: %s", pObj->m_ObjectID.c_str());
+	//LoggerWrapper::GetInstance()->Write(LV_STATUS, "ObjectRendered: %s", pObj->m_ObjectID.c_str());
 
 	PlutoGraphic *pPlutoGraphic = NULL;
 	pPlutoGraphic = 
