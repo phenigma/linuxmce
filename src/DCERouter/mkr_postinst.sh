@@ -78,7 +78,7 @@ done
 
 [[ -z "$RA_CheckRemotePort" ]] && ConfSet RA_CheckRemotePort 1
 
-modules="ip_conntrack ip_conntrack_ftp ip_conntrack_irc ip_nat_ftp ip_nat_irc mousedev"
+modules="ip_conntrack ip_conntrack_ftp ip_conntrack_irc ip_nat_ftp ip_nat_irc"
 
 for module in $modules; do
 	if ! grep -q "$module" /etc/modules; then
