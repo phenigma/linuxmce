@@ -228,7 +228,7 @@ while : ;do
                         Share_Password=$(Field "4" "$NFSShare")
 								
 			## Test if the share is still in the list
-			showmount -e $Device_IP | cut -d ' ' -f1 | grep "^${ShareName}$"
+			showmount -e $Device_IP | cut -d ' ' -f1 | grep "^${Share_Name}$"
 			isShareInList=$?
 
 			if [[ "$isShareInList" != "0" ]] ;then
@@ -239,7 +239,7 @@ while : ;do
 
                         ## See if the share is mountable
                         mountDirTemp=$(mktemp -d)
-                        mount ${Device_ID}:${Share_Name} $mountDirTemp 1>/dev/null 2>/dev/null
+                        mount ${Device_IP}:${Share_Name} $mountDirTemp 1>/dev/null 2>/dev/null
                         isShareMountable=$?
 
                         if [[ "$isShareMountable" != "0" ]] ;then
