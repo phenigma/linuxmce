@@ -1,3 +1,9 @@
+xine-lib (1.1.7-1ubuntu1-pluto2) gutsy; urgency=low
+
+  * refreshed trick play patch to avoid NULL dereference in xine-ui
+
+ -- Kirill Belokurov <kirill.b@plutohome.com>  Fri, 8 Jan 2008 15:17:20 +0200
+
 xine-lib (1.1.7-1ubuntu1-pluto1) gutsy; urgency=low
 
   * added patches
