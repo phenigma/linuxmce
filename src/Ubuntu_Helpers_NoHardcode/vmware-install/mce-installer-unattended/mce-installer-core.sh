@@ -131,6 +131,7 @@ function Install_DCERouter {
 	sed -i "s/$line/$addon\t$line/g" /etc/init.d/mysql
 
 	invoke-rc.d mysql start || {
+		sleep 30
 		invoke-rc.d mysql stop
 		killall mysqld_safe
 		killall mysqld
@@ -151,11 +152,11 @@ function Create_And_Config_Devices {
 	/etc/init.d/mysql stop
 	killall -9 mysqld_safe
 	/etc/init.d/mysql start || {
+		sleep 30
 		invoke-rc.d mysql stop
 		killall mysqld_safe
 		killall mysqld
 		invoke-rc.d mysql start
-		sleep 2
 	}
 	. /usr/pluto/bin/SQL_Ops.sh
 
