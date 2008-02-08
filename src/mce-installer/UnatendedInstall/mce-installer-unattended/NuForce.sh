@@ -99,8 +99,13 @@ xinit /usr/bin/TouchKit -- :0 -ac
 ConfSet AVWizardDone 1
 "
 
+Xconfigure="#!/bin/bash
+cp /etc/X11/xorg.conf{.nuforce,}
+"
+
+
 	echo -n "$AVWizardRun" >/usr/pluto/bin/AVWizard_Run.sh
-	echo "#!/bin/bash" >/usr/pluto/bin/Xconfigure.sh
+	echo -n "$Xconfigure" >/usr/pluto/bin/Xconfigure.sh
 	echo "#!/bin/bash" >/usr/pluto/bin/X-CheckSettings.sh
 
 	chmod +x /usr/pluto/bin/{AVWizard_Run,Xconfigure,X-CheckSettings}.sh
