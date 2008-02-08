@@ -94,7 +94,7 @@ diff -ruN xine-lib-1.1.7-orig/src/xine-engine/video_out.c xine-lib-1.1.7/src/xin
 +  
 +  // trick playback code
 +  // doing frames skip depending on skip mode and stream smartness
-+  if (stream->trick_play_stream_distincts_frame_type)
++  if (stream && stream->trick_play_stream_distincts_frame_type)
 +  {
 +	  switch (stream->trick_play_frame_skip_mode)
 +	  {
@@ -124,7 +124,7 @@ diff -ruN xine-lib-1.1.7-orig/src/xine-engine/video_out.c xine-lib-1.1.7/src/xin
 +  }
 +  else
 +  {
-+	  if (stream->trick_play_frame_skip_mode)
++	  if (stream && stream->trick_play_frame_skip_mode)
 +	  {
 +		  xprintf (stream->xine, XINE_VERBOSITY_DEBUG, "trick_play: skipping ?-frame\n");
 +		  frames_to_skip = 1;
