@@ -183,7 +183,7 @@ FormatPartitions()
 			mv ./usr/pluto/diskless/* .upgrade-diskless/
 		fi
 
-		NukeFS .,home,var,etc,usr,.upgrade-diskless ./var,lib ./var/lib,mysql ./etc,pluto.conf,ssh,passwd,shadow,group,mysql ./usr,pluto ./usr/pluto,orbiter ./usr/pluto/orbiter,rooms,scenarios,users
+		NukeFS .,home,var,etc,usr,.upgrade-diskless ./var,lib ./var/lib,mysql ./etc,pluto.conf,ssh,passwd,shadow,group,mysql,X11 ./etc/X11,xorg.conf ./usr,pluto ./usr/pluto,orbiter ./usr/pluto/orbiter,rooms,scenarios,users
 			
 		mkdir .upgrade-save
 		find -mindepth 1 -maxdepth 1 -not -name '.upgrade-*' -exec mv '{}' .upgrade-save/ ';'
