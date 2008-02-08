@@ -1369,11 +1369,26 @@ void Xine_Stream::HandleSpecialSeekSpeed()
 												m_iSpecialSeekSpeed, msElapsed,
 												m_posLastSpecialSeek,seekTime,positionTime);
 
+	// stop if we are at stream begin
 	if ( seekTime < 0 )
 	{
 		LoggerWrapper::GetInstance()->Write( LV_WARNING, "aborting seek, we are at the beginning" );
 		changePlaybackSpeed( PLAYBACK_FF_1 );
 		ReportTimecode();
+		return;
+	}
+	
+	// stop if we are at stream end
+	if ( seekTime > m_iCachedStreamLength  && m_iCachedStreamLength!=0 )
+	{
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "aborting seek, we are at the end" );
+		changePlaybackSpeed( PLAYBACK_STOP );
+		ReportTimecode();
+		playbackCompleted( false );
+		{			
+			PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
+			m_bIsRendering = false;
+		}
 		return;
 	}
 	
