@@ -1266,7 +1266,11 @@ void Xine_Player::CMD_Set_Media_Position(int iStreamID,string sMediaPosition,str
                 string sType = pStream->m_sMediaType;
                 int iID = pStream->m_iMediaID;
 
-		CMD_Play_Media(0,pStream->m_iStreamID,sMediaPosition,pStream->m_sCurrentFile,sCMD_Result,pMessage);
+		// if we are doing broadcast, continue doing it
+		if (pStream->m_iBroadcastPort==0)
+			CMD_Play_Media(0,pStream->m_iStreamID,sMediaPosition,pStream->m_sCurrentFile,sCMD_Result,pMessage);
+		else
+			CMD_Start_Streaming(0,pStream->m_iStreamID,sMediaPosition,pStream->m_sCurrentFile,pStream->m_sBroadcastTargets,sCMD_Result,pMessage);
                 
                 pStream->m_sMediaType = sType;
                 pStream->m_iMediaID = iID;
