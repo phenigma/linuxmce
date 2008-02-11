@@ -2713,7 +2713,7 @@ int Xine_Stream::DisableBroadcast( )
 {
 	if (!m_bInitialized)
 	{
-		LoggerWrapper::GetInstance()->Write( LV_WARNING, "EnableBroadcast called on non-initialized stream - aborting command");
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "DisableBroadcast called on non-initialized stream - aborting command");
 		return false;
 	}
 	
@@ -2732,7 +2732,9 @@ int Xine_Stream::DisableBroadcast( )
 		// disabling watchdog
 		bStreamWatchDogFlag = false;
 		
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "Disabled broadcast on port: %i", m_iBroadcastPort);
 		m_iBroadcastPort = 0;
+		
 	}
         	
         return 0;
