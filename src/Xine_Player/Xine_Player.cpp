@@ -1410,8 +1410,10 @@ void Xine_Player::CMD_Start_Streaming(int iPK_MediaType,int iStreamID,string sMe
 	// if stream already exists - we must stop it and all corresponding targets
 	if (pStream!=NULL)
 	{
+		pStream->m_bDontReportCompletion = true;
 		string sPos;
 		CMD_Stop_Media( pStream->m_iStreamID, &sPos);
+		pStream->m_bDontReportCompletion = false;
 		
 		// checking if type of stream match
 		if ( bBroadcastOnly && !pStream->m_bBroadcastOnly)
