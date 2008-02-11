@@ -112,7 +112,7 @@ DCEConfig g_DCEConfig;
 int UniqueColors[MAX_MEDIA_COLORS];
 
 
-static bool AudioMediaFileComparer(MediaFile *a, MediaFile *b)
+static bool MediaFileComparer(MediaFile *a, MediaFile *b)
 {
 	if(a->m_sAlbum != b->m_sAlbum)
 		return strcmp(a->m_sAlbum.c_str(), b->m_sAlbum.c_str()) < 0;
@@ -120,7 +120,7 @@ static bool AudioMediaFileComparer(MediaFile *a, MediaFile *b)
 	if(a->m_iTrack != b->m_iTrack)
 		return a->m_iTrack < b->m_iTrack;
 
-	return strcmp(a->m_sTitle.c_str(), b->m_sTitle.c_str()) < 0;
+	return strcmp(a->m_sFilename.c_str(), b->m_sFilename.c_str()) < 0;
 }
 
 // For sorting by priority
@@ -2988,27 +2988,8 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sFilename,int iPK_Med
 		}
 	}
 
-	//LoggerWrapper::GetInstance()->Write(LV_WARNING, "Unsorted list:");
-
-	//for(deque<MediaFile *>::iterator it = dequeMediaFile.begin(); it != dequeMediaFile.end(); ++it)
-	//{
-	//	MediaFile *pMediaFile = *it;
-	//	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Media file track %d, name %s",
-	//		pMediaFile->m_iTrack, pMediaFile->m_sFilename.c_str());
-	//}
-
-	//sort them by track, title
-	std::sort(dequeMediaFile.begin(), dequeMediaFile.end(), AudioMediaFileComparer);
-
-	//LoggerWrapper::GetInstance()->Write(LV_WARNING, "Sorted list:");
-
-	//for(deque<MediaFile *>::iterator it = dequeMediaFile.begin(); it != dequeMediaFile.end(); ++it)
-	//{
-	//	MediaFile *pMediaFile = *it;
-	//	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Media file track %d, name %s",
-	//		pMediaFile->m_iTrack, pMediaFile->m_sFilename.c_str());
-	//}
-
+	//sort them by album, track, filename
+	std::sort(dequeMediaFile.begin(), dequeMediaFile.end(), MediaFileComparer);
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::CMD_MH_Play_Media playing MediaType: %d Provider %d Orbiter %d Device %d Template %d",
 		iPK_MediaType,iPK_MediaProvider,iPK_Device_Orbiter,iPK_Device,iPK_DeviceTemplate);
