@@ -30,7 +30,7 @@ sleep 2
 DISPLAY=:1 blackbox &
 
 function release_unused_loop_devices {
-	DisplayMessage "Relaseing unused loop devices"
+	DisplayMessage "Releasing unused loop devices"
 	for loop_no in `seq 0 7` ;do
 		losetup -d "/dev/loop${loop_no}" || :
 	done
@@ -78,7 +78,7 @@ function create_debcache_on_virtual_machine {
 	ssh -i /etc/lmce-build/builder.key root@"$VMWARE_IP" "mkdir -p /usr/pluto/deb-cache"
 
 	## Cache CD1
-	DisplayMessage "Start Chaching CD1"
+	DisplayMessage "Start Caching CD1"
 	mount -o loop "${local_mirror_dir}/LinuxMCE-CD1.iso" "$ISO_DIR"
 	scp -i /etc/lmce-build/builder.key "$ISO_DIR"/deb-cache/*.deb root@"$VMWARE_IP":/usr/pluto/deb-cache
 	umount "$ISO_DIR"
@@ -97,14 +97,14 @@ function create_debcache_on_virtual_machine {
 	DisplayMessage "Finished Caching Kubuntu CD"
 	
 	## Build Packages.gz
-	DisplayMessage "Building Pacakges.gz on virtual machine"
+	DisplayMessage "Building Packages.gz on virtual machine"
 	scp -i /etc/lmce-build/builder.key /usr/bin/dpkg-scanpackages root@"$VMWARE_IP":/usr/pluto/deb-cache
 	ssh -i /etc/lmce-build/builder.key root@"$VMWARE_IP" "apt-get -y install dpkg-dev; cd /usr/pluto/deb-cache && ./dpkg-scanpackages -m . /dev/null > Packages && gzip -c Packages > Packages.gz && rm dpkg-scanpackages"
 	DisplayMessage "Finish building Packages.gz on virtual machine"
 }
 
 function copy_installer_on_virtual_machine {
-	DisplayMessage "Copying installer on virutal machine"
+	DisplayMessage "Copying installer on virtual machine"
 	ssh -i /etc/lmce-build/builder.key root@"$VMWARE_IP" "mkdir -p /usr/pluto/install"
 	scp -i /etc/lmce-build/builder.key ./mce-installer-unattended/* root@"$VMWARE_IP":/usr/pluto/install
 	DisplayMessage "Finished copying installer on virtual machine"
