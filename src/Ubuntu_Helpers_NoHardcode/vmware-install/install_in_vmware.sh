@@ -32,7 +32,7 @@ DISPLAY=:1 blackbox &
 function release_unused_loop_devices {
 	DisplayMessage "Relaseing unused loop devices"
 	for loop_no in `seq 0 7` ;do
-		losetup -d "/dev/loop{$loop_no}" || :
+		losetup -d "/dev/loop${loop_no}" || :
 	done
 }
 
