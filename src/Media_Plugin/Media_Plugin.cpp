@@ -920,6 +920,7 @@ bool Media_Plugin::PlaybackCompleted( class Socket *pSocket,class Message *pMess
 {
 	PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
     int iStreamID = atoi( pMessage->m_mapParameters[EVENTPARAMETER_Stream_ID_CONST].c_str( ) );
+    string sMRL = pMessage->m_mapParameters[EVENTPARAMETER_MRL_CONST];
     LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::PlaybackCompleted stream id %d",iStreamID);
     MediaStream * pMediaStream = NULL;
 	if( iStreamID==0 )  // This is just informational that nothing is playing on this stream
@@ -960,6 +961,15 @@ bool Media_Plugin::PlaybackCompleted( class Socket *pSocket,class Message *pMess
 		QueueMessageToRouter(new Message(m_dwPK_Device,DEVICEID_DCEROUTER,PRIORITY_NORMAL,
 			MESSAGETYPE_EXEC_COMMAND_GROUP,pMediaFile->m_dwPK_CommandGroup_Stop,0));
 
+	if(	
+		NULL != pMediaStream->m_pMediaDevice_Source && 
+		pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device != pMessage->m_dwPK_Device_From
+	)
+	{
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Ignoring 'Playback completed' event because it's from a slave. Stream %d, MRL : %s", 
+			iStreamID, sMRL.c_str());
+		return false;
+	}
 /*
     if ( pMediaStream->m_pOH_Orbiter_StartedMedia == NULL )
     {
