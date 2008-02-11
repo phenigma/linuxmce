@@ -221,7 +221,7 @@ function Build_Replacements {
 	if ReplacementNeedsBuild "$dir_" ;then
 		pushd "$dir_"
 		dpkg-buildpackage -rfakeroot -us -uc -b
-		cp ../lirc_*.deb "${temp_dir}"
+		cp ../lirc{,-x}_*.deb ../liblircclient{0,-dev}_*.deb "${replacements_dir}"
 		popd
 	fi
 

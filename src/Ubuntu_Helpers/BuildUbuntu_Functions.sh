@@ -399,7 +399,7 @@ function Build_Pluto_Replacements {
 	if ReplacementNeedsBuild "$dir_" ;then
 		pushd "$dir_"
 		dpkg-buildpackage -rfakeroot -us -uc -b
-		cp ../lirc_*.deb "${temp_dir}"
+		cp ../lirc{,-x}_*.deb ../liblircclient{0,-dev}_*.deb "${temp_dir}"
 		popd
 	fi
 	
