@@ -68,6 +68,8 @@ Xine_Player::Xine_Player(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *p
 Xine_Player::~Xine_Player()
 //<-dceag-dest-e->
 {
+	EVENT_Playback_Completed("",0,false);  // In case media plugin thought something was playing, let it know that there's not
+
 	UnmountRemoteDVD();
 	if (ptrFactory)
 	{
