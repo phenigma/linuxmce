@@ -1,3 +1,9 @@
+lirc (0.8.2-0ubuntu8+lmce2) gutsy; urgency=low
+
+  * Increased packet length
+
+ -- Radu Cristescu <radu.c@plutohome.com>  Mon, 07 Jan 2008 23:30:33 +0200
+
 lirc (0.8.2-0ubuntu8+lmce1) gutsy; urgency=low
 
   * Added Philips Pronto IR code format support

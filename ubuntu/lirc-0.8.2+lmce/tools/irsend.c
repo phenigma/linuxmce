@@ -41,7 +41,7 @@
 #include <signal.h>
 #include <limits.h>
 
-#define PACKET_SIZE 256
+#define PACKET_SIZE 4096
 /* three seconds */
 #define TIMEOUT 3
 

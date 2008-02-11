@@ -34,8 +34,8 @@
 
 /* internal defines */
 #define MAX_INCLUDES 10
-#define LIRC_READ 255
-#define LIRC_PACKET_SIZE 255
+#define LIRC_READ 4095
+#define LIRC_PACKET_SIZE 4095
 /* three seconds */
 #define LIRC_TIMEOUT 3
 
@@ -1697,7 +1697,7 @@ static int lirc_code2char_internal(struct lirc_config *config,char *code,
 	return(0);
 }
 
-#define PACKET_SIZE 100
+#define PACKET_SIZE 4096
 
 char *lirc_nextir(void)
 {

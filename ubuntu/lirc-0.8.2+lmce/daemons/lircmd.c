@@ -33,7 +33,7 @@
 #include <sys/un.h>
 
 #define CLICK_DELAY 50000 /* usecs */
-#define PACKET_SIZE 256
+#define PACKET_SIZE 4096
 #define WHITE_SPACE " \t"
 #define ALL ((char *) (-1))
 #define CIRCLE 10

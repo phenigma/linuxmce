@@ -35,7 +35,7 @@
 #include "lirc_client.h"
 
 #define MAX_CLIENTS 100
-#define PACKET_SIZE (256)
+#define PACKET_SIZE (4096)
 #define WHITE_SPACE " \t"
 
 struct config_info

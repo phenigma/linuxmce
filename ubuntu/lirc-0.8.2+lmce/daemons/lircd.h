@@ -14,7 +14,7 @@
 
 #include "ir_remote.h"
 
-#define PACKET_SIZE (256)
+#define PACKET_SIZE (4096)
 #define WHITE_SPACE " \t"
 
 struct peer_connection
