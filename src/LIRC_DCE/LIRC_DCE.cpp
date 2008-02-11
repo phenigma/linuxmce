@@ -238,7 +238,10 @@ bool LIRC_DCE::Register()
 void LIRC_DCE::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sCMD_Result,Message *pMessage)
 //<-dceag-cmdch-e->
 {
-	sCMD_Result = "UNHANDLED CHILD";
+	if (pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND && pMessage->m_dwID == COMMAND_Send_Code_CONST)
+		CMD_Send_Code(pMessage->m_mapParameters[COMMANDPARAMETER_Text_CONST], sCMD_Result, pMessage);
+	else
+		sCMD_Result = "UNHANDLED CHILD";
 }
 
 /*
@@ -366,6 +369,8 @@ void LIRC_DCE::CMD_Send_Code(string sText,string &sCMD_Result,Message *pMessage)
 		if (sText[i] != ' ')
 			sTextWoSpaces += sText[i];
 	}
+	cout << "Sending code: " << sText << endl;
+	cout << "Without spaces: " << sTextWoSpaces << endl;
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Sending code: %s", sText.c_str());
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Without spaces: %s", sTextWoSpaces.c_str());
 	char * args[] = {"/usr/bin/irsend", "SEND_PRONTO", (char*) sTextWoSpaces.c_str(), "", NULL};
