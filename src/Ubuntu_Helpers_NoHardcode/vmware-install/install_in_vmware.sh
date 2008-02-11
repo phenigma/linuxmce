@@ -29,6 +29,13 @@ screen -d -m -S X11-Display1 X -ac :1
 sleep 2
 DISPLAY=:1 blackbox &
 
+function release_unused_loop_devices {
+	DisplayMessage "Relaseing unused loop devices"
+	for loop_no in `seq 0 7` ;do
+		losetup -d "/dev/loop{$loop_no}" || :
+	done
+}
+
 function create_virtual_machine {
 	DisplayMessage "Creating virual machine"
 	killall -9 vmplayer || :
@@ -282,12 +289,12 @@ RemovePkgNonGrata='yes'
 if [[ "$1" == "big" ]] ;then
 	RemovePkgNonGrata='no'	
 fi
+release_unused_loop_devices
 create_virtual_machine
 start_virtual_machine
 create_debcache_on_virtual_machine
 copy_installer_on_virtual_machine
 run_installer_on_virtual_machine
-
 if [[ -f "${VMWARE_DIR}/Kubuntu-flat.vmdk" ]] ;then
 	create_disk_image_from_flat
 else
