@@ -48,7 +48,7 @@ if [[ "$(aptitude show linux-restricted-modules-2.6.22-14-generic | grep State |
 fi
 
 if [[ "$linux_restricted_modules_generic_installed" == "false" ]] ;then
-	dpkg -i /media/cdrom/deb-cache/linux-restricted-modules_${linux_restricted_modules_generic_version}_*.deb && linux_restricted_modules_generic_installed == "true"
+	dpkg -i /media/cdrom/deb-cache/linux-restricted-modules-2.6.22-14-generic_${linux_restricted_modules_generic_version}_*.deb && linux_restricted_modules_generic_installed="true"
 fi
 
 if [[ "$linux_restricted_modules_generic_installed" == "false" ]] ;then
