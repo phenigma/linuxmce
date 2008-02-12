@@ -80,7 +80,7 @@ function sqlcvs_diff($output,$dbADO) {
 		</tr>
 		<tr>
 			<td colspan="3"><B>'.$TEXT_PASSWORD_CONST.'*:</B></td>
-			<td><input type="text" name="password" value="'.((isset($_REQUEST['password']))?@$_REQUEST['password']:'anonymous').'"></td>
+			<td><input type="text" name="password" value="'.((isset($_REQUEST['password']))?@$_REQUEST['password']:'nopass').'"></td>
 		</tr>
 		<tr>
 			<td colspan="3"><B>'.$TEXT_DATABASE_CONST.':</B></td>
@@ -322,6 +322,7 @@ function sqlcvs_diff($output,$dbADO) {
 		$host=stripslashes($_POST['host']);
 		$username=stripslashes($_POST['username']);
 		$password=stripslashes($_POST['password']);
+		$password=($password=='')?'nopass':$password;
 		$parmList=$_POST['parms'];
 		$port=(int)$_POST['port'];
 		$rand_tmp_file=$_POST['rand_tmp_file'];
