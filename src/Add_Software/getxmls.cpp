@@ -107,18 +107,17 @@ int main(int argc, char *argv[])
 
 	// getting list of virus free packages
 	Log(LV_STATUS, "Getting virus-free packages list");
-	res = FetchURL("http://linuxmce.com/virus_free.php", "/tmp/virusfree.list", UserAgent);
+
+	const string sVirusFreeURL  = "http://linuxmce.com/virus_free.php";
+	const string sVirusFreeFile = "/tmp/virusfree.list";
+
+	res = FetchURL(sVirusFreeURL, sVirusFreeFile, UserAgent);
 	vector<string> virusFree;
 	// loading virus-free list
 	if (res)
 	{
-		ifstream fin("/tmp/virusfree.list");
-		while (fin)
-		{
-			char buf[1024];
-			fin.getline(buf, 1024);
-			virusFree.push_back(buf);
-		}
+	    FileUtils::ReadFileIntoVector(sVirusFreeFile, virusFree);
+	    Log(LV_STATUS, "Virus-free packages list contains " + StringUtils::itos(virusFree.size()) + " records");
 	}
 	else
 	{
