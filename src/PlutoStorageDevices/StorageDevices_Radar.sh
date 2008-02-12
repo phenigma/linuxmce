@@ -3,6 +3,8 @@
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/SQL_Ops.sh
 
+export PATH=$PATH:/sbin:/usr/sbin:/usr/local/sbin
+
 TPL_GENERIC_INTERNAL_DRIVE=1790
 DD_BLOCK_DEVICE=152
 
