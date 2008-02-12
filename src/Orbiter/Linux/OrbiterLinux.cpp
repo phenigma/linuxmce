@@ -524,7 +524,11 @@ void OrbiterLinux::CMD_Simulate_Keypress(string sPK_Button,int iStreamID,string 
 void OrbiterLinux::CMD_Set_Mouse_Position_Relative(int iPosition_X,int iPosition_Y,string &sCMD_Result,Message *pMessage)
 {
     LoggerWrapper::GetInstance()->Write(LV_STATUS, "Moving mouse (relative %d,%d)", iPosition_X, iPosition_Y);
-    m_pX11->Mouse_SetPosition(iPosition_X, iPosition_Y);
+
+    int nAbsolute_X = 0, nAbsolute_Y = 0;
+    
+    m_pX11->Mouse_GetPosition(nAbsolute_X, nAbsolute_Y);
+    m_pX11->Mouse_SetPosition(nAbsolute_X + iPosition_X, nAbsolute_Y + iPosition_Y);
 }
 
 void OrbiterLinux::CMD_Simulate_Mouse_Click_At_Present_Pos(string sType,string &sCMD_Result,Message *pMessage)
