@@ -1,4 +1,7 @@
-#!/bin/bash
+#!/bin/bash -x
+
+LogFile="/var/log/pluto/firstboot.log"
+. /usr/pluto/bin/TeeMyOutput.sh --outfile "$LogFile" --stdboth --append -- "$@"
 
 pushd /usr/pluto/deb-cache
 	dpkg-scanpackages -m . /dev/null | tee Packages | gzip -c > Packages.gz
