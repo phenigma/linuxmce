@@ -10,6 +10,7 @@ DisplayMessage "*** STEP: Download closed source debs"
 trap 'Error "Undefined error in $0"' EXIT
 
 wget "$closed_source_debs_url/latest" || exit 0
+rm -f latest
 
 DisplayMessage "Getting latest ID"
 LatestID=$(2>/dev/null wget -O - "$closed_source_debs_url/latest")
