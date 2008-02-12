@@ -57,6 +57,11 @@ Packages()
 	done
 }
 
+Devices()
+{
+	/usr/pluto/bin/CreateDevice -d 53 -R 1
+}
+
 AVWizardReplacement()
 {
 	UI_Normal_Horizontal=1
@@ -187,6 +192,7 @@ ApplyHacks()
 }
 
 Packages
+Devices
 AVWizardReplacement
 AddEgalaxToXorgConf
 DatabaseDefaults
