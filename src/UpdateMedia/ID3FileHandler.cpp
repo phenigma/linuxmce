@@ -181,7 +181,7 @@ string ID3FileHandler::GetFileAttribute()
 //-----------------------------------------------------------------------------------------------------
 /*static*/ bool ID3FileHandler::IsSupported()
 {
-	const string csSupportedExtensions("mp3:ogg:aac:flac");
+	const string csSupportedExtensions("mp3");
 	string sExtension = StringUtils::ToLower(FileUtils::FindExtension(m_sFullFilename));
 
 	if(sExtension.empty())
