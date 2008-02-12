@@ -6,7 +6,7 @@
 set -e
 set -x
 
-function import_win32bins() {
+function fake_win32bins() {
 	touch ${svn_dir}/trunk/src/bin/Pluto_S60.sis
 	touch ${svn_dir}/trunk/src/bin/Orbiter.CAB
 	touch ${svn_dir}/trunk/src/bin/Orbiter_Treo.CAB
@@ -38,7 +38,9 @@ function import_win32bins() {
 
 	touch ${svn_dir}/trunk/src/bin/PlutoBaSInstaller.msi
 	touch ${svn_dir}/trunk/src/bin/PlutoRebootSetup.msi
+}
 
+function import_win32bins() {
 	pushd ${svn_dir}/trunk/src/bin
 	wget ftp://builder32.linuxmce.com/WinBinaries/Windows_Output_LinuxMCE/src/bin/*
 	popd
