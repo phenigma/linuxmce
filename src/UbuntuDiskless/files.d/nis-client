@@ -91,6 +91,9 @@ DisklessBoot=$(RunSQL "SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Devi
 if [[ "$DisklessBoot" == "1" ]] ;then
 	File="/etc/hosts"
 	mkdir -p "${Parm_RootLocation}/$(dirname $File)"
-	echo "${IntIP} dcerouter" >> "${Parm_RootLocation}/${File}"
+	FullFilePath="${Parm_RootLocation}/${File}"
+	if ! grep -q dcerouter "$FullFilePath"; then
+		echo "${IntIP} dcerouter" >>"$FullFilePath"
+	fi
 fi
 
