@@ -218,7 +218,7 @@ function Build_Replacements {
 
 	#Package: lirc
 	dir_="${svn_dir}"/trunk/ubuntu/lirc-0.8.2+lmce
-	if ReplacementNeedsBuild "$dir_" ;then
+	if Changed_Since_Last_Build "$dir_" ;then
 		pushd "$dir_"
 		dpkg-buildpackage -rfakeroot -us -uc -b
 		cp ../lirc{,-x}_*.deb ../liblircclient{0,-dev}_*.deb "${replacements_dir}"
