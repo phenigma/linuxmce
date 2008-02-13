@@ -127,6 +127,14 @@ function softwareList($compSelected,$dbADO){
 			<td colspan="10">'.$TEXT_NO_RECORDS_CONST.'</td>
 		</tr>';
 	}
+	$installStatusArray=array(
+		'I'=>'Installed',
+		'i'=>'Installing',
+		'R'=>'Not installed',
+		'r'=>'Removing',
+		'N'=>"Installation aborted",
+		''=>'Not installed'
+	);
 	
 	$pos=0;
 	while($row=$res->FetchRow()){
@@ -156,8 +164,8 @@ function softwareList($compSelected,$dbADO){
 			<td align="center">'.$row['Title'].'</td>
 			<td align="center">'.$row['Category'].'</td>
 			<td align="center">'.$row['Rating'].'</td>
-			<td align="center">'.$row['Virus_Free'].'</td>
-			<td align="center">'.$row['Status'].'</td>
+			<td align="center">'.(($row['Virus_Free']==0)?'no':'yes').'</td>
+			<td align="center">'.$installStatusArray(@$row['Status']).'</td>
 			<td align="center">'.$button.'</td>
 		</tr>';
 		$pos++;
