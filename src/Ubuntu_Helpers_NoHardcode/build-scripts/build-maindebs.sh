@@ -45,6 +45,11 @@ function build_main_debs() {
 
 	# Compile the packages
 	"${mkr_dir}/MakeRelease" -R "$SVNrevision" -h 'localhost' -u 'root' -O "$out_dir" -D 'pluto_main_build' -o 15 -r 21 -m 1 -K "$ExcludePkgList" -s "${svn_dir}/trunk" -n / -d || Error "MakeRelease failed"
+
+	# Compile the private packages
+	if [[ "$svn_private_url" != "" ]] && [[ "$svn_private_user" != "" ]] && [[ "$svn_private_pass" != "" ]] ;then
+		"${mkr_dir}/MakeRelease" -R "$SVNrevision" -h 'localhost' -u 'root' -O "$out_dir" -D 'pluto_main_build' -o 15 -r 21 -m 1108 -K "$ExcludePkgList" -s "${svn_dir}/trunk" -n / -d || Error "MakeRelease failed"
+	fi
 }
 
 

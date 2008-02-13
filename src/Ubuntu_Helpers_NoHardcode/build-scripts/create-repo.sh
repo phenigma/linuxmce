@@ -45,12 +45,39 @@ function CopyDebsToDisklessSync {
 	done
 }
 
+function PublishPrivateDebs {
+        # copy closed source debs
+        local ID=$(date +%Y%m%d%H%M%S)
+        local priv_debs=(fiire-drivers pluto-wavetrend-reader pluto-zwave-lighting)
+        local pkg
+
+	local temp_dir=$(mktemp -d)
+        for pkg in "${priv_debs[@]}"; do
+                cp "$out_dir"/tmp/"$pkg"_*.deb "$temp_dir"
+        done
+
+        local Dir="$local_mirror_dir/priv_debs"
+        local Latest="$Dir/latest"
+
+        mkdir -p "$Dir"
+        tar -C "$temp_dir" -cvf "$Dir"/"$ID".tar .
+        rm -f "$Latest"
+        echo "$ID" >"$Latest"
+
+	rm -rf "$temp_dir"
+}
+
 DisplayMessage "*** STEP: Creating local repository"
 trap 'Error "Undefined error in $0"' EXIT
 MoveDebs2Repo
 
 DisplayMessage "*** STEP: Copy debs to diskless common directory (for dvd)"
 CopyDebsToDisklessSync
+
+if [[ "$svn_private_url" != "" ]] && [[ "$svn_private_user" != "" ]] && [[ "$svn_private_pass" != "" ]] ;then
+	DisplayMessage "*** STEP: Publish private debs"
+	PublishPrivateDebs
+fi
 
 trap - EXIT
 
