@@ -166,5 +166,9 @@ string IdentifyJob::ToString()
 	string sTimeLeft;
 	if( pTask_Current )
 		sTimeLeft = "(" + StringUtils::SecondsAsTime(pTask_Current->SecondsRemaining()) + ")";
-	return "Identifying disc.  Stage " + StringUtils::itos(iTaskNum) + " of " + StringUtils::itos((int) m_listTask.size()) + " " + sTimeLeft + ": ";
+
+	string sSlot = m_pSlot ? " Slot " + StringUtils::itos(m_pSlot->m_SlotNumber) : "";
+	string sDrive = m_pDisk_Drive_Functions ? " Drive " + StringUtils::itos(m_pDisk_Drive_Functions->m_dwPK_Device_get()) : "";
+		
+	return "Identifying disc" + sSlot + sDrive + ".  Stage " + StringUtils::itos(iTaskNum) + " of " + StringUtils::itos((int) m_listTask.size()) + " " + sTimeLeft + ": ";
 }
