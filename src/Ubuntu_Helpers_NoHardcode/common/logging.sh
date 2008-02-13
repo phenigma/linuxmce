@@ -28,9 +28,9 @@ function Error {
 	echo "Flavor : ${flavor}"				>>$mail_txt_file
 	echo "Date   : $(date -R)"				>>$mail_txt_file
 	echo 							>>$mail_txt_file
-	echo "Here are the last 150 lines of the log file:"	>>$mail_txt_file
+	echo "Here are the last 10240 bytes of the log file:"	>>$mail_txt_file
 	echo							>>$mail_txt_file
-	tail -150 "$log_file"					>>$mail_txt_file
+	tail -c 10240 "$log_file"				>>$mail_txt_file
 	echo							>>$mail_txt_file
 
 	cat $mail_txt_file | mail -s "$mail_subject_prefix Build Failure" "${mail_to}"
