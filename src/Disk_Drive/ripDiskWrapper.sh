@@ -189,6 +189,7 @@ if [[ "$diskType" == 2 ]]; then
 		echo "Ripping successful"
 		touch "$targetFileName.dvd.lock"
 		mv -f "$targetFileName.dvd"{.in-progress,}
+		chmod 664 "$targetFileName.dvd"
 		exit 0;
 	else
 		if [[ "$(isFullDisk "$targetFileName")" == 1 ]]; then
@@ -253,10 +254,10 @@ elif [[ "$diskType" == 0 || "$diskType" == 1 || "$diskType" == 6 || "$diskType" 
 		fi
 				
 
-
 		echo "File ripped ok; moving: $Dir/$FileName.$FinalExt.in-progress"
 		touch "$Dir/$FileName.$FinalExt.lock"
 		mv "$Dir/$FileName.$FinalExt"{.in-progress,}
+		chmod 664 "$Dir/$FileName.$FinalExt"
 	done
 	echo "Ripping successful"
 	exit 0;
