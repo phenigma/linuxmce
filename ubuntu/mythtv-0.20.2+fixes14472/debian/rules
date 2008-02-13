@@ -11,7 +11,7 @@ SVN_MAJOR_RELEASE+=20
 SVN_MINOR_RELEASE+=2
 SVN_REVISION+=14283
 SVN_BRANCH+= http://svn.mythtv.org/svn/branches/release-0-$(SVN_MAJOR_RELEASE)-$(SVN_TYPE)/$(SVN_PACKAGE)
-TAGGED_RELEASE+=true
+#TAGGED_RELEASE+=true
 
 ifneq "$(SVN_MINOR_RELEASE)" ""
 	SVN_RELEASE+=0.$(SVN_MAJOR_RELEASE).$(SVN_MINOR_RELEASE)
@@ -21,6 +21,8 @@ endif
 ifeq "$(TAGGED_RELEASE)" ""
 	SUFFIX+="+$(SVN_TYPE)$(SVN_REVISION)"
 endif
+SUFFIX+="~linuxmce0710"
+
 TARFILE+=$(SVN_PACKAGE)_$(SVN_RELEASE)$(SUFFIX).orig.tar.gz
 
 get-orig-source:
@@ -46,10 +48,10 @@ include /usr/share/dpatch/dpatch.make
 
 CFLAGS += -fPIC -DPIC
 
-CONFIGURE_OPTS += --compile-type=debug
+CONFIGURE_OPTS += --compile-type=profile
 
 ifeq "$(DEB_BUILD_ARCH)" "i386"
-	CONFIGURE_OPTS += --tune=i486 --enable-xvmc --enable-xvmc-vld --enable-xvmc-pro --enable-mmx
+	CONFIGURE_OPTS += --cpu=pentium-mmx --tune=i686 --enable-xvmc --enable-xvmc-vld --enable-xvmc-pro
 else
 ifeq "$(DEB_BUILD_ARCH)" "sparc"
 	CONFIGURE_OPTS += --enable-xvmc --enable-xvmc-vld --enable-xvmc-pro --extra-cflags="-mcpu=ultrasparc -mvis"
@@ -73,7 +75,7 @@ configure-stamp: patch-stamp
 	CFLAGS="$(CFLAGS)" ./configure --prefix=/usr --enable-lirc --enable-audio-alsa \
 	--enable-audio-oss --enable-audio-jack --enable-audio-arts --enable-dvb \
 	--enable-ivtv --enable-firewire --enable-joystick-menu $(CONFIGURE_OPTS) \
-	--enable-proc-opt --enable-opengl-vsync
+	--enable-opengl-vsync
 
 	touch configure-stamp
 
@@ -114,12 +116,12 @@ install: build
 	dh_install -pmythtv-frontend debian/mythtv.desktop usr/share/applications
 	dh_install -pmythtv-backend debian/mythtv-setup.desktop usr/share/applications
 	dh_install -pmythtv-frontend debian/mythfrontend.sh usr/share/mythtv
+	dh_install -pmythtv-frontend debian/session-settings etc/mythtv
 	dh_install -pmythtv-backend debian/mythtv-setup.sh usr/share/mythtv
 	dh_install -pmythtv-common   debian/dialog_functions.sh usr/share/mythtv
 	dh_install -pubuntu-mythtv-frontend debian/startmythtv.sh usr/share/mythtv
 	dh_install -pubuntu-mythtv-frontend debian/mythtv-xsession.desktop usr/share/xsessions
 	dh_install -pubuntu-mythtv-frontend debian/dmrc etc/mythtv
-	dh_install -pubuntu-mythtv-frontend debian/session-settings etc/mythtv
 	dh_install -pubuntu-mythtv-frontend debian/mplayer-config etc/mythtv
 	dh_install -pubuntu-mythtv-frontend debian/background.xpm usr/share/mythtv
 	dh_install -pubuntu-mythtv-frontend debian/openbox-menu.xml etc/mythtv

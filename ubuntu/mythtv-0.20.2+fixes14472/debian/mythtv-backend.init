@@ -40,6 +40,7 @@ case "$1" in
 	if test -e $RUNDIR/$NAME.pid ; then
 		echo "mythbackend already running, use restart instead."
 	else
+		echo 1024 > /proc/sys/dev/rtc/max-user-freq
 		echo -n "Starting $DESC: $NAME "
 		start-stop-daemon --start --pidfile $RUNDIR/$NAME.pid \
 			--chuid $USER --nicelevel $NICE --exec $DAEMON -- $ARGS
@@ -59,6 +60,7 @@ case "$1" in
                 --chuid $USER --exec $DAEMON -- $ARGS
 	echo "."
 	sleep 3
+	echo 1024 > /proc/sys/dev/rtc/max-user-freq
 	start-stop-daemon --start --pidfile $RUNDIR/$NAME.pid \
                 --chuid $USER --nicelevel $NICE --exec $DAEMON -- $ARGS
 	echo "."

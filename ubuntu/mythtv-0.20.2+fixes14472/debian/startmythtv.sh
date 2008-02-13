@@ -28,14 +28,12 @@ if [ -x /usr/bin/gnome-power-manager ]; then
 fi
 
 #check if irexec is needed, and start if need be
-if [ -x /usr/bin/irexec ]; then
-        if [ -f ~/.lircrc ]; then
-                if [ -n "$(cat ~/.lircrc | grep --invert-match "#" | grep irexec | grep prog)" ]
-                then
-			killall irexec
-			irexec -d
-                fi
-        fi
+if [ -x /usr/bin/irexec ] && [ ! -f ~/.noirexec ] && [ -f ~/.lircrc ]; then
+            if [ -n "$(cat ~/.lircrc | grep --invert-match "#" | grep irexec | grep prog)" ]
+            then
+        killall irexec
+        irexec -d
+            fi
 fi
 
 #if nvidia settings are saved and nvidia drivers installed, load them
@@ -50,6 +48,13 @@ if [ -x /usr/bin/xmodmap ]; then
 	if [ -f ~/.xmodmap ]; then
 		xmodmap ~/.xmodmap
 	fi
+fi
+
+#If we have mtd around (and not running), good idea to start it too
+if ! `pgrep mtd>/dev/null`; then
+    if [ -x /usr/bin/mtd ]; then
+        /usr/bin/mtd -d
+    fi
 fi
 
 #start window manager

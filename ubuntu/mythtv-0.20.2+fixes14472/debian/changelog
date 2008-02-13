@@ -1,8 +1,119 @@
-mythtv (0.20.2+fixes14472-0ubuntu0~mythbuntu1) feisty; urgency=low
+mythtv (0.20.2-2lmce710.0) lmce0710; urgency=high
 
-  * Automated Weekly Build, no debian/* changes.
+  * Adds miscfixes.dpatch with LMCE fixes from mythtv-fixes upstream
+  * Adds --ignore-backend to mythfilldatabase
 
- -- Mario Limonciello <superm1@ubuntu.com>  Sun, 09 Sep 2007 23:04:12 -0500
+ -- Daniel Kristjansson <danielk@cuymedia.net>  Fri, 04 Jan 2008 18:39:00 -0500
+
+mythtv (0.20.2-1lmce710.0) lmce0710; urgency=high
+
+  * Updates to upstream #14472
+  * Fixes network control segfaults often triggered in LinuxMCE.
+  * Removes bindings for F6-F8; these conflict with the LMCE Orbiter bindings.
+  * Removes MPEG recorder support for very old Linux kernels.
+     - When these fail confusing error messages are printed to the console.
+  * Caches Exit prompting type; mysql access can apparently be blocked
+    by other LMCE components when exiting LiveTV, causing a deadlock.
+  * Makes sure rtc is enabled in the mythtv-backend startup script for smooth playback.
+
+ -- Daniel Kristjansson <danielk@cuymedia.net>  Fri, 04 Jan 2008 18:39:00 -0500
+
+mythtv (0.20.2-0ubuntu10.1) gutsy-proposed; urgency=low
+
+  * Fix broken ivtv pvr-350 output for kernel 2.6.22. (LP: 158562)
+
+ -- Mario Limonciello <superm1@ubuntu.com>  Tue, 30 Oct 2007 00:29:33 -0400
+
+mythtv (0.20.2-0ubuntu10) gutsy; urgency=low
+
+  [ Michael Haas ]
+  * Move logging support.  It's now setup to log for any
+    methods other than a terminal launch. (LP: #130925)
+
+ -- Mario Limonciello <superm1@ubuntu.com>  Thu, 11 Oct 2007 09:02:36 -0500
+
+mythtv (0.20.2-0ubuntu9) gutsy; urgency=low
+
+  [ Mario Limonciello ]
+  * Change compile type to profile per upstream recommendations.
+  * Include 28_patch_build.dpatch from upstream # 14587 to improve
+    profile builds.
+  * Import debconf translations from rosetta.
+  * Build with perl bindings.  For now include them in mythtv-common,
+    but later they will be included in their own binary package.
+    - Add 29_perl_bindings.dpatch to update settings.pro
+    - Add to mythtv-common package in debian/control
+    - Remove pack list from debian/rules
+    - Add dh_perl  to debian/rules
+    - Build --with-bindings=perl in debian/rules
+
+  [ Michael Haas ]
+  * Add 30_xinerama_fix.dpatch from upstream trunk rev 14520 (LP: #136533)
+
+
+ -- Mario Limonciello <superm1@ubuntu.com>  Mon, 01 Oct 2007 18:47:06 -0500
+
+mythtv (0.20.2-0ubuntu8) gutsy; urgency=low
+
+  [ Mario Limonciello ]
+  * debian/startmythtv.sh:
+    - Switch ~ to $HOME
+    - Only run mtd if not running.
+  * debian/control:
+    - Refresh dependencies for ubuntu-mythtv-frontend
+      to gutsy appropriate package names.
+  * debian/ubuntu-mythtv-frontend.postinst:
+    - Take ownership of ~/.mythtv if necessary. (LP: #145714)
+
+  [ Michael Haas ]
+  * debian/startmythtv.sh:
+    - Correct minor typo in ${MYTHWELCOME}. (LP: #144541)
+
+  [ Jo Shields ]
+  * Start mythtv-setup in a terminal. (LP: #147701)
+
+  [ Brian J. Murrell ]
+  * Clarify text in mythtv-database.postinst (LP: #146328)
+
+ -- Mario Limonciello <superm1@ubuntu.com>  Thu, 27 Sep 2007 02:00:01 -0500
+
+mythtv (0.20.2-0ubuntu7) gutsy; urgency=low
+
+  [ Mario Limonciello ]
+  * debian/control:
+    - Mark a 'replaces' for mythtv-backend-0.20.2-0ubuntu1 (LP: #140841)
+    - Make all instances of ntp, ntp | time-daemon (LP: #144268)
+  * Add debian/patches/26_edit_display.dpatch (LP: #139821)
+  * Add debian/patches/27_pulseaudio.dpatch (LP: #138810)
+
+  [ Joel Ebel ]
+  * debian/startmythtv.sh:
+    - Add support to start mtd -d
+    - Add support to check for not executing irexec -d
+
+  [ Michael Haas ]
+  * debian/startmythtv.sh:
+    - Create a frontend and welcome log file in /var/lib/mythtv.
+
+ -- Mario Limonciello <superm1@ubuntu.com>  Sun, 23 Sep 2007 19:34:56 -0500
+
+mythtv (0.20.2-0ubuntu6) gutsy; urgency=low
+
+  * Add X-AppInstall-Package= to both .desktop files to ensure that
+    they install the 'mythtv' metapackage rather than mythtv-backend
+    or mythtv-frontend when selected in Add/Remove programs.
+
+ -- Mario Limonciello <superm1@ubuntu.com>  Mon, 10 Sep 2007 00:23:26 -0500
+
+mythtv (0.20.2-0ubuntu5) gutsy; urgency=low
+
+  * Update 23_schedulesdirect.dpatch:
+    - Include [14430] & [14427] to drop TMS all together.
+  * Add 25_firewire.dpatch:
+    - Backports firewire fixes to prevent the need for currently
+      necessary workarounds.
+
+ -- Mario Limonciello <superm1@ubuntu.com>  Thu, 06 Sep 2007 12:06:33 -0500
 
 mythtv (0.20.2-0ubuntu4) gutsy; urgency=low
 
