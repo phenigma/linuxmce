@@ -62,6 +62,7 @@ Architecture: any
 Depends: ${shlibs:Depends}
 Recommends: libxine1-pluto-ffmpeg, libxine1-pluto-doc | libxine-doc
 Suggests: libxine1-pluto-plugins, xine-ui, gxine
+Provides: libxine1-pluto-dbg
 Description: the xine video/media player library, binary files
  This is the xine media player library (libxine).
  .
