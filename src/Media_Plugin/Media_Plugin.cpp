@@ -1774,7 +1774,8 @@ void Media_Plugin::StartCaptureCard(MediaStream *pMediaStream)
 
 	if( sDevice.empty() || !pDevice_MediaPlayer )
 	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Media_Plugin::StartCaptureCard - Device is empty or no media player for %d",pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard->m_dwPK_Device);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Media_Plugin::StartCaptureCard - Device is empty or no media player for %d (%s,%p)",
+			pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard->m_dwPK_Device,sDevice.c_str(),pDevice_MediaPlayer);
 		return;
 	}
 

@@ -109,8 +109,9 @@ bool IdentifyJob::ReportPendingTasks(PendingTaskList *pPendingTaskList)
 	{
 		if( pPendingTaskList )
 		{
-			pPendingTaskList->m_listPendingTask.push_back(new PendingTask(m_iID,m_pDisk_Drive_Functions->m_pCommand_Impl_get()->m_dwPK_Device,
-				m_pDisk_Drive_Functions->m_pCommand_Impl_get()->m_dwPK_Device,
+			int PK_Device = m_pDisk_Drive_Functions ? m_pDisk_Drive_Functions->m_pCommand_Impl_get()->m_dwPK_Device : m_pCommand_Impl->m_dwPK_Device;
+			pPendingTaskList->m_listPendingTask.push_back(new PendingTask(m_iID,PK_Device,
+				PK_Device,
 				"identify",ToString(),(char) PercentComplete(),SecondsRemaining(),true));
 		}
 

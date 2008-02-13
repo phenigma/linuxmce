@@ -753,7 +753,10 @@ bool Disk_Drive_Functions::FixupRippingInfo(Disk_Drive_Functions *pDisk_Drive_Fu
 
 	sFilename = sDirectory + sFilename;
 
-	if( bUsingUnknownDiscName && ( ((PK_MediaType==MEDIATYPE_pluto_CD_CONST||PK_MediaType==MEDIATYPE_pluto_HDDVD_CONST||PK_MediaType==MEDIATYPE_pluto_BD_CONST) && FileUtils::DirExists(sFilename)) || (PK_MediaType==MEDIATYPE_pluto_DVD_CONST && FileUtils::FileExists(sFilename + ".dvd")) ) )  // Be sure the directory name is unique if we're using the default
+	// This previously only checked for duplicate names if we were using the 'unknown' name.  However, doing bulk ripping on the jukebox, sometimes multi-series 
+	// disks are identified with the same title and are given the same name.
+	if( ( ((PK_MediaType==MEDIATYPE_pluto_CD_CONST||PK_MediaType==MEDIATYPE_pluto_HDDVD_CONST||PK_MediaType==MEDIATYPE_pluto_BD_CONST) && FileUtils::DirExists(sFilename)) || 
+		(PK_MediaType==MEDIATYPE_pluto_DVD_CONST && FileUtils::FileExists(sFilename + ".dvd")) ) )  // Be sure the directory name is unique if we're using the default
 	{
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive_Functions::FixupRippingInfo file/dir exists PK_MediaType %d sFilename %s sTracks %s iEK_Disc %d sDirectory %s",
 			PK_MediaType,sFilename.c_str(),sTracks.c_str(),iEK_Disc,sDirectory.c_str());
