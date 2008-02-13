@@ -9,7 +9,7 @@ $sID=(int)@$_REQUEST['sID'];
 if($sID==0){
 	$pic=join('',file('include/images/spacer.png'));
 }else{
-	$picArray=getAssocArray('Software_Source','PK_Software_Source','Iconstr',$dbADO,'WHERE PK_Software_Source='.$sID);
+	$picArray=getAssocArray('Software_Source','FK_Software','Iconstr',$dbADO,'WHERE FK_Software='.$sID.' AND Iconstr IS NOT NULL LIMIT 0,1');
 	if(count($picArray)==0){
 		$pic=join('',file('include/images/spacer.png'));
 	}else{

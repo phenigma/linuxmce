@@ -6,6 +6,7 @@ function addSoftware($output,$dbADO) {
 	
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
+	//$dbADO->debug=true;
 	$out='';
 	$action = (isset($_REQUEST['action']) && $_REQUEST['action']!='')?cleanString($_REQUEST['action']):'form';
 	$installationID = (int)@$_SESSION['installationID'];
@@ -85,7 +86,26 @@ function softwareList($compSelected,$dbADO){
 		return $TEXT_ERROR_NO_COMPUTER_SELECTED_CONST;		
 	}
 	
-	$res=$dbADO->Execute('SELECT FK_Software_Source,PK_Software,PackageName,Iconstr,Title,Category,Rating,Virus_Free,`Status`,Version,Distro FROM Software_Device INNER JOIN Software ON Software_Device.FK_Software=PK_Software LEFT JOIN Software_Source ON Software_Device.FK_Software_Source=PK_Software_Source WHERE FK_Device=?',array($compSelected));
+	$distroVersion=str_replace(array('LMCE_CORE_','LMCE_MD_'),'',getDeviceData($compSelected,$GLOBALS['DD_model'],$dbADO));
+	$version=getVersion();
+	
+	$res=$dbADO->Execute('
+		SELECT DISTINCT
+            PK_Software,
+			PackageName,
+			Iconstr,
+			Title,
+			Category,
+			Rating,
+			Virus_Free,
+			`Status`,
+			Version,
+			Distro
+		FROM Software_Source
+		JOIN Software ON Software_Source.FK_Software=PK_Software
+		LEFT JOIN Software_Device ON Software_Device.FK_Software=PK_Software AND FK_Device=?
+		WHERE Distro=?  AND Required_Version_Min<=? AND Required_Version_Max>=? ORDER BY PackageName,Version DESC	
+		',array($compSelected,$distroVersion,$version,$version));
 	
 	$out='<table>
 		<tr class="tablehead">
@@ -114,6 +134,7 @@ function softwareList($compSelected,$dbADO){
 			case 'N':
 			case 'r':
 			case 'R':
+			case null:
 				$button='<input type="button" class="button" name="btn_'.$row['PK_Software'].'" value="'.$TEXT_INSTALL_CONST.'" onClick="self.location=\'index.php?section=addSoftware&action=install&computer='.$compSelected.'&sID='.$row['PK_Software'].'\'">';
 			break;
 			case 'i':
@@ -128,7 +149,7 @@ function softwareList($compSelected,$dbADO){
 		$class=($pos%2==0)?'alternate_back':'';
 		$out.='
 		<tr class="'.$class.'">
-			<td align="center"><img src="softwareIcon.php?sID='.$row['FK_Software_Source'].'"></td>
+			<td align="center"><img src="softwareIcon.php?sID='.$row['PK_Software'].'"></td>
 			<td align="center">'.$row['PackageName'].'</td>
 			<td align="center">'.$row['Version'].'</td>
 			<td align="center">'.$row['Distro'].'</td>
@@ -144,5 +165,11 @@ function softwareList($compSelected,$dbADO){
 	$out.='<table>';
 	
 	return $out;
+}
+
+function getVersion(){
+	$iniData=parse_ini_file('/etc/pluto.conf');
+	
+	return @$iniData['PlutoVersion'];
 }
 ?>
