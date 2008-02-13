@@ -1027,7 +1027,10 @@ int MediaAttributes_LowLevel::AddIdentifiedDiscToDB(int PK_MediaType,string sIde
 	
 	vector<Row_Disc *> vectRow_Disc;
 	m_pDatabase_pluto_media->Disc_get()->GetRows("ID='" + StringUtils::SQLEscape(sIdentifiedDisc) + "'",&vectRow_Disc);
-	if( vectRow_Disc.size() )
+
+	int Existing = vectRow_Disc.size();
+
+	if( Existing )
 		pRow_Disc = vectRow_Disc[0];
 	else
 	{
@@ -1036,6 +1039,9 @@ int MediaAttributes_LowLevel::AddIdentifiedDiscToDB(int PK_MediaType,string sIde
 		pRow_Disc->EK_MediaType_set(PK_MediaType);
 		pRow_Disc->Table_Disc_get()->Commit();
 	}
+
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "MediaAttributes_LowLevel::AddIdentifiedDiscToDB ID %s/%d existing %d num attr %d",
+		sIdentifiedDisc.c_str(),pRow_Disc->PK_Disc_get(),Existing,(int) listMediaAttribute_.size());
 
 	for(listMediaAttribute::iterator it=listMediaAttribute_.begin();it!=listMediaAttribute_.end();++it)
 	{
@@ -1068,6 +1074,10 @@ int MediaAttributes_LowLevel::AddIdentifiedDiscToDB(int PK_MediaType,string sIde
 			continue;
 		}
 		Row_Disc_Attribute *pRow_Disc_Attribute = m_pDatabase_pluto_media->Disc_Attribute_get()->GetRow(pRow_Disc->PK_Disc_get(),pRow_Attribute->PK_Attribute_get(),pMediaAttribute->m_Title_Track,pMediaAttribute->m_Section);
+
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "MediaAttributes_LowLevel::AddIdentifiedDiscToDB PK_Disc %d PK_Attribute %d Existing %p",
+			pRow_Disc->PK_Disc_get(),pRow_Attribute->PK_Attribute_get(),pRow_Disc_Attribute);
+	
 		if( !pRow_Disc_Attribute )
 		{
 			pRow_Disc_Attribute = m_pDatabase_pluto_media->Disc_Attribute_get()->AddRow();
