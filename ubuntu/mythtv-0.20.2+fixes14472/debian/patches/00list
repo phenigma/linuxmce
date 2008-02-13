@@ -12,7 +12,8 @@
 #26_edit_display.dpatch
 27_pulseaudio.dpatch
 29_perl_bindings.dpatch
-50_lmce_keybindings.dpatch
+#50_lmce_keybindings.dpatch
+50_lmce_keybindings_no_mheg.dpatch
 51_exitprompt.dpatch
 52_mpegrec_no_backward_compat.dpatch
 53_miscfixes.dpatch
