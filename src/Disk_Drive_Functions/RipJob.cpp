@@ -106,9 +106,18 @@ RipJob::~RipJob()
 	if(NULL != m_pRow_DiscLocation)
 	{
 		m_pRow_DiscLocation->Reload();
+
+		int PK_Device_Ripping = m_pRow_DiscLocation->EK_Device_Ripping_get();
+
 		m_pRow_DiscLocation->EK_Device_Ripping_setNull(true);
 		m_pRow_DiscLocation->RipJob_setNull(true);
 		m_pRow_DiscLocation->Table_DiscLocation_get()->Commit();
+
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "RipJob::~RipJob resetting data: %d m_pRow_DiscLocation %d/%d PK_Device_Ripping was %d now %d", 
+			m_iID, m_pRow_DiscLocation->EK_Device_get(), m_pRow_DiscLocation->Slot_get(), PK_Device_Ripping, m_pRow_DiscLocation->EK_Device_Ripping_get());
+m_pRow_DiscLocation->Reload();
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "RipJob::~RipJob resetting data: %d m_pRow_DiscLocation %d/%d PK_Device_Ripping was %d now %d", 
+			m_iID, m_pRow_DiscLocation->EK_Device_get(), m_pRow_DiscLocation->Slot_get(), PK_Device_Ripping, m_pRow_DiscLocation->EK_Device_Ripping_get());
 	}
 
 	string sMessage;
