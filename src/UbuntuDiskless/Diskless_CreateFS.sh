@@ -73,8 +73,9 @@ function is_image_upgradable {
 }
 
 if [[ ! -f $Moon_RootArchive ]] ;then
-	/usr/pluto/bin/Diskless_CreateTBZ.sh
-	unpack_filesystem
+	exit 1
+#	/usr/pluto/bin/Diskless_CreateTBZ.sh
+#	unpack_filesystem
 else
 	unpack_filesystem
 	
