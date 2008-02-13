@@ -7,7 +7,14 @@ eval `cat /etc/mythtv/mysql.txt | grep -v "^#" | grep -v "^$"`;
 
 mysql_command="mysql -s -B -u $DBUserName -h $DBHostName -p$DBPassword $DBName";
 
+# Lock the MythBackend lock to prevent backend restart by another script...
+WaitLock "MythBackend" "Restart_Backend_With_SchemaLock.sh" nolog
 
-echo "LOCK TABLE schemalock WRITE;" | $mysql_command # Be sure we're not in the middle of a schema upgrade -- myth doesn't check this
+# Make sure we're not in the middle of a schema upgrade -- myth doesn't check this
+echo "LOCK TABLE schemalock WRITE; UNLOCK TABLES;" | $mysql_command
+
+# Actually perform the restart..
 invoke-rc.d mythtv-backend restart
 
+# Unlock the MythBackend lock so auto restart will work elsewhere
+Unlock "MythBackend" "Restart_Backend_With_SchemaLock.sh" nolog

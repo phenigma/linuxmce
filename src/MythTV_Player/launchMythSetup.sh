@@ -8,16 +8,38 @@ export DISPLAY=:$Display
 MythPass=$(cat /etc/mythtv/mysql.txt |grep ^DBPassword|cut -d= -f2)
 MysqlCommand="mysql -D mythconverg -h $MySqlHost -u mythtv -p$MythPass";
 
+SETUP=/usr/bin/mythtv-setup
+
+# Use mythtv-setup.real if it exists..
+if test -f /usr/bin/mythtv-setup.real ; then
+	SETUP=/usr/bin/mythtv-setup.real
+fi
+
+# If the user installed their own mythtv-setup, adjust..
+if test -f /usr/local/bin/mythtv-setup ; then
+	SETUP=/usr/local/bin/mythtv-setup
+fi
+
+# Run mythtv-setup on a single core if possible
+if test x"" != x'which taskset' ; then
+        SETUP="taskset -c 0 "$SETUP
+fi
+
 # Lock the MythBackend lock to prevent backend restarting
 WaitLock "MythBackend" "launchMythSetup" nolog
 
 MYTH_SETUP_PIDS=`pidof mythtv-setup`;
-
 if [[ -n "$MYTH_SETUP_PIDS" ]]; then 
 	killall mythtv-setup
 fi;
 
-echo "LOCK TABLE schemalock WRITE;" | $MysqlCommand  # Be sure we're not in the middle of a schema upgrade -- myth doesn't check this
+MYTH_SETUP_PIDS=`pidof mythtv-setup.real`;
+if [[ -n "$MYTH_SETUP_PIDS" ]]; then 
+	killall mythtv-setup.real
+fi;
+
+# Be sure we're not in the middle of a schema upgrade -- myth doesn't check this
+echo "LOCK TABLE schemalock WRITE; UNLOCK TABLES;" | $MysqlCommand
 invoke-rc.d mythtv-backend stop
 PID=`pidof mythbackend`;
 
@@ -25,7 +47,7 @@ if [ "$PID" != "" ] ; then
 	kill -9 $PID;
 fi;
 
-echo -e "\n\n" | mythtv-setup 
+$SETUP
 
 invoke-rc.d mythtv-backend force-reload
 
