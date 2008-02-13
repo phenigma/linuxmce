@@ -56,8 +56,6 @@ RipJob::RipJob(Database_pluto_media *pDatabase_pluto_media,
 	m_sTracks=sTracks;
 	m_nTracksFailedToRip = 0;
 
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "RipJob::RipJob %d drive %d slot %d %s / %s", m_iID, m_pDisk_Drive_Functions ? m_pDisk_Drive_Functions->m_dwPK_Device_get() : 0,
-		m_pSlot ? m_pSlot->m_SlotNumber : 0, m_sDirectory.c_str(), m_sFileName.c_str());
 
 	string sWhere;
 	if( m_pDisk_Drive_Functions )
@@ -86,18 +84,24 @@ RipJob::RipJob(Database_pluto_media *pDatabase_pluto_media,
 	if( m_pRow_DiscLocation )
 	{
 		m_pRow_DiscLocation->RipJob_set(m_iID);
+
 		if( m_pDisk_Drive_Functions )
 			m_pRow_DiscLocation->EK_Device_Ripping_set(m_pDisk_Drive_Functions->m_dwPK_Device_get());
 		else if( m_pSlot )
 			m_pRow_DiscLocation->EK_Device_Ripping_set(m_pSlot->m_pJukeBox->m_pCommand_Impl->m_dwPK_Device);
 		m_pRow_DiscLocation->Table_DiscLocation_get()->Commit();
 	}
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "RipJob::RipJob %d drive %d slot %d %s / %s m_pRow_DiscLocation %p m_pDisk_Drive_Functions %p m_pSlot %p", m_iID, m_pDisk_Drive_Functions ? m_pDisk_Drive_Functions->m_dwPK_Device_get() : 0,
+		m_pSlot ? m_pSlot->m_SlotNumber : 0, m_sDirectory.c_str(), m_sFileName.c_str(),m_pRow_DiscLocation,m_pDisk_Drive_Functions,m_pSlot);
 }
 
 RipJob::~RipJob()
 {
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "RipJob::~RipJob %d drive %d slot %d %s / %s", m_iID, m_pDisk_Drive_Functions ? m_pDisk_Drive_Functions->m_dwPK_Device_get() : 0,
-		m_pSlot ? m_pSlot->m_SlotNumber : 0, m_sDirectory.c_str(), m_sFileName.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "RipJob::~RipJob %d drive %d slot %d %s / %s m_pRow_DiscLocation %d/%d", 
+		m_iID, m_pDisk_Drive_Functions ? m_pDisk_Drive_Functions->m_dwPK_Device_get() : 0,
+		m_pSlot ? m_pSlot->m_SlotNumber : 0, m_sDirectory.c_str(), m_sFileName.c_str(),
+		m_pRow_DiscLocation ? m_pRow_DiscLocation->EK_Device_get() : 0, m_pRow_DiscLocation ? m_pRow_DiscLocation->Slot_get() : 0);
 
 	if(NULL != m_pRow_DiscLocation)
 	{
