@@ -3,6 +3,7 @@ automake
 automake1.9
 build-essential
 debootstrap
+devscripts
 dh-make
 dmsetup
 docbook-utils
@@ -38,6 +39,7 @@ libgtk2.0-dev
 libhal-dev
 libhid-dev
 libid3-3.8.3-dev
+libirman-dev
 libjpeg62-dev
 liblinphone1-dev
 liblircclient-dev
