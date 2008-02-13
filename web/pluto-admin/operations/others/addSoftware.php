@@ -165,7 +165,7 @@ function softwareList($compSelected,$dbADO){
 			<td align="center">'.$row['Category'].'</td>
 			<td align="center">'.$row['Rating'].'</td>
 			<td align="center">'.(($row['Virus_Free']==0)?'no':'yes').'</td>
-			<td align="center">'.$installStatusArray(@$row['Status']).'</td>
+			<td align="center">'.$installStatusArray[@$row['Status']].'</td>
 			<td align="center">'.$button.'</td>
 		</tr>';
 		$pos++;
