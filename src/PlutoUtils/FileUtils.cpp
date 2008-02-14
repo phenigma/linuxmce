@@ -1,4 +1,4 @@
-/*
+﻿/*
 	FileUtils
 
 	Copyright (C) 2004 Pluto, Inc., a Florida Corporation
@@ -547,8 +547,6 @@ string FileUtils::ValidFileName(string sInput,bool bAllowSlashes,bool bStrict)
 	StringUtils::Replace(&sInput,"?","");
 	if( bStrict )
 	{
-		StringUtils::Replace(&sInput,"["," ");
-		StringUtils::Replace(&sInput,"]"," ");
 		StringUtils::Replace(&sInput,"'"," ");
 		StringUtils::Replace(&sInput,":"," ");
 	}
