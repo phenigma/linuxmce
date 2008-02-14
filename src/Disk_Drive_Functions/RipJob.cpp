@@ -169,7 +169,7 @@ bool RipJob::ReadyToRun()
 	AddTask(new MoveDiscTask(this,"SlotToDrive",MoveDiscTask::mdt_SlotToDrive,m_pSlot->m_pJukeBox,pDrive,m_pSlot));
 	AddTask(new IdentifyTask(this,m_pDisk_Drive_Functions,m_pCommand_Impl,"Identify"));
 	AddTask(new FixupRippingInfoTask(this,"FixupRippingInfo"));
-	AddRippingTasks();
+	AddRippingTasks(pDrive);
 	AddTask(new MoveDiscTask(this,"DriveToSlot",MoveDiscTask::mdt_DriveToSlot,m_pSlot->m_pJukeBox,pDrive,m_pSlot));
 	return true;
 }
@@ -180,7 +180,7 @@ void RipJob::JobDone()
 		m_pDisk_Drive_Functions->UnlockDrive();
 }
 
-void RipJob::AddRippingTasks()
+void RipJob::AddRippingTasks(Drive *pDrive)
 {
 	vector<string> vectTracks;
 	StringUtils::Tokenize(m_sTracks, "|", vectTracks);
@@ -188,14 +188,14 @@ void RipJob::AddRippingTasks()
 	if (vectTracks.empty())
 	{
 	    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Adding ripping task for the whole disk");
-	    AddTask(new RipTask(this,"Rip",m_bReportResult, ""));
+	    AddTask(new RipTask(this,"Rip",m_bReportResult, "",pDrive));
 	}
 	else
 	{
 		for(vector<string>::iterator it = vectTracks.begin(), end = vectTracks.end(); it != end; ++it)
 		{
 			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Adding ripping task for track %s", it->c_str());
-			AddTask(new RipTask(this,"Rip",m_bReportResult,*it));
+			AddTask(new RipTask(this,"Rip",m_bReportResult,*it,pDrive));
 		}
 	}
 }

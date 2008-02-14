@@ -33,7 +33,7 @@
 
 using namespace nsJobHandler;
 
-RipTask::RipTask(RipJob *pRipJob,string sName,bool bReportResult,string sTrack)
+RipTask::RipTask(RipJob *pRipJob,string sName,bool bReportResult,string sTrack,Drive *pDrive)
 	: Task(pRipJob,sName)
 {
 	m_sTrack=sTrack;
@@ -42,6 +42,7 @@ RipTask::RipTask(RipJob *pRipJob,string sName,bool bReportResult,string sTrack)
 	m_pRipJob=pRipJob; // A duplicate of m_pJob, but we don't need to keep recasting
 	m_pRow_RipStatus=NULL;
 	m_bReportResult=bReportResult;
+	m_pDrive=pDrive;
 }
 
 int RipTask::Run()
@@ -221,7 +222,7 @@ bool RipTask::Abort()
 			if( pos_name!=string::npos )
 			{
 				FileUtils::DelFile(m_pRipJob->m_sName + "/" + sTrack.substr(pos_name+1) + "*");
-LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::RippingProgress deleting %s", (m_pRipJob->m_sName + "/" + sTrack.substr(pos_name+1) + "*").c_str() );
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"RipTask::Abort deleting %s", (m_pRipJob->m_sName + "/" + sTrack.substr(pos_name+1) + "*").c_str() );
 			}
 		}
 		list<string> listFiles;
@@ -239,7 +240,24 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::RippingProgress del
 	else
 	{
 		FileUtils::DelFile(m_pRipJob->m_sName + ".*");  // Delete any temporary or in progress
-LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::RippingProgress deleting %s", (m_pRipJob->m_sName + ".*").c_str() );
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"RipTask::Abort deleting %s", (m_pRipJob->m_sName + ".*").c_str() );
+	}
+
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"RipTask::Abort %s job %p slot %p jukebox %p drive %p",
+		ToString(),m_pRipJob, m_pRipJob ? m_pRipJob->m_pSlot : NULL,
+		m_pRipJob && m_pRipJob->m_pSlot ? m_pRipJob->m_pSlot->m_pJukeBox : NULL,
+		m_pDrive);
+	
+	if( m_pRipJob && m_pRipJob->m_pSlot && m_pRipJob->m_pSlot->m_pJukeBox && m_pDrive )
+	{
+		if( !m_pRipJob->m_pSlot->m_pJukeBox->LockJukebox(Disk_Drive_Functions::locked_move,this) )
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "RipTask::Abort cannot lock jukebox");
+		else
+		{
+			m_pRipJob->m_pSlot->m_pJukeBox->MoveFromDriveToSlot(m_pRipJob->m_pSlot, m_pDrive);
+			m_pRipJob->m_pSlot->m_pJukeBox->UnlockJukebox();
+		}
 	}
 
 	return Task::Abort();

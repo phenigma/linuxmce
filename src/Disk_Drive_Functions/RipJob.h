@@ -33,6 +33,7 @@ namespace nsJukeBox
 {
 	class JukeBox;
 	class Slot;
+	class Drive;
 }
 
 using namespace DCE;
@@ -70,7 +71,7 @@ namespace nsJobHandler
 		virtual ~RipJob();
 
 		virtual bool ReadyToRun();
-		void AddRippingTasks();
+		void AddRippingTasks(Drive *pDrive=NULL);
 		virtual void JobDone();
 
 		virtual bool ReportPendingTasks(PendingTaskList *pPendingTaskList);

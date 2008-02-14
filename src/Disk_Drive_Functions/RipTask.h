@@ -24,6 +24,15 @@
 
 class Row_RipStatus;
 
+namespace nsJukeBox
+{
+	class Drive;
+	class Slot;
+	class JukeBox;
+};
+
+using namespace nsJukeBox;
+
 namespace nsJobHandler
 {
 	class RipTask : public Task
@@ -35,9 +44,10 @@ namespace nsJobHandler
 		class RipJob *m_pRipJob;
 		Row_RipStatus *m_pRow_RipStatus;
 		bool m_bReportResult;
+		Drive *m_pDrive;
 
 	public:
-		RipTask(class RipJob *pRipJob,string sName,bool bReportResult,string sTrack);
+		RipTask(class RipJob *pRipJob,string sName,bool bReportResult,string sTrack,Drive *pDrive);
 		virtual ~RipTask() {}
 		virtual string GetType() { return "RipTask"; }
 
