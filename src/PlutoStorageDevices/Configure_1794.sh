@@ -72,6 +72,7 @@ for share in $(smbclient $AuthPart --list=//$Device_IP  --grepable | grep "^Disk
 
 	## Try to mount it without a password
 	if [[ "$mountedOK" == "false" ]] ;then
+		sleep 0.2
 		mount -t cifs -o username=guest,password= "//$Device_IP/$share" "$tempMntDir"
 		success=$?
 		echo "$(date -R) mount -t cifs -o username=guest,password= \"//$Device_IP/$share\" \"$tempMntDir\" [$success]" 
@@ -85,6 +86,7 @@ for share in $(smbclient $AuthPart --list=//$Device_IP  --grepable | grep "^Disk
 	
 	## Try to mount it with user/pass of the parent device (this device)
 	if [[ "$mountedOK" == "false" ]] ;then
+		sleep 0.2
 		mount -t cifs -o username=${Device_Username},password=${Device_Password} "//$Device_IP/$share" "$tempMntDir"
 		success=$?
 		echo "$(date -R) mount -t cifs -o username=${Device_Username},password=${Device_Password} \"//$Device_IP/$share\" \"$tempMntDir\" [$success]"
@@ -116,7 +118,7 @@ for share in $(smbclient $AuthPart --list=//$Device_IP  --grepable | grep "^Disk
 		for UserPass in $R ;do
 			Brother_Username=$(Field "1" "$UserPass")
 			Brother_Password=$(Field "2" "$UserPass")
-	
+			sleep 0.2	
 			mount -t cifs -o username=${Brother_Username},password=${Brother_Password} "//$Device_IP/$share" "$tempMntDir"
 			success=$?
 			echo "$(date -R) mount -t cifs -o username=${Brother_Username},password=${Brother_Password} \"//$Device_IP/$share\" \"$tempMntDir\" [$success]"
