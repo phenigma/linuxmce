@@ -98,27 +98,26 @@ RipJob::RipJob(Database_pluto_media *pDatabase_pluto_media,
 
 RipJob::~RipJob()
 {
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "RipJob::~RipJob %d drive %d slot %d %s / %s m_pRow_DiscLocation %d/%d", 
+	string sWhere;
+	if( m_pDisk_Drive_Functions )
+	{
+		sWhere = "EK_Device = " + StringUtils::itos(m_pDisk_Drive_Functions->m_dwPK_Device_get());
+		if( m_pSlot )
+			sWhere += " AND Slot = " + StringUtils::itos(m_pSlot->m_SlotNumber);
+	}
+	else if( m_pSlot )
+		sWhere = "EK_Device = " + StringUtils::itos(m_pSlot->m_pJukeBox->m_pCommand_Impl->m_dwPK_Device) +
+			" AND Slot = " + StringUtils::itos(m_pSlot->m_SlotNumber);
+
+
+	string sSQL = "UPDATE DiscLocation SET EK_Device_Ripping=NULL,RipJob=NULL WHERE " + sWhere;
+
+	m_pDatabase_pluto_media->threaded_db_wrapper_query(sSQL);
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "RipJob::~RipJob %d drive %d slot %d %s / %s m_pRow_DiscLocation %d/%d query: %s", 
 		m_iID, m_pDisk_Drive_Functions ? m_pDisk_Drive_Functions->m_dwPK_Device_get() : 0,
 		m_pSlot ? m_pSlot->m_SlotNumber : 0, m_sDirectory.c_str(), m_sFileName.c_str(),
-		m_pRow_DiscLocation ? m_pRow_DiscLocation->EK_Device_get() : 0, m_pRow_DiscLocation ? m_pRow_DiscLocation->Slot_get() : 0);
-
-	if(NULL != m_pRow_DiscLocation)
-	{
-		m_pRow_DiscLocation->Reload();
-
-		int PK_Device_Ripping = m_pRow_DiscLocation->EK_Device_Ripping_get();
-
-		m_pRow_DiscLocation->EK_Device_Ripping_setNull(true);
-		m_pRow_DiscLocation->RipJob_setNull(true);
-		m_pRow_DiscLocation->Table_DiscLocation_get()->Commit();
-
-		LoggerWrapper::GetInstance()->Write(LV_STATUS, "RipJob::~RipJob resetting data: %d m_pRow_DiscLocation %d/%d PK_Device_Ripping was %d now %d", 
-			m_iID, m_pRow_DiscLocation->EK_Device_get(), m_pRow_DiscLocation->Slot_get(), PK_Device_Ripping, m_pRow_DiscLocation->EK_Device_Ripping_get());
-m_pRow_DiscLocation->Reload();
-		LoggerWrapper::GetInstance()->Write(LV_STATUS, "RipJob::~RipJob resetting data: %d m_pRow_DiscLocation %d/%d PK_Device_Ripping was %d now %d", 
-			m_iID, m_pRow_DiscLocation->EK_Device_get(), m_pRow_DiscLocation->Slot_get(), PK_Device_Ripping, m_pRow_DiscLocation->EK_Device_Ripping_get());
-	}
+		m_pRow_DiscLocation ? m_pRow_DiscLocation->EK_Device_get() : 0, m_pRow_DiscLocation ? m_pRow_DiscLocation->Slot_get() : 0, sSQL.c_str());
 
 	string sMessage;
 	if(m_nTracksFailedToRip == m_listTask.size())
