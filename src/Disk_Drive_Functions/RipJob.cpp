@@ -100,19 +100,14 @@ RipJob::~RipJob()
 {
 	string sWhere;
 	if( m_pDisk_Drive_Functions )
-	{
-		sWhere = "EK_Device = " + StringUtils::itos(m_pDisk_Drive_Functions->m_dwPK_Device_get());
-		if( m_pSlot )
-			sWhere += " AND Slot = " + StringUtils::itos(m_pSlot->m_SlotNumber);
-	}
+		sWhere = "EK_Device_Ripping = " + StringUtils::itos(m_pDisk_Drive_Functions->m_dwPK_Device_get()) + " AND RipJob=" + StringUtils::itos(m_iID);
 	else if( m_pSlot )
-		sWhere = "EK_Device = " + StringUtils::itos(m_pSlot->m_pJukeBox->m_pCommand_Impl->m_dwPK_Device) +
-			" AND Slot = " + StringUtils::itos(m_pSlot->m_SlotNumber);
-
+		sWhere = "EK_Device_Ripping = " + StringUtils::itos(m_pSlot->m_pJukeBox->m_pCommand_Impl->m_dwPK_Device) + " AND RipJob=" + StringUtils::itos(m_iID);
 
 	string sSQL = "UPDATE DiscLocation SET EK_Device_Ripping=NULL,RipJob=NULL WHERE " + sWhere;
 
-	m_pDatabase_pluto_media->threaded_db_wrapper_query(sSQL);
+	if( sWhere.size() )
+		m_pDatabase_pluto_media->threaded_db_wrapper_query(sSQL);
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "RipJob::~RipJob %d drive %d slot %d %s / %s m_pRow_DiscLocation %d/%d query: %s", 
 		m_iID, m_pDisk_Drive_Functions ? m_pDisk_Drive_Functions->m_dwPK_Device_get() : 0,
