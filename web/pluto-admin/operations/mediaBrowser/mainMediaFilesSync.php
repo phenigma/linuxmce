@@ -20,6 +20,9 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 	$_SESSION['missing']=isset($_SESSION['missing'])?$_SESSION['missing']:0;
 	$_SESSION['missing']=isset($_REQUEST['missing'])?$_REQUEST['missing']:$_SESSION['missing'];
 
+	$_SESSION['show_attributes']=isset($_SESSION['show_attributes'])?$_SESSION['show_attributes']:0;
+ 	$_SESSION['show_attributes']=isset($_REQUEST['show_attributes'])?$_REQUEST['show_attributes']:$_SESSION['show_attributes'];
+ 	
 	if($action=='form'){
 		if($path!=''){
 			$physicalFiles=grabFiles($path,'');
@@ -71,6 +74,11 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 					<td><input type="button" class="button" name="delDir" value="'.$TEXT_DELETE_CONST.'" onClick="confirmDel();"></td>
 				</tr>
 			</table>
+ 			<table>
+ 				<tr>
+ 					<input type="checkbox" name="show_attributes" value="1" onclick="self.location=\'index.php?section=mainMediaFilesSync&path='.$path.'&show_attributes='.((@$_SESSION['show_attributes']==1)?0:1).'\'" '.(($_SESSION['show_attributes']==1)?'checked':'').'> '.$TEXT_SHOW_ATTRIBUTES_CONST.'
+ 				</tr>
+ 			</table>
 			
 			<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div><br>
 			<div align="center" class="err"><B>'.@$_REQUEST['error'].'</B></div><br>
@@ -310,22 +318,24 @@ function physicalFilesList($path,$allPhysicalFiles,$mediadbADO){
 				<td '.(((@$inDB==1)?'colspan="2"':'')).'>'.((@$inDB==1)?'<img src=include/images/sync.gif border=0 style="vertical-align:middle;">':'<img src=include/images/disk.gif border=0 style="vertical-align:middle;">').' '.((@$inDB==1)?'<a href="index.php?section=editMediaFile&fileID='.$dbPKFiles[$key].'"><B>'.$filename.'</B></a> '.$coverArtIcon:'<B>'.$filename.'</B> '.$addToDB).'</td>
 			</tr>';
 		if(@$inDB==1){
-			$queryAttributes='
-				SELECT PK_Attribute, AttributeType.Description AS AttributeName,Name
-				FROM File_Attribute
-				INNER JOIN Attribute ON File_Attribute.FK_Attribute=PK_Attribute
-				INNER JOIN AttributeType ON FK_AttributeType=PK_AttributeType
-				WHERE FK_File=? ORDER BY AttributeType.Description ASC
-				';
-			$resAttributes=$mediadbADO->Execute($queryAttributes,$dbPKFiles[$key]);
-			$attributes='';
-			while($rowAttributes=$resAttributes->FetchRow()){
-				$attributes.='<b>'.$rowAttributes['AttributeName'].'</b>: <a href="index.php?section=mainMediaBrowser&attributeID='.$rowAttributes['PK_Attribute'].'&action=properties" target="_self">'.stripslashes($rowAttributes['Name']).'</a> ';
-			}
-			$out.='
-				<tr class="'.(($physicalkey%2==0)?'':'alternate_back').'">
-					<td colspan="2">'.@$attributes.'</td>
-				</tr>';
+ 			if($_SESSION['show_attributes']==1) {
+ 				$queryAttributes='
+ 					SELECT PK_Attribute, AttributeType.Description AS AttributeName,Name
+ 					FROM File_Attribute
+ 					INNER JOIN Attribute ON File_Attribute.FK_Attribute=PK_Attribute
+ 					INNER JOIN AttributeType ON FK_AttributeType=PK_AttributeType
+ 					WHERE FK_File=? ORDER BY AttributeType.Description ASC
+ 					';
+ 				$resAttributes=$mediadbADO->Execute($queryAttributes,$dbPKFiles[$key]);
+ 				$attributes='';
+ 				while($rowAttributes=$resAttributes->FetchRow()){
+ 					$attributes.='<b>'.$rowAttributes['AttributeName'].'</b>: <a href="index.php?section=mainMediaBrowser&attributeID='.$rowAttributes['PK_Attribute'].'&action=properties" target="_self">'.stripslashes($rowAttributes['Name']).'</a> ';
+ 				}
+ 				$out.='
+ 					<tr class="'.(($physicalkey%2==0)?'':'alternate_back').'">
+ 						<td colspan="2">'.@$attributes.'</td>
+ 					</tr>';			
+ 			}
 
 		}
 	}
