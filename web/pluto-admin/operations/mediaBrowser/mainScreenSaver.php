@@ -55,6 +55,7 @@ function mainScreenSaver($output,$mediadbADO,$dbADO) {
 			<input type="hidden" name="section" value="mainScreenSaver">
 			<input type="hidden" name="action" value="update">
 			<input type="hidden" name="path" value="'.$path.'">
+			<input type="hidden" name="page" value="'.$page.'">
 			';
 			
 			$out.='
@@ -74,10 +75,12 @@ function mainScreenSaver($output,$mediadbADO,$dbADO) {
 	';
 
 	}else{
-		$flickr=(int)@$_REQUEST['flikr'];
-		$parm=($flickr==1)?'-enable':'-disable';
-		flickrStatus($parm);
-		
+		if(isset($_POST['flikrBtn'])){
+			$flickr=(int)@$_REQUEST['flikr'];
+			$parm=($flickr==1)?'-enable':'-disable';
+			flickrStatus($parm);
+		}
+				
 		$displayedFiles=cleanString(@$_POST['displayedFiles']);
 		if($displayedFiles!=''){
 			$mediadbADO->Execute('DELETE File_Attribute.* FROM File_Attribute INNER JOIN Attribute ON FK_Attribute=PK_Attribute WHERE FK_AttributeType=30 AND FK_File IN ('.$displayedFiles.')');
@@ -89,7 +92,7 @@ function mainScreenSaver($output,$mediadbADO,$dbADO) {
 			}
 		}
 				
-		header('Location: index.php?section=mainScreenSaver&path='.urlencode($path).'&msg='.cleanString($TEXT_SCREENSAVER_UPDATED_CONST));
+		header('Location: index.php?section=mainScreenSaver&path='.urlencode($path).'&msg='.cleanString($TEXT_SCREENSAVER_UPDATED_CONST).'&page='.$page);
 		exit();
 		
 	}
@@ -146,8 +149,8 @@ function getScreensaverFiles($path,$screenSaverAttribute,$mediadbADO,$page,$reco
 		$displayedFiles[]=$row['PK_File'];
 		$pos++;
 		$class=($pos%2==0)?'alternate_back':'';
-		$picUrl='include/image.php?imagepath='.urlencode($row['Path'].'/'.$row['Filename']);
-		$filePic=(!file_exists($row['Path'].'/'.$row['Filename'].'.tnj'))?'&nbsp;':'<a href="'.$picUrl.'" target="_blank"><img src="include/image.php?imagepath='.urlencode($row['Path'].'/'.$row['Filename']).'.tnj" border="0"></a>';
+		$picUrl='include/image.php?imagepath='.htmlentities(urlencode($row['Path'].'/'.$row['Filename']));
+		$filePic=(!file_exists($row['Path'].'/'.$row['Filename'].'.tnj'))?'&nbsp;':'<a href="'.$picUrl.'" target="_blank"><img src="include/image.php?imagepath='.htmlentities(urlencode($row['Path'].'/'.$row['Filename'])).'.tnj" border="0"></a>';
 		$out.='
 			<tr class="'.$class.'">
 				<td><input type="checkbox" name="file_'.$row['PK_File'].'" value="1" '.((is_null($row['FK_Attribute']))?'':'checked').'></td>
