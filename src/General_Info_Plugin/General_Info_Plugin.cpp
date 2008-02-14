@@ -3418,14 +3418,13 @@ void General_Info_Plugin::CMD_Get_Available_Storage_Device(int iSize,int *iPK_De
 			"JOIN Device_DeviceData DDSize ON DDSize.FK_Device = Device.PK_Device AND DDSize.FK_DeviceData = 160 "
 			"JOIN Device_DeviceData DDType ON DDType.FK_Device = Device.PK_Device AND DDType.FK_DeviceData = 159 "
 			"LEFT JOIN Device_DeviceData DDMaxFileSize ON DDMaxFileSize.FK_Device = Device.PK_Device AND DDType.FK_DeviceData = 166 "
-		"HAVING "
-			"Size > " + StringUtils::itos(iSize) + " "
-			"AND  ( "
-				"ISNULL(MaxFileSize) "
-				"OR "
-				"MaxFileSize > " + StringUtils::itos(iSize) + " "
 		"WHERE "
-			"Device.FK_DeviceTemplate = 1790 "
+			"DDSize.IK_DeviceData > " + StringUtils::itos(iSize) + " "
+			"AND  ( "
+				"DDMaxFileSize.IK_DeviceData IS NULL "
+				"OR "
+				"DDMaxFileSize.IK_DeviceData > " + StringUtils::itos(iSize) + " "
+				" ) AND Device.FK_DeviceTemplate = 1790 "
 		"LIMIT 1 ";
 	result_set.r = m_pDatabase_pluto_main->db_wrapper_query_result(sSQL);
 	
@@ -3444,14 +3443,14 @@ void General_Info_Plugin::CMD_Get_Available_Storage_Device(int iSize,int *iPK_De
 				JOIN Device_DeviceData DDType ON DDType.FK_Device = Device.PK_Device AND DDType.FK_DeviceData = 159 \
 			        LEFT JOIN Device_DeviceData DDMaxFileSize ON DDMaxFileSize.FK_Device = Device.PK_Device AND DDType.FK_DeviceData = 166 \
 				JOIN DeviceTemplate ON DeviceTemplate.PK_DeviceTemplate = Device.FK_DeviceTemplate \
-			HAVING \
-				Size > " + StringUtils::itos(iSize) + " \
-				AND ( \
-					ISNULL(MaxFileSize) \
-					OR \
-					MaxFileSize > " + StringUtils::itos(iSize) + " \
-				) \
 			WHERE \
+				DDSize.IK_DeviceData > " + StringUtils::itos(iSize) + " \
+				AND ( \
+					DDMaxFileSize.IK_DeviceData IS NULL \
+					OR \
+					DDMaxFileSize.IK_DeviceData > " + StringUtils::itos(iSize) + " \
+				) \
+				AND \
 				DeviceTemplate.FK_Category = 158 \
 			LIMIT 1 \
 		";
@@ -3481,9 +3480,9 @@ void General_Info_Plugin::CMD_Get_Available_Storage_Device(int iSize,int *iPK_De
 			FROM \
 				Device \
 				JOIN Device_DeviceData DDSize ON DDSize.FK_Device = Device.PK_Device AND DDSize.FK_DeviceData = 160 \
-			HAVING \
-				Size > " + StringUtils::itos(iSize) + " \
-			WHERE \
+			WHERE  \
+				IK_DeviceData > " + StringUtils::itos(iSize) + " \
+				AND \
 				Device.FK_DeviceTemplate = 7 \
 			LIMIT 1 \
 		";
