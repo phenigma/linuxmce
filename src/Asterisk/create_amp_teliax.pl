@@ -64,7 +64,7 @@ $TRUNK_VARS{'peerdetails'}.="type=friend\n";
 $TRUNK_VARS{'peerdetails'}.="nat=yes\n";
 $TRUNK_VARS{'peerdetails'}.="canreinvite=no\n";
 $TRUNK_VARS{'peerdetails'}.="qualify=yes\n";
-$TRUNK_VARS{'usercontext'}="teliax";
+$TRUNK_VARS{'usercontext'}="teliax1";
 $TRUNK_VARS{'userconfig'}="context=from-pstn\n";
 $TRUNK_VARS{'userconfig'}.="type=friend\n";
 $TRUNK_VARS{'register'}="$DECLARED_USERNAME:$DECLARED_USERPASSWD\@$DECLARED_HOST";
