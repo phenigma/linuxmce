@@ -3705,8 +3705,8 @@ void General_Info_Plugin::CMD_Get_Network_Devices_Shares(char **pCustom_Response
 			StringUtils::ltos(DEVICEDATA_Password_CONST) + ", " +
 			StringUtils::ltos(DEVICEDATA_Free_Disk_Space_in_MBytes_CONST ) + ", " +
 			StringUtils::ltos(DEVICEDATA_Readonly_CONST ) +
-			" ) "
-		"WHERE FK_DeviceCategory = " + StringUtils::ltos(DEVICECATEGORY_FileMedia_Server_CONST);
+			" ) ";
+		//"WHERE FK_DeviceCategory = " + StringUtils::ltos(DEVICECATEGORY_FileMedia_Server_CONST);
 
 	enum FieldNames
 	{
