@@ -115,10 +115,24 @@ int UniqueColors[MAX_MEDIA_COLORS];
 static bool MediaFileComparer(MediaFile *a, MediaFile *b)
 {
 	if(a->m_sAlbum != b->m_sAlbum)
-		return strcmp(a->m_sAlbum.c_str(), b->m_sAlbum.c_str()) < 0;
+	{
+		if(a->m_sAlbum.empty())
+			return false;
+		else if(b->m_sAlbum.empty())
+			return true;
+		else
+			return strcmp(a->m_sAlbum.c_str(), b->m_sAlbum.c_str()) < 0;
+	}
 
 	if(a->m_iTrack != b->m_iTrack)
-		return a->m_iTrack < b->m_iTrack;
+	{
+		if(a->m_iTrack == 0)
+			return false;
+		else if(b->m_iTrack == 0)
+			return true;
+		else
+			return a->m_iTrack < b->m_iTrack;
+	}
 
 	return strcmp(a->m_sFilename.c_str(), b->m_sFilename.c_str()) < 0;
 }
