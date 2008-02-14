@@ -123,7 +123,7 @@ function irCodes($output,$dbADO,$mediaADO) {
 		
 		$rowDTData=$resDTData->FetchRow();
 		$togglePower=(@$rowDTData['TogglePower']==1)?1:0;
-		$toggleInput=(@$rowDTData['ToggleInput']==1)?1:0;
+		$toggleInput=(@$rowDTData['ToggleInput']>=1)?1:0;
 		$toggleDSP=(@$rowDTData['ToggleDSP']==1)?1:0;
 		
 		// create the record in DeviceTemplate_AV for templates who doesn't have it
