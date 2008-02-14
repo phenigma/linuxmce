@@ -1,4 +1,4 @@
-﻿/*
+/*
 	FileUtils
 
 	Copyright (C) 2004 Pluto, Inc., a Florida Corporation
