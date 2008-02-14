@@ -5650,7 +5650,7 @@ function dtPickerJS($returnValue){
 			url="index.php?section=addModel&mID="+manuf+"&dcID="+categ+"&step=1&from='.urlencode(@$_SESSION['from']).'";
 			try{
 				if(typeof opener=="undefined" || opener ===null){
-					window.open(url,"popup","status=0,resizable=1,width=800,height=600");
+					window.open(url,"popup","status=0,resizable=1,width=800,height=600,scrollbars=1");
 				}else{
 					self.location=url;
 				}
