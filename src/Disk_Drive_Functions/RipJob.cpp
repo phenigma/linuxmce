@@ -102,7 +102,7 @@ RipJob::~RipJob()
 	if( m_pDisk_Drive_Functions )
 		sDevices = StringUtils::itos(m_pDisk_Drive_Functions->m_dwPK_Device_get());
 	if( m_pSlot )
-		sDevices += (sWhere.size() ? "," : "") +  StringUtils::itos(m_pSlot->m_pJukeBox->m_pCommand_Impl->m_dwPK_Device);
+		sDevices += (sDevices.size() ? "," : "") +  StringUtils::itos(m_pSlot->m_pJukeBox->m_pCommand_Impl->m_dwPK_Device);
 
 	string sWhere = "EK_Device_Ripping in (" + sDevices + ") AND RipJob=" + StringUtils::itos(m_iID);
 
