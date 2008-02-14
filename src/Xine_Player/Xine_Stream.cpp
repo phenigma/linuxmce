@@ -2752,7 +2752,7 @@ int Xine_Stream::EnableBroadcast( )
  	int portNumber = 20000;
  	{
  		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);	
-		for ( int i = 0; i < 10; i++ )
+		for ( int i = 0; i < 1024; i++ )
 		{
 			xine_set_param( m_pXineStream, XINE_PARAM_BROADCASTER_PORT, ++portNumber );
 			if ( portNumber == xine_get_param( m_pXineStream, XINE_PARAM_BROADCASTER_PORT ) )
