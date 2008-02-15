@@ -439,7 +439,7 @@ private:
 	/***/
 	CallStatus * LinkChannels(const string&, const string&);
 	/***/
-	void RemoveChannel(const string&);
+	bool RemoveChannel(const string&);
 	/***/
 	void ReplaceChannels(const string&, const string&, const string&);
 	/***/

@@ -987,13 +987,19 @@ bool Telecom_Plugin::Hangup( class Socket *pSocket, class Message *pMessage, cla
 	string sChannel_ID = pMessage->m_mapParameters[EVENTPARAMETER_Channel_ID_CONST];
 	string sReason = pMessage->m_mapParameters[EVENTPARAMETER_Reason_CONST];
 
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Hangup the channel %s", sChannel_ID.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "WWW Hangup the channel %s", sChannel_ID.c_str());
 	
 	PLUTO_SAFETY_LOCK(vm, m_TelecomMutex);  // Protect the call data
 
 	DumpActiveCalls();
 
-	RemoveChannel(sChannel_ID);
+	bool bRemovedLinkedChannelOnly = RemoveChannel(sChannel_ID);
+
+	if(bRemovedLinkedChannelOnly)
+	{
+        LoggerWrapper::GetInstance()->Write(LV_STATUS, "WWW Ignoring hangup on channel %s, it's a linked channel", sChannel_ID.c_str());
+		return false;
+	}
 	
 // 	CallStatus *pCallStatus = FindCallStatusForChannel(sChannel_ID);
 // 
@@ -1292,8 +1298,10 @@ void Telecom_Plugin::ReplaceChannels(const string & sSrcChannel, const string & 
 	}
 }
 
-void Telecom_Plugin::RemoveChannel(const string & sChannel)
+bool Telecom_Plugin::RemoveChannel(const string & sChannel)
 {
+	bool bRemovedLinkedChannelOnly = false;
+
 	CallStatus * pCallStatus = NULL;
 	
 	map<string, CallStatus*>::iterator it=map_call2status.begin();
@@ -1304,10 +1312,20 @@ void Telecom_Plugin::RemoveChannel(const string & sChannel)
 		map<string, string>::const_iterator itFound = channels.find(sChannel);
 		map<string, string>::const_iterator itLinkedFound =
 				linkedChannels.find( Telecom_Plugin::GetMainChannel( sChannel ) );
+
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "WWW Get %d linked channels", linkedChannels.size());
+
 		if( itFound != channels.end() || itLinkedFound != linkedChannels.end() )
 		{
 			pCallStatus = (*it).second;
 			pCallStatus->RemoveChannel(sChannel);
+
+			//are we removing only a linked channel?
+			if(itLinkedFound != linkedChannels.end())
+			{
+				pCallStatus->RemoveLinkedChannel(itLinkedFound->first);
+				bRemovedLinkedChannelOnly = true;
+			}
 			
 			// if it is a simple call and there is only one channel left
 			// which is part of another call too
@@ -1340,7 +1358,11 @@ void Telecom_Plugin::RemoveChannel(const string & sChannel)
 		{
 			++it;
 		}
+
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "WWW Get %d linked channels now", linkedChannels.size());
 	}
+
+	return bRemovedLinkedChannelOnly;
 }
 
 void Telecom_Plugin::RemoveCallStatus(CallStatus * pCallStatus)
