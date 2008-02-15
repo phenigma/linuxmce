@@ -243,10 +243,9 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"RipTask::Abort deleting %s", (m_p
 LoggerWrapper::GetInstance()->Write(LV_STATUS,"RipTask::Abort deleting %s", (m_pRipJob->m_sName + ".*").c_str() );
 	}
 
-
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"RipTask::Abort %s job %p slot %p jukebox %p drive %p",
-		ToString(),m_pRipJob, m_pRipJob ? m_pRipJob->m_pSlot : NULL,
-		m_pRipJob && m_pRipJob->m_pSlot ? m_pRipJob->m_pSlot->m_pJukeBox : NULL,
+		ToString().c_str(),m_pRipJob, m_pRipJob ? m_pRipJob->m_pSlot : NULL,
+		(m_pRipJob && m_pRipJob->m_pSlot) ? m_pRipJob->m_pSlot->m_pJukeBox : NULL,
 		m_pDrive);
 	
 	if( m_pRipJob && m_pRipJob->m_pSlot && m_pRipJob->m_pSlot->m_pJukeBox && m_pDrive )
