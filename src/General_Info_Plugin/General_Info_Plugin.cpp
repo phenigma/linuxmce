@@ -3965,3 +3965,111 @@ void General_Info_Plugin::UpdateEntAreas()
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"General_Info_Plugin::UpdateEntArea done");
 	}
 }
+//<-dceag-c934-b->
+
+	/** @brief COMMAND: #934 - Get Home Symlink */
+	/** Get home symlink */
+		/** @param #219 Path */
+			/** The physical path like /mnt/device/<deviceid> */
+		/** @param #275 Symlink */
+			/** The symlink like /home/public/data ... */
+
+void General_Info_Plugin::CMD_Get_Home_Symlink(string sPath,string *sSymlink,string &sCMD_Result,Message *pMessage)
+//<-dceag-c934-e->
+{
+	string sResult;
+
+	//tokenize the path
+	vector<string> vectSubdirs;
+	StringUtils::Tokenize(sPath, "/", vectSubdirs);
+
+	size_t nTokenNumber = 3;
+
+	//has to start with /mnt/device/<deviceid>
+	if(vectSubdirs.size() < nTokenNumber)
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "CMD_Get_Home_Symlink: The path is too short: %s", sPath.c_str());
+		return;
+	}
+
+	if(vectSubdirs[0] != "mnt" && vectSubdirs[1] != "device")
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "CMD_Get_Home_Symlink: The path doesn't have the correct format: %s", sPath.c_str());
+		return;
+	}
+
+	int nDeviceID = atoi(vectSubdirs[2].c_str());
+	if(nDeviceID <= 0)
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "CMD_Get_Home_Symlink: Invalid device: %s", vectSubdirs[2].c_str());
+		return;
+	}
+
+	//is this a valid device?
+	Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(nDeviceID);
+	if(NULL == pRow_Device)
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "CMD_Get_Home_Symlink: The device doesn't exist: %d", nDeviceID);
+		return;
+	}
+
+	string sDescription = pRow_Device->Description_get();
+	sDescription = StringUtils::Replace(sDescription, "/", "-");
+ 
+	//get PK_Users device data
+	vector<Row_Device_DeviceData *> vectDevice_DeviceData;
+	m_pDatabase_pluto_main->Device_DeviceData_get()->GetRows(
+		"WHERE FK_Device = " + StringUtils::ltos(nDeviceID) + 
+		" AND FK_DeviceData = " TOSTRING(DEVICEDATA_PK_Users_CONST),
+		&vectDevice_DeviceData);
+
+	if(vectDevice_DeviceData.empty())
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "CMD_Get_Home_Symlink: Can't find device data 'PK_Users' for device %d", nDeviceID);
+		return;
+	}
+
+	int nPK_Users = atoi(vectDevice_DeviceData[0]->IK_DeviceData_get().c_str());
+
+	if(sDescription[sDescription.size() - 1] != ' ')
+		sDescription += " ";
+
+	string sFullDescription = sDescription + "[" + StringUtils::ltos(nDeviceID) + "]";
+
+	if(nPK_Users == -1)
+	{
+		nTokenNumber = 6;
+
+		if(vectSubdirs.size() < nTokenNumber)
+		{
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "CMD_Get_Home_Symlink: The path is too short %s", sPath.c_str());
+			return;
+		}
+
+		if(vectSubdirs[4] != "data")
+		{
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "CMD_Get_Home_Symlink: Invalid path %s", sPath.c_str());
+			return;
+		}
+
+		string sUserTypeSubdir = vectSubdirs[3]; //public or user_x
+		string sMediaSubdir = vectSubdirs[5]; //videos, audio, etc
+		sResult = "/home/" + sUserTypeSubdir + "/data/" + sMediaSubdir + "/" + sFullDescription;
+	}
+	else if(nPK_Users == 0)
+	{
+		sResult = "/home/public/data/other/" + sFullDescription;
+	}
+	else
+	{
+		sResult = "/home/pluto_" + StringUtils::ltos(nPK_Users) + "/data/other/" + sFullDescription;
+	}
+
+	for(size_t i = nTokenNumber; i < vectSubdirs.size(); ++i)
+		sResult += "/" + vectSubdirs[i];
+
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "CMD_Get_Home_Symlink: Translated from %s to %s", 
+		sPath.c_str(), sResult.c_str());
+
+	*sSymlink = sResult;
+}

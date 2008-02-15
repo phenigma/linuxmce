@@ -467,6 +467,20 @@ void Disk_Drive::RunMonitorLoop()
 void Disk_Drive::CMD_Rip_Disk(int iPK_Device,string sFilename,int iPK_Users,string sFormat,string sTracks,int iEK_Disc,int iSlot_Number,int iDriveID,string sDirectory,string &sCMD_Result,Message *pMessage)
 //<-dceag-c337-e->
 {
+	string sCorrectedDirectory;
+	DCE::CMD_Get_Home_Symlink_DT cmd_Get_Home_Symlink_DT(0, DEVICETEMPLATE_General_Info_Plugin_CONST,
+		BL_SameHouse, sDirectory, &sCorrectedDirectory);
+	SendCommand(cmd_Get_Home_Symlink_DT);
+
+	if(!sCorrectedDirectory.empty())
+	{
+		sDirectory = sCorrectedDirectory;
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Translated directory '%s' => '%s'",
+			sDirectory.c_str(), sCorrectedDirectory.c_str());
+
+		sDirectory = FileUtils::IncludeTrailingSlash(sDirectory);
+	}
+
 	RipJob *pRipJob = new RipJob(m_pDatabase_pluto_media,m_pJobHandler,m_pDisk_Drive_Functions,NULL,iPK_Users,iEK_Disc,
 		pMessage ? pMessage->m_dwPK_Device_From : 0,sFormat,sFilename,sDirectory,sTracks,true,this);
 	m_pJobHandler->AddJob(pRipJob);

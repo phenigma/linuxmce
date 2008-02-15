@@ -538,6 +538,18 @@ Delimiter: '\n' */
 	virtual void CMD_Enable_Device(int iPK_Device,int iPK_Orbiter) { string sCMD_Result; CMD_Enable_Device(iPK_Device,iPK_Orbiter,sCMD_Result,NULL);};
 	virtual void CMD_Enable_Device(int iPK_Device,int iPK_Orbiter,string &sCMD_Result,Message *pMessage);
 
+
+	/** @brief COMMAND: #934 - Get Home Symlink */
+	/** Get home symlink */
+		/** @param #219 Path */
+			/** The physical path like /mnt/device/<deviceid> */
+		/** @param #275 Symlink */
+			/** The symlink like /home/public/data ... */
+
+	virtual void CMD_Get_Home_Symlink(string sPath,string *sSymlink) { string sCMD_Result; CMD_Get_Home_Symlink(sPath.c_str(),sSymlink,sCMD_Result,NULL);};
+	virtual void CMD_Get_Home_Symlink(string sPath,string *sSymlink,string &sCMD_Result,Message *pMessage);
+
+
 //<-dceag-h-e->
 	private:
 		mapMacPKDescription m_mapMacPKDescription;
