@@ -1266,6 +1266,9 @@
 #define TEXT_Play_Album_CONST 2010
 #define TEXT_Static_IP_CONST 2011
 #define TEXT_Apply_Network_Settings_CONST 2012
+#define TEXT_Network_help_text_CONST 2013
+#define TEXT_Static_network_help_text_CONST 2014
+#define TEXT_Power_OFF_CONST 2015
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

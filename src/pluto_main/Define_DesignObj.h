@@ -2546,6 +2546,11 @@
 #define DESIGNOBJ_butChangeDNS_CONST 5574
 #define DESIGNOBJ_butApplyNetworkSettings_CONST 5575
 #define DESIGNOBJ_popVDROptions_CONST 5576
+#define DESIGNOBJ_objLogo_CONST 5577
+#define DESIGNOBJ_grpSeekMediaList_CONST 5578
+#define DESIGNOBJ_mnuAjAd_CONST 5579
+#define DESIGNOBJ_bitAjAd_CONST 5580
+#define DESIGNOBJ_butPlayCommercial_CONST 5581
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

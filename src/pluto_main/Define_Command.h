@@ -842,6 +842,9 @@
 #define COMMAND_Get_Associated_Picture_For_Channel_CONST 928
 #define COMMAND_Add_To_Speed_Dial_CONST 929
 #define COMMAND_HDMI_3_CONST 930
+#define COMMAND_Line_CONST 931
+#define COMMAND_Optical_CONST 932
+#define COMMAND_Get_Home_Symlink_CONST 934
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"
