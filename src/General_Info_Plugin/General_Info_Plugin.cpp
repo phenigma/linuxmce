@@ -4062,7 +4062,7 @@ void General_Info_Plugin::CMD_Get_Home_Symlink(string sPath,string *sSymlink,str
 	}
 	else
 	{
-		sResult = "/home/pluto_" + StringUtils::ltos(nPK_Users) + "/data/other/" + sFullDescription;
+		sResult = "/home/user_" + StringUtils::ltos(nPK_Users) + "/data/other/" + sFullDescription;
 	}
 
 	for(size_t i = nTokenNumber; i < vectSubdirs.size(); ++i)
