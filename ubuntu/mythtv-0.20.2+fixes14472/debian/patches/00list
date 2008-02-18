@@ -18,3 +18,4 @@
 52_mpegrec_no_backward_compat.dpatch
 53_miscfixes.dpatch
 54_lmce_filldata.dpatch
+55_via_cx700m_hack.dpatch
