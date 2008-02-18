@@ -10,7 +10,4 @@ default:
 	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules
 endif
 
-install:
-	Dir=$(DESTDIR)/lib/modules/$(shell uname -r)/kernel/drivers/usb/serial; \
-	mkdir -p $$Dir; \
-	cp spcp8x5.ko $$Dir
+

@@ -1,3 +1,9 @@
+spcp8x5 (0.2) unstable; urgency=low
+
+  * Updated from http://svn.charonmedia.org/svn/vendor/spcp8x5 @ 1512
+
+ -- Radu Cristescu <radu.c@plutohome.com>  Mon, 18 Feb 2008 12:27:10 +0200
+
 spcp8x5 (0.1) unstable; urgency=low
 
   * Initial Release.
