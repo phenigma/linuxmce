@@ -90,10 +90,15 @@ fi
 DisklessBoot=$(RunSQL "SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device = '$Parm_Device' AND FK_DeviceData = '9'")
 if [[ "$DisklessBoot" == "1" ]] ;then
 	File="/etc/hosts"
-	mkdir -p "${Parm_RootLocation}/$(dirname $File)"
 	FullFilePath="${Parm_RootLocation}/${File}"
-	if ! grep -q dcerouter "$FullFilePath"; then
-		echo "${IntIP} dcerouter" >>"$FullFilePath"
-	fi
+	
+	mkdir -p "${Parm_RootLocation}/$(dirname $File)"
+
+	# Remove old dcerouter entry from /etc/hosts
+	grep -v '[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*.*dcerouter[^:alnum:-_.]*$' "$FullFilePath" > "$FullFilePath.aux" || :
+	mv "$FullFilePath.aux" "$FullFilePath"
+	
+	# Add new dcerouter entry to /etc/hosts
+	echo "${IntIP} dcerouter" >>"$FullFilePath"
 fi
 
