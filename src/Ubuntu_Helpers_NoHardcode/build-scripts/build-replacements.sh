@@ -48,6 +48,18 @@ function Build_Replacements {
 		popd
 	fi
 
+	#Package: mythtv
+	dir_="${svn_dir}/trunk/ubuntu/mythtv-0.20.2+fixes14472"
+	if Changed_Since_Last_Build "$dir_" ;then
+		DisplayMessage "Building mythtv"
+		pushd "$dir_"
+		dpkg-buildpackage -rfakeroot -us -uc -b
+		cp -r ../libmyth*.deb ${replacements_dir}
+		cp -r ../mythtv*.deb ${replacements_dir}
+		cp -r ../ubuntu-mythtv*.deb ${replacements_dir}
+		popd
+	fi
+
 	#Package: tee-pluto
 	dir_="${svn_dir}/trunk/misc_utils/tee-pluto"
 	if Changed_Since_Last_Build "$dir_" ;then
