@@ -100,8 +100,6 @@ extern "C"
 
 #define POINTER_HIDE_SECONDS 2
 
-static DCE::Xine_Stream::Dynamic_Pointer *g_pDynamic_Pointer = NULL;
-
 /** Defined this here to avoid some dependency. */
 typedef struct
 {
@@ -133,11 +131,11 @@ Xine_Stream::Xine_Stream(Xine_Stream_Factory* pFactory, xine_t *pXineLibrary, in
 	pthread_mutexattr_settype( &mutexAttr,  PTHREAD_MUTEX_RECURSIVE_NP );
 	m_streamMutex.Init( &mutexAttr );	
 	
-	windows[0] = NULL;
-	windows[1] = NULL;
+	windows[0] = 0;
+	windows[1] = 0;
 	
-	cursors[0] = NULL;
-	cursors[1] = NULL;
+	cursors[0] = 0;
+	cursors[1] = 0;
 	
 	m_pFactory = pFactory;
 	m_pXineLibrary = pXineLibrary;
@@ -187,7 +185,7 @@ Xine_Stream::Xine_Stream(Xine_Stream_Factory* pFactory, xine_t *pXineLibrary, in
 	m_iStreamID = ID;
 	m_iRequestingObject = iRequestingObject;
 	
-	threadEventLoop = NULL;
+	threadEventLoop = 0;
 	m_pXineStreamEventQueue = NULL;
 
 	m_iZoomLevel = 100;
@@ -311,7 +309,7 @@ bool Xine_Stream::ShutdownStream()
 
 		pthread_join( threadEventLoop, NULL );
 		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Done." );
-		threadEventLoop = NULL;
+		threadEventLoop = 0;
 	}
 	
 	if ( m_pXineStreamEventQueue )
@@ -388,13 +386,6 @@ void Xine_Stream::hideWindows()
 bool Xine_Stream::CreateWindows()
 {
 	XColor black;
-	XSizeHints sizeHints;
-	MWMHints wmHints;
-	XClassHint classHint;
-
-	long propertyValues[ 1 ];
-	int completionEvent;
-	int xpos, ypos, width, height;
 
 	XLockDisplay( m_pFactory->m_pXDisplay );
 
@@ -3064,7 +3055,7 @@ string Xine_Stream::GetPosition()
 		sPosition += " CHAPTER:" + StringUtils::itos(m_iChapter);
 	
 	int currentTime, totalTime;
-	int iMediaPosition = getStreamPlaybackPosition(currentTime, totalTime);
+	getStreamPlaybackPosition(currentTime, totalTime);
 	sPosition += " POS:" + StringUtils::itos(currentTime);
 
 	if( m_iTitle!=-1 )
