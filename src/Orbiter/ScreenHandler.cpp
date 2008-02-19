@@ -60,13 +60,12 @@ ScreenHandler::ScreenHandler(Orbiter *pOrbiter, map<int,int> *p_MapDesignObj) :
 	m_tLastDeviceAdded = 0;
 	m_MapMutex.Init(NULL);
 
-	m_nSaveFile_PK_DeviceDrive = 0;
-	m_bSaveFile_CreatingFolder = false;
-	m_bSaveFile_Advanced_options = true;
 	m_pData_LastThumbnail=NULL;
 	m_iData_Size_LastThumbnail=0;
 
 	m_TelecomCommandStatus = tcsDirectDial;
+
+	Reset_SaveFile_Info();
 }
 //-----------------------------------------------------------------------------------------------------
 ScreenHandler::~ScreenHandler()
@@ -1628,6 +1627,8 @@ void ScreenHandler::SCREEN_Main(long PK_Screen, string sLocation)
 {
 	m_pOrbiter->CMD_Goto_DesignObj(0, m_pOrbiter->m_sMainMenu, sLocation, "", false, false );
 
+	Reset_SaveFile_Info();
+
 	DesignObj_Orbiter *pObjMainMenu = m_pOrbiter->FindObject(m_pOrbiter->m_sMainMenu);
 	if(NULL != pObjMainMenu && pObjMainMenu->m_iBaseObjectID == DESIGNOBJ_mnuMenuAudioServer_CONST)
 		SetupAudioServer();
@@ -2370,6 +2371,21 @@ void ScreenHandler::SCREEN_FileSave(long PK_Screen, int iPK_MediaType, int iEK_D
 		m_pOrbiter->CMD_Show_Object(StringUtils::ltos(m_p_MapDesignObj_Find(PK_Screen)) + ".0.0." + StringUtils::ltos(DESIGNOBJ_butChooseDrive_CONST), 0, "", "", 
 			m_bSaveFile_Advanced_options ? "1" : "0");
 	}
+}
+//-----------------------------------------------------------------------------------------------------
+void ScreenHandler::Reset_SaveFile_Info()
+{
+	m_sSaveFile_MountedFolder = "";
+	m_sSaveFile_RelativeFolder = "";
+	m_sSaveFile_Drive = "";
+	m_sSaveFile_FullBasePath = "";
+	m_sSaveFile_FileName = "";
+	m_sSaveFile_Command = "";
+	m_bSaveFile_CreatingFolder = false;
+	m_bSaveFile_Advanced_options = true;
+	m_bUseDirectoryStructure = false;
+	m_nSaveFile_PK_DeviceDrive = 0;
+	m_nPK_Users_SaveFile = 0;
 }
 //-----------------------------------------------------------------------------------------------------
 bool ScreenHandler::FileSave_ObjectSelected(CallBackData *pData)
