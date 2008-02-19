@@ -60,6 +60,9 @@ function networkSettings($output,$dbADO) {
 			$ipFromDHCP=1;
 		}
 		$internalInterfaceArray=explode(',',$interfacesArray[1]);
+		// old internal core ip
+		$oldInternalCoreIP=$internalInterfaceArray[1];
+
 		$internalCoreIPArray=explode('.',$internalInterfaceArray[1]);
 		$internalCoreNetMaskArray=explode('.',$internalInterfaceArray[2]);
 	}else{
@@ -268,7 +271,15 @@ function networkSettings($output,$dbADO) {
 			exit(0);
 		}
 		$newEnableDHCP=(isset($_POST['enableDHCP']))?1:0;
+		// old IP range
+		$oldCoreDHCP=$coreDHCPArray[0].'.'.$coreDHCPArray[1].'.'.$coreDHCPArray[2].'.'.$coreDHCPArray[3].'-'.$coreDHCPArray[4].'.'.$coreDHCPArray[5].'.'.$coreDHCPArray[6].'.'.$coreDHCPArray[7];
+		
+		// new ip range
 		$coreDHCP=getIpFromParts('coreDHCP_',1).'-'.getIpFromParts('coreDHCP_',5);
+
+		// new internal core ip
+		$internalCoreIP=getIpFromParts('internalCoreIP_');
+
 
 		$ipForAnonymousDevices=isset($_POST['ipForAnonymousDevices'])?1:0;
 		if($ipForAnonymousDevices==1){
@@ -307,24 +318,38 @@ function networkSettings($output,$dbADO) {
 				$dns_string = $dns1 . ($dns2 === "" ? "" : ",$dns2");
 				$networkInterfaces.=','.getIpFromParts('coreIP_').','.getIpFromParts('coreNetMask_').','.getIpFromParts('coreGW_').','.$dns_string.'|';
 			}
-			if ($internalInterface !== "")
-				$networkInterfaces.=$internalInterface.','.getIpFromParts('internalCoreIP_').','.getIpFromParts('internalCoreNetMask_');
+			if ($internalInterface !== ""){
+				$networkInterfaces.=$internalInterface.','.$internalCoreIP.','.getIpFromParts('internalCoreNetMask_');
+			}
 			if($networkInterfaces!=$rowNC['IK_DeviceData']){
 				$updateDDD='UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?';
 				$dbADO->Execute($updateDDD,array($networkInterfaces,$coreID,$GLOBALS['NetworkInterfaces']));
 			}
 		}
-
+		
+		if($coreDHCP !=$oldCoreDHCP || $internalCoreIP!=$oldInternalCoreIP){
+			if($coreDHCP !=$oldCoreDHCP){
+				writeFile($GLOBALS['WebExecLogFile'],date('d-m-Y H:i:s')."\tIP range changed from $oldCoreDHCP to $coreDHCP\n",'a+');
+			}
+		
+			if($internalCoreIP!=$oldInternalCoreIP){
+				writeFile($GLOBALS['WebExecLogFile'],date('d-m-Y H:i:s')."\tIP changed from $oldInternalCoreIP to $internalCoreIP\n",'a+');
+			}
+			
+			exec_batch_command('sudo -u root /usr/pluto/bin/InternalIPChange.sh');
+			$ipchanged_msg=' IP updated, please reboot.';
+		}
+		
 		$commands = array('Network_Setup.sh', 'Network_Firewall.sh');
 		for ($i = 0; $i < count($commands); $i++)
 		{
 			$cmd = "sudo -u root /usr/pluto/bin/{$commands[$i]}";
-			exec($cmd);
+			exec_batch_command($cmd);
 		}
 		
 		$OfflineMode=(int)@$_REQUEST['OfflineMode'];
 		$OfflineMode=($OfflineMode==1)?'true':'false';
-		exec('sudo -u root /usr/pluto/bin/OfflineMode.sh set '.$OfflineMode);
+		exec_batch_command('sudo -u root /usr/pluto/bin/OfflineMode.sh set '.$OfflineMode);
 		
 		// set domain & computer name
 		$domain=cleanString($_POST['domain']);
@@ -338,7 +363,7 @@ function networkSettings($output,$dbADO) {
 		// TODO: call a script who will set the domain and computer name
 		
 		
-		header("Location: index.php?section=networkSettings&msg=Network settings updated.");
+		header("Location: index.php?section=networkSettings&msg=".urlencode("Network settings updated.".@$ipchanged_msg));
 	}
 
 	$output->setMenuTitle($TEXT_ADVANCED_CONST.' |');
