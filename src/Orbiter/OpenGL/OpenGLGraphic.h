@@ -45,10 +45,10 @@ or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more detai
 class PlutoRectangle;
 class PlutoColor;
 
-#ifdef DEBUG
-	#define DETECT_LEAKS
-	#define VIDEO_RAM_USAGE
-#endif
+//#ifdef DEBUG
+//	#define DETECT_LEAKS
+//	#define VIDEO_RAM_USAGE
+//#endif
 //-----------------------------------------------------------------------------------------------------
 #ifdef DETECT_LEAKS
 class LeaksDetector
