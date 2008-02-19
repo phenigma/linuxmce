@@ -6771,7 +6771,6 @@ void Orbiter::CMD_Continuous_Refresh(string sTime,string &sCMD_Result,Message *p
 	CallMaintenanceInMiliseconds( pContinuousRefreshInfo->m_iInterval * 1000, &Orbiter::ContinuousRefresh, pContinuousRefreshInfo, pe_ALL );
 }
 
-//timingofsetnowplaying
 //<-dceag-c254-b->
 
 	/** @brief COMMAND: #254 - Bind Icon */

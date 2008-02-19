@@ -578,7 +578,7 @@ public:
 	*/
 
 	// This sends the set now playing command to an orbiter.  If pMessage is passed, it adds the command without sending it
-	void SetNowPlaying( int dwPK_Device, MediaStream *pMediaStream, bool bRefreshScreen, bool bGotoRemote=false, Message *pMessage=NULL )
+	void SetNowPlaying( OH_Orbiter *pOH_Orbiter, MediaStream *pMediaStream, bool bRefreshScreen, bool bGotoRemote=false, Message *pMessage=NULL )
 	{
 LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::SetNowPlaying stream %p refresh %d"
 					  ,pMediaStream,(int) bRefreshScreen);
@@ -593,11 +593,11 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::SetNowPlaying strea
 LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::SetNowPlaying type %d containstitles %d",pMediaStream->m_iPK_MediaType,(int) pMediaStream->m_bContainsTitlesOrSections);
 			if( pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_StoredVideo_CONST && pMediaStream->m_bContainsTitlesOrSections )
 			{
-				pRemoteControlSet = GetRemoteControlSet(dwPK_Device,pMediaStream,MEDIATYPE_pluto_DVD_CONST);
+				pRemoteControlSet = GetRemoteControlSet(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pMediaStream,MEDIATYPE_pluto_DVD_CONST);
 LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::SetNowPlaying pRemoteControlSet_dvd %p",pRemoteControlSet);
 			}
 			else
-				pRemoteControlSet = GetRemoteControlSet(dwPK_Device,pMediaStream);
+				pRemoteControlSet = GetRemoteControlSet(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pMediaStream);
 			if( !pRemoteControlSet )
 				return;
 
@@ -618,17 +618,30 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::SetNowPlaying use a
 		if( pMediaStream )
 		{
 			//bool bIsOSD=pMediaStream->OrbiterIsOSD(dwPK_Device,&pEntertainArea_OSD);
-			int PK_Screen = pMediaStream->GetRemoteControlScreen(dwPK_Device);
+			int PK_Screen = pMediaStream->GetRemoteControlScreen(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
 			PK_Device_Source = pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device;
 			if( pMediaStream->m_iTrackOrSectionOrChannel==-1 )
 				iDequeMediaFile = pMediaStream->m_iDequeMediaFile_Pos;
 			else
 				iDequeMediaFile = pMediaStream->m_iTrackOrSectionOrChannel;
 
-			string sMediaDevices = StringUtils::itos(pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device)
-				+ "," + (pMediaStream->m_pMediaDevice_Source->m_pDevice_Video ? StringUtils::itos(pMediaStream->m_pMediaDevice_Source->m_pDevice_Video->m_dwPK_Device) : "")
-				+ "," + (pMediaStream->m_pMediaDevice_Source->m_pDevice_Audio ? StringUtils::itos(pMediaStream->m_pMediaDevice_Source->m_pDevice_Audio->m_dwPK_Device) : "")
-				+ "," + (pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard && pMediaStream->m_pMediaDevice_Source->m_bCaptureCardActive ? StringUtils::itos(pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard->m_dwPK_Device) : "");
+			string sMediaDevices;
+
+			if( pMediaStream->m_pMediaDevice_Source->m_bCaptureCardActive )
+			{
+				// If we're using a capture card then the audio & video should go to the output device in this entertainment area, not the 
+				// one the capture card is connected to
+				MediaDevice *pMediaDevice = pOH_Orbiter->m_pEntertainArea ? pOH_Orbiter->m_pEntertainArea->m_pMediaDevice_ActiveDest : NULL;
+				sMediaDevices = StringUtils::itos(pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device)
+					+ "," + (pMediaDevice && pMediaDevice->m_pDevice_Video ? StringUtils::itos(pMediaDevice->m_pDevice_Video->m_dwPK_Device) : "")
+					+ "," + (pMediaDevice && pMediaDevice->m_pDevice_Audio ? StringUtils::itos(pMediaDevice->m_pDevice_Audio->m_dwPK_Device) : "")
+					+ "," + (pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard && pMediaStream->m_pMediaDevice_Source->m_bCaptureCardActive ? StringUtils::itos(pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard->m_dwPK_Device) : "");
+			}
+			else
+				sMediaDevices = StringUtils::itos(pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device)
+					+ "," + (pMediaStream->m_pMediaDevice_Source->m_pDevice_Video ? StringUtils::itos(pMediaStream->m_pMediaDevice_Source->m_pDevice_Video->m_dwPK_Device) : "")
+					+ "," + (pMediaStream->m_pMediaDevice_Source->m_pDevice_Audio ? StringUtils::itos(pMediaStream->m_pMediaDevice_Source->m_pDevice_Audio->m_dwPK_Device) : "")
+					+ "," + (pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard && pMediaStream->m_pMediaDevice_Source->m_bCaptureCardActive ? StringUtils::itos(pMediaStream->m_pMediaDevice_Source->m_pDevice_CaptureCard->m_dwPK_Device) : "");
 
 			if( pMediaStream->m_pMediaDevice_Source->m_pDevice_Audio && pMediaStream->m_pMediaDevice_Source->m_pDevice_Audio->m_mapParameters_Find(DEVICEDATA_Discrete_Volume_CONST)=="1" )
 				sMediaDevices += ",1";
@@ -638,7 +651,7 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::SetNowPlaying use a
 			sMediaDevices += pMediaStream->ContainsVideo() ? ",1" : ",0";
 			sMediaDevices += pEntertainArea_OSD && pEntertainArea_OSD->m_bViewingLiveAVPath ? ",1" : ",0";
 
-			DCE::CMD_Set_Now_Playing CMD_Set_Now_Playing( m_dwPK_Device, dwPK_Device, 
+			DCE::CMD_Set_Now_Playing CMD_Set_Now_Playing( m_dwPK_Device, pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, 
 				sRemotes, pMediaStream->m_sMediaDescription, pMediaStream->m_sSectionDescription, 
 				pMediaStream->m_iPK_MediaType, pMediaStream->m_iStreamID_get(), iDequeMediaFile, pMediaStream->m_sAppName, 
 				sMediaDevices, bRefreshScreen);
@@ -648,7 +661,7 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::SetNowPlaying use a
 				pMessage->m_vectExtraMessages.push_back(CMD_Set_Now_Playing.m_pMessage);
 				if( bGotoRemote )
 				{
-					DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,dwPK_Device,"",PK_Screen,interuptAlways,true,false);
+					DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,"",PK_Screen,interuptAlways,true,false);
 					pMessage->m_vectExtraMessages.push_back(CMD_Goto_Screen.m_pMessage);
 				}
 			}
@@ -656,7 +669,7 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::SetNowPlaying use a
 			{
 				if( bGotoRemote )
 				{
-					DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,dwPK_Device,"",PK_Screen,interuptAlways,true,false);
+					DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,"",PK_Screen,interuptAlways,true,false);
 					CMD_Set_Now_Playing.m_pMessage->m_vectExtraMessages.push_back(CMD_Goto_Screen.m_pMessage);
 				}
 				SendCommand( CMD_Set_Now_Playing );
@@ -664,14 +677,14 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::SetNowPlaying use a
 		}
 		else
 		{
-			DCE::CMD_Set_Now_Playing CMD_Set_Now_Playing( m_dwPK_Device, dwPK_Device, 
+			DCE::CMD_Set_Now_Playing CMD_Set_Now_Playing( m_dwPK_Device, pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, 
 				"", "", "", 0, 0, 0, "", "", bRefreshScreen);
 			if( pMessage )
 			{
 				pMessage->m_vectExtraMessages.push_back(CMD_Set_Now_Playing.m_pMessage);
 				if( bGotoRemote )
 				{
-					DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,dwPK_Device,"",SCREEN_Main_CONST,interuptAlways,false,false);
+					DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,"",SCREEN_Main_CONST,interuptAlways,false,false);
 					pMessage->m_vectExtraMessages.push_back(CMD_Goto_Screen.m_pMessage);
 				}
 			}
@@ -679,7 +692,7 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::SetNowPlaying use a
 			{
 				if( bGotoRemote )
 				{
-					DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,dwPK_Device,"",SCREEN_Main_CONST,interuptAlways,false,false);
+					DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,"",SCREEN_Main_CONST,interuptAlways,false,false);
 					CMD_Set_Now_Playing.m_pMessage->m_vectExtraMessages.push_back(CMD_Goto_Screen.m_pMessage);
 				}
 				SendCommand( CMD_Set_Now_Playing );

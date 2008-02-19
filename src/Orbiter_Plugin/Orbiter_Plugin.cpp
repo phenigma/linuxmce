@@ -1014,9 +1014,9 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter %p %d now in ea %p %d",pO
 					  (pEntertainArea ? pEntertainArea->m_iPK_EntertainArea : 0));
     PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
 	if( pEntertainArea && pEntertainArea->m_pMediaStream )
-		m_pMedia_Plugin->SetNowPlaying( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, pEntertainArea->m_pMediaStream, false );
+		m_pMedia_Plugin->SetNowPlaying( pOH_Orbiter, pEntertainArea->m_pMediaStream, false );
 	else
-		m_pMedia_Plugin->SetNowPlaying( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, NULL, false );
+		m_pMedia_Plugin->SetNowPlaying( pOH_Orbiter, NULL, false );
 	mm.Release();
 
 	FireFollowMe("M",pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pOH_Orbiter->PK_Users_get(),
@@ -1695,7 +1695,7 @@ void Orbiter_Plugin::CMD_Orbiter_Registered(string sOnOff,int iPK_Users,string s
 		EntertainArea *pEntertainArea = m_pMedia_Plugin->m_mapEntertainAreas_Find(atoi(sPK_EntertainArea.c_str()));
 	    pOH_Orbiter->m_pEntertainArea=pEntertainArea;
 		if( pEntertainArea && pEntertainArea->m_pMediaStream )
-			m_pMedia_Plugin->SetNowPlaying( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, pEntertainArea->m_pMediaStream, false, false, CMD_Set_Bound_Iconl.m_pMessage);
+			m_pMedia_Plugin->SetNowPlaying( pOH_Orbiter, pEntertainArea->m_pMediaStream, false, false, CMD_Set_Bound_Iconl.m_pMessage);
 		mm.Release();
 		
 		OrbiterFileBrowser_Collection *pOrbiterFileBrowser_Collection = m_pMedia_Plugin->CreateOrbiterFileList(pOH_Orbiter);

@@ -564,8 +564,7 @@ bool Xine_Plugin::MenuOnScreen( class Socket *pSocket, class Message *pMessage, 
 				continue;
 			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Processing remote: for orbiter: %d", pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
 			bool bBound = pEntertainArea->m_mapBoundRemote.find(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device)!=pEntertainArea->m_mapBoundRemote.end();
-			m_pMedia_Plugin->SetNowPlaying(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
-				pXineMediaStream,false,bBound);
+			m_pMedia_Plugin->SetNowPlaying(pOH_Orbiter,	pXineMediaStream,false,bBound);
 		}
 	}
 

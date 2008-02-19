@@ -1645,7 +1645,7 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 				{
 					DCE::CMD_Set_Entertainment_Area CMD_Set_Entertainment_Area(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
 						StringUtils::itos(pEntertainArea_OSD->m_iPK_EntertainArea));
-	                SetNowPlaying( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, pMediaStream, false, false, CMD_Set_Entertainment_Area.m_pMessage );
+	                SetNowPlaying( pOH_Orbiter, pMediaStream, false, false, CMD_Set_Entertainment_Area.m_pMessage );
 					string sResponse;
 					SendCommand(CMD_Set_Entertainment_Area,&sResponse);  // Get a confirmation so we're sure it goes through before the goto screen
 				}
@@ -2300,7 +2300,7 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS, "Ready to update bound remotes wi
             OH_Orbiter *pOH_Orbiter = (*it).second;
             if( pOH_Orbiter->m_pEntertainArea==pEntertainArea && // UpdateOrbiter will have already set the now playing
 					pEntertainArea->m_mapBoundRemote.find(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device)==pEntertainArea->m_mapBoundRemote.end() )
-                SetNowPlaying( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, pMediaStream, bRefreshScreen );
+                SetNowPlaying( pOH_Orbiter, pMediaStream, bRefreshScreen );
         }
 		for(ListMediaDevice::iterator itVFD=pEntertainArea->m_listVFD_LCD_Displays.begin();itVFD!=pEntertainArea->m_listVFD_LCD_Displays.end();++itVFD)
 		{
@@ -2523,7 +2523,7 @@ LoggerWrapper::GetInstance()->Write( LV_STATUS, "Stream in ea %s ended %d remote
         if( pOH_Orbiter->m_pEntertainArea==pEntertainArea )
 		{
 LoggerWrapper::GetInstance()->Write( LV_STATUS, "Orbiter %d %s in this ea to stop", pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, pOH_Orbiter->m_pDeviceData_Router->m_sDescription.c_str());
-            SetNowPlaying( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, NULL, false );
+            SetNowPlaying( pOH_Orbiter, NULL, false );
 		}
     }
 
@@ -2589,7 +2589,6 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS, "Media_Plugin::CMD_Bind_to_Media_
     // Only an Orbiter will send this
     OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find( pMessage->m_dwPK_Device_From );
 
-
 	vector<EntertainArea *> vectEntertainArea;
 	DetermineEntArea( pMessage->m_dwPK_Device_From, iPK_Device, sPK_EntertainArea, vectEntertainArea );
     if( vectEntertainArea.size()!=1 || !pOH_Orbiter )
@@ -2609,7 +2608,7 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS, "Media_Plugin::CMD_Bind_to_Media_
 			sCMD_Result="No media stream";
 			if( sOptions.find("X")==string::npos )  // Means don't send me to the main menu if there's no media playing
 			{
-				SetNowPlaying(pMessage->m_dwPK_Device_From,NULL,true);
+				SetNowPlaying(pOH_Orbiter,NULL,true);
 				LoggerWrapper::GetInstance()->Write(LV_WARNING,"Attempt to bind to a remote in an entertainment area with no media stream");
 			}
 			return; // Don't know what area it should be played in, or there's no media playing there
@@ -6509,7 +6508,7 @@ void Media_Plugin::CMD_Live_AV_Path(string sPK_EntertainArea,bool bTurn_On,strin
 		SendCommand(CMD_On);
 
 		if( pEntertainArea->m_pOH_Orbiter_OSD )
-			SetNowPlaying(pEntertainArea->m_pOH_Orbiter_OSD->m_pDeviceData_Router->m_dwPK_Device,pMediaStream,false);
+			SetNowPlaying(pEntertainArea->m_pOH_Orbiter_OSD,pMediaStream,false);
 	}
 }
 

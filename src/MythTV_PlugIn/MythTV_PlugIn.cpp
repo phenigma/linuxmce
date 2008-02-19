@@ -956,7 +956,7 @@ void MythTV_PlugIn::CMD_Set_Active_Menu(string sText,string &sCMD_Result,Message
 					pRemoteControlSet->m_iPK_Screen_OSD = PK_Screen_OSD;
 
 					LoggerWrapper::GetInstance()->Write(LV_STATUS, "Processing bound remote: for orbiter: %d", pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
-					m_pMedia_Plugin->SetNowPlaying(pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
+					m_pMedia_Plugin->SetNowPlaying(pBoundRemote->m_pOH_Orbiter,
 						pMythTvMediaStream,false,true);
 				}
 			}
