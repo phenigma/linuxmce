@@ -39,6 +39,7 @@ SetResolution()
 		echo '	/usr/bin/xrandr -d $DISPLAY --output $Conn --off'
 		echo "done"
 		echo "/usr/bin/xrandr -d \$DISPLAY --output $EnabledConnector --auto"
+		echo "/usr/bin/xrandr -d \$DISPLAY -s ${ResX}x${ResY}"
 	) >/etc/pluto/X-PostStart.sh
 	chmod +x /etc/pluto/X-PostStart.sh
 }
