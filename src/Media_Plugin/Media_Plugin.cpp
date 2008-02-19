@@ -3063,19 +3063,16 @@ void Media_Plugin::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string 
 		return;
 	}
 
-	// If we don't have multiple files in the queue, this is treated as a skip forward/back to jump through chapters
-	if( pEntertainArea->m_pMediaStream->m_dequeMediaFile.size()<2 )
-	{
-		Message *pMessageOut = new Message(pMessage);
-		pMessageOut->m_dwPK_Device_To = pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device;
-		QueueMessageToRouter(pMessageOut);
-		return;
-	}
-
-	if( pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo==m_pGenericMediaHandlerInfo )
+	// If we don't have multiple files in the queue, this is treated as a skip forward/back to jump through chapters.
+	// Ditto for generic media devices
+	if( pEntertainArea->m_pMediaStream->m_dequeMediaFile.size()<2 || pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo==m_pGenericMediaHandlerInfo )
 	{
         LoggerWrapper::GetInstance()->Write(LV_STATUS, "It's a generic stream--just forward it to the device");
         pMessage->m_dwPK_Device_To = pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device;
+		DeviceData_Router *pDeviceData_Router = m_pRouter->m_mapDeviceData_Router_Find(pMessage->m_dwPK_Device_To);
+		// Generic IR devices generally don't know how to process a jump command, and it should be converted to a 'skip'
+		if( pDeviceData_Router && pDeviceData_Router->m_mapCommands.find( pMessage->m_dwID ) == pDeviceData_Router->m_mapCommands.end() )
+			pMessage->m_dwID = sValue_To_Assign.size() && sValue_To_Assign[0]=='-' ? COMMAND_Skip_Back_ChannelTrack_Lower_CONST : COMMAND_Skip_Fwd_ChannelTrack_Greater_CONST;
 	    Message *pNewMessage = new Message( pMessage );
 		QueueMessageToRouter( pNewMessage );
 		return;
