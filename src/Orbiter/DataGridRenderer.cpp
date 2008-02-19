@@ -97,6 +97,15 @@ DataGridRenderer::DataGridRenderer(DesignObj_Orbiter *pOwner): ObjectRenderer(pO
 
 	int i,  j; //indexes
 
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "DataGridRenderer::RenderObject ===============================================");
+
+	for(map< pair<int,int>, DesignObj_Orbiter *>::iterator itc = m_pObj_Owner_DataGrid->m_mapChildDgObjects.begin();
+		itc != m_pObj_Owner_DataGrid->m_mapChildDgObjects.end(); ++itc)
+	{
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "DataGridRenderer::RenderObject --- Cell <%d, %d>",
+			itc->first.first, itc->first.second);
+	}
+
 	for ( i = 0; i < pDataGridTable->m_RowCount; i++ )
 	{
 		for ( j = 0; j < pDataGridTable->m_ColumnCount; j++ )
@@ -108,37 +117,26 @@ DataGridRenderer::DataGridRenderer(DesignObj_Orbiter *pOwner): ObjectRenderer(pO
 
 			if ( pCell )
 			{
-				if( bContainsCells && DGRow!=pDataGridTable->m_iUpRow && DGRow!=pDataGridTable->m_iDownRow )
+				int nOldDGRow = DGRow;
+
+				if( bContainsCells && DGRow!=pDataGridTable->m_iUpRow && DGRow!=pDataGridTable->m_iDownRow)
 				{
-					//translate the absolute row number to row position in current page
-					//if it has "scroll up"/"scroll down" cells, skip 'em
-
-					bool bAddArrows = m_pObj_Owner_DataGrid->m_sExtraInfo.find('P') != string::npos;
-
-					if(bAddArrows && m_pObj_Owner_DataGrid->m_MaxRow > 1 && pDataGridTable->getTotalRowCount() > m_pObj_Owner_DataGrid->m_MaxRow)
-					{
-						//for first page, skip the "scroll down" cell, if needed (more the one page)
-						DGRow -= (DGRow < m_pObj_Owner_DataGrid->m_MaxRow - 1) ? 0 : 1; 
-
-						//for second, third, etc. pages, skip both "scroll up" and "scroll down" cells
-						DGRow -= (m_pObj_Owner_DataGrid->m_MaxRow - 2) * 
-							(DGRow / (m_pObj_Owner_DataGrid->m_MaxRow - 1));
-					} 
-					else
-					{
-						DGRow %= pDataGridTable->m_RowCount;
-					}
-
 					map< pair<int,int>, DesignObj_Orbiter *>::iterator it = 
-						m_pObj_Owner_DataGrid->m_mapChildDgObjects.find(make_pair<int,int> (DGColumn, DGRow));
+						m_pObj_Owner_DataGrid->m_mapChildDgObjects.find(make_pair<int,int> (j, i));
 
-					if(	it!=m_pObj_Owner_DataGrid->m_mapChildDgObjects.end() )
+					if(	it!=m_pObj_Owner_DataGrid->m_mapChildDgObjects.end())
 					{
-//DesignObj_Orbiter *pObj = it->second;
 						it->second->m_bHidden=false;
+
+						LoggerWrapper::GetInstance()->Write(LV_WARNING, "DataGridRenderer::RenderObject Need to custom render cell <%d,%d>=%s, cell count %d", 
+							j, i, pCell->GetText(), pDataGridTable->m_CellCount);
+
 						continue; // No need to render it here; the object will self-render
 					}
 				}
+
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "DataGridRenderer::RenderObject Need to render cell <%d,%d>=%s, cell count %d", 
+					j, i, pCell->GetText(), pDataGridTable->m_CellCount);
 
 				if ( !m_pObj_Owner_DataGrid->m_bDontShowSelection )
 				{
