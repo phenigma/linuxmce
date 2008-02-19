@@ -387,21 +387,41 @@ function phoneLinesLocalSettings($dbADO){
 
 function getPLDetails($id,$type,$astADO){
 	if($type=='SIP'){
+		$providersKeywords=get_providers_by_type('SIP');
+	
+		$where='';
+		if(count($providersKeywords)>0){
+			$whereArray=array();
+			foreach ($providersKeywords as $key){
+				$whereArray[]="sip.data='$key'";
+			}
+			$where=' AND ('.join(' OR ',$whereArray).')';
+		}		
 		$res=$astADO->Execute("
 			SELECT sip.id,sip.data,sips.data AS sdata, sipp.data AS pdata,siph.data AS hdata 
 			FROM sip 
 			INNER JOIN sip sips ON (sips.id=sip.id) AND (sips.keyword='secret')
 			INNER JOIN sip sipp ON (sipp.id=sip.id) AND (sipp.keyword='username')
 			INNER JOIN sip siph ON (siph.id=sip.id) AND (siph.keyword='host')
-			WHERE (sip.keyword='account') AND ((sip.data='broadvoice') OR (sip.data='sipgate') OR (sip.data='inphonex') OR (sip.data='voiceeclipse')) AND sip.id='$id'");
+			WHERE (sip.keyword='account') $where OR (sip.data='voiceeclipse')) AND sip.id='$id'");
 	}else{
+		$providersKeywords=get_providers_by_type('IAX');
+		$where='';
+		if(count($providersKeywords)>0){
+			$whereArray=array();
+			foreach ($providersKeywords as $key){
+				$whereArray[]="iax.data='$key'";
+			}
+			$where=' AND ('.join(' OR ',$whereArray).')';
+		}
+			
 		$res=$astADO->Execute("
 			SELECT iax.id,iax.data,iaxs.data AS sdata, iaxp.data AS pdata,iaxh.data AS hdata 
 			FROM iax 
 			INNER JOIN iax iaxs ON (iaxs.id=iax.id) AND (iaxs.keyword='secret')
 			INNER JOIN iax iaxp ON (iaxp.id=iax.id) AND (iaxp.keyword='username')
 			INNER JOIN iax iaxh ON (iaxh.id=iax.id) AND (iaxh.keyword='host')
-			WHERE (iax.keyword='account') AND ((iax.data='fwd') OR (iax.data='teliax-out') OR (iax.data='efon') OR (iax.data='nufone-out') OR (iax.data='freeworddialup')) AND iax.id='$id'");
+			WHERE (iax.keyword='account') $where AND iax.id='$id'");
 	}
 	$data=array();
 	$row=$res->FetchRow();
@@ -579,40 +599,6 @@ function activate_manualconfig_form(){
 }
 
 function get_available_providers(){
-	/*
-	$providerData['freeworddialup (free only)']['url']='http://www.freeworlddialup.com/';
-	$providerData['freeworddialup (free only)']['script_parm']='freeworlddialup';
-	$providerData['freeworddialup (free only)']['keyword']='freeworddialup';
-	
-	$providerData['sipgate (try for free, pay as you go)']['url']='http://www.sipgate.co.uk/';
-	$providerData['sipgate (try for free, pay as you go)']['script_parm']='sipgate';
-	$providerData['sipgate (try for free, pay as you go)']['keyword']='sipgate';
-	
-	$providerData['inphonex (try for free, pay as you go)']['url']='http://www.inphonex.com/';
-	$providerData['inphonex (try for free, pay as you go)']['script_parm']='inphonex';
-	$providerData['inphonex (try for free, pay as you go)']['keyword']='inphonex';
-	
-	$providerData['e-fon (Switzerland)']['url']='http://www.e-fon.ch/';
-	$providerData['e-fon (Switzerland)']['script_parm']='efon';
-	$providerData['e-fon (Switzerland)']['keyword']='efon';
-
-	$providerData['broadvoice (US number, free incoming)']['url']='http://www.broadvoice.com/';
-	$providerData['broadvoice (US number, free incoming)']['script_parm']='broadvoice';
-	$providerData['broadvoice (US number, free incoming)']['keyword']='broadvoice';
-
-	$providerData['teliax (US number, pay incoming)']['url']='http://www.teliax.com/';
-	$providerData['teliax (US number, pay incoming)']['script_parm']='teliax';
-	$providerData['teliax (US number, pay incoming)']['keyword']='teliax-out';
-
-	$providerData['NuFone']['url']='http://www.nufone.net/';
-	$providerData['NuFone']['script_parm']='nufone';
-	$providerData['NuFone']['keyword']='nufone-out';
-
-	$providerData['VoiceEclipse']['url']='http://www.voiceeclipse.com/';
-	$providerData['VoiceEclipse']['script_parm']='voiceeclipse';
-	$providerData['VoiceEclipse']['keyword']='voiceeclipse';
-
-	*/
 	
 	// file format: [provider name]\t[url]\t[keyword]\t[SIP|IAX]
 	$providerData=array();
