@@ -425,6 +425,8 @@ function mediaDirectors($output,$dbADO) {
 			}
 			
 			if(isset($_POST['rebuild_diskless_'.$value])){
+				$dbADO->Execute('DELETE FROM Package_Device WHERE FK_Device=?',array($value));
+				
 				$mdData=getFieldsAsArray('Device','IPaddress,MACaddress',$dbADO,'WHERE PK_Device='.$value);
 				$cmd='sudo -u root /usr/pluto/bin/Diskless_DeleteFS.sh "'.$mdData['IPaddress'][0].'" "'.$mdData['MACaddress'][0].'"';
 				exec_batch_command($cmd);
