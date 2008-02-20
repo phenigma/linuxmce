@@ -43,6 +43,10 @@ if [[ -f /etc/pluto/install_cleandb ]]; then
 	done
 
 	. /usr/pluto/bin/SQL_Ops.sh
+	. /usr/pluto/bin/Config_Ops.sh
+
+	# Mark remote assistance as diabled
+	ConfDel remote
 
 	arch=$(apt-config dump | grep 'APT::Architecture' | sed 's/APT::Architecture.*"\(.*\)".*/\1/g')
 
