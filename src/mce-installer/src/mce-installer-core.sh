@@ -110,7 +110,7 @@ function Install_DCERouter {
 
 	# Fix mysql restart problems
 	local line='if ! mysqld_status check_dead warn; then'
-	local addon='\n\tsleep 3; killall mysqld_safe; killall mysqld # Line added by linuxmce installer\n'
+	local addon='\n\tsleep 3; killall -9 mysqld_safe; killall -9 mysqld # Line added by linuxmce installer\n'
 	sed -i "s/$line/$addon\t$line/g" /etc/init.d/mysql
 
 	invoke-rc.d mysql start || {
