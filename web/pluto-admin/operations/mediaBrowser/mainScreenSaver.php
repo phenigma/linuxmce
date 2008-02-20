@@ -60,7 +60,8 @@ function mainScreenSaver($output,$mediadbADO,$dbADO) {
 			
 			$out.='
 				<input type="hidden" name="flikr" value="'.(($flickerEnabled==0)?1:0).'">
-				<input type="submit" class="button" name="flikrBtn" value="'.$flicker_enable_disable_text.'">
+				<input type="submit" class="button" name="flikrBtn" value="'.$flicker_enable_disable_text.'"><br>
+				<input type="submit" class="button" name="remove_flikr_pics" value="Do not use flikr pictures from"> <input type="text" name="flikr_path" value="/home/public/data/pictures/flickr/" style="width:200px;">
 				<table cellpading="0" cellspacing="0">
 					<tr>
 						<td>'.getScreensaverFiles($path,$screenSaverAttribute,$mediadbADO,$page,$records_per_page).'</td>
@@ -80,7 +81,7 @@ function mainScreenSaver($output,$mediadbADO,$dbADO) {
 			$parm=($flickr==1)?'-enable':'-disable';
 			flickrStatus($parm);
 		}
-				
+
 		$displayedFiles=cleanString(@$_POST['displayedFiles']);
 		if($displayedFiles!=''){
 			$mediadbADO->Execute('DELETE File_Attribute.* FROM File_Attribute INNER JOIN Attribute ON FK_Attribute=PK_Attribute WHERE FK_AttributeType=30 AND FK_File IN ('.$displayedFiles.')');
@@ -91,7 +92,12 @@ function mainScreenSaver($output,$mediadbADO,$dbADO) {
 				}
 			}
 		}
-				
+		
+		if(isset($_POST['remove_flikr_pics'])){
+			$flikr_path=cleanString($_POST['flikr_path']);
+			$mediadbADO->Execute("DELETE File_Attribute.* FROM File_Attribute INNER JOIN Attribute ON FK_Attribute=PK_Attribute INNER JOIN File on FK_File=PK_File WHERE FK_AttributeType=30 AND Path LIKE '$flikr_path%'");			
+		}				
+		
 		header('Location: index.php?section=mainScreenSaver&path='.urlencode($path).'&msg='.cleanString($TEXT_SCREENSAVER_UPDATED_CONST).'&page='.$page);
 		exit();
 		
