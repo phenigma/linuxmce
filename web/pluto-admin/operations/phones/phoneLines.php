@@ -403,7 +403,7 @@ function getPLDetails($id,$type,$astADO){
 			INNER JOIN sip sips ON (sips.id=sip.id) AND (sips.keyword='secret')
 			INNER JOIN sip sipp ON (sipp.id=sip.id) AND (sipp.keyword='username')
 			INNER JOIN sip siph ON (siph.id=sip.id) AND (siph.keyword='host')
-			WHERE (sip.keyword='account') $where OR (sip.data='voiceeclipse')) AND sip.id='$id'");
+			WHERE (sip.keyword='account') $where AND sip.id='$id'");
 	}else{
 		$providersKeywords=get_providers_by_type('IAX');
 		$where='';
