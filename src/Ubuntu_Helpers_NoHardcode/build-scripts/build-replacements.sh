@@ -179,10 +179,10 @@ function Build_Replacements {
                 cp /usr/src/lirc-modules*.deb "${replacements_dir}"
 	popd
 	
-	#Package: zaptel-modules
-	DisplayMessage "Building zaptel-modules"
-	m-a -ft -l `uname -r` a-b zaptel
-	cp /usr/src/zaptel-modules*.deb "${replacements_dir}"
+#	#Package: zaptel-modules
+#	DisplayMessage "Building zaptel-modules"
+#	m-a -ft -l `uname -r` a-b zaptel
+#	cp /usr/src/zaptel-modules*.deb "${replacements_dir}"
 
 	#Package: ivtv-modules
 	pushd .
