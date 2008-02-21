@@ -363,14 +363,30 @@ void Media_Plugin::AttributesBrowser( MediaListGrid *pMediaListGrid,int PK_Media
 	if( iLastViewed!=2 )
 		sSQL_Where += string(" AND DateLastViewed IS ") + (iLastViewed==1 ? "NOT" : "") + " NULL ";
 
-//	//hack for nuforce
-//	sPath = "";
+	//path condition correction
+	string sPath_Clone(sPath);
+	StringUtils::Replace(&sPath_Clone, "'", "");
+	vector<string> vectDirectories;
+	StringUtils::Tokenize(sPath_Clone, ",", vectDirectories);
+
+	string sPathCondition = " AND (Path IN (" + sPath + ") ";
+	for(vector<string>::iterator it = vectDirectories.begin(); it != vectDirectories.end(); ++it)
+	{
+		string sDir = *it;
+		sPathCondition += " OR Path LIKE '" + FileUtils::IncludeTrailingSlash(sDir) + "%' ";
+	}
+	sPathCondition += ") ";
+
+    if(sPath.empty())
+		sPathCondition = "";
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Media_Plugin::AttributesBrowser - path condition : %s", sPathCondition.c_str());
 
 	string sPK_File,sPK_Disc;
     PlutoSqlResult resultf,resultd;
     DB_ROW row;
 	if( (bFile || bBookmarksOnly) && ( resultf.r=m_pDatabase_pluto_media->db_wrapper_query_result( sSQL_File + sSQL_Where + sOnline + " AND `Ignore`=0 AND Missing=0 " + 
-		(sPath.size() ? " AND Path in (" + sPath + ")" : "") + (PK_AttributeType_Sort!=0 ? " AND IsDirectory=0" : "") ) ) )
+		 sPathCondition + (PK_AttributeType_Sort!=0 ? " AND IsDirectory=0" : "") ) ) )
         while( ( row=db_wrapper_fetch_row( resultf.r ) ) )
 			sPK_File += row[0] + string(",");
 
