@@ -55,7 +55,7 @@ $TRUNK_VARS{'dialoutprefix'}="";
 $TRUNK_VARS{'channelid'}="teliax";
 $TRUNK_VARS{'peerdetails'} ="allow=gsm\n";
 $TRUNK_VARS{'peerdetails'}.="auth=md5\n";
-$TRUNK_VARS{'peerdetails'}.="context=from-internal\n";
+$TRUNK_VARS{'peerdetails'}.="context=from-pstn\n";
 $TRUNK_VARS{'peerdetails'}.="disallow=all\n";
 $TRUNK_VARS{'peerdetails'}.="host=$DECLARED_HOST\n";
 $TRUNK_VARS{'peerdetails'}.="username=$DECLARED_USERNAME\n";

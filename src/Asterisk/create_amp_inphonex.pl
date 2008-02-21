@@ -53,7 +53,7 @@ $TRUNK_VARS{'dialrules'}=$LOCAL_PREFIX1;
 $TRUNK_VARS{'autopop'}="";
 $TRUNK_VARS{'dialoutprefix'}="";
 $TRUNK_VARS{'channelid'}="inphonex";
-$TRUNK_VARS{'peerdetails'}="context=from-internal\n";
+$TRUNK_VARS{'peerdetails'}="context=from-pstn\n";
 #$TRUNK_VARS{'peerdetails'}.="disallow=all\n";
 $TRUNK_VARS{'peerdetails'}.="allow=alaw\n";
 $TRUNK_VARS{'peerdetails'}.="allow=all\n";
