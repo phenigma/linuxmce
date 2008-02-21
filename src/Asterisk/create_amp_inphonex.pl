@@ -123,7 +123,7 @@ foreach my $var (keys %OUT_VARS)
 $IN_VARS{'display'}="did";
 $IN_VARS{'extdisplay'}="";
 $IN_VARS{'action'}="addIncoming";
-$IN_VARS{'extension'}="";
+$IN_VARS{'extension'}=$DECLARED_NUMBER;
 $IN_VARS{'goto0'}="custom";
 $IN_VARS{'custom0'}="custom-linuxmce,10".$1.",1" if($OUT_ROUTE=~/(\d)$/);
 foreach my $var (keys %IN_VARS)
@@ -159,7 +159,7 @@ sub get_local_prefixes()
 
     return unless($DB_ROW = $DB_STATEMENT->fetchrow_hashref());
     return unless($DB_ROW->{'FK_DeviceData'} == 141);
-    if($DB_ROW->{'IK_DeviceData'} > 0)
+    if(!($DB_ROW->{'IK_DeviceData'} eq '') && $DB_ROW->{'IK_DeviceData'} > 0)
     {
         my $prefix = $DB_ROW->{'IK_DeviceData'};
         return unless($DB_ROW = $DB_STATEMENT->fetchrow_hashref());
