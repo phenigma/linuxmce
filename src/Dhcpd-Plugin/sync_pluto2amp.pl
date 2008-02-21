@@ -96,6 +96,9 @@ $DB_AS_HANDLE->disconnect();
 #run AMP's scripts to generate asterisk's config
 `/var/lib/asterisk/bin/retrieve_conf`;
 
+# Change dtfm mode (thx freepbx for being so buggy)
+`sed -i 's/^dtmfmode=.*\$/dtmfmode=auto/g' /etc/asterisk/sip_additional.conf`;
+
 #reload asterisk
 `/usr/sbin/asterisk -r -x reload`;
 
@@ -257,7 +260,6 @@ sub add_to_asterisk_db()
     $EXT_VARS{'secret'}=$DEVICE_EXT if ($DEVICE_TYPE ne 'custom');
     $EXT_VARS{'dial'}="SCCP/".$DEVICE_EXT if ($DEVICE_TYPE eq 'custom');
     $EXT_VARS{'port'}=$DEVICE_PORT;
-    $EXT_VARS{'devinfo_dtmfmode'}="auto";
     foreach my $var (keys %EXT_VARS)
     {
         my $str = $EXT_VARS{$var};
