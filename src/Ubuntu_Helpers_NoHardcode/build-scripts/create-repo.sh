@@ -43,6 +43,8 @@ function CopyDebsToDisklessSync {
 		rm -f "${build_dir}/DisklessSync/${arch}/deb-cache/${pkg}_"*.deb
 		cp "/var/www/${pkg}_"*.deb "${build_dir}/DisklessSync/${arch}/deb-cache/"
 	done
+	rm -f "${build_dir}/DisklessSync/${arch}/deb-cache/3m-touchware_"*.deb
+	cp /var/www/3m-touchware_*.deb "${build_dir}/DisklessSync/${arch}/deb-cache" || :
 }
 
 function PublishPrivateDebs {
