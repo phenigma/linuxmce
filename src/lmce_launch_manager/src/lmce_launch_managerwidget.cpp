@@ -2423,7 +2423,7 @@ void lmce_launch_managerWidget::updateSerialPorts()
 					
 	if (pService->isRunning())
 	{
-		writeLog("Process didn't exit after 30 secs of running, let it run in background", true);
+		writeLog("Process didn't exit after 30 secs of running, let it run in background", true, LV_WARNING);
 		m_qpvCoreServices.push_back(pService);
 	}
 	else
