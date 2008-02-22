@@ -888,4 +888,12 @@ int UpdateMedia::GetFileID(string sDirectory, string sFile)
 			 return pRow_File->PK_File_get();
 		 }
      }
+
+	 if(nFileID == 0)
+	 {
+		 LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Something is very very wrong for file %s/%s",
+			 sDirectory.c_str(), sFile.c_str());
+	 }
+
+	 return nFileID;
 }
