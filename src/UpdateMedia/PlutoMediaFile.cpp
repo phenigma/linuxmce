@@ -164,6 +164,7 @@ int PlutoMediaFile::HandleFileNotInDatabase(int PK_MediaType)
 		if( vectRow_File.size() )  // Should only be 1
 		{
 			Row_File *pRow_File = vectRow_File[0];
+			pRow_File->Reload();
 
 			string sMidMD5File = FileUtils::GetMidFileChecksum(m_sDirectory + "/" + m_sFile);
 
@@ -260,6 +261,7 @@ int PlutoMediaFile::HandleFileNotInDatabase(int PK_MediaType)
             return 0;
         }
         // it was in the database, but it's been moved to a different directory or renamed
+		pRow_File->Reload();
         pRow_File->Path_set(m_sDirectory);
         pRow_File->Filename_set(m_sFile);
 		pRow_File->EK_MediaType_set(PK_MediaType);
@@ -607,6 +609,8 @@ void PlutoMediaFile::SaveMiscInfo()
 	Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->GetRow(m_pPlutoMediaAttributes->m_nFileID);
 	if(NULL != pRow_File)
 	{
+		pRow_File->Reload();
+
 		if(m_pPlutoMediaAttributes->m_nFileFormat != 0)
 			pRow_File->FK_FileFormat_set(m_pPlutoMediaAttributes->m_nFileFormat);
 		else
@@ -684,6 +688,7 @@ int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
 
 		//Get the first record and reuse it
 		pRow_File = vectRow_File[0];
+		pRow_File->Reload();
 		pRow_File->Missing_set(0);
 		pRow_File->EK_MediaType_set(PK_MediaType);
 		AssignPlutoUser(pRow_File);
@@ -796,6 +801,7 @@ void PlutoMediaFile::SetMediaType(int PK_File, int PK_MediaType)
 		m_nPK_MediaType = PK_MediaType;
 
 		Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->GetRow(PK_File);
+		pRow_File->Reload();
 		pRow_File->EK_MediaType_set(PK_MediaType);
 		m_pDatabase_pluto_media->File_get()->Commit();
 
@@ -811,6 +817,8 @@ void PlutoMediaFile::AssignPlutoDevice(Row_File *pRow_File)
 
 	if(NULL != pRow_File)
 	{
+		pRow_File->Reload();
+
 		map<int, int> mapMountedDevices;
 		list<string> listFiles;
 		FileUtils::FindDirectories(listFiles, "/mnt/device", false, true);
@@ -853,6 +861,8 @@ void PlutoMediaFile::UpdateMd5Field()
 	Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->GetRow(m_pPlutoMediaAttributes->m_nFileID);
 	if(NULL != pRow_File)
 	{
+		pRow_File->Reload();
+
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "File %s/%s, PK_File %d - midmd5 is %s", 
 			m_sDirectory.c_str(), m_sFile.c_str(), m_pPlutoMediaAttributes->m_nFileID, sMidMd5.c_str());
 		pRow_File->MD5_set(sMidMd5);

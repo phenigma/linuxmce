@@ -738,6 +738,7 @@ int UpdateMedia::SetupDirectory(string sDirectory, FolderType folder_type)
 				int PK_File = spPlutoMediaParentFolder->HandleFileNotInDatabase(nMediaType);
 				LoggerWrapper::GetInstance()->Write(LV_STATUS,"UpdateMedia::ReadDirectory media type %d PlutoMediaFile_.HandleFileNotInDatabase %d",nMediaType, PK_File);
 				Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->GetRow(PK_File);
+				pRow_File->Reload();
 				pRow_File->IsDirectory_set(false);
 				m_pDatabase_pluto_media->File_get()->Commit();
 
