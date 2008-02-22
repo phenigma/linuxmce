@@ -133,6 +133,7 @@ public:
 	/*
 			*****DATA***** accessors inherited from base class
 	string DATA_Get_COM_Port_on_PC();
+	bool DATA_Get_Dont_Auto_Configure();
 
 			*****EVENT***** accessors inherited from base class
 
