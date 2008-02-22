@@ -878,7 +878,7 @@ void gc100::parse_message_statechange(std::string message, bool change)
 
 			//LoggerWrapper::GetInstance()->Write(LV_STATUS, "statechange Reply: found a child pin number of %s, direction is %s",this_pin.c_str(),io_direction.c_str());
 
-			if (this_pin == module_address && DATA_Get_Dont_Auto_Configure() != false)
+			if (this_pin == module_address)
 			{
 				CMD_Set_Device_Data_DT cmd_Set_Device_Data_DT(m_dwPK_Device, DEVICETEMPLATE_General_Info_Plugin_CONST, BL_SameHouse,
 					child->m_dwPK_Device, "1", DEVICEDATA_InputOrOutput_CONST);
