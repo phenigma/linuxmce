@@ -298,6 +298,8 @@ void MediaState::FileSynchronized(Database_pluto_media *pDatabase_pluto_media, s
 	if(nFileID != 0)
 		pDatabase_pluto_media->threaded_db_wrapper_query(sUpdateSql);
 
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "FileSynchronized: %s", sUpdateSql.c_str());
+
 	m_mapMediaState[make_pair(sDirectory, sFile)] = item;
 }
 //-----------------------------------------------------------------------------------------------------
