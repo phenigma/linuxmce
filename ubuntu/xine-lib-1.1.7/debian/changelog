@@ -1,14 +1,20 @@
+xine-lib (1.1.7-1ubuntu1-pluto4) gutsy; urgency=low
+
+  * added patch for 16bit big endian DTS detection
+
+ -- Kirill Belokurov <kirill.b@plutohome.com>  Fri, 22 Feb 2008 13:32:00 +0200
+
 xine-lib (1.1.7-1ubuntu1-pluto3) gutsy; urgency=low
 
   * readded broadcaster fixes
 
- -- Kirill Belokurov <kirill.b@plutohome.com>  Wed, 13 Jan 2008 16:44:00 +0200
+ -- Kirill Belokurov <kirill.b@plutohome.com>  Wed, 13 Feb 2008 16:44:00 +0200
 
 xine-lib (1.1.7-1ubuntu1-pluto2) gutsy; urgency=low
 
   * refreshed trick play patch to avoid NULL dereference in xine-ui
 
- -- Kirill Belokurov <kirill.b@plutohome.com>  Fri, 8 Jan 2008 15:17:20 +0200
+ -- Kirill Belokurov <kirill.b@plutohome.com>  Fri, 8 Feb 2008 15:17:20 +0200
 
 xine-lib (1.1.7-1ubuntu1-pluto1) gutsy; urgency=low
 
@@ -16,7 +22,7 @@ xine-lib (1.1.7-1ubuntu1-pluto1) gutsy; urgency=low
     - trick play
     - backport of recent flac decoder from ffmpeg to support 24-bit FLAC files
 
- -- Kirill Belokurov <kirill.b@plutohome.com>  Thu, 7 Jan 2008 18:20:35 +0200
+ -- Kirill Belokurov <kirill.b@plutohome.com>  Thu, 7 Feb 2008 18:20:35 +0200
 
 xine-lib (1.1.7-1ubuntu1) gutsy; urgency=low
 
