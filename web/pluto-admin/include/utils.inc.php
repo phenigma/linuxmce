@@ -5185,7 +5185,7 @@ function pickDeviceTemplate($categoryID, $manufacturerID,$returnValue,$defaultAl
 		$restrictToCategory=$categoryID;
 	}
 	
-	
+
 	$manufacturersArray=getAssocArray('Manufacturer','PK_Manufacturer','Description',$dbADO,'','ORDER BY Description ASC');
 	$deviceCategoryPicker=(isset($_REQUEST['deviceCategoryPicker']))?$_REQUEST['deviceCategoryPicker']:0;
 	$dtID=(isset($_REQUEST['dtID']))?$_REQUEST['dtID']:0;
@@ -5435,7 +5435,7 @@ function getdTree($categoryID,$dbADO,$restrictToCategory=0){
 		if($parent==''){
 			$url='';
 			if(count($restrictedCategories)==0 || in_array($cID,$restrictedCategories)){
-				$url='javascript:setDeviceCategory('.$cID.');';
+				$url='javascript:setDeviceCategory('.$cID.',1);';
 			}
 			$jsNodes.='d.add('.$cID.',0,\''.$categoriesArray[$cID].'\',\''.$url.'\');';
 			$jsNodes=getsTreeChilds($jsNodes,$cID,$categoriesArray,$categoriesParents,$restrictedCategories);
@@ -5463,6 +5463,7 @@ function getdTree($categoryID,$dbADO,$restrictToCategory=0){
 
 		//-->
 	</script>
+	<input type="hidden" name="categoryID" value="">
 </div>	
 	';
 
@@ -5474,7 +5475,7 @@ function getsTreeChilds($jsNodes,$pid,$categoriesArray,$categoriesParents,$restr
 	foreach ($categoriesParents AS $cID=>$parent){
 		if($parent==$pid){
 			if(count($restrictedCategories)==0 || in_array($cID,$restrictedCategories)){
-				$jsNodes.='d.add('.$cID.','.$parent.',\''.addslashes($categoriesArray[$cID]).'\',\'javascript:setDeviceCategory('.$cID.');\');';
+				$jsNodes.='d.add('.$cID.','.$parent.',\''.addslashes($categoriesArray[$cID]).'\',\'javascript:setDeviceCategory('.$cID.',1);\');';
 			}
 			$jsNodes=getsTreeChilds($jsNodes,$cID,$categoriesArray,$categoriesParents,$restrictedCategories);
 		}
@@ -5489,7 +5490,7 @@ function dtPickerJS($returnValue){
 
 	$out='
 	<script>
-	function setDeviceCategory(val){
+	function setDeviceCategory(val,setHidden){
 		setErrorMessage("");
 		if(val==-1){
 			for(i=0;i<document.deviceTemplatePicker.categoryID.length;i++){
@@ -5497,7 +5498,9 @@ function dtPickerJS($returnValue){
 					val=document.deviceTemplatePicker.categoryID[i].value;
 			}
 		}
-		//document.deviceTemplatePicker.dcSelected.value=val;	
+		if(setHidden==1){
+			document.deviceTemplatePicker.categoryID.value=val;	
+		}
 		document.getElementById("categorySelected").innerHTML=val;
 		
 		if(document.deviceTemplatePicker.autofilter.checked){
