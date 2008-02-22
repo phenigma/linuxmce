@@ -195,6 +195,9 @@ public:
 		void Start_seriald();
 		virtual void CreateChildren();
 		virtual void SetQuitFlag();
+
+		/** @brief Gets the "IPAddress" for the given device, or this device by default */
+		string GetIpAddress( int dwPK_Device=0 );
 	};
 //<-dceag-end-b->
 }

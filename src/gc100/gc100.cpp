@@ -1038,8 +1038,8 @@ bool gc100::Open_gc100_Socket()
 	PLUTO_SAFETY_LOCK(sl, gc100_mutex);
 	return_value=false;
 
-	ip_addr=GetData()->m_sIPAddress;
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Connecting to gc100: %s", ip_addr.c_str());
+	ip_addr=GetIpAddress();
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Connecting to gc100 IP Address: %s", ip_addr.c_str());
 
 	// Do the socket connect
 	hp = gethostbyname(ip_addr.c_str());
@@ -1854,3 +1854,18 @@ void gc100::CMD_Learn_IR(int iPK_Device,string sOnOff,int iPK_Text,int iPK_Comma
 	return;
 }
 
+string gc100::GetIpAddress( int dwPK_Device )
+{
+	// If this is for us and the IP address is already known, just pass it
+	if( (dwPK_Device==0 || dwPK_Device==m_pData->m_dwPK_Device) && m_pData->m_sIPAddress.empty()==false )
+		return m_pData->m_sIPAddress;
+
+	// Get it from the server
+	if( !m_pcRequestSocket )
+		return "";
+
+	string sResult;
+	m_pcRequestSocket->m_pClientSocket->SendString("GET_IP " + StringUtils::itos( dwPK_Device ? dwPK_Device : m_dwPK_Device ) );
+	m_pcRequestSocket->m_pClientSocket->ReceiveString(sResult);
+	return sResult;
+}

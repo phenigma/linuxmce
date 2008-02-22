@@ -1349,6 +1349,19 @@ bool Router::ReceivedString(Socket *pSocket, string Line, int nTimeout/* = -1*/)
 		}
         return true;
 	}
+    else if( Line.substr(0,6)=="GET_IP" )
+	{
+		string::size_type pos = 7;
+		string sSql = "SELECT IPaddress FROM Device WHERE PK_Device=" + StringUtils::Tokenize(Line," ",pos);
+
+		PlutoSqlResult result_set;
+		DB_ROW row;
+		if( (result_set.r=db_wrapper_query_result(sSql)) && (row = db_wrapper_fetch_row(result_set.r))!=NULL && row[0] )
+			pSocket->SendString( row[0] );
+		else
+			pSocket->SendString( "BAD DEVICE" );
+        return true;
+	}
     else if( Line.substr(0,6)=="RELOAD" )
 	{
 		if( RequestReload(0) )
