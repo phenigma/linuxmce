@@ -283,36 +283,22 @@ void MediaState::FileSynchronized(Database_pluto_media *pDatabase_pluto_media, s
 	else
 		item = LoadDbInfoForFile(pDatabase_pluto_media, nFileID);
 
-	//string sUpdateSql = "UPDATE File SET ";
-
-	string sFileTimestamp = ReadMediaFileInfo(sDirectory, sFile);
-	//sUpdateSql += "ModificationDate = '" + sFileTimestamp + "', ";
-	item.m_sOldFileDate = sFileTimestamp;
-
-	//sUpdateSql += "AttrCount = " + StringUtils::ltos(item.m_sCurrentDbAttrCount) + ", ";
-	//sUpdateSql += "AttrDate = '" + item.m_sCurrentDbAttrDate + "' ";
-	item.m_sOldDbAttrCount = item.m_sCurrentDbAttrCount;
-	item.m_sOldDbAttrDate = item.m_sCurrentDbAttrDate;
-
-	//sUpdateSql += "WHERE PK_File = " + StringUtils::ltos(nFileID);
-
-	//if(nFileID != 0)
-	//	pDatabase_pluto_media->threaded_db_wrapper_query(sUpdateSql);
-
 	if(nFileID)
 	{
+		string sFileTimestamp = ReadMediaFileInfo(sDirectory, sFile);
+		item.m_sOldFileDate = sFileTimestamp;
+		item.m_sOldDbAttrCount = item.m_sCurrentDbAttrCount;
+		item.m_sOldDbAttrDate = item.m_sCurrentDbAttrDate;
+
 		Row_File *pRow_File = pDatabase_pluto_media->File_get()->GetRow(nFileID);
 		pRow_File->Reload();
 		pRow_File->ModificationDate_set(sFileTimestamp);
 		pRow_File->AttrCount_set(item.m_sCurrentDbAttrCount);
 		pRow_File->AttrDate_set(item.m_sCurrentDbAttrDate);
 		pDatabase_pluto_media->File_get()->Commit();
+
+		m_mapMediaState[make_pair(sDirectory, sFile)] = item;
 	}
-
-
-	//LoggerWrapper::GetInstance()->Write(LV_WARNING, "FileSynchronized: %s", sUpdateSql.c_str());
-
-	m_mapMediaState[make_pair(sDirectory, sFile)] = item;
 }
 //-----------------------------------------------------------------------------------------------------
 string MediaState::ReadMediaFileInfo(string sDirectory, string sFile)

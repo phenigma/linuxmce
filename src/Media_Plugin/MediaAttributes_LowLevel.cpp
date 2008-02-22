@@ -1230,8 +1230,6 @@ Row_File *MediaAttributes_LowLevel::AddDirectoryToDatabase(int PK_MediaType,stri
 		pRow_File->EK_Users_Private_setNull(true);
 
 	m_pDatabase_pluto_media->File_get()->Commit();
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "File table Commit: %s:%d", __FILE__,__LINE__);
-
 
 	LoggerWrapper::GetInstance()->Write( LV_STATUS, "MediaAttributes_LowLevel::AddDirectoryToDatabase %s PK_File %d Inode %d",
 		(pRow_File->Path_get() + "/" + pRow_File->Filename_get()).c_str(), pRow_File->PK_File_get(), pRow_File->INode_get() );
@@ -1325,8 +1323,6 @@ int MediaAttributes_LowLevel::AddRippedDiscToDatabase(int PK_Disc,int PK_MediaTy
 				pRow_File->EK_Users_Private_setNull(true);
 
 			m_pDatabase_pluto_media->File_get()->Commit();
-			LoggerWrapper::GetInstance()->Write(LV_STATUS, "File table Commit: %s:%d", __FILE__,__LINE__);
-
 
 			LoggerWrapper::GetInstance()->Write( LV_STATUS, "MediaAttributes_LowLevel::AddRippedDiscToDatabase %s PK_File %d Inode %d",
 				(pRow_File->Path_get() + "/" + pRow_File->Filename_get()).c_str(), pRow_File->PK_File_get(), pRow_File->INode_get() );
@@ -1426,7 +1422,6 @@ int MediaAttributes_LowLevel::AddRippedDiscToDatabase(int PK_Disc,int PK_MediaTy
 			pRow_File->EK_Users_Private_setNull(true);
 
 		m_pDatabase_pluto_media->File_get()->Commit();
-		LoggerWrapper::GetInstance()->Write(LV_STATUS, "File table Commit: %s:%d", __FILE__,__LINE__);
 
 		PK_File = pRow_File->PK_File_get();
 

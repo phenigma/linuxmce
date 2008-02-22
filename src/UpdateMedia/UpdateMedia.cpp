@@ -741,7 +741,6 @@ int UpdateMedia::SetupDirectory(string sDirectory, FolderType folder_type)
 				pRow_File->Reload();
 				pRow_File->IsDirectory_set(false);
 				m_pDatabase_pluto_media->File_get()->Commit();
-				LoggerWrapper::GetInstance()->Write(LV_STATUS, "File table Commit: %s:%d", __FILE__,__LINE__);
 
 				spPlutoMediaParentFolder->SetFileAttribute(PK_File);
 			}
