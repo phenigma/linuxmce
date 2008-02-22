@@ -1642,6 +1642,38 @@ void gc100::LearningThread(LearningInfo * pLearningInfo)
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Learning thread finished");
 }
 
+void gc100::ReportChildren()
+{
+	// Report children to the DCE router
+	// internal_id \t description \t room_name \t PK_DeviceTemplate \t floorplan_id \t PK_DeviceData \t DeviceData_value ... \n
+	string sChildren;
+	for (std::map<std::string, class module_info>::const_iterator It = module_map.begin(); It != module_map.end(); It++)
+	{
+		const int bsize = 4096;
+		char buffer[bsize];
+		memset(buffer, 0, bsize);
+
+		int PK_DeviceTemplate;
+		string sDeviceData = "";
+		if (It->second.type == "IR")
+		{
+			PK_DeviceTemplate = DEVICETEMPLATE_Generic_Input_Ouput_CONST;
+			snprintf(buffer, bsize - 1, "%d\t%d", DEVICEDATA_InputOrOutput_CONST, It->second.in_out);
+			sDeviceData = buffer;
+		}
+		else if (It->second.type == "RELAY")
+			PK_DeviceTemplate = DEVICETEMPLATE_Generic_Relays_CONST;
+		else
+			continue;
+
+		snprintf(buffer, bsize - 1, "%s\t%s %s\t\t%d\t\t%s\n",
+			It->first.c_str(), It->second.type.c_str(), It->second.key.c_str(), PK_DeviceTemplate, sDeviceData.c_str());
+		sChildren += buffer;
+	}
+	cout << "Children to report: " << endl << sChildren << endl << "End of children list" << endl;
+	EVENT_Reporting_Child_Devices("", sChildren);
+}
+
 // Must override so we can call IRBase::Start() after creating children
 void gc100::CreateChildren()
 {
@@ -1656,6 +1688,8 @@ void gc100::CreateChildren()
 	{
 	    device_data = read_from_gc100();
 	} while (device_data != "endlistdevices");
+
+	ReportChildren();
 	Start_seriald(); // Start gc_seriald processes according to serial port inventory
 	Sleep(1000);
 //	is_open_for_learning = open_for_learning();

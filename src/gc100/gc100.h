@@ -51,9 +51,10 @@ namespace DCE
 	public:
 		int module; 	// GC-100 module number
 		int slot; 	// within the module, 1-3
-		std::string type; // SERIAL, REALY, IR, or IRL
+		std::string type; // SERIAL, RELAY, IR, or IRL
 		std::string key; // e.g. 4:3 - might make a good primary key
 		int global_slot; // i.e. 1-9 if there are 3 IR emitter blocks. e.g. the "1-6" IR labels on the back
+		int in_out; // 0 = input, 1 = output, 2 = both
 	};
 }
 
@@ -77,6 +78,8 @@ private:
 	void parse_gc100_reply(std::string message);
 	void parse_message_device(std::string message);
 	void parse_message_statechange(std::string message, bool change);
+
+	void ReportChildren();
 
 	pthread_t m_EventThread, m_LearningThread, m_SocketThread;
 
@@ -173,7 +176,6 @@ public:
 
 	virtual void CMD_Learn_IR(int iPK_Device,string sOnOff,int iPK_Text,int iPK_Command) { string sCMD_Result; CMD_Learn_IR(iPK_Device,sOnOff.c_str(),iPK_Text,iPK_Command,sCMD_Result,NULL);};
 	virtual void CMD_Learn_IR(int iPK_Device,string sOnOff,int iPK_Text,int iPK_Command,string &sCMD_Result,Message *pMessage);
-
 
 //<-dceag-h-e->
 		virtual void LEARN_IR(long PK_Device, long PK_Command, long PK_Device_Orbiter, long PK_Text);
