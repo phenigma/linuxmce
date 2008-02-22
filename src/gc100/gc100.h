@@ -133,9 +133,9 @@ public:
 	/*
 			*****DATA***** accessors inherited from base class
 	string DATA_Get_COM_Port_on_PC();
-	bool DATA_Get_Dont_Auto_Configure();
 
 			*****EVENT***** accessors inherited from base class
+	void EVENT_Reporting_Child_Devices(string sError_Message,string sText);
 
 			*****COMMANDS***** we need to implement
 	*/

@@ -44,6 +44,15 @@ public:
 	* @brief Events methods for our device
 	*/
 
+	virtual void Reporting_Child_Devices(string sError_Message,string sText)
+	{
+		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 
+			EVENT_Reporting_Child_Devices_CONST,
+			2 /* number of parameter's pairs (id, value) */,
+			EVENTPARAMETER_Error_Message_CONST, sError_Message.c_str(),
+			EVENTPARAMETER_Text_CONST, sText.c_str()));
+	}
+
 };
 
 
@@ -83,14 +92,6 @@ public:
 	string Get_COM_Port_on_PC()
 	{
 			return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_COM_Port_on_PC_CONST);
-	}
-
-	bool Get_Dont_Auto_Configure()
-	{
-		if( m_bRunningWithoutDeviceData )
-			return (m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Dont_Auto_Configure_CONST)=="1" ? true : false);
-		else
-			return (m_mapParameters[DEVICEDATA_Dont_Auto_Configure_CONST]=="1" ? true : false);
 	}
 
 };
@@ -198,8 +199,8 @@ public:
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
 	//Data accessors
 	string DATA_Get_COM_Port_on_PC() { return GetData()->Get_COM_Port_on_PC(); }
-	bool DATA_Get_Dont_Auto_Configure() { return GetData()->Get_Dont_Auto_Configure(); }
 	//Event accessors
+	void EVENT_Reporting_Child_Devices(string sError_Message,string sText) { GetEvents()->Reporting_Child_Devices(sError_Message.c_str(),sText.c_str()); }
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_Send_Code(string sText,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Toggle_Power(string sOnOff,string &sCMD_Result,class Message *pMessage) {};
