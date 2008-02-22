@@ -845,6 +845,12 @@
 #define COMMAND_Line_CONST 931
 #define COMMAND_Optical_CONST 932
 #define COMMAND_Get_Home_Symlink_CONST 934
+#define COMMAND_WiseLink_CONST 935
+#define COMMAND_Sleep_Timer_Off_CONST 936
+#define COMMAND_Caption_Off_CONST 938
+#define COMMAND_Toggle_Video_Mode_CONST 939
+#define COMMAND_USB_CONST 940
+#define COMMAND_SRS_CONST 941
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"
