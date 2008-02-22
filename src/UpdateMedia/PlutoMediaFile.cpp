@@ -178,8 +178,9 @@ int PlutoMediaFile::HandleFileNotInDatabase(int PK_MediaType)
 				pRow_File->IsNew_set(1); // This could be a re-used INode
 				pRow_File->Path_set(m_sDirectory);
 				pRow_File->Filename_set(m_sFile);
-				pRow_File->Table_File_get()->Commit();
 				pRow_File->Source_set(m_spFileHandler->GetFileSourceForDB());
+				pRow_File->Table_File_get()->Commit();
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "File table Commit: %s:%d", __FILE__,__LINE__);
 
 				LoggerWrapper::GetInstance()->Write(LV_STATUS, "PlutoMediaFile::HandleFileNotInDatabase %s/%s N db-attr: %d Inode: %d size %d mt %d/%d, md5 %s", 
 					m_sDirectory.c_str(), m_sFile.c_str(), pRow_File->PK_File_get(), INode, (int) vectRow_File.size(), PK_MediaType, pRow_File->EK_MediaType_get(),
@@ -270,6 +271,7 @@ int PlutoMediaFile::HandleFileNotInDatabase(int PK_MediaType)
 		AssignPlutoUser(pRow_File);
 		AssignPlutoDevice(pRow_File);
 		pRow_File->Table_File_get()->Commit();
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "File table Commit: %s:%d", __FILE__,__LINE__);
 
 		m_pPlutoMediaAttributes->m_nFileID = PK_File;
     }
@@ -622,6 +624,7 @@ void PlutoMediaFile::SaveMiscInfo()
 			pRow_File->FK_MediaSubType_setNull(true);
 
 		pRow_File->Table_File_get()->Commit();
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "File table Commit: %s:%d", __FILE__,__LINE__);
 	}
 }
 //-----------------------------------------------------------------------------------------------------
@@ -693,6 +696,7 @@ int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
 		pRow_File->EK_MediaType_set(PK_MediaType);
 		AssignPlutoUser(pRow_File);
 		pRow_File->Table_File_get()->Commit();
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "File table Commit: %s:%d", __FILE__,__LINE__);
 
 		//This will get a vector with desired File_Attribute's rows
 		vector<Row_File_Attribute *> vectRow_File_Attribute;
@@ -728,6 +732,8 @@ int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
 		AssignPlutoUser(pRow_File);
 		pRow_File->INode_set( FileUtils::GetInode( pRow_File->Path_get() + "/" + pRow_File->Filename_get() ) );
 		pRow_File->Table_File_get()->Commit();
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "File table Commit: %s:%d", __FILE__,__LINE__);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "File table Commit: %s:%d", __FILE__,__LINE__);
 
 		LoggerWrapper::GetInstance()->Write( LV_STATUS, "PlutoMediaFile::AddFileToDatabase new %s PK_File %d Inode %d",
 			(pRow_File->Path_get() + "/" + pRow_File->Filename_get()).c_str(), pRow_File->PK_File_get(), pRow_File->INode_get() );
@@ -804,6 +810,7 @@ void PlutoMediaFile::SetMediaType(int PK_File, int PK_MediaType)
 		pRow_File->Reload();
 		pRow_File->EK_MediaType_set(PK_MediaType);
 		m_pDatabase_pluto_media->File_get()->Commit();
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "File table Commit: %s:%d", __FILE__,__LINE__);
 
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "File %d has now media type %d",
 			PK_File, PK_MediaType);
@@ -833,6 +840,7 @@ void PlutoMediaFile::AssignPlutoDevice(Row_File *pRow_File)
 			pRow_File->EK_Device_setNull(true);
 
 		pRow_File->Table_File_get()->Commit();
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "File table Commit: %s:%d", __FILE__,__LINE__);
 	}
 }
 //-----------------------------------------------------------------------------------------------------
@@ -867,6 +875,7 @@ void PlutoMediaFile::UpdateMd5Field()
 			m_sDirectory.c_str(), m_sFile.c_str(), m_pPlutoMediaAttributes->m_nFileID, sMidMd5.c_str());
 		pRow_File->MD5_set(sMidMd5);
 		pRow_File->Table_File_get()->Commit();
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "File table Commit: %s:%d", __FILE__,__LINE__);
 	}
 }
 //-----------------------------------------------------------------------------------------------------
@@ -997,6 +1006,7 @@ int PlutoMediaFile::GetPicAttribute(int PK_File)
 				pRow_Picture_File->FK_File_set(PK_File);
 				pRow_Picture_File->FK_Picture_set(pRow_Picture->PK_Picture_get());
 				pRow_Picture_File->Table_Picture_File_get()->Commit();
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "File table Commit: %s:%d", __FILE__,__LINE__);
 
 				LoggerWrapper::GetInstance()->Write(LV_STATUS, "PlutoMediaFile::GetPicAttribute Added picture to file: PK_File %d, PK_Picture %d",
 					PK_File, m_pPlutoMediaAttributes->m_nPictureID);
