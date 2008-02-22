@@ -136,6 +136,7 @@ public:
 	/*
 			*****DATA***** accessors inherited from base class
 	string DATA_Get_COM_Port_on_PC();
+	bool DATA_Get_Dont_Auto_Configure();
 
 			*****EVENT***** accessors inherited from base class
 	void EVENT_Reporting_Child_Devices(string sError_Message,string sText);
@@ -176,6 +177,7 @@ public:
 
 	virtual void CMD_Learn_IR(int iPK_Device,string sOnOff,int iPK_Text,int iPK_Command) { string sCMD_Result; CMD_Learn_IR(iPK_Device,sOnOff.c_str(),iPK_Text,iPK_Command,sCMD_Result,NULL);};
 	virtual void CMD_Learn_IR(int iPK_Device,string sOnOff,int iPK_Text,int iPK_Command,string &sCMD_Result,Message *pMessage);
+
 
 //<-dceag-h-e->
 		virtual void LEARN_IR(long PK_Device, long PK_Command, long PK_Device_Orbiter, long PK_Text);
