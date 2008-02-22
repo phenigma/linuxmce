@@ -49,6 +49,7 @@ class UpdateMedia
 	bool IsLockedFolder(string sDirectory);
 	bool HasSpecialFolderParent(string sDirectory);
 	bool AlreadyInDatabase(string sDirectory, string sFile);
+	int GetFileID(string sDirectory, string sFile);
 
 public:
 	Database_pluto_media *m_pDatabase_pluto_media ;

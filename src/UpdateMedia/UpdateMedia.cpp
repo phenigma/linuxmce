@@ -544,14 +544,27 @@ bool UpdateMedia::ScanFiles(string sDirectory)
 		else
 		{
 			// It's in the database already.  Be sure the attribute is set
-			PK_File = MediaState::Instance().FileId(sDirectory, sFile);
-			PlutoMediaFile_.SetFileAttribute(PK_File);  
+			PK_File = GetFileID(sDirectory, sFile);
+
+			if(PK_File != 0)
+			{
+				PlutoMediaFile_.SetFileAttribute(PK_File);  
+			}
+			else
+			{
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "The file exists in the db, but I can't find it's PK_File!!!");
+			}
+			
 		}
 
 		if(m_bAsDaemon)
 			Sleep(300);
 
-		int PK_Picture = PlutoMediaFile_.GetPicAttribute(PK_File);
+
+		int PK_Picture = 0;
+		if(PK_File > 0)
+			PlutoMediaFile_.GetPicAttribute(PK_File);
+
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"UpdateMedia::ReadDirectory File %d Picture %d",PK_File,PK_Picture);
 
 		if( PK_Picture )
@@ -854,4 +867,25 @@ bool UpdateMedia::AlreadyInDatabase(string sDirectory, string sFile)
 		"' AND Filename='" + StringUtils::SQLEscape(sFile) + "'", &vectRow_File);
 
 	return !vectRow_File.empty();
+}
+
+int UpdateMedia::GetFileID(string sDirectory, string sFile)
+{
+	 int nFileID = MediaState::Instance().FileId(sDirectory, sFile);
+
+	 if(nFileID == 0)
+	 {
+		 LoggerWrapper::GetInstance()->Write(LV_WARNING, "The file was moved, need to get the id from DB %s/%s",
+			 sDirectory.c_str(), sFile.c_str());
+         
+		 vector<Row_File *> vectRow_File;
+		 m_pDatabase_pluto_media->File_get()->GetRows("Path='" + StringUtils::SQLEscape(sDirectory) + 
+			 "' AND Filename='" + StringUtils::SQLEscape(sFile) + "'", &vectRow_File);
+
+		 if(!vectRow_File.empty())
+		 {
+			 Row_File *pRow_File = vectRow_File[0];
+			 return pRow_File->PK_File_get();
+		 }
+     }
 }
