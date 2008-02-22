@@ -2813,6 +2813,7 @@ Row_Device *General_Info_Plugin::ProcessChildDevice(Row_Device *pRow_Device,stri
 	string sRoomName = StringUtils::Tokenize(sLine,"\t",pos);
 	int PK_DeviceTemplate = atoi(StringUtils::Tokenize(sLine,"\t",pos).c_str());
 	string sPK_FloorplanObjectType = StringUtils::Tokenize(sLine,"\t",pos);
+       LoggerWrapper::GetInstance()->Write(LV_STATUS, "XXX: pos=%d, %s, %s", pos, sLine.c_str(), sLine.substr(pos).c_str());
 	Row_DeviceTemplate *pRow_DeviceTemplate = m_pDatabase_pluto_main->DeviceTemplate_get()->GetRow(PK_DeviceTemplate);
 	if( !pRow_DeviceTemplate )
 	{
@@ -2892,6 +2893,7 @@ Row_Device *General_Info_Plugin::ProcessChildDevice(Row_Device *pRow_Device,stri
 	{
 		int PK_DeviceData = atoi(StringUtils::Tokenize(sLine,"\t",pos).c_str());
 		string sValue = StringUtils::Tokenize(sLine,"\t",pos);
+	       LoggerWrapper::GetInstance()->Write(LV_STATUS, "XXX: DD %d=%s", PK_DeviceData, sValue.c_str());
 		if( PK_DeviceData )
 			DatabaseUtils::SetDeviceData(m_pDatabase_pluto_main,pRow_Device_Child->PK_Device_get(),PK_DeviceData,sValue);
 	}
