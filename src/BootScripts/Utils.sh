@@ -18,6 +18,26 @@ UseAlternativeLibs()
 	export LD_LIBRARY_PATH=/opt/libsdl/lib:/opt/libxine/lib:/opt/libsdl1.2-1.2.7+1.2.8cvs20041007/lib:/opt/linphone-1.3.5/lib
 }
 
+function ListTemplates_Category {
+	local FK_DeviceCategory_Parent="$1"
+	local PK_DeviceTemplate_List=""
+	local PK_DeviceCategory=""
+	local PK_DeviceTemplate=""
+
+	R=$(RunSQL "SELECT PK_DeviceCategory FROM DeviceCategory WHERE FK_DeviceCategory_Parent = $FK_DeviceCategory_Parent")
+	for PK_DeviceCategory in $R ;do
+		PK_DeviceTemplate_List="$PK_DeviceTemplate_List $(ListTemplates_Category "$PK_DeviceCategory")"
+	done
+
+	R=$(RunSQL "SELECT PK_DeviceTemplate FROM DeviceTemplate WHERE FK_DeviceCategory=$FK_DeviceCategory_Parent")
+	for PK_DeviceTemplate in $R ;do
+		PK_DeviceTemplate_List="$PK_DeviceTemplate_List $PK_DeviceTemplate"
+	done
+
+	echo $PK_DeviceTemplate_List
+}
+
+
 FindDevice_Template()
 {
 	local PK_Device_Parent="${1//\'}" FK_DeviceTemplate="${2//\'}" NoRecursion="$3" IncludeParent="$4" All="$5"
