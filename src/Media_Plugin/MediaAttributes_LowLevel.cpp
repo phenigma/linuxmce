@@ -1300,7 +1300,10 @@ int MediaAttributes_LowLevel::AddRippedDiscToDatabase(int PK_Disc,int PK_MediaTy
 
 			Row_File *pRow_File = NULL;
 			if(vectRow_File.size() > 0)
+			{
 				pRow_File = vectRow_File[0];
+				pRow_File->Reload();
+			}
 			else
 				pRow_File = m_pDatabase_pluto_media->File_get()->AddRow();
 
@@ -1397,7 +1400,10 @@ int MediaAttributes_LowLevel::AddRippedDiscToDatabase(int PK_Disc,int PK_MediaTy
 
 		Row_File *pRow_File = NULL;
 		if(vectRow_File.size() > 0)
+		{
  			pRow_File = vectRow_File[0];
+			pRow_File->Reload();
+		}
 		else
 			pRow_File = m_pDatabase_pluto_media->File_get()->AddRow();
 
