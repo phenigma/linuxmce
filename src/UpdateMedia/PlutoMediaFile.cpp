@@ -340,6 +340,9 @@ void PlutoMediaFile::SaveStartPosition()
 //-----------------------------------------------------------------------------------------------------
 void PlutoMediaFile::SaveShortAttributesInDb(bool bAddAllToDb)
 {
+	if(!m_pPlutoMediaAttributes->m_nFileID)
+		m_pPlutoMediaAttributes->m_nFileID = GetFileIDFromDB();
+
 	int PK_File = m_pPlutoMediaAttributes->m_nFileID;
 
 	MapPlutoMediaAttributes mapPlutoMediaAttributes;
@@ -464,6 +467,9 @@ void PlutoMediaFile::SaveShortAttributesInDb(bool bAddAllToDb)
 //-----------------------------------------------------------------------------------------------------
 void PlutoMediaFile::SaveLongAttributesInDb(bool bAddAllToDb)
 {
+	if(!m_pPlutoMediaAttributes->m_nFileID)
+		m_pPlutoMediaAttributes->m_nFileID = GetFileIDFromDB();
+
 	int PK_File = m_pPlutoMediaAttributes->m_nFileID;
 	MapPlutoMediaAttributes mapPlutoMediaAttributes;
 

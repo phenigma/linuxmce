@@ -207,8 +207,8 @@ MediaSyncMode MediaState::SyncModeNeeded(string sDirectory, string sFile)
 				"old attr count %d, current attr count %d, "
 				"old attr date %s, current attr date %s",
 				sDirectory.c_str(), sFile.c_str(), 
-				item.m_sCurrentDbAttrCount, item.m_sOldDbAttrCount,
-				item.m_sCurrentDbAttrDate.c_str(), item.m_sOldDbAttrDate.c_str()); 
+				item.m_sOldDbAttrCount, item.m_sCurrentDbAttrCount,
+				item.m_sOldDbAttrDate.c_str(), item.m_sCurrentDbAttrDate.c_str()); 
 			bNeedtoUpdateFile = true;
 		}
 
