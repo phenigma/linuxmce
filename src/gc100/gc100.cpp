@@ -104,6 +104,8 @@ gc100::gc100(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool b
 	m_bQuit_set(false);
 	m_bLearning = false;
 	m_bMustConvertRC5_6 = true;
+	sent_messages = received_messages = 0;
+	bChildrenNeedToBeReported = true;
 }
 
 //<-dceag-getconfig-b->
@@ -191,7 +193,7 @@ void gc100::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sC
 	}
 
 	// Let the IR Base class try to handle the message
-	if (IRBase::ProcessMessage(pMessage))
+	if (pDeviceData_Impl && pDeviceData_Impl->FindSelfOrParentWithinCategory(DEVICECATEGORY_Infrared_Interface_CONST) != NULL && IRBase::ProcessMessage(pMessage))
 	{
 		printf("Message processed by IRBase class\n");
 		sCMD_Result = "OK";
@@ -215,7 +217,8 @@ void gc100::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sC
 	// This is a relay command
 	cout << "Processing..." << endl;
 
-	if (pDeviceData_Impl->WithinCategory(DEVICECATEGORY_Environment_CONST) )
+	//if (pDeviceData_Impl->WithinCategory(DEVICECATEGORY_Environment_CONST) )
+	if (pDeviceData_Impl->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Generic_Relays_CONST)
 	{ // this is our guy
 		SendString("OK");
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Message for %s passed to Relay", pDeviceData_Impl->m_sDescription.c_str());
@@ -707,6 +710,8 @@ void gc100::parse_message_device(std::string message)
 			scratch.type=type;
 			scratch.key=key;
 			scratch.global_slot=next_slot;
+			if (type == "RELAY")
+				scratch.in_out = 1;
 
 			module_map.insert(pair<std::string, class module_info> (key,scratch));
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Created new module: mod=%d slot=%d type=%s key=%s global=%d",scratch.module,scratch.slot,scratch.type.c_str(),scratch.key.c_str(),scratch.global_slot);
@@ -716,6 +721,8 @@ void gc100::parse_message_device(std::string message)
 			if (scratch.type=="IR")
 			{
 				send_to_gc100("getstate,"+key);
+				sent_messages++;
+				cout << "sent messages: " << sent_messages << endl;
 			}
 			next_slot++;
 
@@ -966,6 +973,7 @@ void gc100::parse_gc100_reply(std::string message)
 		if (message.substr(0,6)=="device")
 		{
 			parse_message_device(message); // pass it off to the "device message" routine
+			return;
 		}
 	}
 
@@ -982,6 +990,7 @@ void gc100::parse_gc100_reply(std::string message)
 		if ( (message.substr(0,6)=="state,") )
 		{
 			parse_message_statechange(message,false);
+			received_messages++;
 		}
 	}
 
@@ -1002,6 +1011,19 @@ void gc100::parse_gc100_reply(std::string message)
 			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Attepted to send IR through a sensor input");
 			m_bIRComplete = true;
 		}
+		if (message.substr(15, 2) == "13")
+			received_messages++;
+	}
+
+	if (bChildrenNeedToBeReported)
+	{
+		cout << "sent messages: " << sent_messages << endl;
+		cout << "received messages: " << received_messages << endl;
+	}
+	if (bChildrenNeedToBeReported && received_messages == sent_messages)
+	{
+		ReportChildren();
+		bChildrenNeedToBeReported = false;
 	}
 }
 
@@ -1123,7 +1145,8 @@ void gc100::relay_power(class Message *pMessage, bool power_on)
 	{
 		pChildDeviceCommand = (*child_iter).second;
 
-		if (pChildDeviceCommand->m_pData->WithinCategory(DEVICECATEGORY_Environment_CONST) )
+		//if (pChildDeviceCommand->m_pData->WithinCategory(DEVICECATEGORY_Environment_CONST))
+		if (pChildDeviceCommand->m_pData->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Generic_Relays_CONST)
 		{
 			std::string this_pin;
 			std::string io_direction;
@@ -1669,20 +1692,20 @@ void gc100::ReportChildren()
 		memset(buffer, 0, bsize);
 
 		int PK_DeviceTemplate;
-		string sDeviceData = "";
 		if (It->second.type == "IR")
 		{
-			PK_DeviceTemplate = DEVICETEMPLATE_Generic_Input_Ouput_CONST;
-			snprintf(buffer, bsize - 1, "%d\t%d", DEVICEDATA_InputOrOutput_CONST, It->second.in_out);
-			sDeviceData = buffer;
+			if (It->second.in_out == 0)
+				PK_DeviceTemplate = DEVICETEMPLATE_Generic_Input_Ouput_CONST;
+			else
+				PK_DeviceTemplate = DEVICETEMPLATE_Generic_IR_Transmitter_CONST;
 		}
 		else if (It->second.type == "RELAY")
 			PK_DeviceTemplate = DEVICETEMPLATE_Generic_Relays_CONST;
 		else
 			continue;
 
-		snprintf(buffer, bsize - 1, "%s\t%s %s\t\t%d\t\t%s\n",
-			It->first.c_str(), It->second.type.c_str(), It->second.key.c_str(), PK_DeviceTemplate, sDeviceData.c_str());
+		snprintf(buffer, bsize - 1, "%s\t%s %s\t\t%d\n",
+			It->first.c_str(), It->second.type.c_str(), It->second.key.c_str(), PK_DeviceTemplate);
 		sChildren += buffer;
 	}
 	cout << "Children to report: " << endl << sChildren << endl << "End of children list" << endl;
@@ -1704,7 +1727,6 @@ void gc100::CreateChildren()
 	    device_data = read_from_gc100();
 	} while (device_data != "endlistdevices");
 
-	ReportChildren();
 	Start_seriald(); // Start gc_seriald processes according to serial port inventory
 	Sleep(1000);
 //	is_open_for_learning = open_for_learning();

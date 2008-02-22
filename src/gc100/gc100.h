@@ -116,6 +116,9 @@ private:
 	bool m_bStopLearning;
 
 	int learn_client, learn_server;
+
+	int sent_messages, received_messages;
+	bool bChildrenNeedToBeReported;
 //<-dceag-const-b->
 public:
 		// Constructors/Destructor
