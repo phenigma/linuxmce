@@ -811,9 +811,8 @@ void gc100::parse_message_statechange(std::string message, bool change)
 	pos=0;
 	//LoggerWrapper::GetInstance()->Write(LV_STATUS, "statechange Reply received from GC100: %s",message.c_str());
 
-	token=StringUtils::Tokenize(message,",",pos); // state/statechange
-	token=StringUtils::Tokenize(message,",",pos); // address
-	module_address=token;
+	string sCommand = StringUtils::Tokenize(message,",",pos); // state/statechange
+	module_address = StringUtils::Tokenize(message,",",pos); // address
 
 	token=StringUtils::Tokenize(message,",",pos); // input state
 	sscanf(token.c_str(),"%d",&input_state);
@@ -836,6 +835,7 @@ void gc100::parse_message_statechange(std::string message, bool change)
 		if ( (target_type == "IR") || (target_type=="RELAY"))
 		{
 			global_pin_target=map_iter->second.global_slot;
+			map_iter->second.in_out = 1;
 		}
 		else
 		{
@@ -866,7 +866,8 @@ void gc100::parse_message_statechange(std::string message, bool change)
 
 			const char * directions[] = {"IN", "OUT", "BOTH"};
 			io_direction = "** UNKNOWN **";
-			int InOrOut = atoi(child->m_pData->m_mapParameters[DEVICEDATA_InputOrOutput_CONST].c_str());
+			//int InOrOut = atoi(child->m_pData->m_mapParameters[DEVICEDATA_InputOrOutput_CONST].c_str());
+			int InOrOut = map_iter->second.in_out;
 			if (InOrOut >= 0 && InOrOut <= 2)
 				io_direction = directions[InOrOut];
 			this_pin = child->m_pData->m_mapParameters[DEVICEDATA_PortChannel_Number_CONST];
@@ -876,6 +877,18 @@ void gc100::parse_message_statechange(std::string message, bool change)
 				child->m_sName.c_str(), this_pin.c_str(), input_state, child->m_pData->m_mapParameters[DEVICEDATA_Default_State_CONST].c_str());
 
 			//LoggerWrapper::GetInstance()->Write(LV_STATUS, "statechange Reply: found a child pin number of %s, direction is %s",this_pin.c_str(),io_direction.c_str());
+
+			if (this_pin == module_address && DATA_Get_Dont_Auto_Configure() != false)
+			{
+				CMD_Set_Device_Data_DT cmd_Set_Device_Data_DT(m_dwPK_Device, DEVICETEMPLATE_General_Info_Plugin_CONST, BL_SameHouse,
+					child->m_dwPK_Device, "1", DEVICEDATA_InputOrOutput_CONST);
+				SendCommand(cmd_Set_Device_Data_DT);
+				if (target_type == "IR")
+				{
+					io_direction = "IN";
+					map_iter->second.in_out = 1;
+				}
+			}
 
 			if ((target_type == "IR" && io_direction == "IN") ||
 				(target_type == "RELAY" && io_direction == "OUT"))
@@ -1644,6 +1657,8 @@ void gc100::LearningThread(LearningInfo * pLearningInfo)
 
 void gc100::ReportChildren()
 {
+	if (DATA_Get_Dont_Auto_Configure() == false)
+		return;
 	// Report children to the DCE router
 	// internal_id \t description \t room_name \t PK_DeviceTemplate \t floorplan_id \t PK_DeviceData \t DeviceData_value ... \n
 	string sChildren;
