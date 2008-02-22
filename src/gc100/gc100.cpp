@@ -710,8 +710,6 @@ void gc100::parse_message_device(std::string message)
 			scratch.type=type;
 			scratch.key=key;
 			scratch.global_slot=next_slot;
-			if (type == "RELAY")
-				scratch.in_out = 1;
 
 			module_map.insert(pair<std::string, class module_info> (key,scratch));
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Created new module: mod=%d slot=%d type=%s key=%s global=%d",scratch.module,scratch.slot,scratch.type.c_str(),scratch.key.c_str(),scratch.global_slot);
@@ -725,7 +723,6 @@ void gc100::parse_message_device(std::string message)
 				cout << "sent messages: " << sent_messages << endl;
 			}
 			next_slot++;
-
 		}
 		// Now save next_slot so the next module can number (global number only) starting from where we left off
 		slot_map.erase(type);
@@ -839,14 +836,16 @@ void gc100::parse_message_statechange(std::string message, bool change)
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "statechange Reply: found module of type %s, %d", map_iter->second.type.c_str(), map_iter->second.global_slot);
 		target_type = map_iter->second.type;
 
-		if ( (target_type == "IR") || (target_type=="RELAY"))
+		if (target_type == "IR")
+			map_iter->second.type = target_type = "SENSOR";
+
+		if (target_type == "SENSOR" || target_type == "RELAY")
 		{
 			global_pin_target=map_iter->second.global_slot;
-			map_iter->second.in_out = 1;
 		}
 		else
 		{
-			LoggerWrapper::GetInstance()->Write(LV_WARNING, "statechange Reply: found module but it's not IR/RELAY; it's %s",target_type.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "statechange Reply: found module but it's not SENSOR/RELAY; it's %s",target_type.c_str());
 		}
 	}
 	else
@@ -858,54 +857,31 @@ void gc100::parse_message_statechange(std::string message, bool change)
 	// What we'd really like to find is something in the 4:3 format.  If we see that,
 	// it takes priority.  The next best thing will be a global pin id (ie 5)
 
-	string target_direction, nomination_direction;
 	for (child_iter=m_mapCommandImpl_Children.begin(); child_iter!=m_mapCommandImpl_Children.end(); ++child_iter)
 	{
 		pChildDeviceCommand = (*child_iter).second;
 
-		if (pChildDeviceCommand->m_pData->WithinCategory(DEVICECATEGORY_Environment_CONST) )
+		if (pChildDeviceCommand->m_pData->WithinCategory(DEVICECATEGORY_Infrared_Interface_CONST))
 		{
 			std::string this_pin;
-			std::string io_direction;
 
 //			if (pChildDeviceCommand->PK_DeviceTemplate_get() == DEVICETEMPLATE_Generic_Input_Ouput_CONST)
 				Command_Impl * child = pChildDeviceCommand;
 
-			const char * directions[] = {"IN", "OUT", "BOTH"};
-			io_direction = "** UNKNOWN **";
-			//int InOrOut = atoi(child->m_pData->m_mapParameters[DEVICEDATA_InputOrOutput_CONST].c_str());
-			int InOrOut = map_iter->second.in_out;
-			if (InOrOut >= 0 && InOrOut <= 2)
-				io_direction = directions[InOrOut];
 			this_pin = child->m_pData->m_mapParameters[DEVICEDATA_PortChannel_Number_CONST];
 
-		
 			LoggerWrapper::GetInstance()->Write(LV_STATUS, "statechange Reply: testing %s, %s (state %d) default state: %s", 
 				child->m_sName.c_str(), this_pin.c_str(), input_state, child->m_pData->m_mapParameters[DEVICEDATA_Default_State_CONST].c_str());
 
 			//LoggerWrapper::GetInstance()->Write(LV_STATUS, "statechange Reply: found a child pin number of %s, direction is %s",this_pin.c_str(),io_direction.c_str());
 
-			if (this_pin == module_address)
-			{
-				CMD_Set_Device_Data_DT cmd_Set_Device_Data_DT(m_dwPK_Device, DEVICETEMPLATE_General_Info_Plugin_CONST, BL_SameHouse,
-					child->m_dwPK_Device, "1", DEVICEDATA_InputOrOutput_CONST);
-				SendCommand(cmd_Set_Device_Data_DT);
-				if (target_type == "IR")
-				{
-					io_direction = "IN";
-					map_iter->second.in_out = 1;
-				}
-			}
-
-			if ((target_type == "IR" && io_direction == "IN") ||
-				(target_type == "RELAY" && io_direction == "OUT"))
+			if (target_type == "SENSOR" || target_type == "RELAY")
 			{
 				// See if it matches exactly
 				if (this_pin == module_address)
 				{
 					LoggerWrapper::GetInstance()->Write(LV_STATUS, "statechange Reply: matches exactly in m:s format");
 					result = child;
-					target_direction = io_direction;
 				}
 
 				// See if it matches the global number
@@ -913,7 +889,6 @@ void gc100::parse_message_statechange(std::string message, bool change)
 				{
 					LoggerWrapper::GetInstance()->Write(LV_STATUS, "statechange Reply: matches global number");
 					nomination = child;
-					nomination_direction = io_direction;
 				}
 			}
 			else
@@ -927,14 +902,13 @@ void gc100::parse_message_statechange(std::string message, bool change)
 	{
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "statechange Reply: no exact match in m:s format, trying global pin number");
 		result=nomination;
-		target_direction = nomination_direction;
 	}
 
 	if (result!=NULL)
 	{
 		if( result->m_pData->m_mapParameters[DEVICEDATA_Default_State_CONST]=="1" )
 			input_state = !input_state;
-		if (target_direction == "IN")
+		if (target_type == "SENSOR")
 		{
 			Message *pMessage = new Message(result->m_dwPK_Device, 0, PRIORITY_NORMAL, MESSAGETYPE_EVENT, EVENT_Sensor_Tripped_CONST,
 				1, EVENTPARAMETER_Tripped_CONST, StringUtils::itos(input_state).c_str());
@@ -942,7 +916,7 @@ void gc100::parse_message_statechange(std::string message, bool change)
 		}
 		else
 		{
-			LoggerWrapper::GetInstance()->Write(LV_STATUS, "statechange Reply: target_direction not IN, not sending event");
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "statechange Reply: target_type not SENSOR, not sending event");
 		}
 
 		if (change)
@@ -1136,6 +1110,7 @@ void gc100::relay_power(class Message *pMessage, bool power_on)
 	MapCommand_Impl::iterator child_iter;
 	Command_Impl *pChildDeviceCommand;
 	int target_device;
+	std::map<std::string, class module_info>::iterator map_iter;
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Relay Pwr.");
 	target_device=pMessage->m_dwPK_Device_To;
@@ -1149,85 +1124,70 @@ void gc100::relay_power(class Message *pMessage, bool power_on)
 		if (pChildDeviceCommand->m_pData->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Generic_Relays_CONST)
 		{
 			std::string this_pin;
-			std::string io_direction;
 			int this_device_id;
 
 			Command_Impl * child = pChildDeviceCommand;
 
-			const char * directions[] = {"IN", "OUT", "BOTH"};
-			io_direction = "** UNKNOWN **";
-			int InOrOut = atoi(child->m_pData->m_mapParameters[DEVICEDATA_InputOrOutput_CONST].c_str());
-			if (InOrOut >= 0 && InOrOut <= 2)
-				io_direction = directions[InOrOut];
 			this_pin = child->m_pData->m_mapParameters[DEVICEDATA_PortChannel_Number_CONST];
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "This pin: %s", this_pin.c_str());
 
-			LoggerWrapper::GetInstance()->Write(LV_STATUS, "This pin: %s; Pin direction: %s", this_pin.c_str(), io_direction.c_str());
-			if (io_direction == "OUT")
+			this_device_id = child->m_dwPK_Device;
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Relay Pwr.: This device is %d",this_device_id);
+
+			PLUTO_SAFETY_LOCK(sl, gc100_mutex);
+			if (this_device_id == target_device)
 			{
-				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Relay Pwr.: Pin direction is out, OK");
-				this_device_id = child->m_dwPK_Device;
+				std::string module_id;
+				std::map<std::string,class module_info>::iterator module_iter;
 
-				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Relay Pwr.: This device is %d",this_device_id);
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Relay Pwr.: Matched target device");
+				module_iter=module_map.find(this_pin);
 
-				PLUTO_SAFETY_LOCK(sl, gc100_mutex);
-				if (this_device_id == target_device)
+				if (module_iter==module_map.end())
 				{
-					std::string module_id;
-					std::map<std::string,class module_info>::iterator module_iter;
+					std::map<std::string,class module_info>::iterator module_iter2;
+					LoggerWrapper::GetInstance()->Write(LV_STATUS,"Relay Pwr.: Did not find %s in module map",this_pin.c_str());
 
-					LoggerWrapper::GetInstance()->Write(LV_STATUS,"Relay Pwr.: Matched target device");
-					module_iter=module_map.find(this_pin);
-
-					if (module_iter==module_map.end())
+					// OK, it must be in the global number format.  Search through the RELAY modules until you find it.
+					for (module_iter2=module_map.begin(); module_iter2!=module_map.end(); ++module_iter2++)
 					{
-						std::map<std::string,class module_info>::iterator module_iter2;
-						LoggerWrapper::GetInstance()->Write(LV_STATUS,"Relay Pwr.: Did not find %s in module map",this_pin.c_str());
+						if (module_iter2->second.type == "RELAY") {
+							LoggerWrapper::GetInstance()->Write(LV_STATUS,"Relay Pwr.: Found a Relay number %d",module_iter2->second.global_slot);
 
-						// OK, it must be in the global number format.  Search through the RELAY modules until you find it.
-						for (module_iter2=module_map.begin(); module_iter2!=module_map.end(); ++module_iter2++)
-						{
-							if (module_iter2->second.type == "RELAY") {
-								LoggerWrapper::GetInstance()->Write(LV_STATUS,"Relay Pwr.: Found a Relay number %d",module_iter2->second.global_slot);
-
-								if (StringUtils::itos(module_iter2->second.global_slot) == this_pin)
-								{
-									LoggerWrapper::GetInstance()->Write(LV_STATUS,"Relay Pwr.: Matched Relay number %d.  ID will be %s",module_iter2->second.global_slot,module_iter2->first.c_str());
-									module_id=module_iter2->first;
-								}
+							if (StringUtils::itos(module_iter2->second.global_slot) == this_pin)
+							{
+								LoggerWrapper::GetInstance()->Write(LV_STATUS,"Relay Pwr.: Matched Relay number %d.  ID will be %s",module_iter2->second.global_slot,module_iter2->first.c_str());
+								module_id=module_iter2->first;
 							}
 						}
 					}
-					else
-					{
-						LoggerWrapper::GetInstance()->Write(LV_STATUS,"Relay Pwr.: Found %s in module map",this_pin.c_str());
-						module_id=this_pin;
-					}
+				}
+				else
+				{
+					LoggerWrapper::GetInstance()->Write(LV_STATUS,"Relay Pwr.: Found %s in module map",this_pin.c_str());
+					module_id=this_pin;
+				}
 
-					// Module ID should now be the key of the desired relay
-					LoggerWrapper::GetInstance()->Write(LV_STATUS,"Relay Pwr.: Regardless, module ID is %s",module_id.c_str());
+				// Module ID should now be the key of the desired relay
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Relay Pwr.: Regardless, module ID is %s",module_id.c_str());
 
-					// Sanity check.  Make sure module_id really is there
-					module_iter=module_map.find(module_id);
+				// Sanity check.  Make sure module_id really is there
+				module_iter=module_map.find(module_id);
 
-					if (module_iter==module_map.end())
-					{
-						LoggerWrapper::GetInstance()->Write(LV_WARNING,"Relay Pwr.: Module_iter %s should be found but isn't",module_id.c_str());
-					}
-					else
-					{
-						std::string cmd;
+				if (module_iter==module_map.end())
+				{
+					LoggerWrapper::GetInstance()->Write(LV_WARNING,"Relay Pwr.: Module_iter %s should be found but isn't",module_id.c_str());
+				}
+				else
+				{
+					std::string cmd;
 
-						// Compose the command to the GC100
+					// Compose the command to the GC100
 
-						cmd = "setstate," + module_id + "," + (power_on ? "1" : "0") ;
-						send_to_gc100(cmd);
-					}
+					cmd = "setstate," + module_id + "," + (power_on ? "1" : "0") ;
+					send_to_gc100(cmd);
 				}
 			}
-			else
-			{
-				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Relay Pwr.: This pin is not a relay (direction not OUT)");
-			} // End if direction is OUT
 		}
 	}
 }
@@ -1680,8 +1640,8 @@ void gc100::LearningThread(LearningInfo * pLearningInfo)
 
 void gc100::ReportChildren()
 {
-	if (DATA_Get_Dont_Auto_Configure() == false)
-		return;
+//	if (DATA_Get_Dont_Auto_Configure() == false)
+//		return;
 	// Report children to the DCE router
 	// internal_id \t description \t room_name \t PK_DeviceTemplate \t floorplan_id \t PK_DeviceData \t DeviceData_value ... \n
 	string sChildren;
@@ -1693,12 +1653,9 @@ void gc100::ReportChildren()
 
 		int PK_DeviceTemplate;
 		if (It->second.type == "IR")
-		{
-			if (It->second.in_out == 0)
-				PK_DeviceTemplate = DEVICETEMPLATE_Generic_Input_Ouput_CONST;
-			else
-				PK_DeviceTemplate = DEVICETEMPLATE_Generic_IR_Transmitter_CONST;
-		}
+			PK_DeviceTemplate = DEVICETEMPLATE_Generic_IR_Transmitter_CONST;
+		else if (It->second.type == "SENSOR")
+			PK_DeviceTemplate = DEVICETEMPLATE_Generic_Input_Ouput_CONST;
 		else if (It->second.type == "RELAY")
 			PK_DeviceTemplate = DEVICETEMPLATE_Generic_Relays_CONST;
 		else

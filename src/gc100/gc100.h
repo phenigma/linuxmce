@@ -54,7 +54,6 @@ namespace DCE
 		std::string type; // SERIAL, RELAY, IR, or IRL
 		std::string key; // e.g. 4:3 - might make a good primary key
 		int global_slot; // i.e. 1-9 if there are 3 IR emitter blocks. e.g. the "1-6" IR labels on the back
-		int in_out; // 0 = input, 1 = output, 2 = both
 	};
 }
 
