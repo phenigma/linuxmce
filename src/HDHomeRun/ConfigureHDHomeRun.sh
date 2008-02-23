@@ -23,7 +23,7 @@ done
 
 /usr/pluto/bin/MessageSend $DCERouter -targetType template -r 0 36 1 824  # Force the new device id to be written into mythconverg setup
 
-/usr/pluto/bin/hdhomerun_config $IPAddress upgrade hdhomerun_firmware_20080212.bin
+/usr/pluto/bin/hdhomerun_config $IPAddress upgrade /usr/pluto/bin/hdhomerun_firmware_20080212.bin
 sleep 30  # give it time to recover after the firmware upgrade
 
 echo "$(date -R) ConfigureHDHomeRun done"
