@@ -1197,7 +1197,10 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Device,int iPK_Orbiter,
 					sSQL = DatabaseUtils::GetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,pRow_Device->FK_Device_ControlledVia_get(),DEVICEDATA_Configuration_CONST);
 
 				if( sSQL.empty() )
+				{
 					sSQL = "INSERT INTO `capturecard`(cardtype,hostname,defaultinput) VALUES ('MPEG','" + sHostname + "','" + sPortName + "');";
+					LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::SyncCardsAndProviders adding card with default query: %s", sSQL.c_str());
+				}
 				else
 				{
 					StringUtils::Replace(&sSQL,"<%=HOST%>",sHostname);
@@ -1205,10 +1208,12 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Device,int iPK_Orbiter,
 					StringUtils::Replace(&sSQL,"<%=PORTNUM%>",sPortNumber);
 					string sIPAddress = pRow_Device_CaptureCard->IPaddress_get();
 					StringUtils::Replace(&sSQL,"<%=IP%>",sIPAddress);
+					LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::SyncCardsAndProviders adding card with custom query: %s", sSQL.c_str());
 				}
 
 				cardid = m_pDBHelper_Myth->threaded_db_wrapper_query_withID(sSQL);
 				DatabaseUtils::SetDeviceData(m_pMedia_Plugin->m_pDatabase_pluto_main,bTunersAsSeparateDevices ? pRow_Device->PK_Device_get() : pRow_Device_CaptureCard->PK_Device_get(),DEVICEDATA_Port_CONST,StringUtils::itos(cardid));
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::SyncCardsAndProviders added card %d", cardid);
 			}
 
 			sSQL = "UPDATE `capturecard` SET hostname='" + sHostname + "' where cardid=" + StringUtils::itos(cardid);
@@ -1352,17 +1357,21 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Device,int iPK_Orbiter,
 					cardinputid = atoi(row2[0]);
 
 				if( cardinputid && !bUseInMyth )
+				{
 					m_pDBHelper_Myth->threaded_db_wrapper_query("DELETE FROM `cardinput` WHERE cardinputid=" + StringUtils::itos(cardinputid));
+					LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::CMD_Sync_Providers_and_Cards deleting cardinput %d", cardinputid);
+				}
 				else if( !cardinputid && bUseInMyth )
 				{
 					bModifiedRows=true;
-					LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::CMD_Sync_Providers_and_Cards bModifiedRows=true cardinputid %d bUseInMyth %d",(int) cardinputid, (int) bUseInMyth);
 					sSQL = "INSERT INTO `cardinput`(cardid,sourceid,inputname) VALUES (" + StringUtils::itos(cardid) + "," + StringUtils::itos(sourceid) + ",'" + sPortName + "')";
+					LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::CMD_Sync_Providers_and_Cards bModifiedRows=true cardinputid %d bUseInMyth %d sql: %s",(int) cardinputid, (int) bUseInMyth, sSQL.c_str());
 					cardinputid = m_pDBHelper_Myth->threaded_db_wrapper_query_withID(sSQL);
 				}
 				else if( cardinputid )
 				{
 					sSQL = "UPDATE cardinput SET sourceid='" + StringUtils::itos(sourceid) + "' WHERE cardid='" + StringUtils::itos(cardid) + "' AND inputname='" + sPortName + "'";
+					LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::CMD_Sync_Providers_and_Cards updating cardinput %s", sSQL.c_str());
 					m_pDBHelper_Myth->threaded_db_wrapper_query(sSQL);
 				}
 
@@ -2048,14 +2057,14 @@ void MythTV_PlugIn::StartScanJob(ScanJob *pScanJob)
 {
 	if( pScanJob->m_bActive )
 	{
-		LoggerWrapper::GetInstance()->Write( LV_STATUS, "MythTV_PlugIn::StartScanningScript %d/%d active", pScanJob->m_pRow_Device_Tuner->PK_Device_get(),pScanJob->m_pRow_Device_CaptureCard->PK_Device_get());
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "MythTV_PlugIn::StartScanJob %d/%d active", pScanJob->m_pRow_Device_Tuner->PK_Device_get(),pScanJob->m_pRow_Device_CaptureCard->PK_Device_get());
 		return;
 	}
 
 	// If we're still busy downloading packages we don't want to do this yet since the files may not be installed yet
 	if( m_pGeneral_Info_Plugin->PendingConfigs() )
 	{
-		LoggerWrapper::GetInstance()->Write( LV_STATUS, "MythTV_PlugIn::StartScanningScript %d/%d waiting for packages", pScanJob->m_pRow_Device_Tuner->PK_Device_get(),pScanJob->m_pRow_Device_CaptureCard->PK_Device_get() );
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "MythTV_PlugIn::StartScanJob %d/%d waiting for packages", pScanJob->m_pRow_Device_Tuner->PK_Device_get(),pScanJob->m_pRow_Device_CaptureCard->PK_Device_get() );
 		m_pAlarmManager->AddRelativeAlarm(30,this,START_SCAN_JOB,(void *) pScanJob);  /* check again in 30 seconds */
 		return;
 	}
@@ -2063,13 +2072,13 @@ void MythTV_PlugIn::StartScanJob(ScanJob *pScanJob)
 	if( pScanJob->m_pRow_Device_CaptureCard )
 		pScanJob->m_pRow_Device_CaptureCard->Reload();
 
-	LoggerWrapper::GetInstance()->Write( LV_STATUS, "MythTV_PlugIn::StartScanningScript card %d %s",
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "MythTV_PlugIn::StartScanJob card %d %s",
 		(pScanJob->m_pRow_Device_CaptureCard ? pScanJob->m_pRow_Device_CaptureCard->PK_Device_get() : -1),
 		(pScanJob->m_pRow_Device_CaptureCard ? pScanJob->m_pRow_Device_CaptureCard->Status_get().c_str() : "none") );
 
 	if( pScanJob->m_pRow_Device_CaptureCard && pScanJob->m_pRow_Device_CaptureCard->Status_get()=="**RUN_CONFIG**" )
 	{
-		LoggerWrapper::GetInstance()->Write( LV_STATUS, "MythTV_PlugIn::StartScanningScript %d/%d waiting for configure", pScanJob->m_pRow_Device_Tuner->PK_Device_get(),
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "MythTV_PlugIn::StartScanJob %d/%d waiting for configure", pScanJob->m_pRow_Device_Tuner->PK_Device_get(),
 			pScanJob->m_pRow_Device_CaptureCard->PK_Device_get() );
 		m_pAlarmManager->AddRelativeAlarm(30,this,START_SCAN_JOB,(void *) pScanJob);  /* check again in 30 seconds */
 		return;
@@ -2102,7 +2111,7 @@ void MythTV_PlugIn::StartScanJob(ScanJob *pScanJob)
 		string sResponse;
 		if( !SendCommand(CMD_Spawn_Application,&sResponse) || sResponse!="OK" )
 		{
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythTV_PlugIn::StartScanningScript -- app server didn't respond");
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythTV_PlugIn::StartScanJob -- app server didn't respond");
 			m_pAlarmManager->AddRelativeAlarm(30,this,START_SCAN_JOB,(void *) pScanJob);  /* check again in 30 seconds */
 		}
 		else
@@ -2113,9 +2122,10 @@ void MythTV_PlugIn::StartScanJob(ScanJob *pScanJob)
 	}
 	else
 	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythTV_PlugIn::StartScanningScript -- no app server");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MythTV_PlugIn::StartScanJob -- no app server");
 		m_mapPendingScans.erase( pScanJob->m_pRow_Device_Tuner->PK_Device_get() );
 		delete pScanJob;
+		return;
 	}
 
 	string sDevices = StringUtils::itos(pScanJob->m_pRow_Device_CaptureCard->PK_Device_get()) + "," 
