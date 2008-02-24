@@ -441,7 +441,7 @@ static int cmd_scan_callback(va_list ap, const char *type, const char *str)
 	int sourceid = va_arg(ap, int);
 	int cardinputid = va_arg(ap, int);
 
-	printf("cmd_scan_callback_lock DeviceID %d, Tuner %d, cardid %d, sourceid %d, cardinputid %d, str %s\n", DeviceID, Tuner, cardid, sourceid, cardinputid, str);
+	printf("cmd_scan_callback_lock DeviceID %d, Tuner %d, cardid %d, sourceid %d, cardinputid %d, type: %s str: %s\n", DeviceID, Tuner, cardid, sourceid, cardinputid, type, str);
 
 	if (strcmp(type, "SCANNING") == 0) {
 		return cmd_scan_callback_scanning(str);
