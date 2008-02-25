@@ -54,6 +54,8 @@ install: build
 	dh_installdirs
 
 	# Add here commands to install the package into debian/fuppes.
+	mkdir -p $(CURDIR)/debian/tmp/var/lib/fuppes
+	mkdir -p $(CURDIR)/debian/tmp/etc/fuppes
 	$(MAKE) DESTDIR=$(CURDIR)/debian/tmp install
 
 
