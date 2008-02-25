@@ -192,8 +192,28 @@ void gc100::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sC
 		cout << "Parameter: " << i->first << " Value: " << i->second << endl;
 	}
 
+	// It's a Send Code command
+	if (pMessage->m_dwID == COMMAND_Send_Code_CONST)
+	{
+		string sPort;
+		if (pDeviceData_Impl)
+		{
+			if (pDeviceData_Impl->m_dwPK_DeviceCategory == DEVICECATEGORY_Infrared_Interface_CONST)
+				sPort = pDeviceData_Impl->m_mapParameters[DEVICEDATA_PortChannel_Number_CONST];
+			else if (pDeviceData_Impl->m_pDevice_ControlledVia && pDeviceData_Impl->m_pDevice_ControlledVia->m_dwPK_DeviceCategory == DEVICECATEGORY_Infrared_Interface_CONST)
+				sPort = dynamic_cast<DeviceData_Impl*>(pDeviceData_Impl->m_pDevice_ControlledVia)->m_mapParameters[DEVICEDATA_PortChannel_Number_CONST];
+			// TODO: pass this to a framework maintainer, because pDeviceData_Impl->m_pDevice_ControlledVia is NULL, even when the device is not top level
+		}
+		string sCode = pMessage->m_mapParameters[COMMANDPARAMETER_Text_CONST];
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Sending IR to port '%s', code '%s'", sPort.c_str(), sCode.c_str());
+		SendIR(sPort, sCode, 1);
+		sCMD_Result = "OK";
+		return;
+	}
+
 	// Let the IR Base class try to handle the message
-	if (pDeviceData_Impl && pDeviceData_Impl->FindSelfOrParentWithinCategory(DEVICECATEGORY_Infrared_Interface_CONST) != NULL && IRBase::ProcessMessage(pMessage))
+	if (pDeviceData_Impl && pDeviceData_Impl->FindSelfOrParentWithinCategory(DEVICECATEGORY_Infrared_Interface_CONST) != NULL
+		&& IRBase::ProcessMessage(pMessage))
 	{
 		printf("Message processed by IRBase class\n");
 		sCMD_Result = "OK";
@@ -218,7 +238,8 @@ void gc100::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sC
 	cout << "Processing..." << endl;
 
 	//if (pDeviceData_Impl->WithinCategory(DEVICECATEGORY_Environment_CONST) )
-	if (pDeviceData_Impl->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Generic_Relays_CONST)
+	if (pDeviceData_Impl->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Generic_Relays_CONST
+		|| (pDeviceData_Impl->m_pDevice_ControlledVia && pDeviceData_Impl->m_pDevice_ControlledVia->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Generic_Relays_CONST))
 	{ // this is our guy
 		SendString("OK");
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Message for %s passed to Relay", pDeviceData_Impl->m_sDescription.c_str());
@@ -1121,7 +1142,8 @@ void gc100::relay_power(class Message *pMessage, bool power_on)
 		pChildDeviceCommand = (*child_iter).second;
 
 		//if (pChildDeviceCommand->m_pData->WithinCategory(DEVICECATEGORY_Environment_CONST))
-		if (pChildDeviceCommand->m_pData->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Generic_Relays_CONST)
+		if (pChildDeviceCommand->m_pData->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Generic_Relays_CONST
+			|| (pChildDeviceCommand->m_pData->m_pDevice_ControlledVia && pChildDeviceCommand->m_pData->m_pDevice_ControlledVia->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Generic_Relays_CONST))
 		{
 			std::string this_pin;
 			int this_device_id;
@@ -1249,7 +1271,7 @@ void gc100::SendIR_Real(string Port, string IRCode)
 	{
 		//LoggerWrapper::GetInstance()->Write(LV_STATUS, "SendIR: Examining slot %s",slot_iter->second.key.c_str());
 
-		if ( (slot_iter->second.type=="IR") &&
+		if ((slot_iter->second.type=="IR") &&
 			(
 				(slot_iter->second.key == Port) ||
 				(StringUtils::itos(slot_iter->second.global_slot) == Port) ||
