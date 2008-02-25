@@ -1640,7 +1640,7 @@ void gc100::LearningThread(LearningInfo * pLearningInfo)
 
 void gc100::ReportChildren()
 {
-	if (DATA_Get_Dont_Auto_Configure() == false)
+	if (DATA_Get_Dont_Auto_Configure())
 		return;
 	// Report children to the DCE router
 	// internal_id \t description \t room_name \t PK_DeviceTemplate \t floorplan_id \t PK_DeviceData \t DeviceData_value ... \n
