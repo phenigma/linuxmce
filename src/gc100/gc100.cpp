@@ -882,7 +882,7 @@ void gc100::parse_message_statechange(std::string message, bool change)
 	{
 		pChildDeviceCommand = (*child_iter).second;
 
-		if (pChildDeviceCommand->m_pData->WithinCategory(DEVICECATEGORY_Infrared_Interface_CONST))
+		if (pChildDeviceCommand->m_pData->WithinCategory(DEVICECATEGORY_Environment_CONST))
 		{
 			std::string this_pin;
 
