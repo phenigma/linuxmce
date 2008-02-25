@@ -2828,6 +2828,7 @@ Row_Device *General_Info_Plugin::ProcessChildDevice(Row_Device *pRow_Device,stri
 		" LEFT JOIN Device AS Device_Parent ON Device.FK_Device_ControlledVia = Device_Parent.PK_Device "
 		" WHERE (Device.FK_Device_ControlledVia=" + StringUtils::itos(pRow_Device->PK_Device_get()) + " OR Device_Parent.FK_Device_ControlledVia=" + StringUtils::itos(pRow_Device->PK_Device_get()) + ") "
 		" AND FK_DeviceData=" + StringUtils::itos(DEVICEDATA_PortChannel_Number_CONST) +
+		" AND FK_DeviceTemplate=" + StringUtils::itos(PK_DeviceTemplate) + 
 		" AND IK_DeviceData='" + StringUtils::SQLEscape(sInternalID) + "'",&vectRow_Device_Child);
 	
 	bool bCreatedNew=false;
