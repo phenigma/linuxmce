@@ -434,7 +434,7 @@ void Disk_Drive::RunMonitorLoop()
     bool done = false;
     
     bool bSendEvents = DATA_Get_Send_Events();
-    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Disk_Drive:::RunMonitorLoop - configured to %s Media Inserted events", bSendEvents?"send":"not send");
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Disk_Drive:::RunMonitorLoop - configured %s Media Inserted events", bSendEvents?"to send":"not to send");
 
     while ( ! done  && !m_bQuit_get())
     {
