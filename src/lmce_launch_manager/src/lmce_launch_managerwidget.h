@@ -39,7 +39,7 @@ private:
 	void initialize_ViewLog();
 	void initialize_ConfigurationFiles();
 	
-	bool initialize_LMdevice();
+	bool initialize_LMdevice(bool bRetryForever=false);
 	void deinitialize_LMdevice();
 
 	void doRedraw();

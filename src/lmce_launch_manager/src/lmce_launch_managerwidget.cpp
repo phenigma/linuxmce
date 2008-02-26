@@ -832,7 +832,7 @@ void lmce_launch_managerWidget::initialize()
 
 }
 
-bool lmce_launch_managerWidget::initialize_LMdevice()
+bool lmce_launch_managerWidget::initialize_LMdevice(bool bRetryForever/*=false*/)
 {
 	// if we already have a connection
 	if (m_pLaunch_Manager)
@@ -847,36 +847,49 @@ bool lmce_launch_managerWidget::initialize_LMdevice()
 	
 	writeLog(QString("Connecting to router at ") + sCoreIP, true, LV_STATUS);
 	
-	m_pLaunch_Manager = new DCE::Launch_Manager(
-			m_qsDeviceID.toInt(), sCoreIP,  true, false);
-	if ( m_pLaunch_Manager->GetConfig() && m_pLaunch_Manager->Connect(m_pLaunch_Manager->PK_DeviceTemplate_get()) ) 
+	while (true)
 	{
-		writeLog(QString("Connect OK"), true, LV_STATUS);
-		
-		map<int,string> devicesMap;
-		m_pLaunch_Manager->GetDevicesByTemplate(DEVICETEMPLATE_Orbiter_Plugin_CONST, &devicesMap);
-		if (devicesMap.empty())
+		m_pLaunch_Manager = new DCE::Launch_Manager(
+				m_qsDeviceID.toInt(), sCoreIP,  true, false);
+
+		if ( m_pLaunch_Manager->GetConfig() && m_pLaunch_Manager->Connect(m_pLaunch_Manager->PK_DeviceTemplate_get()) ) 
 		{
-			writeLog("Failed to find Orbiter plugin", false, LV_WARNING);
+			writeLog(QString("initialize_LMdevice: Connect OK"), true, LV_STATUS);
+			
+			map<int,string> devicesMap;
+			m_pLaunch_Manager->GetDevicesByTemplate(DEVICETEMPLATE_Orbiter_Plugin_CONST, &devicesMap);
+			if (devicesMap.empty())
+			{
+				writeLog("initialize_LMdevice: Failed to find Orbiter plugin", false, LV_WARNING);
+			}
+		
+			map<int,string>::iterator it = devicesMap.begin();
+		
+			m_qsOrbiterPluginID = QString::number( (*it).first );
+			
+			m_pLaunch_Manager->lmWidget = this;
+			
+			QTimer::singleShot(5000, this, SLOT(LMdeviceKeepAlive()));
+			
+			QApplication::restoreOverrideCursor();
+			return true;
 		}
-	
-		map<int,string>::iterator it = devicesMap.begin();
-	
-		m_qsOrbiterPluginID = QString::number( (*it).first );
 		
-		m_pLaunch_Manager->lmWidget = this;
-		
-		QTimer::singleShot(5000, this, SLOT(LMdeviceKeepAlive()));
-		
-		QApplication::restoreOverrideCursor();
-		return true;
-	}
-	else
-	{
-		writeLog(QString("Connect failed"), true, LV_WARNING);
+		delete m_pLaunch_Manager;
 		m_pLaunch_Manager = NULL;
-		QApplication::restoreOverrideCursor();
-		return false;
+		
+		writeLog(QString("initialize_LMdevice: Connect failed"), true, LV_WARNING);
+		
+		if (!bRetryForever)
+		{
+			writeLog(QString("initialize_LMdevice: Not retrying"), true, LV_WARNING);
+			QApplication::restoreOverrideCursor();
+			return false;
+		}
+		else
+		{
+			writeLog(QString("initialize_LMdevice: Retrying (forever)"), true, LV_WARNING);
+		}
 	}
 }
 
@@ -1366,9 +1379,10 @@ void lmce_launch_managerWidget::stopCore()
 
 bool lmce_launch_managerWidget::startMediaStation()
 {
-  updateSerialPorts();
-  
-	bool bLMinit = initialize_LMdevice();
+	updateSerialPorts();
+
+	// retrying forever, as KeepAlive timer is not running yet
+	bool bLMinit = initialize_LMdevice(true);
 	if (!bLMinit)
 	{
 		writeLog(QString("Failed to connect to DCERouter!"), true, LV_WARNING);
