@@ -200,23 +200,27 @@ void gc100::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sC
 		{
 			if (pDeviceData_Impl->m_dwPK_DeviceCategory == DEVICECATEGORY_Infrared_Interface_CONST)
 				sPort = pDeviceData_Impl->m_mapParameters[DEVICEDATA_PortChannel_Number_CONST];
-			else if (pDeviceData_Impl->m_pDevice_ControlledVia && pDeviceData_Impl->m_pDevice_ControlledVia->m_dwPK_DeviceCategory == DEVICECATEGORY_Infrared_Interface_CONST)
-				sPort = dynamic_cast<DeviceData_Impl*>(pDeviceData_Impl->m_pDevice_ControlledVia)->m_mapParameters[DEVICEDATA_PortChannel_Number_CONST];
-			// TODO: pass this to a framework maintainer, because pDeviceData_Impl->m_pDevice_ControlledVia is NULL, even when the device is not top level
-
-			/*
-			DeviceData_Base *pDevice_ControlledVia = NULL;
-			Map_DeviceData_Base::iterator it_controlledvia = m_pData->m_AllDevices->m_mapDeviceData_Base.find(pDeviceData_Impl->m_dwPK_Device_ControlledVia);
-			if(it_controlledvia != m_pData->m_AllDevices->m_mapDeviceData_Base.end())
-				pDevice_ControlledVia = it_controlledvia->second;
-
-            DeviceData_Impl *pDeviceData_Impl_ControlledVia = dynamic_cast<DeviceData_Impl*>(pDevice_ControlledVia);
-			if(NULL != pDeviceData_Impl_ControlledVia)
+			else
 			{
-				string my_child_id = pDeviceData_Impl_ControlledVia->m_mapParameters[DEVICEDATA_PortChannel_Number_CONST];
-			}
-			*/
+				DeviceData_Base *pDevice_ControlledVia = NULL;
+				Map_DeviceData_Base::iterator it_controlledvia = m_pData->m_AllDevices.m_mapDeviceData_Base.find(pDeviceData_Impl->m_dwPK_Device_ControlledVia);
+				if (it_controlledvia != m_pData->m_AllDevices.m_mapDeviceData_Base.end())
+					pDevice_ControlledVia = it_controlledvia->second;
 
+				if (pDevice_ControlledVia && pDevice_ControlledVia->m_dwPK_DeviceCategory == DEVICECATEGORY_Infrared_Interface_CONST)
+				{
+					CMD_Get_Device_Data_DT cmd_Get_Device_Data_DT(m_dwPK_Device, DEVICETEMPLATE_General_Info_Plugin_CONST,
+						BL_SameHouse, pDevice_ControlledVia->m_dwPK_Device, DEVICEDATA_PortChannel_Number_CONST,
+						false, &sPort);
+					SendCommand(cmd_Get_Device_Data_DT);
+					//TODO: get back to the framework maintainers, as this command doesn't work either; sPort is always empty, even though the database contains a value
+				}
+				else
+				{
+					LoggerWrapper::GetInstance()->Write(LV_WARNING,
+						"Neither the target device, nor its parent, is a IR transmitter. Will transmit code on all ports. WARNING: this behavior may change in the future.");
+				}
+			}
 		}
 		string sCode = pMessage->m_mapParameters[COMMANDPARAMETER_Text_CONST];
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Sending IR to port '%s', code '%s'", sPort.c_str(), sCode.c_str());
