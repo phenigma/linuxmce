@@ -206,32 +206,20 @@ void gc100::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sC
 			else
 			{
 				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Message recipient is not my child. Searching for nephew.");
-				DeviceData_Base *pDevice_ControlledVia = NULL;
-				Map_DeviceData_Base::iterator it_controlledvia = m_pData->m_AllDevices.m_mapDeviceData_Base.find(pDeviceData_Impl->m_dwPK_Device_ControlledVia);
-				if (it_controlledvia != m_pData->m_AllDevices.m_mapDeviceData_Base.end())
-					pDevice_ControlledVia = it_controlledvia->second;
 
-				if (pDevice_ControlledVia && pDevice_ControlledVia->m_dwPK_DeviceCategory == DEVICECATEGORY_Infrared_Interface_CONST)
+				MapCommand_Impl::iterator child_iter;
+				child_iter = m_mapCommandImpl_Children.find(pDeviceData_Impl->m_dwPK_Device_ControlledVia);
+				if (child_iter != m_mapCommandImpl_Children.end())
 				{
-					MapCommand_Impl::iterator child_iter;
-					child_iter = m_mapCommandImpl_Children.find(pDevice_ControlledVia->m_dwPK_Device);
-					if (child_iter != m_mapCommandImpl_Children.end())
-					{
-						LoggerWrapper::GetInstance()->Write(LV_STATUS, "Message recipient is my nephew.");
-						Command_Impl *pChildDeviceCommand;
-						pChildDeviceCommand = child_iter->second;
-						sPort = pChildDeviceCommand->m_pData->m_mapParameters[DEVICEDATA_PortChannel_Number_CONST];
-					}
-					else
-					{
-						LoggerWrapper::GetInstance()->Write(LV_WARNING,
-							"The parent of the target device is not this gc100's child or nephew.");
-					}
+					LoggerWrapper::GetInstance()->Write(LV_STATUS, "Message recipient is my nephew.");
+					Command_Impl *pChildDeviceCommand;
+					pChildDeviceCommand = child_iter->second;
+					sPort = pChildDeviceCommand->m_pData->m_mapParameters[DEVICEDATA_PortChannel_Number_CONST];
 				}
 				else
 				{
 					LoggerWrapper::GetInstance()->Write(LV_WARNING,
-						"Neither the target device, nor its parent, is a IR transmitter. Will transmit code on all ports. WARNING: this behavior may change in the future.");
+						"The parent of the target device is not my child.");
 				}
 			}
 		}
