@@ -103,6 +103,38 @@ public:
 	{
 		SetParm(DEVICEDATA_Drive_CONST,Value.c_str());
 	}
+	bool Get_Autoassign_to_parents_room()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return (m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Autoassign_to_parents_room_CONST)=="1" ? true : false);
+		else
+			return (m_mapParameters[DEVICEDATA_Autoassign_to_parents_room_CONST]=="1" ? true : false);
+	}
+
+	bool Get_PNP_Create_Without_Prompting()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return (m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_PNP_Create_Without_Prompting_CONST)=="1" ? true : false);
+		else
+			return (m_mapParameters[DEVICEDATA_PNP_Create_Without_Prompting_CONST]=="1" ? true : false);
+	}
+
+	bool Get_Immediate_Reload_Isnt_Necessar()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return (m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Immediate_Reload_Isnt_Necessar_CONST)=="1" ? true : false);
+		else
+			return (m_mapParameters[DEVICEDATA_Immediate_Reload_Isnt_Necessar_CONST]=="1" ? true : false);
+	}
+
+	bool Get_Send_Events()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return (m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Send_Events_CONST)=="1" ? true : false);
+		else
+			return (m_mapParameters[DEVICEDATA_Send_Events_CONST]=="1" ? true : false);
+	}
+
 };
 
 
@@ -209,6 +241,10 @@ public:
 	//Data accessors
 	string DATA_Get_Drive() { return GetData()->Get_Drive(); }
 	void DATA_Set_Drive(string Value,bool bUpdateDatabase=false) { GetData()->Set_Drive(Value); if( bUpdateDatabase ) SetDeviceDataInDB(m_dwPK_Device,6,Value); }
+	bool DATA_Get_Autoassign_to_parents_room() { return GetData()->Get_Autoassign_to_parents_room(); }
+	bool DATA_Get_PNP_Create_Without_Prompting() { return GetData()->Get_PNP_Create_Without_Prompting(); }
+	bool DATA_Get_Immediate_Reload_Isnt_Necessar() { return GetData()->Get_Immediate_Reload_Isnt_Necessar(); }
+	bool DATA_Get_Send_Events() { return GetData()->Get_Send_Events(); }
 	//Event accessors
 	void EVENT_Media_Inserted(int iFK_MediaType,string sMRL,string sID,string sName) { GetEvents()->Media_Inserted(iFK_MediaType,sMRL.c_str(),sID.c_str(),sName.c_str()); }
 	//Commands - Override these to handle commands from the server

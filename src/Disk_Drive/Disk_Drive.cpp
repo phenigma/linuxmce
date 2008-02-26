@@ -611,7 +611,7 @@ bool Disk_Drive::ReportPendingTasks(PendingTaskList *pPendingTaskList)
 //<-dceag-c882-b->
 
 	/** @brief COMMAND: #882 - Abort Task */
-	/** Abort a pending task */
+	/** Abort a task */
 		/** @param #248 Parameter ID */
 			/** The ID of the task to abort */
 
