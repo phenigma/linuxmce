@@ -199,9 +199,13 @@ void gc100::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sC
 		if (pDeviceData_Impl)
 		{
 			if (pDeviceData_Impl->m_dwPK_DeviceCategory == DEVICECATEGORY_Infrared_Interface_CONST)
+			{
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Message recipient is my child");
 				sPort = pDeviceData_Impl->m_mapParameters[DEVICEDATA_PortChannel_Number_CONST];
+			}
 			else
 			{
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Message recipient is not my child. Searching for nephew.");
 				DeviceData_Base *pDevice_ControlledVia = NULL;
 				Map_DeviceData_Base::iterator it_controlledvia = m_pData->m_AllDevices.m_mapDeviceData_Base.find(pDeviceData_Impl->m_dwPK_Device_ControlledVia);
 				if (it_controlledvia != m_pData->m_AllDevices.m_mapDeviceData_Base.end())
@@ -209,11 +213,20 @@ void gc100::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sC
 
 				if (pDevice_ControlledVia && pDevice_ControlledVia->m_dwPK_DeviceCategory == DEVICECATEGORY_Infrared_Interface_CONST)
 				{
-					CMD_Get_Device_Data_DT cmd_Get_Device_Data_DT(m_dwPK_Device, DEVICETEMPLATE_General_Info_Plugin_CONST,
-						BL_SameHouse, pDevice_ControlledVia->m_dwPK_Device, DEVICEDATA_PortChannel_Number_CONST,
-						false, &sPort);
-					SendCommand(cmd_Get_Device_Data_DT);
-					//TODO: get back to the framework maintainers, as this command doesn't work either; sPort is always empty, even though the database contains a value
+					MapCommand_Impl::iterator child_iter;
+					child_iter = m_mapCommandImpl_Children.find(pDevice_ControlledVia->m_dwPK_Device);
+					if (child_iter != m_mapCommandImpl_Children.end())
+					{
+						LoggerWrapper::GetInstance()->Write(LV_STATUS, "Message recipient is my nephew.");
+						Command_Impl *pChildDeviceCommand;
+						pChildDeviceCommand = child_iter->second;
+						sPort = pChildDeviceCommand->m_pData->m_mapParameters[DEVICEDATA_PortChannel_Number_CONST];
+					}
+					else
+					{
+						LoggerWrapper::GetInstance()->Write(LV_WARNING,
+							"The parent of the target device is not this gc100's child or nephew.");
+					}
 				}
 				else
 				{
