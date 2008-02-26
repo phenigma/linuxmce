@@ -1035,8 +1035,8 @@ function getDevicesArrayFromCategory($categoryID,$dbADO,$extra='')
 {
 	$categories=getDescendantsForCategory($categoryID,$dbADO);
 	
-	$label=(@$GLOBALS['DT_&_Room']==1)?'CONCAT(Device.Description,\' (\',DeviceTemplate.Description,\') \',Room.Description) AS Description':'Device.Description AS Description';
-	$label=(@$GLOBALS['Room_Name']==1)?'CONCAT(Device.Description,\' (\',Room.Description,\')\') AS Description':$label;
+	$label=(@$GLOBALS['DT_&_Room']==1)?'IF(Device.FK_Room IS NOT NULL,CONCAT(Device.Description,\' (\',DeviceTemplate.Description,\') \',Room.Description),CONCAT(Device.Description,\' (\',DeviceTemplate.Description,\')\')) AS Description':'Device.Description AS Description';
+	$label=(@$GLOBALS['Room_Name']==1)?'IF(Device.FK_Room IS NOT NULL,CONCAT(Device.Description,\' (\',Room.Description,\')\'),Device.Description) AS Description':$label;
 
 	$devicesList=getAssocArray('Device','PK_Device',$label,$dbADO,'INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate	LEFT JOIN Room ON FK_Room=PK_Room WHERE FK_DeviceCategory IN ('.join(',',$categories).') AND Device.FK_Installation='.(int)@$_SESSION['installationID'].$extra,'ORDER BY Description ASC');
 	
@@ -1741,6 +1741,7 @@ function getDevicesFromCategories($categoriesArray,$dbADO)
 	foreach ($categoriesArray AS $categoryID){
 		$devicesFullArray=$devicesFullArray+getDevicesArrayFromCategory($categoryID,$dbADO);
 	}
+
 	return $devicesFullArray;
 }
 
@@ -4432,7 +4433,7 @@ function getParentsForControlledVia($deviceID,$dbADO)
 			$optionsArrayLowerCase[$row['PK_Device']]=strtolower($label);
 		}
 	}
-	
+
 	// get AV Device Templates if global variable is not set already
 	if(!isset($avArray)){
 		$avArray=getDeviceTemplatesFromCategory($GLOBALS['rootAVEquipment'],$dbADO);
@@ -4470,12 +4471,13 @@ function getParentsForControlledVia($deviceID,$dbADO)
 			$optionsArrayLowerCase[$key]=strtolower($value);
 		}
 	}
+
 	asort ($optionsArrayLowerCase, SORT_STRING);
 	$optionsArrayOriginal=array();
 	foreach ($optionsArrayLowerCase As $id=>$label){
 		$optionsArrayOriginal[$id]=$optionsArray[$id];
 	}
-	
+
 	return $optionsArrayOriginal;
 }
 
