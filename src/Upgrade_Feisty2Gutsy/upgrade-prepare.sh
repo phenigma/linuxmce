@@ -122,7 +122,7 @@ fi
 if [[ "$InstallFrom" == "$FROM_NET" ]] ;then
 
 	# Add a entry in cron to start/restart the download every half an hour
-	echo '*/30 *  * * * /usr/share/gutsy-upgrade-scripts/scripts/upgrade-download.sh' > /etc/cron.d/gutsy-upgrade-scripts
+	echo '*/30 *  * * * root /usr/share/gutsy-upgrade-scripts/scripts/upgrade-download.sh' > /etc/cron.d/gutsy-upgrade-scripts
 
 	# Start the download now also
 	/usr/share/gutsy-upgrade-scripts/scripts/upgrade-download.sh
