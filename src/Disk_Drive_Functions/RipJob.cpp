@@ -185,7 +185,7 @@ void RipJob::AddRippingTasks(Drive *pDrive)
 	vector<string> vectTracks;
 	StringUtils::Tokenize(m_sTracks, "|", vectTracks);
 
-	if (m_sTracks=="A" || vectTracks.empty())
+	if (vectTracks.empty())
 	{
 	    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Adding ripping task for the whole disk");
 	    AddTask(new RipTask(this,"Rip",m_bReportResult, "",pDrive));
