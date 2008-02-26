@@ -44,6 +44,7 @@
 #define ATTRIBUTETYPE_TV_Series_ID_CONST 43
 #define ATTRIBUTETYPE_Creation_Date_CONST 44
 #define ATTRIBUTETYPE_THX_Disk_ID_CONST 45
+#define ATTRIBUTETYPE_Screen_saver_disabled_CONST 46
 
 #define ATTRIBUTETYPE_TABLE "AttributeType"
 #define ATTRIBUTETYPE_PK_ATTRIBUTETYPE_FIELD "PK_AttributeType"
