@@ -203,6 +203,20 @@ void gc100::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sC
 			else if (pDeviceData_Impl->m_pDevice_ControlledVia && pDeviceData_Impl->m_pDevice_ControlledVia->m_dwPK_DeviceCategory == DEVICECATEGORY_Infrared_Interface_CONST)
 				sPort = dynamic_cast<DeviceData_Impl*>(pDeviceData_Impl->m_pDevice_ControlledVia)->m_mapParameters[DEVICEDATA_PortChannel_Number_CONST];
 			// TODO: pass this to a framework maintainer, because pDeviceData_Impl->m_pDevice_ControlledVia is NULL, even when the device is not top level
+
+			/*
+			DeviceData_Base *pDevice_ControlledVia = NULL;
+			Map_DeviceData_Base::iterator it_controlledvia = m_pData->m_AllDevices->m_mapDeviceData_Base.find(pDeviceData_Impl->m_dwPK_Device_ControlledVia);
+			if(it_controlledvia != m_pData->m_AllDevices->m_mapDeviceData_Base.end())
+				pDevice_ControlledVia = it_controlledvia->second;
+
+            DeviceData_Impl *pDeviceData_Impl_ControlledVia = dynamic_cast<DeviceData_Impl*>(pDevice_ControlledVia);
+			if(NULL != pDeviceData_Impl_ControlledVia)
+			{
+				string my_child_id = pDeviceData_Impl_ControlledVia->m_mapParameters[DEVICEDATA_PortChannel_Number_CONST];
+			}
+			*/
+
 		}
 		string sCode = pMessage->m_mapParameters[COMMANDPARAMETER_Text_CONST];
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Sending IR to port '%s', code '%s'", sPort.c_str(), sCode.c_str());
