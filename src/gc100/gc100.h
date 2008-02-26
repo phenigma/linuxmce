@@ -79,6 +79,7 @@ private:
 	void parse_message_statechange(std::string message, bool change);
 
 	void ReportChildren();
+	Command_Impl *GetChild(int m_dwPK_Device);
 
 	pthread_t m_EventThread, m_LearningThread, m_SocketThread;
 
@@ -197,7 +198,7 @@ public:
 		std::string IRL_to_pronto(string learned_string);
 		string IRL_uncompress(string IRL_string);
 	
-		void relay_power(class Message *pMessage, bool power_on);
+		bool relay_power(class DeviceData_Impl *pDeviceData, bool power_on);
 
 		void Start_seriald();
 		virtual void CreateChildren();
