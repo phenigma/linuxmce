@@ -432,9 +432,13 @@ void Disk_Drive::RunMonitorLoop()
     m_pDisk_Drive_Functions->internal_monitor_step(false); // ignore any drive that is in the drive at the start.
 
     bool done = false;
+    
+    bool bSendEvents = DATA_Get_Send_Events();
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Disk_Drive:::RunMonitorLoop - configured to %s Media Inserted events", bSendEvents?"send":"not send");
+
     while ( ! done  && !m_bQuit_get())
     {
-        done = ! m_pDisk_Drive_Functions->internal_monitor_step(true);
+        done = ! m_pDisk_Drive_Functions->internal_monitor_step(bSendEvents);
         Sleep(3000); // Sleep 3 seconds
     }
 }
