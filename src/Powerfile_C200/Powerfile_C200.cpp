@@ -513,6 +513,20 @@ void Powerfile_C200::CMD_Close_Tray(string &sCMD_Result,Message *pMessage)
 void Powerfile_C200::CMD_Rip_Disk(int iPK_Device,string sFilename,int iPK_Users,string sFormat,string sTracks,int iEK_Disc,int iSlot_Number,int iDriveID,string sDirectory,string &sCMD_Result,Message *pMessage)
 //<-dceag-c337-e->
 {
+	string sCorrectedDirectory;
+	DCE::CMD_Get_Home_Symlink_DT cmd_Get_Home_Symlink_DT(0, DEVICETEMPLATE_General_Info_Plugin_CONST,
+		BL_SameHouse, sDirectory, &sCorrectedDirectory);
+	SendCommand(cmd_Get_Home_Symlink_DT);
+
+	if(!sCorrectedDirectory.empty())
+	{
+		sDirectory = sCorrectedDirectory;
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Translated directory '%s' => '%s'",
+			sDirectory.c_str(), sCorrectedDirectory.c_str());
+
+		sDirectory = FileUtils::IncludeTrailingSlash(sDirectory);
+	}
+
 	Drive *pDrive = m_pPowerfileJukebox->m_mapDrive_Find(iPK_Device);  // May be NULL if we're supposed to just pick a drive
 	Slot *pSlot = m_pPowerfileJukebox->m_mapSlot_Find(iSlot_Number);
 
