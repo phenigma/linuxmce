@@ -691,7 +691,7 @@ bool Xine_Stream_Factory::CreateWindows()
 	int xcode = XMapWindow( m_pXDisplay, windows[ 0 ] );
 	LoggerWrapper::GetInstance()->Write( LV_WARNING, "XMapWindow returned: %i", xcode);
 
-	XIconifyWindow( m_pXDisplay, windows[ 0 ], 0 );
+//	XIconifyWindow( m_pXDisplay, windows[ 0 ], 0 );
 
 	XUnlockDisplay( m_pXDisplay );
 
