@@ -165,6 +165,11 @@ AudioSettings_Check()
 	fi
 	NewSetting_AudioSetting="$DB_AudioSetting"
 
+	if [[ "$NewSetting_AudioSetting" == *S* ]]; then
+		# S3 is not a valid combination and will break things
+		NewSetting_AudioSetting="${NewSetting_AudioSetting//3}"
+	fi
+
 	if [[ "$NewSetting_AudioSetting" != *[CO]* ]]; then
 		# audio setting is neither Coaxial nor Optical
 		sed -i '/pcm.!default/ d' /etc/asound.conf
