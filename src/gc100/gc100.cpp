@@ -1151,6 +1151,7 @@ bool gc100::Open_gc100_Socket()
 // TODO: This resembles a little (or is that a lot?) with (part of) parse_message_statechange (or it looks like it does, anyway) -- Radu
 bool gc100::relay_power(class DeviceData_Impl *pDeviceData, bool power_on)
 {
+	bool bResult = false;
 	std::map<std::string, class module_info>::iterator map_iter;
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Relay Pwr.: target device is %d", pDeviceData->m_dwPK_Device);
@@ -1219,13 +1220,13 @@ bool gc100::relay_power(class DeviceData_Impl *pDeviceData, bool power_on)
 			std::string cmd;
 
 			// Compose the command to the GC100
-
 			cmd = "setstate," + module_id + "," + (power_on ? "1" : "0") ;
 			send_to_gc100(cmd);
+			bResult = true;
 		}
 	}
 
-	return true; //Radu?
+	return bResult;
 }
 
 void gc100::SendIR(string Port, string IRCode,int iRepeat)
