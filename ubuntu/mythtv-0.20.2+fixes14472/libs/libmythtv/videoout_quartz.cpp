@@ -17,7 +17,7 @@
  *   a second time, may cause a crash (backtraces appreciated)
  * 
  * = REVISION
- * $Id: videoout_quartz.cpp 13053 2007-03-15 22:34:28Z nigel $
+ * $Id: videoout_quartz.cpp 14694 2007-10-16 04:27:57Z nigel $
  *
  * = AUTHORS
  * Nigel Pearson, Jeremiah Morris
@@ -308,8 +308,13 @@ void VideoOutputQuartzView::Transform(void)
                                 .arg(name).arg(sw).arg(sh));
 
     // scale for non-square pixels
-    if (fabsf(aspect - (sw * 1.0 / sh)) > 0.01)
-    {
+    float realAspect = sw * 1.0 / sh; 
+    if (fabsf(aspect - realAspect) > 0.015) 
+    { 
+        VERBOSE(VB_PLAYBACK, QString("Image aspect doesn't match" 
+                                     " its resolution (%1 vs %2).") 
+                             .arg(aspect).arg(realAspect)); 
+
         if (parentData->scaleUpVideo)
         {
             // scale width up, leave height alone

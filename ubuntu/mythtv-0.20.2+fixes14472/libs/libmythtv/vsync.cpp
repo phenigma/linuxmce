@@ -444,9 +444,9 @@ class OpenGLVideoSyncPrivate
     OpenGLVideoSyncPrivate()
     {
         m_glXGetVideoSyncSGI = (PFNGLXGETVIDEOSYNCSGIPROC)
-                glXGetProcAddress("glXGetVideoSyncSGI");
+            GetProcAddress("glXGetVideoSyncSGI");
         m_glXWaitVideoSyncSGI = (PFNGLXWAITVIDEOSYNCSGIPROC)
-                glXGetProcAddress("glXWaitVideoSyncSGI");
+            GetProcAddress("glXWaitVideoSyncSGI");
     }
 
     bool funcsLoaded()
@@ -466,9 +466,17 @@ class OpenGLVideoSyncPrivate
     }
 
   private:
-    __GLXextFuncPtr glXGetProcAddress(const char * const procName)
+    __GLXextFuncPtr GetProcAddress(const char * const procName)
     {
-        __GLXextFuncPtr ret = glXGetProcAddressARB((const GLubyte *) procName);
+        __GLXextFuncPtr ret = NULL;
+
+#if GLX_VERSION_1_4
+        X11S(ret = glXGetProcAddress((const GLubyte*)procName));
+#elif GLX_ARB_get_proc_address
+        X11S(ret = glXGetProcAddressARB((const GLubyte*)procName));
+#elif GLX_EXT_get_proc_address
+        X11S(ret = glXGetProcAddressEXT((const GLubyte*)procName));
+#endif
 
         if (!ret)
         {
