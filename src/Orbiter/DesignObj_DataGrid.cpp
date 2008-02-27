@@ -234,9 +234,9 @@ g_PlutoProfiler->Stop("send command");
 						pDataGridTable->SetData(GridCurCol,pDataGridTable->m_iUpRow,pCell);
 					}
 
-					if ( pDataGridTable->GetRows() > GridCurRow + m_MaxRow - (pDataGridTable->m_iUpRow!=-1 ? 1 : 0) )
+					if ( pDataGridTable->GetRows() > GridCurRow + m_MaxRow)
 					{
-						pDataGridTable->m_iDownRow = GridCurRow+m_MaxRow-1;
+						pDataGridTable->m_iDownRow = GridCurRow + m_MaxRow;
 						DataGridCell * pCell = new DataGridCell( "<Scroll down>" );
 						pCell->m_Colspan = pDataGridTable->m_ColumnCount;
 						pDataGridTable->SetData(GridCurCol,pDataGridTable->m_iDownRow,pCell);

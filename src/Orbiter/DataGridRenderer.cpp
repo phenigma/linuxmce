@@ -106,7 +106,7 @@ DataGridRenderer::DataGridRenderer(DesignObj_Orbiter *pOwner): ObjectRenderer(pO
 			itc->first.first, itc->first.second);
 	}
 
-	for ( i = 0; i < pDataGridTable->m_RowCount; i++ )
+	for ( i = 0; i < pDataGridTable->m_RowCount + 1; i++ )
 	{
 		for ( j = 0; j < pDataGridTable->m_ColumnCount; j++ )
 		{

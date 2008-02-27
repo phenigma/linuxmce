@@ -2775,6 +2775,7 @@ bool ScreenHandler::DriveOverview_ObjectSelected(CallBackData *pData)
 							TOSTRING(COMMANDPARAMETER_PK_Device_CONST) " \"" + string(pCell->GetValue()) + "\" ";  // This will be either a drive or jukebox depending on which cell was chosen
 
 					string sTitle = m_pOrbiter->m_mapTextString[TEXT_Choose_Filename_CONST];
+					Reset_SaveFile_Info();
 					DCE::SCREEN_FileSave SCREEN_FileSave(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,atoi(pCell->m_mapAttributes_Find("PK_MediaType").c_str()),atoi(pCell->m_mapAttributes_Find("PK_Disc").c_str()),sTitle,sRipMessage,true);
 					m_pOrbiter->SendCommand(SCREEN_FileSave);
 				}
@@ -2866,6 +2867,16 @@ bool ScreenHandler::JukeboxManager_ObjectSelected(CallBackData *pData)
 	{
 		int Row=-1,Col=-1;
 		DesignObj_DataGrid *pObj_Grid = (DesignObj_DataGrid *) pObjectInfoData->m_pObj->m_pParentObject->m_pParentObject;
+
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "JukeboxManager_ObjectSelected ===============================================");
+
+		for(map< pair<int,int>, DesignObj_Orbiter *>::iterator itc = pObj_Grid->m_mapChildDgObjects.begin();
+			itc != pObj_Grid->m_mapChildDgObjects.end(); ++itc)
+		{
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "JukeboxManager_ObjectSelected --- Cell <%d, %d>",
+				itc->first.first, itc->first.second);
+		}
+
 		for(map< pair<int,int>, DesignObj_Orbiter *>::iterator it=pObj_Grid->m_mapChildDgObjects.begin();it!=pObj_Grid->m_mapChildDgObjects.end();++it)
 		{
 			if( it->second == pObjectInfoData->m_pObj->m_pParentObject )
@@ -2879,7 +2890,11 @@ bool ScreenHandler::JukeboxManager_ObjectSelected(CallBackData *pData)
 		if( Row!=-1 && Col!=-1 )
 		{
 			DataGridTable *pDataGridTable = pObj_Grid->m_pDataGridTable_Current_get();
-			DataGridCell *pCell = pDataGridTable->GetData(Col,Row);
+
+			int DGRow = ( ( Row == 0 && pDataGridTable->m_bKeepRowHeader ) ? 0 : Row + pDataGridTable->m_StartingRow );
+			int DGColumn = ( Col == 0 && pDataGridTable->m_bKeepColumnHeader ) ? 0 : Col + pDataGridTable->m_StartingColumn;
+			DataGridCell *pCell = pDataGridTable->GetData(DGColumn,DGRow);
+
 			if( pCell && pCell->GetValue() )
 			{
 				if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_icoEject_CONST )
@@ -2914,7 +2929,7 @@ bool ScreenHandler::JukeboxManager_ObjectSelected(CallBackData *pData)
 							TOSTRING(COMMANDPARAMETER_PK_Device_CONST) " \"" + pCell->m_mapAttributes["PK_Device"] + "\" ";  // This will be either a drive or jukebox depending on which cell was chosen
 
 						string sTitle = m_pOrbiter->m_mapTextString[TEXT_Choose_Filename_CONST];
-						
+						Reset_SaveFile_Info();
 						DCE::SCREEN_FileSave SCREEN_FileSave(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,atoi(pCell->m_mapAttributes_Find("PK_MediaType").c_str()),atoi(pCell->m_mapAttributes_Find("PK_Disc").c_str()),sTitle,sRipMessage,true);
 						m_pOrbiter->SendCommand(SCREEN_FileSave);
 					}
@@ -2983,6 +2998,7 @@ bool ScreenHandler::JukeboxManager_ObjectSelected(CallBackData *pData)
 			TOSTRING(COMMANDPARAMETER_Filename_CONST) " \"<%=9%>\" ";
 		string sTitle = m_pOrbiter->m_mapTextString[TEXT_Choose_Filename_CONST];
 		
+		Reset_SaveFile_Info();
 		DCE::SCREEN_FileSave SCREEN_FileSave(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,0,-999,sTitle,sRipMessage,true);
 		m_pOrbiter->SendCommand(SCREEN_FileSave);
 	}
