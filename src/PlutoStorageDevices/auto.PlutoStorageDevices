@@ -14,7 +14,7 @@ LOG_WARN=2
 LOG_ERR=3
 UNIQUE_ID=$RANDOM
 
-CIFS_FileSystem="cifs"
+CIFS_FileSystem="smbfs"
 #CIFS_FileSystem="pluto-fuse-smb"
 
 if [[ "$CIFS_FileSystem" == pluto-fuse-smb ]]; then
