@@ -313,6 +313,10 @@ void Xine_Stream_Factory::setAudioSettings()
 	string sAlsaFrontDevice = "";
 	string sSpeakersArrangement = "Stereo 2.0";
 	
+	// TODO when the 'Pass Through' mode is on, xine-lib doesn't use the audio.device.alsa_front_device
+	// instead, it uses audio.device.alsa_passthrough_device, so assigning front device is useless
+	// default for passthrough device is: iec958:AES0=0x6,AES1=0x82,AES2=0x0,AES3=0x2 (xine config)
+	
 	for (uint i=0; i<sAudioSettings.length(); i++)
 	{
 		switch (sAudioSettings[i])
