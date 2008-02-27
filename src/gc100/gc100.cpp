@@ -253,32 +253,24 @@ void gc100::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sC
 	// This is a relay command
 	cout << "Processing..." << endl;
 
-	//if (pDeviceData_Impl->WithinCategory(DEVICECATEGORY_Environment_CONST) )
-	Command_Impl *pParent = GetChild(pDeviceData_Impl->m_dwPK_Device_ControlledVia);
-	DeviceData_Impl *pChild_DeviceData = NULL;
-	if (pDeviceData_Impl->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Generic_Relays_CONST)
-		pChild_DeviceData = pDeviceData_Impl;
-	else if (pParent && pParent->m_pData->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Generic_Relays_CONST)
-		pChild_DeviceData = pParent->m_pData;
-	if (pChild_DeviceData)
-	{ // this is our guy
-		SendString("OK");
-		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Message for %s passed to Relay", pDeviceData_Impl->m_sDescription.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Message for %s passed to Relay", pDeviceData_Impl->m_sDescription.c_str());
 
-		bool bParm;
-		if (pMessage->m_dwID == COMMAND_Toggle_Power_CONST)
-		{
+	bool bParm;
+	switch (pMessage->m_dwID)
+	{
+		case COMMAND_Toggle_Power_CONST:
 			bParm = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_OnOff_CONST].c_str()) != 0;
-		}
-		else
-		{
+			break;
+		case COMMAND_Set_Level_CONST:
+			bParm = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Level_CONST].c_str()) != 0;
+			break;
+		default:
 			bParm = pMessage->m_dwID == COMMAND_Generic_On_CONST;
-		}
-		if (relay_power(pChild_DeviceData, bParm))
-		{
-			sCMD_Result = "OK";
-			return;
-		}
+	}
+	if (relay_power(pDeviceData_Impl, bParm))
+	{
+		sCMD_Result = "OK";
+		return;
 	}
 
 	// DONT: Don't delete there comments until implementation is complete
