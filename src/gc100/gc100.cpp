@@ -1224,6 +1224,8 @@ bool gc100::relay_power(class DeviceData_Impl *pDeviceData, bool power_on)
 			send_to_gc100(cmd);
 		}
 	}
+
+	return true; //Radu?
 }
 
 void gc100::SendIR(string Port, string IRCode,int iRepeat)
