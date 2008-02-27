@@ -299,6 +299,13 @@ void Xine_Stream_Factory::setAudioSettings()
 	}
 	else
 		LoggerWrapper::GetInstance()->Write( LV_STATUS, "M/D Audio Settings: %s", sAudioSettings.c_str());
+
+	// temporary workaround for #3995
+	if (sAudioSettings=="S3")
+	{
+	    LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "M/D Audio Settings are broken (S3), assuming 'S'");
+	    sAudioSettings = "S";
+	}
 	
 	bool updateConfig = true;
 	
@@ -581,7 +588,6 @@ void Xine_Stream_Factory::setVideoDriver(string strVideoDriver)
 // creates stream windows
 bool Xine_Stream_Factory::CreateWindows()
 {
-	XColor black;
 	XSizeHints sizeHints;
 	MWMHints wmHints;
 	XClassHint classHint;
