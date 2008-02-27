@@ -370,11 +370,16 @@ void Media_Plugin::AttributesBrowser( MediaListGrid *pMediaListGrid,int PK_Media
 	StringUtils::Tokenize(sPath_Clone, ",", vectDirectories);
 
 	string sPathCondition = " AND (Path IN (" + sPath + ") ";
-	for(vector<string>::iterator it = vectDirectories.begin(); it != vectDirectories.end(); ++it)
+
+	if(PK_AttributeType_Sort != 0)
 	{
-		string sDir = *it;
-		sPathCondition += " OR Path LIKE '" + FileUtils::IncludeTrailingSlash(sDir) + "%' ";
+		for(vector<string>::iterator it = vectDirectories.begin(); it != vectDirectories.end(); ++it)
+		{
+			string sDir = *it;
+			sPathCondition += " OR Path LIKE '" + FileUtils::IncludeTrailingSlash(sDir) + "%' ";
+		}
 	}
+
 	sPathCondition += ") ";
 
     if(sPath.empty())
