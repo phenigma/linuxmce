@@ -6584,7 +6584,7 @@ function commandMoveUp($cgcID,$pos,$cgID,$dbADO){
 		$pos=$cgcID;
 	}
 
-	$upperCmds=getAssocArray('CommandGroup_Command','PK_CommandGroup_Command','OrderNum',$dbADO,'WHERE FK_CommandGroup='.$cgID.' AND OrderNum < '.$pos.' LIMIT 0,1');
+	$upperCmds=getAssocArray('CommandGroup_Command','PK_CommandGroup_Command','OrderNum',$dbADO,'WHERE FK_CommandGroup='.$cgID.' AND OrderNum < '.$pos.' ORDER BY OrderNum DESC LIMIT 0,1');
 	if(count($upperCmds)>0){
 		$idArray=array_keys($upperCmds);
 		$posArray=array_values($upperCmds);
@@ -6599,7 +6599,7 @@ function commandMoveDown($cgcID,$pos,$cgID,$dbADO){
 		$pos=$cgcID;
 	}
 
-	$upperCmds=getAssocArray('CommandGroup_Command','PK_CommandGroup_Command','OrderNum',$dbADO,'WHERE FK_CommandGroup='.$cgID.' AND OrderNum > '.$pos.' LIMIT 0,1');
+	$upperCmds=getAssocArray('CommandGroup_Command','PK_CommandGroup_Command','OrderNum',$dbADO,'WHERE FK_CommandGroup='.$cgID.' AND OrderNum > '.$pos.' ORDER BY OrderNum ASC LIMIT 0,1');
 	if(count($upperCmds)>0){
 		$idArray=array_keys($upperCmds);
 		$posArray=array_values($upperCmds);
