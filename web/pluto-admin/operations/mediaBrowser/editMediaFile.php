@@ -399,7 +399,7 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 			$mediadbADO->Execute('DELETE FROM Picture_File WHERE FK_File=?',$fileID);
 			$mediadbADO->Execute('DELETE FROM File WHERE PK_File=?',$fileID);
 			
-			exec('sudo -u root /usr/pluto/bin/UpdateMedia -d "'.$oldPath.'"');
+			exec('sudo -u root /usr/pluto/bin/UpdateMedia -w -d "'.$oldPath.'"');
 			header('Location: index.php?section=mainMediaFilesSync&path='.urlencode($oldPath).'&msg='.$TEXT_MEDIA_FILE_DELETED_CONST);			
 			exit();
 
