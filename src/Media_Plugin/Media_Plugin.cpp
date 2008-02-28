@@ -7058,6 +7058,8 @@ void Media_Plugin::CMD_Get_Ripping_Status(string *sStatus,string &sCMD_Result,Me
 	else
 	{
 		Row_RipStatus *pRow_RipStatus = vectRow_RipStatus[0];
+		pRow_RipStatus->Reload();
+
 		string sRipStatus = pRow_RipStatus->Status_get();
 		string sFile = pRow_RipStatus->File_get();
 
