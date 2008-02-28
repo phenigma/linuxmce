@@ -1684,8 +1684,8 @@ void ScreenHandler::SetupAudioServer()
 //-----------------------------------------------------------------------------------------------------
 bool ScreenHandler::MediaBrowser_OnTimer(CallBackData *pData)
 {
-	DesignObj_Orbiter *pClockObj = m_pOrbiter->FindObject(TOSTRING(DESIGNOBJ_mnuMenuAudioServer_CONST) "." + StringUtils::itos(mediaFileBrowserOptions.m_PK_MediaType) + ".0.0");
-	DesignObj_Orbiter *pRippingStatusObj = m_pOrbiter->FindObject(TOSTRING(DESIGNOBJ_mnuMenuAudioServer_CONST) "." + StringUtils::itos(mediaFileBrowserOptions.m_PK_MediaType) + ".0.0");
+	DesignObj_Orbiter *pClockObj = m_pOrbiter->FindObject(TOSTRING(DESIGNOBJ_mnuMenuAudioServer_CONST) ".0.0." + StringUtils::itos(DESIGNOBJ_butCurrentTime_CONST));
+	DesignObj_Orbiter *pRippingStatusObj = m_pOrbiter->FindObject(TOSTRING(DESIGNOBJ_mnuMenuAudioServer_CONST) ".0.0." + StringUtils::itos(DESIGNOBJ_butRipStatus_CONST));
 	if( NULL != pRippingStatusObj && NULL != pClockObj)
 	{
 		NeedToRender render(m_pOrbiter, "MediaBrowser_OnTimer");
