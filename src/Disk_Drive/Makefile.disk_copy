@@ -1,5 +1,8 @@
 CC=gcc
-CFLAGS=-W -Wall -ggdb3
+CFLAGS=-W -Wall -ggdb3 #-DDEBUG
 
 all: disk_copy
 	cp disk_copy ../bin
+
+clean:
+	rm -f disk_copy

@@ -15,6 +15,12 @@
 */
 #define _LARGEFILE64_SOURCE
 
+#ifdef DEBUG
+#define Dprintf printf
+#else
+#define Dprintf(...)
+#endif
+
 #include <sys/types.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -23,11 +29,52 @@
 
 #include <stdio.h>
 
-#define BLOCK_SIZE (10 * 1024 * 1024)
+#define BLOCK_SIZE (1 * 1024 * 1024)
 #define STR_SIZE 4095
 
 //TODO: replace snprintf + write combination with printf override
 // printf does a fstat() first and a write() later, depending if it's a terminal (instantly) or other kind of file (buffering)
+
+ssize_t sector_by_sector_read(int fd, void *buf, size_t count) // prototype compatible with read(2)
+{
+#define SECT_SIZE 512
+	char sector[SECT_SIZE];
+	size_t read_bytes = 0;
+
+	while (read_bytes < count)
+	{
+		int pos_before_read = lseek(fd, 0, SEEK_CUR);
+		Dprintf("pos_before_read: %d\n", pos_before_read);
+		int bytes = read(fd, sector, SECT_SIZE);
+		Dprintf("bytes: %d\n", bytes);
+		if (bytes == 0)
+			break;
+		else if (bytes < 0)
+		{
+			if (errno == EIO)
+			{
+				Dprintf("err: IO\n");
+				memset(sector, 0, SECT_SIZE);
+				lseek(fd, pos_before_read + SECT_SIZE, SEEK_SET);
+				bytes = SECT_SIZE;
+			}
+			else
+			{
+				Dprintf("err: non-IO\n");
+				return -1;
+			}
+		}
+
+		if (read_bytes + bytes > count)
+			bytes = count - read_bytes;
+		memcpy(buf, sector, bytes);
+		buf += bytes;
+		read_bytes += bytes;
+		Dprintf("read_bytes: %d, count: %d\n", read_bytes, count);
+	}
+
+	return read_bytes;
+}
 
 char buffer[BLOCK_SIZE];
 char str[STR_SIZE + 1];
@@ -64,8 +111,23 @@ int main(int argc, const char * argv[])
 	printf("Disc size: %Lu\n", size);
 	fflush(stdout);
 	
-	while ((bytes = read(f, buffer, BLOCK_SIZE)) > 0)
+	while (1)
 	{
+		int pos_before_read = lseek(f, 0, SEEK_CUR);
+		bytes = read(f, buffer, BLOCK_SIZE);
+		if (bytes == 0)
+			break;
+		else if (bytes < 0)
+		{
+			if (errno == EIO)
+			{
+				lseek(f, pos_before_read, SEEK_SET);
+				bytes = sector_by_sector_read(f, buffer, BLOCK_SIZE);
+			}
+			else
+				break;
+		}
+
 		bytes2 = write(g, buffer, bytes);
 		if (bytes2 < bytes)
 		{
