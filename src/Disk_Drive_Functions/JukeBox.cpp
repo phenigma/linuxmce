@@ -238,6 +238,7 @@ Disk_Drive_Functions::Locked JukeBox::m_eLocked_get(void **p_void)
 
 void JukeBox::UpdateDiscLocation(int PK_Device_Original,int Slot_Original,int PK_Device_New,int Slot_New)
 {
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"JukeBox::UpdateDiscLocation PK_Device_Original: %d Slot_Original: %d PK_Device_New: %d Slot_New: %d", PK_Device_Original,Slot_Original,PK_Device_New,Slot_New);
 	string sSQL = "UPDATE DiscLocation SET EK_Device=" + StringUtils::itos(PK_Device_New) + ",Slot=" + (Slot_New==-1 ? "NULL" : StringUtils::itos(Slot_New)) +
 		" WHERE EK_Device=" + StringUtils::itos(PK_Device_Original) + (Slot_Original==-1 ? "" : " AND Slot=" + StringUtils::itos(Slot_Original));
 	if( m_pDatabase_pluto_media->threaded_db_wrapper_query(sSQL)==0 )

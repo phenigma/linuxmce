@@ -2136,7 +2136,7 @@ void MythTV_PlugIn::StartScanJob(ScanJob *pScanJob)
 		sSQL = "UPDATE Device SET NeedConfigure=1,Status='**RUN_CONFIG**' WHERE PK_Device IN(" + sDevices + ")";
 	else
 		sSQL = "UPDATE Device SET NeedConfigure=0 WHERE PK_Device IN(" + sDevices + ")";
-LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"myth plugin check %s",sSQL.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::StartScanJob myth plugin check %s",sSQL.c_str());
 	
 	m_pMedia_Plugin->m_pDatabase_pluto_main->threaded_db_wrapper_query(sSQL);
 	pScanJob->m_pRow_Device_CaptureCard->Reload();

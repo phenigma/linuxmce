@@ -949,6 +949,19 @@ void gc100::parse_message_statechange(std::string message, bool change)
 			Message *pMessage = new Message(result->m_dwPK_Device, 0, PRIORITY_NORMAL, MESSAGETYPE_EVENT, EVENT_Sensor_Tripped_CONST,
 				1, EVENTPARAMETER_Tripped_CONST, StringUtils::itos(input_state).c_str());
 			QueueMessageToRouter(pMessage);
+
+			// If this sensor has children, fire the same event from them too
+			DeviceData_Base *pDevice = m_pData->m_AllDevices.m_mapDeviceData_Base_Find(result->m_dwPK_Device);
+			if( pDevice )
+			{
+				for(vector<DeviceData_Base *>::iterator itChildren = pDevice->m_vectDeviceData_Base_Children.begin(); itChildren != pDevice->m_vectDeviceData_Base_Children.end(); ++itChildren )
+				{
+					DeviceData_Base *pDevice_Child = *itChildren;
+					Message *pMessage = new Message(pDevice_Child->m_dwPK_Device, 0, PRIORITY_NORMAL, MESSAGETYPE_EVENT, EVENT_Sensor_Tripped_CONST,
+						1, EVENTPARAMETER_Tripped_CONST, StringUtils::itos(input_state).c_str());
+					QueueMessageToRouter(pMessage);
+				}
+			}
 		}
 		else
 		{
