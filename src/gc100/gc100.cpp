@@ -1140,6 +1140,32 @@ bool gc100::Open_gc100_Socket()
 	return return_value;
 }
 
+bool gc100::GetPinDeviceID(class DeviceData_Impl *pDeviceData,string &this_pin,int &this_device_id)
+{
+	if( !pDeviceData || pDeviceData->m_dwPK_Device==m_dwPK_Device)
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "gc100::GetPinDeviceID Cannot find port_channel for destination device");
+		return false;
+	}
+
+	this_pin = pDeviceData->m_mapParameters[DEVICEDATA_PortChannel_Number_CONST];
+	if( this_pin.empty()==false )
+	{
+		// We found it
+		this_device_id = pDeviceData->m_dwPK_Device;
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "gc100::GetPinDeviceID got pin %s device %d", this_pin.c_str(), this_device_id);
+		return true;
+	}
+
+	// Maybe it's a grand-child of the gc100, like a child of the relays.  If so, see if the parent is a child of the gc100
+	Command_Impl *pCommand_Impl = GetChild(pDeviceData->m_dwPK_Device_ControlledVia);
+	if( pCommand_Impl && pCommand_Impl->m_pData )
+		return GetPinDeviceID(pCommand_Impl->m_pData,this_pin,this_device_id);
+
+	LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "gc100::GetPinDeviceID Cannot find port_channel for destination device %d", pDeviceData->m_dwPK_Device);
+	return false;
+}
+
 // TODO: This resembles a little (or is that a lot?) with (part of) parse_message_statechange (or it looks like it does, anyway) -- Radu
 bool gc100::relay_power(class DeviceData_Impl *pDeviceData, bool power_on)
 {
@@ -1148,74 +1174,63 @@ bool gc100::relay_power(class DeviceData_Impl *pDeviceData, bool power_on)
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Relay Pwr.: target device is %d", pDeviceData->m_dwPK_Device);
 
-	DeviceData_Impl *pEffectiveDeviceData = NULL;
-	Command_Impl *pParent = GetChild(pDeviceData->m_dwPK_Device_ControlledVia);
-	if (pDeviceData->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Generic_Relays_CONST)
-		pEffectiveDeviceData = pDeviceData;
-	else if (pParent && pParent->m_pData->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Generic_Relays_CONST)
-		pEffectiveDeviceData = pParent->m_pData;
+	std::string this_pin;
+	int this_device_id;
 
-	if (pEffectiveDeviceData)
+	if( GetPinDeviceID(pDeviceData,this_pin,this_device_id)==false )
+		return false;
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Relay Pwr.: This device is %d",this_device_id);
+
+	PLUTO_SAFETY_LOCK(sl, gc100_mutex);
+	std::string module_id;
+	std::map<std::string,class module_info>::iterator module_iter;
+
+	module_iter=module_map.find(this_pin);
+
+	if (module_iter==module_map.end())
 	{
-		std::string this_pin;
-		int this_device_id;
+		std::map<std::string,class module_info>::iterator module_iter2;
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Relay Pwr.: Did not find %s in module map",this_pin.c_str());
 
-		this_pin = pEffectiveDeviceData->m_mapParameters[DEVICEDATA_PortChannel_Number_CONST];
-		LoggerWrapper::GetInstance()->Write(LV_STATUS, "This pin: %s", this_pin.c_str());
-
-		this_device_id = pEffectiveDeviceData->m_dwPK_Device;
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Relay Pwr.: This device is %d",this_device_id);
-
-		PLUTO_SAFETY_LOCK(sl, gc100_mutex);
-		std::string module_id;
-		std::map<std::string,class module_info>::iterator module_iter;
-
-		module_iter=module_map.find(this_pin);
-
-		if (module_iter==module_map.end())
+		// OK, it must be in the global number format.  Search through the RELAY modules until you find it.
+		for (module_iter2=module_map.begin(); module_iter2!=module_map.end(); ++module_iter2++)
 		{
-			std::map<std::string,class module_info>::iterator module_iter2;
-			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Relay Pwr.: Did not find %s in module map",this_pin.c_str());
+			if (module_iter2->second.type == "RELAY") {
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Relay Pwr.: Found a Relay number %d",module_iter2->second.global_slot);
 
-			// OK, it must be in the global number format.  Search through the RELAY modules until you find it.
-			for (module_iter2=module_map.begin(); module_iter2!=module_map.end(); ++module_iter2++)
-			{
-				if (module_iter2->second.type == "RELAY") {
-					LoggerWrapper::GetInstance()->Write(LV_STATUS,"Relay Pwr.: Found a Relay number %d",module_iter2->second.global_slot);
-
-					if (StringUtils::itos(module_iter2->second.global_slot) == this_pin)
-					{
-						LoggerWrapper::GetInstance()->Write(LV_STATUS,"Relay Pwr.: Matched Relay number %d.  ID will be %s",module_iter2->second.global_slot,module_iter2->first.c_str());
-						module_id=module_iter2->first;
-					}
+				if (StringUtils::itos(module_iter2->second.global_slot) == this_pin)
+				{
+					LoggerWrapper::GetInstance()->Write(LV_STATUS,"Relay Pwr.: Matched Relay number %d.  ID will be %s",module_iter2->second.global_slot,module_iter2->first.c_str());
+					module_id=module_iter2->first;
 				}
 			}
 		}
-		else
-		{
-			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Relay Pwr.: Found %s in module map",this_pin.c_str());
-			module_id=this_pin;
-		}
+	}
+	else
+	{
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Relay Pwr.: Found %s in module map",this_pin.c_str());
+		module_id=this_pin;
+	}
 
-		// Module ID should now be the key of the desired relay
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Relay Pwr.: Regardless, module ID is %s",module_id.c_str());
+	// Module ID should now be the key of the desired relay
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Relay Pwr.: Regardless, module ID is %s",module_id.c_str());
 
-		// Sanity check.  Make sure module_id really is there
-		module_iter=module_map.find(module_id);
+	// Sanity check.  Make sure module_id really is there
+	module_iter=module_map.find(module_id);
 
-		if (module_iter==module_map.end())
-		{
-			LoggerWrapper::GetInstance()->Write(LV_WARNING,"Relay Pwr.: Module_iter %s should be found but isn't",module_id.c_str());
-		}
-		else
-		{
-			std::string cmd;
+	if (module_iter==module_map.end())
+	{
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"Relay Pwr.: Module_iter %s should be found but isn't",module_id.c_str());
+	}
+	else
+	{
+		std::string cmd;
 
-			// Compose the command to the GC100
-			cmd = "setstate," + module_id + "," + (power_on ? "1" : "0") ;
-			send_to_gc100(cmd);
-			bResult = true;
-		}
+		// Compose the command to the GC100
+		cmd = "setstate," + module_id + "," + (power_on ? "1" : "0") ;
+		send_to_gc100(cmd);
+		bResult = true;
 	}
 
 	return bResult;
@@ -1699,10 +1714,10 @@ void gc100::ReportChildren()
 }
 
 // Get a child object for the given Device ID
-Command_Impl *gc100::GetChild(int m_dwPK_Device)
+Command_Impl *gc100::GetChild(int dwPK_Device)
 {
 	MapCommand_Impl::iterator child_iter;
-	child_iter = m_mapCommandImpl_Children.find(m_dwPK_Device);
+	child_iter = m_mapCommandImpl_Children.find(dwPK_Device);
 	if (child_iter != m_mapCommandImpl_Children.end())
 		return child_iter->second;
 	return NULL;
