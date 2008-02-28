@@ -180,7 +180,7 @@ void RipJob::JobDone()
 		m_pDisk_Drive_Functions->UnlockDrive();
 }
 
-void RipJob::AddRippingTasks(Drive *pDrive)
+void RipJob::AddRippingTasks(Drive *pDrive, TasklistPosition position)
 {
 	vector<string> vectTracks;
 	StringUtils::Tokenize(m_sTracks, "|", vectTracks);
@@ -188,15 +188,17 @@ void RipJob::AddRippingTasks(Drive *pDrive)
 	if (vectTracks.empty())
 	{
 	    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Adding ripping task for the whole disk");
-	    AddTask(new RipTask(this,"Rip",m_bReportResult, "",pDrive));
+	    AddTask(new RipTask(this,"Rip",m_bReportResult, "",pDrive), position);
 	}
 	else
 	{
+	    	vector<Task *> vTasks;
 		for(vector<string>::iterator it = vectTracks.begin(), end = vectTracks.end(); it != end; ++it)
 		{
 			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Adding ripping task for track %s", it->c_str());
-			AddTask(new RipTask(this,"Rip",m_bReportResult,*it,pDrive));
+			vTasks.push_back( new RipTask(this,"Rip",m_bReportResult,*it,pDrive) );
 		}
+		AddTasks(vTasks, position);
 	}
 }
 

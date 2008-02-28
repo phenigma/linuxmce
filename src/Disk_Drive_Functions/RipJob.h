@@ -71,7 +71,7 @@ namespace nsJobHandler
 		virtual ~RipJob();
 
 		virtual bool ReadyToRun();
-		void AddRippingTasks(Drive *pDrive=NULL);
+		void AddRippingTasks(Drive *pDrive=NULL, TasklistPosition position=position_TasklistEnd);
 		virtual void JobDone();
 
 		virtual bool ReportPendingTasks(PendingTaskList *pPendingTaskList);
