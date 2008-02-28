@@ -7062,6 +7062,7 @@ void Media_Plugin::CMD_Get_Ripping_Status(string *sStatus,string &sCMD_Result,Me
 
 		string sRipStatus = pRow_RipStatus->Status_get();
 		string sFile = pRow_RipStatus->File_get();
+		string sMessage = pRow_RipStatus->Message_get();
 
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Get_Ripping_Status: file '%s', status '%s'",
 			sFile.c_str(), sRipStatus.c_str());
@@ -7074,6 +7075,6 @@ void Media_Plugin::CMD_Get_Ripping_Status(string *sStatus,string &sCMD_Result,Me
 		else if(sRipStatus == "s")
 			sFullStatus = "success";
 
-		 *sStatus = "Ripping '" + FileUtils::FilenameWithoutPath(sFile) + "': " + sFullStatus; // + " (" + sElapsedTime + ")";
+		 *sStatus = "Ripping '" + FileUtils::FilenameWithoutPath(sFile) + "': " + sFullStatus + " " + sMessage;
 	}
 }
