@@ -4191,6 +4191,15 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 			Output += sCmdOutput;
 #endif
 		}
+		else if(Variable == "RSI")
+		{
+			//rip status indicator
+			string sRippingStatus;
+			DCE::CMD_Get_Ripping_Status cmd_Get_Ripping_Status(m_dwPK_Device, m_dwPK_Device_MediaPlugIn, &sRippingStatus);
+			SendCommand(cmd_Get_Ripping_Status);
+
+			Output += sRippingStatus;
+		}
 		else if(Variable == "LUV")
 		{
 			string sLastUpdatedVersion = "N/A";
