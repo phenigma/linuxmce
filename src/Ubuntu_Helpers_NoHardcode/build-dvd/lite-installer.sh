@@ -17,6 +17,7 @@ fi
 TargetHdd=
 RootUUID=
 SwapUUID=
+RecoveryUUID=
 
 NukeFS()
 {
@@ -200,6 +201,7 @@ FormatPartitions()
 	blkid -w /etc/blkid.tab || :
 	RootUUID=$(vol_id -u "$TargetHdd"1)
 	SwapUUID=$(vol_id -u "$TargetHdd"5)
+	RecoveryUUID=$(vol_id -u "$TargetHdd"6)
 }
 
 MountPartitions()
@@ -362,12 +364,10 @@ SetupFstab()
 #
 # <file system> <mount point>   <type>  <options>       <dump>  <pass>
 proc            /proc           proc    defaults        0       0
-#UUID=$RootUUID
-${TargetHdd}1 /               ext3    defaults,errors=remount-ro 0       1
-#UUID=$SwapUUID
-${TargetHdd}5 none            swap    sw              0       0
-${TargetHdd}6 /mnt/recovery   ext3    ro              0       0
-/dev/cdrom        /media/cdrom0   udf,iso9660 user,noauto     0       0
+UUID=$RootUUID	/               ext3    defaults,errors=remount-ro 0       1
+UUID=$SwapUUID  none            swap    sw              0       0
+UUID=$RecoveryUUID /mnt/recovery   ext3    ro              0       0
+/dev/cdrom      /media/cdrom0   udf,iso9660 user,noauto     0       0
 "
 	echo "$fstab_text" > /media/target/etc/fstab
 }
@@ -383,13 +383,14 @@ InstallGrub()
 	umount /media/target/dev/
 	cp -r /dev/.static/dev/* /media/target/dev/
 
-	sed -ir "s,root=.* ro quiet splash,root=${TargetHdd}1 ro quiet splash,g" /media/target/boot/grub/menu.lst
-	sed -ir "s,root=.* ro single,root=${TargetHdd}1 ro single,g" /media/target/boot/grub/menu.lst
+	sed -ir "s,^\(# kopt=root=[^ ]*\) \(.*\),# kopt=root=UUID=${RootUUID} \2,g"
+	sed -ir "s,root=.* ro quiet splash,root=UUID=${RootUUID} ro quiet splash,g" /media/target/boot/grub/menu.lst
+	sed -ir "s,root=.* ro single,root=UUID=${RootUUID} ro single,g" /media/target/boot/grub/menu.lst
 
 	echo "
 	title		System Recovery
 	root		(hd0,5)
-	kernel		/boot/vmlinuz-2.6.20-15-generic root=${TargetHdd}6 quiet install_from_hdd
+	kernel		/boot/vmlinuz-2.6.20-15-generic root=UUID=${RecoveryUUID} quiet install_from_hdd
 	initrd		/boot/initrd.img-2.6.20-15-generic
 	" >> /media/target/boot/grub/menu.lst
 }
