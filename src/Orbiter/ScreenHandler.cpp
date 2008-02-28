@@ -1663,6 +1663,7 @@ void ScreenHandler::SetupAudioServer()
 		RegisterCallBack(cbDataGridRendering, (ScreenHandlerCallBack) &ScreenHandler::FileList_GridRendering,	new DatagridAcquiredBackData());
 		RegisterCallBack(cbOnKeyDown, (ScreenHandlerCallBack) &ScreenHandler::FileList_KeyDown, new KeyCallBackData());
 		RegisterCallBack(cbMessageIntercepted, (ScreenHandlerCallBack) &ScreenHandler::MediaBrowsre_Intercepted, new MsgInterceptorCellBackData());
+		RegisterCallBack(cbOnTimer,	(ScreenHandlerCallBack) &ScreenHandler::MediaBrowser_OnTimer, new CallBackData());
 
 		DesignObj_Orbiter *pObj = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_popFBSF_More_CONST) "." + StringUtils::itos(mediaFileBrowserOptions.m_PK_MediaType) + ".0." TOSTRING(DESIGNOBJ_butFBSF_More_ViewedOnly_CONST) );
 		if( pObj )
@@ -1676,7 +1677,24 @@ void ScreenHandler::SetupAudioServer()
 			m_pOrbiter->m_sNowPlaying.empty() ? "0" : "1"); 
 
 		AudioServer_PopulateDatagrid();
+
+		m_pOrbiter->StartScreenHandlerTimer(5000);
 	}
+}
+//-----------------------------------------------------------------------------------------------------
+bool ScreenHandler::MediaBrowser_OnTimer(CallBackData *pData)
+{
+	DesignObj_Orbiter *pClockObj = m_pOrbiter->FindObject(TOSTRING(DESIGNOBJ_mnuMenuAudioServer_CONST) "." + StringUtils::itos(mediaFileBrowserOptions.m_PK_MediaType) + ".0.0");
+	DesignObj_Orbiter *pRippingStatusObj = m_pOrbiter->FindObject(TOSTRING(DESIGNOBJ_mnuMenuAudioServer_CONST) "." + StringUtils::itos(mediaFileBrowserOptions.m_PK_MediaType) + ".0.0");
+	if( NULL != pRippingStatusObj && NULL != pClockObj)
+	{
+		NeedToRender render(m_pOrbiter, "MediaBrowser_OnTimer");
+		m_pOrbiter->Renderer()->RenderObjectAsync(pRippingStatusObj);
+		m_pOrbiter->Renderer()->RenderObjectAsync(pClockObj);
+		return true;
+	}
+
+	return false;
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::AudioServer_PopulateDatagrid()
