@@ -38,6 +38,8 @@
 #include <netdb.h>
 #include <sys/socket.h>
 
+#include "sdpbrowse.h"
+
 using namespace DCE;
 
 //void DummySignalHandler(int) {
@@ -73,7 +75,9 @@ BDCommandProcessor_Linux_Bluetooth::BDCommandProcessor_Linux_Bluetooth(string sM
 	
 	raddr.rc_family = AF_BLUETOOTH;
 	str2ba(pDevice->m_sMacAddress.c_str(), &raddr.rc_bdaddr);
-	raddr.rc_channel = 19;
+	raddr.rc_channel = sdp_lookup_pluto_rfcomm_channel(raddr.rc_bdaddr);
+	// raddr.rc_channel = 3;
+	LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "received channel: %i\n",raddr.rc_channel);
 	
 	if ((m_CommHandle = socket(AF_BLUETOOTH, SOCK_STREAM, BTPROTO_RFCOMM)) < 0) 
 	{
