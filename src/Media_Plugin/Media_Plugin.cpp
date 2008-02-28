@@ -7061,11 +7061,10 @@ void Media_Plugin::CMD_Get_Ripping_Status(string *sStatus,string &sCMD_Result,Me
 		string sRipStatus = pRow_RipStatus->Status_get();
 		string sFile = pRow_RipStatus->File_get();
 
-		//string sDateTimeStart = pRow_RipStatus->DateTime_get();
-		//string sElapsedTime;
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Get_Ripping_Status: file '%s', status '%s'",
+			sFile.c_str(), sRipStatus.c_str());
 
 		string sFullStatus = "preparing";
-		
 		if(sRipStatus == "p")
 			sFullStatus = "in progress";
 		else if(sRipStatus == "e")
