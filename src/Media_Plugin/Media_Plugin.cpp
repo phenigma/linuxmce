@@ -86,6 +86,7 @@ using namespace DCE;
 #include "pluto_media/Table_MediaProvider.h"
 #include "pluto_media/Table_ProviderSource.h"
 #include "pluto_media/Table_LongAttribute.h"
+#include "pluto_media/Table_RipStatus.h"
 #include "Gen_Devices/AllScreens.h"
 
 #include "Datagrid_Plugin/Datagrid_Plugin.h"
@@ -3016,8 +3017,10 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sFilename,int iPK_Med
 	/** This will allow an orbiter to change the current playing position in the playlist */
 		/** @param #5 Value To Assign */
 			/** The track to go to.  A number is considered an absolute.  "+2" means forward 2, "-1" means back 1. */
+		/** @param #41 StreamID */
+			/** ID of stream to apply */
 
-void Media_Plugin::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
+void Media_Plugin::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c65-e->
 {
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
@@ -7034,4 +7037,42 @@ void Media_Plugin::UpdateSearchTokens()
 	g_DCEConfig.AddString("LastSearchTokenUpdate",StringUtils::itos(m_tLastSearchTokenUpdate));
 	g_DCEConfig.WriteSettings();
 	m_pAlarmManager->AddRelativeAlarm(600,this,UPDATE_SEARCH_TOKENS,NULL);  // Do this every 10 minutes
+}
+//<-dceag-c942-b->
+
+	/** @brief COMMAND: #942 - Get Ripping Status */
+	/** Get ripping status */
+		/** @param #199 Status */
+			/** Ripping status */
+
+void Media_Plugin::CMD_Get_Ripping_Status(string *sStatus,string &sCMD_Result,Message *pMessage)
+//<-dceag-c942-e->
+{
+	vector<Row_RipStatus *> vectRow_RipStatus;
+	m_pDatabase_pluto_media->RipStatus_get()->GetRows("1=1 ORDER BY PK_RipStatus DESC LIMIT 1", &vectRow_RipStatus);
+
+    if(vectRow_RipStatus.empty())
+	{
+		*sStatus = "No rip in progress";
+	}
+	else
+	{
+		Row_RipStatus *pRow_RipStatus = vectRow_RipStatus[0];
+		string sRipStatus = pRow_RipStatus->Status_get();
+		string sFile = pRow_RipStatus->File_get();
+
+		//string sDateTimeStart = pRow_RipStatus->DateTime_get();
+		//string sElapsedTime;
+
+		string sFullStatus = "preparing";
+		
+		if(sRipStatus == "p")
+			sFullStatus = "in progress";
+		else if(sRipStatus == "e")
+			sFullStatus = "failed";
+		else if(sRipStatus == "s")
+			sFullStatus = "success";
+
+		 *sStatus = "Ripping '" + FileUtils::FilenameWithoutPath(sFile) + "': " + sFullStatus; // + " (" + sElapsedTime + ")";
+	}
 }

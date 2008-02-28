@@ -25636,5 +25636,65 @@ namespace DCE
 			COMMAND_SRS_CONST,
 			0 /* number of parameters */); }
 	};
+	class RESP_Get_Ripping_Status : public PreformedCommandResponse {
+		string *m_sStatus;
+	public:
+		RESP_Get_Ripping_Status(string *sStatus) { 
+		m_sStatus=sStatus; }
+		void ParseResponse(Message *pMessage) {
+			*m_sStatus=pMessage->m_mapParameters[COMMANDPARAMETER_Status_CONST]; };
+	};
+	class CMD_Get_Ripping_Status : public PreformedCommand {
+	public:
+		CMD_Get_Ripping_Status(long DeviceIDFrom, long DeviceIDTo,string *sStatus) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
+			COMMAND_Get_Ripping_Status_CONST,
+			1 /* number of parameters */,
+			COMMANDPARAMETER_Status_CONST, (*sStatus).c_str());		m_pcResponse = new RESP_Get_Ripping_Status(sStatus); }
+	};
+	class CMD_Get_Ripping_Status_DL : public PreformedCommand {
+	public:
+		CMD_Get_Ripping_Status_DL(long DeviceIDFrom, string DeviceIDTo,string *sStatus) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Get_Ripping_Status_CONST,
+			1 /* number of parameters */,
+			COMMANDPARAMETER_Status_CONST, (*sStatus).c_str());		m_pcResponse = new RESP_Get_Ripping_Status(sStatus); }
+	};
+	class CMD_Get_Ripping_Status_DT : public PreformedCommand {
+	public:
+		CMD_Get_Ripping_Status_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string *sStatus) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Get_Ripping_Status_CONST,
+			1 /* number of parameters */,
+			COMMANDPARAMETER_Status_CONST, (*sStatus).c_str());		m_pcResponse = new RESP_Get_Ripping_Status(sStatus); }
+	};
+	class CMD_Get_Ripping_Status_Cat : public PreformedCommand {
+	public:
+		CMD_Get_Ripping_Status_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string *sStatus) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Get_Ripping_Status_CONST,
+			1 /* number of parameters */,
+			COMMANDPARAMETER_Status_CONST, (*sStatus).c_str());		m_pcResponse = new RESP_Get_Ripping_Status(sStatus); }
+	};
+	class CMD_NOREP_Get_Ripping_Status : public PreformedCommand {
+	public:
+		CMD_NOREP_Get_Ripping_Status(long DeviceIDFrom, long DeviceIDTo) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Get_Ripping_Status_CONST,
+			0 /* number of parameters */); }
+	};
+	class CMD_NOREP_Get_Ripping_Status_DL : public PreformedCommand {
+	public:
+		CMD_NOREP_Get_Ripping_Status_DL(long DeviceIDFrom, string DeviceIDTo) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Get_Ripping_Status_CONST,
+			0 /* number of parameters */); }
+	};
+	class CMD_NOREP_Get_Ripping_Status_DT : public PreformedCommand {
+	public:
+		CMD_NOREP_Get_Ripping_Status_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Get_Ripping_Status_CONST,
+			0 /* number of parameters */); }
+	};
+	class CMD_NOREP_Get_Ripping_Status_Cat : public PreformedCommand {
+	public:
+		CMD_NOREP_Get_Ripping_Status_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Get_Ripping_Status_CONST,
+			0 /* number of parameters */); }
+	};
 }
 #endif
