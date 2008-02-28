@@ -176,16 +176,12 @@ $EXT_BUFFER .= "exten => _000.,2,Hangup\n";
 $EXT_BUFFER .= "\n\n[voice-menu-pluto-custom]\n\n";
 $EXT_BUFFER .= "exten => s,1,Answer\n";
 $EXT_BUFFER .= "exten => s,2,Wait(1)\n";
-$EXT_BUFFER .= "exten => s,3,SET(count=1)\n";
-$EXT_BUFFER .= "exten => s,4,AGI(pluto-callersforme.agi)\n";
-$EXT_BUFFER .= "exten => s,5,Background(pluto/pluto-default-voicemenu)\n";
-$EXT_BUFFER .= "exten => s,6,SET(count=${count}+1)\n";
-$EXT_BUFFER .= "exten => s,7,Wait(1)\n";
-$EXT_BUFFER .= "exten => s,8,GoToIf($[${count}<4]?4)\n";
-$EXT_BUFFER .= "exten => s,9,Wait(2)\n";
-$EXT_BUFFER .= "exten => s,10,DigitTimeout,20\n";
-$EXT_BUFFER .= "exten => s,11,ResponseTimeout,20\n";
+$EXT_BUFFER .= "exten => s,3,AGI(pluto-callersforme.agi)\n";
+$EXT_BUFFER .= "exten => s,4,Background(pluto/pluto-default-voicemenu)\n";
+$EXT_BUFFER .= "exten => s,5,Set(TIMEOUT(digit)=10)\n";
+$EXT_BUFFER .= "exten => s,6,Set(TIMEOUT(response)=20)\n";
 $EXT_BUFFER .= "exten => t,1,Goto(s,1)\n";
+
 
 $tmp="";
 foreach my $phone (sort (values(%PHONES)))
