@@ -25,6 +25,7 @@
 #include "JukeBox.h"
 #include "MoveDiscTask.h"
 #include "FixupRippingInfoTask.h"
+#include "AddRippingTasksTask.h"
 #include "pluto_media/Table_DiscLocation.h"
 #include "IdentifyTask.h"
 #include "Gen_Devices/AllScreens.h"
@@ -169,7 +170,7 @@ bool RipJob::ReadyToRun()
 	AddTask(new MoveDiscTask(this,"SlotToDrive",MoveDiscTask::mdt_SlotToDrive,m_pSlot->m_pJukeBox,pDrive,m_pSlot));
 	AddTask(new IdentifyTask(this,m_pDisk_Drive_Functions,m_pCommand_Impl,"Identify"));
 	AddTask(new FixupRippingInfoTask(this,"FixupRippingInfo"));
-	AddRippingTasks(pDrive);
+	AddTask(new AddRippingTasksTask(this,pDrive,"AddRippingTasks"));
 	AddTask(new MoveDiscTask(this,"DriveToSlot",MoveDiscTask::mdt_DriveToSlot,m_pSlot->m_pJukeBox,pDrive,m_pSlot));
 	return true;
 }

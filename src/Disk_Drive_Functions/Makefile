@@ -20,7 +20,7 @@ CPPFLAGS += -DUSE_MYSQL_WRAPPER
 sources = Disk_Drive_Functions.cpp \
 	RipTask.cpp RipJob.cpp IdentifyJob.cpp \
 	IdentifyTask.cpp ProcessMediaIdentifiedJob.cpp \
-	MoveDiscTask.cpp FixupRippingInfoTask.cpp \
+	MoveDiscTask.cpp FixupRippingInfoTask.cpp AddRippingTasksTask.cpp \
 	LoadUnloadJob.cpp JukeBox.cpp ../Media_Plugin/MediaAttributes_LowLevel.cpp \
 	../JobHandler/JobHandler.cpp \
 	../JobHandler/Job.cpp \
