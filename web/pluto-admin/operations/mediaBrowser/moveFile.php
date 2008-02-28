@@ -69,7 +69,9 @@ function moveFile($output,$mediadbADO) {
 
 		if(isset($_POST['newPath']) && $_POST['newPath']!=''){
 			$newFilePath=urldecode($_POST['newPath']);
-
+			$mvID3='sudo -u root mv \''.$filePath.'.id3\' \''.$newFilePath.'.id3\'';
+			exec_batch_command($mvID3);
+	
 			$cmd='sudo -u root mv \''.$filePath.'\' \''.$newFilePath.'\'';
 			$moved_cmd=exec($cmd,$ret,$moved);	
 			

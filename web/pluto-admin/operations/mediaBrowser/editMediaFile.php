@@ -545,6 +545,9 @@ function addAttribute($newAttributeType,$newAttributeName,$fileID,$dbADO){
 }
 
 function web_rename($source, $destination){
+	$delID3='sudo -u root rm -f "'.$source.'.id3"';
+	exec_batch_command($delID3);
+	
 	$cmd='sudo -u root /usr/pluto/bin/Web_Rename.sh "'.$source.'" "'.$destination.'"';
 	return exec_batch_command($cmd);
 }
