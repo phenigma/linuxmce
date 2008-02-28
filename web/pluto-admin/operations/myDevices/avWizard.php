@@ -14,8 +14,6 @@ function avWizard($output,$dbADO) {
 	$installationID = (int)@$_SESSION['installationID'];
 	$_SESSION['selectedEntArea']=(isset($_REQUEST['entArea']))?(int)$_REQUEST['entArea']:(int)@$_SESSION['selectedEntArea'];		
 
-
-
 	$deviceCategory=$GLOBALS['rootAVEquipment'];
 	$specificFloorplanType=$GLOBALS['AVEquipmentFlorplanType'];
 	$output->setHelpSrc('/wiki/index.php/AV_Devices');
@@ -129,6 +127,7 @@ function avWizard($output,$dbADO) {
 				AllowedToModify,
 				DeviceTemplate_DeviceData.Description AS Tooltip,
 				Parent.Description AS PDescription,
+				Parent.FK_DeviceTemplate AS ParentDT,
 				DeviceTemplate.IsEmbedded,
 				Parent.FK_DeviceTemplate AS ParentDT,
 				ParentDT.FK_DeviceCategory AS ParentCategory
@@ -202,7 +201,7 @@ function avWizard($output,$dbADO) {
 		$deviceDataArray=array();
 		$liveTVArray=array();
 		while($rowD=$resDevice->FetchRow()){
-			if($rowD['FK_Device_ControlledVia']==$rowD['FK_Device_RouteTo'] || $rowD['IsEmbedded']==1)
+			if($rowD['FK_Device_ControlledVia']==$rowD['FK_Device_RouteTo'] || ($rowD['IsEmbedded']==1 && in_array($rowD['ParentDT'],$dtArray)))
 				$childOf[$rowD['PK_Device']]=$rowD['FK_Device_ControlledVia'];
 			$displayedDevices[$rowD['PK_Device']]=$rowD['Description'];
 			
