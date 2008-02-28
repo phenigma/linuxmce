@@ -7256,6 +7256,10 @@ void Orbiter::TranslateVirtualDevice(int PK_DeviceTemplate,long &PK_Device)
 		PK_Device=m_pLocationInfo->m_dwPK_Device_IRReceiver;
 		break;
 
+	case DEVICETEMPLATE_VirtDev_Disc_Drive_CONST:
+		PK_Device=m_pLocationInfo->m_dwPK_Device_DiscDrive;
+		break;
+
 	case DEVICETEMPLATE_VirtDev_LCDVFD_CONST:
 		PK_Device=m_pLocationInfo->m_dwPK_Device_LCD_VFD;
 		break;
