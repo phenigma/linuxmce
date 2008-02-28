@@ -2551,6 +2551,8 @@
 #define DESIGNOBJ_mnuAjAd_CONST 5579
 #define DESIGNOBJ_bitAjAd_CONST 5580
 #define DESIGNOBJ_butPlayCommercial_CONST 5581
+#define DESIGNOBJ_butEject_CONST 5582
+#define DESIGNOBJ_butRipStatus_CONST 5583
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
