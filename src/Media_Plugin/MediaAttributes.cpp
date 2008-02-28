@@ -68,10 +68,31 @@ MediaAttributes::~MediaAttributes()
 bool MediaAttributes::SavePlaylist(deque<MediaFile *> &dequeMediaFile, int iPK_Users, int &iPK_Playlist, string sPlaylistName )
 {
 	Row_Playlist *pRow_Playlist=NULL;
+	
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MediaAttributes::SavePlaylist, user %d, pk_playlist %d",
+		iPK_Users, iPK_Playlist);
+
 	if( iPK_Playlist )
 		pRow_Playlist = m_pDatabase_pluto_media->Playlist_get()->GetRow(iPK_Playlist);
 	else
-		pRow_Playlist = m_pDatabase_pluto_media->Playlist_get()->AddRow();
+	{
+		//search for <name, user> pair
+
+		vector<Row_Playlist *> vectRow_Playlist;
+		m_pDatabase_pluto_media->Playlist_get()->GetRows(
+			"WHERE Name = '" + StringUtils::SQLEscape(sPlaylistName) + "' AND "
+			"EK_User = " + StringUtils::ltos(iPK_Users),
+			&vectRow_Playlist);
+
+		if(vectRow_Playlist.empty())
+		{
+			pRow_Playlist = m_pDatabase_pluto_media->Playlist_get()->AddRow();
+		}
+		else
+		{
+			pRow_Playlist = vectRow_Playlist[0];
+		}
+	}
 
 	if( !pRow_Playlist )
 	{
@@ -80,7 +101,7 @@ bool MediaAttributes::SavePlaylist(deque<MediaFile *> &dequeMediaFile, int iPK_U
 	}
 
     pRow_Playlist->Name_set(sPlaylistName);
-    pRow_Playlist->EK_User_set(iPK_Users);
+	pRow_Playlist->EK_User_set(iPK_Users);
 
 LoggerWrapper::GetInstance()->Write(LV_WARNING, "pl3 = %s %s",sPlaylistName.c_str(),pRow_Playlist->Name_get().c_str());
 
@@ -91,6 +112,9 @@ LoggerWrapper::GetInstance()->Write(LV_WARNING, "pl3 = %s %s",sPlaylistName.c_st
 
 		return false;
     }
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MediaAttributes::SavePlaylist, user %d, pk_playlist new %d",
+		iPK_Users, iPK_Playlist);
 
     if( iPK_Playlist )
 	{
