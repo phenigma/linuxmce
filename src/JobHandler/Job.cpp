@@ -93,6 +93,32 @@ void Job::AddTask(Task *pTask)
 	m_listTask.push_back(pTask);
 }
 
+// add the tasks from the vector, keeping them in the same order as they are in original vector
+void Job::AddTasks(const vector<Task *> &vTasks, TasklistPosition position)
+{
+    PLUTO_SAFETY_LOCK(jm,m_ThreadMutex);
+    switch (position)
+    {
+	case position_TasklistBegin:
+	    {
+		for (vector<Task *>::const_reverse_iterator i=vTasks.rbegin(); i!=vTasks.rend(); ++i)
+		    m_listTask.push_front(*i);
+	    }
+	    break;
+
+	case position_TasklistEnd:
+	    {
+		for (vector<Task *>::const_iterator i=vTasks.begin(); i!=vTasks.end(); ++i)
+		    m_listTask.push_back(*i);
+	    }
+	    break;
+
+	default:
+	    LoggerWrapper::GetInstance()->Write(LV_WARNING,"Job::AddTasks unhandled position value: %i", position);
+	    break;
+    }
+}
+
 // return number of pending (running, not attempted) tasks
 int Job::PendingTasks()
 {
