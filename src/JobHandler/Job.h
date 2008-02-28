@@ -126,7 +126,7 @@ namespace nsJobHandler
 
 		Task *GetNextTask();
 		Task *FindTask(int taskID);
-		void AddTask(Task *pTask);
+		void AddTask(Task *pTask, TasklistPosition position=position_TasklistEnd);
 		void AddTasks(const vector<Task *> &vTasks, TasklistPosition position=position_TasklistEnd);
 
 		string m_sName_get() { return m_sName; }

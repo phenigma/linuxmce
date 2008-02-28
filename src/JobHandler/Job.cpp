@@ -87,10 +87,23 @@ Task *Job::GetNextTask()
 	return NULL;
 }
 
-void Job::AddTask(Task *pTask)
+void Job::AddTask(Task *pTask, TasklistPosition position)
 {
 	PLUTO_SAFETY_LOCK(jm,m_ThreadMutex);
-	m_listTask.push_back(pTask);
+	switch (position)
+	{
+	    case position_TasklistBegin:
+		m_listTask.push_front(pTask);
+		break;
+
+	    case position_TasklistEnd:
+		m_listTask.push_back(pTask);
+		break;
+
+	    default:
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"Job::AddTask unhandled position value: %i", position);
+		break;
+	}
 }
 
 // add the tasks from the vector, keeping them in the same order as they are in original vector
