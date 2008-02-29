@@ -187,7 +187,9 @@ DatabaseDefaults()
 
 ApplyHacks()
 {
-	:
+	AsoundSubst='s/convert48k/convert44k/g; s/rate 48000/rate 44100/g'
+	sed -ri "$AsoundSubst" /usr/pluto/templates/asound.conf
+	sed -ri "$AsoundSubst" /etc/asound.conf || :
 }
 
 Packages
