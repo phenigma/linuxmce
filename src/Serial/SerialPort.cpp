@@ -444,29 +444,29 @@ size_t CSerialPort::Read(char *Buf, size_t MaxLen, int Timeout)
 
 bool CSerialPort::IsReadEmpty()
 {
-	if( d->buffer.empty() )
-	{
-		struct timeval tv;
-		fd_set rfds;
+	if( d->buffer.empty() )						//Is there anything in the buffer?
+	{								//No, there isn't!
+		struct timeval tv;					//	time
+		fd_set rfds;						//	rfds = readfds
 			
-		FD_ZERO(&rfds);
+		FD_ZERO(&rfds);						//m_fdSerial is a file reference to the serial port opened with open() in the constructor.
 		FD_SET(m_fdSerial, &rfds);
 		int ret = 0;
 		
 		tv.tv_sec = 0 ;
 		tv.tv_usec = 0;
-		
-		ret = select(m_fdSerial+1, &rfds, NULL, NULL, &tv);
-		if ( ret <= 0 )
+									//	select(nfds(ignored),readfds,writefds,execptfds,timeval timeout)
+		ret = select(m_fdSerial+1, &rfds, NULL, NULL, &tv);	//	select returns the total number of socket handles that are ready and contained in the fd_set functions, or 0 on timeout, or an error
+		if ( ret <= 0 ) /*time limit expired(0) or error occurred(-1)*/
 		{
 			return true;
 		}
-		else
+		else /*got a positive value back*/
 		{
 			return false;
 		}
 	}
-	
+									//Yes, there is data already in in the buffer!
 	return false;
 }
 
@@ -505,6 +505,28 @@ bool CSerialPort::IsBusy()
 	// if CTS is not set, then there isn't something connected to the serial port
 	// or the hardware dataflow control lines are not used
 	if( !(flags & TIOCM_CTS) )
+	{
+		return false;
+	}
+	
+	return true;
+}
+
+bool CSerialPort::IsRngSet()
+{
+	int flags = 0;
+	
+	pthread_mutex_lock( &d->mutex_serial );
+	int iRNG = ioctl( m_fdSerial, TIOCMGET, &flags ); 
+	pthread_mutex_unlock( &d->mutex_serial );
+	
+	if( -1 == iRNG )
+	{
+		// bad serial device
+		return false;
+	}
+	
+	if( !(flags & TIOCM_RNG) )
 	{
 		return false;
 	}
