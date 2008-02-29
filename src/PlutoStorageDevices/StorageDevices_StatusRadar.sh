@@ -26,7 +26,7 @@ DD_SHARE_NAME=126
 DD_USERNAME=127
 DD_PASSWORD=128
 DD_ONLINE=195
-DD_BLOCK_DEV=152
+DD_UUID=266
 DD_READONLY=194
 
 EV_User_Password_Mismatch=70
@@ -261,10 +261,10 @@ while : ;do
 		SELECT
 			PK_Device,
 			FK_Device_ControlledVia,
-			BlockDev.IK_DeviceData
+			UUID.IK_DeviceData
 		FROM
 			Device
-			LEFT JOIN Device_DeviceData BlockDev ON BlockDev.FK_Device = Device.PK_Device AND BlockDev.FK_DeviceData = '$DD_BLOCK_DEV'
+			LEFT JOIN Device_DeviceData UUID     ON UUID.FK_Device     = Device.PK_Device AND UUID.FK_DeviceData     = '$DD_UUID'
 		WHERE
 			FK_DeviceTemplate IN ($TPL_INTERNAL_DRIVE, $TPL_RAID_0, $TPL_RAID_1, $TPL_RAID_5)
 	"
@@ -278,17 +278,31 @@ while : ;do
 
 		IDrive_ID=$(Field "1" "$InternalDrive")
 		IDrive_Parent=$(Field "2" "$InternalDrive")
-		IDrive_BlockDev=$(Field "3" "$InternalDrive")
+		IDrive_UUID=$(Field "3" "$InternalDrive")
 
 		## Is one of our internal drives
 		if [[ "$IDrive_Parent" == "$PK_Device" ]] ;then
+			## See if a device with that UUID can be found in the hal tree
+			IDrive_HalUDI=$(hal-find-by-property --key 'volume.uuid' --string "$IDrive_UUID")
+			if [[ "$IDrive_HalUDI" == "" ]] ;then
+				Log "Drive $IDrive_ID ($IDrive_UUID) cannot be found in hal tree"
+				SetDeviceOnline "$IDrive_ID" "0"
+				continue
+			fi
+
+			## See if we have a block device associated with that UUID
+			IDrive_BlockDev=$(hal-get-property --udi "$IDrive_HalUDI" --key 'block.device')
+			if [[ "$IDrive_BlockDev" == "" ]] ;then
+				Log "Drive $IDrive_ID ($IDrive_UUID) doesn't have a block device associated"
+				SetDeviceOnline "$IDrive_ID" "0"
+			fi
 			
 			## See if is still available in /proc/partitions
 			cat /proc/partitions | grep -q "${IDrive_BlockDev##/dev/}$"
 			isDriveAvailable=$?
 			
 			if [[ "$isDriveAvailable" != "0" ]] ;then
-				Log "Drive $IDrive_ID ($IDrive_BlockDev) cannot be found in /proc/partitions"
+				Log "Drive $IDrive_ID ($IDrive_UUID) that's associated with $IDrive_BlockDev cannot be found in /proc/partitions"
 				SetDeviceOnline "$IDrive_ID" "0"
 				continue
 			fi
@@ -299,7 +313,7 @@ while : ;do
 			isDriveMountable=$?
 			
 			if [[ "$isDriveMountable" != "0" ]] ;then
-				Log "Drive $IDrive_ID ($IDrive_BlockDev) cannot be mounted"
+				Log "Drive $IDrive_ID ($IDrive_UUID) that's associated with $IDrive_BlockDev cannot be mounted"
 				SetDeviceOnline "$IDrive_ID" "0"
 				rmdir $mountDirTemp
 				continue
@@ -332,7 +346,7 @@ while : ;do
                         isShareInList=$?
 
                         if [[ "$isShareInList" != "0" ]] ;then
-                                Log "Drive $IDrive_ID ($IDrive_BlockDev) is not advertised by it's parent smb server ($IDrive_IP)"
+                                Log "Drive $IDrive_ID ($IDrive_UUID) is not advertised by it's parent smb server ($IDrive_IP)"
                                 SetDeviceOnline "$IDrive_ID" "0"
                                 continue
                         fi
@@ -342,7 +356,7 @@ while : ;do
                         isShareMountable=$?
 
                         if [[ "$isShareMountable" != "0" ]] ;then
-                                Msg="Drive $IDrive_ID ($IDrive_IP $IDrive_BlockDev) cannot be mounted"
+                                Msg="Drive $IDrive_ID ($IDrive_IP $IDrive_UUID) cannot be mounted"
                                 Log "$Msg"
                                 SetDeviceOnline "$IDrive_ID" "0"
                                 continue

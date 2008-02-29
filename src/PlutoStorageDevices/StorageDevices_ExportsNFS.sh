@@ -7,7 +7,6 @@
 . /usr/pluto/bin/Utils.sh
 
 TPL_GENERIC_INTERNAL_DRIVE=1790
-DD_BLOCK_DEVICE=152
 
 
 ## Set some variables needed for exporting nfs
@@ -35,7 +34,6 @@ InternalOwnStorageDevices=$(RunSQL "$Q")
 for Device in $InternalOwnStorageDevices; do
 	Device_ID=$(Field 1 "$Device")
 	Device_MountPoint="/mnt/device/$Device_ID"
-	Device_BlockDevice=$(RunSQL "SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device=$Device_ID and FK_DeviceData=$DD_BLOCK_DEVICE")
 
 	Exports_InternalStorageDevices="$Exports_InternalStorageDevices\n$Device_MountPoint ${INTERNAL_SUBNET}/${INTERNAL_SUBNET_MASK}(rw,no_root_squash,no_all_squash,async,nohide,no_subtree_check)"
 done
