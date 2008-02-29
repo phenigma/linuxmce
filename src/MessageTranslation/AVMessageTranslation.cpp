@@ -154,7 +154,7 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 					if( ToggleInput==0 )
 						laststatus_input_[devid] = 0;
 				}
-				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Command <%d> translated to <%d>",pmsg->m_dwID,COMMAND_Toggle_Power_CONST);
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "1:Command <%d> translated to <%d>",pmsg->m_dwID,COMMAND_Toggle_Power_CONST);
 				return true;
 			}
 		}
@@ -177,7 +177,7 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 				if( ToggleInput==0 )
 					laststatus_input_[devid] = 0;
 			}
-			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Command <%d> translated to <%d>",pmsg->m_dwID,cmd);
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "2:Command <%d> translated to <%d>",pmsg->m_dwID,cmd);
 			return true;
 		}
 		// check if the power commands are useless
@@ -220,13 +220,10 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 			int cmd = atoi((*param).second.c_str());
 			
 			// check if the command is useless
-			if( !retransmit && laststatus_input_[devid] == cmd )
+			if( !retransmit && laststatus_input_[devid] == cmd && !bUselessTimeout )
 			{
-				if( !bUselessTimeout )
-				{
-					LoggerWrapper::GetInstance()->Write(LV_STATUS, "Input select is useless");
-					inrepl.setUseless(true);
-				}
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Input select is useless");
+				inrepl.setUseless(true);
 			}
 			else
 			{
@@ -236,7 +233,7 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 						Message(inrepl.getMessage().m_dwPK_Device_From, inrepl.getMessage().m_dwPK_Device_To, 
 										PRIORITY_NORMAL, MESSAGETYPE_COMMAND, cmd, 0),
 						1, 0, IR_ModeDelay);
-					LoggerWrapper::GetInstance()->Write(LV_STATUS, "Command <Input Select> translated to <%d>", cmd);
+					LoggerWrapper::GetInstance()->Write(LV_STATUS, "3:Command <Input Select> translated to <%d>", cmd);
 					outrepls.push_back(msgrepl);
 				}
 				else
@@ -281,7 +278,7 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 													1, 0, IR_ModeDelay);
 							outrepls.push_back(msgrepl);
 						}
-						LoggerWrapper::GetInstance()->Write(LV_STATUS, "Command <%d> translated <%d> translated to %d input selects",pmsg->m_dwID,cmd,count);
+						LoggerWrapper::GetInstance()->Write(LV_STATUS, "4:Command <%d> translated <%d> translated to %d input selects",pmsg->m_dwID,cmd,count);
 					}
 					else
 					{
@@ -355,7 +352,7 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 											1, 0, IR_ModeDelay);
 					outrepls.push_back(msgrepl);
 				}
-				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Command <%d> translated to %d input selects",pmsg->m_dwID,count);
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "5:Command <%d> translated to %d input selects",pmsg->m_dwID,count);
 			}
 			else
 			{
