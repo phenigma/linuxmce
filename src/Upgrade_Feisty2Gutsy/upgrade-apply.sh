@@ -72,6 +72,8 @@ Pin: release v=7.10,o=Ubuntu,a=gutsy,l=Ubuntu
 Pin-Priority: 9998
 " > /etc/apt/preferences
 
+## Backup xorg.conf for the hybrid
+cp /etc/X11/xorg.conf /etc/X11/xorg.conf.upgrade
 
 ## Do the actual upgrade
 DisplayMessage "Started updating packages"
@@ -80,6 +82,9 @@ apt-get update
 apt-get -f -y --force-yes install mysql-server-5.0
 /etc/init.d/mysql start
 apt-get -f -y --force-yes dist-upgrade
+
+# Restore xorg.conf
+cp /etc/X11/xorg.conf.upgrade /etc/X11/xorg.conf
 
 ## Fix PK_Distro in pluto.conf
 DisplayMessage "Performing post upgrade fixes"
