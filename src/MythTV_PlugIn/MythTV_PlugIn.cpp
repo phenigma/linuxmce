@@ -313,7 +313,11 @@ bool MythTV_PlugIn::StartMedia(class MediaStream *pMediaStream,string &sError)
 //<-mkr_b_aj_b->
 	pMythTvMediaStream->m_pMediaDevice_Source = m_pMediaDevice_Xine;
 	pMythTvMediaStream->m_sAppName = "pluto-xine-playback-window.pluto-xine-playback-window";
-	m_iChannel=1;
+	MediaFile *pMediaFile = pMythTvMediaStream->GetCurrentMediaFile();
+	if( pMediaFile && atoi(pMediaFile->m_sFilename.c_str())>0 )
+		m_iChannel=atoi(pMediaFile->m_sFilename.c_str());
+	else
+		m_iChannel=1;
 	sMRL = ajTranslateMRL(m_iChannel);
 //<-mkr_b_aj_e->
 
