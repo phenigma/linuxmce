@@ -5,6 +5,7 @@ set -e
 Debug=0
 FromHdd=0
 Upgrade=0
+KeepMedia=0
 grep -q "install_from_hdd" /proc/cmdline && FromHdd="1"
 
 if grep -q "noinst" /proc/cmdline; then
@@ -82,19 +83,29 @@ GetHddToUse()
 					if [[ -f /media/target/etc/pluto.conf ]]; then
 						echo "* Found an existing installation on drive '$DiskDev'"
 						Choice=
-						until [[ "$Choice" == [YyNn] ]]; do
-							echo -n "Do you want to keep your settings? (y/n): "
+						until [[ "$Choice" == [123] ]]; do
+							echo "1. Preserve my setting and /home directory."
+							echo "2. Preserve my /home directory only."
+							echo "3. Do a clean install without keeping anything."
+
+							echo -n "Answer :  "
 							read Choice
-							if [[ "$Choice" != [YyNn] ]]; then
+							if [[ "$Choice" != [123] ]]; then
 								echo
-								echo "***********************************************"
-								echo "* Please answer 'y' for 'yes' or 'n' for 'no' *"
-								echo "***********************************************"
+								echo "*************************************"
+								echo "* Please answer with a valid option *"
+								echo "*************************************"
 							fi
 						done
-						if [[ "$Choice" == [Yy] ]]; then
+						if [[ "$Choice" == "1" ]]; then
 							Done=1
 							Upgrade=1
+							TargetHdd="$DiskDev"
+						fi
+						if [[ "$Choice" == "2" ]]; then
+							Done=1
+							Upgrade=1
+							KeepMedia=1
 							TargetHdd="$DiskDev"
 						fi
 					fi
@@ -173,20 +184,24 @@ FormatPartitions()
 	if [[ "$FromHdd" == 1 || "$Upgrade" == 1 ]] && mount "$TargetHdd"1 /media/target; then
 		pushd /media/target &>/dev/null
 
-		if [[ -d ./usr/pluto/diskless ]]; then
-			pushd ./usr/pluto/diskless &>/dev/null
-				while read MD; do
-					NukeFS "./$MD",etc "./$MD/etc",pluto.conf
-				done < <(find . -mindepth 1 -maxdepth 1 -type d)
-			popd &>/dev/null
-
-			mkdir .upgrade-diskless
-			mv ./usr/pluto/diskless/* .upgrade-diskless/
+		if [[ "$KeepMedia" == "1" ]] ;then
+			NukeFS .,home
+		else
+			if [[ -d ./usr/pluto/diskless ]]; then
+				pushd ./usr/pluto/diskless &>/dev/null
+					while read MD; do
+						NukeFS "./$MD",etc "./$MD/etc",pluto.conf
+					done < <(find . -mindepth 1 -maxdepth 1 -type d)
+				popd &>/dev/null
+	
+				mkdir .upgrade-diskless
+				mv ./usr/pluto/diskless/* .upgrade-diskless/
+			fi
+	
+			NukeFS .,home,var,etc,usr,.upgrade-diskless ./var,lib ./var/lib,mysql ./etc,pluto.conf,ssh,passwd,shadow,group,mysql ./usr,pluto ./usr/pluto,orbiter ./usr/pluto/orbiter,rooms,scenarios,users
+			mkdir .upgrade-save
 		fi
-
-		NukeFS .,home,var,etc,usr,.upgrade-diskless ./var,lib ./var/lib,mysql ./etc,pluto.conf,ssh,passwd,shadow,group,mysql ./usr,pluto ./usr/pluto,orbiter ./usr/pluto/orbiter,rooms,scenarios,users
 			
-		mkdir .upgrade-save
 		find -mindepth 1 -maxdepth 1 -not -name '.upgrade-*' -exec mv '{}' .upgrade-save/ ';'
 		popd &>/dev/null
 		umount "$TargetHdd"1
@@ -280,7 +295,7 @@ ExtractArchive()
 	cat "$archives_path"/lmce-image/linux-mce.tar.gz* | tar -C /media/target -zx --checkpoint=10000
 	mkdir -p /media/target/etc/pluto
 
-	if [[ "$Upgrade" == 1 ]]; then
+	if [[ "$Upgrade" == 1 && "$KeepMedia" != "1" ]]; then
 		touch /media/target/etc/pluto/install_cleandb
 	fi
 
