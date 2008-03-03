@@ -383,7 +383,7 @@ InstallGrub()
 	umount /media/target/dev/
 	cp -r /dev/.static/dev/* /media/target/dev/
 
-	sed -ir "s,^\(# kopt=root=[^ ]*\) \(.*\),# kopt=root=UUID=${RootUUID} \2,g"
+	sed -ir "s,^\(# kopt=root=[^ ]*\) \(.*\),# kopt=root=UUID=${RootUUID} \2,g" /media/target/boot/grub/menu.lst
 	sed -ir "s,root=.* ro quiet splash,root=UUID=${RootUUID} ro quiet splash,g" /media/target/boot/grub/menu.lst
 	sed -ir "s,root=.* ro single,root=UUID=${RootUUID} ro single,g" /media/target/boot/grub/menu.lst
 
