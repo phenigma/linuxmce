@@ -112,6 +112,11 @@ bool CSerialPort::IsBusy()
 	return false;
 }
 
+bool CSerialPort::IsRngSet()
+{
+	return true;
+}
+
 #else
 
 #include <sys/types.h>
@@ -515,23 +520,25 @@ bool CSerialPort::IsBusy()
 bool CSerialPort::IsRngSet()
 {
 	int flags = 0;
-	
+
 	pthread_mutex_lock( &d->mutex_serial );
 	int iRNG = ioctl( m_fdSerial, TIOCMGET, &flags ); 
 	pthread_mutex_unlock( &d->mutex_serial );
-	
+
 	if( -1 == iRNG )
 	{
 		// bad serial device
 		return false;
 	}
-	
+
 	if( !(flags & TIOCM_RNG) )
 	{
 		return false;
 	}
-	
+
 	return true;
 }
 
 #endif
+
+
