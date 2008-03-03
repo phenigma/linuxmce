@@ -1370,17 +1370,13 @@ int MediaAttributes_LowLevel::AddRippedDiscToDatabase(int PK_Disc,int PK_MediaTy
                             Row_File_Attribute *pRow_File_Attribute = m_pDatabase_pluto_media->File_Attribute_get()->AddRow();
                             pRow_File_Attribute->FK_File_set(pRow_File->PK_File_get());
                             pRow_File_Attribute->FK_Attribute_set(pAttr->PK_Attribute_get());
-                            pRow_File_Attribute->Track_set(iTrack);
                             m_pDatabase_pluto_media->File_Attribute_get()->Commit();
                           }
                           else
                           {
 #ifdef DEBUG
-                            LoggerWrapper::GetInstance()->Write(LV_STATUS,"MediaAttributes_LowLevel::AddRippedDiscToDatabase - modifying existing attribute");
+                            LoggerWrapper::GetInstance()->Write(LV_STATUS,"MediaAttributes_LowLevel::AddRippedDiscToDatabase - not modifying existing attribute");
 #endif
-                            Row_File_Attribute *pRow_File_Attribute = *vFileAttrs.begin();
-                            pRow_File_Attribute->Track_set(iTrack);
-                            m_pDatabase_pluto_media->File_Attribute_get()->Commit();
                           }
                         }
 
