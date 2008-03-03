@@ -6,7 +6,7 @@
 export PATH=$PATH:/sbin:/usr/sbin:/usr/local/sbin
 
 TPL_GENERIC_INTERNAL_DRIVE=1790
-DD_UUID=266
+DD_UUID=267
 
 function substractParts {
 	local availPart=$1
