@@ -6,6 +6,7 @@ Debug=0
 FromHdd=0
 Upgrade=0
 KeepMedia=0
+LinuxMCE_Password=0
 grep -q "install_from_hdd" /proc/cmdline && FromHdd="1"
 
 if grep -q "noinst" /proc/cmdline; then
@@ -114,6 +115,16 @@ GetHddToUse()
 		done
 		clear
 
+		if [[ "$Upgrade" != "1" ]] ;then
+			while [[ "$LinuxMCE_Password" == "" ]] ;do
+				echo -n 'Please enter a password for `linuxmce\' system user : '
+				read Password
+				if [[ "$Password" != "" ]] ;then
+					LinuxMCE_Password=$(mkpasswd -H md5 "$Password")
+				fi
+			done
+		fi
+
 		while [[ "$Done" == 0 ]]; do
 		echo "Hard drives in the system:"
 			i=1
@@ -141,7 +152,7 @@ GetHddToUse()
 				TargetHdd="${Hdd[$Choice]}"
 				Done=1
 			fi
-		done
+		done	
 	fi
 
 	echo "Chosen hdd: $TargetHdd"
@@ -438,6 +449,10 @@ TargetCleanup()
 
 	ifconfig -a | grep ^eth | awk '{print "SUBSYSTEM==\"net\", DRIVERS==\"?*\", ATTRS{address}==\"" tolower($5) "\", NAME=\"" $1 "\""}' > /media/target/etc/udev/rules.d/70-persistent-net.rules || :
 	#chroot /media/target update-grub
+
+	if [[ "$LinuxMCE_Password" != "" ]] ;then
+		sed "s,\(linuxmce:\)[^:]*\(.*\),\1$LinuxMCE_Password\2,g" /media/target/etc/shadow
+	fi
 
 	if [[ -d /media/target/.upgrade-save ]]; then
 		pushd /media/target/.upgrade-save &>/dev/null
