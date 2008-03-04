@@ -6205,18 +6205,27 @@ function appServerExec($appServerID,$command,$params=''){
 	return exec_batch_command($cmd,1);
 }
 
+function getOrbitersInTheSameRoom($commandGroupID,$dbADO){
+	if($commandGroupID==0){
+		return array();
+	}
+	$eaArray=array_keys(getAssocArray('CommandGroup_EntertainArea','FK_EntertainArea','FK_EntertainArea',$dbADO,'WHERE FK_CommandGroup='.$commandGroupID));
+	if(count($eaArray)>0){
+		return array_keys(getAssocArray('Device','PK_Device','Description',$dbADO,'INNER JOIN Device_EntertainArea ON FK_Device=PK_Device WHERE FK_EntertainArea IN ('.join(',',$eaArray).') AND FK_DeviceTemplate='.$GLOBALS['ONScreenOrbiter'].' GROUP BY PK_Device'));
+	}
+}
+
 function editCommandGroupCommands($commandGroupID,$dbADO){
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
-	
 	$selectCommandsAssigned = "
-		SELECT CommandGroup_Command.* 
-		FROM CommandGroup_Command				
+		SELECT CommandGroup_Command.*
+		FROM CommandGroup_Command		
 		LEFT JOIN Device ON CommandGroup_Command.FK_Device = Device.PK_Device						
 		WHERE CommandGroup_Command.FK_CommandGroup = ?
 		ORDER BY OrderNum ASC
 		";
 	$resCommandAssigned = $dbADO->Execute($selectCommandsAssigned,array($commandGroupID));
-
+	
 	$out='
 	<input type="hidden" name="cgcID" id="cgcID" value="">';
 	if ($resCommandAssigned->RecordCount()>0) {
@@ -6225,8 +6234,21 @@ function editCommandGroupCommands($commandGroupID,$dbADO){
 						<table cellpadding="0" cellspacing="0">
 									';
 		$pos=0;
+		// TODO: get device ids for -300 = local orbiter and multiple orbiters handling
+		$installationID = (int)@$_SESSION['installationID'];
 
 		while ($rowCommandAssigned = $resCommandAssigned->FetchRow()) {
+			$devicesToSend=array();
+			$commandsToSend=array();
+			if($rowCommandAssigned['FK_Device']==-300){
+				$devicesToSend=getOrbitersInTheSameRoom($commandGroupID,$dbADO);
+			}else{
+				$devicesToSend=array($rowCommandAssigned['FK_Device']);	
+			}
+			foreach ($devicesToSend AS $deviceID){
+				$commandsToSend[$deviceID] = "'/usr/pluto/bin/MessageSend dcerouter -targetType device 0 $deviceID'+' 1 ".$rowCommandAssigned['FK_Command']."'";
+			}
+
 			$class_color=(($pos%2==0)?'alternate_back':'');
 			$out.='
 						<tr class="'.$class_color.'">
@@ -6302,13 +6324,18 @@ function editCommandGroupCommands($commandGroupID,$dbADO){
 				";
 			$resSelectParameters = $dbADO->Execute($query,array($rowCommandAssigned['FK_Command'],$rowCommandAssigned['PK_CommandGroup_Command']));
 
+
 			if ($resSelectParameters) {
 				$out.='<table>';
 				while ($rowSelectParameters=$resSelectParameters->FetchRow()) {
+					foreach ($devicesToSend AS $deviceID){
+						$commandsToSend[$deviceID] .= "+escape(((document.getElementById('CommandParameterValue_".$rowCommandAssigned['PK_CommandGroup_Command']."_".$rowSelectParameters['FK_CommandParameter']."').value!='')?' ".$rowSelectParameters['FK_CommandParameter']." '+document.getElementById('CommandParameterValue_".$rowCommandAssigned['PK_CommandGroup_Command']."_".$rowSelectParameters['FK_CommandParameter']."').value:''))";
+					}					
+					
 					$out.="
 						<tr ".(strlen(trim($rowSelectParameters['CP_Description']))==0?" bgColor='lightgreen' ":"").">
 							<td>#{$rowSelectParameters['FK_CommandParameter']} <span title=\"{$rowSelectParameters['C_CP_Description']}\">{$rowSelectParameters['CP_Description']}</span> ({$rowSelectParameters['PT_Description']})</td>
-							<td><input type='text' name=\"CommandParameterValue_{$rowCommandAssigned['PK_CommandGroup_Command']}_{$rowSelectParameters['FK_CommandParameter']}\" value=\"{$rowSelectParameters['IK_CommandParameter']}\" >".'</td>
+							<td><input type='text' name=\"CommandParameterValue_{$rowCommandAssigned['PK_CommandGroup_Command']}_{$rowSelectParameters['FK_CommandParameter']}\" id=\"CommandParameterValue_{$rowCommandAssigned['PK_CommandGroup_Command']}_{$rowSelectParameters['FK_CommandParameter']}\" value=\"{$rowSelectParameters['IK_CommandParameter']}\" >".'</td>
 						</tr>';
 
 					// for FK_Command==741, GoTo screen, display the parameters for that screen
@@ -6334,7 +6361,14 @@ function editCommandGroupCommands($commandGroupID,$dbADO){
 				$out.='</table>';
 			}
 			
-
+			$cmd_to_test="'no=".count($commandsToSend)."'";		
+			$pos=0;
+			foreach ($devicesToSend AS $deviceID){
+				$pos++;
+				$cmd_to_test.="+'&cmd$pos='+".$commandsToSend[$deviceID];
+			}
+		
+			
 			$out.='
 					
 							</td>
@@ -6346,7 +6380,7 @@ function editCommandGroupCommands($commandGroupID,$dbADO){
 					</tr>
 					<tr class="'.$class_color.'">
 						<td align="center" colspan="3">
-							<input type="submit" class="button" name="testCommand" value="'.$TEXT_TEST_COMMAND_CONST.'" onClick="document.getElementById(\'cgcID\').value='.$rowCommandAssigned['PK_CommandGroup_Command'].';">
+							<input type="button" class="button" name="testCommand" value="'.$TEXT_TEST_COMMAND_CONST.'" onClick="frames[\'commandTester\'].location=\'testCommand.php?\'+'.$cmd_to_test.';">
 						</td>
 					</tr>
 					';
@@ -6361,6 +6395,7 @@ function editCommandGroupCommands($commandGroupID,$dbADO){
 										</td>
 									</tr>
 								</table>
+								<iframe name="commandTester" id="commandTester" src="testCommand.php" width="500" height="200" style="display:none;"></iframe>
 				</fieldset>
 				';				
 	}
