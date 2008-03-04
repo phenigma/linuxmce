@@ -2733,6 +2733,7 @@ bool OSDScreenHandler::CaptureCardPort_DatagridSelected(CallBackData *pData)
 		m_pOrbiter->SendCommand(CMD_Specify_Capture_Card_Port,&sResponse);
 
 		m_pOrbiter->CMD_Goto_DesignObj(0,TOSTRING(DESIGNOBJ_RoomsForExternalDevice_CONST),"","",false,true);
+		m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_Device_1_CONST, pCellInfoData->m_sValue);
 		return true; // We did a goto screen
 	}
 
