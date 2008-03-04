@@ -1834,6 +1834,10 @@ void Xine_Stream::XineStreamEventListener( void *streamObject, const xine_event_
                                         StringUtils::Replace(&sTitle, sAlbum+" - ", "");
 
                                       LoggerWrapper::GetInstance()->Write( LV_STATUS, "Title of new song: %s", sTitle.c_str());
+				      if (sTitle!="")
+				      {
+					  pXineStream->SendMediaDescription("INTERNET_RADIO:"+sTitle);
+				      }
                                     }
                                 }
 			}
@@ -3364,6 +3368,11 @@ void Xine_Stream::ReadAVInfo()
 void Xine_Stream::SendAVInfo()
 {
 	m_pFactory->ReportAVInfo( m_sCurrentFile, m_iStreamID, m_sMediaInfo, m_sAudioInfo, m_sVideoInfo);
+}
+
+void Xine_Stream::SendMediaDescription(string sMediaDescription)
+{
+    m_pFactory->ReportMediaDescription(sMediaDescription);
 }
 
 bool Xine_Stream::setAspectRatio(string sAR)

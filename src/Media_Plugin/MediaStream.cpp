@@ -323,6 +323,14 @@ void MediaStream::UpdateDescriptions(bool bAllFiles,MediaFile *pMediaFile_In)
 	if( m_bPlugInWillSetDescription )
 		return;
 
+	//TODO refactor this code: we need to use LiveRadio media type instead and set m_bPlugInWillSetDescription=true
+	//HACK if description starts from "INTERNET_RADIO:", cut the prefix and return
+	if ( StringUtils::StartsWith(m_sMediaDescription, "INTERNET_RADIO:") )
+	{
+	    StringUtils::Replace(&m_sMediaDescription, "INTERNET_RADIO:", "");
+	    return;
+	}
+
 	m_sMediaDescription=""; m_sSectionDescription="";
 	Media_Plugin *pMedia_Plugin = m_pMediaHandlerInfo->m_pMediaHandlerBase->m_pMedia_Plugin;
 

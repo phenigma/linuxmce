@@ -500,6 +500,11 @@ void Xine_Stream_Factory::ReportAVInfo( string sFilename, int iStreamID, string 
 	m_pPlayer->EVENT_Playback_Started(sFilename, iStreamID, sMediaInfo, sAudioInfo, sVideoInfo);
 }
 
+void Xine_Stream_Factory::ReportMediaDescription ( string sMediaDescription )
+{
+    LoggerWrapper::GetInstance()->Write(LV_WARNING, "Xine_Player::EVENT_Media_Description_Changed: %s", sMediaDescription.c_str());
+    m_pPlayer->EVENT_Media_Description_Changed(sMediaDescription);
+}
 
 void Xine_Stream_Factory::ReportTimecodeViaIP(int iStreamID, int Speed)
 {

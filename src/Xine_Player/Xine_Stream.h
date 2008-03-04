@@ -146,6 +146,7 @@ namespace DCE
 			string readMediaInfo();
 			void ReadAVInfo();
 			void SendAVInfo();
+			void SendMediaDescription(string sMediaDescription);
 		public:
 			int m_iTimeCodeReportFrequency;
 			bool m_bIsVDR;   // Is this live tv from VDR?

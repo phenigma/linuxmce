@@ -114,6 +114,7 @@ namespace DCE
 			void ReportSubtitles(string sSubtitles);
 			void ReportTimecodeViaIP(int iStreamID, int Speed);
 			void ReportAVInfo( string sFilename, int iStreamID, string sMediaInfo, string sAudioInfo, string sVideoInfo );
+			void ReportMediaDescription ( string sMediaDescription );
 
 			void CloseStreamAV(int iStreamID);
 
