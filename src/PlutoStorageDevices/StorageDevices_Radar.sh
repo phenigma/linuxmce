@@ -78,8 +78,8 @@ function Detect {
 			#/usr/pluto/bin/MessageSend $DCERouter 0 $OrbiterIDList 1 741 159 228 109 "/dev/$partition" 156 $PK_Device 163 "$InfoMessage"
 
 			## Get info about this partition
-			partition_haludi=$(hal-find-by-property --key 'block.device' --string '/dev/$partition')
-			partition_uuid=$(hal-get-property --udi '$partition_uuid' --key 'volume.uuid')
+			partition_haludi=$(hal-find-by-property --key 'block.device' --string "/dev/$partition")
+			partition_uuid=$(hal-get-property --udi "$partition_haludi" --key 'volume.uuid')
 			
 			Sent="false"
 			Count=0
