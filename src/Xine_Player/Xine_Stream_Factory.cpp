@@ -694,11 +694,24 @@ bool Xine_Stream_Factory::CreateWindows()
 //	XIconifyWindow( m_pXDisplay, windows[ 0 ], 0 );
 
 	XUnlockDisplay( m_pXDisplay );
+        XSync(m_pXDisplay, false);
 
 //<-mkr_B_via_b->
 #ifndef VIA
         WMControllerImpl *pWMController = new WMControllerImpl();
-	pWMController->SetVisible(m_sWindowTitle, false);
+
+	bool bResult = pWMController->SetVisible(m_sWindowTitle, false);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "SetVisible returned %d", bResult);
+
+	if(!bResult)
+	{
+		//failed to move the window, try again in half of second
+		Sleep(500);
+
+		bResult = pWMController->SetVisible(m_sWindowTitle, false);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "SetVisible returned %d", bResult);
+	}	
+
 	delete pWMController;
 	pWMController = NULL;
 #endif
