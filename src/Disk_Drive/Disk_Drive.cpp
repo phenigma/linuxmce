@@ -117,26 +117,6 @@ bool Disk_Drive::GetConfig()
 	bool bResult = m_pJobHandler->StartThread();
 	LoggerWrapper::GetInstance()->Write(LV_SOCKET,"Disk_Drive::GetConfig StartThread %d", (int) bResult);
 
-/*
-	// Quick and dirty, get nbd-server working
-	string sNbdServer;
-	sNbdServer += "NBD_PORT[0]=" + StringUtils::itos(m_dwPK_Device+18000) + "\n";
-	sNbdServer += "NBD_FILE[0]=" + sDrive + "\n";
-	sNbdServer += "NBD_SERVER_OPTS[0]=-r\n";
-
-	string sFileName = "/etc/nbd-server";
-	size_t Size;
-	char *pPtr = FileUtils::ReadFileIntoBuffer( sFileName, Size );
-	if( !pPtr || sNbdServer!=pPtr )
-	{
-		bool bResult = FileUtils::WriteBufferIntoFile( sFileName, sNbdServer.c_str(), sNbdServer.size() );
-		LoggerWrapper::GetInstance()->Write(LV_WARNING,"Wrote nbd-server file %d chaged from %s to %s",
-			(int) bResult,(pPtr ? pPtr : "*NONE*\n"),sNbdServer.c_str());
-	}
-
-	delete pPtr;
-*/
-
 	return true;
 }
 

@@ -56,7 +56,6 @@ Disk_Drive_Functions::Disk_Drive_Functions(int dwPK_Device,Command_Impl * pComma
 	m_dwPK_Device=dwPK_Device;
 	m_pDatabase_pluto_media=pDatabase_pluto_media;
 	m_pMediaAttributes_LowLevel=pMediaAttributes_LowLevel;
-	m_bNbdServerRunning=false;
 	m_eLocked=locked_available;
 	m_bAutoIdentifyMedia=bAutoIdentifyMedia;
 
@@ -78,7 +77,6 @@ Disk_Drive_Functions::Disk_Drive_Functions(int dwPK_Device,Command_Impl * pComma
 
 Disk_Drive_Functions::~Disk_Drive_Functions()
 {
-	StopNbdServer();
 }
 
 void Disk_Drive_Functions::EVENT_Media_Inserted(int iFK_MediaType, string sMRL, string sID, string sName)
@@ -187,7 +185,6 @@ bool Disk_Drive_Functions::internal_reset_drive(bool bFireEvent,int *iPK_MediaTy
 		if( m_pDevice_MediaIdentifier && m_bAutoIdentifyMedia )
 			IdDisk();
 
-		StartNbdServer();
 		m_mediaInserted = true;
 	}
 
@@ -197,7 +194,6 @@ bool Disk_Drive_Functions::internal_reset_drive(bool bFireEvent,int *iPK_MediaTy
 		if ( m_mediaInserted == true )
 		{
 			m_discid=0;
-			StopNbdServer();
 			m_mediaInserted = false;
 			UpdateDiscLocation('E',0); // Now the drive is empty
 			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Disk is not in the drive at the moment");
@@ -872,35 +868,6 @@ void Disk_Drive_Functions::DisplayMessageOnOrbVFD(string sMessage)
 			StringUtils::itos(VL_MSGTYPE_RUNTIME_NOTICES),"app serve","5","");
 		m_pCommand_Impl->SendCommand(CMD_Display_Message, &sResponse);
 	}
-}
-
-void Disk_Drive_Functions::StartNbdServer()
-{
-	if( m_bNbdServerRunning )
-		StopNbdServer();
-
-	m_bNbdServerRunning=true;
-	string sArgs = "--start\t--quiet\t--exec\t/bin/nbd-server\t--oknodo\t--pidfile\t/var/run/nbd-server."
-		+ StringUtils::itos(m_dwPK_Device+18000) + ".pid\t--\t" + StringUtils::itos(m_dwPK_Device+18000) + "\t" + m_sDrive + "\t-r";
-
-	ProcessUtils::SpawnApplication("start-stop-daemon", sArgs, "Start nbd server", NULL, true, true);
-
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive_Functions::StartNbdServer %s",sArgs.c_str());
-}
-
-void Disk_Drive_Functions::StopNbdServer()
-{
-	if( !m_bNbdServerRunning )
-	{
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive_Functions::StopNbdServer is not running");
-		return;
-	}
-	m_bNbdServerRunning=false;
-	string sArgs = "--stop\t--quiet\t--exec\t/bin/nbd-server\t--oknodo\t--pidfile\t/var/run/nbd-server." + StringUtils::itos(m_dwPK_Device+18000) + ".pid\t--retry\t1";
-
-	ProcessUtils::SpawnApplication("start-stop-daemon", sArgs, "Stop nbd server", NULL, true, true);
-
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive_Functions::StopNbdServer %s",sArgs.c_str());
 }
 
 void Disk_Drive_Functions::UpdateDiscLocation(char cType,int PK_Disc)
