@@ -1807,14 +1807,35 @@ void Xine_Stream::XineStreamEventListener( void *streamObject, const xine_event_
 				xine_ui_data_t *data = ( xine_ui_data_t * ) event->data;
 				
 				LoggerWrapper::GetInstance()->Write( LV_STATUS, "UI set title: %s %s", data->str, pXineStream->GetPosition().c_str() );
-                		//UI set title: Title 58, Chapter 1,
-				const char *p = strstr( data->str, "Title " );
-				if ( p )
-					pXineStream->m_iTitle = atoi( p + 6 );
 
-				p = strstr( data->str, "Chapter " );
-				if ( p )
-					pXineStream->m_iChapter = atoi( p + 8 );
+				//updating title/chapter numbers
+				pXineStream->UpdateTitleChapterInfo();
+
+
+                                // if this is Internet Radio, then we can read the album and title
+                                if(StringUtils::StartsWith(pXineStream->m_sCurrentFile, "http://", true))
+                                {
+                                    bool bRead=false;
+                                    string sAlbum, sTitle;
+                                    {
+                                      PLUTO_SAFETY_LOCK(streamLock, pXineStream->m_streamMutex);
+                                      if (pXineStream->m_bInitialized)
+                                        {
+                                          sAlbum = xine_get_meta_info(pXineStream->m_pXineStream, XINE_META_INFO_ALBUM);
+                                          sTitle = xine_get_meta_info(pXineStream->m_pXineStream, XINE_META_INFO_TITLE);
+                                          bRead=true;
+                                        }
+                                    }
+
+                                    // only if we actually read data, process it - otherwise skip
+                                    if (bRead)
+                                    {
+                                      if (sAlbum!="")
+                                        StringUtils::Replace(&sTitle, sAlbum+" - ", "");
+
+                                      LoggerWrapper::GetInstance()->Write( LV_STATUS, "Title of new song: %s", sTitle.c_str());
+                                    }
+                                }
 			}
 			break;
 			
@@ -3226,8 +3247,7 @@ string Xine_Stream::readMediaInfo()
 				}
 			}				
 		}
-	}	
-	
+	}
 	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Stream media info (length=%i): \n%s", sMediaInfo.length(), sMediaInfo.c_str());
 	
 	m_sMediaInfo = sMediaInfo;
