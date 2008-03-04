@@ -48,6 +48,7 @@ done
 
 # Mark all Phones as needing configure
 RunSQL "UPDATE Device SET NeedConfigure = 1 WHERE FK_DeviceTemplate IN ($(ListTemplates_Category 89 | sed 's/ /,/g'))"
+RunSQL "UPDATE Device SET Status = '**RUN_CONFIG**' WHERE FK_DeviceTemplate IN ($(ListTemplates_Category 89 | sed 's/ /,/g'))"
 /usr/pluto/bin/Config_Device_Changes.sh
 
 # Mark DisklessMDs as needing configure
