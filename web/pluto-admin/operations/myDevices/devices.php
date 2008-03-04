@@ -394,18 +394,18 @@ function lights_test_buttons($type,$deviceID,$dbADO){
 }
 
 function process_test_lights($deviceID,$parentID,$port,$dbADO){
-	$cmd='sudo -u root /usr/pluto/bin/MessageSend localhost -targetType device 0 '.$parentID.' 1 760 10 '.$port.' ';
+	$cmd='sudo -u root /usr/pluto/bin/MessageSend localhost -targetType device 0 '.$deviceID.' 1 ';
 	
 	if(isset($_POST['on_'.$deviceID])){
-		$cmd.='154 192';
+		$cmd.='192';
 		$send=1;
 	}
 	if(isset($_POST['off_'.$deviceID])){
-		$cmd.='154 193';
+		$cmd.='193';
 		$send=1;
 	}
 	if(isset($_POST['50_'.$deviceID])){
-		$cmd.='202 76|50 154 184';
+		$cmd.='184 76 50';
 		$send=1;
 	}
 	
