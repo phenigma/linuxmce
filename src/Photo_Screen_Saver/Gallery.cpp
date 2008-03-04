@@ -155,7 +155,7 @@ void Gallery::PaintScreen(void)
 		FrontEnd->Flip();
 }
 
-bool Gallery::Setup(int Width, int Height, int FaddingTime, int ZoomTime, string FolderName, bool bUseAnimation)
+bool Gallery::Setup(int Width, int Height, int FaddingTime, int ZoomTime, string FolderName, bool bUseAnimation, int nMaxSize)
 {
 	Event.Type = 0;
 	FrontEnd = new SDLFrontEnd();
@@ -164,7 +164,7 @@ bool Gallery::Setup(int Width, int Height, int FaddingTime, int ZoomTime, string
 	bool Result = FrontEnd->StartVideoMode(Width, Height, bFullScreen) != 0;
 	Painter::Instance()->Setup(&Extensions);
 	Extensions.Resize(Width, Height);
-	Scenario = new GalleryScenario(Width, Height, FaddingTime, ZoomTime, FolderName, bUseAnimation);
+	Scenario = new GalleryScenario(Width, Height, FaddingTime, ZoomTime, FolderName, bUseAnimation, nMaxSize);
 	return Result;
 }
 

@@ -41,6 +41,7 @@ class GalleryScenario
 
 	int NewImageStartTime;
 	bool m_bUseAnimation;
+	int m_nMaxSize;
 
 	FileBrowser* Browser;
 	FadeBase* Fades;
@@ -50,7 +51,7 @@ class GalleryScenario
 	ZoomBase* ZoomEffect;
 public:
 	GalleryScenario(int Width, int Height, int FaddingTime, int ZoomTime, 
-		string SearchImageFolder, bool bUseAnimation);
+		string SearchImageFolder, bool bUseAnimation, int nMaxSize);
 	~GalleryScenario();
 
 	bool Update(void);

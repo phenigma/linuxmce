@@ -1,18 +1,3 @@
-/*
-     Copyright (C) 2004 Pluto, Inc., a Florida Corporation
-
-     www.plutohome.com
-
-     Phone: +1 (877) 758-8648
- 
-
-     This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
-     This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-     of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-
-     See the GNU General Public License for more details.
-
-*/
 #ifndef Photo_Screen_SaverBase_h
 #define Photo_Screen_SaverBase_h
 #include "DeviceData_Impl.h"
@@ -95,6 +80,14 @@ public:
 	* @brief Device data access methods:
 	*/
 
+	string Get_Type()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Type_CONST);
+		else
+			return m_mapParameters[DEVICEDATA_Type_CONST];
+	}
+
 	string Get_Directories()
 	{
 		if( m_bRunningWithoutDeviceData )
@@ -139,6 +132,14 @@ public:
 	{
 		SetParm(DEVICEDATA_Supports_NPOT_Textures_CONST,(Value ? "1" : "0"));
 	}
+	int Get_Max_Size()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Max_Size_CONST).c_str());
+		else
+			return atoi(m_mapParameters[DEVICEDATA_Max_Size_CONST].c_str());
+	}
+
 };
 
 
@@ -243,16 +244,18 @@ public:
 	virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage) { };
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
 	//Data accessors
+	string DATA_Get_Type() { return GetData()->Get_Type(); }
 	string DATA_Get_Directories() { return GetData()->Get_Directories(); }
 	string DATA_Get_Name() { return GetData()->Get_Name(); }
 	int DATA_Get_ZoomTime() { return GetData()->Get_ZoomTime(); }
 	int DATA_Get_FadeTime() { return GetData()->Get_FadeTime(); }
 	bool DATA_Get_Supports_NPOT_Textures() { return GetData()->Get_Supports_NPOT_Textures(); }
 	void DATA_Set_Supports_NPOT_Textures(bool Value,bool bUpdateDatabase=false) { GetData()->Set_Supports_NPOT_Textures(Value); if( bUpdateDatabase ) SetDeviceDataInDB(m_dwPK_Device,203,Value); }
+	int DATA_Get_Max_Size() { return GetData()->Get_Max_Size(); }
 	//Event accessors
 	//Commands - Override these to handle commands from the server
-	virtual void CMD_Skip_Fwd_ChannelTrack_Greater(string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Skip_Back_ChannelTrack_Lower(string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Skip_Fwd_ChannelTrack_Greater(int iStreamID,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Skip_Back_ChannelTrack_Lower(int iStreamID,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Off(int iPK_Pipe,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Reload(string &sCMD_Result,class Message *pMessage) {};
@@ -291,7 +294,8 @@ public:
 				case COMMAND_Skip_Fwd_ChannelTrack_Greater_CONST:
 					{
 						string sCMD_Result="OK";
-						CMD_Skip_Fwd_ChannelTrack_Greater(sCMD_Result,pMessage);
+						int iStreamID=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_StreamID_CONST].c_str());
+						CMD_Skip_Fwd_ChannelTrack_Greater(iStreamID,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -308,7 +312,7 @@ public:
 						{
 							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Skip_Fwd_ChannelTrack_Greater(sCMD_Result,pMessage);
+								CMD_Skip_Fwd_ChannelTrack_Greater(iStreamID,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
@@ -316,7 +320,8 @@ public:
 				case COMMAND_Skip_Back_ChannelTrack_Lower_CONST:
 					{
 						string sCMD_Result="OK";
-						CMD_Skip_Back_ChannelTrack_Lower(sCMD_Result,pMessage);
+						int iStreamID=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_StreamID_CONST].c_str());
+						CMD_Skip_Back_ChannelTrack_Lower(iStreamID,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -333,7 +338,7 @@ public:
 						{
 							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Skip_Back_ChannelTrack_Lower(sCMD_Result,pMessage);
+								CMD_Skip_Back_ChannelTrack_Lower(iStreamID,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

@@ -21,10 +21,10 @@
 #include "ZoomFactory.h"
 #include "Builder.h"
 
-AnimatedPicture::AnimatedPicture(int ScreenWidth, int ScreenHeight) :
+AnimatedPicture::AnimatedPicture(int ScreenWidth, int ScreenHeight, int nMaxSize) :
 	Picture(NULL), PictureFrame(NULL), Zoom(NULL)
 {
-	this->Picture = new GraphicImage();
+	this->Picture = new GraphicImage(nMaxSize);
 
 	m_nScreenWidth = ScreenWidth;
 	m_nScreenHeight = ScreenHeight;

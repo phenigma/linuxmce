@@ -181,21 +181,23 @@ class GallerySetup
 	string m_sImages;
 	int ZoomTime, FaddingTime;
 	bool m_bUseAnimation;
+	int m_nMaxSize;
 
 public:
 	pthread_t* ThreadID;
 	Photo_Screen_Saver *m_pPhoto_Screen_Saver;
 	
-	GallerySetup(string Width, string Height, bool bUseAnimation, int ZoomTime, int FaddingTime, string ImageList, bool bNPOTTextures,Photo_Screen_Saver *pPhoto_Screen_Saver);
+	GallerySetup(string Width, string Height, bool bUseAnimation, int ZoomTime, int FaddingTime, string ImageList, bool bNPOTTextures,Photo_Screen_Saver *pPhoto_Screen_Saver, int nMaxSize);
 	int GetWidth();
 	int GetHeight();
 	int GetZoomTime();
 	int GetFaddingTime();
 	string GetSearchImagesPath();
 	bool GetUseAnimation();
+	int GetMaxSize();
 };
 
-GallerySetup::GallerySetup(string Width, string Height, bool bUseAnimation, int ZoomTime, int FaddingTime, string ImageList, bool bNPOTTextures,Photo_Screen_Saver *pPhoto_Screen_Saver)
+GallerySetup::GallerySetup(string Width, string Height, bool bUseAnimation, int ZoomTime, int FaddingTime, string ImageList, bool bNPOTTextures,Photo_Screen_Saver *pPhoto_Screen_Saver, int nMaxSize)
 {
 	this->Width_ = atoi(Width.c_str());
 	this->Height_ = atoi(Height.c_str());
@@ -203,6 +205,7 @@ GallerySetup::GallerySetup(string Width, string Height, bool bUseAnimation, int 
 	this->ZoomTime = ZoomTime;
 	this->FaddingTime = FaddingTime;
 	m_bUseAnimation = bUseAnimation;
+	m_nMaxSize = nMaxSize;
 
 	TextureManager::Instance()->SetupNPOTSupport(bNPOTTextures);
 	m_pPhoto_Screen_Saver=pPhoto_Screen_Saver;
@@ -237,6 +240,11 @@ bool GallerySetup::GetUseAnimation()
 	return m_bUseAnimation;
 }
 
+int GallerySetup::GetMaxSize()
+{
+	return m_nMaxSize;
+}
+
 //<-dceag-c192-b->
 
 	/** @brief COMMAND: #192 - On */
@@ -267,10 +275,18 @@ void Photo_Screen_Saver::CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &sCM
 		string w = m_pEvent->GetDeviceDataFromDatabase(m_pData->m_dwPK_Device_ControlledVia, DEVICEDATA_ScreenWidth_CONST);
 		string h = m_pEvent->GetDeviceDataFromDatabase(m_pData->m_dwPK_Device_ControlledVia, DEVICEDATA_ScreenHeight_CONST);
 		bool bNPOTTextures = DATA_Get_Supports_NPOT_Textures();
+		int nMaxSize = DATA_Get_Max_Size();
+
 		string sUseAnimation = m_pEvent->GetDeviceDataFromDatabase(m_pData->m_dwPK_Device_ControlledVia, DEVICEDATA_Use_OpenGL_effects_CONST);
 		bool bUseAnimation = sUseAnimation == "1";
 
-		GallerySetup* SetupInfo = new GallerySetup(w, h, bUseAnimation, DATA_Get_ZoomTime(), DATA_Get_FadeTime(), m_sFileList, bNPOTTextures, this);
+		if(DATA_Get_Type() == "animated")
+			bUseAnimation = true;
+		else if(DATA_Get_Type() == "static")
+			bUseAnimation = false;
+		//else default -- leave default
+
+		GallerySetup* SetupInfo = new GallerySetup(w, h, bUseAnimation, DATA_Get_ZoomTime(), DATA_Get_FadeTime(), m_sFileList, bNPOTTextures, this, nMaxSize);
 		SetupInfo->ThreadID = &ThreadID;
 		Gallery::Instance().m_bQuit_set(false);
 		pthread_create(&ThreadID, NULL, ThreadAnimation, SetupInfo);
@@ -331,7 +347,8 @@ void* ThreadAnimation(void* ThreadInfo)
 		Info->GetFaddingTime(),
 		Info->GetZoomTime(),
 		Info->GetSearchImagesPath(),
-		Info->GetUseAnimation());
+		Info->GetUseAnimation(),
+		Info->GetMaxSize());
 	Gallery::Instance().MainLoop(Info->m_pPhoto_Screen_Saver); 
 	Gallery::Instance().CleanUp();
 
@@ -345,8 +362,10 @@ void* ThreadAnimation(void* ThreadInfo)
 
 	/** @brief COMMAND: #63 - Skip Fwd - Channel/Track Greater */
 	/** Go forward in the list */
+		/** @param #41 StreamID */
+			/** ID of stream to apply */
 
-void Photo_Screen_Saver::CMD_Skip_Fwd_ChannelTrack_Greater(string &sCMD_Result,Message *pMessage)
+void Photo_Screen_Saver::CMD_Skip_Fwd_ChannelTrack_Greater(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c63-e->
 {
 	// TODO -- make it go through the list
@@ -356,8 +375,10 @@ void Photo_Screen_Saver::CMD_Skip_Fwd_ChannelTrack_Greater(string &sCMD_Result,M
 
 	/** @brief COMMAND: #64 - Skip Back - Channel/Track Lower */
 	/** Go back in the list */
+		/** @param #41 StreamID */
+			/** ID of stream to apply */
 
-void Photo_Screen_Saver::CMD_Skip_Back_ChannelTrack_Lower(string &sCMD_Result,Message *pMessage)
+void Photo_Screen_Saver::CMD_Skip_Back_ChannelTrack_Lower(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c64-e->
 {
 	// TODO -- make it go through the list
