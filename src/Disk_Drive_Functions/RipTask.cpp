@@ -166,6 +166,7 @@ void RipTask::UpdateProgress(string sStatus,int iPercent,int iTime,string sText,
 
 	if( m_pRow_RipStatus )
 	{
+		m_pRow_RipStatus->File_set(sFilename); //make sure the filename is complete
 		m_pRow_RipStatus->Status_set(sStatus);
 		m_pRow_RipStatus->Message_set(sText.empty() && sStatus == "p" ? StringUtils::ltos(m_iPercent) + "%" : sText);
 		m_pRipJob->m_pDatabase_pluto_media->RipStatus_get()->Commit();

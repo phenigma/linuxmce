@@ -35,6 +35,7 @@ using namespace DCE;
 #include "pluto_main/Define_Event.h"
 #include "pluto_main/Define_EventParameter.h"
 #include "pluto_media/Database_pluto_media.h"
+#include "pluto_media/Table_RipStatus.h"
 #include "PlutoUtils/ProcessUtils.h"
 #include "Media_Plugin/MediaAttributes_LowLevel.h"
 #include "JobHandler/Job.h"
@@ -273,6 +274,20 @@ void Disk_Drive::CMD_Eject_Disk(int iSlot_Number,string &sCMD_Result,Message *pM
 	m_pDisk_Drive_Functions->m_mediaInserted = false;  // Be sure we re-identify any media in there
 	m_pDisk_Drive_Functions->m_mediaDiskStatus = DISCTYPE_NONE;
 	tLastEject = time(NULL); // Put this after the system call so we know when it's been less than 2 seconds since a successful one
+
+	if(m_pDisk_Drive_Functions->m_bTrayOpen)
+	{
+	        vector<Row_RipStatus *> vectRow_RipStatus;
+        	m_pDatabase_pluto_media->RipStatus_get()->GetRows("EK_Device = " + StringUtils::ltos(m_dwPK_Device) + " ORDER BY PK_RipStatus DESC LIMIT 1",
+                        &vectRow_RipStatus);
+
+	        if(!vectRow_RipStatus.empty())
+        	{
+                	Row_RipStatus *pRow_RipStatus = vectRow_RipStatus[0];
+	                pRow_RipStatus->Message_set("disk ejected");
+			m_pDatabase_pluto_media->RipStatus_get()->Commit(); 
+        	}
+	}
 
 LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Disk_Drive::CMD_Eject_Disk  tLastEject %d (%d) tray open: %d",
 	(int) tLastEject, (int) time(NULL), (int) m_pDisk_Drive_Functions->m_bTrayOpen);
