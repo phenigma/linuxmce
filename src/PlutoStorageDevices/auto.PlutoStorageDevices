@@ -14,12 +14,7 @@ LOG_WARN=2
 LOG_ERR=3
 UNIQUE_ID=$RANDOM
 
-CIFS_FileSystem="smbfs"
-#CIFS_FileSystem="pluto-fuse-smb"
-
-if [[ "$CIFS_FileSystem" == pluto-fuse-smb ]]; then
-	CIFS_ExtraOpts=",nonempty,auto_cache"
-fi
+CIFS_FileSystem="cifs"
 
 function Log {
 	SEVERITY=$1
@@ -123,7 +118,6 @@ case "$Template" in
 			## Do the mount
 			#echo "$NFS_MOUNT_OPTS $IPaddress:/mnt/device/$StorageDevice"
 			echo "-fstype=$CIFS_FileSystem,credentials=/usr/pluto/var/sambaCredentials.secret,dir_mode=0777,file_mode=0777$CIFS_ExtraOpts ://$IPaddress/Storage$StorageDevice\\\$"
-			#echo "-fstype=fuse sshfs\#$IPaddress:/mnt/device/$StorageDevice"
 		fi
 		;;
 	
