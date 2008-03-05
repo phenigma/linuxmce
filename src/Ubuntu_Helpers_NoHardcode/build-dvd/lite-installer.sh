@@ -117,7 +117,7 @@ GetHddToUse()
 
 		if [[ "$Upgrade" != "1" ]] ;then
 			while [[ "$LinuxMCE_Password" == "" ]] ;do
-				echo -n 'Please enter a password for `linuxmce\' system user : '
+				echo -n 'Please enter a password for "linuxmce" system user : '
 				read Password
 				if [[ "$Password" != "" ]] ;then
 					LinuxMCE_Password=$(mkpasswd -H md5 "$Password")
