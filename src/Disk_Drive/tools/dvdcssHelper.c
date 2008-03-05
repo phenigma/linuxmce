@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <dvdnav/dvdnav.h>
 #include <dvdread/dvd_reader.h>

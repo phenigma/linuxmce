@@ -5,6 +5,11 @@ HELPER="./dvdcssHelper"
 
 LOG="/tmp/dvdcssHelper.$$"
 
+if [ ! -f "/usr/lib/libdvdcss.so.2" ]; then
+	echo "ERROR:No DVDCSS support"
+	exit 1
+fi
+
 case "$1" in
   -f)
    $HELPER $1 "$2" 1>$LOG 2>&1
@@ -31,6 +36,8 @@ case "$1" in
   ;;
 
   *)
-    echo "Unknown switch"
+    echo "Usage: dvdcssHelper (-f|-d) /path/to/dvd"
+    echo -e "-f\tprint DVDCSS keys cache folder for DVD"
+    echo -e "-d\tdump  DVDCSS keys for DVD to the cache folder"
 esac
 
