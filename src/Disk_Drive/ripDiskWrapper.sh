@@ -198,10 +198,24 @@ if [[ "$diskType" == 2 ]]; then
 				echo "Keys location: $KeysPath"
 				KeysDumpStatus=`/usr/pluto/bin/dvdcssHelper.sh -d $sourceDevice | grep "ERROR:"`
 				if [ -z "$KeysDumpStatus" ]; then
+					# ripped DVD can have different keys cache folder
+					RippedKeysPath=`/usr/pluto/bin/dvdcssHelper.sh -f $targetFileName.dvd.in-progress | grep "CACHE_DIR:" | sed 's/CACHE_DIR://'`
+					echo "Keys location for ripped DVD: $RippedKeysPath"
+
 					KeysFolder=`basename $KeysPath`
+					RippedKeysFolder=`basename $RippedKeysPath`
 					KeysCacheFolder=`dirname $KeysPath`
+
 					pushd $KeysCacheFolder
-					tar zcf "$targetFileName.dvd.keys.tar.gz.in-progress" $KeysFolder
+
+					# if this is not the same folder, copy the keys
+					if [ "$RippedKeysFolder" = "$KeysFolder" ]; then
+						RippedKeysFolder=""
+					else
+						cp $KeysFolder/* $RippedKeysFolder/
+					fi
+
+					tar zcf "$targetFileName.dvd.keys.tar.gz.in-progress" $KeysFolder $RippedKeysFolder
 					popd
 					mv "$targetFileName.dvd.keys.tar.gz.in-progress" "$targetFileName.dvd.keys.tar.gz"
 					echo "Keys copied to $targetFileName.dvd.keys.tar.gz"
