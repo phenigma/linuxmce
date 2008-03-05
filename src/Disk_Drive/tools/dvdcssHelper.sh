@@ -1,7 +1,7 @@
 #!/bin/bash
 
-HELPER="./dvdcssHelper"
-#HELPER="/usr/pluto/bin/dvdcssHelper"
+#HELPER="./dvdcssHelper"
+HELPER="/usr/pluto/bin/dvdcssHelper"
 
 LOG="/tmp/dvdcssHelper.$$"
 
