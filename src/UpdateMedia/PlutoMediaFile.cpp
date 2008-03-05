@@ -678,8 +678,6 @@ int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
 		"Path = '" + StringUtils::SQLEscape(FileUtils::ExcludeTrailingSlash(m_sDirectory)) + 
 		"' AND Filename = '" + StringUtils::SQLEscape(m_sFile) + "' AND Missing = 1", &vectRow_File);
 
-	int nEK_Users_Private = GetOwnerForPath(m_sDirectory);
-
 	//Any luck to reuse a missing file record?
 	if(vectRow_File.size())
 	{
