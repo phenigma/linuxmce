@@ -201,7 +201,7 @@ if [[ "$diskType" == 2 ]]; then
 					KeysFolder=`basename $KeysPath`
 					KeysCacheFolder=`dirname $KeysPath`
 					pushd $KeysCacheFolder
-					tar cvf "$targetFileName.dvd.keys.tar.gz.in-progress" $KeysFolder
+					tar zcf "$targetFileName.dvd.keys.tar.gz.in-progress" $KeysFolder
 					popd
 					mv "$targetFileName.dvd.keys.tar.gz.in-progress" "$targetFileName.dvd.keys.tar.gz"
 					echo "Keys copied to $targetFileName.dvd.keys.tar.gz"
