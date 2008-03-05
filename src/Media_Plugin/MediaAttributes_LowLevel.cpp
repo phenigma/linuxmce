@@ -1028,7 +1028,7 @@ int MediaAttributes_LowLevel::AddIdentifiedDiscToDB(int PK_MediaType,string sIde
 	vector<Row_Disc *> vectRow_Disc;
 	m_pDatabase_pluto_media->Disc_get()->GetRows("ID='" + StringUtils::SQLEscape(sIdentifiedDisc) + "'",&vectRow_Disc);
 
-	int Existing = vectRow_Disc.size();
+	size_t Existing = vectRow_Disc.size();
 
 	if( Existing )
 		pRow_Disc = vectRow_Disc[0];

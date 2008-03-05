@@ -812,6 +812,8 @@ void PlutoMediaFile::SetMediaType(int PK_File, int PK_MediaType)
 //-----------------------------------------------------------------------------------------------------
 void PlutoMediaFile::AssignPlutoDevice(Row_File *pRow_File)
 {
+	bool bCommitNeeded = (NULL == pRow_File);
+
 	if(NULL == pRow_File)
 		pRow_File = m_pDatabase_pluto_media->File_get()->GetRow(m_pPlutoMediaAttributes->m_nFileID);
 
@@ -832,12 +834,15 @@ void PlutoMediaFile::AssignPlutoDevice(Row_File *pRow_File)
 		else
 			pRow_File->EK_Device_setNull(true);
 
-		pRow_File->Table_File_get()->Commit();
+		if(bCommitNeeded)
+			pRow_File->Table_File_get()->Commit();
 	}
 }
 //-----------------------------------------------------------------------------------------------------
 void PlutoMediaFile::AssignPlutoUser(Row_File *pRow_File)
 {
+	bool bCommitNeeded = (NULL == pRow_File);
+
 	if(NULL == pRow_File)
 		pRow_File = m_pDatabase_pluto_media->File_get()->GetRow(m_pPlutoMediaAttributes->m_nFileID);
 
@@ -851,6 +856,9 @@ void PlutoMediaFile::AssignPlutoUser(Row_File *pRow_File)
 			pRow_File->EK_Users_Private_set(nEK_Users_Private);
 		else
 			pRow_File->EK_Users_Private_setNull(true);
+
+		if(bCommitNeeded)
+			pRow_File->Table_File_get()->Commit();
 	}
 }
 //-----------------------------------------------------------------------------------------------------
