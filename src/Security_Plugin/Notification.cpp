@@ -255,11 +255,13 @@ bool Notification::ExecuteNotification(string sPhoneNumber, int iDelay, bool bNo
         iDelay = MAX_TIMEOUT_FOR_PHONES;
 
     //TODO: attach the wav file
-    DCE::CMD_PL_External_Originate CMD_PL_External_Originate_(m_pSecurity_Plugin->m_dwPK_Device, 
-        m_pTelecom_Plugin->m_dwPK_Device, sPhoneNumber, sCallerID, sPhoneExtension); 
+	CMD_PBX_Originate cmd_PBX_Originate(m_pSecurity_Plugin->m_dwPK_Device, m_pTelecom_Plugin->m_dwPK_Device,
+		sPhoneExtension,
+		"SIP",
+		sPhoneNumber, sCallerID);
 
     string sResponse;
-    bool bResponse = m_pSecurity_Plugin->SendCommand(CMD_PL_External_Originate_, &sResponse);
+    bool bResponse = m_pSecurity_Plugin->SendCommand(cmd_PBX_Originate, &sResponse);
 
     if(!bResponse)
     {
