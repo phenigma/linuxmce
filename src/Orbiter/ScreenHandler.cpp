@@ -4515,7 +4515,7 @@ void ScreenHandler::SCREEN_aJAd(long PK_Screen, string sFilename, string sURL)
 		string sVideoFile = StringUtils::Tokenize(sFilename,"|",pos);
 		size_t size;
 		char *pGraphicData = m_pOrbiter->ReadFileIntoBuffer(sPictureFile,size);
-		m_pOrbiter->CMD_Update_Object_Image("5579.0.0.5580","jpg",
+		m_pOrbiter->CMD_Update_Object_Image("5647.0.0.5580","jpg",
 			pGraphicData,
 			(int) size,"0");
 		m_pOrbiter->CMD_Set_Variable(VARIABLE_URL_from_phone_CONST, sURL);
