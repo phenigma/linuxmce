@@ -106,7 +106,7 @@ function mediaDirectors($output,$dbADO) {
 				// 2) if any SPDFIF is selected, the "AC3 pass-through" is enabled (so user can check it if he wants)
 				
 				eval("var audioSettings=document.mediaDirectors.audioSettings_"+deviceID+".value");
-				if(audioSettings=="C" || audioSettings=="O"){
+				if(audioSettings!="C" && audioSettings!="O"){
 					eval("document.mediaDirectors.ac3_"+deviceID+".checked=false;");
 					eval("document.mediaDirectors.ac3_"+deviceID+".disabled=true;");
 				}else{
@@ -225,7 +225,7 @@ function mediaDirectors($output,$dbADO) {
 					$oldAudioDD=($rowD['FK_DeviceData']==$GLOBALS['AudioSettings'])?$rowD['IK_DeviceData']:$oldAudioDD;
 					if(!is_null($oldAudioDD)){
 						$oldAudioSettings[$rowD['PK_Device']]=str_replace(array('3','K'), '', $oldAudioDD);
-						$oldAC3[$rowD['PK_Device']]=(strstr($oldAudioDD,'3') && !in_array($oldAudioSettings[$rowD['PK_Device']],array('C','O')))?'checked':(in_array($oldAudioSettings[$rowD['PK_Device']],array('C','O'))?' disabled':'');
+						$oldAC3[$rowD['PK_Device']]=(strstr($oldAudioDD,'3') && in_array($oldAudioSettings[$rowD['PK_Device']],array('C','O')))?'checked':(!in_array($oldAudioSettings[$rowD['PK_Device']],array('C','O'))?' disabled':'');
 					}
 					$oldVideoDD=($rowD['FK_DeviceData']==$GLOBALS['VideoSettings'])?$rowD['IK_DeviceData']:$oldVideoDD;
 					if(!is_null($oldVideoDD)){
