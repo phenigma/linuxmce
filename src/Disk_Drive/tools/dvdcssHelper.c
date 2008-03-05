@@ -48,7 +48,6 @@ int main(int argc, char **argv) {
       dvdnav_t *pHandle;
       dvdnav_status_t status = dvdnav_open(&pHandle, szDVDPath);
       if ( status == DVDNAV_STATUS_OK ) {
-        printf("Success: \n");
         dvdnav_close(pHandle);
       }
       else {
