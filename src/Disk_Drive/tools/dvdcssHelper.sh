@@ -41,3 +41,5 @@ case "$1" in
     echo -e "-d\tdump  DVDCSS keys for DVD to the cache folder"
 esac
 
+rm -f $LOG
+
