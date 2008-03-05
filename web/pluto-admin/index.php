@@ -1595,7 +1595,7 @@ switch ($section) {
 		$output = new Template($dbADO);	
 		$output->setTemplateFileType('homeWithFrames');
 		$output->setLeftFrameSrc('index.php?section=leftScreenSaver');
-		$output->setRightFrameSrc('index.php?section=mainScreenSaver');
+		$output->setRightFrameSrc('index.php?section=mainScreenSaver&path=/home/public/data/pictures');
 		$output->setBody('');		
 		$output->setScriptCalendar('null');
 		$output->setTitle(APPLICATION_NAME);			

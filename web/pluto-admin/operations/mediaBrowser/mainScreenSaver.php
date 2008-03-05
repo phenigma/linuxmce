@@ -61,8 +61,16 @@ function mainScreenSaver($output,$mediadbADO,$dbADO) {
 			
 			$out.='
 				<input type="hidden" name="flikr" value="'.(($flickerEnabled==0)?1:0).'">
-				<input type="submit" class="button" name="flikrBtn" value="'.$flicker_enable_disable_text.'"><br>
-				<input type="submit" class="button" name="remove_flikr_pics" value="Do not use flikr pictures from"> <input type="text" name="flikr_path" value="/home/public/data/pictures/flickr/" style="width:200px;">
+				<fieldset style="width:400px;">
+				<legend>Flikr script</legend>
+				Enable/disable the script who retrieve images from flikr.com<br>
+				<input type="submit" class="button" name="flikrBtn" value="'.$flicker_enable_disable_text.'"><hr>
+				
+				Remove flikr pictures from screensaver and disable the script<br>
+				<b>Flikr pictures path:</b> <input type="text" name="flikr_path" value="/home/public/data/pictures/flickr/" style="width:200px;"> <input type="submit" class="button" name="remove_flikr_pics" value="Remove">			
+				</fieldset>
+				
+				
 				<table cellpading="0" cellspacing="0">
 					<tr>
 						<td>'.getScreensaverFiles($path,$screenSaverAttribute,$screenSaverDisabledAttribute,$mediadbADO,$page,$records_per_page).'</td>
@@ -100,8 +108,10 @@ function mainScreenSaver($output,$mediadbADO,$dbADO) {
 		}
 		
 		if(isset($_POST['remove_flikr_pics'])){
+			flickrStatus('-disable');
+			
 			$flikr_path=cleanString($_POST['flikr_path']);
-			$mediadbADO->Execute("DELETE File_Attribute.* FROM File_Attribute INNER JOIN Attribute ON FK_Attribute=PK_Attribute INNER JOIN File on FK_File=PK_File WHERE FK_AttributeType=30 AND Path LIKE '$flikr_path%'");			
+			$mediadbADO->Execute('INSERT IGNORE INTO File_Attribute (FK_Attribute,FK_File) SELECT ?, PK_File FROM File INNER JOIN File_Attribute ON PK_File=File_Attribute.FK_File AND FK_Attribute=? WHERE Path LIKE \''.$flikr_path.'%\'',array($screenSaverDisabledAttribute,$screenSaverAttribute));
 		}				
 		
 		header('Location: index.php?section=mainScreenSaver&path='.urlencode($path).'&msg='.cleanString($TEXT_SCREENSAVER_UPDATED_CONST).'&page='.$page);

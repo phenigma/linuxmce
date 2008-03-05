@@ -6,10 +6,10 @@ function leftScreenSaver($output,$mediadbADO,$dbADO) {
 	/* @var $mediadbADO ADOConnection */
 	/* @var $rs ADORecordSet */
 	
-	$startPath=(isset($_REQUEST['startPath']))?urldecode($_REQUEST['startPath']):'/home/public/data';
+	$startPath=(isset($_REQUEST['startPath']))?urldecode($_REQUEST['startPath']):'/home/public/data/pictures';
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
 	$out='';	
-	$switchDirURL=(substr($startPath,0,5)!='/home')?'<a href="javascript:syncPath(\'/home/public/data\')">Switch to /home/public/data</a>':'<a href="javascript:syncPath(\'/mnt/upnp\')">Switch to /mnt/upnp</a>';
+	$switchDirURL=(substr($startPath,0,5)!='/home')?'<a href="javascript:syncPath(\'/home/public/data/pictures\')">Switch to /home/public/data/pictures</a>':'<a href="javascript:syncPath(\'/mnt/upnp\')">Switch to /mnt/upnp</a>';
 	
 	if($action=='form'){
 		$out='
