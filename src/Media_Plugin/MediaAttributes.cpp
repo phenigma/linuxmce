@@ -116,6 +116,8 @@ LoggerWrapper::GetInstance()->Write(LV_WARNING, "pl3 = %s %s",sPlaylistName.c_st
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MediaAttributes::SavePlaylist, user %d, pk_playlist new %d",
 		iPK_Users, iPK_Playlist);
 
+    iPK_Playlist = pRow_Playlist->PK_Playlist_get();
+
     if( iPK_Playlist )
 	{
 		// We'll just re-write the whole thing out again anyway
@@ -128,7 +130,6 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"Deleting %d rows from old playlis
 			vectRow_PlaylistEntry[s]->Delete();
 	}
 
-    iPK_Playlist = pRow_Playlist->PK_Playlist_get();
 #ifdef DEBUG
 LoggerWrapper::GetInstance()->Write(LV_STATUS,"Save playlist id %d with %d rows",iPK_Playlist,(int) dequeMediaFile.size());
 #endif
