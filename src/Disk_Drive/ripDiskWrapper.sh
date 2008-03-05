@@ -187,6 +187,32 @@ trap "/usr/pluto/bin/cdop '$sourceDevice' unlock" EXIT # unlock tray on exit
 if [[ "$diskType" == 2 ]]; then
 	if eval "$command"; then
 		echo "Ripping successful"
+
+		if [ -f "/usr/pluto/bin/dvdcssHelper.sh" ]; then
+			echo "Copying also DVD CSS keys"
+
+			export DVDCSS_CACHE="$DVDKeysCache"
+
+			KeysPath=`/usr/pluto/bin/dvdcssHelper.sh -f $sourceDevice | grep "CACHE_DIR:" | sed 's/CACHE_DIR://'`
+			if [ -n "$KeysPath" ]; then
+				echo "Keys location: $KeysPath"
+				KeysDumpStatus=`/usr/pluto/bin/dvdcssHelper.sh -d $sourceDevice | grep "ERROR:"`
+				if [ -z "$KeysDumpStatus" ]; then
+					KeysFolder=`basename $KeysPath`
+					KeysCacheFolder=`dirname $KeysPath`
+					pushd $KeysCacheFolder
+					tar cvf "$targetFileName.dvd.keys.tar.gz.in-progress" $KeysFolder
+					popd
+					mv "$targetFileName.dvd.keys.tar.gz.in-progress" "$targetFileName.dvd.keys.tar.gz"
+					echo "Keys copied to $targetFileName.dvd.keys.tar.gz"
+				else
+					echo "Failed to dump keys"
+				fi
+			else
+				echo "Failed to find destination keys cache dir for the DVD, keys copying aborted"
+			fi
+		fi
+
 		touch "$targetFileName.dvd.lock"
 		mv -f "$targetFileName.dvd"{.in-progress,}
 		chmod 664 "$targetFileName.dvd"
