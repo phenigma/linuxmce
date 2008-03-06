@@ -120,8 +120,6 @@ PlutoMediaFile::~PlutoMediaFile()
 		//Save everything in file
 		SavePlutoAttributes();
 
-		if(FileUtils::FindExtension(m_sFile) == "dvd")
-			CacheDVDKeys();
 	}
 
 	if(m_MediaSyncMode == modeFileToDb || m_MediaSyncMode == modeBoth)
@@ -132,6 +130,9 @@ PlutoMediaFile::~PlutoMediaFile()
 
 	AssignPlutoDevice(NULL);
 	AssignPlutoUser(NULL);
+
+	if(FileUtils::FindExtension(m_sFile) == "dvd")
+		CacheDVDKeys();
 
 	if(NULL != m_pPlutoMediaAttributes)
 	{
@@ -1047,6 +1048,9 @@ void PlutoMediaFile::CacheDVDKeys()
 	{
 		if(m_sDVDKeysCache.empty())
 			m_sDVDKeysCache = "/home/.dvdcss";
+
+		if(!FileUtils::DirExists(m_sDVDKeysCache))
+			FileUtils::MakeDir(m_sDVDKeysCache);
 
 		string sCMD = "/bin/tar zx -C \"" + m_sDVDKeysCache + "\" -f \"" + sKeysArchiveFile + "\"";
 		int nResult = 0;
