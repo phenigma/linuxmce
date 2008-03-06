@@ -1048,7 +1048,7 @@ void PlutoMediaFile::CacheDVDKeys()
 		if(m_sDVDKeysCache.empty())
 			m_sDVDKeysCache = "/home/.dvdcss";
 
-		string sCMD = "/bin/tar zxf -C \"" + m_sDVDKeysCache + "\" \"" + sKeysArchiveFile + "\"";
+		string sCMD = "/bin/tar zx -C \"" + m_sDVDKeysCache + "\" -f \"" + sKeysArchiveFile + "\"";
 		int nResult = 0;
 		if((nResult = system(sCMD.c_str())) != 0)
 		{
