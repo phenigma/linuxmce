@@ -338,6 +338,12 @@ int main(int argc, char *argv[])
 	bSyncFilesOnly=false;
 	sDirectory="/home/";
 
+	if(dceConfig.m_mapParameters_Exists("DVDKeysCache"))
+	{
+		string sDVDKeysCache = dceConfig.m_mapParameters_Find("DVDKeysCache");
+		PlutoMediaFile::DVDKeysCacheSetup(sDVDKeysCache);
+	}
+
 	char c;
 	for(int optnum=1;optnum<argc;++optnum)
 	{

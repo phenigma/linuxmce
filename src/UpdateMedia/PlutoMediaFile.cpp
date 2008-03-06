@@ -81,6 +81,7 @@ char *MediaSyncModeStr[] =
 //-----------------------------------------------------------------------------------------------------
 MediaSyncMode PlutoMediaFile::m_DefaultMediaSyncMode = modeNone;
 bool PlutoMediaFile::m_bNewFilesAdded = false;
+string PlutoMediaFile::m_sDVDKeysCache;
 //-----------------------------------------------------------------------------------------------------
 PlutoMediaFile::PlutoMediaFile(Database_pluto_media *pDatabase_pluto_media, int PK_Installation, 
 	string sDirectory, string sFile, GenericFileHandler *pFileHandler) : 
@@ -118,6 +119,9 @@ PlutoMediaFile::~PlutoMediaFile()
 	{
 		//Save everything in file
 		SavePlutoAttributes();
+
+		if(FileUtils::FindExtension(m_sFile) == "dvd")
+			CacheDVDKeys();
 	}
 
 	if(m_MediaSyncMode == modeFileToDb || m_MediaSyncMode == modeBoth)
@@ -1032,6 +1036,35 @@ void PlutoMediaFile::SavePlutoAttributes()
 	{
 		GetPicAttribute(m_pPlutoMediaAttributes->m_nFileID);
 		m_spFileHandler->SaveAttributes(m_pPlutoMediaAttributes);
+	}
+}
+//-----------------------------------------------------------------------------------------------------
+void PlutoMediaFile::CacheDVDKeys()
+{
+	string sKeysArchiveFile = m_sDirectory + "/" + m_sFile + ".keys.tar.gz";
+
+	if(FileUtils::FileExists(sKeysArchiveFile))
+	{
+		if(m_sDVDKeysCache.empty())
+			m_sDVDKeysCache = "/home/.dvdcss";
+
+		string sCMD = "/bin/tar zxf -C \"" + m_sDVDKeysCache + "\" \"" + sKeysArchiveFile + "\"";
+		int nResult = 0;
+		if((nResult = system(sCMD.c_str())) != 0)
+		{
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Failed to cache dvd keys: %s, result %d", 
+				sCMD.c_str(), nResult);
+		}
+		else
+		{
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Successfuly cached dvd keys from %s to %s", 
+				sKeysArchiveFile.c_str(), m_sDVDKeysCache.c_str());
+		}
+	}
+	else
+	{
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Couldn't find %s file for this dvd",
+			sKeysArchiveFile.c_str());
 	}
 }
 //-----------------------------------------------------------------------------------------------------
