@@ -2290,6 +2290,13 @@ void MythTV_PlugIn::SetPaths()
 			if( !row[1] || !row[1][0] )
 				continue;
 			int PK_Device = row[0] ? mapIpToDevice[row[0]] : 0;
+
+			if(PK_Device == 0)
+			{
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "MythTV_PlugIn::SetPaths: won't create tv_shows for device 0. We are probably out of sync!");
+				continue;
+			}
+
 			string sDirectory = sFilename + StringUtils::itos(PK_Device);
 
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::SetPaths row %s/%s device %d directory %s", row[1], row[0] ? row[0] : "x", PK_Device, sDirectory.c_str());
