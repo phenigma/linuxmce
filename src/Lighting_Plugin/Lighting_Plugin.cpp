@@ -283,7 +283,7 @@ bool Lighting_Plugin::GetVideoFrame( class Socket *pSocket, class Message *pMess
 
 		string sState = pDevice_Light->m_sState_get();
 
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Lighting_Plugin::GetVideoFrame We've got a light with state %s for %d",sState.c_str(),pDevice_Light->m_dwPK_Device);
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"Lighting_Plugin::GetVideoFrame We've got a light with state %s for %d",sState.c_str(),pDevice_Light->m_dwPK_Device);
 	
 		if( sState.empty()==false )
 			m_mapLightsToRestore[ pDevice_Light->m_dwPK_Device ] = make_pair<time_t,string> ( time(NULL)+m_iCameraTimeout, sState );
