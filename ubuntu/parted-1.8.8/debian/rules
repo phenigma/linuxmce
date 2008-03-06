@@ -30,7 +30,7 @@ DEBPKGVER = $(shell dpkg-parsechangelog | sed -n -e '/^Version: /{s///;p;q;}')
 # end if there isn't already one, otherwise increment the letter that is
 # already there.
 # When incrementing this, also set DEPVER to the current package version.
-LIBPKGVER = 1.8
+LIBPKGVER = -1.8
 
 # Append the LIBPKGVER to non-lib package names? This is useful when building
 # packages of the development versions of parted (eg. to build a parted1.5
@@ -39,11 +39,11 @@ LIBPKGVER = 1.8
 
 # The first version of the package to build with the current LIBPKGVER
 # This should be changed to the current version when LIBPKGVER is changed ...
-DEPVER = 1.8.0-1
+DEPVER = 1.8.8
 
 # This is the library's soname. The build will fail if this is wrong, since
 # if the soname has changed we need to update stuff ...
-LIBSONAME = 1
+LIBSONAME = 8
 
 # This is for the version for the shared library
 SHAREDLIBPKGVER = $(LIBPKGVER)-$(LIBSONAME)
@@ -77,10 +77,6 @@ ifeq (, $(DEB_BUILD_GNU_TYPE))
 DEB_BUILD_GNU_TYPE = $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
 endif
 
-ifeq (, $(DEB_HOST_ARCH))
-DEB_HOST_ARCH = $(shell dpkg-architecture -qDEB_HOST_ARCH)
-endif
-
 ifeq (, $(DEB_HOST_GNU_TYPE))
 DEB_HOST_GNU_TYPE = $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
 endif
@@ -105,19 +101,6 @@ CFLAGS += -O0
 UDEB_CFLAGS += -O0
 endif
 
-_P=)
-GCC_VERSION := $(shell gcc --version | sed -n "/^gcc/s/^[^$(_P)]*$(_P) \(.\..\).*/\1/p")
-ifeq ($(GCC_VERSION),4.3)
-  CFLAGS += -Wno-array-bounds
-  UDEB_CFLAGS += -Wno-array-bounds
-endif
-
-endif
-
-# disable ssp on sparc
-ifeq (sparc, $(DEB_BUILD_ARCH))
-CFLAGS += -fno-stack-protector
-UDEB_CFLAGS += -fno-stack-protector
 endif
 
 # This is a workaround for a m68k compiler bug ...
@@ -131,11 +114,9 @@ ifeq (gnu, $(DEB_BUILD_GNU_SYSTEM))
   CONFFLAGS += --disable-Werror
 endif
 
-# Cell partition tables get misdetected for pc98; we don't need pc98 support
-# on powerpc
-ifeq (powerpc, $(DEB_HOST_ARCH))
-  CONFFLAGS += --disable-pc98
-endif
+# Workaround/fix bug #442308
+CFLAGS += -fgnu89-inline
+UDEB_CFLAGS += -fgnu89-inline
 
 # This builds a substitution list for sed based on the SUBSTS variable
 # and the variables whose names SUBSTS contains ...
@@ -176,8 +157,8 @@ packaging-files: $(GENFILES)
 
 autotools-update: autotools-update-stamp
 autotools-update-stamp: patch-stamp
-	 ACLOCAL=aclocal-1.10 AUTOMAKE=automake-1.10 autoreconf -f -i
-	 touch $@
+	autoreconf
+	touch $@
 
 build-deb/config.status: autotools-update-stamp
 	dh_testdir
@@ -193,6 +174,7 @@ endif
 	    --sbindir=/sbin --mandir=\$${prefix}/share/man \
 	    --infodir=\$${prefix}/share/info --enable-shared \
 	    --build=$(DEB_BUILD_GNU_TYPE) --host=$(DEB_HOST_GNU_TYPE) \
+		--enable-device-mapper \
 	    $(CONFFLAGS)
 
 build-udeb/config.status: autotools-update-stamp
@@ -202,8 +184,9 @@ build-udeb/config.status: autotools-update-stamp
 	cd build-udeb && CFLAGS="$(UDEB_CFLAGS)" ../configure --prefix=/usr \
 	    --sbindir=/sbin --libdir=/lib --mandir=\$${prefix}/share/man \
 	    --infodir=\$${prefix}/share/info --enable-shared --disable-static \
-	    --without-readline $(CONFFLAGS) \
-	    --build=$(DEB_BUILD_GNU_TYPE) --host=$(DEB_HOST_GNU_TYPE)
+	    --build=$(DEB_BUILD_GNU_TYPE) --host=$(DEB_HOST_GNU_TYPE) \
+	    --without-readline --enable-device-mapper \
+		$(CONFFLAGS)
 
 build-dbg/config.status: autotools-update-stamp
 	dh_testdir
@@ -234,6 +217,7 @@ build-udeb/build-stamp: build-udeb/config.status
 	dh_testdir
 
 #	 Only build binaries
+	$(MAKE) -C build-udeb/lib
 	$(MAKE) -C build-udeb/libparted
 	$(MAKE) -C build-udeb/parted
 
@@ -247,6 +231,7 @@ build-dbg/build-stamp: build-dbg/config.status
 #	 Don't need to build headers or doco rubbish, just the library ...
 #	 Note: this assumes that the library source code is in the
 #	 libparted directory, change this if it isn't ...
+	$(MAKE) -C build-dbg/lib
 	$(MAKE) -C build-dbg/libparted
 
 	touch $@
@@ -291,7 +276,7 @@ install: build packaging-files
 #	   2. Fix the libparted.so symlink to point to /lib/libparted.so.x.x.x
 #	      rather than being relative & pointing to the current directory
 	@(cd debian/tmp/usr/lib; \
-	  SONAME=`ls libparted-$(LIBPKGVER).so.*.*.* | \
+	  SONAME=`ls libparted$(LIBPKGVER).so.*.*.* | \
 	          sed -e 's/^.*\.so\.\([0-9]\+\)\..*$$/\1/'`; \
 	  if [ "$(LIBSONAME)" -ne "$$SONAME" ]; then \
 	     echo " *** error: debian/rules thinks that libparted is" \
@@ -363,7 +348,7 @@ binary-common:
 	dh_testdir
 	dh_testroot
 	dh_installdocs
-	dh_installchangelogs parted/ChangeLog
+	dh_installchangelogs
 	dh_installexamples
 	dh_installmenu
 	dh_installcron

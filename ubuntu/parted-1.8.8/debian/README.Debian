@@ -5,9 +5,34 @@ The nature of this software means that any bugs could cause massive data loss.
 While there are no known bugs at the moment, they could exist, so please back
 up all important files before running it, and do so at your own risk.
 
-Parted currently supports DOS, Mac, PC98, BSD, GPT, MIPS and Sun disklabels /
-partition tables, as well as a 'loop' (raw disk) disklabel type which is
-useful for filesystems on RAID or LVM volumes.
+General:
+ * Actively maintained
+ * Support for CHS and LBA addressing modes
+ * Support for logical sector sizes not equal to 512
+ * Support for device's alignment requirements (e.g. physical sector sizes that
+   are a multiple of the logical sector size)
+ * Uses SI units (byte multiples of 1000), supporting arbitrary specification 
+   of disk locations in sectors, bytes, kilobytes, megabytes, gigabytes, 
+	cylinders and CHS notation
+ * Knows about, detects and works around quirks of other partitioning tools and 
+   operating system implementations
+
+Operating system support:
+ * GNU/Linux
+ * GNU/Hurd
+ * BeOS
+ * FreeBSD
+
+Parted currently supports:
+ * Intel EFI/GPT parition tables
+ * MS-DOS partition tables
+ * Raw access (useful for RAID/LVM)
+ * MIPS/DVH partition tables
+ * Amiga partition tables
+ * PC98 partition tabled
+ * Sun disk labels
+ * BSD disk labels (Linux-style; currently broken from a BSD view)
+ * Macintosh parition maps
 
 Filesystems currently supported:
 [from the user documentation]
@@ -19,24 +44,24 @@ ext2            | *     | *     | *[1]  | *[2]  | *[3]
 ext3            | *     |       | *[1]  | *[2]  | *[3]
 fat16           | *     | *     | *[4]  | *[4]  | *
 fat32           | *     | *     | *     | *     | *
-hfs             | *     |       | *     |       |
-jfs             | *     |       |       |       |
 linux-swap      | *     | *     | *     | *     | *
+hfs/hfs+        | *     |       | *[1,5]|       |
+jfs             | *     |       |       |       |
 ntfs            | *     |       |       |       |
-reiserfs        | *     | *[5]  | *[1,5]| *[5]  | *[3,5]
+reiserfs        | *     | *[6]  | *[1,6]| *[6]  | *[3,6]
 ufs             | *     |       |       |       |
 xfs             | *     |       |       |       |
 
-[1] Parted can't move the start of ext2 or ext3 partitions (yet).
-[2] The size of the partition you copy to must be greater than or equal to
-    the size of the partition you copy from.
-[3] Limited checking is done when the filesystem is opened, this is the
-    extent of ext2 checking done at the moment.
-[4] The size of the new partition, after resizing or copying, is restricted
-    by the cluster size for fat (mainly affects FAT16). Parted can shrink
-    cluster sizes, but cannot grow them on FAT16.
-[5] ReiserFS support is enabled if you install libreiserfs, currently in the
-    libreiserfs0.3-0 package. Since libreiserfs0.3-0 is no more in sarge, the
-    reiserfs create/resize/copy/check support is not built in in the debian package.
+[1] The start of the partition must stay fixed.
+[2] The partition you copy to must be bigger or exactly the same size as the 
+    partition you copy from.
+[3] Limited checking is done when the file system is opened. This is the only 
+    checking at the moment. All commands (including resize) will gracefully 
+	 fail, leaving the file system intact, if there are any errors.
+[4] You can always shrink your partition. If you can't use FAT32 for some 
+    reason, you may not be able to grow your partition due to restrictions in
+	 cluster size.
+[5] Parted can only shrink HFS and HFS+ filesystems.
+[6] ReiserFS support is enabled if you install libreiserfs.
  
- -- Otavio Salvador <otavio@debian.org>, Fri Sep  9 10:19:39 2005
+ -- Xavier Oswald <x.oswald@free.fr>  Wed, 25 Apr 2007 23:31:15 +0200

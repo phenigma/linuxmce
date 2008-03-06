@@ -1,11 +1,10 @@
 Source: parted
 Section: admin
 Priority: optional
-Maintainer: Ubuntu Core developers <ubuntu-devel-discuss@lists.ubuntu.com>
-XSBC-Original-Maintainer: Parted Maintainer Team <parted-maintainers@lists.alioth.debian.org>
-Uploaders: Sven Luther <luther@debian.org>, Otavio Salvador <otavio@debian.org>, Bastian Blank <waldi@debian.org>
-Standards-Version: 3.6.2
-Build-Depends: debhelper (>= 5.0.22), dpatch, libncurses-dev | libncurses5-dev, libreadline5-dev | libreadline-dev, uuid-dev, gettext, texinfo (>= 4.2), debianutils (>= 1.13.1), autoconf, automake1.10, libtool, libgeom-dev [kfreebsd-i386 kfreebsd-amd64], cvs
+Maintainer: Parted Maintainer Team <parted-maintainers@lists.alioth.debian.org>
+Uploaders: Sven Luther <luther@debian.org>, Otavio Salvador <otavio@debian.org>, Bastian Blank <waldi@debian.org>, Xavier Oswald <x.oswald@free.fr>
+Standards-Version: 3.7.2
+Build-Depends: debhelper (>= 5.0.22), dpatch, libncurses-dev | libncurses5-dev, libreadline5-dev | libreadline-dev, libdevmapper-dev, uuid-dev, gettext, texinfo (>= 4.2), debianutils (>= 1.13.1), autoconf, automake1.10, libtool, libgeom-dev [kfreebsd-i386 kfreebsd-amd64], cvs, po4a, pkg-config
 
 Package: parted
 Architecture: any
@@ -46,7 +45,6 @@ Architecture: any
 Section: debian-installer
 Priority: extra
 Depends: ${shlibs:Depends}
-Provides: parted
 Description: The GNU Parted disk partition resizing program
  GNU Parted is a program that allows you to create, destroy,
  resize, move and copy hard disk partitions. This is useful
@@ -64,11 +62,11 @@ Description: The GNU Parted disk partition resizing program
  they could exist, so please back up all important files before
  running it, and do so at your own risk.
 
-Package: libparted1.7-1
+Package: libparted-1.8-7
 Architecture: any
 Section: libs
 Depends: ${shlibs:Depends}
-Suggests: parted | nparted, libparted1.7-dev, libparted1.7-i18n (= ${Source-Version})
+Suggests: parted | nparted, libparted-1.8-dev, libparted-1.8-i18n (= ${source:Version})
 Conflicts: parted (<< 1.4.13+14pre1), libparted0, libparted1, libparted2
 Replaces: libparted0, libparted1, libparted2, libparted1.4 (<< 1.4.24-2)
 Provides: libparted
@@ -101,13 +99,12 @@ Description: The GNU Parted disk partitioning shared library
  they could exist, so please back up all important files before
  running it, and do so at your own risk.
 
-Package: libparted1.7-udeb
+Package: libparted-1.8-udeb
 XC-Package-Type: udeb
 Architecture: any
 Section: debian-installer
 Priority: extra
 Depends: ${shlibs:Depends}
-Provides: libparted1.7-1
 Description: The GNU Parted disk partitioning shared library
  GNU Parted is a program that allows you to create, destroy,
  resize, move and copy hard disk partitions. This is useful
@@ -138,10 +135,10 @@ Description: The GNU Parted disk partitioning shared library
  they could exist, so please back up all important files before
  running it, and do so at your own risk.
 
-Package: libparted1.7-i18n
+Package: libparted-1.8-i18n
 Architecture: all
 Section: libs
-Depends: libparted1.7-1
+Depends: libparted-1.8-7
 Replaces: libparted0, libparted1, libparted2, libparted1.4 (<< 1.4.24-2), libparted1.6 (<< 1.5+1.6.0-pre3-2), libparted1.4-i18n, parted (<< 1.4.13+14pre1)
 Conflicts: libparted-i18n
 Provides: libparted-i18n
@@ -174,11 +171,11 @@ Description: The GNU Parted disk partitioning library i18n support
  they could exist, so please back up all important files before
  running it, and do so at your own risk.
 
-Package: libparted1.7-dev
+Package: libparted-1.8-dev
 Architecture: any
 Section: libdevel
-Depends: libc6-dev, libparted1.7-1 (= ${Source-Version})
-Suggests: parted (= ${Source-Version}), parted-doc
+Depends: libc6-dev, libparted-1.8-7 (= ${binary:Version})
+Suggests: parted (= ${binary:Version}), parted-doc
 Conflicts: libparted-dev, parted (<< 1.2.11)
 Replaces: libparted-dev, libparted0-dev, libparted2-dev
 Provides: libparted-dev
@@ -212,11 +209,11 @@ Description: The GNU Parted disk partitioning library development files
  they could exist, so please back up all important files before
  running it, and do so at your own risk.
 
-Package: libparted1.7-dbg
+Package: libparted-1.8-dbg
 Architecture: any
 Section: libdevel
 Priority: extra
-Depends: libparted1.7-1 (= ${Source-Version}), libparted1.7-dev (= ${Source-Version})
+Depends: libparted-1.8-7 (= ${binary:Version}), libparted-1.8-dev (= ${binary:Version})
 Conflicts: libparted-dbg
 Replaces: libparted-dbg
 Provides: libparted-dbg
@@ -256,7 +253,7 @@ Description: The GNU Parted disk partitioning library debug development files
 Package: parted-doc
 Architecture: all
 Section: doc
-Suggests: parted | libparted1.7-dev
+Suggests: parted | libparted-1.8-dev
 Conflicts: parted1.6-doc
 Replaces: parted1.6-doc
 Description: The GNU Parted disk partition resizing program documentation
@@ -266,4 +263,4 @@ Description: The GNU Parted disk partition resizing program documentation
  disk usage, and copying data to new hard disks. This package
  contains user documentation for parted (for the 'parted'
  package) and API documentation for libparted (for the
- 'libparted1.7' and 'libparted1.7-dev' packages).
+ 'libparted-1.8' and 'libparted-1.8-dev' packages).
