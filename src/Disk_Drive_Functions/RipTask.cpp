@@ -260,6 +260,16 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"RipTask::Abort deleting %s", (m_p
 		}
 	}
 
+	if (m_pRow_RipStatus) {
+	    m_pRow_RipStatus->Status_set("a");
+	    m_pRow_RipStatus->Message_set("aborted by user");
+	    m_pRipJob->m_pDatabase_pluto_media->RipStatus_get()->Commit();
+	    LoggerWrapper::GetInstance()->Write(LV_STATUS, "RipTask::Abort marking task as aborted");
+	}
+	else {
+	    LoggerWrapper::GetInstance()->Write(LV_STATUS, "RipTask::Abort not marking task as aborted - m_pRow_RipStatus is NULL");
+	}
+
 	return Task::Abort();
 }
 
