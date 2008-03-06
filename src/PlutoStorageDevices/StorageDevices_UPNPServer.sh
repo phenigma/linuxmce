@@ -20,5 +20,21 @@ function reload_ushare() {
 	ushare --daemon
 }
 
-configure_ushare
-reload_ushare
+function configure_fuppes() {
+	local server_name="$(RunSQL "SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_DeviceData=187 AND FK_Device=1")"
+	local server_iface="$IntIf"
+
+	sed -i "s,<dir>.*</dir>,<dir>/home/public/data</dir>,g" /etc/fuppes/fuppes.cfg
+	sed -i "s,<interface>.*</interface>,<interface>$server_iface</interface>,g" /etc/fuppes/fuppes.cfg
+	sed -i "s, <description_values><friendly_name>.*</friendly_name></description_values>,<description_values><friendly_name>$server_name</friendly_name></description_values>,g" /etc/fuppes/fuppes.cfg
+}
+
+function reload_fuppes() {
+	/etc/init.d/fuppes restart
+}
+
+#configure_ushare
+#reload_ushare
+
+configure_fuppes
+reload_fuppes
