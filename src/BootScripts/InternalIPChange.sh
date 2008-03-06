@@ -1,7 +1,9 @@
 #!/bin/bash
 
 . /usr/pluto/bin/SQL_Ops.sh
-DD_DHCP=28;
+. /usr/pluto/bin/Utils.sh
+
+DD_DHCP=28
 
 # Increments an IP addrees by 1
 function IncIP() {
