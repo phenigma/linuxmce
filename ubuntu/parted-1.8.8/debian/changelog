@@ -1,3 +1,9 @@
+parted (1.8.8-0~lmce1) gutsy; urgency=low
+
+  * Using upstream release 1.8.8
+
+ -- Radu Cristescu <radu.c@plutohome.com>  Thu, 06 Mar 2008 14:35:18 +0200
+
 parted (1.7.1-5.1ubuntu8) gutsy; urgency=low
 
   * Cell partition tables are misdetected as pc98, so disable pc98 support
