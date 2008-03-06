@@ -102,15 +102,26 @@ function Build_Replacements {
 		popd
 	fi
 	
-	#Package: ushare
-	dir_="${svn_dir}/trunk/ubuntu/ushare-0.9.6"
+#	#Package: ushare
+#	dir_="${svn_dir}/trunk/ubuntu/ushare-0.9.6"
+#	if Changed_Since_Last_Build "$dir_" ;then
+#		DisplayMessage "Building ushare-0.9.6"
+#		pushd "$dir_"
+#		dpkg-buildpackage -rfakeroot -us -uc -b
+#		cp -r ../ushare_*.deb ${replacements_dir}
+#		popd
+#	fi
+
+	#Package: fuppes
+	dir_="${svn_dir}/trunk/ubuntu/fuppes-0+svn578"
 	if Changed_Since_Last_Build "$dir_" ;then
-		DisplayMessage "Building ushare-0.9.6"
+		DisplayMessage "Building fuppes-0+svn578"
 		pushd "$dir_"
 		dpkg-buildpackage -rfakeroot -us -uc -b
-		cp -r ../ushare_*.deb ${replacements_dir}
+		cp -r ../fuppes_*.deb ${replacements_dir}
 		popd
 	fi
+	
 	
 	#Package: djmount
 	dir_="${svn_dir}/trunk/ubuntu/djmount-0.71"
