@@ -62,7 +62,7 @@ Description: The GNU Parted disk partition resizing program
  they could exist, so please back up all important files before
  running it, and do so at your own risk.
 
-Package: libparted-1.8-7
+Package: libparted-1.8-8
 Architecture: any
 Section: libs
 Depends: ${shlibs:Depends}
@@ -138,7 +138,7 @@ Description: The GNU Parted disk partitioning shared library
 Package: libparted-1.8-i18n
 Architecture: all
 Section: libs
-Depends: libparted-1.8-7
+Depends: libparted-1.8-8
 Replaces: libparted0, libparted1, libparted2, libparted1.4 (<< 1.4.24-2), libparted1.6 (<< 1.5+1.6.0-pre3-2), libparted1.4-i18n, parted (<< 1.4.13+14pre1)
 Conflicts: libparted-i18n
 Provides: libparted-i18n
@@ -174,7 +174,7 @@ Description: The GNU Parted disk partitioning library i18n support
 Package: libparted-1.8-dev
 Architecture: any
 Section: libdevel
-Depends: libc6-dev, libparted-1.8-7 (= ${binary:Version})
+Depends: libc6-dev, libparted-1.8-8 (= ${binary:Version})
 Suggests: parted (= ${binary:Version}), parted-doc
 Conflicts: libparted-dev, parted (<< 1.2.11)
 Replaces: libparted-dev, libparted0-dev, libparted2-dev
@@ -213,7 +213,7 @@ Package: libparted-1.8-dbg
 Architecture: any
 Section: libdevel
 Priority: extra
-Depends: libparted-1.8-7 (= ${binary:Version}), libparted-1.8-dev (= ${binary:Version})
+Depends: libparted-1.8-8 (= ${binary:Version}), libparted-1.8-dev (= ${binary:Version})
 Conflicts: libparted-dbg
 Replaces: libparted-dbg
 Provides: libparted-dbg
