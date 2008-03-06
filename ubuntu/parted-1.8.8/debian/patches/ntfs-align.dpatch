@@ -1,0 +1,77 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## parted-print-name.dpatch by David Cantrell <dcantrell@redhat.com>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Fix bug in parted print, when there are no extended partitions, but partition names.
+
+@DPATCH@
+--- parted-1.8.2/libparted/labels/dos.c.vista	2006-12-15 17:20:53.000000000 -0500
++++ parted-1.8.2/libparted/labels/dos.c	2007-01-18 08:58:43.000000000 -0500
+@@ -1535,9 +1535,15 @@
+ 
+ /* This constraint is for partitions starting on the first cylinder.  They
+  * must start on the 2nd head of the 1st cylinder.
++ *
++ * NOTE: We don't always start on the 2nd head of the 1st cylinder.  If the
++ * partition's starting sector is not equal to the starting sector of the
++ * second head, we preserve it's location in this alignment.  This is needed
++ * for operating systems such as Windows Vista (NTFS v3.1).
+  */
+ static PedConstraint*
+-_primary_start_constraint (PedDisk* disk, const PedCHSGeometry* bios_geom,
++_primary_start_constraint (PedDisk* disk, PedPartition *part,
++			   const PedCHSGeometry* bios_geom,
+ 			   PedGeometry* min_geom)
+ {
+ 	PedDevice*	dev = disk->dev;
+@@ -1546,21 +1552,26 @@
+ 	PedAlignment	end_align;
+ 	PedGeometry	start_geom;
+ 	PedGeometry	end_geom;
++	PedSector	start_pos;
++
++	if (part->geom.start == bios_geom->sectors)
++		start_pos = bios_geom->sectors;
++	else
++		start_pos = part->geom.start;
+ 
+ 	if (!ped_alignment_init (&start_align, bios_geom->sectors, 0))
+ 		return NULL;
+ 	if (!ped_alignment_init (&end_align, -1, cylinder_size))
+ 		return NULL;
+ 	if (min_geom) {
+-		if (!ped_geometry_init (&start_geom, dev,
+-					bios_geom->sectors, 1))
++		if (!ped_geometry_init (&start_geom, dev, start_pos, 1))
+ 			return NULL;
+ 		if (!ped_geometry_init (&end_geom, dev, min_geom->end,
+ 			       		dev->length - min_geom->end))
+ 			return NULL;
+ 	} else {
+-		if (!ped_geometry_init (&start_geom, dev, bios_geom->sectors,
+-					dev->length - bios_geom->sectors))
++		if (!ped_geometry_init (&start_geom, dev, start_pos,
++					dev->length - start_pos))
+ 			return NULL;
+ 		if (!ped_geometry_init (&end_geom, dev, 0, dev->length))
+ 			return NULL;
+@@ -1669,12 +1680,14 @@
+ 
+ 	solution = _best_solution (part, bios_geom, solution,
+ 			_try_constraint (part, constraint,
+-					 _primary_start_constraint (disk,
++					 _primary_start_constraint (disk, part,
+ 						 bios_geom, min_geom)));
+-	solution = _best_solution (part, bios_geom, solution,
+-			_try_constraint (part, constraint,
+-					 _primary_constraint (disk, bios_geom,
+-						 min_geom)));
++
++	if (!solution)
++		solution = _best_solution (part, bios_geom, solution,
++				_try_constraint (part, constraint,
++					_primary_constraint (disk, bios_geom,
++					min_geom)));
+ 
+ 	if (min_geom)
+ 		ped_geometry_destroy (min_geom);

@@ -1,0 +1,2368 @@
+#! /bin/sh -e
+## s390.dpatch by Lucius Leland <Leland.Lucius@ecolab.com>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Another s390 bigger sector size patch, replaces Bastian's
+## DP: more limited sector-size patch.
+## DP: Closes: #243554
+## DP: Candidate for upstream inclusion.
+
+. `dirname $0`/DPATCH
+
+@DPATCH@
+diff -urNad parted-1.7.1~/include/parted/device.h parted-1.7.1/include/parted/device.h
+--- parted-1.7.1~/include/parted/device.h	2006-05-30 20:22:24.000000000 +0200
++++ parted-1.7.1/include/parted/device.h	2006-05-09 05:36:48.000000000 +0200
+@@ -42,7 +42,8 @@
+         PED_DEVICE_FILE         = 5,
+         PED_DEVICE_ATARAID      = 6,
+         PED_DEVICE_I2O          = 7,
+         PED_DEVICE_UBD          = 8,
+-        PED_DEVICE_DM           = 9
++        PED_DEVICE_DM           = 9,
++        PED_DEVICE_DASD         = 10
+ } PedDeviceType;
+ 
+ typedef struct _PedDevice PedDevice;
+diff -urNad parted-1.7.1~/libparted/arch/linux.c parted-1.7.1/libparted/arch/linux.c
+--- parted-1.7.1~/libparted/arch/linux.c	2006-05-09 05:20:14.000000000 +0200
++++ parted-1.7.1/libparted/arch/linux.c	2006-05-09 05:47:47.000000000 +0200
+@@ -229,6 +229,7 @@
+ #define I2O_MAJOR6              85
+ #define I2O_MAJOR7              86
+ #define I2O_MAJOR8              87
++#define DASD_MAJOR              94
+ #define UBD_MAJOR               98
+ 
+ #define SCSI_BLK_MAJOR(M) (                                             \
+@@ -322,6 +323,8 @@
+                 dev->type = PED_DEVICE_I2O;
+         } else if (_is_cpqarray_major (dev_major) && (dev_minor % 0x10 == 0)) {
+                 dev->type = PED_DEVICE_CPQARRAY;
++  	} else if (dev_major == DASD_MAJOR && (dev_minor % 0x4 == 0)) {
++  		dev->type = PED_DEVICE_DASD;
+         } else if (dev_major == UBD_MAJOR && (dev_minor % 0x10 == 0)) {
+                 dev->type = PED_DEVICE_UBD;
+         } else {
+@@ -379,7 +382,8 @@
+ 
+         PED_ASSERT (dev->open_count, return);
+ 
+-        if (_get_linux_version() < KERNEL_VERSION (2,3,0)) {
++        if (_get_linux_version() < KERNEL_VERSION (2,3,0) ||
++	    dev->type == PED_DEVICE_DASD) {
+                 dev->sector_size = PED_SECTOR_SIZE_DEFAULT;
+                 return;
+         }
+@@ -920,6 +924,11 @@
+                         goto error_free_arch_specific;
+                 break;
+ 
++ 	case PED_DEVICE_DASD:
++ 		if (!init_generic (dev, _("s390/zSeries DASD")))
++ 			goto error_free_dev;
++ 		break;
++ 
+         case PED_DEVICE_UBD:
+                 if (!init_generic (dev, _("User-Mode Linux UBD")))
+                         goto error_free_dev;
+diff -urNad parted-1.7.1~/libparted/fs/ext2/interface.c parted-1.7.1/libparted/fs/ext2/interface.c
+--- parted-1.7.1~/libparted/fs/ext2/interface.c	2006-05-30 20:22:24.000000000 +0200
++++ parted-1.7.1/libparted/fs/ext2/interface.c	2006-02-02 21:39:46.000000000 +0100
+@@ -142,6 +142,7 @@
+ 	PedFileSystem*		fs;
+ 	struct ext2_fs*		fs_info;
+ 	struct ext2_dev_handle*	handle;
++	int log_block_size;
+ 
+ 	fs = (PedFileSystem*) ped_malloc (sizeof (PedFileSystem));
+ 	if (!fs) goto error;
+@@ -152,7 +153,11 @@
+ 	handle = ext2_make_dev_handle_from_parted_geometry(fs->geom);
+ 	if (!handle) goto error_free_fs;
+ 
+-	fs_info = ext2_mkfs (handle, 0, 0, 0, 0, -1, -1, timer);
++        log_block_size = 0;
++        if (geom->dev->type == PED_DEVICE_DASD)
++                log_block_size = 12;
++
++        fs_info = ext2_mkfs (handle, 0, log_block_size, 0, 0, -1, -1, timer);
+ 	if (!fs_info) goto error_free_handle;
+ 
+ 	fs->type_specific = (void*) fs_info;
+diff -urNad parted-1.7.1~/libparted/labels/Makefile.am parted-1.7.1/libparted/labels/Makefile.am
+--- parted-1.7.1~/libparted/labels/Makefile.am	2006-05-30 20:22:24.000000000 +0200
++++ parted-1.7.1/libparted/labels/Makefile.am	2006-05-09 05:48:22.000000000 +0200
+@@ -20,7 +20,8 @@
+ 			loop.c 		\
+ 			mac.c  		\
+ 			pc98.c 		\
+-			sun.c
++			sun.c 		\
++			s390.c
+ 			
+ 
+ liblabels_la_LIBADD   = @OS_LIBS@
+diff -urNad parted-1.7.1~/libparted/labels/s390.c parted-1.7.1/libparted/labels/s390.c
+--- parted-1.7.1~/libparted/labels/s390.c	1970-01-01 01:00:00.000000000 +0100
++++ parted-1.7.1/libparted/labels/s390.c	2006-05-30 20:26:27.000000000 +0200
+@@ -0,0 +1,1779 @@
++/*
++    libparted - a library for manipulating disk partitions
++    Copyright (C) 2004 Free Software Foundation, Inc.
++
++    This program is free software; you can redistribute it and/or modify
++    it under the terms of the GNU General Public License as published by
++    the Free Software Foundation; either version 2 of the License, or
++    (at your option) any later version.
++
++    This program is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++    GNU General Public License for more details.
++
++    You should have received a copy of the GNU General Public License
++    along with this program; if not, write to the Free Software
++    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++
++    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
++    Portions of this file were copied from the s390-tools package and modified
++    for use in libparted.  Those portions held the following copyright:
++ 
++    (C) IBM Corporation, IBM Deutschland Entwicklung GmbH, 1999-2002
++    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
++ */
++
++#include "config.h"
++
++#include <parted/parted.h>
++#include <parted/debug.h>
++#include <parted/endian.h>
++#include <sys/ioctl.h>
++#include <unistd.h>
++#include <string.h>
++#include <fcntl.h>
++#include <signal.h>
++#include <errno.h>
++#include "s390.h"
++
++#if ENABLE_NLS
++#  include <libintl.h>
++#  define _(String) dgettext (PACKAGE, String)
++#else
++#  define _(String) (String)
++#endif /* ENABLE_NLS */
++
++static PedDiskType s390_disk_type;
++
++/*
++ * IPL1 record
++*/
++static bootstrap1_t _ipl1 = {
++        0xC9D7D3F1, {
++                0x000A0000, 0x0000000F, 0x03000000,
++                0x00000001, 0x00000000, 0x00000000
++        }
++};
++
++/*
++ * IPL2 record
++ */
++static bootstrap2_t _ipl2 = {
++        0xC9D7D3F2, {
++                0x07003AB8, 0x40000006, 0x31003ABE,
++                0x40000005, 0x08003AA0, 0x00000000,
++                0x06000000, 0x20000000, 0x00000000,
++                0x00000000, 0x00000400, 0x00000000,
++                0x00000000, 0x00000000, 0x00000000,
++                0x00000000, 0x00000000, 0x00000000,
++                0x00000000, 0x00000000, 0x00000000,
++                0x00000000, 0x00000000, 0x00000000,
++                0x00000000, 0x00000000, 0x00000000,
++                0x00000000, 0x00000000, 0x00000000,
++                0x00000000, 0x00000000, 0x00000000,
++                0x00000000, 0x00000000, 0x00000000
++        }
++};
++
++/*
++ * EBCDIC <-> ASCII conversion tables
++ */
++static u_int8_t _e2atab[256] =
++{
++/* 0x00  NUL   SOH   STX   ETX  *SEL    HT  *RNL   DEL */
++	0x00, 0x01, 0x02, 0x03, 0x07, 0x09, 0x07, 0x7F,
++/* 0x08  -GE  -SPS  -RPT    VT    FF    CR    SO    SI */
++	0x07, 0x07, 0x07, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
++/* 0x10  DLE   DC1   DC2   DC3  -RES   -NL    BS  -POC
++                                -ENP  ->LF             */
++	0x10, 0x11, 0x12, 0x13, 0x07, 0x0A, 0x08, 0x07,
++/* 0x18  CAN    EM  -UBS  -CU1  -IFS  -IGS  -IRS  -ITB
++                                                  -IUS */
++	0x18, 0x19, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07,
++/* 0x20  -DS  -SOS    FS  -WUS  -BYP    LF   ETB   ESC
++                                -INP                   */
++	0x07, 0x07, 0x1C, 0x07, 0x07, 0x0A, 0x17, 0x1B,
++/* 0x28  -SA  -SFE   -SM  -CSP  -MFA   ENQ   ACK   BEL
++                     -SW                               */ 
++	0x07, 0x07, 0x07, 0x07, 0x07, 0x05, 0x06, 0x07,
++/* 0x30 ----  ----   SYN   -IR   -PP  -TRN  -NBS   EOT */
++	0x07, 0x07, 0x16, 0x07, 0x07, 0x07, 0x07, 0x04,
++/* 0x38 -SBS   -IT  -RFF  -CU3   DC4   NAK  ----   SUB */
++	0x07, 0x07, 0x07, 0x07, 0x14, 0x15, 0x07, 0x1A,
++/* 0x40   SP   RSP           ä              ----       */
++	0x20, 0xFF, 0x83, 0x84, 0x85, 0xA0, 0x07, 0x86,
++/* 0x48                      .     <     (     +     | */
++	0x87, 0xA4, 0x9B, 0x2E, 0x3C, 0x28, 0x2B, 0x7C,
++/* 0x50    &                                      ---- */
++	0x26, 0x82, 0x88, 0x89, 0x8A, 0xA1, 0x8C, 0x07,
++/* 0x58          ß     !     $     *     )     ;       */
++	0x8D, 0xE1, 0x21, 0x24, 0x2A, 0x29, 0x3B, 0xAA,
++/* 0x60    -     /  ----     Ä  ----  ----  ----       */
++	0x2D, 0x2F, 0x07, 0x8E, 0x07, 0x07, 0x07, 0x8F,
++/* 0x68             ----     ,     %     _     >     ? */ 
++	0x80, 0xA5, 0x07, 0x2C, 0x25, 0x5F, 0x3E, 0x3F,
++/* 0x70  ---        ----  ----  ----  ----  ----  ---- */
++	0x07, 0x90, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07,
++/* 0x78    *     `     :     #     @     '     =     " */
++	0x70, 0x60, 0x3A, 0x23, 0x40, 0x27, 0x3D, 0x22,
++/* 0x80    *     a     b     c     d     e     f     g */
++	0x07, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67,
++/* 0x88    h     i              ----  ----  ----       */
++	0x68, 0x69, 0xAE, 0xAF, 0x07, 0x07, 0x07, 0xF1,
++/* 0x90    °     j     k     l     m     n     o     p */
++	0xF8, 0x6A, 0x6B, 0x6C, 0x6D, 0x6E, 0x6F, 0x70,
++/* 0x98    q     r                    ----        ---- */
++	0x71, 0x72, 0xA6, 0xA7, 0x91, 0x07, 0x92, 0x07,
++/* 0xA0          ~     s     t     u     v     w     x */
++	0xE6, 0x7E, 0x73, 0x74, 0x75, 0x76, 0x77, 0x78,
++/* 0xA8    y     z              ----  ----  ----  ---- */
++	0x79, 0x7A, 0xAD, 0xAB, 0x07, 0x07, 0x07, 0x07,
++/* 0xB0    ^                    ----     §  ----       */
++	0x5E, 0x9C, 0x9D, 0xFA, 0x07, 0x07, 0x07, 0xAC,
++/* 0xB8       ----     [     ]  ----  ----  ----  ---- */
++	0xAB, 0x07, 0x5B, 0x5D, 0x07, 0x07, 0x07, 0x07,
++/* 0xC0    {     A     B     C     D     E     F     G */
++	0x7B, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47,
++/* 0xC8    H     I  ----           ö              ---- */
++	0x48, 0x49, 0x07, 0x93, 0x94, 0x95, 0xA2, 0x07,
++/* 0xD0    }     J     K     L     M     N     O     P */
++	0x7D, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F, 0x50,
++/* 0xD8    Q     R  ----           ü                   */
++	0x51, 0x52, 0x07, 0x96, 0x81, 0x97, 0xA3, 0x98,
++/* 0xE0    \           S     T     U     V     W     X */
++	0x5C, 0xF6, 0x53, 0x54, 0x55, 0x56, 0x57, 0x58,
++/* 0xE8    Y     Z        ----     Ö  ----  ----  ---- */
++	0x59, 0x5A, 0xFD, 0x07, 0x99, 0x07, 0x07, 0x07,
++/* 0xF0    0     1     2     3     4     5     6     7 */
++	0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37,
++/* 0xF8    8     9  ----  ----     Ü  ----  ----  ---- */
++	0x38, 0x39, 0x07, 0x07, 0x9A, 0x07, 0x07, 0x07
++};
++
++static u_int8_t _a2etab[256] =
++{
++    /*00  NL    SH    SX    EX    ET    NQ    AK    BL */
++	0x00, 0x01, 0x02, 0x03, 0x37, 0x2D, 0x2E, 0x2F,
++    /*08  BS    HT    LF    VT    FF    CR    SO    SI */
++	0x16, 0x05, 0x15, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
++    /*10  DL    D1    D2    D3    D4    NK    SN    EB */
++	0x10, 0x11, 0x12, 0x13, 0x3C, 0x15, 0x32, 0x26,
++    /*18  CN    EM    SB    EC    FS    GS    RS    US */
++	0x18, 0x19, 0x3F, 0x27, 0x1C, 0x1D, 0x1E, 0x1F,
++    /*20  SP     !     "     #     $     %     &     ' */
++	0x40, 0x5A, 0x7F, 0x7B, 0x5B, 0x6C, 0x50, 0x7D,
++    /*28   (     )     *     +     ,     -    .      / */
++	0x4D, 0x5D, 0x5C, 0x4E, 0x6B, 0x60, 0x4B, 0x61,
++    /*30   0     1     2     3     4     5     6     7 */
++	0xF0, 0xF1, 0xF2, 0xF3, 0xF4, 0xF5, 0xF6, 0xF7,
++    /*38   8     9     :     ;     <     =     >     ? */
++	0xF8, 0xF9, 0x7A, 0x5E, 0x4C, 0x7E, 0x6E, 0x6F,
++    /*40   @     A     B     C     D     E     F     G */
++	0x7C, 0xC1, 0xC2, 0xC3, 0xC4, 0xC5, 0xC6, 0xC7,
++    /*48   H     I     J     K     L     M     N     O */
++	0xC8, 0xC9, 0xD1, 0xD2, 0xD3, 0xD4, 0xD5, 0xD6,
++    /*50   P     Q     R     S     T     U     V     W */
++	0xD7, 0xD8, 0xD9, 0xE2, 0xE3, 0xE4, 0xE5, 0xE6,
++    /*58   X     Y     Z     [     \     ]     ^     _ */
++	0xE7, 0xE8, 0xE9, 0xAD, 0xE0, 0xBD, 0x5F, 0x6D,
++    /*60   `     a     b     c     d     e     f     g */
++	0x79, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87,
++    /*68   h     i     j     k     l     m     n     o */
++	0x88, 0x89, 0x91, 0x92, 0x93, 0x94, 0x95, 0x96,
++    /*70   p     q     r     s     t     u     v     w */
++	0x97, 0x98, 0x99, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6,
++    /*78   x     y     z     {     |     }     ~    DL */
++	0xA7, 0xA8, 0xA9, 0xC0, 0x4F, 0xD0, 0xA1, 0x07,
++	0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F,
++	0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F,
++	0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F,
++	0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F,
++	0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F,
++	0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F,
++	0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F,
++	0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F,
++	0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F,
++	0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F,
++	0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F,
++	0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F,
++	0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F,
++	0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F,
++	0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F,
++	0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0xFF
++};
++
++/*
++ * Write blocks after converting to 512-byte blocks
++ */
++static int
++_write_block (_anchor_t *anc, void *buf, PedSector start, PedSector count)
++{
++	PedSector s = B2S (start);
++	PedSector c = B2S (count);
++
++	return ped_device_write (anc->dev, buf, s, c );
++}
++
++/*
++ * Read blocks after converting to 512-byte blocks
++ */
++static int
++_read_block (_anchor_t *anc, void *buf, PedSector start, PedSector count)
++{
++	PedSector s = B2S (start);
++	PedSector c = B2S (count);
++
++	return ped_device_read (anc->dev, buf, s, c );
++}
++
++/*
++ * Convert ASCII data to EBCDIC
++ */
++static char *
++_asc2ebc (char *target, char *source, int l)
++{
++        int i;
++
++	for (i = 0; i < l; i++) 
++	        target[i] = _a2etab[(u_int8_t)(source[i])];
++
++	return target;
++}
++
++/*
++ * Convert EBCDIC data to ASCII
++ */
++static char *
++_ebc2asc (char *target, char *source, int l)
++{
++        int i;
++
++	for (i = 0; i < l; i++) 
++	        target[i] = _e2atab[(u_int8_t)(source[i])];
++
++	return target;
++}
++
++/*
++ * Populate an extent descriptor
++ */
++static void
++_set_extent (extent_t *ext,
++	     u_int8_t typeind,
++	     u_int8_t seqno,
++	     cchh_t *lower,
++	     cchh_t *upper) 
++{ 
++        ext->typeind = typeind;
++        ext->seqno = seqno;
++        memcpy (&ext->llimit, lower, sizeof (cchh_t));
++        memcpy (&ext->ulimit, upper, sizeof (cchh_t));
++}
++
++/*
++ * Store cylinder and head in descriptor
++ */
++static void
++_set_cchh (cchh_t *addr, u_int16_t cc, u_int16_t hh)
++{
++        addr->cc = cc;
++	addr->hh = hh;
++}
++
++/*
++ * Store track and record in descriptor
++ */
++static void
++_set_ttr (ttr_t *addr, u_int16_t tt, u_int8_t r) 
++{
++        addr->tt = tt;
++	addr->r  = r;
++}
++
++/*
++ * Store cylinder, head, and block in descriptor
++ */
++static void
++_set_cchhb (cchhb_t *addr, u_int16_t cc, u_int16_t hh, u_int8_t b) 
++{
++        addr->cc = cc;
++        addr->hh = hh;
++        addr->b  = b;
++}
++
++/*
++ * Store year and day of year in descriptor
++ */
++static void
++_set_date (labeldate_t *d, u_int8_t year, u_int16_t day) 
++{
++        d->year = year;
++        d->day  = day;
++}
++
++
++/*
++ * Initializes the volume label with EBCDIC blanks
++ */
++static void
++_volume_label_init (volume_label_t *vlabel)
++{
++	memset (vlabel->volkey, ' ', 84);
++	_asc2ebc (vlabel->volkey, vlabel->volkey, 84);
++}
++
++/*
++ * Takes a string as input, converts it to uppercase, translates
++ * it to EBCDIC and fills it up with spaces before it copies it
++ * as volume serial to the volume label
++ */
++static void
++_volume_label_set_volser (volume_label_t *vlabel, char *volser)
++{
++	int i = strlen (volser);
++
++	if (i > VOLSER_LENGTH)
++		i = VOLSER_LENGTH;
++
++	memset (vlabel->volid, ' ', VOLSER_LENGTH);
++	memcpy (vlabel->volid, volser, i);
++	_asc2ebc (vlabel->volid, vlabel->volid, VOLSER_LENGTH);
++
++	return;
++}
++
++/*
++ * Sets the volume label key after converting to EBCDIC.
++ */
++static void
++_volume_label_set_key (volume_label_t *vlabel, char *key)
++{
++        _asc2ebc (vlabel->volkey, key, 4);
++        return;
++}
++
++/*
++ * sets the volume label identifier after converting to EBCDIC
++ */
++static void
++_volume_label_set_label (volume_label_t *vlabel, char *lbl)
++{
++        _asc2ebc (vlabel->vollbl, lbl, 4);
++	return;
++}
++
++/*
++ * Initialize format 4 DSCB
++ */
++static void 
++_init_format4_label (_anchor_t *anc)
++{
++	format4_label_t *f4 = anc->f4;
++	cchh_t lower = {VTOC_START_CC, VTOC_START_HH};
++	cchh_t upper = {VTOC_START_CC, VTOC_START_HH};
++
++	memset (f4, '\0', sizeof (format4_label_t));
++	memset (f4->DS4KEYCD, '\x04', sizeof (f4->DS4KEYCD));
++	f4->DS4IDFMT = 0xf4;
++
++	f4->DS4DSREC = anc->geo.sectors - 2;
++	f4->DS4NOEXT = 1;
++	
++	f4->DS4DEVCT.DS4DSCYL = anc->geo.cylinders;
++	f4->DS4DEVCT.DS4DSTRK = anc->geo.heads;
++	
++	switch (anc->dev_type)
++	{
++	case DASD_3380_TYPE:
++		f4->DS4DEVCT.DS4DEVTK = DASD_3380_VALUE;
++		break;
++	case DASD_3390_TYPE:
++		f4->DS4DEVCT.DS4DEVTK = DASD_3390_VALUE;
++		break;
++	case DASD_9345_TYPE:
++		f4->DS4DEVCT.DS4DEVTK = DASD_9345_VALUE;
++		break;
++	default:
++		f4->DS4DEVCT.DS4DEVTK = anc->geo.sectors * anc->blksize;;
++	}
++
++	f4->DS4DEVCT.DS4DEVFG = DS4DSF | DS4DEVAV;
++	f4->DS4DEVCT.DS4DEVDT = anc->geo.sectors;
++	
++	_set_extent (&f4->DS4VTOCE, EXTUSER, 0, &lower, &upper);
++
++	if ((anc->geo.cylinders * anc->geo.heads) > BIG_DISK_SIZE) {
++/* ???????	f4->DS4DSREC--; */
++		f4->DS4VTOCI = DS4DOSBT | DS4EFVLD;
++		f4->DS4EFLVL = DS4EFL07;
++		_set_cchhb(&anc->f4->DS4EFPTR, 0, 1, 3);
++	}
++
++	return;
++}
++
++/*
++ * Initialize format 5 DSCB
++ */
++static void
++_init_format5_label (_anchor_t *anc)
++{
++	memset (anc->f5, '\0', sizeof (format5_label_t));
++	memset (anc->f5->DS5KEYID, '\x05', sizeof (anc->f5->DS5KEYID));
++	anc->f5->DS5FMTID = 0xf5;
++}
++
++
++/*
++ * Initialize format 7 DSCB 
++ */
++static void
++_init_format7_label (_anchor_t *anc)
++{
++	memset (anc->f7, '\0', sizeof (format7_label_t));
++	memset (anc->f7->DS7KEYID, '\x07', sizeof (anc->f7->DS7KEYID));
++	anc->f7->DS7FMTID = 0xf7;
++}
++
++/*
++ * Initialize format 1 DSCB
++ */
++static void 
++_init_format1_label (_anchor_t *anc, extent_t *part_extent)
++{
++	format1_label_t *f1 = anc->f1;
++        struct tm *creatime;
++	time_t t;
++
++	/* get actual date */
++	t = time(NULL);
++	creatime = gmtime(&t);
++
++	memset (f1, '\0', sizeof (format1_label_t));
++	_asc2ebc (f1->DS1DSNAM,
++		  "PART    .NEW                                ",
++		  44);
++	f1->DS1FMTID = 0xf1;
++
++	_asc2ebc (f1->DS1DSSN, "      ", 6);
++	f1->DS1VOLSQ = 1;
++
++	_set_date (&f1->DS1CREDT,
++		   (u_int8_t) creatime->tm_year,
++		   (u_int16_t) creatime->tm_yday);
++
++	/* never expire */
++        _set_date (&f1->DS1EXPDT,
++		   99,
++		   365);
++
++	f1->DS1NOEPV = 1;
++	_asc2ebc (f1->DS1SYSCD, "IBM LINUX    ", 13);
++        _set_date (&f1->DS1REFD,
++		   (u_int8_t) creatime->tm_year,
++                   (u_int16_t) creatime->tm_yday);
++        f1->DS1DSRG1 = DS1DSGPS | DS1DSGU;
++        f1->DS1RECFM = DS1RECFF | DS1RECFS;
++        f1->DS1BLKL  = anc->blksize;
++        f1->DS1LRECL = anc->blksize;
++        f1->DS1DSIND = DS1IND80; /* last volume for this dataset */
++        f1->DS1SCAL1 = DS1TRK;
++        memcpy (&f1->DS1EXT1,
++		part_extent,
++		sizeof (extent_t));
++}
++
++/*
++ * Add or remove freespace from the format 5 or format 7 DSCBs
++ */
++static void
++_set_freespace (_anchor_t *anc, u_int32_t start, u_int32_t stop)
++{
++	int i;
++
++	/* convert to track addresses */
++	start = B2T (start);
++	stop  = B2T (stop);
++
++	if (anc->big_disk) {
++		ds7ext_t *ext;
++
++		/* find and populate first free extent */
++		for (i = 0; i < DS7EXTMX; i++) {
++			if (i < 5) 
++				ext = &anc->f7->DS7EXTNT[i];
++			else 
++				ext = &anc->f7->DS7ADEXT[i-5];
++	
++			if ((ext->a + ext->b) == 0) {
++				ext->a = start;
++				ext->b = stop;
++				break;
++			}
++		}
++	
++		PED_ASSERT (i != DS7EXTMX, return);
++	}
++	else {
++		ds5ext_t *ext;
++
++		/* find and populate first free extent */
++		for (i = 0; i < DS5EXTMX; i++) {
++			if (i == 0)
++				ext = &anc->f5->DS5AVEXT; 
++			else if ((i > 0) && (i < 8))
++				ext = &anc->f5->DS5EXTAV[i - 1];
++			else
++				ext = &anc->f5->DS5MAVET[i - 8];
++
++			if ((ext->t + ext->fc + ext->ft) == 0) {
++				ext->t  = start;
++				ext->fc = (stop - start + 1) / anc->geo.heads;
++				ext->ft = (stop - start + 1) % anc->geo.heads;
++				break;
++			}
++		}
++
++		PED_ASSERT (i != DS5EXTMX, return);
++	}
++}
++
++/*
++ * Convert cylinder, head, and block to relative block number
++ */
++static unsigned long
++_cchhb2blk (_anchor_t *anc, cchhb_t *p) 
++{
++        return (unsigned long) ((p->cc * anc->dev->hw_geom.heads * anc->dev->hw_geom.sectors) +
++                                (p->hh * anc->dev->hw_geom.sectors) +
++                                p->b);
++}
++
++/*
++ * Convert relative block number to cylinder, head, and block
++ */
++static void
++_blk2cchhb (_anchor_t *anc, cchhb_t *addr, unsigned long blk)
++{
++	int bpt = anc->geo.heads * anc->geo.sectors;
++
++	addr->cc =  blk / bpt;
++	addr->hh = (blk - (addr->cc * bpt)) / anc->geo.sectors;
++	addr->b  = (blk - (addr->cc * bpt)) % anc->geo.sectors;
++
++	return;
++}
++
++/*
++ * Converts cylinder and head to relative block
++ */
++static unsigned long
++_cchh2blk (_anchor_t *anc, cchh_t *p)
++{
++        return ((p->cc * anc->dev->hw_geom.heads) + p->hh) *anc->geo.sectors;
++}
++
++/*
++ * Initialize the VOL1 volume label
++ */
++static void
++_init_volume_label (_anchor_t *anc) 
++{
++	char volser[7];
++	volume_label_t *v = anc->vlabel;
++
++	sprintf (volser, "0X%04x", anc->devno);
++
++	_volume_label_init (v);
++	_volume_label_set_key (v, "VOL1");
++	_volume_label_set_label (v, "VOL1");
++
++	sprintf (volser, "0X%04x", anc->devno);
++	_volume_label_set_volser (v, volser);
++
++	_set_cchhb (&v->vtoc, VTOC_START_CC, VTOC_START_HH, VTOC_START_B);
++}
++
++/*
++ * Write the volume label and initial VTOC
++ */
++static int
++_write_labels (_anchor_t *anc)
++{
++	unsigned int	blk;
++
++	/* write bootstrap labels */
++	memcpy (anc->sect, &_ipl1, sizeof (bootstrap1_t));
++	if (!_write_block (anc, anc->sect, 0, 1))
++		return 0;
++
++	memcpy (anc->sect, &_ipl2, sizeof (bootstrap2_t));
++	if (!_write_block (anc, anc->sect, 1, 1))
++		return 0;
++
++	/* Initialize volume label */
++	_init_volume_label (anc);
++
++	/* Initialize all VTOC labels */
++	_init_format4_label (anc);
++	_init_format5_label (anc);
++	_init_format7_label (anc);
++	_set_freespace (anc,
++			FIRST_USABLE_TRK,
++			anc->geo.cylinders * anc->geo.heads - 1);
++
++	if (!_write_block (anc, anc->vlabel, anc->label_blk, 1))
++		return 0;
++
++	blk = (VTOC_START_CC * anc->geo.heads + VTOC_START_HH) * anc->geo.sectors;
++	if (!_write_block (anc, anc->f4, blk++, 1))
++		return 0;
++
++	if (!_write_block (anc, anc->f5, blk++, 1))
++		return 0;
++
++	if ((anc->geo.cylinders * anc->geo.heads) > BIG_DISK_SIZE)
++		if (!_write_block (anc, anc->f7, blk++, 1))
++			return 0;
++
++	return 1;
++}
++
++/*
++ * Formats (with user approval) an uninitialized device 
++ */
++static int
++_ask_format (_anchor_t *anc)
++{
++	format_data_t fmtd;
++	sigset_t oldset;
++	sigset_t newset;
++	sigset_t chkset;
++	int fd;
++	int rc;
++
++#ifdef DISCOVER_ONLY
++	ped_exception_throw (
++		PED_EXCEPTION_ERROR,
++		PED_EXCEPTION_CANCEL,
++		_("'%s' does not appear to be formatted."));
++	return 0;
++#else
++	if (ped_exception_throw (
++		PED_EXCEPTION_WARNING,
++		PED_EXCEPTION_YES_NO,
++		_("'%s' does not appear to be formatted.\nWould you like "
++		  "to format the device now using defaults?"),
++		anc->dev->path) != PED_EXCEPTION_YES)
++		return 0;
++
++	if (ped_exception_throw (
++		PED_EXCEPTION_WARNING,
++		PED_EXCEPTION_YES_NO,
++		_("All data on '%s' will be destroyed.\nAre you sure?"),
++		anc->dev->path) != PED_EXCEPTION_YES)
++		return 0;
++
++	ped_exception_throw (
++		PED_EXCEPTION_INFORMATION,
++		PED_EXCEPTION_OK,
++		_("Formatting '%s'..."),
++		anc->dev->path);
++
++	/* Get into external access mode */
++	if (!ped_device_begin_external_access (anc->dev))
++		return 0;
++
++	/* Try to protect from interruption */
++	rc = 0;
++	rc += sigemptyset (&newset);
++	rc += sigaddset (&newset, SIGTERM);
++	rc += sigaddset (&newset, SIGQUIT);
++	rc += sigaddset (&newset, SIGINT);
++	rc += sigprocmask (SIG_BLOCK, &newset, &oldset);
++	if (rc != 0) {
++		ped_exception_throw (
++			PED_EXCEPTION_ERROR,
++			PED_EXCEPTION_CANCEL,
++			_("Can't block signals: %d"),
++			errno);
++		goto restoremode;
++	}
++
++	/* Get at the device */
++	fd = open (anc->dev->path, O_RDWR);
++	if (fd == -1) {
++		ped_exception_throw (
++			PED_EXCEPTION_ERROR,
++			PED_EXCEPTION_CANCEL,
++			_("Unable to open %s: %d"),
++			anc->dev->path, errno);
++		goto restoresigs;
++	}
++
++	/* And disable it */
++	if (ioctl (fd, BIODASDDISABLE) != 0) {
++		ped_exception_throw (
++			PED_EXCEPTION_ERROR,
++			PED_EXCEPTION_CANCEL,
++			_("Could not disable the device: %d"),
++			errno);
++		goto closedev;
++	}
++
++	/* Invalidate first track in case process is interrupted */
++	fmtd.start_unit = 0;
++	fmtd.stop_unit  = 0;
++	fmtd.blksize = MAX_BLKSIZE;
++	fmtd.intensity  = DASD_FMT_INT_COMPAT | DASD_FMT_INT_INVAL;
++	if (ioctl (fd, BIODASDFMT, &fmtd) != 0) {
++		ped_exception_throw (
++			PED_EXCEPTION_ERROR,
++			PED_EXCEPTION_CANCEL,
++			_("Unable to invalidate track 0: %d"),
++			errno);
++		goto reenable;
++	}
++
++	/* Set format parms for full cylinder format */
++	fmtd.stop_unit  = anc->geo.cylinders * anc->geo.heads - 1;
++	fmtd.start_unit = fmtd.stop_unit - anc->geo.heads + 1;
++	fmtd.intensity  = DASD_FMT_INT_COMPAT;
++
++	/* From end to beginning (revalidates track 0) */
++	while (fmtd.start_unit >= 0) {
++
++		/* provide a little feedback */
++		if (!((fmtd.start_unit / anc->geo.heads) % 100)) {
++			ped_exception_throw (
++				PED_EXCEPTION_INFORMATION,
++				PED_EXCEPTION_OK,
++				_("Cylinder %d : Tracks %d - %d"),
++				fmtd.start_unit / anc->geo.heads,
++				fmtd.start_unit,
++				fmtd.stop_unit );
++		}
++
++		/* check for interruptions */
++		sigemptyset (&chkset);
++		sigpending (&chkset);
++
++		if (sigismember (&chkset, SIGTERM) ||
++		    sigismember (&chkset, SIGQUIT) ||
++		    sigismember (&chkset, SIGINT)) {
++			if (ped_exception_throw (
++				PED_EXCEPTION_WARNING,
++				PED_EXCEPTION_YES_NO,
++				_("Are you sure you want to interrupt"
++				  "the format?\n")) == PED_EXCEPTION_YES)
++				goto reenable;
++
++			/* reset pending signals */
++			sigprocmask (SIG_UNBLOCK, &newset, NULL );
++			sigprocmask (SIG_BLOCK, &newset, NULL );
++		}
++
++		/* Wipe it out and bump to next */
++		if (ioctl (fd, BIODASDFMT, &fmtd) != 0) {
++			ped_exception_throw (
++				PED_EXCEPTION_ERROR,
++				PED_EXCEPTION_CANCEL,
++				_("Format failed for cylinder %d: %d"),
++				fmtd.start_unit / anc->geo.heads,
++				errno);
++			goto reenable;
++		}
++		fmtd.start_unit -= anc->geo.heads;
++		fmtd.stop_unit -= anc->geo.heads;
++	}
++
++	/* Recalculate geometry based info */
++	anc->blksize = fmtd.blksize;
++	anc->spb = anc->blksize / PED_SECTOR_SIZE_DEFAULT;
++
++	/* This part was good anyway */
++	rc = 1;
++
++reenable:
++	ioctl (fd, BIODASDENABLE);
++
++closedev:
++	close (fd);
++
++restoresigs:
++	sigprocmask (SIG_SETMASK, &oldset, NULL);
++
++restoremode:
++	if (!ped_device_end_external_access (anc->dev))
++		return 0;
++
++	/* Lay down the default labels */
++	if (rc == 1)
++		return _write_labels (anc);
++
++	return 0;
++#endif
++}
++
++/*
++ * Retrieve device metrics (can't trust dev->* values)
++ */
++static int
++_dasd_info (const PedDevice *dev, dasd_information2_t *di, int *ss, hd_geometry_t *geo, unsigned long *len)
++{
++	int fd;
++	int rc = 0;
++
++	if (!ped_device_begin_external_access ((PedDevice *)dev))
++		return 0;
++
++	fd = open (dev->path, O_RDONLY);
++	if (fd == -1) {
++		ped_device_end_external_access ((PedDevice *)dev);
++		return 0;
++	}
++
++	if (rc == 0 && di != NULL)
++		rc = ioctl (fd, BIODASDINFO2, di);
++
++	if (rc == 0 && ss != NULL)
++		rc = ioctl (fd, BLKSSZGET, ss);
++
++	if (rc == 0 && geo != NULL)
++		rc = ioctl (fd, HDIO_GETGEO, geo);
++
++	if (rc == 0 && len != NULL)
++		rc = ioctl (fd, BLKGETSIZE, len);
++
++	close (fd);
++
++	if (!ped_device_end_external_access ((PedDevice *)dev))
++		return 0;
++
++	return rc == 0;
++}
++
++/*
++ *
++ */
++int
++s390_probe (const PedDevice *dev)
++{
++	dasd_information2_t	di;
++
++	if (_dasd_info (dev, &di, NULL, NULL, NULL)) {
++		if (strncmp (di.type, "ECKD", 4) == 0)
++			return 1;
++	}
++
++	return 0;
++}
++
++#ifndef DISCOVER_ONLY
++int
++s390_clobber (PedDevice *dev)
++{
++	char			*sect;
++	PedSector		i;
++	int			ss;
++	int			spb;
++	hd_geometry_t		geo;
++	dasd_information2_t	di;
++
++	PED_ASSERT (dev != NULL, return 0);
++
++	if (!_dasd_info (dev, &di, &ss, &geo, NULL))
++		return 0;
++
++	if (di.FBA_layout)
++		return 1;
++
++	sect = ped_malloc (MAX_BLKSIZE);
++	if (sect == NULL)
++		return 0;
++
++	memset (sect, '\0', MAX_BLKSIZE);
++
++	spb = ss / PED_SECTOR_SIZE_DEFAULT;
++	i = VTOC_START_HH * geo.sectors;
++	while (i < FIRST_USABLE_TRK * geo.sectors) {
++		if (!ped_device_write ((PedDevice *)dev,
++				       sect,
++				       i * spb,
++				       spb)) {
++			break;
++		}
++
++		i++;
++	}
++
++	ped_free (sect);
++
++	return i == FIRST_USABLE_TRK * geo.sectors;
++}
++#endif /* !DISCOVER_ONLY */
++
++PedDisk *
++s390_alloc (const PedDevice *dev)
++{
++	_anchor_t		*anc;
++	dasd_information2_t	di;
++	PedDisk			*disk;
++
++	PED_ASSERT (dev != NULL, return 0);
++
++	disk = _ped_disk_alloc (dev, &s390_disk_type);
++	if (!disk)
++		return 0;
++
++	disk->disk_specific = ped_malloc (sizeof (_anchor_t));
++	if (!disk->disk_specific)
++		goto ancmem;
++
++	anc = disk->disk_specific;
++	memset (anc, '\0', sizeof (_anchor_t));
++
++	if (!_dasd_info (dev, &di, &anc->blksize, &anc->geo, &anc->len))
++		goto dierror;
++
++	anc->dev	= (PedDevice *)dev;
++	anc->devno	= di.devno;
++	anc->dev_type	= di.dev_type;
++	anc->format	= di.format;
++	anc->spb	= anc->blksize / PED_SECTOR_SIZE_DEFAULT;
++	anc->label_blk	= di.label_block;
++	anc->big_disk	= ((anc->geo.cylinders * anc->geo.heads) > BIG_DISK_SIZE);
++
++	anc->sect = ped_malloc (MAX_BLKSIZE);
++	if (anc->sect == NULL)
++		goto sectmem;
++
++	anc->vlabel = ped_malloc (MAX_BLKSIZE);
++	if (anc->vlabel == NULL) 
++		goto vlabmem;
++
++	anc->f4 = ped_malloc (MAX_BLKSIZE);
++	if (anc->f4 == NULL)
++		goto fmt4mem;
++
++	anc->f5 = ped_malloc (MAX_BLKSIZE);
++	if (anc->f5 == NULL)
++		goto fmt5mem;
++
++	anc->f7 = ped_malloc (MAX_BLKSIZE);
++	if (anc->f7 == NULL)
++		goto fmt7mem;
++
++	anc->f1 = ped_malloc (MAX_BLKSIZE);
++	if (anc->f1 == NULL)
++		goto fmt1mem;
++
++	return disk;
++
++fmt1mem:
++	ped_free (anc->f7);
++
++fmt7mem:
++	ped_free (anc->f5);
++
++fmt5mem:
++	ped_free (anc->f4);
++
++fmt4mem:
++	ped_free (anc->vlabel);
++
++vlabmem:
++	ped_free (anc->sect);
++
++sectmem:
++	/* nothing to do here */
++
++dierror:
++	ped_free (anc);
++
++ancmem:
++	_ped_disk_free (disk);
++
++        return NULL;
++}
++
++static PedDisk *
++s390_duplicate (const PedDisk *disk)
++{
++	return ped_disk_new_fresh (disk->dev, &s390_disk_type);
++}
++
++static void
++s390_free (PedDisk *disk)
++{
++	_anchor_t *anc;
++
++	PED_ASSERT (disk != NULL, return);
++	
++	anc = disk->disk_specific;
++        if (anc == NULL)
++		return;
++
++	if (anc->sect != NULL)
++		ped_free (anc->sect);
++	if (anc->vlabel != NULL)
++		ped_free (anc->vlabel);
++	if (anc->f4 != NULL)
++		ped_free (anc->f4);
++	if (anc->f5 != NULL)
++		ped_free (anc->f5);
++	if (anc->f7 != NULL)
++		ped_free (anc->f7);
++	if (anc->f1 != NULL)
++		ped_free (anc->f1);
++
++	ped_free (anc);
++
++	_ped_disk_free (disk);
++}
++
++static int
++_read_eckd (_anchor_t *anc, PedDisk *disk)
++{
++	format1_label_t		*f1;
++	PedPartition		*part;
++	PedConstraint		*constraint;
++	PedSector		end;
++	PedSector		start;
++        PedSector		b;
++	int			rc;
++	char			str[4];
++	char			dsn[45];
++
++retry:
++	if (!_read_block (anc, anc->vlabel, anc->label_blk, 1))
++		goto recover;
++
++	_asc2ebc (str, "VOL1", 4);
++	if (strncmp (anc->vlabel->vollbl, str, 4))
++		goto recover;
++
++	b = _cchhb2blk (anc, &anc->vlabel->vtoc) - 1;
++	if (b == 0)
++		goto recover;
++
++	if (!_read_block (anc, anc->f4, b++, 1))
++		goto recover;
++
++	if (anc->f4->DS4IDFMT != 0xf4)
++		goto recover;
++	
++	if (!_read_block (anc, anc->f5, b++, 1))
++		goto recover;
++
++	if (anc->f5->DS5FMTID != 0xf5)
++		goto recover;
++
++	if (anc->big_disk) {
++		if (!_read_block (anc, anc->f7, b++, 1))
++			goto recover;
++
++		if (anc->f7->DS7FMTID != 0xf7)
++			goto recover;
++	}
++
++	/*
++	 * Create partitions described by the F1 DSCBs.
++	 *
++	 * Note: The kernel stops looking for F1s when it finds a non-F1
++	 *       DSCB, while fdasd scans all blocks in the VTOC.  We'll
++	 *       opt for the kernel approach.
++	 */
++	f1 = anc->sect;
++	while (b < FIRST_USABLE_BLK) {
++		if (!_read_block (anc, f1, b++, 1))
++			return 0;
++
++		if (f1->DS1FMTID != 0xf1)
++			break;
++
++		start = B2S (_cchh2blk (anc, &f1->DS1EXT1.llimit));
++		end   = B2S (_cchh2blk (anc, &f1->DS1EXT1.ulimit) +
++			     anc->geo.sectors) - 1;
++
++		part = ped_partition_new (disk, 0, NULL, start, end);
++		if (!part)
++			return 0;
++
++		_ebc2asc (dsn, f1->DS1DSNAM, 44);
++		dsn[44] = ' ';
++		*(strchr (dsn, ' ')) = '\0';
++		ped_partition_set_name (part, dsn);
++
++		part->fs_type = ped_file_system_probe (&part->geom);
++
++		rc = 0;
++		constraint = ped_constraint_exact (&part->geom);
++		if (constraint) {
++			rc = ped_disk_add_partition (disk,
++						     part,
++						     constraint);
++			ped_constraint_destroy (constraint);
++		}
++
++		if (!rc) {
++			ped_partition_destroy (part);
++			return 0;
++		}
++	}
++
++	return 1;
++
++recover:
++	/*
++	 * This is where we'd put the VTOC recovery code.  But, for now
++	 * we just complain.
++	 */
++
++#ifdef DISCOVER_ONLY
++	ped_exception_throw (
++		PED_EXCEPTION_ERROR,
++		PED_EXCEPTION_CANCEL,
++		_("The VTOC appears to be missing or corrupted"));
++	return 0;	
++#else
++	if (ped_exception_throw (
++		PED_EXCEPTION_WARNING,
++		PED_EXCEPTION_YES_NO,
++		_("The VTOC appears to be missing or corrupted.\nWould you like "
++		  "to write a new VTOC now?")) != PED_EXCEPTION_YES)
++		return 0;
++
++	return _write_labels (anc);
++#endif
++}
++
++static int
++s390_read (PedDisk *disk)
++{
++	_anchor_t		*anc;
++	format1_label_t		*f1;
++	PedPartition		*part;
++	PedConstraint		*constraint;
++	PedSector		end;
++	PedSector		start;
++        PedSector		b;
++	int			rc;
++	char			str[4];
++	char			dsn[45];
++
++	PED_ASSERT (disk != NULL, return 0);
++	PED_ASSERT (disk->dev != NULL, return 0);
++	PED_ASSERT (disk->disk_specific != NULL, return 0);
++	
++	ped_disk_delete_all (disk);
++
++	anc = disk->disk_specific;
++
++	return _read_eckd (anc, disk);
++}
++
++#ifndef DISCOVER_ONLY
++static int
++s390_write (PedDisk *disk)
++{
++	_anchor_t		*anc;
++	format1_label_t		*f1;
++	partition_info_t	*info;
++	PedPartition		*part;
++	cchh_t			llimit;
++	cchh_t			ulimit;
++	extent_t		ext;
++	PedSector		b;
++	unsigned long		lower;
++	unsigned long		upper;
++
++	PED_ASSERT (disk != NULL, return 0);
++	PED_ASSERT (disk->dev != NULL, return 0);
++	PED_ASSERT (disk->disk_specific != NULL, return 0);
++
++	anc = disk->disk_specific;
++
++	/* Initialize volume label */
++	_init_volume_label (anc);
++	b = _cchhb2blk (anc, &anc->vlabel->vtoc) - 1;
++
++	/* Initialize all VTOC labels */
++	_init_format4_label (anc);
++	b++;
++
++	_init_format5_label (anc);
++	b++;
++
++	_init_format7_label (anc);
++	if (anc->big_disk)
++		b++;
++
++	/* look for freespace and normal partitions */
++	f1 = anc->f1;
++	for (part = ped_disk_next_partition (disk, NULL); part;
++	     part = ped_disk_next_partition (disk, part)) {
++
++		/*
++		 * Note: The end block will be the block at the end of the
++		 *       track.  But, it will be dropped when converting to
++		 *       the track address, which is what we want.
++		 */
++		if (part->type == PED_PARTITION_FREESPACE) {
++			_set_freespace (anc,
++					S2B (part->geom.start),
++					S2B (part->geom.end));
++
++			continue;
++		}
++
++		if (part->type != PED_PARTITION_NORMAL)
++			continue;
++
++		/* convert starting and ending sectors to tracks */
++		lower = S2T (part->geom.start);
++		upper = S2T (part->geom.end);
++
++		/* set the start of the partition */
++		_set_cchh (&llimit,
++			   lower / anc->geo.heads,
++			   lower % anc->geo.heads);
++
++		/* and the end of the partition */
++		_set_cchh (&ulimit,
++			   upper / anc->geo.heads, 
++			   upper % anc->geo.heads);
++
++		/* build the extent */
++		_set_extent (&ext,
++			     (llimit.hh == 0 ? EXTCYLB : EXTUSER),
++			     0,
++			     &llimit,
++			     &ulimit);
++
++		/* start with a clean slate*/
++		_init_format1_label (anc, &ext);
++
++		/* set last track/record used */
++		_set_ttr (&f1->DS1LSTAR,
++			  upper - lower,
++			  anc->geo.sectors);
++
++		/* Populate volser and dataset name */
++		info = part->disk_specific;
++		memcpy (f1->DS1DSSN, anc->vlabel->volid, 6);
++		memset (f1->DS1DSNAM, ' ', 44);
++		memcpy (f1->DS1DSNAM, info->dsn, strlen (info->dsn));
++		_asc2ebc (f1->DS1DSNAM, f1->DS1DSNAM, 44);
++
++		/* Write the block */
++		if (!_write_block (anc, f1, b++, 1))
++			goto failure;
++
++		/* Set location of highest format 1 and remaing DSCB count */
++		_blk2cchhb (anc, &anc->f4->DS4HPCHR, b);
++		anc->f4->DS4DSREC--;
++	}
++
++	/* Set remaining DSCBs to format 0.
++	 *
++	 * Note:  The kernel doesn't use the F4, F5, or F7 and stops
++	 *        scanning for F1s as soon as it finds a non-F1 FMTID.
++	 *        So, one F0 would suffice.  But, fdasd scans for the 3
++	 *        possible F1s, ignoring F0s.  Just to be safe, we'll
++	 *        write format-0s to the rest.
++	 */
++	memset (anc->sect, '\0', MAX_BLKSIZE);
++	while (b < FIRST_USABLE_BLK)
++		if (!_write_block (anc, anc->sect, b++, 1))
++			goto failure;;
++
++	/* write format 4 DSCB */
++	b = _cchhb2blk (anc, &anc->vlabel->vtoc) - 1;
++	if (!_write_block (anc, anc->f4, b++, 1))
++		goto failure;
++
++	/* write format 5 DSCB */
++	if (!_write_block (anc, anc->f5, b++, 1))
++		goto failure;
++
++	/* write format 7 DSCB */
++	if (anc->big_disk)
++		if (!_write_block (anc, anc->f7, b++, 1))
++			goto failure;
++
++	return 1;
++
++failure:
++	ped_exception_throw (
++		PED_EXCEPTION_ERROR,
++		PED_EXCEPTION_CANCEL,
++		_("Write of VTOC failed and VTOC is incomplete"));
++
++	/*
++	 * Would be a nice place to dump the blocks to a file somewhere
++	 * so the user can recover manually with "dd" or some such.
++	 */
++
++	return 0;
++}
++#endif /* !DISCOVER_ONLY */
++
++static PedPartition *
++_find_dsn (const PedDisk *disk, char *dsn)
++{
++	partition_info_t	*info;
++	PedPartition		*part;
++	
++	for (part = ped_disk_next_partition (disk, NULL); part;
++	     part = ped_disk_next_partition (disk, part)) {
++		info = part->disk_specific;
++		if ((part->type != PED_PARTITION_NORMAL) || !info)
++			continue;
++
++		if (strcmp (info->dsn, dsn) == 0)
++			return part;
++	}
++
++	return NULL;
++}
++
++static PedPartition *
++s390_partition_new (const PedDisk *disk,
++		    PedPartitionType part_type,
++		    const PedFileSystemType *fs_type,
++		    PedSector start,
++		    PedSector end)
++{
++	_anchor_t		*anc;
++	PedPartition		*part;
++	partition_info_t	*info;
++	int			i;
++	char			volid[7];
++
++	PED_ASSERT (disk != NULL, return NULL);
++	PED_ASSERT (disk->disk_specific != NULL, return NULL);
++
++	anc = disk->disk_specific;
++	
++	part = _ped_partition_alloc (disk, part_type, fs_type, start, end);
++	if (!part)
++		return NULL;
++
++	part->disk_specific = NULL;
++        if (ped_partition_is_active (part)) {
++
++		info = ped_malloc (sizeof (partition_info_t));
++		if (!info) {
++			ped_free (part);
++			return NULL;
++		}
++
++		memset (info, '\0', sizeof (partition_info_t));
++
++		for (i = 1; i < 999; i++) {
++			_ebc2asc (volid, anc->vlabel->volid, 6);
++			volid[6] = ' ';
++			*(strchr (volid, ' ')) = '\0';
++
++			sprintf (info->dsn,
++				 "LINUX.V%s.PART%04u.NATIVE",
++				 volid,
++				 i);
++
++			if (!_find_dsn (disk, info->dsn))
++				break;
++		}
++
++		part->disk_specific = info;
++	}
++
++	return part;
++}
++
++static PedPartition *
++s390_partition_duplicate (const PedPartition *part)
++{
++	PedPartition		*new;
++
++	PED_ASSERT (part != NULL, return 0);
++
++	new = ped_partition_new (part->disk,
++				 part->type,
++				 part->fs_type,
++				 part->geom.start,
++				 part->geom.end);
++	if (!new)
++		return NULL;
++
++	new->num = part->num;
++
++	if (part->disk_specific)
++		memcpy (new->disk_specific,
++			part->disk_specific,
++			sizeof (partition_info_t));
++
++	return new;
++}
++
++static void
++s390_partition_destroy (PedPartition *part)
++{
++	PED_ASSERT (part != NULL, return);
++
++	if (ped_partition_is_active (part))
++		if (part->disk_specific)
++			ped_free (part->disk_specific);
++
++	_ped_partition_free (part);
++}
++
++static int
++s390_partition_set_system (PedPartition *part, const PedFileSystemType *fs_type)
++{
++	PED_ASSERT (part != NULL, return 0);
++	PED_ASSERT (part->disk != NULL, return 0);
++
++	part->fs_type = fs_type;
++
++	return 1;
++}
++
++static int
++s390_partition_set_flag (PedPartition *part, PedPartitionFlag flag, int state)
++{
++	return 0;
++}
++
++static int
++s390_partition_get_flag (const PedPartition *part, PedPartitionFlag flag)
++{
++	return 0;
++}
++
++/*
++ * Make certain partitions start and end on a track boundary.
++ */
++static PedConstraint *
++_get_strict_constraint (_anchor_t *anc)
++{
++	PedDevice*	dev = anc->dev;
++        PedAlignment    start_align;
++        PedAlignment    end_align;
++        PedGeometry     max_geom;
++	PedSector	sector = B2S (anc->geo.sectors);
++
++        if (!ped_alignment_init (&start_align, 0, sector))
++		return NULL;
++
++        if (!ped_alignment_init (&end_align, -1, sector))
++                return NULL;
++
++	if (!ped_geometry_init (&max_geom,
++				dev,
++				B2S(FIRST_USABLE_BLK),
++				dev->length - B2S(FIRST_USABLE_BLK)))
++		return NULL;
++
++	return ped_constraint_new (&start_align,
++				   &end_align,
++				   &max_geom,
++				   &max_geom,
++				   B2S (anc->geo.sectors),
++				   dev->length);
++}
++
++static int
++s390_partition_align (PedPartition* part, const PedConstraint* constraint)
++{
++	_anchor_t	*anc;
++
++	PED_ASSERT (part != NULL, return 0);
++	PED_ASSERT (part->disk != NULL, return 0);
++	PED_ASSERT (part->disk->disk_specific != NULL, return 0);
++
++	anc = part->disk->disk_specific;
++
++	if (_ped_partition_attempt_align (part,
++					  constraint,
++					  _get_strict_constraint (anc)))
++	       	return 1;
++
++#ifndef DISCOVER_ONLY
++	ped_exception_throw (
++		PED_EXCEPTION_ERROR,
++		PED_EXCEPTION_CANCEL,
++		_("Unable to satisfy all constraints on the partition."));
++#endif
++	return 0;
++}
++
++static int
++s390_partition_is_flag_available (const PedPartition* part,
++	       			  PedPartitionFlag flag)
++{
++	return 0;
++}
++
++/*
++ * Allow user to change the dataset name.
++ *
++ * Note:  The kernel doesn't use the dataset name at all, so it's mainly for 
++ *        the CDL.  However, fdasd does place some restrictions on it, so
++ *        if you will be using fdasd in addition to parted, you should 
++ *        follow these rules.
++ *
++ *        1)  First 7 characters can be anything
++ *        2)  Next 0-6 characters can be anything, but, if it's used to
++ *            to update the VTOC, fdasd will replace them with the volser
++ *        3)  Next 1 character must be "."
++ *        4)  Next 0-? characters can be anything
++ *        5)  Next 4 characters must be "PART"
++ *        6)  Next 4 characters must be numeric and greather than zero
++ *        7)  Next 1 character must be "." (dataset name rule)
++ *        8)  Next 6 characters "should" be "NATIVE" or "SWAP  "
++ *        9)  Remaining characters are padded with blanks
++ *        10) Last 6 characters are unusable
++ *
++ *        The s390 plugin in the evms package does not seem to parse or
++ *        depend on the dataset name content.  However, it does create
++ *        fdasd style dataset names.
++ *
++ *        Remember though that these are "artifical" restrictions and if
++ *        fdasd is not used, then the dataset name can be anything as long
++ *        as it follows standard dataset name rules.  This is what we verify
++ *        here.
++ */
++static void
++s390_partition_set_name (PedPartition *part, const char *name)
++{
++	partition_info_t	*info;
++	PedPartition		*p;
++	char			*s;
++	char			*d;
++	int			c;
++	int			ql;
++	int			sawblank;
++	char			dsn[45];
++
++	PED_ASSERT (part != NULL, return);
++	PED_ASSERT (part->disk != NULL, return);
++	PED_ASSERT (part->disk_specific != NULL, return);
++
++	info = part->disk_specific;
++
++	if (strlen (name) > 44)
++		goto badformat;
++
++	sawblank = 0;
++	c = 0;
++	ql = 0;
++	d = dsn;
++
++	for (s = (char *)name; *s != '\0'; s++) {
++		if (*s == ' ') {
++			sawblank = 1;
++			continue;
++		}
++
++		if (sawblank)
++			goto badformat;
++
++		c = *s;
++		*d++ = c;
++
++		if (c == '.') {
++			if (ql < 1)
++				goto badformat;
++
++			ql = 0;
++			continue;
++		}
++
++		ql++;
++		if (strchr ("ABCDEFGHIJKLMNOPQRSTUVWXYZ#@$", c) == 0) {
++			if (ql == 1) {
++				goto badformat;
++			}
++
++			if (strchr ("0123456789-{", c) == 0)
++				goto badformat;
++		}
++	}
++
++	if (c == '.')
++		goto badformat;
++
++	*d = '\0';
++	p = _find_dsn (part->disk, dsn);
++	if (p) {
++		ped_exception_throw (
++			PED_EXCEPTION_ERROR,
++			PED_EXCEPTION_CANCEL,
++			_("Partition %d is already using %s"),
++			p->num,
++			dsn);
++		return;
++	}
++
++	strcpy (info->dsn, dsn);
++
++	return;
++
++badformat:
++	ped_exception_throw (
++		PED_EXCEPTION_ERROR,
++		PED_EXCEPTION_CANCEL,
++		_("Partition name doesn't follow standard data set naming rules"));
++
++	return;
++}
++
++static const char *
++s390_partition_get_name (const PedPartition *part)
++{
++	partition_info_t	*info;
++
++	PED_ASSERT (part != NULL, return NULL);
++	PED_ASSERT (part->disk_specific != NULL, return NULL);
++
++	info = part->disk_specific;
++
++	return info->dsn;
++}
++
++static int
++s390_partition_enumerate (PedPartition *part)
++{
++	int		i;
++	PedPartition	*p;
++
++	PED_ASSERT (part != NULL, return 0);
++
++	/* never change the partition numbers */
++	if (part->num != -1)
++		return 1;
++
++	for (i = 1; i <= USABLE_PARTITIONS; i++) {
++		p = ped_disk_get_partition (part->disk, i);
++		if (!p) {
++			part->num = i;
++			return 1;
++		}
++	}
++
++	/* failed to allocate a number */
++#ifndef DISCOVER_ONLY
++	ped_exception_throw (
++		PED_EXCEPTION_ERROR,
++		PED_EXCEPTION_CANCEL,
++		_("Unable to allocate an s390 disklabel slot"));
++#endif
++	return 1;
++}
++
++static int
++s390_alloc_metadata (PedDisk *disk)
++{
++	_anchor_t	*anc;
++	PedPartition	*part;
++	PedConstraint	*constraint;
++	int		rc = 0;
++
++	PED_ASSERT (disk != NULL, return 0);
++	PED_ASSERT (disk->disk_specific != NULL, return 0);
++
++	anc = disk->disk_specific;
++
++	part = ped_partition_new (disk,
++				  PED_PARTITION_METADATA,
++				  NULL,
++				  0,
++				  B2S(FIRST_USABLE_TRK * anc->geo.sectors) - 1);
++	if (!part)
++		return 0;
++
++	rc = 0;
++	constraint = ped_constraint_exact (&part->geom);
++	if (constraint) {
++		rc = ped_disk_add_partition (disk, part, constraint);
++		ped_constraint_destroy (constraint);
++	}
++
++	if (rc)
++		return 1;
++
++	ped_partition_destroy (part);
++
++	return 0;
++}
++
++static int
++s390_get_max_primary_partition_count (const PedDisk *disk)
++{
++	_anchor_t	*anc;
++
++	PED_ASSERT (disk != NULL, return 0);
++	PED_ASSERT (disk->disk_specific != NULL, return 0);
++
++	anc = disk->disk_specific;
++
++	if (anc->format == DASD_FORMAT_LDL)
++		return 1;
++
++	return USABLE_PARTITIONS;
++}
++
++static PedDiskOps s390_disk_ops = {
++	probe:				s390_probe,
++#ifndef DISCOVER_ONLY
++	clobber:			s390_clobber,
++#else
++	clobber:			NULL,
++#endif
++	alloc:				s390_alloc,
++	duplicate:			s390_duplicate,
++	free:				s390_free,
++	read:				s390_read,
++#ifndef DISCOVER_ONLY
++	write:				s390_write,
++#else
++	write:				NULL,
++#endif
++
++	partition_new:			s390_partition_new,
++	partition_duplicate:		s390_partition_duplicate,
++	partition_destroy:		s390_partition_destroy,
++	partition_set_system:		s390_partition_set_system,
++	partition_set_flag:		s390_partition_set_flag,
++	partition_get_flag:		s390_partition_get_flag,
++	partition_is_flag_available:	s390_partition_is_flag_available,
++	partition_set_name:		s390_partition_set_name,
++	partition_get_name:		s390_partition_get_name,
++	partition_align:		s390_partition_align,
++	partition_enumerate:		s390_partition_enumerate,
++
++	alloc_metadata:			s390_alloc_metadata,
++	get_max_primary_partition_count:s390_get_max_primary_partition_count
++};
++
++static PedDiskType s390_disk_type = {
++	next:				NULL,
++	name:				"s390",
++	ops:				&s390_disk_ops,
++	features:			PED_DISK_TYPE_PARTITION_NAME
++};
++
++void
++ped_disk_s390_init ()
++{
++	ped_register_disk_type (&s390_disk_type);
++}
++
++void
++ped_disk_s390_done ()
++{
++	ped_unregister_disk_type (&s390_disk_type);
++}
++
+diff -urNad parted-1.7.1~/libparted/labels/s390.h parted-1.7.1/libparted/labels/s390.h
+--- parted-1.7.1~/libparted/labels/s390.h	1970-01-01 01:00:00.000000000 +0100
++++ parted-1.7.1/libparted/labels/s390.h	2006-05-30 20:26:33.000000000 +0200
+@@ -0,0 +1,441 @@
++/*
++    libparted - a library for manipulating disk partitions
++    Copyright (C) 2004 Free Software Foundation, Inc.
++
++    This program is free software; you can redistribute it and/or modify
++    it under the terms of the GNU General Public License as published by
++    the Free Software Foundation; either version 2 of the License, or
++    (at your option) any later version.
++
++    This program is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++    GNU General Public License for more details.
++
++    You should have received a copy of the GNU General Public License
++    along with this program; if not, write to the Free Software
++    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++
++    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
++    Portions of this file were copied from the Linux kernel source tree and
++    modified for use in libparted.  Some of those portions held the
++    following copyright:
++ 
++    (C) IBM Corporation, IBM Deutschland Entwicklung GmbH, 1999,2000
++    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
++ */
++
++/********************************************************************************
++ * SECTION: DASD device driver interface
++ *          (linux/include/asm-s390/dasd.h)
++ *******************************************************************************/
++#define DASD_IOCTL_LETTER 'D'
++
++#define DASD_API_VERSION 5
++
++/* 
++ * struct dasd_information2_t
++ * represents any data about the device, which is visible to userspace.
++ *  including foramt and featueres.
++ */
++typedef struct dasd_information2_t {
++        unsigned int devno;         /* S/390 devno */
++        unsigned int real_devno;    /* for aliases */
++        unsigned int schid;         /* S/390 subchannel identifier */
++        unsigned int cu_type  : 16; /* from SenseID */
++        unsigned int cu_model :  8; /* from SenseID */
++        unsigned int dev_type : 16; /* from SenseID */
++        unsigned int dev_model : 8; /* from SenseID */
++        unsigned int open_count; 
++        unsigned int req_queue_len; 
++        unsigned int chanq_len;     /* length of chanq */
++        char type[4];               /* from discipline.name, 'none' for unknown */
++        unsigned int status;        /* current device level */
++        unsigned int label_block;   /* where to find the VOLSER */
++        unsigned int FBA_layout;    /* fixed block size (like AIXVOL) */
++        unsigned int characteristics_size;
++        unsigned int confdata_size;
++        char characteristics[64];   /* from read_device_characteristics */
++        char configuration_data[256]; /* from read_configuration_data */
++        unsigned int format;          /* format info like formatted/cdl/ldl/... */
++        unsigned int features;        /* dasd features like 'ro',...            */
++        unsigned int reserved0;       /* reserved for further use ,...          */
++        unsigned int reserved1;       /* reserved for further use ,...          */
++        unsigned int reserved2;       /* reserved for further use ,...          */
++        unsigned int reserved3;       /* reserved for further use ,...          */
++        unsigned int reserved4;       /* reserved for further use ,...          */
++        unsigned int reserved5;       /* reserved for further use ,...          */
++        unsigned int reserved6;       /* reserved for further use ,...          */
++        unsigned int reserved7;       /* reserved for further use ,...          */
++} dasd_information2_t;
++
++/*
++ * values to be used for dasd_information_t.format
++ * 0x00: NOT formatted
++ * 0x01: Linux disc layout
++ * 0x02: Common disc layout
++ */
++#define DASD_FORMAT_NONE 0
++#define DASD_FORMAT_LDL  1
++#define DASD_FORMAT_CDL  2
++
++#define DASD_PARTN_BITS  2
++
++/* 
++ * struct format_data_t
++ * represents all data necessary to format a dasd
++ */
++typedef struct format_data_t {
++	int start_unit; /* from track */
++	int stop_unit;  /* to track */
++	int blksize;    /* sectorsize */
++        int intensity;  
++} format_data_t;
++
++/*
++ * values to be used for format_data_t.intensity
++ * 0/8: normal format
++ * 1/9: also write record zero
++ * 3/11: also write home address
++ * 4/12: invalidate track
++ */
++#define DASD_FMT_INT_FMT_R0 1 /* write record zero */
++#define DASD_FMT_INT_FMT_HA 2 /* write home address, also set FMT_R0 ! */
++#define DASD_FMT_INT_INVAL  4 /* invalidate tracks */
++#define DASD_FMT_INT_COMPAT 8 /* use OS/390 compatible disk layout */
++
++/********************************************************************************
++ * SECTION: Definition of IOCTLs
++ *
++ * Here ist how the ioctl-nr should be used:
++ *    0 -   31   DASD driver itself
++ *   32 -  239   still open
++ *  240 -  255   reserved for EMC 
++ *******************************************************************************/
++
++/* Disable the volume (for Linux) */
++#define BIODASDDISABLE _IO(DASD_IOCTL_LETTER,0) 
++/* Enable the volume (for Linux) */
++#define BIODASDENABLE  _IO(DASD_IOCTL_LETTER,1)  
++
++/* retrieve API version number */
++#define DASDAPIVER     _IOR(DASD_IOCTL_LETTER,0,int)
++/* Get information on a dasd device (enhanced) */
++#define BIODASDINFO2   _IOR(DASD_IOCTL_LETTER,3,dasd_information2_t)
++/* Format dasd device */
++#define BIODASDFMT     _IOW(DASD_IOCTL_LETTER,1,format_data_t) 
++
++/********************************************************************************
++ * SECTION: VTOC label information
++ *          (linux/include/asm-s390/vtoc.h)
++ *******************************************************************************/
++
++#define LINE_LENGTH 80
++#define VTOC_START_CC 0x0
++#define VTOC_START_HH 0x1
++#define VTOC_START_B  0x1
++#define FIRST_USABLE_CYL 1
++#define FIRST_USABLE_TRK 2
++
++#define DASD_3380_TYPE 13148
++#define DASD_3390_TYPE 13200
++#define DASD_9345_TYPE 37701
++
++#define DASD_3380_VALUE 0xbb60
++#define DASD_3390_VALUE 0xe5a2
++#define DASD_9345_VALUE 0xbc98
++
++#define VOLSER_LENGTH 6
++#define BIG_DISK_SIZE 0x10000
++
++#define VTOC_ERROR "VTOC error:"
++
++
++typedef struct ttr 
++{
++        u_int16_t tt;
++        u_int8_t  r;
++} __attribute__ ((packed)) ttr_t;
++
++typedef struct cchhb 
++{
++        u_int16_t cc;
++        u_int16_t hh;
++        u_int8_t b;
++} __attribute__ ((packed)) cchhb_t;
++
++typedef struct cchh 
++{
++        u_int16_t cc;
++        u_int16_t hh;
++} __attribute__ ((packed)) cchh_t;
++
++typedef struct labeldate 
++{
++        u_int8_t  year;
++        u_int16_t day;
++} __attribute__ ((packed)) labeldate_t;
++
++
++typedef struct volume_label 
++{
++        char volkey[4];         /* volume key = volume label                 */
++	char vollbl[4];	        /* volume label                              */
++	char volid[6];	        /* volume identifier                         */
++	u_int8_t security;	        /* security byte                             */
++	cchhb_t vtoc;           /* VTOC address                              */
++	char res1[5];	        /* reserved                                  */
++        char cisize[4];	        /* CI-size for FBA,...                       */
++                                /* ...blanks for CKD                         */
++	char blkperci[4];       /* no of blocks per CI (FBA), blanks for CKD */
++	char labperci[4];       /* no of labels per CI (FBA), blanks for CKD */
++	char res2[4];	        /* reserved                                  */
++	char lvtoc[14];	        /* owner code for LVTOC                      */
++	char res3[29];	        /* reserved                                  */
++} __attribute__ ((packed)) volume_label_t;
++
++
++typedef struct extent 
++{
++        u_int8_t  typeind;          /* extent type indicator                     */
++        u_int8_t  seqno;            /* extent sequence number                    */
++        cchh_t llimit;          /* starting point of this extent             */
++        cchh_t ulimit;          /* ending point of this extent               */
++} __attribute__ ((packed)) extent_t;
++
++/* typeind - extent type indicator */
++#define EXTCYLB   0x81
++#define EXTUSER   0x01
++
++typedef struct dev_const 
++{
++        u_int16_t DS4DSCYL;           /* number of logical cyls                  */
++        u_int16_t DS4DSTRK;           /* number of tracks in a logical cylinder  */
++        u_int16_t DS4DEVTK;           /* device track length                     */
++        u_int8_t  DS4DEVI;            /* non-last keyed record overhead          */
++        u_int8_t  DS4DEVL;            /* last keyed record overhead              */
++        u_int8_t  DS4DEVK;            /* non-keyed record overhead differential  */
++        u_int8_t  DS4DEVFG;           /* flag byte                               */
++        u_int16_t DS4DEVTL;           /* device tolerance                        */
++        u_int8_t  DS4DEVDT;           /* number of DSCB's per track              */
++        u_int8_t  DS4DEVDB;           /* number of directory blocks per track    */
++} __attribute__ ((packed)) dev_const_t;
++
++/* DS4DEVFG - flag byte */
++#define DS4DSF    0x20
++#define DS4DEVAV  0x10
++
++/*
++ * Format 1 DSCB - Identifier
++ */
++typedef struct format1_label 
++{
++	char  DS1DSNAM[44];       /* data set name                           */
++	u_int8_t  DS1FMTID;           /* format identifier                       */
++	char  DS1DSSN[6];         /* data set serial number                  */
++	u_int16_t DS1VOLSQ;           /* volume sequence number                  */
++	labeldate_t DS1CREDT;     /* creation date: ydd                      */
++	labeldate_t DS1EXPDT;     /* expiration date                         */
++	u_int8_t  DS1NOEPV;           /* number of extents on volume             */
++        u_int8_t  DS1NOBDB;           /* no. of bytes used in last direction blk */
++	u_int8_t  DS1FLAG1;           /* flag 1                                  */
++	char  DS1SYSCD[13];       /* system code                             */
++	labeldate_t DS1REFD;      /* date last referenced                    */
++        u_int8_t  DS1SMSFG;           /* system managed storage indicators       */
++        u_int8_t  DS1SCXTF;           /* sec. space extension flag byte          */
++        u_int16_t DS1SCXTV;           /* secondary space extension value         */
++        u_int8_t  DS1DSRG1;           /* data set organisation byte 1            */
++        u_int8_t  DS1DSRG2;           /* data set organisation byte 2            */
++  	u_int8_t  DS1RECFM;           /* record format                           */
++	u_int8_t  DS1OPTCD;           /* option code                             */
++	u_int16_t DS1BLKL;            /* block length                            */
++	u_int16_t DS1LRECL;           /* record length                           */
++	u_int8_t  DS1KEYL;            /* key length                              */
++	u_int16_t DS1RKP;             /* relative key position                   */
++	u_int8_t  DS1DSIND;           /* data set indicators                     */
++        u_int8_t  DS1SCAL1;           /* secondary allocation flag byte          */
++  	char DS1SCAL3[3];         /* secondary allocation quantity           */
++	ttr_t DS1LSTAR;           /* last used track and block on track      */
++	u_int16_t DS1TRBAL;           /* space remaining on last used track      */
++        u_int16_t res1;               /* reserved                                */
++	extent_t DS1EXT1;         /* first extent description                */
++	extent_t DS1EXT2;         /* second extent description               */
++	extent_t DS1EXT3;         /* third extent description                */
++	cchhb_t DS1PTRDS;         /* possible pointer to f2 or f3 DSCB       */
++} __attribute__ ((packed)) format1_label_t;
++
++/* DS1DSRG1 - data set organization */
++#define DS1DSGPS 0x40
++#define DS1DSGU  0x01
++
++/* DS1RECFM - record format */
++#define DS1RECFF 0x80
++#define DS1RECFS 0x08
++
++/* DS1DSIND -  data set indicators */
++#define DS1IND80 0x80
++
++/* DS1CAL1 - space parameters */
++#define DS1TRK   0x80
++
++/*
++ * Format 4 DSCB - VTOC
++ */
++typedef struct format4_label 
++{
++	char  DS4KEYCD[44];       /* key code for VTOC labels: 44 times 0x04 */
++        u_int8_t  DS4IDFMT;           /* format identifier                       */
++	cchhb_t DS4HPCHR;         /* highest address of a format 1 DSCB      */
++        u_int16_t DS4DSREC;           /* number of available DSCB's              */
++        cchh_t DS4HCCHH;          /* CCHH of next available alternate track  */
++        u_int16_t DS4NOATK;           /* number of remaining alternate tracks    */
++        u_int8_t  DS4VTOCI;           /* VTOC indicators                         */
++        u_int8_t  DS4NOEXT;           /* number of extents in VTOC               */
++        u_int8_t  DS4SMSFG;           /* system managed storage indicators       */
++        u_int8_t  DS4DEVAC;           /* number of alternate cylinders. 
++                                     Subtract from first two bytes of 
++                                     DS4DEVSZ to get number of usable
++				     cylinders. can be zero. valid
++				     only if DS4DEVAV on.                    */
++        dev_const_t DS4DEVCT;     /* device constants                        */
++        char DS4AMTIM[8];         /* VSAM time stamp                         */
++        char DS4AMCAT[3];         /* VSAM catalog indicator                  */
++        char DS4R2TIM[8];         /* VSAM volume/catalog match time stamp    */
++        char res1[5];             /* reserved                                */
++        char DS4F6PTR[5];         /* pointer to first format 6 DSCB          */
++        extent_t DS4VTOCE;        /* VTOC extent description                 */
++        char res2[10];            /* reserved                                */
++        u_int8_t DS4EFLVL;            /* extended free-space management level    */
++        cchhb_t DS4EFPTR;         /* pointer to extended free-space info     */
++        char res3[9];             /* reserved                                */
++} __attribute__ ((packed)) format4_label_t;
++
++/* DS4VTOCI - VTOC indicators */
++#define DS4DOSBT 0x80
++#define DS4EFVLD 0x20
++
++/* DS4EFLVL - Extended free-space management level */
++#define DS4EFL00 0x00
++#define DS4EFL07 0x07
++
++/*
++ * Format 5 DSCB extent
++ */
++typedef struct ds5ext 
++{
++	u_int16_t t;                  /* RTA of the first track of free extent   */
++	u_int16_t fc;                 /* number of whole cylinders in free ext.  */
++	u_int8_t  ft;                 /* number of remaining free tracks         */
++} __attribute__ ((packed)) ds5ext_t;
++
++/*
++ * Format 5 DSCB - Free space
++ */
++typedef struct format5_label 
++{
++	char DS5KEYID[4];         /* key identifier                          */
++	ds5ext_t DS5AVEXT;        /* first available (free-space) extent.    */
++	ds5ext_t DS5EXTAV[7];     /* seven available extents                 */
++	u_int8_t DS5FMTID;            /* format identifier                       */
++	ds5ext_t DS5MAVET[18];    /* eighteen available extents              */
++	cchhb_t DS5PTRDS;         /* pointer to next format5 DSCB            */
++} __attribute__ ((packed)) format5_label_t;
++
++#define DS5EXTMX 26			/* max # of free extents		*/
++
++/*
++ * Format 7 DSCB extent
++ */
++typedef struct ds7ext 
++{
++	u_int32_t a;                  /* starting RTA value                      */
++	u_int32_t b;                  /* ending RTA value + 1                    */
++} __attribute__ ((packed)) ds7ext_t;
++
++/*
++ * Format 7 DSCB - Free space for certain devices
++ */
++typedef struct format7_label 
++{
++	char DS7KEYID[4];         /* key identifier                          */
++	ds7ext_t DS7EXTNT[5];     /* space for 5 extent descriptions         */
++	u_int8_t DS7FMTID;            /* format identifier                       */
++	ds7ext_t DS7ADEXT[11];    /* space for 11 extent descriptions        */
++	char res1[2];             /* reserved                                */
++	cchhb_t DS7PTRDS;         /* pointer to next FMT7 DSCB               */
++} __attribute__ ((packed)) format7_label_t;
++
++#define DS7EXTMX 16			/* max # of free extents		*/
++
++/********************************************************************************
++ * SECTION: libparted specific disk interface
++ *******************************************************************************/
++
++/* from <linux/fs.h> */
++#define BLKGETSIZE _IO(0x12,96) /* return device size */                                                                            
++#define BLKSSZGET  _IO(0x12,104) /* get block device sector size */                                                                 
++#define BLKGETLASTSECT  _IO(0x12,108) /* get last sector of block device */                                                         
++#define BLKSETLASTSECT  _IO(0x12,109) /* set last sector of block device */                                                         
++#define BLKGETSIZE64 _IOR(0x12,114,size_t)      /* return device size in bytes (u64 *arg) */                                        
++                                                                                                                                    
++/* from <linux/fdreg.h> */
++#define HDIO_GETGEO          0x0301  /* get device geometry */
++typedef struct hd_geometry {
++      unsigned char heads;
++      unsigned char sectors;
++      unsigned short cylinders;
++      unsigned long start;
++} hd_geometry_t;
++
++#define DASD_MIN_API_VERSION	2
++#define PARTN_MASK		((1 << DASD_PARTN_BITS) - 1)
++#define USABLE_PARTITIONS	((1 << DASD_PARTN_BITS) - 1)
++#define MAX_BLKSIZE		4096
++#define B2S(s)			(anc->spb * (s))
++#define S2B(b)			((b) / anc->spb)
++#define B2T(b)			((b) / anc->geo.sectors)
++#define S2T(b)			(B2T (S2B (b)))
++#define FIRST_USABLE_BLK	(FIRST_USABLE_TRK * anc->geo.sectors)
++
++typedef struct partition_info {
++        format1_label_t	*f1;
++	char		dsn[45];
++	char		volser[7];
++        int		type;
++	int		pnum;
++} partition_info_t;
++
++/* type - partition type */
++#define PART_UNUSED	0
++#define PART_NATIVE	1
++#define PART_SWAP	2
++
++typedef struct _anchor {
++	int			big_disk;
++	int			format;
++	int			spb;
++	int			devno;
++	int			label_blk;
++        int			blksize;
++	unsigned long		len;
++	u_int16_t		dev_type;
++	hd_geometry_t		geo;
++	PedDevice		*dev;
++	void			*sect;
++        volume_label_t		*vlabel;
++        format4_label_t		*f4;
++        format5_label_t		*f5;
++	format7_label_t		*f7;
++	format1_label_t		*f1;
++} _anchor_t;
++
++typedef struct bootstrap1 {
++        u_int32_t key;
++        u_int32_t data[6];
++} __attribute__ ((packed)) bootstrap1_t;
++
++typedef struct bootstrap2 {
++        u_int32_t key;
++        u_int32_t data[36];
++} __attribute__ ((packed)) bootstrap2_t;
++
+diff -urNad parted-1.7.1~/libparted/libparted.c parted-1.7.1/libparted/libparted.c
+--- parted-1.7.1~/libparted/libparted.c	2006-05-30 20:22:33.000000000 +0200
++++ parted-1.7.1/libparted/libparted.c	2005-07-11 12:45:23.000000000 +0200
+@@ -91,6 +91,7 @@
+ extern void ped_disk_pc98_init ();
+ extern void ped_disk_sun_init ();
+ extern void ped_disk_amiga_init ();
++extern void ped_disk_s390_init ();
+ 
+ static void
+ init_disk_types ()
+@@ -98,6 +99,7 @@
+ 	ped_disk_loop_init ();	/* must be last in the probe list */
+ 
+ 	ped_disk_sun_init ();
++	ped_disk_s390_init ();
+ #ifdef ENABLE_PC98
+ 	ped_disk_pc98_init ();
+ #endif
+@@ -147,6 +149,7 @@
+ extern void ped_disk_pc98_done ();
+ extern void ped_disk_sun_done ();
+ extern void ped_disk_amiga_done ();
++extern void ped_disk_s390_done ();
+ 
+ static void
+ done_disk_types ()
+@@ -162,6 +165,7 @@
+ 	ped_disk_dvh_done ();
+ 	ped_disk_bsd_done ();
+ 	ped_disk_amiga_done ();
++	ped_disk_s390_done ();
+ }
+ 
+ static void _init() __attribute__ ((constructor));

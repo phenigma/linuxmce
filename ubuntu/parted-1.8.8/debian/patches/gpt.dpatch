@@ -1,0 +1,30 @@
+#! /bin/sh -e
+## gpt.dpatch by Steinar H. Gunderson <sesse@debian.org>
+##
+## DP: Put the alternative GPT partition table one sector further out,
+## DP: to avoid having it overlap with the last sector of one partition.
+## DP: Closes: #349718
+
+. `dirname $0`/DPATCH
+
+@DPATCH@
+--- parted-1.7.1.orig/libparted/labels/gpt.c	2006-05-25 19:28:55.000000000 +0200
++++ parted-1.7.1/libparted/labels/gpt.c	2006-06-09 22:10:19.000000000 +0200
+@@ -893,7 +893,7 @@
+ 		gpt->MyLBA = PED_CPU_TO_LE64 (disk->dev->length - 1);
+ 		gpt->AlternateLBA = PED_CPU_TO_LE64 (1);
+ 		gpt->PartitionEntryLBA
+-			= PED_CPU_TO_LE64 (disk->dev->length - 2 - ptes_size);
++			= PED_CPU_TO_LE64 (disk->dev->length - 1 - ptes_size);
+ 	} else {
+ 		gpt->MyLBA = PED_CPU_TO_LE64 (1);
+ 		gpt->AlternateLBA = PED_CPU_TO_LE64 (disk->dev->length - 1);
+@@ -984,7 +984,7 @@
+ 	if (!ped_device_write (disk->dev, pth_raw, disk->dev->length - 1, 1))
+ 		goto error_free_ptes;
+ 	if (!ped_device_write (disk->dev, ptes,
+-			       disk->dev->length - 2 - ptes_size / disk->dev->sector_size,
++			       disk->dev->length - 1 - ptes_size / disk->dev->sector_size,
+ 			       ptes_size / disk->dev->sector_size))
+ 		goto error_free_ptes;
+ 

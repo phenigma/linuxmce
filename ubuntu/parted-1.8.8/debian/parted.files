@@ -1,0 +1,4 @@
+sbin
+usr/share/man/man8/parted.8
+usr/share/man/man8/partprobe.8
+usr/share/man/pt_BR/man8/parted.8

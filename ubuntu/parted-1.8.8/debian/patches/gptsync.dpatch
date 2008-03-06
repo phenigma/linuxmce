@@ -1,0 +1,173 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## gptsync.dpatch by Colin Watson <cjwatson@ubuntu.com>
+## Contributed by Matthew Garrett <mjg59@srcf.ucam.org>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: No description.
+
+@DPATCH@
+diff -urNad parted-1.7.1~/libparted/labels/gpt.c parted-1.7.1/libparted/labels/gpt.c
+--- parted-1.7.1~/libparted/labels/gpt.c	2006-06-09 21:10:19.000000000 +0100
++++ parted-1.7.1/libparted/labels/gpt.c	2007-03-07 16:28:12.000000000 +0000
+@@ -420,30 +420,10 @@
+ 
+         if (gpt)
+ 	        pth_free (gpt);
+-
+         
+ 	if (!gpt_sig_found)
+ 		return 0;
+ 
+-	if (ped_device_read(dev, &legacy_mbr, 0, GPT_HEADER_SECTORS)) {
+-		if (!_pmbr_is_valid (&legacy_mbr)) {
+-			int ex_status = ped_exception_throw (
+-				PED_EXCEPTION_WARNING,
+-				PED_EXCEPTION_YES_NO,
+-			_("%s contains GPT signatures, indicating that it has "
+-			  "a GPT table.  However, it does not have a valid "
+-			  "fake msdos partition table, as it should.  Perhaps "
+-			  "it was corrupted -- possibly by a program that "
+-			  "doesn't understand GPT partition tables.  Or "
+-			  "perhaps you deleted the GPT table, and are now "
+-			  "using an msdos partition table.  Is this a GPT "
+-			  "partition table?"),
+-				dev->path);
+-			if (ex_status == PED_EXCEPTION_NO)
+-				return 0;
+-		}
+-	}
+-
+ 	return 1;
+ }
+ 
+@@ -711,6 +691,10 @@
+  *  warn if it's not there, and treat the disk as MSDOS, with a note
+  *  for users to use Parted to "fix up" their disk if they
+  *  really want it to be considered GPT.
++ *
++ *  Of course, this is incompatible with how Apple handle things. For
++ *  legacy BIOS compatibility on Apple machines, we need a valid legacy MBR
++ *  rather than a protective one. Aren't standards wonderful?
+  ************************************************************/
+ static int
+ gpt_read (PedDisk * disk)
+@@ -847,26 +831,94 @@
+ }
+ 
+ #ifndef DISCOVER_ONLY
+-/* Writes the protective MBR (to keep DOS happy) */
++
+ static int
+-_write_pmbr (PedDevice * dev)
++fill_raw_part (PartitionRecord_t* raw_part, PedPartition *part, PedSector offset, int number)
++{
++        GPTPartitionData* gpt_part_data = part->disk_specific;
++
++	if (part->fs_type) {
++	        if (strncmp (part->fs_type->name, "fat", 3) == 0)
++		        raw_part->OSType = 0x0b;
++		else if (strncmp (part->fs_type->name, "ntfs", 4) == 0)
++  		        raw_part->OSType = 0x07;
++		else if (strncmp (part->fs_type->name, "hfs", 3) == 0)
++		        raw_part->OSType = 0xaf;
++		else if (strncmp (part->fs_type->name, "ext3", 4) == 0)
++		        raw_part->OSType = 0x83;
++		else if (strncmp (part->fs_type->name, "linux-swap", 10) == 0)
++		        raw_part->OSType = 0x82;
++		else 
++			raw_part->OSType = 0xef;
++	}
++
++	/* EFI system partitions will have a FAT filesystem and 
++	   PARTITION_SYSTEM_GUID */
++
++	if (!guid_cmp (gpt_part_data->type, PARTITION_SYSTEM_GUID)) {
++		if (raw_part->OSType == 0x0b) {
++			raw_part->OSType = 0xee;
++		}
++	}
++
++	/* Apple's firmware appears to become unhappy if the second partition
++	   isn't bootable */
++
++	if (number == 2)
++		raw_part->BootIndicator = 0x80;
++
++	raw_part->StartingLBA = PED_CPU_TO_LE32 ((part->geom.start - offset)
++                                / (part->disk->dev->sector_size / 512));
++
++	raw_part->SizeInLBA = PED_CPU_TO_LE32 (part->geom.length
++				  / (part->disk->dev->sector_size / 512));
++
++	/* Apple's firmware also appears to be unhappy if the EFI system 
++	   partition doesn't extend all the way to the start of the disk */
++
++	if (raw_part->OSType == 0xee) {
++	  raw_part->SizeInLBA += raw_part->StartingLBA - 1;
++	  raw_part->StartingLBA = 1;
++	}
++
++	raw_part->StartHead = 0xfe;
++	raw_part->StartSector = 0xff;
++	raw_part->StartTrack = 0xff;
++	raw_part->EndHead = 0xfe;
++	raw_part->EndSector = 0xff;
++	raw_part->EndTrack = 0xff;
++	
++	return 1;
++}
++
++static int
++_gptsync (PedDisk * disk)
+ {
+ 	LegacyMBR_t pmbr;
++	PedPartition* part;
++	int i;
+ 
+-	memset(&pmbr, 0, sizeof(pmbr));
++	if (!ped_device_read (disk->dev, (void*) &pmbr, GPT_PMBR_LBA, 
++			       GPT_PMBR_SECTORS))
++	        return 0;
++
++	memset(&pmbr.PartitionRecord, 0, sizeof(pmbr.PartitionRecord));
+ 	pmbr.Signature = PED_CPU_TO_LE16(MSDOS_MBR_SIGNATURE);
+-	pmbr.PartitionRecord[0].OSType      = EFI_PMBR_OSTYPE_EFI;
+-	pmbr.PartitionRecord[0].StartSector = 1;
+-	pmbr.PartitionRecord[0].EndHead     = 0xFE;
+-	pmbr.PartitionRecord[0].EndSector   = 0xFF;
+-	pmbr.PartitionRecord[0].EndTrack    = 0xFF;
+-	pmbr.PartitionRecord[0].StartingLBA = PED_CPU_TO_LE32(1);
+-	if ((dev->length - 1ULL) > 0xFFFFFFFFULL) 
+-		pmbr.PartitionRecord[0].SizeInLBA = PED_CPU_TO_LE32(0xFFFFFFFF);
+-	else
+-		pmbr.PartitionRecord[0].SizeInLBA = PED_CPU_TO_LE32(dev->length - 1UL);
+ 
+-	return ped_device_write (dev, &pmbr, GPT_PMBR_LBA, GPT_PMBR_SECTORS);
++	for (i=1; i<=4; i++) {
++		part = ped_disk_get_partition (disk, i);
++		if (!part)
++			continue;
++
++		if (!fill_raw_part (&pmbr.PartitionRecord [i - 1], part, 0, i))
++			return 0;
++	}
++
++	if (!ped_device_write (disk->dev, (void*) &pmbr, GPT_PMBR_LBA, 
++			       GPT_PMBR_SECTORS))
++	        return 0;
++
++	return ped_device_sync (disk->dev);
+ }
+ 
+ static void
+@@ -966,8 +1018,8 @@
+ 
+ 	ptes_crc = efi_crc32 (ptes, ptes_size);
+ 
+-	/* Write protective MBR */
+-	if (!_write_pmbr (disk->dev))
++	/* Write synced MBR */
++	if (!_gptsync (disk))
+ 		goto error_free_ptes;
+ 
+ 	/* Write PTH and PTEs */
