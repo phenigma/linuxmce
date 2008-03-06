@@ -81,7 +81,7 @@ char *MediaSyncModeStr[] =
 //-----------------------------------------------------------------------------------------------------
 MediaSyncMode PlutoMediaFile::m_DefaultMediaSyncMode = modeNone;
 bool PlutoMediaFile::m_bNewFilesAdded = false;
-string PlutoMediaFile::m_sDVDKeysCache;
+string PlutoMediaFile::m_sDVDKeysCache = "/home/.dvdcss";
 //-----------------------------------------------------------------------------------------------------
 PlutoMediaFile::PlutoMediaFile(Database_pluto_media *pDatabase_pluto_media, int PK_Installation, 
 	string sDirectory, string sFile, GenericFileHandler *pFileHandler) : 
@@ -1046,9 +1046,6 @@ void PlutoMediaFile::CacheDVDKeys()
 
 	if(FileUtils::FileExists(sKeysArchiveFile))
 	{
-		if(m_sDVDKeysCache.empty())
-			m_sDVDKeysCache = "/home/.dvdcss";
-
 		if(!FileUtils::DirExists(m_sDVDKeysCache))
 			FileUtils::MakeDir(m_sDVDKeysCache);
 

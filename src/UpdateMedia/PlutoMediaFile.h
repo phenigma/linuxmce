@@ -124,7 +124,7 @@ public:
 	static bool NewFilesAdded() { return m_bNewFilesAdded; }
 	static void ResetNewFilesAddedStatus() { m_bNewFilesAdded = false; }
 
-	static void DVDKeysCacheSetup(string sValue) { m_sDVDKeysCache = sValue; }
+	static void DVDKeysCacheSetup(string sValue) { if(!sValue.empty()) m_sDVDKeysCache = sValue; }
 
 	void SetFileAttribute(int PK_File);
     int GetFileAttribute();
