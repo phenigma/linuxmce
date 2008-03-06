@@ -279,6 +279,15 @@ function Build_Replacements {
 		popd
 	fi
 
+	#Package: parted
+	dir_="${svn_dir}"/trunk/ubuntu/parted-1.8.8
+	if Changed_Since_Last_Build "$dir_"; then
+		DisplayMessage "Building parted"
+		pushd "$dir_"
+		dpkg-buildpackage -rfakeroot -us -uc -b
+		cp ../*parted*.deb "${replacements_dir}"
+	fi
+
 	#Package: linux-image-diskless
 	dir_="${svn_dir}"/trunk/ubuntu/linux-image-dummy
 	if Changed_Since_Last_Build "$dir_" ;then
