@@ -288,6 +288,37 @@ static const char *audio_out_types_strs[] =
 	NULL
 };
 
+void Xine_Stream_Factory::SetALSAConfigurationEntry(string sEntry, string sValue, string sDefaultValue)
+{
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Xine_Stream_Factory::SetALSAConfigurationEntry: setting '%s' to '%s'",
+					   sEntry.c_str(), sValue.c_str());
+	
+	xine_cfg_entry_t Entry;
+	xine_config_register_string(m_pXineLibrary, sEntry.c_str(), sDefaultValue.c_str(), "ALSA device setting", NULL, 0, NULL, NULL);
+	if (xine_config_lookup_entry(m_pXineLibrary, sEntry.c_str(), &Entry) == 0)
+	{
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Xine_Stream_Factory::SetALSAConfigurationEntry: cannot find entry '%s', skipping",
+						   sEntry.c_str());
+	}
+	else
+	{
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Xine_Stream_Factory::SetALSAConfigurationEntry: previous value for '%s' is '%s'", sEntry.c_str(), Entry.str_value );
+		
+		Entry.str_value = strdup(sValue.c_str());
+		xine_config_update_entry( m_pXineLibrary, &Entry );
+		if (xine_config_lookup_entry(m_pXineLibrary, sEntry.c_str(), &Entry) == 0)
+		{
+			LoggerWrapper::GetInstance()->Write( LV_STATUS, "Xine_Stream_Factory::SetALSAConfigurationEntry: could not lookup the '%s' after update",
+							   sEntry.c_str());
+		}
+		else
+		{
+			LoggerWrapper::GetInstance()->Write( LV_STATUS, "Xine_Stream_Factory::SetALSAConfigurationEntry: current value for '%s' is '%s'",
+					sEntry.c_str(), Entry.str_value );
+		}			
+	}
+}
+
 void Xine_Stream_Factory::setAudioSettings()
 {
 	string sAudioSettings = m_pPlayer->Get_MD_AudioSettings();
@@ -308,14 +339,9 @@ void Xine_Stream_Factory::setAudioSettings()
 	}
 	
 	bool updateConfig = true;
-	
-	// if value remains empty after scan, it won't be set
-	string sAlsaFrontDevice = "";
+	string sAlsaDevice = "default";
 	string sSpeakersArrangement = "Stereo 2.0";
-	
-	// TODO when the 'Pass Through' mode is on, xine-lib doesn't use the audio.device.alsa_front_device
-	// instead, it uses audio.device.alsa_passthrough_device, so assigning front device is useless
-	// default for passthrough device is: iec958:AES0=0x6,AES1=0x82,AES2=0x0,AES3=0x2 (xine config)
+	bool bUsePassThrough = false;
 	
 	for (uint i=0; i<sAudioSettings.length(); i++)
 	{
@@ -323,18 +349,17 @@ void Xine_Stream_Factory::setAudioSettings()
 		{
 		case 'C':
 		case 'O':
-			sAlsaFrontDevice = "asym_spdif";
-			sSpeakersArrangement = "Pass Through";
+			sAlsaDevice = "asym_spdif";
 			break;
 		
-		case 'S':
-		
+		case 'S':		
 		case 'L':
-			sAlsaFrontDevice = "plughw:0";
+			sAlsaDevice = "plughw:0";
 			break;
 		
 		case '3':
 			sSpeakersArrangement = "Pass Through";
+			bUsePassThrough = true;
 			break;
 		
 		case 'M':
@@ -349,83 +374,15 @@ void Xine_Stream_Factory::setAudioSettings()
 	if (!updateConfig)
 	{
 		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Flag 'M' found, we won't override the defaults from /etc/pluto/xine.conf");
+		return;
 	}
 	
+	SetALSAConfigurationEntry("audio.alsa_front_device", sAlsaDevice, "default");
 	
-	// processing ALSA front device
-	xine_cfg_entry_t cfgAlsaFrontDevice;
-	xine_config_register_string(m_pXineLibrary, "audio.alsa_front_device", "default", "ALSA front device setting", NULL, 0, NULL, NULL);
-	if (xine_config_lookup_entry(m_pXineLibrary, "audio.alsa_front_device", &cfgAlsaFrontDevice) == 0)
-	{
-		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Could not lookup the current 'ALSA front device', skipping" );
-	}
-	else
-	{
-		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Current value for 'ALSA front device': %s", cfgAlsaFrontDevice.str_value );
-		if (updateConfig)
-		if (sAlsaFrontDevice=="")
-		{
-			LoggerWrapper::GetInstance()->Write( LV_STATUS, "Configured value for 'ALSA front device' is empty, not overriding it" );
-		}
-		else
-		{
-			LoggerWrapper::GetInstance()->Write( LV_STATUS, "Updating value for 'ALSA front device' to: %s", sAlsaFrontDevice.c_str() );
-			cfgAlsaFrontDevice.str_value = strdup(sAlsaFrontDevice.c_str());
-			xine_config_update_entry( m_pXineLibrary, &cfgAlsaFrontDevice );
-			if (xine_config_lookup_entry(m_pXineLibrary, "audio.alsa_front_device", &cfgAlsaFrontDevice) == 0)
-			{
-				LoggerWrapper::GetInstance()->Write( LV_STATUS, "Could not lookup the 'ALSA front device' after update" );
-			}
-			else
-			{
-				LoggerWrapper::GetInstance()->Write( LV_STATUS, "Updated value for 'ALSA front device': %s", cfgAlsaFrontDevice.str_value );
-			}			
-		}
-	}
+	if (bUsePassThrough)
+		SetALSAConfigurationEntry("audio.device.alsa_passthrough_device", sAlsaDevice, "iec958:AES0=0x6,AES1=0x82,AES2=0x0,AES3=0x2");
 	
-	// processing Speakers Arrangement
-	xine_cfg_entry_t cfgSpeakersArrangement;
-	xine_config_register_enum ( m_pXineLibrary, "audio.output.speaker_arrangement", 1, ( char ** ) audio_out_types_strs, 
-		"Speakers arrangement", NULL, 0, NULL, NULL );
-	if ( xine_config_lookup_entry( m_pXineLibrary, "audio.output.speaker_arrangement", &cfgSpeakersArrangement ) == 0 )
-	{
-		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Could not lookup the current 'Speakers Arrangement', skipping" );
-	}
-	else
-	{
-		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Current value for 'Speakers Arrangement': %s", audio_out_types_strs[ cfgSpeakersArrangement.num_value ] );
-		if (updateConfig)
-		if (sSpeakersArrangement=="")
-		{
-			LoggerWrapper::GetInstance()->Write( LV_STATUS, "Configured value for 'Speakers Arrangement' is empty, not overriding it" );
-		}
-		else
-		{
-			LoggerWrapper::GetInstance()->Write( LV_STATUS, "Updating value for 'Speakers Arrangement' to: %s", sSpeakersArrangement.c_str() );
-			int i = 0;
-			while ( audio_out_types_strs[ i ] != NULL )
-			{
-				if ( strncmp( sSpeakersArrangement.c_str( ), audio_out_types_strs[ i ], strlen( audio_out_types_strs[ i ] ) ) == 0 )
-				{
-					cfgSpeakersArrangement.num_value = i;
-					xine_config_update_entry( m_pXineLibrary, &cfgSpeakersArrangement );
-		
-					if ( xine_config_lookup_entry( m_pXineLibrary, "audio.output.speaker_arrangement", &cfgSpeakersArrangement ) == 0 )
-					{
-						LoggerWrapper::GetInstance()->Write( LV_STATUS, "Could not lookup the 'Speakers Arrangement' after update" );
-					}
-					else
-					{
-						LoggerWrapper::GetInstance()->Write( LV_STATUS, "Updated value for 'Speakers Arrangement': %s", audio_out_types_strs[ cfgSpeakersArrangement.num_value ] );
-					}
-					
-					break;
-				}
-		
-				i++;
-			}
-		}
-	}
+	SetALSAConfigurationEntry("audio.output.speaker_arrangement", sSpeakersArrangement, "Stereo 2.0");
 }
 
 

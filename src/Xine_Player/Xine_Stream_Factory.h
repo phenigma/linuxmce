@@ -94,6 +94,7 @@ namespace DCE
 
 			// identifying xine version and setting stuff
 			void IdentifyXineStuff();
+			void SetALSAConfigurationEntry(string sEntry, string sValue, string sDefaultValue);
 
 		public:
 			Xine_Stream_Factory(Xine_Player *pOwner);
