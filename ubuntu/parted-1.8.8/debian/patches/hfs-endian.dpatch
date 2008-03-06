@@ -1,0 +1,202 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## hfs-endian.dpatch by Colin Watson <cjwatson@ubuntu.com>
+## Based on work by Matthew Garrett <mjg59@srcf.ucam.org>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: No description.
+
+@DPATCH@
+diff -urNad parted-1.7.1~/libparted/fs/hfs/journal.c parted-1.7.1/libparted/fs/hfs/journal.c
+--- parted-1.7.1~/libparted/fs/hfs/journal.c	2006-05-25 18:28:58.000000000 +0100
++++ parted-1.7.1/libparted/fs/hfs/journal.c	2007-02-28 15:41:49.000000000 +0000
+@@ -40,6 +40,8 @@
+ 
+ #include "journal.h"
+ 
++int hfsj_little_endian = 0;
++
+ static int hfsj_vh_replayed = 0;
+ 
+ static uint32_t
+@@ -81,14 +83,14 @@
+ 	HfsJJournalInfoBlock*	jib;
+ 	int			binsect;
+ 
+-	binsect = PED_BE32_TO_CPU(priv_data->vh->block_size) / PED_SECTOR_SIZE_DEFAULT;
++	binsect = HFS_32_TO_CPU(priv_data->vh->block_size) / PED_SECTOR_SIZE_DEFAULT;
+ 	sector = (PedSector) priv_data->jib_start_block * binsect;
+ 	if (!ped_geometry_read(priv_data->plus_geom, buf, sector, 1))
+ 		return 0;
+ 	jib = (HfsJJournalInfoBlock*) buf;
+ 
+ 	offset = (uint64_t)block * PED_SECTOR_SIZE_DEFAULT * binsect;
+-	jib->offset = PED_CPU_TO_BE64(offset);
++	jib->offset = HFS_CPU_TO_64(offset);
+ 
+ 	if (!ped_geometry_write(priv_data->plus_geom, buf, sector, 1)
+ 	    || !ped_geometry_sync(priv_data->plus_geom))
+@@ -136,18 +138,18 @@
+ 	int			i, r;
+ 	uint32_t		cksum, size;
+ 
+-	blhdr_nbsect = PED_BE32_TO_CPU(jh->blhdr_size) / PED_SECTOR_SIZE_DEFAULT;
++	blhdr_nbsect = HFS_32_TO_CPU(jh->blhdr_size) / PED_SECTOR_SIZE_DEFAULT;
+ 	blhdr = (HfsJBlockListHeader*)
+ 		  ped_malloc (blhdr_nbsect * PED_SECTOR_SIZE_DEFAULT);
+ 	if (!blhdr) return 0;
+ 
+-	start = PED_BE64_TO_CPU(jh->start) / PED_SECTOR_SIZE_DEFAULT;
++	start = HFS_64_TO_CPU(jh->start) / PED_SECTOR_SIZE_DEFAULT;
+ 	do {
+ 		start = hfsj_journal_read(priv_data->plus_geom, jh, jsector,
+ 					  jlength, start, blhdr_nbsect, blhdr);
+ 		if (!start) goto err_replay;
+ 		
+-		cksum = PED_BE32_TO_CPU(blhdr->checksum);
++		cksum = HFS_32_TO_CPU(blhdr->checksum);
+ 		blhdr->checksum = 0;
+ 		if (cksum!=hfsj_calc_checksum((uint8_t*)blhdr, sizeof(*blhdr))){
+ 			ped_exception_throw (
+@@ -156,11 +158,11 @@
+ 				_("Bad block list header checksum."));
+ 			goto err_replay;
+ 		}
+-		blhdr->checksum = PED_CPU_TO_BE32(cksum);
++		blhdr->checksum = HFS_CPU_TO_32(cksum);
+ 		
+-		for (i=1; i < PED_BE16_TO_CPU(blhdr->num_blocks); ++i) {
+-			size = PED_BE32_TO_CPU(blhdr->binfo[i].bsize);
+-			sector = PED_BE64_TO_CPU(blhdr->binfo[i].bnum);
++		for (i=1; i < HFS_16_TO_CPU(blhdr->num_blocks); ++i) {
++			size = HFS_32_TO_CPU(blhdr->binfo[i].bsize);
++			sector = HFS_64_TO_CPU(blhdr->binfo[i].bnum);
+ 			if (!size) continue;
+ 			if (size % PED_SECTOR_SIZE_DEFAULT) {
+ 				ped_exception_throw(
+@@ -212,7 +214,7 @@
+ 		}
+ 	} while (blhdr->binfo[0].next);
+ 
+-	jh->start = PED_CPU_TO_BE64(start * PED_SECTOR_SIZE_DEFAULT);
++	jh->start = HFS_CPU_TO_64(start * PED_SECTOR_SIZE_DEFAULT);
+ 
+ 	ped_free (blhdr);
+ 	return (ped_geometry_sync (fs->geom));
+@@ -246,7 +248,7 @@
+ 	
+ 	if (    (jib->flags & PED_CPU_TO_BE32(1 << HFSJ_JOURN_IN_FS))
+ 	    && !(jib->flags & PED_CPU_TO_BE32(1 << HFSJ_JOURN_OTHER_DEV)) ) {
+-		priv_data->jl_start_block = PED_BE64_TO_CPU(jib->offset) 
++		priv_data->jl_start_block = HFS_64_TO_CPU(jib->offset) 
+ 					    / ( PED_SECTOR_SIZE_DEFAULT * binsect );
+ 	}
+ 
+@@ -282,8 +284,11 @@
+ 		return 0;
+ 	jh = (HfsJJournalHeader*) buf;
+ 
+-	if (   (jh->magic  != PED_BE32_TO_CPU(HFSJ_HEADER_MAGIC))
+-	    || (jh->endian != PED_BE32_TO_CPU(HFSJ_ENDIAN_MAGIC)) ) {
++	if (jh->endian == PED_LE32_TO_CPU(HFSJ_ENDIAN_MAGIC)) 
++		hfsj_little_endian = 1;
++
++	if (   (jh->magic  != HFS_32_TO_CPU(HFSJ_HEADER_MAGIC))
++	    || (jh->endian != HFS_32_TO_CPU(HFSJ_ENDIAN_MAGIC)) ) {
+ 		ped_exception_throw (
+ 			PED_EXCEPTION_ERROR,
+ 			PED_EXCEPTION_CANCEL,
+@@ -291,8 +296,8 @@
+ 		return 0;
+ 	}
+ 
+-	if ( (PED_BE64_TO_CPU(jh->size)%PED_SECTOR_SIZE_DEFAULT)
+-	  || (PED_BE64_TO_CPU(jh->size)/PED_SECTOR_SIZE_DEFAULT != (uint64_t)length) ) {
++	if ( (HFS_64_TO_CPU(jh->size)%PED_SECTOR_SIZE_DEFAULT)
++	  || (HFS_64_TO_CPU(jh->size)/PED_SECTOR_SIZE_DEFAULT != (uint64_t)length) ) {
+ 		ped_exception_throw (
+ 			PED_EXCEPTION_ERROR,
+ 			PED_EXCEPTION_CANCEL,
+@@ -301,10 +306,10 @@
+ 		return 0;
+ 	}
+ 
+-	if (   (PED_BE64_TO_CPU(jh->start) % PED_SECTOR_SIZE_DEFAULT)
+-	    || (PED_BE64_TO_CPU(jh->end)   % PED_SECTOR_SIZE_DEFAULT)
+-	    || (PED_BE32_TO_CPU(jh->blhdr_size) % PED_SECTOR_SIZE_DEFAULT)
+-	    || (PED_BE32_TO_CPU(jh->jhdr_size)  % PED_SECTOR_SIZE_DEFAULT) ) {
++	if (   (HFS_64_TO_CPU(jh->start) % PED_SECTOR_SIZE_DEFAULT)
++	    || (HFS_64_TO_CPU(jh->end)   % PED_SECTOR_SIZE_DEFAULT)
++	    || (HFS_32_TO_CPU(jh->blhdr_size) % PED_SECTOR_SIZE_DEFAULT)
++	    || (HFS_32_TO_CPU(jh->jhdr_size)  % PED_SECTOR_SIZE_DEFAULT) ) {
+ 		ped_exception_throw (
+ 			PED_EXCEPTION_ERROR,
+ 			PED_EXCEPTION_CANCEL,
+@@ -313,7 +318,7 @@
+ 		return 0;
+ 	}
+ 
+-	if (PED_BE32_TO_CPU(jh->jhdr_size) != PED_SECTOR_SIZE_DEFAULT) {
++	if (HFS_32_TO_CPU(jh->jhdr_size) != PED_SECTOR_SIZE_DEFAULT) {
+ 		ped_exception_throw (
+ 			PED_EXCEPTION_ERROR,
+ 			PED_EXCEPTION_CANCEL,
+@@ -323,7 +328,7 @@
+ 		return 0;	
+ 	}
+ 
+-	cksum = PED_BE32_TO_CPU(jh->checksum);
++	cksum = HFS_32_TO_CPU(jh->checksum);
+ 	jh->checksum = 0;
+ 	if (cksum != hfsj_calc_checksum((uint8_t*)jh, sizeof(*jh))) {
+ 		ped_exception_throw (
+@@ -332,14 +337,14 @@
+ 			_("Bad journal checksum."));
+ 		return 0;
+ 	}
+-	jh->checksum = PED_CPU_TO_BE32(cksum);
++	jh->checksum = HFS_CPU_TO_32(cksum);
+ 
+ 	/* The 2 following test are in the XNU Darwin source code */
+ 	/* so I assume they're needed */
+ 	if (jh->start == jh->size)
+-		jh->start = PED_CPU_TO_BE64(PED_SECTOR_SIZE_DEFAULT);
++		jh->start = HFS_CPU_TO_64(PED_SECTOR_SIZE_DEFAULT);
+ 	if (jh->end   == jh->size)
+-		jh->start = PED_CPU_TO_BE64(PED_SECTOR_SIZE_DEFAULT);
++		jh->start = HFS_CPU_TO_64(PED_SECTOR_SIZE_DEFAULT);
+ 
+ 	if (jh->start == jh->end)
+ 		return 1;
+@@ -361,7 +366,7 @@
+ 		/* Recalculate cksum of the journal header */
+ 		jh->checksum = 0; /* need to be 0 while calculating the cksum */
+ 		cksum = hfsj_calc_checksum((uint8_t*)jh, sizeof(*jh));
+-		jh->checksum = PED_CPU_TO_BE32(cksum);
++		jh->checksum = HFS_CPU_TO_32(cksum);
+ 
+ 		/* Update the Journal Header */
+ 		if (!ped_geometry_write(priv_data->plus_geom, buf, sector, 1)
+diff -urNad parted-1.7.1~/libparted/fs/hfs/journal.h parted-1.7.1/libparted/fs/hfs/journal.h
+--- parted-1.7.1~/libparted/fs/hfs/journal.h	2006-05-25 18:28:58.000000000 +0100
++++ parted-1.7.1/libparted/fs/hfs/journal.h	2007-02-28 15:40:56.000000000 +0000
+@@ -26,6 +26,8 @@
+ 
+ #include "hfs.h"
+ 
++extern int hfsj_little_endian;
++
+ int
+ hfsj_replay_journal(PedFileSystem* fs);
+ 
+@@ -35,4 +37,11 @@
+ int
+ hfsj_update_jl(PedFileSystem* fs, uint32_t block);
+ 
++#define HFS_16_TO_CPU(x) (hfsj_little_endian ? (uint16_t)PED_LE16_TO_CPU(x) : (uint16_t)PED_BE16_TO_CPU(x))
++#define HFS_32_TO_CPU(x) (hfsj_little_endian ? (uint32_t)PED_LE32_TO_CPU(x) : (uint32_t)PED_BE32_TO_CPU(x))
++#define HFS_64_TO_CPU(x) (hfsj_little_endian ? (uint64_t)PED_LE64_TO_CPU(x) : (uint64_t)PED_BE64_TO_CPU(x))
++#define HFS_CPU_TO_16(x) (hfsj_little_endian ? (uint16_t)PED_CPU_TO_LE16(x) : (uint16_t)PED_CPU_TO_BE16(x))
++#define HFS_CPU_TO_32(x) (hfsj_little_endian ? (uint32_t)PED_CPU_TO_LE32(x) : (uint32_t)PED_CPU_TO_BE32(x))
++#define HFS_CPU_TO_64(x) (hfsj_little_endian ? (uint64_t)PED_CPU_TO_LE64(x) : (uint64_t)PED_CPU_TO_BE64(x))
++
+ #endif /* _JOURNAL_H */

@@ -1,0 +1,112 @@
+#!/bin/sh -e
+## errors_to_stderr.dpatch by Timshel Knoll-Miller <timshel@debian.org>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Sends error output to stderr instead of stdout.
+## DP: Candidate for upstream inclusion.
+
+. `dirname $0`/DPATCH
+
+@DPATCH@
+diff -urNad /home/timshel/src/debian/dpatch/parted/parted-1.6.6/parted/strlist.c parted-1.6.6/parted/strlist.c
+--- /home/timshel/src/debian/dpatch/parted/parted-1.6.6/parted/strlist.c	2004-02-24 12:02:11.000000000 +1100
++++ parted-1.6.6/parted/strlist.c	2004-02-24 12:03:32.000000000 +1100
+@@ -196,13 +196,19 @@
+ #endif /* !ENABLE_NLS */
+ 
+ static void
+-print_wchar (const wchar_t* str, size_t count)
++fprint_wchar (FILE *fd, const wchar_t* str, size_t count)
+ {
+ 	char*	tmp = wchar_to_str (str, count);
+-	printf ("%s", tmp);
++	fprintf (fd, "%s", tmp);
+ 	free (tmp);
+ }
+ 
++static void
++print_wchar (const wchar_t* str, size_t count)
++{
++	fprint_wchar (stdout, str, count);
++}
++
+ static StrList* 
+ str_list_alloc ()
+ {
+@@ -450,8 +456,8 @@
+ }
+ 
+ void
+-str_list_print_wrap (const StrList* list, int line_length, int offset,
+-		     int indent)
++str_list_fprint_wrap (FILE *fd, const StrList* list, int line_length,
++		      int offset, int indent)
+ {
+ 	const StrList*	walk;
+ 	const wchar_t*	str;
+@@ -504,25 +510,32 @@
+ 			     cut_right++);
+ 
+ 			if (cut_left > 0)
+-				print_wchar (str, cut_left + 1);
++				fprint_wchar (fd, str, cut_left + 1);
+ 
+ 			str += cut_right;
+ 			str_len -= cut_right;
+ 			line_left = line_length - indent;
+ 
+ 			if (walk->next || *str)
+-				printf ("\n%s", spaces);
++				fprintf (fd, "\n%s", spaces);
+ 			else if (line_break)
+-				printf ("\n");
++				fprintf (fd, "\n");
+ 		}
+ 
+-		print_wchar (str, 0);
++		fprint_wchar (fd, str, 0);
+ 		line_left -= wchar_strlen (str);
+ 	}
+ 
+ 	free (spaces);
+ }
+ 
++void
++str_list_print_wrap (const StrList* list, int line_length, int offset,
++		     int indent)
++{
++	str_list_fprint_wrap (stdout, list, line_length, offset, indent);
++}
++
+ static int
+ _str_list_match_node (const StrList* list, const wchar_t* str)
+ {
+diff -urNad /home/timshel/src/debian/dpatch/parted/parted-1.6.6/parted/strlist.h parted-1.6.6/parted/strlist.h
+--- /home/timshel/src/debian/dpatch/parted/parted-1.6.6/parted/strlist.h	2004-02-24 12:02:11.000000000 +1100
++++ parted-1.6.6/parted/strlist.h	2004-02-24 12:02:20.000000000 +1100
+@@ -47,6 +47,8 @@
+ extern char* str_list_convert_node (const StrList* list);
+ 
+ extern void str_list_print (const StrList* list);
++extern void str_list_fprint_wrap (FILE *fd, const StrList* list,
++				  int line_length, int offset, int indent);
+ extern void str_list_print_wrap (const StrList* list, int line_length,
+ 				 int offset, int indent);
+ extern int str_list_match_any (const StrList* list, const char* str);
+diff -urNad /home/timshel/src/debian/dpatch/parted/parted-1.6.6/parted/ui.c parted-1.6.6/parted/ui.c
+--- /home/timshel/src/debian/dpatch/parted/parted-1.6.6/parted/ui.c	2004-02-24 12:02:11.000000000 +1100
++++ parted-1.6.6/parted/ui.c	2004-02-24 12:02:20.000000000 +1100
+@@ -257,7 +257,12 @@
+ 			   ": ", ex->message, "\n", NULL);
+ 	}
+ 
+-	str_list_print_wrap (text, screen_width (), 0, 0);
++	/* print exception to stderr if in script mode */
++	if (opt_script_mode) {
++		str_list_fprint_wrap (stderr, text, screen_width (), 0, 0);
++	} else {
++		str_list_print_wrap (text, screen_width (), 0, 0);
++	}
+ 	str_list_destroy (text);
+ }
+ 
