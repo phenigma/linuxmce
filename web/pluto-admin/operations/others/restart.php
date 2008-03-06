@@ -64,17 +64,23 @@ function restart($output,$dbADO) {
 			</tr>		
 		
 		';
-		foreach($MDArray AS $mdID=>$description){
-			$out.='
-			<tr>
-				<td><B>'.$description.'</B></td>
-				<td><input type="radio" name="boot_'.$mdID.'" value="V" onClick="self.location=\'index.php?section=restart&action=V&device='.$mdID.'\'"> '.$TEXT_HDD_CONST.' </td>
-				<td><input type="radio" name="boot_'.$mdID.'" value="net" onClick="self.location=\'index.php?section=restart&action=N&device='.$mdID.'\'"> '.$TEXT_NET_CONST.'</td>
-				<td><input type="submit" class="button" name="halt_'.$mdID.'" value="'.$TEXT_HALT_CONST.'"></td>
-				<td><input type="submit" class="button" name="suspend_'.$mdID.'" value="'.$TEXT_SUSPEND_CONST.'"></td>
-				<td><input type="submit" class="button" name="reboot_'.$mdID.'" value="'.$TEXT_REBOOT_CONST.'"></td>
-			</tr>			
-			';
+
+		if(count($MDArray)>0){
+			$mdParents=getAssocArray('Device','PK_Device','FK_Device_ControlledVia',$dbADO,'WHERE PK_Device IN ('.join(',',array_keys($MDArray)).')');
+			foreach($MDArray AS $mdID=>$description){
+				if(@$mdParents[$mdID]!=$coreID){
+					$out.='
+					<tr>
+						<td><B>'.$description.'</B></td>
+						<td><input type="radio" name="boot_'.$mdID.'" value="V" onClick="self.location=\'index.php?section=restart&action=V&device='.$mdID.'\'"> '.$TEXT_HDD_CONST.' </td>
+						<td><input type="radio" name="boot_'.$mdID.'" value="net" onClick="self.location=\'index.php?section=restart&action=N&device='.$mdID.'\'"> '.$TEXT_NET_CONST.'</td>
+						<td><input type="submit" class="button" name="halt_'.$mdID.'" value="'.$TEXT_HALT_CONST.'"></td>
+						<td><input type="submit" class="button" name="suspend_'.$mdID.'" value="'.$TEXT_SUSPEND_CONST.'"></td>
+						<td><input type="submit" class="button" name="reboot_'.$mdID.'" value="'.$TEXT_REBOOT_CONST.'"></td>
+					</tr>			
+					';
+				}
+			}
 		}
 		$out.='
 		</table>
