@@ -5,7 +5,7 @@ Maintainer: Ubuntu Core developers <ubuntu-devel-discuss@lists.ubuntu.com>
 XSBC-Original-Maintainer: Parted Maintainer Team <parted-maintainers@lists.alioth.debian.org>
 Uploaders: Sven Luther <luther@debian.org>, Otavio Salvador <otavio@debian.org>, Bastian Blank <waldi@debian.org>
 Standards-Version: 3.6.2
-Build-Depends: debhelper (>= 5.0.22), dpatch, libncurses-dev | libncurses5-dev, libreadline5-dev | libreadline-dev, uuid-dev, gettext, texinfo (>= 4.2), debianutils (>= 1.13.1), autoconf, automake1.8, libtool, libgeom-dev [kfreebsd-i386 kfreebsd-amd64], cvs
+Build-Depends: debhelper (>= 5.0.22), dpatch, libncurses-dev | libncurses5-dev, libreadline5-dev | libreadline-dev, uuid-dev, gettext, texinfo (>= 4.2), debianutils (>= 1.13.1), autoconf, automake1.10, libtool, libgeom-dev [kfreebsd-i386 kfreebsd-amd64], cvs
 
 Package: parted
 Architecture: any
