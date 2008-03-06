@@ -30,7 +30,7 @@ DEBPKGVER = $(shell dpkg-parsechangelog | sed -n -e '/^Version: /{s///;p;q;}')
 # end if there isn't already one, otherwise increment the letter that is
 # already there.
 # When incrementing this, also set DEPVER to the current package version.
-LIBPKGVER = 1.7
+LIBPKGVER = 1.8
 
 # Append the LIBPKGVER to non-lib package names? This is useful when building
 # packages of the development versions of parted (eg. to build a parted1.5
@@ -39,7 +39,7 @@ LIBPKGVER = 1.7
 
 # The first version of the package to build with the current LIBPKGVER
 # This should be changed to the current version when LIBPKGVER is changed ...
-DEPVER = 1.7.1-1
+DEPVER = 1.8.0-1
 
 # This is the library's soname. The build will fail if this is wrong, since
 # if the soname has changed we need to update stuff ...
@@ -176,7 +176,7 @@ packaging-files: $(GENFILES)
 
 autotools-update: autotools-update-stamp
 autotools-update-stamp: patch-stamp
-	 ACLOCAL=aclocal-1.8 AUTOMAKE=automake-1.8 autoreconf -f -i
+	 ACLOCAL=aclocal-1.10 AUTOMAKE=automake-1.10 autoreconf -f -i
 	 touch $@
 
 build-deb/config.status: autotools-update-stamp
