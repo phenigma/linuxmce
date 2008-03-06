@@ -15,6 +15,7 @@ function rippingStatus($output,$dbADO,$mediadbADO) {
 		'p' => "in progress",
 		'e' => "error",
 		's' => "success",
+		'a' => "aborted",
 		'' => 'unknown status'
 	);
 
