@@ -354,7 +354,7 @@ void Xine_Stream_Factory::setAudioSettings()
 		
 		case 'S':		
 		case 'L':
-			sAlsaDevice = "plughw:0";
+			sAlsaDevice = "plug:dmix";
 			break;
 		
 		case '3':
