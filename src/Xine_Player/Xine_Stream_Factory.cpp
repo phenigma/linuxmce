@@ -339,7 +339,7 @@ void Xine_Stream_Factory::setAudioSettings()
 	}
 	
 	bool updateConfig = true;
-	string sAlsaDevice = "default";
+	string sAlsaDevice = "plug:dmix";
 	string sSpeakersArrangement = "Stereo 2.0";
 	bool bUsePassThrough = false;
 	
