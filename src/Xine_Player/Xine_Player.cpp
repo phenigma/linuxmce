@@ -235,6 +235,10 @@ void Xine_Player::CMD_Simulate_Mouse_Click(int iPosition_X,int iPosition_Y,int i
 void Xine_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPosition,string sMediaURL,string &sCMD_Result,Message *pMessage)
 //<-dceag-c37-e->
 {
+//<-mkr_b_aj_b->
+	ProcessUtils::ResetMsTime();
+//<-mkr_b_aj_e->
+
 //<-mkr_b_via_b->
 #ifdef VIA
     if (!m_bCodecIsOK)
@@ -1317,9 +1321,12 @@ void Xine_Player::ReportTimecodeViaIP(int iStreamID, int Speed)
         mediaInfo.m_sFileName = pStream->m_sCurrentFile;
         mediaInfo.m_sMediaType = pStream->m_sMediaType;
         mediaInfo.m_iMediaID = pStream->m_iMediaID;
+//<-mkr_b_aj_b->
+		 mediaInfo.m_iPositionInMillisecond = ProcessUtils::GetMsTime();
+//<-mkr_b_aj_e->
 	
         string sIPTimeCodeInfo = mediaInfo.ToString();
-	
+
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"reporting timecode stream %d speed %d %s", iStreamID, Speed, sIPTimeCodeInfo.c_str() );
 	m_pNotificationSocket->SendStringToAll( sIPTimeCodeInfo );
 }
