@@ -6,7 +6,7 @@ Debug=0
 FromHdd=0
 Upgrade=0
 KeepMedia=0
-LinuxMCE_Password=0
+LinuxMCE_Password=
 grep -q "install_from_hdd" /proc/cmdline && FromHdd="1"
 
 if grep -q "noinst" /proc/cmdline; then
@@ -115,7 +115,7 @@ GetHddToUse()
 		done
 		clear
 
-		if [[ "$Upgrade" != "1" ]] ;then
+		if [[ "$Upgrade" != "1" && "$KeepMedia" != "1" ]] ;then
 			while [[ "$LinuxMCE_Password" == "" ]] ;do
 				echo -n 'Please enter a password for "linuxmce" system user : '
 				read Password
