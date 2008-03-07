@@ -70,6 +70,8 @@ public:
 	virtual ~SDLFrontEnd();
 	
 	bool HasEventPending();
+
+	SDL_Event& GetLastEvent() { return Event; }
 	
 	void TranslateEvent(WM_Event& WMEvent);
 	

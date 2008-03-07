@@ -73,7 +73,7 @@ void GalleryScenario::Reset()
 	StateMachine = new GaleryStateMachine();
 }
 
-bool GalleryScenario::Update(void)
+bool GalleryScenario::Update(bool bForceRefresh)
 {
 	glEnable(GL_BLEND);
 	int Status = StateMachine->GetStatus();
@@ -100,6 +100,12 @@ bool GalleryScenario::Update(void)
 			BeforePicture->Update(CurrentTime);
 			BeforePicture->Paint();
 			nLastTimeUpdated = SDL_GetTicks();
+			return true;
+		}
+
+		if(bForceRefresh)
+		{
+			BeforePicture->Paint();
 			return true;
 		}
 

@@ -91,7 +91,8 @@ void Gallery::MainLoop(Photo_Screen_Saver *pPhoto_Screen_Saver)
 			PLUTO_SAFETY_LOCK_ERRORSONLY(vm, m_FrontEndMutex);
 			if(StatusChange && !m_bSuspended)
 			{
-				PaintScreen();
+				bool bForceFlip = FrontEnd->GetLastEvent().type == SDL_VIDEOEXPOSE;
+				PaintScreen(bForceFlip);
 				vm.Release();
 				_Sleep(35);
 			}
@@ -146,12 +147,12 @@ void Gallery::RefreshFileList(string sFileList)
 	Scenario->RefreshFileList(sFileList);
 }
 
-void Gallery::PaintScreen(void)
+void Gallery::PaintScreen(bool bForceRefresh)
 {
 	Utils.ResetMsTime();
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	if(Scenario->Update())
+	if(Scenario->Update(bForceRefresh))
 		FrontEnd->Flip();
 }
 

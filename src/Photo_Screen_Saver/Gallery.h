@@ -47,7 +47,7 @@ class Gallery
 	Gallery();
 	static Gallery m_Instance;
 
-	void PaintScreen(void);
+	void PaintScreen(bool bForceRefresh);
 
 	ExtensionManager Extensions;
 	SDLFrontEnd* FrontEnd;

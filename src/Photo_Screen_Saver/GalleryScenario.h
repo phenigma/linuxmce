@@ -54,7 +54,7 @@ public:
 		string SearchImageFolder, bool bUseAnimation, int nMaxSize);
 	~GalleryScenario();
 
-	bool Update(void);
+	bool Update(bool bForceRefresh);
 	void RefreshFileList(string sFileList);
 
 	void Reset();
