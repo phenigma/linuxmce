@@ -1,4 +1,5 @@
 alsa-utils
+asterisk-sounds-extra
 binutils
 coreutils
 cpp-3.3
@@ -11,6 +12,7 @@ g++-4.1
 kdelibs4c2a
 kdelibs-data
 libapache2-mod-php5
+libasound2-plugins
 libavcodec1d
 libc6
 libc6-dev
@@ -64,4 +66,3 @@ xfwm4
 xine-ui
 xserver-xorg-core
 zenity
-
