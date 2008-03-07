@@ -492,6 +492,11 @@ private:
 
 	string GetCallerName(string sChannel, string sCallerID);
 
+	/*
+	 *	sound card settings : concurrent access allowed?
+	 */
+	bool ConcurrentAccessToSoundCardAllowed(int nOrbiterID);
+
 private:
 	int iCmdCounter;
 	int generate_NewCommandID();

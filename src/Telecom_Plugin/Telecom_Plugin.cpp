@@ -815,9 +815,19 @@ Telecom_Plugin::Ring( class Socket *pSocket, class Message *pMessage, class Devi
 		Command_Impl * pMediaPlugin = m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_Media_Plugin_CONST);
 		if( pMediaPlugin != NULL )
 		{
-			DCE::CMD_MH_Stop_Media CMD_MH_Stop_Media_
-				(nOrbiterDeviceID, pMediaPlugin->m_dwPK_Device, nOrbiterDeviceID, 0, 0, "", false);
-			SendCommand(CMD_MH_Stop_Media_);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "XXX Telecom_Plugin : pause device %d", nOrbiterDeviceID);
+
+			if(ConcurrentAccessToSoundCardAllowed(nOrbiterDeviceID))
+			{
+				DCE::CMD_Pause_Media cmd_Pause_Media(nOrbiterDeviceID, pMediaPlugin->m_dwPK_Device, 0);
+				SendCommand(cmd_Pause_Media);
+			}
+			else
+			{
+				DCE::CMD_MH_Stop_Media CMD_MH_Stop_Media_
+					(nOrbiterDeviceID, pMediaPlugin->m_dwPK_Device, nOrbiterDeviceID, 0, 0, "", false);
+				SendCommand(CMD_MH_Stop_Media_);
+			}
 		}
 		else
 		{
@@ -1035,6 +1045,22 @@ bool Telecom_Plugin::Hangup( class Socket *pSocket, class Message *pMessage, cla
 
 			DCE::SCREEN_Call_Dropped_DL screen_SCREEN_Call_Dropped_DL(m_dwPK_Device, sOrbiters, sReason);
 			SendCommand(screen_SCREEN_Call_Dropped_DL); 
+		}
+
+		if(ConcurrentAccessToSoundCardAllowed(nOrbiterDeviceID))
+		{
+        Command_Impl * pMediaPlugin = m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_Media_Plugin_CONST);
+        if( pMediaPlugin != NULL )
+        {
+                LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "XXX Telecom_Plugin : resume %d", nOrbiterDeviceID);
+
+                DCE::CMD_Change_Playback_Speed cmd_Change_Playback_Speed(nOrbiterDeviceID, pMediaPlugin->m_dwPK_Device, 0, 1000, 0);
+                SendCommand(cmd_Change_Playback_Speed);
+        }
+        else
+        {
+                LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Telecom_Plugin : No media plugin!");
+		}
 		}
 	}
 
@@ -3355,9 +3381,20 @@ bool Telecom_Plugin::InternalMakeCall(int iFK_Device_From, string sFromExten, st
 			Command_Impl * pMediaPlugin = m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_Media_Plugin_CONST);
 			if( pMediaPlugin != NULL )
 			{
-				DCE::CMD_MH_Stop_Media CMD_MH_Stop_Media_
-					(iFK_Device_From, pMediaPlugin->m_dwPK_Device, iFK_Device_From, 0, 0, "", false);
-				SendCommand(CMD_MH_Stop_Media_);
+				//TODO: to orbiter?
+
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "XXX Telecom_Plugin : pause device %d", iFK_Device_From);
+
+				if(ConcurrentAccessToSoundCardAllowed(iFK_Device_From))
+				{
+					DCE::CMD_Pause_Media cmd_Pause_Media(iFK_Device_From, pMediaPlugin->m_dwPK_Device, 0);
+					SendCommand(cmd_Pause_Media);
+				}
+				else
+				{
+					DCE::CMD_MH_Stop_Media CMD_MH_Stop_Media_(iFK_Device_From, pMediaPlugin->m_dwPK_Device, iFK_Device_From, 0, 0, "", false);
+					SendCommand(CMD_MH_Stop_Media_);
+				}
 			}
 			else
 			{
@@ -3900,4 +3937,46 @@ string Telecom_Plugin::GetCallerName(string sChannel, string sCallerID)
 		sCallerName.c_str(), sChannel.c_str(), sExten.c_str());
 
 	return sCallerName;
+}
+
+bool Telecom_Plugin::ConcurrentAccessToSoundCardAllowed(int nOrbiterID)
+{
+	DeviceData_Router *pDevice_Orbiter = m_pRouter->m_mapDeviceData_Router_Find(nOrbiterID);
+
+	if(NULL != pDevice_Orbiter)
+	{
+		DeviceData_Base *pDevice_MD = pDevice_Orbiter->FindSelfOrParentWithinCategory(DEVICECATEGORY_Media_Director_CONST);
+
+		if(NULL != pDevice_MD)
+		{
+			string sAudioSettings;
+			CMD_Get_Device_Data_DT cmd_Get_Device_Data_DT(
+				m_dwPK_Device, DEVICETEMPLATE_General_Info_Plugin_CONST, BL_SameHouse,
+				pDevice_MD->m_dwPK_Device, DEVICEDATA_Audio_settings_CONST, true,
+				&sAudioSettings
+			);
+			SendCommand(cmd_Get_Device_Data_DT);
+
+			// search for C or O, if it is present - then no simultaneous access
+			if(sAudioSettings.find("C") == string::npos && sAudioSettings.find("O") == string::npos)
+			{
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Audio settings '%s', concurrent access allowed!", sAudioSettings.c_str());
+				return true;
+			}
+			else
+			{
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Audio settings '%s', concurrent access is NOT allowed!", sAudioSettings.c_str());
+			}
+		}
+		else
+		{
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Can't find parent MD device for %d", nOrbiterID);
+		}
+	}
+	else
+	{
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Can't find device %d", nOrbiterID);
+	}
+		
+	return false;
 }
