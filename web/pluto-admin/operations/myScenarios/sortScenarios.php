@@ -53,11 +53,7 @@ function sortScenarios($output,$dbADO) {
 			ORDER BY FK_'.$sortBy.' ASC,Sort ASC';
 		$resCommandGroups=$dbADO->Execute($selectCommandGroups,array($installationID));
 		$pos=0;
-		$posInArea=array();
-		while($rowCG=$resCommandGroups->FetchRow()){
-			if($rowCG['FK_'.$sortBy]!='')
-			$posInArea[$rowCG['PK_CommandGroup']]=$rowCG['Sort'];
-		}
+
 
 		$resCommandGroups->MoveFirst();
 		$startArea=-1;
@@ -75,8 +71,8 @@ function sortScenarios($output,$dbADO) {
 			$out.='
 			<tr bgcolor="'.(($rowCG['PK_CommandGroup']==@$_REQUEST['lastAdded'])?'lightgreen':'').'">
 				<td width="80" align="center">'.(($rowCG['FK_'.$sortBy.'']!='')?'
-					<input type="button" class="button" name="posDown" value="U" onClick="self.location=\'index.php?section=sortScenarios&cgID='.$rowCG['PK_CommandGroup'].'&action=process&'.$sortBy.'ID='.$rowCG['FK_'.$sortBy.''].'&operation=down&posInArea='.urlencode(serialize($posInArea)).'&sortBy='.$sortBy.'\'"> 
-					<input type="button" class="button" name="posUp" value="D" onClick="self.location=\'index.php?section=sortScenarios&cgID='.$rowCG['PK_CommandGroup'].'&action=process&'.$sortBy.'ID='.$rowCG['FK_'.$sortBy.''].'&operation=up&posInArea='.urlencode(serialize($posInArea)).'&sortBy='.$sortBy.'\'">':'').'</td>
+					<input type="button" class="button" name="posDown" value="U" onClick="self.location=\'index.php?section=sortScenarios&cgID='.$rowCG['PK_CommandGroup'].'&action=process&'.$sortBy.'ID='.$rowCG['FK_'.$sortBy.''].'&operation=up&sort='.$rowCG['Sort'].'&sortBy='.$sortBy.'\'"> 
+					<input type="button" class="button" name="posUp" value="D" onClick="self.location=\'index.php?section=sortScenarios&cgID='.$rowCG['PK_CommandGroup'].'&action=process&'.$sortBy.'ID='.$rowCG['FK_'.$sortBy.''].'&operation=down&sort='.$rowCG['Sort'].'&sortBy='.$sortBy.'\'">':'').'</td>
 				<td> Description: '.((!in_array($rowCG['PK_CommandGroup'],$displayedCommandGroups))?'<input type="text" name="commandGroup_'.$rowCG['PK_CommandGroup'].'" value="'.$rowCG['Description'].'"> Hint: <input type="text" name="hintCommandGroup_'.$rowCG['PK_CommandGroup'].'" value="'.$rowCG['Hint'].'">':'<b>'.$rowCG['Description'].': </b>Hint: <b>'.$rowCG['Hint'].'</b> (See '.$firstAreaArray[$rowCG['PK_CommandGroup']].')').'
 				Category: <B>'.$categoryArray[$rowCG['FK_Template']].'</B>
 				</td>
@@ -107,41 +103,35 @@ function sortScenarios($output,$dbADO) {
 			exit();
 		}
 
-
+//$dbADO->debug=true;
 		if(isset($_REQUEST['operation'])){
 			$fromCgID=$_REQUEST['cgID'];
 			$areaID=@$_REQUEST[''.$sortBy.'ID'];
 			$operation=$_REQUEST['operation'];
-			$posInArea=unserialize(stripslashes($_REQUEST['posInArea']));
-			asort($posInArea);
+			$sort=$_REQUEST['sort'];
 			if($operation=='up'){
-				$offset=array_keys($posInArea);
-				$fromPos=array_search($fromCgID,$offset);
-				if(isset($offset[$fromPos+1])){
-					$toCgID=$offset[$fromPos+1];
-
-					$fromSort=$posInArea[$fromCgID];
-					$toSort=$posInArea[$toCgID];
-
-					$updateCG_R='UPDATE CommandGroup_'.$sortBy.' SET Sort=? WHERE FK_CommandGroup=? AND FK_'.$sortBy.'=?';
-					$dbADO->Execute($updateCG_R,array($toSort,$fromCgID,$areaID));
-					$dbADO->Execute($updateCG_R,array($fromSort,$toCgID,$areaID));
-					$msg=$TEXT_POSITIONS_UPDATED_CONST;
+				if($sort>0){
+					$res=$dbADO->Execute('SELECT FK_CommandGroup,Sort FROM CommandGroup_'.$sortBy.' WHERE FK_'.$sortBy.'=? AND Sort<? ORDER BY Sort DESC LIMIT 0,1',array($areaID,$sort));
+					if($res->RecordCount()>0){
+						$row=$res->FetchRow();
+						
+						$updateCG_R='UPDATE CommandGroup_'.$sortBy.' SET Sort=? WHERE FK_CommandGroup=? AND FK_'.$sortBy.'=?';
+						$dbADO->Execute($updateCG_R,array($sort,$row['FK_CommandGroup'],$areaID));
+						$dbADO->Execute($updateCG_R,array($row['Sort'],$fromCgID,$areaID));
+						$msg=$TEXT_POSITIONS_UPDATED_CONST;
+					}
 				}
 			}else{
-				$offset=array_keys($posInArea);
-				$fromPos=array_search($fromCgID,$offset);
-
-				if(isset($offset[$fromPos-1])){
-					$toCgID=$offset[$fromPos-1];
-
-					$fromSort=$posInArea[$fromCgID];
-					$toSort=$posInArea[$toCgID];
-
-					$updateCG_R='UPDATE CommandGroup_'.$sortBy.' SET Sort=? WHERE FK_CommandGroup=? AND FK_'.$sortBy.'=?';
-					$dbADO->Execute($updateCG_R,array($toSort,$fromCgID,$areaID));
-					$dbADO->Execute($updateCG_R,array($fromSort,$toCgID,$areaID));
-					$msg=$TEXT_POSITIONS_UPDATED_CONST;
+				if($sort>0){
+					$res=$dbADO->Execute('SELECT FK_CommandGroup,Sort FROM CommandGroup_'.$sortBy.' WHERE FK_'.$sortBy.'=? AND Sort>? ORDER BY Sort Asc LIMIT 0,1',array($areaID,$sort));
+					if($res->RecordCount()>0){
+						$row=$res->FetchRow();
+						
+						$updateCG_R='UPDATE CommandGroup_'.$sortBy.' SET Sort=? WHERE FK_CommandGroup=? AND FK_'.$sortBy.'=?';
+						$dbADO->Execute($updateCG_R,array($sort,$row['FK_CommandGroup'],$areaID));
+						$dbADO->Execute($updateCG_R,array($row['Sort'],$fromCgID,$areaID));
+						$msg=$TEXT_POSITIONS_UPDATED_CONST;
+					}
 				}
 			}
 		}else{
