@@ -44,6 +44,8 @@ Next_IP=$DHCP_Start
 for Device in $R ;do
 	Device_ID=$(Field 1 "$Device");
 	RunSQL "UPDATE Device SET IPaddress='$Next_IP' WHERE PK_Device='$Device_ID' LIMIT 1"
+	RunSQL "UPDATE Device SET NeedConfigure = 1 WHERE PK_Device='$Device_ID' LIMIT 1"
+	RunSQL "UPDATE Device SET Status = '**RUN_CONFIG**' WHERE PK_Device='$Device_ID' LIMIT 1"
 	
 	Next_IP=$(IncIP $Next_IP)
 done
