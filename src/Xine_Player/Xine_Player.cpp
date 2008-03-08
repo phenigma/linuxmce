@@ -19,6 +19,7 @@
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
+#include "PlutoUtils/ProcessUtils.h"
 
 #include <iostream>
 using namespace std;
@@ -1322,7 +1323,7 @@ void Xine_Player::ReportTimecodeViaIP(int iStreamID, int Speed)
         mediaInfo.m_sMediaType = pStream->m_sMediaType;
         mediaInfo.m_iMediaID = pStream->m_iMediaID;
 //<-mkr_b_aj_b->
-		 mediaInfo.m_iPositionInMillisecond = ProcessUtils::GetMsTime();
+		 mediaInfo.m_iPositionInMilliseconds = ProcessUtils::GetMsTime();
 //<-mkr_b_aj_e->
 	
         string sIPTimeCodeInfo = mediaInfo.ToString();

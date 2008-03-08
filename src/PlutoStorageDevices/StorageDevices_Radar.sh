@@ -84,7 +84,7 @@ function Detect {
 			Sent="false"
 			Count=0
 			while [[ "$Sent" == "false" ]] ;do
-				/usr/pluto/bin/MessageSend $DCERouter $PK_Device -1001 2 65 55 "$DD_UUID|$partition_uuid" 54 "$partition_uuid" 52 8 49 1790
+				/usr/pluto/bin/MessageSend $DCERouter $PK_Device -1001 2 65 55 "$DD_UUID|$partition_uuid" 54 "$partition_uuid" 52 8 49 1790 13 "internal drive"
 				err=$?
 
 				if [[ "$err" == "0" ]] ;then

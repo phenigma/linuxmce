@@ -4510,49 +4510,40 @@ void ScreenHandler::SCREEN_aJAd(long PK_Screen, string sFilename, string sURL)
 	}
 	else
 	{
+		ScreenHandlerBase::SCREEN_aJAd(PK_Screen, sFilename, sURL);
 		string::size_type pos=0;
 		string sPictureFile = StringUtils::Tokenize(sFilename,"|",pos);
-		string sVideoFile = StringUtils::Tokenize(sFilename,"|",pos);
 		size_t size;
 		char *pGraphicData = m_pOrbiter->ReadFileIntoBuffer(sPictureFile,size);
 		m_pOrbiter->CMD_Update_Object_Image("5647.0.0.5580","jpg",
 			pGraphicData,
 			(int) size,"0");
-		m_pOrbiter->CMD_Set_Variable(VARIABLE_URL_from_phone_CONST, sURL);
-		m_pOrbiter->CMD_Set_Variable(VARIABLE_Filename_CONST, sVideoFile);
+		m_pOrbiter->CMD_Set_Variable(VARIABLE_Filename_CONST, sFilename);
 		RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::Aj_ObjectSelected,	new ObjectInfoBackData());
-		ScreenHandlerBase::SCREEN_aJAd(PK_Screen, sFilename, sURL);
 	}
 }
 
 bool ScreenHandler::Aj_ObjectSelected(CallBackData *pData)
 {
+	static int iPK_Device_aj = 0;
+	if( iPK_Device_aj==0 )
+	{
+        DeviceData_Base *pDevice = m_pOrbiter->m_pData->m_AllDevices.m_mapDeviceData_Base_FindFirstOfTemplate(DEVICETEMPLATE_THX_Blackbird_CONST);
+		if( pDevice )
+			iPK_Device_aj = pDevice->m_dwPK_Device;
+		else
+			return false;  // Can't do anything
+	}
+
 	ObjectInfoBackData *pObjectInfoData = (ObjectInfoBackData *)pData;
 	if( pObjectInfoData->m_pObj->m_iBaseObjectID==5580 )
 	{
-		string sURL = m_pOrbiter->m_mapVariable_Find(VARIABLE_URL_from_phone_CONST);
-
-#if defined(WIN32) && !defined(WINCE)
-		//starting the new orbiter
-		PROCESS_INFORMATION pi;
-		::ZeroMemory(&pi, sizeof(PROCESS_INFORMATION));
-
-		STARTUPINFO si;
-		::ZeroMemory(&si, sizeof(STARTUPINFO));
-		si.cb = sizeof(STARTUPINFO);
-		si.lpReserved = 0;
-
-		string sCompleteCmdLine = "explorer \"" + sURL + "\"";
-		::CreateProcess(NULL, const_cast<char *>(sCompleteCmdLine.c_str()), NULL, NULL, NULL, 0, NULL, NULL, &si, &pi);
-#endif 
+		int X = pObjectInfoData->m_X - pObjectInfoData->m_pObj->m_rPosition.X;
+		int Y = pObjectInfoData->m_Y - pObjectInfoData->m_pObj->m_rPosition.Y;
+		DCE::CMD_Simulate_Mouse_Click CMD_Simulate_Mouse_Click(m_pOrbiter->m_dwPK_Device_CaptureCard,iPK_Device_aj,X,Y,0);
+		m_pOrbiter->SendCommand(CMD_Simulate_Mouse_Click);
 	}
-	else if( pObjectInfoData->m_pObj->m_iBaseObjectID==5581 )
-	{
-		string sFile = m_pOrbiter->m_mapVariable_Find(VARIABLE_Filename_CONST);
-		DCE::CMD_MH_Play_Media CMD_MH_Play_Media(m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device_MediaPlugIn,
-			0,sFile,0,0,StringUtils::itos( m_pOrbiter->m_pLocationInfo->PK_EntertainArea ),false,0);
-		m_pOrbiter->SendCommand(CMD_MH_Play_Media);
-	}
+
 	return false;
 }
 //<-mkr_b_aj_e->

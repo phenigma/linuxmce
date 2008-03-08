@@ -1667,8 +1667,8 @@ string PnpQueue::GetDescription(PnpQueueEntry *pPnpQueueEntry)
 
 	if( pRow_DeviceTemplate )
 	{
-		if( pRow_DeviceTemplate->FK_DeviceCategory_get()==DEVICECATEGORY_Hard_Drives_CONST && pPnpQueueEntry->m_mapPK_DeviceData.find(DEVICEDATA_Block_Device_CONST)!=pPnpQueueEntry->m_mapPK_DeviceData.end() )
-			sDescription = pPnpQueueEntry->m_mapPK_DeviceData[DEVICEDATA_Block_Device_CONST];
+		if( pRow_DeviceTemplate->FK_DeviceCategory_get()==DEVICECATEGORY_Hard_Drives_CONST )
+			sDescription = "Drive: " + pPnpQueueEntry->m_sText;
 		else if( pRow_DeviceTemplate->FK_DeviceCategory_get()==DEVICECATEGORY_Network_Storage_CONST && pPnpQueueEntry->m_pRow_Device_Reported )
 			sDescription = pPnpQueueEntry->m_pRow_Device_Reported->Description_get() + " / " + pPnpQueueEntry->m_mapPK_DeviceData[DEVICEDATA_Share_Name_CONST];
 		else if( pRow_DeviceTemplate->FK_DeviceCategory_get()==DEVICECATEGORY_FileMedia_Server_CONST )
