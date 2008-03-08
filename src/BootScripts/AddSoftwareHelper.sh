@@ -11,7 +11,7 @@ PackageID=$3
 OrbiterID=$4
 
 ASH_LogFile="/var/log/pluto/AddSoftwareHelper.log"
-ASH_Cache="/usr/pluto/var/addsoftware"
+ASH_Cache="/usr/pluto/var/addsoftware-cache"
 
 MyLog()
 {
