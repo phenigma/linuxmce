@@ -1,4 +1,4 @@
-parted (1.8.8-0~lmce1) unstable; urgency=low
+parted (1.8.8-1~lmce1) unstable; urgency=low
 
   * Using parted version 1.8.8 from GNU
 
