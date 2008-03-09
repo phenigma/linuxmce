@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "LG TV Detection script queue $2"
-/usr/pluto/bin/TestSerialPort -p $3 -P N81 -b 9600 -t "ka 01 01\r\n" -s "01 OK" -i 8
+/usr/pluto/bin/TestSerialPort -p $3 -P N81 -b 9600 -t "ka 01 01\r\n" -s "a 01 " -i 8
 
 if [[ "$?" -ne 0 ]]; then
 echo "It's not a LG TV"
