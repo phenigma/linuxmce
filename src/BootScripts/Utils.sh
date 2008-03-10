@@ -167,6 +167,24 @@ FindDevice_Category()
 	return $?
 }
 
+# Get the device number for the parent of the given device
+# Returns: number or empty string
+GetDeviceParent()
+{
+	local PK_Device="$1"
+	Q="
+		SELECT FK_Device_ControlledVia
+		FROM Device
+		WHERE PK_Device='$PK_Device'
+	"
+	local R=$(RunSQL "$Q")
+	
+	if [[ "$R" == NULL ]]; then
+		R=""
+	fi
+	echo "$R"
+}
+
 XineConfSet()
 {
 	local Setting="$1"
