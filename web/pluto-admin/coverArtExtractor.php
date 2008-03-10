@@ -87,7 +87,7 @@ foreach ($Result['ItemSearchResponse']['Items'][0]['Item'] as $item) {
 		$mediadbADO->Execute('INSERT INTO CoverArtScanEntry (FK_CoverArtScan,ID,URL,Attributes) VALUES (?,?,?,?)',array($casID,$item["ASIN"][0],$item["LargeImage"]["URL"],$attributes));
 		$entryID=$mediadbADO->Insert_ID();
 		savePic($item['LargeImage']['URL'],$coverArtPath.$entryID.'.jpg');
-		$resizeFlag=resizeImage($coverArtPath.$entryID.'.jpg', $coverArtPath.$entryID.'_tn.jpg', 100, 100);
+		$resizeFlag=resizeImage($coverArtPath.$entryID.'.jpg', $coverArtPath.$entryID.'_tn.jpg', 256, 256);
 		
 	}
 }
