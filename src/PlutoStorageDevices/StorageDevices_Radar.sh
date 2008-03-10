@@ -78,13 +78,14 @@ function Detect {
 			#/usr/pluto/bin/MessageSend $DCERouter 0 $OrbiterIDList 1 741 159 228 109 "/dev/$partition" 156 $PK_Device 163 "$InfoMessage"
 
 			## Get info about this partition
+			partition_diskname=(udevinfo --query=all --name="/dev/$partition" | grep 'ID_MODEL' | cut -d'=' -f2)
 			partition_haludi=$(hal-find-by-property --key 'block.device' --string "/dev/$partition")
 			partition_uuid=$(hal-get-property --udi "$partition_haludi" --key 'volume.uuid')
 			
 			Sent="false"
 			Count=0
 			while [[ "$Sent" == "false" ]] ;do
-				/usr/pluto/bin/MessageSend $DCERouter $PK_Device -1001 2 65 55 "$DD_UUID|$partition_uuid" 54 "$partition_uuid" 52 8 49 1790 13 "internal drive"
+				/usr/pluto/bin/MessageSend $DCERouter $PK_Device -1001 2 65 55 "$DD_UUID|$partition_uuid" 54 "$partition_uuid" 52 8 49 1790 13 "$partition_diskname [$partition]"
 				err=$?
 
 				if [[ "$err" == "0" ]] ;then
