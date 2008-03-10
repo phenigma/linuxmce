@@ -1625,6 +1625,12 @@ switch ($section) {
 	    include_once('operations/deviceTemplate/commMethod.php');
 	    commMethod($output,$dbADO);	    
 	break;		
+	case 'upnpServer':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/others/upnpServer.php');
+	    upnpServer($output,$dbADO);	    
+	break;		
 	
 	case 'index';
 		@$_SESSION['lastLeftFrameSrc']='';
