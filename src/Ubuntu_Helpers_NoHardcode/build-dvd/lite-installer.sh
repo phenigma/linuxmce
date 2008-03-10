@@ -80,31 +80,44 @@ GetHddToUse()
 		mkdir -p /media/target
 		for Drive in $HddList; do
 				DiskDev="${Drive%%:*}"
+				set +e
+				DiskSize="${Drive#*:}"
+				DiskDescription="$(hdparm -I $DiskDev | grep "Model Number:" | cut -d ':' -f2 | sed 's/ *//g')"
+				DiskSerial="$(hdparm -I $DiskDev | grep "Serial Number:" | cut -d ':' -f2 | sed 's/ *//g')"
+				set -e
 				if mount "$DiskDev"1 /media/target; then
 					if [[ -f /media/target/etc/pluto.conf ]]; then
 						Choice=
 						until [[ "$Choice" == [YyNn] ]] ;do
+							clear	
+							echo "Detected Previous Installation"
+							echo "=============================="
 							echo
-							echo "* Found an existing installation on drive '$DiskDev'. Use this drive (Y/N) ?"
-							
-							echo -n "Answer :  "
+							echo "I've found an old installation on drive :"
+							echo "    $DiskDev ($DiskDescription $DiskSerial ${DiskSize//:/ })"
+							echo
+							echo -n "Do you want to use this drive (Y/N) ? "
 							read Choice
 						done
 
 						if [[ "$Choice" == [Yy] ]] ;then
 							Choice=
 							until [[ "$Choice" == [123] ]]; do
-								echo "1. Preserve my setting and /home directory."
-								echo "2. Preserve my /home directory only."
-								echo "3. Do a clean install without keeping anything."
-
+								clear
+								echo "Previous Installation Options"
+								echo "============================="
+								echo 
+								echo "Choose :"
+								echo "    1. Preserve my setting and /home directory."
+								echo "    2. Preserve my /home directory only."
+								echo "    3. Do a clean install without keeping anything."
+								echo 
 								echo -n "Answer :  "
 								read Choice
+
 								if [[ "$Choice" != [123] ]]; then
-									echo
-									echo "*************************************"
-									echo "* Please answer with a valid option *"
-									echo "*************************************"
+									echo "Invalid selection. Try again"
+									sleep 1; clear
 								fi
 							done
 							if [[ "$Choice" == "1" ]]; then
@@ -131,47 +144,66 @@ GetHddToUse()
 		done
 		clear
 
-		if [[ "$Upgrade" != "1" ]] || [[ "$Upgrade" == "1" && "$KeepMedia" == "1" ]] ;then
-			while [[ "$LinuxMCE_Password" == "" ]] ;do
-				echo -n 'Please enter a password for "linuxmce" system user : '
-				read Password
-				if [[ "$Password" != "" ]] ;then
-					LinuxMCE_Password=$(mkpasswd -H md5 "$Password")
-				fi
-			done
-		fi
 
 		while [[ "$Done" == 0 ]]; do
+		echo "Hard Drive Selection"
+		echo "===================="
+		echo 
+		echo "WARNING :"
+		echo "This will delete everything on all partitions of your hard drive"
+		echo "the data is not recoverable"
+		echo 
+
 		echo "Hard drives in the system:"
 			i=1
 			for Drive in $HddList; do
 				DiskDev="${Drive%%:*}"
 				DiskSize="${Drive#*:}"
 				set +e
-				DiskDescription="$(hdparm -I $DiskDev | grep "Model Number:" | cut -d ':' -f2 | sed 's/^ *//g')"
-				DiskSerial="$(hdparm -I $DiskDev | grep "Serial Number:" | cut -d ':' -f2 | sed 's/^ *//g')"
+				DiskDescription="$(hdparm -I $DiskDev | grep "Model Number:" | cut -d ':' -f2 | sed 's/ *//g')"
+				DiskSerial="$(hdparm -I $DiskDev | grep "Serial Number:" | cut -d ':' -f2 | sed 's/ *//g')"
 				set -e
-				echo "$i. $DiskDev ($DiskDescription $DiskSerial ${DiskSize//:/ })"
+				echo "    $i. $DiskDev ($DiskDescription $DiskSerial ${DiskSize//:/ })"
 				Hdd[$i]="$DiskDev"
 				((i++))
 			done
 			((i--))
-			echo "WARNING :"
-			echo " This will delete everything on all partitions of your hard drive"
-			echo " the data is not recoverable"
 			echo 
 			echo -n "Choose which drive to install the system on: "
 			read Choice
 			if [[ "$Choice" == *[^0-9]* || "$Choice" -lt 1 || "$Choice" -gt "$i" ]]; then
 				echo "Invalid selection. Try again"
+				sleep 1; clear
 			else
 				TargetHdd="${Hdd[$Choice]}"
 				Done=1
 			fi
 		done	
 	fi
+	
+	if [[ "$Upgrade" != "1" ]] || [[ "$Upgrade" == "1" && "$KeepMedia" == "1" ]] ;then
+		clear
+		echo "System User Password"
+		echo "===================="
+		echo
+		echo "A system user named 'linuxmce' will be created by default."
+		echo "Please type a password for this user."
+		echo 
+		while [[ "$LinuxMCE_Password" == "" ]] ;do
+			echo -n 'Password : '
+			read Password
+			if [[ "$Password" != "" ]] ;then
+				LinuxMCE_Passwrod=$(echo 'printf "%s\n", crypt("'$LinuxMCE_Password'", "\$1\$6-8-letter-salt\$")' | perl)
+#				LinuxMCE_Password=$(mkpasswd -H md5 "$Password")
+			fi
+		done
+	fi
 
-	echo "Chosen hdd: $TargetHdd"
+	clear
+	echo "Installing System"
+	echo "================="
+	echo 
+	echo "Started installing on $TargetHdd"
 	if [[ -z "$TargetHdd" ]]; then
 		echo "Got out of loop with empty selection. This shouldn't be possible."
 		exit 1
@@ -519,6 +551,7 @@ Reboot()
 
 GetConsole
 GetHddToUse
+exit 0
 PartitionHdd
 FormatPartitions
 MountPartitions
