@@ -135,11 +135,12 @@ GetHddToUse()
 								Done=1
 								TargetHdd="$DiskDev"
 							fi
-
+					
+							umount /media/target || :
 							break
 						fi
 					fi
-					umount /media/target
+					umount /media/target || :
 				fi
 		done
 		clear
