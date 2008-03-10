@@ -185,6 +185,23 @@ DatabaseDefaults()
 	RunSQL "$Q"
 }
 
+Firewall()
+{
+	Ports=(
+		tcp:22 tcp:80
+		udp:137 udp:138 tcp:139 tcp:445
+	)
+	for Port in "${Ports[@]}"; do
+		Protocol="${Port%:*}"
+		Port="${Port#*:}"
+		Q="
+			INSERT INTO Firewall(Protocol, SourcePort, RuleType)
+			VALUES('$Protocol', '$Port', 'core_input');
+		"
+		RunSQL "$Q"
+	done
+}
+
 ApplyHacks()
 {
 	AsoundSubst='s/convert48k/convert44k/g; s/rate 48000/rate 44100/g'
@@ -197,5 +214,6 @@ Devices
 AVWizardReplacement
 AddEgalaxToXorgConf
 DatabaseDefaults
+Firewall
 ApplyHacks
 exit 0
