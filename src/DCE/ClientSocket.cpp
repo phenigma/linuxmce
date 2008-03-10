@@ -56,6 +56,8 @@ ClientSocket::~ClientSocket()
 
 bool ClientSocket::Connect( int PK_DeviceTemplate,string sExtraInfo,int iConnectRetries, int nConnectStepsLeft )
 {
+	m_bCancelSocketOp = false;
+
 	if( iConnectRetries==-1 )
 		iConnectRetries=m_dwMaxRetries;
 	bool bSuccess = false;
