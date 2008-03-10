@@ -43,10 +43,23 @@ function mainMediaBrowser($output,$mediadbADO,$dbADO) {
 		$queryTypes='SELECT * FROM AttributeType ORDER BY Description ASC';
 		$resTypes=$mediadbADO->Execute($queryTypes);
 		$displayedTypes=array();
+		$typeBox='<table border="0">
+			<tr>
+		';
+		$pos=0;
 		while($rowTypes=$resTypes->FetchRow()){
+			$pos++;
 			$displayedTypes[]=$rowTypes['PK_AttributeType'];
-			$out.='<input type="checkbox" name="type_'.$rowTypes['PK_AttributeType'].'" value="1" '.((isset($_POST['type_'.$rowTypes['PK_AttributeType']])|| in_array($rowTypes['PK_AttributeType'],$checkedTypesArray))?'checked':'').'> '.$rowTypes['Description'].' ';
+			$typeBox.='<td><input type="checkbox" name="type_'.$rowTypes['PK_AttributeType'].'" value="1" '.((isset($_POST['type_'.$rowTypes['PK_AttributeType']])|| in_array($rowTypes['PK_AttributeType'],$checkedTypesArray))?'checked':'').'> '.$rowTypes['Description'].'</td>';
+			if($pos%4==0){
+				$typeBox.='</tr><tr>';
+			}
+			
+
 		}
+		$typeBox.='</tr></table>';
+		
+		$out.=$typeBox;
 		$out.='
 			<input type="hidden" name="displayedTypes" value="'.join(',',$displayedTypes).'">
 		</form>';
