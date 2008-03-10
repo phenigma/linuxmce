@@ -551,7 +551,6 @@ Reboot()
 
 GetConsole
 GetHddToUse
-exit 0
 PartitionHdd
 FormatPartitions
 MountPartitions
