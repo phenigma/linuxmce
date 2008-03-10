@@ -111,6 +111,7 @@ int main(int argc, const char * argv[])
 	printf("Disc size: %Lu\n", size);
 	fflush(stdout);
 	
+	int reported_errors = 0;
 	while (1)
 	{
 		int pos_before_read = lseek(f, 0, SEEK_CUR);
@@ -121,6 +122,11 @@ int main(int argc, const char * argv[])
 		{
 			if (errno == EIO)
 			{
+				if (reported_errors == 0)
+				{
+					printf("Error: I/O error while reading\n");
+					reported_errors = 1;
+				}
 				lseek(f, pos_before_read, SEEK_SET);
 				bytes = sector_by_sector_read(f, buffer, BLOCK_SIZE);
 			}
