@@ -234,7 +234,21 @@ bool Notification::ExecuteNotification(string sPhoneNumber, int iDelay, bool bNo
 	}
 
     long nAlertType = m_pRow_Alert->FK_AlertType_get();
-    string sCallerID = bNotifyOrbiter ? GenerateCallerID(nAlertType) : ""; //no caller id for the others
+
+	const string csCallerIdConfFile("/etc/pluto-callerid.conf");
+	const string csPlutoMOConf("/usr/pluto/bin/PlutoMO");
+
+	string sCustomCallerID;
+	if(FileUtils::FileExists(csCallerIdConfFile))
+	{
+		FileUtils::ReadTextFile(csCallerIdConfFile, sCustomCallerID);
+		sCustomCallerID = StringUtils::Replace(sCustomCallerID, "\n", "");
+		sCustomCallerID = StringUtils::TrimSpaces(sCustomCallerID);
+	}
+
+    string sCallerID = bNotifyOrbiter ? 
+		sCustomCallerID.empty() ? GenerateCallerID(nAlertType) : "" 
+		: ""; //no caller id for the others
     string sWavFileName = GenerateWavFile(nAlertType, m_pRow_Alert->EK_Device_get());
 
     Row_Notification *pRow_Notification = m_pSecurity_Plugin->m_pDatabase_pluto_security->Notification_get()->AddRow();
@@ -257,9 +271,9 @@ bool Notification::ExecuteNotification(string sPhoneNumber, int iDelay, bool bNo
     //TODO: attach the wav file
 	CMD_PBX_Originate_DT cmd_PBX_Originate_DT(
 		m_pSecurity_Plugin->m_dwPK_Device, DEVICETEMPLATE_Asterisk_CONST, BL_SameHouse,
-		sPhoneExtension,
+		sPhoneNumber,
 		"SIP",
-		sPhoneNumber, sCallerID);
+		sPhoneExtension, sCallerID);
 
     string sResponse;
     bool bResponse = m_pSecurity_Plugin->SendCommand(cmd_PBX_Originate_DT, &sResponse);
