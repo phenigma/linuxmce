@@ -82,32 +82,48 @@ GetHddToUse()
 				DiskDev="${Drive%%:*}"
 				if mount "$DiskDev"1 /media/target; then
 					if [[ -f /media/target/etc/pluto.conf ]]; then
-						echo "* Found an existing installation on drive '$DiskDev'"
 						Choice=
-						until [[ "$Choice" == [123] ]]; do
-							echo "1. Preserve my setting and /home directory."
-							echo "2. Preserve my /home directory only."
-							echo "3. Do a clean install without keeping anything."
-
+						until [[ "$Choice" == [YyNn] ]] ;do
+							echo
+							echo "* Found an existing installation on drive '$DiskDev'. Use this drive (Y/N) ?"
+							
 							echo -n "Answer :  "
 							read Choice
-							if [[ "$Choice" != [123] ]]; then
-								echo
-								echo "*************************************"
-								echo "* Please answer with a valid option *"
-								echo "*************************************"
-							fi
 						done
-						if [[ "$Choice" == "1" ]]; then
-							Done=1
-							Upgrade=1
-							TargetHdd="$DiskDev"
-						fi
-						if [[ "$Choice" == "2" ]]; then
-							Done=1
-							Upgrade=1
-							KeepMedia=1
-							TargetHdd="$DiskDev"
+
+						if [[ "$Choice" == [Yy] ]] ;then
+							Choice=
+							until [[ "$Choice" == [123] ]]; do
+								echo "1. Preserve my setting and /home directory."
+								echo "2. Preserve my /home directory only."
+								echo "3. Do a clean install without keeping anything."
+
+								echo -n "Answer :  "
+								read Choice
+								if [[ "$Choice" != [123] ]]; then
+									echo
+									echo "*************************************"
+									echo "* Please answer with a valid option *"
+									echo "*************************************"
+								fi
+							done
+							if [[ "$Choice" == "1" ]]; then
+								Done=1
+								Upgrade=1
+								TargetHdd="$DiskDev"
+							fi
+							if [[ "$Choice" == "2" ]]; then
+								Done=1
+								Upgrade=1
+								KeepMedia=1
+								TargetHdd="$DiskDev"
+							fi
+							if [[ "$Choice" == "3" ]] ;then
+								Done=1
+								TargetHdd="$DiskDev"
+							fi
+
+							break
 						fi
 					fi
 					umount /media/target
@@ -115,7 +131,7 @@ GetHddToUse()
 		done
 		clear
 
-		if [[ "$Upgrade" != "1" && "$KeepMedia" != "1" ]] ;then
+		if [[ "$Upgrade" != "1" ]] || [[ "$Upgrade" == "1" && "$KeepMedia" == "1" ]] ;then
 			while [[ "$LinuxMCE_Password" == "" ]] ;do
 				echo -n 'Please enter a password for "linuxmce" system user : '
 				read Password
