@@ -318,7 +318,7 @@ function processGrabAttributes($mediadbADO){
 						exec_batch_command($cmd);
 					}
 					
-					$resizeFlag=resizeImage($GLOBALS['mediaPicsPath'].$newPicName, $GLOBALS['mediaPicsPath'].$picID.'_tn.'.$extension, 100, 100);
+					$resizeFlag=resizeImage($GLOBALS['mediaPicsPath'].$newPicName, $GLOBALS['mediaPicsPath'].$picID.'_tn.'.$extension, 256, 256);
 					if(!$resizeFlag){
 						$error=$TEXT_ERROR_UPLOAD_FAILS_PERMISIONS_CONST.' '.$GLOBALS['mediaPicsPath'];
 					}

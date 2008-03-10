@@ -457,7 +457,7 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 				}
 				elseif(move_uploaded_file($_FILES['newPic']['tmp_name'],$GLOBALS['mediaPicsPath'].$newPicName)){
 					// create thumbnail
-					$resizeFlag=resizeImage($GLOBALS['mediaPicsPath'].$newPicName, $GLOBALS['mediaPicsPath'].$insertID.'_tn.'.$picExtension, 100, 100);
+					$resizeFlag=resizeImage($GLOBALS['mediaPicsPath'].$newPicName, $GLOBALS['mediaPicsPath'].$insertID.'_tn.'.$picExtension, 256, 256);
 					// update database
 					$insertPictureAttribute='INSERT INTO Picture_File (FK_File, FK_Picture) VALUES (?,?)';
 					$mediadbADO->Execute($insertPictureAttribute,array($fileID,$insertID));
@@ -484,7 +484,7 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 					$newPicName=$entryID.'.'.$picExtension;
 
 					savePic($_POST['newUrl'],$GLOBALS['mediaPicsPath'].$newPicName);
-					$resizeFlag=resizeImage($GLOBALS['mediaPicsPath'].$newPicName, $GLOBALS['mediaPicsPath'].$entryID.'_tn.'.$picExtension, 100, 100);
+					$resizeFlag=resizeImage($GLOBALS['mediaPicsPath'].$newPicName, $GLOBALS['mediaPicsPath'].$entryID.'_tn.'.$picExtension, 256, 256);
 
 					if($resizeFlag==0){
 						$mediadbADO->Execute('INSERT INTO Picture_File (FK_File, FK_Picture) VALUES (?,?)',array($fileID,$entryID));

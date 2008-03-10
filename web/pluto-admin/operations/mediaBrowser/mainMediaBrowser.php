@@ -293,7 +293,7 @@ function mainMediaBrowser($output,$mediadbADO,$dbADO) {
 			}
 			elseif(move_uploaded_file($_FILES['newPic']['tmp_name'],$GLOBALS['mediaPicsPath'].$newPicName)){
 				// create thumbnail
-				$resizeFlag=resizeImage($GLOBALS['mediaPicsPath'].$newPicName, $GLOBALS['mediaPicsPath'].$insertID.'_tn.'.$picExtension, 100, 100);
+				$resizeFlag=resizeImage($GLOBALS['mediaPicsPath'].$newPicName, $GLOBALS['mediaPicsPath'].$insertID.'_tn.'.$picExtension, 256, 256);
 				// update database
 				$insertPictureAttribute='INSERT INTO Picture_Attribute (FK_Attribute, FK_Picture) VALUES (?,?)';
 				$mediadbADO->Execute($insertPictureAttribute,array($attributeID,$insertID));
