@@ -91,7 +91,6 @@ namespace UpdateMediaVars
 };
 
 #include "DCE/DCEConfig.h"
-DCEConfig g_DCEConfig;
 
 void sigtrap_hook(int sig)
 {
@@ -329,8 +328,9 @@ void UpdateMedia::UpdateSearchTokens()
 		time_t tLastUpdate = StringUtils::SQLDateTime(row_max[0]);
 		if( tLastUpdate )
 		{
-			g_DCEConfig.AddString("LastSearchTokenUpdate",StringUtils::itos(static_cast<int>(tLastUpdate)));
-			g_DCEConfig.WriteSettings();
+			DCEConfig dce_config;
+			dce_config.AddString("LastSearchTokenUpdate",StringUtils::itos(static_cast<int>(tLastUpdate)));
+			dce_config.WriteSettings();
 		}
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "UpdateMedia::UpdateSearchTokens Update search tokens last: %d / %s",tLastUpdate,row_max[0]);
 	}
