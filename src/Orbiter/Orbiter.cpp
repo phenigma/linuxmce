@@ -7625,6 +7625,12 @@ void Orbiter::CMD_Send_Message(string sText,bool bGo_Back,string &sCMD_Result,Me
 				bContainsGoto=true;
 		}
 
+		if(Simulator::GetInstance()->IsRunning() && pMessageOut->m_dwID == COMMAND_Delete_File_CONST)
+		{
+			CMD_Go_back("","");
+			return;
+		}
+
 		QueueMessageToRouter(pMessageOut);
 	}
 	if( bGo_Back && !bContainsGoto )
