@@ -2,6 +2,7 @@
 
 
 . /usr/pluto/bin/Config_Ops.sh
+. /usr/pluto/bin/Utils.sh
 
 # This is stupid i know but it is all that i could find as a solution in the hurry
 #	See Disk_Drive.h for the treated values.
@@ -92,7 +93,8 @@ command="";
 result=$ERR_NONE;
 case $diskType in 
 	2)
-		ProgressOutput='>(/usr/pluto/bin/DiskCopy_ProgressExtract.sh|/usr/pluto/bin/Pluto_Progress.sh "$diskDriveDeviceID" "$jobID" "$taskID")'
+		OrbiterDev=$(GetDeviceParent "$diskDriveDeviceID")
+		ProgressOutput='>(/usr/pluto/bin/DiskCopy_ProgressExtract.sh "$OrbiterDev"|/usr/pluto/bin/Pluto_Progress.sh "$diskDriveDeviceID" "$jobID" "$taskID")'
 		command='/usr/pluto/bin/disc_unlock "$sourceDevice"; nice -n 15 /usr/pluto/bin/disk_copy "$sourceDevice" "$targetFileName.dvd.in-progress" > '"$ProgressOutput"
 	;;
 	0|1|6|7|8)
