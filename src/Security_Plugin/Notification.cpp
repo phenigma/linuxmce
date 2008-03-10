@@ -247,7 +247,7 @@ bool Notification::ExecuteNotification(string sPhoneNumber, int iDelay, bool bNo
 	}
 
     string sCallerID = bNotifyOrbiter ? 
-		sCustomCallerID.empty() ? GenerateCallerID(nAlertType) : "" 
+		(sCustomCallerID.empty() ? GenerateCallerID(nAlertType) : sCustomCallerID) 
 		: ""; //no caller id for the others
     string sWavFileName = GenerateWavFile(nAlertType, m_pRow_Alert->EK_Device_get());
 
