@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Usage:
+#	with no params - scan LinuxMCE media library for DVD images and process them
+#	with foldername passed - scan folder for DVD images and process them
+
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/SQL_Ops.sh
 
@@ -42,13 +46,22 @@ if [ ! -f "/usr/lib/libdvdcss.so.2" ]; then
 	exit 1
 fi
 
+if [[ -z "$1" ]]; then
+	echo "Scanning LinuxMCE media library for DVD images"
+	UseDB "pluto_media"
+	Query="SELECT CONCAT_WS(\"/\", Path, Filename) FROM File WHERE Filename LIKE \"%.dvd\""
+	Result=$(RunSQL "$Query")
 
-UseDB "pluto_media"
-Query="SELECT CONCAT_WS(\"/\", Path, Filename) FROM File WHERE Filename LIKE \"%.dvd\""
-Result=$(RunSQL "$Query")
+	for Row in $Result; do
+        	Item=$(Field 1 "$Row")
+        	CheckKeysForDVD "$Item"
+	done
+else
+	echo "Scanning folder $1 for DVD images"
+	IFS=$'\n'
 
-for Row in $Result; do
-        Item=$(Field 1 "$Row")
-        CheckKeysForDVD "$Item"
-done
+	for Item in `find "$1" -name \*.dvd`; do
+		CheckKeysForDVD "$Item"
+	done
+fi
 
