@@ -1631,6 +1631,12 @@ switch ($section) {
 	    include_once('operations/others/upnpServer.php');
 	    upnpServer($output,$dbADO);	    
 	break;		
+	case 'slimServer':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/others/slimServer.php');
+	    slimServer($output,$dbADO);	    
+	break;		
 	
 	case 'index';
 		@$_SESSION['lastLeftFrameSrc']='';

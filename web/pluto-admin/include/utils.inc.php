@@ -6707,4 +6707,24 @@ function get_alert_pic($picname){
 	
 	return APPROOT.'include/images/alert_no_pic.png';
 }
+
+function parse_ini_str ( $ini) {
+    $lines= explode("\n",$ini);
+    $ret=array();
+    
+    if(count($lines)>0){
+	    foreach ($lines AS $line){
+	    	$parts=explode('=',$line);
+	    	if(count($parts)==2){
+	    		$ret[$parts[0]]=$parts[1];
+	    	}
+	    }
+    }
+    
+    return $ret;
+}
+
+function same_network($requestIP,$serverIP,$netMask){
+	return ((ip2long($requestIP) & ip2long($netMask)) == (ip2long($serverIP) & ip2long($netMask)))?true:false;
+}
 ?>
