@@ -891,7 +891,7 @@ int UpdateMedia::GetFileID(string sDirectory, string sFile)
 
 	 if(nFileID == 0)
 	 {
-		 LoggerWrapper::GetInstance()->Write(LV_WARNING, "The file was moved, need to get the id from DB %s/%s",
+		 LoggerWrapper::GetInstance()->Write(LV_STATUS, "Need to get the id from DB %s/%s since it's not saved in MediaState",
 			 sDirectory.c_str(), sFile.c_str());
          
 		 vector<Row_File *> vectRow_File;
