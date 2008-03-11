@@ -180,11 +180,11 @@ int PlutoMediaFile::HandleFileNotInDatabase(int PK_MediaType)
 
 			string sMidMD5File = FileUtils::GetMidFileChecksum(m_sDirectory + "/" + m_sFile);
 
-			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Reusing record PK_File %d for %s/%s ? Md5 db %s, md5 file %s", pRow_File->PK_File_get(), m_sDirectory.c_str(), m_sFile.c_str(), pRow_File->MD5_get().c_str(), sMidMD5File.c_str());
-
 			//reuse the file only if it's the same file (midmd5 is the same)
 			if(pRow_File->MD5_get() == sMidMD5File || pRow_File->MD5_isNull())
 			{
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Reusing record PK_File %d for %s/%s ? Md5 db %s, md5 file %s", pRow_File->PK_File_get(), m_sDirectory.c_str(), m_sFile.c_str(), pRow_File->MD5_get().c_str(), sMidMD5File.c_str());
+
 				PK_File=pRow_File->PK_File_get();
 				pRow_File->Ignore_set(0);  // This could be a re-used INode
 				pRow_File->IsNew_set(1); // This could be a re-used INode
@@ -201,6 +201,8 @@ int PlutoMediaFile::HandleFileNotInDatabase(int PK_MediaType)
 			else
 			{
 				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Won't reuse file record %d from db because md5 is different", pRow_File->PK_File_get());
+				m_pPlutoMediaAttributes->m_nFileID = 0; 
+				m_pPlutoMediaAttributes->m_nInstallationID = 0;
 			}
 		}
 	}
