@@ -56,6 +56,7 @@ RipJob::RipJob(Database_pluto_media *pDatabase_pluto_media,
 	m_sDirectory=sDirectory;
 	m_sTracks=sTracks;
 	m_nTracksFailedToRip = 0;
+	m_bHasErrors=false;
 
 
 	string sWhere;
@@ -120,7 +121,9 @@ RipJob::~RipJob()
 	string sMessage;
 	if(m_nTracksFailedToRip == m_listTask.size())
 		sMessage = "Ripping failed";
-	else	
+	else if (m_bHasErrors)
+		sMessage = "Ripping completed with errors";
+	else
 		sMessage = "Ripping completed";
 
 	sMessage += ": " + m_sFileName;
@@ -280,4 +283,9 @@ string RipJob::ToString()
 	if( pTask_Current )
 		sTimeLeft = "(" + StringUtils::SecondsAsTime(pTask_Current->SecondsRemaining()) + ")";
 	return "Ripping " + StringUtils::itos(iTaskNum) + " of " + StringUtils::itos((int) m_listTask.size()) + " " + sTimeLeft + ": " + m_sFileName;
+}
+
+int RipJob::Get_PK_Orbiter()
+{
+	return m_iPK_Orbiter;
 }
