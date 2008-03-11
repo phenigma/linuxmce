@@ -158,21 +158,6 @@ Description: Input, audio output and post plugins for  libxine1-pluto
  You most probably want to install this package. It contains various
  plugins you generally would expect to find on a xine installation.
 
-Package: libxine1-pluto-dbg
-Architecture: any
-Priority: extra
-Recommends: libxine1-pluto-ffmpeg, libxine1-pluto-gnome, libxine1-pluto-console
-Depends: libxine1-pluto-bin (= ${binary:Version})
-Description: debug symbols for  libxine1-pluto
- This is the xine media player library (libxine).
- .
- This package contains debug data for the shared libraries. Its purpose is
- to allow debuggers to produce backtraces with names, making it easier to
- interpret core dumps. The data is installed in /usr/lib/debug.
- .
- Most people will not need this package. Please install it to produce useful
- stacktraces to help debugging the xine library.
-
 Package: libxine1-pluto-plugins
 Architecture: all
 Priority: extra
