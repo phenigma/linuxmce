@@ -13,6 +13,17 @@ case "$1" in
 	adduser --quiet mythtv audio
 	adduser --quiet mythtv cdrom
 	adduser --quiet mythtv dialout
+	# this is needed for LMCE, esp on MD's
+	adduser --quiet mythtv public
+
+	# user linuxmce may not exist on LMCE MD's but this is then harmless
+	# this allows user linuxmce to run mythtv-setup
+	adduser --quiet linuxmce video   &> /dev/null
+	adduser --quiet linuxmce audio   &> /dev/null
+	adduser --quiet linuxmce cdrom   &> /dev/null
+	adduser --quiet linuxmce dialout &> /dev/null
+	adduser --quiet linuxmce mythtv  &> /dev/null
+	adduser --quiet linuxmce public  &> /dev/null
 
 	db_get mythtv/mysql_host
 	hostname="$RET"
