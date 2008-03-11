@@ -45,6 +45,7 @@ namespace nsJobHandler
 		Row_RipStatus *m_pRow_RipStatus;
 		bool m_bReportResult;
 		Drive *m_pDrive;
+		bool m_bHasErrors;
 
 	public:
 		RipTask(class RipJob *pRipJob,string sName,bool bReportResult,string sTrack,Drive *pDrive);

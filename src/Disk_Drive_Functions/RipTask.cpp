@@ -43,6 +43,7 @@ RipTask::RipTask(RipJob *pRipJob,string sName,bool bReportResult,string sTrack,D
 	m_pRow_RipStatus=NULL;
 	m_bReportResult=bReportResult;
 	m_pDrive=pDrive;
+	m_bHasErrors=false;
 }
 
 int RipTask::Run()
@@ -207,6 +208,7 @@ void RipTask::UpdateProgress(string sStatus,int iPercent,int iTime,string sText,
 	{
 		// TODO: implement bad sector notice
 		// "Errors were encountered while ripping the disk. The bad sectors will be skipped and replaced with zeros, but if the disk is very scratched, it may take a long while for the operation to complete. If you don't want to wait, you can cancel the operation from the 'Pending tasks' screen"
+		m_bHasErrors=true;
 	}
 }
 
