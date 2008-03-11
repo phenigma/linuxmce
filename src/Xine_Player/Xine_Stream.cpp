@@ -1250,6 +1250,10 @@ void Xine_Stream::Seek(int pos,int tolerance_ms)
                 
                 UpdateTitleChapterInfo();
                 
+		// reset to -1, which means "init"
+		if (!m_bTimecodeIsPrecise)
+			m_iStartVPTS_MS = -1;
+
 		return ;
 	}
 
@@ -1293,7 +1297,10 @@ void Xine_Stream::Seek(int pos,int tolerance_ms)
 		}
 	}
         
-        UpdateTitleChapterInfo();
+	// reset to -1, which means "init"
+	if (!m_bTimecodeIsPrecise)
+		m_iStartVPTS_MS = -1;
+	UpdateTitleChapterInfo();
 }
 
 void Xine_Stream::HandleSpecialSeekSpeed()
@@ -1404,6 +1411,7 @@ void Xine_Stream::HandleSpecialSeekSpeed()
 		// updating VPTS stuff and association
 		m_iStartVPTS_MS = seekTime;
 		m_iStartVPTS = m_iCurrentVPTS;
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "HandleSpecialSeekSpeed: VPTS=>MS mapping got reset to: %i => %i", (int) m_iStartVPTS, (int) m_iStartVPTS_MS);
 	}
 }
 
@@ -1446,7 +1454,7 @@ bool Xine_Stream::getRealStreamPosition(int &positionTime, int &totalTime)
 			{
 				m_iStartVPTS_MS = iPosTime;
 				m_iStartVPTS = m_iCurrentVPTS;
-				LoggerWrapper::GetInstance()->Write( LV_STATUS, "getXineStreamPosition: VPTS=>MS mapping got reset to: %i => %i", m_iStartVPTS, m_iStartVPTS_MS);
+				LoggerWrapper::GetInstance()->Write( LV_STATUS, "getXineStreamPosition: VPTS=>MS mapping got reset to: %i => %i", (int) m_iStartVPTS, (int) m_iStartVPTS_MS);
 			}
 			
 			return true;
