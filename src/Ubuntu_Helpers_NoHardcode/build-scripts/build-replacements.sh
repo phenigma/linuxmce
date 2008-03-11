@@ -37,9 +37,9 @@ function Build_Replacements {
 		cp -r ../libsdl1.2debian-pluto*.deb "${replacements_dir}"
 		popd
 	fi
-
+	
 	#Package: libxine
-	dir_="${svn_dir}/trunk/ubuntu/xine-lib-1.1.7"
+	dir_="${svn_dir}/trunk/ubuntu/xine-lib-1.1.10.1"
 	if Changed_Since_Last_Build "$dir_" ;then
 		DisplayMessage "Building xine-lib"
 		pushd "$dir_"
