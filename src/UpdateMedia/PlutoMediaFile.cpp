@@ -838,8 +838,6 @@ void PlutoMediaFile::AssignPlutoDevice(Row_File *pRow_File)
 
 	if(NULL != pRow_File)
 	{
-		pRow_File->Reload();
-
 		map<int, int> mapMountedDevices;
 		list<string> listFiles;
 		FileUtils::FindDirectories(listFiles, "/mnt/device", false, true);
@@ -944,7 +942,8 @@ int PlutoMediaFile::GetFileIDFromDB()
 	vector<Row_File *> vectRow_File;
 	m_pDatabase_pluto_media->File_get()->GetRows("Path='" + StringUtils::SQLEscape(m_sDirectory) + 
 		"' AND Filename='" + StringUtils::SQLEscape(m_sFile) + "' AND Missing = 0", &vectRow_File);
-	if( vectRow_File.size() )
+
+	if(!vectRow_File.empty())
 		return vectRow_File[0]->PK_File_get();
 	else
 		return 0;  // Can do nothing.  This isn't in the database
