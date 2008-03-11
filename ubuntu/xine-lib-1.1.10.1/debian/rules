@@ -84,7 +84,7 @@ install-stamp: generate-arch-files-stamp
 	dh_clean -k
 	dh_installdirs
 	$(MAKE) install DESTDIR=$(CURDIR)/debian/tmp \
-	    LIBRARY_PATH=$(CURDIR)/debian/tmp/usr/lib
+	    LIBRARY_PATH=$(CURDIR)/debian/tmp/opt/libxine/lib
 	-(cd debian/tmp && find .) | sort -u | sed -e 's%doc/xine-lib%doc/libxine-pluto-dev%' > $@
 
 binary-common: build install
@@ -95,7 +95,7 @@ binary-common: build install
 	test ! -f debian/overrides/$(DH_PACKAGE) || \
 	  install -Dm644 \
 	       debian/overrides/$(DH_PACKAGE) \
-	       debian/$(DH_PACKAGE)/usr/share/lintian/overrides/$(DH_PACKAGE)
+	       debian/$(DH_PACKAGE)/opt/libxine/share/lintian/overrides/$(DH_PACKAGE)
 	# mostly, we symlink docs -> libxine1-pluto-bin
 	set -e; case "$(DH_PACKAGE)" in \
 	    libxine1-pluto-bin|libxine-pluto-dev$(subst lib,|lib,$(BINARY_ALL_PACKAGES))) \
@@ -103,19 +103,19 @@ binary-common: build install
 	      dh_installchangelogs -k ChangeLog; \
 	      ;; \
 	    *) \
-	      mkdir -p debian/$(DH_PACKAGE)/usr/share/doc; \
+	      mkdir -p debian/$(DH_PACKAGE)/opt/libxine/share/doc; \
 	      ln -fs libxine1-pluto-bin \
-	         debian/$(DH_PACKAGE)/usr/share/doc/$(DH_PACKAGE); \
+	         debian/$(DH_PACKAGE)/opt/libxine/share/doc/$(DH_PACKAGE); \
 	      ;; \
 	  esac
-	dh_installman
+#	dh_installman
 	dh_link
 	dh_strip --dbg-package=libxine1-pluto-dbg
 	dh_compress
 	dh_fixperms
 	dh_makeshlibs -V 'libxine1-pluto (>= 1.1.8)'
 	dh_installdeb
-	dh_shlibdeps -ldebian/libxine1-pluto-bin/usr/lib
+	dh_shlibdeps -ldebian/libxine1-pluto-bin/opt/libxine/lib
 	dh_gencontrol
 	dh_md5sums
 	dh_builddeb
@@ -126,8 +126,8 @@ binary-libxine1-pluto-dbg: build install
 	dh_testdir		-plibxine1-pluto-dbg
 	dh_testroot		-plibxine1-pluto-dbg
 	dh_install 		-plibxine1-pluto-dbg
-	mkdir -p debian/libxine1-pluto-dbg/usr/share/doc
-	ln -fs libxine1-bin debian/libxine1-pluto-dbg/usr/share/doc/libxine1-pluto-dbg
+	mkdir -p debian/libxine1-pluto-dbg/opt/libxine/share/doc
+	ln -fs libxine1-bin debian/libxine1-pluto-dbg/opt/libxine/share/doc/libxine1-pluto-dbg
 	dh_link			-plibxine1-pluto-dbg
 	dh_compress 		-plibxine1-pluto-dbg
 	dh_fixperms 		-plibxine1-pluto-dbg
@@ -135,6 +135,9 @@ binary-libxine1-pluto-dbg: build install
 	dh_shlibdeps 		-plibxine1-pluto-dbg
 	dh_gencontrol 		-plibxine1-pluto-dbg
 	dh_md5sums 		-plibxine1-pluto-dbg
+	rm -rfv debian/libxine1-pluto-dbg/opt/libxine/lib
+	mv -fv debian/libxine1-pluto-dbg/usr/lib/debug/opt/libxine/* debian/libxine1-pluto-dbg/opt/libxine/
+	rm -rfv debian/libxine1-pluto-dbg/usr
 	dh_builddeb 		-plibxine1-pluto-dbg
 
 # Build architecture independant packages using the common target
