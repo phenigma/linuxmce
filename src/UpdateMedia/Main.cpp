@@ -329,6 +329,9 @@ void OnModify(list<string> &listFiles)
 
 int main(int argc, char *argv[])
 {
+	//make sure we are logging everything
+	LoggerWrapper::GetInstance()->LogAll();
+
 	bError=false;
 	bUpdateThumbnails=false;
 	bUpdateSearchTokens=false;
