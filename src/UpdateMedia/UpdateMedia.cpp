@@ -562,8 +562,14 @@ bool UpdateMedia::ScanFiles(string sDirectory)
 
 
 		int PK_Picture = 0;
-		if(PK_File > 0)
+		if(PK_File != 0)
+		{
 			PlutoMediaFile_.GetPicAttribute(PK_File);
+		}
+		else
+		{
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"UpdateMedia::ReadDirectory PK_File is %d, won't sync pictures", PK_File);
+		}
 
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"UpdateMedia::ReadDirectory File %d Picture %d",PK_File,PK_Picture);
 
@@ -715,12 +721,14 @@ int UpdateMedia::SetupDirectory(string sDirectory, FolderType folder_type)
 
 	if(NULL != spPlutoMediaParentFolder.get())
 	{
+		int PK_File = 0;
+
 		if(folder_type == ftNormal)
 		{
 			if(!AlreadyInDatabase(FileUtils::BasePath(sDirectory), FileUtils::FilenameWithoutPath(sDirectory)))
 			{
 				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Adding parent folder to db: %s PlutoMediaParentFolder.HandleFileNotInDatabase", sDirectory.c_str());
-				spPlutoMediaParentFolder->HandleFileNotInDatabase(0);
+				PK_File = spPlutoMediaParentFolder->HandleFileNotInDatabase(0);
 			}
 			else
 			{
@@ -735,7 +743,7 @@ int UpdateMedia::SetupDirectory(string sDirectory, FolderType folder_type)
 			// Add this directory like it were a file
 			if(!AlreadyInDatabase(FileUtils::BasePath(sDirectory), FileUtils::FilenameWithoutPath(sDirectory)))
 			{
-				int PK_File = spPlutoMediaParentFolder->HandleFileNotInDatabase(nMediaType);
+				PK_File = spPlutoMediaParentFolder->HandleFileNotInDatabase(nMediaType);
 				LoggerWrapper::GetInstance()->Write(LV_STATUS,"UpdateMedia::ReadDirectory media type %d PlutoMediaFile_.HandleFileNotInDatabase %d",nMediaType, PK_File);
 				Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->GetRow(PK_File);
 				pRow_File->Reload();
@@ -746,14 +754,19 @@ int UpdateMedia::SetupDirectory(string sDirectory, FolderType folder_type)
 			}
 			else
 			{
-				int PK_File = MediaState::Instance().FileId(FileUtils::BasePath(sDirectory), FileUtils::FilenameWithoutPath(sDirectory));
+				PK_File = MediaState::Instance().FileId(FileUtils::BasePath(sDirectory), FileUtils::FilenameWithoutPath(sDirectory));
 				spPlutoMediaParentFolder->SetFileAttribute(PK_File);
 				spPlutoMediaParentFolder->SetMediaType(PK_File, nMediaType);
 			}
 		}
 
+		int PK_Picture_Directory = 0;
+
 		// Whatever was the first picture we found will be the one for this directory
-		int PK_Picture_Directory = spPlutoMediaParentFolder->GetPicAttribute(0);
+		if(PK_File)
+			PK_Picture_Directory = spPlutoMediaParentFolder->GetPicAttribute(PK_File);
+		else
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"UpdateMedia::ReadDirectory PK_File is %d, won't sync pictures", PK_File);
 
 		if(PK_Picture_Directory)
 			spPlutoMediaParentFolder->SetPicAttribute(PK_Picture_Directory, "");
