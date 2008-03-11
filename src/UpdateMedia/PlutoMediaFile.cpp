@@ -139,6 +139,13 @@ PlutoMediaFile::~PlutoMediaFile()
 		if(!m_pPlutoMediaAttributes->m_nFileID)
 			m_pPlutoMediaAttributes->m_nFileID = GetFileIDFromDB();
 
+		if(m_pPlutoMediaAttributes->m_nFileID == 0)
+		{
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Got to sync file, but it's not in the db %s/%s!",
+				m_sDirectory.c_str(), m_sFile.c_str());
+			return;
+		}
+
 		MediaState::Instance().FileSynchronized(m_pDatabase_pluto_media, m_sDirectory, m_sFile, 
 			m_pPlutoMediaAttributes->m_nFileID);
 	}
@@ -352,6 +359,13 @@ void PlutoMediaFile::SaveShortAttributesInDb(bool bAddAllToDb)
 
 	int PK_File = m_pPlutoMediaAttributes->m_nFileID;
 
+	if(PK_File == 0)
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Got to add short attributes to file, but it's not in the db %s/%s!",
+			m_sDirectory.c_str(), m_sFile.c_str());
+		return;
+	}
+
 	MapPlutoMediaAttributes mapPlutoMediaAttributes;
 
 	if(!bAddAllToDb)
@@ -478,6 +492,16 @@ void PlutoMediaFile::SaveLongAttributesInDb(bool bAddAllToDb)
 		m_pPlutoMediaAttributes->m_nFileID = GetFileIDFromDB();
 
 	int PK_File = m_pPlutoMediaAttributes->m_nFileID;
+
+
+	if(PK_File == 0)
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Got to add long attributes to file, but it's not in the db %s/%s!",
+			m_sDirectory.c_str(), m_sFile.c_str());
+		return;
+	}
+
+
 	MapPlutoMediaAttributes mapPlutoMediaAttributes;
 
 	if(!bAddAllToDb)
@@ -936,14 +960,21 @@ int PlutoMediaFile::GetFileIDFromDB()
 //-----------------------------------------------------------------------------------------------------
 int PlutoMediaFile::GetPicAttribute(int PK_File)
 {
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "# GetPicAttribute: file %d", PK_File);
-
 	//got the file in the database?
     if(!PK_File)
 	{
 		PK_File = GetFileIDFromDB();
 		m_pPlutoMediaAttributes->m_nFileID = PK_File;
 	}
+
+	if(PK_File == 0)
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Got to add picture to file, but it's not in the db %s/%s!",
+			m_sDirectory.c_str(), m_sFile.c_str());
+		return 0;
+	}
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "# GetPicAttribute: file %d", PK_File);
 
 	//got any picture associated with the file?
     vector<Row_Picture_File *> vectPicture_File;
@@ -1230,8 +1261,8 @@ void PlutoMediaFile::LoadShortAttributes()
 				++it;
 		}
 
-		LoggerWrapper::GetInstance()->Write(LV_STATUS, "After sync'ing file, attr in db %d, attr in file %d", 
-			mapDBAttributes.size(), m_pPlutoMediaAttributes->m_mapAttributes.size());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "After sync'ing file %d, attr in db: %d, attr in file: %d", 
+			m_pPlutoMediaAttributes->m_nFileID, mapDBAttributes.size(), m_pPlutoMediaAttributes->m_mapAttributes.size());
 
 		//cleanup
 		for(MapPlutoMediaAttributes::iterator it = mapDBAttributes.begin(), end = mapDBAttributes.end(); it != end; ++it)
@@ -1330,8 +1361,8 @@ void PlutoMediaFile::LoadLongAttributes()
 				++it;
 		}
 
-		LoggerWrapper::GetInstance()->Write(LV_STATUS, "After sync'ing file, long attr in db %d, long attr in file %d", 
-			mapDbLongAttributes.size(), m_pPlutoMediaAttributes->m_mapLongAttributes.size());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "After sync'ing file %d, long attr in db: %d, long attr in file: %d", 
+			m_pPlutoMediaAttributes->m_nFileID, mapDbLongAttributes.size(), m_pPlutoMediaAttributes->m_mapLongAttributes.size());
 
 		//cleanup
 		for(MapPlutoMediaAttributes::iterator it = mapDbLongAttributes.begin(), end = mapDbLongAttributes.end(); it != end; ++it)

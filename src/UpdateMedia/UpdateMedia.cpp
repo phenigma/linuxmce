@@ -567,7 +567,7 @@ bool UpdateMedia::ScanFiles(string sDirectory)
 
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"UpdateMedia::ReadDirectory File %d Picture %d",PK_File,PK_Picture);
 
-		if( PK_Picture )
+		if(PK_Picture && PK_File)
 		{
 			string sSql="SELECT Attribute.* FROM Attribute"
 				" JOIN File_Attribute ON FK_Attribute=PK_Attribute"
