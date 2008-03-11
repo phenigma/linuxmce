@@ -1503,7 +1503,7 @@ int Xine_Stream::getStreamPlaybackPosition( int &positionTime, int &totalTime, i
 			//LoggerWrapper::GetInstance()->Write( LV_STATUS, "getStreamPlaybackPosition curr %i, start %i, pos %i, ms %i",
 			//		   (int)m_iCurrentVPTS, (int)m_iStartVPTS, (int)positionTime, (int)m_iStartVPTS_MS);
 			
-			//LoggerWrapper::GetInstance()->Write( LV_WARNING, "getStreamPlaybackPosition: DRIFT: %i", ((int) positionTime - m_iCachedStreamPosition));
+			LoggerWrapper::GetInstance()->Write( LV_STATUS, "getStreamPlaybackPosition: position drift: %i", ((int) positionTime - m_iCachedStreamPosition));
 		}
 		else
 		{
