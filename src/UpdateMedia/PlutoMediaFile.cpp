@@ -166,6 +166,8 @@ int PlutoMediaFile::HandleFileNotInDatabase(int PK_MediaType)
 {
 	m_nPK_MediaType = PK_MediaType;
 
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "HandleFileNotInDatabase media type %d", PK_MediaType);
+
 	int PK_File=0;
 	// See if the same INode is already in the database
 	int INode = FileUtils::GetInode(m_sDirectory + "/" + m_sFile);
@@ -207,11 +209,6 @@ int PlutoMediaFile::HandleFileNotInDatabase(int PK_MediaType)
 		}
 	}
 
-    // Nope.  It's either a new file, or it was moved here from some other directory.  If so,
-    // then the the attribute should be set.
-	if( !PK_File )
-		PK_File = GetFileAttribute();
-	
 	//make sure it's not already in the database
 	if(!PK_File)
 		PK_File = GetFileIDFromDB();
