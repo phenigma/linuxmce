@@ -191,6 +191,7 @@ int PlutoMediaFile::HandleFileNotInDatabase(int PK_MediaType)
 				pRow_File->Path_set(m_sDirectory);
 				pRow_File->Filename_set(m_sFile);
 				pRow_File->Source_set(m_spFileHandler->GetFileSourceForDB());
+				pRow_File->Missing_set(0);
 				pRow_File->Table_File_get()->Commit();
 
 				LoggerWrapper::GetInstance()->Write(LV_STATUS, "PlutoMediaFile::HandleFileNotInDatabase %s/%s N db-attr: %d Inode: %d size %d mt %d/%d, md5 %s", 
@@ -271,6 +272,7 @@ int PlutoMediaFile::HandleFileNotInDatabase(int PK_MediaType)
 		pRow_File->EK_MediaType_set(PK_MediaType);
 		pRow_File->IsDirectory_set(m_bIsDir);
 		pRow_File->Source_set(m_spFileHandler->GetFileSourceForDB());
+		pRow_File->Missing_set(0);
 		AssignPlutoUser(pRow_File);
 		AssignPlutoDevice(pRow_File);
 		pRow_File->Table_File_get()->Commit();
@@ -746,6 +748,7 @@ int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
 		pRow_File->Source_set(m_spFileHandler->GetFileSourceForDB());
 		AssignPlutoUser(pRow_File);
 		pRow_File->INode_set( FileUtils::GetInode( pRow_File->Path_get() + "/" + pRow_File->Filename_get() ) );
+		pRow_File->Missing_set(0);
 		pRow_File->Table_File_get()->Commit();
 
 		LoggerWrapper::GetInstance()->Write( LV_STATUS, "PlutoMediaFile::AddFileToDatabase new %s PK_File %d Inode %d",
