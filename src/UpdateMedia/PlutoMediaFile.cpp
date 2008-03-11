@@ -196,14 +196,6 @@ int PlutoMediaFile::HandleFileNotInDatabase(int PK_MediaType)
 				LoggerWrapper::GetInstance()->Write(LV_STATUS, "PlutoMediaFile::HandleFileNotInDatabase %s/%s N db-attr: %d Inode: %d size %d mt %d/%d, md5 %s", 
 					m_sDirectory.c_str(), m_sFile.c_str(), pRow_File->PK_File_get(), INode, (int) vectRow_File.size(), PK_MediaType, pRow_File->EK_MediaType_get(),
 					pRow_File->MD5_get().c_str());
-
-				//cleanup
-				string sPK_File = StringUtils::ltos(pRow_File->PK_File_get());
-				m_pDatabase_pluto_media->threaded_db_wrapper_query("DELETE FROM File_Attribute WHERE FK_File = " + sPK_File);
-				m_pDatabase_pluto_media->threaded_db_wrapper_query("DELETE FROM LongAttribute WHERE FK_File = " + sPK_File);
-				m_pDatabase_pluto_media->threaded_db_wrapper_query("DELETE FROM Picture_File WHERE FK_File = " + sPK_File);
-				m_pDatabase_pluto_media->threaded_db_wrapper_query("DELETE FROM PlaylistEntry WHERE FK_File = " + sPK_File);
-				m_pDatabase_pluto_media->threaded_db_wrapper_query("DELETE FROM Bookmark WHERE FK_File = " + sPK_File);
 			}
 			else
 			{
