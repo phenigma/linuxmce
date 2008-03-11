@@ -732,7 +732,9 @@ int UpdateMedia::SetupDirectory(string sDirectory, FolderType folder_type)
 			}
 			else
 			{
-				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Parent folder already in the database: %s", sDirectory.c_str());
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Parent folder already in the database: %s", sDirectory.c_str());
+				PK_File = GetFileID(FileUtils::BasePath(sDirectory), FileUtils::FilenameWithoutPath(sDirectory));
+				spPlutoMediaParentFolder->SetFileAttribute(PK_File);
 			}
 		}
 		else
@@ -754,7 +756,7 @@ int UpdateMedia::SetupDirectory(string sDirectory, FolderType folder_type)
 			}
 			else
 			{
-				PK_File = MediaState::Instance().FileId(FileUtils::BasePath(sDirectory), FileUtils::FilenameWithoutPath(sDirectory));
+				PK_File = GetFileID(FileUtils::BasePath(sDirectory), FileUtils::FilenameWithoutPath(sDirectory));
 				spPlutoMediaParentFolder->SetFileAttribute(PK_File);
 				spPlutoMediaParentFolder->SetMediaType(PK_File, nMediaType);
 			}
