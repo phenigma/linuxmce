@@ -1315,7 +1315,8 @@ void Xine_Player::ReportTimecodeViaIP(int iStreamID, int Speed)
         // filling media info structure
         XineMediaInfo mediaInfo;
         mediaInfo.m_iSpeed = Speed;
-        pStream->getStreamPlaybackPosition( mediaInfo.m_iPositionInMilliseconds, mediaInfo.m_iTotalLengthInMilliseconds, 10, NULL, true);
+        pStream->getStreamPlaybackPosition( mediaInfo.m_iPositionInMilliseconds, 
+		mediaInfo.m_iTotalLengthInMilliseconds, 10, NULL, true, true);
         mediaInfo.m_iStreamID = iStreamID;
         mediaInfo.m_iTitle = pStream->m_iTitle;
         mediaInfo.m_iChapter = pStream->m_iChapter;

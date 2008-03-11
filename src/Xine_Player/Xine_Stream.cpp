@@ -195,6 +195,12 @@ Xine_Stream::Xine_Stream(Xine_Stream_Factory* pFactory, xine_t *pXineLibrary, in
         m_sMediaType = "N";
         m_iMediaID = -1;
 	
+	// VPTS stuff
+	m_iStartVPTS = 0;
+	m_iCurrentVPTS = 0;
+	m_iStartVPTS_MS = -1;
+	m_bTimecodeIsPrecise = true;
+	
 	m_pDynamic_Pointer = NULL;
 	
 	// possible extensions of subtitles
@@ -549,6 +555,10 @@ bool Xine_Stream::OpenMedia(string fileName, string &sMediaInfo, string sMediaPo
 	m_iCachedStreamPosition = 0;
 	m_iCachedStreamLength = 0;
 
+	// by default, believe that everything except MPEG files has precise timecodes
+	m_bTimecodeIsPrecise = ! ( StringUtils::EndsWith(fileName, ".mpg", true) ||
+			StringUtils::EndsWith(fileName, ".mpeg", true) );
+	
 	setDebuggingLevel(true );	
 	
 	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Xine_Stream::OpenMedia Attempting to open media for %s (%s)", fileName.c_str(), sMediaPosition.c_str() );
@@ -1388,6 +1398,13 @@ void Xine_Stream::HandleSpecialSeekSpeed()
 	Seek(seekTime,0);
 	PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 	m_iCachedStreamPosition = seekTime;
+	
+	if (!m_bTimecodeIsPrecise) 
+	{
+		// updating VPTS stuff and association
+		m_iStartVPTS_MS = seekTime;
+		m_iStartVPTS = m_iCurrentVPTS;
+	}
 }
 
 
@@ -1408,6 +1425,12 @@ bool Xine_Stream::getRealStreamPosition(int &positionTime, int &totalTime)
 	}
 	else
 	{
+		if (!m_bTimecodeIsPrecise)
+		{
+			m_iCurrentVPTS = xine_get_current_vpts(m_pXineStream);
+			LoggerWrapper::GetInstance()->Write( LV_STATUS, "getXineStreamPosition: current VPTS: %i", m_iCurrentVPTS );
+		}
+
 		int iPosStream = 0;
 		int iPosTime = 0;
 		int iLengthTime = 0;
@@ -1418,6 +1441,14 @@ bool Xine_Stream::getRealStreamPosition(int &positionTime, int &totalTime)
 			
 			positionTime = iPosTime;
 			totalTime = iLengthTime;
+			
+			if (!m_bTimecodeIsPrecise && m_iStartVPTS_MS==-1)
+			{
+				m_iStartVPTS_MS = iPosTime;
+				m_iStartVPTS = m_iCurrentVPTS;
+				LoggerWrapper::GetInstance()->Write( LV_STATUS, "getXineStreamPosition: VPTS=>MS mapping got reset to: %i => %i", m_iStartVPTS, m_iStartVPTS_MS);
+			}
+			
 			return true;
 		}
 		else
@@ -1429,7 +1460,8 @@ bool Xine_Stream::getRealStreamPosition(int &positionTime, int &totalTime)
 }
 
 
-int Xine_Stream::getStreamPlaybackPosition( int &positionTime, int &totalTime, int attemptsCount, bool *getResult, bool alwaysFromCache )
+int Xine_Stream::getStreamPlaybackPosition( int &positionTime, int &totalTime, int attemptsCount, 
+					    bool *getResult, bool alwaysFromCache, bool bEnforcePrecision )
 {
 	PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 	
@@ -1462,11 +1494,30 @@ int Xine_Stream::getStreamPlaybackPosition( int &positionTime, int &totalTime, i
 	
 	// default fallback:
 	// fetching from cache stream position
-	positionTime = m_iCachedStreamPosition;
+	if (bEnforcePrecision && !m_bTimecodeIsPrecise)
+	{
+		if (m_iStartVPTS_MS != -1)
+		{
+			positionTime = m_iStartVPTS_MS + (int64_t)(m_iCurrentVPTS-m_iStartVPTS) / 90;
+
+			//LoggerWrapper::GetInstance()->Write( LV_STATUS, "getStreamPlaybackPosition curr %i, start %i, pos %i, ms %i",
+			//		   (int)m_iCurrentVPTS, (int)m_iStartVPTS, (int)positionTime, (int)m_iStartVPTS_MS);
+			
+			//LoggerWrapper::GetInstance()->Write( LV_WARNING, "getStreamPlaybackPosition: DRIFT: %i", ((int) positionTime - m_iCachedStreamPosition));
+		}
+		else
+		{
+			LoggerWrapper::GetInstance()->Write( LV_WARNING, "getStreamPlaybackPosition VPTS=>MS mapping is not available, fallback to not precise position value");
+			positionTime = m_iCachedStreamPosition;
+		}
+	}
+	else
+		positionTime = m_iCachedStreamPosition;
+	
 	totalTime = m_iCachedStreamLength;
 	if (getResult)
 		*getResult = true;
-	return m_iCachedStreamPosition;
+	return positionTime;
 }
 
 void Xine_Stream::DisplaySpeedAndTimeCode()
@@ -2244,6 +2295,9 @@ bool Xine_Stream::playStream( string mediaPosition)
 		else
 			xine_set_param( m_pXineStream, XINE_PARAM_SPEED, XINE_SPEED_NORMAL );
 */
+		// reset to -1, which means "init"
+		if (!m_bTimecodeIsPrecise)
+			m_iStartVPTS_MS = -1;
 		
 		ReportTimecode();
 				

@@ -211,7 +211,15 @@ namespace DCE
 			xine_osd_t *m_xine_osd_t;
 
 			int m_iPrebuffer;
+			
+			// xine VPTS stuff
+			int64_t m_iCurrentVPTS, m_iStartVPTS;
+			
+			// timestamp associated with start VPTS
+			// is updated on seeks/jumps
+			int m_iStartVPTS_MS;
 
+			bool m_bTimecodeIsPrecise;
 
 			public:
 			int m_iStreamID;
@@ -239,7 +247,7 @@ namespace DCE
 			/**
 		 	* @brief Find current position for stream.
 			 */
-			int getStreamPlaybackPosition( int &positionTime, int &totalTime, int attemptsCount=10, bool *getResult=NULL, bool alwaysFromCache=false );
+			int getStreamPlaybackPosition( int &positionTime, int &totalTime, int attemptsCount=10, bool *getResult=NULL, bool alwaysFromCache=false, bool bEnforcePrecision=false );
 
 
 			// utility functions
