@@ -1,3 +1,16 @@
+xine-lib (1.1.10.1-2-pluto1) unstable; urgency=low
+
+  [Kirill Belokurov]
+    Added existing patches for:
+    - trick playback
+    - backported 24bit FLAC fixes from ffmpeg
+    - 16bit BE DTS detection
+    - 14but LE DTS over SPDIF passthrough
+    Removed patches (merged upstream):
+    - broadcaster fixes
+
+ -- Kirill Belokurov <kirill.b@plutohome.com>  Tue, 11 Mar 2008 19:58:50 +0200
+
 xine-lib (1.1.10.1-2) unstable; urgency=low
 
   [Darren Salt]
