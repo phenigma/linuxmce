@@ -1,6 +1,6 @@
 ## Generic Files to install for ALL architectures
 #
 
-debian/tmp/usr/lib/libxine.so.*
-debian/tmp/usr/share/locale/*
-debian/tmp/usr/share/xine/libxine1/fonts/*
+debian/tmp/opt/libxine/lib/libxine.so.*
+debian/tmp/opt/libxine/share/locale/*
+debian/tmp/opt/libxine/share/xine/libxine1/fonts/*
