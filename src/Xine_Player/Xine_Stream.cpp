@@ -1425,20 +1425,28 @@ bool Xine_Stream::getRealStreamPosition(int &positionTime, int &totalTime)
 		return false;
 	}
 
+	if (!m_bTimecodeIsPrecise)
+	{
+		m_iCurrentVPTS = xine_get_current_vpts(m_pXineStream);
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "getXineStreamPosition: current VPTS: %i", m_iCurrentVPTS );
+	}
+
 	if ( xine_get_stream_info( m_pXineStream, XINE_STREAM_INFO_SEEKABLE ) == 0 )
 	{
 		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Stream is not seekable" );
 		positionTime = totalTime = 0;
+		
+		if (!m_bTimecodeIsPrecise && m_iStartVPTS_MS==-1)
+		{
+			m_iStartVPTS_MS = 0;
+			m_iStartVPTS = m_iCurrentVPTS;
+			LoggerWrapper::GetInstance()->Write( LV_STATUS, "getXineStreamPosition: VPTS=>MS mapping got reset to: %i => %i", (int) m_iStartVPTS, (int) m_iStartVPTS_MS);
+		}
+			
 		return false;
 	}
 	else
 	{
-		if (!m_bTimecodeIsPrecise)
-		{
-			m_iCurrentVPTS = xine_get_current_vpts(m_pXineStream);
-			LoggerWrapper::GetInstance()->Write( LV_STATUS, "getXineStreamPosition: current VPTS: %i", m_iCurrentVPTS );
-		}
-
 		int iPosStream = 0;
 		int iPosTime = 0;
 		int iLengthTime = 0;
@@ -1898,6 +1906,10 @@ void Xine_Stream::XineStreamEventListener( void *streamObject, const xine_event_
 					  pXineStream->SendMediaDescription("INTERNET_RADIO:"+sTitle);
 				      }
                                     }
+				    
+				    // enabling VPTS feature to make clock tick
+				    pXineStream->m_bTimecodeIsPrecise = false;
+				    pXineStream->m_iStartVPTS_MS = -1;
                                 }
 			}
 			break;
