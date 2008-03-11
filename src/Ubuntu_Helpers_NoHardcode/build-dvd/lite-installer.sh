@@ -194,7 +194,7 @@ GetHddToUse()
 			echo -n 'Password : '
 			read Password
 			if [[ "$Password" != "" ]] ;then
-				LinuxMCE_Passwrod=$(echo 'printf "%s\n", crypt("'$LinuxMCE_Password'", "\$1\$6-8-letter-salt\$")' | perl)
+				LinuxMCE_Password=$(echo 'printf "%s\n", crypt("'$Password'", "\$1\$6-8-letter-salt\$")' | perl)
 #				LinuxMCE_Password=$(mkpasswd -H md5 "$Password")
 			fi
 		done
