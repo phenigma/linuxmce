@@ -6997,7 +6997,8 @@ void Media_Plugin::TransformFilenameToDeque(string sFilename,deque<MediaFile *> 
 					pMediaFile->m_dwPK_Disk = atoi(sFilename.substr(2).c_str());
 					pMediaFile->m_dwPK_Device_Disk_Drive = PK_Device_Disk_Drive;
 					pMediaFile->m_Slot = Slot;
-					pMediaFile->m_dwPK_MediaType = MEDIATYPE_pluto_CD_CONST;
+                                        // media type defaults to CD, if it is not returned by the disk drive
+                                        pMediaFile->m_dwPK_MediaType = (PK_MediaType!=0) ? PK_MediaType : MEDIATYPE_pluto_CD_CONST;
 					dequeFilenames.push_back(pMediaFile);
 				}
 			}
