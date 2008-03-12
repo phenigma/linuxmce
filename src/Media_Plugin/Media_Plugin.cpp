@@ -7076,14 +7076,14 @@ void Media_Plugin::CMD_Get_Ripping_Status(string *sStatus,string &sCMD_Result,Me
 			sFullStatus = sMessage;
 		else if(sRipStatus == "e")
 			sFullStatus = "failed";
-//		else if(sRipStatus == "s")
-//			sFullStatus = "success";
 
 		 *sStatus = "Ripping '" + FileUtils::FilenameWithoutPath(sFile) + "': " + sFullStatus;
 
 		 //change description for rip completed
 		 if(sRipStatus == "s")
 			 *sStatus = "Rip completed!";
+		 else if(sRipStatus == "b")
+			 *sStatus = "Rip completed with errors!";
 
 		 //if the disk was ejected, reset the status
 		 if(sMessage == "disk ejected")
