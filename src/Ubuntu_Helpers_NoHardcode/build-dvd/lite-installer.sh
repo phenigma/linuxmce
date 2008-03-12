@@ -500,7 +500,7 @@ TargetCleanup()
 	#chroot /media/target update-grub
 
 	if [[ "$LinuxMCE_Password" != "" ]] ;then
-		sed "s,\(linuxmce:\)[^:]*\(.*\),\1$LinuxMCE_Password\2,g" /media/target/etc/shadow
+		sed -i "s,\(linuxmce:\)[^:]*\(.*\),\1$LinuxMCE_Password\2,g" /media/target/etc/shadow
 	fi
 
 	if [[ -d /media/target/.upgrade-save ]]; then
