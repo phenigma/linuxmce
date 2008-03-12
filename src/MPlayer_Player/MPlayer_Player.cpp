@@ -541,6 +541,9 @@ void MPlayer_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMedi
 	
 	LoggerWrapper::GetInstance()->Write(LV_WARNING, "MPlayer_Player::EVENT_Playback_Started(streamID=%i)", iStreamID);
 	EVENT_Playback_Started(sMediaURL,iStreamID,sMediaInfo,sAudioInfo,sVideoInfo);
+
+	m_iCurrentAudioTrack = 0;
+	UpdateTracksInfo();
 	
 	//TODO implement setting media subtitles info
 }
