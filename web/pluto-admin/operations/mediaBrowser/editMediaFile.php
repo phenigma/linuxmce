@@ -62,17 +62,25 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 	</script>
 	';
 	if($action=='form'){
+		$resFile=$mediadbADO->Execute('SELECT * FROM File WHERE PK_File=?',$fileID);
+		$rowFile=$resFile->FetchRow();
 		
 		$out.='
 			<div align="center" class="err">'.stripslashes(@$_REQUEST['error']).'</div>
 			<div align="center" class="confirm"><B>'.stripslashes(@$_REQUEST['msg']).'</B></div>
+			
+		<table width="100%">
+			<tr>
+				<td><a href="javascript:syncPath(\''.$rowFile['Path'].'\')">Back</a></td>
+				<td align="right">'.quick_search_box().'</td>
+			<tr>
+		</table>
+					
 			<form action="index.php" method="POST" name="editMediaFile" enctype="multipart/form-data">
 				<input type="hidden" name="section" value="editMediaFile">
 				<input type="hidden" name="action" value="update">
 				<input type="hidden" name="fileID" value="'.$fileID.'">
 		';
-		$resFile=$mediadbADO->Execute('SELECT * FROM File WHERE PK_File=?',$fileID);
-		$rowFile=$resFile->FetchRow();
 
 		$queryAttrTypes='
 			SELECT * 
@@ -95,8 +103,6 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 		$fileFormat=getAssocArray('FileFormat','PK_FileFormat','Description',$mediadbADO,'ORDER BY Description ASC');
 		
 		$out.='
-		
-		<a href="javascript:syncPath(\''.$rowFile['Path'].'\')">Back</a>
 		<table border="0" cellspacing="0" cellpadding="3">		
 		';
 		if($rowFile['IsDirectory']==1){

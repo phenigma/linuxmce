@@ -65,7 +65,14 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 			}
 			</script>
 			
-			<a href="javascript:syncPath(\''.substr($path,0,strrpos($path,'/')).'\')">Up one level</a>
+			
+		<table width="100%">
+			<tr>
+				<td><a href="javascript:syncPath(\''.substr($path,0,strrpos($path,'/')).'\')">Up one level</a></td>
+				<td align="right">'.quick_search_box().'</td>
+			<tr>
+		</table>
+					
 			<table cellpadding="3" cellspacing="0">
 				<tr bgcolor="#F0F3F8">
 					<td><B>'.$TEXT_DIRECTORY_CONST.': '.$path.'</B></td>

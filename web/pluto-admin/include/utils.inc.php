@@ -6727,4 +6727,18 @@ function parse_ini_str ( $ini) {
 function same_network($requestIP,$serverIP,$netMask){
 	return ((ip2long($requestIP) & ip2long($netMask)) == (ip2long($serverIP) & ip2long($netMask)))?true:false;
 }
+
+function quick_search_box($path=''){
+	$out='
+	<form name="mediaSearchFrm" method="POST" action="index.php">
+	<input type="hidden" name="section" value="searchMedia">
+	<input type="hidden" name="path" value="'.htmlentities($path).'">
+	<input type="hidden" name="partial" value="1">
+	<input type="hidden" name="attributes" value="1">
+	<input type="text" name="keyword" value=""> <input type="submit" name="doSearch" class="button" value="Search">
+	</form>
+	';
+	
+	return $out;
+}
 ?>

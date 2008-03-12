@@ -1637,6 +1637,13 @@ switch ($section) {
 	    include_once('operations/others/slimServer.php');
 	    slimServer($output,$dbADO);	    
 	break;		
+	case 'searchMedia':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/mediaBrowser/searchMedia.php');
+	    searchMedia($output,$mediadbADO);	    
+	break;
+
 	
 	case 'index';
 		@$_SESSION['lastLeftFrameSrc']='';
