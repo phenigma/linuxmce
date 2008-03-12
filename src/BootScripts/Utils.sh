@@ -13,6 +13,35 @@ DEVICEDATA_Use_OpenGL_effects=172
 DEVICEDATA_Use_alpha_blended_UI=169
 DEVICEDATA_PK_UI=104
 
+function AddBookmark {
+	Url="$1"
+	Name="$2"
+
+	# Generate an id for this bookmark
+	ID=$(echo "$Url" | sha1sum)
+	ID='rdf:#$'${ID:0:6}
+
+	# Generate the bookmark entry
+	Bookmark='   <DT><A HREF="'$Url'" ADD_DATE="1126869382" LAST_MODIFIED="1126869442" ID="'$ID'">'$Name'</A>'
+	Bookmark=$(echo $Bookmark | sed 's/"/\\\"/g')
+
+	for BookmarksFile in /home/public/bookmarks.html /home/user_*/bookmarks.html ;do
+		# See if the bookmark is already there
+		if grep -q "ID=\"$ID\"" $BookmarksFile ;then
+			continue
+		fi
+
+		# Add the bookmark string to the file
+		awk '
+			BEGIN { HR=0 }
+			HR==0 && /<HR>/ {print "'"$Bookmark"'"; HR=1}
+			{print}
+		' $BookmarksFile > $BookmarksFile.$$
+		mv $BookmarksFile.$$ $BookmarksFile
+	done
+
+}
+
 UseAlternativeLibs() 
 {
 	export LD_LIBRARY_PATH=/opt/libsdl/lib:/opt/libxine/lib:/opt/libsdl1.2-1.2.7+1.2.8cvs20041007/lib:/opt/linphone-1.3.5/lib
