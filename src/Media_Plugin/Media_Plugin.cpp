@@ -6846,7 +6846,10 @@ void Media_Plugin::WaitingForJukebox( MediaStream *pMediaStream )
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::WaitingForJukebox stream %d.  Disc loaded in drive.  Now ready.  Got MT %d disks %s url %s block %s",
 				pMediaStream->m_iStreamID_get(),iPK_MediaType,sDisks.c_str(),sURL.c_str(),sBlock_Device.c_str());
 			if( iPK_MediaType )
+			{
 				pMediaFile->m_dwPK_MediaType=iPK_MediaType;
+                                pMediaStream->m_iPK_MediaType=iPK_MediaType;
+			}
 			if( sURL.empty()==false )
 				pMediaFile->m_sFilename=sURL;
 		}
