@@ -3,6 +3,7 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 	// include language files
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/mainMediaFilesSync.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/editMediaFile.lang.php');
 	
 	/* @var $mediadbADO ADOConnection */
 	/* @var $rs ADORecordSet */
@@ -91,7 +92,16 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 			if(isset($_REQUEST['filename']) && $_REQUEST['filename']!='')
 				$out.='<a href="index.php?section=leftMediaFilesSync" target="treeframe"><img src="scripts/treeview/diffDoc.gif" border="0" align="middle">'.$TEXT_SHOW_DIRECTORY_STRUCTURE_CONST.'</a>';
 			$out.='
-				<table cellpading="0" cellspacing="0">
+				<table cellpading="0" cellspacing="0">';
+			$fileID=get_file_dir($path,$mediadbADO);
+			if($fileID!==false){
+				$out.='
+				<tr bgColor="#EEEEEE">
+					<td><B>'.$TEXT_THIS_IS_DIRECTORY_TREATED_AS_FILE_CONST.'</B>: <a href="index.php?section=editMediaFile&fileID='.$fileID.'">'.$TEXT_SHOW_ATTRIBUTES_CONST.'</a></td>
+				</tr>';
+			}
+		
+			$out.='
 					<tr>
 						<td class="tablehead"><B>'.$TEXT_FILES_ON_DISK_CONST.'</B></td>
 					</tr>
@@ -423,5 +433,14 @@ function dbonlyFilesList($path,$physicalFiles,$mediadbADO){
 
 function safe_string(&$ret,$str){
 	$ret=addslashes($str);
+}
+
+function get_file_dir($path,$mediadbADO){
+	$fileInfo=getFieldsAsArray('File','PK_File,IsDirectory',$mediadbADO,'WHERE CONCAT(Path,\'/\',Filename)=\''.addslashes($path).'\' LIMIT 0,1');	
+	if(count($fileInfo)>0){
+		return (($fileInfo['IsDirectory'][0]==1)?$fileInfo['PK_File'][0]:false);
+	}
+	
+	return false;
 }
 ?>

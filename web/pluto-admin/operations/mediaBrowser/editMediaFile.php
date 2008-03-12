@@ -61,7 +61,6 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 		}	
 	</script>
 	';
-	
 	if($action=='form'){
 		
 		$out.='
@@ -98,7 +97,19 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 		$out.='
 		
 		<a href="javascript:syncPath(\''.$rowFile['Path'].'\')">Back</a>
-		<table border="0" cellspacing="0" cellpadding="3">
+		<table border="0" cellspacing="0" cellpadding="3">		
+		';
+		if($rowFile['IsDirectory']==1){
+			$out.='
+			<tr bgColor="#EEEEEE">
+				<td><B>'.$TEXT_THIS_IS_DIRECTORY_TREATED_AS_FILE_CONST.'</B></td>
+				<td><a href="javascript:syncPath(\''.$rowFile['Path'].'/'.$rowFile['Filename'].'\');">'.$TEXT_SHOW_CONTENT_CONST.'</a></td>
+			</tr>		
+			
+			';
+		}
+	
+		$out.='
 			<tr bgColor="#EEEEEE">
 				<td><B>'.$TEXT_DATE_ADDED_CONST.':</B></td>
 				<td>'.$rowFile['DateAdded'].'</td>
