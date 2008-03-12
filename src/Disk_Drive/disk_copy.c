@@ -43,7 +43,7 @@ ssize_t sector_by_sector_read(int fd, void *buf, size_t count) // prototype comp
 
 	while (read_bytes < count)
 	{
-		int pos_before_read = lseek64(fd, 0, SEEK_CUR);
+		off64_t pos_before_read = lseek64(fd, 0, SEEK_CUR);
 		Dprintf("pos_before_read: %d\n", pos_before_read);
 		int bytes = read(fd, sector, SECT_SIZE);
 		Dprintf("bytes: %d\n", bytes);
@@ -114,7 +114,7 @@ int main(int argc, const char * argv[])
 	int reported_errors = 0;
 	while (1)
 	{
-		int pos_before_read = lseek64(f, 0, SEEK_CUR);
+		off64_t pos_before_read = lseek64(f, 0, SEEK_CUR);
 		bytes = read(f, buffer, BLOCK_SIZE);
 		if (bytes == 0)
 			break;
