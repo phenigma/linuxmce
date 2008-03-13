@@ -1188,6 +1188,13 @@ void MPlayer_Player::SmartLoadPlaylist(string sFolder, string sExtensions, list<
 	long int iMaxSize = -1;
 	int iPosition = 0;
 	
+	// HD-DVD workaround to start from feature_1
+	bool bHDDVD_Workaround = false;
+	string sHDDVD_Workaround;
+	int iHDDVD_Workaround=-1;
+	int isHDDVD_Workaround=0;
+	//
+	
 	for (list<string>::iterator li=vNames.begin(); li!=vNames.end(); ++li)
 	{
 		string sFullName = sFolder+"/"+ *li;
@@ -1199,7 +1206,26 @@ void MPlayer_Player::SmartLoadPlaylist(string sFolder, string sExtensions, list<
 			sLargestFile = sFullName;
 			iLargestFilePosition = iPosition;
 		}
+		
+		// HD-DVD workaround to start from feature_1
+		if (*li == "FEATURE_1.EVO" || *li == "feature_1.evo")
+		{
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::SmartLoadPlaylist FEATURE_1.EVO found, will use HD-DVD workaround" );
+			sHDDVD_Workaround = sFullName;
+			iHDDVD_Workaround = iPosition;
+			bHDDVD_Workaround = true;
+			isHDDVD_Workaround = iFileSize;
+		}
+		//
+		
 		iPosition++;
+	}
+	
+	if (bHDDVD_Workaround)
+	{
+		sLargestFile = sHDDVD_Workaround;
+		iLargestFilePosition = iHDDVD_Workaround;
+		iMaxSize = isHDDVD_Workaround;
 	}
 	
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::SmartLoadPlaylist winner is %s with size %i on position %i", sLargestFile.c_str(), iMaxSize, iLargestFilePosition );
