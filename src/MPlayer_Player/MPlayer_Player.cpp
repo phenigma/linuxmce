@@ -1520,7 +1520,7 @@ void MPlayer_Player::CMD_Audio_Track(string sValue_To_Assign,int iStreamID,strin
 	m_iCurrentAudioTrack = iAudioTrack;
 	
 	// mplayer tracks start from
-	iAudioTrack += 1;
+	//iAudioTrack += 1;
 	
 	m_pPlayerEngine->ExecuteCommand("switch_audio " + StringUtils::itos(iAudioTrack));
 	
