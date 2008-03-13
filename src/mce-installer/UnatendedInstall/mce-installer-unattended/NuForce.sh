@@ -66,12 +66,12 @@ AVWizardReplacement()
 {
 	UI_Normal_Horizontal=1
 
-	OrbiterWidth=800
-	OrbiterHeight=600
-	Video_settings="800 600/60"
+	OrbiterWidth=1024
+	OrbiterHeight=768
+	Video_settings="$OrbiterWidth $OrbiterHeight/60"
 	Video_Connector="VGA"
 	PK_Skin=12 # NuForce
-	PK_Size=1 # 800x600
+	PK_Size=6 # 1024x768
 	NewAudioSetting="S"
 
 	Queries=(
@@ -98,6 +98,9 @@ AVWizardRun="#!/bin/bash
 
 cp /etc/X11/xorg.conf{.nuforce,}
 amixer sset IEC958 unmute
+amixer sset Master 81% unmute
+amixer sset PCM 100% unmute
+amixer sset Front 100% unmute
 alsactl store
 
 xinit /usr/bin/TouchKit -- :0 -ac
