@@ -1128,7 +1128,7 @@ void WizardLogic::SetPVRSoftware(char PVRSoftware)
 	DB_ROW row;
 	if((result_set.r = db_wrapper_query_result(sSQL)) )
 	{
-		while (row = db_wrapper_fetch_row(result_set.r))
+		while (NULL != (row = db_wrapper_fetch_row(result_set.r)))
 		{
 			DCE::CMD_Delete_Device CMD_Delete_Device(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_GeneralInfoPlugIn,atoi(row[0]));
 			m_pOrbiter->SendCommand(CMD_Delete_Device);
@@ -1143,7 +1143,7 @@ void WizardLogic::SetPVRSoftware(char PVRSoftware)
 	PlutoSqlResult result_set_osd;
 	if((result_set_osd.r = db_wrapper_query_result(sSQL)) )
 	{
-		while (row = db_wrapper_fetch_row(result_set_osd.r))
+		while (NULL != (row = db_wrapper_fetch_row(result_set_osd.r)))
 		{
 			DCE::CMD_Create_Device CMD_Create_Device(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_GeneralInfoPlugIn,PK_DeviceTemplate_AddPlayer,"",0,"","",0,atoi(row[0]),"",0,0,&PK_Device);
 			m_pOrbiter->SendCommand(CMD_Create_Device);
