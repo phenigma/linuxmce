@@ -298,7 +298,9 @@ bool Pnp_PreCreateOptions::OkayToCreate_MobilePhone(PnpQueueEntry *pPnpQueueEntr
 bool Pnp_PreCreateOptions::OkayToCreateDevice_NetworkStorage(PnpQueueEntry *pPnpQueueEntry,Row_DeviceTemplate *pRow_DeviceTemplate)
 {
 	string sUUID = pPnpQueueEntry->m_mapPK_DeviceData[DEVICEDATA_UUID_CONST];
-	if( sUUID.empty() )
+
+	//check the UUID for non-network storage devices 
+	if(pRow_DeviceTemplate->FK_DeviceCategory_get() != DEVICECATEGORY_Network_Storage_CONST && sUUID.empty())
 	{
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Pnp_PreCreateOptions::OkayToCreateDevice_NetworkStorage queue %d has no uuid",
 			pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
