@@ -59,7 +59,8 @@ Packages()
 
 Devices()
 {
-	/usr/pluto/bin/CreateDevice -d 53 -R 1
+	/usr/pluto/bin/CreateDevice -d 53 -R 1 # Slim Server Streamer
+	/usr/pluto/bin/CreateDevice -d 11 -R 1 # Disk Drive
 }
 
 AVWizardReplacement()
