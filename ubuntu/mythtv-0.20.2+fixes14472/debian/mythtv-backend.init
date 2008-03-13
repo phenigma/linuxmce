@@ -35,6 +35,9 @@ chown -R $USER $RUNDIR
 unset DISPLAY
 unset SESSION_MANAGER
 
+# this is needed for LMCE, esp on MD's
+adduser --quiet mythtv public || :
+
 case "$1" in
   start)
 	if test -e $RUNDIR/$NAME.pid ; then
