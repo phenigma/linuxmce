@@ -62,7 +62,13 @@ function matchCoverArt($output,$mediadbADO) {
 				if((int)@$_POST['remove_old']==1 && $itemType=='File'){
 					remove_cover_arts($itemValue,$mediadbADO);
 				}
-								
+
+				if((int)@$_POST['remove_old_attributes']==1){
+					$mediadbADO->Execute('DELETE FROM File_Attribute WHERE FK_File=?',array($itemValue));
+					$mediadbADO->Execute('DELETE FROM LongAttribute WHERE FK_File=?',array($itemValue));
+				}
+			
+							
 				$urls=getAssocArray('CoverArtScanEntry','PK_CoverArtScanEntry','URL',$mediadbADO,'WHERE FK_CoverArtScan='.$id);
 				
 				$mediadbADO->Execute('INSERT INTO Picture (Extension,URL) VALUES (?,?)',array('jpg',$urls[$selPic]));
@@ -178,8 +184,12 @@ function formatScannedItems($scannedArray){
 				<table>
 					<tr>
 						<td><input type="checkbox" name="remove_old" value="1"></td>
-						<td>'.$TEXT_REMOVE_EXISITING_COVERARTS_CONST.'</td>
+						<td>'.$TEXT_REMOVE_EXISTING_COVERARTS_CONST.'</td>
 					</tr>
+					<tr>
+						<td><input type="checkbox" name="remove_old_attributes" value="1"></td>
+						<td>'.$TEXT_REMOVE_EXISTING_ATTRIBUTES_CONST.'</td>
+					</tr>					
 					<tr>
 						<td><input type="checkbox" name="includeAttributes" value="1" checked></td>
 						<td>'.$TEXT_INCLUDE_AMAZON_ATTRIBUTES_CONST.'</td>
@@ -191,19 +201,5 @@ function formatScannedItems($scannedArray){
 	<input type="hidden" name="ids" value="'.join(',',$displayedArray).'">';
 	
 	return $out;
-}
-
-function remove_cover_arts($fileID,$mediadbADO){
-	$picsArray=getAssocArray('Picture_File','FK_Picture','FK_Picture',$mediadbADO,'WHERE FK_File='.$fileID);
-	if(count($picsArray)==0){
-		return false;
-	}
-	
-	foreach ($picsArray as $key=>$value) {
-		exec_batch_command('sudo -u root rm '.$GLOBALS['mediaPicsPath'].$key.'_tn.jpg');
-		exec_batch_command('sudo -u root rm '.$GLOBALS['mediaPicsPath'].$key.'.jpg');
-	}
-	
-	$mediadbADO->Execute('DELETE FROM Picture_File WHERE FK_File='.$fileID.' AND FK_Picture IN ('.join(',',array_values($picsArray)).')');
 }
 ?>

@@ -26,7 +26,7 @@ $TEXT_FILENAME_CONST='Filename';
 $TEXT_WARNING_AUTOMATIC_GRAB_ACTIVE_CONST='Automatic script who retrieve coverarts from Amazon is working. You can stop it at any time or let it finish then match the results.';
 $TEXT_SEARCH_FOR_PATH_CONST='Search for path';
 $TEXT_AND_OR_FILENAME_CONST='and/or filename';
-$TEXT_REMOVE_EXISITING_COVERARTS_CONST='Remove existing cover arts';
+$TEXT_REMOVE_EXISTING_COVERARTS_CONST='Remove existing cover arts';
 $TEXT_RECORDS_PER_PAGE_EXCEEDED_CONST='The number of records per page should be between 1-100';
 $TEXT_INCLUDE_AMAZON_ATTRIBUTES_CONST='Include Amazon attributes';
 ?>

@@ -6730,7 +6730,7 @@ function same_network($requestIP,$serverIP,$netMask){
 
 function quick_search_box($path=''){
 	$out='
-	<form name="mediaSearchFrm" method="POST" action="index.php">
+	<form name="mediaSearchFrm" method="GET" action="index.php">
 	<input type="hidden" name="section" value="searchMedia">
 	<input type="hidden" name="path" value="'.htmlentities($path).'">
 	<input type="hidden" name="partial" value="1">
@@ -6740,5 +6740,19 @@ function quick_search_box($path=''){
 	';
 	
 	return $out;
+}
+
+function remove_cover_arts($fileID,$mediadbADO){
+	$picsArray=getAssocArray('Picture_File','FK_Picture','FK_Picture',$mediadbADO,'WHERE FK_File='.$fileID);
+	if(count($picsArray)==0){
+		return false;
+	}
+	
+	foreach ($picsArray as $key=>$value) {
+		exec_batch_command('sudo -u root rm '.$GLOBALS['mediaPicsPath'].$key.'_tn.jpg');
+		exec_batch_command('sudo -u root rm '.$GLOBALS['mediaPicsPath'].$key.'.jpg');
+	}
+	
+	$mediadbADO->Execute('DELETE FROM Picture_File WHERE FK_File='.$fileID.' AND FK_Picture IN ('.join(',',array_values($picsArray)).')');
 }
 ?>
