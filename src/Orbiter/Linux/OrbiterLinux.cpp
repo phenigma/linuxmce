@@ -76,7 +76,9 @@ OrbiterLinux::OrbiterLinux(int DeviceID, int PK_DeviceTemplate,
         : Orbiter(DeviceID, PK_DeviceTemplate, ServerAddress, sLocalDirectory, bLocalMode,
                      nImageWidth, nImageHeight, NULL)
         , m_strWindowName("Orbiter")
+#ifndef MAEMO_NOKIA770		
         , m_pRecordHandler(NULL)
+#endif	
         , m_nDesktopWidth(0)
         , m_nDesktopHeight(0)
         , m_nProgressWidth(0)
@@ -373,8 +375,10 @@ void OrbiterLinux::Initialize(GraphicType Type, int iPK_Room, int iPK_EntertainA
 		m_pMouseBehavior = new MouseBehavior_Linux(this);
 		m_pWinListManager->KeepSdlWindowActive(true);
 	}
+#ifndef MAEMO_NOKIA770	
     m_pRecordHandler = new XRecordExtensionHandler(this, m_strDisplayName);
     m_pRecordHandler->enableRecording(true);
+#endif
 
     reinitGraphics();
 
@@ -418,8 +422,10 @@ void OrbiterLinux::Initialize(GraphicType Type, int iPK_Room, int iPK_EntertainA
 void OrbiterLinux::Destroy()
 {
     LoggerWrapper::GetInstance()->Write(LV_STATUS, "OrbiterLinux::Destroy()");
+#ifndef MAEMO
     delete m_pRecordHandler;
     m_pRecordHandler = NULL;
+#endif	
     if (m_pMouseBehavior)
     {
 	    LoggerWrapper::GetInstance()->Write(LV_STATUS, "OrbiterLinux::Destroy() killing mouse behavior");
@@ -526,7 +532,7 @@ void OrbiterLinux::CMD_Set_Mouse_Position_Relative(int iPosition_X,int iPosition
     LoggerWrapper::GetInstance()->Write(LV_STATUS, "Moving mouse (relative %d,%d)", iPosition_X, iPosition_Y);
 
     int nAbsolute_X = 0, nAbsolute_Y = 0;
-    
+
     m_pX11->Mouse_GetPosition(nAbsolute_X, nAbsolute_Y);
     m_pX11->Mouse_SetPosition(nAbsolute_X + iPosition_X, nAbsolute_Y + iPosition_Y);
 }

@@ -105,6 +105,7 @@ void SocketCrashHandler(Socket *pSocket)
     }
 }
 
+#ifndef MAEMO_NOKIA770
 void translateSDLEventToOrbiterEvent(SDL_Event &sdlEvent, Orbiter::Event *orbiterEvent, struct keyboardState *kbdState, bool bUsingUIVersion2)
 {
     orbiterEvent->type = Orbiter::Event::NOT_PROCESSED;
@@ -317,6 +318,7 @@ void translateSDLEventToOrbiterEvent(SDL_Event &sdlEvent, Orbiter::Event *orbite
             break;
     }
 }
+#endif
 
 OrbiterLinux *CreateOrbiter(int PK_Device,int PK_DeviceTemplate,string sRouter_IP,string sLocalDirectory,bool bLocalMode, int Width, int Height, bool bFullScreen,bool& bMustQuit,bool& bNeedReload)
 {
