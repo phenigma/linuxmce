@@ -51,12 +51,16 @@ private:
 	
 	string GetLastFile();
 	void ClearPlaylist();
+	
+	string m_sALSADevice;
+	bool m_bALSAPassthrough;
+	bool m_bOverrideAudioSettings;
 
 public:
 	enum SeekType {SEEK_RELATIVE_TIME=0, SEEK_ABSOLUTE_PERCENTAGE, SEEK_ABSOLUTE_TIME};
 	enum EngineState {PLAYBACK_STARTED=1, PLAYBACK_FINISHED};
 	
-	MPlayerEngine();
+	MPlayerEngine(bool bOverrideAudioSettings=false, string sALSADevice="default", bool bALSAPassthrough=false);
 	~MPlayerEngine();
 
 	// executes command with no response

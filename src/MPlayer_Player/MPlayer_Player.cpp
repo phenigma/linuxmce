@@ -940,10 +940,79 @@ void MPlayer_Player::CMD_Set_Media_ID(string sID,int iStreamID,string &sCMD_Resu
 	LoggerWrapper::GetInstance()->Write(LV_WARNING, "MPlayer_Player::CMD_Set_Media_ID is not implemented");
 }
 
+bool MPlayer_Player::ParseAudioConfig(string sAudioSettings, string &sAlsaDevice, bool &bUsePassThrough)
+{
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "MPlayer_Player::ParseAudioConfig  M/D Audio Settings: %s", sAudioSettings.c_str());
+	
+	if (sAudioSettings=="")
+	{
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "MPlayer_Player::ParseAudioConfig  M/D Audio Settings are empty, assuming 'M'");
+		sAudioSettings = "M";
+	}
+	else
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "MPlayer_Player::ParseAudioConfig  M/D Audio Settings: %s", sAudioSettings.c_str());
+
+	// temporary workaround for #3995
+	if (sAudioSettings=="S3")
+	{
+		LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "MPlayer_Player::ParseAudioConfig  M/D Audio Settings are broken (S3), assuming 'S'");
+		sAudioSettings = "S";
+	}
+	
+	bool updateConfig = true;
+	sAlsaDevice = "plug:dmix";
+	bUsePassThrough = false;
+	
+	for (uint i=0; i<sAudioSettings.length(); i++)
+	{
+		switch (sAudioSettings[i])
+		{
+			case 'C':
+			case 'O':
+				sAlsaDevice = "asym_spdif";
+				break;
+		
+			case 'S':		
+			case 'L':
+				sAlsaDevice = "plug:dmix";
+				break;
+		
+			case '3':
+				bUsePassThrough = true;
+				break;
+		
+			case 'M':
+				updateConfig = false;
+				break;
+		
+			default:
+				LoggerWrapper::GetInstance()->Write( LV_STATUS, "MPlayer_Player::ParseAudioConfig  Unknown audio settings flag: '%c'", sAudioSettings[i]);
+		}
+	}
+	
+	if (!updateConfig)
+	{
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "MPlayer_Player::ParseAudioConfig  Flag 'M' found, we won't override the defaults from /root/.mplayer/config");
+	}
+	
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "MPlayer_Player::ParseAudioConfig  Final audio settings: audio device=%s, use passthrough=%s, use these settings=%s", sAlsaDevice.c_str(), bUsePassThrough?"yes":"no", updateConfig?"yes":"no");
+	
+	return updateConfig;
+}
+
 void MPlayer_Player::InitializePlayerEngine()
 {
+	// get audio settings from the M/D
+	string sAudioSettings = m_pData->m_pEvent_Impl->GetDeviceDataFromDatabase(m_pData->m_dwPK_Device_MD,
+			DEVICEDATA_Audio_settings_CONST);
+	
+	// parse audio settings
+	string sAudioDevice;
+	bool bUsePassthrough;
+	bool bUseAudioSettings = ParseAudioConfig(sAudioSettings, sAudioDevice, bUsePassthrough);
+	
 	//TODO wrap into try-catch block
-	m_pPlayerEngine = new MPlayerEngine();
+	m_pPlayerEngine = new MPlayerEngine(bUseAudioSettings, sAudioDevice, bUsePassthrough);
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Started MPlayer slave instance");
 	m_bPlayerEngineInitialized = true;
 	

@@ -15,7 +15,7 @@
 
 using namespace std;
 
-MPlayerEngine::MPlayerEngine() : m_engineStateMutex("mplayer-engine-state-mutex"),
+MPlayerEngine::MPlayerEngine(bool bOverrideAudioSettings, string sALSADevice, bool bALSAPassthrough) : m_engineStateMutex("mplayer-engine-state-mutex"),
 	m_engineReadPipeMutex("mplayer-engine-read-pipe-mutex"),
 	m_engineWritePipeMutex("mplayer-engine-write-pipe-mutex")
 {
@@ -40,6 +40,10 @@ MPlayerEngine::MPlayerEngine() : m_engineStateMutex("mplayer-engine-state-mutex"
 	m_bInPipe[0] = m_bInPipe[1] = false;
 	m_bOutPipe[0] = m_bOutPipe[1] = false;
 	m_bRunEngineOutputReader = false;
+	
+	m_sALSADevice = sALSADevice;
+	m_bALSAPassthrough = bALSAPassthrough;
+	m_bOverrideAudioSettings = bOverrideAudioSettings;
 	
 	m_eEngineState = PLAYBACK_STARTED;
 	m_vCurrentPlaylist.push_back(BLACK_MPEG_FILE);
@@ -103,8 +107,24 @@ bool MPlayerEngine::StartEngine() {
 
 		Log("Starting mplayer");
 		
-		execle(MPLAYER_BINARY, MPLAYER_BINARY_SHORT, "-slave", "-idle", "-msglevel", "all=4", "-noborder", 
-		       "-fixed-vo", "-fs", "-vo", "xv", "-vf", "screenshot", "-lavdopts", "fast:threads=2", BLACK_MPEG_FILE, (char *) 0, environ);
+		if (m_bOverrideAudioSettings) {
+			// device dependant, replacing ":" with "=" to keep mplayer parser happy
+			string sALSADevice = "alsa:device="+StringUtils::Replace(m_sALSADevice,":", "=");
+			
+			// depending on the passthrough setting
+			string sALSACodec = (m_bALSAPassthrough?"hwac3,hwdts,":"") + string("a52,");
+			
+			execle(MPLAYER_BINARY, MPLAYER_BINARY_SHORT, "-slave", "-idle", "-msglevel", "all=4", "-noborder",
+				"-fixed-vo", "-fs", "-vo", "xv", "-vf", "screenshot",
+				"-ao", sALSADevice.c_str(),
+				"-ac", sALSACodec.c_str(),
+				"-lavdopts", "fast:threads=2", BLACK_MPEG_FILE, (char *) 0, environ);
+		}
+		else {
+			execle(MPLAYER_BINARY, MPLAYER_BINARY_SHORT, "-slave", "-idle", "-msglevel", "all=4", "-noborder",
+			       "-fixed-vo", "-fs", "-vo", "xv", "-vf", "screenshot",
+	  			"-lavdopts", "fast:threads=2", BLACK_MPEG_FILE, (char *) 0, environ);
+		}
 
 		Log("execle() failed");
 		exit(127);
