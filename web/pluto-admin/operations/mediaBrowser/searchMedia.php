@@ -10,8 +10,8 @@ function searchMedia($output,$mediadbADO) {
 	$action = (isset($_REQUEST['action']) && $_REQUEST['action']!='')?cleanString($_REQUEST['action']):'form';
 	$keyword=cleanString(@$_REQUEST['keyword']);
 	$path=cleanString(@$_REQUEST['path']);
-	$partial=(int)@$_POST['partial'];
-	$attributes=(int)@$_POST['attributes'];
+	$partial=(int)@$_REQUEST['partial'];
+	$attributes=(int)@$_REQUEST['attributes'];
 	
 	$scriptInHead='
 	<script>
@@ -34,7 +34,7 @@ function searchMedia($output,$mediadbADO) {
 		$out.='
 			<div align="center" class="err">'.stripslashes(@$_REQUEST['error']).'</div>
 			<div align="center" class="confirm"><B>'.stripslashes(@$_REQUEST['msg']).'</B></div>
-			<form action="index.php" method="POST" name="searchMedia" enctype="multipart/form-data">
+			<form action="index.php" method="GET" name="searchMedia" enctype="multipart/form-data">
 				<input type="hidden" name="section" value="searchMedia">
 				<input type="hidden" name="action" value="form">
 			<table>
@@ -61,7 +61,7 @@ function searchMedia($output,$mediadbADO) {
 			</table>
 			<hr>
 		';
-		if(isset($_POST['doSearch'])){
+		if(isset($_REQUEST['doSearch'])){
 			$out.=search_results($keyword,$path,$partial,$attributes,$mediadbADO);
 		}
 	}else{
@@ -81,9 +81,14 @@ function searchMedia($output,$mediadbADO) {
 
 function search_results($keyword,$path,$partial,$attributes,$mediadbADO){
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/searchMedia.lang.php');
 	
 	if($keyword=='' && $path==''){
 		return $TEXT_PARAMETERS_NOT_SPECIFIED_CONST;
+	}
+	
+	if(strlen($keyword)<3 && strlen($keyword)<3){
+		return $TEXT_SEARCH_STRING_TOO_SHORT_CONST;
 	}
 	
 	$whereArray=array();
@@ -120,16 +125,36 @@ function search_results($keyword,$path,$partial,$attributes,$mediadbADO){
 			<td align="center"><b>Filename</b></td>
 		</tr>	
 	';
-	for($i=0;$i<count($dataFiles['PK_File']);$i++){
-		$class=($i%2==0)?'alternate_back':'';
-		$out.='
-		<tr class="'.$class.'">
-			<td>'.($i+1).'</td>
-			<td><a href="javascript:syncPath(\''.$dataFiles['Path'][$i].'\');">'.$dataFiles['Path'][$i].'</a></td>
-			<td><a href="javascript:syncPath(\''.$dataFiles['Path'][$i].'\','.$dataFiles['PK_File'][$i].');">'.$dataFiles['Filename'][$i].'</a></td>
-		</tr>';
+	$page=(isset($_REQUEST['page']))?(int)$_REQUEST['page']:1;
+	$records_per_page=20;	
+	$totalRecords=count(@$dataFiles['PK_File']);
+	$noPages=ceil($totalRecords/$records_per_page);
+	$start=($page-1)*$records_per_page+1;
+	$start=($start==1)?0:$start;
+	$end=$page*$records_per_page;
+	$end=($end>$totalRecords)?$totalRecords:$end;
+
+	$pageLinks='';
+	for($i=1;$i<=$noPages;$i++){
+		$pageLinks.=($i==$page)?' '.$i:' <a href="index.php?'.str_replace('&page='.$i,'',$_SERVER['QUERY_STRING']).'&page='.$i.'">'.$i.'</a>';
 	}
-	$out.='</table>';
+
+	for($i=0;$i<count($dataFiles['PK_File']);$i++){
+		if($i>=$start && $i<=$end){
+			$class=($i%2==0)?'alternate_back':'';
+			$out.='
+			<tr class="'.$class.'">
+				<td>'.$dataFiles['PK_File'][$i].'</td>
+				<td><a href="javascript:syncPath(\''.$dataFiles['Path'][$i].'\');">'.$dataFiles['Path'][$i].'</a></td>
+				<td><a href="javascript:syncPath(\''.$dataFiles['Path'][$i].'\','.$dataFiles['PK_File'][$i].');">'.$dataFiles['Filename'][$i].'</a></td>
+			</tr>';
+		}
+	}
+	$out.='
+		<tr>
+			<td align="right"colspan="3">'.$pageLinks.'</td>
+		</tr>	
+	</table>';
 	
 	return $out;
 }
