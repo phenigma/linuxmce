@@ -378,10 +378,12 @@ void Xine_Stream_Factory::setAudioSettings()
 	}
 	
 	SetALSAConfigurationEntry("audio.alsa_front_device", sAlsaDevice, "default");
+	SetALSAConfigurationEntry("audio.device.alsa_front_device", sAlsaDevice, "default");
 	
 	if (bUsePassThrough)
 		SetALSAConfigurationEntry("audio.device.alsa_passthrough_device", sAlsaDevice, "iec958:AES0=0x6,AES1=0x82,AES2=0x0,AES3=0x2");
 	
+	SetALSAConfigurationEntry("audio.speaker_arrangement", sSpeakersArrangement, "Stereo 2.0");
 	SetALSAConfigurationEntry("audio.output.speaker_arrangement", sSpeakersArrangement, "Stereo 2.0");
 }
 
