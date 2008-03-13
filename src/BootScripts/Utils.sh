@@ -42,6 +42,20 @@ function AddBookmark {
 
 }
 
+function DelBookmark {
+	Url="$1"
+	Name="$2"
+
+	# Generate an id for this bookmark
+	ID=$(echo "$Url" | sha1sum)
+	ID='rdf:#$'${ID:0:6}
+	
+	for BookmarksFile in /home/public/bookmarks.html /home/user_*/bookmarks.html ;do
+		grep -v "ID=\"$ID\"" $BookmarksFile >> $BookmarksFile.$$
+		mv $BookmarksFile.$$ $BookmarksFile
+	done
+}
+
 UseAlternativeLibs() 
 {
 	export LD_LIBRARY_PATH=/opt/libsdl/lib:/opt/libxine/lib:/opt/libsdl1.2-1.2.7+1.2.8cvs20041007/lib:/opt/linphone-1.3.5/lib

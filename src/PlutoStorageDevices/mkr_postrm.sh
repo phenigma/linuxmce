@@ -1,4 +1,8 @@
 #!/bin/bash
+. /usr/pluto/bin/Utils.sh
+
+## Remove fuppes web bookmark
+DelBookmark "http://dcerouter:3877/"
 
 ## Remove the cron entry
 #cat  /etc/crontab  | grep -v "StorageDevices_Radar.sh" > /etc/crontab.$$

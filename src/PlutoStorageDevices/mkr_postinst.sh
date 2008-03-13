@@ -4,6 +4,9 @@
 
 /usr/pluto/bin/Debug_LogKernelModules.sh "$0" || :
 
+## Add bookmark for fuppes web interface
+AddBookmark "http://dcerouter:3877/" "Fuppes UPnP Server"
+
 ## Create the main mount directory
 mkdir -p /mnt/device
 
