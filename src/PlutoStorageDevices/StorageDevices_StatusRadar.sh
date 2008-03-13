@@ -28,6 +28,7 @@ DD_PASSWORD=128
 DD_ONLINE=195
 DD_UUID=267
 DD_READONLY=194
+DD_BLOCK_DEV=152
 
 EV_User_Password_Mismatch=70
 
@@ -261,9 +262,11 @@ while : ;do
 		SELECT
 			PK_Device,
 			FK_Device_ControlledVia,
-			UUID.IK_DeviceData
+			UUID.IK_DeviceData,
+			BlockDev.IK_DeviceData
 		FROM
 			Device
+			LEFT JOIN Device_DeviceData BlockDev ON BlockDev.FK_Device = Device.PK_Device AND BlockDev.FK_DeviceData = '$DD_BLOCK_DEV'
 			LEFT JOIN Device_DeviceData UUID     ON UUID.FK_Device     = Device.PK_Device AND UUID.FK_DeviceData     = '$DD_UUID'
 		WHERE
 			FK_DeviceTemplate IN ($TPL_INTERNAL_DRIVE, $TPL_RAID_0, $TPL_RAID_1, $TPL_RAID_5)
@@ -279,6 +282,17 @@ while : ;do
 		IDrive_ID=$(Field "1" "$InternalDrive")
 		IDrive_Parent=$(Field "2" "$InternalDrive")
 		IDrive_UUID=$(Field "3" "$InternalDrive")
+		IDrive_BlockDev=$(Field "4" "$InternalDrive")
+
+		## If is a New Raid with no UUID associated (UUID="") or a Internal Drive in the old format (UUID="NULL" or UUID="")
+		## then we translate the block device to uuid
+		if [[ "$IDrive_UUID" == "" || "$IDrive_UUID" == "NULL" ]] && [[ "$IDrive_BlockDev" != "NULL" ]] ;then
+			IDrive_UUID=$(udevinfo --query=all --name="/dev/$IDrive_BlockDev" |  grep 'ID_FS_UUID=' | cut -d'=' -f2)
+
+			if [[ "$IDrive_UUID" != "" ]] ;then
+				RunSQL "UPDATE Device_DeviceData SET IK_DeviceData = '$IDrive_UUID' WHERE FK_Device = '$IDrive_ID' AND FK_DeviceData = '$DD_UUID'"
+			fi
+		fi
 
 		## Is one of our internal drives
 		if [[ "$IDrive_Parent" == "$PK_Device" ]] ;then
