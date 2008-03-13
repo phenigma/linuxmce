@@ -657,7 +657,7 @@ $manualyConfigureArray=array(
 		
 		// for devices from category Storage Devices, checking "reconfigure device" also set state = **RUN_CONFIG**
 		if($needConfigure==1 && isStorageDevice($DeviceCategory,$dbADO)===true){
-			$State='**RUN_CONFIG**';
+			$Status='**RUN_CONFIG**';
 		}
 	
 		
