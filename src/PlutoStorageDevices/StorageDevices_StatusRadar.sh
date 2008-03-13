@@ -286,12 +286,14 @@ while : ;do
 
 		## If is a New Raid with no UUID associated (UUID="") or a Internal Drive in the old format (UUID="NULL" or UUID="")
 		## then we translate the block device to uuid
+		if [[ "$IDrive_Parent" == "$PK_Device" ]] ;then
 		if [[ "$IDrive_UUID" == "" || "$IDrive_UUID" == "NULL" ]] && [[ "$IDrive_BlockDev" != "NULL" ]] ;then
 			IDrive_UUID=$(udevinfo --query=all --name="/dev/$IDrive_BlockDev" |  grep 'ID_FS_UUID=' | cut -d'=' -f2)
 
 			if [[ "$IDrive_UUID" != "" ]] ;then
 				RunSQL "UPDATE Device_DeviceData SET IK_DeviceData = '$IDrive_UUID' WHERE FK_Device = '$IDrive_ID' AND FK_DeviceData = '$DD_UUID'"
 			fi
+		fi
 		fi
 
 		## Is one of our internal drives
