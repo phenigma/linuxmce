@@ -1,3 +1,16 @@
+pluto-mplayer (1.0svn26234) unstable; urgency=low
+
+  * rebase over revision 26234
+  * add our patches, dropping HD-DVD related
+
+ -- Kirill Belokurov <kirill.b@plutohome.com>  Fri, 14 Mar 2006 16:36:45 +0200
+
+pluto-mplayer (1.0svn24791) unstable; urgency=low
+
+  * change version naming from cvs to svn.
+
+ -- Razvan Gavril <razvan.g@plutohome.com>  Tue, 20 Jun 2006 13:02:14 +0200
+
 mplayer (1.0svn) unstable; urgency=low
 
   * change version naming from cvs to svn.
