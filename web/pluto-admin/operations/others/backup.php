@@ -30,6 +30,9 @@ function backup($output,$dbADO) {
 				<td>'.$TEXT_BACKUP_INFO_CONST.'</td>
 			</tr>		
 			<tr>
+				<td align="center"><textarea name="comment" style="width:300px;height:100px;"></textarea></td>
+			</tr>			
+			<tr>
 				<td align="center"><input type="submit" name="backup" class="button" value="'.$TEXT_BACKUP_CONST.'"></td>
 			</tr>
 			<tr>
@@ -69,7 +72,8 @@ function backup($output,$dbADO) {
 		}	
 
 		if(isset($_POST['backup'])){
-			$cmd='sudo -u root /usr/pluto/bin/PlutoRestorePoint.sh --backup';
+			$comment=cleanString($_POST['comment']);
+			$cmd='sudo -u root /usr/pluto/bin/PlutoRestorePoint.sh --backup "'.addslashes($comment).'"';
 			$result=exec_batch_command($cmd,1);
 			
 			
