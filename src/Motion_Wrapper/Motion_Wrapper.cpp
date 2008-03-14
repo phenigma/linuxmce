@@ -362,7 +362,7 @@ Motion_Wrapper::AddChildDeviceToConfigFile(std::ofstream& conffile, DeviceData_I
 	//video device
 	string sDevice = pDeviceData->mapParameters_Find(DEVICEDATA_Device_CONST);
 
-	if (pDeviceData->m_dwPK_DeviceTemplate == 1917) { // Replace with DEVICETEMPLATE_Generic_Motion_IP_Camera
+	if (pDeviceData->m_dwPK_DeviceTemplate == 1916) { // Replace with DEVICETEMPLATE_Generic_Motion_IP_Camera
 		string sUrl = "";
 
 		if ( pDeviceData->mapParameters_Find(270).empty() ) { // TODO: Replace with DEVICEDATE_Protocol_CONST 
@@ -373,7 +373,11 @@ Motion_Wrapper::AddChildDeviceToConfigFile(std::ofstream& conffile, DeviceData_I
 		}
 		
 		sUrl  = pDeviceData->mapParameters_Find(270) + "://"; // TODO: Replace with DEVICEDATE_Protocol_CONST
-		sUrl += pDeviceData->m_sIPAddress + "/";
+		sUrl += pDeviceData->m_sIPAddress;
+		if ( ! pDeviceData->mapParameters_Find(DEVICEDATA_Port_CONST).empty() ) {
+			sUrl += ":" + pDeviceData->mapParameters_Find(DEVICEDATA_Port_CONST);
+		}
+		sUrl += "/";
 		sUrl += pDeviceData->mapParameters_Find(DEVICEDATA_Path_CONST);
 
 		conffile << "netcam_url " << sUrl << endl;
