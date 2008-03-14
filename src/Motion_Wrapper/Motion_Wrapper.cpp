@@ -377,8 +377,11 @@ Motion_Wrapper::AddChildDeviceToConfigFile(std::ofstream& conffile, DeviceData_I
 		if ( ! pDeviceData->mapParameters_Find(DEVICEDATA_Port_CONST).empty() ) {
 			sUrl += ":" + pDeviceData->mapParameters_Find(DEVICEDATA_Port_CONST);
 		}
-		sUrl += "/";
-		sUrl += pDeviceData->mapParameters_Find(DEVICEDATA_Path_CONST);
+		if ( pDeviceData->mapParameters_Find(DEVICEDATA_Path_CONST).empty() ) {
+			sUrl += "/";
+		} else {
+			sUrl += pDeviceData->mapParameters_Find(DEVICEDATA_Path_CONST);
+		}
 
 		conffile << "netcam_url " << sUrl << endl;
 
