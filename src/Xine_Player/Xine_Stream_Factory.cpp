@@ -288,23 +288,48 @@ static const char *audio_out_types_strs[] =
 	NULL
 };
 
-void Xine_Stream_Factory::SetALSAConfigurationEntry(string sEntry, string sValue, string sDefaultValue)
+// if pEnumValues == NULL, considering variable as string
+// otherwise, treat it as an enum and set the variable in integer mode
+void Xine_Stream_Factory::SetALSAConfigurationEntry(string sEntry, string sValue, const char **pEnumValues)
 {
-	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Xine_Stream_Factory::SetALSAConfigurationEntry: setting '%s' to '%s'",
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Xine_Stream_Factory::SetALSAConfigurationEntry: => setting '%s' to '%s'",
 					   sEntry.c_str(), sValue.c_str());
 	
 	xine_cfg_entry_t Entry;
-	xine_config_register_string(m_pXineLibrary, sEntry.c_str(), sDefaultValue.c_str(), "ALSA device setting", NULL, 0, NULL, NULL);
 	if (xine_config_lookup_entry(m_pXineLibrary, sEntry.c_str(), &Entry) == 0)
 	{
-		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Xine_Stream_Factory::SetALSAConfigurationEntry: cannot find entry '%s', skipping",
+		LoggerWrapper::GetInstance()->Write( LV_WARNING, "Xine_Stream_Factory::SetALSAConfigurationEntry: cannot find entry '%s', skipping",
 						   sEntry.c_str());
 	}
 	else
 	{
-		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Xine_Stream_Factory::SetALSAConfigurationEntry: previous value for '%s' is '%s'", sEntry.c_str(), Entry.str_value );
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Xine_Stream_Factory::SetALSAConfigurationEntry: variable type is %s", pEnumValues?"enum":"string");
 		
-		Entry.str_value = strdup(sValue.c_str());
+		if (pEnumValues)
+		{
+			string sOldValue;
+			int iNewValue=-1;
+			for (int i=0; const char *pValue=pEnumValues[i]; i++)
+			{
+				if (Entry.num_value==i)
+					sOldValue = pValue;
+				if (strcmp(sValue.c_str(), pValue)==0)
+					iNewValue=i;
+			}
+			LoggerWrapper::GetInstance()->Write( LV_STATUS, "Xine_Stream_Factory::SetALSAConfigurationEntry: previous value for '%s' is '%s'", sEntry.c_str(), sOldValue.c_str());
+			if (iNewValue!=-1)
+				Entry.num_value=iNewValue;
+			else
+			{
+				LoggerWrapper::GetInstance()->Write( LV_WARNING, "Xine_Stream_Factory::SetALSAConfigurationEntry: failed to find the current value in possible enum values, not setting this variable");
+			}
+		}
+		else
+		{
+			LoggerWrapper::GetInstance()->Write( LV_STATUS, "Xine_Stream_Factory::SetALSAConfigurationEntry: previous value for '%s' is '%s'", sEntry.c_str(), Entry.str_value );		
+			Entry.str_value = strdup(sValue.c_str());
+		}
+		
 		xine_config_update_entry( m_pXineLibrary, &Entry );
 		if (xine_config_lookup_entry(m_pXineLibrary, sEntry.c_str(), &Entry) == 0)
 		{
@@ -313,10 +338,52 @@ void Xine_Stream_Factory::SetALSAConfigurationEntry(string sEntry, string sValue
 		}
 		else
 		{
-			LoggerWrapper::GetInstance()->Write( LV_STATUS, "Xine_Stream_Factory::SetALSAConfigurationEntry: current value for '%s' is '%s'",
+			if (pEnumValues)
+			{
+				string sCurrentValue;
+				for (int i=0; const char *pValue=pEnumValues[i]; i++)
+				{
+					if (Entry.num_value==i)
+						sCurrentValue = pValue;
+				}
+				LoggerWrapper::GetInstance()->Write( LV_STATUS, "Xine_Stream_Factory::SetALSAConfigurationEntry: current value for '%s' is '%s'", sEntry.c_str(), sCurrentValue.c_str());
+			}
+			else
+			{
+				LoggerWrapper::GetInstance()->Write( LV_STATUS, "Xine_Stream_Factory::SetALSAConfigurationEntry: current value for '%s' is '%s'",
 					sEntry.c_str(), Entry.str_value );
-		}			
+			}
+		}
 	}
+}
+
+void Xine_Stream_Factory::RegisterALSAConfigurationString(string sEntryName, string sDefaultValue, string sDescription)
+{
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Xine_Stream_Factory::RegisterALSAConfigurationString: registered entry '%s' with default value '%s' and description '%s'",
+				   sEntryName.c_str(), sDefaultValue.c_str(), sDescription.c_str());
+
+	xine_config_register_string(m_pXineLibrary, sEntryName.c_str(), sDefaultValue.c_str(), sDescription.c_str(), NULL, 0, NULL, NULL);
+}
+
+void Xine_Stream_Factory::RegisterALSAConfigurationEnum(string sEntryName, int iDefaultValue, string sDescription, const char **pEnumValues)
+{
+	// collecting all values
+	string sValues;
+	string sDefaultValue;
+	for (int i=0; const char *pValue=pEnumValues[i]; i++)
+	{
+		if (sValues=="")
+			sValues += string("'") + pValue + "'";
+		else
+			sValues += string(", '") + pValue + "'";
+		
+		if (iDefaultValue==i)
+			sDefaultValue = pValue;
+	}
+	
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Xine_Stream_Factory::RegisterALSAConfigurationEnum: registered entry '%s' with default value '%s', description '%s' and possible values {%s}", sEntryName.c_str(), sDefaultValue.c_str(), sDescription.c_str(), sValues.c_str());
+	
+	xine_config_register_enum(m_pXineLibrary, sEntryName.c_str(), iDefaultValue, (char **) pEnumValues, sDescription.c_str(), NULL, 0, NULL, NULL);
 }
 
 void Xine_Stream_Factory::setAudioSettings()
@@ -377,14 +444,24 @@ void Xine_Stream_Factory::setAudioSettings()
 		return;
 	}
 	
-	SetALSAConfigurationEntry("audio.alsa_front_device", sAlsaDevice, "default");
-	SetALSAConfigurationEntry("audio.device.alsa_front_device", sAlsaDevice, "default");
+	RegisterALSAConfigurationString("audio.alsa_front_device", "default", "ALSA front device setting");
+	SetALSAConfigurationEntry("audio.alsa_front_device", sAlsaDevice);
+	
+	
+	RegisterALSAConfigurationString("audio.device.alsa_front_device", "default", "device used for stereo output");
+	SetALSAConfigurationEntry("audio.device.alsa_front_device", sAlsaDevice);
 	
 	if (bUsePassThrough)
-		SetALSAConfigurationEntry("audio.device.alsa_passthrough_device", sAlsaDevice, "iec958:AES0=0x6,AES1=0x82,AES2=0x0,AES3=0x2");
+	{
+		RegisterALSAConfigurationString("audio.device.alsa_passthrough_device", "iec958:AES0=0x6,AES1=0x82,AES2=0x0,AES3=0x2", "device used for 5.1-channel passthrough output");
+		SetALSAConfigurationEntry("audio.device.alsa_passthrough_device", sAlsaDevice);
+	}
 	
-	SetALSAConfigurationEntry("audio.speaker_arrangement", sSpeakersArrangement, "Stereo 2.0");
-	SetALSAConfigurationEntry("audio.output.speaker_arrangement", sSpeakersArrangement, "Stereo 2.0");
+	RegisterALSAConfigurationEnum("audio.speaker_arrangement", 1, "Speakers arrangement", audio_out_types_strs);
+	SetALSAConfigurationEntry("audio.speaker_arrangement", sSpeakersArrangement, audio_out_types_strs);
+	
+	RegisterALSAConfigurationEnum("audio.output.speaker_arrangement", 1, "Speakers arrangement", audio_out_types_strs);
+	SetALSAConfigurationEntry("audio.output.speaker_arrangement", sSpeakersArrangement, audio_out_types_strs);
 }
 
 
