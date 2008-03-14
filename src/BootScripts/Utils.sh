@@ -17,7 +17,7 @@ function AddBookmark {
 	Url="$1"
 	Name="$2"
 
-	[[ -f /home/public/bookmarks.html ]] || return
+	[[ ! -f /home/public/bookmarks.html ]] || return
 
 	# Generate an id for this bookmark
 	ID=$(echo "$Url" | sha1sum)
@@ -48,7 +48,7 @@ function DelBookmark {
 	Url="$1"
 	Name="$2"
 
-	[[ -f /home/public/bookmarks.html ]] || return
+	[[ ! -f /home/public/bookmarks.html ]] || return
 
 	# Generate an id for this bookmark
 	ID=$(echo "$Url" | sha1sum)
