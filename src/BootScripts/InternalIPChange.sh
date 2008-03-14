@@ -1,7 +1,17 @@
-#!/bin/bash
+#!/bin/bash -x
 
 . /usr/pluto/bin/SQL_Ops.sh
+. /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/Utils.sh
+
+if [[ $1 != "background" ]] ;then
+        echo "Backgrounding ..."
+        screen -d -m -S "Internal IP Change" "$0" "background"
+        exit 0
+fi
+
+. /usr/pluto/bin/TeeMyOutput.sh --outfile /var/log/pluto/InternalIPChange.log --infile /dev/null --stdboth --append -- "$@"
+
 
 DD_DHCP=28
 
@@ -63,3 +73,34 @@ RunSQL "UPDATE Device SET NeedConfigure=1 WHERE FK_DeviceTemplate=28"
 /usr/pluto/bin/StorageDevices_ExportsNFS.sh
 /usr/pluto/bin/StorageDevices_ExportsSMB.sh
 /usr/pluto/bin/Diskless_Setup.sh
+
+
+## Generate a list containig all orbiter ids ($OrbiterIDList)
+Q="
+        SELECT
+                PK_Device
+        FROM
+                Device
+                JOIN DeviceTemplate ON PK_DeviceTemplate = FK_DeviceTemplate
+                JOIN DeviceCategory ON PK_DeviceCategory = FK_DeviceCategory
+        WHERE
+                PK_DeviceCategory IN (5,2,3)
+"
+OrbiterList=$(RunSQL "$Q")
+
+OrbiterIDList=""
+for Orbiter in $OrbiterList; do
+        if [[ $OrbiterIDList != "" ]]; then
+                OrbiterIDList="$OrbiterIDList,"
+        fi
+
+        Orbiter_ID=$(Field 1 "$Orbiter")
+        OrbiterIDList="$OrbiterIDList""$Orbiter_ID"
+done
+
+# Nofity the user that we're going to reboot the system
+Message="The system will reboot in order to perform the IP changes that you requested"
+/usr/pluto/bin/MessageSend $DCERouter 0 $OrbiterIDList 1 741 10 "UpdatesNotify" 159 53 183 0 9 "$Message" || exit 1
+
+sleep 10
+reboot
