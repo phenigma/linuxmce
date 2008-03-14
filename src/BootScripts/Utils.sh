@@ -17,6 +17,8 @@ function AddBookmark {
 	Url="$1"
 	Name="$2"
 
+	[[ -f /home/public/bookmarks.html ]] || return
+
 	# Generate an id for this bookmark
 	ID=$(echo "$Url" | sha1sum)
 	ID='rdf:#$'${ID:0:6}
@@ -45,6 +47,8 @@ function AddBookmark {
 function DelBookmark {
 	Url="$1"
 	Name="$2"
+
+	[[ -f /home/public/bookmarks.html ]] || return
 
 	# Generate an id for this bookmark
 	ID=$(echo "$Url" | sha1sum)
