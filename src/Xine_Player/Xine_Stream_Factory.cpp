@@ -192,6 +192,9 @@ bool Xine_Stream_Factory::ShutdownFactory()
 	return true;
 }
 
+
+// TODO refactor using new ALSA configurator
+
 // detecting currently used drivers
 void Xine_Stream_Factory::DetectOutputDrivers()
 {
