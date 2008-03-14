@@ -1,7 +1,7 @@
 diff -ruN mplayer/mplayer.c mplayer.verbose/mplayer.c
---- mplayer/mplayer.c	2007-10-30 23:44:44.000000000 +0200
-+++ mplayer.verbose/mplayer.c	2007-10-30 23:44:36.000000000 +0200
-@@ -3684,11 +3684,20 @@
+--- mplayer/mplayer.c	(revision 26234)
++++ mplayer.verbose/mplayer.c	(working copy)
+@@ -3999,11 +3999,20 @@
  #endif
  
  if(use_gui || mpctx->playtree_iter != NULL || player_idle_mode){
@@ -10,9 +10,9 @@ diff -ruN mplayer/mplayer.c mplayer.verbose/mplayer.c
 +	  fflush(stdout);
 +  }
 +
-   if (!mpctx->playtree_iter) filename = NULL;
-   mpctx->eof = 0;
-   goto play_next_file;
+     if(!mpctx->playtree_iter) filename = NULL;
+     mpctx->eof = 0;
+     goto play_next_file;
  }
  
 +if (filename) {
