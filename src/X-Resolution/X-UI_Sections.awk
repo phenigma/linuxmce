@@ -37,6 +37,7 @@ function outputScreenOrDevice()
 	print "\tOption \"NoBandWidthTest\" \"true\"";
 	print "\tOption \"ModeValidation\" \"NoDFPNativeResolutionCheck, NoEdidMaxPClkCheck, NoMaxPClkCheck, AllowInterlacedModes, AllowNon60HzDFPModes\"";
 	print "\tOption \"DynamicTwinView\" \"false\"";
+	print "\tOption \"UseEvents\" \"true\"";
 
 	if (OpenGL == 0)
 		return;
@@ -68,7 +69,7 @@ function outputExtensions()
 /Section..*"Screen"/ || /Section..*"Device"/ { SectionScreenOrDevice = 1; print; next; }
 SectionScreenOrDevice == 1 && (/Option..*"XvmcUsesTextures"/ || /Option..*"AllowGLXWithComposite"/ || /Option..*"AddARGBGLXVisuals"/ || /Option..*"renderAccel"/ \
 	|| /Option..*"AccelMethod"/ || /Option..*"ExaScratchSize"/ || /Option..*"MaxDRIMem"/ || /Option..*"MigrationHeuristic"/ \
-	|| /Option..*"NoDDCValue"/ || /Option..*"UseEDID"/ || /Option..*"ExactModeTimingsDVI"/ || /Option..*"NoLogo"/ || /Option..*"NoBandWidthTest"/ || /Option..*"ModeValidation"/ || /Option..*"DynamicTwinView"/ \
+	|| /Option..*"NoDDCValue"/ || /Option..*"UseEDID"/ || /Option..*"ExactModeTimingsDVI"/ || /Option..*"NoLogo"/ || /Option..*"NoBandWidthTest"/ || /Option..*"ModeValidation"/ || /Option..*"DynamicTwinView"/ || /Option..*"UseEvents"/ \
 ) { next; }
 SectionScreenOrDevice == 1 && /EndSection/ { SectionScreenOrDevice = 0; outputScreenOrDevice(); print; next; }
 SectionScreenOrDevice == 1 { print; next; }
