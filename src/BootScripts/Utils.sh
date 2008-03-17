@@ -14,6 +14,7 @@ DEVICEDATA_Use_alpha_blended_UI=169
 DEVICEDATA_PK_UI=104
 
 function AddBookmark {
+	return 0
 	Url="$1"
 	Name="$2"
 
@@ -45,6 +46,7 @@ function AddBookmark {
 }
 
 function DelBookmark {
+	return 0
 	Url="$1"
 	Name="$2"
 
