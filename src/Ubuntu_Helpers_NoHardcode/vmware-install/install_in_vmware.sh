@@ -48,6 +48,10 @@ function create_virtual_machine {
 
 	cp -r /var/Kubuntu/* "$VMWARE_DIR"
 	DisplayMessage "Finished creating virtual machine"
+
+	# Remove old logs
+	rm -f /var/log/mce-installer-*.log
+	rm -f /var/log/Config_Device_Changes.log
 }
 
 function start_virtual_machine {
@@ -217,7 +221,9 @@ function create_disk_image_from_flat {
 
 	mkdir -p "${build_dir}/DisklessSync/${arch}"
 	mv "${VMWARE_MOUNT_DIR}"/usr/pluto/install/PlutoMD-${arch}.tar.bz2 "${build_dir}/DisklessSync/${arch}/"
-	cp "${VMWARE_MOUNT_DIR}"/var/log/mce-installer-*.log "/var/log/"
+	cp "${VMWARE_MOUNT_DIR}"/var/log/mce-installer-*.log "/var/log/" || :
+	cp "${VMWARE_MOUNT_DIR}"/var/log/mce-installer-error.log "/var/log/" || :
+	cp "${VMWARE_MOUNT_DIR}"/var/log/pluto/Config_Device_Changes.log "/var/log/" || :
 
 	tar -C "${VMWARE_MOUNT_DIR}" --exclude=dev --exclude=proc -zc . | split --numeric-suffixes --bytes=2000m - "${VMWARE_TARGZ}_"
 
@@ -294,6 +300,9 @@ create_virtual_machine
 start_virtual_machine
 create_debcache_on_virtual_machine
 copy_installer_on_virtual_machine
+if [[ -f /var/log/mce-installer-error.log ]] ;then
+	Error "VMWARE $(cat /var/log/mce-installer-error.log)"
+fi
 run_installer_on_virtual_machine
 if [[ -f "${VMWARE_DIR}/Kubuntu-flat.vmdk" ]] ;then
 	create_disk_image_from_flat

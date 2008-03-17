@@ -31,7 +31,8 @@ function ExitInstaller {
 	echo 
 	echo "ERROR : $*" >&2
 	echo
-	echo "$*" > /tmp/mce_installer_error
+	echo "$*" > /var/log/mce-installer-error.log
+	init 0
 	exit 1
 }
 
@@ -335,6 +336,12 @@ function RemoveOfflineSource {
 	mv /etc/apt/sources.list.original /etc/apt/sources.list
 }
 
+function Parse_Logs_For_Errors() {
+	if grep -q 'ERROR' /var/log/pluto/Config_Device_Changes.log ;then
+		ExitInstaller "Found erros in Config_Device_Changes.log"
+	fi
+}
+
 
 Core_PK_Device="0"
 if [[ "$c_netExtKeep" != "true" ]] ;then
@@ -353,7 +360,7 @@ Setup_XOrg
 /usr/pluto/bin/Network_Setup.sh
 
 #StatsMessage "Building a disk image for your Diskless Media Directors"
-/usr/pluto/bin/Diskless_CreateTBZ.sh
+/usr/pluto/bin/Diskless_CreateTBZ.sh || ExitInstaller "Failed to create diskless image"
 
 mkdir -p /usr/pluto/deb-cache
 
