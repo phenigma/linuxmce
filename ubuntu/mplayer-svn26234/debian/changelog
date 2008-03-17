@@ -1,9 +1,15 @@
+pluto-mplayer (1.0svn26234-pluto2) unstable; urgency=low
+
+  * added patches to recognize DTS-HD audio
+
+ -- Kirill Belokurov <kirill.b@plutohome.com>  Mon, 17 Mar 2008 15:26:15 +0200
+
 pluto-mplayer (1.0svn26234) unstable; urgency=low
 
   * rebase over revision 26234
   * add our patches, dropping HD-DVD related
 
- -- Kirill Belokurov <kirill.b@plutohome.com>  Fri, 14 Mar 2006 16:36:45 +0200
+ -- Kirill Belokurov <kirill.b@plutohome.com>  Fri, 14 Mar 2008 16:36:45 +0200
 
 pluto-mplayer (1.0svn24791) unstable; urgency=low
 
