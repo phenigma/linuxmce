@@ -1,2 +1,4 @@
 503_mplayer_verbose_completion.diff
 504_mplayer_fix_per_file_config.diff
+505_mplayer_recognize_dts-hd.diff
+506_ffmpeg_recognize_dts-hd.diff
