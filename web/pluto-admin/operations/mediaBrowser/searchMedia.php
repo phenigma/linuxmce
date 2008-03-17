@@ -146,7 +146,7 @@ function search_results($keyword,$path,$partial,$attributes,$mediadbADO){
 			<tr class="'.$class.'">
 				<td>'.$dataFiles['PK_File'][$i].'</td>
 				<td><a href="javascript:syncPath(\''.$dataFiles['Path'][$i].'\');">'.$dataFiles['Path'][$i].'</a></td>
-				<td><a href="javascript:syncPath(\''.$dataFiles['Path'][$i].'\','.$dataFiles['PK_File'][$i].');">'.$dataFiles['Filename'][$i].'</a></td>
+				<td><a href="javascript:syncFile(\''.$dataFiles['Path'][$i].'\','.$dataFiles['PK_File'][$i].');">'.$dataFiles['Filename'][$i].'</a></td>
 			</tr>';
 		}
 	}
