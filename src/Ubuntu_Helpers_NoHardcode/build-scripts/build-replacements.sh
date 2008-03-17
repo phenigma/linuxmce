@@ -103,7 +103,7 @@ function Build_Replacements {
 	fi
 	
 	#Package: pluto-ffmpeg
-	dir_="${svn_dir}/trunk/ubuntu/ffmpeg"
+	dir_="${svn_dir}/trunk/ubuntu/ffmpeg-svn12476"
 	if Changed_Since_Last_Build "$dir_" ;then
 		DisplayMessage "Building pluto-ffmpeg"
 		pushd "$dir_"
