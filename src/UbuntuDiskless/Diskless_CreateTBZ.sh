@@ -188,7 +188,7 @@ for device in $DEVICE_LIST; do
 		echo "#### Package $pkg_name installed ok!"
 	else
 		echo "#### Package $pkg_name failed ($TEMP_DIR)"
-		/bin/bash
+		exit 1
 	fi
 done
 
