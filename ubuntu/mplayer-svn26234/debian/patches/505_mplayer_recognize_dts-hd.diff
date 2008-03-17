@@ -1,7 +1,7 @@
-Index: libmpdemux/demux_ts.c
+Index: mplayer/libmpdemux/demux_ts.c
 ===================================================================
---- libmpdemux/demux_ts.c	(revision 26256)
-+++ libmpdemux/demux_ts.c	(working copy)
+--- mplayer/libmpdemux/demux_ts.c	(revision 26256)
++++ mplayer/libmpdemux/demux_ts.c	(working copy)
 @@ -2434,6 +2434,7 @@
  				break;
  			case 0x8A:
