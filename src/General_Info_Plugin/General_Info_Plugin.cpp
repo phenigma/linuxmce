@@ -3994,6 +3994,13 @@ void General_Info_Plugin::CMD_Get_Home_Symlink(string sPath,string *sSymlink,str
 		return;
 	}
 
+	if(vectSubdirs[0] == "home")
+	{
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "CMD_Get_Home_Symlink: Nothing to change: %s", sPath.c_str());
+		*sSymlink = sPath;
+		return;		
+	}
+
 	if(vectSubdirs[0] != "mnt" && vectSubdirs[1] != "device")
 	{
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "CMD_Get_Home_Symlink: The path doesn't have the correct format: %s", sPath.c_str());
