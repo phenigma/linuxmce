@@ -76,6 +76,14 @@ bool ClientSocket::Connect( int PK_DeviceTemplate,string sExtraInfo,int iConnect
 
 	m_Socket = socket( AF_INET, SOCK_STREAM, 0 );
 
+	int iOptKeepAlive = 1;
+	if (setsockopt(m_Socket, SOL_SOCKET, SO_KEEPALIVE, (SOCKOPTTYPE)&iOptKeepAlive, sizeof(iOptKeepAlive))) // error
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "setsockopt failed"); // couldn't set the sock option
+		Disconnect();
+		return false;
+	}
+
 //#ifdef DEBUG
 		//commented this because we don't want messagesend to output debug info like this.
 		//
