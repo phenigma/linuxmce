@@ -274,9 +274,9 @@ FormatPartitions()
 	fi
 
 	blkid -w /etc/blkid.tab || :
-	RootUUID=$(vol_id -u "$TargetHdd"1)
-	SwapUUID=$(vol_id -u "$TargetHdd"5)
-	RecoveryUUID=$(vol_id -u "$TargetHdd"6)
+	RootUUID=$(vol_id --skip-raid -u "$TargetHdd"1)
+	SwapUUID=$(vol_id --skip-raid -u "$TargetHdd"5)
+	RecoveryUUID=$(vol_id --skip-raid -u "$TargetHdd"6)
 }
 
 MountPartitions()
