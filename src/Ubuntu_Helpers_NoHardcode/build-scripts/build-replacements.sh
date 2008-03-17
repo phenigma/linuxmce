@@ -83,9 +83,9 @@ function Build_Replacements {
 	fi
 
 	#Package: pluto-mplayer
-	dir_="${svn_dir}/trunk/ubuntu/mplayer"
+	dir_="${svn_dir}/trunk/ubuntu/mplayer-svn2623"
 	if Changed_Since_Last_Build "$dir_" ;then
-		DisplayMessage "Building pluto-mplayer"
+		DisplayMessage "Building pluto-mplayer-svn2623"
 		pushd "$dir_"
 		dpkg-buildpackage -rfakeroot -us -uc -b
 		cp -r ../pluto-mplayer_*.deb ${replacements_dir}
