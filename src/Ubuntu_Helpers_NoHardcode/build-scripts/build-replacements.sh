@@ -37,7 +37,17 @@ function Build_Replacements {
 		cp -r ../libsdl1.2debian-pluto*.deb "${replacements_dir}"
 		popd
 	fi
-	
+
+	#Package: spcp8x5
+	dir_="${svn_dir}/trunk/ubuntu/spcp8x5"
+	if Changed_Since_Last_Build "$dir_" ;then
+		DisplayMessage "Building spcp8x5"
+		pushd "$dir_"
+		dpkg-buildpackage -rfakeroot -us -uc -b
+		cp -r ../spcp8x5*.deb ${replacements_dir}
+		popd
+	fi
+
 	#Package: libxine
 	dir_="${svn_dir}/trunk/ubuntu/xine-lib-1.1.10.1"
 	if Changed_Since_Last_Build "$dir_" ;then
