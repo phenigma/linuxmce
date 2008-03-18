@@ -1095,7 +1095,11 @@ string FileUtils::GetMidFileChecksum( string sFileName, int Bytes )
 	int iReturn = fseek(file, StartPosition, SEEK_SET);
 	size_t read = fread(pBuffer,1,Bytes,file);
 	if( read!=Bytes )
+	{
+		fclose(file);
 		return ""; // Shouldn't happen
+	}
+
 	fclose(file);
 
 	string sMd5 = FileUtils::FileChecksum(pBuffer,read);
