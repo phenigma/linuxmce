@@ -18,5 +18,5 @@ while : ;do
 	"${build_scripts_dir}/build-makerelease.sh"
 	"${build_scripts_dir}/import-databases.sh"
 
-	"${build_scripts_dir}/build-maindebs.sh"
+	"${build_scripts_dir}/build-maindebs-sim.sh"
 done
