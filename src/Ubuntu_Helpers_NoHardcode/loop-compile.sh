@@ -1,0 +1,22 @@
+#!/bin/bash -ex
+
+. /etc/lmce-build/builder.conf
+
+while : ;do
+	echo "$(date -R) Started" >> /var/log/loop-build.log	
+
+	if [[ -f "$log_file" ]] ;then
+		mv "$log_file" "$log_file.$(date +%d%m%y-%s)"
+	fi
+
+	# Start Build
+	build_scripts_dir="/usr/local/lmce-build/build-scripts"
+
+	"${build_scripts_dir}/checkout-svn.sh"
+
+	"${build_scripts_dir}/build-replacements.sh"
+	"${build_scripts_dir}/build-makerelease.sh"
+	"${build_scripts_dir}/import-databases.sh"
+
+	"${build_scripts_dir}/build-maindebs.sh"
+done
