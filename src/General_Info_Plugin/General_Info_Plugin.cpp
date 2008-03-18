@@ -947,7 +947,10 @@ class DataGridTable *General_Info_Plugin::QuickStartApps( string GridID, string 
 		if( sBinary.size()==0 )
 		{
 			LoggerWrapper::GetInstance()->Write(LV_WARNING,"QuickStart device with no binary to run");
-			++it;
+
+			if((p_Bookmarks && ++it == p_Bookmarks->end()) || (!p_Bookmarks && ++s>=vectRow_Device_QuickStart.size()))
+				break;
+
 			continue;
 		}
 
