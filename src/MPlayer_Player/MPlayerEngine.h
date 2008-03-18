@@ -65,6 +65,7 @@ public:
 
 	// executes command with no response
 	void ExecuteCommand(string sCommand);
+	int GetChildPID();
 
 	// executes command with response
 	bool ExecuteCommand(string sCommand, string sResponseName, string &sResponseValue);

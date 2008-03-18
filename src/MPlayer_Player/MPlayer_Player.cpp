@@ -31,6 +31,52 @@ using namespace DCE;
 #include "pluto_main/Define_MediaType.h"
 #include "XineMediaInfo.h"
 			 
+#include <signal.h>
+			 
+
+MPlayer_Player *g_pPlayerInstance=NULL;
+int g_iMplayerChildPID=0;
+
+void SignalHandler_PIPE (int signum)
+{
+	if (signum!=SIGPIPE)
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "SignalHandler_PIPE: received not SIGPIPE signal: %i, ignoring", signum);
+	else
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "SignalHandler_PIPE: received SIGPIPE signal, ignoring");
+}
+
+void SignalHandler_CHLD (int signum, siginfo_t *info, void *context)
+{
+	if (info->si_signo!=SIGCHLD)
+	{
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "SignalHandler_CHLD: received not SIGCHLD signal: %i, ignoring", info->si_signo);
+		return;
+	}
+	
+	if (info->si_pid!=g_iMplayerChildPID)
+	{
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "SignalHandler_CHLD: received SIGCHLD signal, but with not from mplayer child (from %i, we expect from %i), ignoring", info->si_pid, g_iMplayerChildPID );
+		return;
+	}
+	
+	if (info->si_code!=CLD_EXITED && info->si_code!=CLD_KILLED && info->si_code!=CLD_DUMPED)
+	{
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "SignalHandler_CHLD: received SIGCHLD signal, but with not expected sig_code %i, ignoring", info->si_code);
+		return;
+	}
+	
+	if (g_pPlayerInstance)
+	{
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "SignalHandler_CHLD: mplayer child exited, reloading MPlayer DCE device");
+		// do reload
+		g_pPlayerInstance->OnReload();
+	}
+	else
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "SignalHandler_CHLD: mplayer child exited, but cannot reload MPlayer DCE device as g_pPlayerInstance is NULL");
+	}	
+}
+
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
 MPlayer_Player::MPlayer_Player(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
@@ -1026,7 +1072,21 @@ void MPlayer_Player::InitializePlayerEngine()
 	}
 	
 	if (m_pPlayerEngine->GetEngineState()==MPlayerEngine::PLAYBACK_FINISHED)
+	{
+		g_pPlayerInstance = this;
+		g_iMplayerChildPID = m_pPlayerEngine->GetChildPID();
+		
+		struct sigaction new_action;
+		new_action.sa_sigaction = SignalHandler_CHLD;
+		new_action.sa_flags = SA_SIGINFO /*| SA_NOCLDSTOP*/;		
+		sigaction(SIGCHLD, &new_action, NULL);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer - installed SIGCHLD handler");
+		
+		signal(SIGPIPE, SignalHandler_PIPE);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer - installed SIGPIPE handler");
+
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer engine initialized and ready to go");
+	}
 	else
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "MPlayer engine didn't set up within 10 seconds, something is wrong");
 	

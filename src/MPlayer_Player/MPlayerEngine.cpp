@@ -564,3 +564,8 @@ void MPlayerEngine::ClearPlaylist()
 	PLUTO_SAFETY_LOCK(stateLock, m_engineStateMutex);
 	m_vCurrentPlaylist.clear();
 }
+
+int MPlayerEngine::GetChildPID()
+{
+	return m_iChildPID;
+}
