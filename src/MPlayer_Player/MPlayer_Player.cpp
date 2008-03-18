@@ -129,6 +129,10 @@ MPlayer_Player::~MPlayer_Player()
 		pthread_join(m_tPlayerEnginePollThread, NULL);
 	}
 	
+	EVENT_Playback_Completed("",0,false);  // In case media plugin thought something was playing, let it know that there's not
+	signal(SIGCHLD, SIG_IGN);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer - removed SIGCHLD handler");
+	
 	if (m_pPlayerEngine)
 	{
 		delete m_pPlayerEngine;
