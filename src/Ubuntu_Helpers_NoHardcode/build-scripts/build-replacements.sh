@@ -2,6 +2,7 @@
 
 . /etc/lmce-build/builder.conf
 . /usr/local/lmce-build/common/logging.sh
+. /usr/local/lmce-build/common/utils.sh
 
 set -e
 set -x
@@ -309,9 +310,12 @@ function Build_Replacements {
 	fi
 }
 
-DisplayMessage "*** STEP: Building replacement debs"
 trap 'Error "Undefined error in $0"' EXIT
 
+DisplayMessage "*** STEP: Building replacement debs"
 Build_Replacements
+
+DisplayMessage "Removing duplicate debs from replacements"
+remove_duplicate_debs "${replacements_dir}"
 
 trap - EXIT
