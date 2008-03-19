@@ -17,6 +17,10 @@
 #include "DCEConfig.h"
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/FileUtils.h"
+#include "Logger.h"
+
+using namespace DCE;
+
 //------------------------------------------------------------------------------------------------------
 DCEConfig::DCEConfig(string sFilename) : RA_Config()
 {
@@ -153,6 +157,7 @@ bool DCEConfig::WriteSettings()
 				vectString[s].replace(pos_Equal+1, vectString[s].length()-pos_Equal-1, mapParameters_Copy[Token]);
 			else // Preserve the // and anything after it
 				vectString[s].replace(pos_Equal+1, pos_Slash-pos_Equal-2, mapParameters_Copy[Token]);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"DCEConfig::WriteSettings modified %s=%s",Token.c_str(),vectString[s].c_str());
 		}
 
 		mapParameters_Copy.erase(Token); // We're taking care of this one here since the token exists
@@ -160,7 +165,10 @@ bool DCEConfig::WriteSettings()
 
 	// Add the new ones
 	for(map<string,string>::iterator it=mapParameters_Copy.begin();it!=mapParameters_Copy.end();++it)
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"DCEConfig::WriteSettings new %s=%s",(*it).first.c_str(),(*it).second.c_str());
 		vectString.push_back((*it).first + "=" + (*it).second);
+	}
 
 	// Rewrite the config file
 	return FileUtils::WriteVectorToFile(m_sConfigFile, vectString);
