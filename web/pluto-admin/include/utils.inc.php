@@ -6768,4 +6768,10 @@ function remove_cover_arts($fileID,$mediadbADO){
 	
 	$mediadbADO->Execute('DELETE FROM Picture_File WHERE FK_File='.$fileID.' AND FK_Picture IN ('.join(',',array_values($picsArray)).')');
 }
+
+function bash_escape($str){
+	$str=str_replace(array('\\','$','"','`'),array('\\\\','\$','\"','\`'),$str);
+	
+	return $str;
+}
 ?>

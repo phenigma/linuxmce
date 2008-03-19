@@ -237,7 +237,7 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 						<br>
 						<input type="text" name="url_'.$rowPictures['PK_Picture'].'" value="'.$rowPictures['URL'].'">
 						<br>
-						<a href="#" onClick="if(confirm(\''.$TEXT_CONFIRM_DELETE_PICTURE_CONST.'\'))self.location=\'index.php?section=editMediaFile&fileID='.$fileID.'&action=properties&picID='.$rowPictures['PK_Picture'].'\';">'.$TEXT_DELETE_CONST.'</a></td>
+						<a href="#" onClick="if(confirm(\''.$TEXT_CONFIRM_DELETE_PICTURE_CONST.'\'))self.location=\'index.php?section=editMediaFile&fileID='.$fileID.'&action=properties&picID='.$rowPictures['PK_Picture'].'&path='.htmlentities($rowFile['Path']).'\';">'.$TEXT_DELETE_CONST.'</a></td>
 				';
 				if($picsCount%$picsPerLine==0)
 					$out.='</tr><tr>';
@@ -314,6 +314,8 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 	// process area
 		if(isset($_REQUEST['picID'])){
 			$toDelete=$_REQUEST['picID'];
+			$path=stripslashes(@$_REQUEST['path']);
+			
 			$deletePic='DELETE FROM Picture WHERE PK_Picture=?';
 			$mediadbADO->Execute($deletePic,$toDelete);
 			
@@ -325,6 +327,9 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 			
 			@unlink($GLOBALS['mediaPicsPath'].$toDelete.'.jpg');
 			@unlink($GLOBALS['mediaPicsPath'].$toDelete.'_tn.jpg');
+
+			$cmd='sudo -u root /usr/pluto/bin/UpdateMedia -w -d "'.bash_escape($path).'"';
+			exec_batch_command($cmd);
 		}
 
 		if(isset($_POST['addLA'])){
@@ -376,9 +381,9 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 			$deleteAttribute=$_REQUEST['dAtr'];
 			$mediadbADO->Execute('DELETE FROM File_Attribute WHERE FK_File=? AND FK_Attribute=?',array($fileID,$deleteAttribute));
 
-			$dpath=$_REQUEST['dpath'];
-			$cmd='sudo -u root /usr/pluto/bin/UpdateMedia -w -d "'.$dpath.'"';
-			exec($cmd);
+			$dpath=stripslashes($_REQUEST['dpath']);
+			$cmd='sudo -u root /usr/pluto/bin/UpdateMedia -w -d "'.bash_escape($dpath).'"';
+			exec_batch_command($cmd);
 			
 			header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&msg='.$TEXT_ATTRIBUTE_DELETED_FROM_FILE_CONST.': '.$cmd);	
 			exit();		
@@ -388,9 +393,9 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 			$deleteAttribute=$_REQUEST['dLAtr'];
 			$mediadbADO->Execute('DELETE FROM LongAttribute WHERE PK_LongAttribute=?',array($deleteAttribute));
 
-			$dpath=$_REQUEST['dpath'];
-			$cmd='sudo -u root /usr/pluto/bin/UpdateMedia -w -d "'.$dpath.'"';
-			exec($cmd);
+			$dpath=stripslashes($_REQUEST['dpath']);
+			$cmd='sudo -u root /usr/pluto/bin/UpdateMedia -w -d "'.bash_escape($dpath).'"';
+			exec_batch_command($cmd);
 			
 			header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&msg='.$TEXT_ATTRIBUTE_DELETED_FROM_FILE_CONST.': '.$cmd);	
 			exit();		
@@ -406,17 +411,17 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 		
 		if($action=='del'){
 			// delete physical file
-			$delFile='sudo -u root rm -f "'.$oldFilePath.'"';
+			$delFile='sudo -u root rm -f "'.bash_escape($oldFilePath).'"';
 			exec_batch_command($delFile);
 			
-			$delID3='sudo -u root rm -f "'.$oldFilePath.'.id3"';
+			$delID3='sudo -u root rm -f "'.bash_escape($oldFilePath).'.id3"';
 			exec_batch_command($delID3);
 			
 			$mediadbADO->Execute('DELETE FROM File_Attribute WHERE FK_File=?',$fileID);
 			$mediadbADO->Execute('DELETE FROM Picture_File WHERE FK_File=?',$fileID);
 			$mediadbADO->Execute('DELETE FROM File WHERE PK_File=?',$fileID);
 			
-			exec_batch_command('sudo -u root /usr/pluto/bin/UpdateMedia -w -d "'.$oldPath.'"');
+			exec_batch_command('sudo -u root /usr/pluto/bin/UpdateMedia -w -d "'.bash_escape($oldPath).'"');
 			header('Location: index.php?section=mainMediaFilesSync&path='.urlencode($oldPath).'&msg='.$TEXT_MEDIA_FILE_DELETED_CONST);			
 			exit();
 
@@ -439,7 +444,7 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 				}
 				else{
 					copy($oldFilePath,$newFilePath);
-					exec_batch_command('sudo -u root rm -f '.$oldFilePath);
+					exec_batch_command('sudo -u root rm -f "'.bash_escape($oldFilePath).'"');
 				}
 			}
 			$mediadbADO->Execute('UPDATE File SET Filename=?, Path=?, EK_MediaType=?,FK_MediaSubType=?,FK_FileFormat=? WHERE PK_File=?',array($fileName,$path,$type,$subtype,$fileFormat,$fileID));
@@ -451,7 +456,7 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 				$mediadbADO->Execute('UPDATE Picture SET URL=? WHERE PK_Picture=?',array($picUrl,$pic));
 			}
 			
-			$cmd='sudo -u root /usr/pluto/bin/UpdateMedia -d "'.$path.'"';
+			$cmd='sudo -u root /usr/pluto/bin/UpdateMedia -d "'.bash_escape($path).'"';
 			exec_batch_command($cmd);
 			header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&msg='.$TEXT_MEDIA_FILE_UPDATED_CONST.'&err='.@$error);			
 			exit();
@@ -517,7 +522,7 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 				header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&error='.$error);			
 				exit();
 			}else{
-				exec_batch_command('sudo -u root /usr/pluto/bin/UpdateMedia -d "'.$path.'"');
+				exec_batch_command('sudo -u root /usr/pluto/bin/UpdateMedia -d "'.bash_escape($path).'"');
 				header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&msg='.$TEXT_PICTURE_UPLOADED_CONST);			
 				exit();
 			}
@@ -531,6 +536,8 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 					$mediadbADO->Execute('DELETE FROM File_Attribute WHERE FK_File=? AND FK_Attribute=?',array($fileID,$aID));
 				}
 			}
+			$cmd='sudo -u root /usr/pluto/bin/UpdateMedia -w -d "'.bash_escape($path).'"';
+			exec_batch_command($cmd);
 		}		
 		header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&msg='.$TEXT_MEDIA_FILE_UPDATED_CONST);			
 	}
@@ -562,10 +569,10 @@ function addAttribute($newAttributeType,$newAttributeName,$fileID,$dbADO){
 }
 
 function web_rename($source, $destination){
-	$rename_id3='sudo -u root /usr/pluto/bin/Web_Rename.sh "'.$source.'.id3" "'.$destination.'.id3"';
+	$rename_id3='sudo -u root /usr/pluto/bin/Web_Rename.sh "'.bash_escape($source).'.id3" "'.bash_escape($destination).'.id3"';
 	exec_batch_command($rename_id3);
 	
-	$cmd='sudo -u root /usr/pluto/bin/Web_Rename.sh "'.$source.'" "'.$destination.'"';
+	$cmd='sudo -u root /usr/pluto/bin/Web_Rename.sh "'.bash_escape($source).'" "'.bash_escape($destination).'"';
 	return exec_batch_command($cmd);
 }
 ?>
