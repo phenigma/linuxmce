@@ -1075,6 +1075,7 @@ function deleteDevice($PK_Device,$dbADO)
 		$queryDelDevice = 'DELETE FROM Device WHERE PK_Device = '.$elem;
 		$dbADO->_Execute($queryDelDevice);
 	}
+	writeFile($GLOBALS['WebExecLogFile'],date('d-m-Y H:i:s')."\tDevice deleted: $PK_Device\n",'a+');
 	$dbADO->Execute('COMMIT');
 }
 
