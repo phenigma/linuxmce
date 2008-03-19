@@ -39,6 +39,8 @@
 #define PNPQUEUE_PROCESSED_TABLE_FIELD "PnpQueue.Processed"
 #define PNPQUEUE_PARMS_FIELD "Parms"
 #define PNPQUEUE_PARMS_TABLE_FIELD "PnpQueue.Parms"
+#define PNPQUEUE_DESCRIPTION_FIELD "Description"
+#define PNPQUEUE_DESCRIPTION_TABLE_FIELD "PnpQueue.Description"
 #define PNPQUEUE_PSC_ID_FIELD "psc_id"
 #define PNPQUEUE_PSC_ID_TABLE_FIELD "PnpQueue.psc_id"
 #define PNPQUEUE_PSC_BATCH_FIELD "psc_batch"

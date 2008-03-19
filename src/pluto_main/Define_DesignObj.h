@@ -2553,6 +2553,8 @@
 #define DESIGNOBJ_butPlayCommercial_CONST 5581
 #define DESIGNOBJ_butEject_CONST 5582
 #define DESIGNOBJ_butRipStatus_CONST 5583
+#define DESIGNOBJ_Non_Pluto_TV_FS_CONST 5584
+#define DESIGNOBJ_Non_Pluto_TV_FS_Options_CONST 5585
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
