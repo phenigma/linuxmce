@@ -262,6 +262,14 @@ bool OSDScreenHandler::VideoWizard_ObjectSelected(CallBackData *pData)
 		{
 			if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butStartUsingMonster_CONST)
 			{
+				// if vdr or myth are not installed
+				if(!m_pWizardLogic->AnyPVRSoftwareInstalled())
+				{
+					// install mythtv by default
+					LoggerWrapper::GetInstance()->Write(LV_WARNING, "No PVR Software is installed. We'll install mythtv by default");
+					m_pWizardLogic->SetPVRSoftware('M');
+				}
+
 				string sResponse;
 				CMD_Regen_Orbiter cmd_Regen_Orbiter(m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device_OrbiterPlugIn, m_pOrbiter->m_dwPK_Device, "", "Y");
 				m_pOrbiter->SendCommand(cmd_Regen_Orbiter, &sResponse);
