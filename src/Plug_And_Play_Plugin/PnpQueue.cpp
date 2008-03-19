@@ -1652,7 +1652,7 @@ string PnpQueue::GetDescription(PnpQueueEntry *pPnpQueueEntry)
 
 	if( pPnpQueueEntry->m_pRow_PnpQueue->Category_get()=="mobile_phone" )
 	{
-		sDescription = pPnpQueueEntry->m_sText;
+		sDescription = pPnpQueueEntry->m_pRow_PnpQueue->Description_get();
 		if( pPnpQueueEntry->m_pRow_PnpQueue->MACaddress_get().empty()==false )
 			sDescription += "(" + pPnpQueueEntry->m_pRow_PnpQueue->MACaddress_get() + ")";
 		if( sDescription.empty()==false )
@@ -1668,7 +1668,7 @@ string PnpQueue::GetDescription(PnpQueueEntry *pPnpQueueEntry)
 	if( pRow_DeviceTemplate )
 	{
 		if( pRow_DeviceTemplate->FK_DeviceCategory_get()==DEVICECATEGORY_Hard_Drives_CONST )
-			sDescription = "Drive: " + pPnpQueueEntry->m_sText;
+			sDescription = "Drive: " + pPnpQueueEntry->m_pRow_PnpQueue->Description_get();
 		else if( pRow_DeviceTemplate->FK_DeviceCategory_get()==DEVICECATEGORY_Network_Storage_CONST && pPnpQueueEntry->m_pRow_Device_Reported )
 			sDescription = pPnpQueueEntry->m_pRow_Device_Reported->Description_get() + " / " + pPnpQueueEntry->m_mapPK_DeviceData[DEVICEDATA_Share_Name_CONST];
 		else if( pRow_DeviceTemplate->FK_DeviceCategory_get()==DEVICECATEGORY_FileMedia_Server_CONST )
