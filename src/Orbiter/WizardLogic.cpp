@@ -1130,21 +1130,28 @@ void WizardLogic::SetPVRSoftware(char PVRSoftware)
 	{
 		while (NULL != (row = db_wrapper_fetch_row(result_set.r)))
 		{
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Deleting the old pvr device %s", row[0]);
+
 			DCE::CMD_Delete_Device CMD_Delete_Device(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_GeneralInfoPlugIn,atoi(row[0]));
 			m_pOrbiter->SendCommand(CMD_Delete_Device);
 		}
 	}
 
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Creating the pvr plugin...");
+
 	int PK_Device;
 	DCE::CMD_Create_Device CMD_Create_Device(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_GeneralInfoPlugIn,PK_DeviceTemplate_AddPlugin,"",0,"","",0,0,"",0,0,&PK_Device);
 	m_pOrbiter->SendCommand(CMD_Create_Device);
 
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Creating the pvr players...");
 	sSQL = "SELECT PK_Device FROM Device WHERE FK_DeviceTemplate=" TOSTRING(DEVICETEMPLATE_OnScreen_Orbiter_CONST);
 	PlutoSqlResult result_set_osd;
 	if((result_set_osd.r = db_wrapper_query_result(sSQL)) )
 	{
 		while (NULL != (row = db_wrapper_fetch_row(result_set_osd.r)))
 		{
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Creating pvr players child of %d", m_pOrbiter->m_dwPK_Device);
+
 			DCE::CMD_Create_Device CMD_Create_Device(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_GeneralInfoPlugIn,PK_DeviceTemplate_AddPlayer,"",0,"","",0,atoi(row[0]),"",0,0,&PK_Device);
 			m_pOrbiter->SendCommand(CMD_Create_Device);
 		}
@@ -1157,6 +1164,8 @@ void WizardLogic::SetPVRSoftware(char PVRSoftware)
 
 	//what to remove ?
 	string sParms = PVRSoftware!='V' ? "vdr" : "mythtv";
+
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Spawning remove pvr packages, parms %s", sParms.c_str());
 
 	//remove undeeded packages from all machines
 	DCE::CMD_Spawn_Application_DT cmd_Spawn_Application_DT(
