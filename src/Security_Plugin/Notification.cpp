@@ -159,10 +159,7 @@ bool Notification::NotifyLoop(int iType,bool bProcessInBackground)
 		StringUtils::Replace(&sPhoneNumber,",","");
 		StringUtils::Replace(&sPhoneNumber," ","");
 		if( sPhoneNumber.size()>2 && sPhoneNumber[0]!='9' )
-			if( sPhoneNumber[1]!='1' )
-				sPhoneNumber = "91" + sPhoneNumber;
-			else
-				sPhoneNumber = "9" + sPhoneNumber;
+			sPhoneNumber = "9" + sPhoneNumber;
 
 		bool bMonitor = StringUtils::Tokenize((*s),",",pos)=="1";
 		bool bSecurity = StringUtils::Tokenize((*s),",",pos)=="1";
