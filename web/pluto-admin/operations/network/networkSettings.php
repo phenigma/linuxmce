@@ -281,6 +281,7 @@ function networkSettings($output,$dbADO) {
 		$internalCoreIP=getIpFromParts('internalCoreIP_');
 
 
+		$isChanged=0;
 		$ipForAnonymousDevices=isset($_POST['ipForAnonymousDevices'])?1:0;
 		if($ipForAnonymousDevices==1){
 			$coreDHCP.=','.getIpFromParts('nonPlutoIP_').'-'.getIpFromParts('nonPlutoIP_',5);
@@ -290,16 +291,25 @@ function networkSettings($output,$dbADO) {
 			if($newEnableDHCP==1){
 				$insertDDD='UPDATE Device_DeviceData SET  IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?';
 				$dbADO->Execute($insertDDD,array($coreDHCP,$coreID,$GLOBALS['DHCPDeviceData']));
+				if($dbADO->Affected_Rows()>0){
+					$isChanged=1;
+				}
 			}
 		}elseif($newEnableDHCP==1){
 			if($coreDHCP!=$rowDHCP['IK_DeviceData']){
 				$updateDDD='UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?';
 				$dbADO->Execute($updateDDD,array($coreDHCP,$coreID,$GLOBALS['DHCPDeviceData']));
+				if($dbADO->Affected_Rows()>0){
+					$isChanged=1;
+				}
 			}
 		}
 		else{
 			$emptyDDD='UPDATE Device_DeviceData SET IK_DeviceData=\'\' WHERE FK_Device=? AND FK_DeviceData=?';
 			$dbADO->Execute($emptyDDD,array($coreID,$GLOBALS['DHCPDeviceData']));
+			if($dbADO->Affected_Rows()>0){
+				$isChanged=1;
+			}
 		}
 
 		$externalInterface=$externalInterfaceArray[0];
@@ -324,6 +334,9 @@ function networkSettings($output,$dbADO) {
 			if($networkInterfaces!=$rowNC['IK_DeviceData']){
 				$updateDDD='UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?';
 				$dbADO->Execute($updateDDD,array($networkInterfaces,$coreID,$GLOBALS['NetworkInterfaces']));
+				if($dbADO->Affected_Rows()>0){
+					$isChanged=1;
+				}
 			}
 		}
 		
@@ -362,8 +375,9 @@ function networkSettings($output,$dbADO) {
 		}
 		// TODO: call a script who will set the domain and computer name
 		
+		$msg=($isChanged==1)?urlencode("Network settings updated.".@$ipchanged_msg):'No changes.';
 		
-		header("Location: index.php?section=networkSettings&msg=".urlencode("Network settings updated.".@$ipchanged_msg));
+		header("Location: index.php?section=networkSettings&msg=".$msg);
 	}
 
 	$output->setMenuTitle($TEXT_ADVANCED_CONST.' |');
