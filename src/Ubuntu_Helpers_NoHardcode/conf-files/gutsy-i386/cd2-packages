@@ -453,6 +453,8 @@ libtext-iconv-perl
 libthai0
 libthai-data
 libtheora0
+libtie-cache-perl
+libtie-ixhash-perl
 libtie-regexphash-perl
 libtiff4
 libtiff4-dev
