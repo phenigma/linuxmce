@@ -145,6 +145,7 @@ libbluetooth-dev
 libbz2-1.0
 libc6-i386
 libcaca0
+libcache-cache-perl
 libcairo2
 libcairo2-dev
 libcap1
@@ -211,6 +212,7 @@ libevent1
 libexpat1
 libexpat1-dev
 libfaac0
+libfaad2-0
 libfame-0.9
 libfcgi-perl
 libfile-slurp-perl
@@ -318,6 +320,7 @@ liblzo1
 liblzo-dev
 libmad0
 libmagic1
+libmagick++9c2a
 libmailtools-perl
 libmediastreamer0
 libmime-lite-perl
@@ -419,6 +422,7 @@ libstdc++6
 libsvga1
 libsvga1-dev
 libsvn1
+libswscale1d
 libsysfs2
 libt1-5
 libtar
@@ -428,12 +432,15 @@ libtext-iconv-perl
 libthai0
 libthai-data
 libtheora0
+libtie-cache-perl
+libtie-ixhash-perl
 libtiff4
 libtiff4-dev
 libtiffxx0c2
 libtimedate-perl
 libtonezone1
 libttf2
+libtwolame0
 libungif4g
 libuniversal-moniker-perl
 libupnp2
@@ -551,7 +558,6 @@ mysql-client
 mysql-common
 mysql-server
 mysql-server-5.0
-mythweb
 nbd-client
 nbd-server
 nbtscan
