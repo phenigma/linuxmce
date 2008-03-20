@@ -50,6 +50,7 @@ Architecture: any
 Depends: libxine1-pluto-plugins (= ${source:Version}) | libxine1-pluto-misc-plugins (= ${binary:Version}),
 	    libxine1-pluto-x (= ${binary:Version}), libxine1-pluto-console (= ${binary:Version})
 Recommends: libxine1-pluto-ffmpeg
+Provides: libxine1-pluto-dbg
 Suggests: gxine | xine-ui, libxine1-pluto-doc | libxine-doc
 Description: the xine video/media player library, meta-package
  This is the xine media player library (libxine).
