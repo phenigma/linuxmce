@@ -90,12 +90,10 @@ transcode
 ttf-dejavu
 ttf-freefont
 ttf-kochi-gothic
-vim-runtime
 vlc
 vlc-nox
 xfonts-100dpi
 xfonts-75dpi
-xfonts-base
 xfwm4
 xine-ui
 xserver-xorg-core

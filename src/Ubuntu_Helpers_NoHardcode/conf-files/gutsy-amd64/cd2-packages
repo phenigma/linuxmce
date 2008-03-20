@@ -634,6 +634,7 @@ vdr
 viewres
 vim
 vim-common
+vim-runtime
 vorbis-tools
 wget
 whiptail
@@ -677,6 +678,7 @@ xeyes
 xf86dga
 xfce4-mcs-manager
 xfd
+xfonts-base
 xfontsel
 xfonts-encodings
 xfonts-scalable
