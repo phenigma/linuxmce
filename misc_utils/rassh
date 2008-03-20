@@ -2,7 +2,7 @@
 
 Usage()
 {
-	echo "Usage: rassh {-i|--installation} <installation_number> [{-u|--user} <username>] [{-o|--old}] [{-d|--display}]"
+	echo "Usage: rassh {-i|--installation} <installation_number> [{-u|--user} <username>] [{-o|--old}] [{-d|--display}] [{-f|--forward {RL}port:host:port]"
 }
 
 for ((i = 1; i <= "$#"; i++)); do
@@ -11,6 +11,7 @@ for ((i = 1; i <= "$#"; i++)); do
 		-u|--user) ((i++)); User="${!i}" ;;
 		-o|--old) UseOldMethod=UseOldMethod ;;
 		-d|--display) DisplayOnly=DisplayOnly ;;
+		-f|--forward) ((i++)); Forward="-${!i}" ;;
 		*) echo "ERROR: Unknown option '${!i}'"; Usage; exit 1 ;;
 	esac
 done
@@ -74,8 +75,8 @@ RA_New()
 		for Var in ${!SSH_Port_*}; do
 			Port="${!Var}"
 			echo "Trying: server=$Server port=${Port}"
-			echo fakeroot ssh -p $Port "$User@$Server"
-			if fakeroot ssh -p $Port "$User@$Server" 2>/dev/null; then
+			echo fakeroot ssh -p $Port "$User@$Server" $Forward
+			if fakeroot ssh -p $Port "$User@$Server" $Forward 2>/dev/null; then
 				break 2
 			else
 				echo "FAILED."
