@@ -186,7 +186,8 @@ void JukeBox::MassIdentify(string sSlots,int PK_Orbiter)
 		{
 			int iSlot = atoi( StringUtils::Tokenize(sSlots,",",pos).c_str() );
 			Slot *pSlot = m_mapSlot_Find(iSlot);
-			if( pSlot->m_eStatus!=Slot::slot_defective && pSlot->m_eStatus!=Slot::slot_empty )
+
+			if(NULL != pSlot && pSlot->m_eStatus!=Slot::slot_defective && pSlot->m_eStatus!=Slot::slot_empty )
 			{
 				IdentifyJob *pIdentifyJob = new IdentifyJob(m_pJobHandler,NULL,pSlot,PK_Orbiter,m_pCommand_Impl);
 				m_pJobHandler->AddJob(pIdentifyJob);
