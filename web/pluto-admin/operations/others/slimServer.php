@@ -19,7 +19,7 @@ function slimServer($output,$dbADO) {
 		$data=exec_batch_command('sudo -u root /usr/pluto/bin/Network_DisplaySettings.sh --all',1);
 		$ret=parse_ini_str($data);
 
-		$out.='<iframe src="http://'.$ret['EXTERNAL_IP'].':9000/" style="width:98%;height:600px;"></iframe>';
+		$out.='<iframe src="http://'.$_SERVER['HTTP_HOST'].':9000/" style="width:98%;height:600px;"></iframe>';
 	
 	}else{
 	// process area
