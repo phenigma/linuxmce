@@ -34,6 +34,11 @@ void displayStep3(void) {
 	if (setting_deviceType == DT_MEDIA_DIRECTOR ) {
 		displayStepUI();
 		return;
+	 }
+
+	if (setting_deviceType == DT_MEDIA_DIRECTOR ) {
+		displayStepUI();
+		return;
 	}
 
 	printf("Step3\n");
