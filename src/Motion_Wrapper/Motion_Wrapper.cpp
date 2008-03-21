@@ -362,17 +362,17 @@ Motion_Wrapper::AddChildDeviceToConfigFile(std::ofstream& conffile, DeviceData_I
 	//video device
 	string sDevice = pDeviceData->mapParameters_Find(DEVICEDATA_Device_CONST);
 
-	if (pDeviceData->m_dwPK_DeviceTemplate == 1916) { // Replace with DEVICETEMPLATE_Generic_Motion_IP_Camera
+	if (pDeviceData->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Generic_Motion_IP_Camera_CONST) { 
 		string sUrl = "";
 
-		if ( pDeviceData->mapParameters_Find(270).empty() ) { // TODO: Replace with DEVICEDATE_Protocol_CONST 
+		if ( pDeviceData->mapParameters_Find(DEVICEDATA_Protocol_CONST).empty() ) {
 			return false;
 		}
 		if (  pDeviceData->m_sIPAddress.empty() ) {
 			return false;
 		}
 		
-		sUrl  = pDeviceData->mapParameters_Find(270) + "://"; // TODO: Replace with DEVICEDATE_Protocol_CONST
+		sUrl  = pDeviceData->mapParameters_Find(DEVICEDATA_Protocol_CONST) + "://";
 		sUrl += pDeviceData->m_sIPAddress;
 		if ( ! pDeviceData->mapParameters_Find(DEVICEDATA_Port_CONST).empty() ) {
 			sUrl += ":" + pDeviceData->mapParameters_Find(DEVICEDATA_Port_CONST);
