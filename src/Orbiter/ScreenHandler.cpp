@@ -180,8 +180,8 @@ void ScreenHandler::SCREEN_NewPnpDevice(long PK_Screen, string sDescription, int
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::Pnp_ObjectSelected,	new ObjectInfoBackData());
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, sDescription);
 
-	if(NULL != m_pOrbiter->m_pScreenHistory_NewEntry)
-		m_pOrbiter->m_pScreenHistory_NewEntry->ScreenID(StringUtils::itos(iPK_PnpQueue));
+	if(NULL != m_pOrbiter->m_pScreenHistory_Pivot)
+		m_pOrbiter->m_pScreenHistory_Pivot->ScreenID(StringUtils::itos(iPK_PnpQueue));
 
 	m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(m_p_MapDesignObj_Find(PK_Screen)), StringUtils::itos(iPK_PnpQueue), "", false, false );
 }
@@ -1108,7 +1108,7 @@ void MediaFileBrowserOptions::SelectedArray(DesignObj_Orbiter *pObj,int PK_Array
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_NewPhoneDetected(long PK_Screen, string sMac_address, string sDescription, int iPK_PnpQueue)
 {
-	m_pOrbiter->m_pScreenHistory_NewEntry->ScreenID(StringUtils::itos(iPK_PnpQueue));
+	m_pOrbiter->m_pScreenHistory_Pivot->ScreenID(StringUtils::itos(iPK_PnpQueue));
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, sMac_address);
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST, sDescription);
 	ScreenHandlerBase::SCREEN_NewPhoneDetected(PK_Screen, sMac_address, sDescription, iPK_PnpQueue);
@@ -1116,7 +1116,7 @@ void ScreenHandler::SCREEN_NewPhoneDetected(long PK_Screen, string sMac_address,
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_WhatModelMobileOrbiter(long PK_Screen, int iPK_Users, string sMac_address)
 {
-	m_pOrbiter->m_pScreenHistory_NewEntry->ScreenID(sMac_address);
+	m_pOrbiter->m_pScreenHistory_Pivot->ScreenID(sMac_address);
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, sMac_address);
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST, StringUtils::itos(iPK_Users));
 	ScreenHandlerBase::SCREEN_WhatModelMobileOrbiter(PK_Screen, iPK_Users, sMac_address);
@@ -1813,7 +1813,7 @@ void ScreenHandler::SCREEN_QuadViewCameras(long PK_Screen, string sList_PK_Devic
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_NAS_Options(long PK_Screen, int iPK_PnpQueue)
 {
-	m_pOrbiter->m_pScreenHistory_NewEntry->ScreenID(StringUtils::itos(iPK_PnpQueue));
+	m_pOrbiter->m_pScreenHistory_Pivot->ScreenID(StringUtils::itos(iPK_PnpQueue));
 	m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(m_p_MapDesignObj_Find(PK_Screen)), StringUtils::itos(iPK_PnpQueue), "", false, false );
 }
 //-----------------------------------------------------------------------------------------------------
@@ -1835,7 +1835,7 @@ void ScreenHandler::SCREEN_Get_Username_Password_For_Devices(long PK_Screen, boo
 
 	StringUtils::Replace( &sText, "<%=device%>", sDescription );
 
-	m_pOrbiter->m_pScreenHistory_NewEntry->ScreenID(StringUtils::itos(iPK_PnpQueue));
+	m_pOrbiter->m_pScreenHistory_Pivot->ScreenID(StringUtils::itos(iPK_PnpQueue));
 	SCREEN_GenericKeyboard(SCREEN_GenericKeyboard_CONST, 
 		sText + "|" + m_pOrbiter->m_mapTextString[TEXT_Ok_CONST], 
 		StringUtils::ltos(m_pOrbiter->m_dwPK_Device) + " " + StringUtils::ltos(m_pOrbiter->m_dwPK_Device_PlugAndPlayPlugIn) + " " +

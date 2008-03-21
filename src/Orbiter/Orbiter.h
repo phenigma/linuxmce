@@ -225,7 +225,6 @@ namespace DCE
 		bool m_bSpeedIconsOnVfd; // True if there's a VFD that can show speed icons
 		bool m_bExpertMode; // A device data, if true we support quick launch
 		bool m_bIgnoreMouse; // Completely ignore mouse events
-		class ScreenHistory *m_pScreenHistory_Current; /** < The currently visible screen */
 		class DesignObj_Orbiter *GetCurrentDesignObj();
 		string m_sOperatingSystem; // If this is an OSD for a dual-boot media director this contains the type of o/s
 		map< pair<int,char>,string> m_mapScanCodeToRemoteButton; /** < Map of scan codes to remote button names used by Infrared Plugin.  The char is the action (Up,Down,Hold meaning repeat). */
@@ -354,7 +353,12 @@ namespace DCE
 			return m_sLocalDirectory;
 		}
 
+		class ScreenHistory *m_pScreenHistory_Current;		/** < The currently visible screen */
+
 	protected:
+
+		class ScreenHistory *m_pScreenHistory_Pivot;		/** < The head for the list of designobj of the new screen */
+		class ScreenHistory *m_pScreenHistory_New;			/** < The screen history for the new screen. Might be the same with the current if there is only a goto designobj */
 
 		int m_dwPK_Users; /** < The current user */
 		int m_dwPK_DeviceTemplate;  /** < This is running as a specific device template */
@@ -439,8 +443,6 @@ namespace DCE
 		list < class ScreenHistory * > m_listScreenHistory; /** < A history of the screens we've visited */
 		map<int,class DeviceData_Base *> m_mapDevice_Selected;  /** < We can select multiple devices on the floorplan to send messages to, instead of the usual one */
 		map<int,class FloorplanObject *> m_mapFloorplanObject_Selected;  /** < The selected floorplan objects.  Note these are copies, not originals, so they must be deleted */
-
-		class ScreenHistory *m_pScreenHistory_NewEntry;
 
 		string m_sObj_Popop_RemoteControl,m_sObj_Popop_FileList;
 		int m_Popop_RemoteControl_X,m_Popop_RemoteControl_Y,m_Popop_FileList_X,m_Popop_FileList_Y;
