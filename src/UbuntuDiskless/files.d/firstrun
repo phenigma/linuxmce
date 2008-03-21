@@ -15,6 +15,14 @@ apt-get update
 if lshwd | grep -qi 'VGA .* (nv)'; then
 	apt-get -y -f install pluto-nvidia-video-drivers
 fi
+
+# workaround for the MSI K9NGM3 motherboard
+if lspci -nnv -s 00:07.0 -d 10de:055c|grep -q 1462:7349; then
+	(
+		echo 'modprobe -r snd_hda_intel || :'
+		echo 'modprobe snd_hda_intel model=6stack-dell || :'
+	) >>/etc/rcS.d/S98check_avwizard
+fi
 "
 
 mkdir -p "${Parm_RootLocation}/$(dirname $File)"
