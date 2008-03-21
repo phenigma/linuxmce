@@ -1377,7 +1377,12 @@ bool PnpQueue::Process_Detect_Stage_Running_Detction_Scripts(PnpQueueEntry *pPnp
 	DetermineOrbitersForPrompting(pPnpQueueEntry,false); // For the Display Alert
 
 #ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Running_Detction_Scripts queue %d has %d possibilities",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),(int) pPnpQueueEntry->m_mapPK_DHCPDevice_possible.size());
+	string sPossibilities;
+	for(map<int,Row_DHCPDevice *>::iterator it=pPnpQueueEntry->m_mapPK_DHCPDevice_possible.begin();it!=pPnpQueueEntry->m_mapPK_DHCPDevice_possible.end();++it)
+		sPossibilities += StringUtils::itos(it->first) + ",";
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Running_Detction_Scripts queue %d has %d possibilities %s",
+		pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),(int) pPnpQueueEntry->m_mapPK_DHCPDevice_possible.size(),sPossibilities.c_str());
 #endif
 	Row_DHCPDevice *pRow_DHCPDevice_To_Detect = NULL;
 	for(map<int,Row_DHCPDevice *>::iterator it=pPnpQueueEntry->m_mapPK_DHCPDevice_possible.begin();it!=pPnpQueueEntry->m_mapPK_DHCPDevice_possible.end();++it)
