@@ -46,6 +46,8 @@ if [ ! -f "/usr/lib/libdvdcss.so.2" ]; then
 	exit 1
 fi
 
+echo `date`"   Started"
+
 if [[ -z "$1" ]]; then
 	echo "Scanning LinuxMCE media library for DVD images"
 	UseDB "pluto_media"
@@ -65,3 +67,4 @@ else
 	done
 fi
 
+echo -e `date`"   Finished\n"
