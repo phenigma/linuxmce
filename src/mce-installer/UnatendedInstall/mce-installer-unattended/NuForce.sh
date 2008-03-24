@@ -67,7 +67,7 @@ if [[ -n "$Link" ]]; then
 	if [[ "$Link" != /dev/* ]]; then
 		Link="/dev/$Link"
 	fi
-	/usr/pluto/bin/CreateDevice -d 11 -R 1 -A "9|$Link" # Disk Drive
+	/usr/pluto/bin/CreateDevice -d 11 -R 1 -A "6|$Link" # Disk Drive
 fi
 '
 	echo -n "$CreateDiskDrive" >>/etc/rc2.d/S90firstboot
