@@ -18,26 +18,21 @@ echo "--- end mce wizard data ---"
 
 function Setup_NIS 
 {
-	if ! BlacklistConfFiles '/etc/passwd' ;then
-		if ! grep -q "+::::::"   /etc/passwd ;then
-			cat /etc/passwd  > /etc/passwd.$$
-		       	echo "+::::::"  >> /etc/passwd.$$
-			mv /etc/passwd.$$ /etc/passwd
-		fi
+	if ! grep -q "+::::::"   /etc/passwd ;then
+		cat /etc/passwd  > /etc/passwd.$$
+		echo "+::::::"  >> /etc/passwd.$$
+		mv /etc/passwd.$$ /etc/passwd
 	fi
-	if ! BlacklistConfFiles '/etc/shadow' ;then
-		if ! grep -q "+::::::::" /etc/shadow ;then
-		       cat /etc/shadow   > /etc/shadow.$$
-		       echo "+::::::::" >> /etc/shadow.$$
-		       mv /etc/shadow.$$ /etc/shadow
-	       fi
+
+	if ! grep -q "+::::::::" /etc/shadow ;then
+		cat /etc/shadow   > /etc/shadow.$$
+		echo "+::::::::" >> /etc/shadow.$$
+		mv /etc/shadow.$$ /etc/shadow
 	fi
-	if ! BlacklistConfFiles '/etc/group' ;then
-		if ! grep -q "+:::" /etc/group ;then
-			cat /etc/group  | grep -v "^public:" > /etc/group.$$
-		       	echo "+:::"   >> /etc/group.$$
-			mv /etc/group.$$ /etc/group
-		fi
+	if ! grep -q "+:::" /etc/group ;then
+		cat /etc/group  | grep -v "^public:" > /etc/group.$$
+		echo "+:::"   >> /etc/group.$$
+		mv /etc/group.$$ /etc/group
 	fi
 }
 
@@ -62,7 +57,7 @@ function Configure_Mounts
 
 	grep -q "/usr/pluto/orbiter" /etc/fstab || echo -e "$Content" >> /etc/fstab
 
-	apt-get install --force-yes -y portmap smbfs
+	apt-get install --force-yes -y portmap smbfs nfs-common
 	invoke-rc.d portmap start
 
 	mount -a
