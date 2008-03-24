@@ -191,9 +191,7 @@ bool Telecom_Plugin::GetConfig()
 	if( !m_pDevice_pbx )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Telecom_Plugin::GetConfig - no pbx device");
-		return false;
 	}
-
 	
 	DCE::CMD_Send_Asterisk_Status cmd_Send_Asterisk_Status(m_dwPK_Device, m_pDevice_pbx->m_dwPK_Device);
 	cmd_Send_Asterisk_Status.m_pMessage->m_eRetry = MR_Retry;
