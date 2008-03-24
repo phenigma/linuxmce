@@ -1,0 +1,13 @@
+2008-02-09 11:12	(tschak)
+Initial import of my MAME_PlugIn code.
+
+2008-02-15 00:40	(tschak)
+Added code for Set_Active_Menu.
+
+2008-03-01 02:12	(tschak)
+Added code for EVENT_MenuOnScreen - This was borrowed from the Xine Plugin
+code, and is currently used to display the alternate Screen, showing
+screen captures of the games.
+
+2008-03-18 00:00	(tschak)
+SPIDER WORKS! Game data is now populated from lmce_game database!
