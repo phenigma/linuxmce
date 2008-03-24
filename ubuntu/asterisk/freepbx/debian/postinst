@@ -2,6 +2,9 @@
 
 if [[ "$1" == configure ]]; then
 	. /usr/pluto/bin/SQL_Ops.sh
+	. /usr/pluto/bin/Utils.sh
+
+	AddBookmark "http://10.0.1.2/admin/" "FreePBX"
 
 	asterisk -V >/etc/asterisk/version
 	if [[ -n "$MySqlPassword" ]]; then

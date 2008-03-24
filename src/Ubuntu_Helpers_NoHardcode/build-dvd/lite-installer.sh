@@ -5,6 +5,8 @@ set -e
 Debug=0
 FromHdd=0
 Upgrade=0
+KeepMedia=0
+LinuxMCE_Password=
 grep -q "install_from_hdd" /proc/cmdline && FromHdd="1"
 
 if grep -q "noinst" /proc/cmdline; then
@@ -17,6 +19,7 @@ fi
 TargetHdd=
 RootUUID=
 SwapUUID=
+RecoveryUUID=
 
 NukeFS()
 {
@@ -77,62 +80,131 @@ GetHddToUse()
 		mkdir -p /media/target
 		for Drive in $HddList; do
 				DiskDev="${Drive%%:*}"
+				set +e
+				DiskSize="${Drive#*:}"
+				DiskDescription="$(hdparm -I $DiskDev | grep "Model Number:" | cut -d ':' -f2 | sed 's/ *//g')"
+				DiskSerial="$(hdparm -I $DiskDev | grep "Serial Number:" | cut -d ':' -f2 | sed 's/ *//g')"
+				set -e
 				if mount "$DiskDev"1 /media/target; then
 					if [[ -f /media/target/etc/pluto.conf ]]; then
-						echo "* Found an existing installation on drive '$DiskDev'"
 						Choice=
-						until [[ "$Choice" == [YyNn] ]]; do
-							echo -n "Do you want to keep your settings? (y/n): "
+						until [[ "$Choice" == [YyNn] ]] ;do
+							clear	
+							echo "Detected Previous Installation"
+							echo "=============================="
+							echo
+							echo "I've found an old installation on drive :"
+							echo "    $DiskDev ($DiskDescription $DiskSerial ${DiskSize//:/ })"
+							echo
+							echo -n "Do you want to use this drive (Y/N) ? "
 							read Choice
-							if [[ "$Choice" != [YyNn] ]]; then
-								echo
-								echo "***********************************************"
-								echo "* Please answer 'y' for 'yes' or 'n' for 'no' *"
-								echo "***********************************************"
-							fi
 						done
-						if [[ "$Choice" == [Yy] ]]; then
-							Done=1
-							Upgrade=1
-							TargetHdd="$DiskDev"
+
+						if [[ "$Choice" == [Yy] ]] ;then
+							Choice=
+							until [[ "$Choice" == [123] ]]; do
+								clear
+								echo "Previous Installation Options"
+								echo "============================="
+								echo 
+								echo "Choose :"
+								echo "    1. Preserve my setting and /home directory."
+								echo "    2. Preserve my /home directory only."
+								echo "    3. Do a clean install without keeping anything."
+								echo 
+								echo -n "Answer :  "
+								read Choice
+
+								if [[ "$Choice" != [123] ]]; then
+									echo "Invalid selection. Try again"
+									sleep 1; clear
+								fi
+							done
+							if [[ "$Choice" == "1" ]]; then
+								Done=1
+								Upgrade=1
+								TargetHdd="$DiskDev"
+							fi
+							if [[ "$Choice" == "2" ]]; then
+								Done=1
+								Upgrade=1
+								KeepMedia=1
+								TargetHdd="$DiskDev"
+							fi
+							if [[ "$Choice" == "3" ]] ;then
+								Done=1
+								TargetHdd="$DiskDev"
+							fi
+					
+							umount /media/target || :
+							break
 						fi
 					fi
-					umount /media/target
+					umount /media/target || :
 				fi
 		done
 		clear
 
+
 		while [[ "$Done" == 0 ]]; do
+		echo "Hard Drive Selection"
+		echo "===================="
+		echo 
+		echo "WARNING :"
+		echo "This will delete everything on all partitions of your hard drive"
+		echo "the data is not recoverable"
+		echo 
+
 		echo "Hard drives in the system:"
 			i=1
 			for Drive in $HddList; do
 				DiskDev="${Drive%%:*}"
 				DiskSize="${Drive#*:}"
 				set +e
-				DiskDescription="$(hdparm -I $DiskDev | grep "Model Number:" | cut -d ':' -f2 | sed 's/^ *//g')"
-				DiskSerial="$(hdparm -I $DiskDev | grep "Serial Number:" | cut -d ':' -f2 | sed 's/^ *//g')"
+				DiskDescription="$(hdparm -I $DiskDev | grep "Model Number:" | cut -d ':' -f2 | sed 's/ *//g')"
+				DiskSerial="$(hdparm -I $DiskDev | grep "Serial Number:" | cut -d ':' -f2 | sed 's/ *//g')"
 				set -e
-				echo "$i. $DiskDev ($DiskDescription $DiskSerial ${DiskSize//:/ })"
+				echo "    $i. $DiskDev ($DiskDescription $DiskSerial ${DiskSize//:/ })"
 				Hdd[$i]="$DiskDev"
 				((i++))
 			done
 			((i--))
-			echo "WARNING :"
-			echo " This will delete everything on all partitions of your hard drive"
-			echo " the data is not recoverable"
 			echo 
 			echo -n "Choose which drive to install the system on: "
 			read Choice
 			if [[ "$Choice" == *[^0-9]* || "$Choice" -lt 1 || "$Choice" -gt "$i" ]]; then
 				echo "Invalid selection. Try again"
+				sleep 1; clear
 			else
 				TargetHdd="${Hdd[$Choice]}"
 				Done=1
 			fi
+		done	
+	fi
+	
+	if [[ "$Upgrade" != "1" ]] || [[ "$Upgrade" == "1" && "$KeepMedia" == "1" ]] ;then
+		clear
+		echo "System User Password"
+		echo "===================="
+		echo
+		echo "A system user named 'linuxmce' will be created by default."
+		echo "Please type a password for this user."
+		echo 
+		while [[ "$LinuxMCE_Password" == "" ]] ;do
+			echo -n 'Password : '
+			read Password
+			if [[ "$Password" != "" ]] ;then
+				LinuxMCE_Password=$(echo 'printf "%s\n", crypt("'$Password'", "\$1\$6-8-letter-salt\$")' | perl)
+#				LinuxMCE_Password=$(mkpasswd -H md5 "$Password")
+			fi
 		done
 	fi
 
-	echo "Chosen hdd: $TargetHdd"
+	clear
+	echo "Installing System"
+	echo "================="
+	echo 
+	echo "Started installing on $TargetHdd"
 	if [[ -z "$TargetHdd" ]]; then
 		echo "Got out of loop with empty selection. This shouldn't be possible."
 		exit 1
@@ -172,20 +244,24 @@ FormatPartitions()
 	if [[ "$FromHdd" == 1 || "$Upgrade" == 1 ]] && mount "$TargetHdd"1 /media/target; then
 		pushd /media/target &>/dev/null
 
-		if [[ -d ./usr/pluto/diskless ]]; then
-			pushd ./usr/pluto/diskless &>/dev/null
-				while read MD; do
-					NukeFS "./$MD",etc "./$MD/etc",pluto.conf
-				done < <(find . -mindepth 1 -maxdepth 1 -type d)
-			popd &>/dev/null
-
-			mkdir .upgrade-diskless
-			mv ./usr/pluto/diskless/* .upgrade-diskless/
+		if [[ "$KeepMedia" == "1" ]] ;then
+			NukeFS .,home
+		else
+			if [[ -d ./usr/pluto/diskless ]]; then
+				pushd ./usr/pluto/diskless &>/dev/null
+					while read MD; do
+						NukeFS "./$MD",etc "./$MD/etc",pluto.conf
+					done < <(find . -mindepth 1 -maxdepth 1 -type d)
+				popd &>/dev/null
+	
+				mkdir .upgrade-diskless
+				mv ./usr/pluto/diskless/* .upgrade-diskless/
+			fi
+	
+			NukeFS .,home,var,etc,usr,.upgrade-diskless ./var,lib ./var/lib,mysql ./etc,pluto.conf,ssh,passwd,shadow,group,mysql ./usr,pluto ./usr/pluto,orbiter ./usr/pluto/orbiter,rooms,scenarios,users
+			mkdir .upgrade-save
 		fi
-
-		NukeFS .,home,var,etc,usr,.upgrade-diskless ./var,lib ./var/lib,mysql ./etc,pluto.conf,ssh,passwd,shadow,group,mysql ./usr,pluto ./usr/pluto,orbiter ./usr/pluto/orbiter,rooms,scenarios,users
 			
-		mkdir .upgrade-save
 		find -mindepth 1 -maxdepth 1 -not -name '.upgrade-*' -exec mv '{}' .upgrade-save/ ';'
 		popd &>/dev/null
 		umount "$TargetHdd"1
@@ -198,8 +274,9 @@ FormatPartitions()
 	fi
 
 	blkid -w /etc/blkid.tab || :
-	RootUUID=$(vol_id -u "$TargetHdd"1)
-	SwapUUID=$(vol_id -u "$TargetHdd"5)
+	RootUUID=$(vol_id --skip-raid -u "$TargetHdd"1)
+	SwapUUID=$(vol_id --skip-raid -u "$TargetHdd"5)
+	RecoveryUUID=$(vol_id --skip-raid -u "$TargetHdd"6)
 }
 
 MountPartitions()
@@ -278,7 +355,7 @@ ExtractArchive()
 	cat "$archives_path"/lmce-image/linux-mce.tar.gz* | tar -C /media/target -zx --checkpoint=10000
 	mkdir -p /media/target/etc/pluto
 
-	if [[ "$Upgrade" == 1 ]]; then
+	if [[ "$Upgrade" == 1 && "$KeepMedia" != "1" ]]; then
 		touch /media/target/etc/pluto/install_cleandb
 	fi
 
@@ -362,12 +439,10 @@ SetupFstab()
 #
 # <file system> <mount point>   <type>  <options>       <dump>  <pass>
 proc            /proc           proc    defaults        0       0
-#UUID=$RootUUID
-${TargetHdd}1 /               ext3    defaults,errors=remount-ro 0       1
-#UUID=$SwapUUID
-${TargetHdd}5 none            swap    sw              0       0
-${TargetHdd}6 /mnt/recovery   ext3    ro              0       0
-/dev/cdrom        /media/cdrom0   udf,iso9660 user,noauto     0       0
+UUID=$RootUUID	/               ext3    defaults,errors=remount-ro 0       1
+UUID=$SwapUUID  none            swap    sw              0       0
+UUID=$RecoveryUUID /mnt/recovery   ext3    ro              0       0
+/dev/cdrom      /media/cdrom0   udf,iso9660 user,noauto     0       0
 "
 	echo "$fstab_text" > /media/target/etc/fstab
 }
@@ -383,13 +458,14 @@ InstallGrub()
 	umount /media/target/dev/
 	cp -r /dev/.static/dev/* /media/target/dev/
 
-	sed -ir "s,root=.* ro quiet splash,root=${TargetHdd}1 ro quiet splash,g" /media/target/boot/grub/menu.lst
-	sed -ir "s,root=.* ro single,root=${TargetHdd}1 ro single,g" /media/target/boot/grub/menu.lst
+	sed -ir "s,^\(# kopt=root=[^ ]*\) \(.*\),# kopt=root=UUID=${RootUUID} \2,g" /media/target/boot/grub/menu.lst
+	sed -ir "s,root=.* ro quiet splash,root=UUID=${RootUUID} ro quiet splash,g" /media/target/boot/grub/menu.lst
+	sed -ir "s,root=.* ro single,root=UUID=${RootUUID} ro single,g" /media/target/boot/grub/menu.lst
 
 	echo "
 	title		System Recovery
 	root		(hd0,5)
-	kernel		/boot/vmlinuz-2.6.20-15-generic root=${TargetHdd}6 quiet install_from_hdd
+	kernel		/boot/vmlinuz-2.6.20-15-generic root=UUID=${RecoveryUUID} quiet install_from_hdd
 	initrd		/boot/initrd.img-2.6.20-15-generic
 	" >> /media/target/boot/grub/menu.lst
 }
@@ -422,6 +498,10 @@ TargetCleanup()
 
 	ifconfig -a | grep ^eth | awk '{print "SUBSYSTEM==\"net\", DRIVERS==\"?*\", ATTRS{address}==\"" tolower($5) "\", NAME=\"" $1 "\""}' > /media/target/etc/udev/rules.d/70-persistent-net.rules || :
 	#chroot /media/target update-grub
+
+	if [[ "$LinuxMCE_Password" != "" ]] ;then
+		sed -i "s,\(linuxmce:\)[^:]*\(.*\),\1$LinuxMCE_Password\2,g" /media/target/etc/shadow
+	fi
 
 	if [[ -d /media/target/.upgrade-save ]]; then
 		pushd /media/target/.upgrade-save &>/dev/null

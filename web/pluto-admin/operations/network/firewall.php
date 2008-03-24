@@ -151,14 +151,15 @@ function firewall($output,$dbADO) {
 		if(isset($_REQUEST['delid'])){
 			$delid=$_REQUEST['delid'];
 			$dbADO->Execute('DELETE FROM Firewall WHERE PK_Firewall=?',$delid);
-		}
-		if(@$_REQUEST['change_firewall_status']==1){
-			writeConf($accessFile, 'DisableFirewall',@$DisableFirewall,1);
 		}else{
-			writeConf($accessFile, 'DisableFirewall',@$DisableFirewall,0);
+			if(@$_REQUEST['change_firewall_status']==1){
+				writeConf($accessFile, 'DisableFirewall',@$DisableFirewall,1);
+			}else{
+				writeConf($accessFile, 'DisableFirewall',@$DisableFirewall,0);
+			}
 		}
-		
-		exec('sudo -u root /usr/pluto/bin/Network_Firewall.sh');
+				
+		exec_batch_command('sudo -u root /usr/pluto/bin/Network_Firewall.sh');
 		
 		header("Location: index.php?section=firewall&msg=$TEXT_FIREWALL_RULES_UPDATED_CONST");
 	}

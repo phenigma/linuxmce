@@ -72,6 +72,8 @@ Pin: release v=7.10,o=Ubuntu,a=gutsy,l=Ubuntu
 Pin-Priority: 9998
 " > /etc/apt/preferences
 
+## Backup xorg.conf for the hybrid
+cp /etc/X11/xorg.conf /etc/X11/xorg.conf.upgrade
 
 ## Do the actual upgrade
 DisplayMessage "Started updating packages"
@@ -80,6 +82,9 @@ apt-get update
 apt-get -f -y --force-yes install mysql-server-5.0
 /etc/init.d/mysql start
 apt-get -f -y --force-yes dist-upgrade
+
+# Restore xorg.conf
+cp /etc/X11/xorg.conf.upgrade /etc/X11/xorg.conf
 
 ## Fix PK_Distro in pluto.conf
 DisplayMessage "Performing post upgrade fixes"
@@ -98,6 +103,7 @@ RunSQL "UPDATE Device_DeviceData SET IK_DeviceData = 'LMCE_CORE_u0710_i386' WHER
 RunSQL "UPDATE Device_DeviceData SET IK_DeviceData = 'LMCE_MD_u0710_i386'   WHERE IK_DeviceData = 'LMCE_MD_1_1'"
 RunSQL "UPDATE Device_DeviceData SET IK_DeviceData = 'i386' WHERE FK_DeviceData = '112'"
 RunSQL "UPDATE Device_DeviceData SET IK_DeviceData = '0' WHERE FK_DeviceData = '234'"
+RunSQL "UPDATE Device_DeviceData SET IK_DeviceData = '15' WHERE FK_DeviceData = '7' AND IK_DeviceData='14'";
 RunSQL "USE asterisk; UPDATE incoming SET destination=CONCAT('custom-linuxmce', SUBSTR(destination, 18)) WHERE destination LIKE 'from-pluto-custom%'"
 
 DT_DiskDrive=11

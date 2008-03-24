@@ -655,6 +655,12 @@ $manualyConfigureArray=array(
 		$isOrbiter=isOrbiter($deviceID,$dbADO);
 		$ManuallyConfigureEA=(int)@$_REQUEST['ManuallyConfigureEA'];
 		
+		// for devices from category Storage Devices, checking "reconfigure device" also set state = **RUN_CONFIG**
+		if($needConfigure==1 && isStorageDevice($DeviceCategory,$dbADO)===true){
+			$Status='**RUN_CONFIG**';
+		}
+	
+		
 		if(isMediaDirector($deviceID,$dbADO,1) && $usedBy=roomIsUsed($room,$deviceID,$dbADO)){
 			Header('Location: index.php?section=editDeviceParams&deviceID='.$deviceID.'&error='.$TEXT_ROOM_USED_BY_ANOTHER_MD_CONST.urlencode(': '.$usedBy));
 			exit();			
@@ -895,6 +901,15 @@ function roomIsUsed($room,$deviceID,$dbADO){
 	if($res->RecordCount()>0){
 		$row=$res->FetchRow();
 		return $row['PK_Device'];
+	}
+	
+	return false;
+}
+
+function isStorageDevice($DeviceCategory,$dbADO){
+	$categories=getAncestorsForCategory($DeviceCategory,$dbADO);
+	if(in_array($GLOBALS['StorageDevices'],$categories)){
+		return true;
 	}
 	
 	return false;

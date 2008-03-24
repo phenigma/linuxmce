@@ -4,7 +4,7 @@ function mediaDirectors($output,$dbADO) {
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/mediaDirectors.lang.php');
 
-	global $dbPlutoMainDatabase;
+	global $dbPlutoMainDatabase,$wikiHost;
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
 
@@ -16,7 +16,13 @@ function mediaDirectors($output,$dbADO) {
 	$pvrArray=getAssocArray('DeviceTemplate','PK_DeviceTemplate','Description',$dbADO,' WHERE FK_DeviceCategory IN ('.$GLOBALS['PVRCaptureCards'].','.$GLOBALS['DigitalTVCards'].')','ORDER BY Description ASC');
 	$soundArray=getAssocArray('DeviceTemplate','PK_DeviceTemplate','Description',$dbADO,' WHERE FK_DeviceCategory='.$GLOBALS['SoundCards'],'ORDER BY Description ASC');
 	$videoArray=getAssocArray('DeviceTemplate','PK_DeviceTemplate','Description',$dbADO,' WHERE FK_DeviceCategory='.$GLOBALS['VideoCards'],'ORDER BY Description ASC');
-	$audioSettingsArray=array('M'=>'Manual settings', 'C'=>'SPDIF Coax', 'O'=>'SPDIF TosLink', 'S'=>'Stereo', 'L'=>'Multi-channel analog');
+	$audioSettingsArray=array(
+		'M'=>'Manual settings', 
+		'C'=>'SPDIF Coax', 
+		'O'=>'SPDIF TosLink', 
+		'S'=>'Stereo', 
+		'L'=>'Multi-channel analog'
+		);
 	$deinterlaceQualityArray=array_flip(array(
 		"None" => "",
 		"Lowest" => "tvtime:method=LineDoubler,enabled=1,pulldown=none,framerate_mode=half_top,judder_correction=0,use_progressive_frame_flag=1,chroma_filter=0,cheap_mode=1",
@@ -93,6 +99,19 @@ function mediaDirectors($output,$dbADO) {
 	<script>
 			function windowOpen(locationA,attributes) {
 				window.open(locationA,\'\',attributes);
+			}
+			
+			function set_ac3(deviceID){
+				// 1) if any non-SPDIF is selected in "Audio settings", the "AC3 pass-through" is de-selected AND disabled (so user cannot check it)
+				// 2) if any SPDFIF is selected, the "AC3 pass-through" is enabled (so user can check it if he wants)
+				
+				eval("var audioSettings=document.mediaDirectors.audioSettings_"+deviceID+".value");
+				if(audioSettings!="C" && audioSettings!="O"){
+					eval("document.mediaDirectors.ac3_"+deviceID+".checked=false;");
+					eval("document.mediaDirectors.ac3_"+deviceID+".disabled=true;");
+				}else{
+					eval("document.mediaDirectors.ac3_"+deviceID+".disabled=false;");
+				}
 			}
 	</script>
 	<div class="err" align="center">'.(isset($_GET['error'])?strip_tags($_GET['error']):'').'</div>
@@ -205,8 +224,8 @@ function mediaDirectors($output,$dbADO) {
 					
 					$oldAudioDD=($rowD['FK_DeviceData']==$GLOBALS['AudioSettings'])?$rowD['IK_DeviceData']:$oldAudioDD;
 					if(!is_null($oldAudioDD)){
-						$oldAC3[$rowD['PK_Device']]=strstr($oldAudioDD,'3')?'checked':'';
 						$oldAudioSettings[$rowD['PK_Device']]=str_replace(array('3','K'), '', $oldAudioDD);
+						$oldAC3[$rowD['PK_Device']]=(strstr($oldAudioDD,'3') && in_array($oldAudioSettings[$rowD['PK_Device']],array('C','O')))?'checked':(!in_array($oldAudioSettings[$rowD['PK_Device']],array('C','O'))?' disabled':'');
 					}
 					$oldVideoDD=($rowD['FK_DeviceData']==$GLOBALS['VideoSettings'])?$rowD['IK_DeviceData']:$oldVideoDD;
 					if(!is_null($oldVideoDD)){
@@ -239,7 +258,7 @@ function mediaDirectors($output,$dbADO) {
 					$devicePipes=getPipes($rowD['PK_Device'],$dbADO);
 	
 					$buttons='
-					<input value="'.$TEXT_HELP_CONST.'" type="button" class="button_fixed" name="help" onClick="self.location=\'/wiki/index.php/Documentation_by_Device_Templates#'.wikiLink($rowD['TemplateName']).'\'"><br>
+					<input value="'.$TEXT_HELP_CONST.'" type="button" class="button_fixed" name="help" onClick="window.open(\''.$wikiHost.'/index.php/Documentation_by_Device_Templates#'.wikiLink($rowD['TemplateName']).'\');"><br>
 					<input type="button" class="button_fixed" name="edit_'.$rowD['PK_Device'].'" value="'.$TEXT_ADVANCED_CONST.'"  onClick="self.location=\'index.php?section=editDeviceParams&deviceID='.$rowD['PK_Device'].'\';"><br>
 					<input type="submit" class="button_fixed" name="delete_'.$rowD['PK_Device'].'" value="'.$TEXT_DELETE_CONST.'"  onclick="if(confirm(\''.$TEXT_CONFIRM_DELETE_MEDIA_DIRECTOR_CONST.'\'))return true;else return false;">';
 					$buttons.=(isDiskless($rowD['PK_Device'],$deviceDataArray[$rowD['PK_Device']]))?'<br><input type="submit" class="button_fixed" name="rebuild_diskless_'.$rowD['PK_Device'].'" value="'.$TEXT_REBUILD_DISKLESS_IMAGE_CONST.'">':'';
@@ -296,7 +315,7 @@ function mediaDirectors($output,$dbADO) {
 											</td>
 											<td valign="top" rowspan="2"></td>
 											<td align="right" class="alternate_back">'.$TEXT_SOUND_CARD_CONST.' '.htmlPulldown($soundArray,'SoundCard_'.$rowD['PK_Device'],$soundDevice,'Standard Sound Card').'<br>
-											'.$TEXT_AUDIO_SETTINGS_CONST.' '.pulldownFromArray($audioSettingsArray,'audioSettings_'.$rowD['PK_Device'],@$oldAudioSettings[$rowD['PK_Device']]).'<br>
+											'.$TEXT_AUDIO_SETTINGS_CONST.' '.pulldownFromArray($audioSettingsArray,'audioSettings_'.$rowD['PK_Device'],@$oldAudioSettings[$rowD['PK_Device']],'onChange="set_ac3('.$rowD['PK_Device'].')"').'<br>
 											'.$TEXT_AC3_PASSTHROUGH_CONST.' <input type="checkbox" name="ac3_'.$rowD['PK_Device'].'" value="3" '.@$oldAC3[$rowD['PK_Device']].'><br>
 											</td>
 											<td valign="top" rowspan="2"></td>

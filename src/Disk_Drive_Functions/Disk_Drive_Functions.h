@@ -100,7 +100,7 @@ public:
 	protected:
 		Command_Impl * m_pCommand_Impl;
 	    pthread_mutexattr_t m_ThreadAttribute;
-		bool m_bNbdServerRunning,m_bAutoIdentifyMedia;
+		bool m_bAutoIdentifyMedia;
 		DeviceData_Base *m_pDevice_MediaIdentifier;
 		JobHandler *m_pJobHandler;
 		class Database_pluto_media *m_pDatabase_pluto_media;
@@ -126,8 +126,6 @@ public:
 		bool FixupRippingInfo(Disk_Drive_Functions *pDisk_Drive_Functions,int &PK_MediaType,string &sFilename,string &sTracks,int iEK_Disc,string &sDirectory);
 		string getTracks(string mrl); // We use cddb for nothing other than determining how many tracks there are
 		void DisplayMessageOnOrbVFD(string sMessage);
-		void StartNbdServer();
-		void StopNbdServer();
 		bool isRipping();
 		void UpdateDiscLocation(char cType,int PK_Disc=-1);  // An unknown type
 		void GetTracksForDisc(class Row_Disc *pRow_Disc,map<int,string> &mapTracks);

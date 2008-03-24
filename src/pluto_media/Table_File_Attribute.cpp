@@ -436,10 +436,6 @@ return false;
 
 bool Table_File_Attribute::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-    	LoggerWrapper::GetInstance()->Write(LV_WARNING,"Table_File_Attribute::Commit Invoked");
-	LoggerWrapper::GetInstance()->Write(LV_WARNING,"Table_File_Attribute::Commit Statistics [added: %i, modified: n/a, deleted: %i]",
-		addedRows.size(), deleted_cachedRows.size());
-
 	bool bSuccessful=true;
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_DBMutex);
 
@@ -817,9 +813,6 @@ Row_File_Attribute* Table_File_Attribute::AddRow()
 
 Row_File_Attribute* Table_File_Attribute::GetRow(long int in_FK_File, long int in_FK_Attribute, long int in_Track, long int in_Section)
 {
-    	LoggerWrapper::GetInstance()->Write(LV_WARNING,"Table_File_Attribute::GetRow - query for row with key (%li, %li, %li, %li)", 
-		in_FK_File, in_FK_Attribute, in_Track, in_Section);
-
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_DBMutex);
 
 	Table_File_Attribute::Key row_key(in_FK_File, in_FK_Attribute, in_Track, in_Section);
@@ -829,34 +822,18 @@ Row_File_Attribute* Table_File_Attribute::GetRow(long int in_FK_File, long int i
 		
 	//row was deleted	
 	if (i!=deleted_cachedRows.end())
-	{
-	    	LoggerWrapper::GetInstance()->Write(LV_WARNING,"Table_File_Attribute::GetRow - found row in deleted-cache");
 		return NULL;
-	}
 	
 	i = cachedRows.find(row_key);
 	
 	//row is cached
 	if (i!=cachedRows.end())
-	{
-	    	LoggerWrapper::GetInstance()->Write(LV_WARNING,"Table_File_Attribute::GetRow - found row in cache");
 		return (Row_File_Attribute*) (*i).second;
-	}
-
 	//we have to fetch row
-	LoggerWrapper::GetInstance()->Write(LV_WARNING,"Table_File_Attribute::GetRow - trying to fetch row from db");
 	Row_File_Attribute* pRow = FetchRow(row_key);
 
 	if (pRow!=NULL)
-	{
-	    	LoggerWrapper::GetInstance()->Write(LV_WARNING,"Table_File_Attribute::GetRow - fetched row ok, caching it");
 		cachedRows[row_key] = pRow;
-	}
-	else
-	{
-	    LoggerWrapper::GetInstance()->Write(LV_WARNING,"Table_File_Attribute::GetRow - no row fetched");
-	}
-
 	return pRow;	
 }
 

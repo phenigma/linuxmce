@@ -3,11 +3,12 @@
 lastline=
 while read line; do
 	lastline="$line"
-	if [[ "$line" != "Position: "*"; Progress: "*"%" ]]; then
-		continue
+	if [[ "$line" == "Error: "* ]]; then
+		echo "error"
+	elif [[ "$line" == "Position: "*"; Progress: "*"%" ]]; then
+		Percent=${line##*Progress: }
+		Percent=${Percent%%%*}
+		echo "$Percent"
 	fi
-	Percent=${line##*Progress: }
-	Percent=${Percent%%%*}
-	echo "$Percent"
 done
 echo "$lastline" >/tmp/rip_message

@@ -47,7 +47,7 @@ class Gallery
 	Gallery();
 	static Gallery m_Instance;
 
-	void PaintScreen(void);
+	void PaintScreen(bool bForceRefresh);
 
 	ExtensionManager Extensions;
 	SDLFrontEnd* FrontEnd;
@@ -70,7 +70,7 @@ public:
 	void MainLoop(DCE::Photo_Screen_Saver *pPhoto_Screen_Saver);
 	static Gallery& Instance();
 
-    bool Setup(int Width, int Height, int FaddingTime, int ZoomTime, string FolderName, bool bUseAnimation);
+    bool Setup(int Width, int Height, int FaddingTime, int ZoomTime, string FolderName, bool bUseAnimation, int nMaxSize);
 	void CleanUp(void);
 	void EvaluateEvent(WM_Event Event);
 	void _Sleep(int Miliseconds);

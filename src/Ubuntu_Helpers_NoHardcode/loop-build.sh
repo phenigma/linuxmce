@@ -41,8 +41,9 @@ while : ;do
 	
 	# Backup the log
 	mkdir -p "${build_ftp_dir}/LOGS"
-	cp /var/log/lmce-build.log "${build_ftp_dir}/LOGS"
-	mv /var/log/mce-installer-*.log "${build_ftp_dir}/LOGS"
+	cp /var/log/lmce-build.log "${build_ftp_dir}/LOGS" || :
+	mv /var/log/mce-installer-*.log "${build_ftp_dir}/LOGS" || :
+	mv /var/log/Config_Device_Changes.log "${build_ftp_dir}/LOGS" || :
 	
 	echo "$(date -R) Done" >> /var/log/loop-build.log
 

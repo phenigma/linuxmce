@@ -69,7 +69,11 @@ RequestPorts()
 
 EnableRA()
 {
-	RequestPorts
+	if ! RequestPorts; then
+		ConfDel remote
+		echo "Failed to enable Remote Assistance"
+		return 1
+	fi
 
 	if grep -q '^remote.*=' /etc/pluto.conf; then
 		password=$(grep '^remote.*=' /etc/pluto.conf)

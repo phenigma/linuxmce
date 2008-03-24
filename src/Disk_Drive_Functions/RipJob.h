@@ -57,6 +57,7 @@ namespace nsJobHandler
 		Database_pluto_media *m_pDatabase_pluto_media;
 		bool m_bReportResult;
 		int m_nTracksFailedToRip;
+		bool m_bHasErrors;
 
 	public:
 		RipJob(Database_pluto_media *pDatabase_pluto_media,
@@ -71,7 +72,7 @@ namespace nsJobHandler
 		virtual ~RipJob();
 
 		virtual bool ReadyToRun();
-		void AddRippingTasks(Drive *pDrive=NULL);
+		void AddRippingTasks(Drive *pDrive=NULL, TasklistPosition position=position_TasklistEnd);
 		virtual void JobDone();
 
 		virtual bool ReportPendingTasks(PendingTaskList *pPendingTaskList);
@@ -80,6 +81,8 @@ namespace nsJobHandler
 		virtual string ToString();
 
 		virtual string GetType() { return "RipJob"; }
+
+		int Get_PK_Orbiter();
 	};
 };
 

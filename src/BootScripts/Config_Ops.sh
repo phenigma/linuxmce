@@ -158,10 +158,8 @@ PackageIsInstalled()
 PackageStatus()
 {
 	local Pkg="$1"
-
 	[[ -z "$Pkg" ]] && return 1
-	Pkg=${Pkg//+/\\+}
-	awk "/^Package: $Pkg\$/,/^\$/" /var/lib/dpkg/status
+	dpkg -s "$Pkg"
 }
 
 InstalledPackages()

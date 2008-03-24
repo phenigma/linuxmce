@@ -37,4 +37,6 @@ $TEXT_ATTRIBUTE_UPDATED_CONST='Attribute updated';
 $TEXT_TYPE_TEXT_REQUIRED_CONST='Both attribute type and attribute content are required.';
 $TEXT_SUB_TYPE_CONST='Media sub-type';
 $TEXT_FILE_FORMAT_CONST='File format';
+$TEXT_THIS_IS_DIRECTORY_TREATED_AS_FILE_CONST='This is a directory treated as a single file';
+$TEXT_SHOW_CONTENT_CONST='Show content';
 ?>

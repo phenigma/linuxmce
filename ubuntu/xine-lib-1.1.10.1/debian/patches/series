@@ -1,0 +1,5 @@
+501_trick_play.diff
+502_flac_fixes.diff
+504_dts_16be_detection.diff
+505_dts_14le_passthrough_support.diff
+506_fix_wav_playback.diff

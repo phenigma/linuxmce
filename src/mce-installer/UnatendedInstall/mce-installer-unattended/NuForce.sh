@@ -59,19 +59,28 @@ Packages()
 
 Devices()
 {
-	/usr/pluto/bin/CreateDevice -d 53 -R 1
+	/usr/pluto/bin/CreateDevice -d 53 -R 1 # Slim Server Streamer
+
+CreateDiskDrive='
+CDROMs=$(hal-find-by-property --key storage.drive_type --string cdrom)
+for UDI in $CDROMs; do
+	Device=$(hal-get-property --udi "$UDI" --key block.device)
+	/usr/pluto/bin/CreateDevice -d 11 -R 1 -A "6|$Device|161|$UDI" # Disk Drive
+done
+'
+	echo -n "$CreateDiskDrive" >>/etc/rc2.d/S90firstboot
 }
 
 AVWizardReplacement()
 {
 	UI_Normal_Horizontal=1
 
-	OrbiterWidth=800
-	OrbiterHeight=600
-	Video_settings="800 600/60"
+	OrbiterWidth=1024
+	OrbiterHeight=768
+	Video_settings="$OrbiterWidth $OrbiterHeight/60"
 	Video_Connector="VGA"
 	PK_Skin=12 # NuForce
-	PK_Size=1 # 800x600
+	PK_Size=6 # 1024x768
 	NewAudioSetting="S"
 
 	Queries=(
@@ -98,6 +107,9 @@ AVWizardRun="#!/bin/bash
 
 cp /etc/X11/xorg.conf{.nuforce,}
 amixer sset IEC958 unmute
+amixer sset Master 81% unmute
+amixer sset PCM 100% unmute
+amixer sset Front 100% unmute
 alsactl store
 
 xinit /usr/bin/TouchKit -- :0 -ac
@@ -155,8 +167,6 @@ DatabaseDefaults()
 		"INSERT INTO Room(FK_Installation, FK_RoomType, Description) VALUES('$PK_Installation', 1, 'NuForce')"
 		"UPDATE Device SET FK_Room=1 WHERE PK_Device=1"
 		"UPDATE Device_DeviceData SET IK_DeviceData='' WHERE FK_DeviceData=28"
-		"UPDATE Device SET Disabled=1 WHERE FK_DeviceTemplate IN
-			($DEVICETEMPLATE_Asterisk, $DEVICETEMPLATE_MythTV_Player, $DEVICETEMPLATE_Orbiter_Embedded_Phone)"
 		"INSERT INTO Users(UserName,PINCode) VALUES('nuforce','1234')"
 		"INSERT INTO Installation_Users(FK_Installation, FK_Users, userCanModifyInstallation, userCanChangeHouseMode)
 			VALUES(1, 1, 1, 1)"
@@ -166,6 +176,13 @@ DatabaseDefaults()
 
 	for Q in "${Queries[@]}"; do
 		RunSQL "$Q"
+	done
+
+	Q="SELECT PK_Device FROM Device WHERE FK_DeviceTemplate IN
+		($DEVICETEMPLATE_Asterisk, $DEVICETEMPLATE_MythTV_Player, $DEVICETEMPLATE_Orbiter_Embedded_Phone)"
+	R=$(RunSQL "$Q")
+	for Device in $R; do
+		DeleteDevice "$Device"
 	done
 
 	/usr/pluto/bin/Timezone_Detect.sh
@@ -185,9 +202,28 @@ DatabaseDefaults()
 	RunSQL "$Q"
 }
 
+Firewall()
+{
+	Ports=(
+		tcp:22 tcp:80
+		udp:137 udp:138 tcp:139 tcp:445
+	)
+	for Port in "${Ports[@]}"; do
+		Protocol="${Port%:*}"
+		Port="${Port#*:}"
+		Q="
+			INSERT INTO Firewall(Protocol, SourcePort, RuleType)
+			VALUES('$Protocol', '$Port', 'core_input');
+		"
+		RunSQL "$Q"
+	done
+}
+
 ApplyHacks()
 {
-	:
+	AsoundSubst='s/convert48k/convert44k/g; s/rate 48000/rate 44100/g'
+	sed -ri "$AsoundSubst" /usr/pluto/templates/asound.conf
+	sed -ri "$AsoundSubst" /etc/asound.conf || :
 }
 
 Packages
@@ -195,5 +231,6 @@ Devices
 AVWizardReplacement
 AddEgalaxToXorgConf
 DatabaseDefaults
+Firewall
 ApplyHacks
 exit 0

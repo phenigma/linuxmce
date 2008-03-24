@@ -235,7 +235,22 @@ function getScanResults($fileID,$mediadbADO){
 	}	
 	$out.='
 		<tr>
-			<td valign="top" colspan="2" align="center" class="alternate_back"><input type="checkbox" name="includeAttributes" value="1" checked> Include Amazon attributes <input type="submit" class="button" name="syncAttributes" value="Get cover art"> <input type="button" class="button" name="syncAttributes" value="Back to file" onClick="self.location=\'index.php?section=editMediaFile&fileID='.$fileID.'\'"></td>
+			<td valign="top" colspan="2" class="alternate_back" align="center">
+				<table>
+					<tr>
+						<td><input type="checkbox" name="remove_old" value="1"></td>
+						<td>Remove existing cover arts</td>
+					</tr>
+					<tr>
+						<td><input type="checkbox" name="remove_old_attributes" value="1"></td>
+						<td>Remove existing attributes</td>
+					</tr>					
+					<tr>
+						<td><input type="checkbox" name="includeAttributes" value="1" checked></td>
+						<td>Include Amazon attributes</td>
+					</tr>
+				</table>			
+			<input type="submit" class="button" name="syncAttributes" value="Get cover art"> <input type="button" class="button" name="syncAttributes" value="Back to file" onClick="self.location=\'index.php?section=editMediaFile&fileID='.$fileID.'\'"></td>
 		</tr>	
 	</table>
 	<input type="hidden" name="scanID" value="'.$scanID.'">';
@@ -249,6 +264,14 @@ function processScan($fileData,$mediadbADO){
 	if($matched==0){
 		deleteScans((int)@$_POST['scanID'],$mediadbADO);
 		return 'No matches';
+	}
+	if((int)@$_POST['remove_old']==1){
+		remove_cover_arts($fileData['PK_File'][0],$mediadbADO);
+	}
+
+	if((int)@$_POST['remove_old_attributes']==1){
+		$mediadbADO->Execute('DELETE FROM File_Attribute WHERE FK_File=?',array($fileData['PK_File'][0]));
+		$mediadbADO->Execute('DELETE FROM LongAttribute WHERE FK_File=?',array($fileData['PK_File'][0]));
 	}
 
 	$entryArray=getFieldsAsArray('CoverArtScanEntry','PK_CoverArtScanEntry,URL,FK_CoverArtScan',$mediadbADO,'WHERE PK_CoverArtScanEntry='.$matched);

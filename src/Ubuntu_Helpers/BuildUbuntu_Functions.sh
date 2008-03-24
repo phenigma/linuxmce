@@ -500,7 +500,7 @@ function Build_Pluto_Stuff {
 #	543  	Pluto vloopback Kernel Module
 #	542 	Pluto vloopback Kernel Module Source
 
-	$MakeRelease "${MakeReleaseExtraParams[@]}" -R "$SVNrevision" -h $sql_slave_host -u $sql_slave_user -O $out_dir -D $sql_slave_db -o 15 -r 21 -m 1,1108 -K "543,542,462,607,432,431,427,426,430,429,336,337,589,590,515,516"  -s "${svn_dir}/trunk" -n / > >(tee -a $build_dir/Build.log)  -d || exit 1
+	$MakeRelease "${MakeReleaseExtraParams[@]}" -R "$SVNrevision" -h $sql_slave_host -u $sql_slave_user -O $out_dir -D $sql_slave_db -o 15 -r 21 -m 1,1108 -K "543,542,462,607,432,431,427,426,430,429,589,590,515,516"  -s "${svn_dir}/trunk" -n / > >(tee -a $build_dir/Build.log)  -d || exit 1
 }
 
 function Create_Fake_Windows_Binaries {

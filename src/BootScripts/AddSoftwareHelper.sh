@@ -11,6 +11,7 @@ PackageID=$3
 OrbiterID=$4
 
 ASH_LogFile="/var/log/pluto/AddSoftwareHelper.log"
+ASH_Cache="/usr/pluto/var/addsoftware-cache"
 
 MyLog()
 {
@@ -51,6 +52,11 @@ SendMessageToOrbiter()
 
 MyLog "======================================="
 MyLog "Started"
+
+if [ ! -d "$ASH_Cache" ]; then
+    MyLog "[!!!] Add Software cache folder doesn't exist, creating"
+    mkdir "$ASH_Cache"
+fi
 
 case $Action in
 	install|remove)
@@ -111,13 +117,32 @@ case $Action in
 			SHA1Sum="$(Field 3 "$Row")"
 			PK_Software_Source="$(Field 4 "$Row")"
 
-			MyLog "Trying source $i from $SourcesCount : $DownloadURL"
-			
-			#Result="$(InstallPackage "$DownloadURL" "$MD5Sum" "$SHA1Sum")"
-			wget -t 5 -T 60 -O "/tmp/$PackageName.deb" "$DownloadURL"
-			RetCode=$?
+			CachedFile=`basename $DownloadURL`
+			CachedFile="$ASH_Cache/$CachedFile"
+			CachedFile=`echo "$CachedFile" | sed 's/\.zip$/\.deb/'`
+
+			MyLog "Checking cache for file $CachedFile"
+
+			if [ -f "$CachedFile" ]; then
+			    cp "$CachedFile" "/tmp/$PackageName.deb"
+			    MyLog "Found in cache"
+			    RetCode=0
+			    FromCache="y"
+			else
+			    MyLog "Not found in cache, attempting to download"
+			    MyLog "Trying source $i from $SourcesCount : $DownloadURL"
+			    wget -t 5 -T 60 -O "/tmp/$PackageName.deb" "$DownloadURL"
+			    RetCode=$?
+			    FromCache="n"
+			fi
+
 			if [ "$RetCode" -eq 0 ]; then
-				MyLog "Package fetched successfully, testing checksums"
+			    if [[ "$FromCache" == "n" ]]; then
+				MyLog "Package downloaded successfully"
+			    fi
+
+			    MyLog "Testing checksums.."
+
 				MD5Package=`md5sum /tmp/$PackageName.deb | cut -f1 -d' '`
 				SHA1Package=`sha1sum /tmp/$PackageName.deb | cut -f1 -d' '`
 				
@@ -138,12 +163,21 @@ case $Action in
 						Row="$(RunSQL "$Q")"
 						MyLog "Package installation failed, installer returned non-zero code ($RetCode)"
 					fi
-					
+
+					if [[ "$FromCache" == "n" ]]; then
+					    MyLog "Adding package to cache"
+					    cp -f "/tmp/$PackageName.deb" "$CachedFile"
+					fi
+
 					Unlock "InstallNewDevice" "AddSoftwareHelper"
 					Err=""
 					break
 				else
 					MyLog "Checksums test failed for this package: MD5=$MD5Package (should be $MD5Sum), SHA1=$SHA1Package (should be $SHA1Sum)"
+					if [[ "$FromCache" == "y" ]]; then
+					    MyLog "Deleting package from cache"
+					    rm -f "$CachedFile"
+					fi
 					MyLog "Trying next source.."
 				fi
 			else

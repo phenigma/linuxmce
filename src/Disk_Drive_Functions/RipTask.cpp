@@ -138,7 +138,7 @@ int RipTask::Run()
 						strParameters,
 						sResultMessage + "e",
 						sResultMessage + "s",
-						false, false, false, true);
+						false, false, false, false);
 
 	string sResponse;
     if (! m_pRipJob->m_pDisk_Drive_Functions->m_pCommand_Impl->SendCommand(spawnApplication,&sResponse) || sResponse != "OK")
@@ -164,10 +164,35 @@ void RipTask::UpdateProgress(string sStatus,int iPercent,int iTime,string sText,
 		return;
 	}
 
+	if( sStatus=="b" )
+	{
+		if (!m_pRipJob->m_bHasErrors)
+		{
+			string sMessage = "Errors were encountered while ripping the disk. The bad sectors will be skipped and replaced with zeros, but if the disk is very scratched, it may take a long while for the operation to complete. If you don't want to wait, you can cancel the operation from the 'Pending tasks' screen|OK|Pending tasks";
+
+			int iPK_Orbiter = m_pRipJob->Get_PK_Orbiter();
+			string sPK_Orbiter = StringUtils::itos(iPK_Orbiter);
+			string sCmdLine = "-targetType device 0 " + sPK_Orbiter +" 1 4|"
+				"-targetType device 0 " + sPK_Orbiter + " 1 741 159 82";
+
+			SCREEN_PopupMessage SCREEN_PopupMessage(0, iPK_Orbiter,
+				sMessage, // Main message
+				sCmdLine, // Command Line
+				"ripping", // Description
+				"0", // sPromptToResetRouter
+				"0", // sTimeout
+				"1"); // sCannotGoBack
+			m_pRipJob->m_pDisk_Drive_Functions->m_pCommand_Impl->SendCommand(SCREEN_PopupMessage);
+		}
+		m_pRipJob->m_bHasErrors=true;
+		return;
+	}
+
 	if( m_pRow_RipStatus )
 	{
+		m_pRow_RipStatus->File_set(sFilename); //make sure the filename is complete
 		m_pRow_RipStatus->Status_set(sStatus);
-		m_pRow_RipStatus->Message_set(sText);
+		m_pRow_RipStatus->Message_set(sText.empty() && sStatus == "p" ? StringUtils::ltos(m_iPercent) + "%" : sText);
 		m_pRipJob->m_pDatabase_pluto_media->RipStatus_get()->Commit();
 	}
 
@@ -190,6 +215,12 @@ void RipTask::UpdateProgress(string sStatus,int iPercent,int iTime,string sText,
 	}
 	else if( sStatus=="s" )
 	{
+		if (m_pRipJob->m_bHasErrors && m_pRow_RipStatus)
+		{
+			m_pRow_RipStatus->Status_set("b");
+			m_pRipJob->m_pDatabase_pluto_media->RipStatus_get()->Commit();
+		}
+
 		int PK_File = m_pRipJob->m_pDisk_Drive_Functions->m_pMediaAttributes_LowLevel->AddRippedDiscToDatabase(m_pRipJob->m_iEK_Disc,
 			m_pRipJob->m_iPK_MediaType,m_pRipJob->m_sFileName,m_pRipJob->m_sTracks);
 
@@ -257,6 +288,16 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"RipTask::Abort deleting %s", (m_p
 			m_pRipJob->m_pSlot->m_pJukeBox->MoveFromDriveToSlot(m_pRipJob->m_pSlot, m_pDrive);
 			m_pRipJob->m_pSlot->m_pJukeBox->UnlockJukebox();
 		}
+	}
+
+	if (m_pRow_RipStatus) {
+	    m_pRow_RipStatus->Status_set("a");
+	    m_pRow_RipStatus->Message_set("aborted by user");
+	    m_pRipJob->m_pDatabase_pluto_media->RipStatus_get()->Commit();
+	    LoggerWrapper::GetInstance()->Write(LV_STATUS, "RipTask::Abort marking task as aborted");
+	}
+	else {
+	    LoggerWrapper::GetInstance()->Write(LV_STATUS, "RipTask::Abort not marking task as aborted - m_pRow_RipStatus is NULL");
 	}
 
 	return Task::Abort();

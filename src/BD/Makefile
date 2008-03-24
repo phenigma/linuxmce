@@ -5,7 +5,7 @@ CXX = g++
 LDFLAGS = -L$(ROOT)/lib
 LDLIBS = -lmysqlclient_r
 
-sources = BDCommand.cpp BDCommandProcessor.cpp BDCommandProcessor_Linux_Bluetooth.cpp
+sources = BDCommand.cpp BDCommandProcessor.cpp BDCommandProcessor_Linux_Bluetooth.cpp sdpbrowse.cpp
 #sources = BDCommand.cpp BDCommandProcessor.cpp
 
 all: libBDCommon.so all-recursive

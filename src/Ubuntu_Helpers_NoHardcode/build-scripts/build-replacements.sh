@@ -2,6 +2,7 @@
 
 . /etc/lmce-build/builder.conf
 . /usr/local/lmce-build/common/logging.sh
+. /usr/local/lmce-build/common/utils.sh
 
 set -e
 set -x
@@ -38,8 +39,18 @@ function Build_Replacements {
 		popd
 	fi
 
+	#Package: spcp8x5
+	dir_="${svn_dir}/trunk/ubuntu/spcp8x5"
+	if Changed_Since_Last_Build "$dir_" ;then
+		DisplayMessage "Building spcp8x5"
+		pushd "$dir_"
+		dpkg-buildpackage -rfakeroot -us -uc -b
+		cp -r ../spcp8x5*.deb ${replacements_dir}
+		popd
+	fi
+
 	#Package: libxine
-	dir_="${svn_dir}/trunk/ubuntu/xine-lib-1.1.7"
+	dir_="${svn_dir}/trunk/ubuntu/xine-lib-1.1.10.1"
 	if Changed_Since_Last_Build "$dir_" ;then
 		DisplayMessage "Building xine-lib"
 		pushd "$dir_"
@@ -83,9 +94,9 @@ function Build_Replacements {
 	fi
 
 	#Package: pluto-mplayer
-	dir_="${svn_dir}/trunk/ubuntu/mplayer"
+	dir_="${svn_dir}/trunk/ubuntu/mplayer-svn26234"
 	if Changed_Since_Last_Build "$dir_" ;then
-		DisplayMessage "Building pluto-mplayer"
+		DisplayMessage "Building pluto-mplayer-svn26234"
 		pushd "$dir_"
 		dpkg-buildpackage -rfakeroot -us -uc -b
 		cp -r ../pluto-mplayer_*.deb ${replacements_dir}
@@ -93,7 +104,7 @@ function Build_Replacements {
 	fi
 	
 	#Package: pluto-ffmpeg
-	dir_="${svn_dir}/trunk/ubuntu/ffmpeg"
+	dir_="${svn_dir}/trunk/ubuntu/ffmpeg-svn12476"
 	if Changed_Since_Last_Build "$dir_" ;then
 		DisplayMessage "Building pluto-ffmpeg"
 		pushd "$dir_"
@@ -102,15 +113,26 @@ function Build_Replacements {
 		popd
 	fi
 	
-	#Package: ushare
-	dir_="${svn_dir}/trunk/ubuntu/ushare-0.9.6"
+#	#Package: ushare
+#	dir_="${svn_dir}/trunk/ubuntu/ushare-0.9.6"
+#	if Changed_Since_Last_Build "$dir_" ;then
+#		DisplayMessage "Building ushare-0.9.6"
+#		pushd "$dir_"
+#		dpkg-buildpackage -rfakeroot -us -uc -b
+#		cp -r ../ushare_*.deb ${replacements_dir}
+#		popd
+#	fi
+
+	#Package: fuppes
+	dir_="${svn_dir}/trunk/ubuntu/fuppes-0+svn578"
 	if Changed_Since_Last_Build "$dir_" ;then
-		DisplayMessage "Building ushare-0.9.6"
+		DisplayMessage "Building fuppes-0+svn578"
 		pushd "$dir_"
 		dpkg-buildpackage -rfakeroot -us -uc -b
-		cp -r ../ushare_*.deb ${replacements_dir}
+		cp -r ../fuppes_*.deb ${replacements_dir}
 		popd
 	fi
+	
 	
 	#Package: djmount
 	dir_="${svn_dir}/trunk/ubuntu/djmount-0.71"
@@ -268,6 +290,15 @@ function Build_Replacements {
 		popd
 	fi
 
+	#Package: parted
+	dir_="${svn_dir}"/trunk/ubuntu/parted-1.8.8
+	if Changed_Since_Last_Build "$dir_"; then
+		DisplayMessage "Building parted"
+		pushd "$dir_"
+		dpkg-buildpackage -rfakeroot -us -uc -b
+		cp ../*parted*.deb "${replacements_dir}"
+	fi
+
 	#Package: linux-image-diskless
 	dir_="${svn_dir}"/trunk/ubuntu/linux-image-dummy
 	if Changed_Since_Last_Build "$dir_" ;then
@@ -279,9 +310,12 @@ function Build_Replacements {
 	fi
 }
 
-DisplayMessage "*** STEP: Building replacement debs"
 trap 'Error "Undefined error in $0"' EXIT
 
+DisplayMessage "*** STEP: Building replacement debs"
 Build_Replacements
+
+DisplayMessage "Removing duplicate debs from replacements"
+remove_duplicate_debs "${replacements_dir}"
 
 trap - EXIT

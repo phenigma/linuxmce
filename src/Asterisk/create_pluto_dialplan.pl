@@ -178,9 +178,10 @@ $EXT_BUFFER .= "exten => s,1,Answer\n";
 $EXT_BUFFER .= "exten => s,2,Wait(1)\n";
 $EXT_BUFFER .= "exten => s,3,AGI(pluto-callersforme.agi)\n";
 $EXT_BUFFER .= "exten => s,4,Background(pluto/pluto-default-voicemenu)\n";
-$EXT_BUFFER .= "exten => s,5,DigitTimeout,20\n";
-$EXT_BUFFER .= "exten => s,6,ResponseTimeout,20\n";
+$EXT_BUFFER .= "exten => s,5,Set(TIMEOUT(digit)=10)\n";
+$EXT_BUFFER .= "exten => s,6,Set(TIMEOUT(response)=20)\n";
 $EXT_BUFFER .= "exten => t,1,Goto(s,1)\n";
+
 
 $tmp="";
 foreach my $phone (sort (values(%PHONES)))

@@ -789,9 +789,11 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::SetNowPlaying use a
 	/** This will allow an orbiter to change the current playing position in the playlist */
 		/** @param #5 Value To Assign */
 			/** The track to go to.  A number is considered an absolute.  "+2" means forward 2, "-1" means back 1. */
+		/** @param #41 StreamID */
+			/** ID of stream to apply */
 
-	virtual void CMD_Jump_Position_In_Playlist(string sValue_To_Assign) { string sCMD_Result; CMD_Jump_Position_In_Playlist(sValue_To_Assign.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Jump_Position_In_Playlist(string sValue_To_Assign,int iStreamID) { string sCMD_Result; CMD_Jump_Position_In_Playlist(sValue_To_Assign.c_str(),iStreamID,sCMD_Result,NULL);};
+	virtual void CMD_Jump_Position_In_Playlist(string sValue_To_Assign,int iStreamID,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #74 - Bind to Media Remote */
@@ -1244,6 +1246,15 @@ VI=Video Input */
 
 	virtual void CMD_Abort_Task(int iParameter_ID) { string sCMD_Result; CMD_Abort_Task(iParameter_ID,sCMD_Result,NULL);};
 	virtual void CMD_Abort_Task(int iParameter_ID,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #942 - Get Ripping Status */
+	/** Get ripping status */
+		/** @param #199 Status */
+			/** Ripping status */
+
+	virtual void CMD_Get_Ripping_Status(string *sStatus) { string sCMD_Result; CMD_Get_Ripping_Status(sStatus,sCMD_Result,NULL);};
+	virtual void CMD_Get_Ripping_Status(string *sStatus,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

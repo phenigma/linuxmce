@@ -851,6 +851,7 @@
 #define COMMAND_Toggle_Video_Mode_CONST 939
 #define COMMAND_USB_CONST 940
 #define COMMAND_SRS_CONST 941
+#define COMMAND_Get_Ripping_Status_CONST 942
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"

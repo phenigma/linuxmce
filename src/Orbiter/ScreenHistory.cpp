@@ -205,7 +205,7 @@ void ScreenHistory::SaveContext(const map<int, string>& mapVariable,
 	{
 #ifdef DEBUG
 		if(it->second != "")
-			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Saving var %d = %s", it->first, it->second.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Saving var (screen %d) %d = %s", m_nPK_Screen, it->first, it->second.c_str());
 #endif
 
 		m_mapVariable[it->first] = it->second;
@@ -216,7 +216,7 @@ void ScreenHistory::SaveContext(const map<int, string>& mapVariable,
 	{
 #ifdef DEBUG
 		DesignObj_Orbiter *pObj = itv->first;
-		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Saving state for obj %s hidden %d", pObj->m_ObjectID.c_str(), itv->second);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Saving state (screen %d) for obj %s hidden %d", m_nPK_Screen, pObj->m_ObjectID.c_str(), itv->second);
 #endif
 		m_mapVisibilityContext[itv->first] = itv->second;
 	}
@@ -233,7 +233,7 @@ void ScreenHistory::RestoreContext(map<int, string>& mapVariable,
 	{
 #ifdef DEBUG	
 		if(it->second != "")
-			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Restoring var %d = %s", it->first, it->second.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Restoring var (screen %d) %d = %s", m_nPK_Screen, it->first, it->second.c_str());
 #endif
 		mapVariable[it->first] = it->second;
 	}
@@ -243,7 +243,7 @@ void ScreenHistory::RestoreContext(map<int, string>& mapVariable,
 	{
 #ifdef DEBUG
 		DesignObj_Orbiter *pObj = itv->first;
-		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Restoring state for %s hidden %d", pObj->m_ObjectID.c_str(), itv->second);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Restoring state (screen %d) for %s hidden %d", m_nPK_Screen, pObj->m_ObjectID.c_str(), itv->second);
 #endif
 		mapVisibilityContext[itv->first] = itv->second;
 	}

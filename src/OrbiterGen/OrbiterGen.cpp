@@ -2081,13 +2081,16 @@ int k=2;
 			PageList = htDevicePages[abs(ocDesignObj->m_iFloorplanDevice)];
 		if( PageList.find(StringUtils::itos(ocDesignObj->m_iFloorplanPage) + ",")!=string::npos )
 		{
-int k=2;
-			throw "Floorplan device " + StringUtils::itos(ocDesignObj->m_iFloorplanDevice) + " Page " + StringUtils::itos(ocDesignObj->m_iFloorplanPage) + " already in the system";
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Floorplan device %d Page %d already in the system",
+				ocDesignObj->m_iFloorplanDevice, ocDesignObj->m_iFloorplanPage);
 		}
-		PageList += StringUtils::itos(ocDesignObj->m_iFloorplanPage) + ",";
-		htDevicePages[abs(ocDesignObj->m_iFloorplanDevice)] = PageList;
-		ocDesignObj->GetTopMostObject()->m_sFloorPlanData += "\t" + StringUtils::itos(ocDesignObj->m_iFloorplanDevice) + "\t" + StringUtils::itos(ocDesignObj->m_iFloorplanPage) + "\t" + ocDesignObj->m_ObjectID + "\t" + StringUtils::itos(ocDesignObj->m_pFloorplanFillPoint.X) + "\t" + StringUtils::itos(ocDesignObj->m_pFloorplanFillPoint.Y);
-		ocDesignObj->GetTopMostObject()->m_iNumFloorplanItems++;
+		else
+		{
+			PageList += StringUtils::itos(ocDesignObj->m_iFloorplanPage) + ",";
+			htDevicePages[abs(ocDesignObj->m_iFloorplanDevice)] = PageList;
+			ocDesignObj->GetTopMostObject()->m_sFloorPlanData += "\t" + StringUtils::itos(ocDesignObj->m_iFloorplanDevice) + "\t" + StringUtils::itos(ocDesignObj->m_iFloorplanPage) + "\t" + ocDesignObj->m_ObjectID + "\t" + StringUtils::itos(ocDesignObj->m_pFloorplanFillPoint.X) + "\t" + StringUtils::itos(ocDesignObj->m_pFloorplanFillPoint.Y);
+			ocDesignObj->GetTopMostObject()->m_iNumFloorplanItems++;
+		}
 	}
 
 	ocDesignObj->m_ObjectType=ocDesignObj->m_pRow_DesignObj->FK_DesignObjType_get();

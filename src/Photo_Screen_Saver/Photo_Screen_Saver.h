@@ -28,7 +28,7 @@
 #include <pthread.h>
 #include "AlarmManager.h"
 
-//<-dceag-decl-b->
+//<-dceag-decl-b->!
 namespace DCE
 {
 	class Photo_Screen_Saver : public Photo_Screen_Saver_Command, public AlarmEvent
@@ -73,12 +73,14 @@ public:
 
 	/*
 			*****DATA***** accessors inherited from base class
+	string DATA_Get_Type();
 	string DATA_Get_Directories();
 	string DATA_Get_Name();
 	int DATA_Get_ZoomTime();
 	int DATA_Get_FadeTime();
 	bool DATA_Get_Supports_NPOT_Textures();
 	void DATA_Set_Supports_NPOT_Textures(bool Value);
+	int DATA_Get_Max_Size();
 
 			*****EVENT***** accessors inherited from base class
 
@@ -88,16 +90,20 @@ public:
 
 	/** @brief COMMAND: #63 - Skip Fwd - Channel/Track Greater */
 	/** Go forward in the list */
+		/** @param #41 StreamID */
+			/** ID of stream to apply */
 
-	virtual void CMD_Skip_Fwd_ChannelTrack_Greater() { string sCMD_Result; CMD_Skip_Fwd_ChannelTrack_Greater(sCMD_Result,NULL);};
-	virtual void CMD_Skip_Fwd_ChannelTrack_Greater(string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Skip_Fwd_ChannelTrack_Greater(int iStreamID) { string sCMD_Result; CMD_Skip_Fwd_ChannelTrack_Greater(iStreamID,sCMD_Result,NULL);};
+	virtual void CMD_Skip_Fwd_ChannelTrack_Greater(int iStreamID,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #64 - Skip Back - Channel/Track Lower */
 	/** Go back in the list */
+		/** @param #41 StreamID */
+			/** ID of stream to apply */
 
-	virtual void CMD_Skip_Back_ChannelTrack_Lower() { string sCMD_Result; CMD_Skip_Back_ChannelTrack_Lower(sCMD_Result,NULL);};
-	virtual void CMD_Skip_Back_ChannelTrack_Lower(string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Skip_Back_ChannelTrack_Lower(int iStreamID) { string sCMD_Result; CMD_Skip_Back_ChannelTrack_Lower(iStreamID,sCMD_Result,NULL);};
+	virtual void CMD_Skip_Back_ChannelTrack_Lower(int iStreamID,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #192 - On */
@@ -125,6 +131,7 @@ public:
 
 	virtual void CMD_Reload() { string sCMD_Result; CMD_Reload(sCMD_Result,NULL);};
 	virtual void CMD_Reload(string &sCMD_Result,Message *pMessage);
+
 
 //<-dceag-h-e->
 	};

@@ -1269,6 +1269,8 @@
 #define TEXT_Network_help_text_CONST 2013
 #define TEXT_Static_network_help_text_CONST 2014
 #define TEXT_Power_OFF_CONST 2015
+#define TEXT_Rip_Status_Indicator_CONST 2016
+#define TEXT_Eject_CONST 2017
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

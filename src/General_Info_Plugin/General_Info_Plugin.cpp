@@ -947,6 +947,10 @@ class DataGridTable *General_Info_Plugin::QuickStartApps( string GridID, string 
 		if( sBinary.size()==0 )
 		{
 			LoggerWrapper::GetInstance()->Write(LV_WARNING,"QuickStart device with no binary to run");
+
+			if((p_Bookmarks && ++it == p_Bookmarks->end()) || (!p_Bookmarks && ++s>=vectRow_Device_QuickStart.size()))
+				break;
+
 			continue;
 		}
 
@@ -2828,7 +2832,6 @@ Row_Device *General_Info_Plugin::ProcessChildDevice(Row_Device *pRow_Device,stri
 		" LEFT JOIN Device AS Device_Parent ON Device.FK_Device_ControlledVia = Device_Parent.PK_Device "
 		" WHERE (Device.FK_Device_ControlledVia=" + StringUtils::itos(pRow_Device->PK_Device_get()) + " OR Device_Parent.FK_Device_ControlledVia=" + StringUtils::itos(pRow_Device->PK_Device_get()) + ") "
 		" AND FK_DeviceData=" + StringUtils::itos(DEVICEDATA_PortChannel_Number_CONST) +
-		" AND FK_DeviceTemplate=" + StringUtils::itos(PK_DeviceTemplate) + 
 		" AND IK_DeviceData='" + StringUtils::SQLEscape(sInternalID) + "'",&vectRow_Device_Child);
 	
 	bool bCreatedNew=false;
@@ -3993,6 +3996,13 @@ void General_Info_Plugin::CMD_Get_Home_Symlink(string sPath,string *sSymlink,str
 	{
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "CMD_Get_Home_Symlink: The path is too short: %s", sPath.c_str());
 		return;
+	}
+
+	if(vectSubdirs[0] == "home")
+	{
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "CMD_Get_Home_Symlink: Nothing to change: %s", sPath.c_str());
+		*sSymlink = sPath;
+		return;		
 	}
 
 	if(vectSubdirs[0] != "mnt" && vectSubdirs[1] != "device")

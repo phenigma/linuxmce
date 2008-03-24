@@ -45,6 +45,7 @@ if($action=='form') {
 			<input type="hidden" name="cgID" value="'.$cgID.'">
 			<input type="hidden" name="from" value="'.$from.'">
 			<input type="hidden" name="oldWizard" value="'.$wizard.'">
+			<input type="hidden" name="testCmd" value="">
 	
 		<a href="index.php?section='.$from.'">'.$TEXT_BACK_CONST.'</a>
 			<table width="300" align="center">

@@ -35,6 +35,7 @@ using namespace DCE;
 #include "pluto_main/Define_Event.h"
 #include "pluto_main/Define_EventParameter.h"
 #include "pluto_media/Database_pluto_media.h"
+#include "pluto_media/Table_RipStatus.h"
 #include "PlutoUtils/ProcessUtils.h"
 #include "Media_Plugin/MediaAttributes_LowLevel.h"
 #include "JobHandler/Job.h"
@@ -116,26 +117,6 @@ bool Disk_Drive::GetConfig()
 
 	bool bResult = m_pJobHandler->StartThread();
 	LoggerWrapper::GetInstance()->Write(LV_SOCKET,"Disk_Drive::GetConfig StartThread %d", (int) bResult);
-
-/*
-	// Quick and dirty, get nbd-server working
-	string sNbdServer;
-	sNbdServer += "NBD_PORT[0]=" + StringUtils::itos(m_dwPK_Device+18000) + "\n";
-	sNbdServer += "NBD_FILE[0]=" + sDrive + "\n";
-	sNbdServer += "NBD_SERVER_OPTS[0]=-r\n";
-
-	string sFileName = "/etc/nbd-server";
-	size_t Size;
-	char *pPtr = FileUtils::ReadFileIntoBuffer( sFileName, Size );
-	if( !pPtr || sNbdServer!=pPtr )
-	{
-		bool bResult = FileUtils::WriteBufferIntoFile( sFileName, sNbdServer.c_str(), sNbdServer.size() );
-		LoggerWrapper::GetInstance()->Write(LV_WARNING,"Wrote nbd-server file %d chaged from %s to %s",
-			(int) bResult,(pPtr ? pPtr : "*NONE*\n"),sNbdServer.c_str());
-	}
-
-	delete pPtr;
-*/
 
 	return true;
 }
@@ -294,6 +275,20 @@ void Disk_Drive::CMD_Eject_Disk(int iSlot_Number,string &sCMD_Result,Message *pM
 	m_pDisk_Drive_Functions->m_mediaDiskStatus = DISCTYPE_NONE;
 	tLastEject = time(NULL); // Put this after the system call so we know when it's been less than 2 seconds since a successful one
 
+	if(m_pDisk_Drive_Functions->m_bTrayOpen)
+	{
+	        vector<Row_RipStatus *> vectRow_RipStatus;
+        	m_pDatabase_pluto_media->RipStatus_get()->GetRows("EK_Device = " + StringUtils::ltos(m_dwPK_Device) + " ORDER BY PK_RipStatus DESC LIMIT 1",
+                        &vectRow_RipStatus);
+
+	        if(!vectRow_RipStatus.empty())
+        	{
+                	Row_RipStatus *pRow_RipStatus = vectRow_RipStatus[0];
+	                pRow_RipStatus->Message_set("disk ejected");
+			m_pDatabase_pluto_media->RipStatus_get()->Commit(); 
+        	}
+	}
+
 LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Disk_Drive::CMD_Eject_Disk  tLastEject %d (%d) tray open: %d",
 	(int) tLastEject, (int) time(NULL), (int) m_pDisk_Drive_Functions->m_bTrayOpen);
 }
@@ -432,9 +427,13 @@ void Disk_Drive::RunMonitorLoop()
     m_pDisk_Drive_Functions->internal_monitor_step(false); // ignore any drive that is in the drive at the start.
 
     bool done = false;
+    
+    bool bSendEvents = DATA_Get_Send_Events();
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Disk_Drive:::RunMonitorLoop - configured %s Media Inserted events", bSendEvents?"to send":"not to send");
+
     while ( ! done  && !m_bQuit_get())
     {
-        done = ! m_pDisk_Drive_Functions->internal_monitor_step(true);
+        done = ! m_pDisk_Drive_Functions->internal_monitor_step(bSendEvents);
         Sleep(3000); // Sleep 3 seconds
     }
 }
@@ -611,7 +610,7 @@ bool Disk_Drive::ReportPendingTasks(PendingTaskList *pPendingTaskList)
 //<-dceag-c882-b->
 
 	/** @brief COMMAND: #882 - Abort Task */
-	/** Abort a pending task */
+	/** Abort a task */
 		/** @param #248 Parameter ID */
 			/** The ID of the task to abort */
 

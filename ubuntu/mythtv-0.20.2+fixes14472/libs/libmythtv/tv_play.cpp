@@ -55,6 +55,7 @@ const int TV::kInputModeTimeout=5000;
 #define DEBUG_CHANNEL_PREFIX 0 /**< set to 1 to channel prefixing */
 #define DEBUG_ACTIONS 0 /**< set to 1 to debug actions */
 #define LOC QString("TV: ")
+#define LOC_WARN QString("TV Warning: ")
 #define LOC_ERR QString("TV Error: ")
 
 void TV::InitKeys(void)
@@ -498,10 +499,7 @@ TV::~TV(void)
     gContext->removeCurrentLocation();
 
     runMainLoop = false;
-
-	osdlock.unlock();
     pthread_join(event, NULL);
-	osdlock.lock();
 
     if (prbuffer)
         delete prbuffer;
@@ -1483,8 +1481,6 @@ void *TV::EventThread(void *param)
 void TV::RunTV(void)
 { 
     paused = false;
-    QKeyEvent *keypressed;
-    QString netCmd;
 
     doing_ff_rew = 0;
     ff_rew_index = kInitFFRWSpeed;
@@ -1573,28 +1569,41 @@ void TV::RunTV(void)
             getRecorderPlaybackInfo = false;
         }
 
-        if (nvp && (keyList.count() > 0))
-        { 
+        bool had_key = false;
+        if (nvp)
+        {
+            QKeyEvent *keypressed = NULL;
+
             keyListLock.lock();
-            keypressed = keyList.first();
-            keyList.removeFirst();
+            if (keyList.count() > 0)
+            {
+                keypressed = keyList.first();
+                keyList.removeFirst();
+            }
             keyListLock.unlock();
 
-            ProcessKeypress(keypressed);
-            delete keypressed;
+            if (keypressed)
+            {
+                had_key = true;
+                ProcessKeypress(keypressed);
+                delete keypressed;
+            }
         }
 
-        netCmd = "";
-        ncLock.lock();
-        if (networkControlCommands.size())
+        if (nvp && !had_key && !ignoreKeys)
         {
-            netCmd = networkControlCommands.front();
-            networkControlCommands.pop_front();
-        }
-        ncLock.unlock();
+            QString netCmd = QString::null;
+            ncLock.lock();
+            if (networkControlCommands.size())
+            {
+                netCmd = networkControlCommands.front();
+                networkControlCommands.pop_front();
+            }
+            ncLock.unlock();
 
-        if (netCmd != "")
-            processNetworkControlCommand(netCmd);
+            if (!netCmd.isEmpty())
+                processNetworkControlCommand(netCmd);
+        }
 
         if ((recorder && recorder->GetErrorStatus()) ||
             (nvp && nvp->IsErrored()) || IsErrored())
@@ -2433,7 +2442,7 @@ void TV::ProcessKeypress(QKeyEvent *e)
         {
             ClearOSD();
         }
-        else if (action == "JUMPPREV")
+        else if (action == "JUMPPREV" && lastProgram)
         {
             nvp->SetBookmark();
             exitPlayer = true;
@@ -2770,23 +2779,50 @@ void TV::ProcessKeypress(QKeyEvent *e)
 
 void TV::processNetworkControlCommand(QString command)
 {
+#ifdef DEBUG_ACTIONS
+    VERBOSE(VB_IMPORTANT, LOC + "ProcessNetworkControlCommand(" +
+            QString("%1)").arg(command));
+#endif
+
     QStringList tokens = QStringList::split(" ", command);
+    if (tokens.size() < 2)
+    {
+        VERBOSE(VB_IMPORTANT, LOC_ERR + "Not enough tokens"
+                "in network control command" + "\n\t\t\t" +
+                QString("'%1'").arg(command));
+        return;
+    }
+
+    if (!dialogname.isEmpty())
+    {
+        VERBOSE(VB_IMPORTANT, LOC_WARN + "Ignoring network "
+                "control command\n\t\t\t" +
+                QString("because dialog '%1'").arg(dialogname) +
+                "is waiting for a response");
+        return;
+    }
 
     if (tokens[1] != "QUERY")
         ClearOSD();
 
     if (tokens.size() == 3 && tokens[1] == "CHANID")
     {
-        ChangeChannel(tokens[2].toUInt(), "");
+        queuedChanID = tokens[2].toUInt();
+        queuedChanNum = QString::null;
+        CommitQueuedInput();
     }
     else if (tokens.size() == 3 && tokens[1] == "CHANNEL")
     {
-        if (tokens[2] == "UP")
-            ChangeChannel(CHANNEL_DIRECTION_UP);
-        else if (tokens[2] == "DOWN")
-            ChangeChannel(CHANNEL_DIRECTION_DOWN);
-        else if (tokens[2].contains(QRegExp("^[-\\.\\d_#]+$")))
-            ChangeChannel(0, tokens[2]);
+        uint aindx = (activenvp == nvp) ? 0 : 1;
+        if (StateIsLiveTV(GetState()) && !pseudoLiveTVState[aindx])
+        {
+            if (tokens[2] == "UP")
+                ChangeChannel(CHANNEL_DIRECTION_UP);
+            else if (tokens[2] == "DOWN")
+                ChangeChannel(CHANNEL_DIRECTION_DOWN);
+            else if (tokens[2].contains(QRegExp("^[-\\.\\d_#]+$")))
+                ChangeChannel(0, tokens[2]);
+        }
     }
     else if (tokens.size() == 3 && tokens[1] == "SPEED")
     {
@@ -2868,6 +2904,9 @@ void TV::processNetworkControlCommand(QString command)
         }
         else if (tokens[2].contains(QRegExp("^\\d+\\/\\d+x$")))
         {
+            if (activerbuffer->InDVDMenuOrStillFrame())
+                return;
+
             if (paused)
                 DoPause();
 
@@ -2907,6 +2946,9 @@ void TV::processNetworkControlCommand(QString command)
     }
     else if (tokens.size() >= 3 && tokens[1] == "SEEK" && activenvp)
     {
+        if (activerbuffer->InDVDMenuOrStillFrame())
+            return;
+
         if (tokens[2] == "BEGINNING")
             DoSeek(-activenvp->GetFramesPlayed(), tr("Jump to Beginning"));
         else if (tokens[2] == "FORWARD")
@@ -4102,7 +4144,7 @@ void TV::ChangeChannel(uint chanid, const QString &chan)
     if (!prevChan.empty() && prevChan.back() == channum)
         return;
 
-    if (NULL != activerecorder && !activerecorder->CheckChannel(channum))
+    if (!activerecorder->CheckChannel(channum))
         return;
 
     if (nvp)
@@ -4134,8 +4176,7 @@ void TV::ChangeChannel(uint chanid, const QString &chan)
         activenvp->ResetTeletext();
     }
 
-	if(NULL != activerecorder)
-		activerecorder->SetChannel(channum);
+    activerecorder->SetChannel(channum);
 
     if (muted)
         muteTimer->start(kMuteTimeout * 2, true);
@@ -5202,7 +5243,7 @@ void TV::customEvent(QCustomEvent *e)
             if ((tokens[1] != "ANSWER") && (tokens[1] != "RESPONSE"))
             {
                 ncLock.lock();
-                networkControlCommands.push_back(message);
+                networkControlCommands.push_back(QDeepCopy<QString>(message));
                 ncLock.unlock();
             }
         }
@@ -5225,7 +5266,7 @@ void TV::customEvent(QCustomEvent *e)
                 pbinfoLock.lock();
             }
         }
-        else if (playbackinfo && message.left(15) == "COMMFLAG_UPDATE")
+        else if (nvp && playbackinfo && message.left(15) == "COMMFLAG_UPDATE")
         {
             message = message.simplifyWhiteSpace();
             QStringList tokens = QStringList::split(" ", message);
@@ -6097,7 +6138,7 @@ void TV::TreeMenuSelected(OSDListTreeType *tree, OSDGenericTree *item)
             DoQueueTranscode("Medium Quality");
         else if (action == "QUEUETRANSCODE_LOW")
             DoQueueTranscode("Low Quality");
-        else if (action == "JUMPPREV")
+        else if (action == "JUMPPREV" && lastProgram)
         {
             nvp->SetBookmark();
             exitPlayer = true;
@@ -6850,8 +6891,7 @@ void TV::PauseLiveTV(void)
     }
 
     // XXX: Get rid of this?
-	if(NULL != activerecorder)
-		activerecorder->PauseRecorder();
+    activerecorder->PauseRecorder();
 
     osdlock.lock();
     lastSignalMsg.clear();
@@ -6860,16 +6900,13 @@ void TV::PauseLiveTV(void)
 
     lockTimerOn = false;
 
-	if(NULL != activerecorder)
-	{
-		QString input = activerecorder->GetInput();
-		uint timeout  = activerecorder->GetSignalLockTimeout(input);
-		if (timeout < 0xffffffff)
-		{
-			lockTimer.start();
-			lockTimerOn = true;
-		}
-	}
+    QString input = activerecorder->GetInput();
+    uint timeout  = activerecorder->GetSignalLockTimeout(input);
+    if (timeout < 0xffffffff)
+    {
+        lockTimer.start();
+        lockTimerOn = true;
+    }
 }
 
 /** \fn TV::UnpauseLiveTV(void)

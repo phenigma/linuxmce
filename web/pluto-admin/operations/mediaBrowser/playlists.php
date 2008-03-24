@@ -95,7 +95,7 @@ function playlists($output,$mediadbADO) {
 					
 					if(move_uploaded_file($_FILES['newPlaylistPicture']['tmp_name'],$GLOBALS['mediaPicsPath'].$newPlaylistPictureName)){
 						// create thumbnail
-						$resizeFlag=resizeImage($GLOBALS['mediaPicsPath'].$newPlaylistPictureName, $GLOBALS['mediaPicsPath'].$pictureID.'_tn.'.$picExtension, 100, 100);
+						$resizeFlag=resizeImage($GLOBALS['mediaPicsPath'].$newPlaylistPictureName, $GLOBALS['mediaPicsPath'].$pictureID.'_tn.'.$picExtension, 256, 256);
 						if(!$resizeFlag){
 							$error='Thumbnail not created';					
 						}

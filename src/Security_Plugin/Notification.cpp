@@ -159,10 +159,7 @@ bool Notification::NotifyLoop(int iType,bool bProcessInBackground)
 		StringUtils::Replace(&sPhoneNumber,",","");
 		StringUtils::Replace(&sPhoneNumber," ","");
 		if( sPhoneNumber.size()>2 && sPhoneNumber[0]!='9' )
-			if( sPhoneNumber[1]!='1' )
-				sPhoneNumber = "91" + sPhoneNumber;
-			else
-				sPhoneNumber = "9" + sPhoneNumber;
+			sPhoneNumber = "9" + sPhoneNumber;
 
 		bool bMonitor = StringUtils::Tokenize((*s),",",pos)=="1";
 		bool bSecurity = StringUtils::Tokenize((*s),",",pos)=="1";
@@ -234,7 +231,21 @@ bool Notification::ExecuteNotification(string sPhoneNumber, int iDelay, bool bNo
 	}
 
     long nAlertType = m_pRow_Alert->FK_AlertType_get();
-    string sCallerID = bNotifyOrbiter ? GenerateCallerID(nAlertType) : ""; //no caller id for the others
+
+	const string csCallerIdConfFile("/etc/pluto-callerid.conf");
+	const string csPlutoMOConf("/usr/pluto/bin/PlutoMO");
+
+	string sCustomCallerID;
+	if(FileUtils::FileExists(csCallerIdConfFile))
+	{
+		FileUtils::ReadTextFile(csCallerIdConfFile, sCustomCallerID);
+		sCustomCallerID = StringUtils::Replace(sCustomCallerID, "\n", "");
+		sCustomCallerID = StringUtils::TrimSpaces(sCustomCallerID);
+	}
+
+    string sCallerID = bNotifyOrbiter ? 
+		(sCustomCallerID.empty() ? GenerateCallerID(nAlertType) : sCustomCallerID) 
+		: ""; //no caller id for the others
     string sWavFileName = GenerateWavFile(nAlertType, m_pRow_Alert->EK_Device_get());
 
     Row_Notification *pRow_Notification = m_pSecurity_Plugin->m_pDatabase_pluto_security->Notification_get()->AddRow();
@@ -255,11 +266,14 @@ bool Notification::ExecuteNotification(string sPhoneNumber, int iDelay, bool bNo
         iDelay = MAX_TIMEOUT_FOR_PHONES;
 
     //TODO: attach the wav file
-    DCE::CMD_PL_External_Originate CMD_PL_External_Originate_(m_pSecurity_Plugin->m_dwPK_Device, 
-        m_pTelecom_Plugin->m_dwPK_Device, sPhoneNumber, sCallerID, sPhoneExtension); 
+	CMD_PBX_Originate_DT cmd_PBX_Originate_DT(
+		m_pSecurity_Plugin->m_dwPK_Device, DEVICETEMPLATE_Asterisk_CONST, BL_SameHouse,
+		sPhoneNumber,
+		"SIP",
+		sPhoneExtension, sCallerID);
 
     string sResponse;
-    bool bResponse = m_pSecurity_Plugin->SendCommand(CMD_PL_External_Originate_, &sResponse);
+    bool bResponse = m_pSecurity_Plugin->SendCommand(cmd_PBX_Originate_DT, &sResponse);
 
     if(!bResponse)
     {

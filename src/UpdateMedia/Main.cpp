@@ -60,7 +60,6 @@
 
 using namespace std;
 using namespace DCE;
-DCEConfig dceConfig;
 
 namespace UpdateMediaVars
 {
@@ -330,13 +329,36 @@ void OnModify(list<string> &listFiles)
 
 int main(int argc, char *argv[])
 {
-	dceConfig.m_sDBName="pluto_media";
+	//make sure we are logging everything
+	LoggerWrapper::GetInstance()->LogAll();
+
 	bError=false;
 	bUpdateThumbnails=false;
 	bUpdateSearchTokens=false;
 	bRunAsDaemon=false;
 	bSyncFilesOnly=false;
 	sDirectory="/home/";
+
+	string sDBHost;
+	string sDBUser;
+	string sDBPassword;
+	int iDBPort;
+
+	{
+		DCEConfig dceConfig;
+		dceConfig.m_sDBName="pluto_media";
+
+		sDBHost = dceConfig.m_sDBHost;
+		sDBUser = dceConfig.m_sDBUser;
+		sDBPassword = dceConfig.m_sDBPassword;
+		iDBPort = dceConfig.m_iDBPort;
+
+		if(dceConfig.m_mapParameters_Exists("DVDKeysCache"))
+		{
+			string sDVDKeysCache = dceConfig.m_mapParameters_Find("DVDKeysCache");
+			PlutoMediaFile::DVDKeysCacheSetup(sDVDKeysCache);
+		}
+	}
 
 	char c;
 	for(int optnum=1;optnum<argc;++optnum)
@@ -351,16 +373,16 @@ int main(int argc, char *argv[])
 		switch (c)
 		{
 		case 'h':
-			dceConfig.m_sDBHost = argv[++optnum];
+			sDBHost = argv[++optnum];
 			break;
 		case 'u':
-			dceConfig.m_sDBUser = argv[++optnum];
+			sDBUser = argv[++optnum];
 			break;
 		case 'p':
-			dceConfig.m_sDBPassword = argv[++optnum];
+			sDBPassword = argv[++optnum];
 			break;
 		case 'P':
-			dceConfig.m_iDBPort = atoi(argv[++optnum]);
+			iDBPort = atoi(argv[++optnum]);
 			break;
 		case 'd':
 			sDirectory = argv[++optnum];
@@ -420,8 +442,7 @@ int main(int argc, char *argv[])
 		{
 			string sFolder = *it;
 
-			UpdateMedia UpdateMedia(dceConfig.m_sDBHost,dceConfig.m_sDBUser,dceConfig.m_sDBPassword,
-				dceConfig.m_iDBPort,sFolder,bSyncFilesOnly);
+			UpdateMedia UpdateMedia(sDBHost,sDBUser,sDBPassword,iDBPort,sFolder,bSyncFilesOnly);
 			if(!sFolder.empty())
 				UpdateMedia.DoIt();
 
@@ -435,8 +456,7 @@ int main(int argc, char *argv[])
 		// extra code to process UPnP mount point
 		if (!sUPnPMountPoint.empty())
 		{
-			UpdateMedia UpdateMedia(dceConfig.m_sDBHost,dceConfig.m_sDBUser,dceConfig.m_sDBPassword,
-					dceConfig.m_iDBPort,sUPnPMountPoint,bSyncFilesOnly);
+			UpdateMedia UpdateMedia(sDBHost,sDBUser,sDBPassword,iDBPort,sUPnPMountPoint,bSyncFilesOnly);
 			UpdateMedia.DoIt();
 
 			//TODO check and uncomment if necessary
@@ -467,14 +487,14 @@ int main(int argc, char *argv[])
 
         //connect to the databases
         g_pDatabase_pluto_media = new Database_pluto_media(LoggerWrapper::GetInstance());
-        if( !g_pDatabase_pluto_media->Connect(dceConfig.m_sDBHost,dceConfig.m_sDBUser,dceConfig.m_sDBPassword, sPlutoMediaDbName,dceConfig.m_iDBPort) )
+        if( !g_pDatabase_pluto_media->Connect(sDBHost,sDBUser,sDBPassword,sPlutoMediaDbName,iDBPort) )
         {
             LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Cannot connect to database!" );
             return 1;
         }
 
         g_pDatabase_pluto_main = new Database_pluto_main(LoggerWrapper::GetInstance());
-        if( !g_pDatabase_pluto_main->Connect(dceConfig.m_sDBHost,dceConfig.m_sDBUser,dceConfig.m_sDBPassword, sPlutoMainDbName,dceConfig.m_iDBPort) )
+        if( !g_pDatabase_pluto_main->Connect(sDBHost,sDBUser,sDBPassword, sPlutoMainDbName,iDBPort) )
         {
             LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Cannot connect to database!" );
             return 2;

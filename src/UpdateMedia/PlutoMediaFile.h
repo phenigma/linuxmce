@@ -62,8 +62,10 @@ private:
 	bool m_bNewFileToDb;
 
 	Database_pluto_media *m_pDatabase_pluto_media;
+	
 	static MediaSyncMode m_DefaultMediaSyncMode;
 	static bool m_bNewFilesAdded;
+	static string m_sDVDKeysCache;
 
 	auto_ptr<GenericFileHandler> m_spFileHandler;
 
@@ -88,6 +90,7 @@ private:
 	void SaveBookmarkPictures();
 	void SaveMiscInfo();
 	void SaveEveryThingToDb();
+	void CacheDVDKeys();
 
 	int NumberOfBookmarksFromDB();
 	void GenerateMd5SumsCoverartsFromDb(list<string>& listMd5Sums);
@@ -120,6 +123,8 @@ public:
 	//new file added status
 	static bool NewFilesAdded() { return m_bNewFilesAdded; }
 	static void ResetNewFilesAddedStatus() { m_bNewFilesAdded = false; }
+
+	static void DVDKeysCacheSetup(string sValue) { if(!sValue.empty()) m_sDVDKeysCache = sValue; }
 
 	void SetFileAttribute(int PK_File);
     int GetFileAttribute();

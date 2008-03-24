@@ -180,8 +180,8 @@ void ScreenHandler::SCREEN_NewPnpDevice(long PK_Screen, string sDescription, int
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::Pnp_ObjectSelected,	new ObjectInfoBackData());
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, sDescription);
 
-	if(NULL != m_pOrbiter->m_pScreenHistory_NewEntry)
-		m_pOrbiter->m_pScreenHistory_NewEntry->ScreenID(StringUtils::itos(iPK_PnpQueue));
+	if(NULL != m_pOrbiter->m_pScreenHistory_Pivot)
+		m_pOrbiter->m_pScreenHistory_Pivot->ScreenID(StringUtils::itos(iPK_PnpQueue));
 
 	m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(m_p_MapDesignObj_Find(PK_Screen)), StringUtils::itos(iPK_PnpQueue), "", false, false );
 }
@@ -1108,7 +1108,7 @@ void MediaFileBrowserOptions::SelectedArray(DesignObj_Orbiter *pObj,int PK_Array
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_NewPhoneDetected(long PK_Screen, string sMac_address, string sDescription, int iPK_PnpQueue)
 {
-	m_pOrbiter->m_pScreenHistory_NewEntry->ScreenID(StringUtils::itos(iPK_PnpQueue));
+	m_pOrbiter->m_pScreenHistory_Pivot->ScreenID(StringUtils::itos(iPK_PnpQueue));
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, sMac_address);
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST, sDescription);
 	ScreenHandlerBase::SCREEN_NewPhoneDetected(PK_Screen, sMac_address, sDescription, iPK_PnpQueue);
@@ -1116,7 +1116,7 @@ void ScreenHandler::SCREEN_NewPhoneDetected(long PK_Screen, string sMac_address,
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_WhatModelMobileOrbiter(long PK_Screen, int iPK_Users, string sMac_address)
 {
-	m_pOrbiter->m_pScreenHistory_NewEntry->ScreenID(sMac_address);
+	m_pOrbiter->m_pScreenHistory_Pivot->ScreenID(sMac_address);
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, sMac_address);
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST, StringUtils::itos(iPK_Users));
 	ScreenHandlerBase::SCREEN_WhatModelMobileOrbiter(PK_Screen, iPK_Users, sMac_address);
@@ -1663,6 +1663,7 @@ void ScreenHandler::SetupAudioServer()
 		RegisterCallBack(cbDataGridRendering, (ScreenHandlerCallBack) &ScreenHandler::FileList_GridRendering,	new DatagridAcquiredBackData());
 		RegisterCallBack(cbOnKeyDown, (ScreenHandlerCallBack) &ScreenHandler::FileList_KeyDown, new KeyCallBackData());
 		RegisterCallBack(cbMessageIntercepted, (ScreenHandlerCallBack) &ScreenHandler::MediaBrowsre_Intercepted, new MsgInterceptorCellBackData());
+		RegisterCallBack(cbOnTimer,	(ScreenHandlerCallBack) &ScreenHandler::MediaBrowser_OnTimer, new CallBackData());
 
 		DesignObj_Orbiter *pObj = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_popFBSF_More_CONST) "." + StringUtils::itos(mediaFileBrowserOptions.m_PK_MediaType) + ".0." TOSTRING(DESIGNOBJ_butFBSF_More_ViewedOnly_CONST) );
 		if( pObj )
@@ -1676,7 +1677,24 @@ void ScreenHandler::SetupAudioServer()
 			m_pOrbiter->m_sNowPlaying.empty() ? "0" : "1"); 
 
 		AudioServer_PopulateDatagrid();
+
+		m_pOrbiter->StartScreenHandlerTimer(5000);
 	}
+}
+//-----------------------------------------------------------------------------------------------------
+bool ScreenHandler::MediaBrowser_OnTimer(CallBackData *pData)
+{
+	DesignObj_Orbiter *pClockObj = m_pOrbiter->FindObject(TOSTRING(DESIGNOBJ_mnuMenuAudioServer_CONST) ".0.0." + StringUtils::itos(DESIGNOBJ_butCurrentTime_CONST));
+	DesignObj_Orbiter *pRippingStatusObj = m_pOrbiter->FindObject(TOSTRING(DESIGNOBJ_mnuMenuAudioServer_CONST) ".0.0." + StringUtils::itos(DESIGNOBJ_butRipStatus_CONST));
+	if( NULL != pRippingStatusObj && NULL != pClockObj)
+	{
+		NeedToRender render(m_pOrbiter, "MediaBrowser_OnTimer");
+		m_pOrbiter->Renderer()->RenderObjectAsync(pRippingStatusObj);
+		m_pOrbiter->Renderer()->RenderObjectAsync(pClockObj);
+		return true;
+	}
+
+	return false;
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::AudioServer_PopulateDatagrid()
@@ -1795,7 +1813,7 @@ void ScreenHandler::SCREEN_QuadViewCameras(long PK_Screen, string sList_PK_Devic
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_NAS_Options(long PK_Screen, int iPK_PnpQueue)
 {
-	m_pOrbiter->m_pScreenHistory_NewEntry->ScreenID(StringUtils::itos(iPK_PnpQueue));
+	m_pOrbiter->m_pScreenHistory_Pivot->ScreenID(StringUtils::itos(iPK_PnpQueue));
 	m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(m_p_MapDesignObj_Find(PK_Screen)), StringUtils::itos(iPK_PnpQueue), "", false, false );
 }
 //-----------------------------------------------------------------------------------------------------
@@ -1817,7 +1835,7 @@ void ScreenHandler::SCREEN_Get_Username_Password_For_Devices(long PK_Screen, boo
 
 	StringUtils::Replace( &sText, "<%=device%>", sDescription );
 
-	m_pOrbiter->m_pScreenHistory_NewEntry->ScreenID(StringUtils::itos(iPK_PnpQueue));
+	m_pOrbiter->m_pScreenHistory_Pivot->ScreenID(StringUtils::itos(iPK_PnpQueue));
 	SCREEN_GenericKeyboard(SCREEN_GenericKeyboard_CONST, 
 		sText + "|" + m_pOrbiter->m_mapTextString[TEXT_Ok_CONST], 
 		StringUtils::ltos(m_pOrbiter->m_dwPK_Device) + " " + StringUtils::ltos(m_pOrbiter->m_dwPK_Device_PlugAndPlayPlugIn) + " " +
@@ -2775,6 +2793,7 @@ bool ScreenHandler::DriveOverview_ObjectSelected(CallBackData *pData)
 							TOSTRING(COMMANDPARAMETER_PK_Device_CONST) " \"" + string(pCell->GetValue()) + "\" ";  // This will be either a drive or jukebox depending on which cell was chosen
 
 					string sTitle = m_pOrbiter->m_mapTextString[TEXT_Choose_Filename_CONST];
+					Reset_SaveFile_Info();
 					DCE::SCREEN_FileSave SCREEN_FileSave(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,atoi(pCell->m_mapAttributes_Find("PK_MediaType").c_str()),atoi(pCell->m_mapAttributes_Find("PK_Disc").c_str()),sTitle,sRipMessage,true);
 					m_pOrbiter->SendCommand(SCREEN_FileSave);
 				}
@@ -2866,6 +2885,16 @@ bool ScreenHandler::JukeboxManager_ObjectSelected(CallBackData *pData)
 	{
 		int Row=-1,Col=-1;
 		DesignObj_DataGrid *pObj_Grid = (DesignObj_DataGrid *) pObjectInfoData->m_pObj->m_pParentObject->m_pParentObject;
+
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "JukeboxManager_ObjectSelected ===============================================");
+
+		for(map< pair<int,int>, DesignObj_Orbiter *>::iterator itc = pObj_Grid->m_mapChildDgObjects.begin();
+			itc != pObj_Grid->m_mapChildDgObjects.end(); ++itc)
+		{
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "JukeboxManager_ObjectSelected --- Cell <%d, %d>",
+				itc->first.first, itc->first.second);
+		}
+
 		for(map< pair<int,int>, DesignObj_Orbiter *>::iterator it=pObj_Grid->m_mapChildDgObjects.begin();it!=pObj_Grid->m_mapChildDgObjects.end();++it)
 		{
 			if( it->second == pObjectInfoData->m_pObj->m_pParentObject )
@@ -2879,7 +2908,11 @@ bool ScreenHandler::JukeboxManager_ObjectSelected(CallBackData *pData)
 		if( Row!=-1 && Col!=-1 )
 		{
 			DataGridTable *pDataGridTable = pObj_Grid->m_pDataGridTable_Current_get();
-			DataGridCell *pCell = pDataGridTable->GetData(Col,Row);
+
+			int DGRow = ( ( Row == 0 && pDataGridTable->m_bKeepRowHeader ) ? 0 : Row + pDataGridTable->m_StartingRow );
+			int DGColumn = ( Col == 0 && pDataGridTable->m_bKeepColumnHeader ) ? 0 : Col + pDataGridTable->m_StartingColumn;
+			DataGridCell *pCell = pDataGridTable->GetData(DGColumn,DGRow);
+
 			if( pCell && pCell->GetValue() )
 			{
 				if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_icoEject_CONST )
@@ -2914,7 +2947,7 @@ bool ScreenHandler::JukeboxManager_ObjectSelected(CallBackData *pData)
 							TOSTRING(COMMANDPARAMETER_PK_Device_CONST) " \"" + pCell->m_mapAttributes["PK_Device"] + "\" ";  // This will be either a drive or jukebox depending on which cell was chosen
 
 						string sTitle = m_pOrbiter->m_mapTextString[TEXT_Choose_Filename_CONST];
-						
+						Reset_SaveFile_Info();
 						DCE::SCREEN_FileSave SCREEN_FileSave(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,atoi(pCell->m_mapAttributes_Find("PK_MediaType").c_str()),atoi(pCell->m_mapAttributes_Find("PK_Disc").c_str()),sTitle,sRipMessage,true);
 						m_pOrbiter->SendCommand(SCREEN_FileSave);
 					}
@@ -2983,6 +3016,7 @@ bool ScreenHandler::JukeboxManager_ObjectSelected(CallBackData *pData)
 			TOSTRING(COMMANDPARAMETER_Filename_CONST) " \"<%=9%>\" ";
 		string sTitle = m_pOrbiter->m_mapTextString[TEXT_Choose_Filename_CONST];
 		
+		Reset_SaveFile_Info();
 		DCE::SCREEN_FileSave SCREEN_FileSave(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,0,-999,sTitle,sRipMessage,true);
 		m_pOrbiter->SendCommand(SCREEN_FileSave);
 	}
@@ -4476,49 +4510,40 @@ void ScreenHandler::SCREEN_aJAd(long PK_Screen, string sFilename, string sURL)
 	}
 	else
 	{
+		ScreenHandlerBase::SCREEN_aJAd(PK_Screen, sFilename, sURL);
 		string::size_type pos=0;
 		string sPictureFile = StringUtils::Tokenize(sFilename,"|",pos);
-		string sVideoFile = StringUtils::Tokenize(sFilename,"|",pos);
 		size_t size;
 		char *pGraphicData = m_pOrbiter->ReadFileIntoBuffer(sPictureFile,size);
-		m_pOrbiter->CMD_Update_Object_Image("5579.0.0.5580","jpg",
+		m_pOrbiter->CMD_Update_Object_Image("5647.0.0.5580","jpg",
 			pGraphicData,
 			(int) size,"0");
-		m_pOrbiter->CMD_Set_Variable(VARIABLE_URL_from_phone_CONST, sURL);
-		m_pOrbiter->CMD_Set_Variable(VARIABLE_Filename_CONST, sVideoFile);
+		m_pOrbiter->CMD_Set_Variable(VARIABLE_Filename_CONST, sFilename);
 		RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::Aj_ObjectSelected,	new ObjectInfoBackData());
-		ScreenHandlerBase::SCREEN_aJAd(PK_Screen, sFilename, sURL);
 	}
 }
 
 bool ScreenHandler::Aj_ObjectSelected(CallBackData *pData)
 {
+	static int iPK_Device_aj = 0;
+	if( iPK_Device_aj==0 )
+	{
+        DeviceData_Base *pDevice = m_pOrbiter->m_pData->m_AllDevices.m_mapDeviceData_Base_FindFirstOfTemplate(DEVICETEMPLATE_THX_Blackbird_CONST);
+		if( pDevice )
+			iPK_Device_aj = pDevice->m_dwPK_Device;
+		else
+			return false;  // Can't do anything
+	}
+
 	ObjectInfoBackData *pObjectInfoData = (ObjectInfoBackData *)pData;
 	if( pObjectInfoData->m_pObj->m_iBaseObjectID==5580 )
 	{
-		string sURL = m_pOrbiter->m_mapVariable_Find(VARIABLE_URL_from_phone_CONST);
-
-#if defined(WIN32) && !defined(WINCE)
-		//starting the new orbiter
-		PROCESS_INFORMATION pi;
-		::ZeroMemory(&pi, sizeof(PROCESS_INFORMATION));
-
-		STARTUPINFO si;
-		::ZeroMemory(&si, sizeof(STARTUPINFO));
-		si.cb = sizeof(STARTUPINFO);
-		si.lpReserved = 0;
-
-		string sCompleteCmdLine = "explorer \"" + sURL + "\"";
-		::CreateProcess(NULL, const_cast<char *>(sCompleteCmdLine.c_str()), NULL, NULL, NULL, 0, NULL, NULL, &si, &pi);
-#endif 
+		int X = pObjectInfoData->m_X - pObjectInfoData->m_pObj->m_rPosition.X;
+		int Y = pObjectInfoData->m_Y - pObjectInfoData->m_pObj->m_rPosition.Y;
+		DCE::CMD_Simulate_Mouse_Click CMD_Simulate_Mouse_Click(m_pOrbiter->m_dwPK_Device_CaptureCard,iPK_Device_aj,X,Y,0);
+		m_pOrbiter->SendCommand(CMD_Simulate_Mouse_Click);
 	}
-	else if( pObjectInfoData->m_pObj->m_iBaseObjectID==5581 )
-	{
-		string sFile = m_pOrbiter->m_mapVariable_Find(VARIABLE_Filename_CONST);
-		DCE::CMD_MH_Play_Media CMD_MH_Play_Media(m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device_MediaPlugIn,
-			0,sFile,0,0,StringUtils::itos( m_pOrbiter->m_pLocationInfo->PK_EntertainArea ),false,0);
-		m_pOrbiter->SendCommand(CMD_MH_Play_Media);
-	}
+
 	return false;
 }
 //<-mkr_b_aj_e->

@@ -128,6 +128,12 @@ void OrbiterRenderer_SDL::Configure()
 	if(m_bFullScreen)
 		uSDLInitFlags |= SDL_FULLSCREEN;
 
+    // Switch Nokia into fullscreen mode
+    #ifdef MAEMO_NOKIA770
+		uSDLInitFlags |= SDL_FULLSCREEN;
+	   	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Added SDL_FULLSCREEN flag to the uSDLInitFlags");
+	#endif
+	
 	if (SDL_Init(uSDLInitFlags) == -1)
 	{
 	#ifndef WINCE
@@ -152,7 +158,11 @@ void OrbiterRenderer_SDL::Configure()
 	#endif
 	}
 
-	SDL_WM_SetCaption("OrbiterRenderer_SDL", "OrbiterRenderer_SDL");
+#ifdef MAEMO_NOKIA770
+    SDL_WM_SetCaption("PlutoNokia Orbiter", "OrbiterRenderer_SDL");
+#else
+    SDL_WM_SetCaption("OrbiterRenderer_SDL", "OrbiterRenderer_SDL");
+#endif
 
 	atexit(SDL_Quit);
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Initialized SDL");
@@ -165,6 +175,12 @@ void OrbiterRenderer_SDL::Configure()
 		uVideoModeFlags |= SDL_FULLSCREEN;
 #endif
 
+
+#ifdef MAEMO_NOKIA770
+    uVideoModeFlags |= SDL_FULLSCREEN;
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Added SDL_FULLSCREEN flag to the uVideoModeFlags");
+#endif
+	
 	g_bResettingVideoMode=true;
 	pthread_t hackthread;
 	pthread_create(&hackthread, NULL, SetVideoModeWatchDogThread, (void*)this);
@@ -502,15 +518,24 @@ void OrbiterRenderer_SDL::ReplaceColorInRectangle(int x, int y, int width, int h
             // we may need locking on the surface
             Pixel = SDLGraphic::getpixel(m_pScreenImage, i + x, j + y);
             unsigned char *pPixel = (unsigned char *) &Pixel;
+#ifndef MAEMO_NOKIA770           
             const int max_diff = 3;
             if ( abs(Source[0]-pPixel[0])<max_diff && abs(Source[1]-pPixel[1])<max_diff && abs(Source[2]-pPixel[2])<max_diff && abs(Source[3]-pPixel[3])<max_diff )
             {
                 SDLGraphic::putpixel(m_pScreenImage,i + x, j + y, PlutoPixelDest);
             }
+#else
+	    const int max_diff = 10;
 
+	    if ( abs(Source[0]-pPixel[0])<max_diff && abs(Source[1]-pPixel[1])<max_diff && abs(Source[2]-pPixel[2])<max_diff )
+	    {
+		SDLGraphic::putpixel(m_pScreenImage,i + x, j + y, PlutoPixelDest);
+	    }
+#endif
         }
     }
 
+	
     PlutoRectangle rect(x, y, width, height);
 }
 //-----------------------------------------------------------------------------------------------------

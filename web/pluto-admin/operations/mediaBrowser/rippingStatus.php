@@ -15,6 +15,8 @@ function rippingStatus($output,$dbADO,$mediadbADO) {
 		'p' => "in progress",
 		'e' => "error",
 		's' => "success",
+		'a' => "aborted",
+		'b' => "completed with errors",
 		'' => 'unknown status'
 	);
 
@@ -31,7 +33,7 @@ function rippingStatus($output,$dbADO,$mediadbADO) {
 	';
 
 	$res=$mediadbADO->Execute('
-		SELECT RipStatus.*,Device.Description,File.Filename, File.Path,File.PK_File 
+		SELECT RipStatus.*,Device.Description,File.Filename, File.Path,File.PK_File,RipStatus.File AS RipFile 
 		FROM '.$dbPlutoMediaDatabase.'.RipStatus 
 		LEFT JOIN '.$dbPlutoMainDatabase.'.Device ON RipStatus.EK_Device=PK_Device 
 		LEFT JOIN File ON RipStatus.FK_File=PK_File
@@ -63,7 +65,7 @@ function rippingStatus($output,$dbADO,$mediadbADO) {
 			<td align="center"><a href="index.php?section=editDeviceParams&deviceID='.$row['EK_Device'].'">'.$row['Description'].'</a></td>
 			<td align="center">'.$row['Slot'].'</td>
 			<td align="center"><a href="index.php?section=discAttributes&discID='.$row['FK_Disc'].'">'.$row['FK_Disc'].'</a></td>
-			<td align="center">'.((is_null($row['FK_File']))?'&nbsp;':'<a href="index.php?section=editMediaFile&fileID='.$row['PK_File'].'">'.$row['Path'].'/'.$row['Filename'].'</a>').'</td>
+			<td align="center">'.((is_null($row['FK_File']))?$row['RipFile']:'<a href="index.php?section=editMediaFile&fileID='.$row['PK_File'].'">'.$row['Path'].'/'.$row['Filename'].'</a>').'</td>
 			<td align="center">'.$row['Type'].'</td>
 			<td align="center">'.$row['RipJob'].'</td>
 			<td align="center">'.$row['DateTime'].'</td>

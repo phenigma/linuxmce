@@ -248,7 +248,7 @@ int main(int argc, char *argv[])
 	string args;
 	for(int optnum=1;optnum<argc;++optnum)
 		args += string(argv[optnum]) + " ";
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Called with: %s",args.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_WARNING,"Called with: %s",args.c_str());
 
 	if( sUserName.size() )
 	{

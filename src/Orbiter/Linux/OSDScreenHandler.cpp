@@ -262,6 +262,14 @@ bool OSDScreenHandler::VideoWizard_ObjectSelected(CallBackData *pData)
 		{
 			if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butStartUsingMonster_CONST)
 			{
+				// if vdr or myth are not installed
+				if(!m_pWizardLogic->AnyPVRSoftwareInstalled())
+				{
+					// install mythtv by default
+					LoggerWrapper::GetInstance()->Write(LV_WARNING, "No PVR Software is installed. We'll install mythtv by default");
+					m_pWizardLogic->SetPVRSoftware('M');
+				}
+
 				string sResponse;
 				CMD_Regen_Orbiter cmd_Regen_Orbiter(m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device_OrbiterPlugIn, m_pOrbiter->m_dwPK_Device, "", "Y");
 				m_pOrbiter->SendCommand(cmd_Regen_Orbiter, &sResponse);
@@ -2349,7 +2357,13 @@ bool OSDScreenHandler::PVRSoftware_ObjectSelected(CallBackData *pData)
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OSDScreenHandler::SCREEN_mnuSpeedControl(long PK_Screen)
 {
-	LoggerWrapper::GetInstance()->Write( LV_STATUS, "OSDScreenHandler::SCREEN_DVDRemote()" );
+	if(!m_pOrbiter->m_mapVariable_Find(VARIABLE_My_Channel_ID_CONST).empty())
+	{
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "OSDScreenHandler : won't go to mnuSpeedControl, we have a call in progress");
+		return;
+	}
+
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "OSDScreenHandler::SCREEN_mnuSpeedControl()" );
 	ScreenHandler::SCREEN_mnuSpeedControl(PK_Screen);
 	
 	RegisterCallBack( cbOnCustomRender, (ScreenHandlerCallBack)&OSDScreenHandler::SpeedControlCustomRender, new RenderScreenCallBackData() );
@@ -2733,6 +2747,7 @@ bool OSDScreenHandler::CaptureCardPort_DatagridSelected(CallBackData *pData)
 		m_pOrbiter->SendCommand(CMD_Specify_Capture_Card_Port,&sResponse);
 
 		m_pOrbiter->CMD_Goto_DesignObj(0,TOSTRING(DESIGNOBJ_RoomsForExternalDevice_CONST),"","",false,true);
+		m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_Device_1_CONST, pCellInfoData->m_sValue);
 		return true; // We did a goto screen
 	}
 

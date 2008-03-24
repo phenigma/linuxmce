@@ -94,6 +94,9 @@ namespace DCE
 
 			// identifying xine version and setting stuff
 			void IdentifyXineStuff();
+			void RegisterALSAConfigurationString(string sEntryName, string sDefaultValue, string sDescription);
+			void RegisterALSAConfigurationEnum(string sEntryName, int iDefaultValue, string sDescription, const char **pEnumValues);
+			void SetALSAConfigurationEntry(string sEntry, string sValue, const char **pEnumValues=NULL);
 
 		public:
 			Xine_Stream_Factory(Xine_Player *pOwner);
@@ -114,6 +117,7 @@ namespace DCE
 			void ReportSubtitles(string sSubtitles);
 			void ReportTimecodeViaIP(int iStreamID, int Speed);
 			void ReportAVInfo( string sFilename, int iStreamID, string sMediaInfo, string sAudioInfo, string sVideoInfo );
+			void ReportMediaDescription ( string sMediaDescription );
 
 			void CloseStreamAV(int iStreamID);
 

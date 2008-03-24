@@ -86,6 +86,7 @@ using namespace DCE;
 #include "pluto_media/Table_MediaProvider.h"
 #include "pluto_media/Table_ProviderSource.h"
 #include "pluto_media/Table_LongAttribute.h"
+#include "pluto_media/Table_RipStatus.h"
 #include "Gen_Devices/AllScreens.h"
 
 #include "Datagrid_Plugin/Datagrid_Plugin.h"
@@ -3016,8 +3017,10 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sFilename,int iPK_Med
 	/** This will allow an orbiter to change the current playing position in the playlist */
 		/** @param #5 Value To Assign */
 			/** The track to go to.  A number is considered an absolute.  "+2" means forward 2, "-1" means back 1. */
+		/** @param #41 StreamID */
+			/** ID of stream to apply */
 
-void Media_Plugin::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
+void Media_Plugin::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c65-e->
 {
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
@@ -6843,7 +6846,10 @@ void Media_Plugin::WaitingForJukebox( MediaStream *pMediaStream )
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::WaitingForJukebox stream %d.  Disc loaded in drive.  Now ready.  Got MT %d disks %s url %s block %s",
 				pMediaStream->m_iStreamID_get(),iPK_MediaType,sDisks.c_str(),sURL.c_str(),sBlock_Device.c_str());
 			if( iPK_MediaType )
+			{
 				pMediaFile->m_dwPK_MediaType=iPK_MediaType;
+                                pMediaStream->m_iPK_MediaType=iPK_MediaType;
+			}
 			if( sURL.empty()==false )
 				pMediaFile->m_sFilename=sURL;
 		}
@@ -6991,7 +6997,8 @@ void Media_Plugin::TransformFilenameToDeque(string sFilename,deque<MediaFile *> 
 					pMediaFile->m_dwPK_Disk = atoi(sFilename.substr(2).c_str());
 					pMediaFile->m_dwPK_Device_Disk_Drive = PK_Device_Disk_Drive;
 					pMediaFile->m_Slot = Slot;
-					pMediaFile->m_dwPK_MediaType = MEDIATYPE_pluto_CD_CONST;
+                                        // media type defaults to CD, if it is not returned by the disk drive
+                                        pMediaFile->m_dwPK_MediaType = (PK_MediaType!=0) ? PK_MediaType : MEDIATYPE_pluto_CD_CONST;
 					dequeFilenames.push_back(pMediaFile);
 				}
 			}
@@ -7034,4 +7041,52 @@ void Media_Plugin::UpdateSearchTokens()
 	g_DCEConfig.AddString("LastSearchTokenUpdate",StringUtils::itos(m_tLastSearchTokenUpdate));
 	g_DCEConfig.WriteSettings();
 	m_pAlarmManager->AddRelativeAlarm(600,this,UPDATE_SEARCH_TOKENS,NULL);  // Do this every 10 minutes
+}
+//<-dceag-c942-b->
+
+	/** @brief COMMAND: #942 - Get Ripping Status */
+	/** Get ripping status */
+		/** @param #199 Status */
+			/** Ripping status */
+
+void Media_Plugin::CMD_Get_Ripping_Status(string *sStatus,string &sCMD_Result,Message *pMessage)
+//<-dceag-c942-e->
+{
+	vector<Row_RipStatus *> vectRow_RipStatus;
+	m_pDatabase_pluto_media->RipStatus_get()->GetRows("1=1 ORDER BY PK_RipStatus DESC LIMIT 1", &vectRow_RipStatus);
+
+    if(vectRow_RipStatus.empty())
+	{
+		*sStatus = "No rip in progress";
+	}
+	else
+	{
+		Row_RipStatus *pRow_RipStatus = vectRow_RipStatus[0];
+		pRow_RipStatus->Reload();
+
+		string sRipStatus = pRow_RipStatus->Status_get();
+		string sFile = pRow_RipStatus->File_get();
+		string sMessage = pRow_RipStatus->Message_get();
+
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Get_Ripping_Status: file '%s', status '%s'",
+			sFile.c_str(), sRipStatus.c_str());
+
+		string sFullStatus = "preparing";
+		if(sRipStatus == "p")
+			sFullStatus = sMessage;
+		else if(sRipStatus == "e")
+			sFullStatus = "failed";
+
+		 *sStatus = "Ripping '" + FileUtils::FilenameWithoutPath(sFile) + "': " + sFullStatus;
+
+		 //change description for rip completed
+		 if(sRipStatus == "s")
+			 *sStatus = "Rip completed!";
+		 else if(sRipStatus == "b")
+			 *sStatus = "Rip completed with errors!";
+
+		 //if the disk was ejected, reset the status
+		 if(sMessage == "disk ejected")
+			 *sStatus = "";
+	}
 }

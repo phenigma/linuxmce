@@ -362,24 +362,56 @@ Motion_Wrapper::AddChildDeviceToConfigFile(std::ofstream& conffile, DeviceData_I
 	//video device
 	string sDevice = pDeviceData->mapParameters_Find(DEVICEDATA_Device_CONST);
 
-	if(!sDevice.empty()) {		
-		if (pDeviceData->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Generic_Firewire_Camera_CONST) {		
-			conffile	<< "videodevice /dev/video" << StringUtils::itos(atoi(sDevice.c_str()) * 2 + 31) << endl;
+	if (pDeviceData->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Generic_Motion_IP_Camera_CONST) { 
+		string sUrl = "";
+
+		if ( pDeviceData->mapParameters_Find(DEVICEDATA_Protocol_CONST).empty() ) {
+			return false;
+		}
+		if (  pDeviceData->m_sIPAddress.empty() ) {
+			return false;
+		}
+		
+		sUrl  = pDeviceData->mapParameters_Find(DEVICEDATA_Protocol_CONST) + "://";
+		sUrl += pDeviceData->m_sIPAddress;
+		if ( ! pDeviceData->mapParameters_Find(DEVICEDATA_Port_CONST).empty() ) {
+			sUrl += ":" + pDeviceData->mapParameters_Find(DEVICEDATA_Port_CONST);
+		}
+		if ( pDeviceData->mapParameters_Find(DEVICEDATA_Path_CONST).empty() ) {
+			sUrl += "/";
 		} else {
-			conffile 	<< "videodevice /dev/video" << sDevice << endl;		
+			sUrl += pDeviceData->mapParameters_Find(DEVICEDATA_Path_CONST);
+		}
+
+		conffile << "netcam_url " << sUrl << endl;
+
+		if ( ! pDeviceData->mapParameters_Find(DEVICEDATA_Username_CONST).empty() ) {
+			conffile << "netcam_userpass " <<  pDeviceData->mapParameters_Find(DEVICEDATA_Username_CONST); 
+			if ( ! pDeviceData->mapParameters_Find(DEVICEDATA_Password_CONST).empty() ) {
+				conffile  << ":" <<  pDeviceData->mapParameters_Find(DEVICEDATA_Password_CONST);
+			}
+			conffile << endl;
 		}
 	} else {
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Device number not specified for device: %d.", PK_Device);
-		return false;
-	}
+		if(!sDevice.empty()) {		
+			if (pDeviceData->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Generic_Firewire_Camera_CONST) {		
+				conffile	<< "videodevice /dev/video" << StringUtils::itos(atoi(sDevice.c_str()) * 2 + 31) << endl;
+			} else {
+				conffile 	<< "videodevice /dev/video" << sDevice << endl;		
+			}
+		} else {
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Device number not specified for device: %d.", PK_Device);
+			return false;
+		}
 
-	//input port
-	string sPort = pDeviceData->mapParameters_Find(DEVICEDATA_PortChannel_Number_CONST);
-	if(!sPort.empty()) {
-		conffile 	<< "input " << sPort << endl;
-	} else {
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Port not specified for device: %d.", PK_Device);
-		return false;
+		//input port
+		string sPort = pDeviceData->mapParameters_Find(DEVICEDATA_PortChannel_Number_CONST);
+		if(!sPort.empty()) {
+			conffile 	<< "input " << sPort << endl;
+		} else {
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Port not specified for device: %d.", PK_Device);
+			return false;
+		}
 	}
 	
 	//noise level

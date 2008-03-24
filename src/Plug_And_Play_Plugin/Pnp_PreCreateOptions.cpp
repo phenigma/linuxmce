@@ -297,6 +297,18 @@ bool Pnp_PreCreateOptions::OkayToCreate_MobilePhone(PnpQueueEntry *pPnpQueueEntr
 
 bool Pnp_PreCreateOptions::OkayToCreateDevice_NetworkStorage(PnpQueueEntry *pPnpQueueEntry,Row_DeviceTemplate *pRow_DeviceTemplate)
 {
+	string sUUID = pPnpQueueEntry->m_mapPK_DeviceData[DEVICEDATA_UUID_CONST];
+
+	//check the UUID for non-network storage devices 
+	if(pRow_DeviceTemplate->FK_DeviceCategory_get() != DEVICECATEGORY_Network_Storage_CONST && sUUID.empty())
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Pnp_PreCreateOptions::OkayToCreateDevice_NetworkStorage queue %d has no uuid",
+			pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
+
+		pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_DONE);
+		return false;
+	}
+
 	// The user must answer 2 questions before we create a network storage device: 1) use it automatically, 2) use our directory structure.  See which questions were answered
 	bool bUseAutoSpecified = pPnpQueueEntry->m_mapPK_DeviceData.find(DEVICEDATA_Use_Automatically_CONST)!=pPnpQueueEntry->m_mapPK_DeviceData.end();
 	bool bDirectoryStructSpecified = pPnpQueueEntry->m_mapPK_DeviceData.find(DEVICEDATA_PK_Users_CONST)!=pPnpQueueEntry->m_mapPK_DeviceData.end();

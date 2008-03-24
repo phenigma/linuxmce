@@ -80,6 +80,10 @@ public:
 			*****DATA***** accessors inherited from base class
 	string DATA_Get_Drive();
 	void DATA_Set_Drive(string Value);
+	bool DATA_Get_Autoassign_to_parents_room();
+	bool DATA_Get_PNP_Create_Without_Prompting();
+	bool DATA_Get_Immediate_Reload_Isnt_Necessar();
+	bool DATA_Get_Send_Events();
 
 			*****EVENT***** accessors inherited from base class
 	void EVENT_Media_Inserted(int iFK_MediaType,string sMRL,string sID,string sName);
@@ -295,7 +299,7 @@ public:
 
 
 	/** @brief COMMAND: #882 - Abort Task */
-	/** Abort a pending task */
+	/** Abort a task */
 		/** @param #248 Parameter ID */
 			/** The ID of the task to abort */
 

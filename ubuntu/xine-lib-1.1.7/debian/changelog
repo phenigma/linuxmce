@@ -1,3 +1,10 @@
+xine-lib (1.1.7-1ubuntu1-pluto5) gutsy; urgency=low
+
+  * added patch for DTS IEC958 data length validation 
+    (fixes DTS-WAV passthrough)
+
+ -- Kirill Belokurov <kirill.b@plutohome.com>  Fri, 29 Feb 2008 13:12:00 +0200
+
 xine-lib (1.1.7-1ubuntu1-pluto4) gutsy; urgency=low
 
   * added patch for 16bit big endian DTS detection

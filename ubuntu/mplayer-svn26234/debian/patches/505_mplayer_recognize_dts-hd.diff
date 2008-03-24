@@ -1,0 +1,12 @@
+Index: mplayer/libmpdemux/demux_ts.c
+===================================================================
+--- mplayer/libmpdemux/demux_ts.c	(revision 26256)
++++ mplayer/libmpdemux/demux_ts.c	(working copy)
+@@ -2434,6 +2434,7 @@
+ 				break;
+ 			case 0x8A:
+ 			case 0x82:
++			case 0x86:
+ 				pmt->es[idx].type = AUDIO_DTS;
+ 				break;
+ 			case 0xEA:

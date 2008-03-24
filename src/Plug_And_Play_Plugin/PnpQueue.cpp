@@ -1377,7 +1377,12 @@ bool PnpQueue::Process_Detect_Stage_Running_Detction_Scripts(PnpQueueEntry *pPnp
 	DetermineOrbitersForPrompting(pPnpQueueEntry,false); // For the Display Alert
 
 #ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Running_Detction_Scripts queue %d has %d possibilities",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),(int) pPnpQueueEntry->m_mapPK_DHCPDevice_possible.size());
+	string sPossibilities;
+	for(map<int,Row_DHCPDevice *>::iterator it=pPnpQueueEntry->m_mapPK_DHCPDevice_possible.begin();it!=pPnpQueueEntry->m_mapPK_DHCPDevice_possible.end();++it)
+		sPossibilities += StringUtils::itos(it->first) + ",";
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Running_Detction_Scripts queue %d has %d possibilities %s",
+		pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),(int) pPnpQueueEntry->m_mapPK_DHCPDevice_possible.size(),sPossibilities.c_str());
 #endif
 	Row_DHCPDevice *pRow_DHCPDevice_To_Detect = NULL;
 	for(map<int,Row_DHCPDevice *>::iterator it=pPnpQueueEntry->m_mapPK_DHCPDevice_possible.begin();it!=pPnpQueueEntry->m_mapPK_DHCPDevice_possible.end();++it)
@@ -1652,7 +1657,7 @@ string PnpQueue::GetDescription(PnpQueueEntry *pPnpQueueEntry)
 
 	if( pPnpQueueEntry->m_pRow_PnpQueue->Category_get()=="mobile_phone" )
 	{
-		sDescription = pPnpQueueEntry->m_sText;
+		sDescription = pPnpQueueEntry->m_pRow_PnpQueue->Description_get();
 		if( pPnpQueueEntry->m_pRow_PnpQueue->MACaddress_get().empty()==false )
 			sDescription += "(" + pPnpQueueEntry->m_pRow_PnpQueue->MACaddress_get() + ")";
 		if( sDescription.empty()==false )
@@ -1667,8 +1672,8 @@ string PnpQueue::GetDescription(PnpQueueEntry *pPnpQueueEntry)
 
 	if( pRow_DeviceTemplate )
 	{
-		if( pRow_DeviceTemplate->FK_DeviceCategory_get()==DEVICECATEGORY_Hard_Drives_CONST && pPnpQueueEntry->m_mapPK_DeviceData.find(DEVICEDATA_Block_Device_CONST)!=pPnpQueueEntry->m_mapPK_DeviceData.end() )
-			sDescription = pPnpQueueEntry->m_mapPK_DeviceData[DEVICEDATA_Block_Device_CONST];
+		if( pRow_DeviceTemplate->FK_DeviceCategory_get()==DEVICECATEGORY_Hard_Drives_CONST )
+			sDescription = "Drive: " + pPnpQueueEntry->m_pRow_PnpQueue->Description_get();
 		else if( pRow_DeviceTemplate->FK_DeviceCategory_get()==DEVICECATEGORY_Network_Storage_CONST && pPnpQueueEntry->m_pRow_Device_Reported )
 			sDescription = pPnpQueueEntry->m_pRow_Device_Reported->Description_get() + " / " + pPnpQueueEntry->m_mapPK_DeviceData[DEVICEDATA_Share_Name_CONST];
 		else if( pRow_DeviceTemplate->FK_DeviceCategory_get()==DEVICECATEGORY_FileMedia_Server_CONST )

@@ -4,7 +4,7 @@ function genericSerialDevices($output,$dbADO) {
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/genericSerialDevices.lang.php');
 		
-	global $dbPlutoMainDatabase;
+	global $dbPlutoMainDatabase,$wikiHost;
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
 //	$dbADO->debug=true;
@@ -193,7 +193,7 @@ function genericSerialDevices($output,$dbADO) {
 					$wikiLink=wikiLink($rowD['TemplateName']);
 						
 					$buttons='	
-						<input value="'.$TEXT_HELP_CONST.'" type="button" class="button_fixed" name="help" onClick="self.location=\'/wiki/index.php/Documentation_by_Device_Templates#'.$wikiLink.'\'"><br>
+						<input value="'.$TEXT_HELP_CONST.'" type="button" class="button_fixed" name="help" onClick="window.open(\''.$wikiHost.'index.php/Documentation_by_Device_Templates#'.$wikiLink.'\');"><br>
 						<input type="button" class="button_fixed" name="edit_'.$rowD['PK_Device'].'" value="'.$TEXT_ADVANCED_CONST.'"  onClick="self.location=\'index.php?section=editDeviceParams&deviceID='.$rowD['PK_Device'].'\';"><br>
 						<input type="button" class="button_fixed" name="btn" value="'.$TEXT_RUBY_SOURCE_CODE_CONST.'" onClick="windowOpen(\'index.php?section=rubyCodes&from=genericSerialDevices&deviceID='.$rowD['PK_Device'].'&dtID='.$rowD['FK_DeviceTemplate'].'&from=genericSerialDevices&label=ruby\',\'width=1024,height=768,toolbars=true,scrollbars=1,resizable=1\');"><br>';
 					$buttons.='

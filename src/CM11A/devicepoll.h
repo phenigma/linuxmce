@@ -87,6 +87,7 @@ protected:
 
 	virtual int SendAddress(CSerialPort* pport, const Message* pMesg);
 	virtual int SendFunction(CSerialPort* pport, const Message* pMesg);
+	virtual int ReadIncoming(CSerialPort* pport);
 
 private:
 	Mutex mq_;
@@ -94,6 +95,11 @@ private:
 	std::string serport_;
 	DCE::CM11A_Command *real_cm11a;
 	std::map <std::string, int> inverse_device_map;
+	DCE::VectDeviceData_Impl kids;
+	DCE::Message *pMessageOut;
+	list<std::string> last_used_addresses;
+	struct timeval timestampNow;
+	struct timeval timestampLast;
 };
 
 };

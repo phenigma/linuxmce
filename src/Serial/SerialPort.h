@@ -47,6 +47,7 @@ public:
 	virtual ~CSerialPort();
 
 	virtual bool IsReadEmpty();
+	virtual bool IsRngSet();
 	virtual size_t Read(char *Buf, size_t MaxLen, int Timeout=5);  // Timeout in millseconds
 	virtual void Write(char *Buf, size_t Len);
 	virtual void Flush();

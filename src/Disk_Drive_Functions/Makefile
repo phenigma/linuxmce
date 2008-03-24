@@ -14,13 +14,13 @@ LDFLAGS += -lmysqlclient_r
 #<-mkr_B_use_mysql_wrapper_e->
 
 #<-mkr_b_use_mysql_wrapper_b->
-CPPFLAGS += -DUSE_MYSQL_WRAPPER
+#CPPFLAGS += -DUSE_MYSQL_WRAPPER
 #<-mkr_b_use_mysql_wrapper_e->
 
 sources = Disk_Drive_Functions.cpp \
 	RipTask.cpp RipJob.cpp IdentifyJob.cpp \
 	IdentifyTask.cpp ProcessMediaIdentifiedJob.cpp \
-	MoveDiscTask.cpp FixupRippingInfoTask.cpp \
+	MoveDiscTask.cpp FixupRippingInfoTask.cpp AddRippingTasksTask.cpp \
 	LoadUnloadJob.cpp JukeBox.cpp ../Media_Plugin/MediaAttributes_LowLevel.cpp \
 	../JobHandler/JobHandler.cpp \
 	../JobHandler/Job.cpp \

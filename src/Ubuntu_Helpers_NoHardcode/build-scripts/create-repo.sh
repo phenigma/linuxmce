@@ -43,6 +43,14 @@ function CopyDebsToDisklessSync {
 		rm -f "${build_dir}/DisklessSync/${arch}/deb-cache/${pkg}_"*.deb
 		cp "/var/www/${pkg}_"*.deb "${build_dir}/DisklessSync/${arch}/deb-cache/"
 	done
+	
+	local sync_cd2_pkgs="libdvdnav4"
+	mkdir -p "${build_dir}/DisklessSync/${arch}/deb-cache"
+	for pkg in $sync_cd2_pkgs ;do
+		rm -f "${build_dir}/DisklessSync/${arch}/deb-cache/${pkg}_"*.deb
+		cp "${build_dir}/cd2-packages/cachecd1-cache/${pkg}_"*.deb "${build_dir}/DisklessSync/${arch}/deb-cache/"
+	done
+
 	rm -f "${build_dir}/DisklessSync/${arch}/deb-cache/"{3m-touchware,elo-touchscreen}_*.deb
 	cp /var/www/{3m-touchware,elo-touchscreen}_*.deb "${build_dir}/DisklessSync/${arch}/deb-cache" || :
 }

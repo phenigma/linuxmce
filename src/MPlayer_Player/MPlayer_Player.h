@@ -69,6 +69,7 @@ namespace DCE
 		void UpdateTracksInfo();
 		
 		string GetPlaybackPosition();
+		bool ParseAudioConfig(string sAudioSettings, string &sAlsaDevice, bool &bUsePassThrough);
 public:
 		// Public member variables
 

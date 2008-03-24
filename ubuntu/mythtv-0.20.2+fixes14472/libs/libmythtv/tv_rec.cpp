@@ -2057,8 +2057,9 @@ bool TVRec::CheckChannel(QString name) const
 /** \fn QString add_spacer(const QString&, const QString&)
  *  \brief Adds the spacer before the last character in chan.
  */
-static QString add_spacer(const QString &chan, const QString &spacer)
+static QString add_spacer(const QString &channel, const QString &spacer)
 {
+    QString chan = QDeepCopy<QString>(channel);
     if ((chan.length() >= 2) && !spacer.isEmpty())
         return chan.left(chan.length()-1) + spacer + chan.right(1);
     return chan;
@@ -2096,6 +2097,10 @@ bool TVRec::CheckChannelPrefix(const QString &prefix,
                                bool          &is_extra_char_useful,
                                QString       &needed_spacer)
 {
+#if DEBUG_CHANNEL_PREFIX
+    VERBOSE(VB_IMPORTANT, QString("CheckChannelPrefix(%1)").arg(prefix));
+#endif
+
     static const uint kSpacerListSize = 5;
     static const char* spacers[kSpacerListSize] = { "", "_", "-", "#", "." };
 
@@ -2122,7 +2127,8 @@ bool TVRec::CheckChannelPrefix(const QString &prefix,
     {
         for (uint j = 0; j < kSpacerListSize; j++)
         {
-            QString qprefix = add_spacer(prefix, spacers[j]);
+	    QString qprefix = add_spacer(
+                prefix, (spacers[j] == "_") ? "\\_" : spacers[j]);
             query.prepare(basequery.arg(qprefix) + cardquery[i]);
 
             if (!query.exec() || !query.isActive())
@@ -2172,21 +2178,16 @@ bool TVRec::CheckChannelPrefix(const QString &prefix,
     // sharing the prefix we were given.
 
     // Is an extra characher useful for disambiguation?
-    for (uint i = 0; i < fchannum.size(); i++)
-    {
-        if (fchannum[i] != add_spacer(prefix, fspacer[0]))
-        {
-            is_extra_char_useful = true;
-            break;
-        }
-    }
+    is_extra_char_useful = false;
+    for (uint i = 0; (i < fchannum.size()) && !is_extra_char_useful; i++)
+        is_extra_char_useful = (fchannum[i] != add_spacer(prefix, fspacer[i]));
 
     // Are any of the channels complete w/o spacer?
     // If so set is_complete_valid_channel_on_rec,
     // with a preference for our cardid.
     for (uint i = 0; i < fchannum.size(); i++)
     {
-        if (fchannum[i] == add_spacer(prefix, fspacer[0]))
+        if (fchannum[i] == prefix)
         {
             is_complete_valid_channel_on_rec = fcardid[i];
             if (fcardid[i] == (uint)cardid)
@@ -2194,20 +2195,26 @@ bool TVRec::CheckChannelPrefix(const QString &prefix,
         }
     }
 
+    if (is_complete_valid_channel_on_rec)
+        return true;
+
     // Add a spacer, if one is needed to select a valid channel.
-    if (!is_complete_valid_channel_on_rec)
+    bool spacer_needed = true;
+    for (uint i = 0; (i < fspacer.size() && spacer_needed); i++)
+        spacer_needed = !fspacer[i].isEmpty();
+    if (spacer_needed)
+        needed_spacer = QDeepCopy<QString>(fspacer[0]);
+
+    // If it isn't useful to wait for more characters,
+    // then try to commit to any true match immediately.
+    for (uint i = 0; i < ((is_extra_char_useful) ? 0 : fchanid.size()); i++)
     {
-        bool spacer_needed = true;
-        for (uint i = 0; i < fspacer.size(); i++)
+        if (fchannum[i] == add_spacer(prefix, fspacer[i]))
         {
-            if (fspacer[i].isEmpty())
-            {
-                spacer_needed = false;
-                break;
-            }
+            needed_spacer = QDeepCopy<QString>(fspacer[i]);
+            is_complete_valid_channel_on_rec = fcardid[i];
+            return true;
         }
-        if (spacer_needed)
-            needed_spacer = QDeepCopy<QString>(fspacer[0]);
     }
 
     return true;

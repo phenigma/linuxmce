@@ -12,7 +12,8 @@ INCLUDEPATH += ../.. ../
 
 DEPENDPATH += ../libmyth .
 
-LIBS += -L../libmyth -lmyth-$$LIBVERSION
+# There is a circular dependency here, and this lib may not be built yet:
+#LIBS += -L../libmyth -lmyth-$$LIBVERSION
 
 QMAKE_CLEAN += $(TARGET) $(TARGETA) $(TARGETD) $(TARGET0) $(TARGET1) $(TARGET2)
 
@@ -45,7 +46,7 @@ INSTALLS += inc
 #	level settings.pro)
 #
 
-using_x11 {
+using_x11:using_opengl {
     DEFINES += USE_OPENGL_PAINTER
     SOURCES += mythpainter_ogl.cpp
     HEADERS += mythpainter_ogl.h
@@ -59,6 +60,9 @@ using_x11 {
 macx {
     QMAKE_CXXFLAGS += -F/System/Library/Frameworks/Carbon.framework/Frameworks
     LIBS           += -framework Carbon -framework OpenGL
+
+    # This lib depends on libmyth, which may not have been built yet 
+    QMAKE_LFLAGS_SHLIB += -flat_namespace -undefined warning
 
     QMAKE_LFLAGS_SHLIB += -seg1addr 0xCC000000
 }

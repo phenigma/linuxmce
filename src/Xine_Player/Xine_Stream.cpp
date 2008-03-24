@@ -195,6 +195,12 @@ Xine_Stream::Xine_Stream(Xine_Stream_Factory* pFactory, xine_t *pXineLibrary, in
         m_sMediaType = "N";
         m_iMediaID = -1;
 	
+	// VPTS stuff
+	m_iStartVPTS = 0;
+	m_iCurrentVPTS = 0;
+	m_iStartVPTS_MS = -1;
+	m_bTimecodeIsPrecise = true;
+	
 	m_pDynamic_Pointer = NULL;
 	
 	// possible extensions of subtitles
@@ -549,6 +555,10 @@ bool Xine_Stream::OpenMedia(string fileName, string &sMediaInfo, string sMediaPo
 	m_iCachedStreamPosition = 0;
 	m_iCachedStreamLength = 0;
 
+	// by default, believe that everything except MPEG files has precise timecodes
+	m_bTimecodeIsPrecise = ! ( StringUtils::EndsWith(fileName, ".mpg", true) ||
+			StringUtils::EndsWith(fileName, ".mpeg", true) );
+	
 	setDebuggingLevel(true );	
 	
 	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Xine_Stream::OpenMedia Attempting to open media for %s (%s)", fileName.c_str(), sMediaPosition.c_str() );
@@ -1240,6 +1250,10 @@ void Xine_Stream::Seek(int pos,int tolerance_ms)
                 
                 UpdateTitleChapterInfo();
                 
+		// reset to -1, which means "init"
+		if (!m_bTimecodeIsPrecise)
+			m_iStartVPTS_MS = -1;
+
 		return ;
 	}
 
@@ -1283,7 +1297,10 @@ void Xine_Stream::Seek(int pos,int tolerance_ms)
 		}
 	}
         
-        UpdateTitleChapterInfo();
+	// reset to -1, which means "init"
+	if (!m_bTimecodeIsPrecise)
+		m_iStartVPTS_MS = -1;
+	UpdateTitleChapterInfo();
 }
 
 void Xine_Stream::HandleSpecialSeekSpeed()
@@ -1388,6 +1405,14 @@ void Xine_Stream::HandleSpecialSeekSpeed()
 	Seek(seekTime,0);
 	PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 	m_iCachedStreamPosition = seekTime;
+	
+	if (!m_bTimecodeIsPrecise) 
+	{
+		// updating VPTS stuff and association
+		m_iStartVPTS_MS = seekTime;
+		m_iStartVPTS = m_iCurrentVPTS;
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "HandleSpecialSeekSpeed: VPTS=>MS mapping got reset to: %i => %i", (int) m_iStartVPTS, (int) m_iStartVPTS_MS);
+	}
 }
 
 
@@ -1400,10 +1425,24 @@ bool Xine_Stream::getRealStreamPosition(int &positionTime, int &totalTime)
 		return false;
 	}
 
+	if (!m_bTimecodeIsPrecise)
+	{
+		m_iCurrentVPTS = xine_get_current_vpts(m_pXineStream);
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "getXineStreamPosition: current VPTS: %i", m_iCurrentVPTS );
+	}
+
 	if ( xine_get_stream_info( m_pXineStream, XINE_STREAM_INFO_SEEKABLE ) == 0 )
 	{
 		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Stream is not seekable" );
 		positionTime = totalTime = 0;
+		
+		if (!m_bTimecodeIsPrecise && m_iStartVPTS_MS==-1)
+		{
+			m_iStartVPTS_MS = 0;
+			m_iStartVPTS = m_iCurrentVPTS;
+			LoggerWrapper::GetInstance()->Write( LV_STATUS, "getXineStreamPosition: VPTS=>MS mapping got reset to: %i => %i", (int) m_iStartVPTS, (int) m_iStartVPTS_MS);
+		}
+			
 		return false;
 	}
 	else
@@ -1418,6 +1457,14 @@ bool Xine_Stream::getRealStreamPosition(int &positionTime, int &totalTime)
 			
 			positionTime = iPosTime;
 			totalTime = iLengthTime;
+			
+			if (!m_bTimecodeIsPrecise && m_iStartVPTS_MS==-1)
+			{
+				m_iStartVPTS_MS = iPosTime;
+				m_iStartVPTS = m_iCurrentVPTS;
+				LoggerWrapper::GetInstance()->Write( LV_STATUS, "getXineStreamPosition: VPTS=>MS mapping got reset to: %i => %i", (int) m_iStartVPTS, (int) m_iStartVPTS_MS);
+			}
+			
 			return true;
 		}
 		else
@@ -1429,7 +1476,8 @@ bool Xine_Stream::getRealStreamPosition(int &positionTime, int &totalTime)
 }
 
 
-int Xine_Stream::getStreamPlaybackPosition( int &positionTime, int &totalTime, int attemptsCount, bool *getResult, bool alwaysFromCache )
+int Xine_Stream::getStreamPlaybackPosition( int &positionTime, int &totalTime, int attemptsCount, 
+					    bool *getResult, bool alwaysFromCache, bool bEnforcePrecision )
 {
 	PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
 	
@@ -1462,11 +1510,30 @@ int Xine_Stream::getStreamPlaybackPosition( int &positionTime, int &totalTime, i
 	
 	// default fallback:
 	// fetching from cache stream position
-	positionTime = m_iCachedStreamPosition;
+	if (bEnforcePrecision && !m_bTimecodeIsPrecise)
+	{
+		if (m_iStartVPTS_MS != -1)
+		{
+			positionTime = m_iStartVPTS_MS + (int64_t)(m_iCurrentVPTS-m_iStartVPTS) / 90;
+
+			//LoggerWrapper::GetInstance()->Write( LV_STATUS, "getStreamPlaybackPosition curr %i, start %i, pos %i, ms %i",
+			//		   (int)m_iCurrentVPTS, (int)m_iStartVPTS, (int)positionTime, (int)m_iStartVPTS_MS);
+			
+			LoggerWrapper::GetInstance()->Write( LV_STATUS, "getStreamPlaybackPosition: position drift: %i", ((int) positionTime - m_iCachedStreamPosition));
+		}
+		else
+		{
+			LoggerWrapper::GetInstance()->Write( LV_WARNING, "getStreamPlaybackPosition VPTS=>MS mapping is not available, fallback to not precise position value");
+			positionTime = m_iCachedStreamPosition;
+		}
+	}
+	else
+		positionTime = m_iCachedStreamPosition;
+	
 	totalTime = m_iCachedStreamLength;
 	if (getResult)
 		*getResult = true;
-	return m_iCachedStreamPosition;
+	return positionTime;
 }
 
 void Xine_Stream::DisplaySpeedAndTimeCode()
@@ -1807,14 +1874,43 @@ void Xine_Stream::XineStreamEventListener( void *streamObject, const xine_event_
 				xine_ui_data_t *data = ( xine_ui_data_t * ) event->data;
 				
 				LoggerWrapper::GetInstance()->Write( LV_STATUS, "UI set title: %s %s", data->str, pXineStream->GetPosition().c_str() );
-                		//UI set title: Title 58, Chapter 1,
-				const char *p = strstr( data->str, "Title " );
-				if ( p )
-					pXineStream->m_iTitle = atoi( p + 6 );
 
-				p = strstr( data->str, "Chapter " );
-				if ( p )
-					pXineStream->m_iChapter = atoi( p + 8 );
+				//updating title/chapter numbers
+				pXineStream->UpdateTitleChapterInfo();
+
+
+                                // if this is Internet Radio, then we can read the album and title
+                                if(StringUtils::StartsWith(pXineStream->m_sCurrentFile, "http://", true))
+                                {
+                                    bool bRead=false;
+                                    string sAlbum, sTitle;
+                                    {
+                                      PLUTO_SAFETY_LOCK(streamLock, pXineStream->m_streamMutex);
+                                      if (pXineStream->m_bInitialized)
+                                        {
+                                          sAlbum = xine_get_meta_info(pXineStream->m_pXineStream, XINE_META_INFO_ALBUM);
+                                          sTitle = xine_get_meta_info(pXineStream->m_pXineStream, XINE_META_INFO_TITLE);
+                                          bRead=true;
+                                        }
+                                    }
+
+                                    // only if we actually read data, process it - otherwise skip
+                                    if (bRead)
+                                    {
+                                      if (sAlbum!="")
+                                        StringUtils::Replace(&sTitle, sAlbum+" - ", "");
+
+                                      LoggerWrapper::GetInstance()->Write( LV_STATUS, "Title of new song: %s", sTitle.c_str());
+				      if (sTitle!="")
+				      {
+					  pXineStream->SendMediaDescription("INTERNET_RADIO:"+sTitle);
+				      }
+                                    }
+				    
+				    // enabling VPTS feature to make clock tick
+				    pXineStream->m_bTimecodeIsPrecise = false;
+				    pXineStream->m_iStartVPTS_MS = -1;
+                                }
 			}
 			break;
 			
@@ -2219,6 +2315,9 @@ bool Xine_Stream::playStream( string mediaPosition)
 		else
 			xine_set_param( m_pXineStream, XINE_PARAM_SPEED, XINE_SPEED_NORMAL );
 */
+		// reset to -1, which means "init"
+		if (!m_bTimecodeIsPrecise)
+			m_iStartVPTS_MS = -1;
 		
 		ReportTimecode();
 				
@@ -3226,8 +3325,7 @@ string Xine_Stream::readMediaInfo()
 				}
 			}				
 		}
-	}	
-	
+	}
 	LoggerWrapper::GetInstance()->Write( LV_STATUS, "Stream media info (length=%i): \n%s", sMediaInfo.length(), sMediaInfo.c_str());
 	
 	m_sMediaInfo = sMediaInfo;
@@ -3344,6 +3442,11 @@ void Xine_Stream::ReadAVInfo()
 void Xine_Stream::SendAVInfo()
 {
 	m_pFactory->ReportAVInfo( m_sCurrentFile, m_iStreamID, m_sMediaInfo, m_sAudioInfo, m_sVideoInfo);
+}
+
+void Xine_Stream::SendMediaDescription(string sMediaDescription)
+{
+    m_pFactory->ReportMediaDescription(sMediaDescription);
 }
 
 bool Xine_Stream::setAspectRatio(string sAR)

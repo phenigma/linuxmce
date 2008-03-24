@@ -80,6 +80,7 @@ Section "Device"
 	Option		"NoBandWidthTest"	"true"
 	Option		"ModeValidation"	"NoDFPNativeResolutionCheck, NoEdidMaxPClkCheck, NoMaxPClkCheck"
 	Option		"DynamicTwinView"	"false"
+	Option		"UseEvents"			"true"
 EndSection
 
 Section "Screen"

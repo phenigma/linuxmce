@@ -142,7 +142,8 @@ bool Lighting_Plugin::Register()
 
     RegisterMsgInterceptor(( MessageInterceptorFn )( &Lighting_Plugin::LightingCommand ), 0, 0, 0, DEVICECATEGORY_Lighting_Device_CONST, MESSAGETYPE_COMMAND, 0 );
     RegisterMsgInterceptor(( MessageInterceptorFn )( &Lighting_Plugin::LightingFollowMe ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Follow_Me_Lighting_CONST );
-    RegisterMsgInterceptor(( MessageInterceptorFn )( &Lighting_Plugin::DeviceOnOff ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Device_OnOff_CONST );
+    RegisterMsgInterceptor(( MessageInterceptorFn )( &Lighting_Plugin::DeviceState ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Device_OnOff_CONST );
+    RegisterMsgInterceptor(( MessageInterceptorFn )( &Lighting_Plugin::DeviceState ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_State_Changed_CONST );
     RegisterMsgInterceptor(( MessageInterceptorFn )( &Lighting_Plugin::GetVideoFrame ), 0, 0, 0, 0, MESSAGETYPE_COMMAND, COMMAND_Get_Video_Frame_CONST );
 
 	m_pListDeviceData_Router_Lights = m_pRouter->m_mapDeviceByCategory_Find(DEVICECATEGORY_Lighting_Device_CONST);
@@ -195,22 +196,32 @@ class DataGridTable *Lighting_Plugin::LightingScenariosGrid( string GridID, stri
 	return pDataGrid;
 }
 
-bool Lighting_Plugin::DeviceOnOff( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
+bool Lighting_Plugin::DeviceState( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
 {
     // This only runs as a plug-in so we can safely cast it
     class DeviceData_Router *pDevice_RouterFrom = (class DeviceData_Router *) pDeviceFrom;
-    
+	string sLevel = "";    
+
+	//LoggerWrapper::GetInstance()->Write(LV_WARNING, "DEBUG...pMessage->m_mapParameters = %d",pMessage->m_mapParameters[EVENTPARAMETER_OnOff_CONST]);
 	if( pMessage->m_dwID == EVENT_Device_OnOff_CONST )
 	{
-		string sLevel = pMessage->m_mapParameters[EVENTPARAMETER_OnOff_CONST];
-		if(sLevel == "0")
+		sLevel = pMessage->m_mapParameters[EVENTPARAMETER_OnOff_CONST];
+		if(sLevel == "0") {
 			SetLightState( pMessage->m_dwPK_Device_From, false, 0 );
-		else if(sLevel == "1")
+		} else if(sLevel == "1") {
 			SetLightState( pMessage->m_dwPK_Device_From, true, 100 );
-		else
-		{
-			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Received OnOff event with wrong parameter value %s",
-				sLevel.c_str());
+		} else {
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Received OnOff event with wrong parameter value %s",sLevel.c_str());
+		}
+	} else if (pMessage->m_dwID == EVENT_State_Changed_CONST) {
+		//Add support for event based dimming
+		sLevel = pMessage->m_mapParameters[EVENTPARAMETER_State_CONST];
+		int int_sLevel = atoi(sLevel.c_str());
+		
+		if(int_sLevel>0) {
+			SetLightState(pMessage->m_dwPK_Device_From,true,int_sLevel);
+		} else {
+			SetLightState(pMessage->m_dwPK_Device_From,false,int_sLevel);
 		}
 	}
 	
@@ -272,7 +283,7 @@ bool Lighting_Plugin::GetVideoFrame( class Socket *pSocket, class Message *pMess
 
 		string sState = pDevice_Light->m_sState_get();
 
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Lighting_Plugin::GetVideoFrame We've got a light with state %s for %d",sState.c_str(),pDevice_Light->m_dwPK_Device);
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"Lighting_Plugin::GetVideoFrame We've got a light with state %s for %d",sState.c_str(),pDevice_Light->m_dwPK_Device);
 	
 		if( sState.empty()==false )
 			m_mapLightsToRestore[ pDevice_Light->m_dwPK_Device ] = make_pair<time_t,string> ( time(NULL)+m_iCameraTimeout, sState );

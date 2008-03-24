@@ -57,6 +57,7 @@ PnpQueueEntry::PnpQueueEntry(Plug_And_Play_Plugin *pPlug_And_Play_Plugin,
 	m_pRow_PnpQueue->Category_set(sCategory);
 	m_pRow_PnpQueue->VendorModelId_set(sVendorModelId);
 	m_pRow_PnpQueue->Path_set("");
+	m_pRow_PnpQueue->Description_set(sText);
 	m_pRow_PnpQueue->SerialNumber_set(sPnpSerialNumber);
 	m_pRow_PnpQueue->FK_CommMethod_set(PK_CommMethod);
 	m_pRow_PnpQueue->FK_PnpProtocol_set(PK_PnpProtocol);
@@ -69,7 +70,6 @@ PnpQueueEntry::PnpQueueEntry(Plug_And_Play_Plugin *pPlug_And_Play_Plugin,
 	m_pRow_PnpQueue->Signature_set(sSignature);
 	m_pRow_PnpQueue->Processed_set(0);
 	pDatabase_pluto_main->PnpQueue_get()->Commit();
-	m_sText=sText;
 	m_EBlockedState=pnpqe_blocked_none;
 	m_tTimeBlocked=0;
 	m_dwPK_PnpQueue_BlockingFor=m_iPK_DHCPDevice=0;
@@ -103,6 +103,7 @@ PnpQueueEntry::PnpQueueEntry(Plug_And_Play_Plugin *pPlug_And_Play_Plugin,
 	m_pRow_PnpQueue->MACaddress_set(sMacAddress);
 	m_pRow_PnpQueue->VendorModelId_set(sVendorModelId);
 	m_pRow_PnpQueue->Path_set("");
+	m_pRow_PnpQueue->Description_set(sText);
 	m_pRow_PnpQueue->SerialNumber_set(sPnpSerialNumber);
 	m_pRow_PnpQueue->FK_CommMethod_set(PK_CommMethod);
 	m_pRow_PnpQueue->FK_PnpProtocol_set(PK_PnpProtocol);
@@ -114,7 +115,6 @@ PnpQueueEntry::PnpQueueEntry(Plug_And_Play_Plugin *pPlug_And_Play_Plugin,
 	m_pRow_PnpQueue->Parms_set(sDeviceData);
 	m_pRow_PnpQueue->Processed_set(0);
 	pDatabase_pluto_main->PnpQueue_get()->Commit();
-	m_sText=sText;
 	m_EBlockedState=pnpqe_blocked_none;
 	m_tTimeBlocked=0;
 	m_dwPK_PnpQueue_BlockingFor=m_iPK_DHCPDevice=0;

@@ -91,7 +91,12 @@ void Gallery::MainLoop(Photo_Screen_Saver *pPhoto_Screen_Saver)
 			PLUTO_SAFETY_LOCK_ERRORSONLY(vm, m_FrontEndMutex);
 			if(StatusChange && !m_bSuspended)
 			{
-				PaintScreen();
+				bool bForceFlip = FrontEnd->GetLastEvent().type == SDL_VIDEOEXPOSE;
+				
+				if(bForceFlip)
+					FrontEnd->GetLastEvent().type = 0;
+
+				PaintScreen(bForceFlip);
 				vm.Release();
 				_Sleep(35);
 			}
@@ -146,16 +151,16 @@ void Gallery::RefreshFileList(string sFileList)
 	Scenario->RefreshFileList(sFileList);
 }
 
-void Gallery::PaintScreen(void)
+void Gallery::PaintScreen(bool bForceRefresh)
 {
 	Utils.ResetMsTime();
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	if(Scenario->Update())
+	if(Scenario->Update(bForceRefresh))
 		FrontEnd->Flip();
 }
 
-bool Gallery::Setup(int Width, int Height, int FaddingTime, int ZoomTime, string FolderName, bool bUseAnimation)
+bool Gallery::Setup(int Width, int Height, int FaddingTime, int ZoomTime, string FolderName, bool bUseAnimation, int nMaxSize)
 {
 	Event.Type = 0;
 	FrontEnd = new SDLFrontEnd();
@@ -164,7 +169,7 @@ bool Gallery::Setup(int Width, int Height, int FaddingTime, int ZoomTime, string
 	bool Result = FrontEnd->StartVideoMode(Width, Height, bFullScreen) != 0;
 	Painter::Instance()->Setup(&Extensions);
 	Extensions.Resize(Width, Height);
-	Scenario = new GalleryScenario(Width, Height, FaddingTime, ZoomTime, FolderName, bUseAnimation);
+	Scenario = new GalleryScenario(Width, Height, FaddingTime, ZoomTime, FolderName, bUseAnimation, nMaxSize);
 	return Result;
 }
 

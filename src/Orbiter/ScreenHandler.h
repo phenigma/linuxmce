@@ -194,6 +194,7 @@ public:
 	void SetMediaSortFilterSelectedObjects();
 	void GetAttributesForMediaFile(const char *pFilename);
 	bool FileList_KeyDown(CallBackData *pData);
+	bool MediaBrowser_OnTimer(CallBackData *pData);
 
 	virtual void SCREEN_NewPhoneDetected(long PK_Screen, string sMac_address, string sDescription, int iPK_PnpQueue);
 	virtual void SCREEN_WhatModelMobileOrbiter(long PK_Screen, int iPK_Users, string sMac_address);

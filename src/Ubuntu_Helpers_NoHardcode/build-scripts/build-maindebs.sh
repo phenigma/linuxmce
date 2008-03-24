@@ -41,14 +41,14 @@ function build_main_debs() {
 	# Prepare some params values for MakeRelease
 	DisplayMessage "Compiling and building packages"
 	SVNrevision=$(svn info "${svn_dir}"/trunk/src |grep ^Revision | cut -d" " -f2)
-	ExcludePkgList="543,542,462,607,432,431,427,426,430,429,336,337,589,590,515,516,266,540"
+	ExcludePkgList="543,542,462,607,432,431,427,426,430,429,589,590,515,516,266,540"
 
 	# Compile the packages
-	"${mkr_dir}/MakeRelease" -R "$SVNrevision" -h 'localhost' -u 'root' -O "$out_dir" -D 'pluto_main_build' -o 15 -r 21 -m 1 -K "$ExcludePkgList" -s "${svn_dir}/trunk" -n / -d || Error "MakeRelease failed"
+	"${mkr_dir}/MakeRelease" -a -R "$SVNrevision" -h 'localhost' -u 'root' -O "$out_dir" -D 'pluto_main_build' -o 15 -r 21 -m 1 -K "$ExcludePkgList" -s "${svn_dir}/trunk" -n / -d || Error "MakeRelease failed"
 
 	# Compile the private packages
 	if [[ "$svn_private_url" != "" ]] && [[ "$svn_private_user" != "" ]] && [[ "$svn_private_pass" != "" ]] ;then
-		"${mkr_dir}/MakeRelease" -R "$SVNrevision" -h 'localhost' -u 'root' -O "$out_dir" -D 'pluto_main_build' -o 15 -r 21 -m 1108 -K "$ExcludePkgList" -s "${svn_dir}/trunk" -n / -d || Error "MakeRelease failed"
+		"${mkr_dir}/MakeRelease" -a -R "$SVNrevision" -h 'localhost' -u 'root' -O "$out_dir" -D 'pluto_main_build' -o 15 -r 21 -m 1108 -K "$ExcludePkgList" -s "${svn_dir}/trunk" -n / -d || Error "MakeRelease failed"
 	fi
 }
 

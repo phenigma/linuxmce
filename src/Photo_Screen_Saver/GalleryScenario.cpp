@@ -27,7 +27,7 @@
 using namespace DCE;
 
 GalleryScenario::GalleryScenario(int Width, int Height, int FaddingTime, 
-	int ZoomTime, string SearchImageFolder, bool bUseAnimation)
+	int ZoomTime, string SearchImageFolder, bool bUseAnimation,int nMaxSize)
 : AfterPicture(NULL), BeforePicture(NULL), StateMachine(NULL), 
 	nLastTimeUpdated(0), Browser(NULL), Fades(NULL)
 {
@@ -39,11 +39,12 @@ GalleryScenario::GalleryScenario(int Width, int Height, int FaddingTime,
 	this->Width = Width;
 	this->Height = Height;
 	m_bUseAnimation = bUseAnimation;
+	m_nMaxSize = nMaxSize;
 
 	ZoomFactory::Instance()->Setup(Width, Height);
 
-	AfterPicture = new AnimatedPicture(Width, Height);
-	BeforePicture = new AnimatedPicture(Width, Height);
+	AfterPicture = new AnimatedPicture(Width, Height, m_nMaxSize);
+	BeforePicture = new AnimatedPicture(Width, Height, m_nMaxSize);
 }
 
 GalleryScenario::~GalleryScenario(void)
@@ -67,12 +68,12 @@ void GalleryScenario::Reset()
 	delete BeforePicture;
 	delete StateMachine;
 
-	AfterPicture = new AnimatedPicture(Width, Height);
-	BeforePicture = new AnimatedPicture(Width, Height);
+	AfterPicture = new AnimatedPicture(Width, Height, m_nMaxSize);
+	BeforePicture = new AnimatedPicture(Width, Height, m_nMaxSize);
 	StateMachine = new GaleryStateMachine();
 }
 
-bool GalleryScenario::Update(void)
+bool GalleryScenario::Update(bool bForceRefresh)
 {
 	glEnable(GL_BLEND);
 	int Status = StateMachine->GetStatus();
@@ -99,6 +100,13 @@ bool GalleryScenario::Update(void)
 			BeforePicture->Update(CurrentTime);
 			BeforePicture->Paint();
 			nLastTimeUpdated = SDL_GetTicks();
+			return true;
+		}
+
+		if(bForceRefresh)
+		{
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Painting the image... (force refresh) ");
+			BeforePicture->Paint();
 			return true;
 		}
 

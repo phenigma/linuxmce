@@ -12,6 +12,7 @@ function mainScreenSaver($output,$mediadbADO,$dbADO) {
 	$page=(isset($_REQUEST['page']))?(int)$_REQUEST['page']:1;
 	$records_per_page=50;
 	$screenSaverAttribute=getScreenSaverAttribute($mediadbADO);
+	$screenSaverDisabledAttribute=getScreenSaverAttribute($mediadbADO,46);
 	
 	if($action=='form'){
 		$flickerEnabled=flickrStatus();
@@ -60,11 +61,19 @@ function mainScreenSaver($output,$mediadbADO,$dbADO) {
 			
 			$out.='
 				<input type="hidden" name="flikr" value="'.(($flickerEnabled==0)?1:0).'">
-				<input type="submit" class="button" name="flikrBtn" value="'.$flicker_enable_disable_text.'"><br>
-				<input type="submit" class="button" name="remove_flikr_pics" value="Do not use flikr pictures from"> <input type="text" name="flikr_path" value="/home/public/data/pictures/flickr/" style="width:200px;">
+				<fieldset style="width:400px;">
+				<legend>Flikr script</legend>
+				Enable/disable the script who retrieve images from flikr.com<br>
+				<input type="submit" class="button" name="flikrBtn" value="'.$flicker_enable_disable_text.'"><hr>
+				
+				Remove flikr pictures from screensaver and disable the script<br>
+				<b>Flikr pictures path:</b> <input type="text" name="flikr_path" value="/home/public/data/pictures/flickr/" style="width:200px;"> <input type="submit" class="button" name="remove_flikr_pics" value="Remove">			
+				</fieldset>
+				
+				
 				<table cellpading="0" cellspacing="0">
 					<tr>
-						<td>'.getScreensaverFiles($path,$screenSaverAttribute,$mediadbADO,$page,$records_per_page).'</td>
+						<td>'.getScreensaverFiles($path,$screenSaverAttribute,$screenSaverDisabledAttribute,$mediadbADO,$page,$records_per_page).'</td>
 					</tr>';
 				$out.='		
 				</table>';
@@ -84,18 +93,25 @@ function mainScreenSaver($output,$mediadbADO,$dbADO) {
 
 		$displayedFiles=cleanString(@$_POST['displayedFiles']);
 		if($displayedFiles!=''){
-			$mediadbADO->Execute('DELETE File_Attribute.* FROM File_Attribute INNER JOIN Attribute ON FK_Attribute=PK_Attribute WHERE FK_AttributeType=30 AND FK_File IN ('.$displayedFiles.')');
+			
 			$displayedFilesArray=explode(',',$displayedFiles);
 			foreach ($displayedFilesArray AS $fileID){
-				if((int)@$_POST['file_'.$fileID]==1){
+				if((int)@$_POST['file_'.$fileID]==0){
+					if(file_attribute_exist($fileID,$screenSaverAttribute,$mediadbADO)){
+						$mediadbADO->Execute('INSERT IGNORE INTO File_Attribute (FK_Attribute,FK_File) VALUES (?,?)',array($screenSaverDisabledAttribute,$fileID));
+					}
+				}else{
+					$mediadbADO->Execute('DELETE File_Attribute.* FROM File_Attribute INNER JOIN Attribute ON FK_Attribute=PK_Attribute WHERE FK_AttributeType=46 AND FK_File=?',array($fileID));					
 					$mediadbADO->Execute('INSERT IGNORE INTO File_Attribute (FK_Attribute,FK_File) VALUES (?,?)',array($screenSaverAttribute,$fileID));
 				}
 			}
 		}
 		
 		if(isset($_POST['remove_flikr_pics'])){
+			flickrStatus('-disable');
+			
 			$flikr_path=cleanString($_POST['flikr_path']);
-			$mediadbADO->Execute("DELETE File_Attribute.* FROM File_Attribute INNER JOIN Attribute ON FK_Attribute=PK_Attribute INNER JOIN File on FK_File=PK_File WHERE FK_AttributeType=30 AND Path LIKE '$flikr_path%'");			
+			$mediadbADO->Execute('INSERT IGNORE INTO File_Attribute (FK_Attribute,FK_File) SELECT ?, PK_File FROM File INNER JOIN File_Attribute ON PK_File=File_Attribute.FK_File AND FK_Attribute=? WHERE Path LIKE \''.$flikr_path.'%\'',array($screenSaverDisabledAttribute,$screenSaverAttribute));
 		}				
 		
 		header('Location: index.php?section=mainScreenSaver&path='.urlencode($path).'&msg='.cleanString($TEXT_SCREENSAVER_UPDATED_CONST).'&page='.$page);
@@ -121,11 +137,16 @@ function getUpperLevel($path)
 }
 
 
-function getScreensaverFiles($path,$screenSaverAttribute,$mediadbADO,$page,$records_per_page){
+function getScreensaverFiles($path,$screenSaverAttribute,$screenSaverDisabledAttribute,$mediadbADO,$page,$records_per_page){
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/screenSaver.lang.php');
 
-	$query='SELECT PK_File,Filename,Path,FK_Attribute FROM File LEFT JOIN File_Attribute ON FK_File=PK_File AND FK_Attribute=? WHERE EK_MediaType IN (7,26) AND IsDirectory=0 AND Missing=0 AND Path=?';
-	$res=$mediadbADO->Execute($query,array($screenSaverAttribute,$path));
+	$query='
+		SELECT PK_File,Filename,Path,fa1.FK_Attribute,fa2.FK_Attribute AS AttributeDisabled
+		FROM File 
+		LEFT JOIN File_Attribute fa1 ON fa1.FK_File=PK_File AND fa1.FK_Attribute=? 
+		LEFT JOIN File_Attribute fa2 ON fa2.FK_File=PK_File AND fa2.FK_Attribute=? 
+		WHERE EK_MediaType IN (7,26) AND IsDirectory=0 AND Missing=0 AND Path=?';
+	$res=$mediadbADO->Execute($query,array($screenSaverAttribute,$screenSaverDisabledAttribute,$path));
 	$records=$res->RecordCount();
 	
 	$noPages=ceil($records/$records_per_page);
@@ -138,7 +159,7 @@ function getScreensaverFiles($path,$screenSaverAttribute,$mediadbADO,$page,$reco
 		$pageLinks.=($i==$page)?' '.$i:' <a href="'.$_SERVER['PHP_SELF'].'?'.str_replace('&page='.$page,'',$_SERVER['QUERY_STRING']).'&page='.$i.'">'.$i.'</a>';
 	}	
 	
-	$res=$mediadbADO->Execute($query.' LIMIT '.$start.','.$records_per_page,array($screenSaverAttribute,$path));
+	$res=$mediadbADO->Execute($query.' LIMIT '.$start.','.$records_per_page,array($screenSaverAttribute,$screenSaverDisabledAttribute,$path));
 	if($res->RecordCount()==0){
 		return $TEXT_NO_IMAGES_IN_DIRECTORY_CONST;
 	}
@@ -159,7 +180,7 @@ function getScreensaverFiles($path,$screenSaverAttribute,$mediadbADO,$page,$reco
 		$filePic=(!file_exists($row['Path'].'/'.$row['Filename'].'.tnj'))?'&nbsp;':'<a href="'.$picUrl.'" target="_blank"><img src="include/image.php?imagepath='.htmlentities(urlencode($row['Path'].'/'.$row['Filename'])).'.tnj" border="0"></a>';
 		$out.='
 			<tr class="'.$class.'">
-				<td><input type="checkbox" name="file_'.$row['PK_File'].'" value="1" '.((is_null($row['FK_Attribute']))?'':'checked').'></td>
+				<td><input type="checkbox" name="file_'.$row['PK_File'].'" value="1" '.((is_null($row['FK_Attribute']) || (!is_null($row['FK_Attribute']) && !is_null($row['AttributeDisabled'])))?'':'checked').'></td>
 				<td>'.$filePic.'</td>
 				<td><a href="'.$picUrl.'" target="_blank">'.$row['Filename'].'</a></td>
 			</tr>		
@@ -181,10 +202,16 @@ function getScreensaverFiles($path,$screenSaverAttribute,$mediadbADO,$page,$reco
 	return $out;
 }
 
-function getScreenSaverAttribute($mediadbADO){
-	$res=$mediadbADO->Execute('SELECT PK_Attribute,Name FROM Attribute WHERE FK_AttributeType=30');
+/**
+ * @param dbADO database connection $mediadbADO
+ * @param int FK_AttributeType $type
+ * @return int PK_Attribute
+ */
+function getScreenSaverAttribute($mediadbADO,$type=30){
+	$res=$mediadbADO->Execute('SELECT PK_Attribute,Name FROM Attribute WHERE FK_AttributeType='.$type);
 	if($res->RecordCount()==0){
-		$mediadbADO->Execute('INSERT INTO Attribute (FK_AttributeType,Name) SELECT PK_AttributeType,\'*\' FROM AttributeType WHERE PK_AttributeType=30');
+		$label=($type==30?'*':'Screen saver disabled');
+		$mediadbADO->Execute('INSERT INTO Attribute (FK_AttributeType,Name) SELECT PK_AttributeType,? FROM AttributeType WHERE PK_AttributeType='.$type,array($label));
 		return $mediadbADO->Insert_id();
 	}
 	$attribute=0;
@@ -201,5 +228,14 @@ function flickrStatus($param='-status'){
 	$cmd='sudo -u root /usr/pluto/bin/flickr_status.sh '.$param;
 	
 	return trim(exec_batch_command($cmd,1));
+}
+
+function file_attribute_exist($fileID,$attributeID,$mediadbADO){
+	$res=$mediadbADO->Execute('SELECT * FROM File_Attribute WHERE FK_File=? AND FK_Attribute=?',array($fileID,$attributeID));
+	if($res->RecordCount()>0){
+		return true;
+	}
+	
+	return false;
 }
 ?>

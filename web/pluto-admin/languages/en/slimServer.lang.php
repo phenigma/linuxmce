@@ -1,0 +1,3 @@
+<?
+$TEXT_SLIMSERVER_CONST='SLIM server';
+?>

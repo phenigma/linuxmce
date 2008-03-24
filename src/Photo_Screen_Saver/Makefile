@@ -21,7 +21,7 @@ sources = Main.cpp Photo_Screen_Saver.cpp $(Gen_Dev_Files)
 
 CXXFLAGS +=
 CPPFLAGS += -I/usr/include/SDL -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include
-LDFLAGS += -lGL -lGLU -lSDL -lSDL_image -lSDL_ttf -lXrender -lglib-2.0 -lXmu
+LDFLAGS += -lGL -lGLU -lSDL -lSDL_image -lSDL_ttf -lXrender -lglib-2.0 -lXmu -lSDL_gfx
 XTRALDLIBS =
 
 Gen_Dev_Files +=

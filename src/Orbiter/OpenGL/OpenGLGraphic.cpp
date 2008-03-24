@@ -117,9 +117,9 @@ OpenGLGraphic::~OpenGLGraphic()
 	LeaksDetector::Instance().DestroyedGraphicObject();
 #endif
 
-#ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "OGLGRAPHIC: Destroyed opengl graphic %p", this);
-#endif
+//#ifdef DEBUG
+//	LoggerWrapper::GetInstance()->Write(LV_STATUS, "OGLGRAPHIC: Destroyed opengl graphic %p", this);
+//#endif
 }
 
 void OpenGLGraphic::Initialize()
@@ -143,9 +143,9 @@ void OpenGLGraphic::Initialize()
 	m_nWidth = 0;
 	m_nHeight = 0;
 
-#ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "OGLGRAPHIC: Created new opengl graphic %p", this);
-#endif
+//#ifdef DEBUG
+//	LoggerWrapper::GetInstance()->Write(LV_STATUS, "OGLGRAPHIC: Created new opengl graphic %p", this);
+//#endif
 }
 
 bool OpenGLGraphic::SetupFromImage(std::string FileName)

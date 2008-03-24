@@ -1028,7 +1028,7 @@ int MediaAttributes_LowLevel::AddIdentifiedDiscToDB(int PK_MediaType,string sIde
 	vector<Row_Disc *> vectRow_Disc;
 	m_pDatabase_pluto_media->Disc_get()->GetRows("ID='" + StringUtils::SQLEscape(sIdentifiedDisc) + "'",&vectRow_Disc);
 
-	int Existing = vectRow_Disc.size();
+	size_t Existing = vectRow_Disc.size();
 
 	if( Existing )
 		pRow_Disc = vectRow_Disc[0];
@@ -1348,6 +1348,38 @@ int MediaAttributes_LowLevel::AddRippedDiscToDatabase(int PK_Disc,int PK_MediaTy
 					m_pDatabase_pluto_media->File_Attribute_get()->Commit();
 				}
 			}
+
+                        // Ensure that File track number is set
+                        if (iTrack>0)
+                        {
+#ifdef DEBUG
+                          LoggerWrapper::GetInstance()->Write(LV_STATUS,"MediaAttributes_LowLevel::AddRippedDiscToDatabase setting track number for %s to %i",s.c_str(), iTrack);
+#endif
+                          vector<Row_File_Attribute *> vFileAttrs;
+                          m_pDatabase_pluto_media->File_Attribute_get()->GetRows("JOIN Attribute ON FK_Attribute=PK_Attribute WHERE FK_AttributeType=" + StringUtils::itos(ATTRIBUTETYPE_Track_CONST) + " AND FK_File=" + StringUtils::itos(pRow_File->PK_File_get()),&vFileAttrs);
+                          if (vFileAttrs.size()==0)
+                          {
+#ifdef DEBUG
+                            LoggerWrapper::GetInstance()->Write(LV_STATUS,"MediaAttributes_LowLevel::AddRippedDiscToDatabase - no previous attributes found, adding new one");
+#endif
+                            Row_Attribute *pAttr = m_pDatabase_pluto_media->Attribute_get()->AddRow();
+                            pAttr->Name_set(StringUtils::itos(iTrack));
+                            pAttr->FK_AttributeType_set(ATTRIBUTETYPE_Track_CONST);
+                            m_pDatabase_pluto_media->Attribute_get()->Commit();
+
+                            Row_File_Attribute *pRow_File_Attribute = m_pDatabase_pluto_media->File_Attribute_get()->AddRow();
+                            pRow_File_Attribute->FK_File_set(pRow_File->PK_File_get());
+                            pRow_File_Attribute->FK_Attribute_set(pAttr->PK_Attribute_get());
+                            m_pDatabase_pluto_media->File_Attribute_get()->Commit();
+                          }
+                          else
+                          {
+#ifdef DEBUG
+                            LoggerWrapper::GetInstance()->Write(LV_STATUS,"MediaAttributes_LowLevel::AddRippedDiscToDatabase - not modifying existing attribute");
+#endif
+                          }
+                        }
+
 			FileUtils::DelFile(sDestination + "/" + sLockFile);
 		}
 	}

@@ -98,8 +98,10 @@ void SocketListener::Run()
 		return;
 	}
 
-	int iOpt = 1;
-	if( setsockopt( m_Socket, SOL_SOCKET, SO_REUSEADDR, (SOCKOPTTYPE)&iOpt, sizeof(iOpt) ) ) // error
+	int iOptReuse = 1;
+	int iOptKeepAlive = 1;
+	if (setsockopt(m_Socket, SOL_SOCKET, SO_REUSEADDR, (SOCKOPTTYPE)&iOptReuse, sizeof(iOptReuse))
+		|| setsockopt(m_Socket, SOL_SOCKET, SO_KEEPALIVE, (SOCKOPTTYPE)&iOptKeepAlive, sizeof(iOptKeepAlive))) // error
 	{
 		LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "setsockopt failed" ); // couldn't set the sock option
 		closesocket(m_Socket);

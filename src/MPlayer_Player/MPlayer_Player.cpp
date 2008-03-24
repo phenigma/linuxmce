@@ -31,6 +31,52 @@ using namespace DCE;
 #include "pluto_main/Define_MediaType.h"
 #include "XineMediaInfo.h"
 			 
+#include <signal.h>
+			 
+
+MPlayer_Player *g_pPlayerInstance=NULL;
+int g_iMplayerChildPID=0;
+
+void SignalHandler_PIPE (int signum)
+{
+	if (signum!=SIGPIPE)
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "SignalHandler_PIPE: received not SIGPIPE signal: %i, ignoring", signum);
+	else
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "SignalHandler_PIPE: received SIGPIPE signal, ignoring");
+}
+
+void SignalHandler_CHLD (int signum, siginfo_t *info, void *context)
+{
+	if (info->si_signo!=SIGCHLD)
+	{
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "SignalHandler_CHLD: received not SIGCHLD signal: %i, ignoring", info->si_signo);
+		return;
+	}
+	
+	if (info->si_pid!=g_iMplayerChildPID)
+	{
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "SignalHandler_CHLD: received SIGCHLD signal, but with not from mplayer child (from %i, we expect from %i), ignoring", info->si_pid, g_iMplayerChildPID );
+		return;
+	}
+	
+	if (info->si_code!=CLD_EXITED && info->si_code!=CLD_KILLED && info->si_code!=CLD_DUMPED)
+	{
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "SignalHandler_CHLD: received SIGCHLD signal, but with not expected sig_code %i, ignoring", info->si_code);
+		return;
+	}
+	
+	if (g_pPlayerInstance)
+	{
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "SignalHandler_CHLD: mplayer child exited, reloading MPlayer DCE device");
+		// do reload
+		g_pPlayerInstance->OnReload();
+	}
+	else
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "SignalHandler_CHLD: mplayer child exited, but cannot reload MPlayer DCE device as g_pPlayerInstance is NULL");
+	}	
+}
+
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
 MPlayer_Player::MPlayer_Player(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
@@ -82,6 +128,10 @@ MPlayer_Player::~MPlayer_Player()
 		m_bRunPlayerEnginePoll = false;
 		pthread_join(m_tPlayerEnginePollThread, NULL);
 	}
+	
+	EVENT_Playback_Completed("",0,false);  // In case media plugin thought something was playing, let it know that there's not
+	signal(SIGCHLD, SIG_IGN);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer - removed SIGCHLD handler");
 	
 	if (m_pPlayerEngine)
 	{
@@ -541,6 +591,9 @@ void MPlayer_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMedi
 	
 	LoggerWrapper::GetInstance()->Write(LV_WARNING, "MPlayer_Player::EVENT_Playback_Started(streamID=%i)", iStreamID);
 	EVENT_Playback_Started(sMediaURL,iStreamID,sMediaInfo,sAudioInfo,sVideoInfo);
+
+	m_iCurrentAudioTrack = 0;
+	UpdateTracksInfo();
 	
 	//TODO implement setting media subtitles info
 }
@@ -937,10 +990,79 @@ void MPlayer_Player::CMD_Set_Media_ID(string sID,int iStreamID,string &sCMD_Resu
 	LoggerWrapper::GetInstance()->Write(LV_WARNING, "MPlayer_Player::CMD_Set_Media_ID is not implemented");
 }
 
+bool MPlayer_Player::ParseAudioConfig(string sAudioSettings, string &sAlsaDevice, bool &bUsePassThrough)
+{
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "MPlayer_Player::ParseAudioConfig  M/D Audio Settings: %s", sAudioSettings.c_str());
+	
+	if (sAudioSettings=="")
+	{
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "MPlayer_Player::ParseAudioConfig  M/D Audio Settings are empty, assuming 'M'");
+		sAudioSettings = "M";
+	}
+	else
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "MPlayer_Player::ParseAudioConfig  M/D Audio Settings: %s", sAudioSettings.c_str());
+
+	// temporary workaround for #3995
+	if (sAudioSettings=="S3")
+	{
+		LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "MPlayer_Player::ParseAudioConfig  M/D Audio Settings are broken (S3), assuming 'S'");
+		sAudioSettings = "S";
+	}
+	
+	bool updateConfig = true;
+	sAlsaDevice = "plug:dmix";
+	bUsePassThrough = false;
+	
+	for (uint i=0; i<sAudioSettings.length(); i++)
+	{
+		switch (sAudioSettings[i])
+		{
+			case 'C':
+			case 'O':
+				sAlsaDevice = "asym_spdif";
+				break;
+		
+			case 'S':		
+			case 'L':
+				sAlsaDevice = "plug:dmix";
+				break;
+		
+			case '3':
+				bUsePassThrough = true;
+				break;
+		
+			case 'M':
+				updateConfig = false;
+				break;
+		
+			default:
+				LoggerWrapper::GetInstance()->Write( LV_STATUS, "MPlayer_Player::ParseAudioConfig  Unknown audio settings flag: '%c'", sAudioSettings[i]);
+		}
+	}
+	
+	if (!updateConfig)
+	{
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "MPlayer_Player::ParseAudioConfig  Flag 'M' found, we won't override the defaults from /root/.mplayer/config");
+	}
+	
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "MPlayer_Player::ParseAudioConfig  Final audio settings: audio device=%s, use passthrough=%s, use these settings=%s", sAlsaDevice.c_str(), bUsePassThrough?"yes":"no", updateConfig?"yes":"no");
+	
+	return updateConfig;
+}
+
 void MPlayer_Player::InitializePlayerEngine()
 {
+	// get audio settings from the M/D
+	string sAudioSettings = m_pData->m_pEvent_Impl->GetDeviceDataFromDatabase(m_pData->m_dwPK_Device_MD,
+			DEVICEDATA_Audio_settings_CONST);
+	
+	// parse audio settings
+	string sAudioDevice;
+	bool bUsePassthrough;
+	bool bUseAudioSettings = ParseAudioConfig(sAudioSettings, sAudioDevice, bUsePassthrough);
+	
 	//TODO wrap into try-catch block
-	m_pPlayerEngine = new MPlayerEngine();
+	m_pPlayerEngine = new MPlayerEngine(bUseAudioSettings, sAudioDevice, bUsePassthrough);
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Started MPlayer slave instance");
 	m_bPlayerEngineInitialized = true;
 	
@@ -954,7 +1076,21 @@ void MPlayer_Player::InitializePlayerEngine()
 	}
 	
 	if (m_pPlayerEngine->GetEngineState()==MPlayerEngine::PLAYBACK_FINISHED)
+	{
+		g_pPlayerInstance = this;
+		g_iMplayerChildPID = m_pPlayerEngine->GetChildPID();
+		
+		struct sigaction new_action;
+		new_action.sa_sigaction = SignalHandler_CHLD;
+		new_action.sa_flags = SA_SIGINFO /*| SA_NOCLDSTOP*/;		
+		sigaction(SIGCHLD, &new_action, NULL);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer - installed SIGCHLD handler");
+		
+		signal(SIGPIPE, SignalHandler_PIPE);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer - installed SIGPIPE handler");
+
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer engine initialized and ready to go");
+	}
 	else
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "MPlayer engine didn't set up within 10 seconds, something is wrong");
 	
@@ -1116,6 +1252,13 @@ void MPlayer_Player::SmartLoadPlaylist(string sFolder, string sExtensions, list<
 	long int iMaxSize = -1;
 	int iPosition = 0;
 	
+	// HD-DVD workaround to start from feature_1
+	bool bHDDVD_Workaround = false;
+	string sHDDVD_Workaround;
+	int iHDDVD_Workaround=-1;
+	int isHDDVD_Workaround=0;
+	//
+	
 	for (list<string>::iterator li=vNames.begin(); li!=vNames.end(); ++li)
 	{
 		string sFullName = sFolder+"/"+ *li;
@@ -1127,7 +1270,26 @@ void MPlayer_Player::SmartLoadPlaylist(string sFolder, string sExtensions, list<
 			sLargestFile = sFullName;
 			iLargestFilePosition = iPosition;
 		}
+		
+		// HD-DVD workaround to start from feature_1
+		if (*li == "FEATURE_1.EVO" || *li == "feature_1.evo")
+		{
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::SmartLoadPlaylist FEATURE_1.EVO found, will use HD-DVD workaround" );
+			sHDDVD_Workaround = sFullName;
+			iHDDVD_Workaround = iPosition;
+			bHDDVD_Workaround = true;
+			isHDDVD_Workaround = iFileSize;
+		}
+		//
+		
 		iPosition++;
+	}
+	
+	if (bHDDVD_Workaround)
+	{
+		sLargestFile = sHDDVD_Workaround;
+		iLargestFilePosition = iHDDVD_Workaround;
+		iMaxSize = isHDDVD_Workaround;
 	}
 	
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MPlayer_Player::SmartLoadPlaylist winner is %s with size %i on position %i", sLargestFile.c_str(), iMaxSize, iLargestFilePosition );
@@ -1386,7 +1548,7 @@ void MPlayer_Player::UpdateTracksInfo()
 	LoggerWrapper::GetInstance()->Write(LV_WARNING, "MPlayer_Player::UpdateTracksInfo - detecting count of tracks");
 	
 	string sInfoFile = "/tmp/MPlayer_" + StringUtils::itos(m_dwPK_Device)+".ffmpeg.info";
-	string sCMD = "/opt/pluto-ffmpeg/bin/ffmpeg -i " + m_sCurrentFileName + " 2>&1 | grep \"Stream.*Audio\" > " + sInfoFile;
+	string sCMD = "/opt/pluto-ffmpeg/bin/ffmpeg -i \"" + m_sCurrentFileName + "\" 2>&1 | grep \"Stream.*Audio\" > " + sInfoFile;
 	
 	LoggerWrapper::GetInstance()->Write(LV_WARNING, "MPlayer_Player::UpdateTracksInfo - detect command: %s", sCMD.c_str());
 	int iRetCode = system(sCMD.c_str());
@@ -1448,7 +1610,7 @@ void MPlayer_Player::CMD_Audio_Track(string sValue_To_Assign,int iStreamID,strin
 	m_iCurrentAudioTrack = iAudioTrack;
 	
 	// mplayer tracks start from
-	iAudioTrack += 1;
+	//iAudioTrack += 1;
 	
 	m_pPlayerEngine->ExecuteCommand("switch_audio " + StringUtils::itos(iAudioTrack));
 	

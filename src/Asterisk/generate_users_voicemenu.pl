@@ -41,7 +41,7 @@ while(my $DB_ROW = $DB_STATEMENT->fetchrow_hashref())
     &generate_voice("To call ".$DB_ROW->{'UserName'}." dial ".$i.".","/tmp/pluto-default-voicemenu3-$i.gsm");
     $list .= "/tmp/pluto-default-voicemenu3-$i.gsm ";
 	`/bin/mkdir -p /var/spool/asterisk/voicemail/default/$j/INBOX/Old`;
-    &generate_voice($DB_ROW->{'UserName'},"/var/spool/asterisk/voicemail/default/$j/greet.gsm");	
+    &generate_voice($DB_ROW->{'UserName'},"/var/spool/asterisk/voicemail/default/$j/greet.gsm");
 }
 $DB_STATEMENT->finish();
 

@@ -2,6 +2,7 @@
 
 . /etc/lmce-build/builder.conf
 . /usr/local/lmce-build/common/logging.sh
+. /usr/local/lmce-build/common/utils.sh
 
 set -e
 set -x
@@ -35,6 +36,10 @@ done
 # copy installer in the root of the disc
 DisplayMessage "Copying installer to the root of the CD"
 cp "${local_mirror_dir}"/mce-installer*.deb "${temp_dir}"
+
+# Remove duplicate debs and keep the latest version only
+DisplayMessage "Removing duplicate debs from the CD"
+remove_duplicate_debs "${temp_dir}/deb-cache"
 
 # Generate the iso
 DisplayMessage "Generating the ISO"

@@ -13,6 +13,55 @@ DEVICEDATA_Use_OpenGL_effects=172
 DEVICEDATA_Use_alpha_blended_UI=169
 DEVICEDATA_PK_UI=104
 
+function AddBookmark {
+	return 0
+	Url="$1"
+	Name="$2"
+
+	[[ ! -f /home/public/bookmarks.html ]] || return 0
+
+	# Generate an id for this bookmark
+	ID=$(echo "$Url" | sha1sum)
+	ID='rdf:#$'${ID:0:6}
+
+	# Generate the bookmark entry
+	Bookmark='   <DT><A HREF="'$Url'" ADD_DATE="1126869382" LAST_MODIFIED="1126869442" ID="'$ID'">'$Name'</A>'
+	Bookmark=$(echo $Bookmark | sed 's/"/\\\"/g')
+
+	for BookmarksFile in /home/public/bookmarks.html /home/user_*/bookmarks.html ;do
+		# See if the bookmark is already there
+		if grep -q "ID=\"$ID\"" $BookmarksFile ;then
+			continue
+		fi
+
+		# Add the bookmark string to the file
+		awk '
+			BEGIN { HR=0 }
+			HR==0 && /<HR>/ {print "'"$Bookmark"'"; HR=1}
+			{print}
+		' $BookmarksFile > $BookmarksFile.$$
+		mv $BookmarksFile.$$ $BookmarksFile
+	done
+
+}
+
+function DelBookmark {
+	return 0
+	Url="$1"
+	Name="$2"
+
+	[[ ! -f /home/public/bookmarks.html ]] || return 0
+
+	# Generate an id for this bookmark
+	ID=$(echo "$Url" | sha1sum)
+	ID='rdf:#$'${ID:0:6}
+	
+	for BookmarksFile in /home/public/bookmarks.html /home/user_*/bookmarks.html ;do
+		grep -v "ID=\"$ID\"" $BookmarksFile >> $BookmarksFile.$$
+		mv $BookmarksFile.$$ $BookmarksFile
+	done
+}
+
 UseAlternativeLibs() 
 {
 	export LD_LIBRARY_PATH=/opt/libsdl/lib:/opt/libxine/lib:/opt/libsdl1.2-1.2.7+1.2.8cvs20041007/lib:/opt/linphone-1.3.5/lib
@@ -165,6 +214,64 @@ FindDevice_Category()
 
 	[[ "$Found" -eq 1 ]]
 	return $?
+}
+
+# Get the device number for the parent of the given device
+# Returns: number or empty string
+GetDeviceParent()
+{
+	local PK_Device="$1"
+	Q="
+		SELECT FK_Device_ControlledVia
+		FROM Device
+		WHERE PK_Device='$PK_Device'
+	"
+	local R=$(RunSQL "$Q")
+	
+	if [[ "$R" == NULL ]]; then
+		R=""
+	fi
+	echo "$R"
+}
+
+# Delete a device and make its children top level
+# Does exactly the same thing as CMD_Delete_Device in General_Info_Plugin
+DeleteDevice()
+{
+	local PK_Device="$1"
+	local Q R
+
+	# Delete embedded devices
+	Q="SELECT PK_Device FROM Device where FK_Device_RouteTo=$PK_Device"
+	R=$(RunSQL "$Q")
+	for Device in $R; do
+		DeleteDevice "$Device"
+	done
+
+	local -a Queries
+	Queries=(
+		"UPDATE Device SET FK_Device_ControlledVia=NULL WHERE FK_Device_ControlledVia=$PK_Device"
+		"DELETE FROM Device WHERE PK_Device=$PK_Device"
+		"DELETE FROM CommandGroup_Command WHERE FK_Device=$PK_Device"
+		"DELETE FROM Device_Command WHERE FK_Device=$PK_Device"
+		"DELETE FROM Device_CommandGroup WHERE FK_Device=$PK_Device"
+		"DELETE FROM Device_DeviceData WHERE FK_Device=$PK_Device"
+		"DELETE FROM Device_DeviceGroup WHERE FK_Device=$PK_Device"
+		"DELETE FROM Device_Device_Related WHERE FK_Device=$PK_Device OR FK_Device_Related=$PK_Device"
+		"DELETE FROM Device_EntertainArea WHERE FK_Device=$PK_Device"
+		"DELETE FROM Device_HouseMode WHERE FK_Device=$PK_Device"
+		"DELETE FROM Device_Orbiter WHERE FK_Device=$PK_Device"
+		"DELETE FROM Device_StartupScript WHERE FK_Device=$PK_Device"
+		"DELETE FROM Device_Users WHERE FK_Device=$PK_Device"
+		"DELETE FROM Package_Device WHERE FK_Device=$PK_Device"
+		"DELETE FROM PaidLicense WHERE FK_Device=$PK_Device"
+		"DELETE FROM Device_Device_Pipe WHERE FK_Device_From=$PK_Device OR FK_Device_To=$PK_Device"
+		"DELETE FROM PaidLicense WHERE FK_Device=$PK_Device"
+	)
+
+	for Q in "${Queries[@]}"; do
+		RunSQL "$Q"
+	done
 }
 
 XineConfSet()

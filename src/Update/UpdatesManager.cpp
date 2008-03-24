@@ -44,8 +44,11 @@ bool UpdatesManager::Init(bool bDownload)
 	// check the current Linux MCE systems configuration
 	PlutoSqlResult result_set;
 	DB_ROW row = NULL;
-	string sql_buff = "select FK_Device,IK_DeviceData FROM Device_DeviceData where FK_DeviceData = ";
-	sql_buff += StringUtils::itos( DEVICEDATA_Model_CONST );
+	string sql_buff = 
+		"select FK_Device,IK_DeviceData "
+		"FROM Device_DeviceData JOIN Device ON FK_Device = PK_Device "
+		"where FK_Device_ControlledVia IS NULL AND "
+		"FK_DeviceData = " + StringUtils::itos( DEVICEDATA_Model_CONST );
 	
 	// select the models from the system
 	if( (result_set.r=dbHelper.db_wrapper_query_result(sql_buff.c_str())) == NULL )

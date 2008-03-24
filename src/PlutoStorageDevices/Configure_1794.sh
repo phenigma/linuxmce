@@ -38,8 +38,20 @@ if [[ "$Device_IP" == "" ]]; then
 	Q="SELECT IPaddress FROM Device WHERE PK_Device = '$Device_ID'"
 	Device_IP=$(RunSQL "$Q")
 fi
+
 if [[ "$Device_IP" == "" ]]; then
 	echo "ERROR: No IP associated with the device $Device_ID"
+	exit 1
+fi
+
+if [[ "$Device_MAC" == "" ]]; then
+	Q="SELECT MACaddress FROM Device WHERE PK_Device = '$Device_ID'"
+	Device_MAC=$(RunSQL "$Q")
+fi
+
+if [[ "$Device_MAC" == "" ]]; then
+	echo "ERROR: No MAC associated with the device $Device_ID"
+	exit 1
 fi
 
 ## Get the username/pass of the device as we will use it to scan the share list and to testmount the shares
@@ -66,7 +78,7 @@ for share in $(smbclient $AuthPart --list=//$Device_IP  --grepable | grep "^Disk
 	echo 
 	echo
 	share=$(echo $share | tr '\\' ' ')
-	pnpUID="\\\\${Device_IP}\\${share}"
+	pnpUID="\\\\${Device_MAC}\\${share}"
 	mountedOK="false"
 	echo "$(date -R) Checking $pnpUID"
 

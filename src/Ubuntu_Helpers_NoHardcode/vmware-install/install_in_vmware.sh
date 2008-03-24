@@ -48,6 +48,10 @@ function create_virtual_machine {
 
 	cp -r /var/Kubuntu/* "$VMWARE_DIR"
 	DisplayMessage "Finished creating virtual machine"
+
+	# Remove old logs
+	rm -f /var/log/mce-installer-*.log
+	rm -f /var/log/Config_Device_Changes.log
 }
 
 function start_virtual_machine {
@@ -119,9 +123,12 @@ function run_installer_on_virtual_machine {
 	while [[ "$(pidof vmware-vmx)" != "" ]] ;do
 		sleep 5
 		if [[ $(( start_time + wait_time )) -lt $( date +%s ) ]] ;then
-			#Error "VmWare failed to finish installing in less than $wait_time seconds."
-			echo "Please connect to the builder as vmware didn't finish installing for over $wait_time seconds" | mail -s "$mail_subject_prefix Vmware install takes to long to finish" razvan.g@plutohome.com
-			read
+			echo "Please connect to the builder as vmware didn't finish installing for over $wait_time seconds. 
+			I will wait 45 minutes and then automaticaly restart the builder." | mail -s "$mail_subject_prefix Vmware install takes to long to finish" "$mail_to"
+			read -t 2700
+			if [[ "$?" != '0' ]] ;then
+				Error "VmWare failed to finish installing in less than $wait_time seconds."
+			fi
 		fi
 	done
 	DisplayMessage "Finished installing in virtual machine"
@@ -192,6 +199,8 @@ function create_disk_image_from_flat {
 	DisplayMessage "Map virtual machine partitions to loop device"
 	local Pattern="${VMWARE_DISK_IMAGE}p?([[:digit:]]+)[*[:space:]]+([[:digit:]]+)[[:space:]]+([[:digit:]]+)[[:space:]]+([[:digit:]]+)[[:space:]+]+([[:xdigit:]]+)[[:space:]].*"
 	local Partition Start End Blocks Type Rest
+
+	umount -f "${WORK_DIR}/mount" || :
 	dmsetup remove_all || :
 	losetup "$LoopDev" "${VMWARE_DISK_IMAGE}"
 	modprobe dm-mod
@@ -217,7 +226,9 @@ function create_disk_image_from_flat {
 
 	mkdir -p "${build_dir}/DisklessSync/${arch}"
 	mv "${VMWARE_MOUNT_DIR}"/usr/pluto/install/PlutoMD-${arch}.tar.bz2 "${build_dir}/DisklessSync/${arch}/"
-	cp "${VMWARE_MOUNT_DIR}"/var/log/mce-installer-*.log "/var/log/"
+	cp "${VMWARE_MOUNT_DIR}"/var/log/mce-installer-*.log "/var/log/" || :
+	cp "${VMWARE_MOUNT_DIR}"/var/log/mce-installer-error.log "/var/log/" || :
+	cp "${VMWARE_MOUNT_DIR}"/var/log/pluto/Config_Device_Changes.log "/var/log/" || :
 
 	tar -C "${VMWARE_MOUNT_DIR}" --exclude=dev --exclude=proc -zc . | split --numeric-suffixes --bytes=2000m - "${VMWARE_TARGZ}_"
 
@@ -294,6 +305,9 @@ create_virtual_machine
 start_virtual_machine
 create_debcache_on_virtual_machine
 copy_installer_on_virtual_machine
+if [[ -f /var/log/mce-installer-error.log ]] ;then
+	Error "VMWARE $(cat /var/log/mce-installer-error.log)"
+fi
 run_installer_on_virtual_machine
 if [[ -f "${VMWARE_DIR}/Kubuntu-flat.vmdk" ]] ;then
 	create_disk_image_from_flat

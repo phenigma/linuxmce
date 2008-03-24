@@ -1595,7 +1595,7 @@ switch ($section) {
 		$output = new Template($dbADO);	
 		$output->setTemplateFileType('homeWithFrames');
 		$output->setLeftFrameSrc('index.php?section=leftScreenSaver');
-		$output->setRightFrameSrc('index.php?section=mainScreenSaver');
+		$output->setRightFrameSrc('index.php?section=mainScreenSaver&path=/home/public/data/pictures');
 		$output->setBody('');		
 		$output->setScriptCalendar('null');
 		$output->setTitle(APPLICATION_NAME);			
@@ -1625,6 +1625,25 @@ switch ($section) {
 	    include_once('operations/deviceTemplate/commMethod.php');
 	    commMethod($output,$dbADO);	    
 	break;		
+	case 'upnpServer':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/others/upnpServer.php');
+	    upnpServer($output,$dbADO);	    
+	break;		
+	case 'slimServer':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/others/slimServer.php');
+	    slimServer($output,$dbADO);	    
+	break;		
+	case 'searchMedia':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/mediaBrowser/searchMedia.php');
+	    searchMedia($output,$mediadbADO);	    
+	break;
+
 	
 	case 'index';
 		@$_SESSION['lastLeftFrameSrc']='';

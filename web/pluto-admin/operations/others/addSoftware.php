@@ -90,33 +90,23 @@ function softwareList($compSelected,$dbADO){
 	$version=getVersion();
 	
 	$res=$dbADO->Execute('
-		SELECT DISTINCT
-            PK_Software,
+		SELECT
+			PK_Software,
 			PackageName,
-			Iconstr,
-			Title,
-			Category,
-			Rating,
-			Virus_Free,
-			`Status`,
-			Version,
-			Distro
-		FROM Software_Source
-		JOIN Software ON Software_Source.FK_Software=PK_Software
+			`Status`
+		FROM Software
+		LEFT JOIN Software_Source ON Software_Source.FK_Software=PK_Software
 		LEFT JOIN Software_Device ON Software_Device.FK_Software=PK_Software AND FK_Device=?
-		WHERE Distro=?  AND Required_Version_Min<=? AND Required_Version_Max>=? ORDER BY PackageName,Version DESC	
+		WHERE Distro=?  AND Required_Version_Min<=? AND Required_Version_Max>=? AND Virus_Free=1 
+		GROUP BY PK_Software, PackageName, `Status` 
+		ORDER BY PackageName
 		',array($compSelected,$distroVersion,$version,$version));
 	
 	$out='<table>
 		<tr class="tablehead">
 			<td align="center">'.$TEXT_ICON_CONST.'</td>
 			<td align="center">'.$TEXT_PACKAGENAME_CONST.'</td>
-			<td align="center">'.$TEXT_VERSION_CONST.'</td>
 			<td align="center">'.$TEXT_DISTRO_CONST.'</td>
-			<td align="center">'.$TEXT_TITLE_CONST.'</td>
-			<td align="center">'.$TEXT_CATEGORY_CONST.'</td>
-			<td align="center">'.$TEXT_RATING_CONST.'</td>
-			<td align="center">'.$TEXT_VIRUS_FREE_CONST.'</td>
 			<td align="center">'.$TEXT_IS_INSTALLED_CONST.'</td>
 			<td align="center">'.$TEXT_ACTION_CONST.'</td>
 		</tr>
@@ -159,12 +149,7 @@ function softwareList($compSelected,$dbADO){
 		<tr class="'.$class.'">
 			<td align="center"><img src="softwareIcon.php?sID='.$row['PK_Software'].'"></td>
 			<td align="center">'.$row['PackageName'].'</td>
-			<td align="center">'.$row['Version'].'</td>
-			<td align="center">'.$row['Distro'].'</td>
-			<td align="center">'.$row['Title'].'</td>
-			<td align="center">'.$row['Category'].'</td>
-			<td align="center">'.$row['Rating'].'</td>
-			<td align="center">'.(($row['Virus_Free']==0)?'no':'yes').'</td>
+			<td align="center">'.$distroVersion.'</td>
 			<td align="center">'.$installStatusArray[@$row['Status']].'</td>
 			<td align="center">'.$button.'</td>
 		</tr>';

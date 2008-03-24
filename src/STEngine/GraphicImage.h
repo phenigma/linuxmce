@@ -32,13 +32,13 @@ using namespace std;
 class GraphicImage
 {
 	SDL_Surface *LocalSurface;
-
+    
 	bool CheckExtension(const char* checkFor);
 	bool SupportTextureNonPowerOfTwo();
 	void Convert(void);
 
 public:
-	GraphicImage(void);
+	GraphicImage(int nMaxSize);
 	~GraphicImage(void);
 	bool Load(string FileName);
 	void Prepare(int nScreenWidth, int nScreenHeight);
@@ -49,6 +49,7 @@ public:
 	float MaxV;
 	int Width;
 	int Height;
+	int m_nMaxSize;
 public:
 	void ReleaseTexture(void);
 	void ScaleImage(int nScreenWidth, int nScreenHeight);

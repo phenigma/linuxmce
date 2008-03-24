@@ -332,7 +332,7 @@ function uploadPicture($fileArray,$mediadbADO){
 
 		if(move_uploaded_file($fileArray['tmp_name'],$GLOBALS['mediaPicsPath'].$newPlaylistPictureName)){
 			// create thumbnail
-			$resizeFlag=resizeImage($GLOBALS['mediaPicsPath'].$newPlaylistPictureName, $GLOBALS['mediaPicsPath'].$pictureID.'_tn.'.$picExtension, 100, 100);
+			$resizeFlag=resizeImage($GLOBALS['mediaPicsPath'].$newPlaylistPictureName, $GLOBALS['mediaPicsPath'].$pictureID.'_tn.'.$picExtension, 256, 256);
 			if($resizeFlag!==0){
 				$error='Thumbnail not created';
 			}

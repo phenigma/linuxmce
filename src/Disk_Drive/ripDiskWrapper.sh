@@ -92,7 +92,7 @@ command="";
 result=$ERR_NONE;
 case $diskType in 
 	2)
-		ProgressOutput='>(/usr/pluto/bin/DiskCopy_ProgressExtract.sh|/usr/pluto/bin/Pluto_Progress.sh "$diskDriveDeviceID" "$jobID" "$taskID")'
+		ProgressOutput='>(/usr/pluto/bin/DiskCopy_ProgressExtract.sh | /usr/pluto/bin/Pluto_Progress.sh "$diskDriveDeviceID" "$jobID" "$taskID")'
 		command='/usr/pluto/bin/disc_unlock "$sourceDevice"; nice -n 15 /usr/pluto/bin/disk_copy "$sourceDevice" "$targetFileName.dvd.in-progress" > '"$ProgressOutput"
 	;;
 	0|1|6|7|8)
@@ -187,6 +187,46 @@ trap "/usr/pluto/bin/cdop '$sourceDevice' unlock" EXIT # unlock tray on exit
 if [[ "$diskType" == 2 ]]; then
 	if eval "$command"; then
 		echo "Ripping successful"
+
+		if [ -f "/usr/pluto/bin/dvdcssHelper.sh" ]; then
+			echo "Copying also DVD CSS keys"
+
+			export DVDCSS_CACHE="$DVDKeysCache"
+
+			KeysPath=`/usr/pluto/bin/dvdcssHelper.sh -f $sourceDevice | grep "CACHE_DIR:" | sed 's/CACHE_DIR://'`
+			if [ -n "$KeysPath" ]; then
+				echo "Keys location: $KeysPath"
+				KeysDumpStatus=`/usr/pluto/bin/dvdcssHelper.sh -d $sourceDevice | grep "ERROR:"`
+				if [ -z "$KeysDumpStatus" ]; then
+					# ripped DVD can have different keys cache folder
+					RippedKeysPath=`/usr/pluto/bin/dvdcssHelper.sh -f $targetFileName.dvd.in-progress | grep "CACHE_DIR:" | sed 's/CACHE_DIR://'`
+					echo "Keys location for ripped DVD: $RippedKeysPath"
+
+					KeysFolder=`basename $KeysPath`
+					RippedKeysFolder=`basename $RippedKeysPath`
+					KeysCacheFolder=`dirname $KeysPath`
+
+					pushd $KeysCacheFolder
+
+					# if this is not the same folder, copy the keys
+					if [ "$RippedKeysFolder" = "$KeysFolder" ]; then
+						RippedKeysFolder=""
+					else
+						cp $KeysFolder/* $RippedKeysFolder/
+					fi
+
+					tar zcf "$targetFileName.dvd.keys.tar.gz.in-progress" $KeysFolder $RippedKeysFolder
+					popd
+					mv "$targetFileName.dvd.keys.tar.gz.in-progress" "$targetFileName.dvd.keys.tar.gz"
+					echo "Keys copied to $targetFileName.dvd.keys.tar.gz"
+				else
+					echo "Failed to dump keys"
+				fi
+			else
+				echo "Failed to find destination keys cache dir for the DVD, keys copying aborted"
+			fi
+		fi
+
 		touch "$targetFileName.dvd.lock"
 		mv -f "$targetFileName.dvd"{.in-progress,}
 		chmod 664 "$targetFileName.dvd"

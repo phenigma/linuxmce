@@ -91,7 +91,6 @@ namespace UpdateMediaVars
 };
 
 #include "DCE/DCEConfig.h"
-DCEConfig g_DCEConfig;
 
 void sigtrap_hook(int sig)
 {
@@ -329,8 +328,9 @@ void UpdateMedia::UpdateSearchTokens()
 		time_t tLastUpdate = StringUtils::SQLDateTime(row_max[0]);
 		if( tLastUpdate )
 		{
-			g_DCEConfig.AddString("LastSearchTokenUpdate",StringUtils::itos(static_cast<int>(tLastUpdate)));
-			g_DCEConfig.WriteSettings();
+			DCEConfig dce_config;
+			dce_config.AddString("LastSearchTokenUpdate",StringUtils::itos(static_cast<int>(tLastUpdate)));
+			dce_config.WriteSettings();
 		}
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "UpdateMedia::UpdateSearchTokens Update search tokens last: %d / %s",tLastUpdate,row_max[0]);
 	}
@@ -562,12 +562,18 @@ bool UpdateMedia::ScanFiles(string sDirectory)
 
 
 		int PK_Picture = 0;
-		if(PK_File > 0)
+		if(PK_File != 0)
+		{
 			PlutoMediaFile_.GetPicAttribute(PK_File);
+		}
+		else
+		{
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"UpdateMedia::ReadDirectory PK_File is %d, won't sync pictures", PK_File);
+		}
 
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"UpdateMedia::ReadDirectory File %d Picture %d",PK_File,PK_Picture);
 
-		if( PK_Picture )
+		if(PK_Picture && PK_File)
 		{
 			string sSql="SELECT Attribute.* FROM Attribute"
 				" JOIN File_Attribute ON FK_Attribute=PK_Attribute"
@@ -715,16 +721,20 @@ int UpdateMedia::SetupDirectory(string sDirectory, FolderType folder_type)
 
 	if(NULL != spPlutoMediaParentFolder.get())
 	{
+		int PK_File = 0;
+
 		if(folder_type == ftNormal)
 		{
 			if(!AlreadyInDatabase(FileUtils::BasePath(sDirectory), FileUtils::FilenameWithoutPath(sDirectory)))
 			{
 				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Adding parent folder to db: %s PlutoMediaParentFolder.HandleFileNotInDatabase", sDirectory.c_str());
-				spPlutoMediaParentFolder->HandleFileNotInDatabase(0);
+				PK_File = spPlutoMediaParentFolder->HandleFileNotInDatabase(0);
 			}
 			else
 			{
-				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Parent folder already in the database: %s", sDirectory.c_str());
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Parent folder already in the database: %s", sDirectory.c_str());
+				PK_File = GetFileID(FileUtils::BasePath(sDirectory), FileUtils::FilenameWithoutPath(sDirectory));
+				spPlutoMediaParentFolder->SetFileAttribute(PK_File);
 			}
 		}
 		else
@@ -735,7 +745,7 @@ int UpdateMedia::SetupDirectory(string sDirectory, FolderType folder_type)
 			// Add this directory like it were a file
 			if(!AlreadyInDatabase(FileUtils::BasePath(sDirectory), FileUtils::FilenameWithoutPath(sDirectory)))
 			{
-				int PK_File = spPlutoMediaParentFolder->HandleFileNotInDatabase(nMediaType);
+				PK_File = spPlutoMediaParentFolder->HandleFileNotInDatabase(nMediaType);
 				LoggerWrapper::GetInstance()->Write(LV_STATUS,"UpdateMedia::ReadDirectory media type %d PlutoMediaFile_.HandleFileNotInDatabase %d",nMediaType, PK_File);
 				Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->GetRow(PK_File);
 				pRow_File->Reload();
@@ -746,14 +756,19 @@ int UpdateMedia::SetupDirectory(string sDirectory, FolderType folder_type)
 			}
 			else
 			{
-				int PK_File = MediaState::Instance().FileId(FileUtils::BasePath(sDirectory), FileUtils::FilenameWithoutPath(sDirectory));
+				PK_File = GetFileID(FileUtils::BasePath(sDirectory), FileUtils::FilenameWithoutPath(sDirectory));
 				spPlutoMediaParentFolder->SetFileAttribute(PK_File);
 				spPlutoMediaParentFolder->SetMediaType(PK_File, nMediaType);
 			}
 		}
 
+		int PK_Picture_Directory = 0;
+
 		// Whatever was the first picture we found will be the one for this directory
-		int PK_Picture_Directory = spPlutoMediaParentFolder->GetPicAttribute(0);
+		if(PK_File)
+			PK_Picture_Directory = spPlutoMediaParentFolder->GetPicAttribute(PK_File);
+		else
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"UpdateMedia::ReadDirectory PK_File is %d, won't sync pictures", PK_File);
 
 		if(PK_Picture_Directory)
 			spPlutoMediaParentFolder->SetPicAttribute(PK_Picture_Directory, "");
@@ -876,7 +891,7 @@ int UpdateMedia::GetFileID(string sDirectory, string sFile)
 
 	 if(nFileID == 0)
 	 {
-		 LoggerWrapper::GetInstance()->Write(LV_WARNING, "The file was moved, need to get the id from DB %s/%s",
+		 LoggerWrapper::GetInstance()->Write(LV_STATUS, "Need to get the id from DB %s/%s since it's not saved in MediaState",
 			 sDirectory.c_str(), sFile.c_str());
          
 		 vector<Row_File *> vectRow_File;

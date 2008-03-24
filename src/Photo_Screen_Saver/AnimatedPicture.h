@@ -35,7 +35,7 @@ class AnimatedPicture
 	int m_nScreenWidth, m_nScreenHeight;
 
 public:
-	AnimatedPicture(int ScreenWidth, int ScreenHeight);
+	AnimatedPicture(int ScreenWidth, int ScreenHeight, int nMaxSize);
 
 	bool LoadFromFile(string FileName);
 	Frame* GetFrame();

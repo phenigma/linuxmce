@@ -69,28 +69,28 @@ function moveFile($output,$mediadbADO) {
 
 		if(isset($_POST['newPath']) && $_POST['newPath']!=''){
 			$newFilePath=urldecode($_POST['newPath']);
-
+			$mvID3='sudo -u root mv \''.$filePath.'.id3\' \''.$newFilePath.'.id3\'';
+			exec_batch_command($mvID3);
+	
 			$cmd='sudo -u root mv \''.$filePath.'\' \''.$newFilePath.'\'';
 			$moved_cmd=exec($cmd,$ret,$moved);	
 			
-			if($moved==0){
-				header('Location: index.php?section=moveFile&fileID='.$fileID.'&error='.urlencode($moved_cmd).'&filePath='.$filePath);
-				exit();
-			}
-			
+
 			// succes: update database
 			$newDir=(substr(urldecode($_POST['newPath']),-1)=='/')?substr(urldecode($_POST['newPath']),0,-1):urldecode($_POST['newPath']);
 			$mediadbADO->Execute('UPDATE File SET Path=? WHERE PK_File=?',array($newDir,$fileID));
 			
-			exec('sudo -u root /usr/pluto/bin/UpdateMedia -d "'.$oldDir.'"');
-			exec('sudo -u root /usr/pluto/bin/UpdateMedia -d "'.$newDir.'"');
+			exec_batch_command('sudo -u root /usr/pluto/bin/UpdateMedia -d "'.$oldDir.'"');
+			exec_batch_command('sudo -u root /usr/pluto/bin/UpdateMedia -d "'.$newDir.'"');
 		}
 		
 		$out.='
 			<script>
 				opener.document.forms[0].action.value=\'form\';
 				opener.document.forms[0].submit();
-				self.location=\'index.php?section=moveFile&fileID='.$fileID.'&filePath='.urlencode($newFilePath).'&msg='.$TEXT_MEDIA_FILE_MOVED_CONST.'\';
+				alert("'.htmlentities($TEXT_MEDIA_FILE_MOVED_CONST).'");
+				self.close();
+				//self.location=\'index.php?section=moveFile&fileID='.$fileID.'&filePath='.urlencode($newFilePath).'&msg='.$TEXT_MEDIA_FILE_MOVED_CONST.'\';
 			</script>
 		';
 		//header('Location: index.php?section=moveFile&fileID='.$fileID.'&filePath='.$newFilePath.'&msg=Media file was moved.');			

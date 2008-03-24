@@ -63,6 +63,7 @@ namespace DCE
 	pthread_mutexattr_t m_MutexAttr;
 	std::map<int, std::pair<string, string> > m_mapVoiceMailStatus;
 	DeviceData_Router* m_pDevice_pbx;
+	int m_nPBXDevice;
 
 	// Private methods
 public:
@@ -491,6 +492,11 @@ private:
 	 */
 
 	string GetCallerName(string sChannel, string sCallerID);
+
+	/*
+	 *	sound card settings : concurrent access allowed?
+	 */
+	bool ConcurrentAccessToSoundCardAllowed(int nOrbiterID);
 
 private:
 	int iCmdCounter;

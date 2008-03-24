@@ -81,6 +81,7 @@ char *MediaSyncModeStr[] =
 //-----------------------------------------------------------------------------------------------------
 MediaSyncMode PlutoMediaFile::m_DefaultMediaSyncMode = modeNone;
 bool PlutoMediaFile::m_bNewFilesAdded = false;
+string PlutoMediaFile::m_sDVDKeysCache = "/home/.dvdcss";
 //-----------------------------------------------------------------------------------------------------
 PlutoMediaFile::PlutoMediaFile(Database_pluto_media *pDatabase_pluto_media, int PK_Installation, 
 	string sDirectory, string sFile, GenericFileHandler *pFileHandler) : 
@@ -118,6 +119,7 @@ PlutoMediaFile::~PlutoMediaFile()
 	{
 		//Save everything in file
 		SavePlutoAttributes();
+
 	}
 
 	if(m_MediaSyncMode == modeFileToDb || m_MediaSyncMode == modeBoth)
@@ -129,10 +131,20 @@ PlutoMediaFile::~PlutoMediaFile()
 	AssignPlutoDevice(NULL);
 	AssignPlutoUser(NULL);
 
+	if(FileUtils::FindExtension(m_sFile) == "dvd")
+		CacheDVDKeys();
+
 	if(NULL != m_pPlutoMediaAttributes)
 	{
 		if(!m_pPlutoMediaAttributes->m_nFileID)
 			m_pPlutoMediaAttributes->m_nFileID = GetFileIDFromDB();
+
+		if(m_pPlutoMediaAttributes->m_nFileID == 0)
+		{
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Got to sync file, but it's not in the db %s/%s!",
+				m_sDirectory.c_str(), m_sFile.c_str());
+			return;
+		}
 
 		MediaState::Instance().FileSynchronized(m_pDatabase_pluto_media, m_sDirectory, m_sFile, 
 			m_pPlutoMediaAttributes->m_nFileID);
@@ -154,6 +166,8 @@ int PlutoMediaFile::HandleFileNotInDatabase(int PK_MediaType)
 {
 	m_nPK_MediaType = PK_MediaType;
 
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "HandleFileNotInDatabase media type %d", PK_MediaType);
+
 	int PK_File=0;
 	// See if the same INode is already in the database
 	int INode = FileUtils::GetInode(m_sDirectory + "/" + m_sFile);
@@ -168,43 +182,33 @@ int PlutoMediaFile::HandleFileNotInDatabase(int PK_MediaType)
 
 			string sMidMD5File = FileUtils::GetMidFileChecksum(m_sDirectory + "/" + m_sFile);
 
-			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Reusing record PK_File %d for %s/%s ? Md5 db %s, md5 file %s", pRow_File->PK_File_get(), m_sDirectory.c_str(), m_sFile.c_str(), pRow_File->MD5_get().c_str(), sMidMD5File.c_str());
-
 			//reuse the file only if it's the same file (midmd5 is the same)
 			if(pRow_File->MD5_get() == sMidMD5File || pRow_File->MD5_isNull())
 			{
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Reusing record PK_File %d for %s/%s ? Md5 db %s, md5 file %s", pRow_File->PK_File_get(), m_sDirectory.c_str(), m_sFile.c_str(), pRow_File->MD5_get().c_str(), sMidMD5File.c_str());
+
 				PK_File=pRow_File->PK_File_get();
 				pRow_File->Ignore_set(0);  // This could be a re-used INode
 				pRow_File->IsNew_set(1); // This could be a re-used INode
 				pRow_File->Path_set(m_sDirectory);
 				pRow_File->Filename_set(m_sFile);
 				pRow_File->Source_set(m_spFileHandler->GetFileSourceForDB());
+				pRow_File->Missing_set(0);
 				pRow_File->Table_File_get()->Commit();
 
 				LoggerWrapper::GetInstance()->Write(LV_STATUS, "PlutoMediaFile::HandleFileNotInDatabase %s/%s N db-attr: %d Inode: %d size %d mt %d/%d, md5 %s", 
 					m_sDirectory.c_str(), m_sFile.c_str(), pRow_File->PK_File_get(), INode, (int) vectRow_File.size(), PK_MediaType, pRow_File->EK_MediaType_get(),
 					pRow_File->MD5_get().c_str());
-
-				//cleanup
-				string sPK_File = StringUtils::ltos(pRow_File->PK_File_get());
-				m_pDatabase_pluto_media->threaded_db_wrapper_query("DELETE FROM File_Attribute WHERE FK_File = " + sPK_File);
-				m_pDatabase_pluto_media->threaded_db_wrapper_query("DELETE FROM LongAttribute WHERE FK_File = " + sPK_File);
-				m_pDatabase_pluto_media->threaded_db_wrapper_query("DELETE FROM Picture_File WHERE FK_File = " + sPK_File);
-				m_pDatabase_pluto_media->threaded_db_wrapper_query("DELETE FROM PlaylistEntry WHERE FK_File = " + sPK_File);
-				m_pDatabase_pluto_media->threaded_db_wrapper_query("DELETE FROM Bookmark WHERE FK_File = " + sPK_File);
 			}
 			else
 			{
 				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Won't reuse file record %d from db because md5 is different", pRow_File->PK_File_get());
+				m_pPlutoMediaAttributes->m_nFileID = 0; 
+				m_pPlutoMediaAttributes->m_nInstallationID = 0;
 			}
 		}
 	}
 
-    // Nope.  It's either a new file, or it was moved here from some other directory.  If so,
-    // then the the attribute should be set.
-	if( !PK_File )
-		PK_File = GetFileAttribute();
-	
 	//make sure it's not already in the database
 	if(!PK_File)
 		PK_File = GetFileIDFromDB();
@@ -267,6 +271,7 @@ int PlutoMediaFile::HandleFileNotInDatabase(int PK_MediaType)
 		pRow_File->EK_MediaType_set(PK_MediaType);
 		pRow_File->IsDirectory_set(m_bIsDir);
 		pRow_File->Source_set(m_spFileHandler->GetFileSourceForDB());
+		pRow_File->Missing_set(0);
 		AssignPlutoUser(pRow_File);
 		AssignPlutoDevice(pRow_File);
 		pRow_File->Table_File_get()->Commit();
@@ -346,6 +351,13 @@ void PlutoMediaFile::SaveShortAttributesInDb(bool bAddAllToDb)
 		m_pPlutoMediaAttributes->m_nFileID = GetFileIDFromDB();
 
 	int PK_File = m_pPlutoMediaAttributes->m_nFileID;
+
+	if(PK_File == 0)
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Got to add short attributes to file, but it's not in the db %s/%s!",
+			m_sDirectory.c_str(), m_sFile.c_str());
+		return;
+	}
 
 	MapPlutoMediaAttributes mapPlutoMediaAttributes;
 
@@ -473,6 +485,16 @@ void PlutoMediaFile::SaveLongAttributesInDb(bool bAddAllToDb)
 		m_pPlutoMediaAttributes->m_nFileID = GetFileIDFromDB();
 
 	int PK_File = m_pPlutoMediaAttributes->m_nFileID;
+
+
+	if(PK_File == 0)
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Got to add long attributes to file, but it's not in the db %s/%s!",
+			m_sDirectory.c_str(), m_sFile.c_str());
+		return;
+	}
+
+
 	MapPlutoMediaAttributes mapPlutoMediaAttributes;
 
 	if(!bAddAllToDb)
@@ -678,8 +700,6 @@ int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
 		"Path = '" + StringUtils::SQLEscape(FileUtils::ExcludeTrailingSlash(m_sDirectory)) + 
 		"' AND Filename = '" + StringUtils::SQLEscape(m_sFile) + "' AND Missing = 1", &vectRow_File);
 
-	int nEK_Users_Private = GetOwnerForPath(m_sDirectory);
-
 	//Any luck to reuse a missing file record?
 	if(vectRow_File.size())
 	{
@@ -727,6 +747,7 @@ int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
 		pRow_File->Source_set(m_spFileHandler->GetFileSourceForDB());
 		AssignPlutoUser(pRow_File);
 		pRow_File->INode_set( FileUtils::GetInode( pRow_File->Path_get() + "/" + pRow_File->Filename_get() ) );
+		pRow_File->Missing_set(0);
 		pRow_File->Table_File_get()->Commit();
 
 		LoggerWrapper::GetInstance()->Write( LV_STATUS, "PlutoMediaFile::AddFileToDatabase new %s PK_File %d Inode %d",
@@ -812,13 +833,13 @@ void PlutoMediaFile::SetMediaType(int PK_File, int PK_MediaType)
 //-----------------------------------------------------------------------------------------------------
 void PlutoMediaFile::AssignPlutoDevice(Row_File *pRow_File)
 {
+	bool bCommitNeeded = (NULL == pRow_File);
+
 	if(NULL == pRow_File)
 		pRow_File = m_pDatabase_pluto_media->File_get()->GetRow(m_pPlutoMediaAttributes->m_nFileID);
 
 	if(NULL != pRow_File)
 	{
-		pRow_File->Reload();
-
 		map<int, int> mapMountedDevices;
 		list<string> listFiles;
 		FileUtils::FindDirectories(listFiles, "/mnt/device", false, true);
@@ -832,12 +853,15 @@ void PlutoMediaFile::AssignPlutoDevice(Row_File *pRow_File)
 		else
 			pRow_File->EK_Device_setNull(true);
 
-		pRow_File->Table_File_get()->Commit();
+		if(bCommitNeeded)
+			pRow_File->Table_File_get()->Commit();
 	}
 }
 //-----------------------------------------------------------------------------------------------------
 void PlutoMediaFile::AssignPlutoUser(Row_File *pRow_File)
 {
+	bool bCommitNeeded = (NULL == pRow_File);
+
 	if(NULL == pRow_File)
 		pRow_File = m_pDatabase_pluto_media->File_get()->GetRow(m_pPlutoMediaAttributes->m_nFileID);
 
@@ -851,6 +875,9 @@ void PlutoMediaFile::AssignPlutoUser(Row_File *pRow_File)
 			pRow_File->EK_Users_Private_set(nEK_Users_Private);
 		else
 			pRow_File->EK_Users_Private_setNull(true);
+
+		if(bCommitNeeded)
+			pRow_File->Table_File_get()->Commit();
 	}
 }
 //-----------------------------------------------------------------------------------------------------
@@ -917,7 +944,8 @@ int PlutoMediaFile::GetFileIDFromDB()
 	vector<Row_File *> vectRow_File;
 	m_pDatabase_pluto_media->File_get()->GetRows("Path='" + StringUtils::SQLEscape(m_sDirectory) + 
 		"' AND Filename='" + StringUtils::SQLEscape(m_sFile) + "' AND Missing = 0", &vectRow_File);
-	if( vectRow_File.size() )
+
+	if(!vectRow_File.empty())
 		return vectRow_File[0]->PK_File_get();
 	else
 		return 0;  // Can do nothing.  This isn't in the database
@@ -925,14 +953,21 @@ int PlutoMediaFile::GetFileIDFromDB()
 //-----------------------------------------------------------------------------------------------------
 int PlutoMediaFile::GetPicAttribute(int PK_File)
 {
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "# GetPicAttribute: file %d", PK_File);
-
 	//got the file in the database?
     if(!PK_File)
 	{
 		PK_File = GetFileIDFromDB();
 		m_pPlutoMediaAttributes->m_nFileID = PK_File;
 	}
+
+	if(PK_File == 0)
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Got to add picture to file, but it's not in the db %s/%s!",
+			m_sDirectory.c_str(), m_sFile.c_str());
+		return 0;
+	}
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "# GetPicAttribute: file %d", PK_File);
 
 	//got any picture associated with the file?
     vector<Row_Picture_File *> vectPicture_File;
@@ -1026,6 +1061,35 @@ void PlutoMediaFile::SavePlutoAttributes()
 	{
 		GetPicAttribute(m_pPlutoMediaAttributes->m_nFileID);
 		m_spFileHandler->SaveAttributes(m_pPlutoMediaAttributes);
+	}
+}
+//-----------------------------------------------------------------------------------------------------
+void PlutoMediaFile::CacheDVDKeys()
+{
+	string sKeysArchiveFile = m_sDirectory + "/" + m_sFile + ".keys.tar.gz";
+
+	if(FileUtils::FileExists(sKeysArchiveFile))
+	{
+		if(!FileUtils::DirExists(m_sDVDKeysCache))
+			FileUtils::MakeDir(m_sDVDKeysCache);
+
+		string sCMD = "/bin/tar zx -C \"" + m_sDVDKeysCache + "\" -f \"" + sKeysArchiveFile + "\"";
+		int nResult = 0;
+		if((nResult = system(sCMD.c_str())) != 0)
+		{
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Failed to cache dvd keys: %s, result %d", 
+				sCMD.c_str(), nResult);
+		}
+		else
+		{
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Successfuly cached dvd keys from %s to %s", 
+				sKeysArchiveFile.c_str(), m_sDVDKeysCache.c_str());
+		}
+	}
+	else
+	{
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Couldn't find %s file for this dvd",
+			sKeysArchiveFile.c_str());
 	}
 }
 //-----------------------------------------------------------------------------------------------------
@@ -1190,8 +1254,8 @@ void PlutoMediaFile::LoadShortAttributes()
 				++it;
 		}
 
-		LoggerWrapper::GetInstance()->Write(LV_STATUS, "After sync'ing file, attr in db %d, attr in file %d", 
-			mapDBAttributes.size(), m_pPlutoMediaAttributes->m_mapAttributes.size());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "After sync'ing file %d, attr in db: %d, attr in file: %d", 
+			m_pPlutoMediaAttributes->m_nFileID, mapDBAttributes.size(), m_pPlutoMediaAttributes->m_mapAttributes.size());
 
 		//cleanup
 		for(MapPlutoMediaAttributes::iterator it = mapDBAttributes.begin(), end = mapDBAttributes.end(); it != end; ++it)
@@ -1290,8 +1354,8 @@ void PlutoMediaFile::LoadLongAttributes()
 				++it;
 		}
 
-		LoggerWrapper::GetInstance()->Write(LV_STATUS, "After sync'ing file, long attr in db %d, long attr in file %d", 
-			mapDbLongAttributes.size(), m_pPlutoMediaAttributes->m_mapLongAttributes.size());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "After sync'ing file %d, long attr in db: %d, long attr in file: %d", 
+			m_pPlutoMediaAttributes->m_nFileID, mapDbLongAttributes.size(), m_pPlutoMediaAttributes->m_mapLongAttributes.size());
 
 		//cleanup
 		for(MapPlutoMediaAttributes::iterator it = mapDbLongAttributes.begin(), end = mapDbLongAttributes.end(); it != end; ++it)

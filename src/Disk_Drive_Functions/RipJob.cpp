@@ -25,6 +25,7 @@
 #include "JukeBox.h"
 #include "MoveDiscTask.h"
 #include "FixupRippingInfoTask.h"
+#include "AddRippingTasksTask.h"
 #include "pluto_media/Table_DiscLocation.h"
 #include "IdentifyTask.h"
 #include "Gen_Devices/AllScreens.h"
@@ -55,6 +56,7 @@ RipJob::RipJob(Database_pluto_media *pDatabase_pluto_media,
 	m_sDirectory=sDirectory;
 	m_sTracks=sTracks;
 	m_nTracksFailedToRip = 0;
+	m_bHasErrors=false;
 
 
 	string sWhere;
@@ -119,7 +121,9 @@ RipJob::~RipJob()
 	string sMessage;
 	if(m_nTracksFailedToRip == m_listTask.size())
 		sMessage = "Ripping failed";
-	else	
+	else if (m_bHasErrors)
+		sMessage = "Ripping completed with errors";
+	else
 		sMessage = "Ripping completed";
 
 	sMessage += ": " + m_sFileName;
@@ -169,7 +173,7 @@ bool RipJob::ReadyToRun()
 	AddTask(new MoveDiscTask(this,"SlotToDrive",MoveDiscTask::mdt_SlotToDrive,m_pSlot->m_pJukeBox,pDrive,m_pSlot));
 	AddTask(new IdentifyTask(this,m_pDisk_Drive_Functions,m_pCommand_Impl,"Identify"));
 	AddTask(new FixupRippingInfoTask(this,"FixupRippingInfo"));
-	AddRippingTasks(pDrive);
+	AddTask(new AddRippingTasksTask(this,pDrive,"AddRippingTasks"));
 	AddTask(new MoveDiscTask(this,"DriveToSlot",MoveDiscTask::mdt_DriveToSlot,m_pSlot->m_pJukeBox,pDrive,m_pSlot));
 	return true;
 }
@@ -180,7 +184,7 @@ void RipJob::JobDone()
 		m_pDisk_Drive_Functions->UnlockDrive();
 }
 
-void RipJob::AddRippingTasks(Drive *pDrive)
+void RipJob::AddRippingTasks(Drive *pDrive, TasklistPosition position)
 {
 	vector<string> vectTracks;
 	StringUtils::Tokenize(m_sTracks, "|", vectTracks);
@@ -188,15 +192,17 @@ void RipJob::AddRippingTasks(Drive *pDrive)
 	if (vectTracks.empty())
 	{
 	    LoggerWrapper::GetInstance()->Write(LV_STATUS, "Adding ripping task for the whole disk");
-	    AddTask(new RipTask(this,"Rip",m_bReportResult, "",pDrive));
+	    AddTask(new RipTask(this,"Rip",m_bReportResult, "",pDrive), position);
 	}
 	else
 	{
+	    	vector<Task *> vTasks;
 		for(vector<string>::iterator it = vectTracks.begin(), end = vectTracks.end(); it != end; ++it)
 		{
 			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Adding ripping task for track %s", it->c_str());
-			AddTask(new RipTask(this,"Rip",m_bReportResult,*it,pDrive));
+			vTasks.push_back( new RipTask(this,"Rip",m_bReportResult,*it,pDrive) );
 		}
+		AddTasks(vTasks, position);
 	}
 }
 
@@ -277,4 +283,9 @@ string RipJob::ToString()
 	if( pTask_Current )
 		sTimeLeft = "(" + StringUtils::SecondsAsTime(pTask_Current->SecondsRemaining()) + ")";
 	return "Ripping " + StringUtils::itos(iTaskNum) + " of " + StringUtils::itos((int) m_listTask.size()) + " " + sTimeLeft + ": " + m_sFileName;
+}
+
+int RipJob::Get_PK_Orbiter()
+{
+	return m_iPK_Orbiter;
 }

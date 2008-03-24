@@ -108,6 +108,7 @@ Telecom_Plugin::Telecom_Plugin(int DeviceID, string ServerAddress,bool bConnectE
     pthread_mutexattr_settype( &m_MutexAttr, PTHREAD_MUTEX_RECURSIVE_NP );
 	m_TelecomMutex.Init(&m_MutexAttr);
 	m_pDevice_pbx=NULL;
+	m_nPBXDevice = 0;
 	m_displayThread = (pthread_t)0;
 	TelecomTask::SetTelecom(this);
 }
@@ -191,11 +192,13 @@ bool Telecom_Plugin::GetConfig()
 	if( !m_pDevice_pbx )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Telecom_Plugin::GetConfig - no pbx device");
-		return false;
+	}
+	else
+	{
+		m_nPBXDevice = m_pDevice_pbx->m_dwPK_Device;
 	}
 
-	
-	DCE::CMD_Send_Asterisk_Status cmd_Send_Asterisk_Status(m_dwPK_Device, m_pDevice_pbx->m_dwPK_Device);
+	DCE::CMD_Send_Asterisk_Status cmd_Send_Asterisk_Status(m_dwPK_Device, m_nPBXDevice);
 	cmd_Send_Asterisk_Status.m_pMessage->m_eRetry = MR_Retry;
 	SendCommand(cmd_Send_Asterisk_Status);
 
@@ -815,9 +818,19 @@ Telecom_Plugin::Ring( class Socket *pSocket, class Message *pMessage, class Devi
 		Command_Impl * pMediaPlugin = m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_Media_Plugin_CONST);
 		if( pMediaPlugin != NULL )
 		{
-			DCE::CMD_MH_Stop_Media CMD_MH_Stop_Media_
-				(nOrbiterDeviceID, pMediaPlugin->m_dwPK_Device, nOrbiterDeviceID, 0, 0, "", false);
-			SendCommand(CMD_MH_Stop_Media_);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "XXX Telecom_Plugin : pause device %d", nOrbiterDeviceID);
+
+			if(ConcurrentAccessToSoundCardAllowed(nOrbiterDeviceID))
+			{
+				DCE::CMD_Pause_Media cmd_Pause_Media(nOrbiterDeviceID, pMediaPlugin->m_dwPK_Device, 0);
+				SendCommand(cmd_Pause_Media);
+			}
+			else
+			{
+				DCE::CMD_MH_Stop_Media CMD_MH_Stop_Media_
+					(nOrbiterDeviceID, pMediaPlugin->m_dwPK_Device, nOrbiterDeviceID, 0, 0, "", false);
+				SendCommand(CMD_MH_Stop_Media_);
+			}
 		}
 		else
 		{
@@ -1035,6 +1048,22 @@ bool Telecom_Plugin::Hangup( class Socket *pSocket, class Message *pMessage, cla
 
 			DCE::SCREEN_Call_Dropped_DL screen_SCREEN_Call_Dropped_DL(m_dwPK_Device, sOrbiters, sReason);
 			SendCommand(screen_SCREEN_Call_Dropped_DL); 
+		}
+
+		if(ConcurrentAccessToSoundCardAllowed(nOrbiterDeviceID))
+		{
+        Command_Impl * pMediaPlugin = m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_Media_Plugin_CONST);
+        if( pMediaPlugin != NULL )
+        {
+                LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "XXX Telecom_Plugin : resume %d", nOrbiterDeviceID);
+
+                DCE::CMD_Change_Playback_Speed cmd_Change_Playback_Speed(nOrbiterDeviceID, pMediaPlugin->m_dwPK_Device, 0, 1000, 0);
+                SendCommand(cmd_Change_Playback_Speed);
+        }
+        else
+        {
+                LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Telecom_Plugin : No media plugin!");
+		}
 		}
 	}
 
@@ -1568,7 +1597,7 @@ void Telecom_Plugin::CMD_PL_Transfer(int iPK_Device,int iPK_Users,string sPhoneE
 	
 		/*send transfer command to PBX*/
 		CMD_PBX_Transfer cmd_PBX_Transfer(
-			m_dwPK_Device, m_pDevice_pbx->m_dwPK_Device,
+			m_dwPK_Device, m_nPBXDevice,
 			sPhoneNumber, sChannel_1, call2 == NULL ? "" : sChannel_2 );
 		SendCommand(cmd_PBX_Transfer);
 	}
@@ -1606,7 +1635,7 @@ void Telecom_Plugin::CMD_PL_Cancel(int iPK_Device,string sChannel,string &sCMD_R
 	
 	if(m_pDevice_pbx) {
 		/*send transfer command to PBX*/
-		CMD_PBX_Hangup cmd_PBX_Hangup(m_dwPK_Device, m_pDevice_pbx->m_dwPK_Device, sChannel);
+		CMD_PBX_Hangup cmd_PBX_Hangup(m_dwPK_Device, m_nPBXDevice, sChannel);
 		SendCommand(cmd_PBX_Hangup);
 	}
 	sCMD_Result="OK :";
@@ -1630,7 +1659,7 @@ void Telecom_Plugin::HangupAllCalls()
 			const map<string, string> & channels = pCallStatus->GetChannels();
 			for(map<string, string>::const_iterator itCh=channels.begin(); itCh!=channels.end(); ++itCh)
 			{
-				CMD_PBX_Hangup cmd_PBX_Hangup(m_dwPK_Device, m_pDevice_pbx->m_dwPK_Device, (*itCh).first);
+				CMD_PBX_Hangup cmd_PBX_Hangup(m_dwPK_Device, m_nPBXDevice, (*itCh).first);
 				SendCommand(cmd_PBX_Hangup);
 			}
 		}
@@ -2476,7 +2505,7 @@ void Telecom_Plugin::CMD_PL_Join_Call(int iPK_Users,string sPhoneExtension,strin
 		
 		string sNewConferenceID = GetNewConferenceID();
 		CMD_PBX_Transfer cmd_PBX_Transfer(
-			m_dwPK_Device, m_pDevice_pbx->m_dwPK_Device,
+			m_dwPK_Device, m_nPBXDevice,
 			sNewConferenceID, sChannel_1, sChannel_2 );
 		SendCommand(cmd_PBX_Transfer);
 
@@ -2959,7 +2988,7 @@ void Telecom_Plugin::FollowMe_EnteredRoom(int iPK_Event, int iPK_Orbiter, int iP
 			if( pDevice_SoftPhone )
 			{
 				CMD_PBX_Transfer cmd_PBX_Transfer(
-						m_dwPK_Device, m_pDevice_pbx->m_dwPK_Device,
+						m_dwPK_Device, m_nPBXDevice,
 				map_device2ext[pDevice_SoftPhone->m_dwPK_Device],
 				sChannel, "");
 				SendCommand(cmd_PBX_Transfer);
@@ -2967,7 +2996,7 @@ void Telecom_Plugin::FollowMe_EnteredRoom(int iPK_Event, int iPK_Orbiter, int iP
 			else
 			{
 				CMD_PBX_Transfer cmd_PBX_Transfer(
-						m_dwPK_Device, m_pDevice_pbx->m_dwPK_Device,
+						m_dwPK_Device, m_nPBXDevice,
 				map_device2ext[pDevice_HardPhone->m_dwPK_Device],
 				sChannel, "");
 				SendCommand(cmd_PBX_Transfer);
@@ -3078,7 +3107,7 @@ void Telecom_Plugin::CMD_Merge_Calls(string sPhone_Call_ID_1,string sPhone_Call_
 					string sChannel2 = (++channels.begin())->first;
 
 					CMD_PBX_Transfer cmd_PBX_Transfer(
-						m_dwPK_Device, m_pDevice_pbx->m_dwPK_Device,
+						m_dwPK_Device, m_nPBXDevice,
 						sConferenceID,
 						sChannel1, sChannel2);
 					SendCommand(cmd_PBX_Transfer);
@@ -3101,7 +3130,7 @@ void Telecom_Plugin::CMD_Merge_Calls(string sPhone_Call_ID_1,string sPhone_Call_
 				for(map<string, string>::const_iterator itCh=channels.begin(); itCh!=channels.end(); ++itCh)
 				{
 					CMD_PBX_Transfer cmd_PBX_Transfer(
-						m_dwPK_Device, m_pDevice_pbx->m_dwPK_Device,
+						m_dwPK_Device, m_nPBXDevice,
 						sConferenceID,
 						(*itCh).first, "");
 					SendCommand(cmd_PBX_Transfer);
@@ -3115,7 +3144,7 @@ void Telecom_Plugin::CMD_Merge_Calls(string sPhone_Call_ID_1,string sPhone_Call_
 					string sChannel2 = (++channels.begin())->first;
 
 					CMD_PBX_Transfer cmd_PBX_Transfer(
-						m_dwPK_Device, m_pDevice_pbx->m_dwPK_Device,
+						m_dwPK_Device, m_nPBXDevice,
 						sConferenceID,
 						sChannel1, sChannel2);
 					SendCommand(cmd_PBX_Transfer);
@@ -3355,9 +3384,20 @@ bool Telecom_Plugin::InternalMakeCall(int iFK_Device_From, string sFromExten, st
 			Command_Impl * pMediaPlugin = m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_Media_Plugin_CONST);
 			if( pMediaPlugin != NULL )
 			{
-				DCE::CMD_MH_Stop_Media CMD_MH_Stop_Media_
-					(iFK_Device_From, pMediaPlugin->m_dwPK_Device, iFK_Device_From, 0, 0, "", false);
-				SendCommand(CMD_MH_Stop_Media_);
+				//TODO: to orbiter?
+
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "XXX Telecom_Plugin : pause device %d", iFK_Device_From);
+
+				if(ConcurrentAccessToSoundCardAllowed(iFK_Device_From))
+				{
+					DCE::CMD_Pause_Media cmd_Pause_Media(iFK_Device_From, pMediaPlugin->m_dwPK_Device, 0);
+					SendCommand(cmd_Pause_Media);
+				}
+				else
+				{
+					DCE::CMD_MH_Stop_Media CMD_MH_Stop_Media_(iFK_Device_From, pMediaPlugin->m_dwPK_Device, iFK_Device_From, 0, 0, "", false);
+					SendCommand(CMD_MH_Stop_Media_);
+				}
 			}
 			else
 			{
@@ -3372,7 +3412,7 @@ bool Telecom_Plugin::InternalMakeCall(int iFK_Device_From, string sFromExten, st
 		else
 		{
 			/*send originate command to PBX*/
-			CMD_PBX_Originate cmd_PBX_Originate(m_dwPK_Device, m_pDevice_pbx->m_dwPK_Device,
+			CMD_PBX_Originate cmd_PBX_Originate(m_dwPK_Device, m_nPBXDevice,
 				sFromExten,
 				ExtensionStatus::Type2String(aExtenType),
 				sPhoneNumberToCall, sCallerID);
@@ -3691,7 +3731,7 @@ void Telecom_Plugin::CMD_Add_Extensions_To_Call(string sPhoneCallID,string sExte
 			LoggerWrapper::GetInstance()->Write(LV_STATUS, "CMD_Add_Extensions_To_Call: moving extension %s to call", itExt->c_str());
 
 			CMD_PBX_Transfer cmd_PBX_Transfer(
-				m_dwPK_Device, m_pDevice_pbx->m_dwPK_Device,
+				m_dwPK_Device, m_nPBXDevice,
 				sConferenceID, sChannelID, "" );
 			SendCommand(cmd_PBX_Transfer);
 		}
@@ -3700,7 +3740,7 @@ void Telecom_Plugin::CMD_Add_Extensions_To_Call(string sPhoneCallID,string sExte
 	// the channels have to be dropped
 	for(vector<string>::const_iterator itDrop=droppedChannels.begin(); itDrop!=droppedChannels.end(); ++itDrop)
 	{
-		CMD_PBX_Hangup cmd_PBX_Hangup(m_dwPK_Device, m_pDevice_pbx->m_dwPK_Device, (*itDrop));
+		CMD_PBX_Hangup cmd_PBX_Hangup(m_dwPK_Device, m_nPBXDevice, (*itDrop));
 		SendCommand(cmd_PBX_Hangup);
 	}
 }
@@ -3900,4 +3940,46 @@ string Telecom_Plugin::GetCallerName(string sChannel, string sCallerID)
 		sCallerName.c_str(), sChannel.c_str(), sExten.c_str());
 
 	return sCallerName;
+}
+
+bool Telecom_Plugin::ConcurrentAccessToSoundCardAllowed(int nOrbiterID)
+{
+	DeviceData_Router *pDevice_Orbiter = m_pRouter->m_mapDeviceData_Router_Find(nOrbiterID);
+
+	if(NULL != pDevice_Orbiter)
+	{
+		DeviceData_Base *pDevice_MD = pDevice_Orbiter->FindSelfOrParentWithinCategory(DEVICECATEGORY_Media_Director_CONST);
+
+		if(NULL != pDevice_MD)
+		{
+			string sAudioSettings;
+			CMD_Get_Device_Data_DT cmd_Get_Device_Data_DT(
+				m_dwPK_Device, DEVICETEMPLATE_General_Info_Plugin_CONST, BL_SameHouse,
+				pDevice_MD->m_dwPK_Device, DEVICEDATA_Audio_settings_CONST, true,
+				&sAudioSettings
+			);
+			SendCommand(cmd_Get_Device_Data_DT);
+
+			// search for C or O, if it is present - then no simultaneous access
+			if(sAudioSettings.find("C") == string::npos && sAudioSettings.find("O") == string::npos)
+			{
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Audio settings '%s', concurrent access allowed!", sAudioSettings.c_str());
+				return true;
+			}
+			else
+			{
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Audio settings '%s', concurrent access is NOT allowed!", sAudioSettings.c_str());
+			}
+		}
+		else
+		{
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Can't find parent MD device for %d", nOrbiterID);
+		}
+	}
+	else
+	{
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Can't find device %d", nOrbiterID);
+	}
+		
+	return false;
 }

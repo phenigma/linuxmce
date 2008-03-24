@@ -363,6 +363,8 @@ void Media_Plugin::AttributesBrowser( MediaListGrid *pMediaListGrid,int PK_Media
 	if( iLastViewed!=2 )
 		sSQL_Where += string(" AND DateLastViewed IS ") + (iLastViewed==1 ? "NOT" : "") + " NULL ";
 
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Media_Plugin::AttributesBrowser - path: %s", sPath.c_str());
+
 	//path condition correction
 	string sPath_Clone(sPath);
 	StringUtils::Replace(&sPath_Clone, "'", "");
@@ -370,11 +372,16 @@ void Media_Plugin::AttributesBrowser( MediaListGrid *pMediaListGrid,int PK_Media
 	StringUtils::Tokenize(sPath_Clone, ",", vectDirectories);
 
 	string sPathCondition = " AND (Path IN (" + sPath + ") ";
-	for(vector<string>::iterator it = vectDirectories.begin(); it != vectDirectories.end(); ++it)
+
+	if(PK_Attribute != 0)
 	{
-		string sDir = *it;
-		sPathCondition += " OR Path LIKE '" + FileUtils::IncludeTrailingSlash(sDir) + "%' ";
+		for(vector<string>::iterator it = vectDirectories.begin(); it != vectDirectories.end(); ++it)
+		{
+			string sDir = *it;
+			sPathCondition += " OR Path LIKE '" + FileUtils::IncludeTrailingSlash(sDir) + "%' ";
+		}
 	}
+
 	sPathCondition += ") ";
 
     if(sPath.empty())

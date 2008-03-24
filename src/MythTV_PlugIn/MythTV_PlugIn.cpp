@@ -313,7 +313,11 @@ bool MythTV_PlugIn::StartMedia(class MediaStream *pMediaStream,string &sError)
 //<-mkr_b_aj_b->
 	pMythTvMediaStream->m_pMediaDevice_Source = m_pMediaDevice_Xine;
 	pMythTvMediaStream->m_sAppName = "pluto-xine-playback-window.pluto-xine-playback-window";
-	m_iChannel=1;
+	MediaFile *pMediaFile = pMythTvMediaStream->GetCurrentMediaFile();
+	if( pMediaFile && atoi(pMediaFile->m_sFilename.c_str())>0 )
+		m_iChannel=atoi(pMediaFile->m_sFilename.c_str());
+	else
+		m_iChannel=1;
 	sMRL = ajTranslateMRL(m_iChannel);
 //<-mkr_b_aj_e->
 
@@ -2136,7 +2140,7 @@ void MythTV_PlugIn::StartScanJob(ScanJob *pScanJob)
 		sSQL = "UPDATE Device SET NeedConfigure=1,Status='**RUN_CONFIG**' WHERE PK_Device IN(" + sDevices + ")";
 	else
 		sSQL = "UPDATE Device SET NeedConfigure=0 WHERE PK_Device IN(" + sDevices + ")";
-LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"myth plugin check %s",sSQL.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::StartScanJob myth plugin check %s",sSQL.c_str());
 	
 	m_pMedia_Plugin->m_pDatabase_pluto_main->threaded_db_wrapper_query(sSQL);
 	pScanJob->m_pRow_Device_CaptureCard->Reload();
@@ -2286,6 +2290,13 @@ void MythTV_PlugIn::SetPaths()
 			if( !row[1] || !row[1][0] )
 				continue;
 			int PK_Device = row[0] ? mapIpToDevice[row[0]] : 0;
+
+			if(PK_Device == 0)
+			{
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "MythTV_PlugIn::SetPaths: won't create tv_shows for device 0. We are probably out of sync!");
+				continue;
+			}
+
 			string sDirectory = sFilename + StringUtils::itos(PK_Device);
 
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::SetPaths row %s/%s device %d directory %s", row[1], row[0] ? row[0] : "x", PK_Device, sDirectory.c_str());

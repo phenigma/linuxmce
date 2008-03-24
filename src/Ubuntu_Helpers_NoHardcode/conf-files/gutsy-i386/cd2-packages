@@ -220,6 +220,7 @@ libexpat1
 libexpat1-dev
 libexporter-lite-perl
 libfaac0
+libfaad2-0
 libfame-0.9
 libfcgi-perl
 libfile-slurp-perl
@@ -331,6 +332,7 @@ liblzo1
 liblzo-dev
 libmad0
 libmagic1
+libmagick++9c2a
 libmailtools-perl
 libmediastreamer0
 libmime-lite-perl
@@ -439,6 +441,7 @@ libsub-uplevel-perl
 libsvga1
 libsvga1-dev
 libsvn1
+libswscale1d
 libsysfs2
 libt1-5
 libtar
@@ -450,6 +453,8 @@ libtext-iconv-perl
 libthai0
 libthai-data
 libtheora0
+libtie-cache-perl
+libtie-ixhash-perl
 libtie-regexphash-perl
 libtiff4
 libtiff4-dev
@@ -458,6 +463,7 @@ libtimedate-perl
 libtime-modules-perl
 libtonezone1
 libttf2
+libtwolame0
 libungif4g
 libuniversal-moniker-perl
 libupnp2
@@ -574,10 +580,6 @@ mysql-client
 mysql-common
 mysql-server
 mysql-server-5.0
-mythtv-backend
-mythtv-database
-mythtv-transcode-utils
-mythweb
 nbd-client
 nbd-server
 nbtscan

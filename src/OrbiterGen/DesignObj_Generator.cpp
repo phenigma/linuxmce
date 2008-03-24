@@ -1077,7 +1077,6 @@ if( pRow_DesignObj_Child->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Go_CONST || pRow
                     if( pRow_DesignObj_Child->FK_DesignObjType_get()==DESIGNOBJTYPE_Floorplan_CONST )
                     {
                         // Add 1 child for each floorplan page
-                        int PageCount=0;
                         vector<Row_Floorplan *> vectRow_Floorplan;
                         m_mds->Floorplan_get()->GetRows(string(FLOORPLAN_FK_INSTALLATION_FIELD) + " Is Null OR " + DEVICE_FK_INSTALLATION_FIELD + "=" + StringUtils::itos(m_pOrbiterGenerator->m_pRow_Device->FK_Installation_get()),&vectRow_Floorplan);
 						if( vectRow_Floorplan.size()==0 )
@@ -1115,7 +1114,7 @@ if( pRow_DesignObj_Child->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Go_CONST || pRow
 							for(size_t s=0;s<vectRow_Floorplan.size();++s)
 							{
 								Row_Floorplan *pRow_Floorplan = vectRow_Floorplan[s];
-								m_pOrbiterGenerator->m_iFloorplanPage = ++PageCount;
+								m_pOrbiterGenerator->m_iFloorplanPage = pRow_Floorplan->Page_get();
 								PlutoRectangle rectangle(m_rPosition.X+drOVO->X_get(),m_rPosition.Y+drOVO->Y_get(),drOVO->Width_get(),drOVO->Height_get());
 								DesignObj_Generator *pDesignObj_Generator = new DesignObj_Generator(m_pOrbiterGenerator,pRow_DesignObj_Child,rectangle,this,false,false,false);
 								if( pDesignObj_Generator->m_pRow_DesignObjVariation )

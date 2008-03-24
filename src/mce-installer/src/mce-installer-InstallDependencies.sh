@@ -3,6 +3,11 @@
 . /tmp/mce_wizard_data.sh
 . ./mce-installer-common.sh
 
+# Install this for disked md
+if [[ ! -z "$c_deviceType" ]] && [[ "$c_deviceType" == "3" ]] ;then
+	apt-get -y -f install nfs-common smbfs
+fi
+
 Setup_Apt_Conffiles
 
 rm -rf /tmp/mce_installer_error
@@ -45,6 +50,7 @@ if [[ "$c_ubuntuLiveCdFrom" == "$FROM_ISO" ]] ;then
 		ExitInstaller 'Could not cache Kubuntu Live CD'
 	fi
 fi
+
 
 
 # remove Network Manager

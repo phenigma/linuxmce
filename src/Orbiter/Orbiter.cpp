@@ -331,7 +331,8 @@ Orbiter::Orbiter( int DeviceID, int PK_DeviceTemplate, string ServerAddress,  st
 	m_bAltDown = false;
 	m_bCapsLock = false;
 	m_pCacheImageManager = NULL;
-	m_pScreenHistory_NewEntry = NULL;
+	m_pScreenHistory_Pivot = NULL;
+	m_pScreenHistory_New = NULL;
 	m_bIgnoreMouse = false;
 
 #ifdef ENABLE_MOUSE_BEHAVIOR
@@ -558,7 +559,7 @@ Orbiter::~Orbiter()
 	delete m_pOrbiterFileBrowser_Collection;
 	m_pOrbiterFileBrowser_Collection = NULL;
 
-	delete m_pScreenHistory_NewEntry;
+	delete m_pScreenHistory_Pivot;
 	m_pOrbiterFileBrowser_Collection = NULL;
 
 	delete m_pScreenHandler;
@@ -1015,8 +1016,16 @@ g_PlutoProfiler->DumpResults();
 		}
 	}
 
+	//save context
+	if(NULL == m_pContextToBeRestored && NULL != m_pScreenHistory_New && NULL != m_pScreenHistory_New->GetObj())
+	{
+		map<DesignObj_Orbiter *, bool> mapVisibilityContext;
+		GetChildrenVisibilityContext(m_pScreenHistory_New->GetObj(), mapVisibilityContext);
+		m_pScreenHistory_New->SaveContext(m_mapVariable, mapVisibilityContext);
+	}
+
 	//restoring variables and visibility status for objects
-	if(m_pContextToBeRestored)
+	if(NULL != m_pContextToBeRestored)
 	{
 		map<DesignObj_Orbiter *, bool> mapVisibilityContext;
 		m_pContextToBeRestored->RestoreContext(m_mapVariable, mapVisibilityContext);
@@ -4191,6 +4200,15 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 			Output += sCmdOutput;
 #endif
 		}
+		else if(Variable == "RSI")
+		{
+			//rip status indicator
+			string sRippingStatus;
+			DCE::CMD_Get_Ripping_Status cmd_Get_Ripping_Status(m_dwPK_Device, m_dwPK_Device_MediaPlugIn, &sRippingStatus);
+			SendCommand(cmd_Get_Ripping_Status);
+
+			Output += sRippingStatus;
+		}
 		else if(Variable == "LUV")
 		{
 			string sLastUpdatedVersion = "N/A";
@@ -5099,8 +5117,9 @@ void Orbiter::CMD_Go_back(string sPK_DesignObj_CurrentScreen,string sForce,strin
 		{
 			PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
 			m_pContextToBeRestored = pScreenHistory;  // Don't do this if we're going to the screen
-			m_pScreenHistory_NewEntry = m_pScreenHistory_Current;
-			LoggerWrapper::GetInstance()->Write(LV_STATUS,"CMD_Go_back to %d is not a gobacktoscreen",m_pScreenHistory_NewEntry->PK_Screen());
+			m_pScreenHistory_Pivot = m_pScreenHistory_Current;
+			m_pScreenHistory_New = m_pScreenHistory_Pivot;
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"CMD_Go_back to %d is not a gobacktoscreen",m_pScreenHistory_Pivot->PK_Screen());
 			cm.Release();
 
 			CMD_Goto_DesignObj(0, pScreenHistory->GetObj()->m_ObjectID, pScreenHistory->ScreenID(),
@@ -5236,10 +5255,10 @@ void Orbiter::CMD_Goto_DesignObj(int iPK_Device,string sPK_DesignObj,string sID,
 
 	bool bNewScreenHistoryItem = true;
 	ScreenHistory *pScreenHistory_New = NULL;
-	if(NULL != m_pScreenHistory_NewEntry)
+	if(NULL != m_pScreenHistory_Pivot)
 	{
-		pScreenHistory_New = m_pScreenHistory_NewEntry; //just create by CMD_Goto_Screen
-		m_pScreenHistory_NewEntry = NULL;
+		pScreenHistory_New = m_pScreenHistory_Pivot; //just create by CMD_Goto_Screen
+		m_pScreenHistory_Pivot = NULL;
 	}
 	else
 	{
@@ -5248,26 +5267,23 @@ void Orbiter::CMD_Goto_DesignObj(int iPK_Device,string sPK_DesignObj,string sID,
 		pScreenHistory_New->AddToHistory();
 	}
 
+	m_pScreenHistory_New = pScreenHistory_New;
+
 	string sLastObject = pScreenHistory_New->GetObj() ? pScreenHistory_New->GetObj()->m_ObjectID : "";
 	bool bLastCantGoBack = pScreenHistory_New->CantGoBack();
+
+	pScreenHistory_New->SetObj(pObj_New);
 
 	//we have to restore the context. nothing to save, it's all there
 	if(NULL == m_pContextToBeRestored)
 	{
-		if(NULL != pScreenHistory_New->GetObj())
-		{
-			map<DesignObj_Orbiter *, bool> mapVisibilityContext;
-			GetChildrenVisibilityContext(pScreenHistory_New->GetObj(), mapVisibilityContext);
-			pScreenHistory_New->SaveContext(m_mapVariable, mapVisibilityContext);
-		}
-
-		if(sID != "" && pScreenHistory_New->ScreenID() == "")
+        if(sID != "" && pScreenHistory_New->ScreenID() == "")
 			pScreenHistory_New->ScreenID(sID);
 	}
 	else
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "We have all in screen history item. Nothing new to save.");
 
-	pScreenHistory_New->SetObj(pObj_New);
+
 
 #ifdef DEBUG
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"CMD_Goto_DesignObj: %s pScreenHistory_New->m_bCantGoBack %d bCant_Go_Back %d pObj_New->m_bCantGoBack %d",
@@ -7247,6 +7263,10 @@ void Orbiter::TranslateVirtualDevice(int PK_DeviceTemplate,long &PK_Device)
 		PK_Device=m_pLocationInfo->m_dwPK_Device_IRReceiver;
 		break;
 
+	case DEVICETEMPLATE_VirtDev_Disc_Drive_CONST:
+		PK_Device=m_pLocationInfo->m_dwPK_Device_DiscDrive;
+		break;
+
 	case DEVICETEMPLATE_VirtDev_LCDVFD_CONST:
 		PK_Device=m_pLocationInfo->m_dwPK_Device_LCD_VFD;
 		break;
@@ -7593,9 +7613,14 @@ void Orbiter::CMD_Send_Message(string sText,bool bGo_Back,string &sCMD_Result,Me
 	bool bContainsGoto=false;
 	string sMessage = SubstituteVariables(sText,NULL,0,0);
 
-	if(sMessage != "")
+	vector<string> vectMessages;
+	StringUtils::Tokenize(sMessage, ";", vectMessages);
+
+	for(vector<string>::iterator it = vectMessages.begin(); it != vectMessages.end(); ++it)
 	{
-		Message *pMessageOut = new Message(sMessage);
+		string sLocalMessage = *it;
+
+		Message *pMessageOut = new Message(sLocalMessage);
 		if( pMessageOut->m_dwPK_Device_To==DEVICETEMPLATE_This_Orbiter_CONST )
 			pMessageOut->m_dwPK_Device_To=m_dwPK_Device;
 		if( pMessageOut->m_dwMessage_Type==MESSAGETYPE_COMMAND && 
@@ -7612,8 +7637,15 @@ void Orbiter::CMD_Send_Message(string sText,bool bGo_Back,string &sCMD_Result,Me
 				bContainsGoto=true;
 		}
 
+		if(Simulator::GetInstance()->IsRunning() && pMessageOut->m_dwID == COMMAND_Delete_File_CONST)
+		{
+			CMD_Go_back("","");
+			return;
+		}
+
 		QueueMessageToRouter(pMessageOut);
 	}
+
 	if( bGo_Back && !bContainsGoto )
 		CMD_Go_back("","");
 }
@@ -9107,8 +9139,9 @@ void Orbiter::CMD_Goto_Screen(string sID,int iPK_Screen,int iInterruption,bool b
 		m_pMouseBehavior->Clear();
 #endif
 
-	m_pScreenHistory_NewEntry = new ScreenHistory(iPK_Screen, m_pScreenHistory_Current,pMessage,this);
-	m_pScreenHistory_NewEntry->ScreenID(sID);
+	m_pScreenHistory_Pivot = new ScreenHistory(iPK_Screen, m_pScreenHistory_Current,pMessage,this);
+	m_pScreenHistory_Pivot->ScreenID(sID);
+	m_pScreenHistory_New = m_pScreenHistory_Pivot;
 
 	cm.Relock();
 	m_pScreenHandler->ReceivedGotoScreenMessage(iPK_Screen, pMessage);
@@ -9824,7 +9857,7 @@ void Orbiter::StartScreenSaver(bool bGotoScreenSaverDesignObj)
 	// If we're watching video, go to that instead
 	if( m_bIsOSD && m_iPK_Screen_RemoteOSD && m_bContainsVideo && m_iLocation_Initial==m_pLocationInfo->iLocation )
 	{
-		if( bGotoScreenSaverDesignObj && (!m_pScreenHistory_Current || m_pScreenHistory_Current->PK_Screen()!=m_iPK_Screen_RemoteOSD) && (!m_pScreenHistory_NewEntry || m_pScreenHistory_NewEntry->PK_Screen()!=m_iPK_Screen_RemoteOSD) )
+		if( bGotoScreenSaverDesignObj && (!m_pScreenHistory_Current || m_pScreenHistory_Current->PK_Screen()!=m_iPK_Screen_RemoteOSD) && (!m_pScreenHistory_Pivot || m_pScreenHistory_Pivot->PK_Screen()!=m_iPK_Screen_RemoteOSD) )
 			CMD_Goto_Screen("",m_iPK_Screen_RemoteOSD); // Go to the remote instead
 		return;
 	}

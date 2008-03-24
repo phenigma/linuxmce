@@ -117,8 +117,6 @@ DataGridRenderer::DataGridRenderer(DesignObj_Orbiter *pOwner): ObjectRenderer(pO
 
 			if ( pCell )
 			{
-				int nOldDGRow = DGRow;
-
 				if( bContainsCells && DGRow!=pDataGridTable->m_iUpRow && DGRow!=pDataGridTable->m_iDownRow)
 				{
 					map< pair<int,int>, DesignObj_Orbiter *>::iterator it = 
