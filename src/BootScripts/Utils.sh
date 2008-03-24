@@ -234,6 +234,46 @@ GetDeviceParent()
 	echo "$R"
 }
 
+# Delete a device and make its children top level
+# Does exactly the same thing as CMD_Delete_Device in General_Info_Plugin
+DeleteDevice()
+{
+	local PK_Device="$1"
+	local Q R
+
+	# Delete embedded devices
+	Q="SELECT PK_Device FROM Device where FK_Device_RouteTo=$PK_Device"
+	R=$(RunSQL "$Q")
+	for Device in $R; do
+		DeleteDevice "$Device"
+	done
+
+	local -a Queries
+	Queries=(
+		"UPDATE Device SET FK_Device_ControlledVia=NULL WHERE FK_Device_ControlledVia=$PK_Device"
+		"DELETE FROM Device WHERE PK_Device=$PK_Device"
+		"DELETE FROM CommandGroup_Command WHERE FK_Device=$PK_Device"
+		"DELETE FROM Device_Command WHERE FK_Device=$PK_Device"
+		"DELETE FROM Device_CommandGroup WHERE FK_Device=$PK_Device"
+		"DELETE FROM Device_DeviceData WHERE FK_Device=$PK_Device"
+		"DELETE FROM Device_DeviceGroup WHERE FK_Device=$PK_Device"
+		"DELETE FROM Device_Device_Related WHERE FK_Device=$PK_Device OR FK_Device_Related=$PK_Device"
+		"DELETE FROM Device_EntertainArea WHERE FK_Device=$PK_Device"
+		"DELETE FROM Device_HouseMode WHERE FK_Device=$PK_Device"
+		"DELETE FROM Device_Orbiter WHERE FK_Device=$PK_Device"
+		"DELETE FROM Device_StartupScript WHERE FK_Device=$PK_Device"
+		"DELETE FROM Device_Users WHERE FK_Device=$PK_Device"
+		"DELETE FROM Package_Device WHERE FK_Device=$PK_Device"
+		"DELETE FROM PaidLicense WHERE FK_Device=$PK_Device"
+		"DELETE FROM Device_Device_Pipe WHERE FK_Device_From=$PK_Device OR FK_Device_To=$PK_Device"
+		"DELETE FROM PaidLicense WHERE FK_Device=$PK_Device"
+	)
+
+	for Q in "${Queries[@]}"; do
+		RunSQL "$Q"
+	done
+}
+
 XineConfSet()
 {
 	local Setting="$1"
