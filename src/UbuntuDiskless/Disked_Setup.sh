@@ -7,6 +7,8 @@ set -e
 
 
 DEVICEDATA_DisklessBoot=9
+DEVICEDATA_PK_Distro=7
+
 DestDir=$(mktemp -d)
 
 function update_config_files
@@ -33,7 +35,9 @@ function build_installer_script
 		cp "/usr/pluto/install/${file}" "${DestDir}/usr/pluto/install"
 	done
 
-	/usr/pluto/bin/ConfirmDependencies -o 14 -r -D pluto_main -h dcerouter -u root -p '' -d $Moon_DeviceID install > "${DestDir}/usr/pluto/install/activation.sh"
+	Moon_DistroID=$(RunSQL "SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device='$Moon_DeviceID' AND FK_DeviceData='$DEVICEDATA_PK_Distro'")
+
+	/usr/pluto/bin/ConfirmDependencies -o "$Moon_DistroID" -r -D pluto_main -h dcerouter -u root -p '' -d "$Moon_DeviceID" install > "${DestDir}/usr/pluto/install/activation.sh"
 }
 
 function put_sample_movie
