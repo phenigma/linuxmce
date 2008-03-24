@@ -2357,7 +2357,13 @@ bool OSDScreenHandler::PVRSoftware_ObjectSelected(CallBackData *pData)
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OSDScreenHandler::SCREEN_mnuSpeedControl(long PK_Screen)
 {
-	LoggerWrapper::GetInstance()->Write( LV_STATUS, "OSDScreenHandler::SCREEN_DVDRemote()" );
+	if(!m_pOrbiter->m_mapVariable_Find(VARIABLE_My_Channel_ID_CONST).empty())
+	{
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "OSDScreenHandler : won't go to mnuSpeedControl, we have a call in progress");
+		return;
+	}
+
+	LoggerWrapper::GetInstance()->Write( LV_STATUS, "OSDScreenHandler::SCREEN_mnuSpeedControl()" );
 	ScreenHandler::SCREEN_mnuSpeedControl(PK_Screen);
 	
 	RegisterCallBack( cbOnCustomRender, (ScreenHandlerCallBack)&OSDScreenHandler::SpeedControlCustomRender, new RenderScreenCallBackData() );
