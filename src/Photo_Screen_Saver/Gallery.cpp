@@ -92,6 +92,10 @@ void Gallery::MainLoop(Photo_Screen_Saver *pPhoto_Screen_Saver)
 			if(StatusChange && !m_bSuspended)
 			{
 				bool bForceFlip = FrontEnd->GetLastEvent().type == SDL_VIDEOEXPOSE;
+				
+				if(bForceFlip)
+					FrontEnd->GetLastEvent().type = 0;
+
 				PaintScreen(bForceFlip);
 				vm.Release();
 				_Sleep(35);

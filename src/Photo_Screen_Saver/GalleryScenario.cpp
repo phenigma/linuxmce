@@ -105,6 +105,7 @@ bool GalleryScenario::Update(bool bForceRefresh)
 
 		if(bForceRefresh)
 		{
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Painting the image... (force refresh) ");
 			BeforePicture->Paint();
 			return true;
 		}
