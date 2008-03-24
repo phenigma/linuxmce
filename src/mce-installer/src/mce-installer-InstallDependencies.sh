@@ -4,7 +4,7 @@
 . ./mce-installer-common.sh
 
 # Install this for disked md
-if [[ ! -z "$c_deviceType" ]] && [[ "$c_deviceType" != "3" ]] ;then
+if [[ ! -z "$c_deviceType" ]] && [[ "$c_deviceType" == "3" ]] ;then
 	apt-get -y -f install nfs-common smbfs
 fi
 
