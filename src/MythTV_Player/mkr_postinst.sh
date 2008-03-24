@@ -4,12 +4,12 @@
 . /usr/pluto/bin/SQL_Ops.sh
 
 # START: Hack to get mythtv working
-ln -s /usr/lib/libXmu.so.6.2.0 /usr/lib/libXmu.so | :
+ln -s /usr/lib/libXmu.so.6.2.0 /usr/lib/libXmu.so || :
 # END  : Hack to get mythtv working
 
 # If this is not the hybrid, copy the mysql.txt file from hybrid
 if [[ "$PK_Device" != "1" ]] ;then
-	scp root@dcerouter:/etc/mythtv/mysql.txt /etc/mythtv/
+	scp -o 'StrictHostKeyChecking no' -o 'PasswordAuthentication no' root@dcerouter:/etc/mythtv/mysql.txt /etc/mythtv/
 	sed -i "s/^DBHostName.*/DBHostName=dcerouter/g" /etc/mythtv/mysql.txt
 fi
 
