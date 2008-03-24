@@ -134,6 +134,7 @@ fi
 ' > /etc/init.d/kdm
 	chmod +x /etc/init.d/kdm
 fi
+mv /etc/rc2.d/*kdm /etc/rc2.d/S99kdm
 
 echo "
 start on runlevel 2
