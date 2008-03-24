@@ -11,12 +11,12 @@ nvidia_glx_installed="false"
 linux_restricted_modules_generic_installed="false"
 
 if [[ "$(uname -m)" == "i686" ]] ;then
-	nvidia_glx_version="1.0.9639+2.6.22.4-14.9+lmce3"
-	linux_restricted_modules_generic_version="2.6.22.4-14.9+lmce3"
+	nvidia_glx_version="1.0.9639+2.6.22.4-14.9+lmce4"
+	linux_restricted_modules_generic_version="2.6.22.4-14.9+lmce4"
 	arch="i386"
 else
-	nvidia_glx_version="1.0.9639+2.6.22.4-14.10+lmce3"
-	linux_restricted_modules_generic_version="2.6.22.4-14.10+lmce3"
+	nvidia_glx_version="1.0.9639+2.6.22.4-14.10+lmce4"
+	linux_restricted_modules_generic_version="2.6.22.4-14.10+lmce4"
 	arch="amd64"
 fi
 
