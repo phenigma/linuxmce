@@ -167,8 +167,6 @@ DatabaseDefaults()
 		"INSERT INTO Room(FK_Installation, FK_RoomType, Description) VALUES('$PK_Installation', 1, 'NuForce')"
 		"UPDATE Device SET FK_Room=1 WHERE PK_Device=1"
 		"UPDATE Device_DeviceData SET IK_DeviceData='' WHERE FK_DeviceData=28"
-		"UPDATE Device SET Disabled=1 WHERE FK_DeviceTemplate IN
-			($DEVICETEMPLATE_Asterisk, $DEVICETEMPLATE_MythTV_Player, $DEVICETEMPLATE_Orbiter_Embedded_Phone)"
 		"INSERT INTO Users(UserName,PINCode) VALUES('nuforce','1234')"
 		"INSERT INTO Installation_Users(FK_Installation, FK_Users, userCanModifyInstallation, userCanChangeHouseMode)
 			VALUES(1, 1, 1, 1)"
@@ -178,6 +176,13 @@ DatabaseDefaults()
 
 	for Q in "${Queries[@]}"; do
 		RunSQL "$Q"
+	done
+
+	Q="SELECT PK_Device FROM Device WHERE FK_DeviceTemplate IN
+		($DEVICETEMPLATE_Asterisk, $DEVICETEMPLATE_MythTV_Player, $DEVICETEMPLATE_Orbiter_Embedded_Phone)"
+	R=$(RunSQL "$Q")
+	for Device in $R; do
+		DeleteDevice "$Device"
 	done
 
 	/usr/pluto/bin/Timezone_Detect.sh
