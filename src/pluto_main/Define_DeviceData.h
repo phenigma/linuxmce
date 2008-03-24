@@ -223,6 +223,7 @@
 #define DEVICEDATA_Max_Size_CONST 268
 #define DEVICEDATA_Protocol_CONST 269
 #define DEVICEDATA_3_Phase_CONST 271
+#define DEVICEDATA_Dont_Detect_Serial_Devices_CONST 272
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"

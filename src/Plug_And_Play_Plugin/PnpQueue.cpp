@@ -265,6 +265,32 @@ bool PnpQueue::Process_Detect_Stage_Detected(PnpQueueEntry *pPnpQueueEntry)
 		if( pDevice )
 		{
 			pDevice = pDevice->GetTopMostDevice();  // Get the computer it's on
+
+			// Detecting serial devices can be slow since it's a brute force trial and error.  The user may want to disable this.
+			bool bIgnoreSerial = atoi(pDevice->m_mapParameters_Find(DEVICEDATA_Dont_Detect_Serial_Devices_CONST).c_str());
+			if( !bIgnoreSerial )
+			{
+				// This could be a core/hybrid with an embedded media director.  So scan all the children too and if any of them 
+				// have this flag  set, then ignore this device
+				for(VectDeviceData_Impl::iterator it=pDevice->m_vectDeviceData_Impl_Children.begin();it!=pDevice->m_vectDeviceData_Impl_Children.end();++it)
+				{
+					DeviceData_Impl *pDevice_Child = *it;
+					if( atoi(pDevice_Child->m_mapParameters_Find(DEVICEDATA_Dont_Detect_Serial_Devices_CONST).c_str()) )
+					{
+						bIgnoreSerial=true;
+						break;
+					}
+				}
+			}
+
+			if( bIgnoreSerial )
+			{
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "PnpQueue::Process_Detect_Stage_Detected: queue %d ignoring serial devices",
+					pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
+				pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_DONE);
+				return true;
+			}
+
 			pair<time_t,time_t> pTimeUp = m_pPlug_And_Play_Plugin->m_pRouter->m_mapDeviceUpStatus_Find( pDevice->m_dwPK_Device );
 #ifdef DEBUG
 			LoggerWrapper::GetInstance()->Write(LV_STATUS, "PnpQueue::Process_Detect_Stage_Detected: queue %d %s uptime for rs232 on %d is %d", 
