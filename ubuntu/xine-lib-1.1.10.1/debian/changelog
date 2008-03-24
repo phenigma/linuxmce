@@ -1,3 +1,10 @@
+xine-lib (1.1.10.1-2-pluto2) unstable; urgency=low
+
+  [Kirill Belokurov]
+  * fixed playback of WAV files where format chunk is not the first one
+
+ -- Kirill Belokurov <kirill.b@plutohome.com>  Mon, 24 Mar 2008 17:17:20 +0200
+
 xine-lib (1.1.10.1-2-pluto1) unstable; urgency=low
 
   [Kirill Belokurov]
