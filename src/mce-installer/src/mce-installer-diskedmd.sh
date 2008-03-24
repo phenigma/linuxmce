@@ -57,8 +57,7 @@ function Configure_Mounts
 
 	grep -q "/usr/pluto/orbiter" /etc/fstab || echo -e "$Content" >> /etc/fstab
 
-	apt-get install --force-yes -y portmap smbfs nfs-common
-	invoke-rc.d portmap start
+	apt-get install --force-yes -y nfs-common smbfs || exit 1
 
 	mount -a
 
@@ -111,19 +110,6 @@ function Setup_UI
 	esac	
 }
 
-if [ ! -e /etc/group.pbackup ] ;then
-    cp /etc/group /etc/group.pbackup
-fi
-
-if [ ! -e /etc/passwd.pbackup ] ;then
-   cp /etc/passwd /etc/passwd.pbackup
-fi
-
-if [ ! -e /etc/shadow.pbackup ] ;then
-   cp /etc/shadow /etc/shadow.pbackup
-fi
-
-
 if [[ "$c_startupType" == "1" ]] ;then
 	mv /etc/init.d/gdm /etc/init.d/gdm.saved
 	mv /etc/init.d/kdm /etc/init.d/kdm.saved
@@ -149,7 +135,6 @@ script
 end script
 " > /etc/event.d/media-cernter-startup
 
-apt-get -f -y --force-yes install pluto-mysql-wrapper
 Setup_NIS
 Configure_Mounts
 Unpack_Config_Files

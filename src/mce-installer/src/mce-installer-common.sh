@@ -46,6 +46,11 @@ function Setup_Apt_Conffiles {
 		cp /etc/apt/sources.list /etc/apt/sources.list.pbackup
 	fi
 
+	## Make sure we have an working mirror
+	if [[ "$c_installMirror" == "(null)" ]] ;then
+		c_installMirror="http://archive.ubuntu.com/ubuntu/"
+	fi
+
 
 	## Setup apt sources.list
 	local Sources="# Pluto sources - start
@@ -63,7 +68,6 @@ deb http://linuxmce.com/ubuntu ./
 deb file:/usr/pluto/deb-cache/ ./
 # Pluto sources offline - end"
 
-if [[ ! -z "$c_deviceType" ]] && [[ "$c_deviceType" != "3" ]] ;then
 	if ! grep -qF '# Pluto sources - start' /etc/apt/sources.list ;then
 		echo "$Sources" > /etc/apt/sources.list.$$
 		cat /etc/apt/sources.list.$$ /etc/apt/sources.list > /etc/apt/sources.list.$$.all
@@ -72,12 +76,6 @@ if [[ ! -z "$c_deviceType" ]] && [[ "$c_deviceType" != "3" ]] ;then
 	else
 		Replace_Mirror "$c_installMirror"
 	fi
-else
-	echo "$SourcesOffline" > /etc/apt/sources.list.$$
-	cat /etc/apt/sources.list.$$ /etc/apt/sources.list > /etc/apt/sources.list.$$.all
-	mv -f /etc/apt/sources.list.$$.all /etc/apt/sources.list
-	rm -f /etc/apt/sources.list.$$
-fi
 
 	echo "$SourcesOffline" >/etc/apt/sources.list.offline
 
