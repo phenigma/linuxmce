@@ -1,7 +1,7 @@
 ROOT=..
 CXXFLAGS = -fPIC -Wall -ggdb3 -g -D_GNU_SOURCE
 CPPFLAGS = -I../../ -I../ -I/usr/include/mysql -I$(ROOT) -I$(ROOT)/DCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -DMULTI_THREADED -DUSE_MYSQL -DVIPSERVER -DBTSOCKET
-CXX = g++
+
 LDFLAGS = -L$(ROOT)/lib
 LDLIBS = -lmysqlclient_r
 
