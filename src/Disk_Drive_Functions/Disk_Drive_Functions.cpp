@@ -714,8 +714,6 @@ bool Disk_Drive_Functions::FixupRippingInfo(Disk_Drive_Functions *pDisk_Drive_Fu
 	}
 	else if( PK_MediaType==MEDIATYPE_pluto_DVD_CONST )
 		StringUtils::Replace(&sDirectory,"___audio___or___video___","videos");
-	else if( PK_MediaType==MEDIATYPE_pluto_HDDVD_CONST || PK_MediaType==MEDIATYPE_pluto_BD_CONST )
-	    StringUtils::Replace(&sDirectory,"___audio___or___video___","videos");
 
 	bool bUsingUnknownDiscName=false;
 	// Validate the name and be sure it's unique
@@ -730,16 +728,8 @@ bool Disk_Drive_Functions::FixupRippingInfo(Disk_Drive_Functions *pDisk_Drive_Fu
 		}
 		if( sFilename.size()==0 )
 		{
-		    // default
-		    sFilename = "Unknown CD";
-		    bUsingUnknownDiscName=true;
-
-		    if (PK_MediaType==MEDIATYPE_pluto_DVD_CONST)
-			sFilename = "Unknown DVD";
-		    else if (PK_MediaType==MEDIATYPE_pluto_HDDVD_CONST)
-			sFilename = "Unknown HD-DVD";
-		    else if (PK_MediaType==MEDIATYPE_pluto_BD_CONST)
-			sFilename = "Unknown Blu-ray Disc";
+			sFilename = PK_MediaType==MEDIATYPE_pluto_DVD_CONST ? "Unknown DVD" : "Unknown CD";
+			bUsingUnknownDiscName=true;
 		}
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive_Functions::FixupRippingInfo fixed directory %s / %s / %s", sDirectory.c_str(), sFilename.c_str(), sDirectory2.c_str());
 	}
