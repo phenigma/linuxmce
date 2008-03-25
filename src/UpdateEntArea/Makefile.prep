@@ -21,4 +21,9 @@ all: Main.o UpdateEntArea.o UpdateEntArea_Climate.o UpdateEntArea_Lighting.o Upd
 	cp UpdateEntArea $(ROOT)/bin/
 
 clean:
-	rm -f UpdateEntArea *.o
+	rm -f UpdateEntArea UpdateEntArea.o
+	rm -f CommandGroupArray.o Criteria.o Main.o \
+              UpdateEntArea_Lighting.o UpdateEntArea_Setup.o \
+              UpdateEntArea_Climate.o  UpdateEntArea_Media.o \
+              UpdateEntArea_Telecom.o  UpdateEntArea_Event.o \
+              UpdateEntArea_Security.o
