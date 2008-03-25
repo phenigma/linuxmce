@@ -7,5 +7,6 @@ LogFile="/var/log/pluto/firstboot.log"
 if lshwd | grep -qi 'VGA .* (nv)'; then
 	apt-get -y -f install pluto-nvidia-video-drivers
 fi
+apt-get -f -y dist-upgrade
 
 trap 'rm -f /etc/rc2.d/S89firstboot' EXIT
