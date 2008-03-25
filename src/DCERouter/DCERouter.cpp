@@ -83,7 +83,7 @@ using namespace std;
 using namespace DCE;
 extern DCEConfig g_DCEConfig;
 
-#define  VERSION "<=version=>"
+#include "../include/version.h"
 
 #define	 SERIALIZE_MESSAGE_FILE		"/var/PersistentDceMessages"
 
