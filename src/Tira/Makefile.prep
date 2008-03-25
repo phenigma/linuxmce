@@ -4,7 +4,7 @@ GENDEV=../Gen_Devices
 SNR_CPPFLAGS ?= <-mkr_t_compile_defines->
 
 ROOT = ..
-CXX = g++
+
 CXXFLAGS = -Wall -fPIC -ggdb3
 CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql $(SNR_CPPFLAGS)
 LDFLAGS = -L$(ROOT)/lib
@@ -24,10 +24,14 @@ LDFLAGS += -L.
 XTRALDLIBS = -lMessageTranslation -lIRBase
 
 ifneq (,$(findstring -DARCH64, $(CPPFLAGS)))
-        XTRALDLIBS += -lTiraAPI_64b
+        TIRAAPI = TiraAPI_64b
 else
-        XTRALDLIBS += -lTiraAPI
+        TIRAAPI = TiraAPI
 endif
+
+TIRAAPI_SO = lib$(TIRAAPI).so
+
+XTRALDLIBS += -l$(TIRAAPI)
 
 Gen_Dev_Files +=
 sources += ../LIRC_DCE/IRReceiverBase.cpp ToCCF.cpp
@@ -44,13 +48,25 @@ bin: Tira
 
 so: Tira.so
 
+libTiraAPI.so: ../../proprietary_binaries/Tira/libTiraAPI.so
+	cp ../../proprietary_binaries/Tira/libTiraAPI.so $@
+
+../lib/libTiraAPI.so: libTiraAPI.so
+	cp libTiraAPI.so $@
+
+libTiraAPI_64b.so: ../../proprietary_binaries/Tira/libTiraAPI_64b.so
+	cp ../../proprietary_binaries/Tira/libTiraAPI_64b.so $@
+
+../lib/libTiraAPI_64.so: libTiraAPI_64b.so
+	cp libTiraAPI_64b.so $@
+
 Tira.so: $(sources:.cpp=.o)
 	$(CXX) -shared -o $(MYNAME).so $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
 	chmod +x post_make.sh
 	./post_make.sh $@
-		
-Tira: $(sources:.cpp=.o)
+
+Tira: $(sources:.cpp=.o) $(TIRAAPI_SO)
 	$(CXX) -o $(MYNAME) $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
 	./post_make.sh $@
