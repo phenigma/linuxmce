@@ -16,6 +16,18 @@ cat /tmp/mce_wizard_data.sh
 echo "--- end mce wizard data ---"
 
 
+function Setup_Network_Interfaces
+{
+	killall dhclient  &>/dev/null
+	killall dhclient3 &>/dev/null
+
+	echo > /etc/network/interfaces
+	for iface in $(ifconfig -a -s | grep 'BMRU$' | awk '{print $1}') ;do
+		echo "iface $iface inet dhcp" >> /etc/network/interfaces
+	done
+	/etc/init.d/networking restart
+}
+
 function Setup_NIS 
 {
 	if ! grep -q "+::::::"   /etc/passwd ;then
@@ -135,6 +147,7 @@ script
 end script
 " > /etc/event.d/media-cernter-startup
 
+Setup_Network_Interfaces
 Setup_NIS
 Configure_Mounts
 Unpack_Config_Files
