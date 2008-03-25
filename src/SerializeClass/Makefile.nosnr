@@ -1,5 +1,3 @@
-SNR_CPPFLAGS ?= <-mkr_t_compile_defines->
-
 ROOT = ..
 VIP = ../VIPShared
 GDEV = ./Gen_Devices
@@ -9,11 +7,13 @@ CXX = g++
 
 sources = SerializeClass.cpp
 
-all: libSerializeClass.so all-recursive
+all: ../lib/libSerializeClass.so all-recursive
 
 libSerializeClass.so: $(sources:.cpp=.o)
 	$(CXX) -shared $(CXXFLAGS) $(CPPFLAGS) -o $@ $(call cpath,$+)
-	cp $@ ../lib
+
+../lib/libSerializeClass.so: libSerializeClass.so
+	cp libSerializeClass.so ../lib
 
 libSerializeClass.a: $(sources:.cpp=.o)
 	$(AR) rc $@ $(call cpath,$+)
