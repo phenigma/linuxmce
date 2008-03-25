@@ -1,7 +1,7 @@
 ROOT = ..
 CXXFLAGS = -pipe -Wall -O2 -D_GNU_SOURCE -fPIC -g -ggdb3
 CPPFLAGS =  -I.. -I../.. -I../DCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -DMULTI_THREADED -DNO_SQL_THREAD_LOG
-CXX = g++
+
 LDFLAGS = -L$(ROOT)/lib
 
 #<-mkr_B_use_mysql_wrapper_b->
