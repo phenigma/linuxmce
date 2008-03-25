@@ -2,7 +2,7 @@ ROOT = ..
 
 bin_PROGRAMS = getxmls instcheck
 
-CXX = g++
+
 CXXFLAGS = -Wall -fPIC -ggdb3
 CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql -I/usr/include/libxml2 -D_DEVEL_DEFINES
 LDFLAGS = -L$(ROOT)/lib

@@ -86,7 +86,7 @@ using namespace DCE;
 #include <cctype>
 #include <algorithm>
 
-#define VERSION "<=version=>"
+#include "../include/version.h"
 string g_sLatestMobilePhoneVersion="2006.11.09";
 
 #include "../Media_Plugin/EntertainArea.h"
