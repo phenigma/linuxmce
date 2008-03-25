@@ -11,10 +11,11 @@ fi
 Setup_Apt_Conffiles
 
 rm -rf /tmp/mce_installer_error
+
 InstallerLogFile="/var/log/mce-installer-$(date +%s).log"
 echo "--- start mce wizard data ---" >> $InstallerLogFile
-cat /tmp/mce_wizard_data.sh >> $InstallerLogFile
-echo "--- end mce wizard data ---" >> $InstallerLogFile
+cat /tmp/mce_wizard_data.sh          >> $InstallerLogFile
+echo "--- end mce wizard data ---"   >> $InstallerLogFile
 exec &> >(tee $InstallerLogFile)
 
 function ExitInstaller {
@@ -60,3 +61,4 @@ apt-get -y -f remove adept adept-notifier adept-batch adept-common adept-install
 /etc/init.d/networking restart
 
 Setup_NIS
+Setup_Firstboot
