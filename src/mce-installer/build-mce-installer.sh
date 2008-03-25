@@ -21,7 +21,7 @@ aptitude download patch
 aptitude download dpkg-dev
 aptitude download dpkg-repack
 
-tar -czf firstboot mce-installer.tar.gz *.list mce-installer mce-installer-*.sh mce-installer.glade mce-installer-core.sh mce-installer-preseed.sh mce-installer-diskedmd.sh wget-wrapper.sh pluto.png mce-installer-getnetdata.sh libvte.so* libglade*so* libSDL* mirrors dpkg-scanpackages controllib.pl UIdiag *.png xcompmgr *.deb sample.mpg
+tar -czf mce-installer.tar.gz firstboot *.list mce-installer mce-installer-*.sh mce-installer.glade mce-installer-core.sh mce-installer-preseed.sh mce-installer-diskedmd.sh wget-wrapper.sh pluto.png mce-installer-getnetdata.sh libvte.so* libglade*so* libSDL* mirrors dpkg-scanpackages controllib.pl UIdiag *.png xcompmgr *.deb sample.mpg
 cat ../mce-installer-header.sh mce-installer.tar.gz > ../mce-installer.sh
 rm libvte.so*
 rm libglade*so*
