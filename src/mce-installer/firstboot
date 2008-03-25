@@ -1,0 +1,11 @@
+#!/bin/bash
+
+LogFile="/var/log/pluto/firstboot.log"
+. /usr/pluto/bin/TeeMyOutput.sh --outfile "$LogFile" --stdboth --append -- "$@"
+
+## Install nvidia-glx if needed
+if lshwd | grep -qi 'VGA .* (nv)'; then
+	apt-get -y -f install pluto-nvidia-video-drivers
+fi
+
+trap 'rm -f /etc/rc2.d/S89firstboot' EXIT
