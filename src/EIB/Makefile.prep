@@ -4,28 +4,27 @@ GENDEV=../Gen_Devices
 SNR_CPPFLAGS ?= <-mkr_t_compile_defines->
 
 ROOT = ..
-CXX = g++
+
 CXXFLAGS = -Wall -fPIC -ggdb3
 CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql $(SNR_CPPFLAGS)
 LDFLAGS = -L$(ROOT)/lib
 BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lmysqlclient_r -lpthread
 
-MYNAME = Slim_Server_Streamer
+MYNAME = EIB
 VERSION = 2.0.0
-MYDEVTEMPLATEID = 53mplateID
+MYDEVTEMPLATEID = 49mplateID
 
-Gen_Dev_Files = $(GENDEV)/Slim_Server_StreamerBase.cpp
-sources = Main.cpp Slim_Server_Streamer.cpp $(Gen_Dev_Files)
+Gen_Dev_Files = $(GENDEV)/EIBBase.cpp
+sources = Main.cpp EIB.cpp $(Gen_Dev_Files)
 #<-dceag-mh-e->
 
-CXXFLAGS += -fmessage-length=0
+CXXFLAGS +=
 CPPFLAGS +=
 LDFLAGS +=
-XTRALDLIBS =
+XTRALDLIBS = -lSerial -lrt
 
 Gen_Dev_Files +=
-sources += SqueezeBox_Player.cpp $(GENDEV)/SqueezeBox_PlayerBase.cpp
-
+sources += messagepool.cpp busconnector.cpp message.cpp thread.cpp mutex.cpp event.cpp bauinitmessage.cpp ackmessage.cpp statemachine.cpp telegrammessage.cpp monitorrequestmessage.cpp timetracker.cpp extendedserialport.cpp duplicatefilterpoolinterceptor.cpp
 
 #<-dceag-mf-b->
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
@@ -35,23 +34,23 @@ whattodo:
 
 all: bin so
 
-bin: Slim_Server_Streamer
+bin: EIB
 
-so: Slim_Server_Streamer.so
+so: EIB.so
 
-Slim_Server_Streamer.so: $(sources:.cpp=.o)
+EIB.so: $(sources:.cpp=.o)
 	$(CXX) -shared -o $(MYNAME).so $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
 	chmod +x post_make.sh
 	./post_make.sh $@
 		
-Slim_Server_Streamer: $(sources:.cpp=.o)
+EIB: $(sources:.cpp=.o)
 	$(CXX) -o $(MYNAME) $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
 	./post_make.sh $@
 
 clean: clean-recursive
-	rm -f $(call cpath,$(sources:.cpp=.o) $(sources:.cpp=.d)) Slim_Server_Streamer.bin Slim_Server_Streamer.so >/dev/null
+	rm -f $(call cpath,$(sources:.cpp=.o) $(sources:.cpp=.d)) EIB.bin EIB.so >/dev/null
 
 package:
 	chmod +x make_package.sh
