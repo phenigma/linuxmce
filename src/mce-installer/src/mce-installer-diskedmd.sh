@@ -23,7 +23,7 @@ function Setup_Network_Interfaces
 
 	echo "auto lo"                 > /etc/network/interfaces
 	echo "iface lo inet loopback" >> /etc/network/interfaces
-	for iface in $(ifconfig -a -s | grep 'BMRU$' | awk '{print $1}') ;do
+	for iface in $(ifconfig -a -s | grep ' BM' | awk '{print $1}') ;do
 		echo "auto $iface"            >> /etc/network/interfaces
 		echo "iface $iface inet dhcp" >> /etc/network/interfaces
 	done
