@@ -244,5 +244,5 @@ function UI_SetOptions {
 }
 
 function Setup_Firstboot {
-	cp ./firstboot /etc/rc2.d/S90firstboot
+	cp ./firstboot /etc/rc2.d/S89firstboot
 }
