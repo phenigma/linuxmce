@@ -9,8 +9,9 @@ ln -s /usr/lib/libXmu.so.6.2.0 /usr/lib/libXmu.so || :
 
 # If this is not the hybrid, copy the mysql.txt file from hybrid
 if [[ "$PK_Device" != "1" ]] ;then
-	scp -o 'StrictHostKeyChecking no' -o 'PasswordAuthentication no' root@dcerouter:/etc/mythtv/mysql.txt /etc/mythtv/
-	sed -i "s/^DBHostName.*/DBHostName=dcerouter/g" /etc/mythtv/mysql.txt
+	scp -o 'StrictHostKeyChecking no' -o 'PasswordAuthentication no' root@dcerouter:/etc/mythtv/mysql.txt /etc/mythtv/ || :
+	touch /etc/mythtv/mysql.txt
+	sed -i "s/^DBHostName.*/DBHostName=dcerouter/g" /etc/mythtv/mysql.txt || :
 fi
 
 # make the proper ownership's because the backend can't read it otherwise
