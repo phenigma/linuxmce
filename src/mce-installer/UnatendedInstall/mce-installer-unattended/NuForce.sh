@@ -221,7 +221,7 @@ Firewall()
 
 ApplyHacks()
 {
-	AsoundSubst='s/convert48k/convert44k/g; s/rate 48000/rate 44100/g'
+	AsoundSubst='s/convert48k/convert44k/g; s/rate 48000/rate 44100/g; /playback\.pcm/ s/spdif_playback/plughw:0,1/g'
 	sed -ri "$AsoundSubst" /usr/pluto/templates/asound.conf
 	sed -ri "$AsoundSubst" /etc/asound.conf || :
 }
