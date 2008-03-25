@@ -5,7 +5,7 @@ CXXFLAGS = -Wall -g
 CPPFLAGS = -I$(ROOT)/ -I$(ROOT)/DCE -I$(ROOT)/VIPShared -I/usr/include/mysql -D_REENTRANT -D_GNU_SOURCE $(SNR_CPPFLAGS) -DGENERATOR
 LDFLAGS = -L$(ROOT)/lib 
 LDLIBS = -lDCECommon -lPlutoUtils -lpthread -lmysqlclient_r -lattr
-CXX = g++
+
 
 APPNAME = SVNLog
 VERSION = 2.0.0

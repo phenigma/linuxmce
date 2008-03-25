@@ -2,20 +2,21 @@
 GENDEV=../Gen_Devices
 
 SNR_CPPFLAGS ?= <-mkr_t_compile_defines->
+SNR_LDFLAGS ?= <-mkr_t_compile_libs->
 
 ROOT = ..
-CXX = g++
+
 CXXFLAGS = -Wall -fPIC -ggdb3
 CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql $(SNR_CPPFLAGS)
-LDFLAGS = -L$(ROOT)/lib
+LDFLAGS = $(SNR_LDFLAGS) -L$(ROOT)/lib
 BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lmysqlclient_r -lpthread
 
-MYNAME = Text_To_Speech
+MYNAME = VDRPlugin
 VERSION = 2.0.0
-MYDEVTEMPLATEID = 57mplateID
+MYDEVTEMPLATEID = 1704mplateID
 
-Gen_Dev_Files = $(GENDEV)/Text_To_SpeechBase.cpp
-sources = Main.cpp Text_To_Speech.cpp $(Gen_Dev_Files)
+Gen_Dev_Files = $(GENDEV)/VDRPluginBase.cpp
+sources = Main.cpp VDRPlugin.cpp $(Gen_Dev_Files)
 #<-dceag-mh-e->
 
 CXXFLAGS +=
@@ -24,7 +25,7 @@ LDFLAGS +=
 XTRALDLIBS =
 
 Gen_Dev_Files +=
-sources +=
+sources += VDRMediaStream.cpp
 
 #<-dceag-mf-b->
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
@@ -34,23 +35,23 @@ whattodo:
 
 all: bin so
 
-bin: Text_To_Speech
+bin: VDRPlugin
 
-so: Text_To_Speech.so
+so: VDRPlugin.so
 
-Text_To_Speech.so: $(sources:.cpp=.o)
+VDRPlugin.so: $(sources:.cpp=.o)
 	$(CXX) -shared -o $(MYNAME).so $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
 	chmod +x post_make.sh
 	./post_make.sh $@
 		
-Text_To_Speech: $(sources:.cpp=.o)
+VDRPlugin: $(sources:.cpp=.o)
 	$(CXX) -o $(MYNAME) $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
 	./post_make.sh $@
 
 clean: clean-recursive
-	rm -f $(call cpath,$(sources:.cpp=.o) $(sources:.cpp=.d)) Text_To_Speech.bin Text_To_Speech.so >/dev/null
+	rm -f $(call cpath,$(sources:.cpp=.o) $(sources:.cpp=.d)) VDRPlugin.bin VDRPlugin.so >/dev/null
 
 package:
 	chmod +x make_package.sh
