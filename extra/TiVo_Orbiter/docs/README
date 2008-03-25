@@ -1,0 +1,24 @@
+How to create the orbiter.jar file
+==================================
+In Eclipse : open "Jar export" tab, choose the packages to export and click export.
+
+Files needed to run orbiter 
+===========================
+- jars/hme.jar
+- jars/hme-host-sample.jar
+- jars/simulator.jar
+- jars/bananas.jar
+- orbiter.jar
+
+How to run with the simulator
+=============================
+java -cp jars/simulator.jar;orbiter.jar;jars/bananas.jar com.tivo.hme.sim.Simulator com.tivo.hme.orbiter.Orbiter
+
+How to run stand-alone application
+==================================
+java -cp jars/hme.jar;jars/hme-host-sample.jar;jars/bananas.jar;orbiter.jar com.tivo.hme.host.sample.Main com.tivo.hme.orbiter.Orbiter
+
+How to run stand-alone application on a specific port and interface
+===================================================================
+java -cp jars/hme.jar;jars/hme-host-sample.jar;jars/bananas.jar;orbiter.jar com.tivo.hme.host.sample.Main com.tivo.hme.orbiter.Orbiter --intf 10.0.0.89 --port 7288
+
