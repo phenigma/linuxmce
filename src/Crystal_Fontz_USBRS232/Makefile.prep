@@ -2,30 +2,29 @@
 GENDEV=../Gen_Devices
 
 SNR_CPPFLAGS ?= <-mkr_t_compile_defines->
-SNR_LDFLAGS ?= <-mkr_t_compile_libs->
 
 ROOT = ..
-CXX = g++
+
 CXXFLAGS = -Wall -fPIC -ggdb3
-CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE $(SNR_CPPFLAGS)
-LDFLAGS = $(SNR_LDFLAGS) -L$(ROOT)/lib
-BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lpthread
+CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql $(SNR_CPPFLAGS)
+LDFLAGS = -L$(ROOT)/lib
+BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lmysqlclient_r -lpthread
 
-MYNAME = XML_Data_Handler_Plugin
+MYNAME = Crystal_Fontz_USBRS232
 VERSION = 2.0.0
-MYDEVTEMPLATEID = 1868mplateID
+MYDEVTEMPLATEID = 1722mplateID
 
-Gen_Dev_Files = $(GENDEV)/XML_Data_Handler_PluginBase.cpp
-sources = Main.cpp XML_Data_Handler_Plugin.cpp $(Gen_Dev_Files)
+Gen_Dev_Files = $(GENDEV)/Crystal_Fontz_USBRS232Base.cpp
+sources = Main.cpp Crystal_Fontz_USBRS232.cpp $(Gen_Dev_Files)
 #<-dceag-mh-e->
 
 CXXFLAGS +=
-CPPFLAGS += -I/usr/include/libxml2/
-LDFLAGS += -lxml2
-XTRALDLIBS =
+CPPFLAGS +=
+LDFLAGS +=
+XTRALDLIBS = -lSerial 
 
 Gen_Dev_Files +=
-sources += XML_Data_Factory.cpp XML_Data_CallBack.cpp
+sources += ../VFD_LCD/VFD_LCD_Base.cpp LowLevel.cpp ../VFD_LCD/CoreMenuStructure.cpp ../VFD_LCD/MenuNode.cpp
 
 #<-dceag-mf-b->
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
@@ -35,23 +34,23 @@ whattodo:
 
 all: bin so
 
-bin: XML_Data_Handler_Plugin
+bin: Crystal_Fontz_USBRS232
 
-so: XML_Data_Handler_Plugin.so
+so: Crystal_Fontz_USBRS232.so
 
-XML_Data_Handler_Plugin.so: $(sources:.cpp=.o)
+Crystal_Fontz_USBRS232.so: $(sources:.cpp=.o)
 	$(CXX) -shared -o $(MYNAME).so $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
 	chmod +x post_make.sh
 	./post_make.sh $@
 		
-XML_Data_Handler_Plugin: $(sources:.cpp=.o)
+Crystal_Fontz_USBRS232: $(sources:.cpp=.o)
 	$(CXX) -o $(MYNAME) $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
 	./post_make.sh $@
 
 clean: clean-recursive
-	rm -f $(call cpath,$(sources:.cpp=.o) $(sources:.cpp=.d)) XML_Data_Handler_Plugin.bin XML_Data_Handler_Plugin.so >/dev/null
+	rm -f $(call cpath,$(sources:.cpp=.o) $(sources:.cpp=.d)) Crystal_Fontz_USBRS232.bin Crystal_Fontz_USBRS232.so >/dev/null
 
 package:
 	chmod +x make_package.sh
