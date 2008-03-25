@@ -109,7 +109,7 @@ PlutoProfiler *g_PlutoProfiler = new PlutoProfiler();
 void WriteStatusOutput(const char *) {} //do nothing
 #endif
 
-#define  VERSION "<=version=>"
+#include "../include/version.h"
 extern const char *g_szCompile_Date;
 extern Command_Impl *g_pCommand_Impl;
 
