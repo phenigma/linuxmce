@@ -1,0 +1,16 @@
+ROOT=../..
+
+CXX=g++
+CC=$(CXX)
+CPPFLAGS=-W -Wall -pipe -ggdb3
+CXXFLAGS=-I. -I.. -I$(ROOT)
+LDFLAGS=-L$(ROOT)/lib -L/usr/local/lib
+LDLIBS= -lPlutoUtils -lDCECommon -lSerializeClass
+ 
+sources = main_findfiles.cpp 
+
+all: $(sources:.cpp=.o)
+	$(CXX) -o pluto_findfiles $+ $(LDFLAGS) $(LDLIBS)
+
+clean:
+	rm -f pluto_findfiles $(sources:.cpp=.o) 
