@@ -100,6 +100,8 @@ bool LIRC_DCE::GetConfig()
 	} else if(sSerialPort == sCOM2) {
 		sSerialPort = "/dev/ttyS1";
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "->Found Serial 2 in database");
+	} else if(sSerialPort != "") {
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "->Found Serial %s in database",sSerialPort.c_str());
 	} else {
 		struct stat buf;
 #ifndef WIN32		
