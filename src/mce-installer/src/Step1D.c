@@ -20,12 +20,8 @@ void on_Step1D_radio_toggled(GtkWidget *widget, gpointer data) {
 void on_Step1D_forward_clicked(GtkWidget *widget, gpointer data) {
 	g_queue_push_head(history, (gpointer)STEP1D);
 
-	if (has_nv_video_driver()) {
-		displayStepNvidiaDrivers();
-	} else {
-		gtk_widget_set_sensitive (GTK_WIDGET(widget), FALSE);
-		start_network_wizard();
-	}
+	gtk_widget_set_sensitive (GTK_WIDGET(widget), FALSE);
+	start_network_wizard();
 }
 
 void displayStep1D(void) {
