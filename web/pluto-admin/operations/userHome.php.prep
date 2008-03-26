@@ -18,7 +18,7 @@ function userHome($output,$dbADO) {
 	}':'').'
 </script>
 ';
-	$content=(isset($_REQUEST['voicemail']))?'<iframe src="/recordings/index.php?s=voicemail" style="width:98%;height:85%"></iframe>':$TEXT_USER_HOME_TEXT_CONST;
+	$content=(isset($_REQUEST['voicemail']))?'<iframe src="amp/recordings/index.php?s=voicemail" style="width:98%;height:85%"></iframe>':$TEXT_USER_HOME_TEXT_CONST;
 	
 	$out.=$content;
 
