@@ -54,7 +54,7 @@ using namespace DCE;
 
 map<string,bool> g_DebianPackages;
 
-
+string g_TempDir = "/tmp";
 
 // When we need to move files, we will use a list of this structure
 class FileInfo
@@ -146,8 +146,10 @@ bool CopySourceFile(string sInput,string sOutput)
 		sInput = "/tmp/MakeRelease.tmp";
 	}
 	if( !g_bSimulate && sInput.find("MakeRelease.cpp")==string::npos && // Don't do the replace on this file
-			(StringUtils::EndsWith(sInput,".cpp",true) || StringUtils::EndsWith(sInput,".c",true) ||
-			StringUtils::EndsWith(sInput,".h",true) || StringUtils::EndsWith(sInput,"login.php",true) ) )
+			(StringUtils::EndsWith(sInput,".cpp",true) || StringUtils::EndsWith(sInput,".cpp.prep",true) ||
+			 StringUtils::EndsWith(sInput,".c",true) || StringUtils::EndsWith(sInput,".c.prep",true) ||
+			 StringUtils::EndsWith(sInput,".h",true) || StringUtils::EndsWith(sInput,".h.prep",true) ||
+			 StringUtils::EndsWith(sInput,"login.php",true) ) )
 	{
 		if( !StringUtils::Replace( sInput, sOutput, "/*SVN_REVISION*/", "int g_SvnRevision=" + StringUtils::itos(g_iSVNRevision) + ";" ) )
 			return false;
@@ -165,6 +167,16 @@ bool CopySourceFile(string sInput,string sOutput)
 
 fstream fstr_compile,fstr_make_release;
 
+int verify_next(char *argv[], int cur, int end, const char *param)
+{
+	if (cur+1>=end)
+	{
+		cerr<<"Could not find value for parameter "<<param<<" ("<<cur<<")"<<endl;
+		return false;
+	}
+	return true;
+}
+
 int main(int argc, char *argv[])
 {
 	int iVersion=-1;
@@ -173,49 +185,72 @@ int main(int argc, char *argv[])
 	char c;
 	for(int optnum=1;optnum<argc;++optnum)
 	{
+		int len = strlen(argv[optnum]);
+		if (len < 2)
+		{
+			cerr<<"Could not find value for parameter "<<argv[optnum]<<" ("<<optnum<<")"<<endl;
+			bError=true;
+                        break;
+		}
 		c=argv[optnum][1];
 		switch (c)
 		{
+                case 't':
+			if (!verify_next(argv, optnum, argc, "-h")) { bError=true; break; }
+			g_TempDir = argv[++optnum];
+			break;
 		case 'h':
+			if (!verify_next(argv, optnum, argc, "-h")) { bError=true; break; }
 			dceConfig.m_sDBHost = argv[++optnum];
 			break;
 		case 'u':
+			if (!verify_next(argv, optnum, argc, "-u")) { bError=true; break; }
 			dceConfig.m_sDBUser = argv[++optnum];
 			break;
 		case 'p':
+			if (!verify_next(argv, optnum, argc, "-p")) { bError=true; break; }
 			dceConfig.m_sDBPassword = argv[++optnum];
 			break;
 		case 'D':
+			if (!verify_next(argv, optnum, argc, "-D")) { bError=true; break; }
 			dceConfig.m_sDBName = argv[++optnum];
 			break;
 		case 'P':
+			if (!verify_next(argv, optnum, argc, "-P")) { bError=true; break; }
 			dceConfig.m_iDBPort = atoi(argv[++optnum]);
 			break;
 		case 'g':
 			bUseFileLog=true;
 			break;
 		case 'k':
+			if (!verify_next(argv, optnum, argc, "-k")) { bError=true; break; }
 			g_sPackages = argv[++optnum];
 			break;
 		case 'X':
 			g_bOnlyCompileIfNotFound = true;
 			break;
 		case 'K':
+			if (!verify_next(argv, optnum, argc, "-K")) { bError=true; break; }
 			g_sPackages_Exclude = argv[++optnum];
 			break;
 		case 'm':
+			if (!verify_next(argv, optnum, argc, "-m")) { bError=true; break; }
 			g_sManufacturer = argv[++optnum];
 			break;
 		case 'x':
+			if (!verify_next(argv, optnum, argc, "-x")) { bError=true; break; }
 			g_sReplacePluto = argv[++optnum];
 			break;
 		case 'o':
+			if (!verify_next(argv, optnum, argc, "-o")) { bError=true; break; }
 			g_iPK_Distro = atoi(argv[++optnum]);
 			break;
 		case 'r':
+			if (!verify_next(argv, optnum, argc, "-r")) { bError=true; break; }
 			g_sPK_RepositorySource = argv[++optnum];
 			break;
 		case 'R':
+			if (!verify_next(argv, optnum, argc, "-R")) { bError=true; break; }
 			g_iSVNRevision = atoi(argv[++optnum]);
 			break;
 		case 'b':
@@ -228,9 +263,11 @@ int main(int argc, char *argv[])
 			g_bInteractive = true;
 			break;
 		case 's':
+			if (!verify_next(argv, optnum, argc, "-s")) { bError=true; break; }
 			g_sSourcecodePrefix = argv[++optnum];
 			break;
 		case 'n':
+			if (!verify_next(argv, optnum, argc, "-n")) { bError=true; break; }
 			g_sNonSourcecodePrefix = argv[++optnum];
 			break;
 		case 'a':
@@ -240,12 +277,15 @@ int main(int argc, char *argv[])
 			g_bSimulate = true;
 			break;
 		case 'v':
+			if (!verify_next(argv, optnum, argc, "-v")) { bError=true; break; }
 			iVersion = atoi(argv[++optnum]);
 			break;
 		case 'f':
+			if (!verify_next(argv, optnum, argc, "-f")) { bError=true; break; }
 			sDefines = argv[++optnum];
 			break;
 		case 'O':
+			if (!verify_next(argv, optnum, argc, "-O")) { bError=true; break; }
 			g_sOutputPath = argv[++optnum];
 			break;
 		case 'd':
@@ -351,6 +391,11 @@ int main(int argc, char *argv[])
 	{
 		vector<Row_Version *> vectRow_Version;
 		g_pDatabase_pluto_main->Version_get()->GetRows("1=1 ORDER BY date desc limit 1",&vectRow_Version);
+		if (vectRow_Version.empty())
+		{
+			cout << "Unable to query version" << endl;
+			return 1;
+		}
 		Row_Version *pRow_Version = vectRow_Version[0];
 		iVersion = pRow_Version->PK_Version_get();
 		cout << "Determined latest version is " << iVersion << endl;
@@ -379,7 +424,7 @@ int main(int argc, char *argv[])
 	}
 
 	if( g_sOutputPath.empty() )
-		g_sOutputPath = "/home/builds/" + g_pRow_Version->VersionName_get();
+		g_sOutputPath = g_TempDir + "/builds/" + g_pRow_Version->VersionName_get();
 	g_sBaseVersion = g_pRow_Version->VersionName_get();
 	cout << "Version is " << g_sBaseVersion << " path is: " << g_sOutputPath << endl;
 
@@ -443,6 +488,19 @@ int main(int argc, char *argv[])
 		<< "********************************************************************" << endl;
 	if( g_bBuildSource )
 	{
+		// Set global version info...
+
+		CopySourceFile(g_sSourcecodePrefix +
+			       "/src/include/version.cpp.prep",
+			       g_sSourcecodePrefix +
+			       "/src/include/version.cpp");
+ 
+		CopySourceFile(g_sSourcecodePrefix +
+			       "/src/include/version.h.prep",
+			       g_sSourcecodePrefix +
+			       "/src/include/version.h");
+ 
+		//
 		for(size_t s=0;s<vectPackages_Main.size();++s)
 		{
 			Row_Package *pRow_Package = vectPackages_Main[s];
@@ -711,7 +769,7 @@ bool GetSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFileIn
 			{
 				if( !FileUtils::FileExists(sDirectory + "/" + File) )
 				{
-					cout << "***WARNING*** " << sDirectory << "/" << File << " not found" <<  endl;
+					cout << "***WARNING A*** " << sDirectory << "/" << File << " not found" <<  endl;
 					if( g_bSupressPrompts || !AskYNQuestion("Continue?",false) )
 						return false;
 				}
@@ -857,7 +915,7 @@ bool GetNonSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFil
 			{
 				if( !FileUtils::FileExists(sInputPath + "/" + File) )
 				{
-					cout << "***WARNING*** " << sInputPath << "/" << File << " not found" <<  endl;
+					cout << "***WARNING B*** " << sInputPath << "/" << File << " not found" <<  endl;
 					if( g_bSupressPrompts || !AskYNQuestion("Continue?",false) )
 						return false;
 				}
@@ -1505,7 +1563,7 @@ string Makefile = "none:\n"
 		cout << "Error: cannot open Makefile:" << Dir << "/Makefile" << endl;
 		return false;
 	}
-	fprintf(f, "%s", Makefile.c_str(), Makefile.length());
+	fprintf(f, "%s(%i)", Makefile.c_str(), (int)Makefile.length());
 	fclose(f);
 	system("echo | DEBFULLNAME='LinuxMCE Developers' dh_make -c gpl -s -n -e 'developers@linuxmce.org'");
 #endif
@@ -1667,7 +1725,8 @@ string Makefile = "none:\n"
 		printf("dpkg-buildpackage returned %d\n", WEXITSTATUS(status));
 		if (WEXITSTATUS(status))
 		{
-			cout << "dpkg-buildpackage -b failed.  Aborting." << endl;
+			cout << "'dpkg-buildpackage -b -rfakeroot -us -uc' "
+			        "failed.  Aborting." << endl;
 			return false;
 		}
 	}
@@ -1738,7 +1797,7 @@ string Makefile = "none:\n"
 		cout << "Error: cannot open Makefile:" << Dir << "/Makefile" << endl;
 		return false;
 	}
-	fprintf(f, "%s", Makefile.c_str(), Makefile.length());
+	fprintf(f, "%s(%i)", Makefile.c_str(), (int)Makefile.length());
 	fclose(f);
 	system("echo | DEBFULLNAME='LinuxMCE Developers' dh_make -c gpl -s -n -e 'developers@linuxmce.org'");
 //	mkdir("DEBIAN", 0666);
@@ -2016,6 +2075,12 @@ string Makefile = "none:\n"
 	cout << cmd << endl;
 	system(cmd.c_str());
 
+        // HACK -- BEGIN remove strange string
+        cmd = string("sed -i 's.(51)..g' " + Dir + "/Makefile");
+	cout << cmd << endl;
+	system(cmd.c_str());
+        // HACK -- END   remove strange string
+
 	cout << string(("dpkg-buildpackage -b -rfakeroot -us -uc")) << endl;
 	if (!g_bSimulate)
 	{
@@ -2024,7 +2089,8 @@ string Makefile = "none:\n"
 		printf("dpkg-buildpackage returned %d\n", WEXITSTATUS(status));
 		if (WEXITSTATUS(status))
 		{
-			cout << "dpkg-buildpackage -b failed.  Aborting." << endl;
+			cout << "'dpkg-buildpackage -b -rfakeroot -us -uc' "
+				"failed.  Aborting." << endl;
 			return false;
 		}
 	}
@@ -2060,20 +2126,20 @@ bool CreateSource_FTPHTTP(Row_Package_Source *pRow_Package_Source,list<FileInfo 
 	
 	ArchiveFileName += pRow_Package_Source->Name_get() + "_" + pRow_Package_Source->Version_get() + pRow_Package_Source->Parms_get();
 	cout << "Creating Archive: " << ArchiveFileName << endl;
-	chdir("/home/tmp");
+	chdir(g_TempDir.c_str());
 	
 	char templ[12]="mra_XXXXXX";
 	string TempDir = mktemp(templ);
 #ifndef WIN32
-	system(("mkdir -p /home/tmp/" + TempDir).c_str());
+	system(("mkdir -p " + g_TempDir + "/" + TempDir).c_str());
 #endif
-	unlink( ("/home/tmp/" + ArchiveFileName).c_str() );
-	chdir(("/home/tmp/" + TempDir).c_str());
+	unlink( (g_TempDir + ArchiveFileName).c_str() );
+	chdir((g_TempDir + TempDir).c_str());
 	
 	for(list<FileInfo *>::iterator it=listFileInfo.begin();it!=listFileInfo.end();++it)
 	{
 		FileInfo *pFileInfo = *it;
-		if( !g_bSimulate && !CopySourceFile(pFileInfo->m_sSource,"/home/tmp/" + TempDir + "/" + pFileInfo->m_sDestination) )
+		if( !g_bSimulate && !CopySourceFile(pFileInfo->m_sSource, g_TempDir + TempDir + "/" + pFileInfo->m_sDestination) )
 		{
 			cout << "***ERROR*** Unable to copy file " <<  pFileInfo->m_sSource << " -> " << TempDir << "/" <<  pFileInfo->m_sDestination << endl;
 			return false;
@@ -2123,7 +2189,7 @@ bool CreateSource_FTPHTTP(Row_Package_Source *pRow_Package_Source,list<FileInfo 
 	system(("ls -l " + ArchiveFileName + " >> ../dirlist").c_str());
 	chdir("/");
 #ifndef WIN32
-	system(("rm -rf /home/tmp/" + TempDir).c_str());
+	system(("rm -rf " + g_TempDir + "/" + TempDir).c_str());
 #endif
 	
 	return true;
