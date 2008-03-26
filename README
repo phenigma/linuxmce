@@ -1,0 +1,19 @@
+
+To build, run these two commands:
+  ./configure
+  make
+
+Your user must be in /etc/sudoers for some of the build to work.
+A line like this must be inserted if you are not in there yet:
+youruser ALL=(ALL) ALL
+
+The build is unlikely to work if you are logged in as root.
+
+Also, the build will only work on an existing LinuxMCE install and
+so far has only been tested on LinuxMCE 0704 installed from the DVD.
+
+As of Oct 20th, 2007, most things do not build yet...
+This will however install the packages needed to build most components
+of the distro, with the notable exception of libxine.
+
+-- Daniel
