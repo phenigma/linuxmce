@@ -5464,10 +5464,19 @@ void Media_Plugin::SaveMediaResumePreferences()
 {
 	map<int,string> mapSettings;
 	for( map< pair<int,int>,char >::iterator it=m_mapPromptResume.begin();it!=m_mapPromptResume.end();++it )
+	{
 		mapSettings[ it->first.first ] = mapSettings[ it->first.first ] + StringUtils::itos(it->first.second) + "-" + it->second + ",";
+        LoggerWrapper::GetInstance()->Write( LV_STATUS, "Media_Plugin::SaveMediaResumePreferences m_mapPromptResume it->first.first %d %d-%c",
+			it->first.first,it->first.second,it->second);
+	}
 
 	for(map<int,string>::iterator it=mapSettings.begin();it!=mapSettings.end();++it)
-		g_DCEConfig.AddString("auto_resume_user_" + StringUtils::itos(it->first),it->second);
+	{
+		string s = "auto_resume_user_" + StringUtils::itos(it->first);
+		g_DCEConfig.AddString(s,it->second);
+        LoggerWrapper::GetInstance()->Write( LV_STATUS, "Media_Plugin::SaveMediaResumePreferences add string %s=%s",
+			s.c_str(),it->second.c_str());
+	}
 	g_DCEConfig.WriteSettings();
 }
 
