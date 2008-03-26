@@ -7,6 +7,9 @@
 . /usr/pluto/bin/Diskless_Utils.sh
 . /usr/pluto/bin/SQL_Ops.sh
 
+. /usr/pluto/bin/TeeMyOutput.sh --outfile "/var/log/pluto/Diskless_Setup.log" --stdboth --append -- "$@"
+set -x
+
 SkipLock=n
 
 # Parse parameters
