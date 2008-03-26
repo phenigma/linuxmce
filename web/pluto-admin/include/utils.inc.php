@@ -6258,10 +6258,11 @@ function editCommandGroupCommands($commandGroupID,$dbADO){
 			}else{
 				$devicesToSend=array($rowCommandAssigned['FK_Device']);	
 			}
-			foreach ($devicesToSend AS $deviceID){
-				$commandsToSend[$deviceID] = "'/usr/pluto/bin/MessageSend dcerouter -targetType device 0 $deviceID'+' 1 ".$rowCommandAssigned['FK_Command']."'";
+			if(count($devicesToSend)>0){
+				foreach ($devicesToSend AS $deviceID){
+					$commandsToSend[$deviceID] = "'/usr/pluto/bin/MessageSend dcerouter -targetType device 0 $deviceID'+' 1 ".$rowCommandAssigned['FK_Command']."'";
+				}
 			}
-
 			$class_color=(($pos%2==0)?'alternate_back':'');
 			$out.='
 						<tr class="'.$class_color.'">
@@ -6341,10 +6342,12 @@ function editCommandGroupCommands($commandGroupID,$dbADO){
 			if ($resSelectParameters) {
 				$out.='<table>';
 				while ($rowSelectParameters=$resSelectParameters->FetchRow()) {
-					foreach ($devicesToSend AS $deviceID){
-						$commandsToSend[$deviceID] .= "+escape(((document.getElementById('CommandParameterValue_".$rowCommandAssigned['PK_CommandGroup_Command']."_".$rowSelectParameters['FK_CommandParameter']."').value!='')?' ".$rowSelectParameters['FK_CommandParameter']." '+document.getElementById('CommandParameterValue_".$rowCommandAssigned['PK_CommandGroup_Command']."_".$rowSelectParameters['FK_CommandParameter']."').value:''))";
-					}					
-					
+					if(count($devicesToSend)>0){
+						foreach ($devicesToSend AS $deviceID){
+							$commandsToSend[$deviceID] .= "+escape(((document.getElementById('CommandParameterValue_".$rowCommandAssigned['PK_CommandGroup_Command']."_".$rowSelectParameters['FK_CommandParameter']."').value!='')?' ".$rowSelectParameters['FK_CommandParameter']." '+document.getElementById('CommandParameterValue_".$rowCommandAssigned['PK_CommandGroup_Command']."_".$rowSelectParameters['FK_CommandParameter']."').value:''))";
+						}					
+					}
+										
 					$out.="
 						<tr ".(strlen(trim($rowSelectParameters['CP_Description']))==0?" bgColor='lightgreen' ":"").">
 							<td>#{$rowSelectParameters['FK_CommandParameter']} <span title=\"{$rowSelectParameters['C_CP_Description']}\">{$rowSelectParameters['CP_Description']}</span> ({$rowSelectParameters['PT_Description']})</td>
@@ -6376,11 +6379,12 @@ function editCommandGroupCommands($commandGroupID,$dbADO){
 			
 			$cmd_to_test="'no=".count($commandsToSend)."'";		
 			$pos=0;
-			foreach ($devicesToSend AS $deviceID){
-				$pos++;
-				$cmd_to_test.="+'&cmd$pos='+".$commandsToSend[$deviceID];
-			}
-		
+			if(count($devicesToSend)>0){
+				foreach ($devicesToSend AS $deviceID){
+					$pos++;
+					$cmd_to_test.="+'&cmd$pos='+".$commandsToSend[$deviceID];
+				}
+			}		
 			
 			$out.='
 					
