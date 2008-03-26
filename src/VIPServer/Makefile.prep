@@ -5,7 +5,7 @@ CXXFLAGS = -Wall -g
 CPPFLAGS = -I$(ROOT)/ -I$(ROOT)/DCE -I$(ROOT)/VIPShared -I$(ROOT)/PlutoVIP -I/usr/include/mysql -D_REENTRANT -D_GNU_SOURCE $(SNR_CPPFLAGS) -DGENERATOR
 LDFLAGS = -L$(ROOT)/lib 
 LDLIBS = -lRACommon -lDCECommon -lSerializeClass -lPlutoUtils -lpthread -lmysqlclient_r -lattr
-CXX = g++
+
 
 sources = ../PlutoVIP/PlutoVIPRequests.cpp \
 	../PlutoVIP/VR_IdentifyPhone.cpp ../PlutoVIP/VR_PhoneInstalledBinary.cpp ../PlutoVIP/VR_RequestPayment.cpp ../PlutoVIP/VR_UnknownRequest.cpp \
