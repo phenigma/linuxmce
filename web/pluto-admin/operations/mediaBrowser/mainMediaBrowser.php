@@ -101,7 +101,7 @@ function mainMediaBrowser($output,$mediadbADO,$dbADO) {
 			}
 			$out.='</table>';
 		}else
-			$out.=$TEXT_NO_ATTRIBUTE_SELECTED_CONST;
+			$out.='No attribute type selected.<br>Please select an attribute type from the checkboxes above, then type your search string or click on a letter in left menu.';
 	}elseif($action=='properties'){
 		$attributeID=$_REQUEST['attributeID'];
 		$queryAttribute='SELECT * FROM Attribute WHERE PK_Attribute=?';		
