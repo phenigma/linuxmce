@@ -5,7 +5,7 @@ SNR_CPPFLAGS ?= <-mkr_t_compile_defines->
 SNR_LDFLAGS ?= <-mkr_t_compile_libs->
 
 ROOT = ..
-CXX = g++
+
 CXXFLAGS = -Wall -fPIC -ggdb3
 CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql $(SNR_CPPFLAGS)
 LDFLAGS = $(SNR_LDFLAGS) -L$(ROOT)/lib
@@ -28,8 +28,6 @@ Gen_Dev_Files +=
 sources +=\
 	LMCEInsteonAPI.cpp InsteonJob.cpp InsteonJobSendData.cpp InsteonJobSwitchChangeLevel.cpp InsteonJobReset.cpp\
 	InsteonJobAddNode.cpp InsteonJobEZRainValveControl.cpp
-	
-	
 
 #<-dceag-mf-b->
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
@@ -39,26 +37,29 @@ whattodo:
 
 all: bin so
 
-bin: Insteon
+bin: ../bin/Insteon
 
-so: Insteon.so
+so: ../lib/Insteon.so
 
 Insteon.so: $(sources:.cpp=.o)
 	$(CXX) -shared -o $(MYNAME).so $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
-	cp $@ ../bin
-	chmod +x post_make.sh
 	./post_make.sh $@
-		
+
+../lib/Insteon.so: Insteon.so
+	cp Insteon.so $@
+
 Insteon: $(sources:.cpp=.o)
 	$(CXX) -o $(MYNAME) $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
 	./post_make.sh $@
 
+../bin/Insteon: Insteon
+	cp Insteon $@
+
 clean: clean-recursive
 	rm -f $(call cpath,$(sources:.cpp=.o) $(sources:.cpp=.d)) Insteon.bin Insteon.so >/dev/null
 
 package:
-	chmod +x make_package.sh
 	./make_package.sh $(MYNAME) $(VERSION) $(MYDEVTEMPLATEID)
 
 include $(ROOT)/PlutoUtils/make.rules
