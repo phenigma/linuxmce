@@ -3,3 +3,4 @@
 504_dts_16be_detection.diff
 505_dts_14le_passthrough_support.diff
 506_fix_wav_playback.diff
+507_fix_vdr_seek.diff

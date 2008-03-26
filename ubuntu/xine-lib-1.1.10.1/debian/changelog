@@ -1,3 +1,10 @@
+xine-lib (1.1.10.1-2-pluto3) unstable; urgency=low
+
+  [Kirill Belokurov]
+  * added patch for fixing VDR seeking/timecode
+
+ -- Kirill Belokurov <kirill.b@plutohome.com>  Mon, 26 Mar 2008 15:15:00 +0200
+
 xine-lib (1.1.10.1-2-pluto2) unstable; urgency=low
 
   [Kirill Belokurov]
