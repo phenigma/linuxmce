@@ -53,6 +53,9 @@ function CopyDebsToDisklessSync {
 
 	rm -f "${build_dir}/DisklessSync/${arch}/deb-cache/"{3m-touchware,elo-touchscreen}_*.deb
 	cp /var/www/{3m-touchware,elo-touchscreen}_*.deb "${build_dir}/DisklessSync/${arch}/deb-cache" || :
+
+	rm -f "${build_dir}/DisklessSync/${arch}/deb-cache/"3ware-3dm2_*.deb
+	cp /var/www/3ware-3dm2_*.deb "${build_dir}/DisklessSync/${arch}/deb-cache" || :
 }
 
 function PublishPrivateDebs {
