@@ -4,13 +4,11 @@ GENDEV=../Gen_Devices
 SNR_CPPFLAGS ?= <-mkr_t_compile_defines->
 
 ROOT = ..
-CXX = g++
 CXXFLAGS = -Wall -fPIC -ggdb3
 CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql $(SNR_CPPFLAGS)
 LDFLAGS = -L$(ROOT)/lib
 BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lmysqlclient_r -lpthread
 
-CC = gcc
 CFLAGS = $(CXXFLAGS) -DLINUX -ggdb3 -DIRTRANS_AS_LIB
 
 MYNAME = IRTrans
@@ -45,20 +43,26 @@ whattodo:
 
 all: bin so
 
-bin: IRTrans
+bin: ../bin/IRTrans
 
-so: IRTrans.so
+so: ../lib/IRTrans.so
+
+$(ccf-o): ../../proprietary_binaries/IRTrans/$(ccf-o)
+	cp ../../proprietary_binaries/IRTrans/$(ccf-o) $@
 
 IRTrans.so: $(sources:.cpp=.o) $(Csources:.c=.o) $(ccf-o)
 	$(CXX) -shared -o $(MYNAME).so $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
-	cp $@ ../bin
-	chmod +x post_make.sh
 	./post_make.sh $@
-		
+
+../lib/IRTrans.so: IRTrans.so
+	cp IRTrans.so $@
+
 IRTrans: $(sources:.cpp=.o) $(Csources:.c=.o) $(ccf-o)
 	$(CXX) -o $(MYNAME) $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
-	cp $@ ../bin
 	./post_make.sh $@
+
+../bin/IRTrans: IRTrans
+	cp IRTrans $@
 
 clean: clean-recursive
 	rm -f $(call cpath,$(sources:.cpp=.o) $(sources:.cpp=.d) $(Csources:.c=.o) $(Csources:.c=.d)) IRTrans.bin IRTrans.so >/dev/null

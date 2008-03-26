@@ -2,31 +2,32 @@
 GENDEV=../Gen_Devices
 
 SNR_CPPFLAGS ?= <-mkr_t_compile_defines->
+SNR_LDFLAGS ?= <-mkr_t_compile_libs->
 
 ROOT = ..
-CXX = g++
+
 CXXFLAGS = -Wall -fPIC -ggdb3
 CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE $(SNR_CPPFLAGS)
-LDFLAGS = -L$(ROOT)/lib
+LDFLAGS = $(SNR_LDFLAGS) -L$(ROOT)/lib
 BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lpthread
 
-MYNAME = Lighting_Plugin
+MYNAME = Disk_Drive
 VERSION = 2.0.0
-MYDEVTEMPLATEID = 32mplateID
+MYDEVTEMPLATEID = 11mplateID
 
-Gen_Dev_Files = $(GENDEV)/Lighting_PluginBase.cpp
-sources = Main.cpp Lighting_Plugin.cpp $(Gen_Dev_Files)
+Gen_Dev_Files = $(GENDEV)/Disk_DriveBase.cpp
+sources = Main.cpp Disk_Drive.cpp $(Gen_Dev_Files)
 #<-dceag-mh-e->
 
-CXXFLAGS +=
+CXXFLAGS += -fmessage-length=0
 CPPFLAGS +=
 LDFLAGS +=
-XTRALDLIBS = -lpluto_main
+XTRALDLIBS = -lcddb -lDisk_Drive_Functions -lpluto_media
 
-Gen_Dev_Files += 
-sources += 
+Gen_Dev_Files +=
+sources += ../JobHandler/Job.cpp ../JobHandler/JobHandler.cpp ../JobHandler/Task.cpp ../HAL/HalTree.cpp
 
-#<-dceag-mf-b->
+#<-dceag-mf-b->!
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
 
 whattodo:
@@ -34,23 +35,23 @@ whattodo:
 
 all: bin so
 
-bin: Lighting_Plugin
+bin: Disk_Drive
 
-so: Lighting_Plugin.so
+so: Disk_Drive.so
 
-Lighting_Plugin.so: $(sources:.cpp=.o)
+Disk_Drive.so: $(sources:.cpp=.o)
 	$(CXX) -shared -o $(MYNAME).so $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
 	chmod +x post_make.sh
 	./post_make.sh $@
 		
-Lighting_Plugin: $(sources:.cpp=.o)
+Disk_Drive: $(sources:.cpp=.o)
 	$(CXX) -o $(MYNAME) $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
 	./post_make.sh $@
 
 clean: clean-recursive
-	rm -f $(call cpath,$(sources:.cpp=.o) $(sources:.cpp=.d)) Lighting_Plugin.bin Lighting_Plugin.so >/dev/null
+	rm -f $(call cpath,$(sources:.cpp=.o) $(sources:.cpp=.d)) Disk_Drive.bin Disk_Drive.so >/dev/null
 
 package:
 	chmod +x make_package.sh
