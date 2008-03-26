@@ -262,6 +262,8 @@ bool OSDScreenHandler::VideoWizard_ObjectSelected(CallBackData *pData)
 		{
 			if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butStartUsingMonster_CONST)
 			{
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "'Start using the system' button was clicked!");
+
 				// if vdr or myth are not installed
 				if(!m_pWizardLogic->AnyPVRSoftwareInstalled())
 				{
