@@ -4,21 +4,18 @@ GENDEV=../Gen_Devices
 SNR_CPPFLAGS ?= <-mkr_t_compile_defines->
 
 ROOT = ..
-CXX = g++
+
 CXXFLAGS = -Wall -fPIC -ggdb3
 CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql $(SNR_CPPFLAGS)
 LDFLAGS = -L$(ROOT)/lib
 BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lmysqlclient_r -lpthread
 
-CC = gcc
-CFLAGS = $(CXXFLAGS) -DLINUX $(SNR_CPPFLAGS)
-
-MYNAME = Media_Live_LCDButtons
+MYNAME = SlimServer_PlugIn
 VERSION = 2.0.0
-MYDEVTEMPLATEID = 1859mplateID
+MYDEVTEMPLATEID = 1695mplateID
 
-Gen_Dev_Files = $(GENDEV)/Media_Live_LCDButtonsBase.cpp
-sources = Main.cpp Media_Live_LCDButtons.cpp $(Gen_Dev_Files)
+Gen_Dev_Files = $(GENDEV)/SlimServer_PlugInBase.cpp
+sources = Main.cpp SlimServer_PlugIn.cpp $(Gen_Dev_Files)
 #<-dceag-mh-e->
 
 CXXFLAGS +=
@@ -27,10 +24,9 @@ LDFLAGS +=
 XTRALDLIBS =
 
 Gen_Dev_Files +=
-sources += ../VFD_LCD/VFD_LCD_Base.cpp ../VFD_LCD/CoreMenuStructure.cpp ../VFD_LCD/MenuNode.cpp
-Csources += button.c led.c
+sources += SlimServerMediaStream.cpp
 
-#<-dceag-mf-b->!
+#<-dceag-mf-b->
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
 
 whattodo:
@@ -38,23 +34,23 @@ whattodo:
 
 all: bin so
 
-bin: Media_Live_LCDButtons
+bin: SlimServer_PlugIn
 
-so: Media_Live_LCDButtons.so
+so: SlimServer_PlugIn.so
 
-Media_Live_LCDButtons.so: $(sources:.cpp=.o) $(Csources:.c=.o)
+SlimServer_PlugIn.so: $(sources:.cpp=.o)
 	$(CXX) -shared -o $(MYNAME).so $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
 	chmod +x post_make.sh
 	./post_make.sh $@
 		
-Media_Live_LCDButtons: $(sources:.cpp=.o) $(Csources:.c=.o)
+SlimServer_PlugIn: $(sources:.cpp=.o)
 	$(CXX) -o $(MYNAME) $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
 	./post_make.sh $@
 
 clean: clean-recursive
-	rm -f $(call cpath,$(sources:.cpp=.o) $(sources:.cpp=.d) $(Csources:.c=.o) $(Csources:.c=.d)) Media_Live_LCDButtons.bin Media_Live_LCDButtons.so >/dev/null
+	rm -f $(call cpath,$(sources:.cpp=.o) $(sources:.cpp=.d)) SlimServer_PlugIn.bin SlimServer_PlugIn.so >/dev/null
 
 package:
 	chmod +x make_package.sh
@@ -63,7 +59,6 @@ package:
 include $(ROOT)/PlutoUtils/make.rules
 ifeq (,$(findstring clean, $(MAKECMDGOALS)))
 -include $(sources:.cpp=.d)
--include $(Csources:.c=.d)
 endif
 #<-dceag-mf-e->
 
