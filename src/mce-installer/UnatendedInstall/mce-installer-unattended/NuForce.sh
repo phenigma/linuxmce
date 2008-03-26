@@ -45,7 +45,7 @@ Packages()
 	)
 
 	InstallPkgs=(
-		id-my-disc egalax pluto-slim-server-streamer
+		id-my-disc egalax elo-touchscreen 3m-touchware pluto-slim-server-streamer
 	)
 
 	for Pkg in "${RemovePkgs[@]}"; do
@@ -61,14 +61,16 @@ Devices()
 {
 	/usr/pluto/bin/CreateDevice -d 53 -R 1 # Slim Server Streamer
 
-CreateDiskDrive='
+CreateDiskDrive='#!/bin/bash
+trap "rm -f /etc/rc2.d/S91firstboot-nuforce" EXIT
 CDROMs=$(hal-find-by-property --key storage.drive_type --string cdrom)
 for UDI in $CDROMs; do
 	Device=$(hal-get-property --udi "$UDI" --key block.device)
 	/usr/pluto/bin/CreateDevice -d 11 -R 1 -A "6|$Device|161|$UDI" # Disk Drive
 done
 '
-	echo -n "$CreateDiskDrive" >>/etc/rc2.d/S90firstboot
+	echo -n "$CreateDiskDrive" >/etc/rc2.d/S91firstboot-nuforce
+	chmod +x /etc/rc2.d/S91firstboot-nuforce
 }
 
 AVWizardReplacement()
