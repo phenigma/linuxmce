@@ -258,7 +258,7 @@ sub add_to_asterisk_db()
     $EXT_VARS{'qualify'}="yes" if ($DEVICE_TYPE eq 'sip');
     $EXT_VARS{'vm'}="disabled";
     $EXT_VARS{'secret'}=$DEVICE_EXT if ($DEVICE_TYPE ne 'custom');
-    $EXT_VARS{'dial'}="SCCP/".$DEVICE_EXT if ($DEVICE_TYPE eq 'custom');
+    $EXT_VARS{'devinfo_dial'}="SCCP/".$DEVICE_EXT if ($DEVICE_TYPE eq 'custom');
     $EXT_VARS{'port'}=$DEVICE_PORT;
     foreach my $var (keys %EXT_VARS)
     {
