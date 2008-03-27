@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..;/mysql/Include;../DCE;..;&quot;../../libs/Libraries/pthreads-win32/include&quot;;&quot;../../libs/CrossPlatform/id3lib-3.8.3/include&quot;"
+				AdditionalIncludeDirectories="..;/mysql/Include;../DCE;&quot;../../libs/Libraries/pthreads-win32/include&quot;;&quot;../../libs/CrossPlatform/id3lib-3.8.3/include&quot;;&quot;../../libs/CrossPlatform/taglib-1.5-msvc-bin/include/taglib&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;GENERATOR;ID3LIB_LINKOPTION=3;UPDATE_MEDIA"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -33,10 +33,10 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/FORCE:MULTIPLE"
-				AdditionalDependencies="pthreadVC.lib wsock32.lib libmySQL.lib DCE.lib pluto_media.lib pluto_main.lib pluto-id3lib-d.lib"
+				AdditionalDependencies="pthreadVC.lib wsock32.lib libmySQL.lib DCE.lib pluto_media.lib pluto_main.lib pluto-id3lib-d.lib tag.lib"
 				OutputFile="../Debug/UpdateMedia.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="/mysql/lib/Debug;&quot;../../libs/Libraries/pthreads-win32/lib&quot;;../lib;&quot;../../libs/CrossPlatform/id3lib-3.8.3/prj/Debug&quot;"
+				AdditionalLibraryDirectories="/mysql/lib/Debug;&quot;../../libs/Libraries/pthreads-win32/lib&quot;;../lib;&quot;../../libs/CrossPlatform/id3lib-3.8.3/prj/Debug&quot;;&quot;../../libs/CrossPlatform/taglib-1.5-msvc-bin/lib&quot;"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/UpdateMedia.pdb"
 				SubSystem="1"
@@ -176,6 +176,9 @@
 				RelativePath="..\PlutoUtils\StringUtils.cpp">
 			</File>
 			<File
+				RelativePath=".\TagFileHandler.cpp">
+			</File>
+			<File
 				RelativePath="UpdateMedia.cpp">
 			</File>
 			<File
@@ -211,6 +214,9 @@
 			</File>
 			<File
 				RelativePath="..\PlutoUtils\StringUtils.h">
+			</File>
+			<File
+				RelativePath=".\TagFileHandler.h">
 			</File>
 			<File
 				RelativePath=".\VDRInfoFileHandler.h">

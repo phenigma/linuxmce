@@ -9,6 +9,7 @@ class GenericFileHandler;
 enum FileHandlerType
 {
 	fhtGeneric,
+	fhtTag,
 	fhtId3,
 	fhtVdr
 };
@@ -25,7 +26,7 @@ public:
 private:
 
 	static bool IsValidVDRFile(string sDirectory, string sFile);
-	static bool IsValidId3File(string sDirectory, string sFile);
+	static bool IsValidTagFile(string sDirectory, string sFile);
 };
 //-----------------------------------------------------------------------------------------------------
 #endif //__FILE_HANDLER_FACTORY_H__
