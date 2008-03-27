@@ -1157,8 +1157,14 @@ ExtensionStatus* Telecom_Plugin::FindExtensionStatus(string sExt)
 	map<string, ExtensionStatus*>::const_iterator itFound = map_ext2status.find(sExt);
 	if( itFound != map_ext2status.end() )
 		return (*itFound).second;
-	
-	return NULL;
+
+	//create a new one
+	ExtensionStatus* pExtensionStatus = new ExtensionStatus();
+	pExtensionStatus->SetID(sExt);
+	pExtensionStatus->SetExtensionType(ExtensionStatus::SCCP);
+	map_ext2status[sExt] = pExtensionStatus;
+		
+	return pExtensionStatus;
 }
 
 string Telecom_Plugin::GetNewConferenceID()
