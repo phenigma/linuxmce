@@ -42,8 +42,11 @@ using namespace sqlCVS;
 
 void A_UpdateRow::ProcessAction(class RA_Request *pRequest,class RA_Processor *pRA_Processor)
 {
-	(( sqlCVSprocessor * ) pRA_Processor)->LogActivityTime();
-
+    {
+	sqlCVSprocessor *pProcessor = dynamic_cast<sqlCVSprocessor*>(pRA_Processor);
+	if (pProcessor)
+	    pProcessor->LogActivityTime();
+    }
 	if( pRequest->ID()!=R_UPDATE_TABLE )
 	{
 		cerr << "Got an update row action, but it wasn't in response to an update table request" << endl;
