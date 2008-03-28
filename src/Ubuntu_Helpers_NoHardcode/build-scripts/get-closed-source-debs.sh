@@ -20,6 +20,7 @@ function Download_Debs() {
 		if [[ "$LatestID" != "" ]] ;then
 			DisplayMessage "Downloading latest closed source debs"
 			wget -O  "$LatestID.tar" "$closed_source_debs_url/$LatestID.tar"
+			rm -f latest.tar
 			ln -s "$LatestID.tar" latest.tar
 		fi
 		
