@@ -58,8 +58,8 @@ function LoadPackageNames
 	export mkr_0_99=28,274
 
 	export mkr_standard_plugins_package=116
-	export mkr_xine_player_package=117              # disabled in All
-	export mkr_xine_plugin_package=118              # disabled in All
+	export mkr_xine_player_package=117
+	export mkr_xine_plugin_package=118
 	export mkr_orbiter_package=119
 	export mkr_disk_drive_package=122
 	export mkr_bluetooth_dongle_package=124
@@ -67,8 +67,8 @@ function LoadPackageNames
 	export mkr_mythtv_player_package=133
 	export mkr_mythtv_plugin_package=134            # disabled in All
 	export mkr_standard_plugins_source=135
-	export mkr_xine_player_source=136               # disabled in All
-	export mkr_xine_plugin_source=137               # disabled in All
+	export mkr_xine_player_source=136
+	export mkr_xine_plugin_source=137
 	export mkr_orbiter_source=138
 	export mkr_disk_drive_source=141
 	export mkr_bluetooth_dongle_source=143
@@ -335,6 +335,8 @@ function LoadPackageNames
 	export mkr_dce_router=154,155
 	export mkr_dce_library=192,193
 	export mkr_zwave_lighting=505,506
+	export mkr_xine_player=136,117
+	export mkr_xine_plugin=137,118
 }
 
 function DisplayMessage {
@@ -799,7 +801,7 @@ function Run_MakeRelease_All
 
 	LoadPackageNames
 
-	source ../../settings.sh
+	source $SVNROOT/settings.sh
 
 	exclude_list=$mkr_ivtv_video_drivers
 	exclude_list=$exclude_list,$mkr_videolan_plugin_common
@@ -816,10 +818,6 @@ function Run_MakeRelease_All
 	exclude_list=$exclude_list,$mkr_amg_media_identifier
 	exclude_list=$exclude_list,$mkr_web_site_support_package
         exclude_list=$exclude_list,$mkr_web_site_admin_package
-	exclude_list=$exclude_list,$mkr_xine_player_package
-	exclude_list=$exclude_list,$mkr_xine_plugin_package
-	exclude_list=$exclude_list,$mkr_xine_player_source
-	exclude_list=$exclude_list,$mkr_xine_plugin_source
 
         #the ones below need to be ported to work with mysql on port 4306
 	exclude_list=$exclude_list,$mkr_marbella_database_package

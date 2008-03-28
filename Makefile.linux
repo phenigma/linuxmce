@@ -235,6 +235,13 @@ build_irbase:
 build_tira:
 	@${RUN} ${SVNROOT} Run_MakeRelease ${DB_USER} ${DB_PASSWORD} ${DB_PORT} mkr_tira
 
+build_xine_player:
+	@${RUN} ${SVNROOT} Run_MakeRelease ${DB_USER} ${DB_PASSWORD} ${DB_PORT} mkr_xine_player
+
+build_xine_plugin:
+	@${RUN} ${SVNROOT} Run_MakeRelease ${DB_USER} ${DB_PASSWORD} ${DB_PORT} mkr_xine_plugin
+
+
 deps:
 	@mkdir -p  build/tmp/home/
 	@cp src/fakepkgs/README.Devel.Dependencies build/tmp/home/
