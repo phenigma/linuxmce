@@ -77,16 +77,16 @@ CreateLiveCD()
 	cp "$FirstRunScript" "$LiveCDDir/lmce-image/"
 
 	mkdir -p "$LiveCDDir/diskless-images/"
-	cp ${build_dir}/DisklessSync/i386/PlutoMD-i386.tar.bz2  "$LiveCDDir/diskless-images/"
-	cp ${build_dir}/DisklessSync/amd64/PlutoMD-amd64.tar.bz2  "$LiveCDDir/diskless-images/"
+	cp ${build_dir}/DisklessSync/i386/PlutoMD-i386.tar.bz2  "$LiveCDDir/diskless-images/"	|| Warning "Diskless image for i386 architecture missing"
+	cp ${build_dir}/DisklessSync/amd64/PlutoMD-amd64.tar.bz2  "$LiveCDDir/diskless-images/" || Warning "Diskless image for amd64 architecture missing"
 
 	mkdir -p "$LiveCDDir/deb-cache/"
-	cp ${build_dir}/DisklessSync/i386/deb-cache/* "$LiveCDDir/deb-cache/"
-	cp ${build_dir}/DisklessSync/amd64/deb-cache/* "$LiveCDDir/deb-cache/"
+	cp ${build_dir}/DisklessSync/i386/deb-cache/* "$LiveCDDir/deb-cache/"	|| Warning "Can't find crossover debs for i386 architecture"
+	cp ${build_dir}/DisklessSync/amd64/deb-cache/* "$LiveCDDir/deb-cache/"	|| Warning "Can't find crossover debs for amd64 architecture"
 
 	if [[ "$DoubleLayer" == "true" ]] ;then
 		mkdir -p "$LiveCDDir/lmce-videos"
-		cp "${build_dir}/lmce-videos"/* "$LiveCDDir/lmce-videos/" || :
+		cp "${build_dir}/lmce-videos"/* "$LiveCDDir/lmce-videos/" || Warning "Could not find lmce-videos for the double layer dvd"
 	fi
 
 	(cd "$LiveCDDir" && find . -type f -not -path ./md5sum.txt -print0 | xargs -0 md5sum | tee md5sum.txt)
