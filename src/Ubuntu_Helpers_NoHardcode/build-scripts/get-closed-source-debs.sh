@@ -9,19 +9,32 @@ set -x
 DisplayMessage "*** STEP: Download closed source debs"
 trap 'Error "Undefined error in $0"' EXIT
 
-wget "$closed_source_debs_url/latest" || { trap - EXIT; exit 0; }
-rm -f latest
+private_debs_dir="$build_dir/private_debs"
 
-DisplayMessage "Getting latest ID"
-LatestID=$(2>/dev/null wget -O - "$closed_source_debs_url/latest")
-mkdir -p "$out_dir"/tmp
-pushd "$out_dir"/tmp
-	DisplayMessage "Downloading latest archive"
-	wget -O "$LatestID".tar "$closed_source_debs_url/$LatestID.tar"
-	DisplayMessage "Extracting archive"
-	tar -xvf "$LatestID".tar
-	DisplayMessage "Removing archive"
-	rm -f "$LatestID".tar
-popd
+function Download_Debs() {
+	mkdir -p "$private_debs_dir"
+	pushd "$private_debs_dir"
+		DisplayMessage "Getting latest ID"
+		LatestID=$(2>/dev/null wget -O - "$closed_source_debs_url/latest" || :)
+
+		if [[ "$LatestID" != "" ]] ;then
+			DisplayMessage "Downloading latest closed source debs"
+			wget -O  "$LatestID.tar" "$closed_source_debs_url/$LatestID.tar"
+			ln -s "$LatestID.tar" latest.tar
+		fi
+		
+	popd
+}
+
+function Unpack_Debs() {
+	DisplayMessage "Unpacking closed source debs"
+	mkdir -p "$out_dir"/tmp
+	pushd "$out_dir"/tmp
+		tar -xvf "$private_debs_dir"/latest.tar
+	popd
+}
+
+Download_Debs
+Unpack_Debs
 
 trap - EXIT
