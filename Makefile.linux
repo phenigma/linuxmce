@@ -232,6 +232,9 @@ build_usb_uirt:
 build_irbase:
 	@${RUN} ${SVNROOT} Run_MakeRelease ${DB_USER} ${DB_PASSWORD} ${DB_PORT} mkr_irbase
 
+build_tira:
+	@${RUN} ${SVNROOT} Run_MakeRelease ${DB_USER} ${DB_PASSWORD} ${DB_PORT} mkr_tira
+
 deps:
 	@mkdir -p  build/tmp/home/
 	@cp src/fakepkgs/README.Devel.Dependencies build/tmp/home/

@@ -330,6 +330,7 @@ function LoadPackageNames
 	export mkr_amg_media_identifier=644,645
 	export mkr_usb_uirt=525,526
 	export mkr_irbase=194,195
+	export mkr_tira=464,465
 	export mkr_mce_diskless_tools=627,628
 	export mkr_dce_router=154,155
 	export mkr_dce_library=192,193

@@ -24,14 +24,12 @@ LDFLAGS += -L.
 XTRALDLIBS = -lMessageTranslation -lIRBase
 
 ifneq (,$(findstring -DARCH64, $(CPPFLAGS)))
-        TIRAAPI = TiraAPI_64b
+        TIRAAPI_SO = libTiraAPI_64b.so
 else
-        TIRAAPI = TiraAPI
+        TIRAAPI_SO = libTiraAPI.so
 endif
 
-TIRAAPI_SO = lib$(TIRAAPI).so
-
-XTRALDLIBS += -l$(TIRAAPI)
+XTRALDLIBS += -lTiraAPI
 
 Gen_Dev_Files +=
 sources += ../LIRC_DCE/IRReceiverBase.cpp ToCCF.cpp
@@ -44,35 +42,34 @@ whattodo:
 
 all: bin so
 
-bin: Tira
+bin: ../bin/Tira
 
-so: Tira.so
+so: ../lib/Tira.so
 
-libTiraAPI.so: ../../proprietary_binaries/Tira/libTiraAPI.so
-	cp ../../proprietary_binaries/Tira/libTiraAPI.so $@
+libTiraAPI.so: ../../proprietary_binaries/Tira/$(TIRAAPI_SO)
+	cp ../../proprietary_binaries/Tira/$(TIRAAPI_SO) $@
 
 ../lib/libTiraAPI.so: libTiraAPI.so
 	cp libTiraAPI.so $@
 
-libTiraAPI_64b.so: ../../proprietary_binaries/Tira/libTiraAPI_64b.so
-	cp ../../proprietary_binaries/Tira/libTiraAPI_64b.so $@
-
-../lib/libTiraAPI_64.so: libTiraAPI_64b.so
-	cp libTiraAPI_64b.so $@
-
 Tira.so: $(sources:.cpp=.o)
 	$(CXX) -shared -o $(MYNAME).so $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
-	cp $@ ../bin
-	chmod +x post_make.sh
 	./post_make.sh $@
 
-Tira: $(sources:.cpp=.o) $(TIRAAPI_SO)
+../lib/Tira.so: Tira.so
+	cp Tira.so $@
+
+Tira: $(sources:.cpp=.o) ../lib/libTiraAPI.so
 	$(CXX) -o $(MYNAME) $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
-	cp $@ ../bin
 	./post_make.sh $@
+
+../bin/Tira: Tira
+	cp Tira $@
 
 clean: clean-recursive
-	rm -f $(call cpath,$(sources:.cpp=.o) $(sources:.cpp=.d)) Tira.bin Tira.so >/dev/null
+	rm -f $(call cpath,$(sources:.cpp=.o) $(sources:.cpp=.d)) >/dev/null
+	rm -f Tira Tira.bin Tira.so libTiraAPI.so                 >/dev/null
+	rm -f ../lib/libTiraAPI.so ../lib/Tira.so ../bin/Tira     >/dev/null
 
 package:
 	chmod +x make_package.sh
