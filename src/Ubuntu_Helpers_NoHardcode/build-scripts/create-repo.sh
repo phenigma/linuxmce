@@ -36,12 +36,12 @@ function MoveDebs2Repo {
 }
 
 function CopyDebsToDisklessSync {
-	local sync_pkgs="pluto-bluetooth-dongle pluto-cm11a pluto-eib pluto-gc100 pluto-generic-serial-device pluto-hdhomerun pluto-irbase pluto-irtrans-wrapper pluto-libbd pluto-lirc-wrapper pluto-messagetrans pluto-motion-wrapper pluto-msiml-disp-butt pluto-nvidia-video-drivers pluto-powerfile-c200 pluto-proxy-orbiter pluto-text-to-speech pluto-tira-wrapper pluto-usb-uirt-0038 pluto-vdr pluto-vipshared pluto-wavetrend-reader pluto-zwave-lighting mtx-pluto nvidia-glx lirc-pluto lirc-modules-2.6.22-14-generic id-my-disc linux-restricted-modules-2.6.22-14-generic lmcevdr pluto-vdr-plugin pluto-vdr vdr-dev vdr-plugin-control vdr-plugin-xineliboutput vdr libxine-xvdr libxineliboutput-sxfe xineliboutput-sxfe mythtv-backend mythtv-common mythtv-frontend mythtv-transcode-utils pluto-ivtv-video-drivers"
+	local sync_pkgs="pluto-bluetooth-dongle pluto-cm11a pluto-eib pluto-gc100 pluto-generic-serial-device pluto-hdhomerun pluto-irbase pluto-irtrans-wrapper pluto-libbd pluto-lirc-wrapper pluto-messagetrans pluto-motion-wrapper pluto-msiml-disp-butt pluto-nvidia-video-drivers pluto-powerfile-c200 pluto-proxy-orbiter pluto-text-to-speech pluto-tira-wrapper pluto-usb-uirt-0038 pluto-vdr pluto-vipshared pluto-wavetrend-reader pluto-zwave-lighting mtx-pluto nvidia-glx lirc-pluto lirc-modules-2.6.22-14-generic id-my-disc linux-restricted-modules-2.6.22-14-generic lmcevdr pluto-vdr-plugin pluto-vdr vdr-dev vdr-plugin-control vdr-plugin-xineliboutput vdr libxine1-xvdr libxine-xvdr libxineliboutput-sxfe xineliboutput-sxfe mythtv-backend mythtv-common mythtv-frontend mythtv-transcode-utils pluto-ivtv-video-drivers"
 	local pkg
 	mkdir -p "${build_dir}/DisklessSync/${arch}/deb-cache"
 	for pkg in $sync_pkgs ;do
 		rm -f "${build_dir}/DisklessSync/${arch}/deb-cache/${pkg}_"*.deb
-		cp "/var/www/${pkg}_"*.deb "${build_dir}/DisklessSync/${arch}/deb-cache/"
+		cp "/var/www/${pkg}_"*.deb "${build_dir}/DisklessSync/${arch}/deb-cache/" || :
 	done
 	
 	local sync_cd2_pkgs="libdvdnav4"
