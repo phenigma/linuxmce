@@ -408,21 +408,7 @@ function SUDO_Install_Build_Needed_Packages_SUDO
 	done
         printf "\n"
 
-        echo "Installing mysql stuff (includes hacks for 0704)"
-        sudo apt-get -y install libmysqlclient15off=5.0.38-0ubuntu1.1 mysql-common=5.0.38-0ubuntu1.1 > /dev/null
-        sudo apt-get -y install libmysqlclient15-dev > /dev/null
-
-
-        echo "Installing libxine development packages (includes hacks for 0704)"
-        pkg="libsmbclient=3.0.24-2ubuntu1.4 libsmbclient-dev=3.0.24-2ubuntu1.4"
-	if ! [`sudo apt-get -y install $pkg > /dev/null`] ; then
-            echo "Error installing $pkg"
-        fi
-        pkg="libvorbis-dev=1.1.2.dfsg-1.2"
-	if ! [`sudo apt-get -y install $pkg > /dev/null`] ; then
-            echo "Error installing $pkg"
-        fi
-
+        echo "Installing libxine development packages"
 	pkgs="libcaca-dev liblircclient-dev libtheora-dev libflac-dev=1.1.2-5ubuntu2 libmodplug-dev libgnomevfs2-dev libspeex-dev libmad0-dev libxvmc-dev automake1.9 autoconf libtool libcdio-dev sgmltools-lite dpatch transfig libavformat-dev libpostproc-dev libavcodec-dev libraw1394-dev libdc1394-13-dev"
 	for pkg in $pkgs ;do
 		printf "."
@@ -443,9 +429,7 @@ function SUDO_Install_Build_Needed_Packages_SUDO
 	echo "ivtv-source (TODO still needed? -- dtk)"
 	sudo apt-get -y install ivtv-source > /dev/null
 
-        echo "Installing KDE development libraries 704"
-        sudo apt-get -y install kdelibs4-dev=4:3.5.6-0ubuntu14 libjasper-1.701-dev=1.701.0-2 libpcre3-dev=6.7-1ubuntu2 libpcrecpp0=6.7-1ubuntu2 kdebase-dev=4:3.5.6-0ubuntu20 libarts1-dev libvorbis-dev=1.1.2.dfsg-1.2 libvorbis0a=1.1.2.dfsg-1.2 libvorbisenc2=1.1.2.dfsg-1.2 libvorbisfile3=1.1.2.dfsg-1.2 kdelibs4-dev=4:3.5.6-0ubuntu14 > /dev/null
-        echo "Installing KDE development libraries 710 b3"
+        echo "Installing KDE development libraries 710"
         sudo apt-get -y install kdelibs4-dev libjasper-dev libpcre3-dev libpcrecpp0 kdebase-dev libarts1-dev libvorbis-dev libvorbis0a libvorbisenc2 libvorbisfile3 kdelibs4-dev > /dev/null
 
         echo "Removing libdvdnav-dev to make room for libxine version"
