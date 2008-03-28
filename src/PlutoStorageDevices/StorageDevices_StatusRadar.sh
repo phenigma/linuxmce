@@ -35,15 +35,37 @@ EV_User_Password_Mismatch=70
 EVP_PK_Device=26
 EVP_Comment=58
 
+function CacheSet() {
+	local Key="$1"; 
+	local Val="$2"
+	local Id=$(echo "$Key" | md5sum | cut -d' ' -f1)
+
+	eval "Cache_${Id}='$Val'"
+}
+
+function CacheGet() {
+	local Key="$1"
+	local Id=$(echo "$Key" | md5sum | cut -d' ' -f1)
+
+	Cache="Cache_${Id}"
+	echo "${!Cache}"
+}
+
 function SetDeviceOnline() {
 	local Device_ID=$1
 	local OnlineValue=$2
 	local Q=""
-	
-	Q="SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device = '$Device_ID' AND FK_DeviceData='$DD_ONLINE'"
-	OldValue=$(RunSQL "$Q")
-	OldValue=$(Field "1" "$OldValue")
 
+
+	OldValue=$(CacheGet "$Device_ID")
+	echo "- $OldValue -"
+	if [[ "$OldValue" == "" ]] ;then
+		Q="SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device = '$Device_ID' AND FK_DeviceData='$DD_ONLINE'"
+		OldValue=$(RunSQL "$Q")
+		OldValue=$(Field "1" "$OldValue")
+	fi
+
+	CacheSet "$Device_ID" "$OnlineValue"
 	if [[ "$OldValue" != "$OnlineValue" ]] ;then
 
 		Q="UPDATE Device_DeviceData SET IK_DeviceData = '$OnlineValue' WHERE FK_Device = '$Device_ID' AND FK_DeviceData= '$DD_ONLINE'"
@@ -292,6 +314,9 @@ while : ;do
 
 			if [[ "$IDrive_UUID" != "" ]] ;then
 				RunSQL "UPDATE Device_DeviceData SET IK_DeviceData = '$IDrive_UUID' WHERE FK_Device = '$IDrive_ID' AND FK_DeviceData = '$DD_UUID'"
+			else
+				echo "Can't find the uuid of device $IDrive_ID"
+				continue
 			fi
 		fi
 		fi
