@@ -170,6 +170,9 @@ void OSDScreenHandler::SCREEN_VideoWizard(long PK_Screen)
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &OSDScreenHandler::VideoWizard_ObjectSelected, new ObjectInfoBackData());
 	RegisterCallBack(cbOnRenderScreen, (ScreenHandlerCallBack) &OSDScreenHandler::VideoWizard_OnScreen, new RenderScreenCallBackData());
 
+	m_pOrbiter->WaitForMessageQueue();  // The screen unload will send a stop_media.  Be sure it gets through before we send the play media
+	sleep(50); // Just a tiny sleep to be sure the aforementioned stop media gets through first.  Should be imperceptable
+
 	DCE::CMD_Play_Media CMD_Play_Media(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_LocalMediaPlayer,0,0,"","/home/videowiz/greetings.mpg");
 	m_pOrbiter->SendCommand(CMD_Play_Media);
 }
