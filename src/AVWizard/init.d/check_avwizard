@@ -19,6 +19,7 @@ if lspci -nnv -s 00:07.0 -d 10de:055c|grep -q 1462:7349; then
 	set -x
 	exec 4>&1 5>&2
 	exec 1>>/var/log/pluto/intel-msi-hack.log 2>&1
+	date
 	modprobe -r snd_hda_intel || :
 	modprobe snd_hda_intel model=6stack-dell || :
 	set +x
