@@ -211,7 +211,8 @@ void WinListManager::GetExternApplicationPosition(PlutoRectangle &coord)
 void WinListManager::SetExternApplicationPosition(const PlutoRectangle &coord)
 {
 #ifdef DEBUG
-    LoggerWrapper::GetInstance()->Write(LV_STATUS, "WinListManager::SetExternApplicationPosition(), name=%s", m_sExternApplicationName.c_str());
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "WinListManager::SetExternApplicationPosition(), name=%s %d,%d-%d,%d", 
+		m_sExternApplicationName.c_str(),coord.X,coord.Y,coord.Width,coord.Height);
 #endif
     PLUTO_SAFETY_LOCK(cm, m_WindowsMutex);
     m_coordExternalApplication = coord;
