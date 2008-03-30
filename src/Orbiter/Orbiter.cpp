@@ -9695,7 +9695,7 @@ void Orbiter::UpdateTimeCodeLoop()
 
 #ifdef DEBUG
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"UpdateTimeCodeLoop: got the mutex, we are ready to go! %p %d %d id %d",
-		m_pAskXine_Socket, m_pAskXine_Socket->m_dwPK_Device, m_dwPK_Device_NowPlaying,m_pAskXine_Socket==NULL ? -1 : m_pAskXine_Socket->m_Socket);
+		m_pAskXine_Socket, m_pAskXine_Socket==NULL ? -1 : m_pAskXine_Socket->m_dwPK_Device, m_dwPK_Device_NowPlaying,m_pAskXine_Socket==NULL ? -1 : m_pAskXine_Socket->m_Socket);
 #endif
 
 	// If this is a xine, determine the ip address and connect to it to pull time code info
