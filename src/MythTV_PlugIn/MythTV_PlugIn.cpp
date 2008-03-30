@@ -182,6 +182,7 @@ bool MythTV_PlugIn::Register()
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &MythTV_PlugIn::NewRecording), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_MythTV_Show_Recorded_CONST );
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &MythTV_PlugIn::ScanningProgress ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Channel_Scan_Progress_CONST );
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &MythTV_PlugIn::NewBookmarks ), 0, 0, 0, 0, MESSAGETYPE_COMMAND, COMMAND_Save_Bookmark_CONST );
+	RegisterMsgInterceptor( ( MessageInterceptorFn )( &MythTV_PlugIn::TuneToChannel ), 0, 0, 0, 0, MESSAGETYPE_COMMAND, COMMAND_Tune_to_channel_CONST );
 
 	ListDeviceData_Router *pListDeviceData_Router = m_pRouter->m_mapDeviceByTemplate_Find(DEVICETEMPLATE_MythTV_Player_CONST);
 	if( pListDeviceData_Router )
@@ -190,7 +191,6 @@ bool MythTV_PlugIn::Register()
 		{
 			DeviceData_Router *pDevice_MythPlayer = *it;
 			RegisterMsgInterceptor( ( MessageInterceptorFn )( &MythTV_PlugIn::PlaybackStarted ), pDevice_MythPlayer->m_dwPK_Device, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Playback_Started_CONST );
-			RegisterMsgInterceptor( ( MessageInterceptorFn )( &MythTV_PlugIn::TuneToChannel ), 0, pDevice_MythPlayer->m_dwPK_Device, 0, 0, MESSAGETYPE_COMMAND, COMMAND_Tune_to_channel_CONST );
 		}
 	}
 
