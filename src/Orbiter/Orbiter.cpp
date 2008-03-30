@@ -9694,11 +9694,12 @@ void Orbiter::UpdateTimeCodeLoop()
 	PLUTO_SAFETY_LOCK(tcm, m_TimeCodeMutex);
 
 #ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"UpdateTimeCodeLoop: got the mutex, we are ready to go!");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"UpdateTimeCodeLoop: got the mutex, we are ready to go! %p %d %d id %d",
+		m_pAskXine_Socket, m_pAskXine_Socket->m_dwPK_Device, m_dwPK_Device_NowPlaying,m_pAskXine_Socket==NULL ? -1 : m_pAskXine_Socket->m_Socket);
 #endif
 
 	// If this is a xine, determine the ip address and connect to it to pull time code info
-	if( !m_pAskXine_Socket || m_pAskXine_Socket->m_dwPK_Device!=m_dwPK_Device_NowPlaying )
+	if( !m_pAskXine_Socket || m_pAskXine_Socket->m_Socket == INVALID_SOCKET || m_pAskXine_Socket->m_dwPK_Device!=m_dwPK_Device_NowPlaying )
 	{
 		if( m_pAskXine_Socket )
 		{
@@ -9846,7 +9847,7 @@ void Orbiter::UpdateTimeCodeLoop()
 		Sleep(50);
 	}
 
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"UpdateTimeCodeLoop ended.");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"UpdateTimeCodeLoop ended. %p %d",m_pAskXine_Socket,m_pAskXine_Socket==NULL ? -1 : m_pAskXine_Socket->m_Socket);
 }
 
 void Orbiter::StartScreenSaver(bool bGotoScreenSaverDesignObj)
