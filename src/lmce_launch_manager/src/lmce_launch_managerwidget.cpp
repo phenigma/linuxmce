@@ -3089,47 +3089,50 @@ void lmce_launch_managerWidget::syncWithLockList(bool eraseDeadLocalDevices)
 		}
 		
 		f.close();
-	
+
 		writeLog("Detected running devices: " + qsl.join(" "));
-		
-		// purging dead devices
-		if (eraseDeadLocalDevices)
-		{
-			QValueVector<int> newV;
-			
-			// cleaning up dead core devices
-			for (QValueVector<int>::iterator it=m_qvvCoreDevices.begin(); it!=m_qvvCoreDevices.end(); ++it)
-			{
-				QString sID = QString::number(*it);
-				if (qsl.find(sID) == qsl.end())
-				{
-					writeLog("Device " + QString::number(*it) + " seem to be dead" );
-				}
-				else
-					newV.append(*it);
-			}
-			
-			m_qvvCoreDevices  = newV;
-			newV.clear();
-			
-			// cleaning up dead core devices
-			for (QValueVector<int>::iterator  it=m_qvvMediaDevices.begin(); it!=m_qvvMediaDevices.end(); ++it)
-			{
-				QString sID = QString::number(*it);
-				if (qsl.find(sID) == qsl.end())
-				{
-					writeLog("Device " + QString::number(*it) + " seem to be dead");
-				}
-				else
-					newV.append(*it);
-			}
-			
-			m_qvvMediaDevices  = newV;
-			newV.clear();
-		}
 	}
 	else
+	{
 		writeLog("Failed to open file" + QString(":") + PLUTO_LOCKS, false, LV_WARNING);
+		writeLog("Continuing, assuming no devices are running", false, LV_WARNING);
+	}
+	
+	// purging dead devices
+	if (eraseDeadLocalDevices)
+	{
+		QValueVector<int> newV;
+		
+		// cleaning up dead core devices
+		for (QValueVector<int>::iterator it=m_qvvCoreDevices.begin(); it!=m_qvvCoreDevices.end(); ++it)
+		{
+			QString sID = QString::number(*it);
+			if (qsl.find(sID) == qsl.end())
+			{
+				writeLog("Device " + QString::number(*it) + " seem to be dead" );
+			}
+			else
+				newV.append(*it);
+		}
+		
+		m_qvvCoreDevices  = newV;
+		newV.clear();
+		
+		// cleaning up dead core devices
+		for (QValueVector<int>::iterator  it=m_qvvMediaDevices.begin(); it!=m_qvvMediaDevices.end(); ++it)
+		{
+			QString sID = QString::number(*it);
+			if (qsl.find(sID) == qsl.end())
+			{
+				writeLog("Device " + QString::number(*it) + " seem to be dead");
+			}
+			else
+				newV.append(*it);
+		}
+		
+		m_qvvMediaDevices  = newV;
+		newV.clear();
+	}
 }
 	
 void lmce_launch_managerWidget::btn_SwitchRA_clicked()
