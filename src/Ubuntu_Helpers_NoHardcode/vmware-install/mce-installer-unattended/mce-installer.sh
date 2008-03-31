@@ -6,3 +6,6 @@ cp ./mce_wizard_data.sh /tmp
 ## Run the mce-installer scripts
 ./mce-installer-InstallDependencies.sh 
 ./mce-installer-core.sh
+
+## Reboot the system
+init 0

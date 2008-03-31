@@ -32,7 +32,6 @@ function ExitInstaller {
 	echo "ERROR : $*" >&2
 	echo
 	echo "$*" > /var/log/mce-installer-error.log
-	init 0
 	exit 1
 }
 
@@ -434,4 +433,3 @@ RunSQL "UPDATE Installation SET FK_PostalCode = 0"
 
 apt-get -y -f dist-upgrade
 StatsMessage "Installation Finished"
-init 0
