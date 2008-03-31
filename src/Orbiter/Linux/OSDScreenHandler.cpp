@@ -171,7 +171,7 @@ void OSDScreenHandler::SCREEN_VideoWizard(long PK_Screen)
 	RegisterCallBack(cbOnRenderScreen, (ScreenHandlerCallBack) &OSDScreenHandler::VideoWizard_OnScreen, new RenderScreenCallBackData());
 
 	m_pOrbiter->WaitForMessageQueue();  // The screen unload will send a stop_media.  Be sure it gets through before we send the play media
-	sleep(50); // Just a tiny sleep to be sure the aforementioned stop media gets through first.  Should be imperceptable
+	Sleep(50); // Just a tiny sleep to be sure the aforementioned stop media gets through first.  Should be imperceptable
 
 	DCE::CMD_Play_Media CMD_Play_Media(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_LocalMediaPlayer,0,0,"","/home/videowiz/greetings.mpg");
 	m_pOrbiter->SendCommand(CMD_Play_Media);
@@ -3264,7 +3264,12 @@ bool OSDScreenHandler::VideoWizard_OnGotoScreen(CallBackData *pData)
 	{
 		 if(pGotoScreenCallBackData->m_nPK_Screen == SCREEN_Main_CONST)
 		 {
-			if(NULL != m_pOrbiter->m_pScreenHistory_Current && m_pOrbiter->m_pScreenHistory_Current->PK_Screen() == SCREEN_PopupMessage_CONST)
+			if(
+				NULL != m_pOrbiter->m_pScreenHistory_Current && 
+				m_pOrbiter->m_pScreenHistory_Current->PK_Screen() == SCREEN_PopupMessage_CONST && 
+				NULL != m_pOrbiter->m_pScreenHistory_Current->GetObj() && 
+				m_pOrbiter->m_pScreenHistory_Current->GetObj()->m_ObjectID != TOSTRING(DESIGNOBJ_mnuScreenSaver_CONST) ".0.0"
+			)
 				m_pOrbiter->CMD_Go_back("", "");
 			else
 				m_pOrbiter->CMD_Goto_Screen("vw final", SCREEN_Wizard_Done_CONST, 1, 0, 0);
