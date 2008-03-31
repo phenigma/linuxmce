@@ -220,9 +220,14 @@ bool VDRPlugin::StartMedia( class MediaStream *pMediaStream,string &sError )
 	{
 		VDRChannel *pVDRChannel = *(m_ListVDRChannel.begin());
 		pVDRMediaStream->m_pVDRChannel = pVDRChannel;
-		DCE::CMD_Play_Media CMD_Play_Media(m_dwPK_Device,PK_Device,pVDRMediaStream->m_iPK_MediaType,
-			pVDRMediaStream->m_iStreamID_get(), " CHAN:" + StringUtils::itos(pVDRMediaStream->m_pVDRChannel->m_dwChanNum),"");
+
+		
+		DCE::CMD_Play_Media CMD_Play_Media(m_dwPK_Device, PK_Device,
+								pVDRMediaStream->m_iPK_MediaType,
+								pVDRMediaStream->m_iStreamID_get(), 
+								" CHAN:" + StringUtils::itos(pVDRMediaStream->m_pVDRChannel->m_dwChanNum),"hallo");
 		SendCommand(CMD_Play_Media);
+		
 	}	
 	
 	return MediaHandlerBase::StartMedia(pMediaStream,sError);
@@ -1410,3 +1415,4 @@ void VDRPlugin::UpdateTimers()
 		}
 	}
 }
+
