@@ -5,7 +5,7 @@ echo >> /var/log/pluto/umount-wrapper.log || { /bin/mount.wraped "$@" && exit 0;
 . /usr/pluto/bin/LockUtils.sh
 
 echo				   >> /var/log/pluto/umount-wrapper.log
-echo "$$ CALLED TO 'umount $@'"    >> /var/log/pluto/umount-wrapper.log
+echo "$$ CALLED TO 'mount $@'"     >> /var/log/pluto/umount-wrapper.log
 WaitLock "mtab" "mount-wrapper"    >> /var/log/pluto/umount-wrapper.log
 
 /bin/mount.wraped "$@" &
@@ -17,3 +17,4 @@ while [[ $(( start_date + 5 )) -ge $(date +%s) ]] && [[ -f /proc/$mount_pid ]]  
 done
 
 cat /proc/mounts > /etc/mtab
+Unlock "mtab" "mount-wrapper"	>> /var/log/pluto/umount-wrapper.log
