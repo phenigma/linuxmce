@@ -22,7 +22,6 @@
 #include "Gen_Devices/VDRBase.h"
 //<-dceag-d-e->
 
-#include "DCE/PlainClientSocket.h"
 #include "X11/Xlib.h"
 #include "X11/Xutil.h"
 #include "X11/keysym.h"
@@ -41,8 +40,10 @@ private:
 				DeviceData_Base *m_pDevice_VDR_Plugin;
 	      long unsigned int            m_iVDRWindowId;
 	      pluto_pthread_mutex_t m_VDRMutex;
+	      PlainClientSocket *m_pVDRSocket; 
 	      int                          m_iControllingDevice;
         pthread_t                    m_qApplicationThreadId;
+        pthread_t		     m_threadMonitorVDR;
 				DeviceData_Base *m_pDevice_DVBCard,*m_pDevice_Xine,*m_pDevice_MediaPlugin;
 				int m_iStreamID;  // The current stream ID
 				int m_iChannelNumber; // The current channel
@@ -54,17 +55,26 @@ private:
 				string m_sChannel,m_sInitialChannel;
         bool checkWindowName(long unsigned int window, string windowName);
         void selectWindow();
+        string m_sVDRIp;
+        
 
 protected:                                        
-        bool LaunchVDR();
+        bool LaunchVDR(bool bSelectWindow=true);
+        bool StopVDRFrontend();
 	      bool locateVDRWindow(long unsigned int window);
-		                        
+		    Display *getDisplay() { return m_pDisplay; };
+        void processKeyBoardInputRequest(int iXKeySym);                     
 
 		// Private methods
 public:
 		// Public member variables
 			bool m_bExiting;
 			eVDRState		     m_VDRStatus;	
+			int m_menustatus;  //menu an/aus
+			int m_menubefore;
+			string m_sVDRmodus;
+			string m_sVDRstatus;
+			                                
 
 //<-dceag-const-b->
 public:
@@ -79,7 +89,7 @@ public:
 
     virtual void KillSpawnedDevices();
     virtual void CreateChildren();
-		bool SendVDRCommand(string sCommand,string &sVDRResponse);
+		bool SendVDRCommand(string sIP, string sCommand,string &sVDRResponse);
 		void ParseCurrentChannel(string sChannel);
 		
 		void updateMode(string toMode);
@@ -106,9 +116,13 @@ public:
 			*****DATA***** accessors inherited from base class
 	string DATA_Get_File_Name_and_Path();
 	int DATA_Get_TCP_Port();
+	string DATA_Get_Name();
+	bool DATA_Get_Only_One_Per_PC();
 
 			*****EVENT***** accessors inherited from base class
 	void EVENT_Playback_Info_Changed(string sMediaDescription,string sSectionDescription,string sSynposisDescription);
+	void EVENT_Playback_Completed(string sMRL,int iStream_ID,bool bWith_Errors);
+	void EVENT_Playback_Started(string sMRL,int iStream_ID,string sSectionDescription,string sAudio,string sVideo);
 
 			*****COMMANDS***** we need to implement
 	*/
@@ -224,7 +238,7 @@ public:
 
 
 	/** @brief COMMAND: #63 - Skip Fwd - Channel/Track Greater */
-	/** Change channels greater (larger numbers) */
+	/** VDR chan + */
 		/** @param #41 StreamID */
 			/** ID of stream to apply */
 
@@ -233,7 +247,7 @@ public:
 
 
 	/** @brief COMMAND: #64 - Skip Back - Channel/Track Lower */
-	/** Change channels lower (smaller numbers) */
+	/** VDR chan - */
 		/** @param #41 StreamID */
 			/** ID of stream to apply */
 
@@ -304,24 +318,6 @@ public:
 	virtual void CMD_Goto_Media_Menu(int iStreamID,int iMenuType,string &sCMD_Result,Message *pMessage);
 
 
-	/** @brief COMMAND: #89 - Vol Up */
-	/** vol- */
-		/** @param #72 Repeat Command */
-			/** If specified, repeat the volume up this many times */
-
-	virtual void CMD_Vol_Up(int iRepeat_Command) { string sCMD_Result; CMD_Vol_Up(iRepeat_Command,sCMD_Result,NULL);};
-	virtual void CMD_Vol_Up(int iRepeat_Command,string &sCMD_Result,Message *pMessage);
-
-
-	/** @brief COMMAND: #90 - Vol Down */
-	/** vol+ */
-		/** @param #72 Repeat Command */
-			/** If specified, repeat the volume down this many times. */
-
-	virtual void CMD_Vol_Down(int iRepeat_Command) { string sCMD_Result; CMD_Vol_Down(iRepeat_Command,sCMD_Result,NULL);};
-	virtual void CMD_Vol_Down(int iRepeat_Command,string &sCMD_Result,Message *pMessage);
-
-
 	/** @brief COMMAND: #91 - Input Select */
 	/** toggle inputs */
 		/** @param #71 PK_Command_Input */
@@ -352,7 +348,7 @@ public:
 
 
 	/** @brief COMMAND: #97 - Mute */
-	/** 97 */
+	/** VDR mute */
 
 	virtual void CMD_Mute() { string sCMD_Result; CMD_Mute(sCMD_Result,NULL);};
 	virtual void CMD_Mute(string &sCMD_Result,Message *pMessage);
@@ -620,6 +616,13 @@ public:
 
 	virtual void CMD_Day_Up() { string sCMD_Result; CMD_Day_Up(sCMD_Result,NULL);};
 	virtual void CMD_Day_Up(string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #518 - Green */
+	/** VDR Green */
+
+	virtual void CMD_Green() { string sCMD_Result; CMD_Green(sCMD_Result,NULL);};
+	virtual void CMD_Green(string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #528 - Instant Replay */
