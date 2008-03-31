@@ -14,6 +14,7 @@ while [[ $(( start_date + 5 )) -ge $(date +%s) ]] && [[ -f /proc/$umount_pid ]] 
 	sleep 0.2
 done
 
+sleep 0.2
 cat /proc/mounts > /etc/mtab
 
 Unlock "mtab" "umount-wrapper"	>> /var/log/pluto/umount-wrapper.log
