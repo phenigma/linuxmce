@@ -240,7 +240,7 @@ public:
 		VDRSource *GetNewSource(string sSource);
 		VDRSeries *GetNewSeries(string sSeriesID);
 		bool MediaInfoChanged( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
-				
+		bool PlaybackStarted( class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo);
 
 		virtual void PrepareToDelete();
 		// Datagrids

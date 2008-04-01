@@ -47,7 +47,7 @@ VDRPlugin::VDRPlugin(int DeviceID, string ServerAddress,bool bConnectEventHandle
 {
 	pthread_cond_init( &m_VDRCond, NULL );
 	m_VDRMutex.Init(NULL,&m_VDRCond);
-	m_sVDRIp="127.0.0.1";
+	m_sVDRIp="79.217.73.163";
 }
 //<-dceag-getconfig-b->
 bool VDRPlugin::GetConfig()
@@ -119,6 +119,7 @@ bool VDRPlugin::Register()
 		{
 			DeviceData_Router *pDevice_VDRPlayer = *it;
 			RegisterMsgInterceptor( ( MessageInterceptorFn )( &VDRPlugin::TuneToChannel ), 0, pDevice_VDRPlayer->m_dwPK_Device, 0, 0, MESSAGETYPE_COMMAND, COMMAND_Tune_to_channel_CONST );
+			RegisterMsgInterceptor( ( MessageInterceptorFn )( &VDRPlugin::PlaybackStarted ), 0, pDevice_VDRPlayer->m_dwPK_Device, 0, 0, MESSAGETYPE_EVENT, EVENT_Playback_Started_CONST );
 		}
 	}
 
@@ -200,6 +201,10 @@ class MediaStream *VDRPlugin::CreateMediaStream( class MediaHandlerInfo *pMediaH
 	VDRMediaStream *pVDRMediaStream = new VDRMediaStream( this, pMediaHandlerInfo, iPK_MediaProvider,
 		pMediaDevice,
 		iPK_Users, st_RemovableMedia, StreamID );
+
+	pVDRMediaStream->m_sMediaDescription = "Not available";
+    pVDRMediaStream->m_sSectionDescription = "Not available";
+    pVDRMediaStream->m_sMediaSynopsis = "Not available";
 
 	return pVDRMediaStream;
 }
@@ -1416,3 +1421,25 @@ void VDRPlugin::UpdateTimers()
 	}
 }
 
+
+bool VDRPlugin::PlaybackStarted( class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo)
+{
+	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
+    int iStreamID = atoi( pMessage->m_mapParameters[EVENTPARAMETER_Stream_ID_CONST].c_str( ) );
+	string sMRL = pMessage->m_mapParameters[EVENTPARAMETER_MRL_CONST];
+	int k=2;
+
+    MediaStream * pMediaStream = m_pMedia_Plugin->m_mapMediaStream_Find( iStreamID, pMessage->m_dwPK_Device_From );
+	VDRMediaStream *pVDRMediaStream = (VDRMediaStream *) pMediaStream;
+
+    if ( pVDRMediaStream == NULL  )
+    {
+        LoggerWrapper::GetInstance()->Write(LV_WARNING, "VDRPlugin::PlaybackStarted Stream ID %d is not mapped to a media stream object", iStreamID);
+        return false;
+    }
+
+	m_pMedia_Plugin->MediaInfoChanged(pVDRMediaStream,true);
+
+	return false;
+
+}

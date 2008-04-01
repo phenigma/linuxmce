@@ -19,8 +19,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..;../DCE/;../../libs/Libraries/pthreads-win32/include;/mysql/include"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
+				AdditionalIncludeDirectories="..;../DCE/;&quot;../../libs/Libraries/pthreads-win32/include&quot;;/mysql/include;&quot;../../libs/CrossPlatform/id3lib-3.8.3/include&quot;"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;DEBUG;LOG_ALL_QUERIES;ID3LIB_LINKOPTION=3"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -32,10 +32,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE.lib"
+				AdditionalDependencies="pthreadVC.lib wsock32.lib libmySQL.lib DCE.lib pluto_main.lib pluto_media.lib pluto-id3lib-d.lib"
 				OutputFile="../Debug/VDRPlugin.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="../../libs/Libraries/pthreads-win32/lib;../lib"
+				AdditionalLibraryDirectories="\mysql\lib\Debug;&quot;../../libs/Libraries/pthreads-win32/lib&quot;;../lib;&quot;../../libs/CrossPlatform/id3lib-3.8.3/prj/Debug&quot;"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/VDRPlugin.pdb"
 				SubSystem="1"
@@ -70,9 +70,9 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="2"
-				AdditionalIncludeDirectories="..;../DCE/;../../libs/Libraries/pthreads-win32/include;/mysql/include"
 				InlineFunctionExpansion="1"
 				OmitFramePointers="TRUE"
+				AdditionalIncludeDirectories="..;../DCE/;../../libs/Libraries/pthreads-win32/include;/mysql/include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
@@ -87,8 +87,8 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE-r.lib"
 				OutputFile="../bin/VDRPlugin.exe"
-				AdditionalLibraryDirectories="../../libs/Libraries/pthreads-win32/lib;../lib"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories="../../libs/Libraries/pthreads-win32/lib;../lib"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
 				OptimizeReferences="2"
@@ -123,7 +123,58 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm">
 			<File
+				RelativePath="..\Media_Plugin\BoundRemote.cpp">
+			</File>
+			<File
+				RelativePath="..\Datagrid_Plugin\Datagrid_Plugin.cpp">
+			</File>
+			<File
+				RelativePath="..\Gen_Devices\Datagrid_PluginBase.cpp">
+			</File>
+			<File
+				RelativePath="..\File_Grids_Plugin\FileListGrid.cpp">
+			</File>
+			<File
+				RelativePath="..\File_Grids_Plugin\FileListOps.cpp">
+			</File>
+			<File
+				RelativePath="..\Orbiter_Plugin\FollowMe_Device.cpp">
+			</File>
+			<File
+				RelativePath="..\Media_Plugin\Generic_NonPluto_Media.cpp">
+			</File>
+			<File
 				RelativePath="Main.cpp">
+			</File>
+			<File
+				RelativePath="..\Media_Plugin\Media_Plugin.cpp">
+			</File>
+			<File
+				RelativePath="..\Media_Plugin\Media_Plugin_Grids.cpp">
+			</File>
+			<File
+				RelativePath="..\Gen_Devices\Media_PluginBase.cpp">
+			</File>
+			<File
+				RelativePath="..\Media_Plugin\MediaAttributes.cpp">
+			</File>
+			<File
+				RelativePath="..\Media_Plugin\MediaAttributes_LowLevel.cpp">
+			</File>
+			<File
+				RelativePath="..\Media_Plugin\MediaHandlerBase.cpp">
+			</File>
+			<File
+				RelativePath="..\Media_Plugin\MediaHandlerInfo.cpp">
+			</File>
+			<File
+				RelativePath="..\Media_Plugin\MediaListGrid.cpp">
+			</File>
+			<File
+				RelativePath="..\Media_Plugin\MediaStream.cpp">
+			</File>
+			<File
+				RelativePath=".\VDRMediaStream.cpp">
 			</File>
 			<File
 				RelativePath="VDRPlugin.cpp">
