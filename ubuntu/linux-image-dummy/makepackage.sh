@@ -25,7 +25,12 @@ if [[ ! -d /etc/initramfs-tools-diskless ]]; then
 	cp -a /etc/initramfs-tools{,-diskless}
 fi
 sed -i 's/^.*BOOT=.*/BOOT=nfs/g' /etc/initramfs-tools-diskless/initramfs.conf
+
+# NOTE: when you add a module to this list,
+# NOTE: please be sure to update and rebuild pluto-default-tftpboot too
+# NOTE: reference: UbuntuDiskless/Diskless_BuildDefaultImage.sh
 AddModules sky2
+
 mkinitramfs -d /etc/initramfs-tools-diskless/ -o ${Moon_RootLocation}/boot/initrd.img-${Moon_KernelVersion}
 
 # Copy from /lib/modules only whare belongs to linux-image-`uname -r`
