@@ -58,7 +58,6 @@ function SetDeviceOnline() {
 
 
 	OldValue=$(CacheGet "$Device_ID")
-	echo "- $OldValue -"
 	if [[ "$OldValue" == "" ]] ;then
 		Q="SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device = '$Device_ID' AND FK_DeviceData='$DD_ONLINE'"
 		OldValue=$(RunSQL "$Q")
@@ -285,7 +284,8 @@ while : ;do
 			PK_Device,
 			FK_Device_ControlledVia,
 			UUID.IK_DeviceData,
-			BlockDev.IK_DeviceData
+			BlockDev.IK_DeviceData,
+			FK_DeviceTemplate
 		FROM
 			Device
 			LEFT JOIN Device_DeviceData BlockDev ON BlockDev.FK_Device = Device.PK_Device AND BlockDev.FK_DeviceData = '$DD_BLOCK_DEV'
@@ -305,12 +305,13 @@ while : ;do
 		IDrive_Parent=$(Field "2" "$InternalDrive")
 		IDrive_UUID=$(Field "3" "$InternalDrive")
 		IDrive_BlockDev=$(Field "4" "$InternalDrive")
+		IDrive_DeviceTemplate=$(Field "5" "$InternalDrive")
 
 		## If is a New Raid with no UUID associated (UUID="") or a Internal Drive in the old format (UUID="NULL" or UUID="")
 		## then we translate the block device to uuid
 		if [[ "$IDrive_Parent" == "$PK_Device" ]] ;then
 		if [[ "$IDrive_UUID" == "" || "$IDrive_UUID" == "NULL" ]] && [[ "$IDrive_BlockDev" != "NULL" ]] ;then
-			IDrive_UUID=$(udevinfo --query=all --name="/dev/$IDrive_BlockDev" |  grep 'ID_FS_UUID=' | cut -d'=' -f2)
+			IDrive_UUID=$(udevinfo --query=all --name="$IDrive_BlockDev" |  grep 'ID_FS_UUID=' | cut -d'=' -f2)
 
 			if [[ "$IDrive_UUID" != "" ]] ;then
 				RunSQL "UPDATE Device_DeviceData SET IK_DeviceData = '$IDrive_UUID' WHERE FK_Device = '$IDrive_ID' AND FK_DeviceData = '$DD_UUID'"
@@ -323,19 +324,22 @@ while : ;do
 
 		## Is one of our internal drives
 		if [[ "$IDrive_Parent" == "$PK_Device" ]] ;then
-			## See if a device with that UUID can be found in the hal tree
-			IDrive_HalUDI=$(hal-find-by-property --key 'volume.uuid' --string "$IDrive_UUID")
-			if [[ "$IDrive_HalUDI" == "" ]] ;then
-				Log "Drive $IDrive_ID ($IDrive_UUID) cannot be found in hal tree"
-				SetDeviceOnline "$IDrive_ID" "0"
-				continue
-			fi
 
-			## See if we have a block device associated with that UUID
-			IDrive_BlockDev=$(hal-get-property --udi "$IDrive_HalUDI" --key 'block.device')
-			if [[ "$IDrive_BlockDev" == "" ]] ;then
-				Log "Drive $IDrive_ID ($IDrive_UUID) doesn't have a block device associated"
-				SetDeviceOnline "$IDrive_ID" "0"
+			if [[ "$IDrive_DeviceTemplate" == "$TPL_INTERNAL_DRIVE" ]] ;then
+				## See if a device with that UUID can be found in the hal tree
+				IDrive_HalUDI=$(hal-find-by-property --key 'volume.uuid' --string "$IDrive_UUID")
+				if [[ "$IDrive_HalUDI" == "" ]] ;then
+					Log "Drive $IDrive_ID ($IDrive_UUID) cannot be found in hal tree"
+					SetDeviceOnline "$IDrive_ID" "0"
+					continue
+				fi
+
+				## See if we have a block device associated with that UUID
+				IDrive_BlockDev=$(hal-get-property --udi "$IDrive_HalUDI" --key 'block.device')
+				if [[ "$IDrive_BlockDev" == "" ]] ;then
+					Log "Drive $IDrive_ID ($IDrive_UUID) doesn't have a block device associated"
+					SetDeviceOnline "$IDrive_ID" "0"
+				fi
 			fi
 			
 			## See if is still available in /proc/partitions
