@@ -332,6 +332,7 @@ namespace DCE
 
 
 		class DesignObj_Orbiter *m_pObj_LastSelected;   // The last object we selected.  Used by floorplans to toggle states
+		int m_dwPK_DesignObj_Toolbar_Last; // Used by floorplans
 		int m_iRow_Floorplan_LastSelected;  // If we're using datagrids as floorplans, this is the last row
 		class DesignObj_Orbiter *m_pObj_SelectedLastScreen;   // The last object we selected.  Used by floorplans to toggle states
 
@@ -1392,6 +1393,31 @@ namespace DCE
 	virtual void CMD_Select_Object(string sPK_DesignObj,string sPK_DesignObj_CurrentScreen,string sTime,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #67 - Spawn Application */
+	/** Spawn the given application.  Mainly used for windows orbiters. */
+		/** @param #13 Filename */
+			/** The name of the executable file to spawn */
+		/** @param #50 Name */
+			/** A name that we'll remember the application by for future kill commands */
+		/** @param #51 Arguments */
+			/** Command arguments, tab delimited */
+		/** @param #94 SendOnFailure */
+			/** Send this messages if the process exited with failure error code. */
+		/** @param #95 SendOnSuccess */
+			/** Send this messages if the process exited with success error code. */
+		/** @param #115 Show logo */
+			/** If this is set then we will first select the logo  before spawning the application. */
+		/** @param #120 Retransmit */
+			/** If false, and if Exclusive is true and another instance is killed, the 'send messages on termination' will not be sent. */
+		/** @param #126 Exclusive */
+			/** If true, then kill other apps with this same name */
+		/** @param #241 Detach */
+			/** Detach application after spawning / Don't kill this app on reload. */
+
+	virtual void CMD_Spawn_Application(string sFilename,string sName,string sArguments,string sSendOnFailure,string sSendOnSuccess,bool bShow_logo,bool bRetransmit,bool bExclusive,bool bDetach) { string sCMD_Result; CMD_Spawn_Application(sFilename.c_str(),sName.c_str(),sArguments.c_str(),sSendOnFailure.c_str(),sSendOnSuccess.c_str(),bShow_logo,bRetransmit,bExclusive,bDetach,sCMD_Result,NULL);};
+	virtual void CMD_Spawn_Application(string sFilename,string sName,string sArguments,string sSendOnFailure,string sSendOnSuccess,bool bShow_logo,bool bRetransmit,bool bExclusive,bool bDetach,string &sCMD_Result,Message *pMessage);
+
+
 	/** @brief COMMAND: #72 - Surrender to OS */
 	/** Let the O/S take over.  This is useful with the Orbiter running on the media director's desktop as a full screen app, and media is inserted, or the user starts a computer application on the mobile phone.  The orbiter will then let the other application ta */
 		/** @param #8 On/Off */
@@ -1946,13 +1972,13 @@ light, climate, media, security, telecom */
 			/** The called user. Only one is supported now. */
 		/** @param #83 PhoneExtension */
 			/** The phone number to be called. */
-		/** @param #262 FK_Device_From */
+		/** @param #262 PK_Device_From */
 			/** The device which starts the call. */
 		/** @param #263 PK_Device_To */
 			/** The called device. */
 
-	virtual void CMD_Assisted_Make_Call(int iPK_Users,string sPhoneExtension,int iFK_Device_From,int iPK_Device_To) { string sCMD_Result; CMD_Assisted_Make_Call(iPK_Users,sPhoneExtension.c_str(),iFK_Device_From,iPK_Device_To,sCMD_Result,NULL);};
-	virtual void CMD_Assisted_Make_Call(int iPK_Users,string sPhoneExtension,int iFK_Device_From,int iPK_Device_To,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Assisted_Make_Call(int iPK_Users,string sPhoneExtension,int iPK_Device_From,int iPK_Device_To) { string sCMD_Result; CMD_Assisted_Make_Call(iPK_Users,sPhoneExtension.c_str(),iPK_Device_From,iPK_Device_To,sCMD_Result,NULL);};
+	virtual void CMD_Assisted_Make_Call(int iPK_Users,string sPhoneExtension,int iPK_Device_From,int iPK_Device_To,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

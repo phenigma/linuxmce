@@ -590,6 +590,7 @@ public:
 	virtual void CMD_Set_Current_User(int iPK_Users,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Entertainment_Area(string sPK_EntertainArea,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Select_Object(string sPK_DesignObj,string sPK_DesignObj_CurrentScreen,string sTime,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Spawn_Application(string sFilename,string sName,string sArguments,string sSendOnFailure,string sSendOnSuccess,bool bShow_logo,bool bRetransmit,bool bExclusive,bool bDetach,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Surrender_to_OS(string sOnOff,bool bFully_release_keyboard,bool bAlways,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Current_Room(int iPK_Room,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Reset_Highlight(string sPK_DesignObj,string &sCMD_Result,class Message *pMessage) {};
@@ -640,7 +641,7 @@ public:
 	virtual void CMD_Execute_Shortcut(int iValue,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Bind_to_Wireless_Keyboard(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Activate_PC_Desktop(bool bTrueFalse,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Assisted_Make_Call(int iPK_Users,string sPhoneExtension,int iFK_Device_From,int iPK_Device_To,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Assisted_Make_Call(int iPK_Users,string sPhoneExtension,int iPK_Device_From,int iPK_Device_To,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual ReceivedMessageResult ReceivedMessage(class Message *pMessageOriginal)
@@ -1548,6 +1549,40 @@ public:
 							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Select_Object(sPK_DesignObj.c_str(),sPK_DesignObj_CurrentScreen.c_str(),sTime.c_str(),sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case COMMAND_Spawn_Application_CONST:
+					{
+						string sCMD_Result="OK";
+						string sFilename=pMessage->m_mapParameters[COMMANDPARAMETER_Filename_CONST];
+						string sName=pMessage->m_mapParameters[COMMANDPARAMETER_Name_CONST];
+						string sArguments=pMessage->m_mapParameters[COMMANDPARAMETER_Arguments_CONST];
+						string sSendOnFailure=pMessage->m_mapParameters[COMMANDPARAMETER_SendOnFailure_CONST];
+						string sSendOnSuccess=pMessage->m_mapParameters[COMMANDPARAMETER_SendOnSuccess_CONST];
+						bool bShow_logo=(pMessage->m_mapParameters[COMMANDPARAMETER_Show_logo_CONST]=="1" ? true : false);
+						bool bRetransmit=(pMessage->m_mapParameters[COMMANDPARAMETER_Retransmit_CONST]=="1" ? true : false);
+						bool bExclusive=(pMessage->m_mapParameters[COMMANDPARAMETER_Exclusive_CONST]=="1" ? true : false);
+						bool bDetach=(pMessage->m_mapParameters[COMMANDPARAMETER_Detach_CONST]=="1" ? true : false);
+						CMD_Spawn_Application(sFilename.c_str(),sName.c_str(),sArguments.c_str(),sSendOnFailure.c_str(),sSendOnSuccess.c_str(),bShow_logo,bRetransmit,bExclusive,bDetach,sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(itRepeat->second.c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Spawn_Application(sFilename.c_str(),sName.c_str(),sArguments.c_str(),sSendOnFailure.c_str(),sSendOnSuccess.c_str(),bShow_logo,bRetransmit,bExclusive,bDetach,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

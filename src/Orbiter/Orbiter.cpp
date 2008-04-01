@@ -309,6 +309,7 @@ Orbiter::Orbiter( int DeviceID, int PK_DeviceTemplate, string ServerAddress,  st
 	m_iStreamID=0;
 	m_pScreenHistory_Current=NULL;
 	m_pObj_LastSelected=m_pObj_Highlighted_Last=NULL;
+	m_dwPK_DesignObj_Toolbar_Last=0;
 	m_pObj_Highlighted_set(NULL);
 	m_iRow_Floorplan_LastSelected=-1;
 	m_pObj_SelectedLastScreen=NULL;
@@ -1754,11 +1755,11 @@ void Orbiter::SelectedFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter,int Row)
 	// then we need to activate this toolbar and remove any previous one
 	int PK_DesignObj_Toolbar_ToTurnOn=0,PK_DesignObj_Toolbar_ToTurnOff=0;
 	if( pDesignObj_Orbiter->m_pFloorplanObject->m_dwPK_DesignObj_Toolbar &&
-		(!m_pObj_LastSelected || m_pObj_LastSelected->m_pFloorplanObject->m_dwPK_DesignObj_Toolbar!=pDesignObj_Orbiter->m_pFloorplanObject->m_dwPK_DesignObj_Toolbar) )
+		(!m_pObj_LastSelected || m_dwPK_DesignObj_Toolbar_Last!=pDesignObj_Orbiter->m_pFloorplanObject->m_dwPK_DesignObj_Toolbar) )
 	{
 		PK_DesignObj_Toolbar_ToTurnOn=pDesignObj_Orbiter->m_pFloorplanObject->m_dwPK_DesignObj_Toolbar;
-		if( m_pObj_LastSelected && m_pObj_LastSelected->m_pFloorplanObject && m_pObj_LastSelected->m_pFloorplanObject->m_dwPK_DesignObj_Toolbar )
-			PK_DesignObj_Toolbar_ToTurnOff=m_pObj_LastSelected->m_pFloorplanObject->m_dwPK_DesignObj_Toolbar;
+		if( m_dwPK_DesignObj_Toolbar_Last )
+			PK_DesignObj_Toolbar_ToTurnOff=m_dwPK_DesignObj_Toolbar_Last;
 	}
 	else if( m_pObj_LastSelected && m_pObj_LastSelected->m_pFloorplanObject->m_dwPK_DesignObj_Toolbar &&
 		pDesignObj_Orbiter->m_pFloorplanObject->m_dwPK_DesignObj_Toolbar!=m_pObj_LastSelected->m_pFloorplanObject->m_dwPK_DesignObj_Toolbar )
@@ -1779,6 +1780,7 @@ void Orbiter::SelectedFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter,int Row)
 				delete itFPO->second;
 			m_mapFloorplanObject_Selected.clear();
 			m_pObj_LastSelected=NULL;
+			m_dwPK_DesignObj_Toolbar_Last=0;
 			m_iRow_Floorplan_LastSelected=-1;
 			m_iLastEntryInDeviceGroup=-1;  // Start at the beginning
 			PK_DesignObj_Toolbar_ToTurnOn=0;
@@ -1822,7 +1824,10 @@ void Orbiter::SelectedFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter,int Row)
 
 	// The toolbar will be a direct child of the topmost object, whether it's a screen or a popup
 	if( PK_DesignObj_Toolbar_ToTurnOn )
+	{
 		CMD_Show_Object(pDesignObj_Orbiter->TopMostObject()->m_ObjectID + "." + StringUtils::itos(PK_DesignObj_Toolbar_ToTurnOn),0,"","","1");
+		m_dwPK_DesignObj_Toolbar_Last=PK_DesignObj_Toolbar_ToTurnOn;
+	}
 	if( PK_DesignObj_Toolbar_ToTurnOff )
 		CMD_Show_Object(pDesignObj_Orbiter->TopMostObject()->m_ObjectID + "." + StringUtils::itos(PK_DesignObj_Toolbar_ToTurnOff),0,"","","0");
 
@@ -2389,7 +2394,11 @@ bool Orbiter::ParseConfigurationData( GraphicType Type )
 	m_pDesignObj_Orbiter_MainMenu=m_ScreenMap_Find( m_sMainMenu );
 	m_pDesignObj_Orbiter_SleepingMenu=m_ScreenMap_Find( m_sSleepingMenu );
 	m_pDesignObj_Orbiter_ScreenSaveMenu=m_ScreenMap_Find( m_sScreenSaveMenu );
-
+for(ScreenMap::iterator it=m_ScreenMap.begin();it!=m_ScreenMap.end();++it)
+{
+	DesignObj_Orbiter *pobj = it->second;
+	LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "got %s", pobj->m_ObjectID.c_str() );
+}
 	if(  !m_pDesignObj_Orbiter_MainMenu  )
 	{
 		LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Cannot find main menu: %s", m_sMainMenu.c_str(  ) );
@@ -2521,7 +2530,8 @@ void Orbiter::ParseObject( DesignObj_Orbiter *pObj, DesignObj_Orbiter *pObj_Scre
 
 	m_mapObj_All[pObj->m_ObjectID] = pObj;  // Do this earlier since the bind to action may require looking this up.
 	pObj->m_pObj_Screen=pObj_Screen;
-
+if( pObj->m_ObjectID.find("5668")!=string::npos || pObj->m_ObjectID.find("5667")!=string::npos )
+int k=2;
 	if(  pObj->m_bHideByDefault  )
 		pObj->m_bHidden = true;
 
@@ -4204,8 +4214,9 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 		{
 			//rip status indicator
 			string sRippingStatus;
-			DCE::CMD_Get_Ripping_Status cmd_Get_Ripping_Status(m_dwPK_Device, m_dwPK_Device_MediaPlugIn, &sRippingStatus);
-			SendCommand(cmd_Get_Ripping_Status);
+// before committing, use a current database, add spawn application to orbiter's commands, then uncomment out this
+//			DCE::CMD_Get_Ripping_Status cmd_Get_Ripping_Status(m_dwPK_Device, m_dwPK_Device_MediaPlugIn, &sRippingStatus);
+//			SendCommand(cmd_Get_Ripping_Status);
 
 			Output += sRippingStatus;
 		}
@@ -6591,6 +6602,16 @@ void Orbiter::CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,s
 	if(NULL != m_pMouseBehavior && iStreamID == 0)
 		m_pMouseBehavior->MediaStopped();
 #endif
+//<-mkr_b_aj_b->
+	this->CMD_Show_Object("5666.0.0.5670",0,"","",iPK_MediaType==0 ? "0" : "1");
+	this->CMD_Show_Object("5666.0.0.5588",0,"","",iPK_MediaType==0 ? "0" : "1");
+	this->CMD_Show_Object("5666.0.0.5668",0,"","",iPK_MediaType!=0 ? "0" : "1");
+	this->CMD_Show_Object("5667.0.0.5670",0,"","",iPK_MediaType==0 ? "0" : "1");
+	this->CMD_Show_Object("5667.0.0.5588",0,"","",iPK_MediaType==0 ? "0" : "1");
+	this->CMD_Show_Object("5667.0.0.5668",0,"","",iPK_MediaType!=0 ? "0" : "1");
+	DCE::CMD_Refresh CMD_Refresh(m_dwPK_Device,m_dwPK_Device,"");  // send ourselves a refresh since the nbc logo may not show/hide
+	SendCommand(CMD_Refresh);
+//<-mkr_b_aj_e->
 
 	m_iStreamID=iStreamID;
 	m_iPK_MediaType=iPK_MediaType;
@@ -10152,13 +10173,53 @@ string Orbiter::DetectCoreIpAddress()
 			/** The called user. Only one is supported now. */
 		/** @param #83 PhoneExtension */
 			/** The phone number to be called. */
-		/** @param #262 FK_Device_From */
+		/** @param #262 PK_Device_From */
 			/** The device which starts the call. */
 		/** @param #263 PK_Device_To */
 			/** The called device. */
 
-void Orbiter::CMD_Assisted_Make_Call(int iPK_Users,string sPhoneExtension,int iFK_Device_From,int iPK_Device_To,string &sCMD_Result,Message *pMessage)
+void Orbiter::CMD_Assisted_Make_Call(int iPK_Users,string sPhoneExtension,int iPK_Device_From,int iPK_Device_To,string &sCMD_Result,Message *pMessage)
 //<-dceag-c923-e->
 {
-	m_pScreenHandler->HandleAssistedMakeCall(iPK_Users, sPhoneExtension, iFK_Device_From, iPK_Device_To, "");
+	m_pScreenHandler->HandleAssistedMakeCall(iPK_Users, sPhoneExtension, iPK_Device_From, iPK_Device_To, "");
+}
+//<-dceag-c67-b->
+
+	/** @brief COMMAND: #67 - Spawn Application */
+	/** Spawn the given application.  Mainly used for windows orbiters. */
+		/** @param #13 Filename */
+			/** The name of the executable file to spawn */
+		/** @param #50 Name */
+			/** A name that we'll remember the application by for future kill commands */
+		/** @param #51 Arguments */
+			/** Command arguments, tab delimited */
+		/** @param #94 SendOnFailure */
+			/** Send this messages if the process exited with failure error code. */
+		/** @param #95 SendOnSuccess */
+			/** Send this messages if the process exited with success error code. */
+		/** @param #115 Show logo */
+			/** If this is set then we will first select the logo  before spawning the application. */
+		/** @param #120 Retransmit */
+			/** If false, and if Exclusive is true and another instance is killed, the 'send messages on termination' will not be sent. */
+		/** @param #126 Exclusive */
+			/** If true, then kill other apps with this same name */
+		/** @param #241 Detach */
+			/** Detach application after spawning / Don't kill this app on reload. */
+
+void Orbiter::CMD_Spawn_Application(string sFilename,string sName,string sArguments,string sSendOnFailure,string sSendOnSuccess,bool bShow_logo,bool bRetransmit,bool bExclusive,bool bDetach,string &sCMD_Result,Message *pMessage)
+//<-dceag-c67-e->
+{
+#if defined(WIN32) && !defined(WINCE)
+		//starting the new orbiter
+		PROCESS_INFORMATION pi;
+		::ZeroMemory(&pi, sizeof(PROCESS_INFORMATION));
+
+		STARTUPINFO si;
+		::ZeroMemory(&si, sizeof(STARTUPINFO));
+		si.cb = sizeof(STARTUPINFO);
+		si.lpReserved = 0;
+
+		string sCompleteCmdLine = sFilename + " \"" + sArguments + "\"";
+		::CreateProcess(NULL, const_cast<char *>(sCompleteCmdLine.c_str()), NULL, NULL, NULL, 0, NULL, NULL, &si, &pi);
+#endif 
 }
