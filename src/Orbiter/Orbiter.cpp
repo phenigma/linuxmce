@@ -2394,11 +2394,6 @@ bool Orbiter::ParseConfigurationData( GraphicType Type )
 	m_pDesignObj_Orbiter_MainMenu=m_ScreenMap_Find( m_sMainMenu );
 	m_pDesignObj_Orbiter_SleepingMenu=m_ScreenMap_Find( m_sSleepingMenu );
 	m_pDesignObj_Orbiter_ScreenSaveMenu=m_ScreenMap_Find( m_sScreenSaveMenu );
-for(ScreenMap::iterator it=m_ScreenMap.begin();it!=m_ScreenMap.end();++it)
-{
-	DesignObj_Orbiter *pobj = it->second;
-	LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "got %s", pobj->m_ObjectID.c_str() );
-}
 	if(  !m_pDesignObj_Orbiter_MainMenu  )
 	{
 		LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Cannot find main menu: %s", m_sMainMenu.c_str(  ) );
@@ -2530,8 +2525,7 @@ void Orbiter::ParseObject( DesignObj_Orbiter *pObj, DesignObj_Orbiter *pObj_Scre
 
 	m_mapObj_All[pObj->m_ObjectID] = pObj;  // Do this earlier since the bind to action may require looking this up.
 	pObj->m_pObj_Screen=pObj_Screen;
-if( pObj->m_ObjectID.find("5668")!=string::npos || pObj->m_ObjectID.find("5667")!=string::npos )
-int k=2;
+
 	if(  pObj->m_bHideByDefault  )
 		pObj->m_bHidden = true;
 
