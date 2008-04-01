@@ -282,11 +282,11 @@ FormatPartitions()
 MountPartitions()
 {
 	mkdir -p /media/target /media/recovery
-	mount "$TargetHdd"1 /media/target
+	mount -t ext3 "$TargetHdd"1 /media/target
 
 	if [[ "$Upgrade" != "1" ]] ;then
 		if [[ "$FromHdd" != 1 ]]; then
-			mount "$TargetHdd"6 /media/recovery
+			mount -t ext3 "$TargetHdd"6 /media/recovery
 		else
 			mount -o bind / /media/recovery
 		fi
