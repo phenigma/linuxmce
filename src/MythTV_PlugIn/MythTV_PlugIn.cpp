@@ -57,15 +57,6 @@ static bool ChannelComparer(MythChannel *x, MythChannel *y)
 	return x->m_dwChanNum<y->m_dwChanNum;
 }
 
-
-//<-mkr_b_aj_b->
-	// Temporary for the aJ demo project where we turn a channel number into a filename
-	string ajTranslateMRL(int Channel)
-	{
-		return "/home/ch" + StringUtils::itos(Channel) + ".mpg";
-	}
-//<-mkr_b_aj_e->
-
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
 MythTV_PlugIn::MythTV_PlugIn(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
@@ -149,11 +140,6 @@ bool MythTV_PlugIn::Register()
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find sister plugins to myth plugin");
 		return false;
 	}
-
-//<-mkr_b_aj_b->
-	DeviceData_Base *pDevice_Xine = m_pData->FindFirstRelatedDeviceOfTemplate(DEVICETEMPLATE_Xine_Player_CONST);
-	m_pMediaDevice_Xine = m_pMedia_Plugin->m_mapMediaDevice_Find(pDevice_Xine->m_dwPK_Device);
-//<-mkr_b_aj_e->
 
 	m_pMedia_Plugin->RegisterMediaPlugin(this, this, DEVICETEMPLATE_MythTV_Player_CONST, true);
 
@@ -309,19 +295,7 @@ bool MythTV_PlugIn::StartMedia(class MediaStream *pMediaStream,string &sError)
 		}
 	}
 
-	string sMRL;
-//<-mkr_b_aj_b->
-	pMythTvMediaStream->m_pMediaDevice_Source = m_pMediaDevice_Xine;
-	pMythTvMediaStream->m_sAppName = "pluto-xine-playback-window.pluto-xine-playback-window";
-	MediaFile *pMediaFile = pMythTvMediaStream->GetCurrentMediaFile();
-	if( pMediaFile && atoi(pMediaFile->m_sFilename.c_str())>0 )
-		m_iChannel=atoi(pMediaFile->m_sFilename.c_str());
-	else
-		m_iChannel=1;
-	sMRL = ajTranslateMRL(m_iChannel);
-//<-mkr_b_aj_e->
-
-	DCE::CMD_Play_Media cmd(m_dwPK_Device, pMythTvMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,pMythTvMediaStream->m_iPK_MediaType,pMythTvMediaStream->m_iStreamID_get( ),pMediaStream->m_sStartPosition,sMRL);
+	DCE::CMD_Play_Media cmd(m_dwPK_Device, pMythTvMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,pMythTvMediaStream->m_iPK_MediaType,pMythTvMediaStream->m_iStreamID_get( ),pMediaStream->m_sStartPosition,"");
 	SendCommand(cmd);
 
 	m_pAlarmManager->CancelAlarmByType(CONFIRM_MASTER_BACKEND_OK);  // Do this immediately 
@@ -475,7 +449,6 @@ class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *
 			bool bOk=false;
 			for(list_int::iterator it=p_list_int->begin();it!=p_list_int->end();++it)
 			{
-int i=*it;
 				if( *it==pMythChannel->m_pMythSource->m_dwID )
 				{
 					bOk=true;
@@ -775,14 +748,6 @@ void MythTV_PlugIn::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string
 
 	 if( !pMediaStream )
          return;  
-
-	 //<-mkr_b_aj_b->
-	m_iChannel += sValue_To_Assign=="-1" ? -1 : 1;
-	string sMRL = ajTranslateMRL(m_iChannel);
-	DCE::CMD_Play_Media cmd(m_dwPK_Device, pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,pMediaStream->m_iPK_MediaType,pMediaStream->m_iStreamID_get( ),pMediaStream->m_sStartPosition,sMRL);
-	SendCommand(cmd);
-	return;
-	//<-mkr_b_aj_e->
 
 	int m_dwTargetDevice = pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device;
 
@@ -1107,8 +1072,8 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Device,int iPK_Orbiter,
 			string sMediaProviderID = pRow_MediaProvider ? pRow_MediaProvider->ID_get() : "";
 			string sUsername = StringUtils::Tokenize(sMediaProviderID,"\t",pos);
 			string sPassword = StringUtils::Tokenize(sMediaProviderID,"\t",pos);
-			int PK_DeviceTemplate_MediaType = atoi(StringUtils::Tokenize(sMediaProviderID,"\t",pos).c_str());
-			int PK_ProviderSource = atoi(StringUtils::Tokenize(sMediaProviderID,"\t",pos).c_str());
+			//int PK_DeviceTemplate_MediaType = atoi(StringUtils::Tokenize(sMediaProviderID,"\t",pos).c_str());
+			//int PK_ProviderSource = atoi(StringUtils::Tokenize(sMediaProviderID,"\t",pos).c_str());
 			string sLineup = StringUtils::Tokenize(sMediaProviderID,"\t",pos);
 
 			// We only care about capture cards
@@ -1737,15 +1702,9 @@ bool MythTV_PlugIn::TuneToChannel( class Socket *pSocket, class Message *pMessag
 		pMessage->m_mapParameters.find(COMMANDPARAMETER_ProgramID_CONST)!=pMessage->m_mapParameters.end() )
 	{
 		MediaStream *pMediaStream = m_pMedia_Plugin->m_mapMediaStream_Find(atoi(pMessage->m_mapParameters[COMMANDPARAMETER_StreamID_CONST].c_str()),0);
-//<-mkr_b_aj_b->
-		/*
-//<-mkr_b_aj_e->
 		if( pMediaStream && pMediaStream->GetType()==MEDIASTREAM_TYPE_MYTHTV )
 			return false;  // it's for a myth player, no processing needed
 
-//<-mkr_b_aj_b->
-		*/
-//<-mkr_b_aj_e->
 		string sProgramID = pMessage->m_mapParameters[COMMANDPARAMETER_ProgramID_CONST];
 		if( sProgramID.size()>1 && sProgramID[0]=='i' )
 		{
@@ -1754,14 +1713,7 @@ bool MythTV_PlugIn::TuneToChannel( class Socket *pSocket, class Message *pMessag
 			PlutoSqlResult result_set_check;
 			DB_ROW row;
 			if( (result_set_check.r=m_pDBHelper_Myth->db_wrapper_query_result(sSQL))!=NULL && (row=db_wrapper_fetch_row(result_set_check.r))!=NULL && row && row[0] )
-			{
 				pMessage->m_mapParameters[COMMANDPARAMETER_ProgramID_CONST] = row[0];
-//<-mkr_b_aj_b->
-				string sMRL = ajTranslateMRL(atoi(row[0]));
-				DCE::CMD_Play_Media cmd(m_dwPK_Device, pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,pMediaStream->m_iPK_MediaType,pMediaStream->m_iStreamID_get( ),pMediaStream->m_sStartPosition,sMRL);
-				SendCommand(cmd);
-//<-mkr_b_aj_e->
-			}
 		}
 	}
 	return false;
