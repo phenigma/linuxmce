@@ -6,6 +6,8 @@ function sigusr1() {
 }
 trap "sigusr1" USR1
 
+echo >> /var/log/pluto/umount-wrapper.log || { /bin/umount.wraped "$@" && exit 0; }
+
 . /usr/pluto/bin/LockUtils.sh
 
 echo				   >> /var/log/pluto/umount-wrapper.log
