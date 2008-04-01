@@ -18,7 +18,7 @@ WaitLock "mtab" "mount-wrapper"    >> /var/log/pluto/umount-wrapper.log
 mount_pid=$!
 
 start_date=$(date +%s)
-while [[ $(( start_date + 5 )) -ge $(date +%s) ]] && [[ -f /proc/$mount_pid ]]  ;do
+while [[ $(( start_date + 5 )) -ge $(date +%s) ]] && [[ -e /proc/$mount_pid ]]  ;do
 	sleep 0.2
 done
 
