@@ -35,7 +35,7 @@
 // timeouts in seconds
 #define MEDIA_DEVICE_TIMEOUT 10
 #define CORE_DEVICE_TIMEOUT 10
-#define CORE_SERVICE_TIMEOUT 300
+#define CORE_SERVICE_TIMEOUT 600
 
 // time in milliseconds
 #define LOG_REFRESH_INTERVAL 30000
@@ -1985,7 +1985,7 @@ bool lmce_launch_managerWidget::startCoreServices()
 
 		int iCounter = CORE_SERVICE_TIMEOUT;
 		int iQueryCounter=5; // trigger on start
-		while (pService->isRunning() && iCounter)
+		while (pService->isRunning() && iCounter--)
 		{
 			// every second checking config log messages
 			QString s, s1;
@@ -2081,10 +2081,9 @@ bool lmce_launch_managerWidget::stopCoreServices()
 	if (pService->start())
 	{
 		int iCounter = CORE_SERVICE_TIMEOUT;
-		while (pService->isRunning() && iCounter)
+		while (pService->isRunning() && iCounter--)
 		{
 			sleep(1);
-			iCounter--;
 			qApp->eventLoop()->processEvents(QEventLoop::ExcludeUserInput);
 		}
 						
