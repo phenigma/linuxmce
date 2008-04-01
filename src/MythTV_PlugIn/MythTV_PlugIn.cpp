@@ -2403,52 +2403,66 @@ void MythTV_PlugIn::UpdateUpcomingRecordings()
 	const char *pToken = "[]:[]"; // What kind of token is this??
 	MythRecording mythRecording;
 
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::UpdateUpcomingRecordings got %d",(int) sResponse.size());
-	while(pos<sResponse.size())
+	string sHasConflicts = "", sListSize = "";
+	int iListSize = 0;
+
+	if (pos < sResponse.size())
+		sHasConflicts = StringUtils::Tokenize(sResponse,pToken,pos,true);
+
+	if (pos < sResponse.size())
 	{
-		string s1 = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string s2 = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string sTitle = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string s4 = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string s5 = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string s6 = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string sChanId = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string sChannel = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string sCallSign = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string s10 = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string s11 = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string s12 = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string s13 = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string sStartTime = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string sStopTime = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string s16 = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string s17 = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string s18 = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string s19 = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string s20 = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string s21 = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string s22 = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string s23 = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string s24 = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string sRecordID = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string sRecType = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string s27 = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string s28 = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string s29 = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string sStartTime2 = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string sStopTime2 = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string s32 = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string s33 = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string s34 = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string s35 = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string sSeriesID = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string sProgramID = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string s38 = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string s39 = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string s40 = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string s41 = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string s42 = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string s43 = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		sListSize = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		iListSize = atoi(sListSize.c_str());
+	}
+
+	LoggerWrapper::GetInstance()->Write(
+		LV_STATUS,"MythTV_PlugIn::UpdateUpcomingRecordings got listsize(%d) entries(%d)",
+		(int) sResponse.size(), iListSize);
+
+	while (pos<sResponse.size())
+	{
+		string sTitle        = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sSubtitle     = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sDescription  = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sCategory     = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sChanId       = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sChannel      = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sCallSign     = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sChannelName  = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sPathName     = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sFileSizeHW   = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sFileSizeLW   = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sStartTime    = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sStopTime     = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sDuplicate    = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sSharable     = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sFindID       = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sHostname     = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sSourceID     = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sCardID       = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sInputID      = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sRecPriority  = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sRecStatus    = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sRecordID     = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sRecType      = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sDupIn        = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sDupMethod    = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sRecStartTime = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sRecStopTime  = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sRepeat       = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sProgramFlags = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sRecGroup     = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sChanCommFree = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sChanOutputFilters=StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sSeriesID     = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sProgramID    = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sLastModified = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sStars        = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sOrigAirDate  = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sHasAirDate   = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sPlaybackGroup= StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sRecPriority2 = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sParentID     = StringUtils::Tokenize(sResponse,pToken,pos,true);
 
 		mythRecording.channel_id           = atoi(sChanId.c_str());
 		mythRecording.scheduled_start_time = atoi(sStartTime.c_str());
