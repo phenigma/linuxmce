@@ -199,7 +199,7 @@ if [[ "$diskType" == 2 ]]; then
 				KeysDumpStatus=`/usr/pluto/bin/dvdcssHelper.sh -d $sourceDevice | grep "ERROR:"`
 				if [ -z "$KeysDumpStatus" ]; then
 					# ripped DVD can have different keys cache folder
-					RippedKeysPath=`/usr/pluto/bin/dvdcssHelper.sh -f $targetFileName.dvd.in-progress | grep "CACHE_DIR:" | sed 's/CACHE_DIR://'`
+					RippedKeysPath=`/usr/pluto/bin/dvdcssHelper.sh -f "$targetFileName.dvd.in-progress" | grep "CACHE_DIR:" | sed 's/CACHE_DIR://'`
 					echo "Keys location for ripped DVD: $RippedKeysPath"
 
 					KeysFolder=`basename $KeysPath`
