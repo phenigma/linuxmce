@@ -119,7 +119,7 @@ bool VDRPlugin::Register()
 		{
 			DeviceData_Router *pDevice_VDRPlayer = *it;
 			RegisterMsgInterceptor( ( MessageInterceptorFn )( &VDRPlugin::TuneToChannel ), 0, pDevice_VDRPlayer->m_dwPK_Device, 0, 0, MESSAGETYPE_COMMAND, COMMAND_Tune_to_channel_CONST );
-			RegisterMsgInterceptor( ( MessageInterceptorFn )( &VDRPlugin::PlaybackStarted ), 0, pDevice_VDRPlayer->m_dwPK_Device, 0, 0, MESSAGETYPE_EVENT, EVENT_Playback_Started_CONST );
+			RegisterMsgInterceptor( ( MessageInterceptorFn )( &VDRPlugin::PlaybackStarted ), pDevice_VDRPlayer->m_dwPK_Device, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Playback_Started_CONST );
 		}
 	}
 
@@ -1427,7 +1427,9 @@ bool VDRPlugin::PlaybackStarted( class Socket *pSocket,class Message *pMessage,c
 	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
     int iStreamID = atoi( pMessage->m_mapParameters[EVENTPARAMETER_Stream_ID_CONST].c_str( ) );
 	string sMRL = pMessage->m_mapParameters[EVENTPARAMETER_MRL_CONST];
-	int k=2;
+	string sSection = pMessage->m_mapParameters[EVENTPARAMETER_SectionDescription_CONST];
+	string sAudio = pMessage->m_mapParameters[EVENTPARAMETER_Audio_CONST];
+	string sVideo = pMessage->m_mapParameters[EVENTPARAMETER_Video_CONST];
 
     MediaStream * pMediaStream = m_pMedia_Plugin->m_mapMediaStream_Find( iStreamID, pMessage->m_dwPK_Device_From );
 	VDRMediaStream *pVDRMediaStream = (VDRMediaStream *) pMediaStream;
@@ -1437,6 +1439,9 @@ bool VDRPlugin::PlaybackStarted( class Socket *pSocket,class Message *pMessage,c
         LoggerWrapper::GetInstance()->Write(LV_WARNING, "VDRPlugin::PlaybackStarted Stream ID %d is not mapped to a media stream object", iStreamID);
         return false;
     }
+
+	pVDRMediaStream->m_sSectionDescription = sSection;
+	pVDRMediaStream->m_sMediaSynopsis = sAudio + "/" + sVideo;
 
 	m_pMedia_Plugin->MediaInfoChanged(pVDRMediaStream,true);
 
