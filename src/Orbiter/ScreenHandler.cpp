@@ -1886,6 +1886,10 @@ void ScreenHandler::SCREEN_Sensors_Viewed_By_Camera(long PK_Screen, string sOpti
 		m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST, StringUtils::itos(DEVICECATEGORY_Security_Device_CONST));
 		m_pOrbiter->CMD_Set_Text(TOSTRING(DESIGNOBJ_mnuSensorsViewedByCamera_CONST), m_pOrbiter->m_mapTextString[TEXT_Which_Sensors_Viewed_CONST], TEXT_STATUS_CONST);
 	}
+
+	if(NULL != m_pOrbiter->m_pScreenHistory_Pivot)
+		m_pOrbiter->m_pScreenHistory_Pivot->ScreenID(StringUtils::itos(iPK_PnpQueue));
+
 	ScreenHandlerBase::SCREEN_Sensors_Viewed_By_Camera(PK_Screen, sOptions, iPK_PnpQueue);
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::Sensors_ObjectSelected,	new ObjectInfoBackData());
 }
@@ -4503,24 +4507,14 @@ bool ScreenHandler::SCREEN_Network_Settings_ObjectSelected(CallBackData *pData)
 //
 void ScreenHandler::SCREEN_aJAd(long PK_Screen, string sFilename, string sURL)
 {
-	if( sFilename.empty() || sFilename=="none" )
-	{
-		DCE::CMD_Goto_DesignObj CMD_Goto_DesignObj(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,0,"<%=NP_R%>","","",false,false);
-		m_pOrbiter->QueueMessageToRouter(CMD_Goto_DesignObj.m_pMessage);
-	}
-	else
-	{
-		ScreenHandlerBase::SCREEN_aJAd(PK_Screen, sFilename, sURL);
-		string::size_type pos=0;
-		string sPictureFile = StringUtils::Tokenize(sFilename,"|",pos);
-		size_t size;
-		char *pGraphicData = m_pOrbiter->ReadFileIntoBuffer(sPictureFile,size);
-		m_pOrbiter->CMD_Update_Object_Image("5647.0.0.5580","jpg",
-			pGraphicData,
-			(int) size,"0");
-		m_pOrbiter->CMD_Set_Variable(VARIABLE_Filename_CONST, sFilename);
-		RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::Aj_ObjectSelected,	new ObjectInfoBackData());
-	}
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::SCREEN_aJAd registering callback");
+	ScreenHandlerBase::SCREEN_aJAd(PK_Screen, sFilename, sURL);
+	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::Aj_ObjectSelected,	new ObjectInfoBackData());
+	DesignObj_Orbiter *pObj = m_pOrbiter->FindObject("5647.0.0.5580");
+	if( pObj )
+		pObj->m_bKeepGraphicInCache=true;
+
+	return;
 }
 
 bool ScreenHandler::Aj_ObjectSelected(CallBackData *pData)
