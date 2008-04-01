@@ -113,12 +113,16 @@ int WizardPageAudioVolume::DoApplySetting(SettingsDictionary* Dictionary)
 	if(AVWizardSettings->Exists("AudioVolumeIncrement"))
 		AudioVolumeIncrement = Utils::StringToInt32(AVWizardSettings->GetValue("AudioVolumeIncrement"));
 
-	std::string VolumeLabelCaption = Utils::Int32ToString((AudioVolumeCurrent - AudioVolumeMin)*100/(AudioVolumeMax - AudioVolumeMin)) + "%";
+	int VolumePercent = (AudioVolumeCurrent - AudioVolumeMin) * 100 / (AudioVolumeMax - AudioVolumeMin);
+	std::string VolumeLabelCaption = Utils::Int32ToString(VolumePercent) + "%";
 
 	VolumeLabel = dynamic_cast<WizardWidgetLabel*> (Page->GetChildRecursive("SpeakerVolumeTextShadow"));
 	VolumeLabel->SetCaption(VolumeLabelCaption);
 	VolumeLabel = dynamic_cast<WizardWidgetLabel*> (Page->GetChildRecursive("SpeakerVolumeText"));
 	VolumeLabel->SetCaption(VolumeLabelCaption);
+
+	std::string Command = "/usr/pluto/bin/AVWizard_UpdateVolume.sh " + Utils::Int32ToString(VolumePercent);
+	system(Command.c_str());
 }
 
 void WizardPageAudioVolume::DoIncreaseSetting()
@@ -143,7 +147,6 @@ void WizardPageAudioVolume::DoIncreaseSetting()
 
 	std::string Command = "/usr/pluto/bin/AVWizard_UpdateVolume.sh " + Utils::Int32ToString(VolumePercent);
 	system(Command.c_str());
-
 }
 
 void WizardPageAudioVolume::DoDecreaseSetting()
