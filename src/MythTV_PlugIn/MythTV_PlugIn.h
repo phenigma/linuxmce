@@ -102,17 +102,17 @@ namespace DCE
 		}
 	};
 
-	struct MythRecording
+	class MythRecording
 	{
-		union
+	public:
+		uint32_t channel_id;
+		time_t   scheduled_start_time;
+		uint64_t key(void) const
 		{
-			u_int64_t int64;
-			struct
-			{
-				int channel_id;
-				time_t StartTime;
-			} time;
-		} data;
+			uint64_t c = channel_id;
+			uint64_t s = scheduled_start_time;
+			return c<<32 | s;
+		}
 	};
 
     //<-dceag-decl-b->!

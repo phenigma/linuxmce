@@ -585,7 +585,7 @@ class DataGridTable *MythTV_PlugIn::CurrentShows(string GridID,string Parms,void
     LoggerWrapper::GetInstance()->Write(LV_STATUS, "MythTV_PlugIn::CurrentShows A datagrid for all the shows was requested %s params %s", GridID.c_str(), Parms.c_str());
 
 	MythRecording mythRecording;
-	mythRecording.data.time.channel_id = atoi(sChanId.c_str());
+	mythRecording.channel_id = atoi(sChanId.c_str());
 
 	string sProvider;
 	// When tune to channel gets an 'i' in front, it's assumed that it's a channel id
@@ -619,8 +619,9 @@ class DataGridTable *MythTV_PlugIn::CurrentShows(string GridID,string Parms,void
 			time_t tStop = row[5] ? StringUtils::SQLDateTime( row[5] ) : 0;
 			pCell->m_mapAttributes["starttime"]=StringUtils::itos(tStart);
 			pCell->m_mapAttributes["endtime"]=StringUtils::itos(tStop);
-			mythRecording.data.time.StartTime = tStart;
-			if( (it_mapScheduledRecordings=m_mapScheduledRecordings.find(mythRecording.data.int64))!=m_mapScheduledRecordings.end() )
+			mythRecording.scheduled_start_time = tStart;
+			it_mapScheduledRecordings = m_mapScheduledRecordings.find(mythRecording.key());
+			if (it_mapScheduledRecordings != m_mapScheduledRecordings.end())
 			{
 				szRecording[0] = it_mapScheduledRecordings->second.first;
 				pCell->m_mapAttributes["recording"] = szRecording;
@@ -803,12 +804,18 @@ void MythTV_PlugIn::CMD_Schedule_Recording(string sType,string sOptions,string s
 
 	// Add it to our local cache so the user sees the change instantly
 	MythRecording mythRecording;
-	mythRecording.data.time.channel_id = atoi(sChanId.c_str());
-	mythRecording.data.time.StartTime = tStart;
+	mythRecording.channel_id = atoi(sChanId.c_str());
+	mythRecording.scheduled_start_time = tStart;
 	if( sType=="1" )
-		m_mapScheduledRecordings[mythRecording.data.int64] = make_pair<char,int> ('O',iID);
+	{
+		m_mapScheduledRecordings[mythRecording.key()] =
+			make_pair<char,int> ('O',iID);
+	}
 	else if( sType=="3")
-		m_mapScheduledRecordings[mythRecording.data.int64] = make_pair<char,int> ('C',iID);;
+	{
+		m_mapScheduledRecordings[mythRecording.key()] =
+			make_pair<char,int> ('C',iID);
+	}
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MythTV_PlugIn::CMD_Schedule_Recording %d=%s", iID, sSQL.c_str());
 	if( m_pMythBackEnd_Socket )
@@ -2424,7 +2431,7 @@ void MythTV_PlugIn::UpdateUpcomingRecordings()
 		string s23 = StringUtils::Tokenize(sResponse,pToken,pos,true);
 		string s24 = StringUtils::Tokenize(sResponse,pToken,pos,true);
 		string sRecordID = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string sType = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sRecType = StringUtils::Tokenize(sResponse,pToken,pos,true);
 		string s27 = StringUtils::Tokenize(sResponse,pToken,pos,true);
 		string s28 = StringUtils::Tokenize(sResponse,pToken,pos,true);
 		string s29 = StringUtils::Tokenize(sResponse,pToken,pos,true);
@@ -2443,16 +2450,25 @@ void MythTV_PlugIn::UpdateUpcomingRecordings()
 		string s42 = StringUtils::Tokenize(sResponse,pToken,pos,true);
 		string s43 = StringUtils::Tokenize(sResponse,pToken,pos,true);
 
-		mythRecording.data.time.channel_id = atoi(sChanId.c_str());
-		mythRecording.data.time.StartTime = atoi(sStartTime.c_str());
+		mythRecording.channel_id           = atoi(sChanId.c_str());
+		mythRecording.scheduled_start_time = atoi(sStartTime.c_str());
 
-		if( sType=="1" )
-			m_mapScheduledRecordings[mythRecording.data.int64] = make_pair<char,int> ('O',atoi(sRecordID.c_str()));
-		else if( sType=="3")
-			m_mapScheduledRecordings[mythRecording.data.int64] = make_pair<char,int> ('C',atoi(sRecordID.c_str()));;
+		if (sRecType == "1")
+                {
+			m_mapScheduledRecordings[mythRecording.key()] = 
+				make_pair<char,int> ('O',atoi(sRecordID.c_str()));
+		}
+                else if (sRecType == "3")
+                {
+			m_mapScheduledRecordings[mythRecording.key()] = 
+				make_pair<char,int> ('C',atoi(sRecordID.c_str()));;
+		}
 
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::UpdateUpcomingRecordings adding record id %s type %s chan %d start %d",
-			sRecordID.c_str(),sType.c_str(),mythRecording.data.time.channel_id,mythRecording.data.time.StartTime);
+		LoggerWrapper::GetInstance()->Write(
+			LV_STATUS,"MythTV_PlugIn::UpdateUpcomingRecordings "
+			"adding record id %2s type %s chan %5d start %s",
+			sRecordID.c_str(), sRecType.c_str(), mythRecording.channel_id,
+			ctime(&mythRecording.scheduled_start_time));
 	}
 	m_pAlarmManager->CancelAlarmByType(CHECK_FOR_SCHEDULED_RECORDINGS);
 	m_pAlarmManager->AddRelativeAlarm(60 * 60,this,CHECK_FOR_SCHEDULED_RECORDINGS,NULL);  // Update once an hour just in case
