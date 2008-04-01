@@ -5139,16 +5139,15 @@ void Media_Plugin::CMD_Save_Bookmark(int iPK_Users,char *pData,int iData_Size,in
 	}
 
 	Row_Bookmark *pRow_Bookmark;
-	bool bIsStart=false;
 	if( bAlways )
 	{
 		vector<Row_Bookmark *> vectRow_Bookmark;
 		if( pMediaStream && pMediaStream->m_dwPK_Disc )
 			m_pDatabase_pluto_media->Bookmark_get()->GetRows(
-				"Description='NAME' AND FK_Disc=" + StringUtils::itos(pMediaStream->m_dwPK_Disc),&vectRow_Bookmark);
+				"Description='START' AND FK_Disc=" + StringUtils::itos(pMediaStream->m_dwPK_Disc),&vectRow_Bookmark);
 		else if( pMediaFile )
 			m_pDatabase_pluto_media->Bookmark_get()->GetRows(
-				"Description='NAME' AND FK_File=" + StringUtils::itos(pMediaFile->m_dwPK_File),&vectRow_Bookmark);
+				"Description='START' AND FK_File=" + StringUtils::itos(pMediaFile->m_dwPK_File),&vectRow_Bookmark);
 
 		if( vectRow_Bookmark.size() )
 			pRow_Bookmark = vectRow_Bookmark[0];
@@ -5157,7 +5156,6 @@ void Media_Plugin::CMD_Save_Bookmark(int iPK_Users,char *pData,int iData_Size,in
 
 		pRow_Bookmark->IsAutoResume_set(1);
 		sDescription = "START";
-		bIsStart=true;
 	}
 	else
 	{
@@ -5205,13 +5203,13 @@ void Media_Plugin::CMD_Save_Bookmark(int iPK_Users,char *pData,int iData_Size,in
 
 #ifdef DEBUG
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::CMD_Save_Bookmark stream %p description %s start %d",
-		pMediaStream,sDescription.c_str(),(int) bIsStart);
+		pMediaStream,sDescription.c_str(),(int) bAlways);
 #endif
 
 	if( pMediaStream )
 	{
 		int PK_Screen = pMediaStream->GetRemoteControlScreen(pMessage->m_dwPK_Device_From);
-		if( bDescriptionWasEmpty && !bIsStart )
+		if( bDescriptionWasEmpty && !bAlways )
 		{
 			string sCmdToRenameBookmark= "<%=!%> -300 1 741 159 " + StringUtils::itos(PK_Screen) + 
 				"\n<%=!%> <%=V-106%> 1 411 5 \"<%=17%>\" 129 " + StringUtils::itos(pRow_Bookmark->PK_Bookmark_get());
