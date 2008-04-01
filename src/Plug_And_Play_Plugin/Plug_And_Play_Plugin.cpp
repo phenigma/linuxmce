@@ -264,6 +264,8 @@ void Plug_And_Play_Plugin::CMD_Choose_Pnp_Device_Template(int iPK_Room,int iPK_D
 	}
 
 	pPnpQueueEntry->m_pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(pMessage->m_dwPK_Device_From);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Plug_And_Play_Plugin::CMD_Choose_Pnp_Device_Template queue %d set to orbiter %p/%d",
+		pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(), pPnpQueueEntry->m_pOH_Orbiter, pMessage->m_dwPK_Device_From);
 	pPnpQueueEntry->m_EBlockedState=PnpQueueEntry::pnpqe_blocked_none;
 	if( iPK_DHCPDevice )
 	{
