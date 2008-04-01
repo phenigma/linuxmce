@@ -1,14 +1,15 @@
-#<-dceag-mh-b->
+#<-dceag-mh-b->!
 GENDEV=../Gen_Devices
 
 SNR_CPPFLAGS ?= <-mkr_t_compile_defines->
 
 ROOT = ..
 CXX = g++
-CXXFLAGS = -Wall -fPIC -ggdb3
+CXXFLAGS = -Wall -fPIC -ggdb3 -fmessage-length=0
 CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql $(SNR_CPPFLAGS)
 LDFLAGS = -L$(ROOT)/lib
-BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lmysqlclient_r -lpthread -lXext -lXtst
+EXTERNAL_LIBS_NAMES = mysqlclient_r pthread
+INTERNAL_LIBS_NAMES = SerializeClass DCECommon PlutoUtils
 
 MYNAME = VDR
 VERSION = 2.0.0
@@ -17,17 +18,18 @@ MYDEVTEMPLATEID = 1705mplateID
 Gen_Dev_Files = $(GENDEV)/VDRBase.cpp
 sources = Main.cpp VDR.cpp $(Gen_Dev_Files)
 #<-dceag-mh-e->
-
 CXXFLAGS +=
-CPPFLAGS += 
-LDFLAGS += 
-XTRALDLIBS = 
+CPPFLAGS +=
+LDFLAGS += -L/usr/X11R6/lib
+INTERNAL_LIBS_NAMES +=
+EXTERNAL_LIBS_NAMES += Xtst
 
 Gen_Dev_Files +=
-sources +=
+sources += \
+	../utilities/linux/ImageConvertor.cpp
 
-#<-dceag-mf-b->
-LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
+#<-dceag-mf-b->!
+LDLIBS_NAMES = $(INTERNAL_LIBS_NAMES) $(EXTERNAL_LIBS_NAMES)
 
 whattodo:
 	@echo "type 'make bin', 'make so' or 'make all'"
@@ -38,14 +40,14 @@ bin: VDR
 
 so: VDR.so
 
-VDR.so: $(sources:.cpp=.o)
-	$(CXX) -shared -o $(MYNAME).so $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
+VDR.so: $(sources:.cpp=.o) $(INTERNAL_LIBS_NAMES:%=$(ROOT)/lib/lib%.so) Makefile
+	$(CXX) -shared -o $(MYNAME).so $(call cpath,$(sources:.cpp=.o)) $(LDFLAGS) $(LDLIBS_NAMES:%=-l%)
 	cp $@ ../bin
 	chmod +x post_make.sh
 	./post_make.sh $@
-		
-VDR: $(sources:.cpp=.o)
-	$(CXX) -o $(MYNAME) $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
+
+VDR: $(sources:.cpp=.o) $(INTERNAL_LIBS_NAMES:%=$(ROOT)/lib/lib%.so) Makefile
+	$(CXX) -o $(MYNAME) $(call cpath,$(sources:.cpp=.o)) $(LDFLAGS) $(LDLIBS_NAMES:%=-l%)
 	cp $@ ../bin
 	./post_make.sh $@
 
@@ -61,4 +63,3 @@ ifeq (,$(findstring clean, $(MAKECMDGOALS)))
 -include $(sources:.cpp=.d)
 endif
 #<-dceag-mf-e->
-

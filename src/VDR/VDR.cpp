@@ -350,6 +350,7 @@ void VDR::CMD_Stop_Media(int iStreamID,string *sMediaPosition,string &sCMD_Resul
 
 	StopVDRFrontend();
 	m_VDRStatus_set(VDRSTATUS_DISCONNECTED);
+	system("killall plutovdr");
 	Sleep(1000);
 //	delete m_pVDRSocket;
 //	m_pVDRSocket = NULL;
@@ -700,10 +701,15 @@ void VDR::ParseCurrentChannel(string sChannel)
 	LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"VDR.parser: VDR processed ok, channel %d %s",m_iChannelNumber,m_sChannelName.c_str());
   //burgi 2008
   //CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal,string sSpeed,string sTitle,string sSection,string &sCMD_Result,Message *pMessage)
-	DCE::CMD_Update_Time_Code CMD_Update_Time_Code_(m_dwPK_Device,m_pDevice_MediaPlugin->m_dwPK_Device,
-		m_iStreamID,"","","","TITEL", StringUtils::itos(m_iChannelNumber) + " " + m_sChannelName);
+	//DCE::CMD_Update_Time_Code CMD_Update_Time_Code_(m_dwPK_Device,m_pDevice_MediaPlugin->m_dwPK_Device,
+	//	m_iStreamID,"","","","TITEL", StringUtils::itos(m_iChannelNumber) + " " + m_sChannelName);
+  //SendCommand(CMD_Update_Time_Code_);
   
-	SendCommand(CMD_Update_Time_Code_);
+  	DCE::CMD_Update_Time_Code CMD_Update_Time_Code_(m_dwPK_Device,m_pDevice_MediaPlugin->m_dwPK_Device,
+		m_iStreamID,"","",
+		"","",
+		StringUtils::itos(m_iChannelNumber) + " " + m_sChannelName);
+		SendCommand(CMD_Update_Time_Code_);
   
 
 	
@@ -1430,7 +1436,19 @@ void VDR::pollVDRStatus()
 
 			if( m_VDRStatus_get() != VDRSTATUS_STARTUP )
 			{
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "VDR:A:pollVDRStatus state is now %d", (int) m_VDRStatus_get());    
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "VDR:A:pollVDRStatus state is now %d", (int) m_VDRStatus_get());  
+
+			//bPlaybackStarted=true;
+			string sCommand;
+			string sVDRResponse;
+			string currentchan;
+			sCommand = "CHAN";
+			SendVDRCommand(m_sVDRIp,sCommand,sVDRResponse);
+			Sleep(1000);
+			ParseCurrentChannel(sVDRResponse);
+			
+			EVENT_Playback_Started(m_sChannel,m_iStreamID,"aaaa","bbb",m_sChannelName);  
+
 				return;
 			}
 
@@ -1514,7 +1532,7 @@ void VDR::pollVDRStatus()
 					if( m_sChannel != vectResults[6] )
 					{
 						m_sChannel = vectResults[6];
-						EVENT_Playback_Started(m_sChannel,m_iStreamID,"","","ch_" + m_sChannel);
+						EVENT_Playback_Started(m_sChannel,m_iStreamID,"cc","ddd",m_sChannelName);
 					}
 					
 					// Have a 2 second "buffer" for switching between live and nonlive modes so we don't get 
