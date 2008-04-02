@@ -12,7 +12,7 @@ export DVDCSS_CACHE="$DVDKeysCache"
 CheckKeysForDVD() {
     echo -n "Checking keys for $1 ... "
     if [ -f "$1.keys.tar.gz" ]; then
-	echo -e "present\n"
+	echo -e "keys are already present, skipping\n"
 	return
     fi
     
@@ -32,9 +32,10 @@ CheckKeysForDVD() {
 
     KeysFolder=`basename $KeysPath`
     KeysCacheFolder=`dirname $KeysPath`
+    RealDVDKeysFolderMask=`echo $KeysFolder | sed 's/0000000000$//'`
 
     pushd $KeysCacheFolder > /dev/null
-    tar zcf "$1.keys.tar.gz.in-progress" $KeysFolder
+    tar zcf "$1.keys.tar.gz.in-progress" $RealDVDKeysFolderMask*
     popd > /dev/null
     mv "$1.keys.tar.gz.in-progress" "$1.keys.tar.gz"
     echo -e "Keys retrieved OK\n"    
