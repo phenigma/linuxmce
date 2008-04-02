@@ -1884,7 +1884,7 @@ void Orbiter_Plugin::CMD_Regen_Orbiter(int iPK_Device,string sForce,string sRese
 
 		if( iPK_Device==0 || pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device==iPK_Device )
 		{
-			if( pOH_Orbiter->m_tRegenTime )
+			if( IsRegenerating(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device) || pOH_Orbiter->m_tRegenTime )
 			{
 				int Minutes = (int)(time(NULL) - pOH_Orbiter->m_tRegenTime) /60;
 				string sMessage = "We already started regenerating the orbiter " + pOH_Orbiter->m_pDeviceData_Router->m_sDescription + " " + StringUtils::itos(Minutes) +
@@ -1899,14 +1899,13 @@ void Orbiter_Plugin::CMD_Regen_Orbiter(int iPK_Device,string sForce,string sRese
 				SendCommand(SCREEN_PopupMessage);
 				return;
 			}
-		}
-
-		if( iPK_Device==0 && !IsRegenerating(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device) ) //we'll regen all of them
-		{
-			if( sOrbiterList.size() )
-				sOrbiterList += ",";
-			sOrbiterList += StringUtils::itos(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
-			temp_listRegenCommands.push_back(pOH_Orbiter);
+			else
+			{
+				if( sOrbiterList.size() )
+					sOrbiterList += ",";
+				sOrbiterList += StringUtils::itos(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
+				temp_listRegenCommands.push_back(pOH_Orbiter);
+			}
 		}
 	}
 
@@ -1915,18 +1914,14 @@ void Orbiter_Plugin::CMD_Regen_Orbiter(int iPK_Device,string sForce,string sRese
 		OH_Orbiter *pOH_Orbiter = *it;
 		pOH_Orbiter->m_tRegenTime = time(NULL);
 		m_listRegenCommands.push_back(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter_Plugin::CMD_Regen_Orbiter iPK_Device==0 Added %d to m_listRegenCommands %d size",
-			pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,(int) m_listRegenCommands.size());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter_Plugin::CMD_Regen_Orbiter iPK_Device==%d Added %d to m_listRegenCommands %d size",
+			iPK_Device, pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,(int) m_listRegenCommands.size());
 	}
 
-	if( !iPK_Device || !IsRegenerating(iPK_Device) )
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter_Plugin::CMD_Regen_Orbiter iPK_Device==%d ready for  m_listRegenCommands %d size",
+		iPK_Device, (int) m_listRegenCommands.size());
+	if( m_listRegenCommands.size() )
 	{
-		if( iPK_Device )
-		{
-			m_listRegenCommands.push_back(iPK_Device);
-			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter_Plugin::CMD_Regen_Orbiter Added %d to m_listRegenCommands %d size",iPK_Device,(int) m_listRegenCommands.size());
-		}
-
 		// construct strings outside of array initializer so they don't destroy after the array is initialized, leaving us with invalid pointers
 		string sThingsToRegen = iPK_Device ? (char *)(StringUtils::itos(iPK_Device).c_str()) : (char *) sOrbiterList.c_str();
 		string sOrbiter = StringUtils::itos(m_dwPK_Device).c_str();
