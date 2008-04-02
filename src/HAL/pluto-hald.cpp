@@ -1257,7 +1257,7 @@ gboolean PlutoHalD::timeoutHandler(DBusConnection *bus)
 	return TRUE;
 }
 
-void PlutoHalD::shutDown()
+bool PlutoHalD::shutDown()
 {
 	threadShutdown = true;
 
