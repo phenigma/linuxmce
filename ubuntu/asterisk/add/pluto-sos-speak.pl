@@ -102,7 +102,7 @@ for(my $i=0;defined($data[$i]);$i++)
 	my $phone=$data[$i];
 	print STDERR "Will call device ".$phone."\n";
 	# 921 - Make Call   262 - FK_Device_From   83 - PhoneExtension
-	`/usr/pluto/bin/MessageSend localhost -targetType device $secpluginid $telpluginid 1 921 262 $phone 83 997`;
+	`/usr/pluto/bin/MessageSend localhost -targetType device $phone $telpluginid 1 921 262 $phone 83 997`;
 }
 
 $statement->finish();
