@@ -23,18 +23,11 @@ build_scripts_dir="/usr/local/lmce-build/build-scripts"
 "${build_scripts_dir}/cd1-build.sh"
 "${build_scripts_dir}/cd2-build.sh"
 
-# Build the SingleLayer DVD
+# Build the dvd
 pushd /usr/local/lmce-build/vmware-install/
-	/usr/local/lmce-build/vmware-install/install_in_vmware.sh
+	/usr/local/lmce-build/vmware-install/install_in_vmware.sh "nu-force single-layer"
 popd 
 pushd /usr/local/lmce-build/build-dvd
-	/usr/local/lmce-build/build-dvd/build-cd.sh
+	/usr/local/lmce-build/build-dvd/build-cd.sh "NuForce.iso"
 popd
 
-# Build the Nu-Force DVD
-pushd /usr/local/lmce-build/vmware-install/
-	/usr/local/lmce-build/vmware-install/install_in_vmware.sh nuforce
-popd 
-pushd /usr/local/lmce-build/build-dvd
-	/usr/local/lmce-build/build-dvd/build-cd.sh nuforce
-popd

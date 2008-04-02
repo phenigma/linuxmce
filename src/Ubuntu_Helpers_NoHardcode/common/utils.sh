@@ -1,7 +1,8 @@
 #!/bin/bash
 
 remove_duplicate_debs() {
-	Dir="$1"
+	local Dir="$1"
+	local pkg ver arch dup_ver dup_arch
 
 	pushd "$Dir"
 	for deb in *.deb ;do

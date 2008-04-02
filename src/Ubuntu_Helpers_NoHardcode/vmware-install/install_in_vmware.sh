@@ -111,6 +111,14 @@ function copy_installer_on_virtual_machine {
 	DisplayMessage "Copying installer on virtual machine"
 	ssh -i /etc/lmce-build/builder.key root@"$VMWARE_IP" "mkdir -p /usr/pluto/install"
 	scp -i /etc/lmce-build/builder.key -r ./mce-installer-unattended/* root@"$VMWARE_IP":/usr/pluto/install
+
+	DisplayMessage "Setting up addons $installer_addons"
+	local addon_name addon_order="0"
+	for addon_name in $installer_addons ;do
+		ssh -i /etc/lmce-build/builder.key root@"$VMWARE_IP" "cp /usr/pluto/install/addons/{,${addon_order}}${addon_name}.sh; chmod +x /usr/pluto/install/addons/${addon_order}${addon_name}.sh"
+		addon_order=$(( addon_order + 1 ))
+	done
+
 	DisplayMessage "Finished copying installer on virtual machine"
 }
 
@@ -167,26 +175,6 @@ function cleanup_filesystem {
 
 	## Remove the ssh key used for installation
 	rm -f "${FILESYSTEM_ROOT}"/root/.ssh/authorized_keys
-
-	COLUMNS=1024 chroot "${FILESYSTEM_ROOT}" dpkg -l | awk '/^ii/ {print $2}' >"$FILESYSTEM_ROOT/tmp/pkglist-hybrid.txt"
-
-	local PkgNonGrata_Fixed
-	PkgNonGrata_Fixed="
-		asterisk-pluto mce-diskless-tools pluto-asterisk pluto-avwizard-sounds pluto-dhcpd-plugin 
-		pluto-orbiterinstaller pluto-skins-basic pluto-std-plugins pluto-xine-plugin
-		pluto-xml-data-plugin video-wizard-videos pluto-avwizard pluto-dcerouter pluto-sample-media mysql-server-5.0
-		openoffice.org-core wine pluto-orbiter python-kde3 pluto-default-tftpboot
-	"
-	PkgNonGrata_Determined=$(Determine_PkgNonGrata "$FILESYSTEM_ROOT"/tmp/pkglist-{diskless,hybrid}.txt)
-	rm -f "$FILESYSTEM_ROOT"/tmp/pkglist-{diskless,hybrid}.txt
-
-	if [[ "$RemovePkgNonGrata" != "no" ]] ;then
-		local Pkg
-		for Pkg in $PkgNonGrata_Fixed $PkgNonGrata_Determined; do
-			rm -f "${FILESYSTEM_ROOT}"/usr/pluto/deb-cache/"$Pkg"_*.deb
-		done
-	fi
-	(cd "${FILESYSTEM_ROOT}"/usr/pluto/deb-cache && dpkg-scanpackages -m . /dev/null | tee Packages | gzip -c > Packages.gz)
 }
 
 function create_disk_image_from_flat {
@@ -268,47 +256,17 @@ function create_disk_image_from_vmdk {
 	killall vmware-loop
 }
 
-function Determine_PkgNonGrata()
-{
-	## Description:
-	# This function determines the intersection of two or more string lists
+installer_addons="$1"
 
-	if (("$#" < 2)); then
-		return
-	fi
-	
-	local i
-	local LeftFile="$1" RightFile ResultFile
-	sort -u "$LeftFile" >"$LeftFile.sort"
-	LeftFile="$LeftFile.sort"
-
-	for ((i = 2; i <= "$#"; i++)); do
-		RightFile="${!i}"
-		sort -u "$RightFile" >"$RightFile.sort"
-		RightFile="$RightFile.sort"
-
-		ResultFile="/tmp/result-$i"
-		diff -U -1 "$LeftFile" "$RightFile" | tail -n +4 | grep -v '^[+-]' >"$ResultFile"
-
-		rm -f "$LeftFile" "$RightFile"
-		LeftFile="$ResultFile"
-	done
-	cat "$ResultFile"
-}
-
-RemovePkgNonGrata='yes'
-if [[ "$1" == "big" ]] ;then
-	RemovePkgNonGrata='no'	
-fi
 release_unused_loop_devices
 create_virtual_machine
 start_virtual_machine
 create_debcache_on_virtual_machine
 copy_installer_on_virtual_machine
+run_installer_on_virtual_machine
 if [[ -f /var/log/mce-installer-error.log ]] ;then
 	Error "VMWARE $(cat /var/log/mce-installer-error.log)"
 fi
-run_installer_on_virtual_machine
 if [[ -f "${VMWARE_DIR}/Kubuntu-flat.vmdk" ]] ;then
 	create_disk_image_from_flat
 else

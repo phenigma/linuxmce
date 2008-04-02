@@ -12,6 +12,7 @@ trap 'Error "Undefined error in $0"' EXIT
 WorkDir="${build_dir}/lite-installer"
 LiveCDtgz="$WorkDir/ubuntu-livecd.tgz"
 SquashFStgz="$WorkDir/ubuntu-squashfs-base.tgz"
+DVDName="$1"
 
 ## TODO: change paths to SVN checkout directory
 InstallerScript="lite-installer.sh"
