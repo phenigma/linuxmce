@@ -99,7 +99,6 @@ using namespace DCE;
 #include "Media_Plugin/BoundRemote.h"
 
 #include "DCE/DCEConfig.h"
-DCEConfig g_DCEConfig;
 
 // Alarm Types
 #define MEDIA_PLAYBACK_TIMEOUT					1
@@ -425,7 +424,8 @@ continue;
 	m_pGeneric_NonPluto_Media = new Generic_NonPluto_Media(this);
     m_pGenericMediaHandlerInfo = new MediaHandlerInfo(m_pGeneric_NonPluto_Media,this,0,0,false,false);
 
-	string sMediaType = g_DCEConfig.m_mapParameters_Find("Bookmark_Media");
+	DCEConfig dceconfig; 
+	string sMediaType = dceconfig.m_mapParameters_Find("Bookmark_Media");
 	string::size_type pos=0;
 	while( pos<sMediaType.size() && pos!=string::npos )
 	{
@@ -448,7 +448,7 @@ continue;
 	if( pDevice )
 		m_dwPK_Device_MediaIdentification = pDevice->m_dwPK_Device;
 
-	string sLastSearchTokenUpdate = g_DCEConfig.m_mapParameters_Find("LastSearchTokenUpdate");
+	string sLastSearchTokenUpdate = dceconfig.m_mapParameters_Find("LastSearchTokenUpdate");
 	m_tLastSearchTokenUpdate = atoi(sLastSearchTokenUpdate.c_str());
 
 	m_pAlarmManager = new AlarmManager();
@@ -5438,7 +5438,8 @@ void Media_Plugin::SaveLastFilePosition(MediaStream *pMediaStream)
 
 void Media_Plugin::RestoreMediaResumePreferences()
 {
-	for(map<string,string>::const_iterator it=g_DCEConfig.Parameters().begin();it!=g_DCEConfig.Parameters().end();++it)
+	DCEConfig dceconfig;
+	for(map<string,string>::const_iterator it=dceconfig.Parameters().begin();it!=dceconfig.Parameters().end();++it)
 	{
 		if( StringUtils::StartsWith(it->first,"auto_resume_user_") )
 		{
@@ -5468,14 +5469,16 @@ void Media_Plugin::SaveMediaResumePreferences()
 			it->first.first,it->first.second,it->second);
 	}
 
+	DCEConfig dceconfig;
+
 	for(map<int,string>::iterator it=mapSettings.begin();it!=mapSettings.end();++it)
 	{
 		string s = "auto_resume_user_" + StringUtils::itos(it->first);
-		g_DCEConfig.AddString(s,it->second);
+		dceconfig.AddString(s,it->second);
         LoggerWrapper::GetInstance()->Write( LV_STATUS, "Media_Plugin::SaveMediaResumePreferences add string %s=%s",
 			s.c_str(),it->second.c_str());
 	}
-	g_DCEConfig.WriteSettings();
+	dceconfig.WriteSettings();
 }
 
 int Media_Plugin::CheckForAutoResume(MediaStream *pMediaStream)
@@ -7045,8 +7048,9 @@ void Media_Plugin::UpdateSearchTokens()
 	}
 	
 	m_tLastSearchTokenUpdate = tLastAttribute;
-	g_DCEConfig.AddString("LastSearchTokenUpdate",StringUtils::itos(m_tLastSearchTokenUpdate));
-	g_DCEConfig.WriteSettings();
+	DCEConfig dceconfig;
+	dceconfig.AddString("LastSearchTokenUpdate",StringUtils::itos(m_tLastSearchTokenUpdate));
+	dceconfig.WriteSettings();
 	m_pAlarmManager->AddRelativeAlarm(600,this,UPDATE_SEARCH_TOKENS,NULL);  // Do this every 10 minutes
 }
 //<-dceag-c942-b->
