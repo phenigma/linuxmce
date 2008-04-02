@@ -7,5 +7,12 @@ cp ./mce_wizard_data.sh /tmp
 ./mce-installer-InstallDependencies.sh 
 ./mce-installer-core.sh
 
+## Run any addons
+for addon in ./addons/*.sh ;do
+	if [[ -x "$addon" ]] ;then
+		./"$addon"
+	fi
+done
+
 ## Reboot the system
 init 0

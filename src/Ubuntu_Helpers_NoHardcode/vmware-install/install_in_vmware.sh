@@ -110,7 +110,7 @@ function create_debcache_on_virtual_machine {
 function copy_installer_on_virtual_machine {
 	DisplayMessage "Copying installer on virtual machine"
 	ssh -i /etc/lmce-build/builder.key root@"$VMWARE_IP" "mkdir -p /usr/pluto/install"
-	scp -i /etc/lmce-build/builder.key ./mce-installer-unattended/* root@"$VMWARE_IP":/usr/pluto/install
+	scp -i /etc/lmce-build/builder.key -r ./mce-installer-unattended/* root@"$VMWARE_IP":/usr/pluto/install
 	DisplayMessage "Finished copying installer on virtual machine"
 }
 
