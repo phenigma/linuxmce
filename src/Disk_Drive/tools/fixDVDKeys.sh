@@ -10,7 +10,7 @@
 export DVDCSS_CACHE="$DVDKeysCache"
 
 CheckKeysForDVD() {
-    echo -n "Checking keys for $1 ... "
+    echo -n `date`"    Checking keys for $1 ... "
     if [ -f "$1.keys.tar.gz" ]; then
 	echo -e "keys are already present, skipping\n"
 	return
@@ -26,8 +26,16 @@ CheckKeysForDVD() {
 
     DumpStatus=`/usr/pluto/bin/dvdcssHelper.sh -d "$1"`
     if [ "$DumpStatus" != "KEY_ERROR_COUNT:0" ]; then
-	echo -e "Error retrieving keys: not all keys can be retrieved from DVD image, not packing them\n"
-	return
+	echo -e "While retrieving keys: not all keys can be retrieved from DVD image, trying to fetch them from real DVD copy of keys\n"
+	RealKeyCandidateMask=`echo $KeysPath | sed 's/0000000000$//' | sed 's/0000000000\/$//'`
+	RealKeyCandidate=`ls -d $RealKeyCandidateMask* | grep -m 1 -v "0000000000$"`
+	if [ -z "$RealKeyCandidate" ]; then 
+		echo -e "Error retrieving keys: copying from real DVD copy failed\n"
+		return
+	else
+		cp -f $RealKeyCandidate/* $KeysPath/
+		echo "Copied keys from real DVD copy"
+	fi
     fi
 
     KeysFolder=`basename $KeysPath`
@@ -55,8 +63,11 @@ if [[ -z "$1" ]]; then
 	Query="SELECT CONCAT_WS(\"/\", Path, Filename) FROM File WHERE Filename LIKE \"%.dvd\" AND Missing=0"
 	Result=$(RunSQL "$Query")
 
+	set -o noglob # prevent shell expansion in for's list
 	for Row in $Result; do
         	Item=$(Field 1 "$Row")
+		set +o noglob
+		Item=$(echo "$Item" | tr  $'\x1' ' ')
         	CheckKeysForDVD "$Item"
 	done
 else
