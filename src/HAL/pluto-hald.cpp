@@ -1157,7 +1157,7 @@ void* PlutoHalD::startUp(void *device)
 {
 /*	LoggerWrapper::GetInstance()->Write(LV_STATUS, "PlutoHalD::startUp  Waiting 10 seconds to let GSD devices start first and disable any invalid ports");
 	Sleep(10000);*/
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "############ Start ");
+	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "PlutoHalD::startUp pthread_create ############ Start ");
 	
 	if( device == NULL )
 	{
@@ -1231,7 +1231,7 @@ void* PlutoHalD::startUp(void *device)
 	libhal_ctx_shutdown(ctx, &halError);
 	libhal_ctx_free(ctx);
 	
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "############ END ----------- ");
+	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "PlutoHalD::startUp  ############ END ----------- ");
 	
 	threadShutdown = false;
 	return NULL;

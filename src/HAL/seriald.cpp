@@ -53,7 +53,7 @@ void* SerialD::startUp(void * device)
 	
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "PlutoHalD::startUp  Waiting 10 seconds to let GSD devices start first and disable any invalid ports");
 	Sleep(10000);
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "############ SerialD Start ");
+	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "SerialD::startUp pthread_create ############ SerialD Start ");
 	
 	if( device == NULL )
 	{
