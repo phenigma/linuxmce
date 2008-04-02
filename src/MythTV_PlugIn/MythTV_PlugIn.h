@@ -107,10 +107,10 @@ namespace DCE
 	public:
 		uint32_t channel_id;
 		time_t   scheduled_start_time;
-		uint64_t key(void) const
+		u_int64_t key(void) const
 		{
-			uint64_t c = channel_id;
-			uint64_t s = scheduled_start_time;
+			u_int64_t c = channel_id;
+			u_int64_t s = scheduled_start_time;
 			return c<<32 | s;
 		}
 	};

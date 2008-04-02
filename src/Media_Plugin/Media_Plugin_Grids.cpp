@@ -2149,6 +2149,22 @@ class DataGridTable *Media_Plugin::DevicesNeedingProviders( string GridID, strin
 				|| DatabaseUtils::DeviceIsWithinCategory(m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICECATEGORY_Orbiter_CONST) )
 					continue; // Skip the internal sources, and orbiters which use this table for another purpose
 
+			if( pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get()==DEVICECATEGORY_PVR_CONST || 
+				pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get()==DEVICECATEGORY_Cable_Boxes_CONST || 
+				pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get()==DEVICECATEGORY_Satellite_Boxes_CONST )
+			{
+				Row_Device *pRow_Device_CaptureCard=NULL;
+				// If this is a cable/sat box, then we only need a provider if it's connected to a capture card.  otherwise there's no way to get the video into the system anyway
+				Row_Device_DeviceData *pRow_Device_DeviceData = m_pDatabase_pluto_main->Device_DeviceData_get()->GetRow(pRow_Device->PK_Device_get(),DEVICEDATA_FK_Device_Capture_Card_Port_CONST);
+				if( pRow_Device_DeviceData )
+					pRow_Device_CaptureCard	= m_pDatabase_pluto_main->Device_get()->GetRow( atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str()) );
+				if( pRow_Device_CaptureCard == NULL )
+				{
+					LoggerWrapper::GetInstance()->Write(LV_STATUS, "Media_Plugin::DevicesNeedingProviders skipping box %d because no capt card",pRow_Device->PK_Device_get());
+					continue;
+				}
+			}
+
 			string sDescription = pRow_Device->Description_get();
 			Row_Device *pRow_Device_Parent = pRow_Device->FK_Device_ControlledVia_getrow();
 			if( pRow_Device_Parent && pRow_Device_Parent->Disabled_get()==1 )
