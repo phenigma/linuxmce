@@ -51,7 +51,7 @@ echo `date`"   Started"
 if [[ -z "$1" ]]; then
 	echo "Scanning LinuxMCE media library for DVD images"
 	UseDB "pluto_media"
-	Query="SELECT CONCAT_WS(\"/\", Path, Filename) FROM File WHERE Filename LIKE \"%.dvd\""
+	Query="SELECT CONCAT_WS(\"/\", Path, Filename) FROM File WHERE Filename LIKE \"%.dvd\" AND Missing=0"
 	Result=$(RunSQL "$Query")
 
 	for Row in $Result; do
