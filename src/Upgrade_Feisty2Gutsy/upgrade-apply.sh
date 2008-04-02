@@ -92,9 +92,11 @@ DisplayMessage "Performing post upgrade fixes"
 ConfSet "PK_Distro" "15"
 
 ## Fix grub's menu.lst
-root_drive=$(mount | grep 'on / ' | cut -d' ' -f1)
-sed -i "/^# kopt=/ s|UUID=[a-f0-9-]*|${root_drive}|g" /boot/grub/menu.lst
-update-grub
+root_drive=$(mount | grep 'on / ' | cut -d' ' -f1 | grep '/dev/[a-z][a-z][a-z][0-9]')
+if [[ "$root_drive" != "" ]] ;then
+	sed -i "/^# kopt=/ s|UUID=[a-f0-9-]*|${root_drive}|g" /boot/grub/menu.lst
+	update-grub
+fi
 
 ## Reset model device datas
 . /usr/pluto/bin/SQL_Ops.sh
