@@ -1240,7 +1240,7 @@ void* PlutoHalD::startUp(void *device)
 	libhal_ctx_shutdown(ctx, &halError);
 	libhal_ctx_free(ctx);
 	
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "PlutoHalD::startUp  ############ END ----------- ");
+	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "PlutoHalD::startUp  ############ END -----------  running=%d",(int) haldrunning);
 	
 	haldrunning = false;
 	threadShutdown = false;
@@ -1261,7 +1261,7 @@ bool PlutoHalD::shutDown()
 {
 	threadShutdown = true;
 
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "############ PlutoHalD shutDown waiting for thread");
+	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "############ PlutoHalD shutDown waiting for thread running=%d",(int) haldrunning);
 	time_t timeout = time(NULL) + 15;
 	while( haldrunning && time(NULL) < timeout )
 	{
