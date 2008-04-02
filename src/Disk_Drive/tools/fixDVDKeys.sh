@@ -26,7 +26,7 @@ CheckKeysForDVD() {
 
     DumpStatus=`/usr/pluto/bin/dvdcssHelper.sh -d "$1"`
     if [ "$DumpStatus" != "KEY_ERROR_COUNT:0" ]; then
-	echo -e "While retrieving keys: not all keys can be retrieved from DVD image, trying to fetch them from real DVD copy of keys\n"
+	echo "While retrieving keys: not all keys can be retrieved from DVD image, trying to fetch them from real DVD copy of keys"
 	RealKeyCandidateMask=`echo $KeysPath | sed 's/0000000000$//' | sed 's/0000000000\/$//'`
 	RealKeyCandidate=`ls -d $RealKeyCandidateMask* | grep -m 1 -v "0000000000$"`
 	if [ -z "$RealKeyCandidate" ]; then 
