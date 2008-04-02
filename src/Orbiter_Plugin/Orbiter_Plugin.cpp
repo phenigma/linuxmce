@@ -1879,6 +1879,9 @@ void Orbiter_Plugin::CMD_Regen_Orbiter(int iPK_Device,string sForce,string sRese
     {
         OH_Orbiter *pOH_Orbiter = (*it).second;
 
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter_Plugin::CMD_Regen_Orbiter checking orb %d/%d of %d device %d regen %d",
+			it->first,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,(int) m_mapOH_Orbiter.size(), iPK_Device,(int) pOH_Orbiter->m_tRegenTime); 
+
 		if( iPK_Device==0 || pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device==iPK_Device )
 		{
 			if( pOH_Orbiter->m_tRegenTime )
