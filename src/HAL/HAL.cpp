@@ -81,8 +81,8 @@ HAL::HAL(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLoca
 {
 	m_sSignature = StringUtils::itos(DeviceID) + ",HAL"; // A unique signature for all the device we detect
 
-	d = new HalPrivate(this);
-	if( d == NULL )
+	m_pHalPrivate = new HalPrivate(this);
+	if( m_pHalPrivate == NULL )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "HAL(): Not enough memory!");
 	}
@@ -94,8 +94,8 @@ HAL::HAL(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl
 	: HAL_Command(pPrimaryDeviceCommand, pData, pEvent, pRouter)
 //<-dceag-const2-e->
 {
-	d = new HalPrivate(this);
-	if( d == NULL )
+	m_pHalPrivate = new HalPrivate(this);
+	if( m_pHalPrivate == NULL )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "HAL(): Not enough memory!");
 	}
@@ -146,8 +146,8 @@ HAL::~HAL()
 		m_pHalPrivate->serial_running = false;
 	}
 	
-	delete d;
-	d = NULL;
+	delete m_pHalPrivate;
+	m_pHalPrivate = NULL;
 }
 
 //<-dceag-getconfig-b->
