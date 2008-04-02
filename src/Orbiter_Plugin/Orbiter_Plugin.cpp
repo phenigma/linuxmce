@@ -1873,7 +1873,7 @@ void Orbiter_Plugin::CMD_Regen_Orbiter(int iPK_Device,string sForce,string sRese
 
 	string sOrbiterList;
     PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);
-	list<int> temp_listRegenCommands;
+	list<OH_Orbiter *> temp_listRegenCommands;
 
     for(map<int,OH_Orbiter *>::iterator it=m_mapOH_Orbiter.begin();it!=m_mapOH_Orbiter.end();++it)
     {
@@ -1896,8 +1896,6 @@ void Orbiter_Plugin::CMD_Regen_Orbiter(int iPK_Device,string sForce,string sRese
 				SendCommand(SCREEN_PopupMessage);
 				return;
 			}
-			else
-                pOH_Orbiter->m_tRegenTime = time(NULL);
 		}
 
 		if( iPK_Device==0 && !IsRegenerating(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device) ) //we'll regen all of them
@@ -1905,14 +1903,17 @@ void Orbiter_Plugin::CMD_Regen_Orbiter(int iPK_Device,string sForce,string sRese
 			if( sOrbiterList.size() )
 				sOrbiterList += ",";
 			sOrbiterList += StringUtils::itos(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
-			temp_listRegenCommands.push_back(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
+			temp_listRegenCommands.push_back(pOH_Orbiter);
 		}
 	}
 
-	for(list<int>::iterator it=temp_listRegenCommands.begin();it!=temp_listRegenCommands.end();++it)
+	for(list<OH_Orbiter *>::iterator it=temp_listRegenCommands.begin();it!=temp_listRegenCommands.end();++it)
 	{
-		m_listRegenCommands.push_back(*it);
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter_Plugin::CMD_Regen_Orbiter iPK_Device==0 Added %d to m_listRegenCommands %d size",*it,(int) m_listRegenCommands.size());
+		OH_Orbiter *pOH_Orbiter = *it;
+		pOH_Orbiter->m_tRegenTime = time(NULL);
+		m_listRegenCommands.push_back(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter_Plugin::CMD_Regen_Orbiter iPK_Device==0 Added %d to m_listRegenCommands %d size",
+			pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,(int) m_listRegenCommands.size());
 	}
 
 	if( !iPK_Device || !IsRegenerating(iPK_Device) )
