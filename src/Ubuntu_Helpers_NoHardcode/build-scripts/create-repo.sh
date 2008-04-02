@@ -2,6 +2,7 @@
 
 . /etc/lmce-build/builder.conf
 . /usr/local/lmce-build/common/logging.sh
+. /usr/local/lmce-build/common/utils.sh
 
 set -e
 set -x
@@ -72,6 +73,8 @@ function PublishPrivateDebs {
         local Dir="$local_mirror_dir/priv_debs"
         local Latest="$Dir/latest"
 
+	remove_duplicate_debs "$temp_dir"
+
         mkdir -p "$Dir"
         tar -C "$temp_dir" -cvf "$Dir"/"$ID".tar .
         rm -f "$Latest"
@@ -80,8 +83,9 @@ function PublishPrivateDebs {
 	rm -rf "$temp_dir"
 }
 
-DisplayMessage "*** STEP: Creating local repository"
 trap 'Error "Undefined error in $0"' EXIT
+
+DisplayMessage "*** STEP: Creating local repository"
 MoveDebs2Repo
 
 DisplayMessage "*** STEP: Copy debs to diskless common directory (for dvd)"
