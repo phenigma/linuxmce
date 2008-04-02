@@ -1241,7 +1241,7 @@ gboolean PlutoHalD::timeoutHandler(DBusConnection *bus)
 {
 	if( loop != NULL && threadShutdown )
 	{
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "############ QUIT ++++++++++++++");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "PlutoHalD::timeoutHandler ############ QUIT ++++++++++++++");
 		g_main_loop_quit(loop);
 	}
 	return TRUE;

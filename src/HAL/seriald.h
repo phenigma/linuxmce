@@ -56,7 +56,7 @@ class SerialD
 		static void* startUp(void * HAL);
 		
 		/***/
-		static void shutDown();
+		static bool shutDown();
 		
 	private:
 		
@@ -65,6 +65,8 @@ class SerialD
 		static std::vector<std::string> serialDevices;
 		
 		static bool running;
+
+		static bool stoprunning;
 };
 
 #endif

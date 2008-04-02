@@ -106,40 +106,44 @@ HAL::~HAL()
 //<-dceag-dest-e->
 {
 	// wait for thread finish
-	if( d->running )
+	if( m_pHalPrivate->running )
 	{
 		PlutoHalD::shutDown();
-		
-		if( 0 != pthread_kill( d->hald_thread, SIGTERM) )
+/*
+		This code makes no sense.  PlutoHalD::shutDown can only return when the thread really ends, so why send a term which kills the whole app and exits with an 
+		error exit code so it can be reloaded only 50 times?
+		if( 0 != pthread_kill( m_pHalPrivate->hald_thread, SIGTERM) )
 		{
 			//try KILL
-			pthread_kill( d->hald_thread, SIGKILL);
+			pthread_kill( m_pHalPrivate->hald_thread, SIGKILL);
 		}
-		
-		if( 0 != pthread_join( d->hald_thread, NULL ) )
+*/		
+		if( 0 != pthread_join( m_pHalPrivate->hald_thread, NULL ) )
 		{
 			LoggerWrapper::GetInstance()->Write(LV_WARNING, "pthread_join hald failed");
 		}
 		
-		d->running = false;
+		m_pHalPrivate->running = false;
 	}
 	
-	if( d->serial_running )
+	if( m_pHalPrivate->serial_running )
 	{
-		SerialD::shutDown();
-		
-		if( 0 != pthread_kill( d->serial_thread, SIGTERM) )
+		if( SerialD::shutDown()==false )
 		{
-			//try KILL
-			pthread_kill( d->serial_thread, SIGKILL);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "HAL::~HAL failed to stop serial thread.  Doing a sigterm which will kill everything");
+			if( 0 != pthread_kill( m_pHalPrivate->serial_thread, SIGTERM) )
+			{
+				//try KILL
+				pthread_kill( m_pHalPrivate->serial_thread, SIGKILL);
+			}
 		}
-		
-		if( 0 != pthread_join( d->serial_thread, NULL ) )
+			
+		if( 0 != pthread_join( m_pHalPrivate->serial_thread, NULL ) )
 		{
 			LoggerWrapper::GetInstance()->Write(LV_WARNING, "pthread_join seriald failed");
 		}
 		
-		d->serial_running = false;
+		m_pHalPrivate->serial_running = false;
 	}
 	
 	delete d;
@@ -155,23 +159,23 @@ bool HAL::GetConfig()
 
 	// Put your code here to initialize the data in this class
 	// The configuration parameters DATA_ are now populated
-	int ret = pthread_create( &d->hald_thread, NULL, PlutoHalD::startUp, (void *) this );
+	int ret = pthread_create( &m_pHalPrivate->hald_thread, NULL, PlutoHalD::startUp, (void *) this );
 	if( 0 != ret )
 	{
-		d->running = false;
+		m_pHalPrivate->running = false;
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Couldn't create hald thread. return = %d", ret);
 		return false;
 	}
-	d->running = true;
+	m_pHalPrivate->running = true;
 	
-	ret = pthread_create( &d->serial_thread, NULL, SerialD::startUp, (void *) this );
+	ret = pthread_create( &m_pHalPrivate->serial_thread, NULL, SerialD::startUp, (void *) this );
 	if( 0 != ret )
 	{
-		d->serial_running = false;
+		m_pHalPrivate->serial_running = false;
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Couldn't create seriald thread. return = %d", ret);
 		return false;
 	}
-	d->serial_running = true;
+	m_pHalPrivate->serial_running = true;
 	
 	return true;
 }
