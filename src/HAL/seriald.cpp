@@ -37,6 +37,7 @@
 
 DCE::HAL * SerialD::halDevice = NULL;
 bool SerialD::running = false;
+bool SerialD::stoprunning = false;
 std::vector<std::string> SerialD::serialDevices;
 
 SerialD::SerialD()
