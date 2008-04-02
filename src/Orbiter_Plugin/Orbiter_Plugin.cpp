@@ -2870,6 +2870,8 @@ void Orbiter_Plugin::StartRetrievingScreenSaverFiles()
 	if( pDevice_Us )
 		pDevice_App_Server = (DeviceData_Router *) pDevice_Us->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_App_Server_CONST);
 
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Orbiter_Plugin::StartRetrievingScreenSaverFiles apps %d/%s", vectApps.size(), s.c_str());
+
 	if( pDevice_App_Server )
 	{
 		for(vector<string>::iterator it=vectApps.begin();it!=vectApps.end();++it)
