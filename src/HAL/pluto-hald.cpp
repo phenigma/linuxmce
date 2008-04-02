@@ -47,6 +47,7 @@ long PlutoHalD::pnpDeviceID = 0;
 GMainLoop * PlutoHalD::loop = NULL;
 DBusError PlutoHalD::halError;
 bool PlutoHalD::threadShutdown = false;
+bool PlutoHalD::haldrunning = false;
 std::string PlutoHalD::moreInfo;
 
 PlutoHalD::PlutoHalD()
@@ -1157,11 +1158,14 @@ void* PlutoHalD::startUp(void *device)
 {
 /*	LoggerWrapper::GetInstance()->Write(LV_STATUS, "PlutoHalD::startUp  Waiting 10 seconds to let GSD devices start first and disable any invalid ports");
 	Sleep(10000);*/
+	haldrunning = true;
 	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "PlutoHalD::startUp pthread_create ############ Start ");
 	
 	if( device == NULL )
 	{
 		// error
+		haldrunning = false;
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "PlutoHalD::startUp device == NULL ");
 		return NULL;
 	}
 	
@@ -1171,6 +1175,8 @@ void* PlutoHalD::startUp(void *device)
 	if( halDevice->m_pData == NULL )
 	{
 		// error
+		haldrunning = false;
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "PlutoHalD::startUp halDevice->m_pData == NULL ");
 		return NULL;
 	}
 
@@ -1181,6 +1187,7 @@ void* PlutoHalD::startUp(void *device)
 	DBusConnection * halConnection = dbus_bus_get(DBUS_BUS_SYSTEM, &halError);
 	if( halConnection == NULL )
 	{
+		haldrunning = false;
 		LoggerWrapper::GetInstance()->Write(LV_DEBUG, "DBusConnection is NULL!\n");
 		return NULL;
 	}
@@ -1188,6 +1195,7 @@ void* PlutoHalD::startUp(void *device)
 	ctx = libhal_ctx_new();
 	if ( ctx == NULL )
 	{
+		haldrunning = false;
 		LoggerWrapper::GetInstance()->Write(LV_DEBUG, "CTX is NULL!\n");
 		return NULL;
 	}
@@ -1203,7 +1211,8 @@ void* PlutoHalD::startUp(void *device)
 	
 	if( !libhal_ctx_init(ctx, &halError) )
 	{
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG, "CTX initialization failed!\n");
+		haldrunning = false;
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "CTX initialization failed!\n");
 		dbus_error_free(&halError);
 		libhal_ctx_free(ctx);
 		return NULL;
@@ -1233,6 +1242,7 @@ void* PlutoHalD::startUp(void *device)
 	
 	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "PlutoHalD::startUp  ############ END ----------- ");
 	
+	haldrunning = false;
 	threadShutdown = false;
 	return NULL;
 }
@@ -1250,9 +1260,13 @@ gboolean PlutoHalD::timeoutHandler(DBusConnection *bus)
 void PlutoHalD::shutDown()
 {
 	threadShutdown = true;
-	
-	while( threadShutdown )
+
+	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "############ PlutoHalD shutDown waiting for thread");
+	time_t timeout = time(NULL) + 15;
+	while( haldrunning && time(NULL) < timeout )
 	{
 		usleep(10);
 	}
+	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "############ PlutoHalD shutDown thread exited or timed out: running=%d",(int) haldrunning);
+	return haldrunning==false;
 }

@@ -53,7 +53,7 @@ void* SerialD::startUp(void * device)
 	running = true;
 	stoprunning = false;
 	
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "PlutoHalD::startUp  Waiting 10 seconds to let GSD devices start first and disable any invalid ports");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "SerialD::startUp  Waiting 10 seconds to let GSD devices start first and disable any invalid ports");
 	Sleep(10000);
 	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "SerialD::startUp pthread_create ############ SerialD Start ");
 	
@@ -137,8 +137,8 @@ bool SerialD::shutDown()
 {
 	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "############ SerialD shutDown waiting for thread");
 	stoprunning = true;
-	time_t timeout = time(NULL) + 3;
-	while( running && time(NULL) > timeout )
+	time_t timeout = time(NULL) + 15;
+	while( running && time(NULL) < timeout )
 	{
 		usleep(10);
 	}

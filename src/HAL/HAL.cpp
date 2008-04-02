@@ -108,16 +108,16 @@ HAL::~HAL()
 	// wait for thread finish
 	if( m_pHalPrivate->running )
 	{
-		PlutoHalD::shutDown();
-/*
-		This code makes no sense.  PlutoHalD::shutDown can only return when the thread really ends, so why send a term which kills the whole app and exits with an 
-		error exit code so it can be reloaded only 50 times?
-		if( 0 != pthread_kill( m_pHalPrivate->hald_thread, SIGTERM) )
+		if( PlutoHalD::shutDown()==false )
 		{
-			//try KILL
-			pthread_kill( m_pHalPrivate->hald_thread, SIGKILL);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "HAL::~HAL failed to stop pluto thread.  Doing a sigterm which will kill everything");
+			// This will kill everything and exit with an error code incrementing the reload count
+			if( 0 != pthread_kill( m_pHalPrivate->hald_thread, SIGTERM) )
+			{
+				//try KILL
+				pthread_kill( m_pHalPrivate->hald_thread, SIGKILL);
+			}
 		}
-*/		
 		if( 0 != pthread_join( m_pHalPrivate->hald_thread, NULL ) )
 		{
 			LoggerWrapper::GetInstance()->Write(LV_WARNING, "pthread_join hald failed");
