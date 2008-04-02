@@ -1188,7 +1188,7 @@ void* PlutoHalD::startUp(void *device)
 	if( halConnection == NULL )
 	{
 		haldrunning = false;
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG, "DBusConnection is NULL!\n");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "DBusConnection is NULL!\n");
 		return NULL;
 	}
 	
@@ -1196,7 +1196,7 @@ void* PlutoHalD::startUp(void *device)
 	if ( ctx == NULL )
 	{
 		haldrunning = false;
-		LoggerWrapper::GetInstance()->Write(LV_DEBUG, "CTX is NULL!\n");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "CTX is NULL!\n");
 		return NULL;
 	}
 	
