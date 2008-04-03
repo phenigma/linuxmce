@@ -870,15 +870,22 @@ bool GetNonSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFil
 				system(("mkdir -p " + sInputPath).c_str());
 #endif
 				chdir(sInputPath.c_str());
-				cout << "Package: " << pRow_Package->PK_Package_get() << " Executing: " << pRow_Package_Directory_File->MakeCommand_get() << " from dir: " << sInputPath << endl;
+
+                                string tmp = pRow_Package_Directory_File->MakeCommand_get();
+                                tmp = StringUtils::Replace(tmp, "sqlCVS", "sqlCVS -P 4306");
+                                tmp = StringUtils::Replace(tmp, "sqlCVS", "sqlCVS -h 127.0.0.1");
+                                tmp = StringUtils::Replace(tmp, "<-mkr_t_flavor_name->", "ubuntu");
+                                tmp = StringUtils::Replace(tmp, "sqlCVS", "/usr/pluto/bin/sqlCVS");
+
+				cout << "Package: " << pRow_Package->PK_Package_get() << " Executing: " << tmp << " from dir: " << sInputPath << endl;
 				if( g_bOnlyCompileIfNotFound && FileUtils::FileExists(sInputPath + "/" + File) )
 					cout << "Skipping compilation of package: " << pRow_Package->PK_Package_get() << endl;
-				else if( !g_bSimulate && system(pRow_Package_Directory_File->MakeCommand_get().c_str()) )
+				else if( !g_bSimulate && system(tmp.c_str()) )
 				{
 					cout << "Description: " << pRow_Package_Directory_File->FK_Package_Directory_getrow()->FK_Package_getrow()->Description_get() << endl;
 					cout << "Path: " << pRow_Package_Directory_File->FK_Package_Directory_getrow()->Path_get() << endl;
-					cout << pRow_Package_Directory_File->MakeCommand_get() << " ***FAILED***" << endl;
-					cout << "Error: " << pRow_Package_Directory_File->MakeCommand_get() << " failed!" << endl;
+					cout << tmp << " ***FAILED***" << endl;
+					cout << "Error: " << tmp << " failed!" << endl;
 					if( g_bSupressPrompts || !AskYNQuestion("Continue anyway?",false) )
 						return false;
 				}

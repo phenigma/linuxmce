@@ -65,7 +65,7 @@ function LoadPackageNames
 	export mkr_bluetooth_dongle_package=124
 	export mkr_app_server_package=126
 	export mkr_mythtv_player_package=133
-	export mkr_mythtv_plugin_package=134            # disabled in All
+	export mkr_mythtv_plugin_package=134
 	export mkr_standard_plugins_source=135
 	export mkr_xine_player_source=136
 	export mkr_xine_plugin_source=137
@@ -101,16 +101,16 @@ function LoadPackageNames
 	export mkr_sql2cpp_package=203
 	export mkr_skins_basic_package=204
 	export mkr_development_dependencies_package=206
-	export mkr_system_database_package=211          # disabled in All
+	export mkr_system_database_package=211
 	export mkr_sqlcvs_source=212
 	export mkr_sqlcvs_package=213
-	export mkr_local_database_package=214           # disabled in All
-	export mkr_web_site_support_package=219         # disabled in All
-	export mkr_web_site_admin_package=220           # disabled in All
+	export mkr_local_database_package=214
+	export mkr_web_site_support_package=219         # disabled in All (pluto only)
+	export mkr_web_site_admin_package=220           # disabled in All (pluto only)
 	export mkr_orbitergen_package=226
 	export mkr_orbitergen_source=227
 	export mkr_voicemail_monitor_package=229
-	export mkr_media_database_package=233           # disabled in All
+	export mkr_media_database_package=233
 	export mkr_boot_scripts_package=234
 	export mkr_pluto_main_library_package=237
 	export mkr_serializeclass_library_package=238
@@ -122,7 +122,7 @@ function LoadPackageNames
 	export mkr_request_action_ra_library_source=248
 	export mkr_pluto_media_library_source=254
 	export mkr_pluto_media_library_package=255
-	export mkr_security_database_package=256        # disabled in All
+	export mkr_security_database_package=256
 	export mkr_diskless_base_filesystem_package=266
 	export mkr_asterisk_package=270
 	export mkr_asterisk_source=271
@@ -191,20 +191,20 @@ function LoadPackageNames
 	export mkr_sample_media_package=422
 	export mkr_slimserver_plugin_source=424
 	export mkr_slimserver_plugin_package=425
-	export mkr_videolan_plugin_server_source=429  # disabled in All
-	export mkr_videolan_plugin_server_package=430 # disabled in All
-	export mkr_videolan_plugin_client_source=431  # disabled in All
-	export mkr_videolan_plugin_client_package=432 # disabled in All
-	export mkr_marbella_database_package=436      # disabled in All
+	export mkr_videolan_plugin_server_source=429  # disabled in All (not used)
+	export mkr_videolan_plugin_server_package=430 # disabled in All (not used)
+	export mkr_videolan_plugin_client_source=431  # disabled in All (broken)
+	export mkr_videolan_plugin_client_package=432 # disabled in All (broken)
+	export mkr_marbella_database_package=436      # disabled in All (pluto only)
 	export mkr_makerelease_source=446
 	export mkr_makerelease_package=447
 	export mkr_skins_rse_package=448
-	export mkr_irtrans_source=452                 # disabled in All
-	export mkr_irtrans_package=453                # disabled in All
-	export mkr_audi_database_package=454          # disabled in All
+	export mkr_irtrans_source=452
+	export mkr_irtrans_package=453
+	export mkr_audi_database_package=454          # disabled in All (pluto only)
 	export mkr_motion_wrapper_source=455
 	export mkr_motion_wrapper_package=456
-	export mkr_ati_video_drivers_package=462      # disabled in All
+	export mkr_ati_video_drivers_package=462      # disabled in All (not supported)
 	export mkr_tira_wrapper_source=464
 	export mkr_tira_wrapper_package=465
 	export mkr_vdr_plugin_source=466
@@ -232,15 +232,15 @@ function LoadPackageNames
 	export mkr_398_499=$mkr_398_499,472,473,487,488,490,330,491,492,493
 	export mkr_398_499=$mkr_398_499,496,497,498,499
 
-	export mkr_monster_database_package=502       # disabled in All
+	export mkr_monster_database_package=502       # disabled in All (pluto only)
 	export mkr_network_storage_package=503 # delete "(51)" from Makefile..
 	export mkr_skins_monster_package=504
 	export mkr_zwave_lighting_source=505
 	export mkr_zwave_lighting_package=506
 	export mkr_network_storage_source=508
 	export mkr_monster_nucleus_package=509
-	export mkr_pwc_camera_drivers_source=515      # disabled in All
-	export mkr_pwc_camera_drivers_package=516     # disabled in All
+	export mkr_pwc_camera_drivers_source=515      # disabled in All (pluto only)
+	export mkr_pwc_camera_drivers_package=516     # disabled in All (pluto only)
 	export mkr_x_configuration_scripts_and_programs_package=520
 	export mkr_dummy_pluto_console_utilities_package=522
 	export mkr_x_configuration_scripts_and_programs_source=523
@@ -255,8 +255,8 @@ function LoadPackageNames
 	export mkr_newmd_interactor_server_source=538
 	export mkr_newmd_interactor_server_package=539
 	export mkr_diskless_default_boot_file_package=540
-	export mkr_vloopback_driver_source=542        # disabled in All
-	export mkr_vloopback_driver_package=543       # disabled in All
+	export mkr_vloopback_driver_source=542        # disabled in All (abandoned)
+	export mkr_vloopback_driver_package=543       # disabled in All (abandoned)
 	export mkr_libresolution_source=544
 	export mkr_libresolution_package=545
 	export mkr_disk_monitor_package=554
@@ -266,7 +266,7 @@ function LoadPackageNames
 	export mkr_test_serial_port_source=563
 	export mkr_test_serial_port_package=564
 	export mkr_av_wizard_skin_basic_package=567
-	export mkr_av_wizard_skin_monster_package=568 # disabled in All
+	export mkr_av_wizard_skin_monster_package=568 # disabled in All (pluto only)
 	export mkr_add_software_source=572
 	export mkr_add_software_package=573
 	export mkr_dynamic_dns_package=576
@@ -275,10 +275,10 @@ function LoadPackageNames
 	export mkr_capture_card_setup_scripts_package=580
 	export mkr_photo_screen_saver_source=581
 	export mkr_photo_screen_saver_package=582
-	export mkr_wavetrend_reader_source=583        # disabled in All
-	export mkr_wavetrend_reader_package=584       # disabled in All
-	export mkr_alsa_drivers_source=589            # disabled in All
-	export mkr_alsa_drivers_package=590           # disabled in All
+	export mkr_wavetrend_reader_source=583        # disabled in All (abandoned)
+	export mkr_wavetrend_reader_package=584       # disabled in All (abandoned)
+	export mkr_alsa_drivers_source=589            # disabled in All (depreciated)
+	export mkr_alsa_drivers_package=590           # disabled in All (depreciated)
 	export mkr_tribunetv_source=598
 	export mkr_tribunetv_package=599
 
@@ -289,7 +289,7 @@ function LoadPackageNames
 	export mkr_500_599=$mkr_500_599,576,578,579,580,581,582
 	export mkr_500_599=$mkr_500_599,598,599
 
-	export mkr_ati_video_drivers_source=607       # disabled in All
+	export mkr_ati_video_drivers_source=607       # disabled in All (not supported)
 	export mkr_raid_tools_package=617
 	export mkr_hdhomerun_source=620
 	export mkr_hdhomerun_package=621
@@ -297,8 +297,8 @@ function LoadPackageNames
 	export mkr_mce_diskless_tools_package=628
 	export mkr_xml_data_plugin_source=639
 	export mkr_xml_data_plugin_package=640
-	export mkr_amg_media_identifier_package=644   # disabled in All
-	export mkr_amg_media_identifier_source=645    # disabled in All
+	export mkr_amg_media_identifier_package=644   # disabled in All (abandoned)
+	export mkr_amg_media_identifier_source=645    # disabled in All (abandoned)
 	export mkr_mysql_wrapper_source=648
 	export mkr_mysql_wrapper_package=649
 	export mkr_lmce_update_system_source=650
@@ -314,8 +314,8 @@ function LoadPackageNames
 
 	export mkr_ivtv_video_drivers_source=336
 	export mkr_ivtv_video_drivers_package=337
-	export mkr_videolan_plugin_common_source=426
-	export mkr_videolan_plugin_common_package=427
+	export mkr_videolan_plugin_common_source=426   # disabled in All (not used)
+	export mkr_videolan_plugin_common_package=427  # disabled in All (not used)
 	export mkr_ivtv_video_drivers=336,337
 	export mkr_videolan_plugin_common=426,427
 	export mkr_videolan_plugin_server=429,430
@@ -337,6 +337,10 @@ function LoadPackageNames
 	export mkr_zwave_lighting=505,506
 	export mkr_xine_player=136,117
 	export mkr_xine_plugin=137,118
+	export mkr_mythtv_player=152,133
+	export mkr_mythtv_plugin=153,134
+	export mkr_serial=190,191
+	export mkr_messagetranslation=398,401
 }
 
 function DisplayMessage {
@@ -807,7 +811,6 @@ function Run_MakeRelease_All
 	exclude_list=$exclude_list,$mkr_videolan_plugin_common
 	exclude_list=$exclude_list,$mkr_videolan_plugin_server
 	exclude_list=$exclude_list,$mkr_videolan_plugin_client
-	exclude_list=$exclude_list,$mkr_irtrans
 	exclude_list=$exclude_list,$mkr_pwc_camera_drivers
 	exclude_list=$exclude_list,$mkr_vloopback_driver
 	exclude_list=$exclude_list,$mkr_alsa_drivers
@@ -818,15 +821,8 @@ function Run_MakeRelease_All
 	exclude_list=$exclude_list,$mkr_amg_media_identifier
 	exclude_list=$exclude_list,$mkr_web_site_support_package
         exclude_list=$exclude_list,$mkr_web_site_admin_package
-
-        #the ones below need to be ported to work with mysql on port 4306
 	exclude_list=$exclude_list,$mkr_marbella_database_package
 	exclude_list=$exclude_list,$mkr_audi_database_package
-	exclude_list=$exclude_list,$mkr_mythtv_plugin_package
-	exclude_list=$exclude_list,$mkr_system_database_package
-	exclude_list=$exclude_list,$mkr_local_database_package
-	exclude_list=$exclude_list,$mkr_media_database_package
-        exclude_list=$exclude_list,$mkr_security_database_package
 
 	echo "$(date) part 5 " >> $build_log
 	ls -l $SVNROOT/src/bin/ >> $build_log
@@ -852,7 +848,7 @@ function Run_MakeRelease
         LoadPackageNames
         local db_devices=`eval printf "%s" $tmpx`
 
-	source ../../settings.sh
+	source ${SVNROOT}/settings.sh
 
 	export PATH=${mkr_dir}:$PATH:${SVNROOT}/src/bin
 #	export PATH=/usr/lib/ccache:$PATH:${SVNROOT}/src/bin
@@ -1064,7 +1060,7 @@ function Init_Build_Database
 
 	local UPDATE="update Package_Directory_File set MakeCommand='make -f Makefile.cvs; LDFLAGS=\"-L../../lib\" CPPFLAGS=\"-I../../ -I../../DCE -I../../Gen_Devices\" CXXFLAGS=\"-O0 -g3\" ./configure; make ; cp src/lmce_launch_manager ../bin/lmce_launch_manager ' where PK_Package_Directory_File=533;"
 
-        if `test -f $SVNROOT/build/state_db_initialized_458` ; then
+        if `test -f $SVNROOT/build/state_db_initialized_20294` ; then
 		echo $UPDATE | mysql $hostparam -u $db_user -p$db_password $sql_slave_db
                 return 0
         fi
@@ -1086,15 +1082,19 @@ function Init_Build_Database
 	       "CREATE DATABASE pluto_main;"                         \
                    | mysql $hostparam -u $db_user -p$db_password
 
-        local db_cnt=4
+        local db_cnt=6
         echo "Loading main build database 1/$db_cnt"
-	cat $SVNROOT/db_dumps/pluto_main_build.sql | mysql $hostparam -u $db_user -p$db_password $sql_slave_db
+	bzcat $SVNROOT/db_dumps/pluto_main_build.sql.bz2 | mysql $hostparam -u $db_user -p$db_password $sql_slave_db
         echo "Loading media database 2/$db_cnt"
-	cat $SVNROOT/db_dumps/pluto_media.sql    | mysql $hostparam -u $db_user -p$db_password $sql_slave_db_media
+	bzcat $SVNROOT/db_dumps/pluto_media.sql.bz2 | mysql $hostparam -u $db_user -p$db_password $sql_slave_db_media
         echo "Loading security database 3/$db_cnt"
 	cat $SVNROOT/db_dumps/pluto_security.sql | mysql $hostparam -u $db_user -p$db_password $sql_slave_db_security
         echo "Loading telecom database 4/$db_cnt"
 	cat $SVNROOT/db_dumps/pluto_telecom.sql  | mysql $hostparam -u $db_user -p$db_password $sql_slave_db_telecom
+        echo "Loading mythtv database 5/$db_cnt"
+	cat $SVNROOT/db_dumps/myth_sqlcvs_ubuntu.sql | mysql $hostparam -u $db_user -p$db_password $sql_slave_db_mythsqlcvs
+        echo "Loading mythtv database 6/$db_cnt"
+	bzcat $SVNROOT/db_dumps/main_sqlcvs_ubuntu.sql.bz2 | mysql $hostparam -u $db_user -p$db_password $sql_slave_db_mainsqlcvs
 
 #	cat $temp_file | mysql $hostparam -u $db_user -p$db_password "pluto_main"
 #	cat $temp_file_main | mysql $hostparam -u $db_user -p$db_password $sql_slave_db_mainsqlcvs
@@ -1106,12 +1106,12 @@ function Init_Build_Database
         echo "Current DB Version is $Version"
 
         mkdir -p ${SVNROOT}/build
-        touch ${SVNROOT}/build/state_db_initialized_458
+        touch ${SVNROOT}/build/state_db_initialized_20294
 }
 
 function SUDO_Setup_Build_Database_SUDO
 {
-        if `test -f $SVNROOT/build/state_db_setup_459` ; then
+        if `test -f $SVNROOT/build/state_db_setup_20294` ; then
                 return 0
         fi
 

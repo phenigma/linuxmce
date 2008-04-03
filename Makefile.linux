@@ -178,11 +178,11 @@ db_backup: sudo
 db_restore: sudo
 	@${RUN} ${SVNROOT} SUDO_Restore_Database_SUDO
 
-build/state_db_setup_459:
+build/state_db_setup_20294:
 	@${RUN} ${SVNROOT} SUDO_Setup_Build_Database_SUDO ${DB_USER} ${DB_PASSWORD} ${DB_PORT}
-	@touch build/state_db_setup_459
+	@touch build/state_db_setup_20294
 
-setup_build_db: build/state_db_setup_459
+setup_build_db: build/state_db_setup_20294
 
 start_build_db: setup_build_db
 	@${RUN} ${SVNROOT} SUDO_Start_Build_Database_SUDO
@@ -232,6 +232,15 @@ build_usb_uirt:
 build_irbase:
 	@${RUN} ${SVNROOT} Run_MakeRelease ${DB_USER} ${DB_PASSWORD} ${DB_PORT} mkr_irbase
 
+build_messagetranslation:
+	@${RUN} ${SVNROOT} Run_MakeRelease ${DB_USER} ${DB_PASSWORD} ${DB_PORT}  mkr_messagetranslation
+
+build_serial:
+	@${RUN} ${SVNROOT} Run_MakeRelease ${DB_USER} ${DB_PASSWORD} ${DB_PORT}  mkr_serial
+
+build_irtrans:
+	@${RUN} ${SVNROOT} Run_MakeRelease ${DB_USER} ${DB_PASSWORD} ${DB_PORT} mkr_irtrans
+
 build_tira:
 	@${RUN} ${SVNROOT} Run_MakeRelease ${DB_USER} ${DB_PASSWORD} ${DB_PORT} mkr_tira
 
@@ -241,6 +250,28 @@ build_xine_player:
 build_xine_plugin:
 	@${RUN} ${SVNROOT} Run_MakeRelease ${DB_USER} ${DB_PASSWORD} ${DB_PORT} mkr_xine_plugin
 
+build_mythtv_plugin:
+	@${RUN} ${SVNROOT} Run_MakeRelease ${DB_USER} ${DB_PASSWORD} ${DB_PORT} mkr_mythtv_plugin
+
+build_mythtv_player:
+	@${RUN} ${SVNROOT} Run_MakeRelease ${DB_USER} ${DB_PASSWORD} ${DB_PORT} mkr_mythtv_player
+
+build_main_database_packages:
+	@${RUN} ${SVNROOT} Run_MakeRelease ${DB_USER} ${DB_PASSWORD} ${DB_PORT} mkr_system_database_package
+	@${RUN} ${SVNROOT} Run_MakeRelease ${DB_USER} ${DB_PASSWORD} ${DB_PORT} mkr_local_database_package
+
+build_base_database_packages:
+	@${RUN} ${SVNROOT} Run_MakeRelease ${DB_USER} ${DB_PASSWORD} ${DB_PORT} mkr_media_database_package
+	@${RUN} ${SVNROOT} Run_MakeRelease ${DB_USER} ${DB_PASSWORD} ${DB_PORT} mkr_security_database_package
+
+build_videolan_plugin_common:
+	@${RUN} ${SVNROOT} Run_MakeRelease ${DB_USER} ${DB_PASSWORD} ${DB_PORT} mkr_videolan_plugin_common
+
+build_videolan_plugin_server:
+	@${RUN} ${SVNROOT} Run_MakeRelease ${DB_USER} ${DB_PASSWORD} ${DB_PORT} mkr_videolan_server
+
+build_videolan_plugin_client:
+	@${RUN} ${SVNROOT} Run_MakeRelease ${DB_USER} ${DB_PASSWORD} ${DB_PORT} mkr_videolan_plugin_client
 
 deps:
 	@mkdir -p  build/tmp/home/
