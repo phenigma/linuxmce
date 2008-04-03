@@ -4,7 +4,7 @@
 # Motion_Wrapper for pipeing video1394 content into them.
 
 PipeDevOffset=10
-PipeCount=8
+PipeCount=4
 
 modprobe video1394
 modprobe raw1394
