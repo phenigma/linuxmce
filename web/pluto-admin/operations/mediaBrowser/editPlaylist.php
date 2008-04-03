@@ -276,7 +276,8 @@ function editPlaylist($output,$mediadbADO,$dbADO) {
 
 		if($_FILES['ppic']['name']!==''){
 			$newPic=uploadPicture($_FILES['ppic'],$mediadbADO);
-			if($picID!==false){
+
+			if($newPic!==false){
 				$mediadbADO->Execute('UPDATE Playlist SET FK_Picture=? WHERE PK_Playlist=?',array($newPic,$playlistID));
 			}
 		}
@@ -332,10 +333,7 @@ function uploadPicture($fileArray,$mediadbADO){
 
 		if(move_uploaded_file($fileArray['tmp_name'],$GLOBALS['mediaPicsPath'].$newPlaylistPictureName)){
 			// create thumbnail
-			$resizeFlag=resizeImage($GLOBALS['mediaPicsPath'].$newPlaylistPictureName, $GLOBALS['mediaPicsPath'].$pictureID.'_tn.'.$picExtension, 256, 256);
-			if($resizeFlag!==0){
-				$error='Thumbnail not created';
-			}
+			resizeImage($GLOBALS['mediaPicsPath'].$newPlaylistPictureName, $GLOBALS['mediaPicsPath'].$pictureID.'_tn.'.$picExtension, 256, 256);
 		}
 	}
 	return (isset($error))?false:$pictureID;
