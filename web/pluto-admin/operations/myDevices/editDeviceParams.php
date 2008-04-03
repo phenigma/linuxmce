@@ -708,8 +708,8 @@ $manualyConfigureArray=array(
 
 		foreach ($selectedDateArray as $elem) {
 			if(isset($_POST['oldDeviceData_'.$deviceID.'_'.$elem])){
-				$value=@$_POST['deviceData_'.$deviceID.'_'.$elem];
-				$oldDeviceData=@$_POST['oldDeviceData_'.$deviceID.'_'.$elem];
+				$value=cleanString(@$_POST['deviceData_'.$deviceID.'_'.$elem]);
+				$oldDeviceData=cleanString(@$_POST['oldDeviceData_'.$deviceID.'_'.$elem]);
 				$isDisabled=(int)@$_POST['isDisabled_'.$deviceID.'_'.$elem];
 				
 				if($oldDeviceData!=$value && $isDisabled!=1){

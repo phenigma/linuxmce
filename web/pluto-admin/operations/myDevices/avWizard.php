@@ -416,8 +416,8 @@ function avWizard($output,$dbADO) {
 					}
 					
 					foreach($DeviceDataToDisplayArray as $ddValue){
-						$deviceData=(isset($_POST['deviceData_'.$value.'_'.$ddValue]))?$_POST['deviceData_'.$value.'_'.$ddValue]:0;
-						$oldDeviceData=@$_POST['oldDeviceData_'.$value.'_'.$ddValue];
+						$deviceData=(isset($_POST['deviceData_'.$value.'_'.$ddValue]))?cleanString($_POST['deviceData_'.$value.'_'.$ddValue]):0;
+						$oldDeviceData=cleanString(@$_POST['oldDeviceData_'.$value.'_'.$ddValue]);
 						if($oldDeviceData!=$deviceData){
 							if($oldDeviceData=='NULL'){
 								$insertDDD='

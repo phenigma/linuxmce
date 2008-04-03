@@ -298,8 +298,8 @@ function devices($output,$dbADO) {
 
 				foreach($DeviceDataToDisplayArray as $ddValue){
 					if(isset($_POST['oldDeviceData_'.$value.'_'.$ddValue])){
-						$deviceData=@$_POST['deviceData_'.$value.'_'.$ddValue];
-						$oldDeviceData=@$_POST['oldDeviceData_'.$value.'_'.$ddValue];
+						$deviceData=cleanString(@$_POST['deviceData_'.$value.'_'.$ddValue]);
+						$oldDeviceData=cleanString(@$_POST['oldDeviceData_'.$value.'_'.$ddValue]);
 						$isDisabled=(int)@$_POST['isDisabled_'.$value.'_'.$ddValue];
 						if($oldDeviceData!=$deviceData && $isDisabled!=1){
 							if($oldDeviceData=='NULL'){
