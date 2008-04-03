@@ -340,9 +340,9 @@ bool Motion_Wrapper::CreateVideoDeviceFor1394(DeviceData_Impl* pDeviceData) {
 
 	dc1394_pid = fork();
 	if( dc1394_pid == 0 )
-        {
-		// V4L devices for video1394 get piped to: 30 + ( video1394# - 1) * 2 [ video30, video32 ]
-		string v4lParam = "--vloopback=/dev/video"+StringUtils::itos(atoi(sDevice.c_str()) * 2 + 30);
+        {	// dc_1394 --video1394=/dev/video1394/0 --vloopback=/dev/video10
+		// V4L devices for video1394 get piped to: 10 + ( video1394/# ) * 2 [ video1394/0 -> video10 -> video11 ]
+		string v4lParam = "--vloopback=/dev/video"+StringUtils::itos(atoi(sDevice.c_str()) * 2 + 10);
 		string ieeeParam = "--video1394=/dev/video1394/"+sDevice;
 					
                 LoggerWrapper::GetInstance()->Write(LV_STATUS, "In child process.");
@@ -407,7 +407,7 @@ bool Motion_Wrapper::AddChildDeviceToConfigFile(std::ofstream& conffile, DeviceD
 	} else {
 		if(!sDevice.empty()) {		
 			if (pDeviceData->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Generic_Firewire_Camera_CONST) {		
-				conffile	<< "videodevice /dev/video" << StringUtils::itos(atoi(sDevice.c_str()) * 2 + 31) << endl;
+				conffile	<< "videodevice /dev/video" << StringUtils::itos(atoi(sDevice.c_str()) * 2 + 11) << endl;
 			} else {
 				conffile 	<< "videodevice /dev/video" << sDevice << endl;		
 			}
