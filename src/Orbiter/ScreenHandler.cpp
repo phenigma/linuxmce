@@ -2604,6 +2604,9 @@ void ScreenHandler::SaveFile_SendCommand(int PK_Users)
 		if(pObj->m_iBaseObjectID == DESIGNOBJ_mapTelecom_CONST)
 		{
 			bool bCallInProgress = !m_pOrbiter->m_mapVariable_Find(VARIABLE_My_Call_ID_CONST).empty();
+
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "My call %s", m_pOrbiter->m_mapVariable_Find(VARIABLE_My_Call_ID_CONST).c_str());
+
 			m_pOrbiter->CMD_Show_Object(TOSTRING(DESIGNOBJ_mapTelecom_CONST) ".0.0." TOSTRING(DESIGNOBJ_butCallInProgress_CONST), 0, "", "", 
 				bCallInProgress ? "1" : "0");
 
@@ -4302,6 +4305,8 @@ void ScreenHandler::RefreshActiveCallsButtons()
 {
 	string sCurrentCall = m_pOrbiter->m_mapVariable_Find(VARIABLE_Current_Call_CONST);
 	string sMyCall = m_pOrbiter->m_mapVariable_Find(VARIABLE_My_Call_ID_CONST);
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Current call %s, my call %s", sCurrentCall.c_str(), sMyCall.c_str());
 
 	bool bActiveCallsPresent = !sCurrentCall.empty();
 	m_pOrbiter->CMD_Show_Object(TOSTRING(DESIGNOBJ_mnuActiveCalls_CONST) ".0.0." TOSTRING(DESIGNOBJ_butJoin_CONST), 0, "", "", 
