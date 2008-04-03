@@ -2603,9 +2603,9 @@ void ScreenHandler::SaveFile_SendCommand(int PK_Users)
 	{
 		if(pObj->m_iBaseObjectID == DESIGNOBJ_mapTelecom_CONST)
 		{
-			bool bCallInProgress = !m_pOrbiter->m_mapVariable_Find(VARIABLE_My_Call_ID_CONST).empty();
+			bool bCallInProgress = !m_sMyCallID.empty();
 
-			LoggerWrapper::GetInstance()->Write(LV_STATUS, "My call %s", m_pOrbiter->m_mapVariable_Find(VARIABLE_My_Call_ID_CONST).c_str());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "SCREEN_Floorplan my call %s", m_sMyCallID.c_str());
 
 			m_pOrbiter->CMD_Show_Object(TOSTRING(DESIGNOBJ_mapTelecom_CONST) ".0.0." TOSTRING(DESIGNOBJ_butCallInProgress_CONST), 0, "", "", 
 				bCallInProgress ? "1" : "0");
@@ -3669,8 +3669,10 @@ void ScreenHandler::SCREEN_Active_Calls(long PK_Screen)
 
 	m_pOrbiter->StartScreenHandlerTimer(2000);
 
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "SCREEN_Active_Calls my call %s", m_sMyCallID.c_str());
+
 	m_pOrbiter->CMD_Show_Object(TOSTRING(DESIGNOBJ_mnuActiveCalls_CONST) ".0.0." TOSTRING(DESIGNOBJ_butCallInProgress_CONST), 0, "", "", 
-		m_pOrbiter->m_mapVariable_Find(VARIABLE_My_Call_ID_CONST).empty() ? "0" : "1");
+		m_sMyCallID.empty() ? "0" : "1");
 
 	RefreshActiveCallsButtons();
 }
@@ -3700,6 +3702,9 @@ void ScreenHandler::SCREEN_MakeCallDevice(long PK_Screen)
 void ScreenHandler::SCREEN_DevCallInProgress(long PK_Screen, string sPhoneCallerID, string sPhoneCallID, 
 	string sChannel)
 {
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "SCREEN_DevCallInProgress called with caller id %s, call id %s, channel %s",
+		sPhoneCallerID.c_str(), sPhoneCallID.c_str(), sChannel.c_str());
+
 	if(!sPhoneCallerID.empty())
 		m_pOrbiter->CMD_Set_Variable(VARIABLE_My_Caller_ID_CONST, sPhoneCallerID);
 
@@ -3707,6 +3712,13 @@ void ScreenHandler::SCREEN_DevCallInProgress(long PK_Screen, string sPhoneCaller
 	{
 		m_pOrbiter->CMD_Set_Variable(VARIABLE_My_Call_ID_CONST, sPhoneCallID);
 		m_pOrbiter->CMD_Set_Variable(VARIABLE_Current_Call_CONST, sPhoneCallID);
+		m_sMyCallID = sPhoneCallID;
+
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "SCREEN_DevCallInProgress : my call is now %s", m_sMyCallID.c_str());
+	}
+	else
+	{
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "SCREEN_DevCallInProgress : phone call id is empty!");
 	}
 
 	if(!sChannel.empty())
@@ -3762,6 +3774,9 @@ void ScreenHandler::SCREEN_Call_Dropped(long PK_Screen, string sReason)
 {
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_My_Channel_ID_CONST, "");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_My_Call_ID_CONST, "");
+	m_sMyCallID.clear();
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "SCREEN_Call_Dropped : my call is now %s", m_sMyCallID.c_str());
 
 	if(
 		GetCurrentScreen_PK_DesignObj() == DESIGNOBJ_devCallInProgress_CONST			|| 
@@ -4104,15 +4119,21 @@ bool ScreenHandler::ActiveCalls_RemoveFromActiveCall()
 //-----------------------------------------------------------------------------------------------------
 bool ScreenHandler::ActiveCalls_CallInProgress()
 {
-	string sCurrentCall = m_pOrbiter->m_mapVariable_Find(VARIABLE_My_Call_ID_CONST);
+	string sCurrentCall = m_sMyCallID;
 
 	if(sCurrentCall.empty())
 		sCurrentCall = m_pOrbiter->m_mapVariable_Find(VARIABLE_Current_Call_CONST);
 
 	string sPhoneCallerID = m_pOrbiter->m_mapVariable_Find(VARIABLE_My_Caller_ID_CONST);
 	string sChannel = m_pOrbiter->m_mapVariable_Find(VARIABLE_My_Channel_ID_CONST);
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "ActiveCalls_CallInProgress my call %s", m_sMyCallID.c_str());
 	
-	SCREEN_DevCallInProgress(SCREEN_DevCallInProgress_CONST, sPhoneCallerID, sCurrentCall, sChannel);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "ActiveCalls_CallInProgress calling SCREEN_DevCallInProgress with "
+		"caller id %s, call id %s, channel %s",
+		sPhoneCallerID.c_str(), m_sMyCallID.c_str(), sChannel.c_str());
+
+	SCREEN_DevCallInProgress(SCREEN_DevCallInProgress_CONST, sPhoneCallerID, m_sMyCallID, sChannel);
 
 	return true;
 }
@@ -4254,7 +4275,7 @@ void ScreenHandler::HandleAssistedMakeCall(int iPK_Users,string sPhoneExtension,
 			//2) {X,Y,A} & {B,C} => {X,Y} & {A,B,C} 
 
 			string sMyChannel = m_pOrbiter->m_mapVariable_Find(VARIABLE_My_Channel_ID_CONST);
-			string sMyCall = m_pOrbiter->m_mapVariable_Find(VARIABLE_My_Call_ID_CONST);
+			string sMyCall = m_sMyCallID;
 
 			string sTaskID;
 			DCE::CMD_Assisted_Transfer cmd_Assisted_Transfer(
@@ -4304,7 +4325,7 @@ void ScreenHandler::HandleAssistedMakeCall(int iPK_Users,string sPhoneExtension,
 void ScreenHandler::RefreshActiveCallsButtons()
 {
 	string sCurrentCall = m_pOrbiter->m_mapVariable_Find(VARIABLE_Current_Call_CONST);
-	string sMyCall = m_pOrbiter->m_mapVariable_Find(VARIABLE_My_Call_ID_CONST);
+	string sMyCall = m_sMyCallID;
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Current call %s, my call %s", sCurrentCall.c_str(), sMyCall.c_str());
 
