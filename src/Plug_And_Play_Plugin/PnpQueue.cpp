@@ -420,6 +420,8 @@ bool PnpQueue::Process_Detect_Stage_Confirm_Possible_DT(PnpQueueEntry *pPnpQueue
 	string sSqlWhere;
 	if( pPnpQueueEntry->m_pRow_PnpQueue->MACaddress_get().size() )
 		sSqlWhere += (sSqlWhere.size() ? " AND " : "") + string("MacAddress like '%") + pPnpQueueEntry->m_pRow_PnpQueue->MACaddress_get() + "%'";
+if( pPnpQueueEntry->m_pRow_PnpQueue->VendorModelId_get().find("13c11")!=string::npos )
+int k=2;
 
 	if( pPnpQueueEntry->m_pRow_PnpQueue->VendorModelId_get().size() )
 		sSqlWhere += (sSqlWhere.size() ? " AND " : "") + string("'") + pPnpQueueEntry->m_pRow_PnpQueue->VendorModelId_get() + string("' like concat(VendorModelID,'%') and VendorModelID != ''");
@@ -506,6 +508,14 @@ bool PnpQueue::Process_Detect_Stage_Confirm_Possible_DT(PnpQueueEntry *pPnpQueue
 				continue; // Don't do this if the serial number doesn't match
 			if( !bMatchingCategory && pRow_DHCPDevice->Parms_get().size() && pPnpQueueEntry->m_pRow_PnpQueue->Parms_get().find(pRow_DHCPDevice->Parms_get())==string::npos )
 				continue; // Don't do this if the serial number doesn't match
+			if( !bMatchingCategory && pRow_DHCPDevice->Category_get().size() && pPnpQueueEntry->m_pRow_PnpQueue->Category_get()!=pRow_DHCPDevice->Category_get() )
+			{
+#ifdef DEBUG
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Confirm_Possible_DT queue %d skipping PK_DHCPDevice %d because category %s doesn't match",
+				pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),vectRow_DHCPDevice[0]->PK_DHCPDevice_get(),pPnpQueueEntry->m_pRow_PnpQueue->Category_get().c_str());
+#endif
+				continue; // Don't do this if a category is specified and it doesn't match
+			}
 
 			pPnpQueueEntry->m_mapPK_DHCPDevice_possible[pRow_DHCPDevice->PK_DHCPDevice_get()]=pRow_DHCPDevice;  // This is a possibility
 		}
