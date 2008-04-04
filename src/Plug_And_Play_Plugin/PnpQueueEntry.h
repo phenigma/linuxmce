@@ -38,7 +38,8 @@ namespace DCE
 		friend class Pnp_PreCreateOptions;
 		friend class Pnp_PostCreateOptions;
 
-		bool m_bCreateWithoutPrompting;
+		bool m_bCreateWithoutPrompting,  // Create the device without prompting
+			m_bUseAllOrbitersForPrompt;  // The user isn't responding on the default orbiters, ask on all orbiters so this entry isn't blocked forever
 		typedef enum { pnpqe_blocked_none=0, 
 			pnpqe_blocked_running_detection_scripts=1, 
 			pnpqe_blocked_prompting_device_template=2, 
@@ -56,7 +57,7 @@ namespace DCE
 		time_t m_tTimeBlocked;
 		Database_pluto_main *m_pDatabase_pluto_main;
 		Row_PnpQueue *m_pRow_PnpQueue;
-		class OH_Orbiter *m_pOH_Orbiter; // The Orbiter to use for displaying messages
+		class OH_Orbiter *m_pOH_Orbiter_Active; // The Orbiter to use for displaying messages
 		map<int,Row_DHCPDevice *> m_mapPK_DHCPDevice_possible;
 		int m_iPK_DHCPDevice,m_dwPK_Device_TopLevel,m_dwPK_PnpQueue_BlockingFor,m_iPK_Room;
 		map<int,string> m_mapPK_DeviceData;
@@ -116,6 +117,11 @@ namespace DCE
 		bool CompareParms(PnpQueueEntry *pPnpQueueEntry);  // Compare the parameters and return true if they're the same
 		string StageAsText();
 		string ToString();
+
+		void m_pOH_Orbiter_Active_set(int PK_Device);   // The that is the user is currently responding to questions with
+		void m_pOH_Orbiter_Active_set(OH_Orbiter *pOH_Orbiter);   // Called by the prior
+		class OH_Orbiter *m_pOH_Orbiter_Active_get() { return m_pOH_Orbiter_Active; }
+		void UseAllOrbitersForPrompt(); // Call this to use all orbiter for the prompts because the user isn't responding to the default ones
 	};
 }
 

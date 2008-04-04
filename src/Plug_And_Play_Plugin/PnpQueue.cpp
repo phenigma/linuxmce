@@ -695,6 +695,7 @@ bool PnpQueue::Process_Detect_Stage_Prompting_User_For_DT(PnpQueueEntry *pPnpQue
 #ifdef DEBUG
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Prompting_User_For_DT user didn't respond to queue %d",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
 #endif
+		pPnpQueueEntry->UseAllOrbitersForPrompt();
 	}
 
 	if( DetermineOrbitersForPrompting(pPnpQueueEntry,true)==false )
@@ -928,7 +929,7 @@ bool PnpQueue::Process_Detect_Stage_Add_Device(PnpQueueEntry *pPnpQueueEntry)
 		pRow_DeviceTemplate->PK_DeviceTemplate_get(), pPnpQueueEntry->m_pRow_PnpQueue->MACaddress_get(), pPnpQueueEntry->m_iPK_Room, pPnpQueueEntry->m_pRow_PnpQueue->IPaddress_get(),
 		pPnpQueueEntry->DeviceDataAsString(),pPnpQueueEntry->m_iPK_DHCPDevice,0 /* let it find the parent based on the relationship */,
 		pPnpQueueEntry->m_sDescription,
-		pPnpQueueEntry->m_pOH_Orbiter ? pPnpQueueEntry->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device : 0,
+		pPnpQueueEntry->m_pOH_Orbiter_Active_get() ? pPnpQueueEntry->m_pOH_Orbiter_Active_get()->m_pDeviceData_Router->m_dwPK_Device : 0,
 		PK_Device_Related,&iPK_Device);
 
 	m_pPlug_And_Play_Plugin->SendCommand(CMD_Create_Device);
@@ -1602,12 +1603,12 @@ void PnpQueue::ReadOutstandingQueueEntries()
 
 bool PnpQueue::DetermineOrbitersForPrompting(PnpQueueEntry *pPnpQueueEntry,bool bBlockIfNone)
 {
-	if( pPnpQueueEntry->m_pRow_PnpQueue->FK_CommMethod_get()==COMMMETHOD_Ethernet_CONST ) // This is universal, could be anywhere, ask on all orbiters
+	if( pPnpQueueEntry->m_pRow_PnpQueue->FK_CommMethod_get()==COMMMETHOD_Ethernet_CONST || pPnpQueueEntry->m_bUseAllOrbitersForPrompt ) // This is universal, could be anywhere, ask on all orbiters
 	{
 		pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts=m_pPlug_And_Play_Plugin->m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters_get();
 #ifdef DEBUG
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"PnpQueue::DetermineOrbitersForPrompting queue %d use all orbiters: %s",
-			pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"PnpQueue::DetermineOrbitersForPrompting queue %d use all orbiters (%d): %s",
+			pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),(int) pPnpQueueEntry->m_bUseAllOrbitersForPrompt, pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts.c_str());
 #endif
 	}
 	else

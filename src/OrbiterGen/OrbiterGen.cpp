@@ -1666,13 +1666,6 @@ loop_to_keep_looking_for_objs_to_include:
 		for(listDesignObj_Generator::iterator itlcgo=o->begin();itlcgo!=o->end();++itlcgo)
 		{
 			DesignObj_Generator *oco = (*itlcgo);
-	if( oco->m_pRow_DesignObj->PK_DesignObj_get()==5362 || oco->m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Go_CONST || oco->m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Keyword_Search_CONST )
-	{
-		LoggerWrapper::GetInstance()->Write(LV_WARNING,"orbitergenloop %d 1 DESIGNOBJ_butFBSF_Go_CONST %d,%d-%d,%d %d,%d-%d,%d cache %d scale %d",oco->m_pRow_DesignObj->PK_DesignObj_get(),
-			oco->m_rPosition.X,oco->m_rPosition.Y,oco->m_rPosition.Width,oco->m_rPosition.Height,
-			oco->m_rBackgroundPosition.X,oco->m_rBackgroundPosition.Y,oco->m_rBackgroundPosition.Width,oco->m_rBackgroundPosition.Height,
-			(int) oco->m_bUsingCache,(int) oco->m_bDontScale);
-	}
 
 			if( !oco->m_bUsingCache )
 			{
@@ -1818,7 +1811,6 @@ loop_to_keep_looking_for_objs_to_include:
 					StringUtils::itos(oco->m_pRow_DesignObj->PK_DesignObj_get()) + "." + StringUtils::itos(oco->m_iVersion) + "." + 
 					StringUtils::itos((int) StringUtils::SQLDateTime(oco->m_pRow_DesignObj->psc_mod_get())) + ".cache";
 
-LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"checking for 5362.  write1. file: %s position x=%d y=%d w=%d h=%d", Filename.c_str(), oco->m_rPosition.X, oco->m_rPosition.Y, oco->m_rPosition.Width, oco->m_rPosition.Height);
 				oco->SerializeWrite(Filename);
 				oco->WriteRegenVersion(Filename+".regen");
 				if( oco->m_iNumFloorplanItems )
