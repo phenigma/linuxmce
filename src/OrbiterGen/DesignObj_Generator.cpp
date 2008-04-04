@@ -1257,6 +1257,9 @@ LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"checking for 5362-15.  id %s po
 					m_rPosition.Right(oco->m_rPosition.Right());
 					m_rPosition.Bottom(oco->m_rPosition.Bottom());
 				}
+LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"checking for 5362-15b.  id %s position x=%d y=%d w=%d h=%d child %s x=%d y=%d w=%d h=%d", 
+m_ObjectID.c_str(), m_rPosition.X, m_rPosition.Y, m_rPosition.Width, m_rPosition.Height,
+oco->m_ObjectID.c_str(), oco->m_rPosition.X, oco->m_rPosition.Y, oco->m_rPosition.Width, oco->m_rPosition.Height);
             }
         }
     }
