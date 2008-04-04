@@ -2335,6 +2335,9 @@ void Orbiter::InitializeGrid( DesignObj_DataGrid *pObj )
 			LoggerWrapper::GetInstance()->Write( LV_WARNING, "Populate datagrid: %d failed", pObj->m_iPK_Datagrid );
 		else if(iPK_Variable)
 			CMD_Set_Variable(iPK_Variable, sValue_To_Assign);
+
+		if( (pObj->m_GridCurCol>0 && pObj->m_GridCurCol >= pObj->m_iPopulatedWidth) || (pObj->m_GridCurRow>0 && pObj->m_GridCurRow >= pObj->m_iPopulatedHeight) )
+			pObj->m_GridCurCol = pObj->m_GridCurRow = 0;
 	}
 	if( pObj->m_sExtraInfo.find('S')!=string::npos && !pObj->sSelVariable.empty(  ) )
 	{

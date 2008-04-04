@@ -6496,7 +6496,7 @@ void Media_Plugin::CMD_Live_AV_Path(string sPK_EntertainArea,bool bTurn_On,strin
 
 		// We don't want to be setting the inputs to the 'live' a/v path because we're using the capture card
 		for(map<int,Pipe *>::iterator it=pMediaDevice->m_pDeviceData_Router->m_mapPipe_Available.begin();it!=pMediaDevice->m_pDeviceData_Router->m_mapPipe_Available.end();++it)
-			it->second->m_bDontSendInputs=bTurn_On==false;  // If Turn on is true, then we want to send the inputs
+			it->second->m_bDontSendInputs=(bTurn_On==false);  // If Turn on is true, then we want to send the inputs
 
 		pEntertainArea->m_bViewingLiveAVPath = bTurn_On;
 

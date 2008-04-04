@@ -249,10 +249,13 @@ string MediaFileBrowserOptions::HumanReadable()
 		+ m_pOrbiter->m_mapPK_AttributeType_Description[ m_PK_AttributeType_Sort ];
 
 	string sFilter;
-	if( m_listPK_Attribute_Description.size() )
-		sFilter = m_listPK_Attribute_Description.front().second;
+	if( m_listMediaFileAttributeDrillDown.size() )
+	{
+		MediaFileAttributeDrillDown *pMediaFileAttributeDrillDown = m_listMediaFileAttributeDrillDown.front();
+		sFilter = pMediaFileAttributeDrillDown->m_sDescription;
+	}
 
-	bool bHide = m_listPK_Attribute_Description.empty();
+	bool bHide = m_listMediaFileAttributeDrillDown.empty();
 	DesignObj_Orbiter *pObj_Back = m_pOrbiter->FindObject(TOSTRING(DESIGNOBJ_popFileList_CONST) ".0.0." TOSTRING(DESIGNOBJ_butFileBrowserBack_CONST));
 	if( pObj_Back && pObj_Back->m_bHidden != bHide )
 	{
@@ -396,6 +399,29 @@ bool ScreenHandler::MediaBrowser_Render(CallBackData *pData)
 		pText->m_sText = mediaFileBrowserOptions.HumanReadable();
 		pObj->m_bHidden = pText->m_sText.empty();
 	}
+
+	if( mediaFileBrowserOptions.m_bRestoreListGridRow )
+	{
+		mediaFileBrowserOptions.m_bRestoreListGridRow=false;
+		if( mediaFileBrowserOptions.m_pObj_ListGrid && mediaFileBrowserOptions.m_pObj_PicGrid )
+		{
+			mediaFileBrowserOptions.m_pObj_ListGrid->m_GridCurRow = mediaFileBrowserOptions.m_iLastRowBeforeMediaFileSelect_ListGrid;
+			mediaFileBrowserOptions.m_pObj_PicGrid->m_GridCurRow = mediaFileBrowserOptions.m_pObj_ListGrid->m_GridCurRow / mediaFileBrowserOptions.m_pObj_PicGrid->m_MaxCol;
+		}
+	}
+
+	if( mediaFileBrowserOptions.m_pObj_ListGrid && mediaFileBrowserOptions.m_pObj_PicGrid && mediaFileBrowserOptions.m_pObj_ListGrid->m_GridCurRow >= mediaFileBrowserOptions.m_pObj_ListGrid->m_iPopulatedHeight )
+	{
+		// If we have deleted some files, the list may have shrunk and we are going back to a point that's past the end of the list
+		mediaFileBrowserOptions.m_pObj_ListGrid->m_GridCurRow = ((mediaFileBrowserOptions.m_pObj_ListGrid->m_iPopulatedHeight-1) / mediaFileBrowserOptions.m_pObj_ListGrid->m_MaxRow) * mediaFileBrowserOptions.m_pObj_ListGrid->m_MaxRow;
+		mediaFileBrowserOptions.m_pObj_PicGrid->m_GridCurRow = mediaFileBrowserOptions.m_pObj_ListGrid->m_GridCurRow / mediaFileBrowserOptions.m_pObj_PicGrid->m_MaxCol;
+	}
+	if( mediaFileBrowserOptions.m_pObj_ListGrid && mediaFileBrowserOptions.m_pObj_PicGrid && mediaFileBrowserOptions.m_pObj_ListGrid->m_GridCurRow<0 )
+	{
+		// Be sure we're not at a point above the top of the list.  This can happen if we delete all the records in a grid and the 
+		// above blocks scrolls us up past the top.  Put the check here just so we catch anything else that may move us past the top
+		mediaFileBrowserOptions.m_pObj_ListGrid->m_GridCurRow = mediaFileBrowserOptions.m_pObj_PicGrid->m_GridCurRow = 0;
+	}
 	return false;
 }
 //-----------------------------------------------------------------------------------------------------
@@ -404,6 +430,7 @@ bool ScreenHandler::MediaBrowser_ObjectSelected(CallBackData *pData)
 	ObjectInfoBackData *pObjectInfoData = (ObjectInfoBackData *)pData;
 
 	PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_ScreenMutex);
+	bool bChangedSortFilter=false;
 
 	if( pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_icoVertAlpha_CONST && mediaFileBrowserOptions.m_pObj_ListGrid && mediaFileBrowserOptions.m_pObj_PicGrid )
 	{
@@ -543,10 +570,16 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::MediaBrowser_Objec
 	}
 	else if( pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butFileBrowserBack_CONST )
 	{
-		if( mediaFileBrowserOptions.m_listPK_Attribute_Description.size() )
+		if( mediaFileBrowserOptions.m_listMediaFileAttributeDrillDown.size() )
 		{
 			mediaFileBrowserOptions.ReacquireGrids();
-			mediaFileBrowserOptions.m_listPK_Attribute_Description.pop_front();
+
+			MediaFileAttributeDrillDown *pMediaFileAttributeDrillDown = mediaFileBrowserOptions.m_listMediaFileAttributeDrillDown.front();
+			mediaFileBrowserOptions.m_bRestoreListGridRow = true;
+			mediaFileBrowserOptions.m_iLastRowBeforeMediaFileSelect_ListGrid = pMediaFileAttributeDrillDown->m_iLastRow_ListGrid;
+			delete pMediaFileAttributeDrillDown;
+
+			mediaFileBrowserOptions.m_listMediaFileAttributeDrillDown.pop_front();
 			if( mediaFileBrowserOptions.m_listPK_AttributeType_Sort_Prior.size() )
 			{
 				mediaFileBrowserOptions.m_PK_AttributeType_Sort = mediaFileBrowserOptions.m_listPK_AttributeType_Sort_Prior.front();
@@ -559,17 +592,37 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::MediaBrowser_Objec
 
 		AudioServer_PopulateDatagrid();
 		mediaFileBrowserOptions.ReacquireGrids();
-		MediaBrowser_Render(NULL);
 		m_pOrbiter->CMD_Refresh("*");
+		MediaBrowser_Render(NULL);
 		return false;
 	}
 	else if( pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butFBSF_Go_CONST )  // UI 1's Go
 	{
 		mediaFileBrowserOptions.ReacquireGrids();
 	}
+	else if( pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butPINGo_CONST && mediaFileBrowserOptions.m_pObj_Users_EnteringPin && mediaFileBrowserOptions.m_iPK_Users_EnteringPin )  // user entered a PIN
+	{
+		string sPin = m_pOrbiter->m_mapVariable_Find(VARIABLE_Datagrid_Input_CONST);
+		bool bValid=false;
+		DCE::CMD_Verify_PIN CMD_Verify_PIN(m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device_SecurityPlugIn,
+			mediaFileBrowserOptions.m_iPK_Users_EnteringPin,sPin,&bValid);
+		if( m_pOrbiter->SendCommand(CMD_Verify_PIN) && bValid )
+		{
+			mediaFileBrowserOptions.m_pObj_Users_EnteringPin->m_GraphicToDisplay_set("sh19",GRAPHIC_SELECTED,false,true);
+			mediaFileBrowserOptions.m_sPK_Users_Private += "," + StringUtils::itos(mediaFileBrowserOptions.m_iPK_Users_EnteringPin);
+			bChangedSortFilter=true;
+			m_pOrbiter->CMD_Go_back("","");
+		}
+		else
+		{
+			DisplayMessageOnOrbiter(0, "<%=T" + StringUtils::itos(TEXT_Invalid_PIN_CONST) + "%>");
+			mediaFileBrowserOptions.m_iPK_Users_EnteringPin = 0;
+			mediaFileBrowserOptions.m_pObj_Users_EnteringPin = NULL;
+		}
+		return true;
+	}
 	else if( pObjectInfoData->m_pObj && pObjectInfoData->m_pObj->m_pParentObject )
 	{
-		bool bChangedSortFilter=false;
 		switch( pObjectInfoData->m_pObj->m_pParentObject->m_iBaseObjectID )
 		{
 		case DESIGNOBJ_popFBSF_Genres_CONST:
@@ -588,6 +641,22 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::MediaBrowser_Objec
 			bChangedSortFilter=true;
 			break;
 		case DESIGNOBJ_grpPrivateMedia_CONST:
+			{
+				// If the user is choosing private media we need to ask for a PIN code.  Be sure the user is turning 'on' the private media
+				int iPK_Array = atoi(pObjectInfoData->m_pObj->GetVariableAssignment(VARIABLE_PK_Array_CONST).c_str());
+				string sPK_Users = pObjectInfoData->m_pObj->GetVariableAssignment(VARIABLE_Array_ID_CONST);
+				string::size_type p1 = mediaFileBrowserOptions.m_sPK_Users_Private.find("," + sPK_Users + ",");
+				string::size_type p2 = mediaFileBrowserOptions.m_sPK_Users_Private.find("," + sPK_Users);
+				// If we're turning on a user and it's not already in the middle or end of the active list (ie we're turning it on not off)
+				if( iPK_Array==ARRAY_All_Users_CONST && atoi(sPK_Users.c_str())>0 && p1==string::npos && (p2==string::npos || p2!=mediaFileBrowserOptions.m_sPK_Users_Private.size()-sPK_Users.size()-1) )
+				{
+					mediaFileBrowserOptions.m_iPK_Users_EnteringPin = atoi(sPK_Users.c_str());
+					mediaFileBrowserOptions.m_pObj_Users_EnteringPin = pObjectInfoData->m_pObj;
+					m_pOrbiter->CMD_Goto_DesignObj(0,TOSTRING(DESIGNOBJ_mnuUserPinCode_CONST),"","",false,true);
+					return true;  // We don't want the framework to mark the object as selected
+				}
+			}
+
 			mediaFileBrowserOptions.SelectedArray(pObjectInfoData->m_pObj,ARRAY_All_Users_CONST,mediaFileBrowserOptions.m_sPK_Users_Private,false);
 			bChangedSortFilter=true;
 			break;
@@ -609,14 +678,14 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::MediaBrowser_Objec
 			bChangedSortFilter=true;
 			break;
 		};
-		if( bChangedSortFilter )
-		{
-			mediaFileBrowserOptions.ReacquireGrids();
-			SetMediaSortFilterSelectedObjects();
-			m_pOrbiter->Renderer()->RenderObjectAsync(pObjectInfoData->m_pObj);  // We will be changing the selected state
-			m_pOrbiter->CMD_Refresh("*");
-			return true;  // We don't want the framework to mark the object as selected
-		}
+	}
+	if( bChangedSortFilter )
+	{
+		mediaFileBrowserOptions.ReacquireGrids();
+		SetMediaSortFilterSelectedObjects();
+		m_pOrbiter->Renderer()->RenderObjectAsync(pObjectInfoData->m_pObj);  // We will be changing the selected state
+		m_pOrbiter->CMD_Refresh("*");
+		return true;  // We don't want the framework to mark the object as selected
 	}
 
 	if(m_pOrbiter->m_sSkin == AUDIO_STATION_SKIN)
@@ -646,7 +715,7 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::MediaBrowser_Objec
 
 		if(bChangedSortFilter)
 		{
-			mediaFileBrowserOptions.m_listPK_Attribute_Description.clear();
+			mediaFileBrowserOptions.Clear_m_listMediaFileAttributeDrillDown();
 			mediaFileBrowserOptions.m_listPK_AttributeType_Sort_Prior.clear();
 			AudioServer_PopulateDatagrid();
 			mediaFileBrowserOptions.ReacquireGrids();
@@ -769,6 +838,8 @@ bool ScreenHandler::MediaBrowser_DatagridSelected(CallBackData *pData)
 			return true;
 		}
 
+		if( mediaFileBrowserOptions.m_pObj_ListGrid )
+			mediaFileBrowserOptions.m_iLastRowBeforeMediaFileSelect_ListGrid = mediaFileBrowserOptions.m_pObj_ListGrid->m_GridCurRow;
 		SelectedMediaFile(pCell_List->m_Value);
 
 		return true;  // Otherwise there may be a crash in selected grid since we may have already removed the grid and the cells
@@ -789,8 +860,10 @@ bool ScreenHandler::MediaBrowser_DatagridSelected(CallBackData *pData)
 		}
 		else if( StringUtils::StartsWith(pCellInfoData->m_sValue,"!A") )
 			pCellInfoData->m_sValue = pCellInfoData->m_sValue.substr(2);
+
+		MediaFileAttributeDrillDown *pMediaFileAttributeDrillDown = new MediaFileAttributeDrillDown(atoi(pCellInfoData->m_sValue.c_str()),pCellInfoData->m_sText,0);
 		mediaFileBrowserOptions.m_listPK_AttributeType_Sort_Prior.push_front(mediaFileBrowserOptions.m_PK_AttributeType_Sort);
-		mediaFileBrowserOptions.m_listPK_Attribute_Description.push_front( make_pair<int,string> (atoi(pCellInfoData->m_sValue.c_str()),pCellInfoData->m_sText ));
+		mediaFileBrowserOptions.m_listMediaFileAttributeDrillDown.push_front( pMediaFileAttributeDrillDown );
 		// Reset the sort type back to the title when the user is doing a keyword search
 		mediaFileBrowserOptions.m_PK_AttributeType_Sort = ATTRIBUTETYPE_Title_CONST;
 		mediaFileBrowserOptions.ReacquireGrids();
@@ -911,7 +984,11 @@ void ScreenHandler::SelectedAttributeCell(DataGridCell *pCell)
 	string sName = pCell->m_mapAttributes["Name"];
 	if( sName.empty() && pCell->m_Text )
 		sName = pCell->m_Text;
-	mediaFileBrowserOptions.m_listPK_Attribute_Description.push_front( make_pair<int,string> (atoi(&pCell->m_Value[2]),sName) );
+
+	MediaFileAttributeDrillDown *pMediaFileAttributeDrillDown = new MediaFileAttributeDrillDown(
+		atoi(&pCell->m_Value[2]),sName,
+		mediaFileBrowserOptions.m_pObj_ListGrid ? mediaFileBrowserOptions.m_pObj_ListGrid->m_GridCurRow : 0);
+	mediaFileBrowserOptions.m_listMediaFileAttributeDrillDown.push_front(pMediaFileAttributeDrillDown );
 
 	// If we're browing a collection of attributes, say actors, when we choose
 	// one we no longer want to browsing (or sorting by) that same attribute (actors)
@@ -1722,7 +1799,7 @@ void ScreenHandler::AudioServer_PopulateDatagrid()
 			LoggerWrapper::GetInstance()->Write( LV_WARNING, "Populate datagrid: %d failed", pObj->m_iPK_Datagrid);
 
 		m_pOrbiter->CMD_Show_Object(TOSTRING(DESIGNOBJ_mnuMenuAudioServer_CONST) ".0.0." TOSTRING(DESIGNOBJ_butFileBrowserBack_CONST), 0, "", "", 
-			mediaFileBrowserOptions.m_listPK_Attribute_Description.empty() ? "0" : "1"); 
+			mediaFileBrowserOptions.m_listMediaFileAttributeDrillDown.empty() ? "0" : "1"); 
 	}
 }
 //-----------------------------------------------------------------------------------------------------

@@ -44,19 +44,44 @@ typedef class ScreenHandler * (* RAOP_FType) (class Orbiter *,  map<int,int> *p_
 		pPersistentCallBackData->Setup PARAMETERS; \
 }
 //-----------------------------------------------------------------------------------------------------
+// For keeping track of the tree when we're drilling down through attributes
+class MediaFileAttributeDrillDown
+{
+public:
+	int m_PK_Attribute;
+	string m_sDescription;
+	int m_iLastRow_ListGrid;
+
+	MediaFileAttributeDrillDown(int PK_Attribute, string sDescription,int iLastRow_ListGrid)
+	{
+		m_PK_Attribute=PK_Attribute;
+		m_sDescription=sDescription;
+		m_iLastRow_ListGrid=iLastRow_ListGrid;
+	}
+};
+//-----------------------------------------------------------------------------------------------------
+// For keeping track of media browsing options
 class MediaFileBrowserOptions
 {
 public:
 	int m_PK_MediaType,m_PK_AttributeType_Sort,m_PK_Users,m_iPK_Screen;
 	int m_iLastViewed; // 0=no, 1=yes, 2=either
 	int m_iPK_DesignObj_Browser; // The Design obj for the current browse screen
+	int m_iLastRowBeforeMediaFileSelect_ListGrid; // If non-zero, when the user chooses a media file we will return to this row in the grid
+
+	// If the user chooses close or delete the prior row will be preserved because PersistsXY is true for the list/pic grid.  But if he drills
+	// down attributes and wants to go back we need to restore the row position.  Set this flag to true to resetore the position in m_iLastRowBeforeMediaFileSelect_ListGrid
+	// on the next render
+	bool m_bRestoreListGridRow;  
 	string m_sPK_MediaSubType,m_sPK_FileFormat,m_sPK_Attribute_Genres,m_sSources,m_sPK_Users_Private;
 	string m_sSelectedFile;  // Used to hold the selected value
 	list<int> m_listPK_AttributeType_Sort_Prior;
-	list< pair<int,string> >m_listPK_Attribute_Description;  // For drilling down on attributes
+	list< MediaFileAttributeDrillDown * > m_listMediaFileAttributeDrillDown;  // For drilling down on attributes
 	map< pair<int,string>, DesignObj_Orbiter * > m_mapObjectsValues;
 	Orbiter *m_pOrbiter;
 	DesignObj_DataGrid *m_pObj_ListGrid,*m_pObj_PicGrid;
+	DesignObj_Orbiter *m_pObj_Users_EnteringPin;
+	int m_iPK_Users_EnteringPin;
 
 	MediaFileBrowserOptions(Orbiter *pOrbiter) 
 	{ 
@@ -64,6 +89,7 @@ public:
 		m_pObj_ListGrid=m_pObj_PicGrid=NULL;
 		m_iLastViewed=2;
 		m_iPK_DesignObj_Browser = 0;
+		m_bRestoreListGridRow = false;
 		ClearAll(0,0,0); 
 	}
 
@@ -72,8 +98,11 @@ public:
 		string sResult = StringUtils::itos(m_PK_MediaType) + "|" + m_sPK_MediaSubType + "|" + m_sPK_FileFormat + "|" + m_sPK_Attribute_Genres + "|" + m_sSources +
 			"|" + m_sPK_Users_Private + "|" + StringUtils::itos(m_PK_AttributeType_Sort) + "|" + StringUtils::itos(m_PK_Users) + " | "
 			+ StringUtils::itos(m_iLastViewed) + " | ";
-		if( m_listPK_Attribute_Description.size() )
-			sResult += StringUtils::itos(m_listPK_Attribute_Description.front().first);
+		if( m_listMediaFileAttributeDrillDown.size() )
+		{
+			MediaFileAttributeDrillDown *pMediaFileAttributeDrillDown = m_listMediaFileAttributeDrillDown.front();
+			sResult += StringUtils::itos(pMediaFileAttributeDrillDown->m_PK_Attribute);
+		}
 		return sResult;
 	}
 
@@ -86,7 +115,11 @@ public:
 		m_PK_Users=0;
 		m_PK_AttributeType_Sort = PK_AttributeType_Sort;
 		m_listPK_AttributeType_Sort_Prior.clear();
-		m_listPK_Attribute_Description.clear();
+		Clear_m_listMediaFileAttributeDrillDown();
+		m_iLastRowBeforeMediaFileSelect_ListGrid=0;
+		m_pObj_Users_EnteringPin = NULL;
+		m_iPK_Users_EnteringPin = 0;
+
 		m_sPK_MediaSubType=""; m_sPK_FileFormat=""; m_sPK_Attribute_Genres=""; m_sPK_Users_Private="0";
 		m_sSources=TOSTRING(MEDIASOURCE_Hard_Drives_CONST) "," TOSTRING(MEDIASOURCE_Discs__Jukeboxes_CONST);
 		m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_MediaType_CONST, StringUtils::itos(m_PK_MediaType)); 
@@ -99,6 +132,16 @@ public:
 		if( !m_pObj_PicGrid && m_iPK_DesignObj_Browser )
 			m_pObj_PicGrid=(DesignObj_DataGrid *) m_pOrbiter->FindObject(StringUtils::itos(m_iPK_DesignObj_Browser) + ".0.0." TOSTRING(DESIGNOBJ_dgFileList2_Pics_CONST));
 		ReacquireGrids();
+	}
+
+	void Clear_m_listMediaFileAttributeDrillDown()
+	{
+		for(list< MediaFileAttributeDrillDown * >::iterator it=m_listMediaFileAttributeDrillDown.begin();
+			it!=m_listMediaFileAttributeDrillDown.end();++it)
+		{
+			delete *it;
+		}
+		m_listMediaFileAttributeDrillDown.clear();
 	}
 
 	void ReacquireGrids();

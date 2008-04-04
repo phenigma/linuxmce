@@ -1794,7 +1794,10 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
 				string sSQL = "EK_MediaType=" + StringUtils::itos(m_pOrbiterGenerator->m_dwMediaType) + 
 					" and MediaSortOption is not null order by MediaSortOption";
 
-                alArray->push_back(new ArrayValue("0",	GetText(TEXT_Filename_CONST),
+                alArray->push_back(new ArrayValue("-1",	GetText(TEXT_Recently_Used_CONST),
+                    NULL, 0, 0, 0, 0,false,false,false));
+
+				alArray->push_back(new ArrayValue("0",	GetText(TEXT_Filename_CONST),
                     NULL, 0, 0, 0, 0,false,false,false));
 
 				vector<Row_MediaType_AttributeType *> vectRow_MediaType_AttributeType;

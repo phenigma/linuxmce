@@ -1271,6 +1271,8 @@
 #define TEXT_Power_OFF_CONST 2015
 #define TEXT_Rip_Status_Indicator_CONST 2016
 #define TEXT_Eject_CONST 2017
+#define TEXT_Invalid_PIN_CONST 2018
+#define TEXT_Recently_Used_CONST 2020
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
