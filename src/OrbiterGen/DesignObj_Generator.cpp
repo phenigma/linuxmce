@@ -261,6 +261,8 @@ int k=2;
 						}
 						else if( SerializeRead(Filename) )
 						{
+LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"checking for 5362. file: %s position x=%d y=%d w=%d h=%d", Filename.c_str(), m_rPosition.X, m_rPosition.Y, m_rPosition.Width, m_rPosition.Height);
+
 							m_bUsingCache=true;
 							ReadFloorplanInfo(Filename+".fp");
 							LoggerWrapper::GetInstance()->Write(LV_STATUS,"Not building screen %s found valid cache",
@@ -2054,7 +2056,7 @@ int k=2;
 	int FactorX_Origin = FactorX_Input;
 	int FactorY_Origin = FactorY_Input;
 
-	if( m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Go_CONST || m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Keyword_Search_CONST )
+if( m_pRow_DesignObj->PK_DesignObj_get()==5362 || m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Go_CONST || m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Keyword_Search_CONST )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_WARNING,"ScaleAllValues %d 1 DESIGNOBJ_butFBSF_Go_CONST %d,%d-%d,%d %d,%d-%d,%d %d,%d %d,%d /%d",m_pRow_DesignObj->PK_DesignObj_get(),
 			this->m_rPosition.X,m_rPosition.Y,m_rPosition.Width,m_rPosition.Height,
@@ -2121,6 +2123,8 @@ int k=2;
     for(size_t s=0;s<m_alChildDesignObjs.size();++s)
     {
         DesignObj_Generator *oc = m_alChildDesignObjs[s];
+if( oc->m_pRow_DesignObj->PK_DesignObj_get()==5363 ) 
+int k=2;
 		if( oc->m_pRow_DesignObj->FK_DesignObjType_get()==DESIGNOBJTYPE_Floorplan_CONST && pTopmostObject )
             pTopmostObject->m_bContainsArrays=true; // We don't want to cache floorplans either
 
