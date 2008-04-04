@@ -261,7 +261,8 @@ int k=2;
 						}
 						else if( SerializeRead(Filename) )
 						{
-LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"checking for 5362-1. file: %s id %s position x=%d y=%d w=%d h=%d", Filename.c_str(), m_ObjectID.c_str(), m_rPosition.X, m_rPosition.Y, m_rPosition.Width, m_rPosition.Height);
+LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"checking for 5362-1. file: %s id %s position x=%d y=%d w=%d h=%d m_alChildDesignObjs %d m_mapChildDgObjects %d", 
+									Filename.c_str(), m_ObjectID.c_str(), m_rPosition.X, m_rPosition.Y, m_rPosition.Width, m_rPosition.Height,(int) m_alChildDesignObjs.size(), (int) m_mapChildDgObjects.size());
 
 							m_bUsingCache=true;
 							ReadFloorplanInfo(Filename+".fp");
@@ -1239,6 +1240,9 @@ LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"checking for 5362-14.  id %s po
 	}
 LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"checking for 5362-15.  id %s position x=%d y=%d w=%d h=%d",  m_ObjectID.c_str(), m_rPosition.X, m_rPosition.Y, m_rPosition.Width, m_rPosition.Height);
 
+if( m_ObjectID.find("5362.5.0")!=string::npos )
+int k=2;
+
 	// Don't stretch out the floorplan objects
     if( m_pRow_DesignObj->FK_DesignObjType_get()!=DESIGNOBJTYPE_Floorplan_CONST )
     {
@@ -1257,9 +1261,11 @@ LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"checking for 5362-15.  id %s po
 					m_rPosition.Right(oco->m_rPosition.Right());
 					m_rPosition.Bottom(oco->m_rPosition.Bottom());
 				}
-LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"checking for 5362-15b.  id %s position x=%d y=%d w=%d h=%d child %s x=%d y=%d w=%d h=%d", 
+LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"checking for 5362-15b.  id %s position x=%d y=%d w=%d h=%d child %s/%d x=%d y=%d w=%d h=%d", 
 m_ObjectID.c_str(), m_rPosition.X, m_rPosition.Y, m_rPosition.Width, m_rPosition.Height,
-oco->m_ObjectID.c_str(), oco->m_rPosition.X, oco->m_rPosition.Y, oco->m_rPosition.Width, oco->m_rPosition.Height);
+oco->m_ObjectID.c_str(), 
+oco->m_pRow_DesignObj ? oco->m_pRow_DesignObj->PK_DesignObj_get() : 0,
+oco->m_rPosition.X, oco->m_rPosition.Y, oco->m_rPosition.Width, oco->m_rPosition.Height);
             }
         }
     }
