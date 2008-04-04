@@ -1245,7 +1245,11 @@ if( m_ObjectID.find("5362.5.0")!=string::npos )
 int k=2;
 
 	// Don't stretch out the floorplan objects
-    if( m_pRow_DesignObj->FK_DesignObjType_get()!=DESIGNOBJTYPE_Floorplan_CONST )
+	if( m_bUsingCache )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"not stretching out cached screen %s", m_ObjectID.c_str());
+	}
+	else if( m_pRow_DesignObj->FK_DesignObjType_get()!=DESIGNOBJTYPE_Floorplan_CONST )
     {
         // First go through all of the arrays and set the appropriate bounds so we can calculate the size of this object
         for(size_t s=0;s<m_alChildDesignObjs.size();++s)
