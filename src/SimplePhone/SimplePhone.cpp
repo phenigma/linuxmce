@@ -85,7 +85,7 @@ bool SimplePhone::GetConfig()
 	/* Get MD Audio Settings */
 	string sAudioSettings = Get_MD_AudioSettings();
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MD Audio Settings: %s", sAudioSettings.c_str());
-	string sAlsaDevice = "plug:dmix";
+	string sAlsaDevice = "asym_analog";
 
 	for (size_t i = 0; i < sAudioSettings.length(); i++)
 	{
@@ -97,7 +97,7 @@ bool SimplePhone::GetConfig()
 				break;
 			case 'S':
 			case 'L':
-				sAlsaDevice = "plug:dmix";
+				sAlsaDevice = "asym_analog";
 				break;
 			default:
 				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Flag unprocessed: '%c'", sAudioSettings[i]);
