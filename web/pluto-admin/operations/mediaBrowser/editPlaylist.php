@@ -85,6 +85,9 @@ function editPlaylist($output,$mediadbADO,$dbADO) {
 		}
 
 		// join clause for title attributes
+		if(count($titlesArray)==0){
+			$titlesArray[]="";
+		}
 		$joinArray[]='
 			LEFT JOIN File_Attribute FA2 ON FA2.FK_File=PK_File AND FA2.FK_Attribute IN ('.join(',',$titlesArray).')
 			LEFT JOIN Attribute A2 ON FA2.FK_Attribute=A2.PK_Attribute
