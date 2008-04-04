@@ -414,18 +414,18 @@ void Orbiter_Plugin::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessag
 // Our message interceptor
 bool Orbiter_Plugin::RouteToOrbitersInRoom(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo)
 {
-    if (!pDeviceFrom)
-    {
-        LoggerWrapper::GetInstance()->Write(LV_WARNING,"GotRouteToOrbitersInRoom, but pDeviceFrom is NULL");
-        return false;
-    }
-
 	if( pMessage->m_dwPK_Device_To==DEVICETEMPLATE_VirtDev_All_Orbiters_CONST )
 	{
         pMessage->m_dwPK_Device_To = DEVICEID_LIST;
         pMessage->m_sPK_Device_List_To = m_sPK_Device_AllOrbiters;
 		return false;
 	}
+
+	if (!pDeviceFrom)
+    {
+        LoggerWrapper::GetInstance()->Write(LV_WARNING,"GotRouteToOrbitersInRoom, but pDeviceFrom is NULL");
+        return false;
+    }
 
     // If the sender was an orbiter, get the current room.  Otherwise the permanent room
     OH_Orbiter *pOH_Orbiter_From = m_mapOH_Orbiter_Find(pDeviceFrom->m_dwPK_Device);
