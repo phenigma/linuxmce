@@ -136,7 +136,7 @@ class DataGridTable *Media_Plugin::MediaBrowser( string GridID, string Parms, vo
 		return pMediaListGrid;
 
 	bool bIdentifiesFile = true;
-	if( PK_AttributeType_Sort )
+	if( PK_AttributeType_Sort>0 )
 		if( m_mapMediaType_AttributeType_Identifier.find( make_pair<int,int> ( PK_MediaType,PK_AttributeType_Sort ) )==m_mapMediaType_AttributeType_Identifier.end() )
 			bIdentifiesFile = false;  // This combination doesn't identify an individual file to play (like a song), it identifies a group of attributes (like an album or performer)
 
@@ -145,7 +145,8 @@ class DataGridTable *Media_Plugin::MediaBrowser( string GridID, string Parms, vo
 	else
 		AttributesBrowser( pMediaListGrid, PK_MediaType, PK_Attribute, PK_AttributeType_Sort, bIdentifiesFile, sPK_MediaSubType, sPK_FileFormat, sPK_Attribute_Genres, sPK_Sources, sPK_Users_Private, PK_Users, iLastViewed, iPK_Variable, sValue_To_Assign );
 
-	pMediaListGrid->m_listFileBrowserInfo.sort(FileBrowserInfoComparer);
+	if( PK_AttributeType_Sort!=-1 )  // If we're going by most recently viewed the list is already sorted in PopulateFileBrowserInfoForFile
+		pMediaListGrid->m_listFileBrowserInfo.sort(FileBrowserInfoComparer);
 	pMediaListGrid->m_pFileBrowserInfoPtr = new FileBrowserInfoPtr[ pMediaListGrid->m_listFileBrowserInfo.size() ];
 
 	DataGridCell *pCell;
@@ -255,7 +256,7 @@ void Media_Plugin::AttributesBrowser( MediaListGrid *pMediaListGrid,int PK_Media
 		g_bInclDownload=bDownload;
 #endif
 		sPK_Sources = sPK_Sources + "\t";  // Put a tab before this which is the indicator up above that this is the topmost source when the user tabs back
-		if( bFile && PK_AttributeType_Sort==0 )
+		if( bFile && PK_AttributeType_Sort==0 || PK_AttributeType_Sort==-1 )
 		{
 			Row_MediaType *pRow_MediaType = m_pDatabase_pluto_main->MediaType_get()->GetRow(PK_MediaType);
 			if( pRow_MediaType )
@@ -265,11 +266,26 @@ void Media_Plugin::AttributesBrowser( MediaListGrid *pMediaListGrid,int PK_Media
 				{
 					string sUser = StringUtils::Tokenize(sPK_Users_Private,",",pos);
 					if( sPath.empty()==false )
-						sPath += ",";
+					{
+						if( PK_AttributeType_Sort==-1 ) // Sorting by recently viewed, not directory, so find all directories
+							sPath += " OR ";
+						else
+							sPath += ",";
+					}
 					if( sUser=="0" )
-						sPath += "'/home/public/data/" + pRow_MediaType->Subdirectory_get() + "'";
+					{
+						if( PK_AttributeType_Sort==-1 ) // Sorting by recently viewed, not directory, so find all directories
+							sPath += "Path LIKE '/home/public/data/" + pRow_MediaType->Subdirectory_get() + "%'";
+						else
+							sPath += "'/home/public/data/" + pRow_MediaType->Subdirectory_get() + "'";
+					}
 					else
-						sPath += "'/home/user_" + sUser + "/data/" + pRow_MediaType->Subdirectory_get() + "'";
+					{
+						if( PK_AttributeType_Sort==-1 ) // Sorting by recently viewed, not directory, so find all directories
+							sPath += "Path LIKE '/home/user_" + sUser + "/data/" + pRow_MediaType->Subdirectory_get() + "%'";
+						else
+							sPath += "'/home/user_" + sUser + "/data/" + pRow_MediaType->Subdirectory_get() + "'";
+					}
 				}
 			}
 		}
@@ -371,9 +387,13 @@ void Media_Plugin::AttributesBrowser( MediaListGrid *pMediaListGrid,int PK_Media
 	vector<string> vectDirectories;
 	StringUtils::Tokenize(sPath_Clone, ",", vectDirectories);
 
-	string sPathCondition = " AND (Path IN (" + sPath + ") ";
+	string sPathCondition;
+	if( PK_AttributeType_Sort==-1 )
+		sPathCondition = " AND (" + sPath;
+	else
+		sPathCondition = " AND (Path IN (" + sPath + ") ";
 
-	if(PK_Attribute != 0)
+	if(PK_Attribute != 0 && PK_AttributeType_Sort!=-1 )
 	{
 		for(vector<string>::iterator it = vectDirectories.begin(); it != vectDirectories.end(); ++it)
 		{
@@ -456,7 +476,7 @@ void Media_Plugin::FetchPictures(string sWhichTable,string &sPK_File_Or_Disc,map
 
 	// If we're retrieving filenames or specific titles, don't do a cross-match to find attributes that have pictures.  Otherwise
 	// you can have a file with no pictures, but if it's in the Genre 'Action', it will find a picture for some other Action file
-	if( PK_AttributeType_Sort==0 || PK_AttributeType_Sort==ATTRIBUTETYPE_Title_CONST )
+	if( PK_AttributeType_Sort==0 ||  PK_AttributeType_Sort==-1 || PK_AttributeType_Sort==ATTRIBUTETYPE_Title_CONST )
 		return;
 
 	sSQL = "SELECT FK_" + sWhichTable + ",FK_Picture FROM " + sWhichTable + "_Attribute JOIN Picture_Attribute ON Picture_Attribute.FK_Attribute=" + sWhichTable + "_Attribute.FK_Attribute WHERE FK_" + sWhichTable + " IN (" + sPK_File_Or_Disc + ")";
@@ -525,8 +545,12 @@ void Media_Plugin::PopulateFileBrowserInfoForFile(MediaListGrid *pMediaListGrid,
 		" subdir %d", PK_AttributeType_Sort, bSubDirectory);
 
 	string sSQL_Sort;
-	if( PK_AttributeType_Sort==0 )
+	if( PK_AttributeType_Sort==0 || PK_AttributeType_Sort==-1 )
+	{
 		sSQL_Sort = "SELECT PK_File,Path,Filename,IsDirectory,FK_FileFormat,Filename FROM File WHERE PK_File in (" + sPK_File + ")";
+		if( PK_AttributeType_Sort==-1 )
+			sSQL_Sort += " ORDER BY DateLastViewed DESC";
+	}
 	else
 		// TODO ___ FIND A BETTER WAY TO DO THIS QUERY.  It's returning a record for the file for each attribute, causing it to skip repeatedly, and it's very inefficient, and requires the double sorting order clauses!
 		sSQL_Sort = "SELECT PK_File,'',Name,0,FK_FileFormat,Filename FROM File LEFT JOIN File_Attribute ON FK_File=PK_File LEFT JOIN Attribute ON FK_Attribute=PK_Attribute AND FK_AttributeType=" + StringUtils::itos(PK_AttributeType_Sort) + " WHERE IsDirectory=0 AND PK_File in (" + sPK_File + ") AND (FK_AttributeType IS NULL OR FK_AttributeType=" + StringUtils::itos(PK_AttributeType_Sort) + ") ORDER BY PK_File,PK_Attribute DESC";

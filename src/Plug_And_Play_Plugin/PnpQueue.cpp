@@ -420,8 +420,6 @@ bool PnpQueue::Process_Detect_Stage_Confirm_Possible_DT(PnpQueueEntry *pPnpQueue
 	string sSqlWhere;
 	if( pPnpQueueEntry->m_pRow_PnpQueue->MACaddress_get().size() )
 		sSqlWhere += (sSqlWhere.size() ? " AND " : "") + string("MacAddress like '%") + pPnpQueueEntry->m_pRow_PnpQueue->MACaddress_get() + "%'";
-if( pPnpQueueEntry->m_pRow_PnpQueue->VendorModelId_get().find("13c11")!=string::npos )
-int k=2;
 
 	if( pPnpQueueEntry->m_pRow_PnpQueue->VendorModelId_get().size() )
 		sSqlWhere += (sSqlWhere.size() ? " AND " : "") + string("'") + pPnpQueueEntry->m_pRow_PnpQueue->VendorModelId_get() + string("' like concat(VendorModelID,'%') and VendorModelID != ''");
