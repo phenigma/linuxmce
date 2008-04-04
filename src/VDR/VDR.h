@@ -46,8 +46,11 @@ private:
         pthread_t		     m_threadMonitorVDR;
 				DeviceData_Base *m_pDevice_DVBCard,*m_pDevice_Xine,*m_pDevice_MediaPlugin;
 				int m_iStreamID;  // The current stream ID
-				int m_iChannelNumber; // The current channel
-				string m_sChannelName;
+				int m_iChannelNumber; // The current channelNo
+				string m_sChannelName; // The current Name
+				string m_sSeriesDescription; // The current showname
+				string m_sEpisodeDescription; // The current episode
+				string m_sDescription; // the current chan-Description
 				string m_sXineIP;
 				Display *m_pDisplay;
 				string m_CurrentMode, m_CurrentProgram;
@@ -89,7 +92,7 @@ public:
 
     virtual void KillSpawnedDevices();
     virtual void CreateChildren();
-		bool SendVDRCommand(string sIP, string sCommand,string &sVDRResponse);
+		//bool SendVDRCommand(string sIP, string sCommand,string &sVDRResponse);
 		void ParseCurrentChannel(string sChannel);
 		
 		void updateMode(string toMode);

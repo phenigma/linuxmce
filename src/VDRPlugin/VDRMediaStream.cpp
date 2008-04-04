@@ -79,5 +79,6 @@ namespace DCE
 			m_sTimecode = pEvent->GetShortShowtime();
 		}
 		*/
+		
 	}
 };

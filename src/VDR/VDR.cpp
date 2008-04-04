@@ -34,7 +34,7 @@ using namespace DCE;
 #include "pluto_main/Define_DesignObj.h"
 #include "pluto_main/Define_MediaType.h"
 #include "Gen_Devices/AllScreens.h"
-//#include "VDRCommon.h"
+#include "VDRCommon.h"
 
 
 #include <sstream>
@@ -285,7 +285,6 @@ void VDR::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPosition,s
 	
 	if ( m_VDRStatus_get() == VDRSTATUS_DISCONNECTED )
 	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"VDR:I SHOULD LAUNCH VDR");
 		m_VDRStatus_set(VDRSTATUS_STARTUP);
 	
 	}
@@ -293,12 +292,10 @@ void VDR::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPosition,s
 	{
 		if (m_VDRStatus_get() == VDRSTATUS_LIVETV || m_VDRStatus_get() == VDRSTATUS_PLAYBACK)
 			{
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"VDR:IAM IN LIVETV");
-			SendVDRCommand(m_sVDRIp,"MESG LIVE",sResponse);
+			//SendVDRCommand(m_sVDRIp,"MESG LIVE",sResponse);
 		}
 		else {
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"VDR:IAM IN PLAYBACK");
-			SendVDRCommand(m_sVDRIp,"MESG PLAYBACK",sResponse);
+			//SendVDRCommand(m_sVDRIp,"MESG PLAYBACK",sResponse);
 		}
 	}
 	selectWindow();
@@ -309,8 +306,7 @@ void VDR::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPosition,s
 
 void VDR::selectWindow()
 {
-  //system("/usr/bin/wmctrl -a VDR -v");
-  //system("/usr/pluto/bin/VDR_focus.sh");
+
 }
 
 void VDR::updateMode(string toMode)
@@ -351,7 +347,6 @@ void VDR::CMD_Stop_Media(int iStreamID,string *sMediaPosition,string &sCMD_Resul
 	StopVDRFrontend();
 	m_VDRStatus_set(VDRSTATUS_DISCONNECTED);
 	system("killall plutovdr");
-	Sleep(1000);
 //	delete m_pVDRSocket;
 //	m_pVDRSocket = NULL;
 }
@@ -368,7 +363,7 @@ void VDR::CMD_Pause_Media(int iStreamID,string &sCMD_Result,Message *pMessage)
 {
 	string sCommand;
 	string sVDRResponse;
-	sCommand = "MSG #39PAUSEMEDIA";
+	sCommand = "HITK Pause";
 	bool bResult = SendVDRCommand(m_sVDRIp,sCommand,sVDRResponse);
 	
 }
@@ -386,7 +381,7 @@ void VDR::CMD_Restart_Media(int iStreamID,string &sCMD_Result,Message *pMessage)
 	string sCommand;
 	string sVDRResponse;
 	sCommand = "MESG restartmedia";
-	bool bResult = SendVDRCommand(m_sVDRIp,sCommand,sVDRResponse);
+//	bool bResult = SendVDRCommand(m_sVDRIp,sCommand,sVDRResponse);
 }
 
 //<-dceag-c41-b->
@@ -443,7 +438,7 @@ void VDR::CMD_Get_Video_Frame(string sDisable_Aspect_Lock,int iStreamID,int iWid
 	string sCommand;
 	string sVDRResponse;
 	sCommand = "MESG getvideoframe";
-	bool bResult = SendVDRCommand(m_sVDRIp,sCommand,sVDRResponse);
+//	bool bResult = SendVDRCommand(m_sVDRIp,sCommand,sVDRResponse);
  /*
 	cout << "Need to implement command #84 - Get Video Frame" << endl;
 	cout << "Parm #19 - Data  (data value)" << endl;
@@ -467,7 +462,7 @@ void VDR::CMD_PIP_Channel_Up(string &sCMD_Result,Message *pMessage)
 	string sCommand;
 	string sVDRResponse;
 	sCommand = "MESG pipchanup";
-	bool bResult = SendVDRCommand(m_sVDRIp,sCommand,sVDRResponse);
+//	bool bResult = SendVDRCommand(m_sVDRIp,sCommand,sVDRResponse);
 }
 
 //<-dceag-c130-b->
@@ -481,7 +476,7 @@ void VDR::CMD_PIP_Channel_Down(string &sCMD_Result,Message *pMessage)
 	string sCommand;
 	string sVDRResponse;
 	sCommand = "MESG pipchandown";
-	bool bResult = SendVDRCommand(m_sVDRIp,sCommand,sVDRResponse);
+//	bool bResult = SendVDRCommand(m_sVDRIp,sCommand,sVDRResponse);
 }
 
 
@@ -502,10 +497,9 @@ void VDR::CMD_Tune_to_channel(string sOptions,string sProgramID,string &sCMD_Res
 	sCommand = "CHAN " + sProgramID;
 	bool bResult = SendVDRCommand(m_sVDRIp,sCommand,sVDRResponse);
 	Sleep(1000);
-	system("/usr/bin/wmctrl -a VDR -v");
-	//system("/usr/pluto/bin/VDR_focus.sh");
 	ParseCurrentChannel(sVDRResponse);
-	    
+
+	EVENT_Playback_Started("[" + StringUtils::itos(m_iChannelNumber) +  "] " + m_sChannelName,m_iStreamID,m_sSeriesDescription,"bbb","ccc");  
 }
 
 
@@ -525,20 +519,17 @@ void VDR::CMD_Report_Playback_Position(int iStreamID,string *sText,string *sMedi
 
 {
 	PLUTO_SAFETY_LOCK(mm,m_VDRMutex);
-
+/*
 	if (m_VDRStatus_get() == VDRSTATUS_PLAYBACK)
 	{
 		*sText="325 HBO\tSopranos";
 		*sMediaPosition=StringUtils::Format(" POS:%d TOTAL:%d PROG:SH8196770000 SERIES:sh019875 CHAN:1325", m_CurTime, m_EndTime);
 	}
-}
-/*
-{
+*/	
 	string sCommand;
 	string sVDRResponse;
 	sCommand = "MESG reportplaybackposition";
-	bool bResult = SendVDRCommand(m_sVDRIp,sCommand,sVDRResponse);
-*/
+//	bool bResult = SendVDRCommand(m_sVDRIp,sCommand,sVDRResponse);
 
 	/*
 	cout << "Need to implement command #259 - Report Playback Position" << endl;
@@ -546,7 +537,7 @@ void VDR::CMD_Report_Playback_Position(int iStreamID,string *sText,string *sMedi
 	cout << "Parm #41 - StreamID=" << iStreamID << endl;
 	cout << "Parm #42 - MediaPosition=" << sMediaPosition << endl;
 	*/
-//}
+}
 
 //<-dceag-c412-b->
 
@@ -563,7 +554,7 @@ void VDR::CMD_Set_Media_Position(int iStreamID,string sMediaPosition,string &sCM
         string sCommand;
         string sVDRResponse;
         sCommand = "MESG setmediaposition";
-        bool bResult = SendVDRCommand(m_sVDRIp,sCommand,sVDRResponse);
+//        bool bResult = SendVDRCommand(m_sVDRIp,sCommand,sVDRResponse);
                                  
 
  /*
@@ -587,10 +578,10 @@ void VDR::CMD_Set_Media_Position(int iStreamID,string sMediaPosition,string &sCM
 void VDR::CMD_Jump_to_Position_in_Stream(string sValue_To_Assign,int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c42-e->
 {
-        string sCommand;
-	string sVDRResponse;
-        sCommand = "MESG jumptoposinstream";
-        bool bResult = SendVDRCommand(m_sVDRIp,sCommand,sVDRResponse);
+    string sCommand;
+		string sVDRResponse;
+    sCommand = "MESG jumptoposinstream";
+//    bool bResult = SendVDRCommand(m_sVDRIp,sCommand,sVDRResponse);
                                  
 }
 
@@ -689,6 +680,7 @@ void VDR::ParseCurrentChannel(string sChannel)
  
   LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"VDR.parser: given input was %s",sChannel.c_str());
 
+	//CHANNELSTUFF
 	if( sChannel.size()<3 )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"VDR.parser:Error parsing channel %s",sChannel.c_str());
@@ -697,20 +689,44 @@ void VDR::ParseCurrentChannel(string sChannel)
 	string::size_type pos_space = sChannel.find(' ');
 	m_iChannelNumber = atoi( sChannel.c_str() );
 	if( pos_space!=string::npos )
-		m_sChannelName = sChannel.substr(pos_space+1);
-	LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"VDR.parser: VDR processed ok, channel %d %s",m_iChannelNumber,m_sChannelName.c_str());
+	m_sChannelName = sChannel.substr(pos_space+1);
+
+	//EPGSTUFF XXX
+	string sVDRResponse="";
+	string sCommand="LSTE " + StringUtils::itos(m_iChannelNumber) + " now";
+	SendVDRCommand(m_sVDRIp,sCommand,sVDRResponse);
+	
+	m_sSeriesDescription="",m_sEpisodeDescription="",m_sDescription="";
+	string::size_type pos=0;
+	string::size_type pos_line=0;
+	string sLine;
+	while( true )
+	{
+		sLine = StringUtils::Tokenize(sVDRResponse,"\n",pos);
+		if( sLine.empty()==true )
+			break;
+
+			if( sLine[0]=='T' )
+					m_sSeriesDescription = sLine.substr(2);
+				else if( sLine[0]=='S' )
+					m_sEpisodeDescription = sLine.substr(2);
+				else if( sLine[0]=='D' )
+					m_sDescription = sLine.substr(2);
+	}
+	
+/*
   //burgi 2008
   //CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal,string sSpeed,string sTitle,string sSection,string &sCMD_Result,Message *pMessage)
 	//DCE::CMD_Update_Time_Code CMD_Update_Time_Code_(m_dwPK_Device,m_pDevice_MediaPlugin->m_dwPK_Device,
 	//	m_iStreamID,"","","","TITEL", StringUtils::itos(m_iChannelNumber) + " " + m_sChannelName);
   //SendCommand(CMD_Update_Time_Code_);
   
-  	DCE::CMD_Update_Time_Code CMD_Update_Time_Code_(m_dwPK_Device,m_pDevice_MediaPlugin->m_dwPK_Device,
+	 	DCE::CMD_Update_Time_Code CMD_Update_Time_Code_(m_dwPK_Device,m_pDevice_MediaPlugin->m_dwPK_Device,
 		m_iStreamID,"","",
 		"","",
 		StringUtils::itos(m_iChannelNumber) + " " + m_sChannelName);
 		SendCommand(CMD_Update_Time_Code_);
-  
+*/  
 
 	
 }
@@ -742,6 +758,11 @@ void VDR::CMD_Simulate_Keypress(string sPK_Button,int iStreamID,string sName,str
 	if(sPK_Button == "24"){ convkey = "9"; } 
 	if(sPK_Button == "25"){ convkey = "0"; } 
 	
+	if(sPK_Button == "177"){ convkey = "Green"; }
+	if(sPK_Button == "178"){ convkey = "Yellow"; }
+	if(sPK_Button == "179"){ convkey = "Red"; }
+	if(sPK_Button == "180"){ convkey = "Blue"; }
+	
 	//i dont want this too internal things:
 	if(sName == "Power"){ sName = ""; }
 	if(sName == "Setup"){ sName = ""; }
@@ -754,7 +775,11 @@ void VDR::CMD_Simulate_Keypress(string sPK_Button,int iStreamID,string sName,str
 		
 	string sVDRResponse;
 	SendVDRCommand(m_sVDRIp,"HITK " + convkey,sVDRResponse);
-																
+	sVDRResponse="";
+	SendVDRCommand(m_sVDRIp,"CHAN",sVDRResponse);
+	ParseCurrentChannel(sVDRResponse);
+	//burgi 2008-04-01 BBB
+	EVENT_Playback_Started("[" + StringUtils::itos(m_iChannelNumber) +  "] " + m_sChannelName,m_iStreamID,m_sSeriesDescription,"bbb","ccc");  
 		
 //	if( !SendVDRCommand("", "HITK " + convkey,sResponse) )
 //		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Failed to send HITK %s",sResponse.c_str());
@@ -1042,8 +1067,8 @@ void VDR::CMD_Back_Prior_Menu(int iStreamID,string &sCMD_Result,Message *pMessag
 {
 	string sCommand;
 	string sVDRResponse;
-	sCommand = "MESG Back";   //hitk back
-	SendVDRCommand(m_sVDRIp,sCommand,sVDRResponse);
+	sCommand = "HITK Back";   //hitk back
+//	SendVDRCommand(m_sVDRIp,sCommand,sVDRResponse);
 	
 }
 
@@ -1167,7 +1192,7 @@ void VDR::CMD_Live_TV(string &sCMD_Result,Message *pMessage)
 	string sCommand;
 	string sVDRResponse;
 	sCommand = "MESG VDR-LIVE-MODE";
-	SendVDRCommand(m_sVDRIp,sCommand,sVDRResponse);
+//	SendVDRCommand(m_sVDRIp,sCommand,sVDRResponse);
 	
 }
 
@@ -1182,7 +1207,7 @@ void VDR::CMD_Exit(string &sCMD_Result,Message *pMessage)
 	string sCommand;
 	string sVDRResponse;
 	sCommand = "MESG EXIT";
-	SendVDRCommand(m_sVDRIp,sCommand,sVDRResponse);
+//	SendVDRCommand(m_sVDRIp,sCommand,sVDRResponse);
 	
 }
 
@@ -1314,7 +1339,7 @@ void VDR::CMD_Favorites(string &sCMD_Result,Message *pMessage)
 	string sCommand;
 	string sVDRResponse;
 	sCommand = "MESG favorites";
-	SendVDRCommand(m_sVDRIp,sCommand,sVDRResponse);
+//	SendVDRCommand(m_sVDRIp,sCommand,sVDRResponse);
 
 }
 //<-dceag-c190-b->
@@ -1406,8 +1431,18 @@ void VDR::CMD_Move_Up(int iStreamID,string &sCMD_Result,Message *pMessage)
 {
 	string sCommand;
 	string sVDRResponse;
+	sVDRResponse="";
 	sCommand = "HITK Up";
 	SendVDRCommand(m_sVDRIp,sCommand,sVDRResponse);
+	
+	if (m_menustatus==0)
+	{
+		sVDRResponse="";
+		SendVDRCommand(m_sVDRIp,"CHAN",sVDRResponse);
+		ParseCurrentChannel(sVDRResponse);
+		//burgi 2008-04-01 BBB
+		EVENT_Playback_Started("[" + StringUtils::itos(m_iChannelNumber) +  "] " + m_sChannelName,m_iStreamID,m_sSeriesDescription,"bbb","ccc");  
+	}
 }
 
 
@@ -1436,26 +1471,25 @@ void VDR::pollVDRStatus()
 
 			if( m_VDRStatus_get() != VDRSTATUS_STARTUP )
 			{
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "VDR:A:pollVDRStatus state is now %d", (int) m_VDRStatus_get());  
-
-			//bPlaybackStarted=true;
-			string sCommand;
-			string sVDRResponse;
-			string currentchan;
-			sCommand = "CHAN";
-			SendVDRCommand(m_sVDRIp,sCommand,sVDRResponse);
-			Sleep(1000);
-			ParseCurrentChannel(sVDRResponse);
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "VDR:A:pollVDRStatus state is now %d", (int) m_VDRStatus_get());  
+				//bPlaybackStarted=true;
+				string sCommand;
+				string sVDRResponse;
+				string currentchan;
+				sCommand = "CHAN";
+				SendVDRCommand(m_sVDRIp,sCommand,sVDRResponse);
+				Sleep(1000);
+				ParseCurrentChannel(sVDRResponse);
 			
-			EVENT_Playback_Started(m_sChannel,m_iStreamID,"aaaa","bbb",m_sChannelName);  
-
-				return;
+				//burgi 2008-04-01 AAA
+				EVENT_Playback_Started("[" + StringUtils::itos(m_iChannelNumber) +  "] " + m_sChannelName,m_iStreamID,m_sSeriesDescription,"bbb","ccc");  
+			return;
 			}
 
 		    mm.Release();
 		    Sleep(100);
 		    mm.Relock();
-		    sResult = SendVDRCommand("127.0.0.1", "MESG STARTED",sResult);
+		    //sResult = SendVDRCommand("127.0.0.1", "MESG STARTED",sResult);
 		    sResult ="OK";
 			if( sResult!="OK" )
 			{
@@ -1611,58 +1645,6 @@ bool VDR::StopVDRFrontend()
 	return false;
 }
 
-bool VDR::SendVDRCommand(string sIP, string sCommand,string &sVDRResponse)
-{
-	LoggerWrapper::GetInstance()->Write(LV_WARNING,"Going to send command %s",sCommand.c_str());
-	//PlainClientSocket _PlainClientSocket(m_sXineIP + ":2001");
-	PlainClientSocket _PlainClientSocket("127.0.0.1:2001");
-	if( !_PlainClientSocket.Connect() )
-	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Unable to connect to VDR client");
-		return false;
-	}
-LoggerWrapper::GetInstance()->Write(LV_STATUS,"connected");
-	string sResponse;
-	if( !_PlainClientSocket.ReceiveString(sResponse,VDR_SOCKET_TIMEOUT) || sResponse.substr(0,3)!="220" )
-	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"VDR not ready got %s",sResponse.c_str());
-		return false;
-	}
-
-	if( !_PlainClientSocket.SendString(sCommand) )
-	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Could not send string");
-		return false;
-	}
-
-	if( !_PlainClientSocket.ReceiveString(sResponse,VDR_SOCKET_TIMEOUT) || sResponse.substr(0,3)!="250" )
-	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"VDR not ok with command got %s",sResponse.c_str());
-		return false;
-	}
-	
-	if( sResponse.size()>4 )
-		sVDRResponse = sResponse.substr(4);
-		//LoggerWrapper::GetInstance()->Write(LV_WARNING,"VDR Responded %s",sResponse.c_str());
-	if( !_PlainClientSocket.SendString("QUIT") )
-	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Could not send string");
-		return false;
-	}
-
-	if( !_PlainClientSocket.ReceiveString(sResponse,VDR_SOCKET_TIMEOUT) || sResponse.substr(0,3)!="221" )
-	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"VDR not ok with quit got %s",sResponse.c_str());
-		return false;
-	}
-	
-	//_PlainClientSocket.Close();
-	
-	//system("/usr/bin/wmctrl -a VDR -v");
-	//system("/usr/pluto/bin/VDR_focus.sh");
-	  
-	return true;
-}
 //<-dceag-c63-b->
 
 	/** @brief COMMAND: #63 - Skip Fwd - Channel/Track Greater */

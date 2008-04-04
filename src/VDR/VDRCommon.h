@@ -7,24 +7,24 @@
 
 bool SendVDRCommand(string sIP, string sCommand,string &sVDRResponse)
 {
-	LoggerWrapper::GetInstance()->Write(LV_WARNING,"SendVDRCommand Going to send command %s",sCommand.c_str());
+//	LoggerWrapper::GetInstance()->Write(LV_WARNING,"SendVDRCommand Going to send command %s",sCommand.c_str());
 	PlainClientSocket _PlainClientSocket(sIP + ":2001");
 	if( !_PlainClientSocket.Connect() )
 	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Unable to connect to VDR client");
+//		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Unable to connect to VDR client");
 		return false;
 	}
 LoggerWrapper::GetInstance()->Write(LV_STATUS,"connected");
 	string sResponse;
 	if( !_PlainClientSocket.ReceiveString(sResponse,VDR_SOCKET_TIMEOUT) || sResponse.substr(0,3)!="220" )
 	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"VDR not ready got %s",sResponse.c_str());
+//		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"VDR not ready got %s",sResponse.c_str());
 		return false;
 	}
 
 	if( !_PlainClientSocket.SendString(sCommand) )
 	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"SendVDRCommand Could not send string");
+//		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"SendVDRCommand Could not send string");
 		return false;
 	}
 
@@ -46,7 +46,7 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"connected");
 		delete [] pData;
 		pData = NULL;
 
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"VDR line %d: %s", iLines,sResponse.c_str());
+//		LoggerWrapper::GetInstance()->Write(LV_STATUS,"VDR line %d: %s", iLines,sResponse.c_str());
 		
 		if( sResponse.substr(0,3)!="250" && sResponse.substr(0,3)!="215" && sResponse.substr(0,3)!="550" )
 		{
@@ -60,7 +60,7 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"connected");
 		if( sResponse[3]!='-' )
 			break;
 	}
-LoggerWrapper::GetInstance()->Write(LV_WARNING,"VDR Responded %s",sResponse.c_str());
+//	LoggerWrapper::GetInstance()->Write(LV_WARNING,"VDR Responded %s",sResponse.c_str());
 	if( !_PlainClientSocket.SendString("QUIT") )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"SendVDRCommand Could not send string");
