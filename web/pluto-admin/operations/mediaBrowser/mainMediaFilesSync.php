@@ -104,7 +104,7 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 			if($fileID!==false){
 				$out.='
 				<tr bgColor="#EEEEEE">
-					<td><B>'.$TEXT_THIS_IS_DIRECTORY_TREATED_AS_FILE_CONST.'</B>: <a href="index.php?section=editMediaFile&fileID='.$fileID.'">'.$TEXT_SHOW_ATTRIBUTES_CONST.'</a></td>
+					<td><B>'.$TEXT_THIS_IS_DIRECTORY_TREATED_AS_FILE_CONST.'</B>: <a href="index.php?section=editMediaFile&fileID='.$fileID.'">[ '.$TEXT_SHOW_ATTRIBUTES_CONST.' ]</a> <a href="index.php?section=editDirectoryAttributes&fileID='.$fileID.'">[ '.$TEXT_EDIT_ATTRIBUTES_FOR_FILES_IN_DIRECTORY_CONST.' ]</a></td>
 				</tr>';
 			}
 		

@@ -6778,4 +6778,36 @@ function bash_escape($str){
 	
 	return $str;
 }
+
+function getRows($tableName,$fields,$dbADO,$filter='')
+{
+	$res=$dbADO->execute("SELECT $fields FROM $tableName $filter");
+	$fields=str_replace('DISTINCT ','',$fields);
+	$fieldsArray=explode(',',$fields);
+
+	$result=array();
+	while($row=$res->Fetchrow()){
+		foreach ($fieldsArray AS $field){
+			$cleanField=(strpos($field,'.')!==false)?substr($field,strpos($field,'.')+1):$field;
+			$cleanField=(strpos($cleanField,' AS ')!==false)?substr($cleanField,strpos($cleanField,' AS ')+4):$cleanField;
+			$cleanField=trim(str_replace('`','',$cleanField));
+
+			$result[]=$row;
+		}
+	}
+	return $result;	
+}
+
+function delete_media_pic($picID,$mediaADO){
+	if($picID!=0){
+		$mediadbADO->Execute('DELETE FROM Picture WHERE PK_Picture=?',$picID);
+	
+		$mediadbADO->Execute('DELETE FROM Picture_Attribute WHERE FK_Picture=?',$picID);
+	
+		$mediadbADO->Execute('DELETE FROM Picture_File WHERE FK_Picture=?',$picID);
+	
+		@unlink($GLOBALS['mediaPicsPath'].$picID.'.jpg');
+		@unlink($GLOBALS['mediaPicsPath'].$picID.'_tn.jpg');
+	}
+}
 ?>

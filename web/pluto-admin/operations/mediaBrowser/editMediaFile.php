@@ -109,7 +109,7 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 			$out.='
 			<tr bgColor="#EEEEEE">
 				<td><B>'.$TEXT_THIS_IS_DIRECTORY_TREATED_AS_FILE_CONST.'</B></td>
-				<td><a href="javascript:syncPath(\''.$rowFile['Path'].'/'.$rowFile['Filename'].'\');">'.$TEXT_SHOW_CONTENT_CONST.'</a></td>
+				<td><a href="javascript:syncPath(\''.$rowFile['Path'].'/'.$rowFile['Filename'].'\');">[ '.$TEXT_SHOW_CONTENT_CONST.' ]</a> <a href="index.php?section=editDirectoryAttributes&fileID='.$fileID.'">[ '.$TEXT_EDIT_ATTRIBUTES_FOR_FILES_IN_DIRECTORY_CONST.' ]</a></td>
 			</tr>		
 			
 			';

@@ -665,6 +665,13 @@ switch ($section) {
 	    include_once('operations/mediaBrowser/editMediaFile.php');
 	    editMediaFile($output,$mediadbADO,$dbADO);	    
 	break;
+	case 'editDirectoryAttributes':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/mediaBrowser/editDirectoryAttributes.php');
+	    editDirectoryAttributes($output,$mediadbADO,$dbADO);	    
+	break;
+	
 	case 'playlists':
 		$output = new Template($dbADO);
 		$output->setTemplateFileType('large');

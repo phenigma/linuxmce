@@ -39,4 +39,8 @@ $TEXT_SUB_TYPE_CONST='Media sub-type';
 $TEXT_FILE_FORMAT_CONST='File format';
 $TEXT_THIS_IS_DIRECTORY_TREATED_AS_FILE_CONST='This is a directory treated as a single file';
 $TEXT_SHOW_CONTENT_CONST='Show content';
+$TEXT_EDIT_ATTRIBUTES_FOR_FILES_IN_DIRECTORY_CONST='Edit attributes for all files in directory';
+$TEXT_DIRECTORY_NOT_SPECIFIED_CONST='Directory not specified';
+$TEXT_NO_FILES_ON_DIRECTORY_CONST='No files in selected directory';
+$TEXT_REPLACE_EXISTING_PICS_CONST='Replace all existing pictures?';
 ?>
