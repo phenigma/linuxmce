@@ -190,13 +190,13 @@ function formatAlertsLog($row, $art_index,$securitydbADO,$dbADO)
 		}
 	}	
 	
-	$queryNotifications='SELECT * FROM Notification WHERE FK_Alert=?';
+	$queryNotifications='SELECT Notification.*,UNIX_TIMESTAMP(NotificationTime) AS ntime FROM Notification WHERE FK_Alert=?';
 	$resNotifications=$securitydbADO->Execute($queryNotifications,$row['PK_Alert']);
 	while($rowNotification=$resNotifications->FetchRow()){
 		$out.='
 		<tr class="'.(($art_index%2==0)?'alternate_back':'').'">
 			<td align="center"><B>Notification</B></td>
-			<td align="center">'.date($GLOBALS['defaultDateFormat'],$rowNotification['NotificationTime']).'</td>
+			<td align="center">'.date($GLOBALS['defaultDateFormat'],$rowNotification['ntime']).'</td>
 			<td align="left" colspan="2"><B>Info: </B>'.$rowNotification['Info'].'</td>
 			<td align="left" colspan="3"><B>Result: </B>'.$rowNotification['Result'].'</td>
 		</tr>
