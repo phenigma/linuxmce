@@ -530,6 +530,11 @@ Row_Attribute *MediaAttributes_LowLevel::GetAttributeFromDescription(int PK_Medi
 		m_pDatabase_pluto_media->Attribute_get()->GetRows(sWhere,&vectRow_Attribute);
 	}
 
+LoggerWrapper::GetInstance()->Write(LV_CRITICAL,
+"MediaAttributes_LowLevel::GetAttributeFromDescription PK_MediaType %d PK_AttributeType %d string sName %d PK_Attribute_Related %d size %d",
+PK_MediaType, PK_AttributeType, sName.c_str(), PK_Attribute_Related, (int) vectRow_Attribute.size());
+
+
 	if( vectRow_Attribute.size() )
 		return vectRow_Attribute[0];
 	else
