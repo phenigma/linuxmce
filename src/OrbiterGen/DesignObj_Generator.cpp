@@ -158,19 +158,12 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"const %p %d",this,drDesignObj->PK
 	if( m_pRow_DesignObj->FK_DesignObjType_get()==DESIGNOBJTYPE_Floorplan_CONST )
 		m_iFloorplanPage = m_pOrbiterGenerator->m_iFloorplanPage;
 
-	if( m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Go_CONST || m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Keyword_Search_CONST )
-	{
-		LoggerWrapper::GetInstance()->Write(LV_WARNING,"%d start 1 DESIGNOBJ_butFBSF_Go_CONST",m_pRow_DesignObj->PK_DesignObj_get());
-	}
-
+/*
 if( m_pRow_DesignObj->PK_DesignObj_get()==4871 ||  m_pRow_DesignObj->PK_DesignObj_get()==5088 )// ||  m_pRow_DesignObj->PK_DesignObj_get()==5112 ) 
-//   m_pRow_DesignObj->PK_DesignObj_get()==4292 )// ||  m_pRow_DesignObj->PK_DesignObj_get()==2211 ||
-//   m_pRow_DesignObj->PK_DesignObj_get()==1881 ||  m_pRow_DesignObj->PK_DesignObj_get()==2228 ||
-//   m_pRow_DesignObj->PK_DesignObj_get()==3531 ||  m_pRow_DesignObj->PK_DesignObj_get()==3534 )// || m_pRow_DesignObj->PK_DesignObj_get()==3471 )// && m_ocoParent->m_pRow_DesignObj->PK_DesignObj_get()==2134 )//2821 && bAddToGenerated )*/
 {
     int k=2; 
 }
-
+*/
     // Pick the standard variation, the specialized variation we will use for parameters, and all matching variations for including child objects
     PickVariation(m_pOrbiterGenerator,m_pRow_DesignObj,&m_pRow_DesignObjVariation,&m_pRow_DesignObjVariation_Standard,&m_alDesignObjVariations);
 
@@ -261,9 +254,6 @@ int k=2;
 						}
 						else if( SerializeRead(Filename) )
 						{
-LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"checking for 5362-1. file: %s id %s position x=%d y=%d w=%d h=%d m_alChildDesignObjs %d m_mapChildDgObjects %d", 
-									Filename.c_str(), m_ObjectID.c_str(), m_rPosition.X, m_rPosition.Y, m_rPosition.Width, m_rPosition.Height,(int) m_alChildDesignObjs.size(), (int) m_mapChildDgObjects.size());
-
 							m_bUsingCache=true;
 							ReadFloorplanInfo(Filename+".fp");
 							LoggerWrapper::GetInstance()->Write(LV_STATUS,"Not building screen %s found valid cache",
@@ -312,7 +302,6 @@ LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"checking for 5362-1. file: %s i
 		m_pOrbiterGenerator->m_iScreensToRender++;
     }
 
-LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"checking for 5362-2.  id %s position x=%d y=%d w=%d h=%d bProcess %d",  m_ObjectID.c_str(), m_rPosition.X, m_rPosition.Y, m_rPosition.Width, m_rPosition.Height, (int) bProcess);
     if( !m_pRow_DesignObjVariation->FK_Criteria_Orbiter_isNull() )
         m_pOrbiterGenerator->m_mapUsedOrbiterCriteria[m_pRow_DesignObjVariation->FK_Criteria_Orbiter_get()]=true;
 
@@ -330,14 +319,11 @@ LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"checking for 5362-2.  id %s pos
 	
 void DesignObj_Generator::Process()
 {
-LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"checking for 5362-3a.  id %s position x=%d y=%d w=%d h=%d",  m_ObjectID.c_str(), m_rPosition.X, m_rPosition.Y, m_rPosition.Width, m_rPosition.Height);
 	if( m_bProcessed )  // Don't process anything twice
 		return;
 	m_bProcessed = true;
 
-LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"checking for 5362-3.  id %s position x=%d y=%d w=%d h=%d",  m_ObjectID.c_str(), m_rPosition.X, m_rPosition.Y, m_rPosition.Width, m_rPosition.Height);
 	HandleAdjustments();
-LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"checking for 5362-4.  id %s position x=%d y=%d w=%d h=%d",  m_ObjectID.c_str(), m_rPosition.X, m_rPosition.Y, m_rPosition.Width, m_rPosition.Height);
 	for(int GraphicType=1;GraphicType<=4;++GraphicType)
     {
         // Handle the background image
@@ -623,16 +609,6 @@ Table_Image *p = m_mds->Image_get();
             }
         }
     }
-if(m_sOrigBackgroundFile=="/pluto/orbiter/skins//Basic/Icons/lights/lightson.png")
-int k=2;
-LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"checking for 5362-5.  id %s position x=%d y=%d w=%d h=%d",  m_ObjectID.c_str(), m_rPosition.X, m_rPosition.Y, m_rPosition.Width, m_rPosition.Height);
-
-	if( m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Go_CONST || m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Keyword_Search_CONST )
-	{
-		LoggerWrapper::GetInstance()->Write(LV_WARNING,"start %d 2 DESIGNOBJ_butFBSF_Go_CONST %d,%d-%d,%d %d,%d-%d,%d",m_pRow_DesignObj->PK_DesignObj_get(),
-			this->m_rPosition.X,m_rPosition.Y,m_rPosition.Width,m_rPosition.Height,
-			this->m_rBackgroundPosition.X,this->m_rBackgroundPosition.Y,m_rBackgroundPosition.Width,m_rBackgroundPosition.Height);
-	}
 
 	// See if there's a button
 	if( !m_pRow_DesignObjVariation->FK_Button_isNull() )
@@ -643,8 +619,6 @@ LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"checking for 5362-5.  id %s pos
 		m_iPK_Button = 0;
 
     // Add all text objects
-LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"checking for 5362-6.  id %s position x=%d y=%d w=%d h=%d",  m_ObjectID.c_str(), m_rPosition.X, m_rPosition.Y, m_rPosition.Width, m_rPosition.Height);
-
     for(size_t sov=0;sov<m_alDesignObjVariations.size();++sov)
     {
         Row_DesignObjVariation * drOV=m_alDesignObjVariations[sov];
@@ -726,8 +700,6 @@ int k=2;
     }
 
     // Add all the zones and actions
-LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"checking for 5362-7.  id %s position x=%d y=%d w=%d h=%d",  m_ObjectID.c_str(), m_rPosition.X, m_rPosition.Y, m_rPosition.Width, m_rPosition.Height);
-
     for(size_t s=0;s<m_alDesignObjVariations.size();++s)
     {
         Row_DesignObjVariation * drOV = m_alDesignObjVariations[s];
@@ -824,7 +796,6 @@ LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"checking for 5362-7.  id %s pos
             }
         }
     }
-LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"checking for 5362-8.  id %s position x=%d y=%d w=%d h=%d",  m_ObjectID.c_str(), m_rPosition.X, m_rPosition.Y, m_rPosition.Width, m_rPosition.Height);
 
 	//assign here the effects for each effect event for an object, based on Generator's mapping between
 	//effect type and effect for the right skin
@@ -838,7 +809,6 @@ LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"checking for 5362-8.  id %s pos
         CGZone *oczone = new CGZone(drAG,this);
         m_ZoneList.push_back(oczone);
     }
-LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"checking for 5362-9.  id %s position x=%d y=%d w=%d h=%d",  m_ObjectID.c_str(), m_rPosition.X, m_rPosition.Y, m_rPosition.Width, m_rPosition.Height);
 
     if( m_pRow_DesignObj->FK_DesignObjType_get()==DESIGNOBJTYPE_Floorplan_CONST && m_sOriginalSize.Width>0 && m_sOriginalSize.Height>0 )
     {
@@ -1010,11 +980,6 @@ LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"checking for 5362-9.  id %s pos
             }
         }
     }
-    if( m_pRow_DesignObj->PK_DesignObj_get()==4967 )
-    {
-int k=2;
-    }
-LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"checking for 5362-10.  id %s position x=%d y=%d w=%d h=%d",  m_ObjectID.c_str(), m_rPosition.X, m_rPosition.Y, m_rPosition.Width, m_rPosition.Height);
 
     vector<Row_DesignObjVariation_DesignObj_Skin_Language *> alArrays;
 
@@ -1022,7 +987,6 @@ LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"checking for 5362-10.  id %s po
     for(size_t s=0;s<m_alDesignObjVariations.size();++s)
     {
         Row_DesignObjVariation * drOV=m_alDesignObjVariations[s];
-LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"checking for 5362-11-%d.  id %s position x=%d y=%d w=%d h=%d", (int) s, m_ObjectID.c_str(), m_rPosition.X, m_rPosition.Y, m_rPosition.Width, m_rPosition.Height);
 
 		// Get the matching child rows
 		string sSQL =
@@ -1068,22 +1032,8 @@ LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"checking for 5362-11-%d.  id %s
             Row_DesignObjVariation_DesignObj_Skin_Language * drOVO = vectovo[s2];
 			Row_DesignObj *pRow_DesignObj_Child = drOVO->FK_DesignObjVariation_DesignObj_getrow()->FK_DesignObj_Child_getrow();
 
-if( pRow_DesignObj_Child->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Go_CONST || pRow_DesignObj_Child->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Keyword_Search_CONST )
-{
-	LoggerWrapper::GetInstance()->Write(LV_WARNING,"include DESIGNOBJ_butFBSF_Go_CONST %d v1 %d-%d v2 %d-%d x %d %d y %d %d sc %d",pRow_DesignObj_Child->PK_DesignObj_get(),
-		(int) (m_rPosition.X+drOVO->X_get())*m_iScale/100,(int) m_pOrbiterGenerator->m_sizeScreen->Width,
-		(int)(m_rPosition.Y+drOVO->Y_get())*m_iScale/100,(int) m_pOrbiterGenerator->m_sizeScreen->Height,
-		m_rPosition.X,drOVO->X_get(),m_rPosition.Y,drOVO->Y_get(),
-		m_iScale);
-}
- 
-
 			if( (m_rPosition.X+drOVO->X_get())*m_iScale/100<m_pOrbiterGenerator->m_sizeScreen->Width && (m_rPosition.Y+drOVO->Y_get())*m_iScale/100<m_pOrbiterGenerator->m_sizeScreen->Height )
             {
-if( pRow_DesignObj_Child->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Go_CONST || pRow_DesignObj_Child->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Keyword_Search_CONST )
-{
-	LoggerWrapper::GetInstance()->Write(LV_WARNING,"include DESIGNOBJ_butFBSF_Go_CONST ok");
-}
                 if( pRow_DesignObj_Child->FK_DesignObjType_get()==DESIGNOBJTYPE_Array_CONST )
                     alArrays.push_back(drOVO);
                 else
@@ -1177,14 +1127,12 @@ if( pRow_DesignObj_Child->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Go_CONST || pRow
             }
         }
     }
-LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"checking for 5362-12.  id %s position x=%d y=%d w=%d h=%d",  m_ObjectID.c_str(), m_rPosition.X, m_rPosition.Y, m_rPosition.Width, m_rPosition.Height);
 
 	// If this is a datagrid, add datagrid children
     if( m_pRow_DesignObj->FK_DesignObjType_get()==DESIGNOBJTYPE_Datagrid_CONST )
 	{
 		AddDataGridObjects();
 	}
-LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"checking for 5362-13.  id %s position x=%d y=%d w=%d h=%d",  m_ObjectID.c_str(), m_rPosition.X, m_rPosition.Y, m_rPosition.Width, m_rPosition.Height);
 
     // Now fill in all the arrays
     for(size_t s=0;s<alArrays.size();++s)
@@ -1221,28 +1169,16 @@ LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"checking for 5362-13.  id %s po
             m_alNonMPArrays.push_back(pCGArray);
     }
 
-LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"checking for 5362-14.  id %s position x=%d y=%d w=%d h=%d",  m_ObjectID.c_str(), m_rPosition.X, m_rPosition.Y, m_rPosition.Width, m_rPosition.Height);
 	// Make 2 passes and process first the objects with no adjustments
 	for(int Pass=0;Pass<2;++Pass)
 	{
 		for(vector<class DesignObj_Generator *>::iterator it=m_alChildDesignObjs.begin();it!=m_alChildDesignObjs.end();++it)
 		{
 			DesignObj_Generator *pObj = *it;
-	if( pObj->m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Go_CONST || pObj->m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Keyword_Search_CONST )
-	{
-		LoggerWrapper::GetInstance()->Write(LV_WARNING,"pass 1 DESIGNOBJ_butFBSF_Go_CONST %d %d,%d-%d,%d %d,%d-%d,%d adj %s pass %d",pObj->m_pRow_DesignObj->PK_DesignObj_get(),
-			pObj->m_rPosition.X,pObj->m_rPosition.Y,pObj->m_rPosition.Width,pObj->m_rPosition.Height,
-			pObj->m_rBackgroundPosition.X,pObj->m_rBackgroundPosition.Y,pObj->m_rBackgroundPosition.Width,pObj->m_rBackgroundPosition.Height,
-			pObj->m_sAdjustments.c_str(),(int) Pass);
-	}
 			if( (pObj->m_sAdjustments.empty()==true && Pass==0) || (pObj->m_sAdjustments.empty()==false && Pass==1) )
 				pObj->Process();
 		}
 	}
-LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"checking for 5362-15.  id %s position x=%d y=%d w=%d h=%d",  m_ObjectID.c_str(), m_rPosition.X, m_rPosition.Y, m_rPosition.Width, m_rPosition.Height);
-
-if( m_ObjectID.find("5362.5.0")!=string::npos )
-int k=2;
 
 	// Don't stretch out the floorplan objects
 	if( m_bUsingCache )
@@ -1266,18 +1202,12 @@ int k=2;
 					m_rPosition.Right(oco->m_rPosition.Right());
 					m_rPosition.Bottom(oco->m_rPosition.Bottom());
 				}
-LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"checking for 5362-15b.  id %s position x=%d y=%d w=%d h=%d child %s/%d x=%d y=%d w=%d h=%d", 
-m_ObjectID.c_str(), m_rPosition.X, m_rPosition.Y, m_rPosition.Width, m_rPosition.Height,
-oco->m_ObjectID.c_str(), 
-oco->m_pRow_DesignObj ? oco->m_pRow_DesignObj->PK_DesignObj_get() : 0,
-oco->m_rPosition.X, oco->m_rPosition.Y, oco->m_rPosition.Width, oco->m_rPosition.Height);
             }
         }
     }
 
 	int PK_DesignObj_Goto = 0;
     int tmpDesignObj_Goto;
-LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"checking for 5362-16.  id %s position x=%d y=%d w=%d h=%d",  m_ObjectID.c_str(), m_rPosition.X, m_rPosition.Y, m_rPosition.Width, m_rPosition.Height);
 
     DesignObjCommandList::iterator itActions;
     for(itActions=m_Action_StartupList.begin();itActions!=m_Action_StartupList.end();++itActions)
@@ -1301,10 +1231,6 @@ LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"checking for 5362-16.  id %s po
         }
 
     }
-if( m_pRow_DesignObj->PK_DesignObj_get()==3312 )
-int k=2;
-LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"checking for 5362-17.  id %s position x=%d y=%d w=%d h=%d",  m_ObjectID.c_str(), m_rPosition.X, m_rPosition.Y, m_rPosition.Width, m_rPosition.Height);
-
 
 	DesignObjZoneList::iterator itZone;
     for(itZone=m_ZoneList.begin();itZone!=m_ZoneList.end();++itZone)
@@ -1341,7 +1267,6 @@ LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"checking for 5362-17.  id %s po
                 PK_DesignObj_Goto = tmpDesignObj_Goto;
         }
     }
-LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"checking for 5362-18.  id %s position x=%d y=%d w=%d h=%d",  m_ObjectID.c_str(), m_rPosition.X, m_rPosition.Y, m_rPosition.Width, m_rPosition.Height);
 
     if( PK_DesignObj_Goto>0 )
     {
@@ -2080,21 +2005,11 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
 
 void DesignObj_Generator::ScaleAllValues(int FactorX_Input,int FactorY_Input,class DesignObj_Generator *pTopmostObject)
 {
-LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"checking for 5362-20.  id %s position x=%d y=%d w=%d h=%d",  m_ObjectID.c_str(), m_rPosition.X, m_rPosition.Y, m_rPosition.Width, m_rPosition.Height);
-if( this->m_pRow_DesignObj->PK_DesignObj_get()==4949 )
-int k=2;
 	int FactorX = FactorX_Input * m_iScale/100;
 	int FactorY = FactorY_Input * m_iScale/100;
 	int FactorX_Origin = FactorX_Input;
 	int FactorY_Origin = FactorY_Input;
 
-if( m_pRow_DesignObj->PK_DesignObj_get()==5362 || m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Go_CONST || m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Keyword_Search_CONST )
-	{
-		LoggerWrapper::GetInstance()->Write(LV_WARNING,"ScaleAllValues %d 1 DESIGNOBJ_butFBSF_Go_CONST %d,%d-%d,%d %d,%d-%d,%d %d,%d %d,%d /%d",m_pRow_DesignObj->PK_DesignObj_get(),
-			this->m_rPosition.X,m_rPosition.Y,m_rPosition.Width,m_rPosition.Height,
-			this->m_rBackgroundPosition.X,this->m_rBackgroundPosition.Y,m_rBackgroundPosition.Width,m_rBackgroundPosition.Height,
-			FactorX,FactorY,FactorX_Origin,FactorY_Origin,(int) m_bValuesScaled);
-	}
 	if( !m_bValuesScaled )
     {
         PlutoPoint p3(m_rBackgroundPosition.Location());
@@ -2111,16 +2026,6 @@ if( m_pRow_DesignObj->PK_DesignObj_get()==5362 || m_pRow_DesignObj->PK_DesignObj
         p=PlutoPoint(ScaleValue(&p,FactorX,FactorY));
         m_rPosition.Size(p);
 
-	if( m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Go_CONST || m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Keyword_Search_CONST )
-	{
-		LoggerWrapper::GetInstance()->Write(LV_WARNING,"ScaleAllValues 2 DESIGNOBJ_butFBSF_Go_CONST %d %d,%d-%d,%d %d,%d-%d,%d %d,%d %d,%d /%d  %d,%d %d,%d %d,%d",m_pRow_DesignObj->PK_DesignObj_get(),
-			this->m_rPosition.X,m_rPosition.Y,m_rPosition.Width,m_rPosition.Height,
-			this->m_rBackgroundPosition.X,this->m_rBackgroundPosition.Y,m_rBackgroundPosition.Width,m_rBackgroundPosition.Height,
-			FactorX,FactorY,FactorX_Origin,FactorY_Origin,(int) m_bValuesScaled,
-			p3.X,p3.Y,p2.X,p2.Y,p.X,p.Y);
-	}
-
-		
 		for(size_t s=0;s<m_vectDesignObjText.size();++s)
         {
             CGText *ot = (CGText *) m_vectDesignObjText[s];
@@ -2155,8 +2060,6 @@ if( m_pRow_DesignObj->PK_DesignObj_get()==5362 || m_pRow_DesignObj->PK_DesignObj
     for(size_t s=0;s<m_alChildDesignObjs.size();++s)
     {
         DesignObj_Generator *oc = m_alChildDesignObjs[s];
-if( oc->m_pRow_DesignObj->PK_DesignObj_get()==5363 ) 
-int k=2;
 		if( oc->m_pRow_DesignObj->FK_DesignObjType_get()==DESIGNOBJTYPE_Floorplan_CONST && pTopmostObject )
             pTopmostObject->m_bContainsArrays=true; // We don't want to cache floorplans either
 
@@ -2187,7 +2090,6 @@ int k=2;
             oc->ScaleAllValues(FactorX_Input,FactorY_Input,pTopmostObject);
         }
     }
-LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"checking for 5362-21.  id %s position x=%d y=%d w=%d h=%d",  m_ObjectID.c_str(), m_rPosition.X, m_rPosition.Y, m_rPosition.Width, m_rPosition.Height);
 }
 
 PlutoPoint *DesignObj_Generator::ScaleValue(PlutoPoint *pt,int FactorX,int FactorY)
