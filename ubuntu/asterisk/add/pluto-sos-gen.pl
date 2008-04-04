@@ -75,7 +75,7 @@ for(my $i=0;defined($data[$i]);$i+=2)
 	my $j=int(($i+2)/2);
 	print STDERR "[".$data[$i]."]=".$data[$i+1]."\n";
 	`flite -t "To call the $data[$i] press $j" -o /tmp/pluto-security-sos-option$j.wav`;
-	`/usr/bin/sox /tmp/pluto-security-sos-option$j.wav -r 8000 -c 1 /tmp/pluto-security-sos-option$j.gsm resample -ql`;
+	`/usr/bin/sox /tmp/pluto-security-sos-option$j.wav -t raw -r 8000 -s -w -c 1 /tmp/pluto-security-sos-option$j.gsm`;
 }
 
 $statement->finish();

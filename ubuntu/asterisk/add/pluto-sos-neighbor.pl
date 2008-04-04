@@ -20,6 +20,7 @@ my $row;
 my @data;
 my $secpluginid;
 my $telpluginid;
+my $asteriskid;
 
 my $mode=0;
 
@@ -74,6 +75,17 @@ unless($row = $statement->fetchrow_hashref())
 $telpluginid=$row->{PK_Device};
 $statement->finish();
 
+$sql = "select PK_Device from Device where FK_DeviceTemplate=45;";
+$statement = $db_handle->prepare($sql) or die "Couldn't prepare query '$sql': $DBI::errstr\n";
+$statement->execute() or die "Couldn't execute query '$sql': $DBI::errstr\n";
+unless($row = $statement->fetchrow_hashref())
+{
+    print STDERR "NO ASTERISK\n";
+    exit(1);
+}
+$asteriskid=$row->{PK_Device};
+$statement->finish();
+
 $sql = "select IK_DeviceData from Device_DeviceData where FK_Device=\'".$secpluginid."\' and FK_DeviceData='36';";
 $statement = $db_handle->prepare($sql) or die "Couldn't prepare query '$sql': $DBI::errstr\n";
 $statement->execute() or die "Couldn't execute query '$sql': $DBI::errstr\n";
@@ -88,21 +100,19 @@ unless($row->{IK_DeviceData} ne "") {
 	exit(1);
 }
 
-$sql = "select FK_Device from Device_DeviceData where FK_DeviceData=31 AND IK_DeviceData IN (".$row->{IK_DeviceData}.")";
-print "$sql \n";
-$statement = $db_handle->prepare($sql) or die "Couldn't prepare query '$sql': $DBI::errstr\n";
-$statement->execute() or die "Couldn't execute query '$sql': $DBI::errstr\n";
-@data=();
-while($row = $statement->fetchrow_hashref())
-{
-	push(@data,$row->{FK_Device});
-}
+print "neighbors: ";
+print $row->{IK_DeviceData};
+print "\n\n";
 
-for(my $i=0;defined($data[$i]);$i++)
+@data = split(/[,]/,$row->{IK_DeviceData}); 
+
+for(my $i=0;defined($data[$i]);$i+=2)
 {
-	print '/usr/pluto/bin/MessageSend localhost -targetType device '.$secpluginid.' '.$telpluginid.' 1 414 75 -'.$data[$i].'- 81 "pluto" 83 "997 '."\n";
-	# 921 - Make Call   262 - FK_Device_From   83 - PhoneExtension
-	`/usr/pluto/bin/MessageSend localhost -targetType device $data[$i] $telpluginid 1 921 262 $data[$i] 83 997`;
+	print 'calling neighbor: ';
+	print $data[$i];
+	print ": \n";
+ 	print '/usr/pluto/bin/MessageSend localhost -targetType device '.$secpluginid.' '.$asteriskid.' 1 233 75 9'.$data[$i + 1].' 83 997 84 pluto 82 SIP '."\n";
+	`/usr/pluto/bin/MessageSend localhost -targetType device $secpluginid $asteriskid 1 233 75 9$data[$i + 1] 83 997 84 pluto 82 SIP`;
 }
 
 $statement->finish();
