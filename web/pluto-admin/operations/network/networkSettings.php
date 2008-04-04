@@ -349,8 +349,10 @@ function networkSettings($output,$dbADO) {
 				writeFile($GLOBALS['WebExecLogFile'],date('d-m-Y H:i:s')."\tIP changed from $oldInternalCoreIP to $internalCoreIP\n",'a+');
 			}
 			
-			exec_batch_command('sudo -u root /usr/pluto/bin/InternalIPChange.sh');
-			$ipchanged_msg=' IP updated, please reboot.';
+			if($isChanged==1){
+				exec_batch_command('sudo -u root /usr/pluto/bin/InternalIPChange.sh');
+				$ipchanged_msg=' IP updated, please reboot.';
+			}
 		}
 		
 		$commands = array('Network_Setup.sh', 'Network_Firewall.sh');
