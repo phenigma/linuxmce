@@ -300,7 +300,6 @@ LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"checking for 5362-1. file: %s i
             Filespec.replace(s,1,"\\");
         while( (s=Filespec2.find("/"))!=string::npos )
             Filespec2.replace(s,1,"\\");
-LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"checking for 5362-2.  id %s position x=%d y=%d w=%d h=%d",  m_ObjectID.c_str(), m_rPosition.X, m_rPosition.Y, m_rPosition.Width, m_rPosition.Height);
 
         system( ("del \"" + Filespec + "\" 2> null").c_str() );
         system( ("del \"" + Filespec2 + "\" 2> null").c_str() );
@@ -313,6 +312,7 @@ LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"checking for 5362-2.  id %s pos
 		m_pOrbiterGenerator->m_iScreensToRender++;
     }
 
+LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"checking for 5362-2.  id %s position x=%d y=%d w=%d h=%d bProcess %d",  m_ObjectID.c_str(), m_rPosition.X, m_rPosition.Y, m_rPosition.Width, m_rPosition.Height, (int) bProcess);
     if( !m_pRow_DesignObjVariation->FK_Criteria_Orbiter_isNull() )
         m_pOrbiterGenerator->m_mapUsedOrbiterCriteria[m_pRow_DesignObjVariation->FK_Criteria_Orbiter_get()]=true;
 
@@ -330,6 +330,7 @@ LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"checking for 5362-2.  id %s pos
 	
 void DesignObj_Generator::Process()
 {
+LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"checking for 5362-3a.  id %s position x=%d y=%d w=%d h=%d",  m_ObjectID.c_str(), m_rPosition.X, m_rPosition.Y, m_rPosition.Width, m_rPosition.Height);
 	if( m_bProcessed )  // Don't process anything twice
 		return;
 	m_bProcessed = true;
