@@ -111,7 +111,7 @@ int UserUtils::AddUser(string sUsername,Command_Impl *pCommand_Impl)
 	}
 	sSQL = "INSERT INTO Users(UserName,Password,PINCode,HasMailbox,AccessGeneralMailbox) "
 		"VALUES('" + StringUtils::SQLEscape(sUsername) + "',md5('" + StringUtils::SQLEscape(sUsername) + "'),md5('1234')" +
-		(bExistingUsers ? ",0,0)" : ",1,1)");
+		(bExistingUsers ? ",1,0)" : ",1,1)");
 
 	int PK_Users = m_pDBHelper->threaded_db_wrapper_query_withID(sSQL);
 	sSQL = "INSERT INTO Installation_Users(FK_Installation,FK_Users,userCanModifyInstallation,userCanChangeHouseMode) "
@@ -164,6 +164,8 @@ int UserUtils::AddUser(string sUsername,Command_Impl *pCommand_Impl)
 	//NOTE: don't call setup users if we don't have a command impl
 	//webadmin will run the script manually
 
+	ConfirmMasterUserExists();
+
 	if(NULL != pCommand_Impl)
 	{
 		DeviceData_Base *pDevice_Core = pCommand_Impl->m_pData->m_AllDevices.m_mapDeviceData_Base_FindFirstOfCategory(DEVICECATEGORY_Core_CONST);
@@ -201,5 +203,23 @@ void UserUtils::RemoveUser(int PK_User)
 	sSQL = "DELETE FROM Room_Users WHERE FK_Users=" + StringUtils::itos(PK_User);
 	m_pDBHelper->threaded_db_wrapper_query(sSQL);
 
+	ConfirmMasterUserExists();
 }
 
+void UserUtils::ConfirmMasterUserExists()
+{
+	if( !AlreadyHasMasterUsers() )
+	{
+		string sSQL = "SELECT min(FK_Users) FROM Users JOIN Installation_Users ON FK_Users=PK_Users WHERE FK_Installation=" + StringUtils::itos(m_PK_Installation);
+		PlutoSqlResult result_set_user;
+		DB_ROW row;
+		if( (result_set_user.r=m_pDBHelper->db_wrapper_query_result(sSQL)) && (row = db_wrapper_fetch_row(result_set_user.r))!=NULL )
+		{
+			sSQL = "UPDATE Installation_Users set userCanModifyInstallation=1 WHERE FK_Users=" + string(row[0]);
+			m_pDBHelper->threaded_db_wrapper_query(sSQL);
+			LoggerWrapper::GetInstance()->Write(LV_WARNING,"User removed master user.  New master user is: %s", row[0]);
+		}
+		else
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"No users to set as master");
+	}
+}

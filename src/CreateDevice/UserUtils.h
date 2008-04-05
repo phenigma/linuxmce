@@ -42,6 +42,7 @@ public:
 	void CheckExtensions();
 	int AddUser(string sUsername,DCE::Command_Impl *pCommand_Impl=NULL);
 	void RemoveUser(int PK_Users);
+	void ConfirmMasterUserExists(); // Confirm there's always at least one master user
 };
 
 #endif

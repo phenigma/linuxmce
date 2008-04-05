@@ -698,3 +698,105 @@ string MediaStream::GetTargets(int PK_DeviceTemplate)
 	}
 	return sTargets;
 }
+
+// This sends the set now playing command to an orbiter.  If pMessage is passed, it adds the command without sending it
+void MediaStream::SetNowPlaying( OH_Orbiter *pOH_Orbiter, bool bRefreshScreen, bool bGotoRemote, Message *pMessage )
+{
+	Media_Plugin *pMedia_Plugin = m_pMediaHandlerInfo ? m_pMediaHandlerInfo->m_pMediaHandlerBase->m_pMedia_Plugin : NULL;
+	if( !pMedia_Plugin )  // Don't this this will ever happen
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MediaStream::SetNowPlaying no media plugin");
+		return;
+	}
+
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"MediaStream::SetNowPlaying stream %p refresh %d"
+					,this,(int) bRefreshScreen);
+	string sRemotes;
+	RemoteControlSet *pRemoteControlSet = NULL;
+	// As a temporary measure we don't have a method for making certain stored video clips use a different
+	// set of menu options than others, and yet stored dvd's need menu, subtitle, etc., options that normal
+	// media doesn't.  We should comed up with a 'stream capabilities' function that allows us to add playback 
+	// options on the fly, but until then, if it's a stored video file, and it has titles/sections, use the dvd's menu options
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"MediaStream::SetNowPlaying type %d containstitles %d",m_iPK_MediaType,(int) m_bContainsTitlesOrSections);
+	if( m_iPK_MediaType==MEDIATYPE_pluto_StoredVideo_CONST && m_bContainsTitlesOrSections )
+	{
+		pRemoteControlSet = pMedia_Plugin->GetRemoteControlSet(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,this,MEDIATYPE_pluto_DVD_CONST);
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"MediaStream::SetNowPlaying pRemoteControlSet_dvd %p",pRemoteControlSet);
+	}
+	else
+		pRemoteControlSet = pMedia_Plugin->GetRemoteControlSet(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,this);
+	if( !pRemoteControlSet )
+		return;
+
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"MediaStream::SetNowPlaying use alt screens %d alt osd %d alt remote %d",
+				(int) m_bUseAltScreens,pRemoteControlSet->m_iPK_Screen_Alt_OSD,pRemoteControlSet->m_iPK_Screen_Alt_Remote);
+
+	sRemotes = StringUtils::itos(m_bUseAltScreens && pRemoteControlSet->m_iPK_Screen_Alt_Remote ? pRemoteControlSet->m_iPK_Screen_Alt_Remote : pRemoteControlSet->m_iPK_Screen_Remote) + ","
+		+ StringUtils::itos(pRemoteControlSet->m_iPK_DesignObj_Remote_Popup) + ","   // ON UI2 the leftmost popup menu on the main menu
+		+ StringUtils::itos(pRemoteControlSet->m_iPK_Screen_FileList) + ","
+		+ StringUtils::itos(m_bUseAltScreens && pRemoteControlSet->m_iPK_Screen_Alt_OSD ? pRemoteControlSet->m_iPK_Screen_Alt_OSD : pRemoteControlSet->m_iPK_Screen_OSD) + ","
+		+ StringUtils::itos(pRemoteControlSet->m_iPK_Screen_OSD_Speed) + ","
+		+ StringUtils::itos(pRemoteControlSet->m_iPK_Screen_OSD_Track);
+
+	EntertainArea *pEntertainArea_OSD=NULL;
+
+	int PK_Device_Source=0,iDequeMediaFile=0;
+
+	//bool bIsOSD=OrbiterIsOSD(dwPK_Device,&pEntertainArea_OSD);
+	int PK_Screen = GetRemoteControlScreen(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
+	PK_Device_Source = m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device;
+	if( m_iTrackOrSectionOrChannel==-1 )
+		iDequeMediaFile = m_iDequeMediaFile_Pos;
+	else
+		iDequeMediaFile = m_iTrackOrSectionOrChannel;
+
+	string sMediaDevices;
+
+	if( m_pMediaDevice_Source->m_bCaptureCardActive )
+	{
+		// If we're using a capture card then the audio & video should go to the output device in this entertainment area, not the 
+		// one the capture card is connected to
+		MediaDevice *pMediaDevice = pOH_Orbiter->m_pEntertainArea ? pOH_Orbiter->m_pEntertainArea->m_pMediaDevice_ActiveDest : NULL;
+		sMediaDevices = StringUtils::itos(m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device)
+			+ "," + (pMediaDevice && pMediaDevice->m_pDevice_Video ? StringUtils::itos(pMediaDevice->m_pDevice_Video->m_dwPK_Device) : "")
+			+ "," + (pMediaDevice && pMediaDevice->m_pDevice_Audio ? StringUtils::itos(pMediaDevice->m_pDevice_Audio->m_dwPK_Device) : "")
+			+ "," + (m_pMediaDevice_Source->m_pDevice_CaptureCard && m_pMediaDevice_Source->m_bCaptureCardActive ? StringUtils::itos(m_pMediaDevice_Source->m_pDevice_CaptureCard->m_dwPK_Device) : "");
+	}
+	else
+		sMediaDevices = StringUtils::itos(m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device)
+			+ "," + (m_pMediaDevice_Source->m_pDevice_Video ? StringUtils::itos(m_pMediaDevice_Source->m_pDevice_Video->m_dwPK_Device) : "")
+			+ "," + (m_pMediaDevice_Source->m_pDevice_Audio ? StringUtils::itos(m_pMediaDevice_Source->m_pDevice_Audio->m_dwPK_Device) : "")
+			+ "," + (m_pMediaDevice_Source->m_pDevice_CaptureCard && m_pMediaDevice_Source->m_bCaptureCardActive ? StringUtils::itos(m_pMediaDevice_Source->m_pDevice_CaptureCard->m_dwPK_Device) : "");
+
+	if( m_pMediaDevice_Source->m_pDevice_Audio && m_pMediaDevice_Source->m_pDevice_Audio->m_mapParameters_Find(DEVICEDATA_Discrete_Volume_CONST)=="1" )
+		sMediaDevices += ",1";
+	else
+		sMediaDevices += ",0";
+
+	sMediaDevices += ContainsVideo() ? ",1" : ",0";
+	sMediaDevices += pEntertainArea_OSD && pEntertainArea_OSD->m_bViewingLiveAVPath ? ",1" : ",0";
+
+	DCE::CMD_Set_Now_Playing CMD_Set_Now_Playing( pMedia_Plugin->m_dwPK_Device, pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, 
+		sRemotes, m_sMediaDescription, m_sSectionDescription, 
+		m_iPK_MediaType, m_iStreamID_get(), iDequeMediaFile, m_sAppName, 
+		sMediaDevices, bRefreshScreen);
+
+	if( pMessage )
+	{
+		pMessage->m_vectExtraMessages.push_back(CMD_Set_Now_Playing.m_pMessage);
+		if( bGotoRemote )
+		{
+			DCE::CMD_Goto_Screen CMD_Goto_Screen(pMedia_Plugin->m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,"",PK_Screen,interuptAlways,true,false);
+			pMessage->m_vectExtraMessages.push_back(CMD_Goto_Screen.m_pMessage);
+		}
+	}
+	else
+	{
+		if( bGotoRemote )
+		{
+			DCE::CMD_Goto_Screen CMD_Goto_Screen(pMedia_Plugin->m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,"",PK_Screen,interuptAlways,true,false);
+			CMD_Set_Now_Playing.m_pMessage->m_vectExtraMessages.push_back(CMD_Goto_Screen.m_pMessage);
+		}
+		pMedia_Plugin->SendCommand( CMD_Set_Now_Playing );
+	}
+}

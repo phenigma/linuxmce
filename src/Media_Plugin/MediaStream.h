@@ -208,6 +208,10 @@ namespace DCE
 		virtual int GetRemoteControlScreen(int PK_Orbiter);
 		virtual void GetRenderDevices(map<int, MediaDevice *> *pmapMediaDevices);
 
+		// Call this when you need to update the orbiters with the now playing info.  If pMessage is not NULL, the set now playing command will be appended to the existing message
+		// If bGotoRemote=true, the controller will be sent to a remote also
+		virtual void SetNowPlaying( OH_Orbiter *pOH_Orbiter, bool bRefreshScreen, bool bGotoRemote=false, Message *pMessage=NULL );
+
 		virtual MediaFile *GetCurrentMediaFile()
 		{
 //			if( m_iDequeMediaFile_Pos < 0 || m_iDequeMediaFile_Pos >= m_dequeMediaFile.size() )
