@@ -2202,6 +2202,7 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 				}
 			}
 
+			m_bIgnoreFirstEvent = DATA_Get_Ignore_First_Event();
 			if( !m_bNewOrbiter && DATA_Get_Leave_Monitor_on_for_OSD() )
 				m_bDisplayOn=false;  // So the first touch will turn it on
 			else
@@ -3609,7 +3610,7 @@ bool Orbiter::GotActivity( int PK_Button )
 	if( !m_bDisplayOn || 
 		(m_pScreenHistory_Current && m_pScreenHistory_Current->GetObj() == m_pDesignObj_Orbiter_ScreenSaveMenu) )
 	{
-		bool bReturnValue=false;  // Normally we won't want this key to be processed, with one exception below
+		bool bReturnValue=!m_bIgnoreFirstEvent;  // Normally we won't want this key to be processed if we're set to ignore first events because we need to turn on the tv first, with one exception below
 #ifdef DEBUG
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"GotActiity monitor m_bDisplayOn is %d",(int) m_bDisplayOn);
 #endif

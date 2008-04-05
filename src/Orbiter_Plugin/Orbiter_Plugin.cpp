@@ -898,14 +898,8 @@ bool Orbiter_Plugin::ReloadAborted(class Socket *pSocket,class Message *pMessage
 		return false;
 
 	DeviceData_Router *pDeviceData_Router = m_pRouter->m_mapDeviceData_Router_Find(PK_Device);
-
-	string Message = "Cannot reload at this moment";
-	if( pDeviceData_Router )
-		Message+= " as per " + pDeviceData_Router->m_sDescription;
-	Message += ".  Please try again in a few minutes.\n" + pMessage->m_mapParameters[EVENTPARAMETER_Text_CONST];
-
-	SCREEN_DialogGenericError SCREEN_DialogGenericError(m_dwPK_Device, PK_Orbiter, Message, "0", "0", "0");
-	SendCommand(SCREEN_DialogGenericError);
+	SCREEN_Cannot_Reload_Router SCREEN_Cannot_Reload_Router(m_dwPK_Device, PK_Orbiter, pDeviceData_Router->m_sDescription + "\n" + pMessage->m_mapParameters[EVENTPARAMETER_Text_CONST]);
+	SendCommand(SCREEN_Cannot_Reload_Router);
 
 	return false;
 }

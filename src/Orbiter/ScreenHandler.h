@@ -269,6 +269,7 @@ public:
 	virtual void SCREEN_DialogPlaylistSaved(long PK_Screen);
 	virtual void SCREEN_DialogUnableToLoadPlaylist(long PK_Screen);
 	virtual void SCREEN_DialogRippingError(long PK_Screen, string sDescription, string sTimeout	);
+	virtual void SCREEN_Cannot_Reload_Router(long PK_Screen, string sDescription);
 	virtual void SCREEN_DialogRippingInstructions(long PK_Screen);
 	virtual void SCREEN_DialogGenericError(long PK_Screen, string sDescription, string sPromptToResetRouter, 
 		string sTimeout, string sCannotGoBack);

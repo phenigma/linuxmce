@@ -427,6 +427,7 @@ namespace DCE
 
 		time_t m_LastActivityTime; /** < The last activity time */
 		bool m_bDisplayOn; /** < False if the screen has blanked for the screen saver */
+		bool m_bIgnoreFirstEvent; /** < A copy of DATA_Get_Ignore_First_Event for quick access */
 		bool m_bYieldScreen; /** < True if the orbiter should make the application desktop full screen ( hide itself ) */
 		bool m_bYieldInput; /** < True if the orbiter should yield all input, like keyboard and mouse. This is useful when running the Orbiter as Linux desktop */
 		bool m_bBypassScreenSaver; /** < True if we don't want the screen to blank */
@@ -968,7 +969,7 @@ namespace DCE
 	string DATA_Get_Path();
 	int DATA_Get_PK_Users();
 	string DATA_Get_Current_Screen();
-	void DATA_Set_Current_Screen(string Value);
+	void DATA_Set_Current_Screen(string Value,bool bUpdateDatabase=false);
 	int DATA_Get_PK_Distro();
 	bool DATA_Get_Development();
 	bool DATA_Get_No_Effects();
@@ -984,7 +985,7 @@ namespace DCE
 	bool DATA_Get_Use_OCG_Format();
 	int DATA_Get_VideoFrameInterval();
 	int DATA_Get_ImageQuality();
-	void DATA_Set_ImageQuality(int Value);
+	void DATA_Set_ImageQuality(int Value,bool bUpdateDatabase=false);
 	bool DATA_Get_Leave_Monitor_on_for_OSD();
 	bool DATA_Get_Ignore();
 	bool DATA_Get_Dont_Auto_Jump_to_Remote();
@@ -998,15 +999,17 @@ namespace DCE
 	int DATA_Get_Listen_Port();
 	int DATA_Get_PK_Screen();
 	string DATA_Get_Spacing();
-	void DATA_Set_Spacing(string Value);
+	void DATA_Set_Spacing(string Value,bool bUpdateDatabase=false);
 	string DATA_Get_Offset();
-	void DATA_Set_Offset(string Value);
+	void DATA_Set_Offset(string Value,bool bUpdateDatabase=false);
 	bool DATA_Get_Get_Time_Code_for_Media();
 	string DATA_Get_Shortcut();
 	bool DATA_Get_Expert_Mode();
 	bool DATA_Get_Enable_Memory_Management();
 	int DATA_Get_Border_Size();
 	string DATA_Get_Alert_Filter_Level();
+	bool DATA_Get_Ignore_First_Event();
+	void DATA_Set_Ignore_First_Event(bool Value,bool bUpdateDatabase=false);
 
 			*****EVENT***** accessors inherited from base class
 	void EVENT_Touch_or_click(int iX_Position,int iY_Position);

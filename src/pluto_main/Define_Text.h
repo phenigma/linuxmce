@@ -1273,6 +1273,8 @@
 #define TEXT_Eject_CONST 2017
 #define TEXT_Invalid_PIN_CONST 2018
 #define TEXT_Recently_Used_CONST 2020
+#define TEXT_Force_Reload_CONST 2021
+#define TEXT_Cannot_Reload_CONST 2022
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

@@ -409,6 +409,18 @@ public:
 			return m_mapParameters[DEVICEDATA_Alert_Filter_Level_CONST];
 	}
 
+	bool Get_Ignore_First_Event()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return (m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Ignore_First_Event_CONST)=="1" ? true : false);
+		else
+			return (m_mapParameters[DEVICEDATA_Ignore_First_Event_CONST]=="1" ? true : false);
+	}
+
+	void Set_Ignore_First_Event(bool Value)
+	{
+		SetParm(DEVICEDATA_Ignore_First_Event_CONST,(Value ? "1" : "0"));
+	}
 };
 
 
@@ -555,6 +567,8 @@ public:
 	bool DATA_Get_Enable_Memory_Management() { return GetData()->Get_Enable_Memory_Management(); }
 	int DATA_Get_Border_Size() { return GetData()->Get_Border_Size(); }
 	string DATA_Get_Alert_Filter_Level() { return GetData()->Get_Alert_Filter_Level(); }
+	bool DATA_Get_Ignore_First_Event() { return GetData()->Get_Ignore_First_Event(); }
+	void DATA_Set_Ignore_First_Event(bool Value,bool bUpdateDatabase=false) { GetData()->Set_Ignore_First_Event(Value); if( bUpdateDatabase ) SetDeviceDataInDB(m_dwPK_Device,274,Value); }
 	//Event accessors
 	void EVENT_Touch_or_click(int iX_Position,int iY_Position) { GetEvents()->Touch_or_click(iX_Position,iY_Position); }
 	//Commands - Override these to handle commands from the server

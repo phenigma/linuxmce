@@ -803,6 +803,7 @@ void OSDScreenHandler::SCREEN_TV_Manufacturer(long PK_Screen)
 
 	if(m_pWizardLogic->m_nPK_Device_TV )
 	{
+		m_pOrbiter->DATA_Set_Ignore_First_Event(true,true);  // We have a TV, so the first click/key/etc. should be ignored since the TV is off and it will just turn it on
 		m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST, StringUtils::itos(DatabaseUtils::GetDeviceTemplateForDevice(m_pWizardLogic,m_pWizardLogic->m_nPK_Device_TV)));
 		m_pOrbiter->CMD_Set_Variable(VARIABLE_Device_List_CONST, sTV);
 		m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_5_CONST, sInput);
@@ -839,6 +840,7 @@ void OSDScreenHandler::SCREEN_TV_Manufacturer(long PK_Screen)
 	}
 	else
 	{
+		m_pOrbiter->DATA_Set_Ignore_First_Event(false,true);
 		m_pWizardLogic->FindPnpDevices(TOSTRING(DEVICECATEGORY_TVsPlasmasLCDsProjectors_CONST));
 		m_pOrbiter->StartScreenHandlerTimer(500);
 	}
@@ -882,6 +884,7 @@ bool OSDScreenHandler::TV_OnTimer(CallBackData *pData)
 
 	if(PK_Device_TV)
 	{
+		m_pOrbiter->DATA_Set_Ignore_First_Event(true,true);  // We have a TV, so the first click/key/etc. should be ignored since the TV is off and it will just turn it on
 		NeedToRender render2( m_pOrbiter, "OSDScreenHandler::VideoWizard_OnTimer" );  // Redraw anything that was changed by this command
 		m_pOrbiter->CMD_Goto_DesignObj(0,TOSTRING(DESIGNOBJ_DirectToTV_CONST),"","",false,false);
 		m_pWizardLogic->m_nPK_Device_TV=PK_Device_TV;
@@ -954,6 +957,7 @@ bool OSDScreenHandler::TV_Manufacturer_ObjectSelected(CallBackData *pData)
 				{
 					m_pWizardLogic->DeleteDevicesInThisRoomOfType(DEVICECATEGORY_TVsPlasmasLCDsProjectors_CONST);
 					m_pWizardLogic->m_nPK_Device_TV = m_pWizardLogic->AddDevice(atoi(sModel.c_str()));
+					m_pOrbiter->DATA_Set_Ignore_First_Event(true,true);  // We have a TV, so the first click/key/etc. should be ignored since the TV is off and it will just turn it on
 				}
 			}
 		}
@@ -1013,7 +1017,6 @@ bool OSDScreenHandler::TV_Manufacturer_ObjectSelected(CallBackData *pData)
 				int iPK_Device_ControlledVia = atoi(StringUtils::Tokenize(sCell,",",pos).c_str());
 				string sPort = StringUtils::Tokenize(sCell,",",pos);
 				int PK_DeviceTemplate = atoi(m_pOrbiter->m_mapVariable_Find(VARIABLE_Misc_Data_2_CONST).c_str());
-
 				// Delete receivers first since maybe the user is returning to this wizard
 				m_pWizardLogic->DeleteDevicesInThisRoomOfType(DEVICECATEGORY_TVsPlasmasLCDsProjectors_CONST);
 				m_pWizardLogic->m_nPK_Device_TV = m_pWizardLogic->AddDevice(PK_DeviceTemplate,
@@ -1021,6 +1024,7 @@ bool OSDScreenHandler::TV_Manufacturer_ObjectSelected(CallBackData *pData)
 																				iPK_Device_ControlledVia);
 
 				m_pOrbiter->CMD_Goto_DesignObj(0,StringUtils::itos(DESIGNOBJ_DirectToTV_CONST),"","",true,false);
+				m_pOrbiter->DATA_Set_Ignore_First_Event(true,true);  // We have a TV, so the first click/key/etc. should be ignored since the TV is off and it will just turn it on
 				return true;
 			}
 		}

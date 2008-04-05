@@ -526,6 +526,9 @@ Create this on the stack to have all allocated memory clean up on exit
 				return Socket::ReceiveData( iSize, pcData, nTimeout );
 		}
 
+		/** @brief Gets the "IPAddress" for the given device, or this device by default */
+		string GetIpAddress( int dwPK_Device=0 );
+
 		/** @brief Gets the "state" for the given device, or this device by default */
 		virtual string GetState( int dwPK_Device=0 );
 

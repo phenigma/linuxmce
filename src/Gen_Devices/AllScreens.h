@@ -14234,6 +14234,66 @@ PK_DeviceData .... */, sOptions.c_str(), 224 /* PK_PnpQueue */, StringUtils::lto
 		}
 	};
 
+	class SCREEN_Cannot_Reload_Router : public PreformedCommand
+	{
+	public:
+		SCREEN_Cannot_Reload_Router(long DeviceIDFrom, long DeviceIDTo,
+			string sDescription,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 5, 
+				COMMANDPARAMETER_PK_Screen_CONST, "283" /* screen ID */
+				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
+				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
+				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */,
+				163 /* Description */, sDescription.c_str());
+		}
+	};
+
+	class SCREEN_Cannot_Reload_Router_DL : public PreformedCommand
+	{
+	public:
+		SCREEN_Cannot_Reload_Router_DL(long DeviceIDFrom, string sDeviceIDTo,
+			string sDescription,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+		{
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 5, 
+				COMMANDPARAMETER_PK_Screen_CONST, "283" /* screen ID */
+				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
+				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
+				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */,
+				163 /* Description */, sDescription.c_str());
+		}
+	};
+
+	class SCREEN_Cannot_Reload_Router_DT : public PreformedCommand
+	{
+	public:
+		SCREEN_Cannot_Reload_Router_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,
+			string sDescription,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+		{
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 5, 
+				COMMANDPARAMETER_PK_Screen_CONST, "283" /* screen ID */
+				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
+				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
+				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */,
+				163 /* Description */, sDescription.c_str());
+		}
+	};
+
+	class SCREEN_Cannot_Reload_Router_Cat : public PreformedCommand
+	{
+	public:
+		SCREEN_Cannot_Reload_Router_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,
+			string sDescription,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 5, 
+				COMMANDPARAMETER_PK_Screen_CONST, "283" /* screen ID */
+				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
+				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
+				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */,
+				163 /* Description */, sDescription.c_str());
+		}
+	};
+
 
 	class ScreenHandlerBase
 	{
@@ -14525,6 +14585,7 @@ PK_DeviceData .... */, sOptions.c_str(), 224 /* PK_PnpQueue */, StringUtils::lto
 		virtual void SCREEN_aJAd(long PK_Screen, string sFilename, string sURL){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Non_Pluto_TV_Full_screen(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Non_Pluto_TV_Full_screen_options(long PK_Screen){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_Cannot_Reload_Router(long PK_Screen, string sDescription){ GotoScreen(PK_Screen); }
 
 		virtual void ReceivedGotoScreenMessage(int nPK_Screen, Message *pMessage)
 		{
@@ -16214,6 +16275,13 @@ PK_DeviceData .... */, sOptions.c_str(), 224 /* PK_PnpQueue */, StringUtils::lto
 				{
 					ResetCallBacks();
 					SCREEN_Non_Pluto_TV_Full_screen_options(nPK_Screen);
+					break;
+				}
+				case 283:
+				{
+					ResetCallBacks();
+					string sDescription = pMessage->m_mapParameters[163];
+					SCREEN_Cannot_Reload_Router(nPK_Screen, sDescription);
 					break;
 				}
 

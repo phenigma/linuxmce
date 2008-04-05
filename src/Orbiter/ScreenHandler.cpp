@@ -1537,6 +1537,19 @@ void ScreenHandler::SCREEN_DialogRippingError(long PK_Screen, string sDescriptio
 	DisplayMessageOnOrbiter(PK_Screen, sDescription, false, sTimeout, false);
 }
 //-----------------------------------------------------------------------------------------------------
+void ScreenHandler::SCREEN_Cannot_Reload_Router(long PK_Screen, string sDescription)
+{
+	DisplayMessageOnOrbiter(PK_Screen, m_pOrbiter->m_mapTextString[TEXT_Cannot_Reload_CONST] + "\n" + sDescription, false, "0", true, 
+		//OK
+		m_pOrbiter->m_mapTextString[TEXT_Ok_CONST],"",
+		//Force text
+		m_pOrbiter->m_mapTextString[TEXT_Force_Reload_CONST],"",
+		//the command
+		StringUtils::itos(m_pOrbiter->m_dwPK_Device) + " " TOSTRING(DEVICEID_DCEROUTER) 
+		" " TOSTRING(MESSAGETYPE_SYSCOMMAND) " " TOSTRING(SYSCOMMAND_RELOAD_FORCED)
+	);
+}
+//-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_DialogRippingInstructions(long PK_Screen)
 {
 	DisplayMessageOnOrbiter(PK_Screen,
