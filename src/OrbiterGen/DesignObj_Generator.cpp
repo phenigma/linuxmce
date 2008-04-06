@@ -1841,7 +1841,7 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
 							string sData = row[0];
 							while(true)
 							{
-								string sLine = StringUtils::Tokenize(sData,"\r\n",pos);
+								string sLine = StringUtils::Tokenize(sData,"\r\n",pos,true);
 								if(sLine.empty())
 									break;
 								string::size_type pos2 = 0;
