@@ -233,7 +233,8 @@ PK_Installation = 1
 PK_Users = 1
 OfflineMode = $OfflineMode
 Display = 0
-LogLevels = 1,5,7,8
+#LogLevels = 1,5,7,8
+ImmediatelyFlushLog = 1
 "
 echo "$PlutoConf" >/etc/pluto.conf
 

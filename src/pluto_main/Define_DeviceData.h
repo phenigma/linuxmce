@@ -226,6 +226,7 @@
 #define DEVICEDATA_Dont_Detect_Serial_Devices_CONST 272
 #define DEVICEDATA_Motion_Parameters_CONST 273
 #define DEVICEDATA_Ignore_First_Event_CONST 274
+#define DEVICEDATA_Media_Catalog_CONST 276
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"
