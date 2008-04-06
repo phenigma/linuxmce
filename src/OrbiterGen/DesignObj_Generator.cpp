@@ -1007,6 +1007,7 @@ int k=2;
 			it!=vectRow_DesignObjVariation_DesignObj_Skin_Language.end();++it)
 		{
 			Row_DesignObjVariation_DesignObj_Skin_Language *pRow_DesignObjVariation_DesignObj_Skin_Language = *it;
+
 			if( pRow_DesignObjVariation_DesignObj_Skin_Language_Last && 
 				pRow_DesignObjVariation_DesignObj_Skin_Language_Last->FK_DesignObjVariation_DesignObj_get()==
 				pRow_DesignObjVariation_DesignObj_Skin_Language->FK_DesignObjVariation_DesignObj_get() )
@@ -1823,6 +1824,38 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
 					alArray->push_back(new ArrayValue(StringUtils::itos(pRow_MediaSource->PK_MediaSource_get()),
 						pRow_MediaSource->Description_get(),
 	                    NULL, 0, 0, 0, 0,false,false,false));
+				}
+
+				sSQL = "SELECT IK_DeviceData FROM Device LEFT JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate "
+					"LEFT JOIN DeviceTemplate_DeviceData ON DeviceTemplate_DeviceData.FK_DeviceTemplate=PK_DeviceTemplate "
+					"WHERE FK_DeviceData=" TOSTRING(DEVICEDATA_Media_Catalog_CONST);
+				PlutoSqlResult result_set;
+				DB_ROW row;
+				if( (result_set.r=m_pOrbiterGenerator->m_spDatabase_pluto_main->db_wrapper_query_result(sSQL)) )
+				{
+					while ((row = db_wrapper_fetch_row(result_set.r)))
+					{
+						if( row[0] && row[0][0] )
+						{
+							string::size_type pos = 0;
+							string sData = row[0];
+							while(true)
+							{
+								string sLine = StringUtils::Tokenize(sData,"\r\n",pos);
+								if(sLine.empty())
+									break;
+								string::size_type pos2 = 0;
+								int PK_MediaType = atoi( StringUtils::Tokenize(sLine,",",pos2).c_str() );
+								string sToken = StringUtils::Tokenize(sLine,",",pos2);
+								string sDescription = StringUtils::Tokenize(sLine,",",pos2);
+								if( PK_MediaType!=m_pOrbiterGenerator->m_dwMediaType )
+									continue; // It's not for this type of media
+								alArray->push_back(new ArrayValue(sToken,
+									sDescription,
+									NULL, 0, 0, 0, 0,false,false,false));
+							}
+						}
+					}
 				}
 			}
             break;
