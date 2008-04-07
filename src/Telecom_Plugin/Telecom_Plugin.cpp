@@ -818,7 +818,7 @@ Telecom_Plugin::Ring( class Socket *pSocket, class Message *pMessage, class Devi
 		Command_Impl * pMediaPlugin = m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_Media_Plugin_CONST);
 		if( pMediaPlugin != NULL )
 		{
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "XXX Telecom_Plugin : pause device %d", nOrbiterDeviceID);
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Telecom_Plugin : pause device %d", nOrbiterDeviceID);
 
 			if(ConcurrentAccessToSoundCardAllowed(nOrbiterDeviceID))
 			{
@@ -903,7 +903,7 @@ Telecom_Plugin::Link( class Socket *pSocket, class Message *pMessage, class Devi
 	}
 	else
 	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "The channels aren't registered yet!");
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "The channels aren't registered yet!");
 		return false;
 	}
 
@@ -981,7 +981,7 @@ Telecom_Plugin::Link( class Socket *pSocket, class Message *pMessage, class Devi
 		}
 		else
 		{
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "TelecomTask NULL");
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Telecom_Plugin::Link : TelecomTask is NULL");
 		}
 	}
 	
@@ -1014,28 +1014,6 @@ bool Telecom_Plugin::Hangup( class Socket *pSocket, class Message *pMessage, cla
 		return false;
 	}
 	
-// 	CallStatus *pCallStatus = FindCallStatusForChannel(sChannel_ID);
-// 
-// 	if(NULL != pCallStatus)
-// 	{
-// 		pCallStatus->RemoveChannel(sChannel_ID);
-// 
-// 		if(pCallStatus->Closed())
-// 		{
-// 			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Hangup the call %s", pCallStatus->GetID().c_str());
-// 			
-// 			map_call2status.erase(pCallStatus->GetID());
-//			if( pCallStatus->IsConference() )
-//				map_conference2status.erase(pCallStatus->GetConferenceID());
-// 			delete pCallStatus;
-// 			pCallStatus = NULL;
-// 		}
-// 	}
-// 	else
-// 	{
-// 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Got hangup for channel %s, but it's not into a call!", sChannel_ID.c_str());
-// 	}
-
 	//destination channel -> exten -> (?) simple phone -> orbiter
 	int nOrbiterDeviceID = GetOrbiterDeviceID("", sChannel_ID);
 
@@ -1052,18 +1030,18 @@ bool Telecom_Plugin::Hangup( class Socket *pSocket, class Message *pMessage, cla
 
 		if(ConcurrentAccessToSoundCardAllowed(nOrbiterDeviceID))
 		{
-        Command_Impl * pMediaPlugin = m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_Media_Plugin_CONST);
-        if( pMediaPlugin != NULL )
-        {
-                LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "XXX Telecom_Plugin : resume %d", nOrbiterDeviceID);
+			Command_Impl * pMediaPlugin = m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_Media_Plugin_CONST);
+			if( pMediaPlugin != NULL )
+			{
+					LoggerWrapper::GetInstance()->Write(LV_STATUS, "Telecom_Plugin : resume %d", nOrbiterDeviceID);
 
-                DCE::CMD_Change_Playback_Speed cmd_Change_Playback_Speed(nOrbiterDeviceID, pMediaPlugin->m_dwPK_Device, 0, 1000, 0);
-                SendCommand(cmd_Change_Playback_Speed);
-        }
-        else
-        {
-                LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Telecom_Plugin : No media plugin!");
-		}
+					DCE::CMD_Change_Playback_Speed cmd_Change_Playback_Speed(nOrbiterDeviceID, pMediaPlugin->m_dwPK_Device, 0, 1000, 0);
+					SendCommand(cmd_Change_Playback_Speed);
+			}
+			else
+			{
+					LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Telecom_Plugin : No media plugin!");
+			}
 		}
 	}
 
@@ -1084,7 +1062,7 @@ bool Telecom_Plugin::Hangup( class Socket *pSocket, class Message *pMessage, cla
 		}
 		else
 		{
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "TelecomTask NULL");
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Telecom_Plugin::Hangup: TelecomTask NULL");
 		}
 	}
 
@@ -1144,8 +1122,7 @@ string Telecom_Plugin::DirectCall2Conference(CallStatus * pCallStatus)
 		}
 		else
 		{
-			LoggerWrapper::GetInstance()->Write
-				(LV_CRITICAL, "Bad DirectCall: %s", pCallStatus->GetDebugInfo().c_str());
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Bad DirectCall: %s", pCallStatus->GetDebugInfo().c_str());
 		}
 	}
 	
@@ -1335,20 +1312,69 @@ void Telecom_Plugin::ReplaceChannels(const string & sSrcChannel, const string & 
 
 bool Telecom_Plugin::RemoveChannel(const string & sChannel)
 {
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "RemoveChannel: called with channel %s", sChannel.c_str());
+
 	bool bRemovedLinkedChannelOnly = false;
 
-	CallStatus * pCallStatus = NULL;
-	
 	map<string, CallStatus*>::iterator it=map_call2status.begin();
 	while( it!=map_call2status.end() )
 	{
-		const map<string, string> & channels = (*it).second->GetChannels();
-		const map<string, string> & linkedChannels = (*it).second->GetLinkedChannels();
-		map<string, string>::const_iterator itFound = channels.find(sChannel);
-		map<string, string>::const_iterator itLinkedFound =
-				linkedChannels.find( Telecom_Plugin::GetMainChannel( sChannel ) );
+		//get call status
+		CallStatus *pCallStatus = it->second;
 
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "WWW Get %d linked channels", linkedChannels.size());
+		//log our id
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "RemoveChannel: Call status id %s", pCallStatus->GetID().c_str());
+
+		//get channels
+		const map<string, string> & channels = pCallStatus->GetChannels();
+		const map<string, string> & linkedChannels = pCallStatus->GetLinkedChannels();
+
+		//get iterators to our channel
+		map<string, string>::const_iterator itFound = channels.find(sChannel);
+		map<string, string>::const_iterator itLinkedFound = linkedChannels.find(Telecom_Plugin::GetMainChannel(sChannel));
+
+		//number of normal/linked channels
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "RemoveChannel: Got %d normal channels", channels.size());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "RemoveChannel: Got %d linked channels", linkedChannels.size());
+
+		//check if it's a speak in the house and the external channels is leaving the conference
+		//we'll close the conference in this case
+		{
+			int nOrbiterAssociated = GetOrbiterDeviceID("", sChannel);
+
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "RemoveChannel: orbiter associated %d, is conf %d", 
+				nOrbiterAssociated, pCallStatus->IsConference());
+
+			//if it's not an embedded orbiter, it's the external channel
+			if(0 == nOrbiterAssociated && pCallStatus->IsConference())
+			{
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "RemoveChannel: is an external channel!");
+
+				//is this a speak in the house conference?
+				if(sChannel.find("Local/" SPEAKINTHEHOUSE_CONFERENCE_IVR "@") != string::npos)
+				{
+					LoggerWrapper::GetInstance()->Write(LV_WARNING, "RemoveChannel: it's speak in the house, channel %s", sChannel.c_str());
+					LoggerWrapper::GetInstance()->Write(LV_STATUS, "RemoveChannel: need to hangup %d channels from conference %d", 
+						channels.size(), pCallStatus->IsConference());
+
+					for(map<string, string>::const_iterator it_ch = channels.begin(); it_ch != channels.end(); ++it_ch)
+					{
+						string sEmbeddedChannelID = it_ch->first;
+						int nOrbiterID = GetOrbiterDeviceID("", sEmbeddedChannelID);
+						int nEmbeddedID = FindValueInMap<int, int>(map_orbiter2embedphone, nOrbiterID, 0);
+
+						if(nEmbeddedID != 0)
+						{
+							LoggerWrapper::GetInstance()->Write(LV_STATUS, "RemoveChannel: sending hang up to channel %s / embedded phone %d", 
+								sEmbeddedChannelID.c_str(), nEmbeddedID);
+
+							DCE::CMD_Phone_Drop cmd_Phone_Drop(m_dwPK_Device, nEmbeddedID);
+							SendCommand(cmd_Phone_Drop);
+						}
+					}
+				}
+			}
+		}
 
 		if( itFound != channels.end() || itLinkedFound != linkedChannels.end() )
 		{
@@ -1394,7 +1420,7 @@ bool Telecom_Plugin::RemoveChannel(const string & sChannel)
 			++it;
 		}
 
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "WWW Get %d linked channels now", linkedChannels.size());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Get %d linked channels now", linkedChannels.size());
 	}
 
 	return bRemovedLinkedChannelOnly;
@@ -1422,7 +1448,7 @@ void Telecom_Plugin::RemoveCallStatus(CallStatus * pCallStatus)
 	}
 	else
 	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "RemoveCallStatus : Null call!");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Telecom_Plugin::RemoveCallStatus: Null call!");
 	}
 }
 
@@ -1582,7 +1608,7 @@ void Telecom_Plugin::CMD_PL_Transfer(int iPK_Device,int iPK_Users,string sPhoneE
 	string sPhoneNumber = GetPhoneNumber(iPK_Users, sPhoneExtension, iPK_Device);
 	if( sPhoneNumber.empty() )
 	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Nowhere to transfer !!!");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "CMD_PL_Transfer: Nowhere to transfer !!!");
 		sCMD_Result = "ERROR : Nowhere to transfer!";
 		return;
 	}
@@ -1872,7 +1898,7 @@ void Telecom_Plugin::CMD_Set_User_Mode(int iPK_Users,int iPK_UserMode,string &sC
 		m_pDatabase_pluto_main->Users_get()->Commit();
 	}
 	else
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Trying to set user mode for invalid user %d",iPK_Users);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Trying to set user mode for invalid user %d",iPK_Users);
 
 	for(map<int,OH_Orbiter *>::iterator it=m_pOrbiter_Plugin->m_mapOH_Orbiter.begin();it!=m_pOrbiter_Plugin->m_mapOH_Orbiter.end();++it)
 	{
@@ -3223,7 +3249,7 @@ ExtensionStatus * Telecom_Plugin::FindExtensionStatusByDevice(int iPK_Device, in
 	DeviceData_Router *pDeviceData = find_Device(iPK_Device);
 	if(!pDeviceData) 
 	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "No device found with id: %d", iPK_Device);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "FindExtensionStatusByDevice: No device found with id: %d", iPK_Device);
 		return NULL;
 	}
 
@@ -3392,7 +3418,7 @@ bool Telecom_Plugin::InternalMakeCall(int iFK_Device_From, string sFromExten, st
 			{
 				//TODO: to orbiter?
 
-				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "XXX Telecom_Plugin : pause device %d", iFK_Device_From);
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Telecom_Plugin : pause device %d", iFK_Device_From);
 
 				if(ConcurrentAccessToSoundCardAllowed(iFK_Device_From))
 				{
