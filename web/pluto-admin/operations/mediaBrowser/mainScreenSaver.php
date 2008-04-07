@@ -68,6 +68,8 @@ function mainScreenSaver($output,$mediadbADO,$dbADO) {
 				
 				Remove flikr pictures from screensaver and disable the script<br>
 				<b>Flikr pictures path:</b> <input type="text" name="flikr_path" value="/home/public/data/pictures/flickr/" style="width:200px;"> <input type="submit" class="button" name="remove_flikr_pics" value="Remove">			
+				<hr>
+				<input type="submit" name="reload" class="button" value="'.$TEXT_RELOAD_SCREENSAVER_CONST.'">
 				</fieldset>
 				
 				
@@ -85,6 +87,14 @@ function mainScreenSaver($output,$mediadbADO,$dbADO) {
 	';
 
 	}else{
+		if(isset($_POST['reload'])){
+			$cmd='/usr/pluto/bin/MessageSend localhost -targetType template -o 0 '.$GLOBALS['PhotoScreenSaver'].' 1 606';
+			exec_batch_command($cmd);
+			
+			header('Location: index.php?section=mainScreenSaver&path='.urlencode($path).'&msg='.cleanString($TEXT_SCREENSAVER_RELOADED_CONST).'&page='.$page);
+			exit();			
+		}
+				
 		if(isset($_POST['flikrBtn'])){
 			$flickr=(int)@$_REQUEST['flikr'];
 			$parm=($flickr==1)?'-enable':'-disable';
@@ -113,6 +123,9 @@ function mainScreenSaver($output,$mediadbADO,$dbADO) {
 			$flikr_path=cleanString($_POST['flikr_path']);
 			$mediadbADO->Execute('INSERT IGNORE INTO File_Attribute (FK_Attribute,FK_File) SELECT ?, PK_File FROM File INNER JOIN File_Attribute ON PK_File=File_Attribute.FK_File AND FK_Attribute=? WHERE Path LIKE \''.$flikr_path.'%\'',array($screenSaverDisabledAttribute,$screenSaverAttribute));
 		}				
+		
+		$cmd='/usr/pluto/bin/MessageSend localhost -targetType template -o 0 '.$GLOBALS['PhotoScreenSaver'].' 1 606';
+		exec_batch_command($cmd);
 		
 		header('Location: index.php?section=mainScreenSaver&path='.urlencode($path).'&msg='.cleanString($TEXT_SCREENSAVER_UPDATED_CONST).'&page='.$page);
 		exit();

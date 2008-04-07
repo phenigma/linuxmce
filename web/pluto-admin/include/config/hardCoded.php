@@ -82,6 +82,7 @@
 	$GLOBALS['Raid0']=1854;						// Raid 0
 	$GLOBALS['VDR_Plugin']=1704;				// VDR plugin
 	$GLOBALS['SlimServer_Streamer']=53;			// SlimServer Streamer
+	$GLOBALS['PhotoScreenSaver']=1825;			// Photo Screen Saver
 	
 	// PK_Template from table Template
 	
