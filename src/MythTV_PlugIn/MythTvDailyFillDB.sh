@@ -4,6 +4,18 @@
 
 FILLDB=/usr/bin/mythfilldatabase
 
+DBHostName="localhost"
+DBUserName="mythtv"
+DBName="mythconverg"
+DBPassword="mythtv"
+DBPort="3306"
+
+if [ -f /etc/mythtv/mysql.txt ]; then
+	. /etc/mythtv/mysql.txt
+fi
+
+mysql_command="mysql -B -h $DBHostName -P $DBPort -u $DBUserName -p$DBPassword $DBName"
+
 # If the user installed a their own mythfilldatabase, adjust..
 if test -f /usr/local/bin/mythfilldatabase ; then
 	FILLDB=/usr/local/bin/mythfilldatabase
@@ -29,13 +41,13 @@ echo "MythTvDailyFillDB.sh got MythFillDatabase lock"
 
 # lock schema, this makes sure that we don't run this while the DB schema is
 # being upgraded by another mythtv process.
-echo "LOCK TABLE schemalock WRITE; UNLOCK TABLES;" | mysql mythconverg
+echo "LOCK TABLE schemalock WRITE; UNLOCK TABLES;" | $mysql_command
 
 # Download today's scheduling data, so that we can tune LiveTV immediately
 $FILLDB
 
 # Tell the user it's now safe to use MythTV
-R=$(echo "SELECT * FROM videosource LIMIT 1" | mysql mythconverg)
+R=$(echo "SELECT * FROM videosource LIMIT 1" | $mysql_command)
 if [[ -n "$R" ]]; then
 	# Notify all the orbiters that myth is ready to be used
 	/usr/pluto/bin/MessageSend $DCERouter -targetType template -r 0 36 1 910 9 \
