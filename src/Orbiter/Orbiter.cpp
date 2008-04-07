@@ -5866,6 +5866,9 @@ void Orbiter::CMD_Set_Variable(int iPK_Variable,string sValue_To_Assign,string &
 	PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
 #endif	
 
+	SETUP_SCREEN_HANDLER_CALLBACK(m_pScreenHandler, cbOnVariableChanged, VariableCallBackData, (iPK_Variable, sValue_To_Assign))
+	ExecuteScreenHandlerCallback(cbOnVariableChanged);
+
 	m_mapVariable[iPK_Variable] = sValue_To_Assign;
 
 	//hook for capture keyboard
@@ -6198,7 +6201,6 @@ bool Orbiter::CaptureKeyboard_EditText_DeleteLastChar(  )
 	if( NULL != m_pCaptureKeyboard_Text )
 	{
 		m_pCaptureKeyboard_Text->m_sText = NewValue;
-
 		if( NULL != m_pCaptureKeyboard_Text )
 		{
 			m_pOrbiterRenderer->RenderTextAsync(m_pCaptureKeyboard_Text);
@@ -9183,14 +9185,17 @@ void Orbiter::CMD_Goto_Screen(string sID,int iPK_Screen,int iInterruption,bool b
 //-----------------------------------------------------------------------------------------------------
 bool Orbiter::ExecuteScreenHandlerCallback(CallBackType aCallBackType)
 {
-	ScreenHandlerCallBack pPersistentCallBack = m_pScreenHandler->m_mapPersistentCallBack_Find(aCallBackType);
-	if(NULL != pPersistentCallBack)
-		if(CALL_MEMBER_FN(*m_pScreenHandler, pPersistentCallBack)(m_pScreenHandler->m_mapPersistentCallBackData_Find(aCallBackType)))
-			return true;
+	if(NULL != m_pScreenHandler)
+	{
+		ScreenHandlerCallBack pPersistentCallBack = m_pScreenHandler->m_mapPersistentCallBack_Find(aCallBackType);
+		if(NULL != pPersistentCallBack)
+			if(CALL_MEMBER_FN(*m_pScreenHandler, pPersistentCallBack)(m_pScreenHandler->m_mapPersistentCallBackData_Find(aCallBackType)))
+				return true;
 
-	ScreenHandlerCallBack pCallBack = m_pScreenHandler->m_mapCallBack_Find(aCallBackType);
-	if(NULL != pCallBack)
-		return CALL_MEMBER_FN(*m_pScreenHandler, pCallBack)(m_pScreenHandler->m_mapCallBackData_Find(aCallBackType));
+		ScreenHandlerCallBack pCallBack = m_pScreenHandler->m_mapCallBack_Find(aCallBackType);
+		if(NULL != pCallBack)
+			return CALL_MEMBER_FN(*m_pScreenHandler, pCallBack)(m_pScreenHandler->m_mapCallBackData_Find(aCallBackType));
+	}
 
 	return false;
 }

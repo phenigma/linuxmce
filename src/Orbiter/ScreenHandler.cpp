@@ -4471,6 +4471,7 @@ void ScreenHandler::SCREEN_Static_IP_settings(long PK_Screen)
 
 	RegisterCallBack(cbOnTimer,	(ScreenHandlerCallBack) &ScreenHandler::SCREEN_Network_Settings_OnTimer, new CallBackData());
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::SCREEN_Network_Settings_ObjectSelected, new ObjectInfoBackData());
+	RegisterCallBack(cbOnVariableChanged, (ScreenHandlerCallBack) &ScreenHandler::SCREEN_Network_Settings_VariableChanged, new VariableCallBackData());
 
 	string sStaticIP = m_mapNetworkSettings["EXTERNAL_IP"];
 	string sNetmask = m_mapNetworkSettings["EXTERNAL_NETMASK"];
@@ -4611,12 +4612,6 @@ bool ScreenHandler::SCREEN_Network_Settings_ObjectSelected(CallBackData *pData)
 		m_pOrbiter->CMD_Set_Variable(VARIABLE_Network_Status_CONST, "Using DHCP, please wait...");
 		m_pOrbiter->StartScreenHandlerTimer(10000);
 	}
-	else if(pObjectInfoData->m_pObj->m_iBaseObjectID == DESIGNOBJ_butStaticIP_CONST)
-	{
-		DCE::SCREEN_Static_IP_settings screen_Static_IP_settings(m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device);
-		m_pOrbiter->SendCommand(screen_Static_IP_settings);
-		///usr/pluto/bin/Network_Config.sh --ext-static "10.0.1.3" "255.255.252.0" "10.0.0.1" "10.0.0.1" ""
-	}
 	else if(pObjectInfoData->m_pObj->m_iBaseObjectID == DESIGNOBJ_butApplyNetworkSettings_CONST)
 	{
 		string sStaticIP = m_pOrbiter->m_mapVariable_Find(VARIABLE_IP_Address_CONST);
@@ -4652,6 +4647,37 @@ bool ScreenHandler::SCREEN_Network_Settings_ObjectSelected(CallBackData *pData)
 
 	return false; // Keep processing it
 }
+//-----------------------------------------------------------------------------------------------------
+bool ScreenHandler::SCREEN_Network_Settings_VariableChanged(CallBackData *pData)
+{
+	VariableCallBackData *pVariableInfoData = (VariableCallBackData *)pData;
+
+	switch(pVariableInfoData->m_nVariableKey)
+	{
+		case VARIABLE_IP_Address_CONST:
+			m_mapNetworkSettings["EXTERNAL_IP"] = pVariableInfoData->m_sVariableValue;
+			break;
+
+		case VARIABLE_Net_Mask_CONST:
+			m_mapNetworkSettings["EXTERNAL_NETMASK"] = pVariableInfoData->m_sVariableValue;
+			break;
+
+		case VARIABLE_Gateway_CONST:
+			m_mapNetworkSettings["GATEWAY"] = pVariableInfoData->m_sVariableValue;
+			break;
+
+		case VARIABLE_DNS_CONST:
+			m_mapNetworkSettings["DNS1"] = pVariableInfoData->m_sVariableValue;
+			break;
+
+		//ignore everything else
+		default:
+			break;
+	}
+
+	return false; // Keep processing it
+}
+
 //-----------------------------------------------------------------------------------------------------
 //<-mkr_b_aj_b->
 //////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -35,13 +35,16 @@ typedef class ScreenHandler * (* RAOP_FType) (class Orbiter *,  map<int,int> *p_
 //-----------------------------------------------------------------------------------------------------
 #define SETUP_SCREEN_HANDLER_CALLBACK(SCREEN_HANDLER, CALLBACK_TYPE, CALLBACK_CLASS, PARAMETERS) \
 { \
-	CALLBACK_CLASS *pCallBackData = dynamic_cast<CALLBACK_CLASS*>(SCREEN_HANDLER->m_mapCallBackData_Find(CALLBACK_TYPE)); \
-	if(NULL != pCallBackData) \
-		pCallBackData->Setup PARAMETERS; \
+	if(NULL != SCREEN_HANDLER) \
+	{ \
+		CALLBACK_CLASS *pCallBackData = dynamic_cast<CALLBACK_CLASS*>(SCREEN_HANDLER->m_mapCallBackData_Find(CALLBACK_TYPE)); \
+		if(NULL != pCallBackData) \
+			pCallBackData->Setup PARAMETERS; \
 \
-	CALLBACK_CLASS *pPersistentCallBackData = dynamic_cast<CALLBACK_CLASS*>(SCREEN_HANDLER->m_mapPersistentCallBackData_Find(CALLBACK_TYPE)); \
-	if(NULL != pPersistentCallBackData) \
-		pPersistentCallBackData->Setup PARAMETERS; \
+		CALLBACK_CLASS *pPersistentCallBackData = dynamic_cast<CALLBACK_CLASS*>(SCREEN_HANDLER->m_mapPersistentCallBackData_Find(CALLBACK_TYPE)); \
+		if(NULL != pPersistentCallBackData) \
+			pPersistentCallBackData->Setup PARAMETERS; \
+	} \
 }
 //-----------------------------------------------------------------------------------------------------
 // For keeping track of the tree when we're drilling down through attributes
@@ -470,6 +473,7 @@ public:
 
 	void SCREEN_Network_Settings(long PK_Screen);
 	bool SCREEN_Network_Settings_ObjectSelected(CallBackData *pData);
+	bool SCREEN_Network_Settings_VariableChanged(CallBackData *pData);
 	bool SCREEN_Network_Settings_OnTimer(CallBackData *pData);
 
 	//data

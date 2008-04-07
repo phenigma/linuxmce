@@ -408,4 +408,20 @@ public:
 	}
 };
 //-----------------------------------------------------------------------------------------------------
+class VariableCallBackData : public CallBackData
+{
+public:
+	int m_nVariableKey;
+	string m_sVariableValue;
+
+	void Setup(int nVariableKey, string sVariableValue)
+	{
+		m_nVariableKey = nVariableKey;
+		m_sVariableValue = sVariableValue;
+	}
+
+	VariableCallBackData() : CallBackData() {}
+	virtual ~VariableCallBackData() {}
+};
+//-----------------------------------------------------------------------------------------------------
 #endif
