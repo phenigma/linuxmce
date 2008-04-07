@@ -1,5 +1,7 @@
 #!/bin/bash -e
 
+trap 'echo "Press any key to exit."; read -t 6000' EXIT
+
 . /etc/lmce-build/builder.conf
 
 if [[ -f "$log_file" ]] ;then
