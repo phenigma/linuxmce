@@ -276,7 +276,7 @@ FormatPartitions()
 	blkid -w /etc/blkid.tab || :
 	RootUUID=$(vol_id --skip-raid -u "$TargetHdd"1)
 	SwapUUID=$(vol_id --skip-raid -u "$TargetHdd"5)
-	RecoveryUUID=$(vol_id --skip-raid -u "$TargetHdd"6)
+	RecoveryUUID=$(vol_id --skip-raid -u "$TargetHdd"6 || :)
 }
 
 MountPartitions()
@@ -286,7 +286,7 @@ MountPartitions()
 
 	if [[ "$Upgrade" != "1" ]] ;then
 		if [[ "$FromHdd" != 1 ]]; then
-			mount -t ext3 "$TargetHdd"6 /media/recovery
+			mount -t ext3 "$TargetHdd"6 /media/recovery || :
 		else
 			mount -o bind / /media/recovery
 		fi
@@ -441,9 +441,13 @@ SetupFstab()
 proc            /proc           proc    defaults        0       0
 UUID=$RootUUID	/               ext3    defaults,errors=remount-ro 0       1
 UUID=$SwapUUID  none            swap    sw              0       0
-UUID=$RecoveryUUID /mnt/recovery   ext3    ro              0       0
 /dev/cdrom      /media/cdrom0   udf,iso9660 user,noauto     0       0
 "
+	if  [[ "$RecoveryUUID" != "" ]] ;then
+		fstab_text="$fstab_text
+UUID=$RecoveryUUID /mnt/recovery   ext3    ro              0       0
+"
+	fi
 	echo "$fstab_text" > /media/target/etc/fstab
 }
 
@@ -462,12 +466,14 @@ InstallGrub()
 	sed -ir "s,root=.* ro quiet splash,root=UUID=${RootUUID} acpi=off ro quiet splash,g" /media/target/boot/grub/menu.lst
 	sed -ir "s,root=.* ro single,root=UUID=${RootUUID} acpi=off ro single,g" /media/target/boot/grub/menu.lst
 
-	echo "
-	title		System Recovery
-	root		(hd0,5)
-	kernel		/boot/vmlinuz-2.6.20-15-generic root=UUID=${RecoveryUUID} quiet install_from_hdd
-	initrd		/boot/initrd.img-2.6.20-15-generic
-	" >> /media/target/boot/grub/menu.lst
+	if [[ "$RecoveryUUID" != "" ]] ;then
+		echo "
+		title		System Recovery
+		root		(hd0,5)
+		kernel		/boot/vmlinuz-2.6.20-15-generic root=UUID=${RecoveryUUID} quiet install_from_hdd
+		initrd		/boot/initrd.img-2.6.20-15-generic
+		" >> /media/target/boot/grub/menu.lst
+	fi
 }
 
 TargetCleanup()
