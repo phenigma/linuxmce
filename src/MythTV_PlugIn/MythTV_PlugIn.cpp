@@ -979,7 +979,7 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Device,int iPK_Orbiter,
 	{
 		DCE::CMD_Spawn_Application CMD_Spawn_Application(
 			m_dwPK_Device,pDevice_App_Server->m_dwPK_Device,
-			cmd, args, "", "", "", false, false, false, false);
+			cmd, "mythtv_sync_db_master", args, "", "", false, false, false, false);
 		SendCommand(CMD_Spawn_Application);
 	}
 
@@ -1004,7 +1004,7 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Device,int iPK_Orbiter,
 					args = "slave " + pRow_Device_PC->IPaddress_get() + " " + sHostname;
 					DCE::CMD_Spawn_Application CMD_Spawn_Application(
 						m_dwPK_Device,pDevice_App_Server->m_dwPK_Device,
-						cmd, args, "", "", "", false, false, false, false);
+						cmd, "mythtv_sync_db_slave", args, "", "", false, false, false, false);
 					SendCommand(CMD_Spawn_Application);
 				}
 			}

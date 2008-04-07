@@ -13,6 +13,16 @@ if [ -f /etc/mythtv/mysql.txt ]; then
 	. /etc/mythtv/mysql.txt
 fi
 
+# if our options are all in one long quoted string... fix this.
+if [ x"$2" = x"" ] ; then
+    if [ x$MYTHTV_SYNC_DB_LOOP != x"1" ] ; then
+        export MYTHTV_SYNC_DB_LOOP=1
+        $0 $1
+        exit
+    fi
+fi
+export MYTHTV_SYNC_DB_LOOP=0
+
 MYSQLPIPE="mysql --skip-column-names -B -h $DBHostName  -P $DBPort -u $DBUserName -p$DBPassword $DBName"
 NAMES=$(echo "SELECT hostname FROM settings WHERE hostname IS NOT NULL GROUP BY hostname;" | $MYSQLPIPE)
 
