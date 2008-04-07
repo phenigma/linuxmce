@@ -12,20 +12,19 @@ trap 'Error "Undefined error in $0"' EXIT
 WorkDir="${build_dir}/lite-installer"
 LiveCDtgz="$WorkDir/ubuntu-livecd.tgz"
 SquashFStgz="$WorkDir/ubuntu-squashfs-base.tgz"
-DVDName="$1"
 
 ## TODO: change paths to SVN checkout directory
 InstallerScript="lite-installer.sh"
 RcSScript="install-lmce"
 FirstRunScript="firstboot"
 
-if [[ "$1" == "big" ]] ;then
-	LiveCDISO="$WorkDir/kubuntu-linuxmce-big.iso"
-	LiveCDISO_Link="${local_mirror_dir}/LinuxMCE-DVD-DL-${arch}.iso"
+DVDName="$1"
+LiveCDISO="$WorkDir/$DVDName"
+LiveCDISO_Link="${local_mirror_dir}/$DVDName"
+
+#TODO: See how to avoid this param
+if [[ "$2" == "big" ]] ;then
 	DoubleLayer="true"
-else
-	LiveCDISO="$WorkDir/kubuntu-linuxmce.iso"
-	LiveCDISO_Link="${local_mirror_dir}/LinuxMCE-DVD-${arch}.iso"
 fi
 
 InstallerArchive="${build_dir}/vmware/Kubuntu/linux-mce.tar.gz"

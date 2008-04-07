@@ -25,16 +25,16 @@ build_scripts_dir="/usr/local/lmce-build/build-scripts"
 
 # Build the SingleLayer DVD
 pushd /usr/local/lmce-build/vmware-install/
-	/usr/local/lmce-build/vmware-install/install_in_vmware.sh
+	/usr/local/lmce-build/vmware-install/install_in_vmware.sh "single-layer"
 popd 
 pushd /usr/local/lmce-build/build-dvd
-	/usr/local/lmce-build/build-dvd/build-cd.sh
+	/usr/local/lmce-build/build-dvd/build-cd.sh "LinuxMCE-DVD-${arch}.iso"
 popd
 
 # Build the DoubleLayer DVD
 pushd /usr/local/lmce-build/vmware-install/
-	/usr/local/lmce-build/vmware-install/install_in_vmware.sh big
+	/usr/local/lmce-build/vmware-install/install_in_vmware.sh
 popd 
 pushd /usr/local/lmce-build/build-dvd
-	/usr/local/lmce-build/build-dvd/build-cd.sh big
+	/usr/local/lmce-build/build-dvd/build-cd.sh "LinuxMCE-DVD-DL-${arch}.iso" big
 popd
