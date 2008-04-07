@@ -51,11 +51,19 @@ public:
 	int m_PK_Attribute;
 	string m_sDescription;
 	int m_iLastRow_ListGrid;
+	string m_sExternalDirectory;
 
 	MediaFileAttributeDrillDown(int PK_Attribute, string sDescription,int iLastRow_ListGrid)
 	{
 		m_PK_Attribute=PK_Attribute;
 		m_sDescription=sDescription;
+		m_iLastRow_ListGrid=iLastRow_ListGrid;
+	}
+	MediaFileAttributeDrillDown(string sExternalDirectory, string sDescription,int iLastRow_ListGrid)
+	{
+		m_PK_Attribute=0;
+		m_sDescription=sDescription;
+		m_sExternalDirectory=sExternalDirectory;
 		m_iLastRow_ListGrid=iLastRow_ListGrid;
 	}
 };
@@ -97,11 +105,14 @@ public:
 	{
 		string sResult = StringUtils::itos(m_PK_MediaType) + "|" + m_sPK_MediaSubType + "|" + m_sPK_FileFormat + "|" + m_sPK_Attribute_Genres + "|" + m_sSources +
 			"|" + m_sPK_Users_Private + "|" + StringUtils::itos(m_PK_AttributeType_Sort) + "|" + StringUtils::itos(m_PK_Users) + " | "
-			+ StringUtils::itos(m_iLastViewed) + " | ";
+			+ StringUtils::itos(m_iLastViewed) + " |"; 
 		if( m_listMediaFileAttributeDrillDown.size() )
 		{
 			MediaFileAttributeDrillDown *pMediaFileAttributeDrillDown = m_listMediaFileAttributeDrillDown.front();
-			sResult += StringUtils::itos(pMediaFileAttributeDrillDown->m_PK_Attribute);
+			if( pMediaFileAttributeDrillDown->m_PK_Attribute )
+				sResult += StringUtils::itos(pMediaFileAttributeDrillDown->m_PK_Attribute);
+			else
+				sResult += pMediaFileAttributeDrillDown->m_sExternalDirectory;
 		}
 		return sResult;
 	}
@@ -230,8 +241,9 @@ public:
 	bool MediaBrowser_ObjectSelected(CallBackData *pData);
 	string GetFileBrowserPopup(DesignObj_Orbiter *pObj_MenuPad);
 	bool MediaBrowser_DatagridSelected(CallBackData *pData);
-	void SelectedMediaFile(string sFile);
+	void SelectedMediaFile(string sFile,char cActionItem);
 	bool FileList_GridRendering(CallBackData *pData);
+	void SelectedExternalDirectory(DataGridCell *pCell); // The user selected a drill-down directory provided by an external source of directory info (like YouTube)
 	void SelectedAttributeCell(DataGridCell *pCell);
 	bool MediaBrowser_Render(CallBackData *pData);
 	void SetMediaSortFilterSelectedObjects();

@@ -828,11 +828,19 @@ bool ScreenHandler::MediaBrowser_DatagridSelected(CallBackData *pData)
 			return true;
 		}
 
-		GetAttributesForMediaFile(pCell_List->m_Value);
-
 		m_pOrbiter->CMD_Remove_Popup("","coverart");
 
-		if( pCell_List->m_Value[0]=='!' && pCell_List->m_Value[1]=='A' )
+		char cActionItem = pCell_List->m_Value[0]=='!' ? pCell_List->m_Value[1] : 0;
+
+		if( cActionItem=='e' )
+		{
+			SelectedExternalDirectory(pCell_List);
+			return true;
+		}
+
+		GetAttributesForMediaFile(pCell_List->m_Value);
+
+		if( cActionItem=='A' )
 		{
 			SelectedAttributeCell(pCell_List);
 			return true;
@@ -840,7 +848,7 @@ bool ScreenHandler::MediaBrowser_DatagridSelected(CallBackData *pData)
 
 		if( mediaFileBrowserOptions.m_pObj_ListGrid )
 			mediaFileBrowserOptions.m_iLastRowBeforeMediaFileSelect_ListGrid = mediaFileBrowserOptions.m_pObj_ListGrid->m_GridCurRow;
-		SelectedMediaFile(pCell_List->m_Value);
+		SelectedMediaFile(pCell_List->m_Value,cActionItem);
 
 		return true;  // Otherwise there may be a crash in selected grid since we may have already removed the grid and the cells
 	}
@@ -855,7 +863,7 @@ bool ScreenHandler::MediaBrowser_DatagridSelected(CallBackData *pData)
 		if( StringUtils::StartsWith(pCellInfoData->m_sValue,"!F") )
 		{
 			GetAttributesForMediaFile(pCellInfoData->m_sValue.c_str());
-			SelectedMediaFile(pCellInfoData->m_sValue);
+			SelectedMediaFile(pCellInfoData->m_sValue,0);
 			return true;
 		}
 		else if( StringUtils::StartsWith(pCellInfoData->m_sValue,"!A") )
@@ -873,9 +881,9 @@ bool ScreenHandler::MediaBrowser_DatagridSelected(CallBackData *pData)
 	return true;  // Always return true since we're handing everything datagrid related here and may destroy the grids causing SelectedGrid to crash if we return false
 }
 //-----------------------------------------------------------------------------------------------------
-void ScreenHandler::SelectedMediaFile(string sFile)
+void ScreenHandler::SelectedMediaFile(string sFile,char cActionItem)
 {
-	DesignObj_Orbiter *pObj_Play = NULL,*pObj_Close = NULL;
+	DesignObj_Orbiter *pObj_Play = NULL,*pObj_Close = NULL, *pObj_Delete = NULL, *pObj_Move = NULL, *pObj_Download = NULL;
 	string sTerms = m_mapKeywords_Find("TERMS");
 	if( sTerms.empty() )
 	{
@@ -883,11 +891,17 @@ void ScreenHandler::SelectedMediaFile(string sFile)
 		{
 			pObj_Play = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_mnuFileDetails_SmallUI_CONST) ".0.0." TOSTRING(DESIGNOBJ_butFBSF_Play_CONST) );
 			pObj_Close = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_mnuFileDetails_SmallUI_CONST) ".0.0." TOSTRING(DESIGNOBJ_butFBSF_Close_CONST) );
+			pObj_Delete = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_mnuFileDetails_SmallUI_CONST) ".0.0." TOSTRING(DESIGNOBJ_butFBSF_Delete_CONST) );
+			pObj_Move = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_mnuFileDetails_SmallUI_CONST) ".0.0." TOSTRING(DESIGNOBJ_butFBSF_Move_CONST) );
+			pObj_Download = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_mnuFileDetails_SmallUI_CONST) ".0.0." TOSTRING(DESIGNOBJ_butFBSF_Download_CONST) );
 		}
 		else
 		{
 			pObj_Play = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_popFileDetails_CONST) ".0.0." TOSTRING(DESIGNOBJ_butFBSF_Play_CONST) );
 			pObj_Close = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_popFileDetails_CONST) ".0.0." TOSTRING(DESIGNOBJ_butFBSF_Close_CONST) );
+			pObj_Delete = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_popFileDetails_CONST) ".0.0." TOSTRING(DESIGNOBJ_butFBSF_Delete_CONST) );
+			pObj_Move = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_popFileDetails_CONST) ".0.0." TOSTRING(DESIGNOBJ_butFBSF_Move_CONST) );
+			pObj_Download = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_popFileDetails_CONST) ".0.0." TOSTRING(DESIGNOBJ_butFBSF_Download_CONST) );
 		}
 	}
 	else
@@ -902,7 +916,13 @@ void ScreenHandler::SelectedMediaFile(string sFile)
 	m_pOrbiter->CMD_Goto_DesignObj(0,pObj_Play->m_pParentObject->m_ObjectID,"","",false,true);
 
 	string sPicture = mediaFileBrowserOptions.m_PK_MediaType==MEDIATYPE_pluto_Pictures_CONST ? sFile : m_mapKeywords_Find("PICTURE");
-	pObj_Play->m_bHidden = mediaFileBrowserOptions.m_PK_MediaType==MEDIATYPE_pluto_Pictures_CONST;
+	pObj_Play->m_bHidden = mediaFileBrowserOptions.m_PK_MediaType==MEDIATYPE_pluto_Pictures_CONST || cActionItem=='o';  // No play if it's downloadable or a picture
+
+	// If this is external content there's no delete or move, and download is only for downloadable
+	if( pObj_Delete && pObj_Move )
+		pObj_Move->m_bHidden = pObj_Delete->m_bHidden = cActionItem=='o' || cActionItem=='E';
+	if( pObj_Download )
+		pObj_Download->m_bHidden = cActionItem!='o';
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::SelectedMediaFile file %s pic %s", sFile.c_str(), sPicture.c_str());
 	if( sPicture.empty()==false )
@@ -976,6 +996,23 @@ bool ScreenHandler::FileList_GridRendering(CallBackData *pData)
 		}
 	}
 	return false;
+}
+//-----------------------------------------------------------------------------------------------------
+void ScreenHandler::SelectedExternalDirectory(DataGridCell *pCell)
+{
+	mediaFileBrowserOptions.m_listPK_AttributeType_Sort_Prior.push_front(mediaFileBrowserOptions.m_PK_AttributeType_Sort);
+	string sName = pCell->m_mapAttributes["Name"];
+	if( sName.empty() && pCell->m_Text )
+		sName = pCell->m_Text;
+
+	MediaFileAttributeDrillDown *pMediaFileAttributeDrillDown = new MediaFileAttributeDrillDown(
+		pCell->m_Value,sName,
+		mediaFileBrowserOptions.m_pObj_ListGrid ? mediaFileBrowserOptions.m_pObj_ListGrid->m_GridCurRow : 0);
+	mediaFileBrowserOptions.m_listMediaFileAttributeDrillDown.push_front(pMediaFileAttributeDrillDown );
+
+	mediaFileBrowserOptions.ReacquireGrids();
+	MediaBrowser_Render(NULL);
+	m_pOrbiter->CMD_Refresh("*");
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SelectedAttributeCell(DataGridCell *pCell)

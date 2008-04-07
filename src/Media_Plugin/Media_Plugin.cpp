@@ -67,6 +67,7 @@ using namespace DCE;
 #include "pluto_main/Table_DeviceTemplate.h"
 #include "pluto_main/Table_Device_Device_Pipe.h"
 #include "pluto_main/Table_MediaType.h"
+#include "pluto_main/Table_DeviceTemplate_DeviceData.h"
 #include "pluto_media/Database_pluto_media.h"
 #include "pluto_media/Define_AttributeType.h"
 #include "pluto_media/Table_Attribute.h"
@@ -4892,6 +4893,23 @@ void Media_Plugin::RegisterMediaPlugin(class Command_Impl *pCommand_Impl,class M
 		int iPKDeviceTemplate = pRow_DeviceTemplate->PK_DeviceTemplate_get();
 		string strDescription = pRow_DeviceTemplate->Description_get();
 
+		Row_DeviceTemplate_DeviceData *pRow_DeviceTemplate_DeviceData = m_pDatabase_pluto_main->DeviceTemplate_DeviceData_get()->GetRow(iPKDeviceTemplate,DEVICEDATA_Media_Catalog_CONST);
+		if( pRow_DeviceTemplate_DeviceData )
+		{
+			string sData = pRow_DeviceTemplate_DeviceData->IK_DeviceData_get();
+			string::size_type pos=0;
+			while(true)
+			{
+				string sLine = StringUtils::Tokenize(sData,"\r\n",pos);
+				if(sLine.empty())
+					break;
+				string::size_type pos2 = 0;
+				int PK_MediaType = atoi( StringUtils::Tokenize(sLine,",",pos2).c_str() );
+				string sToken = StringUtils::Tokenize(sLine,",",pos2);
+				m_mapMediaCatalog[sToken]=pMediaHandlerBase;
+			}
+		}
+
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Registered media plug in #%d (Template %d) %s (adress %p, plugin base address %p)",iPKDevice,iPKDeviceTemplate,strDescription.c_str(), pCommand_Impl, pMediaHandlerBase);
 		vector<Row_DeviceTemplate_MediaType *> vectRow_DeviceTemplate_MediaType;
 		pRow_DeviceTemplate->DeviceTemplate_MediaType_FK_DeviceTemplate_getrows(&vectRow_DeviceTemplate_MediaType);
@@ -5965,6 +5983,19 @@ void Media_Plugin::CMD_Get_Attributes_For_Media(string sFilename,string sPK_Ente
 		else
 			*sValue_To_Assign = "FILE\t" + sFilename + "\tTITLE\t" + sFilename + "\t";	
 		return;
+	}
+	else if( StringUtils::StartsWith(sFilename,"!E") || StringUtils::StartsWith(sFilename,"!o") )  // external media
+	{
+		string::size_type pos=0;
+		string sType = StringUtils::Tokenize(sFilename,",",pos);
+		string sPK_MediaSource = StringUtils::Tokenize(sFilename,",",pos);
+		MediaHandlerBase *pMediaHandlerBase = m_mapMediaCatalog_Find(sPK_MediaSource);
+		if( pMediaHandlerBase )
+			pMediaHandlerBase->GetExtendedAttributes(sType, sPK_MediaSource, sFilename.substr(pos), sValue_To_Assign);
+		else
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Media_Plugin::CMD_Get_Attributes_For_Media Bad media source %s", sPK_MediaSource.c_str());
+		return;
+
 	}
     deque<MediaFile *> dequeMediaFile;
 	TransformFilenameToDeque(sFilename, dequeMediaFile);  // This will convert any !A, !F, !B etc.

@@ -23,6 +23,7 @@
 namespace DCE
 {
 	class Media_Plugin;
+	class Datagrid_Plugin;
 }
 
 using namespace DCE;
@@ -44,9 +45,10 @@ public:
 	int m_PK_File,m_PK_Disc,m_PK_Picture,m_PK_Attribute,m_PK_Bookmark,m_PK_FileFormat;
 	char m_cMediaSource; // F=File, D=Disc, L=Download, A=Attribute
 	enumTypeOfMedia m_enumTypeOfMedia;
+	time_t m_tLastViewed;
 
 	// Constructor for file info
-	FileBrowserInfo(string sDisplayName, string sPath,int PK_File_Or_Disc,int PK_FileFormat, char cMediaSource, bool bIsDirectory,bool bIsBack) 
+	FileBrowserInfo(string sDisplayName, string sPath,int PK_File_Or_Disc,int PK_FileFormat, char *pLastViewed, char cMediaSource, bool bIsDirectory,bool bIsBack) 
 	{
 		if( sDisplayName.empty() )
 			m_sDisplayName=FileUtils::FilenameWithoutPath(sPath);
@@ -72,9 +74,10 @@ public:
 		m_sMRL=sPath;
 		m_PK_FileFormat=PK_FileFormat;
 		m_cMediaSource=cMediaSource;
+		m_tLastViewed=pLastViewed ? StringUtils::SQLDateTime(pLastViewed) : 0;
 	}
 	// Constructor for attribute info
-	FileBrowserInfo(string sDisplayName, string sMRL,int PK_Attribute) 
+	FileBrowserInfo(string sDisplayName, string sMRL,int PK_Attribute,time_t tLastViewed=0) 
 	{
 		m_sDisplayName=sDisplayName;
 		m_enumTypeOfMedia=fbi_Attribute;
@@ -88,6 +91,7 @@ public:
 		m_bIsBack=false;
 		m_PK_FileFormat=0;
 		m_cMediaSource='A';
+		m_tLastViewed=tLastViewed;
 	}
 	// Constructor for bookmark
 	FileBrowserInfo(string sDisplayName, int PK_Bookmark, int PK_Picture, int PK_File, int PK_Disc,int PK_FileFormat, char cMediaSource)
@@ -104,6 +108,7 @@ public:
 		m_bIsBack=false;
 		m_PK_FileFormat=PK_FileFormat;
 		m_cMediaSource=cMediaSource;
+		m_tLastViewed=0;
 	}
 };
 
@@ -124,6 +129,11 @@ static bool FileBrowserInfoComparer(FileBrowserInfo *x, FileBrowserInfo *y)
 		return false;
 
 	return stricmp( (x->m_sDisplayGroup+x->m_sDisplayName).c_str(), (y->m_sDisplayGroup+y->m_sDisplayName).c_str() )<0;
+}
+
+static bool FileBrowserInfoComparerLastViewed(FileBrowserInfo *x, FileBrowserInfo *y)
+{
+	return x->m_tLastViewed > y->m_tLastViewed;
 }
 
 class DatabaseInfoOnPath

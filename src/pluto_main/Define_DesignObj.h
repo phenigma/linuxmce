@@ -2556,6 +2556,7 @@
 #define DESIGNOBJ_Non_Pluto_TV_FS_CONST 5584
 #define DESIGNOBJ_Non_Pluto_TV_FS_Options_CONST 5585
 #define DESIGNOBJ_grpLightControlsOnOff_CONST 5586
+#define DESIGNOBJ_butFBSF_Download_CONST 5588
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

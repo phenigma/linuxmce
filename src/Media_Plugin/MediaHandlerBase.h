@@ -21,6 +21,8 @@
 
 #include "EntertainArea.h"
 
+#include "MediaListGrid.h"
+
 /**
 * A Media Handler is derived from the Media Handler abstract class.  When it registers, it passes in a MediaHandlerInfo pointer indicating
 * what type of media it can play.  It may register several times with different types of media and different capabilities.
@@ -64,6 +66,9 @@ namespace DCE
 			else
 				return NULL;
 		}
+
+		virtual void PopulateDataGrid(string sToken,MediaListGrid *pMediaListGrid,int PK_MediaType, string sPK_Attribute, int PK_AttributeType_Sort, bool bShowFiles, string &sPK_MediaSubType, string &sPK_FileFormat, string &sPK_Attribute_Genres, string &sPK_Sources, string &sPK_Users_Private, int PK_Users, int iLastViewed, int *iPK_Variable, string *sValue_To_Assign ) {}
+		virtual void GetExtendedAttributes(string sType, string sPK_MediaSource, string sURL, string *sValue_To_Assign) {};
 	};
 
 }
