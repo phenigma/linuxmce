@@ -23,6 +23,11 @@ PortPage="http://$PlutoHome/get_ra_ports.php?installationID=$PK_Installation"
 UpdatePortDeviceData()
 {
 	local IK_DeviceData="$1"
+	local Time=$(date +%s)
+
+	if [[ -n "$IK_DeviceData" ]]; then
+		IK_DeviceData="$IK_DeviceData;time=$Time"
+	fi
 
 	Q="
 		REPLACE INTO Device_DeviceData(FK_Device, FK_DeviceData, IK_DeviceData)
