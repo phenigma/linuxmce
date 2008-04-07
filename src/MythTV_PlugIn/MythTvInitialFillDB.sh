@@ -45,10 +45,10 @@ echo "LOCK TABLE schemalock WRITE; UNLOCK TABLES;" | $mysql_command
 touch $FILLDB_LOG ; chown mythtv:mythtv $FILLDB_LOG
 
 # Download today's scheduling data, so that we can tune LiveTV immediately
-$FILLDB --refresh-today --max-days 1 > $FILLDB_LOG
+$FILLDB --refresh-today --max-days 1 >> $FILLDB_LOG
 
 # Download the channel icons
-$FILLDB --import-icon-map /home/mythtv/master_iconmap.xml --update-icon-map > $FILLDB_LOG
+$FILLDB --import-icon-map /home/mythtv/master_iconmap.xml --update-icon-map >> $FILLDB_LOG
 
 # Myth puts the icons in the current user's home directory.  We want /home/mythtv
 echo "UPDATE channel SET icon=REPLACE(icon,'/root/.mythtv','/home/mythtv')" | $mysql_command
