@@ -125,7 +125,12 @@ if [ x"$1" = x"master" ] ; then
 	UpdateMythSettingAllHosts "FFRewSpeed3"                "8"
 	UpdateMythSettingAllHosts "FFRewSpeed4"                "16"
 
-        # Don't disable mythfilldatabase even with EIT scheduling data.
+	# LMCE has it's own volume controls and the internal volume controls can interfere.
+	# If you change this make sure that you configure the internal mixer to control the
+	# PCM volume and not the master volume control.
+	UpdateMythSettingAllHosts "MythControlsVolume" "0"
+
+	# Don't disable mythfilldatabase even with EIT scheduling data.
 	# mythfilldatabase also performs some housecleaning tasks.
 	UpdateMythSetting "MythFillEnabled"     "1"     "NULL"
 	UpdateMythSetting "MythFillPeriod"      "1"     "NULL"
