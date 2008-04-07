@@ -16,6 +16,7 @@ if [ -f /etc/mythtv/mysql.txt ]; then
 fi
 
 mysql_command="mysql --skip-column-names -B -h $DBHostName -P $DBPort -u $DBUserName -p$DBPassword $DBName"
+mysql_command2="mysql -B -h $DBHostName -P $DBPort -u $DBUserName -p$DBPassword $DBName"
 
 # If the user installed a their own mythfilldatabase, adjust..
 if test -f /usr/local/bin/mythfilldatabase ; then
@@ -66,7 +67,7 @@ fi
 /usr/pluto/bin/Restart_Backend_With_SchemaLock.sh
 
 # Tell the user it's now safe to use MythTV
-R=$(echo "SELECT * FROM videosource LIMIT 1" | $mysql_command)
+R=$(echo "SELECT * FROM videosource LIMIT 1" | $mysql_command2)
 if [[ -n "$R" ]]; then
 	# Notify all the orbiters that myth is ready to be used
 	/usr/pluto/bin/MessageSend $DCERouter -targetType template -r 0 12 1 406 9 \
