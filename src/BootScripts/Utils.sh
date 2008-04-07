@@ -336,6 +336,29 @@ FindInArray_Prefix()
 	return 1
 }
 
+# Verify that the given string is a valid IPv4
+ValidIP()
+{
+	local IP="$1"
+
+	local IPn="[0-9]{1,3}"
+	local IPpattern="^($IPn)\\.($IPn)\\.($IPn)\\.($IPn)$"
+	local i Number
+
+	if [[ ! "$IP" =~ "$IPpattern" ]]; then
+		return 1
+	fi
+
+	for ((i = 1; i <= 4; i++)); do
+		Number="${BASH_REMATCH[$i]}"
+		if ((Number < 0 || Number > 255)); then
+			return 1
+		fi
+	done
+
+	return 0
+}
+
 GetVideoDriver()
 {
 	if [[ -n "$ForceVESA" ]]; then

@@ -1,9 +1,31 @@
 #!/bin/bash
 
+. /usr/pluto/bin/Utils.sh
+
 Usage()
 {
 	echo "Usage: $0 {--ext-dhcp|--ext-static <IP> <Netmask> <Gateway> <DNS1> <DNS2>|--help}"
 	exit 0
+}
+
+Error()
+{
+	local Message="$1"
+	echo "ERROR: $Message"
+	exit 1
+}
+
+ValidateStaticData()
+{
+	local IP="$1" Netmask="$2" Gateway="$3" DNS1="$4" DNS2="$5"
+
+	ValidIP "$IP"       || Error "Incorrect IP"
+	ValidIP "$Netmask"  || Error "Incorrect netmask"
+	ValidIP "$Gateway"  || Error "Incorrect gateway IP"
+	ValidIP "$DNS1"     || Error "Incorrect IP for DNS 1"
+	if [[ -n "$DNS2" ]]; then
+		ValidIP "$DNS2" || Error "Incorrect IP for DNS 2"
+	fi
 }
 
 if [[ "$#" == 0 ]]; then
@@ -24,6 +46,10 @@ for ((i = 1; i <= "$#"; i++)); do
 		--help|*) Usage ;;
 	esac
 done
+
+if [[ "$IpMode" == static ]]; then
+	ValidateStaticData "$IP" "$Netmask" "$Gateway" "$DNS1" "$DNS2"
+fi
 
 . /usr/pluto/bin/SQL_Ops.sh
 
