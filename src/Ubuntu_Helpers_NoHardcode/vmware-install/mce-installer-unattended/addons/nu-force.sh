@@ -185,19 +185,6 @@ DatabaseDefaults()
 
 	/usr/pluto/bin/Timezone_Detect.sh
 	/usr/pluto/bin/SetPasswords.sh 1 nuforce
-
-	Q="
-		INSERT INTO QuickStartTemplate(Description, \`Binary\`, Arguments, Icon, WindowClass)
-			VALUES('TouchKit', '/usr/bin/TouchKit', '', '', 'TouchKit.TouchKit');
-		SELECT LAST_INSERT_ID()
-	"
-	QST=$(RunSQL "$Q")
-	SortOrder=$(RunSQL "SELECT MAX(SortOrder)+1 FROM Device_QuickStart")
-	Q="
-		INSERT INTO Device_QuickStart (FK_Device, Description, SortOrder,FK_QuickStartTemplate)
-		VALUES ('$ComputerDev', 'TouchKit', '$SortOrder', '$QST');
-	"
-	RunSQL "$Q"
 }
 
 Firewall()
