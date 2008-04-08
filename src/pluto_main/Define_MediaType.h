@@ -26,6 +26,7 @@
 #define MEDIATYPE_np_Picture_CONST 26
 #define MEDIATYPE_pluto_HDDVD_CONST 27
 #define MEDIATYPE_pluto_BD_CONST 28
+#define MEDIATYPE_lmce_Game_CONST 29
 
 #define MEDIATYPE_TABLE "MediaType"
 #define MEDIATYPE_PK_MEDIATYPE_FIELD "PK_MediaType"
