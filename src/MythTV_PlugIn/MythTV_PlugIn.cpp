@@ -55,6 +55,7 @@ static const string SCRIPT_DIR =             "/usr/pluto/bin";
 static const string SCRIPT_SYNC_TO_DB =      SCRIPT_DIR + "/MythTvSyncDB.sh";
 static const string SCRIPT_TUNE =            SCRIPT_DIR + "/TuneToChannel.sh";
 static const string SCRIPT_RESTART_BACKEND = SCRIPT_DIR + "/Restart_MythBackend.sh";
+static const string SCRIPT_RESTART_ALL_BACKENDS = SCRIPT_DIR + "/Restart_Backend_With_SchemaLock.sh";
 static const string SCRIPT_INITIAL_FILLDB =  SCRIPT_DIR + "/MythTvInitialFillDB.sh";
 static const string SCRIPT_FORCE_KILL =      SCRIPT_DIR + "/ForciblyKillProcess.sh";
 
@@ -187,7 +188,17 @@ bool MythTV_PlugIn::Register()
 		}
 	}
 
-	SetPaths();
+	bool bPathsChanged = SetPaths();
+	if( bPathsChanged )
+        { // Paths were changed so we need to restart the backend[s].
+		DeviceData_Base *pDevice_App_Server = (DeviceData_Router *)
+			m_pData->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_App_Server_CONST);
+		DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice_App_Server->m_dwPK_Device,
+			SCRIPT_RESTART_ALL_BACKENDS, "restart_all_backends_in_register", "",
+			"", "", false, false, false, false);
+		SendCommand(CMD_Spawn_Application);
+        }
+
 
 	// Don't actually build the bookmark/channel list because Sync_Cards_Providers will fill in m_mapDevicesToSources,
 	// but it's not run until about 20 seconds after everything starts so if it needs to send a message to the orbiters
@@ -1016,7 +1027,7 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Device,int iPK_Orbiter,
 		}
 	}
 
-	SetPaths();
+	bool bPathsChanged = SetPaths();
 
 	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
 	m_bBookmarksNeedRefreshing=true;
@@ -1433,7 +1444,7 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Device,int iPK_Orbiter,
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::SyncCardsAndProviders -- bModifiedRows %d m_bFillDbRunning %d m_bNeedToRunFillDb %d bContainsVideoSources %d",
 		(int) bModifiedRows,(int) m_bFillDbRunning,(int) m_bNeedToRunFillDb, (int) bContainsVideoSources);
-	if( bModifiedRows && bContainsVideoSources )  // We've changed stuff.  Need to run the fill process
+	if( (bModifiedRows && bContainsVideoSources) )  // We've changed stuff.  Need to run the fill process
 	{
 		if( m_bFillDbRunning )
 			m_bNeedToRunFillDb = true;  // A fill is already running.  Need to re-run it when we're done
@@ -1444,18 +1455,21 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Device,int iPK_Orbiter,
 			StartFillDatabase();
 		}
 	}
+	else if( bPathsChanged )
+        { // Paths were changed, so we don't need to call mythfilldatabase, but we do need to restart the backend[s].
+		DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice_App_Server->m_dwPK_Device,
+			SCRIPT_RESTART_ALL_BACKENDS, "restart_all_backends_in_sync", "",
+			"", "", false, false, false, false);
+		SendCommand(CMD_Spawn_Application);
+        }
 }
 
-void MythTV_PlugIn::UpdateMythSetting(string value,string data,string hostname,bool bOnlyIfNotExisting)
+bool MythTV_PlugIn::UpdateMythSetting(string value,string data,string hostname,bool bOnlyIfNotExisting)
 {
 	if( hostname=="*" )
 	{
-		// For some reason mysql returns an error: Error Code : 1030, Got error 28 from table handler
-		// When you run SELECT DISTINCT hostname FROM settings
-		// So we'll keep a map so we can skip ones we've already done
-		map<string,bool> mapExistingHosts;
-
-		string sSQL = "SELECT hostname FROM settings";
+		bool bChanged = false;
+		string sSQL = "SELECT hostname FROM settings WHERE hostname IS NOT NULL GROUP BY hostname";
 		PlutoSqlResult result;
 		DB_ROW row;
 		if( (result.r = m_pDBHelper_Myth->db_wrapper_query_result(sSQL)) )
@@ -1464,32 +1478,37 @@ void MythTV_PlugIn::UpdateMythSetting(string value,string data,string hostname,b
 			{
 				if( row[0] )
 				{
-					if( mapExistingHosts[row[0]] )
-						continue;
-					mapExistingHosts[row[0]]=true;
-					UpdateMythSetting(value,data,row[0],bOnlyIfNotExisting);
+					bChanged |= UpdateMythSetting(value,data,row[0],bOnlyIfNotExisting);
 				}
 			}
 		}
-		return;
+		return bChanged;
 	}
 
-	string sSQL = "SELECT value FROM settings WHERE value='" + StringUtils::SQLEscape(value) + "' AND " 
+	string sSQL = "SELECT data FROM settings WHERE value='" + StringUtils::SQLEscape(value) + "' AND " 
 		" hostname " + (hostname.empty() ? "IS NULL" : "='" + StringUtils::SQLEscape(hostname) + "'");
 	PlutoSqlResult result;
 	if( (result.r = m_pDBHelper_Myth->db_wrapper_query_result(sSQL))==NULL || result.r->row_count==0 )
 	{
-		sSQL = "INSERT INTO settings(value,hostname) VALUES('" + StringUtils::SQLEscape(value) + "',"
-			+ (hostname.empty() ? "NULL" : "'" + StringUtils::SQLEscape(hostname) + "'") + ")";
+		sSQL = "INSERT INTO settings(value,hostname,data) VALUES('" + StringUtils::SQLEscape(value) + "',"
+			+ (hostname.empty() ? "NULL" : "'" + StringUtils::SQLEscape(hostname) + "',")
+			+ "'" + StringUtils::SQLEscape(data) + "')";
 		m_pDBHelper_Myth->threaded_db_wrapper_query(sSQL);
+		return true;
 	}
 	else if( bOnlyIfNotExisting )
-		return;
+		return false;
+
+	DB_ROW row;
+	row = db_wrapper_fetch_row( result.r ) ;
+	if( row[0] && (data==row[0]) )
+		return false;
 
 	sSQL = "UPDATE settings set data='" + StringUtils::SQLEscape(data) + "' WHERE value='" + StringUtils::SQLEscape(value) + "' "
 		" AND hostname " + (hostname.empty() ? "IS NULL" : "='" + StringUtils::SQLEscape(hostname) + "'");
 
 	m_pDBHelper_Myth->threaded_db_wrapper_query(sSQL);
+	return true;
 }
 
 void MythTV_PlugIn::CheckForNewRecordings()
@@ -2264,8 +2283,9 @@ void MythTV_PlugIn::CMD_Abort_Task(int iParameter_ID,string &sCMD_Result,Message
 {
 }
 
-void MythTV_PlugIn::SetPaths()
+bool MythTV_PlugIn::SetPaths()
 {
+	bool bChanged = false;
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::SetPaths");
 
 	// Get all the backend ip's so we can match the hostname myth uses to our own device id
@@ -2317,10 +2337,13 @@ void MythTV_PlugIn::SetPaths()
 				system(CmdList[i].c_str());
 			}
 
-			UpdateMythSetting("LiveBufferDir",sDirectory,row[1]);
-			UpdateMythSetting("RecordFilePrefix",sDirectory,row[1]);
+			bChanged |= UpdateMythSetting("LiveBufferDir",sDirectory,row[1]);
+			bChanged |= UpdateMythSetting("RecordFilePrefix",sDirectory,row[1]);
 		}
 	}
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::SetPaths : change noted? %s", ((bChanged) ? "yes" : "no"));
+	return bChanged;
 } 
 
 void MythTV_PlugIn::RunBackendStarter()

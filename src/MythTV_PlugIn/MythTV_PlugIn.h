@@ -222,8 +222,9 @@ public:
 
 		bool SafeToReload(string &sReason);
 
-		// Set a value in mythconverg's setting table.  If hostname=*, all known hosts will be set.  If it's empty, hostname will be NULL
-		void UpdateMythSetting(string value,string data,string hostname,bool bOnlyIfNotExisting=false);
+		/// Set a value in mythconverg's setting table.  If hostname=*, all known hosts will be set.  If it's empty, hostname will be NULL.
+		/// Returns true iff a setting was added or modified.
+		bool UpdateMythSetting(string value,string data,string hostname,bool bOnlyIfNotExisting=false);
 
 		void AlarmCallback(int id, void* param);
 		void CheckForNewRecordings();
@@ -240,7 +241,7 @@ public:
 
 		virtual bool ReportPendingTasks(PendingTaskList *pPendingTaskList=NULL);
 
-		void SetPaths();
+		bool SetPaths();
 		void RunBackendStarter();
 		void StartFillDatabase();
 		void UpdateUpcomingRecordings();
