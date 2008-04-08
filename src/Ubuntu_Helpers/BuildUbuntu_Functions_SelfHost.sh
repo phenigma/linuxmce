@@ -415,6 +415,9 @@ function SUDO_Install_Build_Needed_Packages_SUDO
 	done
         printf "\n"
 
+        echo "Installing mysql stuff"
+        apt-get -y install libmysqlclient15-dev > /dev/null
+
         echo "Installing libxine development packages"
 	pkgs="libcaca-dev liblircclient-dev libtheora-dev libflac-dev=1.1.2-5ubuntu2 libmodplug-dev libgnomevfs2-dev libspeex-dev libmad0-dev libxvmc-dev automake1.9 autoconf libtool libcdio-dev sgmltools-lite dpatch transfig libavformat-dev libpostproc-dev libavcodec-dev libraw1394-dev libdc1394-13-dev"
 	for pkg in $pkgs ;do
