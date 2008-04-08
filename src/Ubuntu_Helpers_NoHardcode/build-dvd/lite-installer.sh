@@ -21,6 +21,16 @@ RootUUID=
 SwapUUID=
 RecoveryUUID=
 
+Error()
+{
+	local Message="$*"
+	echo
+	echo -e "\033[1;31mERROR: $*"
+	echo
+	tput sgr0
+	exit 1
+}
+
 NukeFS()
 {
 	local List="$*" # "/,home,var /var,lib BasePath,Exception1,Exception2,..."
@@ -69,12 +79,10 @@ GetHddToUse()
 			fi
 		done
 		if [[ -z "$TargetHdd" ]]; then
-			echo "Error: Failed to determine current hard drive"
-			exit 1
+			Error "Failed to determine current hard drive."
 		fi
 	elif [[ -z "$HddList" ]]; then # No hard drives
-		echo "Error: No hard drives found"
-		exit 1
+		Error "No hard drives found."
 	else
 		Done=0
 		mkdir -p /media/target
@@ -301,34 +309,37 @@ CopyDVD()
 	echo "Copying DVD to hard drive"
 	local DVDdir=$(mktemp -d)
 	mount -t squashfs -o loop,ro /cdrom/casper/filesystem.squashfs "$DVDdir"
-	cp -a "$DVDdir"/. /media/recovery/
+	cp -a "$DVDdir"/. /media/recovery/ || Error "I/O failure while copying from the DVD."
 	umount "$DVDdir"
 
 	#Copy archives
 	mkdir -p /media/recovery/archives/lmce-image/
-	cp -a /cdrom/lmce-image/. /media/recovery/archives/lmce-image/
+	cp -a /cdrom/lmce-image/. /media/recovery/archives/lmce-image/ || Error "I/O failure while copying from the DVD."
 
 	#Copy demo videos, if any
 	if [[ -d /cdrom/lmce-videos ]]; then
 		mkdir -p /media/recovery/archives/lmce-videos
-		cp -a /cdrom/lmce-videos/. /media/recovery/archives/lmce-videos/
+		cp -a /cdrom/lmce-videos/. /media/recovery/archives/lmce-videos/ || Error "I/O failure while copying from the DVD."
 	fi
 
 	#Copy VIA archives
 	if [[ -d /cdrom/via-archives ]]; then
 		mkdir -p /media/recovery/archives/via-archives
-		cp -a /cdrom/via-archives/. /media/recovery/archives/via-archives/
+		cp -a /cdrom/via-archives/. /media/recovery/archives/via-archives/ || Error "I/O failure while copying from the DVD."
+
 	fi
 	
 	#Copy Diskless images
 	if [[ -d /cdrom/diskless-images ]]; then
 		mkdir -p /media/recovery/archives/diskless-images
-		cp -a /cdrom/diskless-images/. /media/recovery/archives/diskless-images/
+		cp -a /cdrom/diskless-images/. /media/recovery/archives/diskless-images/ || Error "I/O failure while copying from the DVD."
+
 	fi
 
 	if [[ -d /cdrom/deb-cache ]] ;then
 		mkdir -p /media/recovery/archives/deb-cache
-		cp -a /cdrom/deb-cache/. /media/recovery/archives/deb-cache/
+		cp -a /cdrom/deb-cache/. /media/recovery/archives/deb-cache/ || Error "I/O failure while copying from the DVD."
+
 	fi
 
 	local interfaces="
