@@ -4307,7 +4307,7 @@ void ScreenHandler::HandleAssistedMakeCall(int iPK_Users,string sPhoneExtension,
 
 			DCE::CMD_Make_Call cmd_Make_Call(
 				m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device_TelecomPlugIn,
-				iPK_Users, sPhoneExtension, iPK_Device_From, iPK_Device_To);
+				iPK_Users, sPhoneExtension, StringUtils::itos(iPK_Device_From), iPK_Device_To);
 			m_pOrbiter->SendCommand(cmd_Make_Call, &sResponse);
 
 			if(sResponse != "OK")

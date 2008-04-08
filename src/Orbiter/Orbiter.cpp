@@ -10175,15 +10175,15 @@ string Orbiter::DetectCoreIpAddress()
 			/** The called user. Only one is supported now. */
 		/** @param #83 PhoneExtension */
 			/** The phone number to be called. */
-		/** @param #262 PK_Device_From */
+		/** @param #184 PK_Device_From */
 			/** The device which starts the call. */
 		/** @param #263 PK_Device_To */
 			/** The called device. */
 
-void Orbiter::CMD_Assisted_Make_Call(int iPK_Users,string sPhoneExtension,int iPK_Device_From,int iPK_Device_To,string &sCMD_Result,Message *pMessage)
+void Orbiter::CMD_Assisted_Make_Call(int iPK_Users,string sPhoneExtension,string sPK_Device_From,int iPK_Device_To,string &sCMD_Result,Message *pMessage)
 //<-dceag-c923-e->
 {
-	m_pScreenHandler->HandleAssistedMakeCall(iPK_Users, sPhoneExtension, iPK_Device_From, iPK_Device_To, "");
+	m_pScreenHandler->HandleAssistedMakeCall(iPK_Users, sPhoneExtension, atoi(sPK_Device_From.c_str()), iPK_Device_To, "");
 }
 //<-dceag-c67-b->
 

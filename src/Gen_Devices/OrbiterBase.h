@@ -655,7 +655,7 @@ public:
 	virtual void CMD_Execute_Shortcut(int iValue,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Bind_to_Wireless_Keyboard(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Activate_PC_Desktop(bool bTrueFalse,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Assisted_Make_Call(int iPK_Users,string sPhoneExtension,int iPK_Device_From,int iPK_Device_To,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Assisted_Make_Call(int iPK_Users,string sPhoneExtension,string sPK_Device_From,int iPK_Device_To,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual ReceivedMessageResult ReceivedMessage(class Message *pMessageOriginal)
@@ -2958,9 +2958,9 @@ public:
 						string sCMD_Result="OK";
 						int iPK_Users=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Users_CONST].c_str());
 						string sPhoneExtension=pMessage->m_mapParameters[COMMANDPARAMETER_PhoneExtension_CONST];
-						int iPK_Device_From=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Device_From_CONST].c_str());
+						string sPK_Device_From=pMessage->m_mapParameters[COMMANDPARAMETER_PK_Device_From_CONST];
 						int iPK_Device_To=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Device_To_CONST].c_str());
-						CMD_Assisted_Make_Call(iPK_Users,sPhoneExtension.c_str(),iPK_Device_From,iPK_Device_To,sCMD_Result,pMessage);
+						CMD_Assisted_Make_Call(iPK_Users,sPhoneExtension.c_str(),sPK_Device_From.c_str(),iPK_Device_To,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -2977,7 +2977,7 @@ public:
 						{
 							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Assisted_Make_Call(iPK_Users,sPhoneExtension.c_str(),iPK_Device_From,iPK_Device_To,sCMD_Result,pMessage);
+								CMD_Assisted_Make_Call(iPK_Users,sPhoneExtension.c_str(),sPK_Device_From.c_str(),iPK_Device_To,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

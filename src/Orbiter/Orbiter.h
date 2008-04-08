@@ -1975,13 +1975,13 @@ light, climate, media, security, telecom */
 			/** The called user. Only one is supported now. */
 		/** @param #83 PhoneExtension */
 			/** The phone number to be called. */
-		/** @param #262 PK_Device_From */
+		/** @param #184 PK_Device_From */
 			/** The device which starts the call. */
 		/** @param #263 PK_Device_To */
 			/** The called device. */
 
-	virtual void CMD_Assisted_Make_Call(int iPK_Users,string sPhoneExtension,int iPK_Device_From,int iPK_Device_To) { string sCMD_Result; CMD_Assisted_Make_Call(iPK_Users,sPhoneExtension.c_str(),iPK_Device_From,iPK_Device_To,sCMD_Result,NULL);};
-	virtual void CMD_Assisted_Make_Call(int iPK_Users,string sPhoneExtension,int iPK_Device_From,int iPK_Device_To,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Assisted_Make_Call(int iPK_Users,string sPhoneExtension,string sPK_Device_From,int iPK_Device_To) { string sCMD_Result; CMD_Assisted_Make_Call(iPK_Users,sPhoneExtension.c_str(),sPK_Device_From.c_str(),iPK_Device_To,sCMD_Result,NULL);};
+	virtual void CMD_Assisted_Make_Call(int iPK_Users,string sPhoneExtension,string sPK_Device_From,int iPK_Device_To,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

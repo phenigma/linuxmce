@@ -2279,7 +2279,7 @@ class DataGridTable *Telecom_Plugin::SpeedDialGrid(string GridID,string Parms,vo
 			
 			pCell = new DataGridCell(text, "");
 			DCE::CMD_Make_Call 
-				CMD_Make_Call_(m_dwPK_Device, m_dwPK_Device, iPK_Users, sExt, iPK_Device_From, iPK_Device_To);
+				CMD_Make_Call_(m_dwPK_Device, m_dwPK_Device, iPK_Users, sExt, StringUtils::itos(iPK_Device_From), iPK_Device_To);
 			pCell->m_pMessage = CMD_Make_Call_.m_pMessage;
 			pDataGrid->SetData(0, Row, pCell);
 			Row++;
@@ -3057,12 +3057,12 @@ void Telecom_Plugin::FollowMe_LeftRoom(int iPK_Event, int iPK_Orbiter, int iPK_D
 			/** The called user. Only one is supported now. */
 		/** @param #83 PhoneExtension */
 			/** The phone number to be called. */
-		/** @param #262 PK_Device_From */
+		/** @param #184 PK_Device_From */
 			/** The device which starts the call. */
 		/** @param #263 PK_Device_To */
 			/** The called device. */
 
-void Telecom_Plugin::CMD_Make_Call(int iPK_Users,string sPhoneExtension,int iPK_Device_From,int iPK_Device_To,string &sCMD_Result,Message *pMessage)
+void Telecom_Plugin::CMD_Make_Call(int iPK_Users,string sPhoneExtension,string sPK_Device_From,int iPK_Device_To,string &sCMD_Result,Message *pMessage)
 //<-dceag-c921-e->
 {
 	PLUTO_SAFETY_LOCK(vm, m_TelecomMutex);
@@ -3076,6 +3076,7 @@ void Telecom_Plugin::CMD_Make_Call(int iPK_Users,string sPhoneExtension,int iPK_
 	}
 	
 	// If iPK_Device_From, then let's use the device_from from the message.
+	int iPK_Device_From = atoi(sPK_Device_From.c_str());
 	if( !iPK_Device_From )
 	{
 		iPK_Device_From = pMessage->m_dwPK_Device_From;

@@ -33,6 +33,8 @@ if [[ $hasRecords -ne 0 ]]; then
 	SkipDatabase="yes"
 fi
 
+RunSQL "update Device JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate SET Device.Description=replace(Device.Description,':','-') WHERE FK_DeviceCategory in (157,171,155,158)"
+
 /usr/pluto/bin/SetupUsers.sh
 /usr/pluto/bin/Update_StartupScrips.sh
 /usr/pluto/bin/generateRcScripts.sh
