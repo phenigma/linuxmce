@@ -4212,9 +4212,8 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 		{
 			//rip status indicator
 			string sRippingStatus;
-// before committing, use a current database, add spawn application to orbiter's commands, then uncomment out this
-//			DCE::CMD_Get_Ripping_Status cmd_Get_Ripping_Status(m_dwPK_Device, m_dwPK_Device_MediaPlugIn, &sRippingStatus);
-//			SendCommand(cmd_Get_Ripping_Status);
+			DCE::CMD_Get_Ripping_Status cmd_Get_Ripping_Status(m_dwPK_Device, m_dwPK_Device_MediaPlugIn, &sRippingStatus);
+			SendCommand(cmd_Get_Ripping_Status);
 
 			Output += sRippingStatus;
 		}
