@@ -1630,12 +1630,10 @@ void MythTV_PlugIn::CheckForNewRecordings()
 			if( row[8] && row[8][0] != 0 /*category_type*/)
 			{
 				string sType = row[8];
-				if( sType=="tvshow" || sType=="series" )
-					pRow_File->FK_MediaSubType_set(MEDIASUBTYPE_TV_Shows_CONST);
-				else if( sType=="movie" )
-					pRow_File->FK_MediaSubType_set(MEDIASUBTYPE_Movies_CONST);
-				else if( sType=="sports" )
+				if( StringUtils::StartsWith(sType,"Sports",true) )
 					pRow_File->FK_MediaSubType_set(MEDIASUBTYPE_Sports_Events_CONST);
+				else
+					pRow_File->FK_MediaSubType_set(MEDIASUBTYPE_TV_Shows_CONST);
 			}
 			if( row[9] && row[9][0] != 0 /*channel name*/)
 				m_pMedia_Plugin->CMD_Add_Media_Attribute(row[9],0,"",ATTRIBUTETYPE_Channel_CONST,"",pRow_File->PK_File_get(),&PK_Attribute_Channel);
