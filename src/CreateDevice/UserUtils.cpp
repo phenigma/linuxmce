@@ -215,7 +215,7 @@ void UserUtils::ConfirmMasterUserExists()
 		DB_ROW row;
 		if( (result_set_user.r=m_pDBHelper->db_wrapper_query_result(sSQL)) && (row = db_wrapper_fetch_row(result_set_user.r))!=NULL )
 		{
-			sSQL = "UPDATE Installation_Users set userCanModifyInstallation=1 WHERE FK_Users=" + string(row[0]);
+			sSQL = "UPDATE Installation_Users set userCanModifyInstallation=1,userCanChangeHouseMode=1 WHERE FK_Users=" + string(row[0]);
 			m_pDBHelper->threaded_db_wrapper_query(sSQL);
 			LoggerWrapper::GetInstance()->Write(LV_WARNING,"User removed master user.  New master user is: %s", row[0]);
 		}
