@@ -742,7 +742,7 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"MediaStream::SetNowPlaying use al
 
 	int PK_Device_Source=0,iDequeMediaFile=0;
 
-	//bool bIsOSD=OrbiterIsOSD(dwPK_Device,&pEntertainArea_OSD);
+	OrbiterIsOSD(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,&pEntertainArea_OSD);
 	int PK_Screen = GetRemoteControlScreen(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
 	PK_Device_Source = m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device;
 	if( m_iTrackOrSectionOrChannel==-1 )
