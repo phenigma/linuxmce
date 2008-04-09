@@ -104,6 +104,9 @@ if [[ "$1" == "--restore" ]]; then
 		apt-get -y --reinstall install pluto-security-database
 		apt-get -y --reinstall install pluto-telecom-database
 
+		## Mark MDs for reconfigure
+		RunSQL "UPDATE Device SET NeedConfigure = '1' WHERE FK_DeviceTemplate = 28"
+
 		rm -rf $MASTERDIR/upload/*
 		rmdir $MASTERDIR/upload
 
