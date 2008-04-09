@@ -92,6 +92,7 @@ MediaStream::MediaStream( class MediaHandlerInfo *pMediaHandlerInfo, int iPK_Med
 	m_iRepeat = 0;
 	m_bStopped = false;
 	m_bUseAltScreens = false;
+	m_bPlaybackStarted = false;
     m_pMediaDevice_Source=pMediaDevice;
 	m_pDevice_CaptureCard=NULL;
 
@@ -104,6 +105,8 @@ MediaStream::MediaStream( class MediaHandlerInfo *pMediaHandlerInfo, int iPK_Med
 	m_pMediaDevice_Source->m_iLastPlaybackSpeed = 1000;
 LoggerWrapper::GetInstance()->Write( LV_STATUS, "MediaStream::MediaStream %p on stream id: %d type %d", this, m_iStreamID, m_iPK_MediaType );
 LoggerWrapper::GetInstance()->Write( LV_STATUS, "Mediastream mapEntArea size %d", m_mapEntertainArea.size( ) );
+LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"debug_stream_end MediaStream::MediaStream c1 %d/%p source %d",
+m_iStreamID,this,pMediaDevice->m_pDeviceData_Router->m_dwPK_Device);
 }
 
 bool MediaStream::isMovable()
@@ -189,6 +192,10 @@ bool MediaStream::CanPlayMore()
 
 MediaStream::~MediaStream( )
 {
+LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"debug_stream_end MediaStream::~MediaStream c1 %d/%p",
+m_iStreamID,this);
+
+
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MediaStream::~MediaStream %p %d mhi %p",this,m_iStreamID,m_pMediaHandlerInfo); 
 	for(size_t s=0;s<m_dequeMediaSection.size();++s)
 		if( m_dequeMediaSection[s] )

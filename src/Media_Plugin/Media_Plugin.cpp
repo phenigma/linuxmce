@@ -1044,6 +1044,8 @@ bool Media_Plugin::PlaybackStarted( class Socket *pSocket,class Message *pMessag
         return false;
     }
 
+	pMediaStream->m_bPlaybackStarted = true;
+
 	string::size_type pos=0;
 	while(pos<sSectionDescription.size())
 	{
@@ -1465,8 +1467,13 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream,map<int, pair<MediaDevic
 				pEntertainArea->m_vectMediaStream_Interrupted.push_back(pEntertainArea->m_pMediaStream);
 
 			pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia( pEntertainArea->m_pMediaStream );
-			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Media_Plugin::StartMedia(): Calling Stream ended after the Stop Media");
-			StreamEnded(pEntertainArea->m_pMediaStream,false,pMediaStream->m_bResume ? false : true,pMediaStream,NULL,false,true,false);  // Don't delete it if we're going to resume
+			if( pEntertainArea->m_pMediaStream->m_bPlaybackStarted==false )
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Media_Plugin::StartMedia(): Calling Stream ended for a stream %d that never started", pEntertainArea->m_pMediaStream->m_iStreamID_get());
+			else
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Media_Plugin::StartMedia(): Calling Stream ended after the Stop Media");
+
+			// If the new stream has m_bResume set we don't want to delete the prior stream.  Unless the prior stream never actually started yet
+			StreamEnded(pEntertainArea->m_pMediaStream,false,pMediaStream->m_bResume && pEntertainArea->m_pMediaStream->m_bPlaybackStarted ? false : true,pMediaStream,NULL,false,true,false);  // Don't delete it if we're going to resume
 			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Media_Plugin::StartMedia(): Call completed.");
 
 		}
@@ -2371,6 +2378,10 @@ void Media_Plugin::CMD_MH_Stop_Media(int iPK_Device,int iPK_MediaType,int iPK_De
 
 void Media_Plugin::StreamEnded(MediaStream *pMediaStream,bool bSendOff,bool bDeleteStream,MediaStream *pMediaStream_Replacement,vector<EntertainArea *> *p_vectEntertainArea,bool bNoAutoResume,bool bTurnOnOSD,bool bFireEvent)
 {
+LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"debug_stream_end Media_Plugin::StreamEnded ID %d/%p delete %d auto resume %d resume: %c",
+pMediaStream->m_iStreamID_get(),pMediaStream, (int) bDeleteStream, (int) bNoAutoResume,m_mapPromptResume[make_pair<int,int> (pMediaStream->m_iPK_Users,pMediaStream->m_iPK_MediaType)]);
+
+
 	if ( pMediaStream == NULL )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Media_Plugin::StreamEnded() called with NULL MediaStream in it! Ignoring");
@@ -2383,7 +2394,7 @@ void Media_Plugin::StreamEnded(MediaStream *pMediaStream,bool bSendOff,bool bDel
 	PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
 
 #ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::StreamEnded ID %d auto resume %d resume: %c",pMediaStream->m_iStreamID_get(),(int) bNoAutoResume,m_mapPromptResume[make_pair<int,int> (pMediaStream->m_iPK_Users,pMediaStream->m_iPK_MediaType)]);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::StreamEnded ID %d delete %d auto resume %d resume: %c",pMediaStream->m_iStreamID_get(),(int) bDeleteStream, (int) bNoAutoResume,m_mapPromptResume[make_pair<int,int> (pMediaStream->m_iPK_Users,pMediaStream->m_iPK_MediaType)]);
 #endif
 
 	if( bNoAutoResume )
