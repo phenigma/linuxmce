@@ -71,6 +71,9 @@ fi
 
 # restore system from backup
 if [[ "$1" == "--restore" ]]; then
+	. /usr/pluto/bin/SQL_Ops.sh
+	. /usr/pluto/bin/Config_Ops.sh
+
 	cd $MASTERDIR/upload
 	backupfile=$(ls $MASTERDIR/upload | grep tar)
 	
@@ -103,9 +106,33 @@ if [[ "$1" == "--restore" ]]; then
 		apt-get -y --reinstall install pluto-local-database
 		apt-get -y --reinstall install pluto-security-database
 		apt-get -y --reinstall install pluto-telecom-database
+		if [[ -f /var/lib/dpkg/info/freepbx.postinst ]] ;then
+			apt-get -y --reinstall install freepbx
+		fi
 
 		## Mark MDs for reconfigure
 		RunSQL "UPDATE Device SET NeedConfigure = '1' WHERE FK_DeviceTemplate = 28"
+
+		# From 0704 to 0710
+		ConfDel remote
+
+		arch=$(apt-config dump | grep 'APT::Architecture' | sed 's/APT::Architecture.*"\(.*\)".*/\1/g')
+		RunSQL "UPDATE Device_DeviceData SET IK_DeviceData='LMCE_CORE_u0710_$arch' WHERE IK_DeviceData='LMCE_CORE_1_1'"
+		RunSQL "UPDATE Device_DeviceData SET IK_DeviceData='LMCE_MD_u0710_i386'   WHERE IK_DeviceData='LMCE_MD_1_1'"
+		RunSQL "UPDATE Device_DeviceData SET IK_DeviceData='0' WHERE FK_DeviceData='234'"
+		RunSQL "UPDATE Device_DeviceData SET IK_DeviceData='i386' WHERE FK_DeviceData='112' AND IK_DeviceData='686'"
+		RunSQL "USE asterisk; UPDATE incoming SET destination=CONCAT('custom-linuxmce', SUBSTR(destination, 18)) WHERE destination LIKE 'from-pluto-custom%'"
+		RunSQL "DELETE FROM Software_Device WHERE 1"
+
+		DT_DiskDrive=11
+		DiskDrives=$(RunSQL "SELECT PK_Device FROM Device WHERE FK_DeviceTemplate='$DT_DiskDrive'")
+		for DiskDrive in $DiskDrives ;do
+			DiskDrive_DeviceID=$(Field 1 "$DiskDrive")
+			for table in 'CommandGroup_Command' 'Device_Command' 'Device_CommandGroup' 'Device_DeviceData' 'Device_DeviceGroup' 'Device_Device_Related' 'Device_EntertainArea' 'Device_HouseMode' 'Device_Orbiter' 'Device_StartupScript' 'Device_Users' ;do
+				RunSQL "DELETE FROM \`$table\` WHERE FK_DeviceID = '$DiskDrive_DeviceID' LIMIT 1"
+			done
+			RunSQL "DELETE FROM Device WHERE PK_Device = '$DiskDrive_DeviceID' LIMIT 1"
+		done
 
 		rm -rf $MASTERDIR/upload/*
 		rmdir $MASTERDIR/upload
