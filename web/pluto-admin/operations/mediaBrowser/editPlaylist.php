@@ -105,18 +105,53 @@ function editPlaylist($output,$mediadbADO,$dbADO) {
 			break;
 		}
 	
-		
+		$limit="";
+		$records_per_page=1000;
+		$lpage=(isset($_REQUEST['lpage']))?(int)$_REQUEST['lpage']:1;
+		$rpage=(isset($_REQUEST['rpage']))?(int)$_REQUEST['rpage']:1;
+
+		$res=$mediadbADO->Execute('SELECT COUNT(*) AS total FROM File '.$where);
+		$row=$res->FetchRow();
+		$totalToAdd=$row['total'];
+
+		if($totalToAdd>$records_per_page){
+			$noPages=ceil($totalToAdd/$records_per_page);
+			$start=($lpage-1)*$records_per_page;
+			$end=$lpage*$records_per_page;
+			$end=($end>$totalToAdd)?$totalToAdd:$end;
+	
+			$pageLinks='';
+			for($i=1;$i<=$noPages;$i++){
+				$pageLinks.=($i==$lpage)?' '.$i:' <a href="'.$_SERVER['PHP_SELF'].'?'.str_replace('&lpage='.$lpage,'',$_SERVER['QUERY_STRING']).'&lpage='.$i.'">'.$i.'</a>';
+			}
+			$limit=" LIMIT $start, $records_per_page";
+		}
+
+		//$mediadbADO->debug=true;
 		// files to be added to playlist
-		$toAdd=getAssocArray('File','CONCAT("file_",PK_File) AS PK_File','IF(FA2.FK_File IS NULL,File.Filename,CONCAT(A2.Name," [",File.Filename,"]")) AS Filename',$mediadbADO,$join.$where,$order);
+		$toAdd=getAssocArray('File','CONCAT("file_",PK_File) AS PK_File','IF(FA2.FK_File IS NULL,File.Filename,CONCAT(A2.Name," [",File.Filename,"]")) AS Filename',$mediadbADO,$join.$where,$order.$limit);
 				
 		
-		$queryPlaylistEntry="
-			SELECT PlaylistEntry.*,FileFilename, File.Path AS FilePath
-			FROM PlaylistEntry
-			LEFT JOIN File ON PlaylistEntry.FK_File=PK_File
-			WHERE FK_Playlist=?
-			ORDER BY 'Order' ASC";
-		$added=getAssocArray('PlaylistEntry','PK_PlaylistEntry','File.Filename',$mediadbADO,'LEFT JOIN File ON PlaylistEntry.FK_File=PK_File WHERE FK_Playlist='.$playlistID.' ORDER BY PlaylistEntry.`Order` ASC');
+		// added pagination for playlist entries
+		$res=$mediadbADO->Execute("SELECT COUNT(*) AS total FROM PlaylistEntry	WHERE FK_Playlist=?	ORDER BY 'Order' ASC",array($playlistID));
+		$row=$res->FetchRow();
+		$totalAdded=$row['total'];
+		$rlimit="";
+		if($totalAdded>$records_per_page){
+			$noPages=ceil($totalAdded/$records_per_page);
+			$start=($rpage-1)*$records_per_page;
+			$end=$rpage*$records_per_page;
+			$end=($end>$totalAdded)?$totalAdded:$end;
+	
+			$rpageLinks='';
+			for($i=1;$i<=$noPages;$i++){
+				$rpageLinks.=($i==$rpage)?' '.$i:' <a href="'.$_SERVER['PHP_SELF'].'?'.str_replace('&rpage='.$rpage,'',$_SERVER['QUERY_STRING']).'&rpage='.$i.'">'.$i.'</a>';
+			}
+			$rlimit=" LIMIT $start, $records_per_page";
+		}		
+		
+		
+		$added=getAssocArray('PlaylistEntry','PK_PlaylistEntry','File.Filename',$mediadbADO,'LEFT JOIN File ON PlaylistEntry.FK_File=PK_File WHERE FK_Playlist='.$playlistID.' ORDER BY PlaylistEntry.`Order` ASC'.$rlimit);
 		$privateChecked=($playlistUserID!=0)?'checked':'';
 		$out.='
 		<script>
@@ -171,6 +206,12 @@ function editPlaylist($output,$mediadbADO,$dbADO) {
 					<td align="center" colspan="9">
 						<table>
 							<tr>
+								<td class="alternate_back">'.@$pageLinks.'</td>
+								<td align="center">&nbsp;</td>
+								<td class="alternate_back" align="right">'.@$rpageLinks.'</td>
+								<td align="center">&nbsp;</td>
+							</tr>						
+							<tr>
 								<td>'.pulldownFromArray($toAdd,'toAdd[]','',' id="toAddList"multiple style="height:300px;" class="input_big"','key','').'</td>
 								<td align="center">
 								<input type="button" class="button" name="moveL" value="&lt;" onClick="moveDualList(document.getElementById(\'addedList\'),document.getElementById(\'toAddList\'),false);">
@@ -183,6 +224,12 @@ function editPlaylist($output,$mediadbADO,$dbADO) {
 								<input type="button" class="button" name="moveD" value="D" onClick="move(document.getElementById(\'addedList\'),document.getElementById(\'addedList\').selectedIndex,1);">
 								 </td>
 							</tr>
+							<tr>
+								<td class="alternate_back">'.$TEXT_FILES_TO_ADD_CONST.': <b>'.$totalToAdd.'</b></td>
+								<td align="center">&nbsp;</td>
+								<td class="alternate_back" align="right">'.$TEXT_FILES_ADDED_CONST.': <b>'.$totalAdded.'</b></td>
+								<td align="center">&nbsp;</td>
+							</tr>							
 						</table>
 					</td>
 				</tr>
