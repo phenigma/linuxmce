@@ -5754,10 +5754,15 @@ void Media_Plugin::CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,s
 
 	// Find the media stream
 	MediaStream *pMediaStream=NULL;
+LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"disk id %d streams", (int) m_mapMediaStream.size());
     for(MapMediaStream::iterator it=m_mapMediaStream.begin();it!=m_mapMediaStream.end();++it)
     {
         MediaStream *pMS = (*it).second;
 		// If the disk matches, and the drive is either the source, or a sibbling of the source, this is the stream
+LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"pMS->m_discid %d sID %s m_dwPK_Device %d iPK_Device %d cv %d/%d",
+pMS->m_discid,sID.c_str(),pMS->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,iPK_Device,
+pMS->m_pMediaDevice_Source->m_pDeviceData_Router->m_pDevice_ControlledVia, pDevice_Disk_Drive->m_pDevice_ControlledVia);
+
 		if( pMS->m_discid==atoi(sID.c_str()) &&
 			(pMS->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device==iPK_Device ||
 			pMS->m_pMediaDevice_Source->m_pDeviceData_Router->m_pDevice_ControlledVia==pDevice_Disk_Drive->m_pDevice_ControlledVia ) )
@@ -5766,6 +5771,7 @@ void Media_Plugin::CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,s
 			break;
 		}
 	}
+LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"pMS %p", pMediaStream);
 
 	listMediaAttribute listMediaAttribute_;
 	int PK_Disc=0;
