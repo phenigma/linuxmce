@@ -391,7 +391,4 @@ RunSQL "UPDATE Installation SET FK_PostalCode = 0"
 
 apt-get -y -f dist-upgrade
 
-sed -i 's/^# kopt=\(.*\)/# kopt=\1 acpi=off/g' /boot/grub/menu.lst
-update-grub
-
 StatsMessage "Installation Finished"
