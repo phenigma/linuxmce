@@ -5759,13 +5759,17 @@ LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"disk id %d streams", (int) m_ma
     {
         MediaStream *pMS = (*it).second;
 		// If the disk matches, and the drive is either the source, or a sibbling of the source, this is the stream
-LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"pMS->m_discid %d sID %s m_dwPK_Device %d iPK_Device %d cv %d/%d",
+LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"pMS->m_discid %d sID %s m_dwPK_Device %d iPK_Device %d cv %p/%p %p/%p",
 pMS->m_discid,sID.c_str(),pMS->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,iPK_Device,
-pMS->m_pMediaDevice_Source->m_pDeviceData_Router->m_pDevice_ControlledVia, pDevice_Disk_Drive->m_pDevice_ControlledVia);
+pMS->m_pMediaDevice_Source->m_pDeviceData_Router->m_pDevice_ControlledVia, pDevice_Disk_Drive->m_pDevice_ControlledVia,
+pMS->m_pMediaDevice_Source->m_pDeviceData_Router->m_pDevice_ControlledVia->m_pDevice_ControlledVia,pDevice_Disk_Drive->m_pDevice_ControlledVia,
+pMS->m_pMediaDevice_Source->m_pDeviceData_Router->GetTopMostDevice(),pDevice_Disk_Drive->GetTopMostDevice());
 
 		if( pMS->m_discid==atoi(sID.c_str()) &&
 			(pMS->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device==iPK_Device ||
-			pMS->m_pMediaDevice_Source->m_pDeviceData_Router->m_pDevice_ControlledVia==pDevice_Disk_Drive->m_pDevice_ControlledVia ) )
+			pMS->m_pMediaDevice_Source->m_pDeviceData_Router->m_pDevice_ControlledVia==pDevice_Disk_Drive->m_pDevice_ControlledVia ||
+			pMS->m_pMediaDevice_Source->m_pDeviceData_Router->GetTopMostDevice() == pDevice_Disk_Drive->GetTopMostDevice() // The disc drive is no longer a sibbling of the media player under Orbiter, it may be 1 level higher
+			) )
 		{
 			pMediaStream=pMS;
 			break;
