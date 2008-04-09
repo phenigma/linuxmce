@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="WINDOWS-1250"?>
+<jardesc>
+<jar path="C:/TiVo/Projects/TiVoOrbiter/orbiter.jar"/>
+<options buildIfNeeded="true" compress="true" descriptionLocation="/TiVoOrbiter/orbiter.jardesc" exportErrors="true" exportWarnings="true" includeDirectoryEntries="false" overwrite="true" saveDescription="true" storeRefactorings="false" useSourceFolders="false"/>
+<storedRefactorings deprecationInfo="true" structuralOnly="false"/>
+<selectedProjects/>
+<manifest generateManifest="false" manifestLocation="/TiVoOrbiter/orbiter.manifest" manifestVersion="1.0" reuseManifest="true" saveManifest="true" usesManifest="true">
+<sealing sealJar="true">
+<packagesToSeal/>
+<packagesToUnSeal/>
+</sealing>
+</manifest>
+<selectedElements exportClassFiles="true" exportJavaFiles="false" exportOutputFolder="false">
+<javaElement handleIdentifier="=TiVoOrbiter/src&lt;com.tivo.hme.dce{Serialize.java"/>
+<javaElement handleIdentifier="=TiVoOrbiter/src&lt;com.tivo.hme.dce{MessageReceiver.java"/>
+<javaElement handleIdentifier="=TiVoOrbiter/src&lt;com.tivo.hme.dce{Communication.java"/>
+<javaElement handleIdentifier="=TiVoOrbiter/src&lt;com.tivo.hme.dce{CommandHandlerAsync.java"/>
+<javaElement handleIdentifier="=TiVoOrbiter/src&lt;com.tivo.hme.orbiter.UI{MainMenuScreen.java"/>
+<javaElement handleIdentifier="=TiVoOrbiter/src&lt;com.tivo.hme.orbiter.UI{SubscenariosScreen.java"/>
+<file path="/TiVoOrbiter/blue.jpg"/>
+<javaElement handleIdentifier="=TiVoOrbiter/src&lt;com.tivo.hme.dce{ClientSocket.java"/>
+<javaElement handleIdentifier="=TiVoOrbiter/src&lt;com.tivo.hme.scenarios{CommandGroup.java"/>
+<javaElement handleIdentifier="=TiVoOrbiter/src&lt;com.tivo.hme.dce{EventHandler.java"/>
+<javaElement handleIdentifier="=TiVoOrbiter/src&lt;com.tivo.hme.orbiter.UI{OrbiterScreen.java"/>
+<javaElement handleIdentifier="=TiVoOrbiter/src&lt;com.tivo.hme.orbiter{Orbiter.java"/>
+<javaElement handleIdentifier="=TiVoOrbiter/src&lt;com.tivo.hme.scenarios{Scenarios.java"/>
+<javaElement handleIdentifier="=TiVoOrbiter/src&lt;com.tivo.hme.dce{Message.java"/>
+<javaElement handleIdentifier="=TiVoOrbiter/src&lt;com.tivo.hme.dce{CommandHandler.java"/>
+<javaElement handleIdentifier="=TiVoOrbiter/src&lt;com.tivo.hme.orbiter.UI{BasicScreen.java"/>
+<javaElement handleIdentifier="=TiVoOrbiter/src&lt;com.tivo.hme.orbiter{PlutoProxy.java"/>
+<javaElement handleIdentifier="=TiVoOrbiter/src&lt;com.tivo.hme.dce{MessageProcessor.java"/>
+</selectedElements>
+</jardesc>

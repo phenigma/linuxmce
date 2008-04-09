@@ -158,19 +158,12 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"const %p %d",this,drDesignObj->PK
 	if( m_pRow_DesignObj->FK_DesignObjType_get()==DESIGNOBJTYPE_Floorplan_CONST )
 		m_iFloorplanPage = m_pOrbiterGenerator->m_iFloorplanPage;
 
-	if( m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Go_CONST || m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Keyword_Search_CONST )
-	{
-		LoggerWrapper::GetInstance()->Write(LV_WARNING,"%d start 1 DESIGNOBJ_butFBSF_Go_CONST",m_pRow_DesignObj->PK_DesignObj_get());
-	}
-
+/*
 if( m_pRow_DesignObj->PK_DesignObj_get()==4871 ||  m_pRow_DesignObj->PK_DesignObj_get()==5088 )// ||  m_pRow_DesignObj->PK_DesignObj_get()==5112 ) 
-//   m_pRow_DesignObj->PK_DesignObj_get()==4292 )// ||  m_pRow_DesignObj->PK_DesignObj_get()==2211 ||
-//   m_pRow_DesignObj->PK_DesignObj_get()==1881 ||  m_pRow_DesignObj->PK_DesignObj_get()==2228 ||
-//   m_pRow_DesignObj->PK_DesignObj_get()==3531 ||  m_pRow_DesignObj->PK_DesignObj_get()==3534 )// || m_pRow_DesignObj->PK_DesignObj_get()==3471 )// && m_ocoParent->m_pRow_DesignObj->PK_DesignObj_get()==2134 )//2821 && bAddToGenerated )*/
 {
     int k=2; 
 }
-
+*/
     // Pick the standard variation, the specialized variation we will use for parameters, and all matching variations for including child objects
     PickVariation(m_pOrbiterGenerator,m_pRow_DesignObj,&m_pRow_DesignObjVariation,&m_pRow_DesignObjVariation_Standard,&m_alDesignObjVariations);
 
@@ -616,15 +609,6 @@ Table_Image *p = m_mds->Image_get();
             }
         }
     }
-if(m_sOrigBackgroundFile=="/pluto/orbiter/skins//Basic/Icons/lights/lightson.png")
-int k=2;
-
-	if( m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Go_CONST || m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Keyword_Search_CONST )
-	{
-		LoggerWrapper::GetInstance()->Write(LV_WARNING,"start %d 2 DESIGNOBJ_butFBSF_Go_CONST %d,%d-%d,%d %d,%d-%d,%d",m_pRow_DesignObj->PK_DesignObj_get(),
-			this->m_rPosition.X,m_rPosition.Y,m_rPosition.Width,m_rPosition.Height,
-			this->m_rBackgroundPosition.X,this->m_rBackgroundPosition.Y,m_rBackgroundPosition.Width,m_rBackgroundPosition.Height);
-	}
 
 	// See if there's a button
 	if( !m_pRow_DesignObjVariation->FK_Button_isNull() )
@@ -635,7 +619,6 @@ int k=2;
 		m_iPK_Button = 0;
 
     // Add all text objects
-
     for(size_t sov=0;sov<m_alDesignObjVariations.size();++sov)
     {
         Row_DesignObjVariation * drOV=m_alDesignObjVariations[sov];
@@ -717,7 +700,6 @@ int k=2;
     }
 
     // Add all the zones and actions
-
     for(size_t s=0;s<m_alDesignObjVariations.size();++s)
     {
         Row_DesignObjVariation * drOV = m_alDesignObjVariations[s];
@@ -998,10 +980,6 @@ int k=2;
             }
         }
     }
-    if( m_pRow_DesignObj->PK_DesignObj_get()==4967 )
-    {
-int k=2;
-    }
 
     vector<Row_DesignObjVariation_DesignObj_Skin_Language *> alArrays;
 
@@ -1029,6 +1007,7 @@ int k=2;
 			it!=vectRow_DesignObjVariation_DesignObj_Skin_Language.end();++it)
 		{
 			Row_DesignObjVariation_DesignObj_Skin_Language *pRow_DesignObjVariation_DesignObj_Skin_Language = *it;
+
 			if( pRow_DesignObjVariation_DesignObj_Skin_Language_Last && 
 				pRow_DesignObjVariation_DesignObj_Skin_Language_Last->FK_DesignObjVariation_DesignObj_get()==
 				pRow_DesignObjVariation_DesignObj_Skin_Language->FK_DesignObjVariation_DesignObj_get() )
@@ -1054,22 +1033,8 @@ int k=2;
             Row_DesignObjVariation_DesignObj_Skin_Language * drOVO = vectovo[s2];
 			Row_DesignObj *pRow_DesignObj_Child = drOVO->FK_DesignObjVariation_DesignObj_getrow()->FK_DesignObj_Child_getrow();
 
-if( pRow_DesignObj_Child->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Go_CONST || pRow_DesignObj_Child->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Keyword_Search_CONST )
-{
-	LoggerWrapper::GetInstance()->Write(LV_WARNING,"include DESIGNOBJ_butFBSF_Go_CONST %d v1 %d-%d v2 %d-%d x %d %d y %d %d sc %d",pRow_DesignObj_Child->PK_DesignObj_get(),
-		(int) (m_rPosition.X+drOVO->X_get())*m_iScale/100,(int) m_pOrbiterGenerator->m_sizeScreen->Width,
-		(int)(m_rPosition.Y+drOVO->Y_get())*m_iScale/100,(int) m_pOrbiterGenerator->m_sizeScreen->Height,
-		m_rPosition.X,drOVO->X_get(),m_rPosition.Y,drOVO->Y_get(),
-		m_iScale);
-}
- 
-
 			if( (m_rPosition.X+drOVO->X_get())*m_iScale/100<m_pOrbiterGenerator->m_sizeScreen->Width && (m_rPosition.Y+drOVO->Y_get())*m_iScale/100<m_pOrbiterGenerator->m_sizeScreen->Height )
             {
-if( pRow_DesignObj_Child->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Go_CONST || pRow_DesignObj_Child->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Keyword_Search_CONST )
-{
-	LoggerWrapper::GetInstance()->Write(LV_WARNING,"include DESIGNOBJ_butFBSF_Go_CONST ok");
-}
                 if( pRow_DesignObj_Child->FK_DesignObjType_get()==DESIGNOBJTYPE_Array_CONST )
                     alArrays.push_back(drOVO);
                 else
@@ -1211,20 +1176,17 @@ if( pRow_DesignObj_Child->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Go_CONST || pRow
 		for(vector<class DesignObj_Generator *>::iterator it=m_alChildDesignObjs.begin();it!=m_alChildDesignObjs.end();++it)
 		{
 			DesignObj_Generator *pObj = *it;
-	if( pObj->m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Go_CONST || pObj->m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Keyword_Search_CONST )
-	{
-		LoggerWrapper::GetInstance()->Write(LV_WARNING,"pass 1 DESIGNOBJ_butFBSF_Go_CONST %d %d,%d-%d,%d %d,%d-%d,%d adj %s pass %d",pObj->m_pRow_DesignObj->PK_DesignObj_get(),
-			pObj->m_rPosition.X,pObj->m_rPosition.Y,pObj->m_rPosition.Width,pObj->m_rPosition.Height,
-			pObj->m_rBackgroundPosition.X,pObj->m_rBackgroundPosition.Y,pObj->m_rBackgroundPosition.Width,pObj->m_rBackgroundPosition.Height,
-			pObj->m_sAdjustments.c_str(),(int) Pass);
-	}
 			if( (pObj->m_sAdjustments.empty()==true && Pass==0) || (pObj->m_sAdjustments.empty()==false && Pass==1) )
 				pObj->Process();
 		}
 	}
 
 	// Don't stretch out the floorplan objects
-    if( m_pRow_DesignObj->FK_DesignObjType_get()!=DESIGNOBJTYPE_Floorplan_CONST )
+	if( m_bUsingCache )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"not stretching out cached screen %s", m_ObjectID.c_str());
+	}
+	else if( m_pRow_DesignObj->FK_DesignObjType_get()!=DESIGNOBJTYPE_Floorplan_CONST )
     {
         // First go through all of the arrays and set the appropriate bounds so we can calculate the size of this object
         for(size_t s=0;s<m_alChildDesignObjs.size();++s)
@@ -1270,9 +1232,6 @@ if( pRow_DesignObj_Child->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Go_CONST || pRow
         }
 
     }
-if( m_pRow_DesignObj->PK_DesignObj_get()==3312 )
-int k=2;
-
 
 	DesignObjZoneList::iterator itZone;
     for(itZone=m_ZoneList.begin();itZone!=m_ZoneList.end();++itZone)
@@ -1794,7 +1753,10 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
 				string sSQL = "EK_MediaType=" + StringUtils::itos(m_pOrbiterGenerator->m_dwMediaType) + 
 					" and MediaSortOption is not null order by MediaSortOption";
 
-                alArray->push_back(new ArrayValue("0",	GetText(TEXT_Filename_CONST),
+                alArray->push_back(new ArrayValue("-1",	GetText(TEXT_Recently_Used_CONST),
+                    NULL, 0, 0, 0, 0,false,false,false));
+
+				alArray->push_back(new ArrayValue("0",	GetText(TEXT_Filename_CONST),
                     NULL, 0, 0, 0, 0,false,false,false));
 
 				vector<Row_MediaType_AttributeType *> vectRow_MediaType_AttributeType;
@@ -1862,6 +1824,38 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
 					alArray->push_back(new ArrayValue(StringUtils::itos(pRow_MediaSource->PK_MediaSource_get()),
 						pRow_MediaSource->Description_get(),
 	                    NULL, 0, 0, 0, 0,false,false,false));
+				}
+
+				sSQL = "SELECT IK_DeviceData FROM Device LEFT JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate "
+					"LEFT JOIN DeviceTemplate_DeviceData ON DeviceTemplate_DeviceData.FK_DeviceTemplate=PK_DeviceTemplate "
+					"WHERE FK_DeviceData=" TOSTRING(DEVICEDATA_Media_Catalog_CONST);
+				PlutoSqlResult result_set;
+				DB_ROW row;
+				if( (result_set.r=m_pOrbiterGenerator->m_spDatabase_pluto_main->db_wrapper_query_result(sSQL)) )
+				{
+					while ((row = db_wrapper_fetch_row(result_set.r)))
+					{
+						if( row[0] && row[0][0] )
+						{
+							string::size_type pos = 0;
+							string sData = row[0];
+							while(true)
+							{
+								string sLine = StringUtils::Tokenize(sData,"\r\n",pos,true);
+								if(sLine.empty())
+									break;
+								string::size_type pos2 = 0;
+								int PK_MediaType = atoi( StringUtils::Tokenize(sLine,",",pos2).c_str() );
+								string sToken = StringUtils::Tokenize(sLine,",",pos2);
+								string sDescription = StringUtils::Tokenize(sLine,",",pos2);
+								if( PK_MediaType!=m_pOrbiterGenerator->m_dwMediaType )
+									continue; // It's not for this type of media
+								alArray->push_back(new ArrayValue(sToken,
+									sDescription,
+									NULL, 0, 0, 0, 0,false,false,false));
+							}
+						}
+					}
 				}
 			}
             break;
@@ -2044,20 +2038,11 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
 
 void DesignObj_Generator::ScaleAllValues(int FactorX_Input,int FactorY_Input,class DesignObj_Generator *pTopmostObject)
 {
-if( this->m_pRow_DesignObj->PK_DesignObj_get()==4949 )
-int k=2;
 	int FactorX = FactorX_Input * m_iScale/100;
 	int FactorY = FactorY_Input * m_iScale/100;
 	int FactorX_Origin = FactorX_Input;
 	int FactorY_Origin = FactorY_Input;
 
-	if( m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Go_CONST || m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Keyword_Search_CONST )
-	{
-		LoggerWrapper::GetInstance()->Write(LV_WARNING,"ScaleAllValues %d 1 DESIGNOBJ_butFBSF_Go_CONST %d,%d-%d,%d %d,%d-%d,%d %d,%d %d,%d /%d",m_pRow_DesignObj->PK_DesignObj_get(),
-			this->m_rPosition.X,m_rPosition.Y,m_rPosition.Width,m_rPosition.Height,
-			this->m_rBackgroundPosition.X,this->m_rBackgroundPosition.Y,m_rBackgroundPosition.Width,m_rBackgroundPosition.Height,
-			FactorX,FactorY,FactorX_Origin,FactorY_Origin,(int) m_bValuesScaled);
-	}
 	if( !m_bValuesScaled )
     {
         PlutoPoint p3(m_rBackgroundPosition.Location());
@@ -2074,16 +2059,6 @@ int k=2;
         p=PlutoPoint(ScaleValue(&p,FactorX,FactorY));
         m_rPosition.Size(p);
 
-	if( m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Go_CONST || m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_butFBSF_Keyword_Search_CONST )
-	{
-		LoggerWrapper::GetInstance()->Write(LV_WARNING,"ScaleAllValues 2 DESIGNOBJ_butFBSF_Go_CONST %d %d,%d-%d,%d %d,%d-%d,%d %d,%d %d,%d /%d  %d,%d %d,%d %d,%d",m_pRow_DesignObj->PK_DesignObj_get(),
-			this->m_rPosition.X,m_rPosition.Y,m_rPosition.Width,m_rPosition.Height,
-			this->m_rBackgroundPosition.X,this->m_rBackgroundPosition.Y,m_rBackgroundPosition.Width,m_rBackgroundPosition.Height,
-			FactorX,FactorY,FactorX_Origin,FactorY_Origin,(int) m_bValuesScaled,
-			p3.X,p3.Y,p2.X,p2.Y,p.X,p.Y);
-	}
-
-		
 		for(size_t s=0;s<m_vectDesignObjText.size();++s)
         {
             CGText *ot = (CGText *) m_vectDesignObjText[s];

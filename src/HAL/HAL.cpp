@@ -81,8 +81,8 @@ HAL::HAL(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLoca
 {
 	m_sSignature = StringUtils::itos(DeviceID) + ",HAL"; // A unique signature for all the device we detect
 
-	d = new HalPrivate(this);
-	if( d == NULL )
+	m_pHalPrivate = new HalPrivate(this);
+	if( m_pHalPrivate == NULL )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "HAL(): Not enough memory!");
 	}
@@ -94,8 +94,8 @@ HAL::HAL(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl
 	: HAL_Command(pPrimaryDeviceCommand, pData, pEvent, pRouter)
 //<-dceag-const2-e->
 {
-	d = new HalPrivate(this);
-	if( d == NULL )
+	m_pHalPrivate = new HalPrivate(this);
+	if( m_pHalPrivate == NULL )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "HAL(): Not enough memory!");
 	}
@@ -106,44 +106,48 @@ HAL::~HAL()
 //<-dceag-dest-e->
 {
 	// wait for thread finish
-	if( d->running )
+	if( m_pHalPrivate->running )
 	{
-		PlutoHalD::shutDown();
-		
-		if( 0 != pthread_kill( d->hald_thread, SIGTERM) )
+		if( PlutoHalD::shutDown()==false )
 		{
-			//try KILL
-			pthread_kill( d->hald_thread, SIGKILL);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "HAL::~HAL failed to stop pluto thread.  Doing a sigterm which will kill everything");
+			// This will kill everything and exit with an error code incrementing the reload count
+			if( 0 != pthread_kill( m_pHalPrivate->hald_thread, SIGTERM) )
+			{
+				//try KILL
+				pthread_kill( m_pHalPrivate->hald_thread, SIGKILL);
+			}
 		}
-		
-		if( 0 != pthread_join( d->hald_thread, NULL ) )
+		if( 0 != pthread_join( m_pHalPrivate->hald_thread, NULL ) )
 		{
 			LoggerWrapper::GetInstance()->Write(LV_WARNING, "pthread_join hald failed");
 		}
 		
-		d->running = false;
+		m_pHalPrivate->running = false;
 	}
 	
-	if( d->serial_running )
+	if( m_pHalPrivate->serial_running )
 	{
-		SerialD::shutDown();
-		
-		if( 0 != pthread_kill( d->serial_thread, SIGTERM) )
+		if( SerialD::shutDown()==false )
 		{
-			//try KILL
-			pthread_kill( d->serial_thread, SIGKILL);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "HAL::~HAL failed to stop serial thread.  Doing a sigterm which will kill everything");
+			if( 0 != pthread_kill( m_pHalPrivate->serial_thread, SIGTERM) )
+			{
+				//try KILL
+				pthread_kill( m_pHalPrivate->serial_thread, SIGKILL);
+			}
 		}
-		
-		if( 0 != pthread_join( d->serial_thread, NULL ) )
+			
+		if( 0 != pthread_join( m_pHalPrivate->serial_thread, NULL ) )
 		{
 			LoggerWrapper::GetInstance()->Write(LV_WARNING, "pthread_join seriald failed");
 		}
 		
-		d->serial_running = false;
+		m_pHalPrivate->serial_running = false;
 	}
 	
-	delete d;
-	d = NULL;
+	delete m_pHalPrivate;
+	m_pHalPrivate = NULL;
 }
 
 //<-dceag-getconfig-b->
@@ -155,23 +159,23 @@ bool HAL::GetConfig()
 
 	// Put your code here to initialize the data in this class
 	// The configuration parameters DATA_ are now populated
-	int ret = pthread_create( &d->hald_thread, NULL, PlutoHalD::startUp, (void *) this );
+	int ret = pthread_create( &m_pHalPrivate->hald_thread, NULL, PlutoHalD::startUp, (void *) this );
 	if( 0 != ret )
 	{
-		d->running = false;
+		m_pHalPrivate->running = false;
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Couldn't create hald thread. return = %d", ret);
 		return false;
 	}
-	d->running = true;
+	m_pHalPrivate->running = true;
 	
-	ret = pthread_create( &d->serial_thread, NULL, SerialD::startUp, (void *) this );
+	ret = pthread_create( &m_pHalPrivate->serial_thread, NULL, SerialD::startUp, (void *) this );
 	if( 0 != ret )
 	{
-		d->serial_running = false;
+		m_pHalPrivate->serial_running = false;
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Couldn't create seriald thread. return = %d", ret);
 		return false;
 	}
-	d->serial_running = true;
+	m_pHalPrivate->serial_running = true;
 	
 	return true;
 }

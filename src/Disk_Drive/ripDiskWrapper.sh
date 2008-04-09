@@ -199,7 +199,7 @@ if [[ "$diskType" == 2 ]]; then
 				KeysDumpStatus=`/usr/pluto/bin/dvdcssHelper.sh -d $sourceDevice | grep "ERROR:"`
 				if [ -z "$KeysDumpStatus" ]; then
 					# ripped DVD can have different keys cache folder
-					RippedKeysPath=`/usr/pluto/bin/dvdcssHelper.sh -f $targetFileName.dvd.in-progress | grep "CACHE_DIR:" | sed 's/CACHE_DIR://'`
+					RippedKeysPath=`/usr/pluto/bin/dvdcssHelper.sh -f "$targetFileName.dvd.in-progress" | grep "CACHE_DIR:" | sed 's/CACHE_DIR://'`
 					echo "Keys location for ripped DVD: $RippedKeysPath"
 
 					KeysFolder=`basename $KeysPath`
@@ -254,9 +254,11 @@ elif [[ "$diskType" == 0 || "$diskType" == 1 || "$diskType" == 6 || "$diskType" 
 		echo "Ripping failed: $Message" >> /tmp/riplog
 		exit 1
 	fi
-	trackList=${trackList// /@~#}
-	for File in ${trackList//|/ }; do
-		File=${File//@~#/ }
+	trackList=$(echo "$trackList" | tr ' |' $'\x1 ')
+	set -o noglob # prevent shell expansion in for's list
+	for File in ${trackList}; do
+		set +o noglob
+		File=$(echo "$File" | tr $'\x1' ' ')
 		Track=${File%%,*}
 		FileName=${File#*,}
 		FileName=${FileName//\//-}

@@ -21,6 +21,16 @@ RootUUID=
 SwapUUID=
 RecoveryUUID=
 
+Error()
+{
+	local Message="$*"
+	echo
+	echo -e "\033[1;31mERROR: $*"
+	echo
+	tput sgr0
+	exit 1
+}
+
 NukeFS()
 {
 	local List="$*" # "/,home,var /var,lib BasePath,Exception1,Exception2,..."
@@ -69,12 +79,10 @@ GetHddToUse()
 			fi
 		done
 		if [[ -z "$TargetHdd" ]]; then
-			echo "Error: Failed to determine current hard drive"
-			exit 1
+			Error "Failed to determine current hard drive."
 		fi
 	elif [[ -z "$HddList" ]]; then # No hard drives
-		echo "Error: No hard drives found"
-		exit 1
+		Error "No hard drives found."
 	else
 		Done=0
 		mkdir -p /media/target
@@ -274,19 +282,19 @@ FormatPartitions()
 	fi
 
 	blkid -w /etc/blkid.tab || :
-	RootUUID=$(vol_id --skip-raid -u "$TargetHdd"1)
-	SwapUUID=$(vol_id --skip-raid -u "$TargetHdd"5)
-	RecoveryUUID=$(vol_id --skip-raid -u "$TargetHdd"6)
+	RootUUID=$(vol_id --skip-raid -u "$TargetHdd"1 2>/dev/null)
+	SwapUUID=$(vol_id --skip-raid -u "$TargetHdd"5 2>/dev/null)
+	RecoveryUUID=$(vol_id --skip-raid -u "$TargetHdd"6 2>/dev/null || :)
 }
 
 MountPartitions()
 {
 	mkdir -p /media/target /media/recovery
-	mount "$TargetHdd"1 /media/target
+	mount -t ext3 "$TargetHdd"1 /media/target
 
 	if [[ "$Upgrade" != "1" ]] ;then
 		if [[ "$FromHdd" != 1 ]]; then
-			mount "$TargetHdd"6 /media/recovery
+			mount -t ext3 "$TargetHdd"6 /media/recovery || :
 		else
 			mount -o bind / /media/recovery
 		fi
@@ -301,34 +309,37 @@ CopyDVD()
 	echo "Copying DVD to hard drive"
 	local DVDdir=$(mktemp -d)
 	mount -t squashfs -o loop,ro /cdrom/casper/filesystem.squashfs "$DVDdir"
-	cp -a "$DVDdir"/. /media/recovery/
+	cp -a "$DVDdir"/. /media/recovery/ || Error "I/O failure while copying from the DVD."
 	umount "$DVDdir"
 
 	#Copy archives
 	mkdir -p /media/recovery/archives/lmce-image/
-	cp -a /cdrom/lmce-image/. /media/recovery/archives/lmce-image/
+	cp -a /cdrom/lmce-image/. /media/recovery/archives/lmce-image/ || Error "I/O failure while copying from the DVD."
 
 	#Copy demo videos, if any
 	if [[ -d /cdrom/lmce-videos ]]; then
 		mkdir -p /media/recovery/archives/lmce-videos
-		cp -a /cdrom/lmce-videos/. /media/recovery/archives/lmce-videos/
+		cp -a /cdrom/lmce-videos/. /media/recovery/archives/lmce-videos/ || Error "I/O failure while copying from the DVD."
 	fi
 
 	#Copy VIA archives
 	if [[ -d /cdrom/via-archives ]]; then
 		mkdir -p /media/recovery/archives/via-archives
-		cp -a /cdrom/via-archives/. /media/recovery/archives/via-archives/
+		cp -a /cdrom/via-archives/. /media/recovery/archives/via-archives/ || Error "I/O failure while copying from the DVD."
+
 	fi
 	
 	#Copy Diskless images
 	if [[ -d /cdrom/diskless-images ]]; then
 		mkdir -p /media/recovery/archives/diskless-images
-		cp -a /cdrom/diskless-images/. /media/recovery/archives/diskless-images/
+		cp -a /cdrom/diskless-images/. /media/recovery/archives/diskless-images/ || Error "I/O failure while copying from the DVD."
+
 	fi
 
 	if [[ -d /cdrom/deb-cache ]] ;then
 		mkdir -p /media/recovery/archives/deb-cache
-		cp -a /cdrom/deb-cache/. /media/recovery/archives/deb-cache/
+		cp -a /cdrom/deb-cache/. /media/recovery/archives/deb-cache/ || Error "I/O failure while copying from the DVD."
+
 	fi
 
 	local interfaces="
@@ -441,9 +452,13 @@ SetupFstab()
 proc            /proc           proc    defaults        0       0
 UUID=$RootUUID	/               ext3    defaults,errors=remount-ro 0       1
 UUID=$SwapUUID  none            swap    sw              0       0
-UUID=$RecoveryUUID /mnt/recovery   ext3    ro              0       0
 /dev/cdrom      /media/cdrom0   udf,iso9660 user,noauto     0       0
 "
+	if  [[ "$RecoveryUUID" != "" ]] ;then
+		fstab_text="$fstab_text
+UUID=$RecoveryUUID /mnt/recovery   ext3    ro              0       0
+"
+	fi
 	echo "$fstab_text" > /media/target/etc/fstab
 }
 
@@ -462,12 +477,14 @@ InstallGrub()
 	sed -ir "s,root=.* ro quiet splash,root=UUID=${RootUUID} ro quiet splash,g" /media/target/boot/grub/menu.lst
 	sed -ir "s,root=.* ro single,root=UUID=${RootUUID} ro single,g" /media/target/boot/grub/menu.lst
 
-	echo "
-	title		System Recovery
-	root		(hd0,5)
-	kernel		/boot/vmlinuz-2.6.20-15-generic root=UUID=${RecoveryUUID} quiet install_from_hdd
-	initrd		/boot/initrd.img-2.6.20-15-generic
-	" >> /media/target/boot/grub/menu.lst
+	if [[ "$RecoveryUUID" != "" ]] ;then
+		echo "
+		title		System Recovery
+		root		(hd0,5)
+		kernel		/boot/vmlinuz-2.6.20-15-generic root=UUID=${RecoveryUUID} quiet install_from_hdd
+		initrd		/boot/initrd.img-2.6.20-15-generic
+		" >> /media/target/boot/grub/menu.lst
+	fi
 }
 
 TargetCleanup()

@@ -263,7 +263,9 @@ void Plug_And_Play_Plugin::CMD_Choose_Pnp_Device_Template(int iPK_Room,int iPK_D
 		return;
 	}
 
-	pPnpQueueEntry->m_pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(pMessage->m_dwPK_Device_From);
+	pPnpQueueEntry->m_pOH_Orbiter_Active_set(pMessage->m_dwPK_Device_From);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Plug_And_Play_Plugin::CMD_Choose_Pnp_Device_Template queue %d set to orbiter %p/%d",
+		pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(), pPnpQueueEntry->m_pOH_Orbiter_Active_get(), pMessage->m_dwPK_Device_From);
 	pPnpQueueEntry->m_EBlockedState=PnpQueueEntry::pnpqe_blocked_none;
 	if( iPK_DHCPDevice )
 	{
@@ -302,7 +304,7 @@ void Plug_And_Play_Plugin::CMD_Set_Pnp_Options(string sValue_To_Assign,int iPK_D
 		return;
 	}
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "PnpQueue::CMD_Set_Pnp_Options queue %d option %d set to %s", iPK_PnpQueue,iPK_DeviceData,sValue_To_Assign.c_str());
-	pPnpQueueEntry->m_pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(pMessage->m_dwPK_Device_From);
+	pPnpQueueEntry->m_pOH_Orbiter_Active_set(pMessage->m_dwPK_Device_From);
 	pPnpQueueEntry->m_EBlockedState=PnpQueueEntry::pnpqe_blocked_none;
 	pPnpQueueEntry->m_mapPK_DeviceData[iPK_DeviceData] = sValue_To_Assign;
 	string s = pPnpQueueEntry->m_pRow_PnpQueue->Parms_get();
@@ -373,7 +375,7 @@ void Plug_And_Play_Plugin::CMD_Ignore_PNP_Device(int iPK_PnpQueue,bool bAlways,s
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Plug_And_Play_Plugin::CMD_Ignore_PNP_Device queue %d is invalid", iPK_PnpQueue);
 		return;
 	}
-	pPnpQueueEntry->m_pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(pMessage->m_dwPK_Device_From);
+	pPnpQueueEntry->m_pOH_Orbiter_Active_set(pMessage->m_dwPK_Device_From);
 	pPnpQueueEntry->m_EBlockedState=PnpQueueEntry::pnpqe_blocked_none;
 	pPnpQueueEntry->Stage_set( PNP_DETECT_STAGE_DONE );
 

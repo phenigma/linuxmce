@@ -35,28 +35,64 @@ typedef class ScreenHandler * (* RAOP_FType) (class Orbiter *,  map<int,int> *p_
 //-----------------------------------------------------------------------------------------------------
 #define SETUP_SCREEN_HANDLER_CALLBACK(SCREEN_HANDLER, CALLBACK_TYPE, CALLBACK_CLASS, PARAMETERS) \
 { \
-	CALLBACK_CLASS *pCallBackData = dynamic_cast<CALLBACK_CLASS*>(SCREEN_HANDLER->m_mapCallBackData_Find(CALLBACK_TYPE)); \
-	if(NULL != pCallBackData) \
-		pCallBackData->Setup PARAMETERS; \
+	if(NULL != SCREEN_HANDLER) \
+	{ \
+		CALLBACK_CLASS *pCallBackData = dynamic_cast<CALLBACK_CLASS*>(SCREEN_HANDLER->m_mapCallBackData_Find(CALLBACK_TYPE)); \
+		if(NULL != pCallBackData) \
+			pCallBackData->Setup PARAMETERS; \
 \
-	CALLBACK_CLASS *pPersistentCallBackData = dynamic_cast<CALLBACK_CLASS*>(SCREEN_HANDLER->m_mapPersistentCallBackData_Find(CALLBACK_TYPE)); \
-	if(NULL != pPersistentCallBackData) \
-		pPersistentCallBackData->Setup PARAMETERS; \
+		CALLBACK_CLASS *pPersistentCallBackData = dynamic_cast<CALLBACK_CLASS*>(SCREEN_HANDLER->m_mapPersistentCallBackData_Find(CALLBACK_TYPE)); \
+		if(NULL != pPersistentCallBackData) \
+			pPersistentCallBackData->Setup PARAMETERS; \
+	} \
 }
 //-----------------------------------------------------------------------------------------------------
+// For keeping track of the tree when we're drilling down through attributes
+class MediaFileAttributeDrillDown
+{
+public:
+	int m_PK_Attribute;
+	string m_sDescription;
+	int m_iLastRow_ListGrid;
+	string m_sExternalDirectory;
+
+	MediaFileAttributeDrillDown(int PK_Attribute, string sDescription,int iLastRow_ListGrid)
+	{
+		m_PK_Attribute=PK_Attribute;
+		m_sDescription=sDescription;
+		m_iLastRow_ListGrid=iLastRow_ListGrid;
+	}
+	MediaFileAttributeDrillDown(string sExternalDirectory, string sDescription,int iLastRow_ListGrid)
+	{
+		m_PK_Attribute=0;
+		m_sDescription=sDescription;
+		m_sExternalDirectory=sExternalDirectory;
+		m_iLastRow_ListGrid=iLastRow_ListGrid;
+	}
+};
+//-----------------------------------------------------------------------------------------------------
+// For keeping track of media browsing options
 class MediaFileBrowserOptions
 {
 public:
 	int m_PK_MediaType,m_PK_AttributeType_Sort,m_PK_Users,m_iPK_Screen;
 	int m_iLastViewed; // 0=no, 1=yes, 2=either
 	int m_iPK_DesignObj_Browser; // The Design obj for the current browse screen
+	int m_iLastRowBeforeMediaFileSelect_ListGrid; // If non-zero, when the user chooses a media file we will return to this row in the grid
+
+	// If the user chooses close or delete the prior row will be preserved because PersistsXY is true for the list/pic grid.  But if he drills
+	// down attributes and wants to go back we need to restore the row position.  Set this flag to true to resetore the position in m_iLastRowBeforeMediaFileSelect_ListGrid
+	// on the next render
+	bool m_bRestoreListGridRow;  
 	string m_sPK_MediaSubType,m_sPK_FileFormat,m_sPK_Attribute_Genres,m_sSources,m_sPK_Users_Private;
 	string m_sSelectedFile;  // Used to hold the selected value
 	list<int> m_listPK_AttributeType_Sort_Prior;
-	list< pair<int,string> >m_listPK_Attribute_Description;  // For drilling down on attributes
+	list< MediaFileAttributeDrillDown * > m_listMediaFileAttributeDrillDown;  // For drilling down on attributes
 	map< pair<int,string>, DesignObj_Orbiter * > m_mapObjectsValues;
 	Orbiter *m_pOrbiter;
 	DesignObj_DataGrid *m_pObj_ListGrid,*m_pObj_PicGrid;
+	DesignObj_Orbiter *m_pObj_Users_EnteringPin;
+	int m_iPK_Users_EnteringPin;
 
 	MediaFileBrowserOptions(Orbiter *pOrbiter) 
 	{ 
@@ -64,6 +100,7 @@ public:
 		m_pObj_ListGrid=m_pObj_PicGrid=NULL;
 		m_iLastViewed=2;
 		m_iPK_DesignObj_Browser = 0;
+		m_bRestoreListGridRow = false;
 		ClearAll(0,0,0); 
 	}
 
@@ -71,9 +108,15 @@ public:
 	{
 		string sResult = StringUtils::itos(m_PK_MediaType) + "|" + m_sPK_MediaSubType + "|" + m_sPK_FileFormat + "|" + m_sPK_Attribute_Genres + "|" + m_sSources +
 			"|" + m_sPK_Users_Private + "|" + StringUtils::itos(m_PK_AttributeType_Sort) + "|" + StringUtils::itos(m_PK_Users) + " | "
-			+ StringUtils::itos(m_iLastViewed) + " | ";
-		if( m_listPK_Attribute_Description.size() )
-			sResult += StringUtils::itos(m_listPK_Attribute_Description.front().first);
+			+ StringUtils::itos(m_iLastViewed) + " |"; 
+		if( m_listMediaFileAttributeDrillDown.size() )
+		{
+			MediaFileAttributeDrillDown *pMediaFileAttributeDrillDown = m_listMediaFileAttributeDrillDown.front();
+			if( pMediaFileAttributeDrillDown->m_PK_Attribute )
+				sResult += StringUtils::itos(pMediaFileAttributeDrillDown->m_PK_Attribute);
+			else
+				sResult += pMediaFileAttributeDrillDown->m_sExternalDirectory;
+		}
 		return sResult;
 	}
 
@@ -86,7 +129,11 @@ public:
 		m_PK_Users=0;
 		m_PK_AttributeType_Sort = PK_AttributeType_Sort;
 		m_listPK_AttributeType_Sort_Prior.clear();
-		m_listPK_Attribute_Description.clear();
+		Clear_m_listMediaFileAttributeDrillDown();
+		m_iLastRowBeforeMediaFileSelect_ListGrid=0;
+		m_pObj_Users_EnteringPin = NULL;
+		m_iPK_Users_EnteringPin = 0;
+
 		m_sPK_MediaSubType=""; m_sPK_FileFormat=""; m_sPK_Attribute_Genres=""; m_sPK_Users_Private="0";
 		m_sSources=TOSTRING(MEDIASOURCE_Hard_Drives_CONST) "," TOSTRING(MEDIASOURCE_Discs__Jukeboxes_CONST);
 		m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_MediaType_CONST, StringUtils::itos(m_PK_MediaType)); 
@@ -99,6 +146,16 @@ public:
 		if( !m_pObj_PicGrid && m_iPK_DesignObj_Browser )
 			m_pObj_PicGrid=(DesignObj_DataGrid *) m_pOrbiter->FindObject(StringUtils::itos(m_iPK_DesignObj_Browser) + ".0.0." TOSTRING(DESIGNOBJ_dgFileList2_Pics_CONST));
 		ReacquireGrids();
+	}
+
+	void Clear_m_listMediaFileAttributeDrillDown()
+	{
+		for(list< MediaFileAttributeDrillDown * >::iterator it=m_listMediaFileAttributeDrillDown.begin();
+			it!=m_listMediaFileAttributeDrillDown.end();++it)
+		{
+			delete *it;
+		}
+		m_listMediaFileAttributeDrillDown.clear();
 	}
 
 	void ReacquireGrids();
@@ -187,8 +244,9 @@ public:
 	bool MediaBrowser_ObjectSelected(CallBackData *pData);
 	string GetFileBrowserPopup(DesignObj_Orbiter *pObj_MenuPad);
 	bool MediaBrowser_DatagridSelected(CallBackData *pData);
-	void SelectedMediaFile(string sFile);
+	void SelectedMediaFile(string sFile,char cActionItem);
 	bool FileList_GridRendering(CallBackData *pData);
+	void SelectedExternalDirectory(DataGridCell *pCell); // The user selected a drill-down directory provided by an external source of directory info (like YouTube)
 	void SelectedAttributeCell(DataGridCell *pCell);
 	bool MediaBrowser_Render(CallBackData *pData);
 	void SetMediaSortFilterSelectedObjects();
@@ -226,6 +284,7 @@ public:
 	virtual void SCREEN_DialogPlaylistSaved(long PK_Screen);
 	virtual void SCREEN_DialogUnableToLoadPlaylist(long PK_Screen);
 	virtual void SCREEN_DialogRippingError(long PK_Screen, string sDescription, string sTimeout	);
+	virtual void SCREEN_Cannot_Reload_Router(long PK_Screen, string sDescription);
 	virtual void SCREEN_DialogRippingInstructions(long PK_Screen);
 	virtual void SCREEN_DialogGenericError(long PK_Screen, string sDescription, string sPromptToResetRouter, 
 		string sTimeout, string sCannotGoBack);
@@ -377,6 +436,7 @@ public:
 	};
 
 	TelecomCommandStatus m_TelecomCommandStatus;
+	string m_sMyCallID;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 // 
@@ -413,6 +473,7 @@ public:
 
 	void SCREEN_Network_Settings(long PK_Screen);
 	bool SCREEN_Network_Settings_ObjectSelected(CallBackData *pData);
+	bool SCREEN_Network_Settings_VariableChanged(CallBackData *pData);
 	bool SCREEN_Network_Settings_OnTimer(CallBackData *pData);
 
 	//data

@@ -249,10 +249,13 @@ string MediaFileBrowserOptions::HumanReadable()
 		+ m_pOrbiter->m_mapPK_AttributeType_Description[ m_PK_AttributeType_Sort ];
 
 	string sFilter;
-	if( m_listPK_Attribute_Description.size() )
-		sFilter = m_listPK_Attribute_Description.front().second;
+	if( m_listMediaFileAttributeDrillDown.size() )
+	{
+		MediaFileAttributeDrillDown *pMediaFileAttributeDrillDown = m_listMediaFileAttributeDrillDown.front();
+		sFilter = pMediaFileAttributeDrillDown->m_sDescription;
+	}
 
-	bool bHide = m_listPK_Attribute_Description.empty();
+	bool bHide = m_listMediaFileAttributeDrillDown.empty();
 	DesignObj_Orbiter *pObj_Back = m_pOrbiter->FindObject(TOSTRING(DESIGNOBJ_popFileList_CONST) ".0.0." TOSTRING(DESIGNOBJ_butFileBrowserBack_CONST));
 	if( pObj_Back && pObj_Back->m_bHidden != bHide )
 	{
@@ -396,6 +399,29 @@ bool ScreenHandler::MediaBrowser_Render(CallBackData *pData)
 		pText->m_sText = mediaFileBrowserOptions.HumanReadable();
 		pObj->m_bHidden = pText->m_sText.empty();
 	}
+
+	if( mediaFileBrowserOptions.m_bRestoreListGridRow )
+	{
+		mediaFileBrowserOptions.m_bRestoreListGridRow=false;
+		if( mediaFileBrowserOptions.m_pObj_ListGrid && mediaFileBrowserOptions.m_pObj_PicGrid )
+		{
+			mediaFileBrowserOptions.m_pObj_ListGrid->m_GridCurRow = mediaFileBrowserOptions.m_iLastRowBeforeMediaFileSelect_ListGrid;
+			mediaFileBrowserOptions.m_pObj_PicGrid->m_GridCurRow = mediaFileBrowserOptions.m_pObj_ListGrid->m_GridCurRow / mediaFileBrowserOptions.m_pObj_PicGrid->m_MaxCol;
+		}
+	}
+
+	if( mediaFileBrowserOptions.m_pObj_ListGrid && mediaFileBrowserOptions.m_pObj_PicGrid && mediaFileBrowserOptions.m_pObj_ListGrid->m_GridCurRow >= mediaFileBrowserOptions.m_pObj_ListGrid->m_iPopulatedHeight )
+	{
+		// If we have deleted some files, the list may have shrunk and we are going back to a point that's past the end of the list
+		mediaFileBrowserOptions.m_pObj_ListGrid->m_GridCurRow = ((mediaFileBrowserOptions.m_pObj_ListGrid->m_iPopulatedHeight-1) / mediaFileBrowserOptions.m_pObj_ListGrid->m_MaxRow) * mediaFileBrowserOptions.m_pObj_ListGrid->m_MaxRow;
+		mediaFileBrowserOptions.m_pObj_PicGrid->m_GridCurRow = mediaFileBrowserOptions.m_pObj_ListGrid->m_GridCurRow / mediaFileBrowserOptions.m_pObj_PicGrid->m_MaxCol;
+	}
+	if( mediaFileBrowserOptions.m_pObj_ListGrid && mediaFileBrowserOptions.m_pObj_PicGrid && mediaFileBrowserOptions.m_pObj_ListGrid->m_GridCurRow<0 )
+	{
+		// Be sure we're not at a point above the top of the list.  This can happen if we delete all the records in a grid and the 
+		// above blocks scrolls us up past the top.  Put the check here just so we catch anything else that may move us past the top
+		mediaFileBrowserOptions.m_pObj_ListGrid->m_GridCurRow = mediaFileBrowserOptions.m_pObj_PicGrid->m_GridCurRow = 0;
+	}
 	return false;
 }
 //-----------------------------------------------------------------------------------------------------
@@ -404,6 +430,7 @@ bool ScreenHandler::MediaBrowser_ObjectSelected(CallBackData *pData)
 	ObjectInfoBackData *pObjectInfoData = (ObjectInfoBackData *)pData;
 
 	PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_ScreenMutex);
+	bool bChangedSortFilter=false;
 
 	if( pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_icoVertAlpha_CONST && mediaFileBrowserOptions.m_pObj_ListGrid && mediaFileBrowserOptions.m_pObj_PicGrid )
 	{
@@ -543,10 +570,16 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::MediaBrowser_Objec
 	}
 	else if( pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butFileBrowserBack_CONST )
 	{
-		if( mediaFileBrowserOptions.m_listPK_Attribute_Description.size() )
+		if( mediaFileBrowserOptions.m_listMediaFileAttributeDrillDown.size() )
 		{
 			mediaFileBrowserOptions.ReacquireGrids();
-			mediaFileBrowserOptions.m_listPK_Attribute_Description.pop_front();
+
+			MediaFileAttributeDrillDown *pMediaFileAttributeDrillDown = mediaFileBrowserOptions.m_listMediaFileAttributeDrillDown.front();
+			mediaFileBrowserOptions.m_bRestoreListGridRow = true;
+			mediaFileBrowserOptions.m_iLastRowBeforeMediaFileSelect_ListGrid = pMediaFileAttributeDrillDown->m_iLastRow_ListGrid;
+			delete pMediaFileAttributeDrillDown;
+
+			mediaFileBrowserOptions.m_listMediaFileAttributeDrillDown.pop_front();
 			if( mediaFileBrowserOptions.m_listPK_AttributeType_Sort_Prior.size() )
 			{
 				mediaFileBrowserOptions.m_PK_AttributeType_Sort = mediaFileBrowserOptions.m_listPK_AttributeType_Sort_Prior.front();
@@ -559,17 +592,37 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::MediaBrowser_Objec
 
 		AudioServer_PopulateDatagrid();
 		mediaFileBrowserOptions.ReacquireGrids();
-		MediaBrowser_Render(NULL);
 		m_pOrbiter->CMD_Refresh("*");
+		MediaBrowser_Render(NULL);
 		return false;
 	}
 	else if( pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butFBSF_Go_CONST )  // UI 1's Go
 	{
 		mediaFileBrowserOptions.ReacquireGrids();
 	}
+	else if( pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butPINGo_CONST && mediaFileBrowserOptions.m_pObj_Users_EnteringPin && mediaFileBrowserOptions.m_iPK_Users_EnteringPin )  // user entered a PIN
+	{
+		string sPin = m_pOrbiter->m_mapVariable_Find(VARIABLE_Datagrid_Input_CONST);
+		bool bValid=false;
+		DCE::CMD_Verify_PIN CMD_Verify_PIN(m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device_SecurityPlugIn,
+			mediaFileBrowserOptions.m_iPK_Users_EnteringPin,sPin,&bValid);
+		if( m_pOrbiter->SendCommand(CMD_Verify_PIN) && bValid )
+		{
+			mediaFileBrowserOptions.m_pObj_Users_EnteringPin->m_GraphicToDisplay_set("sh19",GRAPHIC_SELECTED,false,true);
+			mediaFileBrowserOptions.m_sPK_Users_Private += "," + StringUtils::itos(mediaFileBrowserOptions.m_iPK_Users_EnteringPin);
+			bChangedSortFilter=true;
+			m_pOrbiter->CMD_Go_back("","");
+		}
+		else
+		{
+			DisplayMessageOnOrbiter(0, "<%=T" + StringUtils::itos(TEXT_Invalid_PIN_CONST) + "%>");
+			mediaFileBrowserOptions.m_iPK_Users_EnteringPin = 0;
+			mediaFileBrowserOptions.m_pObj_Users_EnteringPin = NULL;
+		}
+		return true;
+	}
 	else if( pObjectInfoData->m_pObj && pObjectInfoData->m_pObj->m_pParentObject )
 	{
-		bool bChangedSortFilter=false;
 		switch( pObjectInfoData->m_pObj->m_pParentObject->m_iBaseObjectID )
 		{
 		case DESIGNOBJ_popFBSF_Genres_CONST:
@@ -588,6 +641,22 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::MediaBrowser_Objec
 			bChangedSortFilter=true;
 			break;
 		case DESIGNOBJ_grpPrivateMedia_CONST:
+			{
+				// If the user is choosing private media we need to ask for a PIN code.  Be sure the user is turning 'on' the private media
+				int iPK_Array = atoi(pObjectInfoData->m_pObj->GetVariableAssignment(VARIABLE_PK_Array_CONST).c_str());
+				string sPK_Users = pObjectInfoData->m_pObj->GetVariableAssignment(VARIABLE_Array_ID_CONST);
+				string::size_type p1 = mediaFileBrowserOptions.m_sPK_Users_Private.find("," + sPK_Users + ",");
+				string::size_type p2 = mediaFileBrowserOptions.m_sPK_Users_Private.find("," + sPK_Users);
+				// If we're turning on a user and it's not already in the middle or end of the active list (ie we're turning it on not off)
+				if( iPK_Array==ARRAY_All_Users_CONST && atoi(sPK_Users.c_str())>0 && p1==string::npos && (p2==string::npos || p2!=mediaFileBrowserOptions.m_sPK_Users_Private.size()-sPK_Users.size()-1) )
+				{
+					mediaFileBrowserOptions.m_iPK_Users_EnteringPin = atoi(sPK_Users.c_str());
+					mediaFileBrowserOptions.m_pObj_Users_EnteringPin = pObjectInfoData->m_pObj;
+					m_pOrbiter->CMD_Goto_DesignObj(0,TOSTRING(DESIGNOBJ_mnuUserPinCode_CONST),"","",false,true);
+					return true;  // We don't want the framework to mark the object as selected
+				}
+			}
+
 			mediaFileBrowserOptions.SelectedArray(pObjectInfoData->m_pObj,ARRAY_All_Users_CONST,mediaFileBrowserOptions.m_sPK_Users_Private,false);
 			bChangedSortFilter=true;
 			break;
@@ -609,14 +678,14 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::MediaBrowser_Objec
 			bChangedSortFilter=true;
 			break;
 		};
-		if( bChangedSortFilter )
-		{
-			mediaFileBrowserOptions.ReacquireGrids();
-			SetMediaSortFilterSelectedObjects();
-			m_pOrbiter->Renderer()->RenderObjectAsync(pObjectInfoData->m_pObj);  // We will be changing the selected state
-			m_pOrbiter->CMD_Refresh("*");
-			return true;  // We don't want the framework to mark the object as selected
-		}
+	}
+	if( bChangedSortFilter )
+	{
+		mediaFileBrowserOptions.ReacquireGrids();
+		SetMediaSortFilterSelectedObjects();
+		m_pOrbiter->Renderer()->RenderObjectAsync(pObjectInfoData->m_pObj);  // We will be changing the selected state
+		m_pOrbiter->CMD_Refresh("*");
+		return true;  // We don't want the framework to mark the object as selected
 	}
 
 	if(m_pOrbiter->m_sSkin == AUDIO_STATION_SKIN)
@@ -646,7 +715,7 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::MediaBrowser_Objec
 
 		if(bChangedSortFilter)
 		{
-			mediaFileBrowserOptions.m_listPK_Attribute_Description.clear();
+			mediaFileBrowserOptions.Clear_m_listMediaFileAttributeDrillDown();
 			mediaFileBrowserOptions.m_listPK_AttributeType_Sort_Prior.clear();
 			AudioServer_PopulateDatagrid();
 			mediaFileBrowserOptions.ReacquireGrids();
@@ -759,17 +828,27 @@ bool ScreenHandler::MediaBrowser_DatagridSelected(CallBackData *pData)
 			return true;
 		}
 
-		GetAttributesForMediaFile(pCell_List->m_Value);
-
 		m_pOrbiter->CMD_Remove_Popup("","coverart");
 
-		if( pCell_List->m_Value[0]=='!' && pCell_List->m_Value[1]=='A' )
+		char cActionItem = pCell_List->m_Value[0]=='!' ? pCell_List->m_Value[1] : 0;
+
+		if( cActionItem=='e' )
+		{
+			SelectedExternalDirectory(pCell_List);
+			return true;
+		}
+
+		GetAttributesForMediaFile(pCell_List->m_Value);
+
+		if( cActionItem=='A' )
 		{
 			SelectedAttributeCell(pCell_List);
 			return true;
 		}
 
-		SelectedMediaFile(pCell_List->m_Value);
+		if( mediaFileBrowserOptions.m_pObj_ListGrid )
+			mediaFileBrowserOptions.m_iLastRowBeforeMediaFileSelect_ListGrid = mediaFileBrowserOptions.m_pObj_ListGrid->m_GridCurRow;
+		SelectedMediaFile(pCell_List->m_Value,cActionItem);
 
 		return true;  // Otherwise there may be a crash in selected grid since we may have already removed the grid and the cells
 	}
@@ -784,13 +863,15 @@ bool ScreenHandler::MediaBrowser_DatagridSelected(CallBackData *pData)
 		if( StringUtils::StartsWith(pCellInfoData->m_sValue,"!F") )
 		{
 			GetAttributesForMediaFile(pCellInfoData->m_sValue.c_str());
-			SelectedMediaFile(pCellInfoData->m_sValue);
+			SelectedMediaFile(pCellInfoData->m_sValue,0);
 			return true;
 		}
 		else if( StringUtils::StartsWith(pCellInfoData->m_sValue,"!A") )
 			pCellInfoData->m_sValue = pCellInfoData->m_sValue.substr(2);
+
+		MediaFileAttributeDrillDown *pMediaFileAttributeDrillDown = new MediaFileAttributeDrillDown(atoi(pCellInfoData->m_sValue.c_str()),pCellInfoData->m_sText,0);
 		mediaFileBrowserOptions.m_listPK_AttributeType_Sort_Prior.push_front(mediaFileBrowserOptions.m_PK_AttributeType_Sort);
-		mediaFileBrowserOptions.m_listPK_Attribute_Description.push_front( make_pair<int,string> (atoi(pCellInfoData->m_sValue.c_str()),pCellInfoData->m_sText ));
+		mediaFileBrowserOptions.m_listMediaFileAttributeDrillDown.push_front( pMediaFileAttributeDrillDown );
 		// Reset the sort type back to the title when the user is doing a keyword search
 		mediaFileBrowserOptions.m_PK_AttributeType_Sort = ATTRIBUTETYPE_Title_CONST;
 		mediaFileBrowserOptions.ReacquireGrids();
@@ -800,9 +881,9 @@ bool ScreenHandler::MediaBrowser_DatagridSelected(CallBackData *pData)
 	return true;  // Always return true since we're handing everything datagrid related here and may destroy the grids causing SelectedGrid to crash if we return false
 }
 //-----------------------------------------------------------------------------------------------------
-void ScreenHandler::SelectedMediaFile(string sFile)
+void ScreenHandler::SelectedMediaFile(string sFile,char cActionItem)
 {
-	DesignObj_Orbiter *pObj_Play = NULL,*pObj_Close = NULL;
+	DesignObj_Orbiter *pObj_Play = NULL,*pObj_Close = NULL, *pObj_Delete = NULL, *pObj_Move = NULL, *pObj_Download = NULL;
 	string sTerms = m_mapKeywords_Find("TERMS");
 	if( sTerms.empty() )
 	{
@@ -810,11 +891,17 @@ void ScreenHandler::SelectedMediaFile(string sFile)
 		{
 			pObj_Play = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_mnuFileDetails_SmallUI_CONST) ".0.0." TOSTRING(DESIGNOBJ_butFBSF_Play_CONST) );
 			pObj_Close = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_mnuFileDetails_SmallUI_CONST) ".0.0." TOSTRING(DESIGNOBJ_butFBSF_Close_CONST) );
+			pObj_Delete = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_mnuFileDetails_SmallUI_CONST) ".0.0." TOSTRING(DESIGNOBJ_butFBSF_Delete_CONST) );
+			pObj_Move = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_mnuFileDetails_SmallUI_CONST) ".0.0." TOSTRING(DESIGNOBJ_butFBSF_Move_CONST) );
+			pObj_Download = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_mnuFileDetails_SmallUI_CONST) ".0.0." TOSTRING(DESIGNOBJ_butFBSF_Download_CONST) );
 		}
 		else
 		{
 			pObj_Play = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_popFileDetails_CONST) ".0.0." TOSTRING(DESIGNOBJ_butFBSF_Play_CONST) );
 			pObj_Close = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_popFileDetails_CONST) ".0.0." TOSTRING(DESIGNOBJ_butFBSF_Close_CONST) );
+			pObj_Delete = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_popFileDetails_CONST) ".0.0." TOSTRING(DESIGNOBJ_butFBSF_Delete_CONST) );
+			pObj_Move = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_popFileDetails_CONST) ".0.0." TOSTRING(DESIGNOBJ_butFBSF_Move_CONST) );
+			pObj_Download = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_popFileDetails_CONST) ".0.0." TOSTRING(DESIGNOBJ_butFBSF_Download_CONST) );
 		}
 	}
 	else
@@ -829,7 +916,13 @@ void ScreenHandler::SelectedMediaFile(string sFile)
 	m_pOrbiter->CMD_Goto_DesignObj(0,pObj_Play->m_pParentObject->m_ObjectID,"","",false,true);
 
 	string sPicture = mediaFileBrowserOptions.m_PK_MediaType==MEDIATYPE_pluto_Pictures_CONST ? sFile : m_mapKeywords_Find("PICTURE");
-	pObj_Play->m_bHidden = mediaFileBrowserOptions.m_PK_MediaType==MEDIATYPE_pluto_Pictures_CONST;
+	pObj_Play->m_bHidden = mediaFileBrowserOptions.m_PK_MediaType==MEDIATYPE_pluto_Pictures_CONST || cActionItem=='o';  // No play if it's downloadable or a picture
+
+	// If this is external content there's no delete or move, and download is only for downloadable
+	if( pObj_Delete && pObj_Move )
+		pObj_Move->m_bHidden = pObj_Delete->m_bHidden = cActionItem=='o' || cActionItem=='E';
+	if( pObj_Download )
+		pObj_Download->m_bHidden = cActionItem!='o';
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::SelectedMediaFile file %s pic %s", sFile.c_str(), sPicture.c_str());
 	if( sPicture.empty()==false )
@@ -905,13 +998,34 @@ bool ScreenHandler::FileList_GridRendering(CallBackData *pData)
 	return false;
 }
 //-----------------------------------------------------------------------------------------------------
+void ScreenHandler::SelectedExternalDirectory(DataGridCell *pCell)
+{
+	mediaFileBrowserOptions.m_listPK_AttributeType_Sort_Prior.push_front(mediaFileBrowserOptions.m_PK_AttributeType_Sort);
+	string sName = pCell->m_mapAttributes["Name"];
+	if( sName.empty() && pCell->m_Text )
+		sName = pCell->m_Text;
+
+	MediaFileAttributeDrillDown *pMediaFileAttributeDrillDown = new MediaFileAttributeDrillDown(
+		pCell->m_Value,sName,
+		mediaFileBrowserOptions.m_pObj_ListGrid ? mediaFileBrowserOptions.m_pObj_ListGrid->m_GridCurRow : 0);
+	mediaFileBrowserOptions.m_listMediaFileAttributeDrillDown.push_front(pMediaFileAttributeDrillDown );
+
+	mediaFileBrowserOptions.ReacquireGrids();
+	MediaBrowser_Render(NULL);
+	m_pOrbiter->CMD_Refresh("*");
+}
+//-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SelectedAttributeCell(DataGridCell *pCell)
 {
 	mediaFileBrowserOptions.m_listPK_AttributeType_Sort_Prior.push_front(mediaFileBrowserOptions.m_PK_AttributeType_Sort);
 	string sName = pCell->m_mapAttributes["Name"];
 	if( sName.empty() && pCell->m_Text )
 		sName = pCell->m_Text;
-	mediaFileBrowserOptions.m_listPK_Attribute_Description.push_front( make_pair<int,string> (atoi(&pCell->m_Value[2]),sName) );
+
+	MediaFileAttributeDrillDown *pMediaFileAttributeDrillDown = new MediaFileAttributeDrillDown(
+		atoi(&pCell->m_Value[2]),sName,
+		mediaFileBrowserOptions.m_pObj_ListGrid ? mediaFileBrowserOptions.m_pObj_ListGrid->m_GridCurRow : 0);
+	mediaFileBrowserOptions.m_listMediaFileAttributeDrillDown.push_front(pMediaFileAttributeDrillDown );
 
 	// If we're browing a collection of attributes, say actors, when we choose
 	// one we no longer want to browsing (or sorting by) that same attribute (actors)
@@ -1460,6 +1574,19 @@ void ScreenHandler::SCREEN_DialogRippingError(long PK_Screen, string sDescriptio
 	DisplayMessageOnOrbiter(PK_Screen, sDescription, false, sTimeout, false);
 }
 //-----------------------------------------------------------------------------------------------------
+void ScreenHandler::SCREEN_Cannot_Reload_Router(long PK_Screen, string sDescription)
+{
+	DisplayMessageOnOrbiter(PK_Screen, m_pOrbiter->m_mapTextString[TEXT_Cannot_Reload_CONST] + "\n" + sDescription, false, "0", true, 
+		//OK
+		m_pOrbiter->m_mapTextString[TEXT_Ok_CONST],"",
+		//Force text
+		m_pOrbiter->m_mapTextString[TEXT_Force_Reload_CONST],
+		//the command
+		StringUtils::itos(m_pOrbiter->m_dwPK_Device) + " " TOSTRING(DEVICEID_DCEROUTER) 
+		" 7 6"
+	);
+}
+//-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_DialogRippingInstructions(long PK_Screen)
 {
 	DisplayMessageOnOrbiter(PK_Screen,
@@ -1722,7 +1849,7 @@ void ScreenHandler::AudioServer_PopulateDatagrid()
 			LoggerWrapper::GetInstance()->Write( LV_WARNING, "Populate datagrid: %d failed", pObj->m_iPK_Datagrid);
 
 		m_pOrbiter->CMD_Show_Object(TOSTRING(DESIGNOBJ_mnuMenuAudioServer_CONST) ".0.0." TOSTRING(DESIGNOBJ_butFileBrowserBack_CONST), 0, "", "", 
-			mediaFileBrowserOptions.m_listPK_Attribute_Description.empty() ? "0" : "1"); 
+			mediaFileBrowserOptions.m_listMediaFileAttributeDrillDown.empty() ? "0" : "1"); 
 	}
 }
 //-----------------------------------------------------------------------------------------------------
@@ -1886,6 +2013,10 @@ void ScreenHandler::SCREEN_Sensors_Viewed_By_Camera(long PK_Screen, string sOpti
 		m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST, StringUtils::itos(DEVICECATEGORY_Security_Device_CONST));
 		m_pOrbiter->CMD_Set_Text(TOSTRING(DESIGNOBJ_mnuSensorsViewedByCamera_CONST), m_pOrbiter->m_mapTextString[TEXT_Which_Sensors_Viewed_CONST], TEXT_STATUS_CONST);
 	}
+
+	if(NULL != m_pOrbiter->m_pScreenHistory_Pivot)
+		m_pOrbiter->m_pScreenHistory_Pivot->ScreenID(StringUtils::itos(iPK_PnpQueue));
+
 	ScreenHandlerBase::SCREEN_Sensors_Viewed_By_Camera(PK_Screen, sOptions, iPK_PnpQueue);
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::Sensors_ObjectSelected,	new ObjectInfoBackData());
 }
@@ -2599,7 +2730,10 @@ void ScreenHandler::SaveFile_SendCommand(int PK_Users)
 	{
 		if(pObj->m_iBaseObjectID == DESIGNOBJ_mapTelecom_CONST)
 		{
-			bool bCallInProgress = !m_pOrbiter->m_mapVariable_Find(VARIABLE_My_Call_ID_CONST).empty();
+			bool bCallInProgress = !m_sMyCallID.empty();
+
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "SCREEN_Floorplan my call %s", m_sMyCallID.c_str());
+
 			m_pOrbiter->CMD_Show_Object(TOSTRING(DESIGNOBJ_mapTelecom_CONST) ".0.0." TOSTRING(DESIGNOBJ_butCallInProgress_CONST), 0, "", "", 
 				bCallInProgress ? "1" : "0");
 
@@ -2779,23 +2913,33 @@ bool ScreenHandler::DriveOverview_ObjectSelected(CallBackData *pData)
 				}
 				else if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_icoRip_CONST )
 				{
-					string sRipMessage = 
-						StringUtils::itos(m_pOrbiter->m_dwPK_Device) + " " +
-						StringUtils::itos(m_pOrbiter->m_dwPK_Device_MediaPlugIn) + " 1 "
-						TOSTRING(COMMAND_Rip_Disk_CONST) " "
-						TOSTRING(COMMANDPARAMETER_PK_Users_CONST) " <%=U%> "
-						TOSTRING(COMMANDPARAMETER_Filename_CONST) " \"<%=17%>\" "
-						TOSTRING(COMMANDPARAMETER_DriveID_CONST) " \"<%=45%>\" "
-						TOSTRING(COMMANDPARAMETER_Directory_CONST) " \"<%=9%>\" "
-						TOSTRING(COMMANDPARAMETER_EK_Disc_CONST) " \"" + pCell->m_mapAttributes["PK_Disc"] + "\" ";
-					if( pCell->GetValue() )
-						sRipMessage +=
-							TOSTRING(COMMANDPARAMETER_PK_Device_CONST) " \"" + string(pCell->GetValue()) + "\" ";  // This will be either a drive or jukebox depending on which cell was chosen
+					string sEK_Device_Ripping = pCell->m_mapAttributes_Find("EK_Device_Ripping");
+					string sPK_File = pCell->m_mapAttributes_Find("PK_File");
+					if( sEK_Device_Ripping.empty()==false || sPK_File.empty()==false )
+					{
+						DCE::CMD_Abort_Ripping CMD_Abort_Ripping(m_pOrbiter->m_dwPK_Device,atoi(sEK_Device_Ripping.c_str()));
+						m_pOrbiter->SendCommand(CMD_Abort_Ripping);
+					}
+					else
+					{
+						string sRipMessage = 
+							StringUtils::itos(m_pOrbiter->m_dwPK_Device) + " " +
+							StringUtils::itos(m_pOrbiter->m_dwPK_Device_MediaPlugIn) + " 1 "
+							TOSTRING(COMMAND_Rip_Disk_CONST) " "
+							TOSTRING(COMMANDPARAMETER_PK_Users_CONST) " <%=U%> "
+							TOSTRING(COMMANDPARAMETER_Filename_CONST) " \"<%=17%>\" "
+							TOSTRING(COMMANDPARAMETER_DriveID_CONST) " \"<%=45%>\" "
+							TOSTRING(COMMANDPARAMETER_Directory_CONST) " \"<%=9%>\" "
+							TOSTRING(COMMANDPARAMETER_EK_Disc_CONST) " \"" + pCell->m_mapAttributes["PK_Disc"] + "\" ";
+						if( pCell->GetValue() )
+							sRipMessage +=
+								TOSTRING(COMMANDPARAMETER_PK_Device_CONST) " \"" + string(pCell->GetValue()) + "\" ";  // This will be either a drive or jukebox depending on which cell was chosen
 
-					string sTitle = m_pOrbiter->m_mapTextString[TEXT_Choose_Filename_CONST];
-					Reset_SaveFile_Info();
-					DCE::SCREEN_FileSave SCREEN_FileSave(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,atoi(pCell->m_mapAttributes_Find("PK_MediaType").c_str()),atoi(pCell->m_mapAttributes_Find("PK_Disc").c_str()),sTitle,sRipMessage,true);
-					m_pOrbiter->SendCommand(SCREEN_FileSave);
+						string sTitle = m_pOrbiter->m_mapTextString[TEXT_Choose_Filename_CONST];
+						Reset_SaveFile_Info();
+						DCE::SCREEN_FileSave SCREEN_FileSave(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,atoi(pCell->m_mapAttributes_Find("PK_MediaType").c_str()),atoi(pCell->m_mapAttributes_Find("PK_Disc").c_str()),sTitle,sRipMessage,true);
+						m_pOrbiter->SendCommand(SCREEN_FileSave);
+					}
 				}
 				else if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_icoID_CONST )
 				{
@@ -3662,8 +3806,10 @@ void ScreenHandler::SCREEN_Active_Calls(long PK_Screen)
 
 	m_pOrbiter->StartScreenHandlerTimer(2000);
 
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "SCREEN_Active_Calls my call %s", m_sMyCallID.c_str());
+
 	m_pOrbiter->CMD_Show_Object(TOSTRING(DESIGNOBJ_mnuActiveCalls_CONST) ".0.0." TOSTRING(DESIGNOBJ_butCallInProgress_CONST), 0, "", "", 
-		m_pOrbiter->m_mapVariable_Find(VARIABLE_My_Call_ID_CONST).empty() ? "0" : "1");
+		m_sMyCallID.empty() ? "0" : "1");
 
 	RefreshActiveCallsButtons();
 }
@@ -3693,6 +3839,9 @@ void ScreenHandler::SCREEN_MakeCallDevice(long PK_Screen)
 void ScreenHandler::SCREEN_DevCallInProgress(long PK_Screen, string sPhoneCallerID, string sPhoneCallID, 
 	string sChannel)
 {
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "SCREEN_DevCallInProgress called with caller id %s, call id %s, channel %s",
+		sPhoneCallerID.c_str(), sPhoneCallID.c_str(), sChannel.c_str());
+
 	if(!sPhoneCallerID.empty())
 		m_pOrbiter->CMD_Set_Variable(VARIABLE_My_Caller_ID_CONST, sPhoneCallerID);
 
@@ -3700,6 +3849,13 @@ void ScreenHandler::SCREEN_DevCallInProgress(long PK_Screen, string sPhoneCaller
 	{
 		m_pOrbiter->CMD_Set_Variable(VARIABLE_My_Call_ID_CONST, sPhoneCallID);
 		m_pOrbiter->CMD_Set_Variable(VARIABLE_Current_Call_CONST, sPhoneCallID);
+		m_sMyCallID = sPhoneCallID;
+
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "SCREEN_DevCallInProgress : my call is now %s", m_sMyCallID.c_str());
+	}
+	else
+	{
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "SCREEN_DevCallInProgress : phone call id is empty!");
 	}
 
 	if(!sChannel.empty())
@@ -3755,6 +3911,9 @@ void ScreenHandler::SCREEN_Call_Dropped(long PK_Screen, string sReason)
 {
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_My_Channel_ID_CONST, "");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_My_Call_ID_CONST, "");
+	m_sMyCallID.clear();
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "SCREEN_Call_Dropped : my call is now %s", m_sMyCallID.c_str());
 
 	if(
 		GetCurrentScreen_PK_DesignObj() == DESIGNOBJ_devCallInProgress_CONST			|| 
@@ -4097,15 +4256,21 @@ bool ScreenHandler::ActiveCalls_RemoveFromActiveCall()
 //-----------------------------------------------------------------------------------------------------
 bool ScreenHandler::ActiveCalls_CallInProgress()
 {
-	string sCurrentCall = m_pOrbiter->m_mapVariable_Find(VARIABLE_My_Call_ID_CONST);
+	string sCurrentCall = m_sMyCallID;
 
 	if(sCurrentCall.empty())
 		sCurrentCall = m_pOrbiter->m_mapVariable_Find(VARIABLE_Current_Call_CONST);
 
 	string sPhoneCallerID = m_pOrbiter->m_mapVariable_Find(VARIABLE_My_Caller_ID_CONST);
 	string sChannel = m_pOrbiter->m_mapVariable_Find(VARIABLE_My_Channel_ID_CONST);
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "ActiveCalls_CallInProgress my call %s", m_sMyCallID.c_str());
 	
-	SCREEN_DevCallInProgress(SCREEN_DevCallInProgress_CONST, sPhoneCallerID, sCurrentCall, sChannel);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "ActiveCalls_CallInProgress calling SCREEN_DevCallInProgress with "
+		"caller id %s, call id %s, channel %s",
+		sPhoneCallerID.c_str(), m_sMyCallID.c_str(), sChannel.c_str());
+
+	SCREEN_DevCallInProgress(SCREEN_DevCallInProgress_CONST, sPhoneCallerID, m_sMyCallID, sChannel);
 
 	return true;
 }
@@ -4152,7 +4317,7 @@ void ScreenHandler::HandleAssistedMakeCall(int iPK_Users,string sPhoneExtension,
 
 			DCE::CMD_Make_Call cmd_Make_Call(
 				m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device_TelecomPlugIn,
-				iPK_Users, sPhoneExtension, iPK_Device_From, iPK_Device_To);
+				iPK_Users, sPhoneExtension, StringUtils::itos(iPK_Device_From), iPK_Device_To);
 			m_pOrbiter->SendCommand(cmd_Make_Call, &sResponse);
 
 			if(sResponse != "OK")
@@ -4247,7 +4412,7 @@ void ScreenHandler::HandleAssistedMakeCall(int iPK_Users,string sPhoneExtension,
 			//2) {X,Y,A} & {B,C} => {X,Y} & {A,B,C} 
 
 			string sMyChannel = m_pOrbiter->m_mapVariable_Find(VARIABLE_My_Channel_ID_CONST);
-			string sMyCall = m_pOrbiter->m_mapVariable_Find(VARIABLE_My_Call_ID_CONST);
+			string sMyCall = m_sMyCallID;
 
 			string sTaskID;
 			DCE::CMD_Assisted_Transfer cmd_Assisted_Transfer(
@@ -4297,7 +4462,9 @@ void ScreenHandler::HandleAssistedMakeCall(int iPK_Users,string sPhoneExtension,
 void ScreenHandler::RefreshActiveCallsButtons()
 {
 	string sCurrentCall = m_pOrbiter->m_mapVariable_Find(VARIABLE_Current_Call_CONST);
-	string sMyCall = m_pOrbiter->m_mapVariable_Find(VARIABLE_My_Call_ID_CONST);
+	string sMyCall = m_sMyCallID;
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Current call %s, my call %s", sCurrentCall.c_str(), sMyCall.c_str());
 
 	bool bActiveCallsPresent = !sCurrentCall.empty();
 	m_pOrbiter->CMD_Show_Object(TOSTRING(DESIGNOBJ_mnuActiveCalls_CONST) ".0.0." TOSTRING(DESIGNOBJ_butJoin_CONST), 0, "", "", 
@@ -4314,6 +4481,7 @@ void ScreenHandler::SCREEN_Static_IP_settings(long PK_Screen)
 
 	RegisterCallBack(cbOnTimer,	(ScreenHandlerCallBack) &ScreenHandler::SCREEN_Network_Settings_OnTimer, new CallBackData());
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::SCREEN_Network_Settings_ObjectSelected, new ObjectInfoBackData());
+	RegisterCallBack(cbOnVariableChanged, (ScreenHandlerCallBack) &ScreenHandler::SCREEN_Network_Settings_VariableChanged, new VariableCallBackData());
 
 	string sStaticIP = m_mapNetworkSettings["EXTERNAL_IP"];
 	string sNetmask = m_mapNetworkSettings["EXTERNAL_NETMASK"];
@@ -4454,12 +4622,6 @@ bool ScreenHandler::SCREEN_Network_Settings_ObjectSelected(CallBackData *pData)
 		m_pOrbiter->CMD_Set_Variable(VARIABLE_Network_Status_CONST, "Using DHCP, please wait...");
 		m_pOrbiter->StartScreenHandlerTimer(10000);
 	}
-	else if(pObjectInfoData->m_pObj->m_iBaseObjectID == DESIGNOBJ_butStaticIP_CONST)
-	{
-		DCE::SCREEN_Static_IP_settings screen_Static_IP_settings(m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device);
-		m_pOrbiter->SendCommand(screen_Static_IP_settings);
-		///usr/pluto/bin/Network_Config.sh --ext-static "10.0.1.3" "255.255.252.0" "10.0.0.1" "10.0.0.1" ""
-	}
 	else if(pObjectInfoData->m_pObj->m_iBaseObjectID == DESIGNOBJ_butApplyNetworkSettings_CONST)
 	{
 		string sStaticIP = m_pOrbiter->m_mapVariable_Find(VARIABLE_IP_Address_CONST);
@@ -4496,6 +4658,37 @@ bool ScreenHandler::SCREEN_Network_Settings_ObjectSelected(CallBackData *pData)
 	return false; // Keep processing it
 }
 //-----------------------------------------------------------------------------------------------------
+bool ScreenHandler::SCREEN_Network_Settings_VariableChanged(CallBackData *pData)
+{
+	VariableCallBackData *pVariableInfoData = (VariableCallBackData *)pData;
+
+	switch(pVariableInfoData->m_nVariableKey)
+	{
+		case VARIABLE_IP_Address_CONST:
+			m_mapNetworkSettings["EXTERNAL_IP"] = pVariableInfoData->m_sVariableValue;
+			break;
+
+		case VARIABLE_Net_Mask_CONST:
+			m_mapNetworkSettings["EXTERNAL_NETMASK"] = pVariableInfoData->m_sVariableValue;
+			break;
+
+		case VARIABLE_Gateway_CONST:
+			m_mapNetworkSettings["GATEWAY"] = pVariableInfoData->m_sVariableValue;
+			break;
+
+		case VARIABLE_DNS_CONST:
+			m_mapNetworkSettings["DNS1"] = pVariableInfoData->m_sVariableValue;
+			break;
+
+		//ignore everything else
+		default:
+			break;
+	}
+
+	return false; // Keep processing it
+}
+
+//-----------------------------------------------------------------------------------------------------
 //<-mkr_b_aj_b->
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 // 
@@ -4503,24 +4696,14 @@ bool ScreenHandler::SCREEN_Network_Settings_ObjectSelected(CallBackData *pData)
 //
 void ScreenHandler::SCREEN_aJAd(long PK_Screen, string sFilename, string sURL)
 {
-	if( sFilename.empty() || sFilename=="none" )
-	{
-		DCE::CMD_Goto_DesignObj CMD_Goto_DesignObj(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,0,"<%=NP_R%>","","",false,false);
-		m_pOrbiter->QueueMessageToRouter(CMD_Goto_DesignObj.m_pMessage);
-	}
-	else
-	{
-		ScreenHandlerBase::SCREEN_aJAd(PK_Screen, sFilename, sURL);
-		string::size_type pos=0;
-		string sPictureFile = StringUtils::Tokenize(sFilename,"|",pos);
-		size_t size;
-		char *pGraphicData = m_pOrbiter->ReadFileIntoBuffer(sPictureFile,size);
-		m_pOrbiter->CMD_Update_Object_Image("5647.0.0.5580","jpg",
-			pGraphicData,
-			(int) size,"0");
-		m_pOrbiter->CMD_Set_Variable(VARIABLE_Filename_CONST, sFilename);
-		RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::Aj_ObjectSelected,	new ObjectInfoBackData());
-	}
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::SCREEN_aJAd registering callback");
+	ScreenHandlerBase::SCREEN_aJAd(PK_Screen, sFilename, sURL);
+	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::Aj_ObjectSelected,	new ObjectInfoBackData());
+	DesignObj_Orbiter *pObj = m_pOrbiter->FindObject("5647.0.0.5580");
+	if( pObj )
+		pObj->m_bKeepGraphicInCache=true;
+
+	return;
 }
 
 bool ScreenHandler::Aj_ObjectSelected(CallBackData *pData)

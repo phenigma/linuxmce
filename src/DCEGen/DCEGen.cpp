@@ -1233,7 +1233,7 @@ void DCEGen::SearchAndReplace(string InputFile,string OutputFile,string Classnam
 				fputs(("\t" + pRow_DeviceData->FK_ParameterType_getrow()->Description_get() + " DATA_Get_" + pDefine  + "();"EOL).c_str(),file);
 				if(pDataInfo->m_bCanSet)
 				{
-					fputs(("\tvoid DATA_Set_" + pDefine  + "(" + pRow_DeviceData->FK_ParameterType_getrow()->Description_get() + " Value);"EOL).c_str(),file);
+					fputs(("\tvoid DATA_Set_" + pDefine  + "(" + pRow_DeviceData->FK_ParameterType_getrow()->Description_get() + " Value,bool bUpdateDatabase=false);"EOL).c_str(),file);
 				}
 			}
 

@@ -37,6 +37,7 @@
 
 DCE::HAL * SerialD::halDevice = NULL;
 bool SerialD::running = false;
+bool SerialD::stoprunning = false;
 std::vector<std::string> SerialD::serialDevices;
 
 SerialD::SerialD()
@@ -50,14 +51,16 @@ SerialD::~SerialD()
 void* SerialD::startUp(void * device)
 {
 	running = true;
+	stoprunning = false;
 	
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "PlutoHalD::startUp  Waiting 10 seconds to let GSD devices start first and disable any invalid ports");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "SerialD::startUp  Waiting 10 seconds to let GSD devices start first and disable any invalid ports");
 	Sleep(10000);
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "############ SerialD Start ");
+	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "SerialD::startUp pthread_create ############ SerialD Start ");
 	
 	if( device == NULL )
 	{
 		// error
+		running = false;
 		return NULL;
 	}
 	
@@ -65,6 +68,7 @@ void* SerialD::startUp(void * device)
 	if( halDevice->m_pData == NULL )
 	{
 		// error
+		running = false;
 		return NULL;
 	}
 	
@@ -87,7 +91,7 @@ void* SerialD::startUp(void * device)
 	}
 	
 	// thread loop
-	while(running)
+	while(!stoprunning)
 	{
 		// test each available serial port
 		std::vector<std::string>::iterator it=serialDevices.begin();
@@ -124,12 +128,20 @@ void* SerialD::startUp(void * device)
 	}
 	
 	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "############ SerialD END ");
+	running = false;
 	
 	return NULL;
 }
 
-void SerialD::shutDown()
+bool SerialD::shutDown()
 {
-	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "############ SerialD shutDown ");
-	running = false;
+	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "############ SerialD shutDown waiting for thread");
+	stoprunning = true;
+	time_t timeout = time(NULL) + 15;
+	while( running && time(NULL) < timeout )
+	{
+		usleep(10);
+	}
+	LoggerWrapper::GetInstance()->Write(LV_DEBUG, "############ SerialD shutDown thread exited or timed out: running=%d",(int) running);
+	return running==false;
 }

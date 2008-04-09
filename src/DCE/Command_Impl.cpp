@@ -1116,6 +1116,22 @@ bool Command_Impl::SetStatus( string sStatus, int dwPK_Device )
 	return m_pcRequestSocket->m_pClientSocket->SendString("SET_STATUS " + StringUtils::itos( dwPK_Device ? dwPK_Device : m_dwPK_Device ) + " " + sStatus );
 }
 
+string Command_Impl::GetIpAddress( int dwPK_Device )
+{
+	// If this is for us and the IP address is already known, just pass it
+	if( (dwPK_Device==0 || dwPK_Device==m_pData->m_dwPK_Device) && m_pData->m_sIPAddress.empty()==false )
+		return m_pData->m_sIPAddress;
+
+	// Get it from the server
+	if( !m_pcRequestSocket )
+		return "";
+
+	string sResult;
+	m_pcRequestSocket->m_pClientSocket->SendString("GET_IP " + StringUtils::itos( dwPK_Device ? dwPK_Device : m_dwPK_Device ) );
+	m_pcRequestSocket->m_pClientSocket->ReceiveString(sResult);
+	return sResult;
+}
+
 bool Command_Impl::ReportPendingTasksFromDevice(Socket *pSocket,int PK_Device_Requestor,int PK_Device,PendingTaskList *pPendingTaskList)
 {
 	Message *pMessage = new Message(PK_Device_Requestor,PK_Device,PRIORITY_NORMAL,MESSAGETYPE_PENDING_TASKS,0,0);

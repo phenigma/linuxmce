@@ -265,6 +265,32 @@ bool PnpQueue::Process_Detect_Stage_Detected(PnpQueueEntry *pPnpQueueEntry)
 		if( pDevice )
 		{
 			pDevice = pDevice->GetTopMostDevice();  // Get the computer it's on
+
+			// Detecting serial devices can be slow since it's a brute force trial and error.  The user may want to disable this.
+			bool bIgnoreSerial = atoi(pDevice->m_mapParameters_Find(DEVICEDATA_Dont_Detect_Serial_Devices_CONST).c_str());
+			if( !bIgnoreSerial )
+			{
+				// This could be a core/hybrid with an embedded media director.  So scan all the children too and if any of them 
+				// have this flag  set, then ignore this device
+				for(VectDeviceData_Impl::iterator it=pDevice->m_vectDeviceData_Impl_Children.begin();it!=pDevice->m_vectDeviceData_Impl_Children.end();++it)
+				{
+					DeviceData_Impl *pDevice_Child = *it;
+					if( atoi(pDevice_Child->m_mapParameters_Find(DEVICEDATA_Dont_Detect_Serial_Devices_CONST).c_str()) )
+					{
+						bIgnoreSerial=true;
+						break;
+					}
+				}
+			}
+
+			if( bIgnoreSerial )
+			{
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "PnpQueue::Process_Detect_Stage_Detected: queue %d ignoring serial devices",
+					pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
+				pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_DONE);
+				return true;
+			}
+
 			pair<time_t,time_t> pTimeUp = m_pPlug_And_Play_Plugin->m_pRouter->m_mapDeviceUpStatus_Find( pDevice->m_dwPK_Device );
 #ifdef DEBUG
 			LoggerWrapper::GetInstance()->Write(LV_STATUS, "PnpQueue::Process_Detect_Stage_Detected: queue %d %s uptime for rs232 on %d is %d", 
@@ -480,6 +506,14 @@ bool PnpQueue::Process_Detect_Stage_Confirm_Possible_DT(PnpQueueEntry *pPnpQueue
 				continue; // Don't do this if the serial number doesn't match
 			if( !bMatchingCategory && pRow_DHCPDevice->Parms_get().size() && pPnpQueueEntry->m_pRow_PnpQueue->Parms_get().find(pRow_DHCPDevice->Parms_get())==string::npos )
 				continue; // Don't do this if the serial number doesn't match
+			if( !bMatchingCategory && pRow_DHCPDevice->Category_get().size() && pPnpQueueEntry->m_pRow_PnpQueue->Category_get()!=pRow_DHCPDevice->Category_get() )
+			{
+#ifdef DEBUG
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Confirm_Possible_DT queue %d skipping PK_DHCPDevice %d because category %s doesn't match",
+				pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),vectRow_DHCPDevice[0]->PK_DHCPDevice_get(),pPnpQueueEntry->m_pRow_PnpQueue->Category_get().c_str());
+#endif
+				continue; // Don't do this if a category is specified and it doesn't match
+			}
 
 			pPnpQueueEntry->m_mapPK_DHCPDevice_possible[pRow_DHCPDevice->PK_DHCPDevice_get()]=pRow_DHCPDevice;  // This is a possibility
 		}
@@ -669,6 +703,7 @@ bool PnpQueue::Process_Detect_Stage_Prompting_User_For_DT(PnpQueueEntry *pPnpQue
 #ifdef DEBUG
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"PnpQueue::Process_Detect_Stage_Prompting_User_For_DT user didn't respond to queue %d",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
 #endif
+		pPnpQueueEntry->UseAllOrbitersForPrompt();
 	}
 
 	if( DetermineOrbitersForPrompting(pPnpQueueEntry,true)==false )
@@ -902,7 +937,7 @@ bool PnpQueue::Process_Detect_Stage_Add_Device(PnpQueueEntry *pPnpQueueEntry)
 		pRow_DeviceTemplate->PK_DeviceTemplate_get(), pPnpQueueEntry->m_pRow_PnpQueue->MACaddress_get(), pPnpQueueEntry->m_iPK_Room, pPnpQueueEntry->m_pRow_PnpQueue->IPaddress_get(),
 		pPnpQueueEntry->DeviceDataAsString(),pPnpQueueEntry->m_iPK_DHCPDevice,0 /* let it find the parent based on the relationship */,
 		pPnpQueueEntry->m_sDescription,
-		pPnpQueueEntry->m_pOH_Orbiter ? pPnpQueueEntry->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device : 0,
+		pPnpQueueEntry->m_pOH_Orbiter_Active_get() ? pPnpQueueEntry->m_pOH_Orbiter_Active_get()->m_pDeviceData_Router->m_dwPK_Device : 0,
 		PK_Device_Related,&iPK_Device);
 
 	m_pPlug_And_Play_Plugin->SendCommand(CMD_Create_Device);
@@ -1576,12 +1611,12 @@ void PnpQueue::ReadOutstandingQueueEntries()
 
 bool PnpQueue::DetermineOrbitersForPrompting(PnpQueueEntry *pPnpQueueEntry,bool bBlockIfNone)
 {
-	if( pPnpQueueEntry->m_pRow_PnpQueue->FK_CommMethod_get()==COMMMETHOD_Ethernet_CONST ) // This is universal, could be anywhere, ask on all orbiters
+	if( pPnpQueueEntry->m_pRow_PnpQueue->FK_CommMethod_get()==COMMMETHOD_Ethernet_CONST || pPnpQueueEntry->m_bUseAllOrbitersForPrompt ) // This is universal, could be anywhere, ask on all orbiters
 	{
 		pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts=m_pPlug_And_Play_Plugin->m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters_get();
 #ifdef DEBUG
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"PnpQueue::DetermineOrbitersForPrompting queue %d use all orbiters: %s",
-			pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"PnpQueue::DetermineOrbitersForPrompting queue %d use all orbiters (%d): %s",
+			pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),(int) pPnpQueueEntry->m_bUseAllOrbitersForPrompt, pPnpQueueEntry->m_sPK_Orbiter_List_For_Prompts.c_str());
 #endif
 	}
 	else

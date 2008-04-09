@@ -150,7 +150,7 @@ for share in $(smbclient $AuthPart --list=//$Device_IP  --grepable | grep "^Disk
 	
 	## Notify the router that we didn't found any user/pass combination
 	if [[ "$mountedOK" == "false" ]] ;then
-		echo "$(date -r) Assking for password for '$share'"
+		echo "$(date -R) Asking for password for '$share'"
 		/usr/pluto/bin/MessageSend dcerouter $Device_ID -1001 2 65 56 "fileshare" 52 3 53 2 49 1768 55 "182|1|$DD_SHARE|$share" 54 "$pnpUID"
 	fi
 done

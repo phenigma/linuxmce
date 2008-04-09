@@ -88,6 +88,22 @@ public:
 			return atoi(m_mapParameters[DEVICEDATA_Priority_CONST].c_str());
 	}
 
+	bool Get_Only_One_Per_PC()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return (m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Only_One_Per_PC_CONST)=="1" ? true : false);
+		else
+			return (m_mapParameters[DEVICEDATA_Only_One_Per_PC_CONST]=="1" ? true : false);
+	}
+
+	int Get_EK_Provider()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_EK_Provider_CONST).c_str());
+		else
+			return atoi(m_mapParameters[DEVICEDATA_EK_Provider_CONST].c_str());
+	}
+
 };
 
 
@@ -193,6 +209,8 @@ public:
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
 	//Data accessors
 	int DATA_Get_Priority() { return GetData()->Get_Priority(); }
+	bool DATA_Get_Only_One_Per_PC() { return GetData()->Get_Only_One_Per_PC(); }
+	int DATA_Get_EK_Provider() { return GetData()->Get_EK_Provider(); }
 	//Event accessors
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_Jump_Position_In_Playlist(string sValue_To_Assign,int iStreamID,string &sCMD_Result,class Message *pMessage) {};

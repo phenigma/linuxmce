@@ -115,16 +115,16 @@ class DataGridTable *Media_Plugin::MediaBrowser( string GridID, string Parms, vo
 	int PK_AttributeType_Sort = atoi(StringUtils::Tokenize( Parms,"|",pos ).c_str());
 	int PK_Users = atoi(StringUtils::Tokenize( Parms,"|",pos ).c_str());
 	int iLastViewed = atoi(StringUtils::Tokenize( Parms,"|",pos ).c_str());
-	int PK_Attribute = atoi(StringUtils::Tokenize( Parms,"|",pos ).c_str());
+	string sPK_Attribute = StringUtils::Tokenize( Parms,"|",pos );
 	if( sPK_Sources.size()==0 )
 		sPK_Sources = TOSTRING(MEDIASOURCE_File_CONST) "," TOSTRING(MEDIASOURCE_Jukebox_CONST) "," TOSTRING(MEDIASOURCE_Local_Disc_CONST);
 
 	LoggerWrapper::GetInstance()->Write(LV_WARNING, "MediaBrowser parms: mediatype %d, submediatype %s, "
 		"fileformat %s, attribute_genres %s, sources %s, users_private %s, attributetype_sort %d, "
-		"users %d, last_viewed %d, pk_attribute %d", 
+		"users %d, last_viewed %d, pk_attribute %s", 
 		PK_MediaType, sPK_MediaSubType.c_str(), sPK_FileFormat.c_str(), sPK_Attribute_Genres.c_str(),
 		sPK_Sources.c_str(), sPK_Users_Private.c_str(), PK_AttributeType_Sort, PK_Users,
-		iLastViewed, PK_Attribute);
+		iLastViewed, sPK_Attribute.c_str());
 
 #ifdef SIM_JUKEBOX
 	// These are set in a sub-function
@@ -136,16 +136,26 @@ class DataGridTable *Media_Plugin::MediaBrowser( string GridID, string Parms, vo
 		return pMediaListGrid;
 
 	bool bIdentifiesFile = true;
-	if( PK_AttributeType_Sort )
+	if( PK_AttributeType_Sort>0 )
 		if( m_mapMediaType_AttributeType_Identifier.find( make_pair<int,int> ( PK_MediaType,PK_AttributeType_Sort ) )==m_mapMediaType_AttributeType_Identifier.end() )
 			bIdentifiesFile = false;  // This combination doesn't identify an individual file to play (like a song), it identifies a group of attributes (like an album or performer)
 
 	if( PK_MediaType==MEDIATYPE_misc_Playlist_CONST )
 		PopulateFileBrowserInfoForPlayList(pMediaListGrid,sPK_Users_Private);
 	else
-		AttributesBrowser( pMediaListGrid, PK_MediaType, PK_Attribute, PK_AttributeType_Sort, bIdentifiesFile, sPK_MediaSubType, sPK_FileFormat, sPK_Attribute_Genres, sPK_Sources, sPK_Users_Private, PK_Users, iLastViewed, iPK_Variable, sValue_To_Assign );
+		AttributesBrowser( pMediaListGrid, PK_MediaType, sPK_Attribute, PK_AttributeType_Sort, bIdentifiesFile, sPK_MediaSubType, sPK_FileFormat, sPK_Attribute_Genres, sPK_Sources, sPK_Users_Private, PK_Users, iLastViewed, iPK_Variable, sValue_To_Assign );
 
-	pMediaListGrid->m_listFileBrowserInfo.sort(FileBrowserInfoComparer);
+	if( PK_AttributeType_Sort==-1 )
+		pMediaListGrid->m_listFileBrowserInfo.sort(FileBrowserInfoComparerLastViewed); 
+	else
+		pMediaListGrid->m_listFileBrowserInfo.sort(FileBrowserInfoComparer); 
+
+for(list<FileBrowserInfo *>::iterator ittemp=pMediaListGrid->m_listFileBrowserInfo.begin();ittemp!=pMediaListGrid->m_listFileBrowserInfo.end();++ittemp)
+{
+	FileBrowserInfo *pf = *ittemp;
+LoggerWrapper::GetInstance()->Write(LV_WARNING, "list %s : %s date: %d", pf->m_sDisplayGroup.c_str(), pf->m_sDisplayName.c_str(), (int) pf->m_tLastViewed);
+}
+
 	pMediaListGrid->m_pFileBrowserInfoPtr = new FileBrowserInfoPtr[ pMediaListGrid->m_listFileBrowserInfo.size() ];
 
 	DataGridCell *pCell;
@@ -206,7 +216,7 @@ class DataGridTable *Media_Plugin::MediaBrowser( string GridID, string Parms, vo
 	return pMediaListGrid;
 }
 
-void Media_Plugin::AttributesBrowser( MediaListGrid *pMediaListGrid,int PK_MediaType, int PK_Attribute, int PK_AttributeType_Sort, bool bShowFiles, string &sPK_MediaSubType, string &sPK_FileFormat, string &sPK_Attribute_Genres, string &sPK_Sources, string &sPK_Users_Private, int PK_Users, int iLastViewed, int *iPK_Variable, string *sValue_To_Assign )
+void Media_Plugin::AttributesBrowser( MediaListGrid *pMediaListGrid,int PK_MediaType, string sPK_Attribute, int PK_AttributeType_Sort, bool bShowFiles, string &sPK_MediaSubType, string &sPK_FileFormat, string &sPK_Attribute_Genres, string &sPK_Sources, string &sPK_Users_Private, int PK_Users, int iLastViewed, int *iPK_Variable, string *sValue_To_Assign )
 {
 	bool bFile=false,bDiscs=false,bSubDirectory=false,bBookmarks=false,bDownload=false;
 	string sPath,sPath_Back;
@@ -230,23 +240,52 @@ void Media_Plugin::AttributesBrowser( MediaListGrid *pMediaListGrid,int PK_Media
 		{
 			bFile=true;
 			bSubDirectory=true;
-			pMediaListGrid->m_listFileBrowserInfo.push_back( new FileBrowserInfo("back (..)",sPath_Back,0,0,'F',true,true) );
+			pMediaListGrid->m_listFileBrowserInfo.push_back( new FileBrowserInfo("back (..)",sPath_Back,0,0,0,'F',true,true) );
 			bUsingDirectory=true;
 		}
+	}
+
+	if( sPK_Attribute.size()>2 && sPK_Attribute[0]=='!' && sPK_Attribute[1]=='e' )  
+	{
+		string::size_type pos=0;
+		string sE = StringUtils::Tokenize(sPK_Attribute,",",pos);
+		string sPK_MediaSource = StringUtils::Tokenize(sPK_Attribute,",",pos);
+		string sURL = StringUtils::Tokenize(sPK_Attribute,",",pos);
+		MediaHandlerBase *pMediaHandlerBase = m_mapMediaCatalog_Find(sPK_MediaSource);
+		if( pMediaHandlerBase )
+			pMediaHandlerBase->PopulateDataGrid(sPK_MediaSource, pMediaListGrid, PK_MediaType, sURL, PK_AttributeType_Sort, bShowFiles, sPK_MediaSubType, sPK_FileFormat, sPK_Attribute_Genres, sPK_Sources, sPK_Users_Private, PK_Users, iLastViewed, iPK_Variable, sValue_To_Assign );
+		else
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Media_Plugin::AttributesBrowser Bad media source directory %s", sPK_MediaSource.c_str());
+		return;
 	}
 	if( !bUsingDirectory )
 	{
 		while(pos<sPK_Sources.size())
 		{
-			int PK_MediaSource=atoi( StringUtils::Tokenize(sPK_Sources,",",pos).c_str() );
-			if( PK_MediaSource==MEDIASOURCE_Hard_Drives_CONST )
-				bFile=true;
-			else if( PK_MediaSource==MEDIASOURCE_Discs__Jukeboxes_CONST )
-				bDiscs=true;
-			else if( PK_MediaSource==MEDIASOURCE_Bookmarks_CONST )
-				bBookmarks=true;
-			else if( PK_MediaSource==MEDIASOURCE_Downloadable_CONST )
-				bDownload=true;
+			string sPK_MediaSource = StringUtils::Tokenize(sPK_Sources,",",pos);
+			if( sPK_MediaSource.empty() )
+				break; // Shouldn't happen
+			
+			if( sPK_MediaSource[0]>'9' ) // This is ascii, so the source is an external plugin
+			{
+				MediaHandlerBase *pMediaHandlerBase = m_mapMediaCatalog_Find(sPK_MediaSource);
+				if( pMediaHandlerBase )
+					pMediaHandlerBase->PopulateDataGrid(sPK_MediaSource, pMediaListGrid, PK_MediaType, sPK_Attribute, PK_AttributeType_Sort, bShowFiles, sPK_MediaSubType, sPK_FileFormat, sPK_Attribute_Genres, sPK_Sources, sPK_Users_Private, PK_Users, iLastViewed, iPK_Variable, sValue_To_Assign );
+				else
+					LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Media_Plugin::AttributesBrowser Bad media source %s", sPK_MediaSource.c_str());
+			}
+			else
+			{
+				int PK_MediaSource = atoi(sPK_MediaSource.c_str());
+				if( PK_MediaSource==MEDIASOURCE_Hard_Drives_CONST )
+					bFile=true;
+				else if( PK_MediaSource==MEDIASOURCE_Discs__Jukeboxes_CONST )
+					bDiscs=true;
+				else if( PK_MediaSource==MEDIASOURCE_Bookmarks_CONST )
+					bBookmarks=true;
+				else if( PK_MediaSource==MEDIASOURCE_Downloadable_CONST )
+					bDownload=true;
+			}
 		}
 #ifdef SIM_JUKEBOX
 		// These are set in a sub-function
@@ -255,7 +294,7 @@ void Media_Plugin::AttributesBrowser( MediaListGrid *pMediaListGrid,int PK_Media
 		g_bInclDownload=bDownload;
 #endif
 		sPK_Sources = sPK_Sources + "\t";  // Put a tab before this which is the indicator up above that this is the topmost source when the user tabs back
-		if( bFile && PK_AttributeType_Sort==0 )
+		if( bFile && PK_AttributeType_Sort==0 || PK_AttributeType_Sort==-1 )
 		{
 			Row_MediaType *pRow_MediaType = m_pDatabase_pluto_main->MediaType_get()->GetRow(PK_MediaType);
 			if( pRow_MediaType )
@@ -265,11 +304,26 @@ void Media_Plugin::AttributesBrowser( MediaListGrid *pMediaListGrid,int PK_Media
 				{
 					string sUser = StringUtils::Tokenize(sPK_Users_Private,",",pos);
 					if( sPath.empty()==false )
-						sPath += ",";
+					{
+						if( PK_AttributeType_Sort==-1 ) // Sorting by recently viewed, not directory, so find all directories
+							sPath += " OR ";
+						else
+							sPath += ",";
+					}
 					if( sUser=="0" )
-						sPath += "'/home/public/data/" + pRow_MediaType->Subdirectory_get() + "'";
+					{
+						if( PK_AttributeType_Sort==-1 ) // Sorting by recently viewed, not directory, so find all directories
+							sPath += "Path LIKE '/home/public/data/" + pRow_MediaType->Subdirectory_get() + "%'";
+						else
+							sPath += "'/home/public/data/" + pRow_MediaType->Subdirectory_get() + "'";
+					}
 					else
-						sPath += "'/home/user_" + sUser + "/data/" + pRow_MediaType->Subdirectory_get() + "'";
+					{
+						if( PK_AttributeType_Sort==-1 ) // Sorting by recently viewed, not directory, so find all directories
+							sPath += "Path LIKE '/home/user_" + sUser + "/data/" + pRow_MediaType->Subdirectory_get() + "%'";
+						else
+							sPath += "'/home/user_" + sUser + "/data/" + pRow_MediaType->Subdirectory_get() + "'";
+					}
 				}
 			}
 		}
@@ -334,6 +388,7 @@ void Media_Plugin::AttributesBrowser( MediaListGrid *pMediaListGrid,int PK_Media
 		sSQL_Where += " AND (EK_Users_Private IN (" + sPK_Users_Private + ") " + (bIncludePublicUser ? "OR EK_Users_Private IS NULL)" : ")");
 	}
 
+	int PK_Attribute = atoi(sPK_Attribute.c_str());
 	if( PK_Attribute > 0 )
 	{
 		sSQL_File += "LEFT JOIN File_Attribute AS FDA_Attr ON FDA_Attr.FK_File=PK_File ";
@@ -371,9 +426,13 @@ void Media_Plugin::AttributesBrowser( MediaListGrid *pMediaListGrid,int PK_Media
 	vector<string> vectDirectories;
 	StringUtils::Tokenize(sPath_Clone, ",", vectDirectories);
 
-	string sPathCondition = " AND (Path IN (" + sPath + ") ";
+	string sPathCondition;
+	if( PK_AttributeType_Sort==-1 )
+		sPathCondition = " AND (" + sPath;
+	else
+		sPathCondition = " AND (Path IN (" + sPath + ") ";
 
-	if(PK_Attribute != 0)
+	if(PK_Attribute != 0 && PK_AttributeType_Sort!=-1 )
 	{
 		for(vector<string>::iterator it = vectDirectories.begin(); it != vectDirectories.end(); ++it)
 		{
@@ -456,7 +515,7 @@ void Media_Plugin::FetchPictures(string sWhichTable,string &sPK_File_Or_Disc,map
 
 	// If we're retrieving filenames or specific titles, don't do a cross-match to find attributes that have pictures.  Otherwise
 	// you can have a file with no pictures, but if it's in the Genre 'Action', it will find a picture for some other Action file
-	if( PK_AttributeType_Sort==0 || PK_AttributeType_Sort==ATTRIBUTETYPE_Title_CONST )
+	if( PK_AttributeType_Sort==0 ||  PK_AttributeType_Sort==-1 || PK_AttributeType_Sort==ATTRIBUTETYPE_Title_CONST )
 		return;
 
 	sSQL = "SELECT FK_" + sWhichTable + ",FK_Picture FROM " + sWhichTable + "_Attribute JOIN Picture_Attribute ON Picture_Attribute.FK_Attribute=" + sWhichTable + "_Attribute.FK_Attribute WHERE FK_" + sWhichTable + " IN (" + sPK_File_Or_Disc + ")";
@@ -501,7 +560,7 @@ void Media_Plugin::PopulateFileBrowserInfoForPlayList(MediaListGrid *pMediaListG
 
 void Media_Plugin::PopulateFileBrowserInfoForDisc(MediaListGrid *pMediaListGrid,int PK_AttributeType_Sort,string &sPK_Disk,map<int,int> &mapDisk_To_Pic)
 {
-	string sSQL_Sort = "SELECT PK_Disc,Name,FK_FileFormat,Track FROM Disc JOIN Disc_Attribute ON FK_Disc=PK_Disc JOIN Attribute ON FK_Attribute=PK_Attribute AND FK_AttributeType=" + StringUtils::itos(PK_AttributeType_Sort) + " WHERE PK_Disc in (" + sPK_Disk + ")";
+	string sSQL_Sort = "SELECT PK_Disc,Name,FK_FileFormat,Track,DateLastViewed FROM Disc JOIN Disc_Attribute ON FK_Disc=PK_Disc JOIN Attribute ON FK_Attribute=PK_Attribute AND FK_AttributeType=" + StringUtils::itos(PK_AttributeType_Sort) + " WHERE PK_Disc in (" + sPK_Disk + ")";
 
     PlutoSqlResult result;
     DB_ROW row;
@@ -511,7 +570,7 @@ void Media_Plugin::PopulateFileBrowserInfoForDisc(MediaListGrid *pMediaListGrid,
     if( (result.r=m_pDatabase_pluto_media->db_wrapper_query_result( sSQL_Sort )) )
         while( ( row=db_wrapper_fetch_row( result.r ) ) )
 		{
-			pFileBrowserInfo = new FileBrowserInfo(row[1],string("!r") + row[0] + (row[3] && atoi(row[3]) ? string(".") + row[3] : ""),atoi(row[0]),row[2] ? atoi(row[2]) : 0,'D',false,false);
+			pFileBrowserInfo = new FileBrowserInfo(row[1],string("!r") + row[0] + (row[3] && atoi(row[3]) ? string(".") + row[3] : ""),atoi(row[0]),row[2] ? atoi(row[2]) : 0,row[4],'D',false,false);
 			if( (it=mapDisk_To_Pic.find( atoi(row[0]) ))!=mapDisk_To_Pic.end() )
 				pFileBrowserInfo->m_PK_Picture = it->second;
 			pMediaListGrid->m_listFileBrowserInfo.push_back(pFileBrowserInfo);
@@ -525,11 +584,11 @@ void Media_Plugin::PopulateFileBrowserInfoForFile(MediaListGrid *pMediaListGrid,
 		" subdir %d", PK_AttributeType_Sort, bSubDirectory);
 
 	string sSQL_Sort;
-	if( PK_AttributeType_Sort==0 )
-		sSQL_Sort = "SELECT PK_File,Path,Filename,IsDirectory,FK_FileFormat,Filename FROM File WHERE PK_File in (" + sPK_File + ")";
+	if( PK_AttributeType_Sort==0 || PK_AttributeType_Sort==-1 )
+		sSQL_Sort = "SELECT PK_File,Path,Filename,IsDirectory,FK_FileFormat,Filename,DateLastViewed FROM File WHERE PK_File in (" + sPK_File + ")";
 	else
 		// TODO ___ FIND A BETTER WAY TO DO THIS QUERY.  It's returning a record for the file for each attribute, causing it to skip repeatedly, and it's very inefficient, and requires the double sorting order clauses!
-		sSQL_Sort = "SELECT PK_File,'',Name,0,FK_FileFormat,Filename FROM File LEFT JOIN File_Attribute ON FK_File=PK_File LEFT JOIN Attribute ON FK_Attribute=PK_Attribute AND FK_AttributeType=" + StringUtils::itos(PK_AttributeType_Sort) + " WHERE IsDirectory=0 AND PK_File in (" + sPK_File + ") AND (FK_AttributeType IS NULL OR FK_AttributeType=" + StringUtils::itos(PK_AttributeType_Sort) + ") ORDER BY PK_File,PK_Attribute DESC";
+		sSQL_Sort = "SELECT PK_File,'',Name,0,FK_FileFormat,Filename,DateLastViewed FROM File LEFT JOIN File_Attribute ON FK_File=PK_File LEFT JOIN Attribute ON FK_Attribute=PK_Attribute AND FK_AttributeType=" + StringUtils::itos(PK_AttributeType_Sort) + " WHERE IsDirectory=0 AND PK_File in (" + sPK_File + ") AND (FK_AttributeType IS NULL OR FK_AttributeType=" + StringUtils::itos(PK_AttributeType_Sort) + ") ORDER BY PK_File,PK_Attribute DESC";
 
     PlutoSqlResult result;
     DB_ROW row;
@@ -550,9 +609,9 @@ void Media_Plugin::PopulateFileBrowserInfoForFile(MediaListGrid *pMediaListGrid,
 				StringUtils::Replace(&sThisPath,"'","\\'");  // Make it , separated, ' quoted and escaped so it works as a sql in (path) clause
 				// sPath will be the sources (juke box, etc.) + \t + any prior directories
 				if( sPath.find("\t!D")==string::npos )  // !D 1 directory
-					pFileBrowserInfo = new FileBrowserInfo(row[2],sPath + "!D'" + sThisPath +"'",PK_File,row[4] ? atoi(row[4]) : 0,'F',true,false);
+					pFileBrowserInfo = new FileBrowserInfo(row[2],sPath + "!D'" + sThisPath +"'",PK_File,row[4] ? atoi(row[4]) : 0,row[6],'F',true,false);
 				else
-					pFileBrowserInfo = new FileBrowserInfo(row[2],sPath + ",'" + sThisPath +"'",PK_File,row[4] ? atoi(row[4]) : 0,'F',true,false);
+					pFileBrowserInfo = new FileBrowserInfo(row[2],sPath + ",'" + sThisPath +"'",PK_File,row[4] ? atoi(row[4]) : 0,row[6],'F',true,false);
 			}
 			else
 #ifdef SIM_JUKEBOX
@@ -560,9 +619,9 @@ void Media_Plugin::PopulateFileBrowserInfoForFile(MediaListGrid *pMediaListGrid,
 					row[5] && strstr(row[5],".dvd")!=NULL ? 'D' : 'F', false,false);
 #else
 				if( pMediaListGrid->m_iPK_MediaType==MEDIATYPE_pluto_Pictures_CONST )
-					pFileBrowserInfo = new FileBrowserInfo(row[2] ? row[2] : row[5],string(row[1]) + "/" + row[2],PK_File,row[4] ? atoi(row[4]) : 0,'F',false,false);
+					pFileBrowserInfo = new FileBrowserInfo(row[2] ? row[2] : row[5],string(row[1]) + "/" + row[2],PK_File,row[4] ? atoi(row[4]) : 0,row[6],'F',false,false);
 				else
-					pFileBrowserInfo = new FileBrowserInfo(row[2] ? row[2] : row[5],string("!F") + row[0],PK_File,row[4] ? atoi(row[4]) : 0,'F',false,false);
+					pFileBrowserInfo = new FileBrowserInfo(row[2] ? row[2] : row[5],string("!F") + row[0],PK_File,row[4] ? atoi(row[4]) : 0,row[6],'F',false,false);
 #endif
 			if( (it=mapFile_To_Pic.find( atoi(row[0]) ))!=mapFile_To_Pic.end() )
 				pFileBrowserInfo->m_PK_Picture = it->second;
@@ -683,7 +742,7 @@ LoggerWrapper::GetInstance()->Write(LV_WARNING,"Starting File list");
 	if( sPK_Sources.length() )
 	{
 		string sPrevious = posLastPath<3 ? "!D" : sPK_Sources.substr(0,posLastPath-1);
-		pMediaListGrid->m_listFileBrowserInfo.push_back( new FileBrowserInfo("~S21~<-- Back (..)",sPrevious,0,0,'F',true,true) );
+		pMediaListGrid->m_listFileBrowserInfo.push_back( new FileBrowserInfo("~S21~<-- Back (..)",sPrevious,0,0,0,'F',true,true) );
 	}
 
 	pos=0;
@@ -707,12 +766,14 @@ LoggerWrapper::GetInstance()->Write(LV_WARNING,"Starting File list");
 			if( pFileDetails->m_bIsDir && (pDatabaseInfoOnPath==NULL || pDatabaseInfoOnPath->m_bDirectory==true) )
 			{
 				if( sPK_Sources.length() )
-					pFileBrowserInfo = new FileBrowserInfo(pFileDetails->m_sFileName,sPK_Sources +"\t" + pFileDetails->m_sBaseName + pFileDetails->m_sFileName,0,0,'F',true,false);
+					pFileBrowserInfo = new FileBrowserInfo(pFileDetails->m_sFileName,sPK_Sources +"\t" + pFileDetails->m_sBaseName + pFileDetails->m_sFileName,0,0,0,'F',true,false);
 				else
-					pFileBrowserInfo = new FileBrowserInfo(pFileDetails->m_sFileName,"!D" + pFileDetails->m_sBaseName + pFileDetails->m_sFileName,0,0,'F',true,false);
+					pFileBrowserInfo = new FileBrowserInfo(pFileDetails->m_sFileName,"!D" + pFileDetails->m_sBaseName + pFileDetails->m_sFileName,0,0,0,'F',true,false);
 			}
 			else
-				pFileBrowserInfo = new FileBrowserInfo(pFileDetails->m_sFileName,pFileDetails->m_sBaseName + pFileDetails->m_sFileName,0,0,'F',false,false);
+				pFileBrowserInfo = new FileBrowserInfo(pFileDetails->m_sFileName,pFileDetails->m_sBaseName + pFileDetails->m_sFileName,0,0,0,'F',false,false);
+
+			pFileBrowserInfo->m_tLastViewed = pFileDetails->m_tDate;
 
 			if( pDatabaseInfoOnPath )
 			{
@@ -2148,6 +2209,22 @@ class DataGridTable *Media_Plugin::DevicesNeedingProviders( string GridID, strin
 			if( pRow_Device->Disabled_get()==1 || pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get()==DEVICECATEGORY_Media_Players_CONST 
 				|| DatabaseUtils::DeviceIsWithinCategory(m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICECATEGORY_Orbiter_CONST) )
 					continue; // Skip the internal sources, and orbiters which use this table for another purpose
+
+			if( pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get()==DEVICECATEGORY_PVR_CONST || 
+				pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get()==DEVICECATEGORY_Cable_Boxes_CONST || 
+				pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get()==DEVICECATEGORY_Satellite_Boxes_CONST )
+			{
+				Row_Device *pRow_Device_CaptureCard=NULL;
+				// If this is a cable/sat box, then we only need a provider if it's connected to a capture card.  otherwise there's no way to get the video into the system anyway
+				Row_Device_DeviceData *pRow_Device_DeviceData = m_pDatabase_pluto_main->Device_DeviceData_get()->GetRow(pRow_Device->PK_Device_get(),DEVICEDATA_FK_Device_Capture_Card_Port_CONST);
+				if( pRow_Device_DeviceData )
+					pRow_Device_CaptureCard	= m_pDatabase_pluto_main->Device_get()->GetRow( atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str()) );
+				if( pRow_Device_CaptureCard == NULL )
+				{
+					LoggerWrapper::GetInstance()->Write(LV_STATUS, "Media_Plugin::DevicesNeedingProviders skipping box %d because no capt card",pRow_Device->PK_Device_get());
+					continue;
+				}
+			}
 
 			string sDescription = pRow_Device->Description_get();
 			Row_Device *pRow_Device_Parent = pRow_Device->FK_Device_ControlledVia_getrow();

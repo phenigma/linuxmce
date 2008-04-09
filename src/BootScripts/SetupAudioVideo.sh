@@ -170,9 +170,10 @@ AudioSettings_Check()
 		NewSetting_AudioSetting="${NewSetting_AudioSetting//3}"
 	fi
 
+	sed -i '/pcm.!default/ d' /etc/asound.conf
 	if [[ "$NewSetting_AudioSetting" != *[CO]* ]]; then
 		# audio setting is neither Coaxial nor Optical
-		sed -i '/pcm.!default/ d' /etc/asound.conf
+		echo 'pcm.!default asym_analog' >>/etc/asound.conf
 	elif ! grep -q 'pcm.!default' /etc/asound.conf; then
 		# audio setting is Coaxial or Optical, i.e. S/PDIF
 		echo 'pcm.!default asym_spdif' >>/etc/asound.conf

@@ -118,6 +118,14 @@ namespace DCE
 		string m_sVideoSettings,m_sAudioSettings,m_sCommands;  /** Come from ATTRIBUTETYPE_Video_Settings_CONST and ATTRIBUTETYPE_Audio_Settings_CONST to override the values in PlaybackStarted event */
 		int m_discid;  /** A unique number to identify the disc inserted, if this is from a removable disc (CD/DVD) */
 		bool m_bIdentifiedDisc;
+
+		/** Initially set this to false, and make it true when we get our first PlaybackStarted.  The plugin's StartMedia should
+		return true/false depending on if the media starts.  But this meant that if the media player was really slow to respond
+		to StartMedia or had blocked, it could cause the plugin to crash.  So now the plugin's StartMedia just sends a Play_Media
+		command with no delivery confirmation and we have no way of knowing if the stream actually started playing or not.  By
+		setting this flag when the playbackstarted event comes in we'll know this stream is actually 'live' and is playing. */
+		bool m_bPlaybackStarted; 
+
 		int m_dwPK_Device_Remote; /** What remote control started this content */
 		
 		/** When this media is identified, the priority of the identifying module is stored here so if another
@@ -207,6 +215,10 @@ namespace DCE
 		virtual bool OrbiterIsOSD(int PK_Orbiter,EntertainArea **ppEntertainArea=NULL);
 		virtual int GetRemoteControlScreen(int PK_Orbiter);
 		virtual void GetRenderDevices(map<int, MediaDevice *> *pmapMediaDevices);
+
+		// Call this when you need to update the orbiters with the now playing info.  If pMessage is not NULL, the set now playing command will be appended to the existing message
+		// If bGotoRemote=true, the controller will be sent to a remote also
+		virtual void SetNowPlaying( OH_Orbiter *pOH_Orbiter, bool bRefreshScreen, bool bGotoRemote=false, Message *pMessage=NULL );
 
 		virtual MediaFile *GetCurrentMediaFile()
 		{

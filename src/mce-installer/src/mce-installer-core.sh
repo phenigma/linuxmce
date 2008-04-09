@@ -94,8 +94,8 @@ Display = 0
 SharedDesktop = 1
 OfflineMode = false
 UseVideoWizard = 1
-LogLevels = 1,5,7,8
-#ImmediatelyFlushLog = 1
+#LogLevels = 1,5,7,8
+ImmediatelyFlushLog = 1
 AutostartCore=$AutostartCore
 AutostartMedia=$AutostartMedia
 "
@@ -390,4 +390,5 @@ RunSQL "UPDATE Installation SET FK_PostalCode = 0"
 #fi
 
 apt-get -y -f dist-upgrade
+
 StatsMessage "Installation Finished"

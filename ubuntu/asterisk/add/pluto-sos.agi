@@ -73,14 +73,17 @@ unless($row = $statement->fetchrow_hashref())
 }
 
 @data = split(/[,]/,$row->{IK_DeviceData});
-
+#my $line="EXEC Dial \"Local/9235\@trusted/n\" \n";
+#print $line;
+#$line=<STDIN>;
+				 
 for(my $i=0;defined($data[$i]);$i+=2)
 {
 	my $j=int(($i+2)/2);
-	print STDERR "[".$data[$i]."]=".$data[$i+1]."\n";
+	print STDERR "[".$data[$i]."]=".$data[$i+1]."-->".$AGI{"extension"}."\n";
 	if($AGI{"extension"} eq $j)
 	{
-		my $line="EXEC Dial \"Local/".$data[$i+1]."\@trusted/n\" \n";
+		my $line="EXEC Dial \"Local/9".$data[$i+1]."\@trusted/n\" \n";
 		print $line;
 		$line=<STDIN>;
 	}

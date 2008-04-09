@@ -136,7 +136,7 @@ void AlarmManager::Run()
 				void* param = entry->param;
 				mm.Release();
 #ifdef DEBUG
-					LoggerWrapper::GetInstance()->Write(LV_ALARM, "Calling callback for alarm %p id %d param=%p entry->when: %d time: %d",this,id,param,entry->when,time(NULL));
+				LoggerWrapper::GetInstance()->Write(LV_ALARM, "Calling callback for alarm %p id %d param=%p entry->when: %d time: %d",this,id,param,entry->when,time(NULL));
 #endif
 				entry->callback->AlarmCallback(id, param);
 				mm.Relock();
@@ -174,6 +174,10 @@ void AlarmManager::Run()
  */
 int AlarmManager::AddAbsoluteAlarm(time_t when, AlarmEvent* callback, int type, void* param)
 {
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "AlarmManager::AddAbsoluteAlarm time %d type %d", (int) when, type);
+#endif
+
 	AlarmEntry* entry = new AlarmEntry;
 	if(entry == NULL)
 		return -1;
@@ -206,6 +210,9 @@ int AlarmManager::AddAbsoluteAlarm(time_t when, AlarmEvent* callback, int type, 
  */
 int AlarmManager::AddRelativeAlarm(long delay, AlarmEvent* callback, int type, void* param)
 {
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "AlarmManager::AddRelativeAlarm current time %d delay %d type %d", (int) time(NULL), (int) delay, type);
+#endif
 	return AddAbsoluteAlarm(time(NULL)+delay, callback, type, param);
 }
 

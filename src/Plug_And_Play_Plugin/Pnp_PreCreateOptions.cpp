@@ -102,7 +102,7 @@ bool Pnp_PreCreateOptions::OkayToCreateDevice_Presets(PnpQueueEntry *pPnpQueueEn
 			return false; // Let this one get backed up
 
 		if( pPnpQueueEntry->m_EBlockedState==PnpQueueEntry::pnpqe_blocked_prompting_options )
-			pPnpQueueEntry->m_pOH_Orbiter=NULL;  // The user isn't responding.  Ask on all orbiters
+			pPnpQueueEntry->UseAllOrbitersForPrompt();  // The user isn't responding.  Ask on all orbiters
 
 		if( m_pPnpQueue->m_pPlug_And_Play_Plugin->m_bSuspendProcessing )
 		{
@@ -113,9 +113,9 @@ bool Pnp_PreCreateOptions::OkayToCreateDevice_Presets(PnpQueueEntry *pPnpQueueEn
 
 		// We need to ask the user for this info
 		pPnpQueueEntry->Block(PnpQueueEntry::pnpqe_blocked_prompting_options);
-		if( pPnpQueueEntry->m_pOH_Orbiter )
+		if( pPnpQueueEntry->m_pOH_Orbiter_Active_get() )
 		{
-			DCE::SCREEN_PNP_Generic_Options SCREEN_PNP_Generic_Options(m_pPnpQueue->m_pPlug_And_Play_Plugin->m_dwPK_Device,pPnpQueueEntry->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, 
+			DCE::SCREEN_PNP_Generic_Options SCREEN_PNP_Generic_Options(m_pPnpQueue->m_pPlug_And_Play_Plugin->m_dwPK_Device,pPnpQueueEntry->m_pOH_Orbiter_Active_get()->m_pDeviceData_Router->m_dwPK_Device, 
 				s,pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
 			m_pPnpQueue->m_pPlug_And_Play_Plugin->SendCommand(SCREEN_PNP_Generic_Options);
 		}
@@ -154,17 +154,17 @@ bool Pnp_PreCreateOptions::OkayToCreateDevice_Username(PnpQueueEntry *pPnpQueueE
 				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Pnp_PreCreateOptions::OkayToCreateDevice_Username blocking queue %d",pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
 				pPnpQueueEntry->Block(PnpQueueEntry::pnpqe_block_processing_suspended);
 				return false; // We're waiting for the user to complete the setup wizard
-			}
+			}	
 
 			if( pPnpQueueEntry->m_EBlockedState==PnpQueueEntry::pnpqe_blocked_prompting_options )
-				pPnpQueueEntry->m_pOH_Orbiter=NULL;  // The user isn't responding.  Ask on all orbiters
+				pPnpQueueEntry->UseAllOrbitersForPrompt();  // The user isn't responding.  Ask on all orbiters
 
 			// We need to get it and block until we do
 			pPnpQueueEntry->Block(PnpQueueEntry::pnpqe_blocked_prompting_options);
 
-			if( pPnpQueueEntry->m_pOH_Orbiter )
+			if( pPnpQueueEntry->m_pOH_Orbiter_Active_get() )
 			{
-				DCE::SCREEN_Get_Username_Password_For_Devices SCREEN_Get_Username_Password_For_Devices(m_pPnpQueue->m_pPlug_And_Play_Plugin->m_dwPK_Device,pPnpQueueEntry->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, 
+				DCE::SCREEN_Get_Username_Password_For_Devices SCREEN_Get_Username_Password_For_Devices(m_pPnpQueue->m_pPlug_And_Play_Plugin->m_dwPK_Device,pPnpQueueEntry->m_pOH_Orbiter_Active_get()->m_pDeviceData_Router->m_dwPK_Device, 
 					bHasUserName,pRow_DeviceTemplate->Description_get(),pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
 				m_pPnpQueue->m_pPlug_And_Play_Plugin->SendCommand(SCREEN_Get_Username_Password_For_Devices);
 			}
@@ -211,13 +211,13 @@ bool Pnp_PreCreateOptions::OkayToCreateDevice_Room(PnpQueueEntry *pPnpQueueEntry
 	}
 
 	if( pPnpQueueEntry->m_EBlockedState==PnpQueueEntry::pnpqe_blocked_prompting_options )
-		pPnpQueueEntry->m_pOH_Orbiter=NULL;  // The user isn't responding.  Ask on all orbiters
+		pPnpQueueEntry->UseAllOrbitersForPrompt();  // The user isn't responding.  Ask on all orbiters
 
 	// We need to ask the user for the room
 	pPnpQueueEntry->Block(PnpQueueEntry::pnpqe_blocked_prompting_options);
-	if( pPnpQueueEntry->m_pOH_Orbiter )
+	if( pPnpQueueEntry->m_pOH_Orbiter_Active_get() )
 	{
-		DCE::SCREEN_Pick_Room_For_Device SCREEN_Pick_Room_For_Device(m_pPnpQueue->m_pPlug_And_Play_Plugin->m_dwPK_Device,pPnpQueueEntry->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, 
+		DCE::SCREEN_Pick_Room_For_Device SCREEN_Pick_Room_For_Device(m_pPnpQueue->m_pPlug_And_Play_Plugin->m_dwPK_Device,pPnpQueueEntry->m_pOH_Orbiter_Active_get()->m_pDeviceData_Router->m_dwPK_Device, 
 			pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get() * -1, pRow_DeviceTemplate->Description_get(),pRow_DeviceTemplate->Comments_get());
 		m_pPnpQueue->m_pPlug_And_Play_Plugin->SendCommand(SCREEN_Pick_Room_For_Device);
 	}
@@ -276,13 +276,13 @@ bool Pnp_PreCreateOptions::OkayToCreate_MobilePhone(PnpQueueEntry *pPnpQueueEntr
 	}
 
 	if( pPnpQueueEntry->m_EBlockedState==PnpQueueEntry::pnpqe_blocked_prompting_options )
-		pPnpQueueEntry->m_pOH_Orbiter=NULL;  // The user isn't responding.  Ask on all orbiters
+		pPnpQueueEntry->UseAllOrbitersForPrompt();  // The user isn't responding.  Ask on all orbiters
 
 	pPnpQueueEntry->Block(PnpQueueEntry::pnpqe_blocked_prompting_options);
 
-	if( pPnpQueueEntry->m_pOH_Orbiter )
+	if( pPnpQueueEntry->m_pOH_Orbiter_Active_get() )
 	{
-		DCE::SCREEN_NewPhoneDetected SCREEN_NewPhoneDetected(m_pPnpQueue->m_pPlug_And_Play_Plugin->m_dwPK_Device,pPnpQueueEntry->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, 
+		DCE::SCREEN_NewPhoneDetected SCREEN_NewPhoneDetected(m_pPnpQueue->m_pPlug_And_Play_Plugin->m_dwPK_Device,pPnpQueueEntry->m_pOH_Orbiter_Active_get()->m_pDeviceData_Router->m_dwPK_Device, 
 			pPnpQueueEntry->m_pRow_PnpQueue->MACaddress_get(),m_pPnpQueue->GetDescription(pPnpQueueEntry),pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
 		m_pPnpQueue->m_pPlug_And_Play_Plugin->SendCommand(SCREEN_NewPhoneDetected);
 	}
@@ -344,13 +344,13 @@ bool Pnp_PreCreateOptions::OkayToCreateDevice_NetworkStorage(PnpQueueEntry *pPnp
 	}
 
 	if( pPnpQueueEntry->m_EBlockedState==PnpQueueEntry::pnpqe_blocked_prompting_options )
-		pPnpQueueEntry->m_pOH_Orbiter=NULL;  // The user isn't responding.  Ask on all orbiters
+		pPnpQueueEntry->UseAllOrbitersForPrompt();  // The user isn't responding.  Ask on all orbiters
 	
 	pPnpQueueEntry->Block(PnpQueueEntry::pnpqe_blocked_prompting_options);
 
-	if( pPnpQueueEntry->m_pOH_Orbiter )
+	if( pPnpQueueEntry->m_pOH_Orbiter_Active_get() )
 	{
-		DCE::SCREEN_NAS_Options SCREEN_NAS_Options(m_pPnpQueue->m_pPlug_And_Play_Plugin->m_dwPK_Device,pPnpQueueEntry->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, 
+		DCE::SCREEN_NAS_Options SCREEN_NAS_Options(m_pPnpQueue->m_pPlug_And_Play_Plugin->m_dwPK_Device,pPnpQueueEntry->m_pOH_Orbiter_Active_get()->m_pDeviceData_Router->m_dwPK_Device, 
 			pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
 		m_pPnpQueue->m_pPlug_And_Play_Plugin->SendCommand(SCREEN_NAS_Options);
 	}
@@ -395,16 +395,16 @@ bool Pnp_PreCreateOptions::OkayToCreate_Cameras(PnpQueueEntry *pPnpQueueEntry,Ro
 	}
 
 	if( pPnpQueueEntry->m_EBlockedState==PnpQueueEntry::pnpqe_blocked_prompting_options )
-		pPnpQueueEntry->m_pOH_Orbiter=NULL;  // The user isn't responding.  Ask on all orbiters
+		pPnpQueueEntry->UseAllOrbitersForPrompt();  // The user isn't responding.  Ask on all orbiters
 
 	// Be sure the user specified the related cameras and lights
 	if( pPnpQueueEntry->m_mapPK_DeviceData.find(DEVICEDATA_sPK_Device_Relations_For_Creat_CONST)==pPnpQueueEntry->m_mapPK_DeviceData.end() )
 	{
 		pPnpQueueEntry->Block(PnpQueueEntry::pnpqe_blocked_prompting_options);
 		string sOptions = (bHasSensors && bHasLights ? "3" : (bHasLights ? "1" : "2"));
-		if( pPnpQueueEntry->m_pOH_Orbiter )
+		if( pPnpQueueEntry->m_pOH_Orbiter_Active_get() )
 		{
-			DCE::SCREEN_Sensors_Viewed_By_Camera SCREEN_Sensors_Viewed_By_Camera(m_pPnpQueue->m_pPlug_And_Play_Plugin->m_dwPK_Device, pPnpQueueEntry->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
+			DCE::SCREEN_Sensors_Viewed_By_Camera SCREEN_Sensors_Viewed_By_Camera(m_pPnpQueue->m_pPlug_And_Play_Plugin->m_dwPK_Device, pPnpQueueEntry->m_pOH_Orbiter_Active_get()->m_pDeviceData_Router->m_dwPK_Device,
 				sOptions,pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
 			m_pPnpQueue->m_pPlug_And_Play_Plugin->SendCommand(SCREEN_Sensors_Viewed_By_Camera);
 		}
@@ -416,6 +416,11 @@ bool Pnp_PreCreateOptions::OkayToCreate_Cameras(PnpQueueEntry *pPnpQueueEntry,Ro
 		}
 		return false;
 	}
+
+	DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL(
+		m_pPnpQueue->m_pPlug_And_Play_Plugin->m_dwPK_Device,  m_pPnpQueue->m_pPlug_And_Play_Plugin->m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters, StringUtils::itos(pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get()), SCREEN_Sensors_Viewed_By_Camera_CONST);
+	m_pPnpQueue->m_pPlug_And_Play_Plugin->SendCommand(CMD_Remove_Screen_From_History_DL);
+
 	return true;
 }
 
@@ -461,13 +466,13 @@ bool Pnp_PreCreateOptions::OkayToCreate_CaptureCard(PnpQueueEntry *pPnpQueueEntr
 	}
 
 	if( pPnpQueueEntry->m_EBlockedState==PnpQueueEntry::pnpqe_blocked_prompting_options )
-		pPnpQueueEntry->m_pOH_Orbiter=NULL;  // The user isn't responding.  Ask on all orbiters
+		pPnpQueueEntry->UseAllOrbitersForPrompt();  // The user isn't responding.  Ask on all orbiters
 	
 	pPnpQueueEntry->Block(PnpQueueEntry::pnpqe_blocked_prompting_options);
 
-	if( pPnpQueueEntry->m_pOH_Orbiter )
+	if( pPnpQueueEntry->m_pOH_Orbiter_Active_get() )
 	{
-		DCE::SCREEN_AutoConfigure_TV SCREEN_AutoConfigure_TV(m_pPnpQueue->m_pPlug_And_Play_Plugin->m_dwPK_Device,pPnpQueueEntry->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, 
+		DCE::SCREEN_AutoConfigure_TV SCREEN_AutoConfigure_TV(m_pPnpQueue->m_pPlug_And_Play_Plugin->m_dwPK_Device,pPnpQueueEntry->m_pOH_Orbiter_Active_get()->m_pDeviceData_Router->m_dwPK_Device, 
 			pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get());
 		m_pPnpQueue->m_pPlug_And_Play_Plugin->SendCommand(SCREEN_AutoConfigure_TV);
 	}

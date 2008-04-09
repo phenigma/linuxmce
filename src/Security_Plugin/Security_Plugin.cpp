@@ -644,10 +644,13 @@ bool Security_Plugin::SensorIsTripped(int PK_HouseMode,DeviceData_Router *pDevic
 
 bool Security_Plugin::SensorTrippedEvent(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo)
 {
-	if( !pDeviceFrom || 
-		(pDeviceFrom->m_dwPK_DeviceCategory!=DEVICECATEGORY_Security_Device_CONST && 
-		pDeviceFrom->m_dwPK_DeviceCategory!=DEVICECATEGORY_Generic_IO_CONST &&
-		pDeviceFrom->m_dwPK_DeviceCategory!=DEVICECATEGORY_Surveillance_Cameras_CONST
+	if( 
+		!pDeviceFrom || 
+		(
+			pDeviceFrom->m_dwPK_DeviceCategory != DEVICECATEGORY_Security_Device_CONST		&& 
+			pDeviceFrom->m_dwPK_DeviceCategory != DEVICECATEGORY_Generic_IO_CONST				&&
+			pDeviceFrom->m_dwPK_DeviceCategory != DEVICECATEGORY_Surveillance_Cameras_CONST	&&
+			pDeviceFrom->m_dwPK_DeviceCategory != DEVICECATEGORY_IP_Cameras_CONST
 		) 
 	)
 	{
@@ -1011,7 +1014,10 @@ void Security_Plugin::SnapPhoto(Row_Alert_Device *pRow_Alert_Device,DeviceData_R
 	{
 		DeviceRelation *pDeviceRelation = (*it).second;
 		DeviceData_Router *pDevice_Camera = pDeviceRelation->m_pDevice;
-		if( pDevice_Camera->WithinCategory(DEVICECATEGORY_Surveillance_Cameras_CONST)==false )
+		if( 
+			!pDevice_Camera->WithinCategory(DEVICECATEGORY_Surveillance_Cameras_CONST) &&
+			!pDevice_Camera->WithinCategory(DEVICECATEGORY_IP_Cameras_CONST) 
+		)
 			continue;
 
 		char *pData=NULL;

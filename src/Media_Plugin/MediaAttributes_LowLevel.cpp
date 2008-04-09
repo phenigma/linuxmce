@@ -523,12 +523,42 @@ Row_Attribute *MediaAttributes_LowLevel::GetAttributeFromDescription(int PK_Medi
 			"WHERE FK_AttributeType=" TOSTRING(ATTRIBUTETYPE_Album_CONST) " AND Name='" + StringUtils::SQLEscape(sName) + "' "
 			"AND (FA2.FK_Attribute IS NOT NULL OR DA2.FK_Attribute IS NOT NULL OR LA2.FK_Attribute IS NOT NULL)";
 		m_pDatabase_pluto_media->Attribute_get()->GetRows(sWhere,&vectRow_Attribute);
+
+string sSQL = "select * FROM Attribute " + sWhere;
+PlutoSqlResult result;
+DB_ROW row;
+    result.r=m_pDatabase_pluto_media->db_wrapper_query_result( sSQL );
+
+	LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"MediaAttributes_LowLevel::GetAttributeFromDescription album rows %d PK_MediaType %d PK_AttributeType %d string sName %s PK_Attribute_Related %d size %d",
+result.r ? (int) result.r->row_count : -1,
+PK_MediaType, PK_AttributeType, sName.c_str(), PK_Attribute_Related, (int) vectRow_Attribute.size());
+
+	if( result.r )
+{
+	while( ( row=db_wrapper_fetch_row( result.r ) ) )
+    {
+		string s;
+		for(int i=0;i<result.r->field_count;++i)
+		{
+			s += row[i] ? row[i] : "*NULL";
+			s+= "\t";
+		}
+	LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"%s", s.c_str());
+	}
+}
+
+
 	}
 	else if( !pMediaType_AttributeType || pMediaType_AttributeType->CombineAsOne_get()==1 )
 	{
 		string sWhere = "FK_AttributeType=" + StringUtils::itos(PK_AttributeType) + " AND Name='" + StringUtils::SQLEscape(sName) + "'";
 		m_pDatabase_pluto_media->Attribute_get()->GetRows(sWhere,&vectRow_Attribute);
 	}
+
+LoggerWrapper::GetInstance()->Write(LV_CRITICAL,
+"MediaAttributes_LowLevel::GetAttributeFromDescription PK_MediaType %d PK_AttributeType %d string sName %s PK_Attribute_Related %d size %d",
+PK_MediaType, PK_AttributeType, sName.c_str(), PK_Attribute_Related, (int) vectRow_Attribute.size());
+
 
 	if( vectRow_Attribute.size() )
 		return vectRow_Attribute[0];

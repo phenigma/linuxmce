@@ -336,6 +336,29 @@ FindInArray_Prefix()
 	return 1
 }
 
+# Verify that the given string is a valid IPv4
+ValidIP()
+{
+	local IP="$1"
+
+	local IPn="[0-9]{1,3}"
+	local IPpattern="^($IPn)\\.($IPn)\\.($IPn)\\.($IPn)$"
+	local i Number
+
+	if [[ ! "$IP" =~ "$IPpattern" ]]; then
+		return 1
+	fi
+
+	for ((i = 1; i <= 4; i++)); do
+		Number="${BASH_REMATCH[$i]}"
+		if ((Number < 0 || Number > 255)); then
+			return 1
+		fi
+	done
+
+	return 0
+}
+
 GetVideoDriver()
 {
 	if [[ -n "$ForceVESA" ]]; then
@@ -460,6 +483,7 @@ UI_SetOptions()
 }
 
 function GeneratePassword() {
+	#TODO: Replace with this --->  </dev/urandom tr -dc A-Za-z0-9_ | head -c8
         local -a alpha1=(Q W E R T Y U I O P A S D F G H J K L Z X C V B N M)
         local -a alpha2=(q w e r t y u i o p a s d f g h j k l z x c v b n m)
         local -a alpha3=(1 2 3 4 5 6 7 8 9 0)

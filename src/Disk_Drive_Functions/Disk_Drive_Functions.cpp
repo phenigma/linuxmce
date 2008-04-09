@@ -360,6 +360,15 @@ int Disk_Drive_Functions::cdrom_checkdrive(const char * filename, int * flag, bo
 	int status;
 	struct cdrom_tochdr th;
 
+	/*
+	 * Workaround for ide-scsi bug
+	 * ide-scsi reports the tray as being open when it has no disc in the drive, which messes up the eject toggle buttons
+	 * it works fine when you put a disc in the drive (reports disc ok when the tray is closed)
+	 */
+	bool isIdeScsi = false;
+	if (strstr(filename, "/dev/scd") == filename)
+		isIdeScsi = true;
+
 	// open the device
 	fd = open(filename, O_RDONLY | O_NONBLOCK);
 	if (fd < 0)
@@ -549,7 +558,8 @@ int Disk_Drive_Functions::cdrom_checkdrive(const char * filename, int * flag, bo
 		if( * flag != DISCTYPE_NONE )
 			UpdateDiscLocation('E',0); // Now the drive is empty
 		* flag = DISCTYPE_NONE;
-		m_bTrayOpen = true;
+		if (!isIdeScsi) // ide-scsi workaround
+			m_bTrayOpen = true;
 		break;
 
 	default:

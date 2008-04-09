@@ -16,8 +16,10 @@
  or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more details.
 
  */
+
 #include <algorithm> // for std::min()
 
+#include <GL/glu.h>
 #include "GraphicImage.h"
 #include "SDL_rotozoom.h"
 #include "SDL_image.h"
@@ -57,8 +59,10 @@ bool GraphicImage::Load(string FileName)
 			double ZoomX = 1;
 			double ZoomY = 1;
 
+			SDL_Surface *rotozoom_picture;
+
 			ZoomX = ZoomY = std::min(m_nMaxSize / double(pSDL_Surface->w),
-						 m_nMaxSize / double(pSDL_Surface->h));
+				m_nMaxSize / double(pSDL_Surface->h));
 
 			LocalSurface = zoomSurface(pSDL_Surface, ZoomX, ZoomY, SMOOTHING_ON);
 			SDL_FreeSurface(pSDL_Surface);
@@ -87,6 +91,7 @@ void GraphicImage::Prepare(int nScreenWidth, int nScreenHeight)
 	Convert();
 }
 
+static int textureCount = 0;
 void GraphicImage::Convert(void)
 {
 	if(LocalSurface == NULL)
@@ -97,36 +102,41 @@ void GraphicImage::Convert(void)
 	glGenTextures( 1, &Texture);
 	glBindTexture(GL_TEXTURE_2D, Texture);
 
-	SDL_Surface *Surface = LocalSurface;
-	if (Surface->format->BytesPerPixel == 4)
+	static const int MAPMAP_THRESHOLD = 2048;
+	bool bUseMipmap = ( ( LocalSurface->w > MAPMAP_THRESHOLD ) ||
+			    ( LocalSurface->h > MAPMAP_THRESHOLD ) );
+
+	if (bUseMipmap)
 	{
 		// Generate The Texture 
-		glTexImage2D( GL_TEXTURE_2D, 
-		0, 4, 
-		Surface->w, Surface->h, 
-		0, GL_RGBA,
-		GL_UNSIGNED_BYTE, 
-		Surface->pixels );
+		gluBuild2DMipmaps(
+			GL_TEXTURE_2D, 3, LocalSurface->w, LocalSurface->h,
+			(LocalSurface->format->BytesPerPixel == 4) ? GL_RGBA : GL_RGB,
+			GL_UNSIGNED_BYTE, LocalSurface->pixels );
+		// when minifying, bilinear filter the closest mipmap
+		glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST );
+		// when magnifiying, use linear filter
+		glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
 	}
-	else if (Surface->format->BytesPerPixel == 3)
+	else
 	{
 		// Generate The Texture 
 		glTexImage2D( GL_TEXTURE_2D, 
-		0, 3, 
-		Surface->w, Surface->h, 
-		0, GL_RGB,
-		GL_UNSIGNED_BYTE, 
-		Surface->pixels );
+			0, 4, 
+			LocalSurface->w, LocalSurface->h, 
+			0, (LocalSurface->format->BytesPerPixel == 4) ? GL_RGBA : GL_RGB,
+			GL_UNSIGNED_BYTE, 
+			LocalSurface->pixels );
+
+		// always use linear minification/magnification
+		glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+		glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR ); 
 	}
 
+	SDL_FreeSurface(LocalSurface);
 	LocalSurface = NULL;
-	SDL_FreeSurface(Surface);
 
-	/* Linear Filtering */
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR ); 
-
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Allocated texture size %d", Width * Height * 4);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Allocated texture size %d cnt:%d", Width * Height * 4, ++textureCount);
 }
 
 void GraphicImage::ReleaseTexture(void)
@@ -135,8 +145,21 @@ void GraphicImage::ReleaseTexture(void)
 	{
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Releasing texture size %d", Width * Height * 4);
 
+		glGetError(); //flush error queue
 		glDeleteTextures(1, &Texture);
-		Texture = 0;
+		int err = glGetError();
+		if(err)
+		{
+                    if(GL_INVALID_VALUE == err)
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Failed to release texture: Invalid Value");
+                    if(GL_INVALID_OPERATION == err)
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Failed to release texture: Invalid Operation");
+		}
+		else
+                {
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Released texture successfully cnt:%d", --textureCount);
+			Texture = 0;
+                }
 	}
 }
 

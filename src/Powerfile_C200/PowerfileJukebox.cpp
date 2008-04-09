@@ -23,9 +23,11 @@ extern DCEConfig g_DCEConfig;
 #include "../Disk_Drive_Functions/IdentifyJob.h"
 #include "../Disk_Drive_Functions/LoadUnloadJob.h"
 #include "../Gen_Devices/AllCommandsRequests.h"
+#include "../Gen_Devices/AllScreens.h"
 
 using namespace nsJobHandler;
 using namespace nsJukeBox;
+using namespace DCE;
 
 /*
 * PowerfileJukebox class implementation
@@ -175,6 +177,14 @@ bool PowerfileJukebox::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 		else
 		{
 			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Failed to get device status %s\n%s",sOutput.c_str(), sStdErr.c_str());
+			DCE::SCREEN_PopupMessage SCREEN_PopupMessage(m_pPowerfile->m_dwPK_Device, DEVICETEMPLATE_VirtDev_All_Orbiters_CONST,
+				"The Powerfile has locked up.  This is a hardware problem.  You should cycle power on the Powerfile unit.", // Main message
+				"", // Command Line
+				"generic message", // Description
+				"0", // sPromptToResetRouter
+				"300", // sTimeout
+				"1"); // sCannotGoBack
+			m_pPowerfile->SendCommand(SCREEN_PopupMessage);
 		}
 	}
 

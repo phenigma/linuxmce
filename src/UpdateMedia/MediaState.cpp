@@ -143,6 +143,10 @@ void MediaState::LoadDbInfo(Database_pluto_media *pDatabase_pluto_media, string 
 	if(NULL != (allresult.r = pDatabase_pluto_media->db_wrapper_query_result(sSql)))
 	{
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "MediaState::LoadDbInfo got %d rows", allresult.r->row_count);
+
+		//reset current state, load fresh info
+		m_mapMediaState.clear();
+
 		while((row = db_wrapper_fetch_row(allresult.r)))
 		{
 			if(NULL != row && NULL != row[sfFileID] && NULL != row[sfPath] && NULL != row[sfFilename])

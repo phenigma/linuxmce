@@ -67,6 +67,7 @@ using namespace DCE;
 #include "pluto_main/Table_DeviceTemplate.h"
 #include "pluto_main/Table_Device_Device_Pipe.h"
 #include "pluto_main/Table_MediaType.h"
+#include "pluto_main/Table_DeviceTemplate_DeviceData.h"
 #include "pluto_media/Database_pluto_media.h"
 #include "pluto_media/Define_AttributeType.h"
 #include "pluto_media/Table_Attribute.h"
@@ -99,7 +100,6 @@ using namespace DCE;
 #include "Media_Plugin/BoundRemote.h"
 
 #include "DCE/DCEConfig.h"
-DCEConfig g_DCEConfig;
 
 // Alarm Types
 #define MEDIA_PLAYBACK_TIMEOUT					1
@@ -425,7 +425,8 @@ continue;
 	m_pGeneric_NonPluto_Media = new Generic_NonPluto_Media(this);
     m_pGenericMediaHandlerInfo = new MediaHandlerInfo(m_pGeneric_NonPluto_Media,this,0,0,false,false);
 
-	string sMediaType = g_DCEConfig.m_mapParameters_Find("Bookmark_Media");
+	DCEConfig dceconfig; 
+	string sMediaType = dceconfig.m_mapParameters_Find("Bookmark_Media");
 	string::size_type pos=0;
 	while( pos<sMediaType.size() && pos!=string::npos )
 	{
@@ -448,7 +449,7 @@ continue;
 	if( pDevice )
 		m_dwPK_Device_MediaIdentification = pDevice->m_dwPK_Device;
 
-	string sLastSearchTokenUpdate = g_DCEConfig.m_mapParameters_Find("LastSearchTokenUpdate");
+	string sLastSearchTokenUpdate = dceconfig.m_mapParameters_Find("LastSearchTokenUpdate");
 	m_tLastSearchTokenUpdate = atoi(sLastSearchTokenUpdate.c_str());
 
 	m_pAlarmManager = new AlarmManager();
@@ -1043,6 +1044,8 @@ bool Media_Plugin::PlaybackStarted( class Socket *pSocket,class Message *pMessag
         return false;
     }
 
+	pMediaStream->m_bPlaybackStarted = true;
+
 	string::size_type pos=0;
 	while(pos<sSectionDescription.size())
 	{
@@ -1464,8 +1467,13 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream,map<int, pair<MediaDevic
 				pEntertainArea->m_vectMediaStream_Interrupted.push_back(pEntertainArea->m_pMediaStream);
 
 			pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia( pEntertainArea->m_pMediaStream );
-			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Media_Plugin::StartMedia(): Calling Stream ended after the Stop Media");
-			StreamEnded(pEntertainArea->m_pMediaStream,false,pMediaStream->m_bResume ? false : true,pMediaStream,NULL,false,true,false);  // Don't delete it if we're going to resume
+			if( pEntertainArea->m_pMediaStream->m_bPlaybackStarted==false )
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Media_Plugin::StartMedia(): Calling Stream ended for a stream %d that never started", pEntertainArea->m_pMediaStream->m_iStreamID_get());
+			else
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Media_Plugin::StartMedia(): Calling Stream ended after the Stop Media");
+
+			// If the new stream has m_bResume set we don't want to delete the prior stream.  Unless the prior stream never actually started yet
+			StreamEnded(pEntertainArea->m_pMediaStream,false,pMediaStream->m_bResume && pEntertainArea->m_pMediaStream->m_bPlaybackStarted ? false : true,pMediaStream,NULL,false,true,false);  // Don't delete it if we're going to resume
 			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Media_Plugin::StartMedia(): Call completed.");
 
 		}
@@ -1646,7 +1654,8 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 				{
 					DCE::CMD_Set_Entertainment_Area CMD_Set_Entertainment_Area(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
 						StringUtils::itos(pEntertainArea_OSD->m_iPK_EntertainArea));
-	                SetNowPlaying( pOH_Orbiter, pMediaStream, false, false, CMD_Set_Entertainment_Area.m_pMessage );
+					pMediaStream->SetNowPlaying( pOH_Orbiter, false, false, CMD_Set_Entertainment_Area.m_pMessage );
+
 					string sResponse;
 					SendCommand(CMD_Set_Entertainment_Area,&sResponse);  // Get a confirmation so we're sure it goes through before the goto screen
 				}
@@ -2301,7 +2310,9 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS, "Ready to update bound remotes wi
             OH_Orbiter *pOH_Orbiter = (*it).second;
             if( pOH_Orbiter->m_pEntertainArea==pEntertainArea && // UpdateOrbiter will have already set the now playing
 					pEntertainArea->m_mapBoundRemote.find(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device)==pEntertainArea->m_mapBoundRemote.end() )
-                SetNowPlaying( pOH_Orbiter, pMediaStream, bRefreshScreen );
+			{
+				pMediaStream->SetNowPlaying( pOH_Orbiter, bRefreshScreen );
+			}
         }
 		for(ListMediaDevice::iterator itVFD=pEntertainArea->m_listVFD_LCD_Displays.begin();itVFD!=pEntertainArea->m_listVFD_LCD_Displays.end();++itVFD)
 		{
@@ -2367,6 +2378,10 @@ void Media_Plugin::CMD_MH_Stop_Media(int iPK_Device,int iPK_MediaType,int iPK_De
 
 void Media_Plugin::StreamEnded(MediaStream *pMediaStream,bool bSendOff,bool bDeleteStream,MediaStream *pMediaStream_Replacement,vector<EntertainArea *> *p_vectEntertainArea,bool bNoAutoResume,bool bTurnOnOSD,bool bFireEvent)
 {
+LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"debug_stream_end Media_Plugin::StreamEnded ID %d/%p delete %d auto resume %d resume: %c",
+pMediaStream->m_iStreamID_get(),pMediaStream, (int) bDeleteStream, (int) bNoAutoResume,m_mapPromptResume[make_pair<int,int> (pMediaStream->m_iPK_Users,pMediaStream->m_iPK_MediaType)]);
+
+
 	if ( pMediaStream == NULL )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Media_Plugin::StreamEnded() called with NULL MediaStream in it! Ignoring");
@@ -2379,7 +2394,7 @@ void Media_Plugin::StreamEnded(MediaStream *pMediaStream,bool bSendOff,bool bDel
 	PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
 
 #ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::StreamEnded ID %d auto resume %d resume: %c",pMediaStream->m_iStreamID_get(),(int) bNoAutoResume,m_mapPromptResume[make_pair<int,int> (pMediaStream->m_iPK_Users,pMediaStream->m_iPK_MediaType)]);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::StreamEnded ID %d delete %d auto resume %d resume: %c",pMediaStream->m_iStreamID_get(),(int) bDeleteStream, (int) bNoAutoResume,m_mapPromptResume[make_pair<int,int> (pMediaStream->m_iPK_Users,pMediaStream->m_iPK_MediaType)]);
 #endif
 
 	if( bNoAutoResume )
@@ -2524,7 +2539,7 @@ LoggerWrapper::GetInstance()->Write( LV_STATUS, "Stream in ea %s ended %d remote
         if( pOH_Orbiter->m_pEntertainArea==pEntertainArea )
 		{
 LoggerWrapper::GetInstance()->Write( LV_STATUS, "Orbiter %d %s in this ea to stop", pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, pOH_Orbiter->m_pDeviceData_Router->m_sDescription.c_str());
-            SetNowPlaying( pOH_Orbiter, NULL, false );
+			SetNothingNowPlaying( pOH_Orbiter, false );
 		}
     }
 
@@ -2609,7 +2624,7 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS, "Media_Plugin::CMD_Bind_to_Media_
 			sCMD_Result="No media stream";
 			if( sOptions.find("X")==string::npos )  // Means don't send me to the main menu if there's no media playing
 			{
-				SetNowPlaying(pOH_Orbiter,NULL,true);
+				SetNothingNowPlaying(pOH_Orbiter,true);
 				LoggerWrapper::GetInstance()->Write(LV_WARNING,"Attempt to bind to a remote in an entertainment area with no media stream");
 			}
 			return; // Don't know what area it should be played in, or there's no media playing there
@@ -4889,6 +4904,23 @@ void Media_Plugin::RegisterMediaPlugin(class Command_Impl *pCommand_Impl,class M
 		int iPKDeviceTemplate = pRow_DeviceTemplate->PK_DeviceTemplate_get();
 		string strDescription = pRow_DeviceTemplate->Description_get();
 
+		Row_DeviceTemplate_DeviceData *pRow_DeviceTemplate_DeviceData = m_pDatabase_pluto_main->DeviceTemplate_DeviceData_get()->GetRow(iPKDeviceTemplate,DEVICEDATA_Media_Catalog_CONST);
+		if( pRow_DeviceTemplate_DeviceData )
+		{
+			string sData = pRow_DeviceTemplate_DeviceData->IK_DeviceData_get();
+			string::size_type pos=0;
+			while(true)
+			{
+				string sLine = StringUtils::Tokenize(sData,"\r\n",pos);
+				if(sLine.empty())
+					break;
+				string::size_type pos2 = 0;
+				int PK_MediaType = atoi( StringUtils::Tokenize(sLine,",",pos2).c_str() );
+				string sToken = StringUtils::Tokenize(sLine,",",pos2);
+				m_mapMediaCatalog[sToken]=pMediaHandlerBase;
+			}
+		}
+
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Registered media plug in #%d (Template %d) %s (adress %p, plugin base address %p)",iPKDevice,iPKDeviceTemplate,strDescription.c_str(), pCommand_Impl, pMediaHandlerBase);
 		vector<Row_DeviceTemplate_MediaType *> vectRow_DeviceTemplate_MediaType;
 		pRow_DeviceTemplate->DeviceTemplate_MediaType_FK_DeviceTemplate_getrows(&vectRow_DeviceTemplate_MediaType);
@@ -5139,16 +5171,15 @@ void Media_Plugin::CMD_Save_Bookmark(int iPK_Users,char *pData,int iData_Size,in
 	}
 
 	Row_Bookmark *pRow_Bookmark;
-	bool bIsStart=false;
 	if( bAlways )
 	{
 		vector<Row_Bookmark *> vectRow_Bookmark;
 		if( pMediaStream && pMediaStream->m_dwPK_Disc )
 			m_pDatabase_pluto_media->Bookmark_get()->GetRows(
-				"Description='NAME' AND FK_Disc=" + StringUtils::itos(pMediaStream->m_dwPK_Disc),&vectRow_Bookmark);
+				"Description='START' AND FK_Disc=" + StringUtils::itos(pMediaStream->m_dwPK_Disc),&vectRow_Bookmark);
 		else if( pMediaFile )
 			m_pDatabase_pluto_media->Bookmark_get()->GetRows(
-				"Description='NAME' AND FK_File=" + StringUtils::itos(pMediaFile->m_dwPK_File),&vectRow_Bookmark);
+				"Description='START' AND FK_File=" + StringUtils::itos(pMediaFile->m_dwPK_File),&vectRow_Bookmark);
 
 		if( vectRow_Bookmark.size() )
 			pRow_Bookmark = vectRow_Bookmark[0];
@@ -5157,7 +5188,6 @@ void Media_Plugin::CMD_Save_Bookmark(int iPK_Users,char *pData,int iData_Size,in
 
 		pRow_Bookmark->IsAutoResume_set(1);
 		sDescription = "START";
-		bIsStart=true;
 	}
 	else
 	{
@@ -5205,13 +5235,13 @@ void Media_Plugin::CMD_Save_Bookmark(int iPK_Users,char *pData,int iData_Size,in
 
 #ifdef DEBUG
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::CMD_Save_Bookmark stream %p description %s start %d",
-		pMediaStream,sDescription.c_str(),(int) bIsStart);
+		pMediaStream,sDescription.c_str(),(int) bAlways);
 #endif
 
 	if( pMediaStream )
 	{
 		int PK_Screen = pMediaStream->GetRemoteControlScreen(pMessage->m_dwPK_Device_From);
-		if( bDescriptionWasEmpty && !bIsStart )
+		if( bDescriptionWasEmpty && !bAlways )
 		{
 			string sCmdToRenameBookmark= "<%=!%> -300 1 741 159 " + StringUtils::itos(PK_Screen) + 
 				"\n<%=!%> <%=V-106%> 1 411 5 \"<%=17%>\" 129 " + StringUtils::itos(pRow_Bookmark->PK_Bookmark_get());
@@ -5440,7 +5470,8 @@ void Media_Plugin::SaveLastFilePosition(MediaStream *pMediaStream)
 
 void Media_Plugin::RestoreMediaResumePreferences()
 {
-	for(map<string,string>::const_iterator it=g_DCEConfig.Parameters().begin();it!=g_DCEConfig.Parameters().end();++it)
+	DCEConfig dceconfig;
+	for(map<string,string>::const_iterator it=dceconfig.Parameters().begin();it!=dceconfig.Parameters().end();++it)
 	{
 		if( StringUtils::StartsWith(it->first,"auto_resume_user_") )
 		{
@@ -5464,11 +5495,22 @@ void Media_Plugin::SaveMediaResumePreferences()
 {
 	map<int,string> mapSettings;
 	for( map< pair<int,int>,char >::iterator it=m_mapPromptResume.begin();it!=m_mapPromptResume.end();++it )
+	{
 		mapSettings[ it->first.first ] = mapSettings[ it->first.first ] + StringUtils::itos(it->first.second) + "-" + it->second + ",";
+        LoggerWrapper::GetInstance()->Write( LV_STATUS, "Media_Plugin::SaveMediaResumePreferences m_mapPromptResume it->first.first %d %d-%c",
+			it->first.first,it->first.second,it->second);
+	}
+
+	DCEConfig dceconfig;
 
 	for(map<int,string>::iterator it=mapSettings.begin();it!=mapSettings.end();++it)
-		g_DCEConfig.AddString("auto_resume_user_" + StringUtils::itos(it->first),it->second);
-	g_DCEConfig.WriteSettings();
+	{
+		string s = "auto_resume_user_" + StringUtils::itos(it->first);
+		dceconfig.AddString(s,it->second);
+        LoggerWrapper::GetInstance()->Write( LV_STATUS, "Media_Plugin::SaveMediaResumePreferences add string %s=%s",
+			s.c_str(),it->second.c_str());
+	}
+	dceconfig.WriteSettings();
 }
 
 int Media_Plugin::CheckForAutoResume(MediaStream *pMediaStream)
@@ -5729,7 +5771,9 @@ void Media_Plugin::CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,s
 		// If the disk matches, and the drive is either the source, or a sibbling of the source, this is the stream
 		if( pMS->m_discid==atoi(sID.c_str()) &&
 			(pMS->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device==iPK_Device ||
-			pMS->m_pMediaDevice_Source->m_pDeviceData_Router->m_pDevice_ControlledVia==pDevice_Disk_Drive->m_pDevice_ControlledVia ) )
+			pMS->m_pMediaDevice_Source->m_pDeviceData_Router->m_pDevice_ControlledVia==pDevice_Disk_Drive->m_pDevice_ControlledVia ||
+			pMS->m_pMediaDevice_Source->m_pDeviceData_Router->GetTopMostDevice() == pDevice_Disk_Drive->GetTopMostDevice() // The disc drive is no longer a sibbling of the media player under Orbiter, it may be 1 level higher
+			) )
 		{
 			pMediaStream=pMS;
 			break;
@@ -5952,6 +5996,19 @@ void Media_Plugin::CMD_Get_Attributes_For_Media(string sFilename,string sPK_Ente
 		else
 			*sValue_To_Assign = "FILE\t" + sFilename + "\tTITLE\t" + sFilename + "\t";	
 		return;
+	}
+	else if( StringUtils::StartsWith(sFilename,"!E") || StringUtils::StartsWith(sFilename,"!o") )  // external media
+	{
+		string::size_type pos=0;
+		string sType = StringUtils::Tokenize(sFilename,",",pos);
+		string sPK_MediaSource = StringUtils::Tokenize(sFilename,",",pos);
+		MediaHandlerBase *pMediaHandlerBase = m_mapMediaCatalog_Find(sPK_MediaSource);
+		if( pMediaHandlerBase )
+			pMediaHandlerBase->GetExtendedAttributes(sType, sPK_MediaSource, sFilename.substr(pos), sValue_To_Assign);
+		else
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Media_Plugin::CMD_Get_Attributes_For_Media Bad media source %s", sPK_MediaSource.c_str());
+		return;
+
 	}
     deque<MediaFile *> dequeMediaFile;
 	TransformFilenameToDeque(sFilename, dequeMediaFile);  // This will convert any !A, !F, !B etc.
@@ -6486,7 +6543,7 @@ void Media_Plugin::CMD_Live_AV_Path(string sPK_EntertainArea,bool bTurn_On,strin
 
 		// We don't want to be setting the inputs to the 'live' a/v path because we're using the capture card
 		for(map<int,Pipe *>::iterator it=pMediaDevice->m_pDeviceData_Router->m_mapPipe_Available.begin();it!=pMediaDevice->m_pDeviceData_Router->m_mapPipe_Available.end();++it)
-			it->second->m_bDontSendInputs=bTurn_On==false;  // If Turn on is true, then we want to send the inputs
+			it->second->m_bDontSendInputs=(bTurn_On==false);  // If Turn on is true, then we want to send the inputs
 
 		pEntertainArea->m_bViewingLiveAVPath = bTurn_On;
 
@@ -6508,7 +6565,7 @@ void Media_Plugin::CMD_Live_AV_Path(string sPK_EntertainArea,bool bTurn_On,strin
 		SendCommand(CMD_On);
 
 		if( pEntertainArea->m_pOH_Orbiter_OSD )
-			SetNowPlaying(pEntertainArea->m_pOH_Orbiter_OSD,pMediaStream,false);
+			pMediaStream->SetNowPlaying( pEntertainArea->m_pOH_Orbiter_OSD,false );
 	}
 }
 
@@ -7038,8 +7095,9 @@ void Media_Plugin::UpdateSearchTokens()
 	}
 	
 	m_tLastSearchTokenUpdate = tLastAttribute;
-	g_DCEConfig.AddString("LastSearchTokenUpdate",StringUtils::itos(m_tLastSearchTokenUpdate));
-	g_DCEConfig.WriteSettings();
+	DCEConfig dceconfig;
+	dceconfig.AddString("LastSearchTokenUpdate",StringUtils::itos(m_tLastSearchTokenUpdate));
+	dceconfig.WriteSettings();
 	m_pAlarmManager->AddRelativeAlarm(600,this,UPDATE_SEARCH_TOKENS,NULL);  // Do this every 10 minutes
 }
 //<-dceag-c942-b->

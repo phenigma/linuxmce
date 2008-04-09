@@ -62,12 +62,22 @@ function viewCameras($output,$dbADO) {
 	<input type="hidden" name="section" value="viewCameras">
 	<input type="hidden" name="action" value="update">';
 	if($resDevice->RecordCount()>0){
+
+		$interval=(int)$_REQUEST['interval'];
+		$interval=($interval<=0)?5:$interval;
 		
 	$out.='		
 <table align="center" cellpading="3" cellspacing="3" border="0" width="100%">
 <tr>
 	<td width="200">
-	<table align="center" cellpading="3" cellspacing="3" border="0">';
+	<table align="center" cellpading="3" cellspacing="3" border="0">
+		<tr>
+			<td align="center" bgcolor="#D1D9EA"><B>'.$TEXT_REFRESH_INTERVAL_CONST.'</B></td>
+		</tr>
+		<tr>
+			<td align="center"><input type="text" name="interval" value="'.$interval.'" style="width:30px;"> s</td>
+		</tr>		
+	';
 	foreach ($camerasByRoom AS $roomID=>$data){
 		$out.='
 			<tr>
@@ -104,7 +114,7 @@ function viewCameras($output,$dbADO) {
 			if(isset($_POST['camera_'.$cameraid])){
 				$out.='
 				<tr>
-					<td><fieldset><legend><B># '.$cameraid.'</B></legend>'.get_video_frame($cameraid,$installationID,$dbADO).'</fieldset></td>
+					<td><fieldset><legend><B># '.$cameraid.'</B></legend><IFRAME src="viewCamera.php?cameraID='.$cameraid.'" style="width:660px; height:500px;"></IFRAME></td>
 				</tr>
 				<tr>
 					<td>&nbsp;</td>
@@ -139,26 +149,5 @@ function viewCameras($output,$dbADO) {
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_VIEW_CAMERAS_CONST);
 	$output->output();
-}
-
-function get_video_frame($cameraid,$installationID,$dbADO){
-	// include language files
-	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
-	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/viewCameras.lang.php');
-
-	$securityDevicePlugin=getFieldsAsArray('Device','PK_Device',$dbADO,'WHERE FK_DeviceTemplate='.$GLOBALS['SecurityPlugin'].' AND FK_Installation='.$installationID);
-	$securityPluginDD=getFieldsAsArray('Device_DeviceData','IK_DeviceData',$dbADO,'WHERE FK_Device='.(int)@$securityDevicePlugin['PK_Device'][0].' AND FK_DeviceData='.$GLOBALS['Path']);
-
-	$cmd='/usr/pluto/bin/MessageSend localhost -targetType device -o -p "/var/www/pluto-admin/security_images" 0 '.$cameraid.' 1 84 19 0 20 "jpg" 23 0 31 0 60 100 61 100';
-	exec($cmd,$retArray);
-	$msg=$TEXT_ERROR_CAMERA_SCREENSHOT_NOT_AVAILABLE_CONST;
-	foreach ($retArray as $line) {
-		if(ereg(':OK',$line)){
-			exec('mv /var/www/pluto-admin/security_images/19.out /var/www/pluto-admin/security_images/'.$cameraid.'.jpg',$retArray,$retCode);
-			$msg='<img src="security_images/'.$cameraid.'.jpg" alt="'.$TEXT_LOADING_CONST.'"/>';
-		}
-	}
-
-	return $msg;
 }
 ?>

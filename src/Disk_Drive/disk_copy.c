@@ -125,6 +125,7 @@ int main(int argc, const char * argv[])
 				if (reported_errors == 0)
 				{
 					printf("Error: I/O error while reading\n");
+					fflush(stdout);
 					reported_errors = 1;
 				}
 				lseek64(f, pos_before_read, SEEK_SET);

@@ -178,11 +178,11 @@ db_backup: sudo
 db_restore: sudo
 	@${RUN} ${SVNROOT} SUDO_Restore_Database_SUDO
 
-build/state_db_setup_20294:
+build/state_db_setup_20501:
 	@${RUN} ${SVNROOT} SUDO_Setup_Build_Database_SUDO ${DB_USER} ${DB_PASSWORD} ${DB_PORT}
-	@touch build/state_db_setup_20294
+	@touch build/state_db_setup_20501
 
-setup_build_db: build/state_db_setup_20294
+setup_build_db: build/state_db_setup_20501
 
 start_build_db: setup_build_db
 	@${RUN} ${SVNROOT} SUDO_Start_Build_Database_SUDO

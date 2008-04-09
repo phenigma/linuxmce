@@ -61,7 +61,7 @@ SerialIOConnection::Close() {
 int 
 SerialIOConnection::Send(const char* buff, unsigned int size) {
 	if(psp_ != NULL) {
-		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Sending buffer to %s with size %d: <%s>.", 
+		LoggerWrapper::GetInstance()->Write(LV_SEND_DATA, "Sending buffer to %s with size %d: <%s>.", 
 									serport_.c_str(), size, IOUtils::FormatHexAsciiBuffer(buff, size, "31").c_str());
 		psp_->Write((char*)buff, size);
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Buffer sent.");
@@ -82,7 +82,7 @@ SerialIOConnection::Recv(char* buff, unsigned int size, int timeout) {
 			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Received nothing.");
 		}
 		else {
-			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Received buffer from %s: <%s>", 
+			LoggerWrapper::GetInstance()->Write(LV_RECEIVE_DATA, "Received buffer from %s: <%s>", 
 									serport_.c_str(), IOUtils::FormatHexAsciiBuffer(buff, retsize, "33").c_str());
 		}
 		

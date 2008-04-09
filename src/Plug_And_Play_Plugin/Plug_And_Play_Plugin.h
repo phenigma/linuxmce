@@ -76,6 +76,7 @@ public:
 		class DataGridTable *PNPDevices( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
 
 		bool m_bSuspendProcessing_get() { return m_bSuspendProcessing; }
+		class Orbiter_Plugin *m_pOrbiter_Plugin_get() { return m_pOrbiter_Plugin; }
 
 //<-dceag-h-b->
 	/*

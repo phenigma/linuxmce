@@ -65,7 +65,8 @@ void BoundRemote::UpdateOrbiter( MediaStream *pMediaStream, bool bRefreshScreen,
 			pMessage_Out = CMD_Set_Text.m_pMessage;
     }
 
-	m_pMedia_Plugin->SetNowPlaying(m_pOH_Orbiter, pMediaStream, bRefreshScreen, false, pMessage_Out );
+	pMediaStream->SetNowPlaying( m_pOH_Orbiter, bRefreshScreen, false, pMessage_Out );
+
 	if( p_pMessage )
 		*p_pMessage = pMessage_Out;
 	else if( pMessage_Out )

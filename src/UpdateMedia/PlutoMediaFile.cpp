@@ -131,7 +131,7 @@ PlutoMediaFile::~PlutoMediaFile()
 	AssignPlutoDevice(NULL);
 	AssignPlutoUser(NULL);
 
-	if(FileUtils::FindExtension(m_sFile) == "dvd")
+	if(StringUtils::ToLower(FileUtils::FindExtension(m_sFile)) == "dvd")
 		CacheDVDKeys();
 
 	if(NULL != m_pPlutoMediaAttributes)

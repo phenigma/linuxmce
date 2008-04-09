@@ -476,7 +476,7 @@ bool WizardLogic::SetLocation(string sLocation)
 
 	if( !PK_City || City.size()==0 || Latitude.size()==0 || Longitude.size()==0 || TimeZone.size()==0 )
 	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"WizardLogic::SetLocation City %d %s lat %s long %s",PK_City,City.c_str(),Latitude.c_str(),Longitude.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"WizardLogic::SetLocation City %d %s lat %s long %s timezone %s",PK_City,City.c_str(),Latitude.c_str(),Longitude.c_str(), TimeZone.c_str());
 		return false;
 	}
 

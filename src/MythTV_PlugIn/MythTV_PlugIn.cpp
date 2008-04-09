@@ -51,20 +51,19 @@ using namespace DCE;
 
 #include "../Orbiter_Plugin/OH_Orbiter.h"
 
+static const string SCRIPT_DIR =             "/usr/pluto/bin";
+static const string SCRIPT_SYNC_TO_DB =      SCRIPT_DIR + "/MythTvSyncDB.sh";
+static const string SCRIPT_TUNE =            SCRIPT_DIR + "/TuneToChannel.sh";
+static const string SCRIPT_RESTART_BACKEND = SCRIPT_DIR + "/Restart_MythBackend.sh";
+static const string SCRIPT_RESTART_ALL_BACKENDS = SCRIPT_DIR + "/Restart_Backend_With_SchemaLock.sh";
+static const string SCRIPT_INITIAL_FILLDB =  SCRIPT_DIR + "/MythTvInitialFillDB.sh";
+static const string SCRIPT_FORCE_KILL =      SCRIPT_DIR + "/ForciblyKillProcess.sh";
+
 // For sorting channels
 static bool ChannelComparer(MythChannel *x, MythChannel *y)
 {
 	return x->m_dwChanNum<y->m_dwChanNum;
 }
-
-
-//<-mkr_b_aj_b->
-	// Temporary for the aJ demo project where we turn a channel number into a filename
-	string ajTranslateMRL(int Channel)
-	{
-		return "/home/ch" + StringUtils::itos(Channel) + ".mpg";
-	}
-//<-mkr_b_aj_e->
 
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
@@ -150,11 +149,6 @@ bool MythTV_PlugIn::Register()
 		return false;
 	}
 
-//<-mkr_b_aj_b->
-	DeviceData_Base *pDevice_Xine = m_pData->FindFirstRelatedDeviceOfTemplate(DEVICETEMPLATE_Xine_Player_CONST);
-	m_pMediaDevice_Xine = m_pMedia_Plugin->m_mapMediaDevice_Find(pDevice_Xine->m_dwPK_Device);
-//<-mkr_b_aj_e->
-
 	m_pMedia_Plugin->RegisterMediaPlugin(this, this, DEVICETEMPLATE_MythTV_Player_CONST, true);
 
 	// Use the player, not the plugin, as the template for datagrids so that <%=NPDT%> in orbiter works
@@ -182,6 +176,7 @@ bool MythTV_PlugIn::Register()
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &MythTV_PlugIn::NewRecording), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_MythTV_Show_Recorded_CONST );
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &MythTV_PlugIn::ScanningProgress ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Channel_Scan_Progress_CONST );
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &MythTV_PlugIn::NewBookmarks ), 0, 0, 0, 0, MESSAGETYPE_COMMAND, COMMAND_Save_Bookmark_CONST );
+	RegisterMsgInterceptor( ( MessageInterceptorFn )( &MythTV_PlugIn::TuneToChannel ), 0, 0, 0, 0, MESSAGETYPE_COMMAND, COMMAND_Tune_to_channel_CONST );
 
 	ListDeviceData_Router *pListDeviceData_Router = m_pRouter->m_mapDeviceByTemplate_Find(DEVICETEMPLATE_MythTV_Player_CONST);
 	if( pListDeviceData_Router )
@@ -190,11 +185,20 @@ bool MythTV_PlugIn::Register()
 		{
 			DeviceData_Router *pDevice_MythPlayer = *it;
 			RegisterMsgInterceptor( ( MessageInterceptorFn )( &MythTV_PlugIn::PlaybackStarted ), pDevice_MythPlayer->m_dwPK_Device, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Playback_Started_CONST );
-			RegisterMsgInterceptor( ( MessageInterceptorFn )( &MythTV_PlugIn::TuneToChannel ), 0, pDevice_MythPlayer->m_dwPK_Device, 0, 0, MESSAGETYPE_COMMAND, COMMAND_Tune_to_channel_CONST );
 		}
 	}
 
-	SetPaths();
+	bool bPathsChanged = SetPaths();
+	if( bPathsChanged )
+        { // Paths were changed so we need to restart the backend[s].
+		DeviceData_Base *pDevice_App_Server = (DeviceData_Router *)
+			m_pData->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_App_Server_CONST);
+		DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice_App_Server->m_dwPK_Device,
+			SCRIPT_RESTART_ALL_BACKENDS, "restart_all_backends_in_register", "",
+			"", "", false, false, false, false);
+		SendCommand(CMD_Spawn_Application);
+        }
+
 
 	// Don't actually build the bookmark/channel list because Sync_Cards_Providers will fill in m_mapDevicesToSources,
 	// but it's not run until about 20 seconds after everything starts so if it needs to send a message to the orbiters
@@ -309,19 +313,7 @@ bool MythTV_PlugIn::StartMedia(class MediaStream *pMediaStream,string &sError)
 		}
 	}
 
-	string sMRL;
-//<-mkr_b_aj_b->
-	pMythTvMediaStream->m_pMediaDevice_Source = m_pMediaDevice_Xine;
-	pMythTvMediaStream->m_sAppName = "pluto-xine-playback-window.pluto-xine-playback-window";
-	MediaFile *pMediaFile = pMythTvMediaStream->GetCurrentMediaFile();
-	if( pMediaFile && atoi(pMediaFile->m_sFilename.c_str())>0 )
-		m_iChannel=atoi(pMediaFile->m_sFilename.c_str());
-	else
-		m_iChannel=1;
-	sMRL = ajTranslateMRL(m_iChannel);
-//<-mkr_b_aj_e->
-
-	DCE::CMD_Play_Media cmd(m_dwPK_Device, pMythTvMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,pMythTvMediaStream->m_iPK_MediaType,pMythTvMediaStream->m_iStreamID_get( ),pMediaStream->m_sStartPosition,sMRL);
+	DCE::CMD_Play_Media cmd(m_dwPK_Device, pMythTvMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,pMythTvMediaStream->m_iPK_MediaType,pMythTvMediaStream->m_iStreamID_get( ),pMediaStream->m_sStartPosition,"");
 	SendCommand(cmd);
 
 	m_pAlarmManager->CancelAlarmByType(CONFIRM_MASTER_BACKEND_OK);  // Do this immediately 
@@ -475,7 +467,6 @@ class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *
 			bool bOk=false;
 			for(list_int::iterator it=p_list_int->begin();it!=p_list_int->end();++it)
 			{
-int i=*it;
 				if( *it==pMythChannel->m_pMythSource->m_dwID )
 				{
 					bOk=true;
@@ -612,7 +603,7 @@ class DataGridTable *MythTV_PlugIn::CurrentShows(string GridID,string Parms,void
     LoggerWrapper::GetInstance()->Write(LV_STATUS, "MythTV_PlugIn::CurrentShows A datagrid for all the shows was requested %s params %s", GridID.c_str(), Parms.c_str());
 
 	MythRecording mythRecording;
-	mythRecording.data.time.channel_id = atoi(sChanId.c_str());
+	mythRecording.channel_id = atoi(sChanId.c_str());
 
 	string sProvider;
 	// When tune to channel gets an 'i' in front, it's assumed that it's a channel id
@@ -646,8 +637,9 @@ class DataGridTable *MythTV_PlugIn::CurrentShows(string GridID,string Parms,void
 			time_t tStop = row[5] ? StringUtils::SQLDateTime( row[5] ) : 0;
 			pCell->m_mapAttributes["starttime"]=StringUtils::itos(tStart);
 			pCell->m_mapAttributes["endtime"]=StringUtils::itos(tStop);
-			mythRecording.data.time.StartTime = tStart;
-			if( (it_mapScheduledRecordings=m_mapScheduledRecordings.find(mythRecording.data.int64))!=m_mapScheduledRecordings.end() )
+			mythRecording.scheduled_start_time = tStart;
+			it_mapScheduledRecordings = m_mapScheduledRecordings.find(mythRecording.key());
+			if (it_mapScheduledRecordings != m_mapScheduledRecordings.end())
 			{
 				szRecording[0] = it_mapScheduledRecordings->second.first;
 				pCell->m_mapAttributes["recording"] = szRecording;
@@ -776,14 +768,6 @@ void MythTV_PlugIn::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string
 	 if( !pMediaStream )
          return;  
 
-	 //<-mkr_b_aj_b->
-	m_iChannel += sValue_To_Assign=="-1" ? -1 : 1;
-	string sMRL = ajTranslateMRL(m_iChannel);
-	DCE::CMD_Play_Media cmd(m_dwPK_Device, pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,pMediaStream->m_iPK_MediaType,pMediaStream->m_iStreamID_get( ),pMediaStream->m_sStartPosition,sMRL);
-	SendCommand(cmd);
-	return;
-	//<-mkr_b_aj_e->
-
 	int m_dwTargetDevice = pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device;
 
 	DCE::CMD_Jump_Position_In_Playlist tuneCommand(m_dwPK_Device, m_dwTargetDevice, sValue_To_Assign,pMediaStream->m_iStreamID_get());
@@ -838,12 +822,18 @@ void MythTV_PlugIn::CMD_Schedule_Recording(string sType,string sOptions,string s
 
 	// Add it to our local cache so the user sees the change instantly
 	MythRecording mythRecording;
-	mythRecording.data.time.channel_id = atoi(sChanId.c_str());
-	mythRecording.data.time.StartTime = tStart;
+	mythRecording.channel_id = atoi(sChanId.c_str());
+	mythRecording.scheduled_start_time = tStart;
 	if( sType=="1" )
-		m_mapScheduledRecordings[mythRecording.data.int64] = make_pair<char,int> ('O',iID);
+	{
+		m_mapScheduledRecordings[mythRecording.key()] =
+			make_pair<char,int> ('O',iID);
+	}
 	else if( sType=="3")
-		m_mapScheduledRecordings[mythRecording.data.int64] = make_pair<char,int> ('C',iID);;
+	{
+		m_mapScheduledRecordings[mythRecording.key()] =
+			make_pair<char,int> ('C',iID);
+	}
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MythTV_PlugIn::CMD_Schedule_Recording %d=%s", iID, sSQL.c_str());
 	if( m_pMythBackEnd_Socket )
@@ -960,8 +950,7 @@ void MythTV_PlugIn::CMD_Set_Active_Menu(string sText,string &sCMD_Result,Message
 					pRemoteControlSet->m_iPK_Screen_OSD = PK_Screen_OSD;
 
 					LoggerWrapper::GetInstance()->Write(LV_STATUS, "Processing bound remote: for orbiter: %d", pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
-					m_pMedia_Plugin->SetNowPlaying(pBoundRemote->m_pOH_Orbiter,
-						pMythTvMediaStream,false,true);
+					pMythTvMediaStream->SetNowPlaying( pBoundRemote->m_pOH_Orbiter,false,true );
 				}
 			}
 		}
@@ -991,32 +980,19 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Device,int iPK_Orbiter,
 		return;
 	}
 
-	UpdateMythSetting("JobAllowUserJob1","1","*");
-	UpdateMythSetting("AutoRunUserJob1","1","");
-	UpdateMythSetting("UserJob1","/usr/pluto/bin/SaveMythRecording.sh %CHANID% %STARTTIME% %DIR% %FILE%","");
-	UpdateMythSetting("UserJobDesc1","Save the recorded show into Pluto's database","");
-	UpdateMythSetting("Language","EN","*",true);
+	string cmd = SCRIPT_SYNC_TO_DB;
+	string args = "master " + ((pDevice_Core && !pDevice_Core->m_sIPAddress.empty()) ?
+				   pDevice_Core->m_sIPAddress : m_pRouter->sDBHost_get());
 
-	UpdateMythSetting("PreferredMPEG2Decoder","xv","*");
-	UpdateMythSetting("AutoCommercialFlag","0","*");
-	UpdateMythSetting("AutoCommflagWhileRecording","0","*");
-	UpdateMythSetting("VertScanPercentage","2","*");
-	UpdateMythSetting("HorizScanPercentage","1","*");
-	UpdateMythSetting("NetworkControlEnabled","1","*");
-	UpdateMythSetting("NetworkControlPort","10001","*");
-	UpdateMythSetting("UseChromaKeyOSD","0","*");
-	UpdateMythSetting("UseOpenGLVSync","0","*");
-	UpdateMythSetting("SelectChangesChannel","1","*");
-	UpdateMythSetting("Deinterlace","1","*");
-	UpdateMythSetting("DeinterlaceFilter","bobdeint","*");
-	UpdateMythSetting("FFRewSpeed0","1","*");
-	UpdateMythSetting("FFRewSpeed1","2","*");
-	UpdateMythSetting("FFRewSpeed2","4","*");
-	UpdateMythSetting("FFRewSpeed3","8","*");
-	UpdateMythSetting("FFRewSpeed4","16","*");
-
-	UpdateMythSetting("MasterServerIP",pDevice_Core && pDevice_Core->m_sIPAddress.empty()==false ? pDevice_Core->m_sIPAddress : m_pRouter->sDBHost_get( ),"");
-	UpdateMythSetting("MasterServerPort","6543","");
+	DeviceData_Base *pDevice_App_Server = (DeviceData_Router *)
+	    m_pData->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_App_Server_CONST);
+	if (pDevice_App_Server)
+	{
+		DCE::CMD_Spawn_Application CMD_Spawn_Application(
+			m_dwPK_Device,pDevice_App_Server->m_dwPK_Device,
+			cmd, "mythtv_sync_db_master", args, "", "", false, false, false, false);
+		SendCommand(CMD_Spawn_Application);
+	}
 
 	ListDeviceData_Router *pListDeviceData_Router = m_pRouter->m_mapDeviceByTemplate_Find(DEVICETEMPLATE_MythTV_Player_CONST);
 	if( pListDeviceData_Router )
@@ -1033,10 +1009,15 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Device,int iPK_Orbiter,
 				Row_DeviceTemplate *pRow_DeviceTemplate = pRow_Device_PC->FK_DeviceTemplate_getrow();
 				if( pRow_DeviceTemplate && pRow_DeviceTemplate->FK_DeviceCategory_get()!=DEVICECATEGORY_Core_CONST )
 					sHostname = "moon" + StringUtils::itos(pRow_Device_PC->PK_Device_get());
-				UpdateMythSetting("BackendServerIP",pRow_Device_PC->IPaddress_get(),sHostname);
-				UpdateMythSetting("MasterServerPort","6543",sHostname);
-				UpdateMythSetting("BackendServerPort","6543",sHostname);
-				UpdateMythSetting("BackendServerStatus","6544",sHostname);
+
+				if (pDevice_App_Server)
+				{
+					args = "slave " + pRow_Device_PC->IPaddress_get() + " " + sHostname;
+					DCE::CMD_Spawn_Application CMD_Spawn_Application(
+						m_dwPK_Device,pDevice_App_Server->m_dwPK_Device,
+						cmd, "mythtv_sync_db_slave", args, "", "", false, false, false, false);
+					SendCommand(CMD_Spawn_Application);
+				}
 			}
 			else
 			{
@@ -1046,7 +1027,7 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Device,int iPK_Orbiter,
 		}
 	}
 
-	SetPaths();
+	bool bPathsChanged = SetPaths();
 
 	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
 	m_bBookmarksNeedRefreshing=true;
@@ -1109,6 +1090,8 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Device,int iPK_Orbiter,
 			string sPassword = StringUtils::Tokenize(sMediaProviderID,"\t",pos);
 			int PK_DeviceTemplate_MediaType = atoi(StringUtils::Tokenize(sMediaProviderID,"\t",pos).c_str());
 			int PK_ProviderSource = atoi(StringUtils::Tokenize(sMediaProviderID,"\t",pos).c_str());
+                        (void) PK_DeviceTemplate_MediaType;
+                        (void) PK_ProviderSource;
 			string sLineup = StringUtils::Tokenize(sMediaProviderID,"\t",pos);
 
 			// We only care about capture cards
@@ -1381,7 +1364,9 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Device,int iPK_Orbiter,
 
 				if( pRow_Device_External )
 				{
-					sSQL = "UPDATE cardinput SET externalcommand='/usr/pluto/bin/TuneToChannel.sh " + StringUtils::itos(pRow_Device_External->PK_Device_get()) + " " + StringUtils::itos(sourceid) + "' WHERE cardinputid=" + StringUtils::itos(cardinputid);
+					sSQL = "UPDATE cardinput SET externalcommand='" + SCRIPT_TUNE + " " +
+						StringUtils::itos(pRow_Device_External->PK_Device_get()) + " " +
+						StringUtils::itos(sourceid) + "' WHERE cardinputid=" + StringUtils::itos(cardinputid);
 					if( m_pDBHelper_Myth->threaded_db_wrapper_query(sSQL)>0 )
 					{
 						LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::CMD_Sync_Providers_and_Cards bModifiedRows=true %s",sSQL.c_str());
@@ -1459,7 +1444,7 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Device,int iPK_Orbiter,
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::SyncCardsAndProviders -- bModifiedRows %d m_bFillDbRunning %d m_bNeedToRunFillDb %d bContainsVideoSources %d",
 		(int) bModifiedRows,(int) m_bFillDbRunning,(int) m_bNeedToRunFillDb, (int) bContainsVideoSources);
-	if( bModifiedRows && bContainsVideoSources )  // We've changed stuff.  Need to run the fill process
+	if( (bModifiedRows && bContainsVideoSources) )  // We've changed stuff.  Need to run the fill process
 	{
 		if( m_bFillDbRunning )
 			m_bNeedToRunFillDb = true;  // A fill is already running.  Need to re-run it when we're done
@@ -1470,18 +1455,21 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Device,int iPK_Orbiter,
 			StartFillDatabase();
 		}
 	}
+	else if( bPathsChanged )
+        { // Paths were changed, so we don't need to call mythfilldatabase, but we do need to restart the backend[s].
+		DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice_App_Server->m_dwPK_Device,
+			SCRIPT_RESTART_ALL_BACKENDS, "restart_all_backends_in_sync", "",
+			"", "", false, false, false, false);
+		SendCommand(CMD_Spawn_Application);
+        }
 }
 
-void MythTV_PlugIn::UpdateMythSetting(string value,string data,string hostname,bool bOnlyIfNotExisting)
+bool MythTV_PlugIn::UpdateMythSetting(string value,string data,string hostname,bool bOnlyIfNotExisting)
 {
 	if( hostname=="*" )
 	{
-		// For some reason mysql returns an error: Error Code : 1030, Got error 28 from table handler
-		// When you run SELECT DISTINCT hostname FROM settings
-		// So we'll keep a map so we can skip ones we've already done
-		map<string,bool> mapExistingHosts;
-
-		string sSQL = "SELECT hostname FROM settings";
+		bool bChanged = false;
+		string sSQL = "SELECT hostname FROM settings WHERE hostname IS NOT NULL GROUP BY hostname";
 		PlutoSqlResult result;
 		DB_ROW row;
 		if( (result.r = m_pDBHelper_Myth->db_wrapper_query_result(sSQL)) )
@@ -1490,32 +1478,37 @@ void MythTV_PlugIn::UpdateMythSetting(string value,string data,string hostname,b
 			{
 				if( row[0] )
 				{
-					if( mapExistingHosts[row[0]] )
-						continue;
-					mapExistingHosts[row[0]]=true;
-					UpdateMythSetting(value,data,row[0],bOnlyIfNotExisting);
+					bChanged |= UpdateMythSetting(value,data,row[0],bOnlyIfNotExisting);
 				}
 			}
 		}
-		return;
+		return bChanged;
 	}
 
-	string sSQL = "SELECT value FROM settings WHERE value='" + StringUtils::SQLEscape(value) + "' AND " 
+	string sSQL = "SELECT data FROM settings WHERE value='" + StringUtils::SQLEscape(value) + "' AND " 
 		" hostname " + (hostname.empty() ? "IS NULL" : "='" + StringUtils::SQLEscape(hostname) + "'");
 	PlutoSqlResult result;
 	if( (result.r = m_pDBHelper_Myth->db_wrapper_query_result(sSQL))==NULL || result.r->row_count==0 )
 	{
-		sSQL = "INSERT INTO settings(value,hostname) VALUES('" + StringUtils::SQLEscape(value) + "',"
-			+ (hostname.empty() ? "NULL" : "'" + StringUtils::SQLEscape(hostname) + "'") + ")";
+		sSQL = "INSERT INTO settings(value,hostname,data) VALUES('" + StringUtils::SQLEscape(value) + "',"
+			+ (hostname.empty() ? "NULL" : "'" + StringUtils::SQLEscape(hostname) + "',")
+			+ "'" + StringUtils::SQLEscape(data) + "')";
 		m_pDBHelper_Myth->threaded_db_wrapper_query(sSQL);
+		return true;
 	}
 	else if( bOnlyIfNotExisting )
-		return;
+		return false;
+
+	DB_ROW row;
+	row = db_wrapper_fetch_row( result.r ) ;
+	if( row[0] && (data==row[0]) )
+		return false;
 
 	sSQL = "UPDATE settings set data='" + StringUtils::SQLEscape(data) + "' WHERE value='" + StringUtils::SQLEscape(value) + "' "
 		" AND hostname " + (hostname.empty() ? "IS NULL" : "='" + StringUtils::SQLEscape(hostname) + "'");
 
 	m_pDBHelper_Myth->threaded_db_wrapper_query(sSQL);
+	return true;
 }
 
 void MythTV_PlugIn::CheckForNewRecordings()
@@ -1562,50 +1555,89 @@ void MythTV_PlugIn::CheckForNewRecordings()
 		PlutoSqlResult result;
 		if( (result.r=m_pDBHelper_Myth->db_wrapper_query_result( sSQL ) ) && ( row=db_wrapper_fetch_row( result.r ) ) )
 		{
-			// If it's just a live tv buffer that hasn't been purged yet, ignore it
+			string title = (row[2]) ? row[2] : "";
+			// If it's just a live tv buffer that hasn't been purged yet, add "LiveTV: " to the title.
 			if( row[11] && strcmp(row[11],"LiveTV")==0 )
 			{
 				pRow_File->Ignore_set(1);
-				continue;
+				if( title!="" )
+					title = "LiveTV: " + title;
+				else
+					continue;
 			}
 
 			int PK_Attribute_CreationDate,PK_Attribute_Title=0,PK_Attribute_Episode=0,PK_Attribute_Channel=0,PK_Attribute_Misc;
 
-			if( row[1] )
-				m_pMedia_Plugin->CMD_Add_Media_Attribute(row[1],0,"",ATTRIBUTETYPE_Creation_Date_CONST,"",pRow_File->PK_File_get(),&PK_Attribute_CreationDate);
-			if( row[2] )
-				m_pMedia_Plugin->CMD_Add_Media_Attribute(row[2],0,"",ATTRIBUTETYPE_Title_CONST,"",pRow_File->PK_File_get(),&PK_Attribute_Title);
-			if( row[3] )
-				m_pMedia_Plugin->CMD_Add_Media_Attribute(row[3],0,"",ATTRIBUTETYPE_Episode_CONST,"",pRow_File->PK_File_get(),&PK_Attribute_Episode);
-			if( row[4] )
-				m_pMedia_Plugin->CMD_Add_Media_Attribute(row[4],0,"",ATTRIBUTETYPE_Rating_CONST,"",pRow_File->PK_File_get(),&PK_Attribute_Misc);
-			if( row[5] )
-				m_pMedia_Plugin->CMD_Add_Media_Attribute(row[5],0,"",ATTRIBUTETYPE_Genre_CONST,"",pRow_File->PK_File_get(),&PK_Attribute_Misc);
-			if( row[6] )
+			LoggerWrapper::GetInstance()->Write(
+				LV_STATUS,
+				"RESULT ROW: chanid %s start_time %s title %s subtitle %s stars %s category %s " // 6
+				"description %s hdtv %s category_type %s chan_name %s rating %s recgroup %s " // 6
+				"seriesid %s programid %s icon %s", // 3
+				row[0], row[1], row[2], row[3], row[4], row[5],
+				row[6], row[7], row[8], row[9], row[10], row[11],
+				row[12], row[13], row[14]);
+
+			if( row[1] && row[1][0] != 0 /*starttime*/)
 			{
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Fetching starttime attribute -- start (%s)", row[1]);
+				m_pMedia_Plugin->CMD_Add_Media_Attribute(
+					/*val*/row[1],/*streamid*/0,/*tracks*/"",
+					/*attr type*/ATTRIBUTETYPE_Creation_Date_CONST,
+					/*section*/"",
+					/*file*/pRow_File->PK_File_get(),
+					/*int attr key*/&PK_Attribute_CreationDate);
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Fetching starttime attribute -- end\n");
+			}
+			if( title != "" )
+			{
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Fetching title attribute -- start (%s)", title.c_str());
+				m_pMedia_Plugin->CMD_Add_Media_Attribute(title,0,"",ATTRIBUTETYPE_Title_CONST,"",
+									 pRow_File->PK_File_get(),&PK_Attribute_Title);
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Fetching title attribute -- end\n");
+			}
+			if( row[3] && row[3][0] != 0 /*subtitle*/)
+			{
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Fetching subtitle attribute -- start (%s)", row[3]);
+				m_pMedia_Plugin->CMD_Add_Media_Attribute(row[3],0,"",ATTRIBUTETYPE_Episode_CONST,"",pRow_File->PK_File_get(),&PK_Attribute_Episode);
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Fetching subtitle attribute -- end\n");
+			}
+			if( row[4] && row[4][0] != 0 /*stars*/)
+			{
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Fetching stars attribute -- start (%s)", row[4]);
+				m_pMedia_Plugin->CMD_Add_Media_Attribute(row[4],0,"",ATTRIBUTETYPE_Rating_CONST,"",pRow_File->PK_File_get(),&PK_Attribute_Misc);
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Fetching stars attribute -- end\n");
+			}
+			if( row[5] && row[5][0] != 0 /*category*/)
+			{
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Fetching category attribute -- start (%s)", row[5]);
+				m_pMedia_Plugin->CMD_Add_Media_Attribute(row[5],0,"",ATTRIBUTETYPE_Genre_CONST,"",pRow_File->PK_File_get(),&PK_Attribute_Misc);
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Fetching category attribute -- end\n");
+			}
+			if( row[6] && row[6][0] != 0 /*description*/)
+			{
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Fetching description attribute -- start (%s)", row[6]);
 				Row_LongAttribute *pRow_LongAttribute = m_pMedia_Plugin->m_pDatabase_pluto_media->LongAttribute_get()->AddRow();
 				pRow_LongAttribute->FK_File_set( pRow_File->PK_File_get() );
 				pRow_LongAttribute->FK_AttributeType_set( ATTRIBUTETYPE_Synopsis_CONST );
 				pRow_LongAttribute->Text_set( row[6] );
 				m_pMedia_Plugin->m_pDatabase_pluto_media->LongAttribute_get()->Commit();
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Fetching description attribute -- end\n");
 			}
-			if( row[7] && atoi(row[7]) )
+			if( row[7] && row[7][0] != 0 && atoi(row[7]) /*hdtv*/)
 				pRow_File->FK_FileFormat_set(FILEFORMAT_HD_1080_CONST);
 			else
 				pRow_File->FK_FileFormat_set(FILEFORMAT_Standard_Def_CONST);
-			if( row[8] )
+			if( row[8] && row[8][0] != 0 /*category_type*/)
 			{
 				string sType = row[8];
-				if( sType=="tvshow" || sType=="series" )
-					pRow_File->FK_MediaSubType_set(MEDIASUBTYPE_TV_Shows_CONST);
-				else if( sType=="movie" )
-					pRow_File->FK_MediaSubType_set(MEDIASUBTYPE_Movies_CONST);
-				else if( sType=="sports" )
+				if( StringUtils::StartsWith(sType,"Sports",true) )
 					pRow_File->FK_MediaSubType_set(MEDIASUBTYPE_Sports_Events_CONST);
+				else
+					pRow_File->FK_MediaSubType_set(MEDIASUBTYPE_TV_Shows_CONST);
 			}
-			if( row[9] )
+			if( row[9] && row[9][0] != 0 /*channel name*/)
 				m_pMedia_Plugin->CMD_Add_Media_Attribute(row[9],0,"",ATTRIBUTETYPE_Channel_CONST,"",pRow_File->PK_File_get(),&PK_Attribute_Channel);
-			if( row[10] )
+			if( row[10] && row[10][0] != 0 /*rating*/)
 				m_pMedia_Plugin->CMD_Add_Media_Attribute(row[10],0,"",ATTRIBUTETYPE_Rated_CONST,"",pRow_File->PK_File_get(),&PK_Attribute_Misc);
 
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::CheckForNewRecordings file: %s %d %d",pRow_File->Filename_get().c_str(),PK_Attribute_Title,PK_Attribute_Episode);
@@ -1628,7 +1660,7 @@ void MythTV_PlugIn::CheckForNewRecordings()
 
 				PlutoSqlResult result;
 			    DB_ROW row_pic;
-				if( (result.r=m_pDBHelper_Myth->db_wrapper_query_result( "SELECT EK_Picture FROM `pluto_myth`.Picture WHERE " + sSQL ) ) && ( row_pic=db_wrapper_fetch_row( result.r ) ) && row_pic[0] && atoi(row_pic[0]) )
+				if( (sSQL!="") && (result.r=m_pDBHelper_Myth->db_wrapper_query_result( "SELECT EK_Picture FROM `pluto_myth`.Picture WHERE " + sSQL ) ) && ( row_pic=db_wrapper_fetch_row( result.r ) ) && row_pic[0] && atoi(row_pic[0]) )
 				{
 					LoggerWrapper::GetInstance()->Write(LV_STATUS,"CheckForNewRecordings ok - %s",sSQL.c_str());
 					PK_Picture = atoi(row_pic[0]);
@@ -1737,15 +1769,9 @@ bool MythTV_PlugIn::TuneToChannel( class Socket *pSocket, class Message *pMessag
 		pMessage->m_mapParameters.find(COMMANDPARAMETER_ProgramID_CONST)!=pMessage->m_mapParameters.end() )
 	{
 		MediaStream *pMediaStream = m_pMedia_Plugin->m_mapMediaStream_Find(atoi(pMessage->m_mapParameters[COMMANDPARAMETER_StreamID_CONST].c_str()),0);
-//<-mkr_b_aj_b->
-		/*
-//<-mkr_b_aj_e->
 		if( pMediaStream && pMediaStream->GetType()==MEDIASTREAM_TYPE_MYTHTV )
 			return false;  // it's for a myth player, no processing needed
 
-//<-mkr_b_aj_b->
-		*/
-//<-mkr_b_aj_e->
 		string sProgramID = pMessage->m_mapParameters[COMMANDPARAMETER_ProgramID_CONST];
 		if( sProgramID.size()>1 && sProgramID[0]=='i' )
 		{
@@ -1754,14 +1780,7 @@ bool MythTV_PlugIn::TuneToChannel( class Socket *pSocket, class Message *pMessag
 			PlutoSqlResult result_set_check;
 			DB_ROW row;
 			if( (result_set_check.r=m_pDBHelper_Myth->db_wrapper_query_result(sSQL))!=NULL && (row=db_wrapper_fetch_row(result_set_check.r))!=NULL && row && row[0] )
-			{
 				pMessage->m_mapParameters[COMMANDPARAMETER_ProgramID_CONST] = row[0];
-//<-mkr_b_aj_b->
-				string sMRL = ajTranslateMRL(atoi(row[0]));
-				DCE::CMD_Play_Media cmd(m_dwPK_Device, pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,pMediaStream->m_iPK_MediaType,pMediaStream->m_iStreamID_get( ),pMediaStream->m_sStartPosition,sMRL);
-				SendCommand(cmd);
-//<-mkr_b_aj_e->
-			}
 		}
 	}
 	return false;
@@ -2111,7 +2130,7 @@ void MythTV_PlugIn::StartScanJob(ScanJob *pScanJob)
 
 		string sArguments = StringUtils::itos(pScanJob->m_pRow_Device_Tuner->PK_Device_get()) + "\t" + StringUtils::itos(pScanJob->m_pRow_Device_CaptureCard->PK_Device_get());
 		DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice_App_Server->m_dwPK_Device,
-			"/usr/pluto/bin/" + pScanJob->m_sScanJob,"scanchannels",sArguments,sScanFailed,"",false,false,false,true);
+			SCRIPT_DIR + pScanJob->m_sScanJob,"scanchannels",sArguments,sScanFailed,"",false,false,false,true);
 		string sResponse;
 		if( !SendCommand(CMD_Spawn_Application,&sResponse) || sResponse!="OK" )
 		{
@@ -2262,8 +2281,9 @@ void MythTV_PlugIn::CMD_Abort_Task(int iParameter_ID,string &sCMD_Result,Message
 {
 }
 
-void MythTV_PlugIn::SetPaths()
+bool MythTV_PlugIn::SetPaths()
 {
+	bool bChanged = false;
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::SetPaths");
 
 	// Get all the backend ip's so we can match the hostname myth uses to our own device id
@@ -2315,10 +2335,13 @@ void MythTV_PlugIn::SetPaths()
 				system(CmdList[i].c_str());
 			}
 
-			UpdateMythSetting("LiveBufferDir",sDirectory,row[1]);
-			UpdateMythSetting("RecordFilePrefix",sDirectory,row[1]);
+			bChanged |= UpdateMythSetting("LiveBufferDir",sDirectory,row[1]);
+			bChanged |= UpdateMythSetting("RecordFilePrefix",sDirectory,row[1]);
 		}
 	}
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::SetPaths : change noted? %s", ((bChanged) ? "yes" : "no"));
+	return bChanged;
 } 
 
 void MythTV_PlugIn::RunBackendStarter()
@@ -2327,7 +2350,8 @@ void MythTV_PlugIn::RunBackendStarter()
 	if( pDevice_App_Server )
 	{
 		DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice_App_Server->m_dwPK_Device,
-			"/usr/bin/screen","restart_myth","-d\t-m\t-S\tRestart_Myth_Backend\t/usr/pluto/bin/Restart_MythBackend.sh","","",false,false,false,false);
+			"/usr/bin/screen", "restart_myth", "-d\t-m\t-S\tRestart_Myth_Backend\t" + SCRIPT_RESTART_BACKEND,
+			"", "", false, false, false, false);
 		CMD_Spawn_Application.m_pMessage->m_eRetry=MR_Retry;
 		SendCommand(CMD_Spawn_Application);
 
@@ -2352,7 +2376,7 @@ void MythTV_PlugIn::StartFillDatabase()
 	{
 		string sResponse = "fill done";
 		DCE::CMD_Spawn_Application CMD_Spawn_Application_fill(m_dwPK_Device,pDevice_App_Server->m_dwPK_Device,
-			"/usr/pluto/bin/FillDbAndFetchIcons.sh","filldb","","","",false,false,true,false);
+			SCRIPT_INITIAL_FILLDB, "filldb", "", "", "", false, false, true, false);
 		CMD_Spawn_Application_fill.m_pMessage->m_eRetry=MR_Persist;
 		if( !SendCommand(CMD_Spawn_Application_fill) )
 		{
@@ -2362,8 +2386,11 @@ void MythTV_PlugIn::StartFillDatabase()
 
 		SetStatus("FILLDATABASE");  // A marker so we know if we do a reload before this finishes
 
-		DCE::SCREEN_PopupMessage SCREEN_PopupMessage(m_dwPK_Device, DEVICETEMPLATE_VirtDev_All_Orbiters_CONST,
-			"It will take about 10 minutes to retrieve your channel listing.  Wait until you see the message \"MythTV is ready\" before you start using TV features.", // Main message
+		DCE::SCREEN_PopupMessage SCREEN_PopupMessage(
+			m_dwPK_Device, DEVICETEMPLATE_VirtDev_All_Orbiters_CONST,
+			"It will take about 2 minutes to retrieve your channel listings. "
+			"Please wait until you see the message \"MythTV is ready\" before "
+			"you start using TV features.", // Main message
 			"", // Command Line
 			"generic message", // Description
 			"0", // sPromptToResetRouter
@@ -2444,63 +2471,86 @@ void MythTV_PlugIn::UpdateUpcomingRecordings()
 	const char *pToken = "[]:[]"; // What kind of token is this??
 	MythRecording mythRecording;
 
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::UpdateUpcomingRecordings got %d",(int) sResponse.size());
-	while(pos<sResponse.size())
+	string sHasConflicts = "", sListSize = "";
+	int iListSize = 0;
+
+	if (pos < sResponse.size())
+		sHasConflicts = StringUtils::Tokenize(sResponse,pToken,pos,true);
+
+	if (pos < sResponse.size())
 	{
-		string s1 = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string s2 = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string sTitle = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string s4 = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string s5 = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string s6 = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string sChanId = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string sChannel = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string sCallSign = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string s10 = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string s11 = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string s12 = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string s13 = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string sStartTime = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string sStopTime = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string s16 = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string s17 = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string s18 = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string s19 = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string s20 = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string s21 = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string s22 = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string s23 = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string s24 = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string sRecordID = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string sType = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string s27 = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string s28 = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string s29 = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string sStartTime2 = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string sStopTime2 = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string s32 = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string s33 = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string s34 = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string s35 = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string sSeriesID = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string sProgramID = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string s38 = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string s39 = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string s40 = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string s41 = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string s42 = StringUtils::Tokenize(sResponse,pToken,pos,true);
-		string s43 = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		sListSize = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		iListSize = atoi(sListSize.c_str());
+	}
 
-		mythRecording.data.time.channel_id = atoi(sChanId.c_str());
-		mythRecording.data.time.StartTime = atoi(sStartTime.c_str());
+	LoggerWrapper::GetInstance()->Write(
+		LV_STATUS,"MythTV_PlugIn::UpdateUpcomingRecordings got listsize(%d) entries(%d)",
+		(int) sResponse.size(), iListSize);
 
-		if( sType=="1" )
-			m_mapScheduledRecordings[mythRecording.data.int64] = make_pair<char,int> ('O',atoi(sRecordID.c_str()));
-		else if( sType=="3")
-			m_mapScheduledRecordings[mythRecording.data.int64] = make_pair<char,int> ('C',atoi(sRecordID.c_str()));;
+	while (pos<sResponse.size())
+	{
+		string sTitle        = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sSubtitle     = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sDescription  = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sCategory     = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sChanId       = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sChannel      = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sCallSign     = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sChannelName  = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sPathName     = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sFileSizeHW   = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sFileSizeLW   = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sStartTime    = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sStopTime     = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sDuplicate    = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sSharable     = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sFindID       = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sHostname     = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sSourceID     = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sCardID       = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sInputID      = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sRecPriority  = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sRecStatus    = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sRecordID     = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sRecType      = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sDupIn        = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sDupMethod    = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sRecStartTime = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sRecStopTime  = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sRepeat       = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sProgramFlags = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sRecGroup     = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sChanCommFree = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sChanOutputFilters=StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sSeriesID     = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sProgramID    = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sLastModified = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sStars        = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sOrigAirDate  = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sHasAirDate   = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sPlaybackGroup= StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sRecPriority2 = StringUtils::Tokenize(sResponse,pToken,pos,true);
+		string sParentID     = StringUtils::Tokenize(sResponse,pToken,pos,true);
 
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::UpdateUpcomingRecordings adding record id %s type %s chan %d start %d",
-			sRecordID.c_str(),sType.c_str(),mythRecording.data.time.channel_id,mythRecording.data.time.StartTime);
+		mythRecording.channel_id           = atoi(sChanId.c_str());
+		mythRecording.scheduled_start_time = atoi(sStartTime.c_str());
+
+		if (sRecType == "1")
+                {
+			m_mapScheduledRecordings[mythRecording.key()] = 
+				make_pair<char,int> ('O',atoi(sRecordID.c_str()));
+		}
+                else if (sRecType == "3")
+                {
+			m_mapScheduledRecordings[mythRecording.key()] = 
+				make_pair<char,int> ('C',atoi(sRecordID.c_str()));;
+		}
+
+		LoggerWrapper::GetInstance()->Write(
+			LV_STATUS,"MythTV_PlugIn::UpdateUpcomingRecordings "
+			"adding record id %2s type %s chan %5d start %s",
+			sRecordID.c_str(), sRecType.c_str(), mythRecording.channel_id,
+			ctime(&mythRecording.scheduled_start_time));
 	}
 	m_pAlarmManager->CancelAlarmByType(CHECK_FOR_SCHEDULED_RECORDINGS);
 	m_pAlarmManager->AddRelativeAlarm(60 * 60,this,CHECK_FOR_SCHEDULED_RECORDINGS,NULL);  // Update once an hour just in case
@@ -2550,7 +2600,7 @@ void MythTV_PlugIn::ConfirmMasterBackendOk(int iMediaStreamID)
 		if( pDevice_App_Server )
 		{
 			DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice_App_Server->m_dwPK_Device,
-				"/usr/pluto/bin/ForciblyKillProcess.sh","killmyth","mythbackend","","",false,false,false,true);
+				SCRIPT_FORCE_KILL,"killmyth","mythbackend","","",false,false,false,true);
 			SendCommand(CMD_Spawn_Application);
 		}
 

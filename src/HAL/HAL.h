@@ -100,7 +100,7 @@ public:
 private:
 
 	class HalPrivate;
-	HalPrivate * d;
+	HalPrivate * m_pHalPrivate;
 	
 	};
 

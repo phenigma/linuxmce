@@ -14,12 +14,17 @@ Q="SELECT PK_Device FROM Device"
 Devices=$(RunSQL "$Q")
 /usr/pluto/bin/sync_pluto2amp.pl $Devices
 
-echo "$(date -R) Starting Core Services - start dcerouter " >> /var/log/pluto/StartCoreServices.log 2>&1
+echo "$(date -R) Starting Core Services - starting dcerouter" >> /var/log/pluto/StartCoreServices.log 2>&1
 bash -x /usr/pluto/bin/Start_DCERouter.sh >> /var/log/pluto/StartCoreServices.log 2>&1
-echo "$(date -R) Starting Core Services done" >> /var/log/pluto/StartCoreServices.log 2>&1
+echo "$(date -R) Starting Core Services - done starting dcerouter" >> /var/log/pluto/StartCoreServices.log 2>&1
 
 #wake mds
-/usr/pluto/bin/WakeMDs.sh
+echo "$(date -R) Starting Core Services - waking up M/Ds" >> /var/log/pluto/StartCoreServices.log 2>&1
+bash -x /usr/pluto/bin/WakeMDs.sh >> /var/log/pluto/StartCoreServices.log 2>&1
+echo "$(date -R) Starting Core Services - done waking up M/Ds" >> /var/log/pluto/StartCoreServices.log 2>&1
 
-#chech if there are raids from previous install (will run only once)
-/usr/pluto/bin/checkforRaids.sh
+#check if there are raids from previous install (will run only once)
+echo "$(date -R) Starting Core Services - checking for RAIDs" >> /var/log/pluto/StartCoreServices.log 2>&1
+bash -x /usr/pluto/bin/checkforRaids.sh >> /var/log/pluto/StartCoreServices.log 2>&1
+echo "$(date -R) Starting Core Services - done checking for RAIDs" >> /var/log/pluto/StartCoreServices.log 2>&1
+

@@ -332,6 +332,7 @@ namespace DCE
 
 
 		class DesignObj_Orbiter *m_pObj_LastSelected;   // The last object we selected.  Used by floorplans to toggle states
+		int m_dwPK_DesignObj_Toolbar_Last; // Used by floorplans
 		int m_iRow_Floorplan_LastSelected;  // If we're using datagrids as floorplans, this is the last row
 		class DesignObj_Orbiter *m_pObj_SelectedLastScreen;   // The last object we selected.  Used by floorplans to toggle states
 
@@ -426,6 +427,7 @@ namespace DCE
 
 		time_t m_LastActivityTime; /** < The last activity time */
 		bool m_bDisplayOn; /** < False if the screen has blanked for the screen saver */
+		bool m_bIgnoreFirstEvent; /** < A copy of DATA_Get_Ignore_First_Event for quick access */
 		bool m_bYieldScreen; /** < True if the orbiter should make the application desktop full screen ( hide itself ) */
 		bool m_bYieldInput; /** < True if the orbiter should yield all input, like keyboard and mouse. This is useful when running the Orbiter as Linux desktop */
 		bool m_bBypassScreenSaver; /** < True if we don't want the screen to blank */
@@ -967,7 +969,7 @@ namespace DCE
 	string DATA_Get_Path();
 	int DATA_Get_PK_Users();
 	string DATA_Get_Current_Screen();
-	void DATA_Set_Current_Screen(string Value);
+	void DATA_Set_Current_Screen(string Value,bool bUpdateDatabase=false);
 	int DATA_Get_PK_Distro();
 	bool DATA_Get_Development();
 	bool DATA_Get_No_Effects();
@@ -983,7 +985,7 @@ namespace DCE
 	bool DATA_Get_Use_OCG_Format();
 	int DATA_Get_VideoFrameInterval();
 	int DATA_Get_ImageQuality();
-	void DATA_Set_ImageQuality(int Value);
+	void DATA_Set_ImageQuality(int Value,bool bUpdateDatabase=false);
 	bool DATA_Get_Leave_Monitor_on_for_OSD();
 	bool DATA_Get_Ignore();
 	bool DATA_Get_Dont_Auto_Jump_to_Remote();
@@ -997,15 +999,17 @@ namespace DCE
 	int DATA_Get_Listen_Port();
 	int DATA_Get_PK_Screen();
 	string DATA_Get_Spacing();
-	void DATA_Set_Spacing(string Value);
+	void DATA_Set_Spacing(string Value,bool bUpdateDatabase=false);
 	string DATA_Get_Offset();
-	void DATA_Set_Offset(string Value);
+	void DATA_Set_Offset(string Value,bool bUpdateDatabase=false);
 	bool DATA_Get_Get_Time_Code_for_Media();
 	string DATA_Get_Shortcut();
 	bool DATA_Get_Expert_Mode();
 	bool DATA_Get_Enable_Memory_Management();
 	int DATA_Get_Border_Size();
 	string DATA_Get_Alert_Filter_Level();
+	bool DATA_Get_Ignore_First_Event();
+	void DATA_Set_Ignore_First_Event(bool Value,bool bUpdateDatabase=false);
 
 			*****EVENT***** accessors inherited from base class
 	void EVENT_Touch_or_click(int iX_Position,int iY_Position);
@@ -1390,6 +1394,31 @@ namespace DCE
 
 	virtual void CMD_Select_Object(string sPK_DesignObj,string sPK_DesignObj_CurrentScreen,string sTime) { string sCMD_Result; CMD_Select_Object(sPK_DesignObj.c_str(),sPK_DesignObj_CurrentScreen.c_str(),sTime.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_Select_Object(string sPK_DesignObj,string sPK_DesignObj_CurrentScreen,string sTime,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #67 - Spawn Application */
+	/** Spawn the given application.  Mainly used for windows orbiters. */
+		/** @param #13 Filename */
+			/** The name of the executable file to spawn */
+		/** @param #50 Name */
+			/** A name that we'll remember the application by for future kill commands */
+		/** @param #51 Arguments */
+			/** Command arguments, tab delimited */
+		/** @param #94 SendOnFailure */
+			/** Send this messages if the process exited with failure error code. */
+		/** @param #95 SendOnSuccess */
+			/** Send this messages if the process exited with success error code. */
+		/** @param #115 Show logo */
+			/** If this is set then we will first select the logo  before spawning the application. */
+		/** @param #120 Retransmit */
+			/** If false, and if Exclusive is true and another instance is killed, the 'send messages on termination' will not be sent. */
+		/** @param #126 Exclusive */
+			/** If true, then kill other apps with this same name */
+		/** @param #241 Detach */
+			/** Detach application after spawning / Don't kill this app on reload. */
+
+	virtual void CMD_Spawn_Application(string sFilename,string sName,string sArguments,string sSendOnFailure,string sSendOnSuccess,bool bShow_logo,bool bRetransmit,bool bExclusive,bool bDetach) { string sCMD_Result; CMD_Spawn_Application(sFilename.c_str(),sName.c_str(),sArguments.c_str(),sSendOnFailure.c_str(),sSendOnSuccess.c_str(),bShow_logo,bRetransmit,bExclusive,bDetach,sCMD_Result,NULL);};
+	virtual void CMD_Spawn_Application(string sFilename,string sName,string sArguments,string sSendOnFailure,string sSendOnSuccess,bool bShow_logo,bool bRetransmit,bool bExclusive,bool bDetach,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #72 - Surrender to OS */
@@ -1946,13 +1975,13 @@ light, climate, media, security, telecom */
 			/** The called user. Only one is supported now. */
 		/** @param #83 PhoneExtension */
 			/** The phone number to be called. */
-		/** @param #262 FK_Device_From */
+		/** @param #184 PK_Device_From */
 			/** The device which starts the call. */
 		/** @param #263 PK_Device_To */
 			/** The called device. */
 
-	virtual void CMD_Assisted_Make_Call(int iPK_Users,string sPhoneExtension,int iFK_Device_From,int iPK_Device_To) { string sCMD_Result; CMD_Assisted_Make_Call(iPK_Users,sPhoneExtension.c_str(),iFK_Device_From,iPK_Device_To,sCMD_Result,NULL);};
-	virtual void CMD_Assisted_Make_Call(int iPK_Users,string sPhoneExtension,int iFK_Device_From,int iPK_Device_To,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Assisted_Make_Call(int iPK_Users,string sPhoneExtension,string sPK_Device_From,int iPK_Device_To) { string sCMD_Result; CMD_Assisted_Make_Call(iPK_Users,sPhoneExtension.c_str(),sPK_Device_From.c_str(),iPK_Device_To,sCMD_Result,NULL);};
+	virtual void CMD_Assisted_Make_Call(int iPK_Users,string sPhoneExtension,string sPK_Device_From,int iPK_Device_To,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

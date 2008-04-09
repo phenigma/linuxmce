@@ -1,15 +1,31 @@
 #!/bin/bash -e
 
+mount_status=0
+function sigusr1() {
+	mount_status=1
+}
+trap "sigusr1" USR1
+
+echo >> /var/log/pluto/umount-wrapper.log || { /bin/umount.wraped "$@" && exit 0; }
+
 . /usr/pluto/bin/LockUtils.sh
 
 echo				   >> /var/log/pluto/umount-wrapper.log
 echo "$$ CALLED TO 'umount $@'"    >> /var/log/pluto/umount-wrapper.log
-WaitLock "umount" "umount-wrapper" >> /var/log/pluto/umount-wrapper.log
+WaitLock "mtab" "umount-wrapper"   >> /var/log/pluto/umount-wrapper.log
 
-/bin/umount.wraped $@ &
+/bin/umount.wraped "$@" 2>> /var/log/pluto/umount-wrapper.log || kill -USR1 $$ &
 umount_pid=$!
 
 start_date=$(date +%s)
-while [[ $(( start_date + 5 )) -ge $(date +%s) ]] && [[ -f /proc/$umount_pid ]]  ;do
+while [[ $(( start_date + 5 )) -ge $(date +%s) ]] && [[ -e /proc/$umount_pid ]]  ;do
 	sleep 0.2
 done
+
+sleep 0.2
+cat /proc/mounts > /etc/mtab
+
+Unlock "mtab" "umount-wrapper"	>> /var/log/pluto/umount-wrapper.log
+echo "$$ EXIT WITH STATUS $mount_status" >> /var/log/pluto/umount-wrapper.log
+
+exit $mount_status

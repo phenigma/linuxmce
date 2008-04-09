@@ -141,13 +141,6 @@ void Renderer::RenderObject(RendererImage *pRenderImage, DesignObj_Generator *pD
 	if( iOnlyVersion!=-999 )
 		StartingValue=EndingValue=iOnlyVersion;
 
-	if( pDesignObj_Generator->m_ObjectID.find("5363")!=string::npos || pDesignObj_Generator->m_ObjectID.find("5270")!=string::npos )
-	{
-		LoggerWrapper::GetInstance()->Write(LV_WARNING,"renderer DESIGNOBJ_butFBSF_Go_CONST %s %d,%d-%d,%d %d,%d-%d,%d",pDesignObj_Generator->m_ObjectID.c_str(),
-			pDesignObj_Generator->m_rPosition.X,pDesignObj_Generator->m_rPosition.Y,pDesignObj_Generator->m_rPosition.Width,pDesignObj_Generator->m_rPosition.Height,
-			pDesignObj_Generator->m_rBackgroundPosition.X,pDesignObj_Generator->m_rBackgroundPosition.Y,pDesignObj_Generator->m_rBackgroundPosition.Width,pDesignObj_Generator->m_rBackgroundPosition.Height);
-	}
-
     for(int iIteration=StartingValue;iIteration>=EndingValue;--iIteration)
     {
         // Normally we don't create output files for selected/highlighted/alt versions unless there is a corresponding graphic.  There's really nothing

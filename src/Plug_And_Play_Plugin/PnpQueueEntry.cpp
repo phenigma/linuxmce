@@ -29,6 +29,8 @@
 #include "pluto_main/Table_DeviceTemplate_DeviceData.h"
 #include "Plug_And_Play_Plugin.h"
 #include "Gen_Devices/AllScreens.h"
+#include "Orbiter_Plugin/OH_Orbiter.h"
+#include "Orbiter_Plugin/Orbiter_Plugin.h"
 
 using namespace DCE;
 
@@ -74,8 +76,8 @@ PnpQueueEntry::PnpQueueEntry(Plug_And_Play_Plugin *pPlug_And_Play_Plugin,
 	m_tTimeBlocked=0;
 	m_dwPK_PnpQueue_BlockingFor=m_iPK_DHCPDevice=0;
 	m_iPK_Room=-1;  // This means auto for create device
-	m_pOH_Orbiter=NULL;
-	m_bCreateWithoutPrompting=false;
+	m_pOH_Orbiter_Active=NULL;
+	m_bUseAllOrbitersForPrompt=m_bCreateWithoutPrompting=false;
 	ParseDeviceData(sDeviceData);
 	FindTopLevelDevice();
 }
@@ -119,8 +121,8 @@ PnpQueueEntry::PnpQueueEntry(Plug_And_Play_Plugin *pPlug_And_Play_Plugin,
 	m_tTimeBlocked=0;
 	m_dwPK_PnpQueue_BlockingFor=m_iPK_DHCPDevice=0;
 	m_iPK_Room=-1;  // This means auto for create device
-	m_pOH_Orbiter=NULL;
-	m_bCreateWithoutPrompting=false;
+	m_pOH_Orbiter_Active=NULL;
+	m_bUseAllOrbitersForPrompt=m_bCreateWithoutPrompting=false;
 	ParseDeviceData(sDeviceData);
 	FindTopLevelDevice();
 }
@@ -135,8 +137,8 @@ PnpQueueEntry::PnpQueueEntry(Plug_And_Play_Plugin *pPlug_And_Play_Plugin,Row_Pnp
 	m_tTimeBlocked=0;
 	m_dwPK_PnpQueue_BlockingFor=m_iPK_DHCPDevice=0;
 	m_iPK_Room=-1;  // This means auto for create device
-	m_pOH_Orbiter=NULL;
-	m_bCreateWithoutPrompting=false;
+	m_pOH_Orbiter_Active=NULL;
+	m_bUseAllOrbitersForPrompt=m_bCreateWithoutPrompting=false;
 	ParseDeviceData(m_pRow_PnpQueue->Parms_get());
 	FindTopLevelDevice();
 
@@ -430,3 +432,28 @@ string PnpQueueEntry::ToString()
 		" )";
 }
 
+
+void PnpQueueEntry::m_pOH_Orbiter_Active_set(int PK_Device)
+{
+	m_pOH_Orbiter_Active_set( m_pPlug_And_Play_Plugin->m_pOrbiter_Plugin_get()->m_mapOH_Orbiter_Find(PK_Device) );
+}
+
+void PnpQueueEntry::m_pOH_Orbiter_Active_set(OH_Orbiter *pOH_Orbiter)
+{
+	m_bUseAllOrbitersForPrompt=false;
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "PnpQueueEntry::m_pOH_Orbiter_Active_set queue %d set to orbiter %d", 
+		m_pRow_PnpQueue->PK_PnpQueue_get(),pOH_Orbiter ? pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device : -1);
+#endif
+	m_pOH_Orbiter_Active = pOH_Orbiter;
+}
+
+void PnpQueueEntry::UseAllOrbitersForPrompt()
+{
+	m_bUseAllOrbitersForPrompt=true;
+	m_sPK_Orbiter_List_For_Prompts=m_pPlug_And_Play_Plugin->m_pOrbiter_Plugin_get()->m_sPK_Device_AllOrbiters_get();
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "PnpQueueEntry::UseAllOrbitersForPrompt queue %d", 
+		m_pRow_PnpQueue->PK_PnpQueue_get());
+#endif
+}

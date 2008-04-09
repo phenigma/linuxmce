@@ -852,6 +852,16 @@
 #define COMMAND_USB_CONST 940
 #define COMMAND_SRS_CONST 941
 #define COMMAND_Get_Ripping_Status_CONST 942
+#define COMMAND_Game_1P_Start_CONST 943
+#define COMMAND_Game_2P_Start_CONST 944
+#define COMMAND_Game_3P_Start_CONST 945
+#define COMMAND_Game_4P_Start_CONST 946
+#define COMMAND_Game_Insert_Coin_CONST 947
+#define COMMAND_Game_Service_CONST 948
+#define COMMAND_Game_Start_CONST 949
+#define COMMAND_Game_Select_CONST 950
+#define COMMAND_Game_Option_CONST 951
+#define COMMAND_Game_Reset_CONST 952
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"

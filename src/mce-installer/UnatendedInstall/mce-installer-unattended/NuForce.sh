@@ -45,7 +45,7 @@ Packages()
 	)
 
 	InstallPkgs=(
-		id-my-disc egalax pluto-slim-server-streamer
+		id-my-disc egalax elo-touchscreen 3m-touchware pluto-slim-server-streamer
 	)
 
 	for Pkg in "${RemovePkgs[@]}"; do
@@ -61,14 +61,16 @@ Devices()
 {
 	/usr/pluto/bin/CreateDevice -d 53 -R 1 # Slim Server Streamer
 
-CreateDiskDrive='
+CreateDiskDrive='#!/bin/bash
+trap "rm -f /etc/rc2.d/S91firstboot-nuforce" EXIT
 CDROMs=$(hal-find-by-property --key storage.drive_type --string cdrom)
 for UDI in $CDROMs; do
 	Device=$(hal-get-property --udi "$UDI" --key block.device)
 	/usr/pluto/bin/CreateDevice -d 11 -R 1 -A "6|$Device|161|$UDI" # Disk Drive
 done
 '
-	echo -n "$CreateDiskDrive" >>/etc/rc2.d/S90firstboot
+	echo -n "$CreateDiskDrive" >/etc/rc2.d/S91firstboot-nuforce
+	chmod +x /etc/rc2.d/S91firstboot-nuforce
 }
 
 AVWizardReplacement()
@@ -187,19 +189,6 @@ DatabaseDefaults()
 
 	/usr/pluto/bin/Timezone_Detect.sh
 	/usr/pluto/bin/SetPasswords.sh 1 nuforce
-
-	Q="
-		INSERT INTO QuickStartTemplate(Description, \`Binary\`, Arguments, Icon, WindowClass)
-			VALUES('TouchKit', '/usr/bin/TouchKit', '', '', 'TouchKit.TouchKit');
-		SELECT LAST_INSERT_ID()
-	"
-	QST=$(RunSQL "$Q")
-	SortOrder=$(RunSQL "SELECT MAX(SortOrder)+1 FROM Device_QuickStart")
-	Q="
-		INSERT INTO Device_QuickStart (FK_Device, Description, SortOrder,FK_QuickStartTemplate)
-		VALUES ('$ComputerDev', 'TouchKit', '$SortOrder', '$QST');
-	"
-	RunSQL "$Q"
 }
 
 Firewall()
@@ -221,7 +210,7 @@ Firewall()
 
 ApplyHacks()
 {
-	AsoundSubst='s/convert48k/convert44k/g; s/rate 48000/rate 44100/g'
+	AsoundSubst='s/convert48k/convert44k/g; s/rate 48000/rate 44100/g; /playback\.pcm/ s/spdif_playback/plughw:0,1/g'
 	sed -ri "$AsoundSubst" /usr/pluto/templates/asound.conf
 	sed -ri "$AsoundSubst" /etc/asound.conf || :
 }

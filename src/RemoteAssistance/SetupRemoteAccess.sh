@@ -12,14 +12,37 @@ screenName="RemoteAssistance"
 
 DEVICEDATA_Remote_Assistance_Ports=212
 
-Q="
-	SELECT IK_DeviceData
-	FROM Device_DeviceData
-	WHERE
-		FK_Device='$PK_Device'
-		AND FK_DeviceData='$DEVICEDATA_Remote_Assistance_Ports'
-"
-Ports="$(RunSQL "$Q")"
+UpdateInterval=86400 #seconds
+
+GetPorts()
+{
+	Q="
+		SELECT IK_DeviceData
+		FROM Device_DeviceData
+		WHERE
+			FK_Device='$PK_Device'
+			AND FK_DeviceData='$DEVICEDATA_Remote_Assistance_Ports'
+	"
+	Result="$(RunSQL "$Q")"
+	if [[ "$Result" != *';'* ]]; then
+		Result="$Result;time=0"
+	fi
+	Ports="${Result%%;*}"
+	Vars="${Result#*;}"
+}
+
+GetPorts
+for Var in ${Vars//,/ }; do
+	if [[ "$Var" == "time="* ]]; then
+		LastUpdate="${Var#time=}"
+		Now="$(date +%s)"
+		if ((Now - LastUpdate < 0 || Now - LastUpdate > UpdateInterval)); then
+			/usr/pluto/bin/RA-handler.sh --confirm
+			GetPorts
+		fi
+		break
+	fi
+done
 
 for Port in ${Ports//,/ }; do
 	if [[ "$Port" == "nomon_"* ]]; then

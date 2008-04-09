@@ -65,7 +65,7 @@ function playlists($output,$mediadbADO) {
 							<td><input type="checkbox" name="private" value="1" checked></td>
 						</tr>
 						<tr>
-							<td><b>'.$TEXT_PICTURE_CONST.'</b></td>
+							<td><b>'.$TEXT_PICTURE_CONST.'</b> (jpg)</td>
 							<td><input type="file" name="newPlaylistPicture" value=""></td> 
 						</tr>
 						<tr>
@@ -95,10 +95,7 @@ function playlists($output,$mediadbADO) {
 					
 					if(move_uploaded_file($_FILES['newPlaylistPicture']['tmp_name'],$GLOBALS['mediaPicsPath'].$newPlaylistPictureName)){
 						// create thumbnail
-						$resizeFlag=resizeImage($GLOBALS['mediaPicsPath'].$newPlaylistPictureName, $GLOBALS['mediaPicsPath'].$pictureID.'_tn.'.$picExtension, 256, 256);
-						if(!$resizeFlag){
-							$error='Thumbnail not created';					
-						}
+						resizeImage($GLOBALS['mediaPicsPath'].$newPlaylistPictureName, $GLOBALS['mediaPicsPath'].$pictureID.'_tn.'.$picExtension, 256, 256);
 					}
 				}
 			}			

@@ -242,3 +242,7 @@ function UI_SetOptions {
 		echo 'EndSection' >> "$xorg_file"
 	fi
 }
+
+function Setup_Firstboot {
+	cp ./firstboot /etc/rc2.d/S89firstboot
+}

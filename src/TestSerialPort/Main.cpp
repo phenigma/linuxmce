@@ -117,7 +117,7 @@ int main(int argc, char *argv[])
 		cout << "TestSerialPort, v." << VERSION << endl
 			<< "Usage: TestSerialPort [-p port] [-P N81|E81|O81] [-t transmit string]" << endl
 			<< "[-s Search String] [-m message to log] [-i Timeout] [-b baud] [-h]" << endl
-			<< "strings can include: \\xx (xx is a hex char), \\r and \\n, and to delay x ms, \\xm" << endl
+			<< "strings can include: \\xx (xx is a hex char), \\r and \\n, and to delay x ms, \\sxm" << endl
 			<< "\\b means send a break" << endl
 			<< "-M puts it in monitor mode where it just reports the state" << endl
 			<< "  of hardware flow control until ctrl+c is pressed" << endl;

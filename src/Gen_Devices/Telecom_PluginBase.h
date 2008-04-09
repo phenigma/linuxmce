@@ -234,7 +234,7 @@ public:
 	virtual void CMD_PL_Add_VOIP_Account(string sName,string sPhoneNumber,string sPassword,string sUsers,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_PL_Join_Call(int iPK_Users,string sPhoneExtension,string sPhoneCallID,int iPK_Device_To,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Speak_in_house(int iPK_Device,string sPhoneNumber,string sList_PK_Device,int iPK_Device_Related,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Make_Call(int iPK_Users,string sPhoneExtension,int iPK_Device_From,int iPK_Device_To,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Make_Call(int iPK_Users,string sPhoneExtension,string sPK_Device_From,int iPK_Device_To,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Merge_Calls(string sPhone_Call_ID_1,string sPhone_Call_ID_2,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Assisted_Transfer(int iPK_Device,int iPK_Users,string sPhoneExtension,string sPhoneCallID,string sChannel,string *sTask,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Process_Task(string sTask,string sJob,string &sCMD_Result,class Message *pMessage) {};
@@ -610,9 +610,9 @@ public:
 						string sCMD_Result="OK";
 						int iPK_Users=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Users_CONST].c_str());
 						string sPhoneExtension=pMessage->m_mapParameters[COMMANDPARAMETER_PhoneExtension_CONST];
-						int iPK_Device_From=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Device_From_CONST].c_str());
+						string sPK_Device_From=pMessage->m_mapParameters[COMMANDPARAMETER_PK_Device_From_CONST];
 						int iPK_Device_To=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Device_To_CONST].c_str());
-						CMD_Make_Call(iPK_Users,sPhoneExtension.c_str(),iPK_Device_From,iPK_Device_To,sCMD_Result,pMessage);
+						CMD_Make_Call(iPK_Users,sPhoneExtension.c_str(),sPK_Device_From.c_str(),iPK_Device_To,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -629,7 +629,7 @@ public:
 						{
 							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Make_Call(iPK_Users,sPhoneExtension.c_str(),iPK_Device_From,iPK_Device_To,sCMD_Result,pMessage);
+								CMD_Make_Call(iPK_Users,sPhoneExtension.c_str(),sPK_Device_From.c_str(),iPK_Device_To,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

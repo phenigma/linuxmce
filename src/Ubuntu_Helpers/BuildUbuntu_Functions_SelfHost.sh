@@ -12,6 +12,21 @@ else
 	CONF=${SVNROOT}/src/Ubuntu_Helpers/${flavor}32.conf
 fi
 #echo MakeRelease_PrepFiles configuation file: $CONF
+PK_DISTRO=$(grep ^pk_distro $CONF | awk '{ split($0, list, "="); print list[2] }')
+RELEASE_VERSION=$(grep ^release_version $CONF | awk '{ split($0, list, "="); print list[2] }')
+ADMINSITE_NAME=$(grep ^adminsite_name $CONF | awk '{ split($0, list, "="); print list[2] }')
+DISTRO=$(grep ^distro $CONF | awk '{ split($0, list, "="); print list[2] }')
+ARCH=$(grep ^arch $CONF | awk '{ split($0, list, "="); print list[2] }')
+CORE_NAME=$(grep ^core_name $CONF | awk '{ split($0, list, "="); print list[2] }')
+MAIN_URL=$(grep ^main_url $CONF | awk '{ split($0, list, "="); print list[2] }')
+NAME_MIXED=$(grep ^name_mixed $CONF | awk '{ split($0, list, "="); print list[2] }')
+NAME_LOWER=$(grep ^name_lower $CONF | awk '{ split($0, list, "="); print list[2] }')
+NAME_UPPER=$(grep ^name_upper $CONF | awk '{ split($0, list, "="); print list[2] }')
+FLAVOR_NAME=$(grep ^flavor_name $CONF | awk '{ split($0, list, "="); print list[2] }')
+REPLACEMENTSDEB_DEBIAN=$(grep ^replacementsdeb_debian $CONF | awk '{ split($0, list, "="); print list[2] }')
+MAINDEB_DEBIAN=$(grep ^maindeb_debian $CONF | awk '{ split($0, list, "="); print list[2] }')
+REPLACEMENTSDEB_UBUNTU=$(grep ^replacementsdeb_ubuntu $CONF | awk '{ split($0, list, "="); print list[2] }')
+MAINDEB_UBUNTU=$(grep ^maindeb_ubuntu $CONF | awk '{ split($0, list, "="); print list[2] }')
 
 if [[ $build_dir == "" || $local_mirror_dir == "" ]] ;then
 	build_dir="/var/plutobuild"
@@ -401,7 +416,7 @@ function SUDO_Install_Build_Needed_Packages_SUDO
 	sudo apt-get update > /dev/null
 
 	#TODO:Get list outside the file as it started growing to big
-	local pkgs="asterisk-dev autoconf automake automake1.10 autotools-dev build-essential cdw debhelper debootstrap dh-make dmsetup fakeroot fuse-utils g++ libaa1-dev libattr1-dev libavcodec-dev libavformat-dev libbluetooth2-dev libcaca-dev libcddb-dev libcdio-dev libcdparanoia0-dev libconfuse-dev libcurl3-dev libdancer-xml0-dev libdbus-1-dev libdbus-glib-1-dev libdirectfb-dev libdvdread-dev libesd0-dev libfuse-dev libglade2-dev libgnomevfs2-dev libgtk2.0-dev libhal-dev libhid-dev libid3-3.8.3-dev libjpeg62-dev liblinphone1-dev liblircclient-dev libmad0-dev libmediastreamer0-dev libmodplug-dev libmpcdec-dev libpostproc-dev libqt3-compat-headers libqt3-headers libqt3-mt-dev libsdl-gfx1.2-dev libsdl-image1.2-dev libsdl-sge-dev libsdl-ttf2.0-dev libsdl1.2-dev libstdc++5 libsvga1-dev libtcltk-ruby libtheora-dev libupnp-dev libusb-dev libvte-dev libx11-dev libxcb-shape0-dev libxcb-shm0-dev libxcb-xv0-dev libxine-dev libxmu-headers libxrender-dev libxtst-dev mkisofs module-assistant mysql-client mysql-server nasm qt3-apps-dev qt3-assistant qt3-designer qt3-dev-tools qt3-dev-tools-compat qt3-dev-tools-embedded qt3-linguist qt3-qtconfig quilt ruby1.8-dev sgmltools-lite squashfs-tools subversion swig tcl8.4-dev transfig x-dev x11proto-core-dev x11proto-record-dev x11proto-xext-dev x11proto-xf86vidmode-dev xorg-dev libdvb-dev libavc1394-dev liblame-dev libiec61883-dev libdvdnav-dev libimlib2-dev texi2html"
+	local pkgs="asterisk-dev autoconf automake automake1.10 autotools-dev build-essential cdw debhelper debootstrap dh-make dmsetup fakeroot fuse-utils g++ libaa1-dev libattr1-dev libavcodec-dev libavformat-dev libbluetooth2-dev libcaca-dev libcddb-dev libcdio-dev libcdparanoia0-dev libconfuse-dev libcurl3-dev libdancer-xml0-dev libdbus-1-dev libdbus-glib-1-dev libdirectfb-dev libdvdread-dev libesd0-dev libfuse-dev libglade2-dev libgnomevfs2-dev libgtk2.0-dev libhal-dev libhid-dev libid3-3.8.3-dev libjpeg62-dev liblinphone1-dev liblircclient-dev libmad0-dev libmediastreamer0-dev libmodplug-dev libmpcdec-dev libpostproc-dev libqt3-compat-headers libqt3-headers libqt3-mt-dev libsdl-gfx1.2-dev libsdl-image1.2-dev libsdl-sge-dev libsdl-ttf2.0-dev libsdl1.2-dev libstdc++5 libsvga1-dev libtcltk-ruby libtheora-dev libupnp-dev libusb-dev libvte-dev libx11-dev libxcb-shape0-dev libxcb-shm0-dev libxcb-xv0-dev libxine-dev libxmu-headers libxrender-dev libxtst-dev mkisofs module-assistant mysql-client mysql-server nasm qt3-apps-dev qt3-assistant qt3-designer qt3-dev-tools qt3-dev-tools-compat qt3-dev-tools-embedded qt3-linguist qt3-qtconfig quilt ruby1.8-dev sgmltools-lite squashfs-tools subversion swig tcl8.4-dev transfig x-dev x11proto-core-dev x11proto-record-dev x11proto-xext-dev x11proto-xf86vidmode-dev xorg-dev libdvb-dev libavc1394-dev liblame-dev libiec61883-dev libdvdnav-dev libimlib2-dev texi2html ccache libtag1-dev"
 	# removed libhttpfetcher-dev since it no longer appears to be in the distribution
 	# removed kdelibs4-dev libflac-dev libmagick9-dev libpulse-dev
 	local pkg
@@ -775,6 +790,7 @@ function Run_MakeRelease_Prep
 
 	MakeRelease_PrepFiles="${mkr_dir}/MakeRelease_PrepFiles"
 	echo Running MakeRelease_PrepFiles
+#	$MakeRelease_PrepFiles -p ${SVNROOT} -e "*.prep,*.cpp,*.h,Makefile*,*.php,*.sh,*.pl,*.awk" -c ${CONF}
 	$MakeRelease_PrepFiles -p ${SVNROOT} -e "*.prep" -c ${CONF}
 
         mkdir -p ${SVNROOT}/build
@@ -835,9 +851,9 @@ function Run_MakeRelease_All
 	$MakeRelease -R "$SVNrevision" \
                      -h $sql_slave_host -u $db_user \
                      -p $db_password -P $db_port \
-                     -O $out_dir -D $sql_slave_db -o 14 -r 21 -m 1 \
+                     -O $out_dir -D $sql_slave_db -o $PK_DISTRO -r 21 -m 1 \
                      -K "$exclude_list" \
-                     -s "${SVNROOT}" -n "${SVNROOT}/build/tmp" > >(tee -a $build_dir/Build.log)  -d
+                     -s "${SVNROOT}" -n "${SVNROOT}/build/tmp" > >(tee -a $build_dir/Build.log)
 	echo "$(date) part 6 " >> $build_log
 	ls -l $SVNROOT/src/bin/ >> $build_log
 }
@@ -873,9 +889,9 @@ function Run_MakeRelease
 	$MakeRelease -R "$SVNrevision" \
                      -h $sql_slave_host -u $db_user \
                      -p $db_password -P $db_port \
-                     -O $out_dir -D $sql_slave_db -o 14 -r 21 -m 1 \
+                     -O $out_dir -D $sql_slave_db -o $PK_DISTRO -r 21 -m 1 \
                      -k "$db_devices" \
-                     -s "${SVNROOT}" -n "${SVNROOT}/build/tmp" > >(tee -a $build_dir/Build.log) -d
+                     -s "${SVNROOT}" -n "${SVNROOT}/build/tmp" > >(tee -a $build_dir/Build.log)
 }
 
 function Create_Fake_Windows_Binaries {
@@ -1060,11 +1076,13 @@ function Init_Build_Database
         local db_password=("$2")
         local db_port=("$3")
         local hostparam="-h $sql_slave_host -P $db_port"
+        local mysqlcmd="mysql $hostparam -u $db_user -p$db_password"
+	local sedcmd=$(echo "sed -e 's/<-mkr_t_pk_distro->/$PK_DISTRO/g' | sed -e 's/<-mkr_t_release_version->/$RELEASE_VERSION/g' | sed -e 's/<-mkr_t_adminsite_name->/$ADMINSITE_NAME/g' | sed -e 's/<-mkr_t-distro->/$DISTRO/g' | sed -e 's/<-mkr_t-arch->/$ARCH/g' | sed -e 's/<-mkr_t-core_name->/$CORE_NAME/g' | sed -e 's/<-mkr_t_main_url->/$MAIN_URL/g' | sed -e 's/<-mkr_t_name_mixed->/$NAME_MIXED/g' | sed -e 's/<-mkr_t_flavor_name->/$FLAVOR_NAME/g' | sed -e 's/<-mkr_t_replacementsdeb_debian->/$REPLACEMENTSDEB_DEBIAN/g' | sed -e 's/<-mkr_t_maindeb_debian->/$MAINDEB_DEBIAN/g' | sed -e 's/<-mkr_t_name_lower->/$NAME_LOWER/g' | sed -e 's/<-mkr_t_maindeb_ubuntu->/$MAINDEB_UBUNTU/g' | sed -e 's/<-mkr_t_replacementsdeb_ubuntu->/$REPLACEMENTSDEB_UBUNTU/g'")
 
 	local UPDATE="update Package_Directory_File set MakeCommand='make -f Makefile.cvs; LDFLAGS=\"-L../../lib\" CPPFLAGS=\"-I../../ -I../../DCE -I../../Gen_Devices\" CXXFLAGS=\"-O0 -g3\" ./configure; make ; cp src/lmce_launch_manager ../bin/lmce_launch_manager ' where PK_Package_Directory_File=533;"
 
-        if `test -f $SVNROOT/build/state_db_initialized_20294` ; then
-		echo $UPDATE | mysql $hostparam -u $db_user -p$db_password $sql_slave_db
+        if `test -f $SVNROOT/build/state_db_initialized_20501` ; then
+		echo $UPDATE | $mysqlcmd $sql_slave_db
                 return 0
         fi
 
@@ -1075,7 +1093,7 @@ function Init_Build_Database
 	       "DROP DATABASE IF EXISTS $sql_slave_db_security;"     \
 	       "DROP DATABASE IF EXISTS $sql_slave_db_telecom;"      \
 	       "DROP DATABASE IF EXISTS pluto_main;"                 \
-                   | mysql $hostparam -u $db_user -p$db_password  
+                   | $mysqlcmd  
 	echo   "CREATE DATABASE $sql_slave_db;"                      \
 	       "CREATE DATABASE $sql_slave_db_mainsqlcvs;"           \
 	       "CREATE DATABASE $sql_slave_db_mythsqlcvs;"           \
@@ -1083,38 +1101,38 @@ function Init_Build_Database
 	       "CREATE DATABASE $sql_slave_db_security;"             \
 	       "CREATE DATABASE $sql_slave_db_telecom;"              \
 	       "CREATE DATABASE pluto_main;"                         \
-                   | mysql $hostparam -u $db_user -p$db_password
+                   | $mysqlcmd
 
         local db_cnt=6
         echo "Loading main build database 1/$db_cnt"
-	bzcat $SVNROOT/db_dumps/pluto_main_build.sql.bz2 | mysql $hostparam -u $db_user -p$db_password $sql_slave_db
+	eval "bzcat $SVNROOT/db_dumps/pluto_main_build.sql.bz2   | $sedcmd | $mysqlcmd $sql_slave_db"
         echo "Loading media database 2/$db_cnt"
-	bzcat $SVNROOT/db_dumps/pluto_media.sql.bz2 | mysql $hostparam -u $db_user -p$db_password $sql_slave_db_media
+	eval "bzcat $SVNROOT/db_dumps/pluto_media.sql.bz2        | $sedcmd | $mysqlcmd $sql_slave_db_media"
         echo "Loading security database 3/$db_cnt"
-	cat $SVNROOT/db_dumps/pluto_security.sql | mysql $hostparam -u $db_user -p$db_password $sql_slave_db_security
+	eval "cat $SVNROOT/db_dumps/pluto_security.sql           | $sedcmd | $mysqlcmd $sql_slave_db_security"
         echo "Loading telecom database 4/$db_cnt"
-	cat $SVNROOT/db_dumps/pluto_telecom.sql  | mysql $hostparam -u $db_user -p$db_password $sql_slave_db_telecom
+	eval "cat $SVNROOT/db_dumps/pluto_telecom.sql            | $sedcmd | $mysqlcmd $sql_slave_db_telecom"
         echo "Loading mythtv database 5/$db_cnt"
-	cat $SVNROOT/db_dumps/myth_sqlcvs_ubuntu.sql | mysql $hostparam -u $db_user -p$db_password $sql_slave_db_mythsqlcvs
+	eval "cat $SVNROOT/db_dumps/myth_sqlcvs_ubuntu.sql       | $sedcmd | $mysqlcmd $sql_slave_db_mythsqlcvs"
         echo "Loading mythtv database 6/$db_cnt"
-	bzcat $SVNROOT/db_dumps/main_sqlcvs_ubuntu.sql.bz2 | mysql $hostparam -u $db_user -p$db_password $sql_slave_db_mainsqlcvs
+	eval "bzcat $SVNROOT/db_dumps/main_sqlcvs_ubuntu.sql.bz2 | $sedcmd | $mysqlcmd $sql_slave_db_mainsqlcvs"
 
-#	cat $temp_file | mysql $hostparam -u $db_user -p$db_password "pluto_main"
-#	cat $temp_file_main | mysql $hostparam -u $db_user -p$db_password $sql_slave_db_mainsqlcvs
-#	cat $temp_file_myth | mysql $hostparam -u $db_user -p$db_password $sql_slave_db_mythsqlcvs
+#	cat $temp_file | $mysqlcmd "pluto_main"
+#	cat $temp_file_main | $mysqlcmd $sql_slave_db_mainsqlcvs
+#	cat $temp_file_myth | $mysqlcmd $sql_slave_db_mythsqlcvs
 
-	echo $UPDATE |mysql $hostparam -u $db_user -p$db_password $sql_slave_db
+	echo $UPDATE | $mysqlcmd $sql_slave_db
 
-	export Version=$(echo "select VersionName from Version" | mysql $hostparam -u $db_user -p$db_password $sql_slave_db | tail -1);
+	export Version=$(echo "select VersionName from Version" | $mysqlcmd $sql_slave_db | tail -1);
         echo "Current DB Version is $Version"
 
         mkdir -p ${SVNROOT}/build
-        touch ${SVNROOT}/build/state_db_initialized_20294
+        touch ${SVNROOT}/build/state_db_initialized_20501
 }
 
 function SUDO_Setup_Build_Database_SUDO
 {
-        if `test -f $SVNROOT/build/state_db_setup_20294` ; then
+        if `test -f $SVNROOT/build/state_db_setup_20501` ; then
                 return 0
         fi
 

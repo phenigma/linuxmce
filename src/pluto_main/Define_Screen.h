@@ -266,6 +266,7 @@
 #define SCREEN_aJAd_CONST 280
 #define SCREEN_Non_Pluto_TV_Full_screen_CONST 281
 #define SCREEN_Non_Pluto_TV_Full_screen_options_CONST 282
+#define SCREEN_Cannot_Reload_Router_CONST 283
 
 #define SCREEN_TABLE "Screen"
 #define SCREEN_PK_SCREEN_FIELD "PK_Screen"

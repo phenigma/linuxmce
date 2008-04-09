@@ -72,6 +72,7 @@ int MoveDiscTask::Run()
 			pSlot = m_pJukeBox->m_mapSlot_NotEmpty();
 			if( !pSlot )  // We ejected all slots
 			{
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "MoveDiscTask::Run no slots to move %d",(int) m_pJukeBox->m_mapSlot.size());
 				m_eTaskStatus_set(TASK_COMPLETED);
 				return 0;
 			}

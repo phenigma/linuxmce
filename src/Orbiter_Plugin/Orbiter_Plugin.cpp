@@ -414,18 +414,18 @@ void Orbiter_Plugin::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessag
 // Our message interceptor
 bool Orbiter_Plugin::RouteToOrbitersInRoom(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo)
 {
-    if (!pDeviceFrom)
-    {
-        LoggerWrapper::GetInstance()->Write(LV_WARNING,"GotRouteToOrbitersInRoom, but pDeviceFrom is NULL");
-        return false;
-    }
-
 	if( pMessage->m_dwPK_Device_To==DEVICETEMPLATE_VirtDev_All_Orbiters_CONST )
 	{
         pMessage->m_dwPK_Device_To = DEVICEID_LIST;
         pMessage->m_sPK_Device_List_To = m_sPK_Device_AllOrbiters;
 		return false;
 	}
+
+	if (!pDeviceFrom)
+    {
+        LoggerWrapper::GetInstance()->Write(LV_WARNING,"GotRouteToOrbitersInRoom, but pDeviceFrom is NULL");
+        return false;
+    }
 
     // If the sender was an orbiter, get the current room.  Otherwise the permanent room
     OH_Orbiter *pOH_Orbiter_From = m_mapOH_Orbiter_Find(pDeviceFrom->m_dwPK_Device);
@@ -898,14 +898,8 @@ bool Orbiter_Plugin::ReloadAborted(class Socket *pSocket,class Message *pMessage
 		return false;
 
 	DeviceData_Router *pDeviceData_Router = m_pRouter->m_mapDeviceData_Router_Find(PK_Device);
-
-	string Message = "Cannot reload at this moment";
-	if( pDeviceData_Router )
-		Message+= " as per " + pDeviceData_Router->m_sDescription;
-	Message += ".  Please try again in a few minutes.\n" + pMessage->m_mapParameters[EVENTPARAMETER_Text_CONST];
-
-	SCREEN_DialogGenericError SCREEN_DialogGenericError(m_dwPK_Device, PK_Orbiter, Message, "0", "0", "0");
-	SendCommand(SCREEN_DialogGenericError);
+	SCREEN_Cannot_Reload_Router SCREEN_Cannot_Reload_Router(m_dwPK_Device, PK_Orbiter, pDeviceData_Router->m_sDescription + "\n" + pMessage->m_mapParameters[EVENTPARAMETER_Text_CONST]);
+	SendCommand(SCREEN_Cannot_Reload_Router);
 
 	return false;
 }
@@ -1014,9 +1008,9 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter %p %d now in ea %p %d",pO
 					  (pEntertainArea ? pEntertainArea->m_iPK_EntertainArea : 0));
     PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
 	if( pEntertainArea && pEntertainArea->m_pMediaStream )
-		m_pMedia_Plugin->SetNowPlaying( pOH_Orbiter, pEntertainArea->m_pMediaStream, false );
+		pEntertainArea->m_pMediaStream->SetNowPlaying( pOH_Orbiter, false );
 	else
-		m_pMedia_Plugin->SetNowPlaying( pOH_Orbiter, NULL, false );
+		m_pMedia_Plugin->SetNothingNowPlaying( pOH_Orbiter, false );
 	mm.Release();
 
 	FireFollowMe("M",pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pOH_Orbiter->PK_Users_get(),
@@ -1695,7 +1689,7 @@ void Orbiter_Plugin::CMD_Orbiter_Registered(string sOnOff,int iPK_Users,string s
 		EntertainArea *pEntertainArea = m_pMedia_Plugin->m_mapEntertainAreas_Find(atoi(sPK_EntertainArea.c_str()));
 	    pOH_Orbiter->m_pEntertainArea=pEntertainArea;
 		if( pEntertainArea && pEntertainArea->m_pMediaStream )
-			m_pMedia_Plugin->SetNowPlaying( pOH_Orbiter, pEntertainArea->m_pMediaStream, false, false, CMD_Set_Bound_Iconl.m_pMessage);
+			pEntertainArea->m_pMediaStream->SetNowPlaying( pOH_Orbiter, false, false, CMD_Set_Bound_Iconl.m_pMessage);
 		mm.Release();
 		
 		OrbiterFileBrowser_Collection *pOrbiterFileBrowser_Collection = m_pMedia_Plugin->CreateOrbiterFileList(pOH_Orbiter);
@@ -1873,18 +1867,23 @@ void Orbiter_Plugin::CMD_Regen_Orbiter(int iPK_Device,string sForce,string sRese
 
 	string sOrbiterList;
     PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);
+	list<OH_Orbiter *> temp_listRegenCommands;
+
     for(map<int,OH_Orbiter *>::iterator it=m_mapOH_Orbiter.begin();it!=m_mapOH_Orbiter.end();++it)
     {
         OH_Orbiter *pOH_Orbiter = (*it).second;
 
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter_Plugin::CMD_Regen_Orbiter checking orb %d/%d of %d device %d regen %d",
+			it->first,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,(int) m_mapOH_Orbiter.size(), iPK_Device,(int) pOH_Orbiter->m_tRegenTime); 
+
 		if( iPK_Device==0 || pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device==iPK_Device )
 		{
-			if( pOH_Orbiter->m_tRegenTime )
+			if( IsRegenerating(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device) || pOH_Orbiter->m_tRegenTime )
 			{
 				int Minutes = (int)(time(NULL) - pOH_Orbiter->m_tRegenTime) /60;
 				string sMessage = "We already started regenerating the orbiter " + pOH_Orbiter->m_pDeviceData_Router->m_sDescription + " " + StringUtils::itos(Minutes) +
 					" minutes ago.  When it is finished, it will return to the main menu automatically.  If you think it is stuck, you may want to reset the Pluto system";
-				SCREEN_PopupMessage SCREEN_PopupMessage(m_dwPK_Device, iPK_Device,
+				SCREEN_PopupMessage SCREEN_PopupMessage(m_dwPK_Device, pMessage->m_dwPK_Device_From,
 					sMessage, // Main message
 					"", // Command Line
 					"already_regen", // Description
@@ -1895,37 +1894,38 @@ void Orbiter_Plugin::CMD_Regen_Orbiter(int iPK_Device,string sForce,string sRese
 				return;
 			}
 			else
-                pOH_Orbiter->m_tRegenTime = time(NULL);
-		}
-
-		if( iPK_Device==0 && !IsRegenerating(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device) ) //we'll regen all of them
-		{
-			if( sOrbiterList.size() )
-				sOrbiterList += ",";
-			sOrbiterList += StringUtils::itos(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
-			m_listRegenCommands.push_back(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
-			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter_Plugin::CMD_Regen_Orbiter iPK_Device==0 Added %d to m_listRegenCommands %d size",pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,(int) m_listRegenCommands.size());
+			{
+				if( sOrbiterList.size() )
+					sOrbiterList += ",";
+				sOrbiterList += StringUtils::itos(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
+				temp_listRegenCommands.push_back(pOH_Orbiter);
+			}
 		}
 	}
 
-	if( !iPK_Device || !IsRegenerating(iPK_Device) )
+	for(list<OH_Orbiter *>::iterator it=temp_listRegenCommands.begin();it!=temp_listRegenCommands.end();++it)
 	{
-		if( iPK_Device )
-		{
-			m_listRegenCommands.push_back(iPK_Device);
-			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter_Plugin::CMD_Regen_Orbiter Added %d to m_listRegenCommands %d size",iPK_Device,(int) m_listRegenCommands.size());
-		}
+		OH_Orbiter *pOH_Orbiter = *it;
+		pOH_Orbiter->m_tRegenTime = time(NULL);
+		m_listRegenCommands.push_back(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter_Plugin::CMD_Regen_Orbiter iPK_Device==%d Added %d to m_listRegenCommands %d size",
+			iPK_Device, pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,(int) m_listRegenCommands.size());
+	}
 
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter_Plugin::CMD_Regen_Orbiter iPK_Device==%d ready for  m_listRegenCommands %d size",
+		iPK_Device, (int) m_listRegenCommands.size());
+	if( temp_listRegenCommands.size() )
+	{
 		// construct strings outside of array initializer so they don't destroy after the array is initialized, leaving us with invalid pointers
 		string sThingsToRegen = iPK_Device ? (char *)(StringUtils::itos(iPK_Device).c_str()) : (char *) sOrbiterList.c_str();
 		string sOrbiter = StringUtils::itos(m_dwPK_Device).c_str();
 		char * args[] = { "/usr/pluto/bin/RegenOrbiterOnTheFly.sh", (char*)(sThingsToRegen.c_str()), (char *)(sOrbiter.c_str()), (char *)(sForce.c_str()), NULL };
 		ProcessUtils::SpawnDaemon(args[0], args);
 
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter_Plugin::CMD_Regen_Orbiter Execution returned for %d",iPK_Device);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter_Plugin::CMD_Regen_Orbiter Execution %s returned for %d",sThingsToRegen.c_str(),iPK_Device);
 	}
 	else
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter_Plugin::CMD_Regen_Orbiter Already generating %d",iPK_Device);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter_Plugin::CMD_Regen_Orbiter temp_listRegenCommands is empty or already generating %d",iPK_Device);
 }
 
 //<-dceag-c267-b->
@@ -2863,6 +2863,8 @@ void Orbiter_Plugin::StartRetrievingScreenSaverFiles()
 	DeviceData_Router *pDevice_App_Server=NULL,*pDevice_Us = m_pRouter->m_mapDeviceData_Router_Find(m_dwPK_Device);
 	if( pDevice_Us )
 		pDevice_App_Server = (DeviceData_Router *) pDevice_Us->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_App_Server_CONST);
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Orbiter_Plugin::StartRetrievingScreenSaverFiles apps %d/%s", vectApps.size(), s.c_str());
 
 	if( pDevice_App_Server )
 	{

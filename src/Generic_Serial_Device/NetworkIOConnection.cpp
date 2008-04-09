@@ -82,8 +82,8 @@ NetworkIOConnection::Send(const char* buff, unsigned int size) {
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Trying to send DATA while not connected.");
 		return -1;
 	}
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Sending buffer to %s with size %d: <%s>.", 
-									host_.c_str(), size, IOUtils::FormatHexAsciiBuffer(buff, size).c_str(),"31");
+	LoggerWrapper::GetInstance()->Write(LV_SEND_DATA, "Sending buffer to %s with size %d: <%s>.", 
+									host_.c_str(), size, IOUtils::FormatHexAsciiBuffer(buff, size,"31").c_str());
 	size = send(sockfd_, buff, size, 0);
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Buffer sent.");
 	return size;
@@ -108,8 +108,8 @@ NetworkIOConnection::Recv(char* buff, unsigned int size, int timeout) {
 	}
 	
 #ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Received buffer from %s: <%s>", 
-									host_.c_str(), IOUtils::FormatHexAsciiBuffer(buff, retsize).c_str(),"33");
+	LoggerWrapper::GetInstance()->Write(LV_RECEIVE_DATA, "Received buffer from %s: <%s>", 
+									host_.c_str(), IOUtils::FormatHexAsciiBuffer(buff, retsize,"33").c_str());
 #endif
 
 	return retsize;

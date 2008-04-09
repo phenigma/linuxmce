@@ -172,10 +172,10 @@ bool Notification::NotifyLoop(int iType,bool bProcessInBackground)
 				(m_pRow_Alert->FK_AlertType_get()==ALERTTYPE_Fire_CONST && !bFire) ||
 				(m_pRow_Alert->FK_AlertType_get()==ALERTTYPE_Air_Quality_CONST && !bAirQuality) ||
 				(m_pRow_Alert->FK_AlertType_get()==ALERTTYPE_Doorbell_CONST && !bDoorbell) )
-{
-LoggerWrapper::GetInstance()->Write(LV_STATUS,"Skipping orbiter %s",sPhoneNumber.c_str());
+		{
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Skipping orbiter %s check cell phone notifications options",sPhoneNumber.c_str());
 			continue;
-}
+		}
 
 		if( iDelay>0 )
 		{

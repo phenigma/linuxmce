@@ -168,7 +168,7 @@ void RipTask::UpdateProgress(string sStatus,int iPercent,int iTime,string sText,
 	{
 		if (!m_pRipJob->m_bHasErrors)
 		{
-			string sMessage = "Errors were encountered while ripping the disk. The bad sectors will be skipped and replaced with zeros, but if the disk is very scratched, it may take a long while for the operation to complete. If you don't want to wait, you can cancel the operation from the 'Pending tasks' screen|OK|Pending tasks";
+			string sMessage = "Errors were encountered while ripping the disk. The bad sectors will be skipped and replaced with zeros, but if the disk is very scratched, it may take a very long while for the operation to complete, up to a full day or more. If you don't want to wait, you can cancel the operation from the 'Pending tasks' screen|OK|Pending tasks";
 
 			int iPK_Orbiter = m_pRipJob->Get_PK_Orbiter();
 			string sPK_Orbiter = StringUtils::itos(iPK_Orbiter);

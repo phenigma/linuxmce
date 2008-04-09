@@ -51,7 +51,10 @@ CleanUp()
 
 SetupX()
 {
-	cp "$ConfFile" "$XF86Config"
+	rm -f "$XF86Config"
+	if [[ -f "$ConfFile" ]]; then
+		cp "$ConfFile" "$XF86Config"
+	fi
 	rmmod nvidia &>/dev/null || :
 	# default test
 	bash -x "$BaseDir"/Xconfigure.sh --conffile "$XF86Config" --resolution '640x480@60' --no-test | tee-pluto /var/log/pluto/Xconfigure.log

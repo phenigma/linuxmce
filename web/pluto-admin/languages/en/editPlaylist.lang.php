@@ -25,4 +25,6 @@ $TEXT_EDIT_PLAYLIST_ADVANCED_CONST='Advanced edit playlist';
 $TEXT_PLAYLIST_CONST='Playlist';
 $TEXT_BACK_TO_SIMPLE_MODE_CONST='Back to simple mode';
 $TEXT_PLAYLIST_ADVANCED_NOTE_CONST='Please select a playlist entry from left to add/remove command groups.';
+$TEXT_FILES_TO_ADD_CONST='Files to add';
+$TEXT_FILES_ADDED_CONST='Files added';
 ?>

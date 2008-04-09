@@ -61,13 +61,19 @@ function orbiterRegenInProgress($output,$dbADO){
 function percentBox($percent){
 	// include language files
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/orbiterRegenInProgress.lang.php');
+	$percent=($percent>100)?100:$percent;
 	
 	$out='
-	<table width="250" cellpadding="0" cellspacing="0" border="0">
+	<table width="280" cellpadding="0" cellspacing="0" border="0">
 		<tr>
 			<td width="80">'.$TEXT_PERCENT_CONST.': '.$percent.'%</td>
-			<td bgcolor="green" width="'.(2*$percent).'">&nbsp;</td>
-			<td bgcolor="lightblue" width="'.(200-2*$percent).'">&nbsp;</td>
+			<td bgcolor="green" width="'.(2*$percent).'">&nbsp;</td>';
+	$remaining=200-2*$percent;
+	if($remaining>0){
+		$out.='
+			<td bgcolor="lightblue" width="'.$remaining.'">&nbsp;</td>';
+	}
+	$out.='
 		</tr>
 	</table>';
 	

@@ -49,6 +49,7 @@ class PlutoHalD
 		static long pnpDeviceID;
 		static GMainLoop * loop;
 		static bool threadShutdown;
+		static bool haldrunning;
 		static std::string moreInfo;
 	
 	public:
@@ -59,7 +60,7 @@ class PlutoHalD
 		static void* startUp(void * device);
 		
 		/***/
-		static void shutDown();
+		static bool shutDown();
 		
 		/***/
 		static void mainloop_integration (LibHalContext *ctx, DBusConnection * dbus_connection);

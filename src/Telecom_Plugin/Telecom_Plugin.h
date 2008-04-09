@@ -322,13 +322,13 @@ public:
 			/** The called user. Only one is supported now. */
 		/** @param #83 PhoneExtension */
 			/** The phone number to be called. */
-		/** @param #262 PK_Device_From */
+		/** @param #184 PK_Device_From */
 			/** The device which starts the call. */
 		/** @param #263 PK_Device_To */
 			/** The called device. */
 
-	virtual void CMD_Make_Call(int iPK_Users,string sPhoneExtension,int iPK_Device_From,int iPK_Device_To) { string sCMD_Result; CMD_Make_Call(iPK_Users,sPhoneExtension.c_str(),iPK_Device_From,iPK_Device_To,sCMD_Result,NULL);};
-	virtual void CMD_Make_Call(int iPK_Users,string sPhoneExtension,int iPK_Device_From,int iPK_Device_To,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Make_Call(int iPK_Users,string sPhoneExtension,string sPK_Device_From,int iPK_Device_To) { string sCMD_Result; CMD_Make_Call(iPK_Users,sPhoneExtension.c_str(),sPK_Device_From.c_str(),iPK_Device_To,sCMD_Result,NULL);};
+	virtual void CMD_Make_Call(int iPK_Users,string sPhoneExtension,string sPK_Device_From,int iPK_Device_To,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #924 - Merge Calls */
@@ -406,6 +406,7 @@ The response is a task id */
 
 	virtual void CMD_Add_To_Speed_Dial(int iPK_Device,string sCallerID,string sPhoneExtension) { string sCMD_Result; CMD_Add_To_Speed_Dial(iPK_Device,sCallerID.c_str(),sPhoneExtension.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_Add_To_Speed_Dial(int iPK_Device,string sCallerID,string sPhoneExtension,string &sCMD_Result,Message *pMessage);
+
 
 //<-dceag-h-e->
 

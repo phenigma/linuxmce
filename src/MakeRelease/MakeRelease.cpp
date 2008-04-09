@@ -190,12 +190,12 @@ int main(int argc, char *argv[])
 		{
 			cerr<<"Could not find value for parameter "<<argv[optnum]<<" ("<<optnum<<")"<<endl;
 			bError=true;
-                        break;
+			break;
 		}
 		c=argv[optnum][1];
 		switch (c)
 		{
-                case 't':
+		case 't':
 			if (!verify_next(argv, optnum, argc, "-h")) { bError=true; break; }
 			g_TempDir = argv[++optnum];
 			break;
@@ -864,18 +864,23 @@ bool GetNonSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFil
 			string File = pRow_Package_Directory_File->File_get();
 			if( pRow_Package_Directory_File->MakeCommand_get()!="" )
 			{
-				if( g_bInteractive && !AskYNQuestion("About to execute non-source make: " + pRow_Package_Directory_File->MakeCommand_get() + " Continue?",false) )
+				string tmp = pRow_Package_Directory_File->MakeCommand_get();
+				if( g_bInteractive && !AskYNQuestion("About to execute non-source make: " + tmp + " Continue?",false) )
 					return false;
 #ifndef WIN32
 				system(("mkdir -p " + sInputPath).c_str());
 #endif
 				chdir(sInputPath.c_str());
 
-                                string tmp = pRow_Package_Directory_File->MakeCommand_get();
-                                tmp = StringUtils::Replace(tmp, "sqlCVS", "sqlCVS -P 4306");
-                                tmp = StringUtils::Replace(tmp, "sqlCVS", "sqlCVS -h 127.0.0.1");
-                                tmp = StringUtils::Replace(tmp, "<-mkr_t_flavor_name->", "ubuntu");
-                                tmp = StringUtils::Replace(tmp, "sqlCVS", "/usr/pluto/bin/sqlCVS");
+				// HACK -- BEGIN
+				tmp = StringUtils::Replace(tmp, "sqlCVS", "sqlCVS -P 4306");
+				tmp = StringUtils::Replace(tmp, "mysqldump", "mysqldump -u lmce_build");
+				tmp = StringUtils::Replace(tmp, "mysqldump", "mysqldump -plmce_build");
+				tmp = StringUtils::Replace(tmp, "sqlCVS", "sqlCVS -h 127.0.0.1");
+				tmp = StringUtils::Replace(tmp, "mysqldump", "mysqldump -P 4306");
+				tmp = StringUtils::Replace(tmp, "mysqldump", "mysqldump -h 127.0.0.1");
+				tmp = StringUtils::Replace(tmp, "sqlCVS", "/usr/pluto/bin/sqlCVS");
+				// HACK -- END
 
 				cout << "Package: " << pRow_Package->PK_Package_get() << " Executing: " << tmp << " from dir: " << sInputPath << endl;
 				if( g_bOnlyCompileIfNotFound && FileUtils::FileExists(sInputPath + "/" + File) )
@@ -1250,9 +1255,10 @@ cout << "Doing snr on " << sSourceDirectory << "/" << *it << endl;
 					(!pRow_Package_Directory_File->FK_OperatingSystem_isNull() && pRow_Package_Directory_File->FK_OperatingSystem_get()!=g_pRow_Distro->FK_OperatingSystem_get()) )
 				continue;
 
+			string tmp = pRow_Package_Directory_File->MakeCommand_get();
 			if( g_bInteractive )
 			{
-				cout << "About to execute make: " << pRow_Package_Directory_File->MakeCommand_get() << endl
+				cout << "About to execute make: " << tmp << endl
 					<< "In directory: " << sSourceDirectory << endl;
 				if( !AskYNQuestion("Execute command?",false) )
 					return false;
@@ -1261,18 +1267,28 @@ cout << "Doing snr on " << sSourceDirectory << "/" << *it << endl;
 			if( FileUtils::FileExists("Main.cpp") )
 				StringUtils::Replace( "Main.cpp", "Main.cpp", "/*SVN_REVISION*/", "int g_SvnRevision=" + StringUtils::itos(g_iSVNRevision) + ";" );
 
-			fstr_compile << pRow_Package_Directory_File->MakeCommand_get() << endl;
-			cout << "Package: " << pRow_Package->FK_Package_Sourcecode_get() << " Executing: " << pRow_Package_Directory_File->MakeCommand_get() << endl;
+			// HACK -- BEGIN
+			tmp = StringUtils::Replace(tmp, "sqlCVS", "sqlCVS -P 4306");
+			tmp = StringUtils::Replace(tmp, "sqlCVS", "sqlCVS -h 127.0.0.1");
+			tmp = StringUtils::Replace(tmp, "mysqldump", "mysqldump -plmce_build");
+			tmp = StringUtils::Replace(tmp, "mysqldump", "mysqldump -u lmce_build");
+			tmp = StringUtils::Replace(tmp, "mysqldump", "mysqldump -P 4306");
+			tmp = StringUtils::Replace(tmp, "mysqldump", "mysqldump -h 127.0.0.1");
+			tmp = StringUtils::Replace(tmp, "sqlCVS", "/usr/pluto/bin/sqlCVS");
+	       		// HACK -- END
+
+			fstr_compile << tmp << endl;
+			cout << "Package: " << pRow_Package->FK_Package_Sourcecode_get() << " Executing: " << tmp << endl;
 			if( g_bOnlyCompileIfNotFound && FileUtils::FileExists(sCompiledOutput + "/" + pRow_Package_Directory_File->File_get()) )
 				cout << "Skipping compilation of package: " << pRow_Package->FK_Package_Sourcecode_get() << endl;
-			else if( !g_bSimulate && system(pRow_Package_Directory_File->MakeCommand_get().c_str()) )
+			else if( !g_bSimulate && system(tmp.c_str()) )
 			{
-				cout << pRow_Package_Directory_File->MakeCommand_get() << " ***FAILED***" << endl;
-				cout << "Error: " << pRow_Package_Directory_File->MakeCommand_get() << " failed!" << endl;
+				cout << tmp << " ***FAILED***" << endl;
+				cout << "Error: " << tmp << " failed!" << endl;
 				if( g_bSupressPrompts || !AskYNQuestion("Continue anyway?",false) )
 					return false;
 			}
-			cout << pRow_Package_Directory_File->MakeCommand_get() << " succeeded" << endl;
+			cout << tmp << " succeeded" << endl;
 
 			if( !FileUtils::FileExists(sCompiledOutput + "/" + pRow_Package_Directory_File->File_get()) ) 
 			{
@@ -2082,11 +2098,11 @@ string Makefile = "none:\n"
 	cout << cmd << endl;
 	system(cmd.c_str());
 
-        // HACK -- BEGIN remove strange string
-        cmd = string("sed -i 's.(51)..g' " + Dir + "/Makefile");
+	// HACK -- BEGIN remove strange string
+	cmd = string("sed -i 's.(51)..g' " + Dir + "/Makefile");
 	cout << cmd << endl;
 	system(cmd.c_str());
-        // HACK -- END   remove strange string
+	// HACK -- END   remove strange string
 
 	cout << string(("dpkg-buildpackage -b -rfakeroot -us -uc")) << endl;
 	if (!g_bSimulate)

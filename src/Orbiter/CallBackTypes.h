@@ -43,6 +43,7 @@ enum CallBackType
 	cbOnCustomRender,
     cbOnGotoScreen,
 	cbOnRemoteKeyCodeIntercepted,
+	cbOnVariableChanged
 };
 
 #endif

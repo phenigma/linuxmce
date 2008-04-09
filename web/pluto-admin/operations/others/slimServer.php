@@ -13,14 +13,15 @@ function slimServer($output,$dbADO) {
 	
 	
 	if($action=='form'){
+		$slimServer=getDeviceFromDT($installationID,$GLOBALS['SlimServer_Streamer'],$dbADO);
+		if($slimServer===null){
+			$out='<span class="err">'.$TEXT_SLIM_SERVER_NOT_FOUND.'</span>';
+		}else{
+			
+			$ip=$_SERVER['REMOTE_ADDR'];
 	
-		$ip=$_SERVER['REMOTE_ADDR'];
-		
-		$data=exec_batch_command('sudo -u root /usr/pluto/bin/Network_DisplaySettings.sh --all',1);
-		$ret=parse_ini_str($data);
-
-		$out.='<iframe src="http://'.$_SERVER['HTTP_HOST'].':9000/" style="width:98%;height:600px;"></iframe>';
-	
+			$out.='<iframe src="http://'.$_SERVER['HTTP_HOST'].':9000/" style="width:98%;height:600px;"></iframe>';
+		}	
 	}else{
 	// process area
 		// check if the user has the right to modify installation

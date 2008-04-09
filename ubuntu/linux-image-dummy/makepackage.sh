@@ -11,9 +11,27 @@ cp /boot/vmlinuz-${Moon_KernelVersion} ${Moon_RootLocation}/boot
 cp /boot/System.map-${Moon_KernelVersion} ${Moon_RootLocation}/boot/
 
 # Generate NFS bootable initrd
-sed -i 's/^.*BOOT=.*/BOOT=nfs/g' /etc/initramfs-tools/initramfs.conf
-mkinitramfs -d /etc/initramfs-tools/ -o ${Moon_RootLocation}/boot/initrd.img-${Moon_KernelVersion}
-sed -i 's/^.*BOOT=.*/BOOT=local/g' /etc/initramfs-tools/initramfs.conf
+AddModules()
+{
+	ModFile=/etc/initramfs-tools-diskless/modules
+	for Mod in "$@"; do
+		if ! grep -q "^$Mod\$" "$ModFile"; then
+			echo "$Mod" >>"$ModFile"
+		fi
+	done
+}
+
+if [[ ! -d /etc/initramfs-tools-diskless ]]; then
+	cp -a /etc/initramfs-tools{,-diskless}
+fi
+sed -i 's/^.*BOOT=.*/BOOT=nfs/g' /etc/initramfs-tools-diskless/initramfs.conf
+
+# NOTE: when you add a module to this list,
+# NOTE: please be sure to update and rebuild pluto-default-tftpboot too
+# NOTE: reference: UbuntuDiskless/Diskless_BuildDefaultImage.sh
+AddModules sky2
+
+mkinitramfs -d /etc/initramfs-tools-diskless/ -o ${Moon_RootLocation}/boot/initrd.img-${Moon_KernelVersion}
 
 # Copy from /lib/modules only whare belongs to linux-image-`uname -r`
 dpkg -L linux-image-${Moon_KernelVersion}  | grep '^/lib/modules/'  | sed 's|^/lib/modules/||g' | while read line ;do

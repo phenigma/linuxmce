@@ -102,17 +102,17 @@ namespace DCE
 		}
 	};
 
-	struct MythRecording
+	class MythRecording
 	{
-		union
+	public:
+		uint32_t channel_id;
+		time_t   scheduled_start_time;
+		u_int64_t key(void) const
 		{
-			u_int64_t int64;
-			struct
-			{
-				int channel_id;
-				time_t StartTime;
-			} time;
-		} data;
+			u_int64_t c = channel_id;
+			u_int64_t s = scheduled_start_time;
+			return c<<32 | s;
+		}
 	};
 
     //<-dceag-decl-b->!
@@ -222,8 +222,9 @@ public:
 
 		bool SafeToReload(string &sReason);
 
-		// Set a value in mythconverg's setting table.  If hostname=*, all known hosts will be set.  If it's empty, hostname will be NULL
-		void UpdateMythSetting(string value,string data,string hostname,bool bOnlyIfNotExisting=false);
+		/// Set a value in mythconverg's setting table.  If hostname=*, all known hosts will be set.  If it's empty, hostname will be NULL.
+		/// Returns true iff a setting was added or modified.
+		bool UpdateMythSetting(string value,string data,string hostname,bool bOnlyIfNotExisting=false);
 
 		void AlarmCallback(int id, void* param);
 		void CheckForNewRecordings();
@@ -240,7 +241,7 @@ public:
 
 		virtual bool ReportPendingTasks(PendingTaskList *pPendingTaskList=NULL);
 
-		void SetPaths();
+		bool SetPaths();
 		void RunBackendStarter();
 		void StartFillDatabase();
 		void UpdateUpcomingRecordings();

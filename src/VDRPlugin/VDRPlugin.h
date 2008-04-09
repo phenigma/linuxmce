@@ -239,6 +239,8 @@ public:
 		void RefreshBookmarks();
 		VDRSource *GetNewSource(string sSource);
 		VDRSeries *GetNewSeries(string sSeriesID);
+		bool MediaInfoChanged( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
+		bool PlaybackStarted( class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo);
 
 		virtual void PrepareToDelete();
 		// Datagrids
@@ -286,6 +288,8 @@ public:
 	/*
 			*****DATA***** accessors inherited from base class
 	int DATA_Get_Priority();
+	bool DATA_Get_Only_One_Per_PC();
+	int DATA_Get_EK_Provider();
 
 			*****EVENT***** accessors inherited from base class
 
@@ -382,7 +386,6 @@ live, nonlive, osd */
 
 	virtual void CMD_Remove_Scheduled_Recording(string sID,string sProgramID) { string sCMD_Result; CMD_Remove_Scheduled_Recording(sID.c_str(),sProgramID.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_Remove_Scheduled_Recording(string sID,string sProgramID,string &sCMD_Result,Message *pMessage);
-
 
 //<-dceag-h-e->
 	};

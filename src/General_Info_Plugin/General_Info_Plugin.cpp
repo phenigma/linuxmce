@@ -2777,7 +2777,23 @@ void General_Info_Plugin::ReportingChildDevices_Offline( void *pVoid )
 	{
 		Row_Device *pRow_Device = vectRow_Device[s];
 		if( pRow_Device->FK_Device_RouteTo_isNull()==false )
-			continue; // Skip embedded children
+		{
+			// Skip embedded children, iterate through their children
+			sSQL = "FK_Device_ControlledVia=" + StringUtils::itos(pRow_Device->PK_Device_get());
+			vector<Row_Device *> vectRow_Device_Children;
+			m_pDatabase_pluto_main->Device_get()->GetRows(sSQL,&vectRow_Device_Children);
+			for(size_t s=0;s<vectRow_Device_Children.size();++s)
+			{
+				Row_Device *pRow_Device_Child = vectRow_Device_Children[s];
+				if( mapCurrentChildren[pRow_Device_Child->PK_Device_get()]==false )
+				{
+					LoggerWrapper::GetInstance()->Write(LV_STATUS,"General_Info_Plugin::ReportingChildDevices removing dead embedded device %d %s",
+						pRow_Device_Child->PK_Device_get(),pRow_Device_Child->Description_get().c_str());
+					CMD_Delete_Device(pRow_Device_Child->PK_Device_get());
+				}
+			}
+			continue; // Don't delete the embedded device
+		}
 
 		if( mapCurrentChildren[pRow_Device->PK_Device_get()]==false )
 		{

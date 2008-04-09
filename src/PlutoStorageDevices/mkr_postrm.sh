@@ -19,3 +19,4 @@ rm -f /etc/init.d/StorageDevices_StatusRadar.sh
 
 ## Remove umount diversion
 dpkg-divert --remove /bin/umount
+dpkg-divert --remove /bin/mount

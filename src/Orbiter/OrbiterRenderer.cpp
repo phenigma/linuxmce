@@ -1156,6 +1156,7 @@ void OrbiterRenderer::RenderShortcut(DesignObj_Orbiter *pObj)
 
 	//also reset the last selected object from the floorplan.
 	OrbiterLogic()->m_pObj_LastSelected = NULL;
+	OrbiterLogic()->m_dwPK_DesignObj_Toolbar_Last=0;
 
 	ObjectOnScreen( &vectDesignObj_Orbiter_OnScreen, OrbiterLogic()->m_pScreenHistory_Current->GetObj() );
 	for(list<class PlutoPopup*>::iterator it=OrbiterLogic()->m_pScreenHistory_Current->GetObj()->m_listPopups.begin();

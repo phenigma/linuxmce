@@ -95,44 +95,29 @@ if [[ ! -f /etc/diskless.conf ]]; then
 	fi
 
 	## Check system /home partition for free space (/home)
-	homeDevice=$( cat /etc/fstab | awk '{ if ($2 == "/home") { print $1 } }' )
-	if [[ -z $homeDevice ]] ;then
-                homeDevice=$( cat /etc/fstab | awk '{ if ($2 == "/") { print $1 } }' )
-        fi
-	
-	if [[ "$homeDevice" == "UUID"* ]] ;then
-		homeDevice=$(echo $homeDevice | cut -d'=' -f2)
-		udev="/dev/disk/by-uuid/"$homeDevice
-		homeDevice=$(udevinfo -q name -n  $udev)
-		homeDevice="/dev/"$homeDevice
-	fi
+	dfOutput=$(df '/home' | grep -v '^Filesystem')
+	homeUsed=$(echo $dfOutput | awk '{ print $5 }'| cut -d"%" -f1)
+	homeFree=$(echo $dfOutput | awk '{ print $4 }')
+	if [[ $homeUsed -gt 95 || $homeFree -lt 204800 ]] ;then
+		Logging $TYPE $SEVERITY_CRITICAL $module "Filesystem ( /home ) is getting full, trying to clean quietly"
+		cleanHomeFS
 
-	if [[ -b "$homeDevice" && $homeDevice != "" ]] ;then
 		dfOutput=$(df $homeDevice | grep -v '^Filesystem')
 		homeUsed=$(echo $dfOutput | awk '{ print $5 }'| cut -d"%" -f1)
 		homeFree=$(echo $dfOutput | awk '{ print $4 }')
-		if [[ $homeUsed -gt 95 || $homeFree -lt 204800 ]] ;then
-			Logging $TYPE $SEVERITY_CRITICAL $module "Filesystem ( /home ) is getting full, trying to clean quietly"
-			cleanHomeFS
-	
-			dfOutput=$(df $homeDevice | grep -v '^Filesystem')
-			homeUsed=$(echo $dfOutput | awk '{ print $5 }'| cut -d"%" -f1)
-			homeFree=$(echo $dfOutput | awk '{ print $4 }')
-	
-			if [[ $homeUsed -gt 95 || $homeFree -lt 204800 ]] ;then
-				Logging $TYPE $SEVERITY_CRITICAL $module "Fielsystem ( /home ) wan auto cleaned but there is still no much space left"
-				SystemFilesystemFull="true"
-			else
-				Logging $TYPE $SEVERITY_NORMAL $module "Filesystem ( /home ) was auto cleaned and looks ok now"
-			fi
-		fi
-	
-	        ## Update Free Space device data for Core device
-		Core_HomeFree=$(( $homeFree / 1024 ))
-	        Q="UPDATE Device_DeviceData SET IK_DeviceData = '$Core_HomeFree' WHERE FK_DeviceData = '$DD_FREE_SPACE' AND FK_Device = '$PK_Device'"
-	        RunSQL "$Q"
 
+		if [[ $homeUsed -gt 95 || $homeFree -lt 204800 ]] ;then
+			Logging $TYPE $SEVERITY_CRITICAL $module "Fielsystem ( /home ) wan auto cleaned but there is still no much space left"
+			SystemFilesystemFull="true"
+		else
+			Logging $TYPE $SEVERITY_NORMAL $module "Filesystem ( /home ) was auto cleaned and looks ok now"
+		fi
 	fi
+
+	## Update Free Space device data for Core device
+	Core_HomeFree=$(( $homeFree / 1024 ))
+	Q="UPDATE Device_DeviceData SET IK_DeviceData = '$Core_HomeFree' WHERE FK_DeviceData = '$DD_FREE_SPACE' AND FK_Device = '$PK_Device'"
+	RunSQL "$Q"
 
 	if [[ $SystemFilesystemFull == "true" ]]; then
 		# Triger the Low System Disk Space (64) event
@@ -146,7 +131,7 @@ if [[ ! -f /etc/diskless.conf ]]; then
 	fi
 fi
 
-## Check Pluto Storage device for free space
+# Check Pluto Storage device for free space
 
 Q="SELECT PK_Device, Description  FROM Device WHERE FK_DeviceTemplate IN ($TPL_GENERIC_INTERNAL_DRIVE, $TPL_GENERIC_NFS_SHARE, $TPL_GENERIC_SAMBA_SHARE, $TPL_RAID_0, $TPL_RAID_1, $TPL_RAID_5)"
 StorageDevices=$(RunSQL "$Q")

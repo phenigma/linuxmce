@@ -3,7 +3,7 @@
  *
  *	Copyright Jeroen Vreeken (pe1rxq@amsat.org), 2000
  *	Additional copyright by the contributing authors in the
- *	change history below, 2000-2005
+ *	change history below, 2000-2007
  *
  *	Published under the GNU Public License.
  *
@@ -119,19 +119,37 @@
  * 			
  * 04.06.06	(Angel Carpintero)
  * 			Add module_param() for kernel > 2.5 because MODULE_PARAM() macro is obsolete.
- * 							 			
+ *
+ * 17.06.06	(Angel Carpintero)
+ *			Release version 1.0 with some fixes and code clean up. Added a Jack Bates contribution
+ *			to allow build a kernel module in debian way.
+ *
+ * 26.06.06	(Angel Carpintero)
+ *			Added some improvements in Makefile. Fix a problem to compile in Suse.
+ *
+ *
+ * 02.11.06	(Angel Carpintero)
+ * 			Make compatible with new kernel stable version 2.6.18, Many functions and declarations has
+ * 			been moved to media/v42l-dev.h and remove from videodev.h/videodev2.h
+ *
+ * 18.01.07	(Angel Carpintero)	
+ * 			Change -ENOIOCTLCMD by more appropiate error -ENOTTY.					
  */
 
 
-#define VLOOPBACK_VERSION "0.97-snap3"
+#define VLOOPBACK_VERSION "1.1-rc1"
 
 /* Include files common to 2.4 and 2.6 versions */
 #include <linux/version.h>	/* >= 2.6.14 LINUX_VERSION_CODE */ 
-#include <linux/config.h>	/* needed to get LINUX_VERSION_CODE >= 2.6.13 */
 #include <linux/errno.h>
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/pagemap.h>
+
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,18)
+#include <media/v4l2-common.h>
+#endif
+
 #include <linux/videodev.h>
 #include <linux/vmalloc.h>
 #include <linux/wait.h>
@@ -153,10 +171,6 @@
  #include <asm/uaccess.h>
  #include <linux/init.h>
  #include <linux/device.h>
- #if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 18)
-  #include <media/v4l2-common.h>
-  #include <media/v4l2-dev.h>
- #endif
 #else
  #include <linux/mm.h>
  #include <linux/slab.h>
@@ -186,7 +200,6 @@ struct vloopback_pipe {
 	unsigned long framesdumped;
 	unsigned int wopen;
 	unsigned int ropen;
-//	struct proc_dir_entry *proc_entry;  /* Deprecated the use of /proc in 2.6.x kernel series */
 	struct semaphore lock;
 	wait_queue_head_t wait;
 	unsigned int frame;
@@ -345,7 +358,6 @@ static int vloopback_open(struct inode *inod, struct file *f)
 		}
 		loops[nr]->pid=current->pid;
 	}
-	//MOD_INC_USE_COUNT;
 	return 0;
 }
 
@@ -892,7 +904,8 @@ static int vloopback_ioctl(struct inode *inod, struct file *f, unsigned int cmd,
 		case VIDIOCKEY:
 			return 0;
 		default:
-			return -ENOIOCTLCMD;
+			return -ENOTTY;
+			//return -ENOIOCTLCMD;
 	}
 	return 0;
 }

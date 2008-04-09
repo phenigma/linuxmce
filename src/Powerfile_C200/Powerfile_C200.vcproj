@@ -123,6 +123,9 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm">
 			<File
+				RelativePath="..\Disk_Drive_Functions\AddRippingTasksTask.cpp">
+			</File>
+			<File
 				RelativePath="..\Disk_Drive_Functions\Disk_Drive_Functions.cpp">
 			</File>
 			<File

@@ -57,13 +57,57 @@ DD_USERNAME=127
 DD_PASSWORD=128
 DD_FILESYSTEM=159
 DD_UUID=267
+DD_BLOCK_DEV=152
 
 NFS_MOUNT_OPTS="-fstype=nfs,udp,proto=udp,soft,timeo=7,retrans=3,retry=2,rsize=8192,wsize=8192"
 
 case "$Template" in
+	## Software Raid Array
+	"$TPL_RAID_0"|"$TPL_RAID_1"|"$TPL_RAID_5")
+		## It's one of our own internal storage devices
+		if [[ "$ControlledVia" == "$PK_Device" ]] ;then
+			Drive_BlockDevice=$(RunSQL "SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device=$StorageDevice AND FK_DeviceData=$DD_BLOCK_DEV")
+
+			## Test to see if the block device is there
+			if [[ ! -b "$Drive_BlockDevice" ]] ;then
+				Log $LOG_ERR "Block device '$Drive_BlockDevice' does not exist"
+				exit 0
+			fi
+			
+			## Do the mount
+			if  file -s "$Drive_BlockDevice" | grep -qi "ntfs" ;then
+				if [[ -x /sbin/mount.ntfs-3g ]] ;then
+					echo "-fstype=ntfs-3g :$Drive_BlockDevice"
+				else
+					echo "-fstype=ntfs :$Drive_BlockDevice"
+				fi
+			else
+				echo "-fstype=auto :$Drive_BlockDevice"
+			fi
+		else
+			## Get the ip address of the computer that contains that drive
+			Q="SELECT IPaddress FROM Device WHERE PK_Device = '$ControlledVia' LIMIT 1"
+			IPaddress=$(RunSQL "$Q")
+			IPaddress=$(Field 1 "$IPaddress")
+
+			## Try to see if the computer is up
+			ping -qnc 1 -W 1 "$IPaddress" &> /dev/null
+			HostIsUp=$?
+			if [[ "$HostIsUp" != "0" ]] ;then
+				Log $LOG_WARN "Host $IPaddress is not responding to our ping"
+				exit 0
+			fi
+		
+			## Do the mount
+			#echo "$NFS_MOUNT_OPTS $IPaddress:/mnt/device/$StorageDevice"
+			echo "-fstype=$CIFS_FileSystem,credentials=/usr/pluto/var/sambaCredentials.secret,dir_mode=0777,file_mode=0777$CIFS_ExtraOpts ://$IPaddress/Storage$StorageDevice\\\$"
+		fi
+
+		;;
+
 	
 	## Internal Drive
-	"$TPL_GENERIC_INTERNAL_DRIVE"|"$TPL_RAID_0"|"$TPL_RAID_1"|"$TPL_RAID_5")
+	"$TPL_GENERIC_INTERNAL_DRIVE")
 		## It's one of our own internal storage devices
 		if [[ "$ControlledVia" == "$PK_Device" ]] ;then
 			## Get the UUID of the device that we want to mount

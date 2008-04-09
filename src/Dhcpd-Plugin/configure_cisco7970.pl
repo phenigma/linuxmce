@@ -192,60 +192,7 @@ close(FILE);
 
 `ln -sf /tftpboot/SEPDefault7970.cnf.xml /tftpboot/SEP$Device_MAC.cnf.xml`;
 
-$str_DEV .= ";<pl_dev_$Device_ID>\n";
-$str_DEV .= "type = 7970\n";
-$str_DEV .= "description = SEP$Device_MAC\n";
-$str_DEV .= "autologin = $Device_EXT\n";
-$str_DEV .= "transfer = off\n";
-$str_DEV .= "park = off\n";
-$str_DEV .= "speeddial = \n";
-$str_DEV .= "cfwdall = off\n";
-$str_DEV .= "cfwdbusy = off\n";
-$str_DEV .= "dtmfmode = inband\n";
-$str_DEV .= "device => SEP$Device_MAC\n";
-$str_DEV .= ";</pl_dev_$Device_ID>\n";
-
-$str_LINE .= ";<pl_line_$Device_ID>\n";
-$str_LINE .= "id = $Device_EXT\n";
-$str_LINE .= "pin = \n";
-$str_LINE .= "label = $Device_EXT\n";
-$str_LINE .= "description = $Device_EXT\n";
-$str_LINE .= "context = from-internal\n";
-$str_LINE .= "incominglimit = 2\n";
-$str_LINE .= "transfer = off\n";
-$str_LINE .= "secondary_dialtone_digits = 9\n";
-$str_LINE .= "secondary_dialtone_tone = 0x22\n";
-$str_LINE .= "cid_name = pl_$Device_ID\n";
-$str_LINE .= "cid_num = $Device_EXT\n";
-$str_LINE .= "line => $Device_EXT\n";
-$str_LINE .= ";</pl_line_$Device_ID>\n";
-
-{
-    local $/ = undef;
-    open(FILE,"< /etc/asterisk/sccp.conf") or die "Ugly";
-    $str_FILE = <FILE>;
-    close(FILE);
-}
-
-if( $str_FILE =~ /\[devices\].+?;<pl_dev_$Device_ID>.+?;<\/pl_dev_$Device_ID>.+?\[lines\].+?;<pl_line_$Device_ID>.+?;<\/pl_line_$Device_ID>/gms)
-{
-    $str_FILE =~ s/(\[devices\].+?);<pl_dev_$Device_ID>.+?;<\/pl_dev_$Device_ID>(.+?\[lines\].+?);<pl_line_$Device_ID>.+?;<\/pl_line_$Device_ID>/$1$str_DEV$2$str_LINE/gms;
-}
-else
-{
-    $str_FILE =~ s/\[lines\]/${str_DEV}\n[lines]/gms;
-    $str_FILE .= "\n".$str_LINE;
-}
-
-$str_FILE =~ s/\n\n+/\n/gms;
-$str_FILE =~ s/\[/\n\[/gms;
-$str_FILE =~ s/;<pl/\n;<pl/gms;
-$str_FILE =~ s/\]\n+;<pl/\]\n;<pl/gms;
-
-open(FILE,"> /etc/asterisk/sccp.conf") or die "Ugly";
-print FILE $str_FILE;
-close(FILE);
-
+`/usr/pluto/bin/GenerateSCCP.sh`;
 
 ### Update Cisco 7970 Orbiter
 my $ORB_ID;

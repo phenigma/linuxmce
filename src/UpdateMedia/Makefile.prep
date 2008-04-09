@@ -2,9 +2,9 @@ ROOT=..
 
 CC=$(CXX)
 CPPFLAGS=-W -Wall -pipe -ggdb3 -DUPDATE_MEDIA
-CXXFLAGS=-I. -I.. -I$(ROOT) -I$(ROOT)/DCE
+CXXFLAGS=-I. -I.. -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/taglib
 LDFLAGS=-L$(ROOT)/lib -L/usr/local/lib
-LDLIBS= -lpluto_media -lpluto_main -lDCECommon -lSerializeClass -lPlutoUtils -lpthread -lid3
+LDLIBS= -lpluto_media -lpluto_main -lDCECommon -lSerializeClass -lPlutoUtils -lpthread -lid3 -ltag
 
 #<-mkr_B_use_mysql_wrapper_b->
 CPPFLAGS += -I/usr/include/mysql
@@ -12,7 +12,7 @@ LDFLAGS += -lmysqlclient_r
 #<-mkr_B_use_mysql_wrapper_e->
 
 #<-mkr_b_use_mysql_wrapper_b->
-CPPFLAGS += -DUSE_MYSQL_WRAPPER
+#CPPFLAGS += -DUSE_MYSQL_WRAPPER
 #<-mkr_b_use_mysql_wrapper_e->
 
 sources = Main.cpp \
@@ -26,6 +26,7 @@ GenericFileHandler.cpp \
 ID3FileHandler.cpp \
 VDRInfoFileHandler.cpp \
 FileHandlerFactory.cpp \
+TagFileHandler.cpp \
 FileUtils/file_utils.cpp \
 id3info/id3info.cpp \
 $(ROOT)/Media_Plugin/MediaAttributes_LowLevel.cpp \

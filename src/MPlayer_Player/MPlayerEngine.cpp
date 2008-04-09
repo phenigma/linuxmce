@@ -115,14 +115,14 @@ bool MPlayerEngine::StartEngine() {
 			string sALSACodec = (m_bALSAPassthrough?"hwac3,hwdts,":"") + string("a52,");
 			
 			execle(MPLAYER_BINARY, MPLAYER_BINARY_SHORT, "-slave", "-idle", "-msglevel", "all=4", "-noborder",
-				"-fixed-vo", "-fs", "-vo", "xv", "-vf", "screenshot",
+				"-fixed-vo", "-fs", "-vo", "xv,x11", "-vf", "screenshot",
 				"-ao", sALSADevice.c_str(),
 				"-ac", sALSACodec.c_str(),
 				"-lavdopts", "fast:threads=2", BLACK_MPEG_FILE, (char *) 0, environ);
 		}
 		else {
 			execle(MPLAYER_BINARY, MPLAYER_BINARY_SHORT, "-slave", "-idle", "-msglevel", "all=4", "-noborder",
-			       "-fixed-vo", "-fs", "-vo", "xv", "-vf", "screenshot",
+			       "-fixed-vo", "-fs", "-vo", "xv,x11", "-vf", "screenshot",
 	  			"-lavdopts", "fast:threads=2", BLACK_MPEG_FILE, (char *) 0, environ);
 		}
 

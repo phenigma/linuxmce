@@ -118,7 +118,9 @@ bool VDRPlugin::Register()
 		for(ListDeviceData_Router::iterator it=pListDeviceData_Router->begin();it!=pListDeviceData_Router->end();++it)
 		{
 			DeviceData_Router *pDevice_VDRPlayer = *it;
+			RegisterMsgInterceptor( ( MessageInterceptorFn )( &Media_Plugin::PlaybackStarted ), 0, pDevice_VDRPlayer->m_dwPK_Device, 0, 0, MESSAGETYPE_EVENT, EVENT_Playback_Started_CONST );
 			RegisterMsgInterceptor( ( MessageInterceptorFn )( &VDRPlugin::TuneToChannel ), 0, pDevice_VDRPlayer->m_dwPK_Device, 0, 0, MESSAGETYPE_COMMAND, COMMAND_Tune_to_channel_CONST );
+			RegisterMsgInterceptor( ( MessageInterceptorFn )( &VDRPlugin::PlaybackStarted ), pDevice_VDRPlayer->m_dwPK_Device, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Playback_Started_CONST );
 		}
 	}
 
@@ -201,6 +203,11 @@ class MediaStream *VDRPlugin::CreateMediaStream( class MediaHandlerInfo *pMediaH
 		pMediaDevice,
 		iPK_Users, st_RemovableMedia, StreamID );
 
+		//2008-04-01 burgi
+		pVDRMediaStream->m_sMediaDescription = "Not available";
+    pVDRMediaStream->m_sSectionDescription = "Not available";
+    pVDRMediaStream->m_sMediaSynopsis = "Not available";
+
 	return pVDRMediaStream;
 }
 
@@ -220,9 +227,14 @@ bool VDRPlugin::StartMedia( class MediaStream *pMediaStream,string &sError )
 	{
 		VDRChannel *pVDRChannel = *(m_ListVDRChannel.begin());
 		pVDRMediaStream->m_pVDRChannel = pVDRChannel;
-		DCE::CMD_Play_Media CMD_Play_Media(m_dwPK_Device,PK_Device,pVDRMediaStream->m_iPK_MediaType,
-			pVDRMediaStream->m_iStreamID_get(), " CHAN:" + StringUtils::itos(pVDRMediaStream->m_pVDRChannel->m_dwChanNum),"");
+
+		
+		DCE::CMD_Play_Media CMD_Play_Media(m_dwPK_Device, PK_Device,
+								pVDRMediaStream->m_iPK_MediaType,
+								pVDRMediaStream->m_iStreamID_get(), 
+								" CHAN:" + StringUtils::itos(pVDRMediaStream->m_pVDRChannel->m_dwChanNum),"");
 		SendCommand(CMD_Play_Media);
+		
 	}	
 	
 	return MediaHandlerBase::StartMedia(pMediaStream,sError);
@@ -254,6 +266,7 @@ bool VDRPlugin::StopMedia( class MediaStream *pMediaStream )
 	}
 
 	return MediaHandlerBase::StopMedia(pMediaStream);
+
 }
 
 MediaDevice *VDRPlugin::FindMediaDeviceForEntertainArea(EntertainArea *pEntertainArea)
@@ -1274,6 +1287,23 @@ bool VDRPlugin::TuneToChannel( class Socket *pSocket, class Message *pMessage, c
 			if( pVDRChannel )
 				pMessage->m_mapParameters[COMMANDPARAMETER_ProgramID_CONST] = StringUtils::itos(pVDRChannel->m_dwChanNum);
 		}
+		////
+		string sMRL = pMessage->m_mapParameters[EVENTPARAMETER_MRL_CONST];
+		string sSection = pMessage->m_mapParameters[EVENTPARAMETER_SectionDescription_CONST];
+		string sAudio = pMessage->m_mapParameters[EVENTPARAMETER_Audio_CONST];
+		string sVideo = pMessage->m_mapParameters[EVENTPARAMETER_Video_CONST];		
+		VDRMediaStream *pVDRMediaStream = (VDRMediaStream *) pMediaStream;
+    if ( pVDRMediaStream == NULL  )
+    {
+        return false;
+    }
+		pVDRMediaStream->m_sMediaDescription = sMRL;
+		pVDRMediaStream->m_sSectionDescription = sSection;
+		pVDRMediaStream->m_sMediaSynopsis = sAudio + "/" + sVideo;
+
+		m_pMedia_Plugin->MediaInfoChanged(pVDRMediaStream,true);		
+	
+		////
 	}
 	return false;
 }
@@ -1409,4 +1439,33 @@ void VDRPlugin::UpdateTimers()
 			LoggerWrapper::GetInstance()->Write(LV_STATUS, "VDRTV_PlugIn::TIMERS %s params %s", s1.c_str(), s2.c_str());
 		}
 	}
+}
+
+
+bool VDRPlugin::PlaybackStarted( class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo)
+{
+	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
+  int iStreamID = atoi( pMessage->m_mapParameters[EVENTPARAMETER_Stream_ID_CONST].c_str( ) );
+	string sMRL = pMessage->m_mapParameters[EVENTPARAMETER_MRL_CONST];
+	string sSection = pMessage->m_mapParameters[EVENTPARAMETER_SectionDescription_CONST];
+	string sAudio = pMessage->m_mapParameters[EVENTPARAMETER_Audio_CONST];
+	string sVideo = pMessage->m_mapParameters[EVENTPARAMETER_Video_CONST];
+
+  MediaStream * pMediaStream = m_pMedia_Plugin->m_mapMediaStream_Find( iStreamID, pMessage->m_dwPK_Device_From );
+	VDRMediaStream *pVDRMediaStream = (VDRMediaStream *) pMediaStream;
+
+    if ( pVDRMediaStream == NULL  )
+    {
+        LoggerWrapper::GetInstance()->Write(LV_WARNING, "VDRPlugin::PlaybackStarted Stream ID %d is not mapped to a media stream object", iStreamID);
+        return false;
+    }
+
+	pVDRMediaStream->m_sMediaDescription = sMRL;
+	pVDRMediaStream->m_sSectionDescription = sSection;
+	pVDRMediaStream->m_sMediaSynopsis = sAudio + "/" + sVideo;
+
+	m_pMedia_Plugin->MediaInfoChanged(pVDRMediaStream,true);
+
+	return false;
+
 }

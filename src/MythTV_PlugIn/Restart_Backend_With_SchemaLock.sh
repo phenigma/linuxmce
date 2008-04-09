@@ -3,9 +3,17 @@
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/SQL_Ops.sh
 
-eval `cat /etc/mythtv/mysql.txt | grep -v "^#" | grep -v "^$"`;
+DBHostName="localhost"
+DBUserName="mythtv"
+DBName="mythconverg"
+DBPassword="mythtv"
+DBPort="3306"
 
-mysql_command="mysql -s -B -u $DBUserName -h $DBHostName -p$DBPassword $DBName";
+if [ -f /etc/mythtv/mysql.txt ]; then
+	. /etc/mythtv/mysql.txt
+fi
+
+mysql_command="mysql --skip-column-names -B -h $DBHostName -P $DBPort -u $DBUserName -p$DBPassword $DBName"
 
 # Lock the MythBackend lock to prevent backend restart by another script...
 WaitLock "MythBackend" "Restart_Backend_With_SchemaLock.sh" nolog
@@ -17,7 +25,7 @@ echo "LOCK TABLE schemalock WRITE; UNLOCK TABLES;" | $mysql_command
 invoke-rc.d mythtv-backend restart &> /dev/null
 
 # Restart slave backends as well
-SLAVES=`echo "SELECT hostname from capturecard;" | $mysql_command | grep -v dcerouter | grep -v NULL`
+SLAVES=`echo "SELECT hostname from capturecard WHERE hostname IS NOT NULL GROUP BY hostname;" | $mysql_command | grep -v dcerouter`
 if [ x"$SLAVES" != x"" ] ; then
         for SLAVE in $SLAVES ; do
                 ssh $SLAVE "invoke-rc.d mythtv-backend restart" &> /dev/null

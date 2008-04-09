@@ -282,7 +282,11 @@ string RipJob::ToString()
 	string sTimeLeft;
 	if( pTask_Current )
 		sTimeLeft = "(" + StringUtils::SecondsAsTime(pTask_Current->SecondsRemaining()) + ")";
-	return "Ripping " + StringUtils::itos(iTaskNum) + " of " + StringUtils::itos((int) m_listTask.size()) + " " + sTimeLeft + ": " + m_sFileName;
+
+	string sTxt = "Ripping " + StringUtils::itos(iTaskNum) + " of " + StringUtils::itos((int) m_listTask.size()) + " " + sTimeLeft + ": " + m_sFileName;
+	if (m_bHasErrors)
+		sTxt = "(!!)" + sTxt;
+	return sTxt;
 }
 
 int RipJob::Get_PK_Orbiter()

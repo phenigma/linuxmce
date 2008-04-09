@@ -32,7 +32,6 @@ function ExitInstaller {
 	echo "ERROR : $*" >&2
 	echo
 	echo "$*" > /var/log/mce-installer-error.log
-	init 0
 	exit 1
 }
 
@@ -112,8 +111,8 @@ OfflineMode = false
 #<-mkr_b_videowizard_b->
 UseVideoWizard = 1
 #<-mkr_b_videowizard_e->
-LogLevels = 1,5,7,8
-#ImmediatelyFlushLog = 1
+#LogLevels = 1,5,7,8
+ImmediatelyFlushLog = 1
 AutostartCore=$AutostartCore
 AutostartMedia=$AutostartMedia
 "
@@ -434,4 +433,3 @@ RunSQL "UPDATE Installation SET FK_PostalCode = 0"
 
 apt-get -y -f dist-upgrade
 StatsMessage "Installation Finished"
-init 0

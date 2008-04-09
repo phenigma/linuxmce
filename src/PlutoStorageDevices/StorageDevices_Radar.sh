@@ -37,6 +37,17 @@ function Detect {
 	## Remove Mounted partitions
 	mountedPart=$(mount | awk '/dev\/(sd|hd).[0-9]/ {print $1}' | sed 's/\/dev\///g')
 	availPart=$(substractParts "$availPart" "$mountedPart")
+	
+	## Remove partitions if they're alias is mounted
+	for part in $availPart ;do
+		for part_alias in $(udevinfo --query=symlink --name="/dev/$part") ;do
+			for alias_mounted in $(mount | awk '/dev\/disk\// {print $1}' | sed 's/\/dev\///g') ;do
+				if [[ "$part_alias" == "$alias_mounted" ]] ;then
+					availPart=$(substractParts "$availPart" "$part")
+				fi
+			done
+		done
+	done
 
 	## Remove Unmountable partitions (swap / extended)
 	auxPart=""
@@ -70,6 +81,7 @@ function Detect {
 		done
 		availPart="$auxPart"
 	fi
+	
 
 	## Test if we found any available partitions
 	if [[ "$availPart" != "" ]] ;then

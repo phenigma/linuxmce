@@ -109,7 +109,7 @@ void PostCreateOptions::PostCreateDevice_FileServer(Row_Device *pRow_Device, OH_
 	string sName = DatabaseUtils::GetDeviceData(m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICEDATA_Description_CONST);
 	if( sName.empty()==false )
 	{
-		sName = pRow_Device->Description_get() + ": " + sName;
+		sName = pRow_Device->Description_get() + " - " + sName;
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"PostCreateOptions::PostCreateDevice_NetworkStorage device  %d template %d new name: %s",
 			pRow_Device->PK_Device_get(),pRow_Device->FK_DeviceTemplate_get(),sName.c_str());
 

@@ -309,6 +309,7 @@ Orbiter::Orbiter( int DeviceID, int PK_DeviceTemplate, string ServerAddress,  st
 	m_iStreamID=0;
 	m_pScreenHistory_Current=NULL;
 	m_pObj_LastSelected=m_pObj_Highlighted_Last=NULL;
+	m_dwPK_DesignObj_Toolbar_Last=0;
 	m_pObj_Highlighted_set(NULL);
 	m_iRow_Floorplan_LastSelected=-1;
 	m_pObj_SelectedLastScreen=NULL;
@@ -1754,11 +1755,11 @@ void Orbiter::SelectedFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter,int Row)
 	// then we need to activate this toolbar and remove any previous one
 	int PK_DesignObj_Toolbar_ToTurnOn=0,PK_DesignObj_Toolbar_ToTurnOff=0;
 	if( pDesignObj_Orbiter->m_pFloorplanObject->m_dwPK_DesignObj_Toolbar &&
-		(!m_pObj_LastSelected || m_pObj_LastSelected->m_pFloorplanObject->m_dwPK_DesignObj_Toolbar!=pDesignObj_Orbiter->m_pFloorplanObject->m_dwPK_DesignObj_Toolbar) )
+		(!m_pObj_LastSelected || m_dwPK_DesignObj_Toolbar_Last!=pDesignObj_Orbiter->m_pFloorplanObject->m_dwPK_DesignObj_Toolbar) )
 	{
 		PK_DesignObj_Toolbar_ToTurnOn=pDesignObj_Orbiter->m_pFloorplanObject->m_dwPK_DesignObj_Toolbar;
-		if( m_pObj_LastSelected && m_pObj_LastSelected->m_pFloorplanObject && m_pObj_LastSelected->m_pFloorplanObject->m_dwPK_DesignObj_Toolbar )
-			PK_DesignObj_Toolbar_ToTurnOff=m_pObj_LastSelected->m_pFloorplanObject->m_dwPK_DesignObj_Toolbar;
+		if( m_dwPK_DesignObj_Toolbar_Last )
+			PK_DesignObj_Toolbar_ToTurnOff=m_dwPK_DesignObj_Toolbar_Last;
 	}
 	else if( m_pObj_LastSelected && m_pObj_LastSelected->m_pFloorplanObject->m_dwPK_DesignObj_Toolbar &&
 		pDesignObj_Orbiter->m_pFloorplanObject->m_dwPK_DesignObj_Toolbar!=m_pObj_LastSelected->m_pFloorplanObject->m_dwPK_DesignObj_Toolbar )
@@ -1779,6 +1780,7 @@ void Orbiter::SelectedFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter,int Row)
 				delete itFPO->second;
 			m_mapFloorplanObject_Selected.clear();
 			m_pObj_LastSelected=NULL;
+			m_dwPK_DesignObj_Toolbar_Last=0;
 			m_iRow_Floorplan_LastSelected=-1;
 			m_iLastEntryInDeviceGroup=-1;  // Start at the beginning
 			PK_DesignObj_Toolbar_ToTurnOn=0;
@@ -1822,7 +1824,10 @@ void Orbiter::SelectedFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter,int Row)
 
 	// The toolbar will be a direct child of the topmost object, whether it's a screen or a popup
 	if( PK_DesignObj_Toolbar_ToTurnOn )
+	{
 		CMD_Show_Object(pDesignObj_Orbiter->TopMostObject()->m_ObjectID + "." + StringUtils::itos(PK_DesignObj_Toolbar_ToTurnOn),0,"","","1");
+		m_dwPK_DesignObj_Toolbar_Last=PK_DesignObj_Toolbar_ToTurnOn;
+	}
 	if( PK_DesignObj_Toolbar_ToTurnOff )
 		CMD_Show_Object(pDesignObj_Orbiter->TopMostObject()->m_ObjectID + "." + StringUtils::itos(PK_DesignObj_Toolbar_ToTurnOff),0,"","","0");
 
@@ -2197,6 +2202,7 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 				}
 			}
 
+			m_bIgnoreFirstEvent = DATA_Get_Ignore_First_Event();
 			if( !m_bNewOrbiter && DATA_Get_Leave_Monitor_on_for_OSD() )
 				m_bDisplayOn=false;  // So the first touch will turn it on
 			else
@@ -2330,6 +2336,9 @@ void Orbiter::InitializeGrid( DesignObj_DataGrid *pObj )
 			LoggerWrapper::GetInstance()->Write( LV_WARNING, "Populate datagrid: %d failed", pObj->m_iPK_Datagrid );
 		else if(iPK_Variable)
 			CMD_Set_Variable(iPK_Variable, sValue_To_Assign);
+
+		if( (pObj->m_GridCurCol>0 && pObj->m_GridCurCol >= pObj->m_iPopulatedWidth) || (pObj->m_GridCurRow>0 && pObj->m_GridCurRow >= pObj->m_iPopulatedHeight) )
+			pObj->m_GridCurCol = pObj->m_GridCurRow = 0;
 	}
 	if( pObj->m_sExtraInfo.find('S')!=string::npos && !pObj->sSelVariable.empty(  ) )
 	{
@@ -2389,7 +2398,6 @@ bool Orbiter::ParseConfigurationData( GraphicType Type )
 	m_pDesignObj_Orbiter_MainMenu=m_ScreenMap_Find( m_sMainMenu );
 	m_pDesignObj_Orbiter_SleepingMenu=m_ScreenMap_Find( m_sSleepingMenu );
 	m_pDesignObj_Orbiter_ScreenSaveMenu=m_ScreenMap_Find( m_sScreenSaveMenu );
-
 	if(  !m_pDesignObj_Orbiter_MainMenu  )
 	{
 		LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "Cannot find main menu: %s", m_sMainMenu.c_str(  ) );
@@ -3602,7 +3610,7 @@ bool Orbiter::GotActivity( int PK_Button )
 	if( !m_bDisplayOn || 
 		(m_pScreenHistory_Current && m_pScreenHistory_Current->GetObj() == m_pDesignObj_Orbiter_ScreenSaveMenu) )
 	{
-		bool bReturnValue=false;  // Normally we won't want this key to be processed, with one exception below
+		bool bReturnValue=!m_bIgnoreFirstEvent;  // Normally we won't want this key to be processed if we're set to ignore first events because we need to turn on the tv first, with one exception below
 #ifdef DEBUG
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"GotActiity monitor m_bDisplayOn is %d",(int) m_bDisplayOn);
 #endif
@@ -5857,6 +5865,9 @@ void Orbiter::CMD_Set_Variable(int iPK_Variable,string sValue_To_Assign,string &
 	PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
 #endif	
 
+	SETUP_SCREEN_HANDLER_CALLBACK(m_pScreenHandler, cbOnVariableChanged, VariableCallBackData, (iPK_Variable, sValue_To_Assign))
+	ExecuteScreenHandlerCallback(cbOnVariableChanged);
+
 	m_mapVariable[iPK_Variable] = sValue_To_Assign;
 
 	//hook for capture keyboard
@@ -6189,7 +6200,6 @@ bool Orbiter::CaptureKeyboard_EditText_DeleteLastChar(  )
 	if( NULL != m_pCaptureKeyboard_Text )
 	{
 		m_pCaptureKeyboard_Text->m_sText = NewValue;
-
 		if( NULL != m_pCaptureKeyboard_Text )
 		{
 			m_pOrbiterRenderer->RenderTextAsync(m_pCaptureKeyboard_Text);
@@ -6591,6 +6601,16 @@ void Orbiter::CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,s
 	if(NULL != m_pMouseBehavior && iStreamID == 0)
 		m_pMouseBehavior->MediaStopped();
 #endif
+//<-mkr_b_aj_b->
+	this->CMD_Show_Object("5666.0.0.5670",0,"","",iPK_MediaType==0 ? "0" : "1");
+	this->CMD_Show_Object("5666.0.0.5588",0,"","",iPK_MediaType==0 ? "0" : "1");
+	this->CMD_Show_Object("5666.0.0.5668",0,"","",iPK_MediaType!=0 ? "0" : "1");
+	this->CMD_Show_Object("5667.0.0.5670",0,"","",iPK_MediaType==0 ? "0" : "1");
+	this->CMD_Show_Object("5667.0.0.5588",0,"","",iPK_MediaType==0 ? "0" : "1");
+	this->CMD_Show_Object("5667.0.0.5668",0,"","",iPK_MediaType!=0 ? "0" : "1");
+	DCE::CMD_Refresh CMD_Refresh(m_dwPK_Device,m_dwPK_Device,"");  // send ourselves a refresh since the nbc logo may not show/hide
+	SendCommand(CMD_Refresh);
+//<-mkr_b_aj_e->
 
 	m_iStreamID=iStreamID;
 	m_iPK_MediaType=iPK_MediaType;
@@ -9164,14 +9184,17 @@ void Orbiter::CMD_Goto_Screen(string sID,int iPK_Screen,int iInterruption,bool b
 //-----------------------------------------------------------------------------------------------------
 bool Orbiter::ExecuteScreenHandlerCallback(CallBackType aCallBackType)
 {
-	ScreenHandlerCallBack pPersistentCallBack = m_pScreenHandler->m_mapPersistentCallBack_Find(aCallBackType);
-	if(NULL != pPersistentCallBack)
-		if(CALL_MEMBER_FN(*m_pScreenHandler, pPersistentCallBack)(m_pScreenHandler->m_mapPersistentCallBackData_Find(aCallBackType)))
-			return true;
+	if(NULL != m_pScreenHandler)
+	{
+		ScreenHandlerCallBack pPersistentCallBack = m_pScreenHandler->m_mapPersistentCallBack_Find(aCallBackType);
+		if(NULL != pPersistentCallBack)
+			if(CALL_MEMBER_FN(*m_pScreenHandler, pPersistentCallBack)(m_pScreenHandler->m_mapPersistentCallBackData_Find(aCallBackType)))
+				return true;
 
-	ScreenHandlerCallBack pCallBack = m_pScreenHandler->m_mapCallBack_Find(aCallBackType);
-	if(NULL != pCallBack)
-		return CALL_MEMBER_FN(*m_pScreenHandler, pCallBack)(m_pScreenHandler->m_mapCallBackData_Find(aCallBackType));
+		ScreenHandlerCallBack pCallBack = m_pScreenHandler->m_mapCallBack_Find(aCallBackType);
+		if(NULL != pCallBack)
+			return CALL_MEMBER_FN(*m_pScreenHandler, pCallBack)(m_pScreenHandler->m_mapCallBackData_Find(aCallBackType));
+	}
 
 	return false;
 }
@@ -9694,11 +9717,12 @@ void Orbiter::UpdateTimeCodeLoop()
 	PLUTO_SAFETY_LOCK(tcm, m_TimeCodeMutex);
 
 #ifdef DEBUG
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"UpdateTimeCodeLoop: got the mutex, we are ready to go!");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"UpdateTimeCodeLoop: got the mutex, we are ready to go! %p %d %d id %d",
+		m_pAskXine_Socket, m_pAskXine_Socket==NULL ? -1 : m_pAskXine_Socket->m_dwPK_Device, m_dwPK_Device_NowPlaying,m_pAskXine_Socket==NULL ? -1 : m_pAskXine_Socket->m_Socket);
 #endif
 
 	// If this is a xine, determine the ip address and connect to it to pull time code info
-	if( !m_pAskXine_Socket || m_pAskXine_Socket->m_dwPK_Device!=m_dwPK_Device_NowPlaying )
+	if( !m_pAskXine_Socket || m_pAskXine_Socket->m_Socket == INVALID_SOCKET || m_pAskXine_Socket->m_dwPK_Device!=m_dwPK_Device_NowPlaying )
 	{
 		if( m_pAskXine_Socket )
 		{
@@ -9846,7 +9870,7 @@ void Orbiter::UpdateTimeCodeLoop()
 		Sleep(50);
 	}
 
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"UpdateTimeCodeLoop ended.");
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"UpdateTimeCodeLoop ended. %p %d",m_pAskXine_Socket,m_pAskXine_Socket==NULL ? -1 : m_pAskXine_Socket->m_Socket);
 }
 
 void Orbiter::StartScreenSaver(bool bGotoScreenSaverDesignObj)
@@ -10151,13 +10175,53 @@ string Orbiter::DetectCoreIpAddress()
 			/** The called user. Only one is supported now. */
 		/** @param #83 PhoneExtension */
 			/** The phone number to be called. */
-		/** @param #262 FK_Device_From */
+		/** @param #184 PK_Device_From */
 			/** The device which starts the call. */
 		/** @param #263 PK_Device_To */
 			/** The called device. */
 
-void Orbiter::CMD_Assisted_Make_Call(int iPK_Users,string sPhoneExtension,int iFK_Device_From,int iPK_Device_To,string &sCMD_Result,Message *pMessage)
+void Orbiter::CMD_Assisted_Make_Call(int iPK_Users,string sPhoneExtension,string sPK_Device_From,int iPK_Device_To,string &sCMD_Result,Message *pMessage)
 //<-dceag-c923-e->
 {
-	m_pScreenHandler->HandleAssistedMakeCall(iPK_Users, sPhoneExtension, iFK_Device_From, iPK_Device_To, "");
+	m_pScreenHandler->HandleAssistedMakeCall(iPK_Users, sPhoneExtension, atoi(sPK_Device_From.c_str()), iPK_Device_To, "");
+}
+//<-dceag-c67-b->
+
+	/** @brief COMMAND: #67 - Spawn Application */
+	/** Spawn the given application.  Mainly used for windows orbiters. */
+		/** @param #13 Filename */
+			/** The name of the executable file to spawn */
+		/** @param #50 Name */
+			/** A name that we'll remember the application by for future kill commands */
+		/** @param #51 Arguments */
+			/** Command arguments, tab delimited */
+		/** @param #94 SendOnFailure */
+			/** Send this messages if the process exited with failure error code. */
+		/** @param #95 SendOnSuccess */
+			/** Send this messages if the process exited with success error code. */
+		/** @param #115 Show logo */
+			/** If this is set then we will first select the logo  before spawning the application. */
+		/** @param #120 Retransmit */
+			/** If false, and if Exclusive is true and another instance is killed, the 'send messages on termination' will not be sent. */
+		/** @param #126 Exclusive */
+			/** If true, then kill other apps with this same name */
+		/** @param #241 Detach */
+			/** Detach application after spawning / Don't kill this app on reload. */
+
+void Orbiter::CMD_Spawn_Application(string sFilename,string sName,string sArguments,string sSendOnFailure,string sSendOnSuccess,bool bShow_logo,bool bRetransmit,bool bExclusive,bool bDetach,string &sCMD_Result,Message *pMessage)
+//<-dceag-c67-e->
+{
+#if defined(WIN32) && !defined(WINCE)
+		//starting the new orbiter
+		PROCESS_INFORMATION pi;
+		::ZeroMemory(&pi, sizeof(PROCESS_INFORMATION));
+
+		STARTUPINFO si;
+		::ZeroMemory(&si, sizeof(STARTUPINFO));
+		si.cb = sizeof(STARTUPINFO);
+		si.lpReserved = 0;
+
+		string sCompleteCmdLine = sFilename + " \"" + sArguments + "\"";
+		::CreateProcess(NULL, const_cast<char *>(sCompleteCmdLine.c_str()), NULL, NULL, NULL, 0, NULL, NULL, &si, &pi);
+#endif 
 }

@@ -2,6 +2,7 @@
 
 #include "VDRInfoFileHandler.h"
 #include "ID3FileHandler.h"
+#include "TagFileHandler.h"
 #include "PlutoUtils/FileUtils.h"
 #include "FileUtils/file_utils.h"
 //-----------------------------------------------------------------------------------------------------
@@ -23,6 +24,10 @@ FileHandlerFactory::~FileHandlerFactory(void)
 			pFileHandler = new VDRInfoFileHandler(sDirectory, sFile);
 			break;
 
+		case fhtTag:
+			pFileHandler = new TagFileHandler(sDirectory, sFile);
+			break;
+
 		case fhtId3:
 			pFileHandler = new ID3FileHandler(sDirectory, sFile);
 			break;
@@ -41,7 +46,9 @@ FileHandlerFactory::~FileHandlerFactory(void)
 
 	if(IsValidVDRFile(sDirectory, sFile))
 		type = fhtVdr;
-	else if(IsValidId3File(sDirectory, sFile))
+	else if(IsValidTagFile(sDirectory, sFile))
+		type = fhtTag;
+	else 
 		type = fhtId3;
 
 	return type;
@@ -52,8 +59,9 @@ FileHandlerFactory::~FileHandlerFactory(void)
 	return sFile == "001.vdr" && FileUtils::FileExists(sDirectory + "/info.vdr");
 }
 //-----------------------------------------------------------------------------------------------------
-/*static*/ bool FileHandlerFactory::IsValidId3File(string sDirectory, string sFile)
+/*static*/ bool FileHandlerFactory::IsValidTagFile(string sDirectory, string sFile)
 {
-	return !IsValidVDRFile(sDirectory, sFile);
+	string sExtension = FileUtils::FindExtension(sFile);
+	return sExtension == "ogg" || sExtension == "flac";
 }
 //-----------------------------------------------------------------------------------------------------

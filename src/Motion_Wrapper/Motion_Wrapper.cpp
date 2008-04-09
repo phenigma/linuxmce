@@ -152,8 +152,13 @@ bool Motion_Wrapper::Connect(int iPK_DeviceTemplate) {
 	try {	
 		mconffile.open(sPath.c_str(), fstream::out | fstream::trunc);
 		string sVideoStandard = m_pData->mapParameters_Find(DEVICEDATA_Video_Standard_CONST);
+		string sMotionParameters = m_pData->mapParameters_Find(DEVICEDATA_Motion_Parameters_CONST);
+		string sMotionExtraParameters = m_pData->mapParameters_Find(DEVICEDATA_Extra_Parameters_CONST);
 		
 		mconffile 	<< "norm " << sVideoStandard << endl 
+					/* Using DEVICEDATA_Motion_Option_CONST 51 for default values */
+					<< endl << sMotionParameters << endl
+					/*
 					<< "frequency 0" <<  endl
 					<< "rotate 0" <<  endl
 					<< "width 320" <<  endl
@@ -165,13 +170,13 @@ bool Motion_Wrapper::Connect(int iPK_DeviceTemplate) {
 					<< "saturation 128" <<  endl
 					<< "hue 128" <<  endl
 
-					/* filters */ << endl
+            filters << endl
 					<< "despeckle EedDl" << endl
 					<< "lightswitch 50" << endl
 					<< "minimum_motion_frames 5" << endl
 					<< "night_compensate on" << endl 
 
-					/* detection */ << endl
+            detection  << endl
 					<< "noise_tune on" << endl
 					<< "threshold_tune on" << endl
 					<< "smart_mask_speed 5" << endl
@@ -180,7 +185,7 @@ bool Motion_Wrapper::Connect(int iPK_DeviceTemplate) {
 					<< "pre_capture 3" << endl
 
 
-					/* output */ << endl
+            output  << endl
 					<< "locate on" << endl
 					<< "text_double on" << endl
 					<< "webcam_quality 70" << endl
@@ -188,19 +193,23 @@ bool Motion_Wrapper::Connect(int iPK_DeviceTemplate) {
 					<< "text_changes on" << endl
 					<< "text_right %d-%m-%Y\\n%T" << endl
 
-//					/* movies */ << endl
+  			   movies  << endl
 					<< "ffmpeg_cap_new on" << endl
 					<< "ffmpeg_timelapse 60" << endl
 					<< "ffmpeg_timelapse_mode daily" << endl
 					<< "ffmpeg_video_codec msmpeg4" << endl
 
-					/* snapshot config */ << endl
+					 snapshot config  << endl
 					<< "snapshot_interval 60" << endl
 					<< "snapshot_filename %Y/%m/%d/%H/%M_%S" << endl
 					<< "jpeg_filename %Y/%m/%d/%H/%M_%S" << endl
 					<< "ffmpeg_filename movies/%d_%m_%Y_%H_%M_%S" << endl
 					<< "timelapse_filename %Y/%m/%d-timelapse" << endl
-					<< endl << endl;
+					*/
+           /*DEVICEDATA_Extra_Parameters_CONST 139 for Extra Parameters*/
+          << endl << sMotionExtraParameters << endl
+          << endl << endl;
+            
 	} catch(ifstream::failure e) {
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Cannot open %s for writing...", sPath.c_str());
 		return false;
@@ -290,7 +299,7 @@ void Motion_Wrapper::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,s
 				if(kill(motionpid_, SIGALRM)) {
 					LoggerWrapper::GetInstance()->Write(LV_WARNING, "Could not take snapshot, fail sending SIGALRM signal...");
 				} else {
-					usleep(SNAPSHOT_SLEEP_TIME * 1000);
+					usleep(SNAPSHOT_SLEEP_TIME * 1100);
 					LoggerWrapper::GetInstance()->Write(LV_STATUS, "Checking file existance...");
 					string FilePath = "/home/cameras/" + StringUtils::itos(pMessage->m_dwPK_Device_To) + "/lastsnap.jpg";
 					if(FileUtils::FileExists(FilePath)) {
@@ -321,8 +330,7 @@ void Motion_Wrapper::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,s
 }
 
 
-bool
-Motion_Wrapper::CreateVideoDeviceFor1394(DeviceData_Impl* pDeviceData) {
+bool Motion_Wrapper::CreateVideoDeviceFor1394(DeviceData_Impl* pDeviceData) {
 	int PK_Device = pDeviceData->m_dwPK_Device;
 	pid_t dc1394_pid = 0;
 
@@ -332,9 +340,9 @@ Motion_Wrapper::CreateVideoDeviceFor1394(DeviceData_Impl* pDeviceData) {
 
 	dc1394_pid = fork();
 	if( dc1394_pid == 0 )
-        {
-		// V4L devices for video1394 get piped to: 30 + ( video1394# - 1) * 2 [ video30, video32 ]
-		string v4lParam = "--vloopback=/dev/video"+StringUtils::itos(atoi(sDevice.c_str()) * 2 + 30);
+        {	// dc_1394 --video1394=/dev/video1394/0 --vloopback=/dev/video10
+		// V4L devices for video1394 get piped to: 10 + ( video1394/# ) * 2 [ video1394/0 -> video10 -> video11 ]
+		string v4lParam = "--vloopback=/dev/video"+StringUtils::itos(atoi(sDevice.c_str()) * 2 + 10);
 		string ieeeParam = "--video1394=/dev/video1394/"+sDevice;
 					
                 LoggerWrapper::GetInstance()->Write(LV_STATUS, "In child process.");
@@ -350,13 +358,12 @@ Motion_Wrapper::CreateVideoDeviceFor1394(DeviceData_Impl* pDeviceData) {
 	return true;
 }
 
-bool 
-Motion_Wrapper::AddChildDeviceToConfigFile(std::ofstream& conffile, DeviceData_Impl* pDeviceData,size_t i) {
+bool Motion_Wrapper::AddChildDeviceToConfigFile(std::ofstream& conffile, DeviceData_Impl* pDeviceData,size_t i) {
 	int PK_Device = pDeviceData->m_dwPK_Device;
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Using child device %d from Generic Analog Capture Card ", PK_Device);
 
 	string sMotion = pDeviceData->mapParameters_Find(DEVICEDATA_Motion_Option_CONST);
-			
+	//TO DO = write camera record options & sync with house mode		
 		  
 
 	//video device
@@ -364,18 +371,23 @@ Motion_Wrapper::AddChildDeviceToConfigFile(std::ofstream& conffile, DeviceData_I
 
 	if (pDeviceData->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Generic_Motion_IP_Camera_CONST) { 
 		string sUrl = "";
-
-		if ( pDeviceData->mapParameters_Find(DEVICEDATA_Protocol_CONST).empty() ) {
-			return false;
+    string sProtocol = "";
+    sProtocol = pDeviceData->mapParameters_Find(DEVICEDATA_Protocol_CONST);
+    
+		if ( sProtocol.empty() ) {
+      LoggerWrapper::GetInstance()->Write(LV_STATUS, "Protocol Parameter Empty, set http as default ");
+			sProtocol = "http";
 		}
 		if (  pDeviceData->m_sIPAddress.empty() ) {
+      LoggerWrapper::GetInstance()->Write(LV_STATUS, "IP Parameter Empty, EXIT ");
 			return false;
 		}
 		
-		sUrl  = pDeviceData->mapParameters_Find(DEVICEDATA_Protocol_CONST) + "://";
+		sUrl  = sProtocol + "://";
 		sUrl += pDeviceData->m_sIPAddress;
-		if ( ! pDeviceData->mapParameters_Find(DEVICEDATA_Port_CONST).empty() ) {
-			sUrl += ":" + pDeviceData->mapParameters_Find(DEVICEDATA_Port_CONST);
+		if ( ! pDeviceData->mapParameters_Find(DEVICEDATA_TCP_Port_CONST).empty() ) {
+      LoggerWrapper::GetInstance()->Write(LV_STATUS, "IP Parameter Empty, skipping");
+			sUrl += ":" + pDeviceData->mapParameters_Find(DEVICEDATA_TCP_Port_CONST); /* DEVICEDATA_TCP_Port_CONST 69 */
 		}
 		if ( pDeviceData->mapParameters_Find(DEVICEDATA_Path_CONST).empty() ) {
 			sUrl += "/";
@@ -395,7 +407,7 @@ Motion_Wrapper::AddChildDeviceToConfigFile(std::ofstream& conffile, DeviceData_I
 	} else {
 		if(!sDevice.empty()) {		
 			if (pDeviceData->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Generic_Firewire_Camera_CONST) {		
-				conffile	<< "videodevice /dev/video" << StringUtils::itos(atoi(sDevice.c_str()) * 2 + 31) << endl;
+				conffile	<< "videodevice /dev/video" << StringUtils::itos(atoi(sDevice.c_str()) * 2 + 11) << endl;
 			} else {
 				conffile 	<< "videodevice /dev/video" << sDevice << endl;		
 			}
@@ -417,20 +429,22 @@ Motion_Wrapper::AddChildDeviceToConfigFile(std::ofstream& conffile, DeviceData_I
 	//noise level
 	string sNoiseLevel = pDeviceData->mapParameters_Find(DEVICEDATA_Noise_CONST);
 	if(!sNoiseLevel.empty()) {
-		conffile	<< "noise_level " << sNoiseLevel << endl;
+		conffile	<< endl << "noise_level " << sNoiseLevel << endl;
 	}
 	
-
 	//description: device description and roomname
 	string sDescription =  pDeviceData->m_sDescription;
-	string sRoom;
-	int nema;
-
+	string sRoom="";
+	int nema=0;
+  
 	DCE::CMD_Get_Room_Description_DT CMD_Get_Room_Description_DT(pDeviceData->m_dwPK_Device, DEVICETEMPLATE_General_Info_Plugin_CONST, BL_SameHouse, pDeviceData->m_dwPK_Device, &sRoom, &nema);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Sending CMD_Get_Room_Description_DT( %d, %d, %d, %d ) command", pDeviceData->m_dwPK_Device, DEVICETEMPLATE_General_Info_Plugin_CONST, BL_SameHouse, pDeviceData->m_dwPK_Device);
 	SendCommand(CMD_Get_Room_Description_DT);
 	
 	if(!sDescription.empty() || !sRoom.empty()) {
-		conffile	<< "text_left " << StringUtils::Replace(&sDescription, " ", "_") << "\\n" << StringUtils::Replace(&sRoom, " ", "_") << endl << endl << endl;
+    sDescription=sDescription.substr(0,16);
+    sRoom=sRoom.substr(0,16);
+		conffile	<< endl << "text_left " << StringUtils::Replace(&sDescription, " ", "_") << "\\n" << StringUtils::Replace(&sRoom, " ", "_") << endl << endl;
 	}
 
 					
@@ -471,8 +485,8 @@ Motion_Wrapper::AddChildDeviceToConfigFile(std::ofstream& conffile, DeviceData_I
 		conffile	<< "\n# custom settings from Pluto's device parameter #59 Configuration" << endl;
 		conffile	 << sConfiguration << endl;
 	}
-
-	return true;
+  
+  return true;
 }
 
 
