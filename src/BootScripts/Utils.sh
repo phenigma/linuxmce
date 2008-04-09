@@ -483,6 +483,7 @@ UI_SetOptions()
 }
 
 function GeneratePassword() {
+	#TODO: Replace with this --->  </dev/urandom tr -dc A-Za-z0-9_ | head -c8
         local -a alpha1=(Q W E R T Y U I O P A S D F G H J K L Z X C V B N M)
         local -a alpha2=(q w e r t y u i o p a s d f g h j k l z x c v b n m)
         local -a alpha3=(1 2 3 4 5 6 7 8 9 0)

@@ -22,7 +22,8 @@ fi
 
 # create restore point
 if [[ "$1" == "--backup" ]]; then 
-	
+	BackupDescription="$2"
+
 	#rm -rf $MASTERDIR
 	if [[ ! -d $MASTERDIR ]]; then
 		mkdir -p $MASTERDIR/download
@@ -31,6 +32,9 @@ if [[ "$1" == "--backup" ]]; then
 	if [[ ! -d $BKPDIR ]]; then
 		mkdir -p $MASTERDIR/download/$BKPDIR
 	fi
+	
+	mkdir -p "$FULLPATH"
+	echo "$BackupDescription" > "$FULLPATH/README"
 	
 	# backup mysql 
 	mkdir -p $FULLPATH/mysql
