@@ -364,7 +364,7 @@ int main(int argc, char *argv[])
 			vector<Row_Device *> vectRow_Device_MD;
 			database_pluto_main.Device_get()->GetRows("JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE FK_DeviceCategory=" + StringUtils::itos(DEVICECATEGORY_Media_Director_CONST),&vectRow_Device_MD);
 			for(size_t s=0;s<vectRow_Device_MD.size();++s)
-				createDevice.ConfirmRelations(vectRow_Device_MD[s]->PK_Device_get(),true,true);
+				createDevice.ConfirmRelations(vectRow_Device_MD[s]->PK_Device_get(),0,NULL,true,true);
 		}
 	}
 
