@@ -13,7 +13,7 @@ function editDirectoryAttributes($output,$mediadbADO,$dbADO) {
 	$filesArray=getAssocArray('File','PK_File','Filename',$mediadbADO,'WHERE Path LIKE \''.@$dirData[0]['Path'].'/'.@$dirData[0]['Filename'].'\' AND Missing=0 AND PK_File!=\''.$fileID.'\' AND IsDirectory=0 ORDER BY Filename ASC');
 	
 	if($action=='form'){
-		
+	$attributeTypes=getAssocArray('AttributeType','PK_AttributeType','Description',$mediadbADO,'','ORDER BY Description ASC');
 	
 	$scriptInHead='
 	<script>
@@ -33,6 +33,17 @@ function editDirectoryAttributes($output,$mediadbADO,$dbADO) {
 		     }
 		   }
 		}	
+
+		function setAttributeName()
+		{
+			document.editDirectoryAttributes.newAttributeName.value=document.editDirectoryAttributes.existingAttributes[document.editDirectoryAttributes.existingAttributes.selectedIndex].text
+		}
+		
+		function syncPath(path)
+		{
+			top.treeframe.location=\'index.php?section=leftMediaFilesSync&startPath=\'+escape(path);
+			self.location=\'index.php?section=mainMediaFilesSync&path=\'+escape(path);
+		}		
 	</script>
 	';
 		
@@ -42,7 +53,7 @@ function editDirectoryAttributes($output,$mediadbADO,$dbADO) {
 			
 		<table width="100%">
 			<tr>
-				<td><a href="javascript:syncPath(\''.$rowFile['Path'].'\')">Back</a></td>
+				<td><a href="javascript:syncPath(\''.$dirData[0]['Path'].'\')">Back</a></td>
 				<td align="right">'.quick_search_box().'</td>
 			<tr>
 		</table>
@@ -99,7 +110,48 @@ function editDirectoryAttributes($output,$mediadbADO,$dbADO) {
 						</fieldset>
 						</td>
 					</tr>				
-					
+					<tr>
+						<td colspan="4"><hr width="60%" align="left"></td>
+					</tr>					
+					<tr>
+						<td colspan="4"><fieldset><legend><B>'.$TEXT_ADD_ATTRIBUTE_CONST.'</B></legend>
+						<table>
+						<tr>
+							<td>&nbsp;</td>
+							<td>&nbsp;</td>
+						</tr>
+						
+						<tr>
+							<td><B>'.$TEXT_ADD_ATTRIBUTE_CONST.':</B><br>
+							'.pulldownFromArray($attributeTypes,'newAttributeType',(int)@$_POST['newAttributeType'],'onChange="document.editDirectoryAttributes.action.value=\'form\';document.editDirectoryAttributes.submit();"').'
+							<br><input type="checkbox" name="replace_attributes" value="1"> '.$TEXT_REPLACE_ATTRIBUTES_CONST.'
+							</td>
+							<td><B>'.$TEXT_ATTRIBUTE_NAME_CONST.' *</B><br><input type="text" name="newAttributeName" value="" onKeyPress="document.editDirectoryAttributes.existingAttributes.selectedIndex=-1;"></td>
+						</tr>';
+						if(isset($_POST['newAttributeType']) && $_POST['newAttributeType']!='0'){
+							$newAttributeType=(int)$_POST['newAttributeType'];
+							$resAttributesByType=$mediadbADO->Execute('SELECT * FROM Attribute WHERE FK_AttributeType=? ORDER BY Name ASC',$newAttributeType);
+							$out.='
+							<tr>
+								<td>&nbsp;</td>
+								<td>';
+							if($resAttributesByType->RecordCount()>0){
+								$out.='
+							<select name="existingAttributes" size="20" onClick="setAttributeName();" onChange="setAttributeName();">';
+							while($rowAttributesByType=$resAttributesByType->FetchRow()){
+								$out.='<option value="'.$rowAttributesByType['PK_Attribute'].'">'.$rowAttributesByType['Name'].'</option>';
+							}
+							$out.='
+								</select>';
+							}
+							$out.='
+							<input type="submit" class="button" name="add" value="'.$TEXT_ADD_CONST.'"></td>
+							</tr>';
+					}
+				$out.='						
+						</table>
+						</fieldset></td>
+					</tr>					
 			
 									
 				</table>';
@@ -150,6 +202,43 @@ function editDirectoryAttributes($output,$mediadbADO,$dbADO) {
 			}
 		}
 		
+		if(isset($_POST['add'])){
+			$newAttributeType=$_POST['newAttributeType'];
+			$newAttributeName=cleanString($_POST['newAttributeName']);
+			$existingAttributes=(int)@$_POST['existingAttributes'];
+			$replace_attributes=(int)@$_POST['replace_attributes'];
+			if($existingAttributes!=0){
+				$resExistingAttribute=$mediadbADO->Execute('SELECT Name FROM Attribute WHERE PK_Attribute=?',$existingAttributes);
+				$rowExistingAttribute=$resExistingAttribute->FetchRow();
+				if($rowExistingAttribute['Name']!=$newAttributeName){
+					
+					// new attribute, insert in Attribute and File_Attribute tables
+					
+					
+					$attributeID=addDirAttribute($newAttributeType,$newAttributeName,$fileID,$dbADO);
+					
+					if((int)$attributeID==0){
+						header('Location: index.php?section=editDirectoryAttributes&fileID='.$fileID.'&error='.$TEXT_ERROR_ATTRIBUTE_NOT_ADDED_CONST);
+						exit();
+					}
+					addAttributeToFilesInDir($attributeID,$newAttributeType,$fileID,$mediadbADO,$replace_attributes);
+				}else{
+					addAttributeToFilesInDir($existingAttributes,$newAttributeType,$fileID,$mediadbADO,$replace_attributes);
+				}
+			}else{
+				$attributeID=addDirAttribute($newAttributeType,$newAttributeName,$fileID,$dbADO);
+
+				if((int)$attributeID==0){
+					header('Location: index.php?section=editDirectoryAttributes&fileID='.$fileID.'&error='.$TEXT_ERROR_ATTRIBUTE_NOT_ADDED_CONST);
+					exit();
+				}
+				addAttributeToFilesInDir($attributeID,$newAttributeType,$fileID,$mediadbADO,$replace_attributes);
+			}
+			
+			header('Location: index.php?section=editDirectoryAttributes&fileID='.$fileID.'&msg='.$TEXT_MEDIA_FILE_UPDATED_CONST);
+			exit();
+		}		
+		
 		header('Location: index.php?section=editDirectoryAttributes&fileID='.$fileID.'&msg='.$TEXT_MEDIA_FILE_UPDATED_CONST);			
 		exit();
 	}
@@ -163,5 +252,42 @@ function editDirectoryAttributes($output,$mediadbADO,$dbADO) {
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME);
 	$output->output();
+}
+
+function addDirAttribute($newAttributeType,$newAttributeName,$fileID,$dbADO){
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/editMediaFile.lang.php');
+		
+	$mediaPlugin=getMediaPluginID($_SESSION['installationID'],$dbADO);
+	if(is_null($mediaPlugin)){
+		header("Location: index.php?section=editDirectoryAttributes&fileID=$fileID&error=$TEXT_MEDIA_PLUGIN_NOT_FOUND_CONST");
+		exit();
+	}
+
+	$cmd='/usr/pluto/bin/MessageSend localhost -targetType device -r -o 0 '.$mediaPlugin.' 1 391 122 '.$newAttributeType.' 145 '.$fileID.' 5 "'.$newAttributeName.'"';
+	$response=exec_batch_command($cmd,1);
+	$suffix=(ereg('RESP: OK',$response))?'RESP: OK':'';
+	
+	return substr($response,strrpos($response,':')+1);
+}
+
+// add attribute to all files in directory
+function addAttributeToFilesInDir($attributeID,$attributeTypeID,$fileID,$mediadbADO,$replace=0){
+	$dirData=getRows('File','File.*',$mediadbADO,'WHERE PK_File='.$fileID);
+	if(count($dirData)==0){
+		return false;
+	}
+	$filesInDir=getAssocArray('File','PK_File','Filename',$mediadbADO,"WHERE Path LIKE '{$dirData[0]['Path']}%' AND IsDirectory=0 AND Missing=0");
+	if(count($filesInDir)>0){
+		foreach ($filesInDir AS $id=>$name){
+			if((int)@$_POST['file_'.$id]==1){
+				if($replace==1){
+					$mediadbADO->Execute("DELETE File_Attribute FROM File_Attribute INNER JOIN Attribute on FK_Attribute=PK_Attribute AND FK_AttributeType=? WHERE FK_File=?",array($attributeTypeID,$id));
+				}				
+				$mediadbADO->Execute('INSERT INTO File_Attribute (FK_File,FK_Attribute) VALUES (?,?)',array($id,$attributeID));
+			}
+		}
+	}	
+	
+	return true;
 }
 ?>
