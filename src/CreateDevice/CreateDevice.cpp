@@ -72,10 +72,10 @@ public:
 	}
 };
 
-int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sDescription,string sIPAddress,string sMacAddress,int PK_Device_ControlledVia,string sDeviceData,int iPK_Device_RelatedTo,int iPK_Room)
+int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sDescription,string sIPAddress,string sMacAddress,int PK_Device_ControlledVia,string sDeviceData,int iPK_Device_RelatedTo,int iPK_Room,bool *bReusedExistingDevice)
 {
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"CreateDevice::DoIt called with: iPK_DHCPDevice=%d; iPK_DeviceTemplate=%d"
-		"; sIPAddress=%s; sMacAddress=%d; PK_Device_ControlledVia=%d" 
+		"; sIPAddress=%s; sMacAddress=%s; PK_Device_ControlledVia=%d" 
 		"; sDeviceData=%s; iPK_Device_RelatedToendl=%d",
 		iPK_DHCPDevice,iPK_DeviceTemplate,sIPAddress.c_str(),sMacAddress.c_str(),
 		PK_Device_ControlledVia,sDeviceData.c_str(),iPK_Device_RelatedTo);
@@ -152,6 +152,8 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sDescrip
 	if( PK_Device_ControlledVia_temp && (PK_Device_Existing=DatabaseUtils::ViolatesDuplicateRules(this,PK_Device_ControlledVia_temp,iPK_DeviceTemplate))!=0 )
 	{
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"CreateDevice::DoIt Not creating duplicate device template %d on %d, using %d",iPK_DeviceTemplate,PK_Device_ControlledVia_temp,PK_Device_Existing);
+		if( bReusedExistingDevice )
+			*bReusedExistingDevice = true;
 		return PK_Device_Existing;
 	}
 		
@@ -313,7 +315,10 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"CreateDevice::DoIt Found %d rows 
     // Now we've got to see if we have any children we need to create automatically, first by the category
 	CreateChildrenByCategory(PK_Device,iPK_DeviceCategory);
 	CreateChildrenByTemplate(PK_Device,iPK_DeviceTemplate);
-	ConfirmRelations(PK_Device);
+	// Create the related devices now before finding the controlled via candidate
+	// Since we may be controlled Via a device we create as a relation
+	list<int> listSisterDevices;
+	ConfirmRelations(PK_Device,iPK_Device_RelatedTo,&listSisterDevices);
 
 	if( iPK_DeviceCategory==DEVICECATEGORY_Core_CONST )
 	{
@@ -377,6 +382,22 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"CreateDevice::DoIt Found %d rows 
 		}
 		else if( iPK_Device_RelatedTo )
 			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"CreateDevice::DoIt was given a iPK_Device_RelatedTo %d but can't find a candidate",iPK_Device_RelatedTo);
+	}
+
+	// Fix any sister devices that didn't already have the same controlled via
+	if( PK_Device_ControlledVia )
+	{
+		for(list<int>::iterator it=listSisterDevices.begin();it!=listSisterDevices.end();++it)
+		{
+			int PK_Device = *it;
+			SQL = "UPDATE Device SET FK_Device_ControlledVia=" + StringUtils::itos(PK_Device_ControlledVia) +
+				" WHERE PK_Device=" + StringUtils::itos(PK_Device);
+			if( threaded_db_wrapper_query(SQL)<0 )
+			{
+				cout << "Error updating device controlled via" << endl;
+				return 0;
+			}
+		}
 	}
 
 	// See if auto assign to parent's room is specified
@@ -568,7 +589,7 @@ void CreateDevice::ConfirmAllRelations()
 	}
 }
 
-void CreateDevice::ConfirmRelations(int PK_Device,bool bRecurseChildren,bool bOnlyAddDevicesOnCore)
+void CreateDevice::ConfirmRelations(int PK_Device,int iPK_Device_RelatedTo,list<int> *plistSisterDevices,bool bRecurseChildren,bool bOnlyAddDevicesOnCore)
 {
 	PlutoSqlResult result_dt,result_related,result_related2,result_related3,result_related4,result_related5;
 	DB_ROW row,row3;
@@ -652,7 +673,16 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"Found result_related %d rows with
 
 				// That device doesn't exist.  We need to create it
 				if( iRelation==1 && !bOnlyAddDevicesOnCore )  // It's a sister device
-					DoIt(0,iPK_DeviceTemplate_Related,"","","",PK_Device_Parent,sDeviceData);
+				{
+					bool bReusedExisting=false;
+					int PK_Device = DoIt(0,iPK_DeviceTemplate_Related,"","","",PK_Device_Parent,sDeviceData,iPK_Device_RelatedTo,0,&bReusedExisting);
+					if( bReusedExisting==false && PK_Device_Parent==0 && plistSisterDevices ) // The parent device isn't known yet because ConfirmRelations is called before FindControlledVia.
+						plistSisterDevices->push_back(PK_Device);  // So add it to a map to process later
+					/* The above is still susceptible to problems.  We call ConfirmRelations before finalizing the controlled via, since the controlled via may be
+					created in ConfirmRelations.  So the controlled via may be 0.  Therefore the check above to see if the device already exists may report that 
+					it doesn't, so we may create a second copy.  The best solution is to add the #162 Only One Per PC(bool) device data so it's only 
+					created once, such as with the Windows XP MCE remote */
+				}
 				else if( iRelation==2 )  // It's a child of the core (ie DCERouter's parent)
 					DoIt(0,iPK_DeviceTemplate_Related,"","","",PK_Device_Core,sDeviceData);
 				else if( iRelation==3 )  // It's a plugin (ie child of DCERouter)
@@ -664,6 +694,8 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"Found result_related %d rows with
 			{
 				map<int,pair<int,int> > mapDeviceTree;
 				DatabaseUtils::GetAllDevicesInTree(this,PK_Device,mapDeviceTree);
+				if( iPK_Device_RelatedTo )
+					DatabaseUtils::GetAllDevicesInTree(this,PK_Device,mapDeviceTree);  // Add the related devices as well
 
 				bool bFound=false;
 				for(map<int,pair<int,int> >::iterator it=mapDeviceTree.begin();it!=mapDeviceTree.end();++it)
@@ -690,7 +722,7 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"Found result_related %d rows with
 		{
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Found result_child_dev %d rows with %s",(int) result_child_dev.r->row_count,SQL.c_str());
 			while( (row=db_wrapper_fetch_row( result_child_dev.r )) )
-				ConfirmRelations(atoi(row[0]),true);
+				ConfirmRelations(atoi(row[0]),iPK_Device_RelatedTo,NULL,true);
 		}
 	}
 }

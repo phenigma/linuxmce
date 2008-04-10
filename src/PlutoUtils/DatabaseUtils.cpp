@@ -395,7 +395,15 @@ int DatabaseUtils::ViolatesDuplicateRules(DBHelper *pDBHelper,int PK_Device_Cont
 	DatabaseUtils::GetTopMostDevice(pDBHelper,PK_Device_ControlledVia_temp);
 	DB_ROW row;
 	if( ( result.r=pDBHelper->db_wrapper_query_result( sSQL ) )==NULL || (row=db_wrapper_fetch_row(result.r))==NULL || !atoi(row[0]) )
-		return 0;  // Only one per pc isn't set anyway
+	{
+		sSQL = "SELECT DeviceCategory_DeviceData.IK_DeviceData FROM DeviceTemplate "
+			"JOIN DeviceCategory_DeviceData ON DeviceTemplate.FK_DeviceCategory=DeviceCategory_DeviceData.FK_DeviceCategory "
+			"WHERE FK_DeviceData=" + StringUtils::itos(DEVICEDATA_Only_One_Per_PC_CONST) + " AND PK_DeviceTemplate=" + StringUtils::itos(iPK_DeviceTemplate);
+	
+		PlutoSqlResult result3;
+		if( ( result3.r=pDBHelper->db_wrapper_query_result( sSQL ) )==NULL || (row=db_wrapper_fetch_row(result3.r))==NULL || !atoi(row[0]) )
+			return 0;  // Only one per pc isn't set anyway
+	}
 
 	int PK_Device_TopMost = DatabaseUtils::GetTopMostDevice(pDBHelper,PK_Device_ControlledVia_temp);
 	sSQL = "SELECT PK_Device FROM Device WHERE FK_DeviceTemplate=" + StringUtils::itos(iPK_DeviceTemplate);
