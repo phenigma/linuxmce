@@ -356,7 +356,7 @@ int main(int argc, char *argv[])
 	if( !g_bSkipConfirmRelations )
 	{
 		CreateDevice createDevice(pRow_Installation->PK_Installation_get(),dceConfig.m_sDBHost,dceConfig.m_sDBUser,dceConfig.m_sDBPassword,dceConfig.m_sDBName,dceConfig.m_iDBPort);
-		createDevice.ConfirmRelations(pRow_Device->PK_Device_get(),true);
+		createDevice.ConfirmRelations(pRow_Device->PK_Device_get(),0,NULL,true);
 
 		if( pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get()==DEVICECATEGORY_Core_CONST )
 		{
