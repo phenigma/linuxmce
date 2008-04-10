@@ -14,8 +14,8 @@ fi
 echo BITS=$BITS >> settings.mk
 echo export BITS=$BITS >> settings.sh
 
-if [[ `which ccache`x != "" ]] ; then
-    if [[ `which distcc`x != "" ]] ; then
+if [ x`which ccache`x != x"" ] ; then
+    if [[ x`which distcc` != x"" ]] ; then
         echo CC="ccache distcc gcc"           >> settings.mk
         echo CXX="ccache distcc g++"          >> settings.mk
         echo export CC=\"ccache distcc gcc\"  >> settings.sh
