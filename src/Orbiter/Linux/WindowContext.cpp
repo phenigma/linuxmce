@@ -116,6 +116,11 @@ void WindowContext::Visible(bool bValue)
 
 	if(IsOurBackgroundApp() && m_bExclusiveMode)
 	{
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "WindowContext::Visible '%s' : changing the layer instead of visibility to: %s", 
+				m_sWindowName.c_str(), bValue ? "normal" : "below");
+#endif
+
 		m_WindowLayer = bValue ? LayerNormal : LayerBelow;
 		return;
 	}
