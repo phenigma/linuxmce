@@ -390,13 +390,16 @@ void Disk_Drive::CMD_Abort_Ripping(string &sCMD_Result,Message *pMessage)
 		return;
 	}
 
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Aborting Ripping");
-	DCE::CMD_Kill_Application
-		CMD_Kill_Application(m_dwPK_Device,
-						m_pDisk_Drive_Functions->m_pDevice_AppServer->m_dwPK_Device,
-						"rip_" + StringUtils::itos(m_dwPK_Device) + "_0",true);
+	PLUTO_SAFETY_LOCK(jm,*m_pJobHandler->m_ThreadMutex_get());
+	const ListJob *plistJob = m_pJobHandler->m_listJob_get();
 
-    SendCommand(CMD_Kill_Application);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive::AbortAll %d jobs", plistJob->size());
+
+	for(ListJob::const_iterator it=plistJob->begin();it!=plistJob->end();++it)
+	{
+		Job *pJob = *it;
+		pJob->Abort();
+	}
 }
 
 //<-dceag-c56-b->
