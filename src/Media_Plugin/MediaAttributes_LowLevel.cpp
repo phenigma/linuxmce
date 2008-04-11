@@ -538,7 +538,7 @@ PK_MediaType, PK_AttributeType, sName.c_str(), PK_Attribute_Related, (int) vectR
 	while( ( row=db_wrapper_fetch_row( result.r ) ) )
     {
 		string s;
-		for(int i=0;i<result.r->field_count;++i)
+		for(unsigned int i=0;i<result.r->field_count;++i)
 		{
 			s += row[i] ? row[i] : "*NULL";
 			s+= "\t";
