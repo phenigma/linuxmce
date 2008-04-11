@@ -12,4 +12,5 @@ SVNrevision=$(svn info "${svn_dir}"/trunk/src |grep ^Revision | cut -d" " -f2)
 
 # Compile the packages
 "${mkr_dir}/MakeRelease" -R "$SVNrevision" -h 'localhost' -u 'root' -O "$out_dir" -D 'pluto_main_build' -o 15 -r 21 -m 1 -k "$1" -s "${svn_dir}/trunk" -n / -d
+"${mkr_dir}/MakeRelease" -R "$SVNrevision" -h 'localhost' -u 'root' -O "$out_dir" -D 'pluto_main_build' -o 15 -r 21 -m 1108 -k "$1" -s "${svn_dir}/trunk" -n / -d
 
