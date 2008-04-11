@@ -77,6 +77,16 @@ if [[ -f /usr/pluto/bin/SQL_Ops.sh ]] ;then
 	. /usr/pluto/bin/SQL_Ops.sh
 fi
 
+## Assure that /home is mounted
+for i in `seq 1 5` ;do
+	if ! mountpoint /home ;then
+		echo "$(date -R) /home is not mounted, retrying ($i of 5) ..." >> /var/log/pluto/umount-wrapper.log
+		mount /home
+		sleep 0.5
+	else
+		break
+	fi
+done
 
 ## Setup ALSA mixers
 amixer sset Capture 90%
