@@ -1,9 +1,9 @@
 /*
-     Copyright (C) 2004 Pluto, Inc., a Florida Corporation
+     Copyright (c) 2008 LOCALE|concept
  
-     www.plutohome.com
+     www.localeconcept.com
  
-     Phone: +1 (877) 758-8648
+     Phone: +1 (617) 319-8219
  
  
      This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
@@ -580,52 +580,7 @@ void MAME_PlugIn::CMD_Set_Active_Menu(string sText,string &sCMD_Result,Message *
 {
 	cout << "Need to implement command #764 - Set Active Menu" << endl;
 	cout << "Parm #9 - Text=" << sText << endl;
-
-	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
-
-    LoggerWrapper::GetInstance()->Write(LV_STATUS, "MAME_PlugIn::CMD_Set_Active_Menu %s", sText.c_str());
-
-    MAMEMediaStream *pMAMEMediaStream =
-		ConvertToMAMEMediaStream(m_pMedia_Plugin->m_mapMediaStream_Find(m_mapDevicesToStreams[pMessage->m_dwPK_Device_From],pMessage->m_dwPK_Device_From));
-
-    if( !pMAMEMediaStream )
-	{
-	    LoggerWrapper::GetInstance()->Write(LV_WARNING, "MAME_PlugIn::CMD_Set_Active_Menu stream is NULL");
-        return;  /** Can't do anything */
-	}
-
-	int PK_Screen_Remote,PK_Screen_OSD;
-	if( sText=="live" )
-	{
-		PK_Screen_Remote=SCREEN_VideosRemote_CONST;
-		PK_Screen_OSD=SCREEN_PVR_Full_Screen_CONST;
-	}
-
-	/** We're going to send a message to all the orbiters that are bound to remotes in any of the entertainment areas */
-	for( MapEntertainArea::iterator itEA = pMAMEMediaStream->m_mapEntertainArea.begin( );itEA != pMAMEMediaStream->m_mapEntertainArea.end( );++itEA )
-	{
-		EntertainArea *pEntertainArea = ( *itEA ).second;
-		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Looking into the ent area (%p) with id %d and %d remotes", pEntertainArea, pEntertainArea->m_iPK_EntertainArea, (int) pEntertainArea->m_mapBoundRemote.size() );
-		for( MapBoundRemote::iterator itBR=pEntertainArea->m_mapBoundRemote.begin( );itBR!=pEntertainArea->m_mapBoundRemote.end( );++itBR )
-		{
-			BoundRemote *pBoundRemote = ( *itBR ).second;
-			if (pBoundRemote)
-			{
-				RemoteControlSet *pRemoteControlSet =
-					pMAMEMediaStream->m_mapRemoteControlSet[pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device];
-				if (pRemoteControlSet)
-				{
-					pRemoteControlSet->m_iPK_Screen_Remote = PK_Screen_Remote;
-					pRemoteControlSet->m_iPK_Screen_OSD = PK_Screen_OSD;
-
-					LoggerWrapper::GetInstance()->Write(LV_STATUS, "Processing bound remote: for orbiter: %d", pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
-					m_pMedia_Plugin->SetNowPlaying(pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
-						pMAMEMediaStream,false,true);
-				}
-			}
-		}
-	}
-
+ 
 }
 
 //<-dceag-c824-b->
@@ -736,8 +691,7 @@ bool MAME_PlugIn::MenuOnScreen( class Socket *pSocket, class Message *pMessage, 
 				continue;
 			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Processing remote: for orbiter: %d", pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
 			bool bBound = pEntertainArea->m_mapBoundRemote.find(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device)!=pEntertainArea->m_mapBoundRemote.end();
-			m_pMedia_Plugin->SetNowPlaying(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
-				pMAMEMediaStream,false,bBound);
+			pMAMEMediaStream->SetNowPlaying(pOH_Orbiter,false,bBound);
 		}
 	}
 
@@ -746,51 +700,4 @@ bool MAME_PlugIn::MenuOnScreen( class Socket *pSocket, class Message *pMessage, 
 
 //<-dceag-c931-b->
 
-	/** @brief COMMAND: #931 - Insert Coin */
-	/** Used to Insert a Coin into the emulator. */
-		/** @param #41 StreamID */
-			/** Stream ID to send command to. */
-
-void MAME_PlugIn::CMD_Insert_Coin(int iStreamID,string &sCMD_Result,Message *pMessage)
-//<-dceag-c931-e->
-{
-	cout << "Need to implement command #931 - Insert Coin" << endl;
-	cout << "Parm #41 - StreamID=" << iStreamID << endl;
-
-	
-
-}
-
-//<-dceag-c932-b->
-
-	/** @brief COMMAND: #932 - 1P Start */
-	/** Used to cause 1P Start from the Emulator */
-		/** @param #41 StreamID */
-			/** Stream ID to send command to */
-
-void MAME_PlugIn::CMD_1P_Start(int iStreamID,string &sCMD_Result,Message *pMessage)
-//<-dceag-c932-e->
-{
-	cout << "Need to implement command #932 - 1P Start" << endl;
-	cout << "Parm #41 - StreamID=" << iStreamID << endl;
-
-
-
-}
-
-//<-dceag-c933-b->
-
-	/** @brief COMMAND: #933 - 2P Start */
-	/** Used to cause 2P Start from the Emulator */
-		/** @param #41 StreamID */
-			/** Stream ID of Player to send command to */
-
-void MAME_PlugIn::CMD_2P_Start(int iStreamID,string &sCMD_Result,Message *pMessage)
-//<-dceag-c933-e->
-{
-	cout << "Need to implement command #933 - 2P Start" << endl;
-	cout << "Parm #41 - StreamID=" << iStreamID << endl;
-
-
-}
 

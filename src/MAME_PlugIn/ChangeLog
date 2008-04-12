@@ -11,3 +11,6 @@ screen captures of the games.
 
 2008-03-18 00:00	(tschak)
 SPIDER WORKS! Game data is now populated from lmce_game database!
+
+2008-04-11 23:44	(tschak)
+Refactored to be the new #1926 device template.

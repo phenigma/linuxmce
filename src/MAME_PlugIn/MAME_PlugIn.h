@@ -1,7 +1,7 @@
 /*
-     Copyright (C) 2004 Pluto, Inc., a Florida Corporation
+     Copyright (C) 2008 LOCALE|concept 
 
-     www.plutohome.com
+     www.localeconcept.com
 
      Phone: +1 (877) 758-8648
  
@@ -17,7 +17,7 @@
 #ifndef MAME_PlugIn_h
 #define MAME_PlugIn_h
 
-//	DCE Implemenation for #1906 MAME Plug-In
+//	DCE Implemenation for #1926 MAME Plug-In
 
 #include "Gen_Devices/MAME_PlugInBase.h"
 //<-dceag-d-e->
@@ -190,32 +190,6 @@ live, nonlive, osd */
 
 	virtual void CMD_Remove_Scheduled_Recording(string sID,string sProgramID) { string sCMD_Result; CMD_Remove_Scheduled_Recording(sID.c_str(),sProgramID.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_Remove_Scheduled_Recording(string sID,string sProgramID,string &sCMD_Result,Message *pMessage);
-
-	/** @brief COMMAND: #931 - Insert Coin */
-	/** Used to Insert a Coin into the emulator. */
-		/** @param #41 StreamID */
-			/** Stream ID to send command to. */
-
-	virtual void CMD_Insert_Coin(int iStreamID) { string sCMD_Result; CMD_Insert_Coin(iStreamID,sCMD_Result,NULL);};
-	virtual void CMD_Insert_Coin(int iStreamID,string &sCMD_Result,Message *pMessage);
-
-
-	/** @brief COMMAND: #932 - 1P Start */
-	/** Used to cause 1P Start from the Emulator */
-		/** @param #41 StreamID */
-			/** Stream ID to send command to */
-
-	virtual void CMD_1P_Start(int iStreamID) { string sCMD_Result; CMD_1P_Start(iStreamID,sCMD_Result,NULL);};
-	virtual void CMD_1P_Start(int iStreamID,string &sCMD_Result,Message *pMessage);
-
-
-	/** @brief COMMAND: #933 - 2P Start */
-	/** Used to cause 2P Start from the Emulator */
-		/** @param #41 StreamID */
-			/** Stream ID of Player to send command to */
-
-	virtual void CMD_2P_Start(int iStreamID) { string sCMD_Result; CMD_2P_Start(iStreamID,sCMD_Result,NULL);};
-	virtual void CMD_2P_Start(int iStreamID,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-const2-b->!
