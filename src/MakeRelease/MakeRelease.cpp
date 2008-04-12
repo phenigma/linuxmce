@@ -874,6 +874,9 @@ bool GetNonSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFil
 
 				// HACK -- BEGIN
 				tmp = StringUtils::Replace(tmp, "sqlCVS", "sqlCVS -P 4306");
+				tmp = StringUtils::Replace(tmp,
+					"pluto_main Country City Region PostalCode TimeZone",
+					"pluto_main_build Country City Region PostalCode TimeZone");
 				tmp = StringUtils::Replace(tmp, "mysqldump", "mysqldump -u lmce_build");
 				tmp = StringUtils::Replace(tmp, "mysqldump", "mysqldump -plmce_build");
 				tmp = StringUtils::Replace(tmp, "sqlCVS", "sqlCVS -h 127.0.0.1");
@@ -1270,6 +1273,9 @@ cout << "Doing snr on " << sSourceDirectory << "/" << *it << endl;
 			// HACK -- BEGIN
 			tmp = StringUtils::Replace(tmp, "sqlCVS", "sqlCVS -P 4306");
 			tmp = StringUtils::Replace(tmp, "sqlCVS", "sqlCVS -h 127.0.0.1");
+			tmp = StringUtils::Replace(tmp,
+				"pluto_main Country City Region PostalCode TimeZone",
+				"pluto_main_build Country City Region PostalCode TimeZone");
 			tmp = StringUtils::Replace(tmp, "mysqldump", "mysqldump -plmce_build");
 			tmp = StringUtils::Replace(tmp, "mysqldump", "mysqldump -u lmce_build");
 			tmp = StringUtils::Replace(tmp, "mysqldump", "mysqldump -P 4306");
