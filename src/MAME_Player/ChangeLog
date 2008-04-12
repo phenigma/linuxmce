@@ -18,3 +18,7 @@
 * Added initial pass of UpdateMAMEConfig(). currently sets
   rompath and video driver.
 
+2008-04-11 - Thomas Cherryhomes <thomas@localeconcept.com>
+
+* Changed to Device Template #1927
+

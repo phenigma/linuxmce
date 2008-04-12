@@ -1,9 +1,9 @@
 /*
-     Copyright (C) 2004 Pluto, Inc., a Florida Corporation
+     Copyright (C) 2008 LOCALE|concept
 
-     www.plutohome.com
+     www.localeconcept.com
 
-     Phone: +1 (877) 758-8648
+     Phone: +1 (617) 319-8219
  
 
      This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
@@ -17,10 +17,11 @@
 #ifndef MAME_Player_h
 #define MAME_Player_h
 
-//	DCE Implemenation for #1907 MAME Player
+//	DCE Implemenation for #1927 MAME Player
 
 #include "Gen_Devices/MAME_PlayerBase.h"
 //<-dceag-d-e->
+
 
 // Alarms
 #define CHECK_MAME 1
@@ -88,11 +89,7 @@ public:
 		virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
 //<-dceag-const-e->
 
-//<-dceag-const2-b->
-		// The following constructor is only used if this a class instance embedded within a DCE Device.  In that case, it won't create it's own connection to the router
-		// You can delete this whole section and put an ! after dceag-const2-b tag if you don't want this constructor.  Do the same in the implementation file
-		MAME_Player(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter);
-//<-dceag-const2-e->
+//<-dceag-const2-b->!
 
 //<-dceag-h-b->
 	/*
@@ -343,39 +340,6 @@ public:
 	virtual void CMD_Play(int iStreamID,string &sCMD_Result,Message *pMessage);
 
 
-	/** @brief COMMAND: #140 - Audio Track */
-	/** Go to an audio track */
-		/** @param #5 Value To Assign */
-			/** The audio track to go to.  Simple A/V equipment ignores this and just toggles. */
-		/** @param #41 StreamID */
-			/** ID of stream to apply */
-
-	virtual void CMD_Audio_Track(string sValue_To_Assign,int iStreamID) { string sCMD_Result; CMD_Audio_Track(sValue_To_Assign.c_str(),iStreamID,sCMD_Result,NULL);};
-	virtual void CMD_Audio_Track(string sValue_To_Assign,int iStreamID,string &sCMD_Result,Message *pMessage);
-
-
-	/** @brief COMMAND: #141 - Subtitle */
-	/** Go to a subtitle */
-		/** @param #5 Value To Assign */
-			/** The subtitle to go to.  Simple A/V equipment ignores this and just toggles. */
-		/** @param #41 StreamID */
-			/** ID of stream to apply */
-
-	virtual void CMD_Subtitle(string sValue_To_Assign,int iStreamID) { string sCMD_Result; CMD_Subtitle(sValue_To_Assign.c_str(),iStreamID,sCMD_Result,NULL);};
-	virtual void CMD_Subtitle(string sValue_To_Assign,int iStreamID,string &sCMD_Result,Message *pMessage);
-
-
-	/** @brief COMMAND: #142 - Angle */
-	/** Go to an angle */
-		/** @param #5 Value To Assign */
-			/** The angle to go to.  Simple A/V equipment ignores this and just toggles. */
-		/** @param #41 StreamID */
-			/** ID of stream to apply */
-
-	virtual void CMD_Angle(string sValue_To_Assign,int iStreamID) { string sCMD_Result; CMD_Angle(sValue_To_Assign.c_str(),iStreamID,sCMD_Result,NULL);};
-	virtual void CMD_Angle(string sValue_To_Assign,int iStreamID,string &sCMD_Result,Message *pMessage);
-
-
 	/** @brief COMMAND: #190 - Enter/Go */
 	/** Select the currently highlighted menu item */
 		/** @param #41 StreamID */
@@ -552,6 +516,17 @@ public:
 	virtual void CMD_Menu(string sText,int iStreamID,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #812 - Application Exited */
+	/** Notify us that Myth Player exited */
+		/** @param #227 PID */
+			/** Process ID to be passed to the ApplicationExited function */
+		/** @param #228 Exit Code */
+			/** Exit Code to be passed to the ApplicationExited function */
+
+	virtual void CMD_Application_Exited(int iPID,int iExit_Code) { string sCMD_Result; CMD_Application_Exited(iPID,iExit_Code,sCMD_Result,NULL);};
+	virtual void CMD_Application_Exited(int iPID,int iExit_Code,string &sCMD_Result,Message *pMessage);
+
+
 	/** @brief COMMAND: #916 - Set Aspect Ratio */
 	/** Force aspect ratio */
 		/** @param #41 StreamID */
@@ -584,42 +559,77 @@ public:
 	virtual void CMD_Set_Media_ID(string sID,int iStreamID) { string sCMD_Result; CMD_Set_Media_ID(sID.c_str(),iStreamID,sCMD_Result,NULL);};
 	virtual void CMD_Set_Media_ID(string sID,int iStreamID,string &sCMD_Result,Message *pMessage);
 
-        /** @brief COMMAND: #812 - Application Exited */
-        /** Notify us that Myth Player exited */
-                /** @param #227 PID */
-                        /** Process ID to be passed to the ApplicationExited function */
-                /** @param #228 Exit Code */
-                        /** Exit Code to be passed to the ApplicationExited function */
 
-        virtual void CMD_Application_Exited(int iPID,int iExit_Code) { string sCMD_Result; CMD_Application_Exited(iPID,iExit_Code,sCMD_Result,NULL);};
-        virtual void CMD_Application_Exited(int iPID,int iExit_Code,string &sCMD_Result,Message *pMessage);
+	/** @brief COMMAND: #942 - Get Ripping Status */
+	/** Tell Game to Start 1 Player */
+		/** @param #199 Status */
+			/** Ripping status */
 
-        /** @brief COMMAND: #934 - Player Insert Coin */
-        /** Tell player to insert coin */
-                /** @param #41 StreamID */
-                        /** Stream ID of player */
-
-        virtual void CMD_Player_Insert_Coin(int iStreamID) { string sCMD_Result; CMD_Player_Insert_Coin(iStreamID,sCMD_Result,NULL);};
-        virtual void CMD_Player_Insert_Coin(int iStreamID,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Get_Ripping_Status(string *sStatus) { string sCMD_Result; CMD_Get_Ripping_Status(sStatus,sCMD_Result,NULL);};
+	virtual void CMD_Get_Ripping_Status(string *sStatus,string &sCMD_Result,Message *pMessage);
 
 
-        /** @brief COMMAND: #935 - Player 1P Start */
-        /** Tell Player to 1P start */
-                /** @param #41 StreamID */
-                        /** Stream ID */
+	/** @brief COMMAND: #943 - Game 1P Start */
+	/** Tell Game to Start 2 Players */
 
-        virtual void CMD_Player_1P_Start(int iStreamID) { string sCMD_Result; CMD_Player_1P_Start(iStreamID,sCMD_Result,NULL);};
-        virtual void CMD_Player_1P_Start(int iStreamID,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Game_1P_Start() { string sCMD_Result; CMD_Game_1P_Start(sCMD_Result,NULL);};
+	virtual void CMD_Game_1P_Start(string &sCMD_Result,Message *pMessage);
 
 
-        /** @brief COMMAND: #936 - Player 2P Start */
-        /** Tell Player to 2P start */
-                /** @param #41 StreamID */
-                        /** Stream ID */
+	/** @brief COMMAND: #944 - Game 2P Start */
+	/** Tell Game to Start 3 Players */
 
-        virtual void CMD_Player_2P_Start(int iStreamID) { string sCMD_Result; CMD_Player_2P_Start(iStreamID,sCMD_Result,NULL);};
-        virtual void CMD_Player_2P_Start(int iStreamID,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Game_2P_Start() { string sCMD_Result; CMD_Game_2P_Start(sCMD_Result,NULL);};
+	virtual void CMD_Game_2P_Start(string &sCMD_Result,Message *pMessage);
 
+
+	/** @brief COMMAND: #945 - Game 3P Start */
+	/** Tell Game to Start 4 Players */
+
+	virtual void CMD_Game_3P_Start() { string sCMD_Result; CMD_Game_3P_Start(sCMD_Result,NULL);};
+	virtual void CMD_Game_3P_Start(string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #946 - Game 4P Start */
+	/** Tell Game to insert a coin. */
+
+	virtual void CMD_Game_4P_Start() { string sCMD_Result; CMD_Game_4P_Start(sCMD_Result,NULL);};
+	virtual void CMD_Game_4P_Start(string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #947 - Game Insert Coin */
+	/** Tell game to go into Service Mode */
+
+	virtual void CMD_Game_Insert_Coin() { string sCMD_Result; CMD_Game_Insert_Coin(sCMD_Result,NULL);};
+	virtual void CMD_Game_Insert_Coin(string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #948 - Game Service */
+	/** Tell Game to Press Start key */
+
+	virtual void CMD_Game_Service() { string sCMD_Result; CMD_Game_Service(sCMD_Result,NULL);};
+	virtual void CMD_Game_Service(string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #949 - Game Start */
+	/** Tell Game to Press Select key */
+
+	virtual void CMD_Game_Start() { string sCMD_Result; CMD_Game_Start(sCMD_Result,NULL);};
+	virtual void CMD_Game_Start(string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #950 - Game Select */
+	/** Tell Game to Press Option key */
+
+	virtual void CMD_Game_Select() { string sCMD_Result; CMD_Game_Select(sCMD_Result,NULL);};
+	virtual void CMD_Game_Select(string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #951 - Game Option */
+	/** Tell Game to Reset */
+
+	virtual void CMD_Game_Option() { string sCMD_Result; CMD_Game_Option(sCMD_Result,NULL);};
+	virtual void CMD_Game_Option(string &sCMD_Result,Message *pMessage);
 
 //<-dceag-h-e->
 	};

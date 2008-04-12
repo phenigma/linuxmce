@@ -1,9 +1,9 @@
 /*
-     Copyright (C) 2004 Pluto, Inc., a Florida Corporation
+     Copyright (C) 2008 LOCALE|concept
 
-     www.plutohome.com
+     www.localeconcept.com
 
-     Phone: +1 (877) 758-8648
+     Phone: +1 (617) 319-8219
  
 
      This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
@@ -60,7 +60,7 @@ MAME_Player::MAME_Player(int DeviceID, string ServerAddress,bool bConnectEventHa
 MAME_Player::~MAME_Player()
 //<-dceag-dest-e->
 {
-
+	
 }
 
 void MAME_Player::PrepareToDelete()
@@ -70,14 +70,6 @@ void MAME_Player::PrepareToDelete()
 	m_pAlarmManager = NULL;
 	m_pDevice_App_Server = NULL;
 }
-
-void CheckMAME() 
-{
-
-	// don't need this anymore.
-
-}
-
 
 //<-dceag-getconfig-b->
 bool MAME_Player::GetConfig()
@@ -504,8 +496,6 @@ void MAME_Player::AlarmCallback(int id, void* param)
 
 }
 
-//<-dceag-createinst-b->!
-
 /*
 	When you receive commands that are destined to one of your children,
 	then if that child implements DCE then there will already be a separate class
@@ -533,7 +523,88 @@ void MAME_Player::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage)
 	sCMD_Result = "UNKNOWN COMMAND";
 }
 
-//<-dceag-sample-b->!
+//<-dceag-sample-b->
+/*		**** SAMPLE ILLUSTRATING HOW TO USE THE BASE CLASSES ****
+
+**** IF YOU DON'T WANT DCEGENERATOR TO KEEP PUTTING THIS AUTO-GENERATED SECTION ****
+**** ADD AN ! AFTER THE BEGINNING OF THE AUTO-GENERATE TAG, LIKE //<=dceag-sample-b->! ****
+Without the !, everything between <=dceag-sometag-b-> and <=dceag-sometag-e->
+will be replaced by DCEGenerator each time it is run with the normal merge selection.
+The above blocks are actually <- not <=.  We don't want a substitution here
+
+void MAME_Player::SomeFunction()
+{
+	// If this is going to be loaded into the router as a plug-in, you can implement: 	virtual bool Register();
+	// to do all your registration, such as creating message interceptors
+
+	// If you use an IDE with auto-complete, after you type DCE:: it should give you a list of all
+	// commands and requests, including the parameters.  See "AllCommandsRequests.h"
+
+	// Examples:
+	
+	// Send a specific the "CMD_Simulate_Mouse_Click" command, which takes an X and Y parameter.  We'll use 55,77 for X and Y.
+	DCE::CMD_Simulate_Mouse_Click CMD_Simulate_Mouse_Click(m_dwPK_Device,OrbiterID,55,77);
+	SendCommand(CMD_Simulate_Mouse_Click);
+
+	// Send the message to orbiters 32898 and 27283 (ie a device list, hence the _DL)
+	// And we want a response, which will be "OK" if the command was successfull
+	string sResponse;
+	DCE::CMD_Simulate_Mouse_Click_DL CMD_Simulate_Mouse_Click_DL(m_dwPK_Device,"32898,27283",55,77)
+	SendCommand(CMD_Simulate_Mouse_Click_DL,&sResponse);
+
+	// Send the message to all orbiters within the house, which is all devices with the category DEVICECATEGORY_Orbiter_CONST (see pluto_main/Define_DeviceCategory.h)
+	// Note the _Cat for category
+	DCE::CMD_Simulate_Mouse_Click_Cat CMD_Simulate_Mouse_Click_Cat(m_dwPK_Device,DEVICECATEGORY_Orbiter_CONST,true,BL_SameHouse,55,77)
+    SendCommand(CMD_Simulate_Mouse_Click_Cat);
+
+	// Send the message to all "DeviceTemplate_Orbiter_CONST" devices within the room (see pluto_main/Define_DeviceTemplate.h)
+	// Note the _DT.
+	DCE::CMD_Simulate_Mouse_Click_DT CMD_Simulate_Mouse_Click_DT(m_dwPK_Device,DeviceTemplate_Orbiter_CONST,true,BL_SameRoom,55,77);
+	SendCommand(CMD_Simulate_Mouse_Click_DT);
+
+	// This command has a normal string parameter, but also an int as an out parameter
+	int iValue;
+	DCE::CMD_Get_Signal_Strength CMD_Get_Signal_Strength(m_dwDeviceID, DestDevice, sMac_address,&iValue);
+	// This send command will wait for the destination device to respond since there is
+	// an out parameter
+	SendCommand(CMD_Get_Signal_Strength);  
+
+	// This time we don't care about the out parameter.  We just want the command to 
+	// get through, and don't want to wait for the round trip.  The out parameter, iValue,
+	// will not get set
+	SendCommandNoResponse(CMD_Get_Signal_Strength);  
+
+	// This command has an out parameter of a data block.  Any parameter that is a binary
+	// data block is a pair of int and char *
+	// We'll also want to see the response, so we'll pass a string for that too
+
+	int iFileSize;
+	char *pFileContents
+	string sResponse;
+	DCE::CMD_Request_File CMD_Request_File(m_dwDeviceID, DestDevice, "filename",&pFileContents,&iFileSize,&sResponse);
+	SendCommand(CMD_Request_File);
+
+	// If the device processed the command (in this case retrieved the file),
+	// sResponse will be "OK", and iFileSize will be the size of the file
+	// and pFileContents will be the file contents.  **NOTE**  We are responsible
+	// free deleting pFileContents.
+
+
+	// To access our data and events below, you can type this-> if your IDE supports auto complete to see all the data and events you can access
+
+	// Get our IP address from our data
+	string sIP = DATA_Get_IP_Address();
+
+	// Set our data "Filename" to "myfile"
+	DATA_Set_Filename("myfile");
+
+	// Fire the "Finished with file" event, which takes no parameters
+	EVENT_Finished_with_file();
+	// Fire the "Touch or click" which takes an X and Y parameter
+	EVENT_Touch_or_click(10,150);
+}
+*/
+//<-dceag-sample-e->
 
 /*
 
@@ -687,7 +758,7 @@ void MAME_Player::CMD_Play_Media(int iPK_MediaType,int iStreamID,string sMediaPo
 
 	LaunchMAME(sMediaURL);
 
-	// EVENT_Menu_Onscreen(iStreamID, true);
+
 }
 
 //<-dceag-c38-b->
@@ -763,8 +834,8 @@ void MAME_Player::CMD_Change_Playback_Speed(int iStreamID,int iMediaPlaybackSpee
 	cout << "Parm #43 - MediaPlaybackSpeed=" << iMediaPlaybackSpeed << endl;
 	cout << "Parm #220 - Report=" << bReport << endl;
 
-
 	WindowUtils::SendKeyToWindow(m_pDisplay, m_iMAMEWindowId,XK_p,m_iEventSerialNum++);	// funny.
+
 
 }
 
@@ -783,6 +854,9 @@ void MAME_Player::CMD_Jump_to_Position_in_Stream(string sValue_To_Assign,int iSt
 	cout << "Need to implement command #42 - Jump to Position in Stream" << endl;
 	cout << "Parm #5 - Value_To_Assign=" << sValue_To_Assign << endl;
 	cout << "Parm #41 - StreamID=" << iStreamID << endl;
+
+
+
 }
 
 //<-dceag-c63-b->
@@ -906,6 +980,7 @@ void MAME_Player::CMD_Get_Video_Frame(string sDisable_Aspect_Lock,int iStreamID,
 
 	return;	
 
+
 }
 
 //<-dceag-c87-b->
@@ -939,6 +1014,7 @@ void MAME_Player::CMD_Goto_Media_Menu(int iStreamID,int iMenuType,string &sCMD_R
 			EVENT_Menu_Onscreen(iStreamID,false);
 			break;
 		}
+
 }
 
 //<-dceag-c92-b->
@@ -953,7 +1029,9 @@ void MAME_Player::CMD_Pause(int iStreamID,string &sCMD_Result,Message *pMessage)
 {
 	cout << "Need to implement command #92 - Pause" << endl;
 	cout << "Parm #41 - StreamID=" << iStreamID << endl;
+
 	WindowUtils::SendKeyToWindow(m_pDisplay,m_iMAMEWindowId,XK_p,m_iEventSerialNum++);
+
 }
 
 //<-dceag-c95-b->
@@ -998,57 +1076,6 @@ void MAME_Player::CMD_Play(int iStreamID,string &sCMD_Result,Message *pMessage)
 	cout << "Parm #41 - StreamID=" << iStreamID << endl;
 }
 
-//<-dceag-c140-b->
-
-	/** @brief COMMAND: #140 - Audio Track */
-	/** Go to an audio track */
-		/** @param #5 Value To Assign */
-			/** The audio track to go to.  Simple A/V equipment ignores this and just toggles. */
-		/** @param #41 StreamID */
-			/** ID of stream to apply */
-
-void MAME_Player::CMD_Audio_Track(string sValue_To_Assign,int iStreamID,string &sCMD_Result,Message *pMessage)
-//<-dceag-c140-e->
-{
-	cout << "Need to implement command #140 - Audio Track" << endl;
-	cout << "Parm #5 - Value_To_Assign=" << sValue_To_Assign << endl;
-	cout << "Parm #41 - StreamID=" << iStreamID << endl;
-}
-
-//<-dceag-c141-b->
-
-	/** @brief COMMAND: #141 - Subtitle */
-	/** Go to a subtitle */
-		/** @param #5 Value To Assign */
-			/** The subtitle to go to.  Simple A/V equipment ignores this and just toggles. */
-		/** @param #41 StreamID */
-			/** ID of stream to apply */
-
-void MAME_Player::CMD_Subtitle(string sValue_To_Assign,int iStreamID,string &sCMD_Result,Message *pMessage)
-//<-dceag-c141-e->
-{
-	cout << "Need to implement command #141 - Subtitle" << endl;
-	cout << "Parm #5 - Value_To_Assign=" << sValue_To_Assign << endl;
-	cout << "Parm #41 - StreamID=" << iStreamID << endl;
-}
-
-//<-dceag-c142-b->
-
-	/** @brief COMMAND: #142 - Angle */
-	/** Go to an angle */
-		/** @param #5 Value To Assign */
-			/** The angle to go to.  Simple A/V equipment ignores this and just toggles. */
-		/** @param #41 StreamID */
-			/** ID of stream to apply */
-
-void MAME_Player::CMD_Angle(string sValue_To_Assign,int iStreamID,string &sCMD_Result,Message *pMessage)
-//<-dceag-c142-e->
-{
-	cout << "Need to implement command #142 - Angle" << endl;
-	cout << "Parm #5 - Value_To_Assign=" << sValue_To_Assign << endl;
-	cout << "Parm #41 - StreamID=" << iStreamID << endl;
-}
-
 //<-dceag-c190-b->
 
 	/** @brief COMMAND: #190 - Enter/Go */
@@ -1061,7 +1088,9 @@ void MAME_Player::CMD_EnterGo(int iStreamID,string &sCMD_Result,Message *pMessag
 {
 	cout << "Need to implement command #190 - Enter/Go" << endl;
 	cout << "Parm #41 - StreamID=" << iStreamID << endl;
-		WindowUtils::SendKeyToWindow(m_pDisplay,m_iMAMEWindowId,XK_Return,m_iEventSerialNum++);
+
+	WindowUtils::SendKeyToWindow(m_pDisplay,m_iMAMEWindowId,XK_Return,m_iEventSerialNum++);
+
 }
 
 //<-dceag-c200-b->
@@ -1076,7 +1105,9 @@ void MAME_Player::CMD_Move_Up(int iStreamID,string &sCMD_Result,Message *pMessag
 {
 	cout << "Need to implement command #200 - Move Up" << endl;
 	cout << "Parm #41 - StreamID=" << iStreamID << endl;
-		WindowUtils::SendKeyToWindow(m_pDisplay,m_iMAMEWindowId,XK_Up,m_iEventSerialNum++);
+
+	WindowUtils::SendKeyToWindow(m_pDisplay,m_iMAMEWindowId,XK_Up,m_iEventSerialNum++);
+
 }
 
 //<-dceag-c201-b->
@@ -1091,7 +1122,9 @@ void MAME_Player::CMD_Move_Down(int iStreamID,string &sCMD_Result,Message *pMess
 {
 	cout << "Need to implement command #201 - Move Down" << endl;
 	cout << "Parm #41 - StreamID=" << iStreamID << endl;
-		WindowUtils::SendKeyToWindow(m_pDisplay,m_iMAMEWindowId,XK_Down,m_iEventSerialNum++);
+
+	WindowUtils::SendKeyToWindow(m_pDisplay,m_iMAMEWindowId,XK_Down,m_iEventSerialNum++);
+
 }
 
 //<-dceag-c202-b->
@@ -1106,7 +1139,9 @@ void MAME_Player::CMD_Move_Left(int iStreamID,string &sCMD_Result,Message *pMess
 {
 	cout << "Need to implement command #202 - Move Left" << endl;
 	cout << "Parm #41 - StreamID=" << iStreamID << endl;
-		WindowUtils::SendKeyToWindow(m_pDisplay,m_iMAMEWindowId,XK_Left,m_iEventSerialNum++);
+
+	WindowUtils::SendKeyToWindow(m_pDisplay,m_iMAMEWindowId,XK_Left,m_iEventSerialNum++);
+
 }
 
 //<-dceag-c203-b->
@@ -1121,7 +1156,9 @@ void MAME_Player::CMD_Move_Right(int iStreamID,string &sCMD_Result,Message *pMes
 {
 	cout << "Need to implement command #203 - Move Right" << endl;
 	cout << "Parm #41 - StreamID=" << iStreamID << endl;
-		WindowUtils::SendKeyToWindow(m_pDisplay,m_iMAMEWindowId,XK_Right,m_iEventSerialNum++);
+
+	WindowUtils::SendKeyToWindow(m_pDisplay,m_iMAMEWindowId,XK_Right,m_iEventSerialNum++);
+
 }
 
 //<-dceag-c204-b->
@@ -1133,7 +1170,9 @@ void MAME_Player::CMD_0(string &sCMD_Result,Message *pMessage)
 //<-dceag-c204-e->
 {
 	cout << "Need to implement command #204 - 0" << endl;
-		WindowUtils::SendKeyToWindow(m_pDisplay,m_iMAMEWindowId,XK_0,m_iEventSerialNum++);
+
+	WindowUtils::SendKeyToWindow(m_pDisplay,m_iMAMEWindowId,XK_0,m_iEventSerialNum++);
+
 }
 
 //<-dceag-c205-b->
@@ -1145,7 +1184,9 @@ void MAME_Player::CMD_1(string &sCMD_Result,Message *pMessage)
 //<-dceag-c205-e->
 {
 	cout << "Need to implement command #205 - 1" << endl;
-		WindowUtils::SendKeyToWindow(m_pDisplay,m_iMAMEWindowId,XK_1,m_iEventSerialNum++);
+	WindowUtils::SendKeyToWindow(m_pDisplay,m_iMAMEWindowId,XK_1,m_iEventSerialNum++);
+
+
 }
 
 //<-dceag-c206-b->
@@ -1157,7 +1198,7 @@ void MAME_Player::CMD_2(string &sCMD_Result,Message *pMessage)
 //<-dceag-c206-e->
 {
 	cout << "Need to implement command #206 - 2" << endl;
-		WindowUtils::SendKeyToWindow(m_pDisplay,m_iMAMEWindowId,XK_2,m_iEventSerialNum++);
+	WindowUtils::SendKeyToWindow(m_pDisplay,m_iMAMEWindowId,XK_2,m_iEventSerialNum++);
 }
 
 //<-dceag-c207-b->
@@ -1169,7 +1210,7 @@ void MAME_Player::CMD_3(string &sCMD_Result,Message *pMessage)
 //<-dceag-c207-e->
 {
 	cout << "Need to implement command #207 - 3" << endl;
-		WindowUtils::SendKeyToWindow(m_pDisplay,m_iMAMEWindowId,XK_3,m_iEventSerialNum++);
+	WindowUtils::SendKeyToWindow(m_pDisplay,m_iMAMEWindowId,XK_3,m_iEventSerialNum++);
 }
 
 //<-dceag-c208-b->
@@ -1181,7 +1222,8 @@ void MAME_Player::CMD_4(string &sCMD_Result,Message *pMessage)
 //<-dceag-c208-e->
 {
 	cout << "Need to implement command #208 - 4" << endl;
-		WindowUtils::SendKeyToWindow(m_pDisplay,m_iMAMEWindowId,XK_4,m_iEventSerialNum++);
+	WindowUtils::SendKeyToWindow(m_pDisplay,m_iMAMEWindowId,XK_4,m_iEventSerialNum++);
+
 }
 
 //<-dceag-c209-b->
@@ -1193,7 +1235,7 @@ void MAME_Player::CMD_5(string &sCMD_Result,Message *pMessage)
 //<-dceag-c209-e->
 {
 	cout << "Need to implement command #209 - 5" << endl;
-		WindowUtils::SendKeyToWindow(m_pDisplay,m_iMAMEWindowId,XK_5,m_iEventSerialNum++);
+	WindowUtils::SendKeyToWindow(m_pDisplay,m_iMAMEWindowId,XK_5,m_iEventSerialNum++);
 }
 
 //<-dceag-c210-b->
@@ -1205,7 +1247,7 @@ void MAME_Player::CMD_6(string &sCMD_Result,Message *pMessage)
 //<-dceag-c210-e->
 {
 	cout << "Need to implement command #210 - 6" << endl;
-		WindowUtils::SendKeyToWindow(m_pDisplay,m_iMAMEWindowId,XK_6,m_iEventSerialNum++);
+	WindowUtils::SendKeyToWindow(m_pDisplay,m_iMAMEWindowId,XK_6,m_iEventSerialNum++);
 }
 
 //<-dceag-c211-b->
@@ -1217,7 +1259,7 @@ void MAME_Player::CMD_7(string &sCMD_Result,Message *pMessage)
 //<-dceag-c211-e->
 {
 	cout << "Need to implement command #211 - 7" << endl;
-		WindowUtils::SendKeyToWindow(m_pDisplay,m_iMAMEWindowId,XK_7,m_iEventSerialNum++);
+	WindowUtils::SendKeyToWindow(m_pDisplay,m_iMAMEWindowId,XK_7,m_iEventSerialNum++);
 }
 
 //<-dceag-c212-b->
@@ -1229,7 +1271,7 @@ void MAME_Player::CMD_8(string &sCMD_Result,Message *pMessage)
 //<-dceag-c212-e->
 {
 	cout << "Need to implement command #212 - 8" << endl;
-		WindowUtils::SendKeyToWindow(m_pDisplay,m_iMAMEWindowId,XK_8,m_iEventSerialNum++);
+	WindowUtils::SendKeyToWindow(m_pDisplay,m_iMAMEWindowId,XK_8,m_iEventSerialNum++);
 }
 
 //<-dceag-c213-b->
@@ -1241,7 +1283,7 @@ void MAME_Player::CMD_9(string &sCMD_Result,Message *pMessage)
 //<-dceag-c213-e->
 {
 	cout << "Need to implement command #213 - 9" << endl;
-		WindowUtils::SendKeyToWindow(m_pDisplay,m_iMAMEWindowId,XK_9,m_iEventSerialNum++);
+	WindowUtils::SendKeyToWindow(m_pDisplay,m_iMAMEWindowId,XK_9,m_iEventSerialNum++);
 }
 
 //<-dceag-c240-b->
@@ -1256,7 +1298,7 @@ void MAME_Player::CMD_Back_Prior_Menu(int iStreamID,string &sCMD_Result,Message 
 {
 	cout << "Need to implement command #240 - Back / Prior Menu" << endl;
 	cout << "Parm #41 - StreamID=" << iStreamID << endl;
-		WindowUtils::SendKeyToWindow(m_pDisplay,m_iMAMEWindowId,XK_Escape,m_iEventSerialNum++);
+	WindowUtils::SendKeyToWindow(m_pDisplay,m_iMAMEWindowId,XK_0,m_iEventSerialNum++);
 }
 
 //<-dceag-c249-b->
@@ -1339,6 +1381,38 @@ void MAME_Player::CMD_Menu(string sText,int iStreamID,string &sCMD_Result,Messag
 	cout << "Parm #41 - StreamID=" << iStreamID << endl;
 }
 
+//<-dceag-c812-b->
+
+	/** @brief COMMAND: #812 - Application Exited */
+	/** Notify us that Myth Player exited */
+		/** @param #227 PID */
+			/** Process ID to be passed to the ApplicationExited function */
+		/** @param #228 Exit Code */
+			/** Exit Code to be passed to the ApplicationExited function */
+
+void MAME_Player::CMD_Application_Exited(int iPID,int iExit_Code,string &sCMD_Result,Message *pMessage)
+//<-dceag-c812-e->
+{
+	cout << "Need to implement command #812 - Application Exited" << endl;
+	cout << "Parm #227 - PID=" << iPID << endl;
+	cout << "Parm #228 - Exit_Code=" << iExit_Code << endl;
+
+#ifndef WIN32
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Process exited %d %d", iPID, iExit_Code);
+
+	void *data;
+
+//	if ( applicationName.compare(MYTH_WINDOW_NAME) == 0 )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Send go back to the caller!");
+		DCE::CMD_MH_Stop_Media_Cat CMD_MH_Stop_Media_Cat(m_dwPK_Device,DEVICECATEGORY_Media_Plugins_CONST,false,BL_SameHouse,m_dwPK_Device,0,0,"",false);
+		SendCommand(CMD_MH_Stop_Media_Cat);
+	}
+
+#endif
+
+}
+
 //<-dceag-c916-b->
 
 	/** @brief COMMAND: #916 - Set Aspect Ratio */
@@ -1390,83 +1464,123 @@ void MAME_Player::CMD_Set_Media_ID(string sID,int iStreamID,string &sCMD_Result,
 	cout << "Parm #41 - StreamID=" << iStreamID << endl;
 }
 
-//<-dceag-c812-b->
+//<-dceag-c942-b->
 
-        /** @brief COMMAND: #812 - Application Exited */
-        /** Notify us that Myth Player exited */
-                /** @param #227 PID */
-                        /** Process ID to be passed to the ApplicationExited function */
-                /** @param #228 Exit Code */
-                        /** Exit Code to be passed to the ApplicationExited function */
+	/** @brief COMMAND: #942 - Get Ripping Status */
+	/** Tell Game to Start 1 Player */
+		/** @param #199 Status */
+			/** Ripping status */
 
-void MAME_Player::CMD_Application_Exited(int iPID,int iExit_Code,string &sCMD_Result,Message *pMessage)
-//<-dceag-c812-e->
+void MAME_Player::CMD_Get_Ripping_Status(string *sStatus,string &sCMD_Result,Message *pMessage)
+//<-dceag-c942-e->
 {
-        cout << "Need to implement command #812 - Application Exited" << endl;
-        cout << "Parm #227 - PID=" << iPID << endl;
-        cout << "Parm #228 - Exit_Code=" << iExit_Code << endl;
-
-#ifndef WIN32
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Process exited %d %d", iPID, iExit_Code);
-
-	void *data;
-
-//	if ( applicationName.compare(MYTH_WINDOW_NAME) == 0 )
-	{
-		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Send go back to the caller!");
-		DCE::CMD_MH_Stop_Media_Cat CMD_MH_Stop_Media_Cat(m_dwPK_Device,DEVICECATEGORY_Media_Plugins_CONST,false,BL_SameHouse,m_dwPK_Device,0,0,"",false);
-		SendCommand(CMD_MH_Stop_Media_Cat);
-	}
-
-#endif
-
+	cout << "Need to implement command #942 - Get Ripping Status" << endl;
+	cout << "Parm #199 - Status=" << sStatus << endl;
 }
 
-//<-dceag-c934-b->
+//<-dceag-c943-b->
 
-        /** @brief COMMAND: #934 - Player Insert Coin */
-        /** Tell player to insert coin */
-                /** @param #41 StreamID */
-                        /** Stream ID of player */
+	/** @brief COMMAND: #943 - Game 1P Start */
+	/** Tell Game to Start 2 Players */
 
-void MAME_Player::CMD_Player_Insert_Coin(int iStreamID,string &sCMD_Result,Message *pMessage)
-//<-dceag-c934-e->
+void MAME_Player::CMD_Game_1P_Start(string &sCMD_Result,Message *pMessage)
+//<-dceag-c943-e->
 {
-        cout << "Need to implement command #934 - Player Insert Coin" << endl;
-        cout << "Parm #41 - StreamID=" << iStreamID << endl;
-
-	WindowUtils::SendKeyToWindow(m_pDisplay,m_iMAMEWindowId,XK_5,m_iEventSerialNum++);
-
-}
-
-//<-dceag-c935-b->
-
-        /** @brief COMMAND: #935 - Player 1P Start */
-        /** Tell Player to 1P start */
-                /** @param #41 StreamID */
-                        /** Stream ID */
-
-void MAME_Player::CMD_Player_1P_Start(int iStreamID,string &sCMD_Result,Message *pMessage)
-//<-dceag-c935-e->
-{
-        cout << "Need to implement command #935 - Player 1P Start" << endl;
-        cout << "Parm #41 - StreamID=" << iStreamID << endl;
+	cout << "Need to implement command #943 - Game 1P Start" << endl;
 	WindowUtils::SendKeyToWindow(m_pDisplay,m_iMAMEWindowId,XK_1,m_iEventSerialNum++);
 }
 
-//<-dceag-c936-b->
+//<-dceag-c944-b->
 
-        /** @brief COMMAND: #936 - Player 2P Start */
-        /** Tell Player to 2P start */
-                /** @param #41 StreamID */
-                        /** Stream ID */
+	/** @brief COMMAND: #944 - Game 2P Start */
+	/** Tell Game to Start 3 Players */
 
-void MAME_Player::CMD_Player_2P_Start(int iStreamID,string &sCMD_Result,Message *pMessage)
-//<-dceag-c936-e->
+void MAME_Player::CMD_Game_2P_Start(string &sCMD_Result,Message *pMessage)
+//<-dceag-c944-e->
 {
-        cout << "Need to implement command #936 - Player 2P Start" << endl;
-        cout << "Parm #41 - StreamID=" << iStreamID << endl;
+	cout << "Need to implement command #944 - Game 2P Start" << endl;
 	WindowUtils::SendKeyToWindow(m_pDisplay,m_iMAMEWindowId,XK_2,m_iEventSerialNum++);
+}
+
+//<-dceag-c945-b->
+
+	/** @brief COMMAND: #945 - Game 3P Start */
+	/** Tell Game to Start 4 Players */
+
+void MAME_Player::CMD_Game_3P_Start(string &sCMD_Result,Message *pMessage)
+//<-dceag-c945-e->
+{
+	cout << "Need to implement command #945 - Game 3P Start" << endl;
+	WindowUtils::SendKeyToWindow(m_pDisplay,m_iMAMEWindowId,XK_3,m_iEventSerialNum++);
+}
+
+//<-dceag-c946-b->
+
+	/** @brief COMMAND: #946 - Game 4P Start */
+	/** Tell Game to insert a coin. */
+
+void MAME_Player::CMD_Game_4P_Start(string &sCMD_Result,Message *pMessage)
+//<-dceag-c946-e->
+{
+	cout << "Need to implement command #946 - Game 4P Start" << endl;
+	WindowUtils::SendKeyToWindow(m_pDisplay,m_iMAMEWindowId,XK_4,m_iEventSerialNum++);
+}
+
+//<-dceag-c947-b->
+
+	/** @brief COMMAND: #947 - Game Insert Coin */
+	/** Tell game to go into Service Mode */
+
+void MAME_Player::CMD_Game_Insert_Coin(string &sCMD_Result,Message *pMessage)
+//<-dceag-c947-e->
+{
+	cout << "Need to implement command #947 - Game Insert Coin" << endl;
+	WindowUtils::SendKeyToWindow(m_pDisplay,m_iMAMEWindowId,XK_5,m_iEventSerialNum++);
+}
+
+//<-dceag-c948-b->
+
+	/** @brief COMMAND: #948 - Game Service */
+	/** Tell Game to Press Start key */
+
+void MAME_Player::CMD_Game_Service(string &sCMD_Result,Message *pMessage)
+//<-dceag-c948-e->
+{
+	cout << "Need to implement command #948 - Game Service" << endl;
+	WindowUtils::SendKeyToWindow(m_pDisplay,m_iMAMEWindowId,XK_F2,m_iEventSerialNum++);
+}
+
+//<-dceag-c949-b->
+
+	/** @brief COMMAND: #949 - Game Start */
+	/** Tell Game to Press Select key */
+
+void MAME_Player::CMD_Game_Start(string &sCMD_Result,Message *pMessage)
+//<-dceag-c949-e->
+{
+	cout << "Need to implement command #949 - Game Start" << endl;
+}
+
+//<-dceag-c950-b->
+
+	/** @brief COMMAND: #950 - Game Select */
+	/** Tell Game to Press Option key */
+
+void MAME_Player::CMD_Game_Select(string &sCMD_Result,Message *pMessage)
+//<-dceag-c950-e->
+{
+	cout << "Need to implement command #950 - Game Select" << endl;
+}
+
+//<-dceag-c951-b->
+
+	/** @brief COMMAND: #951 - Game Option */
+	/** Tell Game to Reset */
+
+void MAME_Player::CMD_Game_Option(string &sCMD_Result,Message *pMessage)
+//<-dceag-c951-e->
+{
+	cout << "Need to implement command #951 - Game Option" << endl;
 }
 
 
