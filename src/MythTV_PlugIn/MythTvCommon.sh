@@ -11,6 +11,7 @@ fi
 
 FILLDB=/usr/bin/mythfilldatabase
 FILLDB_LOG=/var/log/mythtv/mythfilldatabase.log
+FILLDBINITRUN=/tmp/MythTvInitialFillDBRun
 
 # If the user installed a their own mythfilldatabase, adjust..
 if test -f /usr/local/bin/mythfilldatabase ; then
@@ -139,3 +140,45 @@ function DownloadChannelIcons {
 	# Tell MythTV that the channel icons have been moved.
 	echo "UPDATE channel SET icon=REPLACE(icon,'$DIR','/home/mythtv')" | $MYSQLPIPE
 }
+
+function SetMythTvInitialFillDBRun {
+	touch $FILLDBINITRUN ; chown mythtv:mythtv $FILLDBINITRUN
+	date +%s > $FILLDBINITRUN
+}
+
+function WaitUntilMythTvInitialRunXMinutesOld {
+	STARTTIME=`date +%s`
+	if [ -r $FILLDBINITRUN -a -s $FILLDBINITRUN ] ; then
+		STARTTIME=$(cat $FILLDBINITRUN)
+	fi
+
+	MINS="$1"
+	if [ x"$MINS" = x"" ] ; then
+		MINS=10
+	fi
+	SECS=$(echo $MINS \* 60 | bc)
+
+	ENDTIME=$(echo $STARTTIME + $SECS | bc)
+
+	NOW=`date +%s`
+	if [ $ENDTIME -gt $NOW ] ; then
+		TIMETOWAIT=$(echo $ENDTIME - $NOW | bc)
+		if [ $TIMETOWAIT -gt 60 ] ; then
+			echo Waiting $TIMETOWAIT seconds before starting..
+			echo We do not want to start until it has been
+			echo $MINS minutes since the MythTV channel download.
+		fi
+		while [ $ENDTIME -gt `date +%s` ] ; do
+			sleep 1
+		done
+
+		# in case end time changed, redo if we waited more
+		# than a few seconds
+		if $TIMETOWAIT -gt 5 ; then
+			WaitUntilMythTvInitialRunXMinutesOld $MINS
+		fi
+	fi
+
+	echo WaitUntilMythTvInitialRunXMinutesOld done
+}
+

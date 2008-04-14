@@ -1,15 +1,26 @@
 #!/bin/bash
 
+echo $0 start `date`
+
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/MythTvCommon.sh
 
 # Append all params..
 FILLDB=$FILLDB" $@"
 
+# Before we lock, make sure MythTVInitialFillDB.sh was not run recently.
+# This is so that we don't start this until the user has finished
+# configuring MythTV in the configuration Wizard. By checking this
+# before we lock we make sure we're not running this script when
+# MythTVInitialFillDB.sh needs to be rerun.
+# Even if we are MythTvInitFillDB.sh can kill us, but this prevents
+# a lot of false starts from happening.
+WaitUntilMythTvInitialRunXMinutesOld 2
+
 # Lock the MythFillDatabase lock to another script from running mythfilldatabase
-echo "MythTvDailyFillDB.sh waiting for MythFillDatabase lock"
+echo "$0 waiting for MythFillDatabase lock"
 WaitLock "MythFillDatabase" "MythTvDailyFillDB.sh" nolog
-echo "MythTvDailyFillDB.sh got MythFillDatabase lock"
+echo "$0 got MythFillDatabase lock"
 
 # lock schema, this makes sure that we don't run this while the DB schema is
 # being upgraded by another mythtv process.
@@ -44,3 +55,5 @@ fi
 if [ x"$CHAN_COUNT_BFR" != x"$CHAN_COUNT_AFT" ] ; then
 	DownloadChannelIcons
 fi
+
+echo $0 end `date`
