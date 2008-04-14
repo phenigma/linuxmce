@@ -76,9 +76,9 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sDescrip
 {
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"CreateDevice::DoIt called with: iPK_DHCPDevice=%d; iPK_DeviceTemplate=%d"
 		"; sIPAddress=%s; sMacAddress=%s; PK_Device_ControlledVia=%d" 
-		"; sDeviceData=%s; iPK_Device_RelatedToendl=%d",
+		"; sDeviceData=%s; iPK_Device_RelatedToendl=%d; Description=%s",
 		iPK_DHCPDevice,iPK_DeviceTemplate,sIPAddress.c_str(),sMacAddress.c_str(),
-		PK_Device_ControlledVia,sDeviceData.c_str(),iPK_Device_RelatedTo);
+		PK_Device_ControlledVia,sDeviceData.c_str(),iPK_Device_RelatedTo,sDescription.c_str());
 
 	if( !m_bConnected )
 	{
