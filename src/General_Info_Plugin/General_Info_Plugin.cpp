@@ -2224,6 +2224,8 @@ class DataGridTable *General_Info_Plugin::HardDiscs( string GridID, string Parms
 		{
 			DeviceData_Router *pDevice = *it;
 			pCell = new DataGridCell(pDevice->m_sDescription,StringUtils::itos(pDevice->m_dwPK_Device));
+			pCell->m_mapAttributes["Name"]=pDevice->m_sDescription;
+			pCell->m_mapAttributes["Capacity"]=pDevice->m_mapParameters_Find(DEVICEDATA_Capacity_CONST);
 			pDataGrid->SetData(0,iRow++,pCell);
 		}
 	}
@@ -2236,6 +2238,8 @@ class DataGridTable *General_Info_Plugin::HardDiscs( string GridID, string Parms
 		{
 			DeviceData_Router *pDevice = *it;
 			pCell = new DataGridCell(pDevice->m_sDescription,StringUtils::itos(pDevice->m_dwPK_Device));
+			pCell->m_mapAttributes["Name"]=pDevice->m_sDescription;
+			pCell->m_mapAttributes["Capacity"]=pDevice->m_mapParameters_Find(DEVICEDATA_Capacity_CONST);
 			pDataGrid->SetData(0,iRow++,pCell);
 		}
 	}
@@ -2258,6 +2262,8 @@ class DataGridTable *General_Info_Plugin::CompactFlashes( string GridID, string 
 	{
 		DeviceData_Router *pDevice = *it;
 		pCell = new DataGridCell(pDevice->m_sDescription,StringUtils::itos(pDevice->m_dwPK_Device));
+		pCell->m_mapAttributes["Name"]=pDevice->m_sDescription;
+		pCell->m_mapAttributes["Capacity"]=pDevice->m_mapParameters_Find(DEVICEDATA_Capacity_CONST);
 		pDataGrid->SetData(0,iRow++,pCell);
 	}
 	return pDataGrid;
