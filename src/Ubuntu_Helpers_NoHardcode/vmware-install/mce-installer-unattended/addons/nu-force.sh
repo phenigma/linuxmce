@@ -79,7 +79,7 @@ AVWizardReplacement()
 	Video_Connector="VGA"
 	PK_Skin=12 # NuForce
 	PK_Size=6 # 1024x768
-	NewAudioSetting="S"
+	NewAudioSetting="C3"
 
 	Queries=(
 		"UPDATE Device_DeviceData SET IK_DeviceData='$OrbiterWidth' WHERE FK_Device='$OrbiterDev' AND FK_DeviceData='$DEVICEDATA_ScreenWidth'"
