@@ -923,7 +923,6 @@ bool PnpQueue::Process_Detect_Stage_Add_Device(PnpQueueEntry *pPnpQueueEntry)
 		return true; // Delete this, something went terribly wrong
 	}
 
-	pPnpQueueEntry->m_sDescription = GetDeviceName(pPnpQueueEntry);
 	pPnpQueueEntry->RemoveBlockedDeviceData();
 
 	int PK_Device_Related = pPnpQueueEntry->m_pRow_Device_Reported->PK_Device_get();
@@ -936,7 +935,7 @@ bool PnpQueue::Process_Detect_Stage_Add_Device(PnpQueueEntry *pPnpQueueEntry)
 	DCE::CMD_Create_Device CMD_Create_Device( m_pPlug_And_Play_Plugin->m_dwPK_Device, pCommand_Impl_GIP->m_dwPK_Device, 
 		pRow_DeviceTemplate->PK_DeviceTemplate_get(), pPnpQueueEntry->m_pRow_PnpQueue->MACaddress_get(), pPnpQueueEntry->m_iPK_Room, pPnpQueueEntry->m_pRow_PnpQueue->IPaddress_get(),
 		pPnpQueueEntry->DeviceDataAsString(),pPnpQueueEntry->m_iPK_DHCPDevice,0 /* let it find the parent based on the relationship */,
-		pPnpQueueEntry->m_sDescription,
+		GetDeviceName(pPnpQueueEntry),
 		pPnpQueueEntry->m_pOH_Orbiter_Active_get() ? pPnpQueueEntry->m_pOH_Orbiter_Active_get()->m_pDeviceData_Router->m_dwPK_Device : 0,
 		PK_Device_Related,&iPK_Device);
 
@@ -1758,13 +1757,19 @@ string PnpQueue::GetDeviceName(PnpQueueEntry *pPnpQueueEntry)
 	}
 	else if( pRow_DeviceTemplate->FK_DeviceCategory_get()==DEVICECATEGORY_Hard_Drives_CONST )
 	{
-		string sDescription = pRow_DeviceTemplate->Description_get() + "/" + pPnpQueueEntry->m_pRow_Device_Reported->Description_get();
-		string sDevice = pPnpQueueEntry->m_mapPK_DeviceData_Find(DEVICEDATA_Block_Device_CONST);
-		if( StringUtils::StartsWith(sDevice,"/dev/") )
-			sDescription += " (" + sDevice.substr(5) + ")";
+		string sDescription;
+		if( pPnpQueueEntry->m_pRow_PnpQueue->Description_get().size() )
+			sDescription = pPnpQueueEntry->m_pRow_PnpQueue->Description_get() + "/" + pPnpQueueEntry->m_pRow_Device_Reported->Description_get();
+		else
+		{
+			sDescription = pRow_DeviceTemplate->Description_get() + "/" + pPnpQueueEntry->m_pRow_Device_Reported->Description_get();
+			string sDevice = pPnpQueueEntry->m_mapPK_DeviceData_Find(DEVICEDATA_Block_Device_CONST);
+			if( StringUtils::StartsWith(sDevice,"/dev/") )
+				sDescription += " (" + sDevice.substr(5) + ")";
+		}
 		return sDescription;
 	}
-	return "";
+	return pPnpQueueEntry->m_pRow_PnpQueue->Description_get();
 }
 
 void PnpQueue::SetDisableFlagForDeviceAndChildren(Row_Device *pRow_Device,bool bDisabled)
