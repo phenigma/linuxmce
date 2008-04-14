@@ -207,8 +207,17 @@ Firewall()
 ApplyHacks()
 {
 	AsoundSubst='s/convert48k/convert44k/g; s/rate 48000/rate 44100/g; /playback\.pcm/ s/spdif_playback/plughw:0,1/g'
+	AsoundCleanup='/pcm_slave.convert44k {/,/^$/ {next}; /pcm.spdif_playback {/,/^$/ {next} {print}'
+
 	sed -ri "$AsoundSubst" /usr/pluto/templates/asound.conf
-	sed -ri "$AsoundSubst" /etc/asound.conf || :
+	awk "$AsoundCleanup" /usr/pluto/templates/asound.conf >/usr/pluto/templates/asound.conf.nuforce
+	mv /usr/pluto/templates/asound.conf{.nuforce,}
+
+	if [[ -f /etc/asound.conf ]]; then
+		sed -ri "$AsoundSubst" /etc/asound.conf
+		awk "$AsoundCleanup" /etc/asound.conf >/etc/asound.conf.nuforce
+		mv /etc/asound.conf{.nuforce,}
+	fi
 }
 
 Packages
