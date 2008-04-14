@@ -82,7 +82,7 @@ for i in `seq 1 5` ;do
 	if ! mountpoint /home ;then
 		echo "$(date -R) /home is not mounted, retrying ($i of 5) ..." >> /var/log/pluto/umount-wrapper.log
 		mount /home
-		sleep 0.5
+		sleep $( echo "0.5 * $i" | bc  -l )
 	else
 		break
 	fi
