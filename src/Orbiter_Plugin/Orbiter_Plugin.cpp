@@ -2445,6 +2445,9 @@ void Orbiter_Plugin::CMD_Display_Message(string sText,string sType,string sName,
 //<-dceag-c406-e->
 {
 	//TODO: remove me
+
+	int iTime = sTime.size() ? atoi(sTime.c_str()) : 0;
+	DisplayMessageOnOrbiter(sList_PK_Device,sText,false,iTime,true);
 }
 
 //<-dceag-c686-b->
@@ -2462,6 +2465,20 @@ void Orbiter_Plugin::CMD_Display_Dialog_Box_On_Orbiter(string sText,string sOpti
 //<-dceag-c686-e->
 {
 	//TODO: removed me
+
+    //allows to user to use MessageSend tool, with ' instead of "
+    sOptions = StringUtils::Replace(sOptions, "'", "\""); 
+
+    vector<string> vectOptions;
+    StringUtils::Tokenize(sOptions, "|", vectOptions);
+
+    //fill the rest of parameters with weren't specified
+    while(vectOptions.size() < 8)
+        vectOptions.push_back("");
+
+    DisplayMessageOnOrbiter(sList_PK_Device, sText, false, 0, true,
+        vectOptions[0], vectOptions[1], vectOptions[2], vectOptions[3], 
+        vectOptions[4], vectOptions[5], vectOptions[6], vectOptions[7]);
 }
 
 //<-dceag-c693-b->
