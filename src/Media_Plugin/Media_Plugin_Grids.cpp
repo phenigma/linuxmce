@@ -2204,11 +2204,18 @@ class DataGridTable *Media_Plugin::DevicesNeedingProviders( string GridID, strin
 		{
 			Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow( atoi(row[0]) );
 			if( !pRow_Device )
+			{
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Media_Plugin::DevicesNeedingProviders can't find row_device for %s", row[0]);
 				continue; // Shouldn't happen
+			}
 
 			if( pRow_Device->Disabled_get()==1 || pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get()==DEVICECATEGORY_Media_Players_CONST 
 				|| DatabaseUtils::DeviceIsWithinCategory(m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICECATEGORY_Orbiter_CONST) )
+			{
+					LoggerWrapper::GetInstance()->Write(LV_STATUS, "Media_Plugin::DevicesNeedingProviders skipping embedded %s/%d/%d", 
+						row[0], (int) pRow_Device->Disabled_get(), pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get());
 					continue; // Skip the internal sources, and orbiters which use this table for another purpose
+			}
 
 			if( pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get()==DEVICECATEGORY_PVR_CONST || 
 				pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get()==DEVICECATEGORY_Cable_Boxes_CONST || 
@@ -2242,7 +2249,11 @@ class DataGridTable *Media_Plugin::DevicesNeedingProviders( string GridID, strin
 
 			int PK_Device_Topmost_Comp = DatabaseUtils::GetTopMostDevice(m_pDatabase_pluto_main,pRow_Device->PK_Device_get());
 			if( PK_Device_Topmost_Comp!=PK_Device_Topmost && pRow_Device->FK_Room_get()!=pRow_Device_From->FK_Room_get() )
+			{
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Media_Plugin::DevicesNeedingProviders skipping diff room %d %d/%d, %d/%d",
+					pRow_Device->PK_Device_get(), PK_Device_Topmost_Comp, PK_Device_Topmost, pRow_Device->FK_Room_get(), pRow_Device_From->FK_Room_get());
 				continue;  // It's not a port on this computer, and it's not in the same room
+			}
 
 
 			pCell = new DataGridCell(sDescription,StringUtils::itos(pRow_Device->PK_Device_get()));
