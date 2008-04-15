@@ -1759,10 +1759,10 @@ string PnpQueue::GetDeviceName(PnpQueueEntry *pPnpQueueEntry)
 	{
 		string sDescription;
 		if( pPnpQueueEntry->m_pRow_PnpQueue->Description_get().size() )
-			sDescription = pPnpQueueEntry->m_pRow_PnpQueue->Description_get() + "/" + pPnpQueueEntry->m_pRow_Device_Reported->Description_get();
+			sDescription = pPnpQueueEntry->m_pRow_PnpQueue->Description_get() + "-" + pPnpQueueEntry->m_pRow_Device_Reported->Description_get();
 		else
 		{
-			sDescription = pRow_DeviceTemplate->Description_get() + "/" + pPnpQueueEntry->m_pRow_Device_Reported->Description_get();
+			sDescription = pRow_DeviceTemplate->Description_get() + "-" + pPnpQueueEntry->m_pRow_Device_Reported->Description_get();
 			string sDevice = pPnpQueueEntry->m_mapPK_DeviceData_Find(DEVICEDATA_Block_Device_CONST);
 			if( StringUtils::StartsWith(sDevice,"/dev/") )
 				sDescription += " (" + sDevice.substr(5) + ")";
