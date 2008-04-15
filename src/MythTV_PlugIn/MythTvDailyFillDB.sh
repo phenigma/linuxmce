@@ -31,7 +31,7 @@ CHAN_COUNT_BFR=$(echo "SELECT count(1) FROM channel;" | $MYSQLPIPE)
 # Throttle the load so as to allow LiveTV to still work...
 UpdateMythSetting "DDSlowDownFactor" "5" "NULL"
 
-# Download today's scheduling data, so that we can tune LiveTV immediately
+# Download scheduling data
 $FILLDB
 
 CHAN_COUNT_AFT=$(echo "SELECT count(1) FROM channel;" | $MYSQLPIPE)
