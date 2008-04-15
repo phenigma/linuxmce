@@ -1767,6 +1767,10 @@ string PnpQueue::GetDeviceName(PnpQueueEntry *pPnpQueueEntry)
 			if( StringUtils::StartsWith(sDevice,"/dev/") )
 				sDescription += " (" + sDevice.substr(5) + ")";
 		}
+		// The mount scripts don't allow these characters
+		StringUtils::Replace(&sDescription,"/","-");
+		StringUtils::Replace(&sDescription,"[","(");
+		StringUtils::Replace(&sDescription,"]",")");
 		return sDescription;
 	}
 	return pPnpQueueEntry->m_pRow_PnpQueue->Description_get();
