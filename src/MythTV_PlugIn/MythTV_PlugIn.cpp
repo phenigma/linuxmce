@@ -1560,6 +1560,8 @@ void MythTV_PlugIn::CheckForNewRecordings()
 			if( row[11] && strcmp(row[11],"LiveTV")==0 )
 			{
 				pRow_File->Ignore_set(1);
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::CheckForNewRecordings file: %s is live tv title %s",pRow_File->Filename_get().c_str(), title.c_str());
+	
 				if( title!="" )
 					title = "LiveTV: " + title;
 				else
@@ -1570,9 +1572,10 @@ void MythTV_PlugIn::CheckForNewRecordings()
 
 			LoggerWrapper::GetInstance()->Write(
 				LV_STATUS,
-				"RESULT ROW: chanid %s start_time %s title %s subtitle %s stars %s category %s " // 6
+				"RESULT ROW: file %s chanid %s start_time %s title %s subtitle %s stars %s category %s " // 6
 				"description %s hdtv %s category_type %s chan_name %s rating %s recgroup %s " // 6
 				"seriesid %s programid %s icon %s", // 3
+				pRow_File->Filename_get().c_str(),
 				row[0], row[1], row[2], row[3], row[4], row[5],
 				row[6], row[7], row[8], row[9], row[10], row[11],
 				row[12], row[13], row[14]);
@@ -1635,6 +1638,9 @@ void MythTV_PlugIn::CheckForNewRecordings()
 				else
 					pRow_File->FK_MediaSubType_set(MEDIASUBTYPE_TV_Shows_CONST);
 			}
+			else
+				pRow_File->FK_MediaSubType_set(MEDIASUBTYPE_TV_Shows_CONST);
+
 			if( row[9] && row[9][0] != 0 /*channel name*/)
 				m_pMedia_Plugin->CMD_Add_Media_Attribute(row[9],0,"",ATTRIBUTETYPE_Channel_CONST,"",pRow_File->PK_File_get(),&PK_Attribute_Channel);
 			if( row[10] && row[10][0] != 0 /*rating*/)
