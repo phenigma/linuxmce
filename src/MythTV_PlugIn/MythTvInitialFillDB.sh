@@ -58,8 +58,8 @@ echo "UPDATE housekeeping SET lastrun = '1970-01-01 00:00:00' WHERE tag = 'MythF
 R=$(echo "SELECT * FROM videosource LIMIT 1" | $MYSQLPIPE_WITH_COL)
 if [[ -n "$R" ]]; then
 	echo Notify all the orbiters that myth is ready to be used
-	/usr/pluto/bin/MessageSend $DCERouter -targetType template -r 0 12 1 406 9 \
-		"MythTV is ready.  However it may take several more minutes before the guide data is fully populated." 102 300
+	/usr/pluto/bin/MessageSend dcerouter 0 -305 1 741 159 53 9 \
+		"MythTV is ready. However, it may take some time before the guide data is fully populated."
 	/usr/pluto/bin/MessageSend $DCERouter -targetType template -r 0 36 1 910 9 \
 		"Finished retrieving channels"
 fi
