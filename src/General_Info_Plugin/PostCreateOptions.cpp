@@ -135,7 +135,7 @@ void PostCreateOptions::PostCreateDevice_NetworkStorage(Row_Device *pRow_Device,
 	string sName = DatabaseUtils::GetDeviceData(m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICEDATA_Share_Name_CONST);
 	if( sName.empty()==false )
 	{
-		pRow_Device->Description_set(pRow_Device->Description_get() + ": " + sName);
+		pRow_Device->Description_set(pRow_Device->Description_get() + "-" + sName);
 		m_pDatabase_pluto_main->Device_get()->Commit();
 	}
 }
