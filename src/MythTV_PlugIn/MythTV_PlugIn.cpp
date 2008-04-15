@@ -2388,7 +2388,7 @@ void MythTV_PlugIn::StartFillDatabase()
 
 		DCE::SCREEN_PopupMessage SCREEN_PopupMessage(
 			m_dwPK_Device, DEVICETEMPLATE_VirtDev_All_Orbiters_CONST,
-			"It will take about 2 minutes to retrieve your channel listings. "
+			"It will take about few minutes to retrieve your channel listings. "
 			"Please wait until you see the message \"MythTV is ready\" before "
 			"you start using TV features.", // Main message
 			"", // Command Line

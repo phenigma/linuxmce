@@ -28,6 +28,9 @@ echo "LOCK TABLE schemalock WRITE; UNLOCK TABLES;" | $MYSQLPIPE
 
 CHAN_COUNT_BFR=$(echo "SELECT count(1) FROM channel;" | $MYSQLPIPE)
 
+# Throttle the load so as to allow LiveTV to still work...
+UpdateMythSetting "DDSlowDownFactor" "5" "NULL"
+
 # Download today's scheduling data, so that we can tune LiveTV immediately
 $FILLDB
 

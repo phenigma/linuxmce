@@ -31,6 +31,9 @@ touch $FILLDB_LOG ; chown mythtv:mythtv $FILLDB_LOG
 
 SetMythTvInitialFillDBRun
 
+# Do this at full speed.. 
+UpdateMythSetting "DDSlowDownFactor" "0" "NULL"
+
 # Download today's scheduling data, so that we can tune LiveTV immediately
 $FILLDB --refresh-today --max-days 1 >> $FILLDB_LOG
 
