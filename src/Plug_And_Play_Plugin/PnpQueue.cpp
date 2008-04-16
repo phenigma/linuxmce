@@ -1356,6 +1356,7 @@ bool PnpQueue::DeviceMatchesCriteria(Row_Device *pRow_Device,PnpQueueEntry *pPnp
 			{
 #ifdef DEBUG
 				LoggerWrapper::GetInstance()->Write(LV_STATUS,"PnpQueue::DeviceMatchesCriteria queue %d device %d category %s/%s",
+					pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),pRow_Device->PK_Device_get(),
 					pPnpQueueEntry->m_pRow_PnpQueue->Category_get().c_str(),pRow_DHCPDevice->Parms_get().c_str());
 #endif
 				if( pPnpQueueEntry->m_pRow_PnpQueue->Category_get().size()==0 || pRow_DHCPDevice->Parms_get().find( pPnpQueueEntry->m_pRow_PnpQueue->Category_get() )==string::npos )
