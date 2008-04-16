@@ -170,15 +170,18 @@ void DatabaseUtils::GetUnusedPortsOnPC(DBHelper *pDBHelper,int PK_Device,vector<
 			vectPorts.push_back(it->first);
 }
 
-void DatabaseUtils::SetDeviceData(DBHelper *pDBHelper,int PK_Device,int PK_DeviceData,string IK_DeviceData)
+void DatabaseUtils::SetDeviceData(DBHelper *pDBHelper,int PK_Device,int PK_DeviceData,string IK_DeviceData,bool bPreserveModTime)
 {
 	string sSQL = "SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device=" + StringUtils::itos(PK_Device)
 		+ " AND FK_DeviceData=" + StringUtils::itos(PK_DeviceData);
 
 	PlutoSqlResult result;
 	if( ( result.r=pDBHelper->db_wrapper_query_result( sSQL ) ) && result.r->row_count>0 )
-		sSQL = "UPDATE Device_DeviceData SET IK_DeviceData='" + StringUtils::SQLEscape(IK_DeviceData) + "' WHERE "
+	{
+		sSQL = "UPDATE Device_DeviceData SET IK_DeviceData='" + StringUtils::SQLEscape(IK_DeviceData) + "' " + (bPreserveModTime ? "psc_mod=psc_mod " : "") +
+			" WHERE "
 			"FK_Device=" + StringUtils::itos(PK_Device) +  " AND FK_DeviceData=" + StringUtils::itos(PK_DeviceData);
+	}
 	else
 		sSQL = "INSERT INTO Device_DeviceData(FK_Device,FK_DeviceData,IK_DeviceData) VALUES("
 			+ StringUtils::itos(PK_Device) + "," + StringUtils::itos(PK_DeviceData) + ",'"
