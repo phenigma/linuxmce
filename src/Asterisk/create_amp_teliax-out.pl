@@ -84,7 +84,7 @@ my $OUT_ROUTE = "";
 while(<PAGE>)
 {
     chomp;
-    if($_ =~ /[<]option value[=]\"([^\"]+)\"[>]IAX2\/teliax[<]\/option[>]/)
+    if($_ =~ /[<]option value[=]\"([^\"]+)\"[>]IAX2\/teliax-out[<]\/option[>]/)
     {
         $OUT_ROUTE=$1;
     }
@@ -93,7 +93,7 @@ close(PAGE);
 $OUT_VARS{'display'}="routing";
 $OUT_VARS{'extdisplay'}="";
 $OUT_VARS{'action'}="addroute";
-$OUT_VARS{'routename'}="teliax-out";
+$OUT_VARS{'routename'}="teliax-out-route";
 $OUT_VARS{'routepass'}="";
 $OUT_VARS{'dialpattern'}=$LOCAL_PREFIX2;
 $OUT_VARS{'trunkpriority[0]'}=$OUT_ROUTE;
