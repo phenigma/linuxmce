@@ -65,32 +65,22 @@ if [[ ! -f /etc/diskless.conf ]]; then
 	SystemFilesystemFull="false"
 
 	## Check system root partitions for free space (/)
-	rootDevice=$( cat /etc/fstab  | awk '{ if ($2 == "/") { print $1 } }' )
-	if [[ "$rootDevice" == "UUID"* ]] ;then
-		rootDevice=$(echo $rootDevice | cut -d'=' -f2)
-		udev="/dev/disk/by-uuid/"$rootDevice
-		rootDevice=$(udevinfo -q name -n  $udev)
-		rootDevice="/dev/"$rootDevice
-	fi
+	dfOutput=$(df / | grep -v "^Filesystem")
+	rootUsed=$(echo $dfOutput | awk '{ print $5 }'| cut -d"%" -f1)
+	rootFree=$(echo $dfOutput | awk '{ print $4 }')
+	if [[ $rootUsed -gt 95 || $rootFree -lt 204800 ]] ;then
+		Logging $TYPE $SEVERITY_CRITICAL $module "Filesystem ( / ) is getting full, trying to clean quietly!"
+		cleanRootFS
 
-	if [[ -b "$rootDevice" && "$rootDevice" != "" ]] ;then
-		dfOutput=$(df $rootDevice | grep -v "^Filesystem")
+		dfOutput=$(df / | grep -v "^Filesystem")
 		rootUsed=$(echo $dfOutput | awk '{ print $5 }'| cut -d"%" -f1)
 		rootFree=$(echo $dfOutput | awk '{ print $4 }')
+
 		if [[ $rootUsed -gt 95 || $rootFree -lt 204800 ]] ;then
-			Logging $TYPE $SEVERITY_CRITICAL $module "Filesystem ( / ) is getting full, trying to clean quietly!"
-			cleanRootFS
-	
-			dfOutput=$(df $rootDevice | grep -v "^Filesystem")
-			rootUsed=$(echo $dfOutput | awk '{ print $5 }'| cut -d"%" -f1)
-			rootFree=$(echo $dfOutput | awk '{ print $4 }')
-	
-			if [[ $rootUsed -gt 95 || $rootFree -lt 204800 ]] ;then
-				Logging $TYPE $SEVERITY_CRITICAL $module "Filesystem ( / ) was auto cleaned but there is still not much space left"
-				SystemFilesystemFull="true"
-			else
-				Logging $TYPE $SEVERITY_NORMAL $module "Filesyste ( / ) was auto cleaned and now looks ok"
-			fi
+			Logging $TYPE $SEVERITY_CRITICAL $module "Filesystem ( / ) was auto cleaned but there is still not much space left"
+			SystemFilesystemFull="true"
+		else
+			Logging $TYPE $SEVERITY_NORMAL $module "Filesyste ( / ) was auto cleaned and now looks ok"
 		fi
 	fi
 
@@ -102,7 +92,7 @@ if [[ ! -f /etc/diskless.conf ]]; then
 		Logging $TYPE $SEVERITY_CRITICAL $module "Filesystem ( /home ) is getting full, trying to clean quietly"
 		cleanHomeFS
 
-		dfOutput=$(df $homeDevice | grep -v '^Filesystem')
+		dfOutput=$(df '/home' | grep -v '^Filesystem')
 		homeUsed=$(echo $dfOutput | awk '{ print $5 }'| cut -d"%" -f1)
 		homeFree=$(echo $dfOutput | awk '{ print $4 }')
 
