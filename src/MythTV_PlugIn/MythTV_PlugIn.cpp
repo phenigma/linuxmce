@@ -427,6 +427,7 @@ MythTvMediaStream* MythTV_PlugIn::ConvertToMythMediaStream(MediaStream *pMediaSt
 }
 
 // Parms = Users,PK_EntertainmentArea
+// All channels
 class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign,
 	Message *pMessage)
 {
@@ -574,6 +575,7 @@ class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *
 	return pDataGridTable;
 }
 
+// The shows on a given channel
 class DataGridTable *MythTV_PlugIn::CurrentShows(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,Message *pMessage)
 {
 	if( m_bBookmarksNeedRefreshing )
@@ -600,7 +602,8 @@ class DataGridTable *MythTV_PlugIn::CurrentShows(string GridID,string Parms,void
 	DataGridCell *pCell;
 
 	PLUTO_SAFETY_LOCK(mm, m_pMedia_Plugin->m_MediaMutex);
-    LoggerWrapper::GetInstance()->Write(LV_STATUS, "MythTV_PlugIn::CurrentShows A datagrid for all the shows was requested %s params %s", GridID.c_str(), Parms.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MythTV_PlugIn::CurrentShows A datagrid for all the shows was requested %s params %s record size: %d",
+		GridID.c_str(), Parms.c_str(), (int) m_mapScheduledRecordings.size() );
 
 	MythRecording mythRecording;
 	mythRecording.channel_id = atoi(sChanId.c_str());
@@ -835,7 +838,8 @@ void MythTV_PlugIn::CMD_Schedule_Recording(string sType,string sOptions,string s
 			make_pair<char,int> ('C',iID);
 	}
 
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MythTV_PlugIn::CMD_Schedule_Recording %d=%s", iID, sSQL.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MythTV_PlugIn::CMD_Schedule_Recording key %I64u %d=%s size %d", 
+		(u_int64_t) mythRecording.key(), iID, sSQL.c_str(), (int) m_mapScheduledRecordings.size());
 	if( m_pMythBackEnd_Socket )
 		m_pMythBackEnd_Socket->SendMythString("RESCHEDULE_RECORDINGS " + StringUtils::itos(iID));
 }

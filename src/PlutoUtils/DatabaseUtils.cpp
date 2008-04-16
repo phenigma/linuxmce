@@ -178,7 +178,7 @@ void DatabaseUtils::SetDeviceData(DBHelper *pDBHelper,int PK_Device,int PK_Devic
 	PlutoSqlResult result;
 	if( ( result.r=pDBHelper->db_wrapper_query_result( sSQL ) ) && result.r->row_count>0 )
 	{
-		sSQL = "UPDATE Device_DeviceData SET IK_DeviceData='" + StringUtils::SQLEscape(IK_DeviceData) + "' " + (bPreserveModTime ? "psc_mod=psc_mod " : "") +
+		sSQL = "UPDATE Device_DeviceData SET IK_DeviceData='" + StringUtils::SQLEscape(IK_DeviceData) + "' " + (bPreserveModTime ? ",psc_mod=psc_mod " : "") +
 			" WHERE "
 			"FK_Device=" + StringUtils::itos(PK_Device) +  " AND FK_DeviceData=" + StringUtils::itos(PK_DeviceData);
 	}

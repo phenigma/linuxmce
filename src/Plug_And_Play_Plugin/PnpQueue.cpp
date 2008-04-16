@@ -391,7 +391,7 @@ bool PnpQueue::Process_Detect_Stage_Detected(PnpQueueEntry *pPnpQueueEntry)
 		else
 		{
 			if( pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get().size() )
-				DatabaseUtils::SetDeviceData(m_pDatabase_pluto_main,pRow_Device_Created->PK_Device_get(),DEVICEDATA_Serial_Number_CONST,pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get());
+				DatabaseUtils::SetDeviceData(m_pDatabase_pluto_main,pRow_Device_Created->PK_Device_get(),DEVICEDATA_Serial_Number_CONST,pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get(),true);
 			RunSetupScript(pPnpQueueEntry);
 			pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_DONE);
 #ifdef DEBUG
@@ -948,7 +948,7 @@ bool PnpQueue::Process_Detect_Stage_Add_Device(PnpQueueEntry *pPnpQueueEntry)
 	pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Created_set(iPK_Device);
 
 	if( pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get().size() )
-		DatabaseUtils::SetDeviceData(m_pDatabase_pluto_main,iPK_Device,DEVICEDATA_Serial_Number_CONST,pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get());
+		DatabaseUtils::SetDeviceData(m_pDatabase_pluto_main,iPK_Device,DEVICEDATA_Serial_Number_CONST,pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get(),true);
 
 	Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(iPK_Device);
 	if( pRow_Device )  // Should always be the case,
@@ -1816,7 +1816,7 @@ void PnpQueue::SetDisableFlagForDeviceAndChildren(Row_Device *pRow_Device,bool b
 	{
 		Row_DeviceTemplate_DeviceData *pRow_DeviceTemplate_DeviceData = m_pDatabase_pluto_main->DeviceTemplate_DeviceData_get()->GetRow(pRow_DeviceTemplate->PK_DeviceTemplate_get(),DEVICEDATA_Keep_Serial_Number_On_Disable_CONST);
 		if( pRow_DeviceTemplate_DeviceData==NULL || atoi(pRow_DeviceTemplate_DeviceData->IK_DeviceData_get().c_str())==0 )
-			DatabaseUtils::SetDeviceData(m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICEDATA_Serial_Number_CONST,"");
+			DatabaseUtils::SetDeviceData(m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICEDATA_Serial_Number_CONST,"",true);
 		string sSQL = "UPDATE Device_DeviceData SET IK_DeviceData=NULL where FK_Device=" + StringUtils::itos(pRow_Device->PK_Device_get()) + " AND FK_DeviceData=" TOSTRING(DEVICEDATA_COM_Port_on_PC_CONST);
 		m_pDatabase_pluto_main->threaded_db_wrapper_query(sSQL,true);
 	}

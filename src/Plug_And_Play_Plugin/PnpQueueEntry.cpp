@@ -246,7 +246,7 @@ void PnpQueueEntry::AssignDeviceData(Row_Device *pRow_Device)
 		DatabaseUtils::SetDeviceData(m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),it->first,it->second);
 	}
 	if( m_pRow_PnpQueue->SerialNumber_get().size() )
-		DatabaseUtils::SetDeviceData(m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICEDATA_Serial_Number_CONST,m_pRow_PnpQueue->SerialNumber_get());
+		DatabaseUtils::SetDeviceData(m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICEDATA_Serial_Number_CONST,m_pRow_PnpQueue->SerialNumber_get(),true);
 	if( m_pRow_PnpQueue->Signature_get().size() )
 		DatabaseUtils::SetDeviceData(m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICEDATA_PNP_Signature_CONST,m_pRow_PnpQueue->Signature_get());
 }
