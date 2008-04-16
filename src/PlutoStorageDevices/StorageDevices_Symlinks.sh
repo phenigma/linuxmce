@@ -22,14 +22,16 @@ DD_USERS=3
 
 ## Remove old symlinks from home
 for userdir in /home/user_* /home/public ;do
-	find ${userdir}/data -lname "*/mnt/device/*" -print0 -mindepth 1 -maxdepth 2 -xdev | xargs -0 rm -f
+	find ${userdir}/data -xdev -mindepth 1 -maxdepth 2 -lname "*/mnt/device/*" -print0 | xargs -0 rm -f
 done
 
 ## Lookup our internal storage devices in the db
 Q="SELECT PK_Device, Description  FROM Device WHERE FK_DeviceTemplate IN ($TPL_GENERIC_INTERNAL_DRIVE, $TPL_GENERIC_SAMBA_SHARE, $TPL_GENERIC_NFS_SHARE, $TPL_RAID_0, $TPL_RAID_1, $TPL_RAID_5)"
 InternalOwnStorageDevices=$(RunSQL "$Q")
 
+set -o noglob
 for Device in $InternalOwnStorageDevices; do
+set +o noglob
 	Device_ID=$(Field 1 "$Device")
 	Device_Description=$(Field 2 "$Device")
 	Device_MountPoint="/mnt/device/$Device_ID"
