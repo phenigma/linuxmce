@@ -345,7 +345,10 @@ ValidIP()
 	local IPpattern="^($IPn)\\.($IPn)\\.($IPn)\\.($IPn)$"
 	local i Number
 
-	if [[ ! "$IP" =~ "$IPpattern" ]]; then
+	# Bash 3.1 requires $IPpattern to be quoted, otherwise it gives a syntax error
+	# Bash 3.2 requires $IPpattern to be unquoted, otherwise it fails to match the pattern
+	# Ubuntu has Bash 3.2
+	if [[ ! "$IP" =~ $IPpattern ]]; then
 		return 1
 	fi
 
