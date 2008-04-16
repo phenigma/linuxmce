@@ -1028,6 +1028,7 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Device,int iPK_Orbiter,
 	}
 
 	bool bPathsChanged = SetPaths();
+	bool bAddedProviders=false;
 
 	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
 	m_bBookmarksNeedRefreshing=true;
@@ -1294,6 +1295,7 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Device,int iPK_Orbiter,
 							// The data direct shouldn't be hardcoded
 							sSQL = "INSERT INTO `videosource`(name) VALUES ('" + sProviderName + "')";
 							sourceid = m_pDBHelper_Myth->threaded_db_wrapper_query_withID(sSQL);
+							bAddedProviders=true;
 						}
 					}
 				}
@@ -1330,6 +1332,7 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Device,int iPK_Orbiter,
 					{
 						LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::CMD_Sync_Providers_and_Cards bModifiedRows=true %s",sSQL.c_str());
 						bModifiedRows=true;
+						bAddedProviders=true;
 					}
 				}
 
@@ -1452,7 +1455,7 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Device,int iPK_Orbiter,
 		{
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::SyncCardsAndProviders -- setting m_bFillDbRunning=true and starting fill");
 			m_bFillDbRunning=true;
-			StartFillDatabase();
+			StartFillDatabase(bAddedProviders);
 		}
 	}
 	else if( bPathsChanged )
@@ -2368,7 +2371,7 @@ void MythTV_PlugIn::RunBackendStarter()
 	}
 }
 
-void MythTV_PlugIn::StartFillDatabase()
+void MythTV_PlugIn::StartFillDatabase(bool bNotifyUser)
 {
 	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
 
@@ -2392,17 +2395,20 @@ void MythTV_PlugIn::StartFillDatabase()
 
 		SetStatus("FILLDATABASE");  // A marker so we know if we do a reload before this finishes
 
-		DCE::SCREEN_PopupMessage SCREEN_PopupMessage(
-			m_dwPK_Device, DEVICETEMPLATE_VirtDev_All_Orbiters_CONST,
-			"It will take about few minutes to retrieve your channel listings. "
-			"Please wait until you see the message \"MythTV is ready\" before "
-			"you start using TV features.", // Main message
-			"", // Command Line
-			"generic message", // Description
-			"0", // sPromptToResetRouter
-			"300", // sTimeout
-			"1"); // sCannotGoBack
-		SendCommand(SCREEN_PopupMessage);
+		if( bNotifyUser )
+		{
+			DCE::SCREEN_PopupMessage SCREEN_PopupMessage(
+				m_dwPK_Device, DEVICETEMPLATE_VirtDev_All_Orbiters_CONST,
+				"It will take about few minutes to retrieve your channel listings. "
+				"Please wait until you see the message \"MythTV is ready\" before "
+				"you start using TV features.", // Main message
+				"", // Command Line
+				"generic message", // Description
+				"0", // sPromptToResetRouter
+				"300", // sTimeout
+				"1"); // sCannotGoBack
+			SendCommand(SCREEN_PopupMessage);
+		}
 	}
 }
 
@@ -2428,7 +2434,7 @@ void MythTV_PlugIn::CMD_Reporting_EPG_Status(string sText,bool bIsSuccessful,str
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::CMD_Reporting_EPG_Status restarting m_bFillDbRunning=true");
 		m_bNeedToRunFillDb=false;
 		m_bFillDbRunning=true;  // Reset the flag
-		StartFillDatabase();
+		StartFillDatabase(true);  // notify the user because the only way to have multiple fills queued is if he added a provider
 	}
 	else
 	{
