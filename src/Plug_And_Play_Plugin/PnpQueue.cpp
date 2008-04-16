@@ -1350,8 +1350,19 @@ bool PnpQueue::DeviceMatchesCriteria(Row_Device *pRow_Device,PnpQueueEntry *pPnp
 		Row_DHCPDevice *pRow_DHCPDevice = *it;
 		if( pRow_DHCPDevice->SerialNumber_get().size() && pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get().find(pRow_DHCPDevice->SerialNumber_get())==string::npos )
 			continue; // Don't do this if the serial number doesn't match
-		if( pRow_DHCPDevice->Parms_get().size() && pPnpQueueEntry->m_pRow_PnpQueue->Parms_get().find(pRow_DHCPDevice->Parms_get())==string::npos )
-			continue; // Don't do this if the serial number doesn't match
+		if( pRow_DHCPDevice->Parms_get().size() )
+		{
+			if( StringUtils::StartsWith(pRow_DHCPDevice->Parms_get(),"CAT:") )
+			{
+#ifdef DEBUG
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"PnpQueue::DeviceMatchesCriteria queue %d device %d category %s/%s",
+				pPnpQueueEntry->m_pRow_PnpQueue->Category_get().c_str(),pRow_DHCPDevice->Parms_get().c_str());
+#endif
+				if( pPnpQueueEntry->m_pRow_PnpQueue->Category_get().size()==0 || pRow_DHCPDevice->Parms_get().find( pPnpQueueEntry->m_pRow_PnpQueue->Category_get() )==string::npos )
+					continue; // The category doesn't match either
+			}
+			else if( pPnpQueueEntry->m_pRow_PnpQueue->Parms_get().find(pRow_DHCPDevice->Parms_get())==string::npos )
+				continue; // Don't do this if the serial number doesn't match
 
 #ifdef DEBUG
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"PnpQueue::DeviceMatchesCriteria queue %d device %d matches %d",
