@@ -1958,7 +1958,7 @@ void Telecom_Plugin::CMD_PL_Add_VOIP_Account(string sName,string sPhoneNumber,st
 	DeviceData_Base *pDevice_App_Server = m_pData->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_App_Server_CONST,this);
 	if( pDevice_App_Server )
 	{
-		string parms = sUsers+("\t")+sPassword+string("\t")+sPhoneNumber;
+		string parms = sName+("\t")+sUsers+("\t")+sPassword+string("\t")+sPhoneNumber;
 		DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice_App_Server->m_dwPK_Device,
 			"/usr/pluto/bin/create_amp_phoneline.sh", "add voip", parms,
 			"", "", false, false, false, false);
