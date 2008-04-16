@@ -1703,6 +1703,8 @@ bool OSDScreenHandler::Lights_OnTimer(CallBackData *pData)
 		m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST,StringUtils::itos(iNumLightsTotal));
 		m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST,StringUtils::itos((int) m_pWizardLogic->m_dequeNumLights.size()));
 
+		NeedToRender render2( m_pOrbiter, "OSDScreenHandler::Lights_OnTimer" );  // Redraw after the goto designobj below
+
 		if( m_pWizardLogic->m_dequeNumLights.size()>0 )
 		{
 			m_nLightInDequeToAssign=0;
