@@ -4662,27 +4662,44 @@ bool ScreenHandler::SCREEN_Network_Settings_VariableChanged(CallBackData *pData)
 {
 	VariableCallBackData *pVariableInfoData = (VariableCallBackData *)pData;
 
+	bool bSomethingChanged = false;
+
 	switch(pVariableInfoData->m_nVariableKey)
 	{
 		case VARIABLE_IP_Address_CONST:
 			m_mapNetworkSettings["EXTERNAL_IP"] = pVariableInfoData->m_sVariableValue;
+			bSomethingChanged = true;
 			break;
 
 		case VARIABLE_Net_Mask_CONST:
 			m_mapNetworkSettings["EXTERNAL_NETMASK"] = pVariableInfoData->m_sVariableValue;
+			bSomethingChanged = true;
 			break;
 
 		case VARIABLE_Gateway_CONST:
 			m_mapNetworkSettings["GATEWAY"] = pVariableInfoData->m_sVariableValue;
+			bSomethingChanged = true;
 			break;
 
 		case VARIABLE_DNS_CONST:
 			m_mapNetworkSettings["DNS1"] = pVariableInfoData->m_sVariableValue;
+			bSomethingChanged = true;
 			break;
 
 		//ignore everything else
 		default:
 			break;
+	}
+
+	if(bSomethingChanged)
+	{
+		NeedToRender render(m_pOrbiter, "SCREEN_Network_Settings_ObjectSelected");
+
+		DesignObj_Orbiter *pObj = m_pOrbiter->FindObject(DESIGNOBJ_mnuStaticIPSettings_CONST);
+		if(pObj)
+		{
+			m_pOrbiter->Renderer()->RenderObjectAsync(pObj);
+		}
 	}
 
 	return false; // Keep processing it
