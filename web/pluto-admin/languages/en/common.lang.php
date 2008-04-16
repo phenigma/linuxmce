@@ -173,4 +173,5 @@ $TEXT_CONFIRM_DELETE_COMMAND_FROM_CG_CONST='Are you sure you want to delete the 
 $TEXT_TEST_COMMAND_CONST='Test command';
 $TEXT_UP_CONST='Up';
 $TEXT_DOWN_CONST='Down';
+$TEXT_SORT_SCENARIOS_CONST='Sort scenarios';
 ?>
