@@ -37,7 +37,7 @@ string int2string(int i)
 string int64_2string(unsigned long long i)
 {
 	char s[1000];
-	sprintf(s, "%I64i", i);
+	sprintf(s, UINT64_PRINTF, i);
 	return s;
 }
 

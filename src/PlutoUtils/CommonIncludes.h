@@ -70,6 +70,7 @@ using namespace std;
 	#define SOCKOPTTYPE void *
 	#define INVALID_SOCKET -1
 	#define closesocket(a) close(a)
+	#define UINT64_PRINTF "%llu"
 #else
 // Windows Stuff ----------------------
 	#pragma warning( disable : 4996 )
@@ -105,6 +106,7 @@ using namespace std;
 
 	#define vsnprintf _vsnprintf
 	#define SOCKFAIL(x) (x == SOCKET_ERROR)
+	#define UINT64_PRINTF "%I64u"
 #endif
 
 #ifdef PROFILING

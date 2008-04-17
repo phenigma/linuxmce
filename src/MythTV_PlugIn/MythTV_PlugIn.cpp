@@ -838,7 +838,7 @@ void MythTV_PlugIn::CMD_Schedule_Recording(string sType,string sOptions,string s
 			make_pair<char,int> ('C',iID);
 	}
 
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MythTV_PlugIn::CMD_Schedule_Recording key %I64u %d=%s size %d", 
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MythTV_PlugIn::CMD_Schedule_Recording key " UINT64_PRINTF " %d=%s size %d", 
 		(u_int64_t) mythRecording.key(), iID, sSQL.c_str(), (int) m_mapScheduledRecordings.size());
 	if( m_pMythBackEnd_Socket )
 		m_pMythBackEnd_Socket->SendMythString("RESCHEDULE_RECORDINGS " + StringUtils::itos(iID));
@@ -2564,8 +2564,8 @@ void MythTV_PlugIn::UpdateUpcomingRecordings()
 
 		LoggerWrapper::GetInstance()->Write(
 			LV_STATUS,"MythTV_PlugIn::UpdateUpcomingRecordings "
-			"adding record id %2s type %s chan %5d start %s",
-			sRecordID.c_str(), sRecType.c_str(), mythRecording.channel_id,
+			"adding record id " UINT64_PRINTF " / %2s type %s chan %5d start %s",
+			(u_int64_t) mythRecording.key(), sRecordID.c_str(), sRecType.c_str(), mythRecording.channel_id,
 			ctime(&mythRecording.scheduled_start_time));
 	}
 	m_pAlarmManager->CancelAlarmByType(CHECK_FOR_SCHEDULED_RECORDINGS);
