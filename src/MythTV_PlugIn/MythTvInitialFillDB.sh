@@ -49,6 +49,8 @@ SetMythTvInitialFillDBRun
 
 # Tell MythTV to run a full DB sync as soon as possible
 UpdateMythSetting "MythFillSuggestedRunTime" "1970-01-01T00:00:00" "NULL"
+UpdateMythSetting "MythFillMinHour"          "0"                   "NULL"
+UpdateMythSetting "MythFillMaxHour"          "23"                  "NULL"
 echo "UPDATE housekeeping SET lastrun = '1970-01-01 00:00:00' WHERE tag = 'MythFillDB';" | $MYSQLPIPE
 
 # Restart all the backends..

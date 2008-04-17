@@ -75,8 +75,6 @@ if [ x"$1" = x"master" ] ; then
 	# mythfilldatabase also performs some housecleaning tasks.
 	UpdateMythSetting "MythFillEnabled"     "1"     "NULL"
 	UpdateMythSetting "MythFillPeriod"      "1"     "NULL"
-	UpdateMythSetting "MythFillMinHour"     "0"     "NULL"
-	UpdateMythSetting "MythFillMaxHour"     "19"    "NULL"
 	UpdateMythSetting "MythFillDatabasePath" "/usr/pluto/bin/MythTvDailyFillDB.sh" "NULL"
 	UpdateMythSetting "MythFillDatabaseLog" "/var/log/mythtv/mythfilldatabase.log" "NULL"
 
