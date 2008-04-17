@@ -1186,7 +1186,7 @@ void Command_Impl::WaitForMessageQueue()
 		PLUTO_SAFETY_LOCK_ERRORSONLY( mq, m_listMessageQueueMutex );
 		if( m_listMessageQueue.size()==0 )
 			return;
-		mq.Release();2
+		mq.Release();
 		Sleep(50);
 		if( time(NULL) > tTimeout )
 		{
