@@ -628,6 +628,12 @@ class DataGridTable *MythTV_PlugIn::CurrentShows(string GridID,string Parms,void
 	map< u_int64_t, pair<char,int> >::iterator it_mapScheduledRecordings;
 	MapBookmark *pMapBookmark_Series_Or_Program;
 	MapBookmark::iterator it;
+
+for(map< u_int64_t, pair<char,int> >::iterator itmr=m_mapScheduledRecordings.begin();itmr!=m_mapScheduledRecordings.end();++itmr)
+{
+	LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"contains " UINT64_PRINTF,itmr->first);
+}
+
 	if( (result.r=m_pDBHelper_Myth->db_wrapper_query_result(sSQL))!=NULL )
 	{
 		while((row = db_wrapper_fetch_row(result.r)))
