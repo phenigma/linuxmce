@@ -112,7 +112,7 @@ for(my $i=0;defined($data[$i]);$i+=2)
 	print $data[$i];
 	print ": \n";
  	print '/usr/pluto/bin/MessageSend localhost -targetType device '.$secpluginid.' '.$asteriskid.' 1 233 75 9'.$data[$i + 1].' 83 997 84 pluto 82 Local '."\n";
-	`/usr/pluto/bin/MessageSend localhost -targetType device $secpluginid $asteriskid 1 233 75 9$data[$i + 1]@trusted\n 83 997 84 pluto 82 SIP`;
+	`/usr/pluto/bin/MessageSend localhost -targetType device $secpluginid $asteriskid 1 233 75 9$data[$i + 1]@trusted/n 83 997 84 pluto 82 SIP`;
 }
 
 $statement->finish();
