@@ -148,11 +148,11 @@ bool JpegEncoderDecoder::encodeIntoBuffer(char *buffer, int width, int height, i
 	// printf("Compressed size is: %d\n", finalBufferSize);
 
 	compressedSize = finalBufferSize;
-	delete compressedBuffer;
+	delete [] compressedBuffer;
 	compressedBuffer = new char[compressedSize];
 
 	memcpy(compressedBuffer, workingBuffer, compressedSize);
-	delete workingBuffer;
+	delete [] workingBuffer;
 	workingBuffer = NULL;
 	workingBufferSize = 0;
 	return true;
