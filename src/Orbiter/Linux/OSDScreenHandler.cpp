@@ -1501,7 +1501,13 @@ bool OSDScreenHandler::AV_Devices_GridSelected(CallBackData *pData)
 void OSDScreenHandler::SCREEN_Wizard_Done(long PK_Screen)
 {
 	PrepForWizard();
-	if( m_pWizardLogic->WhatRoomIsThisDeviceIn(m_pWizardLogic->GetTopMostDevice(m_pOrbiter->m_dwPK_Device))==0 )
+	if( m_pWizardLogic->HouseAlreadySetup()==false )
+	{
+		DCE::SCREEN_VideoWizard _SCREEN_VideoWizard(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device);
+		m_pOrbiter->ReceivedMessage(_SCREEN_VideoWizard.m_pMessage);
+		return;
+	}
+	else if( m_pWizardLogic->WhatRoomIsThisDeviceIn(m_pWizardLogic->GetTopMostDevice(m_pOrbiter->m_dwPK_Device))==0 )
 	{
 		string sMessage="0 -300 1 " TOSTRING(COMMAND_Goto_Screen_CONST) " " TOSTRING(COMMANDPARAMETER_PK_Screen_CONST) " " TOSTRING(SCREEN_This_Room_CONST);
 
