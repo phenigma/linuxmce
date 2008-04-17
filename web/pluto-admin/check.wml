@@ -164,8 +164,8 @@ function displaySecuritySelected($alertID,$dbADO,$securityADO)
 					$telecomPluginID=(int)@$telecomDevicePlugin['PK_Device'][0];
 					$phone=$_REQUEST['phone'];
 					
-					$cmd='/usr/pluto/bin/MessageSend localhost -targetType device '.$securityPluginID.' '.$telecomPluginID.' 1 414 75 "'.$phone.'" 81 "pluto" 83 "'.$_REQUEST['number'].'"';
-					exec($cmd);
+					$cmd='/usr/pluto/bin/MessageSend localhost -targetType template '.$securityPluginID.' 45 1 233 75 "'.$phone.'" 84 "pluto" 83 "'.$_REQUEST['number'].'" 82 "sip"';
+					exec_batch_command($cmd);
 					
 					$actionResult='SOS call to '.$_REQUEST['number'];
 				}else{
@@ -180,8 +180,8 @@ function displaySecuritySelected($alertID,$dbADO,$securityADO)
 				$telecomPluginID=(int)@$telecomDevicePlugin['PK_Device'][0];
 				$phone=$_REQUEST['phone'];
 
-				$cmd='/usr/pluto/bin/MessageSend localhost -targetType device '.$securityDevicePlugin.' '.$telecomPluginID.' 1 414 75 "'.$phone.'" 81 "pluto" 83 "997"';
-				exec($cmd);
+				$cmd='/usr/pluto/bin/MessageSend localhost -targetType template '.$securityPluginID.' 45 1 233 75 "'.$phone.'" 84 "pluto" 83 "997" 82 "sip"';
+				exec_batch_command($cmd);
 		
 				$actionResult='Neighbours notified.';
 				updateNotification($_REQUEST['user'].': Neighbors',$alertID,$securityADO);
@@ -407,8 +407,9 @@ function speakInTheHouse($dbADO)
 	$telecomPluginID=(int)@$telecomDevicePlugin['PK_Device'][0];
 	$phone=$_REQUEST['phone'];
 
-	$cmd='/usr/pluto/bin/MessageSend localhost -targetType device '.$securityPluginID.' '.$telecomPluginID.' 1 414 75 '.$phone.' 81 "pluto" 83 "998"';
-	exec($cmd);
+	$cmd='/usr/pluto/bin/MessageSend localhost -targetType template '.$securityPluginID.' 45 1 233 75 "'.$phone.'" 84 "pluto" 83 "998" 82 "sip"';
+	//$cmd='/usr/pluto/bin/MessageSend localhost -targetType device '.$securityPluginID.' '.$telecomPluginID.' 1 921 263 '.$phone.' 83 "998"';
+	exec_batch_command($cmd);
 	$msg='Speaking in progress ...';
 	
 	return $msg;
