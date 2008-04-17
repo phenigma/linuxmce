@@ -1205,11 +1205,24 @@ bool PnpQueue::LocateDevice(PnpQueueEntry *pPnpQueueEntry)
 		else
 		{
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"PnpQueue::LocateDevice queue %d is not a usb to serial %s %p %s", pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(), sSqlUSB.c_str(), row, row ? row[0] : "*NULL*");
+
+			// To determine the actual match, we always first find devices that match vendor/model ID, and only if nothing matches, then we check category
+			// If we don't check category, devices like Bluetooth_Dongle where the serial number changes won't get matched
+			// If we check category, but don't exclude devices where a vendor/model matches, then devices like embedded disk drives in the jukebox will match Disk_Drive which only checks categories
+			bool bOkayToMatchCategory=false;
+
 			if( pPnpQueueEntry->m_pRow_PnpQueue->Category_get().size() )
-				sSql_Model += " AND (DHCPDevice.VendorModelId like '" + sVendorModelId + "%' OR "
-					"(DHCPDevice.VendorModelId IS NULL AND DHCPDevice.Parms='CAT:" + pPnpQueueEntry->m_pRow_PnpQueue->Category_get() + "'))";
+			{
+				string sWhere = "'" + sVendorModelId + "' like concat(VendorModelID,'%') and VendorModelID != ''";
+				vector<Row_DHCPDevice *> vectRow_DHCPDevice;
+				m_pDatabase_pluto_main->DHCPDevice_get()->GetRows(sWhere,&vectRow_DHCPDevice);
+				bOkayToMatchCategory = vectRow_DHCPDevice.size()==0;
+			}
+
+			if( bOkayToMatchCategory )
+				sSql_Model += " AND DHCPDevice.Parms='CAT:" + pPnpQueueEntry->m_pRow_PnpQueue->Category_get() + "'";
 			else
-				sSql_Model += " AND DHCPDevice.VendorModelId like '" + sVendorModelId + "%'";
+				sSql_Model += " AND '" + sVendorModelId + "' like concat(VendorModelID,'%') and VendorModelID != ''";
 		}
 	}
 
