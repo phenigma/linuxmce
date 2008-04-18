@@ -852,22 +852,13 @@ bool lmce_launch_managerWidget::initialize_LMdevice(bool bRetryForever/*=false*/
 		m_pLaunch_Manager = new DCE::Launch_Manager(
 				m_qsDeviceID.toInt(), sCoreIP,  true, false);
 
-		if ( m_pLaunch_Manager->GetConfig() )
+		bool bConnected = m_pLaunch_Manager->GetConfig();
+		if ( bConnected && m_pLaunch_Manager->m_pEvent->m_pClientSocket->m_eLastError==cs_err_NeedReload )
 		{
-			if( m_pLaunch_Manager->m_pEvent->m_pClientSocket->m_eLastError==cs_err_NeedReload )
-			{
-//				display message
-				delete m_pLaunch_Manager;
-				m_pLaunch_Manager = NULL;
-			}
+				//display message, log and continue
+
 		}
-		else
-		{
-			delete m_pLaunch_Manager;
-			m_pLaunch_Manager = NULL;
-			continue;
-		}
-		if( m_pLaunch_Manager->Connect(m_pLaunch_Manager->PK_DeviceTemplate_get()) ) 
+		if( bConnected && m_pLaunch_Manager->Connect(m_pLaunch_Manager->PK_DeviceTemplate_get()) ) 
 		{
 			writeLog(QString("initialize_LMdevice: Connect OK"), true, LV_STATUS);
 			
