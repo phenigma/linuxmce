@@ -170,6 +170,8 @@ DatabaseDefaults()
 			VALUES(1, 1, 1, 1)"
 		"DELETE FROM Device_QuickStart WHERE Description like '%MythTV%'"
 		"UPDATE Device SET IPAddress='192.168.78.1' WHERE IPAddress='192.168.80.1'"
+		"UPDATE Firewall SET SourceIP='192.168.78.1' WHERE SourceIP='192.168.80.1'"
+		"UPDATE Firewall SET DestinationIP='192.168.78.1' WHERE DestinationIP='192.168.80.1'"
 	)
 
 	for Q in "${Queries[@]}"; do
