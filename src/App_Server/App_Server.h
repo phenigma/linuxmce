@@ -91,14 +91,6 @@ public:
         virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
 //<-dceag-const-e->
 
-        // Private member variables
-        typedef map<string, map<int, pair<string, string> > > vector_map;
-
-        /**
-         PIDs associated with an AppName - used for application mass killing (not massacres :P)
-        */
-        vector_map m_mapAppPids;
-
         pluto_pthread_mutex_t m_AppMutex; // Other classes may need this
 
         pthread_mutexattr_t m_MutexAttr;
@@ -109,11 +101,6 @@ public:
         /** Stored volume for the instance. */
         int m_iLastVolume;
 
-        // Private methods
-        /** Private method to start the application (declared publix).
-        */
-        bool StartApp(string CmdExecutable, string CmdParams, string AppName, string sCommandsOnSuccess, string sCommandsOnFailure);
-
         /** Private method called when exiting (declared public ).
         */
         void ProcessExited(int pid, int status);
@@ -121,16 +108,6 @@ public:
         /** Private method to connect (declared public tho).
         */
 		virtual bool Connect(int iPK_DeviceTemplate );
-
-        /** KillSpawnedDevices.
-
-        This will only be called when we are dying so we won't care
-        about what happens to our spawned children.
-
-        We had a problem that KillSpawnedDevices called KillPids.sh,
-        which when exited, called the sh signal handler and hung at wait.
-        */
-		virtual void KillSpawnedDevices(); // We need to change the behavior
 
         /** Queue messages to the router.
         */

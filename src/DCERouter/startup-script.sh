@@ -84,7 +84,6 @@ fi
 
 
 StartService "Starting MySQL Server" "/etc/init.d/mysql start"
-StartService "Restoring System" "/usr/pluto/bin/PlutoRestorePoint.sh --restore"
 RunSQL "UPDATE Orbiter set Regen=2,RegenInProgress=0 where RegenInProgress=1"
 
 StartService "Starting DHCP Server" "/etc/init.d/dhcp3-server start"

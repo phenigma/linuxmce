@@ -491,16 +491,6 @@ void App_Server::DisplayMessageOnOrbVFD(string sMessage)
 	}
 }
 
-void App_Server::KillSpawnedDevices()
-{
-#ifndef WIN32
-	SignalHandler_Stop();
-#endif
-	App_Server_Command::KillSpawnedDevices();
-
-	// This will only be called when we are dying, so we won't care about what happens to our spawned children.
-	// We had a problem that KillSpawnedDevices called KillPids.sh, which when exited, called the sh signal handler and hung at wait
-}
 //<-dceag-c89-b->
 
 	/** @brief COMMAND: #89 - Vol Up */
