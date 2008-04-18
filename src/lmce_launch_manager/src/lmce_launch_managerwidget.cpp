@@ -860,8 +860,15 @@ bool lmce_launch_managerWidget::initialize_LMdevice(bool bRetryForever/*=false*/
 			//display message, log and continue
 			QTimer *msgTimer = new QTimer(this, "msgTimer");
 			QMessageBox *mb = new QMessageBox(QString("Information"), QString("Please go to an existing Orbiter and choose 'quick reload router'.  This media director will start after you do..."), QMessageBox::NoIcon, QMessageBox::Ok, QMessageBox::NoButton, QMessageBox::NoButton);
+			
 			mb->show();
-			sleep(5);
+			
+			int count=5;
+			while (count-->0) {
+				if (!mb->isVisible())
+					break;
+				sleep(1);
+			};
 			mb->hide();
 			
 			/*
