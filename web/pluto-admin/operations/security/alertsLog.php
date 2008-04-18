@@ -221,29 +221,4 @@ function deleteAlerts($adate,$securitydbADO){
 		$securitydbADO->Execute('DELETE FROM Alert WHERE PK_Alert IN ('.join(',',$alertKeys).')');
 	}
 }
-
-
-function grabAlertFiles($path,$file_prefix='') {
-	$filesArray=array();
-	
-	$f = 0;
-	$filesArray = array();
-	if (@$handle = opendir($path)) {
-		while (false!== ($file = readdir($handle))) {
-			if($file!= "." && $file!= "..") {
-				if($file_prefix=='' || ($file_prefix!='' && strpos($file,$file_prefix)!==false)){
-					$fName = $file;
-					$file = $path.$file;
-					$filesArray[$f++] = $file;
-				}
-			};
-		};
-		closedir($handle);
-	};
-	asort( $filesArray ); 
-	reset( $filesArray );
-
-
-	return $filesArray;
-} 
 ?>

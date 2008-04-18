@@ -6720,7 +6720,7 @@ function write_weblog($str){
 	writeFile($GLOBALS['WebExecLogFile'],date('d-m-Y H:i:s')."\t".$str."\n",'a+');
 }
 
-function get_alert_pic($picname){
+function get_alert_pic($picname,$PK_Alert_Device=0){
 	$extensionsArray=array('png','jpg','gif');
 	
 	foreach ($extensionsArray AS $extension){
@@ -6729,9 +6729,40 @@ function get_alert_pic($picname){
 			return $picPath;
 		}
 	}
+	if($PK_Alert_Device!=0){
+		$diskAlerts=grabAlertFiles($GLOBALS['SecurityPicsPath'],'alert_'.$PK_Alert_Device.'_cam');
+		if(count($diskAlerts)!=0){
+			return $diskAlerts[0];
+		}
+	}
 	
 	return APPROOT.'include/images/alert_no_pic.png';
 }
+
+function grabAlertFiles($path,$file_prefix='') {
+	$filesArray=array();
+	
+	$f = 0;
+	$filesArray = array();
+	if (@$handle = opendir($path)) {
+		while (false!== ($file = readdir($handle))) {
+			if($file!= "." && $file!= "..") {
+				if($file_prefix=='' || ($file_prefix!='' && strpos($file,$file_prefix)!==false)){
+					$fName = $file;
+					$file = $path.$file;
+					$filesArray[$f++] = $file;
+				}
+			};
+		};
+		closedir($handle);
+	};
+	asort( $filesArray ); 
+	reset( $filesArray );
+
+
+	return $filesArray;
+} 
+
 
 function parse_ini_str ( $ini) {
     $lines= explode("\n",$ini);

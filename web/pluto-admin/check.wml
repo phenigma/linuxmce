@@ -215,7 +215,7 @@ function displaySecuritySelected($alertID,$dbADO,$securityADO)
 		$picsArray=array();
 		while($rowD=$resD->FetchRow()){
 			$picPath='alert_'.$alertDevice['PK_Alert_Device'][0].'_cam'.$rowD['FK_Device_Related'];
-			$alertPic=get_alert_pic($picPath);		
+			$alertPic=get_alert_pic($picPath,$alertDevice['PK_Alert_Device'][0]);		
 			$picsArray[]='<img src="include/image.php?imagepath='.$alertPic.'" alt="Loading..."/>';
 		}
 		
