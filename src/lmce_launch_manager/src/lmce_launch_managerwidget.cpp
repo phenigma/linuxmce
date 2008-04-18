@@ -28,9 +28,11 @@
 
 #include "DCE/DCEConfig.h"
 #include "DCE/Logger.h"
+#include "DCE/ClientSocket.h"
 #include "pluto_main/Define_DeviceData.h"
 #include "Gen_Devices/AllCommandsRequests.h"
 #include "PlutoUtils/ProcessUtils.h"
+
 
 // timeouts in seconds
 #define MEDIA_DEVICE_TIMEOUT 10
@@ -853,10 +855,22 @@ bool lmce_launch_managerWidget::initialize_LMdevice(bool bRetryForever/*=false*/
 				m_qsDeviceID.toInt(), sCoreIP,  true, false);
 
 		bool bConnected = m_pLaunch_Manager->GetConfig();
-		if ( bConnected && m_pLaunch_Manager->m_pEvent->m_pClientSocket->m_eLastError==cs_err_NeedReload )
+		if ( bConnected && m_pLaunch_Manager->m_pEvent->m_pClientSocket->m_eLastError==DCE::ClientSocket::cs_err_NeedReload )
 		{
-				//display message, log and continue
-
+			//display message, log and continue
+			QTimer *msgTimer = new QTimer(this, "msgTimer");
+			QMessageBox *mb = new QMessageBox(QString("Information"), QString("Please reload router..."), QMessageBox::NoIcon, QMessageBox::Ok, QMessageBox::NoButton, QMessageBox::NoButton);
+			connect(msgTimer, SIGNAL(timeout), mb, SLOT(close()));
+			msgTimer->stop();
+			msgTimer->start(5000, true);
+			mb->exec();
+			msgTimer->stop();
+			delete msgTimer;
+			delete mb;
+			
+			writeLog(QString("initialize_LMdevice: router should be reloaded, retrying connect"), true, LV_WARNING);
+			delete m_pLaunch_Manager;
+			m_pLaunch_Manager = NULL;
 		}
 		if( bConnected && m_pLaunch_Manager->Connect(m_pLaunch_Manager->PK_DeviceTemplate_get()) ) 
 		{
