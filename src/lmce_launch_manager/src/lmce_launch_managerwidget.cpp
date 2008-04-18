@@ -857,9 +857,12 @@ bool lmce_launch_managerWidget::initialize_LMdevice(bool bRetryForever/*=false*/
 		bool bConnected = m_pLaunch_Manager->GetConfig();
 		if ( bConnected && m_pLaunch_Manager->m_pEvent->m_pClientSocket->m_eLastError==DCE::ClientSocket::cs_err_NeedReload )
 		{
-			writeLog(QString("Please go to an existing Orbiter and choose 'quick reload router'.  This media director will start after you do..."), true, LV_WARNING);
+			lbMessages->clear();
+			writeLog(QString("Please go to an existing Orbiter and choose 'quick reload router'. "), true, LV_WARNING);
+			writeLog(QString("This media director will start after you do..."), true, LV_WARNING);
+
 			
-			sleep(5);
+			sleep(10);
 
 			writeLog(QString("initialize_LMdevice: router should be reloaded, retrying connect"), false, LV_WARNING);
 			delete m_pLaunch_Manager;
