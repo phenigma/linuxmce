@@ -26,7 +26,7 @@ while : ;do
 	rm -rf /var/lmce-build/svn/trunk/src/ZWave
 	rm -rf /var/lmce-build/svn/trunk/src/Fiire_Scripts
 	rm -rf /var/lmce-build/svn/trunk/src/RFID_Interface
-	rm -rf /var/lmce-build/svn/trunk/src/lmce_launch_manager	
+#	rm -rf /var/lmce-build/svn/trunk/src/lmce_launch_manager	
 
 	# Backup the Build Dir
 	svn_build_revision=$(svn info "$svn_dir/trunk/src" | grep Revision | sed 's/Revision: //g')
