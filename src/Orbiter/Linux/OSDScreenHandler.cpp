@@ -2142,7 +2142,7 @@ bool OSDScreenHandler::AlarmSetup_ObjectSelected(CallBackData *pData)
 				int PK_DeviceTemplate = DatabaseUtils::GetDeviceTemplateForDevice(m_pWizardLogic,m_pWizardLogic->m_dequeNumSensors[m_nSensorInDequeToAssign].first);
 				if( PK_DeviceTemplate!=DEVICETEMPLATE_Generic_Sensor_CONST )
 				{
-					m_pOrbiter->CMD_Goto_DesignObj(0,TOSTRING(DESIGNOBJ_AlarmName_CONST),"","",true,true);
+					m_pOrbiter->CMD_Goto_DesignObj(0,TOSTRING(DESIGNOBJ_AlarmSensorName_CONST),"","",true,true);
 					return true;
 				}
 			}
