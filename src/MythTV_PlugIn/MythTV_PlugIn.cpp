@@ -602,7 +602,7 @@ class DataGridTable *MythTV_PlugIn::CurrentShows(string GridID,string Parms,void
 	DataGridCell *pCell;
 
 	PLUTO_SAFETY_LOCK(mm, m_pMedia_Plugin->m_MediaMutex);
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MythTV_PlugIn::CurrentShows A datagrid for all the shows was requested %s params %s record size: %d",
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MythTV_PlugIn::CurrentShows A datagrid for all the shows was requested %s params %s record m_mapScheduledRecordings size: %d",
 		GridID.c_str(), Parms.c_str(), (int) m_mapScheduledRecordings.size() );
 
 	MythRecording mythRecording;
@@ -844,7 +844,7 @@ void MythTV_PlugIn::CMD_Schedule_Recording(string sType,string sOptions,string s
 			make_pair<char,int> ('C',iID);
 	}
 
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MythTV_PlugIn::CMD_Schedule_Recording key " UINT64_PRINTF " %d=%s size %d", 
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MythTV_PlugIn::CMD_Schedule_Recording key " UINT64_PRINTF " %d=%s m_mapScheduledRecordings size %d", 
 		(u_int64_t) mythRecording.key(), iID, sSQL.c_str(), (int) m_mapScheduledRecordings.size());
 	if( m_pMythBackEnd_Socket )
 		m_pMythBackEnd_Socket->SendMythString("RESCHEDULE_RECORDINGS " + StringUtils::itos(iID));
@@ -2488,7 +2488,6 @@ void MythTV_PlugIn::UpdateUpcomingRecordings()
 	}
 
 	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
-	m_mapScheduledRecordings.clear();
 	string::size_type pos=0;
 	const char *pToken = "[]:[]"; // What kind of token is this??
 	MythRecording mythRecording;
@@ -2506,8 +2505,9 @@ void MythTV_PlugIn::UpdateUpcomingRecordings()
 	}
 
 	LoggerWrapper::GetInstance()->Write(
-		LV_STATUS,"MythTV_PlugIn::UpdateUpcomingRecordings got listsize(%d) entries(%d)",
-		(int) sResponse.size(), iListSize);
+		LV_STATUS,"MythTV_PlugIn::UpdateUpcomingRecordings got listsize(%d) entries(%d) m_mapScheduledRecordings size was: %d",
+		(int) sResponse.size(), iListSize, (int) m_mapScheduledRecordings.size());
+	m_mapScheduledRecordings.clear();
 
 	while (pos<sResponse.size())
 	{
@@ -2570,10 +2570,13 @@ void MythTV_PlugIn::UpdateUpcomingRecordings()
 
 		LoggerWrapper::GetInstance()->Write(
 			LV_STATUS,"MythTV_PlugIn::UpdateUpcomingRecordings "
-			"adding record id " UINT64_PRINTF " / %2s type %s chan %5d start %s",
+			"adding record id " UINT64_PRINTF " / %2s type %s chan %5d start %s m_mapScheduledRecordings size %d",
 			(u_int64_t) mythRecording.key(), sRecordID.c_str(), sRecType.c_str(), mythRecording.channel_id,
-			ctime(&mythRecording.scheduled_start_time));
+			ctime(&mythRecording.scheduled_start_time),(int) m_mapScheduledRecordings.size());
 	}
+	LoggerWrapper::GetInstance()->Write(
+		LV_STATUS,"MythTV_PlugIn::UpdateUpcomingRecordings done m_mapScheduledRecordings size %d",
+		(int) m_mapScheduledRecordings.size());
 	m_pAlarmManager->CancelAlarmByType(CHECK_FOR_SCHEDULED_RECORDINGS);
 	m_pAlarmManager->AddRelativeAlarm(60 * 60,this,CHECK_FOR_SCHEDULED_RECORDINGS,NULL);  // Update once an hour just in case
 }
