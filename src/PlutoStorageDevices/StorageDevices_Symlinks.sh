@@ -2,11 +2,7 @@
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/SQL_Ops.sh
 
-## Only run on Core
-if [[ -f /etc/diskless.conf ]]; then
-	exit 0
-fi
-
+TPL_GENERIC_PC_AS_CORE=7
 TPL_BUFFALO_HDHG300LAN=1794
 TPL_GENERIC_INTERNAL_DRIVE=1790
 TPL_MAXTOR_NAS=1770
@@ -16,9 +12,14 @@ TPL_RAID_0=1854
 TPL_RAID_1=1851
 TPL_RAID_5=1849
 
-
 DD_DIRECTORIES=153
 DD_USERS=3
+
+## Only run on Core
+FK_DeviceTemplate=$(RunSQL "SELECT FK_DeviceTemplate FROM Device WHERE PK_Device='$PK_Device'")
+if [[ "$FK_DeviceTemplate" != "$TPL_GENERIC_PC_AS_CORE" ]] ;then
+	exit 0
+fi
 
 ## Remove old symlinks from home
 for userdir in /home/user_* /home/public ;do
