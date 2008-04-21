@@ -2,6 +2,8 @@
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/SQL_Ops.sh
 
+. /usr/pluto/bin/TeeMyOutput.sh --outfile /var/log/pluto/StorageDevices_Symlinks.log --infile /dev/null --stdboth -- "$@"
+
 TPL_GENERIC_PC_AS_CORE=7
 TPL_BUFFALO_HDHG300LAN=1794
 TPL_GENERIC_INTERNAL_DRIVE=1790
@@ -22,7 +24,9 @@ if [[ "$FK_DeviceTemplate" != "$TPL_GENERIC_PC_AS_CORE" ]] ;then
 fi
 
 ## Remove old symlinks from home
+echo -e "\n$(date -R) Removing old symlinks"
 for userdir in /home/user_* /home/public ;do
+	find ${userdir}/data -xdev -mindepth 1 -maxdepth 2 -lname "*/mnt/device/*"
 	find ${userdir}/data -xdev -mindepth 1 -maxdepth 2 -lname "*/mnt/device/*" -print0 | xargs -0 rm -f
 done
 
@@ -43,7 +47,7 @@ set +o noglob
 	Device_Users=$(RunSQL "SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device=$Device_ID AND FK_DeviceData=$DD_USERS")
 	Device_Users=$(Field "1" "$Device_Users")
 
-	echo -e "\n## Generating symlinks for storage device $Device_Description ($Device_ID)"
+	echo -e "\n$(date -R) Generating symlinks for storage device $Device_Description ($Device_ID)"
 	
 	## Sanitize Device_Directories/Users
 	if [[ $Device_Directories == "" ]]; then
