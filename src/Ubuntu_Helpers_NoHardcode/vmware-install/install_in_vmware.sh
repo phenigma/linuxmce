@@ -177,12 +177,12 @@ function cleanup_filesystem {
 	rm -f "${FILESYSTEM_ROOT}"/root/.ssh/authorized_keys
 
 	## Reset some logs
-	rm -f /var/log/pluto/*.log
-	echo -n > /var/log/syslog
-	echo -n > /var/log/messages
-	echo -n > /var/log/auth.log
-	echo -n > /var/log/wtmp
-	echo -n > /var/log/lastlog
+	rm -f ${FILESYSTEM_ROOT}/var/log/pluto/*.log
+	echo -n > ${FILESYSTEM_ROOT}/var/log/syslog
+	echo -n > ${FILESYSTEM_ROOT}/var/log/messages
+	echo -n > ${FILESYSTEM_ROOT}/var/log/auth.log
+	echo -n > ${FILESYSTEM_ROOT}/var/log/wtmp
+	echo -n > ${FILESYSTEM_ROOT}/var/log/lastlog
 }
 
 function create_disk_image_from_flat {
