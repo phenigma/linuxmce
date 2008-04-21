@@ -35,7 +35,12 @@ function Unpack_Debs() {
 	popd
 }
 
-Download_Debs
-Unpack_Debs
+
+if [[ "$svn_private_url" != "" ]] && [[ "$svn_private_user" != "" ]] && [[ "$svn_private_pass" != "" ]] ;then
+	DisplayMessage "Nothing to download, will use local debs."
+else
+	Download_Debs
+	Unpack_Debs
+fi
 
 trap - EXIT
