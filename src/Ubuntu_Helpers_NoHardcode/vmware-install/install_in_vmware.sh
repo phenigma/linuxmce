@@ -177,7 +177,7 @@ function cleanup_filesystem {
 	rm -f "${FILESYSTEM_ROOT}"/root/.ssh/authorized_keys
 
 	## Reset some logs
-	rm /var/log/pluto/*.log
+	rm -f /var/log/pluto/*.log
 	echo -n > /var/log/syslog
 	echo -n > /var/log/messages
 	echo -n > /var/log/auth.log
