@@ -57,6 +57,8 @@ function CopyDebsToDisklessSync {
 
 	rm -f "${build_dir}/DisklessSync/${arch}/deb-cache/"3ware-3dm2_*.deb
 	cp /var/www/3ware-3dm2_*.deb "${build_dir}/DisklessSync/${arch}/deb-cache" || :
+
+	echo "$(svn info "$svn_dir/trunk/src" | grep Revision | sed 's/Revision: //g')" > "${build_dir}/DisklessSync/${arch}/revision"
 }
 
 function PublishPrivateDebs {
@@ -69,6 +71,8 @@ function PublishPrivateDebs {
         for pkg in "${priv_debs[@]}"; do
                 cp "$out_dir"/tmp/"$pkg"_*.deb "$temp_dir"
         done
+
+	echo "$(svn info "$svn_dir/trunk/src/ZWave" | grep Revision | sed 's/Revision: //g')" > "${temp_dir}/revision"
 
         local Dir="$local_mirror_dir/priv_debs"
         local Latest="$Dir/latest"
