@@ -59,6 +59,8 @@ while : ;do
 		echo "Flavor   : ${flavor}"                             >>$mail_txt_file
 		echo "Revision : ${svn_build_revision}"			>>$mail_txt_file
 		echo "Date     : $(date -R)"                            >>$mail_txt_file
+		echo "MD-32    : $(cat $build_dir/svn_i386)"            >>$mail_txt_file
+		echo "MD-64    : $(cat $build_dir/svn_amd64)"           >>$mail_txt_file
 		echo "URL      : ftp://builder32.linuxmce.com/AutoBuilds/$(basename $build_ftp_dir)" >>$mail_txt_file
 		echo							>>$mail_txt_file
 		echo							>>$mail_txt_file
