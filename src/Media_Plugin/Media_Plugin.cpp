@@ -2378,8 +2378,8 @@ void Media_Plugin::CMD_MH_Stop_Media(int iPK_Device,int iPK_MediaType,int iPK_De
 
 void Media_Plugin::StreamEnded(MediaStream *pMediaStream,bool bSendOff,bool bDeleteStream,MediaStream *pMediaStream_Replacement,vector<EntertainArea *> *p_vectEntertainArea,bool bNoAutoResume,bool bTurnOnOSD,bool bFireEvent)
 {
-LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"debug_stream_end Media_Plugin::StreamEnded ID %d/%p delete %d auto resume %d resume: %c",
-pMediaStream->m_iStreamID_get(),pMediaStream, (int) bDeleteStream, (int) bNoAutoResume,m_mapPromptResume[make_pair<int,int> (pMediaStream->m_iPK_Users,pMediaStream->m_iPK_MediaType)]);
+	LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"debug_stream_end Media_Plugin::StreamEnded ID %d/%p delete %d auto resume %d resume: %c fire event: %d",
+		pMediaStream->m_iStreamID_get(),pMediaStream, (int) bDeleteStream, (int) bNoAutoResume,m_mapPromptResume[make_pair<int,int> (pMediaStream->m_iPK_Users,pMediaStream->m_iPK_MediaType)],(int) bFireEvent);
 
 
 	if ( pMediaStream == NULL )
@@ -2529,8 +2529,15 @@ LoggerWrapper::GetInstance()->Write( LV_STATUS, "Stream in ea %s ended %d remote
 	pEntertainArea->m_pMediaStream = NULL;
 	pEntertainArea->m_pMediaDevice_ActiveDest=NULL;
 
+	/*
+
+	I am commenting this out because hitting the 'go to sleep' activity calls MH Stop Media with bypassevent=true, so the above EVENT_ don't cause the lights 
+	to come on.  But it also means the set now playing isn't called and therefore the menu still shows the media.  This should be safe to remove
+	because you should be able to send setnowplyaing with nothing, and then set it again with the new media.
+
 	if( !bFireEvent )
 		return;  // If this is false, it means the calling class will be starting something else, which will create all it's own 'now playing's' and goto remotes.  Just leave this
+	*/
 
 	// Set all the now playing's to nothing
     for(map<int,OH_Orbiter *>::iterator it=m_pOrbiter_Plugin->m_mapOH_Orbiter.begin();it!=m_pOrbiter_Plugin->m_mapOH_Orbiter.end();++it)
@@ -7092,6 +7099,7 @@ void Media_Plugin::UpdateSearchTokens()
 	{
 		Row_Attribute *pRow_Attribute = *it;
 		m_pMediaAttributes->m_pMediaAttributes_LowLevel->UpdateSearchTokens(pRow_Attribute);
+		Sleep(50); // Don't hog the CPU.  There can be thousands of new attributes.  We're not holding a mutex and the alarm manager has 2 worker threads so other tasks can still run
 	}
 	
 	m_tLastSearchTokenUpdate = tLastAttribute;
