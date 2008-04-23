@@ -208,6 +208,14 @@ function getImage($deviceID,$socket,$refresh=''){
 		}
 	}
 	if(file_exists(getcwd().'/security_images/'.$deviceID.'_web.png')){
+		// header image=1 just return the png
+		if(isset($GLOBALS['headerImage']) && $GLOBALS['headerImage']==1){
+			$filepath=getcwd().'/security_images/'.$deviceID.'_web.png';
+			
+			header( "Content-type: image/png" );
+			readfile( $filepath );
+			exit();
+		}
 		$out=jsFunctions().'<img id="screen" src="include/image.php?imagepath='.getcwd().'/security_images/'.$deviceID.'_web.png&randno='.rand(10000,99999).'" onClick="sendTouch();"><br>'.buttons_bar();	
 	}
 	
@@ -498,7 +506,7 @@ function output_html($content,$dbADO,$refresh=0){
 	}	
 	</script>
 	
-	<title><-mkr_t_name_mixed-> Web device</title>		
+	<title>LinuxMCE Web device</title>		
 	<head>		
 	<body onLoad="touch_disabled=0;" ONKEYDOWN="sendKey(event);">
 	'.$content.'
