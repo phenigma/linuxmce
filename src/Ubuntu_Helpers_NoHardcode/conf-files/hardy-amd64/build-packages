@@ -2,6 +2,7 @@ asterisk-dev
 automake
 automake1.9
 build-essential
+ccache
 debootstrap
 devscripts
 dh-make
@@ -15,6 +16,7 @@ ivtv-source
 kdelibs4-dev
 libaa1-dev
 libattr1-dev
+libavc1394-dev
 libavcodec-dev
 libavformat-dev
 libbluetooth-dev
@@ -28,6 +30,9 @@ libdancer-xml0-dev
 libdbus-1-dev
 libdbus-glib-1-dev
 libdirectfb-dev
+libdts-dev
+libdvb-dev
+libdvdnav-dev
 libdvdread-dev
 libflac-dev
 libfuse-dev
@@ -39,8 +44,11 @@ libgtk2.0-dev
 libhal-dev
 libhid-dev
 libid3-3.8.3-dev
+libiec61883-dev
+libimlib2-dev
 libirman-dev
 libjpeg62-dev
+liblame-dev
 liblinphone2-dev
 liblircclient-dev
 libmad0-dev
@@ -70,6 +78,7 @@ libtool
 libupnp-dev
 libusb-dev
 libvte-dev
+libwavpack-dev
 libx11-dev
 libxcb-shape0-dev
 libxcb-shm0-dev
@@ -101,6 +110,7 @@ squashfs-tools
 subversion
 swig
 tcl8.4-dev
+texi2html
 transfig
 x11proto-core-dev
 x11proto-record-dev
