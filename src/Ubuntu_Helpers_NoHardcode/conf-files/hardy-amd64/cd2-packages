@@ -161,7 +161,6 @@ libclone-perl
 libcomerr2
 libcompress-raw-zlib-perl
 libcompress-zlib-perl
-libconfhelper-perl
 libconfig-inifiles-perl
 libconfuse0
 libconvert-binhex-perl
@@ -291,7 +290,7 @@ libipc-signal-perl
 libisc32
 libisccc30
 libisccfg30
-libiso9660-4
+libiso9660-5
 libjack0
 libjack0.100.0-0
 libjack0.100.0-dev
@@ -341,9 +340,9 @@ libnfsidmap2
 libnotify1
 libnspr4-0d
 libnss3-0d
-libntfs-3g12
+libntfs-3g23
 libogg0
-libopencdk8-dev
+libopencdk10-dev
 libopenexr2ldbl
 libopenobex1
 liborbit2
@@ -361,7 +360,7 @@ libpango1.0-0
 libpango1.0-common
 libpango1.0-dev
 libpcap0.8
-libpci2
+libpci1
 libpcre3
 libplrpc-perl
 libpng12-0
