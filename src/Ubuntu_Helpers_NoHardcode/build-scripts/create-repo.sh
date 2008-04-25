@@ -45,7 +45,7 @@ function CopyDebsToDisklessSync {
 		cp "/var/www/${pkg}_"*.deb "${build_dir}/DisklessSync/${arch}/deb-cache/" || :
 	done
 	
-	local sync_cd2_pkgs="libdvdnav4"
+	local sync_cd2_pkgs="libdvdnav4 openobex-apps"
 	mkdir -p "${build_dir}/DisklessSync/${arch}/deb-cache"
 	for pkg in $sync_cd2_pkgs ;do
 		rm -f "${build_dir}/DisklessSync/${arch}/deb-cache/${pkg}_"*.deb
