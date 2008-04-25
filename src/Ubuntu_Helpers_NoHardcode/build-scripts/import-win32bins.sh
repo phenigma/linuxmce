@@ -42,11 +42,11 @@ function fake_win32bins() {
 
 function import_win32bins() {
 	pushd ${svn_dir}/trunk/src/bin
-	wget ftp://builder32.linuxmce.com/WinBinaries/Windows_Output_LinuxMCE/src/bin/*
+	wget --ftp-user=ftp --ftp-password=toomanypeopledownloading ftp://builder32.linuxmce.com/WinBinaries/Windows_Output_LinuxMCE/src/bin/*
 	popd
 
 	pushd ${svn_dir}/trunk/src/lib
-	wget ftp://builder32.linuxmce.com/WinBinaries/Windows_Output_LinuxMCE/src/lib/* 
+	wget --ftp-user=ftp --ftp-password=toomanypeopledownloading ftp://builder32.linuxmce.com/WinBinaries/Windows_Output_LinuxMCE/src/lib/* 
 	popd
 }
 
