@@ -171,20 +171,22 @@ function getQuickStartTree($dbADO){
 	// added to tree templates without category
 	
 	$templates=array();
-	foreach ($nodes['root_node'] AS $rootNode){
-		$out.='
-		<tr class="alternate_back">
-			<td>'.$rootNode.'</td>
-			<td><a href="index.php?section=editQuickStartCategory&id='.$rootNode.'"><B>'.@$nodes['description'][$rootNode].'</b></a></td>
-			<td align="right"><input type="button" class="button" name="qsc_'.$rootNode.'" value="Delete" onclick="if(confirm(\'Are you sure you want to delete this quick start category? All templates from this category will be deleted too.\')){document.editQuickStartTemplates.deleteCategory.value=\''.$rootNode.'\';document.editQuickStartTemplates.submit();}"></td>
-		</tr>
-		<tr>
-			<td></td>
-			<td colspan="2">'.qstTable($rootNode,$qstArray).'</td>
-		</tr>		
-		';		
-		$out.=getQuickStartChilds($nodes,$rootNode,$qstArray);		
-		}
+	if(@count($nodes['root_node'])!=0){
+		foreach ($nodes['root_node'] AS $rootNode){
+			$out.='
+			<tr class="alternate_back">
+				<td>'.$rootNode.'</td>
+				<td><a href="index.php?section=editQuickStartCategory&id='.$rootNode.'"><B>'.@$nodes['description'][$rootNode].'</b></a></td>
+				<td align="right"><input type="button" class="button" name="qsc_'.$rootNode.'" value="Delete" onclick="if(confirm(\'Are you sure you want to delete this quick start category? All templates from this category will be deleted too.\')){document.editQuickStartTemplates.deleteCategory.value=\''.$rootNode.'\';document.editQuickStartTemplates.submit();}"></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td colspan="2">'.qstTable($rootNode,$qstArray).'</td>
+			</tr>		
+			';		
+			$out.=getQuickStartChilds($nodes,$rootNode,$qstArray);		
+			}
+	}
 	$out.='
 	</table>
 	<br><a href="index.php?section=addQuickStartTemplate">Add quick start template</a>';
