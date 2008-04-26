@@ -2862,22 +2862,23 @@ Row_Device *General_Info_Plugin::ProcessChildDevice(Row_Device *pRow_Device,stri
 	{
 		pRow_Device_Child = vectRow_Device_Child[0];
 		pRow_Device_Child->Reload();   // Don't overwrite the room or other data that may already be there
-		return pRow_Device_Child; // For the time being, don't do anything because it's resetting the device's psc_mod causing orbiter to report the router needs a reload
+		if( pRow_Device_Child->FK_DeviceTemplate_get()==PK_DeviceTemplate )
+			return pRow_Device_Child; // For the time being, don't do anything because it's resetting the device's psc_mod causing orbiter to report the router needs a reload
+		else
+			CMD_Delete_Device(pRow_Device_Child->PK_Device_get()); // If the device template has changed, delete the device and recreate it
 	}
-	else
+
+	// Create it since it doesn't exist
+	int iPK_Device;
+	bCreatedNew=true;
+	CMD_Create_Device(PK_DeviceTemplate,"",0,"",
+		StringUtils::itos(DEVICEDATA_PortChannel_Number_CONST) + "|" + sInternalID,
+		0,pRow_Device->PK_Device_get(),"",0,0,&iPK_Device);
+	pRow_Device_Child = m_pDatabase_pluto_main->Device_get()->GetRow(iPK_Device);
+	if( !pRow_Device_Child )
 	{
-		// Create it since it doesn't exist
-		int iPK_Device;
-		bCreatedNew=true;
-		CMD_Create_Device(PK_DeviceTemplate,"",0,"",
-			StringUtils::itos(DEVICEDATA_PortChannel_Number_CONST) + "|" + sInternalID,
-			0,pRow_Device->PK_Device_get(),"",0,0,&iPK_Device);
-		pRow_Device_Child = m_pDatabase_pluto_main->Device_get()->GetRow(iPK_Device);
-		if( !pRow_Device_Child )
-		{
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"General_Info_Plugin::ProcessChildDevice failed to create child %d",iPK_Device);
-			return NULL;
-		}
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"General_Info_Plugin::ProcessChildDevice failed to create child %d",iPK_Device);
+		return NULL;
 	}
 
 	// Don't reset the description if it's already there, the user may have overridden the default name
