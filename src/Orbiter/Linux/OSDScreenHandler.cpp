@@ -1850,7 +1850,8 @@ void OSDScreenHandler::LightsSetup_Timer()
 		while(timeout>time(NULL) && nLightInDequeToAssign==m_nLightInDequeToAssign && !m_bLightsFlashThreadQuit)
 			Sleep(500);  // max 500 ms delay
 	}
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"OSDScreenHandler::LightsSetup_Timer exiting"););
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"OSDScreenHandler::LightsSetup_Timer ending m_bLightsFlashThreadQuit %d m_nLightInDequeToAssign %d size %d",
+		(int) m_bLightsFlashThreadQuit, (int) m_nLightInDequeToAssign, (int) m_pWizardLogic->m_dequeNumLights.size());
 	m_bLightsFlashThreadRunning=false;
 }
 
