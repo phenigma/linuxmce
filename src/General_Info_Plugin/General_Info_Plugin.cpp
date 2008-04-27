@@ -2907,15 +2907,20 @@ Row_Device *General_Info_Plugin::ProcessChildDevice(Row_Device *pRow_Device,stri
 
 	pRow_Device_Child->FK_DeviceTemplate_set( PK_DeviceTemplate );
 
-	Row_Device_DeviceData *pRow_Device_DeviceData = m_pDatabase_pluto_main->Device_DeviceData_get()->GetRow(pRow_Device_Child->PK_Device_get(),DEVICEDATA_PK_FloorplanObjectType_CONST);
-	if( !pRow_Device_DeviceData )
+	if( atoi(sPK_FloorplanObjectType.c_str())>0 )
 	{
-		pRow_Device_DeviceData = m_pDatabase_pluto_main->Device_DeviceData_get()->AddRow();
-		pRow_Device_DeviceData->FK_Device_set(pRow_Device_Child->PK_Device_get());
-		pRow_Device_DeviceData->FK_DeviceData_set(DEVICEDATA_PK_FloorplanObjectType_CONST);
-	}
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "General_Info_Plugin::ProcessChildDevice setting sPK_FloorplanObjectType to %s for %d",
+			sPK_FloorplanObjectType.c_str(), pRow_Device_Child->PK_Device_get());
+		Row_Device_DeviceData *pRow_Device_DeviceData = m_pDatabase_pluto_main->Device_DeviceData_get()->GetRow(pRow_Device_Child->PK_Device_get(),DEVICEDATA_PK_FloorplanObjectType_CONST);
+		if( !pRow_Device_DeviceData )
+		{
+			pRow_Device_DeviceData = m_pDatabase_pluto_main->Device_DeviceData_get()->AddRow();
+			pRow_Device_DeviceData->FK_Device_set(pRow_Device_Child->PK_Device_get());
+			pRow_Device_DeviceData->FK_DeviceData_set(DEVICEDATA_PK_FloorplanObjectType_CONST);
+		}
 
-	pRow_Device_DeviceData->IK_DeviceData_set( sPK_FloorplanObjectType );
+		pRow_Device_DeviceData->IK_DeviceData_set( sPK_FloorplanObjectType );
+	}
 
 	while(pos<sLine.size())
 	{
