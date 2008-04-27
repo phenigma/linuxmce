@@ -1786,6 +1786,8 @@ void OSDScreenHandler::LightsSetup_Timer()
 	Event_Impl event_Impl(m_pOrbiter->m_dwPK_Device, 0, m_pOrbiter->m_sHostName);
 
 	static bool bLastTimeOn=true;
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"OSDScreenHandler::LightsSetup_Timer m_bLightsFlashThreadQuit %d m_nLightInDequeToAssign %d size %d",
+		(int) m_bLightsFlashThreadQuit, (int) m_nLightInDequeToAssign, (int) m_pWizardLogic->m_dequeNumLights.size());
 	while( !m_bLightsFlashThreadQuit && m_nLightInDequeToAssign < (int) m_pWizardLogic->m_dequeNumLights.size() )
 	{
 		PLUTO_SAFETY_LOCK(vm,m_pOrbiter->m_VariableMutex);
