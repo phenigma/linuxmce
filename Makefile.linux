@@ -273,6 +273,9 @@ build_videolan_plugin_server:
 build_videolan_plugin_client:
 	@${RUN} ${SVNROOT} Run_MakeRelease ${DB_USER} ${DB_PASSWORD} ${DB_PORT} mkr_videolan_plugin_client
 
+build_standard_plugins:
+	@${RUN} ${SVNROOT} Run_MakeRelease ${DB_USER} ${DB_PASSWORD} ${DB_PORT} mkr_standard_plugins
+
 deps:
 	@mkdir -p  build/tmp/home/
 	@cp src/fakepkgs/README.Devel.Dependencies build/tmp/home/

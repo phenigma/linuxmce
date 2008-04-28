@@ -356,6 +356,7 @@ function LoadPackageNames
 	export mkr_mythtv_plugin=153,134
 	export mkr_serial=190,191
 	export mkr_messagetranslation=398,401
+	export mkr_standard_plugins=116,135
 }
 
 function DisplayMessage {
