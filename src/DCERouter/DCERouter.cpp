@@ -910,10 +910,17 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted, bo
 
 		im.Release();
 
+		class MessageInterceptorCallBack *pMessageInterceptorCallBack_Last = NULL;
+
 		for(itInterceptors=listMessageInterceptor.begin();
 			itInterceptors!=listMessageInterceptor.end();++itInterceptors)
 		{
 			class MessageInterceptorCallBack *pMessageInterceptorCallBack = (*itInterceptors);
+
+			// If this is going to a list of devices it's possible we added the same interceptor multiple times.  If so, skip the duplicates
+			if( pMessageInterceptorCallBack_Last==pMessageInterceptorCallBack )
+				continue;
+			pMessageInterceptorCallBack_Last = pMessageInterceptorCallBack;
 
 			class Command_Impl *pPlugIn = pMessageInterceptorCallBack->m_pPlugIn;
 			MessageInterceptorFn pMessageInterceptorFn = pMessageInterceptorCallBack->m_pMessageInterceptorFn;
