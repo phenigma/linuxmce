@@ -35,7 +35,7 @@ while read file; do
 done < $SVNROOT/src/Ubuntu_Helpers/cd1-packages-blacklist
 
 # Download extra packages for this cd, run automatically only once
-if [ ! -e $SVNROOT/build/cd1-packages ]]; then
+if [ ! -e $SVNROOT/build/cd1-packages ]; then
 	$SVNROOT/src/Ubuntu_Helpers/cd1-prepare.sh
 fi
 
