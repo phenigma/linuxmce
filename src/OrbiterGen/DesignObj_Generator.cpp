@@ -158,13 +158,13 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"const %p %d",this,drDesignObj->PK
 	if( m_pRow_DesignObj->FK_DesignObjType_get()==DESIGNOBJTYPE_Floorplan_CONST )
 		m_iFloorplanPage = m_pOrbiterGenerator->m_iFloorplanPage;
 
-/*
-if( m_pRow_DesignObj->PK_DesignObj_get()==4871 ||  m_pRow_DesignObj->PK_DesignObj_get()==5088 )// ||  m_pRow_DesignObj->PK_DesignObj_get()==5112 ) 
+
+if( m_pRow_DesignObj->PK_DesignObj_get()==2255 || m_pRow_DesignObj->PK_DesignObj_get()==2212 )
 {
     int k=2; 
 }
-*/
-    // Pick the standard variation, the specialized variation we will use for parameters, and all matching variations for including child objects
+
+	// Pick the standard variation, the specialized variation we will use for parameters, and all matching variations for including child objects
     PickVariation(m_pOrbiterGenerator,m_pRow_DesignObj,&m_pRow_DesignObjVariation,&m_pRow_DesignObjVariation_Standard,&m_alDesignObjVariations);
 
     if( !m_pRow_DesignObjVariation_Standard )
@@ -256,8 +256,8 @@ int k=2;
 						{
 							m_bUsingCache=true;
 							ReadFloorplanInfo(Filename+".fp");
-							LoggerWrapper::GetInstance()->Write(LV_STATUS,"Not building screen %s found valid cache",
-								(StringUtils::itos(m_pRow_DesignObj->PK_DesignObj_get()) + "." + StringUtils::itos(m_iVersion)).c_str());
+							LoggerWrapper::GetInstance()->Write(LV_STATUS,"Not building screen %s found valid cache in %s",
+								(StringUtils::itos(m_pRow_DesignObj->PK_DesignObj_get()) + "." + StringUtils::itos(m_iVersion)).c_str(),Filename.c_str());
 							m_pOrbiterGenerator->m_iPK_CommandGroup=0;
 							return;
 						}

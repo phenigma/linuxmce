@@ -943,7 +943,7 @@ void Security_Plugin::ProcessCountdown(int id,Row_Alert *pRow_Alert)
 
 void Security_Plugin::SayToDevices(string sText,DeviceData_Router *pDeviceData_Router)
 {
-	DCE::CMD_Send_Audio_To_Device CMD_Send_Audio_To_Device(m_dwPK_Device,m_PK_Device_TextToSpeach,sText,DATA_Get_PK_Device());
+	DCE::CMD_Send_Audio_To_Device CMD_Send_Audio_To_Device(m_dwPK_Device,m_PK_Device_TextToSpeach,sText,DATA_Get_PK_Device(),true,true);
 	SendCommand(CMD_Send_Audio_To_Device);
 }
 

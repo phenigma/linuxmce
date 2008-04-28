@@ -126,6 +126,9 @@ namespace DCE
 		setting this flag when the playbackstarted event comes in we'll know this stream is actually 'live' and is playing. */
 		bool m_bPlaybackStarted; 
 
+		bool m_bBypassEvent;  // Passed to MH Play Media, if true we won't fire the started watching/started listening events
+		bool m_bDontSetupAV;  // Passed to MH Play Media, if true we won't call HandleOnOffs when this starts playing
+
 		int m_dwPK_Device_Remote; /** What remote control started this content */
 		
 		/** When this media is identified, the priority of the identifying module is stored here so if another

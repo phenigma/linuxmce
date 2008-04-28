@@ -73,6 +73,8 @@ MediaStream::MediaStream( class MediaHandlerInfo *pMediaHandlerInfo, int iPK_Med
 	m_bPlugInWillSetDescription=false;
 	m_bIdentifiedDisc=false;
 	m_bContainsTitlesOrSections=false;
+	m_bBypassEvent=false;
+	m_bDontSetupAV=false;
 
     m_iPK_Users=PK_Users;
     m_eSourceType=sourceType;
