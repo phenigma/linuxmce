@@ -75,7 +75,9 @@ public:
 string g_sPackages, g_sPackages_Exclude, g_sManufacturer, g_sSourcecodePrefix, g_sNonSourcecodePrefix, g_sCompile_Date, g_sBaseVersion, g_sReplacePluto, g_sOutputPath;
 string g_sPK_RepositorySource;
 int g_iPK_Distro=0,g_iSVNRevision=0;
+int g_iCoresToUse=1;
 bool g_bBuildSource = true, g_bCreatePackage = true, g_bInteractive = false, g_bSimulate = false, g_bSupressPrompts = false, g_bDontTouchDB = false, g_bSetVersion = true, g_bOnlyCompileIfNotFound = false;
+bool g_bUseBuildDBForLocation = false;
 Database_pluto_main *g_pDatabase_pluto_main;
 Row_Version *g_pRow_Version;
 Row_Distro *g_pRow_Distro;
@@ -294,6 +296,13 @@ int main(int argc, char *argv[])
 		case 'V':
 			g_bSetVersion = false;
 			break;
+		case 'L':
+			g_bUseBuildDBForLocation = true;
+			break;
+		case 'j':
+			if (!verify_next(argv, optnum, argc, "-j")) { bError=true; break; }
+			g_iCoresToUse = atoi(argv[++optnum]);
+			break;
 		default:
 			cout << "Unknown: " << argv[optnum] << endl;
 			bError=true;
@@ -304,13 +313,14 @@ int main(int argc, char *argv[])
 	if ( bError)
 	{
 		cout << "MakeRelease, v." << VERSION << endl
-			<< "Usage: MakeRelease [-h hostname] [-u username] [-p password] [-D database] [-P mysql port] [-k Packages] [-K Exclude Packages] [-m Manufacturers] [-o Distro] [-a] [-f Defines]" << endl
+			<< "Usage: MakeRelease [-h hostname] [-u username] [-p password] [-D database] [-P mysql port] [-L] [-k Packages] [-K Exclude Packages] [-m Manufacturers] [-o Distro] [-a] [-f Defines]" << endl
 			<< "\t[-d]" << endl
 			<< "hostname    -- address or DNS of database host, default is `dce_router`" << endl
 			<< "username    -- username for database connection" << endl
 			<< "password    -- password for database connection, default is `` (empty)" << endl
 			<< "database    -- database name.  default is pluto_main" << endl
 			<< "port        -- port for database connection, default is 3306" << endl
+			<< "-L          -- use build DB for location tables, rather than pluto_main" << endl
 			<< "output path -- Where to put the output files.  Default is ../[database name]" << endl
 			<< "input path  -- Where to find the template files.  Default is . then ../MakeRelease" << endl
 			<< "-a(abort)   -- Abort on error without prompting" << endl
@@ -784,6 +794,55 @@ bool GetSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFileIn
 	return true;
 }
 
+string MakeCommandMods(string in)
+{
+	string out = in;
+
+	string mysql_port = "";
+	string mysql_host = dceConfig.m_sDBHost;
+	string mysql_user = dceConfig.m_sDBUser;
+	string mysql_passwd = dceConfig.m_sDBPassword;
+	string mysql_dbname = dceConfig.m_sDBName;
+	if (dceConfig.m_iDBPort && (dceConfig.m_iDBPort != 3306))
+	{
+		stringstream sstr;
+		sstr << dceConfig.m_iDBPort;
+		mysql_port = sstr.str();
+	}
+
+	if (mysql_port != "")
+	{
+		out = StringUtils::Replace(out, "sqlCVS", "sqlCVS -P 4306");
+		out = StringUtils::Replace(out, "mysqldump", "mysqldump -P 4306");
+		if (mysql_host == "")
+			mysql_host = "127.0.0.1";
+	}
+	if (mysql_host != "")
+	{
+		out = StringUtils::Replace(out, "sqlCVS", "sqlCVS -h " + mysql_host);
+		out = StringUtils::Replace(out, "mysqldump", "mysqldump -h " + mysql_host);
+	}
+	if (mysql_user != "")
+		out = StringUtils::Replace(out, "mysqldump", "mysqldump -u " + mysql_user);
+	if (mysql_passwd != "")
+		out = StringUtils::Replace(out, "mysqldump", "mysqldump -p" + mysql_passwd);
+
+	if (g_bUseBuildDBForLocation)
+	{
+		out = StringUtils::Replace(
+			out, "pluto_main Country City Region PostalCode TimeZone",
+			mysql_dbname + " Country City Region PostalCode TimeZone");
+	}
+
+	if (g_iCoresToUse > 1)
+	{
+		stringstream sstr;
+		sstr << g_iCoresToUse;
+		out = StringUtils::Replace(out, "make", "make -j" + sstr.str());
+	}
+	return out;
+}
+
 bool GetNonSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFileInfo)
 {
 	/*
@@ -872,18 +931,7 @@ bool GetNonSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFil
 #endif
 				chdir(sInputPath.c_str());
 
-				// HACK -- BEGIN
-				tmp = StringUtils::Replace(tmp, "sqlCVS", "sqlCVS -P 4306");
-				tmp = StringUtils::Replace(tmp,
-					"pluto_main Country City Region PostalCode TimeZone",
-					"pluto_main_build Country City Region PostalCode TimeZone");
-				tmp = StringUtils::Replace(tmp, "mysqldump", "mysqldump -u lmce_build");
-				tmp = StringUtils::Replace(tmp, "mysqldump", "mysqldump -plmce_build");
-				tmp = StringUtils::Replace(tmp, "sqlCVS", "sqlCVS -h 127.0.0.1");
-				tmp = StringUtils::Replace(tmp, "mysqldump", "mysqldump -P 4306");
-				tmp = StringUtils::Replace(tmp, "mysqldump", "mysqldump -h 127.0.0.1");
-				tmp = StringUtils::Replace(tmp, "sqlCVS", "/usr/pluto/bin/sqlCVS");
-				// HACK -- END
+				tmp = MakeCommandMods(tmp);
 
 				cout << "Package: " << pRow_Package->PK_Package_get() << " Executing: " << tmp << " from dir: " << sInputPath << endl;
 				if( g_bOnlyCompileIfNotFound && FileUtils::FileExists(sInputPath + "/" + File) )
@@ -1270,18 +1318,7 @@ cout << "Doing snr on " << sSourceDirectory << "/" << *it << endl;
 			if( FileUtils::FileExists("Main.cpp") )
 				StringUtils::Replace( "Main.cpp", "Main.cpp", "/*SVN_REVISION*/", "int g_SvnRevision=" + StringUtils::itos(g_iSVNRevision) + ";" );
 
-			// HACK -- BEGIN
-			tmp = StringUtils::Replace(tmp, "sqlCVS", "sqlCVS -P 4306");
-			tmp = StringUtils::Replace(tmp, "sqlCVS", "sqlCVS -h 127.0.0.1");
-			tmp = StringUtils::Replace(tmp,
-				"pluto_main Country City Region PostalCode TimeZone",
-				"pluto_main_build Country City Region PostalCode TimeZone");
-			tmp = StringUtils::Replace(tmp, "mysqldump", "mysqldump -plmce_build");
-			tmp = StringUtils::Replace(tmp, "mysqldump", "mysqldump -u lmce_build");
-			tmp = StringUtils::Replace(tmp, "mysqldump", "mysqldump -P 4306");
-			tmp = StringUtils::Replace(tmp, "mysqldump", "mysqldump -h 127.0.0.1");
-			tmp = StringUtils::Replace(tmp, "sqlCVS", "/usr/pluto/bin/sqlCVS");
-	       		// HACK -- END
+			tmp = MakeCommandMods(tmp);
 
 			fstr_compile << tmp << endl;
 			cout << "Package: " << pRow_Package->FK_Package_Sourcecode_get() << " Executing: " << tmp << endl;

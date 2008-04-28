@@ -847,11 +847,14 @@ function Run_MakeRelease_All
 	echo "$(date) part 5 " >> $build_log
 	ls -l $SVNROOT/src/bin/ >> $build_log
 
+	# Make sure we can find sqlCVS
+	PATH=$PATH:/usr/pluto/bin
+
         echo Running MakeRelease
 	MakeRelease="${mkr_dir}/MakeRelease"
 	$MakeRelease -R "$SVNrevision" \
                      -h $sql_slave_host -u $db_user \
-                     -p $db_password -P $db_port \
+                     -p $db_password -P $db_port -L -j 2 \
                      -O $out_dir -D $sql_slave_db -o $PK_DISTRO -r 21 -m 1 \
                      -K "$exclude_list" \
                      -s "${SVNROOT}" -n "${SVNROOT}/build/tmp" > >(tee -a $build_dir/Build.log)
@@ -884,12 +887,15 @@ function Run_MakeRelease
 
 	mkdir -p $out_dir
 
+	# Make sure we can find sqlCVS
+	PATH=$PATH:/usr/pluto/bin
+
         echo "Running MakeRelease for $db_devices"
 
 	MakeRelease="${mkr_dir}/MakeRelease"
 	$MakeRelease -R "$SVNrevision" \
                      -h $sql_slave_host -u $db_user \
-                     -p $db_password -P $db_port \
+                     -p $db_password -P $db_port -L -j 2 \
                      -O $out_dir -D $sql_slave_db -o $PK_DISTRO -r 21 -m 1 \
                      -k "$db_devices" \
                      -s "${SVNROOT}" -n "${SVNROOT}/build/tmp" > >(tee -a $build_dir/Build.log)
