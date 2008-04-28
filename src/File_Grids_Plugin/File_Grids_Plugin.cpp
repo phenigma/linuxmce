@@ -447,8 +447,8 @@ LoggerWrapper::GetInstance()->Write(LV_WARNING,"Starting File list");
 				DCE::CMD_MH_Play_Media_Cat cmd(PK_Controller, DEVICECATEGORY_Media_Plugins_CONST, false, BL_SameHouse,
 					0 /* any device */,pFileDetails->m_sBaseName + pFileDetails->m_sFileName,
 					0 /* whatever media type the file is */,0 /* any master device */,"" /* current entertain area */,
-					false, /* resume */, 0 /* repeat */,
-					false, /* bypass events */
+					false /* resume */, 0 /* repeat */,
+					false /* bypass events */,
 					false /* dont setup av */);
 				pCell->m_pMessage = new Message(cmd.m_pMessage);
 				pCellPicture->m_pMessage = new Message(cmd.m_pMessage);
