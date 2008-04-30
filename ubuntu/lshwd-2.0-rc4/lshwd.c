@@ -394,6 +394,8 @@ begin_procfs_pci_scan:
 				strcpy(module, x->xmodule);
 				if (dev.vendorid == 0x10de) //nVidia
 					snprintf(module, sizeof(module) - 1, "nv");
+				else if (dev.vendorid == 0x1002) //ATI
+					snprintf(module, sizeof(module) - 1, "radeon");
 				DEBUG("%s\n%s\n%s\n%s\n", x->xserver, x->xmodule, x->xdesc, x->xopts);
 			}
 
@@ -574,6 +576,8 @@ begin_sysfs_pci_scan:
 			strcpy(module, x->xmodule);
 			if (dev.vendorid == 0x10de) //nVidia
 				snprintf(module, sizeof(module) - 1, "nv");
+			else if (dev.vendorid == 0x1002) //ATI
+				snprintf(module, sizeof(module) - 1, "radeon");
 			DEBUG("%s\n%s\n%s\n%s\n", x->xserver, x->xmodule, x->xdesc, x->xopts);
 		}
 		if (!is_device_listed(&dev)) add_device(&dev);
