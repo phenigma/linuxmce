@@ -689,6 +689,7 @@ bool Xine_Stream_Factory::CreateWindows()
 	XSetStandardProperties( m_pXDisplay, windows[ 1 ], "pluto-stub", "pluto-stub", None, NULL, 0, 0 );
 
 	// calculating pixel aspect
+	// FIXME: when DisplayWidthMM and DisplayHeightMM return 0, this code crashes.
 	double res_h = ( DisplayWidth( m_pXDisplay, m_iCurrentScreen ) * 1000 / DisplayWidthMM( m_pXDisplay, m_iCurrentScreen ) );
 	double res_v = ( DisplayHeight( m_pXDisplay, m_iCurrentScreen ) * 1000 / DisplayHeightMM( m_pXDisplay, m_iCurrentScreen ) );
 
