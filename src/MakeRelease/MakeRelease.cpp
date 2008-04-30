@@ -836,6 +836,8 @@ string MakeCommandMods(string in)
 
 	if (g_iCoresToUse > 1)
 	{
+		out = StringUtils::Replace(out, "make clean bin", "make clean ; make bin");
+		out = StringUtils::Replace(out, "make clean lib", "make clean ; make lib");
 		stringstream sstr;
 		sstr << g_iCoresToUse;
 		out = StringUtils::Replace(out, "make", "make -j" + sstr.str());
