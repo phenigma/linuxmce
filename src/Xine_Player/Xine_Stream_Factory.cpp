@@ -688,10 +688,18 @@ bool Xine_Stream_Factory::CreateWindows()
 	XSetStandardProperties( m_pXDisplay, windows[ 0 ], m_sWindowTitle.c_str(), m_sWindowTitle.c_str(), None, NULL, 0, 0 );
 	XSetStandardProperties( m_pXDisplay, windows[ 1 ], "pluto-stub", "pluto-stub", None, NULL, 0, 0 );
 
+	int WidthMM = DisplayWidthMM(m_pXDisplay, m_iCurrentScreen);
+	int HeightMM = DisplayHeightMM(m_pXDisplay, m_iCurrentScreen);
+
+	// Projectors can return a physical size of 0x0 mm. This prevents a division by zero when 0x0 occurs.
+	if (WidthMM == 0)
+		WidthMM = 1;
+	if (HeightMM == 0)
+		HeightMM = 1;
+
 	// calculating pixel aspect
-	// FIXME: when DisplayWidthMM and DisplayHeightMM return 0, this code crashes.
-	double res_h = ( DisplayWidth( m_pXDisplay, m_iCurrentScreen ) * 1000 / DisplayWidthMM( m_pXDisplay, m_iCurrentScreen ) );
-	double res_v = ( DisplayHeight( m_pXDisplay, m_iCurrentScreen ) * 1000 / DisplayHeightMM( m_pXDisplay, m_iCurrentScreen ) );
+	double res_h = DisplayWidth(m_pXDisplay, m_iCurrentScreen) * 1000 / WidthMM;
+	double res_v = DisplayHeight(m_pXDisplay, m_iCurrentScreen) * 1000 / HeightMM;
 
 	m_dScreenPixelAspect = res_v / res_h;
 
