@@ -13,7 +13,7 @@ function build_main_debs() {
 	#FIXME Hackozaurus to build SimplePhone
 	export PKG_CONFIG_PATH=/opt/linphone-1.3.5/lib/pkgconfig
 	LinphoneVersion="$(dpkg -s 'liblinphone1-lmce' | grep '^Version: ' | cut -d' ' -f2)"
-	if [[ "$LinphoneVersion" == "1."[57]"."* ]]; then
+	if [[ "$LinphoneVersion" != "1.3."* ]]; then
 		# Linphone 1.5.1 in Ubuntu Feisty makes SimplePhone to need this
 		export LINPHONE_CONST=const
 	fi
