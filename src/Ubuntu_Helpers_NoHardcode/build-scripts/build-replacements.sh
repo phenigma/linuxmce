@@ -239,6 +239,18 @@ function Build_Replacements_Common {
 	fi
 }
 
+function Build_Replacements_Hardy {
+	#Package: chan-sccp
+	dir_="${svn_dir}/trunk/ubuntu/asterisk/chan_sccp"
+	if Changed_Since_Last_Build "$dir_" ;then
+		DisplayMessage "Building chan-sccp"
+		pushd "$dir_"
+		dpkg-buildpackage -rfakeroot -us -uc -b
+		cp ../chan-sccp_*.deb ${replacements_dir}
+		popd
+	fi
+}
+
 function Build_Replacements_Gutsy {
 	mkdir -p "$replacements_dir"
 
@@ -314,11 +326,16 @@ function Build_Replacements_Gutsy {
 trap 'Error "Undefined error in $0"' EXIT
 
 DisplayMessage "*** STEP: Building replacement debs"
-Build_Replacements_Common
+#Build_Replacements_Common
 
-if [[ "$(lsb_release -c -s)" == "gutsy" ]] ;then
-	Build_Replacements_Gutsy
-fi
+case "$(lsb_release -c -s)" in
+	"gutsy")
+		Build_Replacements_Gutsy
+		;;
+	"hardy")
+		Build_Replacements_Hardy
+		;;
+esac
 
 DisplayMessage "Removing duplicate debs from replacements"
 remove_duplicate_debs "${replacements_dir}"
