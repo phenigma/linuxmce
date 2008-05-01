@@ -326,7 +326,7 @@ function Build_Replacements_Gutsy {
 trap 'Error "Undefined error in $0"' EXIT
 
 DisplayMessage "*** STEP: Building replacement debs"
-#Build_Replacements_Common
+Build_Replacements_Common
 
 case "$(lsb_release -c -s)" in
 	"gutsy")
