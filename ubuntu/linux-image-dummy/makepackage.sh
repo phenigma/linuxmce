@@ -29,7 +29,7 @@ sed -i 's/^.*BOOT=.*/BOOT=nfs/g' /etc/initramfs-tools-diskless/initramfs.conf
 # NOTE: when you add a module to this list,
 # NOTE: please be sure to update and rebuild pluto-default-tftpboot too
 # NOTE: reference: UbuntuDiskless/Diskless_BuildDefaultImage.sh
-AddModules sky2
+AddModules sky2 atl1
 
 mkinitramfs -d /etc/initramfs-tools-diskless/ -o ${Moon_RootLocation}/boot/initrd.img-${Moon_KernelVersion}
 
