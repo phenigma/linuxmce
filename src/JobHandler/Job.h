@@ -58,7 +58,7 @@ namespace nsJobHandler
 	public:
 		enum JobStatus
 		{
-			job_WaitingToStart,
+			job_WaitingToStart=0,
 			job_InProgress,
 			job_Error,
 			job_Aborted,

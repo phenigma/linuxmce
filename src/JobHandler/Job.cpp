@@ -171,13 +171,19 @@ void Job::Run()
 {
 	PLUTO_SAFETY_LOCK(jm,m_ThreadMutex);
 	Task * pTask;
+	bool bAborted=false;
 	while (m_bQuit==false && (pTask = GetNextTask())!=NULL)
 	{
 		jm.Release();
 		if( pTask->m_eTaskStatus_get()==TASK_NOT_STARTED )
 			pTask->m_eTaskStatus_set(TASK_IN_PROGRESS);
 		int iResult = pTask->Run();
-		if( iResult==0 && pTask->m_eTaskStatus_get()==TASK_IN_PROGRESS )
+		if( pTask->m_eTaskStatus_get()==TASK_FAILED_ABORT )
+		{
+			bAborted=true;
+			break;
+		}
+		else if( iResult==0 && pTask->m_eTaskStatus_get()==TASK_IN_PROGRESS )
 			pTask->m_eTaskStatus_set(TASK_COMPLETED);
 		else if( iResult )
 		{
@@ -190,7 +196,7 @@ void Job::Run()
 		jm.Relock();
 	}
 	RefreshOrbiter();
-	m_eJobStatus=job_Done;
+	m_eJobStatus=bAborted ? job_Aborted : job_Done;
 	JobDone();
 	m_pJobHandler->BroadcastCond();
 }
