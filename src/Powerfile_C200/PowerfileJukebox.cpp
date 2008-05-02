@@ -512,7 +512,7 @@ bool PowerfileJukebox::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 	return jbRetCode;
 }
 
-/*virtual*/ JukeBox::JukeBoxReturnCode PowerfileJukebox::MoveFromDriveToSlot(Slot *pSlot,Drive *pDrive)
+/*virtual*/ JukeBox::JukeBoxReturnCode PowerfileJukebox::MoveFromDriveToSlot(Slot *pSlot,Drive *pDrive,bool bFailedLoad)
 {
 	PLUTO_SAFETY_LOCK(dm, m_DriveMutex);
 
@@ -528,7 +528,7 @@ bool PowerfileJukebox::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 
 	JukeBox::JukeBoxReturnCode jbRetCode = JukeBox::jukebox_transport_failure;
 
-	if (pDrive->m_mediaInserted==false)
+	if (pDrive->m_mediaInserted==false && bFailedLoad==false)  // If bFailedLoad the drive will be empty because didn't load it
 	{
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Disc unit %d empty", pDrive->m_DriveNumber);
 	}
@@ -563,8 +563,9 @@ bool PowerfileJukebox::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 			pDDF->m_mediaDiskStatus = DISCTYPE_NONE;
 			pDDF->m_mediaInserted = false;
 
-			// Update the database
-			UpdateDiscLocation(pDrive->m_dwPK_Device_get(),-1,m_pCommand_Impl->m_dwPK_Device,pSlot->m_SlotNumber);
+			// Update the database if bFailedLoad is not true, otherwise the database wasn't set anyway
+			if( bFailedLoad==false )
+				UpdateDiscLocation(pDrive->m_dwPK_Device_get(),-1,m_pCommand_Impl->m_dwPK_Device,pSlot->m_SlotNumber);
 
 			jbRetCode = JukeBox::jukebox_ok;
 		}
