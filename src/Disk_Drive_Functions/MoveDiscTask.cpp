@@ -47,7 +47,6 @@ int MoveDiscTask::Run()
 	{
 		if( !m_pJukeBox->LockJukebox(Disk_Drive_Functions::locked_move,this) )
 		{
-			LoggerWrapper::GetInstance()->Write(LV_STATUS, "MoveDiscTask::Run 1 cannot lock jukebox");
 			return 1;  // Try again in a sec
 		}
 		jukeBoxReturnCode = m_pJukeBox->MoveFromSlotToDrive(m_pSlot,m_pDrive);

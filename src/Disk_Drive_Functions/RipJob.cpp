@@ -113,13 +113,15 @@ RipJob::~RipJob()
 	if( sDevices.size() )
 		m_pDatabase_pluto_media->threaded_db_wrapper_query(sSQL);
 
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "RipJob::~RipJob %d drive %d slot %d %s / %s m_pRow_DiscLocation %d/%d query: %s", 
-		m_iID, m_pDisk_Drive_Functions ? m_pDisk_Drive_Functions->m_dwPK_Device_get() : 0,
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "RipJob::~RipJob %d m_eJobStatus %d drive %d slot %d %s / %s m_pRow_DiscLocation %d/%d query: %s", 
+		m_iID, (int) m_eJobStatus, m_pDisk_Drive_Functions ? m_pDisk_Drive_Functions->m_dwPK_Device_get() : 0,
 		m_pSlot ? m_pSlot->m_SlotNumber : 0, m_sDirectory.c_str(), m_sFileName.c_str(),
 		m_pRow_DiscLocation ? m_pRow_DiscLocation->EK_Device_get() : 0, m_pRow_DiscLocation ? m_pRow_DiscLocation->Slot_get() : 0, sSQL.c_str());
 
 	string sMessage;
-	if(m_nTracksFailedToRip == m_listTask.size())
+	if( m_eJobStatus!=job_Done )
+		sMessage = "Ripping failed, code " + StringUtils::itos( (int) m_eJobStatus );
+	else if(m_nTracksFailedToRip == m_listTask.size())
 		sMessage = "Ripping failed";
 	else if (m_bHasErrors)
 		sMessage = "Ripping completed with errors";
