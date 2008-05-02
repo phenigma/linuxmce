@@ -41,6 +41,7 @@ Job::Job(JobHandler *pJobHandler,string sName,int PK_Orbiter,Command_Impl *pComm
 	m_tNextRunAttempt=0;
 	m_iPK_Orbiter=PK_Orbiter;
 	m_pCommand_Impl=pCommand_Impl;
+LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Job::job %s", m_sName.c_str());
 }
 
 Job::~Job()
@@ -170,16 +171,19 @@ bool Job::StopThread(int iTimeout)
 // run each task
 void Job::Run()
 {
+LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Job::run %s", m_sName.c_str());
 	PLUTO_SAFETY_LOCK(jm,m_ThreadMutex);
 	Task * pTask;
 	bool bAborted=false;
 	while (m_bQuit==false && (pTask = GetNextTask())!=NULL)
 	{
 		jm.Release();
+LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Job::Run %s task %s ", m_sName.c_str(), pTask->m_sName.c_str() );
 		if( pTask->m_eTaskStatus_get()==TASK_NOT_STARTED )
 			pTask->m_eTaskStatus_set(TASK_IN_PROGRESS);
 		int iResult = pTask->Run();
-		LoggerWrapper::GetInstance()->Write(LV_WARNING,"Job::Run %s task %s returned %d status %s", 
+LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Job::Run done %s task %s ", m_sName.c_str(), pTask->m_sName.c_str() );
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Job::Run %s task %s returned %d status %s", 
 			m_sName.c_str(), pTask->m_sName.c_str(), iResult, (int) pTask->m_eTaskStatus_get() );
 		if( pTask->m_eTaskStatus_get()==TASK_FAILED_ABORT )
 		{
