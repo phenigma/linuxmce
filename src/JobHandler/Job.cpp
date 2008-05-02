@@ -53,6 +53,7 @@ Job::~Job()
 bool Job::Abort()
 {
 	m_bQuit=true;
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Job::Abort %s status %d", m_sName.c_str(), (int) m_eJobStatus);
 	if( m_eJobStatus==job_Aborted )
 		return true;
 	bool bAbortedOk=true;
@@ -61,7 +62,7 @@ bool Job::Abort()
 	for(list<class Task *>::iterator it=m_listTask.begin();it!=m_listTask.end();++it)
 	{
 		Task *pTask = *it;
-		if( !pTask->Abort() )
+		if( pTask->m_eTaskStatus_get()==TASK_NOT_STARTED || pTask->m_eTaskStatus_get()==TASK_IN_PROGRESS || !pTask->Abort() )
 		{
 			LoggerWrapper::GetInstance()->Write(LV_WARNING,"Job::Abort %s cannot abort task %s", m_sName.c_str(), pTask->m_sName.c_str());
 			bAbortedOk=false;
@@ -181,6 +182,8 @@ void Job::Run()
 		if( pTask->m_eTaskStatus_get()==TASK_FAILED_ABORT )
 		{
 			bAborted=true;
+			LoggerWrapper::GetInstance()->Write(LV_WARNING,"Job::Run %s abort per task task %s", m_sName.c_str(), pTask->m_sName.c_str());
+			Abort();
 			break;
 		}
 		else if( iResult==0 && pTask->m_eTaskStatus_get()==TASK_IN_PROGRESS )
