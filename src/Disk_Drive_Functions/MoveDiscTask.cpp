@@ -120,6 +120,8 @@ int MoveDiscTask::Run()
 
 	m_pJob->RefreshOrbiter();
 	m_eTaskStatus_set(jukeBoxReturnCode==JukeBox::jukebox_ok ? TASK_COMPLETED : TASK_FAILED_ABORT);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MoveDiscTask::Run status %d", (int) m_eTaskStatus_get());
+
 	return 0;
 }
 

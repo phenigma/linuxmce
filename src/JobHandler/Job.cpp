@@ -179,6 +179,8 @@ void Job::Run()
 		if( pTask->m_eTaskStatus_get()==TASK_NOT_STARTED )
 			pTask->m_eTaskStatus_set(TASK_IN_PROGRESS);
 		int iResult = pTask->Run();
+		LoggerWrapper::GetInstance()->Write(LV_WARNING,"Job::Run %s task %s returned %d status %s", 
+			m_sName.c_str(), pTask->m_sName.c_str(), iResult, (int) pTask->m_eTaskStatus_get() );
 		if( pTask->m_eTaskStatus_get()==TASK_FAILED_ABORT )
 		{
 			bAborted=true;
