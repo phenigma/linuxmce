@@ -497,14 +497,14 @@ bool PowerfileJukebox::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 			else
 			{
 				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "PowerfileJukebox::MoveFromSlotToDrive Can't get disc type. drive %d", pDrive->m_DriveNumber);
-				JukeBox::JukeBoxReturnCode jret = MoveFromDriveToSlot(pSlot,pDrive);
+				JukeBox::JukeBoxReturnCode jret = MoveFromDriveToSlot(pSlot,pDrive,true);
 				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "PowerfileJukebox::MoveFromSlotToDrive return disc to slot returned %d", (int) jret);
 			}
 		}
 		else
 		{
 			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "PowerfileJukebox::MoveFromSlotToDrive Loading disc failed: %d %s\n%s", returncode, sOutput.c_str(), sStdErr.c_str());
-			JukeBox::JukeBoxReturnCode jret = MoveFromDriveToSlot(pSlot,pDrive);
+			JukeBox::JukeBoxReturnCode jret = MoveFromDriveToSlot(pSlot,pDrive,true);
 			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "PowerfileJukebox::MoveFromSlotToDrive return disc to slot returned %d", (int) jret);
 		}
 	}
