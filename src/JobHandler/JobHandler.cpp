@@ -29,7 +29,7 @@ using namespace DCE;
 
 JobHandler::JobHandler()
 {
-LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"JobHandler::JobHandler test %s", m_sName.c_str());
+LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"JobHandler::JobHandler test");
 }
 
 JobHandler::~JobHandler()
