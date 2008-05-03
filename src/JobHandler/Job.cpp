@@ -183,7 +183,7 @@ LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Job::Run %s task %s ", m_sName.
 			pTask->m_eTaskStatus_set(TASK_IN_PROGRESS);
 		int iResult = pTask->Run();
 LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Job::Run done %s task %s ", m_sName.c_str(), pTask->m_sName.c_str() );
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Job::Run %s task %s returned %d status %s", 
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Job::Run %s task %s returned %d status %d", 
 			m_sName.c_str(), pTask->m_sName.c_str(), iResult, (int) pTask->m_eTaskStatus_get() );
 		if( pTask->m_eTaskStatus_get()==TASK_FAILED_ABORT )
 		{
