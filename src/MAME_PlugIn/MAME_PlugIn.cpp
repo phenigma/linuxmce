@@ -361,6 +361,23 @@ bool MAME_PlugIn::StartMedia( MediaStream *pMediaStream,string &sError )
 						"00:00:00",mediaURL);
 	SendCommand(CMD_Play_Media);
  
+	/** We're going to send a message to all the orbiters in this area so they know what the remote is,
+	and we will send all bound remotes to the new screen */
+	for( MapEntertainArea::iterator itEA = pMAMEMediaStream->m_mapEntertainArea.begin( );itEA != pMAMEMediaStream->m_mapEntertainArea.end( );++itEA )
+	{
+		EntertainArea *pEntertainArea = ( *itEA ).second;
+		LoggerWrapper::GetInstance()->Write( LV_STATUS, "Looking into the ent area (%p) with id %d and %d remotes", pEntertainArea, pEntertainArea->m_iPK_EntertainArea, (int) pEntertainArea->m_mapBoundRemote.size() );
+        for(map<int,OH_Orbiter *>::iterator it=m_pOrbiter_Plugin->m_mapOH_Orbiter.begin();it!=m_pOrbiter_Plugin->m_mapOH_Orbiter.end();++it)
+        {
+            OH_Orbiter *pOH_Orbiter = (*it).second;
+			if( pOH_Orbiter->m_pEntertainArea!=pEntertainArea )
+				continue;
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Processing remote: for orbiter: %d", pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
+			bool bBound = pEntertainArea->m_mapBoundRemote.find(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device)!=pEntertainArea->m_mapBoundRemote.end();
+			pMAMEMediaStream->SetNowPlaying(pOH_Orbiter,false,bBound);
+		}
+	}
+
 	return MediaHandlerBase::StartMedia(pMediaStream,sError);
  
 }
@@ -522,13 +539,15 @@ void MAME_PlugIn::CheckForNewROMs()
 		/** @param #41 StreamID */
 			/** ID of stream to apply */
 
+/* 
 void MAME_PlugIn::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c65-e->
 {
 	cout << "Need to implement command #65 - Jump Position In Playlist" << endl;
 	cout << "Parm #5 - Value_To_Assign=" << sValue_To_Assign << endl;
 	cout << "Parm #41 - StreamID=" << iStreamID << endl;
-}
+} 
+*/
 
 //<-dceag-c185-b->
 
