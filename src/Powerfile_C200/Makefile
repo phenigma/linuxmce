@@ -28,9 +28,6 @@ Gen_Dev_Files +=
 sources += \
 	PowerfileJukebox.cpp \
 	Utils.cpp \
-	../JobHandler/JobHandler.cpp \
-	../JobHandler/Job.cpp \
-	../JobHandler/Task.cpp \
 	../Media_Plugin/MediaAttributes_LowLevel.cpp \
 	../HAL/HalTree.cpp
 
