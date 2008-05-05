@@ -1,5 +1,0 @@
-#!/bin/sh
-
-if [ -f /var/lib/partman/filesystems_detected ]; then
-    rm /var/lib/partman/filesystems_detected
-fi
