@@ -1060,11 +1060,43 @@ std::string gc100::read_from_gc100()
 	while (1)
 	{
 		pthread_testcancel();
-		if (recv(gc100_socket, &recv_buffer[recv_pos], 1, 0) <= 0)
+		
+		struct timeval timeout;
+		timeout.tv_sec = 1;
+		timeout.tv_usec = 0;
+
+		fd_set fdset;
+		FD_ZERO(&fdset);
+		FD_SET(gc100_socket, &fdset);
+
+		int nfds = select(gc100_socket + 1, &fdset, NULL, NULL, &timeout); // number of file descriptors
+		if (nfds == -1)
 		{
+			if (errno != EINTR)
+			{
+				// error in select
+				return_value = "error";
+				break;
+			}
+			else
+			{
+				// interrupted, not really an error
+				continue;
+			}
+		}
+		else if (nfds == 0)
+		{
+			// timeout
+			continue;
+		}
+		else if (recv(gc100_socket, &recv_buffer[recv_pos], 1, 0) <= 0) // nfds == 1
+		{
+			// EOF or read error
 			return_value = "error";
 			break;
 		}
+		
+		// we have data
 		pthread_testcancel();
 		if (recv_buffer[recv_pos] == '\r')
 		{
