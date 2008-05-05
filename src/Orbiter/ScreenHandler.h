@@ -314,6 +314,7 @@ public:
 	virtual void SCREEN_Main(long PK_Screen, string sLocation);
 	void SetupAudioServer(); //the main screen for Audio Server
 	void AudioServer_PopulateDatagrid();
+	bool AudioServerFileList_GridRendering(CallBackData *pData);
 
 	virtual void SCREEN_Lights(long PK_Screen, string sLocation);
 	virtual void SCREEN_Media(long PK_Screen, string sLocation);

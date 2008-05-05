@@ -1817,10 +1817,10 @@ void ScreenHandler::SetupAudioServer()
 		RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::MediaBrowser_ObjectSelected,	new ObjectInfoBackData());
 		RegisterCallBack(cbOnRenderScreen, (ScreenHandlerCallBack) &ScreenHandler::MediaBrowser_Render, new RenderScreenCallBackData());
 		RegisterCallBack(cbDataGridSelected, (ScreenHandlerCallBack) &ScreenHandler::MediaBrowser_DatagridSelected, new DatagridCellBackData());
-		RegisterCallBack(cbDataGridRendering, (ScreenHandlerCallBack) &ScreenHandler::FileList_GridRendering,	new DatagridAcquiredBackData());
 		RegisterCallBack(cbOnKeyDown, (ScreenHandlerCallBack) &ScreenHandler::FileList_KeyDown, new KeyCallBackData());
 		RegisterCallBack(cbMessageIntercepted, (ScreenHandlerCallBack) &ScreenHandler::MediaBrowsre_Intercepted, new MsgInterceptorCellBackData());
 		RegisterCallBack(cbOnTimer,	(ScreenHandlerCallBack) &ScreenHandler::MediaBrowser_OnTimer, new CallBackData());
+		RegisterCallBack(cbDataGridRendering, (ScreenHandlerCallBack) &ScreenHandler::AudioServerFileList_GridRendering, new DatagridAcquiredBackData());
 
 		DesignObj_Orbiter *pObj = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_popFBSF_More_CONST) "." + StringUtils::itos(mediaFileBrowserOptions.m_PK_MediaType) + ".0." TOSTRING(DESIGNOBJ_butFBSF_More_ViewedOnly_CONST) );
 		if( pObj )
@@ -1837,6 +1837,47 @@ void ScreenHandler::SetupAudioServer()
 
 		m_pOrbiter->StartScreenHandlerTimer(5000);
 	}
+}
+//-----------------------------------------------------------------------------------------------------
+bool ScreenHandler::AudioServerFileList_GridRendering(CallBackData *pData)
+{
+	// This is called every time a new section of the grid is to be rendered.  We want to find the child object for the 'virus free' check and hide it if it's virus free,
+	// and also find the child object for the icon and assign it the picture associated with the cell.
+	DatagridAcquiredBackData *pDatagridAcquiredBackData = (DatagridAcquiredBackData *) pData;  // Call back data containing relevant values for the grid/table being rendered
+
+	//if( pDatagridAcquiredBackData->m_pObj->m_iPK_Datagrid )
+	{
+		// Iterate through all the cells
+		for(MemoryDataTable::iterator it=pDatagridAcquiredBackData->m_pDataGridTable->m_MemoryDataTable.begin();it!=pDatagridAcquiredBackData->m_pDataGridTable->m_MemoryDataTable.end();++it)
+		{
+			DataGridCell *pCell = it->second;
+			pair<int,int> colRow = DataGridTable::CovertColRowType(it->first);  // Get the column/row for the cell
+			colRow.second -= pDatagridAcquiredBackData->m_pObj->m_GridCurRow;
+
+			// See if there is an object assigned for this column/row
+			map< pair<int,int>, DesignObj_Orbiter *>::iterator itobj = pDatagridAcquiredBackData->m_pObj->m_mapChildDgObjects.find( colRow );
+			if( itobj!=pDatagridAcquiredBackData->m_pObj->m_mapChildDgObjects.end() )
+			{
+				DesignObj_Orbiter *pObj = itobj->second;  // This is the cell's object.
+				DesignObj_DataList::iterator iHao;
+
+				// Iterate through all the object's children
+				for( iHao=pObj->m_ChildObjects.begin(  ); iHao != pObj->m_ChildObjects.end(  ); ++iHao )
+				{
+					//TODO: add here code to render the cell : use UpdateObjectImage
+
+					DesignObj_Orbiter *pDesignObj_Orbiter = (DesignObj_Orbiter *)( *iHao );
+					if( pDesignObj_Orbiter->m_iBaseObjectID==5609 ) //TODO : remove hardcodings
+					{
+						m_pOrbiter->m_pOrbiterRenderer->UpdateObjectImage(pDesignObj_Orbiter->m_ObjectID, "JPG",
+							pCell->m_pGraphicData, pCell->m_GraphicLength, "0");  // Store the icon, which is cell's picture
+					}
+				}
+			}
+		}
+	}
+
+	return false;
 }
 //-----------------------------------------------------------------------------------------------------
 bool ScreenHandler::MediaBrowser_OnTimer(CallBackData *pData)
