@@ -21,6 +21,7 @@
 
 #include <list>
 
+typedef list<int> list_int;
 typedef list<Row_Attribute *> list_Attribute;
 
 class MediaSection
