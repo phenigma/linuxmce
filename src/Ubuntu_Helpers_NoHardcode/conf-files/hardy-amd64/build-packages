@@ -3,6 +3,7 @@ automake
 automake1.9
 build-essential
 ccache
+cvs
 debootstrap
 devscripts
 dh-make
@@ -12,6 +13,7 @@ fakeroot
 fuse-utils
 gnome-applets
 gtk-doc-tools
+ia32-libs
 ivtv-source
 kdelibs4-dev
 libaa1-dev
@@ -29,11 +31,14 @@ libcurl4-openssl-dev
 libdancer-xml0-dev
 libdbus-1-dev
 libdbus-glib-1-dev
+libdevmapper-dev
 libdirectfb-dev
 libdts-dev
 libdvb-dev
 libdvdnav-dev
 libdvdread-dev
+libfaad2-dev
+libfaad-dev
 libflac-dev
 libfuse-dev
 libglade2-dev
@@ -52,9 +57,11 @@ liblame-dev
 liblinphone2-dev
 liblircclient-dev
 libmad0-dev
+libmagick++9-dev
 libmagick9-dev
 libmediastreamer0-dev
 libmodplug-dev
+libmp4v2-dev
 libmpcdec-dev
 libmysqlclient15-dev
 libpanel-applet2-dev
@@ -70,11 +77,15 @@ libsdl-image1.2-dev
 libsdl-sge-dev
 libsdl-ttf2.0-dev
 libsmbclient-dev
+libsqlite3-dev
 libstdc++5
 libsvga1-dev
+libswscale-dev
+libtag1-dev
 libtcltk-ruby
 libtheora-dev
 libtool
+libtwolame-dev
 libupnp-dev
 libusb-dev
 libvte-dev
@@ -95,6 +106,7 @@ module-assistant
 mysql-client
 mysql-server
 nasm
+po4a
 qt3-apps-dev
 qt3-assistant
 qt3-designer
@@ -111,7 +123,9 @@ subversion
 swig
 tcl8.4-dev
 texi2html
+texinfo
 transfig
+uuid-dev
 x11proto-core-dev
 x11proto-record-dev
 x11proto-xext-dev
