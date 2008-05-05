@@ -6121,16 +6121,16 @@ void Media_Plugin::CMD_Get_Default_Ripping_Info(int iEK_Disc,string *sFilename,b
 				{
 					if( pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_CD_CONST )
 					{
-						list_int *listPK_Attribute_Performer = pMediaStream->m_mapPK_Attribute_Find(ATTRIBUTETYPE_Performer_CONST);
-						list_int *listPK_Attribute_Album = pMediaStream->m_mapPK_Attribute_Find(ATTRIBUTETYPE_Album_CONST);
-						int PK_Attribute_Performer = listPK_Attribute_Performer && listPK_Attribute_Performer->size() ? *(listPK_Attribute_Performer->begin()) : 0;
-						int PK_Attribute_Album = listPK_Attribute_Album && listPK_Attribute_Album->size() ? *(listPK_Attribute_Album->begin()) : 0;
+						list_Attribute *listPK_Attribute_Performer = pMediaStream->m_mapPK_Attribute_Find(ATTRIBUTETYPE_Performer_CONST);
+						list_Attribute *listPK_Attribute_Album = pMediaStream->m_mapPK_Attribute_Find(ATTRIBUTETYPE_Album_CONST);
+						Row_Attribute *pRow_Attribute_Performer = listPK_Attribute_Performer && listPK_Attribute_Performer->size() ? *listPK_Attribute_Performer->begin() : NULL;
+						Row_Attribute *pRow_Attribute_Album = listPK_Attribute_Album && listPK_Attribute_Album->size() ? *listPK_Attribute_Album->begin() : NULL;
 
-						*sFilename = FileUtils::ValidFileName(m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetAttributeName(PK_Attribute_Performer));
+						*sFilename = FileUtils::ValidFileName( ( pRow_Attribute_Performer ? pRow_Attribute_Performer->Name_get() : "" ) );
 						if(sFilename->size())
 							*sFilename += "/"; // We got a performer
 
-						*sFilename += FileUtils::ValidFileName(m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetAttributeName(PK_Attribute_Album));
+						*sFilename += FileUtils::ValidFileName( (pRow_Attribute_Album ? pRow_Attribute_Album->Name_get() : "" ) );
 						*sDirectory = "audio";
 					}
 					else if( pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_DVD_CONST )

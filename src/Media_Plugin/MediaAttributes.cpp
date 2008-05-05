@@ -205,17 +205,17 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"MediaAttributes::AddAttributeToSt
 					pMediaFile->m_dequeMediaTitle.push_back(new MediaTitle());
 				MediaTitle *pMediaTitle=pMediaFile->m_dequeMediaTitle[Title_Track-1];
 				if( Section==0 )
-					pMediaTitle->m_mapPK_Attribute[PK_AttributeType].push_back(pRow_Attribute->PK_Attribute_get());
+					pMediaTitle->m_mapPK_Attribute[PK_AttributeType].push_back(pRow_Attribute);
 				else
 				{
 					MediaSection *pMediaSection=m_pMediaAttributes_LowLevel->GetMediaSection(&pMediaTitle->m_dequeMediaSection,Section);
-					pMediaSection->m_mapPK_Attribute[PK_AttributeType].push_back(pRow_Attribute->PK_Attribute_get());
+					pMediaSection->m_mapPK_Attribute[PK_AttributeType].push_back(pRow_Attribute);
 				}
 			}
 			else if( Section==0 )
-				pMediaFile->m_mapPK_Attribute[PK_AttributeType].push_back(pRow_Attribute->PK_Attribute_get());
+				pMediaFile->m_mapPK_Attribute[PK_AttributeType].push_back(pRow_Attribute);
 			else
-				m_pMediaAttributes_LowLevel->GetMediaSection(&pMediaFile->m_dequeMediaSection,Section)->m_mapPK_Attribute[PK_AttributeType].push_back(pRow_Attribute->PK_Attribute_get());
+				m_pMediaAttributes_LowLevel->GetMediaSection(&pMediaFile->m_dequeMediaSection,Section)->m_mapPK_Attribute[PK_AttributeType].push_back(pRow_Attribute);
 		}
 	}
 	else if( Title_Track ) // For DVD's Track is the title
@@ -224,17 +224,17 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"MediaAttributes::AddAttributeToSt
 			pMediaStream->m_dequeMediaTitle.push_back(new MediaTitle());
 		MediaTitle *pMediaTitle=pMediaStream->m_dequeMediaTitle[Title_Track-1];
 		if( Section==0 )
-			pMediaTitle->m_mapPK_Attribute[PK_AttributeType].push_back(pRow_Attribute->PK_Attribute_get());
+			pMediaTitle->m_mapPK_Attribute[PK_AttributeType].push_back(pRow_Attribute);
 		else
 		{
 			MediaSection *pMediaSection=m_pMediaAttributes_LowLevel->GetMediaSection(&pMediaTitle->m_dequeMediaSection,Section);
-			pMediaSection->m_mapPK_Attribute[PK_AttributeType].push_back(pRow_Attribute->PK_Attribute_get());
+			pMediaSection->m_mapPK_Attribute[PK_AttributeType].push_back(pRow_Attribute);
 		}
 	}
 	else if( Section==0 )
-		pMediaStream->m_mapPK_Attribute[PK_AttributeType].push_back(pRow_Attribute->PK_Attribute_get());
+		pMediaStream->m_mapPK_Attribute[PK_AttributeType].push_back(pRow_Attribute);
 	else
-		m_pMediaAttributes_LowLevel->GetMediaSection(&pMediaStream->m_dequeMediaSection,Section)->m_mapPK_Attribute[PK_AttributeType].push_back(pRow_Attribute->PK_Attribute_get());
+		m_pMediaAttributes_LowLevel->GetMediaSection(&pMediaStream->m_dequeMediaSection,Section)->m_mapPK_Attribute[PK_AttributeType].push_back(pRow_Attribute);
 }
 
 void MediaAttributes::LoadStreamAttributes(MediaStream *pMediaStream)

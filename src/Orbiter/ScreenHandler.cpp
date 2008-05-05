@@ -245,24 +245,29 @@ void ScreenHandler::SCREEN_CDTrackCopy(long PK_Screen, int iPK_Users, string sFo
 //-----------------------------------------------------------------------------------------------------
 string MediaFileBrowserOptions::HumanReadable()
 {
-	string sResult = m_pOrbiter->m_mapPK_MediaType_Description[ m_PK_MediaType ] + " : " 
-		+ m_pOrbiter->m_mapPK_AttributeType_Description[ m_PK_AttributeType_Sort ];
-
 	string sFilter;
 	if( m_listMediaFileAttributeDrillDown.size() )
 	{
+		if( sFilter.empty()==false )
+			sFilter += "\n";
+
 		MediaFileAttributeDrillDown *pMediaFileAttributeDrillDown = m_listMediaFileAttributeDrillDown.front();
-		sFilter = pMediaFileAttributeDrillDown->m_sDescription;
+		sFilter = m_pOrbiter->m_mapPK_AttributeType_Description[pMediaFileAttributeDrillDown->m_PK_Attribute_Type] + "=" + pMediaFileAttributeDrillDown->m_sDescription;
 	}
 
 	bool bHide = m_listMediaFileAttributeDrillDown.empty();
-	DesignObj_Orbiter *pObj_Back = m_pOrbiter->FindObject(TOSTRING(DESIGNOBJ_popFileList_CONST) ".0.0." TOSTRING(DESIGNOBJ_butFileBrowserBack_CONST));
+	DesignObj_Orbiter *pObj_Back = NULL;
+	
+	if(m_pOrbiter->m_sSkin == AUDIO_STATION_SKIN)
+		pObj_Back = m_pOrbiter->FindObject(TOSTRING(DESIGNOBJ_mnuMenuAudioServer_CONST) ".0.0." TOSTRING(DESIGNOBJ_butFileBrowserBack_CONST));
+	else
+		pObj_Back = m_pOrbiter->FindObject(TOSTRING(DESIGNOBJ_popFileList_CONST) ".0.0." TOSTRING(DESIGNOBJ_butFileBrowserBack_CONST));
 	if( pObj_Back && pObj_Back->m_bHidden != bHide )
 	{
 		NeedToRender render2( m_pOrbiter, "ScreenHandler::HumanReadable" );
 		m_pOrbiter->CMD_Show_Object( pObj_Back->m_ObjectID,0,"","", bHide ? "0" : "1" );
 	}
-	return sResult + " " + sFilter;
+	return sFilter;
 }
 /*
 //-----------------------------------------------------------------------------------------------------
@@ -392,7 +397,13 @@ void ScreenHandler::SetMediaSortFilterSelectedObjects()
 //-----------------------------------------------------------------------------------------------------
 bool ScreenHandler::MediaBrowser_Render(CallBackData *pData)
 {
-	DesignObj_Orbiter *pObj = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_popFileList_CONST) ".0.0." TOSTRING(DESIGNOBJ_objFileBrowserHeader_CONST) );
+	DesignObj_Orbiter *pObj = NULL;
+	
+	if(m_pOrbiter->m_sSkin == AUDIO_STATION_SKIN)
+		pObj = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_mnuMenuAudioServer_CONST) ".0.0." TOSTRING(DESIGNOBJ_objAudioServerFileBrows_CONST) );
+	else
+		pObj = m_pOrbiter->FindObject( TOSTRING(DESIGNOBJ_popFileList_CONST) ".0.0." TOSTRING(DESIGNOBJ_objFileBrowserHeader_CONST) );
+
 	if( pObj && pObj->m_vectDesignObjText.size() )
 	{
 		DesignObjText *pText = pObj->m_vectDesignObjText[0];
@@ -707,9 +718,28 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::MediaBrowser_Objec
 			mediaFileBrowserOptions.m_PK_AttributeType_Sort = ATTRIBUTETYPE_ComposerWriter_CONST;
 			bChangedSortFilter = true;
 		}
-		else if(pObjectInfoData->m_PK_DesignObj_SelectedObject == 5564)
+		else if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butSortByGenre_CONST)
 		{
 			mediaFileBrowserOptions.m_PK_AttributeType_Sort = ATTRIBUTETYPE_Genre_CONST;
+			bChangedSortFilter = true;
+		}
+		else if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butSortBySong_CONST)
+		{
+			mediaFileBrowserOptions.m_PK_AttributeType_Sort = ATTRIBUTETYPE_Title_CONST;
+			bChangedSortFilter = true;
+		}
+		else if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butViewList_CONST)
+		{
+			mediaFileBrowserOptions.m_eStyle = omgs_BrowserStyle_List;
+			m_pOrbiter->CMD_Show_Object( TOSTRING(DESIGNOBJ_mnuMenuAudioServer_CONST) ".0.0." TOSTRING(DESIGNOBJ_dgFileList2_Pics_CONST),0,"","","0");
+			m_pOrbiter->CMD_Show_Object( TOSTRING(DESIGNOBJ_mnuMenuAudioServer_CONST) ".0.0." TOSTRING(5604),0,"","","1");
+			bChangedSortFilter = true;
+		}
+		else if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butViewIcons_CONST)
+		{
+			mediaFileBrowserOptions.m_eStyle = omgs_BrowserStyle_Icon;
+			m_pOrbiter->CMD_Show_Object( TOSTRING(DESIGNOBJ_mnuMenuAudioServer_CONST) ".0.0." TOSTRING(DESIGNOBJ_dgFileList2_Pics_CONST),0,"","","1");
+			m_pOrbiter->CMD_Show_Object( TOSTRING(DESIGNOBJ_mnuMenuAudioServer_CONST) ".0.0." TOSTRING(5604),0,"","","0");
 			bChangedSortFilter = true;
 		}
 
@@ -797,7 +827,7 @@ bool ScreenHandler::MediaBrowser_DatagridSelected(CallBackData *pData)
 			}
 		}
 
-		if(m_pOrbiter->m_sSkin == AUDIO_STATION_SKIN)
+		if(m_pOrbiter->m_sSkin == AUDIO_STATION_SKIN && pCell_List==NULL)
 		{
 			pCell_List = pCell_Pic;
 		}
@@ -869,7 +899,7 @@ bool ScreenHandler::MediaBrowser_DatagridSelected(CallBackData *pData)
 		else if( StringUtils::StartsWith(pCellInfoData->m_sValue,"!A") )
 			pCellInfoData->m_sValue = pCellInfoData->m_sValue.substr(2);
 
-		MediaFileAttributeDrillDown *pMediaFileAttributeDrillDown = new MediaFileAttributeDrillDown(atoi(pCellInfoData->m_sValue.c_str()),pCellInfoData->m_sText,0);
+		MediaFileAttributeDrillDown *pMediaFileAttributeDrillDown = new MediaFileAttributeDrillDown(atoi(pCellInfoData->m_sValue.c_str()),mediaFileBrowserOptions.m_PK_AttributeType_Sort,pCellInfoData->m_sText,0);
 		mediaFileBrowserOptions.m_listPK_AttributeType_Sort_Prior.push_front(mediaFileBrowserOptions.m_PK_AttributeType_Sort);
 		mediaFileBrowserOptions.m_listMediaFileAttributeDrillDown.push_front( pMediaFileAttributeDrillDown );
 		// Reset the sort type back to the title when the user is doing a keyword search
@@ -1023,7 +1053,7 @@ void ScreenHandler::SelectedAttributeCell(DataGridCell *pCell)
 		sName = pCell->m_Text;
 
 	MediaFileAttributeDrillDown *pMediaFileAttributeDrillDown = new MediaFileAttributeDrillDown(
-		atoi(&pCell->m_Value[2]),sName,
+		atoi(&pCell->m_Value[2]),mediaFileBrowserOptions.m_PK_AttributeType_Sort,sName,
 		mediaFileBrowserOptions.m_pObj_ListGrid ? mediaFileBrowserOptions.m_pObj_ListGrid->m_GridCurRow : 0);
 	mediaFileBrowserOptions.m_listMediaFileAttributeDrillDown.push_front(pMediaFileAttributeDrillDown );
 
@@ -1826,15 +1856,32 @@ bool ScreenHandler::MediaBrowser_OnTimer(CallBackData *pData)
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::AudioServer_PopulateDatagrid()
 {
-	DesignObj_DataGrid *pObj = (DesignObj_DataGrid *)m_pOrbiter->FindObject(TOSTRING(DESIGNOBJ_mnuMenuAudioServer_CONST) ".0.0." TOSTRING(DESIGNOBJ_dgFileList2_Pics_CONST));
+	DesignObj_DataGrid *pObj;
+	
+	if( mediaFileBrowserOptions.m_eStyle == omgs_BrowserStyle_Icon )
+		pObj = (DesignObj_DataGrid *)m_pOrbiter->FindObject(TOSTRING(DESIGNOBJ_mnuMenuAudioServer_CONST) ".0.0." TOSTRING(DESIGNOBJ_dgFileList2_Pics_CONST));
+	else
+		pObj = (DesignObj_DataGrid *)m_pOrbiter->FindObject(TOSTRING(DESIGNOBJ_mnuMenuAudioServer_CONST) ".0.0." TOSTRING(5604));
 
 	if(m_pOrbiter->m_sSkin == AUDIO_STATION_SKIN && NULL != pObj)
 	{
+		m_pOrbiter->CMD_Set_Graphic_To_Display( TOSTRING(DESIGNOBJ_mnuMenuAudioServer_CONST) ".0.0." TOSTRING(DESIGNOBJ_butSortByAlbum_CONST), mediaFileBrowserOptions.m_PK_AttributeType_Sort==ATTRIBUTETYPE_Album_CONST ?  "-1" : "0" );
+		m_pOrbiter->CMD_Set_Graphic_To_Display( TOSTRING(DESIGNOBJ_mnuMenuAudioServer_CONST) ".0.0." TOSTRING(DESIGNOBJ_butSortByPerformer_CONST), mediaFileBrowserOptions.m_PK_AttributeType_Sort==ATTRIBUTETYPE_Performer_CONST ?  "-1" : "0" );
+		m_pOrbiter->CMD_Set_Graphic_To_Display( TOSTRING(DESIGNOBJ_mnuMenuAudioServer_CONST) ".0.0." TOSTRING(DESIGNOBJ_butSortByComposer_CONST), mediaFileBrowserOptions.m_PK_AttributeType_Sort==ATTRIBUTETYPE_ComposerWriter_CONST ?  "-1" : "0" );
+		m_pOrbiter->CMD_Set_Graphic_To_Display( TOSTRING(DESIGNOBJ_mnuMenuAudioServer_CONST) ".0.0." TOSTRING(DESIGNOBJ_butSortByGenre_CONST), mediaFileBrowserOptions.m_PK_AttributeType_Sort==ATTRIBUTETYPE_Genre_CONST ?  "-1" : "0" );
+		m_pOrbiter->CMD_Set_Graphic_To_Display( TOSTRING(DESIGNOBJ_mnuMenuAudioServer_CONST) ".0.0." TOSTRING(DESIGNOBJ_butSortBySong_CONST), mediaFileBrowserOptions.m_PK_AttributeType_Sort==ATTRIBUTETYPE_Title_CONST ?  "-1" : "0" );
+
+		m_pOrbiter->CMD_Set_Graphic_To_Display( TOSTRING(DESIGNOBJ_mnuMenuAudioServer_CONST) ".0.0." TOSTRING(DESIGNOBJ_butViewList_CONST), mediaFileBrowserOptions.m_eStyle == omgs_BrowserStyle_List ?  "-1" : "0" );
+		m_pOrbiter->CMD_Set_Graphic_To_Display( TOSTRING(DESIGNOBJ_mnuMenuAudioServer_CONST) ".0.0." TOSTRING(DESIGNOBJ_butViewIcons_CONST), mediaFileBrowserOptions.m_eStyle == omgs_BrowserStyle_Icon ?  "-1" : "0" );
+
 		bool bResponse;
 		int iPK_Variable=0;
 		string sValue_To_Assign;
 		string sParams = m_pOrbiter->SubstituteVariables("<%=FBO%>", pObj, 0, 0 );
 		string sGridID = m_pOrbiter->SubstituteVariables("MediaFile_<%=!%>", pObj, 0, 0 );
+
+		pObj->m_iPopulatedWidth=pObj->m_MaxCol;  // Pass in the grid's on screen width/height -- we'll get back the total populated size
+		pObj->m_iPopulatedHeight=pObj->m_MaxRow;
 
 		int PK_DeviceTemplate = pObj->m_iPK_DeviceTemplate;
 		DCE::CMD_Populate_Datagrid CMD_Populate_Datagrid(
@@ -1847,9 +1894,6 @@ void ScreenHandler::AudioServer_PopulateDatagrid()
 
 		if(!m_pOrbiter->SendCommand( CMD_Populate_Datagrid) || !bResponse) // wait for a response
 			LoggerWrapper::GetInstance()->Write( LV_WARNING, "Populate datagrid: %d failed", pObj->m_iPK_Datagrid);
-
-		m_pOrbiter->CMD_Show_Object(TOSTRING(DESIGNOBJ_mnuMenuAudioServer_CONST) ".0.0." TOSTRING(DESIGNOBJ_butFileBrowserBack_CONST), 0, "", "", 
-			mediaFileBrowserOptions.m_listMediaFileAttributeDrillDown.empty() ? "0" : "1"); 
 	}
 }
 //-----------------------------------------------------------------------------------------------------

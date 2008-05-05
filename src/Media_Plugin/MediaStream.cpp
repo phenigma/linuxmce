@@ -362,41 +362,41 @@ void MediaStream::UpdateDescriptions(bool bAllFiles,MediaFile *pMediaFile_In)
 		{
 			if( !pRow_Attribute_Performer )
 			{
-				list_int *listPK_Attribute = pMediaFile->m_mapPK_Attribute_Find(ATTRIBUTETYPE_Performer_CONST);
+				list_Attribute *listPK_Attribute = pMediaFile->m_mapPK_Attribute_Find(ATTRIBUTETYPE_Performer_CONST);
 				if( listPK_Attribute && listPK_Attribute->size() )
-					pRow_Attribute_Performer = pMedia_Plugin->m_pDatabase_pluto_media->Attribute_get()->GetRow(*(listPK_Attribute->begin()));
+					pRow_Attribute_Performer = *listPK_Attribute->begin();
 			}
 			if( !pRow_Attribute_Album )
 			{
-				list_int *listPK_Attribute = pMediaFile->m_mapPK_Attribute_Find(ATTRIBUTETYPE_Album_CONST);
+				list_Attribute *listPK_Attribute = pMediaFile->m_mapPK_Attribute_Find(ATTRIBUTETYPE_Album_CONST);
 				if( listPK_Attribute && listPK_Attribute->size() )
-					pRow_Attribute_Album = pMedia_Plugin->m_pDatabase_pluto_media->Attribute_get()->GetRow(*(listPK_Attribute->begin()));
+					pRow_Attribute_Album = *listPK_Attribute->begin();
 			}
 			if( !pRow_Attribute_Title )
 			{
-				list_int *listPK_Attribute = pMediaFile->m_mapPK_Attribute_Find(ATTRIBUTETYPE_Title_CONST);
+				list_Attribute *listPK_Attribute = pMediaFile->m_mapPK_Attribute_Find(ATTRIBUTETYPE_Title_CONST);
 				if( listPK_Attribute && listPK_Attribute->size() )
-					pRow_Attribute_Title = pMedia_Plugin->m_pDatabase_pluto_media->Attribute_get()->GetRow(*(listPK_Attribute->begin()));
+					pRow_Attribute_Title = *listPK_Attribute->begin();
 			}
 		}
 
 		if( !pRow_Attribute_Performer )
 		{
-			list_int *listPK_Attribute = m_mapPK_Attribute_Find(ATTRIBUTETYPE_Performer_CONST);
+			list_Attribute *listPK_Attribute = m_mapPK_Attribute_Find(ATTRIBUTETYPE_Performer_CONST);
 			if( listPK_Attribute && listPK_Attribute->size() )
-				pRow_Attribute_Performer = pMedia_Plugin->m_pDatabase_pluto_media->Attribute_get()->GetRow(*(listPK_Attribute->begin()));
+				pRow_Attribute_Performer = *listPK_Attribute->begin();
 		}
 		if( !pRow_Attribute_Album )
 		{
-			list_int *listPK_Attribute = m_mapPK_Attribute_Find(ATTRIBUTETYPE_Album_CONST);
+			list_Attribute *listPK_Attribute = m_mapPK_Attribute_Find(ATTRIBUTETYPE_Album_CONST);
 			if( listPK_Attribute && listPK_Attribute->size() )
-				pRow_Attribute_Album = pMedia_Plugin->m_pDatabase_pluto_media->Attribute_get()->GetRow(*(listPK_Attribute->begin()));
+				pRow_Attribute_Album = *listPK_Attribute->begin();
 		}
 		if( !pRow_Attribute_Title )
 		{
-			list_int *listPK_Attribute = m_mapPK_Attribute_Find(ATTRIBUTETYPE_Title_CONST);
+			list_Attribute *listPK_Attribute = m_mapPK_Attribute_Find(ATTRIBUTETYPE_Title_CONST);
 			if( listPK_Attribute && listPK_Attribute->size() )
-				pRow_Attribute_Title = pMedia_Plugin->m_pDatabase_pluto_media->Attribute_get()->GetRow(*(listPK_Attribute->begin()));
+				pRow_Attribute_Title = *listPK_Attribute->begin();
 		}
 
 		if( (pRow_Attribute_Performer || pRow_Attribute_Album) && m_iPK_MediaType!=MEDIATYPE_pluto_StoredVideo_CONST )
@@ -451,21 +451,21 @@ void MediaStream::UpdateDescriptions(bool bAllFiles,MediaFile *pMediaFile_In)
 
 		if( !pRow_Attribute_Title && pMediaTitle )
 		{
-			list_int *listPK_Attribute = pMediaTitle->m_mapPK_Attribute_Find(ATTRIBUTETYPE_Title_CONST);
+			list_Attribute *listPK_Attribute = pMediaTitle->m_mapPK_Attribute_Find(ATTRIBUTETYPE_Title_CONST);
 			if( listPK_Attribute && listPK_Attribute->size() )
-				pRow_Attribute_Title = pMedia_Plugin->m_pDatabase_pluto_media->Attribute_get()->GetRow(*(listPK_Attribute->begin()));
+				pRow_Attribute_Title = *listPK_Attribute->begin();
 		}
 		if( !pRow_Attribute_Title )
 		{
-			list_int *listPK_Attribute = m_mapPK_Attribute_Find(ATTRIBUTETYPE_Title_CONST);
+			list_Attribute *listPK_Attribute = m_mapPK_Attribute_Find(ATTRIBUTETYPE_Title_CONST);
 			if( listPK_Attribute && listPK_Attribute->size() )
-				pRow_Attribute_Title = pMedia_Plugin->m_pDatabase_pluto_media->Attribute_get()->GetRow(*(listPK_Attribute->begin()));
+				pRow_Attribute_Title = *listPK_Attribute->begin();
 		}
 		if( !pRow_Attribute_Chapter )
 		{
-			list_int *listPK_Attribute = m_mapPK_Attribute_Find(ATTRIBUTETYPE_Chapter_CONST);
+			list_Attribute *listPK_Attribute = m_mapPK_Attribute_Find(ATTRIBUTETYPE_Chapter_CONST);
 			if( listPK_Attribute && listPK_Attribute->size() )
-				pRow_Attribute_Chapter = pMedia_Plugin->m_pDatabase_pluto_media->Attribute_get()->GetRow(*(listPK_Attribute->begin()));
+				pRow_Attribute_Chapter = *listPK_Attribute->begin();
 		}
 
 		if( pRow_Attribute_Title )
@@ -674,11 +674,12 @@ void MediaStream::LoadDefaultAvSettings(deque<MediaTitle *> &dequeMediaTitle,map
 	}
 }
 
-void MediaStream::MergeAttributes(map<int,int> &mapAttributes,map< int,list_int > &mapPK_Attribute)
+void MediaStream::MergeAttributes(map<int,int> &mapAttributes,map< int,list_Attribute > &mapPK_Attribute)
 {
-	for(map< int,list_int >::iterator itMA=mapPK_Attribute.begin();itMA!=mapPK_Attribute.end();++itMA)
+	/*  What did this code block do??  It just had hardcoded values of 10, 30 and 20
+	for(map< int,list_Attribute >::iterator itMA=mapPK_Attribute.begin();itMA!=mapPK_Attribute.end();++itMA)
 	{
-		for(list_int::iterator itLI=itMA->second.begin();itLI!=itMA->second.end();++itLI)
+		for(list_Attribute::iterator itLI=itMA->second.begin();itLI!=itMA->second.end();++itLI)
 		{
 			if( itMA->first==ATTRIBUTETYPE_Title_CONST || itMA->first==ATTRIBUTETYPE_Album_CONST )
 				mapAttributes[*itLI]=10;
@@ -688,6 +689,7 @@ void MediaStream::MergeAttributes(map<int,int> &mapAttributes,map< int,list_int 
 				mapAttributes[*itLI]=20;
 		}
 	}
+	*/
 }
 
 string MediaStream::GetTargets(int PK_DeviceTemplate)

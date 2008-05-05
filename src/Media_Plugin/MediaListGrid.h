@@ -20,6 +20,8 @@
 #define MediaListGrid_H
 
 #include "DataGrid.h"
+#include "../Orbiter/OrbiterGrid.h"
+
 namespace DCE
 {
 	class Media_Plugin;
@@ -153,9 +155,10 @@ public:
 class MediaListGrid : public DataGridTable
 {
 public:
+	OrbiterMediaGridStyle m_omgsStyle;
 	FileBrowserInfoPtr *m_pFileBrowserInfoPtr;  // This will be the same as m_listFileBrowserInfo, but in an array for faster retrieval by row number
 
-	MediaListGrid(class Datagrid_Plugin *pDatagrid_Plugin,class Media_Plugin *pMedia_Plugin,int PK_MediaType) : m_pDatagrid_Plugin(pDatagrid_Plugin), m_pMedia_Plugin(pMedia_Plugin) { m_pFileBrowserInfoPtr=NULL; m_pMediaListGrid_Master=NULL; m_iPK_MediaType=PK_MediaType; }
+	MediaListGrid(class Datagrid_Plugin *pDatagrid_Plugin,class Media_Plugin *pMedia_Plugin,int PK_MediaType,OrbiterMediaGridStyle omgsStyle) : m_pDatagrid_Plugin(pDatagrid_Plugin), m_pMedia_Plugin(pMedia_Plugin) { m_pFileBrowserInfoPtr=NULL; m_pMediaListGrid_Master=NULL; m_iPK_MediaType=PK_MediaType; m_omgsStyle=omgsStyle; }
 	MediaListGrid(class Datagrid_Plugin *pDatagrid_Plugin,class Media_Plugin *pMedia_Plugin,MediaListGrid *pMediaListGrid) : m_pDatagrid_Plugin(pDatagrid_Plugin), m_pMedia_Plugin(pMedia_Plugin), m_pMediaListGrid_Master(pMediaListGrid) { m_pFileBrowserInfoPtr=NULL; m_iPK_MediaType=m_pMediaListGrid_Master->m_iPK_MediaType; }
 	~MediaListGrid()
 	{
