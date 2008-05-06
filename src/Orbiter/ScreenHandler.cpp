@@ -2955,14 +2955,14 @@ bool ScreenHandler::Thumbnail_DatagridSelected(CallBackData *pData)
 	return true; // We did a goto screen
 }
 
-void ScreenHandler::SCREEN_Drive_Overview(long PK_Screen)
+void ScreenHandler::SCREEN_Manage_Drives(long PK_Screen)
 {
-	ScreenHandlerBase::SCREEN_Drive_Overview(PK_Screen);
-	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::DriveOverview_ObjectSelected,	new ObjectInfoBackData());
-	RegisterCallBack(cbDataGridRendering, (ScreenHandlerCallBack) &ScreenHandler::DriveOverview_GridRendering,	new DatagridAcquiredBackData());
+	ScreenHandlerBase::SCREEN_Manage_Drives(PK_Screen);
+	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::ManageDrives_ObjectSelected,	new ObjectInfoBackData());
+	RegisterCallBack(cbDataGridRendering, (ScreenHandlerCallBack) &ScreenHandler::ManageDrives_GridRendering,	new DatagridAcquiredBackData());
 }
 
-bool ScreenHandler::DriveOverview_ObjectSelected(CallBackData *pData)
+bool ScreenHandler::ManageDrives_ObjectSelected(CallBackData *pData)
 {
 	ObjectInfoBackData *pObjectInfoData = (ObjectInfoBackData *)pData;
 	if( (pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_icoRip_CONST || 
@@ -3051,7 +3051,7 @@ bool ScreenHandler::DriveOverview_ObjectSelected(CallBackData *pData)
 }
 
 //-----------------------------------------------------------------------------------------------------
-bool ScreenHandler::DriveOverview_GridRendering(CallBackData *pData)
+bool ScreenHandler::ManageDrives_GridRendering(CallBackData *pData)
 {
 	DatagridAcquiredBackData *pDatagridAcquiredBackData = (DatagridAcquiredBackData *) pData;  // Call back data containing relevant values for the grid/table being rendered
 
