@@ -12922,10 +12922,10 @@ namespace DCE
 		}
 	};
 
-	class SCREEN_Drive_Overview : public PreformedCommand
+	class SCREEN_Manage_Drives : public PreformedCommand
 	{
 	public:
-		SCREEN_Drive_Overview(long DeviceIDFrom, long DeviceIDTo,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+		SCREEN_Manage_Drives(long DeviceIDFrom, long DeviceIDTo,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
 		{
 			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
 				COMMANDPARAMETER_PK_Screen_CONST, "259" /* screen ID */
@@ -12935,10 +12935,10 @@ namespace DCE
 		}
 	};
 
-	class SCREEN_Drive_Overview_DL : public PreformedCommand
+	class SCREEN_Manage_Drives_DL : public PreformedCommand
 	{
 	public:
-		SCREEN_Drive_Overview_DL(long DeviceIDFrom, string sDeviceIDTo,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+		SCREEN_Manage_Drives_DL(long DeviceIDFrom, string sDeviceIDTo,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
 		{
 			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
 				COMMANDPARAMETER_PK_Screen_CONST, "259" /* screen ID */
@@ -12948,10 +12948,10 @@ namespace DCE
 		}
 	};
 
-	class SCREEN_Drive_Overview_DT : public PreformedCommand
+	class SCREEN_Manage_Drives_DT : public PreformedCommand
 	{
 	public:
-		SCREEN_Drive_Overview_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+		SCREEN_Manage_Drives_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
 		{
 			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
 				COMMANDPARAMETER_PK_Screen_CONST, "259" /* screen ID */
@@ -12961,10 +12961,10 @@ namespace DCE
 		}
 	};
 
-	class SCREEN_Drive_Overview_Cat : public PreformedCommand
+	class SCREEN_Manage_Drives_Cat : public PreformedCommand
 	{
 	public:
-		SCREEN_Drive_Overview_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+		SCREEN_Manage_Drives_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
 		{
 			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
 				COMMANDPARAMETER_PK_Screen_CONST, "259" /* screen ID */
@@ -14234,63 +14234,159 @@ PK_DeviceData .... */, sOptions.c_str(), 224 /* PK_PnpQueue */, StringUtils::lto
 		}
 	};
 
-	class SCREEN_Cannot_Reload_Router : public PreformedCommand
+	class SCREEN_Rip_Options : public PreformedCommand
 	{
 	public:
-		SCREEN_Cannot_Reload_Router(long DeviceIDFrom, long DeviceIDTo,
-			string sDescription,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+		SCREEN_Rip_Options(long DeviceIDFrom, long DeviceIDTo,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
 		{
-			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 5, 
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
 				COMMANDPARAMETER_PK_Screen_CONST, "283" /* screen ID */
 				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
 				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
-				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */,
-				163 /* Description */, sDescription.c_str());
+				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */);
 		}
 	};
 
-	class SCREEN_Cannot_Reload_Router_DL : public PreformedCommand
+	class SCREEN_Rip_Options_DL : public PreformedCommand
 	{
 	public:
-		SCREEN_Cannot_Reload_Router_DL(long DeviceIDFrom, string sDeviceIDTo,
-			string sDescription,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+		SCREEN_Rip_Options_DL(long DeviceIDFrom, string sDeviceIDTo,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
 		{
-			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 5, 
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
 				COMMANDPARAMETER_PK_Screen_CONST, "283" /* screen ID */
 				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
 				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
-				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */,
-				163 /* Description */, sDescription.c_str());
+				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */);
 		}
 	};
 
-	class SCREEN_Cannot_Reload_Router_DT : public PreformedCommand
+	class SCREEN_Rip_Options_DT : public PreformedCommand
 	{
 	public:
-		SCREEN_Cannot_Reload_Router_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,
-			string sDescription,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+		SCREEN_Rip_Options_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
 		{
-			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 5, 
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
 				COMMANDPARAMETER_PK_Screen_CONST, "283" /* screen ID */
 				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
 				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
-				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */,
-				163 /* Description */, sDescription.c_str());
+				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */);
 		}
 	};
 
-	class SCREEN_Cannot_Reload_Router_Cat : public PreformedCommand
+	class SCREEN_Rip_Options_Cat : public PreformedCommand
 	{
 	public:
-		SCREEN_Cannot_Reload_Router_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,
-			string sDescription,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+		SCREEN_Rip_Options_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
 		{
-			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 5, 
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
 				COMMANDPARAMETER_PK_Screen_CONST, "283" /* screen ID */
 				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
 				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
-				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */,
-				163 /* Description */, sDescription.c_str());
+				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */);
+		}
+	};
+
+	class SCREEN_Rip_format_options : public PreformedCommand
+	{
+	public:
+		SCREEN_Rip_format_options(long DeviceIDFrom, long DeviceIDTo,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
+				COMMANDPARAMETER_PK_Screen_CONST, "284" /* screen ID */
+				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
+				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
+				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */);
+		}
+	};
+
+	class SCREEN_Rip_format_options_DL : public PreformedCommand
+	{
+	public:
+		SCREEN_Rip_format_options_DL(long DeviceIDFrom, string sDeviceIDTo,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+		{
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
+				COMMANDPARAMETER_PK_Screen_CONST, "284" /* screen ID */
+				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
+				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
+				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */);
+		}
+	};
+
+	class SCREEN_Rip_format_options_DT : public PreformedCommand
+	{
+	public:
+		SCREEN_Rip_format_options_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+		{
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
+				COMMANDPARAMETER_PK_Screen_CONST, "284" /* screen ID */
+				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
+				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
+				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */);
+		}
+	};
+
+	class SCREEN_Rip_format_options_Cat : public PreformedCommand
+	{
+	public:
+		SCREEN_Rip_format_options_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
+				COMMANDPARAMETER_PK_Screen_CONST, "284" /* screen ID */
+				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
+				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
+				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */);
+		}
+	};
+
+	class SCREEN_Privacy_options_for_rip : public PreformedCommand
+	{
+	public:
+		SCREEN_Privacy_options_for_rip(long DeviceIDFrom, long DeviceIDTo,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
+				COMMANDPARAMETER_PK_Screen_CONST, "285" /* screen ID */
+				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
+				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
+				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */);
+		}
+	};
+
+	class SCREEN_Privacy_options_for_rip_DL : public PreformedCommand
+	{
+	public:
+		SCREEN_Privacy_options_for_rip_DL(long DeviceIDFrom, string sDeviceIDTo,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+		{
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
+				COMMANDPARAMETER_PK_Screen_CONST, "285" /* screen ID */
+				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
+				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
+				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */);
+		}
+	};
+
+	class SCREEN_Privacy_options_for_rip_DT : public PreformedCommand
+	{
+	public:
+		SCREEN_Privacy_options_for_rip_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+		{
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
+				COMMANDPARAMETER_PK_Screen_CONST, "285" /* screen ID */
+				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
+				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
+				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */);
+		}
+	};
+
+	class SCREEN_Privacy_options_for_rip_Cat : public PreformedCommand
+	{
+	public:
+		SCREEN_Privacy_options_for_rip_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,eInterruption _eInterruption=interuptAlways,bool bTurnOnMonitor=false,bool bQueueIfIgnored=false)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 4, 
+				COMMANDPARAMETER_PK_Screen_CONST, "285" /* screen ID */
+				,COMMANDPARAMETER_Turn_On_CONST, bTurnOnMonitor ? "1" : "0" /* turn on monitor */
+				,COMMANDPARAMETER_Interruption_CONST, StringUtils::itos(_eInterruption).c_str() /* interruption */
+				,COMMANDPARAMETER_Queue_CONST, bQueueIfIgnored ? "1" : "0" /* queue the message if it's ignored */);
 		}
 	};
 
@@ -14561,7 +14657,7 @@ PK_DeviceData .... */, sOptions.c_str(), 224 /* PK_PnpQueue */, StringUtils::lto
 		virtual void SCREEN_Legacy_AV_Speed_Control(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Thumbnail(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Scanning_Progress(long PK_Screen){ GotoScreen(PK_Screen); }
-		virtual void SCREEN_Drive_Overview(long PK_Screen){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_Manage_Drives(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Jukebox_Manager(long PK_Screen, int iPK_Device){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_NAS_Manager(long PK_Screen, int iPK_Device){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_AutoConfigure_TV(long PK_Screen, int iPK_PnpQueue){ GotoScreen(PK_Screen); }
@@ -14585,7 +14681,9 @@ PK_DeviceData .... */, sOptions.c_str(), 224 /* PK_PnpQueue */, StringUtils::lto
 		virtual void SCREEN_aJAd(long PK_Screen, string sFilename, string sURL){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Non_Pluto_TV_Full_screen(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Non_Pluto_TV_Full_screen_options(long PK_Screen){ GotoScreen(PK_Screen); }
-		virtual void SCREEN_Cannot_Reload_Router(long PK_Screen, string sDescription){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_Rip_Options(long PK_Screen){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_Rip_format_options(long PK_Screen){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_Privacy_options_for_rip(long PK_Screen){ GotoScreen(PK_Screen); }
 
 		virtual void ReceivedGotoScreenMessage(int nPK_Screen, Message *pMessage)
 		{
@@ -16126,7 +16224,7 @@ PK_DeviceData .... */, sOptions.c_str(), 224 /* PK_PnpQueue */, StringUtils::lto
 				case 259:
 				{
 					ResetCallBacks();
-					SCREEN_Drive_Overview(nPK_Screen);
+					SCREEN_Manage_Drives(nPK_Screen);
 					break;
 				}
 				case 260:
@@ -16280,8 +16378,19 @@ PK_DeviceData .... */, sOptions.c_str(), 224 /* PK_PnpQueue */, StringUtils::lto
 				case 283:
 				{
 					ResetCallBacks();
-					string sDescription = pMessage->m_mapParameters[163];
-					SCREEN_Cannot_Reload_Router(nPK_Screen, sDescription);
+					SCREEN_Rip_Options(nPK_Screen);
+					break;
+				}
+				case 284:
+				{
+					ResetCallBacks();
+					SCREEN_Rip_format_options(nPK_Screen);
+					break;
+				}
+				case 285:
+				{
+					ResetCallBacks();
+					SCREEN_Privacy_options_for_rip(nPK_Screen);
 					break;
 				}
 
