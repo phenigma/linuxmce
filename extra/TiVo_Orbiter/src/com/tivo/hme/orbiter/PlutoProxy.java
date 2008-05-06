@@ -44,15 +44,17 @@ public class PlutoProxy
 	private final static int COMMANDPARAMETER_Parameters_CONST = 202;
 	private final static int COMMANDPARAMETER_PK_Button_CONST = 26;
 	
-	private int m_nDeviceID = 0;
+	private int m_nPVRDeviceID = 0;
+	private int m_nOrbiterDeviceID = 0;
 	
 	private Communication m_comm = null;
 	
-	public PlutoProxy(MessageProcessor pMessageProcessor, String sIPAddress, int nPort, int nDeviceID)
+	public PlutoProxy(MessageProcessor pMessageProcessor, String sIPAddress, int nPort, int nPVRDeviceID, int nOrbiterDeviceID)
 	{
-		m_comm = new Communication(pMessageProcessor, sIPAddress, nPort, nDeviceID);
+		m_comm = new Communication(pMessageProcessor, sIPAddress, nPort, nPVRDeviceID);
 		
-		m_nDeviceID = nDeviceID;
+		m_nPVRDeviceID = nPVRDeviceID;
+		m_nOrbiterDeviceID = nOrbiterDeviceID;
 		
 		if(!m_comm.Connect())
 			System.out.println("Failed to connect to router:" + sIPAddress);
@@ -68,7 +70,7 @@ public class PlutoProxy
 		if(m_comm.IsConnected())
 		{
 			Message message = new Message(
-				  m_nDeviceID,  //from 
+				  m_nPVRDeviceID,  //from 
 				  DEVICETEMPLATE_XML_Data_Handler_Plugin_CONST, //to template
 				  Message.MessagePriority.PRIORITY_NORMAL, 
 				  Message.MessageType.MESSAGETYPE_COMMAND, 
@@ -101,7 +103,7 @@ public class PlutoProxy
 		if(m_comm.IsConnected())
 		{
 			Message message = new Message(
-				  m_nDeviceID,  //from 
+				  m_nOrbiterDeviceID,  //from 
 				  VIRTUALDEVICE_DCEROUTER_CONST, //to
 				  Message.MessagePriority.PRIORITY_NORMAL, 
 				  Message.MessageType.MESSAGETYPE_EXEC_COMMAND_GROUP, 
@@ -119,7 +121,7 @@ public class PlutoProxy
 		if(m_comm.IsConnected())
 		{
 			Message message = new Message(
-				  m_nDeviceID,  //from 
+				  m_nPVRDeviceID,  //from 
 				  DEVICETEMPLATE_Moxi_Orbiter_CONST, 
 				  Message.MessagePriority.PRIORITY_NORMAL, 
 				  Message.MessageType.MESSAGETYPE_COMMAND, 

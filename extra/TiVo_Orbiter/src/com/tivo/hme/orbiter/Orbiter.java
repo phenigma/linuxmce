@@ -66,7 +66,8 @@ public class Orbiter extends BApplication implements MessageProcessor
         super.init(context);
         
         String sIPAddress = "localhost";
-        String sDeviceID = "0";
+        String sPVRDeviceID = "0";
+        String sOrbiterDeviceID = "0";
         
         //read configuration
 		try 
@@ -75,10 +76,12 @@ public class Orbiter extends BApplication implements MessageProcessor
 			p.load(new FileInputStream("orbiter_tivo.ini"));
 			
 			sIPAddress = p.getProperty("IPAddress");
-			sDeviceID = p.getProperty("DeviceID");
+			sPVRDeviceID = p.getProperty("PVRDeviceID");
+			sOrbiterDeviceID = p.getProperty("OrbiterDeviceID");
 			
 			System.out.println("IPAddress = " + sIPAddress);
-			System.out.println("DeviceID = " + sDeviceID);
+			System.out.println("PVRDeviceID = " + sPVRDeviceID);
+			System.out.println("OrbiterDeviceID = " + sOrbiterDeviceID);
 			p.list(System.out);
 		} 
 		catch (Exception e) 
@@ -87,7 +90,7 @@ public class Orbiter extends BApplication implements MessageProcessor
 		}         
         
 		Scenarios scenarios = new Scenarios();        
-		PlutoProxy proxy = new PlutoProxy(this, sIPAddress, 3450, Integer.parseInt(sDeviceID));
+		PlutoProxy proxy = new PlutoProxy(this, sIPAddress, 3450, Integer.parseInt(sPVRDeviceID), Integer.parseInt(sOrbiterDeviceID));
 		String sXML = proxy.GetScenarios();
 		if(null != sXML)
 		{
@@ -129,7 +132,8 @@ public class Orbiter extends BApplication implements MessageProcessor
 			return;
 		}
 		
-		System.out.println("Processing message from router: " + message.Data());
+		//System.out.println("Processing message from router: " + message.Data());
+		System.out.println("Processing message from router with id " + message.MessageID());
 		
 		switch(message.MessageID())
 		{
