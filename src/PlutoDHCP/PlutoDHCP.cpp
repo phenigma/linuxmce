@@ -19,6 +19,7 @@
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
+#include "PlutoUtils/ProcessUtils.h"
 #include "Logger.h"
 #include "PlutoDHCP.h"
 
@@ -290,7 +291,8 @@ string PlutoDHCP::GetDHCPConfig()
 	{
 		sDynamicPool =
 		"\tpool {"																					"\n"
-		"\t\t allow unknown-clients;"																"\n";
+		"\t\t allow unknown-clients;"																"\n"
+		"\t\t deny known-clients;"																	"\n";
 		if (i_NoOfIpAdresses > 0) {
 			if (ipAddressDhcpStart.AsInt() <= p_iIpAddress[0] - 1) {
 				sDynamicPool += "\t\t range " + ipAddressDhcpStart.AsText() + " " +  IPAddress(p_iIpAddress[0] - 1).AsText() +  "; \n";
@@ -310,6 +312,16 @@ string PlutoDHCP::GetDHCPConfig()
 		}
 		sDynamicPool += "\t}\n";
 	}
+
+	// Known clients without an ip address
+	string sExternalMac;
+	ProcessUtils::RunApplicationAndGetOutput("/usr/pluto/bin/Network_DisplaySettings.sh  --all | grep EXTERNAL_MAC | cut -d'=' -f2 | tr '\\n' ';'", sExternalMac);
+
+	string sKnownClients =
+	"host dcerouter-external {"																	"\n"
+	"\t hardware ethernet " + sExternalMac + 													"\n"
+	"}"																							"\n";
+
 	string sResult = string("") +
 		"# option definitions common to all supported networks..."									"\n"
 		"#option domain-name \"fugue.com\";"														"\n"
@@ -342,6 +354,8 @@ string PlutoDHCP::GetDHCPConfig()
 		"\tmax-lease-time 604800;"																	"\n"
 		+ sDynamicPool +
 		"}"																							"\n"
+		"# Known clients which won't get an ip address"												"\n"
+		+ sKnownClients +
 		""																							"\n"
 		"# PXE booting machines"																	"\n"
 		"group {"																					"\n"
