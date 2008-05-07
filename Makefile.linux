@@ -1,3 +1,5 @@
+# -*- Makefile -*-
+
 SVNROOT=$(PWD)
 MRLOC=${SVNROOT}/build/bin/MakeRelease
 SCRIPTLOC="src/Ubuntu_Helpers/"
@@ -311,7 +313,8 @@ build/state_created_local_repo_430:
 create_local_repo: build/state_created_local_repo_430
 
 create_cdrom: prep create_diskless_archive_sudo create_local_repo
-	$(MAKE) video_wizard_videos build_replacement_packages build_pluto
+	$(MAKE) build_replacement_packages build_pluto
+	$(MAKE) video_wizard_videos 
 	@${RUN} ${SVNROOT} Create_ISO
 
 clean:
