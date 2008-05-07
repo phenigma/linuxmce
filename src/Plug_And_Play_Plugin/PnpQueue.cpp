@@ -391,7 +391,7 @@ bool PnpQueue::Process_Detect_Stage_Detected(PnpQueueEntry *pPnpQueueEntry)
 		else
 		{
 			if( pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get().size() )
-				DatabaseUtils::SetDeviceData(m_pDatabase_pluto_main,pRow_Device_Created->PK_Device_get(),DEVICEDATA_Serial_Number_CONST,pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get());
+				DatabaseUtils::SetDeviceData(m_pDatabase_pluto_main,pRow_Device_Created->PK_Device_get(),DEVICEDATA_Serial_Number_CONST,pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get(),true);
 			RunSetupScript(pPnpQueueEntry);
 			pPnpQueueEntry->Stage_set(PNP_DETECT_STAGE_DONE);
 #ifdef DEBUG
@@ -923,7 +923,6 @@ bool PnpQueue::Process_Detect_Stage_Add_Device(PnpQueueEntry *pPnpQueueEntry)
 		return true; // Delete this, something went terribly wrong
 	}
 
-	pPnpQueueEntry->m_sDescription = GetDeviceName(pPnpQueueEntry);
 	pPnpQueueEntry->RemoveBlockedDeviceData();
 
 	int PK_Device_Related = pPnpQueueEntry->m_pRow_Device_Reported->PK_Device_get();
@@ -936,7 +935,7 @@ bool PnpQueue::Process_Detect_Stage_Add_Device(PnpQueueEntry *pPnpQueueEntry)
 	DCE::CMD_Create_Device CMD_Create_Device( m_pPlug_And_Play_Plugin->m_dwPK_Device, pCommand_Impl_GIP->m_dwPK_Device, 
 		pRow_DeviceTemplate->PK_DeviceTemplate_get(), pPnpQueueEntry->m_pRow_PnpQueue->MACaddress_get(), pPnpQueueEntry->m_iPK_Room, pPnpQueueEntry->m_pRow_PnpQueue->IPaddress_get(),
 		pPnpQueueEntry->DeviceDataAsString(),pPnpQueueEntry->m_iPK_DHCPDevice,0 /* let it find the parent based on the relationship */,
-		pPnpQueueEntry->m_sDescription,
+		GetDeviceName(pPnpQueueEntry),
 		pPnpQueueEntry->m_pOH_Orbiter_Active_get() ? pPnpQueueEntry->m_pOH_Orbiter_Active_get()->m_pDeviceData_Router->m_dwPK_Device : 0,
 		PK_Device_Related,&iPK_Device);
 
@@ -949,7 +948,7 @@ bool PnpQueue::Process_Detect_Stage_Add_Device(PnpQueueEntry *pPnpQueueEntry)
 	pPnpQueueEntry->m_pRow_PnpQueue->FK_Device_Created_set(iPK_Device);
 
 	if( pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get().size() )
-		DatabaseUtils::SetDeviceData(m_pDatabase_pluto_main,iPK_Device,DEVICEDATA_Serial_Number_CONST,pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get());
+		DatabaseUtils::SetDeviceData(m_pDatabase_pluto_main,iPK_Device,DEVICEDATA_Serial_Number_CONST,pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get(),true);
 
 	Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(iPK_Device);
 	if( pRow_Device )  // Should always be the case,
@@ -1206,7 +1205,24 @@ bool PnpQueue::LocateDevice(PnpQueueEntry *pPnpQueueEntry)
 		else
 		{
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"PnpQueue::LocateDevice queue %d is not a usb to serial %s %p %s", pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(), sSqlUSB.c_str(), row, row ? row[0] : "*NULL*");
-			sSql_Model += " AND DHCPDevice.VendorModelId like '" + sVendorModelId + "%'";
+
+			// To determine the actual match, we always first find devices that match vendor/model ID, and only if nothing matches, then we check category
+			// If we don't check category, devices like Bluetooth_Dongle where the serial number changes won't get matched
+			// If we check category, but don't exclude devices where a vendor/model matches, then devices like embedded disk drives in the jukebox will match Disk_Drive which only checks categories
+			bool bOkayToMatchCategory=false;
+
+			if( pPnpQueueEntry->m_pRow_PnpQueue->Category_get().size() )
+			{
+				string sWhere = "'" + sVendorModelId + "' like concat(VendorModelID,'%') and VendorModelID != ''";
+				vector<Row_DHCPDevice *> vectRow_DHCPDevice;
+				m_pDatabase_pluto_main->DHCPDevice_get()->GetRows(sWhere,&vectRow_DHCPDevice);
+				bOkayToMatchCategory = vectRow_DHCPDevice.size()==0;
+			}
+
+			if( bOkayToMatchCategory )
+				sSql_Model += " AND DHCPDevice.Parms='CAT:" + pPnpQueueEntry->m_pRow_PnpQueue->Category_get() + "'";
+			else
+				sSql_Model += " AND '" + sVendorModelId + "' like concat(VendorModelID,'%') and VendorModelID != ''";
 		}
 	}
 
@@ -1347,9 +1363,21 @@ bool PnpQueue::DeviceMatchesCriteria(Row_Device *pRow_Device,PnpQueueEntry *pPnp
 		Row_DHCPDevice *pRow_DHCPDevice = *it;
 		if( pRow_DHCPDevice->SerialNumber_get().size() && pPnpQueueEntry->m_pRow_PnpQueue->SerialNumber_get().find(pRow_DHCPDevice->SerialNumber_get())==string::npos )
 			continue; // Don't do this if the serial number doesn't match
-		if( pRow_DHCPDevice->Parms_get().size() && pPnpQueueEntry->m_pRow_PnpQueue->Parms_get().find(pRow_DHCPDevice->Parms_get())==string::npos )
-			continue; // Don't do this if the serial number doesn't match
-
+		if( pRow_DHCPDevice->Parms_get().size() )
+		{
+			if( StringUtils::StartsWith(pRow_DHCPDevice->Parms_get(),"CAT:") )
+			{
+#ifdef DEBUG
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"PnpQueue::DeviceMatchesCriteria queue %d device %d category %s/%s",
+					pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),pRow_Device->PK_Device_get(),
+					pPnpQueueEntry->m_pRow_PnpQueue->Category_get().c_str(),pRow_DHCPDevice->Parms_get().c_str());
+#endif
+				if( pPnpQueueEntry->m_pRow_PnpQueue->Category_get().size()==0 || pRow_DHCPDevice->Parms_get().find( pPnpQueueEntry->m_pRow_PnpQueue->Category_get() )==string::npos )
+					continue; // The category doesn't match either
+			}
+			else if( pPnpQueueEntry->m_pRow_PnpQueue->Parms_get().find(pRow_DHCPDevice->Parms_get())==string::npos )
+				continue; // Don't do this if the serial number doesn't match
+		}
 #ifdef DEBUG
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"PnpQueue::DeviceMatchesCriteria queue %d device %d matches %d",
 		pPnpQueueEntry->m_pRow_PnpQueue->PK_PnpQueue_get(),pRow_Device->PK_Device_get(),pRow_DHCPDevice->PK_DHCPDevice_get());
@@ -1758,13 +1786,23 @@ string PnpQueue::GetDeviceName(PnpQueueEntry *pPnpQueueEntry)
 	}
 	else if( pRow_DeviceTemplate->FK_DeviceCategory_get()==DEVICECATEGORY_Hard_Drives_CONST )
 	{
-		string sDescription = pRow_DeviceTemplate->Description_get() + "/" + pPnpQueueEntry->m_pRow_Device_Reported->Description_get();
-		string sDevice = pPnpQueueEntry->m_mapPK_DeviceData_Find(DEVICEDATA_Block_Device_CONST);
-		if( StringUtils::StartsWith(sDevice,"/dev/") )
-			sDescription += " (" + sDevice.substr(5) + ")";
+		string sDescription;
+		if( pPnpQueueEntry->m_pRow_PnpQueue->Description_get().size() )
+			sDescription = pPnpQueueEntry->m_pRow_PnpQueue->Description_get() + "-" + pPnpQueueEntry->m_pRow_Device_Reported->Description_get();
+		else
+		{
+			sDescription = pRow_DeviceTemplate->Description_get() + "-" + pPnpQueueEntry->m_pRow_Device_Reported->Description_get();
+			string sDevice = pPnpQueueEntry->m_mapPK_DeviceData_Find(DEVICEDATA_Block_Device_CONST);
+			if( StringUtils::StartsWith(sDevice,"/dev/") )
+				sDescription += " (" + sDevice.substr(5) + ")";
+		}
+		// The mount scripts don't allow these characters
+		StringUtils::Replace(&sDescription,"/","-");
+		StringUtils::Replace(&sDescription,"[","(");
+		StringUtils::Replace(&sDescription,"]",")");
 		return sDescription;
 	}
-	return "";
+	return pPnpQueueEntry->m_pRow_PnpQueue->Description_get();
 }
 
 void PnpQueue::SetDisableFlagForDeviceAndChildren(Row_Device *pRow_Device,bool bDisabled)
@@ -1791,7 +1829,7 @@ void PnpQueue::SetDisableFlagForDeviceAndChildren(Row_Device *pRow_Device,bool b
 	{
 		Row_DeviceTemplate_DeviceData *pRow_DeviceTemplate_DeviceData = m_pDatabase_pluto_main->DeviceTemplate_DeviceData_get()->GetRow(pRow_DeviceTemplate->PK_DeviceTemplate_get(),DEVICEDATA_Keep_Serial_Number_On_Disable_CONST);
 		if( pRow_DeviceTemplate_DeviceData==NULL || atoi(pRow_DeviceTemplate_DeviceData->IK_DeviceData_get().c_str())==0 )
-			DatabaseUtils::SetDeviceData(m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICEDATA_Serial_Number_CONST,"");
+			DatabaseUtils::SetDeviceData(m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICEDATA_Serial_Number_CONST,"",true);
 		string sSQL = "UPDATE Device_DeviceData SET IK_DeviceData=NULL where FK_Device=" + StringUtils::itos(pRow_Device->PK_Device_get()) + " AND FK_DeviceData=" TOSTRING(DEVICEDATA_COM_Port_on_PC_CONST);
 		m_pDatabase_pluto_main->threaded_db_wrapper_query(sSQL,true);
 	}

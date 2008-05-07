@@ -243,7 +243,7 @@ public:
 
 		bool SetPaths();
 		void RunBackendStarter();
-		void StartFillDatabase();
+		void StartFillDatabase(bool bNotifyUser=false);
 		void UpdateUpcomingRecordings();
 		void ConfirmMasterBackendOk(int iMediaStreamID);
 		bool ConfirmSourceIsADestination(MythTvMediaStream *pMythTvMediaStream);

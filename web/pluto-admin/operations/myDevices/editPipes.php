@@ -157,9 +157,9 @@ function editPipes($output,$dbADO) {
 		// for A/V devices, display third row with MDs and capture cards ports
 		if($from=='avWizard'){
 			$selectedPort=(int)getDeviceData($deviceID,$GLOBALS['CaptureCardPort'],$dbADO);
-			$selMD=(isset($_REQUEST['md']))?(int)$_REQUEST['md']:(($selectedPort!=0)?getMDParent($selectedPort,$dbADO):0);
+			$selMD=(isset($_REQUEST['md']))?(int)$_REQUEST['md']:(($selectedPort!=0)?getMdOrCoreParent($selectedPort,$dbADO):0);
 
-			$mdArray=getDevicesArrayFromCategory($GLOBALS['rootMediaDirectors'],$dbADO);
+			$mdArray=getDevicesArrayFromCategory($GLOBALS['CategoryCore'],$dbADO)+getDevicesArrayFromCategory($GLOBALS['rootMediaDirectors'],$dbADO);
 			$mdPulldown=pulldownFromArray($mdArray,'md',$selMD,'onChange="document.editPipes.action.value=\'form\';document.editPipes.submit();"');
 			
 			$portsArray=array();
@@ -319,5 +319,25 @@ function getMDParent($deviceID,$dbADO){
 	$parentArr=array_keys(getAssocArray('Device','PK_Device','Description',$dbADO,'WHERE PK_Device IN ('.join(',',$ancestors).') AND FK_DeviceTemplate='.$GLOBALS['rootMediaDirectorsID']));
 
 	return $parentArr[0];
+}
+
+function getCoreParent($deviceID,$dbADO){
+	$ancestors=getAncestorsForDevice($deviceID,$dbADO);
+	if(count($ancestors)==0){
+		return 0;
+	}
+	$parentArr=array_keys(getAssocArray('Device','PK_Device','Description',$dbADO,'WHERE PK_Device IN ('.join(',',$ancestors).') AND FK_DeviceTemplate='.$GLOBALS['rootCoreID']));
+
+	return $parentArr[0];
+}
+
+
+function getMDorCoreParent($selectedPort,$dbADO){
+	$parent=getMDParent($selectedPort,$dbADO);
+	
+	if($parent==0){
+		return getCoreParent($selectedPort,$dbADO);
+	}
+	
 }
 ?>

@@ -23,6 +23,8 @@
 #define DEVICECATEGORY_Utilities_CONST 60
 #define DEVICECATEGORY_General_Info_Plugins_CONST 61
 #define DEVICECATEGORY_Virtual_Devices_CONST 62
+#define DEVICECATEGORY_Virtual_Core_CONST 63
+#define DEVICECATEGORY_Virtual_Media_Director_CONST 64
 #define DEVICECATEGORY_App_Server_CONST 65
 #define DEVICECATEGORY_Datagrid_Plugins_CONST 66
 #define DEVICECATEGORY_Lighting_Plugins_CONST 67

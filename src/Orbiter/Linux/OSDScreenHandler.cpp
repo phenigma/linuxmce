@@ -1501,7 +1501,13 @@ bool OSDScreenHandler::AV_Devices_GridSelected(CallBackData *pData)
 void OSDScreenHandler::SCREEN_Wizard_Done(long PK_Screen)
 {
 	PrepForWizard();
-	if( m_pWizardLogic->WhatRoomIsThisDeviceIn(m_pWizardLogic->GetTopMostDevice(m_pOrbiter->m_dwPK_Device))==0 )
+	if( m_pWizardLogic->HouseAlreadySetup()==false )
+	{
+		DCE::SCREEN_VideoWizard _SCREEN_VideoWizard(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device);
+		m_pOrbiter->ReceivedMessage(_SCREEN_VideoWizard.m_pMessage);
+		return;
+	}
+	else if( m_pWizardLogic->WhatRoomIsThisDeviceIn(m_pWizardLogic->GetTopMostDevice(m_pOrbiter->m_dwPK_Device))==0 )
 	{
 		string sMessage="0 -300 1 " TOSTRING(COMMAND_Goto_Screen_CONST) " " TOSTRING(COMMANDPARAMETER_PK_Screen_CONST) " " TOSTRING(SCREEN_This_Room_CONST);
 
@@ -1703,6 +1709,8 @@ bool OSDScreenHandler::Lights_OnTimer(CallBackData *pData)
 		m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST,StringUtils::itos(iNumLightsTotal));
 		m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST,StringUtils::itos((int) m_pWizardLogic->m_dequeNumLights.size()));
 
+		NeedToRender render2( m_pOrbiter, "OSDScreenHandler::Lights_OnTimer" );  // Redraw after the goto designobj below
+
 		if( m_pWizardLogic->m_dequeNumLights.size()>0 )
 		{
 			m_nLightInDequeToAssign=0;
@@ -1778,6 +1786,8 @@ void OSDScreenHandler::LightsSetup_Timer()
 	Event_Impl event_Impl(m_pOrbiter->m_dwPK_Device, 0, m_pOrbiter->m_sHostName);
 
 	static bool bLastTimeOn=true;
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"OSDScreenHandler::LightsSetup_Timer m_bLightsFlashThreadQuit %d m_nLightInDequeToAssign %d size %d",
+		(int) m_bLightsFlashThreadQuit, (int) m_nLightInDequeToAssign, (int) m_pWizardLogic->m_dequeNumLights.size());
 	while( !m_bLightsFlashThreadQuit && m_nLightInDequeToAssign < (int) m_pWizardLogic->m_dequeNumLights.size() )
 	{
 		PLUTO_SAFETY_LOCK(vm,m_pOrbiter->m_VariableMutex);
@@ -1840,6 +1850,8 @@ void OSDScreenHandler::LightsSetup_Timer()
 		while(timeout>time(NULL) && nLightInDequeToAssign==m_nLightInDequeToAssign && !m_bLightsFlashThreadQuit)
 			Sleep(500);  // max 500 ms delay
 	}
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"OSDScreenHandler::LightsSetup_Timer ending m_bLightsFlashThreadQuit %d m_nLightInDequeToAssign %d size %d",
+		(int) m_bLightsFlashThreadQuit, (int) m_nLightInDequeToAssign, (int) m_pWizardLogic->m_dequeNumLights.size());
 	m_bLightsFlashThreadRunning=false;
 }
 
@@ -2134,7 +2146,7 @@ bool OSDScreenHandler::AlarmSetup_ObjectSelected(CallBackData *pData)
 				int PK_DeviceTemplate = DatabaseUtils::GetDeviceTemplateForDevice(m_pWizardLogic,m_pWizardLogic->m_dequeNumSensors[m_nSensorInDequeToAssign].first);
 				if( PK_DeviceTemplate!=DEVICETEMPLATE_Generic_Sensor_CONST )
 				{
-					m_pOrbiter->CMD_Goto_DesignObj(0,TOSTRING(DESIGNOBJ_AlarmName_CONST),"","",true,true);
+					m_pOrbiter->CMD_Goto_DesignObj(0,TOSTRING(DESIGNOBJ_AlarmSensorName_CONST),"","",true,true);
 					return true;
 				}
 			}

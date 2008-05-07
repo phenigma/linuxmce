@@ -99,20 +99,13 @@ string FieldInfo::getPrintFormat()
 			//TODO can it fail?			
 
 		case FIELD_TYPE_LONGLONG:
-#ifdef C99_FORMAT_SPECIFIERS
-			return "%lli";
-#else
-			return "%I64i";
-#endif
-			break;
+			return UINT64_PRINTF;
 					
 		case FIELD_TYPE_FLOAT:
 			return "%f";
-			break;
 
 		case FIELD_TYPE_DOUBLE:
 			return "%lf";
-			break;
 		
 		case FIELD_TYPE_TIMESTAMP:
 		case FIELD_TYPE_DATE:
@@ -157,20 +150,13 @@ string FieldInfo::getScanFormat()
 			//TODO can it fail?			
 		
 		case FIELD_TYPE_LONGLONG:
-#ifdef C99_FORMAT_SPECIFIERS
-			return "%lli";
-#else
-			return "%I64i";
-#endif
-			break;
+			return UINT64_PRINTF;
 					
 		case FIELD_TYPE_FLOAT:
 			return "%f";
-			break;
 			
 		case FIELD_TYPE_DOUBLE:
 			return "%lf";
-			break;
 		
 		case FIELD_TYPE_TIMESTAMP:
 		case FIELD_TYPE_DATE:

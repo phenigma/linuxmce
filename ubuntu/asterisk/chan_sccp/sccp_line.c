@@ -16,7 +16,7 @@
 #include "config.h"
 
 #ifndef ASTERISK_CONF_1_2
-#include <asterisk.h>
+#include <asterisk/asterisk.h>
 #endif
 #include "chan_sccp.h"
 #include "sccp_line.h"

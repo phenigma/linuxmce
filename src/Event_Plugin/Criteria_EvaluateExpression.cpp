@@ -63,7 +63,7 @@ bool Criteria::EvaluateExpression(class CriteriaParm *pCriteriaParm,class EventI
 		sRValue = pCriteriaParm->m_sValue;
 
 	string *sLValue=NULL;
-	unsigned long *iLValue=NULL;
+	unsigned long iLValue=-1;
 
 	// Available for temporary use
 	unsigned long  iTmp;
@@ -73,39 +73,39 @@ bool Criteria::EvaluateExpression(class CriteriaParm *pCriteriaParm,class EventI
 	{
 	case CRITERIAPARMLIST_Month_CONST:
 		iTmp = newtime.tm_mon+1;  // Month is 0 based
-		iLValue = &iTmp;
+		iLValue = iTmp;
 		break;
 	case CRITERIAPARMLIST_PK_Device_CONST:
 		if( iRValue==0 )
 			return true;
-		iLValue = (unsigned long *)&pEventInfo->m_pDevice->m_dwPK_Device;
+		iLValue = pEventInfo->m_pDevice->m_dwPK_Device;
 		break;
 	case CRITERIAPARMLIST_PK_DeviceTemplate_CONST:
-		iLValue = (unsigned long *)&pEventInfo->m_pDevice->m_dwPK_DeviceTemplate;
+		iLValue = pEventInfo->m_pDevice->m_dwPK_DeviceTemplate;
 		break;
 	case CRITERIAPARMLIST_Time_of_day_CONST:
 		return EvaluateTimeOfDay(StringUtils::ToUpper(pCriteriaParm->m_sValue),pExtraInfo);
 	case CRITERIAPARMLIST_PK_DeviceCategory_CONST:
-		iLValue = &pEventInfo->m_pDevice->m_dwPK_DeviceCategory;
+		iLValue = pEventInfo->m_pDevice->m_dwPK_DeviceCategory;
 		break;
 	case CRITERIAPARMLIST_PK_Room_CONST:
 		if( !pEventInfo->m_pDevice->m_pRoom )
 			return false;
-		iLValue = &pEventInfo->m_pDevice->m_pRoom->m_dwPK_Room;
+		iLValue = pEventInfo->m_pDevice->m_pRoom->m_dwPK_Room;
 		break;
 //	case CRITERIAPARMLIST_PK_DeviceGroup_CONST:
 //		return pEventInfo->m_pDevice->m_mapDeviceGroups[atoi(pCriteriaParm->m_sValue.c_str())];
 	case CRITERIAPARMLIST_House_Mode_CONST:
-		iLValue = (unsigned long *) (&pEventInfo->m_PK_HouseMode);
+		iLValue = pEventInfo->m_PK_HouseMode;
 		break;
 //	case CRITERIAPARMLIST_Room_Mode_CONST:
 //		iLValue = &pEventInfo->PK_C_Mode_Room;
 //		break;
 	case CRITERIAPARMLIST_Day_Of_Week_CONST:
-		iLValue = (unsigned long *) (&newtime.tm_wday);
+		iLValue = newtime.tm_wday;
 		break;
 	case CRITERIAPARMLIST_Day_Of_Month_CONST:
-		iLValue = (unsigned long *) (&newtime.tm_mday);
+		iLValue = newtime.tm_mday;
 		break;
 	case CRITERIAPARMLIST_Specific_Date_CONST:
 		break;
@@ -113,10 +113,10 @@ bool Criteria::EvaluateExpression(class CriteriaParm *pCriteriaParm,class EventI
 //		iLValue = &pEventInfo->m_pDevice->m_pRoom->m_im_iPK_RoomType;
 //		break;
 	case CRITERIAPARMLIST_PK_EventList_CONST:
-		iLValue = (unsigned long *) (&pEventInfo->m_pMessage->m_dwID);
+		iLValue = pEventInfo->m_pMessage->m_dwID;
 		break;
 	case CRITERIAPARMLIST_PK_EventHandler_CONST:
-		iLValue = &pEventInfo->m_pEventHandler->m_PK_EventHander;
+		iLValue = pEventInfo->m_pEventHandler->m_PK_EventHander;
 		break;
 	case CRITERIAPARMLIST_PK_EventParameter_CONST:
 		{
@@ -131,7 +131,7 @@ bool Criteria::EvaluateExpression(class CriteriaParm *pCriteriaParm,class EventI
 
 	if( pCriteriaParm->m_iPK_ParameterType==PARAMETERTYPE_int_CONST || pCriteriaParm->m_iPK_ParameterType==PARAMETERTYPE_bool_CONST )
 	{
-		pCriteriaParm->m_sComparedValue = StringUtils::itos(*iLValue);
+		pCriteriaParm->m_sComparedValue = StringUtils::itos(iLValue);
 	}
 	else
 	{
@@ -140,22 +140,20 @@ bool Criteria::EvaluateExpression(class CriteriaParm *pCriteriaParm,class EventI
 
 	if( pCriteriaParm->m_iPK_ParameterType==PARAMETERTYPE_string_CONST && sLValue==NULL )
 		throw(string("comparing string, string is null"));
-	else if( (pCriteriaParm->m_iPK_ParameterType==PARAMETERTYPE_int_CONST || pCriteriaParm->m_iPK_ParameterType==PARAMETERTYPE_bool_CONST) && iLValue==NULL )
-		throw(string("comparing int, int is null"));
 
 	if( pCriteriaParm->m_Operator==OPERATOR_EQUALS )
 	{
 		if( pCriteriaParm->m_iPK_ParameterType==PARAMETERTYPE_string_CONST )
 			return *sLValue==sRValue;
 		else if( pCriteriaParm->m_iPK_ParameterType==PARAMETERTYPE_int_CONST || pCriteriaParm->m_iPK_ParameterType==PARAMETERTYPE_bool_CONST)
-			return *iLValue==iRValue;
+			return iLValue==iRValue;
 	}
 	if( pCriteriaParm->m_Operator==OPERATOR_NOTEQUALS )
 	{
 		if( pCriteriaParm->m_iPK_ParameterType==PARAMETERTYPE_string_CONST )
 			return *sLValue!=sRValue;
 		else if( pCriteriaParm->m_iPK_ParameterType==PARAMETERTYPE_int_CONST || pCriteriaParm->m_iPK_ParameterType==PARAMETERTYPE_bool_CONST)
-			return *iLValue!=iRValue;
+			return iLValue!=iRValue;
 	}
 	if( pCriteriaParm->m_Operator==OPERATOR_CONTAINS )
 	{
@@ -168,14 +166,14 @@ bool Criteria::EvaluateExpression(class CriteriaParm *pCriteriaParm,class EventI
 		if( pCriteriaParm->m_iPK_ParameterType==PARAMETERTYPE_string_CONST )
 			return *sLValue>sRValue;
 		else if( pCriteriaParm->m_iPK_ParameterType==PARAMETERTYPE_int_CONST || pCriteriaParm->m_iPK_ParameterType==PARAMETERTYPE_bool_CONST)
-			return *iLValue>iRValue;
+			return iLValue>iRValue;
 	}
 	if( pCriteriaParm->m_Operator==OPERATOR_LESSTHAN )
 	{
 		if( pCriteriaParm->m_iPK_ParameterType==PARAMETERTYPE_string_CONST )
 			return *sLValue<sRValue;
 		else if( pCriteriaParm->m_iPK_ParameterType==PARAMETERTYPE_int_CONST || pCriteriaParm->m_iPK_ParameterType==PARAMETERTYPE_bool_CONST)
-			return *iLValue<iRValue;
+			return iLValue<iRValue;
 	}
 
 	LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Criteria::EvaluateExpression unhandled criteria operator %d",pCriteriaParm->m_Operator);

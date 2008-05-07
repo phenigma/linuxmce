@@ -2224,6 +2224,8 @@ class DataGridTable *General_Info_Plugin::HardDiscs( string GridID, string Parms
 		{
 			DeviceData_Router *pDevice = *it;
 			pCell = new DataGridCell(pDevice->m_sDescription,StringUtils::itos(pDevice->m_dwPK_Device));
+			pCell->m_mapAttributes["Name"]=pDevice->m_sDescription;
+			pCell->m_mapAttributes["Capacity"]=pDevice->m_mapParameters_Find(DEVICEDATA_Capacity_CONST);
 			pDataGrid->SetData(0,iRow++,pCell);
 		}
 	}
@@ -2236,6 +2238,8 @@ class DataGridTable *General_Info_Plugin::HardDiscs( string GridID, string Parms
 		{
 			DeviceData_Router *pDevice = *it;
 			pCell = new DataGridCell(pDevice->m_sDescription,StringUtils::itos(pDevice->m_dwPK_Device));
+			pCell->m_mapAttributes["Name"]=pDevice->m_sDescription;
+			pCell->m_mapAttributes["Capacity"]=pDevice->m_mapParameters_Find(DEVICEDATA_Capacity_CONST);
 			pDataGrid->SetData(0,iRow++,pCell);
 		}
 	}
@@ -2258,6 +2262,8 @@ class DataGridTable *General_Info_Plugin::CompactFlashes( string GridID, string 
 	{
 		DeviceData_Router *pDevice = *it;
 		pCell = new DataGridCell(pDevice->m_sDescription,StringUtils::itos(pDevice->m_dwPK_Device));
+		pCell->m_mapAttributes["Name"]=pDevice->m_sDescription;
+		pCell->m_mapAttributes["Capacity"]=pDevice->m_mapParameters_Find(DEVICEDATA_Capacity_CONST);
 		pDataGrid->SetData(0,iRow++,pCell);
 	}
 	return pDataGrid;
@@ -2856,22 +2862,23 @@ Row_Device *General_Info_Plugin::ProcessChildDevice(Row_Device *pRow_Device,stri
 	{
 		pRow_Device_Child = vectRow_Device_Child[0];
 		pRow_Device_Child->Reload();   // Don't overwrite the room or other data that may already be there
-		return pRow_Device_Child; // For the time being, don't do anything because it's resetting the device's psc_mod causing orbiter to report the router needs a reload
+		if( pRow_Device_Child->FK_DeviceTemplate_get()==PK_DeviceTemplate )
+			return pRow_Device_Child; // For the time being, don't do anything because it's resetting the device's psc_mod causing orbiter to report the router needs a reload
+		else
+			CMD_Delete_Device(pRow_Device_Child->PK_Device_get()); // If the device template has changed, delete the device and recreate it
 	}
-	else
+
+	// Create it since it doesn't exist
+	int iPK_Device;
+	bCreatedNew=true;
+	CMD_Create_Device(PK_DeviceTemplate,"",0,"",
+		StringUtils::itos(DEVICEDATA_PortChannel_Number_CONST) + "|" + sInternalID,
+		0,pRow_Device->PK_Device_get(),"",0,0,&iPK_Device);
+	pRow_Device_Child = m_pDatabase_pluto_main->Device_get()->GetRow(iPK_Device);
+	if( !pRow_Device_Child )
 	{
-		// Create it since it doesn't exist
-		int iPK_Device;
-		bCreatedNew=true;
-		CMD_Create_Device(PK_DeviceTemplate,"",0,"",
-			StringUtils::itos(DEVICEDATA_PortChannel_Number_CONST) + "|" + sInternalID,
-			0,pRow_Device->PK_Device_get(),"",0,0,&iPK_Device);
-		pRow_Device_Child = m_pDatabase_pluto_main->Device_get()->GetRow(iPK_Device);
-		if( !pRow_Device_Child )
-		{
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"General_Info_Plugin::ProcessChildDevice failed to create child %d",iPK_Device);
-			return NULL;
-		}
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"General_Info_Plugin::ProcessChildDevice failed to create child %d",iPK_Device);
+		return NULL;
 	}
 
 	// Don't reset the description if it's already there, the user may have overridden the default name
@@ -2900,15 +2907,20 @@ Row_Device *General_Info_Plugin::ProcessChildDevice(Row_Device *pRow_Device,stri
 
 	pRow_Device_Child->FK_DeviceTemplate_set( PK_DeviceTemplate );
 
-	Row_Device_DeviceData *pRow_Device_DeviceData = m_pDatabase_pluto_main->Device_DeviceData_get()->GetRow(pRow_Device_Child->PK_Device_get(),DEVICEDATA_PK_FloorplanObjectType_CONST);
-	if( !pRow_Device_DeviceData )
+	if( atoi(sPK_FloorplanObjectType.c_str())>0 )
 	{
-		pRow_Device_DeviceData = m_pDatabase_pluto_main->Device_DeviceData_get()->AddRow();
-		pRow_Device_DeviceData->FK_Device_set(pRow_Device_Child->PK_Device_get());
-		pRow_Device_DeviceData->FK_DeviceData_set(DEVICEDATA_PK_FloorplanObjectType_CONST);
-	}
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "General_Info_Plugin::ProcessChildDevice setting sPK_FloorplanObjectType to %s for %d",
+			sPK_FloorplanObjectType.c_str(), pRow_Device_Child->PK_Device_get());
+		Row_Device_DeviceData *pRow_Device_DeviceData = m_pDatabase_pluto_main->Device_DeviceData_get()->GetRow(pRow_Device_Child->PK_Device_get(),DEVICEDATA_PK_FloorplanObjectType_CONST);
+		if( !pRow_Device_DeviceData )
+		{
+			pRow_Device_DeviceData = m_pDatabase_pluto_main->Device_DeviceData_get()->AddRow();
+			pRow_Device_DeviceData->FK_Device_set(pRow_Device_Child->PK_Device_get());
+			pRow_Device_DeviceData->FK_DeviceData_set(DEVICEDATA_PK_FloorplanObjectType_CONST);
+		}
 
-	pRow_Device_DeviceData->IK_DeviceData_set( sPK_FloorplanObjectType );
+		pRow_Device_DeviceData->IK_DeviceData_set( sPK_FloorplanObjectType );
+	}
 
 	while(pos<sLine.size())
 	{

@@ -270,8 +270,13 @@ void UpdateEntArea::GetMediaAndRooms()
 			// Check up 3 generations of DeviceCategories to see if this is a media director
 			if( pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get()==DEVICECATEGORY_Media_Director_CONST ||
 				pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_getrow()->FK_DeviceCategory_Parent_get()==DEVICECATEGORY_Media_Director_CONST ||
+				pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get()==DEVICECATEGORY_Virtual_Media_Director_CONST ||
+				pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_getrow()->FK_DeviceCategory_Parent_get()==DEVICECATEGORY_Virtual_Media_Director_CONST ||
 				(pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_getrow()->FK_DeviceCategory_Parent_get() &&
-				pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_getrow()->FK_DeviceCategory_Parent_getrow()->FK_DeviceCategory_Parent_get()==DEVICECATEGORY_Media_Director_CONST) )
+				pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_getrow()->FK_DeviceCategory_Parent_getrow()->FK_DeviceCategory_Parent_get()==DEVICECATEGORY_Media_Director_CONST) ||
+				(pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_getrow()->FK_DeviceCategory_Parent_get() &&
+				pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_getrow()->FK_DeviceCategory_Parent_getrow()->FK_DeviceCategory_Parent_get()==DEVICECATEGORY_Virtual_Media_Director_CONST) 
+				)
 			{
 				levelOfMedia = lomContainsMD;
 				if( !pRow_Room->ManuallyConfigureEA_get() )
@@ -512,13 +517,14 @@ void UpdateEntArea::AddMDsDevicesToEntArea(Row_EntertainArea *pRow_EntertainArea
 	{
 		Row_Device *pRow_Device = vectRow_Device[s];
 		// Is this a media director?
-		if( DatabaseUtils::DeviceIsWithinCategory(m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICECATEGORY_Media_Director_CONST) )
+		bool bVirtualMD = DatabaseUtils::DeviceIsWithinCategory(m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICECATEGORY_Virtual_Media_Director_CONST);
+		if( DatabaseUtils::DeviceIsWithinCategory(m_pDatabase_pluto_main,pRow_Device->PK_Device_get(),DEVICECATEGORY_Media_Director_CONST) || bVirtualMD )
 		{
 			bHasMd=true;
 			// If this is a hybrid, the m/d may be a child of the Core.  Get the parent then, so children of the core, like pvr cards
 			// will also be in the same ent area
 			Row_Device *pRow_Device_Parent = pRow_Device->FK_Device_ControlledVia_getrow();
-			if( pRow_Device_Parent )
+			if( !bVirtualMD && pRow_Device_Parent )
 				pRow_Device = pRow_Device_Parent;
 			AddMDsDevicesToEntArea(pRow_Device,pRow_EntertainArea); // This will recurse
 		}
@@ -549,6 +555,10 @@ void UpdateEntArea::AddMDsDevicesToEntArea(Row_Device *pRow_Device,Row_Entertain
 
 	// If it's not an embedded device (ie route to is null), and the parent is an interface, then this is something like a light switch or sensor which doesn't inherit the parent's room
 	if( pRow_Device->FK_Device_ControlledVia_get() && pRow_Device->FK_Device_RouteTo_isNull()==true && DatabaseUtils::DeviceIsWithinCategory(m_pDatabase_pluto_main,pRow_Device->FK_Device_ControlledVia_get(),DEVICECATEGORY_Interfaces_CONST) )
+		return;
+
+	// If it's a virtual MD, leave it.
+	if( pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get()==DEVICECATEGORY_Virtual_Media_Director_CONST )
 		return;
 
 	// Output zones may be in different EA's from the parents

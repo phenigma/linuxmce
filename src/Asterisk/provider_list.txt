@@ -3,7 +3,7 @@ sipgate (try for free, pay as you go)	http://www.sipgate.co.uk/	sipgate	SIP
 inphonex (try for free, pay as you go)	http://www.inphonex.com	inphonex	SIP
 e-fon (Switzerland)	http://www.e-fon.ch/	efon	IAX
 broadvoice (US number, free incoming)	http://www.broadvoice.com	broadvoice	SIP
-teliax (US number, pay incoming)	http://www.teliax.com/	teliax	IAX
+teliax (US number, pay incoming)	http://www.teliax.com/	teliax-out	IAX
 NuFone	http://www.nufone.net	nufone-out	IAX
 VoiceEclipse	http://www.voiceeclipse.com/	voiceeclipse	SIP
 Gradwell	http://www.gradwell.com/	sipgradwell	SIP

@@ -1650,6 +1650,12 @@ switch ($section) {
 	    include_once('operations/mediaBrowser/searchMedia.php');
 	    searchMedia($output,$mediadbADO);	    
 	break;
+	case 'filePicker';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('small');
+	    include_once('operations/mediaBrowser/filePicker.php');
+	    filePicker($output,$mediadbADO,$dbADO);
+	break;
 
 	
 	case 'index';

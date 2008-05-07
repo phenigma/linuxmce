@@ -17,6 +17,7 @@ function mainScreenSaver($output,$mediadbADO,$dbADO) {
 	if($action=='form'){
 		$flickerEnabled=flickrStatus();
 		$flicker_enable_disable_text=($flickerEnabled==1)?$TEXT_DISABLE_FLICKR_CONST:$TEXT_ENABLE_FLICKR_CONST;
+		$flicker_status=($flickerEnabled==1)?$TEXT_ENABLED_CONST:$TEXT_DISABLED_CONST;
 		
 		if($path!=''){
 			$physicalFiles=grabFiles($path,'');
@@ -62,7 +63,7 @@ function mainScreenSaver($output,$mediadbADO,$dbADO) {
 			$out.='
 				<input type="hidden" name="flikr" value="'.(($flickerEnabled==0)?1:0).'">
 				<fieldset style="width:400px;">
-				<legend>Flikr script</legend>
+				<legend>Flikr script ('.$flicker_status.')</legend>
 				Enable/disable the script who retrieve images from flikr.com<br>
 				<input type="submit" class="button" name="flikrBtn" value="'.$flicker_enable_disable_text.'"><hr>
 				

@@ -14,13 +14,13 @@ function sortScenarios($output,$dbADO) {
 	$categoryArray=getAssocArray('Template','PK_Template','Description',$dbADO,'','');
 	$categoryArray['']='Not defined';
 	$sortBy=(!isset($_REQUEST['sortBy']) || $_REQUEST['sortBy']=='Room')?'Room':'EntertainArea';
-
+	$from=cleanString(@$_REQUEST['from']);
 
 	$areasArray=getAssocArray($sortBy,'PK_'.$sortBy,'Description',$dbADO,'','');
 	$areasArray['']='Not assigned';
 	
 	if(isset($_REQUEST['from'])){
-		$backLink='<a href="index.php?section='.$_REQUEST['from'].'">'.$TEXT_BACK_CONST.'</a>';
+		$backLink='<a href="index.php?section='.$from.'">'.$TEXT_BACK_CONST.'</a>';
 	}
 	
 	if($action=='form') {
@@ -37,7 +37,7 @@ function sortScenarios($output,$dbADO) {
 		<input type="hidden" name="'.$sortBy.'ID" value="">
 		<input type="hidden" name="editedCgID" value="">	
 		<input type="hidden" name="sortBy" value="'.$sortBy.'">
-		<input type="hidden" name="from" value="'.$_REQUEST['from'].'">
+		<input type="hidden" name="from" value="'.$from.'">
 		
 	'.@$backLink.'
 	<table width="100%" cellpadding="4" cellspacing="0" border="0">';
@@ -71,8 +71,8 @@ function sortScenarios($output,$dbADO) {
 			$out.='
 			<tr bgcolor="'.(($rowCG['PK_CommandGroup']==@$_REQUEST['lastAdded'])?'lightgreen':'').'">
 				<td width="80" align="center">'.(($rowCG['FK_'.$sortBy.'']!='')?'
-					<input type="button" class="button" name="posDown" value="U" onClick="self.location=\'index.php?section=sortScenarios&cgID='.$rowCG['PK_CommandGroup'].'&action=process&'.$sortBy.'ID='.$rowCG['FK_'.$sortBy.''].'&operation=up&sort='.$rowCG['Sort'].'&sortBy='.$sortBy.'\'"> 
-					<input type="button" class="button" name="posUp" value="D" onClick="self.location=\'index.php?section=sortScenarios&cgID='.$rowCG['PK_CommandGroup'].'&action=process&'.$sortBy.'ID='.$rowCG['FK_'.$sortBy.''].'&operation=down&sort='.$rowCG['Sort'].'&sortBy='.$sortBy.'\'">':'').'</td>
+					<input type="button" class="button" name="posDown" value="U" onClick="self.location=\'index.php?section=sortScenarios&cgID='.$rowCG['PK_CommandGroup'].'&action=process&'.$sortBy.'ID='.$rowCG['FK_'.$sortBy.''].'&operation=up&sort='.$rowCG['Sort'].'&sortBy='.$sortBy.'&from='.$from.'\'"> 
+					<input type="button" class="button" name="posUp" value="D" onClick="self.location=\'index.php?section=sortScenarios&cgID='.$rowCG['PK_CommandGroup'].'&action=process&'.$sortBy.'ID='.$rowCG['FK_'.$sortBy.''].'&operation=down&sort='.$rowCG['Sort'].'&sortBy='.$sortBy.'&from='.$from.'\'">':'').'</td>
 				<td> Description: '.((!in_array($rowCG['PK_CommandGroup'],$displayedCommandGroups))?'<input type="text" name="commandGroup_'.$rowCG['PK_CommandGroup'].'" value="'.$rowCG['Description'].'"> Hint: <input type="text" name="hintCommandGroup_'.$rowCG['PK_CommandGroup'].'" value="'.$rowCG['Hint'].'">':'<b>'.$rowCG['Description'].': </b>Hint: <b>'.$rowCG['Hint'].'</b> (See '.$firstAreaArray[$rowCG['PK_CommandGroup']].')').'
 				Category: <B>'.$categoryArray[$rowCG['FK_Template']].'</B>
 				</td>
@@ -139,7 +139,7 @@ function sortScenarios($output,$dbADO) {
 		}
 
 
-		header("Location: index.php?section=sortScenarios&msg=".@$msg.'&sortBy='.$sortBy.'&from='.$_REQUEST['from']);
+		header("Location: index.php?section=sortScenarios&msg=".@$msg.'&sortBy='.$sortBy.'&from='.$from);
 	}
 
 	$output->setMenuTitle($TEXT_WIZARD_CONST.' |');

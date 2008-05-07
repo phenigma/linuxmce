@@ -2,11 +2,9 @@
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/SQL_Ops.sh
 
-## Only run on Core
-if [[ -f /etc/diskless.conf ]]; then
-	exit 0
-fi
+. /usr/pluto/bin/TeeMyOutput.sh --outfile /var/log/pluto/StorageDevices_Symlinks.log --infile /dev/null --stdboth -- "$@"
 
+TPL_GENERIC_PC_AS_CORE=7
 TPL_BUFFALO_HDHG300LAN=1794
 TPL_GENERIC_INTERNAL_DRIVE=1790
 TPL_MAXTOR_NAS=1770
@@ -16,20 +14,29 @@ TPL_RAID_0=1854
 TPL_RAID_1=1851
 TPL_RAID_5=1849
 
-
 DD_DIRECTORIES=153
 DD_USERS=3
 
+## Only run on Core
+FK_DeviceTemplate=$(RunSQL "SELECT FK_DeviceTemplate FROM Device WHERE PK_Device='$PK_Device'")
+if [[ "$FK_DeviceTemplate" != "$TPL_GENERIC_PC_AS_CORE" ]] ;then
+	exit 0
+fi
+
 ## Remove old symlinks from home
+echo -e "\n$(date -R) Removing old symlinks"
 for userdir in /home/user_* /home/public ;do
-	find ${userdir}/data -lname "*/mnt/device/*" -print0 -mindepth 1 -maxdepth 2 -xdev | xargs -0 rm -f
+	find ${userdir}/data -xdev -mindepth 1 -maxdepth 2 -lname "*/mnt/device/*"
+	find ${userdir}/data -xdev -mindepth 1 -maxdepth 2 -lname "*/mnt/device/*" -print0 | xargs -0 rm -f
 done
 
 ## Lookup our internal storage devices in the db
 Q="SELECT PK_Device, Description  FROM Device WHERE FK_DeviceTemplate IN ($TPL_GENERIC_INTERNAL_DRIVE, $TPL_GENERIC_SAMBA_SHARE, $TPL_GENERIC_NFS_SHARE, $TPL_RAID_0, $TPL_RAID_1, $TPL_RAID_5)"
 InternalOwnStorageDevices=$(RunSQL "$Q")
 
+set -o noglob
 for Device in $InternalOwnStorageDevices; do
+set +o noglob
 	Device_ID=$(Field 1 "$Device")
 	Device_Description=$(Field 2 "$Device")
 	Device_MountPoint="/mnt/device/$Device_ID"
@@ -40,7 +47,7 @@ for Device in $InternalOwnStorageDevices; do
 	Device_Users=$(RunSQL "SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device=$Device_ID AND FK_DeviceData=$DD_USERS")
 	Device_Users=$(Field "1" "$Device_Users")
 
-	echo -e "\n## Generating symlinks for storage device $Device_Description ($Device_ID)"
+	echo -e "\n$(date -R) Generating symlinks for storage device $Device_Description ($Device_ID)"
 	
 	## Sanitize Device_Directories/Users
 	if [[ $Device_Directories == "" ]]; then

@@ -78,6 +78,10 @@ if [[ "$1" == "--restore" ]]; then
 	backupfile=$(ls $MASTERDIR/upload | grep tar)
 	
 	if [[ "$backupfile" != "" ]]; then
+		if [[ -n "$USE_WHIPTAIL" ]]; then
+			chvt 8
+			whiptail --infobox "Restoring database from backup" 10 0 >/dev/tty8
+		fi
 		. /usr/pluto/bin/Config_Ops.sh
 
 		tar xfj "$backupfile"
@@ -143,8 +147,10 @@ if [[ "$1" == "--restore" ]]; then
 
 		/usr/pluto/bin/Network_Setup.sh
 		/usr/pluto/bin/Diskless_Setup.sh
+
+		if [[ -n "$USE_WHIPTAIL" ]]; then
+			clear >/dev/tty8
+			chvt 1
+		fi
 	fi
-
-
 fi
-

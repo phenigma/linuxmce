@@ -19,3 +19,4 @@
 #53_miscfixes.dpatch
 54_lmce_filldata.dpatch
 55_via_cx700m_hack.dpatch
+56_mfd_slowdown.dpatch

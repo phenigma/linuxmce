@@ -65,7 +65,6 @@ namespace DCE
 		Row_Device *m_pRow_Device_Reported;
 		string m_sPK_Orbiter_List_For_Prompts;
 		string m_sDetectionScript_Running;
-		string m_sDescription; // What will be the name of the device
 		Plug_And_Play_Plugin *m_pPlug_And_Play_Plugin;
 
 	public:

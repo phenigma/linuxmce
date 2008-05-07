@@ -160,8 +160,8 @@ public:
 
 	deque<MediaSection *> m_dequeMediaSection;
 	deque<MediaTitle *> m_dequeMediaTitle;
-	map< int,list_int > m_mapPK_Attribute;  /** An external media identification script may set attributes here, PK_AttributeType=PK_Attribute */
-    list_int *m_mapPK_Attribute_Find(int PK_AttributeType) { map<int,list_int >::iterator it = m_mapPK_Attribute.find(PK_AttributeType); return it==m_mapPK_Attribute.end() ? NULL : &((*it).second); }
+	map< int,list_Attribute > m_mapPK_Attribute;  /** An external media identification script may set attributes here, PK_AttributeType=PK_Attribute */
+    list_Attribute *m_mapPK_Attribute_Find(int PK_AttributeType) { map<int,list_Attribute >::iterator it = m_mapPK_Attribute.find(PK_AttributeType); return it==m_mapPK_Attribute.end() ? NULL : &((*it).second); }
 	int m_dwPK_File,m_dwPK_Disk,m_dwPK_MediaType,m_dwPK_Device_Disk_Drive;
 	int m_Slot; // For Jukeboxes, the source slot.  0 means not specified
 	bool m_bWaitingForJukebox; // if true, the disk is in a jukebox and we're waiting for the jukebox to move it to a drive before we can continue

@@ -11,12 +11,12 @@ function Build_MakeRelease {
 
 	DisplayMessage "Precompiling pluto_main"
 	pushd "${svn_dir}/trunk/src/pluto_main"
-	make || Error "Failed to precompile pluto_main to use for MakeRelease"
+	SNR_CPPFLAGS="" make || Error "Failed to precompile pluto_main to use for MakeRelease"
 	popd
 
 	DisplayMessage "Precompiling PlutoUtils"
 	pushd "${svn_dir}/trunk/src/PlutoUtils"
-	make || Error "Failed to precompile PlutoUtils"
+	SNR_CPPFLAGS="" make || Error "Failed to precompile PlutoUtils"
 	popd
 
 	DisplayMessage "Precompiling SerializeClass"
@@ -31,17 +31,17 @@ function Build_MakeRelease {
 
 	DisplayMessage "Precompiling MakeRelease"
 	pushd "${svn_dir}/trunk/src/MakeRelease"
-	make -f Makefile.MakeRelease || Error "Failed to precompile MakeRelease"
+	SNR_CPPFLAGS="" make -f Makefile.MakeRelease || Error "Failed to precompile MakeRelease"
 	popd
 
 	DisplayMessage "Precompiling MakeRelease_PrepFiles"
 	pushd "${svn_dir}/trunk/src/MakeRelease_PrepFiles"
-	make || Error "Failed to precompile MakeRelease_PrepFiles"
+	SNR_CPPFLAGS="" make || Error "Failed to precompile MakeRelease_PrepFiles"
 	popd
 
 	DisplayMessage "Precompiling mysql_wrapper"
 	pushd "${svn_dir}/trunk/src/mysql_wrapper"
-	make || Error "Failed to precompile mysql_wrapper"
+	SNR_CPPFLAGS="" make || Error "Failed to precompile mysql_wrapper"
 	popd
 
 	DisplayMessage "Copy MakeRelease files to ${mkr_dir}"

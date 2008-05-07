@@ -47,7 +47,6 @@ int MoveDiscTask::Run()
 	{
 		if( !m_pJukeBox->LockJukebox(Disk_Drive_Functions::locked_move,this) )
 		{
-			LoggerWrapper::GetInstance()->Write(LV_STATUS, "MoveDiscTask::Run 1 cannot lock jukebox");
 			return 1;  // Try again in a sec
 		}
 		jukeBoxReturnCode = m_pJukeBox->MoveFromSlotToDrive(m_pSlot,m_pDrive);
@@ -121,6 +120,8 @@ int MoveDiscTask::Run()
 
 	m_pJob->RefreshOrbiter();
 	m_eTaskStatus_set(jukeBoxReturnCode==JukeBox::jukebox_ok ? TASK_COMPLETED : TASK_FAILED_ABORT);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MoveDiscTask::Run status %d", (int) m_eTaskStatus_get());
+
 	return 0;
 }
 

@@ -53,6 +53,7 @@ Job::~Job()
 bool Job::Abort()
 {
 	m_bQuit=true;
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Job::Abort %s status %d", m_sName.c_str(), (int) m_eJobStatus);
 	if( m_eJobStatus==job_Aborted )
 		return true;
 	bool bAbortedOk=true;
@@ -61,7 +62,7 @@ bool Job::Abort()
 	for(list<class Task *>::iterator it=m_listTask.begin();it!=m_listTask.end();++it)
 	{
 		Task *pTask = *it;
-		if( !pTask->Abort() )
+		if( pTask->m_eTaskStatus_get()==TASK_NOT_STARTED || pTask->m_eTaskStatus_get()==TASK_IN_PROGRESS || !pTask->Abort() )
 		{
 			LoggerWrapper::GetInstance()->Write(LV_WARNING,"Job::Abort %s cannot abort task %s", m_sName.c_str(), pTask->m_sName.c_str());
 			bAbortedOk=false;
@@ -171,13 +172,21 @@ void Job::Run()
 {
 	PLUTO_SAFETY_LOCK(jm,m_ThreadMutex);
 	Task * pTask;
+	bool bAborted=false;
 	while (m_bQuit==false && (pTask = GetNextTask())!=NULL)
 	{
 		jm.Release();
 		if( pTask->m_eTaskStatus_get()==TASK_NOT_STARTED )
 			pTask->m_eTaskStatus_set(TASK_IN_PROGRESS);
 		int iResult = pTask->Run();
-		if( iResult==0 && pTask->m_eTaskStatus_get()==TASK_IN_PROGRESS )
+		if( pTask->m_eTaskStatus_get()==TASK_FAILED_ABORT )
+		{
+			bAborted=true;
+			LoggerWrapper::GetInstance()->Write(LV_WARNING,"Job::Run %s abort per task task %s", m_sName.c_str(), pTask->m_sName.c_str());
+			Abort();
+			break;
+		}
+		else if( iResult==0 && pTask->m_eTaskStatus_get()==TASK_IN_PROGRESS )
 			pTask->m_eTaskStatus_set(TASK_COMPLETED);
 		else if( iResult )
 		{
@@ -190,7 +199,7 @@ void Job::Run()
 		jm.Relock();
 	}
 	RefreshOrbiter();
-	m_eJobStatus=job_Done;
+	m_eJobStatus=bAborted ? job_Aborted : job_Done;
 	JobDone();
 	m_pJobHandler->BroadcastCond();
 }

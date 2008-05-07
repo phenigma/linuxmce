@@ -30,6 +30,6 @@ pushd /usr/local/lmce-build/vmware-install/
 	/usr/local/lmce-build/vmware-install/install_in_vmware.sh "nu-force single-layer"
 popd 
 pushd /usr/local/lmce-build/build-dvd
-	/usr/local/lmce-build/build-dvd/build-cd.sh "NuForce.iso"
+	/usr/local/lmce-build/build-dvd/build-cd.sh "NuForce-DVD-${arch}.iso"
 popd
 

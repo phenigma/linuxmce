@@ -84,6 +84,9 @@ CreateLiveCD()
 	cp ${build_dir}/DisklessSync/i386/deb-cache/* "$LiveCDDir/deb-cache/"	|| Warning "Can't find crossover debs for i386 architecture"
 	cp ${build_dir}/DisklessSync/amd64/deb-cache/* "$LiveCDDir/deb-cache/"	|| Warning "Can't find crossover debs for amd64 architecture"
 
+	cp "${build_dir}/DisklessSync/i386/revision"  "$build_dir/svn_i386"  || :
+	cp "${build_dir}/DisklessSync/amd64/revision" "$build_dir/svn_amd64" || :
+
 	if [[ "$DoubleLayer" == "true" ]] ;then
 		mkdir -p "$LiveCDDir/lmce-videos"
 		cp "${build_dir}/lmce-videos"/* "$LiveCDDir/lmce-videos/" || Warning "Could not find lmce-videos for the double layer dvd"

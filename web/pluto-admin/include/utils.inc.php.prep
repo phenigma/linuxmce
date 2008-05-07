@@ -6351,7 +6351,14 @@ function editCommandGroupCommands($commandGroupID,$dbADO){
 					$out.="
 						<tr ".(strlen(trim($rowSelectParameters['CP_Description']))==0?" bgColor='lightgreen' ":"").">
 							<td>#{$rowSelectParameters['FK_CommandParameter']} <span title=\"{$rowSelectParameters['C_CP_Description']}\">{$rowSelectParameters['CP_Description']}</span> ({$rowSelectParameters['PT_Description']})</td>
-							<td><input type='text' name=\"CommandParameterValue_{$rowCommandAssigned['PK_CommandGroup_Command']}_{$rowSelectParameters['FK_CommandParameter']}\" id=\"CommandParameterValue_{$rowCommandAssigned['PK_CommandGroup_Command']}_{$rowSelectParameters['FK_CommandParameter']}\" value=\"{$rowSelectParameters['IK_CommandParameter']}\" >".'</td>
+							<td><input type='text' name=\"CommandParameterValue_{$rowCommandAssigned['PK_CommandGroup_Command']}_{$rowSelectParameters['FK_CommandParameter']}\" id=\"CommandParameterValue_{$rowCommandAssigned['PK_CommandGroup_Command']}_{$rowSelectParameters['FK_CommandParameter']}\" value=\"{$rowSelectParameters['IK_CommandParameter']}\" >";
+							
+							// if command == 13, display file picker link
+							if($rowSelectParameters['FK_CommandParameter']==13){
+								$out.=' <a href="javascript:windowOpen(\'index.php?section=filePicker&from=editCommandGroup&cgcID='.$rowCommandAssigned['PK_CommandGroup_Command'].'&cp='.$rowSelectParameters['FK_CommandParameter'].'\',\'width=640,height=480,toolbars=true,resizable=1,scrollbars=1\');"><img src="include/images/pick.gif" border="0" align="bottom"></a>';
+							}
+							$out.='					
+							<td>
 						</tr>';
 
 					// for FK_Command==741, GoTo screen, display the parameters for that screen
@@ -6369,8 +6376,9 @@ function editCommandGroupCommands($commandGroupID,$dbADO){
 							$out.="
 							<tr>
 								<td>#{$row['PK_CommandParameter']} <span title=\"{$row['TitleLong']}\">{$row['Description']}</span> ({$row['PT_Description']})</td>
-								<td><input type='text' name=\"CommandParameterValue_{$rowCommandAssigned['PK_CommandGroup_Command']}_{$row['PK_CommandParameter']}\" value=\"{$row['IK_CommandParameter']}\" >".'</td>
-							</tr>';
+								<td><input type='text' name=\"CommandParameterValue_{$rowCommandAssigned['PK_CommandGroup_Command']}_{$row['PK_CommandParameter']}\" value=\"{$row['IK_CommandParameter']}\" >
+								</td>
+							</tr>";
 						}
 					}
 				}
@@ -6712,7 +6720,7 @@ function write_weblog($str){
 	writeFile($GLOBALS['WebExecLogFile'],date('d-m-Y H:i:s')."\t".$str."\n",'a+');
 }
 
-function get_alert_pic($picname){
+function get_alert_pic($picname,$PK_Alert_Device=0){
 	$extensionsArray=array('png','jpg','gif');
 	
 	foreach ($extensionsArray AS $extension){
@@ -6721,9 +6729,40 @@ function get_alert_pic($picname){
 			return $picPath;
 		}
 	}
+	if($PK_Alert_Device!=0){
+		$diskAlerts=grabAlertFiles($GLOBALS['SecurityPicsPath'],'alert_'.$PK_Alert_Device.'_cam');
+		if(count($diskAlerts)!=0){
+			return $diskAlerts[0];
+		}
+	}
 	
 	return APPROOT.'include/images/alert_no_pic.png';
 }
+
+function grabAlertFiles($path,$file_prefix='') {
+	$filesArray=array();
+	
+	$f = 0;
+	$filesArray = array();
+	if (@$handle = opendir($path)) {
+		while (false!== ($file = readdir($handle))) {
+			if($file!= "." && $file!= "..") {
+				if($file_prefix=='' || ($file_prefix!='' && strpos($file,$file_prefix)!==false)){
+					$fName = $file;
+					$file = $path.$file;
+					$filesArray[$f++] = $file;
+				}
+			};
+		};
+		closedir($handle);
+	};
+	asort( $filesArray ); 
+	reset( $filesArray );
+
+
+	return $filesArray;
+} 
+
 
 function parse_ini_str ( $ini) {
     $lines= explode("\n",$ini);

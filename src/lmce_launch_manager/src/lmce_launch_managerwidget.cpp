@@ -28,9 +28,11 @@
 
 #include "DCE/DCEConfig.h"
 #include "DCE/Logger.h"
+#include "DCE/ClientSocket.h"
 #include "pluto_main/Define_DeviceData.h"
 #include "Gen_Devices/AllCommandsRequests.h"
 #include "PlutoUtils/ProcessUtils.h"
+
 
 // timeouts in seconds
 #define MEDIA_DEVICE_TIMEOUT 10
@@ -852,7 +854,21 @@ bool lmce_launch_managerWidget::initialize_LMdevice(bool bRetryForever/*=false*/
 		m_pLaunch_Manager = new DCE::Launch_Manager(
 				m_qsDeviceID.toInt(), sCoreIP,  true, false);
 
-		if ( m_pLaunch_Manager->GetConfig() && m_pLaunch_Manager->Connect(m_pLaunch_Manager->PK_DeviceTemplate_get()) ) 
+		bool bConnected = m_pLaunch_Manager->GetConfig();
+		if ( bConnected && m_pLaunch_Manager->m_pEvent->m_pClientSocket->m_eLastError==DCE::ClientSocket::cs_err_NeedReload )
+		{
+			lbMessages->clear();
+			writeLog(QString("Please go to an existing Orbiter and choose 'quick reload router'. "), true, LV_WARNING);
+			writeLog(QString("This media director will start after you do..."), true, LV_WARNING);
+
+			
+			sleep(10);
+
+			writeLog(QString("initialize_LMdevice: router should be reloaded, retrying connect"), false, LV_WARNING);
+			delete m_pLaunch_Manager;
+			m_pLaunch_Manager = NULL;
+		}
+		if( bConnected && m_pLaunch_Manager->Connect(m_pLaunch_Manager->PK_DeviceTemplate_get()) ) 
 		{
 			writeLog(QString("initialize_LMdevice: Connect OK"), true, LV_STATUS);
 			

@@ -1955,11 +1955,17 @@ void Telecom_Plugin::CMD_PL_Add_VOIP_Account(string sName,string sPhoneNumber,st
 		return;
 	}
 	
-	string cmdline = "/usr/pluto/bin/create_amp_phoneline.sh " + sName;
-
-	cmdline+= string(" ")+sUsers+(" ")+sPassword+string(" ")+sPhoneNumber;
-	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Will call %s",cmdline.c_str());
-	system(cmdline.c_str());
+	DeviceData_Base *pDevice_App_Server = m_pData->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_App_Server_CONST,this);
+	if( pDevice_App_Server )
+	{
+		string parms = sName+("\t")+sUsers+("\t")+sPassword+string("\t")+sPhoneNumber;
+		DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice_App_Server->m_dwPK_Device,
+			"/usr/pluto/bin/create_amp_phoneline.sh", "add voip", parms,
+			"", "", false, false, false, false);
+		SendCommand(CMD_Spawn_Application);
+	}
+	else
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Telecom_Plugin::CMD_PL_Add_VOIP_Account no app server");
 }
 
 bool Telecom_Plugin::OrbiterRegistered(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo)
@@ -2661,7 +2667,7 @@ class DataGridTable *Telecom_Plugin::UserVoiceMailGrid(string GridID,string Parm
 			string url= VOICEMAIL_URL + StringUtils::Replace(URL_Parm, "\n", "");
 			
 			DCE::CMD_MH_Play_Media CMD_MH_Play_Media_
-				(pMessage->m_dwPK_Device_From, pMediaPlugin->m_dwPK_Device, pMessage->m_dwPK_Device_From, url, MEDIATYPE_pluto_StoredAudio_CONST,0,"",0,0);
+				(pMessage->m_dwPK_Device_From, pMediaPlugin->m_dwPK_Device, pMessage->m_dwPK_Device_From, url, MEDIATYPE_pluto_StoredAudio_CONST,0,"",0,0,false,false);
 			
 			pCell = new DataGridCell(text,"");
 			pCell->m_pMessage=CMD_MH_Play_Media_.m_pMessage;
@@ -2693,7 +2699,7 @@ class DataGridTable *Telecom_Plugin::UserVoiceMailGrid(string GridID,string Parm
 			string url = VOICEMAIL_URL + StringUtils::Replace(URL_Parm, "\n", "");
 			
 			DCE::CMD_MH_Play_Media CMD_MH_Play_Media_
-				(pMessage->m_dwPK_Device_From, pMediaPlugin->m_dwPK_Device, pMessage->m_dwPK_Device_From, url, MEDIATYPE_pluto_StoredAudio_CONST,0,"",0,0);
+				(pMessage->m_dwPK_Device_From, pMediaPlugin->m_dwPK_Device, pMessage->m_dwPK_Device_From, url, MEDIATYPE_pluto_StoredAudio_CONST,0,"",0,0,false,false);
 			
 			pCell = new DataGridCell(text,"");
 			pCell->m_pMessage=CMD_MH_Play_Media_.m_pMessage;
@@ -3876,15 +3882,25 @@ void Telecom_Plugin::CMD_Add_To_Speed_Dial(int iPK_Device,string sCallerID,strin
 	Phone="$3"
 	RoomID="$4"
 	RoomName="$5"*/
-	
-	string sCmdLine = "/usr/pluto/bin/CreateSpeedDial.sh ";
-	sCmdLine += "\"" + sCallerID + "\" ";
-	sCmdLine += "\"" + sPhoneExtension + "\" ";
-	sCmdLine += "\"" + StringUtils::itos(iPK_Device) + "\" ";
-	sCmdLine += "\"" + StringUtils::itos(pOH_Orbiter->m_dwPK_Room) + "\" ";
-	sCmdLine += "\"" + pRoom->m_sDescription + "\"";
-	system(sCmdLine.c_str());
-	
+
+	DeviceData_Base *pDevice_App_Server = m_pData->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_App_Server_CONST,this);
+	if( pDevice_App_Server )
+	{
+		string parms = 	"\"" + sCallerID + "\"\t"
+			"\"" + sPhoneExtension + "\"\t"
+			"\"" + StringUtils::itos(iPK_Device) + "\"\t"
+			"\"" + StringUtils::itos(pOH_Orbiter->m_dwPK_Room) + "\"\t";
+			"\"" + pRoom->m_sDescription + "\"";
+
+		DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice_App_Server->m_dwPK_Device,
+			"/usr/pluto/bin/CreateSpeedDial.sh", "add speed dial", parms,
+			"", "", false, false, false, false);
+		SendCommand(CMD_Spawn_Application);
+	}
+	else
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Telecom_Plugin::CMD_Add_To_Speed_Dial no app server");
+
+
 	sCMD_Result = "OK";
 }
 

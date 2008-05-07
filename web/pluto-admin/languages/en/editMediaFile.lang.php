@@ -43,4 +43,5 @@ $TEXT_EDIT_ATTRIBUTES_FOR_FILES_IN_DIRECTORY_CONST='Edit attributes for all file
 $TEXT_DIRECTORY_NOT_SPECIFIED_CONST='Directory not specified';
 $TEXT_NO_FILES_ON_DIRECTORY_CONST='No files in selected directory';
 $TEXT_REPLACE_EXISTING_PICS_CONST='Replace all existing pictures?';
+$TEXT_REPLACE_ATTRIBUTES_CONST='Replace existing attributes of this type?';
 ?>

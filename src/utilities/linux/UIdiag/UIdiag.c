@@ -404,7 +404,7 @@ bool handleKeyPress( SDL_keysym *keysym )
 }
 
 /* general OpenGL initialization function */
-int initGL( GLvoid )
+int initGL()
 {
 	/* Load in the texture */
 	if(!LoadGLTextures())
@@ -438,7 +438,7 @@ int initGL( GLvoid )
 }
 
 /* Here goes our drawing code */
-int drawGLScene( GLvoid )
+int drawGLScene()
 {
 	/* These are to calculate our fps */
 	static GLint T0     = 0;

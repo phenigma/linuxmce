@@ -39,7 +39,7 @@ using namespace std;
 
 void MediaListGrid::ToData(string GridID,int &Size, char* &Data, int *ColStart, int *RowStart, int ColCount, int RowCount)
 {
-	if( !m_pMediaListGrid_Master || *ColStart>0 )  // It's just the list -- nothing special to do here.  And there's no horizontal paging
+	if( m_omgsStyle!=omgs_BrowserStyle_Icon_List || !m_pMediaListGrid_Master || *ColStart>0 )  // It's just the list -- nothing special to do here.  And there's no horizontal paging
 	{
 		DataGridTable::ToData(GridID,Size,Data,ColStart,RowStart,ColCount,RowCount);
 		return;

@@ -231,7 +231,7 @@ public:
 	void EVENT_Listening_to_Media(int iPK_Room) { GetEvents()->Listening_to_Media(iPK_Room); }
 	void EVENT_Stopped_Listening_To_Medi(int iPK_Room) { GetEvents()->Stopped_Listening_To_Medi(iPK_Room); }
 	//Commands - Override these to handle commands from the server
-	virtual void CMD_MH_Play_Media(int iPK_Device,string sFilename,int iPK_MediaType,int iPK_DeviceTemplate,string sPK_EntertainArea,bool bResume,int iRepeat,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_MH_Play_Media(int iPK_Device,string sFilename,int iPK_MediaType,int iPK_DeviceTemplate,string sPK_EntertainArea,bool bResume,int iRepeat,bool bBypass_Event,bool bDont_Setup_AV,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_MH_Stop_Media(int iPK_Device,int iPK_MediaType,int iPK_DeviceTemplate,string sPK_EntertainArea,bool bBypass_Event,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Jump_Position_In_Playlist(string sValue_To_Assign,int iStreamID,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Bind_to_Media_Remote(int iPK_Device,string sPK_DesignObj,string sOnOff,string sOptions,string sPK_EntertainArea,int iPK_Text_Synopsis,int iPK_Screen,string &sCMD_Result,class Message *pMessage) {};
@@ -312,7 +312,9 @@ public:
 						string sPK_EntertainArea=pMessage->m_mapParameters[COMMANDPARAMETER_PK_EntertainArea_CONST];
 						bool bResume=(pMessage->m_mapParameters[COMMANDPARAMETER_Resume_CONST]=="1" ? true : false);
 						int iRepeat=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Repeat_CONST].c_str());
-						CMD_MH_Play_Media(iPK_Device,sFilename.c_str(),iPK_MediaType,iPK_DeviceTemplate,sPK_EntertainArea.c_str(),bResume,iRepeat,sCMD_Result,pMessage);
+						bool bBypass_Event=(pMessage->m_mapParameters[COMMANDPARAMETER_Bypass_Event_CONST]=="1" ? true : false);
+						bool bDont_Setup_AV=(pMessage->m_mapParameters[COMMANDPARAMETER_Dont_Setup_AV_CONST]=="1" ? true : false);
+						CMD_MH_Play_Media(iPK_Device,sFilename.c_str(),iPK_MediaType,iPK_DeviceTemplate,sPK_EntertainArea.c_str(),bResume,iRepeat,bBypass_Event,bDont_Setup_AV,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -329,7 +331,7 @@ public:
 						{
 							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_MH_Play_Media(iPK_Device,sFilename.c_str(),iPK_MediaType,iPK_DeviceTemplate,sPK_EntertainArea.c_str(),bResume,iRepeat,sCMD_Result,pMessage);
+								CMD_MH_Play_Media(iPK_Device,sFilename.c_str(),iPK_MediaType,iPK_DeviceTemplate,sPK_EntertainArea.c_str(),bResume,iRepeat,bBypass_Event,bDont_Setup_AV,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

@@ -175,6 +175,14 @@ function cleanup_filesystem {
 
 	## Remove the ssh key used for installation
 	rm -f "${FILESYSTEM_ROOT}"/root/.ssh/authorized_keys
+
+	## Reset some logs
+	rm -f ${FILESYSTEM_ROOT}/var/log/pluto/*.log
+	echo -n > ${FILESYSTEM_ROOT}/var/log/syslog
+	echo -n > ${FILESYSTEM_ROOT}/var/log/messages
+	echo -n > ${FILESYSTEM_ROOT}/var/log/auth.log
+	echo -n > ${FILESYSTEM_ROOT}/var/log/wtmp
+	echo -n > ${FILESYSTEM_ROOT}/var/log/lastlog
 }
 
 function create_disk_image_from_flat {

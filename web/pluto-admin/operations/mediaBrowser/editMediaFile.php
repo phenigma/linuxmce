@@ -357,7 +357,7 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 					$isAdded=(ereg('RESP: OK',$AttributeAdded))?true:false;
 					
 					if($isAdded!==true){
-						header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&error='.$TEXT_ERROR_ATTRIBUTE_NOT_ADDED_CONST.': '.urlencode(nl2br($AttributeAdded)));
+						header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&error='.$TEXT_ERROR_ATTRIBUTE_NOT_ADDED_CONST);
 						exit();
 					}
 					
@@ -368,7 +368,7 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 				$AttributeAdded=addAttribute($newAttributeType,$newAttributeName,$fileID,$dbADO);
 				$isAdded=(ereg('RESP: OK',$AttributeAdded))?true:false;
 				if($isAdded!==true){
-					header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&error='.$TEXT_ERROR_ATTRIBUTE_NOT_ADDED_CONST.': '.urlencode(nl2br($AttributeAdded)));
+					header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&error='.$TEXT_ERROR_ATTRIBUTE_NOT_ADDED_CONST);
 					exit();
 				}
 			}

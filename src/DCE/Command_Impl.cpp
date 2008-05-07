@@ -1180,6 +1180,7 @@ void Command_Impl::DeleteGlobalAllocs()
 
 void Command_Impl::WaitForMessageQueue()
 {
+	time_t tTimeout = time(NULL) + 15;  // Timeout in 15 seconds
 	while(true)
 	{
 		PLUTO_SAFETY_LOCK_ERRORSONLY( mq, m_listMessageQueueMutex );
@@ -1187,6 +1188,11 @@ void Command_Impl::WaitForMessageQueue()
 			return;
 		mq.Release();
 		Sleep(50);
+		if( time(NULL) > tTimeout )
+		{
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Command_Impl::WaitForMessageQueue timed out");
+			return;
+		}
 	}
 }
 

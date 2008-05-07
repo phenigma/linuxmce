@@ -243,7 +243,7 @@ bool RipTask::Abort()
 		m_sSpawnName,false);
     m_pRipJob->m_pDisk_Drive_Functions->m_pCommand_Impl->SendCommand(CMD_Kill_Application);
 
-	if( FileUtils::DirExists(m_pRipJob->m_sName) )
+	if( FileUtils::DirExists(m_pRipJob->m_sFileName) )
 	{
 		string::size_type pos=0;
 		while(pos<m_pRipJob->m_sTracks.size())
@@ -252,26 +252,26 @@ bool RipTask::Abort()
 			string::size_type pos_name = sTrack.find(",");
 			if( pos_name!=string::npos )
 			{
-				FileUtils::DelFile(m_pRipJob->m_sName + "/" + sTrack.substr(pos_name+1) + "*");
-LoggerWrapper::GetInstance()->Write(LV_STATUS,"RipTask::Abort deleting %s", (m_pRipJob->m_sName + "/" + sTrack.substr(pos_name+1) + "*").c_str() );
+				FileUtils::DelFile(m_pRipJob->m_sFileName + "/" + sTrack.substr(pos_name+1) + "*");
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"RipTask::Abort deleting %s", (m_pRipJob->m_sFileName + "/" + sTrack.substr(pos_name+1) + "*").c_str() );
 			}
 		}
 		list<string> listFiles;
-		FileUtils::FindFiles(listFiles,m_pRipJob->m_sName,"*",true,false,1);
-		FileUtils::FindDirectories(listFiles,m_pRipJob->m_sName,false);
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"It's a directory %s with %d files",m_pRipJob->m_sName.c_str(),(int) listFiles.size());
+		FileUtils::FindFiles(listFiles,m_pRipJob->m_sFileName,"*",true,false,1);
+		FileUtils::FindDirectories(listFiles,m_pRipJob->m_sFileName,false);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"It's a directory %s with %d files",m_pRipJob->m_sFileName.c_str(),(int) listFiles.size());
 		if( listFiles.size()==0 )  // There's nothing else in that directory.  Delete it
 		{
-			FileUtils::DelDir(m_pRipJob->m_sName);
-			string sParent = FileUtils::BasePath(m_pRipJob->m_sName);
+			FileUtils::DelDir(m_pRipJob->m_sFileName);
+			string sParent = FileUtils::BasePath(m_pRipJob->m_sFileName);
 			FileUtils::FindFiles(listFiles,sParent,"*",true,false,1);
 			FileUtils::FindDirectories(listFiles,sParent,false);
 		}
 	}
 	else
 	{
-		FileUtils::DelFile(m_pRipJob->m_sName + ".*");  // Delete any temporary or in progress
-LoggerWrapper::GetInstance()->Write(LV_STATUS,"RipTask::Abort deleting %s", (m_pRipJob->m_sName + ".*").c_str() );
+		FileUtils::DelFile(m_pRipJob->m_sFileName + ".*");  // Delete any temporary or in progress
+LoggerWrapper::GetInstance()->Write(LV_STATUS,"RipTask::Abort deleting %s", (m_pRipJob->m_sFileName + ".*").c_str() );
 	}
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"RipTask::Abort %s job %p slot %p jukebox %p drive %p",

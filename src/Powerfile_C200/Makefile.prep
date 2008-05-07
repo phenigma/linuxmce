@@ -1,3 +1,4 @@
+# -*- Makefile -*-
 #<-dceag-mh-b->
 GENDEV=../Gen_Devices
 
@@ -28,9 +29,6 @@ Gen_Dev_Files +=
 sources += \
 	PowerfileJukebox.cpp \
 	Utils.cpp \
-	../JobHandler/JobHandler.cpp \
-	../JobHandler/Job.cpp \
-	../JobHandler/Task.cpp \
 	../Media_Plugin/MediaAttributes_LowLevel.cpp \
 	../HAL/HalTree.cpp
 
@@ -51,7 +49,7 @@ Powerfile_C200.so: $(sources:.cpp=.o)
 	cp $@ ../bin
 	chmod +x post_make.sh
 	./post_make.sh $@
-		
+
 Powerfile_C200: $(sources:.cpp=.o)
 	$(CXX) -o $(MYNAME) $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin

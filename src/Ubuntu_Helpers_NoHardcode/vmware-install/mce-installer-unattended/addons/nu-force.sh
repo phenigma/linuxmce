@@ -79,7 +79,7 @@ AVWizardReplacement()
 	Video_Connector="VGA"
 	PK_Skin=12 # NuForce
 	PK_Size=6 # 1024x768
-	NewAudioSetting="S"
+	NewAudioSetting="C3"
 
 	Queries=(
 		"UPDATE Device_DeviceData SET IK_DeviceData='$OrbiterWidth' WHERE FK_Device='$OrbiterDev' AND FK_DeviceData='$DEVICEDATA_ScreenWidth'"
@@ -170,6 +170,8 @@ DatabaseDefaults()
 			VALUES(1, 1, 1, 1)"
 		"DELETE FROM Device_QuickStart WHERE Description like '%MythTV%'"
 		"UPDATE Device SET IPAddress='192.168.78.1' WHERE IPAddress='192.168.80.1'"
+		"UPDATE Firewall SET SourceIP='192.168.78.1' WHERE SourceIP='192.168.80.1'"
+		"UPDATE Firewall SET DestinationIP='192.168.78.1' WHERE DestinationIP='192.168.80.1'"
 	)
 
 	for Q in "${Queries[@]}"; do
@@ -207,8 +209,17 @@ Firewall()
 ApplyHacks()
 {
 	AsoundSubst='s/convert48k/convert44k/g; s/rate 48000/rate 44100/g; /playback\.pcm/ s/spdif_playback/plughw:0,1/g'
+	AsoundCleanup='/pcm_slave.convert44k {/,/^$/ {next}; /pcm.spdif_playback {/,/^$/ {next} {print}'
+
 	sed -ri "$AsoundSubst" /usr/pluto/templates/asound.conf
-	sed -ri "$AsoundSubst" /etc/asound.conf || :
+	awk "$AsoundCleanup" /usr/pluto/templates/asound.conf >/usr/pluto/templates/asound.conf.nuforce
+	mv /usr/pluto/templates/asound.conf{.nuforce,}
+
+	if [[ -f /etc/asound.conf ]]; then
+		sed -ri "$AsoundSubst" /etc/asound.conf
+		awk "$AsoundCleanup" /etc/asound.conf >/etc/asound.conf.nuforce
+		mv /etc/asound.conf{.nuforce,}
+	fi
 }
 
 Packages

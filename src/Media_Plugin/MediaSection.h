@@ -22,6 +22,7 @@
 #include <list>
 
 typedef list<int> list_int;
+typedef list<Row_Attribute *> list_Attribute;
 
 class MediaSection
 {
@@ -33,8 +34,8 @@ public:
 	~MediaSection() {
 	}
 
-	map< int,list_int > m_mapPK_Attribute;  /** An external media identification script may set attributes here, PK_AttributeType=PK_Attribute */
-    list_int *m_mapPK_Attribute_Find(int PK_AttributeType) { map<int,list_int >::iterator it = m_mapPK_Attribute.find(PK_AttributeType); return it==m_mapPK_Attribute.end() ? NULL : &((*it).second); }
+	map< int,list_Attribute > m_mapPK_Attribute;  /** An external media identification script may set attributes here, PK_AttributeType=PK_Attribute */
+    list_Attribute *m_mapPK_Attribute_Find(int PK_AttributeType) { map<int,list_Attribute >::iterator it = m_mapPK_Attribute.find(PK_AttributeType); return it==m_mapPK_Attribute.end() ? NULL : &((*it).second); }
 };
 
 #endif

@@ -195,6 +195,8 @@ $manualyConfigureArray=array(
 		<td valign="top">This device is controlled via</td>
 		<td colspan="2">
 		';
+	
+		$GLOBALS['DT_&_Room']=1;
 		$out.=controlledViaPullDown('controlledVia',$deviceID,$DeviceTemplate,$DeviceCategory,$controlledVia,$dbADO,'0,- '.$TEXT_PLEASE_SELECT_CONST.' -','class="input_big" onchange="document.editDeviceParams.submit();"');
 					
 		$out.='		

@@ -82,7 +82,7 @@ if($action=='form') {
 				<td><input type="button" class="button" name="posDown" value="U" onClick="self.location=\'index.php?section=lightingScenarios&cgID='.$rowCG['PK_CommandGroup'].'&action=process&roomID='.$rowRooms['PK_Room'].'&operation=down&posInRoom='.urlencode(serialize($posInRoom)).'\'"> 
 					<input type="button" class="button" name="posUp" value="D" onClick="self.location=\'index.php?section=lightingScenarios&cgID='.$rowCG['PK_CommandGroup'].'&action=process&roomID='.$rowRooms['PK_Room'].'&operation=up&posInRoom='.urlencode(serialize($posInRoom)).'\'">
 				 '.$TEXT_DESCRIPTION_CONST.': '.((!in_array($rowCG['PK_CommandGroup'],$displayedCommandGroups))?'<B>'.$rowCG['Description'].'</B> '.$TEXT_HINT_CONST.': <b>'.$rowCG['Hint'].'</b>':'<b>'.nl2br($rowCG['Description']).': </b>'.$TEXT_HINT_CONST.': <b>'.$rowCG['Hint'].'</b> (See '.$firstRoomArray[$rowCG['PK_CommandGroup']].')').'</td>
-				<td>'.(($pos==1)?'Default ON':'').(($pos==2)?'Default OFF':'').'</td>
+				<td></td>
 				<td>
 					<a href="#" onclick="document.lightingScenarios.action.value=\'testScenario\';document.lightingScenarios.editedCgID.value='.$rowCG['PK_CommandGroup'].';document.lightingScenarios.submit();">'.$TEXT_TEST_CONST.'</a>
 					<a href="#" onclick="document.lightingScenarios.editedCgID.value='.$rowCG['PK_CommandGroup'].';document.lightingScenarios.roomID.value='.$rowRooms['PK_Room'].';document.lightingScenarios.submit();">'.$TEXT_EDIT_CONST.'</a>

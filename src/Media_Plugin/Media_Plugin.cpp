@@ -910,7 +910,7 @@ bool Media_Plugin::MediaInserted( class Socket *pSocket, class Message *pMessage
 
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Calling Start Media from Media Inserted with orbiter %d",PK_Orbiter);
 
-			MediaStream *pMediaStream = StartMedia(pMediaHandlerInfo,0,PK_Orbiter,vectEntertainArea,pDeviceFrom->m_dwPK_Device,&dequeMediaFile,false,0,"");
+			MediaStream *pMediaStream = StartMedia(pMediaHandlerInfo,0,PK_Orbiter,vectEntertainArea,pDeviceFrom->m_dwPK_Device,&dequeMediaFile,false,0,"",false,false);
 			if( pMediaStream )
 				pMediaStream->m_discid = discid;
 /*
@@ -1141,7 +1141,7 @@ void Media_Plugin::HandleAVAdjustments(MediaStream *pMediaStream,string sAudio,s
 	}
 }
 
-void Media_Plugin::StartMedia( int iPK_MediaType, int iPK_MediaProvider, unsigned int iPK_Device_Orbiter, vector<EntertainArea *>  &vectEntertainArea, int iPK_Device, int iPK_DeviceTemplate, deque<MediaFile *> *p_dequeMediaFile, bool bResume, int iRepeat, string sStartingPosition, vector<MediaStream *> *p_vectMediaStream)
+void Media_Plugin::StartMedia( int iPK_MediaType, int iPK_MediaProvider, unsigned int iPK_Device_Orbiter, vector<EntertainArea *>  &vectEntertainArea, int iPK_Device, int iPK_DeviceTemplate, deque<MediaFile *> *p_dequeMediaFile, bool bResume, int iRepeat, string sStartingPosition, bool bBypassEvent, bool bDontSetupAV, vector<MediaStream *> *p_vectMediaStream)
 {
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::StartMedia iPK_MediaType %d iPK_MediaProvider %d iPK_Device_Orbiter %d vectEntertainArea %d iPK_Device %d iPK_DeviceTemplate %d p_dequeMediaFile %p bResume %d iRepeat %d sStartingPosition %s p_vectMediaStream %p",
 		iPK_MediaType, iPK_MediaProvider, iPK_Device_Orbiter, (int) vectEntertainArea.size(), iPK_Device, iPK_DeviceTemplate, p_dequeMediaFile, (int) bResume, iRepeat, sStartingPosition.c_str(), p_vectMediaStream);
@@ -1231,7 +1231,7 @@ void Media_Plugin::StartMedia( int iPK_MediaType, int iPK_MediaProvider, unsigne
 		}
 
 		MediaStream *pMediaStream = StartMedia(pMediaHandlerInfo,iPK_MediaProvider,iPK_Device_Orbiter,vectEA_to_MediaHandler[s].second,
-			iPK_Device,p_dequeMediaFile,bResume,iRepeat,sStartingPosition,0,&mapEntertainmentArea_OutputZone);  // We'll let the plug-in figure out the source, and we'll use the default remote
+			iPK_Device,p_dequeMediaFile,bResume,iRepeat,sStartingPosition,bBypassEvent,bDontSetupAV,0,&mapEntertainmentArea_OutputZone);  // We'll let the plug-in figure out the source, and we'll use the default remote
 
 		//who will take care of pMediaStream ?
 
@@ -1296,7 +1296,7 @@ int Media_Plugin::GetMediaTypeForFile(deque<MediaFile *> *p_dequeMediaFile,vecto
 	return 0;
 }
 
-MediaStream *Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, int iPK_MediaProvider, unsigned int PK_Device_Orbiter, vector<EntertainArea *> &vectEntertainArea, int PK_Device_Source, deque<MediaFile *> *dequeMediaFile, bool bResume,int iRepeat, string sStartingPosition, int iPK_Playlist,map<int, pair<MediaDevice *,MediaDevice *> > *p_mapEntertainmentArea_OutputZone)
+MediaStream *Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, int iPK_MediaProvider, unsigned int PK_Device_Orbiter, vector<EntertainArea *> &vectEntertainArea, int PK_Device_Source, deque<MediaFile *> *dequeMediaFile, bool bResume,int iRepeat, string sStartingPosition, bool bBypassEvent, bool bDontSetupAV, int iPK_Playlist,map<int, pair<MediaDevice *,MediaDevice *> > *p_mapEntertainmentArea_OutputZone)
 {
     PLUTO_SAFETY_LOCK(mm,m_MediaMutex);
 
@@ -1375,6 +1375,8 @@ dequeMediaFile->size() ? (*dequeMediaFile)[0]->m_sPath.c_str() : "NO",
 		}
 
 		// ContainsVideo needs this too
+		pMediaStream->m_bBypassEvent = bBypassEvent;
+		pMediaStream->m_bDontSetupAV = bDontSetupAV;
 	    pMediaStream->m_iPK_MediaType = pMediaHandlerInfo->m_PK_MediaType;
 		pMediaStream->m_sStartPosition = sStartingPosition;
 		pMediaStream->m_sAppName = pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_mapParameters_Find(DEVICEDATA_Name_CONST);
@@ -1480,10 +1482,13 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream,map<int, pair<MediaDevic
 
 		pEntertainArea->m_pMediaStream=pMediaStream;
 		pEntertainArea->m_pMediaDevice_OutputZone=NULL;
-		if( pMediaStream->ContainsVideo() )
-			EVENT_Watching_Media(pEntertainArea->m_pRoom->m_dwPK_Room);
-		else
-			EVENT_Listening_to_Media(pEntertainArea->m_pRoom->m_dwPK_Room);
+		if( pMediaStream->m_bBypassEvent==false )
+		{
+			if( pMediaStream->ContainsVideo() )
+				EVENT_Watching_Media(pEntertainArea->m_pRoom->m_dwPK_Room);
+			else
+				EVENT_Listening_to_Media(pEntertainArea->m_pRoom->m_dwPK_Room);
+		}
 	}
 
 	FindActiveDestination(pMediaStream,p_mapEntertainmentArea_OutputZone);
@@ -1594,7 +1599,7 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 			{
 				pOldStreamInfo = (*itFind).second;
 			}
-			if( !pOldStreamInfo || !pOldStreamInfo->m_bNoChanges )
+			if( !pOldStreamInfo || !pOldStreamInfo->m_bNoChanges || pMediaStream->m_bDontSetupAV==true )
 			{
 				// We need to get the current rendering devices so that we can send on/off commands
 				map<int,MediaDevice *> mapMediaDevice_Current;
@@ -2378,8 +2383,8 @@ void Media_Plugin::CMD_MH_Stop_Media(int iPK_Device,int iPK_MediaType,int iPK_De
 
 void Media_Plugin::StreamEnded(MediaStream *pMediaStream,bool bSendOff,bool bDeleteStream,MediaStream *pMediaStream_Replacement,vector<EntertainArea *> *p_vectEntertainArea,bool bNoAutoResume,bool bTurnOnOSD,bool bFireEvent)
 {
-LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"debug_stream_end Media_Plugin::StreamEnded ID %d/%p delete %d auto resume %d resume: %c",
-pMediaStream->m_iStreamID_get(),pMediaStream, (int) bDeleteStream, (int) bNoAutoResume,m_mapPromptResume[make_pair<int,int> (pMediaStream->m_iPK_Users,pMediaStream->m_iPK_MediaType)]);
+	LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"debug_stream_end Media_Plugin::StreamEnded ID %d/%p delete %d auto resume %d resume: %c fire event: %d",
+		pMediaStream->m_iStreamID_get(),pMediaStream, (int) bDeleteStream, (int) bNoAutoResume,m_mapPromptResume[make_pair<int,int> (pMediaStream->m_iPK_Users,pMediaStream->m_iPK_MediaType)],(int) bFireEvent);
 
 
 	if ( pMediaStream == NULL )
@@ -2517,7 +2522,7 @@ pMediaStream->m_iStreamID_get(),pMediaStream, (int) bDeleteStream, (int) bNoAuto
 
 void Media_Plugin::MediaInEAEnded(EntertainArea *pEntertainArea,bool bFireEvent)
 {
-	if( bFireEvent )
+	if( bFireEvent && pEntertainArea->m_pMediaStream && pEntertainArea->m_pMediaStream->m_bBypassEvent==false )
 	{
 		if( pEntertainArea->m_pMediaStream && pEntertainArea->m_pMediaStream->ContainsVideo() )
 			EVENT_Stopped_Watching_Media(pEntertainArea->m_pRoom->m_dwPK_Room);
@@ -2529,8 +2534,15 @@ LoggerWrapper::GetInstance()->Write( LV_STATUS, "Stream in ea %s ended %d remote
 	pEntertainArea->m_pMediaStream = NULL;
 	pEntertainArea->m_pMediaDevice_ActiveDest=NULL;
 
+	/*
+
+	I am commenting this out because hitting the 'go to sleep' activity calls MH Stop Media with bypassevent=true, so the above EVENT_ don't cause the lights 
+	to come on.  But it also means the set now playing isn't called and therefore the menu still shows the media.  This should be safe to remove
+	because you should be able to send setnowplyaing with nothing, and then set it again with the new media.
+
 	if( !bFireEvent )
 		return;  // If this is false, it means the calling class will be starting something else, which will create all it's own 'now playing's' and goto remotes.  Just leave this
+	*/
 
 	// Set all the now playing's to nothing
     for(map<int,OH_Orbiter *>::iterator it=m_pOrbiter_Plugin->m_mapOH_Orbiter.begin();it!=m_pOrbiter_Plugin->m_mapOH_Orbiter.end();++it)
@@ -2816,8 +2828,12 @@ int Media_Plugin::DetermineUserOnOrbiter(int iPK_Device_Orbiter)
 			/** If true, when this media finishes, resume whatever was playing previously.  Useful for making announcements and similar. */
 		/** @param #117 Repeat */
 			/** 0=default for media type, 1=loop, -1=do not loop */
+		/** @param #254 Bypass Event */
+			/** If true, the 'listening to media' event won't be fire. */
+		/** @param #276 Dont Setup AV */
+			/** If true, the on/input selects won't be sent to the a/v gear */
 
-void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sFilename,int iPK_MediaType,int iPK_DeviceTemplate,string sPK_EntertainArea,bool bResume,int iRepeat,string &sCMD_Result,Message *pMessage)
+void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sFilename,int iPK_MediaType,int iPK_DeviceTemplate,string sPK_EntertainArea,bool bResume,int iRepeat,bool bBypass_Event,bool bDont_Setup_AV,string &sCMD_Result,Message *pMessage)
 //<-dceag-c43-e->
 {
     PLUTO_SAFETY_LOCK(mm,m_MediaMutex);
@@ -3023,7 +3039,7 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sFilename,int iPK_Med
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::CMD_MH_Play_Media playing MediaType: %d Provider %d Orbiter %d Device %d Template %d",
 		iPK_MediaType,iPK_MediaProvider,iPK_Device_Orbiter,iPK_Device,iPK_DeviceTemplate);
-	StartMedia(iPK_MediaType,iPK_MediaProvider,iPK_Device_Orbiter,vectEntertainArea,iPK_Device,iPK_DeviceTemplate,&dequeMediaFile,bResume,iRepeat,"");  // We'll let the plug-in figure out the source, and we'll use the default remote
+	StartMedia(iPK_MediaType,iPK_MediaProvider,iPK_Device_Orbiter,vectEntertainArea,iPK_Device,iPK_DeviceTemplate,&dequeMediaFile,bResume,iRepeat,"", bBypass_Event, bDont_Setup_AV );  // We'll let the plug-in figure out the source, and we'll use the default remote
 }
 
 //<-dceag-c65-b->
@@ -3228,7 +3244,7 @@ void Media_Plugin::CMD_Load_Playlist(string sPK_EntertainArea,int iEK_Playlist,s
 	for(map<int,MediaHandlerInfo *>::iterator it=mapMediaHandlerInfo.begin();it!=mapMediaHandlerInfo.end();++it)
 	{
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Calling Start Media from Load Playlist");
-	    StartMedia(it->second,0,pMessage->m_dwPK_Device_From,vectEntertainArea,0,&dequeMediaFile,false,0,"",iEK_Playlist);  // We'll let the plug-in figure out the source, and we'll use the default remote
+	    StartMedia(it->second,0,pMessage->m_dwPK_Device_From,vectEntertainArea,0,&dequeMediaFile,false,0,"",iEK_Playlist,false,false);  // We'll let the plug-in figure out the source, and we'll use the default remote
 	}
 }
 
@@ -3311,7 +3327,7 @@ LoggerWrapper::GetInstance()->Write(LV_WARNING,"Media_Plugin::CMD_MH_Move_Media 
 		int PK_Device = pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device;
 		StartMedia( pMediaStream->m_iPK_MediaType, pMediaStream->m_iPK_MediaProvider, (pMediaStream->m_pOH_Orbiter_StartedMedia ? pMediaStream->m_pOH_Orbiter_StartedMedia->m_pDeviceData_Router->m_dwPK_Device : 0),
 			vectEntertainArea, PK_Device, 0,
-			&pMediaStream->m_dequeMediaFile, pMediaStream->m_bResume, pMediaStream->m_iRepeat,pMediaStream->m_sLastPosition);
+			&pMediaStream->m_dequeMediaFile, pMediaStream->m_bResume, pMediaStream->m_iRepeat,pMediaStream->m_sLastPosition, pMediaStream->m_bBypassEvent, pMediaStream->m_bDontSetupAV);
 
 		pMediaStream->m_dequeMediaFile.clear();  // We don't want to delete the media files since we will have re-used the same pointers above
 		delete pMediaStream; // We will have started with new copies
@@ -5758,7 +5774,7 @@ void Media_Plugin::CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,s
 		PK_File = m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetFileIDFromFilePath( sMediaURL );
 		if( !PK_File )
 		{
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find the disk drive device identified, or a matching file");
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot find the disk drive device identified, or a matching file iPK_Device %d sMediaURL %s",iPK_Device,sMediaURL.c_str());
 			return;
 		}
 	}
@@ -6105,16 +6121,16 @@ void Media_Plugin::CMD_Get_Default_Ripping_Info(int iEK_Disc,string *sFilename,b
 				{
 					if( pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_CD_CONST )
 					{
-						list_int *listPK_Attribute_Performer = pMediaStream->m_mapPK_Attribute_Find(ATTRIBUTETYPE_Performer_CONST);
-						list_int *listPK_Attribute_Album = pMediaStream->m_mapPK_Attribute_Find(ATTRIBUTETYPE_Album_CONST);
-						int PK_Attribute_Performer = listPK_Attribute_Performer && listPK_Attribute_Performer->size() ? *(listPK_Attribute_Performer->begin()) : 0;
-						int PK_Attribute_Album = listPK_Attribute_Album && listPK_Attribute_Album->size() ? *(listPK_Attribute_Album->begin()) : 0;
+						list_Attribute *listPK_Attribute_Performer = pMediaStream->m_mapPK_Attribute_Find(ATTRIBUTETYPE_Performer_CONST);
+						list_Attribute *listPK_Attribute_Album = pMediaStream->m_mapPK_Attribute_Find(ATTRIBUTETYPE_Album_CONST);
+						Row_Attribute *pRow_Attribute_Performer = listPK_Attribute_Performer && listPK_Attribute_Performer->size() ? *listPK_Attribute_Performer->begin() : NULL;
+						Row_Attribute *pRow_Attribute_Album = listPK_Attribute_Album && listPK_Attribute_Album->size() ? *listPK_Attribute_Album->begin() : NULL;
 
-						*sFilename = FileUtils::ValidFileName(m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetAttributeName(PK_Attribute_Performer));
+						*sFilename = FileUtils::ValidFileName( ( pRow_Attribute_Performer ? pRow_Attribute_Performer->Name_get() : "" ) );
 						if(sFilename->size())
 							*sFilename += "/"; // We got a performer
 
-						*sFilename += FileUtils::ValidFileName(m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetAttributeName(PK_Attribute_Album));
+						*sFilename += FileUtils::ValidFileName( (pRow_Attribute_Album ? pRow_Attribute_Album->Name_get() : "" ) );
 						*sDirectory = "audio";
 					}
 					else if( pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_DVD_CONST )
@@ -7092,6 +7108,7 @@ void Media_Plugin::UpdateSearchTokens()
 	{
 		Row_Attribute *pRow_Attribute = *it;
 		m_pMediaAttributes->m_pMediaAttributes_LowLevel->UpdateSearchTokens(pRow_Attribute);
+		Sleep(50); // Don't hog the CPU.  There can be thousands of new attributes.  We're not holding a mutex and the alarm manager has 2 worker threads so other tasks can still run
 	}
 	
 	m_tLastSearchTokenUpdate = tLastAttribute;

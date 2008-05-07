@@ -1,3 +1,9 @@
+mythtv (0.20.2-3lmce710.0) lmce0710; urgency=low
+
+  * Adds mfd_slowdown.dpatch to allow mythfilldatabase to be slowed down
+	
+ -- Daniel Kristjansson <danielk@cuymedia.net>  Mon, 14 Apr 2008 14:39:00 -0500
+
 mythtv (0.20.2-2lmce710.0) lmce0710; urgency=high
 
   * Adds miscfixes.dpatch with LMCE fixes from mythtv-fixes upstream

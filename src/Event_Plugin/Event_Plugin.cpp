@@ -568,6 +568,8 @@ void Event_Plugin::SetFirstSunriseSunset()
 void Event_Plugin::FireSunriseSunsetEvent()
 {
 	PLUTO_SAFETY_LOCK(em,m_EventMutex);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Event_Plugin::FireSunriseSunsetEvent: time %d daytime %d", (int) time(NULL), (int) m_bIsDaytime);
+
 	m_bIsDaytime=!m_bIsDaytime;
 	if( m_bIsDaytime )
 		EVENT_Sunrise();

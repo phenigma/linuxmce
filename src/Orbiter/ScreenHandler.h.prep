@@ -27,6 +27,7 @@
 #include "pluto_media/Define_MediaSource.h"
 #include "DesignObj_DataGrid.h"
 #include "SerializeClass/ShapesColors.h"
+#include "OrbiterGrid.h"
 
 //-----------------------------------------------------------------------------------------------------
 typedef bool (ScreenHandler::*ScreenHandlerCallBack)(CallBackData *pData);
@@ -51,16 +52,17 @@ typedef class ScreenHandler * (* RAOP_FType) (class Orbiter *,  map<int,int> *p_
 class MediaFileAttributeDrillDown
 {
 public:
-	int m_PK_Attribute;
+	int m_PK_Attribute,m_PK_Attribute_Type;
 	string m_sDescription;
 	int m_iLastRow_ListGrid;
 	string m_sExternalDirectory;
 
-	MediaFileAttributeDrillDown(int PK_Attribute, string sDescription,int iLastRow_ListGrid)
+	MediaFileAttributeDrillDown(int PK_Attribute,int PK_Attribute_Type, string sDescription,int iLastRow_ListGrid)
 	{
 		m_PK_Attribute=PK_Attribute;
 		m_sDescription=sDescription;
 		m_iLastRow_ListGrid=iLastRow_ListGrid;
+		m_PK_Attribute_Type=PK_Attribute_Type;
 	}
 	MediaFileAttributeDrillDown(string sExternalDirectory, string sDescription,int iLastRow_ListGrid)
 	{
@@ -68,6 +70,7 @@ public:
 		m_sDescription=sDescription;
 		m_sExternalDirectory=sExternalDirectory;
 		m_iLastRow_ListGrid=iLastRow_ListGrid;
+		m_PK_Attribute_Type=0; //File
 	}
 };
 //-----------------------------------------------------------------------------------------------------
@@ -93,6 +96,7 @@ public:
 	DesignObj_DataGrid *m_pObj_ListGrid,*m_pObj_PicGrid;
 	DesignObj_Orbiter *m_pObj_Users_EnteringPin;
 	int m_iPK_Users_EnteringPin;
+	OrbiterMediaGridStyle m_eStyle;
 
 	MediaFileBrowserOptions(Orbiter *pOrbiter) 
 	{ 
@@ -106,7 +110,7 @@ public:
 
 	string ToString()
 	{
-		string sResult = StringUtils::itos(m_PK_MediaType) + "|" + m_sPK_MediaSubType + "|" + m_sPK_FileFormat + "|" + m_sPK_Attribute_Genres + "|" + m_sSources +
+		string sResult = StringUtils::itos(m_PK_MediaType) + "|" + StringUtils::itos( (int) m_eStyle ) + "|" + m_sPK_MediaSubType + "|" + m_sPK_FileFormat + "|" + m_sPK_Attribute_Genres + "|" + m_sSources +
 			"|" + m_sPK_Users_Private + "|" + StringUtils::itos(m_PK_AttributeType_Sort) + "|" + StringUtils::itos(m_PK_Users) + " | "
 			+ StringUtils::itos(m_iLastViewed) + " |"; 
 		if( m_listMediaFileAttributeDrillDown.size() )
@@ -134,6 +138,11 @@ public:
 		m_pObj_Users_EnteringPin = NULL;
 		m_iPK_Users_EnteringPin = 0;
 
+		if( m_pOrbiter->m_sSkin == AUDIO_STATION_SKIN )
+			m_eStyle = omgs_BrowserStyle_Icon;
+		else
+			m_eStyle = omgs_BrowserStyle_Icon_List;
+
 		m_sPK_MediaSubType=""; m_sPK_FileFormat=""; m_sPK_Attribute_Genres=""; m_sPK_Users_Private="0";
 		m_sSources=TOSTRING(MEDIASOURCE_Hard_Drives_CONST) "," TOSTRING(MEDIASOURCE_Discs__Jukeboxes_CONST);
 		m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_MediaType_CONST, StringUtils::itos(m_PK_MediaType)); 
@@ -142,7 +151,11 @@ public:
 			m_iPK_DesignObj_Browser = m_pOrbiter->m_mapDesignObj[PK_Screen];
 
 		if( !m_pObj_ListGrid && m_iPK_DesignObj_Browser )
+		{
 			m_pObj_ListGrid=(DesignObj_DataGrid *) m_pOrbiter->FindObject(StringUtils::itos(m_iPK_DesignObj_Browser) + ".0.0." TOSTRING(DESIGNOBJ_dgFileList2_CONST));
+			if( !m_pObj_ListGrid )
+				m_pObj_ListGrid=(DesignObj_DataGrid *) m_pOrbiter->FindObject(StringUtils::itos(m_iPK_DesignObj_Browser) + ".0.0." TOSTRING(5604));  // Alternate list style
+		}
 		if( !m_pObj_PicGrid && m_iPK_DesignObj_Browser )
 			m_pObj_PicGrid=(DesignObj_DataGrid *) m_pOrbiter->FindObject(StringUtils::itos(m_iPK_DesignObj_Browser) + ".0.0." TOSTRING(DESIGNOBJ_dgFileList2_Pics_CONST));
 		ReacquireGrids();
@@ -301,6 +314,7 @@ public:
 	virtual void SCREEN_Main(long PK_Screen, string sLocation);
 	void SetupAudioServer(); //the main screen for Audio Server
 	void AudioServer_PopulateDatagrid();
+	bool AudioServerFileList_GridRendering(CallBackData *pData);
 
 	virtual void SCREEN_Lights(long PK_Screen, string sLocation);
 	virtual void SCREEN_Media(long PK_Screen, string sLocation);

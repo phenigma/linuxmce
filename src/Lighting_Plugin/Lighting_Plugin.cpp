@@ -405,10 +405,26 @@ void Lighting_Plugin::PreprocessLightingMessage(DeviceData_Router *pDevice,Messa
 			else if( sLevel[0]=='-' )
 				iLevel = max(0, GetLightingLevel(pDevice,0)+iLevel);
 
-			if( iLevel==0 )
+			if( pDevice->m_dwPK_DeviceTemplate==DEVICETEMPLATE_Light_Switch_onoff_CONST )
+			{
+				pMessage->m_dwID = iLevel<50 ? COMMAND_Generic_Off_CONST : COMMAND_Generic_On_CONST;
+				LoggerWrapper::GetInstance()->Write( LV_STATUS, "Lighting_Plugin::PreprocessLightingMessage light %d Changed dim to %s", 
+					pDevice->m_dwPK_Device, pMessage->m_dwID == COMMAND_Generic_Off_CONST ? "OFF" : "ON" );
+			}
+			else if( iLevel==0 )
 				pMessage->m_dwID=COMMAND_Generic_Off_CONST;
 			else
 			{
+				if( StringUtils::StartsWith(pDevice->m_sState_get(),"OFF",true) )
+				{
+					DCE::CMD_On CMD_On(m_dwPK_Device,pDevice->m_dwPK_Device,0,"");
+					CMD_On.m_pMessage->m_mapParameters[COMMANDPARAMETER_Advanced_options_CONST] = "1";
+					SendCommand(CMD_On);
+
+					LoggerWrapper::GetInstance()->Write( LV_STATUS, "Lighting_Plugin::PreprocessLightingMessage turning on light before dim %d",
+						pDevice->m_dwPK_Device);
+				}
+
 				SetLightState( pDevice->m_dwPK_Device, true, iLevel );
 				pMessage->m_mapParameters[COMMANDPARAMETER_Level_CONST] = StringUtils::itos(iLevel);
 			}

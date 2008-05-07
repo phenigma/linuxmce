@@ -268,8 +268,8 @@ bool Notification::ExecuteNotification(string sPhoneNumber, int iDelay, bool bNo
     //TODO: attach the wav file
 	CMD_PBX_Originate_DT cmd_PBX_Originate_DT(
 		m_pSecurity_Plugin->m_dwPK_Device, DEVICETEMPLATE_Asterisk_CONST, BL_SameHouse,
-		sPhoneNumber,
-		"SIP",
+		sPhoneNumber + "@trusted/n",
+		"Local",
 		sPhoneExtension, sCallerID);
 
     string sResponse;

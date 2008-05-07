@@ -78,7 +78,7 @@ namespace DatabaseUtils
 
     void GetAllDevicesInTree(DBHelper *pDBHelper,int PK_Device,map<int,pair<int,int> > &mapDeviceTree,bool bCheckParent=true,int PK_Device_ChildExclude=0,int Generation=0);
 
-    void SetDeviceData(DBHelper *pDBHelper,int PK_Device,int PK_DeviceData,string IK_DeviceData);
+    void SetDeviceData(DBHelper *pDBHelper,int PK_Device,int PK_DeviceData,string IK_DeviceData,bool bPreserveModTime=false);
 
     string GetDeviceData(DBHelper *pDBHelper,int PK_Device,int PK_DeviceData);
 

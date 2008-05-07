@@ -97,11 +97,17 @@ function Detect {
 			if [[ "$partition_uuid" == "" ]] ;then
 				continue
 			fi
+
+			## Mount the partition to get it's size
+			mountpoint_temp=$(mktemp -d)
+			mount -o ro "/dev/$partition" "$mountpoint_temp"
+			partition_size=$(df -h "/dev/$partition" | tail -n +2 | awk '{ print $2 }')
+			umount -lf "$mountpoint_temp" && rmdir "$mountpoint_temp"
 			
 			Sent="false"
 			Count=0
 			while [[ "$Sent" == "false" ]] ;do
-				/usr/pluto/bin/MessageSend $DCERouter $PK_Device -1001 2 65 55 "$DD_UUID|$partition_uuid" 54 "$partition_uuid" 52 8 49 1790 13 "$partition_diskname [$partition]"
+				/usr/pluto/bin/MessageSend $DCERouter $PK_Device -1001 2 65 55 "$DD_UUID|$partition_uuid|277|$partition_size" 54 "$partition_uuid" 52 8 49 1790 13 "$partition_diskname [$partition]"
 				err=$?
 
 				if [[ "$err" == "0" ]] ;then

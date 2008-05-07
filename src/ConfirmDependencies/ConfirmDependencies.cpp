@@ -356,7 +356,7 @@ int main(int argc, char *argv[])
 	if( !g_bSkipConfirmRelations )
 	{
 		CreateDevice createDevice(pRow_Installation->PK_Installation_get(),dceConfig.m_sDBHost,dceConfig.m_sDBUser,dceConfig.m_sDBPassword,dceConfig.m_sDBName,dceConfig.m_iDBPort);
-		createDevice.ConfirmRelations(pRow_Device->PK_Device_get(),true);
+		createDevice.ConfirmRelations(pRow_Device->PK_Device_get(),0,NULL,true);
 
 		if( pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get()==DEVICECATEGORY_Core_CONST )
 		{
@@ -364,7 +364,7 @@ int main(int argc, char *argv[])
 			vector<Row_Device *> vectRow_Device_MD;
 			database_pluto_main.Device_get()->GetRows("JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE FK_DeviceCategory=" + StringUtils::itos(DEVICECATEGORY_Media_Director_CONST),&vectRow_Device_MD);
 			for(size_t s=0;s<vectRow_Device_MD.size();++s)
-				createDevice.ConfirmRelations(vectRow_Device_MD[s]->PK_Device_get(),true,true);
+				createDevice.ConfirmRelations(vectRow_Device_MD[s]->PK_Device_get(),0,NULL,true,true);
 		}
 	}
 

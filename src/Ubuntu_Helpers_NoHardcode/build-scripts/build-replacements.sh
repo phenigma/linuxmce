@@ -26,7 +26,7 @@ function Changed_Since_Last_Build {
 	return $(/bin/true)
 }
 
-function Build_Replacements { 
+function Build_Replacements_Common { 
 	mkdir -p "$replacements_dir"
 
 	#Package: libsdl
@@ -80,18 +80,7 @@ function Build_Replacements {
 		cp ../tee-pluto_*.deb ${replacements_dir}
 		popd
 	fi
-	
-	#Package: liblinphone
-	dir_="${svn_dir}/trunk/ubuntu/linphone-1.3.5"
-	if Changed_Since_Last_Build "$dir_" ;then
-		DisplayMessage "Building linphone-1.3.5"
-		pushd "$dir_"
-		dpkg-buildpackage -rfakeroot -us -uc -b
-		cp ../liblinphone1-lmce_*.deb ${replacements_dir}
-		cp ../libortp4-lmce_*.deb ${replacements_dir}
-		cp ../linphone*_*.deb ${replacements_dir}
-		popd
-	fi
+
 
 	#Package: pluto-mplayer
 	dir_="${svn_dir}/trunk/ubuntu/mplayer-svn26234"
@@ -113,16 +102,6 @@ function Build_Replacements {
 		popd
 	fi
 	
-#	#Package: ushare
-#	dir_="${svn_dir}/trunk/ubuntu/ushare-0.9.6"
-#	if Changed_Since_Last_Build "$dir_" ;then
-#		DisplayMessage "Building ushare-0.9.6"
-#		pushd "$dir_"
-#		dpkg-buildpackage -rfakeroot -us -uc -b
-#		cp -r ../ushare_*.deb ${replacements_dir}
-#		popd
-#	fi
-
 	#Package: fuppes
 	dir_="${svn_dir}/trunk/ubuntu/fuppes-0+svn578"
 	if Changed_Since_Last_Build "$dir_" ;then
@@ -132,7 +111,6 @@ function Build_Replacements {
 		cp -r ../fuppes_*.deb ${replacements_dir}
 		popd
 	fi
-	
 	
 	#Package: djmount
 	dir_="${svn_dir}/trunk/ubuntu/djmount-0.71"
@@ -184,61 +162,12 @@ function Build_Replacements {
 		popd
 	fi
 
-	#Package: lirc-modules
-	pushd .
-		DisplayMessage "Building lirc-modules"
-                cd "${svn_dir}"/trunk/src/Ubuntu_Helpers
-                rm -f /etc/lirc/lirc-modules-source.conf
-                dpkg-reconfigure -fnoninteractive lirc-modules-source
-
-                mkdir -p /usr/src/modules/lirc/drivers/media/video/bt8xx/
-                cp -a /usr/src/linux-source-`uname -r | cut -d '-' -f1`/drivers/media/video/bt8xx/* /lib/modules/`uname -r`/build/drivers/media/video
-                cp -a /usr/src/linux-source-`uname -r | cut -d '-' -f1`/drivers/media/video/* /lib/modules/`uname -r`/build/drivers/media/video
-
-                cd /usr/src/linux-source-`uname -r | cut -d '-' -f1`/drivers/media/video
-                cp -a btcx-risc.h /usr/src/modules/lirc/drivers/media/video
-                m-a -ft a-b lirc-modules
-                cp /usr/src/lirc-modules*.deb "${replacements_dir}"
-	popd
 	
-#	#Package: zaptel-modules
-#	DisplayMessage "Building zaptel-modules"
-#	m-a -ft -l `uname -r` a-b zaptel
-#	cp /usr/src/zaptel-modules*.deb "${replacements_dir}"
+	#Package: zaptel-modules
+	DisplayMessage "Building zaptel-modules"
+	m-a -ft -l `uname -r` a-b zaptel
+	cp /usr/src/zaptel-modules*.deb "${replacements_dir}"
 
-	#Package: ivtv-modules
-	pushd .
-		DisplayMessage "Building ivtv-modules"
-		m-a -ft a-b ivtv
-		cp /usr/src/ivtv-modules*.deb "${replacements_dir}"
-	popd
-	
-	pushd "${svn_dir}"/trunk/ubuntu/
-		DisplayMessage "Building ivtv-firmware"
-		Src="deb http://dl.ivtvdriver.org/ubuntu feisty firmware"
-		if [ ! -e /etc/apt/sources.list.pbackup ] ;then
-			cp /etc/apt/sources.list /etc/apt/sources.list.pbackup
-		fi
-		if ! grep -qF "$Src" /etc/apt/sources.list; then
-			echo "$Src" >> /etc/apt/sources.list
-			apt-get update
-		fi
-
-		rm -f ivtv-firmware_*.deb
-		aptitude download ivtv-firmware
-		mkdir ivtv-firmware
-		cd ivtv-firmware
-		dpkg -x ../ivtv-firmware_*.deb .
-		dpkg -e ../ivtv-firmware_*.deb
-		rm -f DEBIAN/preinst
-		rm -f ../ivtv-firmware_*.deb
-		dpkg-deb -b . ..
-		cd ..
-		rm -rf ivtv-firmware
-
-		cp ivtv-firmware_*.deb "${replacements_dir}"
-		rm ivtv-firmware_*.deb
-	popd
 
 	#Package: lirc-pluto
 	dir_="${svn_dir}"/trunk/ubuntu/lirc-pluto-0.1
@@ -310,10 +239,103 @@ function Build_Replacements {
 	fi
 }
 
+function Build_Replacements_Hardy {
+	#Package: chan-sccp
+	dir_="${svn_dir}/trunk/ubuntu/asterisk/chan_sccp"
+	if Changed_Since_Last_Build "$dir_" ;then
+		DisplayMessage "Building chan-sccp"
+		pushd "$dir_"
+		dpkg-buildpackage -rfakeroot -us -uc -b
+		cp ../chan-sccp_*.deb ${replacements_dir}
+		popd
+	fi
+}
+
+function Build_Replacements_Gutsy {
+	mkdir -p "$replacements_dir"
+
+	# DISABLED IN HARDY : not compiling anymore
+	# Package: liblinphone
+	dir_="${svn_dir}/trunk/ubuntu/linphone-1.3.5"
+	if Changed_Since_Last_Build "$dir_" ;then
+		DisplayMessage "Building linphone-1.3.5"
+		pushd "$dir_"
+		dpkg-buildpackage -rfakeroot -us -uc -b
+		cp ../liblinphone1-lmce_*.deb ${replacements_dir}
+		cp ../libortp4-lmce_*.deb ${replacements_dir}
+		cp ../linphone*_*.deb ${replacements_dir}
+		popd
+	fi
+
+	# DISABLED IN HARDY : included in kernel package
+	#Package: lirc-modules
+	pushd .
+		DisplayMessage "Building lirc-modules"
+                cd "${svn_dir}"/trunk/src/Ubuntu_Helpers
+                rm -f /etc/lirc/lirc-modules-source.conf
+                dpkg-reconfigure -fnoninteractive lirc-modules-source
+
+                mkdir -p /usr/src/modules/lirc/drivers/media/video/bt8xx/
+                cp -a /usr/src/linux-source-`uname -r | cut -d '-' -f1`/drivers/media/video/bt8xx/* /lib/modules/`uname -r`/build/drivers/media/video
+                cp -a /usr/src/linux-source-`uname -r | cut -d '-' -f1`/drivers/media/video/* /lib/modules/`uname -r`/build/drivers/media/video
+
+                cd /usr/src/linux-source-`uname -r | cut -d '-' -f1`/drivers/media/video
+                cp -a btcx-risc.h /usr/src/modules/lirc/drivers/media/video
+                m-a -ft a-b lirc-modules
+                cp /usr/src/lirc-modules*.deb "${replacements_dir}"
+	popd
+
+	# DISABLED IN HARDY : included in kernel package
+	#Package: ivtv-modules
+	pushd .
+		DisplayMessage "Building ivtv-modules"
+		m-a -ft a-b ivtv
+		cp /usr/src/ivtv-modules*.deb "${replacements_dir}"
+	popd
+
+	# DISABLED IN HARDY : included in kernel package
+	#Package: ivtv-firmware
+	pushd "${svn_dir}"/trunk/ubuntu/
+		DisplayMessage "Building ivtv-firmware"
+		Src="deb http://dl.ivtvdriver.org/ubuntu feisty firmware"
+		if [ ! -e /etc/apt/sources.list.pbackup ] ;then
+			cp /etc/apt/sources.list /etc/apt/sources.list.pbackup
+		fi
+		if ! grep -qF "$Src" /etc/apt/sources.list; then
+			echo "$Src" >> /etc/apt/sources.list
+			apt-get update
+		fi
+
+		rm -f ivtv-firmware_*.deb
+		aptitude download ivtv-firmware
+		mkdir ivtv-firmware
+		cd ivtv-firmware
+		dpkg -x ../ivtv-firmware_*.deb .
+		dpkg -e ../ivtv-firmware_*.deb
+		rm -f DEBIAN/preinst
+		rm -f ../ivtv-firmware_*.deb
+		dpkg-deb -b . ..
+		cd ..
+		rm -rf ivtv-firmware
+
+		cp ivtv-firmware_*.deb "${replacements_dir}"
+		rm ivtv-firmware_*.deb
+	popd
+}
+
 trap 'Error "Undefined error in $0"' EXIT
 
 DisplayMessage "*** STEP: Building replacement debs"
-Build_Replacements
+Build_Replacements_Common
+
+case "$(lsb_release -c -s)" in
+	"gutsy")
+		Build_Replacements_Gutsy
+		;;
+	"hardy")
+		Build_Replacements_Hardy
+		;;
+esac
 
 DisplayMessage "Removing duplicate debs from replacements"
 remove_duplicate_debs "${replacements_dir}"

@@ -7,7 +7,7 @@ function Create_Diskless_Debootstrap_Archive {
 	local temp_dir="$(mktemp -d)"
 
 	# Run debootstrap in that dir
-	debootstrap gutsy "$temp_dir" http://ro.archive.ubuntu.com/ubuntu/
+	debootstrap "$(lsb_release -c -s)" "$temp_dir" http://ro.archive.ubuntu.com/ubuntu/
 
 	# Clean it's apt cache so we don't end up with it in the archive
 	rm -f $temp_dir/var/cache/apt/archives/*.deb

@@ -15,6 +15,7 @@
 	}
 
 	$dsp=(isset($_REQUEST['dsp']))?(int)$_REQUEST['dsp']:$dtDataArray['ToggleDSP'][0];
+	$dsp=($dsp==0)?1:$dsp;
 	
 	if($action=='form'){
 		$inputSelectedTxt='
@@ -166,22 +167,24 @@
 		// process
 		if($dtID!=0){
 			if($dsp!=1){
-				$commandsArray=unserialize(urldecode($_POST['commandsArray']));
-				$oldCheckedCommands=explode(',',$_POST['oldCheckedCommands']);
+				$commandsArray=unserialize(urldecode(@$_POST['commandsArray']));
+				$oldCheckedCommands=explode(',',@$_POST['oldCheckedCommands']);
 				
-				foreach ($commandsArray AS $commandID=>$commandName){
-					if(isset($_POST['cmd_'.$commandID])){
-						if(!in_array($commandID,$oldCheckedCommands)){
-							$publicADO->Execute('INSERT IGNORE INTO DeviceTemplate_DSPMode (FK_DeviceTemplate,FK_Command) VALUES (?,?)',array($dtID,$commandID));
-						}
-						
-					}else{
-						if(in_array($commandID,$oldCheckedCommands)){
-							$publicADO->Execute('DELETE FROM DeviceTemplate_DSPMode WHERE FK_DeviceTemplate=? AND FK_Command=?',array($dtID,$commandID));
+				if(count($commandsArray)>0){
+					foreach ($commandsArray AS $commandID=>$commandName){
+						if(isset($_POST['cmd_'.$commandID])){
+							if(!in_array($commandID,$oldCheckedCommands)){
+								$publicADO->Execute('INSERT IGNORE INTO DeviceTemplate_DSPMode (FK_DeviceTemplate,FK_Command) VALUES (?,?)',array($dtID,$commandID));
+							}
+							
+						}else{
+							if(in_array($commandID,$oldCheckedCommands)){
+								$publicADO->Execute('DELETE FROM DeviceTemplate_DSPMode WHERE FK_DeviceTemplate=? AND FK_Command=?',array($dtID,$commandID));
+							}
 						}
 					}
 				}
-
+				
 				$ToggleDSP=($dsp==2)?0:1;
 				if(($ToggleDSP==0 && $oldDSP!=0) || ($ToggleDSP==1 && $oldDSP!=2)){
 					$publicADO->Execute('UPDATE DeviceTemplate_AV SET ToggleDSP=? WHERE FK_DeviceTemplate=?',array($ToggleDSP,$dtID));

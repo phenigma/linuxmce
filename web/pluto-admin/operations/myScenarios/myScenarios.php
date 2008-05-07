@@ -14,6 +14,8 @@ $installationID = (int)@$_SESSION['installationID'];
 $out.='<div align="left" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div><br><br>';
 if ($action == 'showBasicInfo') {
 	$out.=$TEXT_MY_SCENARIOS_NOTE_CONST;	
+
+	$out.='<hr><input type="button" class="button" name="sortScenarios" value="'.$TEXT_SORT_SCENARIOS_CONST.'"  onclick="self.location=\'index.php?section=sortScenarios&sortBy=Room&from=myScenarios\'">';
 	
 } elseif($action=='showArrayCommands') {
 	$arrayID = cleanInteger(@$_REQUEST['array']);	

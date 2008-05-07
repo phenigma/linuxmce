@@ -84,7 +84,6 @@ fi
 
 
 StartService "Starting MySQL Server" "/etc/init.d/mysql start"
-StartService "Restoring System" "/usr/pluto/bin/PlutoRestorePoint.sh --restore"
 RunSQL "UPDATE Orbiter set Regen=2,RegenInProgress=0 where RegenInProgress=1"
 
 StartService "Starting DHCP Server" "/etc/init.d/dhcp3-server start"
@@ -117,7 +116,8 @@ StartDaemon  "Starting Dhcp Plugin" "/usr/pluto/bin/Dhcpd-Plugin.sh" "DhcpdPlugi
 StartDaemon  "Start PNP MD Plugin" "/usr/pluto/bin/Start_NewMD_interactor.sh" "NewMDinteractor"
 StartDaemon  "Start Voicemail Monitor" "/usr/pluto/bin/VoiceMailMonitor.sh" "VoiceMailMonitor"
 StartService "Creating Firewire 2 Video4Linux Pipes" "/usr/pluto/bin/Firewire2Video4Linux.sh"
-StartService "Configuring Pluto Storage Devices" "/usr/pluto/bin/StorageDevices_Setup.sh" "&"
+StartService "Configuring Pluto Storage Devices" "/usr/pluto/bin/StorageDevices_Setup.sh"
+/etc/init.d/samba start
 StartService "Starting UPNP Server" "/usr/pluto/bin/StorageDevices_UPNPServer.sh" "&"
 StartService "Samba Server Detection" "/usr/pluto/bin/StorageDevices_SambaRadar.sh"
 StartService "Detecting Timezone" "/usr/pluto/bin/Timezone_Detect.sh" "&"

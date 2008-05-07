@@ -427,6 +427,7 @@ MythTvMediaStream* MythTV_PlugIn::ConvertToMythMediaStream(MediaStream *pMediaSt
 }
 
 // Parms = Users,PK_EntertainmentArea
+// All channels
 class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign,
 	Message *pMessage)
 {
@@ -574,6 +575,7 @@ class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *
 	return pDataGridTable;
 }
 
+// The shows on a given channel
 class DataGridTable *MythTV_PlugIn::CurrentShows(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,Message *pMessage)
 {
 	if( m_bBookmarksNeedRefreshing )
@@ -600,7 +602,8 @@ class DataGridTable *MythTV_PlugIn::CurrentShows(string GridID,string Parms,void
 	DataGridCell *pCell;
 
 	PLUTO_SAFETY_LOCK(mm, m_pMedia_Plugin->m_MediaMutex);
-    LoggerWrapper::GetInstance()->Write(LV_STATUS, "MythTV_PlugIn::CurrentShows A datagrid for all the shows was requested %s params %s", GridID.c_str(), Parms.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MythTV_PlugIn::CurrentShows A datagrid for all the shows was requested %s params %s record m_mapScheduledRecordings size: %d",
+		GridID.c_str(), Parms.c_str(), (int) m_mapScheduledRecordings.size() );
 
 	MythRecording mythRecording;
 	mythRecording.channel_id = atoi(sChanId.c_str());
@@ -625,6 +628,12 @@ class DataGridTable *MythTV_PlugIn::CurrentShows(string GridID,string Parms,void
 	map< u_int64_t, pair<char,int> >::iterator it_mapScheduledRecordings;
 	MapBookmark *pMapBookmark_Series_Or_Program;
 	MapBookmark::iterator it;
+
+for(map< u_int64_t, pair<char,int> >::iterator itmr=m_mapScheduledRecordings.begin();itmr!=m_mapScheduledRecordings.end();++itmr)
+{
+	LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"contains " UINT64_PRINTF,itmr->first);
+}
+
 	if( (result.r=m_pDBHelper_Myth->db_wrapper_query_result(sSQL))!=NULL )
 	{
 		while((row = db_wrapper_fetch_row(result.r)))
@@ -835,7 +844,8 @@ void MythTV_PlugIn::CMD_Schedule_Recording(string sType,string sOptions,string s
 			make_pair<char,int> ('C',iID);
 	}
 
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MythTV_PlugIn::CMD_Schedule_Recording %d=%s", iID, sSQL.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "MythTV_PlugIn::CMD_Schedule_Recording key " UINT64_PRINTF " %d=%s m_mapScheduledRecordings size %d", 
+		(u_int64_t) mythRecording.key(), iID, sSQL.c_str(), (int) m_mapScheduledRecordings.size());
 	if( m_pMythBackEnd_Socket )
 		m_pMythBackEnd_Socket->SendMythString("RESCHEDULE_RECORDINGS " + StringUtils::itos(iID));
 }
@@ -1028,6 +1038,7 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Device,int iPK_Orbiter,
 	}
 
 	bool bPathsChanged = SetPaths();
+	bool bAddedProviders=false;
 
 	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
 	m_bBookmarksNeedRefreshing=true;
@@ -1294,6 +1305,7 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Device,int iPK_Orbiter,
 							// The data direct shouldn't be hardcoded
 							sSQL = "INSERT INTO `videosource`(name) VALUES ('" + sProviderName + "')";
 							sourceid = m_pDBHelper_Myth->threaded_db_wrapper_query_withID(sSQL);
+							bAddedProviders=true;
 						}
 					}
 				}
@@ -1330,6 +1342,7 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Device,int iPK_Orbiter,
 					{
 						LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::CMD_Sync_Providers_and_Cards bModifiedRows=true %s",sSQL.c_str());
 						bModifiedRows=true;
+						bAddedProviders=true;
 					}
 				}
 
@@ -1452,7 +1465,7 @@ void MythTV_PlugIn::CMD_Sync_Providers_and_Cards(int iPK_Device,int iPK_Orbiter,
 		{
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::SyncCardsAndProviders -- setting m_bFillDbRunning=true and starting fill");
 			m_bFillDbRunning=true;
-			StartFillDatabase();
+			StartFillDatabase(bAddedProviders);
 		}
 	}
 	else if( bPathsChanged )
@@ -1560,6 +1573,8 @@ void MythTV_PlugIn::CheckForNewRecordings()
 			if( row[11] && strcmp(row[11],"LiveTV")==0 )
 			{
 				pRow_File->Ignore_set(1);
+				LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::CheckForNewRecordings file: %s is live tv title %s",pRow_File->Filename_get().c_str(), title.c_str());
+	
 				if( title!="" )
 					title = "LiveTV: " + title;
 				else
@@ -1570,9 +1585,10 @@ void MythTV_PlugIn::CheckForNewRecordings()
 
 			LoggerWrapper::GetInstance()->Write(
 				LV_STATUS,
-				"RESULT ROW: chanid %s start_time %s title %s subtitle %s stars %s category %s " // 6
+				"RESULT ROW: file %s chanid %s start_time %s title %s subtitle %s stars %s category %s " // 6
 				"description %s hdtv %s category_type %s chan_name %s rating %s recgroup %s " // 6
 				"seriesid %s programid %s icon %s", // 3
+				pRow_File->Filename_get().c_str(),
 				row[0], row[1], row[2], row[3], row[4], row[5],
 				row[6], row[7], row[8], row[9], row[10], row[11],
 				row[12], row[13], row[14]);
@@ -1635,6 +1651,9 @@ void MythTV_PlugIn::CheckForNewRecordings()
 				else
 					pRow_File->FK_MediaSubType_set(MEDIASUBTYPE_TV_Shows_CONST);
 			}
+			else
+				pRow_File->FK_MediaSubType_set(MEDIASUBTYPE_TV_Shows_CONST);
+
 			if( row[9] && row[9][0] != 0 /*channel name*/)
 				m_pMedia_Plugin->CMD_Add_Media_Attribute(row[9],0,"",ATTRIBUTETYPE_Channel_CONST,"",pRow_File->PK_File_get(),&PK_Attribute_Channel);
 			if( row[10] && row[10][0] != 0 /*rating*/)
@@ -2362,7 +2381,7 @@ void MythTV_PlugIn::RunBackendStarter()
 	}
 }
 
-void MythTV_PlugIn::StartFillDatabase()
+void MythTV_PlugIn::StartFillDatabase(bool bNotifyUser)
 {
 	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
 
@@ -2386,17 +2405,20 @@ void MythTV_PlugIn::StartFillDatabase()
 
 		SetStatus("FILLDATABASE");  // A marker so we know if we do a reload before this finishes
 
-		DCE::SCREEN_PopupMessage SCREEN_PopupMessage(
-			m_dwPK_Device, DEVICETEMPLATE_VirtDev_All_Orbiters_CONST,
-			"It will take about 2 minutes to retrieve your channel listings. "
-			"Please wait until you see the message \"MythTV is ready\" before "
-			"you start using TV features.", // Main message
-			"", // Command Line
-			"generic message", // Description
-			"0", // sPromptToResetRouter
-			"300", // sTimeout
-			"1"); // sCannotGoBack
-		SendCommand(SCREEN_PopupMessage);
+		if( bNotifyUser )
+		{
+			DCE::SCREEN_PopupMessage SCREEN_PopupMessage(
+				m_dwPK_Device, DEVICETEMPLATE_VirtDev_All_Orbiters_CONST,
+				"It will take about few minutes to retrieve your channel listings. "
+				"Please wait until you see the message \"MythTV is ready\" before "
+				"you start using TV features.", // Main message
+				"", // Command Line
+				"generic message", // Description
+				"0", // sPromptToResetRouter
+				"300", // sTimeout
+				"1"); // sCannotGoBack
+			SendCommand(SCREEN_PopupMessage);
+		}
 	}
 }
 
@@ -2422,7 +2444,7 @@ void MythTV_PlugIn::CMD_Reporting_EPG_Status(string sText,bool bIsSuccessful,str
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"MythTV_PlugIn::CMD_Reporting_EPG_Status restarting m_bFillDbRunning=true");
 		m_bNeedToRunFillDb=false;
 		m_bFillDbRunning=true;  // Reset the flag
-		StartFillDatabase();
+		StartFillDatabase(true);  // notify the user because the only way to have multiple fills queued is if he added a provider
 	}
 	else
 	{
@@ -2466,7 +2488,6 @@ void MythTV_PlugIn::UpdateUpcomingRecordings()
 	}
 
 	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
-	m_mapScheduledRecordings.clear();
 	string::size_type pos=0;
 	const char *pToken = "[]:[]"; // What kind of token is this??
 	MythRecording mythRecording;
@@ -2484,8 +2505,9 @@ void MythTV_PlugIn::UpdateUpcomingRecordings()
 	}
 
 	LoggerWrapper::GetInstance()->Write(
-		LV_STATUS,"MythTV_PlugIn::UpdateUpcomingRecordings got listsize(%d) entries(%d)",
-		(int) sResponse.size(), iListSize);
+		LV_STATUS,"MythTV_PlugIn::UpdateUpcomingRecordings got listsize(%d) entries(%d) m_mapScheduledRecordings size was: %d",
+		(int) sResponse.size(), iListSize, (int) m_mapScheduledRecordings.size());
+	m_mapScheduledRecordings.clear();
 
 	while (pos<sResponse.size())
 	{
@@ -2548,10 +2570,13 @@ void MythTV_PlugIn::UpdateUpcomingRecordings()
 
 		LoggerWrapper::GetInstance()->Write(
 			LV_STATUS,"MythTV_PlugIn::UpdateUpcomingRecordings "
-			"adding record id %2s type %s chan %5d start %s",
-			sRecordID.c_str(), sRecType.c_str(), mythRecording.channel_id,
-			ctime(&mythRecording.scheduled_start_time));
+			"adding record id " UINT64_PRINTF " / %2s type %s chan %5d start %s m_mapScheduledRecordings size %d",
+			(u_int64_t) mythRecording.key(), sRecordID.c_str(), sRecType.c_str(), mythRecording.channel_id,
+			ctime(&mythRecording.scheduled_start_time),(int) m_mapScheduledRecordings.size());
 	}
+	LoggerWrapper::GetInstance()->Write(
+		LV_STATUS,"MythTV_PlugIn::UpdateUpcomingRecordings done m_mapScheduledRecordings size %d",
+		(int) m_mapScheduledRecordings.size());
 	m_pAlarmManager->CancelAlarmByType(CHECK_FOR_SCHEDULED_RECORDINGS);
 	m_pAlarmManager->AddRelativeAlarm(60 * 60,this,CHECK_FOR_SCHEDULED_RECORDINGS,NULL);  // Update once an hour just in case
 }

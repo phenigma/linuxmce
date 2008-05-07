@@ -13,7 +13,7 @@ function build_main_debs() {
 	#FIXME Hackozaurus to build SimplePhone
 	export PKG_CONFIG_PATH=/opt/linphone-1.3.5/lib/pkgconfig
 	LinphoneVersion="$(dpkg -s 'liblinphone1-lmce' | grep '^Version: ' | cut -d' ' -f2)"
-	if [[ "$LinphoneVersion" == "1."[57]"."* ]]; then
+	if [[ "$LinphoneVersion" != "1.3."* ]]; then
 		# Linphone 1.5.1 in Ubuntu Feisty makes SimplePhone to need this
 		export LINPHONE_CONST=const
 	fi
@@ -42,13 +42,21 @@ function build_main_debs() {
 	DisplayMessage "Compiling and building packages"
 	SVNrevision=$(svn info "${svn_dir}"/trunk/src |grep ^Revision | cut -d" " -f2)
 	ExcludePkgList="462,607,432,431,427,426,430,429,589,590,515,516,266,540"
+	case "$(lsb_release -c -s)" in
+		"gutsy")
+			Distro_ID="15"
+			;;
+		"hardy")
+			Distro_ID="16"
+			;;
+	esac
 
 	# Compile the packages
-	"${mkr_dir}/MakeRelease" -a -R "$SVNrevision" -h 'localhost' -u 'root' -O "$out_dir" -D 'pluto_main_build' -o 15 -r 21 -m 1 -K "$ExcludePkgList" -s "${svn_dir}/trunk" -n / -d || Error "MakeRelease failed"
+	"${mkr_dir}/MakeRelease" -a -R "$SVNrevision" -h 'localhost' -u 'root' -O "$out_dir" -D 'pluto_main_build' -o "$Distro_ID" -r 21 -m 1 -K "$ExcludePkgList" -s "${svn_dir}/trunk" -n / -d || Error "MakeRelease failed"
 
 	# Compile the private packages
 	if [[ "$svn_private_url" != "" ]] && [[ "$svn_private_user" != "" ]] && [[ "$svn_private_pass" != "" ]] ;then
-		"${mkr_dir}/MakeRelease" -a -R "$SVNrevision" -h 'localhost' -u 'root' -O "$out_dir" -D 'pluto_main_build' -o 15 -r 21 -m 1108 -K "$ExcludePkgList" -s "${svn_dir}/trunk" -n / -d || Error "MakeRelease failed"
+		"${mkr_dir}/MakeRelease" -a -R "$SVNrevision" -h 'localhost' -u 'root' -O "$out_dir" -D 'pluto_main_build' -o "$Distro_ID" -r 21 -m 1108 -K "$ExcludePkgList" -s "${svn_dir}/trunk" -n / -d || Error "MakeRelease failed"
 	fi
 }
 

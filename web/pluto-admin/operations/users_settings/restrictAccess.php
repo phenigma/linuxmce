@@ -79,8 +79,8 @@ function restrictAccess($output,$dbADO) {
 			if($addToRoom==$roomID){
 				$out.='
 				<tr bgcolor="lightyellow">
-					<td>User: '.pulldownFromArray($usersAssocArray,'user',0,'','key','-- '.$TEXT_ANY_CONST.' --').'</td>
-					<td>using orbiter '.pulldownFromArray($orbitersArray,'orbiter',0,'','key','-- '.$TEXT_ANY_CONST.' --').' <input type="submit" class="button" name="submit" value="Save"></td>
+					<td>User: '.pulldownFromArray($usersAssocArray,'adduser',0,'','key','-- '.$TEXT_ANY_CONST.' --').'</td>
+					<td>using orbiter '.pulldownFromArray($orbitersArray,'addorbiter',0,'','key','-- '.$TEXT_ANY_CONST.' --').' <input type="submit" class="button" name="submit" value="Save"></td>
 				</tr>';
 			}
 			$out.='
@@ -134,9 +134,9 @@ function restrictAccess($output,$dbADO) {
 			header("Location: index.php?section=restrictAccess&error=$TEXT_NOT_AUTHORISED_TO_MODIFY_INSTALLATION_CONST");
 			exit(0);
 		}
-		
-		$user=((int)@$_POST['user']>0)?(int)$_POST['user']:NULL;
-		$orbiter=((int)@$_POST['orbiter']>0)?(int)$_POST['orbiter']:NULL;
+
+		$user=((int)@$_POST['adduser']>0)?(int)$_POST['adduser']:NULL;
+		$orbiter=((int)@$_POST['addorbiter']>0)?(int)$_POST['addorbiter']:NULL;
 		if($addToRoom!=0){
 			$dbADO->Execute('INSERT INTO Room_Users (FK_Room,FK_Users,FK_Orbiter) VALUES (?,?,?)',array($addToRoom,$user,$orbiter));
 		}

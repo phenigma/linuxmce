@@ -2289,6 +2289,10 @@
 #define DESIGNOBJ_grpLightControlsOnOff_CONST 5586
 #define DESIGNOBJ_butLightsOn_CONST 5587
 #define DESIGNOBJ_butFBSF_Download_CONST 5588
+#define DESIGNOBJ_butViewList_CONST 5590
+#define DESIGNOBJ_butViewIcons_CONST 5591
+#define DESIGNOBJ_butSortBySong_CONST 5592
+#define DESIGNOBJ_objAudioServerFileBrows_CONST 5593
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
