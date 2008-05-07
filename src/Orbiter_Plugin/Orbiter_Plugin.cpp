@@ -898,8 +898,10 @@ bool Orbiter_Plugin::ReloadAborted(class Socket *pSocket,class Message *pMessage
 		return false;
 
 	DeviceData_Router *pDeviceData_Router = m_pRouter->m_mapDeviceData_Router_Find(PK_Device);
-	SCREEN_Cannot_Reload_Router SCREEN_Cannot_Reload_Router(m_dwPK_Device, PK_Orbiter, pDeviceData_Router->m_sDescription + "\n" + pMessage->m_mapParameters[EVENTPARAMETER_Text_CONST]);
-	SendCommand(SCREEN_Cannot_Reload_Router);
+
+//  TODO: UNCOMMENT THIS AFTER ADDING THE SCREEN BACK IN THE DATABASE
+//	SCREEN_Cannot_Reload_Router SCREEN_Cannot_Reload_Router(m_dwPK_Device, PK_Orbiter, pDeviceData_Router->m_sDescription + "\n" + pMessage->m_mapParameters[EVENTPARAMETER_Text_CONST]);
+//	SendCommand(SCREEN_Cannot_Reload_Router);
 
 	return false;
 }
