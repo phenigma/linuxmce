@@ -24,5 +24,5 @@
 	totalTime = "158"
 >
 		
-	<video id="001" flv="http://10.0.2.5/pluto-lite-ss/videos/video1.flv" previewImage="http://10.0.2.5/pluto-lite-ss/images/thumb.jpg"/>
+	<video id="001" flv="http://10.0.2.5/pluto-lite/server/videos/video1.flv" previewImage="http://10.0.2.5/pluto-lite/server/images/thumb.jpg"/>
 </settings>
