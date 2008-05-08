@@ -53,6 +53,7 @@ public class Orbiter extends BApplication implements MessageProcessor
 	
 	private MainMenuScreen m_MainMenuScreen = null;
 	private OrbiterScreen m_OrbiterScreen = null;
+	private ViewCameraScreen m_ViewCameraScreen = null;
 	
 	private boolean m_bMenuOn = true;
 	private final String m_sBackgroundPicture = "blue.jpg";
@@ -105,6 +106,7 @@ public class Orbiter extends BApplication implements MessageProcessor
 		
 		m_OrbiterScreen = new OrbiterScreen(this, proxy);
 		m_MainMenuScreen = new MainMenuScreen(this, scenarios, proxy); 
+		m_ViewCameraScreen = new ViewCameraScreen(this, proxy);
 		m_bMenuOn = true;
 		
 		push(m_MainMenuScreen, TRANSITION_NONE);
@@ -122,6 +124,45 @@ public class Orbiter extends BApplication implements MessageProcessor
             return true;
         }        
         return super.handleAction(view, action);
+    }
+    
+    public void TivoGotoScreen(String sValue)
+    {
+		System.out.println("TivoGotoScreen: " + sValue);
+    	
+		if(0 == sValue.compareTo("orbiter"))
+		{
+        	if(m_bMenuOn)
+        	{
+        		pop();
+        		push(m_OrbiterScreen, TRANSITION_NONE);
+        		m_bMenuOn = false;
+        	}					
+		}
+		else if(0 == sValue.compareTo("viewcamera"))
+		{
+			pop();
+			push(m_ViewCameraScreen, TRANSITION_NONE);
+			m_ViewCameraScreen.Run();
+			m_bMenuOn = false;
+		}
+		else if(!m_bMenuOn)
+    	{
+    		getRoot().setResource(m_sBackgroundPicture);
+    		
+    		pop();
+    		push(m_MainMenuScreen, TRANSITION_NONE);
+    		m_bMenuOn = true;
+    	}								
+		
+		try
+		{
+			flush();		
+		}
+		catch (Exception e) 
+		{
+			System.out.println("Failed to flush. Error: " + e.getMessage());
+		}		    	
     }
     
 	public void ProcessMessage(Message message)
@@ -146,12 +187,7 @@ public class Orbiter extends BApplication implements MessageProcessor
 				ImageResource imgres = createImage(pImage);
 				getRoot().setResource(imgres); 
 	        	
-	        	if(m_bMenuOn)
-	        	{
-	        		pop();
-	        		push(m_OrbiterScreen, TRANSITION_NONE);
-	        		m_bMenuOn = false;
-	        	}		        	
+				TivoGotoScreen("orbiter");	        	
 	        	
 				try
 				{
@@ -168,37 +204,8 @@ public class Orbiter extends BApplication implements MessageProcessor
 			case COMMAND_MENU_CONST:
 			{
 				String sValue = message.GetParameter(COMMANDPARAMETER_Text_CONST);
-				System.out.println("Received CMD_Menu with value " + sValue);
 				
-				if(0 == sValue.compareTo("orbiter"))
-				{
-		        	if(m_bMenuOn)
-		        	{
-		        		pop();
-		        		push(m_OrbiterScreen, TRANSITION_NONE);
-		        		m_bMenuOn = false;
-		        	}					
-				}
-				else
-				{
-		        	if(!m_bMenuOn)
-		        	{
-		        		getRoot().setResource(m_sBackgroundPicture);
-		        		
-		        		pop();
-		        		push(m_MainMenuScreen, TRANSITION_NONE);
-		        		m_bMenuOn = true;
-		        	}								
-				}
-				
-				try
-				{
-					flush();		
-				}
-				catch (Exception e) 
-				{
-					System.out.println("Failed to flush. Error: " + e.getMessage());
-				}				
+				TivoGotoScreen(sValue);
 	        				
 				break;
 			}

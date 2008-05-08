@@ -37,12 +37,14 @@ public class PlutoProxy
 	//commands
 	private final static int COMMAND_Request_XML_Data_CONST = 869;
 	private final static int COMMAND_Simulate_Keypress_CONST = 28;
+	private final static int COMMAND_Goto_Screen_CONST = 741;
 	
 	//command parameters
 	private final static int COMMANDPARAMETER_DataGrid_ID_CONST = 15;
 	private final static int COMMANDPARAMETER_Data_String_CONST = 109;
 	private final static int COMMANDPARAMETER_Parameters_CONST = 202;
 	private final static int COMMANDPARAMETER_PK_Button_CONST = 26;
+	private final static int COMMANDPARAMETER_PK_Screen_CONST = 159;
 	
 	private int m_nPVRDeviceID = 0;
 	private int m_nOrbiterDeviceID = 0;
@@ -133,4 +135,24 @@ public class PlutoProxy
 			m_comm.EventHandler().SendMessage(message);
 		}		
 	}
+	
+	public void GotoScreen(int nScreenID)
+	{
+		System.out.println("GotoScreen: " + (new Integer(nScreenID)).toString());
+		
+		if(m_comm.IsConnected())
+		{
+			Message message = new Message(
+				  m_nPVRDeviceID,  //from 
+				  DEVICETEMPLATE_Moxi_Orbiter_CONST, 
+				  Message.MessagePriority.PRIORITY_NORMAL, 
+				  Message.MessageType.MESSAGETYPE_COMMAND, 
+				  COMMAND_Goto_Screen_CONST //message id
+			);
+			message.AddParameter(COMMANDPARAMETER_PK_Screen_CONST, (new Integer(nScreenID)).toString());
+			message.TargetType(Message.MessageTargetType.TT_DeviceTemplate, "");
+			message.Write();
+			m_comm.EventHandler().SendMessage(message);
+		}		
+	}	
 }
