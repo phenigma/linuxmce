@@ -9,13 +9,13 @@ youruser ALL=(ALL) ALL
 
 The build is unlikely to work if you are logged in as root.
 
--- Daniel
-
 Also, the build will only work on an existing LinuxMCE install and
 so far has only been tested on LinuxMCE 0710 installed from the DVD.
 
 As of May 5, 2008 - All major components build. CD/DVD Image building needs
 to be worked on.
 
--- Thom
-
+If you wish to rebuild a component that is normally only built once,
+like MakeRelease, you can delete the appropriate state_XXX file in
+the build directory. The build directory is also where debs and other
+output is deposited during the build process.
