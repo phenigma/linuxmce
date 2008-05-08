@@ -32,12 +32,20 @@
 #include <queue>
 
 #include "Command_Impl.h"
+
+#ifndef EMBEDDED_LMCE
 #include "pluto_main/Table_Device_DeviceData.h"
+#endif
+
 #include "pluto_main/Define_Event.h"
 #include "pluto_main/Define_EventParameter.h"
 
+#ifndef EMBEDDED_LMCE
 class Database_pluto_main;
 class Row_Device;
+#endif
+
+using namespace DCE;
 
 typedef class Command_Impl * (* RAP_FType) (class Router *, int, Logger *);
 typedef list<Message *> ListMessage;
@@ -194,7 +202,10 @@ m_DeviceStructure contains the minimal information, _Base,
  which is sent to all devices when they register
 */
 
-    class Router : public SocketListener, AlarmEvent, public DBHelper
+    class Router : public SocketListener, AlarmEvent
+#ifndef EMBEDDED_LMCE
+		   , public DBHelper
+#endif
     {
     private:
         /*
@@ -238,11 +249,15 @@ m_DeviceStructure contains the minimal information, _Base,
         int m_dwPK_Device,m_iFileVersion,m_dwPK_Installation;
         string m_sDBHost,m_sDBUser,m_sDBPassword,m_sDBName;
         int m_dwIDBPort;
+#ifndef EMBEDDED_LMCE
         Row_Device *m_pRow_Device_Me;
+#endif
         set<int> m_RunningDevices;
         list<Message *> m_MessageQueue;
+#ifndef EMBEDDED_LMCE
         Database_pluto_main *m_pDatabase_pluto_main;
 		Row_Installation *m_pRow_Installation;
+#endif
 
         // Lots of maps
         map<int,class Room *> m_mapRoom;
@@ -278,7 +293,9 @@ m_DeviceStructure contains the minimal information, _Base,
         const map<int,class CommandGroup *> *m_mapCommandGroup_get() { return &m_mapCommandGroup; }
 
         int iPK_Installation_get() { return m_dwPK_Installation; }
+#ifndef EMBEDDED_LMCE
 		Row_Installation *m_pRow_Installation_get() { return m_pRow_Installation; }
+#endif
 		int iPK_Device_get() { return m_dwPK_Device; }
         int iPK_Language_get() { return m_dwPK_Language; }
         string sBasePath_get() { return m_sBasePath; }
@@ -521,6 +538,7 @@ m_DeviceStructure contains the minimal information, _Base,
 
 		void SetDeviceDataInDB(int PK_Device,int PK_DeviceData,string sValue,bool bOnlyIfNotAlreadyThere=false)
 		{
+#ifndef EMBEDDED_LMCE
 			Row_Device_DeviceData *pRow_Device_DeviceData = m_pDatabase_pluto_main->Device_DeviceData_get()->GetRow(PK_Device,PK_DeviceData);
 			if( bOnlyIfNotAlreadyThere && pRow_Device_DeviceData && pRow_Device_DeviceData->IK_DeviceData_get().size() )
 				return;
@@ -534,12 +552,15 @@ m_DeviceStructure contains the minimal information, _Base,
 				pRow_Device_DeviceData->Reload();
 			pRow_Device_DeviceData->IK_DeviceData_set( sValue );
 			pRow_Device_DeviceData->Table_Device_DeviceData_get()->Commit();
+#endif
 		}
 
         void ExecuteCommandGroup(int PK_CommandGroup,DeviceData_Router *pDevice_Sender,int sStartingCommand=0);
 		void StopPendingCommandGroup(int PK_CommandGroup,string sDescription,string sHint);
 
+#ifndef EMBEDDED_LMCE
         Database_pluto_main *GetDatabase() { return m_pDatabase_pluto_main; }
+#endif
         void StartListening() { SocketListener::StartListening(m_Port); }
         void Quit() { m_bQuit=true; }
 		virtual void PingFailed( ServerSocket *pServerSocket, int dwPK_Device );

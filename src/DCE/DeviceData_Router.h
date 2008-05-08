@@ -22,11 +22,14 @@
 #define DCEDEVICE_H
 
 #include "DeviceData_Impl.h"
+
+#ifndef EMBEDDED_LMCE
 #include "pluto_main/Table_Device.h"
 #include "pluto_main/Table_DeviceTemplate.h"
 #include "pluto_main/Table_Device_Device_Pipe.h"
 
 class Row_Device_Device_Pipe;
+#endif
 
 namespace DCE {
 
@@ -326,17 +329,21 @@ public:
             return m_sState;
         }
         void m_sStatus_set(string sStatus) {
+#ifndef EMBEDDED_LMCE
             // Do this manually since we don't want to reset the psc_mod, causing others to think something has changed for this device
             string sSQL = "UPDATE Device SET Status='" + StringUtils::SQLEscape(sStatus) + "',psc_mod=psc_mod WHERE PK_Device=" + StringUtils::itos(m_pRow_Device->PK_Device_get());
             m_pRow_Device->Table_Device_get()->Database_pluto_main_get()->threaded_db_wrapper_query(sSQL);
             m_pRow_Device->Reload();
+#endif
             m_sStatus=sStatus;
         }
         void m_sState_set(string sState) {
+#ifndef EMBEDDED_LMCE
             // Do this manually since we don't want to reset the psc_mod, causing others to think something has changed for this device
             string sSQL = "UPDATE Device SET State='" + StringUtils::SQLEscape(sState) + "',psc_mod=psc_mod WHERE PK_Device=" + StringUtils::itos(m_pRow_Device->PK_Device_get());
             m_pRow_Device->Table_Device_get()->Database_pluto_main_get()->threaded_db_wrapper_query(sSQL);
             m_pRow_Device->Reload();
+#endif
             m_sState=sState;
         }
 
@@ -348,12 +355,15 @@ public:
         // can tune on any one of them.  They are all marked as RouteTo the television itself.
         class DeviceData_Router *m_pDevice_RouteTo;
         class DeviceData_Router *m_pDevice_Audio,*m_pDevice_Video;
+#ifndef EMBEDDED_LMCE
         Row_Device *m_pRow_Device;
+#endif
 
         map<int,class ServerSocket *> m_mapSocket_Event;
         class ServerSocket *m_pSocket_Command;
 
 
+#ifndef EMBEDDED_LMCE
         DeviceData_Router(Row_Device *pRow_Device, Room *pRoom, string sCommandLine)
 : DeviceData_Impl(pRow_Device->PK_Device_get(),pRow_Device->FK_Installation_get(),pRow_Device->FK_DeviceTemplate_get(),pRow_Device->FK_Device_ControlledVia_get(),pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get(),pRoom ? pRoom->m_dwPK_Room : 0,
                           pRow_Device->FK_DeviceTemplate_getrow()->ImplementsDCE_get()==1,
@@ -372,13 +382,16 @@ public:
             m_pSocket_Command=NULL;
             m_iConfigSize=0;
         }
+#endif
 
         /** Another constructor for dynamically loaded plug-ins.
         */
         DeviceData_Router(int PK_Device,int PK_DeviceTemplate,int PK_Installation, int PK_Device_ControlledVia)
 : DeviceData_Impl(PK_Device,PK_Installation,PK_DeviceTemplate,PK_Device_ControlledVia,0 /* category */,0 /* room */,true /* implements dce */,false /* is embedded */,
                           "" /* Command line */,true /* Is Plugin */,"" /* Description */,"localhost","" /* Mac Address */, false, false) {
+#ifndef EMBEDDED_LMCE
             m_pRow_Device=NULL;
+#endif
             m_bForceReloadOnFirstConnect=m_bIsRegistered=m_bIsReady=m_bBusy=m_bAlert=false;
             m_tLastused=m_tCanReceiveNextCommand=0;
 

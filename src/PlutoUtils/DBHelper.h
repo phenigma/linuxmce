@@ -14,6 +14,7 @@
 
 */
 
+#ifndef EMBEDDED_LMCE
 /** @file DBHelper.h
  Header file
  */
@@ -303,3 +304,4 @@ public:
 	}
 };
 #endif
+#endif //EMBEDDED_LMCE

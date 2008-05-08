@@ -46,8 +46,11 @@ Usage: Router [-i installation] [-d device] [-h hostname]
 #include "DCERouter.h"
 #include "DCE/DCEConfig.h"
 #include "DeviceData_Router.h"
+
+#ifndef EMBEDDED_LMCE
 #include "../pluto_main/Table_DeviceData.h"
 #include "../pluto_main/Table_DesignObj.h"
+#endif
 
 #define  VERSION "<=version=>"
 const char *g_szCompile_Date="<=compile_date=>";
