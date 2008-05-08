@@ -204,6 +204,7 @@ public class Orbiter extends BApplication implements MessageProcessor
 			case COMMAND_MENU_CONST:
 			{
 				String sValue = message.GetParameter(COMMANDPARAMETER_Text_CONST);
+				System.out.println("Processing message COMMAND_MENU_CONST with id " + message.MessageID());
 				
 				TivoGotoScreen(sValue);
 	        				
