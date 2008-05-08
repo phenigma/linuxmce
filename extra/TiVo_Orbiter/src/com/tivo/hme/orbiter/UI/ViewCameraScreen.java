@@ -37,6 +37,7 @@ public class ViewCameraScreen extends BasicScreen
 	ViewCameraEngine m_viewcameraengine = null;
 	PlutoProxy m_proxy = null;
 	Orbiter m_orbiter = null;
+	String m_sCameraURL = "";
 	
 	View m_videofeed = null;
 	
@@ -51,12 +52,14 @@ public class ViewCameraScreen extends BasicScreen
     /**
      * Constructor 
      */
-    public ViewCameraScreen(BApplication app, PlutoProxy proxy)
+    public ViewCameraScreen(BApplication app, PlutoProxy proxy, String sCameraURL)
     {
         super(app);
 
         m_orbiter = (Orbiter)app;
         m_proxy = proxy;
+        m_sCameraURL = sCameraURL;
+        
         m_root = app.getRoot();
 
         m_videofeed = new View(m_root, SAFE_ACTION_H, SAFE_ACTION_V,
@@ -91,7 +94,7 @@ public class ViewCameraScreen extends BasicScreen
 	   { 
 		  try 
 		  { 
-			  Resource sr = m_videofeed.createImage("http://www.hotelunirea.ro:8053/record/current.jpg");
+			  Resource sr = m_videofeed.createImage(m_sCameraURL);
 			  
 		      // set the view to the new resource 
 			  m_videofeed.setResource(sr);
@@ -137,7 +140,7 @@ public class ViewCameraScreen extends BasicScreen
      */
     public String toString() 
     {
-        return "View Camera";
+        return "";
     }
     
     /**
