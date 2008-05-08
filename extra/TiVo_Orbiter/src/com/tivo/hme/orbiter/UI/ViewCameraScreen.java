@@ -114,6 +114,8 @@ public class ViewCameraScreen extends BasicScreen
     	Stop();
     	
     	m_orbiter.TivoGotoScreen((new Integer(SCREEN_Main_CONST)).toString());
+
+    	m_proxy.GotoScreen(SCREEN_Main_CONST);
     	m_proxy.SendKey(BUTTON_Left_Arrow_CONST);
     	
         return super.handleKeyPress(code, rawcode);
