@@ -38,27 +38,37 @@ public class ViewCameraScreen extends BasicScreen
 	PlutoProxy m_proxy = null;
 	Orbiter m_orbiter = null;
 	String m_sCameraURL = "";
+	String m_sCameraID = "0";
 	
 	View m_videofeed = null;
 	
 	private final int SCREEN_Main_CONST = 1;
-	//private final int BUTTON_Left_Arrow_CONST = 3;
+	
+	private final int COMMAND_MOVE_UP_CONST = 200;
+	private final int COMMAND_MOVE_DOWN_CONST = 201;
+	private final int COMMAND_MOVE_LEFT_CONST = 202;
+	private final int COMMAND_MOVE_RIGHT_CONST = 203;
+	private final int COMMAND_ZOOM_IN_CONST = 684;
+	private final int COMMAND_ZOOM_OUT_CONST = 685;
 	
 	BButton m_buttonRight = null;
 	BButton m_buttonLeft = null;
 	BButton m_buttonUp = null;
 	BButton m_buttonDown = null;
+	BButton m_buttonZoomIn = null;
+	BButton m_buttonZoomOut = null;
 	BButton m_buttonBack = null;	
     /**
      * Constructor 
      */
-    public ViewCameraScreen(BApplication app, PlutoProxy proxy, String sCameraURL)
+    public ViewCameraScreen(BApplication app, PlutoProxy proxy, String sCameraURL, String sCameraID)
     {
         super(app);
 
         m_orbiter = (Orbiter)app;
         m_proxy = proxy;
         m_sCameraURL = sCameraURL;
+        m_sCameraID = sCameraID;
         
         m_root = app.getRoot();
 
@@ -82,8 +92,16 @@ public class ViewCameraScreen extends BasicScreen
         m_buttonDown = new BButton(getNormal(), SAFE_TITLE_H+200, m_root.getHeight() - SAFE_ACTION_V * 3 + 10, 50, 30);
         m_buttonDown.setBarAndArrows(BAR_DEFAULT, BAR_DEFAULT, H_LEFT, H_RIGHT, null, null, false);
         m_buttonDown.setResource(createText("default-18.font", Color.white, "down"));
+
+        m_buttonZoomIn = new BButton(getNormal(), SAFE_TITLE_H+260, m_root.getHeight() - SAFE_ACTION_V * 3 + 10, 50, 30);
+        m_buttonZoomIn.setBarAndArrows(BAR_DEFAULT, BAR_DEFAULT, H_LEFT, H_RIGHT, null, null, false);
+        m_buttonZoomIn.setResource(createText("default-18.font", Color.white, "zoom in"));
         
-        m_buttonBack = new BButton(getNormal(), SAFE_TITLE_H+260, m_root.getHeight() - SAFE_ACTION_V * 3 + 10, 50, 30);
+        m_buttonZoomOut = new BButton(getNormal(), SAFE_TITLE_H+320, m_root.getHeight() - SAFE_ACTION_V * 3 + 10, 50, 30);
+        m_buttonZoomOut.setBarAndArrows(BAR_DEFAULT, BAR_DEFAULT, H_LEFT, H_RIGHT, null, null, false);
+        m_buttonZoomOut.setResource(createText("default-18.font", Color.white, "zoom out"));        
+        
+        m_buttonBack = new BButton(getNormal(), SAFE_TITLE_H+380, m_root.getHeight() - SAFE_ACTION_V * 3 + 10, 50, 30);
         m_buttonBack.setBarAndArrows(BAR_DEFAULT, BAR_DEFAULT, H_LEFT, H_RIGHT, null, null, false);
         m_buttonBack.setResource(createText("default-18.font", Color.white, "back"));
     }
@@ -160,19 +178,33 @@ public class ViewCameraScreen extends BasicScreen
 			else if(m_buttonRight.hasFocus())
 			{
 				System.out.println("Move camera right");
+				m_proxy.CameraAction(Integer.parseInt(m_sCameraID), COMMAND_MOVE_RIGHT_CONST); 
 			}
 			else if(m_buttonLeft.hasFocus())
 			{
 				System.out.println("Move camera left");
+				m_proxy.CameraAction(Integer.parseInt(m_sCameraID), COMMAND_MOVE_LEFT_CONST); 
 			}
 			else if(m_buttonUp.hasFocus())
 			{
 				System.out.println("Move camera up");
+				m_proxy.CameraAction(Integer.parseInt(m_sCameraID), COMMAND_MOVE_UP_CONST);
 			}
 			else if(m_buttonDown.hasFocus())
 			{
 				System.out.println("Move camera down");
+				m_proxy.CameraAction(Integer.parseInt(m_sCameraID), COMMAND_MOVE_DOWN_CONST);
 			}			
+			else if(m_buttonZoomIn.hasFocus())
+			{
+				System.out.println("Zoom in");
+				m_proxy.CameraAction(Integer.parseInt(m_sCameraID), COMMAND_ZOOM_IN_CONST);
+			}
+			else if(m_buttonZoomOut.hasFocus())
+			{
+				System.out.println("Zoom out");
+				m_proxy.CameraAction(Integer.parseInt(m_sCameraID), COMMAND_ZOOM_OUT_CONST);
+			}
 		}
     	
         return super.handleKeyPress(code, rawcode);

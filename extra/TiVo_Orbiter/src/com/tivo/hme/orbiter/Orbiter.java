@@ -70,6 +70,7 @@ public class Orbiter extends BApplication implements MessageProcessor
         String sPVRDeviceID = "0";
         String sOrbiterDeviceID = "0";
         String sCameraURL = "";
+        String sCameraID = "0";
         
         //read configuration
 		try 
@@ -81,11 +82,13 @@ public class Orbiter extends BApplication implements MessageProcessor
 			sPVRDeviceID = p.getProperty("PVRDeviceID");
 			sOrbiterDeviceID = p.getProperty("OrbiterDeviceID");
 			sCameraURL = p.getProperty("CameraURL");
+			sCameraID = p.getProperty("CameraID");
 			
 			System.out.println("IPAddress = " + sIPAddress);
 			System.out.println("PVRDeviceID = " + sPVRDeviceID);
 			System.out.println("OrbiterDeviceID = " + sOrbiterDeviceID);
 			System.out.println("CameraURL = " + sCameraURL);
+			System.out.println("CameraID = " + sCameraID);
 			
 			p.list(System.out);
 		} 
@@ -110,7 +113,7 @@ public class Orbiter extends BApplication implements MessageProcessor
 		
 		m_OrbiterScreen = new OrbiterScreen(this, proxy);
 		m_MainMenuScreen = new MainMenuScreen(this, scenarios, proxy); 
-		m_ViewCameraScreen = new ViewCameraScreen(this, proxy, sCameraURL);
+		m_ViewCameraScreen = new ViewCameraScreen(this, proxy, sCameraURL, sCameraID);
 		m_bMenuOn = true;
 		
 		push(m_MainMenuScreen, TRANSITION_NONE);

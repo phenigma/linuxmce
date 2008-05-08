@@ -155,4 +155,23 @@ public class PlutoProxy
 			m_comm.EventHandler().SendMessage(message);
 		}		
 	}	
+	
+	public void CameraAction(int nCameraID, int nCameraCommand)
+	{
+		System.out.println("Camera action: " + (new Integer(nCameraCommand)).toString());
+		
+		if(m_comm.IsConnected())
+		{
+			Message message = new Message(
+				  m_nPVRDeviceID,  //from 
+				  nCameraID, 
+				  Message.MessagePriority.PRIORITY_NORMAL, 
+				  Message.MessageType.MESSAGETYPE_COMMAND, 
+				  nCameraCommand //message id
+			);
+			message.TargetType(Message.MessageTargetType.TT_Device, "");
+			message.Write();
+			m_comm.EventHandler().SendMessage(message);
+		}		
+	}		
 }
