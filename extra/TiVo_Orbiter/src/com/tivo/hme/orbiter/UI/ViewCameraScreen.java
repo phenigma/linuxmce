@@ -41,6 +41,7 @@ public class ViewCameraScreen extends BasicScreen
 	String m_sCameraID = "0";
 	
 	View m_videofeed = null;
+	View m_textview = null;
 	
 	private final int SCREEN_Main_CONST = 1;
 	
@@ -51,13 +52,6 @@ public class ViewCameraScreen extends BasicScreen
 	private final int COMMAND_ZOOM_IN_CONST = 684;
 	private final int COMMAND_ZOOM_OUT_CONST = 685;
 	
-	BButton m_buttonRight = null;
-	BButton m_buttonLeft = null;
-	BButton m_buttonUp = null;
-	BButton m_buttonDown = null;
-	BButton m_buttonZoomIn = null;
-	BButton m_buttonZoomOut = null;
-	BButton m_buttonBack = null;	
     /**
      * Constructor 
      */
@@ -76,34 +70,13 @@ public class ViewCameraScreen extends BasicScreen
         		m_root.getWidth() - SAFE_ACTION_H * 2,
         		m_root.getHeight() - SAFE_ACTION_V * 4);
         
-        m_buttonRight = new BButton(getNormal(), SAFE_TITLE_H+20, m_root.getHeight() - SAFE_ACTION_V * 3 + 10, 50, 30);
-        m_buttonRight.setBarAndArrows(BAR_DEFAULT, BAR_DEFAULT, H_LEFT, H_RIGHT, null, null, false);
-        m_buttonRight.setResource(createText("default-18.font", Color.white, "right"));
-        setFocusDefault(m_buttonRight);
-        
-        m_buttonLeft = new BButton(getNormal(), SAFE_TITLE_H+80, m_root.getHeight() - SAFE_ACTION_V * 3 + 10, 50, 30);
-        m_buttonLeft.setBarAndArrows(BAR_DEFAULT, BAR_DEFAULT, H_LEFT, H_RIGHT, null, null, false);
-        m_buttonLeft.setResource(createText("default-18.font", Color.white, "left"));
-
-        m_buttonUp = new BButton(getNormal(), SAFE_TITLE_H+140, m_root.getHeight() - SAFE_ACTION_V * 3 + 10, 50, 30);
-        m_buttonUp.setBarAndArrows(BAR_DEFAULT, BAR_DEFAULT, H_LEFT, H_RIGHT, null, null, false);
-        m_buttonUp.setResource(createText("default-18.font", Color.white, "up"));
- 
-        m_buttonDown = new BButton(getNormal(), SAFE_TITLE_H+200, m_root.getHeight() - SAFE_ACTION_V * 3 + 10, 50, 30);
-        m_buttonDown.setBarAndArrows(BAR_DEFAULT, BAR_DEFAULT, H_LEFT, H_RIGHT, null, null, false);
-        m_buttonDown.setResource(createText("default-18.font", Color.white, "down"));
-
-        m_buttonZoomIn = new BButton(getNormal(), SAFE_TITLE_H+260, m_root.getHeight() - SAFE_ACTION_V * 3 + 10, 50, 30);
-        m_buttonZoomIn.setBarAndArrows(BAR_DEFAULT, BAR_DEFAULT, H_LEFT, H_RIGHT, null, null, false);
-        m_buttonZoomIn.setResource(createText("default-18.font", Color.white, "zoom in"));
-        
-        m_buttonZoomOut = new BButton(getNormal(), SAFE_TITLE_H+320, m_root.getHeight() - SAFE_ACTION_V * 3 + 10, 50, 30);
-        m_buttonZoomOut.setBarAndArrows(BAR_DEFAULT, BAR_DEFAULT, H_LEFT, H_RIGHT, null, null, false);
-        m_buttonZoomOut.setResource(createText("default-18.font", Color.white, "zoom out"));        
-        
-        m_buttonBack = new BButton(getNormal(), SAFE_TITLE_H+380, m_root.getHeight() - SAFE_ACTION_V * 3 + 10, 50, 30);
-        m_buttonBack.setBarAndArrows(BAR_DEFAULT, BAR_DEFAULT, H_LEFT, H_RIGHT, null, null, false);
-        m_buttonBack.setResource(createText("default-18.font", Color.white, "back"));
+        m_textview = new View(m_root, SAFE_ACTION_H,
+        		m_root.getHeight() - 3 * SAFE_ACTION_V, m_root.getWidth() - SAFE_ACTION_H, 3 * SAFE_ACTION_V - 1);
+        m_textview.setVisible(false);
+        m_textview.setResource(createText("default-18.font", Color.white,
+        		"Use UP/DOWN/LEFT/RIGHT to move camera.\nUse THUMBUP/THUMBDOWN to zoomin/zoomout.\nPress SELECT to go back."
+          ),
+       RSRC_TEXT_WRAP);       
     }
     
     public void GetFrames()
@@ -120,12 +93,12 @@ public class ViewCameraScreen extends BasicScreen
 			  System.out.println("Displaying new frame...");
 		 
 		      // sleep between refreshes 
-		      Thread.sleep(1000); 
+		      Thread.sleep(200); 
 		      
 		      // remove the old resource to free the memory 
 		      sr.flush(); 
 		      sr.remove(); 		      
-		  }  
+		  }  	
 		  catch (Exception ex) 
 		  { 
 		      // if we're unable to update the image, just pass till 
@@ -137,6 +110,7 @@ public class ViewCameraScreen extends BasicScreen
     public void Run()
     {
     	m_videofeed.setVisible(true);
+    	m_textview.setVisible(true);
     	m_active = true;
     	m_viewcameraengine = new ViewCameraEngine(this);
     	m_viewcameraengine.run();
@@ -145,6 +119,7 @@ public class ViewCameraScreen extends BasicScreen
     public void Stop()
     {
     	m_videofeed.setVisible(false);
+    	m_textview.setVisible(false);
     	m_active = false;
     }
     
@@ -166,47 +141,45 @@ public class ViewCameraScreen extends BasicScreen
      */
     public boolean handleKeyPress(int code, long rawcode) 
     {
-		if(code == KEY_SELECT)
-		{
-			if(m_buttonBack.hasFocus())
-			{
-		    	Stop();
-		    	
-		    	m_orbiter.TivoGotoScreen((new Integer(SCREEN_Main_CONST)).toString());
-		    	m_proxy.GotoScreen(SCREEN_Main_CONST);				
-			}
-			else if(m_buttonRight.hasFocus())
-			{
+    	switch(code)
+    	{
+    		case KEY_SELECT:
+    	    	Stop();
+    	    	m_orbiter.TivoGotoScreen((new Integer(SCREEN_Main_CONST)).toString());
+    	    	m_proxy.GotoScreen(SCREEN_Main_CONST);	    			
+    	    	break;
+    		
+    		case KEY_THUMBSUP:
+    			System.out.println("Zoom in");
+    			m_proxy.CameraAction(Integer.parseInt(m_sCameraID), COMMAND_ZOOM_IN_CONST);
+    			break;
+    			
+    		case KEY_THUMBSDOWN:
+    			System.out.println("Zoom out");
+    			m_proxy.CameraAction(Integer.parseInt(m_sCameraID), COMMAND_ZOOM_OUT_CONST);
+    			break;
+    			
+    		case KEY_LEFT:
+    			System.out.println("Move camera left");
+    			m_proxy.CameraAction(Integer.parseInt(m_sCameraID), COMMAND_MOVE_LEFT_CONST); 	
+    			break;
+    			
+    		case KEY_RIGHT:
 				System.out.println("Move camera right");
-				m_proxy.CameraAction(Integer.parseInt(m_sCameraID), COMMAND_MOVE_RIGHT_CONST); 
-			}
-			else if(m_buttonLeft.hasFocus())
-			{
-				System.out.println("Move camera left");
-				m_proxy.CameraAction(Integer.parseInt(m_sCameraID), COMMAND_MOVE_LEFT_CONST); 
-			}
-			else if(m_buttonUp.hasFocus())
-			{
+				m_proxy.CameraAction(Integer.parseInt(m_sCameraID), COMMAND_MOVE_RIGHT_CONST);     			
+    			break;
+    			
+    		case KEY_UP:
 				System.out.println("Move camera up");
-				m_proxy.CameraAction(Integer.parseInt(m_sCameraID), COMMAND_MOVE_UP_CONST);
-			}
-			else if(m_buttonDown.hasFocus())
-			{
+				m_proxy.CameraAction(Integer.parseInt(m_sCameraID), COMMAND_MOVE_UP_CONST);    			
+    			break;
+    			
+    		case KEY_DOWN:
 				System.out.println("Move camera down");
-				m_proxy.CameraAction(Integer.parseInt(m_sCameraID), COMMAND_MOVE_DOWN_CONST);
-			}			
-			else if(m_buttonZoomIn.hasFocus())
-			{
-				System.out.println("Zoom in");
-				m_proxy.CameraAction(Integer.parseInt(m_sCameraID), COMMAND_ZOOM_IN_CONST);
-			}
-			else if(m_buttonZoomOut.hasFocus())
-			{
-				System.out.println("Zoom out");
-				m_proxy.CameraAction(Integer.parseInt(m_sCameraID), COMMAND_ZOOM_OUT_CONST);
-			}
-		}
-    	
+				m_proxy.CameraAction(Integer.parseInt(m_sCameraID), COMMAND_MOVE_DOWN_CONST);    			
+    			break;
+    	}
+
         return super.handleKeyPress(code, rawcode);
     }    
 }

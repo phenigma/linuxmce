@@ -26,8 +26,8 @@ package com.tivo.hme.orbiter;
 import com.tivo.hme.bananas.BApplication;
 import com.tivo.hme.bananas.BView;
 import com.tivo.hme.interfaces.IContext;
-import com.tivo.hme.orbiter.UI.*;
 
+import com.tivo.hme.orbiter.UI.*;
 import com.tivo.hme.scenarios.*;
 import com.tivo.hme.dce.*;
 
@@ -54,6 +54,7 @@ public class Orbiter extends BApplication implements MessageProcessor
 	private MainMenuScreen m_MainMenuScreen = null;
 	private OrbiterScreen m_OrbiterScreen = null;
 	private ViewCameraScreen m_ViewCameraScreen = null;
+	private SecurityPanelScreen m_SecurityPanelScreen = null;
 	
 	private boolean m_bMenuOn = true;
 	private final String m_sBackgroundPicture = "blue.jpg";
@@ -114,6 +115,7 @@ public class Orbiter extends BApplication implements MessageProcessor
 		m_OrbiterScreen = new OrbiterScreen(this, proxy);
 		m_MainMenuScreen = new MainMenuScreen(this, scenarios, proxy); 
 		m_ViewCameraScreen = new ViewCameraScreen(this, proxy, sCameraURL, sCameraID);
+		m_SecurityPanelScreen = new SecurityPanelScreen(this, proxy);
 		m_bMenuOn = true;
 		
 		push(m_MainMenuScreen, TRANSITION_NONE);
@@ -153,6 +155,13 @@ public class Orbiter extends BApplication implements MessageProcessor
 			m_ViewCameraScreen.Run();
 			m_bMenuOn = false;
 		}
+		else if(0 == sValue.compareTo("securitypanel"))
+		{
+			pop();
+			push(m_SecurityPanelScreen, TRANSITION_NONE);
+			m_SecurityPanelScreen.Run();
+			m_bMenuOn = false;
+		}		
 		else if(!m_bMenuOn)
     	{
     		getRoot().setResource(m_sBackgroundPicture);
