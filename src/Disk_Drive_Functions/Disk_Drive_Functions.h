@@ -110,6 +110,7 @@ public:
 		int m_dwPK_Device;
 
 		void EVENT_Media_Inserted(int iFK_MediaType,string sMRL,string sID,string sName);
+		void EVENT_Media_Removed();
 		void EVENT_Ripping_Progress(string sText,int iResult,string sValue,string sName,int iEK_Disc);
 		
 	public:

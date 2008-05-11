@@ -1271,6 +1271,13 @@ void ScreenHandler::SCREEN_Music_Full_Screen_OSD(long PK_Screen)
 {
 	if(m_pOrbiter->m_sSkin == AUDIO_STATION_SKIN)
 	{
+		DesignObj_DataGrid *pObj = (DesignObj_DataGrid *) m_pOrbiter->FindObject( TOSTRING(5551) ".0.0." TOSTRING(5603) );
+		if( pObj )
+		{
+			pObj->m_pObjUp = m_pOrbiter->FindObject( TOSTRING(5551) ".0.0." TOSTRING(5595) );
+			pObj->m_pObjDown = m_pOrbiter->FindObject( TOSTRING(5551) ".0.0." TOSTRING(5594) );
+		}
+
 		m_pOrbiter->CMD_Set_Graphic_To_Display(TOSTRING(5551) ".0.0." TOSTRING(5636),mediaFileBrowserOptions.m_MediaRepeatOptions==repeat_None ? "0" : (mediaFileBrowserOptions.m_MediaRepeatOptions==repeat_Queue ? "1" : "2"));
 		m_pOrbiter->CMD_Set_Graphic_To_Display(TOSTRING(5551) ".0.0." TOSTRING(5637),mediaFileBrowserOptions.m_bQueueInsteadOfInstantPlay ? "1" : "0");
 		RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::MusicFullScreen_ObjectSelected,	new ObjectInfoBackData());
@@ -1326,6 +1333,15 @@ bool ScreenHandler::MusicFullScreen_GridRendering(CallBackData *pData)
 	int iTrack = atoi(m_pOrbiter->m_mapVariable_Find(VARIABLE_Track_or_Playlist_Positio_CONST).c_str());
 
 	NeedToRender render2( m_pOrbiter, "ScreenHandler::MusicFullScreen_GridRendering" );
+
+	// Reset all the text to blank
+	m_pOrbiter->CMD_Set_Text(TOSTRING(5551) ".0.0." TOSTRING(5587),"",2046);
+	m_pOrbiter->CMD_Set_Text(TOSTRING(5551) ".0.0." TOSTRING(5587),"",2047);
+	m_pOrbiter->CMD_Set_Text(TOSTRING(5551) ".0.0." TOSTRING(5587),"",2048);
+	m_pOrbiter->CMD_Set_Text(TOSTRING(5551) ".0.0." TOSTRING(5587),"",2049);
+	m_pOrbiter->CMD_Set_Text(TOSTRING(5551) ".0.0." TOSTRING(5587),"",2050);
+	m_pOrbiter->CMD_Set_Text(TOSTRING(5551) ".0.0." TOSTRING(5587),"",2051);
+	m_pOrbiter->CMD_Set_Text(TOSTRING(5551) ".0.0." TOSTRING(5587),"",2052);
 
 	// We'll show info on the cell that is selected, if one is, or if not the one that's playing
 	bool bUpdatedPic=false;

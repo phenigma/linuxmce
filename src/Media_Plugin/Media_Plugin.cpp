@@ -891,6 +891,12 @@ bool Media_Plugin::MediaInserted( class Socket *pSocket, class Message *pMessage
 	    return true;
     }
 
+	if( atoi(pMediaDevice->m_pDeviceData_Router->m_mapParameters_Find(DEVICEDATA_Auto_Play_CONST).c_str())==0 )
+	{
+        LoggerWrapper::GetInstance()->Write( LV_STATUS, "Media inserted from device %d.  No auto play", pDeviceFrom->m_dwPK_Device );
+		return false;
+	}
+
     // If there are more than one entertainment areas for this drive there's nothing we can do since we can't know the
     // destination based on the media inserted event. No matter what, we'll just pick the first one
     EntertainArea *pEntertainArea = pMediaDevice->m_mapEntertainArea.begin( )->second;

@@ -81,7 +81,12 @@ Disk_Drive_Functions::~Disk_Drive_Functions()
 
 void Disk_Drive_Functions::EVENT_Media_Inserted(int iFK_MediaType, string sMRL, string sID, string sName)
 {
-	m_pCommand_Impl->m_pEvent->SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 3, 4, 3, StringUtils::itos(iFK_MediaType).c_str(), 4, sMRL.c_str(), 7, sID.c_str(), 35, sName.c_str()));
+	m_pCommand_Impl->m_pEvent->SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, EVENT_Media_Inserted_CONST, 4, 3, StringUtils::itos(iFK_MediaType).c_str(), 4, sMRL.c_str(), 7, sID.c_str(), 35, sName.c_str()));
+}
+
+void Disk_Drive_Functions::EVENT_Media_Removed()
+{
+	m_pCommand_Impl->m_pEvent->SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, EVENT_Media_Removed_CONST, 0);
 }
 
 void Disk_Drive_Functions::EVENT_Ripping_Progress(string sText, int iResult, string sValue, string sName, int iEK_Disc)
@@ -196,6 +201,7 @@ bool Disk_Drive_Functions::internal_reset_drive(bool bFireEvent,int *iPK_MediaTy
 			m_discid=0;
 			m_mediaInserted = false;
 			UpdateDiscLocation('E',0); // Now the drive is empty
+			EVENT_Media_Removed();
 			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Disk is not in the drive at the moment");
 		}
 	}

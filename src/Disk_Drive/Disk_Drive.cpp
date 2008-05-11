@@ -427,7 +427,7 @@ void Disk_Drive::CMD_Close_Tray(string &sCMD_Result,Message *pMessage)
 
 void Disk_Drive::RunMonitorLoop()
 {
-    m_pDisk_Drive_Functions->internal_monitor_step(false); // ignore any drive that is in the drive at the start.
+    m_pDisk_Drive_Functions->internal_monitor_step(DATA_Get_Fire_Startup_Event()); // ignore any drive that is in the drive at the start unless Fire_Startup_Event is true
 
     bool done = false;
     
@@ -633,7 +633,7 @@ void Disk_Drive::CMD_Abort_Task(int iParameter_ID,string &sCMD_Result,Message *p
 //<-dceag-c914-b->
 
 	/** @brief COMMAND: #914 - Get Disk Info */
-	/**  */
+	/** Retrieve the information on the current disk */
 		/** @param #29 PK_MediaType */
 			/** The type of media */
 		/** @param #157 Disks */
@@ -729,3 +729,12 @@ bool Disk_Drive::SafeToReload(string &sReason)
 	sReason = "See Pending Tasks.  Disk_Drive is busy.";
 	return false;
 }
+//<-dceag-c942-b->
+
+	/** @brief COMMAND: #942 - Get Ripping Status */
+	/** Get ripping status */
+		/** @param #199 Status */
+			/** Ripping status */
+
+void Disk_Drive::CMD_Get_Ripping_Status(string *sStatus,string &sCMD_Result,Message *pMessage)
+//<-dceag-c942-e->

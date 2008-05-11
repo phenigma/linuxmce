@@ -55,6 +55,13 @@ public:
 			EVENTPARAMETER_Name_CONST, sName.c_str()));
 	}
 
+	virtual void Media_Removed()
+	{
+		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 
+			EVENT_Media_Removed_CONST,
+			0 /* number of parameter's pairs (id, value) */));
+	}
+
 };
 
 
@@ -133,6 +140,22 @@ public:
 			return (m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Send_Events_CONST)=="1" ? true : false);
 		else
 			return (m_mapParameters[DEVICEDATA_Send_Events_CONST]=="1" ? true : false);
+	}
+
+	bool Get_Auto_Play()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return (m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Auto_Play_CONST)=="1" ? true : false);
+		else
+			return (m_mapParameters[DEVICEDATA_Auto_Play_CONST]=="1" ? true : false);
+	}
+
+	bool Get_Fire_Startup_Event()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return (m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Fire_Startup_Event_CONST)=="1" ? true : false);
+		else
+			return (m_mapParameters[DEVICEDATA_Fire_Startup_Event_CONST]=="1" ? true : false);
 	}
 
 };
@@ -245,8 +268,11 @@ public:
 	bool DATA_Get_PNP_Create_Without_Prompting() { return GetData()->Get_PNP_Create_Without_Prompting(); }
 	bool DATA_Get_Immediate_Reload_Isnt_Necessar() { return GetData()->Get_Immediate_Reload_Isnt_Necessar(); }
 	bool DATA_Get_Send_Events() { return GetData()->Get_Send_Events(); }
+	bool DATA_Get_Auto_Play() { return GetData()->Get_Auto_Play(); }
+	bool DATA_Get_Fire_Startup_Event() { return GetData()->Get_Fire_Startup_Event(); }
 	//Event accessors
 	void EVENT_Media_Inserted(int iFK_MediaType,string sMRL,string sID,string sName) { GetEvents()->Media_Inserted(iFK_MediaType,sMRL.c_str(),sID.c_str(),sName.c_str()); }
+	void EVENT_Media_Removed() { GetEvents()->Media_Removed(); }
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_Disk_Drive_Monitoring_ON(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Disk_Drive_Monitoring_OFF(string &sCMD_Result,class Message *pMessage) {};
@@ -268,6 +294,7 @@ public:
 	virtual void CMD_Lock(int iPK_Device,string sID,bool bTurn_On,string *sText,bool *bIsSuccessful,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Abort_Task(int iParameter_ID,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Get_Disk_Info(int *iPK_MediaType,string *sDisks,string *sURL,string *sBlock_Device,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Get_Ripping_Status(string *sStatus,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual ReceivedMessageResult ReceivedMessage(class Message *pMessageOriginal)
@@ -856,6 +883,33 @@ public:
 							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Get_Disk_Info(&iPK_MediaType,&sDisks,&sURL,&sBlock_Device,sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case COMMAND_Get_Ripping_Status_CONST:
+					{
+						string sCMD_Result="OK";
+						string sStatus=pMessage->m_mapParameters[COMMANDPARAMETER_Status_CONST];
+						CMD_Get_Ripping_Status(&sStatus,sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+						pMessageOut->m_mapParameters[COMMANDPARAMETER_Status_CONST]=sStatus;
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(itRepeat->second.c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Get_Ripping_Status(&sStatus,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

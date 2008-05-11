@@ -79,14 +79,17 @@ public:
 	/*
 			*****DATA***** accessors inherited from base class
 	string DATA_Get_Drive();
-	void DATA_Set_Drive(string Value);
+	void DATA_Set_Drive(string Value,bool bUpdateDatabase=false);
 	bool DATA_Get_Autoassign_to_parents_room();
 	bool DATA_Get_PNP_Create_Without_Prompting();
 	bool DATA_Get_Immediate_Reload_Isnt_Necessar();
 	bool DATA_Get_Send_Events();
+	bool DATA_Get_Auto_Play();
+	bool DATA_Get_Fire_Startup_Event();
 
 			*****EVENT***** accessors inherited from base class
 	void EVENT_Media_Inserted(int iFK_MediaType,string sMRL,string sID,string sName);
+	void EVENT_Media_Removed();
 
 			*****COMMANDS***** we need to implement
 	*/
@@ -308,7 +311,7 @@ public:
 
 
 	/** @brief COMMAND: #914 - Get Disk Info */
-	/**  */
+	/** Retrieve the information on the current disk */
 		/** @param #29 PK_MediaType */
 			/** The type of media */
 		/** @param #157 Disks */
@@ -320,6 +323,16 @@ public:
 
 	virtual void CMD_Get_Disk_Info(int *iPK_MediaType,string *sDisks,string *sURL,string *sBlock_Device) { string sCMD_Result; CMD_Get_Disk_Info(iPK_MediaType,sDisks,sURL,sBlock_Device,sCMD_Result,NULL);};
 	virtual void CMD_Get_Disk_Info(int *iPK_MediaType,string *sDisks,string *sURL,string *sBlock_Device,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #942 - Get Ripping Status */
+	/** Get ripping status */
+		/** @param #199 Status */
+			/** Ripping status */
+
+	virtual void CMD_Get_Ripping_Status(string *sStatus) { string sCMD_Result; CMD_Get_Ripping_Status(sStatus,sCMD_Result,NULL);};
+	virtual void CMD_Get_Ripping_Status(string *sStatus,string &sCMD_Result,Message *pMessage);
+
 
 //<-dceag-h-e->
 	private:
