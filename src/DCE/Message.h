@@ -66,7 +66,7 @@ namespace DCE
     /** @enum eParmType
      Enum containing values for the criteria used in a message interceptor.
      */
-	enum eParmType { PARM_FROM=1, PARM_TO, PARM_TEMPLATE, PARM_CATEGORY, PARM_MESSAGE_TYPE, PARM_MESSAGE_ID };
+	enum eParmType { PARM_FROM=1, PARM_TO, PARM_TEMPLATE, PARM_CATEGORY, PARM_MESSAGE_TYPE, PARM_MESSAGE_ID, PARM_ALLOW_REROUTE };
 
 
     /** @enum

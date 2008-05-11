@@ -62,6 +62,7 @@ DesignObj_Orbiter::DesignObj_Orbiter(Orbiter *pOrbiter)
 	m_pParentObject=NULL;
 	m_pWebWindow=NULL;
 	m_bHidden=false;
+	m_bDisabled=false;
 	m_pFloorplanObject=NULL;
 #ifdef PRONTO
 	m_pCCF=NULL;

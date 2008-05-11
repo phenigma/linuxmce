@@ -66,6 +66,7 @@ ScreenHandler::ScreenHandler(Orbiter *pOrbiter, map<int,int> *p_MapDesignObj) :
 	m_TelecomCommandStatus = tcsDirectDial;
 
 	m_PK_Disc = 0;
+	m_bDiscInserted = false;
 
 	Reset_SaveFile_Info();
 }
@@ -81,21 +82,21 @@ void ScreenHandler::Initialize()
 {
 	if( m_pOrbiter->m_pLocationInfo_Initial && m_pOrbiter->m_pLocationInfo_Initial->m_dwPK_Device_DiscDrive )
 	{
-		m_pOrbiter->RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter::MediaInsertedMsgInterceptor),m_pOrbiter->m_pLocationInfo_Initial->m_dwPK_Device_DiscDrive,0,0,0,MESSAGETYPE_EVENT,EVENT_Media_Inserted_CONST);
-		m_pOrbiter->RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter::MediaInsertedMsgInterceptor),m_pOrbiter->m_pLocationInfo_Initial->m_dwPK_Device_DiscDrive,0,0,0,MESSAGETYPE_EVENT,EVENT_Media_Removed_CONST);
+		m_pOrbiter->RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter::MediaInsertedMsgInterceptor),m_pOrbiter->m_pLocationInfo_Initial->m_dwPK_Device_DiscDrive,0,0,0,MESSAGETYPE_EVENT,EVENT_Media_Inserted_CONST, false);
+		m_pOrbiter->RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter::MediaInsertedMsgInterceptor),m_pOrbiter->m_pLocationInfo_Initial->m_dwPK_Device_DiscDrive,0,0,0,MESSAGETYPE_EVENT,EVENT_Media_Removed_CONST, false);
 		DeviceData_Base *pDevice_Disc = m_pOrbiter->m_pData->m_AllDevices.m_mapDeviceData_Base_Find(m_pOrbiter->m_pLocationInfo_Initial->m_dwPK_Device_DiscDrive);
 		if( pDevice_Disc )
 		{
 			DeviceData_Base *pDevice_Identifier = pDevice_Disc->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_Media_Identifiers_CONST);
 			if( pDevice_Identifier )
-				m_pOrbiter->RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter::MediaInsertedMsgInterceptor),pDevice_Identifier->m_dwPK_Device,0,0,0,MESSAGETYPE_COMMAND,COMMAND_Media_Identified_CONST);
+				m_pOrbiter->RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter::MediaInsertedMsgInterceptor),pDevice_Identifier->m_dwPK_Device,0,0,0,MESSAGETYPE_COMMAND,COMMAND_Media_Identified_CONST, false);
 		}
 		int PK_MediaType=0,iEK_Disc=0;
 		string Disks,URL,BlockDevice;
 		DCE::CMD_Get_Disk_Info CMD_Get_Disk_Info(m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_pLocationInfo_Initial->m_dwPK_Device_DiscDrive, &PK_MediaType, &iEK_Disc, &Disks, &URL, &BlockDevice);
 		if( m_pOrbiter->SendCommand(CMD_Get_Disk_Info) )
 		{
-			int k=2;
+			m_bDiscInserted = PK_MediaType>0;
 		}
 	}
 }
@@ -1309,6 +1310,7 @@ void ScreenHandler::SCREEN_Music_Full_Screen_OSD(long PK_Screen)
 		RegisterCallBack(cbDataGridRendering, (ScreenHandlerCallBack) &ScreenHandler::MusicFullScreen_GridRendering,	new DatagridAcquiredBackData());
 		RegisterCallBack(cbDataGridSelected, (ScreenHandlerCallBack) &ScreenHandler::MusicFullScreen_DatagridSelected,	new DatagridCellBackData());
 		RegisterCallBack(cbSetNowPlaying, (ScreenHandlerCallBack) &ScreenHandler::AudioServer_SetNowPlaying, new MsgInterceptorCellBackData());
+		SetAudioServerTabs();
 	}
 	ScreenHandlerBase::SCREEN_Music_Full_Screen_OSD(PK_Screen);
 }
@@ -2078,6 +2080,7 @@ void ScreenHandler::SetupAudioServer()
 
 		m_pOrbiter->StartScreenHandlerTimer(5000);
 	}
+	SetAudioServerTabs();
 }
 //-----------------------------------------------------------------------------------------------------
 bool ScreenHandler::AudioServer_SetNowPlaying(CallBackData *pData)
@@ -2085,6 +2088,92 @@ bool ScreenHandler::AudioServer_SetNowPlaying(CallBackData *pData)
 	MsgInterceptorCellBackData *pMsgInterceptorCellBackData = (MsgInterceptorCellBackData *) pData;
 	string iTrack = m_pOrbiter->m_mapVariable_Find(VARIABLE_Track_or_Playlist_Positio_CONST);
 	return false;
+}
+//-----------------------------------------------------------------------------------------------------
+void ScreenHandler::SetAudioServerTabs()
+{
+	PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_VariableMutex);
+	// Get the current screen object.  If we're changing screens it will be the pending one, otherwise the current one;
+	ScreenHistory *pScreenHistory = NeedToRender::m_pScreenHistory_get();
+	if( !pScreenHistory )
+		pScreenHistory = m_pOrbiter->m_pScreenHistory_Current;
+	if( !pScreenHistory )
+		return;
+	DesignObj_Orbiter *pObj = pScreenHistory->GetObj();
+	if( !pObj )
+		return;
+	
+	m_pOrbiter->CMD_Set_Graphic_To_Display( pObj->m_ObjectID + "." TOSTRING(5577), pObj->m_iBaseObjectID==5577 ? "-1" : "0");
+
+	DesignObj_Orbiter *pObj_Button  = m_pOrbiter->FindObject(pObj->m_ObjectID + "." TOSTRING(5554));
+	if( pObj_Button )
+	{
+		if( m_bDiscInserted )
+		{
+			pObj_Button->m_bDisabled_set(false);
+			m_pOrbiter->CMD_Set_Graphic_To_Display( pObj_Button->m_ObjectID, pObj->m_iBaseObjectID==5554 ? "-1" : "0" );
+		}
+		else
+		{
+			pObj_Button->m_bDisabled_set(true);
+			m_pOrbiter->CMD_Set_Graphic_To_Display( pObj_Button->m_ObjectID, "1" );
+		}
+	}
+
+	m_pOrbiter->CMD_Set_Graphic_To_Display( pObj->m_ObjectID + "." TOSTRING(5553), pObj->m_iBaseObjectID==5553 ? "-1" : "0");
+
+	pObj_Button  = m_pOrbiter->FindObject(pObj->m_ObjectID + "." TOSTRING(5588));
+	if( pObj_Button )
+	{
+		if( m_pOrbiter->m_iPK_MediaType )
+		{
+			pObj_Button->m_bDisabled_set(false);
+			m_pOrbiter->CMD_Set_Graphic_To_Display( pObj_Button->m_ObjectID, pObj->m_iBaseObjectID==5588 ? "-1" : "0" );
+		}
+		else
+		{
+			pObj_Button->m_bDisabled_set(true);
+			m_pOrbiter->CMD_Set_Graphic_To_Display( pObj_Button->m_ObjectID, "1" );
+		}
+	}
+
+	m_pOrbiter->CMD_Set_Graphic_To_Display( pObj->m_ObjectID + "." TOSTRING(5545), pObj->m_iBaseObjectID==5545 ? "-1" : "0");
+	m_pOrbiter->CMD_Set_Graphic_To_Display( pObj->m_ObjectID + "." TOSTRING(5619), m_pOrbiter->m_iPK_MediaType ? "0" : "-2");
+	//->GetObj()->m_iBaseObjectID;
+	//int PK_DesignObj = GetCurrentScreen_PK_DesignObj();
+	//string sPK_DesignObj = StringUtils::
+}
+//-----------------------------------------------------------------------------------------------------
+void ScreenHandler::ProcessMediaInsertedRemovedMessage(Message *pMessage)
+{
+	PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_VariableMutex);
+	if(m_pOrbiter->m_sSkin == AUDIO_STATION_SKIN)
+	{
+		if( pMessage->m_dwID==EVENT_Media_Inserted_CONST )
+		{
+			m_bDiscInserted=true;
+			m_PK_Disc=0;  // We will refresh the screen and retrieve this again in the disc screen's init routine
+			if( m_pOrbiter->m_pScreenHistory_Current && m_pOrbiter->m_pScreenHistory_Current->GetObj() && m_pOrbiter->m_pScreenHistory_Current->GetObj()->m_iBaseObjectID==5589 )
+				m_pOrbiter->CMD_Refresh("*");
+			else
+				SetAudioServerTabs();
+		}
+		else if( pMessage->m_dwID==EVENT_Media_Removed_CONST )
+		{
+			m_bDiscInserted=false;
+			m_PK_Disc=0;
+			if( m_pOrbiter->m_pScreenHistory_Current && m_pOrbiter->m_pScreenHistory_Current->GetObj() && m_pOrbiter->m_pScreenHistory_Current->GetObj()->m_iBaseObjectID==5589 )
+				m_pOrbiter->GotoMainMenu();
+			else
+				SetAudioServerTabs();
+		}
+		else if( pMessage->m_dwID==COMMAND_Media_Identified_CONST )
+		{
+			if( m_pOrbiter->m_pScreenHistory_Current && m_pOrbiter->m_pScreenHistory_Current->GetObj() && m_pOrbiter->m_pScreenHistory_Current->GetObj()->m_iBaseObjectID==5589 )
+				m_pOrbiter->CMD_Refresh("*");
+		}
+	}
+	int k=2;
 }
 //-----------------------------------------------------------------------------------------------------
 bool ScreenHandler::AudioServerFileList_GridRendering(CallBackData *pData)

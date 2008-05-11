@@ -728,12 +728,15 @@ void Router::RegisterMsgInterceptor(Message *pMessage)
     int PK_DeviceCategory = atoi( pMessage->m_mapParameters[PARM_CATEGORY].c_str() );
     int MessageType = atoi( pMessage->m_mapParameters[PARM_MESSAGE_TYPE].c_str() );
     int MessageID = atoi( pMessage->m_mapParameters[PARM_MESSAGE_ID].c_str() );
+    bool bAllowReroute = atoi( pMessage->m_mapParameters[PARM_ALLOW_REROUTE].c_str() )==1;
 
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Device %d registered Message interceptor %d/%d/%d/%d/%d/%d",
-		pMessage->m_dwPK_Device_From,PK_Device_From,PK_Device_To,PK_DeviceTemplate,PK_DeviceCategory,MessageType,MessageID);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Device %d registered Message interceptor %d/%d/%d/%d/%d/%d/%d",
+		pMessage->m_dwPK_Device_From,PK_Device_From,PK_Device_To,PK_DeviceTemplate,PK_DeviceCategory,MessageType,MessageID,(int) bAllowReroute);
 
+	MessageInterceptorCallBack *pMessageInterceptorCallBack = new MessageInterceptorCallBack(pMessage->m_dwPK_Device_From, pMessage->m_dwID);
+	pMessageInterceptorCallBack->m_bAllowReroute = bAllowReroute;
     RegisterMsgInterceptor(
-            new MessageInterceptorCallBack(pMessage->m_dwPK_Device_From, pMessage->m_dwID),
+            pMessageInterceptorCallBack,
             PK_Device_From,PK_Device_To,PK_DeviceTemplate,PK_DeviceCategory,MessageType,MessageID );
 }
 
@@ -988,10 +991,11 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted, bo
 				Message *pMessageInterceptor = new Message(0,pMessageInterceptorCallBack->m_dwPK_Device,PRIORITY_NORMAL,
 					MESSAGETYPE_MESSAGE_INTERCEPTED,pMessageInterceptorCallBack->m_dwID,0);
 				pMessageInterceptor->m_vectExtraMessages.push_back( pMessageOriginator );
-				pMessageInterceptor->m_eExpectedResponse=ER_ReplyMessage;
+				pMessageInterceptor->m_eExpectedResponse=pMessageInterceptorCallBack->m_bAllowReroute ? ER_ReplyMessage : ER_None;
 				ReceivedMessage(NULL,pMessageInterceptor,false);
 				bool bAbort = pMessageInterceptor->m_mapParameters.find(-1) != pMessageInterceptor->m_mapParameters.end() && pMessageInterceptor->m_mapParameters[-1]=="ABORT" ;
-				delete pMessageInterceptor;
+				if( pMessageInterceptorCallBack->m_bAllowReroute )
+					delete pMessageInterceptor;  // If we don't allow a reroute, the ReceivedMessage above used QueueMessageToRouter which will delete the message
 				if( bAbort ) // Special case
 				{
 					LoggerWrapper::GetInstance()->Write(LV_STATUS,"void Router::ReceivedMessage -- Aborting further processing of message type %d id %d as per interceptor",(*SafetyMessage)->m_dwMessage_Type,(*SafetyMessage)->m_dwID);
@@ -1272,7 +1276,7 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted, bo
 
 		break;
     default:
-        if( (*SafetyMessage)->m_dwMessage_Type==MESSAGETYPE_COMMAND && (*SafetyMessage)->m_eExpectedResponse==ER_None )
+        if( ((*SafetyMessage)->m_dwMessage_Type==MESSAGETYPE_COMMAND || (*SafetyMessage)->m_dwMessage_Type==MESSAGETYPE_MESSAGE_INTERCEPTED) && (*SafetyMessage)->m_eExpectedResponse==ER_None )
         {
             // Do this on a separate thread.  Sometimes devices will send a message requesting a response, holding a blocked mutex
             // while the device they're waiting for a response from sends them a command.  It's safer to send messages on separate
@@ -2327,8 +2331,12 @@ LoggerWrapper::GetInstance()->Write(LV_SOCKET, "Got response: %d to message type
                         return;
                     }
                     string sResponse;
+if( pSafetyMessage->m_pMessage->m_dwMessage_Type==9 )
+int k=2;
                     if (pServerSocket->ReceiveString(sResponse))
                     {
+if( pSafetyMessage->m_pMessage->m_dwMessage_Type==9 )
+int k=2;
 
 #ifdef DEBUG
                         if( clock()-clk2>(CLOCKS_PER_SEC*4) )

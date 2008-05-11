@@ -225,6 +225,7 @@ protected:
 	string m_sInstallationStatus;  // For add software grid
 
 	int m_PK_Disc; // For the audio server UI it's the id of the currently active disc
+	bool m_bDiscInserted; // For the audio server UI
 
 	pluto_pthread_mutex_t m_MapMutex; /** < Protected the access to our maps */
 
@@ -353,7 +354,8 @@ public:
 	void AudioServer_PopulateDatagrid();
 	bool AudioServerFileList_GridRendering(CallBackData *pData);
 	bool AudioServer_SetNowPlaying(CallBackData *pData);
-	void SetAudioServerDiscTab(); // disables or enables the 'disc' tab in the audio server UI depending on whether m_PK_Disc is 0 or not
+	void SetAudioServerTabs(); // disables or enables the 'disc' tab in the audio server UI depending on whether m_PK_Disc is 0 or not
+	void ProcessMediaInsertedRemovedMessage(Message *pMessage);
 
 	virtual void SCREEN_Lights(long PK_Screen, string sLocation);
 	virtual void SCREEN_Media(long PK_Screen, string sLocation);

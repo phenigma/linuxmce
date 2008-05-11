@@ -76,6 +76,7 @@ This class is for ???
         int m_dwPK_Device;
         int m_dwID;
         MessageInterceptorFn m_pMessageInterceptorFn;
+		bool m_bAllowReroute;
 
 		// The list that contains this interceptor in case we want to remove it.  Since external devices
 		// can register as interceptors, and they can go away, and then re-register, there needs to be a
@@ -88,6 +89,7 @@ This class is for ???
             m_pPlugIn=pPlugIn;
             m_pMessageInterceptorFn=pMessageInterceptorFn;
 			m_plistMessageInterceptor=NULL;
+			m_bAllowReroute=true;
         }
         MessageInterceptorCallBack(int PK_Device,int ID)
         {
@@ -96,6 +98,7 @@ This class is for ???
             m_pPlugIn=NULL;
             m_pMessageInterceptorFn=NULL;
 			m_plistMessageInterceptor=NULL;
+			m_bAllowReroute=true;
         }
     };
 

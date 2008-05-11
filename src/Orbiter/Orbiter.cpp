@@ -1838,7 +1838,7 @@ bool Orbiter::ClickedButton( DesignObj_Orbiter *pObj, int PK_Button )
 {
 	bool bFoundHandler=false;
 
-	if ( pObj->IsHidden(  ) )
+	if ( pObj->IsHidden(  ) || pObj->IsDisabled() )
 		return false;
 
 	DesignObj_DataList::iterator iHao;
@@ -1879,7 +1879,7 @@ bool Orbiter::ClickedRegion( DesignObj_Orbiter *pObj, int X, int Y, DesignObj_Or
 {
 	PLUTO_SAFETY_LOCK( vm, m_ScreenMutex );
 
-	if(pObj->IsHidden())
+	if(pObj->IsHidden() || pObj->IsDisabled())
 		return false;
 
 	DesignObj_DataList::iterator iHao;
@@ -2167,6 +2167,9 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 			m_pOrbiterFileBrowser_Collection = new OrbiterFileBrowser_Collection;
 			m_pOrbiterFileBrowser_Collection->SerializeRead(iSize,pData);
 			delete[] pData;
+
+			if( m_pScreenHandler!=NULL )
+				m_pScreenHandler->Initialize();
 
 			DesignObj_OrbiterMap::iterator iHao=m_ScreenMap.begin(  );
 			if ( iHao==m_ScreenMap.end(  ) )
@@ -3162,7 +3165,7 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::ProcessEvent3 %d type %d
 	if(  PK_Button == BUTTON_Enter_CONST  )
 	{
 		PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );  // Protect the highlighed object
-		if(  m_pObj_Highlighted && !m_pObj_Highlighted->IsHidden(  )  )
+		if(  m_pObj_Highlighted && !m_pObj_Highlighted->IsHidden(  ) && !m_pObj_Highlighted->IsDisabled()   )
 		{
 			SelectedObject( m_pObj_Highlighted, smNavigation );
 			bHandled=true;
@@ -6034,7 +6037,7 @@ void Orbiter::CMD_Select_Object(string sPK_DesignObj,string sPK_DesignObj_Curren
 
 		CallMaintenanceInMiliseconds( TimeInMS, &Orbiter::DelayedSelectObject, pDelayedSelectObjectInfo, pe_NO );
 	}
-	else
+	else if( !pDesignObj_Orbiter->IsHidden() && !pDesignObj_Orbiter->IsDisabled() )
 		SelectedObject( pDesignObj_Orbiter, smCommand );
 }
 
@@ -9269,9 +9272,11 @@ bool Orbiter::MediaInsertedMsgInterceptor( class Socket *pSocket, class Message 
 {
 	PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
 
-	if(NULL != m_pScreenHandler)
+	if(NULL != m_pScreenHandler )
 	{
-		int k=2;
+		if( (pMessage->m_dwMessage_Type==MESSAGETYPE_EVENT && (pMessage->m_dwID==EVENT_Media_Removed_CONST || pMessage->m_dwID==EVENT_Media_Inserted_CONST)) ||
+				(pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND && pMessage->m_dwID==COMMAND_Media_Identified_CONST) )
+            m_pScreenHandler->ProcessMediaInsertedRemovedMessage(pMessage);
 	}
 
 	return false;
