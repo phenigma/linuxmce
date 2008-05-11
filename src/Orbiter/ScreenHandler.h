@@ -25,6 +25,7 @@
 #include "pluto_main/Define_DesignObj.h"
 #include "pluto_main/Define_Variable.h"
 #include "pluto_media/Define_MediaSource.h"
+#include "pluto_media/Define_AttributeType.h"
 #include "DesignObj_DataGrid.h"
 #include "SerializeClass/ShapesColors.h"
 #include "OrbiterGrid.h"
@@ -96,7 +97,12 @@ public:
 	DesignObj_DataGrid *m_pObj_ListGrid,*m_pObj_PicGrid;
 	DesignObj_Orbiter *m_pObj_Users_EnteringPin;
 	int m_iPK_Users_EnteringPin;
-	OrbiterMediaGridStyle m_eStyle;
+	map<int,OrbiterMediaGridStyle > m_mapGridStyle;  // For each m_PK_AttributeType_Sort the style of grid 
+	OrbiterMediaGridStyle m_mapGridStyle_Find(int PK_AttributeType_Sort) { PLUTO_SAFETY_LOCK( vm, m_pOrbiter->m_VariableMutex ); map<int,OrbiterMediaGridStyle >::iterator it = m_mapGridStyle.find(PK_AttributeType_Sort); return it==m_mapGridStyle.end() ? omgs_BrowserStyle_List : (*it).second; }
+	OrbiterMediaGridStyle m_mapGridStyle_Current() { return m_mapGridStyle_Find(m_PK_AttributeType_Sort); }
+	MediaRepeatOptions m_MediaRepeatOptions; // Current option when the media ends
+
+	bool m_bQueueInsteadOfInstantPlay; // If true we will queue the media instead of playing it right away
 
 	MediaFileBrowserOptions(Orbiter *pOrbiter) 
 	{ 
@@ -105,12 +111,14 @@ public:
 		m_iLastViewed=2;
 		m_iPK_DesignObj_Browser = 0;
 		m_bRestoreListGridRow = false;
+		m_bQueueInsteadOfInstantPlay = false;
+		m_MediaRepeatOptions = repeat_Queue;
 		ClearAll(0,0,0); 
 	}
 
 	string ToString()
 	{
-		string sResult = StringUtils::itos(m_PK_MediaType) + "|" + StringUtils::itos( (int) m_eStyle ) + "|" + m_sPK_MediaSubType + "|" + m_sPK_FileFormat + "|" + m_sPK_Attribute_Genres + "|" + m_sSources +
+		string sResult = StringUtils::itos(m_PK_MediaType) + "|" + StringUtils::itos( (int) m_mapGridStyle_Current() ) + "|" + m_sPK_MediaSubType + "|" + m_sPK_FileFormat + "|" + m_sPK_Attribute_Genres + "|" + m_sSources +
 			"|" + m_sPK_Users_Private + "|" + StringUtils::itos(m_PK_AttributeType_Sort) + "|" + StringUtils::itos(m_PK_Users) + " | "
 			+ StringUtils::itos(m_iLastViewed) + " |"; 
 		if( m_listMediaFileAttributeDrillDown.size() )
@@ -128,6 +136,7 @@ public:
 
 	void ClearAll(int PK_MediaType,int PK_Screen,int PK_AttributeType_Sort)
 	{
+		PLUTO_SAFETY_LOCK( vm, m_pOrbiter->m_VariableMutex );
 		m_iPK_Screen=PK_Screen;
 		m_PK_MediaType=PK_MediaType;
 		m_PK_Users=0;
@@ -139,9 +148,27 @@ public:
 		m_iPK_Users_EnteringPin = 0;
 
 		if( m_pOrbiter->m_sSkin == AUDIO_STATION_SKIN )
-			m_eStyle = omgs_BrowserStyle_Icon;
+		{
+			m_mapGridStyle[ATTRIBUTETYPE_Director_CONST] = omgs_BrowserStyle_Icon;
+			m_mapGridStyle[ATTRIBUTETYPE_Performer_CONST] = omgs_BrowserStyle_Icon;
+			m_mapGridStyle[ATTRIBUTETYPE_Album_CONST] = omgs_BrowserStyle_Icon;
+			m_mapGridStyle[ATTRIBUTETYPE_Genre_CONST] = omgs_BrowserStyle_Icon;
+			m_mapGridStyle[ATTRIBUTETYPE_Title_CONST] = omgs_BrowserStyle_Icon;
+			m_mapGridStyle[ATTRIBUTETYPE_Tracks_On_Album_SPECIAL] = omgs_BrowserStyle_List; // Defined in OrbiterGrid.h
+			m_mapGridStyle[ATTRIBUTETYPE_Conductor_CONST] = omgs_BrowserStyle_Icon;
+			m_mapGridStyle[ATTRIBUTETYPE_ComposerWriter_CONST] = omgs_BrowserStyle_Icon;
+		}
 		else
-			m_eStyle = omgs_BrowserStyle_Icon_List;
+		{
+			m_mapGridStyle[ATTRIBUTETYPE_Director_CONST] = omgs_BrowserStyle_Icon_List;
+			m_mapGridStyle[ATTRIBUTETYPE_Performer_CONST] = omgs_BrowserStyle_Icon_List;
+			m_mapGridStyle[ATTRIBUTETYPE_Album_CONST] = omgs_BrowserStyle_Icon_List;
+			m_mapGridStyle[ATTRIBUTETYPE_Genre_CONST] = omgs_BrowserStyle_Icon_List;
+			m_mapGridStyle[ATTRIBUTETYPE_Title_CONST] = omgs_BrowserStyle_Icon_List;
+			m_mapGridStyle[ATTRIBUTETYPE_Tracks_On_Album_SPECIAL] = omgs_BrowserStyle_Icon_List; // Defined in OrbiterGrid.h
+			m_mapGridStyle[ATTRIBUTETYPE_Conductor_CONST] = omgs_BrowserStyle_Icon_List;
+			m_mapGridStyle[ATTRIBUTETYPE_ComposerWriter_CONST] = omgs_BrowserStyle_Icon_List;
+		}
 
 		m_sPK_MediaSubType=""; m_sPK_FileFormat=""; m_sPK_Attribute_Genres=""; m_sPK_Users_Private="0";
 		m_sSources=TOSTRING(MEDIASOURCE_Hard_Drives_CONST) "," TOSTRING(MEDIASOURCE_Discs__Jukeboxes_CONST);
@@ -253,6 +280,7 @@ public:
 
 //	virtual void SCREEN_FileList_PlayLists(long PK_Screen);
 	virtual void SCREEN_FileList_Music_Movies_Video(long PK_Screen);
+
 	bool MediaBrowsre_Intercepted(CallBackData *pData);
 	bool MediaBrowser_ObjectSelected(CallBackData *pData);
 	string GetFileBrowserPopup(DesignObj_Orbiter *pObj_MenuPad);
@@ -266,6 +294,12 @@ public:
 	void GetAttributesForMediaFile(const char *pFilename);
 	bool FileList_KeyDown(CallBackData *pData);
 	bool MediaBrowser_OnTimer(CallBackData *pData);
+	void ShowRightIconListGrid(); // Helper function to show either the list or icon grid
+
+	virtual void SCREEN_Music_Full_Screen_OSD(long PK_Screen);
+	bool MusicFullScreen_ObjectSelected(CallBackData *pData);
+	bool MusicFullScreen_GridRendering(CallBackData *pData);
+	bool MusicFullScreen_DatagridSelected(CallBackData *pData);
 
 	virtual void SCREEN_NewPhoneDetected(long PK_Screen, string sMac_address, string sDescription, int iPK_PnpQueue);
 	virtual void SCREEN_WhatModelMobileOrbiter(long PK_Screen, int iPK_Users, string sMac_address);
@@ -315,6 +349,7 @@ public:
 	void SetupAudioServer(); //the main screen for Audio Server
 	void AudioServer_PopulateDatagrid();
 	bool AudioServerFileList_GridRendering(CallBackData *pData);
+	bool AudioServer_SetNowPlaying(CallBackData *pData);
 
 	virtual void SCREEN_Lights(long PK_Screen, string sLocation);
 	virtual void SCREEN_Media(long PK_Screen, string sLocation);

@@ -448,6 +448,7 @@ LoggerWrapper::GetInstance()->Write(LV_WARNING,"Starting File list");
 					0 /* any device */,pFileDetails->m_sBaseName + pFileDetails->m_sFileName,
 					0 /* whatever media type the file is */,0 /* any master device */,"" /* current entertain area */,
 					false /* resume */, 0 /* repeat */,
+					false /* queue */,
 					false /* bypass events */,
 					false /* dont setup av */);
 				pCell->m_pMessage = new Message(cmd.m_pMessage);

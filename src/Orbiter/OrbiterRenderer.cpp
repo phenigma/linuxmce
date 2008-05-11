@@ -1050,7 +1050,7 @@ void OrbiterRenderer::RenderShortcut(DesignObj_Orbiter *pObj)
 		end = vectObjs_NeedRedraw.end(); it != end; ++it )
 	{
 		class DesignObj_Orbiter *pObj = *it;
-		if(pObj && pObj->m_bOnScreen)
+		if(pObj && pObj->m_bOnScreen && pObj->m_bHidden==false && (pObj->m_pParentObject==NULL || ((DesignObj_Orbiter *) pObj->m_pParentObject)->m_bHidden==false) )
 		{
 			bool bIntersectedWith = (pObj->m_rPosition+pObj->m_pPopupPoint).IntersectsWith(OrbiterLogic()->m_rectLastHighlight);
 			bool bIncludedIn = (pObj->m_rPosition+pObj->m_pPopupPoint).Contains(OrbiterLogic()->m_rectLastHighlight);

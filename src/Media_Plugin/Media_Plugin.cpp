@@ -304,7 +304,16 @@ bool Media_Plugin::GetConfig()
 	for(vector<Row_MediaType_AttributeType *>::iterator it=vectMediaType_AttributeType.begin();it!=vectMediaType_AttributeType.end();++it)
         m_mapMediaType_AttributeType_Identifier[ make_pair<int,int> ((*it)->EK_MediaType_get(),(*it)->FK_AttributeType_get()) ] = true;
 
+	// ATTRIBUTETYPE_Tracks_On_Album_SPECIAL is treated the same as ATTRIBUTETYPE_Title_CONST, both show the songs, but the former is a special
+	// case where the user drills down after selecting an album and wants the songs shown in track order rather than alphabetically.
+	m_mapMediaType_AttributeType_Identifier[ make_pair<int,int> (MEDIATYPE_pluto_StoredAudio_CONST,ATTRIBUTETYPE_Tracks_On_Album_SPECIAL ) ]= true;
+	m_mapMediaType_AttributeType_Identifier[ make_pair<int,int> (MEDIATYPE_pluto_CD_CONST,ATTRIBUTETYPE_Tracks_On_Album_SPECIAL ) ]= true;
+
     m_pMediaAttributes = new MediaAttributes( m_pRouter->sDBHost_get( ), m_pRouter->sDBUser_get( ), m_pRouter->sDBPassword_get( ), "pluto_media", m_pRouter->iDBPort_get( ), m_pRouter->iPK_Installation_get() );
+
+	string sRepeat = DATA_Get_Default_Repeat();
+	string::size_type pos_repeat=0;
+	MediaRepeatOptions _MediaRepeatOptions = (MediaRepeatOptions) atoi(StringUtils::Tokenize( sRepeat, ",", pos_repeat ).c_str());
 
     Row_Installation *pRow_Installation = m_pDatabase_pluto_main->Installation_get( )->GetRow( m_pRouter->iPK_Installation_get( ) );
     vector<Row_Room *> vectRow_Room; // Ent Areas are specified by room. Get all the rooms first
@@ -321,6 +330,9 @@ bool Media_Plugin::GetConfig()
 				( pRow_EntertainArea->Only1Stream_get( )==1 ), pRow_EntertainArea->Description_get(),
 				m_pRouter->m_mapRoom_Find(pRow_Room->PK_Room_get()) );
             m_mapEntertainAreas[pEntertainArea->m_iPK_EntertainArea]=pEntertainArea;
+			
+			pEntertainArea->m_MediaRepeatOptions = _MediaRepeatOptions;  // We'll go through the rest after we finish
+
             // Now find all the devices in the ent area
             vector<Row_Device_EntertainArea *> vectRow_Device_EntertainArea;
             pRow_EntertainArea->Device_EntertainArea_FK_EntertainArea_getrows( &vectRow_Device_EntertainArea );
@@ -351,6 +363,20 @@ continue;
             }
         }
     }
+
+	while( pos_repeat < sRepeat.size() )
+	{
+		string sOptions = StringUtils::Tokenize( sRepeat, ",", pos_repeat );
+		string::size_type pos_equal = sOptions.find('=');
+		if( pos_equal==string::npos || pos_equal>=sOptions.size()-1 )
+			continue;
+
+		int PK_EntertainArea = atoi( sOptions.c_str() );
+        MediaRepeatOptions _MediaRepeatOptions = (MediaRepeatOptions) atoi(sOptions.substr(pos_equal+1).c_str());
+		EntertainArea *pEntertainArea = m_mapEntertainAreas_Find(PK_EntertainArea);
+		if( pEntertainArea )
+			pEntertainArea->m_MediaRepeatOptions = _MediaRepeatOptions;
+	}
 
 	// Streamers are often not in entertainment areas.  But we need them to have an entry as
 	// a MediaDevice so they can be a media source
@@ -910,7 +936,7 @@ bool Media_Plugin::MediaInserted( class Socket *pSocket, class Message *pMessage
 
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Calling Start Media from Media Inserted with orbiter %d",PK_Orbiter);
 
-			MediaStream *pMediaStream = StartMedia(pMediaHandlerInfo,0,PK_Orbiter,vectEntertainArea,pDeviceFrom->m_dwPK_Device,&dequeMediaFile,false,0,"",false,false);
+			MediaStream *pMediaStream = StartMedia(pMediaHandlerInfo,0,PK_Orbiter,vectEntertainArea,pDeviceFrom->m_dwPK_Device,&dequeMediaFile,false,0,"",false,false,false);
 			if( pMediaStream )
 				pMediaStream->m_discid = discid;
 /*
@@ -1141,7 +1167,7 @@ void Media_Plugin::HandleAVAdjustments(MediaStream *pMediaStream,string sAudio,s
 	}
 }
 
-void Media_Plugin::StartMedia( int iPK_MediaType, int iPK_MediaProvider, unsigned int iPK_Device_Orbiter, vector<EntertainArea *>  &vectEntertainArea, int iPK_Device, int iPK_DeviceTemplate, deque<MediaFile *> *p_dequeMediaFile, bool bResume, int iRepeat, string sStartingPosition, bool bBypassEvent, bool bDontSetupAV, vector<MediaStream *> *p_vectMediaStream)
+void Media_Plugin::StartMedia( int iPK_MediaType, int iPK_MediaProvider, unsigned int iPK_Device_Orbiter, vector<EntertainArea *>  &vectEntertainArea, int iPK_Device, int iPK_DeviceTemplate, deque<MediaFile *> *p_dequeMediaFile, bool bResume, int iRepeat, string sStartingPosition, bool bBypassEvent, bool bDontSetupAV, bool bQueue, vector<MediaStream *> *p_vectMediaStream)
 {
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::StartMedia iPK_MediaType %d iPK_MediaProvider %d iPK_Device_Orbiter %d vectEntertainArea %d iPK_Device %d iPK_DeviceTemplate %d p_dequeMediaFile %p bResume %d iRepeat %d sStartingPosition %s p_vectMediaStream %p",
 		iPK_MediaType, iPK_MediaProvider, iPK_Device_Orbiter, (int) vectEntertainArea.size(), iPK_Device, iPK_DeviceTemplate, p_dequeMediaFile, (int) bResume, iRepeat, sStartingPosition.c_str(), p_vectMediaStream);
@@ -1231,7 +1257,7 @@ void Media_Plugin::StartMedia( int iPK_MediaType, int iPK_MediaProvider, unsigne
 		}
 
 		MediaStream *pMediaStream = StartMedia(pMediaHandlerInfo,iPK_MediaProvider,iPK_Device_Orbiter,vectEA_to_MediaHandler[s].second,
-			iPK_Device,p_dequeMediaFile,bResume,iRepeat,sStartingPosition,bBypassEvent,bDontSetupAV,0,&mapEntertainmentArea_OutputZone);  // We'll let the plug-in figure out the source, and we'll use the default remote
+			iPK_Device,p_dequeMediaFile,bResume,iRepeat,sStartingPosition,bBypassEvent,bDontSetupAV,bQueue,0,&mapEntertainmentArea_OutputZone);  // We'll let the plug-in figure out the source, and we'll use the default remote
 
 		//who will take care of pMediaStream ?
 
@@ -1296,7 +1322,7 @@ int Media_Plugin::GetMediaTypeForFile(deque<MediaFile *> *p_dequeMediaFile,vecto
 	return 0;
 }
 
-MediaStream *Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, int iPK_MediaProvider, unsigned int PK_Device_Orbiter, vector<EntertainArea *> &vectEntertainArea, int PK_Device_Source, deque<MediaFile *> *dequeMediaFile, bool bResume,int iRepeat, string sStartingPosition, bool bBypassEvent, bool bDontSetupAV, int iPK_Playlist,map<int, pair<MediaDevice *,MediaDevice *> > *p_mapEntertainmentArea_OutputZone)
+MediaStream *Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, int iPK_MediaProvider, unsigned int PK_Device_Orbiter, vector<EntertainArea *> &vectEntertainArea, int PK_Device_Source, deque<MediaFile *> *dequeMediaFile, bool bResume,int iRepeat, string sStartingPosition, bool bBypassEvent, bool bDontSetupAV, bool bQueue, int iPK_Playlist,map<int, pair<MediaDevice *,MediaDevice *> > *p_mapEntertainmentArea_OutputZone)
 {
     PLUTO_SAFETY_LOCK(mm,m_MediaMutex);
 
@@ -1424,12 +1450,12 @@ dequeMediaFile->size() ? (*dequeMediaFile)[0]->m_sPath.c_str() : "NO",
 		pMediaStream->m_iStreamID_get(),pMediaStream->m_pOH_Orbiter_StartedMedia ? pMediaStream->m_pOH_Orbiter_StartedMedia->m_pDeviceData_Router->m_dwPK_Device : 0,
 		pMediaStream->m_iPK_Users,pMediaStream->m_dwPK_Device_Remote);
 		
-	if( StartMedia(pMediaStream,p_mapEntertainmentArea_OutputZone) )
+	if( StartMedia(pMediaStream,bQueue,p_mapEntertainmentArea_OutputZone) )
 		return pMediaStream;
 	return NULL;
 }
 
-bool Media_Plugin::StartMedia(MediaStream *pMediaStream,map<int, pair<MediaDevice *,MediaDevice *> > *p_mapEntertainmentArea_OutputZone)
+bool Media_Plugin::StartMedia(MediaStream *pMediaStream, bool bQueue,map<int, pair<MediaDevice *,MediaDevice *> > *p_mapEntertainmentArea_OutputZone)
 {
 	if( !pMediaStream->m_pMediaDevice_Source )
 	{
@@ -1529,10 +1555,10 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream,map<int, pair<MediaDevic
 		}
 	}
 
-	return StartMedia(pMediaStream);
+	return StartMedia(pMediaStream,bQueue);
 }
 
-bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
+bool Media_Plugin::StartMedia(MediaStream *pMediaStream, bool bQueue)
 {
 #ifdef SIM_JUKEBOX
 	static bool bToggle=false;
@@ -2474,7 +2500,7 @@ void Media_Plugin::StreamEnded(MediaStream *pMediaStream,bool bSendOff,bool bDel
 			{
 				pEntertainArea->m_vectMediaStream_Interrupted.pop_back();
 				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Calling Start Media from StreamEnded");
-				StartMedia(pMediaStream_Resume);
+				StartMedia(pMediaStream_Resume,false);
 			}
 		}
 
@@ -2828,12 +2854,14 @@ int Media_Plugin::DetermineUserOnOrbiter(int iPK_Device_Orbiter)
 			/** If true, when this media finishes, resume whatever was playing previously.  Useful for making announcements and similar. */
 		/** @param #117 Repeat */
 			/** 0=default for media type, 1=loop, -1=do not loop */
+		/** @param #253 Queue */
+			/** If true, the file won't be played unless the queue is empty.  It will be appended to the queue only */
 		/** @param #254 Bypass Event */
 			/** If true, the 'listening to media' event won't be fire. */
 		/** @param #276 Dont Setup AV */
 			/** If true, the on/input selects won't be sent to the a/v gear */
 
-void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sFilename,int iPK_MediaType,int iPK_DeviceTemplate,string sPK_EntertainArea,bool bResume,int iRepeat,bool bBypass_Event,bool bDont_Setup_AV,string &sCMD_Result,Message *pMessage)
+void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sFilename,int iPK_MediaType,int iPK_DeviceTemplate,string sPK_EntertainArea,bool bResume,int iRepeat,bool bQueue,bool bBypass_Event,bool bDont_Setup_AV,string &sCMD_Result,Message *pMessage)
 //<-dceag-c43-e->
 {
     PLUTO_SAFETY_LOCK(mm,m_MediaMutex);
@@ -3039,7 +3067,7 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sFilename,int iPK_Med
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::CMD_MH_Play_Media playing MediaType: %d Provider %d Orbiter %d Device %d Template %d",
 		iPK_MediaType,iPK_MediaProvider,iPK_Device_Orbiter,iPK_Device,iPK_DeviceTemplate);
-	StartMedia(iPK_MediaType,iPK_MediaProvider,iPK_Device_Orbiter,vectEntertainArea,iPK_Device,iPK_DeviceTemplate,&dequeMediaFile,bResume,iRepeat,"", bBypass_Event, bDont_Setup_AV );  // We'll let the plug-in figure out the source, and we'll use the default remote
+	StartMedia(iPK_MediaType,iPK_MediaProvider,iPK_Device_Orbiter,vectEntertainArea,iPK_Device,iPK_DeviceTemplate,&dequeMediaFile,bResume,iRepeat,"", bBypass_Event, bDont_Setup_AV, bQueue );  // We'll let the plug-in figure out the source, and we'll use the default remote
 }
 
 //<-dceag-c65-b->
@@ -3244,7 +3272,7 @@ void Media_Plugin::CMD_Load_Playlist(string sPK_EntertainArea,int iEK_Playlist,s
 	for(map<int,MediaHandlerInfo *>::iterator it=mapMediaHandlerInfo.begin();it!=mapMediaHandlerInfo.end();++it)
 	{
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Calling Start Media from Load Playlist");
-	    StartMedia(it->second,0,pMessage->m_dwPK_Device_From,vectEntertainArea,0,&dequeMediaFile,false,0,"",iEK_Playlist,false,false);  // We'll let the plug-in figure out the source, and we'll use the default remote
+	    StartMedia(it->second,0,pMessage->m_dwPK_Device_From,vectEntertainArea,0,&dequeMediaFile,false,0,"",false,false,false,iEK_Playlist);  // We'll let the plug-in figure out the source, and we'll use the default remote
 	}
 }
 
@@ -3327,7 +3355,7 @@ LoggerWrapper::GetInstance()->Write(LV_WARNING,"Media_Plugin::CMD_MH_Move_Media 
 		int PK_Device = pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device;
 		StartMedia( pMediaStream->m_iPK_MediaType, pMediaStream->m_iPK_MediaProvider, (pMediaStream->m_pOH_Orbiter_StartedMedia ? pMediaStream->m_pOH_Orbiter_StartedMedia->m_pDeviceData_Router->m_dwPK_Device : 0),
 			vectEntertainArea, PK_Device, 0,
-			&pMediaStream->m_dequeMediaFile, pMediaStream->m_bResume, pMediaStream->m_iRepeat,pMediaStream->m_sLastPosition, pMediaStream->m_bBypassEvent, pMediaStream->m_bDontSetupAV);
+			&pMediaStream->m_dequeMediaFile, pMediaStream->m_bResume, pMediaStream->m_iRepeat,pMediaStream->m_sLastPosition, pMediaStream->m_bBypassEvent, pMediaStream->m_bDontSetupAV, false);
 
 		pMediaStream->m_dequeMediaFile.clear();  // We don't want to delete the media files since we will have re-used the same pointers above
 		delete pMediaStream; // We will have started with new copies
@@ -6005,6 +6033,7 @@ void Media_Plugin::CMD_Get_Attributes_For_Media(string sFilename,string sPK_Ente
 		{
 			*sValue_To_Assign = "FILE\t" + sFilename + 
 			"\tTITLE\t" + pRow_Playlist->Name_get() +
+			"\tPK_Playlsit\t" + StringUtils::itos(pRow_Playlist->PK_Playlist_get()) +
 			"\t";	
 			if( pRow_Playlist->FK_Picture_get() )
 				*sValue_To_Assign += "PICTURE\t/home/mediapics/" + StringUtils::itos(pRow_Playlist->FK_Picture_get()) + ".jpg\t";
@@ -6059,6 +6088,18 @@ void Media_Plugin::CMD_Get_Attributes_For_Media(string sFilename,string sPK_Ente
 			StringUtils::Replace(&sSynopsis,"\t","");
 			*sValue_To_Assign += "SYNOPSIS\t" + sSynopsis + "\t";
 		}
+
+		// Add all the attributes
+		vector<Row_File_Attribute *> vectRow_File_Attribute;
+		m_pDatabase_pluto_media->File_Attribute_get()->GetRows("FK_File=" + StringUtils::itos(pMediaFile->m_dwPK_File),&vectRow_File_Attribute);
+		for(vector<Row_File_Attribute *>::iterator it=vectRow_File_Attribute.begin();it!=vectRow_File_Attribute.end();++it)
+		{
+			Row_File_Attribute *pRow_File_Attribute = *it;
+			Row_Attribute *pRow_Attribute = pRow_File_Attribute->FK_Attribute_getrow();
+			if( pRow_Attribute )
+				*sValue_To_Assign += "!A" + StringUtils::itos(pRow_Attribute->PK_Attribute_get()) + "," + StringUtils::itos(pRow_Attribute->FK_AttributeType_get()) + "\t" + pRow_Attribute->Name_get() + "\t";
+		}
+
 		sExtension = m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetPictureFromFileID(pMediaFile->m_dwPK_File, &PK_Picture);
 	}
 
@@ -6948,7 +6989,7 @@ void Media_Plugin::WaitingForJukebox( MediaStream *pMediaStream )
 		}
 
 		pMediaFile->m_bWaitingForJukebox=false;
-		StartMedia(pMediaStream);
+		StartMedia(pMediaStream,false);
 		return;
 	}
 
@@ -7164,4 +7205,38 @@ void Media_Plugin::CMD_Get_Ripping_Status(string *sStatus,string &sCMD_Result,Me
 		 if(sMessage == "disk ejected")
 			 *sStatus = "";
 	}
+}
+//<-dceag-c955-b->
+
+	/** @brief COMMAND: #955 - Specify Repeat Options */
+	/** Change the repeat option for an entertainment area */
+		/** @param #45 PK_EntertainArea */
+			/** The entertainment area */
+		/** @param #117 Repeat */
+			/** 0=none, 1=repeat queue, 2=repeat track */
+
+void Media_Plugin::CMD_Specify_Repeat_Options(string sPK_EntertainArea,int iRepeat,string &sCMD_Result,Message *pMessage)
+//<-dceag-c955-e->
+{
+	PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
+	// Update the value
+	EntertainArea *pEntertainArea = m_mapEntertainAreas_Find( atoi(sPK_EntertainArea.c_str()) );
+	if( !pEntertainArea )
+		return;
+	pEntertainArea->m_MediaRepeatOptions = (MediaRepeatOptions) iRepeat;
+
+	// And update the database
+	string sOut;
+	string sRepeat = DATA_Get_Default_Repeat();
+	string::size_type pos_repeat=0;
+	MediaRepeatOptions _MediaRepeatOptions = (MediaRepeatOptions) atoi(StringUtils::Tokenize( sRepeat, ",", pos_repeat ).c_str());
+
+	sOut = StringUtils::itos( (int) _MediaRepeatOptions ) + ",";
+	for(map<int,EntertainArea *>::iterator it=m_mapEntertainAreas.begin();it!=m_mapEntertainAreas.end();++it)
+	{
+		EntertainArea *pEntertainArea = it->second;
+		sOut += StringUtils::itos( pEntertainArea->m_iPK_EntertainArea ) + "=" + StringUtils::itos( (int) pEntertainArea->m_MediaRepeatOptions ) + ",";
+	}
+
+	DATA_Set_Default_Repeat(sOut,true);
 }

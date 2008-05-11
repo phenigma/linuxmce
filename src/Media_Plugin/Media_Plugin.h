@@ -405,16 +405,16 @@ public:
 
 	// This version is called by MH_Play_Media.  It may result in multiple handlers and multiple streams
 	// if there isn't 1 handler that can do it all.  If p_vectMediaStream is passed it will have a list of all the streams that were created as a result
-	void StartMedia( int iPK_MediaType, int iPK_MediaProvider, unsigned int iPK_Device_Orbiter, vector<EntertainArea *> &vectEntertainArea, int iPK_Device, int iPK_DeviceTemplate, deque<MediaFile *> *dequeMediaFile, bool bResume, int iRepeat, string sStartingPosition, bool bBypassEvent, bool bDontSetupAV, vector<MediaStream *> *p_vectMediaStream=NULL);
+	void StartMedia( int iPK_MediaType, int iPK_MediaProvider, unsigned int iPK_Device_Orbiter, vector<EntertainArea *> &vectEntertainArea, int iPK_Device, int iPK_DeviceTemplate, deque<MediaFile *> *dequeMediaFile, bool bResume, int iRepeat, string sStartingPosition, bool bBypassEvent, bool bDontSetupAV, bool bQueue, vector<MediaStream *> *p_vectMediaStream=NULL);
 
 	// This creates a single media stream for a given media handler and starts playing it by calling the next StartMedia, or returns NULL if it cannot create the stream
-    MediaStream *StartMedia(MediaHandlerInfo *pMediaHandlerInfo, int iPK_MediaProvider, unsigned int PK_Device_Orbiter,vector<EntertainArea *> &vectEntertainArea,int PK_Device_Source,deque<MediaFile *> *dequeMediaFile,bool bResume,int iRepeat, string sStartingPosition, bool bBypassEvent, bool bDontSetupAV, int iPK_Playlist=0, map<int, pair<MediaDevice *,MediaDevice *> > *p_mapEntertainmentArea_OutputZone=NULL);
+    MediaStream *StartMedia(MediaHandlerInfo *pMediaHandlerInfo, int iPK_MediaProvider, unsigned int PK_Device_Orbiter,vector<EntertainArea *> &vectEntertainArea,int PK_Device_Source,deque<MediaFile *> *dequeMediaFile,bool bResume,int iRepeat, string sStartingPosition, bool bBypassEvent, bool bDontSetupAV, bool bQueue, int iPK_Playlist=0, map<int, pair<MediaDevice *,MediaDevice *> > *p_mapEntertainmentArea_OutputZone=NULL);
 
 	// This is the second to the final stage of 'StartMedia'.  
-	bool StartMedia(MediaStream *pMediaStream, map<int, pair<MediaDevice *,MediaDevice *> > *p_mapEntertainmentArea_OutputZone);
+	bool StartMedia(MediaStream *pMediaStream, bool bQueue, map<int, pair<MediaDevice *,MediaDevice *> > *p_mapEntertainmentArea_OutputZone);
 
 	// This is the final stage of 'StartMedia' that starts playing the given stream.  This is also called when the stream changes, or is moved, and needs to be restarted
-	bool StartMedia(MediaStream *pMediaStream);
+	bool StartMedia(MediaStream *pMediaStream, bool bQueue);
 
 	// An alarm callback when we're holding up starting the stream while waiting for a jukebox to load a drive
 	void WaitingForJukebox( MediaStream *pMediaStream );
@@ -542,6 +542,7 @@ public:
 	void PopulateFileBrowserInfoForPlayList(MediaListGrid *pMediaListGrid,string sPK_Users_Private);
 	void PopulateFileBrowserInfoForBookmark(MediaListGrid *pMediaListGrid,string &sPK_File,string &sPK_Disc);
 	void PopulateWithDatabaseInfoOnPath(map<string,DatabaseInfoOnPath *> &mapDatabaseInfoOnPath,string &sSearchPath); // helper for FileBrowser
+	void AddSongAttributes(int PK_AttributeType,const char *pName,FileBrowserInfo *pFileBrowserInfo);
     class DataGridTable *CurrentMedia( string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage );
     class DataGridTable *CurrentMediaSections( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
     class DataGridTable *MediaSections( string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage );
@@ -640,6 +641,8 @@ public:
 	/*
 			*****DATA***** accessors inherited from base class
 	string DATA_Get_Type();
+	string DATA_Get_Default_Repeat();
+	void DATA_Set_Default_Repeat(string Value,bool bUpdateDatabase=false);
 
 			*****EVENT***** accessors inherited from base class
 	void EVENT_Watching_Media(int iPK_Room);
@@ -667,13 +670,15 @@ public:
 			/** If true, when this media finishes, resume whatever was playing previously.  Useful for making announcements and similar. */
 		/** @param #117 Repeat */
 			/** 0=default for media type, 1=loop, -1=do not loop */
+		/** @param #253 Queue */
+			/** If true, the file won't be played unless the queue is empty.  It will be appended to the queue only */
 		/** @param #254 Bypass Event */
 			/** If true, the 'listening to media' event won't be fire. */
 		/** @param #276 Dont Setup AV */
 			/** If true, the on/input selects won't be sent to the a/v gear */
 
-	virtual void CMD_MH_Play_Media(int iPK_Device,string sFilename,int iPK_MediaType,int iPK_DeviceTemplate,string sPK_EntertainArea,bool bResume,int iRepeat,bool bBypass_Event,bool bDont_Setup_AV) { string sCMD_Result; CMD_MH_Play_Media(iPK_Device,sFilename.c_str(),iPK_MediaType,iPK_DeviceTemplate,sPK_EntertainArea.c_str(),bResume,iRepeat,bBypass_Event,bDont_Setup_AV,sCMD_Result,NULL);};
-	virtual void CMD_MH_Play_Media(int iPK_Device,string sFilename,int iPK_MediaType,int iPK_DeviceTemplate,string sPK_EntertainArea,bool bResume,int iRepeat,bool bBypass_Event,bool bDont_Setup_AV,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_MH_Play_Media(int iPK_Device,string sFilename,int iPK_MediaType,int iPK_DeviceTemplate,string sPK_EntertainArea,bool bResume,int iRepeat,bool bQueue,bool bBypass_Event,bool bDont_Setup_AV) { string sCMD_Result; CMD_MH_Play_Media(iPK_Device,sFilename.c_str(),iPK_MediaType,iPK_DeviceTemplate,sPK_EntertainArea.c_str(),bResume,iRepeat,bQueue,bBypass_Event,bDont_Setup_AV,sCMD_Result,NULL);};
+	virtual void CMD_MH_Play_Media(int iPK_Device,string sFilename,int iPK_MediaType,int iPK_DeviceTemplate,string sPK_EntertainArea,bool bResume,int iRepeat,bool bQueue,bool bBypass_Event,bool bDont_Setup_AV,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #44 - MH Stop Media */
@@ -1163,6 +1168,17 @@ VI=Video Input */
 
 	virtual void CMD_Get_Ripping_Status(string *sStatus) { string sCMD_Result; CMD_Get_Ripping_Status(sStatus,sCMD_Result,NULL);};
 	virtual void CMD_Get_Ripping_Status(string *sStatus,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #955 - Specify Repeat Options */
+	/** Change the repeat option for an entertainment area */
+		/** @param #45 PK_EntertainArea */
+			/** The entertainment area */
+		/** @param #117 Repeat */
+			/** 0=none, 1=repeat queue, 2=repeat track */
+
+	virtual void CMD_Specify_Repeat_Options(string sPK_EntertainArea,int iRepeat) { string sCMD_Result; CMD_Specify_Repeat_Options(sPK_EntertainArea.c_str(),iRepeat,sCMD_Result,NULL);};
+	virtual void CMD_Specify_Repeat_Options(string sPK_EntertainArea,int iRepeat,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

@@ -1402,7 +1402,8 @@ void DCEGen::SearchAndReplace(string InputFile,string OutputFile,string Classnam
 void DCEGen::CreateFunctionParms(Row_Command *pRow_Command,CommandInfo *pCommandInfo)
 {
 	vector<Row_Command_CommandParameter *> vectRow_Command_CommandParameter;
-	pRow_Command->Command_CommandParameter_FK_Command_getrows(&vectRow_Command_CommandParameter);
+	// Use a sql where so we can specify an order by
+	pRow_Command->Table_Command_get()->Database_pluto_main_get()->Command_CommandParameter_get()->GetRows("FK_Command=" + StringUtils::itos(pRow_Command->PK_Command_get()) + " ORDER BY FK_CommandParameter", &vectRow_Command_CommandParameter);
 
 	// First all the in's
 	for(size_t i3=0;i3<vectRow_Command_CommandParameter.size();++i3)

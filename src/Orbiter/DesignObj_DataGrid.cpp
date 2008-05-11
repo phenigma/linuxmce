@@ -41,7 +41,7 @@ DesignObj_DataGrid::DesignObj_DataGrid(Orbiter *pOrbiter) : DesignObj_Orbiter(pO
 	m_bParsed=false;
 	m_bFlushOnScreen=true;
 	m_bCacheGrid=true;
-	// TODO: These should come from the database
+	m_bAddScroll=false;
 
 }
 //-------------------------------------------------------------------------------------------------------
@@ -62,7 +62,7 @@ bool DesignObj_DataGrid::CanGoUp()
 //-------------------------------------------------------------------------------------------------------
 bool DesignObj_DataGrid::CanGoDown()		
 { 
-	return DataGridTable_Get()->GetRows() > m_GridCurRow + m_MaxRow - (HasMoreUp() ? 1 : 0); 
+	return DataGridTable_Get()->GetRows() > m_GridCurRow + m_MaxRow - (HasMoreUp() && m_bAddScroll ? 1 : 0); 
 }
 //-------------------------------------------------------------------------------------------------------
 bool DesignObj_DataGrid::CanGoLeft()		
@@ -125,19 +125,23 @@ LoggerWrapper::GetInstance()->Write(LV_ACTION, "Orbiter::AcquireGrid orbiter gri
 		if(m_pOrbiter->ExecuteScreenHandlerCallback(cbDataGridRendering))
 			return;
 
-		// Hide arrow if not on the first row.
-		if(m_pObjUp)
-			m_pOrbiter->CMD_Show_Object( m_pObjUp->m_ObjectID, 0, "", "",  CanGoUp() ? "1" : "0" );
-		// Hide down arrow if the curren row + rows < the total rows in the grid
-		if(m_pObjDown)
-			m_pOrbiter->CMD_Show_Object( m_pObjDown->m_ObjectID, 0, "", "",  CanGoDown() ? "1" : "0" );
-		// Hide arrow if not on the first column.
-		if(m_pObjLeft)
-			m_pOrbiter->CMD_Show_Object( m_pObjLeft->m_ObjectID, 0, "", "",  CanGoLeft() ? "1" : "0" );
-		// Hide down arrow if the curren row + rows < the total rows in the grid
-		if(m_pObjRight)
-			m_pOrbiter->CMD_Show_Object( m_pObjRight->m_ObjectID, 0, "", "",  CanGoRight() ? "1" : "0" );
+		if( m_pObjUp || m_pObjDown || m_pObjLeft || m_pObjRight )
+		{
+			NeedToRender render( m_pOrbiter, "add dg arrows" );
 
+			// Hide arrow if not on the first row.
+			if(m_pObjUp)
+				m_pOrbiter->CMD_Show_Object( m_pObjUp->m_ObjectID, 0, "", "",  CanGoUp() ? "1" : "0" );
+			// Hide down arrow if the curren row + rows < the total rows in the grid
+			if(m_pObjDown)
+				m_pOrbiter->CMD_Show_Object( m_pObjDown->m_ObjectID, 0, "", "",  CanGoDown() ? "1" : "0" );
+			// Hide arrow if not on the first column.
+			if(m_pObjLeft)
+				m_pOrbiter->CMD_Show_Object( m_pObjLeft->m_ObjectID, 0, "", "",  CanGoLeft() ? "1" : "0" );
+			// Hide down arrow if the curren row + rows < the total rows in the grid
+			if(m_pObjRight)
+				m_pOrbiter->CMD_Show_Object( m_pObjRight->m_ObjectID, 0, "", "",  CanGoRight() ? "1" : "0" );
+		}
 	}
 }
 DataGridTable *DesignObj_DataGrid::RequestDatagridContents( int &GridCurCol, int &GridCurRow, bool bCache )
@@ -188,10 +192,7 @@ g_PlutoProfiler->Stop("send command");
 					}
 				}
 
-				// See if we should add page up/down cells -- see notes at top of file
-				bool bAddArrows = m_sExtraInfo.find( 'P' )!=string::npos;
-				
-				if( bAddArrows && GridCurRow>0 )
+				if( m_bAddScroll && GridCurRow>0 )
 					pDataGridTable = new DataGridTable( size,  data, true );
 				else
 					pDataGridTable = new DataGridTable( size,  data );
@@ -224,7 +225,7 @@ g_PlutoProfiler->Stop("send command");
 				
 				DataGridTable_Set(pDataGridTable,GridCurRow, GridCurCol );
 				pDataGridTable->m_iUpRow=pDataGridTable->m_iDownRow=-1;
-				if( bAddArrows )
+				if( m_bAddScroll )
 				{
 					if( GridCurRow>0  )
 					{
@@ -413,7 +414,7 @@ bool DesignObj_DataGrid::CalculateGridMovement(int Direction, int &Cur,  int Cel
 			CellsToSkip = m_MaxRow - ( pDataGridTable->m_bKeepRowHeader ? 1 : 0 );
 
 		// Are we going to display 'scroll up/down' cells?  If so, we may not be able to scroll up a full page
-		if(  m_sExtraInfo.find( 'P' )!=string::npos  )
+		if( m_bAddScroll )
 		{
 			// After doing the scroll, will we still be able to go up?  If so, reduce the cells to skip by 1
 			if( Cur - CellsToSkip > 0)

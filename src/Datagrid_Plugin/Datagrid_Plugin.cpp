@@ -281,7 +281,7 @@ void Datagrid_Plugin::CMD_Request_Datagrid_Contents(string sID,string sDataGrid_
 			// If we didn't find anything, and we're seeking for a particular value, don't set iRow, just stay at the top
 			if( bFound || bValue==false )
 			{
-				*iRow=dgrow;
+				*iRow=min(dgrow,pDataGridTable->GetRows()-1);
 
 				// Since we now cache pages of the grid in advance, we don't want to jump directly to the given row
 				// since that means the page breaks won't line up and any existing cached pages won't be valid.  So

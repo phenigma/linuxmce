@@ -4367,59 +4367,59 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 		}
 		else if( Variable[0]=='C' && Variable[1]=='A' )
 		{
-			if( Variable.length()>4 )  // Token must be at least 2 characters, like <%=CA:ID%>
+			// Syntax is CAH:ObjectID:Attribute.  this references another object, so we don't need to be a child of the grid
+			if( Variable.length()>4 && Variable[2]=='H' )  // Token must be at least 2 characters, like <%=CA:ID%>
 			{
-				if( Variable[2]=='H' )
+				string::size_type pos = Variable.find(':',4);
+				if( pos!=string::npos )
 				{
-					// Syntax is CAH:ObjectID:Attribute
-					string::size_type pos = Variable.find(':',4);
-					if( pos!=string::npos )
+					DesignObj_Orbiter *pObj = FindObject(Variable.substr(4,pos-4));
+					if( pObj && pObj->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
 					{
-						DesignObj_Orbiter *pObj = FindObject(Variable.substr(4,pos-4));
-						if( pObj && pObj->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
-						{
-							DesignObj_DataGrid *pObj_Grid = (DesignObj_DataGrid *) pObj;
-							DataGridCell *pCell = GetDataGridHighlightCell(pObj_Grid);
-							if( !pCell )
-								pCell = GetDataGridSelectedCell(pObj_Grid);
+						DesignObj_DataGrid *pObj_Grid = (DesignObj_DataGrid *) pObj;
+						DataGridCell *pCell = GetDataGridHighlightCell(pObj_Grid);
+						if( !pCell )
+							pCell = GetDataGridSelectedCell(pObj_Grid);
 
-							if( pCell && pCell->m_mapAttributes.find( Variable.substr(pos+1) )!=pCell->m_mapAttributes.end() )
-								Output += pCell->m_mapAttributes[ Variable.substr(pos+1)];
-						}
+						if( pCell && pCell->m_mapAttributes.find( Variable.substr(pos+1) )!=pCell->m_mapAttributes.end() )
+							Output += pCell->m_mapAttributes[ Variable.substr(pos+1)];
 					}
 				}
-				else if( pObj->m_pDesignObj_DataGrid )
+			}
+			else  // The other options assume we are referring to a grid in our parent.  Find the grid.
+			{
+				// Cell attributes.  Find first the parent object that's the datagrid
+				DesignObj_Orbiter *pObj_PointsToGrid = pObj;
+				while( pObj_PointsToGrid->m_pDesignObj_DataGrid==NULL && pObj_PointsToGrid!=NULL )
+					pObj_PointsToGrid = (DesignObj_Orbiter *) pObj_PointsToGrid->m_pParentObject;
+
+				DataGridTable *pDataGridTable = NULL;
+				if( pObj_PointsToGrid && pObj_PointsToGrid->m_pDesignObj_DataGrid  )
+					pDataGridTable = pObj_PointsToGrid->m_pDesignObj_DataGrid->DataGridTable_Get();
+
+				if( pDataGridTable )
 				{
-					// Syntax is CA:Attribute.  This is only valid if the object being rendered points to a cell
-					DataGridTable *pDataGridTable = pObj->m_pDesignObj_DataGrid->DataGridTable_Get();
-					if( pDataGridTable )
+					if( Variable[2]==':' )
 					{
-						DataGridCell *pCell = pDataGridTable->GetData(pObj->m_iGridCol + pObj->m_pDesignObj_DataGrid->m_GridCurCol, pObj->m_iGridRow + pObj->m_pDesignObj_DataGrid->m_GridCurRow);
+						// Syntax is CA:Attribute.  This is only valid if the object being rendered points to a cell
+						DataGridCell *pCell = pDataGridTable->GetData(pObj_PointsToGrid->m_iGridCol + pObj_PointsToGrid->m_pDesignObj_DataGrid->m_GridCurCol, pObj_PointsToGrid->m_iGridRow + pObj_PointsToGrid->m_pDesignObj_DataGrid->m_GridCurRow);
 						if( pCell )
 							Output += pCell->m_mapAttributes[ Variable.substr(3) ];
 					}
-				}
-			}
-			else if( Variable[2]=='V' && pObj->m_pDesignObj_DataGrid )
-			{
-				// Syntax is CAV for the value of the selected cell
-				DataGridTable *pDataGridTable = pObj->m_pDesignObj_DataGrid->DataGridTable_Get();
-				if( pDataGridTable )
-				{
-					DataGridCell *pCell = pDataGridTable->GetData(pObj->m_iGridCol + pObj->m_pDesignObj_DataGrid->m_GridCurCol, pObj->m_iGridRow + pObj->m_pDesignObj_DataGrid->m_GridCurRow);
-					if( pCell && pCell->m_Value )
-						Output += pCell->m_Value;
-				}
-			}
-			else if( Variable[2]=='T' && pObj->m_pDesignObj_DataGrid )
-			{
-				// Syntax is CAT for the text of the selected cell
-				DataGridTable *pDataGridTable = pObj->m_pDesignObj_DataGrid->DataGridTable_Get();
-				if( pDataGridTable )
-				{
-					DataGridCell *pCell = pDataGridTable->GetData(pObj->m_iGridCol + pObj->m_pDesignObj_DataGrid->m_GridCurCol, pObj->m_iGridRow + pObj->m_pDesignObj_DataGrid->m_GridCurRow);
-					if( pCell && pCell->m_Text )
-						Output += pCell->m_Text;
+					else if( Variable[2]=='V' )
+					{
+						// Syntax is CAV for the value of the selected cell
+						DataGridCell *pCell = pDataGridTable->GetData(pObj_PointsToGrid->m_iGridCol + pObj_PointsToGrid->m_pDesignObj_DataGrid->m_GridCurCol, pObj_PointsToGrid->m_iGridRow + pObj_PointsToGrid->m_pDesignObj_DataGrid->m_GridCurRow);
+						if( pCell && pCell->m_Value )
+							Output += pCell->m_Value;
+					}
+					else if( Variable[2]=='T' )
+					{
+						// Syntax is CAT for the text of the selected cell
+						DataGridCell *pCell = pDataGridTable->GetData(pObj_PointsToGrid->m_iGridCol + pObj_PointsToGrid->m_pDesignObj_DataGrid->m_GridCurCol, pObj_PointsToGrid->m_iGridRow + pObj_PointsToGrid->m_pDesignObj_DataGrid->m_GridCurRow);
+						if( pCell && pCell->m_Text )
+							Output += pCell->m_Text;
+					}
 				}
 			}
 		}
@@ -5624,17 +5624,29 @@ void Orbiter::CMD_Seek_Data_Grid(string sText,int iPosition_X,int iPosition_Y,st
 {
 	DesignObj_DataGrid *pObj_Datagrid=NULL;
 	if( sDataGrid_ID.length() )
-		pObj_Datagrid = m_mapObjs_AllGrids[sDataGrid_ID];
-	else if( m_vectObjs_GridsOnScreen.size() )
-		pObj_Datagrid = m_vectObjs_GridsOnScreen[0];
-
-	if( !pObj_Datagrid )
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot seek to unknown grid");
-	else
 	{
-		pObj_Datagrid->m_sSeek = sText;
-		CMD_Refresh(pObj_Datagrid->m_sGridID);
+		pObj_Datagrid = m_mapObjs_AllGrids[sDataGrid_ID];
+		if( !pObj_Datagrid )
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot seek to unknown grid");
+		else
+		{
+			pObj_Datagrid->m_sSeek = sText;
+			CMD_Refresh(pObj_Datagrid->m_sGridID);
+		}
 	}
+	else 
+	{
+		for(vector < class DesignObj_DataGrid * >::iterator it=m_vectObjs_GridsOnScreen.begin();it!=m_vectObjs_GridsOnScreen.end();++it)
+		{
+			DesignObj_DataGrid *pObj_Datagrid = *it;
+			if( pObj_Datagrid->m_bHidden==false )
+			{
+				pObj_Datagrid->m_sSeek = sText;
+				CMD_Refresh(pObj_Datagrid->m_sGridID);
+			}
+		}
+	}
+
 }
 
 //<-dceag-c18-b->
@@ -6625,6 +6637,9 @@ void Orbiter::CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,s
 	m_bPK_Device_NowPlaying_Audio_DiscreteVolume = atoi(StringUtils::Tokenize(sList_PK_Device,",",pos).c_str())==1;
 	m_bContainsVideo = atoi(StringUtils::Tokenize(sList_PK_Device,",",pos).c_str())==1;
 	m_bUsingLiveAVPath = atoi(StringUtils::Tokenize(sList_PK_Device,",",pos).c_str())==1;
+	MediaRepeatOptions _MediaRepeatOptions = (MediaRepeatOptions) atoi(StringUtils::Tokenize(sList_PK_Device,",",pos).c_str());
+	if( m_pScreenHandler )
+		m_pScreenHandler->mediaFileBrowserOptions.m_MediaRepeatOptions = _MediaRepeatOptions;
 	CMD_Set_Variable(VARIABLE_Track_or_Playlist_Positio_CONST, StringUtils::itos(iValue));
 	pos=0;
 	m_iPK_Screen_Remote=atoi(StringUtils::Tokenize(sPK_DesignObj,",",pos).c_str());
@@ -6736,12 +6751,8 @@ void Orbiter::CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,s
 		pthread_create(&m_TimeCodeID, NULL, UpdateTimeCodeThread, (void*)this);
 	}
 
-	if(m_sSkin == AUDIO_STATION_SKIN)
-	{
-		NeedToRender render(this, "Now playing - audio station");  
-		CMD_Show_Object(TOSTRING(DESIGNOBJ_mnuMenuAudioServer_CONST) ".0.0." TOSTRING(DESIGNOBJ_butGotoRemote_CONST), 0, "", "", 
-			m_sNowPlaying.empty() ? "0" : "1"); 
-	}
+	SETUP_SCREEN_HANDLER_CALLBACK(m_pScreenHandler, cbSetNowPlaying, MsgInterceptorCellBackData, (NULL, pMessage, NULL, NULL))
+	ExecuteScreenHandlerCallback(cbSetNowPlaying);
 }
 
 bool Orbiter::TestCurrentScreen(string &sPK_DesignObj_CurrentScreen)
@@ -8106,6 +8117,7 @@ void Orbiter::CMD_Simulate_Mouse_Click_At_Present_Pos(string sType,string &sCMD_
 void Orbiter::ParseGrid(DesignObj_DataGrid *pObj_Datagrid)
 {
 	pObj_Datagrid->m_sExtraInfo = pObj_Datagrid->m_mapObjParms[DESIGNOBJPARAMETER_Extra_Info_CONST];
+	pObj_Datagrid->m_bAddScroll = pObj_Datagrid->m_sExtraInfo.find('P')!=string::npos;
 	pObj_Datagrid->m_FixedRowHeight = atoi( pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_Fixed_Row_Height_CONST ).c_str(  ) );
 	pObj_Datagrid->m_FixedColumnWidth =  atoi( pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_Fixed_Column_Width_CONST ).c_str(  ) );
 	pObj_Datagrid->m_RowSpacing = atoi( pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_Row_Spacing_CONST ).c_str(  ) );
@@ -8120,9 +8132,6 @@ void Orbiter::ParseGrid(DesignObj_DataGrid *pObj_Datagrid)
 	pObj_Datagrid->m_MaxCol = atoi( pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_Num_of_Columns_CONST ).c_str(  ) );
 	pObj_Datagrid->m_sSeek = pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_Seek_Value_CONST );
 	pObj_Datagrid->m_iSeekColumn = atoi( pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_Seek_Column_CONST ).c_str(  ) );
-
-	if(m_sSkin == AUDIO_STATION_SKIN && pObj_Datagrid->m_iBaseObjectID == DESIGNOBJ_dgFileList2_Pics_CONST)
-		pObj_Datagrid->m_MaxCol = 4;
 
 	if ( pObj_Datagrid->m_MaxCol == 0 )
 	{

@@ -47,6 +47,7 @@ public:
 	int m_iHighlightedRow,m_iHighlightedColumn;
 	int m_iPopulatedWidth,m_iPopulatedHeight; // The last known size during populate grid
 	bool m_bReAcquire,m_bParsed,m_bFlushOnScreen;
+	bool m_bAddScroll; // This grid makes the top/bottom row scroll
 	TextStyle *m_pTextStyle,*m_pTextStyle_FirstCol,*m_pTextStyle_FirstRow,*m_pTextStyle_Selected,*m_pTextStyle_Highlighted;
 	vector<TextStyle *> m_vectTextStyle_Alt;
 	map< pair<int,int>, DesignObj_Orbiter *> m_mapChildDgObjects;  // If we have child objects corresponding to cols/rows, map them here.  col,row are 0 based
