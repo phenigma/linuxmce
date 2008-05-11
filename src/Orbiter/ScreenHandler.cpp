@@ -65,6 +65,28 @@ ScreenHandler::ScreenHandler(Orbiter *pOrbiter, map<int,int> *p_MapDesignObj) :
 
 	m_TelecomCommandStatus = tcsDirectDial;
 
+	m_PK_Disc = 0;
+
+	if( m_pOrbiter->m_pLocationInfo_Initial && m_pOrbiter->m_pLocationInfo_Initial->m_dwPK_Device_DiscDrive )
+	{
+		m_pOrbiter->RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter::MediaInsertedMsgInterceptor),m_pOrbiter->m_pLocationInfo_Initial->m_dwPK_Device_DiscDrive,0,0,0,MESSAGETYPE_EVENT,EVENT_Media_Inserted_CONST);
+		m_pOrbiter->RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter::MediaInsertedMsgInterceptor),m_pOrbiter->m_pLocationInfo_Initial->m_dwPK_Device_DiscDrive,0,0,0,MESSAGETYPE_EVENT,EVENT_Media_Removed_CONST);
+		DeviceData_Base *pDevice_Disc = m_pOrbiter->m_pData->m_AllDevices.m_mapDeviceData_Base_Find(m_pOrbiter->m_pLocationInfo_Initial->m_dwPK_Device_DiscDrive);
+		if( pDevice_Disc )
+		{
+			DeviceData_Base *pDevice_Identifier = pDevice_Disc->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_Media_Identifiers_CONST);
+			if( pDevice_Identifier )
+				m_pOrbiter->RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter::MediaInsertedMsgInterceptor),pDevice_Identifier->m_dwPK_Device,0,0,0,MESSAGETYPE_COMMAND,COMMAND_Media_Identified_CONST);
+		}
+		int PK_MediaType;
+		string Disks,URL,BlockDevice;
+		DCE::CMD_Get_Disk_Info CMD_Get_Disk_Info(m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_pLocationInfo_Initial->m_dwPK_Device_DiscDrive, &PK_MediaType, &Disks, &URL, &BlockDevice);
+		if( m_pOrbiter->SendCommand(CMD_Get_Disk_Info) )
+		{
+			int k=2;
+		}
+	}
+
 	Reset_SaveFile_Info();
 }
 //-----------------------------------------------------------------------------------------------------

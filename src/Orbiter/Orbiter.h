@@ -641,6 +641,11 @@ namespace DCE
 		bool ScreenHandlerMsgInterceptor( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
 
 		/**
+		* If a ScreenHandler needs to intercept a message it can register using this function
+		*/
+		bool MediaInsertedMsgInterceptor( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
+
+		/**
 		* @brief A "DoMaint" callback to continually refresh the screen
 		*/
 		void ContinuousRefresh( void *data );

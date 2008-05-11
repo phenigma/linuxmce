@@ -9265,6 +9265,18 @@ bool Orbiter::ScreenHandlerMsgInterceptor( class Socket *pSocket, class Message 
 	return false;
 }
 //-----------------------------------------------------------------------------------------------------
+bool Orbiter::MediaInsertedMsgInterceptor( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
+{
+	PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
+
+	if(NULL != m_pScreenHandler)
+	{
+		int k=2;
+	}
+
+	return false;
+}
+//-----------------------------------------------------------------------------------------------------
 bool Orbiter::PendingCallbackScheduled(OrbiterCallBack fnCallBack)
 {
 	PLUTO_SAFETY_LOCK( cm, m_MaintThreadMutex );

@@ -738,3 +738,5 @@ bool Disk_Drive::SafeToReload(string &sReason)
 
 void Disk_Drive::CMD_Get_Ripping_Status(string *sStatus,string &sCMD_Result,Message *pMessage)
 //<-dceag-c942-e->
+{
+}

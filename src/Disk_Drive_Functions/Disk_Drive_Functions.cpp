@@ -86,7 +86,7 @@ void Disk_Drive_Functions::EVENT_Media_Inserted(int iFK_MediaType, string sMRL, 
 
 void Disk_Drive_Functions::EVENT_Media_Removed()
 {
-	m_pCommand_Impl->m_pEvent->SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, EVENT_Media_Removed_CONST, 0);
+	m_pCommand_Impl->m_pEvent->SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, EVENT_Media_Removed_CONST, 0));
 }
 
 void Disk_Drive_Functions::EVENT_Ripping_Progress(string sText, int iResult, string sValue, string sName, int iEK_Disc)
