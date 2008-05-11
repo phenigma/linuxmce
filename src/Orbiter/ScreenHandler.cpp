@@ -67,6 +67,18 @@ ScreenHandler::ScreenHandler(Orbiter *pOrbiter, map<int,int> *p_MapDesignObj) :
 
 	m_PK_Disc = 0;
 
+	Reset_SaveFile_Info();
+}
+//-----------------------------------------------------------------------------------------------------
+ScreenHandler::~ScreenHandler()
+{
+	pthread_mutex_destroy(&m_MapMutex.mutex);
+	delete m_pData_LastThumbnail;
+	m_pOrbiter = NULL;
+}
+//-----------------------------------------------------------------------------------------------------
+void ScreenHandler::Initialize()
+{
 	if( m_pOrbiter->m_pLocationInfo_Initial && m_pOrbiter->m_pLocationInfo_Initial->m_dwPK_Device_DiscDrive )
 	{
 		m_pOrbiter->RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter::MediaInsertedMsgInterceptor),m_pOrbiter->m_pLocationInfo_Initial->m_dwPK_Device_DiscDrive,0,0,0,MESSAGETYPE_EVENT,EVENT_Media_Inserted_CONST);
@@ -78,23 +90,14 @@ ScreenHandler::ScreenHandler(Orbiter *pOrbiter, map<int,int> *p_MapDesignObj) :
 			if( pDevice_Identifier )
 				m_pOrbiter->RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter::MediaInsertedMsgInterceptor),pDevice_Identifier->m_dwPK_Device,0,0,0,MESSAGETYPE_COMMAND,COMMAND_Media_Identified_CONST);
 		}
-		int PK_MediaType;
+		int PK_MediaType=0,iEK_Disc=0;
 		string Disks,URL,BlockDevice;
-		DCE::CMD_Get_Disk_Info CMD_Get_Disk_Info(m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_pLocationInfo_Initial->m_dwPK_Device_DiscDrive, &PK_MediaType, &Disks, &URL, &BlockDevice);
+		DCE::CMD_Get_Disk_Info CMD_Get_Disk_Info(m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_pLocationInfo_Initial->m_dwPK_Device_DiscDrive, &PK_MediaType, &iEK_Disc, &Disks, &URL, &BlockDevice);
 		if( m_pOrbiter->SendCommand(CMD_Get_Disk_Info) )
 		{
 			int k=2;
 		}
 	}
-
-	Reset_SaveFile_Info();
-}
-//-----------------------------------------------------------------------------------------------------
-ScreenHandler::~ScreenHandler()
-{
-	pthread_mutex_destroy(&m_MapMutex.mutex);
-	delete m_pData_LastThumbnail;
-	m_pOrbiter = NULL;
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::RegisterCallBack(CallBackType aCallBackType, ScreenHandlerCallBack aScreenHandlerCallBack,

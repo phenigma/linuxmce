@@ -247,6 +247,7 @@ public:
 
 	//used to register as plugin
 	virtual bool Register() { return 0; }
+	virtual void Initialize(); // called after the orbiter has finished initializing
 
 	//callback related stuff
 	void RegisterCallBack(CallBackType aCallBackType, ScreenHandlerCallBack aScreenHandlerCallBack, 

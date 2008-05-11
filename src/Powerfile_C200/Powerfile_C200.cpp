@@ -1230,9 +1230,11 @@ void Powerfile_C200::CMD_Load_Disk(bool bMultiple,string &sCMD_Result,Message *p
 //<-dceag-c914-b->
 
 	/** @brief COMMAND: #914 - Get Disk Info */
-	/**  */
+	/** Retrieve the information on the current disk */
 		/** @param #29 PK_MediaType */
 			/** The type of media */
+		/** @param #131 EK_Disc */
+			/** The PK_Disc from pluto_media */
 		/** @param #157 Disks */
 			/** The disk id */
 		/** @param #193 URL */
@@ -1240,7 +1242,7 @@ void Powerfile_C200::CMD_Load_Disk(bool bMultiple,string &sCMD_Result,Message *p
 		/** @param #223 Block Device */
 			/** The block device for the drive */
 
-void Powerfile_C200::CMD_Get_Disk_Info(int *iPK_MediaType,string *sDisks,string *sURL,string *sBlock_Device,string &sCMD_Result,Message *pMessage)
+void Powerfile_C200::CMD_Get_Disk_Info(int *iPK_MediaType,int *iEK_Disc,string *sDisks,string *sURL,string *sBlock_Device,string &sCMD_Result,Message *pMessage)
 //<-dceag-c914-e->
 {
 	// Should be sent to the children instead
@@ -1287,3 +1289,12 @@ void Powerfile_C200::PostConnect()
 		true,BL_SameHouse);
 	SendCommand(CMD_Refresh_List_of_Online_Devices_Cat);
 }
+//<-dceag-c942-b->
+
+	/** @brief COMMAND: #942 - Get Ripping Status */
+	/** Get ripping status */
+		/** @param #199 Status */
+			/** Ripping status */
+
+void Powerfile_C200::CMD_Get_Ripping_Status(string *sStatus,string &sCMD_Result,Message *pMessage)
+//<-dceag-c942-e->

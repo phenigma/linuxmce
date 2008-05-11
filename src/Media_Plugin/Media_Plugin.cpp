@@ -6958,9 +6958,9 @@ void Media_Plugin::WaitingForJukebox( MediaStream *pMediaStream )
 	if( vectRow_DiscLocation.size() )  // There should only be 1 record for a drive since only 1 disc can be there.  When this is not empty, the move has finished
 	{
 		// It's possible we were playing a slot without knowing what type of disc was in it.  Fill out the missing info
-		int iPK_MediaType=0;
+		int iPK_MediaType=0,iEK_Disc=0;
 		string sDisks,sURL,sBlock_Device;
-		DCE::CMD_Get_Disk_Info CMD_Get_Disk_Info(m_dwPK_Device,pMediaFile->m_dwPK_Device_Disk_Drive,&iPK_MediaType,&sDisks,&sURL,&sBlock_Device);
+		DCE::CMD_Get_Disk_Info CMD_Get_Disk_Info(m_dwPK_Device,pMediaFile->m_dwPK_Device_Disk_Drive,&iPK_MediaType,&iEK_Disc,&sDisks,&sURL,&sBlock_Device);
 		if( SendCommand(CMD_Get_Disk_Info) )
 		{
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::WaitingForJukebox stream %d.  Disc loaded in drive.  Now ready.  Got MT %d disks %s url %s block %s",
@@ -7101,8 +7101,9 @@ void Media_Plugin::TransformFilenameToDeque(string sFilename,deque<MediaFile *> 
 		}
 		else  // It's a cd.  Need to add tracks
 		{
+			int iEK_Disc;
 			string sDisks,sURL,sBlock_Device;
-			DCE::CMD_Get_Disk_Info CMD_Get_Disk_Info(m_dwPK_Device,PK_Device_Disk_Drive,&PK_MediaType,&sDisks,&sURL,&sBlock_Device);
+			DCE::CMD_Get_Disk_Info CMD_Get_Disk_Info(m_dwPK_Device,PK_Device_Disk_Drive,&PK_MediaType,&iEK_Disc,&sDisks,&sURL,&sBlock_Device);
 			if( SendCommand(CMD_Get_Disk_Info) )
 			{
 				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::TransformFilenameToDeque Got cd info MT %d disks %s url %s block %s",

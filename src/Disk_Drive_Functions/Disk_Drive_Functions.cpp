@@ -58,6 +58,7 @@ Disk_Drive_Functions::Disk_Drive_Functions(int dwPK_Device,Command_Impl * pComma
 	m_pMediaAttributes_LowLevel=pMediaAttributes_LowLevel;
 	m_eLocked=locked_available;
 	m_bAutoIdentifyMedia=bAutoIdentifyMedia;
+	m_PK_Disc=0;
 
     pthread_mutexattr_init( &m_ThreadAttribute );
     pthread_mutexattr_settype( &m_ThreadAttribute, PTHREAD_MUTEX_RECURSIVE_NP );
@@ -888,6 +889,7 @@ void Disk_Drive_Functions::DisplayMessageOnOrbVFD(string sMessage)
 
 void Disk_Drive_Functions::UpdateDiscLocation(char cType,int PK_Disc)
 {
+	m_PK_Disc=PK_Disc;
 	Row_DiscLocation *pRow_DiscLocation = m_pDatabase_pluto_media->DiscLocation_get()->GetRow(m_dwPK_Device,0);
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive_Functions::UpdateDiscLocation device %d type %c disc %d / %p", m_dwPK_Device,cType,PK_Disc,pRow_DiscLocation);
 	if( pRow_DiscLocation )
