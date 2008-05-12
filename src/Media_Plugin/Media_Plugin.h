@@ -573,6 +573,7 @@ public:
 	class DataGridTable *ProvidersForDevice( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
 	class DataGridTable *ThumbnailableAttributes( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
 	class DataGridTable *CDTracks( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
+	class DataGridTable *TracksOnDisc( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
 
 	bool CanThumbnail(int PK_AttributeType);
 	void ReleaseDriveLock(MediaStream *pMediaStream);  // When playing media from a disk drive, we issue a CMD_Lock to block others from using the drive.  Call this to release any lock

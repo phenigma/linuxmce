@@ -2525,6 +2525,13 @@ class DataGridTable *Media_Plugin::ThumbnailableAttributes( string GridID, strin
 	return pDataGrid;
 }
 
+class DataGridTable *Media_Plugin::TracksOnDisc( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
+{
+    PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
+    DataGridTable *pDataGrid = new DataGridTable();
+	return NULL;
+}
+
 bool Media_Plugin::CanThumbnail(int PK_AttributeType)
 {
 	switch(PK_AttributeType)

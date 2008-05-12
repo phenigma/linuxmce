@@ -708,6 +708,10 @@ bool Media_Plugin::Register()
         new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Media_Plugin::ThumbnailableAttributes ))
         , DATAGRID_Thumbnailable_Attributes_CONST,0 );  // Register as 0 also, because some media plugins may implement this, but not all.  See: Datagrid_PluginGetCallBack
 
+	m_pDatagrid_Plugin->RegisterDatagridGenerator(
+        new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Media_Plugin::TracksOnDisc ))
+        , DATAGRID_Tracks_on_Disc_CONST,PK_DeviceTemplate_get() );
+
 	PopulateRemoteControlMaps();
 	RestoreMediaResumePreferences();
 

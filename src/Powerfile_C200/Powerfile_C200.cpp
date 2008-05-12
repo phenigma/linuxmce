@@ -1298,3 +1298,5 @@ void Powerfile_C200::PostConnect()
 
 void Powerfile_C200::CMD_Get_Ripping_Status(string *sStatus,string &sCMD_Result,Message *pMessage)
 //<-dceag-c942-e->
+{
+}
