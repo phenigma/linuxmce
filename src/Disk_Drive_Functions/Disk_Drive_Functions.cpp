@@ -424,7 +424,7 @@ int Disk_Drive_Functions::cdrom_checkdrive(const char * filename, int * flag, bo
 			DisplayMessageOnOrbVFD("Disc detected in drive.");
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Got a disc. Sleep a sec, then reopen. One hack to allow the disk to spin I think.");
 		close(fd);
-		if( !bRecheck ) // If we're rechecking the disc has already been in there before
+		if( !Recheck ) // If we're rechecking the disc has already been in there before
 			sleep(1);
 		fd = open(filename, O_RDONLY | O_NONBLOCK);
 		if (fd < 0)
