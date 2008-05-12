@@ -267,9 +267,11 @@
 #define SCREEN_aJAd_CONST 280
 #define SCREEN_Non_Pluto_TV_Full_screen_CONST 281
 #define SCREEN_Non_Pluto_TV_Full_screen_options_CONST 282
-#define SCREEN_Rip_Options_CONST 283
-#define SCREEN_Rip_format_options_CONST 284
-#define SCREEN_Privacy_options_for_rip_CONST 285
+#define SCREEN_Cannot_Reload_Router_CONST 283
+#define SCREEN_Rip_Options_CONST 285
+#define SCREEN_Rip_format_options_CONST 286
+#define SCREEN_Privacy_options_for_rip_CONST 287
+#define SCREEN_Current_Disc_Contents_CONST 290
 
 #define SCREEN_TABLE "Screen"
 #define SCREEN_PK_SCREEN_FIELD "PK_Screen"

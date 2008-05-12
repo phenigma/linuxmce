@@ -127,19 +127,17 @@ LoggerWrapper::GetInstance()->Write(LV_ACTION, "Orbiter::AcquireGrid orbiter gri
 
 		if( m_pObjUp || m_pObjDown || m_pObjLeft || m_pObjRight )
 		{
-			NeedToRender render( m_pOrbiter, "add dg arrows" );
-
 			// Hide arrow if not on the first row.
-			if(m_pObjUp)
+			if(m_pObjUp && m_pObjUp->m_bHidden==CanGoUp() )
 				m_pOrbiter->CMD_Show_Object( m_pObjUp->m_ObjectID, 0, "", "",  CanGoUp() ? "1" : "0" );
 			// Hide down arrow if the curren row + rows < the total rows in the grid
-			if(m_pObjDown)
+			if(m_pObjDown && m_pObjDown->m_bHidden==CanGoDown() )
 				m_pOrbiter->CMD_Show_Object( m_pObjDown->m_ObjectID, 0, "", "",  CanGoDown() ? "1" : "0" );
 			// Hide arrow if not on the first column.
-			if(m_pObjLeft)
+			if(m_pObjLeft && m_pObjLeft->m_bHidden==CanGoLeft() )
 				m_pOrbiter->CMD_Show_Object( m_pObjLeft->m_ObjectID, 0, "", "",  CanGoLeft() ? "1" : "0" );
 			// Hide down arrow if the curren row + rows < the total rows in the grid
-			if(m_pObjRight)
+			if(m_pObjRight && m_pObjRight->m_bHidden==CanGoRight())
 				m_pOrbiter->CMD_Show_Object( m_pObjRight->m_ObjectID, 0, "", "",  CanGoRight() ? "1" : "0" );
 		}
 	}
