@@ -298,14 +298,14 @@ string MediaFileBrowserOptions::HumanReadable()
 	}
 	return sFilter;
 }
-/*
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_FileList_PlayLists(long PK_Screen)
 {
 	// This uses all the same actions as the music/movie browser
 	SCREEN_FileList_Music_Movies_Video(PK_Screen);
+	if(m_pOrbiter->m_sSkin == AUDIO_STATION_SKIN)
+		SetAudioServerTabs(5556);
 }
-*/
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_FileList_Music_Movies_Video(long PK_Screen)
 {
@@ -1310,7 +1310,7 @@ void ScreenHandler::SCREEN_Music_Full_Screen_OSD(long PK_Screen)
 		RegisterCallBack(cbDataGridRendering, (ScreenHandlerCallBack) &ScreenHandler::MusicFullScreen_GridRendering,	new DatagridAcquiredBackData());
 		RegisterCallBack(cbDataGridSelected, (ScreenHandlerCallBack) &ScreenHandler::MusicFullScreen_DatagridSelected,	new DatagridCellBackData());
 		RegisterCallBack(cbSetNowPlaying, (ScreenHandlerCallBack) &ScreenHandler::AudioServer_SetNowPlaying, new MsgInterceptorCellBackData());
-		SetAudioServerTabs();
+		SetAudioServerTabs(5551);
 	}
 	ScreenHandlerBase::SCREEN_Music_Full_Screen_OSD(PK_Screen);
 }
@@ -1357,22 +1357,26 @@ bool ScreenHandler::MusicFullScreen_GridRendering(CallBackData *pData)
 {
 	// If the row is highlighted, it means it's now playing.  If it's selected, it's the one the user selected on the screen.  We store the selected row in m_iHighlightedRow (confusing, sorry)
 	DatagridAcquiredBackData *pDatagridAcquiredBackData = (DatagridAcquiredBackData *) pData;  // Call back data containing relevant values for the grid/table being rendered
-	int iTrack = atoi(m_pOrbiter->m_mapVariable_Find(VARIABLE_Track_or_Playlist_Positio_CONST).c_str());
+	int iTrack = m_pOrbiter->m_iPK_MediaType==MEDIATYPE_pluto_StoredAudio_CONST ? atoi(m_pOrbiter->m_mapVariable_Find(VARIABLE_Track_or_Playlist_Positio_CONST).c_str()) : -1;
 
 	NeedToRender render2( m_pOrbiter, "ScreenHandler::MusicFullScreen_GridRendering" );
 
+	DesignObj_Orbiter *pObj = m_pOrbiter->FindObject( TOSTRING(5551) ".0.0." TOSTRING(5587) );
+	if( !pObj )
+		return false;
+
 	// Reset all the text to blank
-	m_pOrbiter->CMD_Set_Text(TOSTRING(5551) ".0.0." TOSTRING(5587),"",2046);
-	m_pOrbiter->CMD_Set_Text(TOSTRING(5551) ".0.0." TOSTRING(5587),"",2047);
-	m_pOrbiter->CMD_Set_Text(TOSTRING(5551) ".0.0." TOSTRING(5587),"",2048);
-	m_pOrbiter->CMD_Set_Text(TOSTRING(5551) ".0.0." TOSTRING(5587),"",2049);
-	m_pOrbiter->CMD_Set_Text(TOSTRING(5551) ".0.0." TOSTRING(5587),"",2050);
-	m_pOrbiter->CMD_Set_Text(TOSTRING(5551) ".0.0." TOSTRING(5587),"",2051);
-	m_pOrbiter->CMD_Set_Text(TOSTRING(5551) ".0.0." TOSTRING(5587),"",2052);
+	m_pOrbiter->CMD_Set_Text(pObj->m_ObjectID,"",2046);
+	m_pOrbiter->CMD_Set_Text(pObj->m_ObjectID,"",2047);
+	m_pOrbiter->CMD_Set_Text(pObj->m_ObjectID,"",2048);
+	m_pOrbiter->CMD_Set_Text(pObj->m_ObjectID,"",2049);
+	m_pOrbiter->CMD_Set_Text(pObj->m_ObjectID,"",2050);
+	m_pOrbiter->CMD_Set_Text(pObj->m_ObjectID,"",2051);
+	m_pOrbiter->CMD_Set_Text(pObj->m_ObjectID,"",2052);
 
 	// We'll show info on the cell that is selected, if one is, or if not the one that's playing
 	bool bUpdatedPic=false;
-	int iRow = pDatagridAcquiredBackData->m_pObj->m_iHighlightedRow>=0 ? pDatagridAcquiredBackData->m_pObj->m_GridCurRow + pDatagridAcquiredBackData->m_pObj->m_iHighlightedRow : atoi( m_pOrbiter->m_mapVariable_Find(VARIABLE_Track_or_Playlist_Positio_CONST).c_str() );
+	int iRow = pDatagridAcquiredBackData->m_pObj->m_iHighlightedRow>=0 ? pDatagridAcquiredBackData->m_pObj->m_GridCurRow + pDatagridAcquiredBackData->m_pObj->m_iHighlightedRow : iTrack;
 	DataGridCell *pCell = pDatagridAcquiredBackData->m_pDataGridTable->GetData( 0, iRow );
 	if( pCell )
 	{
@@ -1432,12 +1436,7 @@ bool ScreenHandler::MusicFullScreen_GridRendering(CallBackData *pData)
 							break;
 						}
 						if( PK_Text )
-							m_pOrbiter->CMD_Set_Text(TOSTRING(5551) ".0.0." TOSTRING(5587),sName,PK_Text);
-
-						DesignObj_Orbiter *pObj = m_pOrbiter->FindObject( TOSTRING(5551) ".0.0." TOSTRING(5587) );
-						if( pObj )
-							m_pOrbiter->Renderer()->RenderObjectAsync(pObj);
-
+							m_pOrbiter->CMD_Set_Text(pObj->m_ObjectID,sName,PK_Text);
 					}
 				}
 			}
@@ -1447,15 +1446,16 @@ bool ScreenHandler::MusicFullScreen_GridRendering(CallBackData *pData)
 		m_pOrbiter->CMD_Update_Object_Image(TOSTRING(5551) ".0.0." TOSTRING(DESIGNOBJ_objCDCover_CONST),"jpg", NULL, 0, "0");
 
 	bool bHidden = pDatagridAcquiredBackData->m_pObj->m_iHighlightedRow==-1;
-	DesignObj_Orbiter *pObj = m_pOrbiter->FindObject(TOSTRING(5551) ".0.0." TOSTRING(5638));
-	if( pObj->m_bHidden!=bHidden )
-		m_pOrbiter->CMD_Show_Object( pObj->m_ObjectID,0,"","", bHidden ? "0" : "1" );
+	DesignObj_Orbiter *pObj_SelectedObjBar = m_pOrbiter->FindObject(TOSTRING(5551) ".0.0." TOSTRING(5638));
+	if( pObj_SelectedObjBar && pObj_SelectedObjBar->m_bHidden!=bHidden )
+		m_pOrbiter->CMD_Show_Object( pObj_SelectedObjBar->m_ObjectID,0,"","", bHidden ? "0" : "1" );
 	for(map< pair<int,int>, DesignObj_Orbiter *>::iterator itobj = pDatagridAcquiredBackData->m_pObj->m_mapChildDgObjects.begin(); itobj != pDatagridAcquiredBackData->m_pObj->m_mapChildDgObjects.end(); ++itobj )
 	{
 		DesignObj_Orbiter *pObj = itobj->second;
 		/** 0=standard mode, -1=selected -2=highlight a positive number is one of the alternates */
 		pObj->m_GraphicToDisplay_set("ms1",itobj->first.second == pDatagridAcquiredBackData->m_pObj->m_iHighlightedRow ? -1 : (itobj->first.second == iTrack ? -2 : 0));
 	}
+	m_pOrbiter->Renderer()->RenderObjectAsync(pObj);
 	return false; // Keep processing it
 }
 //-----------------------------------------------------------------------------------------------------
@@ -2080,7 +2080,7 @@ void ScreenHandler::SetupAudioServer()
 
 		m_pOrbiter->StartScreenHandlerTimer(5000);
 	}
-	SetAudioServerTabs();
+	SetAudioServerTabs(5544);
 }
 //-----------------------------------------------------------------------------------------------------
 bool ScreenHandler::AudioServer_SetNowPlaying(CallBackData *pData)
@@ -2090,20 +2090,15 @@ bool ScreenHandler::AudioServer_SetNowPlaying(CallBackData *pData)
 	return false;
 }
 //-----------------------------------------------------------------------------------------------------
-void ScreenHandler::SetAudioServerTabs()
+void ScreenHandler::SetAudioServerTabs(int PK_DesignObj)
 {
 	PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_VariableMutex);
 	// Get the current screen object.  If we're changing screens it will be the pending one, otherwise the current one;
-	ScreenHistory *pScreenHistory = NeedToRender::m_pScreenHistory_get();
-	if( !pScreenHistory )
-		pScreenHistory = m_pOrbiter->m_pScreenHistory_Current;
-	if( !pScreenHistory )
-		return;
-	DesignObj_Orbiter *pObj = pScreenHistory->GetObj();
+	DesignObj_Orbiter *pObj = m_pOrbiter->FindObject(StringUtils::itos(PK_DesignObj) + ".0.0");
 	if( !pObj )
 		return;
 	
-	m_pOrbiter->CMD_Set_Graphic_To_Display( pObj->m_ObjectID + "." TOSTRING(5577), pObj->m_iBaseObjectID==5577 ? "-1" : "0");
+	m_pOrbiter->CMD_Set_Graphic_To_Display( pObj->m_ObjectID + "." TOSTRING(5557), pObj->m_iBaseObjectID==5544 ? "-1" : "0");
 
 	DesignObj_Orbiter *pObj_Button  = m_pOrbiter->FindObject(pObj->m_ObjectID + "." TOSTRING(5554));
 	if( pObj_Button )
@@ -2111,7 +2106,7 @@ void ScreenHandler::SetAudioServerTabs()
 		if( m_bDiscInserted )
 		{
 			pObj_Button->m_bDisabled_set(false);
-			m_pOrbiter->CMD_Set_Graphic_To_Display( pObj_Button->m_ObjectID, pObj->m_iBaseObjectID==5554 ? "-1" : "0" );
+			m_pOrbiter->CMD_Set_Graphic_To_Display( pObj_Button->m_ObjectID, pObj->m_iBaseObjectID==5555 ? "-1" : "0" );
 		}
 		else
 		{
@@ -2120,7 +2115,7 @@ void ScreenHandler::SetAudioServerTabs()
 		}
 	}
 
-	m_pOrbiter->CMD_Set_Graphic_To_Display( pObj->m_ObjectID + "." TOSTRING(5553), pObj->m_iBaseObjectID==5553 ? "-1" : "0");
+	m_pOrbiter->CMD_Set_Graphic_To_Display( pObj->m_ObjectID + "." TOSTRING(5553), pObj->m_iBaseObjectID==5556 ? "-1" : "0");
 
 	pObj_Button  = m_pOrbiter->FindObject(pObj->m_ObjectID + "." TOSTRING(5588));
 	if( pObj_Button )
@@ -2128,7 +2123,7 @@ void ScreenHandler::SetAudioServerTabs()
 		if( m_pOrbiter->m_iPK_MediaType )
 		{
 			pObj_Button->m_bDisabled_set(false);
-			m_pOrbiter->CMD_Set_Graphic_To_Display( pObj_Button->m_ObjectID, pObj->m_iBaseObjectID==5588 ? "-1" : "0" );
+			m_pOrbiter->CMD_Set_Graphic_To_Display( pObj_Button->m_ObjectID, pObj->m_iBaseObjectID==5551 ? "-1" : "0" );
 		}
 		else
 		{
@@ -2137,7 +2132,7 @@ void ScreenHandler::SetAudioServerTabs()
 		}
 	}
 
-	m_pOrbiter->CMD_Set_Graphic_To_Display( pObj->m_ObjectID + "." TOSTRING(5545), pObj->m_iBaseObjectID==5545 ? "-1" : "0");
+	m_pOrbiter->CMD_Set_Graphic_To_Display( pObj->m_ObjectID + "." TOSTRING(5545), pObj->m_iBaseObjectID==5552 ? "-1" : "0");
 	m_pOrbiter->CMD_Set_Graphic_To_Display( pObj->m_ObjectID + "." TOSTRING(5619), m_pOrbiter->m_iPK_MediaType ? "0" : "-2");
 	//->GetObj()->m_iBaseObjectID;
 	//int PK_DesignObj = GetCurrentScreen_PK_DesignObj();
@@ -2154,26 +2149,42 @@ void ScreenHandler::ProcessMediaInsertedRemovedMessage(Message *pMessage)
 			m_bDiscInserted=true;
 			m_PK_Disc=0;  // We will refresh the screen and retrieve this again in the disc screen's init routine
 			if( m_pOrbiter->m_pScreenHistory_Current && m_pOrbiter->m_pScreenHistory_Current->GetObj() && m_pOrbiter->m_pScreenHistory_Current->GetObj()->m_iBaseObjectID==5589 )
-				m_pOrbiter->CMD_Refresh("*");
+			{
+				DCE::CMD_Refresh CMD_Refresh(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,"*");
+				m_pOrbiter->SendCommand(CMD_Refresh);
+				
+			}
 			else
-				SetAudioServerTabs();
+			{
+				DCE::SCREEN_Current_Disc_Contents SCREEN_Current_Disc_Contents(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device);
+				m_pOrbiter->SendCommand(SCREEN_Current_Disc_Contents);
+			}
 		}
 		else if( pMessage->m_dwID==EVENT_Media_Removed_CONST )
 		{
 			m_bDiscInserted=false;
 			m_PK_Disc=0;
-			if( m_pOrbiter->m_pScreenHistory_Current && m_pOrbiter->m_pScreenHistory_Current->GetObj() && m_pOrbiter->m_pScreenHistory_Current->GetObj()->m_iBaseObjectID==5589 )
-				m_pOrbiter->GotoMainMenu();
-			else
-				SetAudioServerTabs();
+			DesignObj_Orbiter *pObj = NULL;
+			if( m_pOrbiter->m_pScreenHistory_Current && (pObj=m_pOrbiter->m_pScreenHistory_Current->GetObj()) )
+			{
+				if( pObj->m_iBaseObjectID==5589 )
+				{
+					DCE::SCREEN_Main SCREEN_Main(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,"");
+					m_pOrbiter->SendCommand(SCREEN_Main);
+				}
+				else
+					SetAudioServerTabs(pObj->m_iBaseObjectID);
+			}
 		}
 		else if( pMessage->m_dwID==COMMAND_Media_Identified_CONST )
 		{
 			if( m_pOrbiter->m_pScreenHistory_Current && m_pOrbiter->m_pScreenHistory_Current->GetObj() && m_pOrbiter->m_pScreenHistory_Current->GetObj()->m_iBaseObjectID==5589 )
-				m_pOrbiter->CMD_Refresh("*");
+			{
+				DCE::CMD_Refresh CMD_Refresh(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,"*");
+				m_pOrbiter->SendCommand(CMD_Refresh);
+			}
 		}
 	}
-	int k=2;
 }
 //-----------------------------------------------------------------------------------------------------
 bool ScreenHandler::AudioServerFileList_GridRendering(CallBackData *pData)
@@ -2304,6 +2315,92 @@ void ScreenHandler::AudioServer_PopulateDatagrid()
 		if(!m_pOrbiter->SendCommand( CMD_Populate_Datagrid) || !bResponse) // wait for a response
 			LoggerWrapper::GetInstance()->Write( LV_WARNING, "Populate datagrid: %d failed", pObj->m_iPK_Datagrid);
 	}
+}
+//-----------------------------------------------------------------------------------------------------
+void ScreenHandler::SCREEN_Current_Disc_Contents(long PK_Screen)
+{
+	if(m_pOrbiter->m_sSkin == AUDIO_STATION_SKIN)
+	{
+		DesignObj_DataGrid *pObj = (DesignObj_DataGrid *) m_pOrbiter->FindObject( TOSTRING(5555) ".0.0." TOSTRING(5639) );
+		if( pObj )
+		{
+			pObj->m_pObjUp = m_pOrbiter->FindObject( TOSTRING(5555) ".0.0." TOSTRING(5595) );
+			pObj->m_pObjDown = m_pOrbiter->FindObject( TOSTRING(5555) ".0.0." TOSTRING(5594) );
+		}
+
+		m_pOrbiter->CMD_Set_Graphic_To_Display(TOSTRING(5555) ".0.0." TOSTRING(5636),mediaFileBrowserOptions.m_MediaRepeatOptions==repeat_None ? "0" : (mediaFileBrowserOptions.m_MediaRepeatOptions==repeat_Queue ? "1" : "2"));
+//		RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::MusicFullScreen_ObjectSelected,	new ObjectInfoBackData());
+		RegisterCallBack(cbDataGridRendering, (ScreenHandlerCallBack) &ScreenHandler::CurrentDisc_GridRendering,	new DatagridAcquiredBackData());
+		RegisterCallBack(cbDataGridSelected, (ScreenHandlerCallBack) &ScreenHandler::CurrentDisc_DatagridSelected,	new DatagridCellBackData());
+		RegisterCallBack(cbSetNowPlaying, (ScreenHandlerCallBack) &ScreenHandler::AudioServer_SetNowPlaying, new MsgInterceptorCellBackData());
+		SetAudioServerTabs(5555);
+	}
+	ScreenHandlerBase::SCREEN_Current_Disc_Contents(PK_Screen);
+}
+//-----------------------------------------------------------------------------------------------------
+bool ScreenHandler::CurrentDisc_GridRendering(CallBackData *pData)
+{
+	// If the row is highlighted, it means it's now playing.  If it's selected, it's the one the user selected on the screen.  We store the selected row in m_iHighlightedRow (confusing, sorry)
+	DatagridAcquiredBackData *pDatagridAcquiredBackData = (DatagridAcquiredBackData *) pData;  // Call back data containing relevant values for the grid/table being rendered
+
+	// Get the current track if we're playing this cd now.  if media type isn't cd we must be listening to stored audio
+	int iTrack = m_pOrbiter->m_iPK_MediaType==MEDIATYPE_pluto_CD_CONST ? atoi(m_pOrbiter->m_mapVariable_Find(VARIABLE_Track_or_Playlist_Positio_CONST).c_str()) : -1;
+
+	NeedToRender render2( m_pOrbiter, "ScreenHandler::CurrentDisc_GridRendering" );
+
+	// We'll show info on the cell that is selected, if one is, or if not the one that's playing
+	bool bUpdatedPic=false;
+	int iRow = pDatagridAcquiredBackData->m_pObj->m_iHighlightedRow>=0 ? pDatagridAcquiredBackData->m_pObj->m_GridCurRow + pDatagridAcquiredBackData->m_pObj->m_iHighlightedRow : iTrack;
+	DataGridCell *pCell = pDatagridAcquiredBackData->m_pDataGridTable->GetData( 0, iRow );
+
+	DesignObj_Orbiter *pObj = m_pOrbiter->FindObject( TOSTRING(5555) ".0.0." TOSTRING(5587) );
+	if( !pObj )
+		return false;
+	m_pOrbiter->CMD_Set_Text(pObj->m_ObjectID,pCell ? pCell->m_mapAttributes_Find("Title") : "",2046);
+	m_pOrbiter->CMD_Set_Text(pObj->m_ObjectID,pCell ? pCell->m_mapAttributes_Find("Performer") : "",2047);
+	m_pOrbiter->CMD_Set_Text(pObj->m_ObjectID,pCell ? pCell->m_mapAttributes_Find("Album") : "",2048);
+	m_pOrbiter->CMD_Set_Text(pObj->m_ObjectID,pCell ? pCell->m_mapAttributes_Find("Genre") : "",2049);
+	m_pOrbiter->CMD_Set_Text(pObj->m_ObjectID,pCell ? pCell->m_mapAttributes_Find("Studio") : "",2050);
+	m_pOrbiter->CMD_Set_Text(pObj->m_ObjectID,pCell && pCell->GetValue() ? pCell->GetValue() : "",2051);
+//		m_pOrbiter->CMD_Set_Text(pObj->m_ObjectID,pCell->m_mapAttributes_Find("Composer"),PK_Text);
+	m_pOrbiter->CMD_Set_Text(pObj->m_ObjectID,pCell ? pCell->m_mapAttributes_Find("Date") : "",2052);
+	m_pOrbiter->Renderer()->RenderObjectAsync(pObj);
+
+		m_pOrbiter->CMD_Update_Object_Image(TOSTRING(5555) ".0.0." TOSTRING(DESIGNOBJ_objCDCover_CONST),"jpg", NULL, 0, "0");
+
+	for(map< pair<int,int>, DesignObj_Orbiter *>::iterator itobj = pDatagridAcquiredBackData->m_pObj->m_mapChildDgObjects.begin(); itobj != pDatagridAcquiredBackData->m_pObj->m_mapChildDgObjects.end(); ++itobj )
+	{
+		DesignObj_Orbiter *pObj = itobj->second;
+		/** 0=standard mode, -1=selected -2=highlight a positive number is one of the alternates */
+		pObj->m_GraphicToDisplay_set("ms1",itobj->first.second == pDatagridAcquiredBackData->m_pObj->m_iHighlightedRow ? -1 : (itobj->first.second == iTrack ? -2 : 0));
+	}
+	return false; // Keep processing it
+}
+//-----------------------------------------------------------------------------------------------------
+bool ScreenHandler::CurrentDisc_DatagridSelected(CallBackData *pData)
+{
+	DatagridCellBackData *pCellInfoData = (DatagridCellBackData *)pData;
+	if( pCellInfoData->m_pDesignObj_DataGrid )
+	{
+		if( pCellInfoData->m_pDesignObj_DataGrid->m_iHighlightedRow==pCellInfoData->m_Row )
+			pCellInfoData->m_pDesignObj_DataGrid->m_iHighlightedRow=-1;  // The user reselectd the cell.  Highlight it
+		else
+			pCellInfoData->m_pDesignObj_DataGrid->m_iHighlightedRow=pCellInfoData->m_Row;
+		m_pOrbiter->Renderer()->RenderObjectAsync(pCellInfoData->m_pDesignObj_DataGrid);
+
+		if( m_pOrbiter->m_iPK_MediaType==MEDIATYPE_pluto_CD_CONST )
+		{
+			DCE::CMD_Jump_Position_In_Playlist CMD_Jump_Position_In_Playlist(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,StringUtils::itos(pCellInfoData->m_Row+1),0);
+			m_pOrbiter->SendCommand(CMD_Jump_Position_In_Playlist);
+		}
+		else if( m_pOrbiter->m_pLocationInfo_Initial && m_pOrbiter->m_pLocationInfo_Initial->m_dwPK_Device_DiscDrive )
+		{
+			DCE::CMD_MH_Play_Media CMD_MH_Play_Media(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,m_pOrbiter->m_pLocationInfo_Initial->m_dwPK_Device_DiscDrive,
+				StringUtils::itos(pCellInfoData->m_Row+1),MEDIATYPE_pluto_CD_CONST,0,StringUtils::itos(m_pOrbiter->m_pLocationInfo_Initial->PK_EntertainArea),false,0,false,false,false);
+			m_pOrbiter->SendCommand(CMD_MH_Play_Media);
+		}
+	}
+	return false; // Keep processing it
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_Lights(long PK_Screen, string sLocation)
@@ -3323,6 +3420,7 @@ bool ScreenHandler::Thumbnail_DatagridSelected(CallBackData *pData)
 	return true; // We did a goto screen
 }
 
+
 void ScreenHandler::SCREEN_Manage_Drives(long PK_Screen)
 {
 	ScreenHandlerBase::SCREEN_Manage_Drives(PK_Screen);
@@ -4183,6 +4281,8 @@ void ScreenHandler::SCREEN_AdvancedOptions(long PK_Screen)
 {
 	ScreenHandlerBase::SCREEN_AdvancedOptions(PK_Screen);
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::AdvancedOptions_ObjectSelected,	new ObjectInfoBackData());
+	if(m_pOrbiter->m_sSkin == AUDIO_STATION_SKIN)
+		SetAudioServerTabs(5552);
 }
 
 bool ScreenHandler::AdvancedOptions_ObjectSelected(CallBackData *pData)

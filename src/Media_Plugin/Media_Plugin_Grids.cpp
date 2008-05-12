@@ -2529,7 +2529,105 @@ class DataGridTable *Media_Plugin::TracksOnDisc( string GridID, string Parms, vo
 {
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
     DataGridTable *pDataGrid = new DataGridTable();
-	return NULL;
+
+	int PK_Device = atoi(Parms.c_str());
+	DeviceData_Router *pDevice_Disc = NULL;
+	if( PK_Device )
+		pDevice_Disc = m_pRouter->m_mapDeviceData_Router_Find(PK_Device);
+	else // user didn't specify the disc drive.  find the first one that's related
+	{
+		DeviceData_Router *pDevice_Orbiter = m_pRouter->m_mapDeviceData_Router_Find(pMessage->m_dwPK_Device_From);
+		if( pDevice_Orbiter )
+			pDevice_Disc = (DeviceData_Router *) pDevice_Orbiter->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_Disc_Drives_CONST);
+	}
+
+	if( !pDevice_Disc )
+		return pDataGrid;
+
+	int PK_MediaType,EK_Disc;
+	string Disks,sURL,sBlock_Device;
+
+	DCE::CMD_Get_Disk_Info CMD_Get_Disk_Info(m_dwPK_Device,pDevice_Disc->m_dwPK_Device,&PK_MediaType,&EK_Disc,&Disks,&sURL,&sBlock_Device);
+	if( !SendCommand(CMD_Get_Disk_Info) || PK_MediaType==0 )
+		return pDataGrid;
+
+	if( PK_MediaType!=MEDIATYPE_pluto_CD_CONST || sURL.empty() )   // Only handle cd's, and need a URL with the tracks
+		return pDataGrid;
+
+	// Count the number of tracks
+	int iNumTracks=0;
+	string::size_type pos=0;
+	while(pos<sURL.size()-1)
+	{
+		pos = sURL.find('\n',pos+1);
+		iNumTracks++;
+	}
+
+	// Iterate through all the records in the database for this disc, and keep track of which ones we've added
+	int iLastTrackAdded=0;
+	DataGridCell *pCell=NULL;
+	vector<Row_Disc_Attribute *> vectRow_Disc_Attribute;
+	m_pDatabase_pluto_media->Disc_Attribute_get()->GetRows("FK_Disc=" + StringUtils::itos(EK_Disc) + " ORDER BY Track", &vectRow_Disc_Attribute);
+	for( vector<Row_Disc_Attribute *>::iterator it=vectRow_Disc_Attribute.begin();it!=vectRow_Disc_Attribute.end();++it )
+	{
+		Row_Disc_Attribute *pRow_Disc_Attribute = *it;
+		if( pRow_Disc_Attribute->Track_get()==0 )
+			continue;
+
+		// We've got a new track with attributes.  Need to create a new cell
+		int iTrack = pRow_Disc_Attribute->Track_get();
+		if( iTrack!=iLastTrackAdded )
+		{
+			// Some tracks may not have attributes.  If the database has gaps, create a blank cell, and also for this track create a cell with some generic default values
+			for(int i=iLastTrackAdded+1;i<=iTrack;++i)
+			{
+				pCell = new DataGridCell("Track " + StringUtils::itos(i),StringUtils::itos(i));
+				pDataGrid->SetData(0,i-1,pCell);
+			}
+		}
+		iLastTrackAdded=iTrack;
+		Row_Attribute *pRow_Attribute = pRow_Disc_Attribute->FK_Attribute_getrow();
+		if( !pRow_Attribute )
+			continue; // Shouldn't happen
+
+		switch(pRow_Attribute->FK_AttributeType_get())
+		{
+		case ATTRIBUTETYPE_Title_CONST:
+			pCell->m_mapAttributes["Title"]=pRow_Attribute->Name_get();
+			pCell->SetText(pRow_Attribute->Name_get());
+			break;
+		case ATTRIBUTETYPE_Performer_CONST:
+			pCell->m_mapAttributes["Performer"]=pRow_Attribute->Name_get();
+			break;
+		case ATTRIBUTETYPE_Album_CONST:
+			pCell->m_mapAttributes["Album"]=pRow_Attribute->Name_get();
+			break;
+		case ATTRIBUTETYPE_Genre_CONST:
+			pCell->m_mapAttributes["Genre"]=pRow_Attribute->Name_get();
+			break;
+		case ATTRIBUTETYPE_Studio_CONST:
+			pCell->m_mapAttributes["Studio"]=pRow_Attribute->Name_get();
+			break;
+		case ATTRIBUTETYPE_Conductor_CONST:
+			pCell->m_mapAttributes["Conductor"]=pRow_Attribute->Name_get();
+			break;
+		case ATTRIBUTETYPE_ComposerWriter_CONST:
+			pCell->m_mapAttributes["Composer"]=pRow_Attribute->Name_get();
+			break;
+		case ATTRIBUTETYPE_Release_Date_CONST:
+			pCell->m_mapAttributes["Date"]=pRow_Attribute->Name_get();
+			break;
+		};
+	}
+
+	// Add blank cells for any tracks we didn't add already with attributes
+	for(int i=iLastTrackAdded+1;i<=iNumTracks;++i)
+	{
+		pCell = new DataGridCell("Track " + StringUtils::itos(i),StringUtils::itos(i));
+		pDataGrid->SetData(0,i-1,pCell);
+	}
+
+	return pDataGrid;
 }
 
 bool Media_Plugin::CanThumbnail(int PK_AttributeType)

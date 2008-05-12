@@ -282,7 +282,7 @@ public:
 	virtual void SCREEN_CDTrackCopy(long PK_Screen, int iPK_Users, string sFormat, string sName, int iEK_Disc, int iSlot_Number, int iDriveID);
 	MediaFileBrowserOptions mediaFileBrowserOptions;  // Current sort/filter options for the media browser
 
-//	virtual void SCREEN_FileList_PlayLists(long PK_Screen);
+	virtual void SCREEN_FileList_PlayLists(long PK_Screen);
 	virtual void SCREEN_FileList_Music_Movies_Video(long PK_Screen);
 
 	bool MediaBrowsre_Intercepted(CallBackData *pData);
@@ -304,6 +304,11 @@ public:
 	bool MusicFullScreen_ObjectSelected(CallBackData *pData);
 	bool MusicFullScreen_GridRendering(CallBackData *pData);
 	bool MusicFullScreen_DatagridSelected(CallBackData *pData);
+
+	virtual void SCREEN_Current_Disc_Contents(long PK_Screen);
+	bool CurrentDisc_ObjectSelected(CallBackData *pData);
+	bool CurrentDisc_GridRendering(CallBackData *pData);
+	bool CurrentDisc_DatagridSelected(CallBackData *pData);
 
 	virtual void SCREEN_NewPhoneDetected(long PK_Screen, string sMac_address, string sDescription, int iPK_PnpQueue);
 	virtual void SCREEN_WhatModelMobileOrbiter(long PK_Screen, int iPK_Users, string sMac_address);
@@ -354,7 +359,7 @@ public:
 	void AudioServer_PopulateDatagrid();
 	bool AudioServerFileList_GridRendering(CallBackData *pData);
 	bool AudioServer_SetNowPlaying(CallBackData *pData);
-	void SetAudioServerTabs(); // disables or enables the 'disc' tab in the audio server UI depending on whether m_PK_Disc is 0 or not
+	void SetAudioServerTabs(int PK_DesignObj); // disables or enables the 'disc' tab in the audio server UI depending on whether m_PK_Disc is 0 or not
 	void ProcessMediaInsertedRemovedMessage(Message *pMessage);
 
 	virtual void SCREEN_Lights(long PK_Screen, string sLocation);

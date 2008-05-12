@@ -914,6 +914,7 @@ void Orbiter::RealRedraw( void *data )
 {
 g_PlutoProfiler->ClearResults();
 g_PlutoProfiler->Start("RealRedraw");
+	NeedToRender render( this, "RealRedraw" );  // This may cause other things to redraw too
 	m_pOrbiterRenderer->RefreshScreen(data);
 g_PlutoProfiler->Stop("RealRedraw");
 g_PlutoProfiler->DumpResults();
