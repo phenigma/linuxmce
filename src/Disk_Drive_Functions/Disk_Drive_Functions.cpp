@@ -136,35 +136,41 @@ bool Disk_Drive_Functions::internal_reset_drive(bool bFireEvent,int *iPK_MediaTy
 		case DISCTYPE_CD_AUDIO:
 			*sURL = getTracks("cdda://" + m_sDrive + "/").c_str();
 			*iPK_MediaType = MEDIATYPE_pluto_CD_CONST;
-			UpdateDiscLocation('c');  // We know it's media
+			if( !bRecheck )
+				UpdateDiscLocation('c');  // We know it's media
 			break;
 
 		case DISCTYPE_DVD_VIDEO:
 			*sURL = m_sDrive;
 			*iPK_MediaType = MEDIATYPE_pluto_DVD_CONST;
-			UpdateDiscLocation('d');  // We know it's media
+			if( !bRecheck )
+				UpdateDiscLocation('d');  // We know it's media
 			break;
 
 		case DISCTYPE_HDDVD:
 			*sURL = m_sDrive;
 			*iPK_MediaType = MEDIATYPE_pluto_HDDVD_CONST;
-			UpdateDiscLocation('H');  // We know it's media
+			if( !bRecheck )
+				UpdateDiscLocation('H');  // We know it's media
 			break;
 
 		case DISCTYPE_BD:
 			*sURL = m_sDrive;
 			*iPK_MediaType = MEDIATYPE_pluto_BD_CONST;
-			UpdateDiscLocation('R');  // We know it's media
+			if( !bRecheck )
+				UpdateDiscLocation('R');  // We know it's media
 			break;
 
 		case DISCTYPE_BLANK:
 			*iPK_MediaType = MEDIATYPE_misc_BlankMedia_CONST;
-			UpdateDiscLocation('b');  // We know it's media
+			if( !bRecheck )
+				UpdateDiscLocation('b');  // We know it's media
 			break;
 
 		case DISCTYPE_CD_VCD:
 			*iPK_MediaType = MEDIATYPE_pluto_StoredVideo_CONST;
-			UpdateDiscLocation('M');  // We know it's media
+			if( !bRecheck )
+				UpdateDiscLocation('M');  // We know it's media
 			break;
 
 		default:
@@ -175,6 +181,8 @@ bool Disk_Drive_Functions::internal_reset_drive(bool bFireEvent,int *iPK_MediaTy
 		close (fd);
 
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Disc of type %d was detected", *iPK_MediaType, sURL->c_str());
+		if( bRecheck )
+			return true; // Nothing else to do, just rechecking the disc
 
 		m_discid=time(NULL);
 		*sDisks = StringUtils::itos(m_discid);
