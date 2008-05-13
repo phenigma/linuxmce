@@ -245,7 +245,7 @@ public:
 	virtual void CMD_Lock(int iPK_Device,string sID,bool bTurn_On,string *sText,bool *bIsSuccessful,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Abort_Task(int iParameter_ID,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Load_Disk(bool bMultiple,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Get_Disk_Info(int *iPK_MediaType,int *iEK_Disc,string *sDisks,string *sURL,string *sBlock_Device,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Get_Disk_Info(string *sText,int *iPK_MediaType,int *iEK_Disc,string *sDisks,string *sURL,string *sBlock_Device,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Get_Ripping_Status(string *sStatus,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
@@ -1079,16 +1079,18 @@ public:
 				case COMMAND_Get_Disk_Info_CONST:
 					{
 						string sCMD_Result="OK";
+						string sText=pMessage->m_mapParameters[COMMANDPARAMETER_Text_CONST];
 						int iPK_MediaType=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_MediaType_CONST].c_str());
 						int iEK_Disc=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_EK_Disc_CONST].c_str());
 						string sDisks=pMessage->m_mapParameters[COMMANDPARAMETER_Disks_CONST];
 						string sURL=pMessage->m_mapParameters[COMMANDPARAMETER_URL_CONST];
 						string sBlock_Device=pMessage->m_mapParameters[COMMANDPARAMETER_Block_Device_CONST];
-						CMD_Get_Disk_Info(&iPK_MediaType,&iEK_Disc,&sDisks,&sURL,&sBlock_Device,sCMD_Result,pMessage);
+						CMD_Get_Disk_Info(&sText,&iPK_MediaType,&iEK_Disc,&sDisks,&sURL,&sBlock_Device,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+						pMessageOut->m_mapParameters[COMMANDPARAMETER_Text_CONST]=sText;
 						pMessageOut->m_mapParameters[COMMANDPARAMETER_PK_MediaType_CONST]=StringUtils::itos(iPK_MediaType);
 						pMessageOut->m_mapParameters[COMMANDPARAMETER_EK_Disc_CONST]=StringUtils::itos(iEK_Disc);
 						pMessageOut->m_mapParameters[COMMANDPARAMETER_Disks_CONST]=sDisks;
@@ -1106,7 +1108,7 @@ public:
 						{
 							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Get_Disk_Info(&iPK_MediaType,&iEK_Disc,&sDisks,&sURL,&sBlock_Device,sCMD_Result,pMessage);
+								CMD_Get_Disk_Info(&sText,&iPK_MediaType,&iEK_Disc,&sDisks,&sURL,&sBlock_Device,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

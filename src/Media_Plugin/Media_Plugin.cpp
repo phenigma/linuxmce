@@ -4006,6 +4006,9 @@ void Media_Plugin::CMD_Rip_Disk(int iPK_Device,string sFilename,int iPK_Users,st
 			pRow_DiscLocation=vectRow_DiscLocation[0];
 	}
 
+	if( pRow_DiscLocation )
+		pRow_DiscLocation->Reload();
+
 	// Figure out what disc to rip
 	Row_Disc *pRow_Disc = m_pDatabase_pluto_media->Disc_get()->GetRow(iEK_Disc);
 	if( !pRow_Disc && pRow_DiscLocation )
@@ -4071,6 +4074,7 @@ void Media_Plugin::CMD_Rip_Disk(int iPK_Device,string sFilename,int iPK_Users,st
 		for(vector<Row_DiscLocation *>::iterator it=vectRow_DiscLocation.begin();it!=vectRow_DiscLocation.end();++it)
 		{
 			Row_DiscLocation *p = *it;
+			p->Reload();
 			pDevice_Disk = m_pRouter->m_mapDeviceData_Router_Find( p->EK_Device_get() );
 			if( pDevice_Disk )
 			{
@@ -4131,6 +4135,24 @@ void Media_Plugin::CMD_Rip_Disk(int iPK_Device,string sFilename,int iPK_Users,st
 		sFormat = DATA_Get_Type();
 	if( sFormat.size()==0 )
 		sFormat = "flac";
+
+	// See if we have a valid filename and path
+	if( sDirectory.empty() || sFilename.empty() )
+	{
+		string sFilename2, sPath2, sDirectory2, sStorage_DeviceName;
+		bool bUseDefault;
+		int iDriveID;
+		CMD_Get_Default_Ripping_Info(pRow_Disc ? pRow_Disc->PK_Disc_get() : 0, &sFilename2, &bUseDefault, &sPath2, &iDriveID, &sDirectory2, &sStorage_DeviceName);
+		if( sDirectory.empty() && sPath2.empty()==false && sDirectory2.empty()==false )
+			sDirectory = sPath2 + "public/data/" + sDirectory2;
+		if( sDirectory.empty() )
+			sDirectory = "/home/public/data/___audio___or___video___/";
+		if( sFilename.empty() )
+			sFilename = sFilename2;
+		if( sFilename.empty() )
+			sFilename = "Unknown Disc";
+	}
+
 	string sResponse;
 	DCE::CMD_Rip_Disk cmdRipDisk(pMessage->m_dwPK_Device_From, pDevice_Disk->m_dwPK_Device, pDevice_Disk->m_dwPK_Device, sFilename, iPK_Users, 
 		sFormat, sTracks, pRow_Disc ? pRow_Disc->PK_Disc_get() : 0, iSlot_Number, iDriveID, sDirectory);  // Send it from the Orbiter so disk drive knows who requested it
@@ -6093,7 +6115,10 @@ void Media_Plugin::CMD_Get_Attributes_For_Media(string sFilename,string sPK_Ente
 			pRow_DiscLocation = m_pDatabase_pluto_media->DiscLocation_get()->GetRow(PK_Device_Disk_Drive,0);
 		Row_Disc *pRow_Disc = NULL;
 		if( pRow_DiscLocation )
+		{
+			pRow_DiscLocation->Reload();
 			pRow_Disc = pRow_DiscLocation->FK_Disc_getrow();
+		}
 
 		if( pRow_Disc )
 		{
@@ -6945,6 +6970,7 @@ bool Media_Plugin::AssignDriveForDisc(MediaStream *pMediaStream,MediaFile *pMedi
 			for(vector<Row_DiscLocation *>::iterator it=vectRow_DiscLocation.begin();it!=vectRow_DiscLocation.end();++it)
 			{
 				Row_DiscLocation *pRow_DiscLocation = *it;
+				pRow_DiscLocation->Reload();
 				DeviceData_Router *pDevice_Drive = m_pRouter->m_mapDeviceData_Router_Find(pRow_DiscLocation->EK_Device_get());
 				if( pDevice_Drive )
 				{
@@ -7016,8 +7042,8 @@ void Media_Plugin::WaitingForJukebox( MediaStream *pMediaStream )
 	{
 		// It's possible we were playing a slot without knowing what type of disc was in it.  Fill out the missing info
 		int iPK_MediaType=0,iEK_Disc=0;
-		string sDisks,sURL,sBlock_Device;
-		DCE::CMD_Get_Disk_Info CMD_Get_Disk_Info(m_dwPK_Device,pMediaFile->m_dwPK_Device_Disk_Drive,&iPK_MediaType,&iEK_Disc,&sDisks,&sURL,&sBlock_Device);
+		string sRippingInfo,sDisks,sURL,sBlock_Device;
+		DCE::CMD_Get_Disk_Info CMD_Get_Disk_Info(m_dwPK_Device,pMediaFile->m_dwPK_Device_Disk_Drive,&sRippingInfo,&iPK_MediaType,&iEK_Disc,&sDisks,&sURL,&sBlock_Device);
 		if( SendCommand(CMD_Get_Disk_Info) )
 		{
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::WaitingForJukebox stream %d.  Disc loaded in drive.  Now ready.  Got MT %d disks %s url %s block %s",
@@ -7143,6 +7169,9 @@ void Media_Plugin::TransformFilenameToDeque(string sFilename,deque<MediaFile *> 
 		if( PK_Device_Disk_Drive )
 			pRow_DiscLocation = m_pDatabase_pluto_media->DiscLocation_get()->GetRow(PK_Device_Disk_Drive,0);
 
+		if( pRow_DiscLocation )
+			pRow_DiscLocation->Reload();
+
 		int PK_MediaType = pRow_DiscLocation ? m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetMediaType(pRow_DiscLocation) : 0;
 
 		pos = sFilename.find('.');
@@ -7159,8 +7188,8 @@ void Media_Plugin::TransformFilenameToDeque(string sFilename,deque<MediaFile *> 
 		else  // It's a cd.  Need to add tracks
 		{
 			int iEK_Disc;
-			string sDisks,sURL,sBlock_Device;
-			DCE::CMD_Get_Disk_Info CMD_Get_Disk_Info(m_dwPK_Device,PK_Device_Disk_Drive,&PK_MediaType,&iEK_Disc,&sDisks,&sURL,&sBlock_Device);
+			string sRippingInfo,sDisks,sURL,sBlock_Device;
+			DCE::CMD_Get_Disk_Info CMD_Get_Disk_Info(m_dwPK_Device,PK_Device_Disk_Drive,&sRippingInfo,&PK_MediaType,&iEK_Disc,&sDisks,&sURL,&sBlock_Device);
 			if( SendCommand(CMD_Get_Disk_Info) )
 			{
 				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::TransformFilenameToDeque Got cd info MT %d disks %s url %s block %s",

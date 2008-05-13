@@ -637,6 +637,8 @@ void Disk_Drive::CMD_Abort_Task(int iParameter_ID,string &sCMD_Result,Message *p
 
 	/** @brief COMMAND: #914 - Get Disk Info */
 	/** Retrieve the information on the current disk */
+		/** @param #9 Text */
+			/** If there is ripping going on, this will be non-empty and report the status of the ripping */
 		/** @param #29 PK_MediaType */
 			/** The type of media */
 		/** @param #131 EK_Disc */
@@ -648,11 +650,25 @@ void Disk_Drive::CMD_Abort_Task(int iParameter_ID,string &sCMD_Result,Message *p
 		/** @param #223 Block Device */
 			/** The block device for the drive */
 
-void Disk_Drive::CMD_Get_Disk_Info(int *iPK_MediaType,int *iEK_Disc,string *sDisks,string *sURL,string *sBlock_Device,string &sCMD_Result,Message *pMessage)
+void Disk_Drive::CMD_Get_Disk_Info(string *sText,int *iPK_MediaType,int *iEK_Disc,string *sDisks,string *sURL,string *sBlock_Device,string &sCMD_Result,Message *pMessage)
 //<-dceag-c914-e->
 {
 	m_pDisk_Drive_Functions->internal_reset_drive(false,iPK_MediaType,sDisks,sURL,sBlock_Device,true);
 	*iEK_Disc=m_pDisk_Drive_Functions->m_PK_Disc_get();
+
+	// See if we have any pending ripping tasks
+	PLUTO_SAFETY_LOCK(jm,*m_pJobHandler->m_ThreadMutex_get());
+	const ListJob *plistJob = m_pJobHandler->m_listJob_get();
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive::CMD_Get_Disk_Info %d jobs", plistJob->size());
+	for(ListJob::const_iterator it=plistJob->begin();it!=plistJob->end();++it)
+	{
+		Job *pJob = *it;
+		if( pJob->GetType()=="RipJob" )
+		{
+			RipJob *pRipJob = (RipJob *) pJob;
+			*sText = (pRipJob->m_bHasError ? "**WITH ERRORS** " : "no errors ") + pRipJob->m_sDirectory + "/" + pRipJob->m_sFileName;
+		}
+	}
 }
 
 void Disk_Drive::VerifyDriveIsNotEmbedded(string &sDrive)

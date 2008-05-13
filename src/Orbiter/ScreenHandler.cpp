@@ -92,8 +92,8 @@ void ScreenHandler::Initialize()
 				m_pOrbiter->RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter::MediaInsertedMsgInterceptor),pDevice_Identifier->m_dwPK_Device,0,0,0,MESSAGETYPE_COMMAND,COMMAND_Media_Identified_CONST, false);
 		}
 		int PK_MediaType=0,iEK_Disc=0;
-		string Disks,URL,BlockDevice;
-		DCE::CMD_Get_Disk_Info CMD_Get_Disk_Info(m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_pLocationInfo_Initial->m_dwPK_Device_DiscDrive, &PK_MediaType, &iEK_Disc, &Disks, &URL, &BlockDevice);
+		string sRippingInfo,Disks,URL,BlockDevice;
+		DCE::CMD_Get_Disk_Info CMD_Get_Disk_Info(m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_pLocationInfo_Initial->m_dwPK_Device_DiscDrive, &sRippingInfo, &PK_MediaType, &iEK_Disc, &Disks, &URL, &BlockDevice);
 		if( m_pOrbiter->SendCommand(CMD_Get_Disk_Info) )
 		{
 			m_bDiscInserted = PK_MediaType>0;
@@ -2640,7 +2640,13 @@ bool ScreenHandler::CurrentDisc_ObjectSelected(CallBackData *pData)
 			m_pOrbiter->SendCommand(CMD_MH_Play_Media);
 		}
 	}
-	else if( pObjectInfoData->m_pObj->m_iBaseObjectID==5636 && m_pOrbiter->m_pLocationInfo )
+	else if( pObjectInfoData->m_pObj->m_iBaseObjectID==5643 && m_pOrbiter->m_pLocationInfo_Initial && m_pOrbiter->m_pLocationInfo_Initial->m_dwPK_Device_DiscDrive )
+	{
+		DCE::CMD_Rip_Disk CMD_Rip_Disk(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,
+			m_pOrbiter->m_pLocationInfo_Initial->m_dwPK_Device_DiscDrive,"",0,"flac","A",0,0,0,"");
+		m_pOrbiter->SendCommand(CMD_Rip_Disk);
+	}
+	else if( pObjectInfoData->m_pObj->m_iBaseObjectID==5636 && m_pOrbiter->m_pLocationInfo ) // repeat
 	{
 		switch( mediaFileBrowserOptions.m_MediaRepeatOptions )
 		{

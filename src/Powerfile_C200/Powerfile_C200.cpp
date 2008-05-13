@@ -1227,6 +1227,8 @@ void Powerfile_C200::CMD_Load_Disk(bool bMultiple,string &sCMD_Result,Message *p
 
 	/** @brief COMMAND: #914 - Get Disk Info */
 	/** Retrieve the information on the current disk */
+		/** @param #9 Text */
+			/** If there is ripping going on, this will be non-empty and report the status of the ripping */
 		/** @param #29 PK_MediaType */
 			/** The type of media */
 		/** @param #131 EK_Disc */
@@ -1238,7 +1240,7 @@ void Powerfile_C200::CMD_Load_Disk(bool bMultiple,string &sCMD_Result,Message *p
 		/** @param #223 Block Device */
 			/** The block device for the drive */
 
-void Powerfile_C200::CMD_Get_Disk_Info(int *iPK_MediaType,int *iEK_Disc,string *sDisks,string *sURL,string *sBlock_Device,string &sCMD_Result,Message *pMessage)
+void Powerfile_C200::CMD_Get_Disk_Info(string *sText,int *iPK_MediaType,int *iEK_Disc,string *sDisks,string *sURL,string *sBlock_Device,string &sCMD_Result,Message *pMessage)
 //<-dceag-c914-e->
 {
 	// Should be sent to the children instead

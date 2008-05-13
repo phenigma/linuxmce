@@ -24717,56 +24717,60 @@ namespace DCE
 			COMMANDPARAMETER_Multiple_CONST, (bMultiple ? "1" : "0")); }
 	};
 	class RESP_Get_Disk_Info : public PreformedCommandResponse {
-		int *m_iPK_MediaType;int *m_iEK_Disc;string *m_sDisks;string *m_sURL;string *m_sBlock_Device;
+		string *m_sText;int *m_iPK_MediaType;int *m_iEK_Disc;string *m_sDisks;string *m_sURL;string *m_sBlock_Device;
 	public:
-		RESP_Get_Disk_Info(int *iPK_MediaType,int *iEK_Disc,string *sDisks,string *sURL,string *sBlock_Device) { 
-		m_iPK_MediaType=iPK_MediaType; m_iEK_Disc=iEK_Disc; m_sDisks=sDisks; m_sURL=sURL; m_sBlock_Device=sBlock_Device; }
+		RESP_Get_Disk_Info(string *sText,int *iPK_MediaType,int *iEK_Disc,string *sDisks,string *sURL,string *sBlock_Device) { 
+		m_sText=sText; m_iPK_MediaType=iPK_MediaType; m_iEK_Disc=iEK_Disc; m_sDisks=sDisks; m_sURL=sURL; m_sBlock_Device=sBlock_Device; }
 		void ParseResponse(Message *pMessage) {
-			*m_iPK_MediaType=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_MediaType_CONST].c_str()); *m_iEK_Disc=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_EK_Disc_CONST].c_str()); *m_sDisks=pMessage->m_mapParameters[COMMANDPARAMETER_Disks_CONST]; *m_sURL=pMessage->m_mapParameters[COMMANDPARAMETER_URL_CONST]; *m_sBlock_Device=pMessage->m_mapParameters[COMMANDPARAMETER_Block_Device_CONST]; };
+			*m_sText=pMessage->m_mapParameters[COMMANDPARAMETER_Text_CONST]; *m_iPK_MediaType=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_MediaType_CONST].c_str()); *m_iEK_Disc=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_EK_Disc_CONST].c_str()); *m_sDisks=pMessage->m_mapParameters[COMMANDPARAMETER_Disks_CONST]; *m_sURL=pMessage->m_mapParameters[COMMANDPARAMETER_URL_CONST]; *m_sBlock_Device=pMessage->m_mapParameters[COMMANDPARAMETER_Block_Device_CONST]; };
 	};
 	class CMD_Get_Disk_Info : public PreformedCommand {
 	public:
-		CMD_Get_Disk_Info(long DeviceIDFrom, long DeviceIDTo,int *iPK_MediaType,int *iEK_Disc,string *sDisks,string *sURL,string *sBlock_Device) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
+		CMD_Get_Disk_Info(long DeviceIDFrom, long DeviceIDTo,string *sText,int *iPK_MediaType,int *iEK_Disc,string *sDisks,string *sURL,string *sBlock_Device) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
 			COMMAND_Get_Disk_Info_CONST,
-			5 /* number of parameters */,
+			6 /* number of parameters */,
+			COMMANDPARAMETER_Text_CONST, (*sText).c_str(),
 			COMMANDPARAMETER_PK_MediaType_CONST, StringUtils::itos(*iPK_MediaType).c_str(),
 			COMMANDPARAMETER_EK_Disc_CONST, StringUtils::itos(*iEK_Disc).c_str(),
 			COMMANDPARAMETER_Disks_CONST, (*sDisks).c_str(),
 			COMMANDPARAMETER_URL_CONST, (*sURL).c_str(),
-			COMMANDPARAMETER_Block_Device_CONST, (*sBlock_Device).c_str());		m_pcResponse = new RESP_Get_Disk_Info(iPK_MediaType,iEK_Disc,sDisks,sURL,sBlock_Device); }
+			COMMANDPARAMETER_Block_Device_CONST, (*sBlock_Device).c_str());		m_pcResponse = new RESP_Get_Disk_Info(sText,iPK_MediaType,iEK_Disc,sDisks,sURL,sBlock_Device); }
 	};
 	class CMD_Get_Disk_Info_DL : public PreformedCommand {
 	public:
-		CMD_Get_Disk_Info_DL(long DeviceIDFrom, string DeviceIDTo,int *iPK_MediaType,int *iEK_Disc,string *sDisks,string *sURL,string *sBlock_Device) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+		CMD_Get_Disk_Info_DL(long DeviceIDFrom, string DeviceIDTo,string *sText,int *iPK_MediaType,int *iEK_Disc,string *sDisks,string *sURL,string *sBlock_Device) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
 			COMMAND_Get_Disk_Info_CONST,
-			5 /* number of parameters */,
+			6 /* number of parameters */,
+			COMMANDPARAMETER_Text_CONST, (*sText).c_str(),
 			COMMANDPARAMETER_PK_MediaType_CONST, StringUtils::itos(*iPK_MediaType).c_str(),
 			COMMANDPARAMETER_EK_Disc_CONST, StringUtils::itos(*iEK_Disc).c_str(),
 			COMMANDPARAMETER_Disks_CONST, (*sDisks).c_str(),
 			COMMANDPARAMETER_URL_CONST, (*sURL).c_str(),
-			COMMANDPARAMETER_Block_Device_CONST, (*sBlock_Device).c_str());		m_pcResponse = new RESP_Get_Disk_Info(iPK_MediaType,iEK_Disc,sDisks,sURL,sBlock_Device); }
+			COMMANDPARAMETER_Block_Device_CONST, (*sBlock_Device).c_str());		m_pcResponse = new RESP_Get_Disk_Info(sText,iPK_MediaType,iEK_Disc,sDisks,sURL,sBlock_Device); }
 	};
 	class CMD_Get_Disk_Info_DT : public PreformedCommand {
 	public:
-		CMD_Get_Disk_Info_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int *iPK_MediaType,int *iEK_Disc,string *sDisks,string *sURL,string *sBlock_Device) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+		CMD_Get_Disk_Info_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string *sText,int *iPK_MediaType,int *iEK_Disc,string *sDisks,string *sURL,string *sBlock_Device) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
 			COMMAND_Get_Disk_Info_CONST,
-			5 /* number of parameters */,
+			6 /* number of parameters */,
+			COMMANDPARAMETER_Text_CONST, (*sText).c_str(),
 			COMMANDPARAMETER_PK_MediaType_CONST, StringUtils::itos(*iPK_MediaType).c_str(),
 			COMMANDPARAMETER_EK_Disc_CONST, StringUtils::itos(*iEK_Disc).c_str(),
 			COMMANDPARAMETER_Disks_CONST, (*sDisks).c_str(),
 			COMMANDPARAMETER_URL_CONST, (*sURL).c_str(),
-			COMMANDPARAMETER_Block_Device_CONST, (*sBlock_Device).c_str());		m_pcResponse = new RESP_Get_Disk_Info(iPK_MediaType,iEK_Disc,sDisks,sURL,sBlock_Device); }
+			COMMANDPARAMETER_Block_Device_CONST, (*sBlock_Device).c_str());		m_pcResponse = new RESP_Get_Disk_Info(sText,iPK_MediaType,iEK_Disc,sDisks,sURL,sBlock_Device); }
 	};
 	class CMD_Get_Disk_Info_Cat : public PreformedCommand {
 	public:
-		CMD_Get_Disk_Info_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int *iPK_MediaType,int *iEK_Disc,string *sDisks,string *sURL,string *sBlock_Device) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+		CMD_Get_Disk_Info_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string *sText,int *iPK_MediaType,int *iEK_Disc,string *sDisks,string *sURL,string *sBlock_Device) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
 			COMMAND_Get_Disk_Info_CONST,
-			5 /* number of parameters */,
+			6 /* number of parameters */,
+			COMMANDPARAMETER_Text_CONST, (*sText).c_str(),
 			COMMANDPARAMETER_PK_MediaType_CONST, StringUtils::itos(*iPK_MediaType).c_str(),
 			COMMANDPARAMETER_EK_Disc_CONST, StringUtils::itos(*iEK_Disc).c_str(),
 			COMMANDPARAMETER_Disks_CONST, (*sDisks).c_str(),
 			COMMANDPARAMETER_URL_CONST, (*sURL).c_str(),
-			COMMANDPARAMETER_Block_Device_CONST, (*sBlock_Device).c_str());		m_pcResponse = new RESP_Get_Disk_Info(iPK_MediaType,iEK_Disc,sDisks,sURL,sBlock_Device); }
+			COMMANDPARAMETER_Block_Device_CONST, (*sBlock_Device).c_str());		m_pcResponse = new RESP_Get_Disk_Info(sText,iPK_MediaType,iEK_Disc,sDisks,sURL,sBlock_Device); }
 	};
 	class CMD_NOREP_Get_Disk_Info : public PreformedCommand {
 	public:

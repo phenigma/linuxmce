@@ -2545,9 +2545,9 @@ class DataGridTable *Media_Plugin::TracksOnDisc( string GridID, string Parms, vo
 		return pDataGrid;
 
 	int PK_MediaType,EK_Disc;
-	string Disks,sURL,sBlock_Device;
+	string sRippingInfo,Disks,sURL,sBlock_Device;
 
-	DCE::CMD_Get_Disk_Info CMD_Get_Disk_Info(m_dwPK_Device,pDevice_Disc->m_dwPK_Device,&PK_MediaType,&EK_Disc,&Disks,&sURL,&sBlock_Device);
+	DCE::CMD_Get_Disk_Info CMD_Get_Disk_Info(m_dwPK_Device,pDevice_Disc->m_dwPK_Device,&sRippingInfo,&PK_MediaType,&EK_Disc,&Disks,&sURL,&sBlock_Device);
 	if( !SendCommand(CMD_Get_Disk_Info) || PK_MediaType==0 )
 		return pDataGrid;
 

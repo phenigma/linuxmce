@@ -108,7 +108,7 @@ namespace nsJobHandler
         */
 		const ListJob *m_listJob_get() { return &m_listJob; }
 
-		bool ReportPendingTasks(PendingTaskList *pPendingTaskList);
+		bool ReportPendingTasks(PendingTaskList *pPendingTaskList,string sType="");
 	};
 };
 

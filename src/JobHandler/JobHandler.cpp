@@ -230,13 +230,15 @@ Task *JobHandler::FindTask(int jobID,int taskID)
 	return pJob->FindTask(taskID);
 }
 
-bool JobHandler::ReportPendingTasks(PendingTaskList *pPendingTaskList)
+bool JobHandler::ReportPendingTasks(PendingTaskList *pPendingTaskList,string sType)
 {
 	PLUTO_SAFETY_LOCK(jm,m_ThreadMutex);
 	bool bPendingTasks=false;
 	for(list<class Job *>::iterator it=m_listJob.begin();it!=m_listJob.end();++it)
 	{
 		Job *pJob = *it;
+		if( sType.empty()==false && pJob->GetType()!=sType )
+			continue; // Skip this.  The user only cares about a specific type of job
 		bPendingTasks |= pJob->ReportPendingTasks(pPendingTaskList);
 	}
 
