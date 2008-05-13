@@ -2256,6 +2256,18 @@ bool ScreenHandler::AudioServer_SetNowPlaying(CallBackData *pData)
 			DesignObj_DataGrid *pObj_Grid = (DesignObj_DataGrid *) m_pOrbiter->FindObject( TOSTRING(5555) ".0.0." TOSTRING(5639) );
 			m_pOrbiter->Renderer()->RenderObjectAsync(pObj_Grid);
 		}
+		else if( pObj->m_iBaseObjectID==5551 )
+		{
+			if( m_pOrbiter->m_iPK_MediaType==0 )
+			{
+				m_pOrbiter->GotoMainMenu();
+			}
+			else
+			{
+				DesignObj_DataGrid *pObj_Grid = (DesignObj_DataGrid *) m_pOrbiter->FindObject( TOSTRING(5551) ".0.0." TOSTRING(5603) );
+				m_pOrbiter->Renderer()->RenderObjectAsync(pObj_Grid);
+			}
+		}
 		SetAudioServerTabs(pObj->m_iBaseObjectID);
 	}
 	return false;
@@ -2349,7 +2361,7 @@ void ScreenHandler::ProcessMediaInsertedRemovedMessage(Message *pMessage)
 		}
 		else if( pMessage->m_dwID==COMMAND_Media_Identified_CONST )
 		{
-			if( m_pOrbiter->m_pScreenHistory_Current && m_pOrbiter->m_pScreenHistory_Current->GetObj() && m_pOrbiter->m_pScreenHistory_Current->GetObj()->m_iBaseObjectID==5589 )
+			if( m_pOrbiter->m_pScreenHistory_Current && m_pOrbiter->m_pScreenHistory_Current->GetObj() && m_pOrbiter->m_pScreenHistory_Current->GetObj()->m_iBaseObjectID==5555 )
 			{
 				DCE::CMD_Refresh CMD_Refresh(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,"*");
 				m_pOrbiter->SendCommand(CMD_Refresh);
@@ -2527,7 +2539,7 @@ bool ScreenHandler::CurrentDisc_GridRendering(CallBackData *pData)
 		m_pOrbiter->SendCommand(CMD_Get_Attributes_For_Media);
 	}
 
-	map<int,pair<int,string> > mapAlbumAttributes; // These are the attributes for the whole album
+	map<int,string > mapAlbumAttributes; // These are the attributes for the whole album
 
 	// We'll show info on the cell that is selected, if one is, or if not the one that's playing
 	bool bUpdatedPic=false;
@@ -2554,9 +2566,8 @@ bool ScreenHandler::CurrentDisc_GridRendering(CallBackData *pData)
 			string::size_type pos_comma = sToken.find(',');
 			if( pos_comma!=string::npos )
 			{
-				int PK_Attribute = atoi( sToken.substr(2).c_str() );
 				int PK_AttributeType = atoi( sToken.substr(pos_comma+1).c_str() );
-				mapAlbumAttributes[PK_AttributeType] = make_pair<int,string> (PK_Attribute,sName);
+				mapAlbumAttributes[PK_AttributeType] = sName;
 			}
 		}
 	}
@@ -2568,13 +2579,13 @@ bool ScreenHandler::CurrentDisc_GridRendering(CallBackData *pData)
 	if( !pObj )
 		return false;
 	m_pOrbiter->CMD_Set_Text(pObj->m_ObjectID,pCell ? pCell->m_mapAttributes_Find("Title") : "",2046);
-	m_pOrbiter->CMD_Set_Text(pObj->m_ObjectID,pCell ? pCell->m_mapAttributes_Find("Performer") : "",2047);
-	m_pOrbiter->CMD_Set_Text(pObj->m_ObjectID,pCell ? pCell->m_mapAttributes_Find("Album") : "",2048);
-	m_pOrbiter->CMD_Set_Text(pObj->m_ObjectID,pCell ? pCell->m_mapAttributes_Find("Genre") : "",2049);
-	m_pOrbiter->CMD_Set_Text(pObj->m_ObjectID,pCell ? pCell->m_mapAttributes_Find("Studio") : "",2050);
+	m_pOrbiter->CMD_Set_Text(pObj->m_ObjectID,pCell && pCell->m_mapAttributes.find("Performer")!=pCell->m_mapAttributes.end() ? pCell->m_mapAttributes_Find("Performer") : mapAlbumAttributes[ATTRIBUTETYPE_Performer_CONST],2047);
+	m_pOrbiter->CMD_Set_Text(pObj->m_ObjectID,pCell && pCell->m_mapAttributes.find("Album")!=pCell->m_mapAttributes.end() ? pCell->m_mapAttributes_Find("Album") : mapAlbumAttributes[ATTRIBUTETYPE_Album_CONST],2048);
+	m_pOrbiter->CMD_Set_Text(pObj->m_ObjectID,pCell && pCell->m_mapAttributes.find("Genre")!=pCell->m_mapAttributes.end() ? pCell->m_mapAttributes_Find("Genre") : mapAlbumAttributes[ATTRIBUTETYPE_Genre_CONST],2049);
+	m_pOrbiter->CMD_Set_Text(pObj->m_ObjectID,pCell && pCell->m_mapAttributes.find("Studio")!=pCell->m_mapAttributes.end() ? pCell->m_mapAttributes_Find("Studio") : mapAlbumAttributes[ATTRIBUTETYPE_Studio_CONST],2050);
 	m_pOrbiter->CMD_Set_Text(pObj->m_ObjectID,pCell && pCell->GetValue() ? pCell->GetValue() : "",2051);
 //		m_pOrbiter->CMD_Set_Text(pObj->m_ObjectID,pCell->m_mapAttributes_Find("Composer"),PK_Text);
-	m_pOrbiter->CMD_Set_Text(pObj->m_ObjectID,pCell ? pCell->m_mapAttributes_Find("Date") : "",2052);
+	m_pOrbiter->CMD_Set_Text(pObj->m_ObjectID,pCell && pCell->m_mapAttributes.find("Date")!=pCell->m_mapAttributes.end() ? pCell->m_mapAttributes_Find("Date") : mapAlbumAttributes[ATTRIBUTETYPE_Release_Date_CONST],2052);
 	m_pOrbiter->Renderer()->RenderObjectAsync(pObj);
 
 	bool bHidden = pDatagridAcquiredBackData->m_pObj->m_iHighlightedRow_get()==-1;

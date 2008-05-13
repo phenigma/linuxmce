@@ -1039,12 +1039,23 @@ bool Media_Plugin::PlaybackCompleted( class Socket *pSocket,class Message *pMess
 //         return false;
 //     }
 
+	// Find the repeat option.  Since this can be playing in multiple entertainment areas we have to assume repeat none unless one has repeat track/queueu specified
+	MediaRepeatOptions _MediaRepeatOptions = repeat_None;  // Set this to the least restrictive
+	for( map<int, class EntertainArea *>::iterator it=pMediaStream->m_mapEntertainArea.begin();it!=pMediaStream->m_mapEntertainArea.end();++it )
+	{
+		EntertainArea *pEntertainArea = it->second;
+		if( pEntertainArea->m_MediaRepeatOptions==repeat_Track )
+			_MediaRepeatOptions = repeat_Track;  // None takes precedent
+		else if( pEntertainArea->m_MediaRepeatOptions==repeat_Queue && _MediaRepeatOptions!=repeat_Track )
+			_MediaRepeatOptions = repeat_Queue;  // None takes precedent
+	}
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Media_Plugin::PlaybackCompleted() Checking conditions: canPlayMore: %d, shouldResume %d parked: %d  # of eas %d", pMediaStream->CanPlayMore(), pMediaStream->m_bResume, (int) pMediaStream->m_tTime_Parked, (int) pMediaStream->m_mapEntertainArea.size() );
-    if ( !bWithErrors && pMediaStream->CanPlayMore() && !pMediaStream->m_bResume && !pMediaStream->m_tTime_Parked )
+    if ( !bWithErrors && pMediaStream->CanPlayMore() && (_MediaRepeatOptions!=repeat_None || pMediaStream->m_iDequeMediaFile_Pos < (pMediaStream->m_dequeMediaFile.size() - 1)) && !pMediaStream->m_bResume && !pMediaStream->m_tTime_Parked )
     {
 		ReleaseDriveLock(pMediaStream);
 
-        pMediaStream->ChangePositionInPlaylist(1);
+		if( _MediaRepeatOptions != repeat_Track )
+			pMediaStream->ChangePositionInPlaylist(1);
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Calling Start Media from playback completed");
 		string sError;
         pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StartMedia(pMediaStream,sError);
@@ -1391,11 +1402,13 @@ dequeMediaFile->size() ? (*dequeMediaFile)[0]->m_sPath.c_str() : "NO",
     {
         pMediaStream = pMediaStream_AllEAsPlaying;
         pMediaStream->m_dequeMediaFile += *dequeMediaFile;
-        pMediaStream->m_iDequeMediaFile_Pos = pMediaStream->m_dequeMediaFile.size()-1;
+		if( bQueue==false )  // If we're supposed to just queue the file then don't change the position, and leave bQueue==true so we won't play i
+			pMediaStream->m_iDequeMediaFile_Pos = pMediaStream->m_dequeMediaFile.size()-1;
 	    pMediaStream->m_iPK_MediaType = pMediaHandlerInfo->m_PK_MediaType;
     }
     else
     {
+		bQueue=false; // Set this to false since we can't queue the file as requested and will start playing it
 		if ( (pMediaStream = pMediaHandlerInfo->m_pMediaHandlerBase->CreateMediaStream(pMediaHandlerInfo,iPK_MediaProvider,vectEntertainArea,pMediaDevice,(pOH_Orbiter ? pOH_Orbiter->PK_Users_get() : 0),dequeMediaFile,++m_iStreamID)) == NULL )
 		{
 			if( PK_Device_Orbiter )
@@ -1518,7 +1531,7 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream, bool bQueue,map<int, pa
 
 		pEntertainArea->m_pMediaStream=pMediaStream;
 		pEntertainArea->m_pMediaDevice_OutputZone=NULL;
-		if( pMediaStream->m_bBypassEvent==false )
+		if( bQueue==false && pMediaStream->m_bBypassEvent==false )  // Don't fire the events if we just queued the file since we're already going
 		{
 			if( pMediaStream->ContainsVideo() )
 				EVENT_Watching_Media(pEntertainArea->m_pRoom->m_dwPK_Room);
@@ -1592,7 +1605,7 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream, bool bQueue)
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Ready to call plugin's startmedia");
 	int iPK_Orbiter_PromptingToResume = 0;	string::size_type queue_pos;
-	if( pMediaStream->m_sStartPosition.size()==0 && 
+	if( bQueue==false && pMediaStream->m_sStartPosition.size()==0 && 
 		(pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_StoredVideo_CONST || pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_DVD_CONST || pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_HDDVD_CONST || pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_BD_CONST ) &&  // Don't bother asking for music
 			(pMediaStream->m_iDequeMediaFile_Pos<0 || pMediaStream->m_iDequeMediaFile_Pos>=pMediaStream->m_dequeMediaFile.size() ||
 			pMediaStream->GetCurrentMediaFile()->m_sStartPosition.size()==0) )
@@ -1607,7 +1620,7 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream, bool bQueue)
 	m_pMediaAttributes->LoadStreamAttributes(pMediaStream);
 
 	string sError;
-	if( pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StartMedia(pMediaStream,sError) )
+	if( bQueue==true || pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StartMedia(pMediaStream,sError) )  // Don't call StartMedia if we're just queueing the file
 	{
 		int StreamID = pMediaStream->m_iStreamID_get( );
 
@@ -1635,7 +1648,7 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream, bool bQueue)
 			{
 				pOldStreamInfo = (*itFind).second;
 			}
-			if( !pOldStreamInfo || !pOldStreamInfo->m_bNoChanges || pMediaStream->m_bDontSetupAV==true )
+			if( (!pOldStreamInfo || !pOldStreamInfo->m_bNoChanges) && pMediaStream->m_bDontSetupAV==false && bQueue==false  )  // Don't setup the av devices if told not to or if we're queueing
 			{
 				// We need to get the current rendering devices so that we can send on/off commands
 				map<int,MediaDevice *> mapMediaDevice_Current;
@@ -1659,9 +1672,10 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream, bool bQueue)
 		}
 
 		// If this is just an announcement don't bother sending the orbiters to the remote screen
-		if( pMediaStream->m_bResume )
+		if( pMediaStream->m_bResume || bQueue==true )
 		{
-			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Media_Plugin::StartMedia() done - not sending to remote since stream is marked resumte");
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Media_Plugin::StartMedia() done - not sending to remote since stream is marked resume %d or queue %d", 
+				(int) pMediaStream->m_bResume, (int) bQueue);
 			return true;
 		}
 
