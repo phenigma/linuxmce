@@ -5,8 +5,12 @@ VIP = ../VIPShared
 GDEV = ./Gen_Devices
 CXXFLAGS = -fPIC -Wall -g -ggdb3 -D_GNU_SOURCE
 CPPFLAGS = -I./ -I../../ -I../ -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE $(SNR_CPPFLAGS)
-#CXX = mipsel-linux-g++
-CXX = g++
+
+ifeq ($(ARCH),mipsel)
+	CXX = mipsel-linux-g++
+else
+	CXX = g++
+endif
 
 sources = SerializeClass.cpp
 

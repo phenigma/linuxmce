@@ -18,8 +18,13 @@ LDLIBS = -lpthread -lDCECommon -lSerializeClass -lPlutoUtils -ldl #-lpluto_main 
 #<-mkr_b_use_mysql_wrapper_e->
 
 CPPFLAGS += -DEMBEDDED_LMCE
-#CXX=mipsel-linux-g++
-CXX=g++
+ifeq ($(ARCH),mipsel)
+	CXX = mipsel-linux-g++
+else
+	CXX = g++
+endif
+
+CXXFLAGS=-nostdinc++
 
 APPNAME=DCERouter
 VERSION=2.0.0

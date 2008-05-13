@@ -12,8 +12,11 @@ ifneq ($(strip $(have_httpfetcher)),)
 endif
 
 CPPFLAGS = -I./ -I../../ -I../ -I../DCE/ -I../../DCE -I../VIPShared/ -I../../VIPShared -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -DUSE_LZO_DATAGRID $(SNR_CPPFLAGS)
-#CXX = mipsel-linux-g++
-CXX = g++
+ifeq ($(ARCH),mipsel)
+	CXX = mipsel-linux-g++
+else
+	CXX = g++
+endif
 LDFLAGS =
 
 ifneq ($(strip $(have_httpfetcher)),)

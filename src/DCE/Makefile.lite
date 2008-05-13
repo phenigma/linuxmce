@@ -5,8 +5,11 @@ VIP = ../VIPShared
 GDEV = ./Gen_Devices
 CXXFLAGS = -fPIC -Wall -ggdb3
 CPPFLAGS = -I./ -I../ -I../DCE/ -I../VIPShared/ -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE $(SNR_CPPFLAGS) -DUSE_LZO_DATAGRID -D_GNU_SOURCE -DLINK_TO_ROUTER $(EXTRA)
-#CXX = mipsel-linux-g++
-CXX = g++
+ifeq ($(ARCH),mipsel)
+	CXX = mipsel-linux-g++
+else
+	CXX = g++
+endif
 LDFLAGS = -L$(ROOT)/lib
 LDLIBS = -lpthread -lSerializeClass
 

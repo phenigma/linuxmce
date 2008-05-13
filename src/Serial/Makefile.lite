@@ -1,7 +1,11 @@
 ROOT = ..
 CXXFLAGS = -fPIC -Wall -ggdb3
 CPPFLAGS = -I./ -I../ -I../DCE/ -I../VIPShared/ -DEMBEDDED_LMCE
-CXX = g++
+ifeq ($(ARCH),mipsel)
+	CXX = mipsel-linux-g++
+else
+	CXX = g++
+endif
 
 APPNAME = Serial
 VERSION = 2.0.0
