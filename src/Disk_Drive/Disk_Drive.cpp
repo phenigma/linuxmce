@@ -112,9 +112,6 @@ bool Disk_Drive::GetConfig()
 	
 	m_pMediaAttributes_LowLevel = new MediaAttributes_LowLevel(m_pDatabase_pluto_media);
 
-	m_pDisk_Drive_Functions = new Disk_Drive_Functions(m_dwPK_Device,this, sDrive, m_pJobHandler,m_pDatabase_pluto_media,m_pMediaAttributes_LowLevel);
-	m_pDisk_Drive_Functions->UpdateDiscLocation('E',0); // For now say the drive is empty, when the script starts it will get set again
-
 	bool bResult = m_pJobHandler->StartThread();
 	LoggerWrapper::GetInstance()->Write(LV_SOCKET,"Disk_Drive::GetConfig StartThread %d", (int) bResult);
 
@@ -177,6 +174,12 @@ void Disk_Drive::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage)
 
 void Disk_Drive::PostConnect()
 {
+	// Do this in the post connect since this means we'll be waiting for external media identifier
+	// and launch manager won't spawn other devices until each connects.  We don't want launch manager
+	// to wait for disk drive, which is waiting for external media identify which launch manager hasn't started yet
+	m_pDisk_Drive_Functions = new Disk_Drive_Functions(m_dwPK_Device,this, sDrive, m_pJobHandler,m_pDatabase_pluto_media,m_pMediaAttributes_LowLevel);
+	m_pDisk_Drive_Functions->UpdateDiscLocation('E',0); // For now say the drive is empty, when the script starts it will get set again
+
 	DCE::CMD_Refresh_List_of_Online_Devices_Cat CMD_Refresh_List_of_Online_Devices_Cat(m_dwPK_Device,DEVICECATEGORY_Media_Plugins_CONST,
 		true,BL_SameHouse);
 	SendCommand(CMD_Refresh_List_of_Online_Devices_Cat);
