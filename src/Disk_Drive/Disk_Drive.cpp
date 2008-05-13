@@ -707,7 +707,7 @@ void Disk_Drive::CMD_Get_Disk_Info(string *sText,int *iPK_MediaType,int *iEK_Dis
 			if( iCancelled )
 				*sText += " Cancelled: " + StringUtils::itos(iCancelled);
 
-			sText += "\n" + pRipJob->m_sFileName;
+			*sText += "\n" + pRipJob->m_sFileName;
 		}
 	}
 }
