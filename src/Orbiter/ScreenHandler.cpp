@@ -350,7 +350,7 @@ bool ScreenHandler::MediaBrowsre_Intercepted(CallBackData *pData)
 				{
 					mediaFileBrowserOptions.m_sSelectedFile = pCell->m_Value;
 					DCE::CMD_MH_Play_Media CMD_MH_Play_Media(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,
-						0,mediaFileBrowserOptions.m_sSelectedFile,0,0,StringUtils::itos( m_pOrbiter->m_pLocationInfo->PK_EntertainArea ),false,0,mediaFileBrowserOptions.m_bQueueInsteadOfInstantPlay,false,false);
+						0,mediaFileBrowserOptions.m_sSelectedFile,0,0,StringUtils::itos( m_pOrbiter->m_pLocationInfo->PK_EntertainArea ),false,0,m_pOrbiter->DATA_Get_Queue_Instead_of_Instant_Play(),false,false);
 					m_pOrbiter->SendCommand(CMD_MH_Play_Media);
 				}
 			}
@@ -573,7 +573,7 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::MediaBrowser_Objec
 #endif
 			*/
 		DCE::CMD_MH_Play_Media CMD_MH_Play_Media(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,
-			0,mediaFileBrowserOptions.m_sSelectedFile,0,0,StringUtils::itos( m_pOrbiter->m_pLocationInfo->PK_EntertainArea ),false,0,mediaFileBrowserOptions.m_bQueueInsteadOfInstantPlay,false,false);
+			0,mediaFileBrowserOptions.m_sSelectedFile,0,0,StringUtils::itos( m_pOrbiter->m_pLocationInfo->PK_EntertainArea ),false,0,m_pOrbiter->DATA_Get_Queue_Instead_of_Instant_Play(),false,false);
 		m_pOrbiter->SendCommand(CMD_MH_Play_Media);
 	}
 	else if( pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butFBSF_Delete_CONST )
@@ -1305,7 +1305,7 @@ void ScreenHandler::SCREEN_Music_Full_Screen_OSD(long PK_Screen)
 		}
 
 		m_pOrbiter->CMD_Set_Graphic_To_Display(TOSTRING(5551) ".0.0." TOSTRING(5636),mediaFileBrowserOptions.m_MediaRepeatOptions==repeat_None ? "0" : (mediaFileBrowserOptions.m_MediaRepeatOptions==repeat_Queue ? "1" : "2"));
-		m_pOrbiter->CMD_Set_Graphic_To_Display(TOSTRING(5551) ".0.0." TOSTRING(5637),mediaFileBrowserOptions.m_bQueueInsteadOfInstantPlay ? "1" : "0");
+		m_pOrbiter->CMD_Set_Graphic_To_Display(TOSTRING(5551) ".0.0." TOSTRING(5637),m_pOrbiter->DATA_Get_Queue_Instead_of_Instant_Play() ? "1" : "0");
 		RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::MusicFullScreen_ObjectSelected,	new ObjectInfoBackData());
 		RegisterCallBack(cbDataGridRendering, (ScreenHandlerCallBack) &ScreenHandler::MusicFullScreen_GridRendering,	new DatagridAcquiredBackData());
 		RegisterCallBack(cbDataGridSelected, (ScreenHandlerCallBack) &ScreenHandler::MusicFullScreen_DatagridSelected,	new DatagridCellBackData());
@@ -1320,8 +1320,8 @@ bool ScreenHandler::MusicFullScreen_ObjectSelected(CallBackData *pData)
 	ObjectInfoBackData *pObjectInfoData = (ObjectInfoBackData *)pData;
 	if( pObjectInfoData->m_pObj->m_iBaseObjectID==5637 )
 	{
-		mediaFileBrowserOptions.m_bQueueInsteadOfInstantPlay = !mediaFileBrowserOptions.m_bQueueInsteadOfInstantPlay;
-		m_pOrbiter->CMD_Set_Graphic_To_Display(TOSTRING(5551) ".0.0." TOSTRING(5637),mediaFileBrowserOptions.m_bQueueInsteadOfInstantPlay ? "1" : "0");
+		m_pOrbiter->DATA_Set_Queue_Instead_of_Instant_Play( !m_pOrbiter->DATA_Get_Queue_Instead_of_Instant_Play(),true);
+		m_pOrbiter->CMD_Set_Graphic_To_Display(TOSTRING(5551) ".0.0." TOSTRING(5637),m_pOrbiter->DATA_Get_Queue_Instead_of_Instant_Play() ? "1" : "0");
 	}
 	else if( pObjectInfoData->m_pObj->m_iBaseObjectID==5616 )  // pause
 	{
@@ -2654,7 +2654,7 @@ bool ScreenHandler::CurrentDisc_ObjectSelected(CallBackData *pData)
 			mediaFileBrowserOptions.m_MediaRepeatOptions=repeat_None;
 			break;
 		};
-		m_pOrbiter->CMD_Set_Graphic_To_Display(TOSTRING(5551) ".0.0." TOSTRING(5636),mediaFileBrowserOptions.m_MediaRepeatOptions==repeat_None ? "0" : (mediaFileBrowserOptions.m_MediaRepeatOptions==repeat_Queue ? "1" : "2"));
+		m_pOrbiter->CMD_Set_Graphic_To_Display(TOSTRING(5555) ".0.0." TOSTRING(5636),mediaFileBrowserOptions.m_MediaRepeatOptions==repeat_None ? "0" : (mediaFileBrowserOptions.m_MediaRepeatOptions==repeat_Queue ? "1" : "2"));
 		DCE::CMD_Specify_Repeat_Options CMD_Specify_Repeat_Options(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,StringUtils::itos(m_pOrbiter->m_pLocationInfo->PK_EntertainArea),(int) mediaFileBrowserOptions.m_MediaRepeatOptions);
 		m_pOrbiter->SendCommand(CMD_Specify_Repeat_Options);
 	}

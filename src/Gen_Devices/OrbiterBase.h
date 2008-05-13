@@ -421,6 +421,26 @@ public:
 	{
 		SetParm(DEVICEDATA_Ignore_First_Event_CONST,(Value ? "1" : "0"));
 	}
+	bool Get_Automatically_Go_to_Remote()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return (m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Automatically_Go_to_Remote_CONST)=="1" ? true : false);
+		else
+			return (m_mapParameters[DEVICEDATA_Automatically_Go_to_Remote_CONST]=="1" ? true : false);
+	}
+
+	bool Get_Queue_Instead_of_Instant_Play()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return (m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Queue_Instead_of_Instant_Play_CONST)=="1" ? true : false);
+		else
+			return (m_mapParameters[DEVICEDATA_Queue_Instead_of_Instant_Play_CONST]=="1" ? true : false);
+	}
+
+	void Set_Queue_Instead_of_Instant_Play(bool Value)
+	{
+		SetParm(DEVICEDATA_Queue_Instead_of_Instant_Play_CONST,(Value ? "1" : "0"));
+	}
 };
 
 
@@ -569,6 +589,9 @@ public:
 	string DATA_Get_Alert_Filter_Level() { return GetData()->Get_Alert_Filter_Level(); }
 	bool DATA_Get_Ignore_First_Event() { return GetData()->Get_Ignore_First_Event(); }
 	void DATA_Set_Ignore_First_Event(bool Value,bool bUpdateDatabase=false) { GetData()->Set_Ignore_First_Event(Value); if( bUpdateDatabase ) SetDeviceDataInDB(m_dwPK_Device,274,Value); }
+	bool DATA_Get_Automatically_Go_to_Remote() { return GetData()->Get_Automatically_Go_to_Remote(); }
+	bool DATA_Get_Queue_Instead_of_Instant_Play() { return GetData()->Get_Queue_Instead_of_Instant_Play(); }
+	void DATA_Set_Queue_Instead_of_Instant_Play(bool Value,bool bUpdateDatabase=false) { GetData()->Set_Queue_Instead_of_Instant_Play(Value); if( bUpdateDatabase ) SetDeviceDataInDB(m_dwPK_Device,282,Value); }
 	//Event accessors
 	void EVENT_Touch_or_click(int iX_Position,int iY_Position) { GetEvents()->Touch_or_click(iX_Position,iY_Position); }
 	//Commands - Override these to handle commands from the server

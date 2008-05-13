@@ -102,8 +102,6 @@ public:
 	OrbiterMediaGridStyle m_mapGridStyle_Current() { return m_mapGridStyle_Find(m_PK_AttributeType_Sort); }
 	MediaRepeatOptions m_MediaRepeatOptions; // Current option when the media ends
 
-	bool m_bQueueInsteadOfInstantPlay; // If true we will queue the media instead of playing it right away
-
 	MediaFileBrowserOptions(Orbiter *pOrbiter) 
 	{ 
 		m_pOrbiter=pOrbiter; 
@@ -111,7 +109,6 @@ public:
 		m_iLastViewed=2;
 		m_iPK_DesignObj_Browser = 0;
 		m_bRestoreListGridRow = false;
-		m_bQueueInsteadOfInstantPlay = false;
 		m_MediaRepeatOptions = repeat_Queue;
 		ClearAll(0,0,0); 
 	}

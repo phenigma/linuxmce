@@ -1015,6 +1015,9 @@ namespace DCE
 	string DATA_Get_Alert_Filter_Level();
 	bool DATA_Get_Ignore_First_Event();
 	void DATA_Set_Ignore_First_Event(bool Value,bool bUpdateDatabase=false);
+	bool DATA_Get_Automatically_Go_to_Remote();
+	bool DATA_Get_Queue_Instead_of_Instant_Play();
+	void DATA_Set_Queue_Instead_of_Instant_Play(bool Value,bool bUpdateDatabase=false);
 
 			*****EVENT***** accessors inherited from base class
 	void EVENT_Touch_or_click(int iX_Position,int iY_Position);
