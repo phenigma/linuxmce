@@ -1004,113 +1004,117 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted, bo
 			}
 		}
 	}
-	for(int s=-1;s<(int) (*SafetyMessage)->m_vectExtraMessages.size(); ++s)
+
+	if( (*SafetyMessage)->m_dwMessage_Type!=MESSAGETYPE_MESSAGE_INTERCEPTED )
 	{
-		Message *pMessage = s>=0 ? (*SafetyMessage)->m_vectExtraMessages[s] : (*SafetyMessage);
-		if( !pMessage )
-			continue;
-
-		string Desc="",sCommand="";
-		Command *pCommand=NULL;
-		Event_Router *pEvent_Router=NULL;
-
-		if( pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND )
+		for(int s=-1;s<(int) (*SafetyMessage)->m_vectExtraMessages.size(); ++s)
 		{
-			pCommand = m_mapCommand_Find(pMessage->m_dwID);
-			if( pCommand )
+			Message *pMessage = s>=0 ? (*SafetyMessage)->m_vectExtraMessages[s] : (*SafetyMessage);
+			if( !pMessage )
+				continue;
+
+			string Desc="",sCommand="";
+			Command *pCommand=NULL;
+			Event_Router *pEvent_Router=NULL;
+
+			if( pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND )
 			{
-				sCommand = pCommand->m_sDescription;
-				Desc = "Command:\x1b[35;1m" + sCommand + "\x1b[0m";
-			}
-		}
-		else if( pMessage->m_dwMessage_Type==MESSAGETYPE_EVENT )
-		{
-			pEvent_Router = m_mapEvent_Router_Find(pMessage->m_dwID);
-			if( pEvent_Router )
-				Desc = "Event:\x1b[32;1m" + pEvent_Router->m_sDescription + "\x1b[0m";
-		}
-
-		if( (!pCommand || pCommand->m_bLog) && (!pEvent_Router || pEvent_Router->m_bLog) )
-		{
-			int LogType = pMessage->m_dwMessage_Type==MESSAGETYPE_EVENT ? LV_EVENT : (pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND ? LV_ACTION : LV_STATUS);
-			if( pMessage->m_dwMessage_Type==MESSAGETYPE_EVENT || pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND )
-			{
-				if (pMessage->m_dwPK_Device_To == DEVICEID_LIST)
+				pCommand = m_mapCommand_Find(pMessage->m_dwID);
+				if( pCommand )
 				{
-					string DeviceList;
-					string::size_type pos=0;
-					while(true)
-					{
-						string Device = StringUtils::Tokenize(pMessage->m_sPK_Device_List_To,",",pos);
-						if( !Device.size() )
-							break;
-						DeviceData_Router *pDeviceData_Router = m_mapDeviceData_Router_Find( atoi(Device.c_str()) );
-						if( pDeviceData_Router )
-							DeviceList += pDeviceData_Router->m_sDescription + "(" + Device + "),";
-						else
-							DeviceList += "**unknown dev: " + Device + ",";
-					}
-
-					LoggerWrapper::GetInstance()->Write(LogType, "Received Message from %d (\x1b[36;1m%s / %s\x1b[0m) to %s type %d id  %d %s, retry %s, parameters:",
-						pMessage->m_dwPK_Device_From,
-						(pDeviceFrom ? pDeviceFrom->m_sDescription.c_str() : "unknown"),
-						(pDeviceFrom  && pDeviceFrom->m_pRoom ? pDeviceFrom->m_pRoom->m_sDescription.c_str() : ""),
-						DeviceList.c_str(),
-						pMessage->m_dwMessage_Type, pMessage->m_dwID,Desc.c_str(),
-						pMessage->m_eRetry == MR_None ? "none" : (pMessage->m_eRetry == MR_Retry ? "retry" : "persist"));
+					sCommand = pCommand->m_sDescription;
+					Desc = "Command:\x1b[35;1m" + sCommand + "\x1b[0m";
 				}
-				else if (pMessage->m_dwPK_Device_To != DEVICEID_LOGGER)
-					LoggerWrapper::GetInstance()->Write(LogType, "Received Message from %d (\x1b[36;1m%s / %s\x1b[0m) to %d (\x1b[36;1m%s / %s\x1b[0m), type %d id %d %s, retry %s, parameters:",
+			}
+			else if( pMessage->m_dwMessage_Type==MESSAGETYPE_EVENT )
+			{
+				pEvent_Router = m_mapEvent_Router_Find(pMessage->m_dwID);
+				if( pEvent_Router )
+					Desc = "Event:\x1b[32;1m" + pEvent_Router->m_sDescription + "\x1b[0m";
+			}
+
+			if( (!pCommand || pCommand->m_bLog) && (!pEvent_Router || pEvent_Router->m_bLog) )
+			{
+				int LogType = pMessage->m_dwMessage_Type==MESSAGETYPE_EVENT ? LV_EVENT : (pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND ? LV_ACTION : LV_STATUS);
+				if( pMessage->m_dwMessage_Type==MESSAGETYPE_EVENT || pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND )
+				{
+					if (pMessage->m_dwPK_Device_To == DEVICEID_LIST)
+					{
+						string DeviceList;
+						string::size_type pos=0;
+						while(true)
+						{
+							string Device = StringUtils::Tokenize(pMessage->m_sPK_Device_List_To,",",pos);
+							if( !Device.size() )
+								break;
+							DeviceData_Router *pDeviceData_Router = m_mapDeviceData_Router_Find( atoi(Device.c_str()) );
+							if( pDeviceData_Router )
+								DeviceList += pDeviceData_Router->m_sDescription + "(" + Device + "),";
+							else
+								DeviceList += "**unknown dev: " + Device + ",";
+						}
+
+						LoggerWrapper::GetInstance()->Write(LogType, "Received Message from %d (\x1b[36;1m%s / %s\x1b[0m) to %s type %d id  %d %s, retry %s, parameters:",
+							pMessage->m_dwPK_Device_From,
+							(pDeviceFrom ? pDeviceFrom->m_sDescription.c_str() : "unknown"),
+							(pDeviceFrom  && pDeviceFrom->m_pRoom ? pDeviceFrom->m_pRoom->m_sDescription.c_str() : ""),
+							DeviceList.c_str(),
+							pMessage->m_dwMessage_Type, pMessage->m_dwID,Desc.c_str(),
+							pMessage->m_eRetry == MR_None ? "none" : (pMessage->m_eRetry == MR_Retry ? "retry" : "persist"));
+					}
+					else if (pMessage->m_dwPK_Device_To != DEVICEID_LOGGER)
+						LoggerWrapper::GetInstance()->Write(LogType, "Received Message from %d (\x1b[36;1m%s / %s\x1b[0m) to %d (\x1b[36;1m%s / %s\x1b[0m), type %d id %d %s, retry %s, parameters:",
+							pMessage->m_dwPK_Device_From,
+							(pDeviceFrom ? pDeviceFrom->m_sDescription.c_str() : "unknown"),
+							(pDeviceFrom  && pDeviceFrom->m_pRoom ? pDeviceFrom->m_pRoom->m_sDescription.c_str() : ""),
+							pMessage->m_dwPK_Device_To,
+							(pDeviceTo ? pDeviceTo->m_sDescription.c_str() : "unknown"),
+							(pDeviceTo && pDeviceTo->m_pRoom ? pDeviceTo->m_pRoom->m_sDescription.c_str() : ""),
+							pMessage->m_dwMessage_Type, pMessage->m_dwID,Desc.c_str(),
+							pMessage->m_eRetry == MR_None ? "none" : (pMessage->m_eRetry == MR_Retry ? "retry" : "persist"));
+				}
+				else if( pMessage->m_dwMessage_Type != MESSAGETYPE_LOG )
+					LoggerWrapper::GetInstance()->Write(LV_STATUS, "Received Message from %d (\x1b[36;1m%s\x1b[0m) to %d (\x1b[36;1m%s\x1b[0m), type %d id %d, retry %s, parameters:",
 						pMessage->m_dwPK_Device_From,
-						(pDeviceFrom ? pDeviceFrom->m_sDescription.c_str() : "unknown"),
-						(pDeviceFrom  && pDeviceFrom->m_pRoom ? pDeviceFrom->m_pRoom->m_sDescription.c_str() : ""),
-						pMessage->m_dwPK_Device_To,
+						(pDeviceFrom ? pDeviceFrom->m_sDescription.c_str() : "unknown"),pMessage->m_dwPK_Device_To,
 						(pDeviceTo ? pDeviceTo->m_sDescription.c_str() : "unknown"),
-						(pDeviceTo && pDeviceTo->m_pRoom ? pDeviceTo->m_pRoom->m_sDescription.c_str() : ""),
-						pMessage->m_dwMessage_Type, pMessage->m_dwID,Desc.c_str(),
+						pMessage->m_dwMessage_Type, pMessage->m_dwID,
 						pMessage->m_eRetry == MR_None ? "none" : (pMessage->m_eRetry == MR_Retry ? "retry" : "persist"));
-			}
-			else if( pMessage->m_dwMessage_Type != MESSAGETYPE_LOG )
-				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Received Message from %d (\x1b[36;1m%s\x1b[0m) to %d (\x1b[36;1m%s\x1b[0m), type %d id %d, retry %s, parameters:",
-					pMessage->m_dwPK_Device_From,
-					(pDeviceFrom ? pDeviceFrom->m_sDescription.c_str() : "unknown"),pMessage->m_dwPK_Device_To,
-					(pDeviceTo ? pDeviceTo->m_sDescription.c_str() : "unknown"),
-					pMessage->m_dwMessage_Type, pMessage->m_dwID,
-					pMessage->m_eRetry == MR_None ? "none" : (pMessage->m_eRetry == MR_Retry ? "retry" : "persist"));
 
-			if (pMessage->m_dwPK_Device_To != DEVICEID_LOGGER)
-			{
-				map<long,string>::iterator i;
-				for(i=pMessage->m_mapParameters.begin();i!=pMessage->m_mapParameters.end();++i)
+				if (pMessage->m_dwPK_Device_To != DEVICEID_LOGGER)
 				{
-					Desc="";
-					if( pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND )
-						Desc = m_mapCommandParmNames[(*i).first];
-					else if( pMessage->m_dwMessage_Type==MESSAGETYPE_EVENT )
-						Desc = m_mapEventParmNames[(*i).first];
-
-					if( pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND && 
-						((*i).first==COMMANDPARAMETER_PK_Command_Input_CONST ||
-						(*i).first==COMMANDPARAMETER_PK_Command_Output_CONST ) )
+					map<long,string>::iterator i;
+					for(i=pMessage->m_mapParameters.begin();i!=pMessage->m_mapParameters.end();++i)
 					{
-						Command *pCommand = m_mapCommand_Find(atoi((*i).second.c_str()));
-						if( pCommand )
-							Desc += "(" + pCommand->m_sDescription + ")";
+						Desc="";
+						if( pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND )
+							Desc = m_mapCommandParmNames[(*i).first];
+						else if( pMessage->m_dwMessage_Type==MESSAGETYPE_EVENT )
+							Desc = m_mapEventParmNames[(*i).first];
+
+						if( pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND && 
+							((*i).first==COMMANDPARAMETER_PK_Command_Input_CONST ||
+							(*i).first==COMMANDPARAMETER_PK_Command_Output_CONST ) )
+						{
+							Command *pCommand = m_mapCommand_Find(atoi((*i).second.c_str()));
+							if( pCommand )
+								Desc += "(" + pCommand->m_sDescription + ")";
+						}
+
+
+						LoggerWrapper::GetInstance()->Write(LogType, "  Parameter %d(%s): %s", (*i).first, Desc.c_str(), (*i).second.c_str());
 					}
-
-
-					LoggerWrapper::GetInstance()->Write(LogType, "  Parameter %d(%s): %s", (*i).first, Desc.c_str(), (*i).second.c_str());
-				}
-				map<long,unsigned long>::iterator il;
-				for(il=pMessage->m_mapData_Lengths.begin();il!=pMessage->m_mapData_Lengths.end();++il)
-				{
-					Desc="";
-					if( pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND )
-						Desc = m_mapCommandParmNames[(*il).first];
-					else if( pMessage->m_dwMessage_Type==MESSAGETYPE_EVENT )
-						Desc = m_mapEventParmNames[(*il).first];
-					if( pMessage->m_dwMessage_Type==MESSAGETYPE_EVENT || pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND )
-						LoggerWrapper::GetInstance()->Write(LogType, "  Data Parm %d(%s): %d bytes", (*il).first, Desc.c_str(), (*il).second);
+					map<long,unsigned long>::iterator il;
+					for(il=pMessage->m_mapData_Lengths.begin();il!=pMessage->m_mapData_Lengths.end();++il)
+					{
+						Desc="";
+						if( pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND )
+							Desc = m_mapCommandParmNames[(*il).first];
+						else if( pMessage->m_dwMessage_Type==MESSAGETYPE_EVENT )
+							Desc = m_mapEventParmNames[(*il).first];
+						if( pMessage->m_dwMessage_Type==MESSAGETYPE_EVENT || pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND )
+							LoggerWrapper::GetInstance()->Write(LogType, "  Data Parm %d(%s): %d bytes", (*il).first, Desc.c_str(), (*il).second);
+					}
 				}
 			}
 		}

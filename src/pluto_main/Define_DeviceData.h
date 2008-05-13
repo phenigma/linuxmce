@@ -231,6 +231,7 @@
 #define DEVICEDATA_Default_Repeat_CONST 278
 #define DEVICEDATA_Auto_Play_CONST 279
 #define DEVICEDATA_Fire_Startup_Event_CONST 280
+#define DEVICEDATA_Automatically_Go_to_Remote_CONST 281
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"

@@ -248,8 +248,8 @@ g_PlutoProfiler->Stop("send command");
 				if(  !pDataGridTable->GetRows(  ) || !pDataGridTable->GetCols(  )  )
 				{
 					// Initialize grid will set these to 0,  assuming there will be data.  If the grid is empty,  change that
-					m_iHighlightedRow=-1;
-					m_iHighlightedColumn=-1;
+					m_iHighlightedRow_set(-1);
+					m_iHighlightedColumn_set(-1);
 				}
 			}
 			else
@@ -574,11 +574,11 @@ bool DesignObj_DataGrid::CellIsVisible(int Column,int Row)
 
 bool DesignObj_DataGrid::GridObjectIsHighlighted(DesignObj_Orbiter *pObj)
 {
-	if( m_iHighlightedColumn==-1 && m_iHighlightedRow==-1 )
+	if( m_iHighlightedColumn_get()==-1 && m_iHighlightedRow_get()==-1 )
 		return false;
 
-	if( (m_iHighlightedColumn==-1 || m_iHighlightedColumn==pObj->m_iGridCol)
-		&& (m_iHighlightedRow==-1 || m_iHighlightedRow==pObj->m_iGridRow) )
+	if( (m_iHighlightedColumn_get()==-1 || m_iHighlightedColumn_get()==pObj->m_iGridCol)
+		&& (m_iHighlightedRow_get()==-1 || m_iHighlightedRow_get()==pObj->m_iGridRow) )
 			return true;
 	return false;
 }

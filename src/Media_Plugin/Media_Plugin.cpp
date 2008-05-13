@@ -1684,28 +1684,31 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream, bool bQueue)
 
 			WaitForMessageQueue();  // Be sure all the Set Now Playing's are set
 			EntertainArea *pEntertainArea_OSD=NULL;
-			int PK_Orbiter = pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device;
-			int PK_Screen = pMediaStream->GetRemoteControlScreen(PK_Orbiter);
-			bool bIsOSD=pMediaStream->OrbiterIsOSD(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,&pEntertainArea_OSD);
-			if( bIsOSD || pOH_Orbiter == pMediaStream->m_pOH_Orbiter_StartedMedia )
+			if( atoi( pOH_Orbiter->m_pDeviceData_Router->m_mapParameters_Find(DEVICEDATA_Automatically_Go_to_Remote_CONST).c_str() )==1 )
 			{
-				DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,PK_Orbiter,"",PK_Screen,interuptAlways,true,false);
-
-				if( bIsOSD && pEntertainArea_OSD && pOH_Orbiter->m_pEntertainArea!=pEntertainArea_OSD )
+				int PK_Orbiter = pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device;
+				int PK_Screen = pMediaStream->GetRemoteControlScreen(PK_Orbiter);
+				bool bIsOSD=pMediaStream->OrbiterIsOSD(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,&pEntertainArea_OSD);
+				if( bIsOSD || pOH_Orbiter == pMediaStream->m_pOH_Orbiter_StartedMedia )
 				{
-					DCE::CMD_Set_Entertainment_Area CMD_Set_Entertainment_Area(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
-						StringUtils::itos(pEntertainArea_OSD->m_iPK_EntertainArea));
-					pMediaStream->SetNowPlaying( pOH_Orbiter, false, false, CMD_Set_Entertainment_Area.m_pMessage );
+					DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,PK_Orbiter,"",PK_Screen,interuptAlways,true,false);
 
-					string sResponse;
-					SendCommand(CMD_Set_Entertainment_Area,&sResponse);  // Get a confirmation so we're sure it goes through before the goto screen
+					if( bIsOSD && pEntertainArea_OSD && pOH_Orbiter->m_pEntertainArea!=pEntertainArea_OSD )
+					{
+						DCE::CMD_Set_Entertainment_Area CMD_Set_Entertainment_Area(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
+							StringUtils::itos(pEntertainArea_OSD->m_iPK_EntertainArea));
+						pMediaStream->SetNowPlaying( pOH_Orbiter, false, false, CMD_Set_Entertainment_Area.m_pMessage );
+
+						string sResponse;
+						SendCommand(CMD_Set_Entertainment_Area,&sResponse);  // Get a confirmation so we're sure it goes through before the goto screen
+					}
+					SendCommand(CMD_Goto_Screen);
 				}
-				SendCommand(CMD_Goto_Screen);
-			}
-			else
-			{
-				DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,PK_Orbiter,"",PK_Screen,interuptAlways,true,false);
-				SendCommand(CMD_Goto_Screen);
+				else
+				{
+					DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,PK_Orbiter,"",PK_Screen,interuptAlways,true,false);
+					SendCommand(CMD_Goto_Screen);
+				}
 			}
 		}
 	}
@@ -6063,8 +6066,44 @@ void Media_Plugin::CMD_Get_Attributes_For_Media(string sFilename,string sPK_Ente
 		else
 			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Media_Plugin::CMD_Get_Attributes_For_Media Bad media source %s", sPK_MediaSource.c_str());
 		return;
-
 	}
+	else if( StringUtils::StartsWith(sFilename,"!r") )  // A specific drive or disc in the format !r[PK_Disc]:[PK_Device_Drive].  If disc isn't specified the current disc in the given drive will be used
+	{
+		int PK_Device_Disk_Drive=0;
+		string::size_type pos=sFilename.find(':');
+		if( pos!=string::npos )
+			PK_Device_Disk_Drive = atoi( sFilename.substr(pos+1).c_str() );
+
+		Row_DiscLocation *pRow_DiscLocation = NULL;
+		if( PK_Device_Disk_Drive )
+			pRow_DiscLocation = m_pDatabase_pluto_media->DiscLocation_get()->GetRow(PK_Device_Disk_Drive,0);
+		Row_Disc *pRow_Disc = NULL;
+		if( pRow_DiscLocation )
+			pRow_Disc = pRow_DiscLocation->FK_Disc_getrow();
+
+		if( pRow_Disc )
+		{
+			vector<Row_Disc_Attribute *> vectRow_Disc_Attribute;
+			m_pDatabase_pluto_media->Disc_Attribute_get()->GetRows("FK_Disc=" + StringUtils::itos(pRow_Disc->PK_Disc_get()),&vectRow_Disc_Attribute);
+			for(vector<Row_Disc_Attribute *>::iterator it=vectRow_Disc_Attribute.begin();it!=vectRow_Disc_Attribute.end();++it)
+			{
+				Row_Disc_Attribute *pRow_Disc_Attribute = *it;
+				if( pRow_Disc_Attribute->Track_get()!=0 )
+					continue; // We only want attributes for the disc itself
+
+				Row_Attribute *pRow_Attribute = pRow_Disc_Attribute->FK_Attribute_getrow();
+				if( pRow_Attribute )
+					*sValue_To_Assign += "!A" + StringUtils::itos(pRow_Attribute->PK_Attribute_get()) + "," + StringUtils::itos(pRow_Attribute->FK_AttributeType_get()) + "\t" + pRow_Attribute->Name_get() + "\t";
+			}
+
+			int PK_Picture=0;
+			string sExtension = m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetPictureFromDiscID(pRow_Disc->PK_Disc_get(), &PK_Picture);
+			if( PK_Picture )
+				*sValue_To_Assign += "PICTURE\t/home/mediapics/" + StringUtils::itos(PK_Picture) + "." + (sExtension.empty() ? "jpg" : sExtension) + "\t";
+		}
+		return;
+	}
+
     deque<MediaFile *> dequeMediaFile;
 	TransformFilenameToDeque(sFilename, dequeMediaFile);  // This will convert any !A, !F, !B etc.
 	if( dequeMediaFile.size() )

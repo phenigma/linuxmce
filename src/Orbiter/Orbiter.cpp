@@ -1136,15 +1136,15 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  SelectionMethod selectio
 			PLUTO_SAFETY_LOCK( dg, m_DatagridMutex );
 #ifdef DEBUG
 			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Enter key press. Status: iHighlightedColumn %d, GridCurCol %d, iHighlightedRow %d, GridCurRow %d",
-				pDesignObj_DataGrid->m_iHighlightedColumn, pDesignObj_DataGrid->m_GridCurCol,
-				pDesignObj_DataGrid->m_iHighlightedRow, pDesignObj_DataGrid->m_GridCurRow);
+				pDesignObj_DataGrid->m_iHighlightedColumn_get(), pDesignObj_DataGrid->m_GridCurCol,
+				pDesignObj_DataGrid->m_iHighlightedRow_get(), pDesignObj_DataGrid->m_GridCurRow);
 #endif
-			int Column = pDesignObj_DataGrid->m_iHighlightedColumn != -1 ? 
-				pDesignObj_DataGrid->m_iHighlightedColumn + pDesignObj_DataGrid->m_GridCurCol : 
+			int Column = pDesignObj_DataGrid->m_iHighlightedColumn_get() != -1 ? 
+				pDesignObj_DataGrid->m_iHighlightedColumn_get() + pDesignObj_DataGrid->m_GridCurCol : 
 				pDesignObj_DataGrid->m_GridCurCol;
 
-			int Row = pDesignObj_DataGrid->m_iHighlightedRow != -1 ? 
-				pDesignObj_DataGrid->m_iHighlightedRow + pDesignObj_DataGrid->m_GridCurRow :
+			int Row = pDesignObj_DataGrid->m_iHighlightedRow_get() != -1 ? 
+				pDesignObj_DataGrid->m_iHighlightedRow_get() + pDesignObj_DataGrid->m_GridCurRow :
 				0;
 
 			DataGridCell *pCell = pDataGridTable->GetData(Column, Row);
@@ -1365,7 +1365,8 @@ bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  int X,  in
 				{
 					if( DGRow == pT->m_iUpRow )
 					{
-						pDesignObj_DataGrid->m_iHighlightedColumn=pDesignObj_DataGrid->m_iHighlightedRow=-1;
+						pDesignObj_DataGrid->m_iHighlightedColumn_set(-1);
+						pDesignObj_DataGrid->m_iHighlightedRow_set(-1);
 						if(  pDesignObj_DataGrid->m_sExtraInfo.find( 'X' )!=string::npos  )
 						{
 							CMD_Set_Variable(pDesignObj_DataGrid->m_iPK_Variable, "");
@@ -1376,7 +1377,8 @@ bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  int X,  in
 					}
 					else if( DGRow == pT->m_iDownRow )
 					{
-						pDesignObj_DataGrid->m_iHighlightedColumn=pDesignObj_DataGrid->m_iHighlightedRow=-1;
+						pDesignObj_DataGrid->m_iHighlightedColumn_set(-1);
+						pDesignObj_DataGrid->m_iHighlightedRow_set(-1);
 						if(  pDesignObj_DataGrid->m_sExtraInfo.find( 'X' )!=string::npos  )
 						{
 							CMD_Set_Variable(pDesignObj_DataGrid->m_iPK_Variable, "");
@@ -1387,10 +1389,10 @@ bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  int X,  in
 					}
 
 					if( pDesignObj_DataGrid->m_sExtraInfo.find( 'R' )==string::npos )
-						pDesignObj_DataGrid->m_iHighlightedColumn=DGColumn;
+						pDesignObj_DataGrid->m_iHighlightedColumn_set(DGColumn);
 
 					if(pDesignObj_DataGrid->m_sExtraInfo.find( 'C' )==string::npos && pDesignObj_DataGrid->DataGridTable_Get()->m_StartingRow)
-						pDesignObj_DataGrid->m_iHighlightedRow = DGRow - pDesignObj_DataGrid->DataGridTable_Get()->m_StartingRow + 1;
+						pDesignObj_DataGrid->m_iHighlightedRow_set( DGRow - pDesignObj_DataGrid->DataGridTable_Get()->m_StartingRow + 1 );
 
 					SelectedGrid( pDesignObj_DataGrid,  pCell, selectionMethod, DGRow, DGColumn );
 					bFinishLoop = true;
@@ -1441,7 +1443,7 @@ bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  DataGridCe
 	if(ExecuteScreenHandlerCallback(cbDataGridSelected))
 		return true;
 
-	// AB 2005-08-20 is this necessary?  It means you don't stay on the highlighted selection	pDesignObj_DataGrid->m_iHighlightedColumn=pDesignObj_DataGrid->m_iHighlightedRow=-1;
+	// AB 2005-08-20 is this necessary?  It means you don't stay on the highlighted selection	pDesignObj_DataGrid->m_iHighlightedColumn_get()=pDesignObj_DataGrid->m_iHighlightedRow_set(-1);
 	m_sLastSelectedDatagrid=pCell->GetText();
 
 	PLUTO_SAFETY_LOCK( dg, m_DatagridMutex );
@@ -1468,13 +1470,13 @@ bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  DataGridCe
 					string::size_type posH;
 					if(  (posH=pDesignObj_DataGrid->m_sExtraInfo.find( 'H' ))==string::npos && pDesignObj_DataGrid->sSelVariable.length()==0 )
 					{
-						pDesignObj_DataGrid->m_iHighlightedRow = (posH==pDesignObj_DataGrid->m_sExtraInfo.length() || pDesignObj_DataGrid->m_sExtraInfo[posH+1]!='C') ? 0 : -1;
-						pDesignObj_DataGrid->m_iHighlightedColumn = (posH==pDesignObj_DataGrid->m_sExtraInfo.length() || pDesignObj_DataGrid->m_sExtraInfo[posH+1]!='R') ? 0 : -1;
+						pDesignObj_DataGrid->m_iHighlightedRow_set( (posH==pDesignObj_DataGrid->m_sExtraInfo.length() || pDesignObj_DataGrid->m_sExtraInfo[posH+1]!='C') ? 0 : -1 );
+						pDesignObj_DataGrid->m_iHighlightedColumn_set( (posH==pDesignObj_DataGrid->m_sExtraInfo.length() || pDesignObj_DataGrid->m_sExtraInfo[posH+1]!='R') ? 0 : -1 );
 					}
 					else
 					{
-						pDesignObj_DataGrid->m_iHighlightedRow=-1;
-						pDesignObj_DataGrid->m_iHighlightedColumn=-1;
+						pDesignObj_DataGrid->m_iHighlightedRow_set(-1);
+						pDesignObj_DataGrid->m_iHighlightedColumn_set(-1);
 					}
 					listObj_ToFlush.push_back(pDesignObj_DataGrid);
 				}
@@ -1632,8 +1634,8 @@ bool Orbiter::SelectedGrid( int DGRow )
 		m_pOrbiterRenderer->UnHighlightObject();
 
 	m_pObj_Highlighted_set(pDesignObj_DataGrid);
-	pDesignObj_DataGrid->m_iHighlightedColumn = -1;
-	pDesignObj_DataGrid->m_iHighlightedRow = DGRow;
+	pDesignObj_DataGrid->m_iHighlightedColumn_set(-1);
+	pDesignObj_DataGrid->m_iHighlightedRow_set(DGRow);
 	pDesignObj_DataGrid->m_GridCurCol = iSelectedColumn;
 
 #ifdef DEBUG
@@ -2283,19 +2285,19 @@ void Orbiter::InitializeGrid( DesignObj_DataGrid *pObj )
 	string::size_type posH;
 	if(  (posH=pObj->m_sExtraInfo.find( 'H' ))==string::npos && pObj->sSelVariable.length()==0 )
 	{
-		pObj->m_iHighlightedRow = (posH==pObj->m_sExtraInfo.length() || pObj->m_sExtraInfo[posH+1]!='C') ? 0 : -1;
-		pObj->m_iHighlightedColumn = (posH==pObj->m_sExtraInfo.length() || pObj->m_sExtraInfo[posH+1]!='R') ? 0 : -1;
+		pObj->m_iHighlightedRow_set( (posH==pObj->m_sExtraInfo.length() || pObj->m_sExtraInfo[posH+1]!='C') ? 0 : -1 );
+		pObj->m_iHighlightedColumn_set( (posH==pObj->m_sExtraInfo.length() || pObj->m_sExtraInfo[posH+1]!='R') ? 0 : -1);
 	}
 	else if(sbAllowsSelected == m_nSelectionBehaviour)
 	{
-		pObj->m_iHighlightedRow = pObj->m_sExtraInfo.find( 'C' )==string::npos ? 0 : -1;
-		pObj->m_iHighlightedColumn = pObj->m_sExtraInfo.find( 'R' )==string::npos ? 0 : -1;
+		pObj->m_iHighlightedRow_set( pObj->m_sExtraInfo.find( 'C' )==string::npos ? 0 : -1 );
+		pObj->m_iHighlightedColumn_set( pObj->m_sExtraInfo.find( 'R' )==string::npos ? 0 : -1 );
 		pObj->m_bHighlightSelectedCell=true;
 	}
 	else
 	{
-		pObj->m_iHighlightedRow=-1;
-		pObj->m_iHighlightedColumn=-1;
+		pObj->m_iHighlightedRow_set(-1);
+		pObj->m_iHighlightedColumn_set(-1);
 	}
 
 	if( pObj->m_bFlushOnScreen )
@@ -3995,8 +3997,8 @@ void Orbiter::ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList
 					if(  pDesignObj_DataGrid->m_sGridID == GridID  )
 					{
 						pDesignObj_DataGrid_OnScreen=pDesignObj_DataGrid;
-						pDesignObj_DataGrid_OnScreen->m_iHighlightedRow=pDesignObj_DataGrid_OnScreen->m_sExtraInfo.find( 'C' )==string::npos ? 0 : -1;
-						pDesignObj_DataGrid_OnScreen->m_iHighlightedColumn=pDesignObj_DataGrid_OnScreen->m_sExtraInfo.find( 'R' )==string::npos ? 0 : -1;
+						pDesignObj_DataGrid_OnScreen->m_iHighlightedRow_set(pDesignObj_DataGrid_OnScreen->m_sExtraInfo.find( 'C' )==string::npos ? 0 : -1 );
+						pDesignObj_DataGrid_OnScreen->m_iHighlightedColumn_set(pDesignObj_DataGrid_OnScreen->m_sExtraInfo.find( 'R' )==string::npos ? 0 : -1);
 						iWidth=pDesignObj_DataGrid_OnScreen->m_MaxCol;
 						iHeight=pDesignObj_DataGrid_OnScreen->m_MaxRow;
 						bRefreshGrids=true;
@@ -6618,6 +6620,7 @@ void Orbiter::CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,s
 		m_pMouseBehavior->MediaStopped();
 #endif
 //<-mkr_b_aj_b->
+	/*
 	this->CMD_Show_Object("5666.0.0.5670",0,"","",iPK_MediaType==0 ? "0" : "1");
 	this->CMD_Show_Object("5666.0.0.5588",0,"","",iPK_MediaType==0 ? "0" : "1");
 	this->CMD_Show_Object("5666.0.0.5668",0,"","",iPK_MediaType!=0 ? "0" : "1");
@@ -6626,6 +6629,7 @@ void Orbiter::CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,s
 	this->CMD_Show_Object("5667.0.0.5668",0,"","",iPK_MediaType!=0 ? "0" : "1");
 	DCE::CMD_Refresh CMD_Refresh(m_dwPK_Device,m_dwPK_Device,"");  // send ourselves a refresh since the nbc logo may not show/hide
 	SendCommand(CMD_Refresh);
+	*/
 //<-mkr_b_aj_e->
 
 	m_iStreamID=iStreamID;
@@ -6679,8 +6683,8 @@ void Orbiter::CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,s
 			{
 				PLUTO_SAFETY_LOCK( cm, m_DatagridMutex );
 
-				int nOldHightlightedRow = pDesignObj->m_iHighlightedRow;
-				int nOldHightlightedCol = pDesignObj->m_iHighlightedColumn;
+				int nOldHightlightedRow = pDesignObj->m_iHighlightedRow_get();
+				int nOldHightlightedCol = pDesignObj->m_iHighlightedColumn_get();
 				int nGridCurRow = pDesignObj->m_GridCurRow;
 				int nGridCurCol = pDesignObj->m_GridCurCol;
 				int nOldSelectedIndex = atoi(m_mapVariable[atoi(pDesignObj->sSelVariable.c_str())].c_str());
@@ -6694,8 +6698,8 @@ void Orbiter::CMD_Set_Now_Playing(string sPK_DesignObj,string sValue_To_Assign,s
 				{
 					//we changed the current playing song,
 					//so we can restore the datagrid context (selected item, highlighted item)
-					pDesignObj->m_iHighlightedRow = nOldHightlightedRow;
-					pDesignObj->m_iHighlightedColumn = nOldHightlightedCol;
+					pDesignObj->m_iHighlightedRow_set( nOldHightlightedRow );
+					pDesignObj->m_iHighlightedColumn_set( nOldHightlightedCol );
 					pDesignObj->m_GridCurRow = nGridCurRow;
 					pDesignObj->m_GridCurCol = nGridCurCol;
 				}
@@ -9381,28 +9385,28 @@ DataGridCell *Orbiter::GetDataGridHighlightCell(DesignObj_DataGrid *pGrid)
 	if( !pDataGridTable )
 		return NULL;
 
-	if( pGrid->m_iHighlightedColumn==-1 && pGrid->m_iHighlightedRow==-1 )
+	if( pGrid->m_iHighlightedColumn_get()==-1 && pGrid->m_iHighlightedRow_get()==-1 )
 	{
 		if(  pGrid->m_sExtraInfo.find( 'C' )==string::npos )
-			pGrid->m_iHighlightedRow=0;
+			pGrid->m_iHighlightedRow_set(0);
 		if(  pGrid->m_sExtraInfo.find( 'R' )==string::npos )
-			pGrid->m_iHighlightedColumn=0;
+			pGrid->m_iHighlightedColumn_set(0);
 	}
 
 	//adjustments
-	if(pGrid->m_iHighlightedColumn >= pGrid->m_MaxCol)
-		pGrid->m_iHighlightedColumn = pGrid->m_MaxCol - 1;
+	if(pGrid->m_iHighlightedColumn_get() >= pGrid->m_MaxCol)
+		pGrid->m_iHighlightedColumn_set( pGrid->m_MaxCol - 1 );
 
-	int nHColumn = pGrid->m_iHighlightedColumn!=-1 ? pGrid->m_iHighlightedColumn + pGrid->m_GridCurCol : pGrid->m_GridCurCol;
-	int nHRow = pGrid->m_iHighlightedRow!=-1 ? pGrid->m_iHighlightedRow + pGrid->m_GridCurRow - (pDataGridTable->m_iUpRow >= 0 ? 1 : 0) : 0;
+	int nHColumn = pGrid->m_iHighlightedColumn_get()!=-1 ? pGrid->m_iHighlightedColumn_get() + pGrid->m_GridCurCol : pGrid->m_GridCurCol;
+	int nHRow = pGrid->m_iHighlightedRow_get()!=-1 ? pGrid->m_iHighlightedRow_get() + pGrid->m_GridCurRow - (pDataGridTable->m_iUpRow >= 0 ? 1 : 0) : 0;
 
 	if( nHColumn==-1 && nHRow==-1 )
 		return NULL;
 
 	if(nHRow < pDataGridTable->m_StartingRow)
-		pGrid->m_iHighlightedRow = 1;
+		pGrid->m_iHighlightedRow_set( 1 );
 
-	nHRow = pDataGridTable->m_StartingRow + pGrid->m_iHighlightedRow; //set the highlighted row
+	nHRow = pDataGridTable->m_StartingRow + pGrid->m_iHighlightedRow_get(); //set the highlighted row
 
 	return pDataGridTable->GetData(nHColumn, nHRow);
 }
@@ -9414,7 +9418,7 @@ void Orbiter::GetDataGridHighlightCellCoordinates(DesignObj_DataGrid *pGrid,Plut
 
 	if(NULL == pCell)
 	{
-		pGrid->m_iHighlightedRow--;
+		pGrid->m_iHighlightedRow_set(pGrid->m_iHighlightedRow_get()-1);
 		pCell = GetDataGridHighlightCell(pGrid);
 	}
 
@@ -9426,10 +9430,10 @@ void Orbiter::GetDataGridHighlightCellCoordinates(DesignObj_DataGrid *pGrid,Plut
 
 	PlutoRectangle r;
 	pGrid->GetGridCellDimensions(
-		pGrid->m_iHighlightedColumn==-1 ? pGrid->m_MaxCol : (pCell ? pCell->m_Colspan : 1),
-		pGrid->m_iHighlightedRow==-1 ? pGrid->m_MaxRow : (pCell ? pCell->m_Rowspan : 1),
-		pGrid->m_iHighlightedColumn==-1 ? 0 : pGrid->m_iHighlightedColumn,
-		pGrid->m_iHighlightedRow==-1 ? 0 : pGrid->m_iHighlightedRow,
+		pGrid->m_iHighlightedColumn_get()==-1 ? pGrid->m_MaxCol : (pCell ? pCell->m_Colspan : 1),
+		pGrid->m_iHighlightedRow_get()==-1 ? pGrid->m_MaxRow : (pCell ? pCell->m_Rowspan : 1),
+		pGrid->m_iHighlightedColumn_get()==-1 ? 0 : pGrid->m_iHighlightedColumn_get(),
+		pGrid->m_iHighlightedRow_get()==-1 ? 0 : pGrid->m_iHighlightedRow_get(),
 		r.X,  r.Y,  r.Width,  r.Height );
 
 	rect.X = max(0,r.X);

@@ -144,8 +144,8 @@ DataGridRenderer::DataGridRenderer(DesignObj_Orbiter *pOwner): ObjectRenderer(pO
 						GraphicType = GRAPHIC_SELECTED;
 						if( m_pObj_Owner_DataGrid->m_bHighlightSelectedCell )
 						{
-							m_pObj_Owner_DataGrid->m_iHighlightedRow = m_pObj_Owner_DataGrid->m_sExtraInfo.find( 'C' )==string::npos ? DGRow : -1;
-							m_pObj_Owner_DataGrid->m_iHighlightedColumn = m_pObj_Owner_DataGrid->m_sExtraInfo.find( 'R' )==string::npos ? DGColumn : -1;
+							m_pObj_Owner_DataGrid->m_iHighlightedRow_set( m_pObj_Owner_DataGrid->m_sExtraInfo.find( 'C' )==string::npos ? DGRow : -1 );
+							m_pObj_Owner_DataGrid->m_iHighlightedColumn_set( m_pObj_Owner_DataGrid->m_sExtraInfo.find( 'R' )==string::npos ? DGColumn : -1 );
 							m_pObj_Owner_DataGrid->m_bHighlightSelectedCell=false; // Only on the initial draw
 						}
 					}

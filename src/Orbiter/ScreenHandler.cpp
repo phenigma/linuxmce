@@ -342,7 +342,7 @@ bool ScreenHandler::MediaBrowsre_Intercepted(CallBackData *pData)
 #endif
 		if( pDataGridTable )
 		{
-			DataGridCell *pCell = pDataGridTable->GetData( 0, mediaFileBrowserOptions.m_pObj_ListGrid->m_iHighlightedRow + mediaFileBrowserOptions.m_pObj_ListGrid->m_GridCurRow );
+			DataGridCell *pCell = pDataGridTable->GetData( 0, mediaFileBrowserOptions.m_pObj_ListGrid->m_iHighlightedRow_get() + mediaFileBrowserOptions.m_pObj_ListGrid->m_GridCurRow );
 			if( pCell && pCell->m_Value && strstr(pCell->m_Value,"\t!D")==NULL )
 			{
 				// User is not going into a sub directory, and be sure also not selecting an attribute
@@ -494,15 +494,15 @@ bool ScreenHandler::MediaBrowser_ObjectSelected(CallBackData *pData)
 		DataGridTable *pDataGridTable = mediaFileBrowserOptions.m_pObj_ListGrid->DataGridTable_Get();
 		if( pDataGridTable )
 		{
-			DataGridCell *pCell = pDataGridTable->GetData( 0, mediaFileBrowserOptions.m_pObj_ListGrid->m_iHighlightedRow + mediaFileBrowserOptions.m_pObj_ListGrid->m_GridCurRow );
+			DataGridCell *pCell = pDataGridTable->GetData( 0, mediaFileBrowserOptions.m_pObj_ListGrid->m_iHighlightedRow_get() + mediaFileBrowserOptions.m_pObj_ListGrid->m_GridCurRow );
 			if( pCell )
 			{
 				// Special case.  The user clicked on the cover art popup.  Since it's a popup MediaBrowser_DatagridSelected won't get called;
 				DatagridCellBackData datagridCellBackData;
 				datagridCellBackData.m_pDesignObj_DataGrid = mediaFileBrowserOptions.m_pObj_ListGrid;
 				datagridCellBackData.m_nPK_Datagrid = mediaFileBrowserOptions.m_pObj_ListGrid->m_iPK_Datagrid;
-				datagridCellBackData.m_Column = mediaFileBrowserOptions.m_pObj_ListGrid->m_iHighlightedColumn;
-				datagridCellBackData.m_Row = mediaFileBrowserOptions.m_pObj_ListGrid->m_iHighlightedRow + mediaFileBrowserOptions.m_pObj_ListGrid->m_GridCurRow;
+				datagridCellBackData.m_Column = mediaFileBrowserOptions.m_pObj_ListGrid->m_iHighlightedColumn_get();
+				datagridCellBackData.m_Row = mediaFileBrowserOptions.m_pObj_ListGrid->m_iHighlightedRow_get() + mediaFileBrowserOptions.m_pObj_ListGrid->m_GridCurRow;
 				datagridCellBackData.m_pDataGridCell = pCell;
 				if( pCell->m_Text )
 					datagridCellBackData.m_sText = pCell->m_Text;
@@ -876,9 +876,9 @@ bool ScreenHandler::MediaBrowser_DatagridSelected(CallBackData *pData)
 #ifdef DEBUG
 		if(NULL != mediaFileBrowserOptions.m_pObj_ListGrid)
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::MediaBrowser_ObjectSelected sel grid pic %p list %p pich %d,%d  listh %d,%d",
-				pCell_Pic,pCell_List,mediaFileBrowserOptions.m_pObj_PicGrid ? mediaFileBrowserOptions.m_pObj_PicGrid->m_iHighlightedColumn : -999,
-				mediaFileBrowserOptions.m_pObj_PicGrid ? mediaFileBrowserOptions.m_pObj_PicGrid->m_iHighlightedRow : -999,
-				0,mediaFileBrowserOptions.m_pObj_ListGrid->m_iHighlightedRow);
+				pCell_Pic,pCell_List,mediaFileBrowserOptions.m_pObj_PicGrid ? mediaFileBrowserOptions.m_pObj_PicGrid->m_iHighlightedColumn_get() : -999,
+				mediaFileBrowserOptions.m_pObj_PicGrid ? mediaFileBrowserOptions.m_pObj_PicGrid->m_iHighlightedRow_get() : -999,
+				0,mediaFileBrowserOptions.m_pObj_ListGrid->m_iHighlightedRow_get());
 #endif
 
 		if( !pCell_List )
@@ -1323,14 +1323,174 @@ bool ScreenHandler::MusicFullScreen_ObjectSelected(CallBackData *pData)
 		mediaFileBrowserOptions.m_bQueueInsteadOfInstantPlay = !mediaFileBrowserOptions.m_bQueueInsteadOfInstantPlay;
 		m_pOrbiter->CMD_Set_Graphic_To_Display(TOSTRING(5551) ".0.0." TOSTRING(5637),mediaFileBrowserOptions.m_bQueueInsteadOfInstantPlay ? "1" : "0");
 	}
-	else if( pObjectInfoData->m_pObj->m_iBaseObjectID==5599 )
+	else if( pObjectInfoData->m_pObj->m_iBaseObjectID==5616 )  // pause
+	{
+		DCE::CMD_Pause_Media CMD_Pause_Media(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,0);
+		m_pOrbiter->SendCommand(CMD_Pause_Media);
+	}
+	else if( pObjectInfoData->m_pObj->m_iBaseObjectID==5599 )  // play entry
 	{
 		DesignObj_DataGrid *pObj = (DesignObj_DataGrid *) m_pOrbiter->FindObject( TOSTRING(5551) ".0.0." TOSTRING(5603) );
 		if( pObj )
 		{
-			DCE::CMD_Jump_Position_In_Playlist CMD_Jump_Position_In_Playlist(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,StringUtils::itos(pObj->m_GridCurRow + pObj->m_iHighlightedRow),0);
+			DCE::CMD_Jump_Position_In_Playlist CMD_Jump_Position_In_Playlist(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,StringUtils::itos(pObj->m_GridCurRow + pObj->m_iHighlightedRow_get()),0);
 			m_pOrbiter->SendCommand(CMD_Jump_Position_In_Playlist);
 		}
+	}
+	else if( pObjectInfoData->m_pObj->m_iBaseObjectID==5597 )  // move entry down
+	{
+		PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_VariableMutex);
+		DesignObj_DataGrid *pObj = (DesignObj_DataGrid *) m_pOrbiter->FindObject( TOSTRING(5551) ".0.0." TOSTRING(5603) );
+		int displacement = 1;
+		int position = pObj->m_GridCurRow + pObj->m_iHighlightedRow_get();
+		DataGridTable *pDataGridTable = pObj->m_pDataGridTable_Current_get();
+
+		if( pObj && pObj->m_iHighlightedRow_get()>=0 && position + displacement < pObj->m_iPopulatedHeight )
+		{
+			DCE::CMD_Move_Playlist_entry_Down CMD_Move_Playlist_entry_Down(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,position);
+			m_pOrbiter->SendCommand(CMD_Move_Playlist_entry_Down);
+
+			// No need to scroll or re-request grid
+			DataGridTable *pDataGridTable_Next=NULL;
+			bool bNeedToScroll = pObj->m_iHighlightedRow_get() + displacement >= pObj->m_MaxRow;
+			if( bNeedToScroll )
+				pDataGridTable_Next = pObj->DataGridTable_Get(pObj->m_GridCurRow + pObj->m_MaxRow);
+
+			if( !bNeedToScroll || pDataGridTable_Next )  // Should always be true
+			{
+				DataGridCell *pCell_Target = pDataGridTable->GetData(0,position);
+				DataGridCell *pCell_Other;
+				
+				if( pDataGridTable_Next )
+					pCell_Other = pDataGridTable_Next->GetData(0,position + displacement);
+				else
+					pCell_Other = pDataGridTable->GetData(0,position + displacement);
+
+				DesignObj_Orbiter *pObj_Target = pObj->m_mapChildDgObjects_Find(0,pObj->m_iHighlightedRow_get());
+				DesignObj_Orbiter *pObj_Other = pObj->m_mapChildDgObjects_Find(0,pDataGridTable_Next ? 0 : pObj->m_iHighlightedRow_get() + displacement);
+
+				if( pCell_Target && pCell_Other && pObj_Target && pObj_Other )
+				{
+					pDataGridTable->m_MemoryDataTable[MAKECOLROW(0, position)]=pCell_Other;
+					if( pDataGridTable_Next )
+						pDataGridTable_Next->m_MemoryDataTable[MAKECOLROW(0, position + displacement)]=pCell_Target;
+					else
+						pDataGridTable->m_MemoryDataTable[MAKECOLROW(0, position + displacement)]=pCell_Target;
+
+					string sValue = pCell_Target->GetValue();
+					pCell_Target->SetValue(pCell_Other->GetValue());
+					pCell_Other->SetValue(sValue);
+
+					if( pDataGridTable_Next )
+					{
+						m_pOrbiter->CMD_Scroll_Grid( "",  pObj->m_ObjectID,  DIRECTION_Down_CONST );
+						pObj->m_iHighlightedRow_set(0);
+					}
+					else
+						pObj->m_iHighlightedRow_set(pObj->m_iHighlightedRow_get() + displacement);
+					m_pOrbiter->Renderer()->RenderObjectAsync(pObj);
+					m_pOrbiter->Renderer()->RenderObjectAsync(pObj_Target);
+					m_pOrbiter->Renderer()->RenderObjectAsync(pObj_Other);
+				}
+				else
+				{
+					m_pOrbiter->WaitForMessageQueue();  // so we know it's processed before we continue and refresh
+					DCE::CMD_Refresh CMD_Refresh(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,"*");
+					m_pOrbiter->SendCommand(CMD_Refresh);
+				}
+			}
+			else
+			{
+				m_pOrbiter->WaitForMessageQueue();  // so we know it's processed before we continue and refresh
+				DCE::CMD_Refresh CMD_Refresh(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,"*");
+				m_pOrbiter->SendCommand(CMD_Refresh);
+			}
+		}
+	}
+	else if( pObjectInfoData->m_pObj->m_iBaseObjectID==5596 )  // move entry up
+	{
+		PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_VariableMutex);
+		DesignObj_DataGrid *pObj = (DesignObj_DataGrid *) m_pOrbiter->FindObject( TOSTRING(5551) ".0.0." TOSTRING(5603) );
+		int displacement = -1;
+		int position = pObj->m_GridCurRow + pObj->m_iHighlightedRow_get();
+		DataGridTable *pDataGridTable = pObj->m_pDataGridTable_Current_get();
+
+		if( pObj && position>0 )
+		{
+			DCE::CMD_Move_Playlist_entry_Up CMD_Move_Playlist_entry_Up(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,position);
+			m_pOrbiter->SendCommand(CMD_Move_Playlist_entry_Up);
+
+			// No need to scroll or re-request grid
+			DataGridTable *pDataGridTable_Prior=NULL;
+			bool bNeedToScroll = pObj->m_iHighlightedRow_get()==0;
+			if( bNeedToScroll )
+				pDataGridTable_Prior = pObj->DataGridTable_Get(pObj->m_GridCurRow - pObj->m_MaxRow);
+
+			if( !bNeedToScroll || pDataGridTable_Prior )  // Should always be true
+			{
+				DataGridCell *pCell_Target = pDataGridTable->GetData(0,position);
+				DataGridCell *pCell_Other;
+				
+				if( pDataGridTable_Prior )
+					pCell_Other = pDataGridTable_Prior->GetData(0,position + displacement);
+				else
+					pCell_Other = pDataGridTable->GetData(0,position + displacement);
+
+				DesignObj_Orbiter *pObj_Target = pObj->m_mapChildDgObjects_Find(0,pObj->m_iHighlightedRow_get());
+				DesignObj_Orbiter *pObj_Other = pObj->m_mapChildDgObjects_Find(0,pDataGridTable_Prior ? pObj->m_MaxRow-1 : pObj->m_iHighlightedRow_get() + displacement);
+
+				if( pCell_Target && pCell_Other && pObj_Target && pObj_Other )
+				{
+					pDataGridTable->m_MemoryDataTable[MAKECOLROW(0, position)]=pCell_Other;
+					if( pDataGridTable_Prior )
+						pDataGridTable_Prior->m_MemoryDataTable[MAKECOLROW(0, position + displacement)]=pCell_Target;
+					else
+						pDataGridTable->m_MemoryDataTable[MAKECOLROW(0, position + displacement)]=pCell_Target;
+
+					string sValue = pCell_Target->GetValue();
+					pCell_Target->SetValue(pCell_Other->GetValue());
+					pCell_Other->SetValue(sValue);
+
+					if( pDataGridTable_Prior )
+					{
+						m_pOrbiter->CMD_Scroll_Grid( "",  pObj->m_ObjectID,  DIRECTION_Up_CONST );
+						pObj->m_iHighlightedRow_set(pObj->m_MaxRow-1);
+					}
+					else
+						pObj->m_iHighlightedRow_set(pObj->m_iHighlightedRow_get() + displacement);
+					m_pOrbiter->Renderer()->RenderObjectAsync(pObj);
+					m_pOrbiter->Renderer()->RenderObjectAsync(pObj_Target);
+					m_pOrbiter->Renderer()->RenderObjectAsync(pObj_Other);
+				}
+				else
+				{
+					m_pOrbiter->WaitForMessageQueue();  // so we know it's processed before we continue and refresh
+					DCE::CMD_Refresh CMD_Refresh(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,"*");
+					m_pOrbiter->SendCommand(CMD_Refresh);
+				}
+			}
+			else
+			{
+				m_pOrbiter->WaitForMessageQueue();  // so we know it's processed before we continue and refresh
+				DCE::CMD_Refresh CMD_Refresh(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,"*");
+				m_pOrbiter->SendCommand(CMD_Refresh);
+			}
+		}
+	}
+	else if( pObjectInfoData->m_pObj->m_iBaseObjectID==5598 )  // delete entry
+	{
+		PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_VariableMutex);
+		DesignObj_DataGrid *pObj = (DesignObj_DataGrid *) m_pOrbiter->FindObject( TOSTRING(5551) ".0.0." TOSTRING(5603) );
+		int displacement = -1;
+		int position = pObj->m_GridCurRow + pObj->m_iHighlightedRow_get();
+		DataGridTable *pDataGridTable = pObj->m_pDataGridTable_Current_get();
+		
+
+		DCE::CMD_Remove_playlist_entry CMD_Remove_playlist_entry(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,position);
+		m_pOrbiter->SendCommand(CMD_Remove_playlist_entry);
+		m_pOrbiter->WaitForMessageQueue();  // so we know it's processed before we continue and refresh
+		DCE::CMD_Refresh CMD_Refresh(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,"*");
+		m_pOrbiter->SendCommand(CMD_Refresh);
 	}
 	else if( pObjectInfoData->m_pObj->m_iBaseObjectID==5636 && m_pOrbiter->m_pLocationInfo )
 	{
@@ -1355,7 +1515,7 @@ bool ScreenHandler::MusicFullScreen_ObjectSelected(CallBackData *pData)
 //-----------------------------------------------------------------------------------------------------
 bool ScreenHandler::MusicFullScreen_GridRendering(CallBackData *pData)
 {
-	// If the row is highlighted, it means it's now playing.  If it's selected, it's the one the user selected on the screen.  We store the selected row in m_iHighlightedRow (confusing, sorry)
+	// If the row is highlighted, it means it's now playing.  If it's selected, it's the one the user selected on the screen.  We store the selected row in m_iHighlightedRow_get() (confusing, sorry)
 	DatagridAcquiredBackData *pDatagridAcquiredBackData = (DatagridAcquiredBackData *) pData;  // Call back data containing relevant values for the grid/table being rendered
 	int iTrack = m_pOrbiter->m_iPK_MediaType==MEDIATYPE_pluto_StoredAudio_CONST ? atoi(m_pOrbiter->m_mapVariable_Find(VARIABLE_Track_or_Playlist_Positio_CONST).c_str()) : -1;
 
@@ -1376,7 +1536,7 @@ bool ScreenHandler::MusicFullScreen_GridRendering(CallBackData *pData)
 
 	// We'll show info on the cell that is selected, if one is, or if not the one that's playing
 	bool bUpdatedPic=false;
-	int iRow = pDatagridAcquiredBackData->m_pObj->m_iHighlightedRow>=0 ? pDatagridAcquiredBackData->m_pObj->m_GridCurRow + pDatagridAcquiredBackData->m_pObj->m_iHighlightedRow : iTrack;
+	int iRow = pDatagridAcquiredBackData->m_pObj->m_iHighlightedRow_get()>=0 ? pDatagridAcquiredBackData->m_pObj->m_GridCurRow + pDatagridAcquiredBackData->m_pObj->m_iHighlightedRow_get() : iTrack;
 	DataGridCell *pCell = pDatagridAcquiredBackData->m_pDataGridTable->GetData( 0, iRow );
 	if( pCell )
 	{
@@ -1445,7 +1605,7 @@ bool ScreenHandler::MusicFullScreen_GridRendering(CallBackData *pData)
 	if( bUpdatedPic==false )
 		m_pOrbiter->CMD_Update_Object_Image(TOSTRING(5551) ".0.0." TOSTRING(DESIGNOBJ_objCDCover_CONST),"jpg", NULL, 0, "0");
 
-	bool bHidden = pDatagridAcquiredBackData->m_pObj->m_iHighlightedRow==-1;
+	bool bHidden = pDatagridAcquiredBackData->m_pObj->m_iHighlightedRow_get()==-1;
 	DesignObj_Orbiter *pObj_SelectedObjBar = m_pOrbiter->FindObject(TOSTRING(5551) ".0.0." TOSTRING(5638));
 	if( pObj_SelectedObjBar && pObj_SelectedObjBar->m_bHidden!=bHidden )
 		m_pOrbiter->CMD_Show_Object( pObj_SelectedObjBar->m_ObjectID,0,"","", bHidden ? "0" : "1" );
@@ -1453,7 +1613,7 @@ bool ScreenHandler::MusicFullScreen_GridRendering(CallBackData *pData)
 	{
 		DesignObj_Orbiter *pObj = itobj->second;
 		/** 0=standard mode, -1=selected -2=highlight a positive number is one of the alternates */
-		pObj->m_GraphicToDisplay_set("ms1",itobj->first.second == pDatagridAcquiredBackData->m_pObj->m_iHighlightedRow ? -1 : (itobj->first.second == iTrack ? -2 : 0));
+		pObj->m_GraphicToDisplay_set("ms1",itobj->first.second == pDatagridAcquiredBackData->m_pObj->m_iHighlightedRow_get() ? -1 : (itobj->first.second == iTrack ? -2 : 0));
 	}
 	m_pOrbiter->Renderer()->RenderObjectAsync(pObj);
 	return false; // Keep processing it
@@ -1464,10 +1624,10 @@ bool ScreenHandler::MusicFullScreen_DatagridSelected(CallBackData *pData)
 	DatagridCellBackData *pCellInfoData = (DatagridCellBackData *)pData;
 	if( pCellInfoData->m_pDesignObj_DataGrid )
 	{
-		if( pCellInfoData->m_pDesignObj_DataGrid->m_iHighlightedRow==pCellInfoData->m_Row )
-			pCellInfoData->m_pDesignObj_DataGrid->m_iHighlightedRow=-1;  // The user reselectd the cell.  Highlight it
+		if( pCellInfoData->m_pDesignObj_DataGrid->m_GridCurRow + pCellInfoData->m_pDesignObj_DataGrid->m_iHighlightedRow_get()==pCellInfoData->m_Row )
+			pCellInfoData->m_pDesignObj_DataGrid->m_iHighlightedRow_set(-1);  // The user reselectd the cell.  Un-Highlight it
 		else
-			pCellInfoData->m_pDesignObj_DataGrid->m_iHighlightedRow=pCellInfoData->m_Row;
+			pCellInfoData->m_pDesignObj_DataGrid->m_iHighlightedRow_set(pCellInfoData->m_Row - pCellInfoData->m_pDesignObj_DataGrid->m_GridCurRow);
 		m_pOrbiter->Renderer()->RenderObjectAsync(pCellInfoData->m_pDesignObj_DataGrid);
 	}
 	return false; // Keep processing it
@@ -2087,6 +2247,17 @@ bool ScreenHandler::AudioServer_SetNowPlaying(CallBackData *pData)
 {
 	MsgInterceptorCellBackData *pMsgInterceptorCellBackData = (MsgInterceptorCellBackData *) pData;
 	string iTrack = m_pOrbiter->m_mapVariable_Find(VARIABLE_Track_or_Playlist_Positio_CONST);
+
+	DesignObj_Orbiter *pObj;
+	if( m_pOrbiter->m_pScreenHistory_Current && (pObj=m_pOrbiter->m_pScreenHistory_Current->GetObj()) )
+	{
+		if( pObj->m_iBaseObjectID==5555 )
+		{
+			DesignObj_DataGrid *pObj_Grid = (DesignObj_DataGrid *) m_pOrbiter->FindObject( TOSTRING(5555) ".0.0." TOSTRING(5639) );
+			m_pOrbiter->Renderer()->RenderObjectAsync(pObj_Grid);
+		}
+		SetAudioServerTabs(pObj->m_iBaseObjectID);
+	}
 	return false;
 }
 //-----------------------------------------------------------------------------------------------------
@@ -2329,7 +2500,7 @@ void ScreenHandler::SCREEN_Current_Disc_Contents(long PK_Screen)
 		}
 
 		m_pOrbiter->CMD_Set_Graphic_To_Display(TOSTRING(5555) ".0.0." TOSTRING(5636),mediaFileBrowserOptions.m_MediaRepeatOptions==repeat_None ? "0" : (mediaFileBrowserOptions.m_MediaRepeatOptions==repeat_Queue ? "1" : "2"));
-//		RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::MusicFullScreen_ObjectSelected,	new ObjectInfoBackData());
+		RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::CurrentDisc_ObjectSelected,	new ObjectInfoBackData());
 		RegisterCallBack(cbDataGridRendering, (ScreenHandlerCallBack) &ScreenHandler::CurrentDisc_GridRendering,	new DatagridAcquiredBackData());
 		RegisterCallBack(cbDataGridSelected, (ScreenHandlerCallBack) &ScreenHandler::CurrentDisc_DatagridSelected,	new DatagridCellBackData());
 		RegisterCallBack(cbSetNowPlaying, (ScreenHandlerCallBack) &ScreenHandler::AudioServer_SetNowPlaying, new MsgInterceptorCellBackData());
@@ -2340,7 +2511,7 @@ void ScreenHandler::SCREEN_Current_Disc_Contents(long PK_Screen)
 //-----------------------------------------------------------------------------------------------------
 bool ScreenHandler::CurrentDisc_GridRendering(CallBackData *pData)
 {
-	// If the row is highlighted, it means it's now playing.  If it's selected, it's the one the user selected on the screen.  We store the selected row in m_iHighlightedRow (confusing, sorry)
+	// If the row is highlighted, it means it's now playing.  If it's selected, it's the one the user selected on the screen.  We store the selected row in m_iHighlightedRow_get() (confusing, sorry)
 	DatagridAcquiredBackData *pDatagridAcquiredBackData = (DatagridAcquiredBackData *) pData;  // Call back data containing relevant values for the grid/table being rendered
 
 	// Get the current track if we're playing this cd now.  if media type isn't cd we must be listening to stored audio
@@ -2348,9 +2519,49 @@ bool ScreenHandler::CurrentDisc_GridRendering(CallBackData *pData)
 
 	NeedToRender render2( m_pOrbiter, "ScreenHandler::CurrentDisc_GridRendering" );
 
+	// Get the attributes for the disc
+	string sValue;
+	if( m_pOrbiter->m_pLocationInfo_Initial && m_pOrbiter->m_pLocationInfo_Initial->m_dwPK_Device_DiscDrive )
+	{
+		DCE::CMD_Get_Attributes_For_Media CMD_Get_Attributes_For_Media(m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device_MediaPlugIn, "!r0:" + StringUtils::itos(m_pOrbiter->m_pLocationInfo_Initial->m_dwPK_Device_DiscDrive), "", &sValue);
+		m_pOrbiter->SendCommand(CMD_Get_Attributes_For_Media);
+	}
+
+	map<int,pair<int,string> > mapAlbumAttributes; // These are the attributes for the whole album
+
 	// We'll show info on the cell that is selected, if one is, or if not the one that's playing
 	bool bUpdatedPic=false;
-	int iRow = pDatagridAcquiredBackData->m_pObj->m_iHighlightedRow>=0 ? pDatagridAcquiredBackData->m_pObj->m_GridCurRow + pDatagridAcquiredBackData->m_pObj->m_iHighlightedRow : iTrack;
+
+	string::size_type pos=0;
+	while(pos<sValue.size())
+	{
+		string sToken = StringUtils::Tokenize( sValue, "\t", pos );
+		string sName = StringUtils::Tokenize( sValue, "\t", pos );
+
+		if( sToken=="PICTURE" )
+		{
+			size_t size;
+			char *pImage = m_pOrbiter->ReadFileIntoBuffer(sName,size);
+			if( pImage )
+			{
+				m_pOrbiter->CMD_Update_Object_Image(TOSTRING(5555) ".0.0." TOSTRING(DESIGNOBJ_objCDCover_CONST),"jpg", pImage, size, "0");
+				bUpdatedPic=true;
+				delete[] pImage;
+			}
+		}
+		else if( sToken.size()>4 && sToken[0]=='!' && sToken[1]=='A' )
+		{
+			string::size_type pos_comma = sToken.find(',');
+			if( pos_comma!=string::npos )
+			{
+				int PK_Attribute = atoi( sToken.substr(2).c_str() );
+				int PK_AttributeType = atoi( sToken.substr(pos_comma+1).c_str() );
+				mapAlbumAttributes[PK_AttributeType] = make_pair<int,string> (PK_Attribute,sName);
+			}
+		}
+	}
+
+	int iRow = pDatagridAcquiredBackData->m_pObj->m_iHighlightedRow_get()>=0 ? pDatagridAcquiredBackData->m_pObj->m_GridCurRow + pDatagridAcquiredBackData->m_pObj->m_iHighlightedRow_get() : iTrack;
 	DataGridCell *pCell = pDatagridAcquiredBackData->m_pDataGridTable->GetData( 0, iRow );
 
 	DesignObj_Orbiter *pObj = m_pOrbiter->FindObject( TOSTRING(5555) ".0.0." TOSTRING(5587) );
@@ -2366,13 +2577,75 @@ bool ScreenHandler::CurrentDisc_GridRendering(CallBackData *pData)
 	m_pOrbiter->CMD_Set_Text(pObj->m_ObjectID,pCell ? pCell->m_mapAttributes_Find("Date") : "",2052);
 	m_pOrbiter->Renderer()->RenderObjectAsync(pObj);
 
+	bool bHidden = pDatagridAcquiredBackData->m_pObj->m_iHighlightedRow_get()==-1;
+	DesignObj_Orbiter *pObj_SelectedObjBar = m_pOrbiter->FindObject(TOSTRING(5555) ".0.0." TOSTRING(5599));
+	if( pObj_SelectedObjBar && pObj_SelectedObjBar->m_bHidden!=bHidden )
+		m_pOrbiter->CMD_Show_Object( pObj_SelectedObjBar->m_ObjectID,0,"","", bHidden ? "0" : "1" );
+
+	if( bUpdatedPic==false )
 		m_pOrbiter->CMD_Update_Object_Image(TOSTRING(5555) ".0.0." TOSTRING(DESIGNOBJ_objCDCover_CONST),"jpg", NULL, 0, "0");
 
 	for(map< pair<int,int>, DesignObj_Orbiter *>::iterator itobj = pDatagridAcquiredBackData->m_pObj->m_mapChildDgObjects.begin(); itobj != pDatagridAcquiredBackData->m_pObj->m_mapChildDgObjects.end(); ++itobj )
 	{
 		DesignObj_Orbiter *pObj = itobj->second;
 		/** 0=standard mode, -1=selected -2=highlight a positive number is one of the alternates */
-		pObj->m_GraphicToDisplay_set("ms1",itobj->first.second == pDatagridAcquiredBackData->m_pObj->m_iHighlightedRow ? -1 : (itobj->first.second == iTrack ? -2 : 0));
+		pObj->m_GraphicToDisplay_set("ms1",itobj->first.second == pDatagridAcquiredBackData->m_pObj->m_iHighlightedRow_get() ? -1 : (itobj->first.second == iTrack ? -2 : 0));
+	}
+	return false; // Keep processing it
+}
+//-----------------------------------------------------------------------------------------------------
+bool ScreenHandler::CurrentDisc_ObjectSelected(CallBackData *pData)
+{
+	ObjectInfoBackData *pObjectInfoData = (ObjectInfoBackData *)pData;
+	if( pObjectInfoData->m_pObj->m_iBaseObjectID==5599 )  // play entry
+	{
+		DesignObj_DataGrid *pObj = (DesignObj_DataGrid *) m_pOrbiter->FindObject( TOSTRING(5555) ".0.0." TOSTRING(5639) );
+		if( pObj )
+		{
+			if( m_pOrbiter->m_iPK_MediaType!=MEDIATYPE_pluto_CD_CONST )  // We're not already playing the CD, start it first
+			{
+				// CD isn't playing.  Play it
+				string sResponse;
+				DCE::CMD_MH_Play_Media CMD_MH_Play_Media(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,0,"!r0:" + StringUtils::itos(m_pOrbiter->m_pLocationInfo_Initial->m_dwPK_Device_DiscDrive),
+					0,0,StringUtils::itos(m_pOrbiter->m_pLocationInfo_Initial->PK_EntertainArea),0,0,false,false,false);
+				m_pOrbiter->SendCommand(CMD_MH_Play_Media,&sResponse);  // get return confirmation so we know the play has finished before sending the jump
+			}
+			DCE::CMD_Jump_Position_In_Playlist CMD_Jump_Position_In_Playlist(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,StringUtils::itos(pObj->m_GridCurRow + pObj->m_iHighlightedRow_get()),0);
+			m_pOrbiter->SendCommand(CMD_Jump_Position_In_Playlist);
+		}
+	}
+	else if( pObjectInfoData->m_pObj->m_iBaseObjectID==5616 )  // pause
+	{
+		if( m_pOrbiter->m_iPK_MediaType==MEDIATYPE_pluto_CD_CONST )  // We're already playing the CD, just pause it
+		{
+			DCE::CMD_Pause_Media CMD_Pause_Media(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,0);
+			m_pOrbiter->SendCommand(CMD_Pause_Media);
+		}
+		else if( m_pOrbiter->m_pLocationInfo_Initial && m_pOrbiter->m_pLocationInfo_Initial->m_dwPK_Device_DiscDrive )
+		{
+			// CD isn't playing.  Play it
+			DCE::CMD_MH_Play_Media CMD_MH_Play_Media(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,0,"!r0:" + StringUtils::itos(m_pOrbiter->m_pLocationInfo_Initial->m_dwPK_Device_DiscDrive),
+				0,0,StringUtils::itos(m_pOrbiter->m_pLocationInfo_Initial->PK_EntertainArea),0,0,false,false,false);
+			m_pOrbiter->SendCommand(CMD_MH_Play_Media);
+		}
+	}
+	else if( pObjectInfoData->m_pObj->m_iBaseObjectID==5636 && m_pOrbiter->m_pLocationInfo )
+	{
+		switch( mediaFileBrowserOptions.m_MediaRepeatOptions )
+		{
+		case repeat_None:
+			mediaFileBrowserOptions.m_MediaRepeatOptions=repeat_Queue;
+			break;
+		case repeat_Queue:
+			mediaFileBrowserOptions.m_MediaRepeatOptions=repeat_Track;
+			break;
+		case repeat_Track:
+			mediaFileBrowserOptions.m_MediaRepeatOptions=repeat_None;
+			break;
+		};
+		m_pOrbiter->CMD_Set_Graphic_To_Display(TOSTRING(5551) ".0.0." TOSTRING(5636),mediaFileBrowserOptions.m_MediaRepeatOptions==repeat_None ? "0" : (mediaFileBrowserOptions.m_MediaRepeatOptions==repeat_Queue ? "1" : "2"));
+		DCE::CMD_Specify_Repeat_Options CMD_Specify_Repeat_Options(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,StringUtils::itos(m_pOrbiter->m_pLocationInfo->PK_EntertainArea),(int) mediaFileBrowserOptions.m_MediaRepeatOptions);
+		m_pOrbiter->SendCommand(CMD_Specify_Repeat_Options);
 	}
 	return false; // Keep processing it
 }
@@ -2382,23 +2655,11 @@ bool ScreenHandler::CurrentDisc_DatagridSelected(CallBackData *pData)
 	DatagridCellBackData *pCellInfoData = (DatagridCellBackData *)pData;
 	if( pCellInfoData->m_pDesignObj_DataGrid )
 	{
-		if( pCellInfoData->m_pDesignObj_DataGrid->m_iHighlightedRow==pCellInfoData->m_Row )
-			pCellInfoData->m_pDesignObj_DataGrid->m_iHighlightedRow=-1;  // The user reselectd the cell.  Highlight it
+		if( pCellInfoData->m_pDesignObj_DataGrid->m_iHighlightedRow_get()==pCellInfoData->m_Row )
+			pCellInfoData->m_pDesignObj_DataGrid->m_iHighlightedRow_set(-1);  // The user reselectd the cell.  Highlight it
 		else
-			pCellInfoData->m_pDesignObj_DataGrid->m_iHighlightedRow=pCellInfoData->m_Row;
+			pCellInfoData->m_pDesignObj_DataGrid->m_iHighlightedRow_set(pCellInfoData->m_Row);
 		m_pOrbiter->Renderer()->RenderObjectAsync(pCellInfoData->m_pDesignObj_DataGrid);
-
-		if( m_pOrbiter->m_iPK_MediaType==MEDIATYPE_pluto_CD_CONST )
-		{
-			DCE::CMD_Jump_Position_In_Playlist CMD_Jump_Position_In_Playlist(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,StringUtils::itos(pCellInfoData->m_Row+1),0);
-			m_pOrbiter->SendCommand(CMD_Jump_Position_In_Playlist);
-		}
-		else if( m_pOrbiter->m_pLocationInfo_Initial && m_pOrbiter->m_pLocationInfo_Initial->m_dwPK_Device_DiscDrive )
-		{
-			DCE::CMD_MH_Play_Media CMD_MH_Play_Media(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,m_pOrbiter->m_pLocationInfo_Initial->m_dwPK_Device_DiscDrive,
-				StringUtils::itos(pCellInfoData->m_Row+1),MEDIATYPE_pluto_CD_CONST,0,StringUtils::itos(m_pOrbiter->m_pLocationInfo_Initial->PK_EntertainArea),false,0,false,false,false);
-			m_pOrbiter->SendCommand(CMD_MH_Play_Media);
-		}
 	}
 	return false; // Keep processing it
 }
@@ -2649,7 +2910,7 @@ bool ScreenHandler::TV_Channels_ObjectSelected(CallBackData *pData)
 			DataGridTable *pDataGridTable = pDesignObj_DataGrid->DataGridTable_Get();
 			if( pDataGridTable )
 			{
-				DataGridCell *pCell = pDataGridTable->GetData( 0, pDesignObj_DataGrid->m_iHighlightedRow + pDesignObj_DataGrid->m_GridCurRow );
+				DataGridCell *pCell = pDataGridTable->GetData( 0, pDesignObj_DataGrid->m_iHighlightedRow_get() + pDesignObj_DataGrid->m_GridCurRow );
 				LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::TV_Channels_ObjectSelected cell %p",pCell);
 				if( !pCell )
 					return false;
@@ -2689,7 +2950,7 @@ bool ScreenHandler::TV_Channels_ObjectSelected(CallBackData *pData)
 			DataGridTable *pDataGridTable = pDesignObj_DataGrid->DataGridTable_Get();
 			if( pDataGridTable )
 			{
-				DataGridCell *pCell = pDataGridTable->GetData( 0, pDesignObj_DataGrid->m_iHighlightedRow + pDesignObj_DataGrid->m_GridCurRow );
+				DataGridCell *pCell = pDataGridTable->GetData( 0, pDesignObj_DataGrid->m_iHighlightedRow_get() + pDesignObj_DataGrid->m_GridCurRow );
 				LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::TV_Channels_ObjectSelected cell %p",pCell);
 				if( !pCell )
 					return false;
@@ -2705,7 +2966,7 @@ bool ScreenHandler::TV_Channels_ObjectSelected(CallBackData *pData)
 						DataGridTable *pDataGridTable = pDesignObj_DataGrid->DataGridTable_Get();
 						if( pDataGridTable )
 						{
-							DataGridCell *pCell = pDataGridTable->GetData( 0, pDesignObj_DataGrid->m_iHighlightedRow + pDesignObj_DataGrid->m_GridCurRow );
+							DataGridCell *pCell = pDataGridTable->GetData( 0, pDesignObj_DataGrid->m_iHighlightedRow_get() + pDesignObj_DataGrid->m_GridCurRow );
 							if( pCell->m_Text )
 								sDescription = pCell->m_Text;
 						}
@@ -2732,7 +2993,7 @@ bool ScreenHandler::TV_Channels_ObjectSelected(CallBackData *pData)
 			DataGridTable *pDataGridTable = pDesignObj_DataGrid->DataGridTable_Get();
 			if( pDataGridTable )
 			{
-				DataGridCell *pCell = pDataGridTable->GetData( 0, pDesignObj_DataGrid->m_iHighlightedRow + pDesignObj_DataGrid->m_GridCurRow );
+				DataGridCell *pCell = pDataGridTable->GetData( 0, pDesignObj_DataGrid->m_iHighlightedRow_get() + pDesignObj_DataGrid->m_GridCurRow );
 				if( !pCell )
 					return false;
 
@@ -4656,14 +4917,14 @@ bool ScreenHandler::Telecom_OnTimer(CallBackData *pData)
 	if(NULL != pObj_Calls)
 	{
 		//old highlightings
-		int nHighlightRow = pObj_Calls->m_iHighlightedRow;
-		int nHighlightCol = pObj_Calls->m_iHighlightedColumn;
+		int nHighlightRow = pObj_Calls->m_iHighlightedRow_get();
+		int nHighlightCol = pObj_Calls->m_iHighlightedColumn_get();
 
 		m_pOrbiter->InitializeGrid(pObj_Calls);
 		pObj_Calls->Flush();
 
-		pObj_Calls->m_iHighlightedRow = nHighlightRow;
-		pObj_Calls->m_iHighlightedColumn = nHighlightCol;
+		pObj_Calls->m_iHighlightedRow_set(nHighlightRow);
+		pObj_Calls->m_iHighlightedColumn_set(nHighlightCol);
 
 		m_pOrbiter->Renderer()->RenderObjectAsync(pObj_Calls);
 	}
@@ -4671,14 +4932,14 @@ bool ScreenHandler::Telecom_OnTimer(CallBackData *pData)
 	if(NULL != pObj_Channels)
 	{
 		//old highlightings
-		int nHighlightRow = pObj_Channels->m_iHighlightedRow;
-		int nHighlightCol = pObj_Channels->m_iHighlightedColumn;
+		int nHighlightRow = pObj_Channels->m_iHighlightedRow_get();
+		int nHighlightCol = pObj_Channels->m_iHighlightedColumn_get();
 
 		m_pOrbiter->InitializeGrid(pObj_Channels);
 		pObj_Channels->Flush();
 
-		pObj_Channels->m_iHighlightedRow = nHighlightRow;
-		pObj_Channels->m_iHighlightedColumn = nHighlightCol;
+		pObj_Channels->m_iHighlightedRow_set(nHighlightRow);
+		pObj_Channels->m_iHighlightedColumn_set(nHighlightCol);
 
 		m_pOrbiter->Renderer()->RenderObjectAsync(pObj_Channels);
 	}

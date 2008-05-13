@@ -34,6 +34,7 @@ class DesignObj_DataGrid : public DesignObj_Orbiter
 {
 	friend class DataGridRenderer;
 	DataGridTable *m_pDataGridTable_Current;
+	int m_iHighlightedRow,m_iHighlightedColumn;
 
 public:
 	DesignObj_DataGrid(Orbiter *pOrbiter);
@@ -44,7 +45,11 @@ public:
 	int m_MaxRow, m_MaxCol; // The total number of rows and columns visible on the screen.  Not related to the actual rows and columns in the grid.  
 	int m_FixedRowHeight, m_FixedColumnWidth, m_RowSpacing;
 	int m_ColumnSpacing, m_FirstRowHeight, m_FirstColumnWidth;
-	int m_iHighlightedRow,m_iHighlightedColumn;
+	int m_iHighlightedRow_get() { return m_iHighlightedRow; }
+	int m_iHighlightedColumn_get() { return m_iHighlightedColumn; }
+	void m_iHighlightedRow_set(int i) { m_iHighlightedRow=i;}
+	void m_iHighlightedColumn_set(int i) { m_iHighlightedColumn=i;}
+
 	int m_iPopulatedWidth,m_iPopulatedHeight; // The last known size during populate grid
 	bool m_bReAcquire,m_bParsed,m_bFlushOnScreen;
 	bool m_bAddScroll; // This grid makes the top/bottom row scroll
