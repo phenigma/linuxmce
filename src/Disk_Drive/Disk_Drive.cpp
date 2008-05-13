@@ -665,7 +665,7 @@ void Disk_Drive::CMD_Get_Disk_Info(string *sText,int *iPK_MediaType,int *iEK_Dis
 		if( pJob->GetType()=="RipJob" )
 		{
 			RipJob *pRipJob = (RipJob *) pJob;
-			*sText = (pRipJob->m_bHasErrors ? "**WITH ERRORS** " : "no errors ") + pRipJob->m_sDirectory + "/" + pRipJob->m_sFileName;
+			*sText = (pRipJob->m_bHasErrors ? "**WITH ERRORS** " : "no errors ");
 
 			int iNotStarted=0,iFailed=0,iCompleted=0,iCancelled=0;
 			const ListTask *pListTask = pRipJob->m_listTask_get();
@@ -706,6 +706,8 @@ void Disk_Drive::CMD_Get_Disk_Info(string *sText,int *iPK_MediaType,int *iEK_Dis
 				*sText += " Waiting: " + StringUtils::itos(iNotStarted);
 			if( iCancelled )
 				*sText += " Cancelled: " + StringUtils::itos(iCancelled);
+
+			sText += "\n" + pRipJob->m_sFileName;
 		}
 	}
 }

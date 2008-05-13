@@ -2532,11 +2532,57 @@ bool ScreenHandler::CurrentDisc_GridRendering(CallBackData *pData)
 	NeedToRender render2( m_pOrbiter, "ScreenHandler::CurrentDisc_GridRendering" );
 
 	// Get the attributes for the disc
+	bool bHideCDControls=false;
 	string sValue;
 	if( m_pOrbiter->m_pLocationInfo_Initial && m_pOrbiter->m_pLocationInfo_Initial->m_dwPK_Device_DiscDrive )
 	{
 		DCE::CMD_Get_Attributes_For_Media CMD_Get_Attributes_For_Media(m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device_MediaPlugIn, "!r0:" + StringUtils::itos(m_pOrbiter->m_pLocationInfo_Initial->m_dwPK_Device_DiscDrive), "", &sValue);
 		m_pOrbiter->SendCommand(CMD_Get_Attributes_For_Media);
+
+		int PK_MediaType=0,iEK_Disc=0;
+		string sRippingInfo,Disks,URL,BlockDevice;
+		DCE::CMD_Get_Disk_Info CMD_Get_Disk_Info(m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_pLocationInfo_Initial->m_dwPK_Device_DiscDrive, &sRippingInfo, &PK_MediaType, &iEK_Disc, &Disks, &URL, &BlockDevice);
+		if( m_pOrbiter->SendCommand(CMD_Get_Disk_Info) )
+		{
+			if( sRippingInfo.empty()==false || PK_MediaType<1 )
+			{
+				bHideCDControls=true;
+				DesignObj_Orbiter *pObj = m_pOrbiter->FindObject( TOSTRING(5555) ".0.0." TOSTRING(5639) );
+				if( pObj )
+					pObj->m_bDisabled_set(true);
+
+				DesignObj_Orbiter *pObj_Panel = m_pOrbiter->FindObject(TOSTRING(5555) ".0.0." TOSTRING(5644));
+				if( pObj_Panel && pObj_Panel->m_bHidden==false )
+					m_pOrbiter->CMD_Show_Object( pObj_Panel->m_ObjectID,0,"","", "0" );
+
+				if( sRippingInfo.empty()==false )
+				{
+					pObj_Panel = m_pOrbiter->FindObject(TOSTRING(5555) ".0.0." TOSTRING(5645));
+					if( pObj_Panel && pObj_Panel->m_bHidden==true )
+						m_pOrbiter->CMD_Show_Object( pObj_Panel->m_ObjectID,0,"","", "1" );
+
+					m_pOrbiter->CMD_Set_Text( TOSTRING(5555) ".0.0." TOSTRING(5645), sRippingInfo, TEXT_STATUS_CONST);
+					m_pOrbiter->CMD_Continuous_Refresh("5");
+				}
+			}
+		}
+	}
+
+	if( !bHideCDControls )
+	{
+		m_pOrbiter->PurgeCallBack(&Orbiter::ContinuousRefresh);
+
+		DesignObj_Orbiter *pObj = m_pOrbiter->FindObject( TOSTRING(5555) ".0.0." TOSTRING(5639) );
+		if( pObj )
+			pObj->m_bDisabled_set(false);
+
+		DesignObj_Orbiter *pObj_Panel = m_pOrbiter->FindObject(TOSTRING(5555) ".0.0." TOSTRING(5644));
+		if( pObj_Panel && pObj_Panel->m_bHidden==true )
+			m_pOrbiter->CMD_Show_Object( pObj_Panel->m_ObjectID,0,"","", "1" );
+
+		pObj_Panel = m_pOrbiter->FindObject(TOSTRING(5555) ".0.0." TOSTRING(5645));
+		if( pObj_Panel && pObj_Panel->m_bHidden==false )
+			m_pOrbiter->CMD_Show_Object( pObj_Panel->m_ObjectID,0,"","", "0" );
 	}
 
 	map<int,string > mapAlbumAttributes; // These are the attributes for the whole album
@@ -2588,7 +2634,7 @@ bool ScreenHandler::CurrentDisc_GridRendering(CallBackData *pData)
 	m_pOrbiter->CMD_Set_Text(pObj->m_ObjectID,pCell && pCell->m_mapAttributes.find("Date")!=pCell->m_mapAttributes.end() ? pCell->m_mapAttributes_Find("Date") : mapAlbumAttributes[ATTRIBUTETYPE_Release_Date_CONST],2052);
 	m_pOrbiter->Renderer()->RenderObjectAsync(pObj);
 
-	bool bHidden = pDatagridAcquiredBackData->m_pObj->m_iHighlightedRow_get()==-1;
+	bool bHidden = pDatagridAcquiredBackData->m_pObj->m_iHighlightedRow_get()==-1 || bHideCDControls;
 	DesignObj_Orbiter *pObj_SelectedObjBar = m_pOrbiter->FindObject(TOSTRING(5555) ".0.0." TOSTRING(5599));
 	if( pObj_SelectedObjBar && pObj_SelectedObjBar->m_bHidden!=bHidden )
 		m_pOrbiter->CMD_Show_Object( pObj_SelectedObjBar->m_ObjectID,0,"","", bHidden ? "0" : "1" );
@@ -2640,11 +2686,16 @@ bool ScreenHandler::CurrentDisc_ObjectSelected(CallBackData *pData)
 			m_pOrbiter->SendCommand(CMD_MH_Play_Media);
 		}
 	}
-	else if( pObjectInfoData->m_pObj->m_iBaseObjectID==5643 && m_pOrbiter->m_pLocationInfo_Initial && m_pOrbiter->m_pLocationInfo_Initial->m_dwPK_Device_DiscDrive )
+	else if( pObjectInfoData->m_pObj->m_iBaseObjectID==5643 && m_pOrbiter->m_pLocationInfo_Initial && m_pOrbiter->m_pLocationInfo_Initial->m_dwPK_Device_DiscDrive ) // rip
 	{
 		DCE::CMD_Rip_Disk CMD_Rip_Disk(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,
 			m_pOrbiter->m_pLocationInfo_Initial->m_dwPK_Device_DiscDrive,"",0,"flac","A",0,0,0,"");
 		m_pOrbiter->SendCommand(CMD_Rip_Disk);
+	}
+	else if( pObjectInfoData->m_pObj->m_iBaseObjectID==5646 && m_pOrbiter->m_pLocationInfo_Initial && m_pOrbiter->m_pLocationInfo_Initial->m_dwPK_Device_DiscDrive ) // abort
+	{
+		DCE::CMD_Abort_Ripping CMD_Abort_Ripping(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_pLocationInfo_Initial->m_dwPK_Device_DiscDrive);
+		m_pOrbiter->SendCommand(CMD_Abort_Ripping);
 	}
 	else if( pObjectInfoData->m_pObj->m_iBaseObjectID==5636 && m_pOrbiter->m_pLocationInfo ) // repeat
 	{

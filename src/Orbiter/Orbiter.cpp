@@ -5822,6 +5822,8 @@ void Orbiter::CMD_Set_Text(string sPK_DesignObj,string sText,int iPK_Text,string
 		LoggerWrapper::GetInstance()->Write( LV_CRITICAL, "SetText: cannot find object %s text %d", sPK_DesignObj.c_str(  ), iPK_Text );
 	else
 	{
+		if( pText->m_sText == sText )
+			return; // Nothing to do anyway
 		pText->m_sText = sText;
 	}
 
