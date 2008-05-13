@@ -57,6 +57,7 @@ public:
 		int  m_serverPort;
 
 		char *m_args[100];
+		string m_sDrive;
 
 public:
     // Public member variables

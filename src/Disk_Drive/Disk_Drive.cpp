@@ -84,16 +84,15 @@ bool Disk_Drive::GetConfig()
 	if( !Disk_Drive_Command::GetConfig() )
 		return false;
 //<-dceag-getconfig-e->
-	string sDrive;
-	
+
 	system("modprobe ide-generic");
 	system("modprobe ide-cd");
-	sDrive = DATA_Get_Drive();
-	if (sDrive == "")
+	m_sDrive = DATA_Get_Drive();
+	if (m_sDrive == "")
 	{
-		sDrive = "/dev/cdrom";
-		if (!FileUtils::FileExists(sDrive))
-			sDrive = "/dev/cdrom1";
+		m_sDrive = "/dev/cdrom";
+		if (!FileUtils::FileExists(m_sDrive))
+			m_sDrive = "/dev/cdrom1";
 	}
 	
 	m_pDatabase_pluto_media = new Database_pluto_media(LoggerWrapper::GetInstance());
@@ -101,7 +100,7 @@ bool Disk_Drive::GetConfig()
 	if( sIP.empty() )
 		sIP = m_sIPAddress;
 
-	VerifyDriveIsNotEmbedded(sDrive);
+	VerifyDriveIsNotEmbedded(m_sDrive);
 
 	if( !m_pDatabase_pluto_media->Connect(sIP,"root","","pluto_media") )
 	{
@@ -177,7 +176,7 @@ void Disk_Drive::PostConnect()
 	// Do this in the post connect since this means we'll be waiting for external media identifier
 	// and launch manager won't spawn other devices until each connects.  We don't want launch manager
 	// to wait for disk drive, which is waiting for external media identify which launch manager hasn't started yet
-	m_pDisk_Drive_Functions = new Disk_Drive_Functions(m_dwPK_Device,this, sDrive, m_pJobHandler,m_pDatabase_pluto_media,m_pMediaAttributes_LowLevel);
+	m_pDisk_Drive_Functions = new Disk_Drive_Functions(m_dwPK_Device,this, m_sDrive, m_pJobHandler,m_pDatabase_pluto_media,m_pMediaAttributes_LowLevel);
 	m_pDisk_Drive_Functions->UpdateDiscLocation('E',0); // For now say the drive is empty, when the script starts it will get set again
 
 	DCE::CMD_Refresh_List_of_Online_Devices_Cat CMD_Refresh_List_of_Online_Devices_Cat(m_dwPK_Device,DEVICECATEGORY_Media_Plugins_CONST,
@@ -666,20 +665,60 @@ void Disk_Drive::CMD_Get_Disk_Info(string *sText,int *iPK_MediaType,int *iEK_Dis
 		if( pJob->GetType()=="RipJob" )
 		{
 			RipJob *pRipJob = (RipJob *) pJob;
-			*sText = (pRipJob->m_bHasError ? "**WITH ERRORS** " : "no errors ") + pRipJob->m_sDirectory + "/" + pRipJob->m_sFileName;
+			*sText = (pRipJob->m_bHasErrors ? "**WITH ERRORS** " : "no errors ") + pRipJob->m_sDirectory + "/" + pRipJob->m_sFileName;
+
+			int iNotStarted=0,iFailed=0,iCompleted=0,iCancelled=0;
+			const ListTask *pListTask = pRipJob->m_listTask_get();
+			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive::CMD_Get_Disk_Info %d tasks", pListTask->size());
+
+			for(ListTask::const_iterator it=pListTask->begin();it!=pListTask->end();++it)
+			{
+				Task *pTask = *it;
+				if( pTask->GetType() == "RipTask" )
+				{
+					RipTask *pRipTask = (RipTask *) pTask;
+					switch( pRipTask->m_eTaskStatus_get() )
+					{
+					case TASK_NOT_STARTED:
+						iNotStarted++;
+						break;
+					case TASK_IN_PROGRESS:
+						break;
+					case TASK_FAILED_ABORT:
+					case TASK_FAILED_CONTINUE:
+						iFailed++;
+						break;
+					case TASK_COMPLETED:
+						iCompleted++;
+						break;
+					case TASK_CANCELED:
+						iCancelled++;
+						break;
+					}
+				}
+			}
+
+			if( iCompleted )
+				*sText += " Completed: " + StringUtils::itos(iCompleted);
+			if( iFailed )
+				*sText += " Failed: " + StringUtils::itos(iFailed);
+			if( iNotStarted )
+				*sText += " Waiting: " + StringUtils::itos(iNotStarted);
+			if( iCancelled )
+				*sText += " Cancelled: " + StringUtils::itos(iCancelled);
 		}
 	}
 }
 
-void Disk_Drive::VerifyDriveIsNotEmbedded(string &sDrive)
+void Disk_Drive::VerifyDriveIsNotEmbedded(string &m_sDrive)
 {
 	// There's a problem in Linux that it often creates the /dev/cdrom symlinc
 	// to a drive that's really embedded in one of the jukeboxes, and not the main cdrom.
 	// Go through all embedded disk drives, and if this is a symlinc to one, change it to
 	// something else
 
-	int iDrive = FileUtils::GetLinuxDeviceId(sDrive);
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive::VerifyDriveIsNotEmbedded %d: %s",  iDrive, sDrive.c_str());
+	int iDrive = FileUtils::GetLinuxDeviceId(m_sDrive);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive::VerifyDriveIsNotEmbedded %d: %s",  iDrive, m_sDrive.c_str());
 
 	bool bNeedToChangeDrive=false; // Will set to true if we're using the same thing as an embedded
 	list<int> listEmbeddedDrives;
@@ -734,7 +773,7 @@ void Disk_Drive::VerifyDriveIsNotEmbedded(string &sDrive)
 			{
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Disk_Drive::VerifyDriveIsNotEmbedded %d,%s is a go", iDrive2,sValue.c_str());
 				SetDeviceDataInDB(m_dwPK_Device,DEVICEDATA_Drive_CONST,sValue);
-				sDrive=sValue;
+				m_sDrive=sValue;
 				return;
 			}
 		}

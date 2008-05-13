@@ -50,6 +50,8 @@ namespace nsJobHandler
 	class Task;
 	class JobHandler;
 
+	typedef list<class Task *> ListTask;
+
     /** @class Job
     For tasks.
     */
@@ -84,7 +86,7 @@ namespace nsJobHandler
 		int m_iMaxTasks;
 		JobStatus m_eJobStatus;
 		class JobHandler *m_pJobHandler;
-		list<Task *> m_listTask;
+		ListTask m_listTask;
 
         /** Set this to non-zero if you want to your ReadyToRun() to be called no later than this time.
         Zero means don't call until something changes.
@@ -137,6 +139,11 @@ namespace nsJobHandler
 		virtual bool ReportPendingTasks(PendingTaskList *pPendingTaskList);  // override to accurately report this job
 
 		void RefreshOrbiter();
+
+		/** Be sure to grab a mutex before using this.
+        like this: PLUTO_SAFETY_LOCK(jm,*m_pJobHandler->m_ThreadMutex_get());
+        */
+		const ListTask *m_listTask_get() { return &m_listTask; }
 	};
 };
 
