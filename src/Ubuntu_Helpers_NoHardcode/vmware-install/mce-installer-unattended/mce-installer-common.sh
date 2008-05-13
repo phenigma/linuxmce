@@ -13,9 +13,9 @@ function Replace_Mirror {
 
 	local newlines="
 deb file:/usr/pluto/deb-cache/ ./
-deb $mirror gutsy main restricted universe multiverse
-deb $mirror gutsy-security main restricted universe multiverse
-deb $mirror gutsy-updates  main restricted universe multiverse
+deb $mirror $(lsb_release -c -s) main restricted universe multiverse
+deb $mirror $(lsb_release -c -s)-security main restricted universe multiverse
+deb $mirror $(lsb_release -c -s)-updates  main restricted universe multiverse
 "
 
 	while read line ;do
@@ -51,9 +51,9 @@ function Setup_Apt_Conffiles {
 	local Sources="# Pluto sources - start
 # Choosed mirror - start
 deb file:/usr/pluto/deb-cache/ ./
-deb $c_installMirror gutsy main restricted multiverse universe
-deb $c_installMirror gutsy-security main restricted multiverse universe
-deb $c_installMirror gutsy-updates main restricted multiverse universe
+deb $c_installMirror $(lsb_release -c -s) main restricted multiverse universe
+deb $c_installMirror $(lsb_release -c -s)-security main restricted multiverse universe
+deb $c_installMirror $(lsb_release -c -s)-updates main restricted multiverse universe
 deb http://linuxmce.com/ubuntu ./
 # Choosed mirror - end
 #deb http://10.0.0.82/ ./
@@ -103,7 +103,7 @@ Pin: origin
 Pin-Priority: 9999
 
 Package: *
-Pin: release v=7.10,o=Ubuntu,a=gutsy,l=Ubuntu
+Pin: release v='$(lsb_release -s -r)',o=Ubuntu,a='$(lsb_release -c -s)',l=Ubuntu
 Pin-Priority: 9998
 '
 	echo -n "$pluto_apt_preferences" >/etc/apt/preferences
