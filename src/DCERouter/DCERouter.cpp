@@ -74,6 +74,7 @@ using namespace std;
 #include "pluto_main/Define_DeviceTemplate.h"
 #include "pluto_main/Define_Command.h"
 #include "pluto_main/Define_CommandParameter.h"
+#include "pluto_main/Define_DeviceData.h"
 #endif
 
 #ifndef EMBEDDED_LMCE
@@ -1243,6 +1244,18 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted, bo
 					(*SafetyMessage)->m_bRespondedToMessage=true;
 				}
 #endif // EMBEDDED_LMCE
+#ifdef EMBEDDED_LMCE
+				map<int,class DeviceData_Router *>::iterator itDDR = m_mapDeviceData_Router.find(PK_Device);
+				if (itDDR != m_mapDeviceData_Router.end())
+				{
+					map<int, string>::iterator itParm = itDDR->second->m_mapParameters.find((*SafetyMessage)->m_dwID);
+					if (itParm != itDDR->second->m_mapParameters.end())
+					{
+						pSocket->SendMessage(new Message(m_dwPK_Device, (*SafetyMessage)->m_dwPK_Device_From, PRIORITY_NORMAL, MESSAGETYPE_REPLY, 0, 1, (*SafetyMessage)->m_dwID, itParm->second.c_str()));
+					}
+				}
+				(*SafetyMessage)->m_bRespondedToMessage=true;
+#endif
 			}
 			if( !(*SafetyMessage)->m_bRespondedToMessage )
 			{
@@ -2611,6 +2624,23 @@ void Router::Configure()
 #endif
 
     // Build some static arrays
+#ifdef EMBEDDED_LMCE
+	DeviceData_Router *pDevice;
+
+	pDevice = new DeviceData_Router(1, 7, 1, 0);
+	pDevice->m_sDescription = "Core";
+	m_mapDeviceData_Router[pDevice->m_dwPK_Device]=pDevice;
+
+	pDevice = new DeviceData_Router(2, 1, 1, 1);
+	pDevice->m_sDescription = "DCERouter";
+	m_mapDeviceData_Router[pDevice->m_dwPK_Device]=pDevice;
+
+	pDevice = new DeviceData_Router(3, 1754, 1, 1);
+	pDevice->m_sDescription = "ZWave";
+	pDevice->m_mapParameters[DEVICEDATA_COM_Port_on_PC_CONST] = "/dev/ttyUSB0";
+	m_mapDeviceData_Router[pDevice->m_dwPK_Device]=pDevice;
+#endif
+
 #ifndef EMBEDDED_LMCE
     vector<Row_Event *> vectRow_Event;
     GetDatabase()->Event_get()->GetRows("1=1",&vectRow_Event);  // All rows
