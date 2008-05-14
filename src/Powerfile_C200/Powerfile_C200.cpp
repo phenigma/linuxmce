@@ -1288,7 +1288,7 @@ void Powerfile_C200::PostConnect()
 	// to wait for disk drive, which is waiting for external media identify which launch manager hasn't started yet
 	m_pPowerfileJukebox = new nsJukeBox::PowerfileJukebox(this);
 	if (!m_pPowerfileJukebox->Init())
-		return false;
+		return;
 
 	DCE::CMD_Refresh_List_of_Online_Devices_Cat CMD_Refresh_List_of_Online_Devices_Cat(m_dwPK_Device,DEVICECATEGORY_Media_Plugins_CONST,
 		true,BL_SameHouse);

@@ -1255,6 +1255,7 @@ class DataGridTable *Media_Plugin::CDTracks( string GridID, string Parms, void *
 
 class DataGridTable *Media_Plugin::MediaSearchAutoCompl( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
 {
+	int iWidth = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Width_CONST].c_str());
     FileListGrid *pDataGrid = new FileListGrid( m_pDatagrid_Plugin, this );
     DataGridCell *pCell;
 
@@ -1293,23 +1294,36 @@ class DataGridTable *Media_Plugin::MediaSearchAutoCompl( string GridID, string P
             string label = row[2];
             label += string( "\n" ) + row[1];
             pCell = new DataGridCell( "", string("!F") + row[0] );
+            pDataGrid->SetData( 0, RowCount, pCell );
+            pDataGrid->m_vectFileInfo.push_back( new FileListInfo( false, string(row[1]) + "/" + row[2], false ) );
+			if( iWidth==1 )  // New style with cell attributes
+			{
+				pCell->m_mapAttributes["Description"]="File";
+				pCell->m_mapAttributes["PK_File"]=row[0];
+				pCell->m_mapAttributes["Name"]=row[2];
+				pCell->m_mapAttributes["Path"]=row[1];
+				pCell->m_mapAttributes["Filename"]=row[2];
+				if( row[3] )
+					pCell->m_mapAttributes["PK_Picture"]=row[3];
+				RowCount++;
+				continue;
+			}
+
 			if( row[3] && row[3][0]!='0' )
 			{
 				size_t st=0;
 				pCell->m_pGraphicData = FileUtils::ReadFileIntoBuffer("/home/mediapics/" + string(row[3]) + "_tn.jpg",st);
 				pCell->m_GraphicLength=st;
 			}
-            pDataGrid->SetData( 0, RowCount, pCell );
 
             pCell = new DataGridCell( label, string("!F") + row[0] );
             pCell->m_Colspan = 5;
-            pDataGrid->m_vectFileInfo.push_back( new FileListInfo( false, string(row[1]) + "/" + row[2], false ) );
             pDataGrid->SetData( 1, RowCount++, pCell );
         }
     }
 
     SQL = 
-		"select DISTINCT PK_Attribute, Name, Description, FK_Picture FROM Attribute "
+		"select DISTINCT PK_Attribute, Name, Description, FK_Picture, PK_AttributeType FROM Attribute "
 		"JOIN AttributeType ON Attribute.FK_AttributeType=PK_AttributeType "
 		"JOIN MediaType_AttributeType ON MediaType_AttributeType.FK_AttributeType=PK_AttributeType "
 		"LEFT JOIN Picture_Attribute ON FK_Attribute=PK_Attribute "
@@ -1328,13 +1342,26 @@ class DataGridTable *Media_Plugin::MediaSearchAutoCompl( string GridID, string P
             string label = /* string( "~`S24`" ) + */ row[1];
             label += string( "\n" ) + row[2];
             pCell = new DataGridCell( "", string("!A") + row[0] );
+            pDataGrid->SetData( 0, RowCount, pCell );
+            pDataGrid->m_vectFileInfo.push_back( new FileListInfo( atoi( row[0] ) ) );
+			if( iWidth==1 )  // New style with cell attributes
+			{
+				pCell->m_mapAttributes["PK_Attribute"]=row[0];
+				pCell->m_mapAttributes["PK_AttributeType"]=row[4];
+				pCell->m_mapAttributes["Name"]=row[1];
+				pCell->m_mapAttributes["Description"]=row[2];
+				if( row[3] )
+					pCell->m_mapAttributes["PK_Picture"]=row[3];
+				RowCount++;
+				continue;
+			}
+
 			if( row[3] && row[3][0]!='0' )
 			{
 				size_t st=0;
 				pCell->m_pGraphicData = FileUtils::ReadFileIntoBuffer("/home/mediapics/" + string(row[3]) + "_tn.jpg",st);
 				pCell->m_GraphicLength=st;
 			}
-            pDataGrid->SetData( 0, RowCount, pCell );
 
             if( AttributesFirstSearch.length() )
                 AttributesFirstSearch += ",";
@@ -1342,7 +1369,6 @@ class DataGridTable *Media_Plugin::MediaSearchAutoCompl( string GridID, string P
 
             pCell = new DataGridCell( label,  string("!A") + row[0] );
             pCell->m_Colspan = 5;
-            pDataGrid->m_vectFileInfo.push_back( new FileListInfo( atoi( row[0] ) ) );
             pDataGrid->SetData( 1, RowCount++, pCell );
         }
     }
@@ -1352,7 +1378,7 @@ class DataGridTable *Media_Plugin::MediaSearchAutoCompl( string GridID, string P
 		return pDataGrid;
 
     SQL = 
-		"select DISTINCT PK_Attribute, Name, Description, FK_Picture FROM SearchToken "
+		"select DISTINCT PK_Attribute, Name, Description, FK_Picture, PK_AttributeType FROM SearchToken "
 		"JOIN SearchToken_Attribute ON PK_SearchToken=FK_SearchToken "
 		"JOIN Attribute ON SearchToken_Attribute.FK_Attribute=PK_Attribute "
 		"JOIN AttributeType ON Attribute.FK_AttributeType=PK_AttributeType "
@@ -1375,17 +1401,29 @@ class DataGridTable *Media_Plugin::MediaSearchAutoCompl( string GridID, string P
             string label = /*string( "~`S24`" ) + */ row[1];
             label += string( "\n" ) + row[2];
             pCell = new DataGridCell( "",  string("!A") + row[0] );
+            pDataGrid->SetData( 0, RowCount, pCell );
+            pDataGrid->m_vectFileInfo.push_back( new FileListInfo( atoi( row[0] ) ) );
+			if( iWidth==1 )  // New style with cell attributes
+			{
+				pCell->m_mapAttributes["PK_Attribute"]=row[0];
+				pCell->m_mapAttributes["PK_AttributeType"]=row[4];
+				pCell->m_mapAttributes["Name"]=row[1];
+				pCell->m_mapAttributes["Description"]=row[2];
+				if( row[3] )
+					pCell->m_mapAttributes["PK_Picture"]=row[3];
+				RowCount++;
+				continue;
+			}
+
 			if( row[3] && row[3][0]!='0' )
 			{
 				size_t st=0;
 				pCell->m_pGraphicData = FileUtils::ReadFileIntoBuffer("/home/mediapics/" + string(row[3]) + "_tn.jpg",st);
 				pCell->m_GraphicLength=st;
 			}
-            pDataGrid->SetData( 0, RowCount, pCell );
 
             pCell = new DataGridCell( label,  string("!A") + row[0] );
             pCell->m_Colspan = 5;
-            pDataGrid->m_vectFileInfo.push_back( new FileListInfo( atoi( row[0] ) ) );
             pDataGrid->SetData( 1, RowCount++, pCell );
         }
     }
@@ -1939,14 +1977,17 @@ class DataGridTable *Media_Plugin::AvailablePlaylists( string GridID, string Par
     LoggerWrapper::GetInstance()->Write(LV_STATUS, "Media_Plugin::AvailablePlaylists Called to populate: %s", Parms.c_str());
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
 
+	string SQL;
+
     if( Parms.length( )==0 )
-        return NULL; // Nothing passed in yet
-
-    // select PK_Playlist, Name from Playlist where EK_USER IN ( 0, 33128 ) LIMIT 30;;
-
-    int userID = atoi(Parms.c_str());
-
-    string SQL = "SELECT PK_Playlist, Name from Playlist where EK_User IS NULL OR EK_User IN ( 0, " + StringUtils::itos(userID) + " ) ORDER BY NAME LIMIT 30";
+	{
+		SQL = "SELECT PK_Playlist, Name from Playlist ORDER BY NAME";
+	}
+	else
+	{
+	    int userID = atoi(Parms.c_str());
+		SQL = "SELECT PK_Playlist, Name from Playlist where EK_User IS NULL OR EK_User IN ( 0, " + StringUtils::itos(userID) + " ) ORDER BY NAME";
+	}
 
     PlutoSqlResult result;
     DB_ROW row;

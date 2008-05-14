@@ -280,6 +280,10 @@ public:
 	MediaFileBrowserOptions mediaFileBrowserOptions;  // Current sort/filter options for the media browser
 
 	virtual void SCREEN_FileList_PlayLists(long PK_Screen);
+	bool FileList_PlayLists_ObjectSelected(CallBackData *pData);
+	bool FileList_PlayLists_GridRendering(CallBackData *pData);
+	bool FileList_PlayLists_DatagridSelected(CallBackData *pData);
+
 	virtual void SCREEN_FileList_Music_Movies_Video(long PK_Screen);
 
 	bool MediaBrowsre_Intercepted(CallBackData *pData);

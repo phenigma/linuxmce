@@ -269,7 +269,6 @@ void DesignObj_Orbiter::m_GraphicToDisplay_set(string sCalling,int GraphicToDisp
 #ifdef DEBUG
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"m_GraphicToDisplay_set %s %s=%d",sCalling.c_str(),m_ObjectID.c_str(),GraphicToDisplay);
 #endif
-
 	m_GraphicToDisplay=GraphicToDisplay;
 	if( bSetUnhighlightedState )
 		m_GraphicBeforeHighlight=GraphicToDisplay;

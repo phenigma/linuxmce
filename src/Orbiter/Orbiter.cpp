@@ -5015,7 +5015,7 @@ void Orbiter::CMD_Go_back(string sPK_DesignObj_CurrentScreen,string sForce,strin
 #endif
 
 	int PK_Screen_OnScreen = m_pScreenHistory_Current->PK_Screen();
-	if( PK_Screen_OnScreen==SCREEN_Main_CONST && m_pScreenHistory_Current && m_pScreenHistory_Current->GetObj() != m_pDesignObj_Orbiter_ScreenSaveMenu )
+	if( m_sSkin != AUDIO_STATION_SKIN && PK_Screen_OnScreen==SCREEN_Main_CONST && m_pScreenHistory_Current && m_pScreenHistory_Current->GetObj() != m_pDesignObj_Orbiter_ScreenSaveMenu )
 	{
 		// If the user hits the menu button from the main menu, go to the screen saver, unless there's a computing app
 		if( m_PK_Screen_ActiveApp_OSD )
@@ -5029,14 +5029,7 @@ void Orbiter::CMD_Go_back(string sPK_DesignObj_CurrentScreen,string sForce,strin
 		}
 		else
 		{
-			if(m_sSkin == AUDIO_STATION_SKIN) //TODO: change to audio station
-			{
-				CMD_Goto_Screen("",SCREEN_Main_CONST);	
-			}
-			else
-			{
-				StartScreenSaver(true); 
-			}
+			StartScreenSaver(true); 
 		}
 		return;
 	}
@@ -5097,12 +5090,6 @@ void Orbiter::CMD_Go_back(string sPK_DesignObj_CurrentScreen,string sForce,strin
 			m_pOrbiterRenderer->ObjectOffScreen(pOldScreenHistory->GetObj());
 		}
 		m_pScreenHistory_Current->m_bPutObjectsOffScreen = true;
-
-		if(m_sSkin == AUDIO_STATION_SKIN && m_pScreenHistory_Current->PK_Screen() == SCREEN_Main_CONST) //TODO: change to audio station
-		{
-			GotoMainMenu();
-			return;
-		}
 
 		string sCMD_Result;
 		if( m_mapPK_Screen_GoBackToScreen.find(m_pScreenHistory_Current->PK_Screen())!=m_mapPK_Screen_GoBackToScreen.end() )
