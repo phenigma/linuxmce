@@ -2637,7 +2637,7 @@ void Router::Configure()
 
 	pDevice = new DeviceData_Router(3, 1754, 1, 1);
 	pDevice->m_sDescription = "ZWave";
-	pDevice->m_mapParameters[DEVICEDATA_COM_Port_on_PC_CONST] = "/dev/ttyUSB0";
+	pDevice->m_mapParameters[DEVICEDATA_COM_Port_on_PC_CONST] = "/dev/usb/tts/0";
 	m_mapDeviceData_Router[pDevice->m_dwPK_Device]=pDevice;
 #endif
 
