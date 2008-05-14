@@ -333,6 +333,8 @@ public:
 	bool SCREEN_Remote_Assistance_ObjectSelected(CallBackData *pData);
 	bool SCREEN_Remote_Assistance_OnTimer(CallBackData *pData);
 
+	void SCREEN_Edit_Attributes(long PK_Screen, string sTracks, int iEK_Attribute, int iEK_Disc, int iEK_File);
+
 	//dialogs
 	virtual void SCREEN_DialogCannotPlayMedia(long PK_Screen, string sErrors);
 	virtual void SCREEN_DialogRippingInProgress(long PK_Screen, string sPK_DeviceFrom, string sPK_RippingDevice);

@@ -1457,6 +1457,24 @@ bool ScreenHandler::MusicFullScreen_ObjectSelected(CallBackData *pData)
 			m_pOrbiter->SendCommand(CMD_Jump_Position_In_Playlist);
 		}
 	}
+	else if( pObjectInfoData->m_pObj->m_iBaseObjectID==5600 )  // edit attributes
+	{
+		PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_VariableMutex);
+		DesignObj_DataGrid *pObj = (DesignObj_DataGrid *) m_pOrbiter->FindObject( TOSTRING(5551) ".0.0." TOSTRING(5603) );
+		if( pObj && pObj->m_pDataGridTable_Current_get() )
+		{
+			DataGridTable *pDataGridTable = pObj->m_pDataGridTable_Current_get();
+			int iTrack = m_pOrbiter->m_iPK_MediaType==MEDIATYPE_pluto_StoredAudio_CONST ? atoi(m_pOrbiter->m_mapVariable_Find(VARIABLE_Track_or_Playlist_Positio_CONST).c_str()) : -1;
+			int iRow = pObj->m_iHighlightedRow_get()>=0 ? pObj->m_GridCurRow + pObj->m_iHighlightedRow_get() : iTrack;
+			DataGridCell *pCell = pDataGridTable->GetData( 0, iRow );
+			if( pCell )
+			{
+				string sPK_File = pCell->m_mapAttributes_Find("PK_File");
+				DCE::SCREEN_Edit_Attributes SCREEN_Edit_Attributes(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,"",0,0,atoi(sPK_File.c_str()));
+				m_pOrbiter->SendCommand(SCREEN_Edit_Attributes);
+			}
+		}
+	}
 	else if( pObjectInfoData->m_pObj->m_iBaseObjectID==5597 )  // move entry down
 	{
 		PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_VariableMutex);
@@ -5763,3 +5781,8 @@ bool ScreenHandler::Aj_ObjectSelected(CallBackData *pData)
 	return false;
 }
 //<-mkr_b_aj_e->
+void ScreenHandler::SCREEN_Edit_Attributes(long PK_Screen, string sTracks, int iEK_Attribute, int iEK_Disc, int iEK_File)
+{
+	ScreenHandlerBase::SCREEN_Edit_Attributes(PK_Screen, sTracks, iEK_Attribute, iEK_Disc, iEK_File);
+}
+
