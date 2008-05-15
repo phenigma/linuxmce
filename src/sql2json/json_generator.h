@@ -58,10 +58,14 @@ private:
 
 	string m_sBuffer;
 	map<string, string> m_mapTableFields;
+	map<string, string> m_mapRowFilter;
 
 	string generate_table_json(TableInfo_Generator *pTableInfo, bool bHasPKField);
 	string get_fields_needed_for_table(string sTableName);
 	bool is_needed_table(string sTableName);
+
+	void LoadFilterForColumns(string sConfigFile);
+	void LoadFilterForRows(string sConfigFile);
 
 public:
 	json_generator(string sDBName);

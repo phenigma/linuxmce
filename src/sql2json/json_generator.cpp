@@ -24,9 +24,15 @@ See the GNU General Public License for more details.
 //-------------------------------------------------------------------------------------------------------
 json_generator::json_generator(string sDBName)
 {
+	LoadFilterForColumns(sDBName + ".conf");
+	LoadFilterForRows(sDBName + "_filter.conf");
+}
+//-------------------------------------------------------------------------------------------------------
+void json_generator::LoadFilterForColumns(string sConfigFile)
+{
 	vector<string> vectLines;
-	FileUtils::ReadFileIntoVector(sDBName + ".conf", vectLines);
-    
+	FileUtils::ReadFileIntoVector(sConfigFile, vectLines);
+
 	for(vector<string>::iterator it = vectLines.begin(); it != vectLines.end(); ++it)
 	{
 		string sLine = *it;
@@ -35,7 +41,29 @@ json_generator::json_generator(string sDBName)
 		StringUtils::Tokenize(sLine, ":", vectObjects);
 
 		if(vectObjects.size() == 2)
-            m_mapTableFields[vectObjects[0]] = vectObjects[1];
+			m_mapTableFields[vectObjects[0]] = vectObjects[1];
+		else
+			cout << "INVALID LINE: " << sLine << endl;
+	}
+}
+//-------------------------------------------------------------------------------------------------------
+void json_generator::LoadFilterForRows(string sConfigFile)
+{
+	vector<string> vectLines;
+	FileUtils::ReadFileIntoVector(sConfigFile, vectLines);
+
+	for(vector<string>::iterator it = vectLines.begin(); it != vectLines.end(); ++it)
+	{
+		string sLine = *it;
+
+		vector<string> vectObjects;
+		StringUtils::Tokenize(sLine, ":", vectObjects);
+
+		if(vectObjects.size() == 2)
+		{
+			m_mapRowFilter["PK_" + vectObjects[0]] = vectObjects[1];
+			m_mapRowFilter["FK_" + vectObjects[0]] = vectObjects[1];
+		}
 		else
 			cout << "INVALID LINE: " << sLine << endl;
 	}
@@ -50,16 +78,53 @@ string json_generator::generate_table_json(TableInfo_Generator *pTableInfo, bool
 	string sTableInfo;
 	string sFields = get_fields_needed_for_table(pTableInfo->get_table_name());
 	string sIds;
+	string sWhereCondition;
+	string sAllFields;
 
+	//list with all fields, including the PK_... if it has any
+	if(bHasPKField)
+		sAllFields = "PK_" + pTableInfo->get_table_name() + ",";
+   	sAllFields += sFields;
+
+	//vector with all fields
+	vector<string> vectAllFieldNames;
+	StringUtils::Tokenize(sAllFields, ",", vectAllFieldNames);
+
+	//generate where condition
+	bool bFirstCondition = true;
+	for(vector<string>::iterator it = vectAllFieldNames.begin(); it != vectAllFieldNames.end(); ++it)
+	{
+		string sFieldName = *it;
+
+		map<string,string>::iterator it_item = m_mapRowFilter.find(sFieldName);
+		if(it_item != m_mapRowFilter.end())
+		{
+			if(bFirstCondition)
+			{
+				bFirstCondition = false;
+				sWhereCondition = "WHERE ";
+			}
+			else
+			{
+				sWhereCondition += ", ";
+			}
+
+			sWhereCondition += sFieldName + " IN (" + it_item->second + ")";
+		}
+	}
+
+	//get the rows
 	string sSQL = "SELECT " + 
 		(bHasPKField ? "PK_" + pTableInfo->get_table_name() + "," : "") + 
 		sFields + 
-		" FROM " + pTableInfo->get_table_name() + 
+		" FROM " + pTableInfo->get_table_name() + " " +
+		sWhereCondition + " " +
 		(bHasPKField? " ORDER BY PK_" + pTableInfo->get_table_name() : "");
 
-	int iresult=mysql_query(pTableInfo->db(), sSQL.c_str());
-	if( iresult!=0 )
+	int iresult = mysql_query(pTableInfo->db(), sSQL.c_str());
+	if(iresult != 0)
 	{
+		cout << "INVALID SQL : " << sSQL << endl;
 		return "";
 	}
 
@@ -79,6 +144,7 @@ string json_generator::generate_table_json(TableInfo_Generator *pTableInfo, bool
 	//	},
 	//	...
 
+	//the vector with the other fields
 	vector<string> vectFieldNames;
 	StringUtils::Tokenize(sFields, ",", vectFieldNames);
 
