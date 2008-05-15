@@ -10,7 +10,12 @@ CXX = g++
 APPNAME = sql2json
 VERSION = 2.0.0
 
-sources = TableInfo.cpp TableInfo_Generator.cpp DatabaseInfo.cpp CommonFunctions.cpp FieldInfo.cpp
+sources = \
+	  ../sql2cpp/TableInfo.cpp \
+	  ../sql2cpp/TableInfo_Generator.cpp \
+	  ../sql2cpp/DatabaseInfo.cpp \
+	 ../sql2cpp/CommonFunctions.cpp \
+	 ../sql2cpp/FieldInfo.cpp
 sql2json = $(sources) sql2json.cpp json_generator.cpp
 
 all: sql2json
