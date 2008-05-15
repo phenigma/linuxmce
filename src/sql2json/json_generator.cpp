@@ -37,6 +37,9 @@ void json_generator::LoadFilterForColumns(string sConfigFile)
 	{
 		string sLine = *it;
 
+		if(sLine.empty())
+			continue;
+
 		vector<string> vectObjects;
 		StringUtils::Tokenize(sLine, ":", vectObjects);
 
@@ -55,6 +58,9 @@ void json_generator::LoadFilterForRows(string sConfigFile)
 	for(vector<string>::iterator it = vectLines.begin(); it != vectLines.end(); ++it)
 	{
 		string sLine = *it;
+
+		if(sLine.empty())
+			continue;
 
 		vector<string> vectObjects;
 		StringUtils::Tokenize(sLine, ":", vectObjects);
