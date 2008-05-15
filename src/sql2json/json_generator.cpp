@@ -167,9 +167,9 @@ string json_generator::generate_table_json(TableInfo_Generator *pTableInfo, bool
 			("\t\t\"" + pTableInfo->get_table_name() + "_" + row[0] + "_" + row[1] + "\": {\n");
 
 		size_t nNumFields = vectFieldNames.size();
-		for(size_t i = 1; i < nNumFields; ++i)
+		for(size_t i = 0; i < nNumFields; ++i)
 		{
-			sRowInfo += "\t\t\t\"" + vectFieldNames[i] + "\":\"" + (NULL != row[i] ? row[i] : "") + "\"";
+			sRowInfo += "\t\t\t\"" + vectFieldNames[i] + "\":\"" + (NULL != row[i + 1] ? JSONEscape(row[i + 1]) : "") + "\"";
 
 			if(i != nNumFields - 1)
 				sRowInfo += ",";
@@ -252,5 +252,17 @@ const string& json_generator::generate_json(vector<class TableInfo_Generator *> 
 	m_sBuffer += "}\n";
 
 	return m_sBuffer;
+}
+//-------------------------------------------------------------------------------------------------------
+string json_generator::JSONEscape(string sValue)
+{
+	StringUtils::Replace(&sValue, "\"", "\\\"");
+	StringUtils::Replace(&sValue, "\\", "\\\\");
+	StringUtils::Replace(&sValue, "/", "\\/");
+	StringUtils::Replace(&sValue, "\n", "\\n");
+	StringUtils::Replace(&sValue, "\r", "\\r");
+	StringUtils::Replace(&sValue, "\t", "\\t");
+
+	return sValue;
 }
 //-------------------------------------------------------------------------------------------------------

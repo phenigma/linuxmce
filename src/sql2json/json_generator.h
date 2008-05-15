@@ -67,6 +67,8 @@ private:
 	void LoadFilterForColumns(string sConfigFile);
 	void LoadFilterForRows(string sConfigFile);
 
+	string JSONEscape(string sValue);
+
 public:
 	json_generator(string sDBName);
 	~json_generator();
