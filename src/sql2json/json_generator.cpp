@@ -175,7 +175,9 @@ string json_generator::generate_table_json(TableInfo_Generator *pTableInfo, bool
 		size_t nNumFields = vectFieldNames.size();
 		for(size_t i = 0; i < nNumFields; ++i)
 		{
-			sRowInfo += "\t\t\t\"" + vectFieldNames[i] + "\":\"" + (NULL != row[i + 1] ? JSONEscape(row[i + 1]) : "") + "\"";
+			int nRowIndex = bHasPKField? i + 1 : i;
+
+			sRowInfo += "\t\t\t\"" + vectFieldNames[i] + "\":\"" + (NULL != row[nRowIndex] ? JSONEscape(row[nRowIndex]) : "") + "\"";
 
 			if(i != nNumFields - 1)
 				sRowInfo += ",";
@@ -195,7 +197,9 @@ string json_generator::generate_table_json(TableInfo_Generator *pTableInfo, bool
 			sIds += ",";
 		}
 
-		sIds += row[0];
+		if(bHasPKField)
+			sIds += row[0];
+
 		sTableInfo += sRowInfo;
 	}
 
