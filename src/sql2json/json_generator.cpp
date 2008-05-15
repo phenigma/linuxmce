@@ -144,7 +144,7 @@ string json_generator::generate_table_json(TableInfo_Generator *pTableInfo, bool
 	}
 
 	string sBasicSQL = 
-		"SELECT " +
+		"SELECT DISTINCT " +
 		(bHasPKField ? "PK_" + pTableInfo->get_table_name() + "," : "") + 
 		sFields + 
 		" FROM " + pTableInfo->get_table_name() + " ";
