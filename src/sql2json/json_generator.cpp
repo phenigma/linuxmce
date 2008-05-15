@@ -26,6 +26,7 @@ json_generator::json_generator(string sDBName)
 {
 	LoadFilterForColumns(sDBName + ".conf");
 	LoadFilterForRows(sDBName + "_filter.conf");
+	LoadCustomSQLQueries(sDBName + "_custom_sql.conf");
 }
 //-------------------------------------------------------------------------------------------------------
 void json_generator::LoadFilterForColumns(string sConfigFile)
@@ -69,7 +70,30 @@ void json_generator::LoadFilterForRows(string sConfigFile)
 		{
 			m_mapRowFilter["PK_" + vectObjects[0]] = vectObjects[1];
 			m_mapRowFilter["FK_" + vectObjects[0]] = vectObjects[1];
+			m_mapVariableFilters["$" + vectObjects[0]] = vectObjects[1];
 		}
+		else
+			cout << "INVALID LINE: " << sLine << endl;
+	}
+}
+//-------------------------------------------------------------------------------------------------------
+void json_generator::LoadCustomSQLQueries(string sConfigFile)
+{
+	vector<string> vectLines;
+	FileUtils::ReadFileIntoVector(sConfigFile, vectLines);
+
+	for(vector<string>::iterator it = vectLines.begin(); it != vectLines.end(); ++it)
+	{
+		string sLine = *it;
+
+		if(sLine.empty())
+			continue;
+
+		vector<string> vectObjects;
+		StringUtils::Tokenize(sLine, ":", vectObjects);
+
+		if(vectObjects.size() == 2)
+			m_mapTableCustomSQL[vectObjects[0]] = ReplaceVariables(vectObjects[1]);
 		else
 			cout << "INVALID LINE: " << sLine << endl;
 	}
@@ -119,13 +143,21 @@ string json_generator::generate_table_json(TableInfo_Generator *pTableInfo, bool
 		}
 	}
 
-	//get the rows
-	string sSQL = "SELECT " + 
+	string sBasicSQL = 
+		"SELECT " +
 		(bHasPKField ? "PK_" + pTableInfo->get_table_name() + "," : "") + 
 		sFields + 
-		" FROM " + pTableInfo->get_table_name() + " " +
+		" FROM " + pTableInfo->get_table_name() + " ";
+
+	//get the rows
+	string sSQL = 
+		sBasicSQL +
 		sWhereCondition + " " +
 		(bHasPKField? " ORDER BY PK_" + pTableInfo->get_table_name() : "");
+
+	map<string, string>::iterator it_sql = m_mapTableCustomSQL.find(pTableInfo->get_table_name());
+	if(it_sql != m_mapTableCustomSQL.end())
+		sSQL = sBasicSQL + it_sql->second;
 
 	int iresult = mysql_query(pTableInfo->db(), sSQL.c_str());
 	if(iresult != 0)
@@ -175,7 +207,7 @@ string json_generator::generate_table_json(TableInfo_Generator *pTableInfo, bool
 		size_t nNumFields = vectFieldNames.size();
 		for(size_t i = 0; i < nNumFields; ++i)
 		{
-			int nRowIndex = bHasPKField? i + 1 : i;
+			size_t nRowIndex = bHasPKField? i + 1 : i;
 
 			sRowInfo += "\t\t\t\"" + vectFieldNames[i] + "\":\"" + (NULL != row[nRowIndex] ? JSONEscape(row[nRowIndex]) : "") + "\"";
 
@@ -272,6 +304,16 @@ string json_generator::JSONEscape(string sValue)
 	StringUtils::Replace(&sValue, "\n", "\\n");
 	StringUtils::Replace(&sValue, "\r", "\\r");
 	StringUtils::Replace(&sValue, "\t", "\\t");
+
+	return sValue;
+}
+//-------------------------------------------------------------------------------------------------------
+string json_generator::ReplaceVariables(string sValue)
+{
+	for(map<string, string>::iterator it = m_mapVariableFilters.begin(); it != m_mapVariableFilters.end(); ++it)
+	{
+		StringUtils::Replace(&sValue, it->first, it->second);
+	}
 
 	return sValue;
 }

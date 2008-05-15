@@ -59,6 +59,8 @@ private:
 	string m_sBuffer;
 	map<string, string> m_mapTableFields;
 	map<string, string> m_mapRowFilter;
+	map<string, string> m_mapTableCustomSQL;
+	map<string, string> m_mapVariableFilters;
 
 	string generate_table_json(TableInfo_Generator *pTableInfo, bool bHasPKField);
 	string get_fields_needed_for_table(string sTableName);
@@ -66,8 +68,10 @@ private:
 
 	void LoadFilterForColumns(string sConfigFile);
 	void LoadFilterForRows(string sConfigFile);
+	void LoadCustomSQLQueries(string sConfigFile);
 
 	string JSONEscape(string sValue);
+	string ReplaceVariables(string sValue);
 
 public:
 	json_generator(string sDBName);
