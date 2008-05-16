@@ -29,6 +29,13 @@ bool DataLayer_JSON::GetDevices(std::map<int, DeviceData_Router *>& mapDeviceDat
 	
 	string sData;
 	FileUtils::ReadTextFile(JSON_CONFIG_FILE, sData);
+
+	if(sData.empty())
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Unabled to find/parse json file: %s", JSON_CONFIG_FILE);
+		return false;
+	}
+
 	json_obj = json_tokener_parse(const_cast<char *>(sData.c_str()));
 
 	struct json_object_iter iter;
