@@ -5,10 +5,13 @@
 //----------------------------------------------------------------------------------------------
 class DataLayer_JSON : public IDataLayer
 {
+	int m_dwPK_Device_Largest;
+
 public:
 	DataLayer_JSON(void);
 	~DataLayer_JSON(void);
 	bool GetDevices(std::map<int, DeviceData_Router *>& mapDeviceData_Router);
+	int GetLargestDeviceNumber();
 
 private:
 

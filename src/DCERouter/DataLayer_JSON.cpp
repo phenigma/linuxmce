@@ -16,7 +16,8 @@ extern "C"
 #define JSON_CONFIG_FILE "pluto.json"
 //----------------------------------------------------------------------------------------------
 DataLayer_JSON::DataLayer_JSON(void)
-{					
+{
+	m_dwPK_Device_Largest = 0;
 }
 //----------------------------------------------------------------------------------------------
 DataLayer_JSON::~DataLayer_JSON(void)
@@ -51,6 +52,11 @@ bool DataLayer_JSON::GetDevices(std::map<int, DeviceData_Router *>& mapDeviceDat
 
 	json_object_put(json_obj); 
 	return true;
+}
+//----------------------------------------------------------------------------------------------
+int DataLayer_JSON::GetLargestDeviceNumber()
+{
+	return m_dwPK_Device_Largest;
 }
 //----------------------------------------------------------------------------------------------
 void DataLayer_JSON::ParseDevicesList(std::map<int, DeviceData_Router *>& mapDeviceData_Router, struct json_object *json_obj)
@@ -124,6 +130,9 @@ void DataLayer_JSON::ParseDevices(std::map<int, DeviceData_Router *>& mapDeviceD
 			pDevice->m_sDescription = sDescription;
 			pDevice->m_mapParameters = mapDeviceData;
 			mapDeviceData_Router[pDevice->m_dwPK_Device] = pDevice;
+
+			if(m_dwPK_Device_Largest < nDeviceID)
+				m_dwPK_Device_Largest = nDeviceID;
 
 			AssignParametersToDevice(mapDeviceData_Router, pDevice, mapDeviceParams);
 		}

@@ -19,6 +19,7 @@ public:
 	}
 
 	virtual bool GetDevices(std::map<int, DeviceData_Router *>& mapDeviceData_Router) = 0;
+	virtual int GetLargestDeviceNumber() = 0;
 };
 
 #endif //__DATA_LAYER_H__

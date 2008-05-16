@@ -2642,7 +2642,10 @@ void Router::Configure()
     // Build some static arrays
 #ifdef EMBEDDED_LMCE
 	if(NULL != m_pDataLayer)
+	{
 		m_pDataLayer->GetDevices(m_mapDeviceData_Router);
+		m_dwPK_Device_Largest = m_pDataLayer->GetLargestDeviceNumber();
+	}
 #endif
 
 #ifndef EMBEDDED_LMCE

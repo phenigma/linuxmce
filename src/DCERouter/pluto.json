@@ -78,8 +78,7 @@
         "device_disabled": "0",
         "param1": "value1",
         "param3": "value3",
-        "param4": "value4",
-        "FK_Device_RouteTo": "1"
+        "param4": "value4"
       },
       "device_data": {
         "dd_1": "test",
@@ -97,8 +96,7 @@
       "params": {
         "device_disabled": "1",
         "param3": "value3",
-        "param2": "value2",
-        "FK_Device_RouteTo": "1"
+        "param2": "value2"
       },
       "device_data": {
         "dd_2": "100",
