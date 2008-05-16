@@ -1,0 +1,117 @@
+{
+    "sections_list":[1,2,4],
+    "sections":{
+	    "section_1": {
+			"description":"Basement",
+			"floorplan":"test1.jpg"
+	    },
+	    "section_2": {
+			"description":"First floor",
+			"floorplan":"test2.jpg"
+	    },
+	    "section_4": {
+			"description":"Second floor",
+			"floorplan":"test2.jpg"
+	    }	    
+    },
+    "room_types":["Basement","Bedroom","Kitchen","Living room"],
+    "rooms_list":[1,5,6],
+    "rooms":{
+	    "room_1": {
+			"description":"Basement",
+			"room_type":"Basement",
+			"section_id":"1"
+	    },
+	    "room_5": {
+			"description":"North bedroom",
+			"room_type":"Bedroom",
+			"section_id":"2"
+	    },
+	    "room_6": {
+			"description":"South bedroom",
+			"room_type":"Bedroom",
+			"section_id":"4"
+	    }
+    },
+    "devices_list":[1,2,3],
+	"devices": {
+	    "device_1": {
+			"description":"Zwave Interface",
+			"device_template_id":"1",
+			"room_id":"5",
+			"device_controlled_via_id":"0",
+			"params":{
+				"device_disabled":"0",
+				"param1":"value1",
+				"param2":"value2"
+			},
+			"device_data":{
+				"dd_1":"100",
+				"dd_2":"3",
+				"dd_4":"test"
+			}			
+	    },
+	    "device_2": {
+			"description":"Light Switch ON/OFF",
+			"device_template_id":"2",
+			"room_id":"5",
+			"device_controlled_via_id":"1",
+			"params":{
+				"device_disabled":"0",
+				"param1":"value1",
+				"param3":"value3",
+				"param4":"value4"
+			},
+			"device_data":{
+				"dd_1":"test",
+				"dd_2":"3",
+				"dd_3":"100",
+				"dd_5":"3",
+				"dd_7":"3"
+			}			
+	    },	    
+	    "device_3": {
+			"description":"Light Switch ON/OFF",
+			"device_template_id":"2",
+			"room_id":"6",
+			"device_controlled_via_id":"1",
+			"params":{
+				"device_disabled":"1",
+				"param3":"value3",
+				"param2":"value2"
+			},
+			"device_data":{
+				"dd_2":"100",
+				"dd_4":"3",
+				"dd_7":"another test"
+			}			
+	    }	    
+   },
+    "scenes_list":[1,2,3],
+	"scenes": {
+	    "scene_1": {
+			"description":"First scene",
+			"room_id":"5"
+	    },
+	    "scene_2": {
+			"description":"Second scene",
+			"room_id":"6"
+		},		
+	    "scene_3": {
+			"description":"Third scene",
+			"room_id":"6"
+		}		
+	},   
+    "events_list":[1,2],
+	"events": {
+	    "event_1": {
+			"description":"First event",
+			"timer_id":"1"
+	    },
+	    "event_2": {
+			"description":"Second event",
+			"timer_id":"2"
+		}		
+	}   
+	
+}
