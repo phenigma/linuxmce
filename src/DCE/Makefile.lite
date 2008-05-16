@@ -3,7 +3,7 @@ SNR_CPPFLAGS ?= <-mkr_t_compile_defines->
 ROOT = ..
 VIP = ../VIPShared
 GDEV = ./Gen_Devices
-CXXFLAGS = -fPIC -Wall -ggdb3
+CXXFLAGS = -fPIC -Wall -Os
 CPPFLAGS = -I./ -I../ -I../DCE/ -I../VIPShared/ -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE $(SNR_CPPFLAGS) -DUSE_LZO_DATAGRID -D_GNU_SOURCE -DLINK_TO_ROUTER $(EXTRA)
 ifeq ($(ARCH),mipsel)
 	CXX = mipsel-linux-g++

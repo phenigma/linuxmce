@@ -1,5 +1,5 @@
 ROOT = ..
-CXXFLAGS = -fPIC -Wall -ggdb3
+CXXFLAGS = -fPIC -Wall -Os
 CPPFLAGS = -I./ -I../ -I../DCE/ -I../VIPShared/ -DEMBEDDED_LMCE
 ifeq ($(ARCH),mipsel)
 	CXX = mipsel-linux-g++

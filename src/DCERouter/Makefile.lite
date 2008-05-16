@@ -1,7 +1,7 @@
 SNR_CPPFLAGS ?= <-mkr_t_compile_defines->
 
 ROOT = ..
-CXXFLAGS = -Wall -ggdb3 -DxAUDIDEMO -fmessage-length=0
+CXXFLAGS = -Wall -Os -DxAUDIDEMO -fmessage-length=0
 CPPFLAGS = -I$(ROOT)/ -I$(ROOT)/DCE -D_REENTRANT -D_GNU_SOURCE $(SNR_CPPFLAGS) -DUSE_LZO_DATAGRID -I/usr/include/json #-I/usr/include/libxml2/
 LDFLAGS = -L$(ROOT)/lib #-lxml2
 
