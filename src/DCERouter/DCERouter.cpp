@@ -77,6 +77,12 @@ using namespace std;
 #include "pluto_main/Define_DeviceData.h"
 #endif
 
+#ifdef WIN32 //for now
+#ifdef EMBEDDED_LMCE
+	#include "DataLayer_JSON.h"
+#endif
+#endif
+
 #ifndef EMBEDDED_LMCE
 #include "DCE/MessageXML.h"
 #endif
@@ -164,6 +170,14 @@ Router::Router(int PK_Device,int PK_Installation,string BasePath,string DBHost,s
 #endif
 		m_CoreMutex("core"), m_InterceptorMutex("interceptor"), m_MessageQueueMutex("messagequeue")
 {
+	m_pDataLayer = NULL;
+
+#ifdef WIN32 //for now
+#ifdef EMBEDDED_LMCE
+	m_pDataLayer = new DataLayer_JSON();
+#endif
+#endif
+
 	g_pRouter=this;  // For the deadlock handler
 	g_pDeadlockHandler=DeadlockHandler;
     m_sBasePath=BasePath;
@@ -447,9 +461,15 @@ void Router::RegisterAllPlugins()
 	list<plugin_activation_data>::iterator i_fRAP;
 	plugin_activation_data pad_tmp;
     string sLogFile;
-	int iPK_Device, iPK_DeviceTemplate;
-	RAP_FType RAP_RegisterAsPlugin;
+	int iPK_Device;
+
+#ifndef EMBEDDED_LMCE
+	int iPK_DeviceTemplate;
 	size_t s;
+#endif
+
+	RAP_FType RAP_RegisterAsPlugin;
+
 	
 	// We're going to store a map with all the plug-ins we loaded so we can try to dynamically load plug-ins that weren't in the database
 	map<string,int> mapPluginCommands;
@@ -2625,20 +2645,8 @@ void Router::Configure()
 
     // Build some static arrays
 #ifdef EMBEDDED_LMCE
-	DeviceData_Router *pDevice;
-
-	pDevice = new DeviceData_Router(1, 7, 1, 0);
-	pDevice->m_sDescription = "Core";
-	m_mapDeviceData_Router[pDevice->m_dwPK_Device]=pDevice;
-
-	pDevice = new DeviceData_Router(2, 1, 1, 1);
-	pDevice->m_sDescription = "DCERouter";
-	m_mapDeviceData_Router[pDevice->m_dwPK_Device]=pDevice;
-
-	pDevice = new DeviceData_Router(3, 1754, 1, 1);
-	pDevice->m_sDescription = "ZWave";
-	pDevice->m_mapParameters[DEVICEDATA_COM_Port_on_PC_CONST] = "/dev/usb/tts/0";
-	m_mapDeviceData_Router[pDevice->m_dwPK_Device]=pDevice;
+	if(NULL != m_pDataLayer)
+		m_pDataLayer->GetDevices(m_mapDeviceData_Router);
 #endif
 
 #ifndef EMBEDDED_LMCE

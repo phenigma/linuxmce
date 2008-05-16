@@ -45,6 +45,8 @@ class Database_pluto_main;
 class Row_Device;
 #endif
 
+#include "IDataLayer.h"
+
 using namespace DCE;
 
 typedef class Command_Impl * (* RAP_FType) (class Router *, int, Logger *);
@@ -222,6 +224,8 @@ m_DeviceStructure contains the minimal information, _Base,
         char *m_pDeviceStructure;
         unsigned long m_dwIDeviceStructure_Size;
         char *m_pBufferForDeviceCategories;
+
+		IDataLayer *m_pDataLayer;
 
         // The Plug-in's and interceptors
         map<int,class Command_Impl *> m_mapPlugIn;
