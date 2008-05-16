@@ -108,12 +108,12 @@ void DataLayer_JSON::ParseDevices(std::map<int, DeviceData_Router *>& mapDeviceD
 
 				if(sValue == "description" && iter_device.val->o_type == json_type_string)
 					sDescription = json_object_get_string(iter_device.val);
-				else if(sValue == "device_template_id" && iter_device.val->o_type == json_type_int)
-					PK_DeviceTemplate = json_object_get_int(iter_device.val);
-				else if(sValue == "room_id" && iter_device.val->o_type == json_type_int)
-					PK_Room = json_object_get_int(iter_device.val);
-				else if(sValue == "device_controlled_via_id" && iter_device.val->o_type == json_type_int)
-					PK_Device_ControlledVia = json_object_get_int(iter_device.val);
+				else if(sValue == "device_template_id" && iter_device.val->o_type == json_type_string)
+					PK_DeviceTemplate = atoi(json_object_get_string(iter_device.val));
+				else if(sValue == "room_id" && iter_device.val->o_type == json_type_string)
+					PK_Room = atoi(json_object_get_string(iter_device.val));
+				else if(sValue == "device_controlled_via_id" && iter_device.val->o_type == json_type_string)
+					PK_Device_ControlledVia = atoi(json_object_get_string(iter_device.val));
 				else if(sValue == "params")
 					ParseDeviceParameters(mapDeviceParams, iter_device.val);
 				else if(sValue == "device_data" && iter_device.val->o_type == json_type_object)
