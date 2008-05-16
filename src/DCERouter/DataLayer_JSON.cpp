@@ -125,7 +125,7 @@ void DataLayer_JSON::ParseDevices(std::map<int, DeviceData_Router *>& mapDeviceD
 			pDevice->m_mapParameters = mapDeviceData;
 			mapDeviceData_Router[pDevice->m_dwPK_Device] = pDevice;
 
-			AssignParametersToDevice(pDevice, mapDeviceParams);
+			AssignParametersToDevice(mapDeviceData_Router, pDevice, mapDeviceParams);
 		}
  		else
 		{
@@ -160,7 +160,8 @@ void DataLayer_JSON::ParseDeviceParameters(std::map<string, string>& mapDevicePa
 	}	
 }
 //----------------------------------------------------------------------------------------------
-void DataLayer_JSON::AssignParametersToDevice(DeviceData_Router *pDevice, const std::map<string, string>& mapDeviceParams)
+void DataLayer_JSON::AssignParametersToDevice(const std::map<int, DeviceData_Router *>& mapDeviceData_Router, 
+	DeviceData_Router *pDevice, const std::map<string, string>& mapDeviceParams)
 {
 	std::map<string, string>::const_iterator it = mapDeviceParams.begin();
 	
@@ -180,6 +181,26 @@ void DataLayer_JSON::AssignParametersToDevice(DeviceData_Router *pDevice, const 
 			pDevice->m_sStatus_set(it->second);
 		else if(it->first == "Disabled")
 			pDevice->m_bDisabled = it->second == "1";
+		else if(it->first == "FK_Device_RouteTo")
+		{
+			int FK_Device_RouterTo = atoi(it->second.c_str());
+
+			std::map<int, DeviceData_Router *>::const_iterator it_device = mapDeviceData_Router.find(FK_Device_RouterTo);
+			if(it_device != mapDeviceData_Router.end())
+			{
+				if(NULL != it_device->second)
+				{
+					pDevice->m_pDevice_RouteTo = it_device->second;
+					LoggerWrapper::GetInstance()->Write(LV_WARNING, "Message to device %d routed to device %d",
+						pDevice->m_dwPK_Device, FK_Device_RouterTo);
+				}
+			}
+			else
+			{
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Cannot find device %d to route messages from %d",
+					FK_Device_RouterTo, pDevice->m_dwPK_Device);
+			}
+		}
 	}
 }
 //----------------------------------------------------------------------------------------------

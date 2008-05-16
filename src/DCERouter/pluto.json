@@ -60,7 +60,8 @@
 				"device_disabled":"0",
 				"param1":"value1",
 				"param3":"value3",
-				"param4":"value4"
+				"param4":"value4",
+				"FK_Device_RouteTo":"1"
 			},
 			"device_data":{
 				"dd_1":"test",
