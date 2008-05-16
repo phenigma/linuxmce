@@ -77,10 +77,8 @@ using namespace std;
 #include "pluto_main/Define_DeviceData.h"
 #endif
 
-#ifdef WIN32 //for now
 #ifdef EMBEDDED_LMCE
 	#include "DataLayer_JSON.h"
-#endif
 #endif
 
 #ifndef EMBEDDED_LMCE
@@ -172,10 +170,8 @@ Router::Router(int PK_Device,int PK_Installation,string BasePath,string DBHost,s
 {
 	m_pDataLayer = NULL;
 
-#ifdef WIN32 //for now
 #ifdef EMBEDDED_LMCE
 	m_pDataLayer = new DataLayer_JSON();
-#endif
 #endif
 
 	g_pRouter=this;  // For the deadlock handler
