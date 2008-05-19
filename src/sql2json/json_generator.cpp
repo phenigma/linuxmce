@@ -302,8 +302,8 @@ const string& json_generator::generate_json(vector<class TableInfo_Generator *> 
 //-------------------------------------------------------------------------------------------------------
 string json_generator::JSONEscape(string sValue)
 {
-	StringUtils::Replace(&sValue, "\"", "\\\"");
 	StringUtils::Replace(&sValue, "\\", "\\\\");
+	StringUtils::Replace(&sValue, "\"", "\\\"");
 	StringUtils::Replace(&sValue, "/", "\\/");
 	StringUtils::Replace(&sValue, "\n", "\\n");
 	StringUtils::Replace(&sValue, "\r", "\\r");
