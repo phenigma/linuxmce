@@ -2644,6 +2644,7 @@ void Router::Configure()
 	if(NULL != m_pDataLayer)
 	{
 		m_pDataLayer->GetDevices(m_mapDeviceData_Router);
+		m_pDataLayer->ReadStaticConfiguration(m_mapDeviceData_Router);
 		m_dwPK_Device_Largest = m_pDataLayer->GetLargestDeviceNumber();
 	}
 #endif

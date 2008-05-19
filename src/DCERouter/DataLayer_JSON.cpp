@@ -13,7 +13,8 @@ extern "C"
 	#include "json_tokener.h" 
 }
 //----------------------------------------------------------------------------------------------
-#define JSON_CONFIG_FILE "pluto.json"
+#define JSON_DINAMIC_CONFIG_FILE "pluto.json"
+#define JSON_STATIC_CONFIG_FILE "pluto_main.json"
 //----------------------------------------------------------------------------------------------
 DataLayer_JSON::DataLayer_JSON(void)
 {
@@ -29,11 +30,11 @@ bool DataLayer_JSON::GetDevices(std::map<int, DeviceData_Router *>& mapDeviceDat
 	struct json_object *json_obj = NULL;
 	
 	string sData;
-	FileUtils::ReadTextFile(JSON_CONFIG_FILE, sData);
+	FileUtils::ReadTextFile(JSON_DINAMIC_CONFIG_FILE, sData);
 
 	if(sData.empty())
 	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Unabled to find/parse json file: %s", JSON_CONFIG_FILE);
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Unabled to find/parse json file: %s", JSON_DINAMIC_CONFIG_FILE);
 		return false;
 	}
 
@@ -209,6 +210,102 @@ void DataLayer_JSON::AssignParametersToDevice(const std::map<int, DeviceData_Rou
 				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Cannot find device %d to route messages from %d",
 					FK_Device_RouterTo, pDevice->m_dwPK_Device);
 			}
+		}
+	}
+}
+//----------------------------------------------------------------------------------------------
+bool DataLayer_JSON::ReadStaticConfiguration(std::map<int, DeviceData_Router *>& mapDeviceData_Router)
+{
+	struct json_object *json_obj = NULL;
+
+	string sData;
+	FileUtils::ReadTextFile(JSON_STATIC_CONFIG_FILE, sData);
+
+	if(sData.empty())
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Unabled to find/parse json file: %s", JSON_STATIC_CONFIG_FILE);
+		return false;
+	}
+
+	json_obj = json_tokener_parse(const_cast<char *>(sData.c_str()));
+
+	struct json_object_iter iter;
+	json_object_object_foreachC(json_obj, iter) 
+	{
+		string sValue = iter.key;
+
+		if(sValue == "DeviceTemplate")
+			ParseDeviceTemplates(iter.val);
+		else if(sValue == "DeviceCategory")
+			ParseDeviceCategories(iter.val);
+	}
+
+	json_object_put(json_obj); 
+
+
+	UpdateDevicesTree(mapDeviceData_Router);
+
+	return true;
+}
+//----------------------------------------------------------------------------------------------
+void DataLayer_JSON::ParseDeviceTemplates(struct json_object *json_obj)
+{
+	struct json_object *obj_devices = json_obj;
+	struct json_object_iter iter_devices;
+	json_object_object_foreachC(obj_devices, iter_devices) 
+	{
+		string sDeviceTemplateID = iter_devices.key;
+
+		StringUtils::Replace(&sDeviceTemplateID, "PK_DeviceCategory_", "");
+		int nDeviceTemplateID = atoi(sDeviceTemplateID.c_str());
+
+		DeviceTemplate_Data aDeviceTemplate_Data(nDeviceTemplateID);
+
+		struct json_object_iter iter_deviceparams;
+		json_object_object_foreachC(iter_devices.val, iter_deviceparams)
+		{
+			string sKey = iter_deviceparams.key;
+
+			if(iter_deviceparams.val->o_type == json_type_string)
+			{
+				string sValue = json_object_get_string(iter_deviceparams.val);
+
+				if(sKey == "Description")
+					aDeviceTemplate_Data.Description(sValue);
+				if(sKey == "FK_DeviceCategory")
+					aDeviceTemplate_Data.DeviceCategory(atoi(sValue.c_str()));
+				if(sKey == "ImplementsDCE")
+					aDeviceTemplate_Data.ImplementsDCE(sValue == "1");
+				if(sKey == "IsEmbedded")
+					aDeviceTemplate_Data.IsEmbedded(sValue == "1");
+				if(sKey == "CommandLine")
+					aDeviceTemplate_Data.CommandLine(sValue);
+			}
+		}	
+
+		m_mapDeviceTemplate_Data[nDeviceTemplateID] = aDeviceTemplate_Data;
+	}
+}
+//----------------------------------------------------------------------------------------------
+void DataLayer_JSON::ParseDeviceCategories(struct json_object *json_obj)
+{
+	
+}
+//----------------------------------------------------------------------------------------------
+void DataLayer_JSON::UpdateDevicesTree(std::map<int, DeviceData_Router *>& mapDeviceData_Router)
+{
+	for(map<int, DeviceData_Router *>::iterator it = mapDeviceData_Router.begin(); it != mapDeviceData_Router.end(); ++it)
+	{
+		DeviceData_Router *pDevice = it->second;
+
+		std::map<int, DeviceTemplate_Data>::iterator it_devtemplate = m_mapDeviceTemplate_Data.find(pDevice->m_dwPK_DeviceTemplate);
+		if(it_devtemplate != m_mapDeviceTemplate_Data.end())
+		{
+			pDevice->m_bImplementsDCE = it_devtemplate->second.ImplementsDCE();
+			pDevice->m_bIsEmbedded = it_devtemplate->second.IsEmbedded();
+			pDevice->m_dwPK_DeviceCategory = it_devtemplate->second.DeviceCategory();
+			pDevice->m_sCommandLine = it_devtemplate->second.CommandLine();
+			pDevice->m_sDescription = it_devtemplate->second.Description();
 		}
 	}
 }
