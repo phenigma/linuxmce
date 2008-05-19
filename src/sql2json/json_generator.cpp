@@ -236,6 +236,10 @@ string json_generator::generate_table_json(TableInfo_Generator *pTableInfo, bool
 	}
 
 	sIds = "\t\"" + pTableInfo->get_table_name() + "_ids\":[" + sIds + "],\n";
+
+	if(!bHasPKField)
+		sIds = "";
+
 	sTableInfo = 
 		sIds + 
 		"\t\"" + pTableInfo->get_table_name() + "\":{\n" +
