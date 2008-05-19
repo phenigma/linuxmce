@@ -33,6 +33,8 @@ private:
 	void ParseDeviceCategories(struct json_object *json_obj);
 
 	void UpdateDevicesTree(std::map<int, DeviceData_Router *>& mapDeviceData_Router);
+
+	char *GetUncompressedDataFromFile(string sFileName);
 };
 //----------------------------------------------------------------------------------------------
 #endif //__DATA_LAYER_JSON_H__

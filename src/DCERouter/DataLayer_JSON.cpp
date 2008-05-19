@@ -12,9 +12,16 @@ extern "C"
 	#include "json_object_private.h"
 	#include "json_tokener.h" 
 }
+
+#include "PlutoUtils/minilzo.h"
+#include "PlutoUtils/PlutoDefs.h"
 //----------------------------------------------------------------------------------------------
-#define JSON_DINAMIC_CONFIG_FILE "pluto.json"
-#define JSON_STATIC_CONFIG_FILE "pluto_main.json"
+#define HEAP_ALLOC(var,size) \
+	lzo_align_t __LZO_MMODEL var [ ((size) + (sizeof(lzo_align_t) - 1)) / sizeof(lzo_align_t) ]
+static HEAP_ALLOC(wrkmem,LZO1X_1_MEM_COMPRESS);
+//----------------------------------------------------------------------------------------------
+#define JSON_DYNAMIC_CONFIG_FILE "pluto.json.lzo"
+#define JSON_STATIC_CONFIG_FILE "pluto_main.json.lzo"
 //----------------------------------------------------------------------------------------------
 DataLayer_JSON::DataLayer_JSON(void)
 {
@@ -29,33 +36,33 @@ bool DataLayer_JSON::GetDevices(std::map<int, DeviceData_Router *>& mapDeviceDat
 {
 	struct json_object *json_obj = NULL;
 	
-	string sData;
-	FileUtils::ReadTextFile(JSON_DINAMIC_CONFIG_FILE, sData);
+	char *pData = GetUncompressedDataFromFile(JSON_DYNAMIC_CONFIG_FILE);
 
-	if(sData.empty())
+	if(NULL != pData)
 	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Unabled to find/parse json file: %s", JSON_DINAMIC_CONFIG_FILE);
-		return false;
+		json_obj = json_tokener_parse(pData);
+
+		struct json_object_iter iter;
+		json_object_object_foreachC(json_obj, iter) 
+		{
+			string sValue = iter.key;
+
+			if(sValue == "devices_list")
+				ParseDevicesList(mapDeviceData_Router, iter.val);
+			else if(sValue == "devices")
+				ParseDevices(mapDeviceData_Router, iter.val);
+		}
+
+		json_object_put(json_obj); 
+
+		PLUTO_SAFE_DELETE_ARRAY(pData);
+
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "DataLayer: Got %d devices", mapDeviceData_Router.size());
+
+		return true;
 	}
 
-	json_obj = json_tokener_parse(const_cast<char *>(sData.c_str()));
-
-	struct json_object_iter iter;
-	json_object_object_foreachC(json_obj, iter) 
-	{
-		string sValue = iter.key;
-
-		if(sValue == "devices_list")
-			ParseDevicesList(mapDeviceData_Router, iter.val);
-		else if(sValue == "devices")
-			ParseDevices(mapDeviceData_Router, iter.val);
-	}
-
-	json_object_put(json_obj); 
-
-	LoggerWrapper::GetInstance()->Write(LV_WARNING, "DataLayer: Got %d devices", mapDeviceData_Router.size());
-
-	return true;
+	return false;
 }
 //----------------------------------------------------------------------------------------------
 int DataLayer_JSON::GetLargestDeviceNumber()
@@ -221,36 +228,35 @@ bool DataLayer_JSON::ReadStaticConfiguration(std::map<int, DeviceData_Router *>&
 {
 	struct json_object *json_obj = NULL;
 
-	string sData;
-	FileUtils::ReadTextFile(JSON_STATIC_CONFIG_FILE, sData);
+	char *pData = GetUncompressedDataFromFile(JSON_STATIC_CONFIG_FILE);
 
-	if(sData.empty())
+	if(NULL != pData)
 	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Unabled to find/parse json file: %s", JSON_STATIC_CONFIG_FILE);
-		return false;
+		json_obj = json_tokener_parse(pData);
+
+		struct json_object_iter iter;
+		json_object_object_foreachC(json_obj, iter) 
+		{
+			string sValue = iter.key;
+
+			if(sValue == "DeviceTemplate")
+				ParseDeviceTemplates(iter.val);
+			else if(sValue == "DeviceCategory")
+				ParseDeviceCategories(iter.val);
+		}
+
+		json_object_put(json_obj); 
+
+		PLUTO_SAFE_DELETE_ARRAY(pData);
+
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "DataLayer: Got %d device templates", m_mapDeviceTemplate_Data.size());
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "DataLayer: Got %d device categories", m_mapDeviceCategory_Data.size());
+
+		UpdateDevicesTree(mapDeviceData_Router);
+		return true;
 	}
 
-	json_obj = json_tokener_parse(const_cast<char *>(sData.c_str()));
-
-	struct json_object_iter iter;
-	json_object_object_foreachC(json_obj, iter) 
-	{
-		string sValue = iter.key;
-
-		if(sValue == "DeviceTemplate")
-			ParseDeviceTemplates(iter.val);
-		else if(sValue == "DeviceCategory")
-			ParseDeviceCategories(iter.val);
-	}
-
-	json_object_put(json_obj); 
-
-	LoggerWrapper::GetInstance()->Write(LV_WARNING, "DataLayer: Got %d device templates", m_mapDeviceTemplate_Data.size());
-	LoggerWrapper::GetInstance()->Write(LV_WARNING, "DataLayer: Got %d device categories", m_mapDeviceCategory_Data.size());
-
-	UpdateDevicesTree(mapDeviceData_Router);
-
-	return true;
+	return false;
 }
 //----------------------------------------------------------------------------------------------
 void DataLayer_JSON::ParseDeviceTemplates(struct json_object *json_obj)
@@ -341,5 +347,53 @@ void DataLayer_JSON::UpdateDevicesTree(std::map<int, DeviceData_Router *>& mapDe
 			pDevice->m_sDescription = it_devtemplate->second.Description();
 		}
 	}
+}
+//----------------------------------------------------------------------------------------------
+char *DataLayer_JSON::GetUncompressedDataFromFile(string sFileName)
+{
+	if(!FileUtils::FileExists(sFileName))
+	{
+		string sPlainFileName = sFileName;
+		StringUtils::Replace(&sPlainFileName, ".lzo", "");
+
+		if(FileUtils::FileExists(sPlainFileName))
+		{
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "FILE NOT FOUND! Generating lzo file %s from plain json file", sFileName.c_str());
+
+			string sData;
+			FileUtils::ReadTextFile(sPlainFileName, sData);
+
+			//compress pixels data
+			char *pCompressedData = new char[sData.size() * 3];
+			int iCompressedDataSize = 0;
+			long iSize = 0;
+			lzo1x_1_compress((lzo_byte *)sData.c_str(), (lzo_uint)sData.size(), (lzo_byte *)(pCompressedData + 4), (lzo_uint *)(&iSize), wrkmem);
+			*((int *)pCompressedData) = (int)sData.size();
+			
+			FileUtils::WriteBufferIntoFile(sFileName, pCompressedData, iSize + sizeof(int));
+			delete [] pCompressedData;
+		}
+	}	
+
+	size_t nCompressedDataSize = 0;
+	char *pCompressedData = FileUtils::ReadFileIntoBuffer(sFileName, nCompressedDataSize);
+
+	if(NULL == pCompressedData || nCompressedDataSize < 5)
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Unabled to find/parse json file: %s", sFileName.size());
+		return NULL;
+	}
+
+	int nUncompressDataSize = *(reinterpret_cast<int *>(pCompressedData));
+	char *pUncompressedData = new char[nUncompressDataSize + 1];
+	memset(pUncompressedData, 0, nUncompressDataSize + 1); 
+
+	long size = 0;
+	lzo1x_decompress((lzo_byte *)(pCompressedData + sizeof(int)), (lzo_uint)(nCompressedDataSize - sizeof(int)), 
+		(lzo_byte *)pUncompressedData, (lzo_uint *)(&size), wrkmem);
+
+	PLUTO_SAFE_DELETE_ARRAY(pCompressedData);
+
+	return pUncompressedData;
 }
 //----------------------------------------------------------------------------------------------
