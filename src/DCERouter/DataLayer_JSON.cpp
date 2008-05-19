@@ -314,7 +314,7 @@ void DataLayer_JSON::ParseDeviceCategories(struct json_object *json_obj)
 			{
 				string sValue = json_object_get_string(iter_deviceparams.val);
 
-				if(sKey == "DeviceCategory.Description")
+				if(sKey == "Description")
 					aDeviceCategory_Data.Description(sValue);
 				if(sKey == "FK_DeviceCategory_Parent")
 					aDeviceCategory_Data.DeviceCategoryParent(atoi(sValue.c_str()));

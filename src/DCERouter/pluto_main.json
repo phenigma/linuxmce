@@ -2,128 +2,128 @@
 	"Command_ids":[84,184,192,193,200,201,202,203,257,278,279,280,350,351,355,356,370,373,384,684,685,756,757,760,776,788,820,827,840,841,842],
 	"Command":{
 		"PK_Command_84": {
-			"Command.Description":"Get Video Frame",
-			"Command.FK_CommandCategory":"9"
+			"Description":"Get Video Frame",
+			"FK_CommandCategory":"9"
 		},
 		"PK_Command_184": {
-			"Command.Description":"Set Level",
-			"Command.FK_CommandCategory":"8"
+			"Description":"Set Level",
+			"FK_CommandCategory":"8"
 		},
 		"PK_Command_192": {
-			"Command.Description":"On",
-			"Command.FK_CommandCategory":"10"
+			"Description":"On",
+			"FK_CommandCategory":"10"
 		},
 		"PK_Command_193": {
-			"Command.Description":"Off",
-			"Command.FK_CommandCategory":"10"
+			"Description":"Off",
+			"FK_CommandCategory":"10"
 		},
 		"PK_Command_200": {
-			"Command.Description":"Move Up",
-			"Command.FK_CommandCategory":"34"
+			"Description":"Move Up",
+			"FK_CommandCategory":"34"
 		},
 		"PK_Command_201": {
-			"Command.Description":"Move Down",
-			"Command.FK_CommandCategory":"34"
+			"Description":"Move Down",
+			"FK_CommandCategory":"34"
 		},
 		"PK_Command_202": {
-			"Command.Description":"Move Left",
-			"Command.FK_CommandCategory":"34"
+			"Description":"Move Left",
+			"FK_CommandCategory":"34"
 		},
 		"PK_Command_203": {
-			"Command.Description":"Move Right",
-			"Command.FK_CommandCategory":"34"
+			"Description":"Move Right",
+			"FK_CommandCategory":"34"
 		},
 		"PK_Command_257": {
-			"Command.Description":"Delay",
-			"Command.FK_CommandCategory":"55"
+			"Description":"Delay",
+			"FK_CommandCategory":"55"
 		},
 		"PK_Command_278": {
-			"Command.Description":"Set Temperature",
-			"Command.FK_CommandCategory":"36"
+			"Description":"Set Temperature",
+			"FK_CommandCategory":"36"
 		},
 		"PK_Command_279": {
-			"Command.Description":"Set Fan",
-			"Command.FK_CommandCategory":"36"
+			"Description":"Set Fan",
+			"FK_CommandCategory":"36"
 		},
 		"PK_Command_280": {
-			"Command.Description":"Set Heat\/Cool",
-			"Command.FK_CommandCategory":"36"
+			"Description":"Set Heat\/Cool",
+			"FK_CommandCategory":"36"
 		},
 		"PK_Command_350": {
-			"Command.Description":"Process Incoming Data",
-			"Command.FK_CommandCategory":"55"
+			"Description":"Process Incoming Data",
+			"FK_CommandCategory":"55"
 		},
 		"PK_Command_351": {
-			"Command.Description":"Process IDLE",
-			"Command.FK_CommandCategory":"55"
+			"Description":"Process IDLE",
+			"FK_CommandCategory":"55"
 		},
 		"PK_Command_355": {
-			"Command.Description":"Process Initialize",
-			"Command.FK_CommandCategory":"55"
+			"Description":"Process Initialize",
+			"FK_CommandCategory":"55"
 		},
 		"PK_Command_356": {
-			"Command.Description":"Process Release",
-			"Command.FK_CommandCategory":"55"
+			"Description":"Process Release",
+			"FK_CommandCategory":"55"
 		},
 		"PK_Command_370": {
-			"Command.Description":"Execute Command Group",
-			"Command.FK_CommandCategory":"55"
+			"Description":"Execute Command Group",
+			"FK_CommandCategory":"55"
 		},
 		"PK_Command_373": {
-			"Command.Description":"Private Method Listing",
-			"Command.FK_CommandCategory":"55"
+			"Description":"Private Method Listing",
+			"FK_CommandCategory":"55"
 		},
 		"PK_Command_384": {
-			"Command.Description":"Process Receive Command For Child",
-			"Command.FK_CommandCategory":"55"
+			"Description":"Process Receive Command For Child",
+			"FK_CommandCategory":"55"
 		},
 		"PK_Command_684": {
-			"Command.Description":"Zoom In",
-			"Command.FK_CommandCategory":"43"
+			"Description":"Zoom In",
+			"FK_CommandCategory":"43"
 		},
 		"PK_Command_685": {
-			"Command.Description":"Zoom Out",
-			"Command.FK_CommandCategory":"43"
+			"Description":"Zoom Out",
+			"FK_CommandCategory":"43"
 		},
 		"PK_Command_756": {
-			"Command.Description":"Report Child Devices",
-			"Command.FK_CommandCategory":"7"
+			"Description":"Report Child Devices",
+			"FK_CommandCategory":"7"
 		},
 		"PK_Command_757": {
-			"Command.Description":"Download Configuration",
-			"Command.FK_CommandCategory":"7"
+			"Description":"Download Configuration",
+			"FK_CommandCategory":"7"
 		},
 		"PK_Command_760": {
-			"Command.Description":"Send Command To Child",
-			"Command.FK_CommandCategory":"7"
+			"Description":"Send Command To Child",
+			"FK_CommandCategory":"7"
 		},
 		"PK_Command_776": {
-			"Command.Description":"Reset",
-			"Command.FK_CommandCategory":"7"
+			"Description":"Reset",
+			"FK_CommandCategory":"7"
 		},
 		"PK_Command_788": {
-			"Command.Description":"StatusReport",
-			"Command.FK_CommandCategory":"7"
+			"Description":"StatusReport",
+			"FK_CommandCategory":"7"
 		},
 		"PK_Command_820": {
-			"Command.Description":"Assign Return Route",
-			"Command.FK_CommandCategory":"26"
+			"Description":"Assign Return Route",
+			"FK_CommandCategory":"26"
 		},
 		"PK_Command_827": {
-			"Command.Description":"Stop Pending Command Group",
-			"Command.FK_CommandCategory":"55"
+			"Description":"Stop Pending Command Group",
+			"FK_CommandCategory":"55"
 		},
 		"PK_Command_840": {
-			"Command.Description":"SetWakeUp",
-			"Command.FK_CommandCategory":"26"
+			"Description":"SetWakeUp",
+			"FK_CommandCategory":"26"
 		},
 		"PK_Command_841": {
-			"Command.Description":"Set Config Param",
-			"Command.FK_CommandCategory":"26"
+			"Description":"Set Config Param",
+			"FK_CommandCategory":"26"
 		},
 		"PK_Command_842": {
-			"Command.Description":"Set Association",
-			"Command.FK_CommandCategory":"26"
+			"Description":"Set Association",
+			"FK_CommandCategory":"26"
 		}
 	}
 	,
@@ -131,373 +131,373 @@
 	"CommandCategory":{
 		"PK_CommandCategory_9": {
 			"FK_CommandCategory_Parent":"2",
-			"CommandCategory.Description":"DCE Players"
+			"Description":"DCE Players"
 		},
 		"PK_CommandCategory_8": {
 			"FK_CommandCategory_Parent":"2",
-			"CommandCategory.Description":"Handler"
+			"Description":"Handler"
 		},
 		"PK_CommandCategory_10": {
 			"FK_CommandCategory_Parent":"",
-			"CommandCategory.Description":"Generic"
+			"Description":"Generic"
 		},
 		"PK_CommandCategory_34": {
 			"FK_CommandCategory_Parent":"12",
-			"CommandCategory.Description":"On-Screen Menu Navig"
+			"Description":"On-Screen Menu Navig"
 		},
 		"PK_CommandCategory_55": {
 			"FK_CommandCategory_Parent":"7",
-			"CommandCategory.Description":"Internal"
+			"Description":"Internal"
 		},
 		"PK_CommandCategory_36": {
 			"FK_CommandCategory_Parent":"",
-			"CommandCategory.Description":"Climate"
+			"Description":"Climate"
 		},
 		"PK_CommandCategory_43": {
 			"FK_CommandCategory_Parent":"12",
-			"CommandCategory.Description":"Misc"
+			"Description":"Misc"
 		},
 		"PK_CommandCategory_7": {
 			"FK_CommandCategory_Parent":"",
-			"CommandCategory.Description":"General"
+			"Description":"General"
 		},
 		"PK_CommandCategory_26": {
 			"FK_CommandCategory_Parent":"",
-			"CommandCategory.Description":"Lighting"
+			"Description":"Lighting"
 		}
 	}
 	,
 	"CommandParameter_ids":[23,41,60,61,19,20,76,98,97,102,5,8,28,154,202,10,51,239,240,9,163,48,248,249,250],
 	"CommandParameter":{
 		"PK_CommandParameter_23": {
-			"CommandParameter.Description":"Disable Aspect Lock",
+			"Description":"Disable Aspect Lock",
 			"FK_ParameterType":"1"
 		},
 		"PK_CommandParameter_41": {
-			"CommandParameter.Description":"StreamID",
+			"Description":"StreamID",
 			"FK_ParameterType":"2"
 		},
 		"PK_CommandParameter_60": {
-			"CommandParameter.Description":"Width",
+			"Description":"Width",
 			"FK_ParameterType":"2"
 		},
 		"PK_CommandParameter_61": {
-			"CommandParameter.Description":"Height",
+			"Description":"Height",
 			"FK_ParameterType":"2"
 		},
 		"PK_CommandParameter_19": {
-			"CommandParameter.Description":"Data",
+			"Description":"Data",
 			"FK_ParameterType":"5"
 		},
 		"PK_CommandParameter_20": {
-			"CommandParameter.Description":"Format",
+			"Description":"Format",
 			"FK_ParameterType":"1"
 		},
 		"PK_CommandParameter_76": {
-			"CommandParameter.Description":"Level",
+			"Description":"Level",
 			"FK_ParameterType":"1"
 		},
 		"PK_CommandParameter_98": {
-			"CommandParameter.Description":"PK_Device_Pipes",
+			"Description":"PK_Device_Pipes",
 			"FK_ParameterType":"1"
 		},
 		"PK_CommandParameter_97": {
-			"CommandParameter.Description":"PK_Pipe",
+			"Description":"PK_Pipe",
 			"FK_ParameterType":"2"
 		},
 		"PK_CommandParameter_102": {
-			"CommandParameter.Description":"Time",
+			"Description":"Time",
 			"FK_ParameterType":"1"
 		},
 		"PK_CommandParameter_5": {
-			"CommandParameter.Description":"Value To Assign",
+			"Description":"Value To Assign",
 			"FK_ParameterType":"1"
 		},
 		"PK_CommandParameter_8": {
-			"CommandParameter.Description":"On\/Off",
+			"Description":"On\/Off",
 			"FK_ParameterType":"1"
 		},
 		"PK_CommandParameter_28": {
-			"CommandParameter.Description":"PK_CommandGroup",
+			"Description":"PK_CommandGroup",
 			"FK_ParameterType":"2"
 		},
 		"PK_CommandParameter_154": {
-			"CommandParameter.Description":"PK_Command",
+			"Description":"PK_Command",
 			"FK_ParameterType":"2"
 		},
 		"PK_CommandParameter_202": {
-			"CommandParameter.Description":"Parameters",
+			"Description":"Parameters",
 			"FK_ParameterType":"1"
 		},
 		"PK_CommandParameter_10": {
-			"CommandParameter.Description":"ID",
+			"Description":"ID",
 			"FK_ParameterType":"1"
 		},
 		"PK_CommandParameter_51": {
-			"CommandParameter.Description":"Arguments",
+			"Description":"Arguments",
 			"FK_ParameterType":"1"
 		},
 		"PK_CommandParameter_239": {
-			"CommandParameter.Description":"NodeID",
+			"Description":"NodeID",
 			"FK_ParameterType":"2"
 		},
 		"PK_CommandParameter_240": {
-			"CommandParameter.Description":"DestNodeID",
+			"Description":"DestNodeID",
 			"FK_ParameterType":"2"
 		},
 		"PK_CommandParameter_9": {
-			"CommandParameter.Description":"Text",
+			"Description":"Text",
 			"FK_ParameterType":"1"
 		},
 		"PK_CommandParameter_163": {
-			"CommandParameter.Description":"Description",
+			"Description":"Description",
 			"FK_ParameterType":"1"
 		},
 		"PK_CommandParameter_48": {
-			"CommandParameter.Description":"Value",
+			"Description":"Value",
 			"FK_ParameterType":"2"
 		},
 		"PK_CommandParameter_248": {
-			"CommandParameter.Description":"Parameter ID",
+			"Description":"Parameter ID",
 			"FK_ParameterType":"2"
 		},
 		"PK_CommandParameter_249": {
-			"CommandParameter.Description":"Group ID",
+			"Description":"Group ID",
 			"FK_ParameterType":"2"
 		},
 		"PK_CommandParameter_250": {
-			"CommandParameter.Description":"Nodes List",
+			"Description":"Nodes List",
 			"FK_ParameterType":"1"
 		}
 	}
 	,
 	"Command_CommandParameter":{
 		"Command_CommandParameter_84_19": {
-			"Command_CommandParameter.FK_Command":"84",
+			"FK_Command":"84",
 			"FK_CommandParameter":"19",
-			"Command_CommandParameter.Description":"The video frame",
+			"Description":"The video frame",
 			"IsOut":"1"
 		},
 		"Command_CommandParameter_84_20": {
-			"Command_CommandParameter.FK_Command":"84",
+			"FK_Command":"84",
 			"FK_CommandParameter":"20",
-			"Command_CommandParameter.Description":"Format of the frame",
+			"Description":"Format of the frame",
 			"IsOut":"1"
 		},
 		"Command_CommandParameter_84_23": {
-			"Command_CommandParameter.FK_Command":"84",
+			"FK_Command":"84",
 			"FK_CommandParameter":"23",
-			"Command_CommandParameter.Description":"Disable Aspect Ratio",
+			"Description":"Disable Aspect Ratio",
 			"IsOut":"0"
 		},
 		"Command_CommandParameter_84_41": {
-			"Command_CommandParameter.FK_Command":"84",
+			"FK_Command":"84",
 			"FK_CommandParameter":"41",
-			"Command_CommandParameter.Description":"The ID of the stream",
+			"Description":"The ID of the stream",
 			"IsOut":"0"
 		},
 		"Command_CommandParameter_84_60": {
-			"Command_CommandParameter.FK_Command":"84",
+			"FK_Command":"84",
 			"FK_CommandParameter":"60",
-			"Command_CommandParameter.Description":"Frame width",
+			"Description":"Frame width",
 			"IsOut":"0"
 		},
 		"Command_CommandParameter_84_61": {
-			"Command_CommandParameter.FK_Command":"84",
+			"FK_Command":"84",
 			"FK_CommandParameter":"61",
-			"Command_CommandParameter.Description":"Frame height",
+			"Description":"Frame height",
 			"IsOut":"0"
 		},
 		"Command_CommandParameter_184_76": {
-			"Command_CommandParameter.FK_Command":"184",
+			"FK_Command":"184",
 			"FK_CommandParameter":"76",
-			"Command_CommandParameter.Description":"The level to set, as a value between 0 (off) and 100 (full).  It can be preceeded with a - or + indicating a relative value.  +20 means up 20%.",
+			"Description":"The level to set, as a value between 0 (off) and 100 (full).  It can be preceeded with a - or + indicating a relative value.  +20 means up 20%.",
 			"IsOut":"0"
 		},
 		"Command_CommandParameter_192_97": {
-			"Command_CommandParameter.FK_Command":"192",
+			"FK_Command":"192",
 			"FK_CommandParameter":"97",
-			"Command_CommandParameter.Description":"Normally when a device is turned on all the inputs and outputs are selected automatically.  If this parameter is specified, only the settings along this pipe will be set.",
+			"Description":"Normally when a device is turned on all the inputs and outputs are selected automatically.  If this parameter is specified, only the settings along this pipe will be set.",
 			"IsOut":"0"
 		},
 		"Command_CommandParameter_192_98": {
-			"Command_CommandParameter.FK_Command":"192",
+			"FK_Command":"192",
 			"FK_CommandParameter":"98",
-			"Command_CommandParameter.Description":"Normally when a device is turned on the corresponding \"pipes\" are enabled by default. if this parameter is blank.  If this parameter is 0, no pipes will be enabled.  This can also be a comma seperated list of devices, meaning only the pipes to those devic",
+			"Description":"Normally when a device is turned on the corresponding \"pipes\" are enabled by default. if this parameter is blank.  If this parameter is 0, no pipes will be enabled.  This can also be a comma seperated list of devices, meaning only the pipes to those devic",
 			"IsOut":"0"
 		},
 		"Command_CommandParameter_193_97": {
-			"Command_CommandParameter.FK_Command":"193",
+			"FK_Command":"193",
 			"FK_CommandParameter":"97",
-			"Command_CommandParameter.Description":"Normally when a device is turned on all the inputs and outputs are selected automatically.  If this parameter is specified, only the settings along this pipe will be set.",
+			"Description":"Normally when a device is turned on all the inputs and outputs are selected automatically.  If this parameter is specified, only the settings along this pipe will be set.",
 			"IsOut":"0"
 		},
 		"Command_CommandParameter_200_41": {
-			"Command_CommandParameter.FK_Command":"200",
+			"FK_Command":"200",
 			"FK_CommandParameter":"41",
-			"Command_CommandParameter.Description":"ID of stream to apply",
+			"Description":"ID of stream to apply",
 			"IsOut":"0"
 		},
 		"Command_CommandParameter_201_41": {
-			"Command_CommandParameter.FK_Command":"201",
+			"FK_Command":"201",
 			"FK_CommandParameter":"41",
-			"Command_CommandParameter.Description":"ID of stream to apply",
+			"Description":"ID of stream to apply",
 			"IsOut":"0"
 		},
 		"Command_CommandParameter_202_41": {
-			"Command_CommandParameter.FK_Command":"202",
+			"FK_Command":"202",
 			"FK_CommandParameter":"41",
-			"Command_CommandParameter.Description":"ID of stream to apply",
+			"Description":"ID of stream to apply",
 			"IsOut":"0"
 		},
 		"Command_CommandParameter_203_41": {
-			"Command_CommandParameter.FK_Command":"203",
+			"FK_Command":"203",
 			"FK_CommandParameter":"41",
-			"Command_CommandParameter.Description":"ID of stream to apply",
+			"Description":"ID of stream to apply",
 			"IsOut":"0"
 		},
 		"Command_CommandParameter_257_102": {
-			"Command_CommandParameter.FK_Command":"257",
+			"FK_Command":"257",
 			"FK_CommandParameter":"102",
-			"Command_CommandParameter.Description":"The delay time in minutes",
+			"Description":"The delay time in minutes",
 			"IsOut":"0"
 		},
 		"Command_CommandParameter_278_5": {
-			"Command_CommandParameter.FK_Command":"278",
+			"FK_Command":"278",
 			"FK_CommandParameter":"5",
-			"Command_CommandParameter.Description":"Can be absolute, like 20, 18, etc., or relative, like +2, -2, etc.  The temperature is always in degrees celsius, and the application is expected to convert to Fahrenheit if necesssary.",
+			"Description":"Can be absolute, like 20, 18, etc., or relative, like +2, -2, etc.  The temperature is always in degrees celsius, and the application is expected to convert to Fahrenheit if necesssary.",
 			"IsOut":"0"
 		},
 		"Command_CommandParameter_279_8": {
-			"Command_CommandParameter.FK_Command":"279",
+			"FK_Command":"279",
 			"FK_CommandParameter":"8",
-			"Command_CommandParameter.Description":"If 1, the fan will always be on regardless of temperature, if 0, it will be turned on by the climate system when needed.",
+			"Description":"If 1, the fan will always be on regardless of temperature, if 0, it will be turned on by the climate system when needed.",
 			"IsOut":"0"
 		},
 		"Command_CommandParameter_280_8": {
-			"Command_CommandParameter.FK_Command":"280",
+			"FK_Command":"280",
 			"FK_CommandParameter":"8",
-			"Command_CommandParameter.Description":"H=heat only, C=cool only, A=automatic",
+			"Description":"H=heat only, C=cool only, A=automatic",
 			"IsOut":"0"
 		},
 		"Command_CommandParameter_370_28": {
-			"Command_CommandParameter.FK_Command":"370",
+			"FK_Command":"370",
 			"FK_CommandParameter":"28",
-			"Command_CommandParameter.Description":"The command group to execute",
+			"Description":"The command group to execute",
 			"IsOut":"0"
 		},
 		"Command_CommandParameter_757_9": {
-			"Command_CommandParameter.FK_Command":"757",
+			"FK_Command":"757",
 			"FK_CommandParameter":"9",
-			"Command_CommandParameter.Description":"Any information the device may want to do the download",
+			"Description":"Any information the device may want to do the download",
 			"IsOut":"0"
 		},
 		"Command_CommandParameter_760_10": {
-			"Command_CommandParameter.FK_Command":"760",
+			"FK_Command":"760",
 			"FK_CommandParameter":"10",
-			"Command_CommandParameter.Description":"The internal ID used for this device--not the Pluto device ID.",
+			"Description":"The internal ID used for this device--not the Pluto device ID.",
 			"IsOut":"0"
 		},
 		"Command_CommandParameter_760_154": {
-			"Command_CommandParameter.FK_Command":"760",
+			"FK_Command":"760",
 			"FK_CommandParameter":"154",
-			"Command_CommandParameter.Description":"The command to send",
+			"Description":"The command to send",
 			"IsOut":"0"
 		},
 		"Command_CommandParameter_760_202": {
-			"Command_CommandParameter.FK_Command":"760",
+			"FK_Command":"760",
 			"FK_CommandParameter":"202",
-			"Command_CommandParameter.Description":"Parameters for the command in the format:\r\nPK_CommandParameter|Value|...",
+			"Description":"Parameters for the command in the format:\r\nPK_CommandParameter|Value|...",
 			"IsOut":"0"
 		},
 		"Command_CommandParameter_776_51": {
-			"Command_CommandParameter.FK_Command":"776",
+			"FK_Command":"776",
 			"FK_CommandParameter":"51",
-			"Command_CommandParameter.Description":"Argument string\r\nNOEMON or CANBUS",
+			"Description":"Argument string\r\nNOEMON or CANBUS",
 			"IsOut":"0"
 		},
 		"Command_CommandParameter_788_51": {
-			"Command_CommandParameter.FK_Command":"788",
+			"FK_Command":"788",
 			"FK_CommandParameter":"51",
-			"Command_CommandParameter.Description":"Argument string",
+			"Description":"Argument string",
 			"IsOut":"0"
 		},
 		"Command_CommandParameter_820_239": {
-			"Command_CommandParameter.FK_Command":"820",
+			"FK_Command":"820",
 			"FK_CommandParameter":"239",
-			"Command_CommandParameter.Description":"Source Node ID",
+			"Description":"Source Node ID",
 			"IsOut":"0"
 		},
 		"Command_CommandParameter_820_240": {
-			"Command_CommandParameter.FK_Command":"820",
+			"FK_Command":"820",
 			"FK_CommandParameter":"240",
-			"Command_CommandParameter.Description":"Destination Node ID",
+			"Description":"Destination Node ID",
 			"IsOut":"0"
 		},
 		"Command_CommandParameter_827_9": {
-			"Command_CommandParameter.FK_Command":"827",
+			"FK_Command":"827",
 			"FK_CommandParameter":"9",
-			"Command_CommandParameter.Description":"If specified, only command groups with this hint will be terminated",
+			"Description":"If specified, only command groups with this hint will be terminated",
 			"IsOut":"0"
 		},
 		"Command_CommandParameter_827_28": {
-			"Command_CommandParameter.FK_Command":"827",
+			"FK_Command":"827",
 			"FK_CommandParameter":"28",
-			"Command_CommandParameter.Description":"The ID of the command group to stop",
+			"Description":"The ID of the command group to stop",
 			"IsOut":"0"
 		},
 		"Command_CommandParameter_827_163": {
-			"Command_CommandParameter.FK_Command":"827",
+			"FK_Command":"827",
 			"FK_CommandParameter":"163",
-			"Command_CommandParameter.Description":"If specified, only command groups with this Description will be terminated",
+			"Description":"If specified, only command groups with this Description will be terminated",
 			"IsOut":"0"
 		},
 		"Command_CommandParameter_840_48": {
-			"Command_CommandParameter.FK_Command":"840",
+			"FK_Command":"840",
 			"FK_CommandParameter":"48",
-			"Command_CommandParameter.Description":"WakeUp timeout value (1-255 min)",
+			"Description":"WakeUp timeout value (1-255 min)",
 			"IsOut":"0"
 		},
 		"Command_CommandParameter_840_239": {
-			"Command_CommandParameter.FK_Command":"840",
+			"FK_Command":"840",
 			"FK_CommandParameter":"239",
-			"Command_CommandParameter.Description":"Z-Wave node ID of the device.",
+			"Description":"Z-Wave node ID of the device.",
 			"IsOut":"0"
 		},
 		"Command_CommandParameter_841_48": {
-			"Command_CommandParameter.FK_Command":"841",
+			"FK_Command":"841",
 			"FK_CommandParameter":"48",
-			"Command_CommandParameter.Description":"The value of parameter.",
+			"Description":"The value of parameter.",
 			"IsOut":"0"
 		},
 		"Command_CommandParameter_841_239": {
-			"Command_CommandParameter.FK_Command":"841",
+			"FK_Command":"841",
 			"FK_CommandParameter":"239",
-			"Command_CommandParameter.Description":"Z-Wave node id",
+			"Description":"Z-Wave node id",
 			"IsOut":"0"
 		},
 		"Command_CommandParameter_841_248": {
-			"Command_CommandParameter.FK_Command":"841",
+			"FK_Command":"841",
 			"FK_CommandParameter":"248",
-			"Command_CommandParameter.Description":"The configuration parameter ID.",
+			"Description":"The configuration parameter ID.",
 			"IsOut":"0"
 		},
 		"Command_CommandParameter_842_239": {
-			"Command_CommandParameter.FK_Command":"842",
+			"FK_Command":"842",
 			"FK_CommandParameter":"239",
-			"Command_CommandParameter.Description":"Z-Wave node ID which associates some nodes in its group.",
+			"Description":"Z-Wave node ID which associates some nodes in its group.",
 			"IsOut":"0"
 		},
 		"Command_CommandParameter_842_249": {
-			"Command_CommandParameter.FK_Command":"842",
+			"FK_Command":"842",
 			"FK_CommandParameter":"249",
-			"Command_CommandParameter.Description":"The group number which includes the associated nodes.",
+			"Description":"The group number which includes the associated nodes.",
 			"IsOut":"0"
 		},
 		"Command_CommandParameter_842_250": {
-			"Command_CommandParameter.FK_Command":"842",
+			"FK_Command":"842",
 			"FK_CommandParameter":"250",
-			"Command_CommandParameter.Description":"The list of associated Z-Wave nodes (comma separated).",
+			"Description":"The list of associated Z-Wave nodes (comma separated).",
 			"IsOut":"0"
 		}
 	}
@@ -594,75 +594,75 @@
 	"DeviceCategory":{
 		"PK_DeviceCategory_1": {
 			"FK_DeviceCategory_Parent":"",
-			"DeviceCategory.Description":"DCE Router"
+			"Description":"DCE Router"
 		},
 		"PK_DeviceCategory_83": {
 			"FK_DeviceCategory_Parent":"72",
-			"DeviceCategory.Description":"Climate Device"
+			"Description":"Climate Device"
 		},
 		"PK_DeviceCategory_73": {
 			"FK_DeviceCategory_Parent":"72",
-			"DeviceCategory.Description":"Lighting Device"
+			"Description":"Lighting Device"
 		},
 		"PK_DeviceCategory_140": {
 			"FK_DeviceCategory_Parent":"93",
-			"DeviceCategory.Description":"IP Cameras"
+			"Description":"IP Cameras"
 		},
 		"PK_DeviceCategory_84": {
 			"FK_DeviceCategory_Parent":"72",
-			"DeviceCategory.Description":"Security Device"
+			"Description":"Security Device"
 		},
 		"PK_DeviceCategory_81": {
 			"FK_DeviceCategory_Parent":"71",
-			"DeviceCategory.Description":"Lighting Interface"
+			"Description":"Lighting Interface"
 		},
 		"PK_DeviceCategory_82": {
 			"FK_DeviceCategory_Parent":"71",
-			"DeviceCategory.Description":"Climate Interface"
+			"Description":"Climate Interface"
 		},
 		"PK_DeviceCategory_80": {
 			"FK_DeviceCategory_Parent":"71",
-			"DeviceCategory.Description":"Security Interface"
+			"Description":"Security Interface"
 		}
 	}
 	,
 	"DeviceCommandGroup_ids":[17,21,28,29,36,72,76,80,85],
 	"DeviceCommandGroup":{
 		"PK_DeviceCommandGroup_17": {
-			"DeviceCommandGroup.FK_DeviceCategory":"84",
-			"DeviceCommandGroup.Description":"Apex 6100"
+			"FK_DeviceCategory":"84",
+			"Description":"Apex 6100"
 		},
 		"PK_DeviceCommandGroup_21": {
-			"DeviceCommandGroup.FK_DeviceCategory":"73",
-			"DeviceCommandGroup.Description":"On\/Off Light Switch"
+			"FK_DeviceCategory":"73",
+			"Description":"On\/Off Light Switch"
 		},
 		"PK_DeviceCommandGroup_28": {
-			"DeviceCommandGroup.FK_DeviceCategory":"73",
-			"DeviceCommandGroup.Description":"Dimming"
+			"FK_DeviceCategory":"73",
+			"Description":"Dimming"
 		},
 		"PK_DeviceCommandGroup_29": {
-			"DeviceCommandGroup.FK_DeviceCategory":"1",
-			"DeviceCommandGroup.Description":"DCERouter"
+			"FK_DeviceCategory":"1",
+			"Description":"DCERouter"
 		},
 		"PK_DeviceCommandGroup_36": {
-			"DeviceCommandGroup.FK_DeviceCategory":"83",
-			"DeviceCommandGroup.Description":"Thermostat Commands"
+			"FK_DeviceCategory":"83",
+			"Description":"Thermostat Commands"
 		},
 		"PK_DeviceCommandGroup_72": {
-			"DeviceCommandGroup.FK_DeviceCategory":"80",
-			"DeviceCommandGroup.Description":"Security Panel"
+			"FK_DeviceCategory":"80",
+			"Description":"Security Panel"
 		},
 		"PK_DeviceCommandGroup_76": {
-			"DeviceCommandGroup.FK_DeviceCategory":"82",
-			"DeviceCommandGroup.Description":"IrrigationGroup"
+			"FK_DeviceCategory":"82",
+			"Description":"IrrigationGroup"
 		},
 		"PK_DeviceCommandGroup_80": {
-			"DeviceCommandGroup.FK_DeviceCategory":"82",
-			"DeviceCommandGroup.Description":"IrrigationGroup"
+			"FK_DeviceCategory":"82",
+			"Description":"IrrigationGroup"
 		},
 		"PK_DeviceCommandGroup_85": {
-			"DeviceCommandGroup.FK_DeviceCategory":"81",
-			"DeviceCommandGroup.Description":"ZWave"
+			"FK_DeviceCategory":"81",
+			"Description":"ZWave"
 		}
 	}
 	,
@@ -3262,64 +3262,64 @@
 	"DeviceData_ids":[26,107,11,12,2,69,114,115,18,19,45,1,37,162,163],
 	"DeviceData":{
 		"PK_DeviceData_26": {
-			"DeviceData.Description":"PK_Language",
-			"DeviceData.FK_ParameterType":"2"
+			"Description":"PK_Language",
+			"FK_ParameterType":"2"
 		},
 		"PK_DeviceData_107": {
-			"DeviceData.Description":"PK_City",
-			"DeviceData.FK_ParameterType":"2"
+			"Description":"PK_City",
+			"FK_ParameterType":"2"
 		},
 		"PK_DeviceData_11": {
-			"DeviceData.Description":"PK_FloorplanObjectType",
-			"DeviceData.FK_ParameterType":"2"
+			"Description":"PK_FloorplanObjectType",
+			"FK_ParameterType":"2"
 		},
 		"PK_DeviceData_12": {
-			"DeviceData.Description":"Port\/Channel Number",
-			"DeviceData.FK_ParameterType":"1"
+			"Description":"Port\/Channel Number",
+			"FK_ParameterType":"1"
 		},
 		"PK_DeviceData_2": {
-			"DeviceData.Description":"Path",
-			"DeviceData.FK_ParameterType":"1"
+			"Description":"Path",
+			"FK_ParameterType":"1"
 		},
 		"PK_DeviceData_69": {
-			"DeviceData.Description":"TCP Port",
-			"DeviceData.FK_ParameterType":"2"
+			"Description":"TCP Port",
+			"FK_ParameterType":"2"
 		},
 		"PK_DeviceData_114": {
-			"DeviceData.Description":"AuthUser",
-			"DeviceData.FK_ParameterType":"1"
+			"Description":"AuthUser",
+			"FK_ParameterType":"1"
 		},
 		"PK_DeviceData_115": {
-			"DeviceData.Description":"AuthPassword",
-			"DeviceData.FK_ParameterType":"1"
+			"Description":"AuthPassword",
+			"FK_ParameterType":"1"
 		},
 		"PK_DeviceData_18": {
-			"DeviceData.Description":"InputOrOutput",
-			"DeviceData.FK_ParameterType":"2"
+			"Description":"InputOrOutput",
+			"FK_ParameterType":"2"
 		},
 		"PK_DeviceData_19": {
-			"DeviceData.Description":"Default State",
-			"DeviceData.FK_ParameterType":"2"
+			"Description":"Default State",
+			"FK_ParameterType":"2"
 		},
 		"PK_DeviceData_45": {
-			"DeviceData.Description":"EK_AlertType",
-			"DeviceData.FK_ParameterType":"2"
+			"Description":"EK_AlertType",
+			"FK_ParameterType":"2"
 		},
 		"PK_DeviceData_1": {
-			"DeviceData.Description":"Device",
-			"DeviceData.FK_ParameterType":"1"
+			"Description":"Device",
+			"FK_ParameterType":"1"
 		},
 		"PK_DeviceData_37": {
-			"DeviceData.Description":"COM Port on PC",
-			"DeviceData.FK_ParameterType":"1"
+			"Description":"COM Port on PC",
+			"FK_ParameterType":"1"
 		},
 		"PK_DeviceData_162": {
-			"DeviceData.Description":"Only One Per PC",
-			"DeviceData.FK_ParameterType":"3"
+			"Description":"Only One Per PC",
+			"FK_ParameterType":"3"
 		},
 		"PK_DeviceData_163": {
-			"DeviceData.Description":"Auto-assign to parents room",
-			"DeviceData.FK_ParameterType":"3"
+			"Description":"Auto-assign to parents room",
+			"FK_ParameterType":"3"
 		}
 	}
 	,
@@ -5099,186 +5099,186 @@
 	"Event_ids":[38,25,26,27,28,29,78,79,9,48,54,55],
 	"Event":{
 		"PK_Event_38": {
-			"Event.FK_EventCategory":"8",
-			"Event.Description":"Reload Aborted"
+			"FK_EventCategory":"8",
+			"Description":"Reload Aborted"
 		},
 		"PK_Event_25": {
-			"Event.FK_EventCategory":"10",
-			"Event.Description":"Temperature Changed"
+			"FK_EventCategory":"10",
+			"Description":"Temperature Changed"
 		},
 		"PK_Event_26": {
-			"Event.FK_EventCategory":"10",
-			"Event.Description":"Humidity Changed"
+			"FK_EventCategory":"10",
+			"Description":"Humidity Changed"
 		},
 		"PK_Event_27": {
-			"Event.FK_EventCategory":"10",
-			"Event.Description":"Thermostat Set Point Chan"
+			"FK_EventCategory":"10",
+			"Description":"Thermostat Set Point Chan"
 		},
 		"PK_Event_28": {
-			"Event.FK_EventCategory":"8",
-			"Event.Description":"On"
+			"FK_EventCategory":"8",
+			"Description":"On"
 		},
 		"PK_Event_29": {
-			"Event.FK_EventCategory":"8",
-			"Event.Description":"Off"
+			"FK_EventCategory":"8",
+			"Description":"Off"
 		},
 		"PK_Event_78": {
-			"Event.FK_EventCategory":"10",
-			"Event.Description":"Thermostat Mode Changed"
+			"FK_EventCategory":"10",
+			"Description":"Thermostat Mode Changed"
 		},
 		"PK_Event_79": {
-			"Event.FK_EventCategory":"10",
-			"Event.Description":"Fan Mode Changed"
+			"FK_EventCategory":"10",
+			"Description":"Fan Mode Changed"
 		},
 		"PK_Event_9": {
-			"Event.FK_EventCategory":"9",
-			"Event.Description":"Sensor Tripped"
+			"FK_EventCategory":"9",
+			"Description":"Sensor Tripped"
 		},
 		"PK_Event_48": {
-			"Event.FK_EventCategory":"2",
-			"Event.Description":"Device On\/Off"
+			"FK_EventCategory":"2",
+			"Description":"Device On\/Off"
 		},
 		"PK_Event_54": {
-			"Event.FK_EventCategory":"8",
-			"Event.Description":"Reporting Child Devices"
+			"FK_EventCategory":"8",
+			"Description":"Reporting Child Devices"
 		},
 		"PK_Event_55": {
-			"Event.FK_EventCategory":"8",
-			"Event.Description":"Download Config Done"
+			"FK_EventCategory":"8",
+			"Description":"Download Config Done"
 		}
 	}
 	,
 	"EventCategory_ids":[8,10,9,2],
 	"EventCategory":{
 		"PK_EventCategory_8": {
-			"EventCategory.FK_EventCategory_Parent":"",
-			"EventCategory.Description":"General"
+			"FK_EventCategory_Parent":"",
+			"Description":"General"
 		},
 		"PK_EventCategory_10": {
-			"EventCategory.FK_EventCategory_Parent":"",
-			"EventCategory.Description":"Climate"
+			"FK_EventCategory_Parent":"",
+			"Description":"Climate"
 		},
 		"PK_EventCategory_9": {
-			"EventCategory.FK_EventCategory_Parent":"",
-			"EventCategory.Description":"Security"
+			"FK_EventCategory_Parent":"",
+			"Description":"Security"
 		},
 		"PK_EventCategory_2": {
-			"EventCategory.FK_EventCategory_Parent":"",
-			"EventCategory.Description":"Media Player"
+			"FK_EventCategory_Parent":"",
+			"Description":"Media Player"
 		}
 	}
 	,
 	"EventParameter_ids":[13,14,26,30,25,10,12],
 	"EventParameter":{
 		"PK_EventParameter_13": {
-			"EventParameter.Description":"Text",
-			"EventParameter.Define":"",
-			"EventParameter.Comments":"",
-			"EventParameter.FK_ParameterType":"1"
+			"Description":"Text",
+			"Define":"",
+			"Comments":"",
+			"FK_ParameterType":"1"
 		},
 		"PK_EventParameter_14": {
-			"EventParameter.Description":"PK_Orbiter",
-			"EventParameter.Define":"",
-			"EventParameter.Comments":"",
-			"EventParameter.FK_ParameterType":"2"
+			"Description":"PK_Orbiter",
+			"Define":"",
+			"Comments":"",
+			"FK_ParameterType":"2"
 		},
 		"PK_EventParameter_26": {
-			"EventParameter.Description":"PK_Device",
-			"EventParameter.Define":"",
-			"EventParameter.Comments":"",
-			"EventParameter.FK_ParameterType":"2"
+			"Description":"PK_Device",
+			"Define":"",
+			"Comments":"",
+			"FK_ParameterType":"2"
 		},
 		"PK_EventParameter_30": {
-			"EventParameter.Description":"Value",
-			"EventParameter.Define":"",
-			"EventParameter.Comments":"Generic Value",
-			"EventParameter.FK_ParameterType":"1"
+			"Description":"Value",
+			"Define":"",
+			"Comments":"Generic Value",
+			"FK_ParameterType":"1"
 		},
 		"PK_EventParameter_25": {
-			"EventParameter.Description":"Tripped",
-			"EventParameter.Define":"",
-			"EventParameter.Comments":"",
-			"EventParameter.FK_ParameterType":"3"
+			"Description":"Tripped",
+			"Define":"",
+			"Comments":"",
+			"FK_ParameterType":"3"
 		},
 		"PK_EventParameter_10": {
-			"EventParameter.Description":"On\/Off",
-			"EventParameter.Define":"",
-			"EventParameter.Comments":"",
-			"EventParameter.FK_ParameterType":"3"
+			"Description":"On\/Off",
+			"Define":"",
+			"Comments":"",
+			"FK_ParameterType":"3"
 		},
 		"PK_EventParameter_12": {
-			"EventParameter.Description":"Error Message",
-			"EventParameter.Define":"",
-			"EventParameter.Comments":"This is the message of the error",
-			"EventParameter.FK_ParameterType":"1"
+			"Description":"Error Message",
+			"Define":"",
+			"Comments":"This is the message of the error",
+			"FK_ParameterType":"1"
 		}
 	}
 	,
 	"Event_EventParameter":{
 		"Event_EventParameter_38_13": {
-			"Event_EventParameter.FK_Event":"38",
+			"FK_Event":"38",
 			"FK_EventParameter":"13",
-			"Event_EventParameter.Description":"The reason"
+			"Description":"The reason"
 		},
 		"Event_EventParameter_38_14": {
-			"Event_EventParameter.FK_Event":"38",
+			"FK_Event":"38",
 			"FK_EventParameter":"14",
-			"Event_EventParameter.Description":"The device that requested a reload.  Presumably an Orbiter."
+			"Description":"The device that requested a reload.  Presumably an Orbiter."
 		},
 		"Event_EventParameter_38_26": {
-			"Event_EventParameter.FK_Event":"38",
+			"FK_Event":"38",
 			"FK_EventParameter":"26",
-			"Event_EventParameter.Description":"The device that cancelled the reload"
+			"Description":"The device that cancelled the reload"
 		},
 		"Event_EventParameter_25_30": {
-			"Event_EventParameter.FK_Event":"25",
+			"FK_Event":"25",
 			"FK_EventParameter":"30",
-			"Event_EventParameter.Description":"The ambient temperature."
+			"Description":"The ambient temperature."
 		},
 		"Event_EventParameter_26_30": {
-			"Event_EventParameter.FK_Event":"26",
+			"FK_Event":"26",
 			"FK_EventParameter":"30",
-			"Event_EventParameter.Description":"The relative humidity, such as 60 for 60%"
+			"Description":"The relative humidity, such as 60 for 60%"
 		},
 		"Event_EventParameter_27_30": {
-			"Event_EventParameter.FK_Event":"27",
+			"FK_Event":"27",
 			"FK_EventParameter":"30",
-			"Event_EventParameter.Description":"The new set point."
+			"Description":"The new set point."
 		},
 		"Event_EventParameter_78_30": {
-			"Event_EventParameter.FK_Event":"78",
+			"FK_Event":"78",
 			"FK_EventParameter":"30",
-			"Event_EventParameter.Description":"The current thermostat mode."
+			"Description":"The current thermostat mode."
 		},
 		"Event_EventParameter_79_30": {
-			"Event_EventParameter.FK_Event":"79",
+			"FK_Event":"79",
 			"FK_EventParameter":"30",
-			"Event_EventParameter.Description":"Fan mode value\r\n0,1 - AUTO \/ LOW\r\n2,3 - HIGH\r\n"
+			"Description":"Fan mode value\r\n0,1 - AUTO \/ LOW\r\n2,3 - HIGH\r\n"
 		},
 		"Event_EventParameter_9_25": {
-			"Event_EventParameter.FK_Event":"9",
+			"FK_Event":"9",
 			"FK_EventParameter":"25",
-			"Event_EventParameter.Description":"true if the sensor is in the 'tripped', or non-normal state."
+			"Description":"true if the sensor is in the 'tripped', or non-normal state."
 		},
 		"Event_EventParameter_48_10": {
-			"Event_EventParameter.FK_Event":"48",
+			"FK_Event":"48",
 			"FK_EventParameter":"10",
-			"Event_EventParameter.Description":"1=On, 0=off"
+			"Description":"1=On, 0=off"
 		},
 		"Event_EventParameter_54_12": {
-			"Event_EventParameter.FK_Event":"54",
+			"FK_Event":"54",
 			"FK_EventParameter":"12",
-			"Event_EventParameter.Description":"If this is not empty, that means an error occurred"
+			"Description":"If this is not empty, that means an error occurred"
 		},
 		"Event_EventParameter_54_13": {
-			"Event_EventParameter.FK_Event":"54",
+			"FK_Event":"54",
 			"FK_EventParameter":"13",
-			"Event_EventParameter.Description":"A list like this:\r\n[internal id] \\t [description] \\t [room name] \\t [device template] \\t [floorplan id] \\n"
+			"Description":"A list like this:\r\n[internal id] \\t [description] \\t [room name] \\t [device template] \\t [floorplan id] \\n"
 		},
 		"Event_EventParameter_55_12": {
-			"Event_EventParameter.FK_Event":"55",
+			"FK_Event":"55",
 			"FK_EventParameter":"12",
-			"Event_EventParameter.Description":"If this is empty the download was successful, otherwise this contains an error message"
+			"Description":"If this is empty the download was successful, otherwise this contains an error message"
 		}
 	}
 	,
@@ -5707,20 +5707,20 @@
 	"Manufacturer_ids":[1,190,5,551],
 	"Manufacturer":{
 		"PK_Manufacturer_1": {
-			"Manufacturer.Description":"Pluto",
-			"Manufacturer.IRFrequency":""
+			"Description":"Pluto",
+			"IRFrequency":""
 		},
 		"PK_Manufacturer_190": {
-			"Manufacturer.Description":"Panasonic",
-			"Manufacturer.IRFrequency":""
+			"Description":"Panasonic",
+			"IRFrequency":""
 		},
 		"PK_Manufacturer_5": {
-			"Manufacturer.Description":"Generic",
-			"Manufacturer.IRFrequency":""
+			"Description":"Generic",
+			"IRFrequency":""
 		},
 		"PK_Manufacturer_551": {
-			"Manufacturer.Description":"iButtonLink",
-			"Manufacturer.IRFrequency":""
+			"Description":"iButtonLink",
+			"IRFrequency":""
 		}
 	}
 	,

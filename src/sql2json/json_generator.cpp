@@ -208,6 +208,8 @@ string json_generator::generate_table_json(TableInfo_Generator *pTableInfo, bool
 		for(size_t i = 0; i < nNumFields; ++i)
 		{
 			size_t nRowIndex = bHasPKField? i + 1 : i;
+			string sSimplifiedFieldName = vectFieldNames[i];
+			StringUtils::Replace(&vectFieldNames[i], pTableInfo->get_table_name() + ".", "");
 
 			sRowInfo += "\t\t\t\"" + vectFieldNames[i] + "\":\"" + (NULL != row[nRowIndex] ? JSONEscape(row[nRowIndex]) : "") + "\"";
 
