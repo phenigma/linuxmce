@@ -271,7 +271,6 @@
 		}
 	}
 	,
-	"Command_CommandParameter_ids":[,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,],
 	"Command_CommandParameter":{
 		"Command_CommandParameter_84_19": {
 			"Command_CommandParameter.FK_Command":"84",
@@ -667,7 +666,6 @@
 		}
 	}
 	,
-	"DeviceCommandGroup_Command_ids":[,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,],
 	"DeviceCommandGroup_Command":{
 		"DeviceCommandGroup_Command_1_1": {
 			"FK_DeviceCommandGroup":"1",
@@ -3448,7 +3446,6 @@
 		}
 	}
 	,
-	"DeviceTemplate_DeviceCommandGroup_ids":[,,,,,,,,,,,],
 	"DeviceTemplate_DeviceCommandGroup":{
 		"DeviceTemplate_DeviceCommandGroup_1_29": {
 			"FK_DeviceTemplate":"1",
@@ -3500,7 +3497,6 @@
 		}
 	}
 	,
-	"DeviceTemplate_DeviceData_ids":[,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,],
 	"DeviceTemplate_DeviceData":{
 		"DeviceTemplate_DeviceData_1_26": {
 			"FK_DeviceTemplate":"1",
@@ -5019,7 +5015,6 @@
 		}
 	}
 	,
-	"DeviceTemplate_Event_ids":[,,,,,,,,,,,,],
 	"DeviceTemplate_Event":{
 		"DeviceTemplate_Event_1_38": {
 			"FK_DeviceTemplate":"1",
@@ -5219,7 +5214,6 @@
 		}
 	}
 	,
-	"Event_EventParameter_ids":[,,,,,,,,,,,,],
 	"Event_EventParameter":{
 		"Event_EventParameter_38_13": {
 			"Event_EventParameter.FK_Event":"38",
