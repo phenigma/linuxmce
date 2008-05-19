@@ -323,7 +323,7 @@
 		"Command_CommandParameter_192_98": {
 			"Command_CommandParameter.FK_Command":"192",
 			"FK_CommandParameter":"98",
-			"Command_CommandParameter.Description":"Normally when a device is turned on the corresponding \\"pipes\\" are enabled by default. if this parameter is blank.  If this parameter is 0, no pipes will be enabled.  This can also be a comma seperated list of devices, meaning only the pipes to those devic",
+			"Command_CommandParameter.Description":"Normally when a device is turned on the corresponding \"pipes\" are enabled by default. if this parameter is blank.  If this parameter is 0, no pipes will be enabled.  This can also be a comma seperated list of devices, meaning only the pipes to those devic",
 			"IsOut":"0"
 		},
 		"Command_CommandParameter_193_97": {
@@ -745,7 +745,7 @@
 		"DeviceCommandGroup_Command_1_18": {
 			"FK_DeviceCommandGroup":"1",
 			"FK_Command":"18",
-			"Description":"All objects on screen can be either in \\"Normal\\" mode, \\"Selected mode\\", \\"Highlighted mode\\", or any number of \\"Alternate modes\\".  These are like \\"views\\".  A Selected mode may appear depressed, for example.  All children of this object will also be set."
+			"Description":"All objects on screen can be either in \"Normal\" mode, \"Selected mode\", \"Highlighted mode\", or any number of \"Alternate modes\".  These are like \"views\".  A Selected mode may appear depressed, for example.  All children of this object will also be set."
 		},
 		"DeviceCommandGroup_Command_1_20": {
 			"FK_DeviceCommandGroup":"1",
@@ -780,7 +780,7 @@
 		"DeviceCommandGroup_Command_1_26": {
 			"FK_DeviceCommandGroup":"1",
 			"FK_Command":"26",
-			"Description":"Sets an icon that is bound to status.  \\"Bind Icon\\" is put in the object's on load commands, and then this command sets the status at runtime."
+			"Description":"Sets an icon that is bound to status.  \"Bind Icon\" is put in the object's on load commands, and then this command sets the status at runtime."
 		},
 		"DeviceCommandGroup_Command_1_27": {
 			"FK_DeviceCommandGroup":"1",
@@ -790,7 +790,7 @@
 		"DeviceCommandGroup_Command_1_28": {
 			"FK_DeviceCommandGroup":"1",
 			"FK_Command":"28",
-			"Description":"Simulates that a key has been touched.  Touchable keys on screen can use this command to allow for simultaneous operation with keyboard or mouse.  Also works with the \\"Capture Keyboard to Variable\\" command."
+			"Description":"Simulates that a key has been touched.  Touchable keys on screen can use this command to allow for simultaneous operation with keyboard or mouse.  Also works with the \"Capture Keyboard to Variable\" command."
 		},
 		"DeviceCommandGroup_Command_1_29": {
 			"FK_DeviceCommandGroup":"1",
@@ -870,12 +870,12 @@
 		"DeviceCommandGroup_Command_1_242": {
 			"FK_DeviceCommandGroup":"1",
 			"FK_Command":"242",
-			"Description":"Used by the media engine to set the \\"now playing\\" text on an orbiter.  If the orbiter is bound to the remote for an entertainment area it will get more updates than just media,  like cover art, but this is the basic information that is visible on screens"
+			"Description":"Used by the media engine to set the \"now playing\" text on an orbiter.  If the orbiter is bound to the remote for an entertainment area it will get more updates than just media,  like cover art, but this is the basic information that is visible on screens"
 		},
 		"DeviceCommandGroup_Command_1_254": {
 			"FK_DeviceCommandGroup":"1",
 			"FK_Command":"254",
-			"Description":"Used to make a button have an icon that reflects a current state, such as the user's status, the house mode, etc.  This is accomplished by creating an object with multiple alternate versions, and then executing a \\"Set  Bound Icon\\" to select the right one."
+			"Description":"Used to make a button have an icon that reflects a current state, such as the user's status, the house mode, etc.  This is accomplished by creating an object with multiple alternate versions, and then executing a \"Set  Bound Icon\" to select the right one."
 		},
 		"DeviceCommandGroup_Command_1_258": {
 			"FK_DeviceCommandGroup":"1",
@@ -1045,7 +1045,7 @@
 		"DeviceCommandGroup_Command_3_34": {
 			"FK_DeviceCommandGroup":"3",
 			"FK_Command":"34",
-			"Description":"The orbiters use this to request the contents of a datagrid, so they can display it for the user.  Before you can request a grid, the command Populate Datagrid must be called, passing in the information required to populate the grid as well a \\"GridID\\","
+			"Description":"The orbiters use this to request the contents of a datagrid, so they can display it for the user.  Before you can request a grid, the command Populate Datagrid must be called, passing in the information required to populate the grid as well a \"GridID\","
 		},
 		"DeviceCommandGroup_Command_3_35": {
 			"FK_DeviceCommandGroup":"3",
@@ -1065,17 +1065,17 @@
 		"DeviceCommandGroup_Command_4_37": {
 			"FK_DeviceCommandGroup":"4",
 			"FK_Command":"37",
-			"Description":"This command will instruct a Media Player to play a media stream identified by a media descriptor created by the \\"Create Media\\" command."
+			"Description":"This command will instruct a Media Player to play a media stream identified by a media descriptor created by the \"Create Media\" command."
 		},
 		"DeviceCommandGroup_Command_4_38": {
 			"FK_DeviceCommandGroup":"4",
 			"FK_Command":"38",
-			"Description":"This will instruct the media player to stop the playback of a media started with the \\"Play Media\\" Command"
+			"Description":"This will instruct the media player to stop the playback of a media started with the \"Play Media\" Command"
 		},
 		"DeviceCommandGroup_Command_4_39": {
 			"FK_DeviceCommandGroup":"4",
 			"FK_Command":"39",
-			"Description":"This will stop a media that is currently played. This method should be paired with the \\"Restart Media\\" and used when the playback will be stopped and restarted on the same display device."
+			"Description":"This will stop a media that is currently played. This method should be paired with the \"Restart Media\" and used when the playback will be stopped and restarted on the same display device."
 		},
 		"DeviceCommandGroup_Command_4_40": {
 			"FK_DeviceCommandGroup":"4",
@@ -1465,7 +1465,7 @@
 		"DeviceCommandGroup_Command_9_266": {
 			"FK_DeviceCommandGroup":"9",
 			"FK_Command":"266",
-			"Description":"Regenerates an Orbiter.  When regeneration is complete, the \\"Regen Orbiter Finished\\" command will be sent"
+			"Description":"Regenerates an Orbiter.  When regeneration is complete, the \"Regen Orbiter Finished\" command will be sent"
 		},
 		"DeviceCommandGroup_Command_9_267": {
 			"FK_DeviceCommandGroup":"9",
@@ -1885,7 +1885,7 @@
 		"DeviceCommandGroup_Command_16_250": {
 			"FK_DeviceCommandGroup":"16",
 			"FK_Command":"250",
-			"Description":"Store a learned infrared code for a \\"Device\\" + \\"Command\\" pair"
+			"Description":"Store a learned infrared code for a \"Device\" + \"Command\" pair"
 		},
 		"DeviceCommandGroup_Command_16_688": {
 			"FK_DeviceCommandGroup":"16",
@@ -2015,7 +2015,7 @@
 		"DeviceCommandGroup_Command_20_926": {
 			"FK_DeviceCommandGroup":"20",
 			"FK_Command":"926",
-			"Description":"Process a task with actions like \\"complete transfer now\\", \\"merge calls\\", etc."
+			"Description":"Process a task with actions like \"complete transfer now\", \"merge calls\", etc."
 		},
 		"DeviceCommandGroup_Command_20_927": {
 			"FK_DeviceCommandGroup":"20",
@@ -2165,7 +2165,7 @@
 		"DeviceCommandGroup_Command_27_253": {
 			"FK_DeviceCommandGroup":"27",
 			"FK_Command":"253",
-			"Description":"Will convert the text to an audio file, and send it to the device with the \\"Play Media\\" Command."
+			"Description":"Will convert the text to an audio file, and send it to the device with the \"Play Media\" Command."
 		},
 		"DeviceCommandGroup_Command_27_256": {
 			"FK_DeviceCommandGroup":"27",
@@ -2445,12 +2445,12 @@
 		"DeviceCommandGroup_Command_40_63": {
 			"FK_DeviceCommandGroup":"40",
 			"FK_Command":"63",
-			"Description":"The \\"seek\\" variant which scans and stops on valid stations."
+			"Description":"The \"seek\" variant which scans and stops on valid stations."
 		},
 		"DeviceCommandGroup_Command_40_64": {
 			"FK_DeviceCommandGroup":"40",
 			"FK_Command":"64",
-			"Description":"The \\"seek\\" variant which scans and stops on valid stations."
+			"Description":"The \"seek\" variant which scans and stops on valid stations."
 		},
 		"DeviceCommandGroup_Command_40_89": {
 			"FK_DeviceCommandGroup":"40",
@@ -2465,7 +2465,7 @@
 		"DeviceCommandGroup_Command_40_93": {
 			"FK_DeviceCommandGroup":"40",
 			"FK_Command":"93",
-			"Description":"The \\"fine tune\\" command which increases the frequency 1 notch a time regardless of signal strength."
+			"Description":"The \"fine tune\" command which increases the frequency 1 notch a time regardless of signal strength."
 		},
 		"DeviceCommandGroup_Command_40_97": {
 			"FK_DeviceCommandGroup":"40",
@@ -2475,7 +2475,7 @@
 		"DeviceCommandGroup_Command_40_125": {
 			"FK_DeviceCommandGroup":"40",
 			"FK_Command":"125",
-			"Description":"The \\"fine tune\\" command which decreases the frequency 1 notch a time regardless of signal strength."
+			"Description":"The \"fine tune\" command which decreases the frequency 1 notch a time regardless of signal strength."
 		},
 		"DeviceCommandGroup_Command_40_192": {
 			"FK_DeviceCommandGroup":"40",
@@ -2880,12 +2880,12 @@
 		"DeviceCommandGroup_Command_69_701": {
 			"FK_DeviceCommandGroup":"69",
 			"FK_Command":"701",
-			"Description":"Load disc from \\"Storage Element\\" (Slot) to \\"Data Transfer Element\\" (Drive).  This will lock the drive, which can be -1 for any drive"
+			"Description":"Load disc from \"Storage Element\" (Slot) to \"Data Transfer Element\" (Drive).  This will lock the drive, which can be -1 for any drive"
 		},
 		"DeviceCommandGroup_Command_69_702": {
 			"FK_DeviceCommandGroup":"69",
 			"FK_Command":"702",
-			"Description":"Unload disc from \\"Data Transfer Element\\" (Drive) to \\"Storage Element\\" (Slot).  This will unlock the drive"
+			"Description":"Unload disc from \"Data Transfer Element\" (Drive) to \"Storage Element\" (Slot).  This will unlock the drive"
 		},
 		"DeviceCommandGroup_Command_69_703": {
 			"FK_DeviceCommandGroup":"69",
