@@ -3,6 +3,7 @@
 
 #include "IDataLayer.h"
 #include "DeviceTemplate_Data.h"
+#include "DeviceCategory_Data.h"
 #include <map>
 //----------------------------------------------------------------------------------------------
 class DataLayer_JSON : public IDataLayer
@@ -10,6 +11,7 @@ class DataLayer_JSON : public IDataLayer
 	int m_dwPK_Device_Largest;
 
 	std::map<int, DeviceTemplate_Data> m_mapDeviceTemplate_Data;
+	std::map<int, DeviceCategory_Data> m_mapDeviceCategory_Data;
 
 public:
 	DataLayer_JSON(void);

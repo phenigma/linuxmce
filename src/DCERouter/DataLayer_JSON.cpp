@@ -52,6 +52,9 @@ bool DataLayer_JSON::GetDevices(std::map<int, DeviceData_Router *>& mapDeviceDat
 	}
 
 	json_object_put(json_obj); 
+
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "DataLayer: Got %d devices", mapDeviceData_Router.size());
+
 	return true;
 }
 //----------------------------------------------------------------------------------------------
@@ -242,6 +245,8 @@ bool DataLayer_JSON::ReadStaticConfiguration(std::map<int, DeviceData_Router *>&
 
 	json_object_put(json_obj); 
 
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "DataLayer: Got %d device templates", m_mapDeviceTemplate_Data.size());
+	LoggerWrapper::GetInstance()->Write(LV_WARNING, "DataLayer: Got %d device categories", m_mapDeviceCategory_Data.size());
 
 	UpdateDevicesTree(mapDeviceData_Router);
 
@@ -256,7 +261,7 @@ void DataLayer_JSON::ParseDeviceTemplates(struct json_object *json_obj)
 	{
 		string sDeviceTemplateID = iter_devices.key;
 
-		StringUtils::Replace(&sDeviceTemplateID, "PK_DeviceCategory_", "");
+		StringUtils::Replace(&sDeviceTemplateID, "PK_DeviceTemplate_", "");
 		int nDeviceTemplateID = atoi(sDeviceTemplateID.c_str());
 
 		DeviceTemplate_Data aDeviceTemplate_Data(nDeviceTemplateID);
@@ -289,7 +294,35 @@ void DataLayer_JSON::ParseDeviceTemplates(struct json_object *json_obj)
 //----------------------------------------------------------------------------------------------
 void DataLayer_JSON::ParseDeviceCategories(struct json_object *json_obj)
 {
-	
+	struct json_object *obj_devices = json_obj;
+	struct json_object_iter iter_categories;
+	json_object_object_foreachC(obj_devices, iter_categories) 
+	{
+		string sDeviceCategoryID = iter_categories.key;
+
+		StringUtils::Replace(&sDeviceCategoryID, "PK_DeviceCategory_", "");
+		int nDeviceCategoryID = atoi(sDeviceCategoryID.c_str());
+
+		DeviceCategory_Data aDeviceCategory_Data(nDeviceCategoryID);
+
+		struct json_object_iter iter_deviceparams;
+		json_object_object_foreachC(iter_categories.val, iter_deviceparams)
+		{
+			string sKey = iter_deviceparams.key;
+
+			if(iter_deviceparams.val->o_type == json_type_string)
+			{
+				string sValue = json_object_get_string(iter_deviceparams.val);
+
+				if(sKey == "DeviceCategory.Description")
+					aDeviceCategory_Data.Description(sValue);
+				if(sKey == "FK_DeviceCategory_Parent")
+					aDeviceCategory_Data.DeviceCategoryParent(atoi(sValue.c_str()));
+			}
+		}	
+
+		m_mapDeviceCategory_Data[nDeviceCategoryID] = aDeviceCategory_Data;
+	}	
 }
 //----------------------------------------------------------------------------------------------
 void DataLayer_JSON::UpdateDevicesTree(std::map<int, DeviceData_Router *>& mapDeviceData_Router)
