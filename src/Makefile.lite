@@ -1,0 +1,20 @@
+SNR_CPPFLAGS=
+SNR_LDFLAGS=
+
+all: libs bins
+
+bins: libs
+	make -C DCERouter -f Makefile.lite clean
+	make -C DCERouter -f Makefile.lite
+	make -C ZWave -f Makefile.lite clean
+	make -C ZWave -f Makefile.lite bin
+
+libs:
+	@for i in Serial SerializeClass PlutoUtils DCE; do \
+		make -C $$i -f Makefile.lite clean; \
+		make -C $$i -f Makefile.lite; \
+	done
+
+clean:
+	rm -f lib/* bin/*
+
