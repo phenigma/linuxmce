@@ -157,6 +157,9 @@
 				RelativePath=".\Logger.cpp">
 			</File>
 			<File
+				RelativePath="..\PlutoUtils\LZO.cpp">
+			</File>
+			<File
 				RelativePath="..\PlutoUtils\md5c.cpp">
 			</File>
 			<File
