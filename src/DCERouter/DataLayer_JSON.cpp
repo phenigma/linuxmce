@@ -159,7 +159,7 @@ void DataLayer_JSON::ParseDeviceDataList(std::map<int, string>& mapDeviceData, s
 	json_object_object_foreachC(json_obj, iter_devicedata)
 	{
 		string sValue = iter_devicedata.key;
-		int PK_DeviceData = atoi(StringUtils::Replace(&sValue, "dd_", "").c_str());
+		int PK_DeviceData = atoi(StringUtils::Replace(&sValue, "FK_DeviceData_", "").c_str());
 
 		if(iter_devicedata.val->o_type == json_type_string)
 			mapDeviceData[PK_DeviceData] = json_object_get_string(iter_devicedata.val);
