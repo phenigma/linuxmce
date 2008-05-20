@@ -50,6 +50,11 @@ public:
 	{
 		return m_nPK_Command;
 	}
+
+	const std::map<string, string>& Params()
+	{
+		return m_mapParams;
+	}
 };
 //----------------------------------------------------------------------------------------------
 #endif //__COMMAND_DATA_H__

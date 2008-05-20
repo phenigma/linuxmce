@@ -468,3 +468,15 @@ void DataLayer_JSON::ParseCommands(map<int, Command_Data>& mapCommands, struct j
 	}
 }
 //----------------------------------------------------------------------------------------------
+bool DataLayer_JSON::GetScene(int nSceneID, Scene_Data& scene)
+{
+	std::map<int, Scene_Data>::iterator it = m_mapScene_Data.find(nSceneID);
+	if(it != m_mapScene_Data.end())
+	{
+		scene = it->second;
+		return true;
+	}
+
+	return false;
+}
+//----------------------------------------------------------------------------------------------

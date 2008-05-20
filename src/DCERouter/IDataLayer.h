@@ -3,6 +3,7 @@
 //----------------------------------------------------------------------------------------------
 #include <map>
 #include "DeviceData_Router.h"
+#include "Scene_Data.h"
 //----------------------------------------------------------------------------------------------
 using namespace DCE;
 //----------------------------------------------------------------------------------------------
@@ -21,6 +22,7 @@ public:
 	virtual bool GetDevices(std::map<int, DeviceData_Router *>& mapDeviceData_Router) = 0;
 	virtual bool ReadStaticConfiguration(std::map<int, DeviceData_Router *>& mapDeviceData_Router) = 0;
 	virtual int GetLargestDeviceNumber() = 0;
+	virtual bool GetScene(int nSceneID, Scene_Data& scene) = 0;
 };
 //----------------------------------------------------------------------------------------------
 #endif //__DATA_LAYER_H__

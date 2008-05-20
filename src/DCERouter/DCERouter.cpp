@@ -79,6 +79,7 @@ using namespace std;
 
 #ifdef EMBEDDED_LMCE
 	#include "DataLayer_JSON.h"
+	#include "Command_Data.h"
 #endif
 
 #ifndef EMBEDDED_LMCE
@@ -869,8 +870,53 @@ void Router::ExecuteCommandGroup(int PK_CommandGroup,DeviceData_Router *pDevice_
 		}
 	}
 	else
-#endif
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Cannot execute command group db error: %d",PK_CommandGroup);
+
+
+#else
+	if(NULL != m_pDataLayer)
+	{
+		Scene_Data aScene_Data;
+		if(m_pDataLayer->GetScene(PK_CommandGroup, aScene_Data))
+		{
+			for(std::map<int, Command_Data>::iterator it = aScene_Data.Commands().begin(); it != aScene_Data.Commands().end(); ++it)
+			{
+				Command_Data &aCommand_Data = it->second;
+
+				Message *pMessage = new Message();
+				pMessage->m_dwPK_Device_From = pDevice_Sender ? pDevice_Sender->m_dwPK_Device : m_dwPK_Device;
+				pMessage->m_dwMessage_Type = MESSAGETYPE_COMMAND;
+				pMessage->m_dwID = aCommand_Data.PK_Command();
+
+				//if( row[4][0]=='1' )
+				//	pMessage->m_eExpectedResponse = ER_DeliveryConfirmation;
+				//if( row[3] && atoi(row[3]) )
+				//{
+				//	pMessage->m_dwPK_Device_To = DEVICEID_GROUP;
+				//	pMessage->m_dwPK_Device_Group_ID_To = atoi(row[3]);
+				//}
+				//else
+				//{
+					pMessage->m_dwPK_Device_To = aCommand_Data.Device_To();
+					if( pMessage->m_dwPK_Device_To == DEVICETEMPLATE_This_Orbiter_CONST && NULL != pDevice_Sender )
+						pMessage->m_dwPK_Device_To = pDevice_Sender->m_dwPK_Device;
+				//}			
+
+				for(std::map<string, string>::const_iterator it_param = aCommand_Data.Params().begin(); 
+					it_param != aCommand_Data.Params().end(); ++it_param)
+				{
+					pMessage->m_mapParameters[atoi(it_param->first.c_str())] = it_param->second;
+				}
+
+				ReceivedMessage(NULL, pMessage);
+			}
+		}
+		else
+		{
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Unexisting scene: %d",PK_CommandGroup);
+		}
+	}
+#endif
 }
 
 void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted, bool bAutoDelete)
