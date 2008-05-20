@@ -380,7 +380,7 @@ char *DataLayer_JSON::GetUncompressedDataFromFile(string sFileName)
 
 	if(NULL == pCompressedData || nCompressedDataSize < 5)
 	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Unabled to find/parse json file: %s", sFileName.size());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Unabled to find/parse json file: %s", sFileName.c_str());
 		return NULL;
 	}
 
