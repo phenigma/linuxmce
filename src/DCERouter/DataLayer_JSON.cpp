@@ -13,12 +13,8 @@ extern "C"
 	#include "json_tokener.h" 
 }
 
-#include "PlutoUtils/minilzo.h"
+#include "PlutoUtils/LZO.h"
 #include "PlutoUtils/PlutoDefs.h"
-//----------------------------------------------------------------------------------------------
-#define HEAP_ALLOC(var,size) \
-	lzo_align_t __LZO_MMODEL var [ ((size) + (sizeof(lzo_align_t) - 1)) / sizeof(lzo_align_t) ]
-static HEAP_ALLOC(wrkmem,LZO1X_1_MEM_COMPRESS);
 //----------------------------------------------------------------------------------------------
 #define JSON_DYNAMIC_CONFIG_FILE "pluto.json.lzo"
 #define JSON_STATIC_CONFIG_FILE "pluto_main.json.lzo"
@@ -365,14 +361,10 @@ char *DataLayer_JSON::GetUncompressedDataFromFile(string sFileName)
 			string sData;
 			FileUtils::ReadTextFile(sPlainFileName, sData);
 
-			//compress pixels data
-			char *pCompressedData = new char[sData.size() * 3];
-			int iCompressedDataSize = 0;
 			long iSize = 0;
-			lzo1x_1_compress((lzo_byte *)sData.c_str(), (lzo_uint)sData.size(), (lzo_byte *)(pCompressedData + 4), (lzo_uint *)(&iSize), wrkmem);
-			*((int *)pCompressedData) = (int)sData.size();
+			char *pCompressedData = LZO::Compress((lzo_byte *)sData.c_str(), (lzo_uint)sData.size(), (lzo_uint *)&iSize);
 			
-			FileUtils::WriteBufferIntoFile(sFileName, pCompressedData, iSize + sizeof(int));
+			FileUtils::WriteBufferIntoFile(sFileName, pCompressedData, iSize);
 			delete [] pCompressedData;
 		}
 	}	
@@ -386,13 +378,8 @@ char *DataLayer_JSON::GetUncompressedDataFromFile(string sFileName)
 		return NULL;
 	}
 
-	int nUncompressDataSize = *(reinterpret_cast<int *>(pCompressedData));
-	char *pUncompressedData = new char[nUncompressDataSize + 1];
-	memset(pUncompressedData, 0, nUncompressDataSize + 1); 
-
-	long size = 0;
-	lzo1x_decompress((lzo_byte *)(pCompressedData + sizeof(int)), (lzo_uint)(nCompressedDataSize - sizeof(int)), 
-		(lzo_byte *)pUncompressedData, (lzo_uint *)(&size), wrkmem);
+	long size;
+	char *pUncompressedData = LZO::Decompress((lzo_byte *)pCompressedData, (lzo_uint)nCompressedDataSize, (lzo_uint *)&size);
 
 	PLUTO_SAFE_DELETE_ARRAY(pCompressedData);
 
