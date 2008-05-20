@@ -281,13 +281,13 @@ void DataLayer_JSON::ParseDeviceTemplates(struct json_object *json_obj)
 
 				if(sKey == "Description")
 					aDeviceTemplate_Data.Description(sValue);
-				if(sKey == "FK_DeviceCategory")
+				else if(sKey == "FK_DeviceCategory")
 					aDeviceTemplate_Data.DeviceCategory(atoi(sValue.c_str()));
-				if(sKey == "ImplementsDCE")
+				else if(sKey == "ImplementsDCE")
 					aDeviceTemplate_Data.ImplementsDCE(sValue == "1");
-				if(sKey == "IsEmbedded")
+				else if(sKey == "IsEmbedded")
 					aDeviceTemplate_Data.IsEmbedded(sValue == "1");
-				if(sKey == "CommandLine")
+				else if(sKey == "CommandLine")
 					aDeviceTemplate_Data.CommandLine(sValue);
 			}
 		}	
@@ -320,7 +320,7 @@ void DataLayer_JSON::ParseDeviceCategories(struct json_object *json_obj)
 
 				if(sKey == "Description")
 					aDeviceCategory_Data.Description(sValue);
-				if(sKey == "FK_DeviceCategory_Parent")
+				else if(sKey == "FK_DeviceCategory_Parent")
 					aDeviceCategory_Data.DeviceCategoryParent(atoi(sValue.c_str()));
 			}
 		}	
@@ -402,7 +402,7 @@ void DataLayer_JSON::ParseScenes(struct json_object *json_obj)
 		struct json_object_iter iter_sceneparams;
 		json_object_object_foreachC(iter_scenes.val, iter_sceneparams)
 		{
-			string sKey = iter_scenes.key;
+			string sKey = iter_sceneparams.key;
 
 			if(iter_sceneparams.val->o_type == json_type_string)
 			{
@@ -412,14 +412,59 @@ void DataLayer_JSON::ParseScenes(struct json_object *json_obj)
 				{
 					scene_data.Description(sValue);
 				}
-				if(sKey == "FK_Room")
+				else if(sKey == "FK_Room")
 				{
 					//TODO : use it
 				}
 			}
+			else if(sKey == "commands" && iter_sceneparams.val->o_type == json_type_object)
+			{
+				ParseCommands(scene_data.Commands(), iter_sceneparams.val);
+			}
 		}
 
 		m_mapScene_Data[nSceneID] = scene_data;
+	}
+}
+//----------------------------------------------------------------------------------------------
+void DataLayer_JSON::ParseCommands(map<int, Command_Data>& mapCommands, struct json_object *json_obj)
+{
+	struct json_object *obj_commands = json_obj;
+	struct json_object_iter iter_commands;
+	json_object_object_foreachC(obj_commands, iter_commands) 
+	{
+		string sCommand = iter_commands.key;
+		StringUtils::Replace(&sCommand, "command_", "");
+		int nCommandIndex = atoi(sCommand.c_str());
+		Command_Data aCommand_data;
+
+		if(iter_commands.val->o_type == json_type_object)
+		{
+			struct json_object *obj_command = iter_commands.val;
+			struct json_object_iter iter_command;
+			json_object_object_foreachC(obj_command, iter_command) 
+			{
+				string sKey = iter_command.key;
+
+				if(iter_command.val->o_type == json_type_string)
+				{
+					string sValue = json_object_get_string(iter_command.val);
+
+					if(sKey == "Device_From")
+						aCommand_data.Device_From(atoi(sValue.c_str()));
+					else if(sKey == "Device_To")
+						aCommand_data.Device_To(atoi(sValue.c_str()));
+					else if(sKey == "PK_Command")
+						aCommand_data.PK_Command(atoi(sValue.c_str()));
+				}
+				else if(sKey == "params" && iter_command.val->o_type == json_type_object)
+				{
+					//TODO: parse params
+				}
+			}
+		}
+
+		mapCommands[nCommandIndex] = aCommand_data;
 	}
 }
 //----------------------------------------------------------------------------------------------

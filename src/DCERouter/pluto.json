@@ -49,7 +49,7 @@
 			"device_data":{
 				"FK_DeviceData_1":"100",
 				"FK_DeviceData_2":"3",
-				"FK_DeviceData_4":"test"
+				"FK_DeviceData_4":"test",
 				"FK_DeviceData_37":"/dev/usb/tts/0"				
 			}			
 	    },
@@ -119,7 +119,27 @@
 	"scenes": {
 	    "scene_1": {
 			"Description":"First scene",
-			"FK_Room":"5"
+			"FK_Room":"5",
+			"commands": {
+				"command_1":{
+					"Device_From":"0",
+					"Device_To":"2",
+					"PK_Command":"192",
+					"params": {
+						"param1":"1",
+						"param2":"2"
+					}					
+				},
+				"command_2":{
+					"Device_From":"0",
+					"Device_To":"2",
+					"PK_Command":"193",
+					"params": {
+						"param1":"4",
+						"param2":"5"
+					}					
+				}				
+			}
 	    },
 	    "scene_2": {
 			"Description":"Second scene",
