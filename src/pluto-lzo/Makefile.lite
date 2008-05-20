@@ -1,0 +1,17 @@
+ROOT=..
+
+CPPFLAGS=-I. -I..
+CXXFLAGS=-Os -W -Wall
+LDFLAGS=-L$(ROOT)/lib
+LDLIBS=-lPlutoUtils -lDCECommon -lpthread -lSerializeClass
+
+ifeq ($(ARCH),mipsel)
+	CXX=mipsel-linux-g++
+else
+	CXX=g++
+endif
+
+all: pluto-lzo
+
+clean:
+	rm -f pluto-lzo
