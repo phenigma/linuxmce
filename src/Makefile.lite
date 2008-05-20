@@ -16,6 +16,6 @@ libs:
 
 clean:
 	@rm -f lib/* bin/*
-	@for i in $(LIBS) $(BINS) ZWave; do make -C $$i -f Makefile.lite clean; done
+	@for i in $(LIBS) $(BINS) $(DEVS); do make -C $$i -f Makefile.lite clean; done
 
 .PHONY: all bins libs clean
