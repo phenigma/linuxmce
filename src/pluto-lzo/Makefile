@@ -12,6 +12,7 @@ else
 endif
 
 all: pluto-lzo
+	cp pluto-lzo $(ROOT)/bin
 
 clean:
 	rm -f pluto-lzo
