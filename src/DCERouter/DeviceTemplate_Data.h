@@ -1,5 +1,5 @@
-#ifndef __DEVICE_TEMPLATE_DATA__
-#define __DEVICE_TEMPLATE_DATA__
+#ifndef __DEVICE_TEMPLATE_DATA_H__
+#define __DEVICE_TEMPLATE_DATA_H__
 //----------------------------------------------------------------------------------------------
 class DeviceTemplate_Data
 {
@@ -73,4 +73,4 @@ public:
 	}
 };
 //----------------------------------------------------------------------------------------------
-#endif //__DEVICE_TEMPLATE_DATA__
+#endif //__DEVICE_TEMPLATE_DATA_H__

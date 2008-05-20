@@ -1,141 +1,145 @@
 {
-  "sections_list": [
-    1,
-    2,
-    4
-  ],
-  "sections": {
-    "section_1": {
-      "description": "Basement",
-      "floorplan": "test1.jpg"
+	"timezone":"0",
+    "Section_ids":[1,2,4],
+    "Section":{
+	    "PK_Section_1": {
+			"Description":"Basement",
+			"floorplan":"test1.jpg"
+	    },
+	    "PK_Section_2": {
+			"Description":"First floor",
+			"floorplan":"test2.jpg"
+	    },
+	    "PK_Section_4": {
+			"Description":"Second floor",
+			"floorplan":"test2.jpg"
+	    }	    
     },
-    "section_2": {
-      "description": "First floor",
-      "floorplan": "test2.jpg"
+    "room_types":["Basement","Bedroom","Kitchen","Living room"],
+    "Room_ids":[1,5,6],
+    "Room":{
+	    "PK_Room_1": {
+			"Description":"Basement",
+			"room_type":"Basement",
+			"FK_Section":"1"
+	    },
+	    "PK_Room_5": {
+			"Description":"North bedroom",
+			"room_type":"Bedroom",
+			"FK_Section":"2"
+	    },
+	    "PK_Room_6": {
+			"Description":"South bedroom",
+			"room_type":"Bedroom",
+			"FK_Section":"4"
+	    }
     },
-    "section_4": {
-      "description": "Second floor",
-      "floorplan": "test2.jpg"
-    }
-  },
-  "room_types": [
-    "Basement",
-    "Bedroom",
-    "Kitchen",
-    "Living room"
-  ],
-  "rooms_list": [
-    1,
-    5,
-    6
-  ],
-  "rooms": {
-    "room_1": {
-      "description": "Basement",
-      "room_type": "Basement",
-      "section_id": "1"
-    },
-    "room_5": {
-      "description": "North bedroom",
-      "room_type": "Bedroom",
-      "section_id": "2"
-    },
-    "room_6": {
-      "description": "South bedroom",
-      "room_type": "Bedroom",
-      "section_id": "4"
-    }
-  },
-  "devices_list": [
-    1,
-    2,
-    3
-  ],
-  "devices": {
-    "device_1": {
-      "description": "Zwave Interface",
-      "device_template_id": "1754",
-      "room_id": "5",
-      "device_controlled_via_id": "0",
-      "params": {
-        "device_disabled": "0",
-        "param1": "value1",
-        "param2": "value2"
-      },
-      "device_data": {
-        "dd_1": "100",
-        "dd_2": "3",
-        "dd_4": "test",
-        "dd_37": "/dev/usb/tts/0"
-      }
-    },
-    "device_2": {
-      "description": "Light Switch ON/OFF",
-      "device_template_id": "37",
-      "room_id": "5",
-      "device_controlled_via_id": "1",
-      "params": {
-        "device_disabled": "0",
-        "param1": "value1",
-        "param3": "value3",
-        "param4": "value4"
-      },
-      "device_data": {
-        "dd_1": "test",
-        "dd_2": "3",
-        "dd_3": "100",
-        "dd_5": "3",
-        "dd_7": "3"
-      }
-    },
-    "device_3": {
-      "description": "Light Switch ON/OFF",
-      "device_template_id": "37",
-      "room_id": "6",
-      "device_controlled_via_id": "1",
-      "params": {
-        "device_disabled": "1",
-        "param3": "value3",
-        "param2": "value2"
-      },
-      "device_data": {
-        "dd_2": "100",
-        "dd_4": "3",
-        "dd_7": "another test"
-      }
-    }
-  },
-  "scenes_list": [
-    1,
-    2,
-    3
-  ],
-  "scenes": {
-    "scene_1": {
-      "description": "First scene",
-      "room_id": "5"
-    },
-    "scene_2": {
-      "description": "Second scene",
-      "room_id": "6"
-    },
-    "scene_3": {
-      "description": "Third scene",
-      "room_id": "6"
-    }
-  },
-  "events_list": [
-    1,
-    2
-  ],
-  "events": {
-    "event_1": {
-      "description": "First event",
-      "timer_id": "1"
-    },
-    "event_2": {
-      "description": "Second event",
-      "timer_id": "2"
-    }
-  }
+    "Device_ids":[1,2,3,4,5],
+	"Device": {
+	    "PK_Device_1": {
+			"Description":"Zwave Interface",
+			"FK_DeviceTemplate":"1754",
+			"FK_Room":"5",
+			"FK_Device_ControlledVia":"0",
+			"params":{
+				"device_disabled":"0",
+				"param1":"value1",
+				"param2":"value2"
+			},
+			"device_data":{
+				"FK_DeviceData_1":"100",
+				"FK_DeviceData_2":"3",
+				"FK_DeviceData_4":"test"
+				"FK_DeviceData_37":"/dev/usb/tts/0"				
+			}			
+	    },
+	    "PK_Device_2": {
+			"Description":"Light Switch ON/OFF1",
+			"FK_DeviceTemplate":"37",
+			"FK_Room":"5",
+			"FK_Device_ControlledVia":"1",
+			"params":{
+				"device_disabled":"0",
+				"param1":"value1",
+				"param3":"value3",
+				"param4":"value4"
+			},
+			"device_data":{
+				"FK_DeviceData_1":"test",
+				"FK_DeviceData_2":"3",
+				"FK_DeviceData_3":"100",
+				"FK_DeviceData_5":"3",
+				"FK_DeviceData_7":"3"
+			}			
+	    },	    
+	    "PK_Device_3": {
+			"Description":"Light Switch ON/OFF2",
+			"FK_DeviceTemplate":"37",
+			"FK_Room":"6",
+			"FK_Device_ControlledVia":"1",
+			"params":{
+				"device_disabled":"1",
+				"param3":"value3",
+				"param2":"value2"
+			},
+			"device_data":{
+				"FK_DeviceData_2":"100",
+				"FK_DeviceData_4":"3",
+				"FK_DeviceData_7":"another test"
+			}			
+	    },
+	    "PK_Device_4": {
+			"Description":"Camera 1",
+			"FK_DeviceTemplate":"47",
+			"FK_Room":"6",
+			"FK_Device_ControlledVia":"1",
+			"params":{
+				"device_disabled":"1",
+				"param3":"value3",
+				"param2":"value2"
+			},
+			"device_data":{
+				"FK_DeviceData_2":"100"
+			}			
+	    },
+	    "PK_Device_5": {
+			"Description":"Camera2",
+			"FK_DeviceTemplate":"47",
+			"FK_Room":"5",
+			"FK_Device_ControlledVia":"1",
+			"params":{
+				"device_disabled":"1"
+			},
+			"DeviceData":{
+				"FK_DeviceData_7":"test"
+			}			
+	    }	    	    	    
+   },
+    "scenes_list":[1,2,3],
+	"scenes": {
+	    "scene_1": {
+			"Description":"First scene",
+			"FK_Room":"5"
+	    },
+	    "scene_2": {
+			"Description":"Second scene",
+			"FK_Room":"6"
+		},		
+	    "scene_3": {
+			"Description":"Third scene",
+			"FK_Room":"6"
+		}		
+	},   
+    "events_list":[1,2],
+	"events": {
+	    "event_1": {
+			"Description":"First event",
+			"timer_id":"1"
+	    },
+	    "event_2": {
+			"Description":"Second event",
+			"timer_id":"2"
+		}		
+	}   
+	
 }

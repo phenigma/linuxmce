@@ -47,10 +47,12 @@ bool DataLayer_JSON::GetDevices(std::map<int, DeviceData_Router *>& mapDeviceDat
 		{
 			string sValue = iter.key;
 
-			if(sValue == "devices_list")
+			if(sValue == "Device_ids")
 				ParseDevicesList(mapDeviceData_Router, iter.val);
-			else if(sValue == "devices")
+			else if(sValue == "Device")
 				ParseDevices(mapDeviceData_Router, iter.val);
+			else if(sValue == "scenes")
+				ParseScenes(iter.val);
 		}
 
 		json_object_put(json_obj); 
@@ -58,7 +60,7 @@ bool DataLayer_JSON::GetDevices(std::map<int, DeviceData_Router *>& mapDeviceDat
 		PLUTO_SAFE_DELETE_ARRAY(pData);
 
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "DataLayer: Got %d devices", mapDeviceData_Router.size());
-
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "DataLayer: Got %d scenes", m_mapScene_Data.size());
 		return true;
 	}
 
@@ -103,7 +105,7 @@ void DataLayer_JSON::ParseDevices(std::map<int, DeviceData_Router *>& mapDeviceD
 	{
 		string sDeviceID = iter_devices.key;
 
-		StringUtils::Replace(&sDeviceID, "device_", "");
+		StringUtils::Replace(&sDeviceID, "PK_Device_", "");
 		int nDeviceID = atoi(sDeviceID.c_str());
 
 		if(mapDeviceData_Router.find(nDeviceID) != mapDeviceData_Router.end())
@@ -123,13 +125,13 @@ void DataLayer_JSON::ParseDevices(std::map<int, DeviceData_Router *>& mapDeviceD
 			{
 				string sValue = iter_device.key;
 
-				if(sValue == "description" && iter_device.val->o_type == json_type_string)
+				if(sValue == "Description" && iter_device.val->o_type == json_type_string)
 					sDescription = json_object_get_string(iter_device.val);
-				else if(sValue == "device_template_id" && iter_device.val->o_type == json_type_string)
+				else if(sValue == "FK_DeviceTemplate" && iter_device.val->o_type == json_type_string)
 					PK_DeviceTemplate = atoi(json_object_get_string(iter_device.val));
-				else if(sValue == "room_id" && iter_device.val->o_type == json_type_string)
+				else if(sValue == "FK_Room" && iter_device.val->o_type == json_type_string)
 					PK_Room = atoi(json_object_get_string(iter_device.val));
-				else if(sValue == "device_controlled_via_id" && iter_device.val->o_type == json_type_string)
+				else if(sValue == "FK_Device_ControlledVia" && iter_device.val->o_type == json_type_string)
 					PK_Device_ControlledVia = atoi(json_object_get_string(iter_device.val));
 				else if(sValue == "params")
 					ParseDeviceParameters(mapDeviceParams, iter_device.val);
@@ -395,5 +397,42 @@ char *DataLayer_JSON::GetUncompressedDataFromFile(string sFileName)
 	PLUTO_SAFE_DELETE_ARRAY(pCompressedData);
 
 	return pUncompressedData;
+}
+//----------------------------------------------------------------------------------------------
+void DataLayer_JSON::ParseScenes(struct json_object *json_obj)
+{
+	struct json_object *obj_scenes = json_obj;
+	struct json_object_iter iter_scenes;
+	json_object_object_foreachC(obj_scenes, iter_scenes) 
+	{
+		string sSceneID = iter_scenes.key;
+
+		StringUtils::Replace(&sSceneID, "scene_", "");
+		int nSceneID = atoi(sSceneID.c_str());
+		
+		Scene_Data scene_data(nSceneID);
+
+		struct json_object_iter iter_sceneparams;
+		json_object_object_foreachC(iter_scenes.val, iter_sceneparams)
+		{
+			string sKey = iter_scenes.key;
+
+			if(iter_sceneparams.val->o_type == json_type_string)
+			{
+				string sValue = json_object_get_string(iter_sceneparams.val);
+
+				if(sKey == "Description")
+				{
+					scene_data.Description(sValue);
+				}
+				if(sKey == "FK_Room")
+				{
+					//TODO : use it
+				}
+			}
+		}
+
+		m_mapScene_Data[nSceneID] = scene_data;
+	}
 }
 //----------------------------------------------------------------------------------------------
