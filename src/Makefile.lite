@@ -1,7 +1,9 @@
 SNR_CPPFLAGS=
 SNR_LDFLAGS=
 
-BINS=DCERouter pluto-lzo
+export SNR_CPPFLAGS SNR_LDFLAGS
+
+BINS=DCERouter pluto-lzo MessageSend
 DEVS=ZWave
 LIBS=Serial SerializeClass PlutoUtils DCE
 
