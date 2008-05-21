@@ -20,7 +20,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="../DCE;&quot;../../libs/Libraries/pthreads-win32/include&quot;;/mysql/include;..;../../libs/CrossPlatform/LibXML2/include;&quot;../../libs/CrossPlatform/json-c&quot;"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;DEBUG;DCEROUTER"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;DEBUG;DCEROUTER;EMBEDDED_LMCE"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -151,6 +151,9 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc">
 			<File
+				RelativePath=".\Command_Data.h">
+			</File>
+			<File
 				RelativePath=".\CriteriaList.h">
 			</File>
 			<File
@@ -163,10 +166,19 @@
 				RelativePath="..\Dce\DCERouter.h">
 			</File>
 			<File
+				RelativePath=".\DeviceCategory_Data.h">
+			</File>
+			<File
+				RelativePath=".\DeviceTemplate_Data.h">
+			</File>
+			<File
 				RelativePath=".\EventHandler_CriteriaList.h">
 			</File>
 			<File
 				RelativePath=".\IDataLayer.h">
+			</File>
+			<File
+				RelativePath=".\Scene_Data.h">
 			</File>
 		</Filter>
 		<Filter

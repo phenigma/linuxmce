@@ -459,12 +459,30 @@ void DataLayer_JSON::ParseCommands(map<int, Command_Data>& mapCommands, struct j
 				}
 				else if(sKey == "params" && iter_command.val->o_type == json_type_object)
 				{
-					//TODO: parse params
+					ParseCommandParameters(aCommand_data.Params(), iter_command.val);
 				}
 			}
 		}
 
 		mapCommands[nCommandIndex] = aCommand_data;
+	}
+}
+//----------------------------------------------------------------------------------------------
+void DataLayer_JSON::ParseCommandParameters(std::map<int, string>& mapParams, struct json_object *json_obj)
+{
+	struct json_object *obj_params = json_obj;
+	struct json_object_iter iter_params;
+	json_object_object_foreachC(obj_params, iter_params) 
+	{
+		string sFK_CommandParameter = iter_params.key;
+		StringUtils::Replace(&sFK_CommandParameter, "FK_CommandParameter_", "");
+		int nFK_CommandParameter = atoi(sFK_CommandParameter.c_str());
+		
+		if(iter_params.val->o_type == json_type_string)
+		{
+			string sValue = json_object_get_string(iter_params.val);
+			mapParams[nFK_CommandParameter] = sValue;
+		}
 	}
 }
 //----------------------------------------------------------------------------------------------

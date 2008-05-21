@@ -33,6 +33,7 @@ private:
 	void ParseCommands(map<int, Command_Data>& mapCommands, struct json_object *json_obj);
 	void ParseDeviceTemplates(struct json_object *json_obj);
 	void ParseDeviceCategories(struct json_object *json_obj);
+	void ParseCommandParameters(std::map<int, string>& mapParams, struct json_object *json_obj);
 
 	void AssignParametersToDevice(const std::map<int, DeviceData_Router *>& mapDeviceData_Router,
 		DeviceData_Router *pDevice, const std::map<string, string>& mapDeviceParams);

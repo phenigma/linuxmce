@@ -10,7 +10,7 @@ private:
 	int m_nDevice_From;
 	int m_nDevice_To;
 	int m_nPK_Command;
-	std::map<string, string> m_mapParams;
+	std::map<int, string> m_mapParams;
 
 public:
 
@@ -51,7 +51,7 @@ public:
 		return m_nPK_Command;
 	}
 
-	const std::map<string, string>& Params()
+	std::map<int, string>& Params()
 	{
 		return m_mapParams;
 	}
