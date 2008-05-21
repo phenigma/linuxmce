@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..;../DCE/;../../libs/Libraries/pthreads-win32/include;/mysql/include"
+				AdditionalIncludeDirectories="..;../DCE/;&quot;../../libs/Libraries/pthreads-win32/include&quot;;/mysql/include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -88,8 +88,8 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE-r.lib"
 				OutputFile="../bin/General_Info_Plugin_Lite.dll"
-				AdditionalLibraryDirectories="../../libs/Libraries/pthreads-win32/lib;../lib"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories="../../libs/Libraries/pthreads-win32/lib;../lib"
 				ModuleDefinitionFile="General_Info_Plugin_Lite.def"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
@@ -125,9 +125,6 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm">
 			<File
-				RelativePath="Main.cpp">
-			</File>
-			<File
 				RelativePath="General_Info_Plugin.cpp">
 			</File>
 			<File
@@ -135,6 +132,9 @@
 			</File>
 			<File
 				RelativePath="..\Gen_Devices\General_Info_PluginBase.cpp">
+			</File>
+			<File
+				RelativePath="Main.cpp">
 			</File>
 		</Filter>
 		<Filter

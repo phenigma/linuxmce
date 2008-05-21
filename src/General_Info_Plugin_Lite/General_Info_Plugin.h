@@ -22,10 +22,12 @@
 #include "Gen_Devices/General_Info_PluginBase.h"
 //<-dceag-d-e->
 
+#include "AlarmManager.h"
+
 //<-dceag-decl-b->
 namespace DCE
 {
-	class General_Info_Plugin : public General_Info_Plugin_Command
+	class General_Info_Plugin : public General_Info_Plugin_Command, public AlarmEvent
 	{
 //<-dceag-decl-e->
 		// Private member variables
@@ -50,6 +52,14 @@ public:
 		// You can delete this whole section and put an ! after dceag-const2-b tag if you don't want this constructor.  Do the same in the implementation file
 		General_Info_Plugin(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter);
 //<-dceag-const2-e->
+
+		bool ReportingChildDevices( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
+		void ReportingChildDevices_Offline( void *pVoid );
+
+		class AlarmManager *m_pAlarmManager;
+		void AlarmCallback(int id, void* param);
+
+		int General_Info_Plugin::ProcessChildDevice(int nPK_Device, string sLine);
 
 //<-dceag-h-b->
 	/*
