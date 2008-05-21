@@ -376,7 +376,11 @@ GetVideoDriver()
 #<-mkr_B_via_b->
 	VideoDriver=$(lshwd | grep ' VGA ' | head -1 | sed 's/^.*(\([^()]*\)).*$/\1/')
 	case "$VideoDriver" in
-		nv) PackageIsInstalled nvidia-glx && VideoDriver="nvidia" ;;
+		nv) 
+			if PackageIsInstalled nvidia-glx || PackageIsInstalled nvidia-glx-new ;then
+			       	VideoDriver="nvidia" 
+			fi
+		;;
 		radeon|ati) PackageIsInstalled xorg-driver-fglrx && VideoDriver="fglrx" ;;
 		i810) VideoDriver="intel" ;;
 		"") VideoDriver="vesa" ;; # just-in-case default
