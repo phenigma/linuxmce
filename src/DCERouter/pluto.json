@@ -120,23 +120,22 @@
 	    "scene_1": {
 			"Description":"First scene",
 			"FK_Room":"5",
+			"commands_ids":[1,2],
 			"commands": {
 				"command_1":{
-					"Device_From":"0",
-					"Device_To":"2",
+					"Device_To":"4",
 					"PK_Command":"192",
 					"params": {
-						"param1":"1",
-						"param2":"2"
+						"FK_CommandParameter_3":"1",
+						"FK_CommandParameter_6":"2"
 					}					
 				},
 				"command_2":{
-					"Device_From":"0",
-					"Device_To":"2",
+					"Device_To":"4",
 					"PK_Command":"193",
 					"params": {
-						"param1":"4",
-						"param2":"5"
+						"FK_CommandParameter_6":"4",
+						"FK_CommandParameter_2":"5"
 					}					
 				}				
 			}
