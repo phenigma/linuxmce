@@ -196,8 +196,13 @@ libdvdnav-dev
 libdvdread3
 libdvdread-dev
 libedit2
+libemail-abstract-perl
+libemail-date-perl
+libemail-simple-perl
+libenca0
 libesd-alsa0
 libevent1
+libexosip2-4
 libexpat1
 libexpat1-dev
 libfaac0
@@ -205,7 +210,9 @@ libfaad2-0
 libfame-0.9
 libfcgi-perl
 libfile-slurp-perl
+libfile-temp-perl
 libflac8
+libflickr-api-perl
 libfontconfig1
 libfontconfig1-dev
 libfontenc1
@@ -221,6 +228,7 @@ libgcrypt11
 libgcrypt11-dev
 libgd2-xpm
 libggi2
+libgif4
 libgii1
 libgii1-target-x
 libgksu2-0
@@ -246,6 +254,7 @@ libgpg-error-dev
 libgpmg1
 libgsm1
 libgssapi2-heimdal
+libgssglue1
 libgtk1.2
 libgtk1.2-common
 libgtk2.0-bin
@@ -314,10 +323,12 @@ libmailtools-perl
 libmediastreamer0
 libmime-lite-perl
 libmime-perl
+libmime-tools-perl
 libmjpegtools0c2a
 libmng1
 libmng-dev
 libmodplug0c2
+libmodule-pluggable-perl
 libmp4v2-0
 libmpeg2-4
 libmyodbc
@@ -335,6 +346,7 @@ libnspr4-0d
 libnss3-0d
 libntfs-3g23
 libogg0
+libopenal0a
 libopencdk10-dev
 libopenexr2ldbl
 libopenobex1
@@ -363,6 +375,8 @@ libpopt-dev
 libpostproc1d
 libpri1.2
 libproc-waitstat-perl
+libpthread-stubs0
+libpthread-stubs0-dev
 libpulse0
 libpvm3
 libqt3-compat-headers
@@ -427,6 +441,7 @@ libtiff4
 libtiff4-dev
 libtiffxx0c2
 libtimedate-perl
+libtime-piece-perl
 libtonezone1
 libttf2
 libtwolame0
@@ -456,6 +471,8 @@ libx264-57
 libxau6
 libxau-dev
 libxaw7
+libxcb1-dev
+libxcb-xlib0-dev
 libxcomposite1
 libxcursor1
 libxcursor-dev
@@ -484,6 +501,7 @@ libxml2-dev
 libxml-libxml-common-perl
 libxml-libxml-perl
 libxml-namespacesupport-perl
+libxml-parser-lite-tree-perl
 libxml-parser-perl
 libxml-sax-perl
 libxml-simple-perl
@@ -604,10 +622,12 @@ svgalibg1
 syslinux
 sysv-rc
 tcpd
+tee-pluto
 tk8.4
 traceroute
 transcode
 ttf-bitstream-vera
+ttf-dejavu-extra
 tzdata
 ucf
 udev
@@ -615,6 +635,7 @@ unixodbc
 update-inetd
 usbutils
 vdr
+video-wizard-videos
 vim
 vim-common
 vim-runtime
