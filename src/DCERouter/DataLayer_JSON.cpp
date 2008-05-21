@@ -131,7 +131,7 @@ void DataLayer_JSON::ParseDevices(std::map<int, DeviceData_Router *>& mapDeviceD
 					PK_Device_ControlledVia = atoi(json_object_get_string(iter_device.val));
 				else if(sValue == "params")
 					ParseDeviceParameters(mapDeviceParams, iter_device.val);
-				else if(sValue == "device_data" && iter_device.val->o_type == json_type_object)
+				else if(sValue == "DeviceData" && iter_device.val->o_type == json_type_object)
 					ParseDeviceDataList(mapDeviceData, iter_device.val);
 			}
 

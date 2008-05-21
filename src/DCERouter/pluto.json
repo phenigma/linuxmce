@@ -46,10 +46,10 @@
 				"param1":"value1",
 				"param2":"value2"
 			},
-			"device_data":{
-				"FK_DeviceData_1":"100",
-				"FK_DeviceData_2":"3",
-				"FK_DeviceData_4":"test",
+			"DeviceData":{
+				"FK_DeviceData_26":"100",
+				"FK_DeviceData_11":"3",
+				"FK_DeviceData_12":"test",
 				"FK_DeviceData_37":"/dev/usb/tts/0"				
 			}			
 	    },
@@ -64,12 +64,9 @@
 				"param3":"value3",
 				"param4":"value4"
 			},
-			"device_data":{
-				"FK_DeviceData_1":"test",
-				"FK_DeviceData_2":"3",
-				"FK_DeviceData_3":"100",
-				"FK_DeviceData_5":"3",
-				"FK_DeviceData_7":"3"
+			"DeviceData":{
+				"FK_DeviceData_2":"test",
+				"FK_DeviceData_12":"3"
 			}			
 	    },	    
 	    "PK_Device_3": {
@@ -82,10 +79,10 @@
 				"param3":"value3",
 				"param2":"value2"
 			},
-			"device_data":{
+			"DeviceData":{
 				"FK_DeviceData_2":"100",
-				"FK_DeviceData_4":"3",
-				"FK_DeviceData_7":"another test"
+				"FK_DeviceData_107":"3",
+				"FK_DeviceData_114":"another test"
 			}			
 	    },
 	    "PK_Device_4": {
@@ -98,7 +95,7 @@
 				"param3":"value3",
 				"param2":"value2"
 			},
-			"device_data":{
+			"DeviceData":{
 				"FK_DeviceData_2":"100"
 			}			
 	    },
@@ -111,7 +108,7 @@
 				"device_disabled":"1"
 			},
 			"DeviceData":{
-				"FK_DeviceData_7":"test"
+				"FK_DeviceData_11":"test"
 			}			
 	    }	    	    	    
    },
