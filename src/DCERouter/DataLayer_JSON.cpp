@@ -104,6 +104,8 @@ void DataLayer_JSON::ParseDevices(std::map<int, DeviceData_Router *>& mapDeviceD
 		StringUtils::Replace(&sDeviceID, "PK_Device_", "");
 		int nDeviceID = atoi(sDeviceID.c_str());
 
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Parsing device %d...", nDeviceID);
+
 		if(mapDeviceData_Router.find(nDeviceID) != mapDeviceData_Router.end())
 		{
 			DeviceData_Router *pDevice = NULL;
@@ -162,7 +164,11 @@ void DataLayer_JSON::ParseDeviceDataList(std::map<int, string>& mapDeviceData, s
 		int PK_DeviceData = atoi(StringUtils::Replace(&sValue, "FK_DeviceData_", "").c_str());
 
 		if(iter_devicedata.val->o_type == json_type_string)
-			mapDeviceData[PK_DeviceData] = json_object_get_string(iter_devicedata.val);
+		{
+			string sValue = json_object_get_string(iter_devicedata.val);
+			mapDeviceData[PK_DeviceData] = sValue;
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Device data %d = %s", PK_DeviceData, sValue.c_str());
+		}
 	}
 }
 //----------------------------------------------------------------------------------------------
