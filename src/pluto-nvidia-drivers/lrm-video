@@ -1,0 +1,21 @@
+#!/bin/sh
+
+PATH=/sbin:/bin
+
+MODULE="$1"
+shift
+
+if [ "$MODULE" = "nvidia" ]; then
+	if [ -e /lib/linux-restricted-modules/.nvidia_legacy_installed ]; then
+		MODULE="nvidia_legacy"
+	fi
+	if [ -e /lib/linux-restricted-modules/.nvidia_new_installed ]; then
+		MODULE="nvidia_new"
+	fi
+	XORG="nvidia";
+elif [ "$MODULE" = "nvidia_legacy" -o "$MODULE" = "nvidia_new" ]; then
+	XORG="nvidia";
+elif [ "$MODULE" = "fglrx" ]; then
+	XORG="fglrx";
+fi
+
