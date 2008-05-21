@@ -11,6 +11,8 @@ popd
 
 trap 'rm -f /etc/rc2.d/S90firstboot' EXIT
 
+rm /etc/X11/xorg.conf
+
 ## Reconfigure netowkring
 export NPflagReconfNetwork=yes
 /usr/pluto/bin/Network_Setup.sh
