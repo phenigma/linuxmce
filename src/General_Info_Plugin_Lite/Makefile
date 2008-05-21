@@ -11,7 +11,7 @@ CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql $(SNR_CPPFLAGS)
 LDFLAGS = $(SNR_LDFLAGS) -L$(ROOT)/lib
 BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lmysqlclient_r -lpthread
 
-MYNAME = General_Info_Plugin
+MYNAME = General_Info_Plugin_Lite
 VERSION = 2.0.0
 MYDEVTEMPLATEID = 27mplateID
 
@@ -35,23 +35,23 @@ whattodo:
 
 all: bin so
 
-bin: General_Info_Plugin
+bin: General_Info_Plugin_Lite
 
-so: General_Info_Plugin.so
+so: General_Info_Plugin_Lite.so
 
-General_Info_Plugin.so: $(sources:.cpp=.o)
+General_Info_Plugin_Lite.so: $(sources:.cpp=.o)
 	$(CXX) -shared -o $(MYNAME).so $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
 	chmod +x post_make.sh
 	./post_make.sh $@
 		
-General_Info_Plugin: $(sources:.cpp=.o)
+General_Info_Plugin_Lite: $(sources:.cpp=.o)
 	$(CXX) -o $(MYNAME) $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
 	./post_make.sh $@
 
 clean: clean-recursive
-	rm -f $(call cpath,$(sources:.cpp=.o) $(sources:.cpp=.d)) General_Info_Plugin.bin General_Info_Plugin.so >/dev/null
+	rm -f $(call cpath,$(sources:.cpp=.o) $(sources:.cpp=.d)) General_Info_Plugin_Lite.bin General_Info_Plugin_Lite.so >/dev/null
 
 package:
 	chmod +x make_package.sh
