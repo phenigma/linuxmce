@@ -886,6 +886,12 @@ DeviceData_Router *General_Info_Plugin::ProcessChildDevice(int nPK_Device, strin
 void General_Info_Plugin::CMD_Get_Devices_To_Start(string *sValue_To_Assign,string &sCMD_Result,Message *pMessage)
 //<-dceag-c956-e->
 {
+	std::map<int, DeviceData_Router *>& mapDevices = m_pRouter->DataLayer()->Devices();
 
+	for(std::map<int, DeviceData_Router *>::iterator it = mapDevices.begin(); it != mapDevices.end(); ++it)
+	{
+		DeviceData_Router *pDeviceData_Router = it->second;
+		*sValue_To_Assign += StringUtils::ltos(pDeviceData_Router->m_dwPK_Device) + "|" + pDeviceData_Router->m_sCommandLine + "\n";
+	}
 }
 //----------------------------------------------------------------------------------------------

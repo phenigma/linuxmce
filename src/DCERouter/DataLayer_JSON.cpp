@@ -179,7 +179,7 @@ void DataLayer_JSON::ParseDevices(struct json_object *json_obj)
 		StringUtils::Replace(&sDeviceID, "PK_Device_", "");
 		int nDeviceID = atoi(sDeviceID.c_str());
 
-		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Parsing device %d...", nDeviceID);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Parsing device %d:", nDeviceID);
 
 		if(m_mapDeviceData_Router.find(nDeviceID) != m_mapDeviceData_Router.end())
 		{
@@ -199,7 +199,10 @@ void DataLayer_JSON::ParseDevices(struct json_object *json_obj)
 				string sValue = iter_device.key;
 
 				if(sValue == "Description" && iter_device.val->o_type == json_type_string)
+				{
 					sDescription = json_object_get_string(iter_device.val);
+					LoggerWrapper::GetInstance()->Write(LV_STATUS, "\tDescription: %s:", sDescription.c_str());
+				}
 				else if(sValue == "FK_DeviceTemplate" && iter_device.val->o_type == json_type_string)
 					PK_DeviceTemplate = atoi(json_object_get_string(iter_device.val));
 				else if(sValue == "FK_Room" && iter_device.val->o_type == json_type_string)
@@ -242,7 +245,7 @@ void DataLayer_JSON::ParseDeviceDataList(std::map<int, string>& mapDeviceData, s
 		{
 			string sValue = json_object_get_string(iter_devicedata.val);
 			mapDeviceData[PK_DeviceData] = sValue;
-			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Device data %d = %s", PK_DeviceData, sValue.c_str());
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "\tDevice data %d = %s", PK_DeviceData, sValue.c_str());
 		}
 	}
 }
