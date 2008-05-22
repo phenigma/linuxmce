@@ -11,6 +11,7 @@ class DataLayer_JSON : public IDataLayer
 {
 	int m_dwPK_Device_Largest;
 
+	std::map<int, DeviceData_Router *> m_mapDeviceData_Router;
 	std::map<int, DeviceTemplate_Data> m_mapDeviceTemplate_Data;
 	std::map<int, DeviceCategory_Data> m_mapDeviceCategory_Data;
 	std::map<int, Scene_Data> m_mapScene_Data;
@@ -18,17 +19,29 @@ class DataLayer_JSON : public IDataLayer
 public:
 	DataLayer_JSON(void);
 	~DataLayer_JSON(void);
-	bool GetDevices(std::map<int, DeviceData_Router *>& mapDeviceData_Router);
-	Scene_Data* GetScene(int nSceneID);
-	bool ReadStaticConfiguration(std::map<int, DeviceData_Router *>& mapDeviceData_Router);
-	int GetLargestDeviceNumber();
 
-	DeviceTemplate_Data* GetDeviceTemplate(int nPK_DeviceTemplate);
+	//load data
+	bool Load();
+
+	//get devices
+	std::map<int, DeviceData_Router *>& Devices();
+
+	//queries for scenes and device templates
+	Scene_Data* Scene(int nSceneID);
+	DeviceTemplate_Data* DeviceTemplate(int nPK_DeviceTemplate);
+
+	//queries for devices
+	int LargestDeviceNumber();
+	int ChildMatchingDeviceData(int nPK_Device, int nFK_DeviceData, string sValue);
 
 private:
 
-	void ParseDevicesList(std::map<int, DeviceData_Router *>& mapDeviceData_Router, struct json_object *json_obj);
-	void ParseDevices(std::map<int, DeviceData_Router *>& mapDeviceData_Router, struct json_object *json_obj);
+	bool LoadDynamicConfiguration();
+	bool LoadStaticConfiguration();
+	void UpdateDevicesTree();
+
+	void ParseDevicesList(struct json_object *json_obj);
+	void ParseDevices(struct json_object *json_obj);
 	void ParseDeviceDataList(std::map<int, string>& mapDeviceData, struct json_object *json_obj);
 	void ParseDeviceParameters(std::map<string, string>& mapDeviceParams, struct json_object *json_obj);
 	void ParseScenes(struct json_object *json_obj);
@@ -37,9 +50,7 @@ private:
 	void ParseDeviceCategories(struct json_object *json_obj);
 	void ParseCommandParameters(std::map<int, string>& mapParams, struct json_object *json_obj);
 
-	void AssignParametersToDevice(const std::map<int, DeviceData_Router *>& mapDeviceData_Router,
-		DeviceData_Router *pDevice, const std::map<string, string>& mapDeviceParams);
-	void UpdateDevicesTree(std::map<int, DeviceData_Router *>& mapDeviceData_Router);
+	void AssignParametersToDevice(DeviceData_Router *pDevice, const std::map<string, string>& mapDeviceParams);
 
 	//utils
 	char *GetUncompressedDataFromFile(string sFileName);

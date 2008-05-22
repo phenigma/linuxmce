@@ -901,7 +901,7 @@ void Router::ExecuteCommandGroup(int PK_CommandGroup,DeviceData_Router *pDevice_
 #else
 	if(NULL != m_pDataLayer)
 	{
-		Scene_Data *pScene_Data = m_pDataLayer->GetScene(PK_CommandGroup);
+		Scene_Data *pScene_Data = m_pDataLayer->Scene(PK_CommandGroup);
 		if(NULL != pScene_Data)
 		{
 			for(std::map<int, Command_Data>::iterator it = pScene_Data->Commands().begin(); it != pScene_Data->Commands().end(); ++it)
@@ -2704,9 +2704,12 @@ void Router::Configure()
 #ifdef EMBEDDED_LMCE
 	if(NULL != m_pDataLayer)
 	{
-		m_pDataLayer->GetDevices(m_mapDeviceData_Router);
-		m_pDataLayer->ReadStaticConfiguration(m_mapDeviceData_Router);
-		m_dwPK_Device_Largest = m_pDataLayer->GetLargestDeviceNumber();
+		if(m_pDataLayer->Load())
+		{
+			//TODO : move them to data layer after creating the mysql version of data layer
+			m_mapDeviceData_Router = m_pDataLayer->Devices();
+			m_dwPK_Device_Largest = m_pDataLayer->LargestDeviceNumber();
+		}
 	}
 #endif
 

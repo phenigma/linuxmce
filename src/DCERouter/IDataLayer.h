@@ -20,12 +20,19 @@ public:
 	{
 	}
 
-	virtual bool GetDevices(std::map<int, DeviceData_Router *>& mapDeviceData_Router) = 0;
-	virtual bool ReadStaticConfiguration(std::map<int, DeviceData_Router *>& mapDeviceData_Router) = 0;
-	virtual int GetLargestDeviceNumber() = 0;
-	virtual Scene_Data* GetScene(int nSceneID) = 0;
+	//load data
+	virtual bool Load() = 0;
 
-	virtual DeviceTemplate_Data* GetDeviceTemplate(int nPK_DeviceTemplate) = 0;
+	//get devices
+	virtual std::map<int, DeviceData_Router *>& Devices() = 0;
+
+	//queries for scenes and device templates
+	virtual Scene_Data* Scene(int nSceneID) = 0;
+	virtual DeviceTemplate_Data* DeviceTemplate(int nPK_DeviceTemplate) = 0;
+
+	//queries for devices
+	virtual int LargestDeviceNumber() = 0;
+	virtual int ChildMatchingDeviceData(int nPK_Device, int nFK_DeviceData, string sValue) = 0;
 };
 //----------------------------------------------------------------------------------------------
 #endif //__DATA_LAYER_H__

@@ -28,7 +28,23 @@ DataLayer_JSON::~DataLayer_JSON(void)
 {
 }
 //----------------------------------------------------------------------------------------------
-bool DataLayer_JSON::GetDevices(std::map<int, DeviceData_Router *>& mapDeviceData_Router)
+bool DataLayer_JSON::Load()
+{
+	if(LoadDynamicConfiguration() && LoadStaticConfiguration())
+	{
+		UpdateDevicesTree();
+		return true;
+	}
+
+	return false;
+}
+//----------------------------------------------------------------------------------------------
+std::map<int, DeviceData_Router *>& DataLayer_JSON::Devices()
+{
+	return m_mapDeviceData_Router;
+}
+//----------------------------------------------------------------------------------------------
+bool DataLayer_JSON::LoadDynamicConfiguration()
 {
 	struct json_object *json_obj = NULL;
 	
@@ -44,9 +60,9 @@ bool DataLayer_JSON::GetDevices(std::map<int, DeviceData_Router *>& mapDeviceDat
 			string sValue = iter.key;
 
 			if(sValue == "Device_ids")
-				ParseDevicesList(mapDeviceData_Router, iter.val);
+				ParseDevicesList(iter.val);
 			else if(sValue == "Device")
-				ParseDevices(mapDeviceData_Router, iter.val);
+				ParseDevices(iter.val);
 			else if(sValue == "scenes")
 				ParseScenes(iter.val);
 		}
@@ -55,7 +71,7 @@ bool DataLayer_JSON::GetDevices(std::map<int, DeviceData_Router *>& mapDeviceDat
 
 		PLUTO_SAFE_DELETE_ARRAY(pData);
 
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "DataLayer: Got %d devices", mapDeviceData_Router.size());
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "DataLayer: Got %d devices", m_mapDeviceData_Router.size());
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "DataLayer: Got %d scenes", m_mapScene_Data.size());
 		return true;
 	}
@@ -63,12 +79,65 @@ bool DataLayer_JSON::GetDevices(std::map<int, DeviceData_Router *>& mapDeviceDat
 	return false;
 }
 //----------------------------------------------------------------------------------------------
-int DataLayer_JSON::GetLargestDeviceNumber()
+bool DataLayer_JSON::LoadStaticConfiguration()
+{
+	struct json_object *json_obj = NULL;
+
+	char *pData = GetUncompressedDataFromFile(JSON_STATIC_CONFIG_FILE);
+
+	if(NULL != pData)
+	{
+		json_obj = json_tokener_parse(pData);
+
+		struct json_object_iter iter;
+		json_object_object_foreachC(json_obj, iter) 
+		{
+			string sValue = iter.key;
+
+			if(sValue == "DeviceTemplate")
+				ParseDeviceTemplates(iter.val);
+			else if(sValue == "DeviceCategory")
+				ParseDeviceCategories(iter.val);
+		}
+
+		json_object_put(json_obj); 
+
+		PLUTO_SAFE_DELETE_ARRAY(pData);
+
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "DataLayer: Got %d device templates", m_mapDeviceTemplate_Data.size());
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "DataLayer: Got %d device categories", m_mapDeviceCategory_Data.size());
+
+		UpdateDevicesTree();
+		return true;
+	}
+
+	return false;
+}
+//----------------------------------------------------------------------------------------------
+void DataLayer_JSON::UpdateDevicesTree()
+{
+	for(map<int, DeviceData_Router *>::iterator it = m_mapDeviceData_Router.begin(); it != m_mapDeviceData_Router.end(); ++it)
+	{
+		DeviceData_Router *pDevice = it->second;
+
+		std::map<int, DeviceTemplate_Data>::iterator it_devtemplate = m_mapDeviceTemplate_Data.find(pDevice->m_dwPK_DeviceTemplate);
+		if(it_devtemplate != m_mapDeviceTemplate_Data.end())
+		{
+			pDevice->m_bImplementsDCE = it_devtemplate->second.ImplementsDCE();
+			pDevice->m_bIsEmbedded = it_devtemplate->second.IsEmbedded();
+			pDevice->m_dwPK_DeviceCategory = it_devtemplate->second.DeviceCategory();
+			pDevice->m_sCommandLine = it_devtemplate->second.CommandLine();
+			pDevice->m_sDescription = it_devtemplate->second.Description();
+		}
+	}
+}
+//----------------------------------------------------------------------------------------------
+int DataLayer_JSON::LargestDeviceNumber()
 {
 	return m_dwPK_Device_Largest;
 }
 //----------------------------------------------------------------------------------------------
-void DataLayer_JSON::ParseDevicesList(std::map<int, DeviceData_Router *>& mapDeviceData_Router, struct json_object *json_obj)
+void DataLayer_JSON::ParseDevicesList(struct json_object *json_obj)
 {
 	if(json_obj != NULL && json_obj->o_type == json_type_array)
 	{
@@ -79,7 +148,7 @@ void DataLayer_JSON::ParseDevicesList(std::map<int, DeviceData_Router *>& mapDev
 			if(obj_device_id->o_type == json_type_int)
 			{
 				int nDeviceID = json_object_get_int(obj_device_id);
-				mapDeviceData_Router[nDeviceID] = NULL;
+				m_mapDeviceData_Router[nDeviceID] = NULL;
 			}
 			else
 			{
@@ -93,7 +162,7 @@ void DataLayer_JSON::ParseDevicesList(std::map<int, DeviceData_Router *>& mapDev
 	}
 }
 //----------------------------------------------------------------------------------------------
-void DataLayer_JSON::ParseDevices(std::map<int, DeviceData_Router *>& mapDeviceData_Router, struct json_object *json_obj)
+void DataLayer_JSON::ParseDevices(struct json_object *json_obj)
 {
 	struct json_object *obj_devices = json_obj;
 	struct json_object_iter iter_devices;
@@ -106,7 +175,7 @@ void DataLayer_JSON::ParseDevices(std::map<int, DeviceData_Router *>& mapDeviceD
 
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Parsing device %d...", nDeviceID);
 
-		if(mapDeviceData_Router.find(nDeviceID) != mapDeviceData_Router.end())
+		if(m_mapDeviceData_Router.find(nDeviceID) != m_mapDeviceData_Router.end())
 		{
 			DeviceData_Router *pDevice = NULL;
 			int PK_DeviceTemplate = 0;
@@ -140,12 +209,12 @@ void DataLayer_JSON::ParseDevices(std::map<int, DeviceData_Router *>& mapDeviceD
 			pDevice = new DeviceData_Router(nDeviceID, PK_DeviceTemplate, PK_Installation, PK_Device_ControlledVia);
 			pDevice->m_sDescription = sDescription;
 			pDevice->m_mapParameters = mapDeviceData;
-			mapDeviceData_Router[pDevice->m_dwPK_Device] = pDevice;
+			m_mapDeviceData_Router[pDevice->m_dwPK_Device] = pDevice;
 
 			if(m_dwPK_Device_Largest < nDeviceID)
 				m_dwPK_Device_Largest = nDeviceID;
 
-			AssignParametersToDevice(mapDeviceData_Router, pDevice, mapDeviceParams);
+			AssignParametersToDevice(pDevice, mapDeviceParams);
 		}
  		else
 		{
@@ -184,8 +253,7 @@ void DataLayer_JSON::ParseDeviceParameters(std::map<string, string>& mapDevicePa
 	}	
 }
 //----------------------------------------------------------------------------------------------
-void DataLayer_JSON::AssignParametersToDevice(const std::map<int, DeviceData_Router *>& mapDeviceData_Router, 
-	DeviceData_Router *pDevice, const std::map<string, string>& mapDeviceParams)
+void DataLayer_JSON::AssignParametersToDevice(DeviceData_Router *pDevice, const std::map<string, string>& mapDeviceParams)
 {
 	std::map<string, string>::const_iterator it = mapDeviceParams.begin();
 	
@@ -197,8 +265,6 @@ void DataLayer_JSON::AssignParametersToDevice(const std::map<int, DeviceData_Rou
 			pDevice->m_sMacAddress = it->second;
 		else if(it->first == "IgnoreOnOff")
 			pDevice->m_bIgnoreOnOff = it->second == "1";
-		//else if(it->first == "NeedConfigure")
-		//	pDevice-> = it->second;
 		else if(it->first == "State")
 			pDevice->m_sState_set(it->second);
 		else if(it->first == "Status")
@@ -209,8 +275,8 @@ void DataLayer_JSON::AssignParametersToDevice(const std::map<int, DeviceData_Rou
 		{
 			int FK_Device_RouterTo = atoi(it->second.c_str());
 
-			std::map<int, DeviceData_Router *>::const_iterator it_device = mapDeviceData_Router.find(FK_Device_RouterTo);
-			if(it_device != mapDeviceData_Router.end())
+			std::map<int, DeviceData_Router *>::const_iterator it_device = m_mapDeviceData_Router.find(FK_Device_RouterTo);
+			if(it_device != m_mapDeviceData_Router.end())
 			{
 				if(NULL != it_device->second)
 				{
@@ -226,41 +292,6 @@ void DataLayer_JSON::AssignParametersToDevice(const std::map<int, DeviceData_Rou
 			}
 		}
 	}
-}
-//----------------------------------------------------------------------------------------------
-bool DataLayer_JSON::ReadStaticConfiguration(std::map<int, DeviceData_Router *>& mapDeviceData_Router)
-{
-	struct json_object *json_obj = NULL;
-
-	char *pData = GetUncompressedDataFromFile(JSON_STATIC_CONFIG_FILE);
-
-	if(NULL != pData)
-	{
-		json_obj = json_tokener_parse(pData);
-
-		struct json_object_iter iter;
-		json_object_object_foreachC(json_obj, iter) 
-		{
-			string sValue = iter.key;
-
-			if(sValue == "DeviceTemplate")
-				ParseDeviceTemplates(iter.val);
-			else if(sValue == "DeviceCategory")
-				ParseDeviceCategories(iter.val);
-		}
-
-		json_object_put(json_obj); 
-
-		PLUTO_SAFE_DELETE_ARRAY(pData);
-
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "DataLayer: Got %d device templates", m_mapDeviceTemplate_Data.size());
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "DataLayer: Got %d device categories", m_mapDeviceCategory_Data.size());
-
-		UpdateDevicesTree(mapDeviceData_Router);
-		return true;
-	}
-
-	return false;
 }
 //----------------------------------------------------------------------------------------------
 void DataLayer_JSON::ParseDeviceTemplates(struct json_object *json_obj)
@@ -333,24 +364,6 @@ void DataLayer_JSON::ParseDeviceCategories(struct json_object *json_obj)
 
 		m_mapDeviceCategory_Data[nDeviceCategoryID] = aDeviceCategory_Data;
 	}	
-}
-//----------------------------------------------------------------------------------------------
-void DataLayer_JSON::UpdateDevicesTree(std::map<int, DeviceData_Router *>& mapDeviceData_Router)
-{
-	for(map<int, DeviceData_Router *>::iterator it = mapDeviceData_Router.begin(); it != mapDeviceData_Router.end(); ++it)
-	{
-		DeviceData_Router *pDevice = it->second;
-
-		std::map<int, DeviceTemplate_Data>::iterator it_devtemplate = m_mapDeviceTemplate_Data.find(pDevice->m_dwPK_DeviceTemplate);
-		if(it_devtemplate != m_mapDeviceTemplate_Data.end())
-		{
-			pDevice->m_bImplementsDCE = it_devtemplate->second.ImplementsDCE();
-			pDevice->m_bIsEmbedded = it_devtemplate->second.IsEmbedded();
-			pDevice->m_dwPK_DeviceCategory = it_devtemplate->second.DeviceCategory();
-			pDevice->m_sCommandLine = it_devtemplate->second.CommandLine();
-			pDevice->m_sDescription = it_devtemplate->second.Description();
-		}
-	}
 }
 //----------------------------------------------------------------------------------------------
 char *DataLayer_JSON::GetUncompressedDataFromFile(string sFileName)
@@ -492,7 +505,7 @@ void DataLayer_JSON::ParseCommandParameters(std::map<int, string>& mapParams, st
 	}
 }
 //----------------------------------------------------------------------------------------------
-Scene_Data* DataLayer_JSON::GetScene(int nSceneID)
+Scene_Data* DataLayer_JSON::Scene(int nSceneID)
 {
 	std::map<int, Scene_Data>::iterator it = m_mapScene_Data.find(nSceneID);
 	if(it != m_mapScene_Data.end())
@@ -503,7 +516,7 @@ Scene_Data* DataLayer_JSON::GetScene(int nSceneID)
 	return NULL;
 }
 //----------------------------------------------------------------------------------------------
-DeviceTemplate_Data* DataLayer_JSON::GetDeviceTemplate(int nPK_DeviceTemplate)
+DeviceTemplate_Data* DataLayer_JSON::DeviceTemplate(int nPK_DeviceTemplate)
 {
 	std::map<int, DeviceTemplate_Data>::iterator it = m_mapDeviceTemplate_Data.find(nPK_DeviceTemplate);
 
@@ -511,5 +524,12 @@ DeviceTemplate_Data* DataLayer_JSON::GetDeviceTemplate(int nPK_DeviceTemplate)
 		return &(it->second);
 
 	return NULL;
+}
+//----------------------------------------------------------------------------------------------
+int DataLayer_JSON::ChildMatchingDeviceData(int nPK_Device, int nFK_DeviceData, string sValue)
+{
+	//TODO: implement me!
+
+	return 0;
 }
 //----------------------------------------------------------------------------------------------
