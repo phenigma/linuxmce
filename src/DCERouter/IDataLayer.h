@@ -2,6 +2,8 @@
 #define __DATA_LAYER_H__
 //----------------------------------------------------------------------------------------------
 #include <map>
+#include <vector>
+//----------------------------------------------------------------------------------------------
 #include "DeviceData_Router.h"
 #include "Scene_Data.h"
 #include "DeviceTemplate_Data.h"
@@ -32,7 +34,13 @@ public:
 
 	//queries for devices
 	virtual int LargestDeviceNumber() = 0;
-	virtual int ChildMatchingDeviceData(int nPK_Device, int nFK_DeviceData, string sValue) = 0;
+	virtual DeviceData_Router *ChildMatchingDeviceData(int nPK_Device_Parent, int nFK_DeviceData, string sValue) = 0;
+	virtual DeviceData_Router *Device(int nPK_Device) = 0;
+	virtual void ChildrenDevices(int nPK_Device_Parent, std::vector<DeviceData_Router *>& vectDevice_Children) = 0;
+
+	//operations on devices
+	virtual void SetDeviceData(int nPK_Device, int nFK_DeviceData, string sValue) = 0;
+	virtual void SetDeviceData(DeviceData_Router *pDeviceData_Router, int nFK_DeviceData, string sValue) = 0;
 };
 //----------------------------------------------------------------------------------------------
 #endif //__DATA_LAYER_H__

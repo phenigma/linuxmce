@@ -526,10 +526,57 @@ DeviceTemplate_Data* DataLayer_JSON::DeviceTemplate(int nPK_DeviceTemplate)
 	return NULL;
 }
 //----------------------------------------------------------------------------------------------
-int DataLayer_JSON::ChildMatchingDeviceData(int nPK_Device, int nFK_DeviceData, string sValue)
+DeviceData_Router *DataLayer_JSON::ChildMatchingDeviceData(int nPK_Device_Parent, int nFK_DeviceData, string sValue)
 {
-	//TODO: implement me!
+	for(std::map<int, DeviceData_Router *>::iterator it = m_mapDeviceData_Router.begin(),
+		end = m_mapDeviceData_Router.end(); it != end; ++it)
+	{
+		DeviceData_Router *pDeviceData_Router = it->second;
 
-	return 0;
+		if(pDeviceData_Router->m_dwPK_Device_ControlledVia == nPK_Device_Parent)
+		{
+			std::map<int, string>::iterator it_param = pDeviceData_Router->m_mapParameters.find(nFK_DeviceData);
+			if(it_param != pDeviceData_Router->m_mapParameters.end() && it_param->second == sValue)
+				return pDeviceData_Router;
+		}
+	}
+	
+	return NULL;
+}
+//----------------------------------------------------------------------------------------------
+DeviceData_Router *DataLayer_JSON::Device(int nPK_Device)
+{
+	for(std::map<int, DeviceData_Router *>::iterator it = m_mapDeviceData_Router.begin(),
+		end = m_mapDeviceData_Router.end(); it != end; ++it)
+	{
+		return it->second;
+	}
+
+	return NULL;
+}
+//----------------------------------------------------------------------------------------------
+void DataLayer_JSON::ChildrenDevices(int nPK_Device_Parent, std::vector<DeviceData_Router *>& vectDevice_Children)
+{
+	for(std::map<int, DeviceData_Router *>::iterator it = m_mapDeviceData_Router.begin(),
+		end = m_mapDeviceData_Router.end(); it != end; ++it)
+	{
+		DeviceData_Router *pDeviceData_Router = it->second;
+
+		if(pDeviceData_Router->m_dwPK_Device_ControlledVia == nPK_Device_Parent)
+			vectDevice_Children.push_back(pDeviceData_Router);
+	}
+}
+//----------------------------------------------------------------------------------------------
+void DataLayer_JSON::SetDeviceData(int nPK_Device, int nFK_DeviceData, string sValue)
+{
+	DeviceData_Router *pDeviceData_Router = Device(nPK_Device);
+
+	if(NULL != pDeviceData_Router)
+		SetDeviceData(pDeviceData_Router, nFK_DeviceData, sValue);
+}
+//----------------------------------------------------------------------------------------------
+void DataLayer_JSON::SetDeviceData(DeviceData_Router *pDeviceData_Router, int nFK_DeviceData, string sValue)
+{
+	pDeviceData_Router->m_mapParameters[nFK_DeviceData] = sValue;
 }
 //----------------------------------------------------------------------------------------------

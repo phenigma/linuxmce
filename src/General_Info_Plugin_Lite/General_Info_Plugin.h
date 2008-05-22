@@ -23,6 +23,8 @@
 //<-dceag-d-e->
 
 #include "AlarmManager.h"
+#include "DCE/DeviceData_Router.h"
+
 
 //<-dceag-decl-b->!
 namespace DCE
@@ -59,7 +61,7 @@ public:
 		class AlarmManager *m_pAlarmManager;
 		void AlarmCallback(int id, void* param);
 
-		int General_Info_Plugin::ProcessChildDevice(int nPK_Device, string sLine);
+		DeviceData_Router *ProcessChildDevice(int nPK_Device, string sLine);
 
 //<-dceag-h-b->
 	/*

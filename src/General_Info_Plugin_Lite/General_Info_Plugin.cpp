@@ -690,7 +690,7 @@ void General_Info_Plugin::CMD_Get_Home_Symlink(string sPath,string *sSymlink,str
 	cout << "Parm #219 - Path=" << sPath << endl;
 	cout << "Parm #275 - Symlink=" << sSymlink << endl;
 }
-
+//----------------------------------------------------------------------------------------------
 bool General_Info_Plugin::ReportingChildDevices( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
 {
 	string sError = pMessage->m_mapParameters[EVENTPARAMETER_Error_Message_CONST];
@@ -706,13 +706,13 @@ bool General_Info_Plugin::ReportingChildDevices( class Socket *pSocket, class Me
 	m_pAlarmManager->AddRelativeAlarm(1,this,PROCESS_CHILD_DEVICES,(void *) pChildDeviceProcessing);
 	return false;
 }
-
+//----------------------------------------------------------------------------------------------
 void General_Info_Plugin::AlarmCallback(int id, void* param)
 {
 	if( id==PROCESS_CHILD_DEVICES )
 		ReportingChildDevices_Offline(param);
 }
-
+//----------------------------------------------------------------------------------------------
 void General_Info_Plugin::ReportingChildDevices_Offline( void *pVoid )
 {
 	ChildDeviceProcessing *pChildDeviceProcessing = (ChildDeviceProcessing *) pVoid;
@@ -720,13 +720,20 @@ void General_Info_Plugin::ReportingChildDevices_Offline( void *pVoid )
 	map<int,bool> mapCurrentChildren;
 	vector<string> vectLines;
 	StringUtils::Tokenize(pChildDeviceProcessing->m_sChildren,"\n",vectLines);
-	for(size_t s=0;s<vectLines.size();++s)
+
+	for(vector<string>::iterator it = vectLines.begin(); it != vectLines.end(); ++it)
 	{
+		string sLine = *it;
+
 		// This will add the child device if it doesn't exist
-		int nPK_Device_Child = ProcessChildDevice(pChildDeviceProcessing->m_nPK_Device,vectLines[s]);
-		if(0 != nPK_Device_Child)
-			mapCurrentChildren[nPK_Device_Child]=true;
+		DeviceData_Router *pDevice_Child = ProcessChildDevice(pChildDeviceProcessing->m_nPK_Device, sLine);
+		if(NULL != pDevice_Child)
+			mapCurrentChildren[pDevice_Child->m_dwPK_Device] = true;
 	}
+
+    vector<DeviceData_Router *> vectDevice_Children;
+	m_pRouter->DataLayer()->ChildrenDevices(pChildDeviceProcessing->m_nPK_Device, vectDevice_Children);
+
 /*
 	// See if any child devices have since disappeared
 	string sSQL = "FK_Device_ControlledVia=" + StringUtils::itos(pChildDeviceProcessing->m_pRow_Device->PK_Device_get());
@@ -767,11 +774,11 @@ void General_Info_Plugin::ReportingChildDevices_Offline( void *pVoid )
 	delete pChildDeviceProcessing;
 */
 }
-
+//----------------------------------------------------------------------------------------------
 // It will be like this:
 // [internal id] \t [description] \t [room name] \t [device template] \t [floorplan id] \t [PK_DeviceData] \t [Value] ... \n
 
-int General_Info_Plugin::ProcessChildDevice(int nPK_Device, string sLine)
+DeviceData_Router *General_Info_Plugin::ProcessChildDevice(int nPK_Device, string sLine)
 {
 	string::size_type pos=0;
 	string sInternalID = StringUtils::Tokenize(sLine,"\t",pos);
@@ -789,92 +796,84 @@ int General_Info_Plugin::ProcessChildDevice(int nPK_Device, string sLine)
 		return NULL;
 	}
 
-	int nPK_Device_Child = m_pRouter->DataLayer()->ChildMatchingDeviceData(nPK_Device, DEVICEDATA_PortChannel_Number_CONST, StringUtils::SQLEscape(sInternalID));
-/*
+	bool bCreatedNew = false;
+
 	// Find the child device with this internal id
-	vector<Row_Device *> vectRow_Device_Child;
-	m_pDatabase_pluto_main->Device_get()->GetRows("JOIN Device_DeviceData ON FK_Device=Device.PK_Device "
-		" LEFT JOIN Device AS Device_Parent ON Device.FK_Device_ControlledVia = Device_Parent.PK_Device "
-		" WHERE (Device.FK_Device_ControlledVia=" + StringUtils::itos(pRow_Device->PK_Device_get()) + " OR Device_Parent.FK_Device_ControlledVia=" + StringUtils::itos(pRow_Device->PK_Device_get()) + ") "
-		" AND FK_DeviceData=" + StringUtils::itos(DEVICEDATA_PortChannel_Number_CONST) +
-		" AND IK_DeviceData='" + StringUtils::SQLEscape(sInternalID) + "'",&vectRow_Device_Child);
-
-	bool bCreatedNew=false;
-	Row_Device *pRow_Device_Child;
-	if( vectRow_Device_Child.size() )
+	DeviceData_Router *pDeviceData_Router = m_pRouter->DataLayer()->ChildMatchingDeviceData(nPK_Device, DEVICEDATA_PortChannel_Number_CONST, StringUtils::SQLEscape(sInternalID));
+	if(NULL != pDeviceData_Router)
 	{
-		pRow_Device_Child = vectRow_Device_Child[0];
-		pRow_Device_Child->Reload();   // Don't overwrite the room or other data that may already be there
-		if( pRow_Device_Child->FK_DeviceTemplate_get()==PK_DeviceTemplate )
-			return pRow_Device_Child; // For the time being, don't do anything because it's resetting the device's psc_mod causing orbiter to report the router needs a reload
+		if(pDeviceData_Router->m_dwPK_DeviceTemplate == PK_DeviceTemplate)
+			return pDeviceData_Router;
 		else
-			CMD_Delete_Device(pRow_Device_Child->PK_Device_get()); // If the device template has changed, delete the device and recreate it
+			CMD_Delete_Device(pDeviceData_Router->m_dwPK_Device);
 	}
-
+	
 	// Create it since it doesn't exist
-	int iPK_Device;
-	bCreatedNew=true;
+	int iPK_Device = 0;
+	bCreatedNew = true;
+
 	CMD_Create_Device(PK_DeviceTemplate,"",0,"",
 		StringUtils::itos(DEVICEDATA_PortChannel_Number_CONST) + "|" + sInternalID,
-		0,pRow_Device->PK_Device_get(),"",0,0,&iPK_Device);
-	pRow_Device_Child = m_pDatabase_pluto_main->Device_get()->GetRow(iPK_Device);
-	if( !pRow_Device_Child )
+		0, pDeviceData_Router->m_dwPK_Device,"",0,0, &iPK_Device);
+
+	pDeviceData_Router = m_pRouter->DataLayer()->Device(iPK_Device);
+	if(NULL != pDeviceData_Router)
 	{
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"General_Info_Plugin::ProcessChildDevice failed to create child %d",iPK_Device);
 		return NULL;
 	}
 
 	// Don't reset the description if it's already there, the user may have overridden the default name
-	if( pRow_Device_Child->Description_get().size()==0 )
+	if(pDeviceData_Router->m_sDescription.empty())
 	{
-		if( sDescription.size() )
-			pRow_Device_Child->Description_set(sDescription);
+		if(!sDescription.empty())
+			pDeviceData_Router->m_sDescription = sDescription;
 		else
-			pRow_Device_Child->Description_set(sInternalID);
+			pDeviceData_Router->m_sDescription = sInternalID;
 	}
-	else if( bCreatedNew )
+	else if(bCreatedNew)
 	{
-		string sOldDescription = pRow_Device_Child->Description_get();
-		if( sDescription.size() )
-			pRow_Device_Child->Description_set(sOldDescription + " " + sDescription);
+		string sOldDescription = pDeviceData_Router->m_sDescription;
+
+		if(!sDescription.empty())
+			pDeviceData_Router->m_sDescription = sOldDescription + " " + sDescription;
 		else
-			pRow_Device_Child->Description_set(sOldDescription + " " + sInternalID);
+			pDeviceData_Router->m_sDescription = sOldDescription + " " + sInternalID;
 	}
-	vector<Row_Room *> vectRow_Room;
-	m_pDatabase_pluto_main->Room_get()->GetRows("Description like '" + StringUtils::SQLEscape(sRoomName) + "'",&vectRow_Room);
-	if( vectRow_Room.size() )
-		pRow_Device_Child->FK_Room_set( vectRow_Room[0]->PK_Room_get() );
+
+/*
+	//TODO: implement this in DataLayer
+
+	Room_Data *pRoom_Data = m_pRouter->Room(StringUtils::SQLEscape(sRoomName));
+	if(NULL != pRoom_Data)
+	{
+		pDeviceData_Router->m_dwPK_Room = pRoom_Data->ID();
+	}
 	else
+	{
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Device %d %s in unknown room %s",
-		pRow_Device_Child->PK_Device_get(),sDescription.c_str(),sRoomName.c_str());
-
-	pRow_Device_Child->FK_DeviceTemplate_set( PK_DeviceTemplate );
-
-	if( atoi(sPK_FloorplanObjectType.c_str())>0 )
-	{
-		LoggerWrapper::GetInstance()->Write(LV_STATUS, "General_Info_Plugin::ProcessChildDevice setting sPK_FloorplanObjectType to %s for %d",
-			sPK_FloorplanObjectType.c_str(), pRow_Device_Child->PK_Device_get());
-		Row_Device_DeviceData *pRow_Device_DeviceData = m_pDatabase_pluto_main->Device_DeviceData_get()->GetRow(pRow_Device_Child->PK_Device_get(),DEVICEDATA_PK_FloorplanObjectType_CONST);
-		if( !pRow_Device_DeviceData )
-		{
-			pRow_Device_DeviceData = m_pDatabase_pluto_main->Device_DeviceData_get()->AddRow();
-			pRow_Device_DeviceData->FK_Device_set(pRow_Device_Child->PK_Device_get());
-			pRow_Device_DeviceData->FK_DeviceData_set(DEVICEDATA_PK_FloorplanObjectType_CONST);
-		}
-
-		pRow_Device_DeviceData->IK_DeviceData_set( sPK_FloorplanObjectType );
+			pDeviceData_Router->m_dwPK_Device, sDescription.c_str(), sRoomName.c_str());
 	}
-
-	while(pos<sLine.size())
-	{
-		int PK_DeviceData = atoi(StringUtils::Tokenize(sLine,"\t",pos).c_str());
-		string sValue = StringUtils::Tokenize(sLine,"\t",pos);
-		if( PK_DeviceData )
-			DatabaseUtils::SetDeviceData(m_pDatabase_pluto_main,pRow_Device_Child->PK_Device_get(),PK_DeviceData,sValue);
-	}
-
-	return pRow_Device_Child;
 */
 
-	return 0;
+	pDeviceData_Router->m_dwPK_DeviceTemplate = PK_DeviceTemplate;
+
+	if(atoi(sPK_FloorplanObjectType.c_str()) > 0)
+	{
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "General_Info_Plugin::ProcessChildDevice setting sPK_FloorplanObjectType to %s for %d",
+			sPK_FloorplanObjectType.c_str(), pDeviceData_Router->m_dwPK_Device);
+
+		m_pRouter->DataLayer()->SetDeviceData(pDeviceData_Router, DEVICEDATA_PK_FloorplanObjectType_CONST, sPK_FloorplanObjectType);
+	}
+
+	while(pos < sLine.size())
+	{
+		int PK_DeviceData = atoi(StringUtils::Tokenize(sLine, "\t", pos).c_str());
+		string sValue = StringUtils::Tokenize(sLine, "\t", pos);
+		if(0 != PK_DeviceData)
+			m_pRouter->DataLayer()->SetDeviceData(pDeviceData_Router, PK_DeviceData, sValue);
+	}
+
+	return pDeviceData_Router;
 }
+//----------------------------------------------------------------------------------------------

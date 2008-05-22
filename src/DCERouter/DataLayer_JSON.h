@@ -32,7 +32,13 @@ public:
 
 	//queries for devices
 	int LargestDeviceNumber();
-	int ChildMatchingDeviceData(int nPK_Device, int nFK_DeviceData, string sValue);
+	DeviceData_Router *ChildMatchingDeviceData(int nPK_Device_Parent, int nFK_DeviceData, string sValue);
+	DeviceData_Router *Device(int nPK_Device);
+	void ChildrenDevices(int nPK_Device_Parent, std::vector<DeviceData_Router *>& vectDevice_Children);
+
+	//operations on devices
+	void SetDeviceData(int nPK_Device, int nFK_DeviceData, string sValue);
+	void SetDeviceData(DeviceData_Router *pDeviceData_Router, int nFK_DeviceData, string sValue);
 
 private:
 
