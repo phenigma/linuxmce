@@ -19,13 +19,16 @@ extern "C"
 #define JSON_DYNAMIC_CONFIG_FILE "pluto.json.lzo"
 #define JSON_STATIC_CONFIG_FILE "pluto_main.json.lzo"
 //----------------------------------------------------------------------------------------------
-DataLayer_JSON::DataLayer_JSON(void)
+#define ADD_STRING_CHILD(parent, key, value) json_object_object_add(parent, key, json_object_new_string(const_cast<char *>(value.c_str())));
+//----------------------------------------------------------------------------------------------
+DataLayer_JSON::DataLayer_JSON(void) : m_root_json_obj(NULL)
 {
 	m_dwPK_Device_Largest = 0;
 }
 //----------------------------------------------------------------------------------------------
 DataLayer_JSON::~DataLayer_JSON(void)
 {
+	json_object_put(m_root_json_obj); 
 }
 //----------------------------------------------------------------------------------------------
 bool DataLayer_JSON::Load()
@@ -41,7 +44,27 @@ bool DataLayer_JSON::Load()
 //----------------------------------------------------------------------------------------------
 bool DataLayer_JSON::Save()
 {
-	//TODO : implement me!
+	SaveDevicesList();
+	SaveDevices();
+	SaveScenes();
+
+	//NOTE: json-c saves the json data into an unformatted string
+	//use http://www.jsonlint.com/ to format the json file
+	string sData(json_object_to_json_string(m_root_json_obj));
+
+#ifdef WIN32
+	//Also save the uncompressed version -- for debugging
+	string sPlainFileName = JSON_DYNAMIC_CONFIG_FILE;
+	StringUtils::Replace(&sPlainFileName, ".lzo", "");
+	FileUtils::WriteTextFile(sPlainFileName, sData);
+#endif
+
+	//Save into compressed version
+	long iSize = 0;
+	char *pCompressedData = LZO::Compress((lzo_byte *)sData.c_str(), (lzo_uint)sData.size(), (lzo_uint *)&iSize);
+	FileUtils::WriteBufferIntoFile(JSON_DYNAMIC_CONFIG_FILE, pCompressedData, iSize);
+	delete [] pCompressedData;
+
 	return true;
 }
 //----------------------------------------------------------------------------------------------
@@ -52,16 +75,15 @@ std::map<int, DeviceData_Router *>& DataLayer_JSON::Devices()
 //----------------------------------------------------------------------------------------------
 bool DataLayer_JSON::LoadDynamicConfiguration()
 {
-	struct json_object *json_obj = NULL;
-	
 	char *pData = GetUncompressedDataFromFile(JSON_DYNAMIC_CONFIG_FILE);
 
 	if(NULL != pData)
 	{
-		json_obj = json_tokener_parse(pData);
+		m_root_json_obj = json_tokener_parse(pData);
+		PLUTO_SAFE_DELETE_ARRAY(pData);
 
 		struct json_object_iter iter;
-		json_object_object_foreachC(json_obj, iter) 
+		json_object_object_foreachC(m_root_json_obj, iter) 
 		{
 			string sValue = iter.key;
 
@@ -72,10 +94,6 @@ bool DataLayer_JSON::LoadDynamicConfiguration()
 			else if(sValue == "scenes")
 				ParseScenes(iter.val);
 		}
-
-		json_object_put(json_obj); 
-
-		PLUTO_SAFE_DELETE_ARRAY(pData);
 
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "DataLayer: Got %d devices", m_mapDeviceData_Router.size());
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "DataLayer: Got %d scenes", m_mapScene_Data.size());
@@ -201,7 +219,7 @@ void DataLayer_JSON::ParseDevices(struct json_object *json_obj)
 				if(sValue == "Description" && iter_device.val->o_type == json_type_string)
 				{
 					sDescription = json_object_get_string(iter_device.val);
-					LoggerWrapper::GetInstance()->Write(LV_STATUS, "\tDescription: %s:", sDescription.c_str());
+					LoggerWrapper::GetInstance()->Write(LV_STATUS, "\tDescription: %s", sDescription.c_str());
 				}
 				else if(sValue == "FK_DeviceTemplate" && iter_device.val->o_type == json_type_string)
 					PK_DeviceTemplate = atoi(json_object_get_string(iter_device.val));
@@ -377,15 +395,15 @@ void DataLayer_JSON::ParseDeviceCategories(struct json_object *json_obj)
 //----------------------------------------------------------------------------------------------
 char *DataLayer_JSON::GetUncompressedDataFromFile(string sFileName)
 {
+#ifndef WIN32 //force lzo creating everytime for debugging
 	if(!FileUtils::FileExists(sFileName))
+#endif
 	{
 		string sPlainFileName = sFileName;
 		StringUtils::Replace(&sPlainFileName, ".lzo", "");
 
 		if(FileUtils::FileExists(sPlainFileName))
 		{
-			LoggerWrapper::GetInstance()->Write(LV_WARNING, "FILE NOT FOUND! Generating lzo file %s from plain json file", sFileName.c_str());
-
 			string sData;
 			FileUtils::ReadTextFile(sPlainFileName, sData);
 
@@ -587,5 +605,84 @@ void DataLayer_JSON::SetDeviceData(int nPK_Device, int nFK_DeviceData, string sV
 void DataLayer_JSON::SetDeviceData(DeviceData_Router *pDeviceData_Router, int nFK_DeviceData, string sValue)
 {
 	pDeviceData_Router->m_mapParameters[nFK_DeviceData] = sValue;
+}
+//----------------------------------------------------------------------------------------------
+void DataLayer_JSON::SaveDevicesList()
+{
+	//delete the old node
+	json_object_object_del(m_root_json_obj, "Device_ids");
+
+	//create a new one
+	struct json_object *devices_list_obj = json_object_new_array();
+	for(std::map<int, DeviceData_Router *>::iterator it = m_mapDeviceData_Router.begin(),
+		end = m_mapDeviceData_Router.end(); it != end; ++it)
+	{
+		DeviceData_Router *pDeviceData_Router = it->second;
+		json_object_array_add(devices_list_obj, json_object_new_int(pDeviceData_Router->m_dwPK_Device));
+	}
+
+	//add it to root node
+	json_object_object_add(m_root_json_obj, "Device_ids", devices_list_obj);
+}
+//----------------------------------------------------------------------------------------------
+void DataLayer_JSON::SaveDevices()
+{
+	//delete the old node
+	json_object_object_del(m_root_json_obj, "Devices");
+
+	//create a new one
+	struct json_object *devices_obj = json_object_new_object();
+
+	for(std::map<int, DeviceData_Router *>::iterator it = m_mapDeviceData_Router.begin(),
+		end = m_mapDeviceData_Router.end(); it != end; ++it)
+	{
+		DeviceData_Router *pDeviceData_Router = it->second;
+
+        struct json_object *device_obj = json_object_new_object();
+
+		ADD_STRING_CHILD(device_obj, "Description", pDeviceData_Router->m_sDescription);
+		ADD_STRING_CHILD(device_obj, "FK_DeviceTemplate", StringUtils::ltos(pDeviceData_Router->m_dwPK_DeviceTemplate));
+		ADD_STRING_CHILD(device_obj, "FK_Room", StringUtils::ltos(pDeviceData_Router->m_dwPK_Room));
+		ADD_STRING_CHILD(device_obj, "FK_Device_ControlledVia", StringUtils::ltos(pDeviceData_Router->m_dwPK_Device_ControlledVia));
+
+		//create DeviceData node
+		struct json_object *dd_obj = json_object_new_object();
+		for(std::map<int, string>::iterator it_params = pDeviceData_Router->m_mapParameters.begin();
+			it_params != pDeviceData_Router->m_mapParameters.end(); ++it_params)
+		{
+			string sDDNodeName = "FK_DeviceData_" + StringUtils::ltos(it_params->first);
+			json_object_object_add(dd_obj, const_cast<char *>(sDDNodeName.c_str()), json_object_new_string(const_cast<char *>(it_params->second.c_str())));
+		}
+
+		//add DeviceData node
+		json_object_object_add(device_obj, "DeviceData", dd_obj);
+
+		//create params node
+		struct json_object *params_obj = json_object_new_object();
+
+		ADD_STRING_CHILD(params_obj, "IPaddress", pDeviceData_Router->m_sIPAddress);
+		ADD_STRING_CHILD(params_obj, "MACaddress", pDeviceData_Router->m_sMacAddress);
+		ADD_STRING_CHILD(params_obj, "IgnoreOnOff", StringUtils::ltos((long)pDeviceData_Router->m_bIgnoreOnOff));
+		ADD_STRING_CHILD(params_obj, "State", pDeviceData_Router->m_sState_get());
+		ADD_STRING_CHILD(params_obj, "Status", pDeviceData_Router->m_sStatus_get());
+		ADD_STRING_CHILD(params_obj, "Disabled", StringUtils::ltos((long)pDeviceData_Router->m_bDisabled));
+
+		if(NULL != pDeviceData_Router->m_pDevice_RouteTo)
+			ADD_STRING_CHILD(params_obj, "FK_Device_RouteTo", StringUtils::ltos(pDeviceData_Router->m_pDevice_RouteTo->m_dwPK_Device));
+
+		//add params node
+		json_object_object_add(device_obj, "DeviceData", params_obj);
+
+		string sNodeName = "PK_Device_" + StringUtils::ltos(pDeviceData_Router->m_dwPK_Device);
+		json_object_object_add(devices_obj, const_cast<char *>(sNodeName.c_str()), device_obj);
+	}
+
+	//add it to root node
+	json_object_object_add(m_root_json_obj, "Device", devices_obj);
+}
+//----------------------------------------------------------------------------------------------
+void DataLayer_JSON::SaveScenes()
+{
+	//TODO : implement me!
 }
 //----------------------------------------------------------------------------------------------

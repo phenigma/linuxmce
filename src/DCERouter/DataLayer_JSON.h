@@ -16,6 +16,8 @@ class DataLayer_JSON : public IDataLayer
 	std::map<int, DeviceCategory_Data> m_mapDeviceCategory_Data;
 	std::map<int, Scene_Data> m_mapScene_Data;
 
+	struct json_object *m_root_json_obj;
+
 public:
 	DataLayer_JSON(void);
 	~DataLayer_JSON(void);
@@ -56,6 +58,10 @@ private:
 	void ParseDeviceTemplates(struct json_object *json_obj);
 	void ParseDeviceCategories(struct json_object *json_obj);
 	void ParseCommandParameters(std::map<int, string>& mapParams, struct json_object *json_obj);
+
+	void SaveDevicesList();
+	void SaveDevices();
+	void SaveScenes();
 
 	void AssignParametersToDevice(DeviceData_Router *pDevice, const std::map<string, string>& mapDeviceParams);
 
