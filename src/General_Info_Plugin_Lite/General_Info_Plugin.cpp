@@ -27,6 +27,8 @@ using namespace DCE;
 #include "Gen_Devices/AllCommandsRequests.h"
 //<-dceag-d-e->
 
+#include "DCE/DCERouter.h"
+
 struct ChildDeviceProcessing
 {
 	string m_sChildren;
@@ -860,8 +862,11 @@ int General_Info_Plugin::ProcessChildDevice(int nPK_Device, string sLine)
 	string sRoomName = StringUtils::Tokenize(sLine,"\t",pos);
 	int PK_DeviceTemplate = atoi(StringUtils::Tokenize(sLine,"\t",pos).c_str());
 	string sPK_FloorplanObjectType = StringUtils::Tokenize(sLine,"\t",pos);
-/*
+
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "ProcessChildDevice: pos=%d, %s", pos, sLine.c_str());
+
+	//m_pRouter->DataLayer()->
+/*
 	Row_DeviceTemplate *pRow_DeviceTemplate = m_pDatabase_pluto_main->DeviceTemplate_get()->GetRow(PK_DeviceTemplate);
 	if( !pRow_DeviceTemplate )
 	{

@@ -31,7 +31,11 @@
 #include "pluto_main/Define_Command.h"
 #include "pluto_main/Define_DeviceData.h"
 #include "pluto_main/Define_CommandParameter.h"
+
+#ifndef EMBEDDED_LMCE
 #include "PlutoUtils/DBHelper.h"
+#endif
+
 #include <assert.h>
 
 namespace DCE {
@@ -104,6 +108,7 @@ DefaultMessageTranslator::InitDelaysMap(long devtemplid)
 	static char sql_buff[1024];
 	if(map_PowerDelay.find(devtemplid) == map_PowerDelay.end())
 	{
+#ifndef EMBEDDED_LMCE
 		DCEConfig dceconf;
 		DBHelper mySqlHelper(dceconf.m_sDBHost, dceconf.m_sDBUser, dceconf.m_sDBPassword, dceconf.m_sDBName,dceconf.m_iDBPort);
 		PlutoSqlResult result_set;
@@ -118,6 +123,7 @@ DefaultMessageTranslator::InitDelaysMap(long devtemplid)
 			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Device has no AV properties");
 			return false;
 		}
+#endif
 	}
 	
 	return true;

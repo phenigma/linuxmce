@@ -901,10 +901,10 @@ void Router::ExecuteCommandGroup(int PK_CommandGroup,DeviceData_Router *pDevice_
 #else
 	if(NULL != m_pDataLayer)
 	{
-		Scene_Data aScene_Data;
-		if(m_pDataLayer->GetScene(PK_CommandGroup, aScene_Data))
+		Scene_Data *pScene_Data = m_pDataLayer->GetScene(PK_CommandGroup);
+		if(NULL != pScene_Data)
 		{
-			for(std::map<int, Command_Data>::iterator it = aScene_Data.Commands().begin(); it != aScene_Data.Commands().end(); ++it)
+			for(std::map<int, Command_Data>::iterator it = pScene_Data->Commands().begin(); it != pScene_Data->Commands().end(); ++it)
 			{
 				Command_Data &aCommand_Data = it->second;
 
@@ -928,7 +928,7 @@ void Router::ExecuteCommandGroup(int PK_CommandGroup,DeviceData_Router *pDevice_
 		}
 		else
 		{
-			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Unexisting scene: %d",PK_CommandGroup);
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Unexisting scene: %d", PK_CommandGroup);
 		}
 	}
 #endif

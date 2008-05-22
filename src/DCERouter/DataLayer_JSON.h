@@ -19,9 +19,11 @@ public:
 	DataLayer_JSON(void);
 	~DataLayer_JSON(void);
 	bool GetDevices(std::map<int, DeviceData_Router *>& mapDeviceData_Router);
-	bool GetScene(int nSceneID, Scene_Data& scene);
+	Scene_Data* GetScene(int nSceneID);
 	bool ReadStaticConfiguration(std::map<int, DeviceData_Router *>& mapDeviceData_Router);
 	int GetLargestDeviceNumber();
+
+	DeviceTemplate_Data* GetDeviceTemplate(int nPK_DeviceTemplate);
 
 private:
 

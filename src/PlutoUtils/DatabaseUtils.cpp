@@ -20,6 +20,8 @@
 #include "DBHelper.h"
 #include "pluto_main/Define_DeviceData.h"
 
+#ifndef EMBEDDED_LMCE
+
 string DatabaseUtils::HumanReadablePort(DBHelper *pDBHelper,int PK_Device,string sPort)
 {
 	string sPortMapping = GetDeviceData(pDBHelper,PK_Device,DEVICEDATA_Serial_Port_Names_CONST);
@@ -577,3 +579,5 @@ void DatabaseUtils::UnLockTables(DBHelper *pDBHelper)
 	string sSQL = "UNLOCK TABLES";
 	pDBHelper->threaded_db_wrapper_query(sSQL);
 }
+
+#endif

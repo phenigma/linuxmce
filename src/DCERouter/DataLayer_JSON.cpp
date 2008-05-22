@@ -492,15 +492,24 @@ void DataLayer_JSON::ParseCommandParameters(std::map<int, string>& mapParams, st
 	}
 }
 //----------------------------------------------------------------------------------------------
-bool DataLayer_JSON::GetScene(int nSceneID, Scene_Data& scene)
+Scene_Data* DataLayer_JSON::GetScene(int nSceneID)
 {
 	std::map<int, Scene_Data>::iterator it = m_mapScene_Data.find(nSceneID);
 	if(it != m_mapScene_Data.end())
 	{
-		scene = it->second;
-		return true;
+		return &(it->second);
 	}
 
-	return false;
+	return NULL;
+}
+//----------------------------------------------------------------------------------------------
+DeviceTemplate_Data* DataLayer_JSON::GetDeviceTemplate(int nPK_DeviceTemplate)
+{
+	std::map<int, DeviceTemplate_Data>::iterator it = m_mapDeviceTemplate_Data.find(nPK_DeviceTemplate);
+
+	if(it != m_mapDeviceTemplate_Data.end())
+		return &(it->second);
+
+	return NULL;
 }
 //----------------------------------------------------------------------------------------------
