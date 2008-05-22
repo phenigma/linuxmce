@@ -390,8 +390,12 @@ Router::~Router()
 		delete (*it).second;
 	m_mapCommandGroup.clear();
 
+#ifdef EMBEDDED_LMCE
+	DATA_LAYER_LEGACY_CODE;
+#endif
+
 	list<class DeviceData_Router *> listTopDevices;
-    for(map<int,class DeviceData_Router *>::iterator it=m_mapDeviceData_Router.begin();it!=m_mapDeviceData_Router.end();++it)
+	for(map<int,class DeviceData_Router *>::iterator it=m_mapDeviceData_Router.begin();it!=m_mapDeviceData_Router.end();++it)
 	{
 		class DeviceData_Router *pDeviceData_Router = (*it).second;
 		if( !pDeviceData_Router->m_pDevice_ControlledVia )
@@ -550,6 +554,10 @@ void Router::RegisterAllPlugins()
 #endif
 
 	int PlugInNumber=0;  // How many plug-ins we're loading dynamically
+
+#ifdef EMBEDDED_LMCE
+	DATA_LAYER_LEGACY_CODE;
+#endif
 
 	for(list<string>::iterator itFile=listFiles.begin();itFile!=listFiles.end();++itFile)
 	{
@@ -1321,16 +1329,18 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted, bo
 					(*SafetyMessage)->m_bRespondedToMessage=true;
 				}
 #endif // EMBEDDED_LMCE
+
 #ifdef EMBEDDED_LMCE
-				map<int,class DeviceData_Router *>::iterator itDDR = m_mapDeviceData_Router.find(PK_Device);
-				if (itDDR != m_mapDeviceData_Router.end())
+				DeviceData_Router *pDeviceData_Router = m_pDataLayer->Device(PK_Device);
+				if(NULL != pDeviceData_Router)
 				{
-					map<int, string>::iterator itParm = itDDR->second->m_mapParameters.find((*SafetyMessage)->m_dwID);
-					if (itParm != itDDR->second->m_mapParameters.end())
+					map<int, string>::iterator itParm = pDeviceData_Router->m_mapParameters.find((*SafetyMessage)->m_dwID);
+					if (itParm != pDeviceData_Router->m_mapParameters.end())
 					{
 						pSocket->SendMessage(new Message(m_dwPK_Device, (*SafetyMessage)->m_dwPK_Device_From, PRIORITY_NORMAL, MESSAGETYPE_REPLY, 0, 1, (*SafetyMessage)->m_dwID, itParm->second.c_str()));
 					}
 				}
+
 				(*SafetyMessage)->m_bRespondedToMessage=true;
 #endif
 			}
@@ -2706,8 +2716,6 @@ void Router::Configure()
 	{
 		if(m_pDataLayer->Load())
 		{
-			//TODO : move them to data layer after creating the mysql version of data layer
-			m_mapDeviceData_Router = m_pDataLayer->Devices();
 			m_dwPK_Device_Largest = m_pDataLayer->LargestDeviceNumber();
 		}
 	}
@@ -2877,6 +2885,10 @@ void Router::Configure()
 		}
 	}
 #endif //EMBEDDED_LMCE
+
+#ifdef EMBEDDED_LMCE
+	DATA_LAYER_LEGACY_CODE;
+#endif
 
 	for(map<int,class DeviceData_Router *>::iterator it=m_mapDeviceData_Router.begin();it!=m_mapDeviceData_Router.end();++it)
     {
@@ -3092,6 +3104,10 @@ string Router::GetDevicesByDeviceTemplate(DeviceData_Router *pDeviceData_From,in
 	if( BroadcastLevel!=BL_AllHouses && BroadcastLevel!=BL_SameHouse && !pDeviceData_From )
 		return "";  // If we're going to filter, we need an incoming device
 
+#ifdef EMBEDDED_LMCE
+	DATA_LAYER_LEGACY_CODE;
+#endif
+
 	string Result="";
     map<int,class DeviceData_Router *>::iterator itDevice;
     for(itDevice=m_mapDeviceData_Router.begin();itDevice!=m_mapDeviceData_Router.end();++itDevice)
@@ -3125,7 +3141,12 @@ string Router::GetDevicesByCategory(DeviceData_Router *pDeviceData_From,int PK_D
 {
 	if( BroadcastLevel!=BL_AllHouses && !pDeviceData_From )
 		return ""; // If we're going to filter, we need an incoming device
-    string Result="";
+
+#ifdef EMBEDDED_LMCE
+	DATA_LAYER_LEGACY_CODE;
+#endif
+	
+	string Result="";
     map<int,class DeviceData_Router *>::iterator itDevice;
     for(itDevice=m_mapDeviceData_Router.begin();itDevice!=m_mapDeviceData_Router.end();++itDevice)
     {

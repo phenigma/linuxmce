@@ -52,6 +52,10 @@ using namespace DCE;
 typedef class Command_Impl * (* RAP_FType) (class Router *, int, Logger *);
 typedef list<Message *> ListMessage;
 
+#ifdef EMBEDDED_LMCE
+	#define DATA_LAYER_LEGACY_CODE	std::map<int,class DeviceData_Router *>& m_mapDeviceData_Router = m_pDataLayer->Devices();
+#endif
+
 /*
 
 Classes to hold pointers to the call back functions, and general helper classes
@@ -273,8 +277,12 @@ m_DeviceStructure contains the minimal information, _Base,
         map<int,class CommandGroup *> m_mapCommandGroup;
         map<int,string> m_mapCommandParmNames;
         map<int,string> m_mapEventParmNames;
-        map<int,class DeviceData_Router *> m_mapDeviceData_Router;
-        map<int,ListDeviceData_Router *> m_mapDeviceByTemplate;
+        
+#ifndef EMBEDDED_LMCE
+		map<int,class DeviceData_Router *> m_mapDeviceData_Router;
+#endif       
+
+		map<int,ListDeviceData_Router *> m_mapDeviceByTemplate;
         map<int,ListDeviceData_Router *> m_mapDeviceByCategory;
         map<int,class DeviceGroup *> m_mapDeviceGroup;
         Map_DeviceCategory m_mapDeviceCategory;
@@ -288,12 +296,30 @@ m_DeviceStructure contains the minimal information, _Base,
         DeviceGroup *m_mapDeviceGroup_Find(int PK_DeviceGroup) {map<int,class DeviceGroup *>::iterator it = m_mapDeviceGroup.find(PK_DeviceGroup); return it==m_mapDeviceGroup.end() ? NULL : (*it).second; }
         ListDeviceData_Router *m_mapDeviceByTemplate_Find(int PK_DeviceTemplate) { map<int,ListDeviceData_Router *>::iterator it = m_mapDeviceByTemplate.find(PK_DeviceTemplate); return it==m_mapDeviceByTemplate.end() ? NULL : (*it).second; }
         ListDeviceData_Router *m_mapDeviceByCategory_Find(int PK_DeviceCategory) { map<int,ListDeviceData_Router *>::iterator it = m_mapDeviceByCategory.find(PK_DeviceCategory); return it==m_mapDeviceByCategory.end() ? NULL : (*it).second; }
-        DeviceData_Router *m_mapDeviceData_Router_Find(int PK_Device) { map<int,class DeviceData_Router *>::iterator it = m_mapDeviceData_Router.find(PK_Device); return it==m_mapDeviceData_Router.end() ? NULL : (*it).second; }
-        CommandGroup *m_mapCommandGroup_Find(int PK_CommandGroup) { map<int,class CommandGroup *>::iterator it = m_mapCommandGroup.find(PK_CommandGroup); return it==m_mapCommandGroup.end() ? NULL : (*it).second;}
+        
+		DeviceData_Router *m_mapDeviceData_Router_Find(int PK_Device) 
+		{ 
+#ifdef EMBEDDED_LMCE
+			DATA_LAYER_LEGACY_CODE;
+#endif
+
+			map<int,class DeviceData_Router *>::iterator it = m_mapDeviceData_Router.find(PK_Device); 
+			return it==m_mapDeviceData_Router.end() ? NULL : (*it).second; 
+		}
+        
+		CommandGroup *m_mapCommandGroup_Find(int PK_CommandGroup) { map<int,class CommandGroup *>::iterator it = m_mapCommandGroup.find(PK_CommandGroup); return it==m_mapCommandGroup.end() ? NULL : (*it).second;}
         Command *m_mapCommand_Find(int PK_Command) { map<int,class Command *>::iterator it = m_mapCommand.find(PK_Command); return it==m_mapCommand.end() ? NULL : (*it).second; }
         Event_Router *m_mapEvent_Router_Find(int PK_Event_Router) { map<int,class Event_Router *>::iterator it = m_mapEvent_Router.find(PK_Event_Router); return it==m_mapEvent_Router.end() ? NULL : (*it).second; }
         Room *m_mapRoom_Find(int PK_Room) { map<int,class Room *>::iterator it = m_mapRoom.find(PK_Room); return it==m_mapRoom.end() ? NULL : (*it).second; }
-        const map<int,class DeviceData_Router *> *m_mapDeviceData_Router_get() { return &m_mapDeviceData_Router; };
+        
+		const map<int,class DeviceData_Router *> *m_mapDeviceData_Router_get() 
+		{ 
+#ifdef EMBEDDED_LMCE
+			DATA_LAYER_LEGACY_CODE;
+#endif
+			return &m_mapDeviceData_Router; 
+		};
+
         const map<int,class DeviceGroup *> *m_mapDeviceGroup_get() { return &m_mapDeviceGroup; };
 		const map<int,class Room *> *m_mapRoom_get() { return &m_mapRoom; }
 		const map<int,class Command_Impl *> *m_mapPlugIn_get() { return &m_mapPlugIn; }
