@@ -440,6 +440,15 @@ Delimiter: '\n' */
 	virtual void CMD_Get_Home_Symlink(string sPath,string *sSymlink,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #956 - Get Devices To Start */
+	/** Get the list with devices to start. */
+		/** @param #5 Value To Assign */
+			/** A pipe delimited list like this: DeviceID1|CommandLine1\nDeviceID2|CommandLine2 etc */
+
+	virtual void CMD_Get_Devices_To_Start(string *sValue_To_Assign) { string sCMD_Result; CMD_Get_Devices_To_Start(sValue_To_Assign,sCMD_Result,NULL);};
+	virtual void CMD_Get_Devices_To_Start(string *sValue_To_Assign,string &sCMD_Result,Message *pMessage);
+
+
 //<-dceag-h-e->
 	};
 

@@ -873,3 +873,19 @@ DeviceData_Router *General_Info_Plugin::ProcessChildDevice(int nPK_Device, strin
 	return pDeviceData_Router;
 }
 //----------------------------------------------------------------------------------------------
+//<-dceag-sample-b->!
+//<-dceag-sample-e->
+//----------------------------------------------------------------------------------------------
+//<-dceag-c956-b->
+
+	/** @brief COMMAND: #956 - Get Devices To Start */
+	/** Get the list with devices to start. */
+		/** @param #5 Value To Assign */
+			/** A pipe delimited list like this: DeviceID1|CommandLine1\nDeviceID2|CommandLine2 etc */
+
+void General_Info_Plugin::CMD_Get_Devices_To_Start(string *sValue_To_Assign,string &sCMD_Result,Message *pMessage)
+//<-dceag-c956-e->
+{
+
+}
+//----------------------------------------------------------------------------------------------
