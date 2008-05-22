@@ -10,6 +10,7 @@ apache2-utils
 arping
 asterisk
 asterisk-config
+asterisk-mysql
 asterisk-sounds-main
 atftpd
 attr
@@ -141,6 +142,7 @@ libcairo2
 libcairo2-dev
 libcap1
 libcapi20-3
+libc-client2007
 libcddb2
 libcddb2-dev
 libcdparanoia0
@@ -373,6 +375,7 @@ libpng12-dev
 libpopt0
 libpopt-dev
 libpostproc1d
+libpri1.0
 libpri1.2
 libproc-waitstat-perl
 libpthread-stubs0
@@ -459,6 +462,7 @@ libvlc0
 libvorbis0a
 libvorbisenc2
 libvorbisfile3
+libvpb0
 libvte9
 libvte-common
 libwrap0
@@ -552,6 +556,7 @@ mdadm
 mesa-common-dev
 mesa-utils
 mktemp
+mlock
 module-init-tools
 motion
 mount

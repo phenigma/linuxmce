@@ -364,7 +364,7 @@ Setup_XOrg
 /usr/pluto/bin/Network_Setup.sh
 
 #StatsMessage "Building a disk image for your Diskless Media Directors"
-#/usr/pluto/bin/Diskless_CreateTBZ.sh || ExitInstaller "Failed to create diskless image"
+/usr/pluto/bin/Diskless_CreateTBZ.sh || ExitInstaller "Failed to create diskless image"
 
 mkdir -p /usr/pluto/deb-cache
 
