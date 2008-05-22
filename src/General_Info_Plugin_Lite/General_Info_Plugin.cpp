@@ -731,48 +731,44 @@ void General_Info_Plugin::ReportingChildDevices_Offline( void *pVoid )
 			mapCurrentChildren[pDevice_Child->m_dwPK_Device] = true;
 	}
 
+	// See if any child devices have since disappeared
     vector<DeviceData_Router *> vectDevice_Children;
 	m_pRouter->DataLayer()->ChildrenDevices(pChildDeviceProcessing->m_nPK_Device, vectDevice_Children);
-
-/*
-	// See if any child devices have since disappeared
-	string sSQL = "FK_Device_ControlledVia=" + StringUtils::itos(pChildDeviceProcessing->m_pRow_Device->PK_Device_get());
-	vector<Row_Device *> vectRow_Device;
-	m_pDatabase_pluto_main->Device_get()->GetRows(sSQL,&vectRow_Device);
-	for(size_t s=0;s<vectRow_Device.size();++s)
+	for(vector<DeviceData_Router *>::iterator it_child = vectDevice_Children.begin(); it_child != vectDevice_Children.end(); ++it_child)
 	{
-		Row_Device *pRow_Device = vectRow_Device[s];
-		if( pRow_Device->FK_Device_RouteTo_isNull()==false )
+		DeviceData_Router *pDeviceData_Router = *it_child;
+
+		if(NULL != pDeviceData_Router->m_pDevice_RouteTo)
 		{
 			// Skip embedded children, iterate through their children
-			sSQL = "FK_Device_ControlledVia=" + StringUtils::itos(pRow_Device->PK_Device_get());
-			vector<Row_Device *> vectRow_Device_Children;
-			m_pDatabase_pluto_main->Device_get()->GetRows(sSQL,&vectRow_Device_Children);
-			for(size_t s=0;s<vectRow_Device_Children.size();++s)
+			vector<DeviceData_Router *> vectDevice_Children_Lev2;
+			m_pRouter->DataLayer()->ChildrenDevices(pDeviceData_Router->m_dwPK_Device, vectDevice_Children_Lev2);
+
+			for(vector<DeviceData_Router *>::iterator it_child2 = vectDevice_Children.begin(); it_child2 != vectDevice_Children.end(); ++it_child2)
 			{
-				Row_Device *pRow_Device_Child = vectRow_Device_Children[s];
-				if( mapCurrentChildren[pRow_Device_Child->PK_Device_get()]==false )
+				DeviceData_Router *pDevice_Child = *it_child2;
+
+                if(!mapCurrentChildren[pDevice_Child->m_dwPK_Device])
 				{
-					LoggerWrapper::GetInstance()->Write(LV_STATUS,"General_Info_Plugin::ReportingChildDevices removing dead embedded device %d %s",
-						pRow_Device_Child->PK_Device_get(),pRow_Device_Child->Description_get().c_str());
-					CMD_Delete_Device(pRow_Device_Child->PK_Device_get());
+					LoggerWrapper::GetInstance()->Write(LV_STATUS, "General_Info_Plugin::ReportingChildDevices removing dead embedded device %d %s",
+						pDevice_Child->m_dwPK_Device, pDevice_Child->m_sDescription.c_str());
+					CMD_Delete_Device(pDevice_Child->m_dwPK_Device);
 				}
+				continue; // Don't delete the embedded device
 			}
-			continue; // Don't delete the embedded device
 		}
 
-		if( mapCurrentChildren[pRow_Device->PK_Device_get()]==false )
+		if(!mapCurrentChildren[pDeviceData_Router->m_dwPK_Device])
 		{
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"General_Info_Plugin::ReportingChildDevices removing dead device %d %s",
-				pRow_Device->PK_Device_get(),pRow_Device->Description_get().c_str());
-			CMD_Delete_Device(pRow_Device->PK_Device_get());
+				pDeviceData_Router->m_dwPK_Device, pDeviceData_Router->m_sDescription.c_str());
+			CMD_Delete_Device(pDeviceData_Router->m_dwPK_Device);
 		}
 	}
-	m_pDatabase_pluto_main->Device_get()->Commit();
-	m_pDatabase_pluto_main->Device_DeviceData_get()->Commit();
+
+	m_pRouter->DataLayer()->Save();
 
 	delete pChildDeviceProcessing;
-*/
 }
 //----------------------------------------------------------------------------------------------
 // It will be like this:

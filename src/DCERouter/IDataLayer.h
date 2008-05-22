@@ -22,8 +22,9 @@ public:
 	{
 	}
 
-	//load data
+	//load/save data
 	virtual bool Load() = 0;
+	virtual bool Save() = 0;
 
 	//get devices
 	virtual std::map<int, DeviceData_Router *>& Devices() = 0;

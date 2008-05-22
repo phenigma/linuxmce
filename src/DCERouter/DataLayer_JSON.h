@@ -20,8 +20,9 @@ public:
 	DataLayer_JSON(void);
 	~DataLayer_JSON(void);
 
-	//load data
+	//load/save data
 	bool Load();
+	bool Save();
 
 	//get devices
 	std::map<int, DeviceData_Router *>& Devices();

@@ -39,6 +39,12 @@ bool DataLayer_JSON::Load()
 	return false;
 }
 //----------------------------------------------------------------------------------------------
+bool DataLayer_JSON::Save()
+{
+	//TODO : implement me!
+	return true;
+}
+//----------------------------------------------------------------------------------------------
 std::map<int, DeviceData_Router *>& DataLayer_JSON::Devices()
 {
 	return m_mapDeviceData_Router;
