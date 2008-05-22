@@ -19,3 +19,4 @@ elif [ "$MODULE" = "fglrx" ]; then
 	XORG="fglrx";
 fi
 
+modprobe --ignore-install -Qb $@ $MODULE
