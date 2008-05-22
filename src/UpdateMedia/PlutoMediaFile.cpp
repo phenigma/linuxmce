@@ -457,9 +457,9 @@ void PlutoMediaFile::SaveShortAttributesInDb(bool bAddAllToDb)
 					if( pPlutoMediaAttribute->m_nType==ATTRIBUTETYPE_Performer_CONST )
 						PK_Attribute_Performer = pPlutoMediaAttribute->m_nPK_Attribute;
 					if( pPlutoMediaAttribute->m_nType==ATTRIBUTETYPE_Disc_ID_CONST )
-						PK_Attribute_CDDB = pDBPlutoMediaAttribute->m_nPK_Attribute;
+						PK_Attribute_CDDB = pPlutoMediaAttribute->m_nPK_Attribute;
 					if( pPlutoMediaAttribute->m_nType==ATTRIBUTETYPE_CDDB_CONST && PK_Attribute_CDDB==0 )
-						PK_Attribute_CDDB = pDBPlutoMediaAttribute->m_nPK_Attribute;
+						PK_Attribute_CDDB = pPlutoMediaAttribute->m_nPK_Attribute;
 
 					//already in the database?
 					if(NULL == m_pDatabase_pluto_media->File_Attribute_get()->GetRow(
