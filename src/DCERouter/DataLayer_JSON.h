@@ -61,7 +61,6 @@ private:
 
 	void SaveDevicesList();
 	void SaveDevices();
-	void SaveScenes();
 
 	void AssignParametersToDevice(DeviceData_Router *pDevice, const std::map<string, string>& mapDeviceParams);
 

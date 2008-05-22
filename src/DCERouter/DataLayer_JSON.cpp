@@ -46,7 +46,6 @@ bool DataLayer_JSON::Save()
 {
 	SaveDevicesList();
 	SaveDevices();
-	SaveScenes();
 
 	//NOTE: json-c saves the json data into an unformatted string
 	//use http://www.jsonlint.com/ to format the json file
@@ -679,10 +678,5 @@ void DataLayer_JSON::SaveDevices()
 
 	//add it to root node
 	json_object_object_add(m_root_json_obj, "Device", devices_obj);
-}
-//----------------------------------------------------------------------------------------------
-void DataLayer_JSON::SaveScenes()
-{
-	//TODO : implement me!
 }
 //----------------------------------------------------------------------------------------------
