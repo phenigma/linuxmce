@@ -1378,14 +1378,12 @@ int MediaAttributes_LowLevel::AddRippedDiscToDatabase(int PK_Disc,int PK_MediaTy
 			{
 				Row_File_Attribute *pRow_File_Attribute = m_pDatabase_pluto_media->File_Attribute_get()->GetRow(
 					pRow_File->PK_File_get(),pRow_Disc_Attribute_DiscID->FK_Attribute_get(),
-					iTrack,0);
+					0,0);
 				if( !pRow_File_Attribute )
 				{
 					pRow_File_Attribute = m_pDatabase_pluto_media->File_Attribute_get()->AddRow();
 					pRow_File_Attribute->FK_File_set(pRow_File->PK_File_get());
 					pRow_File_Attribute->FK_Attribute_set(pRow_Disc_Attribute_DiscID->FK_Attribute_get());
-					pRow_File_Attribute->Section_set(0);
-					pRow_File_Attribute->Track_set(iTrack);
 					m_pDatabase_pluto_media->File_Attribute_get()->Commit();
 				}
 			}
