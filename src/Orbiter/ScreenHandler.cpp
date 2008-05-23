@@ -2671,10 +2671,33 @@ void ScreenHandler::SCREEN_Current_Disc_Contents(long PK_Screen)
 		}
 
 		m_pOrbiter->CMD_Set_Graphic_To_Display(TOSTRING(5555) ".0.0." TOSTRING(5636),mediaFileBrowserOptions.m_MediaRepeatOptions==repeat_None ? "0" : (mediaFileBrowserOptions.m_MediaRepeatOptions==repeat_Queue ? "1" : "2"));
-		RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::CurrentDisc_ObjectSelected,	new ObjectInfoBackData());
-		RegisterCallBack(cbDataGridRendering, (ScreenHandlerCallBack) &ScreenHandler::CurrentDisc_GridRendering,	new DatagridAcquiredBackData());
-		RegisterCallBack(cbDataGridSelected, (ScreenHandlerCallBack) &ScreenHandler::CurrentDisc_DatagridSelected,	new DatagridCellBackData());
-		RegisterCallBack(cbSetNowPlaying, (ScreenHandlerCallBack) &ScreenHandler::AudioServer_SetNowPlaying, new MsgInterceptorCellBackData());
+
+		int PK_MediaType=0,iEK_Disc=0;
+		string sRippingInfo,Disks,URL,BlockDevice;
+		DCE::CMD_Get_Disk_Info CMD_Get_Disk_Info(m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_pLocationInfo_Initial->m_dwPK_Device_DiscDrive, &sRippingInfo, &PK_MediaType, &iEK_Disc, &Disks, &URL, &BlockDevice);
+		if( m_pOrbiter->SendCommand(CMD_Get_Disk_Info) )
+		{
+			if( PK_MediaType<1 )
+			{
+				DCE::SCREEN_Main SCREEN_Main(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,"");  // Go back to the main menu
+				m_pOrbiter->SendCommand(SCREEN_Main);
+			}
+			else if( sRippingInfo.empty()==false )  // We're ripping
+			{
+				m_pOrbiter->CMD_Set_Text( TOSTRING(5669) ".0.0.", sRippingInfo, TEXT_STATUS_CONST);
+				m_pOrbiter->CMD_Continuous_Refresh("5");
+				SetAudioServerTabs(5669);
+				ScreenHandlerBase::SCREEN_Current_Disc_Contents(PK_Screen);
+			}
+			else
+			{
+				RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::CurrentDisc_ObjectSelected,	new ObjectInfoBackData());
+				RegisterCallBack(cbDataGridRendering, (ScreenHandlerCallBack) &ScreenHandler::CurrentDisc_GridRendering,	new DatagridAcquiredBackData());
+				RegisterCallBack(cbDataGridSelected, (ScreenHandlerCallBack) &ScreenHandler::CurrentDisc_DatagridSelected,	new DatagridCellBackData());
+				RegisterCallBack(cbSetNowPlaying, (ScreenHandlerCallBack) &ScreenHandler::AudioServer_SetNowPlaying, new MsgInterceptorCellBackData());
+			}
+		}
+
 		SetAudioServerTabs(5555);
 	}
 	ScreenHandlerBase::SCREEN_Current_Disc_Contents(PK_Screen);
@@ -2691,58 +2714,26 @@ bool ScreenHandler::CurrentDisc_GridRendering(CallBackData *pData)
 	NeedToRender render2( m_pOrbiter, "ScreenHandler::CurrentDisc_GridRendering" );
 
 	// Get the attributes for the disc
-	bool bHideCDControls=false;
 	string sValue;
 	if( m_pOrbiter->m_pLocationInfo_Initial && m_pOrbiter->m_pLocationInfo_Initial->m_dwPK_Device_DiscDrive )
 	{
 		DCE::CMD_Get_Attributes_For_Media CMD_Get_Attributes_For_Media(m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device_MediaPlugIn, "!r0:" + StringUtils::itos(m_pOrbiter->m_pLocationInfo_Initial->m_dwPK_Device_DiscDrive), "", &sValue);
 		m_pOrbiter->SendCommand(CMD_Get_Attributes_For_Media);
-
-		int PK_MediaType=0,iEK_Disc=0;
-		string sRippingInfo,Disks,URL,BlockDevice;
-		DCE::CMD_Get_Disk_Info CMD_Get_Disk_Info(m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_pLocationInfo_Initial->m_dwPK_Device_DiscDrive, &sRippingInfo, &PK_MediaType, &iEK_Disc, &Disks, &URL, &BlockDevice);
-		if( m_pOrbiter->SendCommand(CMD_Get_Disk_Info) )
-		{
-			if( sRippingInfo.empty()==false || PK_MediaType<1 )
-			{
-				bHideCDControls=true;
-				DesignObj_Orbiter *pObj = m_pOrbiter->FindObject( TOSTRING(5555) ".0.0." TOSTRING(5639) );
-				if( pObj )
-					pObj->m_bDisabled_set(true);
-
-				DesignObj_Orbiter *pObj_Panel = m_pOrbiter->FindObject(TOSTRING(5555) ".0.0." TOSTRING(5644));
-				if( pObj_Panel && pObj_Panel->m_bHidden==false )
-					m_pOrbiter->CMD_Show_Object( pObj_Panel->m_ObjectID,0,"","", "0" );
-
-				if( sRippingInfo.empty()==false )
-				{
-					pObj_Panel = m_pOrbiter->FindObject(TOSTRING(5555) ".0.0." TOSTRING(5645));
-					if( pObj_Panel && pObj_Panel->m_bHidden==true )
-						m_pOrbiter->CMD_Show_Object( pObj_Panel->m_ObjectID,0,"","", "1" );
-
-					m_pOrbiter->CMD_Set_Text( TOSTRING(5555) ".0.0." TOSTRING(5645), sRippingInfo, TEXT_STATUS_CONST);
-					m_pOrbiter->CMD_Continuous_Refresh("5");
-				}
-			}
-		}
 	}
 
-	if( !bHideCDControls )
-	{
-		m_pOrbiter->PurgeCallBack(&Orbiter::ContinuousRefresh);
+	m_pOrbiter->PurgeCallBack(&Orbiter::ContinuousRefresh);
 
-		DesignObj_Orbiter *pObj = m_pOrbiter->FindObject( TOSTRING(5555) ".0.0." TOSTRING(5639) );
-		if( pObj )
-			pObj->m_bDisabled_set(false);
+	DesignObj_Orbiter *pObj = m_pOrbiter->FindObject( TOSTRING(5555) ".0.0." TOSTRING(5639) );
+	if( pObj )
+		pObj->m_bDisabled_set(false);
 
-		DesignObj_Orbiter *pObj_Panel = m_pOrbiter->FindObject(TOSTRING(5555) ".0.0." TOSTRING(5644));
-		if( pObj_Panel && pObj_Panel->m_bHidden==true )
-			m_pOrbiter->CMD_Show_Object( pObj_Panel->m_ObjectID,0,"","", "1" );
+	DesignObj_Orbiter *pObj_Panel = m_pOrbiter->FindObject(TOSTRING(5555) ".0.0." TOSTRING(5644));
+	if( pObj_Panel && pObj_Panel->m_bHidden==true )
+		m_pOrbiter->CMD_Show_Object( pObj_Panel->m_ObjectID,0,"","", "1" );
 
-		pObj_Panel = m_pOrbiter->FindObject(TOSTRING(5555) ".0.0." TOSTRING(5645));
-		if( pObj_Panel && pObj_Panel->m_bHidden==false )
-			m_pOrbiter->CMD_Show_Object( pObj_Panel->m_ObjectID,0,"","", "0" );
-	}
+	pObj_Panel = m_pOrbiter->FindObject(TOSTRING(5555) ".0.0." TOSTRING(5645));
+	if( pObj_Panel && pObj_Panel->m_bHidden==false )
+		m_pOrbiter->CMD_Show_Object( pObj_Panel->m_ObjectID,0,"","", "0" );
 
 	map<int,string > mapAlbumAttributes; // These are the attributes for the whole album
 
@@ -2780,7 +2771,7 @@ bool ScreenHandler::CurrentDisc_GridRendering(CallBackData *pData)
 	int iRow = pDatagridAcquiredBackData->m_pObj->m_iHighlightedRow_get()>=0 ? pDatagridAcquiredBackData->m_pObj->m_GridCurRow + pDatagridAcquiredBackData->m_pObj->m_iHighlightedRow_get() : iTrack;
 	DataGridCell *pCell = pDatagridAcquiredBackData->m_pDataGridTable->GetData( 0, iRow );
 
-	DesignObj_Orbiter *pObj = m_pOrbiter->FindObject( TOSTRING(5555) ".0.0." TOSTRING(5587) );
+	pObj = m_pOrbiter->FindObject( TOSTRING(5555) ".0.0." TOSTRING(5587) );
 	if( !pObj )
 		return false;
 	m_pOrbiter->CMD_Set_Text(pObj->m_ObjectID,pCell ? pCell->m_mapAttributes_Find("Title") : "",2046);
@@ -2793,7 +2784,7 @@ bool ScreenHandler::CurrentDisc_GridRendering(CallBackData *pData)
 	m_pOrbiter->CMD_Set_Text(pObj->m_ObjectID,pCell && pCell->m_mapAttributes.find("Date")!=pCell->m_mapAttributes.end() ? pCell->m_mapAttributes_Find("Date") : mapAlbumAttributes[ATTRIBUTETYPE_Release_Date_CONST],2052);
 	m_pOrbiter->Renderer()->RenderObjectAsync(pObj);
 
-	bool bHidden = pDatagridAcquiredBackData->m_pObj->m_iHighlightedRow_get()==-1 || bHideCDControls;
+	bool bHidden = pDatagridAcquiredBackData->m_pObj->m_iHighlightedRow_get()==-1;
 	DesignObj_Orbiter *pObj_SelectedObjBar = m_pOrbiter->FindObject(TOSTRING(5555) ".0.0." TOSTRING(5599));
 	if( pObj_SelectedObjBar && pObj_SelectedObjBar->m_bHidden!=bHidden )
 		m_pOrbiter->CMD_Show_Object( pObj_SelectedObjBar->m_ObjectID,0,"","", bHidden ? "0" : "1" );
