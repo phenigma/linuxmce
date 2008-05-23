@@ -571,7 +571,7 @@ bool DatabaseUtils::DeviceIsWithinCategory(DBHelper *pDBHelper,int PK_Device,int
 
 int DatabaseUtils::SyncMediaAttributes(DBHelper *pDBHelper)
 {
-    int nAffectedRecords = g_pDatabase_pluto_media->threaded_db_wrapper_query(
+    int nAffectedRecords = pDBHelper->threaded_db_wrapper_query(
 		"INSERT INTO Picture_Attribute(FK_Attribute,FK_Picture) "
 		"SELECT PK_Attribute,min(Picture_File.FK_Picture) as FK_Picture FROM Attribute "
 		"JOIN File_Attribute ON File_Attribute.FK_Attribute=PK_Attribute "
