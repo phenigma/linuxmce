@@ -1675,7 +1675,7 @@ int MediaAttributes_LowLevel::GetAttributeFromFile(int PK_File,int PK_AttributeT
 
 int MediaAttributes_LowLevel::GetAttributeFromDisc(int PK_Disc,int PK_AttributeType,string &sAttribute)
 {
-	string sSQL = "JOIN Disc_Attribute ON FK_Attribute=PK_Attribute WHERE FK_AttributeType=" + StringUtils::itos(PK_AttributeType) + " and FK_Disc=" + StringUtils::itos(PK_Disc) + " limit 1";
+	string sSQL = "JOIN Disc_Attribute ON FK_Attribute=PK_Attribute WHERE FK_AttributeType=" + StringUtils::itos(PK_AttributeType) + " and FK_Disc=" + StringUtils::itos(PK_Disc) + " ORDER BY Track limit 1";  // Order by Track so we get the '0' tracks first
 	vector<Row_Attribute *> vectRow_Attribute;
 	m_pDatabase_pluto_media->Attribute_get()->GetRows(sSQL,&vectRow_Attribute);
 	if( vectRow_Attribute.empty() )
