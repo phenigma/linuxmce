@@ -121,7 +121,7 @@ bool IRTrans::GetConfig()
 		return false;
 //<-dceag-getconfig-e->
 
-	if( m_pData->m_dwPK_DeviceTemplate!=DEVICETEMPLATE_IRTrans_Dign_VFD_CONST )
+	if( m_pData->m_dwPK_DeviceTemplate!=DEVICETEMPLATE_IRTrans_Dign_VFD_CONST && m_pData->m_dwPK_DeviceTemplate!=DEVICETEMPLATE_IRTrans_DIGN_IR_Receiver_CONST )
 	{
 		m_bQuit_VL=true;
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"This IRTrans doesn't have a display");
@@ -320,7 +320,10 @@ void IRTrans::StartIRServer()
 #ifndef WIN32
 	if( TTYPort[0]==0 || libmain(7,argv)!=0 )
 #else
-	if( TTYPort[0]==0 || true )
+	while(!m_bQuit_get())  // This thread just blocks indefintely
+		Sleep(1000);
+
+	if( false )
 #endif
 	{
 		DBHelper mySqlHelper(m_sIPAddress,"root","","pluto_main");
@@ -364,7 +367,6 @@ void IRTrans::StartIRServer()
 	LCDBrightness(5);
 #endif
 
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"IRTrans shutting down, libmain exited");
 	m_bIRServerRunning=false;
 }
 
@@ -372,7 +374,9 @@ void IRTrans::GotIRCommand(const char *pRemote,const char *pCommand)
 {
 	if( m_dwPK_Device==DEVICEID_MESSAGESEND )
 	{
+#ifndef WIN32
 		ForceKeystroke(pCommand, m_sAVWHost, m_iAVWPort);
+#endif
 		return;
 	}
 
