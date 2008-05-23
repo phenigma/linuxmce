@@ -364,6 +364,7 @@ void IRTrans::StartIRServer()
 	LCDBrightness(5);
 #endif
 
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"IRTrans shutting down, libmain exited");
 	m_bIRServerRunning=false;
 }
 
