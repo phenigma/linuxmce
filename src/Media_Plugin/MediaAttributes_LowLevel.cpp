@@ -1,4 +1,4 @@
-/*
+	/*
  MediaAttributes
 
  Copyright (C) 2004 Pluto, Inc., a Florida Corporation
@@ -1505,6 +1505,7 @@ int MediaAttributes_LowLevel::AddRippedDiscToDatabase(int PK_Disc,int PK_MediaTy
 		AddDiscAttributesToFile(pRow_File->PK_File_get(),PK_Disc,-1);  // We won't have tracks then we ripped.  -1=ripped whole thing
 		FileUtils::DelFile(sDestination + "/" + sLockFile);
 	}
+	DatabaseUtils::SyncMediaAttributes(m_pDatabase_pluto_media);
 	return PK_File;
 }
 

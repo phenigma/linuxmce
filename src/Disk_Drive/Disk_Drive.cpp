@@ -665,7 +665,7 @@ void Disk_Drive::CMD_Get_Disk_Info(string *sText,int *iPK_MediaType,int *iEK_Dis
 		if( pJob->GetType()=="RipJob" )
 		{
 			RipJob *pRipJob = (RipJob *) pJob;
-			*sText = (pRipJob->m_bHasErrors ? "**WITH ERRORS** " : "no errors ");
+			*sText = (pRipJob->m_bHasErrors ? "**WITH ERRORS** " : "no errors ") + StringUtils::itos(pJob->PercentComplete()) + "% ";
 
 			int iNotStarted=0,iFailed=0,iCompleted=0,iCancelled=0;
 			const ListTask *pListTask = pRipJob->m_listTask_get();

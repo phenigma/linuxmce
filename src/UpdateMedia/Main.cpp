@@ -80,31 +80,6 @@ namespace UpdateMediaVars
 
 using namespace UpdateMediaVars;
 
-
-
-void SyncAttributes()
-{
-	LoggerWrapper::GetInstance()->Write(LV_WARNING, "Synchronizing attributes... "); 
-
-    int nAffectedRecords = g_pDatabase_pluto_media->threaded_db_wrapper_query(
-		"INSERT INTO Picture_Attribute(FK_Attribute,FK_Picture) "
-		"SELECT PK_Attribute,min(Picture_File.FK_Picture) as FK_Picture FROM Attribute "
-		"JOIN File_Attribute ON File_Attribute.FK_Attribute=PK_Attribute "
-		"JOIN Picture_File ON Picture_File.FK_File=File_Attribute.FK_File "
-		"LEFT JOIN Picture_Attribute ON Picture_Attribute.FK_Attribute=PK_Attribute "
-		"WHERE Picture_Attribute.FK_Picture is NULL AND FK_AttributeType IN (" 
-		TOSTRING(ATTRIBUTETYPE_Performer_CONST) ", "
-		TOSTRING(ATTRIBUTETYPE_Album_CONST) ", " 
-		TOSTRING(ATTRIBUTETYPE_Title_CONST) ") "
-		"GROUP BY PK_Attribute"
-	);
-
-	if(nAffectedRecords == -1)
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Attributes sync failed!"); 
-	else
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Attributes sync succeeded! Records affected %d", nAffectedRecords); 
-}
-
 void RemoveDuplicatedAttributes()
 {
 	string sSqlDuplicatedAttributes = 
@@ -181,7 +156,7 @@ void RemoveDuplicatedAttributes()
 
 void *UpdateMediaThread(void *)
 {
-	SyncAttributes();
+	DatabaseUtils::SyncMediaAttributes(g_pDatabase_pluto_main);
 	RemoveDuplicatedAttributes();
 
 	PlutoMediaIdentifier::Activate(g_pDatabase_pluto_main);
@@ -251,7 +226,7 @@ void *UpdateMediaThread(void *)
 			{
 				LoggerWrapper::GetInstance()->Write(LV_STATUS, "New files were added to db for '%s'.", sItem.c_str());
 
-				SyncAttributes();
+				DatabaseUtils::SyncMediaAttributes(g_pDatabase_pluto_main);
 
 				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Sending \"Check for new files\" command to Media_Plugin...");
 				Event_Impl *pEvent = new Event_Impl(DEVICEID_MESSAGESEND, 0, "dcerouter");

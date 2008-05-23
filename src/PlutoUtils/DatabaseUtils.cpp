@@ -19,6 +19,7 @@
 #include "Other.h"
 #include "DBHelper.h"
 #include "pluto_main/Define_DeviceData.h"
+#include "pluto_media/Define_AttributeType.h"
 
 #ifndef EMBEDDED_LMCE
 
@@ -566,6 +567,28 @@ bool DatabaseUtils::DeviceIsWithinCategory(DBHelper *pDBHelper,int PK_Device,int
 		if( ( result.r=pDBHelper->db_wrapper_query_result( sSQL ) )==NULL || ( row=db_wrapper_fetch_row( result.r ) )==NULL || row[0]==NULL || (PK_DeviceCategory_Test = atoi(row[0]))==0 )
 			return false;
 	}
+}
+
+int DatabaseUtils::SyncMediaAttributes(DBHelper *pDBHelper)
+{
+    int nAffectedRecords = g_pDatabase_pluto_media->threaded_db_wrapper_query(
+		"INSERT INTO Picture_Attribute(FK_Attribute,FK_Picture) "
+		"SELECT PK_Attribute,min(Picture_File.FK_Picture) as FK_Picture FROM Attribute "
+		"JOIN File_Attribute ON File_Attribute.FK_Attribute=PK_Attribute "
+		"JOIN Picture_File ON Picture_File.FK_File=File_Attribute.FK_File "
+		"LEFT JOIN Picture_Attribute ON Picture_Attribute.FK_Attribute=PK_Attribute "
+		"WHERE Picture_Attribute.FK_Picture is NULL AND FK_AttributeType IN (" 
+		TOSTRING(ATTRIBUTETYPE_Performer_CONST) ", "
+		TOSTRING(ATTRIBUTETYPE_Album_CONST) ", " 
+		TOSTRING(ATTRIBUTETYPE_Title_CONST) ") "
+		"GROUP BY PK_Attribute"
+	);
+
+	if(nAffectedRecords == -1)
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "DatabaseUtils::SyncMediaAttributes Attributes sync failed!"); 
+	else
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "DatabaseUtils::SyncMediaAttributes Attributes sync succeeded! Records affected %d", nAffectedRecords); 
+	return nAffectedRecords;
 }
 
 void DatabaseUtils::LockTable(DBHelper *pDBHelper,string sTable)
