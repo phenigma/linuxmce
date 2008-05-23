@@ -18,6 +18,7 @@ extern "C"
 //----------------------------------------------------------------------------------------------
 #define JSON_DYNAMIC_CONFIG_FILE "pluto.json.lzo"
 #define JSON_STATIC_CONFIG_FILE "pluto_main.json.lzo"
+#define INSTALLATIONID 1 //HARDCODED VALUE
 //----------------------------------------------------------------------------------------------
 #define ADD_STRING_CHILD(parent, key, value) json_object_object_add(parent, key, json_object_new_string(const_cast<char *>(value.c_str())));
 //----------------------------------------------------------------------------------------------
@@ -212,7 +213,7 @@ void DataLayer_JSON::ParseDevices(struct json_object *json_obj)
 		{
 			DeviceData_Router *pDevice = NULL;
 			int PK_DeviceTemplate = 0;
-			int PK_Installation = 1; //Hardcoded!
+			int PK_Installation = INSTALLATIONID; //Hardcoded!
 			int PK_Device_ControlledVia = 0;
 			int PK_Room = 0;
 			string sDescription;
@@ -590,11 +591,9 @@ DeviceData_Router *DataLayer_JSON::Device(int nPK_Device)
 {
 	PLUTO_SAFETY_LOCK(dm, m_DataMutex);
 
-	for(std::map<int, DeviceData_Router *>::iterator it = m_mapDeviceData_Router.begin(),
-		end = m_mapDeviceData_Router.end(); it != end; ++it)
-	{
+	std::map<int, DeviceData_Router *>::iterator it = m_mapDeviceData_Router.find(nPK_Device);
+	if(it != m_mapDeviceData_Router.end())
 		return it->second;
-	}
 
 	return NULL;
 }
@@ -639,7 +638,9 @@ void DataLayer_JSON::SaveDevicesList()
 		end = m_mapDeviceData_Router.end(); it != end; ++it)
 	{
 		DeviceData_Router *pDeviceData_Router = it->second;
-		json_object_array_add(devices_list_obj, json_object_new_int(pDeviceData_Router->m_dwPK_Device));
+
+		if(!pDeviceData_Router->IsDeleted())
+			json_object_array_add(devices_list_obj, json_object_new_int(pDeviceData_Router->m_dwPK_Device));
 	}
 
 	//add it to root node
@@ -698,7 +699,7 @@ void DataLayer_JSON::SaveDevices()
 			ADD_STRING_CHILD(params_obj, "FK_Device_RouteTo", StringUtils::ltos(pDeviceData_Router->m_pDevice_RouteTo->m_dwPK_Device));
 
 		//add params node
-		json_object_object_add(device_obj, "DeviceData", params_obj);
+		json_object_object_add(device_obj, "params", params_obj);
 
 		string sNodeName = "PK_Device_" + StringUtils::ltos(pDeviceData_Router->m_dwPK_Device);
 		json_object_object_add(devices_obj, const_cast<char *>(sNodeName.c_str()), device_obj);
@@ -706,5 +707,23 @@ void DataLayer_JSON::SaveDevices()
 
 	//add it to root node
 	json_object_object_add(m_root_json_obj, "Device", devices_obj);
+}
+//----------------------------------------------------------------------------------------------
+DeviceData_Router *DataLayer_JSON::CreateDevice(int iPK_DeviceTemplate, string sDescription, 
+	string sIP_Address, string sMac_address, int iPK_Device_ControlledVia)
+{
+	int nPK_Device = ++m_dwPK_Device_Largest;
+
+	DeviceData_Router *pDeviceData_Router = new DeviceData_Router(
+		nPK_Device, iPK_DeviceTemplate, INSTALLATIONID, iPK_Device_ControlledVia);
+
+	pDeviceData_Router->m_sDescription = sDescription;
+	pDeviceData_Router->m_sMacAddress = sMac_address;
+	pDeviceData_Router->m_sIPAddress = sIP_Address;
+
+	PLUTO_SAFETY_LOCK(dm, m_DataMutex);
+	m_mapDeviceData_Router[nPK_Device] = pDeviceData_Router;
+
+	return pDeviceData_Router;
 }
 //----------------------------------------------------------------------------------------------

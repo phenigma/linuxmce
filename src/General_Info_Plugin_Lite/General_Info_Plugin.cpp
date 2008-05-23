@@ -402,18 +402,76 @@ devicedata_id1|devicedata_value1|devicedata_id2|devicedata_value2| etc. */
 void General_Info_Plugin::CMD_Create_Device(int iPK_DeviceTemplate,string sMac_address,int iPK_Room,string sIP_Address,string sData_String,int iPK_DHCPDevice,int iPK_Device_ControlledVia,string sDescription,int iPK_Orbiter,int iPK_Device_Related,int *iPK_Device,string &sCMD_Result,Message *pMessage)
 //<-dceag-c718-e->
 {
-	cout << "Need to implement command #718 - Create Device" << endl;
-	cout << "Parm #2 - PK_Device=" << iPK_Device << endl;
-	cout << "Parm #44 - PK_DeviceTemplate=" << iPK_DeviceTemplate << endl;
-	cout << "Parm #47 - Mac_address=" << sMac_address << endl;
-	cout << "Parm #57 - PK_Room=" << iPK_Room << endl;
-	cout << "Parm #58 - IP_Address=" << sIP_Address << endl;
-	cout << "Parm #109 - Data_String=" << sData_String << endl;
-	cout << "Parm #150 - PK_DHCPDevice=" << iPK_DHCPDevice << endl;
-	cout << "Parm #156 - PK_Device_ControlledVia=" << iPK_Device_ControlledVia << endl;
-	cout << "Parm #163 - Description=" << sDescription << endl;
-	cout << "Parm #198 - PK_Orbiter=" << iPK_Orbiter << endl;
-	cout << "Parm #201 - PK_Device_Related=" << iPK_Device_Related << endl;
+	/*
+		//TODO: get iPK_DeviceTemplate from iPK_DHCPDevice
+	*/
+
+	if( !iPK_DeviceTemplate )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "General_Info_Plugin::CMD_Create_Device Device Template not specified");
+		return;
+	}
+
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "General_Info_Plugin::CMD_Create_Device template %d mac %s room %d ip %d data %s",
+		iPK_DeviceTemplate, sMac_address.c_str(), iPK_Room, sIP_Address.c_str(), sData_String.c_str());
+#endif
+
+	DeviceData_Router *pDeviceData_Router = m_pRouter->DataLayer()->CreateDevice(iPK_DeviceTemplate, sDescription, sIP_Address, sMac_address, iPK_Device_ControlledVia);
+	*iPK_Device = pDeviceData_Router->m_dwPK_Device;
+
+	if(!sData_String.empty())
+	{
+		string::size_type pos=0;
+		while(pos < sData_String.size())
+		{
+			string sPK_DeviceData = StringUtils::Tokenize(sData_String, "|", pos);
+			if(sPK_DeviceData == "E")
+			{
+				//bEmbedded = true;
+			}
+			else if(sPK_DeviceData == "P")
+			{
+				int PK_Command_Input = atoi(StringUtils::Tokenize(sData_String,"|",pos).c_str());
+				int PK_Command_Ouput = atoi(StringUtils::Tokenize(sData_String,"|",pos).c_str());
+				int PK_Pipe = atoi(StringUtils::Tokenize(sData_String,"|",pos).c_str());
+				bool bToChild = atoi(StringUtils::Tokenize(sData_String,"|",pos).c_str())==1;
+
+				//TODO: implement this
+				//listCdPipe.push_back(new CdPipe(PK_Command_Input,PK_Command_Ouput,PK_Pipe,bToChild));
+			}
+			else
+			{
+				int PK_DeviceData = atoi(sPK_DeviceData.c_str());
+				string sValue = StringUtils::Tokenize(sData_String,"|",pos);
+				m_pRouter->DataLayer()->SetDeviceData(pDeviceData_Router, PK_DeviceData, sValue);
+
+				if(PK_DeviceData == DEVICEDATA_sPK_Device_Relations_For_Creat_CONST)
+				{
+					vector<string> vectDevices;
+					StringUtils::Tokenize(sValue,"\t",vectDevices);
+
+					//TODO: implement this
+					//for(vector<string>::iterator it=vectDevices.begin();it!=vectDevices.end();++it)
+					//	CreateRelation(PK_Device,atoi(it->c_str()));
+				}
+				else if(PK_DeviceData == DEVICEDATA_Description_CONST && !sValue.empty())
+				{
+					pDeviceData_Router->m_sDescription = sValue;
+				}
+			}
+		}
+	}
+
+
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"General_Info_Plugin::CMD_Create_Device created %d template %d mac %s room %d ip %d data %s",
+			*iPK_Device,iPK_DeviceTemplate,sMac_address.c_str(),iPK_Room,sIP_Address.c_str(),sData_String.c_str());
+#endif
+
+	Message *pMessage_Event = new Message(m_dwPK_Device,DEVICEID_EVENTMANAGER,PRIORITY_NORMAL,MESSAGETYPE_EVENT,EVENT_New_Device_Created_CONST,
+		1,EVENTPARAMETER_PK_Device_CONST,StringUtils::itos(*iPK_Device).c_str());
+	QueueMessageToRouter(pMessage_Event);
 }
 
 //<-dceag-c719-b->
@@ -820,10 +878,10 @@ DeviceData_Router *General_Info_Plugin::ProcessChildDevice(int nPK_Device, strin
 
 	CMD_Create_Device(PK_DeviceTemplate,"",0,"",
 		StringUtils::itos(DEVICEDATA_PortChannel_Number_CONST) + "|" + sInternalID,
-		0, pDeviceData_Router->m_dwPK_Device,"",0,0, &iPK_Device);
+		0, nPK_Device,"",0,0, &iPK_Device);
 
 	pDeviceData_Router = m_pRouter->DataLayer()->Device(iPK_Device);
-	if(NULL != pDeviceData_Router)
+	if(NULL == pDeviceData_Router)
 	{
 		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"General_Info_Plugin::ProcessChildDevice failed to create child %d",iPK_Device);
 		return NULL;
