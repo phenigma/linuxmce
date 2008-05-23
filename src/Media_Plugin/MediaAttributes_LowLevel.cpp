@@ -1600,8 +1600,6 @@ void MediaAttributes_LowLevel::AddDiscAttributesToFile(int PK_File,int PK_Disc,i
 			pRow_File_Attribute = m_pDatabase_pluto_media->File_Attribute_get()->AddRow();
 			pRow_File_Attribute->FK_File_set(PK_File);
 			pRow_File_Attribute->FK_Attribute_set( pRow_Disc_Attribute->FK_Attribute_get() );
-			pRow_File_Attribute->Track_set( pRow_Disc_Attribute->Track_get() );
-			pRow_File_Attribute->Section_set( pRow_Disc_Attribute->Section_get() );
 			m_pDatabase_pluto_media->File_Attribute_get()->Commit();
 
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"MediaAttributes_LowLevel::AddDiscAttributesToFile adding the following record in File_Attribute: "

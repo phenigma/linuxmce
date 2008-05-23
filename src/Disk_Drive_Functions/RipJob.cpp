@@ -201,7 +201,7 @@ void RipJob::AddRippingTasks(Drive *pDrive, TasklistPosition position)
 	}
 	else
 	{
-	    	vector<Task *> vTasks;
+	    vector<Task *> vTasks;
 		for(vector<string>::iterator it = vectTracks.begin(), end = vectTracks.end(); it != end; ++it)
 		{
 			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Adding ripping task for track %s", it->c_str());
