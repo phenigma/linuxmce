@@ -426,8 +426,18 @@ void General_Info_Plugin::CMD_Create_Device(int iPK_DeviceTemplate,string sMac_a
 void General_Info_Plugin::CMD_Delete_Device(int iPK_Device,string &sCMD_Result,Message *pMessage)
 //<-dceag-c719-e->
 {
-	cout << "Need to implement command #719 - Delete Device" << endl;
-	cout << "Parm #2 - PK_Device=" << iPK_Device << endl;
+	vector<DeviceData_Router *> vectDevice_Children;
+	m_pRouter->DataLayer()->ChildrenDevices(iPK_Device, vectDevice_Children);
+	for(vector<DeviceData_Router *>::iterator it_child = vectDevice_Children.begin(); it_child != vectDevice_Children.end(); ++it_child)
+	{
+		DeviceData_Router *pDeviceData_Router = *it_child;
+		CMD_Delete_Device(pDeviceData_Router->m_dwPK_Device);
+	}	
+
+	DeviceData_Router *pDeviceData_Router = m_pRouter->DataLayer()->Device(iPK_Device);
+	
+	if(NULL != pDeviceData_Router)
+		pDeviceData_Router->MarkAsDeleted();
 }
 
 //<-dceag-c752-b->

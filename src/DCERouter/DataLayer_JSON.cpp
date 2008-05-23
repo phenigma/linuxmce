@@ -637,6 +637,12 @@ void DataLayer_JSON::SaveDevices()
 	{
 		DeviceData_Router *pDeviceData_Router = it->second;
 
+		if(pDeviceData_Router->IsDeleted())
+		{
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Device %d is deleted. Skipping... ", pDeviceData_Router->m_dwPK_Device);
+			continue;
+		}
+
         struct json_object *device_obj = json_object_new_object();
 
 		ADD_STRING_CHILD(device_obj, "Description", pDeviceData_Router->m_sDescription);
@@ -666,7 +672,7 @@ void DataLayer_JSON::SaveDevices()
 		ADD_STRING_CHILD(params_obj, "Status", pDeviceData_Router->m_sStatus_get());
 		ADD_STRING_CHILD(params_obj, "Disabled", StringUtils::ltos((long)pDeviceData_Router->m_bDisabled));
 
-		if(NULL != pDeviceData_Router->m_pDevice_RouteTo)
+		if(NULL != pDeviceData_Router->m_pDevice_RouteTo && !pDeviceData_Router->m_pDevice_RouteTo->IsDeleted())
 			ADD_STRING_CHILD(params_obj, "FK_Device_RouteTo", StringUtils::ltos(pDeviceData_Router->m_pDevice_RouteTo->m_dwPK_Device));
 
 		//add params node

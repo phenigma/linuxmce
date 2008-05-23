@@ -254,6 +254,11 @@ private:
         State is the value that the user set and wants the device to stay in.
         */
         string m_sState;
+
+		/** Device deleted?
+		*/
+		bool m_bDeleted;
+
 public:
 
         // **** SERIALIZED VALUES FROM THE DATABASE ****
@@ -347,6 +352,16 @@ public:
             m_sState=sState;
         }
 
+		void MarkAsDeleted()
+		{
+			m_bDeleted = true;
+		}
+
+		bool IsDeleted()
+		{
+			return m_bDeleted;
+		}
+
         // **** POINTERS CREATED BY THE SERIALIZED ID'S ****
 
         Room *m_pRoom;
@@ -381,6 +396,8 @@ public:
             m_pMySerializedData=NULL;
             m_pSocket_Command=NULL;
             m_iConfigSize=0;
+
+			m_bDeleted = false;
         }
 #endif
 
@@ -401,6 +418,7 @@ public:
             m_pMySerializedData=NULL;
             m_pSocket_Command=NULL;
             m_iConfigSize=0;
+			m_bDeleted = false;
         }
 
         ~DeviceData_Router() {
