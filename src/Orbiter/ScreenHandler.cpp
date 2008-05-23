@@ -2161,6 +2161,13 @@ void ScreenHandler::SCREEN_Cannot_Reload_Router(long PK_Screen, string sDescript
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_DialogRippingInstructions(long PK_Screen)
 {
+	if(m_pOrbiter->m_sSkin == AUDIO_STATION_SKIN)
+	{
+		// Just go back again to the current disc screen
+		DCE::SCREEN_Current_Disc_Contents SCREEN_Current_Disc_Contents(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device);
+		m_pOrbiter->SendCommand(SCREEN_Current_Disc_Contents);
+		return;
+	}
 	DisplayMessageOnOrbiter(PK_Screen,
 		"<%=T" + StringUtils::itos(TEXT_Ripping_Instructions_CONST) + "%>",
         false, "40", true,
