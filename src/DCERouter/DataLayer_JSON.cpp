@@ -21,18 +21,26 @@ extern "C"
 //----------------------------------------------------------------------------------------------
 #define ADD_STRING_CHILD(parent, key, value) json_object_object_add(parent, key, json_object_new_string(const_cast<char *>(value.c_str())));
 //----------------------------------------------------------------------------------------------
-DataLayer_JSON::DataLayer_JSON(void) : m_root_json_obj(NULL)
+DataLayer_JSON::DataLayer_JSON(void) : m_root_json_obj(NULL), m_DataMutex("data")
 {
 	m_dwPK_Device_Largest = 0;
+
+	pthread_mutexattr_init(&m_MutexAttr);
+	pthread_mutexattr_settype(&m_MutexAttr, PTHREAD_MUTEX_RECURSIVE_NP);
+	m_DataMutex.Init(&m_MutexAttr);
 }
 //----------------------------------------------------------------------------------------------
 DataLayer_JSON::~DataLayer_JSON(void)
 {
 	json_object_put(m_root_json_obj); 
+
+	pthread_mutexattr_destroy(&m_MutexAttr);
 }
 //----------------------------------------------------------------------------------------------
 bool DataLayer_JSON::Load()
 {
+	PLUTO_SAFETY_LOCK(dm, m_DataMutex);
+
 	if(LoadDynamicConfiguration() && LoadStaticConfiguration())
 	{
 		UpdateDevicesTree();
@@ -44,6 +52,8 @@ bool DataLayer_JSON::Load()
 //----------------------------------------------------------------------------------------------
 bool DataLayer_JSON::Save()
 {
+	PLUTO_SAFETY_LOCK(dm, m_DataMutex);
+
 	SaveDevicesList();
 	SaveDevices();
 
@@ -533,6 +543,8 @@ void DataLayer_JSON::ParseCommandParameters(std::map<int, string>& mapParams, st
 //----------------------------------------------------------------------------------------------
 Scene_Data* DataLayer_JSON::Scene(int nSceneID)
 {
+	PLUTO_SAFETY_LOCK(dm, m_DataMutex);
+
 	std::map<int, Scene_Data>::iterator it = m_mapScene_Data.find(nSceneID);
 	if(it != m_mapScene_Data.end())
 	{
@@ -544,6 +556,8 @@ Scene_Data* DataLayer_JSON::Scene(int nSceneID)
 //----------------------------------------------------------------------------------------------
 DeviceTemplate_Data* DataLayer_JSON::DeviceTemplate(int nPK_DeviceTemplate)
 {
+	PLUTO_SAFETY_LOCK(dm, m_DataMutex);
+
 	std::map<int, DeviceTemplate_Data>::iterator it = m_mapDeviceTemplate_Data.find(nPK_DeviceTemplate);
 
 	if(it != m_mapDeviceTemplate_Data.end())
@@ -554,6 +568,8 @@ DeviceTemplate_Data* DataLayer_JSON::DeviceTemplate(int nPK_DeviceTemplate)
 //----------------------------------------------------------------------------------------------
 DeviceData_Router *DataLayer_JSON::ChildMatchingDeviceData(int nPK_Device_Parent, int nFK_DeviceData, string sValue)
 {
+	PLUTO_SAFETY_LOCK(dm, m_DataMutex);
+
 	for(std::map<int, DeviceData_Router *>::iterator it = m_mapDeviceData_Router.begin(),
 		end = m_mapDeviceData_Router.end(); it != end; ++it)
 	{
@@ -572,6 +588,8 @@ DeviceData_Router *DataLayer_JSON::ChildMatchingDeviceData(int nPK_Device_Parent
 //----------------------------------------------------------------------------------------------
 DeviceData_Router *DataLayer_JSON::Device(int nPK_Device)
 {
+	PLUTO_SAFETY_LOCK(dm, m_DataMutex);
+
 	for(std::map<int, DeviceData_Router *>::iterator it = m_mapDeviceData_Router.begin(),
 		end = m_mapDeviceData_Router.end(); it != end; ++it)
 	{
@@ -583,6 +601,8 @@ DeviceData_Router *DataLayer_JSON::Device(int nPK_Device)
 //----------------------------------------------------------------------------------------------
 void DataLayer_JSON::ChildrenDevices(int nPK_Device_Parent, std::vector<DeviceData_Router *>& vectDevice_Children)
 {
+	PLUTO_SAFETY_LOCK(dm, m_DataMutex);
+
 	for(std::map<int, DeviceData_Router *>::iterator it = m_mapDeviceData_Router.begin(),
 		end = m_mapDeviceData_Router.end(); it != end; ++it)
 	{
@@ -603,6 +623,8 @@ void DataLayer_JSON::SetDeviceData(int nPK_Device, int nFK_DeviceData, string sV
 //----------------------------------------------------------------------------------------------
 void DataLayer_JSON::SetDeviceData(DeviceData_Router *pDeviceData_Router, int nFK_DeviceData, string sValue)
 {
+	//Add protected setter to DeviceData_Router's m_mapParameters
+
 	pDeviceData_Router->m_mapParameters[nFK_DeviceData] = sValue;
 }
 //----------------------------------------------------------------------------------------------

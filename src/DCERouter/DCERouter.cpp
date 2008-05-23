@@ -555,10 +555,6 @@ void Router::RegisterAllPlugins()
 
 	int PlugInNumber=0;  // How many plug-ins we're loading dynamically
 
-#ifdef EMBEDDED_LMCE
-	DATA_LAYER_LEGACY_CODE;
-#endif
-
 	for(list<string>::iterator itFile=listFiles.begin();itFile!=listFiles.end();++itFile)
 	{
 		string sFile = *itFile;
@@ -573,6 +569,10 @@ void Router::RegisterAllPlugins()
 			iPK_Device = m_dwPK_Device_Largest + PlugInNumber + 1000000;   // Use artificially high numbers > 1 million so there's no confusion with other devices including new ones we will create
 
 			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Router::RegisterAllPlugins Dynamically loading plugin %s as device %d", sFile.c_str(), iPK_Device);
+
+#ifdef EMBEDDED_LMCE
+			DATA_LAYER_LEGACY_CODE;
+#endif
 
 			DeviceData_Router *pDevice = new DeviceData_Router(iPK_Device,PK_DeviceTemplate,m_dwPK_Installation,m_dwPK_Device);
 			m_mapDeviceData_Router[iPK_Device]=pDevice;

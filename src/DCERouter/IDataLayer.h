@@ -26,6 +26,9 @@ public:
 	virtual bool Load() = 0;
 	virtual bool Save() = 0;
 
+	//the mutex
+	virtual pluto_pthread_mutex_t& Mutex() = 0;
+
 	//get devices
 	virtual std::map<int, DeviceData_Router *>& Devices() = 0;
 

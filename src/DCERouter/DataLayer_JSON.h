@@ -18,6 +18,9 @@ class DataLayer_JSON : public IDataLayer
 
 	struct json_object *m_root_json_obj;
 
+	pluto_pthread_mutex_t m_DataMutex;
+	pthread_mutexattr_t m_MutexAttr;
+
 public:
 	DataLayer_JSON(void);
 	~DataLayer_JSON(void);
@@ -25,6 +28,8 @@ public:
 	//load/save data
 	bool Load();
 	bool Save();
+
+	pluto_pthread_mutex_t& Mutex() { return m_DataMutex; }
 
 	//get devices
 	std::map<int, DeviceData_Router *>& Devices();

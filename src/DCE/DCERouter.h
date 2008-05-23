@@ -53,7 +53,9 @@ typedef class Command_Impl * (* RAP_FType) (class Router *, int, Logger *);
 typedef list<Message *> ListMessage;
 
 #ifdef EMBEDDED_LMCE
-	#define DATA_LAYER_LEGACY_CODE	std::map<int,class DeviceData_Router *>& m_mapDeviceData_Router = m_pDataLayer->Devices();
+	#define DATA_LAYER_LEGACY_CODE	\
+		PLUTO_SAFETY_LOCK(dm, m_pDataLayer->Mutex()); \
+		std::map<int,class DeviceData_Router *>& m_mapDeviceData_Router = m_pDataLayer->Devices();
 #endif
 
 /*
