@@ -29,6 +29,7 @@
 #include "pluto_media/Table_DiscLocation.h"
 #include "IdentifyTask.h"
 #include "Gen_Devices/AllScreens.h"
+#include "Gen_Devices/AllCommandsRequests.h"
 
 using namespace nsJobHandler;
 using namespace DCE;
