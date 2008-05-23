@@ -519,28 +519,37 @@ void Router::RegisterAllPlugins()
 
 #else
 
-	//hardcoded value for Generic_Info_Plugin for now
-	//TODO: use something like data_layer->GetPlugins...
-	iPK_Device = 6;
-	int iPK_DeviceTemplate = 27;
-	string CommandLine = "General_Info_Plugin_Lite";
-
-	mapPluginCommands[CommandLine] = iPK_Device;
-
-	RAP_RegisterAsPlugin = PlugIn_Load(iPK_Device, iPK_DeviceTemplate, CommandLine);
-	if (RAP_RegisterAsPlugin)
+	list<DeviceData_Router *> listDevices;
+	m_pDataLayer->DevicesByTemplate(DEVICETEMPLATE_General_Info_Plugin_CONST, listDevices);
+	for(list<DeviceData_Router *>::iterator it_device = listDevices.begin(); it_device != listDevices.end(); ++it_device)
 	{
-		pad_tmp.PK_Device = iPK_Device;
-		pad_tmp.PK_DeviceTemplate = iPK_DeviceTemplate;
-		pad_tmp.func = RAP_RegisterAsPlugin;
-		pad_tmp.log = sLogFile;
-		list_fRAP.push_back(pad_tmp);
+		DeviceData_Router *pDeviceData_Router = *it_device;
+
+		iPK_Device = pDeviceData_Router->m_dwPK_Device;
+		int iPK_DeviceTemplate = pDeviceData_Router->m_dwPK_DeviceTemplate;
+		string CommandLine = pDeviceData_Router->m_sCommandLine;
+
+		if(CommandLine.empty())
+			CommandLine = "General_Info_Plugin_Lite"; //hardcoded for now
+
+		mapPluginCommands[CommandLine] = iPK_Device;
+
+		RAP_RegisterAsPlugin = PlugIn_Load(iPK_Device, iPK_DeviceTemplate, CommandLine);
+		if (RAP_RegisterAsPlugin)
+		{
+			pad_tmp.PK_Device = iPK_Device;
+			pad_tmp.PK_DeviceTemplate = iPK_DeviceTemplate;
+			pad_tmp.func = RAP_RegisterAsPlugin;
+			pad_tmp.log = sLogFile;
+			list_fRAP.push_back(pad_tmp);
+		}
+		else
+		{
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Cannot load plug-in for device: %d. Be sure the file %s exists",
+				iPK_Device, CommandLine.c_str());
+		}
 	}
-	else
-	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Cannot load plug-in for device: %d. Be sure the file %s exists",
-			iPK_Device, CommandLine.c_str());
-	}
+
 #endif // EMBEDDED_LMCE
 	
 	// Repeat and see if we can find any plugins to load dynamically

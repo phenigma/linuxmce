@@ -3,6 +3,7 @@
 //----------------------------------------------------------------------------------------------
 #include <map>
 #include <vector>
+#include <list>
 //----------------------------------------------------------------------------------------------
 #include "DeviceData_Router.h"
 #include "Scene_Data.h"
@@ -41,6 +42,7 @@ public:
 	virtual DeviceData_Router *ChildMatchingDeviceData(int nPK_Device_Parent, int nFK_DeviceData, string sValue) = 0;
 	virtual DeviceData_Router *Device(int nPK_Device) = 0;
 	virtual void ChildrenDevices(int nPK_Device_Parent, std::vector<DeviceData_Router *>& vectDevice_Children) = 0;
+	virtual void DevicesByTemplate(int nPK_DeviceTemplate, std::list<DeviceData_Router *>& listDevices) = 0;
 
 	//operations on devices
 	virtual DeviceData_Router *CreateDevice(int iPK_DeviceTemplate, string sDescription, string sIP_Address, string sMac_address, int iPK_Device_ControlledVia) = 0;

@@ -727,3 +727,17 @@ DeviceData_Router *DataLayer_JSON::CreateDevice(int iPK_DeviceTemplate, string s
 	return pDeviceData_Router;
 }
 //----------------------------------------------------------------------------------------------
+void DataLayer_JSON::DevicesByTemplate(int nPK_DeviceTemplate, std::list<DeviceData_Router *>& listDevices)
+{
+	PLUTO_SAFETY_LOCK(dm, m_DataMutex);
+
+	for(std::map<int, DeviceData_Router *>::iterator it = m_mapDeviceData_Router.begin(),
+		end = m_mapDeviceData_Router.end(); it != end; ++it)
+	{
+		DeviceData_Router *pDeviceData_Router = it->second;
+
+		if(pDeviceData_Router->m_dwPK_DeviceTemplate == nPK_DeviceTemplate)
+			listDevices.push_back(pDeviceData_Router);
+	}
+}
+//----------------------------------------------------------------------------------------------
