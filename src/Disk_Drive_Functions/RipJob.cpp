@@ -142,6 +142,9 @@ RipJob::~RipJob()
 		"0", // sTimeout
 		"1"); // sCannotGoBack
 	m_pCommand_Impl->SendCommand(SCREEN_PopupMessage);
+
+	DCE::CMD_Eject_Disk CMD_Eject_Disk(m_pCommand_Impl->m_dwPK_Device,m_pCommand_Impl->m_dwPK_Device);
+	m_pCommand_Impl->SendCommand(CMD_Eject_Disk);
 }
 
 bool RipJob::ReadyToRun()
