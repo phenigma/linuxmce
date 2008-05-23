@@ -2448,7 +2448,7 @@ void ScreenHandler::SetAudioServerTabs(int PK_DesignObj)
 		if( m_bDiscInserted )
 		{
 			pObj_Button->m_bDisabled_set(false);
-			m_pOrbiter->CMD_Set_Graphic_To_Display( pObj_Button->m_ObjectID, pObj->m_iBaseObjectID==5555 ? "-1" : "0" );
+			m_pOrbiter->CMD_Set_Graphic_To_Display( pObj_Button->m_ObjectID, pObj->m_iBaseObjectID==5555 || pObj->m_iBaseObjectID==5669 ? "-1" : "0" );
 		}
 		else
 		{
@@ -2679,15 +2679,18 @@ void ScreenHandler::SCREEN_Current_Disc_Contents(long PK_Screen)
 		{
 			if( PK_MediaType<1 )
 			{
+				m_bDiscInserted=false;  // Shouldn't really happen
 				DCE::SCREEN_Main SCREEN_Main(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,"");  // Go back to the main menu
 				m_pOrbiter->SendCommand(SCREEN_Main);
 			}
 			else if( sRippingInfo.empty()==false )  // We're ripping
 			{
-				m_pOrbiter->CMD_Set_Text( TOSTRING(5669) ".0.0.", sRippingInfo, TEXT_STATUS_CONST);
+				m_pOrbiter->CMD_Goto_DesignObj(0,TOSTRING(5669), "", "", false, true);
+				m_pOrbiter->CMD_Set_Text( TOSTRING(5669) ".0.0", sRippingInfo, TEXT_STATUS_CONST);
 				m_pOrbiter->CMD_Continuous_Refresh("5");
 				SetAudioServerTabs(5669);
-				ScreenHandlerBase::SCREEN_Current_Disc_Contents(PK_Screen);
+				RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::CurrentDisc_ObjectSelected,	new ObjectInfoBackData());
+				return;
 			}
 			else
 			{
