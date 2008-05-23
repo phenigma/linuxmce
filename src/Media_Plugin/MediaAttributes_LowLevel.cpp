@@ -1522,7 +1522,9 @@ void MediaAttributes_LowLevel::AddDiscAttributesToFile(int PK_File,int PK_Disc,i
 		return;
 	}
 
-	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MediaAttributes_LowLevel::AddDiscAttributesToFile called with file %d disc %d",PK_File,PK_Disc);
+	bool bIsDirectory = pRow_File->IsDirectory_get()!=0;
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"MediaAttributes_LowLevel::AddDiscAttributesToFile called with file %d disc %d track %d",PK_File,PK_Disc,Track);
 
 	vector<Row_Picture_Disc *> vectRow_Picture_Disc;
 	pRow_Disc->Picture_Disc_FK_Disc_getrows(&vectRow_Picture_Disc);
@@ -1586,7 +1588,7 @@ void MediaAttributes_LowLevel::AddDiscAttributesToFile(int PK_File,int PK_Disc,i
 		// Check if it's already there in case this disc was already added
 		Row_File_Attribute *pRow_File_Attribute = m_pDatabase_pluto_media->File_Attribute_get()->GetRow(
 			PK_File,pRow_Disc_Attribute->FK_Attribute_get(),
-			pRow_Disc_Attribute->Track_get(),pRow_Disc_Attribute->Section_get() );
+			bIsDirectory ? pRow_Disc_Attribute->Track_get() : 0, bIsDirectory ? pRow_Disc_Attribute->Section_get() : 0);
 
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"MediaAttributes_LowLevel::AddDiscAttributesToFile Searching for following record in File_Attribute: "
 			"attribute %d, file %d, track %d, section %d -- found %p type %d size %d", 
@@ -1600,6 +1602,11 @@ void MediaAttributes_LowLevel::AddDiscAttributesToFile(int PK_File,int PK_Disc,i
 			pRow_File_Attribute = m_pDatabase_pluto_media->File_Attribute_get()->AddRow();
 			pRow_File_Attribute->FK_File_set(PK_File);
 			pRow_File_Attribute->FK_Attribute_set( pRow_Disc_Attribute->FK_Attribute_get() );
+			if( bIsDirectory )  // Don't set this for individual files
+			{
+				pRow_File_Attribute->Track_set( pRow_Disc_Attribute->Track_get() );
+				pRow_File_Attribute->Section_set( pRow_Disc_Attribute->Section_get() );
+			}
 			m_pDatabase_pluto_media->File_Attribute_get()->Commit();
 
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"MediaAttributes_LowLevel::AddDiscAttributesToFile adding the following record in File_Attribute: "
