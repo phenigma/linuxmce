@@ -19,6 +19,7 @@
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
+#include "PlutoUtils/DatabaseUtils.h"
 #include "DCEConfig.h"
 #include "Logger.h"
 #include "UpdateMedia.h"
