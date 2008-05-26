@@ -26,7 +26,7 @@ else
 	WHERE PK_Device in ($1)"
 fi
 
-Orbiters=$(echo "$Q;" | /usr/bin/mysql -h $MySqlHost pluto_main | tail +2 | tr '\n' ' ')
+Orbiters=$(echo "$Q;" | /usr/bin/mysql -h $MySqlHost pluto_main | tail -n +2 | tr '\n' ' ')
 
 export SDL_VIDEODEVICE=dummy
 

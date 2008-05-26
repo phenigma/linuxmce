@@ -3,7 +3,7 @@
 LogFile="/var/log/pluto/firstboot.log"
 . /usr/pluto/bin/TeeMyOutput.sh --outfile "$LogFile" --stdboth --append -- "$@"
 
-apt-get -f -y dist-upgrade
+apt-get -f -y --force-yes dist-upgrade
 
 ## Install nvidia-glx if needed
 if lshwd | grep -qi 'VGA .* (nv)'; then

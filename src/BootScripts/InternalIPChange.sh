@@ -99,8 +99,8 @@ for Orbiter in $OrbiterList; do
 done
 
 # Nofity the user that we're going to reboot the system
-Message="The system will reboot in order to perform the IP changes that you requested"
+Message="You need to reboot the system in order to perform the IP changes that you requested."
 /usr/pluto/bin/MessageSend $DCERouter 0 $OrbiterIDList 1 741 10 "UpdatesNotify" 159 53 183 0 9 "$Message" || exit 1
 
-sleep 10
-reboot
+#sleep 10
+#reboot

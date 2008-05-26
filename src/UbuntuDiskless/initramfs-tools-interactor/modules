@@ -2,3 +2,4 @@
 # NOTE: please be sure to update and rebuild linux-image-diskless too
 # NOTE: reference: ubuntu/linux-image-dummy/makepackage.sh
 sky2
+atl1
