@@ -862,6 +862,10 @@
 #define COMMAND_Game_Select_CONST 950
 #define COMMAND_Game_Option_CONST 951
 #define COMMAND_Game_Reset_CONST 952
+#define COMMAND_Aspect_Toggle_CONST	953
+#define COMMAND_Select_CONST	954
+#define COMMAND_Specify_Repeat_Options_CONST	955
+#define COMMAND_Get_Devices_To_Start_CONST	956
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"
