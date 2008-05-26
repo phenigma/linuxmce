@@ -45,10 +45,16 @@ namespace DCE
 	 */
 	class DeviceData_Impl : public DeviceData_Base
 	{
+	private:
+
+		pluto_pthread_mutex_t m_DataMutex;
 
 	public:
-		Event_Impl *m_pEvent_Impl; /**< pointer to an event implementation assicieted with the current device @todo ask */
+
+		//TODO: make me private
 		map<int, string> m_mapParameters; /**< integer-keyed map with the parameters this device has @todo ask - is string=paramvalue? */
+
+		Event_Impl *m_pEvent_Impl; /**< pointer to an event implementation assicieted with the current device @todo ask */
         string m_mapParameters_Find(int PK_DeviceData) { map<int, string>::iterator it = m_mapParameters.find(PK_DeviceData); return it==m_mapParameters.end() ? "" : (*it).second; }
 
 		VectDeviceData_Impl m_vectDeviceData_Impl_Children; /**< vector containing the child devices  */
@@ -82,11 +88,12 @@ namespace DCE
 		/**
 		 * @brief default constructor
 		 */
-		DeviceData_Impl()
+		 DeviceData_Impl() : m_DataMutex("data")
 		{
 			m_bRunningWithoutDeviceData=false;
 			m_bUsePingToKeepAlive=false;
 			m_bDeviceData_Impl = true;
+			m_DataMutex.Init(NULL);
 		}
 
 		/**
@@ -96,8 +103,9 @@ namespace DCE
 			unsigned long m_dwPK_DeviceCategory, unsigned long dwPK_Room, bool bImplementsDCE, bool bIsEmbedded, string sCommandLine, bool bIsPlugIn, string sDescription,
 			string sIPAddress, string sMacAddress, bool bInheritsMacFromPC, bool bDisabled )
 			: DeviceData_Base( dwPK_Device, dwPK_Installation, dwPK_Device_Template, dwPK_Device_Controlled_Via, m_dwPK_DeviceCategory, dwPK_Room,
-			bImplementsDCE, bIsEmbedded, sCommandLine, bIsPlugIn, sDescription, sIPAddress, sMacAddress, bInheritsMacFromPC, bDisabled )
+			bImplementsDCE, bIsEmbedded, sCommandLine, bIsPlugIn, sDescription, sIPAddress, sMacAddress, bInheritsMacFromPC, bDisabled ), m_DataMutex("data")
 		{
+			m_DataMutex.Init(NULL);
 			m_bRunningWithoutDeviceData=false;
 			m_bUsePingToKeepAlive=false;
 			m_bDeviceData_Impl = true;
@@ -116,10 +124,39 @@ namespace DCE
 		/**
 		 * @brief returnes the parameter value for the specified parameter
 		 */
-		string mapParameters_Find( int iPK_DeviceData )
+		string mapParameters_Find(int iPK_DeviceData)
 		{
+			PLUTO_SAFETY_LOCK(dm, m_DataMutex);
 			map<int,string>::iterator it = m_mapParameters.find( iPK_DeviceData );
 			return it == m_mapParameters.end() ? "" : (*it).second;
+		}
+
+		void ReplaceParameter(int iKey, string sNewValue)
+		{
+			PLUTO_SAFETY_LOCK(dm, m_DataMutex);
+			m_mapParameters[iKey] = sNewValue;
+		}
+
+		bool ParameterExists(int iKey)
+		{
+			PLUTO_SAFETY_LOCK(dm, m_DataMutex);
+			return m_mapParameters.end() != m_mapParameters.find(iKey);
+		}
+
+		void AssignParameters(const map<int, string>& mapParameters)
+		{
+			PLUTO_SAFETY_LOCK(dm, m_DataMutex);
+			m_mapParameters = mapParameters;
+		}
+
+		const map<int, string>& Parameters()
+		{
+			return m_mapParameters;
+		}
+
+		pluto_pthread_mutex_t& Mutex()
+		{
+			return m_DataMutex;
 		}
 
 

@@ -245,7 +245,7 @@ void DataLayer_JSON::ParseDevices(struct json_object *json_obj)
 
 			pDevice = new DeviceData_Router(nDeviceID, PK_DeviceTemplate, PK_Installation, PK_Device_ControlledVia);
 			pDevice->m_sDescription = sDescription;
-			pDevice->m_mapParameters = mapDeviceData;
+			pDevice->AssignParameters(mapDeviceData);
 			m_mapDeviceData_Router[pDevice->m_dwPK_Device] = pDevice;
 
 			if(m_dwPK_Device_Largest < nDeviceID)
@@ -576,12 +576,11 @@ DeviceData_Router *DataLayer_JSON::ChildMatchingDeviceData(int nPK_Device_Parent
 	{
 		DeviceData_Router *pDeviceData_Router = it->second;
 
-		if(pDeviceData_Router->m_dwPK_Device_ControlledVia == nPK_Device_Parent)
-		{
-			std::map<int, string>::iterator it_param = pDeviceData_Router->m_mapParameters.find(nFK_DeviceData);
-			if(it_param != pDeviceData_Router->m_mapParameters.end() && it_param->second == sValue)
-				return pDeviceData_Router;
-		}
+		if(
+			pDeviceData_Router->m_dwPK_Device_ControlledVia == nPK_Device_Parent && 
+			pDeviceData_Router->mapParameters_Find(nFK_DeviceData) == sValue
+		)
+			return pDeviceData_Router;
 	}
 	
 	return NULL;
@@ -622,9 +621,7 @@ void DataLayer_JSON::SetDeviceData(int nPK_Device, int nFK_DeviceData, string sV
 //----------------------------------------------------------------------------------------------
 void DataLayer_JSON::SetDeviceData(DeviceData_Router *pDeviceData_Router, int nFK_DeviceData, string sValue)
 {
-	//Add protected setter to DeviceData_Router's m_mapParameters
-
-	pDeviceData_Router->m_mapParameters[nFK_DeviceData] = sValue;
+	pDeviceData_Router->ReplaceParameter(nFK_DeviceData, sValue);
 }
 //----------------------------------------------------------------------------------------------
 void DataLayer_JSON::SaveDevicesList()
@@ -675,11 +672,15 @@ void DataLayer_JSON::SaveDevices()
 
 		//create DeviceData node
 		struct json_object *dd_obj = json_object_new_object();
-		for(std::map<int, string>::iterator it_params = pDeviceData_Router->m_mapParameters.begin();
-			it_params != pDeviceData_Router->m_mapParameters.end(); ++it_params)
+
 		{
-			string sDDNodeName = "FK_DeviceData_" + StringUtils::ltos(it_params->first);
-			json_object_object_add(dd_obj, const_cast<char *>(sDDNodeName.c_str()), json_object_new_string(const_cast<char *>(it_params->second.c_str())));
+			PLUTO_SAFETY_LOCK(dm_param, pDeviceData_Router->Mutex());
+			for(std::map<int, string>::const_iterator it_params = pDeviceData_Router->Parameters().begin();
+				it_params != pDeviceData_Router->Parameters().end(); ++it_params)
+			{
+				string sDDNodeName = "FK_DeviceData_" + StringUtils::ltos(it_params->first);
+				json_object_object_add(dd_obj, const_cast<char *>(sDDNodeName.c_str()), json_object_new_string(const_cast<char *>(it_params->second.c_str())));
+			}
 		}
 
 		//add DeviceData node

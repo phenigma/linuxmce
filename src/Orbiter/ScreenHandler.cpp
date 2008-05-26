@@ -2755,7 +2755,7 @@ bool ScreenHandler::CurrentDisc_GridRendering(CallBackData *pData)
 			char *pImage = m_pOrbiter->ReadFileIntoBuffer(sName,size);
 			if( pImage )
 			{
-				m_pOrbiter->CMD_Update_Object_Image(TOSTRING(5555) ".0.0." TOSTRING(DESIGNOBJ_objCDCover_CONST),"jpg", pImage, size, "0");
+				m_pOrbiter->CMD_Update_Object_Image(TOSTRING(5555) ".0.0." TOSTRING(DESIGNOBJ_objCDCover_CONST),"jpg", pImage, static_cast<int>(size), "0");
 				bUpdatedPic=true;
 				delete[] pImage;
 			}
