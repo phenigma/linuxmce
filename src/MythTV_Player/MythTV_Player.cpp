@@ -693,7 +693,7 @@ void MythTV_Player::CMD_PIP_Channel_Up(string &sCMD_Result,Message *pMessage)
 //<-dceag-c129-e->
 {
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
-	CMD_Move_Up(sCMD_Result, pMessage);
+	CMD_Move_Up(0,sCMD_Result, pMessage);
 }
 
 //<-dceag-c130-b->
@@ -705,7 +705,7 @@ void MythTV_Player::CMD_PIP_Channel_Down(string &sCMD_Result,Message *pMessage)
 //<-dceag-c130-e->
 {
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
-	CMD_Move_Down(sCMD_Result, pMessage);
+	CMD_Move_Down(0,sCMD_Result, pMessage);
 }
 //<-dceag-c190-b->
 
