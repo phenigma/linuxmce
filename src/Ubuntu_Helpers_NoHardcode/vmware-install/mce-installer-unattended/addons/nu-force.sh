@@ -110,7 +110,12 @@ amixer sset PCM 100% unmute
 amixer sset Front 100% unmute
 alsactl store
 
-xinit /usr/bin/TouchKit -- :0 -ac
+#xinit /usr/bin/TouchKit -- :0 -ac #Egalax
+xinit /elo/elova -u -- :0 -ac #ELO
+
+/etc/init.d/elorc start
+/etc/init.d/TWDrvStartup start
+
 ConfSet AVWizardDone 1
 "
 
