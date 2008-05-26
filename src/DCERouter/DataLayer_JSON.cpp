@@ -597,7 +597,8 @@ DeviceData_Router *DataLayer_JSON::Device(int nPK_Device)
 	return NULL;
 }
 //----------------------------------------------------------------------------------------------
-void DataLayer_JSON::ChildrenDevices(int nPK_Device_Parent, std::vector<DeviceData_Router *>& vectDevice_Children)
+void DataLayer_JSON::ChildrenDevices(int nPK_Device_Parent, std::vector<DeviceData_Router *>& vectDevice_Children,
+	bool bRecursive/* = false*/)
 {
 	PLUTO_SAFETY_LOCK(dm, m_DataMutex);
 
@@ -607,7 +608,12 @@ void DataLayer_JSON::ChildrenDevices(int nPK_Device_Parent, std::vector<DeviceDa
 		DeviceData_Router *pDeviceData_Router = it->second;
 
 		if(pDeviceData_Router->m_dwPK_Device_ControlledVia == nPK_Device_Parent)
+		{
 			vectDevice_Children.push_back(pDeviceData_Router);
+
+			if(bRecursive)
+				ChildrenDevices(pDeviceData_Router->m_dwPK_Device, vectDevice_Children, true);
+		}
 	}
 }
 //----------------------------------------------------------------------------------------------

@@ -218,7 +218,7 @@ public:
 	virtual void CMD_Abort_Task(int iParameter_ID,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Enable_Device(int iPK_Device,int iPK_Orbiter,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Get_Home_Symlink(string sPath,string *sSymlink,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Get_Devices_To_Start(string *sValue_To_Assign,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Get_Devices_To_Start(int iPK_Device,string *sValue_To_Assign,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual ReceivedMessageResult ReceivedMessage(class Message *pMessageOriginal)
@@ -1142,8 +1142,9 @@ public:
 				case COMMAND_Get_Devices_To_Start_CONST:
 					{
 						string sCMD_Result="OK";
+						int iPK_Device=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Device_CONST].c_str());
 						string sValue_To_Assign=pMessage->m_mapParameters[COMMANDPARAMETER_Value_To_Assign_CONST];
-						CMD_Get_Devices_To_Start(&sValue_To_Assign,sCMD_Result,pMessage);
+						CMD_Get_Devices_To_Start(iPK_Device,&sValue_To_Assign,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -1161,7 +1162,7 @@ public:
 						{
 							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Get_Devices_To_Start(&sValue_To_Assign,sCMD_Result,pMessage);
+								CMD_Get_Devices_To_Start(iPK_Device,&sValue_To_Assign,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

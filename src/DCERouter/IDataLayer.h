@@ -41,7 +41,7 @@ public:
 	virtual int LargestDeviceNumber() = 0;
 	virtual DeviceData_Router *ChildMatchingDeviceData(int nPK_Device_Parent, int nFK_DeviceData, string sValue) = 0;
 	virtual DeviceData_Router *Device(int nPK_Device) = 0;
-	virtual void ChildrenDevices(int nPK_Device_Parent, std::vector<DeviceData_Router *>& vectDevice_Children) = 0;
+	virtual void ChildrenDevices(int nPK_Device_Parent, std::vector<DeviceData_Router *>& vectDevice_Children, bool bRecursive = false) = 0;
 	virtual void DevicesByTemplate(int nPK_DeviceTemplate, std::list<DeviceData_Router *>& listDevices) = 0;
 
 	//operations on devices

@@ -948,19 +948,22 @@ DeviceData_Router *General_Info_Plugin::ProcessChildDevice(int nPK_Device, strin
 
 	/** @brief COMMAND: #956 - Get Devices To Start */
 	/** Get the list with devices to start. */
+		/** @param #2 PK_Device */
+			/** The parent device */
 		/** @param #5 Value To Assign */
 			/** A pipe delimited list like this: DeviceID1|CommandLine1\nDeviceID2|CommandLine2 etc */
 
-void General_Info_Plugin::CMD_Get_Devices_To_Start(string *sValue_To_Assign,string &sCMD_Result,Message *pMessage)
+void General_Info_Plugin::CMD_Get_Devices_To_Start(int iPK_Device,string *sValue_To_Assign,string &sCMD_Result,Message *pMessage)
 //<-dceag-c956-e->
 {
 	PLUTO_SAFETY_LOCK(dm, m_pRouter->DataLayer()->Mutex());
 
-	std::map<int, DeviceData_Router *>& mapDevices = m_pRouter->DataLayer()->Devices();
+	std::vector<DeviceData_Router *> vectDevices;
+	m_pRouter->DataLayer()->ChildrenDevices(iPK_Device, vectDevices, true);
 
-	for(std::map<int, DeviceData_Router *>::iterator it = mapDevices.begin(); it != mapDevices.end(); ++it)
+	for(std::vector<DeviceData_Router *>::const_iterator it = vectDevices.begin(); it != vectDevices.end(); ++it)
 	{
-		DeviceData_Router *pDeviceData_Router = it->second;
+		DeviceData_Router *pDeviceData_Router = *it;
 		*sValue_To_Assign += StringUtils::ltos(pDeviceData_Router->m_dwPK_Device) + "|" + pDeviceData_Router->m_sCommandLine + "\n";
 	}
 }
