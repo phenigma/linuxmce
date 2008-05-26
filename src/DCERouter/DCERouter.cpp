@@ -2580,9 +2580,7 @@ void Router::ErrorResponse(Socket *pSocket,Message *pMessage)
 
 void Router::ParseDevice(int MasterDeviceID, int ParentDeviceID, class DeviceData_Impl *pDevice)
 {
-//  if( pDevice->m_dwPK_DeviceCategory == DEVICETEMPLATE_Pluto_Core_CONST )
-//      m_dwPK_Device = pDevice->m_dwPK_Device;
-    if ( !pDevice->WithinCategory( DEVICECATEGORY_Computers_CONST ) && MasterDeviceID == DEVICEID_DCEROUTER )
+	if ( !pDevice->WithinCategory( DEVICECATEGORY_Computers_CONST ) && MasterDeviceID == DEVICEID_DCEROUTER )
     {
         MasterDeviceID = pDevice->m_dwPK_Device;
     }

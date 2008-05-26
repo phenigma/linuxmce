@@ -272,10 +272,6 @@ public:
              */
         string m_sForeignRouter;
 
-        /** The command line to execute for this device.
-              */
-        string m_sCommandLine;
-
         /** If set to true, the first time this device connects we will send it a reload.
         This is good for controllers which try to continually reconnect and
         may not realize the server has been restarted.
@@ -328,12 +324,15 @@ public:
         int m_iConfigSize;
 
         string m_sStatus_get() {
+			PLUTO_SAFETY_LOCK(dm, m_DataMutex);
             return m_sStatus;
         }
         string m_sState_get() {
+			PLUTO_SAFETY_LOCK(dm, m_DataMutex);
             return m_sState;
         }
         void m_sStatus_set(string sStatus) {
+			PLUTO_SAFETY_LOCK(dm, m_DataMutex);
 #ifndef EMBEDDED_LMCE
             // Do this manually since we don't want to reset the psc_mod, causing others to think something has changed for this device
             string sSQL = "UPDATE Device SET Status='" + StringUtils::SQLEscape(sStatus) + "',psc_mod=psc_mod WHERE PK_Device=" + StringUtils::itos(m_pRow_Device->PK_Device_get());
@@ -343,6 +342,7 @@ public:
             m_sStatus=sStatus;
         }
         void m_sState_set(string sState) {
+			PLUTO_SAFETY_LOCK(dm, m_DataMutex);
 #ifndef EMBEDDED_LMCE
             // Do this manually since we don't want to reset the psc_mod, causing others to think something has changed for this device
             string sSQL = "UPDATE Device SET State='" + StringUtils::SQLEscape(sState) + "',psc_mod=psc_mod WHERE PK_Device=" + StringUtils::itos(m_pRow_Device->PK_Device_get());

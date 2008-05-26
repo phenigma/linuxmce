@@ -518,7 +518,7 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 			";";
 		if( pDataInfo->m_pRow_DeviceData->PK_DeviceData_get()!=DEVICEDATA_COM_Port_on_PC_CONST )
 			fstr_DeviceCommand << endl << "\t\telse" << endl << "\t\t\treturn " << 
-			CastStringToType("m_mapParameters[" + GetDeviceDataConstStr(pDataInfo->m_pRow_DeviceData) + "]",pDataInfo->m_pRow_DeviceData->FK_ParameterType_get()) << ";";
+			CastStringToType("m_mapParameters_Find(" + GetDeviceDataConstStr(pDataInfo->m_pRow_DeviceData) + ")",pDataInfo->m_pRow_DeviceData->FK_ParameterType_get()) << ";";
 	
 		fstr_DeviceCommand << endl << "\t}" << endl << endl;
 

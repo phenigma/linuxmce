@@ -45,17 +45,14 @@ namespace DCE
 	 */
 	class DeviceData_Impl : public DeviceData_Base
 	{
-	private:
-
+	protected:
 		pluto_pthread_mutex_t m_DataMutex;
+	private:
+		map<int, string> m_mapParameters; /**< integer-keyed map with the parameters this device has @todo ask - is string=paramvalue? */
 
 	public:
 
-		//TODO: make me private
-		map<int, string> m_mapParameters; /**< integer-keyed map with the parameters this device has @todo ask - is string=paramvalue? */
-
 		Event_Impl *m_pEvent_Impl; /**< pointer to an event implementation assicieted with the current device @todo ask */
-        string m_mapParameters_Find(int PK_DeviceData) { map<int, string>::iterator it = m_mapParameters.find(PK_DeviceData); return it==m_mapParameters.end() ? "" : (*it).second; }
 
 		VectDeviceData_Impl m_vectDeviceData_Impl_Children; /**< vector containing the child devices  */
 		bool m_bUsePingToKeepAlive,m_bRunningWithoutDeviceData;
@@ -124,7 +121,7 @@ namespace DCE
 		/**
 		 * @brief returnes the parameter value for the specified parameter
 		 */
-		string mapParameters_Find(int iPK_DeviceData)
+		string m_mapParameters_Find(int iPK_DeviceData)
 		{
 			PLUTO_SAFETY_LOCK(dm, m_DataMutex);
 			map<int,string>::iterator it = m_mapParameters.find( iPK_DeviceData );
