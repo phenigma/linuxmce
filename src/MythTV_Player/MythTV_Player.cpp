@@ -1618,6 +1618,8 @@ void MythTV_Player::CMD_Set_Zoom(int iStreamID,string sZoom_Level,string &sCMD_R
 
 void MythTV_Player::CMD_Favorites(string &sCMD_Result,Message *pMessage)
 //<-dceag-c124-e->
+{
+}
 //<-dceag-c368-b->
 
 	/** @brief COMMAND: #368 - Help */
@@ -1625,6 +1627,8 @@ void MythTV_Player::CMD_Favorites(string &sCMD_Result,Message *pMessage)
 
 void MythTV_Player::CMD_Help(string &sCMD_Result,Message *pMessage)
 //<-dceag-c368-e->
+{
+}
 //<-dceag-c476-b->
 
 	/** @brief COMMAND: #476 - Day Down */
@@ -1632,6 +1636,8 @@ void MythTV_Player::CMD_Help(string &sCMD_Result,Message *pMessage)
 
 void MythTV_Player::CMD_Day_Down(string &sCMD_Result,Message *pMessage)
 //<-dceag-c476-e->
+{
+}
 //<-dceag-c477-b->
 
 	/** @brief COMMAND: #477 - Day Up */
@@ -1639,6 +1645,8 @@ void MythTV_Player::CMD_Day_Down(string &sCMD_Result,Message *pMessage)
 
 void MythTV_Player::CMD_Day_Up(string &sCMD_Result,Message *pMessage)
 //<-dceag-c477-e->
+{
+}
 //<-dceag-c528-b->
 
 	/** @brief COMMAND: #528 - Instant Replay */
@@ -1646,6 +1654,8 @@ void MythTV_Player::CMD_Day_Up(string &sCMD_Result,Message *pMessage)
 
 void MythTV_Player::CMD_Instant_Replay(string &sCMD_Result,Message *pMessage)
 //<-dceag-c528-e->
+{
+}
 //<-dceag-c535-b->
 
 	/** @brief COMMAND: #535 - Last Play */
@@ -1653,6 +1663,8 @@ void MythTV_Player::CMD_Instant_Replay(string &sCMD_Result,Message *pMessage)
 
 void MythTV_Player::CMD_Last_Play(string &sCMD_Result,Message *pMessage)
 //<-dceag-c535-e->
+{
+}
 //<-dceag-c571-b->
 
 	/** @brief COMMAND: #571 - Page Down */
@@ -1660,6 +1672,8 @@ void MythTV_Player::CMD_Last_Play(string &sCMD_Result,Message *pMessage)
 
 void MythTV_Player::CMD_Page_Down(string &sCMD_Result,Message *pMessage)
 //<-dceag-c571-e->
+{
+}
 //<-dceag-c572-b->
 
 	/** @brief COMMAND: #572 - Page Up */
@@ -1667,6 +1681,8 @@ void MythTV_Player::CMD_Page_Down(string &sCMD_Result,Message *pMessage)
 
 void MythTV_Player::CMD_Page_Up(string &sCMD_Result,Message *pMessage)
 //<-dceag-c572-e->
+{
+}
 //<-dceag-c592-b->
 
 	/** @brief COMMAND: #592 - PVR Menu */
@@ -1674,6 +1690,8 @@ void MythTV_Player::CMD_Page_Up(string &sCMD_Result,Message *pMessage)
 
 void MythTV_Player::CMD_PVR_Menu(string &sCMD_Result,Message *pMessage)
 //<-dceag-c592-e->
+{
+}
 //<-dceag-c919-b->
 
 	/** @brief COMMAND: #919 - On Demand */
@@ -1681,6 +1699,8 @@ void MythTV_Player::CMD_PVR_Menu(string &sCMD_Result,Message *pMessage)
 
 void MythTV_Player::CMD_On_Demand(string &sCMD_Result,Message *pMessage)
 //<-dceag-c919-e->
+{
+}
 //<-dceag-c920-b->
 
 	/** @brief COMMAND: #920 - Set Media ID */
@@ -1692,3 +1712,5 @@ void MythTV_Player::CMD_On_Demand(string &sCMD_Result,Message *pMessage)
 
 void MythTV_Player::CMD_Set_Media_ID(string sID,int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c920-e->
+{
+}
