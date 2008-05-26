@@ -523,3 +523,16 @@ void IRTrans::CMD_Learn_IR(int iPK_Device,string sOnOff,int iPK_Text,int iPK_Com
 //<-dceag-c245-e->
 {
 }
+//<-dceag-c837-b->
+
+	/** @brief COMMAND: #837 - Show Media Playback State */
+	/** Show the current state of the media playback */
+		/** @param #5 Value To Assign */
+			/** Empty = no media playing, otherwise a speed, 0=pause, 1000=normal forward, -4000 = 4x reverse, etc. */
+		/** @param #29 PK_MediaType */
+			/** The type of media */
+		/** @param #76 Level */
+			/** The level of the volume, from 0-100.  empty means it's not known, or "MUTE" */
+
+void IRTrans::CMD_Show_Media_Playback_State(string sValue_To_Assign,int iPK_MediaType,string sLevel,string &sCMD_Result,Message *pMessage)
+//<-dceag-c837-e->

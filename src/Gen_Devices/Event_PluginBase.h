@@ -1,18 +1,3 @@
-/*
-     Copyright (C) 2004 Pluto, Inc., a Florida Corporation
-
-     www.plutohome.com
-
-     Phone: +1 (877) 758-8648
- 
-
-     This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
-     This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-     of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-
-     See the GNU General Public License for more details.
-
-*/
 #ifndef Event_PluginBase_h
 #define Event_PluginBase_h
 #include "DeviceData_Impl.h"
@@ -114,7 +99,7 @@ public:
 		if( m_bRunningWithoutDeviceData )
 			return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_PK_City_CONST).c_str());
 		else
-			return atoi(m_mapParameters[DEVICEDATA_PK_City_CONST].c_str());
+			return atoi(m_mapParameters_Find(DEVICEDATA_PK_City_CONST).c_str());
 	}
 
 	double Get_Longitude()
@@ -122,7 +107,7 @@ public:
 		if( m_bRunningWithoutDeviceData )
 			return atof(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Longitude_CONST).c_str());
 		else
-			return atof(m_mapParameters[DEVICEDATA_Longitude_CONST].c_str());
+			return atof(m_mapParameters_Find(DEVICEDATA_Longitude_CONST).c_str());
 	}
 
 	double Get_Latitude()
@@ -130,7 +115,7 @@ public:
 		if( m_bRunningWithoutDeviceData )
 			return atof(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Latitude_CONST).c_str());
 		else
-			return atof(m_mapParameters[DEVICEDATA_Latitude_CONST].c_str());
+			return atof(m_mapParameters_Find(DEVICEDATA_Latitude_CONST).c_str());
 	}
 
 };

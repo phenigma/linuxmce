@@ -3261,7 +3261,7 @@ ExtensionStatus * Telecom_Plugin::FindExtensionStatusByDevice(int iPK_Device, in
 	}
 
 	//hardphone or embedded?
-	string sSrcPhoneNumber = pDeviceData->mapParameters_Find(DEVICEDATA_PhoneNumber_CONST);
+	string sSrcPhoneNumber = pDeviceData->m_mapParameters_Find(DEVICEDATA_PhoneNumber_CONST);
 
 	//orbiter associated with an embedded?
 	if(sSrcPhoneNumber.empty())
@@ -3272,7 +3272,7 @@ ExtensionStatus * Telecom_Plugin::FindExtensionStatusByDevice(int iPK_Device, in
 			DeviceData_Router *pDeviceData = find_Device(nEmbeddedPhoneID);
 			if(NULL != pDeviceData)
 			{
-				sSrcPhoneNumber = pDeviceData->mapParameters_Find(DEVICEDATA_PhoneNumber_CONST);
+				sSrcPhoneNumber = pDeviceData->m_mapParameters_Find(DEVICEDATA_PhoneNumber_CONST);
 
 				if(NULL != pEmbeddedPhone)
 					*pEmbeddedPhone = nEmbeddedPhoneID;

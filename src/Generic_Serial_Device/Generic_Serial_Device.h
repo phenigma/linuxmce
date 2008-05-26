@@ -28,7 +28,7 @@ Requires 2 other modules to be present:
 #ifndef Generic_Serial_Device_h
 #define Generic_Serial_Device_h
 
-//	DCE Implemenation for #69 Generic Serial Device
+//	DCE Implemenation for #1932 Insteon PLM
 
 #include "Gen_Devices/Generic_Serial_DeviceBase.h"
 //<-dceag-d-e->
@@ -103,48 +103,12 @@ public:
 
 //<-dceag-const-b->
 public:
-		/** Constructors
-        @param DeviceID is the device ident.
-        @param ServerAddress is the IP address of the server.
-        @param bConnectEventHandler is the flag to force connection.
-        @param bLocalMode is the local flag.
-        @param pRouter ia a pointer to the router instance.
-        */
+		// Constructors/Destructor
 		Generic_Serial_Device(int DeviceID, string ServerAddress,bool bConnectEventHandler=true,bool bLocalMode=false,class Router *pRouter=NULL);
-
-        /** Destructor */
 		virtual ~Generic_Serial_Device();
-
-        /** Get the config */
 		virtual bool GetConfig();
-
-        /** Register the serial device.
-        @returns false as it empty registration a present.
-        */
 		virtual bool Register();
-
-        /** ReceivedCommandForChild.
-        @param pDeviceData_Impl is a pointer to the DeviceData_Impl.
-        @param sCMD_Result is the address where the result is stored.
-        @param pMessage is a pointer to ehe message.
-
-        When you receive commands that are destined to one of your children,
-          then if that child implements DCE then there will already be a separate class
-          created for the child that will get the message.
-        If the child does not, then you will get all commands for your children
-          in ReceivedCommandForChild, where pDeviceData_Base is the child device.
-        If you handle the message, you should change the sCMD_Result to OK.
-        */
 		virtual void ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sCMD_Result,Message *pMessage);
-
-        /** ReceivedUnknownCommand.
-        @param sCMD_Result is the address where the result is stored.
-        @param pMessage is a pointer to ehe message.
-
-        When you received a valid command, but it wasn't for one of your children,
-          then ReceivedUnknownCommand gets called.
-        If you handle the message, you should change the sCMD_Result to OK.
-        */
 		virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
 //<-dceag-const-e->
 
@@ -180,12 +144,95 @@ public:
 	/*
 			*****DATA***** accessors inherited from base class
 	string DATA_Get_COM_Port_on_PC();
-	int DATA_Get_TCP_Port();
+	string DATA_Get_COM_Port_BaudRate();
+	void DATA_Set_COM_Port_BaudRate(string Value,bool bUpdateDatabase=false);
 
 			*****EVENT***** accessors inherited from base class
 
 			*****COMMANDS***** we need to implement
 	*/
+
+
+	/** @brief COMMAND: #350 - Process Incoming Data */
+	/** This Internal command is sent to Ruby interpreter when data is availabe on input. Is used only in Generic Serial Devices. */
+
+	virtual void CMD_Process_Incoming_Data() { string sCMD_Result; CMD_Process_Incoming_Data(sCMD_Result,NULL);};
+	virtual void CMD_Process_Incoming_Data(string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #351 - Process IDLE */
+	/** This Internal command is sent to Ruby interpreter when it is in IDLE state. */
+
+	virtual void CMD_Process_IDLE() { string sCMD_Result; CMD_Process_IDLE(sCMD_Result,NULL);};
+	virtual void CMD_Process_IDLE(string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #355 - Process Initialize */
+	/** This Internal command is sent to Ruby interpreter when initialize occurs. */
+
+	virtual void CMD_Process_Initialize() { string sCMD_Result; CMD_Process_Initialize(sCMD_Result,NULL);};
+	virtual void CMD_Process_Initialize(string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #356 - Process Release */
+	/** This Internal command is sent to Ruby interpreter when release occurs. */
+
+	virtual void CMD_Process_Release() { string sCMD_Result; CMD_Process_Release(sCMD_Result,NULL);};
+	virtual void CMD_Process_Release(string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #373 - Private Method Listing */
+	/** Used for ruby code mapping where user can add several private helper members. */
+
+	virtual void CMD_Private_Method_Listing() { string sCMD_Result; CMD_Private_Method_Listing(sCMD_Result,NULL);};
+	virtual void CMD_Private_Method_Listing(string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #384 - Process Receive Command For Child */
+	/** Method that will be called when command arrives for child device */
+
+	virtual void CMD_Process_Receive_Command_For_Child() { string sCMD_Result; CMD_Process_Receive_Command_For_Child(sCMD_Result,NULL);};
+	virtual void CMD_Process_Receive_Command_For_Child(string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #756 - Report Child Devices */
+	/** Report all the child sensors this has by firing an event 'Reporting Child Devices' */
+
+	virtual void CMD_Report_Child_Devices() { string sCMD_Result; CMD_Report_Child_Devices(sCMD_Result,NULL);};
+	virtual void CMD_Report_Child_Devices(string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #760 - Send Command To Child */
+	/** After reporting new child devices, there may be children we want to test, but we haven't done a quick reload router and can't send them messages directly.  This way we can send 'live' messages to children */
+		/** @param #10 ID */
+			/** The internal ID used for this device--not the Pluto device ID. */
+		/** @param #154 PK_Command */
+			/** The command to send */
+		/** @param #202 Parameters */
+			/** Parameters for the command in the format:
+PK_CommandParameter|Value|... */
+
+	virtual void CMD_Send_Command_To_Child(string sID,int iPK_Command,string sParameters) { string sCMD_Result; CMD_Send_Command_To_Child(sID.c_str(),iPK_Command,sParameters.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Send_Command_To_Child(string sID,int iPK_Command,string sParameters,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #776 - Reset */
+	/** Reset device. */
+		/** @param #51 Arguments */
+			/** Argument string
+NOEMON or CANBUS */
+
+	virtual void CMD_Reset(string sArguments) { string sCMD_Result; CMD_Reset(sArguments.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Reset(string sArguments,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #788 - StatusReport */
+	/** Test comand. Asq a report */
+		/** @param #51 Arguments */
+			/** Argument string */
+
+	virtual void CMD_StatusReport(string sArguments) { string sCMD_Result; CMD_StatusReport(sArguments.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_StatusReport(string sArguments,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

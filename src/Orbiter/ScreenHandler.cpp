@@ -2490,17 +2490,8 @@ void ScreenHandler::ProcessMediaInsertedRemovedMessage(Message *pMessage)
 		{
 			m_bDiscInserted=true;
 			m_PK_Disc=0;  // We will refresh the screen and retrieve this again in the disc screen's init routine
-			if( m_pOrbiter->m_pScreenHistory_Current && m_pOrbiter->m_pScreenHistory_Current->GetObj() && m_pOrbiter->m_pScreenHistory_Current->GetObj()->m_iBaseObjectID==5589 )
-			{
-				DCE::CMD_Refresh CMD_Refresh(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device,"*");
-				m_pOrbiter->SendCommand(CMD_Refresh);
-				
-			}
-			else
-			{
-				DCE::SCREEN_Current_Disc_Contents SCREEN_Current_Disc_Contents(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device);
-				m_pOrbiter->SendCommand(SCREEN_Current_Disc_Contents);
-			}
+			DCE::SCREEN_Current_Disc_Contents SCREEN_Current_Disc_Contents(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device);
+			m_pOrbiter->CallMaintenanceInMiliseconds( 2000, &Orbiter::SendMessageDelayed, (void *) SCREEN_Current_Disc_Contents.m_pMessage, pe_ALL, false );
 		}
 		else if( pMessage->m_dwID==EVENT_Media_Removed_CONST )
 		{

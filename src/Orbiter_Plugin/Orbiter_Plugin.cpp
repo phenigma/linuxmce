@@ -1584,7 +1584,7 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"Preparing floorplan %d devices",N
 
 		int FloorplanObjectType = 0;
 		if( pDeviceData_Router )
-			FloorplanObjectType = atoi(pDeviceData_Router->mapParameters_Find(DEVICEDATA_PK_FloorplanObjectType_CONST).c_str());
+			FloorplanObjectType = atoi(pDeviceData_Router->m_mapParameters_Find(DEVICEDATA_PK_FloorplanObjectType_CONST).c_str());
 		else if( pEntertainArea )
 		{
 			Row_EntertainArea *pRow_EntertainArea = m_pDatabase_pluto_main->EntertainArea_get()->GetRow(pEntertainArea->m_iPK_EntertainArea);
@@ -2034,9 +2034,8 @@ bool Orbiter_Plugin::OSD_OnOff( class Socket *pSocket, class Message *pMessage, 
 		return false; // This message originated with us
 
 	pOH_Orbiter->m_bDisplayOn = pMessage->m_dwID==COMMAND_Generic_On_CONST;
-	if( pOH_Orbiter->m_pDeviceData_Router->m_mapParameters.find(DEVICEDATA_Leave_Monitor_on_for_OSD_CONST)!=
-		pOH_Orbiter->m_pDeviceData_Router->m_mapParameters.end() && 
-		pOH_Orbiter->m_pDeviceData_Router->m_mapParameters[DEVICEDATA_Leave_Monitor_on_for_OSD_CONST]=="1" )
+	if( pOH_Orbiter->m_pDeviceData_Router->m_mapParameters_Find(DEVICEDATA_Leave_Monitor_on_for_OSD_CONST)!="" && 
+		pOH_Orbiter->m_pDeviceData_Router->m_mapParameters_Find(DEVICEDATA_Leave_Monitor_on_for_OSD_CONST)=="1" )
 	{
 		OverrideAVPipe(pOH_Orbiter->m_pDeviceData_Router,pOH_Orbiter->m_bDisplayOn);
 	}

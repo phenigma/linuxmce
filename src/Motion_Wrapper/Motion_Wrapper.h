@@ -74,6 +74,8 @@ public:
 	int DATA_Get_Number_of_ports();
 	int DATA_Get_Video_Standard();
 	int DATA_Get_Video_Input_Type();
+	string DATA_Get_Extra_Parameters();
+	string DATA_Get_Motion_Parameters();
 
 			*****EVENT***** accessors inherited from base class
 

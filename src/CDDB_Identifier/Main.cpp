@@ -94,7 +94,7 @@ extern "C" {
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		CDDB_Identifier *pCDDB_Identifier = new CDDB_Identifier(PK_Device, "localhost",true,false,pRouter);
-		if( pCDDB_Identifier->m_bQuit_get() || !pCDDB_Identifier->GetConfig() )
+		if( pCDDB_Identifier->m_bQuit_get()|| !pCDDB_Identifier->GetConfig() )
 		{
 			delete pCDDB_Identifier;
 			return NULL;
@@ -195,7 +195,7 @@ int main(int argc, char* argv[])
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Device: %d starting.  Connecting to: %s",PK_Device,sRouter_IP.c_str());
 
-	bool bAppError = false;
+	bool bAppError=false;
 	bool bReload=false;
 	try
 	{
@@ -210,7 +210,10 @@ int main(int argc, char* argv[])
 			if( bLocalMode )
 				pCDDB_Identifier->RunLocalMode();
 			else
-				pthread_join(pCDDB_Identifier->m_RequestHandlerThread, NULL);  // This function will return when the device is shutting down
+			{
+				if(pCDDB_Identifier->m_RequestHandlerThread)
+					pthread_join(pCDDB_Identifier->m_RequestHandlerThread, NULL);  // This function will return when the device is shutting down
+			}
 			g_pDeadlockHandler=NULL;
 			g_pSocketCrashHandler=NULL;
 		} 
@@ -245,7 +248,7 @@ int main(int argc, char* argv[])
     WSACleanup();
 #endif
 
-	if(bAppError)
+	if( bAppError )
 		return 1;
 
 	if( bReload )

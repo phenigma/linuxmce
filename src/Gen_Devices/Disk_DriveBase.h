@@ -103,7 +103,7 @@ public:
 		if( m_bRunningWithoutDeviceData )
 			return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Drive_CONST);
 		else
-			return m_mapParameters[DEVICEDATA_Drive_CONST];
+			return m_mapParameters_Find(DEVICEDATA_Drive_CONST);
 	}
 
 	void Set_Drive(string Value)
@@ -115,7 +115,7 @@ public:
 		if( m_bRunningWithoutDeviceData )
 			return (m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Autoassign_to_parents_room_CONST)=="1" ? true : false);
 		else
-			return (m_mapParameters[DEVICEDATA_Autoassign_to_parents_room_CONST]=="1" ? true : false);
+			return (m_mapParameters_Find(DEVICEDATA_Autoassign_to_parents_room_CONST)=="1" ? true : false);
 	}
 
 	bool Get_PNP_Create_Without_Prompting()
@@ -123,7 +123,7 @@ public:
 		if( m_bRunningWithoutDeviceData )
 			return (m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_PNP_Create_Without_Prompting_CONST)=="1" ? true : false);
 		else
-			return (m_mapParameters[DEVICEDATA_PNP_Create_Without_Prompting_CONST]=="1" ? true : false);
+			return (m_mapParameters_Find(DEVICEDATA_PNP_Create_Without_Prompting_CONST)=="1" ? true : false);
 	}
 
 	bool Get_Immediate_Reload_Isnt_Necessar()
@@ -131,7 +131,7 @@ public:
 		if( m_bRunningWithoutDeviceData )
 			return (m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Immediate_Reload_Isnt_Necessar_CONST)=="1" ? true : false);
 		else
-			return (m_mapParameters[DEVICEDATA_Immediate_Reload_Isnt_Necessar_CONST]=="1" ? true : false);
+			return (m_mapParameters_Find(DEVICEDATA_Immediate_Reload_Isnt_Necessar_CONST)=="1" ? true : false);
 	}
 
 	bool Get_Send_Events()
@@ -139,7 +139,7 @@ public:
 		if( m_bRunningWithoutDeviceData )
 			return (m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Send_Events_CONST)=="1" ? true : false);
 		else
-			return (m_mapParameters[DEVICEDATA_Send_Events_CONST]=="1" ? true : false);
+			return (m_mapParameters_Find(DEVICEDATA_Send_Events_CONST)=="1" ? true : false);
 	}
 
 	bool Get_Auto_Play()
@@ -147,7 +147,7 @@ public:
 		if( m_bRunningWithoutDeviceData )
 			return (m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Auto_Play_CONST)=="1" ? true : false);
 		else
-			return (m_mapParameters[DEVICEDATA_Auto_Play_CONST]=="1" ? true : false);
+			return (m_mapParameters_Find(DEVICEDATA_Auto_Play_CONST)=="1" ? true : false);
 	}
 
 	bool Get_Fire_Startup_Event()
@@ -155,7 +155,7 @@ public:
 		if( m_bRunningWithoutDeviceData )
 			return (m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Fire_Startup_Event_CONST)=="1" ? true : false);
 		else
-			return (m_mapParameters[DEVICEDATA_Fire_Startup_Event_CONST]=="1" ? true : false);
+			return (m_mapParameters_Find(DEVICEDATA_Fire_Startup_Event_CONST)=="1" ? true : false);
 	}
 
 };

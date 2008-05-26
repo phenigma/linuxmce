@@ -2,17 +2,18 @@
 GENDEV=../Gen_Devices
 
 SNR_CPPFLAGS ?= <-mkr_t_compile_defines->
+SNR_LDFLAGS ?= <-mkr_t_compile_libs->
 
 ROOT = ..
 CXX = g++
 CXXFLAGS = -Wall -fPIC -ggdb3
 CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE $(SNR_CPPFLAGS)
-LDFLAGS = -L$(ROOT)/lib
+LDFLAGS = $(SNR_LDFLAGS) -L$(ROOT)/lib
 BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lpthread
 
 MYNAME = Generic_Serial_Device
 VERSION = 2.0.0
-MYDEVTEMPLATEID = 69mplateID
+MYDEVTEMPLATEID = 1932mplateID
 
 Gen_Dev_Files = $(GENDEV)/Generic_Serial_DeviceBase.cpp
 sources = Main.cpp Generic_Serial_Device.cpp $(Gen_Dev_Files)

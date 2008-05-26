@@ -1006,3 +1006,12 @@ void OrbiterLinux::ConfirmPcDesktop()
 #endif
 }
 
+void OrbiterLinux::SetMonitorPowerState(bool bOn)
+{
+    LoggerWrapper::GetInstance()->Write(LV_STATUS, "OrbiterLinux::SetMonitorPowerState %d", (int) bOn);
+	if( bOn )
+		system("/usr/bin/X11/xset -display :0 dpms force on");
+	else
+		system("/usr/bin/X11/xset -display :0 dpms force off");
+}
+

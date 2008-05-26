@@ -2827,7 +2827,7 @@ void Router::Configure()
         for(size_t s2=0;s2<vectDeviceParms.size();++s2)
         {
             Row_Device_DeviceData *pRow_DeviceParm = vectDeviceParms[s2];
-            pDevice->m_mapParameters[ pRow_DeviceParm->FK_DeviceData_get()] = pRow_DeviceParm->IK_DeviceData_get();
+            pDevice->ReplaceParameter( pRow_DeviceParm->FK_DeviceData_get(), pRow_DeviceParm->IK_DeviceData_get() );
         }
 
 		// Fill in any missing data, and fix default values.  First for DeviceTemplate
@@ -2836,7 +2836,7 @@ void Router::Configure()
 		for(size_t s=0;s<vectRow_DeviceTemplate_DeviceData.size();++s)
 		{
 			Row_DeviceTemplate_DeviceData *pRow_DeviceTemplate_DeviceData = vectRow_DeviceTemplate_DeviceData[s];
-			if( pDevice->m_mapParameters.find( pRow_DeviceTemplate_DeviceData->FK_DeviceData_get() )==pDevice->m_mapParameters.end() )
+			if( pDevice->ParameterExists( pRow_DeviceTemplate_DeviceData->FK_DeviceData_get() )==false )
 			{
 				// This isn't in the database.  Add it.  It must be new
 				Row_Device_DeviceData *pRow_Device_DeviceData = m_pDatabase_pluto_main->Device_DeviceData_get()->AddRow();
@@ -2844,17 +2844,17 @@ void Router::Configure()
 				pRow_Device_DeviceData->FK_DeviceData_set( pRow_DeviceTemplate_DeviceData->FK_DeviceData_get() );
 				pRow_Device_DeviceData->IK_DeviceData_set( pRow_DeviceTemplate_DeviceData->IK_DeviceData_get() );
 				pRow_Device_DeviceData->Table_Device_DeviceData_get()->Commit();
-				pDevice->m_mapParameters[pRow_DeviceTemplate_DeviceData->FK_DeviceData_get()] = pRow_DeviceTemplate_DeviceData->IK_DeviceData_get();
+				pDevice->ReplaceParameter(pRow_DeviceTemplate_DeviceData->FK_DeviceData_get(), pRow_DeviceTemplate_DeviceData->IK_DeviceData_get());
 			}
 			else if( pRow_DeviceTemplate_DeviceData->UseDeviceTemplateDefault_get()==1 && 
-				pRow_DeviceTemplate_DeviceData->IK_DeviceData_get()!=pDevice->m_mapParameters[pRow_DeviceTemplate_DeviceData->FK_DeviceData_get()] )
+				pRow_DeviceTemplate_DeviceData->IK_DeviceData_get()!=pDevice->m_mapParameters_Find(pRow_DeviceTemplate_DeviceData->FK_DeviceData_get()) )
 			{
 	            Row_Device_DeviceData *pRow_Device_DeviceData = 
 					m_pDatabase_pluto_main->Device_DeviceData_get()->GetRow(pRow_Device->PK_Device_get(),
 					pRow_DeviceTemplate_DeviceData->FK_DeviceData_get());
 				pRow_Device_DeviceData->IK_DeviceData_set( pRow_DeviceTemplate_DeviceData->IK_DeviceData_get() );
 				pRow_Device_DeviceData->Table_Device_DeviceData_get()->Commit();
-				pDevice->m_mapParameters[pRow_DeviceTemplate_DeviceData->FK_DeviceData_get()] = pRow_DeviceTemplate_DeviceData->IK_DeviceData_get();
+				pDevice->ReplaceParameter(pRow_DeviceTemplate_DeviceData->FK_DeviceData_get(), pRow_DeviceTemplate_DeviceData->IK_DeviceData_get());
 			}
 		}
 
@@ -2867,7 +2867,7 @@ void Router::Configure()
 			for(size_t s=0;s<vectRow_DeviceCategory_DeviceData.size();++s)
 			{
 				Row_DeviceCategory_DeviceData *pRow_DeviceCategory_DeviceData = vectRow_DeviceCategory_DeviceData[s];
-				if( pDevice->m_mapParameters.find( pRow_DeviceCategory_DeviceData->FK_DeviceData_get() )==pDevice->m_mapParameters.end() )
+				if( pDevice->ParameterExists( pRow_DeviceCategory_DeviceData->FK_DeviceData_get() )==false )
 				{
 					// This isn't in the database.  Add it.  It must be new
 					Row_Device_DeviceData *pRow_Device_DeviceData = m_pDatabase_pluto_main->Device_DeviceData_get()->AddRow();
@@ -2875,17 +2875,17 @@ void Router::Configure()
 					pRow_Device_DeviceData->FK_DeviceData_set( pRow_DeviceCategory_DeviceData->FK_DeviceData_get() );
 					pRow_Device_DeviceData->IK_DeviceData_set( pRow_DeviceCategory_DeviceData->IK_DeviceData_get() );
 					pRow_Device_DeviceData->Table_Device_DeviceData_get()->Commit();
-					pDevice->m_mapParameters[pRow_DeviceCategory_DeviceData->FK_DeviceData_get()] = pRow_DeviceCategory_DeviceData->IK_DeviceData_get();
+					pDevice->ReplaceParameter(pRow_DeviceCategory_DeviceData->FK_DeviceData_get(), pRow_DeviceCategory_DeviceData->IK_DeviceData_get());
 				}
 				else if( pRow_DeviceCategory_DeviceData->UseDeviceCategoryDefault_get()==1 && 
-					pRow_DeviceCategory_DeviceData->IK_DeviceData_get()!=pDevice->m_mapParameters[pRow_DeviceCategory_DeviceData->FK_DeviceData_get()] )
+					pRow_DeviceCategory_DeviceData->IK_DeviceData_get()!=pDevice->m_mapParameters_Find(pRow_DeviceCategory_DeviceData->FK_DeviceData_get()) )
 				{
 					Row_Device_DeviceData *pRow_Device_DeviceData = 
 						m_pDatabase_pluto_main->Device_DeviceData_get()->GetRow(pRow_Device->PK_Device_get(),
 						pRow_DeviceCategory_DeviceData->FK_DeviceData_get());
 					pRow_Device_DeviceData->IK_DeviceData_set( pRow_DeviceCategory_DeviceData->IK_DeviceData_get() );
 					pRow_Device_DeviceData->Table_Device_DeviceData_get()->Commit();
-					pDevice->m_mapParameters[pRow_DeviceCategory_DeviceData->FK_DeviceData_get()] = pRow_DeviceCategory_DeviceData->IK_DeviceData_get();
+					pDevice->ReplaceParameter(pRow_DeviceCategory_DeviceData->FK_DeviceData_get(), pRow_DeviceCategory_DeviceData->IK_DeviceData_get());
 				}
 			}
 			pRow_DeviceCategory=pRow_DeviceCategory->FK_DeviceCategory_Parent_getrow();

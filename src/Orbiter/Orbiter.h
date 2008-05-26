@@ -301,6 +301,8 @@ namespace DCE
 
 		virtual void HideWindow(string sWindowName) {}
 
+		virtual void SetMonitorPowerState(bool bOn) {}  // Turn the monitor on or off
+
 		pluto_pthread_mutex_t m_MaintThreadMutex;  // This will also protect the callback map
 		pluto_pthread_mutex_t m_ScreenMutex; /** < Anything that should not be done during a screen render, change, etc. Blocking this will prevent screen changes */
 		pluto_pthread_mutex_t m_VariableMutex; /** < Short mutex to protect members like strings and maps */
@@ -506,6 +508,8 @@ namespace DCE
 		void RemoveShortcuts( void *iData );
 
 		void RedrawObject( void *iData );
+
+		void SendMessageDelayed( void *iData );  // Pass in a message to have it sent at a later time
 
 		// Reselect the given object, used for repeating buttons
 		void ReselectObject( void *data );

@@ -68,11 +68,11 @@ public:
 			*****DATA***** accessors inherited from base class
 	string DATA_Get_Alsa_Output_Device();
 	string DATA_Get_Subtitles();
-	void DATA_Set_Subtitles(string Value);
+	void DATA_Set_Subtitles(string Value,bool bUpdateDatabase=false);
 	string DATA_Get_Audio_Tracks();
-	void DATA_Set_Audio_Tracks(string Value);
+	void DATA_Set_Audio_Tracks(string Value,bool bUpdateDatabase=false);
 	string DATA_Get_Angles();
-	void DATA_Set_Angles(string Value);
+	void DATA_Set_Angles(string Value,bool bUpdateDatabase=false);
 	int DATA_Get_Time_Code_Report_Frequency();
 	string DATA_Get_Name();
 	string DATA_Get_Hardware_acceleration();
@@ -557,6 +557,7 @@ public:
 
 	virtual void CMD_Set_Media_ID(string sID,int iStreamID) { string sCMD_Result; CMD_Set_Media_ID(sID.c_str(),iStreamID,sCMD_Result,NULL);};
 	virtual void CMD_Set_Media_ID(string sID,int iStreamID,string &sCMD_Result,Message *pMessage);
+
 
 //<-dceag-h-e->
 	void ReportTimecodeViaIP(int iStreamID, int Speed);

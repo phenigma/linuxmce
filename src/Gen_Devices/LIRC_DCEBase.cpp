@@ -1,18 +1,3 @@
-/*
-     Copyright (C) 2004 Pluto, Inc., a Florida Corporation
-
-     www.plutohome.com
-
-     Phone: +1 (877) 758-8648
- 
-
-     This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
-     This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-     of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-
-     See the GNU General Public License for more details.
-
-*/
 #include "LIRC_DCEBase.h"
 #include "DeviceData_Impl.h"
 #include "Logger.h"
@@ -29,7 +14,7 @@ DeviceData_Impl *LIRC_DCE_Data::CreateData(DeviceData_Impl *Parent,char *pDataBl
 	int iPK_Installation = b.Read_unsigned_long();
 	int iPK_DeviceTemplate = b.Read_unsigned_long();
 	switch(iPK_DeviceTemplate) {
-		case 77:
+		case 1862:
 			return new LIRC_DCE_Data();
 	};
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Got CreateData for unknown type %d.", iPK_DeviceTemplate);
@@ -39,7 +24,7 @@ DeviceData_Impl *LIRC_DCE_Data::CreateData(DeviceData_Impl *Parent,char *pDataBl
 Event_Impl *LIRC_DCE_Event::CreateEvent( unsigned long dwPK_DeviceTemplate, ClientSocket *pOCClientSocket, unsigned long dwDevice )
 {
 	switch(dwPK_DeviceTemplate) {
-		case 77:
+		case 1862:
 			return (Event_Impl *) new LIRC_DCE_Event(pOCClientSocket, dwDevice);
 	};
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Got CreateEvent for unknown type %d.", dwPK_DeviceTemplate);

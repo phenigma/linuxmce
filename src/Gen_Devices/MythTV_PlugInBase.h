@@ -100,7 +100,7 @@ public:
 		if( m_bRunningWithoutDeviceData )
 			return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_PK_Device_CONST);
 		else
-			return m_mapParameters[DEVICEDATA_PK_Device_CONST];
+			return m_mapParameters_Find(DEVICEDATA_PK_Device_CONST);
 	}
 
 	int Get_Priority()
@@ -108,7 +108,15 @@ public:
 		if( m_bRunningWithoutDeviceData )
 			return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Priority_CONST).c_str());
 		else
-			return atoi(m_mapParameters[DEVICEDATA_Priority_CONST].c_str());
+			return atoi(m_mapParameters_Find(DEVICEDATA_Priority_CONST).c_str());
+	}
+
+	bool Get_Only_One_Per_PC()
+	{
+		if( m_bRunningWithoutDeviceData )
+			return (m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Only_One_Per_PC_CONST)=="1" ? true : false);
+		else
+			return (m_mapParameters_Find(DEVICEDATA_Only_One_Per_PC_CONST)=="1" ? true : false);
 	}
 
 	bool Get_Dont_Auto_Configure()
@@ -116,7 +124,7 @@ public:
 		if( m_bRunningWithoutDeviceData )
 			return (m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Dont_Auto_Configure_CONST)=="1" ? true : false);
 		else
-			return (m_mapParameters[DEVICEDATA_Dont_Auto_Configure_CONST]=="1" ? true : false);
+			return (m_mapParameters_Find(DEVICEDATA_Dont_Auto_Configure_CONST)=="1" ? true : false);
 	}
 
 };
@@ -225,12 +233,13 @@ public:
 	//Data accessors
 	string DATA_Get_PK_Device() { return GetData()->Get_PK_Device(); }
 	int DATA_Get_Priority() { return GetData()->Get_Priority(); }
+	bool DATA_Get_Only_One_Per_PC() { return GetData()->Get_Only_One_Per_PC(); }
 	bool DATA_Get_Dont_Auto_Configure() { return GetData()->Get_Dont_Auto_Configure(); }
 	//Event accessors
 	void EVENT_Error_Occured(string sError_Message) { GetEvents()->Error_Occured(sError_Message.c_str()); }
 	void EVENT_PVR_Rec_Sched_Conflict() { GetEvents()->PVR_Rec_Sched_Conflict(); }
 	//Commands - Override these to handle commands from the server
-	virtual void CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Jump_Position_In_Playlist(string sValue_To_Assign,int iStreamID,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Schedule_Recording(string sType,string sOptions,string sProgramID,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Get_Extended_Media_Data(string sPK_DesignObj,string sProgramID,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Active_Menu(string sText,string &sCMD_Result,class Message *pMessage) {};
@@ -275,7 +284,8 @@ public:
 					{
 						string sCMD_Result="OK";
 						string sValue_To_Assign=pMessage->m_mapParameters[COMMANDPARAMETER_Value_To_Assign_CONST];
-						CMD_Jump_Position_In_Playlist(sValue_To_Assign.c_str(),sCMD_Result,pMessage);
+						int iStreamID=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_StreamID_CONST].c_str());
+						CMD_Jump_Position_In_Playlist(sValue_To_Assign.c_str(),iStreamID,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -292,7 +302,7 @@ public:
 						{
 							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Jump_Position_In_Playlist(sValue_To_Assign.c_str(),sCMD_Result,pMessage);
+								CMD_Jump_Position_In_Playlist(sValue_To_Assign.c_str(),iStreamID,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

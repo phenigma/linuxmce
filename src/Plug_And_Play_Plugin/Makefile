@@ -2,22 +2,14 @@
 GENDEV=../Gen_Devices
 
 SNR_CPPFLAGS ?= <-mkr_t_compile_defines->
+SNR_LDFLAGS ?= <-mkr_t_compile_libs->
 
 ROOT = ..
 CXX = g++
 CXXFLAGS = -Wall -fPIC -ggdb3
 CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE $(SNR_CPPFLAGS)
-LDFLAGS = -L$(ROOT)/lib
+LDFLAGS = $(SNR_LDFLAGS) -L$(ROOT)/lib
 BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lpthread
-
-#<-mkr_B_use_mysql_wrapper_b->
-CPPFLAGS += -I/usr/include/mysql
-LDFLAGS += -lmysqlclient_r
-#<-mkr_B_use_mysql_wrapper_e->
-
-#<-mkr_b_use_mysql_wrapper_b->
-CPPFLAGS += -DUSE_MYSQL_WRAPPER
-#<-mkr_b_use_mysql_wrapper_e->
 
 MYNAME = Plug_And_Play_Plugin
 VERSION = 2.0.0

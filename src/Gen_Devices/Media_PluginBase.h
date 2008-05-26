@@ -117,7 +117,7 @@ public:
 		if( m_bRunningWithoutDeviceData )
 			return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Type_CONST);
 		else
-			return m_mapParameters[DEVICEDATA_Type_CONST];
+			return m_mapParameters_Find(DEVICEDATA_Type_CONST);
 	}
 
 	string Get_Default_Repeat()
@@ -125,7 +125,7 @@ public:
 		if( m_bRunningWithoutDeviceData )
 			return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Default_Repeat_CONST);
 		else
-			return m_mapParameters[DEVICEDATA_Default_Repeat_CONST];
+			return m_mapParameters_Find(DEVICEDATA_Default_Repeat_CONST);
 	}
 
 	void Set_Default_Repeat(string Value)

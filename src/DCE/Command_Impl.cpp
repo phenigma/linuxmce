@@ -753,7 +753,7 @@ ReceivedMessageResult Command_Impl::ReceivedMessage( Message *pMessage )
 		{
 			RequestingParameter(pMessage->m_dwID);
 
-			string sValue = m_pData->mapParameters_Find(pMessage->m_dwID);
+			string sValue = m_pData->m_mapParameters_Find(pMessage->m_dwID);
 			SendMessage(new Message(m_dwPK_Device, pMessage->m_dwPK_Device_From, PRIORITY_NORMAL, MESSAGETYPE_REPLY, 0, 1, pMessage->m_dwID, sValue.c_str()));
 		}
 
@@ -777,8 +777,8 @@ ReceivedMessageResult Command_Impl::ReceivedMessage( Message *pMessage )
 		p = pMessage->m_mapParameters.begin();
 		if ( p != pMessage->m_mapParameters.end() )
 		{
-			string ValueOld = m_pData->m_mapParameters[(*p).first];
-			m_pData->m_mapParameters[(*p).first] = (*p).second;
+			string ValueOld = m_pData->m_mapParameters_Find((*p).first);
+			m_pData->ReplaceParameter((*p).first,(*p).second);
 #ifdef DEBUG
 			LoggerWrapper::GetInstance()->Write( LV_STATUS, "Updating data parm %d with %s (Device %d).", (*p).first, (*p).second.c_str(), m_dwPK_Device );
 #endif

@@ -187,10 +187,12 @@ void App_Server::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage)
 	/** Send a keypress event to an application */
 		/** @param #26 PK_Button */
 			/** What key to simulate being pressed.  If 2 numbers are specified, separated by a comma, the second will be used if the Shift key is specified. */
+		/** @param #41 StreamID */
+			/** ID of stream to apply */
 		/** @param #50 Name */
 			/** The application to send the keypress to. If not specified, it goes to the DCE device. */
 
-void App_Server::CMD_Simulate_Keypress(string sPK_Button,string sName,string &sCMD_Result,Message *pMessage)
+void App_Server::CMD_Simulate_Keypress(string sPK_Button,int iStreamID,string sName,string &sCMD_Result,Message *pMessage)
 //<-dceag-c28-e->
 {
     cout << "Need to implement command #28 - Simulate Keypress" << endl;
@@ -397,8 +399,10 @@ void App_Server::SendMessageList(string messageList)
 			/** The device to halt */
 		/** @param #21 Force */
 			/** If Force is not specified this will do a suspend if the device supports suspend/resume, otherwise it will do a halt.  Force:  "H"=halt, "S"=suspend, "D"=Display off, "R"=reboot, "N"=net boot, "V"=hard drive boot */
+		/** @param #47 Mac address */
+			/** If PK_Device is not specified (is 0), we'll use the mac address to determine the device id */
 
-void App_Server::CMD_Halt_Device(int iPK_Device,string sForce,string &sCMD_Result,Message *pMessage)
+void App_Server::CMD_Halt_Device(int iPK_Device,string sForce,string sMac_address,string &sCMD_Result,Message *pMessage)
 //<-dceag-c323-e->
 {
 	if( sForce=="" )

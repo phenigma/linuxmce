@@ -82,7 +82,7 @@ private:
 		/** @param #254 Bypass Event */
 			/** Will be passed in MH Play Media command */
 		/** @param #276 Dont Setup AV */
-			/** Will be passed in MH Play Media command */
+			/** Dont Setup AV */
 
 	virtual void CMD_Send_Audio_To_Device(string sText,string sList_PK_Device,bool bBypass_Event,bool bDont_Setup_AV) { string sCMD_Result; CMD_Send_Audio_To_Device(sText.c_str(),sList_PK_Device.c_str(),bBypass_Event,bDont_Setup_AV,sCMD_Result,NULL);};
 	virtual void CMD_Send_Audio_To_Device(string sText,string sList_PK_Device,bool bBypass_Event,bool bDont_Setup_AV,string &sCMD_Result,Message *pMessage);

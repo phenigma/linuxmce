@@ -146,7 +146,7 @@ char *Text_To_Speech::CreateWAV(string sText,int &Size)
 		/** @param #254 Bypass Event */
 			/** Will be passed in MH Play Media command */
 		/** @param #276 Dont Setup AV */
-			/** Will be passed in MH Play Media command */
+			/** Dont Setup AV */
 
 void Text_To_Speech::CMD_Send_Audio_To_Device(string sText,string sList_PK_Device,bool bBypass_Event,bool bDont_Setup_AV,string &sCMD_Result,Message *pMessage)
 //<-dceag-c253-e->

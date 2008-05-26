@@ -7,16 +7,16 @@ SNR_LDFLAGS ?= <-mkr_t_compile_libs->
 ROOT = ..
 CXX = g++
 CXXFLAGS = -Wall -fPIC -ggdb3
-CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql $(SNR_CPPFLAGS)
+CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE $(SNR_CPPFLAGS)
 LDFLAGS = $(SNR_LDFLAGS) -L$(ROOT)/lib
-BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lmysqlclient_r -lpthread
+BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lpthread
 
 MYNAME = MPlayer_Player
 VERSION = 2.0.0
 MYDEVTEMPLATEID = 1901mplateID
 
 Gen_Dev_Files = $(GENDEV)/MPlayer_PlayerBase.cpp
-sources = Main.cpp MPlayer_Player.cpp MPlayerEngine.cpp Log.cpp XineMediaInfo.cpp $(Gen_Dev_Files)
+sources = Main.cpp MPlayer_Player.cpp $(Gen_Dev_Files)
 #<-dceag-mh-e->
 
 CXXFLAGS +=

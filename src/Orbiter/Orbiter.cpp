@@ -910,6 +910,12 @@ void Orbiter::RedrawObject( void *iData )
 	CallMaintenanceInMiliseconds(pObj->m_iRegenInterval,&Orbiter::RedrawObject,pObj,pe_Match_Data);
 }
 //-----------------------------------------------------------------------------------------------------------
+void Orbiter::SendMessageDelayed( void *iData )
+{
+	Message *pMessage = (Message *) iData;
+	SendMessage(pMessage);
+}
+//-----------------------------------------------------------------------------------------------------------
 void Orbiter::RealRedraw( void *data )
 {
 g_PlutoProfiler->ClearResults();
@@ -4972,6 +4978,9 @@ void Orbiter::CMD_Display_OnOff(string sOnOff,bool bAlready_processed,string &sC
 //<-dceag-c3-e->
 {
 	m_bDisplayOn = sOnOff=="1";
+	if( m_sSkin == AUDIO_STATION_SKIN )
+		SetMonitorPowerState(m_bDisplayOn);
+
 #ifdef DEBUG
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Orbiter::CMD_Display_OnOff Setting monitor display on/off: %s %d m_bDisplayOn: %d",sOnOff.c_str(),(int) bAlready_processed,(int) m_bDisplayOn);
 #endif

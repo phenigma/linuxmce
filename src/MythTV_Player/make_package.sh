@@ -24,7 +24,7 @@ GetMySQLResult()
 	local Q
 
 	Q="$*"
-	echo "$Q;" | mysql pluto_main | tail -n +2
+	echo "$Q;" | mysql pluto_main | tail +2
 	return "$?"
 }
 

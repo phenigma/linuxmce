@@ -159,7 +159,7 @@ public:
 		if( m_bRunningWithoutDeviceData )
 			return (m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Manual_configuration_CONST)=="1" ? true : false);
 		else
-			return (m_mapParameters[DEVICEDATA_Manual_configuration_CONST]=="1" ? true : false);
+			return (m_mapParameters_Find(DEVICEDATA_Manual_configuration_CONST)=="1" ? true : false);
 	}
 
 	string Get_Server_IP()
@@ -167,7 +167,7 @@ public:
 		if( m_bRunningWithoutDeviceData )
 			return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Server_IP_CONST);
 		else
-			return m_mapParameters[DEVICEDATA_Server_IP_CONST];
+			return m_mapParameters_Find(DEVICEDATA_Server_IP_CONST);
 	}
 
 };

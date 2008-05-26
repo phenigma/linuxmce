@@ -126,7 +126,7 @@ extern "C" {
 long g_dwTelegramDelay	= 10;
 
 //<-dceag-main-b->
-int main(int argc, char* argv[])
+int main(int argc, char* argv[]) 
 {
 	g_sBinary = FileUtils::FilenameWithoutPath(argv[0]);
 	g_sBinaryPath = FileUtils::BasePath(argv[0]);
@@ -210,12 +210,12 @@ int main(int argc, char* argv[])
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Device: %d starting.  Connecting to: %s",PK_Device,sRouter_IP.c_str());
 
-	bool bAppError = false;
+	bool bAppError=false;
 	bool bReload=false;
 	try
 	{
 		EIB *pEIB = new EIB(PK_Device, sRouter_IP,true,bLocalMode);
-		if ( pEIB->GetConfig() && pEIB->Connect(pEIB->PK_DeviceTemplate_get()) )
+		if ( pEIB->GetConfig() && pEIB->Connect(pEIB->PK_DeviceTemplate_get()) ) 
 		{
 			g_pCommand_Impl=pEIB;
 			g_pDeadlockHandler=DeadlockHandler;
@@ -225,11 +225,14 @@ int main(int argc, char* argv[])
 			if( bLocalMode )
 				pEIB->RunLocalMode();
 			else
-				pthread_join(pEIB->m_RequestHandlerThread, NULL);  // This function will return when the device is shutting down
+			{
+				if(pEIB->m_RequestHandlerThread)
+					pthread_join(pEIB->m_RequestHandlerThread, NULL);  // This function will return when the device is shutting down
+			}
 			g_pDeadlockHandler=NULL;
 			g_pSocketCrashHandler=NULL;
-		}
-		else
+		} 
+		else 
 		{
 			bAppError = true;
 			if( pEIB->m_pEvent && pEIB->m_pEvent->m_pClientSocket && pEIB->m_pEvent->m_pClientSocket->m_eLastError==ClientSocket::cs_err_CannotConnect )
@@ -260,7 +263,7 @@ int main(int argc, char* argv[])
     WSACleanup();
 #endif
 
-	if(bAppError)
+	if( bAppError )
 		return 1;
 
 	if( bReload )

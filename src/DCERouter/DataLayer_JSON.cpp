@@ -578,7 +578,7 @@ DeviceData_Router *DataLayer_JSON::ChildMatchingDeviceData(int nPK_Device_Parent
 
 		if(
 			pDeviceData_Router->m_dwPK_Device_ControlledVia == nPK_Device_Parent && 
-			pDeviceData_Router->mapParameters_Find(nFK_DeviceData) == sValue
+			pDeviceData_Router->m_mapParameters_Find(nFK_DeviceData) == sValue
 		)
 			return pDeviceData_Router;
 	}

@@ -85,7 +85,7 @@ public:
 		if( m_bRunningWithoutDeviceData )
 			return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_BranchNo_CONST);
 		else
-			return m_mapParameters[DEVICEDATA_BranchNo_CONST];
+			return m_mapParameters_Find(DEVICEDATA_BranchNo_CONST);
 	}
 
 };

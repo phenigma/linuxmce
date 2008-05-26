@@ -1,18 +1,3 @@
-/*
-     Copyright (C) 2004 Pluto, Inc., a Florida Corporation
-
-     www.plutohome.com
-
-     Phone: +1 (877) 758-8648
- 
-
-     This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
-     This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-     of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-
-     See the GNU General Public License for more details.
-
-*/
 #ifndef Security_PluginBase_h
 #define Security_PluginBase_h
 #include "DeviceData_Impl.h"
@@ -156,7 +141,7 @@ public:
 		if( m_bRunningWithoutDeviceData )
 			return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Path_CONST);
 		else
-			return m_mapParameters[DEVICEDATA_Path_CONST];
+			return m_mapParameters_Find(DEVICEDATA_Path_CONST);
 	}
 
 	string Get_Mobile_Orbiter_Notification()
@@ -164,7 +149,7 @@ public:
 		if( m_bRunningWithoutDeviceData )
 			return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Mobile_Orbiter_Notification_CONST);
 		else
-			return m_mapParameters[DEVICEDATA_Mobile_Orbiter_Notification_CONST];
+			return m_mapParameters_Find(DEVICEDATA_Mobile_Orbiter_Notification_CONST);
 	}
 
 	string Get_Other_Phone_Notifications()
@@ -172,7 +157,7 @@ public:
 		if( m_bRunningWithoutDeviceData )
 			return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Other_Phone_Notifications_CONST);
 		else
-			return m_mapParameters[DEVICEDATA_Other_Phone_Notifications_CONST];
+			return m_mapParameters_Find(DEVICEDATA_Other_Phone_Notifications_CONST);
 	}
 
 	string Get_Neighbors_to_Call()
@@ -180,7 +165,7 @@ public:
 		if( m_bRunningWithoutDeviceData )
 			return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Neighbors_to_Call_CONST);
 		else
-			return m_mapParameters[DEVICEDATA_Neighbors_to_Call_CONST];
+			return m_mapParameters_Find(DEVICEDATA_Neighbors_to_Call_CONST);
 	}
 
 	string Get_Configuration()
@@ -188,7 +173,7 @@ public:
 		if( m_bRunningWithoutDeviceData )
 			return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Configuration_CONST);
 		else
-			return m_mapParameters[DEVICEDATA_Configuration_CONST];
+			return m_mapParameters_Find(DEVICEDATA_Configuration_CONST);
 	}
 
 	void Set_Configuration(string Value)
@@ -200,7 +185,7 @@ public:
 		if( m_bRunningWithoutDeviceData )
 			return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_PK_Device_CONST);
 		else
-			return m_mapParameters[DEVICEDATA_PK_Device_CONST];
+			return m_mapParameters_Find(DEVICEDATA_PK_Device_CONST);
 	}
 
 	string Get_Emergency_Calls()
@@ -208,7 +193,7 @@ public:
 		if( m_bRunningWithoutDeviceData )
 			return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Emergency_Calls_CONST);
 		else
-			return m_mapParameters[DEVICEDATA_Emergency_Calls_CONST];
+			return m_mapParameters_Find(DEVICEDATA_Emergency_Calls_CONST);
 	}
 
 };

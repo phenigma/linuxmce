@@ -2,17 +2,18 @@
 GENDEV=../Gen_Devices
 
 SNR_CPPFLAGS ?= <-mkr_t_compile_defines->
+SNR_LDFLAGS ?= <-mkr_t_compile_libs->
 
 ROOT = ..
 CXX = g++
 CXXFLAGS = -Wall -fPIC -ggdb3
-CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql $(SNR_CPPFLAGS)
-LDFLAGS = -L$(ROOT)/lib
-BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lmysqlclient_r -lpthread
+CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE $(SNR_CPPFLAGS)
+LDFLAGS = $(SNR_LDFLAGS) -L$(ROOT)/lib
+BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lpthread
 
 MYNAME = LIRC_DCE
 VERSION = 2.0.0
-MYDEVTEMPLATEID = 77mplateID
+MYDEVTEMPLATEID = 1862mplateID
 
 Gen_Dev_Files = $(GENDEV)/LIRC_DCEBase.cpp
 sources = Main.cpp LIRC_DCE.cpp $(Gen_Dev_Files)
