@@ -2,20 +2,18 @@
 GENDEV=../Gen_Devices
 
 SNR_CPPFLAGS ?= <-mkr_t_compile_defines->
+SNR_LDFLAGS ?= <-mkr_t_compile_libs->
 
 ROOT = ..
 CXX = g++
 CXXFLAGS = -Wall -fPIC -ggdb3
-CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql $(SNR_CPPFLAGS)
-LDFLAGS = -L$(ROOT)/lib
-BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lmysqlclient_r -lpthread
-
-CC = gcc
-CFLAGS = $(CXXFLAGS) -DLINUX $(SNR_CPPFLAGS)
+CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE $(SNR_CPPFLAGS)
+LDFLAGS = $(SNR_LDFLAGS) -L$(ROOT)/lib
+BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lpthread
 
 MYNAME = Media_Live_LCDButtons
 VERSION = 2.0.0
-MYDEVTEMPLATEID = 1859mplateID
+MYDEVTEMPLATEID = 1860mplateID
 
 Gen_Dev_Files = $(GENDEV)/Media_Live_LCDButtonsBase.cpp
 sources = Main.cpp Media_Live_LCDButtons.cpp $(Gen_Dev_Files)
