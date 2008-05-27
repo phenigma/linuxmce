@@ -1042,6 +1042,8 @@ void Slim_Server_Streamer::CMD_Menu(string sText,int iStreamID,string &sCMD_Resu
 
 void Slim_Server_Streamer::CMD_Update_Object_Image(string sPK_DesignObj,string sType,char *pData,int iData_Size,string sDisable_Aspect_Lock,string &sCMD_Result,Message *pMessage)
 //<-dceag-c32-e->
+{
+}
 //<-dceag-c126-b->
 
 	/** @brief COMMAND: #126 - Guide */
@@ -1049,6 +1051,8 @@ void Slim_Server_Streamer::CMD_Update_Object_Image(string sPK_DesignObj,string s
 
 void Slim_Server_Streamer::CMD_Guide(string &sCMD_Result,Message *pMessage)
 //<-dceag-c126-e->
+{
+}
 //<-dceag-c916-b->
 
 	/** @brief COMMAND: #916 - Set Aspect Ratio */
@@ -1060,6 +1064,8 @@ void Slim_Server_Streamer::CMD_Guide(string &sCMD_Result,Message *pMessage)
 
 void Slim_Server_Streamer::CMD_Set_Aspect_Ratio(int iStreamID,string sAspect_Ratio,string &sCMD_Result,Message *pMessage)
 //<-dceag-c916-e->
+{
+}
 //<-dceag-c917-b->
 
 	/** @brief COMMAND: #917 - Set Zoom */
@@ -1071,6 +1077,8 @@ void Slim_Server_Streamer::CMD_Set_Aspect_Ratio(int iStreamID,string sAspect_Rat
 
 void Slim_Server_Streamer::CMD_Set_Zoom(int iStreamID,string sZoom_Level,string &sCMD_Result,Message *pMessage)
 //<-dceag-c917-e->
+{
+}
 //<-dceag-c920-b->
 
 	/** @brief COMMAND: #920 - Set Media ID */
@@ -1082,3 +1090,5 @@ void Slim_Server_Streamer::CMD_Set_Zoom(int iStreamID,string sZoom_Level,string 
 
 void Slim_Server_Streamer::CMD_Set_Media_ID(string sID,int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c920-e->
+{
+}
