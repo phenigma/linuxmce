@@ -1,0 +1,10 @@
+update DeviceTemplate_DeviceData set IK_DeviceData='0',psc_mod=0 where FK_DeviceTemplate=11 and FK_DeviceData=279;
+update DeviceTemplate_DeviceData set IK_DeviceData='0',psc_mod=0 where FK_DeviceTemplate=11 and FK_DeviceData=278;
+update DeviceTemplate_DeviceData set IK_DeviceData='1',psc_mod=0 where FK_DeviceTemplate=11 and FK_DeviceData=280;
+update DeviceTemplate_DeviceData set IK_DeviceData='2',psc_mod=0 where FK_DeviceTemplate=62 and FK_DeviceData=111;
+
+update DeviceCategory_DeviceData set IK_DeviceData='1',psc_mod=0 where FK_DeviceCategory=5 and FK_DeviceData=282;
+update DeviceCategory_DeviceData set IK_DeviceData='0',psc_mod=0 where FK_DeviceCategory=5 and FK_DeviceData=281;
+delete from `InstallWizard` where `PK_InstallWizard` in (9,10,11,15,16,17,18,19);
+delete from `InstallWizard_Distro` where `PK_InstallWizard_Distro` IN (9,10,11,15,16,17,18,19);
+UPDATE DeviceTemplate_DeviceData SET IK_DeviceData='' where FK_DeviceTemplate=12 AND FK_DeviceData=42;
