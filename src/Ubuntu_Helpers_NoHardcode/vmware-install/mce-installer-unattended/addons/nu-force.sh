@@ -79,7 +79,7 @@ AVWizardReplacement()
 	Video_Connector="VGA"
 	PK_Skin=12 # NuForce
 	PK_Size=6 # 1024x768
-	NewAudioSetting="S"
+	NewAudioSetting="C3"
 
 	Queries=(
 		"UPDATE Device_DeviceData SET IK_DeviceData='$OrbiterWidth' WHERE FK_Device='$OrbiterDev' AND FK_DeviceData='$DEVICEDATA_ScreenWidth'"
@@ -213,7 +213,7 @@ Firewall()
 
 ApplyHacks()
 {
-	AsoundSubst='s/convert48k/convert44k/g; s/rate 48000/rate 44100/g; /playback\.pcm/ s/spdif_playback/plughw:0,1/g'
+	AsoundSubst='s/convert48k/convert44k/g; s/rate 48000/rate 44100/g; /playback\.pcm/ s/spdif_playback/plughw:0,0/g'
 	AsoundCleanup='/pcm_slave.convert44k {/,/^$/ {next}; /pcm.spdif_playback {/,/^$/ {next} {print}'
 
 	sed -ri "$AsoundSubst" /usr/pluto/templates/asound.conf
@@ -225,6 +225,9 @@ ApplyHacks()
 		awk "$AsoundCleanup" /etc/asound.conf >/etc/asound.conf.nuforce
 		mv /etc/asound.conf{.nuforce,}
 	fi
+	
+	echo "pcm.!default asym_spdif" >> /etc/asound.conf
+	
 }
 
 Packages
