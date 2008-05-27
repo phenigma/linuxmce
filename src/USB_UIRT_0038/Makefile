@@ -2,14 +2,19 @@
 GENDEV=../Gen_Devices
 
 SNR_CPPFLAGS ?= <-mkr_t_compile_defines->
-SNR_LDFLAGS ?= <-mkr_t_compile_libs->
 
 ROOT = ..
 CXX = g++
 CXXFLAGS = -Wall -fPIC -ggdb3
-CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE $(SNR_CPPFLAGS)
-LDFLAGS = $(SNR_LDFLAGS) -L$(ROOT)/lib
-BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lpthread
+CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql $(SNR_CPPFLAGS)
+LDFLAGS = -L$(ROOT)/lib
+BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lmysqlclient_r -lpthread
+
+ifneq (,$(findstring -DARCH64, $(CPPFLAGS)))
+        UUIRTDRV_SO = uuirtdrv-amd64.so
+else
+        UUIRTDRV_SO = uuirtdrv-i386.so
+endif
 
 MYNAME = USB_UIRT_0038
 VERSION = 2.0.0
@@ -48,6 +53,7 @@ USB_UIRT_0038.so: $(sources:.cpp=.o)
 USB_UIRT_0038: $(sources:.cpp=.o)
 	$(CXX) -o $(MYNAME) $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
+	cp $(UUIRTDRV_SO) uuirtdrv.so
 	./post_make.sh $@
 
 clean: clean-recursive
