@@ -19,6 +19,8 @@ Gen_Dev_Files = $(GENDEV)/MPlayer_PlayerBase.cpp
 sources = Main.cpp MPlayer_Player.cpp $(Gen_Dev_Files)
 #<-dceag-mh-e->
 
+sources += MPlayerEngine.cpp Log.cpp XineMediaInfo.cpp
+
 CXXFLAGS +=
 CPPFLAGS +=
 LDFLAGS +=
