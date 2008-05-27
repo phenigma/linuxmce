@@ -2958,6 +2958,16 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sFilename,int iPK_Med
 		{
 			string sDataGridID = "MediaFile_" + sFilename.substr(2);
 			DataGridTable *pDataGridTable = m_pDatagrid_Plugin->DataGridTable_get(sDataGridID);
+			if( !pDataGridTable )
+			{
+				DataGridTable *pDataGridTable_Pic = m_pDatagrid_Plugin->DataGridTable_get("MediaFile_pic_" + sFilename.substr(2));
+				DataGridTable *pDataGridTable_List = m_pDatagrid_Plugin->DataGridTable_get("MediaFile_List_" + sFilename.substr(2));
+				if( pDataGridTable_Pic && (!pDataGridTable_List || pDataGridTable_Pic->m_iRequestID>pDataGridTable_List->m_iRequestID) )
+					pDataGridTable = pDataGridTable_Pic;
+				else
+					pDataGridTable = pDataGridTable_List;
+			}
+
 			if( pDataGridTable )
 			{
 				for(MemoryDataTable::iterator it=pDataGridTable->m_MemoryDataTable.begin();it!=pDataGridTable->m_MemoryDataTable.end();++it)

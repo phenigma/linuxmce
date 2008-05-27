@@ -43,6 +43,7 @@ Datagrid_Plugin::Datagrid_Plugin( int DeviceID, string ServerAddress, bool bConn
 //<-dceag-const-e->
 {
  m_DataGridMutex.Init( NULL );
+ m_iGridRequestCounter=0;
 }
 
 //<-dceag-getconfig-b->
@@ -299,6 +300,8 @@ LoggerWrapper::GetInstance()->Write( LV_DATAGRID, "Seek row %d",*iRow);
 LoggerWrapper::GetInstance()->Write( LV_DATAGRID, "ready to call todata: %s ", sDataGrid_ID.c_str() );
 #endif
 
+		if( pDataGridTable->m_iRequestID==0 )
+			pDataGridTable->m_iRequestID = m_iGridRequestCounter++;  // So we can keep track of the order which grids where requested.  Presently added for 
 		pDataGridTable->ToData( sDataGrid_ID, *iData_Size, *pData, iColumn, iRow, iColumn_count, iRow_count );
 #ifdef DEBUG
 		clock_t cStop = clock();
