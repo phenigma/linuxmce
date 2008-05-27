@@ -612,6 +612,8 @@ void VideoLan_Server::CMD_Menu(string sText,int iStreamID,string &sCMD_Result,Me
 
 void VideoLan_Server::CMD_Update_Object_Image(string sPK_DesignObj,string sType,char *pData,int iData_Size,string sDisable_Aspect_Lock,string &sCMD_Result,Message *pMessage)
 //<-dceag-c32-e->
+{
+}
 //<-dceag-c126-b->
 
 	/** @brief COMMAND: #126 - Guide */
@@ -619,6 +621,8 @@ void VideoLan_Server::CMD_Update_Object_Image(string sPK_DesignObj,string sType,
 
 void VideoLan_Server::CMD_Guide(string &sCMD_Result,Message *pMessage)
 //<-dceag-c126-e->
+{
+}
 //<-dceag-c916-b->
 
 	/** @brief COMMAND: #916 - Set Aspect Ratio */
@@ -630,6 +634,8 @@ void VideoLan_Server::CMD_Guide(string &sCMD_Result,Message *pMessage)
 
 void VideoLan_Server::CMD_Set_Aspect_Ratio(int iStreamID,string sAspect_Ratio,string &sCMD_Result,Message *pMessage)
 //<-dceag-c916-e->
+{
+}
 //<-dceag-c917-b->
 
 	/** @brief COMMAND: #917 - Set Zoom */
@@ -641,6 +647,8 @@ void VideoLan_Server::CMD_Set_Aspect_Ratio(int iStreamID,string sAspect_Ratio,st
 
 void VideoLan_Server::CMD_Set_Zoom(int iStreamID,string sZoom_Level,string &sCMD_Result,Message *pMessage)
 //<-dceag-c917-e->
+{
+}
 //<-dceag-c920-b->
 
 	/** @brief COMMAND: #920 - Set Media ID */
@@ -652,3 +660,5 @@ void VideoLan_Server::CMD_Set_Zoom(int iStreamID,string sZoom_Level,string &sCMD
 
 void VideoLan_Server::CMD_Set_Media_ID(string sID,int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c920-e->
+{
+}

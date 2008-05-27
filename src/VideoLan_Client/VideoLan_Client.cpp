@@ -525,6 +525,8 @@ void VideoLan_Client::CMD_Set_Aspect_Ratio(int iStreamID,string sAspect_Ratio,st
 
 void VideoLan_Client::CMD_Set_Zoom(int iStreamID,string sZoom_Level,string &sCMD_Result,Message *pMessage)
 //<-dceag-c917-e->
+{
+}
 //<-dceag-c920-b->
 
 	/** @brief COMMAND: #920 - Set Media ID */
