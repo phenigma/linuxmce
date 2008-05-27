@@ -951,7 +951,7 @@ DeviceData_Router *General_Info_Plugin::ProcessChildDevice(int nPK_Device, strin
 		/** @param #2 PK_Device */
 			/** The parent device */
 		/** @param #5 Value To Assign */
-			/** A pipe delimited list like this: DeviceID1|CommandLine1\nDeviceID2|CommandLine2 etc */
+			/** A pipe delimited list like this: DeviceID1|TemplateDescription1|CommandLine1\nDeviceID2|TemplateDescription2|CommandLine2 etc */
 
 void General_Info_Plugin::CMD_Get_Devices_To_Start(int iPK_Device,string *sValue_To_Assign,string &sCMD_Result,Message *pMessage)
 //<-dceag-c956-e->
@@ -964,7 +964,15 @@ void General_Info_Plugin::CMD_Get_Devices_To_Start(int iPK_Device,string *sValue
 	for(std::vector<DeviceData_Router *>::const_iterator it = vectDevices.begin(); it != vectDevices.end(); ++it)
 	{
 		DeviceData_Router *pDeviceData_Router = *it;
-		*sValue_To_Assign += StringUtils::ltos(pDeviceData_Router->m_dwPK_Device) + "|" + pDeviceData_Router->m_sCommandLine + "\n";
+		DeviceTemplate_Data *pDeviceTemplate_Data = m_pRouter->DataLayer()->DeviceTemplate(pDeviceData_Router->m_dwPK_DeviceTemplate);
+
+		string sTemplateName;
+		if(NULL != pDeviceTemplate_Data)
+			sTemplateName = pDeviceTemplate_Data->Description();
+
+		*sValue_To_Assign += StringUtils::ltos(pDeviceData_Router->m_dwPK_Device) + "|" + 
+			sTemplateName + "|" + 
+			pDeviceData_Router->m_sCommandLine + "\n";
 	}
 }
 //----------------------------------------------------------------------------------------------
