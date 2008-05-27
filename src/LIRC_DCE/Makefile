@@ -13,7 +13,7 @@ BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lpthread
 
 MYNAME = LIRC_DCE
 VERSION = 2.0.0
-MYDEVTEMPLATEID = 1862mplateID
+MYDEVTEMPLATEID = 77mplateID
 
 Gen_Dev_Files = $(GENDEV)/LIRC_DCEBase.cpp
 sources = Main.cpp LIRC_DCE.cpp $(Gen_Dev_Files)
