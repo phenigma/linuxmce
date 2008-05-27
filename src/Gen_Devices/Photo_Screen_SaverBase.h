@@ -117,7 +117,7 @@ public:
 		if( m_bRunningWithoutDeviceData )
 			return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_FadeTime_CONST).c_str());
 		else
-			return atoi(m_mapParameters_Find[DEVICEDATA_FadeTime_CONST].c_str());
+			return atoi(m_mapParameters_Find(DEVICEDATA_FadeTime_CONST).c_str());
 	}
 
 	bool Get_Supports_NPOT_Textures()
