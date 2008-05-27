@@ -71,7 +71,7 @@ bool Linphone::Connect(int iPK_DeviceTemplate) {
 		return false;
 	}
 	
-	string sPhoneNumber = m_pData->mapParameters_Find(DEVICEDATA_PhoneNumber_CONST);
+	string sPhoneNumber = m_pData->m_mapParameters_Find(DEVICEDATA_PhoneNumber_CONST);
 	if(!sPhoneNumber.length()) {
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "PhoneNumber parameter is not specified for Linphone");
 		return false;
@@ -286,7 +286,6 @@ bool Linphone::GetConfig()
 	if( !Linphone_Command::GetConfig() )
 		return false;
 //<-dceag-getconfig-e->
-{
 	return true;
 }
 
