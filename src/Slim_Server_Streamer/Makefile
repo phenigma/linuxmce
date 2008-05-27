@@ -26,7 +26,7 @@ XTRALDLIBS =
 
 Gen_Dev_Files +=
 sources += SqueezeBox_Player.cpp $(GENDEV)/SqueezeBox_PlayerBase.cpp
-sources += Sound_Bridge.cpp.cpp $(GENDEV)/Sound_BridgeBase.cpp
+sources += Sound_Bridge.cpp $(GENDEV)/Sound_BridgeBase.cpp
 
 
 #<-dceag-mf-b->
