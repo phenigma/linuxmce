@@ -13,7 +13,7 @@ BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lpthread
 
 MYNAME = Generic_Serial_Device
 VERSION = 2.0.0
-MYDEVTEMPLATEID = 1932mplateID
+MYDEVTEMPLATEID = 69mplateID
 
 Gen_Dev_Files = $(GENDEV)/Generic_Serial_DeviceBase.cpp
 sources = Main.cpp Generic_Serial_Device.cpp $(Gen_Dev_Files)
