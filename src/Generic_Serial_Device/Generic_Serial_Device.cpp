@@ -319,6 +319,8 @@ void Generic_Serial_Device::ParseDeviceHierarchy(DeviceData_Impl *pdevdata) {
 
 void Generic_Serial_Device::CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,string sPassword,int iPK_DeviceGroup,string sHandling_Instructions,string &sCMD_Result,Message *pMessage)
 //<-dceag-c19-e->
+{
+}
 //<-dceag-c350-b->
 
 	/** @brief COMMAND: #350 - Process Incoming Data */
@@ -326,6 +328,8 @@ void Generic_Serial_Device::CMD_Set_House_Mode(string sValue_To_Assign,int iPK_U
 
 void Generic_Serial_Device::CMD_Process_Incoming_Data(string &sCMD_Result,Message *pMessage)
 //<-dceag-c350-e->
+{
+}
 //<-dceag-c351-b->
 
 	/** @brief COMMAND: #351 - Process IDLE */
@@ -333,6 +337,8 @@ void Generic_Serial_Device::CMD_Process_Incoming_Data(string &sCMD_Result,Messag
 
 void Generic_Serial_Device::CMD_Process_IDLE(string &sCMD_Result,Message *pMessage)
 //<-dceag-c351-e->
+{
+}
 //<-dceag-c355-b->
 
 	/** @brief COMMAND: #355 - Process Initialize */
@@ -340,6 +346,8 @@ void Generic_Serial_Device::CMD_Process_IDLE(string &sCMD_Result,Message *pMessa
 
 void Generic_Serial_Device::CMD_Process_Initialize(string &sCMD_Result,Message *pMessage)
 //<-dceag-c355-e->
+{
+}
 //<-dceag-c356-b->
 
 	/** @brief COMMAND: #356 - Process Release */
@@ -347,6 +355,8 @@ void Generic_Serial_Device::CMD_Process_Initialize(string &sCMD_Result,Message *
 
 void Generic_Serial_Device::CMD_Process_Release(string &sCMD_Result,Message *pMessage)
 //<-dceag-c356-e->
+{
+}
 //<-dceag-c373-b->
 
 	/** @brief COMMAND: #373 - Private Method Listing */
@@ -354,6 +364,8 @@ void Generic_Serial_Device::CMD_Process_Release(string &sCMD_Result,Message *pMe
 
 void Generic_Serial_Device::CMD_Private_Method_Listing(string &sCMD_Result,Message *pMessage)
 //<-dceag-c373-e->
+{
+}
 //<-dceag-c384-b->
 
 	/** @brief COMMAND: #384 - Process Receive Command For Child */
@@ -361,6 +373,8 @@ void Generic_Serial_Device::CMD_Private_Method_Listing(string &sCMD_Result,Messa
 
 void Generic_Serial_Device::CMD_Process_Receive_Command_For_Child(string &sCMD_Result,Message *pMessage)
 //<-dceag-c384-e->
+{
+}
 //<-dceag-c756-b->
 
 	/** @brief COMMAND: #756 - Report Child Devices */
@@ -368,6 +382,8 @@ void Generic_Serial_Device::CMD_Process_Receive_Command_For_Child(string &sCMD_R
 
 void Generic_Serial_Device::CMD_Report_Child_Devices(string &sCMD_Result,Message *pMessage)
 //<-dceag-c756-e->
+{
+}
 //<-dceag-c759-b->
 
 	/** @brief COMMAND: #759 - Get Sensors List */
@@ -377,6 +393,8 @@ void Generic_Serial_Device::CMD_Report_Child_Devices(string &sCMD_Result,Message
 
 void Generic_Serial_Device::CMD_Get_Sensors_List(string *sData_String,string &sCMD_Result,Message *pMessage)
 //<-dceag-c759-e->
+{
+}
 //<-dceag-c84-b->
 
 	/** @brief COMMAND: #84 - Get Video Frame */
@@ -396,6 +414,8 @@ void Generic_Serial_Device::CMD_Get_Sensors_List(string *sData_String,string &sC
 
 void Generic_Serial_Device::CMD_Get_Video_Frame(string sDisable_Aspect_Lock,int iStreamID,int iWidth,int iHeight,char **pData,int *iData_Size,string *sFormat,string &sCMD_Result,Message *pMessage)
 //<-dceag-c84-e->
+{
+}
 //<-dceag-c200-b->
 
 	/** @brief COMMAND: #200 - Move Up */
@@ -405,6 +425,8 @@ void Generic_Serial_Device::CMD_Get_Video_Frame(string sDisable_Aspect_Lock,int 
 
 void Generic_Serial_Device::CMD_Move_Up(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c200-e->
+{
+}
 //<-dceag-c201-b->
 
 	/** @brief COMMAND: #201 - Move Down */
@@ -414,6 +436,8 @@ void Generic_Serial_Device::CMD_Move_Up(int iStreamID,string &sCMD_Result,Messag
 
 void Generic_Serial_Device::CMD_Move_Down(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c201-e->
+{
+}
 //<-dceag-c202-b->
 
 	/** @brief COMMAND: #202 - Move Left */
@@ -423,6 +447,8 @@ void Generic_Serial_Device::CMD_Move_Down(int iStreamID,string &sCMD_Result,Mess
 
 void Generic_Serial_Device::CMD_Move_Left(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c202-e->
+{
+}
 //<-dceag-c203-b->
 
 	/** @brief COMMAND: #203 - Move Right */
@@ -432,6 +458,8 @@ void Generic_Serial_Device::CMD_Move_Left(int iStreamID,string &sCMD_Result,Mess
 
 void Generic_Serial_Device::CMD_Move_Right(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c203-e->
+{
+}
 //<-dceag-c684-b->
 
 	/** @brief COMMAND: #684 - Zoom In */
@@ -439,6 +467,8 @@ void Generic_Serial_Device::CMD_Move_Right(int iStreamID,string &sCMD_Result,Mes
 
 void Generic_Serial_Device::CMD_Zoom_In(string &sCMD_Result,Message *pMessage)
 //<-dceag-c684-e->
+{
+}
 //<-dceag-c685-b->
 
 	/** @brief COMMAND: #685 - Zoom Out */
@@ -446,6 +476,8 @@ void Generic_Serial_Device::CMD_Zoom_In(string &sCMD_Result,Message *pMessage)
 
 void Generic_Serial_Device::CMD_Zoom_Out(string &sCMD_Result,Message *pMessage)
 //<-dceag-c685-e->
+{
+}
 //<-dceag-c63-b->
 
 	/** @brief COMMAND: #63 - Skip Fwd - Channel/Track Greater */
@@ -455,6 +487,8 @@ void Generic_Serial_Device::CMD_Zoom_Out(string &sCMD_Result,Message *pMessage)
 
 void Generic_Serial_Device::CMD_Skip_Fwd_ChannelTrack_Greater(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c63-e->
+{
+}
 //<-dceag-c64-b->
 
 	/** @brief COMMAND: #64 - Skip Back - Channel/Track Lower */
@@ -464,6 +498,8 @@ void Generic_Serial_Device::CMD_Skip_Fwd_ChannelTrack_Greater(int iStreamID,stri
 
 void Generic_Serial_Device::CMD_Skip_Back_ChannelTrack_Lower(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c64-e->
+{
+}
 //<-dceag-c89-b->
 
 	/** @brief COMMAND: #89 - Vol Up */
@@ -473,6 +509,8 @@ void Generic_Serial_Device::CMD_Skip_Back_ChannelTrack_Lower(int iStreamID,strin
 
 void Generic_Serial_Device::CMD_Vol_Up(int iRepeat_Command,string &sCMD_Result,Message *pMessage)
 //<-dceag-c89-e->
+{
+}
 //<-dceag-c90-b->
 
 	/** @brief COMMAND: #90 - Vol Down */
@@ -482,6 +520,8 @@ void Generic_Serial_Device::CMD_Vol_Up(int iRepeat_Command,string &sCMD_Result,M
 
 void Generic_Serial_Device::CMD_Vol_Down(int iRepeat_Command,string &sCMD_Result,Message *pMessage)
 //<-dceag-c90-e->
+{
+}
 //<-dceag-c93-b->
 
 	/** @brief COMMAND: #93 - Scan Fwd/Fast Fwd */
@@ -489,6 +529,8 @@ void Generic_Serial_Device::CMD_Vol_Down(int iRepeat_Command,string &sCMD_Result
 
 void Generic_Serial_Device::CMD_Scan_FwdFast_Fwd(string &sCMD_Result,Message *pMessage)
 //<-dceag-c93-e->
+{
+}
 //<-dceag-c97-b->
 
 	/** @brief COMMAND: #97 - Mute */
@@ -496,6 +538,8 @@ void Generic_Serial_Device::CMD_Scan_FwdFast_Fwd(string &sCMD_Result,Message *pM
 
 void Generic_Serial_Device::CMD_Mute(string &sCMD_Result,Message *pMessage)
 //<-dceag-c97-e->
+{
+}
 //<-dceag-c125-b->
 
 	/** @brief COMMAND: #125 - Scan Back/Rewind */
@@ -503,6 +547,8 @@ void Generic_Serial_Device::CMD_Mute(string &sCMD_Result,Message *pMessage)
 
 void Generic_Serial_Device::CMD_Scan_BackRewind(string &sCMD_Result,Message *pMessage)
 //<-dceag-c125-e->
+{
+}
 //<-dceag-c192-b->
 
 	/** @brief COMMAND: #192 - On */
@@ -514,6 +560,8 @@ void Generic_Serial_Device::CMD_Scan_BackRewind(string &sCMD_Result,Message *pMe
 
 void Generic_Serial_Device::CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &sCMD_Result,Message *pMessage)
 //<-dceag-c192-e->
+{
+}
 //<-dceag-c193-b->
 
 	/** @brief COMMAND: #193 - Off */
@@ -549,6 +597,8 @@ void Generic_Serial_Device::CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pM
 
 void Generic_Serial_Device::CMD_EIB_Write(string sAddress,string sData_String,int iDataType,string &sCMD_Result,Message *pMessage)
 //<-dceag-c273-e->
+{
+}
 //<-dceag-c275-b->
 
 	/** @brief COMMAND: #275 - EIB_Read */
@@ -558,6 +608,8 @@ void Generic_Serial_Device::CMD_EIB_Write(string sAddress,string sData_String,in
 
 void Generic_Serial_Device::CMD_EIB_Read(string sAddress,string &sCMD_Result,Message *pMessage)
 //<-dceag-c275-e->
+{
+}
 //<-dceag-c190-b->
 
 	/** @brief COMMAND: #190 - Enter/Go */
@@ -567,6 +619,8 @@ void Generic_Serial_Device::CMD_EIB_Read(string sAddress,string &sCMD_Result,Mes
 
 void Generic_Serial_Device::CMD_EnterGo(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c190-e->
+{
+}
 //<-dceag-c204-b->
 
 	/** @brief COMMAND: #204 - 0 */
@@ -574,6 +628,8 @@ void Generic_Serial_Device::CMD_EnterGo(int iStreamID,string &sCMD_Result,Messag
 
 void Generic_Serial_Device::CMD_0(string &sCMD_Result,Message *pMessage)
 //<-dceag-c204-e->
+{
+}
 //<-dceag-c205-b->
 
 	/** @brief COMMAND: #205 - 1 */
@@ -581,6 +637,8 @@ void Generic_Serial_Device::CMD_0(string &sCMD_Result,Message *pMessage)
 
 void Generic_Serial_Device::CMD_1(string &sCMD_Result,Message *pMessage)
 //<-dceag-c205-e->
+{
+}
 //<-dceag-c206-b->
 
 	/** @brief COMMAND: #206 - 2 */
@@ -588,6 +646,8 @@ void Generic_Serial_Device::CMD_1(string &sCMD_Result,Message *pMessage)
 
 void Generic_Serial_Device::CMD_2(string &sCMD_Result,Message *pMessage)
 //<-dceag-c206-e->
+{
+}
 //<-dceag-c207-b->
 
 	/** @brief COMMAND: #207 - 3 */
@@ -595,6 +655,8 @@ void Generic_Serial_Device::CMD_2(string &sCMD_Result,Message *pMessage)
 
 void Generic_Serial_Device::CMD_3(string &sCMD_Result,Message *pMessage)
 //<-dceag-c207-e->
+{
+}
 //<-dceag-c208-b->
 
 	/** @brief COMMAND: #208 - 4 */
@@ -602,6 +664,8 @@ void Generic_Serial_Device::CMD_3(string &sCMD_Result,Message *pMessage)
 
 void Generic_Serial_Device::CMD_4(string &sCMD_Result,Message *pMessage)
 //<-dceag-c208-e->
+{
+}
 //<-dceag-c209-b->
 
 	/** @brief COMMAND: #209 - 5 */
@@ -609,6 +673,8 @@ void Generic_Serial_Device::CMD_4(string &sCMD_Result,Message *pMessage)
 
 void Generic_Serial_Device::CMD_5(string &sCMD_Result,Message *pMessage)
 //<-dceag-c209-e->
+{
+}
 //<-dceag-c210-b->
 
 	/** @brief COMMAND: #210 - 6 */
@@ -616,6 +682,8 @@ void Generic_Serial_Device::CMD_5(string &sCMD_Result,Message *pMessage)
 
 void Generic_Serial_Device::CMD_6(string &sCMD_Result,Message *pMessage)
 //<-dceag-c210-e->
+{
+}
 //<-dceag-c211-b->
 
 	/** @brief COMMAND: #211 - 7 */
@@ -623,6 +691,8 @@ void Generic_Serial_Device::CMD_6(string &sCMD_Result,Message *pMessage)
 
 void Generic_Serial_Device::CMD_7(string &sCMD_Result,Message *pMessage)
 //<-dceag-c211-e->
+{
+}
 //<-dceag-c212-b->
 
 	/** @brief COMMAND: #212 - 8 */
@@ -630,6 +700,8 @@ void Generic_Serial_Device::CMD_7(string &sCMD_Result,Message *pMessage)
 
 void Generic_Serial_Device::CMD_8(string &sCMD_Result,Message *pMessage)
 //<-dceag-c212-e->
+{
+}
 //<-dceag-c213-b->
 
 	/** @brief COMMAND: #213 - 9 */
@@ -637,6 +709,8 @@ void Generic_Serial_Device::CMD_8(string &sCMD_Result,Message *pMessage)
 
 void Generic_Serial_Device::CMD_9(string &sCMD_Result,Message *pMessage)
 //<-dceag-c213-e->
+{
+}
 //<-dceag-c363-b->
 
 	/** @brief COMMAND: #363 - Back / Clear Entry */
@@ -644,6 +718,8 @@ void Generic_Serial_Device::CMD_9(string &sCMD_Result,Message *pMessage)
 
 void Generic_Serial_Device::CMD_Back_Clear_Entry(string &sCMD_Result,Message *pMessage)
 //<-dceag-c363-e->
+{
+}
 //<-dceag-c364-b->
 
 	/** @brief COMMAND: #364 - -/--/--- */
@@ -651,6 +727,8 @@ void Generic_Serial_Device::CMD_Back_Clear_Entry(string &sCMD_Result,Message *pM
 
 void Generic_Serial_Device::CMD_(string &sCMD_Result,Message *pMessage)
 //<-dceag-c364-e->
+{
+}
 //<-dceag-c820-b->
 
 	/** @brief COMMAND: #820 - Assign Return Route */
@@ -662,6 +740,8 @@ void Generic_Serial_Device::CMD_(string &sCMD_Result,Message *pMessage)
 
 void Generic_Serial_Device::CMD_Assign_Return_Route(int iNodeID,int iDestNodeID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c820-e->
+{
+}
 //<-dceag-c840-b->
 
 	/** @brief COMMAND: #840 - SetWakeUp */
@@ -673,6 +753,8 @@ void Generic_Serial_Device::CMD_Assign_Return_Route(int iNodeID,int iDestNodeID,
 
 void Generic_Serial_Device::CMD_SetWakeUp(int iValue,int iNodeID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c840-e->
+{
+}
 //<-dceag-c841-b->
 
 	/** @brief COMMAND: #841 - Set Config Param */
@@ -686,6 +768,8 @@ void Generic_Serial_Device::CMD_SetWakeUp(int iValue,int iNodeID,string &sCMD_Re
 
 void Generic_Serial_Device::CMD_Set_Config_Param(int iValue,int iNodeID,int iParameter_ID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c841-e->
+{
+}
 //<-dceag-c842-b->
 
 	/** @brief COMMAND: #842 - Set Association */
@@ -699,6 +783,8 @@ void Generic_Serial_Device::CMD_Set_Config_Param(int iValue,int iNodeID,int iPar
 
 void Generic_Serial_Device::CMD_Set_Association(int iNodeID,int iGroup_ID,string sNodes_List,string &sCMD_Result,Message *pMessage)
 //<-dceag-c842-e->
+{
+}
 //<-dceag-c184-b->
 
 	/** @brief COMMAND: #184 - Set Level */
@@ -708,6 +794,8 @@ void Generic_Serial_Device::CMD_Set_Association(int iNodeID,int iGroup_ID,string
 
 void Generic_Serial_Device::CMD_Set_Level(string sLevel,string &sCMD_Result,Message *pMessage)
 //<-dceag-c184-e->
+{
+}
 //<-dceag-c760-b->
 
 	/** @brief COMMAND: #760 - Send Command To Child */
@@ -722,6 +810,8 @@ PK_CommandParameter|Value|... */
 
 void Generic_Serial_Device::CMD_Send_Command_To_Child(string sID,int iPK_Command,string sParameters,string &sCMD_Result,Message *pMessage)
 //<-dceag-c760-e->
+{
+}
 //<-dceag-c776-b->
 
 	/** @brief COMMAND: #776 - Reset */
@@ -732,6 +822,8 @@ NOEMON or CANBUS */
 
 void Generic_Serial_Device::CMD_Reset(string sArguments,string &sCMD_Result,Message *pMessage)
 //<-dceag-c776-e->
+{
+}
 //<-dceag-c788-b->
 
 	/** @brief COMMAND: #788 - StatusReport */
@@ -741,3 +833,5 @@ void Generic_Serial_Device::CMD_Reset(string sArguments,string &sCMD_Result,Mess
 
 void Generic_Serial_Device::CMD_StatusReport(string sArguments,string &sCMD_Result,Message *pMessage)
 //<-dceag-c788-e->
+{
+}
