@@ -32,7 +32,7 @@ public:
 	* @brief Constructors
 	*/
 	Powerfile_C200_Event(int DeviceID, string ServerAddress, bool bConnectEventHandler=true) :
-		Event_Impl(DeviceID, DEVICETEMPLATE_VAIO_DVD_Changer_CONST, ServerAddress, bConnectEventHandler, SOCKET_TIMEOUT) {};
+		Event_Impl(DeviceID, DEVICETEMPLATE_Powerfile_C200_CONST, ServerAddress, bConnectEventHandler, SOCKET_TIMEOUT) {};
 	Powerfile_C200_Event(class ClientSocket *pOCClientSocket, int DeviceID) : Event_Impl(pOCClientSocket, DeviceID) {};
 
 	/**
@@ -43,6 +43,17 @@ public:
 	/**
 	* @brief Events methods for our device
 	*/
+
+	virtual void Media_Inserted(int iFK_MediaType,string sMRL,string sID,string sName)
+	{
+		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 
+			EVENT_Media_Inserted_CONST,
+			4 /* number of parameter's pairs (id, value) */,
+			EVENTPARAMETER_FK_MediaType_CONST, StringUtils::itos(iFK_MediaType).c_str(),
+			EVENTPARAMETER_MRL_CONST, sMRL.c_str(),
+			EVENTPARAMETER_ID_CONST, sID.c_str(),
+			EVENTPARAMETER_Name_CONST, sName.c_str()));
+	}
 
 };
 
@@ -69,7 +80,7 @@ public:
 	/**
 	* @brief Returns the id of the device template
 	*/
-	virtual int GetPK_DeviceList() { return DEVICETEMPLATE_VAIO_DVD_Changer_CONST; } ;
+	virtual int GetPK_DeviceList() { return DEVICETEMPLATE_Powerfile_C200_CONST; } ;
 
 	/**
 	* @brief Returns the description of the device
@@ -180,7 +191,7 @@ public:
 			return false;
 		delete[] pConfig;
 		m_pData->m_pEvent_Impl = m_pEvent;
-		m_pcRequestSocket = new Event_Impl(m_dwPK_Device, DEVICETEMPLATE_VAIO_DVD_Changer_CONST,m_sHostName);
+		m_pcRequestSocket = new Event_Impl(m_dwPK_Device, DEVICETEMPLATE_Powerfile_C200_CONST,m_sHostName);
 		if( m_iInstanceID )
 		{
 			m_pEvent->m_pClientSocket->SendString("INSTANCE " + StringUtils::itos(m_iInstanceID));
@@ -194,8 +205,8 @@ public:
 	Powerfile_C200_Event *GetEvents() { return (Powerfile_C200_Event *) m_pEvent; };
 	Powerfile_C200_Data *GetData() { return (Powerfile_C200_Data *) m_pData; };
 	const char *GetClassName() { return "Powerfile_C200_Command"; };
-	virtual int PK_DeviceTemplate_get() { return DEVICETEMPLATE_VAIO_DVD_Changer_CONST; };
-	static int PK_DeviceTemplate_get_static() { return DEVICETEMPLATE_VAIO_DVD_Changer_CONST; };
+	virtual int PK_DeviceTemplate_get() { return DEVICETEMPLATE_Powerfile_C200_CONST; };
+	static int PK_DeviceTemplate_get_static() { return DEVICETEMPLATE_Powerfile_C200_CONST; };
 	virtual void ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sCMD_Result,Message *pMessage) { };
 	virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage) { };
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
@@ -203,7 +214,39 @@ public:
 	string DATA_Get_Defective_Units() { return GetData()->Get_Defective_Units(); }
 	string DATA_Get_Hacks() { return GetData()->Get_Hacks(); }
 	//Event accessors
+	void EVENT_Media_Inserted(int iFK_MediaType,string sMRL,string sID,string sName) { GetEvents()->Media_Inserted(iFK_MediaType,sMRL.c_str(),sID.c_str(),sName.c_str()); }
 	//Commands - Override these to handle commands from the server
+	virtual void CMD_Refresh(string sDataGrid_ID,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Disk_Drive_Monitoring_ON(string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Disk_Drive_Monitoring_OFF(string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Reset_Disk_Drive(string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Eject_Disk(int iSlot_Number,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Start_Burn_Session(string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Start_Ripping_Session(string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Add_File_To_Burning_Session(string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Start_Burning(string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Abort_Burning(string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Mount_Disk_Image(string sFilename,string *sMediaURL,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Abort_Ripping(string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Format_Drive(string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Close_Tray(string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Rip_Disk(int iPK_Device,string sFilename,int iPK_Users,string sFormat,string sTracks,int iEK_Disc,int iSlot_Number,int iDriveID,string sDirectory,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Load_from_Slot_into_Drive(int iSlot_Number,int *iPK_Device,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Unload_from_Drive_into_Slot(int iPK_Device,int *iSlot_Number,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Get_Jukebox_Status(string sForce,string *sJukebox_Status,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Bulk_Rip(string sFilename,int iPK_Users,string sFormat,string sDisks,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Play_Disk(int iSlot_Number,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Get_Bulk_Ripping_Status(string *sBulk_rip_status,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Mass_identify_media(string sDisks,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,string sID,char *pData,int iData_Size,string sFormat,int iPK_MediaType,string sMediaURL,string sURL,int *iEK_Disc,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Cancel_Pending_Task(int iSlot_Number,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Get_Default_Ripping_Info(int iEK_Disc,string *sFilename,bool *bUseDefault,string *sPath,int *iDriveID,string *sDirectory,string *sStorage_Device_Name,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Update_Ripping_Status(string sText,string sFilename,string sTime,string sStatus,int iPercent,string sTask,string sJob,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Lock(int iPK_Device,string sID,bool bTurn_On,string *sText,bool *bIsSuccessful,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Abort_Task(int iParameter_ID,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Load_Disk(bool bMultiple,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Get_Disk_Info(string *sText,int *iPK_MediaType,int *iEK_Disc,string *sDisks,string *sURL,string *sBlock_Device,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Get_Ripping_Status(string *sStatus,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual ReceivedMessageResult ReceivedMessage(class Message *pMessageOriginal)
@@ -229,7 +272,878 @@ public:
 		for(int s=-1;s<(int) pMessageOriginal->m_vectExtraMessages.size(); ++s)
 		{
 			Message *pMessage = s>=0 ? pMessageOriginal->m_vectExtraMessages[s] : pMessageOriginal;
-			 if( pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND )
+			if (pMessage->m_dwPK_Device_To==m_dwPK_Device && pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND)
+			{
+				// Only buffer single messages, otherwise the caller won't know which messages were buffered and which weren't
+				if( m_pMessageBuffer && pMessage->m_bCanBuffer && pMessageOriginal->m_vectExtraMessages.size()==1 && m_pMessageBuffer->BufferMessage(pMessage) )
+					return rmr_Buffered;
+				switch(pMessage->m_dwID)
+				{
+				case COMMAND_Refresh_CONST:
+					{
+						string sCMD_Result="OK";
+						string sDataGrid_ID=pMessage->m_mapParameters[COMMANDPARAMETER_DataGrid_ID_CONST];
+						CMD_Refresh(sDataGrid_ID.c_str(),sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(itRepeat->second.c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Refresh(sDataGrid_ID.c_str(),sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case COMMAND_Disk_Drive_Monitoring_ON_CONST:
+					{
+						string sCMD_Result="OK";
+						CMD_Disk_Drive_Monitoring_ON(sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(itRepeat->second.c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Disk_Drive_Monitoring_ON(sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case COMMAND_Disk_Drive_Monitoring_OFF_CONST:
+					{
+						string sCMD_Result="OK";
+						CMD_Disk_Drive_Monitoring_OFF(sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(itRepeat->second.c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Disk_Drive_Monitoring_OFF(sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case COMMAND_Reset_Disk_Drive_CONST:
+					{
+						string sCMD_Result="OK";
+						CMD_Reset_Disk_Drive(sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(itRepeat->second.c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Reset_Disk_Drive(sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case COMMAND_Eject_Disk_CONST:
+					{
+						string sCMD_Result="OK";
+						int iSlot_Number=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Slot_Number_CONST].c_str());
+						CMD_Eject_Disk(iSlot_Number,sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(itRepeat->second.c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Eject_Disk(iSlot_Number,sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case COMMAND_Start_Burn_Session_CONST:
+					{
+						string sCMD_Result="OK";
+						CMD_Start_Burn_Session(sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(itRepeat->second.c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Start_Burn_Session(sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case COMMAND_Start_Ripping_Session_CONST:
+					{
+						string sCMD_Result="OK";
+						CMD_Start_Ripping_Session(sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(itRepeat->second.c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Start_Ripping_Session(sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case COMMAND_Add_File_To_Burning_Session_CONST:
+					{
+						string sCMD_Result="OK";
+						CMD_Add_File_To_Burning_Session(sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(itRepeat->second.c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Add_File_To_Burning_Session(sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case COMMAND_Start_Burning_CONST:
+					{
+						string sCMD_Result="OK";
+						CMD_Start_Burning(sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(itRepeat->second.c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Start_Burning(sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case COMMAND_Abort_Burning_CONST:
+					{
+						string sCMD_Result="OK";
+						CMD_Abort_Burning(sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(itRepeat->second.c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Abort_Burning(sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case COMMAND_Mount_Disk_Image_CONST:
+					{
+						string sCMD_Result="OK";
+						string sFilename=pMessage->m_mapParameters[COMMANDPARAMETER_Filename_CONST];
+						string sMediaURL=pMessage->m_mapParameters[COMMANDPARAMETER_MediaURL_CONST];
+						CMD_Mount_Disk_Image(sFilename.c_str(),&sMediaURL,sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+						pMessageOut->m_mapParameters[COMMANDPARAMETER_MediaURL_CONST]=sMediaURL;
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(itRepeat->second.c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Mount_Disk_Image(sFilename.c_str(),&sMediaURL,sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case COMMAND_Abort_Ripping_CONST:
+					{
+						string sCMD_Result="OK";
+						CMD_Abort_Ripping(sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(itRepeat->second.c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Abort_Ripping(sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case COMMAND_Format_Drive_CONST:
+					{
+						string sCMD_Result="OK";
+						CMD_Format_Drive(sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(itRepeat->second.c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Format_Drive(sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case COMMAND_Close_Tray_CONST:
+					{
+						string sCMD_Result="OK";
+						CMD_Close_Tray(sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(itRepeat->second.c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Close_Tray(sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case COMMAND_Rip_Disk_CONST:
+					{
+						string sCMD_Result="OK";
+						int iPK_Device=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Device_CONST].c_str());
+						string sFilename=pMessage->m_mapParameters[COMMANDPARAMETER_Filename_CONST];
+						int iPK_Users=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Users_CONST].c_str());
+						string sFormat=pMessage->m_mapParameters[COMMANDPARAMETER_Format_CONST];
+						string sTracks=pMessage->m_mapParameters[COMMANDPARAMETER_Tracks_CONST];
+						int iEK_Disc=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_EK_Disc_CONST].c_str());
+						int iSlot_Number=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Slot_Number_CONST].c_str());
+						int iDriveID=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_DriveID_CONST].c_str());
+						string sDirectory=pMessage->m_mapParameters[COMMANDPARAMETER_Directory_CONST];
+						CMD_Rip_Disk(iPK_Device,sFilename.c_str(),iPK_Users,sFormat.c_str(),sTracks.c_str(),iEK_Disc,iSlot_Number,iDriveID,sDirectory.c_str(),sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(itRepeat->second.c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Rip_Disk(iPK_Device,sFilename.c_str(),iPK_Users,sFormat.c_str(),sTracks.c_str(),iEK_Disc,iSlot_Number,iDriveID,sDirectory.c_str(),sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case COMMAND_Load_from_Slot_into_Drive_CONST:
+					{
+						string sCMD_Result="OK";
+						int iSlot_Number=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Slot_Number_CONST].c_str());
+						int iPK_Device=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Device_CONST].c_str());
+						CMD_Load_from_Slot_into_Drive(iSlot_Number,&iPK_Device,sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+						pMessageOut->m_mapParameters[COMMANDPARAMETER_PK_Device_CONST]=StringUtils::itos(iPK_Device);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(itRepeat->second.c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Load_from_Slot_into_Drive(iSlot_Number,&iPK_Device,sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case COMMAND_Unload_from_Drive_into_Slot_CONST:
+					{
+						string sCMD_Result="OK";
+						int iPK_Device=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Device_CONST].c_str());
+						int iSlot_Number=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Slot_Number_CONST].c_str());
+						CMD_Unload_from_Drive_into_Slot(iPK_Device,&iSlot_Number,sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+						pMessageOut->m_mapParameters[COMMANDPARAMETER_Slot_Number_CONST]=StringUtils::itos(iSlot_Number);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(itRepeat->second.c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Unload_from_Drive_into_Slot(iPK_Device,&iSlot_Number,sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case COMMAND_Get_Jukebox_Status_CONST:
+					{
+						string sCMD_Result="OK";
+						string sForce=pMessage->m_mapParameters[COMMANDPARAMETER_Force_CONST];
+						string sJukebox_Status=pMessage->m_mapParameters[COMMANDPARAMETER_Jukebox_Status_CONST];
+						CMD_Get_Jukebox_Status(sForce.c_str(),&sJukebox_Status,sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+						pMessageOut->m_mapParameters[COMMANDPARAMETER_Jukebox_Status_CONST]=sJukebox_Status;
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(itRepeat->second.c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Get_Jukebox_Status(sForce.c_str(),&sJukebox_Status,sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case COMMAND_Bulk_Rip_CONST:
+					{
+						string sCMD_Result="OK";
+						string sFilename=pMessage->m_mapParameters[COMMANDPARAMETER_Filename_CONST];
+						int iPK_Users=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Users_CONST].c_str());
+						string sFormat=pMessage->m_mapParameters[COMMANDPARAMETER_Format_CONST];
+						string sDisks=pMessage->m_mapParameters[COMMANDPARAMETER_Disks_CONST];
+						CMD_Bulk_Rip(sFilename.c_str(),iPK_Users,sFormat.c_str(),sDisks.c_str(),sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(itRepeat->second.c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Bulk_Rip(sFilename.c_str(),iPK_Users,sFormat.c_str(),sDisks.c_str(),sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case COMMAND_Play_Disk_CONST:
+					{
+						string sCMD_Result="OK";
+						int iSlot_Number=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Slot_Number_CONST].c_str());
+						CMD_Play_Disk(iSlot_Number,sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(itRepeat->second.c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Play_Disk(iSlot_Number,sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case COMMAND_Get_Bulk_Ripping_Status_CONST:
+					{
+						string sCMD_Result="OK";
+						string sBulk_rip_status=pMessage->m_mapParameters[COMMANDPARAMETER_Bulk_rip_status_CONST];
+						CMD_Get_Bulk_Ripping_Status(&sBulk_rip_status,sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+						pMessageOut->m_mapParameters[COMMANDPARAMETER_Bulk_rip_status_CONST]=sBulk_rip_status;
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(itRepeat->second.c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Get_Bulk_Ripping_Status(&sBulk_rip_status,sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case COMMAND_Mass_identify_media_CONST:
+					{
+						string sCMD_Result="OK";
+						string sDisks=pMessage->m_mapParameters[COMMANDPARAMETER_Disks_CONST];
+						CMD_Mass_identify_media(sDisks.c_str(),sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(itRepeat->second.c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Mass_identify_media(sDisks.c_str(),sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case COMMAND_Media_Identified_CONST:
+					{
+						string sCMD_Result="OK";
+						int iPK_Device=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Device_CONST].c_str());
+						string sValue_To_Assign=pMessage->m_mapParameters[COMMANDPARAMETER_Value_To_Assign_CONST];
+						string sID=pMessage->m_mapParameters[COMMANDPARAMETER_ID_CONST];
+						char *pData=pMessage->m_mapData_Parameters[COMMANDPARAMETER_Data_CONST];
+						int iData_Size=pMessage->m_mapData_Lengths[COMMANDPARAMETER_Data_CONST];
+						string sFormat=pMessage->m_mapParameters[COMMANDPARAMETER_Format_CONST];
+						int iPK_MediaType=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_MediaType_CONST].c_str());
+						string sMediaURL=pMessage->m_mapParameters[COMMANDPARAMETER_MediaURL_CONST];
+						string sURL=pMessage->m_mapParameters[COMMANDPARAMETER_URL_CONST];
+						int iEK_Disc=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_EK_Disc_CONST].c_str());
+						CMD_Media_Identified(iPK_Device,sValue_To_Assign.c_str(),sID.c_str(),pData,iData_Size,sFormat.c_str(),iPK_MediaType,sMediaURL.c_str(),sURL.c_str(),&iEK_Disc,sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+						pMessageOut->m_mapParameters[COMMANDPARAMETER_EK_Disc_CONST]=StringUtils::itos(iEK_Disc);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(itRepeat->second.c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Media_Identified(iPK_Device,sValue_To_Assign.c_str(),sID.c_str(),pData,iData_Size,sFormat.c_str(),iPK_MediaType,sMediaURL.c_str(),sURL.c_str(),&iEK_Disc,sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case COMMAND_Cancel_Pending_Task_CONST:
+					{
+						string sCMD_Result="OK";
+						int iSlot_Number=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Slot_Number_CONST].c_str());
+						CMD_Cancel_Pending_Task(iSlot_Number,sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(itRepeat->second.c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Cancel_Pending_Task(iSlot_Number,sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case COMMAND_Get_Default_Ripping_Info_CONST:
+					{
+						string sCMD_Result="OK";
+						int iEK_Disc=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_EK_Disc_CONST].c_str());
+						string sFilename=pMessage->m_mapParameters[COMMANDPARAMETER_Filename_CONST];
+						bool bUseDefault=(pMessage->m_mapParameters[COMMANDPARAMETER_UseDefault_CONST]=="1" ? true : false);
+						string sPath=pMessage->m_mapParameters[COMMANDPARAMETER_Path_CONST];
+						int iDriveID=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_DriveID_CONST].c_str());
+						string sDirectory=pMessage->m_mapParameters[COMMANDPARAMETER_Directory_CONST];
+						string sStorage_Device_Name=pMessage->m_mapParameters[COMMANDPARAMETER_Storage_Device_Name_CONST];
+						CMD_Get_Default_Ripping_Info(iEK_Disc,&sFilename,&bUseDefault,&sPath,&iDriveID,&sDirectory,&sStorage_Device_Name,sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+						pMessageOut->m_mapParameters[COMMANDPARAMETER_Filename_CONST]=sFilename;
+						pMessageOut->m_mapParameters[COMMANDPARAMETER_UseDefault_CONST]=(bUseDefault ? "1" : "0");
+						pMessageOut->m_mapParameters[COMMANDPARAMETER_Path_CONST]=sPath;
+						pMessageOut->m_mapParameters[COMMANDPARAMETER_DriveID_CONST]=StringUtils::itos(iDriveID);
+						pMessageOut->m_mapParameters[COMMANDPARAMETER_Directory_CONST]=sDirectory;
+						pMessageOut->m_mapParameters[COMMANDPARAMETER_Storage_Device_Name_CONST]=sStorage_Device_Name;
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(itRepeat->second.c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Get_Default_Ripping_Info(iEK_Disc,&sFilename,&bUseDefault,&sPath,&iDriveID,&sDirectory,&sStorage_Device_Name,sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case COMMAND_Update_Ripping_Status_CONST:
+					{
+						string sCMD_Result="OK";
+						string sText=pMessage->m_mapParameters[COMMANDPARAMETER_Text_CONST];
+						string sFilename=pMessage->m_mapParameters[COMMANDPARAMETER_Filename_CONST];
+						string sTime=pMessage->m_mapParameters[COMMANDPARAMETER_Time_CONST];
+						string sStatus=pMessage->m_mapParameters[COMMANDPARAMETER_Status_CONST];
+						int iPercent=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Percent_CONST].c_str());
+						string sTask=pMessage->m_mapParameters[COMMANDPARAMETER_Task_CONST];
+						string sJob=pMessage->m_mapParameters[COMMANDPARAMETER_Job_CONST];
+						CMD_Update_Ripping_Status(sText.c_str(),sFilename.c_str(),sTime.c_str(),sStatus.c_str(),iPercent,sTask.c_str(),sJob.c_str(),sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(itRepeat->second.c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Update_Ripping_Status(sText.c_str(),sFilename.c_str(),sTime.c_str(),sStatus.c_str(),iPercent,sTask.c_str(),sJob.c_str(),sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case COMMAND_Lock_CONST:
+					{
+						string sCMD_Result="OK";
+						int iPK_Device=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Device_CONST].c_str());
+						string sID=pMessage->m_mapParameters[COMMANDPARAMETER_ID_CONST];
+						bool bTurn_On=(pMessage->m_mapParameters[COMMANDPARAMETER_Turn_On_CONST]=="1" ? true : false);
+						string sText=pMessage->m_mapParameters[COMMANDPARAMETER_Text_CONST];
+						bool bIsSuccessful=(pMessage->m_mapParameters[COMMANDPARAMETER_IsSuccessful_CONST]=="1" ? true : false);
+						CMD_Lock(iPK_Device,sID.c_str(),bTurn_On,&sText,&bIsSuccessful,sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+						pMessageOut->m_mapParameters[COMMANDPARAMETER_Text_CONST]=sText;
+						pMessageOut->m_mapParameters[COMMANDPARAMETER_IsSuccessful_CONST]=(bIsSuccessful ? "1" : "0");
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(itRepeat->second.c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Lock(iPK_Device,sID.c_str(),bTurn_On,&sText,&bIsSuccessful,sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case COMMAND_Abort_Task_CONST:
+					{
+						string sCMD_Result="OK";
+						int iParameter_ID=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Parameter_ID_CONST].c_str());
+						CMD_Abort_Task(iParameter_ID,sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(itRepeat->second.c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Abort_Task(iParameter_ID,sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case COMMAND_Load_Disk_CONST:
+					{
+						string sCMD_Result="OK";
+						bool bMultiple=(pMessage->m_mapParameters[COMMANDPARAMETER_Multiple_CONST]=="1" ? true : false);
+						CMD_Load_Disk(bMultiple,sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(itRepeat->second.c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Load_Disk(bMultiple,sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case COMMAND_Get_Disk_Info_CONST:
+					{
+						string sCMD_Result="OK";
+						string sText=pMessage->m_mapParameters[COMMANDPARAMETER_Text_CONST];
+						int iPK_MediaType=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_MediaType_CONST].c_str());
+						int iEK_Disc=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_EK_Disc_CONST].c_str());
+						string sDisks=pMessage->m_mapParameters[COMMANDPARAMETER_Disks_CONST];
+						string sURL=pMessage->m_mapParameters[COMMANDPARAMETER_URL_CONST];
+						string sBlock_Device=pMessage->m_mapParameters[COMMANDPARAMETER_Block_Device_CONST];
+						CMD_Get_Disk_Info(&sText,&iPK_MediaType,&iEK_Disc,&sDisks,&sURL,&sBlock_Device,sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+						pMessageOut->m_mapParameters[COMMANDPARAMETER_Text_CONST]=sText;
+						pMessageOut->m_mapParameters[COMMANDPARAMETER_PK_MediaType_CONST]=StringUtils::itos(iPK_MediaType);
+						pMessageOut->m_mapParameters[COMMANDPARAMETER_EK_Disc_CONST]=StringUtils::itos(iEK_Disc);
+						pMessageOut->m_mapParameters[COMMANDPARAMETER_Disks_CONST]=sDisks;
+						pMessageOut->m_mapParameters[COMMANDPARAMETER_URL_CONST]=sURL;
+						pMessageOut->m_mapParameters[COMMANDPARAMETER_Block_Device_CONST]=sBlock_Device;
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(itRepeat->second.c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Get_Disk_Info(&sText,&iPK_MediaType,&iEK_Disc,&sDisks,&sURL,&sBlock_Device,sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case COMMAND_Get_Ripping_Status_CONST:
+					{
+						string sCMD_Result="OK";
+						string sStatus=pMessage->m_mapParameters[COMMANDPARAMETER_Status_CONST];
+						CMD_Get_Ripping_Status(&sStatus,sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+						pMessageOut->m_mapParameters[COMMANDPARAMETER_Status_CONST]=sStatus;
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(itRepeat->second.c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Get_Ripping_Status(&sStatus,sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				}
+				iHandled += (Command_Impl::ReceivedMessage(pMessage)==rmr_NotProcessed ? 0 : 1);
+			}
+			else if( pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND )
 			{
 				MapCommand_Impl::iterator it = m_mapCommandImpl_Children.find(pMessage->m_dwPK_Device_To);
 				if( it!=m_mapCommandImpl_Children.end() && !(*it).second->m_bGeneric )

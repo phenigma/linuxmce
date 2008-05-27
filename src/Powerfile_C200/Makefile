@@ -13,7 +13,7 @@ BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lpthread
 
 MYNAME = Powerfile_C200
 VERSION = 2.0.0
-MYDEVTEMPLATEID = 1889mplateID
+MYDEVTEMPLATEID = 1737mplateID
 
 Gen_Dev_Files = $(GENDEV)/Powerfile_C200Base.cpp
 sources = Main.cpp Powerfile_C200.cpp $(Gen_Dev_Files)
