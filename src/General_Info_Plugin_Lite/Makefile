@@ -19,7 +19,7 @@ Gen_Dev_Files = $(GENDEV)/General_Info_PluginBase.cpp
 sources = Main.cpp General_Info_Plugin.cpp $(Gen_Dev_Files)
 #<-dceag-mh-e->
 
-ifeq($(ARCH),mipsel)
+ifeq ($(ARCH),mipsel)
 	CXX=mipsel-linux-g++
 endif
 
