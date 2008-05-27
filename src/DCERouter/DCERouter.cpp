@@ -1345,7 +1345,7 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted, bo
 				{
 					if(pDeviceData_Router->ParameterExists((*SafetyMessage)->m_dwID))
 					{
-						string sValue = pDeviceData_Router->mapParameters_Find((*SafetyMessage)->m_dwID);
+						string sValue = pDeviceData_Router->m_mapParameters_Find((*SafetyMessage)->m_dwID);
 						pSocket->SendMessage(new Message(m_dwPK_Device, (*SafetyMessage)->m_dwPK_Device_From, PRIORITY_NORMAL, MESSAGETYPE_REPLY, 0, 1, (*SafetyMessage)->m_dwID, sValue.c_str()));
 					}
 				}
