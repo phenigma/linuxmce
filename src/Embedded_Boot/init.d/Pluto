@@ -3,6 +3,13 @@
 START=49
 STOP=20
 
+boot() {
+	if [[ -f /etc/pluto/open_firewall ]]; then
+		iptables -I INPUT -j ACCEPT
+	fi
+	start
+}
+
 start() {
 	/usr/bin/Start_Pluto.sh >/dev/null &>/dev/null </dev/null &
 	sleep 2
