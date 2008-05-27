@@ -536,3 +536,5 @@ void IRTrans::CMD_Learn_IR(int iPK_Device,string sOnOff,int iPK_Text,int iPK_Com
 
 void IRTrans::CMD_Show_Media_Playback_State(string sValue_To_Assign,int iPK_MediaType,string sLevel,string &sCMD_Result,Message *pMessage)
 //<-dceag-c837-e->
+{
+}
