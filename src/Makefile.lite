@@ -6,18 +6,20 @@ export SNR_CPPFLAGS SNR_LDFLAGS
 BINS=DCERouter pluto-lzo MessageSend
 DEVS=ZWave
 LIBS=Serial SerializeClass PlutoUtils DCE
+Plugins=General_Info_Plugin_Lite
 
 all: libs bins
 
 bins: libs
 	@for i in $(BINS); do make -C $$i -f Makefile.lite; done
 	@for i in $(DEVS); do make -C $$i -f Makefile.lite bin; done
+	@for i in $(Plugins); do make -C $$i -f Makefile.lite so; done
 
 libs:
 	@for i in $(LIBS); do make -C $$i -f Makefile.lite; done
 
 clean:
 	@rm -f lib/* bin/*
-	@for i in $(LIBS) $(BINS) $(DEVS); do make -C $$i -f Makefile.lite clean; done
+	@for i in $(LIBS) $(BINS) $(DEVS) $(Plugins); do make -C $$i -f Makefile.lite clean; done
 
 .PHONY: all bins libs clean
