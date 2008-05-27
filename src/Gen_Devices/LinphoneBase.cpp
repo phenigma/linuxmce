@@ -3,8 +3,8 @@
 #include "Logger.h"
 
 using namespace DCE;
-#include "Linphone_Wrapper.shBase.h"
-extern Linphone_Wrapper.sh_Command *Create_Linphone_Wrapper.sh(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter);
+#include "LinphoneBase.h"
+extern Linphone_Command *Create_Linphone(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter);
 DeviceData_Impl *Linphone_Data::CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition)
 {
 	// Peek ahead in the stream.  We're going to pass in the above pointers anyway so it won't affect the position
@@ -15,7 +15,7 @@ DeviceData_Impl *Linphone_Data::CreateData(DeviceData_Impl *Parent,char *pDataBl
 	int iPK_DeviceTemplate = b.Read_unsigned_long();
 	switch(iPK_DeviceTemplate) {
 		case 1602:
-			return new Linphone_Wrapper.sh_Data();
+			return new Linphone_Data();
 	};
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Got CreateData for unknown type %d.", iPK_DeviceTemplate);
 	return NULL;
@@ -25,7 +25,7 @@ Event_Impl *Linphone_Event::CreateEvent( unsigned long dwPK_DeviceTemplate, Clie
 {
 	switch(dwPK_DeviceTemplate) {
 		case 1602:
-			return (Event_Impl *) new Linphone_Wrapper.sh_Event(pOCClientSocket, dwDevice);
+			return (Event_Impl *) new Linphone_Event(pOCClientSocket, dwDevice);
 	};
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Got CreateEvent for unknown type %d.", dwPK_DeviceTemplate);
 	return NULL;
