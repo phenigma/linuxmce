@@ -413,6 +413,8 @@ void SqueezeBox_Player::CMD_Menu(string sText,int iStreamID,string &sCMD_Result,
 
 void SqueezeBox_Player::CMD_Update_Object_Image(string sPK_DesignObj,string sType,char *pData,int iData_Size,string sDisable_Aspect_Lock,string &sCMD_Result,Message *pMessage)
 //<-dceag-c32-e->
+{
+}
 //<-dceag-c126-b->
 
 	/** @brief COMMAND: #126 - Guide */
@@ -420,6 +422,8 @@ void SqueezeBox_Player::CMD_Update_Object_Image(string sPK_DesignObj,string sTyp
 
 void SqueezeBox_Player::CMD_Guide(string &sCMD_Result,Message *pMessage)
 //<-dceag-c126-e->
+{
+}
 //<-dceag-c249-b->
 
 	/** @brief COMMAND: #249 - Start Streaming */
@@ -437,6 +441,8 @@ void SqueezeBox_Player::CMD_Guide(string &sCMD_Result,Message *pMessage)
 
 void SqueezeBox_Player::CMD_Start_Streaming(int iPK_MediaType,int iStreamID,string sMediaPosition,string sMediaURL,string sStreamingTargets,string &sCMD_Result,Message *pMessage)
 //<-dceag-c249-e->
+{
+}
 //<-dceag-c916-b->
 
 	/** @brief COMMAND: #916 - Set Aspect Ratio */
@@ -448,6 +454,8 @@ void SqueezeBox_Player::CMD_Start_Streaming(int iPK_MediaType,int iStreamID,stri
 
 void SqueezeBox_Player::CMD_Set_Aspect_Ratio(int iStreamID,string sAspect_Ratio,string &sCMD_Result,Message *pMessage)
 //<-dceag-c916-e->
+{
+}
 //<-dceag-c917-b->
 
 	/** @brief COMMAND: #917 - Set Zoom */
@@ -459,6 +467,8 @@ void SqueezeBox_Player::CMD_Set_Aspect_Ratio(int iStreamID,string sAspect_Ratio,
 
 void SqueezeBox_Player::CMD_Set_Zoom(int iStreamID,string sZoom_Level,string &sCMD_Result,Message *pMessage)
 //<-dceag-c917-e->
+{
+}
 //<-dceag-c920-b->
 
 	/** @brief COMMAND: #920 - Set Media ID */
@@ -470,3 +480,5 @@ void SqueezeBox_Player::CMD_Set_Zoom(int iStreamID,string sZoom_Level,string &sC
 
 void SqueezeBox_Player::CMD_Set_Media_ID(string sID,int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c920-e->
+{
+}
