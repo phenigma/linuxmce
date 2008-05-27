@@ -665,11 +665,16 @@ RAP_FType Router::PlugIn_Load(int PK_Device, int PK_DeviceTemplate, string sComm
 #ifndef WIN32
     sCommandLine += ".so";
     if (sCommandLine.find("/") == string::npos)
+#ifdef EMBEDDED_LMCE
+        sCommandLine = "/usr/bin/" + sCommandLine;
+#else /*EMBEDDED_LMCE*/
         sCommandLine = "./" + sCommandLine;
+#endif /*EMBEDDED_LMCE*/
+
     so_handle = dlopen(sCommandLine.c_str(), RTLD_LAZY | RTLD_GLOBAL);
-#else
+#else /*WIN32*/
     so_handle = LoadLibrary(sCommandLine.c_str());
-#endif
+#endif /*WIN32*/
 
     if (so_handle == NULL)
     {

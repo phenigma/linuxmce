@@ -16,8 +16,14 @@ extern "C"
 #include "PlutoUtils/LZO.h"
 #include "PlutoUtils/PlutoDefs.h"
 //----------------------------------------------------------------------------------------------
+#if !defined(WIN32) && defined(EMBEDDED_LMCE)
+#define JSON_DYNAMIC_CONFIG_FILE "/etc/pluto/pluto.json.lzo"
+#define JSON_STATIC_CONFIG_FILE "/etc/pluto/pluto_main.json.lzo"
+#else
 #define JSON_DYNAMIC_CONFIG_FILE "pluto.json.lzo"
 #define JSON_STATIC_CONFIG_FILE "pluto_main.json.lzo"
+#endif
+
 #define INSTALLATIONID 1 //HARDCODED VALUE
 //----------------------------------------------------------------------------------------------
 #define ADD_STRING_CHILD(parent, key, value) json_object_object_add(parent, key, json_object_new_string(const_cast<char *>(value.c_str())));
