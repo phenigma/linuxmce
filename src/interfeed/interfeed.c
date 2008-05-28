@@ -32,6 +32,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <stdlib.h>
+#include <signal.h>
 
 // set close-on-exec flag
 void set_close_on_exec(int sock)
@@ -58,6 +59,8 @@ int main(int argc, char * argv[])
 		printf("Error: Use a port between 1024 and 65535\n");
 		return 1;
 	}
+
+	signal(SIGPIPE, SIG_IGN);
 
 	int s = -1, s2 = -1;
 	struct sockaddr_in saddr_server;
