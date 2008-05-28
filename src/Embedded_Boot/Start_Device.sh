@@ -14,4 +14,4 @@ fi
 while [[ ! -f /var/run/pluto.stop ]]; do
 	/usr/bin/"$Cmd" -r 127.0.0.1 -d "$Device"
 	sleep 8
-done
+done | /usr/bin/interfeed $(expr 20000 + $Device)

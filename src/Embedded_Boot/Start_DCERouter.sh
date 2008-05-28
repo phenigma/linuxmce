@@ -6,4 +6,4 @@ fi
 
 while [[ ! -f /var/run/pluto.stop ]]; do
 	/usr/bin/DCERouter
-done
+done | /usr/bin/interfeed 20000
