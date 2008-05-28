@@ -27,12 +27,18 @@
     ],
     "Room_ids": [
         1,
+        2,
         5,
         6 
     ],
     "Room": {
         "PK_Room_1": {
             "Description": "Basement",
+            "room_type": "Basement",
+            "FK_Section": "1" 
+        },
+        "PK_Room_2": {
+            "Description": "Cellar",
             "room_type": "Basement",
             "FK_Section": "1" 
         },
@@ -54,7 +60,7 @@
     ],
     "scenes": {
         "scene_1": {
-            "Description": "First scene",
+            "Description": "Lights on",
             "FK_Room": "5",
             "commands_ids": [
                 1,
@@ -80,11 +86,11 @@
             } 
         },
         "scene_2": {
-            "Description": "Second scene",
+            "Description": "Lights off",
             "FK_Room": "6" 
         },
         "scene_3": {
-            "Description": "Third scene",
+            "Description": "Party!",
             "FK_Room": "6" 
         } 
     },
@@ -152,7 +158,7 @@
         "PK_Device_5": {
             "Description": "Panasonic IP Camera",
             "FK_DeviceTemplate": "47",
-            "FK_Room": "0",
+            "FK_Room": "1",
             "FK_Device_ControlledVia": "1",
             "DeviceData": {
                 "FK_DeviceData_2": "100" 
@@ -169,7 +175,7 @@
         "PK_Device_6": {
             "Description": "Panasonic IP Camera",
             "FK_DeviceTemplate": "47",
-            "FK_Room": "0",
+            "FK_Room": "5",
             "FK_Device_ControlledVia": "1",
             "DeviceData": {
                 "FK_DeviceData_11": "test" 
@@ -201,9 +207,9 @@
             } 
         },
         "PK_Device_8": {
-            "Description": "Luminita Din Stanga",
+            "Description": "Light switch",
             "FK_DeviceTemplate": "37",
-            "FK_Room": "0",
+            "FK_Room": "1",
             "FK_Device_ControlledVia": "2",
             "DeviceData": {
                 "FK_DeviceData_11": "1",
@@ -219,9 +225,9 @@
             } 
         },
         "PK_Device_9": {
-            "Description": "Luminita Din Dreapta",
+            "Description": "Light switch",
             "FK_DeviceTemplate": "37",
-            "FK_Room": "0",
+            "FK_Room": "6",
             "FK_Device_ControlledVia": "2",
             "DeviceData": {
                 "FK_DeviceData_11": "1",
