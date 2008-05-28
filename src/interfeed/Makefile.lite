@@ -1,0 +1,12 @@
+CPP=-W -Wall -Os
+
+ifeq ($(ARCH),mipsel)
+	CC=mipsel-linux-gcc
+else
+	CC=gcc
+endif
+
+all: interfeed
+
+clean:
+	rm -f interfeed
