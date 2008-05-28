@@ -31,6 +31,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <stdlib.h>
 
 // set close-on-exec flag
 void set_close_on_exec(int sock)

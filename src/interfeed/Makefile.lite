@@ -1,4 +1,4 @@
-CPP=-W -Wall -Os
+CPPFLAGS=-W -Wall -Os
 
 ifeq ($(ARCH),mipsel)
 	CC=mipsel-linux-gcc

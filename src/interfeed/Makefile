@@ -1,4 +1,4 @@
-CPP=-W -Wall -g -ggdb3
+CPPFLAGS=-W -Wall -g -ggdb3
 
 all: interfeed
 	cp interfeed ../bin/
