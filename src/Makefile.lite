@@ -11,6 +11,9 @@ LIBS=Serial SerializeClass PlutoUtils DCE
 Plugins=General_Info_Plugin_Lite
 
 all: libs bins
+ifeq ($(ARCH),mipsel)
+	mipsel-linux-strip bin/* lib/*
+endif
 
 bins: libs
 	@for i in $(BINS); do make -C $$i -f Makefile.lite; done
