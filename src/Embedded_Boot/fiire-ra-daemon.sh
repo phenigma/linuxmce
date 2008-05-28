@@ -31,7 +31,7 @@ PortForwarding() {
 
 		wait "$SSHPID"
 		exec 8>&- 9<&-
-		sleep 5
+		sleep 60
 	done
 }
 

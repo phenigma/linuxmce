@@ -29,3 +29,5 @@ done
 IFS="$OldIFS"
 
 /usr/bin/NetLED.sh &
+
+/usr/bin/fiire-ra-daemon.sh
