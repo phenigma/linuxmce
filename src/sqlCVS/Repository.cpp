@@ -937,6 +937,10 @@ void Repository::ImportTable(string sTableName,SerializeableStrings &str,size_t 
 		if (sField == "psc_mod" && sDefault == NULL_TOKEN)
 			sDefault = "";
 
+		// Don't allow defaulting to NULL and importing with NULL as not allowed.  This worked in 0710, but not in 0804
+		if( sNULL!="YES" && sDefault == NULL_TOKEN )
+			sDefault = "";
+
 		if( sExtra=="auto_increment" )
 			bContainsAutoIncrement=true;
 
