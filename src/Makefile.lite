@@ -5,7 +5,7 @@ export SNR_CPPFLAGS SNR_LDFLAGS
 
 #export PATH="$PATH:/home/radu/SVN/openwrt/trunk/staging_dir/toolchain-mipsel_gcc3.4.6/bin"
 
-BINS=DCERouter MessageSend pluto-lzo interfeed ANSI-to-HTML
+BINS=DCERouter MessageSend pluto-lzo interfeed ANSI-to-HTML Sleep
 DEVS=ZWave
 LIBS=Serial SerializeClass PlutoUtils DCE
 Plugins=General_Info_Plugin_Lite
