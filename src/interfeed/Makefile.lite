@@ -7,6 +7,7 @@ else
 endif
 
 all: interfeed
+	cp interfeed ../bin/
 
 clean:
 	rm -f interfeed
