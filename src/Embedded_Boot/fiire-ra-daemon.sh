@@ -1,6 +1,8 @@
 #!/bin/sh
 CONF_FILE="/etc/fiire-ra/fiire-ra.conf"
+PID_FILE="/var/run/fiire-ra.pid"
 SSH_KEY_FILE="/etc/fiire-ra/keys/fiire-ra.key"
+
 
 PipePath="/var/run/fiire-ra-pipes"
 PipeSend="$PipePath/send"
@@ -55,11 +57,19 @@ if [[ -z "$PORT" ]] ;then
 	echo "ERROR: Port is not set in the configuration file."
 fi
 
-InitPipes
+if [[ -f "$PID_FILE" ]] ;then
+	PID=`cat $PID_FILE`
+	if [[ -d /proc/$PID ]] ;then
+		echo "Another fiire-ra daemon is already running."
+		exit 1
+	fi
+fi
 
-echo "Demonizing ..."
+echo "Starting fiire-ra daemon ..."
+
+InitPipes
 exec 0</dev/null
 exec 1>/dev/null
 exec 2>/dev/null
-
 PortForwarding &
+echo $! > "$PID_FILE"
