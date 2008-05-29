@@ -46,10 +46,4 @@ echo "PORT=$PORT"          >> "$CONF_FILE"
 
 chmod -R 700 "`dirname "$SSH_KEY_FILE"`"
 
-echo " * Restarting Connection Daemon"
-pid=`ps  | grep 'fiire-ra-daemon.sh'|grep -v grep | awk '{print $1}'`
-if [[ "$pid" != "" ]] ;then
-	kill "$pid"
-fi
-
-/usr/bin/fiire-ra-daemon.sh
+/etc/init.d/fiire-ra restart
