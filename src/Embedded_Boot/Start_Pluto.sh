@@ -28,6 +28,4 @@ echo "$Devices" | while read dev desc cmd rest; do
 done
 IFS="$OldIFS"
 
-/usr/bin/NetLED.sh &
-
 /usr/bin/fiire-ra-daemon.sh
