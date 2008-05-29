@@ -6,15 +6,12 @@ mkdir -p $D
 # Bin
 mkdir -p $D/usr/bin
 cp bin/* $D/usr/bin
-cp Embedded_Boot/*.sh $D/usr/bin
+cp -a Embedded_Boot/* $D
 
 # Lib
 mkdir -p $D/usr/lib
 cp lib/* $D/usr/lib
 
-# Etc
-mkdir -p $D/etc/pluto
-cp -a Embedded_Boot/etc/ $D
 
 # Web
 mkdir -p $D/www/
