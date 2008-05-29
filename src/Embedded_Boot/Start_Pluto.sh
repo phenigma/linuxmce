@@ -28,4 +28,3 @@ echo "$Devices" | while read dev desc cmd rest; do
 done
 IFS="$OldIFS"
 
-/usr/bin/fiire-ra-daemon.sh
