@@ -251,6 +251,7 @@ void DataLayer_JSON::ParseDevices(struct json_object *json_obj)
 
 			pDevice = new DeviceData_Router(nDeviceID, PK_DeviceTemplate, PK_Installation, PK_Device_ControlledVia);
 			pDevice->m_sDescription = sDescription;
+			pDevice->m_dwPK_Room = PK_Room;
 			pDevice->AssignParameters(mapDeviceData);
 			m_mapDeviceData_Router[pDevice->m_dwPK_Device] = pDevice;
 
