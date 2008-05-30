@@ -32,22 +32,32 @@ boot()
 	uci set network.lan.netmask=255.255.255.0
 
 	Cfg=$(uci show dhcp|grep interface=lan|cut -d. -f2)
+	CfgMasq=$(uci show dhcp|grep =dnsmasq|cut -d. -f2|cut -d= -f1)
+	uci set dhcp.$Cfg.force=1
 	case "$IPtype" in
 		local)
-			uci set dhcp.$Cfg.ignore=1
-			uci set network.wan.proto=none
+			uci set dhcp.$Cfg.ignore=0
+			uci set dhcp.$Cfg.dynamicdhcp=0
+			uci set dhcp.$CfgMasq.authoritative=0
 			uci set network.eth0.vlan0="0 1 2 3 4 5*"
 			uci del network.eth0.vlan1
+			uci set network.wan.ifname=br-lan:0
 			;;
 		none)
 			uci set dhcp.$Cfg.ignore=0
+			uci set dhcp.$Cfg.dynamicdhcp=1
+			uci set dhcp.$CfgMasq.authoritative=1
 			uci set network.eth0.vlan0="1 2 3 4 5*"
 			uci set network.eth0.vlan1="0 5"
+			uci set network.wan.ifname=eth0.1
 			;;
 		routable)
 			uci set dhcp.$Cfg.ignore=0
+			uci set dhcp.$Cfg.dynamicdhcp=1
+			uci set dhcp.$CfgMasq.authoritative=1
 			uci set network.eth0.vlan0="1 2 3 4 5*"
 			uci set network.eth0.vlan1="0 5"
+			uci set network.wan.ifname=eth0.1
 			;;
 	esac
 	uci commit
