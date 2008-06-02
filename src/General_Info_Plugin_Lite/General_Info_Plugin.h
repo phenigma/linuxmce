@@ -58,6 +58,9 @@ public:
 		bool ReportingChildDevices( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
 		void ReportingChildDevices_Offline( void *pVoid );
 
+		bool DeviceDetected( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
+		bool DeviceRemoved( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
+
 		class AlarmManager *m_pAlarmManager;
 		void AlarmCallback(int id, void* param);
 

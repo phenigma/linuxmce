@@ -87,6 +87,8 @@ bool General_Info_Plugin::Register()
 //<-dceag-reg-e->
 {
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &General_Info_Plugin::ReportingChildDevices ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Reporting_Child_Devices_CONST );
+	RegisterMsgInterceptor( ( MessageInterceptorFn )( &General_Info_Plugin::DeviceDetected ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Device_Detected_CONST );
+	RegisterMsgInterceptor( ( MessageInterceptorFn )( &General_Info_Plugin::DeviceRemoved ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Device_Removed_CONST );
 
 	return Connect(PK_DeviceTemplate_get()); 
 }
@@ -974,5 +976,97 @@ void General_Info_Plugin::CMD_Get_Devices_To_Start(int iPK_Device,string *sValue
 			sTemplateName + "|" + 
 			pDeviceData_Router->m_sCommandLine + "\n";
 	}
+}
+//----------------------------------------------------------------------------------------------
+bool General_Info_Plugin::DeviceDetected( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
+{
+	string sDeviceData = pMessage->m_mapParameters[EVENTPARAMETER_DeviceData_CONST];
+	string sIPAddress = pMessage->m_mapParameters[EVENTPARAMETER_IP_Address_CONST];
+	string sMacAddress = pMessage->m_mapParameters[EVENTPARAMETER_Mac_Address_CONST];
+	int nPK_DeviceTemplate = atoi(pMessage->m_mapParameters[EVENTPARAMETER_PK_DeviceTemplate_CONST].c_str());
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Device detected: template id %d, ip %s, mac %s, device data %s",
+		nPK_DeviceTemplate, sIPAddress.c_str(), sMacAddress.c_str(), sDeviceData.c_str());
+
+	bool bDeviceExists = false;
+
+	list<DeviceData_Router *> listDevices;
+	m_pRouter->DataLayer()->DevicesByTemplate(nPK_DeviceTemplate, listDevices);
+
+	for(list<DeviceData_Router *>::iterator it = listDevices.begin(), end = listDevices.end(); it != end; ++it)
+	{
+		DeviceData_Router *pDeviceData_Router = *it;
+
+		if(pDeviceData_Router->m_sMacAddress == sMacAddress)
+		{
+			bDeviceExists = true;
+
+			if(pDeviceData_Router->m_sIPAddress == sIPAddress)
+			{
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Device already created, nothing is changed");
+			}
+			else
+			{
+				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Device already created, need to update the ip addresss");
+				pDeviceData_Router->m_sIPAddress = sIPAddress;
+				m_pRouter->DataLayer()->Save();
+			}
+			break;
+		}
+	}
+
+	if(!bDeviceExists)
+	{
+		DeviceTemplate_Data* pDeviceTemplate_Data = m_pRouter->DataLayer()->DeviceTemplate(nPK_DeviceTemplate);
+
+		string sDeviceDescription;
+
+		if(NULL != pDeviceTemplate_Data)
+			sDeviceDescription = pDeviceTemplate_Data->Description();
+		else
+		{
+			sDeviceDescription = "Unknown device";
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Unknown device template %d", nPK_DeviceTemplate);
+		}
+
+		int nPK_Device = 0;
+		DCE::CMD_Create_Device cmd_Create_Device(
+			m_dwPK_Device,
+			m_dwPK_Device,
+			nPK_DeviceTemplate, 
+			sMacAddress, 
+			-1, // room - autoassign ?
+			sIPAddress, 
+			sDeviceData, 
+			0, //iPK_DHCPDevice
+			0, //iPK_Device_ControlledVia
+			"", //sDescription
+			0, //iPK_Orbiter
+			0, //iPK_Device_Related
+			&nPK_Device
+		);
+
+		SendCommand(cmd_Create_Device);
+
+		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Device created: %d", nPK_Device);
+		m_pRouter->DataLayer()->Save();
+	}
+
+	return false;
+}
+//----------------------------------------------------------------------------------------------
+bool General_Info_Plugin::DeviceRemoved( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
+{
+	string sDeviceData = pMessage->m_mapParameters[EVENTPARAMETER_DeviceData_CONST];
+	string sIPAddress = pMessage->m_mapParameters[EVENTPARAMETER_IP_Address_CONST];
+	string sMacAddress = pMessage->m_mapParameters[EVENTPARAMETER_Mac_Address_CONST];
+	int nPK_DeviceTemplate = atoi(pMessage->m_mapParameters[EVENTPARAMETER_PK_DeviceTemplate_CONST].c_str());
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Device removed: template id %d, ip %s, mac %s, device data %s",
+		nPK_DeviceTemplate, sIPAddress.c_str(), sMacAddress.c_str(), sDeviceData.c_str());
+
+	//TODO: do we need this now ?
+
+	return false;
 }
 //----------------------------------------------------------------------------------------------
