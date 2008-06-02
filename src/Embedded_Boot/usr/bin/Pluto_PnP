@@ -3,7 +3,9 @@
 IP="$1"
 MAC="$2"
 
+DT_Panasonic_IP_Camera=47
+
 if wget -qs http://$IP/CgiStart; then
 	# It's a Panasonic IP camera
-	:
+	/usr/bin/MessageSend 0 -1001 2 65 28 "$IP" 5 "$MAC" 49 "$DT_Panasonic_IP_Camera"
 fi
