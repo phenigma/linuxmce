@@ -26,5 +26,5 @@ fi
 Report_MAC=`ifconfig eth0 | grep 'HWaddr' | sed 's/.*HWaddr \([0-9A-F:]*\).*/\1/g'`
 
 
-Reporting "$Report_IP - $Report_MAC"
+echo "Reporting $Report_IP - $Report_MAC"
 wget "http://plutohome.com/ReportAP.php?IP=${Report_IP}&MAC=${Report_MAC}"
