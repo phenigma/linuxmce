@@ -32,6 +32,8 @@ fi
 ## Install nvidia-glx if needed
 if lshwd | grep -qi 'VGA .* (nv)'; then
         apt-get -y -f install pluto-nvidia-video-drivers
+elif lshwd | grep -qi 'VGA .* (radeon)'; then
+	apt-get -y -f install xorg-driver-fglrx
 fi
 
 PostInstPkg=(
