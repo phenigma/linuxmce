@@ -8,7 +8,12 @@ if [[ "`uci get network.eth0.vlan1`" == '' ]] ;then
 
 	# With Dynamic IP
 	else
-		Report_IP=`ifconfig br-lan | grep 'inet addr:' | sed 's/.*inet addr:\([0-9.]*\).*/\1/g'`
+		wait=0
+		while [[ "$Report_IP" == "" ]] && [[ "$wait" != "15" ]] ;do
+			Report_IP=`ifconfig br-lan | grep 'inet addr:' | sed 's/.*inet addr:\([0-9.]*\).*/\1/g'`
+			sleep 1
+			wait=$(( wait + 1 ))
+		done
 	fi
 
 # Routing mode
@@ -19,7 +24,12 @@ else
 	
 	# With Dynamic IP
 	else
-		Report_IP=`ifconfig eth0.1 | grep 'inet addr:' | sed 's/.*inet addr:\([0-9.]*\).*/\1/g'`
+		wait=0
+		while [[ "$Report_IP" == "" ]] && [[ "$wait" != "15" ]] ;do
+			Report_IP=`ifconfig eth0.1 | grep 'inet addr:' | sed 's/.*inet addr:\([0-9.]*\).*/\1/g'`
+			sleep 1
+			wait=$(( wait + 1 ))
+		done
 	fi
 fi
 

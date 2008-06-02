@@ -28,3 +28,4 @@ echo "$Devices" | while read dev desc cmd rest; do
 done
 IFS="$OldIFS"
 
+/usr/bin/Report_AP.sh 1>/dev/null 2>/dev/null </dev/null &
