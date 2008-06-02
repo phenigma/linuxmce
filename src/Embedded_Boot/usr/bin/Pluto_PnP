@@ -2,3 +2,8 @@
 
 IP="$1"
 MAC="$2"
+
+if wget -qs http://$IP/CgiStart; then
+	# It's a Panasonic IP camera
+	:
+fi
