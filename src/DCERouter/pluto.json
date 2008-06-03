@@ -9,9 +9,6 @@
             "floorplan": "" 
         },
     },
-    "room_types": [
-        "Sample Room Type"
-    ],
     "Room_ids": [
         1
     ],
