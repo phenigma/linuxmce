@@ -8,4 +8,6 @@ uci set network.wan.proto=dhcp
 uci set network.eth0.vlan0="1 2 3 4 5*"
 uci set network.eth0.vlan1="0 5"
 uci commit
+
+sync
 reboot
