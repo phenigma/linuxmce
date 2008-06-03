@@ -5,9 +5,9 @@
     ],
     "Section": {
         "PK_Section_1": {
-            "Description": "Sample room",
+            "Description": "Sample section",
             "floorplan": "" 
-        },
+        }
     },
     "Room_ids": [
         1
