@@ -1029,13 +1029,23 @@ bool General_Info_Plugin::DeviceDetected( class Socket *pSocket, class Message *
 			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Unknown device template %d", nPK_DeviceTemplate);
 		}
 
+		std::list<DeviceData_Router *> listRouterDevices;
+		m_pRouter->DataLayer()->DevicesByTemplate(DEVICETEMPLATE_DCERouter_CONST, listRouterDevices);
+		int nRoomID = 0;
+
+		if(!listRouterDevices.empty())
+		{
+			DeviceData_Router *pRouter = *(listRouterDevices.begin());
+			nRoomID = pRouter->m_dwPK_Room;
+		}
+
 		int nPK_Device = 0;
 		DCE::CMD_Create_Device cmd_Create_Device(
 			m_dwPK_Device,
 			m_dwPK_Device,
 			nPK_DeviceTemplate, 
 			sMacAddress, 
-			-1, // room - autoassign ?
+			nRoomID, 
 			sIPAddress, 
 			sDeviceData, 
 			0, //iPK_DHCPDevice
