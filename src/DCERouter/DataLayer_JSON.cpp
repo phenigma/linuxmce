@@ -19,9 +19,11 @@ extern "C"
 #if !defined(WIN32) && defined(EMBEDDED_LMCE)
 #define JSON_DYNAMIC_CONFIG_FILE "/etc/pluto/pluto.json.lzo"
 #define JSON_STATIC_CONFIG_FILE "/etc/pluto/pluto_main.json.lzo"
+#define DEVICES_FILE "/etc/pluto/devices"
 #else
 #define JSON_DYNAMIC_CONFIG_FILE "pluto.json.lzo"
 #define JSON_STATIC_CONFIG_FILE "pluto_main.json.lzo"
+#define DEVICES_FILE "devices"
 #endif
 
 #define INSTALLATIONID 1 //HARDCODED VALUE
@@ -61,6 +63,7 @@ bool DataLayer_JSON::Save()
 {
 	PLUTO_SAFETY_LOCK(dm, m_DataMutex);
 
+	SaveDevicesFile();
 	SaveDevicesList();
 	SaveDevices();
 
@@ -82,6 +85,36 @@ bool DataLayer_JSON::Save()
 	delete [] pCompressedData;
 
 	return true;
+}
+//----------------------------------------------------------------------------------------------
+void DataLayer_JSON::SaveDevicesFile()
+{
+	PLUTO_SAFETY_LOCK(dm, m_DataMutex);
+
+	string sDevices;
+	for(std::map<int, DeviceData_Router *>::iterator it = m_mapDeviceData_Router.begin(),
+		end = m_mapDeviceData_Router.end(); it != end; ++it)
+	{
+		DeviceData_Router *pDeviceData_Router = it->second;
+
+		if(pDeviceData_Router->m_sDescription.empty())
+		{
+			DeviceTemplate_Data* pDeviceTemplate_Data = DeviceTemplate(pDeviceData_Router->m_dwPK_DeviceTemplate);
+			if(NULL != pDeviceTemplate_Data)
+				pDeviceData_Router->m_sDescription = pDeviceTemplate_Data->Description();
+			else
+				pDeviceData_Router->m_sDescription = "Unknown device";
+		}
+
+		sDevices += 
+			StringUtils::ltos(pDeviceData_Router->m_dwPK_Device) + "|" + 
+			StringUtils::ltos(pDeviceData_Router->m_dwPK_DeviceTemplate) + "|" + 
+			pDeviceData_Router->m_sIPAddress + "|" + 
+			pDeviceData_Router->m_sDescription + "\n"; 
+	}
+
+	//save devices list
+	FileUtils::WriteBufferIntoFile(DEVICES_FILE, sDevices.c_str(), sDevices.size());
 }
 //----------------------------------------------------------------------------------------------
 std::map<int, DeviceData_Router *>& DataLayer_JSON::Devices()

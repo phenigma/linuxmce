@@ -301,7 +301,6 @@ Router::Router(int PK_Device,int PK_Installation,string BasePath,string DBHost,s
 	m_dwPK_Device = m_pRow_Device_Me->PK_Device_get();
     m_dwPK_Installation = m_pRow_Device_Me->FK_Installation_get();
 #else
-	m_dwPK_Device = 1;
 	m_dwPK_Installation = 1;
 #endif
 
@@ -2729,6 +2728,14 @@ void Router::Configure()
 		if(m_pDataLayer->Load())
 		{
 			m_dwPK_Device_Largest = m_pDataLayer->LargestDeviceNumber();
+
+			std::list<DeviceData_Router *> listRouterDevices;
+			m_pDataLayer->DevicesByTemplate(DEVICETEMPLATE_DCERouter_CONST, listRouterDevices);
+			if(!listRouterDevices.empty())
+			{
+				DeviceData_Router *pRouter = *(listRouterDevices.begin());
+				m_dwPK_Device = pRouter->m_dwPK_Device;
+			}
 		}
 	}
 #endif
