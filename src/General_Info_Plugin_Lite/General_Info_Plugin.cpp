@@ -420,6 +420,8 @@ void General_Info_Plugin::CMD_Create_Device(int iPK_DeviceTemplate,string sMac_a
 #endif
 
 	DeviceData_Router *pDeviceData_Router = m_pRouter->DataLayer()->CreateDevice(iPK_DeviceTemplate, sDescription, sIP_Address, sMac_address, iPK_Device_ControlledVia);
+	pDeviceData_Router->m_dwPK_Room = iPK_Room;
+
 	*iPK_Device = pDeviceData_Router->m_dwPK_Device;
 
 	if(!sData_String.empty())
