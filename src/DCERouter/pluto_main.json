@@ -1,6 +1,14 @@
 {
-	"Command_ids":[84,184,192,193,200,201,202,203,257,278,279,280,350,351,355,356,370,373,384,684,685,756,757,760,776,788,820,827,840,841,842],
+	"Command_ids":[68,71,84,184,192,193,200,201,202,203,239,246,247,248,257,272,274,278,279,280,322,323,350,351,355,356,365,370,371,373,384,395,396,684,685,718,719,752,756,757,760,765,776,788,789,791,800,802,803,808,813,820,827,833,835,840,841,842,843,844,882,915,934,956],
 	"Command":{
+		"PK_Command_68": {
+			"Description":"Get Device Data",
+			"FK_CommandCategory":"7"
+		},
+		"PK_Command_71": {
+			"Description":"Request File",
+			"FK_CommandCategory":"7"
+		},
 		"PK_Command_84": {
 			"Description":"Get Video Frame",
 			"FK_CommandCategory":"9"
@@ -33,9 +41,33 @@
 			"Description":"Move Right",
 			"FK_CommandCategory":"34"
 		},
+		"PK_Command_239": {
+			"Description":"Request File And Checksum",
+			"FK_CommandCategory":"7"
+		},
+		"PK_Command_246": {
+			"Description":"Set Device Data",
+			"FK_CommandCategory":"7"
+		},
+		"PK_Command_247": {
+			"Description":"Get Device State",
+			"FK_CommandCategory":"7"
+		},
+		"PK_Command_248": {
+			"Description":"Get Device Status",
+			"FK_CommandCategory":"7"
+		},
 		"PK_Command_257": {
 			"Description":"Delay",
 			"FK_CommandCategory":"55"
+		},
+		"PK_Command_272": {
+			"Description":"Restart DCERouter",
+			"FK_CommandCategory":"7"
+		},
+		"PK_Command_274": {
+			"Description":"Set Room For Device",
+			"FK_CommandCategory":"7"
 		},
 		"PK_Command_278": {
 			"Description":"Set Temperature",
@@ -48,6 +80,14 @@
 		"PK_Command_280": {
 			"Description":"Set Heat\/Cool",
 			"FK_CommandCategory":"36"
+		},
+		"PK_Command_322": {
+			"Description":"Wake Device",
+			"FK_CommandCategory":"7"
+		},
+		"PK_Command_323": {
+			"Description":"Halt Device",
+			"FK_CommandCategory":"7"
 		},
 		"PK_Command_350": {
 			"Description":"Process Incoming Data",
@@ -65,9 +105,17 @@
 			"Description":"Process Release",
 			"FK_CommandCategory":"55"
 		},
+		"PK_Command_365": {
+			"Description":"Get Room Description",
+			"FK_CommandCategory":"7"
+		},
 		"PK_Command_370": {
 			"Description":"Execute Command Group",
 			"FK_CommandCategory":"55"
+		},
+		"PK_Command_371": {
+			"Description":"Is Daytime",
+			"FK_CommandCategory":"7"
 		},
 		"PK_Command_373": {
 			"Description":"Private Method Listing",
@@ -77,6 +125,14 @@
 			"Description":"Process Receive Command For Child",
 			"FK_CommandCategory":"55"
 		},
+		"PK_Command_395": {
+			"Description":"Check for updates",
+			"FK_CommandCategory":"55"
+		},
+		"PK_Command_396": {
+			"Description":"Check for updates done",
+			"FK_CommandCategory":"55"
+		},
 		"PK_Command_684": {
 			"Description":"Zoom In",
 			"FK_CommandCategory":"43"
@@ -84,6 +140,18 @@
 		"PK_Command_685": {
 			"Description":"Zoom Out",
 			"FK_CommandCategory":"43"
+		},
+		"PK_Command_718": {
+			"Description":"Create Device",
+			"FK_CommandCategory":"7"
+		},
+		"PK_Command_719": {
+			"Description":"Delete Device",
+			"FK_CommandCategory":"7"
+		},
+		"PK_Command_752": {
+			"Description":"Check Mounts",
+			"FK_CommandCategory":"7"
 		},
 		"PK_Command_756": {
 			"Description":"Report Child Devices",
@@ -97,6 +165,10 @@
 			"Description":"Send Command To Child",
 			"FK_CommandCategory":"7"
 		},
+		"PK_Command_765": {
+			"Description":"Set Device Relations",
+			"FK_CommandCategory":"7"
+		},
 		"PK_Command_776": {
 			"Description":"Reset",
 			"FK_CommandCategory":"7"
@@ -105,6 +177,34 @@
 			"Description":"StatusReport",
 			"FK_CommandCategory":"7"
 		},
+		"PK_Command_789": {
+			"Description":"Force Update Packages",
+			"FK_CommandCategory":"55"
+		},
+		"PK_Command_791": {
+			"Description":"Set Enable Status",
+			"FK_CommandCategory":"7"
+		},
+		"PK_Command_800": {
+			"Description":"InitAVDeviceTemplateSettings",
+			"FK_CommandCategory":"44"
+		},
+		"PK_Command_802": {
+			"Description":"Get Available Storage Device",
+			"FK_CommandCategory":"7"
+		},
+		"PK_Command_803": {
+			"Description":"Blacklist Internal Disk Drive",
+			"FK_CommandCategory":"7"
+		},
+		"PK_Command_808": {
+			"Description":"Get Unused Serial Ports",
+			"FK_CommandCategory":"7"
+		},
+		"PK_Command_813": {
+			"Description":"Add Software",
+			"FK_CommandCategory":"5"
+		},
 		"PK_Command_820": {
 			"Description":"Assign Return Route",
 			"FK_CommandCategory":"26"
@@ -112,6 +212,14 @@
 		"PK_Command_827": {
 			"Description":"Stop Pending Command Group",
 			"FK_CommandCategory":"55"
+		},
+		"PK_Command_833": {
+			"Description":"Get User Name",
+			"FK_CommandCategory":"55"
+		},
+		"PK_Command_835": {
+			"Description":"Get Network Devices Shares",
+			"FK_CommandCategory":"7"
 		},
 		"PK_Command_840": {
 			"Description":"SetWakeUp",
@@ -124,11 +232,39 @@
 		"PK_Command_842": {
 			"Description":"Set Association",
 			"FK_CommandCategory":"26"
+		},
+		"PK_Command_843": {
+			"Description":"RemoteAssistance_SetStatus",
+			"FK_CommandCategory":"7"
+		},
+		"PK_Command_844": {
+			"Description":"RemoteAssistance_GetStatus",
+			"FK_CommandCategory":"7"
+		},
+		"PK_Command_882": {
+			"Description":"Abort Task",
+			"FK_CommandCategory":"7"
+		},
+		"PK_Command_915": {
+			"Description":"Enable Device",
+			"FK_CommandCategory":"55"
+		},
+		"PK_Command_934": {
+			"Description":"Get Home Symlink",
+			"FK_CommandCategory":"7"
+		},
+		"PK_Command_956": {
+			"Description":"Get Devices To Start",
+			"FK_CommandCategory":"7"
 		}
 	}
 	,
-	"CommandCategory_ids":[9,8,10,34,55,36,43,7,26],
+	"CommandCategory_ids":[7,9,8,10,34,55,36,43,44,5,26],
 	"CommandCategory":{
+		"PK_CommandCategory_7": {
+			"FK_CommandCategory_Parent":"",
+			"Description":"General"
+		},
 		"PK_CommandCategory_9": {
 			"FK_CommandCategory_Parent":"2",
 			"Description":"DCE Players"
@@ -157,9 +293,13 @@
 			"FK_CommandCategory_Parent":"12",
 			"Description":"Misc"
 		},
-		"PK_CommandCategory_7": {
-			"FK_CommandCategory_Parent":"",
+		"PK_CommandCategory_44": {
+			"FK_CommandCategory_Parent":"12",
 			"Description":"General"
+		},
+		"PK_CommandCategory_5": {
+			"FK_CommandCategory_Parent":"",
+			"Description":"App Server"
 		},
 		"PK_CommandCategory_26": {
 			"FK_CommandCategory_Parent":"",
@@ -167,15 +307,27 @@
 		}
 	}
 	,
-	"CommandParameter_ids":[23,41,60,61,19,20,76,98,97,102,5,8,28,154,202,10,51,239,240,9,163,48,248,249,250],
+	"CommandParameter_ids":[2,52,53,13,19,60,61,20,23,41,76,97,98,91,92,102,21,57,50,5,8,47,28,119,230,201,58,109,150,156,198,44,10,154,202,103,205,51,208,219,222,223,229,239,240,9,163,17,244,48,249,250,248,275],
 	"CommandParameter":{
-		"PK_CommandParameter_23": {
-			"Description":"Disable Aspect Lock",
+		"PK_CommandParameter_2": {
+			"Description":"PK_Device",
+			"FK_ParameterType":"2"
+		},
+		"PK_CommandParameter_52": {
+			"Description":"PK_DeviceData",
+			"FK_ParameterType":"2"
+		},
+		"PK_CommandParameter_53": {
+			"Description":"UseDefault",
+			"FK_ParameterType":"3"
+		},
+		"PK_CommandParameter_13": {
+			"Description":"Filename",
 			"FK_ParameterType":"1"
 		},
-		"PK_CommandParameter_41": {
-			"Description":"StreamID",
-			"FK_ParameterType":"2"
+		"PK_CommandParameter_19": {
+			"Description":"Data",
+			"FK_ParameterType":"5"
 		},
 		"PK_CommandParameter_60": {
 			"Description":"Width",
@@ -185,28 +337,52 @@
 			"Description":"Height",
 			"FK_ParameterType":"2"
 		},
-		"PK_CommandParameter_19": {
-			"Description":"Data",
-			"FK_ParameterType":"5"
-		},
 		"PK_CommandParameter_20": {
 			"Description":"Format",
 			"FK_ParameterType":"1"
 		},
-		"PK_CommandParameter_76": {
-			"Description":"Level",
+		"PK_CommandParameter_23": {
+			"Description":"Disable Aspect Lock",
 			"FK_ParameterType":"1"
 		},
-		"PK_CommandParameter_98": {
-			"Description":"PK_Device_Pipes",
+		"PK_CommandParameter_41": {
+			"Description":"StreamID",
+			"FK_ParameterType":"2"
+		},
+		"PK_CommandParameter_76": {
+			"Description":"Level",
 			"FK_ParameterType":"1"
 		},
 		"PK_CommandParameter_97": {
 			"Description":"PK_Pipe",
 			"FK_ParameterType":"2"
 		},
+		"PK_CommandParameter_98": {
+			"Description":"PK_Device_Pipes",
+			"FK_ParameterType":"1"
+		},
+		"PK_CommandParameter_91": {
+			"Description":"Checksum",
+			"FK_ParameterType":"1"
+		},
+		"PK_CommandParameter_92": {
+			"Description":"Checksum Only",
+			"FK_ParameterType":"3"
+		},
 		"PK_CommandParameter_102": {
 			"Description":"Time",
+			"FK_ParameterType":"1"
+		},
+		"PK_CommandParameter_21": {
+			"Description":"Force",
+			"FK_ParameterType":"1"
+		},
+		"PK_CommandParameter_57": {
+			"Description":"PK_Room",
+			"FK_ParameterType":"2"
+		},
+		"PK_CommandParameter_50": {
+			"Description":"Name",
 			"FK_ParameterType":"1"
 		},
 		"PK_CommandParameter_5": {
@@ -217,9 +393,53 @@
 			"Description":"On\/Off",
 			"FK_ParameterType":"1"
 		},
+		"PK_CommandParameter_47": {
+			"Description":"Mac address",
+			"FK_ParameterType":"1"
+		},
 		"PK_CommandParameter_28": {
 			"Description":"PK_CommandGroup",
 			"FK_ParameterType":"2"
+		},
+		"PK_CommandParameter_119": {
+			"Description":"True\/False",
+			"FK_ParameterType":"3"
+		},
+		"PK_CommandParameter_230": {
+			"Description":"Failed",
+			"FK_ParameterType":"3"
+		},
+		"PK_CommandParameter_201": {
+			"Description":"PK_Device_Related",
+			"FK_ParameterType":"2"
+		},
+		"PK_CommandParameter_58": {
+			"Description":"IP Address",
+			"FK_ParameterType":"1"
+		},
+		"PK_CommandParameter_109": {
+			"Description":"Data String",
+			"FK_ParameterType":"1"
+		},
+		"PK_CommandParameter_150": {
+			"Description":"PK_DHCPDevice",
+			"FK_ParameterType":"2"
+		},
+		"PK_CommandParameter_156": {
+			"Description":"PK_Device_ControlledVia",
+			"FK_ParameterType":"2"
+		},
+		"PK_CommandParameter_198": {
+			"Description":"PK_Orbiter",
+			"FK_ParameterType":"2"
+		},
+		"PK_CommandParameter_44": {
+			"Description":"PK_DeviceTemplate",
+			"FK_ParameterType":"2"
+		},
+		"PK_CommandParameter_10": {
+			"Description":"ID",
+			"FK_ParameterType":"1"
 		},
 		"PK_CommandParameter_154": {
 			"Description":"PK_Command",
@@ -229,13 +449,37 @@
 			"Description":"Parameters",
 			"FK_ParameterType":"1"
 		},
-		"PK_CommandParameter_10": {
-			"Description":"ID",
+		"PK_CommandParameter_103": {
+			"Description":"List PK Device",
 			"FK_ParameterType":"1"
+		},
+		"PK_CommandParameter_205": {
+			"Description":"Reverse",
+			"FK_ParameterType":"3"
 		},
 		"PK_CommandParameter_51": {
 			"Description":"Arguments",
 			"FK_ParameterType":"1"
+		},
+		"PK_CommandParameter_208": {
+			"Description":"Enable",
+			"FK_ParameterType":"3"
+		},
+		"PK_CommandParameter_219": {
+			"Description":"Path",
+			"FK_ParameterType":"1"
+		},
+		"PK_CommandParameter_222": {
+			"Description":"Size",
+			"FK_ParameterType":"2"
+		},
+		"PK_CommandParameter_223": {
+			"Description":"Block Device",
+			"FK_ParameterType":"1"
+		},
+		"PK_CommandParameter_229": {
+			"Description":"PK_Software",
+			"FK_ParameterType":"2"
 		},
 		"PK_CommandParameter_239": {
 			"Description":"NodeID",
@@ -253,12 +497,16 @@
 			"Description":"Description",
 			"FK_ParameterType":"1"
 		},
-		"PK_CommandParameter_48": {
-			"Description":"Value",
+		"PK_CommandParameter_17": {
+			"Description":"PK_Users",
 			"FK_ParameterType":"2"
 		},
-		"PK_CommandParameter_248": {
-			"Description":"Parameter ID",
+		"PK_CommandParameter_244": {
+			"Description":"Custom Response",
+			"FK_ParameterType":"5"
+		},
+		"PK_CommandParameter_48": {
+			"Description":"Value",
 			"FK_ParameterType":"2"
 		},
 		"PK_CommandParameter_249": {
@@ -268,10 +516,54 @@
 		"PK_CommandParameter_250": {
 			"Description":"Nodes List",
 			"FK_ParameterType":"1"
+		},
+		"PK_CommandParameter_248": {
+			"Description":"Parameter ID",
+			"FK_ParameterType":"2"
+		},
+		"PK_CommandParameter_275": {
+			"Description":"Symlink",
+			"FK_ParameterType":"1"
 		}
 	}
 	,
 	"Command_CommandParameter":{
+		"Command_CommandParameter_68_2": {
+			"FK_Command":"68",
+			"FK_CommandParameter":"2",
+			"Description":"The device which you want data from",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_68_5": {
+			"FK_Command":"68",
+			"FK_CommandParameter":"5",
+			"Description":"The value.",
+			"IsOut":"1"
+		},
+		"Command_CommandParameter_68_52": {
+			"FK_Command":"68",
+			"FK_CommandParameter":"52",
+			"Description":"What parameter to get.",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_68_53": {
+			"FK_Command":"68",
+			"FK_CommandParameter":"53",
+			"Description":"Report the default value, rather than requesting a live value.",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_71_13": {
+			"FK_Command":"71",
+			"FK_CommandParameter":"13",
+			"Description":"The file to get",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_71_19": {
+			"FK_Command":"71",
+			"FK_CommandParameter":"19",
+			"Description":"The file's contents",
+			"IsOut":"1"
+		},
 		"Command_CommandParameter_84_19": {
 			"FK_Command":"84",
 			"FK_CommandParameter":"19",
@@ -356,10 +648,88 @@
 			"Description":"ID of stream to apply",
 			"IsOut":"0"
 		},
+		"Command_CommandParameter_239_13": {
+			"FK_Command":"239",
+			"FK_CommandParameter":"13",
+			"Description":"The file to get",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_239_19": {
+			"FK_Command":"239",
+			"FK_CommandParameter":"19",
+			"Description":"The file's contents",
+			"IsOut":"1"
+		},
+		"Command_CommandParameter_239_91": {
+			"FK_Command":"239",
+			"FK_CommandParameter":"91",
+			"Description":"The checksum of the file",
+			"IsOut":"1"
+		},
+		"Command_CommandParameter_239_92": {
+			"FK_Command":"239",
+			"FK_CommandParameter":"92",
+			"Description":"If this is true, this command will return only the checksum of the file, Data will be null.",
+			"IsOut":"1"
+		},
+		"Command_CommandParameter_246_2": {
+			"FK_Command":"246",
+			"FK_CommandParameter":"2",
+			"Description":"The device to set",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_246_5": {
+			"FK_Command":"246",
+			"FK_CommandParameter":"5",
+			"Description":"The value to assign",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_246_52": {
+			"FK_Command":"246",
+			"FK_CommandParameter":"52",
+			"Description":"The device data",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_247_2": {
+			"FK_Command":"247",
+			"FK_CommandParameter":"2",
+			"Description":"The device id which you need information for.",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_247_5": {
+			"FK_Command":"247",
+			"FK_CommandParameter":"5",
+			"Description":"The state data for the device.",
+			"IsOut":"1"
+		},
 		"Command_CommandParameter_257_102": {
 			"FK_Command":"257",
 			"FK_CommandParameter":"102",
 			"Description":"The delay time in minutes",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_272_21": {
+			"FK_Command":"272",
+			"FK_CommandParameter":"21",
+			"Description":"",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_274_2": {
+			"FK_Command":"274",
+			"FK_CommandParameter":"2",
+			"Description":"The device, or if negative, this is a PK_PnpQueue and needs to be forwarded to plug and play plugin",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_274_50": {
+			"FK_Command":"274",
+			"FK_CommandParameter":"50",
+			"Description":"If PK_Room is empty, a new room with this name will be created",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_274_57": {
+			"FK_Command":"274",
+			"FK_CommandParameter":"57",
+			"Description":"The room",
 			"IsOut":"0"
 		},
 		"Command_CommandParameter_278_5": {
@@ -380,10 +750,136 @@
 			"Description":"H=heat only, C=cool only, A=automatic",
 			"IsOut":"0"
 		},
+		"Command_CommandParameter_322_2": {
+			"FK_Command":"322",
+			"FK_CommandParameter":"2",
+			"Description":"The device to wake up",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_323_47": {
+			"FK_Command":"323",
+			"FK_CommandParameter":"47",
+			"Description":"If PK_Device is not specified (is 0), we'll use the mac address to determine the device id",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_323_2": {
+			"FK_Command":"323",
+			"FK_CommandParameter":"2",
+			"Description":"The device to halt",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_323_21": {
+			"FK_Command":"323",
+			"FK_CommandParameter":"21",
+			"Description":"If Force is not specified this will do a suspend if the device supports suspend\/resume, otherwise it will do a halt.  Force:  \"H\"=halt, \"S\"=suspend, \"D\"=Display off, \"R\"=reboot, \"N\"=net boot, \"V\"=hard drive boot",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_365_2": {
+			"FK_Command":"365",
+			"FK_CommandParameter":"2",
+			"Description":"The ID of the device.  Specify this or the room ID.",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_365_9": {
+			"FK_Command":"365",
+			"FK_CommandParameter":"9",
+			"Description":"The description of the room",
+			"IsOut":"1"
+		},
+		"Command_CommandParameter_365_57": {
+			"FK_Command":"365",
+			"FK_CommandParameter":"57",
+			"Description":"The ID of the room.  Specify this or the device ID.",
+			"IsOut":"1"
+		},
 		"Command_CommandParameter_370_28": {
 			"FK_Command":"370",
 			"FK_CommandParameter":"28",
 			"Description":"The command group to execute",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_371_119": {
+			"FK_Command":"371",
+			"FK_CommandParameter":"119",
+			"Description":"Returns true if it is daytime.",
+			"IsOut":"1"
+		},
+		"Command_CommandParameter_396_230": {
+			"FK_Command":"396",
+			"FK_CommandParameter":"230",
+			"Description":"This is true if the script used to check for updates fails.",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_718_201": {
+			"FK_Command":"718",
+			"FK_CommandParameter":"201",
+			"Description":"Will make the new device relate to this one if possible",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_718_2": {
+			"FK_Command":"718",
+			"FK_CommandParameter":"2",
+			"Description":"The new device number",
+			"IsOut":"1"
+		},
+		"Command_CommandParameter_718_44": {
+			"FK_Command":"718",
+			"FK_CommandParameter":"44",
+			"Description":"The template",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_718_47": {
+			"FK_Command":"718",
+			"FK_CommandParameter":"47",
+			"Description":"The mac address",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_718_57": {
+			"FK_Command":"718",
+			"FK_CommandParameter":"57",
+			"Description":"The room for the device.  0=no room, -1=ask user",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_718_58": {
+			"FK_Command":"718",
+			"FK_CommandParameter":"58",
+			"Description":"The IP of the device",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_718_109": {
+			"FK_Command":"718",
+			"FK_CommandParameter":"109",
+			"Description":"Extra device data to be assigned when creating the device. It should look like this:\r\ndevicedata_id1|devicedata_value1|devicedata_id2|devicedata_value2| etc.",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_718_150": {
+			"FK_Command":"718",
+			"FK_CommandParameter":"150",
+			"Description":"Only needed if this is a dhcp pnp device",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_718_156": {
+			"FK_Command":"718",
+			"FK_CommandParameter":"156",
+			"Description":"The controlled via",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_718_163": {
+			"FK_Command":"718",
+			"FK_CommandParameter":"163",
+			"Description":"The name for the device",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_718_198": {
+			"FK_Command":"718",
+			"FK_CommandParameter":"198",
+			"Description":"The orbiter which should be used to prompt the user for any extra information.  Zero means all orbiters",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_719_2": {
+			"FK_Command":"719",
+			"FK_CommandParameter":"2",
+			"Description":"The device to delete",
 			"IsOut":"0"
 		},
 		"Command_CommandParameter_757_9": {
@@ -410,6 +906,24 @@
 			"Description":"Parameters for the command in the format:\r\nPK_CommandParameter|Value|...",
 			"IsOut":"0"
 		},
+		"Command_CommandParameter_765_2": {
+			"FK_Command":"765",
+			"FK_CommandParameter":"2",
+			"Description":"The device",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_765_103": {
+			"FK_Command":"765",
+			"FK_CommandParameter":"103",
+			"Description":"The devices it relates to",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_765_205": {
+			"FK_Command":"765",
+			"FK_CommandParameter":"205",
+			"Description":"If true, the device list are the source devices and the PK_Device is the relation",
+			"IsOut":"0"
+		},
 		"Command_CommandParameter_776_51": {
 			"FK_Command":"776",
 			"FK_CommandParameter":"51",
@@ -420,6 +934,90 @@
 			"FK_Command":"788",
 			"FK_CommandParameter":"51",
 			"Description":"Argument string",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_791_2": {
+			"FK_Command":"791",
+			"FK_CommandParameter":"2",
+			"Description":"The id of the device to be enabled\/disabled",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_791_208": {
+			"FK_Command":"791",
+			"FK_CommandParameter":"208",
+			"Description":"If this is true ( = 1), the device will be enabled. Otherwise, the device will be disabled.",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_800_44": {
+			"FK_Command":"800",
+			"FK_CommandParameter":"44",
+			"Description":"Template id",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_802_2": {
+			"FK_Command":"802",
+			"FK_CommandParameter":"2",
+			"Description":"The device id for the NAS or internal drive being used.  If it will be stored on the Core's internal home directory, this will be the device id for the Core.  0 is no device can save the file.",
+			"IsOut":"1"
+		},
+		"Command_CommandParameter_802_163": {
+			"FK_Command":"802",
+			"FK_CommandParameter":"163",
+			"Description":"The descripition for the device being used for the storage (ie Core, or a device name).",
+			"IsOut":"1"
+		},
+		"Command_CommandParameter_802_219": {
+			"FK_Command":"802",
+			"FK_CommandParameter":"219",
+			"Description":"Returns the fully qualified path to prepend to the filename.  If this is empty, that means there is no device which can save this file",
+			"IsOut":"1"
+		},
+		"Command_CommandParameter_802_222": {
+			"FK_Command":"802",
+			"FK_CommandParameter":"222",
+			"Description":"The expected size of the file in MB.  If specified, only a device with enough space and which can handle it (ie some NAS don't do big files).  If not specified, returns device with the most free space.",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_803_156": {
+			"FK_Command":"803",
+			"FK_CommandParameter":"156",
+			"Description":"The 'computer' device that contains the blacklisted drive.",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_803_223": {
+			"FK_Command":"803",
+			"FK_CommandParameter":"223",
+			"Description":"Linux block device representing the Internal Disk Drive.",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_808_2": {
+			"FK_Command":"808",
+			"FK_CommandParameter":"2",
+			"Description":"The computer to get the ports for",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_808_5": {
+			"FK_Command":"808",
+			"FK_CommandParameter":"5",
+			"Description":"A comma delimited list of ports",
+			"IsOut":"1"
+		},
+		"Command_CommandParameter_813_2": {
+			"FK_Command":"813",
+			"FK_CommandParameter":"2",
+			"Description":"The MD to install it on",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_813_119": {
+			"FK_Command":"813",
+			"FK_CommandParameter":"119",
+			"Description":"True = add the package, false=remove it",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_813_229": {
+			"FK_Command":"813",
+			"FK_CommandParameter":"229",
+			"Description":"ID of installing package",
 			"IsOut":"0"
 		},
 		"Command_CommandParameter_820_239": {
@@ -451,6 +1049,24 @@
 			"FK_CommandParameter":"163",
 			"Description":"If specified, only command groups with this Description will be terminated",
 			"IsOut":"0"
+		},
+		"Command_CommandParameter_833_5": {
+			"FK_Command":"833",
+			"FK_CommandParameter":"5",
+			"Description":"The user's name",
+			"IsOut":"1"
+		},
+		"Command_CommandParameter_833_17": {
+			"FK_Command":"833",
+			"FK_CommandParameter":"17",
+			"Description":"The user id",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_835_244": {
+			"FK_Command":"835",
+			"FK_CommandParameter":"244",
+			"Description":"Contains the following info:\r\n\r\ndevice id, device ip, share name, user name, password, free space.\r\n\r\nDelimiter: '\\n'",
+			"IsOut":"1"
 		},
 		"Command_CommandParameter_840_48": {
 			"FK_Command":"840",
@@ -499,6 +1115,60 @@
 			"FK_CommandParameter":"250",
 			"Description":"The list of associated Z-Wave nodes (comma separated).",
 			"IsOut":"0"
+		},
+		"Command_CommandParameter_843_208": {
+			"FK_Command":"843",
+			"FK_CommandParameter":"208",
+			"Description":"Desired state of Remote Assistance",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_844_208": {
+			"FK_Command":"844",
+			"FK_CommandParameter":"208",
+			"Description":"The state of Remote Assistance",
+			"IsOut":"1"
+		},
+		"Command_CommandParameter_882_248": {
+			"FK_Command":"882",
+			"FK_CommandParameter":"248",
+			"Description":"The ID of the task to abort",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_915_2": {
+			"FK_Command":"915",
+			"FK_CommandParameter":"2",
+			"Description":"The device that was enabled",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_915_198": {
+			"FK_Command":"915",
+			"FK_CommandParameter":"198",
+			"Description":"The Orbiter that did it, if any",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_934_219": {
+			"FK_Command":"934",
+			"FK_CommandParameter":"219",
+			"Description":"The physical path like \/mnt\/device\/<deviceid>",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_934_275": {
+			"FK_Command":"934",
+			"FK_CommandParameter":"275",
+			"Description":"The symlink like \/home\/public\/data ...",
+			"IsOut":"1"
+		},
+		"Command_CommandParameter_956_2": {
+			"FK_Command":"956",
+			"FK_CommandParameter":"2",
+			"Description":"The parent device",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_956_5": {
+			"FK_Command":"956",
+			"FK_CommandParameter":"5",
+			"Description":"A pipe delimited list like this: DeviceID1|CommandLine1\\nDeviceID2|CommandLine2 etc",
+			"IsOut":"1"
 		}
 	}
 	,
@@ -590,7 +1260,7 @@
 		}
 	}
 	,
-	"DeviceCategory_ids":[1,83,73,140,84,81,82,80],
+	"DeviceCategory_ids":[1,83,61,73,140,84,81,82,80],
 	"DeviceCategory":{
 		"PK_DeviceCategory_1": {
 			"FK_DeviceCategory_Parent":"",
@@ -599,6 +1269,10 @@
 		"PK_DeviceCategory_83": {
 			"FK_DeviceCategory_Parent":"72",
 			"Description":"Climate Device"
+		},
+		"PK_DeviceCategory_61": {
+			"FK_DeviceCategory_Parent":"4",
+			"Description":"General Info Plug-ins"
 		},
 		"PK_DeviceCategory_73": {
 			"FK_DeviceCategory_Parent":"72",
@@ -626,8 +1300,12 @@
 		}
 	}
 	,
-	"DeviceCommandGroup_ids":[17,21,28,29,36,72,76,80,85],
+	"DeviceCommandGroup_ids":[12,17,21,28,29,36,72,76,80,85,92],
 	"DeviceCommandGroup":{
+		"PK_DeviceCommandGroup_12": {
+			"FK_DeviceCategory":"61",
+			"Description":"General Info"
+		},
 		"PK_DeviceCommandGroup_17": {
 			"FK_DeviceCategory":"84",
 			"Description":"Apex 6100"
@@ -663,6 +1341,10 @@
 		"PK_DeviceCommandGroup_85": {
 			"FK_DeviceCategory":"81",
 			"Description":"ZWave"
+		},
+		"PK_DeviceCommandGroup_92": {
+			"FK_DeviceCategory":"81",
+			"Description":"Insteon"
 		}
 	}
 	,
@@ -1332,6 +2014,11 @@
 			"FK_Command":"868",
 			"Description":"Resend a\/v commands to the active video or audio output device"
 		},
+		"DeviceCommandGroup_Command_7_955": {
+			"FK_DeviceCommandGroup":"7",
+			"FK_Command":"955",
+			"Description":"Change the repeat option for an entertainment area"
+		},
 		"DeviceCommandGroup_Command_8_45": {
 			"FK_DeviceCommandGroup":"8",
 			"FK_Command":"45",
@@ -1415,7 +2102,7 @@
 		"DeviceCommandGroup_Command_8_914": {
 			"FK_DeviceCommandGroup":"8",
 			"FK_Command":"914",
-			"Description":""
+			"Description":"Retrieve the information on the current disk"
 		},
 		"DeviceCommandGroup_Command_9_58": {
 			"FK_DeviceCommandGroup":"9",
@@ -1766,6 +2453,11 @@
 			"FK_DeviceCommandGroup":"12",
 			"FK_Command":"934",
 			"Description":"Get home symlink"
+		},
+		"DeviceCommandGroup_Command_12_956": {
+			"FK_DeviceCommandGroup":"12",
+			"FK_Command":"956",
+			"Description":"Get the list with devices to start."
 		},
 		"DeviceCommandGroup_Command_13_84": {
 			"FK_DeviceCommandGroup":"13",
@@ -3207,6 +3899,11 @@
 			"FK_Command":"682",
 			"Description":"VDR yellow"
 		},
+		"DeviceCommandGroup_Command_92_920": {
+			"FK_DeviceCommandGroup":"92",
+			"FK_Command":"920",
+			"Description":"Create a group and add the specified devices to the group number (stored in PLC adapter)"
+		},
 		"DeviceCommandGroup_Command_93_942": {
 			"FK_DeviceCommandGroup":"93",
 			"FK_Command":"942",
@@ -3323,7 +4020,7 @@
 		}
 	}
 	,
-	"DeviceTemplate_ids":[1,4,37,38,47,50,56,1599,1600,1633,1744,1745,1754,1773,1813,1820,1922],
+	"DeviceTemplate_ids":[1,4,7,27,37,38,47,50,56,1599,1600,1633,1744,1745,1754,1773,1813,1820,1922],
 	"DeviceTemplate":{
 		"PK_DeviceTemplate_1": {
 			"Description":"DCERouter",
@@ -3352,7 +4049,7 @@
 			"ImplementsDCE":"1",
 			"IsEmbedded":"0",
 			"CommandLine":""
-		}		
+		},
 		"PK_DeviceTemplate_37": {
 			"Description":"Light Switch (on\/off)",
 			"FK_DeviceCategory":"73",
@@ -3468,6 +4165,14 @@
 		"DeviceTemplate_DeviceCommandGroup_4_36": {
 			"FK_DeviceTemplate":"4",
 			"FK_DeviceCommandGroup":"36"
+		},
+		"DeviceTemplate_DeviceCommandGroup_27_12": {
+			"FK_DeviceTemplate":"27",
+			"FK_DeviceCommandGroup":"12"
+		},
+		"DeviceTemplate_DeviceCommandGroup_27_89": {
+			"FK_DeviceTemplate":"27",
+			"FK_DeviceCommandGroup":"89"
 		},
 		"DeviceTemplate_DeviceCommandGroup_37_21": {
 			"FK_DeviceTemplate":"37",
@@ -3919,8 +4624,15 @@
 		}
 	}
 	,
-	"DeviceTemplate_DeviceTemplate_ControlledVia_ids":[52,86,106,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],
+	"DeviceTemplate_DeviceTemplate_ControlledVia_ids":[2,52,86,106,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],
 	"DeviceTemplate_DeviceTemplate_ControlledVia":{
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_2": {
+			"FK_DeviceTemplate":"27",
+			"FK_DeviceTemplate_ControlledVia":"1",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"1"
+		},
 		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_52": {
 			"FK_DeviceTemplate":"1633",
 			"FK_DeviceTemplate_ControlledVia":"1632",
@@ -3943,13 +4655,6 @@
 			"AutoCreateChildren":"1"
 		},
 		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"4",
-			"FK_DeviceTemplate_ControlledVia":"3",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
 			"FK_DeviceTemplate":"1",
 			"FK_DeviceTemplate_ControlledVia":"7",
 			"Description":"",
@@ -3957,21 +4662,245 @@
 			"AutoCreateChildren":"1"
 		},
 		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"47",
-			"FK_DeviceTemplate_ControlledVia":"7",
+			"FK_DeviceTemplate":"1",
+			"FK_DeviceTemplate_ControlledVia":"1771",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"1"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"1",
+			"FK_DeviceTemplate_ControlledVia":"1890",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"1"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"56",
+			"FK_DeviceTemplate_ControlledVia":"40",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"56",
+			"FK_DeviceTemplate_ControlledVia":"49",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"56",
+			"FK_DeviceTemplate_ControlledVia":"1629",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"56",
+			"FK_DeviceTemplate_ControlledVia":"1630",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"56",
+			"FK_DeviceTemplate_ControlledVia":"1632",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"56",
+			"FK_DeviceTemplate_ControlledVia":"1742",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"56",
+			"FK_DeviceTemplate_ControlledVia":"1746",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"56",
+			"FK_DeviceTemplate_ControlledVia":"1747",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"56",
+			"FK_DeviceTemplate_ControlledVia":"1760",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"56",
+			"FK_DeviceTemplate_ControlledVia":"1785",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"56",
+			"FK_DeviceTemplate_ControlledVia":"1815",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"56",
+			"FK_DeviceTemplate_ControlledVia":"1845",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"56",
+			"FK_DeviceTemplate_ControlledVia":"1905",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"56",
+			"FK_DeviceTemplate_ControlledVia":"1906",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"56",
+			"FK_DeviceTemplate_ControlledVia":"1932",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"4",
+			"FK_DeviceTemplate_ControlledVia":"3",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"4",
+			"FK_DeviceTemplate_ControlledVia":"1820",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"4",
+			"FK_DeviceTemplate_ControlledVia":"40",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"4",
+			"FK_DeviceTemplate_ControlledVia":"49",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"4",
+			"FK_DeviceTemplate_ControlledVia":"1629",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"4",
+			"FK_DeviceTemplate_ControlledVia":"1630",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"4",
+			"FK_DeviceTemplate_ControlledVia":"1632",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"4",
+			"FK_DeviceTemplate_ControlledVia":"1742",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"4",
+			"FK_DeviceTemplate_ControlledVia":"1746",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"4",
+			"FK_DeviceTemplate_ControlledVia":"1747",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"4",
+			"FK_DeviceTemplate_ControlledVia":"1760",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"4",
+			"FK_DeviceTemplate_ControlledVia":"1785",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"4",
+			"FK_DeviceTemplate_ControlledVia":"1815",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"4",
+			"FK_DeviceTemplate_ControlledVia":"1845",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"4",
+			"FK_DeviceTemplate_ControlledVia":"1905",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"4",
+			"FK_DeviceTemplate_ControlledVia":"1906",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"4",
+			"FK_DeviceTemplate_ControlledVia":"1932",
 			"Description":"",
 			"RerouteMessagesToParent":"0",
 			"AutoCreateChildren":"0"
 		},
 		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
 			"FK_DeviceTemplate":"38",
-			"FK_DeviceTemplate_ControlledVia":"14",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"37",
 			"FK_DeviceTemplate_ControlledVia":"14",
 			"Description":"",
 			"RerouteMessagesToParent":"0",
@@ -3985,6 +4914,139 @@
 			"AutoCreateChildren":"0"
 		},
 		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"38",
+			"FK_DeviceTemplate_ControlledVia":"48",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"38",
+			"FK_DeviceTemplate_ControlledVia":"1754",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"38",
+			"FK_DeviceTemplate_ControlledVia":"1920",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"38",
+			"FK_DeviceTemplate_ControlledVia":"40",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"38",
+			"FK_DeviceTemplate_ControlledVia":"49",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"38",
+			"FK_DeviceTemplate_ControlledVia":"1629",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"38",
+			"FK_DeviceTemplate_ControlledVia":"1630",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"38",
+			"FK_DeviceTemplate_ControlledVia":"1632",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"38",
+			"FK_DeviceTemplate_ControlledVia":"1742",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"38",
+			"FK_DeviceTemplate_ControlledVia":"1746",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"38",
+			"FK_DeviceTemplate_ControlledVia":"1747",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"38",
+			"FK_DeviceTemplate_ControlledVia":"1760",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"38",
+			"FK_DeviceTemplate_ControlledVia":"1785",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"38",
+			"FK_DeviceTemplate_ControlledVia":"1815",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"38",
+			"FK_DeviceTemplate_ControlledVia":"1845",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"38",
+			"FK_DeviceTemplate_ControlledVia":"1905",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"38",
+			"FK_DeviceTemplate_ControlledVia":"1906",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"38",
+			"FK_DeviceTemplate_ControlledVia":"1932",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"37",
+			"FK_DeviceTemplate_ControlledVia":"14",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
 			"FK_DeviceTemplate":"37",
 			"FK_DeviceTemplate_ControlledVia":"25",
 			"Description":"",
@@ -3992,174 +5054,6 @@
 			"AutoCreateChildren":"0"
 		},
 		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"56",
-			"FK_DeviceTemplate_ControlledVia":"40",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"4",
-			"FK_DeviceTemplate_ControlledVia":"40",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"38",
-			"FK_DeviceTemplate_ControlledVia":"40",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"37",
-			"FK_DeviceTemplate_ControlledVia":"40",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1599",
-			"FK_DeviceTemplate_ControlledVia":"40",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1600",
-			"FK_DeviceTemplate_ControlledVia":"40",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1773",
-			"FK_DeviceTemplate_ControlledVia":"40",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1813",
-			"FK_DeviceTemplate_ControlledVia":"40",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"56",
-			"FK_DeviceTemplate_ControlledVia":"42",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1599",
-			"FK_DeviceTemplate_ControlledVia":"42",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1600",
-			"FK_DeviceTemplate_ControlledVia":"42",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1773",
-			"FK_DeviceTemplate_ControlledVia":"42",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1813",
-			"FK_DeviceTemplate_ControlledVia":"42",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1600",
-			"FK_DeviceTemplate_ControlledVia":"43",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1599",
-			"FK_DeviceTemplate_ControlledVia":"43",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1813",
-			"FK_DeviceTemplate_ControlledVia":"43",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"56",
-			"FK_DeviceTemplate_ControlledVia":"43",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1773",
-			"FK_DeviceTemplate_ControlledVia":"43",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"56",
-			"FK_DeviceTemplate_ControlledVia":"44",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1599",
-			"FK_DeviceTemplate_ControlledVia":"44",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1600",
-			"FK_DeviceTemplate_ControlledVia":"44",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1773",
-			"FK_DeviceTemplate_ControlledVia":"44",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1813",
-			"FK_DeviceTemplate_ControlledVia":"44",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"38",
-			"FK_DeviceTemplate_ControlledVia":"48",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
 			"FK_DeviceTemplate":"37",
 			"FK_DeviceTemplate_ControlledVia":"48",
 			"Description":"",
@@ -4167,22 +5061,22 @@
 			"AutoCreateChildren":"0"
 		},
 		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"56",
-			"FK_DeviceTemplate_ControlledVia":"49",
+			"FK_DeviceTemplate":"37",
+			"FK_DeviceTemplate_ControlledVia":"1754",
 			"Description":"",
 			"RerouteMessagesToParent":"0",
 			"AutoCreateChildren":"0"
 		},
 		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"4",
-			"FK_DeviceTemplate_ControlledVia":"49",
+			"FK_DeviceTemplate":"37",
+			"FK_DeviceTemplate_ControlledVia":"1920",
 			"Description":"",
 			"RerouteMessagesToParent":"0",
 			"AutoCreateChildren":"0"
 		},
 		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"38",
-			"FK_DeviceTemplate_ControlledVia":"49",
+			"FK_DeviceTemplate":"37",
+			"FK_DeviceTemplate_ControlledVia":"40",
 			"Description":"",
 			"RerouteMessagesToParent":"0",
 			"AutoCreateChildren":"0"
@@ -4195,29 +5089,92 @@
 			"AutoCreateChildren":"0"
 		},
 		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1599",
-			"FK_DeviceTemplate_ControlledVia":"49",
+			"FK_DeviceTemplate":"37",
+			"FK_DeviceTemplate_ControlledVia":"1629",
 			"Description":"",
 			"RerouteMessagesToParent":"0",
 			"AutoCreateChildren":"0"
 		},
 		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1600",
-			"FK_DeviceTemplate_ControlledVia":"49",
+			"FK_DeviceTemplate":"37",
+			"FK_DeviceTemplate_ControlledVia":"1630",
 			"Description":"",
 			"RerouteMessagesToParent":"0",
 			"AutoCreateChildren":"0"
 		},
 		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1773",
-			"FK_DeviceTemplate_ControlledVia":"49",
+			"FK_DeviceTemplate":"37",
+			"FK_DeviceTemplate_ControlledVia":"1632",
 			"Description":"",
 			"RerouteMessagesToParent":"0",
 			"AutoCreateChildren":"0"
 		},
 		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1813",
-			"FK_DeviceTemplate_ControlledVia":"49",
+			"FK_DeviceTemplate":"37",
+			"FK_DeviceTemplate_ControlledVia":"1742",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"37",
+			"FK_DeviceTemplate_ControlledVia":"1746",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"37",
+			"FK_DeviceTemplate_ControlledVia":"1747",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"37",
+			"FK_DeviceTemplate_ControlledVia":"1760",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"37",
+			"FK_DeviceTemplate_ControlledVia":"1785",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"37",
+			"FK_DeviceTemplate_ControlledVia":"1815",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"37",
+			"FK_DeviceTemplate_ControlledVia":"1845",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"37",
+			"FK_DeviceTemplate_ControlledVia":"1905",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"37",
+			"FK_DeviceTemplate_ControlledVia":"1906",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"37",
+			"FK_DeviceTemplate_ControlledVia":"1932",
 			"Description":"",
 			"RerouteMessagesToParent":"0",
 			"AutoCreateChildren":"0"
@@ -4230,118 +5187,6 @@
 			"AutoCreateChildren":"0"
 		},
 		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"56",
-			"FK_DeviceTemplate_ControlledVia":"1629",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"4",
-			"FK_DeviceTemplate_ControlledVia":"1629",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"38",
-			"FK_DeviceTemplate_ControlledVia":"1629",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"37",
-			"FK_DeviceTemplate_ControlledVia":"1629",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1599",
-			"FK_DeviceTemplate_ControlledVia":"1629",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1600",
-			"FK_DeviceTemplate_ControlledVia":"1629",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1773",
-			"FK_DeviceTemplate_ControlledVia":"1629",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1813",
-			"FK_DeviceTemplate_ControlledVia":"1629",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"56",
-			"FK_DeviceTemplate_ControlledVia":"1630",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"4",
-			"FK_DeviceTemplate_ControlledVia":"1630",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"38",
-			"FK_DeviceTemplate_ControlledVia":"1630",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"37",
-			"FK_DeviceTemplate_ControlledVia":"1630",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1599",
-			"FK_DeviceTemplate_ControlledVia":"1630",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1600",
-			"FK_DeviceTemplate_ControlledVia":"1630",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1773",
-			"FK_DeviceTemplate_ControlledVia":"1630",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1813",
-			"FK_DeviceTemplate_ControlledVia":"1630",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
 			"FK_DeviceTemplate":"38",
 			"FK_DeviceTemplate_ControlledVia":"1631",
 			"Description":"",
@@ -4349,29 +5194,29 @@
 			"AutoCreateChildren":"0"
 		},
 		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"56",
-			"FK_DeviceTemplate_ControlledVia":"1632",
+			"FK_DeviceTemplate":"1599",
+			"FK_DeviceTemplate_ControlledVia":"40",
 			"Description":"",
 			"RerouteMessagesToParent":"0",
 			"AutoCreateChildren":"0"
 		},
 		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"4",
-			"FK_DeviceTemplate_ControlledVia":"1632",
+			"FK_DeviceTemplate":"1599",
+			"FK_DeviceTemplate_ControlledVia":"49",
 			"Description":"",
 			"RerouteMessagesToParent":"0",
 			"AutoCreateChildren":"0"
 		},
 		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"38",
-			"FK_DeviceTemplate_ControlledVia":"1632",
+			"FK_DeviceTemplate":"1599",
+			"FK_DeviceTemplate_ControlledVia":"1629",
 			"Description":"",
 			"RerouteMessagesToParent":"0",
 			"AutoCreateChildren":"0"
 		},
 		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"37",
-			"FK_DeviceTemplate_ControlledVia":"1632",
+			"FK_DeviceTemplate":"1599",
+			"FK_DeviceTemplate_ControlledVia":"1630",
 			"Description":"",
 			"RerouteMessagesToParent":"0",
 			"AutoCreateChildren":"0"
@@ -4384,55 +5229,6 @@
 			"AutoCreateChildren":"0"
 		},
 		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1600",
-			"FK_DeviceTemplate_ControlledVia":"1632",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1773",
-			"FK_DeviceTemplate_ControlledVia":"1632",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1813",
-			"FK_DeviceTemplate_ControlledVia":"1632",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"56",
-			"FK_DeviceTemplate_ControlledVia":"1742",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"4",
-			"FK_DeviceTemplate_ControlledVia":"1742",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"38",
-			"FK_DeviceTemplate_ControlledVia":"1742",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"37",
-			"FK_DeviceTemplate_ControlledVia":"1742",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
 			"FK_DeviceTemplate":"1599",
 			"FK_DeviceTemplate_ControlledVia":"1742",
 			"Description":"",
@@ -4440,22 +5236,85 @@
 			"AutoCreateChildren":"0"
 		},
 		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1600",
-			"FK_DeviceTemplate_ControlledVia":"1742",
+			"FK_DeviceTemplate":"1599",
+			"FK_DeviceTemplate_ControlledVia":"1746",
 			"Description":"",
 			"RerouteMessagesToParent":"0",
 			"AutoCreateChildren":"0"
 		},
 		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1773",
-			"FK_DeviceTemplate_ControlledVia":"1742",
+			"FK_DeviceTemplate":"1599",
+			"FK_DeviceTemplate_ControlledVia":"1747",
 			"Description":"",
 			"RerouteMessagesToParent":"0",
 			"AutoCreateChildren":"0"
 		},
 		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1813",
-			"FK_DeviceTemplate_ControlledVia":"1742",
+			"FK_DeviceTemplate":"1599",
+			"FK_DeviceTemplate_ControlledVia":"1760",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"1599",
+			"FK_DeviceTemplate_ControlledVia":"1785",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"1599",
+			"FK_DeviceTemplate_ControlledVia":"1815",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"1599",
+			"FK_DeviceTemplate_ControlledVia":"1845",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"1599",
+			"FK_DeviceTemplate_ControlledVia":"1905",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"1599",
+			"FK_DeviceTemplate_ControlledVia":"1906",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"1599",
+			"FK_DeviceTemplate_ControlledVia":"1932",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"47",
+			"FK_DeviceTemplate_ControlledVia":"7",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"47",
+			"FK_DeviceTemplate_ControlledVia":"1771",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"47",
+			"FK_DeviceTemplate_ControlledVia":"1890",
 			"Description":"",
 			"RerouteMessagesToParent":"0",
 			"AutoCreateChildren":"0"
@@ -4489,6 +5348,216 @@
 			"AutoCreateChildren":"0"
 		},
 		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"56",
+			"FK_DeviceTemplate_ControlledVia":"42",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"56",
+			"FK_DeviceTemplate_ControlledVia":"44",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"56",
+			"FK_DeviceTemplate_ControlledVia":"1766",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"56",
+			"FK_DeviceTemplate_ControlledVia":"1767",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"56",
+			"FK_DeviceTemplate_ControlledVia":"1922",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"1599",
+			"FK_DeviceTemplate_ControlledVia":"42",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"1599",
+			"FK_DeviceTemplate_ControlledVia":"44",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"1599",
+			"FK_DeviceTemplate_ControlledVia":"1766",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"1599",
+			"FK_DeviceTemplate_ControlledVia":"1767",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"1599",
+			"FK_DeviceTemplate_ControlledVia":"1922",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"1600",
+			"FK_DeviceTemplate_ControlledVia":"40",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"1600",
+			"FK_DeviceTemplate_ControlledVia":"49",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"1600",
+			"FK_DeviceTemplate_ControlledVia":"1629",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"1600",
+			"FK_DeviceTemplate_ControlledVia":"1630",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"1600",
+			"FK_DeviceTemplate_ControlledVia":"1632",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"1600",
+			"FK_DeviceTemplate_ControlledVia":"1742",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"1600",
+			"FK_DeviceTemplate_ControlledVia":"1746",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"1600",
+			"FK_DeviceTemplate_ControlledVia":"1747",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"1600",
+			"FK_DeviceTemplate_ControlledVia":"1760",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"1600",
+			"FK_DeviceTemplate_ControlledVia":"1785",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"1600",
+			"FK_DeviceTemplate_ControlledVia":"1815",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"1600",
+			"FK_DeviceTemplate_ControlledVia":"1845",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"1600",
+			"FK_DeviceTemplate_ControlledVia":"1905",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"1600",
+			"FK_DeviceTemplate_ControlledVia":"1906",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"1600",
+			"FK_DeviceTemplate_ControlledVia":"1932",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"1600",
+			"FK_DeviceTemplate_ControlledVia":"42",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"1600",
+			"FK_DeviceTemplate_ControlledVia":"44",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"1600",
+			"FK_DeviceTemplate_ControlledVia":"1766",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"1600",
+			"FK_DeviceTemplate_ControlledVia":"1767",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"1600",
+			"FK_DeviceTemplate_ControlledVia":"1922",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
 			"FK_DeviceTemplate":"1600",
 			"FK_DeviceTemplate_ControlledVia":"1743",
 			"Description":"",
@@ -4517,6 +5586,146 @@
 			"AutoCreateChildren":"0"
 		},
 		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"1773",
+			"FK_DeviceTemplate_ControlledVia":"42",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"1773",
+			"FK_DeviceTemplate_ControlledVia":"44",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"1773",
+			"FK_DeviceTemplate_ControlledVia":"1766",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"1773",
+			"FK_DeviceTemplate_ControlledVia":"1767",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"1773",
+			"FK_DeviceTemplate_ControlledVia":"1922",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"1773",
+			"FK_DeviceTemplate_ControlledVia":"40",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"1773",
+			"FK_DeviceTemplate_ControlledVia":"49",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"1773",
+			"FK_DeviceTemplate_ControlledVia":"1629",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"1773",
+			"FK_DeviceTemplate_ControlledVia":"1630",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"1773",
+			"FK_DeviceTemplate_ControlledVia":"1632",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"1773",
+			"FK_DeviceTemplate_ControlledVia":"1742",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"1773",
+			"FK_DeviceTemplate_ControlledVia":"1746",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"1773",
+			"FK_DeviceTemplate_ControlledVia":"1747",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"1773",
+			"FK_DeviceTemplate_ControlledVia":"1760",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"1773",
+			"FK_DeviceTemplate_ControlledVia":"1785",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"1773",
+			"FK_DeviceTemplate_ControlledVia":"1815",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"1773",
+			"FK_DeviceTemplate_ControlledVia":"1845",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"1773",
+			"FK_DeviceTemplate_ControlledVia":"1905",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"1773",
+			"FK_DeviceTemplate_ControlledVia":"1906",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"1773",
+			"FK_DeviceTemplate_ControlledVia":"1932",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
 			"FK_DeviceTemplate":"1813",
 			"FK_DeviceTemplate_ControlledVia":"1743",
 			"Description":"",
@@ -4524,211 +5733,15 @@
 			"AutoCreateChildren":"0"
 		},
 		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"56",
-			"FK_DeviceTemplate_ControlledVia":"1746",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"4",
-			"FK_DeviceTemplate_ControlledVia":"1746",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"38",
-			"FK_DeviceTemplate_ControlledVia":"1746",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"37",
-			"FK_DeviceTemplate_ControlledVia":"1746",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1599",
-			"FK_DeviceTemplate_ControlledVia":"1746",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1600",
-			"FK_DeviceTemplate_ControlledVia":"1746",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1773",
-			"FK_DeviceTemplate_ControlledVia":"1746",
+			"FK_DeviceTemplate":"1813",
+			"FK_DeviceTemplate_ControlledVia":"42",
 			"Description":"",
 			"RerouteMessagesToParent":"0",
 			"AutoCreateChildren":"0"
 		},
 		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
 			"FK_DeviceTemplate":"1813",
-			"FK_DeviceTemplate_ControlledVia":"1746",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"56",
-			"FK_DeviceTemplate_ControlledVia":"1747",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"4",
-			"FK_DeviceTemplate_ControlledVia":"1747",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"38",
-			"FK_DeviceTemplate_ControlledVia":"1747",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"37",
-			"FK_DeviceTemplate_ControlledVia":"1747",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1599",
-			"FK_DeviceTemplate_ControlledVia":"1747",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1600",
-			"FK_DeviceTemplate_ControlledVia":"1747",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1773",
-			"FK_DeviceTemplate_ControlledVia":"1747",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1813",
-			"FK_DeviceTemplate_ControlledVia":"1747",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"38",
-			"FK_DeviceTemplate_ControlledVia":"1754",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"37",
-			"FK_DeviceTemplate_ControlledVia":"1754",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"56",
-			"FK_DeviceTemplate_ControlledVia":"1760",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"4",
-			"FK_DeviceTemplate_ControlledVia":"1760",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"38",
-			"FK_DeviceTemplate_ControlledVia":"1760",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"37",
-			"FK_DeviceTemplate_ControlledVia":"1760",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1599",
-			"FK_DeviceTemplate_ControlledVia":"1760",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1600",
-			"FK_DeviceTemplate_ControlledVia":"1760",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1773",
-			"FK_DeviceTemplate_ControlledVia":"1760",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1813",
-			"FK_DeviceTemplate_ControlledVia":"1760",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"56",
-			"FK_DeviceTemplate_ControlledVia":"1766",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1599",
-			"FK_DeviceTemplate_ControlledVia":"1766",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1600",
-			"FK_DeviceTemplate_ControlledVia":"1766",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1773",
-			"FK_DeviceTemplate_ControlledVia":"1766",
+			"FK_DeviceTemplate_ControlledVia":"44",
 			"Description":"",
 			"RerouteMessagesToParent":"0",
 			"AutoCreateChildren":"0"
@@ -4741,34 +5754,6 @@
 			"AutoCreateChildren":"0"
 		},
 		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"56",
-			"FK_DeviceTemplate_ControlledVia":"1767",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1599",
-			"FK_DeviceTemplate_ControlledVia":"1767",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1600",
-			"FK_DeviceTemplate_ControlledVia":"1767",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1773",
-			"FK_DeviceTemplate_ControlledVia":"1767",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
 			"FK_DeviceTemplate":"1813",
 			"FK_DeviceTemplate_ControlledVia":"1767",
 			"Description":"",
@@ -4776,64 +5761,71 @@
 			"AutoCreateChildren":"0"
 		},
 		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1",
-			"FK_DeviceTemplate_ControlledVia":"1771",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"1"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"47",
-			"FK_DeviceTemplate_ControlledVia":"1771",
+			"FK_DeviceTemplate":"1813",
+			"FK_DeviceTemplate_ControlledVia":"1922",
 			"Description":"",
 			"RerouteMessagesToParent":"0",
 			"AutoCreateChildren":"0"
 		},
 		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"56",
-			"FK_DeviceTemplate_ControlledVia":"1785",
+			"FK_DeviceTemplate":"1813",
+			"FK_DeviceTemplate_ControlledVia":"40",
 			"Description":"",
 			"RerouteMessagesToParent":"0",
 			"AutoCreateChildren":"0"
 		},
 		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"4",
-			"FK_DeviceTemplate_ControlledVia":"1785",
+			"FK_DeviceTemplate":"1813",
+			"FK_DeviceTemplate_ControlledVia":"49",
 			"Description":"",
 			"RerouteMessagesToParent":"0",
 			"AutoCreateChildren":"0"
 		},
 		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"38",
-			"FK_DeviceTemplate_ControlledVia":"1785",
+			"FK_DeviceTemplate":"1813",
+			"FK_DeviceTemplate_ControlledVia":"1629",
 			"Description":"",
 			"RerouteMessagesToParent":"0",
 			"AutoCreateChildren":"0"
 		},
 		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"37",
-			"FK_DeviceTemplate_ControlledVia":"1785",
+			"FK_DeviceTemplate":"1813",
+			"FK_DeviceTemplate_ControlledVia":"1630",
 			"Description":"",
 			"RerouteMessagesToParent":"0",
 			"AutoCreateChildren":"0"
 		},
 		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1599",
-			"FK_DeviceTemplate_ControlledVia":"1785",
+			"FK_DeviceTemplate":"1813",
+			"FK_DeviceTemplate_ControlledVia":"1632",
 			"Description":"",
 			"RerouteMessagesToParent":"0",
 			"AutoCreateChildren":"0"
 		},
 		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1600",
-			"FK_DeviceTemplate_ControlledVia":"1785",
+			"FK_DeviceTemplate":"1813",
+			"FK_DeviceTemplate_ControlledVia":"1742",
 			"Description":"",
 			"RerouteMessagesToParent":"0",
 			"AutoCreateChildren":"0"
 		},
 		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1773",
-			"FK_DeviceTemplate_ControlledVia":"1785",
+			"FK_DeviceTemplate":"1813",
+			"FK_DeviceTemplate_ControlledVia":"1746",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"1813",
+			"FK_DeviceTemplate_ControlledVia":"1747",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"1813",
+			"FK_DeviceTemplate_ControlledVia":"1760",
 			"Description":"",
 			"RerouteMessagesToParent":"0",
 			"AutoCreateChildren":"0"
@@ -4846,113 +5838,8 @@
 			"AutoCreateChildren":"0"
 		},
 		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"56",
-			"FK_DeviceTemplate_ControlledVia":"1815",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"4",
-			"FK_DeviceTemplate_ControlledVia":"1815",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"38",
-			"FK_DeviceTemplate_ControlledVia":"1815",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"37",
-			"FK_DeviceTemplate_ControlledVia":"1815",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1599",
-			"FK_DeviceTemplate_ControlledVia":"1815",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1600",
-			"FK_DeviceTemplate_ControlledVia":"1815",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1773",
-			"FK_DeviceTemplate_ControlledVia":"1815",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
 			"FK_DeviceTemplate":"1813",
 			"FK_DeviceTemplate_ControlledVia":"1815",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"4",
-			"FK_DeviceTemplate_ControlledVia":"1820",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"56",
-			"FK_DeviceTemplate_ControlledVia":"1845",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"4",
-			"FK_DeviceTemplate_ControlledVia":"1845",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"38",
-			"FK_DeviceTemplate_ControlledVia":"1845",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"37",
-			"FK_DeviceTemplate_ControlledVia":"1845",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1599",
-			"FK_DeviceTemplate_ControlledVia":"1845",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1600",
-			"FK_DeviceTemplate_ControlledVia":"1845",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1773",
-			"FK_DeviceTemplate_ControlledVia":"1845",
 			"Description":"",
 			"RerouteMessagesToParent":"0",
 			"AutoCreateChildren":"0"
@@ -4965,64 +5852,57 @@
 			"AutoCreateChildren":"0"
 		},
 		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1",
-			"FK_DeviceTemplate_ControlledVia":"1890",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"1"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"47",
-			"FK_DeviceTemplate_ControlledVia":"1890",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"38",
-			"FK_DeviceTemplate_ControlledVia":"1920",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"37",
-			"FK_DeviceTemplate_ControlledVia":"1920",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"56",
-			"FK_DeviceTemplate_ControlledVia":"1922",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1599",
-			"FK_DeviceTemplate_ControlledVia":"1922",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1600",
-			"FK_DeviceTemplate_ControlledVia":"1922",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1773",
-			"FK_DeviceTemplate_ControlledVia":"1922",
+			"FK_DeviceTemplate":"1813",
+			"FK_DeviceTemplate_ControlledVia":"1905",
 			"Description":"",
 			"RerouteMessagesToParent":"0",
 			"AutoCreateChildren":"0"
 		},
 		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
 			"FK_DeviceTemplate":"1813",
-			"FK_DeviceTemplate_ControlledVia":"1922",
+			"FK_DeviceTemplate_ControlledVia":"1906",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"1813",
+			"FK_DeviceTemplate_ControlledVia":"1932",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"1600",
+			"FK_DeviceTemplate_ControlledVia":"43",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"1599",
+			"FK_DeviceTemplate_ControlledVia":"43",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"1813",
+			"FK_DeviceTemplate_ControlledVia":"43",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"56",
+			"FK_DeviceTemplate_ControlledVia":"43",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"1773",
+			"FK_DeviceTemplate_ControlledVia":"43",
 			"Description":"",
 			"RerouteMessagesToParent":"0",
 			"AutoCreateChildren":"0"
