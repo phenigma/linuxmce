@@ -53,6 +53,7 @@ bool DataLayer_JSON::Load()
 	if(LoadDynamicConfiguration() && LoadStaticConfiguration())
 	{
 		UpdateDevicesTree();
+		SaveDevicesFile(); //update devices file
 		return true;
 	}
 
