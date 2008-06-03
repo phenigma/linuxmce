@@ -12,7 +12,7 @@ rm -f /var/run/pluto.stop
 
 Devices=
 while [[ -z "$Devices" ]]; do
-	Devices=$(MessageSend 127.0.0.1 -targetType template -o 0 27 1 956 2 1 | awk '/^5:/,/^$/' | sed -r 's/^5://')
+	Devices=$(MessageSend 127.0.0.1 -targetType template -o 0 27 1 956 2 1 | awk '/^5:/,/^$/' | sed -r 's/^5://' | grep -v DCERouter)
 	sleep 1
 done
 
