@@ -3346,6 +3346,13 @@
 			"IsEmbedded":"0",
 			"CommandLine":""
 		},
+		"PK_DeviceTemplate_27": {
+			"Description":"General Info Plug-in",
+			"FK_DeviceCategory":"61",
+			"ImplementsDCE":"1",
+			"IsEmbedded":"0",
+			"CommandLine":""
+		}		
 		"PK_DeviceTemplate_37": {
 			"Description":"Light Switch (on\/off)",
 			"FK_DeviceCategory":"73",
