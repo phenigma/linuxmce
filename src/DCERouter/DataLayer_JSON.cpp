@@ -64,6 +64,8 @@ bool DataLayer_JSON::Save()
 {
 	PLUTO_SAFETY_LOCK(dm, m_DataMutex);
 
+	UpdateDevicesTree();
+
 	SaveDevicesFile();
 	SaveDevicesList();
 	SaveDevices();
@@ -97,6 +99,14 @@ void DataLayer_JSON::SaveDevicesFile()
 		end = m_mapDeviceData_Router.end(); it != end; ++it)
 	{
 		DeviceData_Router *pDeviceData_Router = it->second;
+
+		if(
+			pDeviceData_Router->m_dwPK_DeviceCategory != DEVICECATEGORY_Lighting_Device_CONST &&
+			pDeviceData_Router->m_dwPK_DeviceCategory != DEVICECATEGORY_Surveillance_Cameras_CONST &&
+			pDeviceData_Router->m_dwPK_DeviceCategory != DEVICECATEGORY_IP_Cameras_CONST &&
+			pDeviceData_Router->m_dwPK_DeviceCategory != DEVICECATEGORY_Climate_Device_CONST
+   	    )
+			continue;
 
 		if(pDeviceData_Router->m_sDescription.empty())
 		{
