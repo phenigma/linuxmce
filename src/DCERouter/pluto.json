@@ -1,135 +1,76 @@
 {
     "timezone": "0",
     "Section_ids": [
-        1,
-        2,
-        4 
+        1
     ],
     "Section": {
         "PK_Section_1": {
-            "Description": "Basement",
-            "floorplan": "test1.jpg" 
+            "Description": "Sample room",
+            "floorplan": "" 
         },
-        "PK_Section_2": {
-            "Description": "First floor",
-            "floorplan": "test2.jpg" 
-        },
-        "PK_Section_4": {
-            "Description": "Second floor",
-            "floorplan": "test2.jpg" 
-        } 
     },
     "room_types": [
-        "Basement",
-        "Bedroom",
-        "Kitchen",
-        "Living room" 
+        "Sample Room Type"
     ],
     "Room_ids": [
-        1,
-        2,
-        5,
-        6 
+        1
     ],
     "Room": {
         "PK_Room_1": {
-            "Description": "Basement",
-            "room_type": "Basement",
+            "Description": "Sample room",
+            "room_type": "Sample Room Type",
             "FK_Section": "1" 
-        },
-        "PK_Room_2": {
-            "Description": "Cellar",
-            "room_type": "Basement",
-            "FK_Section": "1" 
-        },
-        "PK_Room_5": {
-            "Description": "North bedroom",
-            "room_type": "Bedroom",
-            "FK_Section": "2" 
-        },
-        "PK_Room_6": {
-            "Description": "South bedroom",
-            "room_type": "Bedroom",
-            "FK_Section": "4" 
-        } 
+        }
     },
     "scenes_list": [
-        1,
-        2,
-        3 
+        1
     ],
     "scenes": {
         "scene_1": {
-            "Description": "Lights on",
-            "FK_Room": "5",
+            "Description": "Sample",
+            "FK_Room": "1",
             "commands_ids": [
-                1,
-                2 
             ],
             "commands": {
-                "command_1": {
-                    "Device_To": "4",
-                    "PK_Command": "192",
-                    "params": {
-                        "FK_CommandParameter_3": "1",
-                        "FK_CommandParameter_6": "2" 
-                    } 
-                },
-                "command_2": {
-                    "Device_To": "4",
-                    "PK_Command": "193",
-                    "params": {
-                        "FK_CommandParameter_6": "4",
-                        "FK_CommandParameter_2": "5" 
-                    } 
-                } 
             } 
-        },
-        "scene_2": {
-            "Description": "Lights off",
-            "FK_Room": "6" 
-        },
-        "scene_3": {
-            "Description": "Party!",
-            "FK_Room": "6" 
-        } 
+        }
     },
     "events_list": [
-        1,
-        2 
     ],
     "events": {
-        "event_1": {
-            "Description": "First event",
-            "timer_id": "1" 
-        },
-        "event_2": {
-            "Description": "Second event",
-            "timer_id": "2" 
-        } 
     },
     "Device_ids": [
         1,
         2,
-        5,
-        6,
-        7,
-        8,
-        9,
-        10,
-        11 
+        3,
+        4
     ],
     "Device": {
         "PK_Device_1": {
-            "Description": "DCERouter",
-            "FK_DeviceTemplate": "1",
+            "Description": "Computer",
+            "FK_DeviceTemplate": "7",
             "FK_Room": "1",
             "FK_Device_ControlledVia": "0",
             "DeviceData": {
-                
             },
             "params": {
-                "IPaddress": "localhost",
+                "IPaddress": "127.0.0.1",
+                "MACaddress": "",
+                "IgnoreOnOff": "0",
+                "State": "",
+                "Status": "",
+                "Disabled": "0" 
+            } 
+        },    
+        "PK_Device_2": {
+            "Description": "DCERouter",
+            "FK_DeviceTemplate": "1",
+            "FK_Room": "1",
+            "FK_Device_ControlledVia": "1",
+            "DeviceData": {
+            },
+            "params": {
+                "IPaddress": "127.0.0.1",
                 "MACaddress": "",
                 "IgnoreOnOff": "0",
                 "State": "",
@@ -137,146 +78,40 @@
                 "Disabled": "0" 
             } 
         },
-        "PK_Device_2": {
+        "PK_Device_3": {
+            "Description": "General Info Plugin Lite",
+            "FK_DeviceTemplate": "27",
+            "FK_Room": "1",
+            "FK_Device_ControlledVia": "2",
+            "DeviceData": {
+            },
+            "params": {
+                "IPaddress": "127.0.0.1",
+                "MACaddress": "",
+                "IgnoreOnOff": "0",
+                "State": "",
+                "Status": "",
+                "Disabled": "0" 
+            } 
+        },        
+        "PK_Device_4": {
             "Description": "ZWave",
             "FK_DeviceTemplate": "1754",
             "FK_Room": "1",
             "FK_Device_ControlledVia": "1",
             "DeviceData": {
                 "FK_DeviceData_11": "3",
-                "FK_DeviceData_12": "test",
                 "FK_DeviceData_26": "100",
                 "FK_DeviceData_37": "\/dev\/usb\/tts\/0" 
             },
             "params": {
-                "IPaddress": "localhost",
+                "IPaddress": "127.0.0.1",
                 "MACaddress": "",
                 "IgnoreOnOff": "0",
                 "State": "",
                 "Status": "",
                 "Disabled": "0" 
             } 
-        },
-        "PK_Device_5": {
-            "Description": "Panasonic IP Camera",
-            "FK_DeviceTemplate": "47",
-            "FK_Room": "1",
-            "FK_Device_ControlledVia": "1",
-            "DeviceData": {
-                "FK_DeviceData_2": "100" 
-            },
-            "params": {
-                "IPaddress": "localhost",
-                "MACaddress": "",
-                "IgnoreOnOff": "0",
-                "State": "",
-                "Status": "",
-                "Disabled": "0" 
-            } 
-        },
-        "PK_Device_6": {
-            "Description": "Panasonic IP Camera",
-            "FK_DeviceTemplate": "47",
-            "FK_Room": "5",
-            "FK_Device_ControlledVia": "1",
-            "DeviceData": {
-                "FK_DeviceData_11": "test" 
-            },
-            "params": {
-                "IPaddress": "localhost",
-                "MACaddress": "",
-                "IgnoreOnOff": "0",
-                "State": "",
-                "Status": "",
-                "Disabled": "0" 
-            } 
-        },
-        "PK_Device_7": {
-            "Description": "General Info Plugin Lite",
-            "FK_DeviceTemplate": "27",
-            "FK_Room": "1",
-            "FK_Device_ControlledVia": "1",
-            "DeviceData": {
-                "FK_DeviceData_11": "test" 
-            },
-            "params": {
-                "IPaddress": "localhost",
-                "MACaddress": "",
-                "IgnoreOnOff": "0",
-                "State": "",
-                "Status": "",
-                "Disabled": "0" 
-            } 
-        },
-        "PK_Device_8": {
-            "Description": "Light Switch (on\/off)",
-            "FK_DeviceTemplate": "37",
-            "FK_Room": "1",
-            "FK_Device_ControlledVia": "2",
-            "DeviceData": {
-                "FK_DeviceData_11": "1",
-                "FK_DeviceData_12": "3" 
-            },
-            "params": {
-                "IPaddress": "",
-                "MACaddress": "",
-                "IgnoreOnOff": "0",
-                "State": "",
-                "Status": "",
-                "Disabled": "0" 
-            } 
-        },
-        "PK_Device_9": {
-            "Description": "Light Switch (on\/off)",
-            "FK_DeviceTemplate": "37",
-            "FK_Room": "6",
-            "FK_Device_ControlledVia": "2",
-            "DeviceData": {
-                "FK_DeviceData_11": "1",
-                "FK_DeviceData_12": "4" 
-            },
-            "params": {
-                "IPaddress": "",
-                "MACaddress": "",
-                "IgnoreOnOff": "0",
-                "State": "",
-                "Status": "",
-                "Disabled": "0" 
-            } 
-        },
-        "PK_Device_10": {
-            "Description": "Panasonic IP Camera",
-            "FK_DeviceTemplate": "47",
-            "FK_Room": "1",
-            "FK_Device_ControlledVia": "0",
-            "DeviceData": {
-                "FK_DeviceData_3": "Mumu" 
-            },
-            "params": {
-                "IPaddress": "192.168.80.112",
-                "MACaddress": "11:22:33:44:55:66",
-                "IgnoreOnOff": "0",
-                "State": "",
-                "Status": "",
-                "Disabled": "0" 
-            } 
-        },
-        "PK_Device_11": {
-            "Description": "",
-            "FK_DeviceTemplate": "47",
-            "FK_Room": "0",
-            "FK_Device_ControlledVia": "0",
-            "DeviceData": {
-                "FK_DeviceData_3": "Mumu" 
-            },
-            "params": {
-                "IPaddress": "192.168.80.112",
-                "MACaddress": "11:22:33:44:55:33",
-                "IgnoreOnOff": "205",
-                "State": "",
-                "Status": "",
-                "Disabled": "0" 
-            } 
-        } 
+        }
     } 
 }
