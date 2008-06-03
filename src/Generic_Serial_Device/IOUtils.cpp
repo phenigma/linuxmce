@@ -40,7 +40,7 @@ std::string IOUtils::FormatHexAsciiBuffer(const char* buff, unsigned int size, c
 	{
 		Result += " (\x1b[" + std::string(color) + ";1m";
 
-		for(int i=0;i<size;++i)
+		for(size_t i=0;i<size;++i)
 		{
 			char c = buff[i];
 			if( c>=' ' && c<='~' )
