@@ -26112,5 +26112,53 @@ namespace DCE
 			1 /* number of parameters */,
 			COMMANDPARAMETER_PK_Device_CONST, StringUtils::itos(iPK_Device).c_str()); }
 	};
+	class CMD_Update_Device : public PreformedCommand {
+	public:
+		CMD_Update_Device(long DeviceIDFrom, long DeviceIDTo,int iPK_Device,string sMac_address,int iPK_Room,string sIP_Address,string sData_String,string sDescription) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 
+			COMMAND_Update_Device_CONST,
+			6 /* number of parameters */,
+			COMMANDPARAMETER_PK_Device_CONST, StringUtils::itos(iPK_Device).c_str(),
+			COMMANDPARAMETER_Mac_address_CONST, sMac_address.c_str(),
+			COMMANDPARAMETER_PK_Room_CONST, StringUtils::itos(iPK_Room).c_str(),
+			COMMANDPARAMETER_IP_Address_CONST, sIP_Address.c_str(),
+			COMMANDPARAMETER_Data_String_CONST, sData_String.c_str(),
+			COMMANDPARAMETER_Description_CONST, sDescription.c_str()); }
+	};
+	class CMD_Update_Device_DL : public PreformedCommand {
+	public:
+		CMD_Update_Device_DL(long DeviceIDFrom, string DeviceIDTo,int iPK_Device,string sMac_address,int iPK_Room,string sIP_Address,string sData_String,string sDescription) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Update_Device_CONST,
+			6 /* number of parameters */,
+			COMMANDPARAMETER_PK_Device_CONST, StringUtils::itos(iPK_Device).c_str(),
+			COMMANDPARAMETER_Mac_address_CONST, sMac_address.c_str(),
+			COMMANDPARAMETER_PK_Room_CONST, StringUtils::itos(iPK_Room).c_str(),
+			COMMANDPARAMETER_IP_Address_CONST, sIP_Address.c_str(),
+			COMMANDPARAMETER_Data_String_CONST, sData_String.c_str(),
+			COMMANDPARAMETER_Description_CONST, sDescription.c_str()); }
+	};
+	class CMD_Update_Device_DT : public PreformedCommand {
+	public:
+		CMD_Update_Device_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iPK_Device,string sMac_address,int iPK_Room,string sIP_Address,string sData_String,string sDescription) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Update_Device_CONST,
+			6 /* number of parameters */,
+			COMMANDPARAMETER_PK_Device_CONST, StringUtils::itos(iPK_Device).c_str(),
+			COMMANDPARAMETER_Mac_address_CONST, sMac_address.c_str(),
+			COMMANDPARAMETER_PK_Room_CONST, StringUtils::itos(iPK_Room).c_str(),
+			COMMANDPARAMETER_IP_Address_CONST, sIP_Address.c_str(),
+			COMMANDPARAMETER_Data_String_CONST, sData_String.c_str(),
+			COMMANDPARAMETER_Description_CONST, sDescription.c_str()); }
+	};
+	class CMD_Update_Device_Cat : public PreformedCommand {
+	public:
+		CMD_Update_Device_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iPK_Device,string sMac_address,int iPK_Room,string sIP_Address,string sData_String,string sDescription) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,
+			COMMAND_Update_Device_CONST,
+			6 /* number of parameters */,
+			COMMANDPARAMETER_PK_Device_CONST, StringUtils::itos(iPK_Device).c_str(),
+			COMMANDPARAMETER_Mac_address_CONST, sMac_address.c_str(),
+			COMMANDPARAMETER_PK_Room_CONST, StringUtils::itos(iPK_Room).c_str(),
+			COMMANDPARAMETER_IP_Address_CONST, sIP_Address.c_str(),
+			COMMANDPARAMETER_Data_String_CONST, sData_String.c_str(),
+			COMMANDPARAMETER_Description_CONST, sDescription.c_str()); }
+	};
 }
 #endif

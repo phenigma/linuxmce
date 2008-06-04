@@ -454,6 +454,25 @@ Delimiter: '\n' */
 	virtual void CMD_Get_Devices_To_Start(int iPK_Device,string *sValue_To_Assign,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #957 - Update Device */
+	/** Will update the description, ip, mac, device data */
+		/** @param #2 PK_Device */
+			/** Device ID */
+		/** @param #47 Mac address */
+			/** Mac address */
+		/** @param #57 PK_Room */
+			/** Room ID */
+		/** @param #58 IP Address */
+			/** IP address */
+		/** @param #109 Data String */
+			/** pipe delimited list with device data */
+		/** @param #163 Description */
+			/** Device description */
+
+	virtual void CMD_Update_Device(int iPK_Device,string sMac_address,int iPK_Room,string sIP_Address,string sData_String,string sDescription) { string sCMD_Result; CMD_Update_Device(iPK_Device,sMac_address.c_str(),iPK_Room,sIP_Address.c_str(),sData_String.c_str(),sDescription.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Update_Device(int iPK_Device,string sMac_address,int iPK_Room,string sIP_Address,string sData_String,string sDescription,string &sCMD_Result,Message *pMessage);
+
+
 //<-dceag-h-e->
 	};
 
