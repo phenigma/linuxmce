@@ -53,6 +53,7 @@ public:
 private:
 
 	bool LoadDynamicConfiguration();
+	bool LoadDevicesConfiguration();
 	bool LoadStaticConfiguration();
 	void UpdateDevicesTree();
 

@@ -17,15 +17,17 @@ extern "C"
 #include "PlutoUtils/PlutoDefs.h"
 //----------------------------------------------------------------------------------------------
 #if !defined(WIN32) && defined(EMBEDDED_LMCE)
-#define JSON_DYNAMIC_CONFIG_FILE "/etc/pluto/pluto.json.lzo"
-#define JSON_STATIC_CONFIG_FILE "/etc/pluto/pluto_main.json.lzo"
-#define DEVICES_FILE "/etc/pluto/devices"
+	#define JSON_DYNAMIC_CONFIG_FILE "/etc/pluto/pluto.json.lzo"
+	#define JSON_STATIC_CONFIG_FILE "/etc/pluto/pluto_main.json.lzo"
+	#define JSON_DEVICES_CONFIG_FILE "/etc/pluto/devices.json.lzo"
+	#define DEVICES_FILE "/etc/pluto/devices"
 #else
-#define JSON_DYNAMIC_CONFIG_FILE "pluto.json.lzo"
-#define JSON_STATIC_CONFIG_FILE "pluto_main.json.lzo"
-#define DEVICES_FILE "devices"
+	#define JSON_DYNAMIC_CONFIG_FILE "pluto.json.lzo"
+	#define JSON_STATIC_CONFIG_FILE "pluto_main.json.lzo"
+	#define JSON_DEVICES_CONFIG_FILE "devices.json.lzo"
+	#define DEVICES_FILE "devices"
 #endif
-
+//----------------------------------------------------------------------------------------------
 #define INSTALLATIONID 1 //HARDCODED VALUE
 //----------------------------------------------------------------------------------------------
 #define ADD_STRING_CHILD(parent, key, value) json_object_object_add(parent, key, json_object_new_string(const_cast<char *>(value.c_str())));
@@ -50,7 +52,7 @@ bool DataLayer_JSON::Load()
 {
 	PLUTO_SAFETY_LOCK(dm, m_DataMutex);
 
-	if(LoadDynamicConfiguration() && LoadStaticConfiguration())
+	if(LoadDynamicConfiguration() && LoadDevicesConfiguration() && LoadStaticConfiguration())
 	{
 		UpdateDevicesTree();
 		SaveDevicesFile(); //update devices file
@@ -76,7 +78,7 @@ bool DataLayer_JSON::Save()
 
 #ifdef WIN32
 	//Also save the uncompressed version -- for debugging
-	string sPlainFileName = JSON_DYNAMIC_CONFIG_FILE;
+	string sPlainFileName = JSON_DEVICES_CONFIG_FILE;
 	StringUtils::Replace(&sPlainFileName, ".lzo", "");
 	FileUtils::WriteTextFile(sPlainFileName, sData);
 #endif
@@ -84,7 +86,7 @@ bool DataLayer_JSON::Save()
 	//Save into compressed version
 	long iSize = 0;
 	char *pCompressedData = LZO::Compress((lzo_byte *)sData.c_str(), (lzo_uint)sData.size(), (lzo_uint *)&iSize);
-	FileUtils::WriteBufferIntoFile(JSON_DYNAMIC_CONFIG_FILE, pCompressedData, iSize);
+	FileUtils::WriteBufferIntoFile(JSON_DEVICES_CONFIG_FILE, pCompressedData, iSize);
 	delete [] pCompressedData;
 
 	return true;
@@ -133,9 +135,9 @@ std::map<int, DeviceData_Router *>& DataLayer_JSON::Devices()
 	return m_mapDeviceData_Router;
 }
 //----------------------------------------------------------------------------------------------
-bool DataLayer_JSON::LoadDynamicConfiguration()
+bool DataLayer_JSON::LoadDevicesConfiguration()
 {
-	char *pData = GetUncompressedDataFromFile(JSON_DYNAMIC_CONFIG_FILE);
+	char *pData = GetUncompressedDataFromFile(JSON_DEVICES_CONFIG_FILE);
 
 	if(NULL != pData)
 	{
@@ -151,11 +153,33 @@ bool DataLayer_JSON::LoadDynamicConfiguration()
 				ParseDevicesList(iter.val);
 			else if(sValue == "Device")
 				ParseDevices(iter.val);
-			else if(sValue == "scenes")
-				ParseScenes(iter.val);
 		}
 
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "DataLayer: Got %d devices", m_mapDeviceData_Router.size());
+		return true;
+	}
+
+	return false;
+}
+//----------------------------------------------------------------------------------------------
+bool DataLayer_JSON::LoadDynamicConfiguration()
+{
+	char *pData = GetUncompressedDataFromFile(JSON_DYNAMIC_CONFIG_FILE);
+
+	if(NULL != pData)
+	{
+		m_root_json_obj = json_tokener_parse(pData);
+		PLUTO_SAFE_DELETE_ARRAY(pData);
+
+		struct json_object_iter iter;
+		json_object_object_foreachC(m_root_json_obj, iter) 
+		{
+			string sValue = iter.key;
+
+			if(sValue == "scenes")
+				ParseScenes(iter.val);
+		}
+
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "DataLayer: Got %d scenes", m_mapScene_Data.size());
 		return true;
 	}
