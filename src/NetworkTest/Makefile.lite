@@ -1,0 +1,13 @@
+CPPFLAGS=-W -Wall -Os
+
+ifeq ($(ARCH),mipsel)
+	CC=mipsel-linux-gcc
+else
+	CC=gcc
+endif
+
+all: NetworkTest
+	cp NetworkTest ../bin
+
+clean:
+	rm -f NetworkTest
