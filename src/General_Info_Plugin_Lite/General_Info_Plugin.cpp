@@ -192,11 +192,34 @@ void General_Info_Plugin::CMD_Request_File(string sFilename,char **pData,int *iD
 void General_Info_Plugin::CMD_Request_File_And_Checksum(string sFilename,char **pData,int *iData_Size,string *sChecksum,bool *bChecksum_Only,string &sCMD_Result,Message *pMessage)
 //<-dceag-c239-e->
 {
-	cout << "Need to implement command #239 - Request File And Checksum" << endl;
-	cout << "Parm #13 - Filename=" << sFilename << endl;
-	cout << "Parm #19 - Data  (data value)" << endl;
-	cout << "Parm #91 - Checksum=" << sChecksum << endl;
-	cout << "Parm #92 - Checksum_Only=" << bChecksum_Only << endl;
+	LoggerWrapper::GetInstance()->Write(LV_FILEREQUEST, "Request file from server: %s", sFilename.c_str());
+	size_t Length = 0;
+	char *c = FileUtils::ReadFileIntoBuffer(sFilename, Length);
+	if( c==NULL && m_pRouter )
+		c = FileUtils::ReadFileIntoBuffer(m_pRouter->sBasePath_get() + sFilename, Length);
+
+	if(c==NULL) //file not found
+	{
+		LoggerWrapper::GetInstance()->Write(LV_FILEREQUEST, "The requested file '%s' was not found", sFilename.c_str());
+		return;
+	}
+
+	*iData_Size = (int) Length;
+	*pData = c;
+	*sChecksum = FileUtils::FileChecksum(*pData, *iData_Size);
+
+	if(*bChecksum_Only)
+	{
+		*iData_Size = 0;
+
+		if(NULL != *pData)
+		{
+			delete *pData;
+			*pData = NULL;
+		}
+	}
+
+	LoggerWrapper::GetInstance()->Write(LV_FILEREQUEST, "General_Info_Plugin::CMD_Request_File_And_Checksum: file %s", sFilename.c_str());
 }
 
 //<-dceag-c246-b->
