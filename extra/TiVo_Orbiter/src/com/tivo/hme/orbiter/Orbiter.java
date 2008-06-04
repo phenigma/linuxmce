@@ -72,6 +72,8 @@ public class Orbiter extends BApplication implements MessageProcessor
         String sOrbiterDeviceID = "0";
         String sCameraURL = "";
         String sCameraID = "0";
+        String sEmbedded = "0";
+        String sEmbeddedScenariosFile = "scenarios";
         
         //read configuration
 		try 
@@ -84,12 +86,16 @@ public class Orbiter extends BApplication implements MessageProcessor
 			sOrbiterDeviceID = p.getProperty("OrbiterDeviceID");
 			sCameraURL = p.getProperty("CameraURL");
 			sCameraID = p.getProperty("CameraID");
+			sEmbedded = p.getProperty("Embedded");
+			sEmbeddedScenariosFile = p.getProperty("EmbeddedScenariosFile");
 			
 			System.out.println("IPAddress = " + sIPAddress);
 			System.out.println("PVRDeviceID = " + sPVRDeviceID);
 			System.out.println("OrbiterDeviceID = " + sOrbiterDeviceID);
 			System.out.println("CameraURL = " + sCameraURL);
 			System.out.println("CameraID = " + sCameraID);
+			System.out.println("Embedded = " + sEmbedded);
+			System.out.println("Embedded Scenarios File = " + sEmbeddedScenariosFile);
 			
 			p.list(System.out);
 		} 
@@ -100,13 +106,24 @@ public class Orbiter extends BApplication implements MessageProcessor
         
 		Scenarios scenarios = new Scenarios();        
 		PlutoProxy proxy = new PlutoProxy(this, sIPAddress, 3450, Integer.parseInt(sPVRDeviceID), Integer.parseInt(sOrbiterDeviceID));
-		String sXML = proxy.GetScenarios();
-		if(null != sXML)
+		String sRawData = proxy.GetScenarios(sEmbedded.equals("1"), sEmbeddedScenariosFile);
+		if(null != sRawData)
 		{
-			if(scenarios.Load(sXML))
+			if(sEmbedded.equals("1"))
 			{
-				System.out.println("Scenarios loaded successfully!");
-				scenarios.PrintInfo();
+				if(scenarios.LoadData(sRawData))
+				{
+					System.out.println("Scenarios loaded successfully!");
+					scenarios.PrintInfo();
+				}
+			}
+			else
+			{
+				if(scenarios.LoadXML(sRawData))
+				{
+					System.out.println("Scenarios loaded successfully!");
+					scenarios.PrintInfo();
+				}
 			}
 		}
 		

@@ -62,6 +62,9 @@ public class CommandGroup
 	
 	public String toString()
 	{
-		return m_sName + " / " + m_sRoomName;
+		if(m_sRoomName.equals(""))
+			return m_sName;
+		else
+			return m_sName + " / " + m_sRoomName;
 	}
 }
