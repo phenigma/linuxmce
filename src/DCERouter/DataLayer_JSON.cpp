@@ -235,7 +235,9 @@ void DataLayer_JSON::UpdateDevicesTree()
 			pDevice->m_bIsEmbedded = it_devtemplate->second.IsEmbedded();
 			pDevice->m_dwPK_DeviceCategory = it_devtemplate->second.DeviceCategory();
 			pDevice->m_sCommandLine = it_devtemplate->second.CommandLine();
-			pDevice->m_sDescription = it_devtemplate->second.Description();
+
+			if(pDevice->m_sDescription.empty())
+				pDevice->m_sDescription = it_devtemplate->second.Description();
 		}
 	}
 }
