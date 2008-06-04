@@ -12,7 +12,7 @@
 #define TIMEOUT 1
 
 int   child_pid;
-int   child_status = -1;
+int   exit_status = -1;
 int   port;
 char* hostname;
 
@@ -20,7 +20,7 @@ void sig_alrm(sig) int sig;
 {
 	printf("Timeout error\n", sig);
 	kill(child_pid, 15);
-	exit (1);
+	exit_status = 1;
 }
 
 void sig_chld(int signo) 
@@ -36,7 +36,7 @@ void sig_chld(int signo)
 
     if (WIFEXITED(status))
     {
-        child_status = WEXITSTATUS(status);
+        exit_status = WEXITSTATUS(status);
     }
 }
 
@@ -98,6 +98,6 @@ int main(int argc, char* argv[]) {
 	signal(SIGCHLD, (void *)sig_chld);
 	alarm(TIMEOUT);
 	
-	while (child_status == -1) {
+	while (exit_status == -1) {
 	}
 }
