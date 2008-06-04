@@ -1081,7 +1081,9 @@ bool General_Info_Plugin::DeviceRemoved( class Socket *pSocket, class Message *p
 
 	return false;
 }
-//----------------------------------------------------------------------------------------------//<-dceag-c957-b->
+//----------------------------------------------------------------------------------------------
+
+//<-dceag-c957-b->
 
 	/** @brief COMMAND: #957 - Update Device */
 	/** Will update the description, ip, mac, device data */
@@ -1101,4 +1103,39 @@ bool General_Info_Plugin::DeviceRemoved( class Socket *pSocket, class Message *p
 void General_Info_Plugin::CMD_Update_Device(int iPK_Device,string sMac_address,int iPK_Room,string sIP_Address,string sData_String,string sDescription,string &sCMD_Result,Message *pMessage)
 //<-dceag-c957-e->
 {
+	DeviceData_Router *pDeviceData_Router = m_pRouter->DataLayer()->Device(iPK_Device);
+
+	if(NULL == pDeviceData_Router)
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Unable to update device %d, it doesn't exist");
+		sCMD_Result = "ERROR: Device doesn't exist";
+		return;
+	}
+
+	PLUTO_SAFETY_LOCK(dm, m_pRouter->DataLayer()->Mutex());
+
+	pDeviceData_Router->m_sDescription = sDescription;
+	pDeviceData_Router->m_sIPAddress = sIP_Address;
+	pDeviceData_Router->m_sMacAddress = sMac_address;
+	pDeviceData_Router->m_dwPK_Room = iPK_Room;
+
+	vector<string> vectStrings;
+	StringUtils::Tokenize(sData_String, "|", vectStrings);
+
+	for(vector<string>::iterator it = vectStrings.begin(), end = vectStrings.end(); it != end; ++it)
+	{
+		string sKey = *it;
+		int nKey = atoi(sKey.c_str());
+
+		if(++it != end)
+		{
+			string sValue = *it;
+			pDeviceData_Router->ReplaceParameter(nKey, sValue);
+
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Updating device data %d with value %s",
+				nKey, sValue.c_str());
+		}
+	}
+
+	m_pRouter->DataLayer()->Save();
 }
