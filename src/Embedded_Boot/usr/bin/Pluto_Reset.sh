@@ -1,8 +1,9 @@
 #!/bin/sh
 
-if [[ -n "$(ps | grep /usr/bin/Pluto_Reset.sh | grep -v grep)" ]]; then
+if [[ -f /tmp/.reset-pluto ]]; then
 	exit
 fi
+touch /tmp/.reset-pluto
 
 mkdir -p /etc/pluto/save/
 cp /etc/pluto/* /etc/pluto/save/
