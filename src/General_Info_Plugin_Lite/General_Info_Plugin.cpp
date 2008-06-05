@@ -254,9 +254,17 @@ void General_Info_Plugin::CMD_Set_Device_Data(int iPK_Device,string sValue_To_As
 void General_Info_Plugin::CMD_Get_Device_State(int iPK_Device,string *sValue_To_Assign,string &sCMD_Result,Message *pMessage)
 //<-dceag-c247-e->
 {
-	cout << "Need to implement command #247 - Get Device State" << endl;
-	cout << "Parm #2 - PK_Device=" << iPK_Device << endl;
-	cout << "Parm #5 - Value_To_Assign=" << sValue_To_Assign << endl;
+	DeviceData_Router *pDeviceData_Router = m_pRouter->DataLayer()->Device(iPK_Device);
+	if( !pDeviceData_Router )
+	{
+		sCMD_Result = "BAD DEVICE";
+		*sValue_To_Assign = "";
+	}
+	else
+	{
+		sCMD_Result = "OK";
+		*sValue_To_Assign = pDeviceData_Router->m_sState_get();
+	}
 }
 
 //<-dceag-c248-b->
