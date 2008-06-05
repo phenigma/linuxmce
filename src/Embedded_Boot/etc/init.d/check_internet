@@ -4,9 +4,7 @@ START=96
 
 boot()
 {
-	if [[ ! -f /etc/pluto/fresh_install ]]; then
-		return 0
-	fi
 	echo 0 >/proc/diag/led/power
+	/usr/bin/Watch_WAN.sh >/dev/null 2>&1 </dev/null &
 	/usr/bin/NetLED.sh >/dev/null 2>&1 </dev/null &
 }
