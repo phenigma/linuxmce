@@ -518,18 +518,29 @@ void Router::RegisterAllPlugins()
 
 #else
 
-	list<DeviceData_Router *> listDevices;
-	m_pDataLayer->DevicesByTemplate(DEVICETEMPLATE_General_Info_Plugin_CONST, listDevices);
-	for(list<DeviceData_Router *>::iterator it_device = listDevices.begin(); it_device != listDevices.end(); ++it_device)
+	for(
+		map<int, DeviceData_Router *>::iterator it_device = m_pDataLayer->Devices().begin(); 
+		it_device != m_pDataLayer->Devices().end(); ++it_device
+    )
 	{
-		DeviceData_Router *pDeviceData_Router = *it_device;
+		DeviceData_Router *pDeviceData_Router = it_device->second;
 
 		iPK_Device = pDeviceData_Router->m_dwPK_Device;
 		int iPK_DeviceTemplate = pDeviceData_Router->m_dwPK_DeviceTemplate;
 		string CommandLine = pDeviceData_Router->m_sCommandLine;
 
+		if(
+			iPK_DeviceTemplate != DEVICETEMPLATE_General_Info_Plugin_CONST &&
+			iPK_DeviceTemplate != DEVICETEMPLATE_Lighting_Plugin_CONST
+		)
+			continue;
+
 		if(CommandLine.empty())
-			CommandLine = "General_Info_Plugin_Lite"; //hardcoded for now
+		{
+			DeviceTemplate_Data *pDeviceTemplate_Data = m_pDataLayer->DeviceTemplate(iPK_DeviceTemplate);
+			if(NULL != pDeviceTemplate_Data)
+				CommandLine = FileUtils::ValidCPPName(pDeviceTemplate_Data->Description()) + "_Lite";
+		}
 
 		mapPluginCommands[CommandLine] = iPK_Device;
 

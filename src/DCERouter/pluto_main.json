@@ -4020,7 +4020,7 @@
 		}
 	}
 	,
-	"DeviceTemplate_ids":[1,4,7,27,37,38,47,50,56,1599,1600,1633,1744,1745,1754,1773,1813,1820,1922],
+	"DeviceTemplate_ids":[1,4,7,27,31,32,37,38,47,50,56,1599,1600,1633,1744,1745,1754,1773,1813,1820,1922],
 	"DeviceTemplate":{
 		"PK_DeviceTemplate_1": {
 			"Description":"DCERouter",
@@ -4045,6 +4045,20 @@
 		},
 		"PK_DeviceTemplate_27": {
 			"Description":"General Info Plug-in",
+			"FK_DeviceCategory":"61",
+			"ImplementsDCE":"1",
+			"IsEmbedded":"0",
+			"CommandLine":""
+		},
+		"PK_DeviceTemplate_31": {
+			"Description":"Climate Plug-in",
+			"FK_DeviceCategory":"61",
+			"ImplementsDCE":"1",
+			"IsEmbedded":"0",
+			"CommandLine":""
+		},
+		"PK_DeviceTemplate_32": {
+			"Description":"Lighting Plug-in",
 			"FK_DeviceCategory":"61",
 			"ImplementsDCE":"1",
 			"IsEmbedded":"0",
