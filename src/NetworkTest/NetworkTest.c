@@ -1,12 +1,16 @@
 #include <stdio.h>
+#include <unistd.h>
+#include <stdlib.h>
 #include <string.h>
 #include <errno.h>
 #include <resolv.h>
 #include <signal.h>
-#include <sys/socket.h>
-#include <sys/time.h>
 #include <sys/types.h>
+#include <sys/time.h>
 #include <sys/wait.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 #include <netdb.h>
 
 #define TIMEOUT 1
@@ -16,9 +20,9 @@ int   exit_status = -1;
 int   port;
 char* hostname;
 
-void sig_alrm(sig) int sig;
+void sig_alrm(int sig)
 {
-	printf("Timeout error\n", sig);
+	fprintf(stderr, "Timeout error\n");
 	kill(child_pid, 15);
 	exit_status = 1;
 }
@@ -44,34 +48,34 @@ int test_connection() {
 	int sockfd;
 	struct sockaddr_in dest;
 	struct hostent *host;
-	char *ip = "10.0.0.1";
 
 	host = gethostbyname(hostname);
 	if(host == NULL) {
-		printf("Gethostbyname error\n");
+		fprintf(stderr, "Gethostbyname error\n");
 		return h_errno;
 	}
 
 	/* Open the socket */
 	if ( (sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0 ) {
-		printf("Socket error\n");
+		fprintf(stderr, "Socket error\n");
 		return errno;
 	}
 
 	/* Init host/port struct */
 	bzero(&dest, sizeof(dest));
 	memcpy((char *)&dest.sin_addr, (char *)host->h_addr, host->h_length);
+	printf("%s\n", inet_ntoa(dest.sin_addr));
 	dest.sin_family = AF_INET;
 	dest.sin_port   = htons(port);
 
 	/* Connect to server */
 	if ( connect(sockfd, (struct sockaddr*)&dest, sizeof(dest)) != 0 ) {
-		printf("Connect error\n");
+		fprintf(stderr, "Connect error\n");
 		return errno;
 	}
 
 	/* Close socket */
-	printf("Success\n");
+	fprintf(stderr, "Success\n");
 	close(sockfd);
 	return 0;
 }
@@ -79,7 +83,7 @@ int test_connection() {
 int main(int argc, char* argv[]) {
 
 	if (argc != 3) {
-		printf("usage: %s <hostname> <port>\n", argv[0]);
+		fprintf(stderr, "usage: %s <hostname> <port>\n", argv[0]);
 		return 1;
 	}
 
@@ -99,5 +103,7 @@ int main(int argc, char* argv[]) {
 	alarm(TIMEOUT);
 	
 	while (exit_status == -1) {
+		usleep(20000);
 	}
+	return exit_status;
 }
