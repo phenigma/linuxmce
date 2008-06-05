@@ -6,6 +6,7 @@ if [[ -f /tmp/lastip ]]; then
 fi
 
 if [[ "$ip" != "$LastIP" ]]; then
+	/etc/init.d/dnsmasq restart
 	/usr/bin/NetLED.sh >/dev/null 2>&1 </dev/null &
 fi
 echo "$ip" >/tmp/lastip
