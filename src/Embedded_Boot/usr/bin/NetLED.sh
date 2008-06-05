@@ -20,12 +20,20 @@ Cleanup()
 
 LED_NoNet()
 {
+	Start=$(date +%s)
+	Once=false
 	while :; do
 		for i in 0 1 0 1; do
 			echo "$i" >/proc/diag/led/power
 			Sleep 100
 		done
 		Sleep 500
+		Now=$(date +%s)
+		Difference=$(expr $Now - $Start)
+		if [[ -f /etc/pluto/fresh_install ]] && [[ "$Once" == false ]] && [[ "$Difference" -ge 60 ]]; then
+			/usr/bin/RouterMode_Gateway.sh
+			Once=true
+		fi
 	done
 }
 
@@ -104,36 +112,12 @@ Cfg=$(uci show dhcp|grep interface=lan|cut -d. -f2)
 CfgMasq=$(uci show dhcp|grep =dnsmasq|cut -d. -f2|cut -d= -f1)
 uci set dhcp.$Cfg.force=1
 uci set dhcp.$Cfg.ignore=0
+uci commit
 case "$IPtype" in
 	local)
-		uci set dhcp.$Cfg.dynamicdhcp=0
-		uci set dhcp.$CfgMasq.authoritative=0
-		uci set network.eth0.vlan0="0 1 2 3 4 5*"
-		uci del network.eth0.vlan1
-		uci set network.wan.ifname=br-lan:0
-		ifconfig eth0.1 down
+		/usr/bin/RouterMode_Switch.sh "$Cfg" "$CfgMasq"
 		;;
 	routable)
-		uci set dhcp.$Cfg.dynamicdhcp=1
-		uci set dhcp.$CfgMasq.authoritative=1
-		
-		Model=$(cat /proc/diag/model)
-		case "$Model" in
-			"ASUS WL-500g Premium")
-				uci set network.eth0.vlan0="1 2 3 4 5*"
-				uci set network.eth0.vlan1="0 5"
-				;;
-			"ASUS WL-500g Premium V2")
-				uci set network.eth0.vlan0="0 1 2 3 5*"
-				uci set network.eth0.vlan1="4 5"
-				;;
-		esac
-
-		uci set network.wan.ifname=eth0.1
+		/usr/bin/RouterMode_Gateway.sh "$Cfg" "$CfgMasq"
 		;;
 esac
-uci commit
-
-/etc/init.d/firewall restart
-/etc/init.d/dnsmasq restart
-/etc/init.d/network restart
