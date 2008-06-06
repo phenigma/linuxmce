@@ -149,7 +149,7 @@ bool Climate_Plugin::ClimateCommand( class Socket *pSocket, class Message *pMess
 
 void Climate_Plugin::PreprocessClimateMessage(DeviceData_Router *pDevice,Message *pMessage)
 {
-	if( !pDevice || !pMessage || !pDevice->WithinCategory(DEVICECATEGORY_Climate_Device_CONST) )
+	if( !pDevice || !pMessage || pDevice->m_dwPK_DeviceCategory != DEVICECATEGORY_Climate_Device_CONST)
 		return;
 
 	string sOn;

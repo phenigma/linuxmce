@@ -251,25 +251,6 @@ bool Lighting_Plugin::GetVideoFrame( class Socket *pSocket, class Message *pMess
 void Lighting_Plugin::CMD_Set_Level(string sLevel,string &sCMD_Result,Message *pMessage)
 //<-dceag-c184-e->
 {
-/*
-	OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(pMessage->m_dwPK_Device_From);
-	if( !pOH_Orbiter || !m_pListDeviceData_Router_Lights )
-	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Device %d sent a set lighting_level but it's not an orbiter or we have no lights %p",
-			pMessage->m_dwPK_Device_From,m_pListDeviceData_Router_Lights);
-		return;
-	}
-
-	for(ListDeviceData_Router::iterator it=m_pListDeviceData_Router_Lights->begin();it!=m_pListDeviceData_Router_Lights->end();++it)
-	{
-		DeviceData_Router *pDeviceData_Router = *it;
-		if( pDeviceData_Router->m_dwPK_Room==pOH_Orbiter->m_dwPK_Room )
-		{
-			DCE::CMD_Set_Level CMD_Set_Level(m_dwPK_Device,pDeviceData_Router->m_dwPK_Device,sLevel);
-			SendCommand(CMD_Set_Level);
-		}
-	}
-*/
 }
 
 void Lighting_Plugin::PreprocessLightingMessage(DeviceData_Router *pDevice,Message *pMessage)
