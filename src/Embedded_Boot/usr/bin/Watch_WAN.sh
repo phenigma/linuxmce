@@ -1,5 +1,6 @@
 #!/bin/sh
 
+Once=false
 while :; do
 	Model=$(cat /proc/diag/model)
 	case "$Model" in
@@ -11,7 +12,13 @@ while :; do
 			;;
 	esac
 	if [[ "$WANstate" == DOWN ]]; then
+		if [[ "$Once" == false ]]; then
+			/etc/init.d/network restart
+			Once=true
+		fi
 		/usr/bin/NetLED.sh >/dev/null 2>&1 </dev/null &
+	else
+		Once=false
 	fi
 	sleep 1
 done
