@@ -523,6 +523,8 @@ void General_Info_Plugin::CMD_Create_Device(int iPK_DeviceTemplate,string sMac_a
 			*iPK_Device,iPK_DeviceTemplate,sMac_address.c_str(),iPK_Room,sIP_Address.c_str(),sData_String.c_str());
 #endif
 
+	m_pRouter->DataLayer()->Save();
+
 	Message *pMessage_Event = new Message(m_dwPK_Device,DEVICEID_EVENTMANAGER,PRIORITY_NORMAL,MESSAGETYPE_EVENT,EVENT_New_Device_Created_CONST,
 		1,EVENTPARAMETER_PK_Device_CONST,StringUtils::itos(*iPK_Device).c_str());
 	QueueMessageToRouter(pMessage_Event);
@@ -550,6 +552,8 @@ void General_Info_Plugin::CMD_Delete_Device(int iPK_Device,string &sCMD_Result,M
 	
 	if(NULL != pDeviceData_Router)
 		pDeviceData_Router->MarkAsDeleted();
+
+	m_pRouter->DataLayer()->Save();
 }
 
 //<-dceag-c752-b->
