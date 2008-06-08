@@ -16,12 +16,12 @@ ifeq ($(ARCH),mipsel)
 endif
 
 bins: libs
-	@for i in $(BINS); do make -C $$i -f Makefile.lite; done
-	@for i in $(DEVS); do make -C $$i -f Makefile.lite bin; done
-	@for i in $(Plugins); do make -C $$i -f Makefile.lite so; done
+	@for i in $(BINS); do make -C $$i -f Makefile.lite || exit 1; done
+	@for i in $(DEVS); do make -C $$i -f Makefile.lite bin || exit 1; done
+	@for i in $(Plugins); do make -C $$i -f Makefile.lite so || exit 1; done
 
 libs:
-	@for i in $(LIBS); do make -C $$i -f Makefile.lite; done
+	@for i in $(LIBS); do make -C $$i -f Makefile.lite || exit 1; done
 
 clean:
 	@rm -f lib/* bin/*
