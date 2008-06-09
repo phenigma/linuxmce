@@ -41,6 +41,7 @@ Job::Job(JobHandler *pJobHandler,string sName,int PK_Orbiter,Command_Impl *pComm
 	m_tNextRunAttempt=0;
 	m_iPK_Orbiter=PK_Orbiter;
 	m_pCommand_Impl=pCommand_Impl;
+	m_bAutoDelete=true;
 }
 
 Job::~Job()
@@ -54,7 +55,7 @@ bool Job::Abort()
 {
 	m_bQuit=true;
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Job::Abort %s status %d", m_sName.c_str(), (int) m_eJobStatus);
-	if( m_eJobStatus==job_Aborted )
+	if( m_eJobStatus==job_Aborted || m_eJobStatus==job_Done )
 		return true;
 	bool bAbortedOk=true;
 	PLUTO_SAFETY_LOCK(jm,m_ThreadMutex);

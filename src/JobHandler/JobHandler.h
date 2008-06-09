@@ -74,7 +74,15 @@ namespace nsJobHandler
     */
 	class JobHandler : public nsThreadedClass::ThreadedClass
 	{
+	private:
 		ListJob m_listJob;
+
+	protected:
+		/* If this m_bMultiThreadedJobs is true, the default, then StartThread() will 
+		be called so all jobs can run in parallel.  Set it to false to run only 1 job
+		at a time in the same thread as the JobHandler's main Run() thread
+		*/
+		bool m_bMultiThreadedJobs;
 
 	public:
 		JobHandler();
@@ -91,7 +99,7 @@ namespace nsJobHandler
 
 		bool HasJobs();
 
-		void Run();
+		virtual void Run();
 
 		/** Be sure to grab a mutex before using this.
         like this: PLUTO_SAFETY_LOCK(jm,*m_pJobHandler->m_ThreadMutex_get());

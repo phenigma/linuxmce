@@ -87,6 +87,7 @@ namespace nsJobHandler
 		JobStatus m_eJobStatus;
 		class JobHandler *m_pJobHandler;
 		ListTask m_listTask;
+		bool m_bAutoDelete;
 
         /** Set this to non-zero if you want to your ReadyToRun() to be called no later than this time.
         Zero means don't call until something changes.
@@ -109,6 +110,9 @@ namespace nsJobHandler
 
 		int m_iID_get() { return m_iID; }
 		time_t m_tNextRunAttempt_get() { return m_tNextRunAttempt; }
+
+		bool m_bAutoDelete_get() { return m_bAutoDelete; }
+		void m_bAutoDelete_set( bool bAutoDelete ) { m_bAutoDelete=bAutoDelete; }
 
 		int PendingTasks();
 		bool Abort();

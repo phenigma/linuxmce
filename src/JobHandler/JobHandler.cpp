@@ -29,6 +29,7 @@ using namespace DCE;
 
 JobHandler::JobHandler()
 {
+	m_bMultiThreadedJobs=true;  // Derived versions can override this if there should be only 1 job at a time
 }
 
 JobHandler::~JobHandler()
@@ -51,6 +52,7 @@ bool JobHandler::AbortAllJobs()
 		}
 	}
 
+	PurgeCompletedJobs();
 	BroadcastCond();
 	return bAbortedOk;
 }
@@ -108,7 +110,8 @@ void JobHandler::PurgeCompletedJobs()
 #endif
 			pJob->StopThread(5);  // Job should immediately, but give it 5 seconds to be sure
 			m_listJob.erase(it++);
-			delete pJob;
+			if( pJob->m_bAutoDelete_get() )
+				delete pJob;
 		}
 		else
 		{
@@ -160,7 +163,7 @@ void JobHandler::Run()
 {
 	while(!m_bQuit)
 	{
-		Job *pJob_Next_Timed=NULL;
+		Job *pJob_Next_Timed=NULL,*pJob_SingleThreaded=NULL;
 		PLUTO_SAFETY_LOCK(jm,m_ThreadMutex);
 		PurgeCompletedJobs();
 
@@ -178,7 +181,13 @@ void JobHandler::Run()
 				LoggerWrapper::GetInstance()->Write(LV_STATUS,"JobHandler::Run ready to run job %d %s status %d",
 					pJob->m_iID_get(),pJob->m_sName_get().c_str(),(int) pJob->m_eJobStatus_get());
 #endif
-				pJob->StartThread();
+				if( m_bMultiThreadedJobs==false )
+				{
+					pJob_SingleThreaded = pJob;  // Only run this one job
+					break;
+				}
+				else
+					pJob->StartThread();
 			}
 
 			// This Job wants to be called no later than a certain time.  See what is the next job (ie nearest next runattempt)
@@ -187,6 +196,16 @@ void JobHandler::Run()
 				if( !pJob_Next_Timed || pJob_Next_Timed->m_tNextRunAttempt_get()>pJob->m_tNextRunAttempt_get() )
 					pJob_Next_Timed=pJob;
 			}
+		}
+
+		// We've got a job to run as single threaded
+		if( pJob_SingleThreaded )
+		{
+			jm.Release();
+			pJob_SingleThreaded->Run();
+			pJob_SingleThreaded = NULL;
+			jm.Relock();
+			continue;  // Start the loop again at the beginning since it may have changed while the mutex was unlocked
 		}
 
 		if( m_bQuit )
@@ -200,10 +219,10 @@ void JobHandler::Run()
 		// See if there's a time limit by which we should check the jobs again
 		if( pJob_Next_Timed )
 		{
-			int Seconds = pJob_Next_Timed->m_tNextRunAttempt_get() - time(NULL);
+			time_t Seconds = pJob_Next_Timed->m_tNextRunAttempt_get() - time(NULL);
 			if( Seconds<0 )
 				Seconds=0;
-			jm.TimedCondWait( Seconds, 0 );  // Yes, wait only up until this job wants to be called again
+			jm.TimedCondWait( (int) Seconds, 0 );  // Yes, wait only up until this job wants to be called again
 		}
 		else
 			jm.CondWait();  // Nope, wait until something happens
