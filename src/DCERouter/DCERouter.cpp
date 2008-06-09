@@ -937,6 +937,8 @@ void Router::ExecuteCommandGroup(int PK_CommandGroup,DeviceData_Router *pDevice_
 		Scene_Data *pScene_Data = m_pDataLayer->Scene(PK_CommandGroup);
 		if(NULL != pScene_Data)
 		{
+			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Executing scene: %d", PK_CommandGroup);
+
 			for(std::map<int, Command_Data>::iterator it = pScene_Data->Commands().begin(); it != pScene_Data->Commands().end(); ++it)
 			{
 				Command_Data &aCommand_Data = it->second;
@@ -955,6 +957,9 @@ void Router::ExecuteCommandGroup(int PK_CommandGroup,DeviceData_Router *pDevice_
 				{
 					pMessage->m_mapParameters[it_param->first] = it_param->second;
 				}
+
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Processing message from %d to %d id %d", 
+					pMessage->m_dwPK_Device_From, pMessage->m_dwPK_Device_To, pMessage->m_dwID);
 
 				ReceivedMessage(NULL, pMessage);
 			}
