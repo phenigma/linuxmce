@@ -288,8 +288,15 @@ void FileLogger::WriteEntry( Entry& Entry )
     PLUTO_SAFETY_LOCK_LOGGER( sSM, m_Lock );  // Don't log anything but failures
 
     struct tm t;
+
+#ifdef VS2005
+	__int64 tv_sec = Entry.m_TimeStamp.tv_sec;
+	localtime_r((const time_t*)&tv_sec,&t);
+#else
 	localtime_r((time_t *)&Entry.m_TimeStamp.tv_sec,&t);
-    char acBuff[50];
+#endif    
+	
+	char acBuff[50];
     double dwSec = (double)(Entry.m_TimeStamp.tv_usec/1E6) + t.tm_sec;
     snprintf( acBuff, sizeof(acBuff), "%02d/%02d/%02d %d:%02d:%06.3f", (int)t.tm_mon + 1, (int)t.tm_mday, (int)t.tm_year - 100, (int)t.tm_hour, (int)t.tm_min, dwSec );
 
