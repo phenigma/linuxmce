@@ -579,16 +579,16 @@ void DataLayer_JSON::ParseCommands(map<int, Command_Data>& mapCommands, struct j
 			{
 				string sKey = iter_command.key;
 
-				if(iter_command.val->o_type == json_type_string)
+				if(iter_command.val->o_type == json_type_int)
 				{
-					string sValue = json_object_get_string(iter_command.val);
+					int nValue = json_object_get_int(iter_command.val);
 
 					if(sKey == "Device_From")
-						aCommand_data.Device_From(atoi(sValue.c_str()));
+						aCommand_data.Device_From(nValue);
 					else if(sKey == "Device_To")
-						aCommand_data.Device_To(atoi(sValue.c_str()));
-					else if(sKey == "PK_Command")
-						aCommand_data.PK_Command(atoi(sValue.c_str()));
+						aCommand_data.Device_To(nValue);
+					else if(sKey == "FK_Command")
+						aCommand_data.PK_Command(nValue);
 				}
 				else if(sKey == "params" && iter_command.val->o_type == json_type_object)
 				{
