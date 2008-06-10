@@ -7,10 +7,11 @@ LDLIBS = -lpthread
 APPNAME = MessageSend
 VERSION = 2.0.0
 
-sources = MessageSend.cpp
+sources = MessageSend.cpp 
+
 CPPFLAGS = -I$(ROOT) -I.. -I$(ROOT)/DCE
 LDFLAGS = -L../lib
-LDLIBS = -lDCECommon -lSerializeClass -lPlutoUtils
+LDLIBS = -lpthread -lSerializeClass -lPlutoUtils -lDCECommon
 
 ifeq ($(ARCH),mipsel)
 	CXX=mipsel-linux-g++
