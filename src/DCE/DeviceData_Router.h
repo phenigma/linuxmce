@@ -419,6 +419,7 @@ public:
             m_pSocket_Command=NULL;
             m_iConfigSize=0;
 			m_bDeleted = false;
+			m_bIgnoreOnOff = false;
         }
 
         ~DeviceData_Router() {

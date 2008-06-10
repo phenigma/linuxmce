@@ -914,7 +914,7 @@ DeviceData_Router *General_Info_Plugin::ProcessChildDevice(int nPK_Device, strin
 	DeviceTemplate_Data *pDeviceTemplate_Data = m_pRouter->DataLayer()->DeviceTemplate(PK_DeviceTemplate);
 	if(NULL == pDeviceTemplate_Data)
 	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "General_Info_Plugin::ProcessChildDevice Line %s malformed", sLine.c_str());
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "General_Info_Plugin::ProcessChildDevice Line %s has unknown PK_DeviceTemplate %d", sLine.c_str(), PK_DeviceTemplate);
 		return NULL;
 	}
 

@@ -2601,7 +2601,7 @@ void Router::ErrorResponse(Socket *pSocket,Message *pMessage)
 
 void Router::ParseDevice(int MasterDeviceID, int ParentDeviceID, class DeviceData_Impl *pDevice)
 {
-	if ( !pDevice->WithinCategory( DEVICECATEGORY_Computers_CONST ) && MasterDeviceID == DEVICEID_DCEROUTER )
+	if ( !pDevice->WithinCategory( DEVICECATEGORY_Computers_CONST ) && !pDevice->WithinCategory( DEVICECATEGORY_Core_CONST ) && MasterDeviceID == DEVICEID_DCEROUTER )
     {
         MasterDeviceID = pDevice->m_dwPK_Device;
     }
@@ -3014,10 +3014,18 @@ void Router::Configure()
         DeviceData_Base *pDevice_AL = allDevices.m_mapDeviceData_Base_Find(pDevice->m_dwPK_Device);
 
 		if( pDevice->m_pDevice_Core )
-			pDevice->m_dwPK_Device_Core = pDevice_AL->m_dwPK_Device_Core = pDevice->m_pDevice_Core->m_dwPK_Device;
+		{
+			pDevice->m_dwPK_Device_Core = pDevice->m_pDevice_Core->m_dwPK_Device;
+			if( pDevice_AL )
+				pDevice_AL->m_dwPK_Device_Core = pDevice->m_pDevice_Core->m_dwPK_Device;
+		}
 
 		if( pDevice->m_pDevice_MD )
-			pDevice->m_dwPK_Device_MD = pDevice_AL->m_dwPK_Device_MD = pDevice->m_pDevice_MD->m_dwPK_Device;
+		{
+			pDevice->m_dwPK_Device_MD = pDevice->m_pDevice_MD->m_dwPK_Device;
+			if( pDevice_AL )
+				pDevice_AL->m_dwPK_Device_MD = pDevice->m_pDevice_MD->m_dwPK_Device;
+		}
     }
 
 	// Get the device groups
