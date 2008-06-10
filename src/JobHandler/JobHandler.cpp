@@ -140,6 +140,25 @@ void JobHandler::AddJob(Job *pJob)
 	m_listJob.push_back(pJob);
 }
 
+bool JobHandler::MoveJobToEndOfQueue(Job *pJob)
+{
+	PLUTO_SAFETY_LOCK(jm,m_ThreadMutex);
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"JobHandler::MoveJobToEndOfQueue job %d %s",pJob->m_iID_get(),pJob->m_sName_get().c_str());
+#endif
+	for(list<class Job *>::iterator it=m_listJob.begin();it!=m_listJob.end();++it)
+	{
+		if( pJob==*it )
+		{
+			m_listJob.erase(it);
+			m_listJob.push_back(pJob);
+			BroadcastCond();
+			return true;
+		}
+	}
+	return false;
+}
+
 string JobHandler::ToString()
 {
 	PLUTO_SAFETY_LOCK(jm,m_ThreadMutex);
@@ -231,6 +250,7 @@ void JobHandler::Run()
 
 Job *JobHandler::FindJob(int jobID)
 {
+	PLUTO_SAFETY_LOCK(jm,m_ThreadMutex);
 	for(list<class Job *>::iterator it=m_listJob.begin();it!=m_listJob.end();++it)
 	{
 		Job *pJob = *it;

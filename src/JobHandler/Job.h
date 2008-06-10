@@ -64,7 +64,8 @@ namespace nsJobHandler
 			job_InProgress,
 			job_Error,
 			job_Aborted,
-			job_Done
+			job_Done,
+			job_WaitingForCallback  // Special case used in certain derived classes
 		};
 
 		enum TasklistPosition

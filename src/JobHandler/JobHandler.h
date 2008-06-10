@@ -93,6 +93,7 @@ namespace nsJobHandler
 		bool WaitForJobsToFinish(bool bAbort=true,int iSeconds=5);  //!< By default abort and wait 5 seconds for jobs to finish
 
 		void AddJob(Job *pJob);
+		bool MoveJobToEndOfQueue(Job *pJob);
 		string ToString();
 		bool ContainsJob(string sName);
 		void StateChanged();
