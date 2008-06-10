@@ -42,6 +42,11 @@ Job::Job(JobHandler *pJobHandler,string sName,int PK_Orbiter,Command_Impl *pComm
 	m_iPK_Orbiter=PK_Orbiter;
 	m_pCommand_Impl=pCommand_Impl;
 	m_bAutoDelete=true;
+
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Job::Job starting job %d <%p>",
+		m_iID,this);
+#endif
 }
 
 Job::~Job()
@@ -171,6 +176,7 @@ bool Job::StopThread(int iTimeout)
 // run each task
 void Job::Run()
 {
+	m_eJobStatus=job_InProgress;
 	PLUTO_SAFETY_LOCK(jm,m_ThreadMutex);
 	Task * pTask;
 	bool bAborted=false;
