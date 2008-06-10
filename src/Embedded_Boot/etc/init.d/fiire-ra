@@ -9,6 +9,6 @@ start() {
 stop() {
 	daemon_pid=`ps  | grep 'fiire-ra-daemon.sh' | grep -v grep | awk '{print $1}'`
 	if [[ "$daemon_pid" != "" ]] ;then
-	        kill "$daemon_pid"
+	        kill -9 "$daemon_pid"
 	fi
 }
