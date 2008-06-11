@@ -1095,10 +1095,9 @@ bool General_Info_Plugin::DeviceDetected( class Socket *pSocket, class Message *
 			nRoomID = pRouter->m_dwPK_Room;
 		}
 
+		string sCMD_Result;
 		int nPK_Device = 0;
-		DCE::CMD_Create_Device cmd_Create_Device(
-			m_dwPK_Device,
-			m_dwPK_Device,
+		CMD_Create_Device(
 			nPK_DeviceTemplate, 
 			sMacAddress, 
 			nRoomID, 
@@ -1109,10 +1108,10 @@ bool General_Info_Plugin::DeviceDetected( class Socket *pSocket, class Message *
 			"", //sDescription
 			0, //iPK_Orbiter
 			0, //iPK_Device_Related
-			&nPK_Device
+			&nPK_Device,
+			sCMD_Result,
+			pMessage
 		);
-
-		SendCommand(cmd_Create_Device);
 
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Device created: %d", nPK_Device);
 		m_pRouter->DataLayer()->Save();
