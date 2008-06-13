@@ -9,6 +9,9 @@ PipeSend="$PipePath/send"
 PipeRecv="$PipePath/recv"
 
 SSHConnectionData="fiire-ra@remote.fiire.com"
+log() {
+	logger -s -t 'fiire-ra' $*
+}
 
 InitPipes()
 {
@@ -33,16 +36,17 @@ PortForwarding() {
 
 		wait "$SSHPID"
 		exec 8>&- 9<&-
+		log "Connection to fiire server lost, will retry in 60 seconds."
 		sleep 60
 	done
 }
 
 if [[ ! -f "$CONF_FILE" ]]; then
-	echo "ERROR: Fiire Remote Access Service not configured."
+	log "Closing down. Fiire remote access is not configured."
 fi
 
 if [[ ! -f "$CONF_FILE" ]] ;then
-	echo "ERROR: Failed to read configuration file."
+	log "Failed to read fiire-ra configuration file."
 	exit 1
 fi
 . "$CONF_FILE"
@@ -50,17 +54,19 @@ fi
 PASSWORD_MD5="`echo -n "$PASSWORD" | md5sum | cut -d' ' -f1`"
 
 if [[ -z "$USERNAME" ]] || [[ -z "$PASSWORD" ]] || [[ -z "$PORT" ]]; then
-	echo "ERROR: Username and password are not set in the configuration file."
+	log "Closing down. Failed to read username and password."
+	exit 1
 fi
 
 if [[ -z "$PORT" ]] ;then
-	echo "ERROR: Port is not set in the configuration file."
+	log "Closing down. Faild to read assigned port."
+	exit 1
 fi
 
 if [[ -f "$PID_FILE" ]] ;then
 	PID=`cat $PID_FILE`
 	if [[ -d /proc/$PID ]] ;then
-		echo "Another fiire-ra daemon is already running."
+		log "Another fiire-ra daemon is already running (pid $PID)."
 		exit 1
 	fi
 fi
