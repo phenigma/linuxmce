@@ -4162,6 +4162,20 @@
 			"IsEmbedded":"1",
 			"CommandLine":""
 		},
+		"PK_DeviceTemplate_1871": {
+			"Description":"Moxi PVR",
+			"FK_DeviceCategory":"6",
+			"ImplementsDCE":"0",
+			"IsEmbedded":"1",
+			"CommandLine":""
+		},
+		"PK_DeviceTemplate_1872": {
+			"Description":"Moxi Orbiter",
+			"FK_DeviceCategory":"3",
+			"ImplementsDCE":"0",
+			"IsEmbedded":"1",
+			"CommandLine":""
+		},	
 		"PK_DeviceTemplate_1922": {
 			"Description":"ZWave Embedded Security Interf",
 			"FK_DeviceCategory":"80",
