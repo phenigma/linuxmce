@@ -580,35 +580,55 @@ bool Xine_Stream::OpenMedia(string fileName, string &sMediaInfo, string sMediaPo
 	bool mediaOpened = false;
 	m_bIsRendering = false;
 	
+	// detecting external subtitles file if present
+	// TODO support multiple external subtitles files 
+	// TODO allow manage subtitles via UI, and store last used subtitles
+	string sSubtitlesSuffix = "";
+		
+	for (vector<string>::iterator it=m_SubtitlesExtensions.begin(); it!=m_SubtitlesExtensions.end(); ++it)
+	{
+		if (FileUtils::FileExists(fileName + "." + *it))
+		{
+			LoggerWrapper::GetInstance()->Write(
+				LV_WARNING, "Found subtitles file: %s ",
+				(fileName + "." + *it).c_str() );
+			sSubtitlesSuffix = "#subtitle:" + fileName + "." + *it;
+			break;
+		}
+	}
+
+	string tmp = "file://";
 	if (sURLsuffix!="")
 	{
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Opening media with chapters/title position: %s ", (fileName+sURLsuffix).c_str() );
+		// NOTE: seek doesn't work with subtitles... or file:// url
+		// HACK BEGIN
+		tmp = "";
+		sSubtitlesSuffix = "";
+		// HACK END
+
+		tmp = tmp + fileName + sURLsuffix + sSubtitlesSuffix;
+
+		LoggerWrapper::GetInstance()->Write(
+			LV_WARNING, "Opening media with chapters/title position: '%s' ",
+			tmp.c_str() );
+
 		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
-		mediaOpened = xine_open( m_pXineStream, (fileName+sURLsuffix).c_str() );
+		mediaOpened = xine_open( m_pXineStream, tmp.c_str() );
 		if (!mediaOpened)
 			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Opening media FAILED");
 	}
 	
 	if (!mediaOpened)
 	{
-		// detecting external subtitles file if present
-		// TODO support multiple external subtitles files 
-		// TODO allow manage subtitles via UI, and store last used subtitles
-		string sSubtitlesSuffix;
-		
-		for (vector<string>::iterator it=m_SubtitlesExtensions.begin(); it!=m_SubtitlesExtensions.end(); ++it)
-		{
-			if (FileUtils::FileExists(fileName + "." + *it))
-			{
-				LoggerWrapper::GetInstance()->Write(LV_WARNING, "Found subtitles file: %s ", (fileName + "." + *it).c_str() );
-				sSubtitlesSuffix = "#subtitle:" + fileName + "." + *it;
-				break;
-			}
-		}
-		
-		LoggerWrapper::GetInstance()->Write(LV_WARNING, "Opening media without chapters/title position: %s ", fileName.c_str() );		
+		tmp = "file://";
+		tmp = tmp + fileName + sSubtitlesSuffix;
+
+		LoggerWrapper::GetInstance()->Write(
+			LV_WARNING, "Opening media without chapters/title position: '%s' ",
+			tmp.c_str() );
+
 		PLUTO_SAFETY_LOCK(streamLock, m_streamMutex);
-		mediaOpened = xine_open( m_pXineStream, (fileName+sSubtitlesSuffix).c_str() );
+		mediaOpened = xine_open( m_pXineStream, tmp.c_str() );
 		if (!mediaOpened)
 			LoggerWrapper::GetInstance()->Write(LV_WARNING, "Opening media FAILED");
 	}
@@ -2115,10 +2135,10 @@ void Xine_Stream::XineStreamEventListener( void *streamObject, const xine_event_
 					message = "XINE_MSG_FILE_NOT_FOUND: ";
 					if(data->explanation)
 						message = message  + ((char *) data + data->parameters) ;
-                                        
-                                        // notifying orbiter
-                                        string sOrbiterMsg = "File not found: " + pXineStream->m_sCurrentFile;
-                                        pXineStream->SendMessageToOrbiter(sOrbiterMsg);
+
+					// notifying orbiter
+					string sOrbiterMsg = "File not found: " + pXineStream->m_sCurrentFile;
+					pXineStream->SendMessageToOrbiter(sOrbiterMsg);
                                         
 					break;
 				}
