@@ -349,6 +349,7 @@ public:
             m_pRow_Device->Table_Device_get()->Database_pluto_main_get()->threaded_db_wrapper_query(sSQL);
             m_pRow_Device->Reload();
 #endif
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Set device %d state to %s", m_dwPK_Device, sState.c_str());
             m_sState=sState;
         }
 
