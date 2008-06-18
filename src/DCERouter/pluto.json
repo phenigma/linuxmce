@@ -1,5 +1,6 @@
 {
     "timezone": "0",
+    "firmware_version": "1",
     "Section_ids": [
         1
     ],
@@ -32,8 +33,12 @@
             } 
         }
     },
-    "events_list": [
+    "Timer_ids": [
     ],
-    "events": {
+    "Timer": {
+    },
+    "Event_ids": [
+    ],
+    "Event": {
     }
 }
