@@ -1,0 +1,13 @@
+CPPFLAGS=-W -Wall -Os
+
+ifeq ($(ARCH),mipsel)
+	CC=mipsel-linux-gcc
+else
+	CC=gcc
+endif
+
+all: interfeed
+	cp interfeed ../bin/
+
+clean:
+	rm -f interfeed

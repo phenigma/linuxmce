@@ -110,7 +110,12 @@ amixer sset PCM 100% unmute
 amixer sset Front 100% unmute
 alsactl store
 
-xinit /usr/bin/TouchKit -- :0 -ac
+#xinit /usr/bin/TouchKit -- :0 -ac #Egalax
+xinit /elo/elova -u -- :0 -ac #ELO
+
+/etc/init.d/elorc start
+/etc/init.d/TWDrvStartup start
+
 ConfSet AVWizardDone 1
 "
 
@@ -208,7 +213,7 @@ Firewall()
 
 ApplyHacks()
 {
-	AsoundSubst='s/convert48k/convert44k/g; s/rate 48000/rate 44100/g; /playback\.pcm/ s/spdif_playback/plughw:0,1/g'
+	AsoundSubst='s/convert48k/convert44k/g; s/rate 48000/rate 44100/g; /playback\.pcm/ s/spdif_playback/plughw:0,0/g'
 	AsoundCleanup='/pcm_slave.convert44k {/,/^$/ {next}; /pcm.spdif_playback {/,/^$/ {next} {print}'
 
 	sed -ri "$AsoundSubst" /usr/pluto/templates/asound.conf
@@ -220,6 +225,9 @@ ApplyHacks()
 		awk "$AsoundCleanup" /etc/asound.conf >/etc/asound.conf.nuforce
 		mv /etc/asound.conf{.nuforce,}
 	fi
+	
+	echo "pcm.!default asym_spdif" >> /etc/asound.conf
+	
 }
 
 Packages

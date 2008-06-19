@@ -117,7 +117,7 @@ public:
 		if( m_bRunningWithoutDeviceData )
 			return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Subtitles_CONST);
 		else
-			return m_mapParameters[DEVICEDATA_Subtitles_CONST];
+			return m_mapParameters_Find(DEVICEDATA_Subtitles_CONST);
 	}
 
 	void Set_Subtitles(string Value)
@@ -129,7 +129,7 @@ public:
 		if( m_bRunningWithoutDeviceData )
 			return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Audio_Tracks_CONST);
 		else
-			return m_mapParameters[DEVICEDATA_Audio_Tracks_CONST];
+			return m_mapParameters_Find(DEVICEDATA_Audio_Tracks_CONST);
 	}
 
 	void Set_Audio_Tracks(string Value)
@@ -141,7 +141,7 @@ public:
 		if( m_bRunningWithoutDeviceData )
 			return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Angles_CONST);
 		else
-			return m_mapParameters[DEVICEDATA_Angles_CONST];
+			return m_mapParameters_Find(DEVICEDATA_Angles_CONST);
 	}
 
 	void Set_Angles(string Value)
@@ -153,7 +153,7 @@ public:
 		if( m_bRunningWithoutDeviceData )
 			return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Name_CONST);
 		else
-			return m_mapParameters[DEVICEDATA_Name_CONST];
+			return m_mapParameters_Find(DEVICEDATA_Name_CONST);
 	}
 
 	int Get_Port()
@@ -161,7 +161,7 @@ public:
 		if( m_bRunningWithoutDeviceData )
 			return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,DEVICEDATA_Port_CONST).c_str());
 		else
-			return atoi(m_mapParameters[DEVICEDATA_Port_CONST].c_str());
+			return atoi(m_mapParameters_Find(DEVICEDATA_Port_CONST).c_str());
 	}
 
 };

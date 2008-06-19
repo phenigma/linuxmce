@@ -78,6 +78,15 @@ void * StartLearningThread_via_Socket(void * Arg)
 void * StartEventThread(void * Arg)
 {
 	gc100 * pgc100 = (gc100 *) Arg;
+
+	/*
+	 * Ref: http://www.mkssoftware.com/docs/man3/pthread_cancel.3.asp
+	 *
+	 * The thread cancellation type determines when the cancellation request is acted on.
+	 * If the cancellation type is set to PTHREAD_CANCEL_ASYNCHRONOUS, the cancellation request is acted on immediately.
+	 * If the cancellation type is set to PTHREAD_CANCEL_DEFERRED, the cancellation request is not acted on until the thread reaches a cancellation point.
+	 */
+	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
 	pgc100->EventThread();
 	return NULL;
 }
@@ -201,7 +210,7 @@ void gc100::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sC
 			if (pDeviceData_Impl->m_dwPK_DeviceCategory == DEVICECATEGORY_Infrared_Interface_CONST)
 			{
 				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Message recipient is my child");
-				sPort = pDeviceData_Impl->m_mapParameters[DEVICEDATA_PortChannel_Number_CONST];
+				sPort = pDeviceData_Impl->m_mapParameters_Find(DEVICEDATA_PortChannel_Number_CONST);
 			}
 			else
 			{
@@ -211,7 +220,7 @@ void gc100::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sC
 				if (pChild != NULL)
 				{
 					LoggerWrapper::GetInstance()->Write(LV_STATUS, "Message recipient is my nephew.");
-					sPort = pChild->m_pData->m_mapParameters[DEVICEDATA_PortChannel_Number_CONST];
+					sPort = pChild->m_pData->m_mapParameters_Find(DEVICEDATA_PortChannel_Number_CONST);
 				}
 				else
 				{
@@ -904,10 +913,10 @@ void gc100::parse_message_statechange(std::string message, bool change)
 //			if (pChildDeviceCommand->PK_DeviceTemplate_get() == DEVICETEMPLATE_Generic_Input_Ouput_CONST)
 				Command_Impl * child = pChildDeviceCommand;
 
-			this_pin = child->m_pData->m_mapParameters[DEVICEDATA_PortChannel_Number_CONST];
+			this_pin = child->m_pData->m_mapParameters_Find(DEVICEDATA_PortChannel_Number_CONST);
 
 			LoggerWrapper::GetInstance()->Write(LV_STATUS, "statechange Reply: testing %s, %s (state %d) default state: %s", 
-				child->m_sName.c_str(), this_pin.c_str(), input_state, child->m_pData->m_mapParameters[DEVICEDATA_Default_State_CONST].c_str());
+				child->m_sName.c_str(), this_pin.c_str(), input_state, child->m_pData->m_mapParameters_Find(DEVICEDATA_Default_State_CONST).c_str());
 
 			//LoggerWrapper::GetInstance()->Write(LV_STATUS, "statechange Reply: found a child pin number of %s, direction is %s",this_pin.c_str(),io_direction.c_str());
 
@@ -942,7 +951,7 @@ void gc100::parse_message_statechange(std::string message, bool change)
 
 	if (result!=NULL)
 	{
-		if( result->m_pData->m_mapParameters[DEVICEDATA_Default_State_CONST]=="1" )
+		if( result->m_pData->m_mapParameters_Find(DEVICEDATA_Default_State_CONST)=="1" )
 			input_state = !input_state;
 		if (target_type == "SENSOR")
 		{
@@ -1059,45 +1068,11 @@ std::string gc100::read_from_gc100()
 //	PLUTO_SAFETY_LOCK(sl, gc100_mutex);
 	while (1)
 	{
-		pthread_testcancel();
-		
-		struct timeval timeout;
-		timeout.tv_sec = 1;
-		timeout.tv_usec = 0;
-
-		fd_set fdset;
-		FD_ZERO(&fdset);
-		FD_SET(gc100_socket, &fdset);
-
-		int nfds = select(gc100_socket + 1, &fdset, NULL, NULL, &timeout); // number of file descriptors
-		if (nfds == -1)
+		if (recv(gc100_socket, &recv_buffer[recv_pos], 1, 0) <= 0)
 		{
-			if (errno != EINTR)
-			{
-				// error in select
-				return_value = "error";
-				break;
-			}
-			else
-			{
-				// interrupted, not really an error
-				continue;
-			}
-		}
-		else if (nfds == 0)
-		{
-			// timeout
-			continue;
-		}
-		else if (recv(gc100_socket, &recv_buffer[recv_pos], 1, 0) <= 0) // nfds == 1
-		{
-			// EOF or read error
 			return_value = "error";
 			break;
 		}
-		
-		// we have data
-		pthread_testcancel();
 		if (recv_buffer[recv_pos] == '\r')
 		{
 			recv_buffer[recv_pos] = '\0';
@@ -1193,7 +1168,7 @@ bool gc100::GetPinDeviceID(class DeviceData_Impl *pDeviceData,string &this_pin,i
 		return false;
 	}
 
-	this_pin = pDeviceData->m_mapParameters[DEVICEDATA_PortChannel_Number_CONST];
+	this_pin = pDeviceData->m_mapParameters_Find(DEVICEDATA_PortChannel_Number_CONST);
 	if( this_pin.empty()==false )
 	{
 		// We found it

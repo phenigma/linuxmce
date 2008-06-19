@@ -92,6 +92,7 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 	
 	if (input_commands_.empty())
 	{
+#ifndef EMBEDDED_LMCE
 		DCEConfig dceconf;
 		DBHelper mySqlHelper(dceconf.m_sDBHost, dceconf.m_sDBUser, dceconf.m_sDBPassword, dceconf.m_sDBName,dceconf.m_iDBPort);
 		PlutoSqlResult result_set;
@@ -126,6 +127,7 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 				(*device_input_command_order_[atoi(row[0])])[atoi(row[1])]=cmd;
 			}
 		}
+#endif
 	}
 	
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"AVMessageTranslator::Translate begin");
@@ -667,6 +669,7 @@ AVMessageTranslator::InitDelaysMap(long devtemplid)
 	
 	if(map_ModeDelay.find(devtemplid) == map_ModeDelay.end())
 	{
+#ifndef EMBEDDED_LMCE
 		DCEConfig dceconf;
 		DBHelper mySqlHelper(dceconf.m_sDBHost, dceconf.m_sDBUser, dceconf.m_sDBPassword, dceconf.m_sDBName,dceconf.m_iDBPort);
 		PlutoSqlResult result_set;
@@ -692,6 +695,7 @@ AVMessageTranslator::InitDelaysMap(long devtemplid)
 			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Device has no AV properties");
 			return false;
 		}
+#endif
 	}
 	
 	return true;

@@ -394,6 +394,9 @@ public:
          * if it isn't the device exact category it goes up to the device parents
          */
         bool WithinCategory( long dwPK_DeviceCategory, DeviceCategory *pStarting=NULL ) {
+			if( m_dwPK_DeviceCategory==dwPK_DeviceCategory )
+				return true;
+
             if ( !pStarting ) // no device category to start with supplied
                 pStarting = m_pDeviceCategory;
 

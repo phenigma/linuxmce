@@ -1,35 +1,19 @@
-#!/bin/bash
+#!/bin/bash -e
 
 . /etc/lmce-build/builder.conf
 
-## Video Wizard Videos
-mkdir -p "${extras_dir}"
-pushd "${extras_dir}"
-	for file in \
-	       	asterisk-perl_0.08-1_all.deb \
-		libxml-parser-lite-tree-perl_1_all.deb \
-		pluto-avwizard-sounds_1.0-1_all.deb \
-		libflickr-api-perl_1_all.deb \
-	       	msttcorefonts_2.2pluto1_all.deb \
-		video-wizard-videos_1.1_all.deb \
-	;do
-		:
-	wget -c "http://82.77.255.209/extra/$file"
-	done
-popd
+rsync_host="10.0.2.3"
 
-## Some Skins
+## Import Public Skin
 skins_dir=/home/samba/www_docs/graphics
-
 mkdir -p /usr/pluto/orbiter/
+mkdir -p "$skins_dir"
+
 rm -f /usr/pluto/orbiter/skins
 ln -s "$skins_dir" /usr/pluto/orbiter/skins
 
-rm -rf "$skins_dir"
-mkdir -p "$skins_dir"
-
-pushd /
-	ssh -i /etc/lmce-build/builder.key pluto@82.77.255.209 tar -c "$skins_dir" | tar -x
+pushd "$skins_dir"
+	rsync -avz --delete-after rsync://$rsync_host/skins-public ./
 popd
 
 pushd /usr/pluto/orbiter/skins
@@ -37,10 +21,11 @@ pushd /usr/pluto/orbiter/skins
 popd
 
 pushd "${build_dir}"
+	rm -f samba
         ln -s /home/samba
 popd
 	
 mkdir -p '/home/samba/www_docs/sample media/'
 pushd '/home/samba/www_docs/sample media/'
-	scp -r -i /etc/lmce-build/builder.key pluto@82.77.255.209:'/home/samba/www_docs/sample\ media/' ./
+	rsync -avz --delete-after rsync://$rsync_host/sample-media ./
 popd

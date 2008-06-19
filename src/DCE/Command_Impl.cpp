@@ -406,8 +406,7 @@ void Command_Impl::ReplaceParams( ::std::string sReplacement ) {
 
 			if (( sParam1 != "" ) && ( sParam2 != "" ) && ( iParam_value != 0 ))
 			{
-				m_pData->m_mapParameters.erase( iParam_value ); // erase the old value
-				m_pData->m_mapParameters.insert( pair<int, string>( iParam_value, sParam2 ) ); // insert a new one
+				m_pData->ReplaceParameter(iParam_value, sParam2);
 			}
 			else bDone = true;
 
@@ -745,16 +744,17 @@ ReceivedMessageResult Command_Impl::ReceivedMessage( Message *pMessage )
 
 	if ( pMessage->m_dwMessage_Type == MESSAGETYPE_DATAPARM_REQUEST && pMessage->m_dwPK_Device_To == m_dwPK_Device )
 	{
-		map<int, string>::iterator p = m_pData->m_mapParameters.find(pMessage->m_dwID);
 		pMessage->m_bRespondedToMessage = true;
-		if (p==m_pData->m_mapParameters.end())
+		if (!m_pData->ParameterExists(pMessage->m_dwID))
 		{
 			SendMessage(new Message(m_dwPK_Device, pMessage->m_dwPK_Device_From, PRIORITY_NORMAL, MESSAGETYPE_REPLY, 0, 1, pMessage->m_dwID, "ERR Parameter not found"));
 		}
 		else
 		{
 			RequestingParameter(pMessage->m_dwID);
-			SendMessage(new Message(m_dwPK_Device, pMessage->m_dwPK_Device_From, PRIORITY_NORMAL, MESSAGETYPE_REPLY, 0, 1, pMessage->m_dwID, (*p).second.c_str()));
+
+			string sValue = m_pData->m_mapParameters_Find(pMessage->m_dwID);
+			SendMessage(new Message(m_dwPK_Device, pMessage->m_dwPK_Device_From, PRIORITY_NORMAL, MESSAGETYPE_REPLY, 0, 1, pMessage->m_dwID, sValue.c_str()));
 		}
 
 		return rmr_Processed;
@@ -771,27 +771,27 @@ ReceivedMessageResult Command_Impl::ReceivedMessage( Message *pMessage )
 		SendMessage(pMessage_Out);
 		return rmr_Processed;
 	}
-	else
-		if ( pMessage->m_dwMessage_Type == MESSAGETYPE_DATAPARM_CHANGE && pMessage->m_dwPK_Device_To == m_dwPK_Device )
+	else if ( pMessage->m_dwMessage_Type == MESSAGETYPE_DATAPARM_CHANGE && pMessage->m_dwPK_Device_To == m_dwPK_Device )
+	{
+		//WHAT IS THIS FOR ?
+		p = pMessage->m_mapParameters.begin();
+		if ( p != pMessage->m_mapParameters.end() )
 		{
-			p = pMessage->m_mapParameters.begin();
-			if ( p != pMessage->m_mapParameters.end() )
-			{
-				string ValueOld = m_pData->m_mapParameters[(*p).first];
-				m_pData->m_mapParameters[(*p).first] = (*p).second;
+			string ValueOld = m_pData->m_mapParameters_Find((*p).first);
+			m_pData->ReplaceParameter((*p).first,(*p).second);
 #ifdef DEBUG
-				LoggerWrapper::GetInstance()->Write( LV_STATUS, "Updating data parm %d with %s (Device %d).", (*p).first, (*p).second.c_str(), m_dwPK_Device );
+			LoggerWrapper::GetInstance()->Write( LV_STATUS, "Updating data parm %d with %s (Device %d).", (*p).first, (*p).second.c_str(), m_dwPK_Device );
 #endif
-				SendString( "OK" );
-				OnDataChange( (*p).first, ValueOld, (*p).second );
-			}
-			else
-			{
-				LoggerWrapper::GetInstance()->Write( LV_WARNING, "Got a data parm change without the value to change." );
-				SendString( "ERR Input" );
-			}
-			return rmr_Processed;
+			SendString( "OK" );
+			OnDataChange( (*p).first, ValueOld, (*p).second );
 		}
+		else
+		{
+			LoggerWrapper::GetInstance()->Write( LV_WARNING, "Got a data parm change without the value to change." );
+			SendString( "ERR Input" );
+		}
+		return rmr_Processed;
+	}
 
 	return rmr_NotProcessed;
 }
@@ -1008,7 +1008,7 @@ void Command_Impl::StopWatchDog()
     }
 }
 
-int Command_Impl::RegisterMsgInterceptor(MessageInterceptorFn pMessageInterceptorFn,int PK_Device_From,int PK_Device_To,int PK_DeviceTemplate,int PK_DeviceCategory,int MessageType,int MessageID)
+int Command_Impl::RegisterMsgInterceptor(MessageInterceptorFn pMessageInterceptorFn,int PK_Device_From,int PK_Device_To,int PK_DeviceTemplate,int PK_DeviceCategory,int MessageType,int MessageID,bool bAllowRerouting)
 {
 #ifdef LINK_TO_ROUTER
 	if( m_pRouter )
@@ -1022,9 +1022,10 @@ int Command_Impl::RegisterMsgInterceptor(MessageInterceptorFn pMessageIntercepto
 	{
 		int dwMessageInterceptorCounter=m_dwMessageInterceptorCounter;
 		m_mapMessageInterceptorFn[m_dwMessageInterceptorCounter] = pMessageInterceptorFn;
-		Message *pMessage = new Message(m_dwPK_Device,0,PRIORITY_NORMAL,MESSAGETYPE_REGISTER_INTERCEPTOR,m_dwMessageInterceptorCounter,6,
+		Message *pMessage = new Message(m_dwPK_Device,0,PRIORITY_NORMAL,MESSAGETYPE_REGISTER_INTERCEPTOR,m_dwMessageInterceptorCounter,7,
 			PARM_FROM, StringUtils::itos(PK_Device_From).c_str(), PARM_TO, StringUtils::itos(PK_Device_To).c_str(),PARM_TEMPLATE, StringUtils::itos(PK_DeviceTemplate).c_str(),
-			PARM_CATEGORY, StringUtils::itos(PK_DeviceCategory).c_str(), PARM_MESSAGE_TYPE, StringUtils::itos(MessageType).c_str(), PARM_MESSAGE_ID, StringUtils::itos(MessageID).c_str());
+			PARM_CATEGORY, StringUtils::itos(PK_DeviceCategory).c_str(), PARM_MESSAGE_TYPE, StringUtils::itos(MessageType).c_str(), PARM_MESSAGE_ID, StringUtils::itos(MessageID).c_str(),
+			PARM_ALLOW_REROUTE, bAllowRerouting ? "1" : "0");
 		SendMessageToRouter(pMessage);
 		m_dwMessageInterceptorCounter++;
 		return dwMessageInterceptorCounter;

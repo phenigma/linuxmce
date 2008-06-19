@@ -112,7 +112,6 @@ public:
 	virtual void CMD_Set_Screen_Type(int iValue) { string sCMD_Result; CMD_Set_Screen_Type(iValue,sCMD_Result,NULL);};
 	virtual void CMD_Set_Screen_Type(int iValue,string &sCMD_Result,Message *pMessage);
 
-
 //<-dceag-h-e->
 	};
 

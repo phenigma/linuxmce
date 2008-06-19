@@ -301,6 +301,8 @@ namespace DCE
 
 		virtual void HideWindow(string sWindowName) {}
 
+		virtual void SetMonitorPowerState(bool bOn) {}  // Turn the monitor on or off
+
 		pluto_pthread_mutex_t m_MaintThreadMutex;  // This will also protect the callback map
 		pluto_pthread_mutex_t m_ScreenMutex; /** < Anything that should not be done during a screen render, change, etc. Blocking this will prevent screen changes */
 		pluto_pthread_mutex_t m_VariableMutex; /** < Short mutex to protect members like strings and maps */
@@ -507,6 +509,8 @@ namespace DCE
 
 		void RedrawObject( void *iData );
 
+		void SendMessageDelayed( void *iData );  // Pass in a message to have it sent at a later time
+
 		// Reselect the given object, used for repeating buttons
 		void ReselectObject( void *data );
 
@@ -639,6 +643,11 @@ namespace DCE
 		* If a ScreenHandler needs to intercept a message it can register using this function
 		*/
 		bool ScreenHandlerMsgInterceptor( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
+
+		/**
+		* If a ScreenHandler needs to intercept a message it can register using this function
+		*/
+		bool MediaInsertedMsgInterceptor( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
 
 		/**
 		* @brief A "DoMaint" callback to continually refresh the screen
@@ -1010,6 +1019,9 @@ namespace DCE
 	string DATA_Get_Alert_Filter_Level();
 	bool DATA_Get_Ignore_First_Event();
 	void DATA_Set_Ignore_First_Event(bool Value,bool bUpdateDatabase=false);
+	bool DATA_Get_Automatically_Go_to_Remote();
+	bool DATA_Get_Queue_Instead_of_Instant_Play();
+	void DATA_Set_Queue_Instead_of_Instant_Play(bool Value,bool bUpdateDatabase=false);
 
 			*****EVENT***** accessors inherited from base class
 	void EVENT_Touch_or_click(int iX_Position,int iY_Position);

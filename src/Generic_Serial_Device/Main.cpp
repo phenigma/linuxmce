@@ -125,10 +125,7 @@ extern "C" {
 //<-dceag-plug-e->
 
 //<-dceag-main-b->
-/** @class main
-See the Main.cpp file docs for more documentation.
-*/
-int main(int argc, char* argv[])
+int main(int argc, char* argv[]) 
 {
 	g_sBinary = FileUtils::FilenameWithoutPath(argv[0]);
 	g_sBinaryPath = FileUtils::BasePath(argv[0]);
@@ -195,7 +192,6 @@ int main(int argc, char* argv[])
 	}
 #endif
 
-    // This section will set up a logger if possible.
 	try
 	{
 		if( sLogger=="dcerouter" )
@@ -213,12 +209,12 @@ int main(int argc, char* argv[])
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Device: %d starting.  Connecting to: %s",PK_Device,sRouter_IP.c_str());
 
-	bool bAppError = false;
+	bool bAppError=false;
 	bool bReload=false;
 	try
 	{
 		Generic_Serial_Device *pGeneric_Serial_Device = new Generic_Serial_Device(PK_Device, sRouter_IP,true,bLocalMode);
-		if ( pGeneric_Serial_Device->GetConfig() && pGeneric_Serial_Device->Connect(pGeneric_Serial_Device->PK_DeviceTemplate_get()) )
+		if ( pGeneric_Serial_Device->GetConfig() && pGeneric_Serial_Device->Connect(pGeneric_Serial_Device->PK_DeviceTemplate_get()) ) 
 		{
 			g_pCommand_Impl=pGeneric_Serial_Device;
 			g_pDeadlockHandler=DeadlockHandler;
@@ -228,11 +224,14 @@ int main(int argc, char* argv[])
 			if( bLocalMode )
 				pGeneric_Serial_Device->RunLocalMode();
 			else
-				pthread_join(pGeneric_Serial_Device->m_RequestHandlerThread, NULL);  // This function will return when the device is shutting down
+			{
+				if(pGeneric_Serial_Device->m_RequestHandlerThread)
+					pthread_join(pGeneric_Serial_Device->m_RequestHandlerThread, NULL);  // This function will return when the device is shutting down
+			}
 			g_pDeadlockHandler=NULL;
 			g_pSocketCrashHandler=NULL;
-		}
-		else
+		} 
+		else 
 		{
 			bAppError = true;
 			if( pGeneric_Serial_Device->m_pEvent && pGeneric_Serial_Device->m_pEvent->m_pClientSocket && pGeneric_Serial_Device->m_pEvent->m_pClientSocket->m_eLastError==ClientSocket::cs_err_CannotConnect )
@@ -263,7 +262,7 @@ int main(int argc, char* argv[])
     WSACleanup();
 #endif
 
-	if(bAppError)
+	if( bAppError )
 		return 1;
 
 	if( bReload )

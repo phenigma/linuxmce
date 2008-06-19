@@ -49,6 +49,10 @@ public:
 	enumTypeOfMedia m_enumTypeOfMedia;
 	time_t m_tLastViewed;
 
+	// These are used only for browsing songs
+	int m_iTrack;
+	string m_sPerformer,m_sAlbum;
+
 	// Constructor for file info
 	FileBrowserInfo(string sDisplayName, string sPath,int PK_File_Or_Disc,int PK_FileFormat, char *pLastViewed, char cMediaSource, bool bIsDirectory,bool bIsBack) 
 	{
@@ -73,6 +77,7 @@ public:
 		m_bIsDirectory=bIsDirectory;
 		m_bIsBack=bIsBack;
 		m_PK_Bookmark=0;
+		m_iTrack=0;
 		m_sMRL=sPath;
 		m_PK_FileFormat=PK_FileFormat;
 		m_cMediaSource=cMediaSource;
@@ -94,6 +99,7 @@ public:
 		m_PK_FileFormat=0;
 		m_cMediaSource='A';
 		m_tLastViewed=tLastViewed;
+		m_iTrack=0;
 	}
 	// Constructor for bookmark
 	FileBrowserInfo(string sDisplayName, int PK_Bookmark, int PK_Picture, int PK_File, int PK_Disc,int PK_FileFormat, char cMediaSource)
@@ -111,6 +117,7 @@ public:
 		m_PK_FileFormat=PK_FileFormat;
 		m_cMediaSource=cMediaSource;
 		m_tLastViewed=0;
+		m_iTrack=0;
 	}
 };
 
@@ -136,6 +143,20 @@ static bool FileBrowserInfoComparer(FileBrowserInfo *x, FileBrowserInfo *y)
 static bool FileBrowserInfoComparerLastViewed(FileBrowserInfo *x, FileBrowserInfo *y)
 {
 	return x->m_tLastViewed > y->m_tLastViewed;
+}
+
+static bool FileBrowserInfoComparerTrack(FileBrowserInfo *x, FileBrowserInfo *y)
+{
+	if( (x->m_iTrack==0 && y->m_iTrack==0) || x->m_bIsBack || y->m_bIsBack || x->m_bIsDirectory || y->m_bIsDirectory )
+		return FileBrowserInfoComparer(x,y);
+
+	if( x->m_iTrack==0 && y->m_iTrack!=0 )
+		return false;
+
+	if( x->m_iTrack!=0 && y->m_iTrack==0 )
+		return true;
+
+	return x->m_iTrack < y->m_iTrack;
 }
 
 class DatabaseInfoOnPath

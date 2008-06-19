@@ -103,48 +103,12 @@ public:
 
 //<-dceag-const-b->
 public:
-		/** Constructors
-        @param DeviceID is the device ident.
-        @param ServerAddress is the IP address of the server.
-        @param bConnectEventHandler is the flag to force connection.
-        @param bLocalMode is the local flag.
-        @param pRouter ia a pointer to the router instance.
-        */
+		// Constructors/Destructor
 		Generic_Serial_Device(int DeviceID, string ServerAddress,bool bConnectEventHandler=true,bool bLocalMode=false,class Router *pRouter=NULL);
-
-        /** Destructor */
 		virtual ~Generic_Serial_Device();
-
-        /** Get the config */
 		virtual bool GetConfig();
-
-        /** Register the serial device.
-        @returns false as it empty registration a present.
-        */
 		virtual bool Register();
-
-        /** ReceivedCommandForChild.
-        @param pDeviceData_Impl is a pointer to the DeviceData_Impl.
-        @param sCMD_Result is the address where the result is stored.
-        @param pMessage is a pointer to ehe message.
-
-        When you receive commands that are destined to one of your children,
-          then if that child implements DCE then there will already be a separate class
-          created for the child that will get the message.
-        If the child does not, then you will get all commands for your children
-          in ReceivedCommandForChild, where pDeviceData_Base is the child device.
-        If you handle the message, you should change the sCMD_Result to OK.
-        */
 		virtual void ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sCMD_Result,Message *pMessage);
-
-        /** ReceivedUnknownCommand.
-        @param sCMD_Result is the address where the result is stored.
-        @param pMessage is a pointer to ehe message.
-
-        When you received a valid command, but it wasn't for one of your children,
-          then ReceivedUnknownCommand gets called.
-        If you handle the message, you should change the sCMD_Result to OK.
-        */
 		virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
 //<-dceag-const-e->
 
@@ -186,7 +150,6 @@ public:
 
 			*****COMMANDS***** we need to implement
 	*/
-
 
 //<-dceag-h-e->
 

@@ -79,7 +79,7 @@ extern "C" {
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		App_Server *pApp_Server = new App_Server(PK_Device, "localhost",true,false,pRouter);
-		if( pApp_Server->m_bQuit_get() || !pApp_Server->GetConfig() )
+		if( pApp_Server->m_bQuit_get()|| !pApp_Server->GetConfig() )
 		{
 			delete pApp_Server;
 			return NULL;

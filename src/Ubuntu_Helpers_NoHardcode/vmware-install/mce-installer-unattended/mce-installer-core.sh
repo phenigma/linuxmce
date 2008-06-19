@@ -92,6 +92,11 @@ function Setup_Pluto_Conf {
 		AutostartMedia=0
 	fi
 	StatsMessage "Generating Default Config File"
+	if [[ "$(lsb_release -c -s)" == "hardy" ]] ;then
+		PK_Distro=16
+	else
+		PK_Distro=15
+	fi
 	PlutoConf="# Pluto config file
 MySqlHost = localhost
 MySqlUser = root
@@ -104,7 +109,7 @@ PK_Device = 1
 Activation_Code = 1111
 PK_Installation = 1
 PK_Users = 1
-PK_Distro = 15
+PK_Distro = $PK_Distro
 Display = 0
 SharedDesktop = 1
 OfflineMode = false

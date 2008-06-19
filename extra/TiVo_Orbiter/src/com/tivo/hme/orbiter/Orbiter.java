@@ -26,8 +26,8 @@ package com.tivo.hme.orbiter;
 import com.tivo.hme.bananas.BApplication;
 import com.tivo.hme.bananas.BView;
 import com.tivo.hme.interfaces.IContext;
-import com.tivo.hme.orbiter.UI.*;
 
+import com.tivo.hme.orbiter.UI.*;
 import com.tivo.hme.scenarios.*;
 import com.tivo.hme.dce.*;
 
@@ -53,6 +53,8 @@ public class Orbiter extends BApplication implements MessageProcessor
 	
 	private MainMenuScreen m_MainMenuScreen = null;
 	private OrbiterScreen m_OrbiterScreen = null;
+	private ViewCameraScreen m_ViewCameraScreen = null;
+	private SecurityPanelScreen m_SecurityPanelScreen = null;
 	
 	private boolean m_bMenuOn = true;
 	private final String m_sBackgroundPicture = "blue.jpg";
@@ -66,7 +68,12 @@ public class Orbiter extends BApplication implements MessageProcessor
         super.init(context);
         
         String sIPAddress = "localhost";
-        String sDeviceID = "0";
+        String sPVRDeviceID = "0";
+        String sOrbiterDeviceID = "0";
+        String sCameraURL = "";
+        String sCameraID = "0";
+        String sEmbedded = "0";
+        String sEmbeddedScenariosFile = "scenarios";
         
         //read configuration
 		try 
@@ -75,10 +82,21 @@ public class Orbiter extends BApplication implements MessageProcessor
 			p.load(new FileInputStream("orbiter_tivo.ini"));
 			
 			sIPAddress = p.getProperty("IPAddress");
-			sDeviceID = p.getProperty("DeviceID");
+			sPVRDeviceID = p.getProperty("PVRDeviceID");
+			sOrbiterDeviceID = p.getProperty("OrbiterDeviceID");
+			sCameraURL = p.getProperty("CameraURL");
+			sCameraID = p.getProperty("CameraID");
+			sEmbedded = p.getProperty("Embedded");
+			sEmbeddedScenariosFile = p.getProperty("EmbeddedScenariosFile");
 			
 			System.out.println("IPAddress = " + sIPAddress);
-			System.out.println("DeviceID = " + sDeviceID);
+			System.out.println("PVRDeviceID = " + sPVRDeviceID);
+			System.out.println("OrbiterDeviceID = " + sOrbiterDeviceID);
+			System.out.println("CameraURL = " + sCameraURL);
+			System.out.println("CameraID = " + sCameraID);
+			System.out.println("Embedded = " + sEmbedded);
+			System.out.println("Embedded Scenarios File = " + sEmbeddedScenariosFile);
+			
 			p.list(System.out);
 		} 
 		catch (Exception e) 
@@ -87,14 +105,25 @@ public class Orbiter extends BApplication implements MessageProcessor
 		}         
         
 		Scenarios scenarios = new Scenarios();        
-		PlutoProxy proxy = new PlutoProxy(this, sIPAddress, 3450, Integer.parseInt(sDeviceID));
-		String sXML = proxy.GetScenarios();
-		if(null != sXML)
+		PlutoProxy proxy = new PlutoProxy(this, sIPAddress, 3450, Integer.parseInt(sPVRDeviceID), Integer.parseInt(sOrbiterDeviceID));
+		String sRawData = proxy.GetScenarios(sEmbedded.equals("1"), sEmbeddedScenariosFile);
+		if(null != sRawData)
 		{
-			if(scenarios.Load(sXML))
+			if(sEmbedded.equals("1"))
 			{
-				System.out.println("Scenarios loaded successfully!");
-				scenarios.PrintInfo();
+				if(scenarios.LoadData(sRawData))
+				{
+					System.out.println("Scenarios loaded successfully!");
+					scenarios.PrintInfo();
+				}
+			}
+			else
+			{
+				if(scenarios.LoadXML(sRawData))
+				{
+					System.out.println("Scenarios loaded successfully!");
+					scenarios.PrintInfo();
+				}
 			}
 		}
 		
@@ -102,6 +131,8 @@ public class Orbiter extends BApplication implements MessageProcessor
 		
 		m_OrbiterScreen = new OrbiterScreen(this, proxy);
 		m_MainMenuScreen = new MainMenuScreen(this, scenarios, proxy); 
+		m_ViewCameraScreen = new ViewCameraScreen(this, proxy, sCameraURL, sCameraID);
+		m_SecurityPanelScreen = new SecurityPanelScreen(this, proxy);
 		m_bMenuOn = true;
 		
 		push(m_MainMenuScreen, TRANSITION_NONE);
@@ -121,6 +152,52 @@ public class Orbiter extends BApplication implements MessageProcessor
         return super.handleAction(view, action);
     }
     
+    public void TivoGotoScreen(String sValue)
+    {
+		System.out.println("TivoGotoScreen: " + sValue);
+    	
+		if(0 == sValue.compareTo("orbiter"))
+		{
+        	if(m_bMenuOn)
+        	{
+        		pop();
+        		push(m_OrbiterScreen, TRANSITION_NONE);
+        		m_bMenuOn = false;
+        	}					
+		}
+		else if(0 == sValue.compareTo("viewcamera"))
+		{
+			pop();
+			push(m_ViewCameraScreen, TRANSITION_NONE);
+			m_ViewCameraScreen.Run();
+			m_bMenuOn = false;
+		}
+		else if(0 == sValue.compareTo("securitypanel"))
+		{
+			pop();
+			push(m_SecurityPanelScreen, TRANSITION_NONE);
+			m_SecurityPanelScreen.Run();
+			m_bMenuOn = false;
+		}		
+		else if(!m_bMenuOn)
+    	{
+    		getRoot().setResource(m_sBackgroundPicture);
+    		
+    		pop();
+    		push(m_MainMenuScreen, TRANSITION_NONE);
+    		m_bMenuOn = true;
+    	}								
+		
+		try
+		{
+			flush();		
+		}
+		catch (Exception e) 
+		{
+			System.out.println("Failed to flush. Error: " + e.getMessage());
+		}		    	
+    }
+    
 	public void ProcessMessage(Message message)
 	{
 		if(null == message)
@@ -129,7 +206,8 @@ public class Orbiter extends BApplication implements MessageProcessor
 			return;
 		}
 		
-		System.out.println("Processing message from router: " + message.Data());
+		//System.out.println("Processing message from router: " + message.Data());
+		System.out.println("Processing message from router with id " + message.MessageID());
 		
 		switch(message.MessageID())
 		{
@@ -142,12 +220,7 @@ public class Orbiter extends BApplication implements MessageProcessor
 				ImageResource imgres = createImage(pImage);
 				getRoot().setResource(imgres); 
 	        	
-	        	if(m_bMenuOn)
-	        	{
-	        		pop();
-	        		push(m_OrbiterScreen, TRANSITION_NONE);
-	        		m_bMenuOn = false;
-	        	}		        	
+				TivoGotoScreen("orbiter");	        	
 	        	
 				try
 				{
@@ -164,37 +237,9 @@ public class Orbiter extends BApplication implements MessageProcessor
 			case COMMAND_MENU_CONST:
 			{
 				String sValue = message.GetParameter(COMMANDPARAMETER_Text_CONST);
-				System.out.println("Received CMD_Menu with value " + sValue);
+				System.out.println("Processing message COMMAND_MENU_CONST with id " + message.MessageID());
 				
-				if(0 == sValue.compareTo("orbiter"))
-				{
-		        	if(m_bMenuOn)
-		        	{
-		        		pop();
-		        		push(m_OrbiterScreen, TRANSITION_NONE);
-		        		m_bMenuOn = false;
-		        	}					
-				}
-				else
-				{
-		        	if(!m_bMenuOn)
-		        	{
-		        		getRoot().setResource(m_sBackgroundPicture);
-		        		
-		        		pop();
-		        		push(m_MainMenuScreen, TRANSITION_NONE);
-		        		m_bMenuOn = true;
-		        	}								
-				}
-				
-				try
-				{
-					flush();		
-				}
-				catch (Exception e) 
-				{
-					System.out.println("Failed to flush. Error: " + e.getMessage());
-				}				
+				TivoGotoScreen(sValue);
 	        				
 				break;
 			}

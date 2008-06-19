@@ -399,10 +399,10 @@ void General_Info_Plugin::CMD_Get_Device_Data(int iPK_Device,int iPK_DeviceData,
 			*sValue_To_Assign="BAD DEVICE";
 		else
 		{
-			if( pDeviceData_Router->m_mapParameters.find(iPK_DeviceData)==pDeviceData_Router->m_mapParameters.end() )
+			if( pDeviceData_Router->m_mapParameters_Find(iPK_DeviceData)=="" )
 				*sValue_To_Assign="BAD PARAMETER";
 			else
-				*sValue_To_Assign=pDeviceData_Router->m_mapParameters[iPK_DeviceData];
+				*sValue_To_Assign=pDeviceData_Router->m_mapParameters_Find(iPK_DeviceData);
 		}
 		return;
 	}
@@ -4113,4 +4113,37 @@ void General_Info_Plugin::CMD_Get_Home_Symlink(string sPath,string *sSymlink,str
 		sPath.c_str(), sResult.c_str());
 
 	*sSymlink = sResult;
+}
+//<-dceag-c956-b->
+
+	/** @brief COMMAND: #956 - Get Devices To Start */
+	/** Get the list with devices to start. */
+		/** @param #2 PK_Device */
+			/** The parent device */
+		/** @param #5 Value To Assign */
+			/** A pipe delimited list like this: DeviceID1|CommandLine1\nDeviceID2|CommandLine2 etc */
+
+void General_Info_Plugin::CMD_Get_Devices_To_Start(int iPK_Device,string *sValue_To_Assign,string &sCMD_Result,Message *pMessage)
+//<-dceag-c956-e->
+{
+}//<-dceag-c957-b->
+
+	/** @brief COMMAND: #957 - Update Device */
+	/** Will update the description, ip, mac, device data */
+		/** @param #2 PK_Device */
+			/** Device ID */
+		/** @param #47 Mac address */
+			/** Mac address */
+		/** @param #57 PK_Room */
+			/** Room ID */
+		/** @param #58 IP Address */
+			/** IP address */
+		/** @param #109 Data String */
+			/** pipe delimited list with device data */
+		/** @param #163 Description */
+			/** Device description */
+
+void General_Info_Plugin::CMD_Update_Device(int iPK_Device,string sMac_address,int iPK_Room,string sIP_Address,string sData_String,string sDescription,string &sCMD_Result,Message *pMessage)
+//<-dceag-c957-e->
+{
 }

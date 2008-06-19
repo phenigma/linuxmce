@@ -176,7 +176,7 @@ public:
 	string DATA_Get_Other_Phone_Notifications();
 	string DATA_Get_Neighbors_to_Call();
 	string DATA_Get_Configuration();
-	void DATA_Set_Configuration(string Value);
+	void DATA_Set_Configuration(string Value,bool bUpdateDatabase=false);
 	string DATA_Get_PK_Device();
 	string DATA_Get_Emergency_Calls();
 

@@ -152,8 +152,8 @@ void WizardPageVideoResolution::FillResolutionStandard(WizardWidgetScrollList* L
 		case 2: // Component
 			List->AddItem("HD480p", "480p");
 			List->AddItem("HD720p", "720p");
-#if 0
 			List->AddItem("HD1080i", "1080i");
+#if 0
 			List->AddItem("HD1080p", "1080p");
 #endif
 			break;

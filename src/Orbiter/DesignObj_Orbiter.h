@@ -99,6 +99,8 @@ public:
 	ProntoCCF *m_pCCF;
 
 	bool IsHidden();
+	bool IsDisabled() { return m_bDisabled; }
+	void m_bDisabled_set(bool bDisabled) { m_bDisabled=bDisabled; }
 
 	virtual void RenderGraphic(PlutoRectangle rectTotal, bool bDisableAspectRatio, PlutoPoint point = PlutoPoint(0, 0));
 	virtual void RenderObject(DesignObj_Orbiter *pObj_Screen, PlutoPoint point = PlutoPoint(0, 0));
@@ -108,6 +110,7 @@ public:
 	string GetVariableAssignment(int PK_Variable);  // If this object assigns PK_Variable it will return the assigned value
 	// Runtime states
 	bool m_bActive, m_bHidden;
+	bool m_bDisabled; // If set to true, we will ignore all clicks on this button
 
 	// Pre-parsed object paramters
 

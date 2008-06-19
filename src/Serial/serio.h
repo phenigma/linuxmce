@@ -116,6 +116,10 @@ serio_res_t serio_purge_read(serio_t *serio);
 -------------------------------------------------------------------------*/
 serio_res_t serio_purge_write(serio_t *serio); 
 
-#include "comerr.h"
+#ifdef VS2005
+	#include "commerr.h"
+#else
+	#include "comerr.h"
+#endif
 
 #endif

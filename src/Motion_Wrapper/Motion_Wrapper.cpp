@@ -18,7 +18,6 @@
 #include "DCE/Logger.h"
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
-#include "PlutoUtils/ProcessUtils.h"
 #include "PlutoUtils/Other.h"
 
 #include <iostream>
@@ -151,9 +150,9 @@ bool Motion_Wrapper::Connect(int iPK_DeviceTemplate) {
 	mconffile.exceptions ( ifstream::eofbit | ifstream::failbit | ifstream::badbit );	
 	try {	
 		mconffile.open(sPath.c_str(), fstream::out | fstream::trunc);
-		string sVideoStandard = m_pData->mapParameters_Find(DEVICEDATA_Video_Standard_CONST);
-		string sMotionParameters = m_pData->mapParameters_Find(DEVICEDATA_Motion_Parameters_CONST);
-		string sMotionExtraParameters = m_pData->mapParameters_Find(DEVICEDATA_Extra_Parameters_CONST);
+		string sVideoStandard = m_pData->m_mapParameters_Find(DEVICEDATA_Video_Standard_CONST);
+		string sMotionParameters = m_pData->m_mapParameters_Find(DEVICEDATA_Motion_Parameters_CONST);
+		string sMotionExtraParameters = m_pData->m_mapParameters_Find(DEVICEDATA_Extra_Parameters_CONST);
 		
 		mconffile 	<< "norm " << sVideoStandard << endl 
 					/* Using DEVICEDATA_Motion_Option_CONST 51 for default values */
@@ -293,7 +292,7 @@ void Motion_Wrapper::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,s
 	
 	switch(pMessage->m_dwID) {
 		case COMMAND_Get_Video_Frame_CONST: {
-				string sPortNumber = pDeviceData_Impl->mapParameters_Find(DEVICEDATA_PortChannel_Number_CONST);
+				string sPortNumber = pDeviceData_Impl->m_mapParameters_Find(DEVICEDATA_PortChannel_Number_CONST);
 				
 				LoggerWrapper::GetInstance()->Write(LV_STATUS, "Taking Snapshot...");
 				if(kill(motionpid_, SIGALRM)) {
@@ -336,7 +335,7 @@ bool Motion_Wrapper::CreateVideoDeviceFor1394(DeviceData_Impl* pDeviceData) {
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Generating v4l device for %d ieee1394 video device", PK_Device);
 
-	string sDevice = pDeviceData->mapParameters_Find(DEVICEDATA_Device_CONST);
+	string sDevice = pDeviceData->m_mapParameters_Find(DEVICEDATA_Device_CONST);
 
 	dc1394_pid = fork();
 	if( dc1394_pid == 0 )
@@ -362,17 +361,17 @@ bool Motion_Wrapper::AddChildDeviceToConfigFile(std::ofstream& conffile, DeviceD
 	int PK_Device = pDeviceData->m_dwPK_Device;
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Using child device %d from Generic Analog Capture Card ", PK_Device);
 
-	string sMotion = pDeviceData->mapParameters_Find(DEVICEDATA_Motion_Option_CONST);
+	string sMotion = pDeviceData->m_mapParameters_Find(DEVICEDATA_Motion_Option_CONST);
 	//TO DO = write camera record options & sync with house mode		
 		  
 
 	//video device
-	string sDevice = pDeviceData->mapParameters_Find(DEVICEDATA_Device_CONST);
+	string sDevice = pDeviceData->m_mapParameters_Find(DEVICEDATA_Device_CONST);
 
 	if (pDeviceData->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Generic_Motion_IP_Camera_CONST) { 
 		string sUrl = "";
     string sProtocol = "";
-    sProtocol = pDeviceData->mapParameters_Find(DEVICEDATA_Protocol_CONST);
+    sProtocol = pDeviceData->m_mapParameters_Find(DEVICEDATA_Protocol_CONST);
     
 		if ( sProtocol.empty() ) {
       LoggerWrapper::GetInstance()->Write(LV_STATUS, "Protocol Parameter Empty, set http as default ");
@@ -385,22 +384,22 @@ bool Motion_Wrapper::AddChildDeviceToConfigFile(std::ofstream& conffile, DeviceD
 		
 		sUrl  = sProtocol + "://";
 		sUrl += pDeviceData->m_sIPAddress;
-		if ( ! pDeviceData->mapParameters_Find(DEVICEDATA_TCP_Port_CONST).empty() ) {
+		if ( ! pDeviceData->m_mapParameters_Find(DEVICEDATA_TCP_Port_CONST).empty() ) {
       LoggerWrapper::GetInstance()->Write(LV_STATUS, "IP Parameter Empty, skipping");
-			sUrl += ":" + pDeviceData->mapParameters_Find(DEVICEDATA_TCP_Port_CONST); /* DEVICEDATA_TCP_Port_CONST 69 */
+			sUrl += ":" + pDeviceData->m_mapParameters_Find(DEVICEDATA_TCP_Port_CONST); /* DEVICEDATA_TCP_Port_CONST 69 */
 		}
-		if ( pDeviceData->mapParameters_Find(DEVICEDATA_Path_CONST).empty() ) {
+		if ( pDeviceData->m_mapParameters_Find(DEVICEDATA_Path_CONST).empty() ) {
 			sUrl += "/";
 		} else {
-			sUrl += pDeviceData->mapParameters_Find(DEVICEDATA_Path_CONST);
+			sUrl += pDeviceData->m_mapParameters_Find(DEVICEDATA_Path_CONST);
 		}
 
 		conffile << "netcam_url " << sUrl << endl;
 
-		if ( ! pDeviceData->mapParameters_Find(DEVICEDATA_Username_CONST).empty() ) {
-			conffile << "netcam_userpass " <<  pDeviceData->mapParameters_Find(DEVICEDATA_Username_CONST); 
-			if ( ! pDeviceData->mapParameters_Find(DEVICEDATA_Password_CONST).empty() ) {
-				conffile  << ":" <<  pDeviceData->mapParameters_Find(DEVICEDATA_Password_CONST);
+		if ( ! pDeviceData->m_mapParameters_Find(DEVICEDATA_Username_CONST).empty() ) {
+			conffile << "netcam_userpass " <<  pDeviceData->m_mapParameters_Find(DEVICEDATA_Username_CONST); 
+			if ( ! pDeviceData->m_mapParameters_Find(DEVICEDATA_Password_CONST).empty() ) {
+				conffile  << ":" <<  pDeviceData->m_mapParameters_Find(DEVICEDATA_Password_CONST);
 			}
 			conffile << endl;
 		}
@@ -417,7 +416,7 @@ bool Motion_Wrapper::AddChildDeviceToConfigFile(std::ofstream& conffile, DeviceD
 		}
 
 		//input port
-		string sPort = pDeviceData->mapParameters_Find(DEVICEDATA_PortChannel_Number_CONST);
+		string sPort = pDeviceData->m_mapParameters_Find(DEVICEDATA_PortChannel_Number_CONST);
 		if(!sPort.empty()) {
 			conffile 	<< "input " << sPort << endl;
 		} else {
@@ -427,7 +426,7 @@ bool Motion_Wrapper::AddChildDeviceToConfigFile(std::ofstream& conffile, DeviceD
 	}
 	
 	//noise level
-	string sNoiseLevel = pDeviceData->mapParameters_Find(DEVICEDATA_Noise_CONST);
+	string sNoiseLevel = pDeviceData->m_mapParameters_Find(DEVICEDATA_Noise_CONST);
 	if(!sNoiseLevel.empty()) {
 		conffile	<< endl << "noise_level " << sNoiseLevel << endl;
 	}
@@ -479,7 +478,7 @@ bool Motion_Wrapper::AddChildDeviceToConfigFile(std::ofstream& conffile, DeviceD
 	Adding text from #59 Configuration parameter string as 
 	custom entries in threadX.conf.
 */
-	string sConfiguration = pDeviceData->mapParameters_Find(DEVICEDATA_Configuration_CONST);
+	string sConfiguration = pDeviceData->m_mapParameters_Find(DEVICEDATA_Configuration_CONST);
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Got custom #59 configuration string %s", sConfiguration.c_str());
 	if(!sConfiguration.empty()) {
 		conffile	<< "\n# custom settings from Pluto's device parameter #59 Configuration" << endl;

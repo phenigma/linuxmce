@@ -2667,7 +2667,7 @@ class DataGridTable *Telecom_Plugin::UserVoiceMailGrid(string GridID,string Parm
 			string url= VOICEMAIL_URL + StringUtils::Replace(URL_Parm, "\n", "");
 			
 			DCE::CMD_MH_Play_Media CMD_MH_Play_Media_
-				(pMessage->m_dwPK_Device_From, pMediaPlugin->m_dwPK_Device, pMessage->m_dwPK_Device_From, url, MEDIATYPE_pluto_StoredAudio_CONST,0,"",0,0,false,false);
+				(pMessage->m_dwPK_Device_From, pMediaPlugin->m_dwPK_Device, pMessage->m_dwPK_Device_From, url, MEDIATYPE_pluto_StoredAudio_CONST,0,"",0,0,false,false,false);
 			
 			pCell = new DataGridCell(text,"");
 			pCell->m_pMessage=CMD_MH_Play_Media_.m_pMessage;
@@ -2699,7 +2699,7 @@ class DataGridTable *Telecom_Plugin::UserVoiceMailGrid(string GridID,string Parm
 			string url = VOICEMAIL_URL + StringUtils::Replace(URL_Parm, "\n", "");
 			
 			DCE::CMD_MH_Play_Media CMD_MH_Play_Media_
-				(pMessage->m_dwPK_Device_From, pMediaPlugin->m_dwPK_Device, pMessage->m_dwPK_Device_From, url, MEDIATYPE_pluto_StoredAudio_CONST,0,"",0,0,false,false);
+				(pMessage->m_dwPK_Device_From, pMediaPlugin->m_dwPK_Device, pMessage->m_dwPK_Device_From, url, MEDIATYPE_pluto_StoredAudio_CONST,0,"",0,0,false,false,false);
 			
 			pCell = new DataGridCell(text,"");
 			pCell->m_pMessage=CMD_MH_Play_Media_.m_pMessage;
@@ -3261,7 +3261,7 @@ ExtensionStatus * Telecom_Plugin::FindExtensionStatusByDevice(int iPK_Device, in
 	}
 
 	//hardphone or embedded?
-	string sSrcPhoneNumber = pDeviceData->mapParameters_Find(DEVICEDATA_PhoneNumber_CONST);
+	string sSrcPhoneNumber = pDeviceData->m_mapParameters_Find(DEVICEDATA_PhoneNumber_CONST);
 
 	//orbiter associated with an embedded?
 	if(sSrcPhoneNumber.empty())
@@ -3272,7 +3272,7 @@ ExtensionStatus * Telecom_Plugin::FindExtensionStatusByDevice(int iPK_Device, in
 			DeviceData_Router *pDeviceData = find_Device(nEmbeddedPhoneID);
 			if(NULL != pDeviceData)
 			{
-				sSrcPhoneNumber = pDeviceData->mapParameters_Find(DEVICEDATA_PhoneNumber_CONST);
+				sSrcPhoneNumber = pDeviceData->m_mapParameters_Find(DEVICEDATA_PhoneNumber_CONST);
 
 				if(NULL != pEmbeddedPhone)
 					*pEmbeddedPhone = nEmbeddedPhoneID;

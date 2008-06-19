@@ -36,9 +36,14 @@ bool TableInfo::loadFromDB( string sTable )
 		int iFieldsCount = mysql_num_fields( pRes );
 			
 		MYSQL_FIELD *pMysqlFields = mysql_fetch_fields( pRes );
-			
+
+#ifdef WIN32
 		for ( int i=0; i < iFieldsCount; i++ )
-			m_Fields.push_back( new FieldInfo( pMysqlFields + i ) );
+			m_Fields.push_back(new FieldInfo((MYSQL_FIELD *)((char *)pMysqlFields + i * sizeof(MYSQL_FIELD) / 2)));
+#else
+		for ( int i=0; i < iFieldsCount; i++ )
+			m_Fields.push_back(new FieldInfo(pMysqlFields + i));
+#endif
 		
 		mysql_free_result( pRes );
 		
@@ -46,6 +51,15 @@ bool TableInfo::loadFromDB( string sTable )
 	}
 	else
 		return false;	
+}
+
+bool TableInfo::HasField(string sFieldName)
+{
+	for ( vector<FieldInfo*>::iterator i=m_Fields.begin(); i!=m_Fields.end(); i++ )
+		if(sFieldName == (*i)->m_pcFieldName)
+			return true;
+
+	return false;
 }
 
 bool TableInfo::HasPrimaryKeys()

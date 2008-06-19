@@ -228,6 +228,11 @@
 #define DEVICEDATA_Ignore_First_Event_CONST 274
 #define DEVICEDATA_Media_Catalog_CONST 276
 #define DEVICEDATA_Capacity_CONST 277
+#define DEVICEDATA_Default_Repeat_CONST 278
+#define DEVICEDATA_Auto_Play_CONST 279
+#define DEVICEDATA_Fire_Startup_Event_CONST 280
+#define DEVICEDATA_Automatically_Go_to_Remote_CONST 281
+#define DEVICEDATA_Queue_Instead_of_Instant_Play_CONST 282
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"

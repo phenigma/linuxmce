@@ -391,13 +391,13 @@ void PlutoMediaFile::SaveShortAttributesInDb(bool bAddAllToDb)
 	}
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "# SyncDbAttributes: attributes is db %d, total %d",
-		mapPlutoMediaAttributes.size(), m_pPlutoMediaAttributes->m_mapAttributes.size());
+		mapPlutoMediaAttributes.size(), m_pPlutoMediaAttributes->m_mapAttributes.size()); // mapPlutoMediaAttributes is from the DB,  m_pPlutoMediaAttributes->m_mapAttributes is from the file
 
 	// For albums we don't want to add a new one for each media file.  All media from the same album
 	// should be grouped into a single album attribute.  However since different performers could have
 	// albums of the same name we need to maek a pass first to find the performer and skip the album, and then another pass
 	// to add the album
-	int PK_Attribute_Performer=0;
+	int PK_Attribute_Performer=0,PK_Attribute_CDDB=0;
 	for(int iPass=0;iPass<2;++iPass)
 	{
 		//Save any new attributes in the database
@@ -424,6 +424,11 @@ void PlutoMediaFile::SaveShortAttributesInDb(bool bAddAllToDb)
 					{
 						if( pPlutoMediaAttribute->m_nType==ATTRIBUTETYPE_Performer_CONST )
 							PK_Attribute_Performer = pDBPlutoMediaAttribute->m_nPK_Attribute;
+						if( pPlutoMediaAttribute->m_nType==ATTRIBUTETYPE_Disc_ID_CONST )
+							PK_Attribute_CDDB = pDBPlutoMediaAttribute->m_nPK_Attribute;
+						if( pPlutoMediaAttribute->m_nType==ATTRIBUTETYPE_CDDB_CONST && PK_Attribute_CDDB==0 )
+							PK_Attribute_CDDB = pDBPlutoMediaAttribute->m_nPK_Attribute;
+
 						bAttributeAlreadyAdded = true;
 						break;
 					}
@@ -439,7 +444,7 @@ void PlutoMediaFile::SaveShortAttributesInDb(bool bAddAllToDb)
 
 					MediaAttributes_LowLevel mediaAttributes_LowLevel(m_pDatabase_pluto_media);
 					Row_Attribute *pRow_Attribute = mediaAttributes_LowLevel.GetAttributeFromDescription(m_nPK_MediaType,
-						pPlutoMediaAttribute->m_nType, pPlutoMediaAttribute->m_sName, PK_Attribute_Performer);
+						pPlutoMediaAttribute->m_nType, pPlutoMediaAttribute->m_sName, PK_Attribute_CDDB ? PK_Attribute_CDDB : PK_Attribute_Performer);
 
 					if( pRow_Attribute==NULL )
 					{
@@ -451,6 +456,10 @@ void PlutoMediaFile::SaveShortAttributesInDb(bool bAddAllToDb)
 					pPlutoMediaAttribute->m_nPK_Attribute = pRow_Attribute->PK_Attribute_get();
 					if( pPlutoMediaAttribute->m_nType==ATTRIBUTETYPE_Performer_CONST )
 						PK_Attribute_Performer = pPlutoMediaAttribute->m_nPK_Attribute;
+					if( pPlutoMediaAttribute->m_nType==ATTRIBUTETYPE_Disc_ID_CONST )
+						PK_Attribute_CDDB = pPlutoMediaAttribute->m_nPK_Attribute;
+					if( pPlutoMediaAttribute->m_nType==ATTRIBUTETYPE_CDDB_CONST && PK_Attribute_CDDB==0 )
+						PK_Attribute_CDDB = pPlutoMediaAttribute->m_nPK_Attribute;
 
 					//already in the database?
 					if(NULL == m_pDatabase_pluto_media->File_Attribute_get()->GetRow(

@@ -33,9 +33,11 @@
 #include "EventInfo.h"
 #include "DeviceData_Router.h"
 
+#ifndef EMBEDDED_LMCE
 #include "../pluto_main/Table_CriteriaParmList.h"
 #include "../pluto_main/Table_DesignObjParameter.h"
 #include "../pluto_main/Table_ParameterType.h"
+#endif
 
 #define OPERATOR_EQUALS			1
 #define OPERATOR_NOTEQUALS		2

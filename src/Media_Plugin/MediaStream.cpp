@@ -786,6 +786,7 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"MediaStream::SetNowPlaying use al
 
 	sMediaDevices += ContainsVideo() ? ",1" : ",0";
 	sMediaDevices += pEntertainArea_OSD && pEntertainArea_OSD->m_bViewingLiveAVPath ? ",1" : ",0";
+	sMediaDevices += pOH_Orbiter->m_pEntertainArea ? "," + StringUtils::itos((int) pOH_Orbiter->m_pEntertainArea->m_MediaRepeatOptions) : ",0";
 
 	DCE::CMD_Set_Now_Playing CMD_Set_Now_Playing( pMedia_Plugin->m_dwPK_Device, pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, 
 		sRemotes, m_sMediaDescription, m_sSectionDescription, 

@@ -27,7 +27,10 @@ LDFLAGS += -lmysqlclient_r
 CPPFLAGS += -DUSE_MYSQL_WRAPPER
 #<-mkr_b_use_mysql_wrapper_e->
 
-sources = CommonIncludes.cpp FileUtils.cpp MultiThreadIncludes.cpp Other.cpp ProcessUtils.cpp StringUtils.cpp DatabaseUtils.cpp getch.cpp md5c.cpp minilzo.cpp uuencode.cpp LinuxSerialUSB.cpp ThreadedClass.cpp \
+sources = CommonIncludes.cpp FileUtils.cpp MultiThreadIncludes.cpp \
+          Other.cpp ProcessUtils.cpp StringUtils.cpp DatabaseUtils.cpp \
+          getch.cpp md5c.cpp minilzo.cpp uuencode.cpp LinuxSerialUSB.cpp \
+          ThreadedClass.cpp LZO.cpp \
 	  ../db_wrapper/db_wrapper.cpp ../db_wrapper/ClientSocket.cpp ../db_wrapper/Socket.cpp
 
 all: libPlutoUtils.so all-recursive

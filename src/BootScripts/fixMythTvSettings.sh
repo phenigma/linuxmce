@@ -16,7 +16,7 @@ if [[ "$FK_DeviceTemplate" == "28" ]] ; then # If is 'Generic PC as MD'
 fi
 
 Q="select IK_DeviceData from Device_DeviceData JOIN Device ON FK_Device=PK_Device where FK_DeviceData=206 AND FK_DeviceTemplate=36"
-AutoConf=$(echo "$Q" | /usr/bin/mysql -h $MySqlHost pluto_main | tail +2)
+AutoConf=$(echo "$Q" | /usr/bin/mysql -h $MySqlHost pluto_main | tail -n +2)
 
 if [[ "$AutoConf" == "1" ]]; then 
 	echo "Dont Auto Configure is set"

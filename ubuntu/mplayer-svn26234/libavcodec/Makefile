@@ -4,6 +4,8 @@
 #
 include ../config.mak
 
+CFLAGS += -fomit-frame-pointer
+
 NAME = avcodec
 FFLIBS = avutil
 

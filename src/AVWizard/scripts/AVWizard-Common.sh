@@ -70,6 +70,8 @@ Resolution_GetFullName()
 	Idx=$(FindInArray_Prefix "$Prefix" "${Resolution_Array[@]}")
 	if [[ -n "$Idx" ]]; then
 		FullName="${Resolution_Array[$Idx]}"
+	else
+		FullName="$Prefix"
 	fi
 	echo "$FullName"
 }

@@ -712,7 +712,7 @@ bool Security_Plugin::SensorTrippedEventHandler(DeviceData_Router *pDevice,bool 
 	// if the BabySitter mode is on and is a door log the alert
 	if( m_bBabySitterMode   ) 
 	{
-		int nObjectType = atoi(pDevice->m_mapParameters[DEVICEDATA_PK_FloorplanObjectType_CONST].c_str());
+		int nObjectType = atoi(pDevice->m_mapParameters_Find(DEVICEDATA_PK_FloorplanObjectType_CONST).c_str());
 		if( nObjectType == 1 )  // DOOR
 		{
 			Row_Alert *pRow_Alert = LogAlert( m_pDatabase_pluto_security->AlertType_get()->GetRow(ALERTTYPE_BabySitter_mode_CONST),pDevice,true,true);
@@ -722,7 +722,7 @@ bool Security_Plugin::SensorTrippedEventHandler(DeviceData_Router *pDevice,bool 
 	}
 
 	// The first digit in the alert data is 0/1 for monitor mode
-	if( m_bMonitorMode && atoi(pDevice->m_mapParameters[DEVICEDATA_Alert_CONST].c_str()) )
+	if( m_bMonitorMode && atoi(pDevice->m_mapParameters_Find(DEVICEDATA_Alert_CONST).c_str()) )
 	{
 		// Monitor mode is on, so no matter what notify the appropriate users
 		Row_Alert *pRow_Alert = LogAlert( m_pDatabase_pluto_security->AlertType_get()->GetRow(ALERTTYPE_Monitor_mode_CONST),pDevice,true,true);
@@ -745,7 +745,7 @@ bool Security_Plugin::SensorTrippedEventHandler(DeviceData_Router *pDevice,bool 
 			return false;
 		else
 			// Get the real alert type.  We already set bAnnouncementOnly=true so we know not to fire the event
-			PK_AlertType = atoi(pDevice->m_mapParameters[DEVICEDATA_EK_AlertType_CONST].c_str());
+			PK_AlertType = atoi(pDevice->m_mapParameters_Find(DEVICEDATA_EK_AlertType_CONST).c_str());
 	}
 
 	// What type of alert is this?  Maybe it's just informational
@@ -800,7 +800,7 @@ int Security_Plugin::GetAlertType(int PK_HouseMode,DeviceData_Router *pDevice,bo
 {
 	// 0=Do nothing, 1=fire alert, 2=make announcement, 3=snap phto
 	int Alert=0;
-	string sAlertData = pDevice->m_mapParameters[DEVICEDATA_Alert_CONST];
+	string sAlertData = pDevice->m_mapParameters_Find(DEVICEDATA_Alert_CONST);
 	//monitor mode, disarmed, armed - away, armed - at home, sleeping, entertaining, extended away
 	if( sAlertData.length()<13 )
 	{
@@ -822,7 +822,7 @@ int Security_Plugin::GetAlertType(int PK_HouseMode,DeviceData_Router *pDevice,bo
 		return ALERTTYPE_ANNOUNCMENT;
 	else if( Alert==3 )
 		return ALERTTYPE_PHOTO;
-	return atoi( pDevice->m_mapParameters[DEVICEDATA_EK_AlertType_CONST].c_str() );
+	return atoi( pDevice->m_mapParameters_Find(DEVICEDATA_EK_AlertType_CONST).c_str() );
 }
 
 void Security_Plugin::AlarmCallback(int id, void* param)

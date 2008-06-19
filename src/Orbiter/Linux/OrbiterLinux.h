@@ -135,6 +135,8 @@ public:
 	void HideOtherWindows();
 	void HideWindow(string sWindowName);
 
+	virtual void SetMonitorPowerState(bool bOn);
+
     void setWindowName(string strDesktopWindowName);
     void setDisplayName(string strDisplayName);
 

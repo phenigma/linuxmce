@@ -355,8 +355,8 @@ ObjectRenderer::ObjectRenderer(DesignObj_Orbiter *pOwner) : m_pObj_Owner(pOwner)
 
 			// We must be pointing to a datagrid,  and we need to bind to the highlighted row
 			if(
-				(m_pObj_Owner->m_iRowTiedTo == -1 || m_pObj_Owner->m_iRowTiedTo == pObjGrid->m_iHighlightedRow) &&
-				(m_pObj_Owner->m_iColumnTiedTo == -1 || m_pObj_Owner->m_iColumnTiedTo == pObjGrid->m_iHighlightedColumn)
+				(m_pObj_Owner->m_iRowTiedTo == -1 || m_pObj_Owner->m_iRowTiedTo == pObjGrid->m_iHighlightedRow_get()) &&
+				(m_pObj_Owner->m_iColumnTiedTo == -1 || m_pObj_Owner->m_iColumnTiedTo == pObjGrid->m_iHighlightedColumn_get())
 				)
 				m_pObj_Owner->m_GraphicToDisplay_set("or3",GRAPHIC_HIGHLIGHTED);
 			else
