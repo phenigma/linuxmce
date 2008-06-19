@@ -6,7 +6,7 @@ log() {
 
 LanIP=`uci get network.lan.ipaddr`
 if [[ "`uci get network.wan.proto`" == 'dhcp' ]] ;then
-	WanIface=`network.wan.ifname`
+	WanIface=`uci get network.wan.ifname`
 	WanIP=`ifconfig $WanIface | grep 'inet addr:' | sed 's/.*inet addr:\([0-9.]*\).*/\1/g'`
 else
 	WanIP=`uci get network.wan.ipaddr`
