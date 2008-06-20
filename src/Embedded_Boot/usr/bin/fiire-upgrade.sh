@@ -1,25 +1,5 @@
 #!/bin/sh
 
-FIRMWARE_URL="$1";
-FIRMWARE_MD5="$2";
-
-log() {
-	logger -s -t 'fiire-upgrade' $*
-}
-
-# Download the requested firmware
-log "Downloading firmware $FIRMWARE_URL"
-cd /tmp
-wget -O /tmp/firmware.img "$FIRMWARE_URL"
-
-# Check the download checksum
-if [[ `md5sum /tmp/firmware.img | cut -d' ' -f1` != "$FIRMWARE_MD5" ]] ;then
-	log "Download failed. Checksum does not match."
-	exit 1
-else
-	log "Download finished."
-fi
-
 # Stop services
 log "Closing down services."
 /etc/init.d/httpd stop
