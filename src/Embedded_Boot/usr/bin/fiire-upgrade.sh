@@ -1,5 +1,15 @@
 #!/bin/sh
 
+log() {
+	logger -s -t 'fiire-upgrade' $*
+}
+
+# Test if the image is available
+if [[ -f /tmp/firmware.img ]] ;then
+	log "Firmware image not found"
+	exit 1
+fi
+
 # Stop services
 log "Closing down services."
 /etc/init.d/httpd stop
