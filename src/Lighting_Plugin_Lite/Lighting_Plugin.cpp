@@ -300,9 +300,9 @@ void Lighting_Plugin::PreprocessLightingMessage(DeviceData_Router *pDevice,Messa
 	}
 
 	if( pMessage->m_dwID==COMMAND_Generic_On_CONST )
-		SetLightState( pDevice->m_dwPK_Device, true );
+		SetLightState( pDevice->m_dwPK_Device, true, 100);
 	else if( pMessage->m_dwID==COMMAND_Generic_Off_CONST )
-		SetLightState( pDevice->m_dwPK_Device, false );
+		SetLightState( pDevice->m_dwPK_Device, false, 0);
 }
 
 int Lighting_Plugin::GetLightingLevel(DeviceData_Router *pDevice,int iLevel_Default)
