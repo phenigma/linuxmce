@@ -54,13 +54,15 @@ SetupX()
 	rm -f "$XF86Config"
 	if [[ -f "$ConfFile" ]]; then
 		cp "$ConfFile" "$XF86Config"
+	else
+		XDefaults="--defaults"
 	fi
 	rmmod nvidia &>/dev/null || :
 	# default test
-	bash -x "$BaseDir"/Xconfigure.sh --conffile "$XF86Config" --resolution '640x480@60' --no-test | tee-pluto /var/log/pluto/Xconfigure.log
+	bash -x "$BaseDir"/Xconfigure.sh $XDefaults --conffile "$XF86Config" --resolution '640x480@60' --no-test | tee-pluto /var/log/pluto/Xconfigure.log
 	if ! TestXConfig "$Display" "$XF86Config"; then
 		# vesa test
-		bash -x "$BaseDir"/Xconfigure.sh --conffile "$XF86Config" --resolution '640x480@60' --force-vesa --no-test | tee-pluto /var/log/pluto/Xconfigure.log
+		bash -x "$BaseDir"/Xconfigure.sh $XDefaults --conffile "$XF86Config" --resolution '640x480@60' --force-vesa --no-test | tee-pluto /var/log/pluto/Xconfigure.log
 		if ! TestXConfig "$Display" "$XF86Config"; then
 			# all tests failed
 			beep -l 350 -f 300 &
