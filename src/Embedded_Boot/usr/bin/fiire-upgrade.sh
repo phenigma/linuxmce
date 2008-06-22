@@ -5,7 +5,7 @@ log() {
 }
 
 # Test if the image is available
-if [[ -f /tmp/firmware.img ]] ;then
+if [[ ! -f /tmp/firmware.img ]] ;then
 	log "Firmware image not found"
 	exit 1
 fi
@@ -14,6 +14,8 @@ fi
 log "Closing down services."
 /etc/init.d/httpd stop
 /etc/init.d/Pluto stop
+
+sleep 2
 
 # Backup configuration
 log "Creating a backup of the config files."
