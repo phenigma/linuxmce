@@ -236,10 +236,19 @@ void General_Info_Plugin::CMD_Request_File_And_Checksum(string sFilename,char **
 void General_Info_Plugin::CMD_Set_Device_Data(int iPK_Device,string sValue_To_Assign,int iPK_DeviceData,string &sCMD_Result,Message *pMessage)
 //<-dceag-c246-e->
 {
-	cout << "Need to implement command #246 - Set Device Data" << endl;
-	cout << "Parm #2 - PK_Device=" << iPK_Device << endl;
-	cout << "Parm #5 - Value_To_Assign=" << sValue_To_Assign << endl;
-	cout << "Parm #52 - PK_DeviceData=" << iPK_DeviceData << endl;
+	DeviceData_Router *pDeviceData_Router = m_pRouter->DataLayer()->Device(iPK_Device);
+
+	if(NULL == pDeviceData_Router)
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Unable to update device %d, it doesn't exist", iPK_Device);
+		sCMD_Result = "ERROR: Device doesn't exist";
+		return;
+	}
+
+	pDeviceData_Router->ReplaceParameter(iPK_DeviceData, sValue_To_Assign);
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Updating device data %d with value %s", iPK_DeviceData, sValue_To_Assign.c_str());
+	m_pRouter->DataLayer()->Save();
 }
 
 //<-dceag-c247-b->
@@ -1160,7 +1169,7 @@ void General_Info_Plugin::CMD_Update_Device(int iPK_Device,string sMac_address,i
 
 	if(NULL == pDeviceData_Router)
 	{
-		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Unable to update device %d, it doesn't exist");
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Unable to update device %d, it doesn't exist", iPK_Device);
 		sCMD_Result = "ERROR: Device doesn't exist";
 		return;
 	}

@@ -589,6 +589,19 @@ m_DeviceStructure contains the minimal information, _Base,
 				pRow_Device_DeviceData->Reload();
 			pRow_Device_DeviceData->IK_DeviceData_set( sValue );
 			pRow_Device_DeviceData->Table_Device_DeviceData_get()->Commit();
+#else
+			DeviceData_Router *pDeviceData_Router = m_pDataLayer->Device(PK_Device);
+
+			if(NULL == pDeviceData_Router)
+			{
+				LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Unable to update device %d, it doesn't exist", PK_Device);
+				return;
+			}
+
+			pDeviceData_Router->ReplaceParameter(PK_DeviceData, sValue);
+
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Updating device data %d with value %s", PK_DeviceData, sValue.c_str());
+			m_pDataLayer->Save();
 #endif
 		}
 
