@@ -7,7 +7,7 @@ function Checkout_Svn {
 
 
 	DisplayMessage "Removing old svn checkout dir"
-	[[ -d "$svn_dir" ]] && mkdir -p "$svn_dir"
+	mkdir -p "$svn_dir"
 	rm -rf "${svn_dir}/trunk"
 	
 	local AllParts="src ubuntu web misc_utils installers config-pkgs"
