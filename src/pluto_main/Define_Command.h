@@ -867,6 +867,12 @@
 #define COMMAND_Specify_Repeat_Options_CONST 955
 #define COMMAND_Get_Devices_To_Start_CONST 956
 #define COMMAND_Update_Device_CONST 957
+#define COMMAND_ReEQ_CONST 958
+#define COMMAND_DSP_CONST 959
+#define COMMAND_iTV_CONST 963
+#define COMMAND_Channel_up_CONST 964
+#define COMMAND_Channel_down_CONST 965
+#define COMMAND_Set_Polling_State_CONST 966
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"
