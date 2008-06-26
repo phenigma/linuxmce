@@ -34,6 +34,8 @@
 #include <stdlib.h>
 #include <signal.h>
 
+#define BUFF_SIZE 80
+
 // set close-on-exec flag
 void set_close_on_exec(int sock)
 {
@@ -64,7 +66,7 @@ int main(int argc, char * argv[])
 
 	int s = -1, s2 = -1;
 	struct sockaddr_in saddr_server;
-	char buffer[1024];
+	char buffer[BUFF_SIZE];
 	int bytes;
 
 	saddr_server.sin_family = AF_INET;
@@ -115,7 +117,7 @@ int main(int argc, char * argv[])
 		
 		if (FD_ISSET(0, &fdset))
 		{
-			bytes = read(0, buffer, 1024);
+			bytes = read(0, buffer, BUFF_SIZE);
 			if (bytes <= 0)
 				break;
 			if (s2 != -1 && write(s2, buffer, bytes) != bytes)
