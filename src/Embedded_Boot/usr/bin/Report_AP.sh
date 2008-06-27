@@ -14,4 +14,11 @@ fi
 MAC=`ifconfig eth0 | grep 'HWaddr' | sed 's/.*HWaddr \([0-9A-F:]*\).*/\1/g'`
 
 log "Reporting lan:$LanIP wan:$WanIP mac:$MAC"
-wget -qO/dev/null "http://cisco.fiire.com/ReportAP.php?LanIP=${LanIP}&WanIP=${WanIP}&MAC=${MAC}"
+wget -qO/dev/null "http://cisco.fiire.com/ReportAP.php?IP=${WanIP}&MAC=${MAC}"
+
+# Update /etc/hosts
+grep -v local.fiire.com /etc/hosts > /etc/hosts.temp
+echo "$LanIP local.fiire.com" >> /etc/hosts.temp
+mv /etc/hosts.temp /etc/hosts
+
+/etc/init.d/dnsmasq restart
