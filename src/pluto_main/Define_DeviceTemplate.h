@@ -1810,6 +1810,8 @@
 #define DEVICETEMPLATE_YouTube_Plugin_CONST 1928
 #define DEVICETEMPLATE_Shoutcast_Radio_Plugin_CONST 1929
 #define DEVICETEMPLATE_Hillcrest_Plugin_CONST 1930
+#define DEVICETEMPLATE_ZWave_Controller_CONST 1945
+
 
 #define DEVICETEMPLATE_TABLE "DeviceTemplate"
 #define DEVICETEMPLATE_PK_DEVICETEMPLATE_FIELD "PK_DeviceTemplate"
