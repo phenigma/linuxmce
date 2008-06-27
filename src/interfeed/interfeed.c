@@ -80,6 +80,8 @@ int main(int argc, char * argv[])
 		perror("socket2");
 		return 1;
 	}
+	int iOptReuse = 1;
+	setsockopt(s, SOL_SOCKET, SO_REUSEADDR, &iOptReuse, sizeof(iOptReuse));
 
 	set_close_on_exec(s);
 
