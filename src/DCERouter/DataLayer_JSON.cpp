@@ -64,6 +64,7 @@ bool DataLayer_JSON::Load()
 //----------------------------------------------------------------------------------------------
 bool DataLayer_JSON::Save()
 {
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "DataLayer_JSON::Save starting");
 	PLUTO_SAFETY_LOCK(dm, m_DataMutex);
 
 	UpdateDevicesTree();
@@ -88,6 +89,8 @@ bool DataLayer_JSON::Save()
 	char *pCompressedData = LZO::Compress((lzo_byte *)sData.c_str(), (lzo_uint)sData.size(), (lzo_uint *)&iSize);
 	FileUtils::WriteBufferIntoFile(JSON_DEVICES_CONFIG_FILE, pCompressedData, iSize);
 	delete [] pCompressedData;
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "DataLayer_JSON::Save done");
 
 	return true;
 }
@@ -482,6 +485,8 @@ void DataLayer_JSON::ParseDeviceCategories(struct json_object *json_obj)
 //----------------------------------------------------------------------------------------------
 char *DataLayer_JSON::GetUncompressedDataFromFile(string sFileName)
 {
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "DataLayer_JSON::GetUncompressedDataFromFile starting %s", sFileName.c_str());
+
 #ifndef WIN32 //force lzo creating everytime for debugging
 	if(!FileUtils::FileExists(sFileName))
 #endif
@@ -515,6 +520,8 @@ char *DataLayer_JSON::GetUncompressedDataFromFile(string sFileName)
 	char *pUncompressedData = LZO::Decompress((lzo_byte *)pCompressedData, (lzo_uint)nCompressedDataSize, (lzo_uint *)&size);
 
 	PLUTO_SAFE_DELETE_ARRAY(pCompressedData);
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "DataLayer_JSON::GetUncompressedDataFromFile done %s", sFileName.c_str());
 
 	return pUncompressedData;
 }
