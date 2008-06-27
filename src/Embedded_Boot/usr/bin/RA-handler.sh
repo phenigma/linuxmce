@@ -2,6 +2,8 @@
 
 WebServer="cisco.fiire.com"
 
+/usr/bin/GetInstNumber.sh
+
 if [[ ! -f /etc/pluto/installation_number ]]; then
 	exit 1
 fi
