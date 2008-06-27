@@ -12,6 +12,6 @@ if [[ -n "$(ps | grep -q "Start_Device.sh $Device" | grep -v grep)" ]]; then
 fi
 
 while [[ ! -f /var/run/pluto.stop ]]; do
-	/usr/bin/"$Cmd" -r 127.0.0.1 -d "$Device"
+	/usr/bin/"$Cmd" -r 127.0.0.1 -d "$Device" 2>&1
 	sleep 8
 done | /usr/bin/interfeed $(expr 20000 + $Device)

@@ -36,7 +36,7 @@ PortForwarding() {
 
 		wait "$SSHPID"
 		exec 8>&- 9<&-
-		log "Connection to fiire server lost, will retry in 60 seconds."
+		log "Connection to fiire server failed, will retry in 60 seconds."
 		sleep 60
 	done
 }
