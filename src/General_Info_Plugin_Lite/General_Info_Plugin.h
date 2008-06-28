@@ -64,7 +64,7 @@ public:
 		class AlarmManager *m_pAlarmManager;
 		void AlarmCallback(int id, void* param);
 
-		DeviceData_Router *ProcessChildDevice(int nPK_Device, string sLine);
+		DeviceData_Router *ProcessChildDevice(int nPK_Device, string sLine, bool &bNewDevice);
 
 //<-dceag-h-b->
 	/*

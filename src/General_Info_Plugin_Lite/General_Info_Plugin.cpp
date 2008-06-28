@@ -856,14 +856,19 @@ void General_Info_Plugin::ReportingChildDevices_Offline( void *pVoid )
 	vector<string> vectLines;
 	StringUtils::Tokenize(pChildDeviceProcessing->m_sChildren,"\n",vectLines);
 
+	int iNewDevices=0,iRemovedDevices=0;
+
 	for(vector<string>::iterator it = vectLines.begin(); it != vectLines.end(); ++it)
 	{
 		string sLine = *it;
-
+		bool bNewDevice;
 		// This will add the child device if it doesn't exist
-		DeviceData_Router *pDevice_Child = ProcessChildDevice(pChildDeviceProcessing->m_nPK_Device, sLine);
+		DeviceData_Router *pDevice_Child = ProcessChildDevice(pChildDeviceProcessing->m_nPK_Device, sLine, bNewDevice);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "General_Info_Plugin::ReportingChildDevices_Offline line %s child %d", sLine.c_str(), pDevice_Child ? pDevice_Child->m_dwPK_Device : -1);
 		if(NULL != pDevice_Child)
 			mapCurrentChildren[pDevice_Child->m_dwPK_Device] = true;
+		if( bNewDevice )
+			iNewDevices++;
 	}
 
 	// See if any child devices have since disappeared
@@ -888,6 +893,7 @@ void General_Info_Plugin::ReportingChildDevices_Offline( void *pVoid )
 					LoggerWrapper::GetInstance()->Write(LV_STATUS, "General_Info_Plugin::ReportingChildDevices removing dead embedded device %d %s",
 						pDevice_Child->m_dwPK_Device, pDevice_Child->m_sDescription.c_str());
 					CMD_Delete_Device(pDevice_Child->m_dwPK_Device);
+					iRemovedDevices++;
 				}
 				continue; // Don't delete the embedded device
 			}
@@ -898,19 +904,29 @@ void General_Info_Plugin::ReportingChildDevices_Offline( void *pVoid )
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"General_Info_Plugin::ReportingChildDevices removing dead device %d %s",
 				pDeviceData_Router->m_dwPK_Device, pDeviceData_Router->m_sDescription.c_str());
 			CMD_Delete_Device(pDeviceData_Router->m_dwPK_Device);
+			iRemovedDevices++;
 		}
 	}
 
 	m_pRouter->DataLayer()->Save();
 
 	delete pChildDeviceProcessing;
+
+	if( iNewDevices || iRemovedDevices )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "General_Info_Plugin::ReportingChildDevices reloading because of %d new and %d removed devices", iNewDevices, iRemovedDevices);
+		Message *pMessage = new Message( m_dwPK_Device, DEVICEID_DCEROUTER, PRIORITY_NORMAL, MESSAGETYPE_SYSCOMMAND, SYSCOMMAND_RELOAD, 0 );
+		QueueMessageToRouter( pMessage );
+	}
 }
 //----------------------------------------------------------------------------------------------
 // It will be like this:
 // [internal id] \t [description] \t [room name] \t [device template] \t [floorplan id] \t [PK_DeviceData] \t [Value] ... \n
 
-DeviceData_Router *General_Info_Plugin::ProcessChildDevice(int nPK_Device, string sLine)
+DeviceData_Router *General_Info_Plugin::ProcessChildDevice(int nPK_Device, string sLine, bool &bNewDevice)
 {
+	bNewDevice = false;
+
 	string::size_type pos=0;
 	string sInternalID = StringUtils::Tokenize(sLine,"\t",pos);
 	string sDescription = StringUtils::Tokenize(sLine,"\t",pos);
@@ -927,8 +943,6 @@ DeviceData_Router *General_Info_Plugin::ProcessChildDevice(int nPK_Device, strin
 		return NULL;
 	}
 
-	bool bCreatedNew = false;
-
 	// Find the child device with this internal id
 	DeviceData_Router *pDeviceData_Router = m_pRouter->DataLayer()->ChildMatchingDeviceData(nPK_Device, DEVICEDATA_PortChannel_Number_CONST, StringUtils::SQLEscape(sInternalID));
 	if(NULL != pDeviceData_Router)
@@ -941,11 +955,13 @@ DeviceData_Router *General_Info_Plugin::ProcessChildDevice(int nPK_Device, strin
 	
 	// Create it since it doesn't exist
 	int iPK_Device = 0;
-	bCreatedNew = true;
+	bNewDevice = true;
 
 	CMD_Create_Device(PK_DeviceTemplate,"",0,"",
 		StringUtils::itos(DEVICEDATA_PortChannel_Number_CONST) + "|" + sInternalID,
 		0, nPK_Device,"",0,0, &iPK_Device);
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "General_Info_Plugin::ProcessChildDevice created %d from %s", nPK_Device, sLine.c_str());
 
 	pDeviceData_Router = m_pRouter->DataLayer()->Device(iPK_Device);
 	if(NULL == pDeviceData_Router)
@@ -962,7 +978,7 @@ DeviceData_Router *General_Info_Plugin::ProcessChildDevice(int nPK_Device, strin
 		else
 			pDeviceData_Router->m_sDescription = sInternalID;
 	}
-	else if(bCreatedNew)
+	else if(bNewDevice)
 	{
 		string sOldDescription = pDeviceData_Router->m_sDescription;
 
