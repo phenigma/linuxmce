@@ -597,7 +597,8 @@ bool Xine_Stream::OpenMedia(string fileName, string &sMediaInfo, string sMediaPo
 		}
 	}
 
-	string tmp = "file://";
+	bool is_url = (fileName.find(":/")>=0);
+	string tmp = (is_url) ? "" : "file://";
 	if (sURLsuffix!="")
 	{
 		// NOTE: seek doesn't work with subtitles... or file:// url
@@ -620,7 +621,7 @@ bool Xine_Stream::OpenMedia(string fileName, string &sMediaInfo, string sMediaPo
 	
 	if (!mediaOpened)
 	{
-		tmp = "file://";
+		tmp = (is_url) ? "" : "file://";
 		tmp = tmp + fileName + sSubtitlesSuffix;
 
 		LoggerWrapper::GetInstance()->Write(
