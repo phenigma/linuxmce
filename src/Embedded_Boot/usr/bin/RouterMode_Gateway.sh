@@ -25,6 +25,11 @@ esac
 
 uci set network.wan.ifname=eth0.1
 
+Dhclient=$(ps ax|grep 'udhcpc .*br-lan:0'|grep -v grep|awk '{print $1}')
+if [[ -n "$Dhclient" ]]; then
+	kill "$Dhclient"
+fi
+
 uci commit
 
 /etc/init.d/firewall restart

@@ -13,7 +13,12 @@ uci set dhcp.$CfgMasq.authoritative=0
 uci set network.eth0.vlan0="0 1 2 3 4 5*"
 uci del network.eth0.vlan1
 uci set network.wan.ifname=br-lan:0
+
 ifconfig eth0.1 down
+Dhclient=$(ps ax|grep 'udhcpc .*eth0.1'|grep -v grep|awk '{print $1}')
+if [[ -n "$Dhclient" ]]; then
+	kill "$Dhclient"
+fi
 
 uci commit
 

@@ -13,6 +13,7 @@ while :; do
 	esac
 	if [[ "$WANstate" == DOWN ]]; then
 		if [[ "$Once" == false ]]; then
+			echo "$(date -R) WAN link went down" >>/tmp/log.Watch_Wan
 			/etc/init.d/network restart
 			Once=true
 		fi

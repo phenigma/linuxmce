@@ -21,4 +21,5 @@ grep -v local.fiire.com /etc/hosts > /etc/hosts.temp
 echo "$LanIP local.fiire.com" >> /etc/hosts.temp
 mv /etc/hosts.temp /etc/hosts
 
+echo "$(date -R) Reported AP $LanIP, $WanIP, $MAC" >>/tmp/log.Report_AP
 /etc/init.d/dnsmasq restart
