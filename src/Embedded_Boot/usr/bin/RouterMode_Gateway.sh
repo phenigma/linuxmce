@@ -8,6 +8,8 @@ if [[ -z "$Cfg" ]] || [[ -z "$CfgMasq" ]]; then
 	CfgMasq=$(uci show dhcp|grep =dnsmasq|cut -d. -f2|cut -d= -f1)
 fi
 
+echo "$(date -R) Router mode: gateway / begin" >>/tmp/log.routermode
+
 uci set dhcp.$Cfg.dynamicdhcp=1
 uci set dhcp.$CfgMasq.authoritative=1
 
@@ -35,3 +37,4 @@ uci commit
 /etc/init.d/firewall restart
 /etc/init.d/dnsmasq restart
 /etc/init.d/network restart
+echo "$(date -R) Router mode: gateway / end" >>/tmp/log.routermode
