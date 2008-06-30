@@ -286,8 +286,6 @@ void DataLayer_JSON::ParseDevices(struct json_object *json_obj)
 		StringUtils::Replace(&sDeviceID, "PK_Device_", "");
 		int nDeviceID = atoi(sDeviceID.c_str());
 
-		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Parsing device %d:", nDeviceID);
-
 		if(m_mapDeviceData_Router.find(nDeviceID) != m_mapDeviceData_Router.end())
 		{
 			DeviceData_Router *pDevice = NULL;
@@ -298,7 +296,7 @@ void DataLayer_JSON::ParseDevices(struct json_object *json_obj)
 			string sDescription;
 			map<int, string> mapDeviceData;
 			map<string, string> mapDeviceParams;
-
+	
 			struct json_object *obj_device = iter_devices.val;
 			struct json_object_iter iter_device;
 			json_object_object_foreachC(obj_device, iter_device) 
@@ -321,6 +319,8 @@ void DataLayer_JSON::ParseDevices(struct json_object *json_obj)
 				else if(sValue == "DeviceData" && iter_device.val->o_type == json_type_object)
 					ParseDeviceDataList(mapDeviceData, iter_device.val);
 			}
+
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Parsing device %d: template %d controlled via %d", nDeviceID, PK_DeviceTemplate, PK_Device_ControlledVia );
 
 			pDevice = new DeviceData_Router(nDeviceID, PK_DeviceTemplate, PK_Installation, PK_Device_ControlledVia);
 			pDevice->m_sDescription = sDescription;

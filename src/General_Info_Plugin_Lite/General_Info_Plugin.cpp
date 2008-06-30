@@ -549,6 +549,10 @@ void General_Info_Plugin::CMD_Create_Device(int iPK_DeviceTemplate,string sMac_a
 void General_Info_Plugin::CMD_Delete_Device(int iPK_Device,string &sCMD_Result,Message *pMessage)
 //<-dceag-c719-e->
 {
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "General_Info_Plugin::CMD_Delete_Device device %d", iPK_Device);
+#endif
+
 	vector<DeviceData_Router *> vectDevice_Children;
 	m_pRouter->DataLayer()->ChildrenDevices(iPK_Device, vectDevice_Children);
 	for(vector<DeviceData_Router *>::iterator it_child = vectDevice_Children.begin(); it_child != vectDevice_Children.end(); ++it_child)
@@ -864,7 +868,7 @@ void General_Info_Plugin::ReportingChildDevices_Offline( void *pVoid )
 		bool bNewDevice;
 		// This will add the child device if it doesn't exist
 		DeviceData_Router *pDevice_Child = ProcessChildDevice(pChildDeviceProcessing->m_nPK_Device, sLine, bNewDevice);
-		LoggerWrapper::GetInstance()->Write(LV_STATUS, "General_Info_Plugin::ReportingChildDevices_Offline line %s child %d", sLine.c_str(), pDevice_Child ? pDevice_Child->m_dwPK_Device : -1);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "General_Info_Plugin::ReportingChildDevices_Offline line %s child %d new %d", sLine.c_str(), pDevice_Child ? pDevice_Child->m_dwPK_Device : -1, (int) bNewDevice);
 		if(NULL != pDevice_Child)
 			mapCurrentChildren[pDevice_Child->m_dwPK_Device] = true;
 		if( bNewDevice )
@@ -933,8 +937,7 @@ DeviceData_Router *General_Info_Plugin::ProcessChildDevice(int nPK_Device, strin
 	string sRoomName = StringUtils::Tokenize(sLine,"\t",pos);
 	int PK_DeviceTemplate = atoi(StringUtils::Tokenize(sLine,"\t",pos).c_str());
 	string sPK_FloorplanObjectType = StringUtils::Tokenize(sLine,"\t",pos);
-
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "ProcessChildDevice: pos=%d, %s", pos, sLine.c_str());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "General_Info_Plugin::ProcessChildDevice: pos=%d, %s", pos, sLine.c_str());
 
 	DeviceTemplate_Data *pDeviceTemplate_Data = m_pRouter->DataLayer()->DeviceTemplate(PK_DeviceTemplate);
 	if(NULL == pDeviceTemplate_Data)
@@ -950,7 +953,11 @@ DeviceData_Router *General_Info_Plugin::ProcessChildDevice(int nPK_Device, strin
 		if(pDeviceData_Router->m_dwPK_DeviceTemplate == PK_DeviceTemplate)
 			return pDeviceData_Router;
 		else
+		{
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "General_Info_Plugin::ProcessChildDevice (Reporting) line %s device %d deleting temp %d!=%d", 
+				sLine.c_str(), pDeviceData_Router->m_dwPK_Device, pDeviceData_Router->m_dwPK_DeviceTemplate, PK_DeviceTemplate);
 			CMD_Delete_Device(pDeviceData_Router->m_dwPK_Device);
+		}
 	}
 	
 	// Create it since it doesn't exist
