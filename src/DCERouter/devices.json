@@ -107,22 +107,6 @@
                 "Status": "",
                 "Disabled": "0" 
             } 
-        },
-        "PK_Device_7": {
-            "Description": "Tivo",
-            "FK_DeviceTemplate": "1872",
-            "FK_Room": "1",
-            "FK_Device_ControlledVia": "1",
-            "DeviceData": {
-            },
-            "params": {
-                "IPaddress": "127.0.0.1",
-                "MACaddress": "",
-                "IgnoreOnOff": "0",
-                "State": "",
-                "Status": "",
-                "Disabled": "0" 
-            } 
         }              
     } 
 }

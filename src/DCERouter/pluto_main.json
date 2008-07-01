@@ -1,5 +1,5 @@
 {
-	"Command_ids":[68,71,84,184,192,193,200,201,202,203,239,246,247,248,257,272,274,278,279,280,322,323,350,351,355,356,365,370,371,373,384,395,396,684,685,718,719,752,756,757,760,765,776,788,789,791,800,802,803,808,813,820,827,833,835,840,841,842,843,844,882,915,934,956],
+	"Command_ids":[68,71,84,184,192,193,200,201,202,203,239,246,247,248,257,272,274,278,279,280,322,323,350,351,355,356,365,370,371,373,384,395,396,684,685,718,719,752,756,757,760,765,776,788,789,791,800,802,803,808,813,820,827,833,835,840,841,842,843,844,882,915,934,956,957,966,967,968],
 	"Command":{
 		"PK_Command_68": {
 			"Description":"Get Device Data",
@@ -256,6 +256,22 @@
 		"PK_Command_956": {
 			"Description":"Get Devices To Start",
 			"FK_CommandCategory":"7"
+		},
+		"PK_Command_957": {
+			"Description":"Update Device",
+			"FK_CommandCategory":"7"
+		},
+		"PK_Command_966": {
+			"Description":"Set Polling State",
+			"FK_CommandCategory":"26"
+		},
+		"PK_Command_967": {
+			"Description":"Add Node",
+			"FK_CommandCategory":"26"
+		},
+		"PK_Command_968": {
+			"Description":"Remove Node",
+			"FK_CommandCategory":"26"
 		}
 	}
 	,
@@ -307,12 +323,8 @@
 		}
 	}
 	,
-	"CommandParameter_ids":[2,52,53,13,19,60,61,20,23,41,76,97,98,91,92,102,21,57,50,5,8,47,28,119,230,201,58,109,150,156,198,44,10,154,202,103,205,51,208,219,222,223,229,239,240,9,163,17,244,48,249,250,248,275],
+	"CommandParameter_ids":[52,53,2,13,19,23,41,60,61,20,76,97,98,91,92,102,21,50,57,5,8,47,28,119,230,156,198,44,201,58,109,150,202,10,154,103,205,51,208,219,222,223,229,239,240,9,163,17,244,48,249,250,248,275,220,225,182,259,39],
 	"CommandParameter":{
-		"PK_CommandParameter_2": {
-			"Description":"PK_Device",
-			"FK_ParameterType":"2"
-		},
 		"PK_CommandParameter_52": {
 			"Description":"PK_DeviceData",
 			"FK_ParameterType":"2"
@@ -321,6 +333,10 @@
 			"Description":"UseDefault",
 			"FK_ParameterType":"3"
 		},
+		"PK_CommandParameter_2": {
+			"Description":"PK_Device",
+			"FK_ParameterType":"2"
+		},
 		"PK_CommandParameter_13": {
 			"Description":"Filename",
 			"FK_ParameterType":"1"
@@ -328,6 +344,14 @@
 		"PK_CommandParameter_19": {
 			"Description":"Data",
 			"FK_ParameterType":"5"
+		},
+		"PK_CommandParameter_23": {
+			"Description":"Disable Aspect Lock",
+			"FK_ParameterType":"1"
+		},
+		"PK_CommandParameter_41": {
+			"Description":"StreamID",
+			"FK_ParameterType":"2"
 		},
 		"PK_CommandParameter_60": {
 			"Description":"Width",
@@ -340,14 +364,6 @@
 		"PK_CommandParameter_20": {
 			"Description":"Format",
 			"FK_ParameterType":"1"
-		},
-		"PK_CommandParameter_23": {
-			"Description":"Disable Aspect Lock",
-			"FK_ParameterType":"1"
-		},
-		"PK_CommandParameter_41": {
-			"Description":"StreamID",
-			"FK_ParameterType":"2"
 		},
 		"PK_CommandParameter_76": {
 			"Description":"Level",
@@ -377,13 +393,13 @@
 			"Description":"Force",
 			"FK_ParameterType":"1"
 		},
-		"PK_CommandParameter_57": {
-			"Description":"PK_Room",
-			"FK_ParameterType":"2"
-		},
 		"PK_CommandParameter_50": {
 			"Description":"Name",
 			"FK_ParameterType":"1"
+		},
+		"PK_CommandParameter_57": {
+			"Description":"PK_Room",
+			"FK_ParameterType":"2"
 		},
 		"PK_CommandParameter_5": {
 			"Description":"Value To Assign",
@@ -409,6 +425,18 @@
 			"Description":"Failed",
 			"FK_ParameterType":"3"
 		},
+		"PK_CommandParameter_156": {
+			"Description":"PK_Device_ControlledVia",
+			"FK_ParameterType":"2"
+		},
+		"PK_CommandParameter_198": {
+			"Description":"PK_Orbiter",
+			"FK_ParameterType":"2"
+		},
+		"PK_CommandParameter_44": {
+			"Description":"PK_DeviceTemplate",
+			"FK_ParameterType":"2"
+		},
 		"PK_CommandParameter_201": {
 			"Description":"PK_Device_Related",
 			"FK_ParameterType":"2"
@@ -425,17 +453,9 @@
 			"Description":"PK_DHCPDevice",
 			"FK_ParameterType":"2"
 		},
-		"PK_CommandParameter_156": {
-			"Description":"PK_Device_ControlledVia",
-			"FK_ParameterType":"2"
-		},
-		"PK_CommandParameter_198": {
-			"Description":"PK_Orbiter",
-			"FK_ParameterType":"2"
-		},
-		"PK_CommandParameter_44": {
-			"Description":"PK_DeviceTemplate",
-			"FK_ParameterType":"2"
+		"PK_CommandParameter_202": {
+			"Description":"Parameters",
+			"FK_ParameterType":"1"
 		},
 		"PK_CommandParameter_10": {
 			"Description":"ID",
@@ -444,10 +464,6 @@
 		"PK_CommandParameter_154": {
 			"Description":"PK_Command",
 			"FK_ParameterType":"2"
-		},
-		"PK_CommandParameter_202": {
-			"Description":"Parameters",
-			"FK_ParameterType":"1"
 		},
 		"PK_CommandParameter_103": {
 			"Description":"List PK Device",
@@ -524,6 +540,26 @@
 		"PK_CommandParameter_275": {
 			"Description":"Symlink",
 			"FK_ParameterType":"1"
+		},
+		"PK_CommandParameter_220": {
+			"Description":"Report",
+			"FK_ParameterType":"3"
+		},
+		"PK_CommandParameter_225": {
+			"Description":"Always",
+			"FK_ParameterType":"3"
+		},
+		"PK_CommandParameter_182": {
+			"Description":"Timeout",
+			"FK_ParameterType":"1"
+		},
+		"PK_CommandParameter_259": {
+			"Description":"Multiple",
+			"FK_ParameterType":"3"
+		},
+		"PK_CommandParameter_39": {
+			"Description":"Options",
+			"FK_ParameterType":"1"
 		}
 	}
 	,
@@ -564,6 +600,18 @@
 			"Description":"The file's contents",
 			"IsOut":"1"
 		},
+		"Command_CommandParameter_84_60": {
+			"FK_Command":"84",
+			"FK_CommandParameter":"60",
+			"Description":"Frame width",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_84_61": {
+			"FK_Command":"84",
+			"FK_CommandParameter":"61",
+			"Description":"Frame height",
+			"IsOut":"0"
+		},
 		"Command_CommandParameter_84_19": {
 			"FK_Command":"84",
 			"FK_CommandParameter":"19",
@@ -586,18 +634,6 @@
 			"FK_Command":"84",
 			"FK_CommandParameter":"41",
 			"Description":"The ID of the stream",
-			"IsOut":"0"
-		},
-		"Command_CommandParameter_84_60": {
-			"FK_Command":"84",
-			"FK_CommandParameter":"60",
-			"Description":"Frame width",
-			"IsOut":"0"
-		},
-		"Command_CommandParameter_84_61": {
-			"FK_Command":"84",
-			"FK_CommandParameter":"61",
-			"Description":"Frame height",
 			"IsOut":"0"
 		},
 		"Command_CommandParameter_184_76": {
@@ -756,12 +792,6 @@
 			"Description":"The device to wake up",
 			"IsOut":"0"
 		},
-		"Command_CommandParameter_323_47": {
-			"FK_Command":"323",
-			"FK_CommandParameter":"47",
-			"Description":"If PK_Device is not specified (is 0), we'll use the mac address to determine the device id",
-			"IsOut":"0"
-		},
 		"Command_CommandParameter_323_2": {
 			"FK_Command":"323",
 			"FK_CommandParameter":"2",
@@ -772,6 +802,12 @@
 			"FK_Command":"323",
 			"FK_CommandParameter":"21",
 			"Description":"If Force is not specified this will do a suspend if the device supports suspend\/resume, otherwise it will do a halt.  Force:  \"H\"=halt, \"S\"=suspend, \"D\"=Display off, \"R\"=reboot, \"N\"=net boot, \"V\"=hard drive boot",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_323_47": {
+			"FK_Command":"323",
+			"FK_CommandParameter":"47",
+			"Description":"If PK_Device is not specified (is 0), we'll use the mac address to determine the device id",
 			"IsOut":"0"
 		},
 		"Command_CommandParameter_365_2": {
@@ -810,36 +846,6 @@
 			"Description":"This is true if the script used to check for updates fails.",
 			"IsOut":"0"
 		},
-		"Command_CommandParameter_718_201": {
-			"FK_Command":"718",
-			"FK_CommandParameter":"201",
-			"Description":"Will make the new device relate to this one if possible",
-			"IsOut":"0"
-		},
-		"Command_CommandParameter_718_2": {
-			"FK_Command":"718",
-			"FK_CommandParameter":"2",
-			"Description":"The new device number",
-			"IsOut":"1"
-		},
-		"Command_CommandParameter_718_44": {
-			"FK_Command":"718",
-			"FK_CommandParameter":"44",
-			"Description":"The template",
-			"IsOut":"0"
-		},
-		"Command_CommandParameter_718_47": {
-			"FK_Command":"718",
-			"FK_CommandParameter":"47",
-			"Description":"The mac address",
-			"IsOut":"0"
-		},
-		"Command_CommandParameter_718_57": {
-			"FK_Command":"718",
-			"FK_CommandParameter":"57",
-			"Description":"The room for the device.  0=no room, -1=ask user",
-			"IsOut":"0"
-		},
 		"Command_CommandParameter_718_58": {
 			"FK_Command":"718",
 			"FK_CommandParameter":"58",
@@ -874,6 +880,36 @@
 			"FK_Command":"718",
 			"FK_CommandParameter":"198",
 			"Description":"The orbiter which should be used to prompt the user for any extra information.  Zero means all orbiters",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_718_201": {
+			"FK_Command":"718",
+			"FK_CommandParameter":"201",
+			"Description":"Will make the new device relate to this one if possible",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_718_2": {
+			"FK_Command":"718",
+			"FK_CommandParameter":"2",
+			"Description":"The new device number",
+			"IsOut":"1"
+		},
+		"Command_CommandParameter_718_44": {
+			"FK_Command":"718",
+			"FK_CommandParameter":"44",
+			"Description":"The template",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_718_47": {
+			"FK_Command":"718",
+			"FK_CommandParameter":"47",
+			"Description":"The mac address",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_718_57": {
+			"FK_Command":"718",
+			"FK_CommandParameter":"57",
+			"Description":"The room for the device.  0=no room, -1=ask user",
 			"IsOut":"0"
 		},
 		"Command_CommandParameter_719_2": {
@@ -954,18 +990,6 @@
 			"Description":"Template id",
 			"IsOut":"0"
 		},
-		"Command_CommandParameter_802_2": {
-			"FK_Command":"802",
-			"FK_CommandParameter":"2",
-			"Description":"The device id for the NAS or internal drive being used.  If it will be stored on the Core's internal home directory, this will be the device id for the Core.  0 is no device can save the file.",
-			"IsOut":"1"
-		},
-		"Command_CommandParameter_802_163": {
-			"FK_Command":"802",
-			"FK_CommandParameter":"163",
-			"Description":"The descripition for the device being used for the storage (ie Core, or a device name).",
-			"IsOut":"1"
-		},
 		"Command_CommandParameter_802_219": {
 			"FK_Command":"802",
 			"FK_CommandParameter":"219",
@@ -977,6 +1001,18 @@
 			"FK_CommandParameter":"222",
 			"Description":"The expected size of the file in MB.  If specified, only a device with enough space and which can handle it (ie some NAS don't do big files).  If not specified, returns device with the most free space.",
 			"IsOut":"0"
+		},
+		"Command_CommandParameter_802_2": {
+			"FK_Command":"802",
+			"FK_CommandParameter":"2",
+			"Description":"The device id for the NAS or internal drive being used.  If it will be stored on the Core's internal home directory, this will be the device id for the Core.  0 is no device can save the file.",
+			"IsOut":"1"
+		},
+		"Command_CommandParameter_802_163": {
+			"FK_Command":"802",
+			"FK_CommandParameter":"163",
+			"Description":"The descripition for the device being used for the storage (ie Core, or a device name).",
+			"IsOut":"1"
 		},
 		"Command_CommandParameter_803_156": {
 			"FK_Command":"803",
@@ -1167,12 +1203,126 @@
 		"Command_CommandParameter_956_5": {
 			"FK_Command":"956",
 			"FK_CommandParameter":"5",
-			"Description":"A pipe delimited list like this: DeviceID1|CommandLine1\\nDeviceID2|CommandLine2 etc",
+			"Description":"A pipe delimited list like this: DeviceID1|TemplateName1|CommandLine1\\nDeviceID2|DeviceTemplateName2|CommandLine2 etc",
 			"IsOut":"1"
+		},
+		"Command_CommandParameter_957_2": {
+			"FK_Command":"957",
+			"FK_CommandParameter":"2",
+			"Description":"Device ID",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_957_47": {
+			"FK_Command":"957",
+			"FK_CommandParameter":"47",
+			"Description":"Mac address",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_957_57": {
+			"FK_Command":"957",
+			"FK_CommandParameter":"57",
+			"Description":"Room ID",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_957_58": {
+			"FK_Command":"957",
+			"FK_CommandParameter":"58",
+			"Description":"IP address",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_957_109": {
+			"FK_Command":"957",
+			"FK_CommandParameter":"109",
+			"Description":"pipe delimited list with device data",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_957_163": {
+			"FK_Command":"957",
+			"FK_CommandParameter":"163",
+			"Description":"Device description",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_966_2": {
+			"FK_Command":"966",
+			"FK_CommandParameter":"2",
+			"Description":"The device to set polling info for.  If both this and node id are blank, it sets global polling",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_966_5": {
+			"FK_Command":"966",
+			"FK_CommandParameter":"5",
+			"Description":"If polling a node, the same as the device data for the node.   If no node is specified, the format is the same as Interface's Polling Settings",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_966_220": {
+			"FK_Command":"966",
+			"FK_CommandParameter":"220",
+			"Description":"If true, the changes will go back to the router to update device data so they persist after a reload",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_966_225": {
+			"FK_Command":"966",
+			"FK_CommandParameter":"225",
+			"Description":"If true, this setting will persist.  Otherwise it will only happen one time and revert to default",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_966_239": {
+			"FK_Command":"966",
+			"FK_CommandParameter":"239",
+			"Description":"The node to set polling for.  If both this and PK_device are blank, it sets global polling.  This supercedes PK_Device",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_967_39": {
+			"FK_Command":"967",
+			"FK_CommandParameter":"39",
+			"Description":"A string of letters for each of the following options:\r\nH = high power",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_967_48": {
+			"FK_Command":"967",
+			"FK_CommandParameter":"48",
+			"Description":"empty or 1 = Node Any, 2=node controller, 3=node slave, 4=node existing, 5=node stop, 6=node stop failed",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_967_182": {
+			"FK_Command":"967",
+			"FK_CommandParameter":"182",
+			"Description":"Number of seconds to timeout.  If not specified default is 60 seconds.  0=no timeout; a subsequent node stop must be called.",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_967_259": {
+			"FK_Command":"967",
+			"FK_CommandParameter":"259",
+			"Description":"If true, allow addition of multiple nodes until timeout occurs or add node is called with node stop.",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_968_48": {
+			"FK_Command":"968",
+			"FK_CommandParameter":"48",
+			"Description":"empty or 1 = Node Any, 2=node controller, 3=node slave, 5=node stop",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_968_182": {
+			"FK_Command":"968",
+			"FK_CommandParameter":"182",
+			"Description":"Number of seconds to timeout.  If not specified default is 60 seconds.  0=no timeout; a subsequent node stop must be called.",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_968_259": {
+			"FK_Command":"968",
+			"FK_CommandParameter":"259",
+			"Description":"If true, allow deletion of multiple nodes until timeout occurs or add node is called with node stop.",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_968_39": {
+			"FK_Command":"968",
+			"FK_CommandParameter":"39",
+			"Description":"A string of letters for each of the following options:\r\nH = high power",
+			"IsOut":"0"
 		}
 	}
 	,
-	"DHCPDevice_ids":[14,27,35,69,70,71,72],
+	"DHCPDevice_ids":[14,27,35,69,70,71,72,90],
 	"DHCPDevice":{
 		"PK_DHCPDevice_14": {
 			"FK_DeviceTemplate":"47",
@@ -1257,10 +1407,22 @@
 			"PnpDetectionScript":"",
 			"FK_DeviceCategory":"",
 			"Description":"Seluxit"
+		},
+		"PK_DHCPDevice_90": {
+			"FK_DeviceTemplate":"1754",
+			"Mac_Range_Low":"0",
+			"Mac_Range_High":"0",
+			"VendorModelID":"067b2303",
+			"SerialNumber":"",
+			"Parms":"37|pci",
+			"Category":"",
+			"PnpDetectionScript":"",
+			"FK_DeviceCategory":"",
+			"Description":"Tricklestar"
 		}
 	}
 	,
-	"DeviceCategory_ids":[1,83,61,73,140,84,81,82,80],
+	"DeviceCategory_ids":[1,83,7,61,68,67,73,140,84,81,82,80,117],
 	"DeviceCategory":{
 		"PK_DeviceCategory_1": {
 			"FK_DeviceCategory_Parent":"",
@@ -1270,9 +1432,21 @@
 			"FK_DeviceCategory_Parent":"72",
 			"Description":"Climate Device"
 		},
+		"PK_DeviceCategory_7": {
+			"FK_DeviceCategory_Parent":"6",
+			"Description":"Core"
+		},
 		"PK_DeviceCategory_61": {
 			"FK_DeviceCategory_Parent":"4",
 			"Description":"General Info Plug-ins"
+		},
+		"PK_DeviceCategory_68": {
+			"FK_DeviceCategory_Parent":"9",
+			"Description":"Climate Plug-ins"
+		},
+		"PK_DeviceCategory_67": {
+			"FK_DeviceCategory_Parent":"9",
+			"Description":"Lighting Plug-ins"
 		},
 		"PK_DeviceCategory_73": {
 			"FK_DeviceCategory_Parent":"72",
@@ -1297,10 +1471,14 @@
 		"PK_DeviceCategory_80": {
 			"FK_DeviceCategory_Parent":"71",
 			"Description":"Security Interface"
+		},
+		"PK_DeviceCategory_117": {
+			"FK_DeviceCategory_Parent":"57",
+			"Description":"Remote Controls"
 		}
 	}
 	,
-	"DeviceCommandGroup_ids":[12,17,21,28,29,36,72,76,80,85,92],
+	"DeviceCommandGroup_ids":[12,17,21,28,29,36,62,72,76,80,85],
 	"DeviceCommandGroup":{
 		"PK_DeviceCommandGroup_12": {
 			"FK_DeviceCategory":"61",
@@ -1326,6 +1504,10 @@
 			"FK_DeviceCategory":"83",
 			"Description":"Thermostat Commands"
 		},
+		"PK_DeviceCommandGroup_62": {
+			"FK_DeviceCategory":"67",
+			"Description":"Lighting Plugin"
+		},
 		"PK_DeviceCommandGroup_72": {
 			"FK_DeviceCategory":"80",
 			"Description":"Security Panel"
@@ -1341,10 +1523,6 @@
 		"PK_DeviceCommandGroup_85": {
 			"FK_DeviceCategory":"81",
 			"Description":"ZWave"
-		},
-		"PK_DeviceCommandGroup_92": {
-			"FK_DeviceCategory":"81",
-			"Description":"Insteon"
 		}
 	}
 	,
@@ -2458,6 +2636,11 @@
 			"FK_DeviceCommandGroup":"12",
 			"FK_Command":"956",
 			"Description":"Get the list with devices to start."
+		},
+		"DeviceCommandGroup_Command_12_957": {
+			"FK_DeviceCommandGroup":"12",
+			"FK_Command":"957",
+			"Description":"Will update the description, ip, mac, device data"
 		},
 		"DeviceCommandGroup_Command_13_84": {
 			"FK_DeviceCommandGroup":"13",
@@ -3809,6 +3992,21 @@
 			"FK_Command":"842",
 			"Description":"Set the association of Z-Wave nodes into a group."
 		},
+		"DeviceCommandGroup_Command_85_966": {
+			"FK_DeviceCommandGroup":"85",
+			"FK_Command":"966",
+			"Description":"Set polling state either for the system, or a  particular node"
+		},
+		"DeviceCommandGroup_Command_85_967": {
+			"FK_DeviceCommandGroup":"85",
+			"FK_Command":"967",
+			"Description":"Add a node to the ZWave network"
+		},
+		"DeviceCommandGroup_Command_85_968": {
+			"FK_DeviceCommandGroup":"85",
+			"FK_Command":"968",
+			"Description":"Remove a node from the ZWave network"
+		},
 		"DeviceCommandGroup_Command_86_836": {
 			"FK_DeviceCommandGroup":"86",
 			"FK_Command":"836",
@@ -3899,11 +4097,6 @@
 			"FK_Command":"682",
 			"Description":"VDR yellow"
 		},
-		"DeviceCommandGroup_Command_92_920": {
-			"FK_DeviceCommandGroup":"92",
-			"FK_Command":"920",
-			"Description":"Create a group and add the specified devices to the group number (stored in PLC adapter)"
-		},
 		"DeviceCommandGroup_Command_93_942": {
 			"FK_DeviceCommandGroup":"93",
 			"FK_Command":"942",
@@ -3956,7 +4149,7 @@
 		}
 	}
 	,
-	"DeviceData_ids":[26,107,11,12,2,69,114,115,18,19,45,1,37,162,163],
+	"DeviceData_ids":[26,107,11,12,188,229,233,234,235,56,2,69,114,115,18,19,45,1,37,162,163,283],
 	"DeviceData":{
 		"PK_DeviceData_26": {
 			"Description":"PK_Language",
@@ -3972,6 +4165,30 @@
 		},
 		"PK_DeviceData_12": {
 			"Description":"Port\/Channel Number",
+			"FK_ParameterType":"1"
+		},
+		"PK_DeviceData_188": {
+			"Description":"Computer name",
+			"FK_ParameterType":"1"
+		},
+		"PK_DeviceData_229": {
+			"Description":"TV Standard",
+			"FK_ParameterType":"1"
+		},
+		"PK_DeviceData_233": {
+			"Description":"Model",
+			"FK_ParameterType":"1"
+		},
+		"PK_DeviceData_234": {
+			"Description":"LastUpdate",
+			"FK_ParameterType":"2"
+		},
+		"PK_DeviceData_235": {
+			"Description":"ApplyUpdates",
+			"FK_ParameterType":"3"
+		},
+		"PK_DeviceData_56": {
+			"Description":"Timeout",
 			"FK_ParameterType":"1"
 		},
 		"PK_DeviceData_2": {
@@ -4017,10 +4234,14 @@
 		"PK_DeviceData_163": {
 			"Description":"Auto-assign to parents room",
 			"FK_ParameterType":"3"
+		},
+		"PK_DeviceData_283": {
+			"Description":"Polling Settings",
+			"FK_ParameterType":"1"
 		}
 	}
 	,
-	"DeviceTemplate_ids":[1,4,7,27,31,32,37,38,47,50,56,1599,1600,1633,1744,1745,1754,1773,1813,1820,1922],
+	"DeviceTemplate_ids":[1,4,7,27,31,32,37,38,47,50,54,56,68,1599,1600,1633,1744,1745,1754,1773,1813,1820,1922,1945],
 	"DeviceTemplate":{
 		"PK_DeviceTemplate_1": {
 			"Description":"DCERouter",
@@ -4052,14 +4273,14 @@
 		},
 		"PK_DeviceTemplate_31": {
 			"Description":"Climate Plug-in",
-			"FK_DeviceCategory":"61",
+			"FK_DeviceCategory":"68",
 			"ImplementsDCE":"1",
 			"IsEmbedded":"0",
 			"CommandLine":""
 		},
 		"PK_DeviceTemplate_32": {
 			"Description":"Lighting Plug-in",
-			"FK_DeviceCategory":"61",
+			"FK_DeviceCategory":"67",
 			"ImplementsDCE":"1",
 			"IsEmbedded":"0",
 			"CommandLine":""
@@ -4092,9 +4313,23 @@
 			"IsEmbedded":"0",
 			"CommandLine":""
 		},
+		"PK_DeviceTemplate_54": {
+			"Description":"Motion Detector",
+			"FK_DeviceCategory":"84",
+			"ImplementsDCE":"0",
+			"IsEmbedded":"0",
+			"CommandLine":""
+		},
 		"PK_DeviceTemplate_56": {
 			"Description":"Glass Break Sensor",
 			"FK_DeviceCategory":"84",
+			"ImplementsDCE":"0",
+			"IsEmbedded":"0",
+			"CommandLine":""
+		},
+		"PK_DeviceTemplate_68": {
+			"Description":"Drapes Switch",
+			"FK_DeviceCategory":"73",
 			"ImplementsDCE":"0",
 			"IsEmbedded":"0",
 			"CommandLine":""
@@ -4162,25 +4397,18 @@
 			"IsEmbedded":"1",
 			"CommandLine":""
 		},
-		"PK_DeviceTemplate_1871": {
-			"Description":"Moxi PVR",
-			"FK_DeviceCategory":"6",
-			"ImplementsDCE":"0",
-			"IsEmbedded":"1",
-			"CommandLine":""
-		},
-		"PK_DeviceTemplate_1872": {
-			"Description":"Moxi Orbiter",
-			"FK_DeviceCategory":"3",
-			"ImplementsDCE":"0",
-			"IsEmbedded":"1",
-			"CommandLine":""
-		},	
 		"PK_DeviceTemplate_1922": {
 			"Description":"ZWave Embedded Security Interf",
 			"FK_DeviceCategory":"80",
 			"ImplementsDCE":"0",
 			"IsEmbedded":"1",
+			"CommandLine":""
+		},
+		"PK_DeviceTemplate_1945": {
+			"Description":"ZWave Controller",
+			"FK_DeviceCategory":"117",
+			"ImplementsDCE":"0",
+			"IsEmbedded":"0",
 			"CommandLine":""
 		}
 	}
@@ -4201,6 +4429,10 @@
 		"DeviceTemplate_DeviceCommandGroup_27_89": {
 			"FK_DeviceTemplate":"27",
 			"FK_DeviceCommandGroup":"89"
+		},
+		"DeviceTemplate_DeviceCommandGroup_32_62": {
+			"FK_DeviceTemplate":"32",
+			"FK_DeviceCommandGroup":"62"
 		},
 		"DeviceTemplate_DeviceCommandGroup_37_21": {
 			"FK_DeviceTemplate":"37",
@@ -4225,6 +4457,14 @@
 		"DeviceTemplate_DeviceCommandGroup_47_68": {
 			"FK_DeviceTemplate":"47",
 			"FK_DeviceCommandGroup":"68"
+		},
+		"DeviceTemplate_DeviceCommandGroup_68_21": {
+			"FK_DeviceTemplate":"68",
+			"FK_DeviceCommandGroup":"21"
+		},
+		"DeviceTemplate_DeviceCommandGroup_68_28": {
+			"FK_DeviceTemplate":"68",
+			"FK_DeviceCommandGroup":"28"
 		},
 		"DeviceTemplate_DeviceCommandGroup_1633_54": {
 			"FK_DeviceTemplate":"1633",
@@ -4280,6 +4520,60 @@
 			"AllowedToModify":"1",
 			"SetByDevice":"0",
 			"Description":"Used to identify the device (channel string format"
+		},
+		"DeviceTemplate_DeviceData_7_188": {
+			"FK_DeviceTemplate":"7",
+			"FK_DeviceData":"188",
+			"IK_DeviceData":"DCERouter",
+			"Required":"0",
+			"AllowedToModify":"1",
+			"SetByDevice":"0",
+			"Description":"Computer name"
+		},
+		"DeviceTemplate_DeviceData_7_229": {
+			"FK_DeviceTemplate":"7",
+			"FK_DeviceData":"229",
+			"IK_DeviceData":"M",
+			"Required":"0",
+			"AllowedToModify":"1",
+			"SetByDevice":"0",
+			"Description":"M=MythTV, V=VDR"
+		},
+		"DeviceTemplate_DeviceData_7_233": {
+			"FK_DeviceTemplate":"7",
+			"FK_DeviceData":"233",
+			"IK_DeviceData":"LMCE_CORE_u0710_amd64",
+			"Required":"0",
+			"AllowedToModify":"0",
+			"SetByDevice":"0",
+			"Description":"Model Name"
+		},
+		"DeviceTemplate_DeviceData_7_234": {
+			"FK_DeviceTemplate":"7",
+			"FK_DeviceData":"234",
+			"IK_DeviceData":"0",
+			"Required":"0",
+			"AllowedToModify":"0",
+			"SetByDevice":"0",
+			"Description":"Last update applied to this computer"
+		},
+		"DeviceTemplate_DeviceData_7_235": {
+			"FK_DeviceTemplate":"7",
+			"FK_DeviceData":"235",
+			"IK_DeviceData":"",
+			"Required":"0",
+			"AllowedToModify":"1",
+			"SetByDevice":"0",
+			"Description":"Apply Updates ?"
+		},
+		"DeviceTemplate_DeviceData_32_56": {
+			"FK_DeviceTemplate":"32",
+			"FK_DeviceData":"56",
+			"IK_DeviceData":"30",
+			"Required":"1",
+			"AllowedToModify":"1",
+			"SetByDevice":"0",
+			"Description":"Number of seconds to keep lights on if a security camera is tryiing to view a frame"
 		},
 		"DeviceTemplate_DeviceData_37_12": {
 			"FK_DeviceTemplate":"37",
@@ -4344,6 +4638,51 @@
 			"SetByDevice":"0",
 			"Description":"Password to access camera"
 		},
+		"DeviceTemplate_DeviceData_54_11": {
+			"FK_DeviceTemplate":"54",
+			"FK_DeviceData":"11",
+			"IK_DeviceData":"3",
+			"Required":"0",
+			"AllowedToModify":"1",
+			"SetByDevice":"0",
+			"Description":"The icon for the floorplan"
+		},
+		"DeviceTemplate_DeviceData_54_12": {
+			"FK_DeviceTemplate":"54",
+			"FK_DeviceData":"12",
+			"IK_DeviceData":"",
+			"Required":"1",
+			"AllowedToModify":"1",
+			"SetByDevice":"0",
+			"Description":"The Channel, Port, or ID for the interface"
+		},
+		"DeviceTemplate_DeviceData_54_18": {
+			"FK_DeviceTemplate":"54",
+			"FK_DeviceData":"18",
+			"IK_DeviceData":"0",
+			"Required":"1",
+			"AllowedToModify":"1",
+			"SetByDevice":"0",
+			"Description":"0=Input, 1=Output, 2=Both"
+		},
+		"DeviceTemplate_DeviceData_54_19": {
+			"FK_DeviceTemplate":"54",
+			"FK_DeviceData":"19",
+			"IK_DeviceData":"0",
+			"Required":"",
+			"AllowedToModify":"1",
+			"SetByDevice":"0",
+			"Description":"If this is 1 it reverses the normally\/open closed"
+		},
+		"DeviceTemplate_DeviceData_54_45": {
+			"FK_DeviceTemplate":"54",
+			"FK_DeviceData":"45",
+			"IK_DeviceData":"1",
+			"Required":"0",
+			"AllowedToModify":"1",
+			"SetByDevice":"0",
+			"Description":"The type of alert - normally security"
+		},
 		"DeviceTemplate_DeviceData_56_11": {
 			"FK_DeviceTemplate":"56",
 			"FK_DeviceData":"11",
@@ -4388,6 +4727,15 @@
 			"AllowedToModify":"1",
 			"SetByDevice":"0",
 			"Description":"The type of alert - normally security"
+		},
+		"DeviceTemplate_DeviceData_68_12": {
+			"FK_DeviceTemplate":"68",
+			"FK_DeviceData":"12",
+			"IK_DeviceData":"",
+			"Required":"1",
+			"AllowedToModify":"1",
+			"SetByDevice":"0",
+			"Description":"The channel"
 		},
 		"DeviceTemplate_DeviceData_1599_11": {
 			"FK_DeviceTemplate":"1599",
@@ -4560,6 +4908,15 @@
 			"SetByDevice":"0",
 			"Description":"This is always in the parent's room"
 		},
+		"DeviceTemplate_DeviceData_1754_283": {
+			"FK_DeviceTemplate":"1754",
+			"FK_DeviceData":"283",
+			"IK_DeviceData":"1,15,15,5,60",
+			"Required":"0",
+			"AllowedToModify":"0",
+			"SetByDevice":"0",
+			"Description":"in seconds: enabled,initial delay, dead air time, interval, default poll frequency"
+		},
 		"DeviceTemplate_DeviceData_1773_11": {
 			"FK_DeviceTemplate":"1773",
 			"FK_DeviceData":"11",
@@ -4649,13 +5006,72 @@
 			"AllowedToModify":"1",
 			"SetByDevice":"0",
 			"Description":"The type of alert - normally none since this is a generic sensor"
+		},
+		"DeviceTemplate_DeviceData_7_28": {
+			"FK_DeviceTemplate":"7",
+			"FK_DeviceData":"28",
+			"IK_DeviceData":"",
+			"Required":"0",
+			"AllowedToModify":"1",
+			"SetByDevice":"0",
+			"Description":"Configures the DHCP server on the core.  If no anonymous\/dynamic range is specified, the dhcp server will only provide ip addresses to devices in the database.  Format is: [start ip of static]-[end ip of static],[start ip of anonymous\/dynamic]-[end ip of anonymous\/dynamic]."
+		},
+		"DeviceTemplate_DeviceData_7_133": {
+			"FK_DeviceTemplate":"7",
+			"FK_DeviceData":"133",
+			"IK_DeviceData":"",
+			"Required":"0",
+			"AllowedToModify":"1",
+			"SetByDevice":"1",
+			"Description":"comma separated list of ports"
+		},
+		"DeviceTemplate_DeviceData_7_160": {
+			"FK_DeviceTemplate":"7",
+			"FK_DeviceData":"160",
+			"IK_DeviceData":"",
+			"Required":"0",
+			"AllowedToModify":"0",
+			"SetByDevice":"1",
+			"Description":"Free space on the partition that contains the \/home directory"
+		},
+		"DeviceTemplate_DeviceData_7_187": {
+			"FK_DeviceTemplate":"7",
+			"FK_DeviceData":"187",
+			"IK_DeviceData":"LinuxMCE",
+			"Required":"0",
+			"AllowedToModify":"1",
+			"SetByDevice":"0",
+			"Description":"Computer domain"
+		},
+		"DeviceTemplate_DeviceData_7_212": {
+			"FK_DeviceTemplate":"7",
+			"FK_DeviceData":"212",
+			"IK_DeviceData":"",
+			"Required":"0",
+			"AllowedToModify":"0",
+			"SetByDevice":"0",
+			"Description":"Remote Assistance Port"
 		}
 	}
 	,
-	"DeviceTemplate_DeviceTemplate_ControlledVia_ids":[2,52,86,106,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],
+	"DeviceTemplate_DeviceTemplate_ControlledVia_ids":[2,3,6,52,86,106,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],
 	"DeviceTemplate_DeviceTemplate_ControlledVia":{
 		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_2": {
 			"FK_DeviceTemplate":"27",
+			"FK_DeviceTemplate_ControlledVia":"1",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"1"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_3": {
+			"FK_DeviceTemplate":"31",
+			"FK_DeviceTemplate_ControlledVia":"1",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"1"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_6": {
+			"FK_DeviceTemplate":"32",
 			"FK_DeviceTemplate_ControlledVia":"1",
 			"Description":"",
 			"RerouteMessagesToParent":"0",
@@ -4789,20 +5205,6 @@
 		},
 		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
 			"FK_DeviceTemplate":"56",
-			"FK_DeviceTemplate_ControlledVia":"1905",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"56",
-			"FK_DeviceTemplate_ControlledVia":"1906",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"56",
 			"FK_DeviceTemplate_ControlledVia":"1932",
 			"Description":"",
 			"RerouteMessagesToParent":"0",
@@ -4908,20 +5310,6 @@
 		},
 		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
 			"FK_DeviceTemplate":"4",
-			"FK_DeviceTemplate_ControlledVia":"1905",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"4",
-			"FK_DeviceTemplate_ControlledVia":"1906",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"4",
 			"FK_DeviceTemplate_ControlledVia":"1932",
 			"Description":"",
 			"RerouteMessagesToParent":"0",
@@ -5048,20 +5436,6 @@
 		},
 		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
 			"FK_DeviceTemplate":"38",
-			"FK_DeviceTemplate_ControlledVia":"1905",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"38",
-			"FK_DeviceTemplate_ControlledVia":"1906",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"38",
 			"FK_DeviceTemplate_ControlledVia":"1932",
 			"Description":"",
 			"RerouteMessagesToParent":"0",
@@ -5182,20 +5556,6 @@
 		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
 			"FK_DeviceTemplate":"37",
 			"FK_DeviceTemplate_ControlledVia":"1845",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"37",
-			"FK_DeviceTemplate_ControlledVia":"1905",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"37",
-			"FK_DeviceTemplate_ControlledVia":"1906",
 			"Description":"",
 			"RerouteMessagesToParent":"0",
 			"AutoCreateChildren":"0"
@@ -5301,20 +5661,6 @@
 		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
 			"FK_DeviceTemplate":"1599",
 			"FK_DeviceTemplate_ControlledVia":"1845",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1599",
-			"FK_DeviceTemplate_ControlledVia":"1905",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1599",
-			"FK_DeviceTemplate_ControlledVia":"1906",
 			"Description":"",
 			"RerouteMessagesToParent":"0",
 			"AutoCreateChildren":"0"
@@ -5531,20 +5877,6 @@
 		},
 		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
 			"FK_DeviceTemplate":"1600",
-			"FK_DeviceTemplate_ControlledVia":"1905",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1600",
-			"FK_DeviceTemplate_ControlledVia":"1906",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1600",
 			"FK_DeviceTemplate_ControlledVia":"1932",
 			"Description":"",
 			"RerouteMessagesToParent":"0",
@@ -5586,6 +5918,132 @@
 			"AutoCreateChildren":"0"
 		},
 		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"54",
+			"FK_DeviceTemplate_ControlledVia":"42",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"54",
+			"FK_DeviceTemplate_ControlledVia":"44",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"54",
+			"FK_DeviceTemplate_ControlledVia":"1766",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"54",
+			"FK_DeviceTemplate_ControlledVia":"1767",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"54",
+			"FK_DeviceTemplate_ControlledVia":"1922",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"54",
+			"FK_DeviceTemplate_ControlledVia":"40",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"54",
+			"FK_DeviceTemplate_ControlledVia":"49",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"54",
+			"FK_DeviceTemplate_ControlledVia":"1629",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"54",
+			"FK_DeviceTemplate_ControlledVia":"1630",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"54",
+			"FK_DeviceTemplate_ControlledVia":"1632",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"54",
+			"FK_DeviceTemplate_ControlledVia":"1742",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"54",
+			"FK_DeviceTemplate_ControlledVia":"1746",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"54",
+			"FK_DeviceTemplate_ControlledVia":"1747",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"54",
+			"FK_DeviceTemplate_ControlledVia":"1760",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"54",
+			"FK_DeviceTemplate_ControlledVia":"1785",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"54",
+			"FK_DeviceTemplate_ControlledVia":"1815",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"54",
+			"FK_DeviceTemplate_ControlledVia":"1845",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"54",
+			"FK_DeviceTemplate_ControlledVia":"1932",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
 			"FK_DeviceTemplate":"1600",
 			"FK_DeviceTemplate_ControlledVia":"1743",
 			"Description":"",
@@ -5601,6 +6059,13 @@
 		},
 		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
 			"FK_DeviceTemplate":"56",
+			"FK_DeviceTemplate_ControlledVia":"1743",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"54",
 			"FK_DeviceTemplate_ControlledVia":"1743",
 			"Description":"",
 			"RerouteMessagesToParent":"0",
@@ -5734,20 +6199,6 @@
 		},
 		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
 			"FK_DeviceTemplate":"1773",
-			"FK_DeviceTemplate_ControlledVia":"1905",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1773",
-			"FK_DeviceTemplate_ControlledVia":"1906",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1773",
 			"FK_DeviceTemplate_ControlledVia":"1932",
 			"Description":"",
 			"RerouteMessagesToParent":"0",
@@ -5881,21 +6332,14 @@
 		},
 		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
 			"FK_DeviceTemplate":"1813",
-			"FK_DeviceTemplate_ControlledVia":"1905",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1813",
-			"FK_DeviceTemplate_ControlledVia":"1906",
-			"Description":"",
-			"RerouteMessagesToParent":"0",
-			"AutoCreateChildren":"0"
-		},
-		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
-			"FK_DeviceTemplate":"1813",
 			"FK_DeviceTemplate_ControlledVia":"1932",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"54",
+			"FK_DeviceTemplate_ControlledVia":"43",
 			"Description":"",
 			"RerouteMessagesToParent":"0",
 			"AutoCreateChildren":"0"
@@ -5931,6 +6375,139 @@
 		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
 			"FK_DeviceTemplate":"1773",
 			"FK_DeviceTemplate_ControlledVia":"43",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"68",
+			"FK_DeviceTemplate_ControlledVia":"14",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"68",
+			"FK_DeviceTemplate_ControlledVia":"25",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"68",
+			"FK_DeviceTemplate_ControlledVia":"48",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"68",
+			"FK_DeviceTemplate_ControlledVia":"1754",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"68",
+			"FK_DeviceTemplate_ControlledVia":"1920",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"68",
+			"FK_DeviceTemplate_ControlledVia":"40",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"68",
+			"FK_DeviceTemplate_ControlledVia":"49",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"68",
+			"FK_DeviceTemplate_ControlledVia":"1629",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"68",
+			"FK_DeviceTemplate_ControlledVia":"1630",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"68",
+			"FK_DeviceTemplate_ControlledVia":"1632",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"68",
+			"FK_DeviceTemplate_ControlledVia":"1742",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"68",
+			"FK_DeviceTemplate_ControlledVia":"1746",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"68",
+			"FK_DeviceTemplate_ControlledVia":"1747",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"68",
+			"FK_DeviceTemplate_ControlledVia":"1760",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"68",
+			"FK_DeviceTemplate_ControlledVia":"1785",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"68",
+			"FK_DeviceTemplate_ControlledVia":"1815",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"68",
+			"FK_DeviceTemplate_ControlledVia":"1845",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"68",
+			"FK_DeviceTemplate_ControlledVia":"1932",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"0"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_-1": {
+			"FK_DeviceTemplate":"68",
+			"FK_DeviceTemplate_ControlledVia":"1743",
 			"Description":"",
 			"RerouteMessagesToParent":"0",
 			"AutoCreateChildren":"0"
@@ -6018,12 +6595,8 @@
 		}
 	}
 	,
-	"Event_ids":[38,25,26,27,28,29,78,79,9,48,54,55],
+	"Event_ids":[25,26,27,28,29,38,54,55,48,9,78,79],
 	"Event":{
-		"PK_Event_38": {
-			"FK_EventCategory":"8",
-			"Description":"Reload Aborted"
-		},
 		"PK_Event_25": {
 			"FK_EventCategory":"10",
 			"Description":"Temperature Changed"
@@ -6044,21 +6617,9 @@
 			"FK_EventCategory":"8",
 			"Description":"Off"
 		},
-		"PK_Event_78": {
-			"FK_EventCategory":"10",
-			"Description":"Thermostat Mode Changed"
-		},
-		"PK_Event_79": {
-			"FK_EventCategory":"10",
-			"Description":"Fan Mode Changed"
-		},
-		"PK_Event_9": {
-			"FK_EventCategory":"9",
-			"Description":"Sensor Tripped"
-		},
-		"PK_Event_48": {
-			"FK_EventCategory":"2",
-			"Description":"Device On\/Off"
+		"PK_Event_38": {
+			"FK_EventCategory":"8",
+			"Description":"Reload Aborted"
 		},
 		"PK_Event_54": {
 			"FK_EventCategory":"8",
@@ -6067,31 +6628,53 @@
 		"PK_Event_55": {
 			"FK_EventCategory":"8",
 			"Description":"Download Config Done"
+		},
+		"PK_Event_48": {
+			"FK_EventCategory":"2",
+			"Description":"Device On\/Off"
+		},
+		"PK_Event_9": {
+			"FK_EventCategory":"9",
+			"Description":"Sensor Tripped"
+		},
+		"PK_Event_78": {
+			"FK_EventCategory":"10",
+			"Description":"Thermostat Mode Changed"
+		},
+		"PK_Event_79": {
+			"FK_EventCategory":"10",
+			"Description":"Fan Mode Changed"
 		}
 	}
 	,
-	"EventCategory_ids":[8,10,9,2],
+	"EventCategory_ids":[10,8,2,9],
 	"EventCategory":{
-		"PK_EventCategory_8": {
-			"FK_EventCategory_Parent":"",
-			"Description":"General"
-		},
 		"PK_EventCategory_10": {
 			"FK_EventCategory_Parent":"",
 			"Description":"Climate"
 		},
-		"PK_EventCategory_9": {
+		"PK_EventCategory_8": {
 			"FK_EventCategory_Parent":"",
-			"Description":"Security"
+			"Description":"General"
 		},
 		"PK_EventCategory_2": {
 			"FK_EventCategory_Parent":"",
 			"Description":"Media Player"
+		},
+		"PK_EventCategory_9": {
+			"FK_EventCategory_Parent":"",
+			"Description":"Security"
 		}
 	}
 	,
-	"EventParameter_ids":[13,14,26,30,25,10,12],
+	"EventParameter_ids":[30,13,14,26,12,10,25],
 	"EventParameter":{
+		"PK_EventParameter_30": {
+			"Description":"Value",
+			"Define":"",
+			"Comments":"Generic Value",
+			"FK_ParameterType":"1"
+		},
 		"PK_EventParameter_13": {
 			"Description":"Text",
 			"Define":"",
@@ -6110,17 +6693,11 @@
 			"Comments":"",
 			"FK_ParameterType":"2"
 		},
-		"PK_EventParameter_30": {
-			"Description":"Value",
+		"PK_EventParameter_12": {
+			"Description":"Error Message",
 			"Define":"",
-			"Comments":"Generic Value",
+			"Comments":"This is the message of the error",
 			"FK_ParameterType":"1"
-		},
-		"PK_EventParameter_25": {
-			"Description":"Tripped",
-			"Define":"",
-			"Comments":"",
-			"FK_ParameterType":"3"
 		},
 		"PK_EventParameter_10": {
 			"Description":"On\/Off",
@@ -6128,30 +6705,15 @@
 			"Comments":"",
 			"FK_ParameterType":"3"
 		},
-		"PK_EventParameter_12": {
-			"Description":"Error Message",
+		"PK_EventParameter_25": {
+			"Description":"Tripped",
 			"Define":"",
-			"Comments":"This is the message of the error",
-			"FK_ParameterType":"1"
+			"Comments":"",
+			"FK_ParameterType":"3"
 		}
 	}
 	,
 	"Event_EventParameter":{
-		"Event_EventParameter_38_13": {
-			"FK_Event":"38",
-			"FK_EventParameter":"13",
-			"Description":"The reason"
-		},
-		"Event_EventParameter_38_14": {
-			"FK_Event":"38",
-			"FK_EventParameter":"14",
-			"Description":"The device that requested a reload.  Presumably an Orbiter."
-		},
-		"Event_EventParameter_38_26": {
-			"FK_Event":"38",
-			"FK_EventParameter":"26",
-			"Description":"The device that cancelled the reload"
-		},
 		"Event_EventParameter_25_30": {
 			"FK_Event":"25",
 			"FK_EventParameter":"30",
@@ -6167,25 +6729,20 @@
 			"FK_EventParameter":"30",
 			"Description":"The new set point."
 		},
-		"Event_EventParameter_78_30": {
-			"FK_Event":"78",
-			"FK_EventParameter":"30",
-			"Description":"The current thermostat mode."
+		"Event_EventParameter_38_13": {
+			"FK_Event":"38",
+			"FK_EventParameter":"13",
+			"Description":"The reason"
 		},
-		"Event_EventParameter_79_30": {
-			"FK_Event":"79",
-			"FK_EventParameter":"30",
-			"Description":"Fan mode value\r\n0,1 - AUTO \/ LOW\r\n2,3 - HIGH\r\n"
+		"Event_EventParameter_38_14": {
+			"FK_Event":"38",
+			"FK_EventParameter":"14",
+			"Description":"The device that requested a reload.  Presumably an Orbiter."
 		},
-		"Event_EventParameter_9_25": {
-			"FK_Event":"9",
-			"FK_EventParameter":"25",
-			"Description":"true if the sensor is in the 'tripped', or non-normal state."
-		},
-		"Event_EventParameter_48_10": {
-			"FK_Event":"48",
-			"FK_EventParameter":"10",
-			"Description":"1=On, 0=off"
+		"Event_EventParameter_38_26": {
+			"FK_Event":"38",
+			"FK_EventParameter":"26",
+			"Description":"The device that cancelled the reload"
 		},
 		"Event_EventParameter_54_12": {
 			"FK_Event":"54",
@@ -6201,6 +6758,26 @@
 			"FK_Event":"55",
 			"FK_EventParameter":"12",
 			"Description":"If this is empty the download was successful, otherwise this contains an error message"
+		},
+		"Event_EventParameter_48_10": {
+			"FK_Event":"48",
+			"FK_EventParameter":"10",
+			"Description":"1=On, 0=off"
+		},
+		"Event_EventParameter_9_25": {
+			"FK_Event":"9",
+			"FK_EventParameter":"25",
+			"Description":"true if the sensor is in the 'tripped', or non-normal state."
+		},
+		"Event_EventParameter_78_30": {
+			"FK_Event":"78",
+			"FK_EventParameter":"30",
+			"Description":"The current thermostat mode."
+		},
+		"Event_EventParameter_79_30": {
+			"FK_Event":"79",
+			"FK_EventParameter":"30",
+			"Description":"Fan mode value\r\n0,1 - AUTO \/ LOW\r\n2,3 - HIGH\r\n"
 		}
 	}
 	,
