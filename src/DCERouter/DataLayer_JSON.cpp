@@ -320,8 +320,6 @@ void DataLayer_JSON::ParseDevices(struct json_object *json_obj)
 					ParseDeviceDataList(mapDeviceData, iter_device.val);
 			}
 
-			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Parsing device %d: template %d controlled via %d", nDeviceID, PK_DeviceTemplate, PK_Device_ControlledVia );
-
 			pDevice = new DeviceData_Router(nDeviceID, PK_DeviceTemplate, PK_Installation, PK_Device_ControlledVia);
 			pDevice->m_sDescription = sDescription;
 			pDevice->m_dwPK_Room = PK_Room;
@@ -332,6 +330,10 @@ void DataLayer_JSON::ParseDevices(struct json_object *json_obj)
 				m_dwPK_Device_Largest = nDeviceID;
 
 			AssignParametersToDevice(pDevice, mapDeviceParams);
+
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Parsing device %d: template %d controlled via %d room %d state %s status %s IPaddress %s mac %s disabled %d",
+				nDeviceID, PK_DeviceTemplate, PK_Device_ControlledVia, pDevice->m_dwPK_Room, pDevice->m_sState_get().c_str(), pDevice->m_sStatus_get().c_str(),
+				pDevice->m_sIPAddress.c_str(), pDevice->m_sMacAddress.c_str(), (int) pDevice->m_bDisabled);
 		}
  		else
 		{
