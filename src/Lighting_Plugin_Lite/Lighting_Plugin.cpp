@@ -260,6 +260,8 @@ void Lighting_Plugin::PreprocessLightingMessage(DeviceData_Router *pDevice,Messa
 	if( !pDevice || !pMessage || pMessage->m_mapParameters.find(COMMANDPARAMETER_Advanced_options_CONST)!=pMessage->m_mapParameters.end() )
 		return;
 
+	bool bIsTemporary = pMessage->m_mapParameters[COMMANDPARAMETER_Is_Temporary_CONST]=="1";
+
 	if( pMessage->m_dwID==COMMAND_Set_Level_CONST )
 	{
 		string sLevel = pMessage->m_mapParameters[COMMANDPARAMETER_Level_CONST];
@@ -293,16 +295,16 @@ void Lighting_Plugin::PreprocessLightingMessage(DeviceData_Router *pDevice,Messa
 						pDevice->m_dwPK_Device);
 				}
 
-				SetLightState( pDevice->m_dwPK_Device, true, iLevel );
+				SetLightState( pDevice->m_dwPK_Device, true, iLevel, true, bIsTemporary );
 				pMessage->m_mapParameters[COMMANDPARAMETER_Level_CONST] = StringUtils::itos(iLevel);
 			}
 		}
 	}
 
 	if( pMessage->m_dwID==COMMAND_Generic_On_CONST )
-		SetLightState( pDevice->m_dwPK_Device, true, 100);
+		SetLightState( pDevice->m_dwPK_Device, true, 100, true, bIsTemporary);
 	else if( pMessage->m_dwID==COMMAND_Generic_Off_CONST )
-		SetLightState( pDevice->m_dwPK_Device, false, 0);
+		SetLightState( pDevice->m_dwPK_Device, false, 0, true, bIsTemporary);
 }
 
 int Lighting_Plugin::GetLightingLevel(DeviceData_Router *pDevice,int iLevel_Default)
@@ -315,7 +317,7 @@ int Lighting_Plugin::GetLightingLevel(DeviceData_Router *pDevice,int iLevel_Defa
 		return iLevel_Default;
 }
 
-void Lighting_Plugin::SetLightState(int PK_Device,bool bIsOn,int Level, bool bRestore)
+void Lighting_Plugin::SetLightState(int PK_Device,bool bIsOn,int Level, bool bRestore,bool bIsTemporary)
 {
 	DeviceData_Router *pDevice =  m_pRouter->m_mapDeviceData_Router_Find(PK_Device);
 	if( !pDevice )
@@ -323,7 +325,7 @@ void Lighting_Plugin::SetLightState(int PK_Device,bool bIsOn,int Level, bool bRe
 	if( Level==-1 )
 		Level = GetLightingLevel( pDevice );
 
-	pDevice->m_sState_set( (bIsOn ? "ON" : "OFF") + string("/") + StringUtils::itos(Level));
+	pDevice->m_sState_set( (bIsOn ? "ON" : "OFF") + string("/") + StringUtils::itos(Level),bIsTemporary);
 
 	if( bRestore )
 	{

@@ -72,7 +72,7 @@ public:
 	int GetLightingLevel(DeviceData_Router *pDevice,int iLevel_Default=0);
 	
 	// Set the state of a light.  -1 = don't change the level, just the on/off
-	void SetLightState(int PK_Device,bool bIsOn,int Level=-1, bool bRestore=true);
+	void SetLightState(int PK_Device,bool bIsOn,int Level=-1, bool bRestore=true,bool bIsTemporary=false);
 	
 	void SetLightingAlarm(); // Find the next event in m_mapLightsToRestore and set the alarm callback
 	void AlarmCallback(int id, void* param);  // Implementation for AlarmEvent

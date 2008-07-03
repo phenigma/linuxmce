@@ -255,6 +255,15 @@ private:
         */
         string m_sState;
 
+		/** The state may change temporarily so the last non temporary state can be restored.
+		In general if a message is sent with COMMANDPARAMETER_Is_Temporary_CONST==1, then 
+		m_sState_set should be called with Temporary=true.  Then the state will be
+		updated but m_sState_NonTemporary will not and will be the last state that was
+		non temporary.  An example is 'turn on a light for 15 minutes and then restore it to the prior state',
+		so the command would be sent with COMMANDPARAMETER_Is_Temporary_CONST==1
+		*/
+		string m_sState_NonTemporary;
+
 		/** Device deleted?
 		*/
 		bool m_bDeleted;
@@ -331,6 +340,10 @@ public:
 			PLUTO_SAFETY_LOCK(dm, m_DataMutex);
             return m_sState;
         }
+        string m_sState_NonTemporary_get() {
+			PLUTO_SAFETY_LOCK(dm, m_DataMutex);
+            return m_sState_NonTemporary;
+        }
         void m_sStatus_set(string sStatus) {
 			PLUTO_SAFETY_LOCK(dm, m_DataMutex);
 #ifndef EMBEDDED_LMCE
@@ -341,7 +354,7 @@ public:
 #endif
             m_sStatus=sStatus;
         }
-        void m_sState_set(string sState) {
+        void m_sState_set(string sState,bool bTemporary=false) {
 			PLUTO_SAFETY_LOCK(dm, m_DataMutex);
 #ifndef EMBEDDED_LMCE
             // Do this manually since we don't want to reset the psc_mod, causing others to think something has changed for this device
@@ -351,6 +364,9 @@ public:
 #endif
 			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Set device %d state to %s", m_dwPK_Device, sState.c_str());
             m_sState=sState;
+			if( bTemporary==false )
+				m_sState_NonTemporary = sState;
+
         }
 
 		void MarkAsDeleted()

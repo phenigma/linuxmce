@@ -1224,3 +1224,19 @@ void General_Info_Plugin::CMD_Update_Device(int iPK_Device,string sMac_address,i
 
 	m_pRouter->DataLayer()->Save();
 }
+
+//<-dceag-c370-b->
+
+	/** @brief COMMAND: #370 - Execute Command Group */
+	/** Execute a command group */
+		/** @param #9 Text */
+			/** Instead of the command group, it can be put here in the format: PK_Device,PK_DeviceGroup,PK_Command,Delay,CancelIfOther,IsTemporary,"PK_CommandParameter","Description"....\n
+
+where the items in " have escaped " so they can embed , and \n characters */
+		/** @param #28 PK_CommandGroup */
+			/** The command group to execute */
+
+void General_Info_Plugin::CMD_Execute_Command_Group(string sText,int iPK_CommandGroup,string &sCMD_Result,Message *pMessage)
+//<-dceag-c370-e->
+{
+}

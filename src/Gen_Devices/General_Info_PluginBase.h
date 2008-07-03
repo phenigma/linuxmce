@@ -197,6 +197,7 @@ public:
 	virtual void CMD_Wake_Device(int iPK_Device,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Halt_Device(int iPK_Device,string sForce,string sMac_address,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Get_Room_Description(int iPK_Device,string *sText,int *iPK_Room,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Execute_Command_Group(string sText,int iPK_CommandGroup,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Is_Daytime(bool *bTrueFalse,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Check_for_updates(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Check_for_updates_done(bool bFailed,string &sCMD_Result,class Message *pMessage) {};
@@ -559,6 +560,33 @@ public:
 							int iRepeat=atoi(itRepeat->second.c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Get_Room_Description(iPK_Device,&sText,&iPK_Room,sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case COMMAND_Execute_Command_Group_CONST:
+					{
+						string sCMD_Result="OK";
+						string sText=pMessage->m_mapParameters[COMMANDPARAMETER_Text_CONST];
+						int iPK_CommandGroup=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_CommandGroup_CONST].c_str());
+						CMD_Execute_Command_Group(sText.c_str(),iPK_CommandGroup,sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(COMMANDPARAMETER_Repeat_Command_CONST))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(itRepeat->second.c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Execute_Command_Group(sText.c_str(),iPK_CommandGroup,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

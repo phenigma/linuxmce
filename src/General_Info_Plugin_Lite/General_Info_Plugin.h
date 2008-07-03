@@ -209,6 +209,18 @@ public:
 	virtual void CMD_Get_Room_Description(int iPK_Device,string *sText,int *iPK_Room,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #370 - Execute Command Group */
+	/** Execute a command group */
+		/** @param #9 Text */
+			/** Instead of the command group, it can be put here in the format: PK_Device,PK_DeviceGroup,PK_Command,Delay,CancelIfOther,IsTemporary,"PK_CommandParameter","Description"....\n
+
+where the items in " have escaped " so they can embed , and \n characters */
+		/** @param #28 PK_CommandGroup */
+			/** The command group to execute */
+
+	virtual void CMD_Execute_Command_Group(string sText,int iPK_CommandGroup) { string sCMD_Result; CMD_Execute_Command_Group(sText.c_str(),iPK_CommandGroup,sCMD_Result,NULL);};
+	virtual void CMD_Execute_Command_Group(string sText,int iPK_CommandGroup,string &sCMD_Result,Message *pMessage);
+
 	/** @brief COMMAND: #371 - Is Daytime */
 	/** Returns true or false to indicate if it is daytime (ie between sunrise and sunset) */
 		/** @param #119 True/False */

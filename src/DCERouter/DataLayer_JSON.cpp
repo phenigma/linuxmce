@@ -386,6 +386,8 @@ void DataLayer_JSON::AssignParametersToDevice(DeviceData_Router *pDevice, const 
 			pDevice->m_bIgnoreOnOff = it->second == "1";
 		else if(it->first == "State")
 			pDevice->m_sState_set(it->second);
+		else if(it->first == "State_NonTemporary")
+			pDevice->m_sState_NonTemporary_set(it->second);
 		else if(it->first == "Status")
 			pDevice->m_sStatus_set(it->second);
 		else if(it->first == "Disabled")
@@ -598,6 +600,12 @@ void DataLayer_JSON::ParseCommands(map<int, Command_Data>& mapCommands, struct j
 						aCommand_data.Device_To(nValue);
 					else if(sKey == "FK_Command")
 						aCommand_data.PK_Command(nValue);
+					else if(sKey == "IsTemporary")
+						aCommand_data.IsTemporary(nValue);
+					else if(sKey == "CancelIfOther")
+						aCommand_data.CancelIfOther(nValue);
+					else if(sKey == "Delay")
+						aCommand_data.PK_Command(Delay);
 				}
 				else if(sKey == "params" && iter_command.val->o_type == json_type_object)
 				{
@@ -785,6 +793,7 @@ void DataLayer_JSON::SaveDevices()
 		ADD_STRING_CHILD(params_obj, "MACaddress", pDeviceData_Router->m_sMacAddress);
 		ADD_STRING_CHILD(params_obj, "IgnoreOnOff", StringUtils::ltos((long)pDeviceData_Router->m_bIgnoreOnOff));
 		ADD_STRING_CHILD(params_obj, "State", pDeviceData_Router->m_sState_get());
+		ADD_STRING_CHILD(params_obj, "State_NonTemporary", pDeviceData_Router->m_sState_NonTemporary_get());
 		ADD_STRING_CHILD(params_obj, "Status", pDeviceData_Router->m_sStatus_get());
 		ADD_STRING_CHILD(params_obj, "Disabled", StringUtils::ltos((long)pDeviceData_Router->m_bDisabled));
 
