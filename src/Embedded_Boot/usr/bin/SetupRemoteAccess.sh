@@ -2,8 +2,8 @@
 
 cronCmd="/usr/bin/SetupRemoteAccess.sh"
 cronCmd_Special="/usr/bin/SetupRA-Special.sh"
-cronEntry="*/1 * * * * root ash -c '$cronCmd >/dev/null 2>&1' #RA_std"
-cronEntry_Special="*/10 * * * * root ash -c '$cronCmd_Special >/dev/null 2>&1' #RA_special"
+cronEntry="*/1 * * * * ash -c '$cronCmd >/dev/null 2>&1' #RA_std"
+cronEntry_Special="*/10 * * * * ash -c '$cronCmd_Special >/dev/null 2>&1' #RA_special"
 
 UpdateInterval=86400 #seconds
 RaPass=$(cat /etc/pluto/ra_password 2>/dev/null)
