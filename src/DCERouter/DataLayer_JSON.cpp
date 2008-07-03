@@ -605,7 +605,7 @@ void DataLayer_JSON::ParseCommands(map<int, Command_Data>& mapCommands, struct j
 					else if(sKey == "CancelIfOther")
 						aCommand_data.CancelIfOther(nValue);
 					else if(sKey == "Delay")
-						aCommand_data.PK_Command(Delay);
+						aCommand_data.Delay(nValue);
 				}
 				else if(sKey == "params" && iter_command.val->o_type == json_type_object)
 				{
