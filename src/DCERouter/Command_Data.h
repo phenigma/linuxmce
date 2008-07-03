@@ -11,8 +11,8 @@ private:
 	int m_nDevice_To;
 	int m_nPK_Command;
 	int m_nDelay;
-	bool m_bCancelIfOther;
-	bool m_bIsTemporary;
+	int m_nCancelIfOther;
+	int m_nIsTemporary;
 	std::map<int, string> m_mapParams;
 
 public:
@@ -71,7 +71,7 @@ public:
 
 	int CancelIfOther()
 	{
-		return m_nCancelIfOther;
+		return (int) m_nCancelIfOther;
 	}
 
 	void IsTemporary(int nIsTemporary)
