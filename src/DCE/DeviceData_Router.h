@@ -369,6 +369,10 @@ public:
 
         }
 
+        void m_sState_NonTemporary_set(string sState_NonTemporary_set) {
+            m_sState_NonTemporary=sState_NonTemporary_set;
+        }
+
 		void MarkAsDeleted()
 		{
 			m_bDeleted = true;
