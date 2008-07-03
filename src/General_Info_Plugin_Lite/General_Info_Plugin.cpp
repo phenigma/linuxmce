@@ -1239,4 +1239,5 @@ where the items in " have escaped " so they can embed , and \n characters */
 void General_Info_Plugin::CMD_Execute_Command_Group(string sText,int iPK_CommandGroup,string &sCMD_Result,Message *pMessage)
 //<-dceag-c370-e->
 {
+
 }
