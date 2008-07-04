@@ -1070,6 +1070,10 @@ function SUDO_Init_Build_Database_Permissions_SUDO
           '$db_user'@'$hostparam'=PASSWORD('$db_password');" >> $temp_file
     echo "GRANT ALL ON *.* to '$db_user'@'$hostparam'
           IDENTIFIED BY '$db_user'; " >> $temp_file
+
+    echo "Adding a debian-sys-maint user to mysql user database and granting permissions"
+    echo "GRANT ALL ON *.* to 'debian-sys-maint'@'localhost' IDENTIFIED BY '`grep 'password' /etc/mysql-lmce-build/debian.cnf | head -n 1 | cut -f3 -d' '`';" >> $temp_file
+
     echo "FLUSH privileges;" >> $temp_file
     sudo cat $temp_file | mysql -u root -h $sql_slave_host -P $db_port
 
