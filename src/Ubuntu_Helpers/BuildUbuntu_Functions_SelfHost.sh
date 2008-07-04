@@ -843,6 +843,9 @@ function Run_MakeRelease_All
         exclude_list=$exclude_list,$mkr_web_site_admin_package
 	exclude_list=$exclude_list,$mkr_marbella_database_package
 	exclude_list=$exclude_list,$mkr_audi_database_package
+	exclude_list=$exclude_list,$mkr_skins_rse_package
+	exclude_list=$exclude_list,$mkr_skins_bo_package
+	exclude_list=$exclude_list,$mkr_skins_monster_package
 
 	echo "$(date) part 5 " >> $build_log
 	ls -l $SVNROOT/src/bin/ >> $build_log
