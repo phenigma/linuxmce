@@ -92,6 +92,7 @@ while :; do
 	break
 done
 
+/usr/bin/Report_AP.sh &
 if [[ ! -f /etc/pluto/fresh_install ]]; then
 	echo "$(date -R) Automatic configuration disabled. Exiting." >>/tmp/log.NetLED
 	exit
