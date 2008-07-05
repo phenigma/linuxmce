@@ -1046,7 +1046,7 @@ DeviceData_Router *General_Info_Plugin::ProcessChildDevice(int nPK_Device, strin
 		/** @param #2 PK_Device */
 			/** The parent device */
 		/** @param #5 Value To Assign */
-			/** A pipe delimited list like this: DeviceID1|CommandLine1\nDeviceID2|CommandLine2 etc */
+			/** A pipe delimited list like this: DeviceID1|TemplateName1|CommandLine1\nDeviceID2|DeviceTemplateName2|CommandLine2 etc */
 
 void General_Info_Plugin::CMD_Get_Devices_To_Start(int iPK_Device,string *sValue_To_Assign,string &sCMD_Result,Message *pMessage)
 //<-dceag-c956-e->
@@ -1475,3 +1475,45 @@ void General_Info_Plugin::ExecuteCommandData(Command_Data *pCommand_Data,int PK_
 	QueueMessageToRouter(pMessage);
 }
 
+//<-dceag-c969-b->
+
+	/** @brief COMMAND: #969 - Restore To NonTemp State */
+	/** Restore a device to the state in State_NonTemporary, so that a temporary change can be reverted */
+		/** @param #2 PK_Device */
+			/** The device to restore */
+
+void General_Info_Plugin::CMD_Restore_To_NonTemp_State(int iPK_Device,string &sCMD_Result,Message *pMessage)
+//<-dceag-c969-e->
+{
+	DeviceData_Router *pDevice = m_pRouter->m_mapDeviceData_Router_Find(iPK_Device);
+	if( pDevice==NULL )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "General_Info_Plugin::CMD_Restore_To_NonTemp_State Device %d is invalid", iPK_Device);
+		return;
+	}
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "General_Info_Plugin::CMD_Restore_To_NonTemp_State Device %d was %s", iPK_Device, pDevice->m_sState_NonTemporary_get().c_str());
+	if( pDevice->m_sState_NonTemporary_get()=="OFF" )
+		QueueMessageToRouter( new Message( m_dwPK_Device,pDevice->m_dwPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Generic_Off_CONST,0 ) );
+	else if( pDevice->m_sState_NonTemporary_get()=="ON" )
+		QueueMessageToRouter( new Message( m_dwPK_Device,pDevice->m_dwPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Generic_On_CONST,0 ) );
+	else
+	{
+		DeviceData_Base *pDevice_Plugin = NULL;
+		if( pDevice->WithinCategory(DEVICECATEGORY_Climate_Device_CONST) )
+			pDevice_Plugin = m_pData->FindFirstRelatedDeviceOfCategory( DEVICECATEGORY_Climate_Plugins_CONST );
+		else if( pDevice->WithinCategory(DEVICECATEGORY_Security_Device_CONST) )
+			pDevice_Plugin = m_pData->FindFirstRelatedDeviceOfCategory( DEVICECATEGORY_Security_Plugins_CONST );
+		else if( pDevice->WithinCategory(DEVICECATEGORY_Lighting_Device_CONST) )
+			pDevice_Plugin = m_pData->FindFirstRelatedDeviceOfCategory( DEVICECATEGORY_Lighting_Plugins_CONST );
+
+		if( pDevice_Plugin==NULL )
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "General_Info_Plugin::CMD_Restore_To_NonTemp_State Device %d has no plugin", iPK_Device);
+		else
+		{
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "General_Info_Plugin::CMD_Restore_To_NonTemp_State Device %d forwarding to %d", iPK_Device, pDevice_Plugin->m_dwPK_Device);
+			QueueMessageToRouter( new Message( m_dwPK_Device,pDevice_Plugin->m_dwPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Restore_To_NonTemp_State_CONST, 1,
+				COMMANDPARAMETER_PK_Device_CONST, StringUtils::itos(pDevice_Plugin->m_dwPK_Device)) );
+		}
+	}
+}

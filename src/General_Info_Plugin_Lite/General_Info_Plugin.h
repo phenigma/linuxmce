@@ -244,6 +244,7 @@ where the items in " have escaped " so they can embed , and \n characters */
 	virtual void CMD_Execute_Command_Group(string sText,int iPK_CommandGroup) { string sCMD_Result; CMD_Execute_Command_Group(sText.c_str(),iPK_CommandGroup,sCMD_Result,NULL);};
 	virtual void CMD_Execute_Command_Group(string sText,int iPK_CommandGroup,string &sCMD_Result,Message *pMessage);
 
+
 	/** @brief COMMAND: #371 - Is Daytime */
 	/** Returns true or false to indicate if it is daytime (ie between sunrise and sunset) */
 		/** @param #119 True/False */
@@ -483,7 +484,7 @@ Delimiter: '\n' */
 		/** @param #2 PK_Device */
 			/** The parent device */
 		/** @param #5 Value To Assign */
-			/** A pipe delimited list like this: DeviceID1|CommandLine1\nDeviceID2|CommandLine2 etc */
+			/** A pipe delimited list like this: DeviceID1|TemplateName1|CommandLine1\nDeviceID2|DeviceTemplateName2|CommandLine2 etc */
 
 	virtual void CMD_Get_Devices_To_Start(int iPK_Device,string *sValue_To_Assign) { string sCMD_Result; CMD_Get_Devices_To_Start(iPK_Device,sValue_To_Assign,sCMD_Result,NULL);};
 	virtual void CMD_Get_Devices_To_Start(int iPK_Device,string *sValue_To_Assign,string &sCMD_Result,Message *pMessage);
@@ -508,6 +509,14 @@ Delimiter: '\n' */
 	virtual void CMD_Update_Device(int iPK_Device,string sMac_address,int iPK_Room,string sIP_Address,string sData_String,string sDescription,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #969 - Restore To NonTemp State */
+	/** Restore a device to the state in State_NonTemporary, so that a temporary change can be reverted */
+		/** @param #2 PK_Device */
+			/** The device to restore */
+
+	virtual void CMD_Restore_To_NonTemp_State(int iPK_Device) { string sCMD_Result; CMD_Restore_To_NonTemp_State(iPK_Device,sCMD_Result,NULL);};
+	virtual void CMD_Restore_To_NonTemp_State(int iPK_Device,string &sCMD_Result,Message *pMessage);
+
 //<-dceag-h-e->
 	};
 
@@ -515,3 +524,5 @@ Delimiter: '\n' */
 }
 #endif
 //<-dceag-end-e->
+//<-dceag-const2-b->!
+

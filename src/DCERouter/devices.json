@@ -5,7 +5,9 @@
         3,
         4,
         5,
-        6
+        6,
+        7,
+        8
     ],
     "Device": {
         "PK_Device_1": {
@@ -89,6 +91,38 @@
             } 
         },              
         "PK_Device_6": {
+            "Description": "Security Plugin Lite",
+            "FK_DeviceTemplate": "33",
+            "FK_Room": "1",
+            "FK_Device_ControlledVia": "2",
+            "DeviceData": {
+            },
+            "params": {
+                "IPaddress": "127.0.0.1",
+                "MACaddress": "",
+                "IgnoreOnOff": "0",
+                "State": "",
+                "Status": "",
+                "Disabled": "0" 
+            } 
+        },              
+        "PK_Device_7": {
+            "Description": "Event Plugin Lite",
+            "FK_DeviceTemplate": "52",
+            "FK_Room": "1",
+            "FK_Device_ControlledVia": "2",
+            "DeviceData": {
+            },
+            "params": {
+                "IPaddress": "127.0.0.1",
+                "MACaddress": "",
+                "IgnoreOnOff": "0",
+                "State": "",
+                "Status": "",
+                "Disabled": "0" 
+            } 
+        },              
+        "PK_Device_8": {
             "Description": "ZWave",
             "FK_DeviceTemplate": "1754",
             "FK_Room": "1",

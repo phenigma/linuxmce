@@ -1,6 +1,10 @@
 {
-	"Command_ids":[68,71,84,184,192,193,200,201,202,203,239,246,247,248,257,272,274,278,279,280,322,323,350,351,355,356,365,370,371,373,384,395,396,684,685,718,719,752,756,757,760,765,776,788,789,791,800,802,803,808,813,820,827,833,835,840,841,842,843,844,882,915,934,956,957,966,967,968],
+	"Command_ids":[19,68,71,84,184,192,193,200,201,202,203,239,246,247,248,257,263,272,274,278,279,280,322,323,350,351,355,356,365,370,371,373,384,387,395,396,684,685,718,719,752,756,757,760,765,776,788,789,791,800,802,803,808,813,820,827,833,835,840,841,842,843,844,882,915,934,956,957,966,967,968,969],
 	"Command":{
+		"PK_Command_19": {
+			"Description":"Set House Mode",
+			"FK_CommandCategory":"28"
+		},
 		"PK_Command_68": {
 			"Description":"Get Device Data",
 			"FK_CommandCategory":"7"
@@ -60,6 +64,10 @@
 		"PK_Command_257": {
 			"Description":"Delay",
 			"FK_CommandCategory":"55"
+		},
+		"PK_Command_263": {
+			"Description":"Toggle Event Handler",
+			"FK_CommandCategory":"7"
 		},
 		"PK_Command_272": {
 			"Description":"Restart DCERouter",
@@ -124,6 +132,10 @@
 		"PK_Command_384": {
 			"Description":"Process Receive Command For Child",
 			"FK_CommandCategory":"55"
+		},
+		"PK_Command_387": {
+			"Description":"Verify PIN",
+			"FK_CommandCategory":"28"
 		},
 		"PK_Command_395": {
 			"Description":"Check for updates",
@@ -272,11 +284,19 @@
 		"PK_Command_968": {
 			"Description":"Remove Node",
 			"FK_CommandCategory":"26"
+		},
+		"PK_Command_969": {
+			"Description":"Restore To NonTemp State",
+			"FK_CommandCategory":"7"
 		}
 	}
 	,
-	"CommandCategory_ids":[7,9,8,10,34,55,36,43,44,5,26],
+	"CommandCategory_ids":[28,7,9,8,10,34,55,36,43,44,5,26],
 	"CommandCategory":{
+		"PK_CommandCategory_28": {
+			"FK_CommandCategory_Parent":"",
+			"Description":"Security"
+		},
 		"PK_CommandCategory_7": {
 			"FK_CommandCategory_Parent":"",
 			"Description":"General"
@@ -323,8 +343,20 @@
 		}
 	}
 	,
-	"CommandParameter_ids":[52,53,2,13,19,23,41,60,61,20,76,97,98,91,92,102,21,50,57,5,8,47,28,119,230,156,198,44,201,58,109,150,202,10,154,103,205,51,208,219,222,223,229,239,240,9,163,17,244,48,249,250,248,275,220,225,182,259,39],
+	"CommandParameter_ids":[100,101,99,52,53,2,13,19,60,61,20,23,41,76,97,98,91,92,102,107,21,50,57,5,8,47,9,28,119,40,230,156,198,44,201,58,109,150,202,10,154,103,205,51,208,219,222,223,229,239,240,163,17,244,48,249,250,248,275,220,225,259,39,182],
 	"CommandParameter":{
+		"PK_CommandParameter_100": {
+			"Description":"PK_DeviceGroup",
+			"FK_ParameterType":"2"
+		},
+		"PK_CommandParameter_101": {
+			"Description":"Handling Instructions",
+			"FK_ParameterType":"1"
+		},
+		"PK_CommandParameter_99": {
+			"Description":"Password",
+			"FK_ParameterType":"1"
+		},
 		"PK_CommandParameter_52": {
 			"Description":"PK_DeviceData",
 			"FK_ParameterType":"2"
@@ -345,14 +377,6 @@
 			"Description":"Data",
 			"FK_ParameterType":"5"
 		},
-		"PK_CommandParameter_23": {
-			"Description":"Disable Aspect Lock",
-			"FK_ParameterType":"1"
-		},
-		"PK_CommandParameter_41": {
-			"Description":"StreamID",
-			"FK_ParameterType":"2"
-		},
 		"PK_CommandParameter_60": {
 			"Description":"Width",
 			"FK_ParameterType":"2"
@@ -364,6 +388,14 @@
 		"PK_CommandParameter_20": {
 			"Description":"Format",
 			"FK_ParameterType":"1"
+		},
+		"PK_CommandParameter_23": {
+			"Description":"Disable Aspect Lock",
+			"FK_ParameterType":"1"
+		},
+		"PK_CommandParameter_41": {
+			"Description":"StreamID",
+			"FK_ParameterType":"2"
 		},
 		"PK_CommandParameter_76": {
 			"Description":"Level",
@@ -389,6 +421,10 @@
 			"Description":"Time",
 			"FK_ParameterType":"1"
 		},
+		"PK_CommandParameter_107": {
+			"Description":"PK_EventHandler",
+			"FK_ParameterType":"2"
+		},
 		"PK_CommandParameter_21": {
 			"Description":"Force",
 			"FK_ParameterType":"1"
@@ -413,12 +449,20 @@
 			"Description":"Mac address",
 			"FK_ParameterType":"1"
 		},
+		"PK_CommandParameter_9": {
+			"Description":"Text",
+			"FK_ParameterType":"1"
+		},
 		"PK_CommandParameter_28": {
 			"Description":"PK_CommandGroup",
 			"FK_ParameterType":"2"
 		},
 		"PK_CommandParameter_119": {
 			"Description":"True\/False",
+			"FK_ParameterType":"3"
+		},
+		"PK_CommandParameter_40": {
+			"Description":"IsSuccessful",
 			"FK_ParameterType":"3"
 		},
 		"PK_CommandParameter_230": {
@@ -505,10 +549,6 @@
 			"Description":"DestNodeID",
 			"FK_ParameterType":"2"
 		},
-		"PK_CommandParameter_9": {
-			"Description":"Text",
-			"FK_ParameterType":"1"
-		},
 		"PK_CommandParameter_163": {
 			"Description":"Description",
 			"FK_ParameterType":"1"
@@ -549,10 +589,6 @@
 			"Description":"Always",
 			"FK_ParameterType":"3"
 		},
-		"PK_CommandParameter_182": {
-			"Description":"Timeout",
-			"FK_ParameterType":"1"
-		},
 		"PK_CommandParameter_259": {
 			"Description":"Multiple",
 			"FK_ParameterType":"3"
@@ -560,10 +596,44 @@
 		"PK_CommandParameter_39": {
 			"Description":"Options",
 			"FK_ParameterType":"1"
+		},
+		"PK_CommandParameter_182": {
+			"Description":"Timeout",
+			"FK_ParameterType":"1"
 		}
 	}
 	,
 	"Command_CommandParameter":{
+		"Command_CommandParameter_19_99": {
+			"FK_Command":"19",
+			"FK_CommandParameter":"99",
+			"Description":"The password or PIN of the user.  This can be plain text or md5.",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_19_100": {
+			"FK_Command":"19",
+			"FK_CommandParameter":"100",
+			"Description":"DeviceGroups are treated as zones.  If this device group is specified, only the devices in these zones (groups) will be set.",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_19_101": {
+			"FK_Command":"19",
+			"FK_CommandParameter":"101",
+			"Description":"How to handle any sensors that we are trying to arm, but are blocked.  Valid choices are: R-Report, change to a screen on the orbiter reporting this and let the user decide, W-Wait, arm anyway, but wait for the sensors to clear and then arm them, B-Bypass",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_19_5": {
+			"FK_Command":"19",
+			"FK_CommandParameter":"5",
+			"Description":"A value from the HouseMode table, or -1=toggle monitor mode",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_19_17": {
+			"FK_Command":"19",
+			"FK_CommandParameter":"17",
+			"Description":"The user setting the mode.  If this is 0, it will match any user who has permission to set the house mode.",
+			"IsOut":"0"
+		},
 		"Command_CommandParameter_68_2": {
 			"FK_Command":"68",
 			"FK_CommandParameter":"2",
@@ -600,18 +670,6 @@
 			"Description":"The file's contents",
 			"IsOut":"1"
 		},
-		"Command_CommandParameter_84_60": {
-			"FK_Command":"84",
-			"FK_CommandParameter":"60",
-			"Description":"Frame width",
-			"IsOut":"0"
-		},
-		"Command_CommandParameter_84_61": {
-			"FK_Command":"84",
-			"FK_CommandParameter":"61",
-			"Description":"Frame height",
-			"IsOut":"0"
-		},
 		"Command_CommandParameter_84_19": {
 			"FK_Command":"84",
 			"FK_CommandParameter":"19",
@@ -634,6 +692,18 @@
 			"FK_Command":"84",
 			"FK_CommandParameter":"41",
 			"Description":"The ID of the stream",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_84_60": {
+			"FK_Command":"84",
+			"FK_CommandParameter":"60",
+			"Description":"Frame width",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_84_61": {
+			"FK_Command":"84",
+			"FK_CommandParameter":"61",
+			"Description":"Frame height",
 			"IsOut":"0"
 		},
 		"Command_CommandParameter_184_76": {
@@ -744,6 +814,12 @@
 			"Description":"The delay time in minutes",
 			"IsOut":"0"
 		},
+		"Command_CommandParameter_263_107": {
+			"FK_Command":"263",
+			"FK_CommandParameter":"107",
+			"Description":"The event handler to toggle.",
+			"IsOut":"0"
+		},
 		"Command_CommandParameter_272_21": {
 			"FK_Command":"272",
 			"FK_CommandParameter":"21",
@@ -828,6 +904,12 @@
 			"Description":"The ID of the room.  Specify this or the device ID.",
 			"IsOut":"1"
 		},
+		"Command_CommandParameter_370_9": {
+			"FK_Command":"370",
+			"FK_CommandParameter":"9",
+			"Description":"Instead of the command group, it can be put here in the format: PK_Device,PK_DeviceGroup,PK_Command,Delay,CancelIfOther,IsTemporary,\"PK_CommandParameter\",\"Description\"....\\n\r\n\r\nwhere the items in \" have escaped \" so they can embed , and \\n characters",
+			"IsOut":"0"
+		},
 		"Command_CommandParameter_370_28": {
 			"FK_Command":"370",
 			"FK_CommandParameter":"28",
@@ -840,10 +922,34 @@
 			"Description":"Returns true if it is daytime.",
 			"IsOut":"1"
 		},
+		"Command_CommandParameter_387_17": {
+			"FK_Command":"387",
+			"FK_CommandParameter":"17",
+			"Description":"The user",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_387_40": {
+			"FK_Command":"387",
+			"FK_CommandParameter":"40",
+			"Description":"true if successful, false otherwise",
+			"IsOut":"1"
+		},
+		"Command_CommandParameter_387_99": {
+			"FK_Command":"387",
+			"FK_CommandParameter":"99",
+			"Description":"The pin code, either raw or preferrably in md5 format for security",
+			"IsOut":"0"
+		},
 		"Command_CommandParameter_396_230": {
 			"FK_Command":"396",
 			"FK_CommandParameter":"230",
 			"Description":"This is true if the script used to check for updates fails.",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_718_57": {
+			"FK_Command":"718",
+			"FK_CommandParameter":"57",
+			"Description":"The room for the device.  0=no room, -1=ask user",
 			"IsOut":"0"
 		},
 		"Command_CommandParameter_718_58": {
@@ -904,12 +1010,6 @@
 			"FK_Command":"718",
 			"FK_CommandParameter":"47",
 			"Description":"The mac address",
-			"IsOut":"0"
-		},
-		"Command_CommandParameter_718_57": {
-			"FK_Command":"718",
-			"FK_CommandParameter":"57",
-			"Description":"The room for the device.  0=no room, -1=ask user",
 			"IsOut":"0"
 		},
 		"Command_CommandParameter_719_2": {
@@ -990,6 +1090,12 @@
 			"Description":"Template id",
 			"IsOut":"0"
 		},
+		"Command_CommandParameter_802_163": {
+			"FK_Command":"802",
+			"FK_CommandParameter":"163",
+			"Description":"The descripition for the device being used for the storage (ie Core, or a device name).",
+			"IsOut":"1"
+		},
 		"Command_CommandParameter_802_219": {
 			"FK_Command":"802",
 			"FK_CommandParameter":"219",
@@ -1006,12 +1112,6 @@
 			"FK_Command":"802",
 			"FK_CommandParameter":"2",
 			"Description":"The device id for the NAS or internal drive being used.  If it will be stored on the Core's internal home directory, this will be the device id for the Core.  0 is no device can save the file.",
-			"IsOut":"1"
-		},
-		"Command_CommandParameter_802_163": {
-			"FK_Command":"802",
-			"FK_CommandParameter":"163",
-			"Description":"The descripition for the device being used for the storage (ie Core, or a device name).",
 			"IsOut":"1"
 		},
 		"Command_CommandParameter_803_156": {
@@ -1134,6 +1234,12 @@
 			"Description":"The configuration parameter ID.",
 			"IsOut":"0"
 		},
+		"Command_CommandParameter_842_250": {
+			"FK_Command":"842",
+			"FK_CommandParameter":"250",
+			"Description":"The list of associated Z-Wave nodes (comma separated).",
+			"IsOut":"0"
+		},
 		"Command_CommandParameter_842_239": {
 			"FK_Command":"842",
 			"FK_CommandParameter":"239",
@@ -1144,12 +1250,6 @@
 			"FK_Command":"842",
 			"FK_CommandParameter":"249",
 			"Description":"The group number which includes the associated nodes.",
-			"IsOut":"0"
-		},
-		"Command_CommandParameter_842_250": {
-			"FK_Command":"842",
-			"FK_CommandParameter":"250",
-			"Description":"The list of associated Z-Wave nodes (comma separated).",
 			"IsOut":"0"
 		},
 		"Command_CommandParameter_843_208": {
@@ -1170,16 +1270,16 @@
 			"Description":"The ID of the task to abort",
 			"IsOut":"0"
 		},
-		"Command_CommandParameter_915_2": {
-			"FK_Command":"915",
-			"FK_CommandParameter":"2",
-			"Description":"The device that was enabled",
-			"IsOut":"0"
-		},
 		"Command_CommandParameter_915_198": {
 			"FK_Command":"915",
 			"FK_CommandParameter":"198",
 			"Description":"The Orbiter that did it, if any",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_915_2": {
+			"FK_Command":"915",
+			"FK_CommandParameter":"2",
+			"Description":"The device that was enabled",
 			"IsOut":"0"
 		},
 		"Command_CommandParameter_934_219": {
@@ -1296,6 +1396,12 @@
 			"Description":"If true, allow addition of multiple nodes until timeout occurs or add node is called with node stop.",
 			"IsOut":"0"
 		},
+		"Command_CommandParameter_968_39": {
+			"FK_Command":"968",
+			"FK_CommandParameter":"39",
+			"Description":"A string of letters for each of the following options:\r\nH = high power",
+			"IsOut":"0"
+		},
 		"Command_CommandParameter_968_48": {
 			"FK_Command":"968",
 			"FK_CommandParameter":"48",
@@ -1314,10 +1420,10 @@
 			"Description":"If true, allow deletion of multiple nodes until timeout occurs or add node is called with node stop.",
 			"IsOut":"0"
 		},
-		"Command_CommandParameter_968_39": {
-			"FK_Command":"968",
-			"FK_CommandParameter":"39",
-			"Description":"A string of letters for each of the following options:\r\nH = high power",
+		"Command_CommandParameter_969_2": {
+			"FK_Command":"969",
+			"FK_CommandParameter":"2",
+			"Description":"The device to restore",
 			"IsOut":"0"
 		}
 	}
@@ -1422,7 +1528,7 @@
 		}
 	}
 	,
-	"DeviceCategory_ids":[1,83,7,61,68,67,73,140,84,81,82,80,117],
+	"DeviceCategory_ids":[1,83,7,61,68,67,70,73,140,99,84,81,82,80,117],
 	"DeviceCategory":{
 		"PK_DeviceCategory_1": {
 			"FK_DeviceCategory_Parent":"",
@@ -1448,6 +1554,10 @@
 			"FK_DeviceCategory_Parent":"9",
 			"Description":"Lighting Plug-ins"
 		},
+		"PK_DeviceCategory_70": {
+			"FK_DeviceCategory_Parent":"9",
+			"Description":"Security Plug-ins"
+		},
 		"PK_DeviceCategory_73": {
 			"FK_DeviceCategory_Parent":"72",
 			"Description":"Lighting Device"
@@ -1455,6 +1565,10 @@
 		"PK_DeviceCategory_140": {
 			"FK_DeviceCategory_Parent":"93",
 			"Description":"IP Cameras"
+		},
+		"PK_DeviceCategory_99": {
+			"FK_DeviceCategory_Parent":"9",
+			"Description":"Event Plug-ins"
 		},
 		"PK_DeviceCategory_84": {
 			"FK_DeviceCategory_Parent":"72",
@@ -1478,7 +1592,7 @@
 		}
 	}
 	,
-	"DeviceCommandGroup_ids":[12,17,21,28,29,36,62,72,76,80,85],
+	"DeviceCommandGroup_ids":[12,17,21,24,28,29,31,36,62,72,76,80,85,94],
 	"DeviceCommandGroup":{
 		"PK_DeviceCommandGroup_12": {
 			"FK_DeviceCategory":"61",
@@ -1492,6 +1606,10 @@
 			"FK_DeviceCategory":"73",
 			"Description":"On\/Off Light Switch"
 		},
+		"PK_DeviceCommandGroup_24": {
+			"FK_DeviceCategory":"70",
+			"Description":"Security Plug-in"
+		},
 		"PK_DeviceCommandGroup_28": {
 			"FK_DeviceCategory":"73",
 			"Description":"Dimming"
@@ -1499,6 +1617,10 @@
 		"PK_DeviceCommandGroup_29": {
 			"FK_DeviceCategory":"1",
 			"Description":"DCERouter"
+		},
+		"PK_DeviceCommandGroup_31": {
+			"FK_DeviceCategory":"99",
+			"Description":"Event Plugin Commands"
 		},
 		"PK_DeviceCommandGroup_36": {
 			"FK_DeviceCategory":"83",
@@ -1523,6 +1645,10 @@
 		"PK_DeviceCommandGroup_85": {
 			"FK_DeviceCategory":"81",
 			"Description":"ZWave"
+		},
+		"PK_DeviceCommandGroup_94": {
+			"FK_DeviceCategory":"68",
+			"Description":"Climate Plugin Command Group"
 		}
 	}
 	,
@@ -2532,6 +2658,11 @@
 			"FK_Command":"365",
 			"Description":"Given a room or device ID, returns the description.  If device ID, also returns the room ID."
 		},
+		"DeviceCommandGroup_Command_12_370": {
+			"FK_DeviceCommandGroup":"12",
+			"FK_Command":"370",
+			"Description":"Execute a command group"
+		},
 		"DeviceCommandGroup_Command_12_371": {
 			"FK_DeviceCommandGroup":"12",
 			"FK_Command":"371",
@@ -2641,6 +2772,11 @@
 			"FK_DeviceCommandGroup":"12",
 			"FK_Command":"957",
 			"Description":"Will update the description, ip, mac, device data"
+		},
+		"DeviceCommandGroup_Command_12_969": {
+			"FK_DeviceCommandGroup":"12",
+			"FK_Command":"969",
+			"Description":"Restore a device to the state in State_NonTemporary, so that a temporary change can be reverted"
 		},
 		"DeviceCommandGroup_Command_13_84": {
 			"FK_DeviceCommandGroup":"13",
@@ -3021,6 +3157,11 @@
 			"FK_DeviceCommandGroup":"24",
 			"FK_Command":"387",
 			"Description":"Verifies a user's PIN Code"
+		},
+		"DeviceCommandGroup_Command_24_969": {
+			"FK_DeviceCommandGroup":"24",
+			"FK_Command":"969",
+			"Description":"Restore a security device to the state in State_NonTemporary"
 		},
 		"DeviceCommandGroup_Command_25_249": {
 			"FK_DeviceCommandGroup":"25",
@@ -3612,6 +3753,11 @@
 			"FK_Command":"184",
 			"Description":"Went sent by an orbiter, the plugin will adjust all lights in the Orbiter's room"
 		},
+		"DeviceCommandGroup_Command_62_969": {
+			"FK_DeviceCommandGroup":"62",
+			"FK_Command":"969",
+			"Description":"Restore a lighting device to the state in State_NonTemporary"
+		},
 		"DeviceCommandGroup_Command_63_126": {
 			"FK_DeviceCommandGroup":"63",
 			"FK_Command":"126",
@@ -4146,10 +4292,15 @@
 			"FK_DeviceCommandGroup":"93",
 			"FK_Command":"951",
 			"Description":"Tell Game to Reset"
+		},
+		"DeviceCommandGroup_Command_94_969": {
+			"FK_DeviceCommandGroup":"94",
+			"FK_Command":"969",
+			"Description":"Restore a climate device to the state in State_NonTemporary"
 		}
 	}
 	,
-	"DeviceData_ids":[26,107,11,12,188,229,233,234,235,56,2,69,114,115,18,19,45,1,37,162,163,283],
+	"DeviceData_ids":[26,107,11,12,188,229,233,234,235,56,2,34,35,36,59,77,96,69,114,115,108,109,18,19,45,1,37,162,163,283],
 	"DeviceData":{
 		"PK_DeviceData_26": {
 			"Description":"PK_Language",
@@ -4195,6 +4346,30 @@
 			"Description":"Path",
 			"FK_ParameterType":"1"
 		},
+		"PK_DeviceData_34": {
+			"Description":"Mobile Orbiter Notification",
+			"FK_ParameterType":"1"
+		},
+		"PK_DeviceData_35": {
+			"Description":"Other Phone Notifications",
+			"FK_ParameterType":"1"
+		},
+		"PK_DeviceData_36": {
+			"Description":"Neighbors to Call",
+			"FK_ParameterType":"1"
+		},
+		"PK_DeviceData_59": {
+			"Description":"Configuration",
+			"FK_ParameterType":"1"
+		},
+		"PK_DeviceData_77": {
+			"Description":"PK_Device",
+			"FK_ParameterType":"1"
+		},
+		"PK_DeviceData_96": {
+			"Description":"Emergency Calls",
+			"FK_ParameterType":"1"
+		},
 		"PK_DeviceData_69": {
 			"Description":"TCP Port",
 			"FK_ParameterType":"2"
@@ -4206,6 +4381,14 @@
 		"PK_DeviceData_115": {
 			"Description":"AuthPassword",
 			"FK_ParameterType":"1"
+		},
+		"PK_DeviceData_108": {
+			"Description":"Longitude",
+			"FK_ParameterType":"8"
+		},
+		"PK_DeviceData_109": {
+			"Description":"Latitude",
+			"FK_ParameterType":"8"
 		},
 		"PK_DeviceData_18": {
 			"Description":"InputOrOutput",
@@ -4241,7 +4424,7 @@
 		}
 	}
 	,
-	"DeviceTemplate_ids":[1,4,7,27,31,32,37,38,47,50,54,56,68,1599,1600,1633,1744,1745,1754,1773,1813,1820,1922,1945],
+	"DeviceTemplate_ids":[1,4,7,27,31,32,33,37,38,47,50,52,54,56,68,1599,1600,1633,1744,1745,1754,1773,1813,1820,1922,1945],
 	"DeviceTemplate":{
 		"PK_DeviceTemplate_1": {
 			"Description":"DCERouter",
@@ -4285,6 +4468,13 @@
 			"IsEmbedded":"0",
 			"CommandLine":""
 		},
+		"PK_DeviceTemplate_33": {
+			"Description":"Security Plug-in",
+			"FK_DeviceCategory":"70",
+			"ImplementsDCE":"1",
+			"IsEmbedded":"0",
+			"CommandLine":""
+		},
 		"PK_DeviceTemplate_37": {
 			"Description":"Light Switch (on\/off)",
 			"FK_DeviceCategory":"73",
@@ -4310,6 +4500,13 @@
 			"Description":"EIB Light Switch",
 			"FK_DeviceCategory":"73",
 			"ImplementsDCE":"0",
+			"IsEmbedded":"0",
+			"CommandLine":""
+		},
+		"PK_DeviceTemplate_52": {
+			"Description":"Event Plug-in",
+			"FK_DeviceCategory":"99",
+			"ImplementsDCE":"1",
 			"IsEmbedded":"0",
 			"CommandLine":""
 		},
@@ -4434,6 +4631,10 @@
 			"FK_DeviceTemplate":"32",
 			"FK_DeviceCommandGroup":"62"
 		},
+		"DeviceTemplate_DeviceCommandGroup_33_24": {
+			"FK_DeviceTemplate":"33",
+			"FK_DeviceCommandGroup":"24"
+		},
 		"DeviceTemplate_DeviceCommandGroup_37_21": {
 			"FK_DeviceTemplate":"37",
 			"FK_DeviceCommandGroup":"21"
@@ -4457,6 +4658,10 @@
 		"DeviceTemplate_DeviceCommandGroup_47_68": {
 			"FK_DeviceTemplate":"47",
 			"FK_DeviceCommandGroup":"68"
+		},
+		"DeviceTemplate_DeviceCommandGroup_52_31": {
+			"FK_DeviceTemplate":"52",
+			"FK_DeviceCommandGroup":"31"
 		},
 		"DeviceTemplate_DeviceCommandGroup_68_21": {
 			"FK_DeviceTemplate":"68",
@@ -4575,6 +4780,69 @@
 			"SetByDevice":"0",
 			"Description":"Number of seconds to keep lights on if a security camera is tryiing to view a frame"
 		},
+		"DeviceTemplate_DeviceData_33_2": {
+			"FK_DeviceTemplate":"33",
+			"FK_DeviceData":"2",
+			"IK_DeviceData":"\/home\/securitypic",
+			"Required":"0",
+			"AllowedToModify":"1",
+			"SetByDevice":"0",
+			"Description":"The path to save alerts to"
+		},
+		"DeviceTemplate_DeviceData_33_34": {
+			"FK_DeviceTemplate":"33",
+			"FK_DeviceData":"34",
+			"IK_DeviceData":"auto",
+			"Required":"0",
+			"AllowedToModify":"0",
+			"SetByDevice":"0",
+			"Description":"[sec delay between],[number],[4 flags],[repeat]"
+		},
+		"DeviceTemplate_DeviceData_33_35": {
+			"FK_DeviceTemplate":"33",
+			"FK_DeviceData":"35",
+			"IK_DeviceData":"",
+			"Required":"0",
+			"AllowedToModify":"0",
+			"SetByDevice":"0",
+			"Description":"[sec delay],[order],[number],[flags]"
+		},
+		"DeviceTemplate_DeviceData_33_36": {
+			"FK_DeviceTemplate":"33",
+			"FK_DeviceData":"36",
+			"IK_DeviceData":"",
+			"Required":"0",
+			"AllowedToModify":"0",
+			"SetByDevice":"0",
+			"Description":"[name],[number]"
+		},
+		"DeviceTemplate_DeviceData_33_59": {
+			"FK_DeviceTemplate":"33",
+			"FK_DeviceData":"59",
+			"IK_DeviceData":"0,1,",
+			"Required":"0",
+			"AllowedToModify":"0",
+			"SetByDevice":"1",
+			"Description":"The house modes currently"
+		},
+		"DeviceTemplate_DeviceData_33_77": {
+			"FK_DeviceTemplate":"33",
+			"FK_DeviceData":"77",
+			"IK_DeviceData":"auto",
+			"Required":"0",
+			"AllowedToModify":"1",
+			"SetByDevice":"0",
+			"Description":"The device(s) to make security announcements on"
+		},
+		"DeviceTemplate_DeviceData_33_96": {
+			"FK_DeviceTemplate":"33",
+			"FK_DeviceData":"96",
+			"IK_DeviceData":"",
+			"Required":"0",
+			"AllowedToModify":"0",
+			"SetByDevice":"0",
+			"Description":"[name],[number]"
+		},
 		"DeviceTemplate_DeviceData_37_12": {
 			"FK_DeviceTemplate":"37",
 			"FK_DeviceData":"12",
@@ -4637,6 +4905,33 @@
 			"AllowedToModify":"1",
 			"SetByDevice":"0",
 			"Description":"Password to access camera"
+		},
+		"DeviceTemplate_DeviceData_52_107": {
+			"FK_DeviceTemplate":"52",
+			"FK_DeviceData":"107",
+			"IK_DeviceData":"",
+			"Required":"0",
+			"AllowedToModify":"1",
+			"SetByDevice":"0",
+			"Description":"The closest city"
+		},
+		"DeviceTemplate_DeviceData_52_108": {
+			"FK_DeviceTemplate":"52",
+			"FK_DeviceData":"108",
+			"IK_DeviceData":"",
+			"Required":"0",
+			"AllowedToModify":"1",
+			"SetByDevice":"0",
+			"Description":"The longitude for calcuating sunrise\/sunset"
+		},
+		"DeviceTemplate_DeviceData_52_109": {
+			"FK_DeviceTemplate":"52",
+			"FK_DeviceData":"109",
+			"IK_DeviceData":"",
+			"Required":"0",
+			"AllowedToModify":"1",
+			"SetByDevice":"0",
+			"Description":"The latitude for calcuating sunrise\/sunset"
 		},
 		"DeviceTemplate_DeviceData_54_11": {
 			"FK_DeviceTemplate":"54",
@@ -5054,7 +5349,7 @@
 		}
 	}
 	,
-	"DeviceTemplate_DeviceTemplate_ControlledVia_ids":[2,3,6,52,86,106,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],
+	"DeviceTemplate_DeviceTemplate_ControlledVia_ids":[2,3,6,33,41,52,86,106,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],
 	"DeviceTemplate_DeviceTemplate_ControlledVia":{
 		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_2": {
 			"FK_DeviceTemplate":"27",
@@ -5072,6 +5367,20 @@
 		},
 		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_6": {
 			"FK_DeviceTemplate":"32",
+			"FK_DeviceTemplate_ControlledVia":"1",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"1"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_33": {
+			"FK_DeviceTemplate":"52",
+			"FK_DeviceTemplate_ControlledVia":"1",
+			"Description":"",
+			"RerouteMessagesToParent":"0",
+			"AutoCreateChildren":"1"
+		},
+		"PK_DeviceTemplate_DeviceTemplate_ControlledVia_41": {
+			"FK_DeviceTemplate":"33",
 			"FK_DeviceTemplate_ControlledVia":"1",
 			"Description":"",
 			"RerouteMessagesToParent":"0",
@@ -6563,6 +6872,60 @@
 			"Description":"The fan mode has changed (auto, low, high)",
 			"Code":""
 		},
+		"DeviceTemplate_Event_33_16": {
+			"FK_DeviceTemplate":"33",
+			"FK_Event":"16",
+			"Description":"",
+			"Code":""
+		},
+		"DeviceTemplate_Event_33_17": {
+			"FK_DeviceTemplate":"33",
+			"FK_Event":"17",
+			"Description":"",
+			"Code":""
+		},
+		"DeviceTemplate_Event_33_18": {
+			"FK_DeviceTemplate":"33",
+			"FK_Event":"18",
+			"Description":"",
+			"Code":""
+		},
+		"DeviceTemplate_Event_33_39": {
+			"FK_DeviceTemplate":"33",
+			"FK_Event":"39",
+			"Description":"",
+			"Code":""
+		},
+		"DeviceTemplate_Event_33_40": {
+			"FK_DeviceTemplate":"33",
+			"FK_Event":"40",
+			"Description":"",
+			"Code":""
+		},
+		"DeviceTemplate_Event_33_41": {
+			"FK_DeviceTemplate":"33",
+			"FK_Event":"41",
+			"Description":"",
+			"Code":""
+		},
+		"DeviceTemplate_Event_33_43": {
+			"FK_DeviceTemplate":"33",
+			"FK_Event":"43",
+			"Description":"",
+			"Code":""
+		},
+		"DeviceTemplate_Event_52_51": {
+			"FK_DeviceTemplate":"52",
+			"FK_Event":"51",
+			"Description":"The sun just rose",
+			"Code":""
+		},
+		"DeviceTemplate_Event_52_52": {
+			"FK_DeviceTemplate":"52",
+			"FK_Event":"52",
+			"Description":"The sun just set",
+			"Code":""
+		},
 		"DeviceTemplate_Event_1633_25": {
 			"FK_DeviceTemplate":"1633",
 			"FK_Event":"25",
@@ -6595,8 +6958,20 @@
 		}
 	}
 	,
-	"Event_ids":[25,26,27,28,29,38,54,55,48,9,78,79],
+	"Event_ids":[16,17,18,25,26,27,28,29,38,39,40,41,43,51,52,54,55,48,9,78,79],
 	"Event":{
+		"PK_Event_16": {
+			"FK_EventCategory":"9",
+			"Description":"Security Breach"
+		},
+		"PK_Event_17": {
+			"FK_EventCategory":"9",
+			"Description":"Fire Alarm"
+		},
+		"PK_Event_18": {
+			"FK_EventCategory":"9",
+			"Description":"Reset Alarm"
+		},
 		"PK_Event_25": {
 			"FK_EventCategory":"10",
 			"Description":"Temperature Changed"
@@ -6620,6 +6995,30 @@
 		"PK_Event_38": {
 			"FK_EventCategory":"8",
 			"Description":"Reload Aborted"
+		},
+		"PK_Event_39": {
+			"FK_EventCategory":"9",
+			"Description":"Air Quality"
+		},
+		"PK_Event_40": {
+			"FK_EventCategory":"9",
+			"Description":"Doorbell"
+		},
+		"PK_Event_41": {
+			"FK_EventCategory":"9",
+			"Description":"Monitor Mode"
+		},
+		"PK_Event_43": {
+			"FK_EventCategory":"9",
+			"Description":"House Mode Changed"
+		},
+		"PK_Event_51": {
+			"FK_EventCategory":"8",
+			"Description":"Sunrise"
+		},
+		"PK_Event_52": {
+			"FK_EventCategory":"8",
+			"Description":"Sunset"
 		},
 		"PK_Event_54": {
 			"FK_EventCategory":"8",
@@ -6647,8 +7046,12 @@
 		}
 	}
 	,
-	"EventCategory_ids":[10,8,2,9],
+	"EventCategory_ids":[9,10,8,2],
 	"EventCategory":{
+		"PK_EventCategory_9": {
+			"FK_EventCategory_Parent":"",
+			"Description":"Security"
+		},
 		"PK_EventCategory_10": {
 			"FK_EventCategory_Parent":"",
 			"Description":"Climate"
@@ -6660,15 +7063,17 @@
 		"PK_EventCategory_2": {
 			"FK_EventCategory_Parent":"",
 			"Description":"Media Player"
-		},
-		"PK_EventCategory_9": {
-			"FK_EventCategory_Parent":"",
-			"Description":"Security"
 		}
 	}
 	,
-	"EventParameter_ids":[30,13,14,26,12,10,25],
+	"EventParameter_ids":[26,30,13,14,38,39,12,10,25],
 	"EventParameter":{
+		"PK_EventParameter_26": {
+			"Description":"PK_Device",
+			"Define":"",
+			"Comments":"",
+			"FK_ParameterType":"2"
+		},
 		"PK_EventParameter_30": {
 			"Description":"Value",
 			"Define":"",
@@ -6687,10 +7092,16 @@
 			"Comments":"",
 			"FK_ParameterType":"2"
 		},
-		"PK_EventParameter_26": {
-			"Description":"PK_Device",
+		"PK_EventParameter_38": {
+			"Description":"PK_DeviceGroup",
 			"Define":"",
 			"Comments":"",
+			"FK_ParameterType":"2"
+		},
+		"PK_EventParameter_39": {
+			"Description":"PK_HouseMode",
+			"Define":"",
+			"Comments":"The house mode (armed, disarmed, entertaining, etc.).",
 			"FK_ParameterType":"2"
 		},
 		"PK_EventParameter_12": {
@@ -6714,6 +7125,16 @@
 	}
 	,
 	"Event_EventParameter":{
+		"Event_EventParameter_16_26": {
+			"FK_Event":"16",
+			"FK_EventParameter":"26",
+			"Description":"The device that caused the breach, normally a security sensor"
+		},
+		"Event_EventParameter_17_26": {
+			"FK_Event":"17",
+			"FK_EventParameter":"26",
+			"Description":"The sensor that was tripped."
+		},
 		"Event_EventParameter_25_30": {
 			"FK_Event":"25",
 			"FK_EventParameter":"30",
@@ -6743,6 +7164,31 @@
 			"FK_Event":"38",
 			"FK_EventParameter":"26",
 			"Description":"The device that cancelled the reload"
+		},
+		"Event_EventParameter_39_26": {
+			"FK_Event":"39",
+			"FK_EventParameter":"26",
+			"Description":"The device that triggered this alert"
+		},
+		"Event_EventParameter_40_26": {
+			"FK_Event":"40",
+			"FK_EventParameter":"26",
+			"Description":"The doorbell"
+		},
+		"Event_EventParameter_41_26": {
+			"FK_Event":"41",
+			"FK_EventParameter":"26",
+			"Description":"The device that triggered the event"
+		},
+		"Event_EventParameter_43_38": {
+			"FK_Event":"43",
+			"FK_EventParameter":"38",
+			"Description":"The security zone"
+		},
+		"Event_EventParameter_43_39": {
+			"FK_Event":"43",
+			"FK_EventParameter":"39",
+			"Description":"The house mode"
 		},
 		"Event_EventParameter_54_12": {
 			"FK_Event":"54",

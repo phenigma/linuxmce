@@ -875,6 +875,7 @@
 #define COMMAND_Set_Polling_State_CONST 966
 #define COMMAND_Add_Node_CONST 967
 #define COMMAND_Remove_Node_CONST 968
+#define COMMAND_Restore_To_NonTemp_State_CONST 969
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"

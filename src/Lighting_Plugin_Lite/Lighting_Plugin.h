@@ -102,6 +102,14 @@ public:
 	virtual void CMD_Set_Level(string sLevel,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #969 - Restore To NonTemp State */
+	/** Restore a lighting device to the state in State_NonTemporary */
+		/** @param #2 PK_Device */
+			/** The device to restore */
+
+	virtual void CMD_Restore_To_NonTemp_State(int iPK_Device) { string sCMD_Result; CMD_Restore_To_NonTemp_State(iPK_Device,sCMD_Result,NULL);};
+	virtual void CMD_Restore_To_NonTemp_State(int iPK_Device,string &sCMD_Result,Message *pMessage);
+
 //<-dceag-h-e->
 };
 

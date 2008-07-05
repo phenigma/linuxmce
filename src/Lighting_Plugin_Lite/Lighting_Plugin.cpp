@@ -411,3 +411,43 @@ void Lighting_Plugin::AlarmCallback(int id, void* param)
 	lm.Release();
 	SetLightingAlarm();
 }
+
+//<-dceag-c969-b->
+
+	/** @brief COMMAND: #969 - Restore To NonTemp State */
+	/** Restore a lighting device to the state in State_NonTemporary */
+		/** @param #2 PK_Device */
+			/** The device to restore */
+
+void Lighting_Plugin::CMD_Restore_To_NonTemp_State(int iPK_Device,string &sCMD_Result,Message *pMessage)
+//<-dceag-c969-e->
+{
+	DeviceData_Router *pDevice = m_pRouter->m_mapDeviceData_Router_Find(iPK_Device);
+	if( pDevice==NULL )
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Lighting_Plugin::CMD_Restore_To_NonTemp_State Device %d is invalid", iPK_Device);
+		return;
+	}
+
+	string sState = pDevice->m_sState_NonTemporary_get();
+
+	int iLevel = -1;
+	string::size_type pos = sState.find("/");
+	if( pos!=string::npos )
+		iLevel = atoi(sState.substr(pos+1).c_str());
+
+	if( sState.size()>=2 && sState.substr(0,2)=="ON" )
+		QueueMessageToRouter( new Message( m_dwPK_Device,pDevice->m_dwPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Generic_On_CONST,0 ) );
+	else if( sState.size()>=3 && sState.substr(0,3)=="OFF" )
+		QueueMessageToRouter( new Message( m_dwPK_Device,pDevice->m_dwPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Generic_Off_CONST,0 ) );
+	else
+	{
+		LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Lighting_Plugin::CMD_Restore_To_NonTemp_State Device %d has unknown state %s", iPK_Device, sState.c_str());
+		return;
+	}
+
+	if( iLevel!=-1 )
+		QueueMessageToRouter( new Message( m_dwPK_Device,pDevice->m_dwPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Set_Level_CONST,1,
+			COMMANDPARAMETER_Value_To_Assign_CONST, StringUtils::itos(iLevel)) );
+}
+

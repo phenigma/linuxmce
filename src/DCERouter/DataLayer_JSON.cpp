@@ -184,6 +184,12 @@ bool DataLayer_JSON::LoadDynamicConfiguration()
 		}
 
 		LoggerWrapper::GetInstance()->Write(LV_WARNING, "DataLayer: Got %d scenes", m_mapScene_Data.size());
+		for( std::map<int, Scene_Data>::iterator it = m_mapScene_Data.begin(); it != m_mapScene_Data.end(); ++it )
+		{
+			Scene_Data *pScene_Data = it->second;
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "DataLayer: Scene %d=%s", it->first, pScene_Data->Description().c_str())
+		}
+
 		return true;
 	}
 
