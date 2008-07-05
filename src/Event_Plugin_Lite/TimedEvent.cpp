@@ -24,14 +24,9 @@
 
 #include "TimedEvent.h"
 
-#include "pluto_main/Table_Criteria.h"
-#include "pluto_main/Table_CriteriaParm.h"
-#include "pluto_main/Table_CriteriaParmNesting.h"
-#include "pluto_main/Table_CriteriaParmList.h"
-#include "pluto_main/Table_EventHandler.h"
-
 TimedEvent::TimedEvent(Row_EventHandler *pRow_EventHandler)
 {
+	/*
 	m_tTime=0;
 	m_pRow_EventHandler=pRow_EventHandler;
 	m_iTimedEventType=m_pRow_EventHandler->TimedEvent_get();
@@ -50,12 +45,13 @@ TimedEvent::TimedEvent(Row_EventHandler *pRow_EventHandler)
 		else if( pRow_CriteriaParm->FK_CriteriaParmList_get()==CRITERIAPARMLIST_Specific_Date_CONST )
 			m_tTime=StringUtils::SQLDateTime(pRow_CriteriaParm->Value_get());
 	}
-	
+	*/
 	CalcNextTime();
 }
 
 void TimedEvent::CalcNextTime()
 {
+	/*
 	m_tTime=0;
 	switch(m_iTimedEventType)
 	{
@@ -187,6 +183,7 @@ struct tm tmLocal;
 localtime_r(&m_tTime,&tmLocal);
 LoggerWrapper::GetInstance()->Write(LV_STATUS,"TimedEvent::CalcNextTime Timer: %s set for %d/%d/%d %d:%d:%d in %d seconds",
 	m_pRow_EventHandler->Description_get().c_str(),tmLocal.tm_mon+1,tmLocal.tm_mday,tmLocal.tm_year-100,tmLocal.tm_hour,tmLocal.tm_min,tmLocal.tm_sec,m_tTime - time(NULL));
+	*/
 }
 
 class TimeOfDay
