@@ -28,6 +28,21 @@ using namespace DCE;
 //<-dceag-d-e->
 
 #include "DCE/DCERouter.h"
+#include "DCERouter/Command_Data.h"
+#include "DCERouter/Scene_Data.h"
+
+Command_Data_CallBack::Command_Data_CallBack(Command_Data *pCommand_Data, time_t tTime, int PK_Device_From)
+{
+	m_pCommand_Data = new Command_Data();
+	*m_pCommand_Data = *pCommand_Data;
+	m_tTime = tTime;
+	m_PK_Device_From = PK_Device_From;
+}
+
+Command_Data_CallBack::~Command_Data_CallBack()
+{
+	delete m_pCommand_Data;
+}
 
 struct ChildDeviceProcessing
 {
@@ -42,6 +57,7 @@ struct ChildDeviceProcessing
 };
 
 #define PROCESS_CHILD_DEVICES 1
+#define PROCESS_DELAYED_EXECUTE_SCENARIOS	3
 
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
@@ -50,15 +66,10 @@ General_Info_Plugin::General_Info_Plugin(int DeviceID, string ServerAddress,bool
 //<-dceag-const-e->
 {
 	m_pAlarmManager=NULL;
+	m_pCallBack_ForExecuteScenarios=NULL;
 }
 
-//<-dceag-const2-b->
-// The constructor when the class is created as an embedded instance within another stand-alone device
-General_Info_Plugin::General_Info_Plugin(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter)
-	: General_Info_Plugin_Command(pPrimaryDeviceCommand, pData, pEvent, pRouter)
-//<-dceag-const2-e->
-{
-}
+//<-dceag-const2-b->!
 
 //<-dceag-dest-b->
 General_Info_Plugin::~General_Info_Plugin()
@@ -93,15 +104,7 @@ bool General_Info_Plugin::Register()
 	return Connect(PK_DeviceTemplate_get()); 
 }
 
-/*  Since several parents can share the same child class, and each has it's own implementation, the base class in Gen_Devices
-	cannot include the actual implementation.  Instead there's an extern function declared, and the actual new exists here.  You 
-	can safely remove this block (put a ! after the dceag-createinst-b block) if this device is not embedded within other devices. */
-//<-dceag-createinst-b->
-General_Info_Plugin_Command *Create_General_Info_Plugin(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter)
-{
-	return new General_Info_Plugin(pPrimaryDeviceCommand, pData, pEvent, pRouter);
-}
-//<-dceag-createinst-e->
+//<-dceag-createinst-b->!
 
 /*
 	When you receive commands that are destined to one of your children,
@@ -850,6 +853,8 @@ void General_Info_Plugin::AlarmCallback(int id, void* param)
 {
 	if( id==PROCESS_CHILD_DEVICES )
 		ReportingChildDevices_Offline(param);
+	else if( id==PROCESS_DELAYED_EXECUTE_SCENARIOS )
+		ProcessDelayedExecuteScenarios();
 }
 //----------------------------------------------------------------------------------------------
 void General_Info_Plugin::ReportingChildDevices_Offline( void *pVoid )
@@ -1239,5 +1244,234 @@ where the items in " have escaped " so they can embed , and \n characters */
 void General_Info_Plugin::CMD_Execute_Command_Group(string sText,int iPK_CommandGroup,string &sCMD_Result,Message *pMessage)
 //<-dceag-c370-e->
 {
+	if(iPK_CommandGroup && NULL != m_pRouter->DataLayer())
+	{
+		Scene_Data *pScene_Data =  m_pRouter->DataLayer()->Scene(iPK_CommandGroup);
+		if(NULL != pScene_Data)
+		{
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "General_Info_Plugin::CMD_Execute_Command_Group executing %d with %d commands", iPK_CommandGroup, (int) pScene_Data->Commands().size() );
+			ExecuteCommandGroup(pScene_Data,pMessage->m_dwPK_Device_From);
+		}
+		else
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "General_Info_Plugin::CMD_Execute_Command_Group Unexisting scene: %d", iPK_CommandGroup);
+	}
+	else if( sText.empty()==false )
+	{
+		Scene_Data scene_Data;
 
+		int iIndex=0;
+		string::size_type pos=0;
+		while(pos<sText.size())
+		{
+			Command_Data aCommand_data;
+			aCommand_data.Device_To(atoi(StringUtils::Tokenize( sText, ",", pos ).c_str()));
+			int PK_DeviceGroup = atoi(StringUtils::Tokenize( sText, ",", pos ).c_str());
+			aCommand_data.PK_Command(atoi(StringUtils::Tokenize( sText, ",", pos ).c_str()));
+			aCommand_data.Delay(atoi(StringUtils::Tokenize( sText, ",", pos ).c_str()));
+			aCommand_data.CancelIfOther(atoi(StringUtils::Tokenize( sText, ",", pos ).c_str()));
+			aCommand_data.IsTemporary(atoi(StringUtils::Tokenize( sText, ",\n", pos ).c_str()));  // This may be the end too
+aCommand_data.CancelIfOther(1);
+aCommand_data.IsTemporary(1);
+			if( sText[pos-1]!='\n' )
+				ParseCommandParameters(aCommand_data.Params(), sText, pos);
+			scene_Data.Commands()[iIndex++] = aCommand_data;
+		}
+
+		LoggerWrapper::GetInstance()->Write(LV_STATUS, "General_Info_Plugin::CMD_Execute_Command_Group executing temp %d commands", (int) scene_Data.Commands().size() );
+		ExecuteCommandGroup(&scene_Data,pMessage->m_dwPK_Device_From);
+	}
 }
+
+
+void General_Info_Plugin::ParseCommandParameters(std::map<int, string>& mapParams, string &sText,string::size_type &pos)
+{
+	while(true)
+	{
+		int PK_CommandParameter = atoi(StringUtils::Tokenize( sText, ",", pos ).c_str());
+		string sValue;
+		if( sText[pos]=='"' )
+		{
+			size_t size = sText.size();
+			string::size_type pos_start = ++pos;
+			while( pos++<size )
+			{
+				if( sText[pos]=='"' && sText[pos-1]!='\\' )
+				{
+					sValue = sText.substr(pos_start, pos-pos_start);
+					StringUtils::Replace(&sValue,"\\\"", "\""); // Replace any escaped "
+					pos++;
+					if( pos<sText.size() && (sText[pos]==',' || sText[pos]=='\n') )
+						pos++; // Skip the comma or \n
+					break;
+				}
+			}
+		}
+		else
+			sValue = StringUtils::Tokenize( sText, "\n,", pos );
+
+		mapParams[PK_CommandParameter]=sValue;
+		if( sText[pos-1]=='\n' || pos>=sText.size() )
+		{
+			pos++;
+			return;
+		}
+	}
+}
+
+void General_Info_Plugin::ExecuteCommandGroup(Scene_Data *pScene_Data,int PK_Device_From)
+{
+	PLUTO_SAFETY_LOCK(dm, m_pRouter->DataLayer()->Mutex());
+	for(std::map<int, Command_Data>::iterator it = pScene_Data->Commands().begin(); it != pScene_Data->Commands().end(); ++it)
+	{
+		Command_Data *pCommand_Data = &(it->second);
+
+		if( pCommand_Data->Delay() )
+		{
+			Command_Data_CallBack *pCommand_Data_CallBack = new Command_Data_CallBack(pCommand_Data,time(NULL) + pCommand_Data->Delay(),PK_Device_From);
+			List_Command_Data_CallBack *pList_Command_Data_CallBack = m_mapList_Command_Data_CallBack[ pCommand_Data->Device_To() ];
+			if( !pList_Command_Data_CallBack )
+			{
+				pList_Command_Data_CallBack = new List_Command_Data_CallBack();
+				m_mapList_Command_Data_CallBack[ pCommand_Data->Device_To() ] = pList_Command_Data_CallBack;
+			}
+			pList_Command_Data_CallBack->push_back( pCommand_Data_CallBack );
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "General_Info_Plugin::ExecuteCommandGroup delay %p/%p", pCommand_Data_CallBack, pCommand_Data_CallBack->m_pCommand_Data);
+		}
+		else
+			ExecuteCommandData(pCommand_Data,PK_Device_From);
+	}
+	SetNextAlarm();
+}
+
+void General_Info_Plugin::SetNextAlarm()
+{
+	time_t tLowest=0;
+	bool bCancellable=false;
+	PLUTO_SAFETY_LOCK(dm, m_pRouter->DataLayer()->Mutex());
+	for(map<int,List_Command_Data_CallBack *>::iterator it=m_mapList_Command_Data_CallBack.begin();
+		it!=m_mapList_Command_Data_CallBack.end();)
+	{
+		List_Command_Data_CallBack *pList_Command_Data_CallBack = it->second;
+		if( pList_Command_Data_CallBack->empty() )
+			m_mapList_Command_Data_CallBack.erase(it++);
+		else
+		{
+			for(List_Command_Data_CallBack::iterator itL=pList_Command_Data_CallBack->begin();itL!=pList_Command_Data_CallBack->end();++itL)
+			{
+				Command_Data_CallBack *pCommand_Data_CallBack = *itL;
+				if( pCommand_Data_CallBack->m_pCommand_Data->CancelIfOther() )
+					bCancellable=true;
+				if( tLowest==0 || tLowest>pCommand_Data_CallBack->m_tTime )
+					tLowest = pCommand_Data_CallBack->m_tTime;
+			}
+			++it;
+		}
+	}
+
+	m_pAlarmManager->CancelAlarmByType(PROCESS_DELAYED_EXECUTE_SCENARIOS);
+	if( tLowest!=0 )
+		m_pAlarmManager->AddAbsoluteAlarm(tLowest, this, PROCESS_DELAYED_EXECUTE_SCENARIOS, NULL);
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "General_Info_Plugin::SetNextAlarm %d seconds cancellable %d callback %p", time(NULL)-tLowest, (int) bCancellable, m_pCallBack_ForExecuteScenarios);
+
+	if( bCancellable && m_pCallBack_ForExecuteScenarios==NULL)
+		RegisterAllInterceptor();
+	else if( bCancellable==false && m_pCallBack_ForExecuteScenarios!=NULL )
+		UnRegisterAllInterceptor();
+}
+
+void General_Info_Plugin::RegisterAllInterceptor()
+{
+	PLUTO_SAFETY_LOCK(dm, m_pRouter->DataLayer()->Mutex());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "General_Info_Plugin::RegisterAllInterceptor %p", m_pCallBack_ForExecuteScenarios);
+	if( !m_pCallBack_ForExecuteScenarios )
+		RegisterMsgInterceptor( ( MessageInterceptorFn )( &General_Info_Plugin::InterceptAllCommands ), 0, 0, 0, 0, MESSAGETYPE_COMMAND, 0, true, &m_pCallBack_ForExecuteScenarios );
+}
+
+void General_Info_Plugin::UnRegisterAllInterceptor()
+{
+	PLUTO_SAFETY_LOCK(dm, m_pRouter->DataLayer()->Mutex());
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "General_Info_Plugin::UnRegisterAllInterceptor %p", m_pCallBack_ForExecuteScenarios);
+	if( m_pCallBack_ForExecuteScenarios )
+		m_pRouter->UnRegisterMsgInterceptor(m_pCallBack_ForExecuteScenarios);
+	m_pCallBack_ForExecuteScenarios=NULL;
+}
+
+bool General_Info_Plugin::InterceptAllCommands( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
+{
+	if( pMessage->m_mapParameters.find(COMMANDPARAMETER_Already_processed_CONST)!=pMessage->m_mapParameters.end() )
+		return false; // This originated from us anyway
+
+	PLUTO_SAFETY_LOCK(dm, m_pRouter->DataLayer()->Mutex());
+	map<int,List_Command_Data_CallBack *>::iterator it=m_mapList_Command_Data_CallBack.find( pMessage->m_dwPK_Device_To );
+	if( it!=m_mapList_Command_Data_CallBack.end() )
+	{
+		List_Command_Data_CallBack *pList_Command_Data_CallBack = it->second;
+		for(List_Command_Data_CallBack::iterator itL=pList_Command_Data_CallBack->begin();itL!=pList_Command_Data_CallBack->end();)
+		{
+			Command_Data_CallBack *pCommand_Data_CallBack = *itL;
+			if( pCommand_Data_CallBack->m_pCommand_Data->CancelIfOther() )
+			{
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "General_Info_Plugin::InterceptAllCommands canceling %p/%p", pCommand_Data_CallBack,pCommand_Data_CallBack->m_pCommand_Data );
+				pList_Command_Data_CallBack->erase(itL++);
+				delete pCommand_Data_CallBack;
+			}
+			else
+				++itL;
+		}
+	}
+	return false;
+}
+
+void General_Info_Plugin::ProcessDelayedExecuteScenarios()
+{
+	time_t tNow = time(NULL);
+	PLUTO_SAFETY_LOCK(dm, m_pRouter->DataLayer()->Mutex());
+	for(map<int,List_Command_Data_CallBack *>::iterator it=m_mapList_Command_Data_CallBack.begin();
+		it!=m_mapList_Command_Data_CallBack.end();++it)
+	{
+		List_Command_Data_CallBack *pList_Command_Data_CallBack = it->second;
+		for(List_Command_Data_CallBack::iterator itL=pList_Command_Data_CallBack->begin();itL!=pList_Command_Data_CallBack->end();)
+		{
+			Command_Data_CallBack *pCommand_Data_CallBack = *itL;
+			if( pCommand_Data_CallBack->m_tTime<=tNow )
+			{
+				LoggerWrapper::GetInstance()->Write(LV_STATUS, "General_Info_Plugin::ProcessDelayedExecuteScenarios executing %p/%p", pCommand_Data_CallBack,pCommand_Data_CallBack->m_pCommand_Data );
+
+				ExecuteCommandData(pCommand_Data_CallBack->m_pCommand_Data,pCommand_Data_CallBack->m_PK_Device_From);
+				pList_Command_Data_CallBack->erase(itL++);
+				delete pCommand_Data_CallBack;
+			}
+			else
+				++itL;
+		}
+	}
+
+	SetNextAlarm();
+}
+
+void General_Info_Plugin::ExecuteCommandData(Command_Data *pCommand_Data,int PK_Device_From)
+{
+	Message *pMessage = new Message();
+	pMessage->m_dwPK_Device_From = PK_Device_From ? PK_Device_From : m_dwPK_Device;
+	pMessage->m_dwMessage_Type = MESSAGETYPE_COMMAND;
+	pMessage->m_dwID = pCommand_Data->PK_Command();
+	pMessage->m_dwPK_Device_To = pCommand_Data->Device_To();
+	pMessage->m_mapParameters[COMMANDPARAMETER_Is_Temporary_CONST] = (pCommand_Data->IsTemporary()==0 ? "1" : "0");
+	pMessage->m_mapParameters[COMMANDPARAMETER_Already_processed_CONST] = "1";
+
+	if(pMessage->m_dwPK_Device_To == DEVICETEMPLATE_This_Orbiter_CONST && PK_Device_From )
+		pMessage->m_dwPK_Device_To = PK_Device_From;
+
+	for(std::map<int, string>::iterator it_param = pCommand_Data->Params().begin(); 
+		it_param != pCommand_Data->Params().end(); ++it_param)
+	{
+		pMessage->m_mapParameters[it_param->first] = it_param->second;
+	}
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "General_Info_Plugin::ExecuteCommandGroup Processing message from %d to %d id %d", 
+		pMessage->m_dwPK_Device_From, pMessage->m_dwPK_Device_To, pMessage->m_dwID);
+
+	QueueMessageToRouter(pMessage);
+}
+

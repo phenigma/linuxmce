@@ -430,6 +430,19 @@ m_DeviceStructure contains the minimal information, _Base,
 			pCallBack->m_plistMessageInterceptor = &pMessageFromInterceptor->m_listMessageInterceptor;
         }
 
+		// Remove the given call back from the interceptor mutex
+        void UnRegisterMsgInterceptor(class MessageInterceptorCallBack *pCallBack)
+        {
+			PLUTO_SAFETY_LOCK(im,m_InterceptorMutex);  // Protect the interceptor map
+			for(list<class MessageInterceptorCallBack *>::iterator it=pCallBack->m_plistMessageInterceptor->begin();it!=pCallBack->m_plistMessageInterceptor->end();)
+			{
+				if( *it == pCallBack )
+					pCallBack->m_plistMessageInterceptor->erase(it++);
+				else
+					++it;
+			}
+		}
+
         // Internal use
         bool Run();
 		virtual void RegisteredEventHandler(ServerSocket *pSocket, int DeviceID);

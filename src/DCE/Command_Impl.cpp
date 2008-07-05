@@ -1008,13 +1008,17 @@ void Command_Impl::StopWatchDog()
     }
 }
 
-int Command_Impl::RegisterMsgInterceptor(MessageInterceptorFn pMessageInterceptorFn,int PK_Device_From,int PK_Device_To,int PK_DeviceTemplate,int PK_DeviceCategory,int MessageType,int MessageID,bool bAllowRerouting)
+int Command_Impl::RegisterMsgInterceptor(MessageInterceptorFn pMessageInterceptorFn,int PK_Device_From,int PK_Device_To,int PK_DeviceTemplate,int PK_DeviceCategory,int MessageType,int MessageID,bool bAllowRerouting, MessageInterceptorCallBack **p_pMessageInterceptorCallBack)
 {
 #ifdef LINK_TO_ROUTER
 	if( m_pRouter )
 	{
+		MessageInterceptorCallBack *pMessageInterceptorCallBack = new MessageInterceptorCallBack(this, pMessageInterceptorFn);
+		if( p_pMessageInterceptorCallBack )
+			p_pMessageInterceptorCallBack = &pMessageInterceptorCallBack;
+
 		m_pRouter->RegisterMsgInterceptor(
-			new MessageInterceptorCallBack(this, pMessageInterceptorFn), PK_Device_From, PK_Device_To, PK_DeviceTemplate, PK_DeviceCategory, MessageType, MessageID );
+			pMessageInterceptorCallBack, PK_Device_From, PK_Device_To, PK_DeviceTemplate, PK_DeviceCategory, MessageType, MessageID );
 		return 0;
 	}
 	else

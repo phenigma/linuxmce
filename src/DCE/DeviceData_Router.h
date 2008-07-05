@@ -345,6 +345,7 @@ public:
             return m_sState_NonTemporary;
         }
         void m_sStatus_set(string sStatus) {
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "DeviceData_Router::m_sStatus_set device %d now %s", m_dwPK_Device,sStatus.c_str());
 			PLUTO_SAFETY_LOCK(dm, m_DataMutex);
 #ifndef EMBEDDED_LMCE
             // Do this manually since we don't want to reset the psc_mod, causing others to think something has changed for this device
@@ -355,6 +356,7 @@ public:
             m_sStatus=sStatus;
         }
         void m_sState_set(string sState,bool bTemporary=false) {
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "DeviceData_Router::m_sState_set device %d now %s temporary %d", m_dwPK_Device,sState.c_str(), (int) bTemporary );
 			PLUTO_SAFETY_LOCK(dm, m_DataMutex);
 #ifndef EMBEDDED_LMCE
             // Do this manually since we don't want to reset the psc_mod, causing others to think something has changed for this device
@@ -362,15 +364,15 @@ public:
             m_pRow_Device->Table_Device_get()->Database_pluto_main_get()->threaded_db_wrapper_query(sSQL);
             m_pRow_Device->Reload();
 #endif
-			LoggerWrapper::GetInstance()->Write(LV_STATUS, "Set device %d state to %s", m_dwPK_Device, sState.c_str());
             m_sState=sState;
 			if( bTemporary==false )
 				m_sState_NonTemporary = sState;
 
         }
 
-        void m_sState_NonTemporary_set(string sState_NonTemporary_set) {
-            m_sState_NonTemporary=sState_NonTemporary_set;
+        void m_sState_NonTemporary_set(string sState_NonTemporary) {
+			LoggerWrapper::GetInstance()->Write(LV_STATUS, "DeviceData_Router::m_sState_NonTemporary_set device %d now %s", m_dwPK_Device,sState_NonTemporary.c_str());
+            m_sState_NonTemporary=sState_NonTemporary;
         }
 
 		void MarkAsDeleted()

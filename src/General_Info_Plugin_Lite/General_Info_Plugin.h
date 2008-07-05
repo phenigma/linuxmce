@@ -25,16 +25,44 @@
 #include "AlarmManager.h"
 #include "DCE/DeviceData_Router.h"
 
+class Scene_Data;
+class Command_Data;
 
 //<-dceag-decl-b->!
 namespace DCE
 {
+	// When execute scenario is called and is supposed to delay sending a command it 
+	// creates an instance of this and adds it to a map
+	class Command_Data_CallBack
+	{
+	public:
+		Command_Data *m_pCommand_Data;
+		time_t m_tTime;
+		int m_PK_Device_From;
+
+		Command_Data_CallBack(Command_Data *pCommand_Data, time_t tTime, int PK_Device_From);
+
+		~Command_Data_CallBack();
+	};
+
+	typedef list< Command_Data_CallBack * > List_Command_Data_CallBack;
+
 	class General_Info_Plugin : public General_Info_Plugin_Command, public AlarmEvent
 	{
 //<-dceag-decl-e->
 		// Private member variables
+		class MessageInterceptorCallBack *m_pCallBack_ForExecuteScenarios;
+		map<int,List_Command_Data_CallBack *> m_mapList_Command_Data_CallBack;
 
 		// Private methods
+		void ParseCommandParameters(std::map<int, string>& mapParams, string &sText,string::size_type &pos);
+		void ExecuteCommandGroup(Scene_Data *pScene_Data,int PK_Device_From);
+		void SetNextAlarm();
+		void RegisterAllInterceptor();
+		void UnRegisterAllInterceptor();
+		void ProcessDelayedExecuteScenarios();
+		void ExecuteCommandData(Command_Data *pCommand_Data,int PK_Device_From);
+
 public:
 		// Public member variables
 
@@ -49,12 +77,7 @@ public:
 		virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
 //<-dceag-const-e->
 
-//<-dceag-const2-b->
-		// The following constructor is only used if this a class instance embedded within a DCE Device.  In that case, it won't create it's own connection to the router
-		// You can delete this whole section and put an ! after dceag-const2-b tag if you don't want this constructor.  Do the same in the implementation file
-		General_Info_Plugin(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter);
-//<-dceag-const2-e->
-
+		bool InterceptAllCommands( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
 		bool ReportingChildDevices( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
 		void ReportingChildDevices_Offline( void *pVoid );
 
