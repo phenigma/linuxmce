@@ -31,7 +31,11 @@ for i in /tmp/log/pluto/*.log; do
 		if [[ "$S" -ge "$NumberOfCopies" ]]; then
 			rm -f "$i.$S" "$i.$S.gz"
 		else
-			mv "$i.$S" "$i.$((S+1))"
+			S1=$((S+1))
+			mv "$i.$S" "$i.$S1"
+			if [[ "$S1" -gt 1 ]]; then
+				gzip -9 "$i.$S1"
+			fi
 		fi
 	done
 	mv "$i" "$i.1"
