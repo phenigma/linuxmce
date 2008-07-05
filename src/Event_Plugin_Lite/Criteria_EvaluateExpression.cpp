@@ -180,7 +180,7 @@ bool Criteria::EvaluateExpression(class CriteriaParm *pCriteriaParm,class EventI
 	return false;
 }
 
-#include "../General_Info_Plugin/General_Info_Plugin.h"
+#include "../General_Info_Plugin_Lite/General_Info_Plugin.h"
 #include "DCERouter.h"
 
 bool EvaluateTimeOfDay(string Expression,void *pExtraInfo)

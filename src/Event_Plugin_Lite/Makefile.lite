@@ -15,7 +15,7 @@ MYNAME = Event_Plugin_Lite
 VERSION = 2.0.0
 MYDEVTEMPLATEID = 52mplateID
 
-Gen_Dev_Files = $(GENDEV)/Event_Plugin_Base.cpp
+Gen_Dev_Files = $(GENDEV)/Event_PluginBase.cpp
 sources = Main.cpp Event_Plugin.cpp $(Gen_Dev_Files)
 #<-dceag-mh-e->
 
