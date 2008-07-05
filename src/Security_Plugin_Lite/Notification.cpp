@@ -33,9 +33,7 @@
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
-#include "PlutoUtils/DatabaseUtils.h"
 #include "Security_Plugin.h"
-#include "../Telecom_Plugin/Telecom_Plugin.h"
 
 #include <iostream>
 using namespace std;
@@ -44,14 +42,6 @@ using namespace DCE;
 #include "Gen_Devices/AllCommandsRequests.h"
 
 #include <sstream>
-
-#include "pluto_security/Table_Alert.h"
-#include "pluto_security/Table_Alert_Device.h"
-#include "pluto_security/Table_AlertType.h"
-#include "pluto_security/Table_ModeChange.h"
-#include "pluto_security/Table_Notification.h"
-#include "pluto_main/Table_Device.h"
-#include "pluto_main/Table_Room.h"
 
 void* StartNotificationInfo( void* param ) 
 {
@@ -66,11 +56,10 @@ void* StartNotificationInfo( void* param )
 }
 
 // The primary constructor when the class is created as a stand-alone device
-Notification::Notification(Security_Plugin *pSecurity_Plugin,Telecom_Plugin *pTelecom_Plugin,Router *pRouter,Row_Alert *pRow_Alert)
+Notification::Notification(Security_Plugin *pSecurity_Plugin,Router *pRouter,Row_Alert *pRow_Alert)
 	: m_AlertMutex("alert")
 {
 	m_pSecurity_Plugin=pSecurity_Plugin;
-    m_pTelecom_Plugin=pTelecom_Plugin;
 	m_pRouter=pRouter;
 	m_pRow_Alert=pRow_Alert;
     pthread_mutexattr_init( &m_MutexAttr );
@@ -132,6 +121,7 @@ void Notification::DoIt()
 
 bool Notification::NotifyLoop(int iType,bool bProcessInBackground)
 {
+	/*
 	PLUTO_SAFETY_LOCK(am,m_AlertMutex);
 	if( m_pRow_Alert->ResetTime_isNull()==false )  // If it's not null we handled it
 		return true;
@@ -208,6 +198,8 @@ bool Notification::NotifyLoop(int iType,bool bProcessInBackground)
 	}
 
 	return m_pRow_Alert->ResetTime_isNull()==false;  // If it's not null we handled it
+	*/
+	return false;
 }
 
 bool Notification::NotifyOrbiter(string sPhoneNumber, int iDelay)
@@ -224,6 +216,7 @@ bool Notification::NotifyOther(string sPhoneNumber,int iDelay)
 
 bool Notification::ExecuteNotification(string sPhoneNumber, int iDelay, bool bNotifyOrbiter)
 {
+	/*
 	if( sPhoneNumber.empty() )
 	{
         LoggerWrapper::GetInstance()->Write(LV_WARNING, "Notification::ExecuteNotification Unable to notify user with no phone number");
@@ -282,46 +275,14 @@ bool Notification::ExecuteNotification(string sPhoneNumber, int iDelay, bool bNo
     }
 
     LoggerWrapper::GetInstance()->Write(LV_WARNING, "User notified");
+	*/
     return true;
-}
-
-string Notification::GenerateWavFile(long nAlertType, long nDeviceID)
-{
-    const string csMenuWavFile("/tmp/pluto-security-voicemenu.wav");
-    string sRoom("an unknown room");
-
-    Row_Device *pRow_Device = m_pSecurity_Plugin->m_pDatabase_pluto_main->Device_get()->GetRow(nDeviceID);
-    if(pRow_Device)
-    {
-        Row_Room *pRow_Room = m_pSecurity_Plugin->m_pDatabase_pluto_main->Room_get()->GetRow(pRow_Device->FK_Room_get());
-        if(pRow_Room)
-            sRoom = pRow_Room->Description_get();
-    }
-
-    string sText = "This is Pluto. " + GetAlertInfo(nAlertType) + " in " + sRoom;
-    
-    char *pData = NULL;
-    int iSize = 0;
-
-    CMD_Text_To_Wave CMD_Text_To_Wave_(m_pSecurity_Plugin->m_dwPK_Device, m_pSecurity_Plugin->m_PK_Device_TextToSpeach, 
-        sText, &pData, &iSize);
-    string sResponse;
-    bool bResponse = m_pSecurity_Plugin->SendCommand(CMD_Text_To_Wave_, &sResponse);
-
-    if(!pData)
-    {
-        LoggerWrapper::GetInstance()->Write(LV_CRITICAL, "Text to speech device couldn't create the wav file");
-        return string();
-    }
-
-    FileUtils::WriteBufferIntoFile(csMenuWavFile, pData, size_t(iSize));
-    delete []pData;
-    return csMenuWavFile;
 }
 
 string Notification::GetAlertInfo(long nAlertType)
 {
     string sText;
+	/*
     switch(nAlertType)
     {
         case ALERTTYPE_Security_CONST:      sText += "Security breach";                break;
@@ -335,6 +296,6 @@ string Notification::GetAlertInfo(long nAlertType)
 
         default: sText+= "Unknown security event";
     }
-
+*/
     return sText;
 }

@@ -26,7 +26,6 @@
 #include "AlarmManager.h"
 #include "SerializeClass/SerializeClass.h"
 #include "DeviceData_Router.h"
-#include "PlutoUtils/DBHelper.h"
 
 #include <set>
 #include <queue>
@@ -34,6 +33,7 @@
 #include "Command_Impl.h"
 
 #ifndef EMBEDDED_LMCE
+#include "PlutoUtils/DBHelper.h"
 #include "pluto_main/Table_Device_DeviceData.h"
 #endif
 

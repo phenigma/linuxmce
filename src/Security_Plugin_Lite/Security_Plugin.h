@@ -32,18 +32,11 @@
 #include "Gen_Devices/Security_PluginBase.h"
 //<-dceag-d-e->
 
-class Database_pluto_main;
-class Database_pluto_security;
-class Row_Alert;
-class Row_AlertType;
-class Row_Alert_Device;
-class Row_ModeChange;
 #include "DeviceData_Router.h"
 #include "AlarmManager.h"
-#include "Datagrid_Plugin/Datagrid_Plugin.h"
-#include "Orbiter_Plugin/FollowMe_Device.h"
-#include "Orbiter_Plugin/Orbiter_Plugin.h"
-#include "Orbiter/Floorplan.h"
+class Row_Alert;
+class Row_Alert_Device;
+class Row_AlertType;
 
 /*
 	All sensors' states are in this form: Mode,Bypass,Delay
@@ -69,7 +62,7 @@ class Row_ModeChange;
 //<-dceag-decl-b->!
 namespace DCE
 {
-	class Security_Plugin : public Security_Plugin_Command, public DataGridGeneratorPlugIn, public AlarmEvent, public FloorplanInfoProvider, public FollowMe_Device
+	class Security_Plugin : public Security_Plugin_Command, public AlarmEvent
 	{
 //<-dceag-decl-e->
 
@@ -77,13 +70,11 @@ namespace DCE
 	// Private member variables 
     pluto_pthread_mutex_t m_SecurityMutex;
 	pthread_mutexattr_t m_MutexAttr; /** < make it recursive */
-    class Telecom_Plugin *m_pTelecom_Plugin;
-    class Orbiter_Plugin *m_pOrbiter_Plugin;
 	DeviceData_Router *m_pDeviceData_Router_this;
 	class AlarmManager *m_pAlarmManager;
-	vector<Row_Alert *> m_vectPendingAlerts;
-	map<int,Row_ModeChange *> m_mapRow_ModeChange_Last;  // Map based on the zone (DeviceGroup) or 0 for all zones
-    Row_ModeChange *m_mapRow_ModeChange_Last_Find(int PK_DeviceGroup) { map<int,class Row_ModeChange *>::iterator it = m_mapRow_ModeChange_Last.find(PK_DeviceGroup); return it==m_mapRow_ModeChange_Last.end() ? NULL : (*it).second; }
+//	vector<Row_Alert *> m_vectPendingAlerts;
+//	map<int,Row_ModeChange *> m_mapRow_ModeChange_Last;  // Map based on the zone (DeviceGroup) or 0 for all zones
+  //  Row_ModeChange *m_mapRow_ModeChange_Last_Find(int PK_DeviceGroup) { map<int,class Row_ModeChange *>::iterator it = m_mapRow_ModeChange_Last.find(PK_DeviceGroup); return it==m_mapRow_ModeChange_Last.end() ? NULL : (*it).second; }
 	int m_PK_Device_TextToSpeach;
 	map<pthread_t,class Notification *> m_mapNotification; // Any pending notifications
 	bool m_bMonitorMode; // True if the user is monitoring events
@@ -116,14 +107,8 @@ public:
 //<-dceag-const-e->
 
 	void PrepareToDelete();
-	class Datagrid_Plugin *m_pDatagrid_Plugin;
-	Database_pluto_main *m_pDatabase_pluto_main;
-	Database_pluto_security *m_pDatabase_pluto_security;
 
 	/** Datagrids */
-	class DataGridTable *SecurityScenariosGrid( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign
-							, class Message *pMessage );
-
 	bool SetHouseMode(DeviceData_Router *pDevice,int iPK_Users,int PK_HouseMode,string sHandlingInstructions);
 	void HandleSetModeFailure(Message *pMessage);
 	bool SensorIsTripped(int PK_HouseMode,DeviceData_Router *pDevice);
@@ -157,11 +142,7 @@ public:
 	void AnnounceAlert(DeviceData_Router *pDevice);
 	void SnapPhoto(Row_Alert_Device *pRow_Alert_Device,DeviceData_Router *pDevice);
 	Row_Alert *LogAlert(Row_AlertType *pRow_AlertType,DeviceData_Router *pDevice,bool bAnnouncementOnly,bool bNotify);  // Returns NULL if the alert was pooled with another
-	void SetMonitorModeBoundIcon(OH_Orbiter *pOH_Orbiter_Compare=NULL);
-	void SetHouseModeBoundIcon(int PK_DeviceGroup=-1,OH_Orbiter *pOH_Orbiter_Compare=NULL);
 
-	// Floorplan
-	virtual void GetFloorplanDeviceInfo(DeviceData_Router *pDeviceData_Router,EntertainArea *pEntertainArea,int iFloorplanObjectType,int &iPK_FloorplanObjectType_Color,int &Color,string &sDescription,string &OSD,int &PK_DesignObj_Toolbar);
 
 //<-dceag-h-b->
 	/*

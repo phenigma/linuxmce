@@ -19,8 +19,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..;../DCE/;&quot;../../libs/Libraries/pthreads-win32/include&quot"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;LOG_ALL_QUERIES"
+				AdditionalIncludeDirectories="..;../DCE/;&quot;../../libs/Libraries/pthreads-win32/include&quot;;"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;EMBEDDED_LMCE"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -32,10 +32,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE.lib
+				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE.lib"
 				OutputFile="../Debug/Security_Plugin_Lite.dll"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;../../libs/Libraries/pthreads-win32/lib&quot;;../lib"
+				AdditionalLibraryDirectories="&quot;../../libs/Libraries/pthreads-win32/lib&quot;;../lib;"
 				ModuleDefinitionFile="Security_Plugin.def"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/Security_Plugin.pdb"
@@ -73,7 +73,7 @@
 				Optimization="2"
 				InlineFunctionExpansion="1"
 				OmitFramePointers="TRUE"
-				AdditionalIncludeDirectories="..;../DCE/;&quot;../../libs/Libraries/pthreads-win32/include&quot"
+				AdditionalIncludeDirectories="..;../DCE/;&quot;../../libs/Libraries/pthreads-win32/include&quot;;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
@@ -124,15 +124,6 @@
 		<Filter
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm">
-			<File
-				RelativePath="..\Datagrid_Plugin\Datagrid_Plugin.cpp">
-			</File>
-			<File
-				RelativePath="..\Gen_Devices\Datagrid_PluginBase.cpp">
-			</File>
-			<File
-				RelativePath="..\Orbiter_Plugin\FollowMe_Device.cpp">
-			</File>
 			<File
 				RelativePath="Main.cpp">
 			</File>

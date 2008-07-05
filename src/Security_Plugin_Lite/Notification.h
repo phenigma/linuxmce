@@ -53,14 +53,13 @@ namespace DCE
 		pthread_mutexattr_t m_MutexAttr; /** < make it recursive */
 		Row_Alert *m_pRow_Alert;
 		class Security_Plugin *m_pSecurity_Plugin;
-        class Telecom_Plugin *m_pTelecom_Plugin;
 		class Router *m_pRouter;
 
 		string m_sOther_Phone_Notifications,m_sOrbiterNotifications;
 		list<NotificationInfo *> m_listNotificationInfo;
 
 	public:
-		Notification(Security_Plugin *pSecurity_Plugin,Telecom_Plugin *pTelecom_Plugin,Router *pRouter,Row_Alert *pRow_Alert);
+		Notification(Security_Plugin *pSecurity_Plugin,Router *pRouter,Row_Alert *pRow_Alert);
 		~Notification();
 		void DoIt();
 
