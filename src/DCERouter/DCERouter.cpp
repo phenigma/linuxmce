@@ -532,7 +532,9 @@ void Router::RegisterAllPlugins()
 		if(
 			iPK_DeviceTemplate != DEVICETEMPLATE_General_Info_Plugin_CONST &&
 			iPK_DeviceTemplate != DEVICETEMPLATE_Lighting_Plugin_CONST &&
-			iPK_DeviceTemplate != DEVICETEMPLATE_Climate_Plugin_CONST
+			iPK_DeviceTemplate != DEVICETEMPLATE_Climate_Plugin_CONST &&
+			iPK_DeviceTemplate != DEVICETEMPLATE_Security_Plugin_CONST &&
+			iPK_DeviceTemplate != DEVICETEMPLATE_Event_Plugin_CONST
 		)
 			continue;
 
