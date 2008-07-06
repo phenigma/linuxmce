@@ -32,7 +32,7 @@ extern "C"
 //----------------------------------------------------------------------------------------------
 #define ADD_STRING_CHILD(parent, key, value) json_object_object_add(parent, key, json_object_new_string(const_cast<char *>(value.c_str())));
 //----------------------------------------------------------------------------------------------
-DataLayer_JSON::DataLayer_JSON(void) : m_root_json_obj(NULL), m_DataMutex("data")
+DataLayer_JSON::DataLayer_JSON(void) : m_root_json_obj_Devices(NULL), m_root_json_obj_NonDevices(NULL), m_DataMutex("data")
 {
 	m_dwPK_Device_Largest = 0;
 
@@ -43,7 +43,8 @@ DataLayer_JSON::DataLayer_JSON(void) : m_root_json_obj(NULL), m_DataMutex("data"
 //----------------------------------------------------------------------------------------------
 DataLayer_JSON::~DataLayer_JSON(void)
 {
-	json_object_put(m_root_json_obj); 
+	json_object_put(m_root_json_obj_Devices); 
+	json_object_put(m_root_json_obj_NonDevices); 
 
 	pthread_mutexattr_destroy(&m_MutexAttr);
 }
@@ -75,7 +76,7 @@ bool DataLayer_JSON::Save()
 
 	//NOTE: json-c saves the json data into an unformatted string
 	//use http://www.jsonlint.com/ to format the json file
-	string sData(json_object_to_json_string(m_root_json_obj));
+	string sData(json_object_to_json_string(m_root_json_obj_Devices));
 
 #ifdef WIN32
 	//Also save the uncompressed version -- for debugging
@@ -144,11 +145,11 @@ bool DataLayer_JSON::LoadDevicesConfiguration()
 
 	if(NULL != pData)
 	{
-		m_root_json_obj = json_tokener_parse(pData);
+		m_root_json_obj_Devices = json_tokener_parse(pData);
 		PLUTO_SAFE_DELETE_ARRAY(pData);
 
 		struct json_object_iter iter;
-		json_object_object_foreachC(m_root_json_obj, iter) 
+		json_object_object_foreachC(m_root_json_obj_Devices, iter) 
 		{
 			string sValue = iter.key;
 
@@ -167,15 +168,17 @@ bool DataLayer_JSON::LoadDevicesConfiguration()
 //----------------------------------------------------------------------------------------------
 bool DataLayer_JSON::LoadDynamicConfiguration()
 {
-	char *pData = GetUncompressedDataFromFile(JSON_DYNAMIC_CONFIG_FILE);
+	size_t size;
+	char *pData = FileUtils::ReadFileIntoBuffer("/temp/pluto.json.lzo.txt.new.txt",size);
+//	char *pData = GetUncompressedDataFromFile(JSON_DYNAMIC_CONFIG_FILE);
 
 	if(NULL != pData)
 	{
-		m_root_json_obj = json_tokener_parse(pData);
+		m_root_json_obj_NonDevices = json_tokener_parse(pData);
 		PLUTO_SAFE_DELETE_ARRAY(pData);
 
 		struct json_object_iter iter;
-		json_object_object_foreachC(m_root_json_obj, iter) 
+		json_object_object_foreachC(m_root_json_obj_NonDevices, iter) 
 		{
 			string sValue = iter.key;
 
@@ -532,6 +535,9 @@ char *DataLayer_JSON::GetUncompressedDataFromFile(string sFileName)
 	PLUTO_SAFE_DELETE_ARRAY(pCompressedData);
 
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "DataLayer_JSON::GetUncompressedDataFromFile done %s", sFileName.c_str());
+#ifdef WIN32
+	FileUtils::WriteBufferIntoFile("/temp/" + sFileName + ".txt", pUncompressedData,size);
+#endif
 
 	return pUncompressedData;
 }
@@ -733,7 +739,7 @@ void DataLayer_JSON::SetDeviceData(DeviceData_Router *pDeviceData_Router, int nF
 void DataLayer_JSON::SaveDevicesList()
 {
 	//delete the old node
-	json_object_object_del(m_root_json_obj, "Device_ids");
+	json_object_object_del(m_root_json_obj_Devices, "Device_ids");
 
 	//create a new one
 	struct json_object *devices_list_obj = json_object_new_array();
@@ -747,13 +753,13 @@ void DataLayer_JSON::SaveDevicesList()
 	}
 
 	//add it to root node
-	json_object_object_add(m_root_json_obj, "Device_ids", devices_list_obj);
+	json_object_object_add(m_root_json_obj_Devices, "Device_ids", devices_list_obj);
 }
 //----------------------------------------------------------------------------------------------
 void DataLayer_JSON::SaveDevices()
 {
 	//delete the old node
-	json_object_object_del(m_root_json_obj, "Devices");
+	json_object_object_del(m_root_json_obj_Devices, "Devices");
 
 	//create a new one
 	struct json_object *devices_obj = json_object_new_object();
@@ -814,7 +820,7 @@ void DataLayer_JSON::SaveDevices()
 	}
 
 	//add it to root node
-	json_object_object_add(m_root_json_obj, "Device", devices_obj);
+	json_object_object_add(m_root_json_obj_Devices, "Device", devices_obj);
 }
 //----------------------------------------------------------------------------------------------
 DeviceData_Router *DataLayer_JSON::CreateDevice(int iPK_DeviceTemplate, string sDescription, 
