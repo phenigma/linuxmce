@@ -16,6 +16,6 @@ if [[ "$?" -ne 0 ]]; then
 	echo "It's not an Olevia TV"
 	/usr/pluto/bin/MessageSend dcerouter -r 0 $1 1 806 224 $2 13 "$4" 44 0
 else
-	echo "It is a Olevia TV"
-	/usr/pluto/bin/MessageSend dcerouter -r 0 $1 1 806 224 $2 13 "$4" 44 1960
+	echo "It is an Olevia TV"
+	/usr/pluto/bin/MessageSend dcerouter -r 0 $1 1 806 224 $2 13 "$4" 44 1946
 fi
