@@ -21,37 +21,92 @@
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
 #include "Logger.h"
-
 #include "TimedEvent.h"
+#include "Event_Plugin.h"
+#include "pluto_main/Define_CriteriaParmList.h"
 
-TimedEvent::TimedEvent(Row_EventHandler *pRow_EventHandler)
+TimedEvent::TimedEvent(int ID,struct json_object *json_obj,Event_Plugin *pEvent_Plugin)
 {
-	/*
 	m_tTime=0;
-	m_pRow_EventHandler=pRow_EventHandler;
-	m_iTimedEventType=m_pRow_EventHandler->TimedEvent_get();
-	m_pCommandGroup=NULL;
-	vector<Row_CriteriaParm *> vectRow_CriteriaParm;
-	pRow_EventHandler->FK_Criteria_getrow()->FK_CriteriaParmNesting_getrow()->CriteriaParm_FK_CriteriaParmNesting_getrows(&vectRow_CriteriaParm);
-	for(size_t s=0;s<vectRow_CriteriaParm.size();++s)
+	m_iTimedEventType=0;
+	m_ID=ID;
+
+	struct json_object_iter iter_sceneparams;
+	json_object_object_foreachC(json_obj, iter_sceneparams)
 	{
-		Row_CriteriaParm *pRow_CriteriaParm = vectRow_CriteriaParm[s];
-		if( pRow_CriteriaParm->FK_CriteriaParmList_get()==CRITERIAPARMLIST_Day_Of_Week_CONST )
-			m_sDaysOfWeek=pRow_CriteriaParm->Value_get();
-		else if( pRow_CriteriaParm->FK_CriteriaParmList_get()==CRITERIAPARMLIST_Time_of_day_CONST )
-			m_sTimes=StringUtils::ToUpper(pRow_CriteriaParm->Value_get());
-		else if( pRow_CriteriaParm->FK_CriteriaParmList_get()==CRITERIAPARMLIST_Day_Of_Month_CONST )
-			m_sDaysOfMonth=pRow_CriteriaParm->Value_get();
-		else if( pRow_CriteriaParm->FK_CriteriaParmList_get()==CRITERIAPARMLIST_Specific_Date_CONST )
-			m_tTime=StringUtils::SQLDateTime(pRow_CriteriaParm->Value_get());
+		string sKey = iter_sceneparams.key;
+
+		if(iter_sceneparams.val->o_type == json_type_string)
+		{
+			string sValue = json_object_get_string(iter_sceneparams.val);
+
+			if(sKey == "Description")
+			{
+				m_sDescription = sValue;
+			}
+			else if(sKey == "Type")
+			{
+				m_iTimedEventType = atoi(sValue.c_str());
+			}
+		}
+		else if(sKey == "commands" && iter_sceneparams.val->o_type == json_type_object)
+		{
+			pEvent_Plugin->ParseCommands(m_mapCommands, iter_sceneparams.val);
+		}
+		else if(sKey == "Criteria" && iter_sceneparams.val->o_type == json_type_object)
+		{
+			ParseCriteria(iter_sceneparams.val);
+		}
 	}
-	*/
+
 	CalcNextTime();
+}
+
+void TimedEvent::ParseCriteria(struct json_object *json_obj)
+{
+	struct json_object_iter iter_criteriaparams;
+	json_object_object_foreachC(json_obj, iter_criteriaparams)
+	{
+		string sKey = iter_criteriaparams.key;
+
+		if(StringUtils::StartsWith(sKey,"param_") && iter_criteriaparams.val->o_type == json_type_object)
+		{
+			struct json_object_iter iter_criteriaparams_2;
+
+			int PK_CriteriaParmList=0,Operator=0;
+			string sParm,sValue;
+
+			json_object_object_foreachC(iter_criteriaparams.val, iter_criteriaparams_2)
+			{
+				string sKey_2 = iter_criteriaparams_2.key;
+
+				if(sKey_2=="PK_CriteriaParmList" && iter_criteriaparams_2.val->o_type == json_type_string )
+					PK_CriteriaParmList = atoi( json_object_get_string(iter_criteriaparams_2.val) );
+				else if( sKey_2=="Operator" && iter_criteriaparams_2.val->o_type == json_type_string )
+					Operator = atoi( json_object_get_string(iter_criteriaparams_2.val) );
+				else if( sKey_2=="Parm" && iter_criteriaparams_2.val->o_type == json_type_string )
+					sParm = json_object_get_string(iter_criteriaparams_2.val);
+				else if( sKey_2=="Value" && iter_criteriaparams_2.val->o_type == json_type_string )
+					sValue = json_object_get_string(iter_criteriaparams_2.val);
+			}
+
+			switch( PK_CriteriaParmList )
+			{
+			case CRITERIAPARMLIST_Day_Of_Week_CONST:
+				m_sDaysOfWeek=sValue;
+			case CRITERIAPARMLIST_Time_of_day_CONST:
+				m_sTimes=StringUtils::ToUpper(sValue);
+			case CRITERIAPARMLIST_Day_Of_Month_CONST:
+				m_sDaysOfMonth=sValue;
+			case CRITERIAPARMLIST_Specific_Date_CONST:
+				m_tTime=StringUtils::SQLDateTime(sValue);
+			};
+		}
+	}
 }
 
 void TimedEvent::CalcNextTime()
 {
-	/*
 	m_tTime=0;
 	switch(m_iTimedEventType)
 	{
@@ -71,11 +126,11 @@ void TimedEvent::CalcNextTime()
 			else
 			{
 				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Interval timer %s has no time: %s",
-					m_pRow_EventHandler->Description_get().c_str(),m_sTimes.c_str());
+					m_sDescription.c_str(),m_sTimes.c_str());
 				return;
 			}
 LoggerWrapper::GetInstance()->Write(LV_STATUS,"Added interval timer %s at %d now %d seconds %d",
-	m_pRow_EventHandler->Description_get().c_str(),(int) m_tTime,(int) time(NULL), (int) m_tTime-time(NULL));
+	m_sDescription.c_str(),(int) m_tTime,(int) time(NULL), (int) m_tTime-time(NULL));
 		}
 		break;
 	case DAY_OF_WEEK:
@@ -109,7 +164,7 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"Added interval timer %s at %d now
 				else
 				{
 					LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Day of week timer %s has no day of week: %s",
-						m_pRow_EventHandler->Description_get().c_str(),m_sDaysOfWeek.c_str());
+						m_sDescription.c_str(),m_sDaysOfWeek.c_str());
 					return;
 				}
 
@@ -117,7 +172,7 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"Added interval timer %s at %d now
 				if( !SetNextTime(NULL,&tm_Now,m_sTimes) )
 				{
 					LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Day of week timer %s has no next time: %s",
-						m_pRow_EventHandler->Description_get().c_str(),m_sTimes.c_str());
+						m_sDescription.c_str(),m_sTimes.c_str());
 					return;
 				}
 				LoggerWrapper::GetInstance()->Write(LV_STATUS,"TimedEvent::CalcNextTime no stage 2.  Checking %d %d/%d/%d", iDowNext, tm_Now.tm_mday,tm_Now.tm_mon+1,tm_Now.tm_year);
@@ -157,14 +212,14 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"TimedEvent::CalcNextTime dow done
 				else
 				{
 					LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Day of week timer %s has no day of week: %s",
-						m_pRow_EventHandler->Description_get().c_str(),m_sDaysOfMonth.c_str());
+						m_sDescription.c_str(),m_sDaysOfMonth.c_str());
 					return;
 				}
 
 				if( !SetNextTime(NULL,&tm_Now,m_sTimes) )  // First time that day
 				{
 					LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Day of week timer %s has no next time: %s",
-						m_pRow_EventHandler->Description_get().c_str(),m_sTimes.c_str());
+						m_sDescription.c_str(),m_sTimes.c_str());
 					return;
 				}
 			}
@@ -182,8 +237,7 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"TimedEvent::CalcNextTime Adjustin
 struct tm tmLocal;
 localtime_r(&m_tTime,&tmLocal);
 LoggerWrapper::GetInstance()->Write(LV_STATUS,"TimedEvent::CalcNextTime Timer: %s set for %d/%d/%d %d:%d:%d in %d seconds",
-	m_pRow_EventHandler->Description_get().c_str(),tmLocal.tm_mon+1,tmLocal.tm_mday,tmLocal.tm_year-100,tmLocal.tm_hour,tmLocal.tm_min,tmLocal.tm_sec,m_tTime - time(NULL));
-	*/
+	m_sDescription.c_str(),tmLocal.tm_mon+1,tmLocal.tm_mday,tmLocal.tm_year-100,tmLocal.tm_hour,tmLocal.tm_min,tmLocal.tm_sec,m_tTime - time(NULL));
 }
 
 class TimeOfDay

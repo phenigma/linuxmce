@@ -24,26 +24,44 @@
 #define DAY_OF_MONTH	3
 #define ABSOLUTE_TIME	4
 
-class Row_EventHandler;
+
+#include "DCERouter/DataLayer_JSON.h"
+//----------------------------------------------------------------------------------------------
+extern "C"
+{
+	#include "json.h" 
+	#include "bits.h"
+	#include "debug.h"
+	#include "linkhash.h"
+	#include "arraylist.h"
+	#include "json_util.h"
+	#include "json_object.h"
+	#include "json_object_private.h"
+	#include "json_tokener.h" 
+}
 
 namespace DCE
 {
-	class CommandGroup;
-}
+	class Event_Plugin;
+};
 
 using namespace DCE;
 
 class TimedEvent
 {
 public:
+	int m_ID;
+	string m_sDescription;
+	map<int, Command_Data> m_mapCommands;
+	DataLayer_JSON *m_pDataLayer_JSON;
+
 	time_t m_tTime;
 	int m_iTimedEventType;
 	
-	Row_EventHandler *m_pRow_EventHandler;
-	CommandGroup *m_pCommandGroup;
 	string m_sDaysOfWeek,m_sTimes,m_sDaysOfMonth;
 
-	TimedEvent(Row_EventHandler *pRow_EventHandler);
+	TimedEvent(int ID, struct json_object *json_obj,Event_Plugin *pEvent_Plugin);
+	void ParseCriteria(struct json_object *json_obj);
 	void CalcNextTime();
 
     /**

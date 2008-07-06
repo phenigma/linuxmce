@@ -70,6 +70,13 @@ public:
 		virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
 //<-dceag-const-e->
 
+		void ParseTimers(struct json_object *json_obj);
+		void ParseEvents(struct json_object *json_obj);
+		void ParseCommands(map<int, Command_Data>& mapCommands, struct json_object *json_obj);
+		void ParseCommandParameters(std::map<int, string>& mapParams, struct json_object *json_obj);
+		void ExecuteCommandData(map<int, Command_Data> *mapCommands);
+		void ExecuteCommandData(Command_Data *pCommand_Data);
+
 		virtual void PrepareToDelete();
 		bool ProcessEvent(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo);
 		CriteriaParmNesting *LoadCriteriaParmNesting(CriteriaParmNesting *pCriteriaParmNesting_Parent,class Row_CriteriaParmNesting *pRow_CriteriaParmNesting);

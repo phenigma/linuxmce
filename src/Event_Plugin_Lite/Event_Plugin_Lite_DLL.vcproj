@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..;../DCE/;../../libs/Libraries/pthreads-win32/include"
+				AdditionalIncludeDirectories="..;../DCE/;../../libs/Libraries/pthreads-win32/include;../../libs/CrossPlatform/json-c"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;EMBEDDED_LMCE"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -32,10 +32,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE.lib"
+				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE.lib jsonD.lib"
 				OutputFile="../Debug/Event_Plugin_Lite.dll"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="../../libs/Libraries/pthreads-win32/lib;../lib"
+				AdditionalLibraryDirectories="../../libs/Libraries/pthreads-win32/lib;../lib;../../libs/CrossPlatform/json-c/Debug"
 				ModuleDefinitionFile="Event_Plugin.def"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/Event_Plugin.pdb"
@@ -138,6 +138,9 @@
 			</File>
 			<File
 				RelativePath="..\Gen_Devices\Event_PluginBase.cpp">
+			</File>
+			<File
+				RelativePath=".\EventHandler.cpp">
 			</File>
 			<File
 				RelativePath="Main.cpp">

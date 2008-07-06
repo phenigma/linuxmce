@@ -79,50 +79,23 @@ bool Event_Plugin::GetConfig()
 		Criteria *pCriteria = new Criteria(pRow_Criteria->PK_Criteria_get(),pCriteriaParmNesting);
 		m_mapCriteria[pRow_Criteria->PK_Criteria_get()] = pCriteria;
 	}
+	*/
 
-	vector<Row_EventHandler *> vectRow_EventHandler;
-	if(pRow_Installation)
-		pRow_Installation->EventHandler_FK_Installation_getrows(&vectRow_EventHandler);
-	for(size_t s=0;s<vectRow_EventHandler.size();++s)
+	DataLayer_JSON *pDataLayer_JSON = (DataLayer_JSON *) m_pRouter->DataLayer();
+	struct json_object_iter iter;
+	json_object_object_foreachC(pDataLayer_JSON->m_root_json_obj_NonDevices_get(), iter) 
 	{
-		Row_EventHandler *pRow_EventHandler = vectRow_EventHandler[s];
-		if( pRow_EventHandler->Disabled_get() )
-			continue;
+		string sValue = iter.key;
 
-		if( pRow_EventHandler->TimedEvent_get() )
-		{
-			TimedEvent *pTimedEvent = new TimedEvent(pRow_EventHandler);
-#ifdef DEBUG
-			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Adding timed event %d",pRow_EventHandler->PK_EventHandler_get());
-#endif
-			pTimedEvent->m_pCommandGroup = m_pRouter->m_mapCommandGroup_Find(pRow_EventHandler->FK_CommandGroup_get());
-			if( !pTimedEvent->m_pCommandGroup )
-			{
-				LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Timed event %d has no commands",pRow_EventHandler->PK_EventHandler_get());
-				delete pTimedEvent;
-			}
-			else
-				m_mapTimedEvent[pTimedEvent->m_pRow_EventHandler->PK_EventHandler_get()] = pTimedEvent;
-		}
-		else
-		{
-			EventHandler *pEventHandler = new EventHandler(pRow_EventHandler->PK_EventHandler_get(),
-				pRow_EventHandler->FK_Event_get(),m_pRouter->m_mapCommandGroup_Find(pRow_EventHandler->FK_CommandGroup_get()),
-				m_mapCriteria_Find(pRow_EventHandler->FK_Criteria_get()),pRow_EventHandler->OncePerSeconds_get());
-
-			ListEventHandler *pListEventHandler = m_mapListEventHandler_Find(pRow_EventHandler->FK_Event_get());
-			if( !pListEventHandler )
-			{
-				pListEventHandler = new ListEventHandler();
-  				m_mapListEventHandler[pRow_EventHandler->FK_Event_get()] = pListEventHandler;
-			}
-			pListEventHandler->push_back(pEventHandler);
-		}
+		if(sValue == "Timer")
+			ParseTimers(iter.val);
+		else if(sValue == "Event")
+			ParseEvents(iter.val);
 	}
 
 	m_pAlarmManager = new AlarmManager();
     m_pAlarmManager->Start(2);      //4 = number of worker threads
-
+/*
 	PLUTO_SAFETY_LOCK(em,m_EventMutex);
 	m_fLongitude = DATA_Get_Longitude();
 	m_fLatitude = DATA_Get_Latitude();
@@ -144,6 +117,126 @@ bool Event_Plugin::GetConfig()
 	return true;
 }
 
+void Event_Plugin::ParseTimers(struct json_object *json_obj)
+{
+	struct json_object *obj_timers = json_obj;
+	struct json_object_iter iter_timers;
+	json_object_object_foreachC(obj_timers, iter_timers) 
+	{
+		string sTimerID = iter_timers.key;
+
+		StringUtils::Replace(&sTimerID, "PK_Timer_", "");
+		int nTimerID = atoi(sTimerID.c_str());
+		
+		TimedEvent *pTimedEvent = new TimedEvent(nTimerID,iter_timers.val,this);
+#ifdef DEBUG
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Adding timed event %d",nTimerID);
+#endif
+		if( pTimedEvent->m_mapCommands.empty() )
+		{
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Timed event %d has no commands",nTimerID);
+			delete pTimedEvent;
+		}
+		else
+			m_mapTimedEvent[pTimedEvent->m_ID] = pTimedEvent;
+	}
+}
+
+void Event_Plugin::ParseEvents(struct json_object *json_obj)
+{
+	struct json_object *obj_events = json_obj;
+	struct json_object_iter iter_events;
+	json_object_object_foreachC(obj_events, iter_events) 
+	{
+		string sEventID = iter_events.key;
+
+		StringUtils::Replace(&sEventID, "PK_Event_", "");
+		int nEventID = atoi(sEventID.c_str());
+		
+		EventHandler *pEventHandler = new EventHandler(nEventID,this,iter_events.val);
+
+		if( pEventHandler->m_mapCommands.empty() )
+		{
+			LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Event %d has no commands",nEventID );
+			delete pEventHandler;
+		}
+		else
+		{
+			ListEventHandler *pListEventHandler = m_mapListEventHandler_Find(pEventHandler->m_PK_Event);
+			if( !pListEventHandler )
+			{
+				pListEventHandler = new ListEventHandler();
+  				m_mapListEventHandler[pEventHandler->m_PK_Event] = pListEventHandler;
+			}
+			pListEventHandler->push_back(pEventHandler);
+		}
+	}
+}
+
+void Event_Plugin::ParseCommands(map<int, Command_Data>& mapCommands, struct json_object *json_obj)
+{
+	struct json_object *obj_commands = json_obj;
+	struct json_object_iter iter_commands;
+	json_object_object_foreachC(obj_commands, iter_commands) 
+	{
+		string sCommand = iter_commands.key;
+		StringUtils::Replace(&sCommand, "command_", "");
+		int nCommandIndex = atoi(sCommand.c_str());
+		Command_Data aCommand_data;
+
+		if(iter_commands.val->o_type == json_type_object)
+		{
+			struct json_object *obj_command = iter_commands.val;
+			struct json_object_iter iter_command;
+			json_object_object_foreachC(obj_command, iter_command) 
+			{
+				string sKey = iter_command.key;
+
+				if(iter_command.val->o_type == json_type_int)
+				{
+					int nValue = json_object_get_int(iter_command.val);
+
+					if(sKey == "Device_From")
+						aCommand_data.Device_From(nValue);
+					else if(sKey == "Device_To")
+						aCommand_data.Device_To(nValue);
+					else if(sKey == "FK_Command")
+						aCommand_data.PK_Command(nValue);
+					else if(sKey == "IsTemporary")
+						aCommand_data.IsTemporary(nValue);
+					else if(sKey == "CancelIfOther")
+						aCommand_data.CancelIfOther(nValue);
+					else if(sKey == "Delay")
+						aCommand_data.Delay(nValue);
+				}
+				else if(sKey == "params" && iter_command.val->o_type == json_type_object)
+				{
+					ParseCommandParameters(aCommand_data.Params(), iter_command.val);
+				}
+			}
+		}
+
+		mapCommands[nCommandIndex] = aCommand_data;
+	}
+}
+//----------------------------------------------------------------------------------------------
+void Event_Plugin::ParseCommandParameters(std::map<int, string>& mapParams, struct json_object *json_obj)
+{
+	struct json_object *obj_params = json_obj;
+	struct json_object_iter iter_params;
+	json_object_object_foreachC(obj_params, iter_params) 
+	{
+		string sFK_CommandParameter = iter_params.key;
+		StringUtils::Replace(&sFK_CommandParameter, "FK_CommandParameter_", "");
+		int nFK_CommandParameter = atoi(sFK_CommandParameter.c_str());
+		
+		if(iter_params.val->o_type == json_type_string)
+		{
+			string sValue = json_object_get_string(iter_params.val);
+			mapParams[nFK_CommandParameter] = sValue;
+		}
+	}
+}
 //<-dceag-const2-b->!
 
 CriteriaParmNesting *Event_Plugin::LoadCriteriaParmNesting(CriteriaParmNesting *pCriteriaParmNesting_Parent,Row_CriteriaParmNesting *pRow_CriteriaParmNesting)
@@ -269,7 +362,7 @@ bool Event_Plugin::ProcessEvent(class Socket *pSocket,class Message *pMessage,cl
 //		pEventInfo->m_vectEventHandlers.push_back(pEventHandler);
 //		pEventInfo->pEventHandler = pEventHandler;
 
-		if(pEventHandler->m_pCommandGroup==NULL)
+		if(pEventHandler->m_mapCommands.empty())
 			continue;  // This event handler doesn't have anything to do anyway
 
 		bool bResult = true;  // it's true unless there's a criteria that evaluates to false
@@ -312,13 +405,12 @@ bool Event_Plugin::ProcessEvent(class Socket *pSocket,class Message *pMessage,cl
 
 void Event_Plugin::ExecuteEvent(EventInstance *pEventInstance)
 {
-	ExecCommandGroup(pEventInstance->m_ptrEventHandler->m_pCommandGroup->m_PK_CommandGroup);
+	ExecuteCommandData(&(pEventInstance->m_ptrEventHandler->m_mapCommands));
 	delete pEventInstance;  // We will probably need to keep this for a while for some events like security problems
 }
 
 void Event_Plugin::SetNextTimedEventCallback()
 {
-	/*
 	PLUTO_SAFETY_LOCK(em,m_EventMutex);
 	if( m_mapTimedEvent.size()==0 )
 	{
@@ -344,30 +436,27 @@ void Event_Plugin::SetNextTimedEventCallback()
 	{
 		m_pAlarmManager->AddAbsoluteAlarm( m_pTimedEvent_Next->m_tTime, this, ALARM_TIMED_EVENT, (void *) m_pTimedEvent_Next );
 		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Timer: next event is %s in %d seconds",
-			m_pTimedEvent_Next->m_pRow_EventHandler->Description_get().c_str(),
+			m_pTimedEvent_Next->m_sDescription.c_str(),
 			m_pTimedEvent_Next->m_tTime - time(NULL));
 	}
-	*/
 }
 
 void Event_Plugin::AlarmCallback(int id, void* param)
 {
-	/*
 	PLUTO_SAFETY_LOCK(em,m_EventMutex);
 	if( id==ALARM_TIMED_EVENT )
 	{
 		TimedEvent *pTimedEvent = (TimedEvent *) param;
 
-		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Timer: %s firing command group %d",
-			pTimedEvent->m_pRow_EventHandler->Description_get().c_str(),pTimedEvent->m_pCommandGroup->m_PK_CommandGroup);
+		LoggerWrapper::GetInstance()->Write(LV_STATUS,"Timer: %s firing",
+			pTimedEvent->m_sDescription.c_str());
 
-		ExecCommandGroup(pTimedEvent->m_pCommandGroup->m_PK_CommandGroup);
+		ExecuteCommandData(&(pTimedEvent->m_mapCommands));
 		pTimedEvent->CalcNextTime();
 		SetNextTimedEventCallback();
 	}
 	else if( id==ALARM_SUNRISE_SUNSET )
 		FireSunriseSunsetEvent();
-		*/
 }
 
 
@@ -495,4 +584,32 @@ void Event_Plugin::FireSunriseSunsetEvent()
 
 	m_pAlarmManager->AddAbsoluteAlarm( m_tNextSunriseSunset, this, ALARM_SUNRISE_SUNSET, NULL );
 
+}
+
+void Event_Plugin::ExecuteCommandData(map<int, Command_Data> *mapCommands)
+{
+	for(map<int, Command_Data>::iterator it=mapCommands->begin();it!=mapCommands->end();++it)
+		ExecuteCommandData( &(it->second) );
+}
+
+void Event_Plugin::ExecuteCommandData(Command_Data *pCommand_Data)
+{
+	Message *pMessage = new Message();
+	pMessage->m_dwPK_Device_From = m_dwPK_Device;
+	pMessage->m_dwMessage_Type = MESSAGETYPE_COMMAND;
+	pMessage->m_dwID = pCommand_Data->PK_Command();
+	pMessage->m_dwPK_Device_To = pCommand_Data->Device_To();
+	pMessage->m_mapParameters[COMMANDPARAMETER_Is_Temporary_CONST] = (pCommand_Data->IsTemporary()==0 ? "1" : "0");
+	pMessage->m_mapParameters[COMMANDPARAMETER_Already_processed_CONST] = "1";
+
+	for(std::map<int, string>::iterator it_param = pCommand_Data->Params().begin(); 
+		it_param != pCommand_Data->Params().end(); ++it_param)
+	{
+		pMessage->m_mapParameters[it_param->first] = it_param->second;
+	}
+
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Event_Plugin::ExecuteCommandGroup Processing message from %d to %d id %d", 
+		pMessage->m_dwPK_Device_From, pMessage->m_dwPK_Device_To, pMessage->m_dwID);
+
+	QueueMessageToRouter(pMessage);
 }
