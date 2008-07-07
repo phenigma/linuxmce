@@ -901,8 +901,12 @@
 		}
 	}
 	,
-	"CommandParameter_ids":[100,101,99,52,53,2,13,19,60,61,20,23,41,76,97,98,91,92,102,107,21,50,57,5,8,47,9,28,119,40,230,156,198,44,201,58,109,150,202,10,154,103,205,51,208,219,222,223,229,239,240,163,17,244,48,249,250,248,275,220,225,259,39,182],
+	"CommandParameter_ids":[99,100,101,2,52,53,13,19,23,41,60,61,20,76,97,98,91,92,102,107,21,50,57,5,8,47,9,28,119,40,230,150,156,198,44,201,58,109,154,202,10,205,103,51,208,219,222,223,229,239,240,163,17,244,48,249,250,248,275,220,225,39,182,259],
 	"CommandParameter":{
+		"PK_CommandParameter_99": {
+			"Description":"Password",
+			"FK_ParameterType":"1"
+		},
 		"PK_CommandParameter_100": {
 			"Description":"PK_DeviceGroup",
 			"FK_ParameterType":"2"
@@ -911,9 +915,9 @@
 			"Description":"Handling Instructions",
 			"FK_ParameterType":"1"
 		},
-		"PK_CommandParameter_99": {
-			"Description":"Password",
-			"FK_ParameterType":"1"
+		"PK_CommandParameter_2": {
+			"Description":"PK_Device",
+			"FK_ParameterType":"2"
 		},
 		"PK_CommandParameter_52": {
 			"Description":"PK_DeviceData",
@@ -923,10 +927,6 @@
 			"Description":"UseDefault",
 			"FK_ParameterType":"3"
 		},
-		"PK_CommandParameter_2": {
-			"Description":"PK_Device",
-			"FK_ParameterType":"2"
-		},
 		"PK_CommandParameter_13": {
 			"Description":"Filename",
 			"FK_ParameterType":"1"
@@ -934,6 +934,14 @@
 		"PK_CommandParameter_19": {
 			"Description":"Data",
 			"FK_ParameterType":"5"
+		},
+		"PK_CommandParameter_23": {
+			"Description":"Disable Aspect Lock",
+			"FK_ParameterType":"1"
+		},
+		"PK_CommandParameter_41": {
+			"Description":"StreamID",
+			"FK_ParameterType":"2"
 		},
 		"PK_CommandParameter_60": {
 			"Description":"Width",
@@ -946,14 +954,6 @@
 		"PK_CommandParameter_20": {
 			"Description":"Format",
 			"FK_ParameterType":"1"
-		},
-		"PK_CommandParameter_23": {
-			"Description":"Disable Aspect Lock",
-			"FK_ParameterType":"1"
-		},
-		"PK_CommandParameter_41": {
-			"Description":"StreamID",
-			"FK_ParameterType":"2"
 		},
 		"PK_CommandParameter_76": {
 			"Description":"Level",
@@ -1027,6 +1027,10 @@
 			"Description":"Failed",
 			"FK_ParameterType":"3"
 		},
+		"PK_CommandParameter_150": {
+			"Description":"PK_DHCPDevice",
+			"FK_ParameterType":"2"
+		},
 		"PK_CommandParameter_156": {
 			"Description":"PK_Device_ControlledVia",
 			"FK_ParameterType":"2"
@@ -1051,8 +1055,8 @@
 			"Description":"Data String",
 			"FK_ParameterType":"1"
 		},
-		"PK_CommandParameter_150": {
-			"Description":"PK_DHCPDevice",
+		"PK_CommandParameter_154": {
+			"Description":"PK_Command",
 			"FK_ParameterType":"2"
 		},
 		"PK_CommandParameter_202": {
@@ -1063,17 +1067,13 @@
 			"Description":"ID",
 			"FK_ParameterType":"1"
 		},
-		"PK_CommandParameter_154": {
-			"Description":"PK_Command",
-			"FK_ParameterType":"2"
+		"PK_CommandParameter_205": {
+			"Description":"Reverse",
+			"FK_ParameterType":"3"
 		},
 		"PK_CommandParameter_103": {
 			"Description":"List PK Device",
 			"FK_ParameterType":"1"
-		},
-		"PK_CommandParameter_205": {
-			"Description":"Reverse",
-			"FK_ParameterType":"3"
 		},
 		"PK_CommandParameter_51": {
 			"Description":"Arguments",
@@ -1147,10 +1147,6 @@
 			"Description":"Always",
 			"FK_ParameterType":"3"
 		},
-		"PK_CommandParameter_259": {
-			"Description":"Multiple",
-			"FK_ParameterType":"3"
-		},
 		"PK_CommandParameter_39": {
 			"Description":"Options",
 			"FK_ParameterType":"1"
@@ -1158,10 +1154,26 @@
 		"PK_CommandParameter_182": {
 			"Description":"Timeout",
 			"FK_ParameterType":"1"
+		},
+		"PK_CommandParameter_259": {
+			"Description":"Multiple",
+			"FK_ParameterType":"3"
 		}
 	}
 	,
 	"Command_CommandParameter":{
+		"Command_CommandParameter_19_5": {
+			"FK_Command":"19",
+			"FK_CommandParameter":"5",
+			"Description":"A value from the HouseMode table, or -1=toggle monitor mode",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_19_17": {
+			"FK_Command":"19",
+			"FK_CommandParameter":"17",
+			"Description":"The user setting the mode.  If this is 0, it will match any user who has permission to set the house mode.",
+			"IsOut":"0"
+		},
 		"Command_CommandParameter_19_99": {
 			"FK_Command":"19",
 			"FK_CommandParameter":"99",
@@ -1178,18 +1190,6 @@
 			"FK_Command":"19",
 			"FK_CommandParameter":"101",
 			"Description":"How to handle any sensors that we are trying to arm, but are blocked.  Valid choices are: R-Report, change to a screen on the orbiter reporting this and let the user decide, W-Wait, arm anyway, but wait for the sensors to clear and then arm them, B-Bypass",
-			"IsOut":"0"
-		},
-		"Command_CommandParameter_19_5": {
-			"FK_Command":"19",
-			"FK_CommandParameter":"5",
-			"Description":"A value from the HouseMode table, or -1=toggle monitor mode",
-			"IsOut":"0"
-		},
-		"Command_CommandParameter_19_17": {
-			"FK_Command":"19",
-			"FK_CommandParameter":"17",
-			"Description":"The user setting the mode.  If this is 0, it will match any user who has permission to set the house mode.",
 			"IsOut":"0"
 		},
 		"Command_CommandParameter_68_2": {
@@ -1270,16 +1270,16 @@
 			"Description":"The level to set, as a value between 0 (off) and 100 (full).  It can be preceeded with a - or + indicating a relative value.  +20 means up 20%.",
 			"IsOut":"0"
 		},
-		"Command_CommandParameter_192_97": {
-			"FK_Command":"192",
-			"FK_CommandParameter":"97",
-			"Description":"Normally when a device is turned on all the inputs and outputs are selected automatically.  If this parameter is specified, only the settings along this pipe will be set.",
-			"IsOut":"0"
-		},
 		"Command_CommandParameter_192_98": {
 			"FK_Command":"192",
 			"FK_CommandParameter":"98",
 			"Description":"Normally when a device is turned on the corresponding \"pipes\" are enabled by default. if this parameter is blank.  If this parameter is 0, no pipes will be enabled.  This can also be a comma seperated list of devices, meaning only the pipes to those devic",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_192_97": {
+			"FK_Command":"192",
+			"FK_CommandParameter":"97",
+			"Description":"Normally when a device is turned on all the inputs and outputs are selected automatically.  If this parameter is specified, only the settings along this pipe will be set.",
 			"IsOut":"0"
 		},
 		"Command_CommandParameter_193_97": {
@@ -1336,12 +1336,6 @@
 			"Description":"If this is true, this command will return only the checksum of the file, Data will be null.",
 			"IsOut":"1"
 		},
-		"Command_CommandParameter_246_2": {
-			"FK_Command":"246",
-			"FK_CommandParameter":"2",
-			"Description":"The device to set",
-			"IsOut":"0"
-		},
 		"Command_CommandParameter_246_5": {
 			"FK_Command":"246",
 			"FK_CommandParameter":"5",
@@ -1352,6 +1346,12 @@
 			"FK_Command":"246",
 			"FK_CommandParameter":"52",
 			"Description":"The device data",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_246_2": {
+			"FK_Command":"246",
+			"FK_CommandParameter":"2",
+			"Description":"The device to set",
 			"IsOut":"0"
 		},
 		"Command_CommandParameter_247_2": {
@@ -1504,6 +1504,24 @@
 			"Description":"This is true if the script used to check for updates fails.",
 			"IsOut":"0"
 		},
+		"Command_CommandParameter_718_2": {
+			"FK_Command":"718",
+			"FK_CommandParameter":"2",
+			"Description":"The new device number",
+			"IsOut":"1"
+		},
+		"Command_CommandParameter_718_44": {
+			"FK_Command":"718",
+			"FK_CommandParameter":"44",
+			"Description":"The template",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_718_47": {
+			"FK_Command":"718",
+			"FK_CommandParameter":"47",
+			"Description":"The mac address",
+			"IsOut":"0"
+		},
 		"Command_CommandParameter_718_57": {
 			"FK_Command":"718",
 			"FK_CommandParameter":"57",
@@ -1550,24 +1568,6 @@
 			"FK_Command":"718",
 			"FK_CommandParameter":"201",
 			"Description":"Will make the new device relate to this one if possible",
-			"IsOut":"0"
-		},
-		"Command_CommandParameter_718_2": {
-			"FK_Command":"718",
-			"FK_CommandParameter":"2",
-			"Description":"The new device number",
-			"IsOut":"1"
-		},
-		"Command_CommandParameter_718_44": {
-			"FK_Command":"718",
-			"FK_CommandParameter":"44",
-			"Description":"The template",
-			"IsOut":"0"
-		},
-		"Command_CommandParameter_718_47": {
-			"FK_Command":"718",
-			"FK_CommandParameter":"47",
-			"Description":"The mac address",
 			"IsOut":"0"
 		},
 		"Command_CommandParameter_719_2": {
@@ -1648,6 +1648,12 @@
 			"Description":"Template id",
 			"IsOut":"0"
 		},
+		"Command_CommandParameter_802_2": {
+			"FK_Command":"802",
+			"FK_CommandParameter":"2",
+			"Description":"The device id for the NAS or internal drive being used.  If it will be stored on the Core's internal home directory, this will be the device id for the Core.  0 is no device can save the file.",
+			"IsOut":"1"
+		},
 		"Command_CommandParameter_802_163": {
 			"FK_Command":"802",
 			"FK_CommandParameter":"163",
@@ -1665,12 +1671,6 @@
 			"FK_CommandParameter":"222",
 			"Description":"The expected size of the file in MB.  If specified, only a device with enough space and which can handle it (ie some NAS don't do big files).  If not specified, returns device with the most free space.",
 			"IsOut":"0"
-		},
-		"Command_CommandParameter_802_2": {
-			"FK_Command":"802",
-			"FK_CommandParameter":"2",
-			"Description":"The device id for the NAS or internal drive being used.  If it will be stored on the Core's internal home directory, this will be the device id for the Core.  0 is no device can save the file.",
-			"IsOut":"1"
 		},
 		"Command_CommandParameter_803_156": {
 			"FK_Command":"803",
@@ -1774,12 +1774,6 @@
 			"Description":"Z-Wave node ID of the device.",
 			"IsOut":"0"
 		},
-		"Command_CommandParameter_841_48": {
-			"FK_Command":"841",
-			"FK_CommandParameter":"48",
-			"Description":"The value of parameter.",
-			"IsOut":"0"
-		},
 		"Command_CommandParameter_841_239": {
 			"FK_Command":"841",
 			"FK_CommandParameter":"239",
@@ -1792,10 +1786,10 @@
 			"Description":"The configuration parameter ID.",
 			"IsOut":"0"
 		},
-		"Command_CommandParameter_842_250": {
-			"FK_Command":"842",
-			"FK_CommandParameter":"250",
-			"Description":"The list of associated Z-Wave nodes (comma separated).",
+		"Command_CommandParameter_841_48": {
+			"FK_Command":"841",
+			"FK_CommandParameter":"48",
+			"Description":"The value of parameter.",
 			"IsOut":"0"
 		},
 		"Command_CommandParameter_842_239": {
@@ -1808,6 +1802,12 @@
 			"FK_Command":"842",
 			"FK_CommandParameter":"249",
 			"Description":"The group number which includes the associated nodes.",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_842_250": {
+			"FK_Command":"842",
+			"FK_CommandParameter":"250",
+			"Description":"The list of associated Z-Wave nodes (comma separated).",
 			"IsOut":"0"
 		},
 		"Command_CommandParameter_843_208": {
@@ -1828,16 +1828,16 @@
 			"Description":"The ID of the task to abort",
 			"IsOut":"0"
 		},
-		"Command_CommandParameter_915_198": {
-			"FK_Command":"915",
-			"FK_CommandParameter":"198",
-			"Description":"The Orbiter that did it, if any",
-			"IsOut":"0"
-		},
 		"Command_CommandParameter_915_2": {
 			"FK_Command":"915",
 			"FK_CommandParameter":"2",
 			"Description":"The device that was enabled",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_915_198": {
+			"FK_Command":"915",
+			"FK_CommandParameter":"198",
+			"Description":"The Orbiter that did it, if any",
 			"IsOut":"0"
 		},
 		"Command_CommandParameter_934_219": {
@@ -1954,18 +1954,6 @@
 			"Description":"If true, allow addition of multiple nodes until timeout occurs or add node is called with node stop.",
 			"IsOut":"0"
 		},
-		"Command_CommandParameter_968_39": {
-			"FK_Command":"968",
-			"FK_CommandParameter":"39",
-			"Description":"A string of letters for each of the following options:\r\nH = high power",
-			"IsOut":"0"
-		},
-		"Command_CommandParameter_968_48": {
-			"FK_Command":"968",
-			"FK_CommandParameter":"48",
-			"Description":"empty or 1 = Node Any, 2=node controller, 3=node slave, 5=node stop",
-			"IsOut":"0"
-		},
 		"Command_CommandParameter_968_182": {
 			"FK_Command":"968",
 			"FK_CommandParameter":"182",
@@ -1978,6 +1966,18 @@
 			"Description":"If true, allow deletion of multiple nodes until timeout occurs or add node is called with node stop.",
 			"IsOut":"0"
 		},
+		"Command_CommandParameter_968_39": {
+			"FK_Command":"968",
+			"FK_CommandParameter":"39",
+			"Description":"A string of letters for each of the following options:\r\nH = high power",
+			"IsOut":"0"
+		},
+		"Command_CommandParameter_968_48": {
+			"FK_Command":"968",
+			"FK_CommandParameter":"48",
+			"Description":"empty or 1 = Node Any, 2=node controller, 3=node slave, 5=node stop",
+			"IsOut":"0"
+		},
 		"Command_CommandParameter_969_2": {
 			"FK_Command":"969",
 			"FK_CommandParameter":"2",
@@ -1986,6 +1986,93 @@
 		}
 	}
 	,
+	"CriteriaParmList_ids":[1,2,3,5,8,10,11,12,13,14,15,16,17,18,19,20,22,23,24,25,26],
+	"CriteriaParmList":{
+		"PK_CriteriaParmList_1": {
+			"FK_ParameterType":"2",
+			"Description":"System"
+		},
+		"PK_CriteriaParmList_2": {
+			"FK_ParameterType":"2",
+			"Description":"PK_Installation"
+		},
+		"PK_CriteriaParmList_3": {
+			"FK_ParameterType":"2",
+			"Description":"PK_Skin"
+		},
+		"PK_CriteriaParmList_5": {
+			"FK_ParameterType":"2",
+			"Description":"Month"
+		},
+		"PK_CriteriaParmList_8": {
+			"FK_ParameterType":"2",
+			"Description":"PK_Device"
+		},
+		"PK_CriteriaParmList_10": {
+			"FK_ParameterType":"2",
+			"Description":"PK_DeviceTemplate"
+		},
+		"PK_CriteriaParmList_11": {
+			"FK_ParameterType":"1",
+			"Description":"Time of day"
+		},
+		"PK_CriteriaParmList_12": {
+			"FK_ParameterType":"2",
+			"Description":"PK_DeviceCategory"
+		},
+		"PK_CriteriaParmList_13": {
+			"FK_ParameterType":"2",
+			"Description":"PK_Room"
+		},
+		"PK_CriteriaParmList_14": {
+			"FK_ParameterType":"2",
+			"Description":"PK_DeviceGroup"
+		},
+		"PK_CriteriaParmList_15": {
+			"FK_ParameterType":"2",
+			"Description":"House Mode"
+		},
+		"PK_CriteriaParmList_16": {
+			"FK_ParameterType":"2",
+			"Description":"Room Mode"
+		},
+		"PK_CriteriaParmList_17": {
+			"FK_ParameterType":"2",
+			"Description":"Day Of Week"
+		},
+		"PK_CriteriaParmList_18": {
+			"FK_ParameterType":"2",
+			"Description":"Day Of Month"
+		},
+		"PK_CriteriaParmList_19": {
+			"FK_ParameterType":"1",
+			"Description":"Specific Date"
+		},
+		"PK_CriteriaParmList_20": {
+			"FK_ParameterType":"2",
+			"Description":"PK_RoomType"
+		},
+		"PK_CriteriaParmList_22": {
+			"FK_ParameterType":"2",
+			"Description":"PK_EventList"
+		},
+		"PK_CriteriaParmList_23": {
+			"FK_ParameterType":"2",
+			"Description":"PK_EventHandler"
+		},
+		"PK_CriteriaParmList_24": {
+			"FK_ParameterType":"1",
+			"Description":"PK_EventParameter"
+		},
+		"PK_CriteriaParmList_25": {
+			"FK_ParameterType":"2",
+			"Description":"User Mode"
+		},
+		"PK_CriteriaParmList_26": {
+			"FK_ParameterType":"2",
+			"Description":"State"
+		}
+	}
 	,
 	"DHCPDevice_ids":[14,27,35,69,70,71,72,90],
 	"DHCPDevice":{
