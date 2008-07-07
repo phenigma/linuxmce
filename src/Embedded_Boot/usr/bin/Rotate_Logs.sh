@@ -1,7 +1,12 @@
 #!/bin/ash
 
-NumberOfCopies=4
-RotationInterval=$((6 * 60 * 60)) #seconds
+CONF_FILE="/etc/pluto.conf"
+#Remove Commented lines and get options
+NumberOfCopies=$((`grep -v "^#" $CONF_FILE | awk -F '=' '/NumberOfCopies/ {print $2}'`))
+RotationInterval=$((`grep -v "^#" $CONF_FILE | awk -F '=' '/RotationInterval/ {print $2}'`))
+
+#NumberOfCopies=4
+#RotationInterval=$((6 * 60 * 60)) #seconds
 
 if [[ ! -f /tmp/log/pluto/DCERouter.log ]]; then
 	exit
