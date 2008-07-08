@@ -238,7 +238,7 @@ function LoadPackageNames
 	export mkr_powerfile_c200_package=493
 	export mkr_disk_drive_functions_source=496
 	export mkr_disk_drive_functions_package=497
-	export mkr_simplephone_package=498
+	export mkr_simplephone_source=498
 	export mkr_simplephone_package=499
 
 	export mkr_398_499=398,401,403,404,405,406,407,419,420,340,421,422,424,425
@@ -357,6 +357,9 @@ function LoadPackageNames
 	export mkr_serial=190,191
 	export mkr_messagetranslation=398,401
 	export mkr_standard_plugins=116,135
+	export mkr_shift_key_state=28,274
+	export mkr_simplephone=498,499
+	export mkr_vdr_plugin=466,467
 }
 
 function DisplayMessage {
