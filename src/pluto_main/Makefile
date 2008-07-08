@@ -250,6 +250,7 @@ libpluto_main.so: $(sources:.cpp=.o)
 
 clean: clean-recursive
 	rm -f *.o *.d libpluto_main.so >/dev/null
+	rm -f ../db_wrapper/*.o >/dev/null
 
 include $(ROOT)/PlutoUtils/make.rules
 -include $(sources:.cpp=.d)
