@@ -1,3 +1,5 @@
+# -*- Makefile -*-
+
 SNR_CPPFLAGS ?= <-mkr_t_compile_defines->
 
 ROOT = ..

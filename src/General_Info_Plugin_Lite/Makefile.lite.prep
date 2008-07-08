@@ -1,3 +1,5 @@
+# -*- Makefile -*-
+
 #<-dceag-mh-b->
 GENDEV=../Gen_Devices
 
@@ -6,21 +8,25 @@ SNR_LDFLAGS ?= <-mkr_t_compile_libs->
 
 ROOT = ..
 CXX = g++
-CXXFLAGS = -Wall -fPIC -ggdb3
-CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE $(SNR_CPPFLAGS)
+CXXFLAGS = -Wall -fPIC -Os
+CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql $(SNR_CPPFLAGS)
 LDFLAGS = $(SNR_LDFLAGS) -L$(ROOT)/lib
 BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lpthread
 
-MYNAME = YouTube_Plugin
+MYNAME = General_Info_Plugin_Lite
 VERSION = 2.0.0
-MYDEVTEMPLATEID = 1928mplateID
+MYDEVTEMPLATEID = 27mplateID
 
-Gen_Dev_Files = $(GENDEV)/YouTube_PluginBase.cpp
-sources = Main.cpp YouTube_Plugin.cpp $(Gen_Dev_Files)
+Gen_Dev_Files = $(GENDEV)/General_Info_PluginBase.cpp
+sources = Main.cpp General_Info_Plugin.cpp $(Gen_Dev_Files)
 #<-dceag-mh-e->
 
+ifeq ($(ARCH),mipsel)
+	CXX=mipsel-linux-g++
+endif
+
 CXXFLAGS +=
-CPPFLAGS +=
+CPPFLAGS += -DEMBEDDED_LMCE
 LDFLAGS +=
 XTRALDLIBS =
 
@@ -35,23 +41,23 @@ whattodo:
 
 all: bin so
 
-bin: YouTube_Plugin
+bin: General_Info_Plugin_Lite
 
-so: YouTube_Plugin.so
+so: General_Info_Plugin_Lite.so
 
-YouTube_Plugin.so: $(sources:.cpp=.o)
+General_Info_Plugin_Lite.so: $(sources:.cpp=.o)
 	$(CXX) -shared -o $(MYNAME).so $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
 	chmod +x post_make.sh
 	./post_make.sh $@
-		
-YouTube_Plugin: $(sources:.cpp=.o)
+
+General_Info_Plugin_Lite: $(sources:.cpp=.o)
 	$(CXX) -o $(MYNAME) $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
 	./post_make.sh $@
 
 clean: clean-recursive
-	rm -f $(call cpath,$(sources:.cpp=.o) $(sources:.cpp=.d)) YouTube_Plugin.bin YouTube_Plugin.so >/dev/null
+	rm -f $(call cpath,$(sources:.cpp=.o) $(sources:.cpp=.d)) General_Info_Plugin_Lite.bin General_Info_Plugin_Lite.so >/dev/null
 
 package:
 	chmod +x make_package.sh

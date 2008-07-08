@@ -6,6 +6,8 @@
 #include "pluto_media/Define_AttributeType.h"
 using namespace DCE;
 
+#include <cstdlib>
+
 #include <tag.h>
 #include <fileref.h>
 using namespace TagLib;

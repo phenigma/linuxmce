@@ -19,6 +19,7 @@
 #ifndef __PLUTO_MEDIA_FILE_H__
 #define __PLUTO_MEDIA_FILE_H__
 
+#include <memory>
 #include <string>
 #include <map>
 #include <list>
