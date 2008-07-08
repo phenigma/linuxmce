@@ -1496,6 +1496,9 @@ bool CreateSource_PlutoUbuntu(Row_Package_Source *pRow_Package_Source,list<FileI
 string Makefile = "none:\n"
 "\t\n"
 "\n"
+"clean:\n"
+"\t\n"
+"\n"
 "install:\n"
 "\tcp -a root/* $(DESTDIR) || true\n";
 
@@ -1505,7 +1508,7 @@ string Makefile = "none:\n"
 		cout << "Error: cannot open Makefile:" << Dir << "/Makefile" << endl;
 		return false;
 	}
-	fprintf(f, "%s", Makefile.c_str(), Makefile.length());
+	fprintf(f, "%s", Makefile.c_str());
 	fclose(f);
 	system("echo | DEBFULLNAME='LinuxMCE Developers' dh_make -c gpl -s -n -e 'developers@linuxmce.org'");
 #endif
@@ -1683,6 +1686,27 @@ string Makefile = "none:\n"
 	return true;
 }
 
+void open_debian_files(string filenameA, string filenameB, FILE **fileA, FILE **fileB)
+{
+	*fileA = *fileB = NULL;
+	*fileA = fopen(filenameA.c_str(), "r");
+	*fileB = fopen(filenameB.c_str(), "w");
+
+	if (*fileA && *fileB)
+		return;
+
+	if (!*fileA)
+		cout << "Aborting! Can't open file(*fileA): 'debian/postinst.ex'" << endl;
+	if (!*fileB)
+		cout << "Aborting! Can't open file(*fileB): 'debian/postinst'" << endl;
+	if (*fileA)
+		fclose(*fileA);
+	if (*fileB)
+		fclose(*fileB);
+	
+	exit(1);
+}
+
 bool CreateSource_PlutoDebian(Row_Package_Source *pRow_Package_Source,list<FileInfo *> &listFileInfo)
 {
 	string Version("");
@@ -1729,6 +1753,9 @@ bool CreateSource_PlutoDebian(Row_Package_Source *pRow_Package_Source,list<FileI
 string Makefile = "none:\n"
 "\t\n"
 "\n"
+"clean:\n"
+"\t\n"
+"\n"
 "install:\n"
 "\tcp -a root/* $(DESTDIR) || true\n";
 
@@ -1738,7 +1765,7 @@ string Makefile = "none:\n"
 		cout << "Error: cannot open Makefile:" << Dir << "/Makefile" << endl;
 		return false;
 	}
-	fprintf(f, "%s", Makefile.c_str(), Makefile.length());
+	fprintf(f, "%s", Makefile.c_str());
 	fclose(f);
 	system("echo | DEBFULLNAME='LinuxMCE Developers' dh_make -c gpl -s -n -e 'developers@linuxmce.org'");
 //	mkdir("DEBIAN", 0666);
@@ -1756,8 +1783,7 @@ string Makefile = "none:\n"
 			cout << "POSTINST: " << sSource << endl;
 			// put mkr_postinst scripts into control section instead of package contents
 			FILE * g;
-			f = fopen("debian/postinst.ex", "r");
-			g = fopen("debian/postinst", "w");
+			open_debian_files("debian/postinst.ex", "debian/postinst", &f, &g);
 			fchmod(fileno(g), 0644);
 			fprintf(g,"#!/bin/bash\n");
 			char buffer[1024];
@@ -1793,8 +1819,7 @@ string Makefile = "none:\n"
 			cout << "PREINST: " << sSource << endl;
 			// put mkr_preinst scripts into control section instead of package contents
 			FILE * g;
-			f = fopen("debian/preinst.ex", "r");
-			g = fopen("debian/preinst", "w");
+			open_debian_files("debian/preinst.ex", "debian/preinst", &f, &g);
 			fchmod(fileno(g), 0644);
 			fprintf(g,"#!/bin/bash\n");
 			char buffer[1024];
@@ -1823,8 +1848,7 @@ string Makefile = "none:\n"
 			cout << "PRERM: " << sSource << endl;
 			// put mkr_preinst scripts into control section instead of package contents
 			FILE * g;
-			f = fopen("debian/prerm.ex", "r");
-			g = fopen("debian/prerm", "w");
+			open_debian_files("debian/prerm.ex", "debian/prerm", &f, &g);
 			fchmod(fileno(g), 0644);
 			fprintf(g,"#!/bin/bash\n");
 			char buffer[1024];
@@ -1853,8 +1877,7 @@ string Makefile = "none:\n"
 			cout << "POSTRM: " << sSource << endl;
 			// put mkr_preinst scripts into control section instead of package contents
 			FILE * g;
-			f = fopen("debian/postrm.ex", "r");
-			g = fopen("debian/postrm", "w");
+			open_debian_files("debian/postrm.ex", "debian/postrm", &f, &g);
 			fchmod(fileno(g), 0644);
 			fprintf(g,"#!/bin/bash\n");
 			char buffer[1024];
