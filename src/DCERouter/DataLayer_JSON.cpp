@@ -168,9 +168,7 @@ bool DataLayer_JSON::LoadDevicesConfiguration()
 //----------------------------------------------------------------------------------------------
 bool DataLayer_JSON::LoadDynamicConfiguration()
 {
-	size_t size;
-	char *pData = FileUtils::ReadFileIntoBuffer("/temp/pluto.json.lzo.txt.new.txt",size);
-//	char *pData = GetUncompressedDataFromFile(JSON_DYNAMIC_CONFIG_FILE);
+	char *pData = GetUncompressedDataFromFile(JSON_DYNAMIC_CONFIG_FILE);
 
 	if(NULL != pData)
 	{

@@ -1372,7 +1372,7 @@ void General_Info_Plugin::SetNextAlarm()
 	if( tLowest!=0 )
 		m_pAlarmManager->AddAbsoluteAlarm(tLowest, this, PROCESS_DELAYED_EXECUTE_SCENARIOS, NULL);
 
-	LoggerWrapper::GetInstance()->Write(LV_STATUS, "General_Info_Plugin::SetNextAlarm %d seconds cancellable %d callback %p", time(NULL)-tLowest, (int) bCancellable, m_pCallBack_ForExecuteScenarios);
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "General_Info_Plugin::SetNextAlarm %d (%d) seconds cancellable %d callback %p", time(NULL)-tLowest, tLowest, (int) bCancellable, m_pCallBack_ForExecuteScenarios);
 
 	if( bCancellable && m_pCallBack_ForExecuteScenarios==NULL)
 		RegisterAllInterceptor();

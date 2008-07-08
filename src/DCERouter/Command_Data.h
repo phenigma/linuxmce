@@ -22,6 +22,9 @@ public:
 		m_nDevice_From = 0;
 		m_nDevice_To = 0;
 		m_nPK_Command = 0;
+		m_nDelay = 0;
+		m_nCancelIfOther = 0;
+		m_nIsTemporary = 0;
 	}
 
 	void Device_From(int nDeviceID)
