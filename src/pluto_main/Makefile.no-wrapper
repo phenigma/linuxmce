@@ -1,3 +1,4 @@
+# -*- Makefile -*-
 ROOT = ..
 CXXFLAGS = -pipe -Wall -O2 -D_GNU_SOURCE -fPIC -g -ggdb3
 CPPFLAGS =  -I.. -I../.. -I../DCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -DMULTI_THREADED -DNO_SQL_THREAD_LOG
@@ -243,6 +244,7 @@ libpluto_main.so: $(sources:.cpp=.o)
 
 clean: clean-recursive
 	rm -f *.o *.d libpluto_main.so >/dev/null
+	rm -f ../db_wrapper/*.o >/dev/null
 
 include $(ROOT)/PlutoUtils/make.rules
 -include $(sources:.cpp=.d)
