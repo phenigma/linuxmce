@@ -867,7 +867,8 @@ function grabFiles($path,$fileParm='-type f',$startingWith='') {
 	$escapedPath=str_replace(array('\\','"','$'),array('\\\\','\"','\$'),$path);
 	
 	$PathParm=($startingWith!='')?'"'.$escapedPath.'/'.$startingWith.'"*':'"'.$escapedPath.'/"';
-	$cmd='sudo -u root find '.$PathParm.' '.$fileParm.' -maxdepth 1 -not -name \'*.id3\'';
+	//return all files except special *.id3 files and *.keys.tar.gz
+	$cmd='sudo -u root find '.$PathParm.' '.$fileParm.' -maxdepth 1 -not -name \'*.id3\' -not -name \'*.keys.tar.gz\'';
 	//echo $cmd;
 	exec($cmd,$retArray);
 	//print_array($retArray);
