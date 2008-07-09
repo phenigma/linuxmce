@@ -16,8 +16,8 @@ function MoveDebs2Repo {
 	rm -f "$local_mirror_dir"/*.deb
 	rm -f "$local_mirror_dir"/Packages*
 
-	# Copy the debs built by make-replease
-	DisplayMessage "Copying make-realase debs to repository"
+	# Copy the debs built by make-release
+	DisplayMessage "Copying make-release debs to repository"
 	cp "${out_dir}/tmp/"*.deb "$local_mirror_dir"
 
 	# Copy the debs from replacements
@@ -25,8 +25,10 @@ function MoveDebs2Repo {
 	cp "${replacements_dir}"/*.deb "$local_mirror_dir"
 
 	# Copy the debs from extra
-	DisplayMessage "Copying extra (downloaded) debs to repository"
-	cp "${extras_dir}"/*.deb "$local_mirror_dir"
+	if [ x"$(ls ${extras_dir}/*.deb)" != x"" ] ; then
+		DisplayMessage "Copying extra (downloaded) debs to repository"
+		cp "${extras_dir}"/*.deb "$local_mirror_dir"
+	fi
 
 	# Generate the Packages files
 	DisplayMessage "Generating Packages / Packages.gz files"
@@ -45,7 +47,7 @@ function CopyDebsToDisklessSync {
 		cp "/var/www/${pkg}_"*.deb "${build_dir}/DisklessSync/${arch}/deb-cache/" || :
 	done
 	
-	local sync_cd2_pkgs="libdvdnav4"
+	local sync_cd2_pkgs="libdvdnav4 openobex-apps"
 	mkdir -p "${build_dir}/DisklessSync/${arch}/deb-cache"
 	for pkg in $sync_cd2_pkgs ;do
 		rm -f "${build_dir}/DisklessSync/${arch}/deb-cache/${pkg}_"*.deb
@@ -57,6 +59,8 @@ function CopyDebsToDisklessSync {
 
 	rm -f "${build_dir}/DisklessSync/${arch}/deb-cache/"3ware-3dm2_*.deb
 	cp /var/www/3ware-3dm2_*.deb "${build_dir}/DisklessSync/${arch}/deb-cache" || :
+
+	echo "$(svn info "$svn_dir/$svn_branch_name/src" | grep Revision | sed 's/Revision: //g')" > "${build_dir}/DisklessSync/${arch}/revision"
 }
 
 function PublishPrivateDebs {
@@ -69,6 +73,8 @@ function PublishPrivateDebs {
         for pkg in "${priv_debs[@]}"; do
                 cp "$out_dir"/tmp/"$pkg"_*.deb "$temp_dir"
         done
+
+	echo "$(svn info "$svn_dir/$svn_branch_name/src/ZWave" | grep Revision | sed 's/Revision: //g')" > "${temp_dir}/revision"
 
         local Dir="$local_mirror_dir/priv_debs"
         local Latest="$Dir/latest"

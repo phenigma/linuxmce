@@ -23,16 +23,15 @@ while : ;do
 #	rm -f /var/www/*.iso
 
 	# Cleanup the Build Dir of Private Sources
-	rm -rf /var/lmce-build/svn/trunk/src/ZWave
-	rm -rf /var/lmce-build/svn/trunk/src/Fiire_Scripts
-	rm -rf /var/lmce-build/svn/trunk/src/RFID_Interface
-#	rm -rf /var/lmce-build/svn/trunk/src/lmce_launch_manager	
+	rm -rf ${svn_dir}/${svn_branch_name}/src/ZWave
+	rm -rf ${svn_dir}/${svn_branch_name}/src/Fiire_Scripts
+	rm -rf ${svn_dir}/${svn_branch_name}/src/RFID_Interface
 
 	# Backup the Build Dir
-	svn_build_revision=$(svn info "$svn_dir/trunk/src" | grep Revision | sed 's/Revision: //g')
+	svn_build_revision=$(svn info "$svn_dir/$svn_branch_name/src" | grep Revision | sed 's/Revision: //g')
 	mkdir -p "${build_ftp_dir}/BUILD"
-	cp -r /var/lmce-build/svn/trunk/src/* "${build_ftp_dir}/BUILD"
-	rm -rf /var/lmce-build/svn/*
+	cp -r ${svn_dir}/${svn_branch_name}/src/* "${build_ftp_dir}/BUILD"
+	rm -rf ${svn_dir}/
 
 	# Backup the Debs
 	mkdir -p "${build_ftp_dir}/DEBS"
@@ -59,13 +58,15 @@ while : ;do
 		echo "Flavor   : ${flavor}"                             >>$mail_txt_file
 		echo "Revision : ${svn_build_revision}"			>>$mail_txt_file
 		echo "Date     : $(date -R)"                            >>$mail_txt_file
+		echo "MD-32    : $(cat $build_dir/svn_i386)"            >>$mail_txt_file
+		echo "MD-64    : $(cat $build_dir/svn_amd64)"           >>$mail_txt_file
 		echo "URL      : ftp://builder32.linuxmce.com/AutoBuilds/$(basename $build_ftp_dir)" >>$mail_txt_file
 		echo							>>$mail_txt_file
 		echo							>>$mail_txt_file
 		if [[ "$svn_prev_revision" != "" ]] ;then
 			echo " * Changes since the last build : *"		>>$mail_txt_file	
 			echo							>>$mail_txt_file
-			svn log --xml -v -r$svn_build_revision:$svn_prev_revision http://svn.linuxmce.com/pluto/trunk/ | xsltproc /etc/svn2cl/svn2cl.xsl - >>$mail_txt_file
+			svn log --xml -v -r$svn_build_revision:$svn_prev_revision $svn_url | xsltproc /etc/svn2cl/svn2cl.xsl - >>$mail_txt_file
 		fi
 		cat $mail_txt_file | mail -s "$mail_subject_prefix Build Completed" "${mail_to}"
 		rm -rf $mail_txt_file
