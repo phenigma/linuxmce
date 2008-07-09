@@ -35,7 +35,7 @@ whattodo:
 
 all: bin so
 
-bin: Disk_Drive
+bin: Disk_Drive disk_copy cdop Disk_Drive IsDataTrack disc_unlock dvd_region 
 
 so: Disk_Drive.so
 
@@ -50,8 +50,12 @@ Disk_Drive: $(sources:.cpp=.o)
 	cp $@ ../bin
 	./post_make.sh $@
 
+disc_unlock: disc_unlock.c
+	$(CXX) -o $(MYNAME) $(call cpath,$+) $(LDFLAGS) $(LDLIBS) -ldvdread
+
 clean: clean-recursive
 	rm -f $(call cpath,$(sources:.cpp=.o) $(sources:.cpp=.d)) Disk_Drive.bin Disk_Drive.so >/dev/null
+	rm -f Disk_Drive disk_copy cdop Disk_Drive IsDataTrack disc_unlock dvd_region
 
 package:
 	chmod +x make_package.sh
