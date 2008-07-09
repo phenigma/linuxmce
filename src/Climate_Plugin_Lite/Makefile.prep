@@ -7,29 +7,29 @@ SNR_CPPFLAGS ?= <-mkr_t_compile_defines->
 SNR_LDFLAGS ?= <-mkr_t_compile_libs->
 
 ROOT = ..
-
+CXX = g++
 CXXFLAGS = -Wall -fPIC -ggdb3
 CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE $(SNR_CPPFLAGS)
 LDFLAGS = $(SNR_LDFLAGS) -L$(ROOT)/lib
 BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lpthread
 
-MYNAME = Disk_Drive
+MYNAME = Climate_Plugin_Lite
 VERSION = 2.0.0
-MYDEVTEMPLATEID = 11mplateID
+MYDEVTEMPLATEID = 31mplateID
 
-Gen_Dev_Files = $(GENDEV)/Disk_DriveBase.cpp
-sources = Main.cpp Disk_Drive.cpp $(Gen_Dev_Files)
+Gen_Dev_Files = $(GENDEV)/Climate_PluginBase.cpp
+sources = Main.cpp Climate_Plugin.cpp $(Gen_Dev_Files)
 #<-dceag-mh-e->
 
-CXXFLAGS += -fmessage-length=0
+CXXFLAGS +=
 CPPFLAGS +=
 LDFLAGS +=
-XTRALDLIBS = -lcddb -lDisk_Drive_Functions -lpluto_media
+XTRALDLIBS = -lpluto_main
 
-Gen_Dev_Files +=
-sources += ../JobHandler/Job.cpp ../JobHandler/JobHandler.cpp ../JobHandler/Task.cpp ../HAL/HalTree.cpp
+Gen_Dev_Files += 
+sources += 
 
-#<-dceag-mf-b->!
+#<-dceag-mf-b->
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
 
 whattodo:
@@ -37,27 +37,23 @@ whattodo:
 
 all: bin so
 
-bin: Disk_Drive disk_copy cdop Disk_Drive IsDataTrack disc_unlock dvd_region 
+bin: Climate_Plugin_Lite
 
-so: Disk_Drive.so
+so: Climate_Plugin_Lite.so
 
-Disk_Drive.so: $(sources:.cpp=.o)
+Climate_Plugin_Lite.so: $(sources:.cpp=.o)
 	$(CXX) -shared -o $(MYNAME).so $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
 	chmod +x post_make.sh
 	./post_make.sh $@
 
-Disk_Drive: $(sources:.cpp=.o)
+Climate_Plugin_Lite: $(sources:.cpp=.o)
 	$(CXX) -o $(MYNAME) $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
 	./post_make.sh $@
 
-disc_unlock: disc_unlock.c
-	$(CXX) -o $(MYNAME) $(call cpath,$+) $(LDFLAGS) $(LDLIBS) -ldvdread
-
 clean: clean-recursive
-	rm -f $(call cpath,$(sources:.cpp=.o) $(sources:.cpp=.d)) Disk_Drive.bin Disk_Drive.so >/dev/null
-	rm -f Disk_Drive disk_copy cdop Disk_Drive IsDataTrack disc_unlock dvd_region
+	rm -f $(call cpath,$(sources:.cpp=.o) $(sources:.cpp=.d)) Climate_Plugin_Lite.bin Climate_Plugin_Lite.so >/dev/null
 
 package:
 	chmod +x make_package.sh
