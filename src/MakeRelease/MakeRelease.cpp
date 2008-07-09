@@ -1496,6 +1496,9 @@ bool CreateSource_PlutoUbuntu(Row_Package_Source *pRow_Package_Source,list<FileI
 string Makefile = "none:\n"
 "\t\n"
 "\n"
+"clean:\n"
+"\t\n"
+"\n"
 "install:\n"
 "\tcp -a root/* $(DESTDIR) || true\n";
 
@@ -1505,7 +1508,7 @@ string Makefile = "none:\n"
 		cout << "Error: cannot open Makefile:" << Dir << "/Makefile" << endl;
 		return false;
 	}
-	fprintf(f, "%s", Makefile.c_str(), Makefile.length());
+	fprintf(f, "%s", Makefile.c_str());
 	fclose(f);
 	system("echo | DEBFULLNAME='LinuxMCE Developers' dh_make -c gpl -s -n -e 'developers@linuxmce.org'");
 #endif
@@ -1729,6 +1732,9 @@ bool CreateSource_PlutoDebian(Row_Package_Source *pRow_Package_Source,list<FileI
 string Makefile = "none:\n"
 "\t\n"
 "\n"
+"clean:\n"
+"\t\n"
+"\n"
 "install:\n"
 "\tcp -a root/* $(DESTDIR) || true\n";
 
@@ -1738,7 +1744,7 @@ string Makefile = "none:\n"
 		cout << "Error: cannot open Makefile:" << Dir << "/Makefile" << endl;
 		return false;
 	}
-	fprintf(f, "%s", Makefile.c_str(), Makefile.length());
+	fprintf(f, "%s", Makefile.c_str());
 	fclose(f);
 	system("echo | DEBFULLNAME='LinuxMCE Developers' dh_make -c gpl -s -n -e 'developers@linuxmce.org'");
 //	mkdir("DEBIAN", 0666);
