@@ -416,6 +416,9 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 			
 			$delID3='sudo -u root rm -f "'.bash_escape($oldFilePath).'.id3"';
 			exec_batch_command($delID3);
+
+			$delCssKey='sudo -u root rm -f "'.bash_escape($oldFilePath).'.keys.tar.gz"';
+			exec_batch_command($delCssKey);
 			
 			$mediadbADO->Execute('DELETE FROM File_Attribute WHERE FK_File=?',$fileID);
 			$mediadbADO->Execute('DELETE FROM Picture_File WHERE FK_File=?',$fileID);
@@ -572,6 +575,9 @@ function web_rename($source, $destination){
 	$rename_id3='sudo -u root /usr/pluto/bin/Web_Rename.sh "'.bash_escape($source).'.id3" "'.bash_escape($destination).'.id3"';
 	exec_batch_command($rename_id3);
 	
+	$rename_CssKey='sudo -u root /usr/pluto/bin/Web_Rename.sh "'.bash_escape($source).'.keys.tar.gz" "'.bash_escape($destination).'.keys.tar.gz"';
+	exec_batch_command($rename_CssKey);
+
 	$cmd='sudo -u root /usr/pluto/bin/Web_Rename.sh "'.bash_escape($source).'" "'.bash_escape($destination).'"';
 	return exec_batch_command($cmd);
 }
