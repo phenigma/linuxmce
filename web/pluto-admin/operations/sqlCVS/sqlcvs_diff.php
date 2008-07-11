@@ -212,7 +212,7 @@ function sqlcvs_diff($output,$dbADO) {
 			<td><input type="text" name="password" value="'.$password.'"></td>
 		</tr>
 		<tr>
-			<td colspan="3"><B>'.$TEXT_DATABASE_CONST.':</B></td>
+			<td><B>'.$TEXT_DATABASE_CONST.':</B></td>
 			<td>'.pulldownFromArray($databasesArray,'database',$database,'onchange="document.sqlcvs_diff.action.value=\'form\';document.sqlcvs_diff.submit();"','key','').'</td>
 		</tr>		
 		<tr>
@@ -223,7 +223,7 @@ function sqlcvs_diff($output,$dbADO) {
 			<td><input type="submit" class="button" name="submitBtn" value="'.$TEXT_NEXT_CONST.'"></td>
 		</tr>
 		</table>
-		<table width="700" cellpadding="3" cellspacing="0" border="0">';
+		<table width="700" cellpadding="3" cellspacing="0" border="0">';	
 		$repository='';
 		$table='';
 		if($retVal==0){
@@ -262,7 +262,7 @@ function sqlcvs_diff($output,$dbADO) {
 				$out.='
 					<tr>
 						<td><input type="checkbox" name="line_'.$lineNo.'" value="1" checked></td>';
-				if(str_replace('CHANGE:','',$items[3])!='DEL'){
+				if(str_replace('CHANGE:','',$items[3])!=' DEL'){
 					$out.='
 						<td><a href="javascript:windowOpen(\'showRecord.php?table='.$lineTable.'&where='.addslashes(str_replace('WHERE:','',$items[4])).'\',\'width=800,height=400,scrollbars=1,resizable=1\');">'.str_replace('CHANGE:','',$items[3]).'</a></td>
 						<td>'.substr($lineValues[$cols[0]][0],0,20).'</td>
@@ -288,6 +288,18 @@ function sqlcvs_diff($output,$dbADO) {
 					<tr>
 						<td colspan="5" bgcolor="#F0F3F8"><a href="javascript:selAllCheckboxes(\''.$lineNo.'\',true);">[ Check all ]</a> <a href="javascript:selAllCheckboxes(\''.$lineNo.'\',false);">[ Uncheck all ]</a></td>
 					</tr>			
+					<tr>
+						<td colspan="5">&nbsp</td>
+					</tr>
+					<tr>
+						<td colspan="5" align="center">
+						If you would like a comment sent with this sqlCVS action, please type it below.<br>
+						(For example, a reference to a Mantis Ticket number)
+						</td>
+					</tr>
+					<tr>
+						<td align="center" colspan="5"><input type="text" name="sqlCVSComment" size="100%"></td>
+					</tr>
 					<tr>
 						<td colspan="5" align="center"><input type="submit" class="button" name="revert" value="'.$TEXT_REVERT_CONST.'"> <input type="submit" class="button" name="checkin" value="'.$TEXT_CHECKIN_CONST.'"></td>
 					</tr>';
@@ -326,7 +338,8 @@ function sqlcvs_diff($output,$dbADO) {
 		$parmList=$_POST['parms'];
 		$port=(int)$_POST['port'];
 		$rand_tmp_file=$_POST['rand_tmp_file'];
-		
+		$sqlCVSComment =bash_escape($_POST['sqlCVSComment']);
+
 		if($host=='' || $port==''){
 			header("Location: index.php?section=sqlcvs_diff&error=$TEXT_ERROR_HOST_OR_PORT_NOT_SPECIFIED_CONST");
 			exit();			
@@ -334,20 +347,20 @@ function sqlcvs_diff($output,$dbADO) {
 		
 		$fileLines=$_POST['fileLines'];
 		$fileArray=file('/tmp/'.$rand_tmp_file);
-		$maskArray=array();
+
+		//Build a proper mask file to allow sqlCVS to checkin/revert only what is selected
+		$maskFile = fopen('/tmp/'.$rand_tmp_file.'.mask','w');
 		for($i=0;$i<$fileLines;$i++){
 			if(isset($_POST['line_'.$i]) && (int)$_POST['line_'.$i]==1){
-				$maskArray[]=$fileArray[$i];
+				fwrite($maskFile,$fileArray[$i]);
 			}
 		}
-		exec_batch_command('sudo -u root chmod 777 /tmp/tmp_sqlcvs_file');
+		fclose($maskFile);
 		
+		//build sqlCVS command string
 		$sqlcvsAction=(isset($_POST['revert']))?'revert':'checkin';
-		
-		$cmd='sudo -u root /usr/pluto/bin/sqlCVS -R '.$port.' -H '.$host.' -h localhost -a -n '.$parmList.' -d "'.$username.'" -U "'.$username.'~'.$password.'" -D '.$database.' -e -m /tmp/'.$rand_tmp_file.' '.$sqlcvsAction;
+		$cmd='sudo -u root /usr/pluto/bin/sqlCVS -R '.$port.' -H '.$host.' -h localhost -a -n '.$parmList.' -d "'.$username.'" -U "'.$username.'~'.$password.'" -D '.$database.' -c "'.$sqlCVSComment.'" -e -m /tmp/'.$rand_tmp_file.'.mask '.$sqlcvsAction;
 		writeFile($GLOBALS['WebExecLogFile'],date('d-m-Y H:i:s')."\t".$cmd."\n",'a+');
-		//unlink($rand_tmp_file);
-
 		
 		$out='
 		<script>
@@ -356,7 +369,7 @@ function sqlcvs_diff($output,$dbADO) {
 			}
 
 		
-			windowOpen(\'operations/logs/executeLog.php?script=2&command='.urlencode($cmd).'\',\'width=1024,height=768,scrollbars=1,resizable=1\')
+			//windowOpen(\'operations/logs/executeLog.php?script=2&command='.urlencode($cmd).'\',\'width=1024,height=768,scrollbars=1,resizable=1\')
 			self.location="index.php?section=sqlcvs_diff";		
 		</script>';
 		
