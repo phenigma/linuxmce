@@ -1,0 +1,361 @@
+//<-dceag-d-b->
+#include "ZWave.h"
+#include "DCE/Logger.h"
+#include "PlutoUtils/FileUtils.h"
+#include "PlutoUtils/StringUtils.h"
+#include "PlutoUtils/LinuxSerialUSB.h"
+#include "PlutoUtils/Other.h"
+
+#include <iostream>
+using namespace std;
+using namespace DCE;
+
+#include "Gen_Devices/AllCommandsRequests.h"
+//<-dceag-d-e->
+
+#include "ZWApi.h"
+#include <deque>
+
+//<-dceag-const-b->
+// The primary constructor when the class is created as a stand-alone device
+ZWave::ZWave(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
+	: ZWave_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
+//<-dceag-const-e->
+{
+	// mutex_serial = PTHREAD_MUTEX_INITIALIZER;
+	// OpenSerialPortEx(TranslateSerialUSB(DATA_Get_COM_Port_on_PC()).c_str(),&serialPort);
+	// mybuf[0]=NAK;
+        // WriteSerialStringEx(serialPort,mybuf,1);
+
+        // pthread_mutex_init(&mutex_serial, NULL);
+	// pthread_create(&readThread, NULL,ZWApi::receiveFunction, (void*)serialPort);
+	// myZWApi->init(TranslateSerialUSB(DATA_Get_COM_Port_on_PC()).c_str());
+	myZWApi=new(ZWApi::ZWApi);
+	myZWApi->init("/dev/ttyACM0",this);
+
+}
+
+//<-dceag-const2-b->
+// The constructor when the class is created as an embedded instance within another stand-alone device
+ZWave::ZWave(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter)
+	: ZWave_Command(pPrimaryDeviceCommand, pData, pEvent, pRouter)
+//<-dceag-const2-e->
+{
+}
+
+//<-dceag-dest-b->
+ZWave::~ZWave()
+//<-dceag-dest-e->
+{
+	
+}
+
+//<-dceag-getconfig-b->
+bool ZWave::GetConfig()
+{
+	if( !ZWave_Command::GetConfig() )
+		return false;
+//<-dceag-getconfig-e->
+	sleep(5);
+	CMD_Report_Child_Devices();
+
+	return true;
+}
+
+//<-dceag-reg-b->
+// This function will only be used if this device is loaded into the DCE Router's memory space as a plug-in.  Otherwise Connect() will be called from the main()
+bool ZWave::Register()
+//<-dceag-reg-e->
+{
+	return Connect(PK_DeviceTemplate_get()); 
+}
+
+/*  Since several parents can share the same child class, and each has it's own implementation, the base class in Gen_Devices
+	cannot include the actual implementation.  Instead there's an extern function declared, and the actual new exists here.  You 
+	can safely remove this block (put a ! after the dceag-createinst-b block) if this device is not embedded within other devices. */
+//<-dceag-createinst-b->
+ZWave_Command *Create_ZWave(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter)
+{
+	return new ZWave(pPrimaryDeviceCommand, pData, pEvent, pRouter);
+}
+//<-dceag-createinst-e->
+
+/*
+	When you receive commands that are destined to one of your children,
+	then if that child implements DCE then there will already be a separate class
+	created for the child that will get the message.  If the child does not, then you will 
+	get all	commands for your children in ReceivedCommandForChild, where 
+	pDeviceData_Base is the child device.  If you handle the message, you 
+	should change the sCMD_Result to OK
+*/
+//<-dceag-cmdch-b->
+void ZWave::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sCMD_Result,Message *pMessage)
+//<-dceag-cmdch-e->
+{
+	int node_id = atoi(pDeviceData_Impl->m_mapParameters_Find(DEVICEDATA_PortChannel_Number_CONST).c_str());
+	if (node_id > 0 && node_id <= 233) {
+		sCMD_Result = "OK";
+		switch (pMessage->m_dwID) {
+			case COMMAND_Generic_On_CONST:
+				printf("ON RECEIVED FOR CHILD %d\n",node_id);
+				myZWApi->zwBasicSet(node_id,255);
+				break;
+				;;
+			case COMMAND_Generic_Off_CONST:
+				printf("OFF RECEIVED FOR CHILD %d\n",node_id);
+				myZWApi->zwBasicSet(node_id,0);
+				break;
+				;;
+			case COMMAND_Set_Level_CONST:
+				int level = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Level_CONST].c_str());
+				printf("SET LEVEL RECEIVED FOR CHILD %d, level: %d\n",node_id,level);
+				myZWApi->zwBasicSet(node_id,level>99?99:level);
+				break;
+				;;
+				
+		}
+	} else {
+		sCMD_Result = "BAD NODE ID";
+	}
+}
+
+/*
+	When you received a valid command, but it wasn't for one of your children,
+	then ReceivedUnknownCommand gets called.  If you handle the message, you 
+	should change the sCMD_Result to OK
+*/
+//<-dceag-cmduk-b->
+void ZWave::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage)
+//<-dceag-cmduk-e->
+{
+	sCMD_Result = "UNKNOWN COMMAND";
+}
+
+//<-dceag-sample-b->!
+//<-dceag-sample-e->
+
+/*
+
+	COMMANDS TO IMPLEMENT
+
+*/
+
+//<-dceag-c756-b->
+
+	/** @brief COMMAND: #756 - Report Child Devices */
+	/** Report all the child sensors this has by firing an event 'Reporting Child Devices' */
+
+void ZWave::CMD_Report_Child_Devices(string &sCMD_Result,Message *pMessage)
+//<-dceag-c756-e->
+{
+	cout << "--> Executing command #756 - Report Child Devices" << endl;
+	        EVENT_Reporting_Child_Devices("",myZWApi->getDeviceList() );
+
+}
+
+//<-dceag-c757-b->
+
+	/** @brief COMMAND: #757 - Download Configuration */
+	/** Download new configuration data for this device */
+		/** @param #9 Text */
+			/** Any information the device may want to do the download */
+
+void ZWave::CMD_Download_Configuration(string sText,string &sCMD_Result,Message *pMessage)
+//<-dceag-c757-e->
+{
+	cout << "Need to implement command #757 - Download Configuration" << endl;
+	cout << "Parm #9 - Text=" << sText << endl;
+}
+
+//<-dceag-c760-b->
+
+	/** @brief COMMAND: #760 - Send Command To Child */
+	/** After reporting new child devices, there may be children we want to test, but we haven't done a quick reload router and can't send them messages directly.  This way we can send 'live' messages to children */
+		/** @param #10 ID */
+			/** The internal ID used for this device--not the Pluto device ID. */
+		/** @param #154 PK_Command */
+			/** The command to send */
+		/** @param #202 Parameters */
+			/** Parameters for the command in the format:
+PK_CommandParameter|Value|... */
+
+void ZWave::CMD_Send_Command_To_Child(string sID,int iPK_Command,string sParameters,string &sCMD_Result,Message *pMessage)
+//<-dceag-c760-e->
+{
+	cout << "Need to implement command #760 - Send Command To Child" << endl;
+	cout << "Parm #10 - ID=" << sID << endl;
+	cout << "Parm #154 - PK_Command=" << iPK_Command << endl;
+	cout << "Parm #202 - Parameters=" << sParameters << endl;
+}
+
+//<-dceag-c776-b->
+
+	/** @brief COMMAND: #776 - Reset */
+	/** Reset device. */
+		/** @param #51 Arguments */
+			/** Argument string
+NOEMON or CANBUS */
+
+void ZWave::CMD_Reset(string sArguments,string &sCMD_Result,Message *pMessage)
+//<-dceag-c776-e->
+{
+	cout << "Need to implement command #776 - Reset" << endl;
+	cout << "Parm #51 - Arguments=" << sArguments << endl;
+}
+
+//<-dceag-c788-b->
+
+	/** @brief COMMAND: #788 - StatusReport */
+	/** Test comand. Asq a report */
+		/** @param #51 Arguments */
+			/** Argument string */
+
+void ZWave::CMD_StatusReport(string sArguments,string &sCMD_Result,Message *pMessage)
+//<-dceag-c788-e->
+{
+	cout << "Need to implement command #788 - StatusReport" << endl;
+	cout << "Parm #51 - Arguments=" << sArguments << endl;
+}
+
+//<-dceag-c820-b->
+
+	/** @brief COMMAND: #820 - Assign Return Route */
+	/** Assign Return Route between 2 nodes from ZWave network */
+		/** @param #239 NodeID */
+			/** Source Node ID */
+		/** @param #240 DestNodeID */
+			/** Destination Node ID */
+
+void ZWave::CMD_Assign_Return_Route(int iNodeID,int iDestNodeID,string &sCMD_Result,Message *pMessage)
+//<-dceag-c820-e->
+{
+	cout << "Need to implement command #820 - Assign Return Route" << endl;
+	cout << "Parm #239 - NodeID=" << iNodeID << endl;
+	cout << "Parm #240 - DestNodeID=" << iDestNodeID << endl;
+}
+
+//<-dceag-c840-b->
+
+	/** @brief COMMAND: #840 - SetWakeUp */
+	/** Set the WakeUp value for Z-Wave PIR devices. */
+		/** @param #48 Value */
+			/** WakeUp timeout value (1-255 min) */
+		/** @param #239 NodeID */
+			/** Z-Wave node ID of the device. */
+
+void ZWave::CMD_SetWakeUp(int iValue,int iNodeID,string &sCMD_Result,Message *pMessage)
+//<-dceag-c840-e->
+{
+	cout << "Need to implement command #840 - SetWakeUp" << endl;
+	cout << "Parm #48 - Value=" << iValue << endl;
+	cout << "Parm #239 - NodeID=" << iNodeID << endl;
+}
+
+//<-dceag-c841-b->
+
+	/** @brief COMMAND: #841 - Set Config Param */
+	/** Set the configuration parameters for Z-Wave devices (PIR) */
+		/** @param #48 Value */
+			/** The value of parameter. */
+		/** @param #239 NodeID */
+			/** Z-Wave node id */
+		/** @param #248 Parameter ID */
+			/** The configuration parameter ID. */
+
+void ZWave::CMD_Set_Config_Param(int iValue,int iNodeID,int iParameter_ID,string &sCMD_Result,Message *pMessage)
+//<-dceag-c841-e->
+{
+	cout << "Need to implement command #841 - Set Config Param" << endl;
+	cout << "Parm #48 - Value=" << iValue << endl;
+	cout << "Parm #239 - NodeID=" << iNodeID << endl;
+	cout << "Parm #248 - Parameter_ID=" << iParameter_ID << endl;
+}
+
+//<-dceag-c842-b->
+
+	/** @brief COMMAND: #842 - Set Association */
+	/** Set the association of Z-Wave nodes into a group. */
+		/** @param #239 NodeID */
+			/** Z-Wave node ID which associates some nodes in its group. */
+		/** @param #249 Group ID */
+			/** The group number which includes the associated nodes. */
+		/** @param #250 Nodes List */
+			/** The list of associated Z-Wave nodes (comma separated). */
+
+void ZWave::CMD_Set_Association(int iNodeID,int iGroup_ID,string sNodes_List,string &sCMD_Result,Message *pMessage)
+//<-dceag-c842-e->
+{
+	cout << "Need to implement command #842 - Set Association" << endl;
+	cout << "Parm #239 - NodeID=" << iNodeID << endl;
+	cout << "Parm #249 - Group_ID=" << iGroup_ID << endl;
+	cout << "Parm #250 - Nodes_List=" << sNodes_List << endl;
+}
+
+void ZWave::SendSensorTrippedEvents(unsigned short node_id, bool value)
+{
+        DeviceData_Impl *pChildDevice = NULL;
+        for( VectDeviceData_Impl::const_iterator it = m_pData->m_vectDeviceData_Impl_Children.begin();
+                        it != m_pData->m_vectDeviceData_Impl_Children.end(); ++it )
+        {
+                pChildDevice = (*it);
+                if( pChildDevice != NULL )
+                {
+			DeviceData_Impl *pChildDevice1 = NULL;
+			for( VectDeviceData_Impl::const_iterator it1 = pChildDevice->m_vectDeviceData_Impl_Children.begin();
+				it1 != pChildDevice->m_vectDeviceData_Impl_Children.end(); ++it1 )
+			{
+				pChildDevice1 = (*it1);
+				if( pChildDevice1 != NULL )
+				{
+					int tmp_node_id = atoi(pChildDevice1->m_mapParameters_Find(DEVICEDATA_PortChannel_Number_CONST).c_str());
+					if (tmp_node_id == node_id) {
+						LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "ZWave::SendSensorTrippedEvents sending start");
+						printf("Sending event from node %d\n",tmp_node_id);
+						m_pEvent->SendMessage( new Message(pChildDevice1->m_dwPK_Device,
+							DEVICEID_EVENTMANAGER,
+							PRIORITY_NORMAL,
+							MESSAGETYPE_EVENT,
+							EVENT_Sensor_Tripped_CONST,
+							1,
+							EVENTPARAMETER_Tripped_CONST,
+							value ? "1" : "0")
+						);
+					}
+				}
+			}
+		}
+	}
+}
+
+
+void ZWave::SendLightChangedEvents(unsigned short node_id, int value)
+{
+	char svalue[32];
+	sprintf(svalue, "%d", value==99?100:value);
+        DeviceData_Impl *pChildDevice = NULL;
+        for( VectDeviceData_Impl::const_iterator it = m_pData->m_vectDeviceData_Impl_Children.begin();
+                        it != m_pData->m_vectDeviceData_Impl_Children.end(); ++it )
+        {
+                pChildDevice = (*it);
+                if( pChildDevice != NULL )
+                {
+			int tmp_node_id = atoi(pChildDevice->m_mapParameters_Find(DEVICEDATA_PortChannel_Number_CONST).c_str());
+			// passing 0 as device node affects all Lighting Devices, used for ALL ON and ALL OFF
+			if ( (tmp_node_id == node_id) || ((node_id == 0) && (pChildDevice->m_dwPK_DeviceCategory == DEVICECATEGORY_Lighting_Device_CONST)) ) {
+				LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "ZWave::SendLightChangedEvents sending commands/events");
+				printf("Sending EVENT_State_Changed_CONST event from node %d, level %s\n",tmp_node_id,svalue);
+				m_pEvent->SendMessage( new Message(pChildDevice->m_dwPK_Device,
+					DEVICEID_EVENTMANAGER,
+					PRIORITY_NORMAL,
+					MESSAGETYPE_EVENT,
+					EVENT_State_Changed_CONST,
+					1,
+					EVENTPARAMETER_State_CONST,
+					svalue)
+				);
+			}
+		}
+	}
+}
+
+
