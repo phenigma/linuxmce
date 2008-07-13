@@ -32,16 +32,8 @@ ZWave::ZWave(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool b
 	: ZWave_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
 {
-	// mutex_serial = PTHREAD_MUTEX_INITIALIZER;
-	// OpenSerialPortEx(TranslateSerialUSB(DATA_Get_COM_Port_on_PC()).c_str(),&serialPort);
-	// mybuf[0]=NAK;
-        // WriteSerialStringEx(serialPort,mybuf,1);
-
-        // pthread_mutex_init(&mutex_serial, NULL);
-	// pthread_create(&readThread, NULL,ZWApi::receiveFunction, (void*)serialPort);
-	// myZWApi->init(TranslateSerialUSB(DATA_Get_COM_Port_on_PC()).c_str());
 	myZWApi=new(ZWApi::ZWApi);
-	myZWApi->init("/dev/ttyACM0",this);
+	myZWApi->init(TranslateSerialUSB(DATA_Get_COM_Port_on_PC()).c_str(),this);
 
 }
 
