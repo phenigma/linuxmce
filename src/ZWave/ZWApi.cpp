@@ -29,6 +29,9 @@
 
 #include "IOUtils/IOUtils.h"
 
+#include "Gen_Devices/ZWaveBase.h"
+
+
 extern "C" void *start( void* );
 
 void *start( void *p )
@@ -46,7 +49,7 @@ ZWApi::ZWApi::~ZWApi() {
 void *ZWApi::ZWApi::init(const char *device, void *myZWave) {
 	char mybuf[1024];
 
-	// printf("\n\nINIT\n\n\n");
+ 	// DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "Initialization...");
 
 	this->myZWave = myZWave;
 
@@ -64,6 +67,7 @@ void *ZWApi::ZWApi::init(const char *device, void *myZWave) {
 	pthread_create(&readThread, NULL, start, (void*)this);
 	// pthread_create(&readThread, NULL, start, (void*)serialPort);
 	//
+ 	// DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "Request version");
 	mybuf[0] = ZW_GET_VERSION;
 	sendFunction( mybuf , 1, REQUEST, 0); 
 

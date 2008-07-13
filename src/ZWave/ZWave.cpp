@@ -192,10 +192,26 @@ PK_CommandParameter|Value|... */
 void ZWave::CMD_Send_Command_To_Child(string sID,int iPK_Command,string sParameters,string &sCMD_Result,Message *pMessage)
 //<-dceag-c760-e->
 {
-	cout << "Need to implement command #760 - Send Command To Child" << endl;
-	cout << "Parm #10 - ID=" << sID << endl;
-	cout << "Parm #154 - PK_Command=" << iPK_Command << endl;
-	cout << "Parm #202 - Parameters=" << sParameters << endl;
+	int node_id = atoi(sID.c_str());
+	if (node_id > 0 && node_id <= 233) {
+		sCMD_Result = "OK";
+		switch (pMessage->m_dwID) {
+			case COMMAND_Generic_On_CONST:
+				printf("ON RECEIVED FOR CHILD %d\n",node_id);
+				myZWApi->zwBasicSet(node_id,255);
+				break;
+				;;
+			case COMMAND_Generic_Off_CONST:
+				printf("OFF RECEIVED FOR CHILD %d\n",node_id);
+				myZWApi->zwBasicSet(node_id,0);
+				break;
+				;;
+			default:
+				sCMD_Result = "ZWave NOT IMPLEMENTED";
+		}
+	} else {
+		sCMD_Result = "BAD NODE ID";
+	}
 }
 
 //<-dceag-c776-b->
