@@ -253,17 +253,24 @@ function irCodes($output,$dbADO,$mediaADO) {
 		
 		if(isset($_POST['irgroup_command']) && (int)$_POST['irgroup_command']>0){
 			$irg_c=(int)$_POST['irgroup_command'];
-			if($action!='delete'){
-				$dbADO->Execute('INSERT INTO InfraredGroup_Command (FK_InfraredGroup,FK_Command,IRData) SELECT FK_InfraredGroup,FK_Command,IRData FROM InfraredGroup_Command WHERE PK_InfraredGroup_Command=?',$irg_c);
 
-				header("Location: index.php?section=irCodes&from=$from&dtID=$dtID&deviceID=$deviceID&infraredGroupID=$infraredGroupID&msg=Custom code added.&label=".$GLOBALS['label']);
+			if($action=='delete') {
+				$dbADO->Execute('DELETE FROM InfraredGroup_Command WHERE PK_InfraredGroup_Command=?',array($irg_c));
+
+				header("Location: index.php?section=irCodes&from=$from&dtID=$dtID&deviceID=$deviceID&infraredGroupID=$infraredGroupID&msg=$TEXT_CUSTOM_CODE_DELETED_CONST&label=".$GLOBALS['label']);
 				exit();
-			}else{
+			} else if($action=='clear') {
 				$dbADO->Execute('UPDATE InfraredGroup_Command SET IRData=? WHERE PK_InfraredGroup_Command=?',array('',$irg_c));
 				
 				header("Location: index.php?section=irCodes&from=$from&dtID=$dtID&deviceID=$deviceID&infraredGroupID=$infraredGroupID&msg=$TEXT_CUSTOM_CODE_DELETED_CONST&label=".$GLOBALS['label']);
 				exit();
+			} else {
+				$dbADO->Execute('INSERT INTO InfraredGroup_Command (FK_InfraredGroup,FK_Command,IRData) SELECT FK_InfraredGroup,FK_Command,IRData FROM InfraredGroup_Command WHERE PK_InfraredGroup_Command=?',$irg_c);
+
+				header("Location: index.php?section=irCodes&from=$from&dtID=$dtID&deviceID=$deviceID&infraredGroupID=$infraredGroupID&msg=Custom code added.&label=".$GLOBALS['label']);
+				exit();
 			}
+			
 		}
 		
 		if(isset($_POST['update']) && isset($_SESSION['userID'])){
