@@ -14,7 +14,6 @@
 #include <iostream>
 
 #include "Serial.h"
-#include "errcode.h"
 
 #define BAUDRATE   B115200
 

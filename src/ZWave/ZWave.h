@@ -23,8 +23,6 @@
 #include <stdlib.h>
 #include <sys/file.h>
 
-#include "errcode.h"
-
 #include "Generic_Serial_Device/IOUtils.h"
 
 #include "ZWApi.h"
