@@ -178,11 +178,11 @@ namespace ZWApi
 			void *myZWave;
 
 		public:
-			ZWApi();
+			ZWApi(void *myZWave);
 
 			~ZWApi();
 
-			void *init(const char *device, void *myZWave);
+			void *init(const char *device);
 			char checksum(char *buf, int len);
 
 			void *decodeFrame(char *frame, size_t length);

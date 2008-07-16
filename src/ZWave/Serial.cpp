@@ -68,10 +68,10 @@ int ReadSerialStringEx (int dev,char pnt[],int len,long timeout)
 
         while (total < len) {
                 FD_ZERO (&fs);
-                FD_SET (3,&fs);
-                tv.tv_sec = timeout / 1000;
-                tv.tv_usec = (timeout % 1000) * 1000;
-                bytes = select (4,&fs,NULL,NULL,&tv);
+                FD_SET (dev,&fs);
+                tv.tv_sec = 0;
+                tv.tv_usec = 100000;
+                bytes = select (FD_SETSIZE,&fs,NULL,NULL,&tv);
 
                 // 0 bytes or error
                 if( bytes <= 0 )

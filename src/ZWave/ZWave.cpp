@@ -32,8 +32,8 @@ ZWave::ZWave(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool b
 	: ZWave_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
 {
-	myZWApi=new(ZWApi::ZWApi);
-	myZWApi->init(TranslateSerialUSB(DATA_Get_COM_Port_on_PC()).c_str(),this);
+	// string port = DATA_Get_COM_Port_on_PC();
+	myZWApi=new ZWApi::ZWApi(this);
 
 }
 
@@ -58,7 +58,9 @@ bool ZWave::GetConfig()
 	if( !ZWave_Command::GetConfig() )
 		return false;
 //<-dceag-getconfig-e->
-	sleep(5);
+	string port = TranslateSerialUSB(DATA_Get_COM_Port_on_PC());
+	myZWApi->init(port.c_str());
+	sleep(8);
 	CMD_Report_Child_Devices();
 
 	return true;

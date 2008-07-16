@@ -40,28 +40,28 @@ ZWApi::ZWApi *base = static_cast<ZWApi::ZWApi*>(p);
 base->receiveFunction();
 }
 
-ZWApi::ZWApi::ZWApi() {
+ZWApi::ZWApi::ZWApi(void *myZWave) {
+	this->myZWave = myZWave;
 }
 
 ZWApi::ZWApi::~ZWApi() {
 }
 
-void *ZWApi::ZWApi::init(const char *device, void *myZWave) {
+void *ZWApi::ZWApi::init(const char *device) {
 	char mybuf[1024];
 
  	// DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "Initialization...");
 
-	this->myZWave = myZWave;
 
         callbackpool = 1;
         ournodeid = -1;
         await_ack = 0;
 
-	OpenSerialPortEx("/dev/ttyACM0",&serialPort);
+	OpenSerialPortEx(device,&serialPort);
         mybuf[0]=NAK;
         WriteSerialStringEx(serialPort,mybuf,1);
 
-	pthread_mutex_init(&mutex_serial, NULL);
+	pthread_mutex_init(&mutexSendQueue, NULL);
 
 	static pthread_t readThread;
 	pthread_create(&readThread, NULL, start, (void*)this);
@@ -504,6 +504,7 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 }
 
 void *ZWApi::ZWApi::receiveFunction() {
+	printf("receiveFunction started\n");
 	char retbuf[1];
 	char mybuf2[1024];
 	size_t len2;
