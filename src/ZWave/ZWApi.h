@@ -159,22 +159,30 @@ namespace ZWApi
 	{
 		private:
 
+			// this will be our reader/writer thread for the serial port
 			static pthread_t readThread;
+
+			// mutex to lock out command queue
 			pthread_mutex_t mutexSendQueue;
-			pthread_mutex_t mutex_serial;
 
 			int serialPort;
-
 
 			std::deque<ZWJob*> ZWSendQueue;
 			std::deque<ZWIntent*> ZWIntentQueue;
 
+			// will be filled with the pluto syntax to report child devices
 			std::string deviceList;
 
-
+			// counter to get a unique callback id
 			int callbackpool;
+
+			// the node id of our dongle
 			int ournodeid;
+
+			// set true when we await an ACK from the dongle, influences state machine
 			bool await_ack;
+
+			// reference to our ZWave DCE device
 			void *myZWave;
 
 		public:
@@ -182,15 +190,29 @@ namespace ZWApi
 
 			~ZWApi();
 
+			// opens the serial port and starts the initalization of the zwave device
 			void *init(const char *device);
+
+			// calculate a xor checksum for the zwave frame
 			char checksum(char *buf, int len);
 
+			// decodes a frame received from the dongle
 			void *decodeFrame(char *frame, size_t length);
+
+			// this is the function for our reader/writer thread, handles frame flow and read/write
 			void *receiveFunction(); 
+
+			// high level intent queue, abused for enumerating the nodes for now
 			bool addIntent(int nodeid, int type);
 			int getIntent(int type); 
+
+			// adds a zwave job to the queue
 			bool sendFunction(char *buffer, size_t length, int type, bool response = 0);
+
+			// called by the zwave device to receive the deviceList string
 			std::string getDeviceList();
+
+			// used by the ZWave DCE device to call BASIC SET class command
 			bool zwBasicSet(int node_id, int level);
 
 	};
