@@ -27,7 +27,7 @@
 
 #include "ZWave.h"
 
-#include "IOUtils/IOUtils.h"
+#include "Generic_Serial_Device/IOUtils.h"
 
 #include "Gen_Devices/ZWaveBase.h"
 

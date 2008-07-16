@@ -25,7 +25,7 @@ LDFLAGS +=
 XTRALDLIBS =
 
 Gen_Dev_Files +=
-sources += Serial.cpp ZWApi.cpp IOUtils/IOUtils.cpp
+sources += Serial.cpp ZWApi.cpp ../Generic_Serial_Device/IOUtils.cpp
 
 #<-dceag-mf-b->
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)

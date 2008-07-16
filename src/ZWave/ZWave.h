@@ -25,7 +25,7 @@
 
 #include "errcode.h"
 
-#include "IOUtils/IOUtils.h"
+#include "Generic_Serial_Device/IOUtils.h"
 
 #include "ZWApi.h"
 
