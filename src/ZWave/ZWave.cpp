@@ -309,6 +309,10 @@ void ZWave::CMD_Set_Association(int iNodeID,int iGroup_ID,string sNodes_List,str
 	cout << "Parm #239 - NodeID=" << iNodeID << endl;
 	cout << "Parm #249 - Group_ID=" << iGroup_ID << endl;
 	cout << "Parm #250 - Nodes_List=" << sNodes_List << endl;
+	LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "ZWave::CMD_Set_Association");
+	myZWApi->zwAssociationGet(iNodeID,iGroup_ID);
+// 	myZWApi->zwAssociationSet(iNodeID,iGroup_ID,8);
+	
 }
 
 void ZWave::SendSensorTrippedEvents(unsigned short node_id, bool value)

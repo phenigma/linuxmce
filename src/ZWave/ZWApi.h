@@ -136,6 +136,13 @@
 #define CLOCK_SET                                       0x04
 #define CLOCK_REPORT                                    0x06
 
+#define COMMAND_CLASS_ASSOCIATION			0x85
+#define ASSOCIATION_SET					0x01
+#define ASSOCIATION_GET					0x02
+#define ASSOCIATION_REPORT				0x03
+#define ASSOCIATION_REMOVE				0x04
+
+
 #include <deque>
 
 namespace ZWApi
@@ -214,6 +221,10 @@ namespace ZWApi
 
 			// used by the ZWave DCE device to call BASIC SET class command
 			bool zwBasicSet(int node_id, int level);
+
+			// get the association list for a specific group from a device
+			bool zwAssociationGet(int node_id, int group);
+			bool zwAssociationSet(int node_id, int group, int target_node_id);
 
 	};
 

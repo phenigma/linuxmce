@@ -662,3 +662,32 @@ bool ZWApi::ZWApi::zwBasicSet(int node_id, int level) {
 
 }
 
+bool ZWApi::ZWApi::zwAssociationGet(int node_id, int group) {
+	char mybuf[1024];
+
+        mybuf[0] = FUNC_ID_ZW_SEND_DATA;
+	mybuf[1] = node_id;
+	mybuf[2] = 3;
+	mybuf[3] = COMMAND_CLASS_ASSOCIATION;
+	mybuf[4] = ASSOCIATION_GET;
+	mybuf[5] = group;
+	mybuf[6] = TRANSMIT_OPTION_ACK | TRANSMIT_OPTION_AUTO_ROUTE;
+        sendFunction( mybuf , 7, REQUEST, 1);
+
+
+}
+
+bool ZWApi::ZWApi::zwAssociationSet(int node_id, int group, int target_node_id) {
+	char mybuf[1024];
+
+        mybuf[0] = FUNC_ID_ZW_SEND_DATA;
+	mybuf[1] = node_id;
+	mybuf[2] = 4;
+	mybuf[3] = COMMAND_CLASS_ASSOCIATION;
+	mybuf[4] = ASSOCIATION_SET;
+	mybuf[5] = group;
+	mybuf[6] = target_node_id;
+	mybuf[7] = TRANSMIT_OPTION_ACK | TRANSMIT_OPTION_AUTO_ROUTE;
+        sendFunction( mybuf , 8, REQUEST, 1);
+
+}
