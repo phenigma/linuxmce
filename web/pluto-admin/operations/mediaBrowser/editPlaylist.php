@@ -2,7 +2,7 @@
 function editPlaylist($output,$mediadbADO,$dbADO) {
 	// include language files
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
-	include(APPROOT.'/languages/'.$GLOBALS['lang'].'editPlaylist.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/editPlaylist.lang.php');
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/playlists.lang.php');
 	
 
