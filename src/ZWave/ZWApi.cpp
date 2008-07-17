@@ -50,7 +50,7 @@ ZWApi::ZWApi::~ZWApi() {
 void *ZWApi::ZWApi::init(const char *device) {
 	char mybuf[1024];
 
- 	// DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "Initialization...");
+ 	DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "Initialization...");
 
 
         callbackpool = 1;
@@ -218,7 +218,7 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 				break;
 			;;
 			case FUNC_ID_ZW_SEND_DATA:
-				printf("ZW_SEND Response:\n");
+				printf("ZW_SEND Response should be parsed\n");
 				break;
 
 			default:
@@ -351,6 +351,21 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 							tempbuf[8]=TRANSMIT_OPTION_ACK | TRANSMIT_OPTION_AUTO_ROUTE;
 							sendFunction( tempbuf , 9, REQUEST, 1); 
 
+						}
+						break;
+					case COMMAND_CLASS_ASSOCIATION:
+						printf("COMMAND_CLASS_ASSOCIATION - ");
+						if (frame[6] == ASSOCIATION_REPORT) {
+							printf("Associations for group: %i\n",frame[7]);
+							printf("Max nodes supported: %i\n",frame[8]);
+							printf("Reports to follow: %i\n",frame[9]);
+							if ((length-10)>0) {
+								printf("Nodes: ");
+								for (int i=0;i<(length-10);i++) {
+									printf("%i,",(unsigned char)frame[10+i]);
+								}
+							}
+							printf("length: %i\n",length);
 						}
 						break;
 					case COMMAND_CLASS_MULTI_CMD:
@@ -529,7 +544,7 @@ void *ZWApi::ZWApi::receiveFunction() {
 					// read the rest of the frame
 					len2 += ReadSerialStringEx(serialPort,mybuf2+2,mybuf2[1],100);
 
-					if (len2>0) printf("%s\n",DCE::IOUtils::FormatHexAsciiBuffer(mybuf2, len2,"33").c_str());
+					if (len2>0) DCE::LoggerWrapper::GetInstance()->Write(LV_RECEIVE_DATA, DCE::IOUtils::FormatHexAsciiBuffer(mybuf2, len2,"33").c_str());
 					// verify checksum
 					if ((unsigned char) mybuf2[len2-1] == (unsigned char) checksum(mybuf2+1,mybuf2[1])) {
 						// printf("Checksum correct - sending ACK\n");
@@ -545,19 +560,19 @@ void *ZWApi::ZWApi::receiveFunction() {
 					break;
 				;;
 				case CAN:
-					printf("CAN Received\n");
+					DCE::LoggerWrapper::GetInstance()->Write(LV_RECEIVE_DATA, "CAN RECEIVED");
 						// trigger resend
 						await_ack = 0;
 					break;
 				;;
 				case NAK:
-					printf("NAK Received\n");
+					DCE::LoggerWrapper::GetInstance()->Write(LV_RECEIVE_DATA, "NAK RECEIVED");
 						// trigger resend
 						await_ack = 0;
 					break;
 				;;
 				case ACK:
-					printf("ACK Received\n");
+					DCE::LoggerWrapper::GetInstance()->Write(LV_RECEIVE_DATA, "ACK RECEIVED");
 					// if we await an ack pop the command, it got an ACK
 					if (await_ack) {
 						await_ack = 0;
@@ -568,7 +583,7 @@ void *ZWApi::ZWApi::receiveFunction() {
 					break;
 				;;
 				default:
-					printf("ERROR! out of frame flow\n");
+					DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "ERROR! Out of frame flow!!");
 				;;
 			}
 		} else {
@@ -576,7 +591,7 @@ void *ZWApi::ZWApi::receiveFunction() {
 			if (ZWSendQueue.size()>0 && await_ack != 1) {
 				// printf("Elements on queue: %i\n",ZWSendQueue.size());
 				// printf("Pointer: %p\n",ZWSendQueue.front());
-				printf("%s\n",DCE::IOUtils::FormatHexAsciiBuffer(ZWSendQueue.front()->buffer, ZWSendQueue.front()->len,"31").c_str());
+				DCE::LoggerWrapper::GetInstance()->Write(LV_SEND_DATA, DCE::IOUtils::FormatHexAsciiBuffer(ZWSendQueue.front()->buffer, ZWSendQueue.front()->len,"31").c_str());
 
 				WriteSerialStringEx(serialPort,ZWSendQueue.front()->buffer, ZWSendQueue.front()->len);
 				await_ack = 1;
