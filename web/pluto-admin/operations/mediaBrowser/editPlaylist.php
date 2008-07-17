@@ -2,8 +2,10 @@
 function editPlaylist($output,$mediadbADO,$dbADO) {
 	// include language files
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
-	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/editPlaylist.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'editPlaylist.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/playlists.lang.php');
 	
+
 	/* @var $mediadbADO ADOConnection */
 	/* @var $rs ADORecordSet */
 	$out='';
@@ -21,7 +23,7 @@ function editPlaylist($output,$mediadbADO,$dbADO) {
 	$selMediaType=(isset($_REQUEST['mediaType']))?$_REQUEST['mediaType']:'all';	
 	$selGenre=(isset($_REQUEST['genre']))?(int)$_REQUEST['genre']:0;
 	$selOrderBy=(isset($_REQUEST['orderBy']))?$_REQUEST['orderBy']:'filename';
-	
+
 	if($action=='form'){
 		$pic=($picID!=0)?'<a href="mediapics/'.$picID.'.jpg" target="_blank"><img src="mediapics/'.$picID.'_tn.jpg" border="0"></a>':'';
 
@@ -69,7 +71,7 @@ function editPlaylist($output,$mediadbADO,$dbADO) {
 		// filter my media type
 		if((int)@$_REQUEST['mediaType']!=0){
 			$whereArray[]='EK_MediaType='.(int)@$_REQUEST['mediaType'];
-		} else {
+		} else {include(APPROOT.'/languages/'.$GLOBALS['lang'].'/editPlaylist.lang.php');
 			//we don't want ALL media types, but we do want the supported ones!
 			foreach($mediaTypes as $Key=>$thisElement) {
 				if($Key!=0) {
@@ -313,7 +315,6 @@ function editPlaylist($output,$mediadbADO,$dbADO) {
 											<td align="center" colspan="2" class="alternate_back">
 												<HR>
 												<B>Playlist Properties</B>
-												<HR>
 											</td>
 										</tr>
 										<tr>
@@ -332,7 +333,7 @@ function editPlaylist($output,$mediadbADO,$dbADO) {
 											<td><input type="checkbox" name="private" value="1" '.$privateChecked.'></td>
 										</tr>
 										<tr>
-											<td align="center" colspan="2"><input type="submit" class="button" name="update" value="'.$TEXT_UPDATE_CONST.'"></td>
+											<td align="center" colspan="2"><input type="submit" class="button" name="update" value="'.$TEXT_UPDATE_CONST.'"><input type="submit" class="button" name="export" value="Export Playlist" onClick="windowOpen(\'index.php?section=exportPlaylist&playlistID='.$playlistID.'\',\'width=400,height=450,toolbars=false,scrollbars=0,resizable=1\');" '.'</td>
 										</tr>				
 									</table>
 					</TD>
@@ -490,14 +491,14 @@ function editPlaylist($output,$mediadbADO,$dbADO) {
 	
 		}//end if readyToUpdte	
 
-	
+		
 		header('Location: index.php?section=editPlaylist&plID='.$playlistID.'&msg='.urlencode($TEXT_PLAYLIST_ENTRIES_UPDATED_CONST).'&mediaType='.$selMediaType.'&genre='.$selGenre.'&orderBy='.$selOrderBy.'&layout='.$selLayout.'&recordsPerPage='.$selRecordsPerPage.'&lpage='.$lpage);
 		exit();
 	}
 	
 	$output->setMenuTitle($TEXT_FILES_AND_MEDIA_CONST.' |');
 	$output->setPageTitle($TEXT_EDIT_PLAYLIST_CONST.'# '.$playlistID);
-	$output->setNavigationMenu(array("Playlists"=>'index.php?section=playlists',$TEXT_EDIT_PLAYLIST_CONST=>'index.php?section=editPlaylist&plID='.$playlistID));
+	$output->setNavigationMenu(array($TEXT_PLAYLISTS_CONST=>'index.php?section=playlists',$TEXT_EDIT_PLAYLIST_CONST=>'index.php?section=editPlaylist&plID='.$playlistID));
 	$output->setScriptCalendar('null');
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_EDIT_PLAYLIST_CONST.'# '.$playlistID);
