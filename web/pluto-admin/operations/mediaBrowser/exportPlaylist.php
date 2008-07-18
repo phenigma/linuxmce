@@ -131,7 +131,7 @@ function exportPlaylist($output,$mediadbADO,$dbADO) {
 			 
 			WHERE
 			     (AttributeType.Description="title" Or AttributeType.Description Is Null) 
-			     AND (PlaylistEntry.FK_Playlist=4)'.$filterFileType.$order.';
+			     AND (PlaylistEntry.FK_Playlist='.$playlistID.')'.$filterFileType.$order.';
 		';
 
 		$res=$mediadbADO->Execute($strSQL);
