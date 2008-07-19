@@ -116,7 +116,7 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 				break;
 			;;
 			case ZW_MEMORY_GET_ID:
-				DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Got reply to ZW_MEMORY_GET_ID: %d",frame[6]);
+				DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Got reply to ZW_MEMORY_GET_ID, Home id: 0x%02x%02x%02x%02x, our node id: %d",(unsigned char) frame[2],(unsigned char) frame[3],(unsigned char)frame[4],(unsigned char)frame[5],(unsigned char)frame[6]);
 				ournodeid = frame[6];
 				break;
 			;;
@@ -259,24 +259,22 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 							if (frame[2] && RECEIVE_STATUS_TYPE_BROAD ) { 
 								DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Got broadcast wakeup from node %i, doing WAKE_UP_INTERVAL_SET",frame[3]);
 								tempbuf[0]=FUNC_ID_ZW_SEND_DATA;
-								// node id
-								tempbuf[1]=frame[3];
-								tempbuf[2]=6;
+								tempbuf[1]=frame[3]; // destination
+								tempbuf[2]=6; // length
 								tempbuf[3]=COMMAND_CLASS_WAKE_UP;
 								tempbuf[4]=WAKE_UP_INTERVAL_SET;
-								tempbuf[5]=0;
-								tempbuf[6]=0x2;
-								tempbuf[7]=0x58;
+								tempbuf[5]=0; // seconds msb
+								tempbuf[6]=0x3; // 
+								tempbuf[7]=0x58; // seconds lsb
 								tempbuf[8]=ournodeid;
 								tempbuf[9]=TRANSMIT_OPTION_ACK | TRANSMIT_OPTION_AUTO_ROUTE;
-								sendFunction( tempbuf , 10, REQUEST, 1); 
+								if (ournodeid != -1) { sendFunction( tempbuf , 10, REQUEST, 1);  }
 							} else {
 								DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Got unicast wakeup from node %i, doing WAKE_UP_NO_MORE_INFORMATION",frame[3]);
 								// send to sleep
 								tempbuf[0]=FUNC_ID_ZW_SEND_DATA;
-								// node id
-								tempbuf[1]=frame[3];
-								tempbuf[2]=2;
+								tempbuf[1]=frame[3]; // destination
+								tempbuf[2]=2; // length
 								tempbuf[3]=COMMAND_CLASS_WAKE_UP;
 								tempbuf[4]=WAKE_UP_NO_MORE_INFORMATION;
 								tempbuf[5]=TRANSMIT_OPTION_ACK | TRANSMIT_OPTION_AUTO_ROUTE;
@@ -290,6 +288,7 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 						if (frame[6] == SENSOR_BINARY_REPORT) {
 							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Got sensor report from node %i, level: %i",frame[3],frame[7]);
 							DCE::ZWave *tmp_zwave = static_cast<DCE::ZWave*>(myZWave);
+							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Send sensor tripped changed event");
 							if ((unsigned char)frame[7] == 0xff) {
 								tmp_zwave->SendSensorTrippedEvents (frame[3],true);
 							} else {
