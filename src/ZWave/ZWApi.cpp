@@ -57,6 +57,7 @@ void *ZWApi::ZWApi::init(const char *device) {
         ournodeid = -1;
         await_ack = 0;
 
+ 	DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "Open serial port %s",device);
 	OpenSerialPortEx(device,&serialPort);
         mybuf[0]=NAK;
         WriteSerialStringEx(serialPort,mybuf,1);
@@ -67,19 +68,23 @@ void *ZWApi::ZWApi::init(const char *device) {
 	pthread_create(&readThread, NULL, start, (void*)this);
 	// pthread_create(&readThread, NULL, start, (void*)serialPort);
 	//
- 	// DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "Request version");
+ 	DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "Get version");
 	mybuf[0] = ZW_GET_VERSION;
 	sendFunction( mybuf , 1, REQUEST, 0); 
 
+ 	DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "Get home/node id");
 	mybuf[0] = ZW_MEMORY_GET_ID;
 	sendFunction( mybuf , 1, REQUEST, 0); 
 
+ 	DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "Get capabilities");
 	mybuf[0] = FUNC_ID_SERIAL_API_GET_CAPABILITIES;
 	sendFunction( mybuf , 1, REQUEST, 0); 
 	
+ 	DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "Get SUC node id");
 	mybuf[0] = FUNC_ID_ZW_GET_SUC_NODE_ID;
 	sendFunction( mybuf , 1, REQUEST, 0); 
 	
+ 	DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "Get init data");
 	mybuf[0] = FUNC_ID_SERIAL_API_GET_INIT_DATA;
 	sendFunction( mybuf , 1, REQUEST, 0); 
 
@@ -100,9 +105,9 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 	if (frame[0] == RESPONSE) {
 		switch (frame[1]) {
 			case FUNC_ID_ZW_GET_SUC_NODE_ID:
-				printf("Got reply to GET_SUC_NODE_ID, node: %d\n",frame[2]);
+				DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Got reply to GET_SUC_NODE_ID, node: %d",frame[2]);
 				if (frame[2] == 0) {
-					printf("No SUC, we become SUC\n");
+					DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"No SUC, we become SUC");
 					tempbuf[0]=FUNC_ID_ZW_ENABLE_SUC;
 					tempbuf[1]=1;
 					tempbuf[2]=ZW_SUC_FUNC_BASIC_SUC;
@@ -111,18 +116,18 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 				break;
 			;;
 			case ZW_MEMORY_GET_ID:
-				printf("Got reply to ZW_MEMORY_GET_ID: %d\n",frame[6]);
+				DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Got reply to ZW_MEMORY_GET_ID: %d",frame[6]);
 				ournodeid = frame[6];
 				break;
 			;;
 			case FUNC_ID_SERIAL_API_GET_INIT_DATA:
-				printf("Got reply to FUNC_ID_SERIAL_API_GET_INIT_DATA:\n");
+				DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Got reply to FUNC_ID_SERIAL_API_GET_INIT_DATA:");
 				if (frame[4] == MAGIC_LEN) {
 					for (int i=5;i<5+MAGIC_LEN;i++) {
 						for (int j=0;j<8;j++) {
 							// printf("test node %d\n",(i-5)*8+j+1);
 							if (frame[i] && (0x01 << j)) {
-								printf("found node %d\n",(i-5)*8+j+1);
+								DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"found node %d",(i-5)*8+j+1);
 								// requesting node protocol information
 								// tempbuf[0]=0x60; // req. node info frame - test
 								addIntent((i-5)*8+j+1,1);
@@ -137,88 +142,88 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 			;;
 			case FUNC_ID_ZW_GET_NODE_PROTOCOL_INFO:
 				int tmp_nodeid;
-				printf("Got reply to FUNC_ID_ZW_GET_NODE_PROTOCOL_INFO:\n");
+				DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Got reply to FUNC_ID_ZW_GET_NODE_PROTOCOL_INFO:");
 				tmp_nodeid = getIntent(1);
 				if (frame[6] != 0) {
 					// printf("***FOUND NODE:\n");
-					printf("***FOUND NODE: %d\n",tmp_nodeid);
+					DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"***FOUND NODE: %d",tmp_nodeid);
 					if (((unsigned char)frame[2]) && (0x01 << 7)) {
-						printf("listening node\n");
+						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"listening node");
 					}
 					if (((unsigned char)frame[3]) && (0x01 << 7)) {
-						printf("optional functionality\n");
+						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"optional functionality");
 					}
 					switch (frame[5]) {
 						case BASIC_TYPE_CONTROLLER:
-							printf("BASIC TYPE: Controller\n");
+							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"BASIC TYPE: Controller");
 							break;
 						;;
 						case BASIC_TYPE_STATIC_CONTROLLER:
-							printf("BASIC TYPE: Static Controller\n");
+							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"BASIC TYPE: Static Controller");
 							break;
 						;;
 						case BASIC_TYPE_SLAVE:
-							printf("BASIC TYPE: Slave\n");
+							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"BASIC TYPE: Slave");
 							break;
 						;;
 						case BASIC_TYPE_ROUTING_SLAVE:
-							printf("BASIC TYPE: Routing Slave\n");
+							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"BASIC TYPE: Routing Slave");
 							break;
 						;;
 						default:
-							printf("BASIC TYPE: %x\n",frame[5]);
+							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"BASIC TYPE: %x",frame[5]);
 							break;
 						;;
 					}
 					switch (frame[6]) {
 						case GENERIC_TYPE_GENERIC_CONTROLLER:
-							printf("GENERIC TYPE: Generic Controller\n");
+							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"GENERIC TYPE: Generic Controller");
 							break;
 						;;
 						case GENERIC_TYPE_STATIC_CONTROLLER:
-							printf("GENERIC TYPE: Static Controller\n");
+							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"GENERIC TYPE: Static Controller");
 							break;
 						;;
 						case GENERIC_TYPE_THERMOSTAT:
-							printf("GENERIC TYPE: Thermostat\n");
+							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"GENERIC TYPE: Thermostat");
 							sprintf(tempbuf2, "%d\t\t\t%d\t\n", tmp_nodeid, DEVICETEMPLATE_Standard_Thermostat_CONST);
 							deviceList += tempbuf2;
 							break;
 						;;
 						case GENERIC_TYPE_SWITCH_MULTILEVEL:
-							printf("GENERIC TYPE: Multilevel Switch\n");
+							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"GENERIC TYPE: Multilevel Switch");
 							sprintf(tempbuf2, "%d\t\t\t%d\t\n", tmp_nodeid, DEVICETEMPLATE_Light_Switch_dimmable_CONST);
 							deviceList += tempbuf2;
 							break;
 						;;
 						case GENERIC_TYPE_SWITCH_REMOTE:
-							printf("GENERIC TYPE: Remote Switch\n");
+							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"GENERIC TYPE: Remote Switch");
 							break;
 						;;
 						case GENERIC_TYPE_SWITCH_BINARY:
-							printf("GENERIC TYPE: Binary Switch\n");
+							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"GENERIC TYPE: Binary Switch");
 							sprintf(tempbuf2, "%d\t\t\t%d\t\n", tmp_nodeid, DEVICETEMPLATE_Light_Switch_onoff_CONST);
 							deviceList += tempbuf2;
 							break;
 						;;
 						case GENERIC_TYPE_SENSOR_BINARY:
-							printf("GENERIC TYPE: Sensor Binary\n");
+							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"GENERIC TYPE: Sensor Binary");
 							sprintf(tempbuf2, "%d\t\t\t%d\t\n", tmp_nodeid, DEVICETEMPLATE_Generic_Sensor_CONST);
 							deviceList += tempbuf2;
 							break;
 						;;
 						default:
-							printf("GENERIC TYPE: %x\n",frame[6]);
+							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"GENERIC TYPE: %x",frame[6]);
 							break;
 						;;
 
 					}
-					printf("SPECIFIC: %d\n",frame[7]);
+					DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"SPECIFIC TYPE: %d",frame[7]);
 				}
 				break;
 			;;
 			case FUNC_ID_ZW_SEND_DATA:
-				printf("ZW_SEND Response should be parsed\n");
+				DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"ZW_SEND Response should be parsed");
 				break;
 
 			default:
@@ -229,10 +234,10 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 	} else if (frame[0] == REQUEST) {
 		switch (frame[1]) {
 			case FUNC_ID_APPLICATION_COMMAND_HANDLER:
-				printf("FUNC_ID_APPLICATION_COMMAND_HANDLER:");
+				DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"FUNC_ID_APPLICATION_COMMAND_HANDLER:");
 				switch (frame[5]) {
 					case COMMAND_CLASS_CONTROLLER_REPLICATION:
-						printf ("COMMAND_CLASS_CONTROLLER_REPLICATION\n");
+						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"COMMAND_CLASS_CONTROLLER_REPLICATION");
 						// 0x1 0xb 0x0 0x4 0x2 0xef 0x5 0x21 0x31 0x7 0x1 0x1 0xf (#######!1####)
 						if (frame[6] == CTRL_REPLICATION_TRANSFER_GROUP) {
 							// we simply ack the group information for now
@@ -246,13 +251,13 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 						break;
 					;;
 					case COMMAND_CLASS_WAKE_UP:
-						printf ("COMMAND_CLASS_WAKE_UP - ");
+						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"COMMAND_CLASS_WAKE_UP - ");
 						// 0x1 0x8 0x0 0x4 0x4 0x2 0x2 0x84 0x7 0x74 (#########t)
 						// if ((COMMAND_CLASS_WAKE_UP == frame[5]) && ( frame[6] == WAKE_UP_NOTIFICATION)) {
 						if (frame[6] == WAKE_UP_NOTIFICATION) {
 							// handle broadcasts from unconfigured devices
 							if (frame[2] && RECEIVE_STATUS_TYPE_BROAD ) { 
-								printf("Got broadcast wakeup from node %i, doing WAKE_UP_INTERVAL_SET\n",frame[3]);
+								DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Got broadcast wakeup from node %i, doing WAKE_UP_INTERVAL_SET",frame[3]);
 								tempbuf[0]=FUNC_ID_ZW_SEND_DATA;
 								// node id
 								tempbuf[1]=frame[3];
@@ -266,7 +271,7 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 								tempbuf[9]=TRANSMIT_OPTION_ACK | TRANSMIT_OPTION_AUTO_ROUTE;
 								sendFunction( tempbuf , 10, REQUEST, 1); 
 							} else {
-								printf("Got unicast wakeup from node %i, doing WAKE_UP_NO_MORE_INFORMATION\n",frame[3]);
+								DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Got unicast wakeup from node %i, doing WAKE_UP_NO_MORE_INFORMATION",frame[3]);
 								// send to sleep
 								tempbuf[0]=FUNC_ID_ZW_SEND_DATA;
 								// node id
@@ -281,9 +286,9 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 						}
 						break;
 					case COMMAND_CLASS_SENSOR_BINARY:
-						printf ("COMMAND_CLASS_SENSOR_BINARY - ");
+						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"COMMAND_CLASS_SENSOR_BINARY - ");
 						if (frame[6] == SENSOR_BINARY_REPORT) {
-							printf("Got sensor report from node %i, level: %i\n",frame[3],frame[7]);
+							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Got sensor report from node %i, level: %i",frame[3],frame[7]);
 							DCE::ZWave *tmp_zwave = static_cast<DCE::ZWave*>(myZWave);
 							if ((unsigned char)frame[7] == 0xff) {
 								tmp_zwave->SendSensorTrippedEvents (frame[3],true);
@@ -295,49 +300,54 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 						break;
 					;;
 					case COMMAND_CLASS_SWITCH_MULTILEVEL:
-						printf("COMMAND_CLASS_SWITCH_MULTILEVEL - ");
+						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"COMMAND_CLASS_SWITCH_MULTILEVEL - ");
 						if (frame[6] == SWITCH_MULTILEVEL_REPORT) {
-							printf("Got switch multilevel report from node %i, level: %i\n",frame[3],frame[7]);
+							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Got switch multilevel report from node %i, level: %i",frame[3],frame[7]);
 							DCE::ZWave *tmp_zwave = static_cast<DCE::ZWave*>(myZWave);
+							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Send light changed event");
 							tmp_zwave->SendLightChangedEvents (frame[3],(unsigned char)frame[7]);
 						}
 						break;
 					case COMMAND_CLASS_SWITCH_ALL:
-						printf("COMMAND_CLASS_SWITCH_ALL - ");
+						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"COMMAND_CLASS_SWITCH_ALL - ");
 						if (frame[6] == SWITCH_ALL_ON) {
-							printf("Got switch all ON from node %i\n",frame[3]);
+							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Got switch all ON from node %i",frame[3]);
 							DCE::ZWave *tmp_zwave = static_cast<DCE::ZWave*>(myZWave);
+							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Send light changed event");
 							tmp_zwave->SendLightChangedEvents (0,99);
 						}
 						if (frame[6] == SWITCH_ALL_OFF) {
-							printf("Got switch all OFF from node %i\n",frame[3]);
+							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Got switch all OFF from node %i",frame[3]);
 							DCE::ZWave *tmp_zwave = static_cast<DCE::ZWave*>(myZWave);
+							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Send light changed event");
 							tmp_zwave->SendLightChangedEvents (0,0);
 						}
 						break;
 					case COMMAND_CLASS_ALARM:
-						printf("COMMAND_CLASS_ALARM - ");
+						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"COMMAND_CLASS_ALARM - ");
 						if (frame[6] == ALARM_REPORT) {
-							printf("Got ALARM from node %i, type: %i, level: %i\n",frame[3],frame[7],frame[8]);
+							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Got ALARM from node %i, type: %i, level: %i",frame[3],frame[7],frame[8]);
 							DCE::ZWave *tmp_zwave = static_cast<DCE::ZWave*>(myZWave);
+							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Send sensor tripped changed event");
 							tmp_zwave->SendSensorTrippedEvents (frame[3],true);
 							tmp_zwave->SendSensorTrippedEvents (frame[3],false);
 						}
 						break;
 					case COMMAND_CLASS_BASIC:
-						printf("COMMAND_CLASS_BASIC - ");
+						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"COMMAND_CLASS_BASIC - ");
 						if (frame[6] == BASIC_REPORT) {
 							// char tmp[32];
 							// sprintf(&tmp,"%d",frame[7]);
-							printf("Got basic report from node %i, value: %i\n",frame[3],(unsigned char)frame[7]);
+							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Got basic report from node %i, value: %i",frame[3],(unsigned char)frame[7]);
 							DCE::ZWave *tmp_zwave = static_cast<DCE::ZWave*>(myZWave);
+							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Send light changed event");
 							tmp_zwave->SendLightChangedEvents (frame[3],(unsigned char)frame[7]);
 						}						
 						break;
 					case COMMAND_CLASS_CLIMATE_CONTROL_SCHEDULE:
-						printf("COMMAND_CLASS_CLIMATE_CONTROL_SCHEDULE: - ");
+						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"COMMAND_CLASS_CLIMATE_CONTROL_SCHEDULE: - ");
 						if (frame[6] == SCHEDULE_GET) {
-							printf("Got SCHEDULE_GET from node %i for day: %i\n",frame[3],frame[7]);
+							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Got SCHEDULE_GET from node %i for day: %i",frame[3],frame[7]);
 							// report no schedules for the given day
 							tempbuf[0]=FUNC_ID_ZW_SEND_DATA;
 							// node id
@@ -354,22 +364,21 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 						}
 						break;
 					case COMMAND_CLASS_ASSOCIATION:
-						printf("COMMAND_CLASS_ASSOCIATION - ");
+						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"COMMAND_CLASS_ASSOCIATION - ");
 						if (frame[6] == ASSOCIATION_REPORT) {
-							printf("Associations for group: %i\n",frame[7]);
-							printf("Max nodes supported: %i\n",frame[8]);
-							printf("Reports to follow: %i\n",frame[9]);
+							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Associations for group: %i",frame[7]);
+							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Max nodes supported: %i",frame[8]);
+							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Reports to follow: %i",frame[9]);
 							if ((length-10)>0) {
-								printf("Nodes: ");
+								DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Nodes: ");
 								for (int i=0;i<(length-10);i++) {
-									printf("%i,",(unsigned char)frame[10+i]);
+									DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"%i",(unsigned char)frame[10+i]);
 								}
 							}
-							printf("length: %i\n",length);
 						}
 						break;
 					case COMMAND_CLASS_MULTI_CMD:
-						printf("COMMAND_CLASS_MULTI_CMD - ");
+						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"COMMAND_CLASS_MULTI_CMD - ");
 						if (frame[6] == MULTI_CMD_ENCAP) {
 							time_t timestamp;
 							struct tm *timestruct;
@@ -377,39 +386,39 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 							// int cmd_length = 0;
 							// int cmd_count = 0;
 
-							printf("Got encapsulated multi command from node %i\n",frame[3]);
+							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Got encapsulated multi command from node %i",frame[3]);
 							timestamp = time(NULL);
 							timestruct = localtime(&timestamp);
-							printf("Time: %i %i %i\n",timestruct->tm_wday, timestruct->tm_hour, timestruct->tm_min);
+							// printf("Time: %i %i %i\n",timestruct->tm_wday, timestruct->tm_hour, timestruct->tm_min);
 							// iterate over commands
 							offset = 8;	
 							for (int i=0; i<frame[7]; i++) {
-								printf("COMMAND LENGTH: %d, CLASS: %x\n",frame[offset],(unsigned char) frame[offset+1]);
+								DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"COMMAND LENGTH: %d, CLASS: %x",frame[offset],(unsigned char) frame[offset+1]);
 								switch (frame[offset+1]) {
 									case COMMAND_CLASS_BATTERY:
 										if (BATTERY_REPORT == (unsigned char) frame[offset+2]) {
-											printf("COMMAND_CLASS_BATTERY:BATTERY_REPORT: Battery level: %d\n",frame[offset+3]);
+											DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"COMMAND_CLASS_BATTERY:BATTERY_REPORT: Battery level: %d",frame[offset+3]);
 										}
 										break;
 									case COMMAND_CLASS_CLIMATE_CONTROL_SCHEDULE:
 										if (SCHEDULE_CHANGED_GET == (unsigned char) frame[offset+2]) {
-											printf("COMMAND_CLASS_CLIMATE_CONTROL_SCHEDULE:SCHEDULE_CHANGED_GET\n");
+											DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"COMMAND_CLASS_CLIMATE_CONTROL_SCHEDULE:SCHEDULE_CHANGED_GET");
 										}
 										if (SCHEDULE_OVERRIDE_GET == (unsigned char) frame[offset+2]) {
-											printf("COMMAND_CLASS_CLIMATE_CONTROL_SCHEDULE:SCHEDULE_OVERRIDE_GET\n");
+											DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"COMMAND_CLASS_CLIMATE_CONTROL_SCHEDULE:SCHEDULE_OVERRIDE_GET");
 										}
 										if (SCHEDULE_OVERRIDE_REPORT == (unsigned char) frame[offset+2]) {
-											printf("COMMAND_CLASS_CLIMATE_CONTROL_SCHEDULE:SCHEDULE_OVERRIDE_REPORT: Setback state: %d\n",frame[offset+4]);
+											DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"COMMAND_CLASS_CLIMATE_CONTROL_SCHEDULE:SCHEDULE_OVERRIDE_REPORT: Setback state: %d",frame[offset+4]);
 										}
 										break;
 									case COMMAND_CLASS_CLOCK:
 										if (CLOCK_GET == (unsigned char) frame[offset+2]) {
-                                                                                        printf("COMMAND_CLASS_CLOCK:CLOCK_GET\n");
+                                                                                        DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"COMMAND_CLASS_CLOCK:CLOCK_GET");
 										}
 										break;
 									case COMMAND_CLASS_WAKE_UP:
 										if (WAKE_UP_NOTIFICATION == (unsigned char) frame[offset+2]) {
-                                                                                        printf("COMMAND_CLASS_WAKE_UP:WAKE_UP_NOTIFICATION\n");
+                                                                                        DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"COMMAND_CLASS_WAKE_UP:WAKE_UP_NOTIFICATION");
 										}	
 										break;
 									default:
@@ -442,7 +451,7 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 						}
 						break;
 					default:
-						printf("unhandled command class\n");
+						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Function not implemented - unhandled command class");
 						break;
 					;;
 
@@ -453,13 +462,13 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 			case FUNC_ID_ZW_APPLICATION_UPDATE:
 				switch(frame[2]) {
 					case UPDATE_STATE_NODE_INFO_RECEIVED:
-						printf("FUNC_ID_ZW_APPLICATION_UPDATE:UPDATE_STATE_NODE_INFO_RECEIVED received from node %d - ",frame[3]);
+						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"FUNC_ID_ZW_APPLICATION_UPDATE:UPDATE_STATE_NODE_INFO_RECEIVED received from node %d - ",frame[3]);
 						switch(frame[5]) {
 							case BASIC_TYPE_SLAVE:
-								printf("BASIC_TYPE_SLAVE:");
+								DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"BASIC_TYPE_SLAVE:");
 								switch(frame[6]) {
 									case GENERIC_TYPE_SWITCH_MULTILEVEL:
-										printf("GENERIC_TYPE_SWITCH_MULTILEVEL\n");
+										DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"GENERIC_TYPE_SWITCH_MULTILEVE");
 										tempbuf[0] = FUNC_ID_ZW_SEND_DATA;
 										tempbuf[1] = frame[3];
 										tempbuf[2] = 0x02;
@@ -476,7 +485,7 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 										sendFunction (tempbuf,6,REQUEST,1);
 										break;
 									case GENERIC_TYPE_SWITCH_BINARY:
-										printf("GENERIC_TYPE_SWITCH_BINARY\n");
+										DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"GENERIC_TYPE_SWITCH_BINARY");
 										sendFunction (tempbuf,6,REQUEST,1);
 										tempbuf[0] = FUNC_ID_ZW_SEND_DATA;
 										tempbuf[1] = frame[3];
@@ -487,7 +496,7 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 										sendFunction (tempbuf,6,REQUEST,1);
 										break;
 									default:
-										printf("unhandled class\n");
+										DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"unhandled class");
 										break;
 									;;
 								}
@@ -498,7 +507,7 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 						}
 						break;
 					case UPDATE_STATE_NODE_INFO_REQ_FAILED:
-						printf("FUNC_ID_ZW_APPLICATION_UPDATE:UPDATE_STATE_NODE_INFO_REQ_FAILED received\n");
+						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"FUNC_ID_ZW_APPLICATION_UPDATE:UPDATE_STATE_NODE_INFO_REQ_FAILED received");
 						break;
 					;;
 					default:
@@ -519,7 +528,7 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 }
 
 void *ZWApi::ZWApi::receiveFunction() {
-	printf("receiveFunction started\n");
+	DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"receiveFunction started");
 	char retbuf[1];
 	char mybuf2[1024];
 	size_t len2;
@@ -534,7 +543,7 @@ void *ZWApi::ZWApi::receiveFunction() {
 					// printf("SOF Found\n");
 					// if we await an ack instead, trigger resend to be sure
 					if (await_ack) {
-						printf("Error: SOF Found while awaiting ack.. triggering resend\n");
+						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Error: SOF Found while awaiting ack.. triggering resend");
 						await_ack = 0;
 					}
 					// read the length byte
@@ -552,7 +561,7 @@ void *ZWApi::ZWApi::receiveFunction() {
 						WriteSerialStringEx(serialPort,retbuf,1);
 						decodeFrame(mybuf2+2,len2-3);
 					} else {
-						printf("Checksum incorrect %x - sending NAK\n",(unsigned char) checksum(mybuf2+1,mybuf2[1]));
+						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Checksum incorrect %x - sending NAK",(unsigned char) checksum(mybuf2+1,mybuf2[1]));
 						retbuf[0]=NAK;
 						WriteSerialStringEx(serialPort,retbuf,1);
 
@@ -609,7 +618,7 @@ bool ZWApi::ZWApi::sendFunction(char *buffer, size_t length, int type, bool resp
 	index = 0;
 	i = 0;
 
-	// printf("Adding job: %p\n",newJob);
+	DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Adding job: %p",newJob);
 	newJob->await_response = response && (type == REQUEST);
 	newJob->sendcount = 0;
 
