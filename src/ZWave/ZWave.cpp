@@ -101,18 +101,18 @@ void ZWave::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sC
 		sCMD_Result = "OK";
 		switch (pMessage->m_dwID) {
 			case COMMAND_Generic_On_CONST:
-				printf("ON RECEIVED FOR CHILD %d\n",node_id);
+				LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"ON RECEIVED FOR CHILD %d",node_id);
 				myZWApi->zwBasicSet(node_id,255);
 				break;
 				;;
 			case COMMAND_Generic_Off_CONST:
-				printf("OFF RECEIVED FOR CHILD %d\n",node_id);
+				LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"OFF RECEIVED FOR CHILD %d",node_id);
 				myZWApi->zwBasicSet(node_id,0);
 				break;
 				;;
 			case COMMAND_Set_Level_CONST:
 				int level = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Level_CONST].c_str());
-				printf("SET LEVEL RECEIVED FOR CHILD %d, level: %d\n",node_id,level);
+				LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"SET LEVEL RECEIVED FOR CHILD %d, level: %d",node_id,level);
 				myZWApi->zwBasicSet(node_id,level>99?99:level);
 				break;
 				;;
@@ -191,12 +191,12 @@ void ZWave::CMD_Send_Command_To_Child(string sID,int iPK_Command,string sParamet
 		sCMD_Result = "OK";
 		switch (pMessage->m_dwID) {
 			case COMMAND_Generic_On_CONST:
-				printf("ON RECEIVED FOR CHILD %d\n",node_id);
+				LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"ON RECEIVED FOR CHILD %d",node_id);
 				myZWApi->zwBasicSet(node_id,255);
 				break;
 				;;
 			case COMMAND_Generic_Off_CONST:
-				printf("OFF RECEIVED FOR CHILD %d\n",node_id);
+				LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"OFF RECEIVED FOR CHILD %d",node_id);
 				myZWApi->zwBasicSet(node_id,0);
 				break;
 				;;
@@ -334,7 +334,7 @@ void ZWave::SendSensorTrippedEvents(unsigned short node_id, bool value)
 					int tmp_node_id = atoi(pChildDevice1->m_mapParameters_Find(DEVICEDATA_PortChannel_Number_CONST).c_str());
 					if (tmp_node_id == node_id) {
 						LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "ZWave::SendSensorTrippedEvents sending start");
-						printf("Sending event from node %d\n",tmp_node_id);
+						LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Sending event from node %d",tmp_node_id);
 						m_pEvent->SendMessage( new Message(pChildDevice1->m_dwPK_Device,
 							DEVICEID_EVENTMANAGER,
 							PRIORITY_NORMAL,
@@ -367,7 +367,7 @@ void ZWave::SendLightChangedEvents(unsigned short node_id, int value)
 			// passing 0 as device node affects all Lighting Devices, used for ALL ON and ALL OFF
 			if ( (tmp_node_id == node_id) || ((node_id == 0) && (pChildDevice->m_dwPK_DeviceCategory == DEVICECATEGORY_Lighting_Device_CONST)) ) {
 				LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "ZWave::SendLightChangedEvents sending commands/events");
-				printf("Sending EVENT_State_Changed_CONST event from node %d, level %s\n",tmp_node_id,svalue);
+				LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Sending EVENT_State_Changed_CONST event from node %d, level %s",tmp_node_id,svalue);
 				m_pEvent->SendMessage( new Message(pChildDevice->m_dwPK_Device,
 					DEVICEID_EVENTMANAGER,
 					PRIORITY_NORMAL,
