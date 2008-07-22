@@ -1,3 +1,9 @@
+mythtv (0.22.0~trunk17764-0ubuntu1) intrepid; urgency=low
+
+  * trunk build for upcoming 0.22 
+
+ -- Daniel Kristjansson <danielk@cuymedia.net>  Tue, 22 Jul 2008 09:18:00 -0500
+
 mythtv (0.22.0~trunk17464-0ubuntu1) hardy; urgency=low
 
   * first trunk build for upcoming 0.22 

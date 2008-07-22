@@ -1,6 +1,20 @@
+=== modified file 'debian/changelog'
+--- debian/changelog	2008-06-12 22:08:24 +0000
++++ debian/changelog	2008-07-22 13:45:50 +0000
+@@ -1,3 +1,9 @@
++mythtv (0.22.0~trunk17764-0ubuntu1) intrepid; urgency=low
++
++  * trunk build for upcoming 0.22 
++
++ -- Daniel Kristjansson <danielk@cuymedia.net>  Tue, 22 Jul 2008 09:18:00 -0500
++
+ mythtv (0.22.0~trunk17464-0ubuntu1) hardy; urgency=low
+ 
+   * first trunk build for upcoming 0.22 
+
 === modified file 'debian/control'
 --- debian/control	2008-06-12 22:49:46 +0000
-+++ debian/control	2008-07-11 20:43:26 +0000
++++ debian/control	2008-07-22 13:45:50 +0000
 @@ -39,8 +39,6 @@
                  libx264-dev,
                  libxvidcore4-dev,
@@ -10,6 +24,39 @@
  
  Package: mythtv
  Architecture: all
+@@ -148,8 +146,8 @@
+ Architecture: any
+ Depends: mythtv-common (= ${source:Version}), ${shlibs:Depends}, adduser, zenity | kdebase-bin, gksu | kdebase-bin, ttf-liberation | msttcorefonts, ${misc:Depends}
+ Suggests: mythtv-backend, mythmusic, mythweather, mythgallery, mythvideo, mythgame, mythstream, ntp | time-daemon | ntp-simple
+-Conflicts: mythtv (<< 0.8-1), mythappearance (<< 0.21.0)
+-Replaces: mythtv (<< 0.8-1),  mythappearance (<< 0.21.0)
++Conflicts: mythtv (<< 0.8-1), mythappearance (<< 0.22.0)
++Replaces: mythtv (<< 0.8-1),  mythappearance (<< 0.22.0)
+ Description: A personal video recorder application (client)
+  MythTV provides a unified graphical interface for recording and viewing
+  television programs. Refer to the mythtv package for more information.
+@@ -167,7 +165,7 @@
+ Package: libmyth-0.22-0
+ Architecture: any
+ Section: multiverse/libs
+-Depends: ${shlibs:Depends}, libqt3-mt-mysql | libqt3c102-mt-mysql
++Depends: ${shlibs:Depends}, libqt4-qt3support, libqt4-sql-mysql
+ Conflicts: mythtv (<< 0.7-5)
+ Replaces: mythtv (<< 0.7-5)
+ Description: Common library code for MythTV and add-on modules (runtime)
+@@ -180,9 +178,9 @@
+ Package: libmyth-dev
+ Architecture: any
+ Section: multiverse/libdevel
+-Depends: libmyth-0.21-0 (= ${source:Version}), libqt3c102-mt-dev | libqt3-mt-dev
+-Provides: libmyth-0.21-0-dev
+-Conflicts: libmyth-0.21-dev
++Depends: libmyth-0.22-0 (= ${source:Version}), libqt4-dev
++Provides: libmyth-0.22-0-dev
++Conflicts: libmyth-0.22-dev
+ Description: Common library code for MythTV and add-on modules (development)
+  MythTV provides a unified graphical interface for recording and viewing
+  television programs. Refer to the mythtv package for more information.
 
 === modified file 'debian/mythtv-backend.files'
 --- debian/mythtv-backend.files	2008-03-17 02:16:04 +0000
@@ -28,24 +75,48 @@
 
 === modified file 'debian/mythtv-backend.init'
 --- debian/mythtv-backend.init	2008-03-03 07:01:41 +0000
-+++ debian/mythtv-backend.init	2008-07-11 22:30:42 +0000
-@@ -21,11 +21,11 @@
++++ debian/mythtv-backend.init	2008-07-22 13:45:50 +0000
+@@ -19,14 +19,14 @@
  
- prime_firewire()
- {
+ set -e
+ 
+-prime_firewire()
+-{
 -    if [ "$ENABLE_FIREWIRE" = "TRUE" ]; then
 -	log_daemon_msg "Priming Firewire "
 -        su - $USER -c "/usr/bin/mythprime"
 -	log_end_msg $?
 -    fi
+-}
++#prime_firewire()
++#{
 +#    if [ "$ENABLE_FIREWIRE" = "TRUE" ]; then
 +#	log_daemon_msg "Priming Firewire "
 +#        su - $USER -c "/usr/bin/mythprime"
 +#	log_end_msg $?
 +#    fi
- }
++#}
  
  USER=mythtv
+ USER_HOME=$(grep ^$USER /etc/passwd | awk -F : '{print $6}')
+@@ -66,7 +66,7 @@
+ 			rm -f $RUNDIR/$NAME.pid
+ 		fi
+ 	fi
+-	prime_firewire
++	#prime_firewire
+ 	log_daemon_msg "Starting $DESC: $NAME "
+ 	start-stop-daemon --start --pidfile $RUNDIR/$NAME.pid \
+ 		--chuid $USER --nicelevel $NICE --exec $DAEMON -- $ARGS
+@@ -84,7 +84,7 @@
+ 	start-stop-daemon --stop --oknodo --pidfile $RUNDIR/$NAME.pid \
+                 --chuid $USER --exec $DAEMON -- $ARGS
+ 	sleep 3
+-	prime_firewire
++	#prime_firewire
+ 	start-stop-daemon --start --pidfile $RUNDIR/$NAME.pid \
+                 --chuid $USER --nicelevel $NICE --exec $DAEMON -- $ARGS
+     log_end_msg $?
 
 === modified file 'debian/rules'
 --- debian/rules	2008-06-12 22:49:46 +0000

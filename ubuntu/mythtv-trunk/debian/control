@@ -146,8 +146,8 @@ Package: mythtv-frontend
 Architecture: any
 Depends: mythtv-common (= ${source:Version}), ${shlibs:Depends}, adduser, zenity | kdebase-bin, gksu | kdebase-bin, ttf-liberation | msttcorefonts, ${misc:Depends}
 Suggests: mythtv-backend, mythmusic, mythweather, mythgallery, mythvideo, mythgame, mythstream, ntp | time-daemon | ntp-simple
-Conflicts: mythtv (<< 0.8-1), mythappearance (<< 0.21.0)
-Replaces: mythtv (<< 0.8-1),  mythappearance (<< 0.21.0)
+Conflicts: mythtv (<< 0.8-1), mythappearance (<< 0.22.0)
+Replaces: mythtv (<< 0.8-1),  mythappearance (<< 0.22.0)
 Description: A personal video recorder application (client)
  MythTV provides a unified graphical interface for recording and viewing
  television programs. Refer to the mythtv package for more information.
@@ -165,7 +165,7 @@ Description: A personal video recorder application (client)
 Package: libmyth-0.22-0
 Architecture: any
 Section: multiverse/libs
-Depends: ${shlibs:Depends}, libqt3-mt-mysql | libqt3c102-mt-mysql
+Depends: ${shlibs:Depends}, libqt4-qt3support, libqt4-sql-mysql
 Conflicts: mythtv (<< 0.7-5)
 Replaces: mythtv (<< 0.7-5)
 Description: Common library code for MythTV and add-on modules (runtime)
@@ -178,9 +178,9 @@ Description: Common library code for MythTV and add-on modules (runtime)
 Package: libmyth-dev
 Architecture: any
 Section: multiverse/libdevel
-Depends: libmyth-0.21-0 (= ${source:Version}), libqt3c102-mt-dev | libqt3-mt-dev
-Provides: libmyth-0.21-0-dev
-Conflicts: libmyth-0.21-dev
+Depends: libmyth-0.22-0 (= ${source:Version}), libqt4-dev
+Provides: libmyth-0.22-0-dev
+Conflicts: libmyth-0.22-dev
 Description: Common library code for MythTV and add-on modules (development)
  MythTV provides a unified graphical interface for recording and viewing
  television programs. Refer to the mythtv package for more information.
