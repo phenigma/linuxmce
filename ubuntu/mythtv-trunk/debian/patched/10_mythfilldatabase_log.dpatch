@@ -1,4 +1,0 @@
-patching file programs/mythbackend/housekeeper.cpp
-Hunk #1 succeeded at 301 with fuzz 1 (offset 1 line).
-patching file programs/mythwelcome/welcomedialog.cpp
-Hunk #1 succeeded at 462 (offset 4 lines).
