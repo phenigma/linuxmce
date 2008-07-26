@@ -57,6 +57,7 @@
 #define FUNC_ID_ZW_GET_SUC_NODE_ID                      0x56
 
 #define ZW_SUC_FUNC_BASIC_SUC				0x00
+#define FUNC_ID_ZW_ASSIGN_RETURN_ROUTE			0x46
 
 #define UPDATE_STATE_NODE_INFO_RECEIVED     		0x84
 #define UPDATE_STATE_NODE_INFO_REQ_FAILED		0x81
@@ -226,6 +227,10 @@ namespace ZWApi
 			bool zwAssociationGet(int node_id, int group);
 			bool zwAssociationSet(int node_id, int group, int target_node_id);
 
+			bool zwAssignReturnRoute(int src_node_id, int dst_node_id);
+
+			// called by download configuration to replicate the z-wave network information
+			bool zwReplicateController(int mode);
 	};
 
 }

@@ -152,8 +152,8 @@ void ZWave::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage)
 void ZWave::CMD_Report_Child_Devices(string &sCMD_Result,Message *pMessage)
 //<-dceag-c756-e->
 {
-	cout << "--> Executing command #756 - Report Child Devices" << endl;
-	        EVENT_Reporting_Child_Devices("",myZWApi->getDeviceList() );
+	LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Reporting child devices");
+	EVENT_Reporting_Child_Devices("",myZWApi->getDeviceList() );
 
 }
 
@@ -167,8 +167,13 @@ void ZWave::CMD_Report_Child_Devices(string &sCMD_Result,Message *pMessage)
 void ZWave::CMD_Download_Configuration(string sText,string &sCMD_Result,Message *pMessage)
 //<-dceag-c757-e->
 {
-	cout << "Need to implement command #757 - Download Configuration" << endl;
-	cout << "Parm #9 - Text=" << sText << endl;
+	LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Download configuration start");
+	myZWApi->zwReplicateController(1);
+	sleep(60);
+	LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Download configuration end");
+	myZWApi->zwReplicateController(0);
+        EVENT_Download_Config_Done("");
+
 }
 
 //<-dceag-c760-b->
@@ -249,9 +254,8 @@ void ZWave::CMD_StatusReport(string sArguments,string &sCMD_Result,Message *pMes
 void ZWave::CMD_Assign_Return_Route(int iNodeID,int iDestNodeID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c820-e->
 {
-	cout << "Need to implement command #820 - Assign Return Route" << endl;
-	cout << "Parm #239 - NodeID=" << iNodeID << endl;
-	cout << "Parm #240 - DestNodeID=" << iDestNodeID << endl;
+	LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "ZWave::CMD_Assign_Return_Route %d -> %d",iNodeID,iDestNodeID);
+	myZWApi->zwAssignReturnRoute(iNodeID,iDestNodeID);
 }
 
 //<-dceag-c840-b->

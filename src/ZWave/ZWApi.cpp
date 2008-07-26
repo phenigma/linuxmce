@@ -714,3 +714,44 @@ bool ZWApi::ZWApi::zwAssociationSet(int node_id, int group, int target_node_id) 
         sendFunction( mybuf , 8, REQUEST, 1);
 
 }
+
+bool ZWApi::ZWApi::zwAssignReturnRoute(int src_node_id, int dst_node_id) {
+	char mybuf[1024];
+
+        mybuf[0] = FUNC_ID_ZW_ASSIGN_RETURN_ROUTE;
+	mybuf[1] = src_node_id;
+	mybuf[2] = dst_node_id;
+	//mybuf[7] = TRANSMIT_OPTION_ACK | TRANSMIT_OPTION_AUTO_ROUTE;
+//        sendFunction( mybuf , 3, REQUEST, 1);
+
+	// suc test code
+        mybuf[0] = 0x51;
+	mybuf[1] = src_node_id;
+	mybuf[2] = 0x00;
+        sendFunction( mybuf , 3, REQUEST, 1);
+
+} 
+
+bool ZWApi::ZWApi::zwReplicateController(int mode) {
+	char mybuf[1024];
+	
+	if (mode) {
+		DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "Replicate controller start");
+		mybuf[0] = FUNC_ID_ZW_SET_LEARN_MODE;
+		mybuf[1] = 0x01;
+		sendFunction( mybuf , 2, REQUEST, 0); 
+
+	} else {
+		DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "Replicate controller end");
+		mybuf[0] = FUNC_ID_ZW_SET_LEARN_MODE;
+		mybuf[1] = 0x00;
+		sendFunction( mybuf , 2, REQUEST, 0); 
+
+		DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "Get new init data after replication");
+		deviceList = "";
+		mybuf[0] = FUNC_ID_SERIAL_API_GET_INIT_DATA;
+		sendFunction( mybuf , 1, REQUEST, 0); 
+	}
+
+}
+
