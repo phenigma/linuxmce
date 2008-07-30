@@ -1,13 +1,24 @@
 <?
+	include(APPROOT.'/include/config/config.inc.php');
+	include(APPROOT.'/include/utils.inc.php');
+
+	$configFile = $GLOBALS['plutoConfPath'];
+
+	$DB_NAME = LoadConfig($configFile,"MySqlDBName");
+	$DB_HOST = LoadConfig($configFile,"MySqlHost");
+	$DB_PORT = LoadConfig($configFile,"MySqlPort");
+	$DB_USER = LoadConfig($configFile,"MySqlUser");
+	$DB_PASS = LoadConfig($configFile,"MySqlPassword");
+
   	$LinuxMCEHost="http://linuxmce.org/";
  	$wikiHost='http://wiki.linuxmce.org/';
  
 	// pluto_main
 	$dbPlutoMainType = 'mysql';
-	$dbPlutoMainUser = 'root';
-	$dbPlutoMainPass = '';
-	$dbPlutoMainDatabase = 'pluto_main';
-	$dbPlutoMainServer = 'localhost';
+	$dbPlutoMainUser = $DB_USER;
+	$dbPlutoMainPass = $DB_PASS;
+	$dbPlutoMainDatabase = $DB_NAME;
+	$dbPlutoMainServer = $DB_HOST;
 	
 	
 	// pluto media
