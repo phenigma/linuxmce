@@ -80,6 +80,7 @@ public:
 	string DATA_Get_COM_Port_on_PC();
 	bool DATA_Get_Only_One_Per_PC();
 	bool DATA_Get_Autoassign_to_parents_room();
+	string DATA_Get_Polling_Settings();
 
 			*****EVENT***** accessors inherited from base class
 	void EVENT_Sensor_Tripped(bool bTripped);
@@ -186,6 +187,55 @@ NOEMON or CANBUS */
 
 	virtual void CMD_Set_Association(int iNodeID,int iGroup_ID,string sNodes_List) { string sCMD_Result; CMD_Set_Association(iNodeID,iGroup_ID,sNodes_List.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_Set_Association(int iNodeID,int iGroup_ID,string sNodes_List,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #966 - Set Polling State */
+	/** Set polling state either for the system, or a  particular node */
+		/** @param #2 PK_Device */
+			/** The device to set polling info for.  If both this and node id are blank, it sets global polling */
+		/** @param #5 Value To Assign */
+			/** If polling a node, the same as the device data for the node.   If no node is specified, the format is the same as Interface's Polling Settings */
+		/** @param #220 Report */
+			/** If true, the changes will go back to the router to update device data so they persist after a reload */
+		/** @param #225 Always */
+			/** If true, this setting will persist.  Otherwise it will only happen one time and revert to default */
+		/** @param #239 NodeID */
+			/** The node to set polling for.  If both this and PK_device are blank, it sets global polling.  This supercedes PK_Device */
+
+	virtual void CMD_Set_Polling_State(int iPK_Device,string sValue_To_Assign,bool bReport,bool bAlways,int iNodeID) { string sCMD_Result; CMD_Set_Polling_State(iPK_Device,sValue_To_Assign.c_str(),bReport,bAlways,iNodeID,sCMD_Result,NULL);};
+	virtual void CMD_Set_Polling_State(int iPK_Device,string sValue_To_Assign,bool bReport,bool bAlways,int iNodeID,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #967 - Add Node */
+	/** Add a node to the ZWave network */
+		/** @param #39 Options */
+			/** A string of letters for each of the following options:
+H = high power */
+		/** @param #48 Value */
+			/** empty or 1 = Node Any, 2=node controller, 3=node slave, 4=node existing, 5=node stop, 6=node stop failed */
+		/** @param #182 Timeout */
+			/** Number of seconds to timeout.  If not specified default is 60 seconds.  0=no timeout; a subsequent node stop must be called. */
+		/** @param #259 Multiple */
+			/** If true, allow addition of multiple nodes until timeout occurs or add node is called with node stop. */
+
+	virtual void CMD_Add_Node(string sOptions,int iValue,string sTimeout,bool bMultiple) { string sCMD_Result; CMD_Add_Node(sOptions.c_str(),iValue,sTimeout.c_str(),bMultiple,sCMD_Result,NULL);};
+	virtual void CMD_Add_Node(string sOptions,int iValue,string sTimeout,bool bMultiple,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #968 - Remove Node */
+	/** Remove a node from the ZWave network */
+		/** @param #39 Options */
+			/** A string of letters for each of the following options:
+H = high power */
+		/** @param #48 Value */
+			/** empty or 1 = Node Any, 2=node controller, 3=node slave, 5=node stop */
+		/** @param #182 Timeout */
+			/** Number of seconds to timeout.  If not specified default is 60 seconds.  0=no timeout; a subsequent node stop must be called. */
+		/** @param #259 Multiple */
+			/** If true, allow deletion of multiple nodes until timeout occurs or add node is called with node stop. */
+
+	virtual void CMD_Remove_Node(string sOptions,int iValue,string sTimeout,bool bMultiple) { string sCMD_Result; CMD_Remove_Node(sOptions.c_str(),iValue,sTimeout.c_str(),bMultiple,sCMD_Result,NULL);};
+	virtual void CMD_Remove_Node(string sOptions,int iValue,string sTimeout,bool bMultiple,string &sCMD_Result,Message *pMessage);
 
 //<-dceag-h-e->
 	};
