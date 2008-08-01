@@ -224,8 +224,8 @@ NOEMON or CANBUS */
 void ZWave::CMD_Reset(string sArguments,string &sCMD_Result,Message *pMessage)
 //<-dceag-c776-e->
 {
-	cout << "Need to implement command #776 - Reset" << endl;
-	cout << "Parm #51 - Arguments=" << sArguments << endl;
+	LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"RESET RECEIVED");
+	myZWApi->zwSetDefault();
 }
 
 //<-dceag-c788-b->
@@ -240,6 +240,10 @@ void ZWave::CMD_StatusReport(string sArguments,string &sCMD_Result,Message *pMes
 {
 	cout << "Need to implement command #788 - StatusReport" << endl;
 	cout << "Parm #51 - Arguments=" << sArguments << endl;
+	LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"ABUSING STATUS REPORT FOR ADD NODE");
+
+	// start == 1
+	myZWApi->zwAddNodeToNetwork(1);
 }
 
 //<-dceag-c820-b->

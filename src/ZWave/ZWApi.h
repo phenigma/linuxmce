@@ -31,8 +31,8 @@
 #define TRANSMIT_OPTION_AUTO_ROUTE  	0x04
 #define TRANSMIT_OPTION_FORCE_ROUTE 	0x08
 
-#define TRANSMIT_COMPLETE_OK      	0x00  
-#define TRANSMIT_COMPLETE_NO_ACK  	0x01  
+#define TRANSMIT_COMPLETE_OK      	0x00
+#define TRANSMIT_COMPLETE_NO_ACK  	0x01
 #define TRANSMIT_COMPLETE_FAIL    	0x02
 #define TRANSMIT_COMPLETE_NOROUTE 	0x04
 
@@ -41,6 +41,7 @@
 #define FUNC_ID_SERIAL_API_GET_INIT_DATA		0x02
 #define FUNC_ID_APPLICATION_COMMAND_HANDLER             0x04
 #define FUNC_ID_ZW_APPLICATION_UPDATE                   0x49
+#define FUNC_ID_ZW_SET_DEFAULT		0x42
 
 #define FUNC_ID_SERIAL_API_GET_CAPABILITIES             0x07
 
@@ -55,8 +56,21 @@
 #define FUNC_ID_ZW_ENABLE_SUC                           0x52
 #define FUNC_ID_ZW_SET_SUC_NODE_ID                      0x54
 #define FUNC_ID_ZW_GET_SUC_NODE_ID                      0x56
+#define FUNC_ID_ZW_ADD_NODE_TO_NETWORK			0x4a
+
+#define ADD_NODE_ANY					0x01
+#define ADD_NODE_STOP					0x05
+#define ADD_NODE_STATUS_LEARN_READY          		0x01
+#define ADD_NODE_STATUS_NODE_FOUND           		0x02
+#define ADD_NODE_STATUS_ADDING_SLAVE         		0x03
+#define ADD_NODE_STATUS_ADDING_CONTROLLER    		0x04
+#define ADD_NODE_STATUS_PROTOCOL_DONE        		0x05
+#define ADD_NODE_STATUS_DONE                 		0x06
+#define ADD_NODE_STATUS_FAILED               		0x07
+
 
 #define ZW_SUC_FUNC_BASIC_SUC				0x00
+#define ZW_SUC_FUNC_NODEID_SERVER			0x01
 #define FUNC_ID_ZW_ASSIGN_RETURN_ROUTE			0x46
 
 #define UPDATE_STATE_NODE_INFO_RECEIVED     		0x84
@@ -146,92 +160,97 @@
 
 #include <deque>
 
-namespace ZWApi
-{
-	struct ZWJob {
-	    char buffer[512];
-	    size_t len;
-	    time_t timeout;
-	    int sendcount;
-	    int callbackid;
-	    bool await_response;
-	};
-	struct ZWIntent {
-	    int type;
-	    int nodeid;
-	    time_t timeout;
-	    int retrycount;
-	};
+namespace ZWApi {
+    struct ZWJob {
+	char buffer[512];
+	size_t len;
+	time_t timeout;
+	int sendcount;
+	int callbackid;
+	bool await_response;
+    };
+    struct ZWIntent {
+	int type;
+	int nodeid;
+	time_t timeout;
+	int retrycount;
+    };
 
-	class ZWApi
-	{
-		private:
+    class ZWApi {
+      private:
 
-			// this will be our reader/writer thread for the serial port
-			static pthread_t readThread;
+	// this will be our reader/writer thread for the serial port
+	static pthread_t readThread;
 
-			// mutex to lock out command queue
-			pthread_mutex_t mutexSendQueue;
+	// mutex to lock out command queue
+	pthread_mutex_t mutexSendQueue;
 
-			int serialPort;
+	int serialPort;
 
-			std::deque<ZWJob*> ZWSendQueue;
-			std::deque<ZWIntent*> ZWIntentQueue;
+	 std::deque < ZWJob * >ZWSendQueue;
+	 std::deque < ZWIntent * >ZWIntentQueue;
 
-			// will be filled with the pluto syntax to report child devices
-			std::string deviceList;
+	// will be filled with the pluto syntax to report child devices
+	 std::string deviceList;
 
-			// counter to get a unique callback id
-			int callbackpool;
+	// counter to get a unique callback id
+	int callbackpool;
 
-			// the node id of our dongle
-			int ournodeid;
+	// the node id of our dongle
+	int ournodeid;
 
-			// set true when we await an ACK from the dongle, influences state machine
-			bool await_ack;
+	// set true when we await an ACK from the dongle, influences state machine
+	bool await_ack;
 
-			// reference to our ZWave DCE device
-			void *myZWave;
+	// reference to our ZWave DCE device
+	void *myZWave;
 
-		public:
-			ZWApi(void *myZWave);
+      public:
+	 ZWApi(void *myZWave);
 
-			~ZWApi();
+	~ZWApi();
 
-			// opens the serial port and starts the initalization of the zwave device
-			void *init(const char *device);
+	// opens the serial port and starts the initalization of the zwave device
+	void *init(const char *device);
 
-			// calculate a xor checksum for the zwave frame
-			char checksum(char *buf, int len);
+	// calculate a xor checksum for the zwave frame
+	char checksum(char *buf, int len);
 
-			// decodes a frame received from the dongle
-			void *decodeFrame(char *frame, size_t length);
+	// decodes a frame received from the dongle
+	void *decodeFrame(char *frame, size_t length);
 
-			// this is the function for our reader/writer thread, handles frame flow and read/write
-			void *receiveFunction(); 
+	// this is the function for our reader/writer thread, handles frame flow and read/write
+	void *receiveFunction();
 
-			// high level intent queue, abused for enumerating the nodes for now
-			bool addIntent(int nodeid, int type);
-			int getIntent(int type); 
+	// high level intent queue, abused for enumerating the nodes for now
+	bool addIntent(int nodeid, int type);
+	int getIntent(int type);
 
-			// adds a zwave job to the queue
-			bool sendFunction(char *buffer, size_t length, int type, bool response = 0);
+	// adds a zwave job to the queue
+	bool sendFunction(char *buffer, size_t length, int type,
+			  bool response = 0);
 
-			// called by the zwave device to receive the deviceList string
-			std::string getDeviceList();
+	// called by the zwave device to receive the deviceList string
+	 std::string getDeviceList();
 
-			// used by the ZWave DCE device to call BASIC SET class command
-			bool zwBasicSet(int node_id, int level);
+	// used by the ZWave DCE device to call BASIC SET class command
+	bool zwBasicSet(int node_id, int level);
 
-			// get the association list for a specific group from a device
-			bool zwAssociationGet(int node_id, int group);
-			bool zwAssociationSet(int node_id, int group, int target_node_id);
+	// get the association list for a specific group from a device
+	bool zwAssociationGet(int node_id, int group);
+	bool zwAssociationSet(int node_id, int group, int target_node_id);
 
-			bool zwAssignReturnRoute(int src_node_id, int dst_node_id);
+	bool zwAssignReturnRoute(int src_node_id, int dst_node_id);
 
-			// called by download configuration to replicate the z-wave network information
-			bool zwReplicateController(int mode);
-	};
+	// called by download configuration to replicate the z-wave network information
+	bool zwReplicateController(int mode);
+
+	// used to reset the controller and remove it from the z-wave network
+	bool zwSetDefault();
+
+	// add a node to the network
+	bool zwAddNodeToNetwork(int startstop);
+    };
 
 }
 #endif

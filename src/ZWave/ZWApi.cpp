@@ -109,9 +109,16 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 				if (frame[2] == 0) {
 					DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"No SUC, we become SUC");
 					tempbuf[0]=FUNC_ID_ZW_ENABLE_SUC;
-					tempbuf[1]=1;
-					tempbuf[2]=ZW_SUC_FUNC_BASIC_SUC;
+					tempbuf[1]=1; // 0=SUC,1=SIS
+					// tempbuf[2]=ZW_SUC_FUNC_BASIC_SUC;
+					tempbuf[2]=ZW_SUC_FUNC_NODEID_SERVER;
 					sendFunction( tempbuf , 3, REQUEST, 0); 
+					tempbuf[0]=FUNC_ID_ZW_SET_SUC_NODE_ID;
+					tempbuf[1]=ournodeid;
+					tempbuf[2]=1; // TRUE, we want to be SUC/SIS
+					tempbuf[3]=0; // no low power
+					tempbuf[4]=ZW_SUC_FUNC_NODEID_SERVER;
+					sendFunction( tempbuf , 5, REQUEST, 1); 
 				}
 				break;
 			;;
@@ -233,6 +240,40 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 
 	} else if (frame[0] == REQUEST) {
 		switch (frame[1]) {
+			case FUNC_ID_ZW_ADD_NODE_TO_NETWORK:
+				DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"FUNC_ID_ZW_ADD_NODE_TO_NETWORK:");
+				switch (frame[3]) {
+					case ADD_NODE_STATUS_LEARN_READY:
+						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"ADD_NODE_STATUS_LEARN_READY");
+						break;
+					case ADD_NODE_STATUS_NODE_FOUND:
+						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"ADD_NODE_STATUS_NODE_FOUND");
+						break;
+					case ADD_NODE_STATUS_ADDING_SLAVE:
+						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"ADD_NODE_STATUS_ADDING_SLAVE");
+						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Adding node id %i",(unsigned int)frame[4]);
+						
+						break;
+					case ADD_NODE_STATUS_ADDING_CONTROLLER:
+						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"ADD_NODE_STATUS_ADDING_CONTROLLER");
+						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Adding node id %i",(unsigned int)frame[4]);
+						break;
+					case ADD_NODE_STATUS_PROTOCOL_DONE:
+						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"ADD_NODE_STATUS_PROTOCOL_DONE");
+
+						zwAddNodeToNetwork(0);
+
+						break;
+					case ADD_NODE_STATUS_DONE:
+						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"ADD_NODE_STATUS_DONE");
+						break;
+					case ADD_NODE_STATUS_FAILED:
+						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"ADD_NODE_STATUS_FAILED");
+						break;
+					default:
+						break;
+				}
+				break;
 			case FUNC_ID_APPLICATION_COMMAND_HANDLER:
 				DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"FUNC_ID_APPLICATION_COMMAND_HANDLER:");
 				switch (frame[5]) {
@@ -599,7 +640,7 @@ void *ZWApi::ZWApi::receiveFunction() {
 			if (ZWSendQueue.size()>0 && await_ack != 1) {
 				// printf("Elements on queue: %i\n",ZWSendQueue.size());
 				// printf("Pointer: %p\n",ZWSendQueue.front());
-				DCE::LoggerWrapper::GetInstance()->Write(LV_SEND_DATA, DCE::IOUtils::FormatHexAsciiBuffer(ZWSendQueue.front()->buffer, ZWSendQueue.front()->len,"31").c_str());
+				DCE::LoggerWrapper::GetInstance()->Write(LV_SEND_DATA, "Sending job %p - %s",ZWSendQueue.front(),DCE::IOUtils::FormatHexAsciiBuffer(ZWSendQueue.front()->buffer, ZWSendQueue.front()->len,"31").c_str());
 
 				WriteSerialStringEx(serialPort,ZWSendQueue.front()->buffer, ZWSendQueue.front()->len);
 				await_ack = 1;
@@ -751,6 +792,32 @@ bool ZWApi::ZWApi::zwReplicateController(int mode) {
 		deviceList = "";
 		mybuf[0] = FUNC_ID_SERIAL_API_GET_INIT_DATA;
 		sendFunction( mybuf , 1, REQUEST, 0); 
+	}
+
+}
+
+bool ZWApi::ZWApi::zwSetDefault() {
+	char mybuf[1024];
+	
+	DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "Reset controller and erase all node information");
+	mybuf[0] = FUNC_ID_ZW_SET_DEFAULT;
+	sendFunction( mybuf , 1, REQUEST, 1); 
+
+}
+
+bool ZWApi::ZWApi::zwAddNodeToNetwork(int startstop) {
+	char mybuf[1024];
+
+	if (startstop) {	
+		DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "Adding a new node - start");
+		mybuf[0] = FUNC_ID_ZW_ADD_NODE_TO_NETWORK;
+		mybuf[1] = ADD_NODE_ANY;
+		sendFunction( mybuf , 2, REQUEST, 1); 
+	} else {
+		DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "Adding a new node - start");
+		mybuf[0] = FUNC_ID_ZW_ADD_NODE_TO_NETWORK;
+		mybuf[1] = ADD_NODE_STOP;
+		sendFunction( mybuf , 2, REQUEST, 1); 
 	}
 
 }
