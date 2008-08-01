@@ -96,6 +96,7 @@ ZWave_Command *Create_ZWave(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl
 void ZWave::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sCMD_Result,Message *pMessage)
 //<-dceag-cmdch-e->
 {
+	LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Received command for child");
 	int node_id = atoi(pDeviceData_Impl->m_mapParameters_Find(DEVICEDATA_PortChannel_Number_CONST).c_str());
 	if (node_id > 0 && node_id <= 233) {
 		sCMD_Result = "OK";
@@ -152,6 +153,7 @@ void ZWave::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage)
 void ZWave::CMD_Report_Child_Devices(string &sCMD_Result,Message *pMessage)
 //<-dceag-c756-e->
 {
+	LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Received command #756 - Report Child Devices");
 	LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Reporting child devices");
 	EVENT_Reporting_Child_Devices("",myZWApi->getDeviceList() );
 
@@ -167,6 +169,7 @@ void ZWave::CMD_Report_Child_Devices(string &sCMD_Result,Message *pMessage)
 void ZWave::CMD_Download_Configuration(string sText,string &sCMD_Result,Message *pMessage)
 //<-dceag-c757-e->
 {
+	LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Received command #757 - Download Configuration");
 	LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Download configuration start");
 	myZWApi->zwReplicateController(1);
 	sleep(60);
@@ -191,6 +194,7 @@ PK_CommandParameter|Value|... */
 void ZWave::CMD_Send_Command_To_Child(string sID,int iPK_Command,string sParameters,string &sCMD_Result,Message *pMessage)
 //<-dceag-c760-e->
 {
+	LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Received command #760 - Send Command To Child");
 	int node_id = atoi(sID.c_str());
 	if (node_id > 0 && node_id <= 233) {
 		sCMD_Result = "OK";
@@ -224,7 +228,8 @@ NOEMON or CANBUS */
 void ZWave::CMD_Reset(string sArguments,string &sCMD_Result,Message *pMessage)
 //<-dceag-c776-e->
 {
-	LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"RESET RECEIVED");
+	LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Received command #776 - Reset");
+	LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Resetting the eprom and all node information");
 	myZWApi->zwSetDefault();
 }
 
@@ -240,10 +245,6 @@ void ZWave::CMD_StatusReport(string sArguments,string &sCMD_Result,Message *pMes
 {
 	cout << "Need to implement command #788 - StatusReport" << endl;
 	cout << "Parm #51 - Arguments=" << sArguments << endl;
-	LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"ABUSING STATUS REPORT FOR ADD NODE");
-
-	// start == 1
-	myZWApi->zwAddNodeToNetwork(1);
 }
 
 //<-dceag-c820-b->
@@ -323,6 +324,97 @@ void ZWave::CMD_Set_Association(int iNodeID,int iGroup_ID,string sNodes_List,str
 	
 }
 
+//<-dceag-c966-b->
+
+	/** @brief COMMAND: #966 - Set Polling State */
+	/** Set polling state either for the system, or a  particular node */
+		/** @param #2 PK_Device */
+			/** The device to set polling info for.  If both this and node id are blank, it sets global polling */
+		/** @param #5 Value To Assign */
+			/** If polling a node, the same as the device data for the node.   If no node is specified, the format is the same as Interface's Polling Settings */
+		/** @param #220 Report */
+			/** If true, the changes will go back to the router to update device data so they persist after a reload */
+		/** @param #225 Always */
+			/** If true, this setting will persist.  Otherwise it will only happen one time and revert to default */
+		/** @param #239 NodeID */
+			/** The node to set polling for.  If both this and PK_device are blank, it sets global polling.  This supercedes PK_Device */
+
+void ZWave::CMD_Set_Polling_State(int iPK_Device,string sValue_To_Assign,bool bReport,bool bAlways,int iNodeID,string &sCMD_Result,Message *pMessage)
+//<-dceag-c966-e->
+
+{
+        cout << "Need to implement command #966 - Set Polling State" << endl;
+        cout << "Parm #2 - PK_Device=" << iPK_Device << endl;
+        cout << "Parm #5 - Value_To_Assign=" << sValue_To_Assign << endl;
+        cout << "Parm #220 - Report=" << bReport << endl;
+        cout << "Parm #225 - Always=" << bAlways << endl;
+        cout << "Parm #239 - NodeID=" << iNodeID << endl;
+}
+
+
+//<-dceag-c967-b->
+
+	/** @brief COMMAND: #967 - Add Node */
+	/** Add a node to the ZWave network */
+		/** @param #39 Options */
+			/** A string of letters for each of the following options:
+H = high power */
+		/** @param #48 Value */
+			/** empty or 1 = Node Any, 2=node controller, 3=node slave, 4=node existing, 5=node stop, 6=node stop failed */
+		/** @param #182 Timeout */
+			/** Number of seconds to timeout.  If not specified default is 60 seconds.  0=no timeout; a subsequent node stop must be called. */
+		/** @param #259 Multiple */
+			/** If true, allow addition of multiple nodes until timeout occurs or add node is called with node stop. */
+
+void ZWave::CMD_Add_Node(string sOptions,int iValue,string sTimeout,bool bMultiple,string &sCMD_Result,Message *pMessage)
+//<-dceag-c967-e->
+
+{
+	LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Received command #967 - Add Node");
+
+	if (iValue == 5) {
+		// we only honor "node stop" for now
+		myZWApi->zwAddNodeToNetwork(0);
+	} else {
+		// we simply call start (param==1), that implements "Node Any"
+		myZWApi->zwAddNodeToNetwork(1);
+	}
+
+/*	we ignore most of the other parameters for now
+        cout << "Parm #39 - Options=" << sOptions << endl;
+        cout << "Parm #48 - Value=" << iValue << endl;
+        cout << "Parm #182 - Timeout=" << sTimeout << endl;
+        cout << "Parm #259 - Multiple=" << bMultiple << endl; */
+}
+
+
+
+//<-dceag-c968-b->
+
+	/** @brief COMMAND: #968 - Remove Node */
+	/** Remove a node from the ZWave network */
+		/** @param #39 Options */
+			/** A string of letters for each of the following options:
+H = high power */
+		/** @param #48 Value */
+			/** empty or 1 = Node Any, 2=node controller, 3=node slave, 5=node stop */
+		/** @param #182 Timeout */
+			/** Number of seconds to timeout.  If not specified default is 60 seconds.  0=no timeout; a subsequent node stop must be called. */
+		/** @param #259 Multiple */
+			/** If true, allow deletion of multiple nodes until timeout occurs or add node is called with node stop. */
+
+void ZWave::CMD_Remove_Node(string sOptions,int iValue,string sTimeout,bool bMultiple,string &sCMD_Result,Message *pMessage)
+//<-dceag-c968-e->
+
+{
+        cout << "Need to implement command #968 - Remove Node" << endl;
+        cout << "Parm #39 - Options=" << sOptions << endl;
+        cout << "Parm #48 - Value=" << iValue << endl;
+        cout << "Parm #182 - Timeout=" << sTimeout << endl;
+        cout << "Parm #259 - Multiple=" << bMultiple << endl;
+}
+
+
 void ZWave::SendSensorTrippedEvents(unsigned short node_id, bool value)
 {
         DeviceData_Impl *pChildDevice = NULL;
@@ -388,87 +480,6 @@ void ZWave::SendLightChangedEvents(unsigned short node_id, int value)
 			}
 		}
 	}
-}
-
-
-//<-dceag-c966-b->
-
-	/** @brief COMMAND: #966 - Set Polling State */
-	/** Set polling state either for the system, or a  particular node */
-		/** @param #2 PK_Device */
-			/** The device to set polling info for.  If both this and node id are blank, it sets global polling */
-		/** @param #5 Value To Assign */
-			/** If polling a node, the same as the device data for the node.   If no node is specified, the format is the same as Interface's Polling Settings */
-		/** @param #220 Report */
-			/** If true, the changes will go back to the router to update device data so they persist after a reload */
-		/** @param #225 Always */
-			/** If true, this setting will persist.  Otherwise it will only happen one time and revert to default */
-		/** @param #239 NodeID */
-			/** The node to set polling for.  If both this and PK_device are blank, it sets global polling.  This supercedes PK_Device */
-
-void ZWave::CMD_Set_Polling_State(int iPK_Device,string sValue_To_Assign,bool bReport,bool bAlways,int iNodeID,string &sCMD_Result,Message *pMessage)
-//<-dceag-c966-e->
-
-{
-        cout << "Need to implement command #966 - Set Polling State" << endl;
-        cout << "Parm #2 - PK_Device=" << iPK_Device << endl;
-        cout << "Parm #5 - Value_To_Assign=" << sValue_To_Assign << endl;
-        cout << "Parm #220 - Report=" << bReport << endl;
-        cout << "Parm #225 - Always=" << bAlways << endl;
-        cout << "Parm #239 - NodeID=" << iNodeID << endl;
-}
-
-
-//<-dceag-c967-b->
-
-	/** @brief COMMAND: #967 - Add Node */
-	/** Add a node to the ZWave network */
-		/** @param #39 Options */
-			/** A string of letters for each of the following options:
-H = high power */
-		/** @param #48 Value */
-			/** empty or 1 = Node Any, 2=node controller, 3=node slave, 4=node existing, 5=node stop, 6=node stop failed */
-		/** @param #182 Timeout */
-			/** Number of seconds to timeout.  If not specified default is 60 seconds.  0=no timeout; a subsequent node stop must be called. */
-		/** @param #259 Multiple */
-			/** If true, allow addition of multiple nodes until timeout occurs or add node is called with node stop. */
-
-void ZWave::CMD_Add_Node(string sOptions,int iValue,string sTimeout,bool bMultiple,string &sCMD_Result,Message *pMessage)
-//<-dceag-c967-e->
-
-{
-        cout << "Need to implement command #967 - Add Node" << endl;
-        cout << "Parm #39 - Options=" << sOptions << endl;
-        cout << "Parm #48 - Value=" << iValue << endl;
-        cout << "Parm #182 - Timeout=" << sTimeout << endl;
-        cout << "Parm #259 - Multiple=" << bMultiple << endl;
-}
-
-
-
-//<-dceag-c968-b->
-
-	/** @brief COMMAND: #968 - Remove Node */
-	/** Remove a node from the ZWave network */
-		/** @param #39 Options */
-			/** A string of letters for each of the following options:
-H = high power */
-		/** @param #48 Value */
-			/** empty or 1 = Node Any, 2=node controller, 3=node slave, 5=node stop */
-		/** @param #182 Timeout */
-			/** Number of seconds to timeout.  If not specified default is 60 seconds.  0=no timeout; a subsequent node stop must be called. */
-		/** @param #259 Multiple */
-			/** If true, allow deletion of multiple nodes until timeout occurs or add node is called with node stop. */
-
-void ZWave::CMD_Remove_Node(string sOptions,int iValue,string sTimeout,bool bMultiple,string &sCMD_Result,Message *pMessage)
-//<-dceag-c968-e->
-
-{
-        cout << "Need to implement command #968 - Remove Node" << endl;
-        cout << "Parm #39 - Options=" << sOptions << endl;
-        cout << "Parm #48 - Value=" << iValue << endl;
-        cout << "Parm #182 - Timeout=" << sTimeout << endl;
-        cout << "Parm #259 - Multiple=" << bMultiple << endl;
 }
 
 
