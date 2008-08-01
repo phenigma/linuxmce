@@ -252,7 +252,8 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 					case ADD_NODE_STATUS_ADDING_SLAVE:
 						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"ADD_NODE_STATUS_ADDING_SLAVE");
 						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Adding node id %i",(unsigned int)frame[4]);
-						
+						// finish adding node	
+						zwAddNodeToNetwork(0);
 						break;
 					case ADD_NODE_STATUS_ADDING_CONTROLLER:
 						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"ADD_NODE_STATUS_ADDING_CONTROLLER");
@@ -260,7 +261,7 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 						break;
 					case ADD_NODE_STATUS_PROTOCOL_DONE:
 						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"ADD_NODE_STATUS_PROTOCOL_DONE");
-
+						// we send no replication info for now
 						zwAddNodeToNetwork(0);
 
 						break;
@@ -814,7 +815,7 @@ bool ZWApi::ZWApi::zwAddNodeToNetwork(int startstop) {
 		mybuf[1] = ADD_NODE_ANY;
 		sendFunction( mybuf , 2, REQUEST, 1); 
 	} else {
-		DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "Adding a new node - start");
+		DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "Adding a new node - end");
 		mybuf[0] = FUNC_ID_ZW_ADD_NODE_TO_NETWORK;
 		mybuf[1] = ADD_NODE_STOP;
 		sendFunction( mybuf , 2, REQUEST, 1); 
