@@ -185,10 +185,14 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 					switch (frame[6]) {
 						case GENERIC_TYPE_GENERIC_CONTROLLER:
 							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"GENERIC TYPE: Generic Controller");
+							sprintf(tempbuf2, "%d\t\t\t%d\t\n", tmp_nodeid, DEVICETEMPLATE_ZWave_Controller_CONST);
+							deviceList += tempbuf2;
 							break;
 						;;
 						case GENERIC_TYPE_STATIC_CONTROLLER:
 							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"GENERIC TYPE: Static Controller");
+							sprintf(tempbuf2, "%d\t\t\t%d\t\n", tmp_nodeid, DEVICETEMPLATE_ZWave_Controller_CONST);
+							deviceList += tempbuf2;
 							break;
 						;;
 						case GENERIC_TYPE_THERMOSTAT:
