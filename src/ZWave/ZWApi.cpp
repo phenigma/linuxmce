@@ -335,6 +335,12 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 						// 0x1 0x8 0x0 0x4 0x4 0x2 0x2 0x84 0x7 0x74 (#########t)
 						// if ((COMMAND_CLASS_WAKE_UP == frame[5]) && ( frame[6] == WAKE_UP_NOTIFICATION)) {
 						if (frame[6] == WAKE_UP_NOTIFICATION) {
+							// we got a wake up frame, make sure we remember the device does not always listen
+							ZWNodeMapIt = ZWNodeMap.find((unsigned int)frame[3]);
+							if (ZWNodeMapIt != ZWNodeMap.end()) {
+								(*ZWNodeMapIt).second->sleepingDevice=true;
+							}
+
 							// handle broadcasts from unconfigured devices
 							if (frame[2] && RECEIVE_STATUS_TYPE_BROAD ) { 
 								DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Got broadcast wakeup from node %i, doing WAKE_UP_INTERVAL_SET",frame[3]);
