@@ -313,11 +313,17 @@ void ZWave::CMD_Set_Config_Param(int iValue,int iNodeID,int iParameter_ID,string
 void ZWave::CMD_Set_Association(int iNodeID,int iGroup_ID,string sNodes_List,string &sCMD_Result,Message *pMessage)
 //<-dceag-c842-e->
 {
-	cout << "Need to implement command #842 - Set Association" << endl;
-	cout << "Parm #239 - NodeID=" << iNodeID << endl;
-	cout << "Parm #249 - Group_ID=" << iGroup_ID << endl;
-	cout << "Parm #250 - Nodes_List=" << sNodes_List << endl;
 	LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "ZWave::CMD_Set_Association");
+	myZWApi->zwAssociationGet(iNodeID,iGroup_ID);
+	if (sNodes_List.size() > 0) {
+		LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "parsing node list");
+		std::vector<std::string> target;
+		StringUtils::Tokenize(sNodes_List, std::string(","), target);
+		for(std::vector<string>::iterator it=target.begin(); it!=target.end(); ++it) {
+			myZWApi->zwAssociationSet(iNodeID,iGroup_ID,atoi((*it).c_str()));
+		}
+
+	}
 	myZWApi->zwAssociationGet(iNodeID,iGroup_ID);
 // 	myZWApi->zwAssociationSet(iNodeID,iGroup_ID,8);
 	
