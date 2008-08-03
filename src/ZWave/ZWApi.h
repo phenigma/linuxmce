@@ -157,6 +157,8 @@
 #define ASSOCIATION_REPORT				0x03
 #define ASSOCIATION_REMOVE				0x04
 
+#define COMMAND_CLASS_CONFIGURATION			0x70
+#define CONFIGURATION_SET				0x04
 
 #include <deque>
 #include <map>

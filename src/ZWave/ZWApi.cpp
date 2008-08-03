@@ -196,6 +196,7 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 					switch (frame[6]) {
 						case GENERIC_TYPE_GENERIC_CONTROLLER:
 							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"GENERIC TYPE: Generic Controller");
+							// [internal id] \t [description] \t [room name] \t [device template] \t [floorplan id] \n
 							sprintf(tempbuf2, "%d\t\t\t%d\t\n", tmp_nodeid, DEVICETEMPLATE_ZWave_Controller_CONST);
 							newNode->plutoDeviceTemplateConst = DEVICETEMPLATE_ZWave_Controller_CONST;
 							deviceList += tempbuf2;
@@ -874,13 +875,55 @@ bool ZWApi::ZWApi::zwAddNodeToNetwork(int startstop) {
 
 }
 
-bool ZWApi::ZWApi::zwConfigurationSet(int node_id,int paramter,int value) {
+bool ZWApi::ZWApi::zwConfigurationSet(int node_id,int parameter,int value) {
+	char mybuf[1024];
+	int len = 0;
+
+        mybuf[0] = FUNC_ID_ZW_SEND_DATA;
+	mybuf[1] = node_id;
+	mybuf[3] = COMMAND_CLASS_CONFIGURATION;
+	mybuf[4] = CONFIGURATION_SET;
+	mybuf[5] = parameter; // parameter number
+	if (value <= 0xff) {
+		// one byte value
+		mybuf[6] = 1;
+		mybuf[7] = value;
+		mybuf[8] = TRANSMIT_OPTION_ACK | TRANSMIT_OPTION_AUTO_ROUTE;
+		mybuf[2] = 5;
+		len = 9;
+	} else {
+		 if (value <= 0xffff) {
+			// two byte value
+			mybuf[6] = 2;
+			mybuf[7] = ( (value >> 8 ) & 0xff);
+			mybuf[8] = (value & 0xff);
+			mybuf[9] = TRANSMIT_OPTION_ACK | TRANSMIT_OPTION_AUTO_ROUTE;
+			mybuf[2] = 6;
+			len = 10;
+
+		} else {
+			// four byte value
+			mybuf[6] = 4;
+			mybuf[7] = ( (value >> 24) & 0xff );
+			mybuf[8] = ( (value >> 16) & 0xff );
+			mybuf[9] = ( (value >> 8) & 0xff );
+			mybuf[10] = (value & 0xff);
+			mybuf[11] = TRANSMIT_OPTION_ACK | TRANSMIT_OPTION_AUTO_ROUTE;
+			mybuf[2] = 8;
+			len = 12;
+
+		}
+	}
+
 	if (zwIsSleepingNode(node_id)) {
 
 		DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "Postpone Configuration Set - device is not always listening");
+		DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "Nodeid: %i Parameter: %i Value: %i",node_id,parameter,value);
 
 	} else {
 		DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "Running Configuration Set");
+		DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "Nodeid: %i Parameter: %i Value: %i",node_id,parameter,value);
+		sendFunction( mybuf , len, REQUEST, 1);
 
 	}
 
