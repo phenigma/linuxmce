@@ -162,6 +162,8 @@
 
 #include <deque>
 #include <map>
+#include <iostream>
+#include <algorithm>
 
 namespace ZWApi {
     struct ZWJob {
@@ -171,6 +173,7 @@ namespace ZWApi {
 	int sendcount;
 	int callbackid;
 	bool await_response;
+	int nodeid;
     };
     struct ZWIntent {
 	int type;
@@ -196,8 +199,14 @@ namespace ZWApi {
 
 	int serialPort;
 
-	 std::deque < ZWJob * >ZWSendQueue;
-	 std::deque < ZWIntent * >ZWIntentQueue;
+	// queue for sending
+	std::deque < ZWJob * >ZWSendQueue;
+
+	// postpone queue for wakeup
+	std::multimap < int, ZWJob * >ZWWakeupQueue;
+
+	// intent queue to hold nodeids for now because get_node_protocol_info does not return a node id
+	std::deque < ZWIntent * >ZWIntentQueue;
 
 	std::map < int, ZWNode * >ZWNodeMap;
 	std::map < int, ZWNode * >::iterator ZWNodeMapIt;
@@ -216,6 +225,8 @@ namespace ZWApi {
 
 	// reference to our ZWave DCE device
 	void *myZWave;
+
+	bool wakeupHandler(int nodeid);
 
       public:
 	 ZWApi(void *myZWave);
@@ -241,8 +252,9 @@ namespace ZWApi {
 
 
 	// adds a zwave job to the queue
-	bool sendFunction(char *buffer, size_t length, int type,
-			  bool response = 0);
+	bool sendFunction(char *buffer, size_t length, int type, bool response = 0);
+	// adds a zwave job to the wake up queue
+	bool sendFunctionSleeping(int nodeid, char *buffer, size_t length, int type, bool response = 0);
 
 	// called by the zwave device to receive the deviceList string
 	 std::string getDeviceList();

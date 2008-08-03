@@ -342,6 +342,9 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 								(*ZWNodeMapIt).second->sleepingDevice=true;
 							}
 
+							// inject commands from the sleeping queue for this nodeid
+							wakeupHandler((unsigned char) frame[3]);	
+
 							// handle broadcasts from unconfigured devices
 							if (frame[2] && RECEIVE_STATUS_TYPE_BROAD ) { 
 								DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Got broadcast wakeup from node %i, doing WAKE_UP_INTERVAL_SET",frame[3]);
@@ -725,6 +728,37 @@ bool ZWApi::ZWApi::sendFunction(char *buffer, size_t length, int type, bool resp
 	return true;
 }
 
+bool ZWApi::ZWApi::sendFunctionSleeping(int nodeid, char *buffer, size_t length, int type, bool response) {
+	ZWJob *newJob;
+	newJob = new ZWJob;
+	int i, index;
+	index = 0;
+	i = 0;
+
+	DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Adding job to sleeping queue: %p",newJob);
+	newJob->await_response = response && (type == REQUEST);
+	newJob->sendcount = 0;
+
+	newJob->buffer[index++] = SOF;
+	newJob->buffer[index++] = length + 2 + (response ? 1 : 0);
+	newJob->buffer[index++] = type == RESPONSE ? RESPONSE : REQUEST;
+	for (i=0;i<length;i++) newJob->buffer[index++] = buffer[i];
+	newJob->len = length + 4 + (response ? 1 : 0);
+	pthread_mutex_lock (&mutexSendQueue);
+	if (response) {
+		newJob->buffer[index++] = callbackpool;
+	}
+	newJob->callbackid = callbackpool++;
+
+	newJob->buffer[index] = checksum(newJob->buffer+1,length+2+( response ? 1 : 0) );
+	ZWWakeupQueue.insert(std::multimap < int, ZWJob * >::value_type(nodeid,newJob));
+	pthread_mutex_unlock (&mutexSendQueue);
+	return true;
+
+
+}
+
+
 bool ZWApi::ZWApi::addIntent(int nodeid, int type) {
 	ZWIntent *newIntent;
 	newIntent = new ZWIntent;
@@ -919,6 +953,7 @@ bool ZWApi::ZWApi::zwConfigurationSet(int node_id,int parameter,int value) {
 
 		DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "Postpone Configuration Set - device is not always listening");
 		DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "Nodeid: %i Parameter: %i Value: %i",node_id,parameter,value);
+		sendFunctionSleeping(node_id, mybuf , len, REQUEST, 1);
 
 	} else {
 		DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "Running Configuration Set");
@@ -943,3 +978,32 @@ bool ZWApi::ZWApi::zwIsSleepingNode(int node_id) {
 	pthread_mutex_unlock (&mutexSendQueue);
 	return rvalue;
 }
+
+bool ZWApi::ZWApi::wakeupHandler(int node_id) {
+	DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "Running wakeupHandler for node %i",node_id);
+        std::deque < ZWJob * >::iterator sendQueueIt;
+
+        std::multimap < int, ZWJob * >::iterator wakeupQueueIt;
+        std::multimap < int, ZWJob * >::iterator wakeupQueueItLast;
+
+	wakeupQueueIt = ZWWakeupQueue.find(node_id);
+
+	if (wakeupQueueIt == ZWWakeupQueue.end()) {
+		// nothing in queue, good bye
+		return true;	
+	}
+
+	wakeupQueueItLast = ZWWakeupQueue.upper_bound(node_id);
+	for ( ; wakeupQueueIt != wakeupQueueItLast; ++wakeupQueueIt) {
+		
+		DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "Moving job %p from wakup to send queue",(*wakeupQueueIt).second);
+		pthread_mutex_lock (&mutexSendQueue);
+		ZWSendQueue.push_back((*wakeupQueueIt).second);
+		ZWWakeupQueue.erase(wakeupQueueIt);
+		pthread_mutex_unlock (&mutexSendQueue);
+
+	}
+	return true;
+}	
+
+
