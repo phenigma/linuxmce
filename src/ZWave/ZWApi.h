@@ -262,6 +262,12 @@ namespace ZWApi {
 
 	// add a node to the network
 	bool zwAddNodeToNetwork(int startstop);
+
+	// configuration_set
+	bool zwConfigurationSet(int node_id,int parameter,int value);
+
+	// check if device powers down the rf part to save power
+	bool zwIsSleepingNode(int node_id);
     };
 
 }

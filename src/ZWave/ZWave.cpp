@@ -294,10 +294,9 @@ void ZWave::CMD_SetWakeUp(int iValue,int iNodeID,string &sCMD_Result,Message *pM
 void ZWave::CMD_Set_Config_Param(int iValue,int iNodeID,int iParameter_ID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c841-e->
 {
-	cout << "Need to implement command #841 - Set Config Param" << endl;
-	cout << "Parm #48 - Value=" << iValue << endl;
-	cout << "Parm #239 - NodeID=" << iNodeID << endl;
-	cout << "Parm #248 - Parameter_ID=" << iParameter_ID << endl;
+	LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "ZWave::CMD_Set_Config_Param: Nodeid: %d Parameter: %d Value: %d",iNodeID,iParameter_ID,iValue);
+
+	myZWApi->zwConfigurationSet(iNodeID,iParameter_ID,iValue);
 }
 
 //<-dceag-c842-b->

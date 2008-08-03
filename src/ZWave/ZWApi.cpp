@@ -874,3 +874,29 @@ bool ZWApi::ZWApi::zwAddNodeToNetwork(int startstop) {
 
 }
 
+bool ZWApi::ZWApi::zwConfigurationSet(int node_id,int paramter,int value) {
+	if (zwIsSleepingNode(node_id)) {
+
+		DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "Postpone Configuration Set - device is not always listening");
+
+	} else {
+		DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "Running Configuration Set");
+
+	}
+
+}
+
+bool ZWApi::ZWApi::zwIsSleepingNode(int node_id) {
+
+	bool rvalue = false;
+	// verify if device is battery powered
+	pthread_mutex_lock (&mutexSendQueue);
+	ZWNodeMapIt = ZWNodeMap.find((unsigned int)node_id);
+	if (ZWNodeMapIt != ZWNodeMap.end()) {
+		if ((*ZWNodeMapIt).second->sleepingDevice == true) {
+			rvalue= true;
+		}
+	}
+	pthread_mutex_unlock (&mutexSendQueue);
+	return rvalue;
+}
