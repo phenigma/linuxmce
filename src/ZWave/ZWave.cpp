@@ -323,8 +323,8 @@ void ZWave::CMD_Set_Association(int iNodeID,int iGroup_ID,string sNodes_List,str
 			myZWApi->zwAssociationSet(iNodeID,iGroup_ID,atoi((*it).c_str()));
 		}
 
+		myZWApi->zwAssociationGet(iNodeID,iGroup_ID);
 	}
-	myZWApi->zwAssociationGet(iNodeID,iGroup_ID);
 // 	myZWApi->zwAssociationSet(iNodeID,iGroup_ID,8);
 	
 }
