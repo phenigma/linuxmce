@@ -151,11 +151,22 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 				int tmp_nodeid;
 				DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Got reply to FUNC_ID_ZW_GET_NODE_PROTOCOL_INFO:");
 				tmp_nodeid = getIntent(1);
+
+				// test if node is valid
 				if (frame[6] != 0) {
 					// printf("***FOUND NODE:\n");
 					DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"***FOUND NODE: %d",tmp_nodeid);
+					ZWNode *newNode = new ZWNode;
+					newNode->plutoDeviceTemplateConst=0;
+					newNode->typeBasic = (unsigned char) frame[5];
+					newNode->typeGeneric = (unsigned char) frame[6];
+
 					if (((unsigned char)frame[2]) && (0x01 << 7)) {
 						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"listening node");
+						newNode->sleepingDevice = false;
+					} else {
+						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"sleeping node");
+						newNode->sleepingDevice = true;
 					}
 					if (((unsigned char)frame[3]) && (0x01 << 7)) {
 						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"optional functionality");
@@ -186,24 +197,28 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 						case GENERIC_TYPE_GENERIC_CONTROLLER:
 							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"GENERIC TYPE: Generic Controller");
 							sprintf(tempbuf2, "%d\t\t\t%d\t\n", tmp_nodeid, DEVICETEMPLATE_ZWave_Controller_CONST);
+							newNode->plutoDeviceTemplateConst = DEVICETEMPLATE_ZWave_Controller_CONST;
 							deviceList += tempbuf2;
 							break;
 						;;
 						case GENERIC_TYPE_STATIC_CONTROLLER:
 							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"GENERIC TYPE: Static Controller");
 							sprintf(tempbuf2, "%d\t\t\t%d\t\n", tmp_nodeid, DEVICETEMPLATE_ZWave_Controller_CONST);
+							newNode->plutoDeviceTemplateConst = DEVICETEMPLATE_ZWave_Controller_CONST;
 							deviceList += tempbuf2;
 							break;
 						;;
 						case GENERIC_TYPE_THERMOSTAT:
 							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"GENERIC TYPE: Thermostat");
 							sprintf(tempbuf2, "%d\t\t\t%d\t\n", tmp_nodeid, DEVICETEMPLATE_Standard_Thermostat_CONST);
+							newNode->plutoDeviceTemplateConst = DEVICETEMPLATE_Standard_Thermostat_CONST;
 							deviceList += tempbuf2;
 							break;
 						;;
 						case GENERIC_TYPE_SWITCH_MULTILEVEL:
 							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"GENERIC TYPE: Multilevel Switch");
 							sprintf(tempbuf2, "%d\t\t\t%d\t\n", tmp_nodeid, DEVICETEMPLATE_Light_Switch_dimmable_CONST);
+							newNode->plutoDeviceTemplateConst = DEVICETEMPLATE_Light_Switch_dimmable_CONST;
 							deviceList += tempbuf2;
 							break;
 						;;
@@ -214,12 +229,14 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 						case GENERIC_TYPE_SWITCH_BINARY:
 							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"GENERIC TYPE: Binary Switch");
 							sprintf(tempbuf2, "%d\t\t\t%d\t\n", tmp_nodeid, DEVICETEMPLATE_Light_Switch_onoff_CONST);
+							newNode->plutoDeviceTemplateConst = DEVICETEMPLATE_Light_Switch_onoff_CONST;
 							deviceList += tempbuf2;
 							break;
 						;;
 						case GENERIC_TYPE_SENSOR_BINARY:
 							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"GENERIC TYPE: Sensor Binary");
 							sprintf(tempbuf2, "%d\t\t\t%d\t\n", tmp_nodeid, DEVICETEMPLATE_Generic_Sensor_CONST);
+							newNode->plutoDeviceTemplateConst = DEVICETEMPLATE_Generic_Sensor_CONST;
 							deviceList += tempbuf2;
 							break;
 						;;
@@ -230,6 +247,23 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 
 					}
 					DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"SPECIFIC TYPE: %d",frame[7]);
+
+					ZWNodeMap.insert(std::map < int, ZWNode * >::value_type(tmp_nodeid,newNode));
+
+				} else {
+					DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Invalid generic class (%i), ignoring device",(unsigned char)frame[6]);
+				}
+				if (getIntentSize() == 0) {
+					// we got all protcol info responses
+					DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Finished building node list:");
+					ZWNodeMapIt = ZWNodeMap.begin();
+					while (ZWNodeMapIt!=ZWNodeMap.end()) {
+						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Node: %i basic: %i generic: %i pluto: %i",(*ZWNodeMapIt).first,(*ZWNodeMapIt).second->typeBasic,(*ZWNodeMapIt).second->typeGeneric,(*ZWNodeMapIt).second->plutoDeviceTemplateConst);
+						ZWNodeMapIt++;
+			
+					}
+					
+					
 				}
 				break;
 			;;
@@ -710,6 +744,13 @@ int ZWApi::ZWApi::getIntent(int type) {
 		pthread_mutex_unlock (&mutexSendQueue);
 	}
 	return nodeid;
+}
+size_t ZWApi::ZWApi::getIntentSize() {
+	size_t size;
+	pthread_mutex_lock (&mutexSendQueue);
+	size = ZWIntentQueue.size();	
+	pthread_mutex_unlock (&mutexSendQueue);
+	return size;
 }
 
 std::string ZWApi::ZWApi::getDeviceList() {

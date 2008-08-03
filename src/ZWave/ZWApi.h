@@ -159,6 +159,7 @@
 
 
 #include <deque>
+#include <map>
 
 namespace ZWApi {
     struct ZWJob {
@@ -176,9 +177,15 @@ namespace ZWApi {
 	int retrycount;
     };
 
+    struct ZWNode {
+	int typeBasic;
+	int typeGeneric;
+	bool sleepingDevice;
+	int plutoDeviceTemplateConst;
+    };
+
     class ZWApi {
       private:
-
 	// this will be our reader/writer thread for the serial port
 	static pthread_t readThread;
 
@@ -189,6 +196,9 @@ namespace ZWApi {
 
 	 std::deque < ZWJob * >ZWSendQueue;
 	 std::deque < ZWIntent * >ZWIntentQueue;
+
+	std::map < int, ZWNode * >ZWNodeMap;
+	std::map < int, ZWNode * >::iterator ZWNodeMapIt;
 
 	// will be filled with the pluto syntax to report child devices
 	 std::string deviceList;
@@ -225,6 +235,8 @@ namespace ZWApi {
 	// high level intent queue, abused for enumerating the nodes for now
 	bool addIntent(int nodeid, int type);
 	int getIntent(int type);
+	size_t getIntentSize() ;
+
 
 	// adds a zwave job to the queue
 	bool sendFunction(char *buffer, size_t length, int type,
