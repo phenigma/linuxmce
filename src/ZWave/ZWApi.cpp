@@ -823,8 +823,14 @@ bool ZWApi::ZWApi::zwAssociationGet(int node_id, int group) {
 	mybuf[4] = ASSOCIATION_GET;
 	mybuf[5] = group;
 	mybuf[6] = TRANSMIT_OPTION_ACK | TRANSMIT_OPTION_AUTO_ROUTE;
-        sendFunction( mybuf , 7, REQUEST, 1);
 
+	if (zwIsSleepingNode(node_id)) {
+		DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "Postpone Configuration Set - device is not always listening");
+		sendFunctionSleeping(node_id, mybuf , 7, REQUEST, 1);
+	} else {
+		sendFunction( mybuf , 7, REQUEST, 1);
+
+	}
 
 }
 
@@ -839,7 +845,14 @@ bool ZWApi::ZWApi::zwAssociationSet(int node_id, int group, int target_node_id) 
 	mybuf[5] = group;
 	mybuf[6] = target_node_id;
 	mybuf[7] = TRANSMIT_OPTION_ACK | TRANSMIT_OPTION_AUTO_ROUTE;
-        sendFunction( mybuf , 8, REQUEST, 1);
+
+	if (zwIsSleepingNode(node_id)) {
+		DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "Postpone Configuration Set - device is not always listening");
+		sendFunctionSleeping(node_id, mybuf , 8, REQUEST, 1);
+	} else {
+		sendFunction( mybuf , 8, REQUEST, 1);
+
+	}
 
 }
 
