@@ -420,7 +420,7 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 					case COMMAND_CLASS_SENSOR_BINARY:
 						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"COMMAND_CLASS_SENSOR_BINARY - ");
 						if (frame[6] == SENSOR_BINARY_REPORT) {
-							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Got sensor report from node %i, level: %i",frame[3],frame[7]);
+							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Got sensor report from node %i, level: %i",(unsigned char)frame[3],(unsigned char)frame[7]);
 							DCE::ZWave *tmp_zwave = static_cast<DCE::ZWave*>(myZWave);
 							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Send sensor tripped changed event");
 							if ((unsigned char)frame[7] == 0xff) {
