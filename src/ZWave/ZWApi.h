@@ -222,6 +222,8 @@ namespace ZWApi {
 
 	// set true when we await an ACK from the dongle, influences state machine
 	bool await_ack;
+	// same for callback
+	int await_callback;
 
 	// reference to our ZWave DCE device
 	void *myZWave;

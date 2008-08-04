@@ -269,16 +269,60 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 				break;
 			;;
 			case FUNC_ID_ZW_SEND_DATA:
-				DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"ZW_SEND Response should be parsed");
+				// callback id matches our expectation
+				switch(frame[2]) {
+					case 1:
+						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"ZW_SEND delivered to Z-Wave stack");
+						break;
+					case 0:
+						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"ERROR: ZW_SEND could not be delivered to Z-Wave stack");
+						break;
+					default:
+						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"ERROR: ZW_SEND Response is invalid!");
+				}
+
 				break;
 
 			default:
+				DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"TODO: handle response for %i ",(unsigned char)frame[1]);
 				break;
 			;;
 		}
 
 	} else if (frame[0] == REQUEST) {
 		switch (frame[1]) {
+			case FUNC_ID_ZW_SEND_DATA:
+				DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"ZW_SEND Response with callback %i received",(unsigned int)frame[2]);
+				if (frame[2] != await_callback) {
+					// wrong callback id
+					DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"ERROR: callback id is invalid!");
+
+				} else {
+					// callback id matches our expectation
+					switch(frame[3]) {
+						case 1:
+							// zwsend failed
+							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Error: ZW_SEND failed, removing job for now");
+							pthread_mutex_lock (&mutexSendQueue);
+							ZWSendQueue.pop_front();
+							pthread_mutex_unlock (&mutexSendQueue);
+							await_callback = 0;
+							break;
+						case 0:
+							// command reception acknowledged by node
+							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"ZW_SEND was successful, removing job");
+							pthread_mutex_lock (&mutexSendQueue);
+							ZWSendQueue.pop_front();
+							pthread_mutex_unlock (&mutexSendQueue);
+							await_callback = 0;
+							
+							break;
+						default:
+							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"ERROR: ZW_SEND Response is invalid!");
+
+					}
+				}
+				break;
 			case FUNC_ID_ZW_ADD_NODE_TO_NETWORK:
 				DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"FUNC_ID_ZW_ADD_NODE_TO_NETWORK:");
 				switch (frame[3]) {
@@ -674,6 +718,8 @@ void *ZWApi::ZWApi::receiveFunction() {
 					// if we await an ack pop the command, it got an ACK
 					if (await_ack) {
 						await_ack = 0;
+					}
+					if (await_callback == 0) {
 						pthread_mutex_lock (&mutexSendQueue);
 						ZWSendQueue.pop_front();
 						pthread_mutex_unlock (&mutexSendQueue);
@@ -686,13 +732,15 @@ void *ZWApi::ZWApi::receiveFunction() {
 			}
 		} else {
 			pthread_mutex_lock (&mutexSendQueue);
-			if (ZWSendQueue.size()>0 && await_ack != 1) {
+			if (ZWSendQueue.size()>0 && await_ack != 1 && await_callback == 0) {
 				// printf("Elements on queue: %i\n",ZWSendQueue.size());
 				// printf("Pointer: %p\n",ZWSendQueue.front());
-				DCE::LoggerWrapper::GetInstance()->Write(LV_SEND_DATA, "Sending job %p - %s",ZWSendQueue.front(),DCE::IOUtils::FormatHexAsciiBuffer(ZWSendQueue.front()->buffer, ZWSendQueue.front()->len,"31").c_str());
+				await_callback = (unsigned int) ZWSendQueue.front()->callbackid;
+				DCE::LoggerWrapper::GetInstance()->Write(LV_SEND_DATA, "Sending job %p (cb %i) - %s",ZWSendQueue.front(),await_callback,DCE::IOUtils::FormatHexAsciiBuffer(ZWSendQueue.front()->buffer, ZWSendQueue.front()->len,"31").c_str());
 
 				WriteSerialStringEx(serialPort,ZWSendQueue.front()->buffer, ZWSendQueue.front()->len);
 				await_ack = 1;
+				
 			}
 			pthread_mutex_unlock (&mutexSendQueue);
 
@@ -718,9 +766,12 @@ bool ZWApi::ZWApi::sendFunction(char *buffer, size_t length, int type, bool resp
 	newJob->len = length + 4 + (response ? 1 : 0);
 	pthread_mutex_lock (&mutexSendQueue);
 	if (response) {
+		if (callbackpool==0) { callbackpool++; }
 		newJob->buffer[index++] = callbackpool;
+		newJob->callbackid = callbackpool++;
+	} else {
+		newJob->callbackid = 0;
 	}
-	newJob->callbackid = callbackpool++;
 
 	newJob->buffer[index] = checksum(newJob->buffer+1,length+2+( response ? 1 : 0) );
 	ZWSendQueue.push_back(newJob);
@@ -746,9 +797,12 @@ bool ZWApi::ZWApi::sendFunctionSleeping(int nodeid, char *buffer, size_t length,
 	newJob->len = length + 4 + (response ? 1 : 0);
 	pthread_mutex_lock (&mutexSendQueue);
 	if (response) {
+		if (callbackpool==0) { callbackpool++; }
 		newJob->buffer[index++] = callbackpool;
+		newJob->callbackid = callbackpool++;
+	} else {
+		newJob->callbackid = 0;
 	}
-	newJob->callbackid = callbackpool++;
 
 	newJob->buffer[index] = checksum(newJob->buffer+1,length+2+( response ? 1 : 0) );
 	ZWWakeupQueue.insert(std::multimap < int, ZWJob * >::value_type(nodeid,newJob));
