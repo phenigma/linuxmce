@@ -263,7 +263,10 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 						ZWNodeMapIt++;
 		
 					}
-					
+				
+					DCE::ZWave *tmp_zwave = static_cast<DCE::ZWave*>(myZWave);
+					tmp_zwave->CMD_Report_Child_Devices();
+					// tmp_zwave->EVENT_Reporting_Child_Devices("",getDeviceList() );	
 					
 				}
 				break;
@@ -292,8 +295,8 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 
 		switch (frame[1]) {
 			case FUNC_ID_ZW_SEND_DATA:
-				DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"ZW_SEND Response with callback %i received",(unsigned int)frame[2]);
-				if (frame[2] != await_callback) {
+				DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"ZW_SEND Response with callback %i received",(unsigned char)frame[2]);
+				if ((unsigned char)frame[2] != await_callback) {
 					// wrong callback id
 					DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"ERROR: callback id is invalid!");
 
@@ -820,7 +823,7 @@ bool ZWApi::ZWApi::sendFunction(char *buffer, size_t length, int type, bool resp
 	newJob->len = length + 4 + (response ? 1 : 0);
 	pthread_mutex_lock (&mutexSendQueue);
 	if (response) {
-		if (callbackpool==0) { callbackpool++; }
+		if (callbackpool>255 || callbackpool==0) { callbackpool=1; }
 		newJob->buffer[index++] = callbackpool;
 		newJob->callbackid = callbackpool++;
 		newJob->callback_type = (unsigned int)buffer[3];
@@ -853,7 +856,7 @@ bool ZWApi::ZWApi::sendFunctionSleeping(int nodeid, char *buffer, size_t length,
 	newJob->len = length + 4 + (response ? 1 : 0);
 	pthread_mutex_lock (&mutexSendQueue);
 	if (response) {
-		if (callbackpool==0) { callbackpool++; }
+		if (callbackpool>255 || callbackpool==0) { callbackpool=1; }
 		newJob->buffer[index++] = callbackpool;
 		newJob->callbackid = callbackpool++;
 		newJob->callback_type = (unsigned int)buffer[3];

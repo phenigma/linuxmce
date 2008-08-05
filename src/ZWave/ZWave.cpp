@@ -60,8 +60,9 @@ bool ZWave::GetConfig()
 //<-dceag-getconfig-e->
 	string port = TranslateSerialUSB(DATA_Get_COM_Port_on_PC());
 	myZWApi->init(port.c_str());
-	sleep(8);
-	CMD_Report_Child_Devices();
+	// give the z-wave stack some time to settle
+	sleep(5);
+	// CMD_Report_Child_Devices();
 
 	return true;
 }
