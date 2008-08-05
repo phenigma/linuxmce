@@ -700,12 +700,17 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 		}
 
 		// generic callback handling
-		if (await_callback != 0 && callback_type == (unsigned char)frame[1]) {
-			DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Generic callback handling for command %i, removing job",(unsigned char)frame[1]);
-			pthread_mutex_lock (&mutexSendQueue);
-			ZWSendQueue.pop_front();
-			pthread_mutex_unlock (&mutexSendQueue);
-			await_callback = 0;
+		if (await_callback != 0 ) {
+			if (callback_type == (unsigned char)frame[1]) {
+				DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Generic callback handling for command %i, removing job",(unsigned char)frame[1]);
+				pthread_mutex_lock (&mutexSendQueue);
+				ZWSendQueue.pop_front();
+				pthread_mutex_unlock (&mutexSendQueue);
+				await_callback = 0;
+			} else {
+				DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Generic callback handling for command %i, ERROR: wrong callback type: %i",(unsigned char)frame[1],callback_type);
+
+			}
 
 		}
 
@@ -717,6 +722,7 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 
 void *ZWApi::ZWApi::receiveFunction() {
 	DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"receiveFunction started");
+	long timer;
 	char retbuf[1];
 	char mybuf2[1024];
 	size_t len2;
@@ -787,16 +793,36 @@ void *ZWApi::ZWApi::receiveFunction() {
 			}
 		} else {
 			pthread_mutex_lock (&mutexSendQueue);
-			if (ZWSendQueue.size()>0 && await_ack != 1 && await_callback == 0) {
-				// printf("Elements on queue: %i\n",ZWSendQueue.size());
-				// printf("Pointer: %p\n",ZWSendQueue.front());
-				await_callback = (unsigned int) ZWSendQueue.front()->callbackid;
-				callback_type = (unsigned int) ZWSendQueue.front()->callback_type;
-				DCE::LoggerWrapper::GetInstance()->Write(LV_SEND_DATA, "Sending job %p (cb %i) - %s",ZWSendQueue.front(),await_callback,DCE::IOUtils::FormatHexAsciiBuffer(ZWSendQueue.front()->buffer, ZWSendQueue.front()->len,"31").c_str());
+			if (ZWSendQueue.size()>0) {
+				if ( await_ack != 1 && await_callback == 0) {
+					// printf("Elements on queue: %i\n",ZWSendQueue.size());
+					// printf("Pointer: %p\n",ZWSendQueue.front());
+					await_callback = (unsigned int) ZWSendQueue.front()->callbackid;
+					callback_type = (unsigned int) ZWSendQueue.front()->callback_type;
+					DCE::LoggerWrapper::GetInstance()->Write(LV_SEND_DATA, "Sending job %p (cb %i) - %s",ZWSendQueue.front(),await_callback,DCE::IOUtils::FormatHexAsciiBuffer(ZWSendQueue.front()->buffer, ZWSendQueue.front()->len,"31").c_str());
 
-				WriteSerialStringEx(serialPort,ZWSendQueue.front()->buffer, ZWSendQueue.front()->len);
-				ZWSendQueue.front()->sendcount++;
-				await_ack = 1;
+					WriteSerialStringEx(serialPort,ZWSendQueue.front()->buffer, ZWSendQueue.front()->len);
+					ZWSendQueue.front()->sendcount++;
+					await_ack = 1;
+					timer=0;
+				} else {
+					// DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "QUEUE FILLED: await_callback: %i timer: %i",await_callback,timer++);
+					timer++;
+					if (timer > 30 && await_callback != 0) {
+						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "No callback received: await_callback: %i timer: %i",await_callback,timer);
+						timer = 0;
+						// resend, we got no final callback 
+						await_ack = 0;	
+						await_callback = 0;
+						if (ZWSendQueue.front()->sendcount > 2) {
+							ZWSendQueue.pop_front();
+							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "ERROR: Dropping command, no callback received after three resends");
+
+						}
+					}
+
+
+				}
 				
 			}
 			pthread_mutex_unlock (&mutexSendQueue);
