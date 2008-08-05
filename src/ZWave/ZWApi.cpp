@@ -1027,11 +1027,12 @@ bool ZWApi::ZWApi::zwAddNodeToNetwork(int startstop) {
 	if (startstop) {	
 		DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "Adding new node - start");
 		mybuf[1] = ADD_NODE_ANY;
+		sendFunction( mybuf , 2, REQUEST, 1); 
 	} else {
 		DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "Adding new node - end");
 		mybuf[1] = ADD_NODE_STOP;
+		sendFunction( mybuf , 2, REQUEST, 0); 
 	}
-	sendFunction( mybuf , 2, REQUEST, 1); 
 }
 
 bool ZWApi::ZWApi::zwRemoveNodeFromNetwork(int startstop) {
@@ -1041,11 +1042,12 @@ bool ZWApi::ZWApi::zwRemoveNodeFromNetwork(int startstop) {
 	if (startstop) {	
 		DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "Removing node - start");
 		mybuf[1] = REMOVE_NODE_ANY;
+		sendFunction( mybuf , 2, REQUEST, 1); 
 	} else {
 		DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "Removing node - end");
 		mybuf[1] = REMOVE_NODE_STOP;
+		sendFunction( mybuf , 2, REQUEST, 0); 
 	}
-	sendFunction( mybuf , 2, REQUEST, 1); 
 }
 
 bool ZWApi::ZWApi::zwConfigurationSet(int node_id,int parameter,int value) {
