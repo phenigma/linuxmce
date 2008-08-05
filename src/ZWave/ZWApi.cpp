@@ -289,6 +289,7 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 		}
 
 	} else if (frame[0] == REQUEST) {
+
 		switch (frame[1]) {
 			case FUNC_ID_ZW_SEND_DATA:
 				DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"ZW_SEND Response with callback %i received",(unsigned int)frame[2]);
@@ -695,6 +696,17 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 
 		}
 
+		// generic callback handling
+		if (await_callback != 0 && callback_type == (unsigned char)frame[1]) {
+			DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Generic callback handling for command %i, removing job",(unsigned char)frame[1]);
+			pthread_mutex_lock (&mutexSendQueue);
+			ZWSendQueue.pop_front();
+			pthread_mutex_unlock (&mutexSendQueue);
+			await_callback = 0;
+
+		}
+
+
 	} else {
 		// should not happen
 	}
@@ -776,6 +788,7 @@ void *ZWApi::ZWApi::receiveFunction() {
 				// printf("Elements on queue: %i\n",ZWSendQueue.size());
 				// printf("Pointer: %p\n",ZWSendQueue.front());
 				await_callback = (unsigned int) ZWSendQueue.front()->callbackid;
+				callback_type = (unsigned int) ZWSendQueue.front()->callback_type;
 				DCE::LoggerWrapper::GetInstance()->Write(LV_SEND_DATA, "Sending job %p (cb %i) - %s",ZWSendQueue.front(),await_callback,DCE::IOUtils::FormatHexAsciiBuffer(ZWSendQueue.front()->buffer, ZWSendQueue.front()->len,"31").c_str());
 
 				WriteSerialStringEx(serialPort,ZWSendQueue.front()->buffer, ZWSendQueue.front()->len);
@@ -810,8 +823,10 @@ bool ZWApi::ZWApi::sendFunction(char *buffer, size_t length, int type, bool resp
 		if (callbackpool==0) { callbackpool++; }
 		newJob->buffer[index++] = callbackpool;
 		newJob->callbackid = callbackpool++;
+		newJob->callback_type = (unsigned int)buffer[3];
 	} else {
 		newJob->callbackid = 0;
+		newJob->callback_type = 0;
 	}
 
 	newJob->buffer[index] = checksum(newJob->buffer+1,length+2+( response ? 1 : 0) );
@@ -841,8 +856,10 @@ bool ZWApi::ZWApi::sendFunctionSleeping(int nodeid, char *buffer, size_t length,
 		if (callbackpool==0) { callbackpool++; }
 		newJob->buffer[index++] = callbackpool;
 		newJob->callbackid = callbackpool++;
+		newJob->callback_type = (unsigned int)buffer[3];
 	} else {
 		newJob->callbackid = 0;
+		newJob->callback_type = 0;
 	}
 
 	newJob->buffer[index] = checksum(newJob->buffer+1,length+2+( response ? 1 : 0) );

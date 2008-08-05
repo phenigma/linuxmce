@@ -182,6 +182,7 @@ namespace ZWApi {
 	time_t timeout;
 	int sendcount;
 	int callbackid;
+	int callback_type;
 	bool await_response;
 	int nodeid;
     };
@@ -234,6 +235,8 @@ namespace ZWApi {
 	bool await_ack;
 	// same for callback
 	int await_callback;
+	// callback type temp var for state handling
+	int callback_type;
 
 	// reference to our ZWave DCE device
 	void *myZWave;
