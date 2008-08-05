@@ -412,11 +412,15 @@ void ZWave::CMD_Remove_Node(string sOptions,int iValue,string sTimeout,bool bMul
 //<-dceag-c968-e->
 
 {
-        cout << "Need to implement command #968 - Remove Node" << endl;
-        cout << "Parm #39 - Options=" << sOptions << endl;
-        cout << "Parm #48 - Value=" << iValue << endl;
-        cout << "Parm #182 - Timeout=" << sTimeout << endl;
-        cout << "Parm #259 - Multiple=" << bMultiple << endl;
+	LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Received command #968 - Remove Node");
+
+	if (iValue == 5) {
+		// we only honor "node stop" for now
+		myZWApi->zwRemoveNodeFromNetwork(0);
+	} else {
+		// we simply call start (param==1), that implements "Node Any"
+		myZWApi->zwRemoveNodeFromNetwork(1);
+	}
 }
 
 
