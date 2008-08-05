@@ -438,8 +438,7 @@ void ZWave::SendSensorTrippedEvents(unsigned short node_id, bool value)
 				{
 					int tmp_node_id = atoi(pChildDevice1->m_mapParameters_Find(DEVICEDATA_PortChannel_Number_CONST).c_str());
 					if (tmp_node_id == node_id) {
-						LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "ZWave::SendSensorTrippedEvents sending start");
-						LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Sending event from node %d",tmp_node_id);
+						LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Sending sensor tripped event from node %d",tmp_node_id);
 						m_pEvent->SendMessage( new Message(pChildDevice1->m_dwPK_Device,
 							DEVICEID_EVENTMANAGER,
 							PRIORITY_NORMAL,

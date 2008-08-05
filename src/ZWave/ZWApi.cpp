@@ -261,7 +261,7 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 					while (ZWNodeMapIt!=ZWNodeMap.end()) {
 						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Node: %i basic: %i generic: %i pluto: %i",(*ZWNodeMapIt).first,(*ZWNodeMapIt).second->typeBasic,(*ZWNodeMapIt).second->typeGeneric,(*ZWNodeMapIt).second->plutoDeviceTemplateConst);
 						ZWNodeMapIt++;
-			
+		
 					}
 					
 					
@@ -269,7 +269,6 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 				break;
 			;;
 			case FUNC_ID_ZW_SEND_DATA:
-				// callback id matches our expectation
 				switch(frame[2]) {
 					case 1:
 						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"ZW_SEND delivered to Z-Wave stack");
@@ -302,11 +301,18 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 					switch(frame[3]) {
 						case 1:
 							// zwsend failed
-							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Error: ZW_SEND failed, removing job for now");
 							pthread_mutex_lock (&mutexSendQueue);
-							ZWSendQueue.pop_front();
-							pthread_mutex_unlock (&mutexSendQueue);
+							if (ZWSendQueue.front()->sendcount > 3) {
+								// can't deliver frame, abort
+								DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Error: ZW_SEND failed, removing job after three tries");
+								ZWSendQueue.pop_front();
+							} else {
+								DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Error: ZW_SEND failed, retrying");
+								// trigger resend
+								await_ack = 0;
+							}
 							await_callback = 0;
+							pthread_mutex_unlock (&mutexSendQueue);
 							break;
 						case 0:
 							// command reception acknowledged by node
@@ -358,6 +364,41 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 						break;
 				}
 				break;
+			case FUNC_ID_ZW_REMOVE_NODE_FROM_NETWORK:
+				DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"FUNC_ID_ZW_REMOVE_NODE_FROM_NETWORK:");
+				switch (frame[3]) {
+					case REMOVE_NODE_STATUS_LEARN_READY:
+						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"REMOVE_NODE_STATUS_LEARN_READY");
+						break;
+					case REMOVE_NODE_STATUS_NODE_FOUND:
+						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"REMOVE_NODE_STATUS_NODE_FOUND");
+						break;
+					case REMOVE_NODE_STATUS_ADDING_SLAVE:
+						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"REMOVE_NODE_STATUS_ADDING_SLAVE");
+						// DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"ing node id %i",(unsigned int)frame[4]);
+						// finish adding node	
+						zwRemoveNodeFromNetwork(0);
+						break;
+					case REMOVE_NODE_STATUS_ADDING_CONTROLLER:
+						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"REMOVE_NODE_STATUS_ADDING_CONTROLLER");
+						// DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"ing node id %i",(unsigned int)frame[4]);
+						break;
+					case REMOVE_NODE_STATUS_PROTOCOL_DONE:
+						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"REMOVE_NODE_STATUS_PROTOCOL_DONE");
+						zwRemoveNodeFromNetwork(0);
+
+						break;
+					case REMOVE_NODE_STATUS_DONE:
+						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"REMOVE_NODE_STATUS_DONE");
+						break;
+					case REMOVE_NODE_STATUS_FAILED:
+						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"REMOVE_NODE_STATUS_FAILED");
+						break;
+					default:
+						break;
+				}
+				break;
+
 			case FUNC_ID_APPLICATION_COMMAND_HANDLER:
 				DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"FUNC_ID_APPLICATION_COMMAND_HANDLER:");
 				switch (frame[5]) {
@@ -422,7 +463,6 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 						if (frame[6] == SENSOR_BINARY_REPORT) {
 							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Got sensor report from node %i, level: %i",(unsigned char)frame[3],(unsigned char)frame[7]);
 							DCE::ZWave *tmp_zwave = static_cast<DCE::ZWave*>(myZWave);
-							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Send sensor tripped changed event");
 							if ((unsigned char)frame[7] == 0xff) {
 								tmp_zwave->SendSensorTrippedEvents (frame[3],true);
 							} else {
@@ -739,6 +779,7 @@ void *ZWApi::ZWApi::receiveFunction() {
 				DCE::LoggerWrapper::GetInstance()->Write(LV_SEND_DATA, "Sending job %p (cb %i) - %s",ZWSendQueue.front(),await_callback,DCE::IOUtils::FormatHexAsciiBuffer(ZWSendQueue.front()->buffer, ZWSendQueue.front()->len,"31").c_str());
 
 				WriteSerialStringEx(serialPort,ZWSendQueue.front()->buffer, ZWSendQueue.front()->len);
+				ZWSendQueue.front()->sendcount++;
 				await_ack = 1;
 				
 			}
@@ -962,18 +1003,29 @@ bool ZWApi::ZWApi::zwSetDefault() {
 bool ZWApi::ZWApi::zwAddNodeToNetwork(int startstop) {
 	char mybuf[1024];
 
+	mybuf[0] = FUNC_ID_ZW_ADD_NODE_TO_NETWORK;
 	if (startstop) {	
-		DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "Adding a new node - start");
-		mybuf[0] = FUNC_ID_ZW_ADD_NODE_TO_NETWORK;
+		DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "Adding new node - start");
 		mybuf[1] = ADD_NODE_ANY;
-		sendFunction( mybuf , 2, REQUEST, 1); 
 	} else {
-		DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "Adding a new node - end");
-		mybuf[0] = FUNC_ID_ZW_ADD_NODE_TO_NETWORK;
+		DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "Adding new node - end");
 		mybuf[1] = ADD_NODE_STOP;
-		sendFunction( mybuf , 2, REQUEST, 1); 
 	}
+	sendFunction( mybuf , 2, REQUEST, 1); 
+}
 
+bool ZWApi::ZWApi::zwRemoveNodeFromNetwork(int startstop) {
+	char mybuf[1024];
+
+	mybuf[0] = FUNC_ID_ZW_REMOVE_NODE_FROM_NETWORK;
+	if (startstop) {	
+		DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "Removing node - start");
+		mybuf[1] = REMOVE_NODE_ANY;
+	} else {
+		DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "Removing node - end");
+		mybuf[1] = REMOVE_NODE_STOP;
+	}
+	sendFunction( mybuf , 2, REQUEST, 1); 
 }
 
 bool ZWApi::ZWApi::zwConfigurationSet(int node_id,int parameter,int value) {

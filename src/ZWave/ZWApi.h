@@ -57,6 +57,7 @@
 #define FUNC_ID_ZW_SET_SUC_NODE_ID                      0x54
 #define FUNC_ID_ZW_GET_SUC_NODE_ID                      0x56
 #define FUNC_ID_ZW_ADD_NODE_TO_NETWORK			0x4a
+#define FUNC_ID_ZW_REMOVE_NODE_FROM_NETWORK		0x4b
 
 #define ADD_NODE_ANY					0x01
 #define ADD_NODE_STOP					0x05
@@ -68,6 +69,15 @@
 #define ADD_NODE_STATUS_DONE                 		0x06
 #define ADD_NODE_STATUS_FAILED               		0x07
 
+#define REMOVE_NODE_ANY					0x01
+#define REMOVE_NODE_STOP				0x05
+#define REMOVE_NODE_STATUS_LEARN_READY          	0x01
+#define REMOVE_NODE_STATUS_NODE_FOUND           	0x02
+#define REMOVE_NODE_STATUS_ADDING_SLAVE         	0x03
+#define REMOVE_NODE_STATUS_ADDING_CONTROLLER    	0x04
+#define REMOVE_NODE_STATUS_PROTOCOL_DONE        	0x05
+#define REMOVE_NODE_STATUS_DONE                 	0x06
+#define REMOVE_NODE_STATUS_FAILED               	0x07
 
 #define ZW_SUC_FUNC_BASIC_SUC				0x00
 #define ZW_SUC_FUNC_NODEID_SERVER			0x01
@@ -278,6 +288,9 @@ namespace ZWApi {
 
 	// add a node to the network
 	bool zwAddNodeToNetwork(int startstop);
+
+	// remove a node from the network
+	bool zwRemoveNodeFromNetwork(int startstop);
 
 	// configuration_set
 	bool zwConfigurationSet(int node_id,int parameter,int value);
