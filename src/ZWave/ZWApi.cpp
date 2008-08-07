@@ -586,7 +586,7 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 											DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"COMMAND_CLASS_CLIMATE_CONTROL_SCHEDULE:SCHEDULE_OVERRIDE_GET");
 										}
 										if (SCHEDULE_OVERRIDE_REPORT == (unsigned char) frame[offset+2]) {
-											DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"COMMAND_CLASS_CLIMATE_CONTROL_SCHEDULE:SCHEDULE_OVERRIDE_REPORT: Setback state: %d",frame[offset+4]);
+											DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"COMMAND_CLASS_CLIMATE_CONTROL_SCHEDULE:SCHEDULE_OVERRIDE_REPORT: Setback state: %i",(unsigned char)frame[offset+4]);
 										}
 										break;
 									case COMMAND_CLASS_CLOCK:
@@ -1132,28 +1132,54 @@ bool ZWApi::ZWApi::zwConfigurationSet(int node_id,int parameter,int value) {
 
 }
 
-bool ZWApi::ZWApi::zwWakeupSet(int node_id,int value) {
+bool ZWApi::ZWApi::zwWakeupSet(int node_id,int value, bool multi) {
 	char mybuf[1024];
+	int len = 0;
 
-        mybuf[0] = FUNC_ID_ZW_SEND_DATA;
-	mybuf[1] = node_id;
-	mybuf[2] = 6; // length of command
-	mybuf[3] = COMMAND_CLASS_WAKE_UP;
-	mybuf[4] = WAKE_UP_INTERVAL_SET;
-	mybuf[5]=0; // seconds msb
-	mybuf[6]=0x3; // 
-	mybuf[7]=0x58; // seconds lsb
-	mybuf[8]=ournodeid;
-	mybuf[9]=TRANSMIT_OPTION_ACK | TRANSMIT_OPTION_AUTO_ROUTE;
+	if (multi == false) {
+		mybuf[0] = FUNC_ID_ZW_SEND_DATA;
+		mybuf[1] = node_id;
+		mybuf[2] = 6; // length of command
+		mybuf[3] = COMMAND_CLASS_WAKE_UP;
+		mybuf[4] = WAKE_UP_INTERVAL_SET;
+		// convert to seconds
+		value = value * 60;
+		mybuf[5] = (value >> 16) & 0xff; // seconds msb
+		mybuf[6] = (value >> 8) & 0xff; // 
+		mybuf[7] = value & 0xff; // seconds lsb
+		mybuf[8] = ournodeid;
+		mybuf[9] = TRANSMIT_OPTION_ACK | TRANSMIT_OPTION_AUTO_ROUTE;
+		len = 10;
+	} else {
+		mybuf[0]=FUNC_ID_ZW_SEND_DATA;
+		mybuf[1] = node_id;
+		mybuf[2]=13;
+		mybuf[3]=COMMAND_CLASS_MULTI_CMD;
+		mybuf[4]=MULTI_CMD_ENCAP;
+		mybuf[5]=2; // 2 commands
+		mybuf[6]=6;
+		mybuf[7]=COMMAND_CLASS_WAKE_UP;
+		mybuf[8]=WAKE_UP_INTERVAL_SET;
+		value = value * 60;
+		mybuf[9] = (value >> 16) & 0xff; // seconds msb
+		mybuf[10] = (value >> 8) & 0xff; // 
+		mybuf[11] = value & 0xff; // seconds lsb
+		mybuf[12]=ournodeid;
+		mybuf[13]=2;
+		mybuf[14]=COMMAND_CLASS_WAKE_UP;
+		mybuf[15]=WAKE_UP_NO_MORE_INFORMATION;
+		mybuf[16]=TRANSMIT_OPTION_ACK | TRANSMIT_OPTION_AUTO_ROUTE;
+		len = 17;
 
+	}
 	if (zwIsSleepingNode(node_id)) {
 		DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "Postpone wake up interval set - device is not always listening");
 		DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "Nodeid: %i Value: %i",node_id,value);
-		sendFunctionSleeping(node_id, mybuf , 10, REQUEST, 1);
+		sendFunctionSleeping(node_id, mybuf , len, REQUEST, 1);
 	} else {
 		DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "Running wake up interval set");
 		DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "Nodeid: %i Value: %i",node_id,value);
-		sendFunction( mybuf , 10, REQUEST, 1);
+		sendFunction( mybuf , len, REQUEST, 1);
 	}
 }
 

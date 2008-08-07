@@ -277,7 +277,7 @@ void ZWave::CMD_SetWakeUp(int iValue,int iNodeID,string &sCMD_Result,Message *pM
 //<-dceag-c840-e->
 {
 	LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "ZWave::CMD_SetWakeUp Node: %d Value: %d",iNodeID,iValue);
-	myZWApi->zwWakeupSet(iNodeID,iValue);
+	myZWApi->zwWakeupSet(iNodeID,iValue,false);
 }
 
 //<-dceag-c841-b->
