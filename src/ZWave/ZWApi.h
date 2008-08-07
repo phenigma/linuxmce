@@ -196,6 +196,7 @@ namespace ZWApi {
     struct ZWNode {
 	int typeBasic;
 	int typeGeneric;
+	int typeSpecific;
 	bool sleepingDevice;
 	int plutoDeviceTemplateConst;
     };
@@ -297,6 +298,9 @@ namespace ZWApi {
 
 	// configuration_set
 	bool zwConfigurationSet(int node_id,int parameter,int value);
+
+	// wakeup set
+	bool zwWakeupSet(int node_id,int value);
 
 	// check if device powers down the rf part to save power
 	bool zwIsSleepingNode(int node_id);

@@ -160,6 +160,7 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 					newNode->plutoDeviceTemplateConst=0;
 					newNode->typeBasic = (unsigned char) frame[5];
 					newNode->typeGeneric = (unsigned char) frame[6];
+					newNode->typeSpecific = (unsigned char) frame[7];
 
 					if (((unsigned char)frame[2]) && (0x01 << 7)) {
 						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"listening node");
@@ -259,7 +260,7 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 					DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Finished building node list:");
 					ZWNodeMapIt = ZWNodeMap.begin();
 					while (ZWNodeMapIt!=ZWNodeMap.end()) {
-						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Node: %i basic: %i generic: %i pluto: %i",(*ZWNodeMapIt).first,(*ZWNodeMapIt).second->typeBasic,(*ZWNodeMapIt).second->typeGeneric,(*ZWNodeMapIt).second->plutoDeviceTemplateConst);
+						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Node: %i basic: %i generic: %i specific: %i pluto: %i",(*ZWNodeMapIt).first,(*ZWNodeMapIt).second->typeBasic,(*ZWNodeMapIt).second->typeGeneric,(*ZWNodeMapIt).second->typeSpecific,(*ZWNodeMapIt).second->plutoDeviceTemplateConst);
 						ZWNodeMapIt++;
 		
 					}
@@ -1129,6 +1130,31 @@ bool ZWApi::ZWApi::zwConfigurationSet(int node_id,int parameter,int value) {
 
 	}
 
+}
+
+bool ZWApi::ZWApi::zwWakeupSet(int node_id,int value) {
+	char mybuf[1024];
+
+        mybuf[0] = FUNC_ID_ZW_SEND_DATA;
+	mybuf[1] = node_id;
+	mybuf[2] = 6; // length of command
+	mybuf[3] = COMMAND_CLASS_WAKE_UP;
+	mybuf[4] = WAKE_UP_INTERVAL_SET;
+	mybuf[5]=0; // seconds msb
+	mybuf[6]=0x3; // 
+	mybuf[7]=0x58; // seconds lsb
+	mybuf[8]=ournodeid;
+	mybuf[9]=TRANSMIT_OPTION_ACK | TRANSMIT_OPTION_AUTO_ROUTE;
+
+	if (zwIsSleepingNode(node_id)) {
+		DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "Postpone wake up interval set - device is not always listening");
+		DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "Nodeid: %i Value: %i",node_id,value);
+		sendFunctionSleeping(node_id, mybuf , 10, REQUEST, 1);
+	} else {
+		DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "Running wake up interval set");
+		DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "Nodeid: %i Value: %i",node_id,value);
+		sendFunction( mybuf , 10, REQUEST, 1);
+	}
 }
 
 bool ZWApi::ZWApi::zwIsSleepingNode(int node_id) {

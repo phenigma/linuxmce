@@ -276,9 +276,8 @@ void ZWave::CMD_Assign_Return_Route(int iNodeID,int iDestNodeID,string &sCMD_Res
 void ZWave::CMD_SetWakeUp(int iValue,int iNodeID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c840-e->
 {
-	cout << "Need to implement command #840 - SetWakeUp" << endl;
-	cout << "Parm #48 - Value=" << iValue << endl;
-	cout << "Parm #239 - NodeID=" << iNodeID << endl;
+	LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "ZWave::CMD_SetWakeUp Node: %d Value: %d",iNodeID,iValue);
+	myZWApi->zwWakeupSet(iNodeID,iValue);
 }
 
 //<-dceag-c841-b->
