@@ -438,17 +438,9 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 							// handle broadcasts from unconfigured devices
 							if (frame[2] && RECEIVE_STATUS_TYPE_BROAD ) { 
 								DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Got broadcast wakeup from node %i, doing WAKE_UP_INTERVAL_SET",frame[3]);
-								tempbuf[0]=FUNC_ID_ZW_SEND_DATA;
-								tempbuf[1]=frame[3]; // destination
-								tempbuf[2]=6; // length
-								tempbuf[3]=COMMAND_CLASS_WAKE_UP;
-								tempbuf[4]=WAKE_UP_INTERVAL_SET;
-								tempbuf[5]=0; // seconds msb
-								tempbuf[6]=0x3; // 
-								tempbuf[7]=0x58; // seconds lsb
-								tempbuf[8]=ournodeid;
-								tempbuf[9]=TRANSMIT_OPTION_ACK | TRANSMIT_OPTION_AUTO_ROUTE;
-								if (ournodeid != -1) { sendFunction( tempbuf , 10, REQUEST, 1);  }
+								if (ournodeid != -1) { 
+									zwWakeupSet((unsigned char)frame[3],15,false);
+								}
 							} else {
 								DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Got unicast wakeup from node %i, doing WAKE_UP_NO_MORE_INFORMATION",frame[3]);
 								// send to sleep
@@ -607,10 +599,10 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 							tempbuf[0]=FUNC_ID_ZW_SEND_DATA;
 							// node id
 							tempbuf[1]=frame[3];
-							tempbuf[2]=15; // cmd_length;
+							tempbuf[2]=19; // cmd_length;
 							tempbuf[3]=COMMAND_CLASS_MULTI_CMD;
 							tempbuf[4]=MULTI_CMD_ENCAP;
-							tempbuf[5]=3; // cmd_count; 
+							tempbuf[5]=4; // cmd_count; 
 							tempbuf[6]=4; //length of next command
 							tempbuf[7]=COMMAND_CLASS_CLOCK;
 							tempbuf[8]=CLOCK_REPORT;
@@ -623,8 +615,12 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 							tempbuf[15]=2; //length of next command
 							tempbuf[16]=COMMAND_CLASS_WAKE_UP;
 							tempbuf[17]=WAKE_UP_NO_MORE_INFORMATION;
-							tempbuf[18]=TRANSMIT_OPTION_ACK | TRANSMIT_OPTION_AUTO_ROUTE;
-							sendFunction( tempbuf , 19, REQUEST, 1); 
+							tempbuf[18]=3;
+							tempbuf[19]=COMMAND_CLASS_BASIC;
+							tempbuf[20]=BASIC_SET;
+							tempbuf[21]=0x00;
+							tempbuf[22]=TRANSMIT_OPTION_ACK | TRANSMIT_OPTION_AUTO_ROUTE;
+							sendFunction( tempbuf , 23, REQUEST, 1); 
  
 						}
 						break;
@@ -642,8 +638,9 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 					case UPDATE_STATE_NODE_INFO_RECEIVED:
 						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"FUNC_ID_ZW_APPLICATION_UPDATE:UPDATE_STATE_NODE_INFO_RECEIVED received from node %d - ",frame[3]);
 						switch(frame[5]) {
+							case BASIC_TYPE_ROUTING_SLAVE:
 							case BASIC_TYPE_SLAVE:
-								DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"BASIC_TYPE_SLAVE:");
+								//DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"BASIC_TYPE_SLAVE:");
 								switch(frame[6]) {
 									case GENERIC_TYPE_SWITCH_MULTILEVEL:
 										DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"GENERIC_TYPE_SWITCH_MULTILEVE");
