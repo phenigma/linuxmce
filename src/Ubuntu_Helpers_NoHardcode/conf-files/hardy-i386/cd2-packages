@@ -656,6 +656,7 @@ sun-java6-jre
 svgalibg1
 syslinux
 sysv-rc
+tee-pluto
 tcpd
 tk8.4
 traceroute
@@ -669,6 +670,7 @@ unixodbc
 update-inetd
 usbutils
 vdr
+video-wizard-videos
 vim
 vim-common
 vim-runtime

@@ -5,7 +5,7 @@
 . /usr/local/lmce-build/common/logging.sh 
 
 set -x 
-set -e
+#set -e
 
 function Build_MakeRelease {
 

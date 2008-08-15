@@ -4,6 +4,7 @@ set -e
 
 
 Distro="$(lsb_release -c -s)"
+Release="$(lsb_release -s -r)"
 Arch="$(apt-config dump | grep '^APT::Architecture' | sed  's/.* "\(.*\)";$/\1/g')"
 
 # Install default config files
@@ -22,7 +23,7 @@ Pin: origin
 Pin-Priority: 9999
 
 Package: *
-Pin: release v='$(lsb_release -s -r)',o=Ubuntu,a='$(lsb_release -c -s)',l=Ubuntu
+Pin: release v='${Release}',o=Ubuntu,a='${Distro}',l=Ubuntu
 Pin-Priority: 9998
 ' > /etc/apt/preferences
 

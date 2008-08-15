@@ -4,7 +4,7 @@
 . /usr/local/lmce-build/common/logging.sh
 
 set -e
-set -x
+#set -x
 
 DisplayMessage "*** STEP: Download closed source debs"
 trap 'Error "Undefined error in $0"' EXIT
@@ -36,7 +36,7 @@ function Unpack_Debs() {
 }
 
 
-if [ x"$svn_private_url" = x"" -o x"$svn_private_user" = x"" -o x"$svn_private_pass" = x"" ] ; then
+if [ x"$closed_source_debs_url" = x"" ] ; then
 	DisplayMessage "Nothing to download, will use local debs."
 else
 	Download_Debs

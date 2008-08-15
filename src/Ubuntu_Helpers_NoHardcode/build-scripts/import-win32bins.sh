@@ -4,7 +4,7 @@
 . /usr/local/lmce-build/common/logging.sh
 
 set -e
-set -x
+#set -x
 
 function fake_win32bins() {
 	touch ${svn_dir}/${svn_branch_name}/src/bin/Pluto_S60.sis

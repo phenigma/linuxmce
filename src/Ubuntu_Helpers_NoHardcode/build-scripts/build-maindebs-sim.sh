@@ -4,7 +4,7 @@
 . /usr/local/lmce-build/common/logging.sh
 
 set -e
-set -x
+#set -x
 
 function build_main_debs_sim() {
 	export PATH=$PATH:${svn_dir}/${svn_branch_name}/src/bin

@@ -5,7 +5,7 @@
 . /usr/local/lmce-build/build-scripts/name-packages.sh
 
 set -e
-set -x
+#set -x
 
 function build_main_debs() {
 	export PATH=$PATH:${svn_dir}/${svn_branch_name}/src/bin
@@ -54,7 +54,7 @@ function build_main_debs() {
 	exclude_list=$exclude_list,$mkr_diskless_default_boot_file_package
 	exclude_list=$exclude_list,$mkr_diskless_base_filesystem_package
 
-	case "$(lsb_release -c -s)" in
+	case "${build_name}" in
 		"gutsy")
 			Distro_ID="15"
 			;;
@@ -73,11 +73,11 @@ function build_main_debs() {
 	esac
 
 	# Compile the packages
-	"${mkr_dir}/MakeRelease" -a -R "$SVNrevision" -h 'localhost' -u 'root' -O "$out_dir" -D 'pluto_main_build' -o "$Distro_ID" -r 21 -m 1 -K "$exclude_list" -s "${svn_dir}/${svn_branch_name}" -n / -d || Error "MakeRelease failed"
+	"${mkr_dir}/MakeRelease" -a -R "$SVNrevision" -h $sql_build_host -u $sql_build_user -O "$out_dir" -D 'pluto_main_build' -o "$Distro_ID" -r 21 -m 1 -K "$exclude_list" -s "${svn_dir}/${svn_branch_name}" -n / -d || Error "MakeRelease failed"
 
 	# Compile the private packages
 	if [[ "$svn_private_url" != "" ]] && [[ "$svn_private_user" != "" ]] && [[ "$svn_private_pass" != "" ]] ;then
-		"${mkr_dir}/MakeRelease" -a -R "$SVNrevision" -h 'localhost' -u 'root' -O "$out_dir" -D 'pluto_main_build' -o "$Distro_ID" -r 21 -m 1108 -K "$exclude_list" -s "${svn_dir}/${svn_branch_name}" -n / -d || Error "MakeRelease failed"
+		"${mkr_dir}/MakeRelease" -a -R "$SVNrevision" -h $sql_build_host -u $sql_build_user -O "$out_dir" -D 'pluto_main_build' -o "$Distro_ID" -r 21 -m 1108 -K "$exclude_list" -s "${svn_dir}/${svn_branch_name}" -n / -d || Error "MakeRelease failed"
 	fi
 }
 

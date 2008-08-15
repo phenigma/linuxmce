@@ -171,7 +171,7 @@ function LoadPackageNames
 	export mkr_powerfile_c200_package=493
 	export mkr_disk_drive_functions_source=496
 	export mkr_disk_drive_functions_package=497
-	export mkr_simplephone_package=498
+	export mkr_simplephone_source=498
 	export mkr_simplephone_package=499
 
 	export mkr_398_499=398,401,403,404,405,406,407,419,420,340,421,422,424,425

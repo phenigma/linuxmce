@@ -5,7 +5,7 @@
 . /usr/local/lmce-build/common/utils.sh
 
 set -e
-set -x
+#set -x
 
 function MoveDebs2Repo {
 	# Create the repository dir
@@ -39,26 +39,23 @@ function MoveDebs2Repo {
 }
 
 function CopyDebsToDisklessSync {
-	local sync_pkgs="pluto-bluetooth-dongle pluto-cm11a pluto-eib pluto-gc100 pluto-generic-serial-device pluto-hdhomerun pluto-irbase pluto-irtrans-wrapper pluto-libbd pluto-lirc-wrapper pluto-messagetrans pluto-motion-wrapper pluto-msiml-disp-butt pluto-nvidia-video-drivers pluto-powerfile-c200 pluto-proxy-orbiter pluto-text-to-speech pluto-tira-wrapper pluto-usb-uirt-0038 pluto-vdr pluto-vipshared pluto-wavetrend-reader pluto-zwave-lighting mtx-pluto nvidia-glx lirc-pluto lirc-modules-2.6.22-14-generic id-my-disc linux-restricted-modules-2.6.22-14-generic lmcevdr pluto-vdr-plugin pluto-vdr vdr-dev vdr-plugin-control vdr-plugin-xineliboutput vdr libxine1-xvdr libxine-xvdr libxineliboutput-sxfe xineliboutput-sxfe mythtv-backend mythtv-common mythtv-frontend mythtv-transcode-utils pluto-ivtv-video-drivers"
+	local sync_pkgs="pluto-bluetooth-dongle pluto-cm11a pluto-eib pluto-gc100 pluto-generic-serial-device pluto-hdhomerun pluto-irbase pluto-irtrans-wrapper pluto-libbd pluto-lirc-wrapper pluto-messagetrans pluto-motion-wrapper pluto-msiml-disp-butt pluto-nvidia-video-drivers pluto-powerfile-c200 pluto-proxy-orbiter pluto-text-to-speech pluto-tira-wrapper pluto-usb-uirt-0038 pluto-vdr pluto-vipshared pluto-wavetrend-reader pluto-zwave-lighting mtx-pluto nvidia-glx-new lirc-pluto id-my-disc lmcevdr pluto-vdr-plugin pluto-vdr vdr-dev vdr-plugin-control vdr-plugin-xineliboutput vdr libxine1-xvdr libxine-xvdr libxineliboutput-sxfe xineliboutput-sxfe mythtv-backend mythtv-common mythtv-frontend mythtv-transcode-utils pluto-ivtv-video-drivers"
+#	sync_pkgs="$sync_pkgs lirc-modules-2.6.22-14-generic linux-restricted-modules-2.6.22-14-generic"
+	sync_pkgs="$sync_pkgs lirc-modules-$KVER linux-restricted-modules-$KVER"
+	sync_pkgs="$sync_pkgs 3m-touchware elo-touchscreen 3ware-3dm2"
 	local pkg
 	mkdir -p "${build_dir}/DisklessSync/${arch}/deb-cache"
 	for pkg in $sync_pkgs ;do
 		rm -f "${build_dir}/DisklessSync/${arch}/deb-cache/${pkg}_"*.deb
-		cp "/var/www/${pkg}_"*.deb "${build_dir}/DisklessSync/${arch}/deb-cache/" || :
+		cp "/var/www/${pkg}_"*.deb "${build_dir}/DisklessSync/${arch}/deb-cache/" || DisplayMessage "Failed to copy ${pkg}"
 	done
 	
 	local sync_cd2_pkgs="libdvdnav4 openobex-apps"
 	mkdir -p "${build_dir}/DisklessSync/${arch}/deb-cache"
 	for pkg in $sync_cd2_pkgs ;do
 		rm -f "${build_dir}/DisklessSync/${arch}/deb-cache/${pkg}_"*.deb
-		cp "${build_dir}/cd2-packages/cachecd1-cache/${pkg}_"*.deb "${build_dir}/DisklessSync/${arch}/deb-cache/"
+		cp "${build_dir}/cd2-packages/cachecd1-cache/${pkg}_"*.deb "${build_dir}/DisklessSync/${arch}/deb-cache/" || DisplayMessage "Failed to copy ${pkg}"
 	done
-
-	rm -f "${build_dir}/DisklessSync/${arch}/deb-cache/"{3m-touchware,elo-touchscreen}_*.deb
-	cp /var/www/{3m-touchware,elo-touchscreen}_*.deb "${build_dir}/DisklessSync/${arch}/deb-cache" || :
-
-	rm -f "${build_dir}/DisklessSync/${arch}/deb-cache/"3ware-3dm2_*.deb
-	cp /var/www/3ware-3dm2_*.deb "${build_dir}/DisklessSync/${arch}/deb-cache" || :
 
 	echo "$(svn info "$svn_dir/$svn_branch_name/src" | grep Revision | sed 's/Revision: //g')" > "${build_dir}/DisklessSync/${arch}/revision"
 }

@@ -1,5 +1,6 @@
 #!/bin/bash
 
+. /etc/lmce-build/builder.conf
 . /usr/local/lmce-build/common/env.sh
 
 function Create_Diskless_Debootstrap_Archive {
@@ -7,7 +8,7 @@ function Create_Diskless_Debootstrap_Archive {
 	local temp_dir="$(mktemp -d)"
 
 	# Run debootstrap in that dir
-	debootstrap "$(lsb_release -c -s)" "$temp_dir" http://ro.archive.ubuntu.com/ubuntu/
+	debootstrap "${build_name}" "$temp_dir" http://ro.archive.ubuntu.com/ubuntu/
 
 	# Clean it's apt cache so we don't end up with it in the archive
 	rm -f $temp_dir/var/cache/apt/archives/*.deb
@@ -22,28 +23,24 @@ function Create_Diskless_Debootstrap_Archive {
 	rm -rf "$temp_dir"	
 }
 
+
+function Create_Diskless_TFTPBoot_Package {
+
+	#Package: pluto-default-tftpboot
+	dir_="${svn_dir}/${svn_branch_name}/src/pluto-default-tftpboot-2.0.0.44.0804"
+#	DisplayMessage "Building pluto-default-tftpboot"
+	pushd "$dir_"
+		dpkg-buildpackage -rfakeroot -us -uc -b -tc
+		cp -v ../pluto-default-tftpboot_*.deb ${replacements_dir}
+	popd
+
+
+}
+
+
 Create_Diskless_Debootstrap_Archive
 
-if [ x = y ] ; then
+Create_Diskless_TFTPBoot_Package
 
-tmp_dir=/tmp/mk_tftpboot
-mkdir $tmp_dir
-pushd $tmp_dir
-	wget http://archive.ubuntu.com/ubuntu/pool/main/l/linux/linux-image-${KVER}_${KVER_SHORT}-${KVER_VERY_SHORT}_i386.deb
-	mkdir root
-	dpkg -x linux-image-${KVER}_${KVER_SHORT}-${KVER_VERY_SHORT}_i386.deb root
-        mkdir -p tftpboot/default/
-        mkdir -p tftpboot/pxelinux.cfg/
-	cat <<EOF > tftpboot/pxelinux.cfg/default
 
-DEFAULT NFS_BOOT
-LABEL NFS_BOOT
-KERNEL default/vmlinuz-${KVER}
-APPEND root=/dev/nfs acpi=off vga=normal initrd=default/initrd.img-${KVER} ramdisk_size=10240 rw ip=all apicpmtimer
 
-EOF
-	mkinitramfs -d /etc/initramfs-tools-diskless/ -o `pwd`/tftpboot/default/initrd.img-$KDEV $KVER
-	mv root/* tftpboot/default/
-popd
-
-fi

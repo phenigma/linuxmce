@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 prepare_scripts_dir="/usr/local/lmce-build/prepare-scripts"
 
 "${prepare_scripts_dir}/install-build-pkgs.sh"

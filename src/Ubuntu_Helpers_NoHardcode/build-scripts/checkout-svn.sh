@@ -2,6 +2,8 @@
 . /etc/lmce-build/builder.conf
 . /usr/local/lmce-build/common/logging.sh
 
+#set -x
+
 function Checkout_Svn {
 	DisplayMessage "**** STEP : SVN CHECKOUT"
 

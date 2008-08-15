@@ -1,5 +1,6 @@
 #!/bin/bash -e
 
+. /etc/lmce-build/builder.conf
 . /usr/local/lmce-build/common/env.sh
 
 if [[ -f "$log_file" ]] ;then

@@ -1,13 +1,16 @@
 #!/bin/bash -e
 
+. /etc/lmce-build/builder.conf
 . /usr/local/lmce-build/common/env.sh
 . /usr/local/lmce-build/common/logging.sh
 . /usr/local/lmce-build/common/utils.sh
 
 set -e
-set -x
 
 function Changed_Since_Last_Build {
+#Zaerc HACK
+	return $(/bin/true)
+
 	local fs_path="$1"
 	DisplayMessage "Checking for changes '$fs_path'"
 	local cache_file="${replacements_dir}/.cache"
@@ -32,7 +35,7 @@ function Build_Replacements_Common {
 	build_zaptel="yes"
         build_mce_installer="yes"
         build_alsa_modules="yes"
-	case "$(lsb_release -c -s)" in
+	case "${build_name}" in
 		"gutsy")
 		;;
 		"hardy")
@@ -273,6 +276,18 @@ function Build_Replacements_Common {
 			cp ../pluto-avwizard-sounds_*.deb "${replacements_dir}"
 		popd
 	fi
+
+
+	#Package: asterisk-perl
+	dir_=${svn_dir}/${svn_branch_name}/external/asterisk-perl-0.10 
+	if Changed_Since_Last_Build "$dir_" ;then
+		DisplayMessage "Building asterisk-perl"
+		pushd "$dir_"
+		dpkg-buildpackage -rfakeroot -us -uc -b -tc
+		cp ../asterisk-perl_*.deb "${replacements_dir}"
+		popd
+	fi
+
 }
 
 function Build_Replacements_Hardy {
@@ -364,7 +379,7 @@ trap 'Error "Undefined error in $0"' EXIT
 DisplayMessage "*** STEP: Building replacement debs"
 Build_Replacements_Common
 
-case "$(lsb_release -c -s)" in
+case "${build_name}" in
 	"gutsy")
 		Build_Replacements_Gutsy
 		;;
