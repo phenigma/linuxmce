@@ -376,13 +376,18 @@ void ZWave::CMD_Add_Node(string sOptions,int iValue,string sTimeout,bool bMultip
 
 {
 	LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Received command #967 - Add Node");
+	bool highpower = false;
+	if (sOptions.find('H') != std::string::npos) {
+		LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Option high power inclusion set");
+		highpower = true;
+	}
 
 	if (iValue == 5) {
 		// we only honor "node stop" for now
-		myZWApi->zwAddNodeToNetwork(0);
+		myZWApi->zwAddNodeToNetwork(0,highpower);
 	} else {
 		// we simply call start (param==1), that implements "Node Any"
-		myZWApi->zwAddNodeToNetwork(1);
+		myZWApi->zwAddNodeToNetwork(1,highpower);
 	}
 
 /*	we ignore most of the other parameters for now

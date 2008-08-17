@@ -68,6 +68,7 @@
 #define ADD_NODE_STATUS_PROTOCOL_DONE        		0x05
 #define ADD_NODE_STATUS_DONE                 		0x06
 #define ADD_NODE_STATUS_FAILED               		0x07
+#define ADD_NODE_OPTION_HIGH_POWER			0x80
 
 #define REMOVE_NODE_ANY					0x01
 #define REMOVE_NODE_STOP				0x05
@@ -291,7 +292,7 @@ namespace ZWApi {
 	bool zwSetDefault();
 
 	// add a node to the network
-	bool zwAddNodeToNetwork(int startstop);
+	bool zwAddNodeToNetwork(int startstop,bool highpower);
 
 	// remove a node from the network
 	bool zwRemoveNodeFromNetwork(int startstop);

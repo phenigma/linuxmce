@@ -347,7 +347,7 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"ADD_NODE_STATUS_ADDING_SLAVE");
 						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Adding node id %i",(unsigned int)frame[4]);
 						// finish adding node	
-						zwAddNodeToNetwork(0);
+						zwAddNodeToNetwork(0,false);
 						break;
 					case ADD_NODE_STATUS_ADDING_CONTROLLER:
 						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"ADD_NODE_STATUS_ADDING_CONTROLLER");
@@ -356,7 +356,7 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 					case ADD_NODE_STATUS_PROTOCOL_DONE:
 						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"ADD_NODE_STATUS_PROTOCOL_DONE");
 						// we send no replication info for now
-						zwAddNodeToNetwork(0);
+						zwAddNodeToNetwork(0,false);
 
 						break;
 					case ADD_NODE_STATUS_DONE:
@@ -1044,13 +1044,13 @@ bool ZWApi::ZWApi::zwSetDefault() {
 
 }
 
-bool ZWApi::ZWApi::zwAddNodeToNetwork(int startstop) {
+bool ZWApi::ZWApi::zwAddNodeToNetwork(int startstop, bool highpower) {
 	char mybuf[1024];
 
 	mybuf[0] = FUNC_ID_ZW_ADD_NODE_TO_NETWORK;
 	if (startstop) {	
 		DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "Adding new node - start");
-		mybuf[1] = ADD_NODE_ANY;
+		mybuf[1] = highpower ? ADD_NODE_ANY | ADD_NODE_OPTION_HIGH_POWER : ADD_NODE_ANY;
 		sendFunction( mybuf , 2, REQUEST, 1); 
 	} else {
 		DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "Adding new node - end");
