@@ -696,6 +696,12 @@ switch ($section) {
 	    include_once('operations/mediaBrowser/exportPlaylist.php');
 	    exportPlaylist($output,$mediadbADO,$dbADO);
 	break;
+	case 'importPlaylist':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('small');
+	    include_once('operations/mediaBrowser/importPlaylist.php');
+	    importPlaylist($output,$mediadbADO,$dbADO);
+	break;
 	case 'powerFile':
 		$output = new Template($dbADO);
 		$output->setTemplateFileType('large');
