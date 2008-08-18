@@ -161,6 +161,7 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 					newNode->typeBasic = (unsigned char) frame[5];
 					newNode->typeGeneric = (unsigned char) frame[6];
 					newNode->typeSpecific = (unsigned char) frame[7];
+					newNode->stateBasic = 0;
 
 					if (((unsigned char)frame[2]) && (0x01 << 7)) {
 						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"listening node");
@@ -579,6 +580,11 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 										}
 										if (SCHEDULE_OVERRIDE_REPORT == (unsigned char) frame[offset+2]) {
 											DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"COMMAND_CLASS_CLIMATE_CONTROL_SCHEDULE:SCHEDULE_OVERRIDE_REPORT: Setback state: %i",(unsigned char)frame[offset+4]);
+											// update basic device state in map
+											ZWNodeMapIt = ZWNodeMap.find((unsigned int)frame[3]);
+											if (ZWNodeMapIt != ZWNodeMap.end()) {
+												(*ZWNodeMapIt).second->stateBasic = (unsigned char)frame[offset+4]==0 ? 0 : 0xff;
+											}
 										}
 										break;
 									case COMMAND_CLASS_CLOCK:
@@ -618,7 +624,12 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 							tempbuf[18]=3;
 							tempbuf[19]=COMMAND_CLASS_BASIC;
 							tempbuf[20]=BASIC_SET;
-							tempbuf[21]=0x00;
+							ZWNodeMapIt = ZWNodeMap.find((unsigned int)frame[3]);
+							if (ZWNodeMapIt != ZWNodeMap.end()) {
+								tempbuf[21]=(*ZWNodeMapIt).second->stateBasic;
+							} else {
+								tempbuf[21]=0x00;
+							}
 							tempbuf[22]=TRANSMIT_OPTION_ACK | TRANSMIT_OPTION_AUTO_ROUTE;
 							sendFunction( tempbuf , 23, REQUEST, 1); 
  
@@ -940,14 +951,27 @@ std::string ZWApi::ZWApi::getDeviceList() {
 bool ZWApi::ZWApi::zwBasicSet(int node_id, int level) {
 	char mybuf[1024];
 
-        mybuf[0] = FUNC_ID_ZW_SEND_DATA;
-	mybuf[1] = node_id;
-	mybuf[2] = 3;
-	mybuf[3] = COMMAND_CLASS_BASIC;
-	mybuf[4] = BASIC_SET;
-	mybuf[5] = level;
-	mybuf[6] = TRANSMIT_OPTION_ACK | TRANSMIT_OPTION_AUTO_ROUTE;
-        sendFunction( mybuf , 7, REQUEST, 1);
+	ZWNodeMapIt = ZWNodeMap.find(node_id);
+	if (ZWNodeMapIt != ZWNodeMap.end()) {
+		// check if it is a setback schedule thermostat
+		if ( ((*ZWNodeMapIt).second->typeGeneric == 8) && ((*ZWNodeMapIt).second->typeSpecific == 3) ) {
+			// only set the stateBasic, later gets sent as multi command on wakeup
+			DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "Setback schedule override prepared");
+			(*ZWNodeMapIt).second->stateBasic = level == 0 ? 0 : 0xff;
+
+		} else {
+
+			mybuf[0] = FUNC_ID_ZW_SEND_DATA;
+			mybuf[1] = node_id;
+			mybuf[2] = 3;
+			mybuf[3] = COMMAND_CLASS_BASIC;
+			mybuf[4] = BASIC_SET;
+			mybuf[5] = level;
+			mybuf[6] = TRANSMIT_OPTION_ACK | TRANSMIT_OPTION_AUTO_ROUTE;
+			sendFunction( mybuf , 7, REQUEST, 1);
+
+		}
+	}
 
 
 }
@@ -964,7 +988,7 @@ bool ZWApi::ZWApi::zwAssociationGet(int node_id, int group) {
 	mybuf[6] = TRANSMIT_OPTION_ACK | TRANSMIT_OPTION_AUTO_ROUTE;
 
 	if (zwIsSleepingNode(node_id)) {
-		DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "Postpone Configuration Get - device is not always listening");
+		DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "Postpone Association Get - device is not always listening");
 		sendFunctionSleeping(node_id, mybuf , 7, REQUEST, 1);
 	} else {
 		sendFunction( mybuf , 7, REQUEST, 1);
@@ -986,7 +1010,7 @@ bool ZWApi::ZWApi::zwAssociationSet(int node_id, int group, int target_node_id) 
 	mybuf[7] = TRANSMIT_OPTION_ACK | TRANSMIT_OPTION_AUTO_ROUTE;
 
 	if (zwIsSleepingNode(node_id)) {
-		DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "Postpone Configuration Set - device is not always listening");
+		DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "Postpone Association Set - device is not always listening");
 		sendFunctionSleeping(node_id, mybuf , 8, REQUEST, 1);
 	} else {
 		sendFunction( mybuf , 8, REQUEST, 1);
