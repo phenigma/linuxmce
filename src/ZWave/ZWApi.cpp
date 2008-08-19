@@ -583,7 +583,7 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 											// update basic device state in map
 											ZWNodeMapIt = ZWNodeMap.find((unsigned int)frame[3]);
 											if (ZWNodeMapIt != ZWNodeMap.end()) {
-												(*ZWNodeMapIt).second->stateBasic = (unsigned char)frame[offset+4]==0 ? 0 : 0xff;
+												(*ZWNodeMapIt).second->stateBasic = (unsigned char)frame[offset+4]==0 ? 0xff : 0x0;
 											}
 										}
 										break;
