@@ -347,6 +347,10 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 					case ADD_NODE_STATUS_ADDING_SLAVE:
 						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"ADD_NODE_STATUS_ADDING_SLAVE");
 						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Adding node id %i",(unsigned int)frame[4]);
+						if (((unsigned int)frame[7] == 8) && ((unsigned int)frame[8] == 3)) {
+							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Setback schedule thermostat detected, triggering configuration");
+							zwWakeupSet((unsigned char)frame[4],15,true);
+						}
 						// finish adding node	
 						zwAddNodeToNetwork(0,false);
 						break;
@@ -861,11 +865,13 @@ bool ZWApi::ZWApi::sendFunction(char *buffer, size_t length, int type, bool resp
 		if (callbackpool>255 || callbackpool==0) { callbackpool=1; }
 		newJob->buffer[index++] = callbackpool;
 		newJob->callbackid = callbackpool++;
-		newJob->callback_type = (unsigned int)buffer[3];
+		newJob->callback_type = (unsigned int)newJob->buffer[3];
+		// newJob->callback_type = (unsigned int)buffer[3];
 	} else {
 		newJob->callbackid = 0;
 		newJob->callback_type = 0;
 	}
+	DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Setting callback type: %i",newJob->callback_type);
 
 	newJob->buffer[index] = checksum(newJob->buffer+1,length+2+( response ? 1 : 0) );
 	ZWSendQueue.push_back(newJob);
