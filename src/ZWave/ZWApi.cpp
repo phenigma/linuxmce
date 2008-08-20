@@ -1180,10 +1180,11 @@ bool ZWApi::ZWApi::zwWakeupSet(int node_id,int value, bool multi) {
 	} else {
 		mybuf[0]=FUNC_ID_ZW_SEND_DATA;
 		mybuf[1] = node_id;
-		mybuf[2]=13;
+		mybuf[2]=10;
 		mybuf[3]=COMMAND_CLASS_MULTI_CMD;
 		mybuf[4]=MULTI_CMD_ENCAP;
-		mybuf[5]=2; // 2 commands
+		mybuf[5]=1; // 1 commands
+		//mybuf[5]=2; // 2 commands
 		mybuf[6]=6;
 		mybuf[7]=COMMAND_CLASS_WAKE_UP;
 		mybuf[8]=WAKE_UP_INTERVAL_SET;
@@ -1192,11 +1193,13 @@ bool ZWApi::ZWApi::zwWakeupSet(int node_id,int value, bool multi) {
 		mybuf[10] = (value >> 8) & 0xff; // 
 		mybuf[11] = value & 0xff; // seconds lsb
 		mybuf[12]=ournodeid;
-		mybuf[13]=2;
-		mybuf[14]=COMMAND_CLASS_WAKE_UP;
-		mybuf[15]=WAKE_UP_NO_MORE_INFORMATION;
-		mybuf[16]=TRANSMIT_OPTION_ACK | TRANSMIT_OPTION_AUTO_ROUTE;
-		len = 17;
+		//mybuf[13]=2;
+		//mybuf[14]=COMMAND_CLASS_WAKE_UP;
+		//mybuf[15]=WAKE_UP_NO_MORE_INFORMATION;
+		mybuf[13]=TRANSMIT_OPTION_ACK | TRANSMIT_OPTION_AUTO_ROUTE;
+		//mybuf[16]=TRANSMIT_OPTION_ACK | TRANSMIT_OPTION_AUTO_ROUTE;
+		len = 14;
+		// len = 17;
 
 	}
 	if (zwIsSleepingNode(node_id)) {
