@@ -511,12 +511,19 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 					case COMMAND_CLASS_BASIC:
 						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"COMMAND_CLASS_BASIC - ");
 						if (frame[6] == BASIC_REPORT) {
+
 							// char tmp[32];
 							// sprintf(&tmp,"%d",frame[7]);
 							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Got basic report from node %i, value: %i",frame[3],(unsigned char)frame[7]);
-							DCE::ZWave *tmp_zwave = static_cast<DCE::ZWave*>(myZWave);
 							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Send light changed event");
-							tmp_zwave->SendLightChangedEvents (frame[3],(unsigned char)frame[7]);
+							DCE::ZWave *tmp2_zwave = static_cast<DCE::ZWave*>(myZWave);
+							tmp2_zwave->SendLightChangedEvents (frame[3],(unsigned char)frame[7]);
+						} else if ((unsigned char)frame[6] == BASIC_SET) {
+							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Got COMMAND_CLASS_BASIC:BASIC_SET, level %i, ignoring for now",(unsigned char)frame[7]);
+						} else {
+							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Got COMMAND_CLASS_BASIC: %i, ignoring",(unsigned char)frame[6]);
+									
+							// zwSendBasicReport((unsigned char)frame[3]);
 						}						
 						break;
 					case COMMAND_CLASS_CLIMATE_CONTROL_SCHEDULE:
@@ -607,8 +614,7 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 								offset += frame[offset]+1;
 							}
 							tempbuf[0]=FUNC_ID_ZW_SEND_DATA;
-							// node id
-							tempbuf[1]=frame[3];
+							tempbuf[1]=frame[3]; // node id
 							tempbuf[2]=19; // cmd_length;
 							tempbuf[3]=COMMAND_CLASS_MULTI_CMD;
 							tempbuf[4]=MULTI_CMD_ENCAP;
@@ -621,19 +627,19 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 							tempbuf[11]=3; // length of next command
 							tempbuf[12]=COMMAND_CLASS_CLIMATE_CONTROL_SCHEDULE;
 							tempbuf[13]=SCHEDULE_CHANGED_REPORT;
-							tempbuf[14]=17;
-							tempbuf[15]=2; //length of next command
-							tempbuf[16]=COMMAND_CLASS_WAKE_UP;
-							tempbuf[17]=WAKE_UP_NO_MORE_INFORMATION;
-							tempbuf[18]=3;
-							tempbuf[19]=COMMAND_CLASS_BASIC;
-							tempbuf[20]=BASIC_SET;
+							tempbuf[14]=17; // dummy schedule version for now
+							tempbuf[15]=3; // length of next command
+							tempbuf[16]=COMMAND_CLASS_BASIC;
+							tempbuf[17]=BASIC_SET;
 							ZWNodeMapIt = ZWNodeMap.find((unsigned int)frame[3]);
 							if (ZWNodeMapIt != ZWNodeMap.end()) {
-								tempbuf[21]=(*ZWNodeMapIt).second->stateBasic;
+								tempbuf[18]=(*ZWNodeMapIt).second->stateBasic;
 							} else {
-								tempbuf[21]=0x00;
+								tempbuf[18]=0x00;
 							}
+							tempbuf[19]=2; //length of next command
+							tempbuf[20]=COMMAND_CLASS_WAKE_UP;
+							tempbuf[21]=WAKE_UP_NO_MORE_INFORMATION;
 							tempbuf[22]=TRANSMIT_OPTION_ACK | TRANSMIT_OPTION_AUTO_ROUTE;
 							sendFunction( tempbuf , 23, REQUEST, 1); 
  
@@ -979,6 +985,20 @@ bool ZWApi::ZWApi::zwBasicSet(int node_id, int level) {
 		}
 	}
 
+
+}
+
+bool ZWApi::ZWApi::zwSendBasicReport(int node_id) {
+	char mybuf[1024];
+
+        mybuf[0] = FUNC_ID_ZW_SEND_DATA;
+	mybuf[1] = node_id;
+	mybuf[2] = 3;
+	mybuf[3] = COMMAND_CLASS_BASIC;
+	mybuf[4] = BASIC_REPORT;
+	mybuf[5] = 0x00;
+	mybuf[6] = TRANSMIT_OPTION_ACK | TRANSMIT_OPTION_AUTO_ROUTE;
+	sendFunction( mybuf , 7, REQUEST, 1);
 
 }
 

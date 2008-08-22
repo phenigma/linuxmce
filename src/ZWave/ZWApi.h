@@ -287,6 +287,9 @@ namespace ZWApi {
 
 	bool zwAssignReturnRoute(int src_node_id, int dst_node_id);
 
+	// send a basic report
+	bool zwSendBasicReport(int node_id);
+
 	// called by download configuration to replicate the z-wave network information
 	bool zwReplicateController(int mode);
 
