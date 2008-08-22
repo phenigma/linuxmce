@@ -444,7 +444,14 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 							if (frame[2] && RECEIVE_STATUS_TYPE_BROAD ) { 
 								DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Got broadcast wakeup from node %i, doing WAKE_UP_INTERVAL_SET",frame[3]);
 								if (ournodeid != -1) { 
-									zwWakeupSet((unsigned char)frame[3],15,false);
+									// we assume an ACT PIR for now, no other known devices show that behavior
+									zwAssociationSet((unsigned char)frame[3], 1, ournodeid);
+									zwConfigurationSet((unsigned char)frame[3],17,2); // sensor mode
+									zwConfigurationSet((unsigned char)frame[3],18,0); // no delay
+									zwConfigurationSet((unsigned char)frame[3],19,1); // send unsolicited events
+									zwConfigurationSet((unsigned char)frame[3],22,30); // wakeup duration
+									zwWakeupSet((unsigned char)frame[3],60,false); // wakeup interval
+									wakeupHandler((unsigned char) frame[3]); // fire commands, device is awake
 								}
 							} else {
 								DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Got unicast wakeup from node %i, doing WAKE_UP_NO_MORE_INFORMATION",frame[3]);
@@ -1276,3 +1283,10 @@ bool ZWApi::ZWApi::wakeupHandler(int node_id) {
 }	
 
 
+bool ZWApi::ZWApi::zwRequestNodeNeighborUpdate(int node_id) {
+	char mybuf[1024];
+
+	DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "Requesting Neighbour Update for node %i",node_id);
+	mybuf[0] = FUNC_ID_ZW_REQUEST_NODE_NEIGHBOR_UPDATE;
+	sendFunction( mybuf , 1, REQUEST, 1);
+}

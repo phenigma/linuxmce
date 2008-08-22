@@ -39,20 +39,16 @@
 #define RECEIVE_STATUS_TYPE_BROAD     			0x04
 
 #define FUNC_ID_SERIAL_API_GET_INIT_DATA		0x02
-#define FUNC_ID_APPLICATION_COMMAND_HANDLER             0x04
-#define FUNC_ID_ZW_APPLICATION_UPDATE                   0x49
-#define FUNC_ID_ZW_SET_DEFAULT		0x42
-
 #define FUNC_ID_SERIAL_API_GET_CAPABILITIES             0x07
+#define FUNC_ID_APPLICATION_COMMAND_HANDLER             0x04
 
+#define FUNC_ID_ZW_APPLICATION_UPDATE                   0x49
+#define FUNC_ID_ZW_SET_DEFAULT				0x42
 #define FUNC_ID_ZW_REPLICATION_COMMAND_COMPLETE         0x44
-
 #define FUNC_ID_ZW_GET_NODE_PROTOCOL_INFO               0x41
-
+#define FUNC_ID_ZW_REQUEST_NODE_NEIGHBOR_UPDATE         0x48
 #define FUNC_ID_ZW_SEND_DATA                            0x13
-
 #define FUNC_ID_ZW_SET_LEARN_MODE                       0x50
-
 #define FUNC_ID_ZW_ENABLE_SUC                           0x52
 #define FUNC_ID_ZW_SET_SUC_NODE_ID                      0x54
 #define FUNC_ID_ZW_GET_SUC_NODE_ID                      0x56
@@ -289,6 +285,9 @@ namespace ZWApi {
 
 	// send a basic report
 	bool zwSendBasicReport(int node_id);
+
+	// update the neighbour information of a node
+	bool zwRequestNodeNeighborUpdate(int node_id);
 
 	// called by download configuration to replicate the z-wave network information
 	bool zwReplicateController(int mode);
