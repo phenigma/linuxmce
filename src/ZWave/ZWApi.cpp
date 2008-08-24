@@ -689,7 +689,6 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 										break;
 									case GENERIC_TYPE_SWITCH_BINARY:
 										DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"GENERIC_TYPE_SWITCH_BINARY");
-										sendFunction (tempbuf,6,REQUEST,1);
 										tempbuf[0] = FUNC_ID_ZW_SEND_DATA;
 										tempbuf[1] = frame[3];
 										tempbuf[2] = 0x02;
@@ -749,6 +748,7 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 void *ZWApi::ZWApi::receiveFunction() {
 	DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"receiveFunction started");
 	long timer;
+	long idletimer;
 	char retbuf[1];
 	char mybuf2[1024];
 	size_t len2;
@@ -817,9 +817,12 @@ void *ZWApi::ZWApi::receiveFunction() {
 					DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "ERROR! Out of frame flow!!");
 				;;
 			}
+			idletimer=0;
 		} else {
+			// nothing received, let's see if there is a job to send
 			pthread_mutex_lock (&mutexSendQueue);
 			if (ZWSendQueue.size()>0) {
+				idletimer=0;
 				if ( await_ack != 1 && await_callback == 0) {
 					// printf("Elements on queue: %i\n",ZWSendQueue.size());
 					// printf("Pointer: %p\n",ZWSendQueue.front());
@@ -850,8 +853,21 @@ void *ZWApi::ZWApi::receiveFunction() {
 
 				}
 				
+			} else {
+				idletimer++;
+				if ((idletimer % 100) == 0) {
+					DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "IDLE timer: %i",idletimer);
+
+				}
+
 			}
 			pthread_mutex_unlock (&mutexSendQueue);
+
+			// we have been idle for 30 seconds, let's poll the devices
+			if (idletimer > 300) {
+				DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "We have been idle for %i seconds, polling device states", idletimer / 10);
+				zwRequestBasicReport(NODE_BROADCAST);
+			}
 
 		}
 	}
@@ -1288,5 +1304,54 @@ bool ZWApi::ZWApi::zwRequestNodeNeighborUpdate(int node_id) {
 
 	DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "Requesting Neighbour Update for node %i",node_id);
 	mybuf[0] = FUNC_ID_ZW_REQUEST_NODE_NEIGHBOR_UPDATE;
-	sendFunction( mybuf , 1, REQUEST, 1);
+	mybuf[1] = node_id;
+	sendFunction( mybuf , 2, REQUEST, 1);
+}
+void ZWApi::ZWApi::zwReadMemory(int offset) {
+	char mybuf[1024];
+
+	DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "Reading eeprom at offset %i",offset);
+	mybuf[0] = 0x23;
+	mybuf[1] = (offset >> 8) & 0xff;
+	mybuf[2] = offset & 0xff;;
+	mybuf[3] = 64;
+	sendFunction( mybuf , 4, REQUEST, 0);
+}
+
+
+void ZWApi::ZWApi::zwRequestBasicReport(int node_id) {
+	char mybuf[1024];
+
+	mybuf[0] = FUNC_ID_ZW_SEND_DATA;
+	mybuf[1] = node_id;
+	mybuf[2] = 0x02;
+	mybuf[3] = COMMAND_CLASS_BASIC;
+	mybuf[4] = BASIC_GET;
+	mybuf[5] = TRANSMIT_OPTION_ACK | TRANSMIT_OPTION_AUTO_ROUTE;
+	sendFunction (mybuf,6,REQUEST,1);
+}
+void ZWApi::ZWApi::zwRequestManufacturerSpecificReport(int node_id) {
+	char mybuf[1024];
+
+	mybuf[0] = FUNC_ID_ZW_SEND_DATA;
+	mybuf[1] = node_id;
+	mybuf[2] = 2; // length of command
+	mybuf[3] = COMMAND_CLASS_MANUFACTURER_SPECIFIC;
+	mybuf[4] = MANUFACTURER_SPECIFIC_GET;
+	mybuf[5] = TRANSMIT_OPTION_ACK | TRANSMIT_OPTION_AUTO_ROUTE;
+	sendFunction( mybuf , 6, REQUEST, 0);
+
+}
+
+void ZWApi::ZWApi::zwStatusReport() {
+	ZWNodeMapIt = ZWNodeMap.begin();
+	while (ZWNodeMapIt!=ZWNodeMap.end()) {
+		zwRequestNodeNeighborUpdate((*ZWNodeMapIt).first);
+//		zwRequestManufacturerSpecificReport((*ZWNodeMapIt).first);
+		ZWNodeMapIt++;
+	}
+//	for (int i=0;i<512;i++) {
+//		zwReadMemory(64*i);
+//	}
+//	zwRequestBasicReport(NODE_BROADCAST);
 }

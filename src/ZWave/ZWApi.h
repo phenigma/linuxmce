@@ -37,6 +37,7 @@
 #define TRANSMIT_COMPLETE_NOROUTE 	0x04
 
 #define RECEIVE_STATUS_TYPE_BROAD     			0x04
+#define NODE_BROADCAST					0xff
 
 #define FUNC_ID_SERIAL_API_GET_INIT_DATA		0x02
 #define FUNC_ID_SERIAL_API_GET_CAPABILITIES             0x07
@@ -167,6 +168,11 @@
 #define COMMAND_CLASS_CONFIGURATION			0x70
 #define CONFIGURATION_SET				0x04
 
+#define COMMAND_CLASS_MANUFACTURER_SPECIFIC		0x72
+#define MANUFACTURER_SPECIFIC_GET			0x04
+#define MANUFACTURER_SPECIFIC_REPORT			0x05
+
+
 #include <deque>
 #include <map>
 #include <iostream>
@@ -289,6 +295,9 @@ namespace ZWApi {
 	// update the neighbour information of a node
 	bool zwRequestNodeNeighborUpdate(int node_id);
 
+	// request a basic report
+	void zwRequestBasicReport(int node_id);
+
 	// called by download configuration to replicate the z-wave network information
 	bool zwReplicateController(int mode);
 
@@ -309,6 +318,13 @@ namespace ZWApi {
 
 	// check if device powers down the rf part to save power
 	bool zwIsSleepingNode(int node_id);
+
+	// we hijack this dce command for now to do some z-wave tests
+	void zwStatusReport();
+
+	// test functions
+	void zwReadMemory(int offset);
+	void zwRequestManufacturerSpecificReport(int node_id); 
     };
 
 }
