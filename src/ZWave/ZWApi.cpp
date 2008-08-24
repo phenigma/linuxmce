@@ -445,7 +445,9 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 								DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Got broadcast wakeup from node %i, doing WAKE_UP_INTERVAL_SET",frame[3]);
 								if (ournodeid != -1) { 
 									// we assume an ACT PIR for now, no other known devices show that behavior
-									zwAssociationSet((unsigned char)frame[3], 1, ournodeid);
+									zwAssociationSet((unsigned char)frame[3], 1, ournodeid); // receive group 1 events (motion)
+									zwAssociationSet((unsigned char)frame[3], 2, ournodeid); // receive group 2 events (casing opened)
+									zwAssociationSet((unsigned char)frame[3], 3, ournodeid); // receive group 3 events (battery reports)
 									zwConfigurationSet((unsigned char)frame[3],17,2); // sensor mode
 									zwConfigurationSet((unsigned char)frame[3],18,0); // no delay
 									zwConfigurationSet((unsigned char)frame[3],19,1); // send unsolicited events

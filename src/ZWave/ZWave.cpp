@@ -61,7 +61,7 @@ bool ZWave::GetConfig()
 	string port = TranslateSerialUSB(DATA_Get_COM_Port_on_PC());
 	myZWApi->init(port.c_str());
 	// give the z-wave stack some time to settle
-	sleep(5);
+	sleep(12);
 	// CMD_Report_Child_Devices();
 
 	return true;
