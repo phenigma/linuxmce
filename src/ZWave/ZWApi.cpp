@@ -161,7 +161,7 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 					newNode->typeBasic = (unsigned char) frame[5];
 					newNode->typeGeneric = (unsigned char) frame[6];
 					newNode->typeSpecific = (unsigned char) frame[7];
-					newNode->stateBasic = 0;
+					newNode->stateBasic = -1;
 
 					if (((unsigned char)frame[2]) && (0x01 << 7)) {
 						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"listening node");
@@ -521,10 +521,19 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 
 							// char tmp[32];
 							// sprintf(&tmp,"%d",frame[7]);
+							//
 							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Got basic report from node %i, value: %i",frame[3],(unsigned char)frame[7]);
-							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Send light changed event");
-							DCE::ZWave *tmp2_zwave = static_cast<DCE::ZWave*>(myZWave);
-							tmp2_zwave->SendLightChangedEvents (frame[3],(unsigned char)frame[7]);
+							ZWNodeMapIt = ZWNodeMap.find((unsigned int)frame[3]);
+							if (ZWNodeMapIt != ZWNodeMap.end()) {
+								if ((*ZWNodeMapIt).second->stateBasic != (unsigned char)frame[7]) {
+									(*ZWNodeMapIt).second->stateBasic = (unsigned char)frame[7];
+									DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"State changed, send light changed event");
+									DCE::ZWave *tmp2_zwave = static_cast<DCE::ZWave*>(myZWave);
+									tmp2_zwave->SendLightChangedEvents (frame[3],(unsigned char)frame[7]);
+
+								}
+							}
+
 						} else if ((unsigned char)frame[6] == BASIC_SET) {
 							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Got COMMAND_CLASS_BASIC:BASIC_SET, level %i, ignoring for now",(unsigned char)frame[7]);
 						} else {
