@@ -609,8 +609,8 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 								DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Built nodelist: %s",tmp_nodelist.c_str());
 							}
 							ZWNodeMapIt = ZWNodeMap.find((unsigned int)frame[3]);
-							if ((ZWNodeMapIt != ZWNodeMap.end()) && (tmp_group<4) && (tmp_group > -1)) {
-								(*ZWNodeMapIt).second->associationList[tmp_group]=tmp_nodelist;
+							if ((ZWNodeMapIt != ZWNodeMap.end()) && (tmp_group<5) && (tmp_group > 0)) {
+								(*ZWNodeMapIt).second->associationList[tmp_group-1]=tmp_nodelist;
 							}
 						}
 						break;
