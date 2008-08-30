@@ -204,6 +204,7 @@ namespace ZWApi {
 	int plutoDeviceTemplateConst;
 	// holds the device state (used by setback schedule thermostat)
 	int stateBasic;
+	std::string associationList[4];
     };
 
     class ZWApi {

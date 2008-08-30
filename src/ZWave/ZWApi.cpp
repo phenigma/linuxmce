@@ -162,6 +162,10 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 					newNode->typeGeneric = (unsigned char) frame[6];
 					newNode->typeSpecific = (unsigned char) frame[7];
 					newNode->stateBasic = -1;
+					newNode->associationList[0]="";
+					newNode->associationList[1]="";
+					newNode->associationList[2]="";
+					newNode->associationList[3]="";
 
 					if (((unsigned char)frame[2]) && (0x01 << 7)) {
 						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"listening node");
@@ -227,6 +231,10 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 						;;
 						case GENERIC_TYPE_SWITCH_REMOTE:
 							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"GENERIC TYPE: Remote Switch");
+							// we read the associations from groups one and two (left and right paddle on the ACT remote switch)
+							zwAssociationGet(tmp_nodeid,1);
+							zwAssociationGet(tmp_nodeid,2);
+							
 							break;
 						;;
 						case GENERIC_TYPE_SWITCH_BINARY:
@@ -537,7 +545,22 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 							}
 
 						} else if ((unsigned char)frame[6] == BASIC_SET) {
-							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Got COMMAND_CLASS_BASIC:BASIC_SET, level %i, ignoring for now",(unsigned char)frame[7]);
+							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Got COMMAND_CLASS_BASIC:BASIC_SET, level %i",(unsigned char)frame[7]);
+							ZWNodeMapIt = ZWNodeMap.find((unsigned int)frame[3]);
+							if (ZWNodeMapIt != ZWNodeMap.end()) {
+								if ((*ZWNodeMapIt).second->typeGeneric == GENERIC_TYPE_SWITCH_REMOTE) {
+									DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"This is a remote switch, we will traverse the association list and request reports");
+									const char *tmp_str = (*ZWNodeMapIt).second->associationList[1].c_str();
+									char *pch = strtok((char*)tmp_str,",");
+									while (pch != NULL) {
+										zwRequestBasicReport(atoi(pch));
+										pch = strtok (NULL, ",");
+									}
+										
+									
+								}
+							}
+							
 						} else {
 							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Got COMMAND_CLASS_BASIC: %i, ignoring",(unsigned char)frame[6]);
 									
@@ -566,14 +589,28 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 					case COMMAND_CLASS_ASSOCIATION:
 						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"COMMAND_CLASS_ASSOCIATION - ");
 						if (frame[6] == ASSOCIATION_REPORT) {
-							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Associations for group: %i",frame[7]);
-							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Max nodes supported: %i",frame[8]);
-							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Reports to follow: %i",frame[9]);
+							int tmp_group = (unsigned char)frame[7];
+							std::string tmp_nodelist = "";
+							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Associations for group: %i",tmp_group);
+							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Max nodes supported: %i",(unsigned char)frame[8]);
+							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Reports to follow: %i",(unsigned char)frame[9]);
 							if ((length-10)>0) {
 								DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Nodes: ");
 								for (int i=0;i<(length-10);i++) {
 									DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"%i",(unsigned char)frame[10+i]);
+									if (tmp_nodelist.length()!=0) {
+										tmp_nodelist += ',';
+									}
+									char tmp_string[1024];
+									sprintf(tmp_string,"%d",(unsigned char)frame[10+i]);
+									tmp_nodelist += tmp_string;
+
 								}
+								DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Built nodelist: %s",tmp_nodelist.c_str());
+							}
+							ZWNodeMapIt = ZWNodeMap.find((unsigned int)frame[3]);
+							if ((ZWNodeMapIt != ZWNodeMap.end()) && (tmp_group<4) && (tmp_group > -1)) {
+								(*ZWNodeMapIt).second->associationList[tmp_group]=tmp_nodelist;
 							}
 						}
 						break;
