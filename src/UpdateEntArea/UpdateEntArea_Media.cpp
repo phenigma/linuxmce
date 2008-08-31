@@ -189,13 +189,14 @@ void UpdateEntArea::AddDefaultMediaScenarios(Row_EntertainArea *pRow_EntertainAr
 					LoggerWrapper::GetInstance()->Write(LV_CRITICAL,"Error game player device %s can not be located.",row[0]);
 					continue;				
 				}
+				// Keep this block marked for future use in case we need multiple game buttons? 
+			}
+			// Fix, only create one Games media type for now. 			
 
-				// we're good, and have a usable player device, let's add the games.
-				pCommandGroup = commandGroupArray.FindCommandGroupByTemplate(TEMPLATE_Media_Wiz_FileDisc_CONST,"Games",ICON_Video_CONST,0,MEDIATYPE_lmce_Game_CONST,NULL,15);
-				if( pCommandGroup )
-					pCommandGroup->AddCommand(DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Show_File_List_CONST,1,1,COMMANDPARAMETER_PK_MediaType_CONST,StringUtils::itos(MEDIATYPE_lmce_Game_CONST).c_str());
-					
-			}	
+			// we're good, and have a usable player device, let's add the games.
+			pCommandGroup = commandGroupArray.FindCommandGroupByTemplate(TEMPLATE_Media_Wiz_FileDisc_CONST,"Games",ICON_Video_CONST,0,MEDIATYPE_lmce_Game_CONST,NULL,15);
+			if( pCommandGroup )
+				pCommandGroup->AddCommand(DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Show_File_List_CONST,1,1,COMMANDPARAMETER_PK_MediaType_CONST,StringUtils::itos(MEDIATYPE_lmce_Game_CONST).c_str());			
 		}
 	}
 
