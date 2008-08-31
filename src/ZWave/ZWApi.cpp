@@ -745,6 +745,23 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 										tempbuf[5] = TRANSMIT_OPTION_ACK | TRANSMIT_OPTION_AUTO_ROUTE;
 										sendFunction (tempbuf,6,REQUEST,1);
 										break;
+									case GENERIC_TYPE_SWITCH_REMOTE:
+										ZWNodeMapIt = ZWNodeMap.find((unsigned int)frame[3]);
+										if (ZWNodeMapIt != ZWNodeMap.end()) {
+											if ((*ZWNodeMapIt).second->typeGeneric == GENERIC_TYPE_SWITCH_REMOTE) {
+												DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"This is a remote switch, we will traverse the association list and request reports");
+												// we receive that on a left paddle press on the ACT remote switch, so get first group
+												const char *tmp_str = (*ZWNodeMapIt).second->associationList[0].c_str();
+												char *pch = strtok((char*)tmp_str,",");
+												while (pch != NULL) {
+													zwRequestBasicReport(atoi(pch));
+													pch = strtok (NULL, ",");
+												}
+													
+												
+											}
+										}
+										break;
 									default:
 										DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"unhandled class");
 										break;
