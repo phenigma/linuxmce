@@ -324,7 +324,7 @@ int main(int argc, char *argv[])
 	if( bUseFileLog )
 	{
 		g_pDBHelper_pluto_builder = new DBHelper();
-		if( g_pDBHelper_pluto_builder->DBConnect(dceConfig.m_sDBHost,dceConfig.m_sDBUser,dceConfig.m_sDBPassword,"pluto_builder")==false )
+		if( g_pDBHelper_pluto_builder->DBConnect(dceConfig.m_sDBHost,dceConfig.m_sDBUser,dceConfig.m_sDBPassword,"pluto_builder",dceConfig.m_iDBPort)==false )
 		{
 			delete g_pDBHelper_pluto_builder;
 			g_pDBHelper_pluto_builder=NULL;
