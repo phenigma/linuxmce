@@ -7,9 +7,17 @@
 set -e
 #set -x
 
+BuildCred=""
+if [ "$sql_build_host" ] ; then BuildCred="$BuildCred -h $sql_build_host"; fi
+if [ "$sql_build_port" ] ; then BuildCred="$BuildCred -P $sql_build_port"; fi
+if [ "$sql_build_user" ] ; then BuildCred="$BuildCred -u $sql_build_user"; fi
+if [ "$sql_build_pass" ] ; then BuildCred="$BuildCred -p $sql_build_pass"; fi
+
 function build_main_debs() {
 	export PATH=$PATH:${svn_dir}/${svn_branch_name}/src/bin
+	echo "PATH=$PATH"
 	export LD_LIBRARY_PATH="$mkr_dir:${svn_dir}/${svn_branch_name}/src/lib"
+	echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
 
 	#FIXME Hackozaurus to build SimplePhone
 	export PKG_CONFIG_PATH=/opt/linphone-1.3.5/lib/pkgconfig
@@ -32,6 +40,7 @@ function build_main_debs() {
 
 	# Perform Search&Replace on the sources
 	DisplayMessage "Performing search'n'replace on the sources"
+	echo "\"${mkr_dir}/MakeRelease_PrepFiles\" -p \"${svn_dir}/${svn_branch_name}\" -e \"*.prep,*.cpp,*.h,Makefile*,*.php,*.sh,*.pl,*.awk\" -c \"/etc/lmce-build/${flavor}.conf\""
 	"${mkr_dir}/MakeRelease_PrepFiles" -p "${svn_dir}/${svn_branch_name}" \
 		-e "*.prep,*.cpp,*.h,Makefile*,*.php,*.sh,*.pl,*.awk" \
 		-c "/etc/lmce-build/${flavor}.conf" || Error "MakeRelease_PrepFiles failed"
@@ -73,11 +82,14 @@ function build_main_debs() {
 	esac
 
 	# Compile the packages
-	"${mkr_dir}/MakeRelease" -a -R "$SVNrevision" -h $sql_build_host -u $sql_build_user -O "$out_dir" -D 'pluto_main_build' -o "$Distro_ID" -r 21 -m 1 -K "$exclude_list" -s "${svn_dir}/${svn_branch_name}" -n / -d || Error "MakeRelease failed"
+	echo "\"${mkr_dir}/MakeRelease\" -a -R \"$SVNrevision\" $BuildCred -O \"$out_dir\" -D 'pluto_main_build' -o \"$Distro_ID\" -r 21 -m 1 -K \"$exclude_list\" -s \"${svn_dir}/${svn_branch_name}\" -n / -d"
+	"${mkr_dir}/MakeRelease" -a -R "$SVNrevision" $BuildCred -O "$out_dir" -D 'pluto_main_build' -o "$Distro_ID" -r 21 -m 1 -K "$exclude_list" -s "${svn_dir}/${svn_branch_name}" -n / -d || Error "MakeRelease failed"
 
 	# Compile the private packages
-	if [[ "$svn_private_url" != "" ]] && [[ "$svn_private_user" != "" ]] && [[ "$svn_private_pass" != "" ]] ;then
-		"${mkr_dir}/MakeRelease" -a -R "$SVNrevision" -h $sql_build_host -u $sql_build_user -O "$out_dir" -D 'pluto_main_build' -o "$Distro_ID" -r 21 -m 1108 -K "$exclude_list" -s "${svn_dir}/${svn_branch_name}" -n / -d || Error "MakeRelease failed"
+	if [ "$svn_private_url" -a "$svn_private_user" -a "$svn_private_pass" ]
+	then
+		echo "\"${mkr_dir}/MakeRelease\" -a -R \"$SVNrevision\" $BuildCred -O \"$out_dir\" -D 'pluto_main_build' -o \"$Distro_ID\" -r 21 -m 1108 -K \"$exclude_list\" -s \"${svn_dir}/${svn_branch_name}\" -n / -d"
+		"${mkr_dir}/MakeRelease" -a -R "$SVNrevision" $BuildCred -O "$out_dir" -D 'pluto_main_build' -o "$Distro_ID" -r 21 -m 1108 -K "$exclude_list" -s "${svn_dir}/${svn_branch_name}" -n / -d || Error "MakeRelease failed on private packages"
 	fi
 }
 

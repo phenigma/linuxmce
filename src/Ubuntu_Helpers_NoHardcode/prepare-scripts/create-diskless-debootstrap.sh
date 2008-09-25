@@ -24,23 +24,7 @@ function Create_Diskless_Debootstrap_Archive {
 }
 
 
-function Create_Diskless_TFTPBoot_Package {
-
-	#Package: pluto-default-tftpboot
-	dir_="${svn_dir}/${svn_branch_name}/src/pluto-default-tftpboot-2.0.0.44.0804"
-#	DisplayMessage "Building pluto-default-tftpboot"
-	pushd "$dir_"
-		dpkg-buildpackage -rfakeroot -us -uc -b -tc
-		cp -v ../pluto-default-tftpboot_*.deb ${replacements_dir}
-	popd
-
-
-}
-
-
 Create_Diskless_Debootstrap_Archive
-
-Create_Diskless_TFTPBoot_Package
 
 
 

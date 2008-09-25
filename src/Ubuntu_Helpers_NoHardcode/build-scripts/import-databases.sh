@@ -6,40 +6,68 @@
 set -e
 #set -x
 
-function import_databases () {
-#	local dbdump_main_sqlcvs=$(mktemp)
-#	local dbdump_myth_sqlcvs=$(mktemp)
-#	local dbdump_pluto_media=$(mktemp)
-#	local dbdump_pluto_security=$(mktemp)
-#	local dbdump_pluto_telecom=$(mktemp)
 
+SqlCvsCred=""
+if [ "$sqlcvs_host" ] ; then SqlCvsCred="$SqlCvsCred -h$sqlcvs_host"; fi
+if [ "$sqlcvs_port" ] ; then SqlCvsCred="$SqlCvsCred -P$sqlcvs_port"; fi
+if [ "$sqlcvs_user" ] ; then SqlCvsCred="$SqlCvsCred -u$sqlcvs_user"; fi
+if [ "$sqlcvs_pass" ] ; then SqlCvsCred="$SqlCvsCred -p$sqlcvs_pass"; fi
+
+BuildCred=""
+if [ "$sql_build_host" ] ; then BuildCred="$BuildCred -h$sql_build_host"; fi
+if [ "$sql_build_port" ] ; then BuildCred="$BuildCred -P$sql_build_port"; fi
+if [ "$sql_build_user" ] ; then BuildCred="$BuildCred -u$sql_build_user"; fi
+if [ "$sql_build_pass" ] ; then BuildCred="$BuildCred -p$sql_build_pass"; fi
+
+
+function get_dbdump 
+{
+	local dbdump_name="$1"
+	local dbdump_file="$2"
+
+
+	DisplayMessage "Getting a sqldump of ${dbdump_name}"
+
+	[ ! -e "${dbdump_file}.prep" ] && #ZaercTempHack
+	mysqldump --compress --skip-extended-insert $SqlCvsCred "${dbdump_name}" > "${dbdump_file}.prep"
+
+	cp -f "${dbdump_file}.prep" "${dbdump_file}"
+
+}
+
+function import_dbdump
+{
+	local dbdump_name="$1"
+	local dbdump_file="$2"
+
+
+	DisplayMessage "Importing ${dbdump_name} database"
+
+	mysql $BuildCred -e "DROP DATABASE IF EXISTS ${dbdump_name}"
+	mysql $BuildCred -e "CREATE DATABASE ${dbdump_name}"
+	mysql $BuildCred "${dbdump_name}" <"$dbdump_file"
+
+}
+
+function import_databases () {
 #	local dbdump_dir=$(mktemp -d)
 	local dbdump_dir="${build_dir}/tmp/databases"
 	local dbdump_main_sqlcvs="${dbdump_dir}/main_sqlcvs.sql"
 	local dbdump_myth_sqlcvs="${dbdump_dir}/myth_sqlcvs.sql"
 	local dbdump_pluto_media="${dbdump_dir}/pluto_media.sql"
 	local dbdump_pluto_security="${dbdump_dir}/pluto_security.sql"
-	local dbdump_pluto_telecom="${dbdump_dir}/telecom.sql"
+	local dbdump_pluto_telecom="${dbdump_dir}/pluto_telecom.sql"
 
 	mkdir -p "${dbdump_dir}"
 
 
 	## Import pluto_main, pluto_media, pluto_security, pluto_telecom
-	DisplayMessage "Getting a sqldump of main_sqlcvs"
-	[ ! -e "$dbdump_main_sqlcvs" ] && #ZaercTempHack
-	mysqldump --compress -u "$sqlcvs_user" -h "$sqlcvs_host" main_sqlcvs    > "$dbdump_main_sqlcvs"
-	DisplayMessage "Getting a sqldump of myth_sqlcvs"
-	[ ! -e "$dbdump_myth_sqlcvs" ] && #ZaercTempHack
-	mysqldump --compress -u "$sqlcvs_user" -h "$sqlcvs_host" myth_sqlcvs    > "$dbdump_myth_sqlcvs"
-	DisplayMessage "Getting a sqldump of pluto_media"
-	[ ! -e "$dbdump_pluto_media" ] && #ZaercTempHack
-	mysqldump --compress -u "$sqlcvs_user" -h "$sqlcvs_host" pluto_media    > "$dbdump_pluto_media"
-	DisplayMessage "Getting a sqldump of pluto_security"
-	[ ! -e "$dbdump_pluto_security" ] && #ZaercTempHack
-	mysqldump --compress -u "$sqlcvs_user" -h "$sqlcvs_host" pluto_security > "$dbdump_pluto_security"
-	DisplayMessage "Getting a sqldump of pluto_telecom"
-	[ ! -e "$dbdump_pluto_telecom" ] && #ZaercTempHack
-	mysqldump --compress -u "$sqlcvs_user" -h "$sqlcvs_host" pluto_telecom  > "$dbdump_pluto_telecom"
+	get_dbdump main_sqlcvs "$dbdump_main_sqlcvs"
+	get_dbdump myth_sqlcvs "$dbdump_myth_sqlcvs"
+	get_dbdump pluto_media "$dbdump_pluto_media"
+	get_dbdump pluto_security "$dbdump_pluto_security"
+	get_dbdump pluto_telecom "$dbdump_pluto_telecom"
+
 
 	# Run search and replace over the db dumps
 	DisplayMessage "Running Search'n'Replace on the sqldumps (MakeRelase_PrepFiles)"
@@ -49,47 +77,29 @@ function import_databases () {
 
 	
 	# pluto_main_build & pluto_main
-	DisplayMessage "Importing pluto_main database"
-	echo "DROP DATABASE IF EXISTS pluto_main_build;"| mysql -h ${sql_build_host} -u ${sql_build_user}
-	echo "CREATE DATABASE pluto_main_build;"	| mysql -h ${sql_build_host} -u ${sql_build_user}
-	cat "$dbdump_main_sqlcvs"			| mysql -h ${sql_build_host} -u ${sql_build_user} "pluto_main_build"
-	echo "DROP DATABASE IF EXISTS pluto_main;"	| mysql -h ${sql_build_host} -u ${sql_build_user}
-	echo "CREATE DATABASE pluto_main;"		| mysql -h ${sql_build_host} -u ${sql_build_user}
-	cat "$dbdump_main_sqlcvs"			| mysql -h ${sql_build_host} -u ${sql_build_user} "pluto_main"
+	import_dbdump pluto_main_build "$dbdump_main_sqlcvs"
+	import_dbdump pluto_main "$dbdump_main_sqlcvs"
 
 	# main_sqlcvs_ubuntu
-	DisplayMessage "Importing main_sqlcvs database"
-	echo "DROP DATABASE IF EXISTS main_sqlcvs_${flavor};"	| mysql -h ${sql_build_host} -u ${sql_build_user}
-	echo "CREATE DATABASE main_sqlcvs_${flavor};"	| mysql -h ${sql_build_host} -u ${sql_build_user}
-	cat "$dbdump_main_sqlcvs"			| mysql -h ${sql_build_host} -u ${sql_build_user} "main_sqlcvs_${flavor}"
-	echo 'DELETE FROM `Package_Version`;'		| mysql -h ${sql_build_host} -u ${sql_build_user} "main_sqlcvs_${flavor}"
-	echo 'DELETE FROM `Schema`;'			| mysql -h ${sql_build_host} -u ${sql_build_user} "main_sqlcvs_${flavor}"
+	import_dbdump "main_sqlcvs_${flavor}" "$dbdump_main_sqlcvs"
+	mysql $BuildCred "main_sqlcvs_${flavor}" -e 'DELETE FROM `Package_Version`;'
+	mysql $BuildCred "main_sqlcvs_${flavor}" -e 'DELETE FROM `Schema`;'
 
 	# myth_sqlcvs_ubuntu
-	DisplayMessage "Importing myth_sqlcvs database"
-	echo "DROP DATABASE IF EXISTS myth_sqlcvs_${flavor};"	| mysql -h ${sql_build_host} -u ${sql_build_user}
-	echo "CREATE DATABASE myth_sqlcvs_${flavor};"	| mysql -h ${sql_build_host} -u ${sql_build_user}
-	cat "$dbdump_myth_sqlcvs"			| mysql -h ${sql_build_host} -u ${sql_build_user} "myth_sqlcvs_${flavor}"
+	import_dbdump "myth_sqlcvs_${flavor}" "$dbdump_myth_sqlcvs"
 
 	# pluto_media
-	DisplayMessage "Importing pluto_media database"
-	echo "DROP DATABASE IF EXISTS pluto_media;"	| mysql -h ${sql_build_host} -u ${sql_build_user}
-	echo "CREATE DATABASE pluto_media;"		| mysql -h ${sql_build_host} -u ${sql_build_user}
-	cat "$dbdump_pluto_media"			| mysql -h ${sql_build_host} -u ${sql_build_user} "pluto_media"
+	import_dbdump pluto_media "$dbdump_pluto_media"
 
 	# pluto_security
-	DisplayMessage "Importing pluto_security database"
-	echo "DROP DATABASE IF EXISTS pluto_security;"	| mysql -h ${sql_build_host} -u ${sql_build_user}
-	echo "CREATE DATABASE pluto_security;"		| mysql -h ${sql_build_host} -u ${sql_build_user} 
-	cat "$dbdump_pluto_security" 			| mysql -h ${sql_build_host} -u ${sql_build_user} "pluto_security"
-	
+	import_dbdump pluto_security "$dbdump_pluto_security"
+
 	# pluto_telecom
-	DisplayMessage "Importing pluto_telecom database"
-	echo "DROP DATABASE IF EXISTS pluto_telecom;"	| mysql -h ${sql_build_host} -u ${sql_build_user}
-	echo "CREATE DATABASE pluto_telecom;"		| mysql -h ${sql_build_host} -u ${sql_build_user}
-	cat "$dbdump_pluto_telecom"			| mysql -h ${sql_build_host} -u ${sql_build_user} "pluto_telecom"
+	import_dbdump pluto_telecom "$dbdump_pluto_telecom"
 
 #	rm -f "$dbdump_main_sqlcvs" "$dbdump_myth_sqlcvs" "$dbdump_pluto_media" "$dbdump_pluto_security" "$dbdump_pluto_telecom"
+#	rm -rf "${dbdump_dir}"
+
 }
 
 DisplayMessage "*** STEP: Importing Databases"
