@@ -1,19 +1,30 @@
 #!/bin/bash
 . /etc/lmce-build/builder.conf
 
-rm -rf "${build_dir}/cd1-packages"
-mkdir -p "${build_dir}/cd1-packages"
+set -e
 
-Src="deb http://debian.slimdevices.com/ stable main"
+echo ""
+echo "********************************************************************************"
+echo "*** Running: $0"
+echo "********************************************************************************"
+
+rm -rf "${build_dir}/cd1-packages"
+mkdir -pv "${build_dir}/cd1-packages"
+
 if [ ! -e /etc/apt/sources.list.pbackup ] ;then
-	cp /etc/apt/sources.list /etc/apt/sources.list.pbackup
+	cp -v /etc/apt/sources.list /etc/apt/sources.list.pbackup
 fi
-if ! grep -qF "$Src" /etc/apt/sources.list; then
-	echo "$Src" >> /etc/apt/sources.list
+
+slim_repo="deb http://debian.slimdevices.com/ stable main"
+if ! grep -qF "$slim_repo" /etc/apt/sources.list; then
+	echo "$slim_repo" >> /etc/apt/sources.list
 	apt-get update
 fi
 
 pushd "${build_dir}/cd1-packages"
-	aptitude download `cat /etc/lmce-build/cd1-packages`
+	aptitude download `cat /etc/lmce-build/cd1-packages` || echo "downloading cd1-packages failed"
+
 popd
+
+echo "*** Done: $0"
 

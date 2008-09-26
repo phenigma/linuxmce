@@ -3,6 +3,13 @@
 . /etc/lmce-build/builder.conf
 . /usr/local/lmce-build/common/env.sh
 
+set -e
+
+echo ""
+echo "********************************************************************************"
+echo "*** Running: $0"
+echo "********************************************************************************"
+
 function Create_Diskless_Debootstrap_Archive {
 	# Create a temp dir to store a diskless debootstrap image into
 	local temp_dir="$(mktemp -d)"
@@ -27,4 +34,5 @@ function Create_Diskless_Debootstrap_Archive {
 Create_Diskless_Debootstrap_Archive
 
 
+echo "*** Done: $0"
 

@@ -3,10 +3,20 @@
 . /etc/lmce-build/builder.conf
 . /usr/local/lmce-build/common/env.sh
 
+set -e
+
+echo ""
+echo "********************************************************************************"
+echo "*** Running: $0"
+echo "********************************************************************************"
+
 # Install packages
-apt-get -f -y install `cat $lmce_build_conf_dir/build-packages`
+apt-get -q -f -y install `cat $lmce_build_conf_dir/build-packages`
 
 # Unpack kernel source
 pushd /usr/src
-	tar jxvf linux-source-"$KVER_SHORT".tar.bz2
+	echo "Unpacking kernel source linux-source-"$KVER_SHORT".tar.bz2"
+	tar xjf linux-source-"$KVER_SHORT".tar.bz2
 popd
+
+echo "*** Done: $0"

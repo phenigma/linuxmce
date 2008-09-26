@@ -1,4 +1,11 @@
-#!/bin/bash -e
+#!/bin/bash
+
+set -e
+
+echo ""
+echo "********************************************************************************"
+echo "*** Running: $0"
+echo "********************************************************************************"
 
 rsync_skin_host="10.0.2.3"
 rsync_media_host="10.0.2.3"
@@ -197,4 +204,6 @@ fi
 if IsReachable "$http_media_host" "http media host" ; then
 	ImportWizardVideosFromHTTPHost
 fi
+
+echo "*** Done: $0"
 

@@ -37,7 +37,6 @@ libdts-dev
 libdvb-dev
 libdvdnav-dev
 libdvdread-dev
-libfaad2-dev
 libfaad-dev
 libflac-dev
 libfuse-dev
