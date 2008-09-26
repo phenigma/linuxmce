@@ -21,7 +21,7 @@ distclean: clean
 	rm -f linux-image-${KVER}_${KVER_LONG}_i386.deb
 
 install: all
-	mkdir -pv $(DESTDIR)/tftpboot/{default,pxelinux.cfg}
+	mkdir -pv $(DESTDIR)/tftpboot/default $(DESTDIR)/tftpboot/pxelinux.cfg
 	cp -av default $(DESTDIR)/tftpboot/pxelinux.cfg/
 	cp -av vmlinuz-${KVER} initrd.img-${KVER} $(DESTDIR)/tftpboot/default/
 
