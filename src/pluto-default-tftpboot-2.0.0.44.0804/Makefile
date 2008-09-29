@@ -2,8 +2,8 @@
 MIRROR=http://archive.ubuntu.com/ubuntu/pool/main/l/linux
 
 KVER_SHORT=2.6.24
-KVER_EXTRA=-16.30
-KVER_UBUNTU=-16-generic
+KVER_EXTRA=-19.41
+KVER_UBUNTU=-19-generic
 
 
 KVER=$(KVER_SHORT)$(KVER_UBUNTU)
