@@ -1,6 +1,11 @@
 #!/bin/bash
 
-Moon_KernelVersion=$(uname -r)
+if [ "$KVER" ]
+then
+	Moon_KernelVersion=$KVER
+else
+	Moon_KernelVersion=$(uname -r)
+fi
 Moon_KernelArch=$(apt-config dump | grep 'APT::Architecture' | sed 's/APT::Architecture "\(.*\)".*/\1/g')
 Moon_RootLocation='package/'
 
