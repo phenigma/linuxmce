@@ -2,7 +2,8 @@
 # make KVER=2.6.22
 
 ifneq ($(KERNELRELEASE),)
-	include $(src)/Kbuild
+	obj-m := spcp8x5.o
+	module-objs := spcp8x5.o
 else
 	PWD  := $(shell pwd)
 	KVER ?= $(shell uname -r)
