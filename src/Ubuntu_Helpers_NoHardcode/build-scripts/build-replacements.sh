@@ -40,6 +40,7 @@ function Build_Replacement_Package
 	if Changed_Since_Last_Build "$dir_" ;then
 		DisplayMessage "Building ${pkg_name}"
 		pushd "$dir_"
+		echo "dpkg-buildpackage -rfakeroot -us -uc -b -tc"
 		dpkg-buildpackage -rfakeroot -us -uc -b -tc
 #		dpkg-buildpackage -rfakeroot -us -uc -b -nc
 		cp -r ../${pkg_name}*.deb "${replacements_dir}"
@@ -126,7 +127,8 @@ function Build_Replacements_Common {
 	Build_Replacement_Package lirc-pluto ubuntu/lirc-pluto-0.1
 
 	#Package: lirc
-	Build_Replacement_Package lirc ubuntu/lirc-0.8.2+lmce
+#	Build_Replacement_Package lirc ubuntu/lirc-0.8.2+lmce
+	Build_Replacement_Package lirc ubuntu/lirc-0.8.3~pre1+lmce
 	cp ${svn_dir}/${svn_branch_name}/ubuntu/lirc-x*.deb ${replacements_dir}
 	
 	#Package: mce-launcher
