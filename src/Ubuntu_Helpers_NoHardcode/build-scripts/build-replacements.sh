@@ -130,6 +130,7 @@ function Build_Replacements_Common {
 #	Build_Replacement_Package lirc ubuntu/lirc-0.8.2+lmce
 	Build_Replacement_Package lirc ubuntu/lirc-0.8.3~pre1+lmce
 	cp ${svn_dir}/${svn_branch_name}/ubuntu/lirc-x*.deb ${replacements_dir}
+	cp ${svn_dir}/${svn_branch_name}/ubuntu/liblircclient{0,-dev}_*.deb ${replacements_dir}
 	
 	#Package: mce-launcher
 	Build_Replacement_Package mce-launcher src/mce-launcher
