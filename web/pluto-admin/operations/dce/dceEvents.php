@@ -25,7 +25,7 @@ function dceEvents($output,$dbADO) {
 		
 		<table cellpadding="3" align="center">
 			<tr>
-				<td colspan="4"><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=createEventCategory&from=dceCommands\',\'width=400,height=300,toolbars=true,resizable=1,scrollbars=1\');"><B>'.$TEXT_ADD_EVENT_CATEGORY_CONST.'</B></a></td>
+				<td colspan="4"><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=createEventCategory&from=dceCommands\',\'width=400,height=300,toolbar=1,resizable=1,scrollbars=1\');"><B>'.$TEXT_ADD_EVENT_CATEGORY_CONST.'</B></a></td>
 			</tr>		
 			<tr class="tablehead">
 				<td align="center" width="120"><B>'.$TEXT_EVENT_CATEGORY_CONST.'</B></td>
@@ -44,7 +44,7 @@ function dceEvents($output,$dbADO) {
 			$pos++;
 			$out.='
 			<tr bgcolor="#EEEEEE">
-				<td colspan="4"><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=manageCategories&action=events&from=dceEvents\',\'width=600,height=800,toolbars=true\');"><B>'.$rowRootEC['Description'].'</B></a></td>
+				<td colspan="4"><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=manageCategories&action=events&from=dceEvents\',\'width=600,height=800,toolbar=1\');"><B>'.$rowRootEC['Description'].'</B></a></td>
 			</tr>';
 			$resEvents=$dbADO->Execute('SELECT * FROM Event WHERE FK_EventCategory=?',$rowRootEC['PK_EventCategory']);
 			while($rowEvents=$resEvents->FetchRow()){
@@ -62,7 +62,7 @@ function dceEvents($output,$dbADO) {
 				<tr>
 					<td>&nbsp;</td>
 					<td>'.$rowEvents['PK_Event'].'</td>
-					<td><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=editEvent&from=dceEvents&EventID='.$rowEvents['PK_Event'].'\',\'status=0,resizable=1,width=500,height=250,toolbars=true,scrollbars=1\');">'.$rowEvents['Description'].'<a></td>
+					<td><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=editEvent&from=dceEvents&EventID='.$rowEvents['PK_Event'].'\',\'status=0,resizable=1,width=500,height=250,toolbar=1,scrollbars=1\');">'.$rowEvents['Description'].'<a></td>
 					<td>'.join(', ',$dtLinksArray).'</td>
 				</tr>';
 			}
@@ -104,7 +104,7 @@ function getEventCategoryChilds($eventCategory,$dbADO,$level)
 			$indent.='&nbsp;';
 		$out.='
 			<tr bgcolor="#EEEEEE">
-				<td colspan="3">'.$indent.'<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=manageCategories&action=events&from=dceEvents\',\'width=600,height=800,toolbars=true\');"><B>'.$rowEC['Description'].'</B></a></td>
+				<td colspan="3">'.$indent.'<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=manageCategories&action=events&from=dceEvents\',\'width=600,height=800,toolbar=1\');"><B>'.$rowEC['Description'].'</B></a></td>
 			</tr>';
 		$resEvents=$dbADO->Execute('SELECT * FROM Event WHERE FK_EventCategory=?',$rowEC['PK_EventCategory']);
 		while($rowEvents=$resEvents->FetchRow()){
@@ -122,7 +122,7 @@ function getEventCategoryChilds($eventCategory,$dbADO,$level)
 				<tr>
 					<td>&nbsp;</td>
 					<td>'.$rowEvents['PK_Event'].'</td>
-					<td><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=editEvent&from=dceEvents&EventID='.$rowEvents['PK_Event'].'\',\'status=0,resizable=1,width=500,height=250,toolbars=true,scrollbars=1\');">'.$rowEvents['Description'].'<a></td>
+					<td><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=editEvent&from=dceEvents&EventID='.$rowEvents['PK_Event'].'\',\'status=0,resizable=1,width=500,height=250,toolbar=1,scrollbars=1\');">'.$rowEvents['Description'].'<a></td>
 					<td>'.join(', ',$dtLinksArray).'</td>
 				</tr>';
 		}

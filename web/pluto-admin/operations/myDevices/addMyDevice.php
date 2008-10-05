@@ -51,7 +51,7 @@ function addMyDevice($output,$dbADO) {
 				</tr>
 				<tr>
 					<td>'.$TEXT_DEVICE_TEMPLATE_CONST.'</td>
-					<td><input type="button" class="button" name="pick" value="'.$TEXT_PICK_DEVICE_TEMPLATE_CONST.'" onclick="document.addMyDevice.submit();windowOpen(\'index.php?section=deviceTemplatePicker&categoryID=0&from='.urlencode('addMyDevice&parentID='.$parentID).'&allowAdd=1\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"></td>
+					<td><input type="button" class="button" name="pick" value="'.$TEXT_PICK_DEVICE_TEMPLATE_CONST.'" onclick="document.addMyDevice.submit();windowOpen(\'index.php?section=deviceTemplatePicker&categoryID=0&from='.urlencode('addMyDevice&parentID='.$parentID).'&allowAdd=1\',\'width=800,height=600,toolbar=1,scrollbars=1,resizable=1\');"></td>
 				</tr>
 			</table>
 	</form>

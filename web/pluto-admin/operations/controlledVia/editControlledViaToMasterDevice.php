@@ -148,7 +148,7 @@ function editControlledViaToMasterDevice($output,$dbADO) {
 									
 									$out.='<td> Pipe <select name="pipe_'.$rowSelectedPipesUsed['FK_To'].'"><option value="0">-please select-</option>'.$selectPipesTxt.'</select></td>';
 									$out.='<td> Flip In/Out: <input type="checkbox" '.($rowSelectedPipesUsed['ToChild']==1?" checked='checked'":'').' name="toChild_'.$rowSelectedPipesUsed['FK_To'].'" value="1"></td>';
-									$out.='<td><input value="Delete" type="button" class="button" onClick="if (confirm(\'Are you sure you want to delete this pipe?\')) {windowOpen(\'index.php?section=deletePipeFromDeviceTemplateControlledVia&objID='.$rowSelectedPipesUsed['FK_DeviceTemplate_DeviceTemplate_ControlledVia'].'&from=editControlledViaToMasterDevice\',\'width=100,height=100,toolbars=true,scrollbars=1,resizable=1\');}"></td>';
+									$out.='<td><input value="Delete" type="button" class="button" onClick="if (confirm(\'Are you sure you want to delete this pipe?\')) {windowOpen(\'index.php?section=deletePipeFromDeviceTemplateControlledVia&objID='.$rowSelectedPipesUsed['FK_DeviceTemplate_DeviceTemplate_ControlledVia'].'&from=editControlledViaToMasterDevice\',\'width=100,height=100,toolbar=1,scrollbars=1,resizable=1\');}"></td>';
 									
 									$out.='</tr>';
 								}

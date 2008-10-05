@@ -64,7 +64,7 @@ function dceDeviceData($output,$dbADO) {
 			$pos++;
 			$out.='
 				<tr bgcolor="'.(($pos%2==0)?'#EEEEEE':'').'">
-					<td><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=editDeviceData&from=dceDeviceData&deviceDataID='.$ddID.'\',\'status=0,resizable=1,width=500,height=250,toolbars=true\');">'.$values['Description'].'</a></td>
+					<td><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=editDeviceData&from=dceDeviceData&deviceDataID='.$ddID.'\',\'status=0,resizable=1,width=500,height=250,toolbar=1\');">'.$values['Description'].'</a></td>
 					<td>'.$values['Type'].'</td>
 					<td>'.join(', ',$dtLinksArray).'</td>
 				</tr>';

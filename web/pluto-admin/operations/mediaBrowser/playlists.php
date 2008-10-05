@@ -51,7 +51,7 @@ function playlists($output,$mediadbADO) {
 					<td align="center">'.$pos.'</td>
 					<td align="center">'.$pic.'</td>
 					<td align="center">'.$rowPlaylist['Name'].'</td>
-					<td align="center"><a href="index.php?section=editPlaylist&plID='.$rowPlaylist['PK_Playlist'].'">'.$TEXT_EDIT_CONST.'</a> <a href="#" onClick="if(confirm(\''.$TEXT_CONFIRM_DELETE_PLAYLIST_CONST.'\'))self.location=\'index.php?section=playlists&action=delete&plID='.$rowPlaylist['PK_Playlist'].'\'">'.$TEXT_DELETE_CONST.'</a><BR><a href="#" onClick="windowOpen(\'index.php?section=exportPlaylist&playlistID='.$rowPlaylist['PK_Playlist'].'\',\'width=400,height=450,toolbars=false,scrollbars=0,resizable=1\');">'.$TEXT_EXPORT_PLAYLIST_CONST.'</a></td>
+					<td align="center"><a href="index.php?section=editPlaylist&plID='.$rowPlaylist['PK_Playlist'].'">'.$TEXT_EDIT_CONST.'</a> <a href="#" onClick="if(confirm(\''.$TEXT_CONFIRM_DELETE_PLAYLIST_CONST.'\'))self.location=\'index.php?section=playlists&action=delete&plID='.$rowPlaylist['PK_Playlist'].'\'">'.$TEXT_DELETE_CONST.'</a><BR><a href="#" onClick="windowOpen(\'index.php?section=exportPlaylist&playlistID='.$rowPlaylist['PK_Playlist'].'\',\'width=400,height=450,toolbar=0,scrollbars=0,resizable=1\');">'.$TEXT_EXPORT_PLAYLIST_CONST.'</a></td>
 				</tr>
 			';
 		}

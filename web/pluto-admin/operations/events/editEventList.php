@@ -69,9 +69,9 @@ function editEvent($output,$dbADO) {
 			while ($rowSelectEventParams=$resSelectEventParams->FetchRow()) {
 				$out.='<tr><td>'.$rowSelectEventParams['EL_Description'].'<br />#'.$rowSelectEventParams['PK_EventParameter'].'</td><td><textarea cols="40" rows="4" name="eventParamDesc_'.$rowSelectEventParams['PK_EventParameter'].'">'.$rowSelectEventParams['Description'].'</textarea></td>
 				<td>
-					<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=editEventParameterFromEvent&from=editEvent&eventParameterID='.$rowSelectEventParams['PK_EventParameter'].'\',\'width=500,height=400,toolbars=true\');">Edit</a>
+					<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=editEventParameterFromEvent&from=editEvent&eventParameterID='.$rowSelectEventParams['PK_EventParameter'].'\',\'width=500,height=400,toolbar=1\');">Edit</a>
 					<br />
-					<a href="javascript:void(0);" onClick="if (confirm(\'Are you sure you want to delete this parameter?\')) windowOpen(\'index.php?section=deleteEventParameterFromEvent&from=editEvent&EventID='.$selectedEvent.'&eventParameterID='.$rowSelectEventParams['PK_EventParameter'].'\',\'width=100,height=100,toolbars=true\');">Delete</a>
+					<a href="javascript:void(0);" onClick="if (confirm(\'Are you sure you want to delete this parameter?\')) windowOpen(\'index.php?section=deleteEventParameterFromEvent&from=editEvent&EventID='.$selectedEvent.'&eventParameterID='.$rowSelectEventParams['PK_EventParameter'].'\',\'width=100,height=100,toolbar=1\');">Delete</a>
 				</td>
 				</tr>';
 				$displayedEventParams[]=$rowSelectEventParams['PK_EventParameter'];
@@ -91,7 +91,7 @@ function editEvent($output,$dbADO) {
 			}
 		
 		$out.="<tr><td colspan='3'>Add new parameter <select name='addEventParameterToEvent'>{$eventParametersTxt}</select> &nbsp; <input type='submit' name='submitX' value='Add'></td></tr>";
-		$out.='<tr><td colspan="3">If parameter not in the list <a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=createEventParameter&from=editEvent\',\'width=500,height=400,toolbars=true\');">create a new one</a></td></tr>';
+		$out.='<tr><td colspan="3">If parameter not in the list <a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=createEventParameter&from=editEvent\',\'width=500,height=400,toolbar=1\');">create a new one</a></td></tr>';
 		$out.='
 								</table>
 						</fieldset>

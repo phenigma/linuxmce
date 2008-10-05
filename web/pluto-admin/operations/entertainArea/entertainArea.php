@@ -64,7 +64,7 @@ $resRooms = $dbADO->Execute($queryRooms,array($installationID));
 			}			
 			$out.='</select>';
 			$out.="</td><td>
-				<a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=deleteRoomFromEntertainArea&from=entertainArea&roomID={$rowEntertainArea['PK_EntertainArea']}','status=0,resizable=1,width=200,height=200,toolbars=true');\">Delete</a>
+				<a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=deleteRoomFromEntertainArea&from=entertainArea&roomID={$rowEntertainArea['PK_EntertainArea']}','status=0,resizable=1,width=200,height=200,toolbar=1');\">Delete</a>
 			</td>";
 			$out.='</tr>';
 			$entertainAreaFormValidation.='

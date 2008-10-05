@@ -122,7 +122,7 @@ function wizardScenarios($output,$dbADO) {
 					
 							</td>
 						<td valign="top">
-						<input type="button" class="button" name="editA" value="Remove" onClick="windowOpen(\'index.php?section=deleteCommandFromCommandGroup_Command&from=wizardScenarios&cgID='.$rowCommandAssigned['PK_CommandGroup_Command'].'\',\'width=100,height=100,toolbars=true,resizable=1,scrollbars=1\');"">
+						<input type="button" class="button" name="editA" value="Remove" onClick="windowOpen(\'index.php?section=deleteCommandFromCommandGroup_Command&from=wizardScenarios&cgID='.$rowCommandAssigned['PK_CommandGroup_Command'].'\',\'width=100,height=100,toolbar=1,resizable=1,scrollbars=1\');"">
 						</td>						
 					</tr>
 					';

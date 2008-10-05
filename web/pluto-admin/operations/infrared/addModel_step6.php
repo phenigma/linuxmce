@@ -147,7 +147,7 @@
 				<td align="center">'.$inputSelectedTxt.'</td>
 			</tr>
 			<tr>
-				<td align="center"><a href="#" onClick="windowOpen(\'index.php?section=addCommand&from=addModel&commandCateg=21\',\'width=400,height=300,toolbars=true,resizable=1,scrollbars=1\');">'.$TEXT_ADD_NEW_COMMAND_CONST.'</a></td>
+				<td align="center"><a href="#" onClick="windowOpen(\'index.php?section=addCommand&from=addModel&commandCateg=21\',\'width=400,height=300,toolbar=1,resizable=1,scrollbars=1\');">'.$TEXT_ADD_NEW_COMMAND_CONST.'</a></td>
 			</tr>			
 			<input type="hidden" name="commandsArray" value="'.urlencode(serialize($commandsArray)).'">
 			';

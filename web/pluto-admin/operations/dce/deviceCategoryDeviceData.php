@@ -76,7 +76,7 @@ function deviceCategoryDeviceData($output,$dbADO) {
 											<table width=\"100%\">
 												<tr>
 													<td>#{$row['FK_DeviceData']} {$row['DD_desc']}({$row['PT_Desc']})</td>
-													<td align=\"right\"><input type=\"button\" class=\"button\" onClick=\"windowOpen('index.php?section=editDeviceData&from=deviceCategoryDeviceData&categoryID=$categoryID&deviceDataID={$row['PK_DeviceData']}','status=0,resizable=1,width=500,height=250,toolbars=true');\" value=\"$TEXT_EDIT_CONST\"></td>
+													<td align=\"right\"><input type=\"button\" class=\"button\" onClick=\"windowOpen('index.php?section=editDeviceData&from=deviceCategoryDeviceData&categoryID=$categoryID&deviceDataID={$row['PK_DeviceData']}','status=0,resizable=1,width=500,height=250,toolbar=1');\" value=\"$TEXT_EDIT_CONST\"></td>
 												</tr>
 											</table>
 										</td>
@@ -126,7 +126,7 @@ function deviceCategoryDeviceData($output,$dbADO) {
 					<td>'.pulldownFromArray($remainingDDArray,'newDeviceData',0,'class="input_big"').' <input type="submit" class="button" name="submitX" value="'.$TEXT_ADD_CONST.'"></td>
 				</tr>			
 				<tr>
-					<td colspan="2">'.$TEXT_IF_PARAMETER_IS_NOT_IN_THE_LIST_CONST.' <a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addParameter&from=deviceCategoryDeviceData&categoryID='.$categoryID.'\',\'status=0,resizable=1,width=500,height=250,toolbars=true\');">click here to create a new parameter</a></td>
+					<td colspan="2">'.$TEXT_IF_PARAMETER_IS_NOT_IN_THE_LIST_CONST.' <a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addParameter&from=deviceCategoryDeviceData&categoryID='.$categoryID.'\',\'status=0,resizable=1,width=500,height=250,toolbar=1\');">click here to create a new parameter</a></td>
 				</tr>';
 		}
 		$out.='

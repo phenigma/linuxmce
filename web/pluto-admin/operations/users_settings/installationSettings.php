@@ -155,7 +155,7 @@ function installationSettings($output,$dbADO) {
 					<td colspan="2" align="center" class="tablehead">Current timezone</td>
 				</tr>
 				<tr>
-					<td colspan="2" align="center" class="normal_row"><B>'.$currentTimeZone.'</B> <input type="button" class="button" name="setTimezone" value="'.$TEXT_SET_TIMEZONE_CONST.'" onclick="windowOpen(\'index.php?section=setTimezone\',\'width=640,height=480,toolbars=true,scrollbars=1,resizable=1\');"></td>
+					<td colspan="2" align="center" class="normal_row"><B>'.$currentTimeZone.'</B> <input type="button" class="button" name="setTimezone" value="'.$TEXT_SET_TIMEZONE_CONST.'" onclick="windowOpen(\'index.php?section=setTimezone\',\'width=640,height=480,toolbar=1,scrollbars=1,resizable=1\');"></td>
 				</tr>
 				
 				';

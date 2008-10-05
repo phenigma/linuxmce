@@ -75,7 +75,7 @@ function editCommandGroupFromMasterDevice($output,$dbADO) {
 				<tr>
 					<td><B>'.$TEXT_DESCRIPTION_CONST.' *</B></td>
 					<td>
-						<input name="Description" value="'.stripslashes($commandGroupName).'" type="text" size="20"> <input type="button" class="button" name="button" value="'.$TEXT_ADD_REMOVE_COMMANDS_FOR_CG_CONST.'" onClick="windowOpen(\'index.php?section=commandsPicker&dtID='.$deviceID.'&commandGroupID='.$commandGroupID.'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');">
+						<input name="Description" value="'.stripslashes($commandGroupName).'" type="text" size="20"> <input type="button" class="button" name="button" value="'.$TEXT_ADD_REMOVE_COMMANDS_FOR_CG_CONST.'" onClick="windowOpen(\'index.php?section=commandsPicker&dtID='.$deviceID.'&commandGroupID='.$commandGroupID.'\',\'width=800,height=600,toolbar=1,scrollbars=1,resizable=1\');">
 					</td>
 				</tr>		
 				<tr>
@@ -100,8 +100,8 @@ function editCommandGroupFromMasterDevice($output,$dbADO) {
 							$commandsDisplayed[]=0;
 								if ($res) {
 									while ($row=$res->FetchRow()) {
-										$out.="<tr ".(strlen(trim($row['Description']))==0?" bgColor='lightgreen' ":"")."><td>#{$row['C_Description']}<br />#{$row['FK_Command']}</td><td><textarea cols=\"40\" rows=\"5\" name=\"CommandDescription_{$row['FK_Command']}\">".stripslashes($row['Description']).'</textarea></td><td><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=editCommand&from=editCommandGroupFromMasterDevice&commandID='.$row['FK_Command'].'\',\'width=400,height=300,toolbars=true,resizable=1,scrollbars=1\');">Edit</a> ';
-										$out.='<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=deleteCommandFromMasterDevice&from=editCommandGroupFromMasterDevice&commandGroupID='.$commandGroupID.'&commandID='.$row['FK_Command'].'\',\'width=100,height=100,toolbars=true,resizable=1,scrollbars=1\');">Delete</a>';
+										$out.="<tr ".(strlen(trim($row['Description']))==0?" bgColor='lightgreen' ":"")."><td>#{$row['C_Description']}<br />#{$row['FK_Command']}</td><td><textarea cols=\"40\" rows=\"5\" name=\"CommandDescription_{$row['FK_Command']}\">".stripslashes($row['Description']).'</textarea></td><td><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=editCommand&from=editCommandGroupFromMasterDevice&commandID='.$row['FK_Command'].'\',\'width=400,height=300,toolbar=1,resizable=1,scrollbars=1\');">Edit</a> ';
+										$out.='<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=deleteCommandFromMasterDevice&from=editCommandGroupFromMasterDevice&commandGroupID='.$commandGroupID.'&commandID='.$row['FK_Command'].'\',\'width=100,height=100,toolbar=1,resizable=1,scrollbars=1\');">Delete</a>';
 										$out.='</td></tr>';
 										$commandsDisplayed[]=$row['FK_Command'];
 									}
@@ -121,7 +121,7 @@ function editCommandGroupFromMasterDevice($output,$dbADO) {
 					$out.='
 							</table>
 						<br />'.$TEXT_ADD_COMMAND_TO_GROUP_CONST.': <select name="addNewCommandToDeviceCommandGroup">'.$otherCommands.'</select><input type="submit" class="button" name="submitX" value="'.$TEXT_ADD_CONST.'">';
-						$out.='<br /><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addCommand&from=editCommandGroupFromMasterDevice\',\'width=400,height=300,toolbars=true,resizable=1,scrollbars=1\');">'.$TEXT_CREATE_NEW_COMMAND_CONST.'</a>';
+						$out.='<br /><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addCommand&from=editCommandGroupFromMasterDevice\',\'width=400,height=300,toolbar=1,resizable=1,scrollbars=1\');">'.$TEXT_CREATE_NEW_COMMAND_CONST.'</a>';
 						$out.='<input type="hidden" name="displayedCommands" value="'.(join(",",$commandsDisplayed)).'">
 						</fieldset>
 					</td>

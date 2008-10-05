@@ -48,7 +48,7 @@ function editMasterDevice($output,$dbADO) {
 		$ConfigureScript=$row['ConfigureScript'];
 		$comments=$row['Comments'];
 		$isAVDevice = is_null($row['FK_DeviceTemplate'])?0:1;
-		$rubyCodesButton=($commandLine==$GLOBALS['GenericSerialDeviceCommandLine'])?'<input type="button" class="button" name="rubyCodes"  value="'.$TEXT_RUBY_CODES_CONST.'" onClick="windowOpen(\'index.php?section=rubyCodes&from=editMasterDevice&dtID='.$deviceID.'\',\'status=0,resizable=1,width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');")>':'';
+		$rubyCodesButton=($commandLine==$GLOBALS['GenericSerialDeviceCommandLine'])?'<input type="button" class="button" name="rubyCodes"  value="'.$TEXT_RUBY_CODES_CONST.'" onClick="windowOpen(\'index.php?section=rubyCodes&from=editMasterDevice&dtID='.$deviceID.'\',\'status=0,resizable=1,width=800,height=600,toolbar=1,scrollbars=1,resizable=1\');")>':'';
 		$commMethod=$row['FK_CommMethod'];
 		$commMethods=getAssocArray('CommMethod','PK_CommMethod','Description',$dbADO,'','ORDER BY Description ASC');
 		
@@ -117,7 +117,7 @@ function editMasterDevice($output,$dbADO) {
 			$manufacturersArray[$row['PK_Manufacturer']]=$row['Description'];
 			$out.='<option '.($row['PK_Manufacturer']==$manufacturerID?' selected ': ' ').' value="'.$row['PK_Manufacturer'].'">'.stripslashes($row['Description']).'</option>';
 		}
-		$out.='		</select> <a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addManufacturer&from=editMasterDevice\',\'width=300,height=200,toolbars=true\');">Create Manufacturer</a>
+		$out.='		</select> <a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addManufacturer&from=editMasterDevice\',\'width=300,height=200,toolbar=1\');">Create Manufacturer</a>
 				</td>
 			</tr>
 			<tr>
@@ -131,12 +131,12 @@ function editMasterDevice($output,$dbADO) {
 		$selectObjects = 'select PK_DesignObj,Description from DesignObj inner join DeviceTemplate_DesignObj on FK_DesignObj = PK_DesignObj where FK_DeviceTemplate = ? order by Description asc';
 		$rs = $dbADO->Execute($selectObjects,array($deviceID));
 		while ($row = $rs->FetchRow()) {
-			$out.=stripslashes($row['Description']) . "&nbsp; &nbsp; <a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=deleteObjectFromMasterDevice&from=editMasterDevice&deviceID=$deviceID&objID={$row['PK_DesignObj']}','status=0,resizable=1,width=300,height=200,toolbars=true');\">$TEXT_DELETE_CONST</a> <br />";
+			$out.=stripslashes($row['Description']) . "&nbsp; &nbsp; <a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=deleteObjectFromMasterDevice&from=editMasterDevice&deviceID=$deviceID&objID={$row['PK_DesignObj']}','status=0,resizable=1,width=300,height=200,toolbar=1');\">$TEXT_DELETE_CONST</a> <br />";
 		}
 		if ($rs->RecordCount()===0) {
 			$out.=$TEXT_NO_OBJECTS_CONST;
 		}
-		$out.="&nbsp; &nbsp; <br /><a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=addObjectToMasterDevice&from=editMasterDevice&deviceID={$deviceID}','status=0,resizable=1,width=300,height=200,toolbars=true');\">".$TEXT_ADD_A_NEW_OBJECT_TO_DEVICE_CONST."</a>";
+		$out.="&nbsp; &nbsp; <br /><a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=addObjectToMasterDevice&from=editMasterDevice&deviceID={$deviceID}','status=0,resizable=1,width=300,height=200,toolbar=1');\">".$TEXT_ADD_A_NEW_OBJECT_TO_DEVICE_CONST."</a>";
 
 		$out.='		</td>
 				</tr>
@@ -158,13 +158,13 @@ function editMasterDevice($output,$dbADO) {
 		while ($row = $rs->FetchRow()) {
 			$out.=$TEXT_DEVICE_CONST.':'.stripslashes($row['d2']) .'&nbsp; Category: '. stripslashes($row['d3']) . "&nbsp; &nbsp;
 							<a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=editControlledViaToMasterDevice&from=editMasterDevice&deviceID=$deviceID&objID={$row['pk']}','status=0,resizable=1,width=800,height=600');\">$TEXT_EDIT_CONST</a>
-							&nbsp; &nbsp; <a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=deleteControlledViaFromMasterDevice&from=editMasterDevice&objID={$row['pk']}','status=0,resizable=1,width=10,height=10,toolbars=true');\">$TEXT_DELETE_CONST</a>
+							&nbsp; &nbsp; <a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=deleteControlledViaFromMasterDevice&from=editMasterDevice&objID={$row['pk']}','status=0,resizable=1,width=10,height=10,toolbar=1');\">$TEXT_DELETE_CONST</a>
 							<br />";
 		}
 		if ($rs->RecordCount()===0) {
 			$out.=$TEXT_NO_RECORDS_CONST;
 		}
-		$out.="&nbsp; &nbsp; <br /><a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=addControlledViaToMasterDevice&from=editMasterDevice&deviceID={$deviceID}','status=0,resizable=1,width=500,height=250,toolbars=true');\">".$TEXT_ADD_A_NEW_CONTROLLED_VIA_DEVICE_CONST."</a>";
+		$out.="&nbsp; &nbsp; <br /><a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=addControlledViaToMasterDevice&from=editMasterDevice&deviceID={$deviceID}','status=0,resizable=1,width=500,height=250,toolbar=1');\">".$TEXT_ADD_A_NEW_CONTROLLED_VIA_DEVICE_CONST."</a>";
 
 		$out.='
 					</td>
@@ -185,13 +185,13 @@ function editMasterDevice($output,$dbADO) {
 		while ($row = $rs->FetchRow()) {
 			$out.=$TEXT_DEVICE_CATEGORY_CONST.': '. stripslashes($row['d3']) . "&nbsp; &nbsp;
 							<a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=editControlledViaCategoryToMasterDevice&from=editMasterDevice&deviceID=$deviceID&objID={$row['pk']}','status=0,resizable=1,width=800,height=500');\">$TEXT_EDIT_CONST</a>
-							&nbsp; &nbsp; <a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=deleteControlledViaCategoryFromMasterDevice&from=editMasterDevice&objID={$row['pk']}','status=0,resizable=1,width=700,height=800,toolbars=yes,scrollbars=1');\">$TEXT_DELETE_CONST</a>
+							&nbsp; &nbsp; <a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=deleteControlledViaCategoryFromMasterDevice&from=editMasterDevice&objID={$row['pk']}','status=0,resizable=1,width=700,height=800,toolbar=1,scrollbars=1');\">$TEXT_DELETE_CONST</a>
 							<br />";
 		}
 		if ($rs->RecordCount()===0) {
 			$out.=$TEXT_NO_RECORDS_CONST;
 		}
-		$out.="&nbsp; &nbsp; <br /><a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=addControlledViaCategoryToMasterDevice&from=editMasterDevice&deviceID={$deviceID}','status=0,resizable=1,width=800,height=600,toolbars=true');\">".$TEXT_ADD_A_NEW_CONTROLLED_VIA_CATEGORY_DEVICE_CONST."</a>";
+		$out.="&nbsp; &nbsp; <br /><a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=addControlledViaCategoryToMasterDevice&from=editMasterDevice&deviceID={$deviceID}','status=0,resizable=1,width=800,height=600,toolbar=1');\">".$TEXT_ADD_A_NEW_CONTROLLED_VIA_CATEGORY_DEVICE_CONST."</a>";
 
 		$out.='
 					</td>
@@ -211,15 +211,15 @@ function editMasterDevice($output,$dbADO) {
 		$rs->Close();
 		$out.='</select>&nbsp;<input type="submit" class="button" name="submitX" value="'.$TEXT_ADD_CONST.'">';
 		if($package!=0)
-		$out.="  <a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=addPackageToMasterDevice&from=editMasterDevice&deviceID={$deviceID}&PK_Package={$package}','status=0,resizable=1,width=700,height=700,toolbars=true,scrollbars=1,fullscreen=yes');\">Edit package</a>";
-		$out.="&nbsp; <a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=addPackageToMasterDevice&from=editMasterDevice&deviceID={$deviceID}','status=0,resizable=1,width=700,height=850,toolbars=true,scrollbars=1');\">Create new package</a>";
+		$out.="  <a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=addPackageToMasterDevice&from=editMasterDevice&deviceID={$deviceID}&PK_Package={$package}','status=0,resizable=1,width=700,height=700,toolbar=1,scrollbars=1,fullscreen=1');\">Edit package</a>";
+		$out.="&nbsp; <a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=addPackageToMasterDevice&from=editMasterDevice&deviceID={$deviceID}','status=0,resizable=1,width=700,height=850,toolbar=1,scrollbars=1');\">Create new package</a>";
 		$out.='
 					</td>
 				</tr>
 				<tr>
 					<td valign="top"><a name="isAVDevice_link"></a>'.$TEXT_AUDIO_VIDEO_DEVICE_CONST.'</td>
 					<td>
-						<input type="hidden" value="'.$isAVDevice.'" name="old_isAVDevice"><input type="checkbox" name="isAVDevice" '.($isAVDevice==1?" checked='checked' ":"").' value="1" onClick="javascript:this.form.submit();"><input type="button" class="button" name="isAV"  '.($isAVDevice!=1?'value="'.$TEXT_IS_NOT_AUDIO_VIDEO_CONST.'" disabled="disabled" ':" value=\"".$TEXT_EDIT_AUDIO_VIDEO_PROPERTIES_CONST."\" onClick=\"windowOpen('index.php?section=irCodes&from=editMasterDevice&dtID={$deviceID}','status=0,resizable=1,width=800,height=600,toolbars=true,scrollbars=1,resizable=1');\"").'>
+						<input type="hidden" value="'.$isAVDevice.'" name="old_isAVDevice"><input type="checkbox" name="isAVDevice" '.($isAVDevice==1?" checked='checked' ":"").' value="1" onClick="javascript:this.form.submit();"><input type="button" class="button" name="isAV"  '.($isAVDevice!=1?'value="'.$TEXT_IS_NOT_AUDIO_VIDEO_CONST.'" disabled="disabled" ':" value=\"".$TEXT_EDIT_AUDIO_VIDEO_PROPERTIES_CONST."\" onClick=\"windowOpen('index.php?section=irCodes&from=editMasterDevice&dtID={$deviceID}','status=0,resizable=1,width=800,height=600,toolbar=1,scrollbars=1,resizable=1');\"").'>
 					</td>
 				</tr>
 				<tr>
@@ -301,7 +301,7 @@ function editMasterDevice($output,$dbADO) {
 													<td><table width=\"100%\">
 														<tr>
 															<td>#{$row['FK_DeviceData']} {$row['DD_desc']}({$row['PT_Desc']})</td>
-															<td width=\"50\"><input type=\"button\" class=\"button\" onClick=\"windowOpen('index.php?section=editDeviceData&from=editMasterDevice&deviceID=$deviceID&deviceDataID={$row['PK_DeviceData']}','status=0,resizable=1,width=500,height=250,toolbars=true');\" value=\"$TEXT_EDIT_CONST\"></td>
+															<td width=\"50\"><input type=\"button\" class=\"button\" onClick=\"windowOpen('index.php?section=editDeviceData&from=editMasterDevice&deviceID=$deviceID&deviceDataID={$row['PK_DeviceData']}','status=0,resizable=1,width=500,height=250,toolbar=1');\" value=\"$TEXT_EDIT_CONST\"></td>
 														</tr>
 													</table>
 													</td>
@@ -311,7 +311,7 @@ function editMasterDevice($output,$dbADO) {
 													<td align=\"center\"><input type='checkbox' value='1' name='Data_AllowedToModify_{$row['FK_DeviceData']}' ".($row['AllowedToModify']==1?' checked="checked" ':'')."></td>
 													<td align=\"center\"><input type='checkbox' value='1' name='Data_UseDeviceTemplateDefault_{$row['FK_DeviceData']}' ".($row['UseDeviceTemplateDefault']==1?' checked="checked" ':'')."></td>
 													<td align=\"center\"><input type='checkbox' value='1' name='Data_SetByDevice_{$row['FK_DeviceData']}' ".($row['SetByDevice']==1?' checked="checked" ':'')."></td>
-													<td align=\"center\"><input type=\"button\" class=\"button\" onClick=\"windowOpen('index.php?section=deleteParameterFromMasterDevice&from=editMasterDevice&deviceData={$row['FK_DeviceData']}&deviceID={$deviceID}','status=1,resizable=1,width=500,height=250,toolbars=true');\" value=\"$TEXT_DELETE_CONST\"></td>
+													<td align=\"center\"><input type=\"button\" class=\"button\" onClick=\"windowOpen('index.php?section=deleteParameterFromMasterDevice&from=editMasterDevice&deviceData={$row['FK_DeviceData']}&deviceID={$deviceID}','status=1,resizable=1,width=500,height=250,toolbar=1');\" value=\"$TEXT_DELETE_CONST\"></td>
 												</tr>							
 							";	
 				$usedParams[]=$row['FK_DeviceData'];
@@ -353,7 +353,7 @@ function editMasterDevice($output,$dbADO) {
 				<tr>
 					<td colspan="2"><a name="deviceData_link"></a>'.$TEXT_ADD_A_NEW_PARAMETER_CONST.': <select name="newDeviceData" class="input_big">'.$remainingData.'</select>&nbsp;&nbsp;
 					<input type="submit" class="button" name="submitX" value="'.$TEXT_ADD_CONST.'" '.(@(int)$_SESSION['userID']!=$userID?' mdisabled="mdisabled" ':'').'>
-				<br /> '.$TEXT_IF_PARAMETER_IS_NOT_IN_THE_LIST_CONST.' <a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addParameter&from=editMasterDevice&deviceID='.$deviceID.'\',\'status=0,resizable=1,width=500,height=250,toolbars=true\');">click here to create a new parameter</a>
+				<br /> '.$TEXT_IF_PARAMETER_IS_NOT_IN_THE_LIST_CONST.' <a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addParameter&from=editMasterDevice&deviceID='.$deviceID.'\',\'status=0,resizable=1,width=500,height=250,toolbar=1\');">click here to create a new parameter</a>
 					</td>
 				</tr>
 				</table>
@@ -417,7 +417,7 @@ function editMasterDevice($output,$dbADO) {
 				$out.='
 					<tr>
 						<td width="200"><input '.(in_array($row['PK_DeviceCommandGroup'],$selCheckedCommandsGroups)?" checked='checked' ": '').' type="checkbox" name="DeviceCommandGroup_'.$row['PK_DeviceCommandGroup'].'" value="1">'.stripslashes($row['Description']).'</td>
-						<td><input type="button" class="button" onClick="windowOpen(\'index.php?section=editCommandGroupFromMasterDevice&from=editMasterDevice&deviceID='.$deviceID.'&commandGroupID='.$row['PK_DeviceCommandGroup'].'\',\'width=800,height=600,toolbars=true,resizable=1,scrollbars=yes\');" value="'.$TEXT_EDIT_COMMANDS_CONST.'"></td>
+						<td><input type="button" class="button" onClick="windowOpen(\'index.php?section=editCommandGroupFromMasterDevice&from=editMasterDevice&deviceID='.$deviceID.'&commandGroupID='.$row['PK_DeviceCommandGroup'].'\',\'width=800,height=600,toolbar=1,resizable=1,scrollbars=1\');" value="'.$TEXT_EDIT_COMMANDS_CONST.'"></td>
 					</tr>';
 				$commandsDisplayed[]=$row['PK_DeviceCommandGroup'];
 			}
@@ -429,7 +429,7 @@ function editMasterDevice($output,$dbADO) {
 						<input type="hidden" name="DeviceCommandGroupDisplayed" value="'.(join(",",$commandsDisplayed)).'">
 						
 						<tr>
-							<td colspan="2"><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addCommandGroup&from=editMasterDevice\',\'width=550,height=300,toolbars=true,scrollbars=1,resizable=1\');">'.$TEXT_CREATE_COMMAND_GROUP_CONST.'</a>&nbsp;&nbsp;&nbsp;&nbsp;
+							<td colspan="2"><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addCommandGroup&from=editMasterDevice\',\'width=550,height=300,toolbar=1,scrollbars=1,resizable=1\');">'.$TEXT_CREATE_COMMAND_GROUP_CONST.'</a>&nbsp;&nbsp;&nbsp;&nbsp;
 						'.$TEXT_MANUALLY_ADD_COMMAND_GROUP_CONST.' 
 						<select name="addNewCommandGroupToMasterDevice" class="input_big">
 							';
@@ -480,11 +480,11 @@ function editMasterDevice($output,$dbADO) {
 		if ($resEventsSelected) {
 			while ($rowEventsSelected = $resEventsSelected->FetchRow()) {
 				$out.="<tr><td>".$rowEventsSelected['EL_Desc'].'
-							<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=editEvent&from=editMasterDevice&EventID='.$rowEventsSelected['PK_Event'].'&deviceID='.$deviceID.'\',\'status=0,resizable=1,width=500,height=250,toolbars=true,scrollbars=1\');">'.$TEXT_EDIT_CONST.'</a>
+							<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=editEvent&from=editMasterDevice&EventID='.$rowEventsSelected['PK_Event'].'&deviceID='.$deviceID.'\',\'status=0,resizable=1,width=500,height=250,toolbar=1,scrollbars=1\');">'.$TEXT_EDIT_CONST.'</a>
 							<br />#'.$rowEventsSelected['PK_Event'].
 				"</td><td><textarea cols='40' rows='5' name='EventDesc_{$rowEventsSelected['PK_Event']}'>".$rowEventsSelected['MDL_EL_Desc']."</textarea></td><td>".'
 							 
-							&nbsp; &nbsp; <a href="javascript:void(0);" onClick="if (confirm(\'Ar you sure you want to delete this event?\')) windowOpen(\'index.php?section=deleteEventFromMasterDevice&from=editMasterDevice&Event='.$rowEventsSelected['PK_Event'].'&deviceID='.$deviceID.'\',\'status=0,resizable=1,width=500,height=250,toolbars=true\');">'.$TEXT_DELETE_CONST.'</a></td></tr>							
+							&nbsp; &nbsp; <a href="javascript:void(0);" onClick="if (confirm(\'Ar you sure you want to delete this event?\')) windowOpen(\'index.php?section=deleteEventFromMasterDevice&from=editMasterDevice&Event='.$rowEventsSelected['PK_Event'].'&deviceID='.$deviceID.'\',\'status=0,resizable=1,width=500,height=250,toolbar=1\');">'.$TEXT_DELETE_CONST.'</a></td></tr>							
 							';
 				$eventsSelectedArray[]=$rowEventsSelected['PK_Event'];
 			}
@@ -518,7 +518,7 @@ function editMasterDevice($output,$dbADO) {
 							</tr>
 							<tr>
 								<td colspan="2">
-									<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=createEvent&from=editMasterDevice&deviceID='.$deviceID.'\',\'status=1,resizable=1,width=500,height=250,toolbars=true\');">'.$TEXT_CREATE_AN_EVENT_CONST.'</a>
+									<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=createEvent&from=editMasterDevice&deviceID='.$deviceID.'\',\'status=1,resizable=1,width=500,height=250,toolbar=1\');">'.$TEXT_CREATE_AN_EVENT_CONST.'</a>
 								</td>
 							</tr>
 						</table>
@@ -567,7 +567,7 @@ function editMasterDevice($output,$dbADO) {
 							<tr>
 								<td align="right">'.$TEXT_COMMENT_CONST.': </td>
 								<td colspan="4"><textarea name="commentPnp_'.$rowDHCP['PK_DHCPDevice'].'" rows="2" style="width:100%">'.$rowDHCP['Description'].'</textarea></td>
-								<td><input type="button" class="button" name="editDHCP" value="'.$TEXT_EDIT_CONST.'" onClick="windowOpen(\'index.php?section=editDHCP&dhcpID='.$rowDHCP['PK_DHCPDevice'].'\',\'width=500,height=400,toolbars=true,resizable=1\');"> <input type="button" class="button" name="delDHCP" value="'.$TEXT_DELETE_CONST.'" onClick="document.editMasterDevice.toDel.value=\''.$rowDHCP['PK_DHCPDevice'].'\';document.editMasterDevice.submit();"></td>
+								<td><input type="button" class="button" name="editDHCP" value="'.$TEXT_EDIT_CONST.'" onClick="windowOpen(\'index.php?section=editDHCP&dhcpID='.$rowDHCP['PK_DHCPDevice'].'\',\'width=500,height=400,toolbar=1,resizable=1\');"> <input type="button" class="button" name="delDHCP" value="'.$TEXT_DELETE_CONST.'" onClick="document.editMasterDevice.toDel.value=\''.$rowDHCP['PK_DHCPDevice'].'\';document.editMasterDevice.submit();"></td>
 							</tr>
 							<tr>
 								<td colspan="6"><hr></td>

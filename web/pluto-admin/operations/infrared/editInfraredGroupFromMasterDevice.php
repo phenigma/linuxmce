@@ -77,8 +77,8 @@ function editInfraredGroupFromMasterDevice($output,$dbADO) {
 							$commandsDisplayed[]=0;
 								if ($res) {
 									while ($row=$res->FetchRow()) {
-										$out.='<tr><td>#'.$row['Description'].' #'.$row['FK_Command'].'</td><td><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=editCommand&from=editInfraredGroupFromMasterDevice&commandID='.$row['FK_Command'].'\',\'width=400,height=300,toolbars=true,resizable=1,scrollbars=1\');">Edit</a> ';
-										$out.='<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=deleteInfraredCommandFromMasterDevice&from=editInfraredGroupFromMasterDevice&infraredGroupID='.$infraredGroupID.'&commandID='.$row['FK_Command'].'\',\'width=100,height=100,toolbars=true,resizable=1,scrollbars=1\');">Delete</a>';
+										$out.='<tr><td>#'.$row['Description'].' #'.$row['FK_Command'].'</td><td><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=editCommand&from=editInfraredGroupFromMasterDevice&commandID='.$row['FK_Command'].'\',\'width=400,height=300,toolbar=1,resizable=1,scrollbars=1\');">Edit</a> ';
+										$out.='<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=deleteInfraredCommandFromMasterDevice&from=editInfraredGroupFromMasterDevice&infraredGroupID='.$infraredGroupID.'&commandID='.$row['FK_Command'].'\',\'width=100,height=100,toolbar=1,resizable=1,scrollbars=1\');">Delete</a>';
 										$out.='</td></tr>';
 										$commandsDisplayed[]=$row['FK_Command'];
 									}
@@ -97,7 +97,7 @@ function editInfraredGroupFromMasterDevice($output,$dbADO) {
 					$out.='
 							</table>
 						<br />Add this command to group: <select name="addNewCommandToDeviceCommandGroup">'.$otherCommands.'</select><input type="submit" class="button" name="submitX" value="Add">';
-						$out.='<br /><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addCommand&from=editInfraredGroupFromMasterDevice\',\'width=400,height=300,toolbars=true,resizable=1,scrollbars=1\');">Create new command</a>';
+						$out.='<br /><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addCommand&from=editInfraredGroupFromMasterDevice\',\'width=400,height=300,toolbar=1,resizable=1,scrollbars=1\');">Create new command</a>';
 						$out.='<input type="hidden" name="displayedCommands" value="'.(join(",",$commandsDisplayed)).'">
 						</fieldset>
 					</td>

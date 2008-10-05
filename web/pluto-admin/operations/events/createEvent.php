@@ -43,7 +43,7 @@ function createEvent($output,$dbADO) {
 				</tr>
 			</table>
 		</form>
-		<br />'.$TEXT_IF_EVENT_CATEGORY_IS_NOT_IN_THE_LIST_CONST.', <a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=createEventCategory&from=createEvent\',\'status=1,resizable=1,width=500,height=250,toolbars=true\');">'.$TEXT_CLICK_HERE_TO_CREATE_AN_EVENT_LIST_CATEGORY_CONST.'</a>
+		<br />'.$TEXT_IF_EVENT_CATEGORY_IS_NOT_IN_THE_LIST_CONST.', <a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=createEventCategory&from=createEvent\',\'status=1,resizable=1,width=500,height=250,toolbar=1\');">'.$TEXT_CLICK_HERE_TO_CREATE_AN_EVENT_LIST_CATEGORY_CONST.'</a>
 		<script>
 		 	var frmvalidator = new formValidator("createEvent");
 			frmvalidator.addValidation("EventCategory","dontselect=0","'.$TEXT_PLEASE_SELECT_A_CATEGORY_CONST.'");

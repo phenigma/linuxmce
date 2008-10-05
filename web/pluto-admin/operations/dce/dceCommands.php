@@ -69,7 +69,7 @@ function dceCommands($output,$dbADO) {
 		$out.=formatOutput($resRootCC,$dbADO,0,$templatesUsedByCommand,$templateNamesUsedByCommand,$devicesUsedByCommand,$deviceNamesUsedByCommand);
 		$out.='
 			<tr>
-				<td align="left" colspan="4"><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addCommandCategory&from=dceCommands\',\'width=400,height=300,toolbars=true,resizable=1,scrollbars=1\');">'.$TEXT_ADD_COMMAND_CATEGORY_CONST.'</a></td>
+				<td align="left" colspan="4"><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addCommandCategory&from=dceCommands\',\'width=400,height=300,toolbar=1,resizable=1,scrollbars=1\');">'.$TEXT_ADD_COMMAND_CATEGORY_CONST.'</a></td>
 			</tr>
 		</table>
 		</form>';
@@ -119,8 +119,8 @@ function formatOutput($resRootCC,$dbADO,$level,$templatesUsedByCommand,$template
 
 		$out.='
 			<tr bgcolor="#EEEEEE">
-				<td colspan="3">'.$indent.' <a href="#" onClick="windowOpen(\'index.php?section=editCommandCategory&from=dceCommands&ccID='.$rowRootCC['PK_CommandCategory'].'\',\'width=400,height=300,toolbars=true,resizable=1,scrollbars=1\');"><B>'.$rowRootCC['Description'].'</B></a>
-					<a href="#" onClick="windowOpen(\'index.php?section=addCommand&from=dceCommands&commandCateg='.$rowRootCC['PK_CommandCategory'].'\',\'width=400,height=300,toolbars=true,resizable=1,scrollbars=1\');">[ Add command ]</a>
+				<td colspan="3">'.$indent.' <a href="#" onClick="windowOpen(\'index.php?section=editCommandCategory&from=dceCommands&ccID='.$rowRootCC['PK_CommandCategory'].'\',\'width=400,height=300,toolbar=1,resizable=1,scrollbars=1\');"><B>'.$rowRootCC['Description'].'</B></a>
+					<a href="#" onClick="windowOpen(\'index.php?section=addCommand&from=dceCommands&commandCateg='.$rowRootCC['PK_CommandCategory'].'\',\'width=400,height=300,toolbar=1,resizable=1,scrollbars=1\');">[ Add command ]</a>
 				</td>
 				<td align="center"><B>'.$TEXT_DEVICE_TEMPLATES_CONST.'</B></td>
 				<td align="center"><B>'.$TEXT_DEVICES_CONST.'</B></td>
@@ -149,7 +149,7 @@ function formatOutput($resRootCC,$dbADO,$level,$templatesUsedByCommand,$template
 				<tr>
 					<td>&nbsp;</td>
 					<td bgcolor="'.(($cmdPos%2==0)?'#FFFFFF':'#EBEFF9').'">'.$rowCommands['PK_Command'].'</td>
-					<td bgcolor="'.(($cmdPos%2==0)?'#FFFFFF':'#EBEFF9').'"><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=editCommand&from=dceCommands&commandID='.$rowCommands['PK_Command'].'\',\'width=400,height=300,toolbars=true,resizable=1,scrollbars=1\');">'.$rowCommands['Description'].'<a></td>
+					<td bgcolor="'.(($cmdPos%2==0)?'#FFFFFF':'#EBEFF9').'"><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=editCommand&from=dceCommands&commandID='.$rowCommands['PK_Command'].'\',\'width=400,height=300,toolbar=1,resizable=1,scrollbars=1\');">'.$rowCommands['Description'].'<a></td>
 					<td bgcolor="'.(($cmdPos%2==0)?'#FFFFFF':'#EBEFF9').'">'.join(', ',$dtLinks).'</td>
 					<td bgcolor="'.(($cmdPos%2==0)?'#FFFFFF':'#EBEFF9').'">'.join(', ',$devicesLinks).'</td>
 				</tr>';

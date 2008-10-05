@@ -149,7 +149,7 @@ function editControlledViaCategoryToMasterDevice($output,$dbADO) {
 									
 									$out.='<td valign="top" align="center"> <B>Pipe</B> '.@$pipesNames[$rowSelectedPipesUsed['FK_Pipe']].'<input type="hidden" name="pipe_'.$rowSelectedPipesUsed['FK_To'].'" value="'.$rowSelectedPipesUsed['FK_Pipe'].'"></td>';
 									$out.='<td align="center" valign="top"> <B>Flip In/Out:</B> <input type="checkbox" '.($rowSelectedPipesUsed['ToChild']==1?" checked='checked'":'').' name="toChild_'.$rowSelectedPipesUsed['FK_To'].'_'.$rowSelectedPipesUsed['FK_Pipe'].'" value="1"></td>';
-									$out.='<td><input value="Delete" type="button" class="button" onClick="if (confirm(\'Are you sure you want to delete this pipe?\')) {windowOpen(\'index.php?section=deletePipeFromDeviceTemplateControlledViaCategory&objID='.$rowSelectedPipesUsed['FK_DeviceTemplate_DeviceCategory_ControlledVia'].'&from=editControlledViaCategoryToMasterDevice&pipe='.$rowSelectedPipesUsed['FK_Pipe'].'\',\'width=100,height=100,toolbars=true,scrollbars=1,resizable=1\');}"></td>';
+									$out.='<td><input value="Delete" type="button" class="button" onClick="if (confirm(\'Are you sure you want to delete this pipe?\')) {windowOpen(\'index.php?section=deletePipeFromDeviceTemplateControlledViaCategory&objID='.$rowSelectedPipesUsed['FK_DeviceTemplate_DeviceCategory_ControlledVia'].'&from=editControlledViaCategoryToMasterDevice&pipe='.$rowSelectedPipesUsed['FK_Pipe'].'\',\'width=100,height=100,toolbar=1,scrollbars=1,resizable=1\');}"></td>';
 									
 									$out.='</tr>';
 								}

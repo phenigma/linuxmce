@@ -22,7 +22,7 @@ function packagesList($output,$dbADO) {
 			}
 		</script>
 	';
-	$out.="&nbsp; <a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=addPackageToMasterDevice&from=packagesList','status=0,resizable=1,width=700,height=850,toolbars=true,scrollbars=1');\">$TEXT_CREATE_NEW_PACKAGE_CONST</a><br><br>";
+	$out.="&nbsp; <a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=addPackageToMasterDevice&from=packagesList','status=0,resizable=1,width=700,height=850,toolbar=1,scrollbars=1');\">$TEXT_CREATE_NEW_PACKAGE_CONST</a><br><br>";
 	$out.='
 	<form action="index.php" method="get" name="packagesList">
 	<input type="hidden" name="section" value="packagesList">
@@ -92,7 +92,7 @@ function packagesList($output,$dbADO) {
 		$out.='
 		<tr>
 			<td>'.$row['PK_Package'].'</td>
-			<td><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addPackageToMasterDevice&from=packagesList&PK_Package='.$row['PK_Package'].'\',\'status=0,resizable=1,width=700,height=700,toolbars=true,scrollbars=1\');">'.$row['Description'].'</a>';
+			<td><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addPackageToMasterDevice&from=packagesList&PK_Package='.$row['PK_Package'].'\',\'status=0,resizable=1,width=700,height=700,toolbar=1,scrollbars=1\');">'.$row['Description'].'</a>';
 		if($showDependancy==1){
 			$out.='
             <td><table border="1">'.$deps.'</table></td>
@@ -103,7 +103,7 @@ function packagesList($output,$dbADO) {
 	}
 	$rs->Close();
 	$out.='</table>';
-	$out.="<br><br>&nbsp; <a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=addPackageToMasterDevice&from=packagesList','status=0,resizable=1,width=700,height=850,toolbars=true,scrollbars=1');\">$TEXT_CREATE_NEW_PACKAGE_CONST</a>";
+	$out.="<br><br>&nbsp; <a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=addPackageToMasterDevice&from=packagesList','status=0,resizable=1,width=700,height=850,toolbar=1,scrollbars=1');\">$TEXT_CREATE_NEW_PACKAGE_CONST</a>";
 	
 	$output->setMenuTitle($TEXT_ADVANCED_CONST.' |');
 	$output->setPageTitle($TEXT_PACKAGES_CONST);

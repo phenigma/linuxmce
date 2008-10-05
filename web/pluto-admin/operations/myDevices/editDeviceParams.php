@@ -185,7 +185,7 @@ $manualyConfigureArray=array(
 	<tr>
 		<td>'.$TEXT_DEVICE_TEMPLATE_CONST.'</td>
 		<td width="230" bgcolor="#B9B9B9"><B>'.$mdlDescription.' #'.$DeviceTemplate.'</B></td>
-		<td><input value="'.$TEXT_VIEW_CONST.'" type="button" class="button" name="controlGoToMDL" onClick="windowOpen(\'index.php?section=editMasterDevice&model='.$DeviceTemplate.'&from=editDeviceParams\',\'width=1024,height=768,toolbars=true,scrollbars=1,resizable=1\');"> <input value="'.$TEXT_HELP_CONST.'" type="button" class="button" name="help" onClick="window.open(\''.$wikiHost.'/index.php/'.$wikiLink.'\');">'.$manufHomeLink.' '.$internalLink.'</td>
+		<td><input value="'.$TEXT_VIEW_CONST.'" type="button" class="button" name="controlGoToMDL" onClick="windowOpen(\'index.php?section=editMasterDevice&model='.$DeviceTemplate.'&from=editDeviceParams\',\'width=1024,height=768,toolbar=1,scrollbars=1,resizable=1\');"> <input value="'.$TEXT_HELP_CONST.'" type="button" class="button" name="help" onClick="window.open(\''.$wikiHost.'/index.php/'.$wikiLink.'\');">'.$manufHomeLink.' '.$internalLink.'</td>
 	</tr>
 	<tr>
 		<td>'.$TEXT_DEVICE_TEMPLATE_COMMENTS_CONST.'</td>
@@ -368,7 +368,7 @@ $manualyConfigureArray=array(
 			}
 			
 			$out.='<td> Pipe '.$selectPipesTxt.'</td>';
-			$out.='<td><input value="'.$TEXT_DELETE_CONST.'" type="button" class="button" onClick="if (confirm(\''.$TEXT_CONFIRM_DELETE_PIPE_CONST.'\')) {windowOpen(\'index.php?section=deleteDevicePipeFromDevice&deviceFromID='.$rowSelectedPipesUsed['FK_Device_From'].'&deviceToID='.$rowSelectedPipesUsed['FK_Device_To'].'&pipe='.$rowSelectedPipesUsed['FK_Pipe'].'&from=editDeviceParams\',\'width=100,height=100,toolbars=true,scrollbars=1,resizable=1\');}"></td>';
+			$out.='<td><input value="'.$TEXT_DELETE_CONST.'" type="button" class="button" onClick="if (confirm(\''.$TEXT_CONFIRM_DELETE_PIPE_CONST.'\')) {windowOpen(\'index.php?section=deleteDevicePipeFromDevice&deviceFromID='.$rowSelectedPipesUsed['FK_Device_From'].'&deviceToID='.$rowSelectedPipesUsed['FK_Device_To'].'&pipe='.$rowSelectedPipesUsed['FK_Pipe'].'&from=editDeviceParams\',\'width=100,height=100,toolbar=1,scrollbars=1,resizable=1\');}"></td>';
 			
 			$out.='</tr>';
 		}
@@ -434,7 +434,7 @@ $manualyConfigureArray=array(
 			$out.="<tr>
 					<td>".$rowDevicesGroup['Description']."</td>					
 					<td>
-						<input value='Delete' type='button' onClick=\"if (confirm('$TEXT_CONFIRM_DELETE_DEVICE_FROM_GROUP_CONST')) {windowOpen('index.php?section=deleteDeviceFromDeviceGroup&deviceID=$deviceID&deviceGroupID=".$rowDevicesGroup['PK_DeviceGroup']."&from=editDeviceParams','width=200,height=200,toolbars=true,scrollbars=1,resizable=1');}\">
+						<input value='Delete' type='button' onClick=\"if (confirm('$TEXT_CONFIRM_DELETE_DEVICE_FROM_GROUP_CONST')) {windowOpen('index.php?section=deleteDeviceFromDeviceGroup&deviceID=$deviceID&deviceGroupID=".$rowDevicesGroup['PK_DeviceGroup']."&from=editDeviceParams','width=200,height=200,toolbar=1,scrollbars=1,resizable=1');}\">
 					</td>
 				  </tr>";
 			$deviceGroups[]=$rowDevicesGroup['PK_DeviceGroup'];
@@ -453,7 +453,7 @@ $manualyConfigureArray=array(
 	$out.='
 	
 	<tr><td><select name="addNewGroup">'.$remainingGroups.'</select></td><td><input type="submit" class="button"   name="submitX" value="Add"></td></tr>		
-	<tr><td><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=createDeviceGroup&deviceID='.$deviceID.'&from=editDeviceParams\',\'width=400,height=400,toolbars=true,scrollbars=1,resizable=1\');">Create new device group</a></td></tr>
+	<tr><td><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=createDeviceGroup&deviceID='.$deviceID.'&from=editDeviceParams\',\'width=400,height=400,toolbar=1,scrollbars=1,resizable=1\');">Create new device group</a></td></tr>
 	
 		<tr><td colspan="2"><input type="submit" class="button" name="submitX" value="'.$TEXT_SAVE_CONST.'"  ></td></tr>
 	</table>
@@ -490,7 +490,7 @@ $manualyConfigureArray=array(
 						<input type=\"text\" name=\"relatedDeviceValue_".$rowRelatedDevice['FK_Device_Related']."\" value=\"".stripslashes($rowRelatedDevice['Value'])."\">
 					</td>
 					<td>
-						<input value='Delete' class='button' type='button' onClick=\"if (confirm('$TEXT_CONFIRM_DELETE_DEVICE_CONST')) {windowOpen('index.php?section=deleteDeviceRelatedFromDeviceParams&deviceID=$deviceID&relatedID=".$rowRelatedDevice['FK_Device_Related']."&from=editDeviceParams','width=200,height=200,toolbars=true,scrollbars=1,resizable=1');}\">
+						<input value='Delete' class='button' type='button' onClick=\"if (confirm('$TEXT_CONFIRM_DELETE_DEVICE_CONST')) {windowOpen('index.php?section=deleteDeviceRelatedFromDeviceParams&deviceID=$deviceID&relatedID=".$rowRelatedDevice['FK_Device_Related']."&from=editDeviceParams','width=200,height=200,toolbar=1,scrollbars=1,resizable=1');}\">
 					</td>
 				  </tr>";
 			$deviceRelatedData[]=$rowRelatedDevice['FK_Device_Related'];

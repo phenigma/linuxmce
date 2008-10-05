@@ -89,9 +89,9 @@ function users($output,$dbADO) {
 								</tr>
 								<tr>
 									<td align="center">
-										<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=userChangePassword&from=users&userID='.$rowUser['PK_Users'].'\',\'width=400,height=400,toolbars=true,resizable=yes\');">'.$TEXT_USER_CHANGE_PASSWORD_CONST.'</a><br>
-										<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=userChangePIN&from=users&userID='.$rowUser['PK_Users'].'\',\'width=400,height=200,toolbars=true,resizable=yes\');">'.$TEXT_USER_CHANGE_PIN_CONST.'</a><br>
-										<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=userPic&from=users&userID='.$rowUser['PK_Users'].'\',\'width=600,height=400,toolbars=true,resizable=1,scrollbars=1\');">'.$TEXT_UPLOAD_PICTURE_CONST.'</a><br>
+										<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=userChangePassword&from=users&userID='.$rowUser['PK_Users'].'\',\'width=400,height=400,toolbar=1,resizable=1\');">'.$TEXT_USER_CHANGE_PASSWORD_CONST.'</a><br>
+										<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=userChangePIN&from=users&userID='.$rowUser['PK_Users'].'\',\'width=400,height=200,toolbar=1,resizable=1\');">'.$TEXT_USER_CHANGE_PIN_CONST.'</a><br>
+										<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=userPic&from=users&userID='.$rowUser['PK_Users'].'\',\'width=600,height=400,toolbar=1,resizable=1,scrollbars=1\');">'.$TEXT_UPLOAD_PICTURE_CONST.'</a><br>
 										<a href="javascript:if(confirm(\''.$TEXT_DELETE_USER_CONFIRMATION_CONST.'\'))self.location=\'index.php?section=users&action=delete&did='.$rowUser['PK_Users'].'\'">'.$TEXT_DELETE_USER_CONST.'</a>
 									</td>
 								</tr>			
@@ -200,7 +200,7 @@ function users($output,$dbADO) {
 				<td colspan="9"><span class="err">'.stripslashes(@$_REQUEST['error']).'</span></td>
 			</tr>
 			<tr>
-				<td colspan="9"><p><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=createUser&from=users\',\'width=600,height=650,toolbars=true, resizable=1\');">'.$TEXT_CREATE_NEW_USER_CONST.'</a><p>
+				<td colspan="9"><p><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=createUser&from=users\',\'width=600,height=650,toolbar=1, resizable=1\');">'.$TEXT_CREATE_NEW_USER_CONST.'</a><p>
 				</td>
 			</tr>
 			<tr><td colspan="2"><input type="submit" class="button" name="submitX" value="'.$TEXT_SAVE_CONST.'"  > <input type="reset" class="button" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'"></td></tr>

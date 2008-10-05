@@ -185,7 +185,7 @@ function addPackageToMasterDevice($output,$dbADO) {
 					while($rowPackagesDependsOn=$resPackagesDependsOn->FetchRow()){
 						$displayedPackages[]=$rowPackagesDependsOn['FK_Package_DependsOn'];
 						$out.='<tr>
-									<td><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addPackageToMasterDevice&from=packagesList&PK_Package='.$rowPackagesDependsOn['PK_Package'].'\',\'status=0,resizable=1,width=700,height=700,toolbars=true,scrollbars=1\');">'.$rowPackagesDependsOn['Description'].'</a>
+									<td><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addPackageToMasterDevice&from=packagesList&PK_Package='.$rowPackagesDependsOn['PK_Package'].'\',\'status=0,resizable=1,width=700,height=700,toolbar=1,scrollbars=1\');">'.$rowPackagesDependsOn['Description'].'</a>
 <!--									<td>'.$rowPackagesDependsOn['Description'].'</td> -->
 									<td><input type="checkbox" name="OnlyToBuild_'.$rowPackagesDependsOn['PK_Package'].'" '.(($rowPackagesDependsOn['OnlyToBuild']==1)?'checked':'').' onClick="javascript:this.form.submit();" value="1"> '.$TEXT_BUILDING_FROM_SOURCE_CONST.'</td>
 									<td><input type="submit" class="button" name="del_'.$rowPackagesDependsOn['PK_Package'].'" value="'.$TEXT_DELETE_CONST.'"></td>
@@ -353,13 +353,13 @@ function addPackageToMasterDevice($output,$dbADO) {
 						}
 						$out.='	</select></td>
 							<td><textarea name="pdfMakeCommand_'.$rowDirectoryFiles['PK_Package_Directory_File'].'" rows="1">'.$rowDirectoryFiles['MakeCommand'].'</textarea></td>
-							<td align="right" bgcolor="#F0F3F8"><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=editDirectoryFile&from=addPackageToMasterDevice&deviceID='.$deviceID.'&Package_Directory_File='.$rowDirectoryFiles['PK_Package_Directory_File'].'\',\'status=0,resizable=1,width=400,height=350,toolbars=true\');">'.$TEXT_EDIT_CONST.'</a> <a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=deleteDirectoryFile&from=addPackageToMasterDevice&deviceID='.$deviceID.'&Package_Directory='.$row['PK_Package_Directory'].'&oldFile='.$rowDirectoryFiles['File'].'\',\'status=0,resizable=1,width=100,height=100,toolbars=true\');">'.$TEXT_DELETE_CONST.'</a></td>		
+							<td align="right" bgcolor="#F0F3F8"><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=editDirectoryFile&from=addPackageToMasterDevice&deviceID='.$deviceID.'&Package_Directory_File='.$rowDirectoryFiles['PK_Package_Directory_File'].'\',\'status=0,resizable=1,width=400,height=350,toolbar=1\');">'.$TEXT_EDIT_CONST.'</a> <a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=deleteDirectoryFile&from=addPackageToMasterDevice&deviceID='.$deviceID.'&Package_Directory='.$row['PK_Package_Directory'].'&oldFile='.$rowDirectoryFiles['File'].'\',\'status=0,resizable=1,width=100,height=100,toolbar=1\');">'.$TEXT_DELETE_CONST.'</a></td>		
 						</tr>';
 					}
 	
 					$out.='
 						<tr>
-							<td colspan="4"><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addDirectoryFile&from=addPackageToMasterDevice&deviceID='.$deviceID.'&Package_Directory='.$row['PK_Package_Directory'].'\',\'status=0,resizable=1,width=500,height=350,toolbars=true\');">'.$TEXT_ADD_FILE_CONST.'</a></td>
+							<td colspan="4"><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addDirectoryFile&from=addPackageToMasterDevice&deviceID='.$deviceID.'&Package_Directory='.$row['PK_Package_Directory'].'\',\'status=0,resizable=1,width=500,height=350,toolbar=1\');">'.$TEXT_ADD_FILE_CONST.'</a></td>
 						</tr>
 					</table>';
 					$out.='</fieldset>';
@@ -377,7 +377,7 @@ function addPackageToMasterDevice($output,$dbADO) {
 							}
 							$rs->Close();
 						$out.='
-							</select> <input type="submit" class="button" name="submitX" value="'.$TEXT_SELECT_CONST.'"> <a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addDirectory&from=addPackageToMasterDevice&deviceID='.$deviceID.'\',\'status=0,resizable=1,width=500,height=250,toolbars=true\');">'.$TEXT_ADD_DIRECTORY_CONST.'</a>';
+							</select> <input type="submit" class="button" name="submitX" value="'.$TEXT_SELECT_CONST.'"> <a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addDirectory&from=addPackageToMasterDevice&deviceID='.$deviceID.'\',\'status=0,resizable=1,width=500,height=250,toolbar=1\');">'.$TEXT_ADD_DIRECTORY_CONST.'</a>';
 						$out.='</fieldset></td>
 					</tr>
 					<input type="hidden" name="displayedPackageDirectory" value="'.join(",",$displayedPackageDirectory).'">

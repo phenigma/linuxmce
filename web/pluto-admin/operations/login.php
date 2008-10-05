@@ -34,7 +34,7 @@ function login($output,$dbADO) {
 	if(count($users)==0){
 		$loginFormBig.='
 		<tr> 
-	      <td colspan="2" align="center"><span class="err">'.$TEXT_NO_USERS_CONST.'</span><br><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=createUser&from=login\',\'width=600,height=650,toolbars=true, resizable=1\');">'.$TEXT_CREATE_NEW_ADMIN_USER_CONST.'</a><br><br><br></td>
+	      <td colspan="2" align="center"><span class="err">'.$TEXT_NO_USERS_CONST.'</span><br><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=createUser&from=login\',\'width=600,height=650,toolbar=1, resizable=1\');">'.$TEXT_CREATE_NEW_ADMIN_USER_CONST.'</a><br><br><br></td>
 	    </tr>';
 	}else{
 		$loginFormBig.='		

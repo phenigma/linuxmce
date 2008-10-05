@@ -333,7 +333,7 @@ function editPlaylist($output,$mediadbADO,$dbADO) {
 											<td><input type="checkbox" name="private" value="1" '.$privateChecked.'></td>
 										</tr>
 										<tr>
-											<td align="center" colspan="2"><input type="submit" class="button" name="update" value="'.$TEXT_UPDATE_CONST.'"><input type="submit" class="button" name="export" value="Export Playlist" onClick="windowOpen(\'index.php?section=exportPlaylist&playlistID='.$playlistID.'\',\'width=400,height=450,toolbars=false,scrollbars=0,resizable=1\');" '.'</td>
+											<td align="center" colspan="2"><input type="submit" class="button" name="update" value="'.$TEXT_UPDATE_CONST.'"><input type="submit" class="button" name="export" value="Export Playlist" onClick="windowOpen(\'index.php?section=exportPlaylist&playlistID='.$playlistID.'\',\'width=400,height=450,toolbar=0,scrollbars=0,resizable=1\');" '.'</td>
 										</tr>				
 									</table>
 					</TD>

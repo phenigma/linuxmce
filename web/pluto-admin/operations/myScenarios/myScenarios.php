@@ -32,7 +32,7 @@ if ($action == 'showBasicInfo') {
 					window.open(locationA,\'\',attributes);
 				}
 	</script>
-	<input type="button" class="button" name="addCommandGroup" value="'.$TEXT_ADD_MY_SCENARIO_CONST.'" onClick="windowOpen(\'index.php?section=addCommandGroupAsScenario&from=myScenarios&arrayID='.$arrayID.'\',\'width=600,height=600,toolbars=true,resizable=1,scrollbars=1\');"">
+	<input type="button" class="button" name="addCommandGroup" value="'.$TEXT_ADD_MY_SCENARIO_CONST.'" onClick="windowOpen(\'index.php?section=addCommandGroupAsScenario&from=myScenarios&arrayID='.$arrayID.'\',\'width=600,height=600,toolbar=1,resizable=1,scrollbars=1\');"">
 	';
 							
 }

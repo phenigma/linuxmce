@@ -40,7 +40,7 @@ function createEvent($output,$dbADO) {
 				</tr>
 			</table>
 		</form>
-		<br />If the events list category is not in the list, <a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=createEventCategory&from=createEvent\',\'status=1,resizable=1,width=500,height=250,toolbars=true\');">click here to create an Event List Category</a>
+		<br />If the events list category is not in the list, <a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=createEventCategory&from=createEvent\',\'status=1,resizable=1,width=500,height=250,toolbar=1\');">click here to create an Event List Category</a>
 		<script>
 		 	var frmvalidator = new formValidator("createEvent");
 			frmvalidator.addValidation("EventCategory","dontselect=0","Please select a category!");

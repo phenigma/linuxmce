@@ -170,7 +170,7 @@ function avWizard($output,$dbADO) {
 		</table>
 	</div>
 	<div id="content" style="display:none;">
-		<a href="javascript:windowOpen(\'index.php?section=connectionWizard\',\'width=1024,height=760,toolbars=true,scrollbars=1,resizable=1\');">'.$TEXT_CONNECTION_WIZARD_CONST.'</a><div align="center"><input type="checkbox" name="shareIRCodes" value="1" '.((@$sharedWithOthers>0)?'checked':'').' onClick="document.avWizard.submit();"> '.$TEXT_SHARE_CODES_CONST.'</div>
+		<a href="javascript:windowOpen(\'index.php?section=connectionWizard\',\'width=1024,height=760,toolbar=1,scrollbars=1,resizable=1\');">'.$TEXT_CONNECTION_WIZARD_CONST.'</a><div align="center"><input type="checkbox" name="shareIRCodes" value="1" '.((@$sharedWithOthers>0)?'checked':'').' onClick="document.avWizard.submit();"> '.$TEXT_SHARE_CODES_CONST.'</div>
 		
 		<input type="hidden" name="coreID" value="'.$coreID.'">
 		<input type="hidden" name="oldShareIRCodes" value="'.((@$sharedWithOthers>0)?'1':'0').'">
@@ -249,7 +249,7 @@ function avWizard($output,$dbADO) {
 				$buttons='
 						<input value="'.$TEXT_HELP_CONST.'" type="button" class="button_fixed" name="help" onClick="window.open(\''.$wikiHost.'index.php/Documentation_by_Device_Templates#'.wikiLink($rowD['TemplateName']).'\');"><br>
 						<input type="button" class="button_fixed" name="edit_'.$rowD['PK_Device'].'" value="'.$TEXT_ADVANCED_CONST.'"  onClick="self.location=\'index.php?section=editDeviceParams&deviceID='.$rowD['PK_Device'].'\';"><br>
-						<input type="button" class="button_fixed" name="btn" value="'.$TEXT_AV_PROPERTIES_CONST.'" onClick="windowOpen(\'index.php?section=irCodes&dtID='.$rowD['FK_DeviceTemplate'].'&deviceID='.$rowD['PK_Device'].'&from=avWizard\',\'width=1024,height=768,toolbars=true,scrollbars=1,resizable=1\');"><br>
+						<input type="button" class="button_fixed" name="btn" value="'.$TEXT_AV_PROPERTIES_CONST.'" onClick="windowOpen(\'index.php?section=irCodes&dtID='.$rowD['FK_DeviceTemplate'].'&deviceID='.$rowD['PK_Device'].'&from=avWizard\',\'width=1024,height=768,toolbar=1,scrollbars=1,resizable=1\');"><br>
 						<input type="button" class="button_fixed" name="resync_'.$rowD['PK_Device'].'" value="'.$TEXT_RESYNC_CONST.'"  onclick="self.location=\'index.php?section=resyncCodes&from=avWizard&dtID='.$rowD['FK_DeviceTemplate'].'\';"><br>
 						<input type="submit" class="button_fixed" name="delete_'.$rowD['PK_Device'].'" value="'.$TEXT_DELETE_CONST.'"  onclick="if(confirm(\''.$TEXT_DELETE_DEVICE_CONFIRMATION_CONST.'\'))return true;else return false;">
 				</td>';
@@ -258,7 +258,7 @@ function avWizard($output,$dbADO) {
 
 				$controlledViaLink='
 				<input type="hidden" name="controlledBy_'.$rowD['PK_Device'].'" value="'.$rowD['FK_Device_ControlledVia'].'">		
-				<a href="javascript:windowOpen(\'index.php?section=editDeviceControlledVia&deviceID='.$rowD['PK_Device'].'&from=avWizard\',\'width=600,height=300,toolbars=true,scrollbars=1,resizable=1\');" title="'.$TEXT_CLICK_TO_CHANGE_CONST.'">'.((is_null($rowD['FK_Device_ControlledVia']))?$TEXT_EDIT_CONST:$rowD['PDescription']).'</a>';
+				<a href="javascript:windowOpen(\'index.php?section=editDeviceControlledVia&deviceID='.$rowD['PK_Device'].'&from=avWizard\',\'width=600,height=300,toolbar=1,scrollbars=1,resizable=1\');" title="'.$TEXT_CLICK_TO_CHANGE_CONST.'">'.((is_null($rowD['FK_Device_ControlledVia']))?$TEXT_EDIT_CONST:$rowD['PDescription']).'</a>';
 				$devicePipes=getPipes($rowD['PK_Device'],$dbADO);
 	
 				unset($GLOBALS['DeviceIDControlledVia']);
@@ -273,7 +273,7 @@ function avWizard($output,$dbADO) {
 						<td class="alternate_back">A: '.@$devicePipes['1']['output'].'</td>
 						<td class="alternate_back">'.@$devicePipes['1']['to'].'</td>
 						<td class="alternate_back">'.@$devicePipes['1']['input'].'</td>
-						<td class="alternate_back" rowspan="2"><a href="javascript:windowOpen(\'index.php?section=editPipes&deviceID='.$rowD['PK_Device'].'&from=avWizard\',\'width=600,height=300,toolbars=true,scrollbars=1,resizable=1\');">Edit</a></td>
+						<td class="alternate_back" rowspan="2"><a href="javascript:windowOpen(\'index.php?section=editPipes&deviceID='.$rowD['PK_Device'].'&from=avWizard\',\'width=600,height=300,toolbar=1,scrollbars=1,resizable=1\');">Edit</a></td>
 						<td rowspan="2" valign="top" align="right">'.formatDeviceData($rowD['PK_Device'],$deviceDataArray[$rowD['PK_Device']],$dbADO,$rowD['IsIPBased'],0,1,'textarea').'</td>
 						<td class="alternate_back" align="center" rowspan="2" valign="center">'.$buttons.'</td>
 					</tr>
@@ -304,7 +304,7 @@ function avWizard($output,$dbADO) {
 						<td class="alternate_back">A: '.@$devicePipes['1']['output'].'</td>
 						<td class="alternate_back">'.@$devicePipes['1']['to'].'</td>
 						<td class="alternate_back">'.@$devicePipes['1']['input'].'</td>
-						<td class="alternate_back" rowspan="2"><a href="javascript:windowOpen(\'index.php?section=editPipes&deviceID='.$rowD['PK_Device'].'&from=avWizard\',\'width=600,height=300,toolbars=true,scrollbars=1,resizable=1\');">'.$TEXT_EDIT_CONST.'</a></td>
+						<td class="alternate_back" rowspan="2"><a href="javascript:windowOpen(\'index.php?section=editPipes&deviceID='.$rowD['PK_Device'].'&from=avWizard\',\'width=600,height=300,toolbar=1,scrollbars=1,resizable=1\');">'.$TEXT_EDIT_CONST.'</a></td>
 						<td valign="top" align="center">- '.$TEXT_EMBEDED_DEVICE_CONST.' -</td>
 						<td class="alternate_back" align="center" rowspan="2" valign="top">&nbsp;</td>
 					</tr>
@@ -331,7 +331,7 @@ function avWizard($output,$dbADO) {
 					<td colspan="8">* '.$TEXT_FLOORPLAN_NOTE_CONST.'</td>
 				</tr>
 				<tr>
-					<td colspan="8" align="center"><input type="button" class="button_fixed" name="button" value="'.$TEXT_ADD_DEVICE_CONST.'" onClick="document.avWizard.action.value=\'externalSubmit\';document.avWizard.submit();windowOpen(\'index.php?section=deviceTemplatePicker&allowAdd=1&from=avWizard&categoryID='.$deviceCategory.'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"> '.@$updateBtns.'</td>
+					<td colspan="8" align="center"><input type="button" class="button_fixed" name="button" value="'.$TEXT_ADD_DEVICE_CONST.'" onClick="document.avWizard.action.value=\'externalSubmit\';document.avWizard.submit();windowOpen(\'index.php?section=deviceTemplatePicker&allowAdd=1&from=avWizard&categoryID='.$deviceCategory.'\',\'width=800,height=600,toolbar=1,scrollbars=1,resizable=1\');"> '.@$updateBtns.'</td>
 				</tr>
 			</table>
 			<input type="hidden" name="DeviceDataToDisplay" value="'.join(',',$GLOBALS['DeviceDataToDisplay']).'">

@@ -106,8 +106,8 @@ function addPackage($output,$dbADO) {
 					$out.='
 						</select>';
 					if($row['FK_RepositorySource']!=0)
-						$out.=' <a href="javascript:void(0);" title="Edit Repository Source" onClick="windowOpen(\'index.php?section=addRepositorySource&from=addPackage&RepositorySource='.$row['FK_RepositorySource'].'\',\'status=0,resizable=1,width=500,height=350,toolbars=true\');">Edit</a>';
-					$out.=' <a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=deletePackageDistro&from=addPackage&Package='.$PK_Package.'&Distro='.$row['FK_Distro'].'\',\'status=0,resizable=1,width=500,height=350,toolbars=true\');">Delete</a>';
+						$out.=' <a href="javascript:void(0);" title="Edit Repository Source" onClick="windowOpen(\'index.php?section=addRepositorySource&from=addPackage&RepositorySource='.$row['FK_RepositorySource'].'\',\'status=0,resizable=1,width=500,height=350,toolbar=1\');">Edit</a>';
+					$out.=' <a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=deletePackageDistro&from=addPackage&Package='.$PK_Package.'&Distro='.$row['FK_Distro'].'\',\'status=0,resizable=1,width=500,height=350,toolbar=1\');">Delete</a>';
 					$out.='
 						</td>
 					</tr>';
@@ -131,8 +131,8 @@ function addPackage($output,$dbADO) {
 						$rs->Close();
 					$out.='
 						</select>
-					<input type="submit" class="button" name="submitX" value="Add source"> <a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addDistro&from=addPackage&deviceID='.$deviceID.'\',\'status=0,resizable=1,width=500,height=250,toolbars=true\');">Add Distro</a>
-					<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addRepositorySource&from=addPackage&deviceID='.$deviceID.'\',\'status=0,resizable=1,width=500,height=250,toolbars=true\');">Add RepositorySource</a>
+					<input type="submit" class="button" name="submitX" value="Add source"> <a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addDistro&from=addPackage&deviceID='.$deviceID.'\',\'status=0,resizable=1,width=500,height=250,toolbar=1\');">Add Distro</a>
+					<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addRepositorySource&from=addPackage&deviceID='.$deviceID.'\',\'status=0,resizable=1,width=500,height=250,toolbar=1\');">Add RepositorySource</a>
 					';
 					$out.='
 					</td>
@@ -160,13 +160,13 @@ function addPackage($output,$dbADO) {
 					$out.='
 					<tr>
 						<td>'.$rowDirectoryFiles['File'].'</td>
-						<td><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=editDirectoryFile&from=addPackage&deviceID='.$deviceID.'&Package_Directory='.$row['PK_Package_Directory'].'&oldFile='.$rowDirectoryFiles['File'].'\',\'status=0,resizable=1,width=400,height=350,toolbars=true\');">Edit</a> <a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=deleteDirectoryFile&from=addPackage&deviceID='.$deviceID.'&Package_Directory='.$row['PK_Package_Directory'].'&oldFile='.$rowDirectoryFiles['File'].'\',\'status=0,resizable=1,width=100,height=100,toolbars=true\');">Delete</a></td>		
+						<td><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=editDirectoryFile&from=addPackage&deviceID='.$deviceID.'&Package_Directory='.$row['PK_Package_Directory'].'&oldFile='.$rowDirectoryFiles['File'].'\',\'status=0,resizable=1,width=400,height=350,toolbar=1\');">Edit</a> <a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=deleteDirectoryFile&from=addPackage&deviceID='.$deviceID.'&Package_Directory='.$row['PK_Package_Directory'].'&oldFile='.$rowDirectoryFiles['File'].'\',\'status=0,resizable=1,width=100,height=100,toolbar=1\');">Delete</a></td>		
 					</tr>';
 				}
 
 				$out.='
 					<tr>
-						<td colspan="2"><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addDirectoryFile&from=addPackage&deviceID='.$deviceID.'&Package_Directory='.$row['PK_Package_Directory'].'\',\'status=0,resizable=1,width=500,height=350,toolbars=true\');">Add file</a></td>
+						<td colspan="2"><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addDirectoryFile&from=addPackage&deviceID='.$deviceID.'&Package_Directory='.$row['PK_Package_Directory'].'\',\'status=0,resizable=1,width=500,height=350,toolbar=1\');">Add file</a></td>
 					</tr>
 				</table>';
 				$out.='</fieldset>';
@@ -185,7 +185,7 @@ function addPackage($output,$dbADO) {
 						}
 						$rs->Close();
 					$out.='
-						</select> <input type="submit" class="button" name="submitX" value="Select"> <a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addDirectory&from=addPackage&deviceID='.$deviceID.'\',\'status=0,resizable=1,width=500,height=250,toolbars=true\');">Add Directory</a>';
+						</select> <input type="submit" class="button" name="submitX" value="Select"> <a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addDirectory&from=addPackage&deviceID='.$deviceID.'\',\'status=0,resizable=1,width=500,height=250,toolbar=1\');">Add Directory</a>';
 					$out.='</fieldset></td>
 				</tr>					
 				<tr>

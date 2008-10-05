@@ -2876,7 +2876,7 @@ function displayRemotes($mdID,$dbADO,$section)
 		</tr>';
 	}
 	$delLinks.=(count($remotes)>0)?'</table>':'';
-	$out.=$delLinks.'<input type="button" class="button_fixed" name="button" value="'.$TEXT_ADD_REMOTE_CONST.'" onClick="document.mediaDirectors.action.value=\'externalSubmit\';document.mediaDirectors.submit();windowOpen(\'index.php?section=deviceTemplatePicker&allowAdd=1&from=mediaDirectors&categoryID='.$GLOBALS['RemoteControlls'].'&parmToKeep='.urlencode('mdID='.$mdID).'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"> ';
+	$out.=$delLinks.'<input type="button" class="button_fixed" name="button" value="'.$TEXT_ADD_REMOTE_CONST.'" onClick="document.mediaDirectors.action.value=\'externalSubmit\';document.mediaDirectors.submit();windowOpen(\'index.php?section=deviceTemplatePicker&allowAdd=1&from=mediaDirectors&categoryID='.$GLOBALS['RemoteControlls'].'&parmToKeep='.urlencode('mdID='.$mdID).'\',\'width=800,height=600,toolbar=1,scrollbars=1,resizable=1\');"> ';
 	
 	return $out;
 }
@@ -3910,7 +3910,7 @@ function pickDeviceTemplate_old($categoryID, $boolManufacturer,$boolCategory,$bo
 							$out.='
 							<input type="text" name="DeviceCategory_Description" size="15" />
 							<input type="submit" class="button" name="addDeviceCategory"   value="Add '.($selectedDevice==0?' Top Level Child':' Child').'" />
-							'.($selectedDevice!=0?'<input type="button" class="button" name="editDeviceCategory" value="Edit" onClick="javascript: windowOpen(\'index.php?section=editDeviceCategory&from='.$section.'&manufacturers='.$selectedManufacturer.'&deviceCategSelected='.$selectedDeviceCateg.'&deviceSelected='.$selectedDevice.'&model='.$selectedModel.'\',\'status=0,resizable=1,width=600,height=250,toolbars=true\');" />':'<input   type="submit" class="button" name="editDeviceCategory" value="Edit" disabled="disabled" />').'';
+							'.($selectedDevice!=0?'<input type="button" class="button" name="editDeviceCategory" value="Edit" onClick="javascript: windowOpen(\'index.php?section=editDeviceCategory&from='.$section.'&manufacturers='.$selectedManufacturer.'&deviceCategSelected='.$selectedDeviceCateg.'&deviceSelected='.$selectedDevice.'&model='.$selectedModel.'\',\'status=0,resizable=1,width=600,height=250,toolbar=1\');" />':'<input   type="submit" class="button" name="editDeviceCategory" value="Edit" disabled="disabled" />').'';
 							getDeviceCategoryChildsNo($selectedDevice,$dbADO);					
 							$childsToDelete = $GLOBALS['childsDeviceCategoryNo'];
 							$out.='
@@ -4019,7 +4019,7 @@ function pickDeviceTemplate_old($categoryID, $boolManufacturer,$boolCategory,$bo
 			 			$dtID=$dbADO->Insert_ID();
 
 			 			if(in_array($deviceSelected,$GLOBALS['TVdevicesArray'])){
-							$openTunerConfig='windowOpen(\'index.php?section=tunerConfig&categoryID='.$deviceSelected.'&dtID='.$dtID.'\',\'width=600,height=400,toolbars=true,scrollbars=1,resizable=1\')';
+							$openTunerConfig='windowOpen(\'index.php?section=tunerConfig&categoryID='.$deviceSelected.'&dtID='.$dtID.'\',\'width=600,height=400,toolbar=1,scrollbars=1,resizable=1\')';
 						}else
 							$openTunerConfig='';
 
@@ -4191,12 +4191,12 @@ function getCodesTableRows($section,$infraredGroupID,$dtID,$deviceID,$codesArray
 			if($togglePower==1){
 				if(!@in_array(194,$codesArray['Power']['FK_Command'])){
 					$out.='Toggle power not implemented: ';
-					$out.='<b><a href="javascript:windowOpen(\'index.php?section='.$newCodeSection.'&deviceID='.$deviceID.'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID=194&action=sendCommand\',\'width=750,height=310,toolbars=true,scrollbars=1,resizable=1\');">Click to add</a>';
+					$out.='<b><a href="javascript:windowOpen(\'index.php?section='.$newCodeSection.'&deviceID='.$deviceID.'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID=194&action=sendCommand\',\'width=750,height=310,toolbar=1,scrollbars=1,resizable=1\');">Click to add</a>';
 				}
 			}elseif(count($powerCommands)>0){
 				$out.='Power commands not implemented: ';
 				foreach ($powerCommands AS $inputId=>$inputName){
-					$powerCommands[$inputId]='<a href="javascript:windowOpen(\'index.php?section='.$newCodeSection.'&deviceID='.$deviceID.'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$inputId.'&action=sendCommand\',\'width=750,height=310,toolbars=true,scrollbars=1,resizable=1\');">'.$inputName.'</a>';
+					$powerCommands[$inputId]='<a href="javascript:windowOpen(\'index.php?section='.$newCodeSection.'&deviceID='.$deviceID.'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$inputId.'&action=sendCommand\',\'width=750,height=310,toolbar=1,scrollbars=1,resizable=1\');">'.$inputName.'</a>';
 				}
 				$out.='<b>'.join(', ',$powerCommands).'</b> <em>(Click to add)</em>';
 			}
@@ -4207,12 +4207,12 @@ function getCodesTableRows($section,$infraredGroupID,$dtID,$deviceID,$codesArray
 			if($toggleInput==1){
 				if(@!in_array($GLOBALS['inputSelectCommand'],$codesArray['Inputs']['FK_Command'])){
 					$out.='Input select not implemented: ';
-					$out.='<b><a href="javascript:windowOpen(\'index.php?section='.$newCodeSection.'&deviceID='.$deviceID.'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$GLOBALS['inputSelectCommand'].'&action=sendCommand\',\'width=750,height=310,toolbars=true,scrollbars=1,resizable=1\');">Click to add</a>';
+					$out.='<b><a href="javascript:windowOpen(\'index.php?section='.$newCodeSection.'&deviceID='.$deviceID.'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$GLOBALS['inputSelectCommand'].'&action=sendCommand\',\'width=750,height=310,toolbar=1,scrollbars=1,resizable=1\');">Click to add</a>';
 				}
 			}elseif(count($inputCommandsArray)>0){
 				$out.='Input commands not implemented: ';
 				foreach ($inputCommandsArray AS $inputId=>$inputName){
-					$inputCommandsArray[$inputId]='<a href="javascript:windowOpen(\'index.php?section='.$newCodeSection.'&deviceID='.$deviceID.'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$inputId.'&action=sendCommand\',\'width=750,height=310,toolbars=true,scrollbars=1,resizable=1\');">'.$inputName.'</a>';
+					$inputCommandsArray[$inputId]='<a href="javascript:windowOpen(\'index.php?section='.$newCodeSection.'&deviceID='.$deviceID.'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$inputId.'&action=sendCommand\',\'width=750,height=310,toolbar=1,scrollbars=1,resizable=1\');">'.$inputName.'</a>';
 				}
 				$out.='<b>'.join(', ',$inputCommandsArray).'</b> <em>(Click to add)</em>';
 			}
@@ -4223,12 +4223,12 @@ function getCodesTableRows($section,$infraredGroupID,$dtID,$deviceID,$codesArray
 			if($toggleDSP==1){
 				if(@!in_array($GLOBALS['DSPModeCommand'],@$codesArray['DSP Modes']['FK_Command'])){
 					$out.='DSP Mode not implemented: ';
-					$out.='<b><a href="javascript:windowOpen(\'index.php?section='.$newCodeSection.'&deviceID='.$deviceID.'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$GLOBALS['DSPModeCommand'].'&action=sendCommand\',\'width=750,height=310,toolbars=true,scrollbars=1,resizable=1\');">Click to add</a>';
+					$out.='<b><a href="javascript:windowOpen(\'index.php?section='.$newCodeSection.'&deviceID='.$deviceID.'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$GLOBALS['DSPModeCommand'].'&action=sendCommand\',\'width=750,height=310,toolbar=1,scrollbars=1,resizable=1\');">Click to add</a>';
 				}
 			}elseif(count($dspmodeCommandsArray)>0){
 				$out.='DSP Mode commands not implemented: ';
 				foreach ($dspmodeCommandsArray AS $dspmId=>$dspmName){
-					$dspmodeCommandsArray[$dspmId]='<a href="javascript:windowOpen(\'index.php?section='.$newCodeSection.'&deviceID='.$deviceID.'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$dspmId.'&action=sendCommand\',\'width=750,heighght=310,toolbars=true,scrollbars=1,resizable=1\');">'.$dspmName.'</a>';
+					$dspmodeCommandsArray[$dspmId]='<a href="javascript:windowOpen(\'index.php?section='.$newCodeSection.'&deviceID='.$deviceID.'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$dspmId.'&action=sendCommand\',\'width=750,heighght=310,toolbar=1,scrollbars=1,resizable=1\');">'.$dspmName.'</a>';
 				}
 				$out.='<b>'.join(', ',$dspmodeCommandsArray).'</b> <em>(Click to add)</em>';
 			}
@@ -4258,14 +4258,14 @@ function formatCode($section,$dataArray,$pos,$infraredGroupID,$dtID,$deviceID){
 	$deleteButton='<input type="button" class="button_fixed" name="delCustomCode" value="Delete code" onClick="if(confirm(\'Are you sure you want to delete this code?\')){document.'.$section.'.action.value=\'delete\';document.'.$section.'.irgroup_command.value='.$pos.';document.'.$section.'.submit();}">';
 	$clearButton ='<input type="button" class="button_fixed" name="clearCustomCode" value="Clear code" onClick="if(confirm(\'Are you sure you want to clear this code?\')){document.'.$section.'.action.value=\'clear\';document.'.$section.'.irgroup_command.value='.$pos.';document.'.$section.'.submit();}">';
 	
-	$viewParamsButton=($section=='rubyCodes')?'<input type="button" class="button_fixed" name="viewParams" value="View params" onClick="windowOpen(\'index.php?section=editCommand&from=rubyCodes&commandID='.$dataArray['FK_Command'][$pos].'\',\'width=600,height=400,toolbars=true,resizable=1,scrollbars=1\');"><br>':'';
-	$extendedEditorBtn=($section=='rubyCodes')?'<input type="button" class="button_fixed" name="extendedEditor" value="Extended Editor" onClick="windowOpen(\'index.php?section=editCode&from=rubyCodes&irgcID='.$pos.'\',\'width=800,height=600,toolbars=true,resizable=1,scrollbars=1\');"><br>':'';
+	$viewParamsButton=($section=='rubyCodes')?'<input type="button" class="button_fixed" name="viewParams" value="View params" onClick="windowOpen(\'index.php?section=editCommand&from=rubyCodes&commandID='.$dataArray['FK_Command'][$pos].'\',\'width=600,height=400,toolbar=1,resizable=1,scrollbars=1\');"><br>':'';
+	$extendedEditorBtn=($section=='rubyCodes')?'<input type="button" class="button_fixed" name="extendedEditor" value="Extended Editor" onClick="windowOpen(\'index.php?section=editCode&from=rubyCodes&irgcID='.$pos.'\',\'width=800,height=600,toolbar=1,resizable=1,scrollbars=1\');"><br>':'';
 	$testButton=((int)$deviceID!=0 && $section !='rubyCodes')?'<br> <input type="button" class="button_fixed" name="testCode" value="Test code" onClick="frames[\'codeTester\'].location=\'index.php?section=testCode&irData=\'+escape(document.'.$section.'.irData_'.$pos.'.value)+\'&deviceID='.$deviceID.'&sender='.$section.'\';"> <a name="test_'.$pos.'">':'';
 	
 	$out='
 		<table width="100%">
 			<tr class="alternate_back">
-				<td align="center" width="100"><a name="code'.$pos.'"></a><B>#'.$dataArray['FK_Command'][$pos].' '.$dataArray['Description'][$pos].(($dataArray['OriginalKey'][$pos]!='')?' ('.$dataArray['OriginalKey'][$pos].')':'').'</B> <br><input type="button" class="button" name="learnCode" value="New code" onClick="windowOpen(\'index.php?section='.(($section=='rubyCodes')?'newRubyCode':'newIRCode').'&deviceID='.$deviceID.'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$dataArray['FK_Command'][$pos].'&action=sendCommand\',\'width=750,height=310,toolbars=true,scrollbars=1,resizable=1\');" '.((!isset($_SESSION['userID']))?'disabled':'').'></td>
+				<td align="center" width="100"><a name="code'.$pos.'"></a><B>#'.$dataArray['FK_Command'][$pos].' '.$dataArray['Description'][$pos].(($dataArray['OriginalKey'][$pos]!='')?' ('.$dataArray['OriginalKey'][$pos].')':'').'</B> <br><input type="button" class="button" name="learnCode" value="New code" onClick="windowOpen(\'index.php?section='.(($section=='rubyCodes')?'newRubyCode':'newIRCode').'&deviceID='.$deviceID.'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$dataArray['FK_Command'][$pos].'&action=sendCommand\',\'width=750,height=310,toolbar=1,scrollbars=1,resizable=1\');" '.((!isset($_SESSION['userID']))?'disabled':'').'></td>
 				<td><textarea name="irData_'.$pos.'" rows="2" style="width:100%">'.$dataArray['IRData'][$pos].'</textarea></td>
 				<td align="center" width="120">'.$viewParamsButton.$extendedEditorBtn.@$deleteButton.$clearButton.$testButton.'</td>
 			</tr>
@@ -4369,7 +4369,7 @@ function deviceDataElement($name,$rowDDforDevice,$dbADO)
 			default:
 			if($rowDDforDevice['FK_DeviceData']==$GLOBALS['Port']){
 				$deviceDataElement=@$ddValue;
-				$deviceDataElement.='<input type="hidden" name="deviceData_'.$deviceID.'_'.$rowDDforDevice['FK_DeviceData'].'" value="'.@$ddValue.'">&nbsp;<a href="javascript:windowOpen(\'index.php?section=editDeviceDeviceData&deviceID='.$deviceID.'&dd='.$rowDDforDevice['FK_DeviceData'].'&from=avWizard\',\'status=0,resizable=1,width=600,height=250,toolbars=true\');">Edit</a>';
+				$deviceDataElement.='<input type="hidden" name="deviceData_'.$deviceID.'_'.$rowDDforDevice['FK_DeviceData'].'" value="'.@$ddValue.'">&nbsp;<a href="javascript:windowOpen(\'index.php?section=editDeviceDeviceData&deviceID='.$deviceID.'&dd='.$rowDDforDevice['FK_DeviceData'].'&from=avWizard\',\'status=0,resizable=1,width=600,height=250,toolbar=1\');">Edit</a>';
 			}else{
 				$deviceDataElement='<input type="text" name="deviceData_'.$deviceID.'_'.$rowDDforDevice['FK_DeviceData'].'" value="'.@$ddValue.'" '.((isset($rowDDforDevice['AllowedToModify']) && $rowDDforDevice['AllowedToModify']==0)?'disabled':'').'>';
 			}
@@ -5565,7 +5565,7 @@ function dtPickerJS($returnValue){
 				opener.location="index.php?section='.$_SESSION['from'].'&deviceTemplate="+dt+"&action=add&add=1&'.@$_REQUEST['parmToKeep'].'";
 				self.close();
 			}else{
-				windowOpen("index.php?section=editMasterDevice&model="+dt,"width=1024,height=768,toolbars=true,scrollbars=1,resizable=1");
+				windowOpen("index.php?section=editMasterDevice&model="+dt,"width=1024,height=768,toolbar=1,scrollbars=1,resizable=1");
 			}
 		}else{
 			// error case, display error message
@@ -5683,12 +5683,12 @@ function dtPickerJS($returnValue){
 	}
 	
 	function add_manufacturer_popup(){
-		windowOpen("index.php?section=addManufacturer","width=640,height=480,toolbars=true,scrollbars=1,resizable=1");
+		windowOpen("index.php?section=addManufacturer","width=640,height=480,toolbar=1,scrollbars=1,resizable=1");
 	}
 	
 	function add_category_popup(){
 		categ=parseInt(document.deviceTemplatePicker.categoryID.value);
-		windowOpen("index.php?section=addCategory&parentID="+categ,"width=640,height=480,toolbars=true,scrollbars=1,resizable=1");
+		windowOpen("index.php?section=addCategory&parentID="+categ,"width=640,height=480,toolbar=1,scrollbars=1,resizable=1");
 	}
 	
 	function processEnter(myfield,e)
@@ -6356,7 +6356,7 @@ function editCommandGroupCommands($commandGroupID,$dbADO){
 							
 							// if command == 13, display file picker link
 							if($rowSelectParameters['FK_CommandParameter']==13){
-								$out.=' <a href="javascript:windowOpen(\'index.php?section=filePicker&from=editCommandGroup&cgcID='.$rowCommandAssigned['PK_CommandGroup_Command'].'&cp='.$rowSelectParameters['FK_CommandParameter'].'\',\'width=640,height=480,toolbars=true,resizable=1,scrollbars=1\');"><img src="include/images/pick.gif" border="0" align="bottom"></a>';
+								$out.=' <a href="javascript:windowOpen(\'index.php?section=filePicker&from=editCommandGroup&cgcID='.$rowCommandAssigned['PK_CommandGroup_Command'].'&cp='.$rowSelectParameters['FK_CommandParameter'].'\',\'width=640,height=480,toolbar=1,resizable=1,scrollbars=1\');"><img src="include/images/pick.gif" border="0" align="bottom"></a>';
 							}
 							$out.='					
 							<td>
@@ -6401,7 +6401,7 @@ function editCommandGroupCommands($commandGroupID,$dbADO){
 						<td valign="top">
 						<input type="submit" class="button_fixed" name="up_'.$rowCommandAssigned['PK_CommandGroup_Command'].'" value="'.$TEXT_UP_CONST.'"><br>
 						<input type="submit" class="button_fixed" name="down_'.$rowCommandAssigned['PK_CommandGroup_Command'].'" value="'.$TEXT_DOWN_CONST.'"><br>
-						<input type="button" class="button_fixed" name="editA" value="'.$TEXT_REMOVE_CONST.'" onClick="if(confirm(\''.$TEXT_CONFIRM_DELETE_COMMAND_FROM_CG_CONST.'\'))windowOpen(\'index.php?section=deleteCommandFromCommandGroup_Command&from=editCommandGroup&cgID='.$rowCommandAssigned['PK_CommandGroup_Command'].'\',\'width=100,height=100,toolbars=true,resizable=1,scrollbars=1\');"">
+						<input type="button" class="button_fixed" name="editA" value="'.$TEXT_REMOVE_CONST.'" onClick="if(confirm(\''.$TEXT_CONFIRM_DELETE_COMMAND_FROM_CG_CONST.'\'))windowOpen(\'index.php?section=deleteCommandFromCommandGroup_Command&from=editCommandGroup&cgID='.$rowCommandAssigned['PK_CommandGroup_Command'].'\',\'width=100,height=100,toolbar=1,resizable=1,scrollbars=1\');"">
 						</td>						
 					</tr>
 					<tr class="'.$class_color.'">

@@ -273,7 +273,7 @@ function mediaDirectors($output,$dbADO) {
 						<td class="alternate_back">A: '.@$devicePipes['1']['output'].'</td>
 						<td class="alternate_back">'.@$devicePipes['1']['to'].'</td>
 						<td class="alternate_back">'.@$devicePipes['1']['input'].'</td>
-						<td class="alternate_back" rowspan="2" align="right"><input type="button" class="button" name="edit_pipes" value="'.$TEXT_EDIT_CONST.'" onClick="windowOpen(\'index.php?section=editPipes&deviceID='.$rowD['PK_Device'].'&from=mediaDirectors\',\'width=600,height=300,toolbars=true,scrollbars=1,resizable=1\');"></td>
+						<td class="alternate_back" rowspan="2" align="right"><input type="button" class="button" name="edit_pipes" value="'.$TEXT_EDIT_CONST.'" onClick="windowOpen(\'index.php?section=editPipes&deviceID='.$rowD['PK_Device'].'&from=mediaDirectors\',\'width=600,height=300,toolbar=1,scrollbars=1,resizable=1\');"></td>
 						<td rowspan="2" valign="top" align="right">'.formatDeviceData($rowD['PK_Device'],$deviceDataArray[$rowD['PK_Device']],$dbADO,$rowD['IsIPBased']).'</td>
 						<td align="center" rowspan="2" valign="center" class="alternate_back">'.$buttons.'</td>
 					</tr>
@@ -332,7 +332,7 @@ function mediaDirectors($output,$dbADO) {
 									<table>
 										<tr>
 											<td><B>'.$TEXT_SOFTWARE_MODULES_CONST.'</B></td>
-											<td><input type="button" class="button_fixed" name="edit_modules" value="'.$TEXT_EDIT_CONST.'" onClick="windowOpen(\'index.php?section=editModules&deviceID='.$rowD['PK_Device'].'&from=mediaDirectors\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"></td>
+											<td><input type="button" class="button_fixed" name="edit_modules" value="'.$TEXT_EDIT_CONST.'" onClick="windowOpen(\'index.php?section=editModules&deviceID='.$rowD['PK_Device'].'&from=mediaDirectors\',\'width=800,height=600,toolbar=1,scrollbars=1,resizable=1\');"></td>
 											<td width="20">&nbsp;</td>
 											<td><B>'.$TEXT_HARDWARE_ACCELERATION_CONST.'</B></td>
 											<td>'.pulldownFromArray($GLOBALS['hardware_acceleration'],'acceleration_'.$rowD['PK_Device'],getAcceleration($orbiterMDChild,$dbADO),'','key','').'</td>
@@ -353,7 +353,7 @@ function mediaDirectors($output,$dbADO) {
 										</tr>
 										<tr>
 											<td><B>'.$TEXT_COMPUTING_APPLICATIONS_CONST.'</B></td>
-											<td><input type="button" class="button_fixed" name="editCA_" value="'.$TEXT_EDIT_CONST.'" onclick="windowOpen(\'index.php?section=editComputingApplications&mdID='.$rowD['PK_Device'].'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\')"></td>
+											<td><input type="button" class="button_fixed" name="editCA_" value="'.$TEXT_EDIT_CONST.'" onclick="windowOpen(\'index.php?section=editComputingApplications&mdID='.$rowD['PK_Device'].'\',\'width=800,height=600,toolbar=1,scrollbars=1,resizable=1\')"></td>
 											<td>&nbsp;</td>
 											<td><B>'.$TEXT_INFRARED_RECEIVERS_CONST.'</B></td>
 											<td colspan="4">'.displayReceivers($rowD['PK_Device'],$infraredReceiversArray,$dbADO).'</td>
@@ -393,7 +393,7 @@ function mediaDirectors($output,$dbADO) {
 					<td colspan="8">&nbsp;</td>
 				</tr>
 				<tr>
-					<td colspan="8" align="center">'.@$update_buttons.' <input type="button" class="button_fixed" name="button" value="'.$TEXT_ADD_MD_CONST.'" onClick="document.mediaDirectors.action.value=\'externalSubmit\';document.mediaDirectors.submit();windowOpen(\'index.php?section=deviceTemplatePicker&allowAdd=1&from=mediaDirectors&categoryID='.$deviceCategory.'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"></td>
+					<td colspan="8" align="center">'.@$update_buttons.' <input type="button" class="button_fixed" name="button" value="'.$TEXT_ADD_MD_CONST.'" onClick="document.mediaDirectors.action.value=\'externalSubmit\';document.mediaDirectors.submit();windowOpen(\'index.php?section=deviceTemplatePicker&allowAdd=1&from=mediaDirectors&categoryID='.$deviceCategory.'\',\'width=800,height=600,toolbar=1,scrollbars=1,resizable=1\');"></td>
 				</tr>
 				<tr>
 					<td colspan="8" align="left">'.@$setupDisklessMDInfo.'</td>

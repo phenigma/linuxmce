@@ -235,7 +235,7 @@ function mediaScenarios($output,$dbADO) {
 		}
 		
 		if(count($displayedMediaScenarios)>0){
-			$remotesBtn='<input type="submit" class="button" name="chooseRemotes" value="'.$TEXT_CHOOSE_PREFERRED_REMOTES_CONST.'" onclick="windowOpen(\'index.php?section=mediaRemotes\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\')";>';
+			$remotesBtn='<input type="submit" class="button" name="chooseRemotes" value="'.$TEXT_CHOOSE_PREFERRED_REMOTES_CONST.'" onclick="windowOpen(\'index.php?section=mediaRemotes\',\'width=800,height=600,toolbar=1,scrollbars=1,resizable=1\')";>';
 		}
 			$out.='
 			<tr>

@@ -51,7 +51,7 @@ function commandsPicker($output,$dbADO) {
 				<td colspan="3" align="center"><input type="submit" name="submit" class="button" value="'.$TEXT_SAVE_CONST.'"> <input type="button" class="button" name="update" value="'.$TEXT_CLOSE_CONST.'" onClick="self.close();"></td>
 			</tr>		
 			<tr>
-				<td align="left" colspan="3"><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addCommandCategory&from=commandsPicker\',\'width=400,height=300,toolbars=true,resizable=1,scrollbars=1\');">'.$TEXT_ADD_COMMAND_CATEGORY_CONST.'</a></td>
+				<td align="left" colspan="3"><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addCommandCategory&from=commandsPicker\',\'width=400,height=300,toolbar=1,resizable=1,scrollbars=1\');">'.$TEXT_ADD_COMMAND_CATEGORY_CONST.'</a></td>
 			</tr>
 		</table>
 			<input type="hidden" name="displayedCommands" value="'.join(',',$GLOBALS['displayedCommands']).'">
@@ -114,7 +114,7 @@ function formatOutput($resRootCC,$dbADO,$level)
 
 		$out.='
 			<tr bgcolor="#EEEEEE">
-				<td colspan="3">'.$indent.' <a href="#" onClick="windowOpen(\'index.php?section=editCommandCategory&from=commandsPicker&ccID='.$rowRootCC['PK_CommandCategory'].'\',\'width=400,height=300,toolbars=true,resizable=1,scrollbars=1\');"><B>'.$rowRootCC['Description'].'</B></a></td>
+				<td colspan="3">'.$indent.' <a href="#" onClick="windowOpen(\'index.php?section=editCommandCategory&from=commandsPicker&ccID='.$rowRootCC['PK_CommandCategory'].'\',\'width=400,height=300,toolbar=1,resizable=1,scrollbars=1\');"><B>'.$rowRootCC['Description'].'</B></a></td>
 			</tr>';
 		$resCommands=$dbADO->Execute('
 			SELECT Command.*,FK_DeviceCommandGroup 
@@ -128,7 +128,7 @@ function formatOutput($resRootCC,$dbADO,$level)
 			$out.='
 				<tr>
 					<td>&nbsp;</td>
-					<td bgcolor="'.(($cmdPos%2==0)?'#FFFFFF':'#EBEFF9').'"><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=editCommand&from=commandsPicker&commandID='.$rowCommands['PK_Command'].'\',\'width=400,height=300,toolbars=true,resizable=1,scrollbars=1\');">'.$rowCommands['Description'].'<a></td>
+					<td bgcolor="'.(($cmdPos%2==0)?'#FFFFFF':'#EBEFF9').'"><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=editCommand&from=commandsPicker&commandID='.$rowCommands['PK_Command'].'\',\'width=400,height=300,toolbar=1,resizable=1,scrollbars=1\');">'.$rowCommands['Description'].'<a></td>
 					<td bgcolor="'.(($cmdPos%2==0)?'#FFFFFF':'#EBEFF9').'" align="center"><input type="checkbox" name="command_'.$rowCommands['PK_Command'].'" value="1" '.(($rowCommands['FK_DeviceCommandGroup']!='')?'checked':'').'></td>
 				</tr>';
 			$GLOBALS['displayedCommands'][]=$rowCommands['PK_Command'];

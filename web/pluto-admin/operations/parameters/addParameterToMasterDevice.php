@@ -94,7 +94,7 @@ function addParameterToMasterDevice($output,$dbADO) {
 			frmvalidator.addValidation("IK_DeviceData","req","Please enter a default value");
 		</script>
 		<br />
-		If the parameter you wish to add is not in the list,<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addParameter&from=addParameterToMasterDevice&deviceID='.$deviceID.'\',\'status=0,resizable=1,width=500,height=250,toolbars=true\');">click here to add a new parameter</a>
+		If the parameter you wish to add is not in the list,<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addParameter&from=addParameterToMasterDevice&deviceID='.$deviceID.'\',\'status=0,resizable=1,width=500,height=250,toolbar=1\');">click here to add a new parameter</a>
 		';
 		
 	} else {

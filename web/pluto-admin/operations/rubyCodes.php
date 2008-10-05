@@ -140,7 +140,7 @@ function rubyCodes($output,$dbADO,$mediaADO) {
 		
 		$out.='		
 			<tr>
-				<td colspan="3" align="center"><input type="button" class="button" name="button" value="'.$TEXT_ADD_REMOVE_COMMANDS_CONST.'" onClick="windowOpen(\'index.php?section=infraredCommands&infraredGroup='.$irGroup.'&deviceID='.$deviceID.'&dtID='.$dtID.'&rootNode=1&norestrict=1\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"> <input type="submit" class="button" name="update" value="Update" '.((!isset($_SESSION['userID']))?'disabled':'').'> <input type="button" class="button" name="close" value="'.$TEXT_CLOSE_CONST.'" onClick="self.close();"></td>
+				<td colspan="3" align="center"><input type="button" class="button" name="button" value="'.$TEXT_ADD_REMOVE_COMMANDS_CONST.'" onClick="windowOpen(\'index.php?section=infraredCommands&infraredGroup='.$irGroup.'&deviceID='.$deviceID.'&dtID='.$dtID.'&rootNode=1&norestrict=1\',\'width=800,height=600,toolbar=1,scrollbars=1,resizable=1\');"> <input type="submit" class="button" name="update" value="Update" '.((!isset($_SESSION['userID']))?'disabled':'').'> <input type="button" class="button" name="close" value="'.$TEXT_CLOSE_CONST.'" onClick="self.close();"></td>
 			</tr>';
 		
 		// extract data from InfraredGroup_Command an put it in multi-dimmensional array

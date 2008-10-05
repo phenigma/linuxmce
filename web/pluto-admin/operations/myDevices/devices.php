@@ -195,7 +195,7 @@ function devices($output,$dbADO) {
 						<td align="center" class="alternate_back">'.$rowD['PK_Device'].'</td>
 						<td class="alternate_back" align="center" title="'.$TEXT_DEVICE_TEMPLATE_CONST.': '.$rowD['TemplateName'].', '.$TEXT_DEVICE_CATEGORY_CONST.': '.$rowD['CategoryName'].', '.strtolower($TEXT_MANUFACTURER_CONST).': '.$rowD['ManufacturerName'].'"><input type="text" name="description_'.$rowD['PK_Device'].'" value="'.$rowD['Description'].'"></td>
 						<td>'.pulldownFromArray($roomsArray,'room_'.$rowD['PK_Device'],$rowD['FK_Room']).'</td>
-						<td class="alternate_back"><a href="javascript:windowOpen(\'index.php?section=editDeviceControlledVia&deviceID='.$rowD['PK_Device'].'&from='.urlencode('devices&type='.$type).'\',\'width=600,height=300,toolbars=true,scrollbars=1,resizable=1\');" title="'.$TEXT_CLICK_TO_CHANGE_CONST.'">'.((is_null($rowD['FK_Device_ControlledVia']))?$TEXT_EDIT_CONST:$rowD['PDescription']).'</a></td>
+						<td class="alternate_back"><a href="javascript:windowOpen(\'index.php?section=editDeviceControlledVia&deviceID='.$rowD['PK_Device'].'&from='.urlencode('devices&type='.$type).'\',\'width=600,height=300,toolbar=1,scrollbars=1,resizable=1\');" title="'.$TEXT_CLICK_TO_CHANGE_CONST.'">'.((is_null($rowD['FK_Device_ControlledVia']))?$TEXT_EDIT_CONST:$rowD['PDescription']).'</a></td>
 						<td align="right" valign="top">'.formatDeviceData($rowD['PK_Device'],$deviceDataArray[$rowD['PK_Device']],$dbADO,$rowD['IsIPBased'],@$specificFloorplanType,1,'textarea').'</td>
 						<td align="center" valign="center" class="alternate_back">
 							'.lights_test_buttons($type,$rowD['PK_Device'],$dbADO).'
@@ -211,11 +211,11 @@ function devices($output,$dbADO) {
 						$out.='
 						<tr class="alternate_back">
 							<td colspan="5" style="padding-left:10px;"><B>'.$TEXT_LIGHTS_CONST.':</B> '.$associatedLightText.'</td>
-							<td><input type="button" class="button_fixed" name="edit1" value='.$TEXT_EDIT_CONST.' onClick="windowOpen(\'index.php?section=editCameraRelated&deviceID='.$rowD['PK_Device'].'&from='.urlencode('devices&type='.$type).'&type=lights\',\'width=600,height=300,toolbars=true,scrollbars=1,resizable=1\');"></td>
+							<td><input type="button" class="button_fixed" name="edit1" value='.$TEXT_EDIT_CONST.' onClick="windowOpen(\'index.php?section=editCameraRelated&deviceID='.$rowD['PK_Device'].'&from='.urlencode('devices&type='.$type).'&type=lights\',\'width=600,height=300,toolbar=1,scrollbars=1,resizable=1\');"></td>
 						</tr>
 						<tr class="alternate_back">
 							<td colspan="5" style="padding-left:10px;"><B>'.$TEXT_SENSORS_CONST.':</B> '.$associatedSensorsText.'</td>
-							<td><input type="button" class="button_fixed" name="edit2" value='.$TEXT_EDIT_CONST.' onClick="windowOpen(\'index.php?section=editCameraRelated&deviceID='.$rowD['PK_Device'].'&from='.urlencode('devices&type='.$type).'&type=sensors\',\'width=600,height=300,toolbars=true,scrollbars=1,resizable=1\');"></td>
+							<td><input type="button" class="button_fixed" name="edit2" value='.$TEXT_EDIT_CONST.' onClick="windowOpen(\'index.php?section=editCameraRelated&deviceID='.$rowD['PK_Device'].'&from='.urlencode('devices&type='.$type).'&type=sensors\',\'width=600,height=300,toolbar=1,scrollbars=1,resizable=1\');"></td>
 						</tr>';
 					}
 					$out.='
@@ -238,7 +238,7 @@ function devices($output,$dbADO) {
 					<td colspan="7">&nbsp;</td>
 				</tr>
 				<tr>
-					<td colspan="7" align="center">'.@$updateCancelBtns.' '.@$zoneBtn.' '.$addGC100Btn.'<input type="button" class="button" name="button" value="Add device" onClick="document.devices.action.value=\'externalSubmit\';document.devices.submit();windowOpen(\'index.php?section=deviceTemplatePicker&from='.urlencode('devices&type='.$type).'&categoryID='.$deviceCategory.'&allowAdd=1&parentID=0\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"></td>
+					<td colspan="7" align="center">'.@$updateCancelBtns.' '.@$zoneBtn.' '.$addGC100Btn.'<input type="button" class="button" name="button" value="Add device" onClick="document.devices.action.value=\'externalSubmit\';document.devices.submit();windowOpen(\'index.php?section=deviceTemplatePicker&from='.urlencode('devices&type='.$type).'&categoryID='.$deviceCategory.'&allowAdd=1&parentID=0\',\'width=800,height=600,toolbar=1,scrollbars=1,resizable=1\');"></td>
 				</tr>
 			</table>
 			</div>

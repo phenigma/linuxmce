@@ -188,7 +188,7 @@ function getObj(obj) {
 					<br /><br />
 					<input type="text" name="Category_Description" size="15" />
 					<input type="submit" class="button" name="addCategory" value="'.($selectedCateg==0?$TEXT_ADD_TOP_LEVEL_CHILD_CONST:$TEXT_ADD_CHILD_CONST).'"  />
-					'.($selectedCateg!=0?'<input type="button" class="button" name="editCategory" value="'.$TEXT_EDIT_CONST.'" onClick="javascript: windowOpen(\'index.php?section=editCategory&action='.$action.'&from=manageCategories&categSelected='.$selectedCateg.'\',\'status=0,resizable=1,width=600,height=250,toolbars=true\');" />':'<input type="submit" class="button" name="editCategory" value="'.$TEXT_EDIT_CONST.'" disabled="disabled"  />').'';
+					'.($selectedCateg!=0?'<input type="button" class="button" name="editCategory" value="'.$TEXT_EDIT_CONST.'" onClick="javascript: windowOpen(\'index.php?section=editCategory&action='.$action.'&from=manageCategories&categSelected='.$selectedCateg.'\',\'status=0,resizable=1,width=600,height=250,toolbar=1\');" />':'<input type="submit" class="button" name="editCategory" value="'.$TEXT_EDIT_CONST.'" disabled="disabled"  />').'';
 
 		//getDeviceCategoryChildsNo($selectedDevice,$dbADO);
 		$GLOBALS['childsFromAnyCategory'] = array();
@@ -196,12 +196,12 @@ function getObj(obj) {
 		$childsToDelete = count(cleanArray($GLOBALS['childsFromAnyCategory']));
 
 		$out.='
-					&nbsp;&nbsp;'.($selectedCateg!=0?'<input type="button" class="button" name="deletCategory" value="Delete" onClick="javascript: if (confirm(\'Are you sure you want to delete this device category?'.($childsToDelete==1?'There is 1 child to delete!':($childsToDelete>0?'There are '.$childsToDelete.' childs to delete!':'')).'\')) windowOpen(\'index.php?section=deleteCategory&from=manageCategories&action='.$action.'&categSelected='.$selectedCateg.'\',\'status=0,resizable=1,width=100,height=100,toolbars=0\');" />':'<input type="submit" class="button" name="deleteCategory" value="Delete" disabled="disabled"  />').'
+					&nbsp;&nbsp;'.($selectedCateg!=0?'<input type="button" class="button" name="deletCategory" value="Delete" onClick="javascript: if (confirm(\'Are you sure you want to delete this device category?'.($childsToDelete==1?'There is 1 child to delete!':($childsToDelete>0?'There are '.$childsToDelete.' childs to delete!':'')).'\')) windowOpen(\'index.php?section=deleteCategory&from=manageCategories&action='.$action.'&categSelected='.$selectedCateg.'\',\'status=0,resizable=1,width=100,height=100,toolbar=0\');" />':'<input type="submit" class="button" name="deleteCategory" value="Delete" disabled="disabled"  />').'
 				</td>
 				<td width="25%" align="center"  valign="top">
 					<script>
 						function checkEdit(objF) {	
-								windowOpen(\'index.php?section='.$actionToGoForEdit.'&'.$fieldNameToGoForEdit.'=\'+objF.model[objF.model.selectedIndex].value,\'status=0,resizable=1,width=600,height=800,toolbars=0\');								
+								windowOpen(\'index.php?section='.$actionToGoForEdit.'&'.$fieldNameToGoForEdit.'=\'+objF.model[objF.model.selectedIndex].value,\'status=0,resizable=1,width=600,height=800,toolbar=0\');								
 						}						
 					
 					</script>

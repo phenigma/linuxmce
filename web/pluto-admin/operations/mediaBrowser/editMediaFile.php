@@ -126,7 +126,7 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 			</tr>
 			<tr>
 				<td>&nbsp;</td>
-				<td align="right"><input type="button" class="button" name="delete" value="'.$TEXT_DELETE_FILE_CONST.'" onClick="if(confirm(\''.$TEXT_DELETE_FILE_CONFIRMATION_CONST.'\')){document.editMediaFile.action.value=\'del\';document.editMediaFile.submit();}"> <input type="button" class="button" name="moveFile" value="Move file to other directory" onClick="windowOpen(\'index.php?section=moveFile&fileID='.$fileID.'&filePath='.urlencode(stripslashes($rowFile['Path']).'/'.$rowFile['Filename']).'\',\'width=500,height=400,toolbars=true,scrollbars=true,resizable=1\');"></td>
+				<td align="right"><input type="button" class="button" name="delete" value="'.$TEXT_DELETE_FILE_CONST.'" onClick="if(confirm(\''.$TEXT_DELETE_FILE_CONFIRMATION_CONST.'\')){document.editMediaFile.action.value=\'del\';document.editMediaFile.submit();}"> <input type="button" class="button" name="moveFile" value="Move file to other directory" onClick="windowOpen(\'index.php?section=moveFile&fileID='.$fileID.'&filePath='.urlencode(stripslashes($rowFile['Path']).'/'.$rowFile['Filename']).'\',\'width=500,height=400,toolbar=1,scrollbars=1,resizable=1\');"></td>
 			</tr>
 			<tr bgcolor="#EBEFF9">
 				<td><B>'.$TEXT_LOCATION_CONST.':</B></td>

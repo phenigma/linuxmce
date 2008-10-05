@@ -177,7 +177,7 @@ function irCodes($output,$dbADO,$mediaADO) {
 			$out.='
 				<tr>
 					<td valign="top" width="250" class="err" colspan="2">'.$TEXT_MISSING_COMM_METHOD_CONST.' 
-					<a href="javascript:windowOpen(\'index.php?section=commMethod&dtID='.$dtID.'&from=irCodes\',\'width=400,height=300,toolbars=true,scrollbars=1,resizable=1\');">'.$TEXT_ADD_COMM_METHOD_CONST.'</a></td>
+					<a href="javascript:windowOpen(\'index.php?section=commMethod&dtID='.$dtID.'&from=irCodes\',\'width=400,height=300,toolbar=1,scrollbars=1,resizable=1\');">'.$TEXT_ADD_COMM_METHOD_CONST.'</a></td>
 			</tr>
 			';
 				
@@ -208,7 +208,7 @@ function irCodes($output,$dbADO,$mediaADO) {
 		$out.='		
 			<tr>
 				<td colspan="3" align="center">
-					<input type="button" class="button" name="button" value="'.$TEXT_ADD_REMOVE_COMMANDS_CONST.'" onClick="windowOpen(\'index.php?section=infraredCommands&infraredGroup='.$infraredGroupID.'&deviceID='.$deviceID.'&dtID='.$dtID.(($GLOBALS['label']!='infrared')?'&rootNode=1':'').'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');">
+					<input type="button" class="button" name="button" value="'.$TEXT_ADD_REMOVE_COMMANDS_CONST.'" onClick="windowOpen(\'index.php?section=infraredCommands&infraredGroup='.$infraredGroupID.'&deviceID='.$deviceID.'&dtID='.$dtID.(($GLOBALS['label']!='infrared')?'&rootNode=1':'').'\',\'width=800,height=600,toolbar=1,scrollbars=1,resizable=1\');">
 					<input type="submit" class="button" name="update" value="'.$TEXT_UPDATE_CONST.'" '.((!isset($_SESSION['userID']))?'disabled':'').'>
 					<input type="button" class="button" name="update" value="'.$TEXT_CLOSE_CONST.'" onClick="self.close();">
 				</td>

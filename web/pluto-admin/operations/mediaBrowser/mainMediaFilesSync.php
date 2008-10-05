@@ -76,7 +76,7 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 			<table cellpadding="3" cellspacing="0">
 				<tr bgcolor="#F0F3F8">
 					<td><B>'.$TEXT_DIRECTORY_CONST.': '.$path.'</B></td>
-					<td><input type="button" class="button" name="resyncDir" value="'.$TEXT_RESYNCHRONIZE_CONST.'" onClick="windowOpen(\'operations/logs/executeLog.php?script=3&path='.urlencode($path).'\',\'width=1024,height=768,toolbars=true,scrollbars=1,resizable=1\');self.location=\'index.php?section=mainMediaFilesSync&action=resync&path='.$path.'\';"></td>
+					<td><input type="button" class="button" name="resyncDir" value="'.$TEXT_RESYNCHRONIZE_CONST.'" onClick="windowOpen(\'operations/logs/executeLog.php?script=3&path='.urlencode($path).'\',\'width=1024,height=768,toolbar=1,scrollbars=1,resizable=1\');self.location=\'index.php?section=mainMediaFilesSync&action=resync&path='.$path.'\';"></td>
 					<td><input type="button" class="button" name="renameDir" value="'.$TEXT_RENAME_CONST.'" onClick="requestName(\''.addslashes($oldDir).'\')"></td>
 					<td><input type="button" class="button" name="subDir" value="'.$TEXT_CREATE_SUBDIRECTORY_CONST.'" onClick="createSubdir()"></td>
 					<td><input type="button" class="button" name="delDir" value="'.$TEXT_DELETE_CONST.'" onClick="confirmDel();"></td>

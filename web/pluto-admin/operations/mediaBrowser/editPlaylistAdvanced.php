@@ -76,14 +76,14 @@ function editPlaylistAdvanced($output,$mediadbADO,$dbADO) {
 								<table width="100%">
 								 	<tr>
 										<td align="center">'.((!is_null($entryData['EK_CommandGroup_Start'][0]))?$commandGroups[$entryData['EK_CommandGroup_Start'][0]]:'N/A').'</td>
-										<td width="90"><a href="javascript:windowOpen(\'index.php?section=pickScenario&plID='.$playlistID.'&mode=start&entry='.$entry.'\',\'width=800,height=600,toolbars=true\');">'.$TEXT_PICK_COMMAND_GROUP_CONST.' / '.$TEXT_REMOVE_CONST.'</a></td>
+										<td width="90"><a href="javascript:windowOpen(\'index.php?section=pickScenario&plID='.$playlistID.'&mode=start&entry='.$entry.'\',\'width=800,height=600,toolbar=1\');">'.$TEXT_PICK_COMMAND_GROUP_CONST.' / '.$TEXT_REMOVE_CONST.'</a></td>
 									</tr>
 								</table>
 							</td>
 							<td><table width="100%" border="0">
 								 	<tr>
 										<td align="center">'.((!is_null($entryData['EK_CommandGroup_Stop'][0]))?$commandGroups[$entryData['EK_CommandGroup_Stop'][0]]:'N/A').'</td>
-										<td width="90"><a href="javascript:windowOpen(\'index.php?section=pickScenario&plID='.$playlistID.'&mode=stop&entry='.$entry.'\',\'width=800,height=600,toolbars=true\');">'.$TEXT_PICK_COMMAND_GROUP_CONST.' / '.$TEXT_REMOVE_CONST.'</a></td>
+										<td width="90"><a href="javascript:windowOpen(\'index.php?section=pickScenario&plID='.$playlistID.'&mode=stop&entry='.$entry.'\',\'width=800,height=600,toolbar=1\');">'.$TEXT_PICK_COMMAND_GROUP_CONST.' / '.$TEXT_REMOVE_CONST.'</a></td>
 									</tr>
 								</table></td>
 							<td align="center"><input type="text" name="duration" value="'.$entryData['Duration'][0].'" style="width:50px;"></td>
