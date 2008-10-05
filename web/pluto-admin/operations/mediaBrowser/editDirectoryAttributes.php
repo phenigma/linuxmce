@@ -181,26 +181,36 @@ function editDirectoryAttributes($output,$mediadbADO,$dbADO) {
 					resizeImage($GLOBALS['mediaPicsPath'].$newPicName, $GLOBALS['mediaPicsPath'].$insertID.'_tn.'.$picExtension, 256, 256);
 					
 					// update database
-					$replace_pics=(int)@$_POST['replace_pics'];
-					foreach ($filesArray AS $id=>$filename){
-						if((int)@$_POST['file_'.$id]==1){
-							if($replace_pics==1){
-								// delete all existing pics for selected files
-								$picsArray=getFields('Picture_File','FK_Picture',$mediadbADO,'WHERE FK_File='.$id);
-								for($i=0;$i<count($picsArray);$i++){
-									delete_media_pic($picsArray[$i]['FK_Picture'],$mediaADO);
-								}
-							}
-							$mediadbADO->Execute('INSERT INTO Picture_File (FK_File, FK_Picture) VALUES (?,?)',array($id,$insertID));						
-						}						
-					}
+					add_pic_to_files($insertID,$filesArray,$mediadbADO);
 				}else{
 					//upload fail, prompt error message
 					$mediadbADO->Execute('DELETE FROM Picture WHERE PK_Picture=?',$insertID);
 					$error=$TEXT_ERROR_UPLOAD_FAILS_PERMISIONS_CONST.' '.$GLOBALS['mediaPicsPath'];
 				}
+			}elseif($_POST['newUrl']!='' && $_FILES['newPic']['name']==''){
+				$url=cleanString($_POST['newUrl']);
+	
+				$picExtension=str_replace('.','',strtolower(strrchr($url,".")));
+				$picExtension=($picExtension=='jpeg')?'jpg':$picExtension;
+	
+				if($picExtension!='jpg'){
+					$error=$TEXT_ERROR_NOT_JPEG_CONST;
+				}else{
+					$insertPicture='INSERT INTO Picture (Extension,URL) VALUES (?,?)';
+					$mediadbADO->Execute($insertPicture,array($picExtension,$url));
+					$entryID=$mediadbADO->Insert_ID();
+					$newPicName=$entryID.'.'.$picExtension;
+	
+					savePic($_POST['newUrl'],$GLOBALS['mediaPicsPath'].$newPicName);
+					resizeImage($GLOBALS['mediaPicsPath'].$newPicName, $GLOBALS['mediaPicsPath'].$entryID.'_tn.'.$picExtension, 256, 256);
+	
+					add_pic_to_files($entryID,$filesArray,$mediadbADO);
+				}
 			}
 		}
+
+
+		
 		
 		if(isset($_POST['add'])){
 			$newAttributeType=$_POST['newAttributeType'];
@@ -289,5 +299,21 @@ function addAttributeToFilesInDir($attributeID,$attributeTypeID,$fileID,$mediadb
 	}	
 	
 	return true;
+}
+
+function add_pic_to_files($insertID,$filesArray,$mediadbADO){
+	$replace_pics=(int)@$_POST['replace_pics'];
+	foreach ($filesArray AS $id=>$filename){
+		if((int)@$_POST['file_'.$id]==1){
+			if($replace_pics==1){
+				// delete all existing pics for selected files
+				$picsArray=getFields('Picture_File','FK_Picture',$mediadbADO,'WHERE FK_File='.$id);
+				for($i=0;$i<count($picsArray);$i++){
+					delete_media_pic($picsArray[$i]['FK_Picture'],$mediaADO);
+				}
+			}
+			$mediadbADO->Execute('INSERT INTO Picture_File (FK_File, FK_Picture) VALUES (?,?)',array($id,$insertID));
+		}
+	}
 }
 ?>

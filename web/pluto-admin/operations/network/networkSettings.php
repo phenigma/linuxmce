@@ -339,22 +339,9 @@ function networkSettings($output,$dbADO) {
 				}
 			}
 		}
-		
-		if($coreDHCP !=$oldCoreDHCP || $internalCoreIP!=$oldInternalCoreIP){
-			if($coreDHCP !=$oldCoreDHCP){
-				writeFile($GLOBALS['WebExecLogFile'],date('d-m-Y H:i:s')."\tIP range changed from $oldCoreDHCP to $coreDHCP\n",'a+');
-			}
-		
-			if($internalCoreIP!=$oldInternalCoreIP){
-				writeFile($GLOBALS['WebExecLogFile'],date('d-m-Y H:i:s')."\tIP changed from $oldInternalCoreIP to $internalCoreIP\n",'a+');
-			}
-			
-			if($isChanged==1){
-				exec_batch_command('sudo -u root /usr/pluto/bin/InternalIPChange.sh');
-				$ipchanged_msg=' IP updated, please reboot.';
-			}
-		}
-		
+
+		// NOTE: Please don't reboot the computer before these commands have completed, OK?
+		// NOTE: Well, unless you like breaking /etc/network/interfaces randomly because the mysql server shutdown was faster than the scripts
 		$commands = array('Network_Setup.sh', 'Network_Firewall.sh');
 		for ($i = 0; $i < count($commands); $i++)
 		{
@@ -375,6 +362,25 @@ function networkSettings($output,$dbADO) {
 		if($cname!=''){
 			set_device_data($coreID,$GLOBALS['ComputerName'],$cname,$dbADO);
 		}
+
+		// NOTE: Serial stuff completed. Now it's OK to reboot.
+		if($coreDHCP !=$oldCoreDHCP || $internalCoreIP!=$oldInternalCoreIP){
+			if($coreDHCP !=$oldCoreDHCP){
+				writeFile($GLOBALS['WebExecLogFile'],date('d-m-Y H:i:s')."\tIP range changed from $oldCoreDHCP to $coreDHCP\n",'a+');
+			}
+		
+			if($internalCoreIP!=$oldInternalCoreIP){
+				writeFile($GLOBALS['WebExecLogFile'],date('d-m-Y H:i:s')."\tIP changed from $oldInternalCoreIP to $internalCoreIP\n",'a+');
+			}
+			
+			if($isChanged==1){
+				// v-- THIS THING REBOOTS THE COMPUTER WITHOUT ASKING!!!
+				exec_batch_command('sudo -u root /usr/pluto/bin/InternalIPChange.sh');
+				// ^-- THIS THING REBOOTS THE COMPUTER WITHOUT ASKING!!!
+				$ipchanged_msg=' IP updated, please reboot.';
+			}
+		}
+		
 		// TODO: call a script who will set the domain and computer name
 		
 		$msg=($isChanged==1)?urlencode("Network settings updated.".@$ipchanged_msg):'No changes.';
