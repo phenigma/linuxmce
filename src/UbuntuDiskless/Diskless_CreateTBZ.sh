@@ -20,6 +20,7 @@ function trap_EXIT() {
 	umount -fl $TEMP_DIR/usr/pluto/deb-cache
 	umount -fl $TEMP_DIR/proc
 	umount -fl $TEMP_DIR/sys
+	umount -fl $TEMP_DIR/lib/modules/$(uname -r)/volatile
 
 	rm -rf $TEMP_DIR
 }
@@ -28,7 +29,7 @@ trap "trap_EXIT" EXIT
 
 
 function create_initial_root_with_debootstrap {
-	debootstrap "edgy" "$TEMP_DIR" "http://archive.ubuntu.com/ubuntu/"
+	debootstrap "$(lsb_release -c -s)" "$TEMP_DIR" "http://archive.ubuntu.com/ubuntu/"
 }
 
 function create_initial_root_with_archive {
@@ -217,6 +218,7 @@ chroot $TEMP_DIR apt-get -y install xserver-xorg-video-all
 umount $TEMP_DIR/usr/pluto/deb-cache
 umount $TEMP_DIR/sys
 umount $TEMP_DIR/proc
+umount $TEMP_DIR/lib/modules/$(uname -r)/volatile
 
 mv "$TEMP_DIR"/sbin/start-stop-daemon{.pluto-install,}
 mv "$TEMP_DIR"/usr/sbin/invoke-rc.d{.pluto-install,}
