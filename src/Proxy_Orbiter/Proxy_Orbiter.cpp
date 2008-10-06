@@ -629,7 +629,7 @@ string Proxy_Orbiter::PhonePost(string sURL, const vector<string>& vectHeaders, 
 		curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, sParams.length());
 		curl_easy_setopt(curl, CURLOPT_POST, 1); // set POST method 
 		curl_easy_setopt(curl, CURLOPT_VERBOSE, 1); 
-		curl_easy_setopt(curl, CURLOPT_PORT, 80); 
+		curl_easy_setopt(curl, CURLOPT_PORT, nPort); 
 
 		if(sUser != "")
 			curl_easy_setopt(curl, CURLOPT_USERPWD, Authenticate.c_str()); 
